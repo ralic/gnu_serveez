@@ -405,6 +405,8 @@ SVZ_TCP_CONNECT_DEFUN
 SVZ_TCP_DEFAULT_CONNECT_DEFUN
 SVZ_TCP_READ_SOCKET_DEFUN
 SVZ_TCP_WRITE_SOCKET_DEFUN
+SVZ_TCP_RECV_OOB_DEFUN
+SVZ_TCP_SEND_OOB_DEFUN
 
 @node Pipe connections, UDP sockets, TCP sockets, Client connections
 @subsection Pipe connections

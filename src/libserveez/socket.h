@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.19 2002/05/24 12:51:13 ela Exp $
+ * $Id: socket.h,v 1.20 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -132,6 +132,13 @@ struct svz_socket
   int (* read_socket) (svz_socket_t *sock);
 
   /*
+   * READ_SOCKET_OOB is run when urgent data has been detected on the 
+   * socket. By default it reads a single byte, stores it in OOB and passes
+   * it to the CHECK_REQUEST_OOB callback.
+   */
+  int (* read_socket_oob) (svz_socket_t *sock);
+
+  /*
    * WRITE_SOCKET is called when data is is valid in the output buffer
    * and the socket gets available for writing.  Normally, this simply
    * writes as much data as possible to the socket and removes it from
@@ -162,6 +169,12 @@ struct svz_socket
    * if it was, it should be handled and removed from the input buffer.
    */
   int (* check_request) (svz_socket_t *sock);
+
+  /*
+   * CHECK_REQUEST_OOB is called when urgent data has been read from the 
+   * socket. The received byte is stored in OOB.
+   */
+  int (* check_request_oob) (svz_socket_t *sock);
 
   /*
    * HANDLE_REQUEST gets called when the CHECK_REQUEST got
@@ -204,6 +217,10 @@ struct svz_socket
   int flood_points;		/* Accumulated flood points. */
   int flood_limit;		/* Limit of the above before kicking. */
 #endif
+
+  /* Out-of-band data for TCP protocol. This byte is used for both, 
+     receiving and sending. */
+  unsigned char oob;
 
   /* Set to non-zero @code{time()} value if the the socket is temporarily
      unavailable (EAGAIN). This is why we use O_NONBLOCK socket descriptors. */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.22 2002/06/02 16:22:27 ela Exp $
+ * $Id: guile-bin.c,v 1.23 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -313,7 +313,8 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
   if (idx < 0 || idx >= bin->size)
     SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
-  bin->data[idx] = (unsigned char) SCM_CHAR (value);
+  bin->data[idx] = (unsigned char)
+    (SCM_CHARP (value) ? SCM_CHAR (value) : SCM_NUM2INT (SCM_ARG3, value));
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.26 2002/05/24 12:51:12 ela Exp $
+ * $Id: guile-api.c,v 1.27 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -622,6 +622,15 @@ MAKE_SOCK_CALLBACK (trigger_func, "trigger")
 MAKE_SOCK_CALLBACK (idle_func, "idle")
 #undef FUNC_NAME
 
+/* With this procedure you can setup the @code{check-oob-request} callback
+   of the given socket structure @var{sock}.  The previous callback is 
+   replaced by the @var{proc} procedure and will be returned if there was
+   set any before.  The callback is run whenever urgent data (out-of-band)
+   has been detected on the socket. */
+#define FUNC_NAME "svz:sock:check-oob-request"
+MAKE_SOCK_CALLBACK (check_request_oob, "check-oob-request")
+#undef FUNC_NAME
+
 /* This functions returns the socket structure @var{sock}'s current 
    @code{idle-counter} value. If the optional argument @var{counter} is
    given, the function sets the @code{idle-counter}. Please have a look at the
@@ -1084,6 +1093,35 @@ guile_read_file (SCM port, SCM size)
 }
 #undef FUNC_NAME
 
+/* This procedure expects a TCP @code{#<svz-socket>} in @var{sock} and an 
+   exact number or single character in @var{oob}.  The byte in @var{oob} 
+   is sent as urgent (out-of-band) data through the underlying TCP stream.
+   The procedure returns @code{#t} on successful completion and otherwise
+   (either it failed to send the byte or the passed socket is not a TCP 
+   socket) @code{#f}. */
+#define FUNC_NAME "svz:sock:send-oob"
+static SCM
+guile_sock_send_oob (SCM sock, SCM oob)
+{
+  svz_socket_t *xsock;
+  int ret = -1;
+
+  /* Check the arguments. */
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  SCM_ASSERT_TYPE (SCM_EXACTP (oob) || SCM_CHARP (oob), 
+		   oob, SCM_ARG2, FUNC_NAME, "char or exact");
+
+  /* Send the oob byte through TCP sockets only. */
+  if (xsock->proto & PROTO_TCP)
+    {
+      xsock->oob = (unsigned char) (SCM_CHARP (oob) ? SCM_CHAR (oob) :
+				    SCM_NUM2INT (SCM_ARG2, oob));
+      ret = svz_tcp_send_oob (xsock);
+    }
+  return ((ret < 0) ? SCM_BOOL_F : SCM_BOOL_T);
+}
+#undef FUNC_NAME
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
@@ -1149,14 +1187,15 @@ guile_api_init (void)
 		      2, 1, 0, guile_coserver_rdns);
   scm_c_define_gsubr ("svz:coserver:ident",
 		      2, 1, 0, guile_coserver_ident);
-  scm_c_define_gsubr ("svz:read-file",
-		      2, 0, 0, guile_read_file);
+  scm_c_define_gsubr ("svz:read-file", 2, 0, 0, guile_read_file);
+  scm_c_define_gsubr ("svz:sock:send-oob", 2, 0, 0, guile_sock_send_oob);
 
   DEFINE_SOCK_CALLBACK ("svz:sock:trigger-condition",trigger_cond);
   DEFINE_SOCK_CALLBACK ("svz:sock:trigger",trigger_func);
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected",disconnected_socket);
   DEFINE_SOCK_CALLBACK ("svz:sock:kicked",kicked_socket);
   DEFINE_SOCK_CALLBACK ("svz:sock:idle",idle_func);
+  DEFINE_SOCK_CALLBACK ("svz:sock:check-oob-request",check_request_oob);
 }
 
 /* Finalize the API functions. */

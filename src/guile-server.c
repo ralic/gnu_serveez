@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.47 2002/05/31 14:34:21 ela Exp $
+ * $Id: guile-server.c,v 1.48 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -789,6 +789,22 @@ guile_func_trigger_func (svz_socket_t *sock)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
+}
+
+/* Wrapper for the socket check oob request callback. */
+static int
+guile_func_check_request_oob (svz_socket_t *sock)
+{
+  SCM ret, check_request_oob;
+  check_request_oob = guile_sock_getfunction (sock, "check-oob-request");
+
+  if (!SCM_UNBNDP (check_request_oob))
+    {
+      ret = guile_call (check_request_oob, 2, MAKE_SMOB (svz_socket, sock),
+			scm_int2num (sock->oob));
+      return guile_integer (SCM_ARGn, ret, -1);
+    }
+  return -1;
 }
 
 /* Set the @code{handle-request} member of the socket structure @var{sock} 

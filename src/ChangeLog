@@ -1,3 +1,12 @@
+2002-06-06  [ Ela ]  <ela@lkcc.org>
+
+	* guile-bin.c (guile_bin_set_x): Fixed a bug in argument 
+	handling (forgot to differentiate between char and exact 
+	number).
+
+	* guile-api.c (svz:sock:check-oob-request, svz:sock:send-oob):
+	New Guile procedures.
+
 2002-06-03  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/icecast-server.scm (icecast-id3-tag): 

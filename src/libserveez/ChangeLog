@@ -1,3 +1,14 @@
+2002-06-06  [ Ela ]  <ela@lkcc.org>
+
+	* server-loop.c (svz_check_sockets_MinGW, 
+	svz_check_sockets_select, svz_check_sockets_poll): Adapted the
+	recognition of urgent data (out-of-band) to each of the server
+	loops.
+
+	* tcp-socket.c (svz_tcp_recv_oob, svz_tcp_send_oob): Two new
+	library function which handle urgent (out-of-band) data on TCP
+	sockets.
+
 2002-05-31  [ Ela ]  <ela@lkcc.org>
 
 	* server.h (struct svz_servertype): Introduced reset callback.

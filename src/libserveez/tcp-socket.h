@@ -1,7 +1,7 @@
 /*
  * tcp-socket.h - TCP socket connection definition
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.h,v 1.4 2001/12/13 18:00:01 ela Exp $
+ * $Id: tcp-socket.h,v 1.5 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -37,6 +37,8 @@ SERVEEZ_API svz_socket_t *svz_tcp_connect __PARAMS ((unsigned long,
 SERVEEZ_API int svz_tcp_default_connect __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_tcp_read_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_tcp_write_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_tcp_recv_oob __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_tcp_send_oob __PARAMS ((svz_socket_t *));
 
 __END_DECLS
 

@@ -1,7 +1,7 @@
 /*
  * server-loop.c - server loop implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.6 2002/05/24 12:51:13 ela Exp $
+ * $Id: server-loop.c,v 1.7 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -67,6 +67,24 @@
 #include "libserveez/server-core.h"
 #include "libserveez/server-loop.h"
 
+#define SOCK_FILE_FUNCTIONALITY(sock) do {                 \
+  /* If socket is a file descriptor, then read it here. */ \
+  if (sock->flags & SOCK_FLAG_FILE)                        \
+    if (sock->read_socket)                                 \
+      if (sock->read_socket (sock))                        \
+	svz_sock_schedule_for_shutdown (sock);             \
+  } while (0)
+
+
+#define SOCK_TRIGGER_FUNCTIONALITY(sock) do {    \
+  /* Issue the trigger funcionality. */          \
+  if (sock->trigger_cond)                        \
+    if (sock->trigger_cond (sock))               \
+      if (sock->trigger_func)                    \
+	if (sock->trigger_func (sock))           \
+	  svz_sock_schedule_for_shutdown (sock); \
+  } while (0)
+
 #ifndef __MINGW32__
 
 /*
@@ -101,19 +119,10 @@ svz_check_sockets_select (void)
 	continue;
 
       /* If socket is a file descriptor, then read it here. */
-      if (sock->flags & SOCK_FLAG_FILE)
-	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      svz_sock_schedule_for_shutdown (sock);
-	}
+      SOCK_FILE_FUNCTIONALITY (sock);
 
       /* Issue the trigger funcionality. */
-      if (sock->trigger_cond)
-	if (sock->trigger_cond (sock))
-	  if (sock->trigger_func)
-	    if (sock->trigger_func (sock))
-	      svz_sock_schedule_for_shutdown (sock);
+      SOCK_TRIGGER_FUNCTIONALITY (sock);
 
       /* Handle pipes. */
       if (sock->flags & SOCK_FLAG_PIPE)
@@ -270,15 +279,20 @@ svz_check_sockets_select (void)
 		{
 		  svz_log (LOG_ERROR, "exception connecting socket %d\n",
 			   sock->sock_desc);
+		  svz_sock_error_info (sock);
+		  svz_sock_schedule_for_shutdown (sock);
+		  continue;
 		}
 	      else
 		{
-		  svz_log (LOG_ERROR, "exception on socket %d\n",
-			   sock->sock_desc);
+		  /* Handle out-of-band data correctly. */
+		  if (sock->read_socket_oob)
+		    if (sock->read_socket_oob (sock))
+		      {
+			svz_sock_schedule_for_shutdown (sock);
+			continue;
+		      }
 		}
-	      svz_sock_error_info (sock);
-	      svz_sock_schedule_for_shutdown (sock);
-	      continue;
 	    }
 	  
 	  /* Is socket readable ? */
@@ -399,19 +413,10 @@ svz_check_sockets_poll (void)
 	continue;
 
       /* process files */
-      if (sock->flags & SOCK_FLAG_FILE)
-	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      svz_sock_schedule_for_shutdown (sock);
-	}
+      SOCK_FILE_FUNCTIONALITY (sock);
 
       /* issue the trigger funcionality */
-      if (sock->trigger_cond)
-	if (sock->trigger_cond (sock))
-	  if (sock->trigger_func)
-	    if (sock->trigger_func (sock))
-	      svz_sock_schedule_for_shutdown (sock);
+      SOCK_TRIGGER_FUNCTIONALITY (sock);
 
       /* process pipes */
       if (sock->flags & SOCK_FLAG_PIPE)
@@ -495,15 +500,18 @@ svz_check_sockets_poll (void)
   /* go through all poll()ed structures */
   for (fd = 0; fd < nfds && polled != 0; fd++)
     {
+      /* count down the number of polled descriptors */
+      if (ufds[fd].revents != 0)
+	polled--;
+
       sock = sfds[fd];
       /* do not process killed connections */
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
 
       /* file descriptor ready for reading ? */
-      if (ufds[fd].revents & (POLLIN | POLLPRI))
+      if (ufds[fd].revents & POLLIN)
 	{
-	  polled--;
 	  if (sock->read_socket)
 	    if (sock->read_socket (sock))
 	      {
@@ -512,10 +520,18 @@ svz_check_sockets_poll (void)
 	      }
 	}
       
+      /* urgent data (out-of-band) on the file descriptor ? */
+      if (ufds[fd].revents & POLLPRI)
+	if (sock->read_socket_oob)
+	  if (sock->read_socket_oob (sock))
+	    {
+	      svz_sock_schedule_for_shutdown (sock);
+	      continue;
+	    }
+
       /* file descriptor ready for writing */
       if (ufds[fd].revents & POLLOUT)
 	{
-	  polled--;
 	  /* socket connected ? */
 	  if (sock->flags & SOCK_FLAG_CONNECTING)
 	    {
@@ -541,7 +557,6 @@ svz_check_sockets_poll (void)
       /* file descriptor caused some error */
       if (ufds[fd].revents & (POLLERR | POLLHUP | POLLNVAL))
 	{
-	  polled--;
 	  if (sock->flags & SOCK_FLAG_SOCK)
 	    {
 	      if (sock->flags & SOCK_FLAG_CONNECTING)
@@ -617,19 +632,10 @@ svz_check_sockets_MinGW (void)
 
 
       /* If socket is a file descriptor, then read it here. */
-      if (sock->flags & SOCK_FLAG_FILE)
-	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      svz_sock_schedule_for_shutdown (sock);
-	}
+      SOCK_FILE_FUNCTIONALITY (sock);
 
       /* Issue the trigger funcionality. */
-      if (sock->trigger_cond)
-	if (sock->trigger_cond (sock))
-	  if (sock->trigger_func)
-	    if (sock->trigger_func (sock))
-	      svz_sock_schedule_for_shutdown (sock);
+      SOCK_TRIGGER_FUNCTIONALITY (sock);
 
       /* Handle pipes. */
       if (sock->flags & SOCK_FLAG_PIPE)
@@ -754,15 +760,20 @@ svz_check_sockets_MinGW (void)
 		{
 		  svz_log (LOG_ERROR, "exception connecting socket %d\n",
 			   sock->sock_desc);
+		  svz_sock_error_info (sock);
+		  svz_sock_schedule_for_shutdown (sock);
+		  continue;
 		}
 	      else
 		{
-		  svz_log (LOG_ERROR, "exception on socket %d\n",
-			   sock->sock_desc);
+		  /* Handle out-of-band data correctly. */
+		  if (sock->read_socket_oob)
+		    if (sock->read_socket_oob (sock))
+		      {
+			svz_sock_schedule_for_shutdown (sock);
+			continue;
+		      }
 		}
-	      svz_sock_error_info (sock);
-	      svz_sock_schedule_for_shutdown (sock);
-	      continue;
 	    }
 	  
 	  /* Is socket readable ? */

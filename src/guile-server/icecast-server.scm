@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.5 2002/06/04 17:59:18 ela Exp $
+;; $Id: icecast-server.scm,v 1.6 2002/06/06 20:04:51 ela Exp $
 ;;
 
 ;; load convenience file
@@ -268,9 +268,9 @@
 	  (if (> size 128)
 	      (begin
 		;; read the last 128 bytes
-		(seek port -128 SEEK_END)
+		(fseek port -128 SEEK_END)
 		(set! buffer (svz:read-file port 128))
-		(seek port 0 SEEK_SET))))
+		(fseek port 0 SEEK_SET))))
 	(println "icecast: `" file "'is not a regular file"))
 
     (if (and size buffer (= (binary-length buffer) 128))
@@ -296,13 +296,13 @@
 	  (hash-set! data "user" user)))))
 
 ;; server type definitions
-(define-servertype! '(
+(define-servertype! `(
   (prefix          . "icecast")
   (description     . "guile icecast server")
-  (detect-proto    . icecast-detect-proto)
-  (init            . icecast-init)
-  (reset           . icecast-reset)
-  (connect-socket  . icecast-connect-socket)
+  (detect-proto    . ,icecast-detect-proto)
+  (init            . ,icecast-init)
+  (reset           . ,icecast-reset)
+  (connect-socket  . ,icecast-connect-socket)
   (configuration   . (
     (directory       . (string  #t "/"))
     (server          . (string  #t "serveez: guile icecast server"))

@@ -135,6 +135,8 @@ details.
 
 SVZ:SOCK?_DEFUN
 SVZ:SOCK:CHECK-REQUEST_DEFUN
+SVZ:SOCK:CHECK-OOB-REQUEST_DEFUN
+SVZ:SOCK:SEND-OOB_DEFUN
 SVZ:SOCK:HANDLE-REQUEST_DEFUN
 SVZ:SOCK:BOUNDARY_DEFUN
 SVZ:SOCK:FLOODPROTECT_DEFUN
@@ -472,4 +474,19 @@ returns @code{#t}.  The callback can be set up with the procedure
 connection down.  A zero return value indicates success.  This callback
 can be used to perform connection related updates, e.g. you can ensure
 a certain send buffer fill.
+
+@item (check-oob-request #<svz-socket> oob-byte)
+This callback is run whenever urgent data (out-of-band) has been detected 
+on a socket.  Initially this event is ignored and the callback can be set 
+up with the procedure @code{(svz:sock:check-oob-request)}.  The 
+@var{oob-byte} argument is a number containing the received out-of-band
+data byte ranging from 0 to 255.  If the callback returns non-zero the
+connection will be shutdown.  A zero return value indicates success.  You
+can use @code{(svz:sock:send-oob)} to send a single out-of-band data byte.
+
+@strong{Please note}:
+The urgent data is not supported by all operating systems.  Also it does
+not work for all types of network protocols.  We verified it to be working
+for TCP streams on GNU/Linux 2.x.x and Windows 95;  let us know if/how it 
+works on other platforms.
 @end table

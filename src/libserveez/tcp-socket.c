@@ -1,7 +1,7 @@
 /*
  * tcp-socket.c - TCP socket connection implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.11 2002/03/09 19:23:25 ela Exp $
+ * $Id: tcp-socket.c,v 1.12 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -189,7 +189,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
 	    return ret;
 	}
     }
-  /* The socket was `select ()'ed but there is no data. */
+  /* The socket was `select()'ed but there is no data. */
   else
     {
       svz_log (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
@@ -197,6 +197,70 @@ svz_tcp_read_socket (svz_socket_t *sock)
     }
   
   return 0;
+}
+
+/*
+ * This function is the default @code{read_socket_oob()} callback for
+ * TCP sockets.  It stores the received out-of-band data (a single byte 
+ * only) in @code{sock->oob} and runs the @code{check_request_oob()} callback 
+ * if it is set properly.  Returns -1 on failure and zero otherwise.  The
+ * function does not do anything if the underlying operating system does not
+ * support urgent data and simply returns -1.
+ */
+int
+svz_tcp_recv_oob (svz_socket_t *sock)
+{
+#ifdef MSG_OOB
+  SOCKET desc = sock->sock_desc;
+  int num_read, ret;
+
+  num_read = recv (desc, &sock->oob, 1, MSG_OOB);
+  if (num_read < 0)
+    {
+      svz_log (LOG_ERROR, "tcp: recv-oob: %s\n", NET_ERROR);
+      return -1;
+    }
+  else if (num_read > 0)
+    {
+      if (sock->check_request_oob)
+	if ((ret = sock->check_request_oob (sock)) != 0)
+	  return ret;
+    }
+  return 0;
+#else /* not MSG_OOB */
+  return -1;
+#endif /* not MSG_OOB */
+}
+
+/*
+ * If the underlying operating system supports urgent data (out-of-band) in
+ * TCP streams this function tries to send the byte in @code{sock->oob} 
+ * through the socket structure @var{sock} as out-of-band data.  The function
+ * returns zero on success and -1 otherwise (also if urgent data is not 
+ * supported).
+ */
+int
+svz_tcp_send_oob (svz_socket_t *sock)
+{
+#ifdef MSG_OOB
+  SOCKET desc = sock->sock_desc;
+  int num_written;
+
+  num_written = send (desc, &sock->oob, 1, MSG_OOB);
+  if (num_written < 0)
+    {
+      svz_log (LOG_ERROR, "tcp: send-oob: %s\n", NET_ERROR);
+      return -1;
+    }
+  else if (num_written == 0)
+    {
+      svz_log (LOG_ERROR, "tcp: send-oob: unable to send `0x%02x'\n", 
+	       sock->oob);
+    }
+  return 0;
+#else /* not MSG_OOB */
+  return -1;
+#endif /* not MSG_OOB */
 }
 
 /*

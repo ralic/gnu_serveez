@@ -1,7 +1,7 @@
 /*
  * socket.c - socket management implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.22 2002/05/24 12:51:13 ela Exp $
+ * $Id: socket.c,v 1.23 2002/06/06 20:04:51 ela Exp $
  *
  */
 
@@ -383,6 +383,7 @@ svz_sock_alloc (void)
   sock->pid = INVALID_HANDLE;
 
   sock->read_socket = svz_tcp_read_socket;
+  sock->read_socket_oob = svz_tcp_recv_oob;
   sock->write_socket = svz_tcp_write_socket;
   sock->check_request = svz_sock_detect_proto;
   sock->disconnected_socket = svz_sock_default_disconnect;
