@@ -1,5 +1,11 @@
 2000-10-01  [ Ela ]  <ela@lkcc.org>
 
+	* util.c: Modifications for compiling on AIX without unwanted
+	warnings.
+
+	* nut-server/gnutella.c (INADDR_NONE): Define this value if
+	it is not within <netinet/in.h> (Solaris).
+
 	* icmp-socket.c (icmp_read_socket): Started to implement
 	a reader for icmp sockets. Not yet working...
 

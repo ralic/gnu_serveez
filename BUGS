@@ -32,13 +32,13 @@ Description: The named pipes on Win32 do not work properly yet.
 
 Bug:	     B0014
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed (2000-10-01/mgrabmue)
 Date:	     2000-09-20
 Description: Serveez does not run on i64 Linux.
 
 Bug:	     B0013
 From:	     ela <stefan@lkcc.org>
-State:       fixed
+State:       unfixed
 Date:	     2000-09-12
 Description: Bigger CGI scripts under Win95 will lock the server. Bigger
 	     means more content production here. This happened with batch
@@ -57,7 +57,7 @@ Description: If the server has many open connections and much traffic on
 
 Bug:	     B0011
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed (2000-09-22/ela)
 Date:	     2000-09-12
 Description: On some Linux's the named pipe behaviour is not as it is
 	     documented. See `man 4 fifo' for more information.
@@ -71,7 +71,7 @@ Description: ident coserver dies because of queue overrun. thus the
 
 Bug:	     B0009
 From:	     ela <stefan@lkcc.org>
-State:       fixed (somewhen/raimi)
+State:       fixed (2000-07-06/raimi)
 Date:	     2000-06-21
 Description: filesize 0 for http files is not handled specifically.
              http directory listing does not show the actual directory.

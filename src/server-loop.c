@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.8 2000/09/28 21:12:53 ela Exp $
+ * $Id: server-loop.c,v 1.9 2000/10/01 22:40:10 ela Exp $
  *
  */
 
@@ -26,9 +26,21 @@
 # include <config.h>
 #endif
 
+#ifdef _AIX
+# undef _NO_PROTO
+# ifndef _USE_IRS
+#  define _USE_IRS 1
+# endif
+# define _XOPEN_SOURCE_EXTENDED 1
+# define _ALL_SOURCE 1
+#endif /* _AIX */
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
@@ -36,10 +48,11 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-#include <errno.h>
-#include <string.h>
 #if HAVE_SYS_POLL_H
 # include <sys/poll.h>
+#endif
+#if HAVE_STRINGS_H
+# include <strings.h>
 #endif
 
 #ifdef __MINGW32__

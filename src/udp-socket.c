@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.5 2000/09/20 08:29:14 ela Exp $
+ * $Id: udp-socket.c,v 1.6 2000/10/01 22:40:10 ela Exp $
  *
  */
 
@@ -320,7 +320,7 @@ udp_connect (unsigned long host, unsigned short port)
   if (connect (sockfd, (struct sockaddr *) &client,
 	       sizeof (client)) == -1)
     {
-      log_printf (LOG_NOTICE, "connect: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
       closesocket (sockfd);
       return NULL;
     }

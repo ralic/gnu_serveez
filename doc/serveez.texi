@@ -102,7 +102,7 @@ too much about that computer language we delivered an example
 configuration file in the @file{data/} directory.
 
 Generally you can determine special variables in this file and you have
-to instanciated the servers you actually want to run. The following
+to instanciate the servers you actually want to run. The following
 example shows how do you setup a server whose short name is @samp{xxx}.
 The @samp{?} is the instance number of that server. You can define
 more than one @samp{xxx-server}, of course. The body of such a server
@@ -1505,6 +1505,7 @@ Serveez has been build and tested successfully.
 @item FreeBSD 4.0 on Alpha
 @item Linux 2.x.x on Intel
 @item Linux 2.x.x on Alpha
+@item Linux 2.4.0-xxx on i64 (Itanium prototype)
 @item Solaris 2.6, 2.7 on Sparc 32, Sparc 64
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS6000

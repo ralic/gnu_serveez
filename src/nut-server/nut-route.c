@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.6 2000/09/08 07:45:18 ela Exp $
+ * $Id: nut-route.c,v 1.7 2000/10/01 22:40:10 ela Exp $
  *
  */
 
@@ -65,7 +65,8 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   key = extract = p = xstrdup (query);
   while (*p)
     {
-      if (isalnum (*p)) *extract++ = isupper (*p) ? tolower (*p) : *p;
+      if (isalnum ((byte) *p)) 
+	*extract++ = isupper ((byte) *p) ? tolower ((byte) *p) : *p;
       p++;
     }
   *extract = '\0';

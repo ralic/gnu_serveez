@@ -20,13 +20,22 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.27 2000/09/26 18:08:52 ela Exp $
+ * $Id: util.c,v 1.28 2000/10/01 22:40:10 ela Exp $
  *
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
+
+#ifdef _AIX
+# undef _NO_PROTO
+# ifndef _USE_IRS
+#  define _USE_IRS 1
+# endif
+# define _XOPEN_SOURCE_EXTENDED 1
+# define _ALL_SOURCE 1
+#endif /* _AIX */
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -44,6 +53,9 @@
 #endif
 #if HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#if HAVE_STRINGS_H
+# include <strings.h>
 #endif
 
 #ifndef __MINGW32__
@@ -220,7 +232,7 @@ util_tolower (char *str)
 
   while (*p)
     {
-      *p = isupper (*p) ? tolower (*p) : *p;
+      *p = isupper ((byte) *p) ? tolower ((byte) *p) : *p;
       p++;
     }
   return str;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.12 2000/09/20 08:29:14 ela Exp $
+ * $Id: connect.c,v 1.13 2000/10/01 22:40:10 ela Exp $
  *
  */
 
@@ -110,12 +110,15 @@ sock_connect (unsigned long host, unsigned short port)
   if (connect (sockfd, (struct sockaddr *) &client,
 	       sizeof (client)) == -1)
     {
-      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
       if (last_errno != SOCK_INPROGRESS && last_errno != SOCK_UNAVAILABLE)
 	{
+	  log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
 	  closesocket (sockfd);
 	  return NULL;
 	}
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+#endif
     }
 
   /*
@@ -156,9 +159,14 @@ default_connect (socket_t sock)
     }
   if (error)
     {
-      log_printf (LOG_ERROR, "connect()ing: %s\n", NET_ERROR);
       if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
-	return -1;
+	{
+	  log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+	  return -1;
+	}
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+#endif
       return 0;
     }
 

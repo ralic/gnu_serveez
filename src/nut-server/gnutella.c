@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.21 2000/09/20 08:29:15 ela Exp $
+ * $Id: gnutella.c,v 1.22 2000/10/01 22:40:10 ela Exp $
  *
  */
 
@@ -58,6 +58,10 @@
 #endif
 #ifdef __MINGW32__
 # define mkdir(path, mode) mkdir (path)
+#endif
+
+#ifndef INADDR_NONE
+# define INADDR_NONE 0xffffffff
 #endif
 
 #include "alloc.h"
