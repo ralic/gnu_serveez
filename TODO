@@ -33,7 +33,7 @@ unfixed) have a look at the file BUGS.
 - IP address representation must be unsigned long everywhere.
 - Rechain socket list to avoid starving of chain end.
 	- Convert all protocols to new scheme.
-	- support local sizzle installations ( sizzle-config )
+	- support local sizzle installations (sizzle-config)
 	- local ip addresses for portcfg
 	- List of local ip addresses on supported systems.
 - HTTP: .htaccess, DefaultType, TypesConfig, SERVER_NAME 

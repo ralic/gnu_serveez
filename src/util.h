@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.11 2000/07/19 14:12:33 ela Exp $
+ * $Id: util.h,v 1.12 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -84,7 +84,7 @@ void log_printf (int level, const char *format, ...);
 #endif
 
 void set_log_file (FILE *file);
-int dump_request (FILE *out, char * action, int from, char * req, int len);
+int util_hexdump (FILE *out, char *, int, char *, int, int);
 char *util_inet_ntoa (unsigned long ip);
 char *util_itoa (unsigned int);
 unsigned int util_atoi (char *);

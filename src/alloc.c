@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.8 2000/07/25 16:24:26 ela Exp $
+ * $Id: alloc.c,v 1.9 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -203,25 +203,18 @@ xfree (void * ptr)
 void
 xheap (void)
 {
-  char **ptr, p;
-  unsigned n, i;
+  char **ptr;
+  unsigned n;
   unsigned *up;
-  
+
   if ((ptr = (char **)hash_values (heap)) != NULL)
     {
       for (n = 0; n < (unsigned)hash_size (heap); n++)
 	{
 	  up = (unsigned *)ptr[n];
 	  up -= 2;
-	  printf ("heap ptr %p (size: %u) not released.\n", ptr[n], *up);
-	  for (i = 0; i < *up && i < 64; i++)
-	    {
-	      if (ptr[n][i] >= ' ')
-		printf ("%c", ptr[n][i]);
-	      else
-		printf ("{0x%02x}", (unsigned char)ptr[n][i]);
-	    }
-	  printf ("\n");
+	  util_hexdump (stdout, "unreleased heap", (int) ptr[n],
+			ptr[n], *up, 256);
 	}
       hash_xfree (ptr);
     }

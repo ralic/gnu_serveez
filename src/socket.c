@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.15 2000/07/21 21:19:30 ela Exp $
+ * $Id: socket.c,v 1.16 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -101,7 +101,7 @@ default_write (socket_t sock)
   num_written = send (desc, sock->send_buffer, do_write, 0);
 
 #if 0
-  dump_request(stdout, "sent", desc, sock->send_buffer, num_written);
+  util_hexdump (stdout, "sent", desc, sock->send_buffer, num_written, 0);
 #endif
 
   /* Some data has been written. */
@@ -213,9 +213,9 @@ default_read (socket_t sock)
 #endif /* ENABLE_FLOOD_PROTECTION */
 
 #if 0
-      dump_request (stdout, "received", desc,
+      util_hexdump (stdout, "received", desc,
 		    sock->recv_buffer + sock->recv_buffer_fill,
-		    num_read);
+		    num_read, 0);
 #endif
 
       sock->recv_buffer_fill += num_read;

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.12 2000/07/19 14:12:33 ela Exp $
+ * $Id: util.c,v 1.13 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -110,24 +110,48 @@ set_log_file (FILE * file)
 }
 
 /*
- * Dump a request to a FILE stream.
+ * Dump a request buffer to a FILE stream.
  */
+#define MAX_DUMP_LINE 16 /* bytes per line */
 int
-dump_request (FILE * out, char * action, int from, char * req, int len)
+util_hexdump (FILE *out,    /* output FILE stream */
+	      char *action, /* hex dump description */
+	      int from,     /* who created the dumped data */
+	      char *buffer, /* the buffer to dump */
+	      int len,      /* length of that buffer */
+	      int max)      /* maximum amount of bytes to dump (0 = all) */
 {
-  int x;
+  int row, col, x, max_col;
 
-  fprintf (out, "%s[%d,%d,'", action, from, len);
-  for (x = 0; x < len && x < 1000; x++)
-    if (req[x] >= ' ')
-      fprintf (out, "%c", req[x]);
-    else
-      fprintf (out, "{0x%02X}", req[x]);
-  if (x < len)
-    fprintf (out, "...");
-  fprintf (out, "']\n");
+  if (!max) max = len;
+  if (max > len) max = len;
+  max_col = max / MAX_DUMP_LINE;
+  if ((max_col % MAX_DUMP_LINE) != 0) max_col++;
+    
+  fprintf (out, "%s [ FROM:%d SIZE:%d ]\n", action, from, len);
+
+  for (x = row = 0; row < max_col && x < max; row++)
+    {
+      /* print hexdump */
+      fprintf (out, "%04X   ", x);
+      for (col = 0; col < MAX_DUMP_LINE; col++, x++)
+	{
+	  if (x < max)
+	    fprintf (out, "%02X ", (unsigned char)buffer[x]);
+	  else
+	    fprintf (out, "   ");
+	}
+      /* print character representation */
+      x -= MAX_DUMP_LINE;
+      fprintf (out, "  ");
+      for (col = 0; col < MAX_DUMP_LINE && x < max; col++, x++)
+	{
+	  fprintf (out, "%c", buffer[x] >= ' ' ? buffer[x] : '.');
+	}
+      fprintf (out, "\n");
+    }
+
   fflush (out);
-
   return 0;
 }
 

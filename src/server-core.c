@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.13 2000/07/21 21:19:30 ela Exp $
+ * $Id: server-core.c,v 1.14 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -621,7 +621,7 @@ check_sockets (void)
 
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
-	  /* Is the socket descriptor unavailable ? */
+	  /* Is the socket descriptor currently unavailable ? */
 	  if (sock->unavailable)
 	    {
 	      if (time (NULL) >= sock->unavailable)
@@ -629,14 +629,14 @@ check_sockets (void)
 	    }
 
 	  /* Put every client's socket into EXCEPT and READ. */
+	  FD_SET (sock->sock_desc, &except_fds);
+	  FD_SET (sock->sock_desc, &read_fds);
+	  if (sock->sock_desc > (SOCKET)nfds)
+	    nfds = sock->sock_desc;
+
+	  /* Put a socket into WRITE if necessary and possible. */
 	  if (!sock->unavailable)
 	    {
-	      FD_SET (sock->sock_desc, &except_fds);
-	      FD_SET (sock->sock_desc, &read_fds);
-	      if (sock->sock_desc > (SOCKET)nfds)
-		nfds = sock->sock_desc;
-
-	      /* Put a socket into WRITE if necessary and possible. */
 	      if (sock->send_buffer_fill > 0)
 		FD_SET (sock->sock_desc, &write_fds);
 	    }
@@ -648,7 +648,7 @@ check_sockets (void)
   /*
    * Adjust timeout value, so we won't wait longer than we want.
    */
-  wait.tv_sec = next_notify_time - time(NULL);
+  wait.tv_sec = next_notify_time - time (NULL);
   if (wait.tv_sec < 0) wait.tv_sec = 0;
   wait.tv_usec = 0;
 

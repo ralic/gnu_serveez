@@ -1,3 +1,13 @@
+2000-07-26  [ Ela ]  <ela@lkcc.org>
+
+	* udp-socket.c (udp_read_socket): Default reader for
+	udp sockets.
+	(udp_write_socket): Default writer for udp sockets.
+
+	* util.c (util_hexdump): This hexdump function dumps any
+	kind of memory to a given file stream. It replaces the
+	for dump_request function.
+
 2000-07-25  [ Ela ]  <ela@lkcc.org>
 
 	* alloc.c (xheap): Made up some routines that save all

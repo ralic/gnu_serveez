@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.12 2000/07/25 16:24:27 ela Exp $
+ * $Id: irc-proto.c,v 1.13 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -656,7 +656,15 @@ irc_handle_request (socket_t sock, char *request, int len)
 
   irc_parse_request (request, len);
 
-  for(n = 0; irc_callback[n].request; n++)
+  /* 
+   * FIXME: server handling not yet done. 
+   * Should be alike: get irc client by message prefix, otherwise special
+   *                  server request handling
+   */
+  if (sock->userflags & IRC_FLAG_SERVER)
+    return 0;
+
+  for (n = 0; irc_callback[n].request; n++)
     {
       if (!util_strcasecmp (irc_callback[n].request, irc_request.request))
 	{
@@ -669,7 +677,8 @@ irc_handle_request (socket_t sock, char *request, int len)
     }
 
   irc_printf (sock, ":%s %03d %s " ERR_UNKNOWNCOMMAND_TEXT "\n",
-	      cfg->host, ERR_UNKNOWNCOMMAND, client->nick,
+	      cfg->host, ERR_UNKNOWNCOMMAND, 
+	      client->nick ? client->nick : "",
 	      irc_request.request);
 
   return 0;

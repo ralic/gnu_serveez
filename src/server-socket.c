@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.17 2000/07/19 14:12:33 ela Exp $
+ * $Id: server-socket.c,v 1.18 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -51,6 +51,7 @@
 #include "alloc.h"
 #include "socket.h"
 #include "pipe-socket.h"
+#include "udp-socket.h"
 #include "server-core.h"
 #include "serveez.h"
 #include "server-socket.h"
@@ -103,6 +104,7 @@ server_create (portcfg_t *cfg)
   socket_t sock;             /* socket structure */
   int stype;                 /* socket type (TCP or UDP) */
   int optval;                /* value for setsockopt() */
+  int ptype;                 /* protocol type (IP/UDP ?) */
 
   /* create listening pipe server ? */
   if (cfg->proto & PROTO_PIPE)
@@ -128,17 +130,20 @@ server_create (portcfg_t *cfg)
 	{
 	case PROTO_TCP:
 	  stype = SOCK_STREAM;
+	  ptype = IPPROTO_IP;
 	  break;
 	case PROTO_UDP:
 	  stype = SOCK_DGRAM;
+	  ptype = IPPROTO_UDP;
 	  break;
 	default:
 	  stype = SOCK_STREAM;
+	  ptype = IPPROTO_IP;
 	  break;
 	}
 
       /* First, create a server socket for listening.  */
-      if ((server_socket = socket (AF_INET, stype, 0)) == INVALID_SOCKET)
+      if ((server_socket = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
 	{
 	  log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
 	  return NULL;
@@ -170,13 +175,6 @@ server_create (portcfg_t *cfg)
 	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
-
-      /*
-	memset (&server, 0, sizeof (server));
-	server.sin_family = AF_INET;
-	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons (cfg->port);
-      */
 
       /* Second, bind the socket to a port. */
       if (bind (server_socket, (struct sockaddr *) cfg->localaddr, 
@@ -214,8 +212,6 @@ server_create (portcfg_t *cfg)
 	}
     }
 
-  sock->check_request = default_detect_proto; 
-
   /* 
    * Free the receive and send buffers not needed for TCP server
    * sockets and PIPE server.
@@ -228,6 +224,7 @@ server_create (portcfg_t *cfg)
       sock->send_buffer_size = 0;
       sock->recv_buffer = NULL;
       sock->send_buffer = NULL;
+      sock->check_request = default_detect_proto; 
     }
 
   /* Setup the socket structure. */
@@ -256,7 +253,15 @@ server_create (portcfg_t *cfg)
     }
   else
     {
-      sock->read_socket = server_accept_socket;
+      if (cfg->proto & PROTO_TCP)
+	sock->read_socket = server_accept_socket;
+      else
+	{
+	  sock->read_socket = udp_read_socket;
+	  sock->write_socket = udp_write_socket;
+	  sock->check_request = NULL;
+	}
+
       log_printf (LOG_NOTICE, "listening on %s port %s:%d\n",
 		  cfg->proto & PROTO_TCP ? "tcp" : "udp",
 		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "*" : 

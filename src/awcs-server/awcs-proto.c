@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.12 2000/07/25 16:24:26 ela Exp $
+ * $Id: awcs-proto.c,v 1.13 2000/07/26 14:56:08 ela Exp $
  *
  */
 
@@ -670,7 +670,8 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
   awcs_config_t *cfg = sock->cfg;
 
 #if 0
-  dump_request(stdout, "handling", sock->sock_desc, request, request_len);
+  util_hexdump (stdout, "handling", sock->sock_desc, 
+		request, request_len, 1000);
 #endif
 
   if (!cfg->server)
@@ -911,10 +912,9 @@ awcs_detect_proto (void *config, socket_t sock)
   int len = 0;
 
 #if 0
-  log_printf (LOG_NOTICE, "awcs: in awcs_detect_proto\n");
-  dump_request (stdout, "buf", sock->sock_desc,
-		sock->recv_buffer, sock->recv_buffer_fill);
-#endif /* 0 */
+  util_hexdump (stdout, "detecting", sock->sock_desc,
+		sock->recv_buffer, sock->recv_buffer_fill, 0);
+#endif
 
   if (sock->recv_buffer_fill >= MASTER_DETECTION && 
       !memcmp (sock->recv_buffer, AWCS_MASTER, MASTER_DETECTION))
