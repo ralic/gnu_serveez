@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.26 2000/11/23 01:15:27 ela Exp $
+ * $Id: gnutella.c,v 1.27 2000/12/29 13:05:50 ela Exp $
  *
  */
 
@@ -236,7 +236,6 @@ nut_connect_timeout (socket_t sock)
    */
   if (sock->userflags & NUT_FLAG_DNLOAD)
     {
-      /* FIXME: Send a push request ! */
       nut_send_push (sock->cfg, sock->data);
     }
   return -1;

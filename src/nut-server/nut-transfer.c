@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.24 2000/12/29 12:54:18 ela Exp $
+ * $Id: nut-transfer.c,v 1.25 2000/12/29 13:05:50 ela Exp $
  *
  */
 
@@ -306,8 +306,12 @@ nut_disconnect_transfer (socket_t sock)
 	    log_printf (LOG_ERROR, "nut: unlink: %s\n", SYS_ERROR);
 	}
       
-      /* FIXME: Send a push request ! */
-      if (sock->userflags & NUT_FLAG_DNLOAD && !(sock->userflags & NUT_FLAG_HDR))
+      /* 
+       * send a push request if the connection process itself has been 
+       * aborted (refused or no route)
+       */
+      if (sock->userflags & NUT_FLAG_DNLOAD && 
+	  !(sock->userflags & NUT_FLAG_HDR))
 	{
 	  nut_send_push (sock->cfg, sock->data);
 	}
@@ -472,7 +476,6 @@ nut_check_given (socket_t sock)
 
       /* get original push request */
       *p = '\0';
-	printf ("key received: %s\n", pushkey);
       transfer = (nut_transfer_t *) hash_get (cfg->push, pushkey);
       if (transfer == NULL)
 	{
@@ -513,8 +516,8 @@ nut_check_given (socket_t sock)
       sock->file_desc = fd;
       file = file + strlen (file);
       while (*file != '/' && *file != '\\' && file > transfer->file) file--;
-	if (*file == '/' || *file == '\\')
-		file++;
+      if (*file == '/' || *file == '\\') file++;
+
       /* send HTTP request to the listening gnutella host */
       sock_printf (sock, NUT_GET "%d/%s " NUT_HTTP "1.0\r\n",
 		   transfer->index, file);
@@ -588,7 +591,6 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       memcpy (trans, transfer, sizeof (nut_transfer_t));
       trans->file = xstrdup (transfer->file);
       hash_put (cfg->push, pushkey, trans);
-	 printf ("key sent: %s\n", pushkey);
       xfree (pushkey);
 
 #if ENABLE_DEBUG

@@ -1,3 +1,15 @@
+2000-12-29  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/nut-transfer.c (nut_send_push): The keys in
+	the push request hash table now correspond when received/sent.
+
+	* nut-server/nut-transfer.c (nut_check_given): Fixed HTTP
+	request header format.
+
+	* nut-server/nut-transfer.c (nut_disconnect_transfer): Send
+	a push request here if the connection process itself has
+	been aborted (as is when connecting firewalls or gateways).
+
 2000-12-18  [ Ela ]  <ela@lkcc.org>
 
 	* irc-core/irc-core.c (irc_string_regex): Fixed spelling
