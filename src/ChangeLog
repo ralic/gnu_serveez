@@ -1,3 +1,11 @@
+2002-05-05  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.c (main): Close stdin, stdout, stderr if these are 
+	tty's only.
+
+	* guile.c (guile_eval_file): Inhibit usage of the stdin file
+	descriptor for configuration input if it is actually closed.
+
 2002-03-27  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (guile_sock_send_buffer): New Guile procedure 

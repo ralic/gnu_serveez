@@ -1,3 +1,8 @@
+2002-05-05  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.c (svz_coserver_closeall): Close file,
+	socket and pipe descriptors if these are not {0,1}.
+
 2002-03-09  [ Ela ]  <ela@lkcc.org>
 
 	* tcp-socket.c (svz_tcp_connect): Setting up the `check_request'

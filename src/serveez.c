@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.49 2002/02/14 03:17:43 raimi Exp $
+ * $Id: serveez.c,v 1.50 2002/05/05 08:36:41 ela Exp $
  *
  */
 
@@ -201,9 +201,12 @@ main (int argc, char *argv[])
       if (options->loghandle == stderr)
 	svz_log_setfile (NULL);
       /* Close stdin, stdout and stderr. */
-      close (0);
-      close (1);
-      close (2);
+      if (isatty (fileno (stdin)))
+	close (fileno (stdin));
+      if (isatty (fileno (stdout)))
+	close (fileno (stdout));
+      if (isatty (fileno (stderr)))
+	close (fileno (stderr));
 #else /* __MINGW32__ */
       if (svz_windoze_start_daemon (argv[0]) == -1)
 	exit (1);
