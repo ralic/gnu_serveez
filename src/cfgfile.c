@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.5 2000/06/18 16:25:19 ela Exp $
+ * $Id: cfgfile.c,v 1.6 2000/07/04 09:50:34 raimi Exp $
  *
  */
 
@@ -204,14 +204,8 @@ load_config(char *cfgfilename, int argc, char **argv)
 	}
       else
 	{
-	  /* We use malloc here because this string cannot be leaked later */
 	  *(char**)configs[i].location =
-	    malloc(strlen(configs[i].string_buffer) + 1);
-	  if ( NULL == (char**)configs[i].location )
-	    {
-	      fprintf(stderr, "Out of mem :-(\n");
-	      return -1;
-	    }
+	    xpmalloc(strlen(configs[i].string_buffer) + 1);
 
 	  strcpy(*(char**)configs[i].location, configs[i].string_buffer);
 	  xfree(configs[i].string_buffer);

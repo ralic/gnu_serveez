@@ -1,3 +1,8 @@
+2000-07-04  [ RAIMI ]  <raimi@lkcc.org>
+
+	* interface.c (list_local_interfaces): made work partly under AIX.
+	interfaces still get listed multiple times but they get listed.
+
 2000-07-01  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (coserver_init): This routine is 

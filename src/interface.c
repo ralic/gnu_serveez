@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.3 2000/06/30 15:05:39 ela Exp $
+ * $Id: interface.c,v 1.4 2000/07/04 09:50:34 raimi Exp $
  *
  */
 
@@ -68,7 +68,7 @@
  * The local interface list is requested by some "unrevealed"
  * WinSocket-Routine called "WsControl".
  * Works with: Win95, Win98
- * Or we try using the IP Helper API. Works with WinNT4x.
+ * Or we try using the IP Helper API. Works with WinNT4x / Win2k.
  */
 
 WsControlProc WsControl = NULL;
@@ -453,7 +453,21 @@ list_local_interfaces (void)
     {
       ifc.ifc_len = sizeof (struct ifreq) * numreqs;
       ifc.ifc_buf = xrealloc (ifc.ifc_buf, ifc.ifc_len);
-      
+
+
+      /**
+       * On newer AIXes we cannot use SIOCGICONF anymore, although it is
+       * present. The data structure returned is bogus. Using OSIOCGIFCONF.
+       */
+#if defined (OSIOCGIFCONF)
+      if (ioctl (fd, OSIOCGIFCONF, &ifc) < 0)
+	{
+	  perror ("OSIOCGIFCONF");
+	  close (fd);
+	  free (ifc.ifc_buf);
+	  return;	  
+	}
+#else /* OSIOCGIFCONF */
       if (ioctl (fd, SIOCGIFCONF, &ifc) < 0) 
 	{
 	  perror ("SIOCGIFCONF");
@@ -461,6 +475,7 @@ list_local_interfaces (void)
 	  free (ifc.ifc_buf);
 	  return;
 	}
+#endif /* OSIOCGIFCONF */
 
       if ((unsigned) ifc.ifc_len == sizeof (struct ifreq) * numreqs) 
 	{
