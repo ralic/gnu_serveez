@@ -184,6 +184,9 @@
 /* Define if you have the <ws2tcpip.h> header file.  */
 #define HAVE_WS2TCPIP_H 1
 
+/* Define if you have the <zlib.h> header file.  */
+/* #undef HAVE_ZLIB_H */
+
 /* Define if your processor stores words with the most significant 
    byte first (like Motorola and SPARC, unlike Intel and VAX). */
 /* #undef WORDS_BIGENDIAN */
@@ -277,6 +280,9 @@
 
 /* Define if you have the dld_link function. */
 /* #undef HAVE_DLD_LINK */
+
+/* Define if you have the zlib library. */
+/* #undef HAVE_ZLIB */
 
 /* Define if Solaris provides the kstat library. */
 /* #undef HAVE_LIBKSTAT */

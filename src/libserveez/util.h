@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.16 2001/09/27 15:47:36 ela Exp $
+ * $Id: util.h,v 1.17 2001/10/08 13:02:54 ela Exp $
  *
  */
 
@@ -123,7 +123,7 @@ SERVEEZ_API char *svz_hstrerror __P ((void));
   ((unsigned long) ((void *) (p)))
 
 #ifdef __MINGW32__
-# define INVALID_HANDLE    NULL
+# define INVALID_HANDLE    INVALID_HANDLE_VALUE
 # define LEAST_WAIT_OBJECT 1
 # define SOCK_UNAVAILABLE  WSAEWOULDBLOCK
 # define SOCK_INPROGRESS   WSAEINPROGRESS

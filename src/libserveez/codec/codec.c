@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.1 2001/10/07 17:10:28 ela Exp $
+ * $Id: codec.c,v 1.2 2001/10/08 13:02:54 ela Exp $
  *
  */
 
@@ -66,6 +66,32 @@ svz_codec_get (char *description, int type)
 	return codec;
     }
   return NULL;
+}
+
+/* Prints the text representation of the list of known codecs registered 
+   within the core library. This includes all encoder and decoder once ran
+   through @code{svz_codec_register()}. */
+void
+svz_codec_list (void)
+{
+  int n;
+  svz_codec_t *codec;
+
+  fprintf (stderr, "--- list of available codecs ---");
+
+  /* Print encoder list. */
+  fprintf (stderr, "\n\tencoder:");
+  svz_array_foreach (svz_codecs, codec, n)
+    if (codec->type == SVZ_CODEC_ENCODER)
+      fprintf (stderr, " %s", codec->description);
+
+  /* Print decoder list. */
+  fprintf (stderr, "\n\tdecoder:");
+  svz_array_foreach (svz_codecs, codec, n)
+    if (codec->type == SVZ_CODEC_DECODER)
+      fprintf (stderr, " %s", codec->description);
+
+  fprintf (stderr, "\n");
 }
 
 /* This routine is called by @code{svz_boot()} and registers the builtin
@@ -265,7 +291,7 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
 }
 
 /* This routine is the new @code{check_request} callback for reading codecs.
-   It is applied in the above {svz_codec_sock_receive_setup()} function. 
+   It is applied in the above @code{svz_codec_sock_receive_setup()} function. 
    Usually it gets called whenever there is data in the receive buffer. It 
    lets the current receive buffer be the input of the codec. The output 
    buffer of the codec gets the new receive buffer buffer of the socket 

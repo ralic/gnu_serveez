@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: codec-test.c,v 1.1 2001/10/07 17:10:28 ela Exp $
+ * $Id: codec-test.c,v 1.2 2001/10/08 13:02:54 ela Exp $
  *
  */
 
@@ -36,6 +36,10 @@
 # include <unistd.h>
 #endif
 
+#ifdef __MINGW32__
+# include <io.h>
+#endif
+
 #include "libserveez.h"
 
 /*
@@ -51,7 +55,7 @@ codec_recv (svz_socket_t *sock)
 
   if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
     return 0;
-  num_read = read (sock->pipe_desc[READ], 
+  num_read = read ((int) sock->pipe_desc[READ], 
 		   sock->recv_buffer + sock->recv_buffer_fill, do_read);
 #ifndef __MINGW32__
   if (num_read < 0 && errno == EAGAIN)
@@ -60,7 +64,7 @@ codec_recv (svz_socket_t *sock)
   if (num_read <= 0)
     {
       sock->flags |= SOCK_FLAG_FLUSH;
-      close (sock->pipe_desc[READ]);
+      close ((int) sock->pipe_desc[READ]);
       num_read = 0;
     }
   sock->recv_buffer_fill += num_read;
@@ -79,7 +83,7 @@ codec_send (svz_socket_t *sock)
 
   if ((do_write = sock->send_buffer_fill) <= 0)
     return 0;
-  num_written = write (sock->pipe_desc[WRITE],
+  num_written = write ((int) sock->pipe_desc[WRITE],
 		       sock->send_buffer, do_write);
 #ifndef __MINGW32__
   if (num_written < 0 && errno == EAGAIN)
@@ -131,7 +135,7 @@ main (int argc, char **argv)
 #endif
 
   /* Create single pipe socket for stdin and stdout. */
-  if ((sock = svz_pipe_create (0, 1)) == NULL)
+  if ((sock = svz_pipe_create ((HANDLE) 0, (HANDLE) 1)) == NULL)
     return result;
   sock->read_socket = codec_recv;
   sock->write_socket = codec_send;
@@ -144,11 +148,17 @@ main (int argc, char **argv)
   /* Setup codecs. */
   desc = argv[1];
   if ((codec = svz_codec_get (desc, SVZ_CODEC_ENCODER)) == NULL)
-    return result;
+    {
+      svz_codec_list ();
+      return result;
+    }
   if (svz_codec_sock_receive_setup (sock, codec))
     return result;
   if ((codec = svz_codec_get (desc, SVZ_CODEC_DECODER)) == NULL)
-    return result;
+    {
+      svz_codec_list ();
+      return result;
+    }
   if (svz_codec_sock_send_setup (sock, codec))
     return result;
 

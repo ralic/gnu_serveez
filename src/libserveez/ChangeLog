@@ -1,3 +1,8 @@
+2001-10-08  [ Ela ]  <ela@lkcc.org>
+
+	* codec/codec.c (svz_codec_list): New function. Lists all 
+	currently registered encoder and decoder.
+
 2001-10-07  [ Ela ]  <ela@lkcc.org>
 
 	* codec/gzlib.c: First codec implementation.

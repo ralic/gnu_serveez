@@ -1,3 +1,8 @@
+2001-10-08  [ Ela ]  <ela@lkcc.org>
+
+	* codec.dsp: New file. Project file for the codec test under
+	Windows.
+
 2001-10-07  [ Ela ]  <ela@lkcc.org>
 
 	* codec-test.c: New test. Demonstrates both: using the serveez

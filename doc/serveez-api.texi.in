@@ -142,9 +142,10 @@ variables in most cases and big letter symbols refer to macros.
 * Client connections::    Client connection functions
 * Socket::                Socket management functions
 * Coserver::              Coserver interface
-* ServerType::            Server type implementations
+* Codec::                 Codec interface
+* Server types::          Server type implementations
 * Server::                Server object functions
-* PortConfig::            Port configuration functions
+* Port configuration::    Port configuration functions
 * Booting::               Configuration and boot functions
 * Interface::             Network interface function implementation
 * Windoze::               Windows port implementations
@@ -498,7 +499,7 @@ SVZ_SOCK_FLOOD_PROTECT_DEFUN
 SVZ_SOCK_REDUCE_RECV_DEFMAC
 SVZ_SOCK_REDUCE_SEND_DEFMAC
 
-@node Coserver, ServerType, Socket, Embedding API
+@node Coserver, Codec, Socket, Embedding API
 @section Coserver functions
 
 The following section describes the internal coserver interface of serveez. 
@@ -530,7 +531,29 @@ SVZ_COSERVER_DNS_DEFMAC
 SVZ_COSERVER_IDENT_INVOKE_DEFUN
 SVZ_COSERVER_IDENT_DEFMAC
 
-@node ServerType, Server, Coserver, Embedding API
+@node Codec, Server types, Coserver, Embedding API
+@section Codec functions
+
+The codec interface of the serveez core API supplies routines for setting up
+socket structures to perform encoding or decoding of its receive or send
+buffers. It is a transparent layer of buffer transition. The interface itself
+tries to unify different types of codecs. In order to add a new codec the
+programmer needs to write some wrapper functions around the actual 
+implementation to fulfil certain entry and exit semantics of this interface.
+
+SVZ_CODEC_LIST_DEFUN
+SVZ_CODEC_GET_DEFUN
+SVZ_CODEC_INIT_DEFUN
+SVZ_CODEC_FINALIZE_DEFUN
+SVZ_CODEC_REGISTER_DEFUN
+SVZ_CODEC_UNREGISTER_DEFUN
+SVZ_CODEC_SOCK_RECEIVE_SETUP_DEFUN
+SVZ_CODEC_SOCK_RECEIVE_DEFUN
+SVZ_CODEC_SOCK_SEND_SETUP_DEFUN
+SVZ_CODEC_SOCK_SEND_DEFUN
+SVZ_CODEC_SOCK_DISCONNECT_DEFUN
+
+@node Server types, Server, Codec, Embedding API
 @section Server type functions
 
 As already noted in the main serveez manual a server type is the 
@@ -541,12 +564,12 @@ like its name, different callbacks, a single default configuration and a
 list of configuration items which determines what can be configured.
 
 @menu
-* ServerSetup::               Setting up a server type
-* General ServerType::        Server type implementation
+* Server setup::              Setting up a server type
+* General server type::       Server type implementation
 * Dynamic server::            Dynamic server type loading
 @end menu
 
-@node ServerSetup, General ServerType, , ServerType
+@node Server setup, General server type, , Server types
 @subsection Macros for setting up a new server type
 
 When specifying a server type you also need to define configuration items
@@ -563,7 +586,7 @@ SVZ_REGISTER_PORTCFG_DEFMAC
 SVZ_REGISTER_END_DEFMAC
 SVZ_DEFINE_CONFIG_DEFMAC
 
-@node General ServerType, Dynamic server, ServerSetup, ServerType
+@node General server type, Dynamic server, Server setup, Server types
 @subsection General server type functionality
 
 The following set of functions are used to manage the list of known server
@@ -578,7 +601,7 @@ SVZ_SERVERTYPE_FIND_DEFUN
 SVZ_SERVERTYPE_FINALIZE_DEFUN
 SVZ_SERVERTYPE_PRINT_DEFUN
 
-@node Dynamic server, , General ServerType, ServerType
+@node Dynamic server, , General server type, Server types
 @subsection Dynamic server loading
 
 The core API of serveez is able to register server types dynamically at 
@@ -594,7 +617,7 @@ SVZ_SERVERTYPE_UNLOAD_DEFUN
 SVZ_DYNLOAD_PATH_SET_DEFUN
 SVZ_DYNLOAD_PATH_GET_DEFUN
 
-@node Server, PortConfig, ServerType, Embedding API
+@node Server, Port configuration, Server types, Embedding API
 @section Server functions
 
 A server in serveez is an instantiated (configured) server type. It is 
@@ -602,15 +625,15 @@ merely a copy of a specific server type with a unique server name. It is
 represented by the C structure @code{svz_server_t} in the core library.
 
 @menu
-* ServerGeneral::         General server instance implementations
-* ServerConfig::          Server instance configuration
-* ServerBind::            Server instance bindings
-* ServerCore::            Core functionality for servers
-* ServerLoop::            Server loop implementation
-* ServerSocket::          Using and creating server sockets
+* General server::        General server instance implementations
+* Server configuration::  Server instance configuration
+* Server binding::        Server instance bindings
+* Server core::           Core functionality for servers
+* Server loop::           Server loop implementation
+* Server socket::         Using and creating server sockets
 @end menu
 
-@node ServerGeneral, ServerConfig, , Server
+@node General server, Server configuration, , Server
 @subsection General functionality
 
 The following section contains functions dealing with the list of known
@@ -628,7 +651,7 @@ SVZ_SERVER_INIT_ALL_DEFUN
 SVZ_SERVER_FINALIZE_ALL_DEFUN
 SVZ_SERVER_FREE_DEFUN
 
-@node ServerConfig, ServerBind, ServerGeneral, Server
+@node Server configuration, Server binding, General server, Server
 @subsection Configuration
 
 These functions provide an interface for configuring a server. They are
@@ -647,20 +670,20 @@ SVZ_CONFIG_HASH_CREATE_DEFUN
 SVZ_CONFIG_HASH_DESTROY_DEFUN
 SVZ_CONFIG_HASH_DUP_DEFUN
 
-@node ServerBind, ServerCore, ServerConfig, Server
+@node Server binding, Server core, Server configuration, Server
 @subsection Bindings
 
 The following functionality represents the relationship between port 
-configurations as described in @ref{PortConfig} and server instances. When
-binding a server to a specific port configuration the core library creates 
-listeners as needed by itself.
+configurations as described in @ref{Port configuration} and server 
+instances. When binding a server to a specific port configuration the 
+core library creates listeners as needed by itself.
 
 SVZ_SERVER_BIND_DEFUN
 SVZ_SERVER_UNBIND_DEFUN
 SVZ_SERVER_PORTCFG_DEFUN
 SVZ_SERVER_BINDINGS_DEFUN
 
-@node ServerCore, ServerLoop, ServerBind, Server
+@node Server core, Server loop, Server binding, Server
 @subsection Server core
 
 SVZ_NUKE_HAPPENED_DEFVAR
@@ -695,7 +718,7 @@ SVZ_STRSIGNAL_INIT_DEFUN
 SVZ_STRSIGNAL_DESTROY_DEFUN
 SVZ_STRSIGNAL_DEFUN
 
-@node ServerLoop, ServerSocket, ServerCore, Server
+@node Server loop, Server socket, Server core, Server
 @subsection Server loop
 
 This paragraph describes the main server loop functionality. There two modes
@@ -712,7 +735,7 @@ SVZ_LOOP_POST_DEFUN
 SVZ_LOOP_DEFUN
 SVZ_LOOP_ONE_DEFUN
 
-@node ServerSocket, , ServerLoop, Server
+@node Server socket, , Server loop, Server
 @subsection Server sockets
 
 The next section deals with creating and handling listeners. The functions
@@ -724,7 +747,7 @@ SVZ_SERVER_CREATE_DEFUN
 SVZ_TCP_ACCEPT_DEFUN
 SVZ_PIPE_ACCEPT_DEFUN
 
-@node PortConfig, Booting, Server, Embedding API
+@node Port configuration, Booting, Server, Embedding API
 @section Port configurations
 
 A port configuration is a structure defining a network or file system
@@ -759,7 +782,7 @@ SVZ_PORTCFG_SET_IPADDR_DEFUN
 SVZ_PORTCFG_DESTROY_ACCEPTED_DEFUN
 SVZ_PORTCFG_DESTROY_ACCESS_DEFUN
 
-@node Booting, Interface, PortConfig, Embedding API
+@node Booting, Interface, Port configuration, Embedding API
 @section Boot functions
 
 This section contains the description of some runtime checkable flags 

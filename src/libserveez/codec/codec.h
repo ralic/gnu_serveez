@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.h,v 1.1 2001/10/07 17:10:28 ela Exp $
+ * $Id: codec.h,v 1.2 2001/10/08 13:02:54 ela Exp $
  *
  */
 
@@ -114,6 +114,7 @@ struct svz_codec
 __BEGIN_DECLS
 
 /* Exported functions. */
+SERVEEZ_API void svz_codec_list __P ((void));
 SERVEEZ_API svz_codec_t * svz_codec_get __P ((char *, int));
 SERVEEZ_API int svz_codec_init __P ((void));
 SERVEEZ_API int svz_codec_finalize __P ((void));

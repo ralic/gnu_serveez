@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.21 2001/09/22 09:39:06 ela Exp $
+ * $Id: guile-server.c,v 1.22 2001/10/08 13:02:54 ela Exp $
  *
  */
 
@@ -348,6 +348,31 @@ guile_integer (SCM value, int def)
     return gh_scm2int (value);
   return def;
 }
+
+/*
+ * Controls the use of exceptions handlers for the guile procedure calls
+ * of guile server callbacks. If the optional argument @var{enable} set to 
+ * @code{#t} exception handling is enabled and if set to @code{#f} 
+ * exception handling is disabled. The procedure always returns the 
+ * current value of this behaviour.
+ */
+#define FUNC_NAME "serveez-exceptions"
+SCM
+guile_access_exceptions (SCM enable)
+{
+  SCM value = gh_bool2scm (guile_use_exceptions);
+  int n;
+
+  if (!gh_eq_p (enable, SCM_UNDEFINED))
+    {
+      if (guile_to_boolean (enable, &n))
+	guile_error ("%s: Invalid boolean value", FUNC_NAME);
+      else 
+	guile_use_exceptions = n;
+    }
+  return value;
+}
+#undef FUNC_NAME
 
 /*
  * The @code{guile_call()} function puts the procedure to call including
@@ -1379,6 +1404,8 @@ guile_server_init (void)
 		    guile_sock_data, 1, 1, 0);
   gh_new_procedure ("svz:server:config-get", 
 		    guile_server_config_get, 2, 0, 0);
+  gh_new_procedure ("serveez-exceptions",
+		    guile_access_exceptions, 0, 1, 0);
 
   /* Initialize the guile SMOB things. Previously defined via 
      MAKE_SMOB_DEFINITION (). */

@@ -115,7 +115,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
-# ADD LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib  imagehlp.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
+# ADD LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib imagehlp.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
 
 !ENDIF 
 
@@ -142,6 +142,10 @@ SOURCE=.\boot.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\codec\codec.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\core.c
 # End Source File
 # Begin Source File
@@ -155,6 +159,10 @@ SOURCE=.\coserver\dns.c
 # Begin Source File
 
 SOURCE=.\dynload.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\codec\gzlib.c
 # End Source File
 # Begin Source File
 

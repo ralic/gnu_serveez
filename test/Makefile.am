@@ -24,7 +24,7 @@
 
 TESTS = vector-test array-test hash-test spvec-test
 
-EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp
+EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test
 
