@@ -423,6 +423,7 @@ available physical memory.
 @menu
 * Introduction to servers::     Protocol servers in Serveez
 * Writing servers::             How to write internet protocol servers
+* Configuring servers::         How do I configure an existing server ?
 * Existing servers::            Which kind of servers do we have already ?
 @end menu
 
@@ -451,7 +452,7 @@ terminology:
 @table @asis
 
 @item server definition
-A server definition is a @code{server_definition_t} structure which contains
+A server definition is a @code{svz_servertype_t} structure which contains
 server specific members like its name, different callbacks, a single default
 configuration and a list of configuration items which determine what can be
 configured.
@@ -475,13 +476,13 @@ server type) can share the same port configuration.
 
 @item port configuration
 A port configuration can be a special configuration item within a server 
-configuration. It is a @code{portcfg_t} structure and contains a protocol
+configuration. It is a @code{svz_portcfg_t} structure and contains a protocol
 type, a network port address, an ip address, an incoming pipe name and an
 outgoing pipe name (some fields optional). It has been introduced because
 every server needs a port configuration to be bound at all.
 @end table
 
-@node Writing servers, Existing servers, Introduction to servers, Server
+@node Writing servers, Configuring servers, Introduction to servers, Server
 @section Writing servers
 
 @subsection Making and configuring preparations
@@ -512,9 +513,10 @@ created @file{Makefile.am}:
 
 @example
 noinst_LIBRARIES = libfoo.a
-AM_CPPFLAGS = -I$(top_srcdir)/src
-CLEANFILES = *~
 libfoo_a_SOURCES = foo-proto.h foo-proto.c
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in
 @end example
 
 @item
@@ -530,7 +532,7 @@ some global definitions of server routines which must be available from
 the outside. Furthermore it contains the extern declaration of your 
 server definition. The @code{foo} server implements all kinds of 
 configuration items which can be integers, integer arrays, strings, string
-arrays, port configurations and hash maps. Every item of the server 
+arrays, port configurations, booleans and hash maps. Every item of the server 
 configuration can later be manipulated from the configuration file.
 
 @subsection Server implementation file @file{foo-proto.c}
@@ -538,13 +540,13 @@ configuration can later be manipulated from the configuration file.
 If you want to define default values for your configuration you have
 to define them it somewhere and put them into the default configuration 
 structure. This structure will be used to instantiate your server. For
-this example we called it simply @code{mycfg}.
+this example we called it simply @code{foo_config}.
 
 In order to associate the configuration items in a server configuration 
 to keywords within the configuration file you have to define an
 array of key-value-pairs. This is done in the @code{foo_config_prototype} 
 field. There are several macros which make different associations. These 
-are the @code{REGISTER_*} macros which take three arguments. The first 
+are the @code{SVZ_REGISTER_*} macros which take three arguments. The first 
 argument is the keyword which will occur in the configuration file, the 
 second is the associated item in your default configuration structure 
 and the last argument specifies if this item is defaultable or not.
@@ -554,8 +556,8 @@ and the last argument specifies if this item is defaultable or not.
 The server definition is in a way the @samp{class} of your server. Together
 with the default values (@code{foo_config_prototype}) it serves as a
 template for newly instantiated servers. The structure contains a long and a
-short description of your server. The short name is used as the prefix of
-all hash maps which define servers of this type. The long description is
+short description of your server. The short name is used as the prefix for
+all server instances of this specific type. The long description is
 used in the control protocol (@xref{Control Protocol Server}.). The server
 definition also contains the callbacks your server (mandatorily) provides.
 
@@ -571,8 +573,8 @@ have to be implemented. Others have reasonable default values.
 This callback is executed once for every type of server. Here you can
 initialize data or whatever is shared between all instances of your server. 
 For instance the http server would load the mime type file here. The 
-@code{foo} server creates its default hash property because a hash cannot be
-statically initialized.
+foo server creates its default hash properties because a hash cannot 
+be statically initialized.
 
 @item global finalizer (optional)
 If you want to free shared resources which were possibly allocated within
@@ -581,20 +583,12 @@ default hash previously allocated in the global initializer.
 
 @item instance initializer (mandatory)
 Within this routine you can initialize everything you might need for one 
-instance of your server. Secondly you have to bind this instance to some port
-configuration. In most cases you want to have this port configuration
-accessible via the configuration file. Therefore you have to 
-@code{REGISTER_PORTCFG()} in your servers configuration definition. The port
-configuration is then part of your servers instance configuration
-structure. The foo server prints its whole configuration just for debugging
-purposes. It simply shows how configurable items from the configuration
-file correspond to the server instance configuration.
+instance of your server. The foo server does not do anything in this 
+callback.
 
 @item instance finalizer (optional)
 The server instance finalizer gets its instance representation as argument.
-You have to free all resources used by this server instance. The foo server
-destroys its hash if it was not the default hash which gets freed within
-the global finalizer.
+You have to free all resources used by this server instance.
 
 @item protocol detection (mandatory)
 Because it is possible to have more than one server listening on one 
@@ -602,26 +596,26 @@ network port we need to detect the type of client which is connecting
 to this port. The foo servers checks if the first five bytes the client
 was sending is identifying it as a foo client. This routine is getting
 two arguments where the first one is a pointer to this servers instance
-configuration and the second is the client socket object containing all
+and the second is the client socket object containing all
 information of the client connection. This structure is described a bit
 later. Be patient. For successful client detection return non-zero value. 
 
-@item connect socket (mandatory)
+@item socket connection (mandatory)
 If the client detection signaled success this routine is called to assign
 the client connection to this servers instance. The arguments are just
 the same as in the detection routine. In this callback you can assign
 all the connection specific callbacks for your server and do some initial
-things. The foo server sets the @code{check_request} callback to the 
-@code{default_check_request} which is using the packet delimiter 
+things. The foo server sets the @code{check_request} callback to the default
+@code{svz_sock_check_request} which is using the packet delimiter 
 information to find whole packets. When a client sent such a packet the 
-@code{handle_request} callback is executed. That is why the @code{foo} 
+@code{handle_request} callback is executed. That is why the foo
 server assigns the @code{handle_request} method.
 
 @item client info (optional)
 If this callback is given the control protocol 
 (@xref{Control Protocol Server}.) can give information about a specific
 client if requested with @samp{stat id NUM}. The first argument given
-is the server configuration hash and the second one the client's socket
+is the server instance and the second one the client's socket
 structure. You have to return a static single line character string.
 
 @item server info (optional)
@@ -631,7 +625,7 @@ The returned character string might be multilined separated by
 @code{\r\n} (no trailing separator). Usually you will return all the 
 server configuration information.
 
-@item timer (optional)
+@item notifier (optional)
 If this callback is not @code{NULL} it is called whenever there is some time 
 left. It gets the server instance itself as argument. Actually it gets
 called every second.
@@ -646,13 +640,13 @@ single port.
 
 @subsection Make your server available
 
-You distribute your server by editing the @file{server.c} file in the
+You distribute your server by editing the @file{cfgfile.c} file in the
 @file{src/} directory. There you have to include the servers header 
-file and add the server definition to the @code{all_server_definition} array.
+file and add the server definition by calling @code{svz_servertype_add()}
 
 @subsection More detailed description of the callback system and structures
 
-The client connection information is stored within the @code{socket_t} 
+The client connection information is stored within the @code{svz_socket_t} 
 object. All of the client connection specific callbacks get this object as
 first argument. Following is a description of the most important elements 
 of this object.
@@ -673,17 +667,17 @@ be @code{PROTO_PIPE}, @code{PROTO_TCP}, @code{PROTO_UDP},
 
 @item int flags
 The flag field of the client connection contains informations about the
-state of this connection. See @file{socket.h} in the @file{src/} directory 
-for more information. Basically this bitfield specifies how this object
-is handled by the main server loop.
+state of this connection. See @file{socket.h} in the @file{src/libserveez/} 
+directory for more information. Basically this bitfield specifies how this 
+object is handled by the main server loop.
 
 @item int userflags
 This bitfield could be used for protocol specific information. You can use
-is for any information.
+it for any information.
 
 @item char *boundary, int boundary_size
 If you are going to write a packet oriented protocol server you can use
-the @code{default_check_request} method to parse packets. These two 
+the @code{svz_sock_check_request} method to parse packets. These two 
 properties describe the packet delimiter.
 
 @item char *send_buffer, int send_buffer_size, int send_buffer_fill
@@ -693,41 +687,41 @@ This is the outgoing data for a client connection object.
 Within the receive buffer all incoming data for a connection object is 
 stored. This buffer is at least used for the client detection callback.
 
-@item int read_socket (socket_t)
+@item int read_socket (svz_socket_t)
 This callback gets called whenever data is available on the socket.
 Normally, this is set to a default function which reads all available
 data from the socket and feeds it to @code{check_request}, but specific
 sockets may need other policies.
 
-@item int write_socket (socket_t)
+@item int write_socket (svz_socket_t)
 This routine is called when data is is valid in the output buffer
 and the socket gets available for writing. You normally leave this
 callback untouched. It simply writes as much data as possible to the 
 socket and removes the data from the send buffer. 
 
-@item int disconnected_socket (socket_t)
+@item int disconnected_socket (svz_socket_t)
 This gets called whenever the socket is lost for some external reason.
 
-@item int connected_socket (socket_t)
+@item int connected_socket (svz_socket_t)
 If some piece of code tries to connect to another host via 
-@code{sock_connect} this connection might be established some time later.
+@code{svz_tcp_connect} this connection might be established some time later.
 This callback gets called when the socket is finally connected.
 
-@item int kicked_socket (socket_t, int)
+@item int kicked_socket (svz_socket_t, int)
 We call this whenever the socket gets closed by us. The second argument
 specifies a reason.
 
-@item int check_request (socket_t)
+@item int check_request (svz_socket_t)
 This gets called whenever data was read from the socket.
 Its purpose is to check whether a complete request was read, and
 if it was, it should be handled and removed from the input buffer.
 
-@item int handle_request (socket_t, char *, int)
+@item int handle_request (svz_socket_t, char *, int)
 This gets called when the @code{check_request} got a valid packet. The 
 request arguments contains the actual packet and the second argument is the
 length of this packet including the packet delimiter.
 
-@item int idle_func (socket_t)
+@item int idle_func (svz_socket_t)
 This callback gets called from the periodic task scheduler. Whenever
 @code{idle_counter} (see below) is non-zero, it is decremented and
 @code{idle_func} gets called when it drops to zero. @code{idle_func} can 
@@ -743,7 +737,7 @@ This array is @code{NULL} terminated. Some servers store server specific
 information here.
 
 @item void *cfg
-When the final protocol detection in @code{default_detect_proto}
+When the final protocol detection in @code{svz_sock_detect_proto}
 has been done @code{cfg} should contain a pointer to the actual 
 configuration hash map taken from the server instance object.
 @end table
@@ -752,17 +746,69 @@ configuration hash map taken from the server instance object.
 
 Coservers are designed to complete blocking tasks. Each coserver runs in
 its own thread/process. There are several coservers implemented: the dns, 
-reverse dns and ident coserver. If you want to use them you have to 
-@code{#include "coserver/coserver.h"}. Secondly you need to implement the 
+reverse dns and ident coserver. You need to implement the 
 callback which gets called when a coserver completed its task. This 
-routine must be a @code{coserver_handle_result_t}. The first argument is 
+routine must be a @code{svz_coserver_handle_result_t}. The first argument is 
 the actual coserver result which might be @code{NULL} if the request 
 could not  be fulfilled and the latter two arguments are the arguments 
 you specified  yourself when issuing the request. To invoke a coserver 
-you use one of the @code{coserver_*} macros. The @code{foo} server uses 
+you use one of the @code{svz_coserver_*} macros. The foo server uses 
 the reverse dns coserver to identify the host name of the remote client.
 
-@node Existing servers,  , Writing servers, Server
+@node Configuring servers, Existing servers, Writing servers, Server
+@section Some words about server configuration
+
+The following chapter describes the servers currently implemented using 
+Serveez. The configuration items used by each of them are described in the 
+following format:
+
+@table @code
+@item NameOfTheItem (Type, default: DefaultValue, Comments)
+Description of the configuration item named @samp{NameOfTheItem} (case 
+sensitive). @samp{Type} can be either @samp{integer}, @samp{integer array}, 
+@samp{string}, @samp{string array}, @samp{boolean}, @samp{hash} or 
+@samp{port configuration}. The @samp{Comments} is an optional text.
+@end table
+
+This table shows how each kind of configuration is setup in the 
+configuration file parsed by the configuration file parser where @var{item} 
+is the assumed configuration item.
+
+@table @asis
+@item Integer@*
+Examples:
+(item . 42)
+(item . "42")
+(item . ,(+ 21 21))
+@item Integer array@*
+Examples:
+(item . (0 1 2 3))
+(item . ("3" "2" "1" "0"))
+@item String@*
+Examples:
+(item . "a character string")
+(item . string)
+@item String array@*
+Examples:
+(item . ("abc" "cba" "bca" "acb"))
+@item Boolean@*
+A normal boolean in guile is represented by #t or #f. But the configuration
+file parser additional understand some bare words and numbers.@*
+Examples:
+(item . #f)
+(item . false)
+(item . no)
+(item . 1)
+@item Hash@*
+Hash maps associate keys with values. Both must be character strings.@*
+Examples:
+(item . (key1 . value1) (key2 . "value2"))
+@item Port configuration
+@xref{Define ports}, for more information on this.
+@end table
+
+
+@node Existing servers,  , Configuring servers, Server
 @section Existing servers
 
 @menu
@@ -825,11 +871,6 @@ get 1000+ concurrent fetches.
 The following options can be set from the configuration file.
 
 @table @code
-@item netport (port configuration, default: tcp, 42424, *)
-This is the TCP port configuration hash wherein you can set the 
-IP address this server should be bound to and the port the server is 
-listening on.
-
 @item indexfile (string, default: index.html)
 The @code{indexfile} parameter is the default file served by the HTTP 
 server when the user does not specify a file but a document node
@@ -874,7 +915,7 @@ The @code{timeout} value is the amount of time in seconds after which
 a keep-alive connection (this is a HTTP/1.1 feature) will be closed when
 it has been idle.
 
-@item keepalive (integer: default: 10)
+@item keepalive (integer, default: 10)
 On one keep-alive connection can be served the number of @code{keepalive}
 documents at all. Then the connection will be closed.
 Both this and the @code{timeout} value are just to be on the safe side. 
@@ -903,13 +944,13 @@ This is the native host name of your web server. Sometimes the server has
 to send back its own name to the client. It will use this value.
 Be aware that you cannot invent such a name.
 
-@item nslookup (integer, default: 0)
-If this number is non-zero the HTTP server invokes a reverse DNS lookup
+@item nslookup (boolean, default: false)
+If this is true the HTTP server invokes a reverse DNS lookup
 for each client connection in order to replace the remote ip address with
 the remote host name in the access logfile.
 
-@item ident (integer, default: 0)
-If this number is non-zero the HTTP server processes identd requests
+@item ident (boolean, default: false)
+If this is true the HTTP server processes identd requests
 for each client connection for logging purposes.
 
 @item logfile (string, default: http-access.log)
@@ -996,11 +1037,6 @@ the Hybrid documentation for further information. It can be found on
 the EFNet web page.
 
 @table @code
-@item port (port configuration, default: tcp, 42424, *)
-The @code{port} parameter is, as in all the server configurations, the
-port configuration for this server, specifying IP address and the TCP/IP 
-port the server should listen on. See @code{M-line} parameter below.
-
 @item MOTD-file (string, default: ../data/irc-MOTD.txt)
 When a user initially joins it will get this file's content as the
 message of the day comment. When changing on disk the server will notice
@@ -1019,9 +1055,9 @@ Some administrative information delivered on the /ADMIN command.
 
 @item M-line (string, no default, mandatory)
 The TCP level configuration of this IRC server. The server info field
-is sometimes given to the client for informational use. All other
-values have to correspond to the settings from the @code{netport} 
-parameter. The format of this line is:
+is sometimes given to the client for informational use. The server will
+croak about if the settings do not correspond with the actual bindings.
+The format of this line is:
 @example
 ":" virtual hostname
 ":" optional bind address (real hostname)
@@ -1210,12 +1246,7 @@ Reinitialize the HTTP file cache. Flushes all files from the cache.
 
 @subsubsection Configuration
 
-@table @code
-@item netport (port configuration, default: tcp, 42424, *)
-Sets up the TCP port and local address. It can be useful to declare a
-@code{ipaddr} within this hash when you do not want people using this 
-protocol from outside.
-@end table
+There is nothing to be configured yet.
 
 @node Foo Server, SNTP Server, Control Protocol Server, Existing servers
 @subsection Foo Server
@@ -1242,11 +1273,14 @@ Some string. Printed as server information.
 Some string array which is actually a list of strings. Also printed as 
 server information.
 
-@item ports (integer array, default: 4, 1, 2, 3)
+@item ports (integer array, default: 1, 2, 3, 4)
 Some array of integer numbers. Printed as server information.
 
 @item assoc (hash, default, default: ...)
 An hash map associating keys with values. Printed as server information.
+
+@item truth (boolean, default: true)
+Some boolean value. Printed as server information.
 @end table
 
 @node SNTP Server, Gnutella Spider, Foo Server, Existing servers
@@ -1271,15 +1305,8 @@ correct a system's idea of the time, by making a brief poll of several
 independent sites on the network.
 
 @subsubsection Configuration
-The configuration of this server knows just a single item which is the
-port configuration.
 
-@table @code
-@item netport (port configuration, default: udp, 37, *)
-This item specifies the protocol (which is "udp"), the network port (by
-default 37) and the local ip address on which the server socket is bound
-to (default is any ip address).
-@end table
+The configuration of this server does not require any item.
 
 @node Gnutella Spider, Tunnel Server, SNTP Server, Existing servers
 @subsection Gnutella Spider
@@ -1304,14 +1331,11 @@ page for further information.
 The Gnutella spider knows the following configurations items.
 
 @table @code
-@item port (port configuration, default: tcp, 6346, *)
-This entry has to contain @samp{tcp} for @samp{proto} and some port and
-network interface. The default port is 6346. If you want to see the host
-catcher list of this Gnutella spider you can connect to this port with 
-any WWW browser at @uref{http://localhost:6346/@code{net-url}}.
-
 @item net-url (string, default: gnutella-net)
-The above url is configurable via this item.
+If you want to see the host catcher list of this Gnutella spider you can 
+connect to this port with any WWW browser at 
+@uref{http://host:port/@code{net-url}}. The @code{host:port} combinations
+depend on the bindings.
 
 @item hosts (string array, no default)
 This is the start of the haystack,
@@ -1511,7 +1535,8 @@ HTTP port 80 and the ICMP tunnel accesses the standard Telnet port 23.
 
 @table @code
 @item source (port configuration, no default)
-The source port configuration.
+The source port configuration. This is usually the same you bind the server
+to.
 
 @item target (port configuration, no default)
 The target port configuration.
@@ -1642,16 +1667,8 @@ additional parameters.
 
 @subsubsection Configuration
 
-@table @code
-@item netport (port configuration, default: tcp, 42420, *)
-The @code{netport} parameter is the default network port configuration
-where you can specify the network port and IP address.
-
-@item fsport (port configuration, default: pipe, .aWCSrecv, .aWCSsend)
-This parameter can be used to specify two named pipes as connection
-possibility. It is meant for local installations of master server and
-Serveez.
-@end table
+There is nothing to be configured yet. You should notice that it is possible
+to bind this server to both named pipes and tcp ports.
 
 @node Fake Ident Server, , Chat Server, Existing servers
 @subsection Fake Ident Server
@@ -1680,9 +1697,6 @@ valid but never used (at least i have never seen something else).
 This server is easy to configure.
 
 @table @code
-@item port (port configuration, default: tcp, 113, *)
-The port to listen on. Only TCP makes sense here.
-
 @item systemtype (string, default: UNIX)
 The system type to respond. The username field of the response has other
 meanings depending on this field, so do not make things up here. Read
@@ -1709,16 +1723,16 @@ Use your favourite nickname here.
 If it is necessary to complete blocking tasks in Serveez you have 
 to use coservers. The actual implementation differs on platforms. On Unices
 they are implemented as processes communicating with Serveez over pipes.
-on Win32 Serveez uses threads and shared memory.
+On Win32 Serveez uses threads and shared memory.
 
 @node Writing coservers, Existing coservers, What are coservers, Coserver
 @section Writing coservers
 
 @subsection Making and configuring preparations
 
-First you have to change into the @file{src/coserver/} directory of the 
-Serveez package. Then edit the @file{Makefile.am} and add your 
-header and implementation file to the @code{libcoserver_a_SOURCES}
+First you have to change into the @file{src/libserveez/coserver/} directory 
+of the Serveez package. Then edit the @file{Makefile.am} and add your 
+header and implementation file to the @code{libcoserver_la_SOURCES}
 variable.
 
 @subsection Coserver header file
@@ -1729,10 +1743,10 @@ Both of these buffers are supposed to be lines separated by a @samp{\n}.
 
 @subsection Coserver implementation file
 
-Here you need to @code{#include "coserver.h"} and implement the 
-coserver handle routine declared in the coserver header file. This 
-can be any blocking system call. On successful completion you 
-can return the result or NULL on errors. The input and output 
+Here you need to @code{#include "libserveez/coserver/coserver.h"} and 
+implement the coserver handle routine declared in the coserver header file. 
+This can be any blocking system call. On successful completion you 
+can return the result or @code{NULL} on errors. The input and output 
 buffers are plain strings and can have any format with one exception. 
 Because the coservers communicate via a line protocol with 
 Serveez these buffers must not contain @samp{\n} (0x0d).
@@ -1740,21 +1754,21 @@ Serveez these buffers must not contain @samp{\n} (0x0d).
 @subsection Make your coserver available in Serveez
 
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
-@file{src/coserver/} directory. In the header file you have to define a 
-further @code{COSERVER_*} id (macro) and set the @code{MAX_COSERVER_TYPES} 
-define to the appropriate value. Then you should define a further 
-@code{coserver_*} macro in the same file.
+@file{src/libserveez/coserver/} directory. In the header file you have to 
+define a further @code{COSERVER_*} id (macro) and set the 
+@code{MAX_COSERVER_TYPES} define to the appropriate value. Then you should 
+define a further @code{svz_coserver_*} macro in the same file.
 
-In @file{coserver.c} you have to implement the @code{coserver_*} macro. 
+In @file{coserver.c} you have to implement the @code{svz_coserver_*} macro. 
 This macro takes three arguments. The first is always specific to your 
 coserver and is used to create the actual request string. Then follows the 
 result callback routine, and an optional argument for this callback. The 
-latter two are simply passed to the @code{coserver_send_request()} routine. 
-This routine takes four arguments where the first is the previously defined 
-@code{COSERVER_*} id and the second is the input buffer for the coserver 
-handle routine without the trailing @samp{\n}.
+latter two are simply passed to the @code{svz_coserver_send_request()} 
+routine. This routine takes four arguments where the first is the 
+previously defined @code{COSERVER_*} id and the second is the input buffer
+for the coserver handle routine without the trailing @samp{\n}.
 
-Then you need to add your coserver to the @code{int_coserver_type} array
+Then you need to add your coserver to the @code{svz_coservertypes} array
 specifying the @code{COSERVER_*} id, the coserver description, the coserver
 handle routine discussed above, the number of coserver instances to be
 created and an optional initialization routine.
@@ -1792,10 +1806,10 @@ Macro:
 coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
 @end example
 
-In this context @code{sock} is of type @code{socket_t} and 
+In this context @code{sock} is of type @code{svz_socket_t} and 
 @code{MyIdentCallback} is something like the following example. Both
 of the last two (optional) arguments identify a valid socket structure
-and @code{user} can be NULL if there is no ident daemon running on the 
+and @code{user} can be @code{NULL} if there is no ident daemon running on the 
 foreign machine. The last two argument within the above macro will be the 
 last two arguments in the callback below. Thus you will know what kind of 
 data the invocation of the callback is related to.
