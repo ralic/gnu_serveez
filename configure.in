@@ -928,7 +928,8 @@ AC_CHECK_FUNC(strncasecmp,
 	    [Define if you have the strnicmp function.])))
 
 AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize)
-AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h)
+AC_CHECK_FUNCS(getpwnam)
+AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h sys/resource.h)

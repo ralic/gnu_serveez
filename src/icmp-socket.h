@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.8 2000/11/03 01:25:06 ela Exp $
+ * $Id: icmp-socket.h,v 1.9 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -59,10 +59,12 @@
 #define ICMP_ADDRESSREPLY       18      /* Address Mask Reply           */
 
 /* serveez ICMP types and sub-codes */
-#define ICMP_SERVEEZ      42
-#define ICMP_SERVEEZ_DATA 0
-#define ICMP_SERVEEZ_REQ  1
-#define ICMP_SERVEEZ_ACK  2
+#define ICMP_SERVEEZ        42
+#define ICMP_SERVEEZ_DATA    0
+#define ICMP_SERVEEZ_REQ     1
+#define ICMP_SERVEEZ_ACK     2
+#define ICMP_SERVEEZ_CLOSE   3
+#define ICMP_SERVEEZ_CONNECT 4
 
 /* version and length are 4 bit values in the ip header */
 #define IP_HDR_VERSION(hdr) ((hdr->version_length >> 4) & 0x0f)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.3 2000/11/02 12:51:57 ela Exp $
+ * $Id: alist-test.c,v 1.4 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -228,6 +228,8 @@ main (int argc, char **argv)
   error = 0;
   alist_clear (list);
   test_print ("        stress: ");
+
+  /* put any values to array until a certain size (no order) */
   while (alist_size (list) != SIZE)
     {
       n = test_value (SIZE);
@@ -236,8 +238,13 @@ main (int argc, char **argv)
 	  alist_set (list, n, (void *) (n + SIZE));
 	}
     }
-  if (alist_size (list) != SIZE || alist_size (list) != SIZE)
+
+  /* check for final size and length */
+  if (alist_size (list) != SIZE || alist_length (list) != SIZE)
     error++;
+  test_print (error ? "?" : ".");
+
+  /* check contains(), index() and get() */
   for (n = 0; n < SIZE; n++)
     {
       if (alist_contains (list, (void *) (n + SIZE)) != 1)
@@ -247,22 +254,37 @@ main (int argc, char **argv)
       if (alist_get (list, n) != (void *) (n + SIZE))
 	error++;
     }
+  test_print (error ? "?" : ".");
+
+  /* delete all values */
   for (n = 0; n < SIZE; n++)
     {
       if (alist_delete (list, 0) != (void *) (n + SIZE))
 	error++;
-    }  
-  if (alist_size (list) || alist_size (list))
+    }
+
+  /* check "post" size */
+  if (alist_size (list) || alist_length (list))
     error++;
+  test_print (error ? "?" : ".");
+
+  /* build array insert()ing values */
   while (alist_size (list) != REPEAT)
     {
       n = test_value (REPEAT);
       alist_insert (list, n, (void *) 0xdeadbeef);
     }
+
+  /* check size and length of array */
   if (alist_size (list) > alist_length (list))
     error++;
+
+  /* check all values */
   if (alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
     error++;
+  test_print (error ? "?" : ".");
+
+  /* save values, pack() list and check "post" get() values */
   if ((values = alist_values (list)) != NULL)
     {
       alist_pack (list);
@@ -277,6 +299,9 @@ main (int argc, char **argv)
       xfree (values);
     }
   else error++;
+  test_print (error ? "?" : ".");
+
+  /* delete each value, found by index() and check it via contains() */
   n = REPEAT;
   while (alist_size (list))
     {
@@ -286,8 +311,32 @@ main (int argc, char **argv)
       if (alist_contains (list, (void *) 0xdeadbeef) != (unsigned) --n)
 	error++;
     }
+
+  /* check "post" size */
   if (alist_size (list) || alist_length (list))
     error++;
+  test_print (error ? "?" : ".");
+
+  for (i = SIZE; i < SIZE + 10; i++)
+    { 
+      /* build array list */
+      while (alist_size (list) != (unsigned) i)
+	{
+	  n = test_value (10 * i) + 1;
+	  alist_insert (list, n, (void *) n);
+	  if (alist_get (list, n) != (void *) n)
+	    error++;
+	}
+
+      /* delete all values by chance */
+      while (alist_size (list))
+	{
+	  alist_delete_range (list, test_value (i), 
+			      test_value (10 * i * 5 + 1));
+	}
+      test_print (error ? "?" : ".");
+    }
+  test_print (" ");
   test (error);
 
   /* array list destruction */

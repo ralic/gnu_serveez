@@ -1,3 +1,34 @@
+2000-11-09  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_init): The user directory
+	path is configurable via "userdir" in each http instance.
+
+	* http-server/http-core.c (http_userdir): This routine checks
+	if a given request URI is a "~user" request and tries to 
+	replace it with this user's home directory and appends a
+	configurable path.
+	(http_log): '%c' gets replaced by the response code and '%l'
+	by the content length in the access logfile.
+
+2000-11-08  [ Ela ]  <ela@lkcc.org>
+
+	* alist.c (alist_insert): Fixed another bug causing an invalid
+	array list length (off by one).
+
+	* tunnel-server/tunnel.c (tnl_disconnect): When a TCP connection
+	was invoked by an ICMP connection we send a disconnection subcode
+	via the referring ICMP socket.
+
+	* icmp-socket.c (icmp_check_packet): Using the subcode within
+	the ICMP header in order to determine new and disconnected
+	connections.
+	(icmp_read_socket): If the icmp_check_packet() returns the
+	disconnection subcode this function returns an error and causes
+	this sockets shutdown.
+
+	* alist.c (alist_delete): Fixed a bug in this function which
+	caused invalid array list lengths and array chunk sizes.
+
 2000-11-03  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-core.c (http_localhost): The local server

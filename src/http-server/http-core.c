@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.12 2000/11/03 21:42:23 ela Exp $
+ * $Id: http-core.c,v 1.13 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -34,8 +34,12 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
+#include <sys/types.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#if HAVE_PWD_H
+# include <pwd.h>
 #endif
 
 #ifndef __MINGW32__
@@ -45,6 +49,7 @@
 #ifdef __MINGW32__
 # include <winsock.h>
 # include <io.h>
+# include <lm.h>
 #endif
 
 #include "util.h"
@@ -62,6 +67,83 @@
 # define timezone _timezone
 # define daylight _daylight
 #endif
+
+/*
+ * If the given request has a leading `~' we try to get the appropriate
+ * user's home directory and put it in front of the request.
+ */
+char *
+http_userdir (socket_t sock, char *uri)
+{
+  http_config_t *cfg = sock->cfg;
+  char *p = uri + 1;
+  char *user, *file;
+#if HAVE_GETPWNAM
+  struct passwd *entry;
+#elif defined (__MINGW32__)
+  USER_INFO_1 *entry;
+  NET_API_STATUS status;
+#endif
+
+  if (*uri && *p++ == '~' && cfg->userdir)
+    {
+      /* parse onto end of user name */
+      while (*p && *p != '/') p++;
+      if (p - uri <= 2) return NULL;
+
+      user = xmalloc (p - uri);
+      memcpy (user, uri + 2, p - uri - 2);
+      user[p - uri - 2] = '\0';
+      
+#if HAVE_GETPWNAM
+      if ((entry = getpwnam (user)) != NULL)
+	{
+	  file = xmalloc (strlen (entry->pw_dir) + strlen (cfg->userdir) + 
+			  strlen (p) + 1);
+	  sprintf (file, "%s/%s%s", entry->pw_dir, cfg->userdir, p);
+	  xfree (user);
+	  return file;
+	}
+#elif defined (__MINGW32__) && 0
+      status = NetUserGetInfo ("\\\\.",         /* server name */
+			       user,            /* user name */
+			       1,               /* type of info */
+			       (LPBYTE) entry); /* info buffer */
+      if (status != NERR_Success)
+	{
+	  char *error;
+	  switch (status)
+	    {
+	    case ERROR_ACCESS_DENIED:
+	      error = "The user does not have access to the requested "
+		"information.";
+	      break;
+	    case NERR_InvalidComputer:
+	      error = "The computer name is invalid.";
+	      break;
+	    case NERR_UserNotFound:
+	      error = "The user name could not be found.";
+	      break;
+	    default:
+	      error = "Unknown error.";
+	      break;
+	    }
+	  log_printf (LOG_ERROR, "NetUserGetInfo: %s\n", error);
+	}
+      else if (entry->usri1_home_dir != NULL)
+	{
+	  file = xmalloc (strlen (entry->usri1_home_dir) + 
+			  strlen (cfg->userdir) + strlen (p) + 1);
+	  sprintf (file, "%s/%s%s", entry->usri1_home_dir, cfg->userdir, p);
+	  xfree (user);
+	  return file;
+	}
+#endif /* not HAVE_GETPWNAM and not __MINGW32__ */
+
+      xfree (user);
+    }
+  return NULL;
+}
 
 /*
  * Each http client gets resolved by this callback.
@@ -127,6 +209,16 @@ http_log (socket_t sock)
 	      p++;
 	      switch (*p)
 		{
+		  /* %l - delivered content length */
+		case 'l':
+		  strcat (line, util_itoa (http->length));
+		  p++;
+		  break;
+		  /* %c - http response code */
+		case 'c':
+		  strcat (line, util_itoa (http->response));
+		  p++;
+		  break;
 		  /* %h - host name */
 		case 'h':
 		  strcat (line, http->host ? http->host :
@@ -166,10 +258,13 @@ http_log (socket_t sock)
       /* no, use default logging format */
       else
 	{
-	  sprintf (line, "%s - [%s] \"%s\" \"%s\" \"%s\"\n",
+	  sprintf (line, "%s - [%s] \"%s\" %d %d \"%s\" \"%s\"\n",
+		   http->host ? http->host : 
 		   util_inet_ntoa (sock->remote_addr),
 		   http_asc_date (http->timestamp),
 		   http->request,
+		   http->response,
+		   http->length,
 		   referer ? referer : "-",
 		   agent ? agent : "-");
 	}
@@ -188,36 +283,66 @@ int
 http_error_response (socket_t sock, int response)
 {
   http_config_t *cfg = sock->cfg;
+  http_socket_t *http = sock->data;
   char *txt;
 
+  /* Convert error code to text. */
   switch (response)
     {
-    case 400: txt = "Bad Request"; break;
-    case 401: txt = "Unauthorized"; break;
-    case 402: txt = "Payment Required"; break;
-    case 403: txt = "Forbidden"; break;
-    case 404: txt = "Not Found"; break;
-    case 405: txt = "Method Not Allowed"; break;
-    case 406: txt = "Not Acceptable"; break;
-    case 407: txt = "Proxy Authentication Required"; break;
-    case 408: txt = "Request Timeout"; break;
-    case 409: txt = "Conflict"; break;
-    case 410: txt = "Gone"; break;
-    case 411: txt = "Length Required"; break;
-    case 412: txt = "Precondition Failed"; break;
-    case 413: txt = "Request Entity Too Large"; break;
-    case 414: txt = "Request-URI Too Long"; break;
-    case 415: txt = "Unsupported Media Type"; break;
-    case 416: txt = "Requested Range Not Satisfiable"; break;
-    case 417: txt = "Expectation Failed"; break;
-    case 500: txt = "Internal Server Error"; break;
-    case 501: txt = "Not Implemented"; break;
-    case 502: txt = "Bad Gateway"; break;
-    case 503: txt = "Service Unavailable"; break;
-    case 504: txt = "Gateway Timeout"; break;
-    case 505: txt = "HTTP Version Not Supported"; break;
-    default:  txt = "Bad Request"; 
+    case 400:
+      txt = "Bad Request"; break;
+    case 401:
+      txt = "Unauthorized"; break;
+    case 402:
+      txt = "Payment Required"; break;
+    case 403:
+      txt = "Forbidden"; break;
+    case 404:
+      txt = "Not Found"; break;
+    case 405:
+      txt = "Method Not Allowed"; break;
+    case 406:
+      txt = "Not Acceptable"; break;
+    case 407:
+      txt = "Proxy Authentication Required"; break;
+    case 408:
+      txt = "Request Timeout"; break;
+    case 409:
+      txt = "Conflict"; break;
+    case 410:
+      txt = "Gone"; break;
+    case 411:
+      txt = "Length Required"; break;
+    case 412:
+      txt = "Precondition Failed"; break;
+    case 413:
+      txt = "Request Entity Too Large"; break;
+    case 414:
+      txt = "Request-URI Too Long"; break;
+    case 415:
+      txt = "Unsupported Media Type"; break;
+    case 416:
+      txt = "Requested Range Not Satisfiable"; break;
+    case 417:
+      txt = "Expectation Failed"; break;
+    case 500:
+      txt = "Internal Server Error"; break;
+    case 501:
+      txt = "Not Implemented"; break;
+    case 502:
+      txt = "Bad Gateway"; break;
+    case 503:
+      txt = "Service Unavailable"; break;
+    case 504:
+      txt = "Gateway Timeout"; break;
+    case 505:
+      txt = "HTTP Version Not Supported"; break;
+    default: 
+      txt = "Bad Request"; 
     }
+  http->response = response;
+
+  /* Send some standard error message. */
   return sock_printf (sock, 
 		      "<html><body bgcolor=white text=black><br>"
 		      "<h1>%d %s</h1>"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.26 2000/11/03 21:42:22 ela Exp $
+ * $Id: http-cgi.c,v 1.27 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -175,6 +175,7 @@ http_cgi_read (socket_t sock)
   /* data has been read */
   else if (num_read > 0)
     {
+      http->length += num_read;
       sock->send_buffer_fill += num_read;
       return 0;
     }
@@ -579,6 +580,9 @@ http_pre_exec (socket_t sock,       /* socket structure */
 int
 http_cgi_accepted (socket_t sock)
 {
+  http_socket_t *http = sock->data;
+
+  http->response = 202;
   return sock_printf (sock, HTTP_ACCEPTED);
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.6 2000/10/30 10:49:51 ela Exp $
+ * $Id: tunnel.c,v 1.7 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -610,6 +610,14 @@ tnl_disconnect (socket_t sock)
 {
   tnl_config_t *cfg = sock->cfg;
   char *key;
+
+  if (sock->userflags & TNL_FLAG_SRC_ICMP && sock->referrer)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "tunnel: sending icmp disconnect\n");
+#endif
+      icmp_write (sock->referrer, NULL, 0);
+    }
 
   if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_SRC_TCP) &&
       sock->referrer)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.15 2000/10/25 07:54:06 ela Exp $
+ * $Id: http-dirlist.c,v 1.16 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -129,7 +129,7 @@ http_create_uri (char *file)
  * xfree() the return buffer. Return NULL on errors.
  */
 char *
-http_dirlist (char *dirname, char *docroot) 
+http_dirlist (char *dirname, char *docroot, char *userdir)
 {
   char *dirdata = NULL;
   int datasize = 0;
@@ -188,25 +188,30 @@ http_dirlist (char *dirname, char *docroot)
   datasize = DIRLIST_SPACE;
 
   /* Calculate relative path */
-  i = 0;
-  while (dirname[i] == docroot[i] && docroot[i] != 0) i++;
-  relpath = &dirname[i];
-  if (!strcmp (relpath, "/"))
+  if (!userdir)
     {
-      relpath++;
-      dirname++;
+      i = 0;
+      while (dirname[i] == docroot[i] && docroot[i] != 0) i++;
+      relpath = &dirname[i];
+      if (!strcmp (relpath, "/"))
+	{
+	  relpath++;
+	  dirname++;
+	}
     }
+  else relpath = userdir + 1;
 
   /* Output preamble */
   while (-1 == snprintf (dirdata, datasize,
 			 "%sContent-Type: text/html\r\n\r\n"
 			 "<html><head>\n"
-			 "<title>Directory listing of %s/</title></head>\n"
+			 "<title>Directory listing of %s%s</title></head>\n"
 			 "<body bgcolor=white text=black link=blue>\n"
-			 "<h1>Directory listing of %s/</h1>\n"
+			 "<h1>Directory listing of %s%s</h1>\n"
 			 "<hr noshade>\n"
 			 "<pre>\n",
-			 HTTP_OK, relpath, relpath)) 
+			 HTTP_OK, relpath, userdir ? "" : "/", 
+			 relpath, userdir ? "" : "/"))
     {
       dirdata = xrealloc (dirdata, datasize + DIRLIST_SPACE_GROW);
       datasize += DIRLIST_SPACE_GROW;

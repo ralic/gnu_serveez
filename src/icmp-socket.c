@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.10 2000/11/04 15:01:08 ela Exp $
+ * $Id: icmp-socket.c,v 1.11 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -300,9 +300,6 @@ icmp_check_ip_header (byte *data, int len)
 		  icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
 		  ip_header->checksum);
 #endif
-#if 0
-      return -1;
-#endif
     }
 
   return IP_HDR_LENGTH (ip_header);
@@ -375,6 +372,16 @@ icmp_check_packet (socket_t sock, byte *data, int len)
       break;
 
     case ICMP_SERVEEZ:
+      if (header->code == ICMP_SERVEEZ_CONNECT && 
+	  sock->flags & SOCK_FLAG_LISTENING)
+	{
+	  log_printf (LOG_NOTICE, "icmp: accepting connection\n");
+	}
+      else if (header->code == ICMP_SERVEEZ_CLOSE)
+	{
+	  log_printf (LOG_NOTICE, "icmp: closing connection\n");
+	  return -2;
+	}
       return (length + ICMP_HEADER_SIZE);
       break;
 
@@ -425,7 +432,7 @@ icmp_read_socket (socket_t sock)
 
       /* Check ICMP packet and put packet load only to receive buffer. */
       if ((trunc = 
-	   icmp_check_packet (sock, (byte *) icmp_buffer, num_read)) != -1)
+	   icmp_check_packet (sock, (byte *) icmp_buffer, num_read)) >= 0)
 	{
 	  num_read -= trunc;
 	  if (num_read > sock->recv_buffer_size - sock->recv_buffer_fill)
@@ -442,6 +449,10 @@ icmp_read_socket (socket_t sock)
 
 	  if (sock->check_request)
 	    sock->check_request (sock);
+	}
+      else if (trunc == -2)
+	{
+	  return -1;
 	}
     }
   /* Some error occured. */
@@ -534,6 +545,34 @@ icmp_write (socket_t sock, char *buf, int length)
   if (sock->flags & SOCK_FLAG_KILLED)
     return 0;
 
+  /* Send a disconnection packet if the given buffer BUF is NULL. */
+  if (buf == NULL)
+    {
+      len = sizeof (len);
+      memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
+      len += sizeof (sock->remote_addr);
+      memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
+      len += sizeof (sock->remote_port);
+      size = 0;
+
+      hdr.type = ICMP_SERVEEZ;
+      hdr.code = ICMP_SERVEEZ_CLOSE;
+      hdr.checksum = icmp_ip_checksum ((byte *) buf, size);
+      hdr.ident = getpid () + sock->id;
+      hdr.sequence = sock->send_seq;
+      hdr.port = sock->remote_port;
+      memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
+      len += ICMP_HEADER_SIZE;
+
+      memcpy (buffer, &len, sizeof (len));
+
+      if ((ret = sock_write (sock, buffer, len)) == -1)
+        {
+          sock->flags |= SOCK_FLAG_KILLED;
+        }
+      return ret;
+    }
+
   while (length)
     {
       /* 
@@ -549,10 +588,10 @@ icmp_write (socket_t sock, char *buf, int length)
 
       /* Create ICMP header and put it in front of packet load. */
       hdr.type = ICMP_SERVEEZ;
-      hdr.code = ICMP_SERVEEZ_DATA;
+      hdr.code = sock->send_seq++ ? ICMP_SERVEEZ_DATA : ICMP_SERVEEZ_CONNECT;
       hdr.checksum = icmp_ip_checksum ((byte *) buf, size);
       hdr.ident = getpid () + sock->id;
-      hdr.sequence = 0;
+      hdr.sequence = sock->send_seq;
       hdr.port = sock->remote_port;
       memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
       len += ICMP_HEADER_SIZE;

@@ -26,7 +26,8 @@ This file lists user visible changes that were made between releases.
 Version 0.0.19
 --------------
 
- * the HTTP server got a configurable access logfile
+ * allowing `~user' syntax for http requests
+ * the http server got a configurable access logfile
  * port forwarder (Tunnel Server) can be enabled via --enable-tunnel
  * basic support for ICMP servers
  * package is available at www.freshmeat.net and www.sourceforge.net
@@ -50,7 +51,7 @@ Version 0.0.17
  * server protocols via named pipes on Linux and Win32 systems
  * TexInfo documentation
  * multiple servers on a single port and servers on multiple ports
- * server instanciating possible
+ * server instantiating possible
  * documentation on how to write servers and coservers for serveez
  * opened CVS repository
 

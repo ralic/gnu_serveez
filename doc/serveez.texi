@@ -755,6 +755,11 @@ server when the user does not specify a file but a document node
 The @code{docs} parameter is the document root where the server finds its
 web documents.
 
+@item userdir
+Each @samp{~user} request gets converted into the given users home
+directory. The string will be appended to this directory. Its default
+value is @samp{public_html}.
+
 @item cgi-url
 This parameter is the first part of the URL the HTTP server identifies a
 CGI request. For instance if you specify here @file{/cgi-bin} and the
@@ -830,6 +835,10 @@ what kind of entity was requested
 which document referred to this document
 @item %a
 what kind of web browser did the remote client use
+@item %c
+the http response return code for this request
+@item %l
+delivered content length in bytes
 @end table
 @end table
 

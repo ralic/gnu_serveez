@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.42 2000/11/03 21:42:23 ela Exp $
+ * $Id: http-proto.c,v 1.43 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -92,8 +92,8 @@
 portcfg_t http_port =
 {
   PROTO_TCP,  /* TCP protocol definition */
-  42424,      /* prefered port */
-  "*",        /* prefered local ip address */
+  42424,      /* preferred port */
+  "*",        /* preferred local ip address */
   NULL,       /* calculated automatically later */
   NULL,       /* no receiving (listening) pipe */
   NULL        /* no sending pipe */
@@ -121,7 +121,7 @@ http_config_t http_config =
   NULL,               /* host name of which is sent back to clients */
   "public_html",      /* appended onto a user's home (~user request) */
   0,                  /* enable reverse DNS lookups */
-  "access.log",       /* log file name */
+  "http-access.log",  /* log file name */
   NULL,               /* custom log file format string */
   NULL                /* log file stream */
 };
@@ -149,6 +149,7 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_STR ("host", http_config.host, DEFAULTABLE),
   REGISTER_STR ("logfile", http_config.logfile, DEFAULTABLE),
   REGISTER_STR ("logformat", http_config.logformat, DEFAULTABLE),
+  REGISTER_STR ("userdir", http_config.userdir, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -176,7 +177,7 @@ server_definition_t http_server_definition =
 
 /*
  * HTTP request types, their identification string (including its length)
- * and the appropiate callback routine itself. This array is used in
+ * and the appropriate callback routine itself. This array is used in
  * the HTTP_HANDLE_REQUEST function.
  */
 struct
@@ -260,6 +261,15 @@ http_init (server_t *server)
   log_printf (LOG_NOTICE, "http: %d+%d known content types\n",
 	      types, hash_size (*(cfg->types)) - types);
 
+  /* check user directory path, snip trailing '/' or '\' */
+  if (!cfg->userdir || !strlen (cfg->userdir))
+    {
+      log_printf (LOG_ERROR, "http: not a valid user directory\n");
+      return -1;
+    }
+  p = cfg->userdir + strlen (cfg->userdir) - 1;
+  if (*p == '/' || *p == '\\') *p = '\0';
+
   /* check document root path */
   if (!strlen (cfg->docs))
     {
@@ -315,6 +325,8 @@ http_free_socket (socket_t sock)
       http->request = NULL;
     }
   http->timestamp = 0;
+  http->response = 0;
+  http->length = 0;
 
   /* any property at all ? */
   if (http->property)
@@ -501,11 +513,11 @@ http_send_file (socket_t sock)
   http_socket_t *http = sock->data;
   int num_written;
 
-  /* Try sending throughout filedescriptor to socket. */
+  /* Try sending throughout file descriptor to socket. */
   num_written = sendfile (sock->sock_desc, sock->file_desc,
 			  &http->fileoffset, SOCK_MAX_WRITE);
   
-  /* Some error occured. */
+  /* Some error occurred. */
   if (num_written < 0)
     {
       log_printf (LOG_ERROR, "http: sendfile: %s\n", SYS_ERROR);
@@ -518,8 +530,9 @@ http_send_file (socket_t sock)
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the appropiate flags. */
+  /* Data has been read or EOF reached, set the appropriate flags. */
   http->filelength -= num_written;
+  http->length += num_written;
 
   /* Read all file data ? */
   if (http->filelength <= 0)
@@ -528,7 +541,7 @@ http_send_file (socket_t sock)
       log_printf (LOG_DEBUG, "http: file successfully sent\n");
 #endif
       /* 
-       * no further read()s from the file descriptor, signalling 
+       * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
       sock->read_socket = default_read;
@@ -576,7 +589,7 @@ http_default_write (socket_t sock)
       sock->send_buffer_fill -= num_written;
     }
 
-  /* write error occured */
+  /* write error occurred */
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "http: send: %s\n", NET_ERROR);
@@ -621,7 +634,7 @@ http_default_write (socket_t sock)
     }
 
   /*
-   * Return a non-zero value if an error occured.
+   * Return a non-zero value if an error occurred.
    */
   return (num_written < 0) ? -1 : 0;
 }
@@ -658,7 +671,7 @@ http_file_read (socket_t sock)
 		   sock->send_buffer + sock->send_buffer_fill,
 		   do_read);
 
-  /* Read error occured. */
+  /* Read error occurred. */
   if (num_read < 0)
     {
       log_printf (LOG_ERROR, "http: read: %s\n", SYS_ERROR);
@@ -671,9 +684,10 @@ http_file_read (socket_t sock)
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the appropiate flags. */
+  /* Data has been read or EOF reached, set the appropriate flags. */
   sock->send_buffer_fill += num_read;
   http->filelength -= num_read;
+  http->length += num_read;
 
   /* Read all file data ? */
   if (http->filelength <= 0)
@@ -682,7 +696,7 @@ http_file_read (socket_t sock)
       log_printf (LOG_DEBUG, "http: file successfully read\n");
 #endif
       /* 
-       * no further read()s from the file descriptor, signalling 
+       * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
       sock->read_socket = default_read;
@@ -724,7 +738,7 @@ http_detect_proto (void *cfg, socket_t sock)
 
 /*
  * When the http_detect_proto returns successfully this function must
- * be called to set all the appropiate callbacks and socket flags.
+ * be called to set all the appropriate callbacks and socket flags.
  */
 int
 http_connect_socket (void *http_cfg, socket_t sock)
@@ -861,7 +875,7 @@ http_handle_request (socket_t sock, int len)
   sprintf (http->request, "%s %s HTTP/%d.%d",
 	   request, uri, version[MAJOR_VERSION], version[MINOR_VERSION]);
 
-  /* find an appropiate request callback */
+  /* find an appropriate request callback */
   for (n = 0; n < HTTP_REQUESTS; n++)
     {
       if (!memcmp (request, http_request[n].ident, http_request[n].len))
@@ -1052,12 +1066,8 @@ http_get_response (socket_t sock, char *request, int flags)
 {
   int fd;
   int size, status;
-  char *file;
   struct stat buf;
-  char *cgifile;
-  char *dir;
-  char *host;
-  char *p;
+  char *cgifile, *dir, *host, *p, *file;
   time_t date;
   HANDLE cgi2s[2];
   http_cache_t *cache;
@@ -1097,7 +1107,7 @@ http_get_response (socket_t sock, char *request, int flags)
       if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE], 
 			 cgifile, request, GET_METHOD))
 	{
-	  /* some error occured here */
+	  /* some error occurred here */
 	  sock->read_socket = default_read;
 	  xfree (cgifile);
 	  return -1;
@@ -1106,26 +1116,41 @@ http_get_response (socket_t sock, char *request, int flags)
       return 0;
     }
 
+  /* check for "~user" syntax here */
+  if ((p = http_userdir (sock, request)) != NULL)
+    {
+      size = strlen (p) + strlen (cfg->indexfile) + 1;
+      file = xmalloc (size);
+      strcpy (file, p);
+      xfree (p);
+      status = 1;
+    }
   /* this is a usual file request */
-  size = 
-    strlen (cfg->docs) + 
-    strlen (request) + 
-    strlen (cfg->indexfile) + 4;
+  else
+    {
+      size = 
+	strlen (cfg->docs) + 
+	strlen (request) + 
+	strlen (cfg->indexfile) + 4;
 
-  file = xmalloc (size);
-  strcpy (file, cfg->docs);
-  strcat (file, request);
+      file = xmalloc (size);
+      strcpy (file, cfg->docs);
+      strcat (file, request);
+      status = 0;
+    }
 
   /* concate the IndexFile if necessary */
   if (file[strlen (file) - 1] == '/')
     {
+      p = file + strlen (file);
       strcat (file, cfg->indexfile);
+
       /* get directory listing if there is no index file */
       if ((fd = open (file, O_RDONLY)) == -1)
 	{
-	  strcpy (file, cfg->docs);
-	  strcat (file, request);
-	  if ((dir = http_dirlist (file, cfg->docs)) == NULL)
+	  *p = '\0';
+	  if ((dir = http_dirlist (file, cfg->docs, 
+				   status ? request : NULL)) == NULL)
 	    {
 	      log_printf (LOG_ERROR, "http: dirlist: %s: %s\n", 
 			  file, SYS_ERROR);
@@ -1136,6 +1161,8 @@ http_get_response (socket_t sock, char *request, int flags)
 	      return -1;
 	    }
 	  /* send the directory listing */
+	  http->response = 200;
+	  http->length = strlen (dir);
 	  xfree (sock->send_buffer);
 	  sock->send_buffer = dir;
 	  sock->send_buffer_size = http_dirlist_size;
@@ -1186,6 +1213,7 @@ http_get_response (socket_t sock, char *request, int flags)
   /* if directory then relocate to it */
   if (S_ISDIR (buf.st_mode))
     {
+      http->response = 302;
       host = http_find_property (http, "Host");
       sock_printf (sock, "%sLocation: %s%s%s/\r\n\r\n", 
 		   HTTP_RELOCATE, 
@@ -1230,6 +1258,7 @@ http_get_response (socket_t sock, char *request, int flags)
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "http: %s not changed\n", file);
 #endif
+	  http->response = 304;
 	  sock_printf (sock, HTTP_NOT_MODIFIED);
 	  http_check_keepalive (sock);
 	  sock_printf (sock, "\r\n");
@@ -1249,6 +1278,7 @@ http_get_response (socket_t sock, char *request, int flags)
   /* send a http header to the client */
   if (!(flags & HTTP_FLAG_SIMPLE))
     {
+      http->response = 200;
       sock_printf (sock, HTTP_OK);
       sock_printf (sock, "Content-Type: %s\r\n", 
 		   http_find_content_type (sock, file));
@@ -1263,7 +1293,7 @@ http_get_response (socket_t sock, char *request, int flags)
 
       http_check_keepalive (sock);
 
-      /* request foorter */
+      /* request footer */
       sock_printf (sock, "\r\n");
     }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: http-dirlist.h,v 1.4 2000/08/18 01:01:02 ela Exp $
+ * $Id: http-dirlist.h,v 1.5 2000/11/10 11:24:05 ela Exp $
  *
  */
 
@@ -35,13 +35,13 @@
  * docroot is a document root. The output suppresses this part of
  * the directory name.
  * The return value is a string containing a directory listing in some
- * hardcoded way. The global variable http_dirlist_size is set
+ * hard coded way. The global variable http_dirlist_size is set
  * to the actual size of this buffer (for debugging/memory counting).
  * If NULL is returned, something was wrong with the directory. You may
  * check errno for details.
  * ...and don't forget too free() the data somewhere somewhen...
  */
-char *http_dirlist (char *dirname, char *docroot);
+char *http_dirlist (char *dirname, char *docroot, char *userdir);
 extern int http_dirlist_size;
 
 

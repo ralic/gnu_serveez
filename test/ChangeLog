@@ -1,3 +1,9 @@
+2000-11-08  [ Ela ]  <ela@lkcc.org>
+
+	* alist-test.c (main): The stress test includes now a delete 
+	range section, too. Thus it was possible to find another bug in
+	alist_delete().
+
 2000-11-01  [ Ela ]  <ela@lkcc.org>
 
 	* alist-test.c (main): Added `delete range' checking.
