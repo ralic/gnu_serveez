@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.1 2000/06/25 17:31:41 ela Exp $
+ * $Id: interface.h,v 1.2 2000/06/28 18:45:51 ela Exp $
  *
  */
 
@@ -32,14 +32,14 @@ void list_local_interfaces (void);
 
 #ifdef _WIN32
 
-#include "include/tdiinfo.h" 
-#include "include/smpletcp.h"
+#include "include/ipdata.h" 
+#include "include/iphlpapi.h"
 
 /*
  * Function pointer definitions for use with GetProcAddress.
  */
-typedef int (__stdcall * WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
-                                         LPVOID, LPDWORD);
+typedef int (__stdcall *WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
+					LPVOID, LPDWORD);
 
 #define WSCTL_TCP_QUERY_INFORMATION 0
 #define WSCTL_TCP_SET_INFORMATION   1   

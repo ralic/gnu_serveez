@@ -1,3 +1,18 @@
+2000-06-28  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (EXTRA_DIST): Added the apropiate headers
+	for the network interface listing in the "include" directory.
+
+	* interface.c (list_local_interfaces): Included the the IP
+	Helper API for getting interface information on WinNT4x and
+	such.
+
+2000-06-26  [ Ela ]  <ela@lkcc.org>
+
+	* pipe-socket.c (pipe_disconnected): Differentiate shutdown
+	of named pipe listeners in Win32: "CloseHandle" and Unices:
+	"unlink".
+
 2000-06-25  [ Ela ]  <ela@lkcc.org>
 
 	* interface.c (list_local_interfaces): Made the list of

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.4 2000/06/19 22:56:14 ela Exp $
+ * $Id: pipe-socket.c,v 1.5 2000/06/28 18:45:51 ela Exp $
  *
  */
 
@@ -77,6 +77,20 @@ pipe_disconnected (socket_t sock)
     }
   else if (sock->flags & SOCK_FLAG_LISTENING)
     {
+#ifndef __MINGW32__
+      if (unlink (sock->recv_pipe) == -1)
+	log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
+      if (unlink (sock->send_pipe) == -1)
+	log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
+#else /* __MINGW32__ */
+      if (sock->pipe_desc[READ] != INVALID_HANDLE)
+	if (!CloseHandle (sock->pipe_desc[READ]))
+	  log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+	if (!CloseHandle (sock->pipe_desc[WRITE]))
+	  log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+#endif /* __MINGW32__ */
+
       log_printf (LOG_DEBUG, "pipe listener (%s) destroyed\n",
 		  sock->send_pipe);
     }

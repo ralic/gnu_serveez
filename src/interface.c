@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.1 2000/06/25 17:31:41 ela Exp $
+ * $Id: interface.c,v 1.2 2000/06/28 18:45:51 ela Exp $
  *
  */
 
@@ -65,9 +65,16 @@
  * The local interface list is requested by some "unrevealed"
  * WinSocket-Routine called "WsControl".
  * Works with: Win95, Win98
+ * Or we try using the IP Helper API. Works with WinNT4x.
  */
 
 WsControlProc WsControl = NULL;
+GetIfTableProc GetIfTable = NULL;
+GetIpAddrTableProc GetIpAddrTable = NULL;
+
+#define NO_METHOD    0
+#define WSCTL_METHOD 1
+#define IPAPI_METHOD 2
 
 void
 list_local_interfaces (void)
@@ -80,7 +87,7 @@ list_local_interfaces (void)
   DWORD entityIdsBufSize;
   TDIEntityID *entityIds;
   DWORD entityCount;
-  DWORD i, j, k;
+  DWORD i, n, k;
   DWORD ifCount;
   ULONG entityType;
   DWORD entityTypeSize;
@@ -88,39 +95,47 @@ list_local_interfaces (void)
   IFEntry *ifEntry;
   DWORD ipAddrEntryBufSize;
   IPAddrEntry *ipAddrEntry;
+  ULONG ifTableSize, ipTableSize;
+  PMIB_IFTABLE ifTable;
+  PMIB_IPADDRTABLE ipTable;
   unsigned char *addr;
 
   DWORD ifEntries = 0;
   ifList_t *ifList = NULL;
+  DWORD Method = NO_METHOD;
 
   /*
-   * First we have to detect the Windows OS's version, because
-   * the detection of the local network interfaces differs in
-   * Win9x and WinNTx. Sigh.
+   * Try getting WsControl () from "wsock32.dll" via LoadLibrary
+   * and GetProcAddress. Or try the IP Helper API.
    */
-  fprintf (stdout, "OS version: %s\n", get_version ());
-  if (os_version == Win95 || os_version == Win98)
+  if ((WSockHandle = LoadLibrary ("iphlpapi.dll")) != NULL)
     {
-      /*
-       * Get WsControl () from "wsock32.dll" via LoadLibrary
-       * and GetProcAddress.
-       */
-      WSockHandle = LoadLibrary ("wsock32.dll");
-      if (!WSockHandle) 
+      Method = IPAPI_METHOD;
+    }
+  else
+    {
+      if ((WSockHandle = LoadLibrary ("wsock32.dll")) != NULL)
 	{
-	  fprintf (stderr, "LoadLibrary: %s\n", SYS_ERROR);
+	  WsControl = (WsControlProc) 
+	    GetProcAddress (WSockHandle, "WsControl");
+	  if (!WsControl)
+	    {
+	      fprintf (stderr, "GetProcAddress (WsControl): %s\n", SYS_ERROR);
+	      FreeLibrary (WSockHandle);
+	      return;
+	    }
+	  Method = WSCTL_METHOD;
+	}
+      else
+	{
+	  fprintf (stderr, "LoadLibrary (WSock32.dll): %s\n", SYS_ERROR);
 	  return;
 	}
+    }
 
-      WsControl = (WsControlProc) GetProcAddress (WSockHandle, "WsControl");
-      if (!WsControl) 
-	{
-	  fprintf (stderr, "GetProcAddress: %s\n", SYS_ERROR);
-	  FreeLibrary (WSockHandle);
-	  return;
-	}
-
-      result = WSAStartup (MAKEWORD(1, 1), &WSAData);
+  if (Method == WSCTL_METHOD)
+    {
+      result = WSAStartup (MAKEWORD (1, 1), &WSAData);
       if (result) 
 	{
 	  fprintf (stderr, "WSAStartup: %s\n", NET_ERROR);
@@ -294,18 +309,18 @@ list_local_interfaces (void)
 			  "can start ip services on ---\n");
 
 		  /* print ip address list and interface description */
-		  for (j = 0; j < ifCount; j++) 
+		  for (n = 0; n < ifCount; n++) 
 		    {
-		      addr = (unsigned char *) &ipAddrEntry[j].iae_addr;
+		      addr = (unsigned char *) &ipAddrEntry[n].iae_addr;
 
 		      for (k = 0; k < ifEntries; k++)
-			if (ifList[k].index == ipAddrEntry[j].iae_index)
+			if (ifList[k].index == ipAddrEntry[n].iae_index)
 			  break;
 
 		      if (k != ifEntries)
 			{
 			  /* interface with description */
-			  fprintf (stdout, "%35s: %u.%u.%u.%u\n",
+			  fprintf (stdout, "%40s: %u.%u.%u.%u\n",
 				   ifList[k].description,
 				   addr[0], addr[1], addr[2], addr[3]);
 			}
@@ -313,9 +328,9 @@ list_local_interfaces (void)
 			{
 			  /* interface with interface # only */
 			  fprintf (stdout,
-				   "%25s %09lu: %u.%u.%u.%u\n",
-				   "interface #",
-				   ipAddrEntry[j].iae_index,
+				   "%31s%09lu: %u.%u.%u.%u\n",
+				   "interface # ",
+				   ipAddrEntry[n].iae_index,
 				   addr[0], addr[1], addr[2], addr[3]);
 			}
 		    }
@@ -328,10 +343,79 @@ list_local_interfaces (void)
     }
 
   /* this is for WinNT... */
-  else if (os_version != 0)
+  else if (Method == IPAPI_METHOD)
     {
-      /* We want use to use the IPHelper-API here.. */
-      fprintf (stdout, "note: not yet implemented, using IPHelper-API\n");
+      /* Use of the IPHelper-API here. */
+      GetIfTable = (GetIfTableProc) 
+	GetProcAddress (WSockHandle, "GetIfTable");
+      if (!GetIfTable)
+	{
+	  fprintf (stderr, "GetProcAddress (GetIfTable): %s\n", SYS_ERROR);
+	  FreeLibrary (WSockHandle);
+	  return;
+	}
+
+      GetIpAddrTable = (GetIpAddrTableProc) 
+	GetProcAddress (WSockHandle, "GetIpAddrTable");
+      if (!GetIpAddrTable)
+	{
+	  fprintf (stderr, "GetProcAddress (GetIpAddrTable): %s\n", SYS_ERROR);
+	  FreeLibrary (WSockHandle);
+	  return;
+	}
+
+      ifTableSize = sizeof (MIB_IFTABLE);
+      ifTable = (PMIB_IFTABLE) malloc (ifTableSize);
+      GetIfTable (ifTable, &ifTableSize, FALSE);
+      ifTable = (PMIB_IFTABLE) realloc (ifTable, ifTableSize);
+      if (GetIfTable (ifTable, &ifTableSize, FALSE) != NO_ERROR)
+	{
+	  fprintf (stderr, "GetIfTable: %s\n", SYS_ERROR);
+	  FreeLibrary (WSockHandle);
+	  return;
+	}
+  
+      ipTableSize = sizeof (MIB_IPADDRTABLE);
+      ipTable = (PMIB_IPADDRTABLE) malloc (ipTableSize);
+      GetIpAddrTable (ipTable, &ipTableSize, FALSE);
+      ipTable = (PMIB_IPADDRTABLE) realloc (ipTable, ipTableSize);
+      if (GetIpAddrTable (ipTable, &ipTableSize, FALSE) != NO_ERROR)
+	{
+	  fprintf (stderr, "GetIpAddrTable: %s\n", SYS_ERROR);
+	  FreeLibrary (WSockHandle);
+	  return;
+	}
+      
+      for (n = 0; n < ipTable->dwNumEntries; n++)
+	{
+	  for (i = 0; i < ifTable->dwNumEntries; i++)
+	    {
+	      if (ifTable->table[i].dwIndex == ipTable->table[n].dwIndex)
+		{
+		  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
+		  
+		  fprintf (stdout, "%40s: %u.%u.%u.%u\n", 
+			  ifTable->table[i].bDescr,
+			  ipTable->table[n].dwAddr & 0xFF,
+			  (ipTable->table[n].dwAddr >> 8) & 0xFF,
+			  (ipTable->table[n].dwAddr >> 16) & 0xFF,
+			  (ipTable->table[n].dwAddr >> 24) & 0xFF);
+		  break;
+		}
+	    }
+	  if (i == ipTable->dwNumEntries)
+	    {
+	      fprintf (stdout, "%31s%09u: %u.%u.%u.%u\n", 
+		      "interface # ",
+		      ipTable->table[n].dwIndex,
+		      ipTable->table[n].dwAddr & 0xFF,
+		      (ipTable->table[n].dwAddr >> 8) & 0xFF,
+		      (ipTable->table[n].dwAddr >> 16) & 0xFF,
+		      (ipTable->table[n].dwAddr >> 24) & 0xFF);
+	    }
+	}
+
+      FreeLibrary (WSockHandle);
     }
 }
 

@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.6 2000/06/25 17:31:41 ela Exp $
+# $Id: Makefile.am,v 1.7 2000/06/28 18:45:51 ela Exp $
 #
 
 #
@@ -31,8 +31,8 @@
 #
 
 EXTRA_DIST = \
-	include/smpletcp.h \
-	include/tdiinfo.h
+	include/ipdata.h \
+	include/iphlpapi.h
 
 #
 # Add your subdirectory here

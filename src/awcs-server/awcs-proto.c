@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.7 2000/06/25 17:31:41 ela Exp $
+ * $Id: awcs-proto.c,v 1.8 2000/06/28 18:45:51 ela Exp $
  *
  */
 
@@ -140,11 +140,6 @@ awcs_finalize (server_t *server)
 {
   awcs_config_t *cfg = server->cfg;
   
-  if (unlink (cfg->fsport->inpipe) == -1)
-    log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
-  if (unlink (cfg->fsport->outpipe) == -1)
-    log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
-
   hash_destroy (cfg->clients);
   
   return 0;
