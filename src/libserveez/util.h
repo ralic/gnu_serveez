@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.9 2001/05/21 21:20:42 ela Exp $
+ * $Id: util.h,v 1.10 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -66,8 +66,6 @@ typedef unsigned char byte;
 #define LOG_DEBUG     4
 
 __BEGIN_DECLS
-
-SERVEEZ_API extern int svz_verbosity;
 
 SERVEEZ_API void svz_log __P ((int, const char *, ...));
 SERVEEZ_API void svz_log_setfile __P ((FILE *));

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.11 2001/05/19 23:04:56 ela Exp $
+ * $Id: foo-proto.h,v 1.12 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -42,6 +42,7 @@ typedef struct
   int bar;                /* integer example */
   svz_portcfg_t *port;    /* example port configuration */
   svz_hash_t *assoc;      /* a hash example */
+  int truth;              /* boolean example */
 }
 foo_config_t;
 

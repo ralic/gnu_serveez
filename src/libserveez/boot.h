@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.6 2001/05/21 21:20:41 ela Exp $
+ * $Id: boot.h,v 1.7 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -38,6 +38,8 @@ typedef struct
   SOCKET max_sockets;
   /* when was the program started */
   long start_time;
+  /* log level verbosity */
+  int verbosity;
 }  
 svz_config_t;
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.39 2001/06/04 22:47:50 ela Exp $
+ * $Id: serveez.c,v 1.40 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -74,7 +74,7 @@ guile_entry (int argc, char **argv)
    * file settings.
    */
   if (options->verbosity != -1)
-    svz_verbosity = options->verbosity;
+    svz_config.verbosity = options->verbosity;
 
   if (options->sockets != -1)
     svz_config.max_sockets = options->sockets;
@@ -88,10 +88,6 @@ guile_entry (int argc, char **argv)
 #if ENABLE_DEBUG
   svz_log (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
-
-  /* FIXME: cannot set from guile, yet */
-  if (svz_config.max_sockets < 100)
-    svz_config.max_sockets = 100;
 
   svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());
   svz_openfiles (svz_config.max_sockets);

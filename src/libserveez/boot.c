@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.13 2001/05/20 20:30:43 ela Exp $
+ * $Id: boot.c,v 1.14 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -36,6 +36,7 @@
 #endif
 
 #include "version.h"
+#include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/vector.h"
 #include "libserveez/interface.h"
@@ -134,6 +135,9 @@ void
 svz_init_config (void)
 {
   svz_config.start_time = time (NULL);
+  svz_config.verbosity = LOG_DEBUG;
+  svz_config.max_sockets = 100;
+  svz_config.server_password = NULL;
 }
 
 /*
@@ -154,6 +158,7 @@ svz_boot (void)
 void
 svz_halt (void)
 {
+  svz_free_and_zero (svz_config.server_password);
   svz_portcfg_finalize ();
   svz_dynload_finalize ();
   svz_net_cleanup ();

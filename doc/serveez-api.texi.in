@@ -300,7 +300,6 @@ left overs of the C API.
 SVZ_LOG_DEFUN
 SVZ_LOG_SETFILE_DEFUN
 
-SVZ_VERBOSITY_DEFVAR
 SVZ_OS_VERSION_DEFVAR
 @strong{Please note}:
 This variable is only available on Windows version of this API.

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.22 2001/06/05 17:57:22 ela Exp $
+ * $Id: guile.c,v 1.23 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -134,9 +134,10 @@ report_error (const char *format, ...)
  * symbol. Returns @code{NULL} if it was neither. The new string must be 
  * explicitly @code{free()}d.
  */
-#define guile2str(scm)                                       \
-  (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) :           \
-  (gh_symbol_p (scm) ? gh_symbol2newstr (scm, NULL) : NULL))
+#define guile2str(scm)                                        \
+  (gh_null_p (scm) ? NULL :                                   \
+  (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) :            \
+  (gh_symbol_p (scm) ? gh_symbol2newstr (scm, NULL) : NULL)))
 
 /*
  * Validate the values of an option-hash. Returns the number of errors.
@@ -206,18 +207,22 @@ optionhash_get (svz_hash_t *hash, char *key)
  * Traverse a scheme pairlist that is an associative list and build up
  * a hash from it. Emits error messages and returns NULL when it did so.
  * Hash keys are the key names. Hash values are pointers to guile_value_t 
- * structures.
+ * structures. If @var{dounpack} is set the pairlist's car is used instead
+ * of the pairlist itself. You have to unpack when no "." is in front of
+ * the pairlist definitiion (in scheme code). Some please explain the "." to
+ * Ela and Raimi...
  */
 static svz_hash_t *
-guile2optionhash (SCM pairlist, char *txt)
+guile2optionhash (SCM pairlist, char *txt, int dounpack)
 {
   svz_hash_t *hash = svz_hash_create (10);
   guile_value_t *old_value;
   guile_value_t *new_value;
   int err = 0;
 
-  /* Have to unpack that list again... Why ? */
-  pairlist = gh_car (pairlist);
+  /* unpack when requested, ignore when null already (empty == not existent) */
+  if (dounpack && !gh_null_p (pairlist))
+    pairlist = gh_car (pairlist);
 
   for ( ; gh_pair_p (pairlist); pairlist = gh_cdr (pairlist))
     {
@@ -670,7 +675,6 @@ optionhash_cb_hash (char *server, void *arg, char *key,
       svz_hash_t *hash;
 
       /* Unpack again... Whysoever. */
-      hvalue = gh_car (hvalue);
       if (!gh_list_p (hvalue))
 	{
 	  err = -1;
@@ -875,7 +879,7 @@ guile_define_server (SCM name, SCM args)
   svz_snprintf (txt, 256, "defining server `%s'", servername);
     
   /* Extract options. */
-  if (NULL == (options = guile2optionhash (args, txt)))
+  if (NULL == (options = guile2optionhash (args, txt, 1)))
     FAIL (); /* Message already emitted. */
 
   /* Seperate server description. */
@@ -969,7 +973,7 @@ guile_define_port (SCM name, SCM args)
   txt = svz_malloc (256);
   svz_snprintf (txt, 256, "defining port `%s'", portname);
 
-  if (NULL == (options = guile2optionhash (args, txt)))
+  if (NULL == (options = guile2optionhash (args, txt, 1)))
     FAIL (); /* Message already emitted. */
 
   /* Every key defined only once ? */
@@ -1035,16 +1039,27 @@ guile_define_port (SCM name, SCM args)
     {
       svz_hash_t *poptions;
       SCM p;
+      char *str;
       cfg->proto = PROTO_PIPE;
 
-      /* Create local optionhash for each pipe direction. */
-      if ((p = optionhash_get (options, PORTCFG_RECV)) == SCM_UNSPECIFIED)
+      /* Handle receiving pipe. */
+      svz_snprintf (txt, 256, "defining pipe `%s'", PORTCFG_RECV);
+
+      /* Check if it is a plain string. */ 
+      p = optionhash_get (options, PORTCFG_RECV);
+      if ((str = guile2str (p)) != NULL)
+	{
+	  cfg->pipe_recv.name = svz_strdup (str);
+	  free (str);
+	}
+      /* Create local optionhash for receiving pipe direction. */
+      else if (p == SCM_UNSPECIFIED)
 	{
 	  report_error ("%s: You have to define a pipe called `%s'",
 			portname, PORTCFG_RECV);
 	  err = -1;
 	}
-      else if ((poptions = guile2optionhash (p, txt)) == NULL)
+      else if ((poptions = guile2optionhash (p, txt, 0)) == NULL)
 	{
 	  err = -1; /* Message already emitted. */
 	}
@@ -1056,13 +1071,22 @@ guile_define_port (SCM name, SCM args)
 	}
 
       /* Try getting send pipe. */
-      if ((p = optionhash_get (options, PORTCFG_SEND)) == SCM_UNSPECIFIED)
+      svz_snprintf (txt, 256, "defining pipe `%s'", PORTCFG_SEND);
+
+      /* Check plain string. */
+      p = optionhash_get (options, PORTCFG_SEND);
+      if ((str = guile2str (p)) != NULL)
+	{
+	  cfg->pipe_send.name = svz_strdup (str);
+	  free (str);
+	}
+      else if (p == SCM_UNSPECIFIED)
 	{
 	  report_error ("%s: You have to define a pipe called `%s'",
 			portname, PORTCFG_SEND);
 	  err = -1;
 	}
-      else if ((poptions = guile2optionhash (p, txt)) == NULL)
+      else if ((poptions = guile2optionhash (p, txt, 0)) == NULL)
 	{
 	  err = -1; /* Message already emitted. */
 	}
@@ -1100,8 +1124,8 @@ guile_define_port (SCM name, SCM args)
   if ((prev = svz_portcfg_add (portname, cfg)) != cfg)
     {
       /* We've overwritten something. Report and dispose. */
-      report_error ("Overriding previous definition of port `%s'",
-		    portname);
+      report_error ("Duplicate definition of port `%s'", portname);
+      err = -1;
       svz_portcfg_destroy (prev);
     }
 
@@ -1132,14 +1156,14 @@ guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
   /* Check id there is such a port configuration. */
   if ((p = svz_portcfg_get (portname)) == NULL)
     {
-      report_error ("No such port: %s", portname);
+      report_error ("%s: No such port: %s", FUNC_NAME, portname);
       error++;
     }
 
   /* Get one of the servers in the list. */
   if ((s = svz_server_get (servername)) == NULL)
     {
-      report_error ("No such server: %s", servername);
+      report_error ("%s: No such server: %s", FUNC_NAME, servername);
       error++;
     }
   
@@ -1156,13 +1180,58 @@ guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
 #undef FUNC_NAME
 
 /*
+ * Create an accessor function to read and write a C variable, int
+ */
+#define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
+static SCM cfunc (SCM args) {                                \
+  SCM value = gh_int2scm (cvar); int n;                      \
+  if (args != SCM_UNDEFINED){                                \
+    if (guile2int(args, &n)) {                               \
+      report_error ("%s: Invalid integer value", FUNC_NAME); \
+      guile_global_error = -1;                               \
+    } else { cvar = n; } }                                   \
+  return value;                                              \
+}
+
+/*
+ * Create an accessor function to read and write a C variable, string
+ */
+#define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
+static SCM cfunc (SCM args) {                                \
+  SCM value = gh_str02scm (cvar); char *tmp;                 \
+  if (args != SCM_UNDEFINED){                                \
+    if (NULL == (tmp = guile2str(args))) {                   \
+      report_error ("%s: Invalid string value", FUNC_NAME);  \
+      guile_global_error = -1;                               \
+    } else {                                                 \
+      svz_free (cvar);                                       \
+      cvar = svz_strdup (tmp);                               \
+      free (tmp);                                            \
+    } }                                                      \
+  return value;                                              \
+}
+
+/* Acessor for the 'verbosity' global setting. */
+#define FUNC_NAME "serveez-verbosity"
+MAKE_INT_ACCESSOR (guile_access_verbosity, svz_config.verbosity)
+#undef FUNC_NAME
+
+/* Acessor for the 'max sockets' global setting */
+#define FUNC_NAME "serveez-maxsockets"
+MAKE_INT_ACCESSOR (guile_access_maxsockets, svz_config.max_sockets)
+#undef FUNC_NAME
+
+/* Acessor for the 'password' global setting */
+#define FUNC_NAME "serveez-passwd"
+MAKE_STRING_ACCESSOR (guile_access_passwd, svz_config.server_password)
+#undef FUNC_NAME
+
+/*
  * Initialize Guile.
  */
 static void
 guile_init (void)
 {
-  SCM def_serv;
-
   /* define some variables */
   gh_define ("serveez-version", gh_str02scm (svz_version));
   gh_define ("guile-version", scm_version ());
@@ -1170,14 +1239,16 @@ guile_init (void)
   gh_define ("have-Win32", gh_bool2scm (svz_have_Win32));
   gh_define ("have-floodprotect", gh_bool2scm (svz_have_floodprotect));
 
-  gh_define ("serveez-verbosity", gh_int2scm (svz_verbosity));
-  gh_define ("serveez-sockets", gh_int2scm (svz_config.max_sockets));
-  gh_define ("serveez-pass", gh_str02scm (svz_config.server_password));
+  /* export accessors for global variables (read/write capable) */
+  /* FIXME: 3rd argument when 0 required args ? */
+  gh_new_procedure ("serveez-verbosity", guile_access_verbosity, 0, 1, 1);
+  gh_new_procedure ("serveez-maxsockets", guile_access_maxsockets, 0, 1, 1);
+  gh_new_procedure ("serveez-passwd", guile_access_passwd, 0, 1, 1);
 
   /* export some new procedures */
-  def_serv = gh_new_procedure ("define-port!", guile_define_port, 1, 0, 2);
-  def_serv = gh_new_procedure ("define-server!", guile_define_server, 1, 0, 2);
-  def_serv = gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 3);
+  gh_new_procedure ("define-port!", guile_define_port, 1, 0, 2);
+  gh_new_procedure ("define-server!", guile_define_server, 1, 0, 2);
+  gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 3);
 }
 
 /*
@@ -1187,11 +1258,22 @@ guile_init (void)
 static SCM 
 guile_exception (void *data, SCM tag, SCM args)
 {
-  fprintf (stderr, "exception: ");
-  gh_display (tag);
-  fprintf (stderr, ": ");
-  gh_display (args);
-  gh_newline ();
+  /* FIXME: current-load-port is not defined in this state. why ? */
+
+  /* tag contains internal exception name
+   * scm_display (tag, scm_current_error_port ());
+   */
+  scm_display (gh_str02scm ("guile-error: ") , scm_current_error_port ());
+
+  if (SCM_BOOL_F != gh_car (args))
+    {
+      scm_display (gh_car (args), scm_current_error_port ());
+      scm_display (gh_str02scm (": "), scm_current_error_port ());
+    }
+  scm_simple_format (scm_current_error_port (),
+		     gh_car (gh_cdr (args)),
+		     gh_car (gh_cdr (gh_cdr (args))));
+  scm_display (gh_str02scm ("\n"), scm_current_error_port ());
   return SCM_BOOL_F;
 }
 

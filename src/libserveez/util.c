@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.11 2001/05/22 21:06:42 ela Exp $
+ * $Id: util.c,v 1.12 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -71,6 +71,7 @@
 #endif
 
 #include "libserveez/snprintf.h"
+#include "libserveez/boot.h"
 #include "libserveez/windoze.h"
 #include "libserveez/util.h"
 
@@ -83,7 +84,6 @@
  * 4 - debugging output
  * Levels always imply numerically lesser levels.
  */
-int svz_verbosity = LOG_DEBUG;
 
 static char log_level[][16] = {
   "fatal",
@@ -110,7 +110,7 @@ svz_log (int level, const char *format, ...)
   time_t tm;
   struct tm *t;
 
-  if (level > svz_verbosity || svz_logfile == NULL)
+  if (level > svz_config.verbosity || svz_logfile == NULL)
     return;
 
   tm = time (NULL);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.29 2001/06/01 21:24:09 ela Exp $
+ * $Id: foo-proto.c,v 1.30 2001/06/06 17:40:21 raimi Exp $
  *
  */
 
@@ -60,6 +60,7 @@ foo_config_t foo_config =
   42,                /* bar */
   &foo_default_port, /* default port configuration */
   NULL,              /* assoc hash table */
+  1,                 /* default truth value */
 };
 
 /*
@@ -74,6 +75,7 @@ svz_key_value_pair_t foo_config_prototype [] =
   SVZ_REGISTER_INTARRAY ("ports", foo_config.ports, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_HASH ("assoc", foo_config.assoc, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_PORTCFG ("port", foo_config.port, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_BOOL ("truth", foo_config.truth, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -275,8 +277,9 @@ foo_info_server (svz_server_t *server)
 
   sprintf (text, 
 	   " reply : %s\r\n"
-	   " bar   : %d\r\n",
-	   cfg->reply, cfg->bar);
+	   " bar   : %d\r\n"
+	   " truth : %d\r\n",
+	   cfg->reply, cfg->bar, cfg->truth);
   strcpy (info, text);
 
   svz_array_foreach (cfg->messages, str, i)
