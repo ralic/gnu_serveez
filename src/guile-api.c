@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.17 2002/02/05 13:27:31 ela Exp $
+ * $Id: guile-api.c,v 1.18 2002/02/06 06:54:56 ela Exp $
  *
  */
 
@@ -599,7 +599,7 @@ scm_return_rpcentry (struct rpcent *entry)
 
   ans = scm_c_make_vector (3, SCM_UNSPECIFIED);
   ve = SCM_VELTS (ans);
-  ve[0] = scm_mem2string (entry->r_name, strlen (entry->r_name));
+  ve[0] = scm_makfrom0str (entry->r_name);
   ve[1] = scm_makfromstrs (-1, entry->r_aliases);
   ve[2] = scm_ulong2num ((unsigned long) entry->r_number);
   return ans;
@@ -680,7 +680,8 @@ scm_setrpc (SCM stayopen)
 /* This procedure returns a list of the current RPC program-to-port mappings
    on the host located at IP address @var{address}. When you leave this 
    argument it defaults to the local machine's IP address. This routine 
-   can return @code{#f} indicating there is no such list available. */
+   can return an empty list either indicating there is no such list 
+   available or an error occurred while fetching the list. */
 #define FUNC_NAME "portmap-list"
 SCM
 scm_portmap_list (SCM address)
@@ -707,13 +708,14 @@ scm_portmap_list (SCM address)
 	{
 	  guile_error ("%s: IP in dotted decimals expected", FUNC_NAME);
 	  scm_c_free (str);
-	  return SCM_BOOL_F;
+	  return SCM_EOL;
 	}
       addr.sin_addr.s_addr = raddr.sin_addr.s_addr;
+      scm_c_free (str);
     }
 
   if ((map = pmap_getmaps (&addr)) == NULL)
-    return SCM_BOOL_F;
+    return SCM_EOL;
   do
     {
       mapping = scm_c_make_vector (4, SCM_UNSPECIFIED);
@@ -778,22 +780,25 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
 static int
 guile_coserver_callback (char *res, SCM callback, SCM arg)
 {
+  int ret = -1;
+
   /* If successfully done, run the given Guile procedure. */
   if (res != NULL)
     {
       /* Run procedure with one argument only. */
       if (SCM_UNBNDP (arg))
-	guile_call (callback, 1, scm_mem2string (res, strlen (res)));
+	guile_call (callback, 1, scm_makfrom0str (res));
+      /* Run procedure with both arguments. */
       else
-	{
-	  /* Run procedure with both arguments. */
-	  guile_call (callback, 2, scm_mem2string (res, strlen (res)), arg);
-	  scm_gc_unprotect_object (arg);
-	}
-      scm_gc_unprotect_object (callback);
-      return 0;
+	guile_call (callback, 2, scm_makfrom0str (res), arg);
+      ret = 0;
     }
-  return -1;
+
+  /* Pass the values to garbage collection again. */
+  if (!SCM_UNBNDP (arg))
+    scm_gc_unprotect_object (arg);
+  scm_gc_unprotect_object (callback);
+  return ret;
 }
 
 /* This procedure enqueues the @var{host} string argument into the internal
@@ -827,6 +832,7 @@ guile_coserver_dns (SCM host, SCM callback, SCM arg)
 
   /* Enqueue coserver request. */
   svz_coserver_dns (request, guile_coserver_callback, callback, arg);
+  scm_c_free (request);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME

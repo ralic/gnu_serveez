@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.13 2002/02/05 13:27:31 ela Exp $
+;; $Id: inetd.scm,v 1.14 2002/02/06 06:54:56 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -204,14 +204,13 @@
 ;; registered at the portmapper and returns #t if so.  otherwise the 
 ;; procedure returns #f.
 (define (check-rpc-portmapper number version)
-  (let* ((mappings (portmap-list)) (result #f))
-    (if mappings
-	(for-each (lambda (mapping)
-		    (if (and (equal? (vector-ref mapping 0) number)
-			     (equal? (vector-ref mapping 1) version))
-			(set! result #t)))
-		  mappings))
-    result))
+  (let ((mappings (portmap-list)))
+    (let loop ((mapping mappings))
+      (if (null? mapping)
+	  #f
+	  (or (and (equal? (vector-ref (car mapping) 0) number)
+		   (equal? (vector-ref (car mapping) 1) version))
+	      (loop (cdr mapping)))))))
 
 ;; this procedure registers the rpc service identified by the triplet
 ;; [number,version,protocol] at a network port system wide.  this 

@@ -1,5 +1,11 @@
 2002-02-05  [ Ela ]  <ela@lkcc.org>
 
+	* guile-api.c (scm_portmap_list): Now returns an empty list
+	if there are no RPC port mappings or an error occurred.
+
+	* guile-server/inetd.scm (check-rpc-portmapper): Applied
+	Martin Grabmueller's proposal.  Thanks!
+
 	* guile-api.c (guile_coserver_ident, guile_coserver_dns, 
 	guile_coserver_rdns): Three new functions being the Guile 
 	frontend to the internal coservers of Serveez.
