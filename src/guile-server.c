@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.22 2001/10/08 13:02:54 ela Exp $
+ * $Id: guile-server.c,v 1.23 2001/10/25 16:59:09 ela Exp $
  *
  */
 
@@ -123,74 +123,24 @@ MAKE_SMOB_DEFINITION (svz_socket, "svz-socket")
 MAKE_SMOB_DEFINITION (svz_server, "svz-server")
 MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
 
-/* Internal garbage collector function for servertype definitions. Return
-   the number of marked objects. */
-static int
-guile_svz_servertype_internal_gc (svz_servertype_t *stype)
-{
-  svz_hash_t *gserver;
-  SCM *proc;
-  int i, n = 0;
-
-  /* Walk over the hash containing all references to guile procedures
-     associated with this servertype smob. */
-  if (stype != NULL)
-    {
-      gserver = svz_hash_get (guile_server, stype->prefix);
-      svz_hash_foreach_value (gserver, proc, i)
-	if (proc[i] != (SCM) stype && !gh_eq_p (proc[i], SCM_UNDEFINED))
-	  {
-	    scm_gc_mark (proc[i]);
-	    n++;
-	  }
-    }
-  return n;
-}
-
-/* Garbage collector function for servertype definitions. */
+/* Garbage collector function for guile servertype definitions. */
 static SCM
 guile_svz_servertype_gc (SCM server)
 {
-  svz_servertype_t *stype = GET_SMOB (svz_servertype, server);
-  guile_svz_servertype_internal_gc (stype);
   return SCM_BOOL_F;
 }
 
-/* Garbage collector function for the @code{data} member and the associated
-   procedures of the socket structure. */
+/* Garbage collector function for guile socket structures. */
 static SCM
 guile_svz_socket_gc (SCM socket)
 {
-  svz_socket_t *sock = GET_SMOB (svz_socket, socket);
-  svz_hash_t *gsock;
-  SCM *proc;
-  int i;
-
-  /* Walk over the callback hash containing all references to guile
-     procedures associated with this socket smob. */
-  gsock = svz_hash_get (guile_sock, svz_itoa (sock->id));
-  svz_hash_foreach_value (gsock, proc, i)
-    scm_gc_mark (proc[i]);
-
-  /* Mark the reference stored in the data field if necessary. */
-  if (sock->data)
-    scm_gc_mark ((SCM) sock->data);
-
-  /* Recurse into the servertype definition of the socket. */
-  guile_svz_servertype_internal_gc 
-    (svz_servertype_find (svz_server_find (sock->cfg)));
-
   return SCM_BOOL_F;
 }
 
-/* Garbage collector function for server definitions. */
+/* Garbage collector function for guile server definitions. */
 static SCM
 guile_svz_server_gc (SCM server)
 {
-  svz_server_t *s = GET_SMOB (svz_server, server);
-
-  /* Recurse into the servertype definition of the server. */
-  guile_svz_servertype_internal_gc (svz_servertype_find (s));
   return SCM_BOOL_F;
 }
 
@@ -278,7 +228,7 @@ guile_servertype_getfunction (svz_servertype_t *server, char *func)
   if ((gserver = svz_hash_get (guile_server, server->prefix)) == NULL)
     return SCM_UNDEFINED;
 
-  if ((proc = (SCM) ((unsigned long) svz_hash_get (gserver, func))) == 0)
+  if ((proc = (SCM) SVZ_PTR2NUM (svz_hash_get (gserver, func))) == 0)
     return SCM_UNDEFINED;
   
   return proc;
@@ -303,7 +253,7 @@ guile_sock_getfunction (svz_socket_t *sock, char *func)
   if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
     return SCM_UNDEFINED;
 
-  if ((proc = (SCM) ((unsigned long) svz_hash_get (gsock, func))) == 0)
+  if ((proc = (SCM) SVZ_PTR2NUM (svz_hash_get (gsock, func))) == 0)
     return SCM_UNDEFINED;
   
   return proc;
@@ -329,11 +279,14 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
       svz_hash_put (guile_sock, svz_itoa (sock->id), gsock);
     }
 
-  if ((oldproc = 
-       ((SCM) (unsigned long) 
-	svz_hash_put (gsock, func, SVZ_NUM2PTR (proc)))) == 0)
+  /* Put guile procedure into socket hash and protect it. Removes old
+     guile procedure and unprotects it. */
+  scm_protect_object (proc);
+  oldproc = (SCM) SVZ_PTR2NUM (svz_hash_put (gsock, func, SVZ_NUM2PTR (proc)));
+  if (oldproc == 0)
     return SCM_UNDEFINED;
 
+  scm_unprotect_object (oldproc);
   return oldproc;
 }
 
@@ -428,7 +381,7 @@ guile_call_handler (SCM data, SCM tag, SCM args)
 /*
  * The following function takes an arbitrary number of arguments (specified
  * in @var{args}) passed to @code{scm_apply()} calling the guile procedure 
- * @var{code}. The function catches exceptions occuring in the procedure 
+ * @var{code}. The function catches exceptions occurring in the procedure 
  * @var{code}. On success (no exception) the routine returns the value 
  * returned by @code{scm_apply()} otherwise @code{SCM_BOOL_F}.
  */
@@ -520,7 +473,32 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
   return 0;
 }
 
-/* Wrapper for the socket disconnected callback. Used here in order to
+/* Destroys the given hash containing the guile procedure callbacks
+   associated with a socket structure. */
+static void
+guile_sock_clear_callbacks (svz_hash_t *callbacks)
+{
+  int n;
+  SCM *proc;
+
+  svz_hash_foreach_value (callbacks, proc, n)
+    scm_unprotect_object (proc[n]);
+  svz_hash_destroy (callbacks);
+}
+
+/* Free the socket boundary if set by guile. */
+static void
+guile_sock_clear_boundary (svz_socket_t *sock)
+{
+  if (sock->boundary)
+    {
+      scm_must_free (sock->boundary);
+      sock->boundary = NULL;
+    }
+  sock->boundary_size = 0;
+}
+
+/* Wrapper for the socket disconnected callback.  Used here in order to
    delete the additional guile callbacks associated with the disconnected
    socket structure. */
 static int
@@ -538,9 +516,16 @@ guile_func_disconnected (svz_socket_t *sock)
       retval = guile_integer (ret, -1);
     }
 
-  /* Delete all the associated guile callbacks. */
+  /* Delete all the associated guile callbacks and unprotect these. */
   if ((gsock = svz_hash_delete (guile_sock, svz_itoa (sock->id))) != NULL)
-    svz_hash_destroy (gsock);
+    guile_sock_clear_callbacks (gsock);
+
+  /* Release associated guile object is necessary. */
+  if (sock->data != NULL)
+    scm_unprotect_object ((SCM) SVZ_PTR2NUM (sock->data));
+
+  /* Free the socket boundary if set by guile. */
+  guile_sock_clear_boundary (sock);
 
   return retval;
 }
@@ -581,7 +566,7 @@ guile_func_finalize (svz_server_t *server)
   return 0;
 }
 
-/* Wrappper routine for the global finalization of a server type. */
+/* Wrapper routine for the global finalization of a server type. */
 static int
 guile_func_global_finalize (svz_servertype_t *stype)
 {
@@ -736,6 +721,9 @@ guile_sock_boundary (SCM sock, SCM boundary)
   SCM_ASSERT_TYPE (gh_exact_p (boundary) || gh_string_p (boundary), 
 		   boundary, SCM_ARG2, FUNC_NAME, "string or exact");
 
+  /* Release previously set boundaries. */
+  guile_sock_clear_boundary (xsock);
+
   /* Setup for fixed sized packets. */
   if (gh_exact_p (boundary))
     {
@@ -745,7 +733,6 @@ guile_sock_boundary (SCM sock, SCM boundary)
   /* Handle packet delimiters. */
   else
     {
-      /* FIXME: leaking here ... */
       xsock->boundary = gh_scm2chars (boundary, NULL);
       xsock->boundary_size = gh_scm2int (scm_string_length (boundary));
     }
@@ -828,8 +815,8 @@ guile_sock_receive_buffer (SCM sock)
 #undef FUNC_NAME
 
 /* Associate any kind of data (any guile data type) given in the argument
-   @var{data} with the socket @var{sock}. The @var{data} argument is
-   optional. The procedure always returns a previously stored value or an 
+   @var{data} with the socket @var{sock}.  The @var{data} argument is
+   optional.  The procedure always returns a previously stored value or an 
    empty list. */
 #define FUNC_NAME "svz:sock:data"
 SCM
@@ -840,10 +827,19 @@ guile_sock_data (SCM sock, SCM data)
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
 
+  /* Save return value here. */
   if (xsock->data != NULL)
     ret = (SCM) SVZ_PTR2NUM (xsock->data);
+
+  /* Replace associated guile cell and unprotect previously stored cell
+     if necessary. */
   if (!gh_eq_p (data, SCM_UNDEFINED))
-    xsock->data = SVZ_NUM2PTR (data);
+    {
+      if (xsock->data != NULL)
+	scm_unprotect_object (ret);
+      xsock->data = SVZ_NUM2PTR (data);
+      scm_protect_object (data);
+    }
   return ret;
 }
 #undef FUNC_NAME
@@ -888,7 +884,7 @@ guile_config_convert (void *address, int type)
 
 /* This procedure returns the configuration item specified by @var{key} of
    the given server instance @var{server}. You can pass this function a
-   socket too. In this case the procedure will lookup the appropiate server
+   socket too. In this case the procedure will lookup the appropriate server
    instance itself. If the given string @var{key} is invalid (not defined 
    in the configuration alist in @code{(define-servertype!)}) then it returns
    an empty list. */
@@ -1340,6 +1336,8 @@ guile_define_servertype (SCM args)
       err |= optionhash_extract_proc (options, guile_functions[n],
 				      1, SCM_UNDEFINED, &proc, txt);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
+      if (!gh_eq_p (proc, SCM_UNDEFINED))
+	scm_protect_object (proc);
     }
 
   /* Check the configuration items for this servertype. */
@@ -1374,7 +1372,7 @@ guile_define_servertype (SCM args)
 
 /*
  * Initialization of the guile server module. Should be run before calling
- * @code{gh_eval_file}. It registeres some new guile procedures and creates
+ * @code{gh_eval_file}. It registers some new guile procedures and creates
  * some static data.
  */
 void
@@ -1421,6 +1419,25 @@ guile_server_init (void)
   guile_bin_init ();
 }
 
+/* Destroys the server type hash containing all callbacks associated with
+   the returned server type. */
+static svz_servertype_t *
+guile_servertype_clear_callbacks (svz_hash_t *callbacks)
+{
+  svz_servertype_t *server;
+  SCM *proc;
+  int n;
+
+  server = svz_hash_get (callbacks, "server-type");
+  svz_hash_foreach_value (callbacks, proc, n)
+    {
+      if (proc[n] != (SCM) server && !gh_eq_p (proc[n], SCM_UNDEFINED))
+	scm_unprotect_object (proc[n]);
+    }
+  svz_hash_destroy (callbacks);
+  return server;
+}
+
 /*
  * This function should be called before shutting down the core library in
  * order to avoid memory leaks. It releases the server types defined with
@@ -1439,8 +1456,7 @@ guile_server_finalize (void)
       svz_hash_foreach_key (guile_server, prefix, i)
 	{
 	  functions = svz_hash_get (guile_server, prefix[i]);
-	  stype = svz_hash_get (functions, "server-type");
-	  svz_hash_destroy (functions);
+	  stype = guile_servertype_clear_callbacks (functions);
 	  svz_free (stype->prefix);
 	  svz_free (stype->description);
 	  guile_servertype_config_free (stype);
@@ -1455,7 +1471,7 @@ guile_server_finalize (void)
       svz_hash_foreach_key (guile_sock, id, i)
 	{
 	  functions = svz_hash_get (guile_sock, id[i]);
-	  svz_hash_destroy (functions);
+	  guile_sock_clear_callbacks (functions);
 	}
       svz_hash_destroy (guile_sock);
       guile_sock = NULL;

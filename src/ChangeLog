@@ -1,5 +1,15 @@
 2001-10-25  [ Ela ]  <ela@lkcc.org>
 
+	* guile-server.c (guile_sock_data): Protect associated guile
+	object via scm_protect_object().  Unprotect these objects when
+	replacing them and socket disconnection.  This makes the gc 
+	marker function for <svz-socket> unnecessary.
+	(guile_sock_boundary): Fixed memory leak for packet boundaries
+	set by guile.
+	(guile_define_servertype): Protect servertype callbacks via
+	scm_protect_object().  Now all gc marker functions for
+	<svz-socket>, <svz-server> and <svz->servertype> are unnecessary.
+
 	* irc-server/irc-proto.h (struct irc_configuration): Made
 	the number of maximum channels per user configurable.
 
