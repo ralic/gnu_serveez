@@ -1,5 +1,7 @@
 2001-04-19  [ Ela ]  <ela@lkcc.org>
 
+	* libserveez/hash.c (svz_hash_put): Return the old value if any.
+
 	* libserveez/server.c (svz_server_instantiate): New function.
 
 	* libserveez/vector.h (svz_vector_foreach): New iteration 

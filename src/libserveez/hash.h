@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.7 2001/04/04 22:20:02 ela Exp $
+ * $Id: hash.h,v 1.8 2001/04/19 18:16:06 ela Exp $
  *
  */
 
@@ -80,7 +80,7 @@ SERVEEZ_API svz_hash_t *svz_hash_create __P ((int size));
 SERVEEZ_API void svz_hash_destroy __P ((svz_hash_t *hash));
 SERVEEZ_API void svz_hash_clear __P ((svz_hash_t *hash));
 SERVEEZ_API void *svz_hash_delete __P ((svz_hash_t *hash, char *key));
-SERVEEZ_API void svz_hash_put __P ((svz_hash_t *hash, char *key, void *value));
+SERVEEZ_API void *svz_hash_put __P ((svz_hash_t *, char *key, void *value));
 SERVEEZ_API void *svz_hash_get __P ((svz_hash_t *hash, char *key));
 SERVEEZ_API void **svz_hash_values __P ((svz_hash_t *hash));
 SERVEEZ_API char **svz_hash_keys __P ((svz_hash_t *hash));

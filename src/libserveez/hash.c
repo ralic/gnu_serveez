@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.3 2001/03/08 11:53:56 ela Exp $
+ * $Id: hash.c,v 1.4 2001/04/19 18:16:06 ela Exp $
  *
  */
 
@@ -360,14 +360,15 @@ svz_hash_rehash (svz_hash_t *hash, int type)
  * This function adds a new element consisting of @var{key} and @var{value} 
  * to an existing hash @var{hash}. If the hash is 75% filled it gets rehashed 
  * (size will be doubled). When the key already exists then the value just 
- * gets replaced dropping the old value. Note: This is sometimes the source of
- * memory leaks.
+ * gets replaced dropping and returning the old value. Note: This is 
+ * sometimes the source of memory leaks.
  */
-void
+void *
 svz_hash_put (svz_hash_t *hash, char *key, void *value)
 {
   unsigned long code = 0;
   int e;
+  void *old;
   svz_hash_entry_t *entry;
   svz_hash_bucket_t *bucket;
 
@@ -380,8 +381,9 @@ svz_hash_put (svz_hash_t *hash, char *key, void *value)
       if (bucket->entry[e].code == code &&
 	  hash->equals (bucket->entry[e].key, key) == 0)
 	{
+	  old = bucket->entry[e].value;
 	  bucket->entry[e].value = value;
-	  return;
+	  return old;
 	}
     }
 
@@ -408,6 +410,7 @@ svz_hash_put (svz_hash_t *hash, char *key, void *value)
 	  svz_hash_rehash (hash, HASH_EXPAND);
 	}
     }
+  return NULL;
 }
 
 /*

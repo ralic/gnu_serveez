@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector.h,v 1.3 2001/04/19 14:08:10 ela Exp $
+ * $Id: vector.h,v 1.4 2001/04/19 18:16:06 ela Exp $
  *
  */
 
@@ -36,6 +36,11 @@ typedef struct
 }
 svz_vector_t;
 
+/*
+ * Iteration macro for the vector list @var{vector}. Each of its values
+ * gets assigned to @var{value}. The iteration variable @var{i} runs from
+ * 0 to the size-1 of the vector list.
+ */
 #define svz_vector_foreach(vector, value, i)                            \
   for ((i) = 0, (value) = vector ? svz_vector_get ((vector), 0) : NULL; \
        vector && (unsigned long) i < svz_vector_length (vector);        \

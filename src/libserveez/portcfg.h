@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.6 2001/04/19 14:08:10 ela Exp $
+ * $Id: portcfg.h,v 1.7 2001/04/19 18:16:06 ela Exp $
  *
  */
 
@@ -152,16 +152,28 @@ svz_portcfg_t;
 #define pipe_recv protocol.pipe.recv
 #define pipe_send protocol.pipe.send
 
+/*
+ * Return the pointer of the @code{sockaddr_in} structure of the given
+ * port configuration @var{port} if it is a network port configuration. 
+ * Otherwise return @code{NULL}.
+ */
 #define svz_portcfg_addr(port)                               \
   (((port)->proto & PROTO_TCP) ? &((port)->tcp_addr) :       \
    ((port)->proto & PROTO_UDP) ? &((port)->udp_addr) :       \
    ((port)->proto & PROTO_ICMP) ? &((port)->icmp_addr) :     \
    ((port)->proto & PROTO_RAW) ? &((port)->raw_addr) : NULL) \
 
+/*
+ * Return the UDP or TCP port of the given port configuration or zero
+ * if it neither TCP nor UDP.
+ */
 #define svz_portcfg_port(port)                         \
   (((port)->proto & PROTO_TCP) ? (port)->tcp_port :    \
    ((port)->proto & PROTO_UDP) ? (port)->udp_port : 0) \
 
+/*
+ * Create a new blank port configuration.
+ */
 #define svz_portcfg_create() \
   (svz_portcfg_t *) svz_calloc (sizeof (svz_portcfg_t))
 

@@ -71,6 +71,7 @@ all parts of the API it provides.
 * ServerCore::            Server core implementation
 * ServerLoop::            Server loop implementation
 * ServerSocket::          Server sockets for TCP, UDP, ICMP and pipes
+* PortConfig::            Port configuration functions
 * Booting::               Configuration and boot functions
 * Interface::             Network interface function implementation
 * Dynamic server::        Dynamic server loading implementation
@@ -117,6 +118,7 @@ SVZ_ARRAY_CREATE_DEFUN
 SVZ_ARRAY_CLEAR_DEFUN
 SVZ_ARRAY_DESTROY_DEFUN
 SVZ_ARRAY_GET_DEFUN
+SVZ_ARRAY_SET_DEFUN
 SVZ_ARRAY_ADD_DEFUN
 SVZ_ARRAY_DEL_DEFUN
 SVZ_ARRAY_CAPACITY_DEFUN
@@ -193,6 +195,7 @@ SVZ_VECTOR_INS_DEFUN
 SVZ_VECTOR_IDX_DEFUN
 SVZ_VECTOR_CONTAINS_DEFUN
 SVZ_VECTOR_LENGTH_DEFUN
+SVZ_VECTOR_FOREACH_DEFMAC
 
 @node Utility functions, Core functions, Data structures, Embedding API
 @section Utility functions
@@ -218,7 +221,7 @@ SVZ_SYSERROR_DEFUN
 SVZ_SNPRINTF_DEFUN
 
 @node Core functions, Client connections, Utility functions, Embedding API
-@section Network core functions
+@section Networking and other low level functions
 
 SVZ_INET_NTOA_DEFUN
 SVZ_INET_ATON_DEFUN
@@ -350,7 +353,9 @@ SVZ_SERVERTYPE_PRINT_DEFUN
 SVZ_SERVERS_DEFVAR
 SVZ_SERVER_FIND_DEFUN
 SVZ_SERVER_ADD_DEFUN
+SVZ_SERVER_GET_DEFUN
 SVZ_SERVER_DEL_DEFUN
+SVZ_SERVER_INSTANTIATE_DEFUN
 SVZ_SERVER_NOTIFIERS_DEFUN
 SVZ_SERVER_INIT_ALL_DEFUN
 SVZ_SERVER_FINALIZE_ALL_DEFUN
@@ -386,14 +391,31 @@ SERVER_SIGNAL_HANDLER_DEFUN
 
 SERVER_CHECK_SOCKETS_DEFUN
 
-@node ServerSocket, Booting, ServerLoop, Embedding API
+@node ServerSocket, PortConfig, ServerLoop, Embedding API
 @section Server sockets
 
 SERVER_CREATE_DEFUN
 SERVER_ACCEPT_SOCKET_DEFUN
 SERVER_ACCEPT_PIPE_DEFUN
 
-@node Booting, Interface, ServerSocket, Embedding API
+@node PortConfig, Booting, ServerSocket, Embedding API
+@section Port configurations
+
+SVZ_PORTCFG_EQUAL_DEFUN
+SVZ_PORTCFG_ADD_DEFUN
+SVZ_PORTCFG_DEL_DEFUN
+SVZ_PORTCFG_GET_DEFUN
+SVZ_PORTCFG_DESTROY_DEFUN
+SVZ_PORTCFG_FINALIZE_DEFUN
+SVZ_PORTCFG_MKADDR_DEFUN
+SVZ_PORTCFG_PRINT_DEFUN
+SVZ_PORTCFG_COPY_DEFUN
+SVZ_PORTCFG_EXPAND_DEFUN
+SVZ_PORTCFG_ADDR_DEFMAC
+SVZ_PORTCFG_PORT_DEFMAC
+SVZ_PORTCFG_CREATE_DEFMAC
+
+@node Booting, Interface, PortConfig, Embedding API
 @section Boot functions
 
 SVZ_CONFIG_DEFVAR
