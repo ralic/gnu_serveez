@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.3 2001/03/11 13:06:19 ela Exp $
+ * $Id: array.h,v 1.4 2001/03/12 21:45:04 ela Exp $
  *
  */
 
@@ -138,6 +138,42 @@ svz_array_del (svz_array_t *array, unsigned long index)
 
 #define svz_array_size(array) \
   ((unsigned long) (array)[0])
+
+static inline unsigned long
+svz_array_contains (svz_array_t *array, void *value)
+{
+  unsigned long n = (unsigned long) array[0], found = 0;
+
+  while (n--)
+    if (array[n + 2] == value)
+      found++;
+  return found;
+}
+
+static inline unsigned long
+svz_array_idx (svz_array_t *array, void *value)
+{
+  unsigned long n;
+
+  for (n = 0; n < (unsigned long) array[0]; n++)
+    if (array[n + 2] == value)
+      return n;
+  return (unsigned long) -1;
+}
+
+static inline unsigned long
+svz_array_ins (svz_array_t *array, unsigned long index, void *value)
+{
+  if (index > (unsigned long) array[0])
+    return (unsigned long) -1;
+  svz_array_ensure_capacity (array, (unsigned long) array[0] + 1);
+  if (index < (unsigned long) array[0])
+    memmove (&array[index + 3], &array[index + 2], 
+	     ((unsigned long) array[0] - index) * sizeof (void *));
+  array[index + 2] = value;
+  array[0] = (void *) ((unsigned long) array[0] + 1);
+  return index;
+}
 
 #endif /* not ENABLE_DEBUG */
 

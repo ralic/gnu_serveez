@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.3 2001/03/11 13:06:19 ela Exp $
+ * $Id: array.c,v 1.4 2001/03/12 21:45:04 ela Exp $
  *
  */
 
@@ -184,8 +184,6 @@ svz_array_size (svz_array_t *array)
   return array->size;
 }
 
-#endif /* not ENABLE_DEBUG */
-
 /*
  * Returns how often the given value @var{value} is stored in the the array
  * @var{array}. Return zero if there is no such value.
@@ -234,10 +232,12 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
   if (index > array->size)
     return (unsigned long) -1;
   svz_array_ensure_capacity (array, array->size + 1);
-  if (index < array->size && array->size)
+  if (index < array->size)
     memmove (&array->data[index + 1], &array->data[index], 
 	     (array->size - index) * sizeof (void *));
   array->data[index] = value;
   array->size++;
   return index;
 }
+
+#endif /* not ENABLE_DEBUG */
