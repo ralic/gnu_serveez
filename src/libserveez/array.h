@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.9 2001/06/10 15:39:01 ela Exp $
+ * $Id: array.h,v 1.10 2001/06/12 17:27:20 raimi Exp $
  *
  */
 
@@ -60,7 +60,16 @@ __END_DECLS
 
 #else /* ENABLE_DEBUG */
 
-/* Everything via inline functions. */
+/**
+ ** WARNING
+ **
+ ** This does not work! It does not WORK!
+ ** Do not use the non-debug version of array.h!
+ ** This will be removed soon!
+ **
+ **/
+
+/* Everything via macros. */
 
 #include <string.h>
 #include "libserveez/alloc.h"

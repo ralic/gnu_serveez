@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.13 2001/06/12 13:06:40 ela Exp $
+ * $Id: util.c,v 1.14 2001/06/12 17:27:21 raimi Exp $
  *
  */
 
@@ -110,7 +110,8 @@ svz_log (int level, const char *format, ...)
   time_t tm;
   struct tm *t;
 
-  if (level > svz_config.verbosity || svz_logfile == NULL)
+  if (level > svz_config.verbosity || svz_logfile == NULL ||
+      feof (svz_logfile) || ferror (svz_logfile))
     return;
 
   tm = time (NULL);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.27 2001/06/11 19:46:31 ela Exp $
+ * $Id: guile.c,v 1.28 2001/06/12 17:27:20 raimi Exp $
  *
  */
 
@@ -1415,7 +1415,7 @@ guile_init (void)
   gh_new_procedure ("serveez-maxsockets", guile_access_maxsockets, 0, 1, 0);
   gh_new_procedure ("serveez-passwd", guile_access_passwd, 0, 1, 0);
   gh_new_procedure ("serveez-interfaces", guile_access_interfaces, 0, 1, 0);
-  gh_new_procedure ("serveez-load-path", guile_access_loadpath, 0, 1, 0);
+  gh_new_procedure ("serveez-loadpath", guile_access_loadpath, 0, 1, 0);
 
   /* export some new procedures */
   /* FIXME: change it to "x, 1, 0)" instead of "x, 0, 1)". requires change

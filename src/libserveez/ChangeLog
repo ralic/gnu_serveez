@@ -1,3 +1,23 @@
+2001-06-12  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+
+	* util.c (svz_log): svz_logfile is checked for feof() or ferror()
+	before any output is done. You can now kill a process we pipe
+	log messages to without serveez going 'netscape' (using 100% cpu
+	while being inresponsive/unusable).
+
+	* server-core.c (svz_signal_handler): In case you didn't know:
+	signal handlers have to be reentrant, at least on my machine.
+	We received SIGCHLD while a SIGCHLD was running. Now, that
+	wouldn't have been a problem when strsignal(3) whouldn't
+	have caused a deadlock in the libc (read that again).
+
+	We added a mechanism to strsignal() all signals before the
+	server loop starts so that we can have a reentrant
+	svz_strsignal() function. on a related note: linux defines
+	64 signals in <bits/signum.h>. kill(1) however allows
+	0 to 64 to be command line arguments... which makes 65 total
+	signals :-).
+
 2001-06-10  [ Ela ]  <ela@lkcc.org>
 
 	* array.h (svz_array_foreach): Fixed a bug in the iteration

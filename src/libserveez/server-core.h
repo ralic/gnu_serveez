@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.10 2001/06/01 21:24:09 ela Exp $
+ * $Id: server-core.h,v 1.11 2001/06/12 17:27:21 raimi Exp $
  *
  */
 
@@ -67,6 +67,9 @@ SERVEEZ_API void svz_loop_one __P ((void));
 SERVEEZ_API void svz_signal_up __P ((void));
 SERVEEZ_API void svz_signal_dn __P ((void));
 SERVEEZ_API RETSIGTYPE svz_signal_handler __P ((int));
+SERVEEZ_API void svz_strsignal_init __P ((void));
+SERVEEZ_API void svz_strsignal_destroy __P ((void));
+SERVEEZ_API char *svz_strsignal __P ((int));
 
 __END_DECLS
 

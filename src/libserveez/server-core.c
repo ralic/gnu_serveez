@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.16 2001/06/08 15:37:37 ela Exp $
+ * $Id: server-core.c,v 1.17 2001/06/12 17:27:20 raimi Exp $
  *
  */
 
@@ -70,6 +70,8 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
+#include "libserveez/snprintf.h"
+#include "libserveez/array.h"
 #include "libserveez/vector.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"
@@ -199,14 +201,92 @@ svz_signal_handler (int sig)
       break;
     }
 
-#if HAVE_STRSIGNAL
-  svz_log (LOG_WARNING, "signal: %s\n", strsignal (sig));
-#endif
+  svz_log (LOG_WARNING, "signal: %s\n", svz_strsignal (sig));
 
 #ifdef NONVOID_SIGNAL
   return 0;
 #endif
 }
+
+/*
+ * 64 is hopefully a safe bet, kill(1) accepts 0..64, *sigh*
+ */
+#define SVZ_NUMBER_OF_SIGNALS 65
+
+/*
+ * cached results of strsignal calls
+ */
+static svz_array_t *svz_signal_strings = NULL;
+
+/*
+ * Prepare library so that @code{svz_strsignal()} works. Called
+ * from @code{svz_boot()}.
+ */
+void
+svz_strsignal_init (void)
+{
+  int i; char *tmp; const char *format = "Signal %d";
+  svz_signal_strings = svz_array_create (SVZ_NUMBER_OF_SIGNALS);
+  for (i = 0; i < SVZ_NUMBER_OF_SIGNALS; i++)
+    {
+#if HAVE_STRSIGNAL
+      if (NULL == (tmp = strsignal (i)))
+	{
+	  tmp = svz_malloc (128);
+	  svz_snprintf (tmp, 128, format, i);
+	  svz_array_add (svz_signal_strings, svz_strdup (tmp));
+	  svz_free (tmp);
+	}
+      else
+	{
+	  svz_array_add (svz_signal_strings, svz_strdup (tmp));
+	}
+#else
+      tmp = svz_malloc (128);
+      svz_snprintf (tmp, 128, format, i);
+      svz_array_add (svz_signal_strings, svz_strdup (tmp));
+      svz_free (tmp);
+#endif
+    }
+}
+
+
+/*
+ * @code{svz_strsignal()} does not work afterwards anymore.
+ * Called from @code{svz_halt()}.
+ */
+void
+svz_strsignal_destroy (void)
+{
+  int i; char *value;
+  svz_array_foreach (svz_signal_strings, value, i)
+      svz_free (value);
+  svz_array_destroy (svz_signal_strings);
+  svz_signal_strings = NULL;
+}
+
+/*
+ * Resolve the given signal number to form a describing string.
+ * This function is reentrant, use it from the signal handler.
+ * It does not return NULL. The returned pointer is shared amongst
+ * all users. For unknown signals (which is not supposed to happen)
+ * the returned string points to a statically allocated buffer (which
+ * destroys the reentrance, of course) [who cares :-].
+ */
+char *
+svz_strsignal (int signum)
+{
+  static char emergency[128];
+
+  if (signum >= 0 && signum < SVZ_NUMBER_OF_SIGNALS)
+    return (char*) svz_array_get (svz_signal_strings, signum);
+  else
+    {
+      svz_snprintf (emergency, 128, "Impossible signal %d", signum);
+      return emergency;
+    }
+}
+
 
 /*
  * Abort the process, printing the error message MSG first.
