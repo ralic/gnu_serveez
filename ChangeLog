@@ -1,3 +1,9 @@
+2000-08-26  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (define_enable_nut): With the new option
+	--enable-gnutella the user is allowed to compile in the
+	gnutella spider.
+
 2000-08-20  [ Ela ]  <ela@lkcc.org>
 
 	* INSTALL: Added documentation for --enable-poll.

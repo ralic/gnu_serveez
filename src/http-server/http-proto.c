@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.29 2000/08/25 13:51:23 ela Exp $
+ * $Id: http-proto.c,v 1.30 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -1149,6 +1149,11 @@ http_get_response (socket_t sock, char *request, int flags)
 	  xfree (file);
 	  return 0;
 	}
+    }
+
+  if ((p = http_find_property (http, "If-Range")) != NULL)
+    {
+      printf ("!!! Range !!! : '%s'\n", p);
     }
 
   /* send a http header to the client */

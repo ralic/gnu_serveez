@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.12 2000/08/02 09:45:15 ela Exp $
+ * $Id: irc-proto.h,v 1.13 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -33,6 +33,7 @@
 #include <time.h>
 
 #include "hash.h"
+#include "util.h"
 #include "server.h"
 #include "irc-core/irc-core.h"
 
@@ -61,7 +62,6 @@
 /*
  * Useful typedefs.
  */
-typedef unsigned char byte;
 typedef struct irc_client irc_client_t;
 typedef struct irc_client_history irc_client_history_t;
 typedef struct irc_ban irc_ban_t;

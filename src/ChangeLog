@@ -1,3 +1,17 @@
+2000-08-26  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (SUBDIRS): Added the nut-server directory
+	with the files gnutella.c, gnutella.h and a new 
+	Makefile.am file.
+
+	* nut-server/gnutella.c: Basic gnutella spider specified.
+	Not yet fully implemented and documented. For now it can
+	connect to given servers, make regular search requests,
+	accept server connections and route plain queries.
+
+	* hash.c (hash_key_length): Added callback for the actual
+	hash key length. Useful for non-string keys.
+
 2000-08-25  [ Ela ]  <ela@lkcc.org>
 
 	* server-core.c (rechain_socket_list): This routine cycles

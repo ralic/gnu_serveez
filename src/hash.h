@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.3 2000/07/25 16:24:26 ela Exp $
+ * $Id: hash.h,v 1.4 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -70,6 +70,7 @@ typedef struct
   int keys;                        /* number of stored keys */
   int (* equals) (char *, char *); /* key string equality callback */
   unsigned long (* code) (char *); /* hash code calculation callback */
+  unsigned (* keylen) (char *);    /* how to get the hash key length */
   hash_bucket_t *table;            /* hash table */
 }
 hash_t;

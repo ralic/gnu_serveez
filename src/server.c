@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.19 2000/08/25 13:51:23 ela Exp $
+ * $Id: server.c,v 1.20 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -67,6 +67,9 @@
 #if ENABLE_Q3KEY_PROTO
 # include "q3key-server/q3key-proto.h"
 #endif
+#if ENABLE_GNUTELLA
+# include "nut-server/gnutella.h"
+#endif
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -88,6 +91,9 @@ struct server_definition * all_server_definitions [] =
 #endif
 #if ENABLE_Q3KEY_PROTO
   &q3key_server_definition,
+#endif
+#if ENABLE_GNUTELLA
+  &nut_server_definition,
 #endif
   NULL
 };

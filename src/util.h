@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.16 2000/08/19 10:57:34 ela Exp $
+ * $Id: util.h,v 1.17 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -37,6 +37,8 @@
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
+
+typedef unsigned char byte;
 
 /* 
  * level of server's verbosity:

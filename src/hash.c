@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.9 2000/08/18 14:14:47 ela Exp $
+ * $Id: hash.c,v 1.10 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -91,6 +91,21 @@ hash_key_equals (char *key1, char *key2)
 }
 
 /*
+ * This is the default routine for determining the actual key length.
+ */
+unsigned
+hash_key_length (char *key)
+{
+  unsigned len = 0;
+
+  assert (key);
+  while (*key++) len++;
+  len++;
+
+  return len;
+}
+
+/*
  * Create a new hash table with an initial capacity. Return a non-zero 
  * pointer to the newly created hash.
  */
@@ -111,6 +126,7 @@ hash_create (int size)
   hash->keys = 0;
   hash->code = hash_code;
   hash->equals = hash_key_equals;
+  hash->keylen = hash_key_length;
 
   /* allocate space for the hash table and initialize it */
   hash->table = xmalloc (sizeof (hash_bucket_t) * size);
@@ -321,8 +337,8 @@ hash_put (hash_t *hash, char *key, void *value)
 
   /* Fill this entry. */
   entry = &node->entry[node->size];
-  entry->key = xmalloc (strlen (key) + 1);
-  strcpy (entry->key, key);
+  entry->key = xmalloc (hash->keylen (key));
+  memcpy (entry->key, key, hash->keylen (key));
   entry->value = value;
   entry->code = code;
   node->size++;

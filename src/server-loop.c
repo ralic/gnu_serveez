@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.2 2000/08/21 20:06:40 ela Exp $
+ * $Id: server-loop.c,v 1.3 2000/08/26 18:05:18 ela Exp $
  *
  */
 
@@ -477,6 +477,8 @@ check_sockets_poll (void)
       /* file descriptor caused some error */
       if (ufds[fd].revents & (POLLERR | POLLHUP | POLLNVAL))
 	{
+	  log_printf (LOG_ERROR, "poll: %s\n", NET_ERROR);
+
 	  polled--;
 	  if (sock->flags & SOCK_FLAG_SOCK)
 	    {
