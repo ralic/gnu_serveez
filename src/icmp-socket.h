@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.12 2000/11/26 12:22:10 ela Exp $
+ * $Id: icmp-socket.h,v 1.13 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -40,6 +40,7 @@
  * 1. you cannot receive if not previously sent a packet
  * 2. the IcmpSendEcho call is blocking
  * 3. receive and send is one call
+ * 4. you cannot set the ICMP header (type, code)
  */
 
 /* 

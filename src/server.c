@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.34 2000/11/26 12:22:10 ela Exp $
+ * $Id: server.c,v 1.35 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -41,7 +41,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #else
 # include <sys/types.h>
 # include <sys/socket.h>
@@ -529,7 +529,17 @@ static int set_port (char *cfgfile, char *var, char *key,
 		       cfgfile, var, PORTCFG_IP, key);
 	      return -1;
 	    }
-#else /* not HAVE_INET_ATON */
+#elif defined (__MINGW32__)
+	  int len = sizeof (struct sockaddr_in);
+	  if (WSAStringToAddress (string_val (hash_val), AF_INET, NULL, 
+				  (struct sockaddr *) newaddr, &len) != 0)
+	    {
+	      fprintf (stderr, "%s: `%s': %s should be an ip address "
+		       "in dotted decimal form in `%s' (%s)\n",
+		       cfgfile, var, PORTCFG_IP, key, NET_ERROR);
+              return -1;
+            }
+#else /* not HAVE_INET_ATON and not __MINGW32__ */
 	  newaddr->sin_addr.s_addr = inet_addr (string_val (hash_val));
 #endif /* not HAVE_INET_ATON */
 	}

@@ -49,7 +49,7 @@ pack: serveez.html
 	for file in $(PACK_FILES); do \
 		cp -f $$file $(PACK_DIR) >/dev/null 2>&1; done;
 	(cd $(PACK_DIR) && \
-		tar -cvzf ../doc_`date +%Y%m%d_%H%M`.tgz . >/dev/null 2>&1)
+		tar -czf ../doc_`date +%Y%m%d_%H%M`.tgz . >/dev/null 2>&1)
 	@rm -rf $(PACK_DIR)
 
 TEXI2HTML = texi2html

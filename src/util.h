@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.24 2000/10/15 11:46:41 ela Exp $
+ * $Id: util.h,v 1.25 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <time.h>
 
 #if HAVE_SYS_UTSNAME_H
@@ -85,6 +86,10 @@ extern int verbosity;
 extern int os_version;
 
 #endif /* __MINGW32__ */
+
+#ifndef O_BINARY
+# define O_BINARY 0
+#endif
 
 #ifndef __STDC__
 void log_printf ();
@@ -139,7 +144,9 @@ char *GetErrorMessage (int);
 extern int last_errno;
 
 #define MESSAGE_BUF_SIZE 256
-#define WINSOCK_VERSION  0x0202 /* This is version 2.02 */
+#ifndef WINSOCK_VERSION
+# define WINSOCK_VERSION 0x0202 /* This is version 2.02 */
+#endif
 
 #define dup(handle) _dup(handle)
 #define dup2(handle1, handle2) _dup2(handle1, handle2)

@@ -3,6 +3,12 @@
 	* autogen.sh: Added `--enable-maintainer-mode' so that the
 	documentation builds after a CVS checkout without problems.
 
+2000-12-05  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Checking for ws2_32.dll instead of wsock32.dll
+	because use of WSAStringToAddress().
+	Checking for `ws2tcpip.h' where IP_HDRINCL is defined.
+
 2000-11-26  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.dsp: From now on we are using the ws2_32.dll as socket

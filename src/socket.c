@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.29 2000/11/10 19:55:48 ela Exp $
+ * $Id: socket.c,v 1.30 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -540,6 +540,14 @@ sock_free (socket_t sock)
     xfree (sock->recv_pipe);
   if (sock->send_pipe)
     xfree (sock->send_pipe);
+
+#ifdef __MINGW32__
+  if (sock->overlap[READ])
+    xfree (sock->overlap[READ]);
+  if (sock->overlap[WRITE])
+    xfree (sock->overlap[WRITE]);
+#endif /* __MINGW32__ */
+
   xfree(sock);
 
   return 0;

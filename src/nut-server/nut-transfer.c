@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.21 2000/11/10 19:55:48 ela Exp $
+ * $Id: nut-transfer.c,v 1.22 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -381,11 +381,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
     }
 
   /* try creating local file */
-#ifdef __MINGW32__
   if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
-#else
-  if ((fd = open (file, O_RDWR | O_CREAT, 0644)) == -1)
-#endif
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
       xfree (file);
@@ -499,11 +495,7 @@ nut_check_given (socket_t sock)
 	}
       
       /* try creating local file */
-#ifdef __MINGW32__
       if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
-#else
-      if ((fd = open (file, O_RDWR | O_CREAT, 0644)) == -1)
-#endif
 	{
 	  log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
 	  return -1;
@@ -868,11 +860,7 @@ nut_init_upload (socket_t sock, nut_file_t *entry)
     }
   
   /* open the file for reading */
-#ifdef __MINGW32__
   if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
-#else
-  if ((fd = open (file, O_RDONLY | O_NONBLOCK)) == -1)
-#endif
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
       xfree (file);

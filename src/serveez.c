@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.18 2000/10/07 16:14:29 ela Exp $
+ * $Id: serveez.c,v 1.19 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -260,7 +260,7 @@ main (int argc, char * argv[])
       if ((pid = fork ()) == -1)
 	{
 	  log_printf (LOG_ERROR, "fork: %s\n", SYS_ERROR);
-	  exit (0);
+	  exit (1);
 	}
       else if (pid != 0)
 	{
@@ -275,7 +275,7 @@ main (int argc, char * argv[])
 #else /* __MINGW32__ */
 
       if (windoze_start_daemon (argv[0]) == -1)
-	exit (0);
+	exit (1);
       if (log_handle == stderr)
 	log_set_file (NULL);
       closehandle (GetStdHandle (STD_INPUT_HANDLE));
@@ -292,6 +292,16 @@ main (int argc, char * argv[])
   server_print_definitions ();
 #endif
 
+#ifdef __MINGW32__
+  /*
+   * Starting network API (Winsock).
+   */
+  if (!net_startup ())
+    {
+      return 2;
+    }
+#endif /* __MINGW32__ */
+  
   /*
    * Load configuration
    */
@@ -301,7 +311,10 @@ main (int argc, char * argv[])
        * Something went wrong while configuration file loading, 
        * message output by function itself...
        */
-      return 1;
+#ifdef __MINGW32__
+      net_cleanup ();
+#endif
+      return 3;
     }
 
   /*
@@ -319,13 +332,6 @@ main (int argc, char * argv[])
       serveez_config.server_password = cli_pass;
     }
 
-#ifdef __MINGW32__
-  if (!net_startup ())
-    {
-      return 4;
-    }
-#endif /* __MINGW32__ */
-  
 #if ENABLE_DEBUG
   log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
@@ -338,7 +344,10 @@ main (int argc, char * argv[])
    */
   if (coserver_init () == -1)
     {
-      return 5;
+#ifdef __MINGW32__
+      net_cleanup ();
+#endif
+      return 4;
     }
 
   /*
@@ -346,7 +355,10 @@ main (int argc, char * argv[])
    */
   if (server_global_init () == -1) 
     {
-      return 2;
+#ifdef __MINGW32__
+      net_cleanup ();
+#endif
+      return 5;
     }
   
   /*
@@ -358,19 +370,27 @@ main (int argc, char * argv[])
        * Something went wrong while the server initialised themselfes.
        * abort silently.
        */
-      return 3;
+#ifdef __MINGW32__
+      net_cleanup ();
+#endif
+      return 6;
     }
 
   /*
    * Actually open the ports.
    */
   if (server_start () == -1)
-    return 6;
+    {
+#ifdef __MINGW32__
+      net_cleanup ();
+#endif
+      return 7;
+    }
   
   server_loop ();
 
   /*
-   * Run the finalizers
+   * Run the finalizers.
    */
   server_finalize_all ();
   server_global_finalize ();

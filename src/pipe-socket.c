@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.19 2000/11/30 22:16:17 ela Exp $
+ * $Id: pipe-socket.c,v 1.20 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -82,12 +82,14 @@ pipe_disconnect (socket_t sock)
       if (sock->referrer)
 	{
 #ifdef __MINGW32__
+
 	  /* just disconnect client pipes */
 	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
 	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
 	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
 	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-#endif /* not __MINGW32__ */
+
+#else /* not __MINGW32__ */
 
 	  /* close sending pipe */
 	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
@@ -95,6 +97,8 @@ pipe_disconnect (socket_t sock)
 	      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
 	  /* FIXME: reset receiving pipe ??? */
+
+#endif /* not __MINGW32__ */
 
 	  /* restart listening pipe server socket */
 	  sock->referrer->flags &= ~SOCK_FLAG_INITED;
@@ -105,7 +109,7 @@ pipe_disconnect (socket_t sock)
 	  /* close both pipes */
 	  if (sock->pipe_desc[READ] != INVALID_HANDLE)
 	    if (closehandle (sock->pipe_desc[READ]) < 0)
-	      log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+	      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
 	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
 	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
 	      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
@@ -131,7 +135,7 @@ pipe_disconnect (socket_t sock)
       /* close listening pipe */
       if (sock->pipe_desc[READ] != INVALID_HANDLE)
 	if (closehandle (sock->pipe_desc[READ]) < 0)
-	  log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+	  log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
       /* delete named pipes on file system */
       if (unlink (sock->recv_pipe) == -1)
@@ -284,10 +288,29 @@ pipe_write (socket_t sock)
 
 #ifdef __MINGW32__
   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
-		  do_write, (DWORD *) &num_written, NULL))
+		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
     {
-      log_printf (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
-      num_written = -1;
+      if (GetLastError () != ERROR_IO_PENDING)
+	{
+	  log_printf (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
+	  return -1;
+	}
+
+      /* 
+       * Data bytes have been stored in system's cache. Now we are
+       * checking if pending write operation has been completed.
+       */
+      if (!GetOverlappedResult (sock->pipe_desc[WRITE], 
+				sock->overlap[WRITE], &num_written, FALSE))
+	{
+	  if (GetLastError () != ERROR_IO_INCOMPLETE)
+	    {
+	      log_printf (LOG_ERROR, "pipe: GetOverlappedResult: %s\n", 
+			  SYS_ERROR);
+	      return -1;
+	    }
+	}
+      num_written = do_write;
     }
 #else /* not __MINGW32__ */
   if ((num_written = write (sock->pipe_desc[WRITE], 
@@ -480,8 +503,8 @@ pipe_connect (char *inpipe, char *outpipe)
 
   /* try opening receiving pipe */
   if ((recv_pipe = CreateFile (sock->recv_pipe, GENERIC_READ, 0,
-			       NULL, OPEN_EXISTING, 0, NULL)) == 
-      INVALID_HANDLE_VALUE)
+			       NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 
+			       NULL)) == INVALID_HANDLE_VALUE)
     {
       log_printf (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       sock_free (sock);
@@ -490,14 +513,23 @@ pipe_connect (char *inpipe, char *outpipe)
 
   /* try opening sending pipe */
   if ((send_pipe = CreateFile (sock->send_pipe, GENERIC_WRITE, 0,
-			       NULL, OPEN_EXISTING, 0, NULL)) == 
-      INVALID_HANDLE_VALUE)
+			       NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 
+			       NULL)) == INVALID_HANDLE_VALUE)
     {
       log_printf (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       DisconnectNamedPipe (recv_pipe);
       CloseHandle (recv_pipe);
       sock_free (sock);
       return NULL;
+    }
+
+  /* initialize the overlap structure on WinNT systems */
+  if (os_version >= WinNT4x)
+    {
+      sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
+      memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
+      sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
+      memset (sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
     }
 
 #endif /* __MINGW32__ */
@@ -523,12 +555,21 @@ pipe_connect (char *inpipe, char *outpipe)
 int
 pipe_listener (socket_t server_sock)
 {
-#if HAVE_MKFIFO
+#if HAVE_MKFIFO || HAVE_MKNOD
+
+# ifdef HAVE_MKFIFO
+#  define MKFIFO(path, mode) mkfifo (path, mode)
+#  define MKFIFO_FUNC "mkfifo"
+# else
+#  define MKFIFO(path, mode) mknod (path, mode | S_IFIFO, 0)
+#  define MKFIFO_FUNC "mknod"
+# endif
+
   struct stat buf;
   mode_t mask;
 #endif
 
-#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
+#if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
   HANDLE recv_pipe, send_pipe;
 
   /*
@@ -538,7 +579,7 @@ pipe_listener (socket_t server_sock)
     return -1;
 #endif
 
-#if HAVE_MKFIFO
+#if HAVE_MKFIFO || HAVE_MKNOD
   /* Save old permissions and set new. */
   mask = umask (0);
 
@@ -548,16 +589,16 @@ pipe_listener (socket_t server_sock)
    */
   if (stat (server_sock->recv_pipe, &buf) == -1)
     {
-      if (mkfifo (server_sock->recv_pipe, 0666) != 0)
+      if (MKFIFO (server_sock->recv_pipe, 0666) != 0)
         {
-          log_printf (LOG_ERROR, "pipe: mkfifo: %s\n", SYS_ERROR);
+          log_printf (LOG_ERROR, "pipe: " MKFIFO_FUNC ": %s\n", SYS_ERROR);
 	  umask (mask);
           return -1;
         }
       if (stat (server_sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
 	{
           log_printf (LOG_ERROR, 
-		      "pipe: stat: mkfifo() did not create a fifo\n");
+		      "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
 	  umask (mask);
           return -1;
 	}
@@ -565,16 +606,16 @@ pipe_listener (socket_t server_sock)
 
   if (stat (server_sock->send_pipe, &buf) == -1)
     {
-      if (mkfifo (server_sock->send_pipe, 0666) != 0)
+      if (MKFIFO (server_sock->send_pipe, 0666) != 0)
         {
-          log_printf (LOG_ERROR, "pipe: mkfifo: %s\n", SYS_ERROR);
+          log_printf (LOG_ERROR, "pipe: " MKFIFO_FUNC ": %s\n", SYS_ERROR);
 	  umask (mask);
           return -1;
         }
       if (stat (server_sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
 	{
           log_printf (LOG_ERROR, 
-		      "pipe: stat: mkfifo() did not create a fifo\n");
+		      "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
 	  umask (mask);
           return -1;
 	}
@@ -661,7 +702,7 @@ pipe_listener (socket_t server_sock)
 
 #endif /* neither HAVE_MKFIFO nor __MINGW32__ */
 
-#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
+#if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
 
   return 0;
 

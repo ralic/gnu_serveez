@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.47 2000/12/03 14:37:32 ela Exp $
+ * $Id: http-proto.c,v 1.48 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -1240,11 +1240,7 @@ http_get_response (socket_t sock, char *request, int flags)
     }
 
   /* open the file for reading */
-#ifdef __MINGW32__
   if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
-#else
-  if ((fd = open (file, O_RDONLY | O_NONBLOCK)) == -1)
-#endif
     {
       log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");

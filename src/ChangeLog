@@ -1,9 +1,30 @@
+2000-12-09  [ Ela ]  <ela@lkcc.org>
+
+	* pipe-socket.c (pipe_write): Using Overlapped I/O when writing
+	data to a pipe.
+	(pipe_connect): Initializing Overlapped structures here for
+	client pipes.
+
+	* util.h: Defined O_BINARY if not defined here.
+
+	* coserver/coserver.c (coserver_destroy): When kill()ing
+	coserver processes we are cleaning them up via waitpid().
+
+	* serveez.c (main): Starting network API under Win32 before
+	parsing the configuration file and server instantiating.
+
+	* server.c (set_port): Using WSAStringToAddress() in the Win32
+	port which is a full replacement of libiberty's inet_aton().
+
+	* pipe-socket.c (pipe_listener): If mkfifo() is not available
+	we are using mknod() in order to create a named pipe.
+
 2000-12-02  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-core.c: Added http_add_header, http_set_header,
 	http_send_header and http_reset_header for building a valid
 	http header. These are currently used within the GET response
-	rouines.
+	routines.
 
 2000-12-01  [ Ela ]  <ela@lkcc.org>
 

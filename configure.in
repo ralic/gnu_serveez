@@ -706,7 +706,7 @@ AC_ARG_WITH(mingw,
     [case "$withval" in
      no)  MINGDIR="no" ;;
      yes) MINGDIR="/usr/local/mingw" ;;
-     *)   MINGDIR=$withval ;;
+     *)   MINGDIR="$withval" ;;
     esac],
     MINGDIR="/usr/local/mingw")
 
@@ -725,8 +725,8 @@ if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
     if test "$MINGDIR" != "no" -a "$MINGW32" != "yes"; then
 	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
 	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
-	AC_MSG_RESULT([using MingW32 headers and libraries in ${MINGDIR}])
-	AC_CHECK_LIB(wsock32, main, EXTRALIBS="$EXTRALIBS -lwsock32")
+	AC_MSG_RESULT([using MinGW32 headers and libraries in ${MINGDIR}])
+	AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
     fi
 fi
 
@@ -796,7 +796,7 @@ dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
 
-AC_CHECK_FUNCS(mkfifo sendfile)
+AC_CHECK_FUNCS(mkfifo mknod sendfile)
 AC_MSG_CHECKING([for host system])
 host_sys="`uname -s`"
 if test x$host_sys = x; then
@@ -921,7 +921,7 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h sys/resource.h)
-AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h)
+AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h ws2tcpip.h)
 AC_CHECK_HEADERS(dirent.h sys/dirent.h direct.h)
 AC_HEADER_DIRENT
 
@@ -1209,8 +1209,8 @@ if test "$sizzle_src" != "no"; then
   export CPPFLAGS
 
   ([cd $sizzle_dir && sh ./configure \
-     --disable-shared \
      --enable-static \
+     --disable-shared \
      --disable-debug \
      --disable-posix \
      --disable-regexp \
@@ -1218,6 +1218,7 @@ if test "$sizzle_src" != "no"; then
      --disable-dl \
      --disable-readline \
      --disable-maximum-functionality \
+     --disable-uvector \
      --without-included-gettext \
      --without-catgets \
      --with-mingw=$MINGDIR \

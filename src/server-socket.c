@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.40 2000/11/30 22:16:18 ela Exp $
+ * $Id: server-socket.c,v 1.41 2000/12/10 12:26:38 ela Exp $
  *
  */
 
@@ -38,7 +38,9 @@
 
 #ifdef __MINGW32__
 # include <winsock2.h>
-# include <ws2tcpip.h>
+# if HAVE_WS2TCPIP_H
+#  include <ws2tcpip.h>
+# endif
 #endif
 
 #ifndef __MINGW32__
@@ -172,8 +174,8 @@ server_create (portcfg_t *cfg)
       if (cfg->proto & PROTO_RAW)
 	{
 	  optval = 1;
-	  if(setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
-			 (void *) &optval, sizeof (optval)) < 0)
+	  if (setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
+			  (void *) &optval, sizeof (optval)) < 0)
 	    {
 	      log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
 	      if (closesocket (server_socket) < 0)
@@ -438,13 +440,13 @@ server_accept_pipe (socket_t server_sock)
   DWORD connect;
 #endif
 
-#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
+#if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
   HANDLE recv_pipe, send_pipe;
   socket_t sock;
   server_sock->idle_counter = 1;
 #endif
 
-#if HAVE_MKFIFO
+#if HAVE_MKFIFO || HAVE_MKNOD
   /* 
    * Try opening the server's send pipe. This will fail 
    * until the client has opened it for reading.
@@ -558,7 +560,7 @@ server_accept_pipe (socket_t server_sock)
 
 #endif /* neither HAVE_MKFIFO nor __MINGW32__ */
 
-#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
+#if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
   sock->referrer = server_sock;

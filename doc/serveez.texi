@@ -164,7 +164,8 @@ raw non-threaded performance goes to waste.
 Unfortunately, @code{select()} is limited to @code{FD_SETSIZE} handles. 
 This limit is compiled in to the standard library and user programs. 
 Nevertheless @value{PACKAGE} is able to serve about one thousand and more 
-clients on Linux, a hundred on Win95 and some more on later Windows systems.
+clients on GNU/Linux, a hundred on Win95 and some more on later Windows 
+systems.
 
 We chose this method anyway because it seems the most portable. Either in
 most Unices and Win32 this method is implemented.
@@ -186,7 +187,7 @@ See the Solaris FAQ, question 3.45.
 @item FreeBSD 
 Use sysctl -w kern.maxfiles=nnnn to raise limit.
 
-@item Linux
+@item GNU/Linux
 See Bodo Bauer's /proc documentation. On current 2.2.x kernels, 
 @example
 echo 32768 > /proc/sys/fs/file-max
@@ -803,7 +804,7 @@ assumes if it can not identify a served file by the @code{types} hash
 and the @code{type-file} (see below).
 
 @item type-file
-This should be a file like the @file{/etc/mime.types} on Linux systems.
+This should be a file like the @file{/etc/mime.types} on GNU/Linux systems.
 
 @item types
 If you want to specify special content types do it here. This parameter
@@ -1254,14 +1255,17 @@ port information. See above for more information.
 
 @subsubsection General description
 The Tunnel server is for mapping one port configuration to another. Thus
-we should rather speak of a port forwarder. Two portwarder can form a
+we should rather speak of a port forwarder. Two portwarders can form a
 tunnel. Generally this means that you can setup @value{PACKAGE} to accept 
 network connections in order to pass all network data traffic on this 
 line to another address. This can be useful to workaround gateways and 
 firewalls. When instantiating an ICMP source or destination you must
 ensure root privileges for the application. One of the given examples
 in @file{serveez.cfg} shows how you can setup a tunnel server for 
-forwarding a pipe connection.
+forwarding a pipe connection. Please keep in mind when forwarding an 
+ICMP or UDP connection to an TCP or pipe connection the data is not
+reliable anymore because these are low level network protocols and we are 
+not willingly to reimplement a TCP stack. 
 
 @subsubsection Configuration
 This might be the most easiest configuration to setup. You essentially
@@ -1639,9 +1643,9 @@ Now follows the list on which operating systems and architectures
 @item FreeBSD 3.3 on Intel
 @item FreeBSD 4.0 on Intel
 @item FreeBSD 4.0 on Alpha
-@item Linux 2.x.x on Intel
-@item Linux 2.x.x on Alpha
-@item Linux 2.4.0-xxx on i64 (Itanium prototype)
+@item GNU/Linux 2.x.x on Intel
+@item GNU/Linux 2.x.x on Alpha
+@item GNU/Linux 2.4.0-xxx on i64 (Itanium prototype)
 @item Solaris 2.6, 2.7 on Sparc 32, Sparc 64
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS6000
@@ -1664,35 +1668,50 @@ to implement various parts of this package. They appear in no specific
 order.
 
 @enumerate
-@item RFC 760
+@item 
+RFC 760
 The Internet Protocol
-@item RFC 1071
+@item 
+RFC 1071
 Computing the Internet Checksum
-@item RFC 1413
+@item 
+RFC 1413
 Identification Protocol
-@item RFC 1459
+@item 
+RFC 1459
 Internet Relay Chat Protocol
-@item RFC 1945
+@item 
+RFC 1945
 Hypertext Transfer Protocol -- HTTP/1.0
-@item RFC 2068
+@item 
+RFC 2068
 Hypertext Transfer Protocol -- HTTP/1.1
-@item RFC 2616
+@item 
+RFC 2616
 Hypertext Transfer Protocol -- HTTP/1.1
-@item RFC 768
+@item 
+RFC 768
 User Datagram Protocol
-@item RFC 791
+@item 
+RFC 791
 Internet Protocol
-@item RFC 777
+@item 
+RFC 777
 Internet Control Message Protocol
-@item @uref{http://gnutelladev.wego.com/}
+@item 
+@uref{http://gnutelladev.wego.com/}
 The Gnutella Protocol
-@item @uref{http://www.efnet.org/}
+@item 
+@uref{http://www.efnet.org/}
 The official EFNet site
-@item @uref{http://www.gamers.org/dEngine/quake/}
+@item 
+@uref{http://www.gamers.org/dEngine/quake/}
 Quake Developer's Page
-@item @uref{http://www.sockets.com/}
+@item 
+@uref{http://www.sockets.com/}
 Winsock Development Information
-@item @uref{http://www.cyberport.com/~tangent/programming/winsock/}
+@item 
+@uref{http://www.cyberport.com/~tangent/programming/winsock/}
 Winsock Programmer's FAQ
 @end enumerate
 
