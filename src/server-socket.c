@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.45 2001/01/02 00:52:46 raimi Exp $
+ * $Id: server-socket.c,v 1.46 2001/01/07 13:58:33 ela Exp $
  *
  */
 
@@ -431,6 +431,16 @@ server_accept_socket (socket_t server_sock)
       sock->idle_counter = 1;
       sock_enqueue (sock);
       connected_sockets++;
+
+      /* 
+       * We call the check_request() routine here once in order to
+       * allow "greedy" protocols (always returning success 
+       * in the detect_proto() routine) to get their connection without
+       * sending anything.
+       */
+      if (sock->check_request)
+	if (sock->check_request (sock))
+	  sock_schedule_for_shutdown (sock);
     }
 
   return 0;

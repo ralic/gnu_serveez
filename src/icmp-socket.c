@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.18 2001/01/06 01:14:55 ela Exp $
+ * $Id: icmp-socket.c,v 1.19 2001/01/07 13:58:33 ela Exp $
  *
  */
 
@@ -454,6 +454,42 @@ icmp_write_socket (socket_t sock)
 }
 
 /*
+ * If you are calling this function we will send an empty ICMP packet
+ * signalling that this connection is going down soon.
+ */
+int
+icmp_send_control (socket_t sock, byte type)
+{
+  static char *buffer = icmp_buffer;
+  icmp_header_t hdr;
+  unsigned len;
+  int ret = 0;
+
+  len = sizeof (len);
+  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
+  len += sizeof (sock->remote_addr);
+  memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
+  len += sizeof (sock->remote_port);
+
+  hdr.type = ICMP_SERVEEZ;
+  hdr.code = type;
+  hdr.checksum = raw_ip_checksum (NULL, 0);
+  hdr.ident = (unsigned short) (getpid () + sock->id);
+  hdr.sequence = sock->send_seq;
+  hdr.port = sock->remote_port;
+  memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
+  len += ICMP_HEADER_SIZE;
+
+  memcpy (buffer, &len, sizeof (len));
+
+  if ((ret = sock_write (sock, buffer, len)) == -1)
+    {
+      sock->flags |= SOCK_FLAG_KILLED;
+    }
+  return ret;
+}
+
+/*
  * Send a given buffer via this ICMP socket. If the length argument 
  * supersedes the maximum ICMP message size the buffer is splitted into
  * smaller blocks.
@@ -469,34 +505,6 @@ icmp_write (socket_t sock, char *buf, int length)
   /* Return if the socket has already been killed. */
   if (sock->flags & SOCK_FLAG_KILLED)
     return 0;
-
-  /* Send a disconnection packet if the given buffer BUF is NULL. */
-  if (buf == NULL)
-    {
-      len = sizeof (len);
-      memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
-      len += sizeof (sock->remote_addr);
-      memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
-      len += sizeof (sock->remote_port);
-      size = 0;
-
-      hdr.type = ICMP_SERVEEZ;
-      hdr.code = ICMP_SERVEEZ_CLOSE;
-      hdr.checksum = raw_ip_checksum ((byte *) buf, size);
-      hdr.ident = (unsigned short) (getpid () + sock->id);
-      hdr.sequence = sock->send_seq;
-      hdr.port = sock->remote_port;
-      memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
-      len += ICMP_HEADER_SIZE;
-
-      memcpy (buffer, &len, sizeof (len));
-
-      if ((ret = sock_write (sock, buffer, len)) == -1)
-        {
-          sock->flags |= SOCK_FLAG_KILLED;
-        }
-      return ret;
-    }
 
   while (length)
     {
@@ -514,11 +522,10 @@ icmp_write (socket_t sock, char *buf, int length)
 
       /* Create ICMP header and put it in front of packet load. */
       hdr.type = ICMP_SERVEEZ;
-      hdr.code = (byte) (sock->send_seq++ ? 
-			 ICMP_SERVEEZ_DATA : ICMP_SERVEEZ_CONNECT);
+      hdr.code = ICMP_SERVEEZ_DATA;
       hdr.checksum = raw_ip_checksum ((byte *) buf, size);
       hdr.ident = (unsigned short) (getpid () + sock->id);
-      hdr.sequence = sock->send_seq;
+      hdr.sequence = sock->send_seq++;
       hdr.port = sock->remote_port;
       memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
       len += ICMP_HEADER_SIZE;
@@ -542,7 +549,6 @@ icmp_write (socket_t sock, char *buf, int length)
 
   return ret;
 }
-
 
 /*
  * Put a formatted string to the icmp socket SOCK. Packet length and
@@ -694,5 +700,6 @@ icmp_connect (unsigned long host, unsigned short port)
   sock->remote_port = (unsigned short) sock->id;
 
   connected_sockets++;
+  icmp_send_control (sock, ICMP_SERVEEZ_CONNECT);
   return sock;
 }

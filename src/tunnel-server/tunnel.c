@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.11 2001/01/02 00:52:46 raimi Exp $
+ * $Id: tunnel.c,v 1.12 2001/01/07 13:58:33 ela Exp $
  *
  */
 
@@ -57,6 +57,9 @@
 #include "server.h"
 #include "tunnel.h"
 
+/*
+ * The default tunnel server configuration.
+ */
 tnl_config_t tnl_config = 
 {
   NULL, /* the source port to forward from */
@@ -226,7 +229,7 @@ tnl_create_connect (void)
 }
 
 /*
- * Depending on the given sockets structure target flag this routine
+ * Depending on the given socket structure target flag this routine
  * tries to connect to the servers target configuration and delivers a
  * new socket structure or NULL if it failed.
  */ 
@@ -467,29 +470,36 @@ int
 tnl_check_request_tcp_target (socket_t sock)
 {
   socket_t xsock = NULL;
-  tnl_connect_t *source;
+  tnl_connect_t *source = sock->data;
+
+#if ENABLE_DEBUG
+  if (source == NULL || source->source_sock == NULL)
+    {
+      log_printf (LOG_FATAL, "tunnel: tcp target has no source connection\n");
+      return -1;
+    }
+#endif /* ENABLE_DEBUG */
 
   /* obtain source connection */
-  source = sock->data;
   xsock = source->source_sock;
   xsock->remote_addr = source->ip;
   xsock->remote_port = source->port;
 
   /* forward data to source connection */
   if (tnl_send_request_target (xsock, sock->recv_buffer, 
-			       sock->recv_buffer_fill, 
-			       sock->userflags) == -1)
+			       sock->recv_buffer_fill, sock->userflags) == -1)
     {
       sock_schedule_for_shutdown (xsock);
       return -1;
     }
 
+  /* empty the receive buffer of this target connection */
   sock->recv_buffer_fill = 0;
   return 0;
 }
 
 /*
- * The tunnel servers TCP check_request routine for the source connections.
+ * The tunnel servers TCP check_request() routine for the source connections.
  * It simply copies the received data to the send buffer of the target
  * connection.
  */
@@ -500,13 +510,20 @@ tnl_check_request_tcp_source (socket_t sock)
   tnl_connect_t *target = sock->data;
   socket_t xsock;
 
+#if ENABLE_DEBUG
+  if (target == NULL || target->target_sock == NULL)
+    {
+      log_printf (LOG_FATAL, "tunnel: tcp source has no target connection\n");
+      return -1;
+    }
+#endif /* ENABLE_DEBUG */
+
   /* obtain target connection */
   xsock = target->target_sock;
 
   /* forward data to target connection */
   if (tnl_send_request_source (xsock, sock->recv_buffer, 
-			       sock->recv_buffer_fill, 
-			       sock->userflags) == -1)
+			       sock->recv_buffer_fill, sock->userflags) == -1)
     {
       return -1;
     }
@@ -516,17 +533,24 @@ tnl_check_request_tcp_source (socket_t sock)
 }
 
 /*
- * This function is the handle_request routine for target UDP sockets.
+ * This function is the handle_request() routine for target UDP sockets.
  */
 int
 tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
-  tnl_connect_t *source;
+  tnl_connect_t *source = sock->data;
   socket_t xsock = NULL;
 
+#if ENABLE_DEBUG
+  if (source == NULL || source->source_sock == NULL)
+    {
+      log_printf (LOG_FATAL, "tunnel: udp target has no source connection\n");
+      return -1;
+    }
+#endif /* ENABLE_DEBUG */
+
   /* get source connection from data field */
-  source = sock->data;
   xsock = source->source_sock;
   xsock->remote_addr = source->ip;
   xsock->remote_port = source->port;
@@ -534,16 +558,18 @@ tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
   /* forward packet data to source connection */
   if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
     {
+      /* shutdown the source connection if it is TCP or pipe */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
 	sock_schedule_for_shutdown (xsock);
       return -1;
     }
 
+  /* returning zero means that the packet has been processed */
   return 0;
 }
 
 /*
- * This function is the handle_request routine for source UDP sockets.
+ * This function is the handle_request() routine for source UDP sockets.
  * It accepts UDP connections (listening connection) or forwards data
  * to existing target sockets.
  */
@@ -563,7 +589,7 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
     }
   else
     {
-      /* start connecting */
+      /* start connecting to a new target */
       if ((xsock = tnl_create_socket (sock, TNL_FLAG_SRC_UDP)) == NULL)
 	return 0;
 
@@ -574,7 +600,7 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
       source->port = sock->remote_port;
       hash_put (cfg->client, tnl_addr (sock), source);
 
-      /* put the source connection into data field */
+      /* put the source connection into data field of target */
       xsock->data = source;
       source->target_sock = xsock;
     }
@@ -596,11 +622,19 @@ int
 tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
-  tnl_connect_t *source;
+  tnl_connect_t *source = sock->data;
   socket_t xsock = NULL;
 
+#if ENABLE_DEBUG
+  if (source == NULL || source->source_sock == NULL)
+    {
+      log_printf (LOG_FATAL,
+		  "tunnel: icmp target has no source connection\n");
+      return -1;
+    }
+#endif /* ENABLE_DEBUG */
+
   /* get source connection from data field */
-  source = sock->data;
   xsock = source->source_sock;
   xsock->remote_addr = source->ip;
   xsock->remote_port = source->port;
@@ -608,16 +642,18 @@ tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
   /* forward packet data to source connection */
   if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
     {
+      /* shutdown source connection if it is TCP or pipe */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
 	sock_schedule_for_shutdown (xsock);
       return -1;
     }
 
+  /* packet successfully processed */
   return 0;
 }
 
 /*
- * This function is the handle_request routine for source ICMP sockets.
+ * This function is the handle_request() routine for source ICMP sockets.
  * It accepts ICMP connections (listening connection) or forwards data
  * to existing target sockets.
  */
@@ -664,51 +700,65 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
 }
 
 /*
- * The targets's disconnection routine.
+ * The targets's disconnection routine for types of targets (TCP, PIPE,
+ * ICMP and UDP).
  */
 int
 tnl_disconnect_target (socket_t sock)
 {
   tnl_config_t *cfg = sock->cfg;
-  char *key;
   tnl_connect_t *source = sock->data;
+  socket_t xsock;
+  char *key;
 
   /* do not do anything if we are shutting down */
-  if (!server_nuke_happened)
+  if (server_nuke_happened)
     {
-      /* if the source connection is ICMP send a disconnection message */
-      if (sock->userflags & TNL_FLAG_SRC_ICMP)
-	{
-#if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "tunnel: sending icmp disconnect\n");
-#endif
-	  icmp_write (source->source_sock, NULL, 0);
-	}
-
       /* if source is TCP or PIPE then shutdown referring connection */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
 	{
-#if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
-		      source->source_sock->id);
-#endif
-	  sock_schedule_for_shutdown (source->source_sock);
 	  tnl_free_connect (sock);
 	}
-      /* else delete target connection from its hash */
-      else if ((key = hash_contains (cfg->client, source)) != NULL)
-	{
-	  hash_delete (cfg->client, key);
-	  tnl_free_connect (sock);
-	}
+      return 0;
     }
-  else
+
+#if ENABLE_DEBUG
+  if (source == NULL || source->source_sock == NULL)
     {
-      /* if source is TCP or PIPE then shutdown referring connection */
-      if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
-	{
-	  tnl_free_connect (sock);
-	}
+      log_printf (LOG_FATAL, "tunnel: target has no source connection\n");
+      return -1;
+    }
+#endif /* ENABLE_DEBUG */
+
+  /* obtain source connection */
+  xsock = source->source_sock;
+
+  /* if the source connection is ICMP send a disconnection message */
+  if (sock->userflags & TNL_FLAG_SRC_ICMP)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG,
+		  "tunnel: sending icmp disconnect on socket id %d\n",
+		  xsock->id);
+#endif /* ENABLE_DEBUG */
+      icmp_send_control (xsock, ICMP_SERVEEZ_CLOSE);
+    }
+
+  /* if source is TCP or PIPE then shutdown referring connection */
+  if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n", xsock->id);
+#endif /* ENABLE_DEBUG */
+      sock_schedule_for_shutdown (xsock);
+      xsock->data = NULL;
+      tnl_free_connect (sock);
+    }
+  /* else delete target connection from its hash */
+  else if ((key = hash_contains (cfg->client, source)) != NULL)
+    {
+      hash_delete (cfg->client, key);
+      tnl_free_connect (sock);
     }
 
   return 0;
@@ -720,20 +770,30 @@ tnl_disconnect_target (socket_t sock)
 int
 tnl_disconnect_source (socket_t sock)
 {
+  tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *target = sock->data;
+  socket_t xsock;
 
-  /* do not anything if we are shutting down */
-  if (!server_nuke_happened)
+  /* if target is TCP or PIPE shutdown referring connection */
+  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_PIPE))
     {
-      /* if source is TCP or PIPE shutdown referring connection */
-      if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_PIPE) && target)
-	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
-		      target->target_sock->id);
-#endif
-	  sock_schedule_for_shutdown (target->target_sock);
+      if (target == NULL || target->target_sock == NULL)
+	{
+	  log_printf (LOG_DEBUG, "tunnel: tcp/pipe source has no "
+		      "target connection\n");
+	  return -1;
 	}
+#endif /* ENABLE_DEBUG */
+
+      /* get target connection */
+      xsock = target->target_sock;
+
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n", xsock->id);
+#endif /* ENABLE_DEBUG */
+      sock_schedule_for_shutdown (xsock);
+      xsock->data = NULL;
     }
 
   return 0;
@@ -748,8 +808,7 @@ tnl_idle (socket_t sock)
 {
   time_t t = time (NULL);
 
-  if (t - sock->last_recv < TNL_TIMEOUT ||
-      t - sock->last_send < TNL_TIMEOUT)
+  if (t - sock->last_recv < TNL_TIMEOUT || t - sock->last_send < TNL_TIMEOUT)
     {
       sock->idle_counter = TNL_TIMEOUT;
       return 0;

@@ -1,3 +1,24 @@
+2001-01-07  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c (tnl_disconnect_target): Send
+	a disconnection message if the source port is ICMP.
+
+	* icmp-socket.c (icmp_send_control): This routine can send
+	control packets without packet load in order to signal
+	disconnects or connects on ICMP "connections".
+	(icmp_connect): When "connecting" to a host using the ICMP
+	protocol we send a special subcode in the header to signal
+	a connect (thus we have something like TCP's accept() and
+	shutdown() function).
+
+	* server-socket.c (server_accept_socket): Created a workaround
+	for so called "greedy" servers. These get their connection as
+	soon as it has been accept()ed.
+
+	* tunnel-server/tunnel.c (tnl_disconnect_target): Hopefully
+	fixed the problem with disconnecting referring pipe or tcp
+	connections.
+
 2001-01-05  [ Ela ]  <ela@lkcc.org>
 
 	* icmp-socket.c (icmp_request): Text definition of all known
