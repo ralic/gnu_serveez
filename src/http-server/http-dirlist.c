@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.3 2000/06/17 23:29:59 raimi Exp $
+ * $Id: http-dirlist.c,v 1.4 2000/06/30 00:11:59 raimi Exp $
  *
  */
 
@@ -84,13 +84,18 @@ http_dirlist (char *dirname, char *docroot)
       return NULL;
     }
 
-  dirdata = (char*)xmalloc (DIRLIST_SPACE);
+  dirdata = xmalloc (DIRLIST_SPACE);
   data_size = DIRLIST_SPACE;
 
   /* Calculate relative path */
   i = 0;
-  while (dirname[i] == docroot[i]) i++;
+  while ( dirname[i] == docroot[i] && docroot[i] != 0 ) i++;
   relpath = &dirname[i];
+  if (!strcmp (relpath, "/"))
+    {
+      relpath++;
+      dirname++;
+    }
 
   /* Output preamble */
   while (-1 == snprintf (dirdata, data_size,
@@ -113,14 +118,18 @@ http_dirlist (char *dirname, char *docroot)
       /* Create fully qualified filename */
       snprintf (filename, DIRLIST_SPACE_NAME, "%s/%s", dirname, de->d_name);
       files++;
+      printf ("statting: %s\n", filename);
 
       /* Stat the given file */
       if (-1 == stat (filename, &statbuf)) 
 	{
 	  /* Something is wrong with this file... */
-	  snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-		    "<font color=red>%s -- %s</font>\n",
-		    de->d_name, SYS_ERROR);
+	  if (-1 == snprintf (entrystr, DIRLIST_SPACE_ENTRY,
+			      "<font color=red>%s -- %s</font>\n",
+			      de->d_name, SYS_ERROR))
+	    {
+	      log_printf (LOG_ERROR, "dirlist: %s\n", SYS_ERROR);
+	    }
 	} 
       else 
 	{
@@ -135,22 +144,29 @@ http_dirlist (char *dirname, char *docroot)
 	  if (S_ISDIR (statbuf.st_mode)) 
 	    {
 	      /* This is a directory... */
-	      snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-			"<img border=0 src=internal-gopher-menu> "
-			"<a href=\"%s/\">%-40s</a> "
-			"&lt;directory&gt; "
-			"%s\n",
-			de->d_name, de->d_name, timestr);
+	      if (-1 == snprintf (entrystr, DIRLIST_SPACE_ENTRY,
+				  "<img border=0 src=internal-gopher-menu> "
+				  "<a href=\"%s/\">%-40s</a> "
+				  "&lt;directory&gt; "
+				  "%s\n",
+				  de->d_name, de->d_name, timestr))
+		{
+		  log_printf (LOG_ERROR, "dirlist: %s\n", SYS_ERROR);
+		}
 	    } 
 	  else 
 	    {
 	      /* Let's treat this as a normal file */
-	      snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-			"<img border=0 src=internal-gopher-text> "
-			"<a href=\"%s\">%-40s</a> "
-			"<b>%11d</b> "
-			"%s\n",
-			de->d_name, de->d_name, (int)statbuf.st_size, timestr);
+	      if (-1 == snprintf (entrystr, DIRLIST_SPACE_ENTRY,
+				  "<img border=0 src=internal-gopher-text> "
+				  "<a href=\"%s\">%-40s</a> "
+				  "<b>%11d</b> "
+				  "%s\n",
+				  de->d_name, de->d_name, 
+				  (int)statbuf.st_size, timestr))
+		{
+		  log_printf (LOG_ERROR, "dirlist: %s\n", SYS_ERROR);
+		}
 	    }
 	}
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.3 2000/06/16 15:36:15 ela Exp $
+ * $Id: alloc.c,v 1.4 2000/06/30 00:11:59 raimi Exp $
  *
  */
 
@@ -48,6 +48,8 @@ xmalloc (unsigned size)
 #if ENABLE_DEBUG
   unsigned *up;
 #endif
+
+  assert (size);
 
 #if ENABLE_DEBUG
   if ((ptr = (void *) malloc (size + 2*SIZEOF_UNSIGNED)) != NULL)
@@ -84,6 +86,8 @@ xrealloc (void * ptr, unsigned size)
   unsigned old_size;
   unsigned *up;
 #endif
+
+  assert (size);
 
   if (ptr)
     {
@@ -135,6 +139,8 @@ xfree (void * ptr)
   unsigned size;
   unsigned *up;
 #endif
+  
+  assert (ptr);
 
   if (ptr)
     {

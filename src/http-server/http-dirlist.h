@@ -39,7 +39,7 @@
  * check errno for details.
  * ...and don't forget too free() the data somewhere somewhen...
  */
-char *http_dirlist(char *dirname, char *docroot);
+char *http_dirlist (char *dirname, char *docroot);
 extern int http_dirlist_size;
 
 

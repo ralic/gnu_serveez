@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.3 2000/06/25 17:31:41 ela Exp $
+ * $Id: hash.c,v 1.4 2000/06/30 00:11:59 raimi Exp $
  *
  */
 
@@ -134,7 +134,8 @@ hash_destroy (hash_t *hash)
 	{
 	  xfree (node->entry[e].key);
 	}
-      xfree (node->entry);
+      if (node->size)
+	xfree (node->entry);
     }
   xfree (hash->table);
   xfree (hash);
