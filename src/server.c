@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.5 2000/06/18 16:25:19 ela Exp $
+ * $Id: server.c,v 1.6 2000/06/18 22:13:02 raimi Exp $
  *
  */
 
@@ -34,6 +34,11 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+#else
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 #endif
 
 #include "server.h"
@@ -158,7 +163,10 @@ set_string (char *cfgfile,
 	    char *def)
 {
   if ( val == zzz_undefined ) {
-    (*where) = xpstrdup(def);
+    if (def == NULL)
+      (*where) = NULL;
+    else
+      (*where) = xpstrdup(def);
     return 0;
   }
 
@@ -287,7 +295,7 @@ set_hash (char *cfgfile,
 }
 
 /*
- * set a portcfg from a scheme variable
+ * set a portcfg from a scheme variable. the default value is copied.
  */
 
 static int set_port (char *cfgfile,
@@ -301,72 +309,138 @@ static int set_port (char *cfgfile,
   zzz_scm_t tmp = NULL;
   char *tstr = NULL;
   struct portcfg *newport;
+  struct sockaddr_in *newaddr;
 
+  /* First, fill the structure with the values we know already */
   if ( val == zzz_undefined ) {
-    (*where) = def;
-    return 0;
-  }
-
-  newport = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
-
-  if ( !vector_p (val) ) {
-    fprintf (stderr,
-	     "%s: portconfig `%s' of `%s' does not specify a protocol\n",
-	     cfgfile, keyname, varname);
-    return -1;
-  }
-
-  /* First, find out what kind of port is about to be recognized */
-  key = zzz_make_string ("proto", -1);
-  tmp = zzz_hash_ref (val, key, zzz_undefined);
-
-  if ( !string_p (tmp) ) {
-    fprintf (stderr,
-	     "%s: `proto' of portconfig `%s' of `%s' should be a string\n",
-	     cfgfile, keyname, varname);
-    return -1;
-  }
-
-  tstr = string_val (tmp);
-
-  if ( strcmp (tstr, "tcp") == 0 ) {
-    newport->proto = PROTO_TCP;
-    key = zzz_make_string ("port", -1);
-    tmp = zzz_hash_ref (val, key, zzz_undefined);
-
-    if ( !integer_p (tmp)) {
-      fprintf (stderr, "%s: `%s': port is not numerical in %s\n",
-	       cfgfile, varname, keyname);
+    if (def == NULL) {
+      fprintf (stderr, "FATAL: The default value of a portcfg may not be "
+	       "a NULL pointer (`%s' in `%s')\n",
+	       keyname, varname);
       return -1;
     }
-    newport->port = integer_val (tmp);
 
-  } else if (strcmp (tstr, "udp") == 0) {
-    newport->proto = PROTO_UDP;
-
-    key = zzz_make_string ("port", -1);
-    tmp = zzz_hash_ref (val, key, zzz_undefined);
-
-    if ( !integer_p (tmp)) {
-      fprintf (stderr, "%s: `%s': port is not numerical in %s\n",
-	       cfgfile, varname, keyname);
-      return -1;
-    }
-    newport->port = integer_val (tmp);
-
-  } else if (strcmp (tstr, "pipe") == 0) {
-    newport->proto = PROTO_PIPE;
-    fprintf (stderr, "server.c: pipes not implemented :-)\n");
-    return -1;
+    (*where) = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
+    memcpy ((*where), def, sizeof (struct portcfg));
+    newport = (*where);
   } else {
-    fprintf (stderr,
-	     "%s: `proto' of portconfig `%s' of `%s' doesn't specify a "
-	     "valid protocol (tcp,udp,pipe)\n",
-	     cfgfile, keyname, varname);
-    return -1;
+
+    newport = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
+    
+    if ( !vector_p (val) ) {
+      fprintf (stderr,
+	       "%s: portconfig `%s' of `%s' does not specify a protocol\n",
+	       cfgfile, keyname, varname);
+      return -1;
+    }
+
+    /* First, find out what kind of port is about to be recognized */
+    key = zzz_make_string ("proto", -1);
+    tmp = zzz_hash_ref (val, key, zzz_undefined);
+
+    if ( !string_p (tmp) ) {
+      fprintf (stderr,
+	     "%s: `proto' of portconfig `%s' of `%s' should be a string\n",
+	       cfgfile, keyname, varname);
+      return -1;
+    }
+
+    tstr = string_val (tmp);
+
+    if ( strcmp (tstr, "tcp") == 0 || strcmp (tstr, "udp") == 0) {
+      /* this is tcp or udp, both share the local address */
+      if (strcmp (tstr, "tcp") == 0)
+	newport->proto = PROTO_TCP;
+      else
+	newport->proto = PROTO_UDP;
+
+
+      /* figure out the port value and set it */
+      key = zzz_make_string ("port", -1);
+      tmp = zzz_hash_ref (val, key, zzz_undefined);
+      
+      if ( !integer_p (tmp)) {
+	fprintf (stderr, "%s: `%s': port is not numerical in `%s'\n",
+		 cfgfile, varname, keyname);
+	return -1;
+      }
+      newport->port = (unsigned short int) integer_val (tmp);
+
+      /* figure out the local ip address, "*" means any */
+      key = zzz_make_string ("local-ip", -1);
+      tmp = zzz_hash_ref (val, key, zzz_undefined);
+
+      if (tmp == zzz_undefined) {
+	newport->localip = "*";
+      } else if (string_p (tmp)) {
+	newport->localip = xpstrdup (string_val (tmp));
+      } else {
+	fprintf (stderr, "%s: `%s': local-ip should be a string in `%s'\n",
+		 cfgfile, varname, keyname);
+	return -1;
+      }
+
+    } else if (strcmp (tstr, "pipe") == 0) {
+      newport->proto = PROTO_PIPE;
+
+      key = zzz_make_string ("inpipe", -1);
+      tmp = zzz_hash_ref (val, key, zzz_undefined);
+
+      if ( !string_p (tmp)) {
+	fprintf (stderr, "%s: `%s': inpipe should be a string in `%s'\n",
+		 cfgfile, varname, keyname);
+	return -1;
+      }
+      newport->inpipe = xpstrdup (string_val (tmp));
+
+      key = zzz_make_string ("outpipe", -1);
+      tmp = zzz_hash_ref (val, key, zzz_undefined);
+
+      if ( !string_p (tmp)) {
+	fprintf (stderr, "%s: `%s': outpipe should be a string in `%s'\n",
+		 cfgfile, varname, keyname);
+	return -1;
+      }
+
+      newport->outpipe = xpstrdup (string_val (tmp));
+
+    } else {
+      fprintf (stderr,
+	       "%s: `proto' of portconfig `%s' of `%s' doesn't specify a "
+	       "valid protocol (tcp,udp,pipe)\n",
+	       cfgfile, keyname, varname);
+      return -1;
+    }
+    
+    (*where) = newport;
   }
 
-  (*where) = newport;
+  /* Second, fill the sockaddr struct from the values we just read */
+  if (newport->proto == PROTO_TCP || newport->proto == PROTO_UDP) {
+    /* prepate the local address structure */
+    newaddr = (struct sockaddr_in*) xpmalloc (sizeof (struct sockaddr_in));
+    newport->localaddr = newaddr;
+    memset (newaddr, 0, sizeof (struct sockaddr_in));
+
+    /* this surely is internet */
+    newaddr->sin_family = AF_INET;
+
+    /* determine port... */
+    newaddr->sin_port = htons (newport->port);
+
+    /* ...and the local ip address with "*" being any */
+    if (strcmp (newport->localip, "*") == 0 ) {
+      newaddr->sin_addr.s_addr = INADDR_ANY;
+    } else {
+      if (inet_aton (string_val (tmp), &(newaddr->sin_addr)) == 0) {
+	fprintf(stderr, "%s: `%s': local-ip should be an ip address in "
+		"dotted decimal form in `%s'\n",
+		cfgfile, varname, keyname);
+	return -1;
+      }
+    }
+  }
+
   return 0;
 }
 
@@ -725,3 +799,32 @@ server_global_finalize(void)
 
   return 0;
 }
+
+/*
+ * helper: compare if two given portcfg structures are equal
+ * i.e. specifieing the same port.
+ * returns nonzero if a and b are equal.
+ */
+int
+equal_portcfg (struct portcfg *a, struct portcfg *b)
+{
+  if ( (a->proto == PROTO_TCP || a->proto == PROTO_UDP) &&
+       (a->proto == b->proto) ) {
+    /* two inet ports are equal if both local port and address are equal */
+    if (a->port == b->port && strcmp (a->localip, b->localip) == 0)
+      return 1;
+    else
+      return 0;
+  } else if ( a->proto == PROTO_PIPE && a->proto == b->proto ) {
+    /* two pipe configs are equal when they use the same filenames */
+    if ( strcmp (a->inpipe, b->inpipe) == 0 &&
+	 strcmp (b->outpipe, b->outpipe) == 0 )
+      return 1;
+    else
+      return 0;
+  } else {
+    /* dont even the same proto flag -> cannot be equal */
+    return 0;
+  }
+}
+

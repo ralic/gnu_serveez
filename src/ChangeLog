@@ -1,3 +1,9 @@
+2000-06-19  [ RAIMI ]  <raimi@lkcc.org>
+
+	* server.c (set_port): it's now possible to bind ip servers to
+	specific local interfaces. pipes can be read from cfgfile now, too.
+	the bad news is that it doesnt work and I dont know why...
+	
 2000-06-18  [ Ela ]  <ela@lkcc.org>
 
 	* irc-server/irc-proto.c (irc_server_definition): IRC server

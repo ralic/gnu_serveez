@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.5 2000/06/14 19:22:19 ela Exp $
+ * $Id: awcs-proto.c,v 1.6 2000/06/18 22:13:03 raimi Exp $
  *
  */
 
@@ -56,6 +56,8 @@ portcfg_t awcs_net_port =
 {
   PROTO_TCP,   /* prefered protocol type */
   42424,       /* prefered port */
+  "127.0.0.1", /* local ip */
+  NULL,        /* calculated later */
   NULL,        /* inpipe */
   NULL         /* outpipe */
 };
@@ -64,6 +66,8 @@ portcfg_t awcs_fs_port =
 {
   PROTO_PIPE,  /* prefered protocol type */
   0,           /* prefered port */
+  NULL,        /* local ip */
+  NULL,
   ".aWCSrecv", /* inpipe */
   ".aWCSsend"  /* outpipe */
 };

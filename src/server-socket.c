@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.6 2000/06/16 21:02:28 ela Exp $
+ * $Id: server-socket.c,v 1.7 2000/06/18 22:13:02 raimi Exp $
  *
  */
 
@@ -306,6 +306,11 @@ server_create (portcfg_t *cfg)
 	}
 
       /* Second, bind the socket to a port. */
+      /* Should work like this but doesnt: */
+      /*
+       *      if (bind (server_socket, cfg->localaddr,
+       *		sizeof (struct sockaddr_in) < 0))
+      */
       memset (&server, 0, sizeof (server));
       server.sin_family = AF_INET;
       server.sin_addr.s_addr = INADDR_ANY;

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: server.h,v 1.4 2000/06/18 22:13:03 raimi Exp $
  *
  */
 
@@ -29,20 +29,15 @@
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-#include "socket.h"
 
-/*
- * Use my functions:
- */
-int server_load_cfg (char *cfgfile);
-int server_global_init (void);
-int server_init_all (void);
-int server_finalize_all (void);
-int server_global_finalize (void);
-#if ENABLE_DEBUG
-void server_show_definitions (void);
+#ifdef __MINGW32__
+# include <winsock.h>
+#else
+# include <sys/types.h>
+# include <sys/socket.h>
 #endif
 
+#include "socket.h"
 
 #define PROTO_TCP   0x00000001
 #define PROTO_UDP   0x00000002
@@ -79,13 +74,22 @@ server_t;
 
 /*
  * Used when binding ports
+ *  this is available from sizzle and set as a hash:
+ *  "proto" => String: "tcp", "udp", "pipe"
+ *  "port" => int: for tcp/udp ports
+ *  "local-ip" => String: (dotted decimal) for local address or "*" (default)
+ *  "inpipe" => String: pipe for sending data into serveez
+ *  "outpipe" => String: pipe serveez sends responses out on
+ *
  */
 typedef struct portcfg
 {
-  int proto;            /* one of the PROTO_ flags */
+  int proto;                      /* one of the PROTO_ flags */
 
   /* TCP and UDP */
-  int port;
+  unsigned short int port;        /* ip port */
+  char *localip;                  /* dotted decimal or "*" */
+  struct sockaddr_in *localaddr;  /* converted from the above 2 values */
 
   /* Pipe */
   char *inpipe;
@@ -119,6 +123,19 @@ server_definition_t;
 extern struct server_definition *all_server_definitions[];
 extern int server_instances;
 extern struct server **servers;
+
+/*
+ * Use my functions:
+ */
+int server_load_cfg (char *cfgfile);
+int server_global_init (void);
+int server_init_all (void);
+int server_finalize_all (void);
+int server_global_finalize (void);
+int equal_portcfg (struct portcfg *a, struct portcfg *b);
+#if ENABLE_DEBUG
+void server_show_definitions (void);
+#endif
 
 /*
  * Helper cast to get n-th server_t from a void*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.6 2000/06/16 21:02:28 ela Exp $
+ * $Id: http-proto.c,v 1.7 2000/06/18 22:13:03 raimi Exp $
  *
  */
 
@@ -81,6 +81,8 @@ portcfg_t http_port =
 {
   PROTO_TCP,  /* TCP protocol defintion */
   42424,      /* prefered port */
+  "*",        /* prefered local ip address */
+  NULL,       /* calculated automatically later */
   NULL,       /* no receiving (listening) pipe */
   NULL        /* no sending pipe */
 };

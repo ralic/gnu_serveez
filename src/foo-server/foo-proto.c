@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.5 2000/06/16 21:02:28 ela Exp $
+ * $Id: foo-proto.c,v 1.6 2000/06/18 22:13:03 raimi Exp $
  *
  */
 
@@ -51,10 +51,12 @@ int foo_packet_delim_len = 2;
 
 struct portcfg some_default_port = 
 {
-  PROTO_TCP,
-  42421,
-  NULL,
-  NULL
+  PROTO_TCP,      /* we are tcp */
+  42421,          /* standard port to listen on */
+  "*",            /* bind all local addresses   */
+  NULL,           /* calculated from above values later */
+  NULL,           /* no inpipe for us */
+  NULL            /* no outpipe for us */
 };
 
 int some_default_intarray[] = 
@@ -315,7 +317,7 @@ foo_init (struct server *server)
     printf(" *assoc = NULL\n");
   }
 
-  printf (" Binding on port %d\n", c->port->port);
+  printf (" Binding on port %s:%d\n", c->port->localip, c->port->port);
 
   if ( c->port->proto != PROTO_TCP ) {
     fprintf (stderr, "Foo server can handle TCP only!\n");

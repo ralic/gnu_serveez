@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-proto.c,v 1.4 2000/06/18 22:13:03 raimi Exp $
  *
  */
 
@@ -62,6 +62,8 @@ portcfg_t irc_port =
 {
   PROTO_TCP,  /* tcp protocol only */
   42424,      /* prefered tcp port */
+  "*",        /* prefered local ip address */
+  NULL,       /* calucalted automatically */
   NULL,       /* no receiving pipe */
   NULL        /* no sending (listening) pipe */
 };
