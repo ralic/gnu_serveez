@@ -348,24 +348,23 @@ port in detail.
 
 A note on device bindings: Device bindings are based on the 
 @code{SO_BINDTODEVICE} socket layer option.  This option is not available 
-on all systems. We only tested it on GNU/Linux (2.2.18 and 2.4.17 as of this 
-writing).  Device bindings are very restrictive: only root can do it and 
-only physical devices are possible.  The loopback device cannot be used 
-and no interface alias (i.e. "eth0:0").  A device binding can only be reached
-from the physical outside but it includes all aliases for the device. So if
-you bind to device "eth0" even "eth0:0" (and all other aliases) are used.
-The connection has to be made from a remote machine.  The advantage of this 
-kind of binding is that it survives changes of IP addresses. This is tested
-for ethernet networks (i.e. eth*) and isdn dialups (i.e. ippp*). It does
-not work for modem dialups (i.e. ppp*) (at least for Stefan's PCMCIA modem).
-The problem seems to be the dialup logic actually destroying ppp*. Other
-opinions are welcome.
-Device bindings always win: If you bind to "*" (or an individual IP address)
-and to the corresponding device, connections are made with the device binding.
-The order of the @code{(bind-server!)} statements does not matter.
-If you want to try device bindings: use the @var{device} property of a port
-configuration. This feature is not thoroughly tested.
-
+on all systems.  We only tested it on GNU/Linux (2.2.18 and 2.4.17 as of 
+this writing).  Device bindings are very restrictive: only root can do it 
+and only physical devices are possible.  The loopback device cannot be used 
+and no interface alias (i.e. @samp{eth0:0}).  A device binding can only 
+be reached from the physical outside but it includes all aliases for the 
+device.  So if you bind to device @samp{eth0} even @samp{eth0:0} (and all
+other aliases) are used.  The connection has to be made from a remote 
+machine.  The advantage of this kind of binding is that it survives 
+changes of IP addresses.  This is tested for ethernet networks (i.e. eth*) 
+and isdn dialups (i.e. ippp*).  It does not work for modem dialups 
+(i.e. ppp*) (at least for Stefan's PCMCIA modem).  The problem seems to be 
+the dialup logic actually destroying ppp*.  Other opinions are welcome.
+Device bindings always win: If you bind to @samp{*} (or an individual IP 
+address) and to the corresponding device, connections are made with 
+the device binding.  The order of the @code{(bind-server!)} statements 
+do not matter.  If you want to try device bindings: use the @var{device} 
+property of a port configuration. This feature is not thoroughly tested.
 
 @subsubsection TCP port definition
 Definition of a TCP port configuration with the name "foo-tcp-port". The
@@ -528,9 +527,11 @@ that happens. The server just will not work then.
 
 The three functions @code{(define-port!)}, @code{(define-server!)} and 
 @code{(bind-server!)} return @code{#t} on success and @code{#f} on failure.
-For your convenience we provide some more guile functions. Some of these
-are based upon the above. You will find the additional functions in the
-file @file{serveez.scm}.
+For your convenience we provide some more Guile functions.  Some of these
+are based upon the above.  You will find the additional functions in the
+file @file{serveez.scm}.  In order to include this convenience 
+functionality you can @code{(primitive-load "serveez.scm")} at the top
+of the configuration file.
 
 @table @code
 @item (interface-add! . interface)
@@ -549,6 +550,10 @@ configurations and servers and binds each to another.
 
 @item (bind-tcp-port-range! from to . servers)
 Bind the list of @var{servers} to simple TCP port configurations whose network
+ports range between @var{from} and @var{to} both inclusive.
+
+@item (bind-udp-port-range! from to . servers)
+Bind the list of @var{servers} to simple UDP port configurations whose network
 ports range between @var{from} and @var{to} both inclusive.
 
 @item (serveez-verbosity verbosity)

@@ -2,7 +2,7 @@
 ;;
 ;; inetd.scm - replacement for the Internet ``super-server''
 ;;
-;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+;; Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 ;;
 ;; This is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.10 2001/12/15 13:33:38 ela Exp $
+;; $Id: inetd.scm,v 1.11 2002/01/28 18:03:28 ela Exp $
 ;;
 
 ;; the inetd configuration file
