@@ -946,15 +946,13 @@ AC_CHECK_FUNC(strncasecmp,
 	AC_DEFINE(HAVE_STRNICMP, 1, 
 	    [Define if you have the strnicmp function.])))
 
-AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize)
-AC_CHECK_FUNCS(getpwnam gettimeofday)
-AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h)
-AC_CHECK_HEADERS(varargs.h)
-AC_CHECK_HEADERS(getopt.h)
-AC_CHECK_HEADERS(sys/sockio.h sys/resource.h)
-AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h ws2tcpip.h)
-AC_CHECK_HEADERS(dirent.h sys/dirent.h direct.h)
+AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
+  getpwnam gettimeofday)
+AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
+  getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h \
+  netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h)
 AC_HEADER_DIRENT
+AC_CHECK_LIB(dl, dlopen, EXTRALIBS="$EXTRALIBS -ldl")
 
 dnl ----------------------------------------------------------------------
 

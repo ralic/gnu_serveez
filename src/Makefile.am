@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.24 2001/01/16 22:51:57 ela Exp $
+# $Id: Makefile.am,v 1.25 2001/01/21 17:09:44 ela Exp $
 #
 
 #
@@ -68,6 +68,7 @@ PROTOLIBS = 	\
 bin_PROGRAMS = serveez mkpassword
 
 serveez_SOURCES = \
+	dynload.c dynload.h \
 	serveez.c serveez.h \
 	alloc.c alloc.h \
 	util.c 	util.h \

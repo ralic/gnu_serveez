@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.22 2001/01/08 23:27:20 ela Exp $
+ * $Id: pipe-socket.c,v 1.23 2001/01/21 17:09:44 ela Exp $
  *
  */
 
@@ -643,10 +643,18 @@ pipe_listener (socket_t server_sock)
       log_printf (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
       return -1;
     }
+  /* Check if the file descriptor is a pipe. */
+  if (fstat (recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+    {
+      log_printf (LOG_ERROR, 
+		  "pipe: fstat: " MKFIFO_FUNC "() did not create a fifo\n");
+      close (recv_pipe);
+      return -1;
+    }
   server_sock->pipe_desc[READ] = recv_pipe;
   server_sock->flags |= SOCK_FLAG_RECV_PIPE;
 
-#elif defined (__MINGW32__) /* not HAVE_MKFIFO */
+#elif defined (__MINGW32__) /* not (HAVE_MKFIFO || HAVE_MKNOD) */
 
   /*
    * Create both of the named pipes and put the handles into

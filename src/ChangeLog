@@ -1,3 +1,15 @@
+2001-01-21  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (serveez_SOURCES): Added `dynload.c' and 
+	`dynload.h' files.
+
+	* dynload.c (dyn_load): Start writing dynamic server loading
+	capabilities. This function is a draft for loading a server
+	definition from a shared library.
+
+	* pipe-socket.c (pipe_listener): Check if the file descriptor
+	gained from open() is a pipe descriptor via fstat().
+
 2001-01-16  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am: Added rules for processing Windows resources
