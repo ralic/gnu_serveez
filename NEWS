@@ -28,6 +28,7 @@ files.
 Version 0.1.1
 -------------
 
+ * working named pipe interface under Windows
  * package available as relocatable RPM
  * modified chat server master protocol (use textSure v1.3)
  * virtually unlimited number of socket structures allowed

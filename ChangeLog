@@ -1,3 +1,8 @@
+2001-09-15  [ Ela ]  <ela@lkcc.org>
+
+	* BUGS: Removed bug id 0015. Declared the named pipe interface
+	under Windows to be ok.
+
 2001-09-11  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checking for strsignal() declaration.

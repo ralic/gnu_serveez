@@ -54,9 +54,12 @@ Fix:	     Use of send() and recv() instead of their -to() and -from()
 
 Bug:	     B0015
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed (2001-09-15/ela)
 Date:	     2000-09-20
 Description: The named pipes on Win32 do not work properly yet.
+Fix:	     Due to the bad documentation and the lack of open source
+	     example code I needed a lot of try and error to get them 
+	     finally working.
 
 Bug:	     B0014
 From:	     ela <stefan@lkcc.org>

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.20 2001/09/13 13:28:54 ela Exp $
+ * $Id: core.c,v 1.21 2001/09/15 16:10:58 ela Exp $
  *
  */
 
@@ -415,7 +415,8 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
      file handles gained from kernel32.CreateFile() only. We experienced
      quite low performance on small (less than 4096 byte) file chunks. 
      Performance is better with about 32 KB per chunk. The function is 
-     available on Windows NT and Windows 2000 only (not W95, W98 or ME). */
+     available on Windows NT, Windows 2000 and Windows XP only (not W95, 
+     W98 or ME). */
 
   OVERLAPPED overlap = { 0, 0, 0, 0, NULL };
   DWORD result;
