@@ -1,3 +1,9 @@
+2001-06-30  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* serveez.texi (Define ports, Bind servers to ports),
+	(Introduction to servers, Writing servers, IRC Server): Minor topy
+	fixes.
+
 2001-06-24  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Define ports): Added some nodes for the

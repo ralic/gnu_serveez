@@ -153,7 +153,7 @@ later used to bind servers to it.
 The following examples show how you setup different types of port 
 configurations. You start to define such a port using the guile function
 @code{(define-port!)}. The first argument to this functions specifies the
-name of the port configuartion. The remaiming argument describes the
+name of the port configuration. The remaiming argument describes the
 port in detail.
 
 @subsubsection TCP port definition
@@ -336,7 +336,7 @@ connections). When passing serveez the -m command line argument this setting
 gets overridden, too.
 
 @item (serveez-passwd password)
-Set the @var{password} for the control protol.
+Set the @var{password} for the control protocol.
 @end table
 
 
@@ -454,7 +454,7 @@ terminology:
 @item server definition
 A server definition is a @code{svz_servertype_t} structure which contains
 server specific members like its name, different callbacks, a single default
-configuration and a list of configuration items which determine what can be
+configuration and a list of configuration items which determines what can be
 configured.
 
 @item server configuration
@@ -538,9 +538,9 @@ configuration can later be manipulated from the configuration file.
 @subsection Server implementation file @file{foo-proto.c}
 
 If you want to define default values for your configuration you have
-to define them it somewhere and put them into the default configuration 
+to define them somewhere and put them into the default configuration
 structure. This structure will be used to instantiate your server. For
-this example we called it simply @code{foo_config}.
+this example we simply called it simply @code{foo_config}.
 
 In order to associate the configuration items in a server configuration 
 to keywords within the configuration file you have to define an
@@ -1009,11 +1009,10 @@ any headers.
 
 @subsubsection General description
 
-Internet Relay Chat. The mother of all chat systems.
-The integrated IRC server is intended to be compatible with the EFNet.
-There are no good possibilities to test this in real live, so it is
-still under heavy construction. But it can be used as a standalone server
-anyway.
+Internet Relay Chat. The mother of all chat systems.  The integrated
+IRC server is intended to be compatible with the EFNet.  There are no
+good possibilities to test this in real life, so it is still under
+heavy construction. But it can be used as a standalone server anyway.
 
 IRC itself is a teleconferencing system, which (through the use of
 the client-server model) is well-suited for running on many machines
