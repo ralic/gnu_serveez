@@ -78,11 +78,16 @@ and ident lookups.
 @node Using Serveez, Concept, Introduction, Top
 @chapter Using Serveez
 
+We know, you usually don't read the documentation. Who does. But please,
+read at the very least this chapter. It contains information on the basic
+concepts. Larger parts of the manual can be used as a reference manual
+for the various server.
+
 @section Starting Serveez
 
 When Serveez is started it reads its configuration from a file called
 @file{@value{s_PACKAGE}.cfg} in the current directory and runs the server
-loop afterwards. Press @key{^C} to abort the execution of this program.
+loop afterwards. Press @key{^C}  to abort the execution of this program.
 Serveez is not interactive and does not automatically detach from the
 terminal.
 
@@ -112,47 +117,71 @@ Start as daemon in background.
 @section Configuring Serveez
 
 As noted above Serveez is configured via a configuration 
-file which is by default @file{@value{s_PACKAGE}.cfg} and can be set 
-by passing the -f command line argument. We are using the Scheme 
-dialect called GNU Guile (@uref{http://www.gnu.org/software/guile/}) for this 
-configuration file.
-We provide an example configuration file in the @file{data/} directory. You
-should be able to configure Serveez without learning Scheme, because
-only a small subset of this language is necessary for the configuration
-file.
+file which is by default @file{serveez.cfg} and can be set 
+by passing the -f command line argument. To make configuring more fun we
+did not invent yet another config file format. Instead we use a dialect
+of the Scheme programming language called GNU guile
+(@uref{http://www.gnu.org/software/guile/}). There is no need to be worried
+if you are not a programmer. What you have to do is really simple and this
+document shows you everything you need to know. We also provide many examples.
+However there are some simple concepts you have to understand. The following
+paragraphs will explain them.
 
-The configuration file is used to set special variables and to instantiate
-servers. The following example shows how to set up a "foo" server.
-You tell Serveez to instantiate a "foo" server by starting the
-variable name with @samp{foo}.
+The idea of the config file is this: Serveez starts, runs the configuration
+file (other applications usually just read them and remember the settings)
+and finally enters its main loop doing the things you wanted it to.
 
-@example
-(define foo-server1 '#@{
-        "reply" => "Hello. I am your foo server"
-        @})
-@end example
+There are three things you have to do in the configuration file:
+@table @asis
+@item Define ports
+@item Define servers
+@item Bind servers to ports
+@end table
 
-This defines some key-value mapping that configures the behaviour of the
-new foo server.
+A @code{port} (in serveez) is a transport endpoint. You might know them
+from other tcp or udp server applications. For example: web servers
+(http) usually runs on tcp port 80. However, there is more than tcp
+ports: we have udp, icmp and named pipes each with different options to
+set. Every port has a unique name you assign to it. The name of the port is
+later used to bind servers to it.
 
-When we are referring to a @samp{port configuration} this is a special hash
-setting up a (network or file system) connection possibility to
-Serveez. The structure of a port configuration is:
+A @code{server} (in serveez) is a snippet of code that implements some
+protocol. There are many servers built into serveez but you can implement
+your own, too. For example we provide a webserver implementing the
+Hypertext Transfer Protocol (HTTP). Each server has a different set of
+options you can change. You can have many instances of every server, each
+with a different set of options. For example: You can create a webserver
+on tcp port 4242 publishing the serveez documentation and also have another
+webserver on a different port publishing something else. Every server
+has a unique name you assign to it. The name of the server is later used
+to bind it to a port.
 
-@example
-"NameOfPortCfg" => #@{
-        ;; one of those possibilities
-        "proto"    => "tcp" || "udp" || "pipe" || "icmp"
-        ;; tcp or udp port number
-        "port"     => 42420
-        ;; ip address to bind the server to
-        "ipaddr" => "*" || xxx.xxx.xxx.xxx
-        ;; receiving pipe
-        "inpipe"   => "MyRecvPipe"
-        ;; sending pipe
-        "outpipe"  => "MySendPipe"
-        @}
-@end example
+Finally you can bind servers to ports. When you do so the server you
+created listens on the port, accepts connections and serves clients. It
+does so as soon as serveez enters its main loop right after running the
+configuration file. Serveez won't stop until you interrupt it (e.g. by
+pressing @key{^C} in the terminal you started it in).
+
+One of the main features of serveez is that you can bind multiple
+servers to the same port. This for example useful to pass braindead
+firewall configurations or proxy servers. It is also possible to bind
+servers to ports they are actually not designed for. This might be used
+for debugging servers or other funny things (again, think about the
+firewall). This is the point we have to warn you: Some protocols cannot
+share the same port (no example yet) and some protocols simply won't
+work on 'wrong' ports. Additionally, you will not get errormessages when
+that happens. The server just will not work then.
+
+FIXME: add more:
+@table @code
+@item a word about types: strings, string arrays, int, int arrays, bool, hash
+@item generic port config
+@item complete example for each port type ?
+@item generic server config
+@item generic binding
+@item perhaps add nodes/sections ?
+@end table
+
 We now have a closer look at the internals of Serveez. If you
 are not interested in that have a look at the existing
 servers (@xref{Existing servers}.).
