@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.24 2000/09/20 08:29:14 ela Exp $
+ * $Id: socket.h,v 1.25 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -264,6 +264,12 @@ int sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size);
  * into the socket structure.
  */
 int sock_intern_connection_info (socket_t sock);
+
+/*
+ * Get and clear the pending socket error of a given socket. Print
+ * the result to the log file.
+ */
+int sock_error_info (socket_t sock);
 
 int default_write (socket_t sock);
 int default_read (socket_t sock);

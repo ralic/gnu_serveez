@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.24 2000/10/05 09:52:20 ela Exp $
+ * $Id: socket.c,v 1.25 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -578,6 +578,35 @@ sock_intern_connection_info (socket_t sock)
   sock->local_port = port;
   sock->local_addr = addr;
 
+  return 0;
+}
+
+/*
+ * Get and clear the pending socket error of a given socket. Print
+ * the result to the log file.
+ */
+int
+sock_error_info (socket_t sock)
+{
+  int error;
+  socklen_t optlen = sizeof (int);
+
+  if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
+                  (void *) &error, &optlen) < 0)
+    {
+      log_printf (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      return -1;
+    }
+  if (error)
+    {
+#ifdef __MINGW32__
+      WSASetLastError (error);
+#else
+      errno = error;
+#endif
+      log_printf (LOG_ERROR, "%s\n", NET_ERROR);
+      return -1;
+    }
   return 0;
 }
 

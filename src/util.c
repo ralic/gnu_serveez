@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.28 2000/10/01 22:40:10 ela Exp $
+ * $Id: util.c,v 1.29 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -220,6 +220,44 @@ util_time (time_t t)
   while (*p < ' ') *(p--) = '\0';
 
   return asc;
+}
+
+/*
+ * Create some kind of uptime string.
+ */
+char *
+util_uptime (time_t diff)
+{
+  static char text[64];
+  time_t sec, min, hour, day, old;
+
+  old = diff;
+  sec = diff % 60;
+  diff /= 60;
+  min = diff % 60;
+  diff /= 60;
+  hour = diff % 24;
+  diff /= 24;
+  day = diff;
+
+  if (old < 60)
+    {
+      sprintf (text, "%ld sec", sec);
+    }
+  else if (old < 60 * 60)
+    {
+      sprintf (text, "%ld min", min);
+    }
+  else if (old < 60 * 60 * 24)
+    {
+      sprintf (text, "%ld hours, %ld min", hour, min);
+    }
+  else
+    {
+      sprintf (text, "%ld days, %ld:%02ld", day, hour, min);
+    }
+
+  return text;
 }
 
 /*

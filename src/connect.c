@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.13 2000/10/01 22:40:10 ela Exp $
+ * $Id: connect.c,v 1.14 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -68,6 +68,7 @@ sock_connect (unsigned long host, unsigned short port)
   struct sockaddr_in client;
   SOCKET sockfd;
   socket_t sock;
+  int error;
 #ifdef __MINGW32__
   unsigned long blockMode = 1;
 #endif
@@ -110,7 +111,12 @@ sock_connect (unsigned long host, unsigned short port)
   if (connect (sockfd, (struct sockaddr *) &client,
 	       sizeof (client)) == -1)
     {
-      if (last_errno != SOCK_INPROGRESS && last_errno != SOCK_UNAVAILABLE)
+#ifdef __MINGW32__
+      error = WSAGetLastError ();
+#else
+      error = errno;
+#endif
+      if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
 	{
 	  log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
 	  closesocket (sockfd);
@@ -159,6 +165,11 @@ default_connect (socket_t sock)
     }
   if (error)
     {
+#ifdef __MINGW32__
+      WSASetLastError (error);
+#else
+      errno = error;
+#endif
       if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
 	{
 	  log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);

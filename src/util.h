@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.23 2000/10/08 21:14:03 ela Exp $
+ * $Id: util.h,v 1.24 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -101,6 +101,7 @@ int util_strcasecmp (const char *str1, const char *str2);
 int util_strncasecmp (const char *str1, const char *str2, size_t n);
 int util_openfiles (void);
 char *util_time (time_t t);
+char *util_uptime (time_t diff);
 char *util_tolower (char *str);
 char *util_version (void);
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.30 2000/09/29 22:00:55 ela Exp $
+ * $Id: control-proto.c,v 1.31 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -470,7 +470,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	}
     }
 
-  /* print standard output */
+  /* print a standard output */
   sock_printf (sock, 
 	       "\r\nThis is %s version %s running since %s.\r\n", 
 	       serveez_config.program_name, 
@@ -485,6 +485,25 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 #ifdef ENABLE_HTTP_PROTO
 	       " HTTP"
 #endif
+#ifdef ENABLE_IRC_PROTO
+	       " IRC"
+#endif
+#if ENABLE_CONTROL_PROTO
+	       " CTRL"
+#endif
+#if ENABLE_Q3KEY_PROTO
+	       " Q3KEY"
+#endif
+#if ENABLE_GNUTELLA
+	       " NUT"
+#endif
+#if ENABLE_TUNNEL
+	       " TUNNEL"
+#endif
+	       "\r\n");
+  
+  /* second feature line */
+  sock_printf (sock, "           "
 #ifdef ENABLE_IDENT
 	       " IDENT"
 #endif
@@ -500,20 +519,8 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 #ifdef ENABLE_DEBUG
 	       " DEBUG"
 #endif
-#ifdef ENABLE_IRC_PROTO
-	       " IRC"
-#endif
-#if ENABLE_CONTROL_PROTO
-	       " CTRL"
-#endif
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if defined (__MINGW32__) || defined (__CYGWIN__)
 	       " WIN32"
-#endif
-#if ENABLE_Q3KEY_PROTO
-	       " Q3KEY"
-#endif
-#if ENABLE_GNUTELLA
-	       " NUT"
 #endif
 	       "\r\n");
 
@@ -525,6 +532,8 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   /* show general state */
   sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
 	       connected_sockets, serveez_config.max_sockets);
+  sock_printf (sock, " * uptime is %s\r\n", 
+	       util_uptime (time (NULL) - serveez_config.start_time));
 #if ENABLE_DEBUG
   sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
 	       allocated_bytes, allocated_blocks);

@@ -137,6 +137,9 @@
 /* Define if Gnutella spider should be included. */
 #define ENABLE_GNUTELLA 1
 
+/* Define if the port forwarder should be included. */
+#define ENABLE_TUNNEL 1
+
 /* Define if the control protocol should be supported. */
 #define ENABLE_CONTROL_PROTO 1
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.30 2000/10/12 15:32:03 ela Exp $
+ * $Id: server.c,v 1.31 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -1045,6 +1045,9 @@ server_start (void)
       xfree (server_binding);
       server_binding = NULL;
       server_bindings = 0;
+      return 0;
     }
-  return 0;
+
+  log_printf (LOG_FATAL, "no server instances found\n");
+  return -1;
 }

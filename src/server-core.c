@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.25 2000/09/26 18:08:51 ela Exp $
+ * $Id: server-core.c,v 1.26 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -293,7 +293,7 @@ server_rechain_list (void)
   socket_t end_socket;
 
   sock = socket_last;
-  if (sock->prev)
+  if (sock && sock->prev)
     {
       end_socket = sock->prev;
       for (last_listen = socket_root; last_listen && last_listen != sock && 

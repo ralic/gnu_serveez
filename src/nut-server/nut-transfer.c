@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.17 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-transfer.c,v 1.18 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -409,6 +409,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 
       /* initialize transfer data */
       transfer = xmalloc (sizeof (nut_transfer_t));
+      memset (transfer, 0, sizeof (nut_transfer_t));
       transfer->original_size = record->size;
       transfer->file = xstrdup (file);
       transfer->start = time (NULL);
@@ -570,9 +571,9 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       trans = xmalloc (sizeof (nut_transfer_t));
       memcpy (trans, transfer, sizeof (nut_transfer_t));
       trans->file = xstrdup (transfer->file);
-      pushkey = xmalloc (strlen (NUT_GIVE) + 10 + NUT_GUID_SIZE * 2);
+      pushkey = xmalloc (strlen (NUT_GIVE) + 16 + NUT_GUID_SIZE * 2);
       sprintf (pushkey, NUT_GIVE "%d:%s",
-	       push.index, nut_print_guid (push.id));
+	       push.index, nut_text_guid (push.id));
       hash_put (cfg->push, pushkey, trans);
       xfree (pushkey);
 

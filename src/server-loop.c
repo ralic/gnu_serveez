@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.11 2000/10/08 21:14:03 ela Exp $
+ * $Id: server-loop.c,v 1.12 2000/10/15 11:46:41 ela Exp $
  *
  */
 
@@ -258,8 +258,17 @@ server_check_sockets_select (void)
 	{
 	  if (FD_ISSET (sock->sock_desc, &except_fds))
 	    {
-	      log_printf (LOG_ERROR, "exception on socket %d\n",
-			  sock->sock_desc);
+	      if (sock->flags & SOCK_FLAG_CONNECTING)
+		{
+		  log_printf (LOG_ERROR, "exception connecting socket %d\n",
+			      sock->sock_desc);
+		}
+	      else
+		{
+		  log_printf (LOG_ERROR, "exception on socket %d\n",
+			      sock->sock_desc);
+		}
+	      sock_error_info (sock);
 	      sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
@@ -519,8 +528,17 @@ server_check_sockets_poll (void)
 	  polled--;
 	  if (sock->flags & SOCK_FLAG_SOCK)
 	    {
-	      log_printf (LOG_ERROR, "exception on socket %d\n",
-			  sock->sock_desc);
+	      if (sock->flags & SOCK_FLAG_CONNECTING)
+		{
+		  log_printf (LOG_ERROR, "exception connecting socket %d\n",
+			      sock->sock_desc);
+		}
+	      else
+		{
+		  log_printf (LOG_ERROR, "exception on socket %d\n",
+			      sock->sock_desc);
+		}
+	      sock_error_info (sock);
 	      sock_schedule_for_shutdown (sock);
 	    }
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
@@ -631,6 +649,7 @@ server_check_sockets_MinGW (void)
 	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
 				     sock->flags & SOCK_FLAG_CONNECTING))
 	    {
+	      FD_SET (sock->sock_desc, &except_fds);
 	      FD_SET (sock->sock_desc, &write_fds);
 	      if (sock->sock_desc > (SOCKET) nfds)
 		nfds = sock->sock_desc;
@@ -703,8 +722,17 @@ server_check_sockets_MinGW (void)
 	{
 	  if (FD_ISSET (sock->sock_desc, &except_fds))
 	    {
-	      log_printf (LOG_ERROR, "exception on socket %d\n",
-			  sock->sock_desc);
+	      if (sock->flags & SOCK_FLAG_CONNECTING)
+		{
+		  log_printf (LOG_ERROR, "exception connecting socket %d\n",
+			      sock->sock_desc);
+		}
+	      else
+		{
+		  log_printf (LOG_ERROR, "exception on socket %d\n",
+			      sock->sock_desc);
+		}
+	      sock_error_info (sock);
 	      sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
