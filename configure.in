@@ -1057,9 +1057,14 @@ if test $enable_threads = yes ; then
   if test "$MINGW32" = "yes" ; then
     have_threads=yes
   else
-    AC_CHECK_LIB(pthread, main,
+    dnl POSIX
+    AC_CHECK_LIB(pthread, pthread_create,
       have_threads=yes
-      LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lpthread")
+      LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lpthread",
+      dnl FreeBSD
+      [AC_CHECK_LIB(c_r, pthread_create,
+        have_threads=yes
+        LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lc_r")])
   fi
 fi
 if test $have_threads = yes ; then

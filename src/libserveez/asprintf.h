@@ -2,7 +2,7 @@
  * asprintf.h - (v)asprintf function interface
  *
  * Copyright (C) 2002 Andreas Rottmann <a.rottmann@gmx.at>
- * Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: asprintf.h,v 1.1 2002/12/05 16:57:56 ela Exp $
+ * $Id: asprintf.h,v 1.2 2003/01/11 09:57:46 ela Exp $
  *
  */
 
@@ -27,6 +27,16 @@
 #define __ASPRINTF_H__ 1
 
 #include "libserveez/defines.h"
+
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
+/* to be sure not to redefine `va_start' in <stdarg.h> */
+#if defined (HAVE_VARARGS_H) && !defined (va_start)
+# include <varargs.h>
+#endif
 
 __BEGIN_DECLS
 

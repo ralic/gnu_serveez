@@ -1,3 +1,7 @@
+2003-01-11  Stefan Jahn  <stefan@lkcc.org>
+
+	* asprintf.h: Included dependent header files here.
+
 2003-01-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-loop.c (SOCK_READABLE): Using this macro (taking 

@@ -8,6 +8,7 @@ i386-unknown-freebsd4.4		cc	0.1.2	  ok
 i386-unknown-freebsd4.5		gcc	0.1.4	  ok
 i386-unknown-freebsd4.6		gcc	0.1.4	  ok
 i386-unknown-freebsd4.6.2	gcc	0.1.4	  ok
+i386-unknown-freebsd4.7		gcc	0.1.5	  ok
 i386-unknown-openbsd3.1		gcc	0.1.4	  ok
 i586-pc-linux-gnu		gcc	0.1.2	  ok
 i586-pc-cygwin			gcc	0.1.2	  ok

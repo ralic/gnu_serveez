@@ -1,3 +1,8 @@
+2003-01-11  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in (have_threads): Checking for `pthread_create()'
+	in `-lc_r' for FreeBSD platforms.
+
 2003-01-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* README-Win32, svzconfig.h.serveez, version.h.serveez,
