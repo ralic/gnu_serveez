@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.25 2001/01/25 21:22:36 ela Exp $
+ * $Id: http-core.c,v 1.26 2001/01/26 14:46:48 ela Exp $
  *
  */
 
@@ -71,7 +71,7 @@ http_header_t http_header;
 /*
  * For some reason FreeBSD 3.2 does not provide `timezone' and `daylight'.
  */
-#if 0
+#ifndef timezone
 # define timezone ((long int) 0)
 # define daylight ((int) 0)
 #endif

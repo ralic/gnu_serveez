@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.52 2001/01/24 15:55:29 ela Exp $
+ * $Id: http-proto.c,v 1.53 2001/01/26 14:46:48 ela Exp $
  *
  */
 
@@ -45,9 +45,6 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-#if HAVE_SYS_SENDFILE_H
-# include <sys/sendfile.h>
-#endif
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -66,6 +63,12 @@
 # endif
 #endif
 
+#if HAVE_SYS_SENDFILE_H
+# include <sys/sendfile.h>
+#endif
+#if defined (HAVE_SYS_UIO_H) && defined (__FreeBSD__)
+# include <sys/uio.h>
+#endif
 #if HAVE_NETINET_TCP_H
 # include <netinet/tcp.h>
 #endif
@@ -525,9 +528,21 @@ http_send_file (socket_t sock)
   int num_written;
 
   /* Try sending throughout file descriptor to socket. */
+#ifdef __FreeBSD__
+  int result;
+  off_t sbytes;
+  result = sendfile (sock->file_desc, sock->sock_desc, http->fileoffset,
+		     SOCK_MAX_WRITE, NULL, &sbytes, 0);
+  http->fileoffset += sbytes;
+  if (result != 0)
+    num_written = -1;
+  else
+    num_written = (int) sbytes;
+#else
   num_written = sendfile (sock->sock_desc, sock->file_desc,
 			  &http->fileoffset, SOCK_MAX_WRITE);
-  
+#endif
+
   /* Some error occurred. */
   if (num_written < 0)
     {
