@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.12 2000/07/14 00:42:06 ela Exp $
+ * $Id: server.c,v 1.13 2000/07/20 22:49:01 ela Exp $
  *
  */
 
@@ -918,16 +918,19 @@ server_start (void)
 	   * Check for duplicate server configurations.
 	   */
 	  server = NULL;
-	  for (n = 0; sock->data && (server = SERVER (sock->data, n)); n++)
+	  n = 0;
+	  if (sock->data && sock->flags & SOCK_FLAG_LISTENING)
 	    {
-	      if (sock->flags & SOCK_FLAG_LISTENING &&
-		  server->cfg == server_binding[b].server->cfg &&
-		  sock->proto == server_binding[b].server->proto)
+	      for (; (server = SERVER (sock->data, n)) != NULL; n++)
 		{
-		  fprintf (stderr, "Cannot bind duplicate server (%s) "
-			   "to a single port.\n",
-			   server->name);
-		  break;
+		  if (server->cfg == server_binding[b].server->cfg &&
+		      sock->proto == server_binding[b].server->proto)
+		    {
+		      fprintf (stderr, "Cannot bind duplicate server (%s) "
+			       "to a single port.\n",
+			       server->name);
+		      break;
+		    }
 		}
 	    }
 	  /*

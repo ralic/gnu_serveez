@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.8 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-server.c,v 1.9 2000/07/20 22:49:01 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ irc_parse_line (char *line, char *fmt, ...)
   char *s;
   int ret;
 
-  va_start(args, fmt);
+  va_start (args, fmt);
   ret = 0;
 
   while (*fmt && *line)
@@ -85,7 +85,8 @@ irc_parse_line (char *line, char *fmt, ...)
       /* next arg */
       if (*fmt == '%')
 	{
-	  fmt++;
+	  /* check if this is a valid format identifier */
+	  if (!*++fmt) break;
 
 	  /* a decimal */
 	  if (*fmt == 'd')
@@ -96,7 +97,7 @@ irc_parse_line (char *line, char *fmt, ...)
 	      while (*line && *line >= '0' && *line <= '9')
 		{
 		  *i *= 10;
-		  *i += *line - '0';
+		  *i += (*line - '0');
 		  line++;
 		}
 	    }
@@ -120,8 +121,8 @@ irc_parse_line (char *line, char *fmt, ...)
 	{
 	  break;
 	}
-      fmt++;
-      line++;
+      if (*fmt) fmt++;
+      if (*line) line++;
     }
 
   va_end (args);
