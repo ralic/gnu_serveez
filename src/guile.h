@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.5 2001/06/28 13:06:28 ela Exp $
+ * $Id: guile.h,v 1.6 2001/07/12 20:23:52 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #define FAIL() do { err = -1; goto out; } while(0)
 
 /* Export functions. */
+int guile2int (SCM scm, int *target);
 int optionhash_extract_string (svz_hash_t *hash, char *key, int hasdef,
 			       char *defvar, char **target, char *txt);
 svz_hash_t *guile2optionhash (SCM pairlist, char *txt, int dounpack);

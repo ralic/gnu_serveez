@@ -1,3 +1,12 @@
+2001-07-12  [ Ela ]  <ela@lkcc.org>
+
+	* echo-server.scm (echo-handle-request): Implemented this
+	function. Simply echos the input with a prefix and quits
+	at a certain command.
+
+	* guile-server.c: Some more work on guile servers completed.
+	Echo server even does something now.
+
 2001-07-07  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (MAKE_SMOB_DEFINITION): Started to encapsulate

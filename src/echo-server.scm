@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.2 2001/07/07 08:37:44 ela Exp $
+;; $Id: echo-server.scm,v 1.3 2001/07/12 20:23:52 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -44,8 +44,20 @@
   (println "Detecting echo protocol ...")
   1)
 
+(define (echo-handle-request sock request len)
+  (define ret '())
+  (if (and (>= len 4) (equal? (substring request 0 4) "quit"))
+      (set! ret -1)
+      (begin
+	(svz:sock:write sock (string-append "Echo: " request) (+ len 6))
+	(set! ret 0)))
+  ret)
+
 (define (echo-connect-socket server sock)
   (println "Running connect socket.")
+  (svz:sock:boundary sock "\n")
+  (svz:sock:handle-request sock echo-handle-request)
+  (svz:sock:write sock "Hello, type `quit' to end the connection.\n" 42)
   0)
 
 ;; Servertype definitions.

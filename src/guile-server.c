@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.5 2001/07/07 08:37:44 ela Exp $
+ * $Id: guile-server.c,v 1.6 2001/07/12 20:23:52 ela Exp $
  *
  */
 
@@ -45,6 +45,9 @@
 
 /* The guile server hash. */
 static svz_hash_t *guile_server = NULL;
+
+/* The guile socket hash. */
+static svz_hash_t *guile_sock = NULL;
 
 /* List of functions to configure. */
 static char *guile_functions[] = {
@@ -96,6 +99,10 @@ void guile_##cfunc##_init (void) {                                           \
 
 #define CHECK_SMOB(cfunc, smob) \
   guile_##cfunc##_p (smob)
+
+#define CHECK_SMOB_ARG(cfunc, smob, arg, description)                    \
+  if (!CHECK_SMOB (svz_socket, gsock))                                   \
+    scm_wrong_type_arg_msg (FUNC_NAME, arg, smob, "#<" description ">")
 
 #define GET_SMOB(cfunc, smob) \
   guile_##cfunc##_get (smob)
@@ -173,7 +180,7 @@ guile_servertype_add (svz_servertype_t *server, svz_hash_t *functions)
 /*
  * Lookup a functions name @var{func} in the list of known servertypes.
  * The returned guile procedure depends on the given server type 
- * @var{server}. If the lookupp fails this routine return SCM_UNDEFINED.
+ * @var{server}. If the lookup fails this routine return SCM_UNDEFINED.
  */
 static SCM
 guile_servertype_getfunction (svz_servertype_t *server, char *func)
@@ -191,6 +198,54 @@ guile_servertype_getfunction (svz_servertype_t *server, char *func)
     return SCM_UNDEFINED;
   
   return proc;
+}
+
+/*
+ * Return the procedure @var{func} associated with the socket structure
+ * @var{sock} or SCM_UNDEFINED if there is no such function yet.
+ */
+static SCM
+guile_sock_getfunction (svz_socket_t *sock, char *func)
+{
+  svz_hash_t *gsock;
+  SCM proc;
+
+  if (sock == NULL || guile_sock == NULL)
+    return SCM_UNDEFINED;
+
+  if (svz_sock_find (sock->id, sock->version) != sock)
+    return SCM_UNDEFINED;
+
+  if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
+    return SCM_UNDEFINED;
+
+  if ((proc = (SCM) ((unsigned long) svz_hash_get (gsock, func))) == 0)
+    return SCM_UNDEFINED;
+  
+  return proc;
+}
+
+/*
+ * Associate the given guile procedure @var{proc} hereby named @var{func}
+ * with the socket structure @var{sock}. The function returns the previously
+ * set procedure if there is such a.
+ */
+static SCM
+guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
+{
+  svz_hash_t *gsock;
+
+  if (sock == NULL || func == NULL)
+    return SCM_UNDEFINED;
+
+  if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
+    {
+      gsock = svz_hash_create (4);
+      svz_hash_put (guile_sock, svz_itoa (sock->id), gsock);
+    }
+
+  return (SCM) (unsigned long) 
+    svz_hash_put (gsock, func, (void *) ((unsigned long) proc));
 }
 
 /*
@@ -338,8 +393,88 @@ guile_func_notify (svz_server_t *server)
 static int
 guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 {
+  SCM ret, handle_request;
+  handle_request = guile_sock_getfunction (sock, "handle-request");
+
+  if (handle_request != SCM_UNDEFINED)
+    {
+      ret = gh_call3 (handle_request, MAKE_SMOB (svz_socket, sock), 
+		      gh_str2scm (request, len), gh_int2scm (len));
+      return guile_int (ret, -1);
+    }
+
   return -1;
 }
+
+/* Set the @code{handle_request} member of the socket @var{gsock} to the
+   guile procedure @var{proc}. */
+#define FUNC_NAME "svz:sock:handle-request"
+static SCM
+guile_sock_handle_request (SCM gsock, SCM proc)
+{
+  svz_socket_t *sock;
+
+  CHECK_SMOB_ARG (svz_socket, gsock, 1, "svz-socket");
+  if (!gh_procedure_p (proc))
+    scm_wrong_type_arg_msg (FUNC_NAME, 2, proc, "procedure");
+
+  sock = GET_SMOB (svz_socket, gsock);
+  sock->handle_request = guile_func_handle_request;
+  guile_sock_setfunction (sock, "handle-request", proc);
+
+  return SCM_BOOL_T;
+}
+#undef FUNC_NAME
+
+/* Setup the packet boundary of the socket @var{gsock}. */
+#define FUNC_NAME "svz:sock:boundary"
+static SCM
+guile_sock_boundary (SCM gsock, SCM boundary)
+{
+  char *str;
+  svz_socket_t *sock;
+
+  CHECK_SMOB_ARG (svz_socket, gsock, 1, "svz-socket");
+  if ((str = guile2str (boundary)) == NULL)
+    scm_wrong_type_arg_msg (FUNC_NAME, 2, boundary, "string");
+
+  sock = GET_SMOB (svz_socket, gsock);
+  sock->boundary = str;
+  sock->boundary_size = strlen (str);
+  sock->check_request = svz_sock_check_request;
+
+  return SCM_BOOL_T;
+}
+#undef FUNC_NAME
+
+/* Write @var{glen} byte from the buffer @var{gbuf} to the socket @var{gsock}.
+   Return #t on success and #f on failure. */
+#define FUNC_NAME "svz:sock:write"
+static SCM
+guile_sock_write (SCM gsock, SCM gbuf, SCM glen)
+{
+  char *str;
+  int len;
+  svz_socket_t *sock;
+  SCM ret = SCM_BOOL_T;
+
+  CHECK_SMOB_ARG (svz_socket, gsock, 1, "svz-socket");
+  if ((str = guile2str (gbuf)) == NULL)
+    scm_wrong_type_arg_msg (FUNC_NAME, 2, gbuf, "string");
+  if (guile2int (glen, &len))
+    scm_wrong_type_arg_msg (FUNC_NAME, 3, len, "integer");
+
+  sock = GET_SMOB (svz_socket, gsock);
+  if (svz_sock_write (sock, str, len) == -1)
+    {
+      svz_sock_schedule_for_shutdown (sock);
+      ret = SCM_BOOL_F;
+    }
+
+  scm_must_free (str);
+  return ret;
+}
+#undef FUNC_NAME
 
 /*
  * Guile server definition: This procedure takes one argument containing
@@ -421,11 +556,16 @@ guile_define_servertype (SCM args)
 void
 guile_server_init (void)
 {
-  if (guile_server)
+  if (guile_server || guile_sock)
     return;
 
   guile_server = svz_hash_create (4);
+  guile_sock = svz_hash_create (4);
   gh_new_procedure ("define-servertype!", guile_define_servertype, 1, 0, 0);
+  gh_new_procedure ("svz:sock:handle-request", 
+		    guile_sock_handle_request, 2, 0, 0);
+  gh_new_procedure ("svz:sock:boundary", guile_sock_boundary, 2, 0, 0);
+  gh_new_procedure ("svz:sock:write", guile_sock_write, 3, 0, 0);
 
   /* Initialize the guile SMOB things. Previously defined via 
      MAKE_SMOB_DEFINITION (). */
@@ -442,7 +582,7 @@ guile_server_init (void)
 void
 guile_server_finalize (void)
 {
-  char **prefix;
+  char **prefix, **id;
   int i;
   svz_servertype_t *stype;
   svz_hash_t *functions;
@@ -460,6 +600,17 @@ guile_server_finalize (void)
 	}
       svz_hash_destroy (guile_server);
       guile_server = NULL;
+    }
+
+  if (guile_sock)
+    {
+      svz_hash_foreach_key (guile_sock, id, i)
+	{
+	  functions = svz_hash_get (guile_sock, id[i]);
+	  svz_hash_destroy (functions);
+	}
+      svz_hash_destroy (guile_sock);
+      guile_sock = NULL;
     }
 }
 

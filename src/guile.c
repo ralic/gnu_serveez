@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.36 2001/06/30 13:26:49 ela Exp $
+ * $Id: guile.c,v 1.37 2001/07/12 20:23:52 ela Exp $
  *
  */
 
@@ -306,7 +306,7 @@ guile2optionhash (SCM pairlist, char *txt, int dounpack)
  * Stores the integer value where @var{target} points to. Does not emit 
  * error messages.
  */
-static int
+int
 guile2int (SCM scm, int *target)
 {
   int err = 0;
