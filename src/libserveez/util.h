@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.17 2001/10/08 13:02:54 ela Exp $
+ * $Id: util.h,v 1.18 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -147,8 +147,8 @@ SERVEEZ_API char *svz_hstrerror __P ((void));
 #define WinXP   6
 #define WinME   7
 
-SERVEEZ_API extern int svz_os_version;
-SERVEEZ_API extern int svz_errno;
+SERVEEZ_API int svz_os_version;
+SERVEEZ_API int svz_errno;
 SERVEEZ_API char *svz_syserror __P ((int));
 
 #endif /* __MINGW32__ */

@@ -1,3 +1,14 @@
+2001-10-26  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_stat): Appended the
+	builtin program passthrough server to the feature list.
+
+	* cfgfile.c (init_server_definitions): Added program 
+	passthrough server definition.
+
+	* prog-server/prog-server.c: Framework for the upcoming 
+	program passthrough server added.
+
 2001-10-25  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_sock_data): Protect associated guile

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.13 2001/08/12 10:59:04 ela Exp $
+ * $Id: server-core.h,v 1.14 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -31,12 +31,12 @@
 #include "libserveez/socket.h"
 #include "libserveez/portcfg.h"
 
-SERVEEZ_API extern int svz_nuke_happened;
-SERVEEZ_API extern HANDLE svz_child_died;
-SERVEEZ_API extern long svz_notify;
+SERVEEZ_API int svz_nuke_happened;
+SERVEEZ_API HANDLE svz_child_died;
+SERVEEZ_API long svz_notify;
 
-SERVEEZ_API extern svz_socket_t *svz_sock_root;
-SERVEEZ_API extern svz_socket_t *svz_sock_last;
+SERVEEZ_API svz_socket_t *svz_sock_root;
+SERVEEZ_API svz_socket_t *svz_sock_last;
 
 /*
  * Go through each socket structure in the chained list.

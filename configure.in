@@ -633,6 +633,33 @@ unset define_enable_fakeident
 dnl ----------------------------------------------------------------------
 
 dnl
+dnl Check whether the passthrough server should be included.
+dnl
+
+AC_MSG_CHECKING([whether to enable the passthrough server])
+AC_ARG_ENABLE([passthrough],
+  [  --enable-passthrough    Include the passthrough server [default=yes]],
+  if test x$enableval = "xyes" ; then
+    define_enable_prog=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_prog=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_prog=yes
+  AC_MSG_RESULT([yes]))
+
+if test $define_enable_prog = yes ; then
+  AC_DEFINE(ENABLE_PROG_SERVER,
+    1, [Define if the program passthrough server should be included.])
+  SERVERLIBS="$SERVERLIBS prog-server/libprog.a"
+  SERVERDIRS="$SERVERDIRS prog-server"
+fi
+unset define_enable_prog
+
+dnl ----------------------------------------------------------------------
+
+dnl
 dnl Check whether the flood protection should be included.
 dnl
 
@@ -1337,6 +1364,7 @@ AC_OUTPUT(
     src/nut-server/Makefile
     src/tunnel-server/Makefile
     src/fakeident-server/Makefile
+    src/prog-server/Makefile
     doc/Makefile 
     data/Makefile
     test/Makefile

@@ -1,3 +1,8 @@
+2001-10-26  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: New option `--enable-passthrough' enables 
+	the builtin program passthrough server.
+
 2001-10-08  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Released version `0.1.1' and bumped up to 

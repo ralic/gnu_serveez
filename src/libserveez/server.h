@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.20 2001/07/19 13:50:43 ela Exp $
+ * $Id: server.h,v 1.21 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -261,7 +261,7 @@ svz_server_config_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern svz_hash_t *svz_servers;
+SERVEEZ_API svz_hash_t *svz_servers;
 
 SERVEEZ_API svz_server_t *svz_server_add __P ((svz_server_t *));
 SERVEEZ_API svz_server_t *svz_server_get __P ((char *));
@@ -288,7 +288,7 @@ SERVEEZ_API svz_hash_t *svz_config_hash_dup __P ((svz_hash_t *strhash));
 SERVEEZ_API int svz_server_init_all __P ((void));
 SERVEEZ_API int svz_server_finalize_all __P ((void));
 
-SERVEEZ_API extern svz_array_t *svz_servertypes;
+SERVEEZ_API svz_array_t *svz_servertypes;
 SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
 SERVEEZ_API void svz_servertype_del __P ((unsigned long));
 SERVEEZ_API svz_servertype_t *svz_servertype_get __P ((char *, int));

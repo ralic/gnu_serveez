@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.8 2001/09/08 16:19:06 ela Exp $
+ * $Id: coserver.h,v 1.9 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -107,8 +107,8 @@ svz_coserver_callback_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
-SERVEEZ_API extern svz_array_t *svz_coservers;
+SERVEEZ_API svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
+SERVEEZ_API svz_array_t *svz_coservers;
 
 SERVEEZ_API void svz_coserver_check __P ((void));
 SERVEEZ_API int svz_coserver_init __P ((void));

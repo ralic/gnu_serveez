@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.20 2001/06/13 20:29:25 ela Exp $
+ * $Id: cfgfile.c,v 1.21 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -65,6 +65,9 @@
 #if ENABLE_FAKEIDENT
 # include "fakeident-server/ident-proto.h"
 #endif
+#if ENABLE_PROG_SERVER
+# include "prog-server/prog-server.h"
+#endif
 
 /* 
  * Initialize all static server definitions. 
@@ -96,5 +99,8 @@ init_server_definitions (void)
 #endif
 #if ENABLE_FAKEIDENT
   svz_servertype_add (&fakeident_server_definition);
+#endif
+#if ENABLE_PROG_SERVER
+  svz_servertype_add (&prog_server_definition);
 #endif
 }

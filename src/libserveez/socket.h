@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.11 2001/10/07 17:10:28 ela Exp $
+ * $Id: socket.h,v 1.12 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -208,7 +208,7 @@ struct svz_socket
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern int svz_sock_connections;
+SERVEEZ_API int svz_sock_connections;
 
 SERVEEZ_API int svz_sock_valid __P ((svz_socket_t *sock));
 SERVEEZ_API svz_socket_t *svz_sock_alloc __P ((void));

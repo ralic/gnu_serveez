@@ -1,3 +1,8 @@
+2001-10-26  [ Ela ]  <ela@lkcc.org>
+
+	* defines.h (SERVEEZ_API): Cleaned up extern / __declspec() 
+	issue. Changed all appearance.
+
 2001-10-19  [ Ela ]  <ela@lkcc.org>
 
 	* passthrough.c: Continued to implement the shuffle routines

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.9 2001/09/25 16:19:38 ela Exp $
+ * $Id: alloc.h,v 1.10 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -41,8 +41,8 @@
 __BEGIN_DECLS
 
 #if ENABLE_DEBUG
-SERVEEZ_API extern unsigned int svz_allocated_bytes;
-SERVEEZ_API extern unsigned int svz_allocated_blocks;
+SERVEEZ_API unsigned int svz_allocated_bytes;
+SERVEEZ_API unsigned int svz_allocated_blocks;
 #endif /* ENABLE_DEBUG */
 
 /* Function type definitions. */
@@ -51,9 +51,9 @@ typedef void * (* svz_realloc_func_t) __P ((void *, size_t));
 typedef void (* svz_free_func_t) __P ((void *));
 
 /* Global allocator functions. */
-SERVEEZ_API extern svz_malloc_func_t svz_malloc_func;
-SERVEEZ_API extern svz_realloc_func_t svz_realloc_func;
-SERVEEZ_API extern svz_free_func_t svz_free_func;
+SERVEEZ_API svz_malloc_func_t svz_malloc_func;
+SERVEEZ_API svz_realloc_func_t svz_realloc_func;
+SERVEEZ_API svz_free_func_t svz_free_func;
 
 /* Internal allocator functions. */
 SERVEEZ_API void *svz_malloc __P ((size_t));

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.6 2001/09/30 09:05:58 ela Exp $
+ * $Id: defines.h,v 1.7 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -66,11 +66,11 @@
    library in the Win32 port. */
 
 #if defined (__SERVEEZ_IMPORT__)
-# define SERVEEZ_API __declspec (dllimport)
+# define SERVEEZ_API __declspec (dllimport) extern
 #elif defined (__SERVEEZ_EXPORT__) || defined (DLL_EXPORT)
-# define SERVEEZ_API __declspec (dllexport)
+# define SERVEEZ_API __declspec (dllexport) extern
 #else
-# define SERVEEZ_API
+# define SERVEEZ_API extern
 #endif
 
 /* When building the core library or any outside module on Win32 systems

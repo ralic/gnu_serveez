@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.57 2001/08/12 10:59:04 ela Exp $
+ * $Id: control-proto.c,v 1.58 2001/10/27 14:12:16 ela Exp $
  *
  */
 
@@ -460,46 +460,49 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   /* display compile time feature list */
   svz_sock_printf (sock, "Features  : FOO"
 #ifdef ENABLE_AWCS_PROTO
-	       " AWCS"
-#endif
+		   " AWCS"
+#endif /* ENABLE_AWCS_PROTO */
 #ifdef ENABLE_HTTP_PROTO
-	       " HTTP"
-#endif
+		   " HTTP"
+#endif /* ENABLE_HTTP_PROTO */
 #ifdef ENABLE_IRC_PROTO
-	       " IRC"
-#endif
+		   " IRC"
+#endif /* ENABLE_IRC_PROTO */
 #if ENABLE_CONTROL_PROTO
-	       " CTRL"
-#endif
+		   " CTRL"
+#endif /* ENABLE_CONTROL_PROTO */
 #if ENABLE_SNTP_PROTO
-	       " SNTP"
-#endif
+		   " SNTP"
+#endif /* ENABLE_SNTP_PROTO */
 #if ENABLE_GNUTELLA
-	       " NUT"
-#endif
+		   " NUT"
+#endif /* ENABLE_GNUTELLA */
 #if ENABLE_TUNNEL
-	       " TUNNEL"
-#endif
+		   " TUNNEL"
+#endif /* ENABLE_TUNNEL */
 #if ENABLE_FAKEIDENT
-	       " IDENTD"
-#endif
-	       "\r\n");
+		   " IDENTD"
+#endif /* ENABLE_FAKEIDENT */
+#if ENABLE_PROG_SERVER
+		   " PROG"
+#endif /* ENABLE_PROG_SERVER */
+		   "\r\n");
   
   /* second feature line */
   svz_sock_printf (sock, "           "
-	       " IDENT"
-	       " REVERSE-DNS"
-	       " DNS"
+		   " IDENT"
+		   " REVERSE-DNS"
+		   " DNS"
 #ifdef ENABLE_FLOOD_PROTECTION
-	       " FLOOD"
-#endif
+		   " FLOOD"
+#endif /* ENABLE_FLOOD_PROTECTION */
 #ifdef ENABLE_DEBUG
-	       " DEBUG"
-#endif
+		   " DEBUG"
+#endif /* ENABLE_DEBUG */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
-	       " WIN32"
-#endif
-	       "\r\n");
+		   " WIN32"
+#endif /* __MINGW32__, __CYGWIN__ */
+		   "\r\n");
 
   /* display system and process information */
   svz_sock_printf (sock, "Os        : %s\r\n", svz_sys_version ());
