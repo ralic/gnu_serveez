@@ -204,6 +204,9 @@ the binary executable.
 @item --enable-guile-server
 If you enable this feature the user is able to write servers
 using Guile.  This is still experimental.
+@item --enable-passthrough
+This includes the program passthrough server in the Serveez 
+binary.  The server provides basic inetd daemon functionality.
 @end table
 
 @example
@@ -1098,8 +1101,9 @@ example for an easy start.
 * Tunnel Server::               Description of the port forwarder
 * Chat Server::                 Chat Server (aWCS, textSure) description
 * Fake Ident Server::           Description of a simple ident server
+* Passthrough Server::          Description of the program passthrough server
+* Mandel Server::               Distributed Mandelbrot server
 @end menu
-
 
 @node HTTP Server, IRC Server,  , Existing servers
 @subsection HTTP Server
@@ -1664,11 +1668,11 @@ Maximum number of concurrent downloads from the network.
 @item max-uploads (integer, default: 4)
 Maximum number of concurrent uploads to the network.
 
-@item connection-speed (integer; default: 28)
+@item connection-speed (integer, default: 28)
 This is what we send as our connection speed in KBit/s. We also use this
 value to throttle down the network transfer rate for file uploads.
 
-@item min-speed (integer; default: 28)
+@item min-speed (integer, default: 28)
 Search for needles on hosts with a minimum speed. Set it to 0 if you do
 not care about that. This value is in KBit/s, too.
 
@@ -1951,7 +1955,7 @@ additional parameters.
 There is nothing to be configured yet. You should notice that it is possible
 to bind this server to both named pipes and TCP ports.
 
-@node Fake Ident Server, , Chat Server, Existing servers
+@node Fake Ident Server, Passthrough Server, Chat Server, Existing servers
 @subsection Fake Ident Server
 
 @subsubsection General description
@@ -1987,6 +1991,109 @@ the RFC to learn more.
 If no username is set (which means this field does not appear in the 
 configuration file) the server runs in the flag-all-requests-as-error mode.
 Use your favourite nickname here.
+@end table
+
+@node Passthrough Server, Mandel Server, Fake Ident Server, Existing servers
+@subsection Passthrough Server
+
+@subsubsection General description
+The program passthrough server provides basic inetd daemon functionality.
+Basically it can accept connections and pass this connection to the standard
+input (stdin) and standard output (stdout) handles of programs.  Depending
+on the platform (operating system) the user is able to configure different
+methods how this can be achieved.
+
+@subsubsection Configuration
+This server has different types of configuration options specifying its
+behaviour.  Some of them are mandatory and some are optional.  At least you
+need to configure the program which should be started if a new connection
+is triggered.
+
+@table @code
+@item binary (string, no default)
+This parameter specifies the program to execute when a new connection
+has been accepted.  The parameter is mandatory and must be a fully qualified
+file name (including path if necessary).
+
+@item directory (string, no default)
+This will be the working directory of the executed program.  If you omit 
+this parameter the server uses the current directory (the directory is not 
+changed).
+
+@item user (string, no default)
+If the user omits this parameter no user or group will be set for the 
+started program.  Otherwise you need to specify this information in the
+format @samp{user[.group]}.  If the group is omitted the user's primary
+group will be used.
+
+@item argv (string array, no default)
+This list of character strings is going to be the program's argument list
+(command line).  If the first list item (which is argv[0] and the program's
+name) is left blank it defaults to the program's name specified in the
+@code{binary} parameter.
+
+@item do-fork (boolean, default: true)
+This flag specifies the method how the connection is passed to the program.
+If it is true the server uses the Unix'ish @code{fork()} and @code{exec()}
+method.  Otherwise it will pass the connection transactions through a 
+unnamed pair of sockets [ or two pairs of anonymous pipes ].
+@end table
+
+@node Mandel Server, , Passthrough Server, Existing servers
+@subsection Mandel Server
+
+@html
+<pre>[ Example Mandelbrot server picture. ]</pre>
+<img src="mandel.jpg" border="0" width="320" height="240" 
+     alt="Mandelbrot Set">
+@end html
+
+@subsubsection General description
+The distributed Mandelbrot server is an Internet server completely written
+in Guile with the help of the API provided by the underlying Serveez
+application.  The reader will not see any occurrence of the networking API
+of Guile.
+
+It implements a protocol called @samp{dnc}.  @samp{dnc} - short for 
+"Distributed Number Cruncher".  The Mandelbrot server manages the 
+computation of a graphic visualization of the Mandelbrot set fractal.  
+Each client can connect to the server and ask for something to calculate 
+and is meant to send its result back to the server.  Finally the server
+produces a bitmap in the XPM format and uses a specified viewer 
+application to bring it onto your screen.
+
+@subsubsection Configuration
+The server can be setup to manage the calculation of the Mandelbrot set at
+various locations (rectangular region in the complex plane), in a specific
+pixel resolution and colour depth.  Moreover you can define the name of the
+final output file and the viewer application the output file is displayed
+with.
+
+@table @code
+@item start (string, default: -2.0-1.5i)
+Specifies the upper left corner of the final bitmap in the complex plane.
+
+@item end (string, default: +1.1+1.5i)
+Specifies the lower right corner of the final bitmap in the complex plane.
+
+@item x-res (integer, default: 320)
+The real part pixel resolution.
+
+@item y-res (integer, default: 240)
+The imaginary part pixel resolution.
+
+@item colors (integer, default: 256)
+Number of maximum colours used in the bitmap.  Also determines the maximum
+iteration depth.
+
+@item outfile (string, default: mandel.xpm)
+When the Mandel server has managed to calculate the whole bitmap it produces
+an output file in the XPM format.  Here the user can specify the location of
+this output file.
+
+@item viewer (string, default: xv)
+Here you can setup your favourite bitmap viewer application.  It should be
+able to parse and display the XPM format.
 @end table
 
 @node Coserver, Porting issues, Server, Top

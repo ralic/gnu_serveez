@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.3 2001/11/16 13:06:06 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.4 2001/11/22 17:17:51 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -50,6 +50,8 @@ function extract_doc(line)
       line = $0
       if (index($0, " * ") == 1) {
 	line = substr($0, 4)
+      } else if ($0 == " *") {
+	line = ""
       }
 
       # detect beginned end and of example
@@ -306,12 +308,19 @@ function handle_macro(line)
 	    i++
 	}
 
-	# check if last item has a '*' prefix
+	# check if last item has a '*' or '**' prefix
 	if (index(var, "*")) {
+	  n = index(var, "*")
+	  if (index(var, "**") == n) { 
+	    n = 2
+	    type[i] = "**"
+	  } else { 
+	    n = 1
 	    type[i] = "*"
-	    type[i+1] = substr(var, index(var, "*") + 1)
-	    var = type[i+1]
-	    i++
+	  }
+	  type[i+1] = substr(var, index(var, "*") + n)
+	  var = type[i+1]
+	  i++
 	}
 
 	# check if last item has a trailing '[]'

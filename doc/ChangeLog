@@ -1,3 +1,10 @@
+2001-11-22  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (EXTRA_DIST): Added `mandel.jpg'.
+
+	* serveez.texi (Mandel Server, Passthrough Server): Two new
+	sections describing these servers.
+
 2001-11-21  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.texi.in (Passthrough connections): Added a new

@@ -1,3 +1,9 @@
+2001-11-22  [ Ela ]  <ela@lkcc.org>
+
+	* core.c (svz_socket_create_pair): New function. Creates an 
+	unnamed	pair of connected sockets.  Underlying system call is 
+	`socketpair()'.
+
 2001-11-21  [ Ela ]  <ela@lkcc.org>
 
 	* socket.h (struct svz_socket): New `pid' member.

@@ -343,6 +343,7 @@ SVZ_INET_NTOA_DEFUN
 SVZ_INET_ATON_DEFUN
 SVZ_SOCKET_CONNECT_DEFUN
 SVZ_SOCKET_CREATE_DEFUN
+SVZ_SOCKET_CREATE_PAIR_DEFUN
 SVZ_SOCKET_TYPE_DEFUN
 SVZ_FD_CLOEXEC_DEFUN
 SVZ_FD_NONBLOCK_DEFUN
@@ -482,23 +483,36 @@ The function subset described in the following section allows the user to
 passthrough client connections to the standard input (stdin) and standard
 output (stdout) handles of external programs.  Some of the routines deal
 with the management of program environments.  Basically there are two 
-methods how to passthrough a duplex connection: the unix'ish @code{fork()}
+methods how to passthrough a duplex connection: the Unix'ish @code{fork()}
 and @code{exec()} method and the shuffle method where the main process 
 keeps control over the communication on the original duplex connection and 
 passes this data through two pairs of pipes or yet another socket connection
-to the child process.
+to the child process.  All of the three method are implemented calling them
+@code{SVZ_PROCESS_FORK}, @code{SVZ_PROCESS_SHUFFLE_PIPE} and 
+@code{SVZ_PROCESS_SHUFFLE_SOCK}.
 
 SVZ_SOCK_PROCESS_DEFUN
-SVZ_PROCESS_FORK_DEFUN
-SVZ_PROCESS_SHUFFLE_DEFUN
-SVZ_PROCESS_CREATE_CHILD_DEFUN
+
+SVZ_PROCESS_DISCONNECT_DEFUN
+SVZ_PROCESS_DISCONNECT_PASSTHROUGH_DEFUN
+SVZ_PROCESS_CHECK_REQUEST_DEFUN
+SVZ_PROCESS_IDLE_DEFUN
 SVZ_PROCESS_SEND_PIPE_DEFUN
 SVZ_PROCESS_RECV_PIPE_DEFUN
+SVZ_PROCESS_SEND_SOCKET_DEFUN
+SVZ_PROCESS_RECV_SOCKET_DEFUN
+
+SVZ_PROCESS_CREATE_CHILD_DEFUN
+SVZ_PROCESS_SHUFFLE_DEFUN
+SVZ_PROCESS_FORK_DEFUN
+
 SVZ_PROCESS_CHECK_EXECUTABLE_DEFUN
+SVZ_PROCESS_SPLIT_USERGROUP_DEFUN
 SVZ_PROCESS_CHECK_ACCESS_DEFUN
-SVZ_ENVBLOCK_ADD_DEFUN
+
 SVZ_ENVBLOCK_CREATE_DEFUN
 SVZ_ENVBLOCK_DEFAULT_DEFUN
+SVZ_ENVBLOCK_ADD_DEFUN
 SVZ_ENVBLOCK_FREE_DEFUN
 SVZ_ENVBLOCK_DESTROY_DEFUN
 SVZ_ENVBLOCK_GET_DEFUN

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.7 2001/11/21 21:37:42 ela Exp $
+ * $Id: passthrough.h,v 1.8 2001/11/22 17:17:51 ela Exp $
  *
  */
 
@@ -38,29 +38,31 @@ typedef char ** svz_envp_t;
 /* Structure containing a system independent environment. */
 typedef struct
 {
-  int size;
-  char **entry;
-  char *block;
+  int size;     /* Number of environment entries. */
+  char **entry; /* Environment entries in the format "VAR=VALUE". */
+  char *block;  /* Temporary environment block. */
 }
 svz_envblock_t;
 
 /* Internally used to pass lots of arguments. */
 typedef struct
 {
-  svz_socket_t *sock;
-  char *bin;
-  char *dir;
-  char **argv;
-  svz_envblock_t *envp;
-  char *user;
-  char *app;
-  HANDLE in, out;
+  svz_socket_t *sock;   /* Socket structure to pass through. */
+  char *bin;            /* Fully qualified program name. */
+  char *dir;            /* Working directory. */
+  char **argv;          /* Program arguments including argv[0]. */
+  svz_envblock_t *envp; /* Environment block. */
+  char *user;           /* User and group. */
+  char *app;            /* Additional @var{bin} interpreter application. */
+  HANDLE in, out;       /* New stdin and stdout of child process. */
+  int flag;             /* Passthrough method flag. */
 }
 svz_process_t;
 
 /* Definition for the @var{flag} argument of @code{svz_sock_process()}. */
-#define SVZ_PROCESS_FORK    1
-#define SVZ_PROCESS_SHUFFLE 2
+#define SVZ_PROCESS_FORK         1
+#define SVZ_PROCESS_SHUFFLE_SOCK 2
+#define SVZ_PROCESS_SHUFFLE_PIPE 3
 
 /* Definitions for the @var{user} argument of @code{svz_sock_process()}. */
 #define SVZ_PROCESS_NONE  ((char *) 0L)
@@ -71,16 +73,27 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_sock_process __P ((svz_socket_t *, char *, char *, 
 				       char **, svz_envblock_t *, int, 
 				       char *));
-SERVEEZ_API int svz_process_fork __P ((svz_process_t *));
-SERVEEZ_API int svz_process_shuffle __P ((svz_process_t *));
-SERVEEZ_API int svz_process_create_child __P ((svz_process_t *));
+
+SERVEEZ_API int svz_process_disconnect __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_disconnect_passthrough __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_check_request __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_idle __P ((svz_socket_t *));
 SERVEEZ_API int svz_process_send_pipe __P ((svz_socket_t *));
 SERVEEZ_API int svz_process_recv_pipe __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_send_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_recv_socket __P ((svz_socket_t *));
+
+SERVEEZ_API int svz_process_create_child __P ((svz_process_t *));
+SERVEEZ_API int svz_process_shuffle __P ((svz_process_t *));
+SERVEEZ_API int svz_process_fork __P ((svz_process_t *));
+
 SERVEEZ_API int svz_process_check_executable __P ((char *, char **));
+SERVEEZ_API int svz_process_split_usergroup __P ((char *, char **, char **));
 SERVEEZ_API int svz_process_check_access __P ((char *, char *));
-SERVEEZ_API int svz_envblock_add __P ((svz_envblock_t *, char *, ...));
+
 SERVEEZ_API svz_envblock_t *svz_envblock_create __P ((void));
 SERVEEZ_API int svz_envblock_default __P ((svz_envblock_t *));
+SERVEEZ_API int svz_envblock_add __P ((svz_envblock_t *, char *, ...));
 SERVEEZ_API int svz_envblock_free __P ((svz_envblock_t *));
 SERVEEZ_API void svz_envblock_destroy __P ((svz_envblock_t *));
 SERVEEZ_API svz_envp_t svz_envblock_get __P ((svz_envblock_t *));

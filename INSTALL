@@ -177,5 +177,8 @@ or `--enable-<?>=no'.
 `--enable-guile-server'
 	If you enable this feature the user is able to write servers
 	using Guile.  This is still experimental.
+`--enable-passthrough'
+	This includes the program passthrough server in the Serveez 
+	binary.  The server provides basic inetd daemon functionality.
 
 Please also read the README file.

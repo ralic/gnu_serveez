@@ -28,7 +28,8 @@ info_TEXINFOS = serveez.texi serveez-api.texi
 serveez_TEXINFOS = guile-api.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
-	logo.jpg logosmall.jpg serveez-api.texi.in serveez-doc-snarf.awk
+	logo.jpg logosmall.jpg mandel.jpg serveez-api.texi.in \
+	serveez-doc-snarf.awk
 CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
 	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html
 MAINTAINERCLEANFILES = Makefile.in
@@ -95,7 +96,7 @@ site: all-local info
 	@$(MKDIR) $(SITE_DIR)
 	$(CP) -p serveez.en.html logo.jpg $(SITE_DIR)
 	$(CP) -rp $(HTML_DIR) $(SITE_DIR)
-	$(CP) -p index.html logosmall.jpg $(SITE_DIR)/$(HTML_DIR)
+	$(CP) -p index.html logosmall.jpg mandel.jpg $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
 $(HTML_DIR)/serveez.html: $(srcdir)/guile-api.texi

@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-client.scm,v 1.3 2001/11/16 09:08:22 ela Exp $
+;; $Id: mandel-client.scm,v 1.4 2001/11/22 17:17:51 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -39,7 +39,7 @@
 ;; complex number z, abort calculation at max-iteration limit
 (define (iterate-mandel z max-iteration)
   (let ((z-first z))
-    (let loop ((i 0) (z (+ z-first (* z z))) (old-z z))
+    (let loop ((i 0) (z 0) (old-z z))
       (cond ((>= i (1- max-iteration)) i)
 	    ((= z old-z) (1- max-iteration)) ;; use (near?)
 	    ((> (magnitude z) 2) i)

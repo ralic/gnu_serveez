@@ -20,13 +20,13 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-shared.scm,v 1.2 2001/11/12 10:27:19 ela Exp $
+;; $Id: mandel-shared.scm,v 1.3 2001/11/22 17:17:51 ela Exp $
 ;;
 
 ;;
 ;; The distributed Mandelbrot server is an Internet server completely written
 ;; in Guile with the help of the API provided by the underlying Serveez
-;; application.  The reader will not see any occurence of the networking API
+;; application.  The reader will not see any occurrence of the networking API
 ;; of Guile.
 ;;
 ;; dnc - short for "Distributed Number Cruncher".  The Mandelbrot server

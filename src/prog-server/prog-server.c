@@ -1,8 +1,8 @@
 /*
  * prog-server.c - passthrough server implementation
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
+ * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.3 2001/11/21 21:37:42 ela Exp $
+ * $Id: prog-server.c,v 1.4 2001/11/22 17:17:51 ela Exp $
  *
  */
 
@@ -81,20 +81,30 @@ svz_servertype_t prog_server_definition =
   SVZ_DEFINE_CONFIG (prog_config, prog_config_prototype)
 };
 
+/* 
+ * Handle request callback. Not yet used.
+ */
 int 
 prog_handle_request (svz_socket_t *sock, char *request, int len)
 {
-  prog_config_t *cfg = sock->cfg;
-
-  return 0;
+  return -1;
 }
 
+/*
+ * Protocol detection callback. Always returns success, because there is
+ * no use to detect a client.
+ */
 int
 prog_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   return -1;
 }
 
+/*
+ * The connect callback is invoked when the above detection routine returned
+ * success. This means, the routine will be called immediately after the
+ * the connection has been accepted. 
+ */
 int
 prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
@@ -103,7 +113,7 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
 
   if (svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
 			cfg->fork ? SVZ_PROCESS_FORK :
-			SVZ_PROCESS_SHUFFLE,
+			SVZ_PROCESS_SHUFFLE_SOCK,
 			cfg->user ? cfg->user :	SVZ_PROCESS_NONE) < 0)
     {
       svz_log (LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);
@@ -124,33 +134,40 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
       sock->flags |= SOCK_FLAG_NOSHUTDOWN;
       return -1;
     }
-  else
-    {
-      /* FIXME: take care of failing child. */
-    }
+
   return 0;
 }
 
+/*
+ * Global initializer. Not used yet.
+ */
 int
 prog_global_init (svz_servertype_t *server)
 {
   return 0;
 }
 
+/*
+ * Global finalizer. Not used yet.
+ */
 int
 prog_global_finalize (svz_servertype_t *server)
 {
   return 0;
 }
 
+/*
+ * Server finalizer. Not used yet.
+ */
 int
 prog_finalize (svz_server_t *server)
 {
-  prog_config_t *cfg = server->cfg;
-
   return 0;
 }
 
+/*
+ * Server initializer. Checks its configuration.
+ */
 int
 prog_init (svz_server_t *server)
 {
@@ -165,27 +182,30 @@ prog_init (svz_server_t *server)
   return 0;
 }
 
+/*
+ * Notify callback. Not used yet.
+ */
 int
 prog_notify (svz_server_t *server)
 {
-  prog_config_t *cfg = server->cfg;
-
   return 0;
 }
 
+/*
+ * Info client callback. Not used yet.
+ */
 char *
 prog_info_client (svz_server_t *server, svz_socket_t *sock)
 {
-  prog_config_t *cfg = server->cfg;
-
   return NULL;
 }
 
+/*
+ * Info server callback. Not used yet.
+ */
 char *
 prog_info_server (svz_server_t *server)
 {
-  prog_config_t *cfg = server->cfg;
-
   return NULL;
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.23 2001/11/19 21:13:01 ela Exp $
+ * $Id: core.c,v 1.24 2001/11/22 17:17:51 ela Exp $
  *
  */
 
@@ -159,6 +159,68 @@ svz_fd_cloexec (int fd)
 #endif /* !__MINGW32__ */
 
   return 0;
+}
+
+/*
+ * This funtion creates an unnamed pair of connected sockets with the 
+ * specified protocol @var{proto}. The descriptors used in referencing the 
+ * new sockets are returned in desc[0] and desc[1]. The two sockets are 
+ * indistinguishable. Also make both of them non-blocking and 
+ * non-inheritable. Returns -1 on failure, otherwise zero.
+ */
+int
+svz_socket_create_pair (int proto, SOCKET desc[2])
+{
+#ifndef HAVE_SOCKETPAIR
+  svz_log (LOG_FATAL, "socketpair() not available\n");
+  return -1;
+#else
+
+  int stype, ptype;
+
+  /* Assign the appropriate socket type. */
+  switch (proto)
+    {
+    case PROTO_TCP:
+      stype = SOCK_STREAM;
+      ptype = IPPROTO_IP;
+      break;
+    case PROTO_UDP:
+      stype = SOCK_DGRAM;
+      ptype = IPPROTO_UDP;
+      break;
+    case PROTO_ICMP:
+      stype = SOCK_RAW;
+      ptype = IPPROTO_ICMP;
+      break;
+    case PROTO_RAW:
+      stype = SOCK_RAW;
+      ptype = IPPROTO_RAW;
+      break;
+    default:
+      stype = SOCK_STREAM;
+      ptype = IPPROTO_IP;
+      break;
+    }
+
+  /* Create the pair of sockets. */
+  if (socketpair (AF_UNIX, stype, ptype, desc) < 0)
+    {
+      svz_log (LOG_ERROR, "socketpair: %s\n", NET_ERROR);
+      return -1;
+    }
+
+  /* Make the sockets non-blocking and non-inheritable. */
+  if (svz_fd_nonblock (desc[0]) != 0 || svz_fd_nonblock (desc[1]) != 0 ||
+      svz_fd_cloexec (desc[0]) != 0 || svz_fd_cloexec (desc[1]) != 0)
+    {
+      closesocket (desc[0]);
+      closesocket (desc[1]);
+      return -1;
+    }
+
+  return 0;
+#endif /* HAVE_SOCKETPAIR */
 }
 
 /*

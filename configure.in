@@ -1220,9 +1220,9 @@ if test $svz_cv_var_h_errno = yes ; then
 fi
 
 dnl
-dnl Check for times, poll and waitpid.
+dnl Check for times, poll, socketpair and waitpid.
 dnl
-AC_CHECK_FUNCS(times poll waitpid)
+AC_CHECK_FUNCS(times poll socketpair waitpid)
 
 dnl
 dnl Find a working inline.
