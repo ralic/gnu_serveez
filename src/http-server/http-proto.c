@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.39 2000/10/05 09:52:20 ela Exp $
+ * $Id: http-proto.c,v 1.40 2000/10/06 12:34:00 ela Exp $
  *
  */
 
@@ -287,6 +287,12 @@ http_free_socket (socket_t sock)
 	}
       xfree (http->property);
       http->property = NULL;
+    }
+
+  /* decrement usage counter of the cache entry */
+  if (sock->userflags & HTTP_FLAG_CACHE)
+    {
+      http->cache->entry->usage--;
     }
 
   /* is the cache entry used ? */

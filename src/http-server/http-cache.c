@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.18 2000/10/05 09:52:20 ela Exp $
+ * $Id: http-cache.c,v 1.19 2000/10/06 12:34:00 ela Exp $
  *
  */
 
@@ -29,6 +29,7 @@
 #if ENABLE_HTTP_PROTO
 
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
@@ -103,6 +104,61 @@ http_free_cache (void)
 #endif
 }
 
+#if ENABLE_DEBUG
+/*
+ * Check consitency of the http cache. Remove this function once the 
+ * server is stable.
+ */
+static void
+http_cache_consistency (void)
+{
+  int n, i, o;
+  http_cache_entry_t **cache;
+
+  if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
+    {
+      for (n = 1, o = 0; o < hash_size (http_cache); o++)
+	{
+	  /* each cache entry must have a file name */
+	  assert (cache[o]->file);
+
+	  /* cache entry must be completely unused if not ready */
+	  if (!cache[o]->ready)
+	    {
+	      assert (cache[o]->size == 0 && 
+		      cache[o]->buffer == NULL &&
+		      cache[o]->hits == 0);
+	    }
+	  /* if ready a cache entry must contain something */
+	  else
+	    {
+	      assert (cache[o]->size >= 0 && 
+		      cache[o]->buffer &&
+		      cache[o]->hits >= 0);
+	    }
+	  
+	  /* cache urgency must be in a certain range */
+	  assert (cache[o]->urgent >= 0 && 
+		  cache[o]->urgent <= hash_size (http_cache));
+
+	  /* find each urgency */
+	  for (i = 0; i < hash_size (http_cache); i++)
+	    {
+	      if (cache[i]->urgent == n)
+		{
+		  n++;
+		  break;
+		}
+	    }
+	  assert (i != hash_size (http_cache));
+	}
+      hash_xfree (cache);
+    }
+}
+#else /* not ENABLE_DEBUG */
+# define http_cache_consistency()
+#endif /* not ENABLE_DEBUG */
+
 /*
  * This function will make the given cache entry CACHE the most recent
  * within the whole HTTP file cache. All other used entries will be less
@@ -154,6 +210,7 @@ http_check_cache (char *file, http_cache_t *cache)
     {
       /* set this entry to the most recent, ready or not  */
       http_urgent_cache (cachefile);
+      http_cache_consistency ();
 
       /* is this entry fully read by the cache reader ? */
       if (cachefile->ready)
@@ -192,11 +249,17 @@ static void
 http_cache_destroy_entry (http_cache_entry_t *cache)
 {
   http_urgent_cache (cache);
+  http_cache_consistency ();
+
   if (hash_delete (http_cache, cache->file) != cache)
     {
       log_printf (LOG_ERROR, "cache: inconsistent http hash\n");
     }
-  if (cache->buffer) xfree (cache->buffer);
+  if (cache->ready)
+    {
+      if (cache->buffer) 
+	xfree (cache->buffer);
+    }
   xfree (cache->file);
   xfree (cache);
 }
@@ -270,6 +333,7 @@ http_init_cache (char *file, http_cache_t *cache)
 	{
 	  cache->entry = NULL;
 	  cache->buffer = NULL;
+	  http_cache_consistency ();
 	  return -1;
 	}
 
@@ -278,9 +342,9 @@ http_init_cache (char *file, http_cache_t *cache)
       slot = http_cache_create_entry ();
     }
 
-  slot->urgent = hash_size (http_cache);
-  slot->file = xstrdup (file);
   hash_put (http_cache, file, slot);
+  slot->file = xstrdup (file);
+  slot->urgent = hash_size (http_cache);
 
   /*
    * initialize the cache entry for the cache file reader: cachebuffer 
@@ -290,6 +354,7 @@ http_init_cache (char *file, http_cache_t *cache)
   cache->buffer = NULL;
   cache->size = 0;
 
+  http_cache_consistency ();
   return 0;
 }
 
@@ -323,6 +388,7 @@ http_cache_write (socket_t sock)
   /* get additional cache and http structures */
   http = sock->data;
   cache = http->cache;
+  assert (cache->entry);
 
   do_write = cache->size;
   if (do_write > (SOCK_MAX_WRITE << 5)) do_write = (SOCK_MAX_WRITE << 5);
@@ -342,10 +408,6 @@ http_cache_write (socket_t sock)
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
 	}
-      else
-	{
-	  cache->entry->usage--;
-	}
     }
 
   /*
@@ -355,7 +417,6 @@ http_cache_write (socket_t sock)
    */
   if (cache->size <= 0)
     {
-      cache->entry->usage--;
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "cache: file successfully sent\n");
 #endif
