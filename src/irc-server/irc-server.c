@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.19 2001/02/04 11:48:52 ela Exp $
+ * $Id: irc-server.c,v 1.20 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -179,9 +179,9 @@ irc_connect_server (char *ip, irc_server_t *server)
 #endif /* ENABLE_TIMESTAMP */
 
   /* now propagate user information to this server */
-  if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+  if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->clients); n++)
+      for (n = 0; n < svz_hash_size (cfg->clients); n++)
 	{
 #if ENABLE_TIMESTAMP
 	  irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
@@ -196,13 +196,13 @@ irc_connect_server (char *ip, irc_server_t *server)
 		      cl[n]->nick, irc_client_flag_string (cl[n]));
 #endif /* not ENABLE_TIMESTAMP */
 	}
-      hash_xfree (cl);
+      svz_hash_xfree (cl);
     }
 
   /* propagate all channel information to the server */
-  if ((ch = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
+  if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
     {
-      for (i = 0; i < hash_size (cfg->channels); i++)
+      for (i = 0; i < svz_hash_size (cfg->channels); i++)
 	{
 #if ENABLE_TIMESTAMP
 	  /* create nick list */
@@ -230,7 +230,7 @@ irc_connect_server (char *ip, irc_server_t *server)
 		  ch[i]->name, irc_channel_flag_string (ch[i]));
 #endif /* not ENABLE_TIMESTAMP */
 
-      hash_xfree (ch);
+      svz_hash_xfree (ch);
     }
   
   return 0;

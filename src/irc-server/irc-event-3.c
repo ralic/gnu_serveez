@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.10 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-event-3.c,v 1.11 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -144,11 +144,11 @@ irc_lusers_callback (socket_t sock,
 
   irc_printf (sock, ":%s %03d %s " RPL_LUSERCHANNELS_TEXT "\n",
 	      cfg->host, RPL_LUSERCHANNELS, client->nick,
-	      hash_size (cfg->channels));
+	      svz_hash_size (cfg->channels));
 
   irc_printf (sock, ":%s %03d %s " RPL_LUSERME_TEXT "\n",
 	      cfg->host, RPL_LUSERME, client->nick,
-	      hash_size (cfg->clients), irc_count_servers (cfg));
+	      svz_hash_size (cfg->clients), irc_count_servers (cfg));
   
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.13 2001/01/28 03:26:55 ela Exp $
+ * $Id: nut-route.c,v 1.14 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -69,7 +69,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   *extract = '\0';
 
   /* check if it is in the recent query hash */
-  if ((t = (time_t) hash_get (cfg->query, key)) != 0)
+  if ((t = (time_t) svz_hash_get (cfg->query, key)) != 0)
     {
       if (time (NULL) - t < NUT_QUERY_TOO_RECENT)
 	{
@@ -83,7 +83,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   else
     {
       t = time (NULL);
-      hash_put (cfg->query, key, (void *) t);
+      svz_hash_put (cfg->query, key, (void *) t);
     }
 
   svz_free (key);
@@ -249,10 +249,10 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->function & 0x01)
     {
       /* is the GUID in the routing hash ? */
-      xsock = (socket_t) hash_get (cfg->route, (char *) hdr->id);
+      xsock = (socket_t) svz_hash_get (cfg->route, (char *) hdr->id);
       if (xsock == NULL)
 	{
-	  pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
+	  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
 	  if (pkt == NULL)
 	    {
 	      log_printf (LOG_ERROR, "nut: error routing packet 0x%02X\n",
@@ -293,7 +293,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
   else if (hdr->function != NUT_PUSH_REQ)
     {
       /* check if this query has been seen already */
-      xsock = (socket_t) hash_get (cfg->route, (char *) hdr->id);
+      xsock = (socket_t) svz_hash_get (cfg->route, (char *) hdr->id);
       if (xsock != NULL)
 	{
 #if ENABLE_DEBUG
@@ -304,7 +304,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	}
 
       /* check if this query has been sent by ourselves */
-      pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
+      pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
       if (pkt != NULL)
 	{
 #if ENABLE_DEBUG
@@ -315,16 +315,16 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	}
 
       /* add the query to routing table */
-      hash_put (cfg->route, (char *) hdr->id, sock);
+      svz_hash_put (cfg->route, (char *) hdr->id, sock);
 
       /* 
        * Forward this query to all connections except the connection
        * the server got it from.
        */
-      if ((conn = (socket_t *) hash_values (cfg->conn)) != NULL)
+      if ((conn = (socket_t *) svz_hash_values (cfg->conn)) != NULL)
 	{
 	  header = nut_put_header (hdr);
-	  for (n = 0; n < hash_size (cfg->conn); n++)
+	  for (n = 0; n < svz_hash_size (cfg->conn); n++)
 	    {
 	      xsock = conn[n];
 	      if (xsock == sock)
@@ -344,7 +344,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 		    }
 		}
 	    }
-	  hash_xfree (conn);
+	  svz_hash_xfree (conn);
 	}
     }
   return 0;

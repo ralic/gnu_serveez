@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.5 2001/03/04 13:13:41 ela Exp $
+ * $Id: nut-hostlist.c,v 1.6 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -116,14 +116,14 @@ nut_hosts_check (socket_t sock)
     return -1;
 
   /* send HTML header */
-  if (sock_printf (sock, NUT_HTML_HEADER, hash_size (cfg->net)) == -1)
+  if (sock_printf (sock, NUT_HTML_HEADER, svz_hash_size (cfg->net)) == -1)
     return -1;
 
   /* go through all caught gnutella hosts and print their info */
-  if ((host = (nut_host_t **) hash_values (cfg->net)) != NULL)
+  if ((host = (nut_host_t **) svz_hash_values (cfg->net)) != NULL)
     {
       now = time (NULL);
-      for (n = 0; n < hash_size (cfg->net); n++)
+      for (n = 0; n < svz_hash_size (cfg->net); n++)
 	{
 	  if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
 	    {
@@ -149,7 +149,7 @@ nut_hosts_check (socket_t sock)
 		return -1;
 	    }
 	}
-      hash_xfree (host);
+      svz_hash_xfree (host);
     }
 
   /* send HTML footer */
@@ -180,7 +180,7 @@ nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
   nut_host_t *client;
   nut_config_t *cfg = sock->cfg;
 
-  client = (nut_host_t *) hash_get (cfg->net, nut_client_key (ip, port));
+  client = (nut_host_t *) svz_hash_get (cfg->net, nut_client_key (ip, port));
 
   /* not yet in host catcher hash */
   if (client == NULL)
@@ -205,7 +205,7 @@ nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
       client->ip = ip;
       client->port = port;
       memset (client->id, 0, NUT_GUID_SIZE);
-      hash_put (cfg->net, nut_client_key (ip, port), client);
+      svz_hash_put (cfg->net, nut_client_key (ip, port), client);
     }
   
   /* just update last seen time stamp */

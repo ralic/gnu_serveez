@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.20 2001/02/02 11:26:23 ela Exp $
+ * $Id: foo-proto.c,v 1.21 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ char *some_default_strarray[] =
   NULL
 };
 
-hash_t *some_default_hash = NULL;
+svz_hash_t *some_default_hash = NULL;
 
 /*
  * Demonstrate how our private configuration looks like and provide
@@ -230,12 +230,12 @@ foo_connect_socket (void *acfg, socket_t sock)
 int
 foo_global_init (void)
 {
-  some_default_hash = hash_create (4);
-  hash_put (some_default_hash, "grass", "green");
-  hash_put (some_default_hash, "cow", "milk");
-  hash_put (some_default_hash, "sun", "light");
-  hash_put (some_default_hash, "moon", "tide");
-  hash_put (some_default_hash, "gnu", "good");
+  some_default_hash = svz_hash_create (4);
+  svz_hash_put (some_default_hash, "grass", "green");
+  svz_hash_put (some_default_hash, "cow", "milk");
+  svz_hash_put (some_default_hash, "sun", "light");
+  svz_hash_put (some_default_hash, "moon", "tide");
+  svz_hash_put (some_default_hash, "gnu", "good");
   return 0;
 }
 
@@ -245,7 +245,7 @@ foo_global_init (void)
 int
 foo_global_finalize (void)
 {
-  hash_destroy (some_default_hash);
+  svz_hash_destroy (some_default_hash);
   return 0;
 }
 
@@ -268,13 +268,13 @@ foo_finalize (struct server *server)
    */
   if (*(c->assoc) != some_default_hash)
     {
-      if ((values = (char **) hash_values (*(c->assoc))) != NULL)
+      if ((values = (char **) svz_hash_values (*(c->assoc))) != NULL)
 	{
-	  for (n = 0; n < hash_size (*(c->assoc)); n++)
+	  for (n = 0; n < svz_hash_size (*(c->assoc)); n++)
 	    svz_free (values[n]);
-	  hash_xfree (values);
+	  svz_hash_xfree (values);
 	}
-      hash_destroy (*(c->assoc));
+      svz_hash_destroy (*(c->assoc));
     }
   
   return 0;
@@ -318,7 +318,7 @@ foo_info_server (struct server *server)
   int *j = cfg->ports;
   int i;
   char **keys;
-  hash_t *h;
+  svz_hash_t *h;
 
   sprintf (text, 
 	   " reply : %s\r\n"
@@ -357,15 +357,15 @@ foo_info_server (struct server *server)
   h = *(cfg->assoc);
   if (h != NULL) 
     {
-      keys = hash_keys (h);
+      keys = svz_hash_keys (h);
 
       for (i = 0; i < h->keys; i++)
 	{
 	  sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
-		   i, keys[i], (char *) hash_get (h, keys[i]));
+		   i, keys[i], (char *) svz_hash_get (h, keys[i]));
 	  strcat (info, text);
 	}
-      hash_xfree (keys);
+      svz_hash_xfree (keys);
     } 
   else 
     {

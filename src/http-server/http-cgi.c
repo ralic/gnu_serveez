@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.36 2001/03/04 13:13:40 ela Exp $
+ * $Id: http-cgi.c,v 1.37 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -665,15 +665,15 @@ http_free_cgi_apps (http_config_t *cfg)
 
   if (*(cfg->cgiapps))
     {
-      if ((app = (char **) hash_values (*(cfg->cgiapps))) != NULL)
+      if ((app = (char **) svz_hash_values (*(cfg->cgiapps))) != NULL)
 	{
-	  for (n = 0; n < hash_size (*(cfg->cgiapps)); n++)
+	  for (n = 0; n < svz_hash_size (*(cfg->cgiapps)); n++)
 	    {
 	      svz_free (app[n]);
 	    }
-	  hash_xfree (app);
+	  svz_hash_xfree (app);
 	}
-      hash_destroy (*(cfg->cgiapps));
+      svz_hash_destroy (*(cfg->cgiapps));
       *(cfg->cgiapps) = NULL;
     }
 }
@@ -688,13 +688,13 @@ http_gen_cgi_apps (http_config_t *cfg)
   /* create the cgi association hash table if necessary */
   if (*(cfg->cgiapps) == NULL)
     {
-      *(cfg->cgiapps) = hash_create (4);
+      *(cfg->cgiapps) = svz_hash_create (4);
     }
 
   /* the associations need to be in the hash to be executed at all */
-  hash_put (*(cfg->cgiapps), "exe", svz_strdup (DEFAULT_CGIAPP));
-  hash_put (*(cfg->cgiapps), "com", svz_strdup (DEFAULT_CGIAPP));
-  hash_put (*(cfg->cgiapps), "bat", svz_strdup (DEFAULT_CGIAPP));
+  svz_hash_put (*(cfg->cgiapps), "exe", svz_strdup (DEFAULT_CGIAPP));
+  svz_hash_put (*(cfg->cgiapps), "com", svz_strdup (DEFAULT_CGIAPP));
+  svz_hash_put (*(cfg->cgiapps), "bat", svz_strdup (DEFAULT_CGIAPP));
 }
 
 /*
@@ -712,9 +712,9 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   HANDLE pid;    /* the pid from fork() or the process handle in Win32 */
   char *cgifile; /* path including the name of the cgi script */
   http_socket_t *http;
-  http_config_t *cfg = sock->cfg;
 
 #ifdef __MINGW32__
+  http_config_t *cfg = sock->cfg;
   STARTUPINFO StartupInfo;         /* store here the inherited handles */
   PROCESS_INFORMATION ProcessInfo; /* where we get the process handle from */
   char *savedir;                   /* save the original directory */
@@ -768,7 +768,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     p--;
   suffix = p + 1;
 
-  if ((p = hash_get (*(cfg->cgiapps), util_tolower (suffix))) != NULL)
+  if ((p = svz_hash_get (*(cfg->cgiapps), util_tolower (suffix))) != NULL)
     {
       if (strcmp (p, DEFAULT_CGIAPP))
 	{

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.8 2001/01/28 03:26:55 ela Exp $
+ * $Id: tunnel.h,v 1.9 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -36,7 +36,7 @@ typedef struct
 {
   portcfg_t *source;  /* the source port to forward from */
   portcfg_t *target;  /* target port to forward to */
-  hash_t *client;     /* source client hash */
+  svz_hash_t *client; /* source client hash */
 }
 tnl_config_t;
 

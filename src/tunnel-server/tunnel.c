@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.16 2001/03/04 13:13:42 ela Exp $
+ * $Id: tunnel.c,v 1.17 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -142,7 +142,7 @@ tnl_init (server_t *server)
     }
 
   /* create source client hash (for UDP and ICMP only) */
-  cfg->client = hash_create (4);
+  cfg->client = svz_hash_create (4);
   
   /* assign the appropriate handle request routine of the server */
   if (cfg->source->proto & PROTO_UDP)
@@ -166,15 +166,15 @@ tnl_finalize (server_t *server)
   int n;
 
   /* release source connection hash if necessary */
-  if ((source = (tnl_connect_t **) hash_values (cfg->client)) != NULL)
+  if ((source = (tnl_connect_t **) svz_hash_values (cfg->client)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->client); n++)
+      for (n = 0; n < svz_hash_size (cfg->client); n++)
 	{
 	  svz_free (source[n]);
 	}
-      hash_xfree (source);
+      svz_hash_xfree (source);
     }
-  hash_destroy (cfg->client);
+  svz_hash_destroy (cfg->client);
 
   return 0;
 }
@@ -424,7 +424,6 @@ tnl_detect_proto (void *cfg, socket_t sock)
 int
 tnl_connect_socket (void *config, socket_t sock)
 {
-  tnl_config_t *cfg = config;
   socket_t xsock = NULL;
   tnl_connect_t *source;
   
@@ -497,7 +496,6 @@ tnl_check_request_tcp_target (socket_t sock)
 int
 tnl_check_request_tcp_source (socket_t sock)
 {
-  tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *target = sock->data;
   socket_t xsock;
 
@@ -529,7 +527,6 @@ tnl_check_request_tcp_source (socket_t sock)
 int
 tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
 {
-  tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *source = sock->data;
   socket_t xsock = NULL;
 
@@ -572,7 +569,7 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
   socket_t xsock = NULL;
 
   /* check if there is such a connection in the source hash already */
-  source = hash_get (cfg->client, tnl_addr (sock));
+  source = svz_hash_get (cfg->client, tnl_addr (sock));
   if (source)
     {
       /* get existing target socket */
@@ -589,7 +586,7 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
       source->source_sock = sock;
       source->ip = sock->remote_addr;
       source->port = sock->remote_port;
-      hash_put (cfg->client, tnl_addr (sock), source);
+      svz_hash_put (cfg->client, tnl_addr (sock), source);
 
       /* put the source connection into data field of target */
       xsock->data = source;
@@ -612,7 +609,6 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
 int
 tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
 {
-  tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *source = sock->data;
   socket_t xsock = NULL;
 
@@ -656,7 +652,7 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
   socket_t xsock = NULL;
 
   /* check if there is such a connection in the source hash already */
-  source = hash_get (cfg->client, tnl_addr (sock));
+  source = svz_hash_get (cfg->client, tnl_addr (sock));
   if (source)
     {
       /* get existing target socket */
@@ -673,7 +669,7 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
       source->source_sock = sock;
       source->ip = sock->remote_addr;
       source->port = sock->remote_port;
-      hash_put (cfg->client, tnl_addr (sock), source);
+      svz_hash_put (cfg->client, tnl_addr (sock), source);
 
       /* put the source connection into data field */
       xsock->data = source;
@@ -746,9 +742,9 @@ tnl_disconnect_target (socket_t sock)
       tnl_free_connect (sock);
     }
   /* else delete target connection from its hash */
-  else if ((key = hash_contains (cfg->client, source)) != NULL)
+  else if ((key = svz_hash_contains (cfg->client, source)) != NULL)
     {
-      hash_delete (cfg->client, key);
+      svz_hash_delete (cfg->client, key);
       tnl_free_connect (sock);
     }
 
@@ -761,7 +757,6 @@ tnl_disconnect_target (socket_t sock)
 int
 tnl_disconnect_source (socket_t sock)
 {
-  tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *target = sock->data;
   socket_t xsock;
 

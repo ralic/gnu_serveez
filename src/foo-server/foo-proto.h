@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.6 2001/01/28 03:26:55 ela Exp $
+ * $Id: foo-proto.h,v 1.7 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -35,13 +35,13 @@
  */
 struct foo_config
 {
-  int dummy;
-  char **messages;
-  char *reply;
-  int *ports;
-  int bar;
-  struct portcfg *port;
-  hash_t **assoc;
+  int dummy;            /* integer example */
+  char **messages;      /* string array example */
+  char *reply;          /* string example */
+  int *ports;           /* integer array example */
+  int bar;              /* integer example */
+  struct portcfg *port; /* example port configuration */
+  svz_hash_t **assoc;   /* a hash example */
 };
 
 /*

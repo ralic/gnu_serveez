@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.3 2001/01/28 03:26:55 ela Exp $
+ * $Id: sntp-proto.c,v 1.4 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -126,7 +126,6 @@ sntp_init (server_t *server)
 int
 sntp_handle_request (socket_t sock, char *packet, int len)
 {
-  sntp_config_t *cfg = sock->cfg;
   unsigned long date;
   unsigned char reply[8];
 #if HAVE_GETTIMEOFDAY

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.16 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-proto.h,v 1.17 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -40,27 +40,27 @@
  */
 typedef struct
 {
-  portcfg_t *port;    /* tcp port configuration */
-  char *indexfile;    /* the standard index file */
-  char *docs;         /* http document root */
-  char *cgiurl;       /* cgi url (this is for its detection) */
-  char *cgidir;       /* cgi directory where all cgi scripts are located */
-  int cachesize;      /* maximum cache file size */
-  int cacheentries;   /* maximum cache entries */
-  int timeout;        /* timeout in seconds for keep-alive connections */
-  int keepalive;      /* maximum amount of requests on a connection */
-  char *default_type; /* the default content type */
-  char *type_file;    /* content type file (e.g "/etc/mime.types") */
-  hash_t **types;     /* content type hash */
-  hash_t **cgiapps;   /* cgi application associations */
-  char *admin;        /* email address of server administrator */
-  char *host;         /* host name of which is sent back to clients */
-  char *userdir;      /* appended onto a user's home (~user request) */
-  int nslookup;       /* enable reverse DNS lookups */
-  int ident;          /* enable identd requests */
-  char *logfile;      /* log file name */
-  char *logformat;    /* custom log file format string */
-  FILE *log;          /* log file stream */
+  portcfg_t *port;      /* tcp port configuration */
+  char *indexfile;      /* the standard index file */
+  char *docs;           /* http document root */
+  char *cgiurl;         /* cgi url (this is for its detection) */
+  char *cgidir;         /* cgi directory where all cgi scripts are located */
+  int cachesize;        /* maximum cache file size */
+  int cacheentries;     /* maximum cache entries */
+  int timeout;          /* timeout in seconds for keep-alive connections */
+  int keepalive;        /* maximum amount of requests on a connection */
+  char *default_type;   /* the default content type */
+  char *type_file;      /* content type file (e.g "/etc/mime.types") */
+  svz_hash_t **types;   /* content type hash */
+  svz_hash_t **cgiapps; /* cgi application associations */
+  char *admin;          /* email address of server administrator */
+  char *host;           /* host name of which is sent back to clients */
+  char *userdir;        /* appended onto a user's home (~user request) */
+  int nslookup;         /* enable reverse DNS lookups */
+  int ident;            /* enable identd requests */
+  char *logfile;        /* log file name */
+  char *logformat;      /* custom log file format string */
+  FILE *log;            /* log file stream */
 } 
 http_config_t;
 

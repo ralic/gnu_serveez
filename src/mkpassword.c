@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: mkpassword.c,v 1.3 2000/10/08 21:14:03 ela Exp $
+ * $Id: mkpassword.c,v 1.4 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -53,7 +53,9 @@ main (int argc, char **argv)
     "0123456789./";
 
   char salt[3];
+#if HAVE_CRYPT && ENABLE_CRYPT
   char *plaintext;
+#endif
 
   if (argc < 2) 
     {

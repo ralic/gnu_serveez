@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.13 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-event-2.c,v 1.14 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -369,7 +369,6 @@ irc_client_flag (irc_client_t *client,   /* client changing the flag */
 		 int flag,               /* flag to be set / unset */
 		 char set)               /* set / unset */
 {
-  irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   socket_t xsock;
   int i, n;
@@ -481,7 +480,6 @@ irc_channel_flag (irc_client_t *client,   /* client changing the flag */
 		  int flag,               /* flag to be set / unset */
 		  char set)               /* set / unset */
 {
-  irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   socket_t xsock;
   int n;
@@ -1093,9 +1091,9 @@ irc_names_callback (socket_t sock,
   if (request->paras < 1)
     {
       /* go through all channels */
-      if ((ch = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
+      if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
 	{
-	  for (n = 0; n < hash_size (cfg->channels); n++)
+	  for (n = 0; n < svz_hash_size (cfg->channels); n++)
 	    {
 	      /* 
 	       * you can't see secret and private channels, 
@@ -1108,7 +1106,7 @@ irc_names_callback (socket_t sock,
 	      /* send a line */
 	      irc_channel_users (sock, client, ch[n]);
 	    }
-	  hash_xfree (ch);
+	  svz_hash_xfree (ch);
 	}
 
       /* 
@@ -1117,9 +1115,9 @@ irc_names_callback (socket_t sock,
        * Public channels are not secret or private or channels
        * clients share.
        */
-      if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+      if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
 	{
-	  for (n = 0; n < hash_size (cfg->clients); n++)
+	  for (n = 0; n < svz_hash_size (cfg->clients); n++)
 	    {
 	      text[0] = 0;
 
@@ -1145,7 +1143,7 @@ irc_names_callback (socket_t sock,
 		    }
 		}
 	    }
-	  hash_xfree (cl);
+	  svz_hash_xfree (cl);
 	}
       /* send the (*) reply */
       irc_printf (sock, ":%s %03d %s " RPL_NAMREPLY_TEXT "\n",
@@ -1234,13 +1232,13 @@ irc_list_callback (socket_t sock,
   /* list all channels */
   if (request->paras < 1)
     {
-      if ((ch = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
+      if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
 	{
-	  for (n = 0; n < hash_size (cfg->channels); n++)
+	  for (n = 0; n < svz_hash_size (cfg->channels); n++)
 	    {
 	      irc_channel_list (sock, client, ch[n]);
 	    }
-	  hash_xfree (ch);
+	  svz_hash_xfree (ch);
 	}
     }
   /* list specified channels */

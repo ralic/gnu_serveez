@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.8 2001/01/28 03:26:55 ela Exp $
+ * $Id: awcs-proto.h,v 1.9 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -52,11 +52,11 @@
  */
 typedef struct
 {
-  portcfg_t *netport; /* Network port configuration */
-  portcfg_t *fsport;  /* Filesystem port configuration */
-  socket_t server;    /* the current master server */
-  int master;         /* Was Master server detected ? */
-  hash_t *clients;    /* this aWCS servers user base */
+  portcfg_t *netport;  /* Network port configuration */
+  portcfg_t *fsport;   /* Filesystem port configuration */
+  socket_t server;     /* the current master server */
+  int master;          /* Was Master server detected ? */
+  svz_hash_t *clients; /* this aWCS servers user base */
 }
 awcs_config_t;
 

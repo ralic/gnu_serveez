@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.15 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-proto.h,v 1.16 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -349,8 +349,8 @@ struct irc_configuration
   char *location1;                /* city, state, country */
   char *location2;                /* university, department */
 
-  hash_t *channels;               /* channel hash */
-  hash_t *clients;                /* client hash */
+  svz_hash_t *channels;           /* channel hash */
+  svz_hash_t *clients;            /* client hash */
   irc_server_t *servers;          /* server list root */
   irc_client_history_t *history;  /* client history list root */
   irc_class_t *classes;           /* connection classes list */
@@ -393,8 +393,6 @@ int irc_disconnect (socket_t sock);
 int irc_idle (socket_t sock);
 
 /* channel operations */
-static int irc_delete_channel (irc_config_t *cfg, irc_channel_t *);
-static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
 irc_channel_t *irc_find_channel (irc_config_t *cfg, char *channel);
 irc_channel_t **irc_regex_channel (irc_config_t *cfg, char *regex);
 int irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan);

@@ -1,3 +1,11 @@
+2001-03-08  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/hash.h: Put the hash functions into the namespace
+	`svz_hash_'.
+
+	* libserveez/core.c (svz_tcp_cork): Moved from `http-proto.c'.
+	(svz_sendfile): Also moved from `http-proto.c'.
+
 2001-03-04  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/core.c (svz_socket_connect): This function has

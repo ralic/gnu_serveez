@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.6 2001/02/23 08:29:01 ela Exp $
+ * $Id: alloc.c,v 1.7 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -63,7 +63,7 @@ svz_free_func_t svz_free_func = free;
 #if DEBUG_MEMORY_LEAKS
 
 /* heap hash table */
-static hash_t *heap = NULL;
+static svz_hash_t *heap = NULL;
 
 /* return static heap hash code key length */
 static unsigned
@@ -103,12 +103,12 @@ heap_add (heap_block_t *block)
 {
   if (heap == NULL)
     {
-      heap = hash_create (4);
+      heap = svz_hash_create (4);
       heap->keylen = heap_hash_keylen;
       heap->code = heap_hash_code;
       heap->equals = heap_hash_equals;
     }
-  hash_put (heap, (char *) &block->ptr, block);
+  svz_hash_put (heap, (char *) &block->ptr, block);
 }
 
 #ifdef MSC_VER
@@ -206,7 +206,7 @@ svz_realloc (void *ptr, size_t size)
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
 #if DEBUG_MEMORY_LEAKS
-      if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
+      if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
 	{
 	  fprintf (stdout, "realloc: %p not found in heap (caller: %p)\n", 
@@ -292,7 +292,7 @@ svz_free (void *ptr)
       up = (size_t *) ptr;
 
 #if DEBUG_MEMORY_LEAKS
-      if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
+      if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
 	{
 	  fprintf (stdout, "free: %p not found in heap (caller: %p)\n", 
@@ -328,9 +328,9 @@ svz_heap (void)
   unsigned n;
   size_t *up;
 
-  if ((block = (heap_block_t **) hash_values (heap)) != NULL)
+  if ((block = (heap_block_t **) svz_hash_values (heap)) != NULL)
     {
-      for (n = 0; n < (unsigned) hash_size (heap); n++)
+      for (n = 0; n < (unsigned) svz_hash_size (heap); n++)
 	{
 	  up = (size_t *) block[n]->ptr;
 	  up -= 2;
@@ -340,13 +340,13 @@ svz_heap (void)
 			block[n]->ptr, *up, 256);
 	 svz_free_func (block[n]);
 	}
-      hash_xfree (block);
+      svz_hash_xfree (block);
     }
   else
     {
       fprintf (stdout, "heap: no unreleased heap blocks\n");
     }
-  hash_destroy (heap);
+  svz_hash_destroy (heap);
   heap = NULL;
 }
 #endif /* DEBUG_MEMORY_LEAKS */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.13 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-event-7.c,v 1.14 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -172,11 +172,11 @@ irc_users_callback (socket_t sock,
    */
   if (request->paras < 1)
     {
-      if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+      if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
 	{
 	  irc_printf (sock, ":%s %03d %s " RPL_USERSSTART_TEXT "\n",
 		      cfg->host, RPL_USERSSTART, client->nick);
-	  for (n = 0; n < hash_size (cfg->clients); n++)
+	  for (n = 0; n < svz_hash_size (cfg->clients); n++)
 	    {
 	      irc_printf (sock, ":%s %03d %s " RPL_USERS_TEXT "\n",
 			  cfg->host, RPL_USERS, client->nick,
@@ -184,7 +184,7 @@ irc_users_callback (socket_t sock,
 	    }
 	  irc_printf (sock, ":%s %03d %s " RPL_ENDOFUSERS_TEXT "\n",
 		      cfg->host, RPL_ENDOFUSERS, client->nick);
-	  hash_xfree (cl);
+	  svz_hash_xfree (cl);
 	}
       else
 	{

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.6 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-cache.h,v 1.7 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -70,7 +70,7 @@ http_cache_t;
 /*
  * http cache structures.
  */
-extern hash_t *http_cache;
+extern svz_hash_t *http_cache;
 extern int http_cache_entries;
 
 /*

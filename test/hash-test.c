@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.6 2001/01/28 03:26:55 ela Exp $
+ * $Id: hash-test.c,v 1.7 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -36,7 +36,7 @@
 #include "libserveez/hash.h"
 #include "test.h"
 
-extern void hash_rehash (hash_t *, int);
+extern void svz_hash_rehash (svz_hash_t *, int);
 
 #define REPEAT 10000
 #define test(error) \
@@ -54,7 +54,7 @@ int
 main (int argc, char **argv)
 {
   int result = 0;
-  hash_t *hash;
+  svz_hash_t *hash;
   long n, error;
   char *text;
   char **keys;
@@ -64,15 +64,15 @@ main (int argc, char **argv)
 
   /* hash creation */
   test_print ("           create: ");
-  test ((hash = hash_create (4)) == NULL);
+  test ((hash = svz_hash_create (4)) == NULL);
 
   /* hash put and get */
   test_print ("      put and get: ");
   for (error = n = 0; n < REPEAT; n++)
     {
       text = svz_strdup (test_string ());
-      hash_put (hash, text, (void *) 0xdeadbeef);
-      if (((void *) 0xdeadbeef != hash_get (hash, text)))
+      svz_hash_put (hash, text, (void *) 0xdeadbeef);
+      if (((void *) 0xdeadbeef != svz_hash_get (hash, text)))
 	error++;
       svz_free (text);
     }
@@ -81,59 +81,59 @@ main (int argc, char **argv)
   /* hash containing a certain value */
   test_print ("         contains: ");
   error = 0;
-  if (hash_contains (hash, NULL))
+  if (svz_hash_contains (hash, NULL))
     error++;
-  if (hash_contains (hash, (void *) 0xeabceabc))
+  if (svz_hash_contains (hash, (void *) 0xeabceabc))
     error++;
-  hash_put (hash, "1234567890", (void *) 0xeabceabc);
-  if (strcmp ("1234567890", hash_contains (hash, (void *) 0xeabceabc)))
+  svz_hash_put (hash, "1234567890", (void *) 0xeabceabc);
+  if (strcmp ("1234567890", svz_hash_contains (hash, (void *) 0xeabceabc)))
     error++;
   test (error);
 
   /* hash key deletion */
   test_print ("           delete: ");
   error = 0;
-  n = hash_size (hash);
-  if ((void *) 0xeabceabc != hash_delete (hash, "1234567890"))
+  n = svz_hash_size (hash);
+  if ((void *) 0xeabceabc != svz_hash_delete (hash, "1234567890"))
     error++;
-  if (n - 1 != hash_size (hash))
+  if (n - 1 != svz_hash_size (hash))
     error++;
   test (error);
 
   /* keys and values */
   test_print ("  keys and values: ");
-  hash_clear (hash);
+  svz_hash_clear (hash);
   error = 0;
   text = svz_malloc (16);
   for (n = 0; n < REPEAT; n++)
     {
       sprintf (text, "%015lu", (unsigned long) n);
-      hash_put (hash, text, (void *) n);
-      if (hash_get (hash, text) != (void *) n)
+      svz_hash_put (hash, text, (void *) n);
+      if (svz_hash_get (hash, text) != (void *) n)
 	error++;
     }
   svz_free (text);
-  if (n != hash_size (hash))
+  if (n != svz_hash_size (hash))
     error++;
-  values = hash_values (hash);
-  keys = hash_keys (hash);
+  values = svz_hash_values (hash);
+  keys = svz_hash_keys (hash);
   if (keys && values)
     { 
       for (n = 0; n < REPEAT; n++)
 	{
 	  if (atol (keys[n]) != (long) values[n])
 	    error++;
-	  if (hash_get (hash, keys[n]) != values[n])
+	  if (svz_hash_get (hash, keys[n]) != values[n])
 	    error++;
-	  if (hash_contains (hash, values[n]) != keys[n])
+	  if (svz_hash_contains (hash, values[n]) != keys[n])
 	    error++;
 	}
-      hash_xfree (keys);
-      hash_xfree (values);
+      svz_hash_xfree (keys);
+      svz_hash_xfree (values);
     }
   else
     error++;
-  if (hash_size (hash) != REPEAT)
+  if (svz_hash_size (hash) != REPEAT)
     error++;
   test (error);
 
@@ -141,35 +141,35 @@ main (int argc, char **argv)
   error = 0;
   test_print ("           rehash: ");
   while (hash->buckets > HASH_MIN_SIZE)
-    hash_rehash (hash, HASH_SHRINK);
-  while (hash->buckets < hash_size (hash) * 10)
-    hash_rehash (hash, HASH_EXPAND);
+    svz_hash_rehash (hash, HASH_SHRINK);
+  while (hash->buckets < svz_hash_size (hash) * 10)
+    svz_hash_rehash (hash, HASH_EXPAND);
   while (hash->buckets > HASH_MIN_SIZE)
-    hash_rehash (hash, HASH_SHRINK);
-  while (hash->buckets < hash_size (hash) * 10)
-    hash_rehash (hash, HASH_EXPAND);
+    svz_hash_rehash (hash, HASH_SHRINK);
+  while (hash->buckets < svz_hash_size (hash) * 10)
+    svz_hash_rehash (hash, HASH_EXPAND);
   text = svz_malloc (16);
   for (n = 0; n < REPEAT; n++)
     {
       sprintf (text, "%015lu", (unsigned long) n);
-      if (hash_get (hash, text) != (void *) n)
+      if (svz_hash_get (hash, text) != (void *) n)
 	error++;
-      if (hash_delete (hash, text) != (void *) n)
+      if (svz_hash_delete (hash, text) != (void *) n)
 	error++;
     }
-  if (hash_size (hash))
+  if (svz_hash_size (hash))
     error++;
   svz_free (text);
   test (error);
   
   /* hash clear */
   test_print ("            clear: ");
-  hash_clear (hash);
-  test (hash_size (hash));
+  svz_hash_clear (hash);
+  test (svz_hash_size (hash));
 
   /* hash destruction */
   test_print ("          destroy: ");
-  hash_destroy (hash);
+  svz_hash_destroy (hash);
   test_ok ();
 
 #if ENABLE_DEBUG

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.26 2001/03/04 13:13:40 ela Exp $
+ * $Id: awcs-proto.c,v 1.27 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -150,7 +150,7 @@ awcs_init (server_t *server)
 
   /* initialize server instance */
   cfg->master = 0;
-  cfg->clients = hash_create (4);
+  cfg->clients = svz_hash_create (4);
   cfg->clients->code = awcs_hash_code;
   cfg->clients->keylen = awcs_hash_keylen;
   cfg->clients->equals = awcs_hash_equals;
@@ -171,7 +171,7 @@ awcs_finalize (server_t *server)
 {
   awcs_config_t *cfg = server->cfg;
   
-  hash_destroy (cfg->clients);
+  svz_hash_destroy (cfg->clients);
   
   return 0;
 }
@@ -456,16 +456,16 @@ awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
   log_printf (LOG_DEBUG, "awcs: broadcasting\n");
 #endif /* ENABLE_DEBUG */
 
-  if ((sock = (socket_t *) hash_values (cfg->clients)) != NULL)
+  if ((sock = (socket_t *) svz_hash_values (cfg->clients)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->clients); n++)
+      for (n = 0; n < svz_hash_size (cfg->clients); n++)
 	{
 	  if (sock_write (sock[n], cmd, cmd_len))
 	    {
 	      sock_schedule_for_shutdown (sock[n]);
 	    }
 	}
-      hash_xfree (sock);
+      svz_hash_xfree (sock);
     }
   return 0;
 }
@@ -494,7 +494,7 @@ awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
   for (;;)
     {
       address = util_atoi (cmd);
-      sock = (socket_t) hash_get (cfg->clients, (char *) &address);
+      sock = (socket_t) svz_hash_get (cfg->clients, (char *) &address);
 
       if (sock)
 	{
@@ -547,7 +547,7 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
   for (;;)
     {
       address = util_atoi (cmd);
-      sock = (socket_t) hash_get (cfg->clients, (char *) &address);
+      sock = (socket_t) svz_hash_get (cfg->clients, (char *) &address);
 
       if (sock)
 	{
@@ -594,7 +594,7 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
   for (;;)
     {
       address = util_atoi (cmd);
-      sock = (socket_t) hash_get (cfg->clients, (char *) &address);
+      sock = (socket_t) svz_hash_get (cfg->clients, (char *) &address);
 
       if (sock)
 	{
@@ -695,13 +695,13 @@ awcs_disconnect_clients (awcs_config_t *cfg)
   socket_t *sock;
   int n;
 
-  if ((sock = (socket_t *) hash_values (cfg->clients)) != NULL)
+  if ((sock = (socket_t *) svz_hash_values (cfg->clients)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->clients); n++)
+      for (n = 0; n < svz_hash_size (cfg->clients); n++)
 	{
 	  sock_schedule_for_shutdown (sock[n]);
 	}
-      hash_xfree (sock);
+      svz_hash_xfree (sock);
     }
 }
 
@@ -871,7 +871,7 @@ awcs_connect_socket (void *config, socket_t sock)
     }
   else
     {
-      hash_put (cfg->clients, (char *) &sock->id, sock);
+      svz_hash_put (cfg->clients, (char *) &sock->id, sock);
       sock->kicked_socket = awcs_kicked_socket;
     }
 
@@ -901,7 +901,7 @@ awcs_disconnected_socket (socket_t sock)
   else
     {
       awcs_status_disconnected (sock, 1);
-      hash_delete (cfg->clients, (char *) &sock->id);
+      svz_hash_delete (cfg->clients, (char *) &sock->id);
     }
 
   return 0;

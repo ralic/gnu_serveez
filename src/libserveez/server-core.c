@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.5 2001/03/02 21:12:53 ela Exp $
+ * $Id: server-core.c,v 1.6 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -808,8 +808,6 @@ server_loop_one (void)
 int
 server_loop (void)
 {
-  socket_t sock;
-
   /* Setting up signaling. */
   server_signal_up ();
 

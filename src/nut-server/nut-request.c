@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.7 2001/03/04 13:13:41 ela Exp $
+ * $Id: nut-request.c,v 1.8 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -70,7 +70,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 
   reply = nut_get_reply (packet);
   nut_host_catcher (sock, reply->ip, reply->port);
-  pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
+  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
 
   /* check client guid at the end of the packet */
   id = packet + hdr->length - NUT_GUID_SIZE;
@@ -140,7 +140,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   /* save the reply id to the reply hash for routing push requests */
   else
     {
-      hash_put (cfg->reply, (char *) id, sock);
+      svz_hash_put (cfg->reply, (char *) id, sock);
     }
 
   return 0;
@@ -162,7 +162,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
   push = nut_get_push (packet);
 
   /* is the guid of this push request in the reply hash ? */
-  if ((xsock = (socket_t) hash_get (cfg->reply, (char *) push->id)) != NULL)
+  if ((xsock = (socket_t) svz_hash_get (cfg->reply, (char *) push->id)) != NULL)
     {
       header = nut_put_header (hdr);
       if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
@@ -233,7 +233,6 @@ int
 nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_client_t *client = sock->data;
   nut_reply_t reply;
   nut_record_t record;
   nut_query_t *query;
@@ -334,7 +333,7 @@ nut_pong (socket_t sock, nut_header_t *hdr, byte *packet)
   /* put to host catcher hash */
   reply = nut_get_pong (packet);
   nut_host_catcher (sock, reply->ip, reply->port);
-  pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
+  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
 
   /* is this a reply to my own gnutella packet ? */
   if (pkt != NULL)

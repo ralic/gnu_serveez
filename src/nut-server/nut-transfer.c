@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.30 2001/03/04 13:13:42 ela Exp $
+ * $Id: nut-transfer.c,v 1.31 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -174,7 +174,6 @@ nut_string_regex (char *text, char *regex)
 static int
 nut_save_transfer (socket_t sock)
 {
-  nut_config_t *cfg = sock->cfg;
   int fill = sock->recv_buffer_fill;
   nut_transfer_t *transfer = sock->data;
   int num_written;
@@ -215,7 +214,6 @@ nut_save_transfer (socket_t sock)
 static int
 nut_check_transfer (socket_t sock)
 {
-  nut_config_t *cfg = sock->cfg;
   int fill = sock->recv_buffer_fill;
   int len = strlen (NUT_GET_OK);
   char *p = sock->recv_buffer, *length;
@@ -332,7 +330,6 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 		   nut_record_t *record, char *savefile)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_client_t *client = sock->data;
   socket_t xsock;
   char *file;
   struct stat buf;
@@ -477,7 +474,7 @@ nut_check_given (socket_t sock)
 
       /* get original push request */
       *p = '\0';
-      transfer = (nut_transfer_t *) hash_get (cfg->push, pushkey);
+      transfer = (nut_transfer_t *) svz_hash_get (cfg->push, pushkey);
       if (transfer == NULL)
 	{
 	  log_printf (LOG_ERROR, "nut: no such push request sent\n");
@@ -485,7 +482,7 @@ nut_check_given (socket_t sock)
 	}
 
       /* delete key and data from push request hash */
-      hash_delete (cfg->push, pushkey);
+      svz_hash_delete (cfg->push, pushkey);
       sock_reduce_recv (sock, len);
 
       /* assign all necessary callbacks for downloading the file */
@@ -568,7 +565,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       /* create push request key and check if it was already sent */
       pushkey = svz_malloc (16 + NUT_GUID_SIZE * 2);
       sprintf (pushkey, "%d:%s", push.index, nut_text_guid (push.id));
-      if ((trans = hash_get (cfg->push, pushkey)) != NULL)
+      if ((trans = svz_hash_get (cfg->push, pushkey)) != NULL)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: push request already sent\n");
@@ -592,7 +589,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       trans = svz_malloc (sizeof (nut_transfer_t));
       memcpy (trans, transfer, sizeof (nut_transfer_t));
       trans->file = svz_strdup (transfer->file);
-      hash_put (cfg->push, pushkey, trans);
+      svz_hash_put (cfg->push, pushkey, trans);
       svz_free (pushkey);
 
 #if ENABLE_DEBUG
@@ -605,7 +602,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       pkt = svz_malloc (sizeof (nut_packet_t));
       pkt->sock = sock;
       pkt->sent = time (NULL);
-      hash_put (cfg->packet, (char *) hdr.id, pkt);
+      svz_hash_put (cfg->packet, (char *) hdr.id, pkt);
     }
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.5 2001/03/02 21:12:53 ela Exp $
+ * $Id: pipe-socket.c,v 1.6 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -599,7 +599,7 @@ pipe_listener (socket_t server_sock)
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
-  HANDLE recv_pipe, send_pipe;
+  HANDLE recv_pipe;
 
   /*
    * Pipe requested via port configuration ?

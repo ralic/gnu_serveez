@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.20 2001/01/28 03:26:55 ela Exp $
+ * $Id: gnutella.h,v 1.21 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -212,12 +212,12 @@ typedef struct
   int ttl;                  /* initial ttl for a gnutella packet */
   char **hosts;             /* array of initial hosts */
   byte guid[NUT_GUID_SIZE]; /* this servers GUID */
-  hash_t *route;            /* routing table */
-  hash_t *conn;             /* connected hosts hash */
+  svz_hash_t *route;        /* routing table */
+  svz_hash_t *conn;         /* connected hosts hash */
   char **search;            /* search pattern array */
   int search_index;         /* current search pattern index */
   int search_limit;         /* limit amount of search reply records */
-  hash_t *packet;           /* this servers created packets */
+  svz_hash_t *packet;       /* this servers created packets */
   unsigned errors;          /* routing errors */
   unsigned files;           /* files within connected network */
   unsigned size;            /* file size (in KB) */
@@ -229,15 +229,15 @@ typedef struct
   int speed;                /* connection speed (KBit/s) */
   int min_speed;            /* minimum connection speed for searching */
   char **extensions;        /* file extensions */
-  hash_t *net;              /* host catcher */
+  svz_hash_t *net;          /* host catcher */
   int connections;          /* number of connections to keep up */
   char *force_ip;           /* force the local ip to this value */
   unsigned long ip;         /* calculated from `force_ip' */
   int force_port;           /* force the local port to this value */
   unsigned short port;      /* calculated from `force_port' */
-  hash_t *query;            /* recent query hash */
-  hash_t *reply;            /* reply hash for routing push requests */
-  hash_t *push;             /* push request hash */
+  svz_hash_t *query;        /* recent query hash */
+  svz_hash_t *reply;        /* reply hash for routing push requests */
+  svz_hash_t *push;         /* push request hash */
   nut_file_t *database;     /* shared file array */
   unsigned db_files;        /* number of database files */
   unsigned db_size;         /* size of database in bytes */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.30 2001/03/04 13:13:40 ela Exp $
+ * $Id: http-core.c,v 1.31 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -895,15 +895,15 @@ http_free_types (http_config_t *cfg)
 
   if (*(cfg->types))
     {
-      if ((type = (char **) hash_values (*(cfg->types))) != NULL)
+      if ((type = (char **) svz_hash_values (*(cfg->types))) != NULL)
 	{
-	  for (n = 0; n < hash_size (*(cfg->types)); n++)
+	  for (n = 0; n < svz_hash_size (*(cfg->types)); n++)
 	    {
 	      svz_free (type[n]);
 	    }
-	  hash_xfree (type);
+	  svz_hash_xfree (type);
 	}
-      hash_destroy (*(cfg->types));
+      svz_hash_destroy (*(cfg->types));
       *(cfg->types) = NULL;
     }
 }
@@ -927,7 +927,7 @@ http_read_types (http_config_t *cfg)
   /* create the content type hash table if necessary */
   if (*(cfg->types) == NULL)
     {
-      *(cfg->types) = hash_create (4);
+      *(cfg->types) = svz_hash_create (4);
     }
 
   /* try open the file */
@@ -976,11 +976,11 @@ http_read_types (http_config_t *cfg)
 	       * add the given content type to the hash if it does not
 	       * contain it already
 	       */
-	      if (!hash_get (*(cfg->types), suffix))
+	      if (!svz_hash_get (*(cfg->types), suffix))
 		{
 		  content_type = svz_malloc (strlen (content) + 1);
 		  strcpy (content_type, content);
-		  hash_put (*(cfg->types), suffix, content_type);
+		  svz_hash_put (*(cfg->types), suffix, content_type);
 		}
 	    }
 	}
@@ -1009,7 +1009,7 @@ http_find_content_type (socket_t sock, char *file)
     suffix++;
 
   /* find this file suffix in the content type hash */
-  if ((type = hash_get (*(cfg->types), suffix)) != NULL)
+  if ((type = svz_hash_get (*(cfg->types), suffix)) != NULL)
     {
       return type;
     }

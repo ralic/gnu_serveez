@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.31 2001/03/04 13:13:41 ela Exp $
+ * $Id: gnutella.c,v 1.32 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -257,7 +257,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
     }
 
   /* get client from host catcher hash */
-  client = (nut_host_t *) hash_get (cfg->net, host);
+  client = (nut_host_t *) svz_hash_get (cfg->net, host);
 
   /* try to connect to this host */
   if ((sock = tcp_connect (ip, port)) != NULL)
@@ -280,7 +280,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
    */
   if (client)
     {
-      hash_delete (cfg->net, host);
+      svz_hash_delete (cfg->net, host);
       svz_free (client);
     }
   return ret;
@@ -311,7 +311,7 @@ nut_init_ping (socket_t sock)
   pkt = svz_malloc (sizeof (nut_packet_t));
   pkt->sock = sock;
   pkt->sent = time (NULL);
-  hash_put (cfg->packet, (char *) hdr.id, pkt);
+  svz_hash_put (cfg->packet, (char *) hdr.id, pkt);
 
   /* update client and server statistics */
   cfg->nodes -= client->nodes;
@@ -418,31 +418,31 @@ nut_init (server_t *server)
   cfg->port = htons ((unsigned short) cfg->force_port);
 
   /* create and modify packet hash */
-  cfg->packet = hash_create (4);
+  cfg->packet = svz_hash_create (4);
   cfg->packet->code = nut_hash_code;
   cfg->packet->equals = nut_hash_equals;
   cfg->packet->keylen = nut_hash_keylen;
 
   /* create and modify reply hash */
-  cfg->reply = hash_create (4);
+  cfg->reply = svz_hash_create (4);
   cfg->reply->code = nut_hash_code;
   cfg->reply->equals = nut_hash_equals;
   cfg->reply->keylen = nut_hash_keylen;
 
   /* create current connection hash */
-  cfg->conn = hash_create (4);
+  cfg->conn = svz_hash_create (4);
 
   /* create host catcher hash */
-  cfg->net = hash_create (4);
+  cfg->net = svz_hash_create (4);
 
   /* create recent query hash */
-  cfg->query = hash_create (4);
+  cfg->query = svz_hash_create (4);
 
   /* create push request hash */
-  cfg->push = hash_create (4);
+  cfg->push = svz_hash_create (4);
 
   /* create and modify the routing table hash */
-  cfg->route = hash_create (4);
+  cfg->route = svz_hash_create (4);
   cfg->route->code = nut_hash_code;
   cfg->route->equals = nut_hash_equals;
   cfg->route->keylen = nut_hash_keylen;
@@ -485,44 +485,44 @@ nut_finalize (server_t *server)
   /* destroy sharing files */
   nut_destroy_database (cfg);
 
-  hash_destroy (cfg->conn);
-  hash_destroy (cfg->route);
-  hash_destroy (cfg->query);
-  hash_destroy (cfg->reply);
+  svz_hash_destroy (cfg->conn);
+  svz_hash_destroy (cfg->route);
+  svz_hash_destroy (cfg->query);
+  svz_hash_destroy (cfg->reply);
 
   /* destroy sent packet hash */
-  if ((pkt = (nut_packet_t **) hash_values (cfg->packet)) != NULL)
+  if ((pkt = (nut_packet_t **) svz_hash_values (cfg->packet)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->packet); n++)
+      for (n = 0; n < svz_hash_size (cfg->packet); n++)
 	{
 	  svz_free (pkt[n]);
 	}
-      hash_xfree (pkt);
+      svz_hash_xfree (pkt);
     }
-  hash_destroy (cfg->packet);
+  svz_hash_destroy (cfg->packet);
 
   /* destroy host catcher hash */
-  if ((client = (nut_host_t **) hash_values (cfg->net)) != NULL)
+  if ((client = (nut_host_t **) svz_hash_values (cfg->net)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->net); n++)
+      for (n = 0; n < svz_hash_size (cfg->net); n++)
 	{
 	  svz_free (client[n]);
 	}
-      hash_xfree (client);
+      svz_hash_xfree (client);
     }
-  hash_destroy (cfg->net);
+  svz_hash_destroy (cfg->net);
 
   /* destroy push request hash */
-  if ((transfer = (nut_transfer_t **) hash_values (cfg->push)) != NULL)
+  if ((transfer = (nut_transfer_t **) svz_hash_values (cfg->push)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->push); n++)
+      for (n = 0; n < svz_hash_size (cfg->push); n++)
 	{
 	  svz_free (transfer[n]->file);
 	  svz_free (transfer[n]);
 	}
-      hash_xfree (transfer);
+      svz_hash_xfree (transfer);
     }
-  hash_destroy (cfg->push);
+  svz_hash_destroy (cfg->push);
 
   /* free detection string */
   svz_free (cfg->net_detect);
@@ -560,35 +560,35 @@ nut_disconnect (socket_t sock)
   nut_client_t *client = sock->data;
 
   /* delete all push request routing information for this connection */
-  while ((id = (byte *) hash_contains (cfg->reply, sock)) != NULL)
-    hash_delete (cfg->reply, (char *) id);
+  while ((id = (byte *) svz_hash_contains (cfg->reply, sock)) != NULL)
+    svz_hash_delete (cfg->reply, (char *) id);
 
   /* delete all routing information for this connection */
-  while ((id = (byte *) hash_contains (cfg->route, sock)) != NULL)
-    hash_delete (cfg->route, (char *) id);
+  while ((id = (byte *) svz_hash_contains (cfg->route, sock)) != NULL)
+    svz_hash_delete (cfg->route, (char *) id);
 
   /* drop all packet information for this connection */
-  if ((keys = (char **) hash_keys (cfg->packet)) != NULL)
+  if ((keys = (char **) svz_hash_keys (cfg->packet)) != NULL)
     {
-      size = hash_size (cfg->packet);
+      size = svz_hash_size (cfg->packet);
       for (n = 0; n < size; n++)
 	{
-	  pkt = (nut_packet_t *) hash_get (cfg->packet, keys[n]);
+	  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
 	  if (pkt->sock == sock)
 	    {
-	      hash_delete (cfg->packet, keys[n]);
+	      svz_hash_delete (cfg->packet, keys[n]);
 	      svz_free (pkt);
 	    }
 	}
-      hash_xfree (keys);
+      svz_hash_xfree (keys);
     }
   
   /* remove this socket from the current connection hash */
   key = nut_client_key (sock->remote_addr, sock->remote_port);
-  hash_delete (cfg->conn, key);
+  svz_hash_delete (cfg->conn, key);
 
   /* remove the connection from the host catcher */
-  if ((host = hash_delete (cfg->net, key)) != NULL)
+  if ((host = svz_hash_delete (cfg->net, key)) != NULL)
     svz_free (host);
 
   /* free client structure */
@@ -623,57 +623,57 @@ nut_server_notify (server_t *server)
     return 0;
     
   /* do we have enough connections ? */
-  connect = cfg->connections - hash_size (cfg->conn);
+  connect = cfg->connections - svz_hash_size (cfg->conn);
   if (connect > 0)
     {
       /* are there hosts in the host catcher hash ? */
-      if ((keys = (char **) hash_keys (cfg->net)) != NULL)
+      if ((keys = (char **) svz_hash_keys (cfg->net)) != NULL)
 	{
 	  /* go through all caught hosts */
-	  for (n = 0; n < hash_size (cfg->net) && connect; n++)
+	  for (n = 0; n < svz_hash_size (cfg->net) && connect; n++)
 	    {
 	      /* check if we are not already connected */
-	      if (hash_get (cfg->conn, keys[n]) == NULL)
+	      if (svz_hash_get (cfg->conn, keys[n]) == NULL)
 		{
 		  if (nut_connect_host (cfg, keys[n]) != -1)
 		    connect--;
 		}
 	    }
-	  hash_xfree (keys);
+	  svz_hash_xfree (keys);
 	}
     }
 
   /* go through the sent packet hash and drop old entries */
-  if ((keys = (char **) hash_keys (cfg->packet)) != NULL)
+  if ((keys = (char **) svz_hash_keys (cfg->packet)) != NULL)
     {
       t = time (NULL);
-      size = hash_size (cfg->packet);
+      size = svz_hash_size (cfg->packet);
       for (n = 0; n < size; n++)
 	{
-	  pkt = (nut_packet_t *) hash_get (cfg->packet, keys[n]);
+	  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
 	  if (t - pkt->sent > NUT_ENTRY_AGE)
 	    {
-	      hash_delete (cfg->packet, keys[n]);
+	      svz_hash_delete (cfg->packet, keys[n]);
 	      svz_free (pkt);
 	    }
 	}
-      hash_xfree (keys);
+      svz_hash_xfree (keys);
     }
 
   /* drop older entries from the recent query hash */
-  if ((keys = (char **) hash_keys (cfg->query)) != NULL)
+  if ((keys = (char **) svz_hash_keys (cfg->query)) != NULL)
     {
       t = time (NULL);
-      size = hash_size (cfg->query);
+      size = svz_hash_size (cfg->query);
       for (n = 0; n < size; n++)
 	{
-	  received = (time_t) hash_get (cfg->query, keys[n]);
+	  received = (time_t) svz_hash_get (cfg->query, keys[n]);
 	  if (t - received > NUT_ENTRY_AGE)
 	    {
-	      hash_delete (cfg->query, keys[n]);
+	      svz_hash_delete (cfg->query, keys[n]);
 	    }
 	}
-      hash_xfree (keys);
+      svz_hash_xfree (keys);
     }
 
   /* wake up in a certain time */
@@ -688,7 +688,6 @@ nut_server_notify (server_t *server)
 int
 nut_check_request (socket_t sock)
 {
-  nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
   nut_header_t *hdr;
   byte *packet;
@@ -800,7 +799,7 @@ nut_idle_searching (socket_t sock)
       pkt = svz_malloc (sizeof (nut_packet_t));
       pkt->sock = sock;
       pkt->sent = time (NULL);
-      hash_put (cfg->packet, (char *) hdr.id, pkt);
+      svz_hash_put (cfg->packet, (char *) hdr.id, pkt);
     }
 
   /* wake up in a certain time */
@@ -877,16 +876,16 @@ nut_info_server (server_t *server)
 			  cfg->search[cfg->search_index] : cfg->search[0])
 	   : "none given",
 	   ext ? ext : "no extensions",
-	   hash_size (cfg->route),
-	   hash_size (cfg->conn), cfg->connections,
-	   hash_size (cfg->packet),
+	   svz_hash_size (cfg->route),
+	   svz_hash_size (cfg->conn), cfg->connections,
+	   svz_hash_size (cfg->packet),
 	   cfg->errors,
-	   hash_size (cfg->net),
+	   svz_hash_size (cfg->net),
 	   cfg->size / 1024, cfg->files, cfg->nodes,
 	   cfg->db_size / 1024 / 1024, cfg->db_files,
 	   cfg->dnloads, cfg->max_dnloads,
 	   cfg->uploads, cfg->max_uploads,
-	   hash_size (cfg->query));
+	   svz_hash_size (cfg->query));
 
   svz_free (ext);
   return info;
@@ -898,7 +897,6 @@ nut_info_server (server_t *server)
 char *
 nut_info_client (void *nut_cfg, socket_t sock)
 {
-  nut_config_t *cfg = nut_cfg;
   static char info[80 * 3];
   static char text[128];
   nut_transfer_t *transfer = sock->data;
@@ -1081,7 +1079,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
   if (sock->userflags & NUT_FLAG_CLIENT)
     {
       /* check if we got enough clients already */
-      if (hash_size (cfg->conn) > cfg->connections)
+      if (svz_hash_size (cfg->conn) > cfg->connections)
 	return -1;
 
       /* send the first reply if necessary */
@@ -1102,8 +1100,9 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
 	return -1;
 
       /* put this client to the current connection hash */
-      hash_put (cfg->conn, 
-		nut_client_key (sock->remote_addr, sock->remote_port), sock);
+      svz_hash_put (cfg->conn, 
+		    nut_client_key (sock->remote_addr, sock->remote_port), 
+		    sock);
 
       return 0;
     }

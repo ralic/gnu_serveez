@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.2 2001/01/30 11:49:57 ela Exp $
+ * $Id: hash.c,v 1.3 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -48,17 +48,16 @@
 #define HASH_BUCKET(code, hash) (code & (hash->buckets - 1))
 
 /*
- * Calculate the hash code for a given string KEY. This is the standard 
+ * Calculate the hash code for a given string @var{key}. This is the standard 
  * callback for any newly created hash table.
  */
 static unsigned long
-hash_code (char *key)
+svz_hash_code (char *key)
 {
   unsigned long code = 0;
   char *p = key;
 
   assert (key);
-
   while (*p)
     {
       code = (code << 1) ^ *p;
@@ -69,11 +68,11 @@ hash_code (char *key)
 
 /*
  * This is the default callback for any newly created hash for determining
- * two keys (KEY1 and KEY2) being equal. Return zero if both strings are 
- * equal, otherwise non-zero.
+ * two keys (@var{key1} and @var{key2}) being equal. Return zero if both 
+ * strings are equal, otherwise non-zero.
  */
 static int
-hash_key_equals (char *key1, char *key2)
+svz_hash_key_equals (char *key1, char *key2)
 {
   char *p1, *p2;
 
@@ -100,10 +99,10 @@ hash_key_equals (char *key1, char *key2)
 
 /*
  * This is the default routine for determining the actual hash table 
- * key length of the given key KEY.
+ * key length of the given key @var{key}.
  */
 static unsigned
-hash_key_length (char *key)
+svz_hash_key_length (char *key)
 {
   unsigned len = 0;
 
@@ -116,13 +115,13 @@ hash_key_length (char *key)
 }
 
 /*
- * This routine prints all the hash table HASH. It is for debugging 
+ * This routine prints all the hash table @var{hash}. It is for debugging 
  * purposes only and should not go into distributions.
  */
 static void
-hash_analyse (hash_t *hash)
+svz_hash_analyse (svz_hash_t *hash)
 {
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
   int n, e, buckets, depth, entries;
 
   for (entries = 0, depth = 0, buckets = 0, n = 0; n < hash->buckets; n++)
@@ -152,15 +151,15 @@ hash_analyse (hash_t *hash)
 }
 
 /*
- * Create a new hash table with an initial capacity SIZE. Return a 
+ * Create a new hash table with an initial capacity @var{size}. Return a 
  * non-zero pointer to the newly created hash. The size is calculated down
  * to a binary value.
  */
-hash_t *
-hash_create (int size)
+svz_hash_t *
+svz_hash_create (int size)
 {
   int n;
-  hash_t *hash;
+  svz_hash_t *hash;
 
   /* set initial hash table size to a binary value */
   for (n = size, size = 1; n != 1; n >>= 1) 
@@ -169,16 +168,16 @@ hash_create (int size)
     size = HASH_MIN_SIZE;
 
   /* allocate space for the hash itself */
-  hash = svz_malloc (sizeof (hash_t));
+  hash = svz_malloc (sizeof (svz_hash_t));
   hash->buckets = size;
   hash->fill = 0;
   hash->keys = 0;
-  hash->code = hash_code;
-  hash->equals = hash_key_equals;
-  hash->keylen = hash_key_length;
+  hash->code = svz_hash_code;
+  hash->equals = svz_hash_key_equals;
+  hash->keylen = svz_hash_key_length;
 
   /* allocate space for the hash table and initialize it */
-  hash->table = svz_malloc (sizeof (hash_bucket_t) * size);
+  hash->table = svz_malloc (sizeof (svz_hash_bucket_t) * size);
   for (n = 0; n < size; n++)
     {
       hash->table[n].size = 0;
@@ -189,15 +188,15 @@ hash_create (int size)
 }
 
 /*
- * Destroy the existing hash table HASH. Therefore we `svz_free ()' all 
- * keys within the hash, the hash table and the hash itself. The values 
- * keep untouched. So you might want to `svz_free ()' them yourself.
+ * Destroy the existing hash table @var{hash}. Therefore we @code{svz_free()}
+ * all keys within the hash, the hash table and the hash itself. The values 
+ * keep untouched. So you might want to @code{svz_free()} them yourself.
  */
 void
-hash_destroy (hash_t *hash)
+svz_hash_destroy (svz_hash_t *hash)
 {
   int n, e;
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
 
   for (n = 0; n < hash->buckets; n++)
     {
@@ -216,14 +215,15 @@ hash_destroy (hash_t *hash)
 }
 
 /*
- * Clear the hash table of a given hash HASH. Afterwards it does not 
- * contains any key. In contradiction to `hash_destroy ()' this functions 
- * does not destroy the hash itself. But shrinks it to a minimal size.
+ * Clear the hash table of a given hash @var{hash}. Afterwards it does not 
+ * contains any key. In contradiction to @code{svz_hash_destroy()} this 
+ * functions does not destroy the hash itself, but shrinks it to a minimal 
+ * size.
  */
 void
-hash_clear (hash_t *hash)
+svz_hash_clear (svz_hash_t *hash)
 {
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
   int n, e;
 
   /* go through all buckets of the table and delete its entries */
@@ -247,22 +247,23 @@ hash_clear (hash_t *hash)
   hash->fill = 0;
   hash->keys = 0;
   hash->table = svz_realloc (hash->table, 
-			     sizeof (hash_bucket_t) * hash->buckets);
+			     sizeof (svz_hash_bucket_t) * hash->buckets);
 }
 
 /*
- * Rehash a given hash table HASH. Double (TYPE is HASH_EXPAND) its size 
- * and expand the hash codes or half (TYPE is HASH_SHRINK) its size and 
- * shrink the hash codes if these would be placed somewhere else.
+ * Rehash a given hash table @var{hash}. Double (@var{type} is 
+ * @code{HASH_EXPAND}) its size and expand the hash codes or half (@var{type}
+ * is @code{HASH_SHRINK}) its size and shrink the hash codes if these would 
+ * be placed somewhere else.
  */
 void
-hash_rehash (hash_t *hash, int type)
+svz_hash_rehash (svz_hash_t *hash, int type)
 {
   int n, e;
-  hash_bucket_t *bucket, *next_bucket;
+  svz_hash_bucket_t *bucket, *next_bucket;
 
 #if 0
-  hash_analyse (hash);
+  svz_hash_analyse (hash);
 #endif /* ENABLE_DEBUG */
 
   if (type == HASH_EXPAND)
@@ -272,7 +273,7 @@ hash_rehash (hash_t *hash, int type)
        */
       hash->buckets <<= 1;
       hash->table = svz_realloc (hash->table, 
-				 sizeof (hash_bucket_t) * hash->buckets);
+				 sizeof (svz_hash_bucket_t) * hash->buckets);
       for (n = hash->buckets >> 1; n < hash->buckets; n++)
 	{
 	  hash->table[n].size = 0;
@@ -296,7 +297,7 @@ hash_rehash (hash_t *hash, int type)
 		    &hash->table[HASH_BUCKET (bucket->entry[e].code, hash)];
 		  next_bucket->entry = svz_realloc (next_bucket->entry,
 						    (next_bucket->size + 1) *
-						    sizeof (hash_entry_t));
+						    sizeof (svz_hash_entry_t));
 		  next_bucket->entry[next_bucket->size] = bucket->entry[e];
 		  next_bucket->size++;
 		  if (next_bucket->size == 1)
@@ -315,7 +316,7 @@ hash_rehash (hash_t *hash, int type)
 		      bucket->entry[e] = bucket->entry[bucket->size];
 		      bucket->entry = svz_realloc (bucket->entry,
 						   bucket->size *
-						   sizeof (hash_entry_t));
+						   sizeof (svz_hash_entry_t));
 		    }
 		  e--;
 		}
@@ -336,7 +337,7 @@ hash_rehash (hash_t *hash, int type)
 		    &hash->table[HASH_BUCKET (bucket->entry[e].code, hash)];
 		  next_bucket->entry = svz_realloc (next_bucket->entry,
 						    (next_bucket->size + 1) *
-						    sizeof (hash_entry_t));
+						    sizeof (svz_hash_entry_t));
 		  next_bucket->entry[next_bucket->size] = bucket->entry[e];
 		  next_bucket->size++;
 		  if (next_bucket->size == 1)
@@ -347,27 +348,28 @@ hash_rehash (hash_t *hash, int type)
 	  hash->fill--;
 	}
       hash->table = svz_realloc (hash->table, 
-				 sizeof (hash_bucket_t) * hash->buckets);
+				 sizeof (svz_hash_bucket_t) * hash->buckets);
     }
 
 #if 0
-  hash_analyse (hash);
+  svz_hash_analyse (hash);
 #endif /* ENABLE_DEBUG */
 }
 
 /*
- * This function adds a new element consisting of KEY and VALUE to an
- * existing hash HASH. If the hash is 75% filled it gets rehashed (size 
- * will be doubled). When the key already exists then the value just gets
- * replaced.
+ * This function adds a new element consisting of @var{key} and @var{value} 
+ * to an existing hash @var{hash}. If the hash is 75% filled it gets rehashed 
+ * (size will be doubled). When the key already exists then the value just 
+ * gets replaced dropping the old value. Note: This is sometimes the source of
+ * memory leaks.
  */
 void
-hash_put (hash_t *hash, char *key, void *value)
+svz_hash_put (svz_hash_t *hash, char *key, void *value)
 {
   unsigned long code = 0;
   int e;
-  hash_entry_t *entry;
-  hash_bucket_t *bucket;
+  svz_hash_entry_t *entry;
+  svz_hash_bucket_t *bucket;
 
   code = hash->code (key);
 
@@ -386,7 +388,7 @@ hash_put (hash_t *hash, char *key, void *value)
   /* Reallocate this bucket. */
   bucket = &hash->table[HASH_BUCKET (code, hash)];
   bucket->entry = svz_realloc (bucket->entry, 
-			       sizeof (hash_entry_t) * (bucket->size + 1));
+			       sizeof (svz_hash_entry_t) * (bucket->size + 1));
 
   /* Fill this entry. */
   entry = &bucket->entry[bucket->size];
@@ -403,22 +405,22 @@ hash_put (hash_t *hash, char *key, void *value)
       hash->fill++;
       if (hash->fill > HASH_EXPAND_LIMIT (hash))
 	{
-	  hash_rehash (hash, HASH_EXPAND);
+	  svz_hash_rehash (hash, HASH_EXPAND);
 	}
     }
 }
 
 /*
- * Delete an existing hash entry accessed via a given key KEY form the
- * hash table HASH. Return NULL if the key has not been found within 
+ * Delete an existing hash entry accessed via a given key @var{key} form the
+ * hash table @var{hash}. Return NULL if the key has not been found within 
  * the hash, otherwise the previous value.
  */
 void *
-hash_delete (hash_t *hash, char *key)
+svz_hash_delete (svz_hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
   void *value;
 
   code = hash->code (key);
@@ -436,7 +438,7 @@ hash_delete (hash_t *hash, char *key)
 	    {
 	      bucket->entry[n] = bucket->entry[bucket->size];
 	      bucket->entry = svz_realloc (bucket->entry, 
-					   sizeof (hash_entry_t) * 
+					   sizeof (svz_hash_entry_t) * 
 					   bucket->size);
 	    }
 	  else
@@ -446,7 +448,7 @@ hash_delete (hash_t *hash, char *key)
 	      hash->fill--;
 	      if (hash->fill < HASH_SHRINK_LIMIT (hash))
 		{
-		  hash_rehash (hash, HASH_SHRINK);
+		  svz_hash_rehash (hash, HASH_SHRINK);
 		}
 	    }
 	  hash->keys--;
@@ -458,15 +460,16 @@ hash_delete (hash_t *hash, char *key)
 }
 
 /*
- * Hash table lookup. Find a value for a given KEY in the hash table 
- * HASH. Return NULL if the key has not been found within the hash table.
+ * Hash table lookup. Find a value for a given @var{key} in the hash table 
+ * @var{hash}. Return NULL if the key has not been found within the hash 
+ * table.
  */
 void *
-hash_get (hash_t *hash, char *key)
+svz_hash_get (svz_hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
 
   code = hash->code (key);
   bucket = &hash->table[HASH_BUCKET (code, hash)];
@@ -484,15 +487,16 @@ hash_get (hash_t *hash, char *key)
 }
 
 /*
- * This function delivers all values within a hash table HASH. It 
- * returns NULL if there were no values in the hash. You MUST `hash_xfree ()' 
- * a non-NULL return value.
+ * This function delivers all values within a hash table @var{hash}. It 
+ * returns NULL if there were no values in the hash. You MUST 
+ * @code{svz_hash_xfree()} a non-NULL return value in order to prevent
+ * memory leaks.
  */
 void **
-hash_values (hash_t *hash)
+svz_hash_values (svz_hash_t *hash)
 {
   void **values;
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
   int n, e, keys;
 
   if (hash->keys == 0)
@@ -514,15 +518,15 @@ hash_values (hash_t *hash)
 }
 
 /*
- * This function delivers all keys within a hash table HASH. It 
- * returns NULL if there were no keys in the hash. You MUST `hash_xfree ()' 
- * a non-NULL return value.
+ * This function delivers all keys within a hash table @var{hash}. It 
+ * returns NULL if there were no keys in the hash. You MUST 
+ * @code{svz_hash_xfree()} a non-NULL return value.
  */
 char **
-hash_keys (hash_t *hash)
+svz_hash_keys (svz_hash_t *hash)
 {
   char **values;
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
   int n, e, keys;
 
   if (hash->keys == 0)
@@ -544,31 +548,31 @@ hash_keys (hash_t *hash)
 }
 
 /*
- * This routine delivers the number of keys in the hash table HASH.
+ * This routine delivers the number of keys in the hash table @var{hash}.
  */
 int
-hash_size (hash_t *hash)
+svz_hash_size (svz_hash_t *hash)
 {
   return hash->keys;
 }
 
 /*
- * This function returns the current capacity of a given hash table HASH.
+ * This function returns the current capacity of a given hash table @var{hash}.
  */
 int
-hash_capacity (hash_t *hash)
+svz_hash_capacity (svz_hash_t *hash)
 {
   return hash->buckets;
 }
 
 /*
- * This function can be used to determine if some key points to the VALUE
- * argument in the hash table HASH. Returns the appropriate key or NULL.
+ * This function can be used to determine if some key points to the @var{value}
+ * argument in the hash table @var{hash}. Returns the appropriate key or NULL.
  */
 char *
-hash_contains (hash_t *hash, void *value)
+svz_hash_contains (svz_hash_t *hash, void *value)
 {
-  hash_bucket_t *bucket;
+  svz_hash_bucket_t *bucket;
   int n, e;
 
   for (n = 0; n < hash->buckets; n++)

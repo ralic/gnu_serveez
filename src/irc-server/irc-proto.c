@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.25 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-proto.c,v 1.26 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -160,6 +160,10 @@ server_definition_t irc_server_definition =
   irc_config_prototype /* configuration prototypes */
 };
 
+/* Static forward declarations. */
+static int irc_delete_channel (irc_config_t *cfg, irc_channel_t *);
+static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
+
 /*
  * Global IRC server initializer.
  */
@@ -233,8 +237,8 @@ irc_init (server_t *server)
   cfg->email = svz_strdup (tmp[2]);
 
   /* initialize hashes and lists */
-  cfg->clients = hash_create (4);
-  cfg->channels = hash_create (4);
+  cfg->clients = svz_hash_create (4);
+  cfg->channels = svz_hash_create (4);
   cfg->clients->equals = irc_string_equal;
   cfg->channels->equals = irc_string_equal;
   cfg->servers = NULL;
@@ -277,8 +281,8 @@ irc_finalize (server_t *server)
   /* free the server IRC list */
   irc_delete_servers (cfg);
 
-  hash_destroy (cfg->clients);
-  hash_destroy (cfg->channels);
+  svz_hash_destroy (cfg->clients);
+  svz_hash_destroy (cfg->channels);
 
   return 0;
 }
@@ -707,7 +711,7 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 {
   int n;
 
-  if (hash_contains (cfg->channels, channel))
+  if (svz_hash_contains (cfg->channels, channel))
     {
       /* svz_free() all the channel ban entries */
       for (n = 0; n < channel->bans; n++)
@@ -715,7 +719,7 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
       if (channel->ban)
 	svz_free (channel->ban);
 
-      hash_delete (cfg->channels, channel->name);
+      svz_hash_delete (cfg->channels, channel->name);
       
       if (channel->topic)
 	svz_free (channel->topic);
@@ -743,7 +747,7 @@ irc_find_channel (irc_config_t *cfg, char *channel)
 {
   irc_channel_t *chan;
 
-  chan = hash_get (cfg->channels, channel);
+  chan = svz_hash_get (cfg->channels, channel);
   return chan;
 }
 
@@ -758,9 +762,9 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
   irc_channel_t **channel, **fchannel;
   int n, found, size;
 
-  if ((channel = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
+  if ((channel = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
     {
-      size = hash_size (cfg->channels);
+      size = svz_hash_size (cfg->channels);
       fchannel = svz_malloc (sizeof (irc_channel_t *) * (size + 1));
       for (found = n = 0; n < size; n++)
 	{
@@ -769,7 +773,7 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
 	      fchannel[found++] = channel[n];
 	    }
 	}
-      hash_xfree (channel);
+      svz_hash_xfree (channel);
 
       /* return NULL if there is not channel */
       if (!found)
@@ -799,7 +803,7 @@ irc_add_channel (irc_config_t *cfg, char *name)
   channel = svz_malloc (sizeof (irc_channel_t));
   memset (channel, 0, sizeof (irc_channel_t));
   channel->name = svz_strdup (name);
-  hash_put (cfg->channels, name, channel);
+  svz_hash_put (cfg->channels, name, channel);
   return channel;
 }
 
@@ -876,7 +880,7 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
     {
       /* put this client into the history list */
       irc_add_client_history (cfg, client);
-      if (hash_delete (cfg->clients, client->nick) == NULL)
+      if (svz_hash_delete (cfg->clients, client->nick) == NULL)
 	ret = -1;
       svz_free (client->nick);
     }
@@ -913,9 +917,9 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
   irc_client_t *fclient;
   int n;
 
-  if ((client = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+  if ((client = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
     {
-      for (n = 0; n < hash_size (cfg->clients); n++)
+      for (n = 0; n < svz_hash_size (cfg->clients); n++)
 	{
 	  if (!strcmp (client[n]->user, user) && 
 	      !strcmp (client[n]->host, host))
@@ -925,7 +929,7 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 	      return fclient;
 	    }
 	}
-      hash_xfree (client);
+      svz_hash_xfree (client);
     }
   return NULL;
 }
@@ -939,7 +943,7 @@ irc_find_nick (irc_config_t *cfg, char *nick)
 {
   irc_client_t *client;
 
-  if ((client = hash_get (cfg->clients, nick)) != NULL)
+  if ((client = svz_hash_get (cfg->clients, nick)) != NULL)
     {
       return client;
     }
@@ -957,9 +961,9 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
   irc_client_t **client, **fclient;
   int n, found, size;
 
-  if ((client = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+  if ((client = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
     {
-      size = hash_size (cfg->clients);
+      size = svz_hash_size (cfg->clients);
       fclient = svz_malloc (sizeof (irc_client_t *) * (size + 1));
       for (found = n = 0; n < size; n++)
 	{
@@ -968,7 +972,7 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
 	      fclient[found++] = client[n];
 	    }
 	}
-      hash_xfree (client);
+      svz_hash_xfree (client);
 
       /* return NULL if there is not client */
       if (!found)
@@ -993,7 +997,7 @@ irc_add_client (irc_config_t *cfg, irc_client_t *client)
   if (irc_find_nick (cfg, client->nick))
     return NULL;
 
-  hash_put (cfg->clients, client->nick, client);
+  svz_hash_put (cfg->clients, client->nick, client);
   return client;
 }
 

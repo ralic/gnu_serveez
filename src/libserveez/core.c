@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.2 2001/03/04 13:13:40 ela Exp $
+ * $Id: core.c,v 1.3 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -42,6 +42,15 @@
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#if HAVE_NETINET_TCP_H
+# include <netinet/tcp.h>
+#endif
+#if HAVE_SYS_SENDFILE_H
+# include <sys/sendfile.h>
+#endif
+#if defined (HAVE_SYS_UIO_H) && defined (__FreeBSD__)
+# include <sys/uio.h>
 #endif
 
 #ifdef __MINGW32__
@@ -278,3 +287,63 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
 #endif /* not HAVE_INET_ATON */
   return 0;
 }
+
+/*
+ * Enable or disable the @code{TCP_CORK} socket option of the given socket
+ * descriptor @var{fd}. This is useful for performance reasons when using 
+ * @code{sendfile()} with any prepending or trailing data not inside the 
+ * file to transmit. The function return zero on success, otherwise non-zero.
+ */
+int
+svz_tcp_cork (SOCKET fd, int set)
+{
+#ifdef TCP_CORK
+  int flags;
+
+  /* get current socket options */
+  if ((flags = fcntl (fd, F_GETFL)) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+
+  /* set or unset the cork option */
+  flags = set ? flags | TCP_CORK : flags & ~TCP_CORK;
+
+  /* apply new socket option */
+  if (fcntl (fd, F_SETFL, flags) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+
+#endif /* TCP_CORK */
+  return 0;
+}
+
+#if HAVE_SENDFILE
+/*
+ * This function transmits data between one file descriptor and another 
+ * where @var{in_fd} is the source and @var{out_fd} the destination. The
+ * @var{offset} argument is a pointer to a variable holding the input file 
+ * pointer position from which reading starts. When this routine returns,
+ * the @var{offset} variable will be set to the offset of the byte following 
+ * the last byte that was read. @var{count} is the number of bytes to copy 
+ * between file descriptors. Returns the number of bytes actually 
+ * read/written or -1 on errors.
+ */
+int
+svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
+{
+  int ret;
+#ifdef __FreeBSD__
+  off_t sbytes;
+  ret = sendfile (in_fd, out_fd, *offset, count, NULL, &sbytes, 0);
+  *offset += sbytes;
+  ret = ret ? -1 : (int) sbytes;
+#else
+  ret = sendfile (out_fd, in_fd, offset, count);
+#endif
+  return ret;
+}
+#endif /* HAVE_SEND_FILE */

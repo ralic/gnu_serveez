@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.16 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-event-1.c,v 1.17 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -247,11 +247,11 @@ irc_nick_callback (socket_t sock,
 		}
 	    }
 	  /* replace nick in client hash */
-	  if (hash_delete (cfg->clients, client->nick) != client)
+	  if (svz_hash_delete (cfg->clients, client->nick) != client)
 	    {
 	      log_printf (LOG_ERROR, "irc: client hash inconsistence\n");
 	    }
-	  hash_put (cfg->clients, nick, client);
+	  svz_hash_put (cfg->clients, nick, client);
 	}
 
       svz_free (client->nick);

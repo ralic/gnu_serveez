@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.24 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-cache.c,v 1.25 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -52,8 +52,8 @@
 #include "http-core.h"
 #include "http-cache.h"
 
-hash_t *http_cache = NULL;   /* actual cache entry hash */
-int http_cache_entries = 0;  /* maximum amount of cache entries */
+svz_hash_t *http_cache = NULL; /* actual cache entry hash */
+int http_cache_entries = 0;    /* maximum amount of cache entries */
 
 /*
  * This will initialize the http cache entries.
@@ -63,7 +63,7 @@ http_alloc_cache (int entries)
 {
   if (entries > http_cache_entries || http_cache == NULL)
     {
-      http_cache = hash_create (entries);
+      http_cache = svz_hash_create (entries);
       http_cache_entries = entries;
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "cache: created %d cache entries\n", entries);
@@ -82,9 +82,9 @@ http_free_cache (void)
 
   files = 0;
   total = 0;
-  if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
+  if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
     {
-      for (n = 0; n < hash_size (http_cache); n++)
+      for (n = 0; n < svz_hash_size (http_cache); n++)
 	{
 	  total += cache[n]->size;
 	  files++;
@@ -92,9 +92,9 @@ http_free_cache (void)
 	  svz_free (cache[n]->file);
 	  svz_free (cache[n]);
 	}
-      hash_xfree (cache);
+      svz_hash_xfree (cache);
     }
-  hash_destroy (http_cache);
+  svz_hash_destroy (http_cache);
   http_cache = NULL;
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", 
@@ -113,9 +113,9 @@ http_cache_consistency (void)
   int n, i, o;
   http_cache_entry_t **cache;
 
-  if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
+  if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
     {
-      for (n = 1, o = 0; o < hash_size (http_cache); o++)
+      for (n = 1, o = 0; o < svz_hash_size (http_cache); o++)
 	{
 	  /* each cache entry must have a file name */
 	  assert (cache[o]->file);
@@ -135,10 +135,10 @@ http_cache_consistency (void)
 	  
 	  /* cache urgency must be in a certain range */
 	  assert (cache[o]->urgent >= 0 && 
-		  cache[o]->urgent <= hash_size (http_cache));
+		  cache[o]->urgent <= svz_hash_size (http_cache));
 
 	  /* find each urgency */
-	  for (i = 0; i < hash_size (http_cache); i++)
+	  for (i = 0; i < svz_hash_size (http_cache); i++)
 	    {
 	      if (cache[i]->urgent == n)
 		{
@@ -146,9 +146,9 @@ http_cache_consistency (void)
 		  break;
 		}
 	    }
-	  assert (i != hash_size (http_cache));
+	  assert (i != svz_hash_size (http_cache));
 	}
-      hash_xfree (cache);
+      svz_hash_xfree (cache);
     }
 }
 #else /* not ENABLE_DEBUG */
@@ -167,9 +167,9 @@ http_urgent_cache (http_cache_entry_t *cache)
   http_cache_entry_t **caches;
 
   /* go through all cache entries */
-  if ((caches = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
+  if ((caches = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
     {
-      for (n = 0; n < hash_size (http_cache); n++)
+      for (n = 0; n < svz_hash_size (http_cache); n++)
 	{
 	  /* 
 	   * make all used cache entries currently being more recent 
@@ -180,11 +180,11 @@ http_urgent_cache (http_cache_entry_t *cache)
 	      caches[n]->urgent--;
 	    }
 	}
-      hash_xfree (caches);
+      svz_hash_xfree (caches);
     }
 
   /* set the given cache entry to the most recent one */
-  cache->urgent = hash_size (http_cache);
+  cache->urgent = svz_hash_size (http_cache);
 }
 
 /*
@@ -202,7 +202,7 @@ http_check_cache (char *file, http_cache_t *cache)
   http_cache_entry_t *cachefile;
   cache->entry = NULL;
 
-  if ((cachefile = hash_get (http_cache, file)) != NULL)
+  if ((cachefile = svz_hash_get (http_cache, file)) != NULL)
     {
       /* set this entry to the most recent, ready or not  */
       http_urgent_cache (cachefile);
@@ -248,7 +248,7 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
   http_urgent_cache (cache);
   http_cache_consistency ();
 
-  if (hash_delete (http_cache, cache->file) != cache)
+  if (svz_hash_delete (http_cache, cache->file) != cache)
     {
       log_printf (LOG_ERROR, "cache: inconsistent http hash\n");
     }
@@ -295,7 +295,7 @@ http_init_cache (char *file, http_cache_t *cache)
   http_cache_entry_t *slot = NULL;
   http_cache_entry_t **caches;
 
-  urgent = hash_size (http_cache);
+  urgent = svz_hash_size (http_cache);
 
   /* 
    * If there are still empty cache entries then create a 
@@ -312,9 +312,10 @@ http_init_cache (char *file, http_cache_t *cache)
    */
   else
     {
-      if ((caches = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
+      caches = (http_cache_entry_t **) svz_hash_values (http_cache);
+      if (caches != NULL)
 	{
-	  for (n = 0; n < hash_size (http_cache); n++)
+	  for (n = 0; n < svz_hash_size (http_cache); n++)
 	    {
 	      if (caches[n]->urgent <= urgent && 
 		  !caches[n]->usage && caches[n]->ready)
@@ -323,7 +324,7 @@ http_init_cache (char *file, http_cache_t *cache)
 		  urgent = slot->urgent;
 		}
 	    }
-	  hash_xfree (caches);
+	  svz_hash_xfree (caches);
 	}
       /* not a "reinitialable" cache entry found */
       if (!slot) 
@@ -339,9 +340,9 @@ http_init_cache (char *file, http_cache_t *cache)
       slot = http_cache_create_entry ();
     }
 
-  hash_put (http_cache, file, slot);
+  svz_hash_put (http_cache, file, slot);
   slot->file = svz_strdup (file);
-  slot->urgent = hash_size (http_cache);
+  slot->urgent = svz_hash_size (http_cache);
 
   /*
    * initialize the cache entry for the cache file reader: cachebuffer 

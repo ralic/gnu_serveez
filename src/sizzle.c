@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sizzle.c,v 1.3 2001/03/04 13:13:40 ela Exp $
+ * $Id: sizzle.c,v 1.4 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -59,11 +59,13 @@
  * Local forward declarations.
  */
 static int set_int (char *, char *, char *, int *, zzz_scm_t, int);
-static int set_intarray (char*, char*, char*, int **, zzz_scm_t, int*);
-static int set_string (char*, char*, char*, char**, zzz_scm_t, char*);
-static int set_stringarray (char*, char*, char*, char***, zzz_scm_t, char**);
-static int set_hash (char*, char*, char*, hash_t***, zzz_scm_t, hash_t**);
-static int set_port (char*, char*, char*, struct portcfg **, zzz_scm_t,
+static int set_intarray (char *, char *, char *, int **, zzz_scm_t, int *);
+static int set_string (char *, char *, char *, char **, zzz_scm_t, char *);
+static int set_stringarray (char *, char *, char *, char ***, zzz_scm_t, 
+			    char **);
+static int set_hash (char *, char *, char *, svz_hash_t ***, zzz_scm_t, 
+		     svz_hash_t **);
+static int set_port (char *, char *, char *, struct portcfg **, zzz_scm_t,
 		     struct portcfg *);
 
 /*
@@ -203,14 +205,14 @@ set_stringarray (char *cfgfile, char *var, char *key, char ***location,
 }
 
 static int
-set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
-	  zzz_scm_t val, hash_t **def)
+set_hash (char *cfgfile, char *var, char *key, svz_hash_t ***location,
+	  zzz_scm_t val, svz_hash_t **def)
 {
   int erroneous = 0;
   unsigned int i;
   zzz_scm_t foo;
-  hash_t *h;
-  hash_t **href = svz_pmalloc (sizeof (hash_t **));
+  svz_hash_t *h;
+  svz_hash_t **href = svz_pmalloc (sizeof (svz_hash_t **));
 
   if (val == zzz_undefined) 
     {
@@ -237,7 +239,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
   /*
    * Don't forget to free in instance finalizer.
    */
-  h = hash_create (4);
+  h = svz_hash_create (4);
 
   for (i = 0; i < vector_len (val); i++)
     {
@@ -264,8 +266,8 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
 	  /*
 	   * The hash keeps a copy of the key itself.
 	   */
-	  hash_put (h, string_val (car (car (foo))),
-		    svz_strdup (string_val (cdr (car (foo)))));
+	  svz_hash_put (h, string_val (car (car (foo))),
+			svz_strdup (string_val (cdr (car (foo)))));
 	}
     }
 
@@ -547,8 +549,8 @@ zzz_server_instantiate (char *cfgfile, zzz_scm_t hash,
 
 	case ITEM_HASH:
 	  e = set_hash (cfgfile, var, sd->items[i].name,
-			(hash_t ***) target, hashval,
-			*(hash_t ***) sd->items[i].address);
+			(svz_hash_t ***) target, hashval,
+			*(svz_hash_t ***) sd->items[i].address);
 	  break;
 
 	case ITEM_PORTCFG:

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.43 2001/03/04 13:13:40 ela Exp $
+ * $Id: control-proto.c,v 1.44 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -163,7 +163,6 @@ ctrl_info_server (server_t *server)
 char *
 ctrl_info_client (void *ctrl_cfg, socket_t sock)
 {
-  ctrl_config_t *cfg = ctrl_cfg;
   static char info[128];
 
   sprintf (info, "This is a control connection client.");
@@ -178,7 +177,6 @@ ctrl_info_client (void *ctrl_cfg, socket_t sock)
 int
 ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
 {
-  ctrl_config_t *cfg = ctrl_cfg;
   int ret = 0;
 
   /* accept both CRLF and CR */
@@ -220,8 +218,6 @@ ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
 int
 ctrl_connect_socket (void *ctrlcfg, socket_t sock)
 {
-  ctrl_config_t *cfg = ctrlcfg;
-
   sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
   sock->check_request = sock_check_request;
   sock->handle_request = ctrl_handle_request;
@@ -592,10 +588,10 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 	       "Size  Usage  Hits Recent Ready\r\n");
 
   files = total = 0;
-  if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
+  if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
     {
       /* go through each cache entry */
-      for (n = 0; n < hash_size (http_cache); n++)
+      for (n = 0; n < svz_hash_size (http_cache); n++)
 	{
 	  files++;
 	  total += cache[n]->size;
@@ -610,7 +606,7 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 		       cache[n]->urgent,
 		       cache[n]->ready ? "Yes" : "No");
 	}
-      hash_xfree (cache);
+      svz_hash_xfree (cache);
     }
 
   /* print cache summary */

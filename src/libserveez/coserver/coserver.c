@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.6 2001/03/04 13:13:41 ela Exp $
+ * $Id: coserver.c,v 1.7 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -79,7 +79,7 @@
  * called when the coservers delivered some result.
  */
 static unsigned coserver_hash_id = 1;
-static hash_t *coserver_hash = NULL;
+static svz_hash_t *coserver_hash = NULL;
 
 /* coserver-TODO: place wrapper function here */
 
@@ -589,7 +589,7 @@ coserver_handle_request (socket_t sock, char *request, int len)
   *p = '\0';
 
   /* Have a look at the coserver callback hash. */
-  if (NULL == (cb = hash_get (coserver_hash, util_itoa (id))))
+  if (NULL == (cb = svz_hash_get (coserver_hash, util_itoa (id))))
     {
       log_printf (LOG_ERROR, "coserver: invalid callback for id %u\n", id);
       return -1;
@@ -601,7 +601,7 @@ coserver_handle_request (socket_t sock, char *request, int len)
    * callback structure and delete it from the coserver callback hash.
    */
   ret = cb->handle_result (*data ? data : NULL, cb->arg[0], cb->arg[1]);
-  hash_delete (coserver_hash, util_itoa (id));
+  svz_hash_delete (coserver_hash, util_itoa (id));
   svz_free (cb);
 
   return ret;
@@ -868,7 +868,7 @@ coserver_init (void)
   int i, n;
   coserver_type_t *coserver;
 
-  coserver_hash = hash_create (4);
+  coserver_hash = svz_hash_create (4);
   coserver_hash_id = 1;
 
   for (n = 0; n < MAX_COSERVER_TYPES; n++)
@@ -902,17 +902,17 @@ coserver_finalize (void)
     }
 
   /* `svz_free ()' all callbacks left so far. */
-  if (NULL != (cb = (coserver_callback_t **) hash_values (coserver_hash)))
+  if (NULL != (cb = (coserver_callback_t **) svz_hash_values (coserver_hash)))
     {
-      for (n = 0; n < hash_size (coserver_hash); n++)
+      for (n = 0; n < svz_hash_size (coserver_hash); n++)
 	svz_free (cb[n]);
-      hash_xfree (cb);
+      svz_hash_xfree (cb);
     }
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "coserver: %d callback(s) left\n",
-	      hash_size (coserver_hash));
+	      svz_hash_size (coserver_hash));
 #endif
-  hash_destroy (coserver_hash);
+  svz_hash_destroy (coserver_hash);
   return 0;
 }
 
@@ -963,7 +963,7 @@ coserver_send_request (int type, char *request,
       cb->handle_result = handle_result;
       cb->arg[0] = arg0;
       cb->arg[1] = arg1;
-      hash_put (coserver_hash, util_itoa (coserver_hash_id), cb);
+      svz_hash_put (coserver_hash, util_itoa (coserver_hash_id), cb);
 
       coserver->busy++;
 #ifdef __MINGW32__

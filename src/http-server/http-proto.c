@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.58 2001/03/04 13:13:40 ela Exp $
+ * $Id: http-proto.c,v 1.59 2001/03/08 11:53:56 ela Exp $
  *
  */
 
@@ -54,16 +54,6 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
-#endif
-
-#if HAVE_SYS_SENDFILE_H
-# include <sys/sendfile.h>
-#endif
-#if defined (HAVE_SYS_UIO_H) && defined (__FreeBSD__)
-# include <sys/uio.h>
-#endif
-#if HAVE_NETINET_TCP_H
-# include <netinet/tcp.h>
 #endif
 
 #include "libserveez.h"
@@ -250,14 +240,14 @@ http_init (server_t *server)
   
   /* create content type hash */
   if (*(cfg->types))
-    types = hash_size (*(cfg->types));
+    types = svz_hash_size (*(cfg->types));
   
   if (http_read_types (cfg))
     {
       log_printf (LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
     }
   log_printf (LOG_NOTICE, "http: %d+%d known content types\n",
-	      types, hash_size (*(cfg->types)) - types);
+	      types, svz_hash_size (*(cfg->types)) - types);
 
   /* check user directory path, snip trailing '/' or '\' */
   if (!cfg->userdir || !strlen (cfg->userdir))
@@ -413,41 +403,6 @@ http_idle (socket_t sock)
 
 #if HAVE_SENDFILE
 /*
- * Enable and disable the TCP_CORK socket option. This is useful for 
- * performance reasons when using sendfile() with a prepending header
- * to deliver a http document.
- */
-static int
-http_tcp_cork (SOCKET sock, int set)
-{
-#ifdef TCP_CORK
-  int flags;
-
-  /* get current socket options */
-  if ((flags = fcntl (sock, F_GETFL)) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      return -1;
-    }
-
-  /* set / unset cork option */
-  if (set)
-    flags |= TCP_CORK;
-  else
-    flags &= ~TCP_CORK;
-
-  /* set new socket option */
-  if (fcntl (sock, F_SETFL, flags) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      return -1;
-    }
-
-#endif /* TCP_CORK */
-  return 0;
-}
-
-/*
  * This routine is using sendfile() to transport large file's content
  * to a network socket. It is replacing HTTP_DEFAULT_WRITE on systems where
  * this function is implemented. Furthermore you do not need to set
@@ -460,20 +415,8 @@ http_send_file (socket_t sock)
   int num_written;
 
   /* Try sending throughout file descriptor to socket. */
-#ifdef __FreeBSD__
-  int result;
-  off_t sbytes;
-  result = sendfile (sock->file_desc, sock->sock_desc, http->fileoffset,
-		     SOCK_MAX_WRITE, NULL, &sbytes, 0);
-  http->fileoffset += sbytes;
-  if (result != 0)
-    num_written = -1;
-  else
-    num_written = (int) sbytes;
-#else
-  num_written = sendfile (sock->sock_desc, sock->file_desc,
-			  &http->fileoffset, SOCK_MAX_WRITE);
-#endif
+  num_written = svz_sendfile (sock->sock_desc, sock->file_desc,
+			      &http->fileoffset, SOCK_MAX_WRITE);
 
   /* Some error occurred. */
   if (num_written < 0)
@@ -508,7 +451,7 @@ http_send_file (socket_t sock)
       sock->write_socket = http_default_write;
       sock->userflags &= ~HTTP_FLAG_SENDFILE;
       num_written = http_keep_alive (sock);
-      http_tcp_cork (sock->sock_desc, 0);
+      svz_tcp_cork (sock->sock_desc, 0);
     }
 
   return (num_written < 0) ? -1 : 0;
@@ -938,7 +881,7 @@ http_info_server (server_t *server)
 	   cfg->keepalive,
 	   cfg->default_type,
 	   cfg->type_file,
-	   hash_size (*(cfg->types)));
+	   svz_hash_size (*(cfg->types)));
 
   return info;
 }
@@ -949,7 +892,6 @@ http_info_server (server_t *server)
 char *
 http_info_client (void *http_cfg, socket_t sock)
 {
-  http_config_t *cfg = http_cfg;
   http_socket_t *http = sock->data;
   http_cache_t *cache = http->cache;
   static char info[80 * 32], text[80 * 8];
@@ -1315,7 +1257,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  sock->read_socket = NULL;
 	  sock->flags &= ~SOCK_FLAG_FILE;
 	  sock->userflags |= HTTP_FLAG_SENDFILE;
-	  http_tcp_cork (sock->sock_desc, 1);
+	  svz_tcp_cork (sock->sock_desc, 1);
 #else /* not HAVE_SENDFILE */
 	  sock->read_socket = http_file_read;
 #endif /* not HAVE_SENDFILE */
@@ -1323,7 +1265,6 @@ http_get_response (socket_t sock, char *request, int flags)
     }
 
   svz_free (file);
-
   return 0;
 }
 
