@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.9 2001/12/15 02:47:38 ela Exp $
+;; $Id: inetd.scm,v 1.10 2001/12/15 13:33:38 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -35,7 +35,8 @@
 (define verbose #f)
 
 ;; bind servers to this network address or device
-(define ip-address "*")
+;; (define ip-address "*")
+(define ip-address "any")
 
 ;; opens a configuration file, reads each line and uncomments them,
 ;; comments are marked with a leading '#', returns a list of non-empty
@@ -167,7 +168,7 @@
   (let* ((server '()) 
 	 (name "undefined")
 	 (threads (split-tuple (vector-ref line 3))))
-    (set! server (cons (cons "binary" (vector-ref line 5)) server))
+    (set! server (cons (cons "binary" (service-binary line)) server))
     (set! server (cons (cons "directory" directory) server))
     (set! server (cons (cons "user" (vector-ref line 4)) server))
     (set! server (cons (cons "do-fork" do-fork) server))
@@ -203,15 +204,25 @@
 ;; [number,version,protocol] at a network port system wide.  this 
 ;; information can be obtained issuing the `rpcinfo -p' command.
 (define (run-rpc-portmapper name number version protocol port)
-  (catch #t
-	 (lambda ()
-	   ;; should the previous setting be disabled ?
-	   (portmap number version)
-	   (portmap number version protocol port))
-	 (lambda key
-	   (display (string-append "inetd: portmapper for rpc service `" 
-				   name "' failed\n"))
-	   #f)))
+  (let ((result #f))
+    ;; should the previous setting really be disabled ?
+    (catch #t
+	   (lambda ()
+	     (portmap number version)
+	     (set! reult #t))
+	   (lambda key
+	     (display (string-append "inetd: portmapping for rpc service `" 
+				     name "' cannot be unregistered\n"))
+	     (set! result #f)))
+
+    (catch #t
+	   (lambda ()
+	     (portmap number version protocol port)
+	     #t)
+	   (lambda key
+	     (display (string-append "inetd: portmapper for rpc service `" 
+				     name "' failed\n"))
+	     #f))))
 
 ;; when the inetd determines a valid rpc line in its configuration file
 ;; this procedure is called.
@@ -263,15 +274,8 @@
 (define (lookup-service service-line)
   (catch #t
 	 (lambda ()
-	   (if (cdr (split-tuple (vector-ref service-line 2) #\/))
-	       (begin
-		 (display (string-append "inetd: rpc service `"
-					 (vector-ref service-line 0)
-					 "' not supported\n"))
-		 #f)
-	       (let ((service (getservbyname (vector-ref service-line 0) 
-					     (vector-ref service-line 2))))
-		 service)))
+	   (getservbyname (vector-ref service-line 0) 
+			  (vector-ref service-line 2)))
 	 (lambda key
 	   (display (string-append "inetd: no such service `"
 				   (vector-ref service-line 0)
@@ -279,6 +283,16 @@
 				   (vector-ref service-line 2)
 				   "'\n"))
 	   #f)))
+
+;; returns the name of the program which is meant to be started for a given
+;; service line
+(define (service-binary service)
+  (vector-ref service 5))
+
+;; this procedure returns #t if the service specified by the given service
+;; line is explicitely disabled by the keywork `disable'
+(define (service-disabled? service)
+  (equal? (service-binary service) "disable"))
 
 ;; creates a "protocol-port" text representation from a service vector 
 ;; returned by (lookup-service)
@@ -312,10 +326,11 @@
 	 (threads (split-tuple (vector-ref line 3))))
     (if service
 	(begin
-	  (if (equal? (vector-ref line 5) "internal")
+	  (if (equal? (service-binary line) "internal")
 	      (set! name (translate-internal-server line service))
 	      (begin
-		(set! server (cons (cons "binary" (vector-ref line 5)) server))
+		(set! server (cons (cons "binary" (service-binary line)) 
+				   server))
 		(set! server (cons (cons "directory" directory) server))
 		(set! server (cons (cons "user" (vector-ref line 4)) server))
 		(set! server (cons (cons "do-fork" do-fork) server))
@@ -377,23 +392,25 @@
 ;;   token, pass them to the port configuration and server builders and
 ;;   finally bind the server to the port.
 (define (create-bindings lines)
-  (for-each (lambda (line)
-	      (let ((service (string-split line 6)))
-		(if (rpc-service? service)
-		    (bind-rpc-service service)
-		    (begin
-		      (let* ((port (create-portcfg service))
-			     (server (create-server service)))
-			(if (and port server)
-			    (begin
-			      (if verbose
-				  (display (string-append "inetd: binding `"
-							  server
-							  "' to `"
-							  port
-							  "'\n")))
-			      (bind-server! port server))))))))
-	    lines))
+  (for-each 
+   (lambda (line)
+     (let ((service (string-split line 6)))
+       (if (not (service-disabled? service))
+	   (if (rpc-service? service)
+	       (bind-rpc-service service)
+	       (begin
+		 (let* ((port (create-portcfg service))
+			(server (create-server service)))
+		   (if (and port server)
+		       (begin
+			 (if verbose
+			     (display (string-append "inetd: binding `"
+						     server
+						     "' to `"
+						     port
+						     "'\n")))
+			 (bind-server! port server)))))))))
+   lines))
 
 ;; main program entry point
 (define (inetd-main)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.30 2001/12/15 02:47:38 ela Exp $
+ * $Id: portcfg.c,v 1.31 2001/12/15 13:33:38 ela Exp $
  *
  */
 
@@ -455,6 +455,10 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
 
   if ((ifc = svz_interface_search (str)) != NULL)
     {
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "`%s' is %s\n", ifc->description, 
+	       svz_inet_ntoa (ifc->ipaddr));
+#endif
       addr->sin_addr.s_addr = ifc->ipaddr;
       return 0;
     }
@@ -490,6 +494,11 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       else
 	{
 	  err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
+	  if (err)
+	    {
+	      svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+		       this->name, this->tcp_ipaddr);
+	    }
 	}
       this->tcp_addr.sin_port = htons (this->tcp_port);
       if (this->tcp_backlog > SOMAXCONN)
@@ -514,15 +523,30 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       else
 	{
 	  err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
+	  if (err)
+	    {
+	      svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+		       this->name, this->udp_ipaddr);
+	    }
 	}
       this->udp_addr.sin_port = htons (this->udp_port);
       break;
     case PROTO_ICMP:
       err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);
+      if (err)
+	{
+	  svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+		   this->name, this->icmp_ipaddr);
+	}
       this->icmp_addr.sin_family = AF_INET;
       break;
     case PROTO_RAW:
       err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
+      if (err)
+	{
+	  svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+		   this->name, this->raw_ipaddr);
+	}
       this->raw_addr.sin_family = AF_INET;
       break;
       /* The pipe protocol needs a check for the validity of the permissions,

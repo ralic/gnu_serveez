@@ -1,5 +1,8 @@
 2001-12-15  [ Ela ]  <ela@lkcc.org>
 
+	* prog-server/prog-server.c (prog_read_sock_drop): Dropping
+	unread data on failed ICMP and UDP sockets.
+
 	* guile.c (guile_define_port): Checking for network port 
 	range (0 .. 65535).
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.9 2001/12/13 18:00:01 ela Exp $
+ * $Id: prog-server.c,v 1.10 2001/12/15 13:33:38 ela Exp $
  *
  */
 
@@ -250,6 +250,26 @@ prog_child_died (svz_socket_t *sock)
 }
 
 /*
+ * This function can be used to dropped any pending data on the socket
+ * structure @var{sock}. It is a read callback applicable to UDP, ICMP and 
+ * RAW sockets.
+ */
+static int
+prog_read_sock_drop (svz_socket_t *sock)
+{
+  char buffer[UDP_MSG_SIZE];
+  int ret;
+
+  if ((ret = recv (sock->sock_desc, buffer, UDP_MSG_SIZE, 0)) < 0)
+    return -1;
+#if ENABLE_DEBUG
+  svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret, 
+	   sock->proto & PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
+#endif
+  return 0;
+}
+
+/*
  * This is the @code{read_socket} callback for UDP and ICMP versions of the 
  * server. It does not read anything from the underlying socket in order to
  * pass the data directly to the child program.
@@ -261,7 +281,10 @@ prog_read_socket (svz_socket_t *sock)
 
   /* Passthrough the connection. */
   if (prog_passthrough (sock))
-    return 0; /* FIXME: Call recv() to dequeue the request. */
+    {
+      prog_read_sock_drop (sock);
+      return 0;
+    }
 
   if (cfg->single_threaded)
     {

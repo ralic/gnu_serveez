@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.5 2001/11/27 14:21:33 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.6 2001/12/15 13:33:38 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -90,11 +90,18 @@ function create_loc(offset)
 # process variable definitions
 function handle_variable(line)
 {
+    def = ""
     if (line ~ /^ / || line ~ /^\t/) { return }
-    if (line ~ /[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/) {
+    if (line ~ /[ ]+[a-zA-Z0-9_\*\"\[\]{},= ]+[ ]*[;=]$/) {
 	gsub(/ [ ]+/, " ", line)
 	gsub(/\t/, " ", line)
 	gsub(/\;/, "", line)
+	if (index(line, "{")) {
+	  def = substr(line, index(line, "{"), index(line, "}"))
+	  gsub(/[ ]*{.+}[ ]*/, "", line)
+	  gsub(/{/, "@{", def)
+	  gsub(/}/, "@}", def)
+	}
 	gsub(/[ ]*=$/, "", line)
 	gsub(/\[[A-Za-z0-9_]*\]/, "", line)
 	if (index(line, "/*")) {
@@ -107,9 +114,8 @@ function handle_variable(line)
 	    len++
 	    if (el[i] == "static") { return }
 	}
-	def = ""
 	if (el[len - 2] == "=") { 
-	    def = el[len - 1]
+	    if (def == "") { def = el[len - 1] }
 	    len -= 2
 	}
 	var = el[len - 1]
@@ -193,7 +199,7 @@ function handle_macro(line)
 }
 
 # variable declarations
-/^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/
+/^[a-zA-Z0-9_]+[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/
 {
     handle_variable($0)
 }
@@ -217,7 +223,7 @@ function handle_macro(line)
     while (found == 0) {
 
         # handle variable definitions
-	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/) {
+	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"\[\]{},= ]+[ ]*[;=]$/) {
 	    create_loc(0)
 	    handle_variable(ret)
 	    next

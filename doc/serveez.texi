@@ -341,7 +341,7 @@ set. Every port has a unique name you assign to it. The name of the port is
 later used to bind servers to it.
 
 The following examples show how you setup different types of port 
-configurations. You start to define such a port using the guile function
+configurations. You start to define such a port using the Guile function
 @code{(define-port!)}. The first argument to this functions specifies the
 name of the port configuration. The remaining argument describes the
 port in detail.
@@ -350,8 +350,8 @@ port in detail.
 Definition of a TCP port configuration with the name "foo-tcp-port". The
 enhanced settings are all optional including the @var{ipaddr} property which
 defaults to @samp{*} if not given. The @var{ipaddr} item can contain any
-form of a dotted decimal internet address, a @samp{*} or a interface 
-description which you can get by running @samp{./serveez -i}.
+form of a dotted decimal internet address, a @samp{*}, @samp{any} or an 
+interface description which you can get by running @samp{./serveez -i}.
 
 @example
 (define-port! 'foo-tcp-port '(
