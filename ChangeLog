@@ -1,3 +1,10 @@
+2001-09-17  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (MAKEINFO): Changed sed reg-expression for 
+	parsing the correct version number.
+
+	* configure.in: Updated to `libtool 1.4.2'.
+
 2001-09-15  [ Ela ]  <ela@lkcc.org>
 
 	* BUGS: Removed bug id 0015. Declared the named pipe interface
