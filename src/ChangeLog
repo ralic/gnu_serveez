@@ -1,3 +1,8 @@
+2002-05-29  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/icecast-server.scm: Recurses into sub
+	directories while collecting mp3 files.
+
 2002-05-24  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/icecast-server.scm (icecast-server): New

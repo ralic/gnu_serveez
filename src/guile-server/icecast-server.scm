@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.1 2002/05/24 12:51:13 ela Exp $
+;; $Id: icecast-server.scm,v 1.2 2002/05/29 19:49:55 ela Exp $
 ;;
 
 ;; load convenience file
@@ -27,45 +27,79 @@
 
 ;; server initialisation
 (define (icecast-init server)
-  (let ((dir '()))
-
-    ;; open directory
-    (catch #t
-	   (lambda ()
-	     (set! dir (opendir (svz:server:config-ref server "directory"))))
-	   (lambda args
-	     (println "icecast: no such directory `"
-		      (svz:server:config-ref server "directory") "'")
-	     ))
-
-    ;; collect files
-    (if (directory-stream? dir)
-	(let* ((files '()))
-	  (let loop ((file (readdir dir)))
-	    (if (not (eof-object? file))
-		(begin
-		  ;; filter MP3 files
-		  (if (and (> (string-length file) 3)
-			   (equal? (substring file (- (string-length file) 3))
-				   "mp3"))
-			   (set! files (cons file files)))
-		  (loop (readdir dir)))))
-
-	  ;; close directory
-	  (closedir dir)
+  (let* ((files '()) 
+	 (directory (svz:server:config-ref server "directory")))
+    ;; check directory
+    (if (not (icecast-is-directory? directory))
+	(begin
+	  (println "icecast: no such directory `" directory "'")
+	  -1)
+	(begin
+	  ;; collect files
+	  (set! files (icecast-find-files directory files))
 
 	  ;; state loaded files
 	  (if (<= (length files) 0)
 	      (begin
-		(println "icecast: no files found in `" 
-			 (svz:server:config-ref server "directory") "'")
+		(println "icecast: no files found in `" directory "'")
 		-1)
 	      (begin
 		(println "icecast: " (length files) " file(s) found in `" 
-			 (svz:server:config-ref server "directory") "'")
+			 directory "'")
 		(svz:server:state-set! server "files" files)
 		0)))
-	-1)))
+	)))
+
+;; checks whether given string argument a directory
+(define (icecast-is-directory? directory)
+  (catch 'system-error
+	 (lambda ()
+	   (eq? (stat:type (stat directory)) 'directory))
+	 (lambda args
+	   #f)))
+
+;; checks whether given string argument can be opened
+(define (icecast-opendir directory)
+  (catch 'system-error
+	 (lambda ()
+	   (opendir directory))
+	 (lambda args
+	   (println "icecast: skipping directory `" directory "'")
+	   #f)))
+
+;; checks whether given string is a real sub directory
+(define (icecast-is-subdirectory? directory base)
+  (and (icecast-is-directory? directory)
+       (not (equal? base "."))
+       (not (equal? base ".."))))
+
+;; check if given file is a mp3 stream
+(define (icecast-is-file? file)
+  (and (> (string-length file) 4)
+       (or (equal? (substring file (- (string-length file) 4)) ".mp3")
+	   (equal? (substring file (- (string-length file) 4)) ".MP3"))))
+
+;; recurse into directories and find mp3 files
+(define (icecast-find-files directory files)
+  ;; open directory
+  (let ((dir (icecast-opendir directory)))
+    ;; collect files
+    (if dir
+	(begin
+	  (let loop ((file (readdir dir)))
+	    (if (not (eof-object? file))
+		(let ((full (string-append directory "/" file)))
+		  (if (icecast-is-subdirectory? full file)
+		      ;; recurse into directories
+		      (set! files (icecast-find-files full files))
+		      ;; filter MP3 files
+		      (if (icecast-is-file? file)
+			  (set! files (cons full files))))
+		  (loop (readdir dir)))))
+
+	  ;; close directory
+	  (closedir dir))))
+  files)
 
 ;; protocol detection
 (define (icecast-detect-proto server sock)
@@ -95,7 +129,7 @@
     (svz:sock:data sock data)
 
     ;; resize send buffer
-    (svz:sock:send-buffer-size sock 
+    (svz:sock:send-buffer-size sock
 			       (svz:server:config-ref server "buffer-size"))
 
     ;; get first file
@@ -141,8 +175,6 @@
     (icecast-close-file data)
 
     ;; open next file
-    (set! file (string-append (svz:server:config-ref server "directory") 
-			      "/" file))
     (catch #t
 	   (lambda ()
 	     (set! port (open-file file "rb")))
