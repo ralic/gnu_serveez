@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: libserveez.h,v 1.11 2001/07/06 22:49:06 ela Exp $
+ * $Id: libserveez.h,v 1.12 2001/09/08 16:19:06 ela Exp $
  *
  */
 
@@ -28,6 +28,7 @@
 #include "libserveez/boot.h"
 #include "libserveez/alloc.h"
 #include "libserveez/snprintf.h"
+#include "libserveez/array.h"
 #include "libserveez/hash.h"
 #include "libserveez/sparsevec.h"
 #include "libserveez/vector.h"

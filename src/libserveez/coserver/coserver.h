@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.7 2001/07/31 10:15:01 ela Exp $
+ * $Id: coserver.h,v 1.8 2001/09/08 16:19:06 ela Exp $
  *
  */
 
@@ -168,5 +168,7 @@ SERVEEZ_API void svz_coserver_ident_invoke __P ((svz_socket_t *,
   svz_coserver_ident_invoke (sock, (svz_coserver_handle_result_t) cb,     \
                              (svz_coserver_arg_t) ((unsigned long) arg0), \
 			     (svz_coserver_arg_t) ((unsigned long) arg1))
+
+__END_DECLS
 
 #endif /* not __COSERVER_H__ */

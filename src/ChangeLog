@@ -1,3 +1,7 @@
+2001-09-08  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez.h: Including `array.h' explicitly.
+
 2001-09-07  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_sock_floodprotect): New setter and getter

@@ -1,3 +1,7 @@
+2001-09-08  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.h: Added missing `__END_DECLS'.
+
 2001-09-07  [ Ela ]  <ela@lkcc.org>
 
 	* util.c (svz_syserror): Do not let the system allocate error
