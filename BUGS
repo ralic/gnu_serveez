@@ -24,6 +24,13 @@
 This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
+Bug:	     B0010
+From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+State:       unfixed
+Date:	     2000-08-19
+Description: ident coserver dies because of queue overrun. thus the
+	     socket references cannot get decreased.
+
 Bug:	     B0009
 From:	     ela <stefan@linux.f1.fhtw-berlin.de>
 State:       unfixed
