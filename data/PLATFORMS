@@ -3,7 +3,18 @@ canonical host name          compiler  serveez results
   (tools versions)                     release
 -------------------------------------------------------
 
+i386-unknown-freebsd4.4		gcc	0.1.2	  ok
 i586-pc-linux-gnu		gcc	0.1.2	  ok
 i586-pc-cygwin			gcc	0.1.2	  ok
 i386-pc-mingw32			gcc	0.1.2	  ok
 i386-pc-mingw32			cl	0.1.2	  ok
+i686-pc-linux-gnu		gcc	0.1.2	  ok
+ia64-unknown-linux		gcc	0.1.2	  ok, buggy guile 1.4
+alphaev67-unknown-linux-gnu	gcc	0.1.2	  ok
+powerpc-apple-darwin1.4		cc	0.1.2	  libtool, _environ, static
+powerpc-unknown-linux-gnu	gcc	0.1.2	  ok
+sparc64-unknown-linux-gnu	gcc	0.1.2	  ok
+sparc-sun-solaris2.8		gcc	0.1.2	  ok
+alphaev56-dec-osf4.0g		cc	0.1.2	  ok
+alphaev6-dec-osf5.1		cc	0.1.2	  ok
+alphaev67-dec-osf5.1		cc	0.1.2	  ok
