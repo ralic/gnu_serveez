@@ -28,6 +28,7 @@ files.
 Version 0.1.5
 -------------
 
+ * configurable types available through (instantiate-config-type!)
  * bugfixes in core API and Guile interface
  * minor enhancements of the core API and the Guile interface
  * updated configure and build system to autoconf 2.57, automake 1.7.5 
