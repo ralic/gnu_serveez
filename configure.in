@@ -706,7 +706,7 @@ dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
 
-AC_CHECK_FUNC(mkfifo)
+AC_CHECK_FUNCS(mkfifo)
 AC_MSG_CHECKING([for host system])
 host_sys="`uname -s`"
 if test x$host_sys = x; then
@@ -857,8 +857,8 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Check for existance of some useful functions.
 dnl
-AC_CHECK_FUNCS(vsprintf _vsprintf)
-if test $ac_cv_func_vsprintf = yes -o $ac_cv_func__vsprintf = yes; then
+AC_CHECK_FUNCS(vsprintf)
+if test $ac_cv_func_vsprintf = yes;  then
   AC_DEFINE(HAVE_VSPRINTF, 1, [Define if you have the vsprintf function.])
 else
   AC_MSG_ERROR([cannot compile without vsprintf])
@@ -870,14 +870,14 @@ dnl Some Unices (e.g. Dec Unix) do not implement snprintf().
 dnl
 AC_CHECK_FUNCS(snprintf _snprintf)
 if test $ac_cv_func_snprintf = yes -o $ac_cv_func__snprintf = yes; then
-  AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the snprintf function.])
+  AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the (_)snprintf function.])
 else
   AC_MSG_WARN([using function vsnprintf instead])
 fi
 
 AC_CHECK_FUNCS(vsnprintf _vsnprintf)
 if test $ac_cv_func_vsnprintf = yes -o $ac_cv_func__vsnprintf = yes; then
-  AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the vsnprintf function.])
+  AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the (_)vsnprintf function.])
 else
   AC_MSG_WARN([using unsafe function vsprintf instead])
 fi

@@ -19,15 +19,21 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ * $Id: foo-proto.h,v 1.3 2000/06/16 21:02:28 ela Exp $
  *
  */
 
 #ifndef __FOO_SERVER_H__
 #define __FOO_SERVER_H__
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#define _GNU_SOURCE
 #include "hash.h"
 #include "server.h"
+#include "socket.h"
 
 /*
  * Protocol specific configuration
@@ -48,12 +54,12 @@ struct foo_config
 int foo_detect_proto(struct foo_config *cfg, socket_t sock);
 int foo_connect_socket(struct foo_config *cfg, socket_t sock);
 */
-int foo_detect_proto(void *cfg, socket_t sock);
-int foo_connect_socket(void *cfg, socket_t sock);
-int foo_init(struct server *server);
-int foo_global_init(void);
-int foo_finalize(struct server *server);
-int foo_global_finalize(void);
+int foo_detect_proto (void *cfg, socket_t sock);
+int foo_connect_socket (void *cfg, socket_t sock);
+int foo_init (struct server *server);
+int foo_global_init (void);
+int foo_finalize (struct server *server);
+int foo_global_finalize (void);
 
 
 extern struct server_definition foo_server_definition;

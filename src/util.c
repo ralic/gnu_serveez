@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.7 2000/06/16 15:36:15 ela Exp $
+ * $Id: util.c,v 1.8 2000/06/16 21:02:28 ela Exp $
  *
  */
 
@@ -35,23 +35,22 @@
 #include <time.h>
 #include <errno.h>
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <unistd.h>
+#ifndef __MINGW32__
+# include <netdb.h>
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <sys/ioctl.h>
+# include <net/if.h>
+# include <unistd.h>
+#endif
 
-/* Solaris: */
+/* Solaris, IRIX */
 #if HAVE_SYS_SOCKIO_H
 # include <sys/sockio.h>
 #endif
 
 #ifdef __MINGW32__
 # include <winsock.h>
-#endif
-
-#ifndef __MINGW32__
-# include <netdb.h>
 #endif
 
 #include "snprintf.h"
@@ -456,7 +455,7 @@ util_inet_ntoa (unsigned long ip)
 /*
  * Print a list of all local interfaces if we are able to do so.
  */
-#if ENABLE_IFLIST
+#if ENABLE_IFLIST && ! defined(__MINGW32__)
 
 void
 list_local_interfaces (void)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.3 2000/06/16 15:36:15 ela Exp $
+ * $Id: snprintf.h,v 1.4 2000/06/16 21:02:28 ela Exp $
  *
  */
 
@@ -41,8 +41,15 @@
 /* vsnprintf() */
 
 #ifdef __MINGW32__
-#define vsnprintf _vsnprintf
-#define snprintf _snprintf
+/*
+ * Both of these functions are actually implemented but not within the
+ * B20.1 release of CygWin, but in the latest. Soo we define them here
+ * ourselves.
+ */
+int _snprintf (char *, size_t, const char *, ...);
+int _vsnprintf (char *, size_t, const char *, va_list);
+# define vsnprintf _vsnprintf
+# define snprintf _snprintf
 #endif
 
 #ifndef HAVE_VSNPRINTF
@@ -52,7 +59,7 @@
 /* snprintf() */
 
 #ifndef HAVE_SNPRINTF
-int snprintf(char *, size_t, const char *, ...);
+int snprintf (char *, size_t, const char *, ...);
 #endif
 
 #endif /* not __SNPRINTF_H__ */

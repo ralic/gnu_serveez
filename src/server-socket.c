@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.5 2000/06/15 11:54:52 ela Exp $
+ * $Id: server-socket.c,v 1.6 2000/06/16 21:02:28 ela Exp $
  *
  */
 
@@ -509,6 +509,7 @@ server_accept_pipe (socket_t server_sock)
   if (!server_sock->recv_pipe || !server_sock->send_pipe)
     return 0;
 
+#if HAVE_MKFIFO
   /* 
    * Test if both of the named pipes have been created yet. 
    * If not then create them locally.
@@ -572,6 +573,12 @@ server_accept_pipe (socket_t server_sock)
   sock_enqueue (sock);
 
   server_sock->flags |= SOCK_FLAG_INITED;
+
+#else /* not HAVE_MKFIFO */
+
+  return 0;
+
+#endif /* not HAVE_MKFIFO */
   
   return -1;
 }

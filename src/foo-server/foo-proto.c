@@ -19,12 +19,21 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.4 2000/06/14 19:22:20 ela Exp $
+ * $Id: foo-proto.c,v 1.5 2000/06/16 21:02:28 ela Exp $
  *
  */
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
+
+#ifdef __MINGW32__
+# include <winsock.h>
+#endif
 
 #include "util.h"
 #include "hash.h"
@@ -34,7 +43,8 @@
 #include "server-socket.h"
 #include "coserver/coserver.h"
 
-/* Packet spec for default_check_request
+/* 
+ * Packet specification for default_check_request.
  */
 char *foo_packet_delim = "\r\n";
 int foo_packet_delim_len = 2;

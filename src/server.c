@@ -19,13 +19,22 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.3 2000/06/15 11:54:52 ela Exp $
+ * $Id: server.c,v 1.4 2000/06/16 21:02:28 ela Exp $
  *
  */
 
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <libsizzle/libsizzle.h>
+
+#ifdef __MINGW32__
+# include <winsock.h>
+#endif
 
 #include "server.h"
 #include "hash.h"
