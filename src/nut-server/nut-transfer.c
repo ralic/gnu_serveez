@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.22 2000/12/10 12:26:38 ela Exp $
+ * $Id: nut-transfer.c,v 1.23 2000/12/29 12:16:57 ela Exp $
  *
  */
 
@@ -305,6 +305,13 @@ nut_disconnect_transfer (socket_t sock)
 	  if (unlink (transfer->file) == -1)
 	    log_printf (LOG_ERROR, "nut: unlink: %s\n", SYS_ERROR);
 	}
+      
+      /* FIXME: Send a push request ! */
+      if (sock->userflags & NUT_FLAG_DNLOAD)
+	{
+	  nut_send_push (sock->cfg, sock->data);
+	}
+
       xfree (transfer->file);
       xfree (transfer);
       sock->data = NULL;
