@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.7 2000/09/26 18:08:52 ela Exp $
+ * $Id: irc-core.h,v 1.8 2000/10/23 21:42:03 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@ typedef struct
   char request[MAX_NAME_LEN];    /* request (numeric or word) */
   
   /* 
-   * parameter list, seperated by space(s), initiated by ':' is last
+   * parameter list, separated by space(s), initiated by ':' is last
    * one also containing space(s) 
    */
   char para[MAX_PARAMS][MAX_MSG_LEN];

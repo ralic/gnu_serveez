@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.16 2000/09/27 14:31:27 ela Exp $
+ * $Id: irc-core.c,v 1.17 2000/10/23 21:42:03 ela Exp $
  *
  */
 
@@ -239,7 +239,7 @@ irc_check_request (socket_t sock)
 
 /*
  * Parse the 'nr'th string (IRC targets could be channels, nicks, etc.) 
- * by a given IRC parameter string. All these strings should be seperated 
+ * by a given IRC parameter string. All these strings should be separated 
  * by colons (',').
  */
 char *
@@ -254,7 +254,7 @@ irc_get_target (char *para, int nr)
   for (n = 0; *p && n < nr; n++)
     while (*p && *p != ',') p++;
   
-  /* got a key (first or any ',' seperated) */
+  /* got a key (first or any ',' separated) */
   if (*p == ',' || p == para)
     {
       n = 0;

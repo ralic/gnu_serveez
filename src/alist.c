@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.5 2000/10/22 19:11:03 ela Exp $
+ * $Id: alist.c,v 1.6 2000/10/23 21:42:02 ela Exp $
  *
  */
 
@@ -42,6 +42,8 @@
 #define array_range(ARRAY, IDX) \
   (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY->size)
 
+#define DEVEL 0
+
 /*
  * Create and initialize a new array chunk at a given index offset.
  */
@@ -57,7 +59,7 @@ alist_create_array (unsigned offset)
 }
 
 /*
- * Put a given array chunk into the array list.
+ * Put the given array chunk INSERT into the array list LIST.
  */
 static void
 alist_hook (alist_t *list, array_t *insert)
@@ -65,28 +67,60 @@ alist_hook (alist_t *list, array_t *insert)
   array_t *array, *next;
 
   /* find the appropiate array chunk */
-  for (array = list->array; array; array = array->next)
+  for (array = list->first; array; array = array->next)
     {
       if (insert->offset > array->offset)
 	{
 	  next = array->next;
+	  /* really insert the chunk */
 	  if (next && insert->offset <= next->offset)
 	    {
-	      insert->next = array->next;
+	      insert->next = next;
+	      insert->prev = array;
 	      array->next = insert;
+	      next->prev = insert;
 	      return;
 	    }
+	  /* append at the end of chunks */
 	  else if (!next)
 	    {
 	      array->next = insert;
+	      insert->prev = array;
+	      list->last = insert;
 	      return;
 	    }
 	}
     }
 
-  /* no chunk found, thus `insert' gets the first chunk */
-  insert->next = list->array;
-  list->array = insert;
+  /* no chunk found, thus INSERT gets the first chunk */
+  insert->next = list->first;
+  if (list->first) list->first->prev = insert;
+  list->first = insert;
+  if (!list->last) list->last = insert;
+}
+
+/*
+ * Cut the given chunk off the array list chain.
+ */
+static void
+alist_unhook (alist_t *list, array_t *delete)
+{
+  array_t *array;
+
+  if (list->first == delete)
+    {
+      list->first = delete->next;
+      if (list->first) list->first->prev = NULL;
+      return;
+    } 
+  if (list->last == delete)
+    {
+      list->last = delete->prev;
+      if (list->last) list->last->next = NULL;
+      return;
+    }
+  delete->prev->next = delete->next;
+  delete->next->prev = delete->prev;
 }
 
 /*
@@ -98,13 +132,16 @@ alist_analyse (alist_t *list)
   unsigned int n;
   array_t *array;
 
-  for (n = 0, array = list->array; array; n++, array = array->next)
+  for (n = 0, array = list->first; array; n++, array = array->next)
     {
       fprintf (stdout, 
-	       "chunk %06u, offset: %06u, size: %02u, fill: 0x%08X\n",
-	       n + 1, array->offset, array->size, array->fill);
+	       "chunk %06u at %p, ofs: %06u, size: %02u, fill: %08X, "
+	       "prev: %p, next %p\n",
+	       n + 1, array, array->offset, array->size, array->fill, 
+	       array->prev, array->next);
     }
-  fprintf (stdout, "length: %u, size: %u\n", list->length, list->size);
+  fprintf (stdout, "length: %u, size: %u, first: %p, last: %p\n", 
+	   list->length, list->size, list->first, list->last);
 }
 
 /*
@@ -113,21 +150,42 @@ alist_analyse (alist_t *list)
 int
 alist_validate (alist_t *list)
 {
-  array_t *array, *next;
+  array_t *array, *next, *prev;
   unsigned ok = 1, n, bits;
 
   assert (list);
-  for (n = 0, array = list->array; array; n++, array = array->next)
+  for (n = 0, array = list->first; array; n++, array = array->next)
     {
       next = array->next;
-      if (next && array->offset + array->size > next->offset)
+      prev = array->prev;
+
+      /* check chain first */
+      if ((!next && array != list->last) || (!prev && array != list->first))
 	{
+	  fprintf (stdout, "invalid last or first\n");
 	  ok = 0;
 	  break;
 	}
+      if ((next && next->prev != array) || (prev && prev->next != array))
+	{
+	  fprintf (stdout, "invalid next or prev\n");
+	  ok = 0;
+	  break;
+	}
+
+      /* check chunk size and offset */
+      if (next && array->offset + array->size > next->offset)
+	{
+	  fprintf (stdout, "invalid size or offset\n");
+	  ok = 0;
+	  break;
+	}
+
+      /* check array chunk fill */
       bits = (1 << array->size) - 1;
       if (array->fill & ~bits || !(array->fill & ((bits + 1) >> 1)))
 	{
+	  fprintf (stdout, "invalid chunk fill\n");
 	  ok = 0;
 	  break;
 	}
@@ -171,25 +229,23 @@ alist_destroy (alist_t *list)
 void
 alist_add (alist_t *list, void *value)
 {
-  array_t *array = list->array;
-  array_t *last = NULL;
+  array_t *array, *last = list->last;
 
-  /* find last array chunk */
-  while (array)
-    {
-      last = array;
-      array = array->next;
-    }
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
 
-  /* append a new chunk if necessary */
+  /* append a chunk if necessary */
   if (!last || last->size == ARRAY_SIZE)
     {
       array = alist_create_array (last ? last->offset + ARRAY_SIZE : 0);
       if (last)
-	last->next = array;
-      else
-	list->array = array;
-      last = array;
+	{
+	  last->next = array;
+	  array->prev = list->last;
+	}
+      else list->first = array;
+      list->last = last = array;
     }
 
   /* append the given value */
@@ -197,6 +253,7 @@ alist_add (alist_t *list, void *value)
   last->fill |= (1 << last->size);
   last->size++;
   
+  /* adjust array list properties */
   list->length++;
   list->size++;
 }
@@ -207,11 +264,19 @@ alist_add (alist_t *list, void *value)
 void
 alist_clear (alist_t *list)
 {
-  array_t *array = list->array;
-  array_t *next = array->next;
+  array_t *next, *array = list->first;
   unsigned length = list->length;
 
-  /* go through all array chunks and release them */
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
+  /* return here if there is nothing to do */
+  if (!array || !length)
+    return;
+
+  /* go through all array chunks and release these */
+  length -= array->offset;
   while (array)
     {
       next = array->next;
@@ -221,8 +286,9 @@ alist_clear (alist_t *list)
       array = next;
     }
 
-  list->array = NULL;
+  /* cleanup array list */
   assert (length == 0);
+  list->last = list->first = NULL;
   list->length = 0;
   list->size = 0;
 }
@@ -233,8 +299,12 @@ alist_clear (alist_t *list)
 unsigned
 alist_contains (alist_t *list, void *value)
 {
-  array_t *array = list->array;
+  array_t *array = list->first;
   unsigned n, fill, found = 0;
+
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
 
   while (array)
     {
@@ -257,20 +327,33 @@ alist_get (alist_t *list, unsigned index)
 {
   array_t *array;
 
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
+  /* return here if there is no such index at all */
   if (index >= list->length)
     return NULL;
 
-  for (array = list->array; array; array = array->next)
+  /* start searching at first or last chunk ? */
+  if (index > list->length >> 1)
     {
-      if (array_range (array, index))
-	{
-	  index -= array->offset;
-	  if (array->fill & (1 << index))
-	    return array->value[index];
-	  else
-	    return NULL;
-	}
+      for (array = list->last; array; array = array->prev)
+	if (array_range (array, index))
+	  break;
     }
+  else
+    {
+      for (array = list->first; array; array = array->next)
+	if (array_range (array, index))
+	  break;
+    }
+
+  /* evaluate seeked array chunk */
+  if (!array) return NULL;
+  index -= array->offset;
+  if (array->fill & (1 << index))
+    return array->value[index];
   return NULL;
 }
 
@@ -281,8 +364,12 @@ alist_get (alist_t *list, unsigned index)
 int
 alist_index (alist_t *list, void *value)
 {
-  array_t *array = list->array;
+  array_t *array = list->first;
   unsigned n, fill;
+
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
 
   while (array)
     {
@@ -302,67 +389,76 @@ alist_index (alist_t *list, void *value)
 void *
 alist_delete (alist_t *list, unsigned index)
 {
-  array_t *array, *prev;
+  array_t *array, *next;
   void *value = NULL;
-  unsigned bit, n, idx, fill;
+  unsigned bit, idx, fill;
 
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
+  /* return if index is invalid */
   if (index >= list->length)
     return NULL;
 
-  for (array = prev = list->array; array; prev = array, array = array->next)
+  /* start at first or last array chunk ? */
+  if (index > list->length >> 1)
     {
-      /* can the value be found in this chunk ? */
-      if (array_range (array, index))
-	{
-	  idx = index - array->offset;
-
-	  /* is there any value at the given index ? */
-	  if (!(array->fill & (1 << idx)))
-	    return NULL;
-
-	  /* remove this value */
-	  array->fill &= ~(1 << idx);
-	  list->size--;
-	  list->length--;
-	  array->size--;
-	  value = array->value[idx];
-
-	  /* release this array chunk if possible */
-	  if (array->fill == 0)
-	    {
-	      assert (array->size == 0);
-	      /* break here if the list is empty */
-	      if (list->size == 0)
-		{
-		  xfree (array);
-		  list->array = array = NULL;
-		  break;
-		}
-	      /* rearrange array list */
-	      if (array != prev) prev->next = array->next;
-	      else               list->array = array->next;
-	      xfree (array);
-	      array = prev->next;
-	      break;
-	    }
-
-	  /* shuffle value data if necessary */
-	  if (idx < array->size)
-	    {
-	      /* delete a bit */
-	      for (fill = n = 0, bit = 1; n < array->size; bit <<= 1, n++)
-		{
-		  if (n < idx) fill |= (array->fill & bit);
-		  else         fill |= (array->fill >> 1) & bit;
-		}
-	      array->fill = fill;
-	      
-	      /* delete a value */
-	      memmove (&array->value[idx], &array->value[idx+1],
-		       (array->size - idx) * sizeof (void *));
-	    }
+      for (array = list->last; array; array = array->prev)
+	if (array_range (array, index))
 	  break;
+    }
+  else
+    {
+      for (array = list->first; array; array = array->next)
+	if (array_range (array, index))
+	  break;
+    }
+
+  /* evaluate seeked array chunk */
+  if (!array) return NULL;
+  idx = index - array->offset;
+
+  /* is there any value at the given index ? */
+  if (!(array->fill & (1 << idx)))
+    return NULL;
+
+  /* delete this value */
+  array->fill &= ~(1 << idx);
+  list->size--;
+  list->length--;
+  array->size--;
+  value = array->value[idx];
+
+  /* release this array chunk if possible */
+  if (array->size == 0)
+    {
+      /* break here if the list is empty */
+      if (list->size == 0)
+	{
+	  xfree (array);
+	  list->last = list->first = array = NULL;
+	  return value;
 	}
+
+      /* rearrange array list */
+      alist_unhook (list, array);
+      next = array->next;
+      xfree (array);
+      array = next;
+    }
+
+  /* shuffle value data if necessary */
+  else if (idx < array->size)
+    {
+      /* delete a bit */
+      bit = (1 << idx) - 1;
+      fill = array->fill;
+      array->fill = (fill & bit) | ((fill >> 1) & ~bit);
+	      
+      /* delete a value */
+      memmove (&array->value[idx], &array->value[idx+1],
+	       (array->size - idx) * sizeof (void *));
     }
 
   /* reduce array index offset by one */
@@ -384,6 +480,10 @@ alist_delete (alist_t *list, unsigned index)
 void
 alist_delete_range (alist_t *list, unsigned from, unsigned to)
 {
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
 }
 
 /*
@@ -393,35 +493,50 @@ alist_delete_range (alist_t *list, unsigned from, unsigned to)
 void *
 alist_set (alist_t *list, unsigned index, void *value)
 {
-  array_t *array, *next, *prev;
+  array_t *array, *next;
   void *replace = NULL;
   unsigned idx;
 
-  for (prev = array = list->array; array; prev = array, array = array->next)
-    {
-      /* needs the value to be set in this chunk ? */
-      if (array_range_all (array, index))
-	{
-	  idx = index - array->offset;
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
 
-	  /* already set ? */
-	  if (array->fill & (1 << idx))
-	    {
-	      replace = array->value[idx];
-	      array->value[idx] = value;
-	      return replace;
-	    }
-	  /* no, just place the value there */
-	  else if (array->next == NULL || idx < array->size)
-	    {
-	      array->fill |= (1 << idx);
-	      if (idx >= array->size) array->size = idx + 1;
-	      list->size++;
-	      if (list->length < array->offset + array->size)
-		list->length = array->offset + array->size;
-	      array->value[idx] = value;
-	      return replace;
-	    }
+  /* start at first or last array chunk ? */
+  if (index > list->length >> 1)
+    {
+      for (array = list->last; array; array = array->prev)
+	if (array_range_all (array, index))
+	  break;
+    }
+  else
+    {
+      for (array = list->first; array; array = array->next)
+	if (array_range_all (array, index))
+	  break;
+    }
+
+  /* found a valid array chunk ? */
+  if (array)
+    {
+      idx = index - array->offset;
+
+      /* already set ? */
+      if (array->fill & (1 << idx))
+	{
+	  replace = array->value[idx];
+	  array->value[idx] = value;
+	  return replace;
+	}
+      /* no, just place the value there */
+      else if (array->next == NULL || idx < array->size)
+	{
+	  array->fill |= (1 << idx);
+	  if (idx >= array->size) array->size = idx + 1;
+	  list->size++;
+	  if (list->length < array->offset + array->size)
+	    list->length = array->offset + array->size;
+	  array->value[idx] = value;
+	  return replace;
 	}
     }
 
@@ -465,53 +580,68 @@ void
 alist_insert (alist_t *list, unsigned index, void *value)
 {
   array_t *array, *next;
-  unsigned idx, fill, n, bit, inserted = 0;
+  unsigned idx, fill, bit;
 
-  /* search through existing array chunks */
-  for (array = list->array; array; array = array->next)
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
+  /* start at first or last array chunk ? */
+  if (index > list->length >> 1)
     {
-      if (array_range_all (array, index))
+      for (array = list->last; array; array = array->prev)
+	if (array_range_all (array, index))
+	  break;
+    }
+  else
+    {
+      /* search through existing array chunks */
+      for (array = list->first; array; array = array->next)
+	if (array_range_all (array, index))
+	  {
+	    if (array->next && array_range_all (array->next, index))
+	      continue;
+	    break;
+	  }
+    }
+
+  /* found a valid array chunk ? */
+  if (array)
+    {
+      idx = index - array->offset;
+
+      /* can the value be inserted here ? */
+      if (array->size < ARRAY_SIZE)
 	{
-	  next = array->next;
-	  if (next && array_range_all (next, index))
-	    continue;
+	  /* adjust array chunk size */
+	  array->size++;
+	  if (idx >= array->size) array->size = idx + 1;
 
-	  inserted = 1;
-	  idx = index - array->offset;
-	  /* can the value be inserted here ? */
-	  if (array->size < ARRAY_SIZE)
+	  if (idx < array->size)
 	    {
-	      /* adjust array chunk size */
-	      array->size++;
-	      if (idx >= array->size) array->size = idx + 1;
+	      /* insert a bit */
+	      bit = (1 << idx) - 1;
+	      fill = array->fill;
+	      array->fill = (fill & bit) | ((fill << 1) & ~bit);
 
-	      if (idx < array->size)
-		{
-		  /* insert a bit */
-		  for (fill = n = 0, bit = 1; n < array->size; bit <<= 1, n++)
-		    {
-		      if (n < idx) fill |= (array->fill & bit);
-		      else         fill |= (array->fill << 1) & bit;
-		    }
-		  array->fill = fill;
-
-		  /* shuffle value data */
-		  memmove (&array->value[idx+1], &array->value[idx],
-			   (array->size - idx) * sizeof (void *));
-		}
-	      
-	      /* insert the value */
-	      array->fill |= (1 << idx);
-	      array->value[idx] = value;
-	      array = array->next;
-	      break;
+	      /* shuffle value data */
+	      memmove (&array->value[idx+1], &array->value[idx],
+		       (array->size - 1 - idx) * sizeof (void *));
 	    }
+	      
+	  /* insert the value */
+	  array->fill |= (1 << idx);
+	  array->value[idx] = value;
+	  array = array->next;
+	}
 
-	  /* no, chunk is full, need to split the chunk */
+      /* no, chunk is full, need to split the chunk */
+      else
+	{
 	  next = alist_create_array (index + 1);
 
 	  /* keep less indexes in old chunk and copy greater to next */
-	  memcpy (&next->value[0], &array->value[idx], 
+	  memcpy (next->value, &array->value[idx], 
 		  (ARRAY_SIZE - idx) * sizeof (void *));
 	  next->fill = (array->fill >> idx);
 	  next->size = ARRAY_SIZE - idx;
@@ -523,12 +653,11 @@ alist_insert (alist_t *list, unsigned index, void *value)
 
 	  alist_hook (list, next);
 	  array = next->next;
-	  break;
 	}
     }
 
   /* add another chunk */
-  if (!inserted)
+  else
     {
       next = alist_create_array (index);
       next->fill = 1;
@@ -537,6 +666,8 @@ alist_insert (alist_t *list, unsigned index, void *value)
       alist_hook (list, next);
       array = next->next;
     }
+
+  /* adjust array list properties here */
   if (++list->length < index) list->length = index + 1;
   list->size++;
 
@@ -547,7 +678,6 @@ alist_insert (alist_t *list, unsigned index, void *value)
 	array->offset++;
       array = array->next;
     }
-
 }
 
 /*
@@ -561,10 +691,14 @@ alist_pack (alist_t *list)
   unsigned need2pack, bits, n, size;
   void **value;
 
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
   if (!list->size) return;
 
   /* first check if it is necessary to pack the chunks */
-  for (need2pack = 0, array = list->array; array; array = array->next)
+  for (need2pack = 0, array = list->first; array; array = array->next)
     {
       next = array->next;
       if (next && array->size == ARRAY_SIZE)
@@ -599,7 +733,7 @@ alist_pack (alist_t *list)
   value = alist_values (list);
   size = alist_size (list);
   alist_clear (list);
-  prev = list->array;
+  prev = list->first;
   for (n = 0; n <= size - ARRAY_SIZE; n += ARRAY_SIZE)
     {
       array = alist_create_array (n);
@@ -607,8 +741,9 @@ alist_pack (alist_t *list)
       array->size = ARRAY_SIZE;
       list->size += ARRAY_SIZE;
       memcpy (array->value, &value[n], ARRAY_SIZE * sizeof (void *));
-      if (!prev) list->array = array;
+      if (!prev) list->first = array;
       else       prev->next = array;
+      array->prev = prev;
       prev = array;
     }
   if (size % ARRAY_SIZE)
@@ -619,9 +754,11 @@ alist_pack (alist_t *list)
       array->size = size;
       list->size += size;
       memcpy (array->value, &value[n], size * sizeof (void *));
-      if (!prev) list->array = array;
+      if (!prev) list->first = array;
       else       prev->next = array;
+      array->prev = prev;
     }
+  list->last = array;
   list->length = list->size;
   xfree (value);
 }
@@ -637,11 +774,15 @@ alist_values (alist_t *list)
   void **value;
   unsigned index, bit, n;
 
+#if DEVEL
+  alist_validate (list);
+#endif /* DEVEL */
+
   if (!list->size) 
     return NULL;
 
   value = xmalloc (list->size * sizeof (void *));
-  for (index = 0, array = list->array; array; array = array->next) 
+  for (index = 0, array = list->first; array; array = array->next) 
     {
       for (bit = 1, n = 0; n < array->size; bit <<= 1, n++)
 	{

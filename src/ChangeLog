@@ -1,3 +1,12 @@
+2000-10-23  [ Ela ]  <ela@lkcc.org>
+
+	* alist.c (alist_delete): Optimized deletion and insertion
+	of fill bits.
+
+	* alist.h (struct array_chunk): Made the array list double 
+	chained. Thus accesses to specific elements can be optimized 
+	a bit.
+
 2000-10-22  [ Ela ]  <ela@lkcc.org>
 
 	* test.c: Helper functions for the test suites.
@@ -38,7 +47,7 @@
 2000-10-06  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-cache.c (http_cache_consistency): This 
-	function pendantically checks the consitency of the http
+	function pedanticly checks the consistency of the http
 	cache entries.
 
 2000-10-05  [ Ela ]  <ela@lkcc.org>
@@ -47,7 +56,7 @@
 	to this file. `gnutella.c' was going too big.
 
 	* nut-server/nut-transfer.c (nut_check_given): This request
-	checker evaluates the "GIV " line and assigns the appropiate
+	checker evaluates the "GIV " line and assigns the appropriate
 	download callbacks if possible. Everything untested, yet.
 
 	* nut-server/gnutella.c (nut_detect_proto): Added detection
@@ -98,7 +107,7 @@
 
 	* http-server/http-cgi.c (http_cgi_exec): Find out the
 	system's executable association. It is not used by default
-	but could be put into the appropiate configuration hash
+	but could be put into the appropriate configuration hash
 	"cgi-application".
 
 	* server.c (hashtable_p): Added some #define's for backward
@@ -132,7 +141,7 @@
 	`irc_regex_nick' were bogus.
 
 	* irc-server/irc-event-1.c (irc_nick_callback): Fixed client
-	hash inconsitency.
+	hash inconsistency.
 
 	* irc-server/irc-proto.c (irc_init): Both the client and
 	channel hash are case insensitive now.
@@ -187,7 +196,7 @@
 
 	* nut-server/gnutella.c (nut_detect_connect): This routine
 	detects the gnutella protocol for self connected sockets.
-	(nut_config_prototype): The configuartion item `net-url'
+	(nut_config_prototype): The configuration item `net-url'
 	is for the gnutella host list.
 
 2000-09-14  [ Ela ]  <ela@lkcc.org>
@@ -225,11 +234,11 @@
 	array. Each item will be searched for.
 
 	* awcs-server/awcs-proto.c (awcs_process_multicast): Modified
-	hash key creation and comparion. Now the server checks the
+	hash key creation and comparison. Now the server checks the
 	existence of aWCS clients everywhere.
 
 	* http-server/http-cgi.c (http_check_cgi): Fixed realloc ()
-	call. The result was ommitted. Thus it was invalid afterwards.
+	call. The result was omitted. Thus it was invalid afterwards.
 
 	* pipe-socket.c (pipe_disconnected): All the routine was
 	#undef'ed without ENABLE_DEBUG. Fixed.
@@ -297,7 +306,7 @@
 	the port property of the push request and header.
 
 	* nut-server/gnutella.c (nut_query): Theoretically the 
-	gnutella spider is able to repond to search queries within
+	gnutella spider is able to respond to search queries within
 	its own database. Cannot send files, yet.
 
 	* nut-server/nut-transfer.c (nut_read_database): This function
@@ -320,7 +329,7 @@
 2000-09-04  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_disconnect): Every 
-	connections `files' and `size' property will be substracted
+	connections `files' and `size' property will be subtracted
 	from the overall values.
 
 	* nut-server/nut-transfer.c (nut_disconnect_transfer): If
@@ -338,7 +347,7 @@
 2000-09-03  [ Ela ]  <ela@lkcc.org>
 
 	* util.c (util_inet_ntoa): Using old function instead
-	of `inet_ntoa' to get an ip address text respresentation.
+	of `inet_ntoa' to get an ip address text representation.
 
 	* interface.c (list_local_interfaces): The `inet_ntoa'
 	network library functions seems to be broken on some systems.
@@ -346,7 +355,7 @@
 
 	* nut-server/gnutella.h: Gave up one byte memory alignment
 	for the binary gnutella packets and wrote some functions
-	which convert them to appropiate structures.
+	which convert them to appropriate structures.
 
 	* nut-server/Makefile.am (libnut_a_SOURCES): Added the
 	file `nut-core.c' and `nut-core.h' to the gnutella source
@@ -403,7 +412,7 @@
 	to convert the little endian values in Gnutella packet. Sigh.
 
 	* nut-server/gnutella.c (nut_host_list): Check if the
-	send buffer queue overuns while sending gnutella host
+	send buffer queue overruns while sending gnutella host
 	catcher list.
 	(nut_info_server): Gnutella server informations callback
 	implemented. It simply states the current configurations
@@ -415,7 +424,7 @@
 2000-08-30  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_server_timer): Added routine for
-	regurlarly reconnects.
+	regularly reconnects.
 	(nut_connect_host): Use this routine to connect to other
 	gnutella hosts.
 	(nut_config_prototype): Added new configurations item
@@ -475,10 +484,10 @@
 	routines and data structures.
 	(nut_config_prototype): Added `max-ttl' and `ttl' for the
 	configuration file associations.
-	(nut_route): Made up a seperate routine for packet routing.
+	(nut_route): Made up a separate routine for packet routing.
 	(nut_ping_reply): Evaluating init responses.
 	(nut_idle_searching): Gnutella net search queries for each
-	connection is done seperately.
+	connection is done separately.
 
 2000-08-26  [ Ela ]  <ela@lkcc.org>
 
@@ -504,11 +513,11 @@
 
 	* ctrl-server/control-proto.c (ctrl_connect_socket): 
 	Resizing send and receive buffer. Was a problem for
-	the long list od `stat con'.
+	the long list or `stat con'.
 
 	* socket.c: `socket_version' is the version counter for
 	socket structures. Thus we can validate socket structures
-	if these have been reintialized.
+	if these have been reinitialized.
 
 	* coserver/coserver.c (coserver_handle_request): The 
 	callback for coserver requests gets three arguments.
@@ -543,7 +552,7 @@
 	HTML document.
 
 	* http-server/http-cgi.c (http_cgi_disconnect): Introduced
-	this function as seperate (extended) callback for http
+	this function as separate (extended) callback for http
 	connections.
 
 2000-08-15  [ Ela ]  <ela@lkcc.org>
@@ -553,7 +562,7 @@
 	the system to send partial tcp frames.
 
 	* server-loop.c (check_sockets): Put this function into a 
-	seperate file for later extensions by poll().
+	separate file for later extensions by poll().
 	(check_sockets_poll): Added this function using poll() instead
 	of select(). Thus we beat the (g)libc's builtin file 
 	descriptor limit of select().
@@ -591,14 +600,14 @@
 	* http-server/http-proto.c (http_info_server): Implemented
 	the info callback for the http server. This is currently
 	used to show the configuration representation. Dropped
-	inititial messages when instanciating.
+	initial messages when instantiating.
 
 	* ctrl-server/control-proto.c (ctrl_stat_id): Fixed 
 	differentiating between Co-Servers and unidentified pipe
 	connections.
 
 	* http-server/http-core.c (http_read_types): The content type
-	hash is now extendable by the configuration file.
+	hash is now extendible by the configuration file.
 
 	* server.c (set_hash): Storing hash values of a newly created
 	hash as normal xmalloc()ed. Thus you MUST xfree() both the
@@ -634,7 +643,7 @@
 	send irregular files like devices and pipes.
 
 	* http-server/http-cache.c (http_cache_read): Checking for
-	bogus files whose filesize could not been read. Thus 
+	bogus files whose file size could not been read. Thus 
 	preventing a memory leak.
 
 	* http-server/http-cache.c (http_cache_disconnect): First
@@ -658,7 +667,7 @@
 	* alloc.c (xheap): Made up some routines that save all
 	xmalloc()ed pointers in a hash structure. Thus we can
 	debug memory leaks except within the hash implementation.
-	This is for developement purposes only and can be switched
+	This is for development purposes only and can be switched
 	by the definition of DEBUG_MEMORY_LEAKS.
 
 	* http-server/http-cache.c (http_check_cache): Figured
@@ -692,7 +701,7 @@
 	requests.
 
 	* server.c (set_port): Use either inet_aton() or inet_addr()
-	for forming a valid internet address.
+	for forming a valid Internet address.
 
 2000-07-21  [ Ela ]  <ela@lkcc.org>
 
@@ -704,11 +713,11 @@
 	server configuration structure. This routine is used by the
 	control protocol to determine a client connections server.
 	(server_run_timer): This routine is called by 
-	handle_periadic_tasks() in `server-core.c' for each server
+	handle_periodic_tasks() in `server-core.c' for each server
 	instance.
 
 	* coserver/coserver.c (coserver_delete): Co-Server
-	instanciating is now possible via the `int_coserver'
+	instantiating is now possible via the `int_coserver'
 	array.
 
 	* ctrl-server/control-proto.c (ctrl_stat_id): Made the
@@ -781,7 +790,7 @@
 	FindFirstFile, FindNextFile and FindClose in Win32.
 
 	* coserver/coserver.c (coserver_send_request): If you have
-	more than one coserver of the same type instanciated the 
+	more than one coserver of the same type instantiated the 
 	requests for these instance will be apportioned.
 
 2000-07-09  [ Ela ]  <ela@lkcc.org>
@@ -805,7 +814,7 @@
 
 	* serveez.c (usage): Dropped -p (--port) option.
 
-	* serveez.h (struct serveez_config): Droppped useless field
+	* serveez.h (struct serveez_config): Dropped useless field
 	"port". This is now defined by the integrated servers.
 
 	* irc-server/irc-event.h: Went through all
@@ -828,13 +837,13 @@
 	interfaces still get listed multiple times but they get listed.
 
 	(list_local_interfaces): fixed multiple device listings. removed
-	that ugly sa_data[] method of convertig a sockaddr_in to the
+	that ugly sa_data[] method of converting a sockaddr_in to the
 	dotted decimal representation. the cast is even uglier :)
 
 2000-07-01  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (coserver_init): This routine is 
-	instanciating all coservers now. Thus you do not need to create
+	instantiating all coservers now. Thus you do not need to create
 	the coservers yourself.
 
 	* coserver/coserver.h (struct int_coserver_type): Added two more 
@@ -846,7 +855,7 @@
 
 	* http-server/http-dirlist.c (http_dirlist): BUGFIX:
 	localtime() could deliver a NULL pointer. That's why we need
-	to check for this. Occured: stat()ing ".." when this refers
+	to check for this. Occurred: stat()ing ".." when this refers
 	to the root directory in Win95.
 	(http_dirlist): BUGFIX: Off by one failure when resizing
 	dirlist buffer (dirdata).
@@ -857,7 +866,7 @@
 
 2000-06-28  [ Ela ]  <ela@lkcc.org>
 
-	* Makefile.am (EXTRA_DIST): Added the appropiate headers
+	* Makefile.am (EXTRA_DIST): Added the appropriate headers
 	for the network interface listing in the "include" directory.
 
 	* interface.c (list_local_interfaces): Included the the IP
@@ -913,7 +922,7 @@
 	This was not available under Win32 yet.
 
 	* server-core.c (sock_enqueue): Both _enqueue and _dequeue are
-	availbale under Win32 also. So we could use named pipes in Win32
+	available under Win32 also. So we could use named pipes in Win32
 	also.
 
 	* server-socket.c (server_accept_pipe): CreateNamedPipe is now
@@ -926,7 +935,7 @@
 2000-06-21  [ RAIMI ]  <raimi@lkcc.org>
 
 	* Makefile.am ($(SIZZLERULE)): When building our own sizzle from
-	source distribution the user doesnt need to make anymore. added
+	source distribution the user doesn't need to make anymore. added
 	a makefile target and configure.in stuff to do so.
 
 2000-06-20  [ Ela ]  <ela@lkcc.org>
@@ -944,7 +953,7 @@
 	to listen for connected clients at this pipe.
 
 	* pipe-socket.c (pipe_create): Now we can also create pipe
-	sockets in Win32. Non-blocking I/O will be realised via
+	sockets in Win32. Non-blocking I/O will be realized via
 	overlapped I/O.
 
 2000-06-19  [ Ela ]  <ela@lkcc.org>
@@ -979,12 +988,12 @@
 
 	* server.c (set_port): it's now possible to bind ip servers to
 	specific local interfaces. pipes can be read from cfgfile now, too.
-	the bad news is that it doesnt work and I dont know why...
+	the bad news is that it doesn't work and I don't know why...
 	
 2000-06-18  [ Ela ]  <ela@lkcc.org>
 
 	* irc-server/irc-proto.c (irc_server_definition): IRC server
-	is now fully instanciatable. But might not be working, yet...
+	is now fully instantiatable. But might not be working, yet...
 
 	* irc-server/irc-server.c (irc_connect_server): IRC server
 	connections now non-blocking (using DNS coserver).
@@ -1009,7 +1018,7 @@
 
 	* http-server/http-proto.c (http_get_response): POST and GET method
 	do work again. Whole http server is now quite ported to new server
-	concept and can be instanciated.
+	concept and can be instantiated.
 	(http_free_socket): Made a cgi script die if the http connection is
 	lost by user abort.
 
@@ -1046,7 +1055,7 @@
 	* awcs-server/awcs-proto.c: The ENABLE_AWCS_PROTO define is now in
 	"awcs-server" directory only (except ctrl-server).
 	(awcs_finalize): For now we delete newly created named pipes on 
-	the local filesystem by hand here (should be done in the 
+	the local file system by hand here (should be done in the 
 	disconnection routine of pipe servers).
 
 	* server-core.c (check_sockets): Made it possible to listen on 
@@ -1072,7 +1081,7 @@
 	a socket structure (checked via socket lookup table).
 
 	* util.c (list_local_interfaces): Fixed the signed/unsigned 
-	comaprison (always compare sizes unsigned) and free/close resources
+	comparison (always compare sizes unsigned) and free/close resources
 	on return.
 
 2000-06-13  [ RAIMI ]  <raimi@lkcc.org>
@@ -1096,7 +1105,7 @@
 	* coserver/coserver.c (coserver_init): Global initializer for all
 	coservers.
 	(coserver_finalize): Global finalizer for all coservers.
-	(coserver_handle_request): Scanning coserver resonse ourselves 
+	(coserver_handle_request): Scanning coserver response ourselves 
 	without copying and using sscanf().
 	(coserver_handle_request): When a callback gets a NULL for the
 	second arg this indicates an error for the invoking coserver request.
@@ -1112,7 +1121,7 @@
 	adapted to new concept.
 
 	* coserver/reverse-dns.c (handle_nslookup): Reverse dns coserver
-	reviewed and adpated to new concept.
+	reviewed and adapted to new concept.
 
 	* coserver/coserver.c (coserver_send_request): This function got
 	some wrappers for each coserver (coserver_???). You will not need
@@ -1147,7 +1156,7 @@
 2000-05-11  [ Ela ]  <ela@lkcc.org>
 
 	* util.c (util_hstrerror): Was: _hstrerror. On IRIX this is a
-	libc symbol, thus we will not preemt it anymore.
+	libc symbol, thus we will not preempt it anymore.
 
 	* awcs-proto.c (awcs_check_pipe): If serveez is able to open
 	a special named pipe it connects the aWCS-Master through two of
@@ -1180,7 +1189,7 @@
 	* util.c (get_hstrerror): Some wrapper for h_errno error messages.
 
 	* socket.c (default_check_request): Both the HTTP and IRC protocol
-	can be instanciated via different configuration hashes.
+	can be instantiated via different configuration hashes.
 
 	* http-proto.c (http_check_keepalive): Fixed the meaning of the
 	"max=%d" value within the "Keep-Alive:" header information.
@@ -1193,7 +1202,7 @@
 2000-04-22  [ Ela ]  <ela@lkcc.org>
 
 	* option.c (getopt): Put all the getopt[_long]() functions and
-	definitions into seperate files.
+	definitions into separate files.
 
 	* util.c (get_version): Detecting Win2k and Win98.
 
@@ -1206,7 +1215,7 @@
 	beginning of each alloc()ed block. So we save the last argument
 	in xfree() and xrealloc().
 
-	* serveez.c (main): Set maximimum verbosity to LOG_DEBUG, not 3.
+	* serveez.c (main): Set maximum verbosity to LOG_DEBUG, not 3.
 	(main): Error message if allocated_bytes left is not zero.
 
 2000-04-12  [ Ela ]  <ela@lkcc.org>
@@ -1334,7 +1343,7 @@
 	the cgi interface rudimentary.
 
 	* http-proto.c (http_get_response): Detection of a CGI request
-	via GET causes the excution of the script if possible.
+	via GET causes the execution of the script if possible.
 
 	* server.c (check_sockets): Hmm.. why didn't we set the
 	CLOSE-ON-EXEC-Flag explicitly ?
@@ -1352,7 +1361,7 @@
 2000-02-06  [ RAIMI ]  <raimi@lkcc.org>
 
 	* awcs-proto.c : Scheduled master for shutdown when master write
-	error occured (lead to infinite loop).
+	error occurred (lead to infinite loop).
 
 2000-02-04  [ Ela ]  <ela@lkcc.org>
 
@@ -1364,7 +1373,7 @@
 	has been lost we call this method instead of abort().
 
 	* server.c (sock_enqueue): Made up Raimi's request for better
-	uniquness of textSure IDs. Now we have forthcoming IDs for
+	uniqueness of textSure IDs. Now we have forthcoming IDs for
 	each connected socket.
 
 	* socket.c (default_write): Resource temporarily unavailable
@@ -1384,7 +1393,7 @@
 
 	* util.h : Introduced some wrapper #define's. These are
 	WRITE_SOCKET, READ_SOCKET and CLOSE_SOCKET for the socket
-	operattion which differ in Unix and Win32 and SYS_ERROR and
+	operation which differ in Unix and Win32 and SYS_ERROR and
 	NET_ERROR.
 
 	* util.c (GetWSAErrorMessage): This routine was introduced
@@ -1404,7 +1413,7 @@
 
 	* ident.c: Implemented ident requester as internal coserver.
 	(ident_handle_request): Get a request from the coserver and
-	call the appropiate ident_func.
+	call the appropriate ident_func.
 	(handle_ident): Connect to the ident server, send a request and
 	read out the response. Then return the user ident if successfully
 	done.
@@ -1424,7 +1433,7 @@
 	been fully read.
 	(http_default_write): Shut down the socket if the above flag was set.
 	(http_disconnect): Close the http file descriptor if an error
-	occured while sending the http file.
+	occurred while sending the http file.
 	(http_get_response): Use this routine for both HEAD and GET requests.
 	This is controlled via the flag HTTP_FLAG_NOFILE.
 
@@ -1499,7 +1508,7 @@
 
 1999-12-03  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
 
-	* server.c (start_coserver): New function. Starts a seperate
+	* server.c (start_coserver): New function. Starts a separate
 	process connecting its stdin and stdout to a socket structure.
 
 	* echoserver: New file.  This guile script simply echoes its

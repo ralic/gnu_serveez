@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.22 2000/10/05 09:52:20 ela Exp $
+ * $Id: http-cgi.c,v 1.23 2000/10/23 21:42:03 ela Exp $
  *
  */
 
@@ -331,7 +331,7 @@ http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
  * Create the environment block for a CGI script. Depending on the
  * system the environment is a field of null terminated char pointers
  * (for Unices) followed by a null pointer or one char pointer where
- * the variables a seperated by zeros and the block is terminated
+ * the variables a separated by zeros and the block is terminated
  * by a further zero. It returns either the amount of defined variables
  * or the size of the block in bytes.
  */

@@ -102,7 +102,7 @@ too much about that computer language we delivered an example
 configuration file in the @file{data/} directory.
 
 Generally you can determine special variables in this file and you have
-to instanciate the servers you actually want to run. The following
+to instantiate the servers you actually want to run. The following
 example shows how do you setup a server whose short name is @samp{xxx}.
 The @samp{?} is the instance number of that server. You can define
 more than one @samp{xxx-server}, of course. The body of such a server
@@ -116,7 +116,7 @@ hash contains key value pairs which set up this specific server.
 @end example
 
 When we are referring to @samp{port configuration}s this is a special hash
-determining a network or filesystem configuration. This structure got
+determining a network or file system configuration. This structure got
 the following layout:
 
 @example
@@ -148,7 +148,7 @@ An important bottleneck in this method is that @code{read()} or
 moment, setting non-blocking mode on a disk file handle has no effect. 
 Same thing goes for memory-mapped disk files. The first time a server
 needs disk I/O, its process blocks, all clients must wait, and that 
-raw nonthreaded performance goes to waste. 
+raw non-threaded performance goes to waste. 
 
 Unfortunately, @code{select()} is limited to @code{FD_SETSIZE} handles. 
 This limit is compiled in to the standard library and user programs. 
@@ -218,7 +218,7 @@ available physical memory.
 
 This package includes a kind of server server. It allows different 
 protocol servers to listen on various TCP/IP or UDP ports and server 
-instanciating. Thus it is possible to to have different servers on the 
+instantiating. Thus it is possible to to have different servers on the 
 same port.
 
 This chapter covers all questions about how to write your own internet
@@ -235,7 +235,7 @@ what is going on here.
 @node Writing Servers, Existing Servers, Introduction to Servers, Server
 @section Writing Servers
 
-@subsection Making and configuring preperations
+@subsection Making and configuring preparations
 
 Serveez is configured and build via automake and autoconf. That
 is why you are not supposed to write your own Makefiles but simplified
@@ -288,7 +288,7 @@ the configuration file later.
 
 If you want to define default values for your configuration you have
 to define it somewhere and put it into the default configuration structure.
-This structure will be used to instanciate your server. In this case we 
+This structure will be used to instantiate your server. In this case we 
 called it simply `mycfg'.
 
 In order to associate the configurations items in a server 
@@ -303,9 +303,9 @@ specifies if this item is defaultable or not.
 @subsection Server definition
 
 The server definition is the representation of your server object 
-which will be instanciatable. You have to put in this structure a long and
-a short description of your server. The short name will be used to instanciate
-the server object via the configuration file. You can instanciate it by
+which will be instantiatable. You have to put in this structure a long and
+a short description of your server. The short name will be used to instantiate
+the server object via the configuration file. You can instantiate it by
 writing @code{(define foo-server1 '#@{ ... @})} where @code{foo} is your 
 servers short name. Moreover you have to put there the server 
 callbacks which will be described later and the configuration 
@@ -314,7 +314,7 @@ associations described above.
 @subsection Server callbacks
 
 There are several callback routines, which get called in order to 
-instanciate the server and for describing the actual behaviour of your server.
+instantiate the server and for describing the actual behaviour of your server.
 Here is the description of all of these.
 
 @table @asis
@@ -328,7 +328,7 @@ statically initialized.
 @item global finalizer (optional)
 If you want to free shared resources which were possibly allocated within
 the global initializer you can do so here. The foo server frees its
-default hash previouly allocated in the global initializer.
+default hash previously allocated in the global initializer.
 
 @item instance finalizer (optional)
 The server instance finalizer gets its instance representation as argument.
@@ -340,7 +340,7 @@ the global finalizer.
 Within this routine you can initialize all you might need for one instance
 of your server. Secondly you have to bind this instance to some port
 configuration. In most cases you want to have this port configuration
-accessable via the configuration file. Therefore you have to 
+accessible via the configuration file. Therefore you have to 
 REGISTER_PORTCFG () in your servers configuration definition. The port
 configuration is then part of your servers instance configuration
 structure. The foo server prints its whole configuration just for debugging
@@ -380,7 +380,7 @@ structure. You must return a static single line character string.
 @item server info (optional)
 When listing the server instances via @samp{stat all} within the control
 protocol (@xref{Control Protocol Server}.) the returned character string
-which might be multiline seperated by @code{\r\n} (no trailing seperator).
+which might be multiline separated by @code{\r\n} (no trailing separator).
 Usually you will return all the server configuration information.
 
 @item timer (optional)
@@ -405,7 +405,7 @@ file and add the server definition to the @code{all_server_definition} array.
 
 The client connection information is stored within the socket_t 
 object. All of the client connection specific callbacks get this object as
-first argument. Here follows a decription of the elements of this object.
+first argument. Here follows a description of the elements of this object.
 
 @table @code
 @item id
@@ -584,7 +584,7 @@ The first character is one of the following and has a special meaning:
 Those special characters are followed by a single space.
 
 Messages which require additional parameters (multicast for example)
-carry these parameters after the space in a comma seperated list of
+carry these parameters after the space in a comma separated list of
 client ids in the above format.  The client id list is terminated
 by the \0 character terminating the request (if no parameters follow)
 or by a single space (if parameters follow).  Note that in comma
@@ -769,7 +769,7 @@ stored within the HTTP file cache.
 
 @item cache-entries
 This parameter specifies the maximum amount of HTTP file cache entries
-(files). When you instanciate more than one HTTP server the biggest value
+(files). When you instantiate more than one HTTP server the biggest value
 wins. This is why the HTTP file cache is shared by all HTTP servers.
 
 @item timeout
@@ -800,7 +800,7 @@ is a has associating file suffixes with HTTP content types.
 @subsubsection General description
 
 The integrated IRC server is intended to be compatible with the EFNet.
-Because there are no good possibilties to test this in real live it is
+Because there are no good possibilities to test this in real live it is
 still under heavy construction but could be used as a standalone server
 anyway.
 
@@ -821,9 +821,9 @@ net it sees.
 @subsubsection Configuration
 
 As all the servers described in this section the IRC server is also
-instanciated and configured in the configuration file. The following
+instantiated and configured in the configuration file. The following
 table shows the provided configuration keys. Most of the configuration
-items are similiar to those of an Hybrid IRC server.
+items are similar to those of an Hybrid IRC server.
 
 @table @samp
 @item port
@@ -993,7 +993,7 @@ state of Serveez in general.
 Statistics about all running Co-Server instances.
 
 @item stat SERVER
-This command ist for selecting certain Server instances to be listed.
+This command is for selecting certain Server instances to be listed.
 SERVER should be one of server names which you specified in the 
 configuration file.
 
@@ -1011,7 +1011,7 @@ with @samp{stat id NUM} or @samp{stat all}.
 
 @item stat all
 Server and Co-Server instance statistics. This command should list all 
-the information about instanciated Servers and Co-Servers. 
+the information about instantiated Servers and Co-Servers. 
 @xref{Writing Servers}, for more information about how to provide these
 information.
 
@@ -1106,7 +1106,7 @@ by client connections only. Generally the Gnutella network is for sharing
 files of any kind.
 
 This Gnutella spider is for seeking the needly in the haystack. Once 
-connected to the network it regulary tries to find certain files in there.
+connected to the network it regularly tries to find certain files in there.
 It keeps track of all connected clients and tries to reconnect them if
 the current connections are lost.
 
@@ -1231,9 +1231,9 @@ Win32 systems it is realized by a thread.
 @node Writing Co-Servers, Existing Co-Servers, What are Co-Servers, Co-Server
 @section Writing Co-Servers
 
-@subsection Making and configuring preperations
+@subsection Making and configuring preparations
 
-First you have yo change into the @file{src/coserver/} directory of the 
+First you have to change into the @file{src/coserver/} directory of the 
 Serveez package. Then edit the @file{Makefile.am} and add your 
 header and implementation file to the @code{libcoserver_a_SOURCES}
 variable there.
@@ -1258,7 +1258,7 @@ protocol with Serveez these buffers must not contain @samp{\n} (0x0d).
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
 @file{src/coserver/} directory. In the header file you have to define a 
 further COSERVER_* id and set the MAX_COSERVER_TYPES define to the 
-appropiate value. Then you should define a further coserver_* macro in the 
+appropriate value. Then you should define a further coserver_* macro in the 
 same file.
 
 In @file{coserver.c} you have to implement the coserver_* macro. This macro
@@ -1295,7 +1295,7 @@ read/respond to multiple queries.
 
 Actually the Ident Co-Server is a client to this kind of service. For
 every established network connection you can use this service by calling
-the appropiate macro from @file{coserver.h}. But you could also use the
+the appropriate macro from @file{coserver.h}. But you could also use the
 Ident Co-Server as is without this macro. The format of the input buffer
 is:
 
@@ -1310,7 +1310,7 @@ coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
 In this context @code{sock} is of type @code{socket_t} and 
 @code{MyIdentCallback} is something like the following example. Both
 of the last two (optional) arguments identify a valid socket structure
-and @code{user} can be NULL if there is no ident deamon running on the 
+and @code{user} can be NULL if there is no ident daemon running on the 
 foreign machine. The last two argument within the above macro will be the 
 last two arguments in the below callback. Thus you will know what kind of 
 data the invocation of the callback is related to.
@@ -1328,7 +1328,7 @@ MyIdentCallback (char *user, int id, int version)
 @subsection Domain Name Server (DNS) Co-Server
 
 The DNS Co-Server is using @code{gethostbyname()} to translate a given
-hostname to the appropiate IP address. The format of the Co-Server input
+hostname to the appropriate IP address. The format of the Co-Server input
 line and the macro from @file{coserver.h} is shown below. The IRC server is
 currently using this Co-Server for resolving its @samp{?-Lines}.
 @xref{Existing Servers}, for more information. In the below example 
@@ -1412,7 +1412,7 @@ will create some special network device. A further difference is what you
 can do with these pipes. On Win32 systems this @samp{network device} is
 valid on remote machines. That is on Unices possible if the created 
 filesystem node is located on a NFS. Named pipes on Unices are 
-unidirectional, on Win32 these are bidirectional and instanciatable.
+unidirectional, on Win32 these are bidirectional and instantiatable.
 
 @item Miscellaneous
 To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
@@ -1424,7 +1424,7 @@ How do I make the console window go away ?
 The default during compilation is to produce a console application. If you 
 are writing a GUI program, you should either compile with -mwindows as
 explained above, or add the string "-Wl,--subsystem,windows" to the GCC 
-commandline. 
+command line. 
 
 What preprocessor do I need to know about ?
 We use _WIN32 to signify access to the Win32 API and __CYGWIN__ for access 
@@ -1435,8 +1435,8 @@ follow their example. We use _MFC_VER to indicate code that should be
 compiled with VC++. 
 
 Why we do not use pipes for Co-Servers ?
-Windows differentiates between sockets and filedescriptors, that's why 
-you can not select() filedescriptors. Please close() the pipe's 
+Windows differentiates between sockets and file descriptors, that's why 
+you can not select() file descriptors. Please close() the pipe's 
 descriptors via CloseHandle() and not closesocket(), because this will fail.
 
 The C run-time libraries have a preset limit for the number of files that
@@ -1522,7 +1522,7 @@ Serveez project.
 @end table
 
 Compiling now via @key{F7} you got a completely native Win32 application
-which is linked agains the @file{KERNEL32.DLL} and @file{WINSOCK32.DLL}.
+which is linked against the @file{KERNEL32.DLL} and @file{WINSOCK32.DLL}.
 
 Now follows the list on which operating systems and architectures
 Serveez has been build and tested successfully.
