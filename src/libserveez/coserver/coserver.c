@@ -1,7 +1,7 @@
 /*
  * coserver.c - basic internal coserver routines
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.30 2003/01/05 15:28:08 ela Exp $
+ * $Id: coserver.c,v 1.31 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -214,7 +214,7 @@ svz_coserver_put_id (unsigned id, char *response)
  */
 
 /* Debug info Macro. */
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 # define COSERVER_REQUEST_INFO() \
   svz_log (LOG_DEBUG, "%s: coserver request occurred\n",   \
 	   svz_coservertypes[coserver->type].name);
@@ -223,7 +223,7 @@ svz_coserver_put_id (unsigned id, char *response)
 #endif
 
 /* Post-Processing Macro. */
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 # define COSERVER_RESULT() \
   svz_log (LOG_DEBUG, "%s: coserver request processed\n", \
 	   svz_coservertypes[coserver->type].name);
@@ -257,7 +257,7 @@ svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
   unsigned id;
 
   /* wait until the thread handle has been passed */
-  while (coserver->thread == INVALID_HANDLE_VALUE);
+  while (coserver->thread == INVALID_HANDLE);
 
   /* infinite loop */
   for (;;)
@@ -395,10 +395,10 @@ svz_coserver_activate (int type)
 	}
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "%d internal %s coserver activated\n",
 	   count, svz_coservertypes[type].name);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 }
 
 #endif /* __MINGW32__ */
@@ -453,11 +453,11 @@ svz_coserver_disconnect (svz_socket_t *sock)
     {
       if (coserver->sock == sock)
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, 
 		   "%s: killing coserver pid %d\n",
 		   svz_coservertypes[coserver->type].name, coserver->pid);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 	  if (kill (coserver->pid, SIGKILL) == -1)
 	    svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
 #if HAVE_WAITPID
@@ -510,7 +510,7 @@ svz_coserver_check_request (svz_socket_t *sock)
     }
   while (p < sock->recv_buffer + sock->recv_buffer_fill);
       
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "%s: %d byte response\n", 
 	   svz_coservertypes[coserver->type].name, len);
 #endif
@@ -718,13 +718,13 @@ svz_coserver_destroy (int type)
 	}
     }
 
-#ifdef ENABLE_DEBUG
+#ifdef SVZ_ENABLE_DEBUG
   if (count > 0)
     {
       svz_log (LOG_DEBUG, "%d internal %s coserver destroyed\n", 
 	       count, svz_coservertypes[type].name);
     }
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 }
 
 /*
@@ -770,7 +770,7 @@ svz_coserver_start (int type)
   sock->write_socket = NULL;
   sock->read_socket = NULL;
   coserver->sock = sock;
-  coserver->thread = INVALID_HANDLE_VALUE;
+  coserver->thread = INVALID_HANDLE;
 
   if ((thread = CreateThread(
       (LPSECURITY_ATTRIBUTES) NULL, /* ignore security attributes */
@@ -778,7 +778,7 @@ svz_coserver_start (int type)
       (LPTHREAD_START_ROUTINE) svz_coserver_thread, /* thread routine */
       (LPVOID) coserver,            /* thread argument */
       (DWORD) CREATE_SUSPENDED,     /* creation flags */
-      (LPDWORD) &tid)) == INVALID_HANDLE_VALUE) /* thread id */
+      (LPDWORD) &tid)) == INVALID_HANDLE) /* thread id */
     {
       svz_log (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
       DeleteCriticalSection (&coserver->sync);
@@ -794,7 +794,7 @@ svz_coserver_start (int type)
   if (!SetThreadPriority (thread, COSERVER_THREAD_PRIORITY))
     svz_log (LOG_ERROR, "SetThreadPriority: %s\n", SYS_ERROR);
 
-#ifdef ENABLE_DEBUG
+#ifdef SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "coserver thread id is 0x%08X\n", tid);
 #endif
 
@@ -827,7 +827,7 @@ svz_coserver_start (int type)
       if (close (c2s[READ]) < 0)
 	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "coserver pipes: %d-%d\n", in, out);
 #endif
 
@@ -878,7 +878,7 @@ svz_coserver_start (int type)
 
   /* the old server process continues here */
   
-#ifdef ENABLE_DEBUG
+#ifdef SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "coserver process id is %d\n", pid);
 #endif
 
@@ -938,7 +938,7 @@ svz_coserver_check (void)
       sock = coserver->sock;
       while (sock->recv_buffer_fill > 0)
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "%s: coserver response detected\n",
 		   svz_coservertypes[coserver->type].name);
 #endif
@@ -1026,7 +1026,7 @@ svz_coserver_finalize (void)
       svz_coserver_destroy (coserver->type);
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "coserver: %d callback(s) left\n",
 	   svz_hash_size (svz_coserver_callbacks));
 #endif

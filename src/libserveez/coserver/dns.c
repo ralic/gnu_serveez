@@ -1,7 +1,7 @@
 /*
  * dns.c - DNS lookup coserver implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: dns.c,v 1.6 2001/05/19 23:04:58 ela Exp $
+ * $Id: dns.c,v 1.7 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -77,10 +77,10 @@ dns_handle_request (char *inbuf)
         {
           memcpy (&addr, host->h_addr_list[0], host->h_length);
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "dns: %s is %s\n",
 		   host->h_name, svz_inet_ntoa (addr));
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 	  sprintf (resolved, "%s", svz_inet_ntoa (addr));
 	  return resolved;
 	}

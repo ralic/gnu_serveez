@@ -1,7 +1,7 @@
 /*
  * icmp-socket.c - ICMP socket implementations
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.20 2001/12/15 02:47:38 ela Exp $
+ * $Id: icmp-socket.c,v 1.21 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -180,7 +180,7 @@ static IcmpCreateFileProc IcmpCreateFile = NULL;
 static IcmpCloseHandleProc IcmpCloseHandle = NULL;
 static IcmpSendEchoProc IcmpSendEcho = NULL;
 static HANDLE IcmpHandle = NULL;
-static HANDLE hIcmp = INVALID_HANDLE_VALUE;
+static HANDLE hIcmp = INVALID_HANDLE;
 
 /*
  * Load the @file{ICMP.DLL} library into process address space and get all
@@ -213,7 +213,7 @@ svz_icmp_startup (void)
     }
 
   /* open ping service */
-  if ((hIcmp = IcmpCreateFile ()) == INVALID_HANDLE_VALUE)
+  if ((hIcmp = IcmpCreateFile ()) == INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "IcmpCreateFile: %s\n", SYS_ERROR);
       FreeLibrary (IcmpHandle);
@@ -221,7 +221,7 @@ svz_icmp_startup (void)
       return;
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "icmp services successfully initialized\n");
 #endif
 }
@@ -233,7 +233,7 @@ void
 svz_icmp_cleanup (void)
 {
   /* close ip service */
-  if (hIcmp != INVALID_HANDLE_VALUE)
+  if (hIcmp != INVALID_HANDLE)
     {
       if (!IcmpCloseHandle (hIcmp))
        svz_log (LOG_ERROR, "IcmpCloseHandle: %s\n", SYS_ERROR);
@@ -334,7 +334,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
       /* validate the ICMP data checksum */
       if (header->checksum != svz_raw_ip_checksum (p, len))
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "icmp: invalid data checksum\n");
 #endif
 	  return ICMP_ERROR;
@@ -343,7 +343,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
       /* check the ICMP header identification */
       if (header->ident == getpid () + sock->id)
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "icmp: rejecting native packet\n");
 #endif
 	  return ICMP_ERROR;
@@ -353,7 +353,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
       if ((header->port != sock->remote_port) && 
 	  !(sock->flags & SOCK_FLAG_LISTENING))
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "icmp: rejecting filtered packet\n");
 #endif
 	  return ICMP_ERROR;
@@ -362,7 +362,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
     }
 
   /* What kind of packet is this ? */
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   else if (header->type <= ICMP_MAX_TYPE)
     {
       if (svz_icmp_request[header->type])
@@ -373,7 +373,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
 		 header->type);
       return ICMP_ERROR;
     }
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   if (header->type == sock->itype)
     {
@@ -389,13 +389,13 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
 	}
       return (length + ICMP_HEADER_SIZE);
     }
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   else
     {
       svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n", 
 	       header->type);
     }
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   return ICMP_ERROR;
 }
@@ -439,11 +439,11 @@ svz_icmp_read_socket (svz_socket_t *sock)
         {
 	  sock->remote_addr = sender.sin_addr.s_addr;
 	}
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
 	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
 	       svz_inet_ntoa (sock->remote_addr), num_read);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
       /* 
        * Check the ICMP packet and put the packet load only into the
@@ -570,12 +570,12 @@ svz_icmp_write_socket (svz_socket_t *sock)
       sock->send_buffer_fill -= do_write;
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
 	   sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
 	   svz_inet_ntoa (receiver.sin_addr.s_addr),
 	   do_write - (p - sock->send_buffer));
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
 }
@@ -683,7 +683,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
  * icmp header is stored in front of the actual packet data.
  */
 int
-svz_icmp_printf (svz_socket_t *sock, const char *fmt, ...)
+svz_icmp_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -752,7 +752,7 @@ svz_icmp_check_request (svz_socket_t *sock)
   /* Check if any server processed this packet. */
   if (sock->recv_buffer_fill)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "rejecting icmp packet on socket %d\n",
 	       sock->sock_desc);
 #endif
@@ -771,11 +771,11 @@ svz_socket_t *
 svz_icmp_connect (unsigned long host, unsigned short port,
 		  unsigned char type)
 {
-  SOCKET sockfd;
+  svz_t_socket sockfd;
   svz_socket_t *sock;
 
   /* Create a client socket. */
-  if ((sockfd = svz_socket_create (PROTO_ICMP)) == (SOCKET) -1)
+  if ((sockfd = svz_socket_create (PROTO_ICMP)) == (svz_t_socket) -1)
       return NULL;
 
   /* Try to connect to the server. Does it make sense for ICMP ? */

@@ -1,7 +1,7 @@
 /*
  * test/prog-test.c - program passthrough test program
  *
- * Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: prog-test.c,v 1.2 2002/10/01 15:07:01 ela Exp $
+ * $Id: prog-test.c,v 1.3 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ main (int argc, char **argv)
 #endif
 
   /* Determine remote connection. */
-  if (getpeername ((SOCKET) s, (struct sockaddr *) &addr, &len) < 0)
+  if (getpeername ((svz_t_socket) s, (struct sockaddr *) &addr, &len) < 0)
     {
       fprintf (stderr, "getpeername: %s\n", strerror (errno));
       fflush (stderr);

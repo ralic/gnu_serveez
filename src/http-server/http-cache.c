@@ -1,7 +1,7 @@
 /*
  * http-cache.c - http protocol file cache
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.34 2001/12/07 20:37:14 ela Exp $
+ * $Id: http-cache.c,v 1.35 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -69,7 +69,7 @@ http_alloc_cache (int entries)
 	http_free_cache ();
       http_cache = svz_hash_create (entries, NULL);
       http_cache_entries = entries;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: created %d cache entries\n", entries);
 #endif
     }
@@ -98,12 +98,12 @@ http_free_cache (void)
   svz_hash_destroy (http_cache);
   http_cache_first = http_cache_last = NULL;
   http_cache = NULL;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", total, files); 
 #endif
 }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 /*
  * Check consistency of the http cache. Remove this function once the 
  * server is stable.
@@ -134,11 +134,11 @@ http_cache_consistency (void)
 	}
     }
 }
-#else /* not ENABLE_DEBUG */
+#else /* not SVZ_ENABLE_DEBUG */
 # define http_cache_consistency()
-#endif /* not ENABLE_DEBUG */
+#endif /* not SVZ_ENABLE_DEBUG */
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 static void
 http_cache_print (void)
 {
@@ -155,7 +155,7 @@ http_cache_print (void)
 }
 #else
 # define http_cache_print()
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
 /*
  * Returns the urgency value of the given http cache entry CACHE.
@@ -426,7 +426,7 @@ http_cache_write (svz_socket_t *sock)
    */
   if (cache->size <= 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: file successfully sent\n");
 #endif
       num_written = http_keep_alive (sock);
@@ -472,7 +472,7 @@ http_cache_read (svz_socket_t *sock)
   num_read = read (sock->file_desc,
 		   sock->send_buffer + sock->send_buffer_fill, do_read);
 #else
-  if (!ReadFile ((HANDLE) sock->file_desc,
+  if (!ReadFile ((svz_t_handle) sock->file_desc,
 		 sock->send_buffer + sock->send_buffer_fill,
 		 do_read, (DWORD *) &num_read, NULL))
     {
@@ -528,7 +528,7 @@ http_cache_read (svz_socket_t *sock)
   /* EOF reached and set the appropriate flags */
   if (http->filelength <= 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: `%s' successfully read\n", 
 	       cache->entry->file);
 #endif

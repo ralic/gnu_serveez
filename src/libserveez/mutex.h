@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: mutex.h,v 1.1 2003/01/05 15:28:08 ela Exp $
+ * $Id: mutex.h,v 1.2 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -27,7 +27,7 @@
 
 #include "libserveez/defines.h"
 
-#if HAVE_PTHREAD_H
+#if SVZ_HAVE_PTHREAD_H
 # include <pthread.h>
 #endif
 
@@ -35,11 +35,11 @@
 # include <windows.h>
 #endif
 
-#if HAVE_THREADS
+#if SVZ_HAVE_THREADS
 
 # ifdef __MINGW32__ /* Windows native */
 
-typedef HANDLE svz_mutex_t;
+typedef svz_t_handle svz_mutex_t;
 #  define SVZ_MUTEX_INITIALIZER NULL
 
 /* Declares a @var{mutex} object externally.  This is useful when the
@@ -82,7 +82,7 @@ typedef pthread_mutex_t svz_mutex_t;
 
 # endif
 
-#else /* !HAVE_THREADS */
+#else /* !SVZ_HAVE_THREADS */
 
 # define svz_mutex_declare(mutex)
 # define svz_mutex_define(mutex)
@@ -91,6 +91,6 @@ typedef pthread_mutex_t svz_mutex_t;
 # define svz_mutex_lock(mutex)
 # define svz_mutex_unlock(mutex)
 
-#endif /* HAVE_THREADS */
+#endif /* SVZ_HAVE_THREADS */
 
 #endif /* not __MUTEX_H__ */

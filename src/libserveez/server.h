@@ -1,7 +1,7 @@
 /*
  * server.h - generic server definitions
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.28 2003/05/31 12:12:09 ela Exp $
+ * $Id: server.h,v 1.29 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -145,9 +145,9 @@ SERVEEZ_API svz_servertype_t *svz_servertype_find __PARAMS ((svz_server_t *));
 
 SERVEEZ_API svz_config_type_t svz_servertype_definition;
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 SERVEEZ_API void svz_servertype_print __PARAMS ((void));
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
 __END_DECLS
 

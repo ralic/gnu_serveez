@@ -97,7 +97,7 @@ configuring, compiling and installing a GNU package.
 @subsubsection Getting the source
 Serveez can be found on @uref{http://ftp.gnu.org/gnu/serveez/}, on one
 of the mirrors (@uref{http://www.gnu.org/prep/ftp.html}) or at its
-original location @uref{http://www.textsure.net/~ela/download/}.  At
+original location @uref{http://www.lkcc.org/~ela/download/}.  At
 this location you will also find the RPM package mentioned in the next
 section.
 
@@ -1445,7 +1445,7 @@ The following options can be set from the configuration file.
 @item indexfile (string, default: index.html)
 The @code{indexfile} parameter is the default file served by the HTTP 
 server when the user does not specify a file but a document node
-(e.g. @uref{http://www.textsure.net/}).
+(e.g. @uref{http://www.lkcc.org/}).
 
 @item docs (string, default: ../show)
 The @code{docs} parameter is the document root where the server finds its
@@ -1459,7 +1459,7 @@ value is @samp{public_html}.
 @item cgi-url (string, default: /cgi-bin)
 This parameter is the first part of the URL the HTTP server identifies a
 CGI request. For instance if you specify here @file{/cgi-bin} and the
-user requests @uref{http://www.textsure.net/cgi-bin/test.pl} then the
+user requests @uref{http://www.lkcc.org/cgi-bin/test.pl} then the
 HTTP server tries to execute the program @file{test.pl} within the
 @code{cgi-dir} (see below) and pipes its output to the user.
 
@@ -1733,7 +1733,7 @@ Kill user, wildcards allowed.
 Serveez implements something like a telnet protocol for 
 administrative purposes. You just need to start a telnet session like:
 @example
-$ telnet www.textsure.net 42420
+$ telnet www.lkcc.org 42420
 @end example
 After pressing @key{RET} you will be asked for a password which you
 might setup passing Serveez the -P argument. 
@@ -2129,7 +2129,7 @@ The target port configuration.
 
 The whole Serveez package was originally written by Martin 
 Grabmueller as a fast C backend for a chat system (now called textSure).
-This can be found at @uref{http://www.textsure.net/}. The server 
+This can be found at @uref{http://www.lkcc.org/}. The server 
 implements two kinds of protocols. One is for the master server which 
 does all the administrative stuff. The second is for the chat 
 clients (applets or bots). Basically the chat server is a simple multicast
@@ -2526,7 +2526,7 @@ hostname to the associated IP address. The format of the coserver input
 line and the macro from @file{coserver.h} is shown below. The IRC server is
 currently using this coserver for resolving its @samp{?-Lines}.
 @xref{Existing servers}, for more information. In the example below
-@code{realhost} is something like @samp{www.textsure.net}.
+@code{realhost} is something like @samp{www.lkcc.org}.
 
 @example
 Format:

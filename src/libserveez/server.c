@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.36 2003/05/31 12:12:09 ela Exp $
+ * $Id: server.c,v 1.37 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -209,7 +209,7 @@ svz_servertype_find (svz_server_t *server)
   return server ? server->type : NULL;
 }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 /*
  * Debug helper function to traverse all currently known server types.
  */
@@ -228,7 +228,7 @@ svz_servertype_print (void)
       svz_config_prototype_print (&stype->config_prototype);
     }
 }
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
 /*
  * This is the list of actually instantiated servers. The hash table 

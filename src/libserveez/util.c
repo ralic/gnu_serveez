@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.24 2003/01/05 15:28:08 ela Exp $
+ * $Id: util.c,v 1.25 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -109,7 +109,7 @@ svz_mutex_define (svz_log_mutex)
  * Print a message to the log system. @var{level} specifies the prefix.
  */
 void
-svz_log (int level, const char *format, ...)
+svz_log (int level, svz_c_const char *format, ...)
 {
   va_list args;
   time_t tm;
@@ -304,15 +304,15 @@ svz_tolower (char *str)
  * strings are equal.
  */
 int
-svz_strcasecmp (const char *str1, const char *str2)
+svz_strcasecmp (svz_c_const char *str1, svz_c_const char *str2)
 {
 #if HAVE_STRCASECMP
   return strcasecmp (str1, str2);
 #elif HAVE_STRICMP
   return stricmp (str1, str2);
 #else
-  const char *p1 = str1;
-  const char *p2 = str2;
+  svz_c_const char *p1 = str1;
+  svz_c_const char *p2 = str2;
   unsigned char c1, c2;
 
   if (p1 == p2)
@@ -341,15 +341,16 @@ svz_strcasecmp (const char *str1, const char *str2)
  * @var{str2}. It only compares the first @var{n} characters of @var{str1}.
  */
 int
-svz_strncasecmp (const char *str1, const char *str2, unsigned int n)
+svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2, 
+		 unsigned int n)
 {
 #if HAVE_STRNCASECMP
   return strncasecmp (str1, str2, n);
 #elif HAVE_STRNICMP
   return strnicmp (str1, str2, n);
 #else
-  const char *p1 = str1;
-  const char *p2 = str2;
+  svz_c_const char *p1 = str1;
+  svz_c_const char *p2 = str2;
   unsigned char c1, c2;
 
   if (p1 == p2)

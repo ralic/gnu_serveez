@@ -1,7 +1,7 @@
 /*
  * test/codec-test.c - codec tests
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: codec-test.c,v 1.3 2001/10/11 11:13:15 ela Exp $
+ * $Id: codec-test.c,v 1.4 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -129,7 +129,7 @@ main (int argc, char **argv)
 
   /* Setup serveez core library. */
   svz_boot ();
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_config.verbosity = 9;
   svz_log_setfile (stderr);
 #endif
@@ -140,8 +140,8 @@ main (int argc, char **argv)
 #endif
 
   /* Create single pipe socket for stdin and stdout. */
-  if ((sock = svz_pipe_create ((HANDLE) fileno (stdin), 
-			       (HANDLE) fileno (stdout))) == NULL)
+  if ((sock = svz_pipe_create ((svz_t_handle) fileno (stdin), 
+			       (svz_t_handle) fileno (stdout))) == NULL)
     return result;
   sock->read_socket = codec_recv;
   sock->write_socket = codec_send;
@@ -180,10 +180,10 @@ main (int argc, char **argv)
   /* Finalize the core API. */
   svz_halt ();
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   if (svz_allocated_bytes || svz_allocated_blocks)
     return result;
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   return 0;
 }

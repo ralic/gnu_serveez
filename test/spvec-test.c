@@ -1,7 +1,7 @@
 /*
  * test/spvec-test.c - sparse vector function tests
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: spvec-test.c,v 1.3 2001/06/16 15:02:46 ela Exp $
+ * $Id: spvec-test.c,v 1.4 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -397,11 +397,11 @@ main (int argc, char **argv)
   svz_spvec_destroy (list);
   test_ok ();
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   /* is heap ok ? */
   test_print ("           heap: ");
   test (svz_allocated_bytes || svz_allocated_blocks);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   return result;
 }

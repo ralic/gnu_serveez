@@ -1,7 +1,7 @@
 /*
  * option.c - getopt function implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.10 2002/03/27 14:34:48 ela Exp $
+ * $Id: option.c,v 1.11 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -272,7 +272,7 @@ handle_options (int argc, char **argv)
 	      usage ();
 	      exit (1);
 	    }
-#if ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
 	  options.pass = svz_pstrdup (crypt (optarg, optarg));
 #else
 	  options.pass = svz_pstrdup (optarg);

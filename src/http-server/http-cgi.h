@@ -1,7 +1,7 @@
 /*
  * http-cgi.h - http cgi header file
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.12 2001/08/03 18:09:04 ela Exp $
+ * $Id: http-cgi.h,v 1.13 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -40,7 +40,8 @@
 #define CGI_VERSION "CGI/1.0"
 
 char *http_check_cgi (svz_socket_t *sock, char *request);
-int http_cgi_exec (svz_socket_t *, HANDLE, HANDLE, char *, char *, int);
+int http_cgi_exec (svz_socket_t *, svz_t_handle, svz_t_handle, 
+		   char *, char *, int);
 int http_post_response (svz_socket_t *sock, char *request, int flags);
 int http_cgi_get_response (svz_socket_t *sock, char *request, int flags);
 int http_cgi_write (svz_socket_t *sock);

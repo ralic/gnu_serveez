@@ -1,7 +1,7 @@
 /*
  * boot.h - configuration and boot declarations
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.10 2001/12/13 18:00:00 ela Exp $
+ * $Id: boot.h,v 1.11 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -35,7 +35,7 @@ typedef struct
   /* program's password */
   char *password;
   /* defines how many clients are allowed to connect */
-  SOCKET max_sockets;
+  svz_t_socket max_sockets;
   /* when was the program started */
   long start;
   /* log level verbosity */

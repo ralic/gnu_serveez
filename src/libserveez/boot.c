@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.23 2003/01/05 15:28:08 ela Exp $
+ * $Id: boot.c,v 1.24 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -70,7 +70,7 @@ int svz_have_Win32 = 0;
 #endif
 
 /* Runtime flag if this is the debug version or not. */
-#ifdef ENABLE_DEBUG
+#ifdef SVZ_ENABLE_DEBUG
 int svz_have_debug = 1;
 #else
 int svz_have_debug = 0;
@@ -78,7 +78,7 @@ int svz_have_debug = 0;
 
 /* Runtime checkable flags for configuration language and code if flood
    protection has been enabled or not. */
-#ifdef ENABLE_FLOOD_PROTECTION
+#ifdef SVZ_ENABLE_FLOOD_PROTECTION
 int svz_have_floodprotect = 1;
 #else
 int svz_have_floodprotect = 0;

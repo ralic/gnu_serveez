@@ -1,3 +1,19 @@
+2003-06-14  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in: Corrected the AC_INIT() call.  Definition of
+	svz_c_const, SVZ_ENABLE_DEBUG, SVZ_ENABLE_CRYPT,
+	SVZ_ENABLE_FLOOD_PROTECTION, SVZ_HAVE_VARARGS_H,
+	SVZ_HAVE_PTHREAD_H, SVZ_HAVE_THREADS, SVZ_HAVE_SNPRINTF,
+	SVZ_HAVE_VSNPRINTF, svz_t_socket, svz_t_handle, svz_t_retsig,
+	svz_t_size, svz_t_off, SVZ_HAVE_CRYPT, svz_c_signed.  Thus we
+	avoid macro name clashes with other applications using the serveez
+	core library.  Changed *all* callers/users.  Renamed the
+	--enable-* and --disable-* options corresponding to its default
+	value.  Removed INVALID_SOCKET and inline definition.
+
+	* README-Win32, RELEASE, doc/serveez.en.html, doc/serveez.texi:
+	Replaced each occurrence of 'www.textsure.net' by 'www.lkcc.org'.
+
 2003-06-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Released version `0.1.5' and bumped up to 

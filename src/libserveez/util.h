@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.22 2003/01/05 15:28:08 ela Exp $
+ * $Id: util.h,v 1.23 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -39,12 +39,12 @@
 #endif
 
 /* declare crypt interface if necessary */
-#if ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
 #if __CRYPT_IMPORT__
 #include <crypt.h>
 #else
-extern char *crypt __PARAMS ((const char *, const char *));
-extern char *getpass __PARAMS ((const char *));
+extern char *crypt __PARAMS ((svz_c_const char *, svz_c_const char *));
+extern char *getpass __PARAMS ((svz_c_const char *));
 #endif /* __CRYPT_IMPORT__ */
 #endif
 
@@ -67,15 +67,16 @@ typedef unsigned char svz_uint8_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API void svz_log __PARAMS ((int, const char *, ...));
+SERVEEZ_API void svz_log __PARAMS ((int, svz_c_const char *, ...));
 SERVEEZ_API void svz_log_setfile __PARAMS ((FILE *));
 
 SERVEEZ_API int svz_hexdump __PARAMS ((FILE *, char *, int, char *, int, int));
 SERVEEZ_API char *svz_itoa __PARAMS ((unsigned int));
 SERVEEZ_API unsigned int svz_atoi __PARAMS ((char *));
-SERVEEZ_API int svz_strcasecmp __PARAMS ((const char *, const char *));
-SERVEEZ_API int svz_strncasecmp __PARAMS ((const char *, const char *, 
-					   unsigned int));
+SERVEEZ_API int svz_strcasecmp __PARAMS ((svz_c_const char *, 
+					  svz_c_const char *));
+SERVEEZ_API int svz_strncasecmp __PARAMS ((svz_c_const char *,
+					   svz_c_const char *, unsigned int));
 SERVEEZ_API char *svz_getcwd __PARAMS ((void));
 SERVEEZ_API int svz_openfiles __PARAMS ((int));
 SERVEEZ_API char *svz_time __PARAMS ((long));
@@ -91,7 +92,7 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
  */
 #define SVZ_INT32(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
-  ((unsigned char) *(p + 2) << 16) | ((signed char) *(p + 3) << 24))
+  ((unsigned char) *(p + 2) << 16) | ((svz_c_signed char) *(p + 3) << 24))
 
 /*
  * Convert the byte array pointed to by @var{p} to a signed 64 bit integer.
@@ -100,13 +101,13 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
   ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24) \
   ((unsigned char) *(p + 2) << 32) | ((unsigned char) *(p + 3) << 40) \
-  ((unsigned char) *(p + 2) << 48) | ((signed char) *(p + 3) << 54))
+  ((unsigned char) *(p + 2) << 48) | ((svz_c_signed char) *(p + 3) << 54))
 
 /*
  * Convert the byte array pointed to by @var{p} to a signed 16 bit integer.
  */
 #define SVZ_INT16(p) \
-  ((unsigned char) *p | ((signed char) *(p + 1) << 8))
+  ((unsigned char) *p | ((svz_c_signed char) *(p + 1) << 8))
 
 /*
  * Convert the byte array pointed to by @var{p} to an unsigned 32 bit integer.
@@ -146,7 +147,8 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
 # define SOCK_UNAVAILABLE  WSAEWOULDBLOCK
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
-# define INVALID_HANDLE    -1
+# define INVALID_SOCKET    ((svz_t_socket) -1)
+# define INVALID_HANDLE    ((svz_t_handle) -1)
 # define SOCK_UNAVAILABLE  EAGAIN
 # define SOCK_INPROGRESS   EINPROGRESS
 #endif /* !__MINGW32__ */

@@ -1,7 +1,7 @@
 /*
  * irc-core.c - IRC core protocol functions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.26 2001/06/27 20:38:36 ela Exp $
+ * $Id: irc-core.c,v 1.27 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -160,7 +160,7 @@ irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
 
   if (ret)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc protocol detected\n");
 #endif
       return -1;

@@ -2,7 +2,7 @@
  * cfg.c - configuration object functions
  *
  * Copyright (C) 2002 Andreas Rottmann <a.rottmann@gmx.at>
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfg.c,v 1.1 2002/12/05 16:57:56 ela Exp $
+ * $Id: cfg.c,v 1.2 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -573,7 +573,7 @@ svz_config_type_finalize (void)
   svz_hash_destroy (svz_config_types);
 }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 /*
  * This function is a debug helper for checking the layout of the
  * configuration prototype @var{prototype}.
@@ -630,4 +630,4 @@ svz_config_prototype_print (svz_config_prototype_t *prototype)
       printf ("  no configuration option\n");
     }
 }
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */

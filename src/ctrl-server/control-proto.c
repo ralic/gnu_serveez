@@ -1,7 +1,7 @@
 /*
  * control-proto.c - control protocol implementation
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.63 2002/12/05 16:57:56 ela Exp $
+ * $Id: control-proto.c,v 1.64 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -185,7 +185,7 @@ ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
 		   sock->recv_buffer_fill - ret);
 	}
       sock->recv_buffer_fill -= ret;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "control protocol client detected\n");
 #endif
       return -1;
@@ -404,9 +404,9 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 		   " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
 		   " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
 		   " idle     : %d\r\n"
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
 		   " flood    : %d (points), %d (limit)\r\n"
-#endif /* ENABLE_FLOOD_PROTECTION */
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 		   " avail    : %s\r\n\r\n",
 		   xsock->send_buffer_size,
 		   xsock->send_buffer_fill,
@@ -415,10 +415,10 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 		   xsock->recv_buffer_fill,
 		   svz_time (xsock->last_recv),
 		   xsock->idle_counter,
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
 		   xsock->flood_points,
 		   xsock->flood_limit,
-#endif /* ENABLE_FLOOD_PROTECTION */
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 		   xsock->unavailable ? "no" : "yes");
 
   return flag;
@@ -496,12 +496,12 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 		   " IDENT"
 		   " REVERSE-DNS"
 		   " DNS"
-#ifdef ENABLE_FLOOD_PROTECTION
+#ifdef SVZ_ENABLE_FLOOD_PROTECTION
 		   " FLOOD"
-#endif /* ENABLE_FLOOD_PROTECTION */
-#ifdef ENABLE_DEBUG
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
+#ifdef SVZ_ENABLE_DEBUG
 		   " DEBUG"
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
 		   " WIN32"
 #endif /* __MINGW32__, __CYGWIN__ */
@@ -517,10 +517,10 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 		   svz_sock_connections, svz_config.max_sockets);
   svz_sock_printf (sock, " * uptime is %s\r\n", 
 		   svz_uptime (time (NULL) - svz_config.start));
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
 		   svz_allocated_bytes, svz_allocated_blocks);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
   svz_sock_printf (sock, "\r\n");
 
   return flag;
@@ -818,7 +818,7 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
        * check here the control protocol password
        */
       if (len <= 2) return -1;
-#if ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
       request[len] = '\0';
       if (svz_config.password == NULL ||
 	  !strcmp (crypt (request, svz_config.password), svz_config.password))

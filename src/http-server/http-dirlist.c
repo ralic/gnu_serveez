@@ -1,7 +1,7 @@
 /*
  * http-dirlist.c - http protocol directory listing
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.23 2001/12/23 16:28:39 ela Exp $
+ * $Id: http-dirlist.c,v 1.24 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -179,7 +179,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
   else
     strcat (filename, "/*");
       
-  if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE_VALUE)
+  if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE)
 #else
   if ((dir = opendir (dirname)) == NULL)
 #endif

@@ -1,7 +1,7 @@
 /*
  * http-core.h - http core definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.16 2002/01/20 17:12:29 ela Exp $
+ * $Id: http-core.h,v 1.17 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -82,7 +82,7 @@ struct http_socket
   int filelength;        /* content length for the http file */
   int keepalive;         /* how many requests left for a connection */
   off_t fileoffset;      /* file offset used by sendfile */
-  HANDLE pid;            /* the pid of the cgi (process handle) */
+  svz_t_handle pid;      /* the pid of the cgi (process handle) */
   time_t timestamp;      /* connection access time */
   char *request;         /* the original request */
   char *host;            /* resolved host name of client */

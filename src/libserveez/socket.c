@@ -1,7 +1,7 @@
 /*
  * socket.c - socket management implementation
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.23 2002/06/06 20:04:51 ela Exp $
+ * $Id: socket.c,v 1.24 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -73,7 +73,7 @@
  */
 int svz_sock_connections = 0;
 
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
 /*
  * This routine can be called if flood protection is wished for
  * socket readers. Return non-zero if the socket should be kicked
@@ -99,7 +99,7 @@ svz_sock_flood_protect (svz_socket_t *sock, int num_read)
     }
   return 0;
 }
-#endif /* ENABLE_FLOOD_PROTECTION */
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 
 /*
  * The default function which gets called when a client shuts down
@@ -108,7 +108,7 @@ svz_sock_flood_protect (svz_socket_t *sock, int num_read)
 static int
 svz_sock_default_disconnect (svz_socket_t *sock)
 {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
 #endif
 
@@ -179,7 +179,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
    */
   if (sock->recv_buffer_fill > port->detection_fill)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
@@ -200,7 +200,7 @@ svz_sock_idle_protect (svz_socket_t *sock)
 
   if (time (NULL) - sock->last_recv > port->detection_wait)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
@@ -377,7 +377,7 @@ svz_sock_alloc (void)
   sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
   sock->userflags = SOCK_FLAG_INIT;
   sock->file_desc = -1;
-  sock->sock_desc = (SOCKET) -1;
+  sock->sock_desc = (svz_t_socket) -1;
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
   sock->pid = INVALID_HANDLE;
@@ -395,9 +395,9 @@ svz_sock_alloc (void)
   sock->last_send = time (NULL);
   sock->last_recv = time (NULL);
 
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
   sock->flood_limit = 100;
-#endif /* ENABLE_FLOOD_PROTECTION */
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 
   return sock;
 }
@@ -632,7 +632,7 @@ svz_sock_disconnect (svz_socket_t *sock)
   if (closesocket (sock->sock_desc) < 0)
     svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
 #endif
 
@@ -709,7 +709,7 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
  * arguments. See the printf(3) manual page for details.
  */
 int
-svz_sock_printf (svz_socket_t *sock, const char *fmt, ...)
+svz_sock_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];

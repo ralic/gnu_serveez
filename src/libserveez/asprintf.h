@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: asprintf.h,v 1.2 2003/01/11 09:57:46 ela Exp $
+ * $Id: asprintf.h,v 1.3 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -34,14 +34,15 @@
 #include <stdarg.h>
 
 /* to be sure not to redefine `va_start' in <stdarg.h> */
-#if defined (HAVE_VARARGS_H) && !defined (va_start)
+#if defined (SVZ_HAVE_VARARGS_H) && !defined (va_start)
 # include <varargs.h>
 #endif
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_asprintf __PARAMS ((char **, const char *, ...));
-SERVEEZ_API int svz_vasprintf __PARAMS ((char **, const char *, va_list));
+SERVEEZ_API int svz_asprintf __PARAMS ((char **, svz_c_const char *, ...));
+SERVEEZ_API int svz_vasprintf __PARAMS ((char **, svz_c_const char *, 
+					 va_list));
 
 __END_DECLS
 

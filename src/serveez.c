@@ -1,7 +1,7 @@
 /*
  * serveez.c - main module
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.51 2003/04/06 20:01:25 ela Exp $
+ * $Id: serveez.c,v 1.52 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -99,9 +99,9 @@ guile_entry (int argc, char **argv)
       svz_config.password = svz_strdup (options->pass);
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_NOTICE, "serveez starting, debugging enabled\n");
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   svz_openfiles (svz_config.max_sockets);
   svz_log (LOG_NOTICE, "using %d socket descriptors\n",
@@ -135,14 +135,14 @@ guile_entry (int argc, char **argv)
 
   svz_halt ();
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
 	   svz_allocated_bytes, svz_allocated_blocks);
 
 #if DEBUG_MEMORY_LEAKS
   svz_heap ();
 #endif
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
 #ifdef __MINGW32__
   if (options->daemon)

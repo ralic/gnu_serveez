@@ -1,7 +1,7 @@
 /*
  * ident.c - ident coserver implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.c,v 1.5 2001/05/19 23:04:58 ela Exp $
+ * $Id: ident.c,v 1.6 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -60,7 +60,7 @@
 char *
 ident_handle_request (char *inbuf)
 {
-  SOCKET sock;
+  svz_t_socket sock;
   struct sockaddr_in server;
   unsigned long addr;
   unsigned lport, rport;
@@ -209,7 +209,7 @@ ident_handle_request (char *inbuf)
     }
   *u = '\0';
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "ident: received identified user `%s'\n", user);
 #endif
 

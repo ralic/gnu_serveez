@@ -1,7 +1,7 @@
 /*
  * irc-proto.c - basic IRC protocol functions
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.40 2002/12/05 16:57:56 ela Exp $
+ * $Id: irc-proto.c,v 1.41 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -383,7 +383,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 	      channel->client[n] = client;
 	      channel->cflag[n] = 0;
 	      channel->clients++;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	      svz_log (LOG_DEBUG, "irc: %s joined channel %s\n", 
 		       client->nick, channel->name);
 #endif
@@ -418,7 +418,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
       channel->clients = 1;
       channel->by = svz_strdup (client->nick);
       channel->since = time (NULL);
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: channel %s created\n", channel->name);
       svz_log (LOG_DEBUG, "irc: %s joined channel %s\n", 
 	       client->nick, channel->name);
@@ -464,7 +464,7 @@ irc_leave_channel (irc_config_t *cfg,
 	    svz_free (channel->cflag);
 	    channel->cflag = NULL;
 	  }
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	svz_log (LOG_DEBUG, "irc: %s left channel %s\n",
 		 client->nick, channel->name);
 #endif
@@ -492,7 +492,7 @@ irc_leave_channel (irc_config_t *cfg,
   /* no client in channel ? */
   if (channel->clients == 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
 #endif
       irc_delete_channel (cfg, channel);

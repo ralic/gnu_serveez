@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.35 2003/06/01 12:57:07 ela Exp $
+ * $Id: portcfg.c,v 1.36 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -187,7 +187,7 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
   /* Try adding a new port configuration. */
   if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "portcfg `%s' already registered\n", name);
 #endif
       svz_hash_put (svz_portcfgs, name, port);
@@ -484,7 +484,7 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
 
   if ((ifc = svz_interface_search (str)) != NULL)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "`%s' is %s\n", ifc->description, 
 	       svz_inet_ntoa (ifc->ipaddr));
 #endif

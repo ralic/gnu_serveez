@@ -9,7 +9,7 @@ dnl
 
 AC_DEFUN([AC_SERVEEZ], [
   AC_ARG_WITH([serveez],
-    [  --with-serveez=DIR      serveez installation in DIR [/usr/local]],
+    [  --with-serveez=DIR      serveez installation in DIR @<:@/usr/local@:>@],
     [case "$withval" in
      no)  SVZDIR="no" ;;
      yes) SVZDIR="/usr/local" ;;

@@ -1,7 +1,7 @@
 /*
  * reverse-dns.c - reverse DNS lookup coserver implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: reverse-dns.c,v 1.5 2001/05/19 23:04:58 ela Exp $
+ * $Id: reverse-dns.c,v 1.6 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -120,9 +120,9 @@ reverse_dns_handle_request (char *inbuf)
 	      reverse_dns_cache.entries++;
 	    }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "reverse dns: %s is %s\n", ip, host->h_name);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 	  sprintf (resolved, "%s", host->h_name);
 	  return resolved;
 	}

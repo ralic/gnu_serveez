@@ -1,7 +1,7 @@
 /*
  * pipe-socket.c - pipes in socket structures
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.21 2001/09/17 21:58:53 ela Exp $
+ * $Id: pipe-socket.c,v 1.22 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -318,7 +318,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 	      svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
 	}
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "pipe (%d-%d) disconnected\n",
 	       sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 #endif
@@ -372,7 +372,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 
 #endif /* __MINGW32__ */
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "pipe listener (%s) destroyed\n", sock->recv_pipe);
 #endif
 
@@ -504,14 +504,14 @@ svz_pipe_read_socket (svz_socket_t *sock)
     {
       sock->last_recv = time (NULL);
 
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
       if (svz_sock_flood_protect (sock, num_read))
 	{
 	  svz_log (LOG_ERROR, "kicked pipe %d (flood)\n", 
 		   sock->pipe_desc[READ]);
 	  return -1;
 	}
-#endif /* ENABLE_FLOOD_PROTECTION */
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 
       sock->recv_buffer_fill += num_read;
 
@@ -627,7 +627,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
  * @var{recv_fd} and @var{send_fd}. Return @code{NULL} on errors.
  */
 svz_socket_t *
-svz_pipe_create (HANDLE recv_fd, HANDLE send_fd)
+svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
 {
   svz_socket_t *sock;
 
@@ -661,7 +661,7 @@ svz_pipe_create (HANDLE recv_fd, HANDLE send_fd)
  * Unices. Return a non-zero value on errors.
  */
 int
-svz_pipe_create_pair (HANDLE pipe_desc[2])
+svz_pipe_create_pair (svz_t_handle pipe_desc[2])
 {
 #ifdef __MINGW32__
 
@@ -837,7 +837,7 @@ svz_socket_t *
 svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 {
   svz_socket_t *sock;
-  HANDLE recv_pipe, send_pipe;
+  svz_t_handle recv_pipe, send_pipe;
 #ifndef __MINGW32__
   unsigned int mask, uid, gid;
   struct stat buf;
@@ -929,7 +929,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   /* try opening receiving pipe */
   if ((recv_pipe = CreateFile (sock->recv_pipe, GENERIC_READ, 0,
 			       NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 
-			       NULL)) == INVALID_HANDLE_VALUE)
+			       NULL)) == INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       svz_sock_free (sock);
@@ -939,7 +939,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   /* try opening sending pipe */
   if ((send_pipe = CreateFile (sock->send_pipe, GENERIC_WRITE, 0,
 			       NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 
-			       NULL)) == INVALID_HANDLE_VALUE)
+			       NULL)) == INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       DisconnectNamedPipe (recv_pipe);
@@ -996,9 +996,9 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
 #ifdef __MINGW32__
-  HANDLE send_pipe;
+  svz_t_handle send_pipe;
 #endif
-  HANDLE recv_pipe;
+  svz_t_handle recv_pipe;
 
   /* Setup the text representation of the fifo names. */
   svz_pipe_set_files (sock, recv->name, send->name);
@@ -1099,7 +1099,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
     100,                                        /* timeout in ms */
     NULL);                                      /* no security */
 
-  if (recv_pipe == INVALID_HANDLE_VALUE || !recv_pipe)
+  if (recv_pipe == INVALID_HANDLE || !recv_pipe)
     {
       svz_log (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);
       return -1;
@@ -1116,7 +1116,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
     100,                                         /* timeout in ms */
     NULL);                                       /* no security */
       
-  if (send_pipe == INVALID_HANDLE_VALUE || !send_pipe)
+  if (send_pipe == INVALID_HANDLE || !send_pipe)
     {
       svz_log (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);
       return -1;

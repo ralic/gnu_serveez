@@ -1,7 +1,7 @@
 /*
  * http-cgi.c - http cgi implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.50 2001/12/07 20:37:14 ela Exp $
+ * $Id: http-cgi.c,v 1.51 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -264,7 +264,7 @@ http_cgi_read (svz_socket_t *sock)
   sock->userflags |= HTTP_FLAG_DONE;
   if (sock->send_buffer_fill == 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_CGI;
@@ -337,7 +337,7 @@ http_cgi_write (svz_socket_t *sock)
    */
   if (http->contentlength <= 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_POST;
@@ -547,7 +547,7 @@ http_pre_exec (svz_socket_t *sock,   /* socket structure */
   if (chdir (cfg->cgidir) == -1)
     {
       svz_log (LOG_ERROR, "cgi: chdir: %s\n", SYS_ERROR);
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: cannot change dir: %s\n", cfg->cgidir);
 #endif
       return NULL;
@@ -625,14 +625,14 @@ http_gen_cgi_apps (http_config_t *cfg)
  */
 int
 http_cgi_exec (svz_socket_t *sock, /* the socket structure */
-	       HANDLE in,      /* here the cgi reads from or NULL if GET */
-	       HANDLE out,     /* here the cgi writes to */
+	       svz_t_handle in,    /* here the cgi reads from or NULL if GET */
+	       svz_t_handle out,   /* here the cgi writes to */
 	       char *file,     /* cgi script file */
 	       char *request,  /* original request (needed for GET) */
 	       int type)       /* request type (POST or GET) */
 {
-  HANDLE pid;    /* the pid from fork() or the process handle in Win32 */
-  char *cgifile; /* path including the name of the cgi script */
+  svz_t_handle pid; /* the pid from fork() or the process handle in Win32 */
+  char *cgifile;    /* path including the name of the cgi script */
   http_socket_t *http;
   svz_envblock_t *envp;
 
@@ -705,7 +705,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       cgiapp = svz_malloc (MAX_PATH);
       if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
 	svz_log (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       /* if this is enabled you could learn about the system */
       else
 	svz_log (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
@@ -746,7 +746,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 		      &StartupInfo, &ProcessInfo))
     {
       svz_log (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: cannot execute: %s\n", cgifile);
 #endif
       svz_sock_printf (sock, "\r\n");
@@ -765,7 +765,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   svz_free (savedir);
   pid = ProcessInfo.hProcess;
 
-#ifdef ENABLE_DEBUG
+#ifdef SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "http: cgi %s got pid 0x%08X\n", 
 	   file + 1, ProcessInfo.dwProcessId);
 #endif
@@ -800,14 +800,14 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 	  svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
 	  exit (0);
 	}
-#ifndef ENABLE_DEBUG
+#ifndef SVZ_ENABLE_DEBUG
       /* duplicate stderr to the cgi output */
       if (dup2 (out, 2) != 2)
 	{
 	  svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
 	  exit (0);
 	}
-#endif /* !ENABLE_DEBUG */
+#endif /* !SVZ_ENABLE_DEBUG */
 
       /* handle post method */
       if (type == POST_METHOD)
@@ -891,7 +891,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 
   /* ------ still current (parent) process here ------ */
 
-#ifdef ENABLE_DEBUG
+#ifdef SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "http: cgi %s got pid %d\n", file + 1, pid);
 #endif
 
@@ -931,7 +931,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 int
 http_cgi_get_response (svz_socket_t *sock, char *request, int flags)
 {
-  HANDLE cgi2s[2];
+  svz_t_handle cgi2s[2];
   char *file;
 
   /* check if this is a cgi request at all */
@@ -983,8 +983,8 @@ http_post_response (svz_socket_t *sock, char *request, int flags)
 {
   char *file;
   char *length;
-  HANDLE s2cgi[2];
-  HANDLE cgi2s[2];
+  svz_t_handle s2cgi[2];
+  svz_t_handle cgi2s[2];
   http_socket_t *http;
 
   /* get http socket structure */

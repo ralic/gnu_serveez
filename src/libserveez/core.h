@@ -1,7 +1,7 @@
 /*
  * core.h - socket and file descriptor declarations and definitions
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.15 2002/07/28 12:13:17 ela Exp $
+ * $Id: core.h,v 1.16 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -50,20 +50,21 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_fd_nonblock __PARAMS ((int));
 SERVEEZ_API int svz_fd_block __PARAMS ((int));
 SERVEEZ_API int svz_fd_cloexec __PARAMS ((int));
-SERVEEZ_API int svz_tcp_cork __PARAMS ((SOCKET, int));
-SERVEEZ_API int svz_tcp_nodelay __PARAMS ((SOCKET, int, int *));
-SERVEEZ_API int svz_socket_type __PARAMS ((SOCKET, int *));
-SERVEEZ_API int svz_socket_connect __PARAMS ((SOCKET, unsigned long, 
+SERVEEZ_API int svz_tcp_cork __PARAMS ((svz_t_socket, int));
+SERVEEZ_API int svz_tcp_nodelay __PARAMS ((svz_t_socket, int, int *));
+SERVEEZ_API int svz_socket_type __PARAMS ((svz_t_socket, int *));
+SERVEEZ_API int svz_socket_connect __PARAMS ((svz_t_socket, unsigned long, 
 					      unsigned short));
-SERVEEZ_API SOCKET svz_socket_create __PARAMS ((int));
-SERVEEZ_API int svz_socket_create_pair __PARAMS ((int, SOCKET desc[2]));
+SERVEEZ_API svz_t_socket svz_socket_create __PARAMS ((int));
+SERVEEZ_API int svz_socket_create_pair __PARAMS ((int, svz_t_socket desc[2]));
 SERVEEZ_API char *svz_inet_ntoa __PARAMS ((unsigned long));
 SERVEEZ_API int svz_inet_aton __PARAMS ((char *, struct sockaddr_in *));
-SERVEEZ_API int svz_sendfile __PARAMS ((int, int, off_t *, unsigned int));
-SERVEEZ_API int svz_open __PARAMS ((const char *, int, unsigned int));
+SERVEEZ_API int svz_sendfile __PARAMS ((int, int, svz_t_off *, unsigned int));
+SERVEEZ_API int svz_open __PARAMS ((svz_c_const char *, int, unsigned int));
 SERVEEZ_API int svz_close __PARAMS ((int));
 SERVEEZ_API int svz_fstat __PARAMS ((int, struct stat *));
-SERVEEZ_API FILE *svz_fopen __PARAMS ((const char *, const char *));
+SERVEEZ_API FILE *svz_fopen __PARAMS ((svz_c_const char *, 
+				       svz_c_const char *));
 SERVEEZ_API int svz_fclose __PARAMS ((FILE *));
 SERVEEZ_API int svz_file_check __PARAMS ((char *));
 SERVEEZ_API char *svz_file_path __PARAMS ((char *, char *));

@@ -47,9 +47,10 @@ Distribution process:
   - Check into CVS.
 
 * Distribute the package. 
-  - Upload the package to <www.textsure.net>.
+  - Upload the package to <www.lkcc.org>.
   - Release at SourceForge.
   - Announce the release at Freshmeat.
   - Send an announcement to <help-serveez@gnu.org> and <info-gnu@gnu.org>.
   - Update documentation on <www.gnu.org> and <serveez.sourceforge.net>.
   - Update the Guile project entry <guile-projects@glug.org>.
+  - Update the GNU directory entry <bug-directory@gnu.org>.

@@ -1,7 +1,7 @@
 /*
  * nut-request.c - gnutella requests implementations
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.14 2001/08/01 10:16:23 ela Exp $
+ * $Id: nut-request.c,v 1.15 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -76,7 +76,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   id = packet + hdr->length - NUT_GUID_SIZE;
   if (id < packet + SIZEOF_NUT_REPLY)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: dropping invalid query hit\n");
 #endif
       client->dropped++;
@@ -115,7 +115,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 	    p++;
 	  if (p == end || *(p + 1))
 	    {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	      svz_log (LOG_DEBUG, "nut: invalid query hit payload\n");
 #endif
 	      client->dropped++;
@@ -218,7 +218,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   /* drop this push request */
   else
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: dropping push request\n");
 #endif
       client->dropped++;
@@ -256,7 +256,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
     len++;
   if (len >= hdr->length && *file)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: invalid query payload\n");
 #endif
       return -1;

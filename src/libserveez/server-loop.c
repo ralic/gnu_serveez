@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.10 2003/01/05 15:28:08 ela Exp $
+ * $Id: server-loop.c,v 1.11 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -174,7 +174,7 @@ svz_check_sockets_select (void)
 
 	  /* Put every client's socket into EXCEPT. */
 	  FD_SET (sock->sock_desc, &except_fds);
-	  if (sock->sock_desc > (SOCKET) nfds)
+	  if (sock->sock_desc > (svz_t_socket) nfds)
 	    nfds = sock->sock_desc;
 
 	  /* Put socket into READ if necessary. */
@@ -686,7 +686,7 @@ svz_check_sockets_MinGW (void)
 
 	  /* Put every client's socket into EXCEPT. */
 	  FD_SET (sock->sock_desc, &except_fds);
-	  if (sock->sock_desc > (SOCKET) nfds)
+	  if (sock->sock_desc > (svz_t_socket) nfds)
 	    nfds = sock->sock_desc;
 
 	  /* Put a client's socket into READ if necessary. */

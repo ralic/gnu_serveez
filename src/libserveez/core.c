@@ -1,7 +1,7 @@
 /*
  * core.c - socket and file descriptor core implementations
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.28 2002/07/28 12:13:17 ela Exp $
+ * $Id: core.c,v 1.29 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -169,7 +169,7 @@ svz_fd_cloexec (int fd)
  * non-inheritable. Returns -1 on failure, otherwise zero.
  */
 int
-svz_socket_create_pair (int proto, SOCKET desc[2])
+svz_socket_create_pair (int proto, svz_t_socket desc[2])
 {
 #ifndef HAVE_SOCKETPAIR
   svz_log (LOG_FATAL, "socketpair() not available\n");
@@ -228,12 +228,12 @@ svz_socket_create_pair (int proto, SOCKET desc[2])
  * @code{exec()}. The protocol is specified by @var{proto}. Return the
  * socket descriptor or -1 on errors.
  */
-SOCKET
+svz_t_socket
 svz_socket_create (int proto)
 {
   int stype;                 /* socket type (STREAM or DGRAM or RAW) */
   int ptype;                 /* protocol type (IP or UDP or ICMP) */
-  SOCKET sockfd;
+  svz_t_socket sockfd;
 
   /* Assign the appropriate socket type. */
   switch (proto)
@@ -267,21 +267,21 @@ svz_socket_create (int proto)
   if ((sockfd = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
     {
       svz_log (LOG_ERROR, "socket: %s\n", NET_ERROR);
-      return (SOCKET) -1;
+      return (svz_t_socket) -1;
     }
 
   /* Make the socket non-blocking. */
   if (svz_fd_nonblock (sockfd) != 0)
     {
       closesocket (sockfd);
-      return (SOCKET) -1;
+      return (svz_t_socket) -1;
     }
   
   /* Do not inherit this socket. */
   if (svz_fd_cloexec (sockfd) != 0)
     {
       closesocket (sockfd);
-      return (SOCKET) -1;
+      return (svz_t_socket) -1;
     }
 
   return sockfd;
@@ -293,7 +293,7 @@ svz_socket_create (int proto)
  * zero on success.
  */
 int
-svz_socket_type (SOCKET fd, int *type)
+svz_socket_type (svz_t_socket fd, int *type)
 {
   int optval;
   socklen_t optlen = sizeof (optval);
@@ -316,7 +316,8 @@ svz_socket_type (SOCKET fd, int *type)
  * at the network port @var{port}. Return non-zero on errors.
  */
 int
-svz_socket_connect (SOCKET sockfd, unsigned long host, unsigned short port)
+svz_socket_connect (svz_t_socket sockfd, 
+		    unsigned long host, unsigned short port)
 {
   struct sockaddr_in server;
   int error;
@@ -340,7 +341,7 @@ svz_socket_connect (SOCKET sockfd, unsigned long host, unsigned short port)
           closesocket (sockfd);
           return -1;
         }
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
 #endif
     }
@@ -428,7 +429,7 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
  * file to transmit. The function return zero on success, otherwise non-zero.
  */
 int
-svz_tcp_cork (SOCKET fd, int set)
+svz_tcp_cork (svz_t_socket fd, int set)
 {
 #ifdef TCP_CORK
   int flags;
@@ -468,7 +469,7 @@ svz_tcp_cork (SOCKET fd, int set)
  * zero on success, otherwise non-zero.
  */
 int
-svz_tcp_nodelay (SOCKET fd, int set, int *old)
+svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
 {
 #ifdef TCP_NODELAY
   int optval;
@@ -514,7 +515,7 @@ svz_tcp_nodelay (SOCKET fd, int set, int *old)
  * read/written or -1 on errors.
  */
 int
-svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
+svz_sendfile (int out_fd, int in_fd, svz_t_off *offset, unsigned int count)
 {
 #ifndef ENABLE_SENDFILE
   svz_log (LOG_ERROR, "sendfile() disabled\n");
@@ -536,7 +537,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 #elif defined (__FreeBSD__)
 
   /* This was tested for FreeBSD4.3 on alpha. */
-  off_t sbytes;
+  svz_t_off sbytes;
   ret = sendfile (in_fd, out_fd, *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
@@ -563,7 +564,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
      set to the current file position. */
 
   overlap.Offset = *offset;
-  if (!TransmitFile ((SOCKET) out_fd, (HANDLE) in_fd, count, 0, 
+  if (!TransmitFile ((svz_t_socket) out_fd, (svz_t_handle) in_fd, count, 0, 
                      &overlap, NULL, 0))
     {
       /* Operation is pending. */
@@ -576,8 +577,8 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 	     thread is operating on the socket. This is given since serveez 
 	     is single threaded. */
 
-          if ((result = WaitForSingleObject ((HANDLE) out_fd, INFINITE)) != 
-              WAIT_OBJECT_0)
+          if ((result = WaitForSingleObject ((svz_t_handle) out_fd, 
+					     INFINITE)) != WAIT_OBJECT_0)
             {
               svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
               ret = -1;
@@ -681,7 +682,7 @@ svz_file_closeall (void)
  * the permissions if the @code{O_CREAT} flag is set.
  */
 int
-svz_open (const char *file, int flags, unsigned int mode)
+svz_open (svz_c_const char *file, int flags, unsigned int mode)
 {
 #ifndef __MINGW32__
   int fd;
@@ -701,7 +702,7 @@ svz_open (const char *file, int flags, unsigned int mode)
 
 #else /* __MINGW32__ */
   DWORD access = 0, creation = 0;
-  HANDLE fd;
+  svz_t_handle fd;
 
   /* drop this flag */
   flags &= ~O_BINARY;
@@ -729,7 +730,7 @@ svz_open (const char *file, int flags, unsigned int mode)
     }
 
   if ((fd = CreateFile (file, access, 0, NULL, creation, 0, NULL)) == 
-      INVALID_HANDLE_VALUE)
+      INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
       return -1;
@@ -756,7 +757,7 @@ svz_close (int fd)
     }
   svz_file_del (fd);
 #else /* __MINGW32__ */
-  if (!CloseHandle ((HANDLE) fd))
+  if (!CloseHandle ((svz_t_handle) fd))
     {
       svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       return -1;
@@ -797,7 +798,7 @@ svz_fstat (int fd, struct stat *buf)
   if (buf == NULL)
     return -1;
 
-  if (!GetFileInformationByHandle ((HANDLE) fd, &info))
+  if (!GetFileInformationByHandle ((svz_t_handle) fd, &info))
     {
       svz_log (LOG_ERROR, "GetFileInformationByHandle: %s\n", SYS_ERROR);
       return -1;
@@ -815,8 +816,8 @@ svz_fstat (int fd, struct stat *buf)
   buf->st_uid = 0;
   buf->st_gid = 0;
   buf->st_rdev = 0;
-  buf->st_size = (off_t) (((__int64) info.nFileSizeHigh << 32) | 
-			  info.nFileSizeLow);
+  buf->st_size = (svz_t_off) (((__int64) info.nFileSizeHigh << 32) | 
+			      info.nFileSizeLow);
   buf->st_atime = ft2lt (info.ftLastAccessTime);
   buf->st_mtime = ft2lt (info.ftLastWriteTime);
   buf->st_ctime = ft2lt (info.ftCreationTime);
@@ -829,7 +830,7 @@ svz_fstat (int fd, struct stat *buf)
  * associates a stream with it.
  */
 FILE *
-svz_fopen (const char *file, const char *mode)
+svz_fopen (svz_c_const char *file, svz_c_const char *mode)
 {
   FILE *f;
 

@@ -1,7 +1,7 @@
 /*
  * tcp-socket.c - TCP socket connection implementation
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.16 2002/06/09 10:13:09 ela Exp $
+ * $Id: tcp-socket.c,v 1.17 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -75,7 +75,7 @@ svz_tcp_write_socket (svz_socket_t *sock)
 {
   int num_written;
   int do_write;
-  SOCKET desc;
+  svz_t_socket desc;
 
   desc = sock->sock_desc;
 
@@ -130,7 +130,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
   int num_read;
   int ret;
   int do_read;
-  SOCKET desc;
+  svz_t_socket desc;
 
   desc = sock->sock_desc;
 
@@ -177,13 +177,13 @@ svz_tcp_read_socket (svz_socket_t *sock)
     {
       sock->last_recv = time (NULL);
 
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
       if (svz_sock_flood_protect (sock, num_read))
 	{
 	  svz_log (LOG_ERROR, "kicked socket %d (flood)\n", desc);
 	  return -1;
 	}
-#endif /* ENABLE_FLOOD_PROTECTION */
+#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 
       sock->recv_buffer_fill += num_read;
 
@@ -215,7 +215,7 @@ int
 svz_tcp_recv_oob (svz_socket_t *sock)
 {
 #ifdef MSG_OOB
-  SOCKET desc = sock->sock_desc;
+  svz_t_socket desc = sock->sock_desc;
   int num_read, ret;
 
 #if 0
@@ -265,7 +265,7 @@ int
 svz_tcp_send_oob (svz_socket_t *sock)
 {
 #ifdef MSG_OOB
-  SOCKET desc = sock->sock_desc;
+  svz_t_socket desc = sock->sock_desc;
   int num_written;
 
   num_written = send (desc, (void *) &sock->oob, 1, MSG_OOB);
@@ -293,11 +293,11 @@ svz_tcp_send_oob (svz_socket_t *sock)
 svz_socket_t *
 svz_tcp_connect (unsigned long host, unsigned short port)
 {
-  SOCKET sockfd;
+  svz_t_socket sockfd;
   svz_socket_t *sock;
 
   /* Create a socket. */
-  if ((sockfd = svz_socket_create (PROTO_TCP)) == (SOCKET) -1)
+  if ((sockfd = svz_socket_create (PROTO_TCP)) == (svz_t_socket) -1)
     return NULL;
 
   /* Try connecting. */
@@ -354,7 +354,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
 	  svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
 	  return -1;
 	}
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
 #endif
       return 0;

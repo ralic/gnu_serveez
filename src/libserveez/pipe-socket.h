@@ -1,7 +1,7 @@
 /*
  * pipe-socket.h - pipes in socket structures header definitions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.12 2001/12/13 18:00:00 ela Exp $
+ * $Id: pipe-socket.h,v 1.13 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -56,8 +56,9 @@ SERVEEZ_API int svz_pipe_valid __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_read_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_write_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_disconnect __PARAMS ((svz_socket_t *));
-SERVEEZ_API svz_socket_t *svz_pipe_create __PARAMS ((HANDLE, HANDLE));
-SERVEEZ_API int svz_pipe_create_pair __PARAMS ((HANDLE pipe_desc[2]));
+SERVEEZ_API svz_socket_t *svz_pipe_create __PARAMS ((svz_t_handle, 
+						     svz_t_handle));
+SERVEEZ_API int svz_pipe_create_pair __PARAMS ((svz_t_handle pipe_desc[2]));
 SERVEEZ_API svz_socket_t *svz_pipe_connect __PARAMS ((svz_pipe_t *, 
 						      svz_pipe_t *));
 SERVEEZ_API int svz_pipe_listener __PARAMS ((svz_socket_t *, 

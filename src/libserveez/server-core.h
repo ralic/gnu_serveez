@@ -1,7 +1,7 @@
 /*
  * server-core.h - server management definition
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.17 2001/12/15 02:47:38 ela Exp $
+ * $Id: server-core.h,v 1.18 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 #include "libserveez/portcfg.h"
 
 SERVEEZ_API int svz_nuke_happened;
-SERVEEZ_API HANDLE svz_child_died;
+SERVEEZ_API svz_t_handle svz_child_died;
 SERVEEZ_API long svz_notify;
 
 SERVEEZ_API svz_socket_t *svz_sock_root;
@@ -85,7 +85,7 @@ SERVEEZ_API void svz_loop __PARAMS ((void));
 SERVEEZ_API void svz_loop_one __PARAMS ((void));
 SERVEEZ_API void svz_signal_up __PARAMS ((void));
 SERVEEZ_API void svz_signal_dn __PARAMS ((void));
-SERVEEZ_API RETSIGTYPE svz_signal_handler __PARAMS ((int));
+SERVEEZ_API svz_t_retsig svz_signal_handler __PARAMS ((int));
 SERVEEZ_API void svz_strsignal_init __PARAMS ((void));
 SERVEEZ_API void svz_strsignal_destroy __PARAMS ((void));
 SERVEEZ_API char *svz_strsignal __PARAMS ((int));

@@ -1,7 +1,7 @@
 /*
  * irc-config.c - IRC server configuration routines
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.14 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-config.c,v 1.15 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -272,7 +272,7 @@ irc_check_class (irc_config_t *cfg, int class_nr)
 	    return 0;
 	  else
 	    {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	      svz_log (LOG_DEBUG, "irc: %d/%d links reached in class %d\n",
 		       class->links, class->max_links, class->nr);
 #endif
@@ -305,7 +305,7 @@ irc_client_killed (irc_client_t *client, irc_config_t *cfg)
 	  ts = (tm->tm_hour + 1) * 100 + tm->tm_min;
 	  if (ts >= kill->start && ts <= kill->end)
 	    {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	      svz_log (LOG_DEBUG, "irc: %s@%s is K lined: %s\n",
 		       client->user, client->host, kill->line);
 	      return -1;
@@ -345,7 +345,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
 	  /* test the given password for that I line */
 	  if (user->password)
 	    {
-#if ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
 	      if (strcmp (crypt (client->pass, user->password), 
 			  user->password))
 #else
@@ -363,13 +363,13 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
 	  if (irc_check_class (cfg, user->class))
 	    continue;
 	  
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "irc: valid client: %s\n", user->line);
 #endif
 	  return 1;
 	}
     }
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "irc: not a valid client (%s@%s)\n",
 	   client->user, client->host);
 #endif
@@ -391,20 +391,20 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
       if (irc_string_regex (client->user, oper->user) &&
 	  irc_string_regex (client->host, oper->host) &&
 	  irc_string_regex (client->nick, oper->nick) &&
-#if ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
 	  !strcmp (crypt (client->pass, oper->password), oper->password))
 #else
 	  !strcmp (client->pass, oper->password))
 #endif
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "irc: valid operator: %s\n", oper->line);
 #endif
 	  return -1;
 	}
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "irc: not a valid operator (%s@%s)\n",
 	   client->user, client->host);
 #endif

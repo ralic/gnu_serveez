@@ -90,6 +90,6 @@ Requirements
   Serveez also depends on the GNU packages bzip2, zlib and Guile.  You 
 should install these packages somewhere the compiler can find the include
 headers and libraries.  Binary packages built with the M$ Visual C++ 
-compiler can be obtained at <http://www.textsure.net/~ela/devel.html#gnu> 
+compiler can be obtained at <http://www.lkcc.org/~ela/devel.html#gnu> 
 and the packages for the MinGW32 gcc toolchain can be obtained at 
 <http://www.sourceforge.net/projects/mingwrep>.

@@ -1,7 +1,7 @@
 /*
  * http-proto.c - http protocol implementation
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.80 2002/12/05 16:57:56 ela Exp $
+ * $Id: http-proto.c,v 1.81 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -430,7 +430,7 @@ http_send_file (svz_socket_t *sock)
   /* Read all file data ? */
   if (http->filelength <= 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "http: file successfully sent\n");
 #endif
       /* 
@@ -501,7 +501,7 @@ http_default_write (svz_socket_t *sock)
    */
   if ((sock->userflags & HTTP_FLAG_DONE) && sock->send_buffer_fill == 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "http: response successfully sent\n");
 #endif
       num_written = http_keep_alive (sock);
@@ -602,7 +602,7 @@ http_file_read (svz_socket_t *sock)
   /* Read all file data ? */
   if (http->filelength <= 0)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "http: file successfully read\n");
 #endif
       /* 
@@ -635,7 +635,7 @@ http_detect_proto (svz_server_t *server, svz_socket_t *sock)
 	  if (!memcmp (sock->recv_buffer, http_request[n].ident, 
 		       http_request[n].len))
 	    {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	      svz_log (LOG_DEBUG, "http client detected\n");
 #endif
 	      return -1;
@@ -804,7 +804,7 @@ http_handle_request (svz_socket_t *sock, int len)
     {
       if (!memcmp (request, http_request[n].ident, http_request[n].len))
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "http: %s received\n", request);
 #endif
 	  http_request[n].response (sock, uri, flag);
@@ -1134,7 +1134,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
       date = http_parse_date (p);
       if (date >= buf.st_mtime)
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "http: %s not changed\n", file);
 #endif
 	  http->response = 304;
@@ -1172,7 +1172,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 	  if (http->range.last == 0)
 	    http->range.last = http->range.length - 1;
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "http: partial content: %ld-%ld/%ld\n",
 		   http->range.first, http->range.last, http->range.length);
 #endif
@@ -1265,7 +1265,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 	  buf.st_size != cache->entry->size)
 	{
 	  /* the file on disk has changed ? */
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "cache: %s has changed\n", file);
 #endif
 	  http_refresh_cache (cache);

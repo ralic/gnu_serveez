@@ -1,7 +1,7 @@
 /*
  * nut-hostlist.c - gnutella host list implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.9 2001/07/06 16:40:03 ela Exp $
+ * $Id: nut-hostlist.c,v 1.10 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -198,7 +198,7 @@ nut_host_catcher (svz_socket_t *sock, unsigned long ip, unsigned short port)
 	  ip == sock->local_addr ||
 	  port == 0)
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "nut: invalid host: %s:%u\n", 
 		   svz_inet_ntoa (ip), ntohs (port));
 #endif

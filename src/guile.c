@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.72 2003/06/01 12:57:07 ela Exp $
+ * $Id: guile.c,v 1.73 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -935,8 +935,7 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
   int err = 0;
   char *c_type = NULL, *c_name = NULL, *c_instance = NULL;
   svz_hash_t *options = NULL;
-  char *error = NULL;
-  char *txt = NULL;
+  char *error = NULL, *txt = NULL;
   
   /* Configure callbacks for the `svz_config_type_instantiate()' thing. */
   svz_config_accessor_t accessor = {
@@ -987,9 +986,12 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
  out:
   svz_free (txt);
   svz_free (error);
-  scm_c_free (c_type);
-  scm_c_free (c_name);
-  scm_c_free (c_instance);
+  if (c_type)
+    scm_c_free (c_type);
+  if (c_name)
+    scm_c_free (c_name);
+  if (c_instance)
+    scm_c_free (c_instance);
   optionhash_destroy (options);
 
   guile_global_error |= err;

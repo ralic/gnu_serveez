@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.54 2003/04/06 20:01:25 ela Exp $
+ * $Id: guile-server.c,v 1.55 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -1231,7 +1231,7 @@ guile_servertype_config_free (svz_servertype_t *server)
   svz_free (prototype->items);
 }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 /*
  * Debug helper: Display a text representation of the configuration items
  * of a guile servertype.
@@ -1298,7 +1298,7 @@ guile_servertype_config_print (svz_servertype_t *server)
 	}
     }
 }
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
 /*
  * Obtain a default value from the scheme cell @var{value}. The configuration

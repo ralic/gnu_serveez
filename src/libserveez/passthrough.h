@@ -1,7 +1,7 @@
 /*
  * passthrough.h - pass through declarations
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.12 2001/12/19 23:15:07 ela Exp $
+ * $Id: passthrough.h,v 1.13 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -54,7 +54,7 @@ typedef struct
   svz_envblock_t *envp; /* Environment block. */
   char *user;           /* User and group. */
   char *app;            /* Additional @var{bin} interpreter application. */
-  HANDLE in, out;       /* New stdin and stdout of child process. */
+  svz_t_handle in, out; /* New stdin and stdout of child process. */
   int flag;             /* Passthrough method flag. */
 }
 svz_process_t;

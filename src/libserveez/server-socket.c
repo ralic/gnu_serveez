@@ -1,7 +1,7 @@
 /*
  * server-socket.c - server sockets for TCP, UDP, ICMP and pipes
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.27 2002/02/03 09:34:05 ela Exp $
+ * $Id: server-socket.c,v 1.28 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -71,10 +71,10 @@
 svz_socket_t *
 svz_server_create (svz_portcfg_t *port)
 {
-  SOCKET server_socket;      /* server socket descriptor */
-  svz_socket_t *sock;        /* socket structure */
-  int optval;                /* value for setsockopt() */
-  struct sockaddr_in *addr;  /* bind address */
+  svz_t_socket server_socket; /* server socket descriptor */
+  svz_socket_t *sock;         /* socket structure */
+  int optval;                 /* value for setsockopt() */
+  struct sockaddr_in *addr;   /* bind address */
 
   /* Create listening pipe server ? */
   if (port->proto & PROTO_PIPE)
@@ -94,7 +94,8 @@ svz_server_create (svz_portcfg_t *port)
   else
     {
       /* First, create a server socket for listening. */
-      if ((server_socket = svz_socket_create (port->proto)) == (SOCKET) -1)
+      if ((server_socket = svz_socket_create (port->proto)) == 
+	  (svz_t_socket) -1)
 	return NULL;
 
       /* Set this ip option if we are using raw sockets. */
@@ -257,7 +258,7 @@ svz_server_create (svz_portcfg_t *port)
 int
 svz_tcp_accept (svz_socket_t *server_sock)
 {
-  SOCKET client_socket;		/* socket to accept clients on */
+  svz_t_socket client_socket;	/* socket to accept clients on */
   struct sockaddr_in client;	/* address of connecting clients */
   socklen_t client_size;	/* size of the address above */
   svz_socket_t *sock;
@@ -275,7 +276,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
       return 0;
     }
 
-  if ((SOCKET) svz_sock_connections >= svz_config.max_sockets)
+  if ((svz_t_socket) svz_sock_connections >= svz_config.max_sockets)
     {
       svz_log (LOG_WARNING, "socket descriptor exceeds "
 	       "socket limit %d\n", svz_config.max_sockets);
@@ -356,7 +357,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
-  HANDLE recv_pipe, send_pipe;
+  svz_t_handle recv_pipe, send_pipe;
   svz_socket_t *sock;
   svz_portcfg_t *port = server_sock->port;
   server_sock->idle_counter = 1;

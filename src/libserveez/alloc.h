@@ -1,7 +1,7 @@
 /*
  * alloc.h - memory allocation module declarations
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.11 2001/12/13 18:00:00 ela Exp $
+ * $Id: alloc.h,v 1.12 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -40,14 +40,14 @@
 
 __BEGIN_DECLS
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 SERVEEZ_API unsigned int svz_allocated_bytes;
 SERVEEZ_API unsigned int svz_allocated_blocks;
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
 /* Function type definitions. */
-typedef void * (* svz_malloc_func_t) __PARAMS ((size_t));
-typedef void * (* svz_realloc_func_t) __PARAMS ((void *, size_t));
+typedef void * (* svz_malloc_func_t) __PARAMS ((svz_t_size));
+typedef void * (* svz_realloc_func_t) __PARAMS ((void *, svz_t_size));
 typedef void (* svz_free_func_t) __PARAMS ((void *));
 
 /* Global allocator functions. */
@@ -56,15 +56,15 @@ SERVEEZ_API svz_realloc_func_t svz_realloc_func;
 SERVEEZ_API svz_free_func_t svz_free_func;
 
 /* Internal allocator functions. */
-SERVEEZ_API void *svz_malloc __PARAMS ((size_t));
-SERVEEZ_API void *svz_calloc __PARAMS ((size_t));
-SERVEEZ_API void *svz_realloc __PARAMS ((void *, size_t));
+SERVEEZ_API void *svz_malloc __PARAMS ((svz_t_size));
+SERVEEZ_API void *svz_calloc __PARAMS ((svz_t_size));
+SERVEEZ_API void *svz_realloc __PARAMS ((void *, svz_t_size));
 SERVEEZ_API void svz_free __PARAMS ((void *));
 SERVEEZ_API char *svz_strdup __PARAMS ((char *));
 
 /* Internal permanent allocator functions. */
-SERVEEZ_API void *svz_pmalloc __PARAMS ((size_t));
-SERVEEZ_API void *svz_prealloc __PARAMS ((void *, size_t));
+SERVEEZ_API void *svz_pmalloc __PARAMS ((svz_t_size));
+SERVEEZ_API void *svz_prealloc __PARAMS ((void *, svz_t_size));
 SERVEEZ_API char *svz_pstrdup __PARAMS ((char *));
 
 #if DEBUG_MEMORY_LEAKS

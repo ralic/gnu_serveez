@@ -1,7 +1,7 @@
 /*
  * passthrough.c - pass through connections to processes
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.19 2001/12/19 23:15:06 ela Exp $
+ * $Id: passthrough.c,v 1.20 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -128,7 +128,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
     }
   else
     {
-      proc.in = proc.out = (HANDLE) sock->sock_desc;
+      proc.in = proc.out = (svz_t_handle) sock->sock_desc;
     }
 
   /* Check executable. */
@@ -178,7 +178,7 @@ svz_process_disconnect (svz_socket_t *sock)
     {
       svz_sock_setreferrer (sock, NULL);
       svz_sock_setreferrer (xsock, NULL);
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n", 
 	       xsock->id);
 #endif
@@ -203,7 +203,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
       svz_sock_setreferrer (xsock, NULL);
       if (sock->flags & (PROTO_TCP | PROTO_PIPE))
 	{
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 	  svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n", 
 		   xsock->id);
 #endif
@@ -522,11 +522,11 @@ svz_process_recv_socket (svz_socket_t *sock)
  * @code{INVALID_HANDLE} is returned something went wrong. The @var{proto} 
  * argument specifies if it is a socket or pipe handle.
  */
-static HANDLE
-svz_process_duplicate (HANDLE handle, int proto)
+static svz_t_handle
+svz_process_duplicate (svz_t_handle handle, int proto)
 {
-  HANDLE duphandle;
-  SOCKET dupsock;
+  svz_t_handle duphandle;
+  svz_t_socket dupsock;
   WSAPROTOCOL_INFO info;
 
   /* Duplicate a pipe handle. */
@@ -543,7 +543,7 @@ svz_process_duplicate (HANDLE handle, int proto)
     }
 
   /* Duplicate a socket. */
-  if (WSADuplicateSocket ((SOCKET) handle, GetCurrentProcessId (),
+  if (WSADuplicateSocket ((svz_t_socket) handle, GetCurrentProcessId (),
 			  &info) == SOCKET_ERROR)
     {
       svz_log (LOG_ERROR, "passthrough: WSADuplicateSocket: %s\n", NET_ERROR);
@@ -556,7 +556,7 @@ svz_process_duplicate (HANDLE handle, int proto)
       svz_log (LOG_ERROR, "passthrough: WSASocket: %s\n", NET_ERROR);
       return INVALID_HANDLE;
     }
-  return (HANDLE) dupsock;
+  return (svz_t_handle) dupsock;
 }
 #endif /* __MINGW32__ */
 
@@ -635,7 +635,7 @@ svz_process_create_child (svz_process_t *proc)
      and pass them to the child program. */
   if (proc->flag == SVZ_PROCESS_FORK)
     {
-      HANDLE fd;
+      svz_t_handle fd;
 
       if (proc->in != proc->out)
 	{
@@ -661,7 +661,7 @@ svz_process_create_child (svz_process_t *proc)
 	    return -1;
 	  proc->in = proc->out = fd;
           closesocket (proc->sock->sock_desc);
-          proc->sock->sock_desc = (SOCKET) fd;
+          proc->sock->sock_desc = (svz_t_socket) fd;
 	}
     }
 
@@ -756,9 +756,9 @@ svz_process_create_child (svz_process_t *proc)
 int
 svz_process_shuffle (svz_process_t *proc)
 {
-  SOCKET pair[2];
-  HANDLE process_to_serveez[2];
-  HANDLE serveez_to_process[2];
+  svz_t_socket pair[2];
+  svz_t_handle process_to_serveez[2];
+  svz_t_handle serveez_to_process[2];
   svz_socket_t *xsock;
   int pid;
 
@@ -823,7 +823,7 @@ svz_process_shuffle (svz_process_t *proc)
     return -1;
   
   if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
-    proc->in = proc->out = (HANDLE) pair[0];
+    proc->in = proc->out = (svz_t_handle) pair[0];
   else
     {
       proc->in = serveez_to_process[READ];
@@ -854,10 +854,10 @@ svz_process_shuffle (svz_process_t *proc)
     closehandle (proc->out);
 
   /* setup child checking callback */
-  xsock->pid = (HANDLE) pid;
+  xsock->pid = (svz_t_handle) pid;
   xsock->idle_func = svz_process_idle;
   xsock->idle_counter = 1;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
@@ -895,7 +895,7 @@ svz_process_fork (svz_process_t *proc)
 #endif /* __MINGW32__ */
 
   /* The parent process. */
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
@@ -1160,7 +1160,7 @@ svz_envblock_add (svz_envblock_t *env, char *format, ...)
  * routine is the comparison routine for the @code{qsort()} call.
  */
 static int
-svz_envblock_sort (const void *data1, const void *data2)
+svz_envblock_sort (svz_c_const void *data1, svz_c_const void *data2)
 {
   char *entry1 = * (char **) data1;
   char *entry2 = * (char **) data2;

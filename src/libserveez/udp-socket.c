@@ -1,7 +1,7 @@
 /*
  * udp-socket.c - udp socket implementations
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.18 2001/12/15 02:47:38 ela Exp $
+ * $Id: udp-socket.c,v 1.19 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -111,12 +111,12 @@ svz_udp_read_socket (svz_socket_t *sock)
 	  sock->remote_addr = sender.sin_addr.s_addr;
 	}
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
 	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
 	       svz_inet_ntoa (sock->remote_addr),
 	       ntohs (sock->remote_port), num_read);
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
       /* Check access lists. */
       if (svz_sock_check_access (sock, sock) < 0)
@@ -214,12 +214,12 @@ svz_udp_write_socket (svz_socket_t *sock)
       svz_sock_reduce_send (sock, (int) do_write);
     }
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
 	   sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", 
 	   svz_inet_ntoa (receiver.sin_addr.s_addr),
 	   ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
-#endif /* ENABLE_DEBUG */
+#endif /* SVZ_ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
 }
@@ -279,7 +279,7 @@ svz_udp_check_request (svz_socket_t *sock)
   /* check if any server processed this packet */
   if (sock->recv_buffer_fill)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "rejecting udp packet on socket %d\n",
 	       sock->sock_desc);
 #endif
@@ -353,7 +353,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
  * specify them in @code{sock->remote_addr} and @code{sock->remote_port}.
  */
 int
-svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
+svz_udp_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -381,11 +381,11 @@ svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
 svz_socket_t *
 svz_udp_connect (unsigned long host, unsigned short port)
 {
-  SOCKET sockfd;
+  svz_t_socket sockfd;
   svz_socket_t *sock;
 
   /* Create a client socket. */
-  if ((sockfd = svz_socket_create (PROTO_UDP)) == (SOCKET) -1)
+  if ((sockfd = svz_socket_create (PROTO_UDP)) == (svz_t_socket) -1)
     return NULL;
 
   /* Try to connect to the server. Does it make sense for ICMP ? */

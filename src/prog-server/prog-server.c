@@ -2,7 +2,7 @@
  * prog-server.c - passthrough server implementation
  *
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.13 2002/12/05 16:57:56 ela Exp $
+ * $Id: prog-server.c,v 1.14 2003/06/14 14:58:00 ela Exp $
  *
  */
 
@@ -182,7 +182,7 @@ prog_passthrough (svz_socket_t *sock)
       svz_free (argv);
       return -1;
     }
-  sock->pid = (HANDLE) pid;
+  sock->pid = (svz_t_handle) pid;
   svz_free (argv);
   return 0;
 }
@@ -272,7 +272,7 @@ prog_read_sock_drop (svz_socket_t *sock)
 
   if ((ret = recv (sock->sock_desc, buffer, UDP_MSG_SIZE, 0)) < 0)
     return -1;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret, 
 	   sock->proto & PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
 #endif

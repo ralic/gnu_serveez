@@ -1,7 +1,7 @@
 /*
  * irc-event-1.c - IRC events -- Connection Registration
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.19 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-event-1.c,v 1.20 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -86,7 +86,7 @@ irc_pass_callback (svz_socket_t *sock,
   /* check it ! */
   if (cfg->pass)
     {
-#if ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT && HAVE_CRYPT
       if (strcmp (crypt (request->para[0], cfg->pass), cfg->pass))
 #else
       if (strcmp (request->para[0], cfg->pass))
@@ -216,7 +216,7 @@ irc_nick_callback (svz_socket_t *sock,
       /* did the client tried to change to equal nicks ? then ignore */
       if (cl == client)
 	return 0;
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
       irc_printf (sock, ":%s %03d * " ERR_NICKNAMEINUSE_TEXT "\n", 
@@ -227,7 +227,7 @@ irc_nick_callback (svz_socket_t *sock,
   /* do you have already specified a valid nick ? */
   if (client->flag & UMODE_NICK)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: %s changed nick to %s\n", 
 	       client->nick, nick);
 #endif

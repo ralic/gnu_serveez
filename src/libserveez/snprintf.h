@@ -1,7 +1,7 @@
 /*
  * snprintf.h - (v)snprintf function interface
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.6 2001/12/13 18:00:01 ela Exp $
+ * $Id: snprintf.h,v 1.7 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -33,7 +33,7 @@
 #include <stdarg.h>
 
 /* to be sure not to redefine `va_start' in <stdarg.h> */
-#if defined (HAVE_VARARGS_H) && !defined (va_start)
+#if defined (SVZ_HAVE_VARARGS_H) && !defined (va_start)
 # include <varargs.h>
 #endif
 
@@ -43,18 +43,18 @@
  * B20.1 release of Cygwin, but in the latest. So we define them here
  * ourselves.
  */
-# if !defined (HAVE__SNPRINTF) && !defined (HAVE_SNPRINTF)
-int _snprintf (char *, unsigned int, const char *, ...);
+# if !defined (HAVE__SNPRINTF) && !defined (SVZ_HAVE_SNPRINTF)
+int _snprintf (char *, unsigned int, svz_c_const char *, ...);
 # endif
-# if !defined (HAVE__VSNPRINTF) && !defined (HAVE_VSNPRINTF)
-int _vsnprintf (char *, unsigned int, const char *, va_list);
+# if !defined (HAVE__VSNPRINTF) && !defined (SVZ_HAVE_VSNPRINTF)
+int _vsnprintf (char *, unsigned int, svz_c_const char *, va_list);
 # endif
 # define svz_vsnprintf _vsnprintf
 # define svz_snprintf _snprintf
 
 #else /* __MINGW32__ */
 
-#ifndef HAVE_VSNPRINTF
+#ifndef SVZ_HAVE_VSNPRINTF
 # define svz_vsnprintf(str, n, format, ap) vsprintf (str, format, ap)
 #else
 # define svz_vsnprintf(str, n, format, ap) vsnprintf (str, n, format, ap)
@@ -64,9 +64,9 @@ int _vsnprintf (char *, unsigned int, const char *, va_list);
 
 __BEGIN_DECLS
 
-#ifndef HAVE_SNPRINTF
+#ifndef SVZ_HAVE_SNPRINTF
 SERVEEZ_API int svz_snprintf __PARAMS ((char *, unsigned int, 
-					const char *, ...));
+					svz_c_const char *, ...));
 #elif !defined (svz_snprintf)
 # define svz_snprintf snprintf
 #endif

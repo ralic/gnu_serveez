@@ -2,7 +2,7 @@
  * cfg.h - configuration handling
  *
  * Copyright (C) 2002 Andreas Rottmann <a.rottmann@gmx.at>
- * Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfg.h,v 1.1 2002/12/05 16:57:56 ela Exp $
+ * $Id: cfg.h,v 1.2 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -217,7 +217,7 @@ SERVEEZ_API int svz_config_type_instantiate __PARAMS ((char *, char *,
 SERVEEZ_API void svz_config_type_init __PARAMS ((void));
 SERVEEZ_API void svz_config_type_finalize __PARAMS ((void));
 
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
 SERVEEZ_API void svz_config_prototype_print __PARAMS ((svz_config_prototype_t *));
 #endif
 

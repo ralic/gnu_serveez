@@ -1,7 +1,7 @@
 /*
  * snprintf.c - (v)snprintf function implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.c,v 1.4 2001/05/21 21:20:42 ela Exp $
+ * $Id: snprintf.c,v 1.5 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -28,14 +28,14 @@
 
 #include "libserveez/snprintf.h"
 
-#if (!defined (HAVE_SNPRINTF)) && (!defined (__MINGW32__))
+#if (!defined (SVZ_HAVE_SNPRINTF)) && (!defined (__MINGW32__))
 /*
  * Implementation of the @code{snprintf()} if it is not defined. It uses
  * the @code{vsnprintf()} function therefore which will fall back to 
  * @code{vsprintf()} if @code{vsnprintf()} does not exist.
  */
 int 
-svz_snprintf (char *str, unsigned int n, const char *fmt, ...)
+svz_snprintf (char *str, unsigned int n, svz_c_const char *fmt, ...)
 {
   int ret;
   va_list args;
@@ -46,4 +46,4 @@ svz_snprintf (char *str, unsigned int n, const char *fmt, ...)
 
   return ret;
 }
-#endif /* ! (HAVE_SNPRINTF || __MINGW32__) */
+#endif /* ! (SVZ_HAVE_SNPRINTF || __MINGW32__) */

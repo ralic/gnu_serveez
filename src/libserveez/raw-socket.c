@@ -1,7 +1,7 @@
 /*
  * raw-socket.c - raw ip socket implementations
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.8 2001/10/04 19:32:20 ela Exp $
+ * $Id: raw-socket.c,v 1.9 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -197,7 +197,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   /* Is this IPv4 version ? */
   if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: cannot handle IPv%d\n", 
 	       IP_HDR_VERSION (ip_header));
 #endif
@@ -207,7 +207,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   /* Check Internet Header Length. */
   if (IP_HDR_LENGTH (ip_header) > len)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: invalid IHL (%d > %d)\n",
 	       IP_HDR_LENGTH (ip_header), len);
 #endif
@@ -217,7 +217,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   /* Check total length. */
   if (ip_header->length < len)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: invalid total length (%d < %d)\n",
 	       ip_header->length, len);
 #endif
@@ -227,7 +227,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   /* Check protocol type. */
   if (ip_header->protocol != ICMP_PROTOCOL)
     {
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: invalid protocol 0x%02X\n",
 	       ip_header->protocol);
 #endif
@@ -239,7 +239,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
       ip_header->checksum)
     {
       /* FIXME: Why are header checksums invalid on big packets ? */
-#if ENABLE_DEBUG
+#if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, 
 	       "raw: invalid ip header checksum (%04X != %04X)\n",
 	       svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)),

@@ -1,7 +1,7 @@
 /*
  * socket.h - socket management definitions
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.21 2003/01/05 15:28:08 ela Exp $
+ * $Id: socket.h,v 1.22 2003/06/14 14:57:59 ela Exp $
  *
  */
 
@@ -89,10 +89,10 @@ struct svz_socket
   int proto;                    /* Server/Protocol flag. */
   int flags;			/* One of the SOCK_FLAG_* flags above. */
   int userflags;                /* Can be used for protocol specific flags. */
-  SOCKET sock_desc;		/* Socket descriptor. */
+  svz_t_socket sock_desc;	/* Socket descriptor. */
   int file_desc;		/* Used for files descriptors. */
-  HANDLE pipe_desc[2];          /* Used for the pipes and coservers. */
-  HANDLE pid;                   /* Process id. */
+  svz_t_handle pipe_desc[2];    /* Used for the pipes and coservers. */
+  svz_t_handle pid;             /* Process id. */
 
 #ifdef __MINGW32__
   LPOVERLAPPED overlap[2];      /* Overlap info for WinNT. */
@@ -214,7 +214,7 @@ struct svz_socket
   long last_send;		/* Timestamp of last send to socket. */
   long last_recv;		/* Timestamp of last receive from socket */
 
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
   int flood_points;		/* Accumulated flood points. */
   int flood_limit;		/* Limit of the above before kicking. */
 #endif
@@ -254,7 +254,7 @@ SERVEEZ_API svz_socket_t *svz_sock_create __PARAMS ((int));
 SERVEEZ_API int svz_sock_disconnect __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_write __PARAMS ((svz_socket_t *, char *, int));
 SERVEEZ_API int svz_sock_printf __PARAMS ((svz_socket_t *,
-					   const char *, ...));
+					   svz_c_const char *, ...));
 SERVEEZ_API int svz_sock_resize_buffers __PARAMS ((svz_socket_t *, int, int));
 SERVEEZ_API int svz_sock_local_info __PARAMS ((svz_socket_t *,
 					       unsigned long *,
@@ -266,7 +266,7 @@ SERVEEZ_API int svz_sock_detect_proto __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_check_request __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_idle_protect __PARAMS ((svz_socket_t *));
 
-#if ENABLE_FLOOD_PROTECTION
+#if SVZ_ENABLE_FLOOD_PROTECTION
 SERVEEZ_API int svz_sock_flood_protect __PARAMS ((svz_socket_t *, int));
 #endif
 
