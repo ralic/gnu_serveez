@@ -34,7 +34,8 @@ aclocaldir = $(datadir)/aclocal
 aclocal_DATA = serveez.m4
 
 # Yet another script
-bin_SCRIPTS = serveez.scm serveez-config
+bin_SCRIPTS = serveez-config
+pkgdata_DATA = serveez.scm
 
 #
 # Add your server subdirectory here

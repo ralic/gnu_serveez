@@ -1,5 +1,10 @@
 2001-11-29  [ Ela ]  <ela@lkcc.org>
 
+	* guile-server/Makefile.am (pkgdata_DATA): Install
+	all `*.scm' files.
+
+	* Makefile.am (pkgdata_DATA): Install `serveez.scm'.
+
 	* serveez.c (main): Setup command line verbosity also before
 	evaluating the configuration file.
 
