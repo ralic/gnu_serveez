@@ -34,6 +34,7 @@ CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
 	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html \
 	$(GUILE_TXT_FILE)
 MAINTAINERCLEANFILES = Makefile.in
+DISTCLEANFILES = stamp-* version*.texi
 DOC_DIRS = $(top_srcdir)/src/libserveez \
   $(top_srcdir)/src/libserveez/coserver $(top_srcdir)/src/libserveez/codec
 DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c	     \
@@ -86,7 +87,6 @@ serveez-api.texi: $(srcdir)/serveez-api.texi.in
 	  done \
 	done
 	$(SED) -f $(SED_FILE) < $(srcdir)/serveez-api.texi.in > $@
-	test -f $(srcdir)/serveez-api.texi || cp -p serveez-api.texi $(srcdir)
 
 guile-api.texi: $(srcdir)/guile-api.texi.in
 	$(RM) -f $(GUILE_SED_FILE)
@@ -97,7 +97,6 @@ guile-api.texi: $(srcdir)/guile-api.texi.in
 	  done \
 	done
 	$(SED) -f $(GUILE_SED_FILE) < $(srcdir)/guile-api.texi.in > $@
-	test -f $(srcdir)/guile-api.texi || cp -p guile-api.texi $(srcdir)
 
 $(GUILE_TXT_FILE):
 	$(RM) -f $@
@@ -117,13 +116,13 @@ site: all-local info
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
 $(HTML_DIR)/serveez.html: serveez.texi guile-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $(srcdir)/serveez.texi
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -I $(builddir) -split_chapter $(srcdir)/serveez.texi
 
 $(HTML_DIR)/serveez-api.html: serveez-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter serveez-api.texi
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -I $(builddir) -split_chapter $(builddir)/serveez-api.texi
 
 .texi.info:
-	$(MAKEINFO) -o $(srcdir)/$@ -I $(srcdir) --no-split $<
+	$(MAKEINFO) -o $(builddir)/$@ -I $(srcdir) -I $(builddir) --no-split $<
 
 .texi.dvi:
 	$(TEXI2DVI) -I $(srcdir) -I $(builddir) $<

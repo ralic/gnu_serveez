@@ -1,7 +1,7 @@
 -- 
 -- README
 -- 
--- Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
@@ -107,4 +107,4 @@ version might not even compile.
 
 Press 'Enter' when asked for a password.  Run `sh autogen.sh' and
 `configure' with the appropriate options.  Maintainance currently
-requires Autoconf version 2.13, GNU libtool 1.4.2 and GNU automake 1.4-p5.
+requires Autoconf version 2.57, GNU libtool 1.5 and GNU automake 1.7.5.

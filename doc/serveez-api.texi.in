@@ -5,7 +5,7 @@
 @c %** end of header
 
 @exampleindent 2
-@include version.texi
+@include version1.texi
 
 @set PACKAGE Serveez
 @set s_PACKAGE serveez

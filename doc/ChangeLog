@@ -1,3 +1,9 @@
+2003-05-26  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez-api.texi.in:  Modified to conform with automake 1.7.5.
+
+	* Makefile.am: Fixed rules for info and html files.
+
 2003-02-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Porting issues): Added some more platforms

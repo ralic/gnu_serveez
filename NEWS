@@ -28,6 +28,8 @@ files.
 Version 0.1.5
 -------------
 
+ * updated configure and build system to autoconf 2.57, automake 1.7.5 
+   and libtool 1.5
  * support for Guile 1.7.x versions
  * some thread safety functionality enabled via --with-thread-safety
  * added `serveez-config' man page

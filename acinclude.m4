@@ -35,7 +35,7 @@ dnl
 
 AC_DEFUN([AC_GUILE], [
   AC_ARG_WITH(guile,
-    [  --with-guile=DIR        guile installation in DIR [/usr/local]],
+    [  --with-guile=DIR        guile installation in DIR @<:@/usr/local@:>@],
     [case "$withval" in
      no)  GUILEDIR="no" ;;
      yes) GUILEDIR="/usr/local" ;;
@@ -102,7 +102,7 @@ AC_DEFUN([AC_GUILE], [
 
 AC_DEFUN([AC_GUILE_SOURCE], [
   AC_ARG_WITH(guile-source,
-    [  --with-guile-source     guile source tree in DIR [/usr/src]],
+    [  --with-guile-source     guile source tree in DIR @<:@/usr/src@:>@],
     [case "$withval" in
      no)  GUILESRC="no" ;;
      yes) GUILESRC="/usr/src" ;;

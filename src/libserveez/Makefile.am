@@ -64,12 +64,6 @@ svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
 	  -e 's,@LIBDIR@,@libdir@,g' \
 	  > svzpath.h
 
-# FIXME: Install the DLL import library.  As long as `libtool' does not.
-#        Works for Cygwin but not for MinGW32.
-install-exec-hook:
-	test ! -f .libs/libserveez.dll.a || \
-	$(INSTALL_PROGRAM) .libs/libserveez.dll.a $(libdir)/libserveez.dll.a
-
 noinst_HEADERS = ipdata.h iphlpapi.h
 
 INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src

@@ -21,8 +21,7 @@
 #
 
 EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg guile-projects.txt \
-	serveez1.ico serveez2.ico init.serveez.in PLATFORMS \
-	libtool-MacOS.diff
+	serveez1.ico serveez2.ico init.serveez.in PLATFORMS
 SED = sed
 
 install-init: init.serveez

@@ -1,7 +1,7 @@
 -- 
 -- README-cross
 -- 
--- Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 -- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -50,11 +50,11 @@ cross-tools you use, in particular the C compiler, on the `configure'
 command line.
 
     $ CC=sparc-linux-gcc AR=sparc-linux-ar RANLIB=sparc-linux-ranlib \
-      LD=sparc-linux-ld ./configure --target=sparc-linux
+      LD=sparc-linux-ld ./configure --host=sparc-linux
 
 
   The `configure' script will make some run-time tests which would 
-most probably fail to reflect the target system's abilities.  That is why
+most probably fail to reflect the host system's abilities.  That is why
 you need to change them by hand either within `configure's cache file
 which is by default `config.cache' and rerun `configure' or in `config.h'
 also produced by `configure'.
@@ -81,9 +81,5 @@ results.
 script.  When installing the compiled package on your build system you
 will get a complete installation tree meant to run from this directory.
 Thus the `serveez-config' script might deliver wrong results when you 
-transfer the installation tree from your build system to the target system 
+transfer the installation tree from your build system to the host system 
 to a different location.
-
-  When cross-compiling to a mingw32 host you need to set the environment
-variable HOST_CC="gcc" while `make'ing.  Current libtool versions need this 
-to create the file `impgen' which is run on the build system.

@@ -21,6 +21,7 @@ ia64-hp-hpux11.22		cc	0.1.4	  ok, buggy guile 1.4 gc
 powerpc-apple-darwin1.4		cc	0.1.2	  libtool, _environ, static
 powerpc-apple-darwin5.4		cc	0.1.4	  ok, static
 powerpc-apple-darwin5.5		cc	0.1.4	  ok, libtool patch
+powerpc-apple-darwin5.6		gcc	0.1.5	  ok
 powerpc-unknown-linux-gnu	gcc	0.1.2	  ok
 sparc-unknown-linux-gnu		gcc	0.1.4	  ok
 sparc-sun-solaris2.8		gcc	0.1.4	  ok

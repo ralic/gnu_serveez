@@ -5,7 +5,7 @@
 # Run this script to re-generate all maintainer-generated files.
 #
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
-# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ cd `dirname $0`
 if ! test -f doc/serveez-api.texi; then
 cat <<EOF > doc/serveez-api.texi
 @setfilename serveez-api.info
+@include version1.texi
 EOF
 info_touched="yes"
 fi
@@ -48,6 +49,14 @@ autoconf
 echo "done."
 echo -n "Creating Win32 projects... "
 perl autodsp
+echo "done."
+
+# patching libtool 1.5 code for MinGW32 build
+echo -n "Patching configure... "
+mv -f configure configure.x
+cat configure.x | sed 's/x86 DLL/x86 DLL|\^x86 archive static/' > configure
+chmod +x configure
+rm -f configure.x
 echo "done."
 
 # reschedule this file for building
