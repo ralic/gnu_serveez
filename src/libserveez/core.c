@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.9 2001/05/22 21:06:41 ela Exp $
+ * $Id: core.c,v 1.10 2001/06/10 21:45:40 ela Exp $
  *
  */
 
@@ -375,6 +375,44 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 }
 #endif /* HAVE_SEND_FILE */
 
+
+#ifndef __MINGW32__
+
+/* List for file descriptors. */
+svz_array_t *svz_files = NULL;
+
+/* Add a file descriptor to the list. */
+static void
+svz_file_add (int fd)
+{
+  if (svz_files == NULL)
+    svz_files = svz_array_create (1);
+  svz_array_add (svz_files, (void *) fd);
+}
+
+/* Delete a file descriptor from the list. */
+static void
+svz_file_del (int fd)
+{
+  void *val;
+  int n;
+
+  svz_array_foreach (svz_files, val, n)
+    {
+      if (val == (void *) fd)
+	{
+	  svz_array_del (svz_files, n);
+	  break;
+	}
+    }
+  if (svz_array_size (svz_files) == 0)
+    {
+      svz_array_destroy (svz_files);
+      svz_files = NULL;
+    }
+}
+#endif /* not __MINGW32__ */
+
 /*
  * Open the filename @var{file} and convert it into a file handle. The
  * given @var{flags} specify the access mode and the @var{mode} argument
@@ -396,6 +434,7 @@ svz_open (const char *file, int flags, unsigned int mode)
       close (fd);
       return -1;
     }
+  svz_file_add (fd);
   return fd;
 
 #else /* __MINGW32__ */
@@ -453,6 +492,7 @@ svz_close (int fd)
       svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       return -1;
     }
+  svz_file_del (fd);
 #else /* __MINGW32__ */
   if (!CloseHandle ((HANDLE) fd))
     {
@@ -542,7 +582,8 @@ svz_fopen (const char *file, const char *mode)
       fclose (f);
       return NULL;
     }
-#endif
+  svz_file_add (fileno (f));
+#endif /* __MINGW32__ */
   return f;
 }
 
@@ -552,6 +593,9 @@ svz_fopen (const char *file, const char *mode)
 int
 svz_fclose (FILE *f)
 {
+#ifndef __MINGW32__
+  svz_file_del (fileno (f));
+#endif
   if (fclose (f) < 0)
     {
       svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.12 2001/05/19 23:04:58 ela Exp $
+ * $Id: coserver.c,v 1.13 2001/06/10 21:45:40 ela Exp $
  *
  */
 
@@ -627,12 +627,38 @@ svz_coserver_close_pipes (svz_coserver_t *self)
     {
       if (coserver != self)
 	{
-	  if (close (coserver->sock->pipe_desc[READ]) < 0)
-	    svz_log (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
-	  if (close (coserver->sock->pipe_desc[WRITE]) < 0)
-	    svz_log (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
+	  close (coserver->sock->pipe_desc[READ]);
+	  close (coserver->sock->pipe_desc[WRITE]);
 	}
     }
+}
+
+/* 
+ * Iterate each socket object and close its file/socket/pipe 
+ * descriptors.
+ */
+static void
+svz_coserver_closeall (void)
+{
+  svz_socket_t *sock;
+  int n;
+  void *fd;
+
+  svz_sock_foreach (sock)
+    {
+      if (sock->flags & SOCK_FLAG_SOCK)
+	close (sock->sock_desc);
+      if (sock->flags & SOCK_FLAG_FILE)
+	close (sock->file_desc);
+      if (sock->flags & SOCK_FLAG_PIPE)
+	{
+	  close (sock->pipe_desc[READ]);
+	  close (sock->pipe_desc[WRITE]);
+	}
+    }
+
+  svz_array_foreach (svz_files, fd, n)
+    close ((int) fd);
 }
 #endif /* not __MINGW32__ */
 
@@ -812,7 +838,8 @@ svz_coserver_start (int type)
 
       /* close all other coserver pipes except its own */
       svz_coserver_close_pipes (coserver);
-
+      svz_coserver_closeall ();
+      
       /* start the internal coserver */
       svz_coserver_loop (coserver, in, out);
       exit (0);

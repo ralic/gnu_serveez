@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.7 2001/05/21 21:20:42 ela Exp $
+ * $Id: core.h,v 1.8 2001/06/10 21:45:40 ela Exp $
  *
  */
 
@@ -26,6 +26,7 @@
 #define __CORE_H__ 1
 
 #include "libserveez/defines.h"
+#include "libserveez/array.h"
 
 #include <stdio.h>
 #include <sys/stat.h>
@@ -35,6 +36,10 @@
 #endif
 #ifdef __MINGW32__
 # include <winsock2.h>
+#endif
+
+#ifndef __MINGW32__
+svz_array_t *svz_files;
 #endif
 
 /* protocol definitions */
