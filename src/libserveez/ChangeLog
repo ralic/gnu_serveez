@@ -1,3 +1,8 @@
+2001-09-29  [ Ela ]  <ela@lkcc.org>
+
+	* dynload.c: Added Darwin (MacOS) specific code for its 
+	dynamic linker interface.
+
 2001-09-27  [ Ela ]  <ela@lkcc.org>
 
 	* interface.c (svz_interface_search): New library function.

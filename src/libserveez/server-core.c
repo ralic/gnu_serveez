@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.29 2001/09/19 09:49:19 ela Exp $
+ * $Id: server-core.c,v 1.30 2001/09/29 01:05:02 ela Exp $
  *
  */
 
@@ -31,7 +31,12 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+
+/* Some Unices define the strsignal() function depending on 
+   this definition. */
+#define __EXTENSIONS__
 #include <string.h>
+
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>

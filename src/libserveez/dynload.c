@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.14 2001/07/05 21:35:26 ela Exp $
+ * $Id: dynload.c,v 1.15 2001/09/29 01:05:02 ela Exp $
  *
  */
 
@@ -45,6 +45,9 @@
 # ifndef RTLD_GLOBAL
 #  define RTLD_GLOBAL 0
 # endif
+#endif
+#if HAVE_MACH_O_DYLD_H
+#include <mach-o/dyld.h>
 #endif
 
 #ifdef __MINGW32__
@@ -77,10 +80,17 @@ static dyn_library_t *dyn_library = NULL;
 # endif
 # define DYNLOAD_SUFFIX "dll"
 # define DYNLOAD_PATH_SEPERATOR ';'
+# define DYNLOAD_SYMBOL_PREFIX ""
+#elif defined (HAVE_NSADDIMAGE)
+# define DYNLOAD_PREFIX "lib"
+# define DYNLOAD_SUFFIX "dylib"
+# define DYNLOAD_PATH_SEPERATOR ':'
+# define DYNLOAD_SYMBOL_PREFIX "_"
 #else
 # define DYNLOAD_PREFIX "lib"
 # define DYNLOAD_SUFFIX "so"
 # define DYNLOAD_PATH_SEPERATOR ':'
+# define DYNLOAD_SYMBOL_PREFIX ""
 #endif
 
 /* Name of the additional search path environment variable. */
@@ -130,6 +140,9 @@ dyn_get_library (char *path, char *file)
   handle = LoadLibrary (lib);
 #elif HAVE_SHL_LOAD
   handle = shl_load (lib, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH);
+#elif HAVE_NSADDIMAGE
+  handle = (void *) NSAddImage (lib, NSADDIMAGE_OPTION_RETURN_ON_ERROR |
+				NSADDIMAGE_OPTION_WITH_SEARCHING);
 #endif
 
   svz_free (lib);
@@ -308,6 +321,8 @@ dyn_unload_library (dyn_library_t *lib)
 	err = (FreeLibrary (handle) == 0);
 #elif HAVE_SHL_LOAD
 	err = shl_unload ((shl_t) handle);
+#elif HAVE_NSADDIMAGE
+	/* TODO: Find out. */
 #endif
 	if (err)
 	  {
@@ -360,6 +375,15 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 	if (shl_findsym ((shl_t *) &lib->handle,
 			 symbol, TYPE_UNDEFINED, &address) != 0)
 	  address = NULL;
+#elif HAVE_NSADDIMAGE
+	if (NSIsSymbolNameDefinedInImage
+	    ((struct mach_header *) lib->handle, symbol))
+	  {
+	    address = NSLookupSymbolInImage 
+	      ((struct mach_header *) lib->handle, symbol,
+	       NSLOOKUPSYMBOLINIMAGE_OPTION_BIND_NOW |
+	       NSLOOKUPSYMBOLINIMAGE_OPTION_RETURN_ON_ERROR);
+	  }
 #endif
 	if (address == NULL)
 	  {
@@ -420,9 +444,9 @@ dyn_create_symbol (char *description)
 {
   char *symbol;
 
-  symbol = svz_malloc (strlen (description) + 
-		       strlen ("_server_definition") + 1);
-  sprintf (symbol, "%s_server_definition", description);
+  symbol = svz_malloc (strlen (description) + 1 +
+		       strlen (DYNLOAD_SYMBOL_PREFIX "_server_definition"));
+  sprintf (symbol, DYNLOAD_SYMBOL_PREFIX "%s_server_definition", description);
   return symbol;
 }
 

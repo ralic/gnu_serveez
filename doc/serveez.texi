@@ -2290,9 +2290,11 @@ Serveez has been build and tested successfully.
 @item GNU/Linux 2.2.x on PowerPC (RS/6000)
 @item GNU/Linux 2.4.x on ia64 (Itanium)
 @item GNU/Linux 2.4.x on StrongARM (iPAQ)
-@item Solaris 2.6, 2.7, 2.8 on Sparc32, Sparc64
+@item Solaris 2.6, 2.7 on Sparc32, Sparc64
+@item SunOS 5.8 on Sparc32 
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS/6000
+@item MacOS X10.1/Darwin 1.4 on PowerPC (Macintosh)
 @item Windows 95 on Intel
 @item Windows 98 on Intel
 @item Windows Millennium Edition on Intel

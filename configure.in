@@ -888,11 +888,11 @@ AC_CHECK_FUNC(strncasecmp,
     AC_DEFINE(HAVE_STRNICMP, 1, [Define if you have the strnicmp function.]))])
 
 AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
-  getpwnam seteuid setegid geteuid getegid gettimeofday shl_load)
+  getpwnam seteuid setegid geteuid getegid gettimeofday shl_load NSAddImage)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \
-  mswsock.h grp.h)
+  mswsock.h grp.h mach-o/dyld.h)
 AC_HEADER_DIRENT
 
 SERVEEZLIBS=""
@@ -1149,6 +1149,7 @@ AC_CHECK_FUNCS(strsignal)
 AC_CACHE_CHECK([whether strsignal is declared], svz_cv_decl_strsignal,
 AC_EGREP_CPP(strsignal, [
     #define _GNU_SOURCE
+    #define __EXTENSIONS__
     #include <string.h> ],
   svz_cv_decl_strsignal=yes,
   svz_cv_decl_strsignal=no))
