@@ -47,7 +47,7 @@ echo -n "Creating configure... "
 autoconf
 echo "done."
 echo -n "Creating Win32 projects... "
-autodsp
+perl autodsp
 echo "done."
 
 # reschedule this file for building
