@@ -26,7 +26,8 @@ TESTS = vector-test array-test hash-test spvec-test
 
 EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp \
 	hash.ap vector.ap array.ap spvec.ap codec.ap prog.ap \
-	prog-test.cfg test-suite.scm binary-test.scm server-test.scm
+	prog-test.cfg test-suite.scm binary-test.scm server-test.scm \
+	guile-server-test.scm
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test \
 	prog-test

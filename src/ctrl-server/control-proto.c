@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.65 2003/06/15 17:30:00 ela Exp $
+ * $Id: control-proto.c,v 1.66 2003/06/29 09:21:28 ela Exp $
  *
  */
 
@@ -550,10 +550,10 @@ ctrl_stat_con (svz_socket_t *sock, int flag, char *arg)
       id = "None";
       if (xsock->flags & SOCK_FLAG_LISTENING)
 	id = "Listener";
-      else if ((server = svz_server_find (xsock->cfg)) != NULL)
-	id = server->name;
       else if (xsock->flags & SOCK_FLAG_COSERVER)
 	id = "Co-Server";
+      else if ((server = svz_server_find (xsock->cfg)) != NULL)
+	id = server->name;
 
       /* print local and remote end of the connection */
       sprintf (linet, "%s:%u",

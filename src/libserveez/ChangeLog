@@ -1,3 +1,7 @@
+2003-06-29  Stefan Jahn  <stefan@lkcc.org>
+
+	* cfg.c: Include <string.h> for memcpy().
+
 2003-06-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* mutex.c: New file implementing the mutex API.  Some of the

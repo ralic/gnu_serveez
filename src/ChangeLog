@@ -1,3 +1,10 @@
+2003-06-29  Stefan Jahn  <stefan@lkcc.org>
+
+	* ctrl-server/control-proto.c: Minor bug fix.
+
+	* guile-server.c: Using svz_asprintf() instead of svz_snprintf()
+	where appropriate.
+
 2003-06-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* svzconfig.h.in: Removed all of the remaining #define's which

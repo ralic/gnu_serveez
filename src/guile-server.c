@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.55 2003/06/14 14:57:59 ela Exp $
+ * $Id: guile-server.c,v 1.56 2003/06/29 09:21:28 ela Exp $
  *
  */
 
@@ -1420,15 +1420,14 @@ static int
 guile_servertype_config (svz_servertype_t *server, SCM cfg)
 {
   int def, n, err = 0;
-  char *txt, **key;
+  char *txt = NULL, **key;
   svz_hash_t *options = NULL;
   svz_key_value_pair_t item;
   svz_key_value_pair_t *items = NULL;
   char *prototype = NULL;
   int size = 0, len;
 
-  txt = svz_malloc (256);
-  svz_snprintf (txt, 256, "parsing configuration of `%s'", server->prefix);
+  svz_asprintf (&txt, "parsing configuration of `%s'", server->prefix);
 
   /* Check if the configuration alist is given or not. */
   if (SCM_EQ_P (cfg, SCM_UNSPECIFIED))
@@ -1558,15 +1557,14 @@ SCM
 guile_define_servertype (SCM args)
 {
   int n, err = 0;
-  char *txt;
+  char *txt = NULL;
   svz_hash_t *options;
   SCM proc;
   svz_servertype_t *server;
   svz_hash_t *functions;
 
   server = svz_calloc (sizeof (svz_servertype_t));
-  txt = svz_malloc (256);
-  svz_snprintf (txt, 256, "defining servertype");
+  svz_asprintf (&txt, "defining servertype");
 
   if (NULL == (options = guile_to_optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
@@ -1575,7 +1573,7 @@ guile_define_servertype (SCM args)
   if (optionhash_extract_string (options, "prefix", 0, NULL, 
 				 &server->prefix, txt) != 0)
     FAIL ();
-  svz_snprintf (txt, 256, "defining servertype `%s'", server->prefix);
+  svz_asprintf (&txt, "defining servertype `%s'", server->prefix);
   
   /* Check the servertype definition once. */
   err |= optionhash_validate (options, 1, "servertype", server->prefix);

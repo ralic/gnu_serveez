@@ -1,3 +1,10 @@
+2003-06-29  Stefan Jahn  <stefan@lkcc.org>
+
+	* guile-server-test.scm: New test.  Tests the error conditions
+	of the Guile procedure (define-servertype!).
+
+	* Makefile.am (EXTRA_DIST): Added 'guile-server-test.scm'.
+
 2003-06-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-test.scm: New test. Basically tests the error conditions
