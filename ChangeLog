@@ -1,3 +1,7 @@
+2001-04-28  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Using `libtool 1.4'.
+
 2001-04-27  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Dropped everything related to sizzle.
