@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.28 2001/04/04 14:23:14 ela Exp $
+ * $Id: irc-proto.c,v 1.29 2001/04/05 18:04:35 ela Exp $
  *
  */
 
@@ -204,7 +204,7 @@ int
 irc_init (svz_server_t *server)
 {
   irc_config_t *cfg = server->cfg;
-  char tmp[256][3];
+  char tmp[3][256];
 
   /* scan the M line (server configuration) */
   if (!cfg->MLine || 

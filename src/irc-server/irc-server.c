@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.21 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-server.c,v 1.22 2001/04/05 18:04:35 ela Exp $
  *
  */
 
@@ -105,9 +105,7 @@ irc_parse_line (char *line, char *fmt, ...)
 	      fmt++;
 	      while (*line && *line != *fmt)
 		{
-		  *s = *line;
-		  s++;
-		  line++;
+		  *s++ = *line++;
 		}
 	      *s = 0;
 	    }
