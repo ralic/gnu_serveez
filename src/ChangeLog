@@ -1,3 +1,16 @@
+2000-10-22  [ Ela ]  <ela@lkcc.org>
+
+	* test.c: Helper functions for the test suites.
+
+	* hash-test.c: Hash function test suite.
+
+	* alist-test.c: Array list function test suite.
+
+	* alist.c: Most of the array list functions have been 
+	implemented and tested. This implementation can be used for
+	linear lists of values and prevents the processor from copying
+	large arrays in memory.
+
 2000-10-16  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/nut-transfer.c (nut_send_push): Checking

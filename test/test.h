@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: test.h,v 1.1 2000/10/17 21:12:01 ela Exp $
+ * $Id: test.h,v 1.2 2000/10/22 19:11:03 ela Exp $
  *
  */
 
@@ -34,5 +34,6 @@ void test_print (char *text);
 void test_ok (void);
 void test_failed (void);
 char * test_string (void);
+unsigned long test_value (unsigned long nr);
 
 #endif /* __TEST_H__ */

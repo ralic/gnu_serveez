@@ -1,5 +1,5 @@
 /*
- * test/alist-test.c - array list tests
+ * test/alist-test.c - array list function tests
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.1 2000/10/20 13:13:48 ela Exp $
+ * $Id: alist-test.c,v 1.2 2000/10/22 19:11:03 ela Exp $
  *
  */
 
@@ -35,6 +35,8 @@
 #include "test.h"
 
 #define REPEAT 10000
+#define SIZE   1000
+#define GAP    5
 #define test(error) \
   if (error) {      \
     test_failed (); \
@@ -51,18 +53,19 @@ main (int argc, char **argv)
 {
   int result = 0;
   alist_t *list;
-  long n, error;
+  long n, error, i;
   char *text;
   void **values;
 
+  test_init ();
   test_print ("array list function test suite\n");
   
   /* array list creation */
-  test_print ("      create: ");
+  test_print ("       create: ");
   test ((list = alist_create ()) == NULL);
 
   /* add and get */
-  test_print (" add and get: ");
+  test_print ("  add and get: ");
   for (n = error = 0; n < REPEAT; n++)
     {
       alist_add (list, (void *) 0xdeadbeef);
@@ -75,7 +78,7 @@ main (int argc, char **argv)
 
   /* contains */
   error = 0;
-  test_print ("    contains: ");
+  test_print ("     contains: ");
   if (alist_contains (list, NULL))
     error++;
   if (alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
@@ -87,7 +90,7 @@ main (int argc, char **argv)
 
   /* searching */
   error = 0;
-  test_print ("       index: ");
+  test_print ("        index: ");
   if (alist_index (list, (void *) 0xdeadbeef) != 0)
     error++;
   if (alist_index (list, (void *) 0xeabceabc) != REPEAT)
@@ -98,7 +101,7 @@ main (int argc, char **argv)
 
   /* deletion */
   error = 0;
-  test_print ("      delete: ");
+  test_print ("       delete: ");
   if (alist_delete (list, REPEAT) != (void *) 0xeabceabc)
     error++;
   for (n = 0; n < REPEAT; n++)
@@ -112,7 +115,7 @@ main (int argc, char **argv)
 
   /* insertion */
   error = 0;
-  test_print ("      insert: ");
+  test_print ("       insert: ");
   for (n = 0; n < REPEAT; n++)
     {
       alist_insert (list, 0, (void *) 0xeabceabc);
@@ -129,14 +132,146 @@ main (int argc, char **argv)
     error++;
   test (error);
 
+  /* set (replace) and get */
+  alist_clear (list);
+  error = 0;
+  test_print ("  set and get: ");
+  for (n = 0; n < REPEAT / GAP; n++)
+    {
+      if (alist_set (list, n * GAP, (void *) (n * GAP)) != NULL)
+	error++;
+      if (alist_get (list, n * GAP) != (void *) (n * GAP))
+	error++;
+
+      for (i = GAP - 1; i > 0; i--)
+	{ 
+	  if (alist_set (list, n * GAP + i, (void *) ((n * GAP) + i)) != NULL)
+	    error++;
+	  if (alist_get (list, n * GAP + i) != (void *) ((n * GAP) + i))
+	    error++;
+	}
+    }
+  
+  if (alist_length (list) != REPEAT || alist_size (list) != REPEAT)
+    error++;
+  for (n = 0; n < REPEAT; n++)
+    {
+      if (alist_get (list, n) != (void *) n)
+	error++;
+    }
+  test (error);
+
+  /* values */
+  error = 0;
+  test_print ("       values: ");
+  if ((values = alist_values (list)) != NULL)
+    {
+      for (n = 0; n < REPEAT; n++)
+	{
+	  if (values[n] != (void *) n)
+	    error++;
+	}
+      xfree (values);
+    }
+  else error++;
+  test (error);
+
+  /* pack */
+  error = 0;
+  alist_clear (list);
+  test_print ("         pack: ");
+  for (n = 0; n < REPEAT; n++)
+    {
+      if (alist_set (list, n * GAP, (void *) n) != NULL)
+	error++;
+    }
+  if (alist_length (list) != REPEAT * GAP - GAP + 1 || 
+      alist_size (list) != REPEAT)
+    error++;
+  alist_pack (list);
+  if (alist_length (list) != REPEAT || alist_size (list) != REPEAT)
+    error++;
+  for (n = 0; n < REPEAT; n++)
+    {
+      if (alist_get (list, n) != (void *) n)
+	error++;
+    }
+  test (error);
+
+  /* stress test */
+  error = 0;
+  alist_clear (list);
+  test_print ("       stress: ");
+  while (alist_size (list) != SIZE)
+    {
+      n = test_value (SIZE);
+      if (alist_get (list, n) != (void *) (n + SIZE))
+	{
+	  alist_set (list, n, (void *) (n + SIZE));
+	}
+    }
+  if (alist_size (list) != SIZE || alist_size (list) != SIZE)
+    error++;
+  for (n = 0; n < SIZE; n++)
+    {
+      if (alist_contains (list, (void *) (n + SIZE)) != 1)
+	error++;
+      if (alist_index (list, (void *) (n + SIZE)) != n)
+	error++;
+      if (alist_get (list, n) != (void *) (n + SIZE))
+	error++;
+    }
+  for (n = 0; n < SIZE; n++)
+    {
+      if (alist_delete (list, 0) != (void *) (n + SIZE))
+	error++;
+    }  
+  if (alist_size (list) || alist_size (list))
+    error++;
+  while (alist_size (list) != REPEAT)
+    {
+      n = test_value (REPEAT);
+      alist_insert (list, n, (void *) 0xdeadbeef);
+    }
+  if (alist_size (list) > alist_length (list))
+    error++;
+  if (alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
+    error++;
+  if ((values = alist_values (list)) != NULL)
+    {
+      alist_pack (list);
+      if (alist_size (list) != REPEAT || alist_length (list) != REPEAT)
+	error++;
+      for (n = 0; n < REPEAT; n++)
+	{
+	  if (alist_get (list, n) != values[n] || 
+	      values[n] != (void *) 0xdeadbeef)
+	    error++;
+	}
+      xfree (values);
+    }
+  else error++;
+  n = REPEAT;
+  while (alist_size (list))
+    {
+      if (alist_delete (list, alist_index (list, (void *) 0xdeadbeef)) !=
+	  (void *) 0xdeadbeef)
+	error++;
+      if (alist_contains (list, (void *) 0xdeadbeef) != (unsigned) --n)
+	error++;
+    }
+  if (alist_size (list) || alist_length (list))
+    error++;
+  test (error);
+
   /* array list destruction */
-  test_print ("     destroy: ");
+  test_print ("      destroy: ");
   alist_destroy (list);
   test_ok ();
 
 #if ENABLE_DEBUG
   /* is heap ok ? */
-  test_print ("        heap: ");
+  test_print ("         heap: ");
   test (allocated_bytes || allocated_blocks);
 #endif
 

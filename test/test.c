@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: test.c,v 1.1 2000/10/17 21:12:01 ela Exp $
+ * $Id: test.c,v 1.2 2000/10/22 19:11:03 ela Exp $
  *
  */
 
@@ -51,6 +51,13 @@ test_string (void)
       text[length] = (rand () % (128 - ' ')) + ' ';
     }
   return text;
+}
+
+/* Return a random number between 0 and NR - 1. */
+unsigned long
+test_value (unsigned long nr)
+{
+  return (rand () % nr);
 }
 
 /* Print any text. */

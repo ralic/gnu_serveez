@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.4 2000/10/20 13:13:48 ela Exp $
+ * $Id: alist.c,v 1.5 2000/10/22 19:11:03 ela Exp $
  *
  */
 
@@ -36,11 +36,11 @@
 #include "util.h"
 #include "alist.h"
 
-#define array_range_all(array, index) \
-  (index >= array->offset && index < array->offset + ARRAY_SIZE)
+#define array_range_all(ARRAY, IDX) \
+  (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY_SIZE)
 
-#define array_range(array, index) \
-  (index >= array->offset && index < array->offset + array->size)
+#define array_range(ARRAY, IDX) \
+  (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY->size)
 
 /*
  * Create and initialize a new array chunk at a given index offset.
@@ -57,6 +57,39 @@ alist_create_array (unsigned offset)
 }
 
 /*
+ * Put a given array chunk into the array list.
+ */
+static void
+alist_hook (alist_t *list, array_t *insert)
+{
+  array_t *array, *next;
+
+  /* find the appropiate array chunk */
+  for (array = list->array; array; array = array->next)
+    {
+      if (insert->offset > array->offset)
+	{
+	  next = array->next;
+	  if (next && insert->offset <= next->offset)
+	    {
+	      insert->next = array->next;
+	      array->next = insert;
+	      return;
+	    }
+	  else if (!next)
+	    {
+	      array->next = insert;
+	      return;
+	    }
+	}
+    }
+
+  /* no chunk found, thus `insert' gets the first chunk */
+  insert->next = list->array;
+  list->array = insert;
+}
+
+/*
  * Print text representation of the array list.
  */
 void
@@ -68,10 +101,43 @@ alist_analyse (alist_t *list)
   for (n = 0, array = list->array; array; n++, array = array->next)
     {
       fprintf (stdout, 
-	       "chunk %04u, offset: %04u, size: %02u, fill: 0x%08X\n",
+	       "chunk %06u, offset: %06u, size: %02u, fill: 0x%08X\n",
 	       n + 1, array->offset, array->size, array->fill);
     }
   fprintf (stdout, "length: %u, size: %u\n", list->length, list->size);
+}
+
+/*
+ * Validates the given array list and prints invalid lists.
+ */
+int
+alist_validate (alist_t *list)
+{
+  array_t *array, *next;
+  unsigned ok = 1, n, bits;
+
+  assert (list);
+  for (n = 0, array = list->array; array; n++, array = array->next)
+    {
+      next = array->next;
+      if (next && array->offset + array->size > next->offset)
+	{
+	  ok = 0;
+	  break;
+	}
+      bits = (1 << array->size) - 1;
+      if (array->fill & ~bits || !(array->fill & ((bits + 1) >> 1)))
+	{
+	  ok = 0;
+	  break;
+	}
+    }
+  if (!ok)
+    {
+      fprintf (stdout, "error in chunk %06u\n", n + 1);
+      alist_analyse (list);
+    }
+  return ok;
 }
 
 /*
@@ -82,6 +148,7 @@ alist_create (void)
 {
   alist_t *list;
 
+  assert (ARRAY_SIZE <= sizeof (unsigned) * 8);
   list = xmalloc (sizeof (alist_t));
   memset (list, 0, sizeof (alist_t));
   return list;
@@ -149,10 +216,12 @@ alist_clear (alist_t *list)
     {
       next = array->next;
       length -= array->size;
+      if (next) length -= (next->offset - array->offset - array->size);
       xfree (array);
       array = next;
     }
 
+  list->array = NULL;
   assert (length == 0);
   list->length = 0;
   list->size = 0;
@@ -326,29 +395,33 @@ alist_set (alist_t *list, unsigned index, void *value)
 {
   array_t *array, *next, *prev;
   void *replace = NULL;
+  unsigned idx;
 
   for (prev = array = list->array; array; prev = array, array = array->next)
     {
       /* needs the value to be set in this chunk ? */
       if (array_range_all (array, index))
 	{
-	  index -= array->offset;
+	  idx = index - array->offset;
+
 	  /* already set ? */
-	  if (array->fill & (1 << index))
+	  if (array->fill & (1 << idx))
 	    {
-	      replace = array->value[index];
+	      replace = array->value[idx];
+	      array->value[idx] = value;
+	      return replace;
 	    }
 	  /* no, just place the value there */
-	  else
+	  else if (array->next == NULL || idx < array->size)
 	    {
-	      array->fill |= (1 << index);
-	      if (index >= array->size) array->size = index + 1;
+	      array->fill |= (1 << idx);
+	      if (idx >= array->size) array->size = idx + 1;
 	      list->size++;
 	      if (list->length < array->offset + array->size)
 		list->length = array->offset + array->size;
+	      array->value[idx] = value;
+	      return replace;
 	    }
-	  array->value[index] = value;
-	  return replace;
 	}
     }
 
@@ -357,12 +430,11 @@ alist_set (alist_t *list, unsigned index, void *value)
   next->value[0] = value;
   next->fill |= 1;
   next->size = 1;
+  alist_hook (list, next);
+
+  /* adjust list properties */
   list->size++;
-  list->length = index + 1;
-  if (prev)
-    prev->next = next;
-  else
-    list->array = next;
+  if (list->length <= next->offset) list->length = index + 1;
 
   /* return replaced value */
   return replace;
@@ -400,6 +472,10 @@ alist_insert (alist_t *list, unsigned index, void *value)
     {
       if (array_range_all (array, index))
 	{
+	  next = array->next;
+	  if (next && array_range_all (next, index))
+	    continue;
+
 	  inserted = 1;
 	  idx = index - array->offset;
 	  /* can the value be inserted here ? */
@@ -439,13 +515,13 @@ alist_insert (alist_t *list, unsigned index, void *value)
 		  (ARRAY_SIZE - idx) * sizeof (void *));
 	  next->fill = (array->fill >> idx);
 	  next->size = ARRAY_SIZE - idx;
-	  next->next = array->next;
 
 	  array->value[idx] = value;
 	  array->fill &= (1 << (idx + 1)) - 1;
 	  array->fill |= (1 << idx);
 	  array->size = idx + 1;
-	  array->next = next;
+
+	  alist_hook (list, next);
 	  array = next->next;
 	  break;
 	}
@@ -458,24 +534,20 @@ alist_insert (alist_t *list, unsigned index, void *value)
       next->fill = 1;
       next->size = 1;
       next->value[0] = value;
-      for (array = list->array; array && array->next; array = array->next);
-      if (array) array->next = next;
-      if (!list->array) list->array = next;
-      list->length = index + 1;
-      list->size++;
-      return;
+      alist_hook (list, next);
+      array = next->next;
     }
+  if (++list->length < index) list->length = index + 1;
+  list->size++;
 
   /* increase offset of all later array chunks */
   while (array)
     {
-      if (array->offset + array->size > index)
+      if (array->offset > index)
 	array->offset++;
       array = array->next;
     }
 
-  list->length++;
-  list->size++;
 }
 
 /*
@@ -485,6 +557,73 @@ alist_insert (alist_t *list, unsigned index, void *value)
 void
 alist_pack (alist_t *list)
 {
+  array_t *array, *next, *prev;
+  unsigned need2pack, bits, n, size;
+  void **value;
+
+  if (!list->size) return;
+
+  /* first check if it is necessary to pack the chunks */
+  for (need2pack = 0, array = list->array; array; array = array->next)
+    {
+      next = array->next;
+      if (next && array->size == ARRAY_SIZE)
+	{
+	  if (array->fill != ARRAY_MASK ||
+	      array->offset + ARRAY_SIZE != next->offset)
+	    {
+	      need2pack = 1;
+	      break;
+	    }
+	}
+      if (next && array->size < ARRAY_SIZE)
+	{
+	  need2pack = 1;
+	  break;
+	}
+      if (!next)
+	{
+	  bits = (1 << (list->length - array->offset)) - 1;
+	  if ((array->fill & bits) != bits)
+	    {
+	      need2pack = 1;
+	      break;
+	    }
+	}
+    }
+
+  /* return if packing is not necessary */
+  if (!need2pack) return;
+
+  /* rebuild array list */
+  value = alist_values (list);
+  size = alist_size (list);
+  alist_clear (list);
+  prev = list->array;
+  for (n = 0; n <= size - ARRAY_SIZE; n += ARRAY_SIZE)
+    {
+      array = alist_create_array (n);
+      array->fill = ARRAY_MASK;
+      array->size = ARRAY_SIZE;
+      list->size += ARRAY_SIZE;
+      memcpy (array->value, &value[n], ARRAY_SIZE * sizeof (void *));
+      if (!prev) list->array = array;
+      else       prev->next = array;
+      prev = array;
+    }
+  if (size % ARRAY_SIZE)
+    {
+      size %= ARRAY_SIZE;
+      array = alist_create_array (n);
+      array->fill = (1 << size) - 1;
+      array->size = size;
+      list->size += size;
+      memcpy (array->value, &value[n], size * sizeof (void *));
+      if (!prev) list->array = array;
+      else       prev->next = array;
+    }
+  list->length = list->size;
+  xfree (value);
 }
 
 /*
@@ -494,5 +633,22 @@ alist_pack (alist_t *list)
 void **
 alist_values (alist_t *list)
 {
-  return NULL;
+  array_t *array;
+  void **value;
+  unsigned index, bit, n;
+
+  if (!list->size) 
+    return NULL;
+
+  value = xmalloc (list->size * sizeof (void *));
+  for (index = 0, array = list->array; array; array = array->next) 
+    {
+      for (bit = 1, n = 0; n < array->size; bit <<= 1, n++)
+	{
+	  if (array->fill & bit)
+	    value[index++] = array->value[n];
+	  assert (index <= list->size);
+	}
+    }
+  return value;
 }
