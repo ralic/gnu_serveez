@@ -2,10 +2,10 @@ Documentation: http://www.glug.org/projects/protocol.txt
 To: guile-projects@glug.org
 Subject: Guile Project Submission
 
-((name "GNU Serveez")
+((name "Serveez")
  (location (url "http://www.gnu.org/software/serveez/"))
  (category "Applications/Network")
- (description "GNU Serveez is a server framework; it provides routines "
+ (description "Serveez is a server framework; it provides routines "
               "and help for IP-based servers (TCP, UDP and ICMP) as well "
               "as \"named pipes\". It demonstrates portable network "
 	      "programming optimized for speed and reliability.")

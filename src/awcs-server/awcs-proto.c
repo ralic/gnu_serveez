@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.36 2002/05/31 14:34:21 ela Exp $
+ * $Id: awcs-proto.c,v 1.37 2002/10/13 08:11:59 ela Exp $
  *
  */
 
@@ -859,7 +859,7 @@ awcs_disconnected_socket (svz_socket_t *sock)
 
 /*
  * Gets called when the socket SOCK got kicked.  REASON is true when
- * a output buffer overflow occured and false, when it was an input
+ * a output buffer overflow occurred and false, when it was an input
  * buffer overflow or flooding.
  */
 int

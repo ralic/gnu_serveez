@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.13 2002/06/09 10:13:09 ela Exp $
+ * $Id: interface.c,v 1.14 2002/10/13 08:11:59 ela Exp $
  *
  */
 
@@ -742,7 +742,7 @@ svz_interface_check (void)
       svz_vector_destroy (interfaces);
     }
 
-  /* Print a notification message if no changes occured. */
+  /* Print a notification message if no changes occurred. */
   if (!changes)
     {
       svz_log (LOG_NOTICE, "no network interface changes detected\n");
