@@ -696,7 +696,7 @@ else
     AC_MSG_RESULT([located in $SIZZLEDIR])
     sizzle_cflags="-I$SIZZLEDIR"
     sizzle_ldflag=""
-    SIZZLESTATIC="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm -ldl"
+    SIZZLESTATIC="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm"
     SIZZLEDEP="$SIZZLEDIR/libsizzle/.libs/libsizzle.a"
     SIZZLERULE="$SIZZLEDEP"
     sizzle_src="yes"
@@ -1035,7 +1035,7 @@ dnl Start configuring sizzle.
 dnl
 
 if test "$sizzle_src" != "no"; then
-  cache_file="`pwd`/config.cache"
+  cache_file="`pwd`/$cache_file"
   export CPPFLAGS
 
   ([cd $sizzle_dir && sh ./configure \
@@ -1045,6 +1045,7 @@ if test "$sizzle_src" != "no"; then
      --disable-posix \
      --disable-regexp \
      --disable-nls \
+     --disable-dl \
      --disable-maximum-functionality \
      --disable-readline \
      --without-included-gettext \
