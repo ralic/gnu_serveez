@@ -1,0 +1,145 @@
+/*
+ * irc-event.h - IRC event header definitions
+ *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Portions (C) 1995, 1996 Free Software Foundation, Inc.
+ *
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
+ * 
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this package; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.  
+ */
+
+#ifndef __IRC_EVENT_H__
+#define __IRC_EVENT_H__
+
+/*************************************************************************
+ * This is a list of IRC Messages i need to reply on. Every section of
+ * this table is implemented in a file called "irc-event-?.c" where the
+ * ? refers to the subsection's # seen here in the table.
+ * All the callbacks get three (3) args passed these are in specific:
+ * 1. the socket structure for the IRC connection,
+ * 2. the IRC client structure for this socket and
+ * 3. the already parsed request.
+ *
+ *************************************************************************
+ *
+ * Message                             * Done * Status
+ *************************************************************************
+ * 4.1 Connection Registration
+ *    4.1.1 Password message           * Yes  * Ok -> but Modified
+ *    4.1.2 Nickname message           * Yes  * Ok
+ *    4.1.3 User message               * Yes  * Ok
+ *    4.1.4 Server message             * No   *
+ *    4.1.5 Operator message           * No   *
+ *    4.1.6 Quit message               * Yes  * Ok
+ *    4.1.7 Server Quit message        * No   *
+ * 4.2 Channel operations
+ *    4.2.1 Join message               * Yes  * Ok
+ *    4.2.2 Part message               * Yes  * Ok
+ *    4.2.3 Mode message               * Yes  * ToDo, Much
+ *       4.2.3.1 Channel modes         * Yes  * ToDo
+ *       4.2.3.2 User modes            * Yes  * ToDo
+ *    4.2.4 Topic message              * Yes  * Ok (incl. extra)
+ *    4.2.5 Names message              * Yes  * Ok
+ *    4.2.6 List message               * Yes  * Ok
+ *    4.2.7 Invite message             * Yes  * Ok
+ *    4.2.8 Kick message               * Yes  * Ok
+ * 4.3 Server queries and commands
+ *    4.3.1 Version message            * Yes  * Ok
+ *    4.3.2 Stats message              * Yes  * just started, Much ! todo
+ *    4.3.3 Links message              * No   *
+ *    4.3.4 Time message               * Yes  * Ok
+ *    4.3.5 Connect message            * No   *
+ *    4.3.6 Trace message              * No   *
+ *    4.3.7 Admin message              * Yes  *
+ *    4.3.8 Info message               * No   *
+ * 4.4 Sending messages
+ *    4.4.1 Private messages           * Yes  * Ok
+ *    4.4.2 Notice messages            * Yes  * Ok
+ * 4.5 User-based queries
+ *    4.5.1 Who query                  * Yes  * not all done (o)
+ *    4.5.2 Whois query                * Yes  * Ok
+ *    4.5.3 Whowas message             * Yes  *
+ * 4.6 Miscellaneous messages
+ *    4.6.1 Kill message               * No   *
+ *    4.6.2 Ping message               * Yes  *
+ *    4.6.3 Pong message               * Yes  *
+ *    4.6.4 Error message              * Yes  * Much ToDo
+ * 5. OPTIONAL MESSAGES
+ *    5.1 Away message                 * Yes  *
+ *    5.2 Rehash command               * No   *
+ *    5.3 Restart command              * No   *
+ *    5.4 Summon message               * No   *
+ *    5.5 Users message                * No   *
+ *    5.6 Operwall command             * No   *
+ *    5.7 Userhost message             * Yes  * Ok
+ *    5.8 Ison message                 * Yes  * Ok
+ *
+ *************************************************************************/
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif
+
+#define _GNU_SOURCE
+
+/* Miscellaneous functions */
+char *get_client_flags(irc_client_t *client);
+char *get_channel_flags(irc_channel_t *channel);
+
+/* Connection Registration */
+int irc_pass_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_user_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_nick_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_quit_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_motd_callback(socket_t, irc_client_t*, irc_request_t*);
+
+/* Channel operations */
+int irc_part_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_join_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_mode_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_topic_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_names_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_list_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_invite_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_kick_callback(socket_t, irc_client_t*, irc_request_t*);
+
+/* Server queries and commands */
+int irc_stats_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_version_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_lusers_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_time_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_admin_callback(socket_t, irc_client_t*, irc_request_t*);
+
+/* Sending messages */
+int irc_note_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_priv_callback(socket_t, irc_client_t*, irc_request_t*);
+
+/* User-based queries */
+int irc_who_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_whois_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_whowas_callback(socket_t, irc_client_t*, irc_request_t*);
+
+/* Miscellaneous messages */
+int irc_ping_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_pong_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_error_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_kill_callback(socket_t, irc_client_t*, irc_request_t*);
+
+/* Optional messages */
+int irc_away_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_userhost_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_ison_callback(socket_t, irc_client_t*, irc_request_t*);
+
+#endif /* __IRC_EVENT_H__ */

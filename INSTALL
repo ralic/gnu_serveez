@@ -1,0 +1,151 @@
+-- 
+-- INSTALL
+-- 
+-- install instructions.
+-- 
+-- Copyright (C) Free Software Foundation
+-- Portions Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+-- 
+-- This is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+-- 
+-- This software is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this package; see the file COPYING.  If not, write to
+-- the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-- Boston, MA 02111-1307, USA.  
+--
+
+Compilation and Installation:
+-----------------------------
+
+   The `configure' shell script attempts to guess correct values for
+various system-dependent variables used during compilation.  It uses
+those values to create a `Makefile' in each directory in the source
+tree.
+
+   Finally, it creates a shell script `config.status' that you can run
+in the future to recreate the current configuration, a file
+`config.cache' that saves the results of its tests to speed up
+reconfiguring, and a file `config.log' containing compiler output
+(useful mainly for debugging `configure').
+
+   If you need to do unusual things to compile, please try to figure
+out how `configure' could check whether to do them, and mail diffs or
+instructions to the maintainer of this package (see the file AUTHORS
+in the top level directory of the distribution for the email address)
+so they can be considered for the next release.  If at some point
+`config.cache' contains results you don't want to keep, you may remove
+or edit it.
+
+   The file `configure.in' is used to create `configure' by a program
+called `autoconf'.  You only need `configure.in' if you want to change
+it or regenerate `configure' using a newer version of `autoconf'.
+
+The simplest way to compile this package is:
+
+  1. `cd' to the directory containing the package's source code and
+     type `./configure' to configure the package for your system.  If
+     you're using `csh' on an old version of System V, you might need
+     to type `sh ./configure' instead to prevent `csh' from trying to
+     execute `configure' itself.
+
+     Running `configure' takes awhile.  While running, it prints some
+     messages telling which features it is checking for.
+
+  2. Type `make' to compile the package.
+
+  3. Type `make install' to install the programs and any data files
+     and documentation.
+
+  4. You can remove the program binaries and object files from the
+     source code directory by typing `make clean'.  To also remove the
+     files that `configure' created (so you can compile the package
+     for a different kind of computer), type `make distclean'.
+
+
+Compilers and Options:
+----------------------
+
+   Some systems require unusual options for compilation or linking
+that the `configure' script does not know about.  You can give
+`configure' initial values for variables by setting them in the
+environment.  Using a Bourne-compatible shell, you can do that on the
+command line like this: CC=c89 CFLAGS=-O2 LIBS=-lposix ./configure
+
+Or on systems that have the `env' program, you can do it like this:
+     env CPPFLAGS=-I/usr/local/include LDFLAGS=-s ./configure
+
+Here is list of the available './configure' script options. All 
+given '--enable-<?>' options can be disabled via '--disable-<?>' 
+or '--enable-<?>=no'. 
+
+ 01.   --enable-warn
+         With this option you enable the detection of various compiler
+         warning switches. Most guessed options come from GCC.
+ 02.   --enable-opt
+         When enabling this feature the configure script tries some of the
+         commonly known compiler optimization switches.
+ 03.   --enable-ppro
+         If you want to compile for the i686 target try this option.
+ 04.   --enable-486
+         Compiler optimizations for the i486 target of GCC. If you passed
+         '--enable-ppro' and this options could be used, then the i486 option
+         will be silently dropped.
+ 05.   --enable-debug
+         All of the debug messages (debug: some annoying crap text) can be 
+         supressed by setting the debug level (-v). If you do not want these
+         messages build in at all then disable this feature.
+ 06.   --enable-control-proto
+         If you enable this feature the control protocol will be supported by
+         serveez. This protocol is for remote control the server.
+ 07.   --enable-irc-proto
+         When enabling this command switch you tell the software package to
+         support the IRC (Internet Relay Chat) protocol.
+ 07.1. --enable-irc-ts
+         This option is only available if you enabled the IRC protocol at all.
+         If you enabled both of them the serveez will support the so called
+         TimeStamp protocol which is is a EF-Net extension of the original IRC
+         protocol. In order to connect to EF-Net you MUST use this option.
+ 07.2. --enable-irc-crypt
+         This option tells the serveez to process any passwords (for operators
+         and servers) as crypt()ed.
+ 08.   --enable-awcs-proto
+         In order to use the serveez software for the textSure (C) chat system
+         you MUST enable this option.
+ 09.   --enable-http-proto
+         When using the serveez as part of the textSure (C) chat system you 
+         will have need of an additional www server. This option makes 
+         serveez support a simple HTTP protocol.
+ 10.   --enable-ident
+         It is always useful to enable this option. For the IRC server you 
+         MUST enable this option. When enabling it the serveez will create an 
+         identification client which does non-blocking ident lookups.
+ 11.   --enable-reverse-dns
+         When enabling this option the serveez creates an nslookup client able
+         to do non-blocking nameserver lookups. For the IRC server feature of
+         serveez you MUST enable this feature.
+ 12.   --enable-flood
+         If you enable this feature the serveez will support a simple builtin 
+         flood protection. It is always useful to protect the software from
+         flood clients.
+ 13.   --with-sizzle=DIR
+         The DIR argument specifies the sizzle directory.
+ 14.   --with-mingw=DIR
+         When compiling under Windows the DIR argument specifies the path
+         to the extra MingW32 library and header files. If you want the
+         final executable depend on the cygwin project's cygwin1.dll you have
+         to disable this option by passing configure script '--without-mingw'
+	 or '--with-mingw=no'.
+ 15.   --enable-dns
+	 If you enable this feature serveez creates a dns lookup coserver
+	 which is able to make non-blocking dns lookups. This might be 
+	 necessary to resolve IRC server from C or N lines.
+
+Please read the README file also.

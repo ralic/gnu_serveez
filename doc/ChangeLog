@@ -1,0 +1,13 @@
+2000-01-27  Stefan Jahn  <stefan@bono.reversers.net>
+
+	* Identification:      RFC 1413
+	* Internet Relay Chat: RFC 1459
+	* HTTP/1.0:            RFC 1945
+	* HTTP/1.1:            RFC 2616
+
+1999-10-19  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* awcs-proto.txt: Copied from older source and adapted to latest
+	protocol changes.
+
+	* README: Created.

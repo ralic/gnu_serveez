@@ -1,0 +1,15 @@
+Operating System			Architecture
+
+FreeBSD 3.3				Intel
+FreeBSD 4.0				Intel
+FreeBSD 4.0				Alpha
+Linux 2.x.x				Intel
+Linux 2.x.x				Alpha
+Solaris 2.6, 2.7			Sparc 32, Sparc 64
+SunOS 5.6				Intel
+AIX 4.3					RS6000
+Windows 95				Intel
+Windows NT 4.0				Intel
+IRIX 6.x				MIPS
+Tru64/OSF1 UNIX V4.0 (f. Digital UNIX)	Alpha
+Tru64/OSF1 UNIX V5.0 (f. Digital UNIX)	Alpha

@@ -1,0 +1,1006 @@
+dnl -*-shell-script-*-
+dnl configure.in
+dnl
+dnl Autoconf input file.
+dnl
+dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+dnl
+dnl This is free software; you can redistribute it and/or modify
+dnl it under the terms of the GNU General Public License as published by
+dnl the Free Software Foundation; either version 2, or (at your option)
+dnl any later version.
+dnl 
+dnl This software is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU General Public License for more details.
+dnl 
+dnl You should have received a copy of the GNU General Public License
+dnl along with this package; see the file COPYING.  If not, write to
+dnl the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+dnl Boston, MA 02111-1307, USA.  
+dnl
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Initialize autoconf and automake
+dnl
+AC_INIT(src/serveez.c)
+AM_INIT_AUTOMAKE(serveez,0.0.17a,no-define)
+AM_CONFIG_HEADER(config.h)
+
+dnl
+dnl Determine if maintainer portions of the Makefiles should be included.
+dnl
+AM_MAINTAINER_MODE
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Determine default prefix
+dnl
+test x$prefix = "xNONE" && prefix="$ac_default_prefix"
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check for a proper C compiler.
+dnl
+AC_PROG_CC
+AC_C_CONST
+AC_CHECK_SIZEOF(unsigned, 8)
+AC_CHECK_SIZEOF(void *, 8)
+
+dnl
+dnl Locate required external software.
+dnl
+AC_PROG_INSTALL
+
+dnl
+dnl Check for the ar library archiver.
+dnl
+AC_PROG_RANLIB
+AC_CHECK_PROG(AR, ar, ar)
+AC_SUBST(AR)
+
+dnl ----------------------------------------------------------------------
+
+EXTRALIBS=""
+CPPEXTRAFLAGS=""
+
+AC_SUBST(CPPEXTRAFLAGS)
+AC_SUBST(CPPFLAGS)
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether compilation warnings are desired.
+dnl
+
+define_enable_warn="no"
+AC_ARG_ENABLE(warn,
+[  --enable-warn           Turn on most compiler warnings [default=no]],
+[if test "yes" = "$enableval"; then
+   define_enable_warn="yes"
+ fi])
+
+if test $define_enable_warn = yes ; then
+    save_cflags="$CFLAGS"
+    warn_cflags=""
+    CFLAGS="-W"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS"
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-fullwarn"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-pedantic"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+
+dnl
+dnl Only make these tests if we are using GNU C
+dnl
+if test x$GCC = xyes ; then
+    CFLAGS="-Wall"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-Wno-unused"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-Wcast-align"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-Wstrict-prototypes"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-Wformat"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+
+dnl
+dnl Test this compiler flag under Linux only.
+dnl
+if test "`uname -s`" = "Linux"; then
+    CFLAGS="-ansi"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+fi
+fi
+
+    CFLAGS="$save_cflags"
+    CPPEXTRAFLAGS="$warn_cflags"
+    unset warn_cflags
+    unset save_cflags
+fi
+
+unset define_enable_warn
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether compilation optimizations are desired.
+dnl
+
+AC_MSG_CHECKING([whether to enable optimizations])
+AC_ARG_ENABLE(opt,          
+    [  --enable-opt            Turn on compiler optimizations [default=no]],
+    if test x$enableval = "xyes"; then
+	define_enable_opt=yes
+	AC_MSG_RESULT([yes])
+    else
+	define_enable_opt=no
+	AC_MSG_RESULT([no])
+    fi,
+    define_enable_opt=no
+    AC_MSG_RESULT([no])
+)
+
+if test $define_enable_opt = yes ; then
+    save_cflags="$CFLAGS"
+    opt_cflags=""
+    opt_ldflags=""
+    CFLAGS="-O2"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+
+dnl
+dnl Only make these tests if we are using GNU C
+dnl
+if test x$GCC = xyes ; then
+    CFLAGS="-fomit-frame-pointer" 
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-fstrength-reduce"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-m486"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,
+	opt_is486="yes" 
+	AC_MSG_RESULT([yes]), 
+	opt_is486="no" 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-march=pentiumpro"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,
+	opt_isPPro="yes" 
+	AC_MSG_RESULT([yes]), 
+	opt_isPPro="no"	
+	AC_MSG_RESULT([no]))
+    CFLAGS="-funroll-loops"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-finline-functions"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-fgcse"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-fexpensive-optimizations"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+    CFLAGS="-fcaller-saves"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+fi
+
+    LDFLAGS="-s"
+    AC_MSG_CHECKING([whether $CC accepts $LDFLAGS])
+    AC_TRY_LINK(,,opt_ldflags="$opt_ldflags -s" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
+
+if test x$opt_isPPro = "xyes" ; then
+    AC_MSG_CHECKING([whether to enable i686 optimizations])
+    AC_ARG_ENABLE(
+	ppro,
+	[  --enable-ppro           Turn on i686 optimizations [default=no]],
+	if test x$enableval = "xyes"; then
+	    opt_cflags="$opt_cflags -march=pentiumpro"
+	    opt_isPPro="done"
+	    AC_MSG_RESULT([yes])
+	else
+	    AC_MSG_RESULT([no])
+	fi,
+	AC_MSG_RESULT([no]))
+fi
+
+if test x$opt_is486 = "xyes" -a ! x$opt_isPPro = "xdone"; then
+    AC_MSG_CHECKING([whether to enable i486 optimizations])
+    AC_ARG_ENABLE(
+	486,
+	[  --enable-486            Turn on i486 optimizations [default=yes]],
+	if test x$enableval = "xyes"; then
+	    opt_cflags="$opt_cflags -m486"
+	    AC_MSG_RESULT([yes])
+	else
+	    AC_MSG_RESULT([no])
+	fi,
+	opt_cflags="$opt_cflags -m486"
+	AC_MSG_RESULT([yes]))
+fi
+
+    LDFLAGS="$opt_ldflags"
+    CPPEXTRAFLAGS="$CPPEXTRAFLAGS $opt_cflags"
+    CFLAGS=""
+    unset save_cflags
+    unset opt_cflags
+    unset opt_ldflags
+fi
+
+AC_SUBST(CFLAGS)
+AC_SUBST(LDFLAGS)
+unset define_enable_opt
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether debug output should be included.
+dnl
+
+AC_MSG_CHECKING([whether to enable debug output])
+AC_ARG_ENABLE(
+  debug,
+  [  --enable-debug          Include debug output [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_debug=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_debug=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_debug=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_debug = yes ; then
+  AC_DEFINE(ENABLE_DEBUG,
+    1,
+    [Define if debug output should be supported.])
+else
+  AC_DEFINE(NDEBUG, 1, [Define if debug code should be suppressed.])
+fi
+unset define_enable_debug
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the control protocol should be included.
+dnl
+
+AC_MSG_CHECKING([whether to enable support for the control protocol])
+AC_ARG_ENABLE(
+  control-proto,
+  [  --enable-control-proto  Include the control protocol [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_control_proto=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_control_proto=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_control_proto=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_control_proto = yes ; then
+  AC_DEFINE(ENABLE_CONTROL_PROTO,
+    1,
+    [Define if the control protocol should be supported.])
+fi
+unset define_enable_control_proto
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the IRC protocol should be included.
+dnl
+
+AC_MSG_CHECKING([whether to enable support for the IRC protocol])
+AC_ARG_ENABLE(
+  irc-proto,
+  [  --enable-irc-proto      Include the IRC protocol [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_irc_proto=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_irc_proto=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_irc_proto=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_irc_proto = yes ; then
+  AC_DEFINE(ENABLE_IRC_PROTO,
+    1,
+    [Define if the IRC protocol should be supported.])
+fi
+unset define_enable_irc_proto
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the IRC protocol "TimeStamp" extension should be included.
+dnl
+
+AC_MSG_CHECKING([whether to enable TimeStamp for the IRC protocol])
+AC_ARG_ENABLE(
+  irc-ts,
+  [  --enable-irc-ts         Include TimeStamp in IRC protocol [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_irc_ts=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_irc_ts=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_irc_ts=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_irc_ts = yes ; then
+  AC_DEFINE(ENABLE_TIMESTAMP,
+    1,
+    [Define if the IRC protocol TimeStamp extension should be supported.])
+fi
+unset define_enable_irc_ts
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the IRC password encryption should be included.
+dnl
+
+AC_MSG_CHECKING([whether to enable IRC password encryption])
+AC_ARG_ENABLE(
+  irc-crypt,
+  [  --enable-irc-crypt      Include IRC password encryption [default=no]],
+  if test x$enableval = "xyes"; then
+    define_enable_irc_crypt=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_irc_crypt=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_irc_crypt=no
+  AC_MSG_RESULT([no])
+)
+
+if test $define_enable_irc_crypt = yes; then
+  AC_DEFINE(ENABLE_CRYPT,
+    1,
+    [Define if the IRC password encryption should be supported.])
+fi
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the aWCS protocol should be included.
+dnl
+AC_MSG_CHECKING([whether to enable support for the aWCS protocol])
+AC_ARG_ENABLE(
+  awcs-proto, 
+  [  --enable-awcs-proto     Include the aWCS protocol [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_awcs_proto=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_awcs_proto=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_awcs_proto=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_awcs_proto = yes ; then
+  AC_DEFINE(ENABLE_AWCS_PROTO,
+    1,
+    [Define if the aWCS protocol should be supported.])
+fi
+unset define_enable_awcs_proto
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the HTTP protocol should be included.
+dnl
+AC_MSG_CHECKING([whether to enable support for the HTTP protocol])
+AC_ARG_ENABLE(
+  http-proto, 
+  [  --enable-http-proto     Include the HTTP protocol [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_http_proto=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_http_proto=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_http_proto=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_http_proto = yes ; then
+  AC_DEFINE(ENABLE_HTTP_PROTO,
+    1,
+    [Define if the HTTP protocol should be supported.])
+fi
+unset define_enable_http_proto
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the ident support should be included.
+dnl
+AC_MSG_CHECKING([whether to enable support for ident authentication])
+AC_ARG_ENABLE(
+  ident,
+  [  --enable-ident          Include ident authentication [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_ident=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_ident=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_ident=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_ident = yes ; then
+  AC_DEFINE(ENABLE_IDENT,
+    1,
+    [Define if ident authentication should be supported.])
+fi
+unset define_enable_ident
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether reverse DNS lookup should be included.
+dnl
+AC_MSG_CHECKING([whether to enable reverse DNS lookup])
+AC_ARG_ENABLE(
+  reverse-dns,
+  [  --enable-reverse-dns    Include reverse DNS lookup [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_reverse_lookup=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_reverse_lookup=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_reverse_lookup=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_reverse_lookup = yes ; then
+  AC_DEFINE(ENABLE_REVERSE_LOOKUP,
+    1,
+    [Define if reverse DNS lookup should be supported.])
+fi
+unset define_enable_reverse_lookup
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether DNS lookup should be included.
+dnl
+AC_MSG_CHECKING([whether to enable DNS lookup])
+AC_ARG_ENABLE(
+  dns,
+  [  --enable-dns            Include DNS lookup [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_dns_lookup=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_dns_lookup=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_dns_lookup=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_dns_lookup = yes ; then
+  AC_DEFINE(ENABLE_DNS_LOOKUP,
+    1,
+    [Define if DNS lookup should be supported.])
+fi
+unset define_enable_dns_lookup
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the flood protection should be included.
+dnl
+AC_MSG_CHECKING([whether to enable support for flood protection])
+AC_ARG_ENABLE(
+  flood,
+  [  --enable-flood          Include flood protection [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_flood=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_flood=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_flood=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_flood = yes; then
+  AC_DEFINE(ENABLE_FLOOD_PROTECTION,
+    1,
+    [Define if flood protection should be supported.])
+fi
+unset define_enable_flood
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check for additional searchpath for MingW32 headers and libraries.
+dnl
+AC_ARG_WITH(mingw,
+    [  --with-mingw=DIR        MingW32 files are in DIR [/usr/local/mingw]],
+    [case "$withval" in
+     no)  MINGDIR="no" ;;
+     yes) MINGDIR="/usr/local/mingw" ;;
+     *)   MINGDIR=$withval ;;
+    esac],
+    MINGDIR="/usr/local/mingw")
+
+dnl
+dnl Check if this is Win32 (CYGWIN/MINGW32).
+dnl
+AC_CYGWIN
+AC_EXEEXT
+if test "$CYGWIN" = "yes"; then
+    AC_DEFINE(FD_SETSIZE, 1024, [Make CygWin / MingW32 use large FD sets.])
+    if test "$MINGDIR" != "no"; then
+	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
+	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
+	AC_MSG_RESULT([using MingW32 headers and libraries in ${MINGDIR}])
+    fi
+    AC_CHECK_LIB(wsock32, main, EXTRALIBS="$EXTRALIBS -lwsock32")
+fi
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check for the additional libsizzle directory.
+dnl
+AC_ARG_WITH(sizzle,
+    [  --with-sizzle=DIR       Sizzle files are in DIR [../sizzle]],
+    sizzle_dir=$withval,
+    sizzle_dir="../sizzle")
+
+AC_MSG_CHECKING([for libsizzle])
+if test ! -d $sizzle_dir; then
+    AC_MSG_RESULT([not found])
+    AC_MSG_ERROR([cannot compile without libsizzle])
+    exit
+else
+    old_dir="`pwd`"
+    cd $sizzle_dir
+    SIZZLEDIR="`pwd`"
+    cd $old_dir
+    unset old_dir
+    AC_SUBST(SIZZLEDIR)
+    AC_MSG_RESULT([located in $SIZZLEDIR])
+    EXTRALIBS="$EXTRALIBS"
+    CFLAGS="$CFLAGS -I$SIZZLEDIR"
+    LDFLAGS="$LDFLAGS -L$SIZZLEDIR/libsizzle/.libs"
+fi
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether to include support for named pipes under Linux.
+dnl
+AC_MSG_CHECKING([whether to enable support for aWCS pipes])
+AC_ARG_ENABLE(
+  awcs-pipe,
+  [  --enable-awcs-pipe      Include support for aWCS pipes [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_pipe=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_pipe=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_pipe=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_pipe = "yes"; then
+    AC_MSG_CHECKING([for host system])
+    host_sys="`uname -s`"
+    if test x$host_sys = x; then
+	host_sys="`ver`"
+    fi
+    AC_MSG_RESULT($host_sys)
+    AC_CHECK_FUNC(mkfifo)
+    if test x$host_sys = "xLinux" -a x$ac_cv_func_mkfifo = "xyes"; then
+	AC_DEFINE(ENABLE_MASTER_PIPE, 1,
+	    [Define if support for aWCS pipe should be enabled.])
+    fi
+fi
+unset define_enable_pipe
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether to include support for heap counters.
+dnl
+AC_MSG_CHECKING([whether to enable heap counters])
+AC_ARG_ENABLE(
+  heap-count,
+  [  --enable-heap-count     Include support for heap counters [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_heap=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_heap=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_heap=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test x$define_enable_heap = "xyes"; then
+    AC_DEFINE(ENABLE_HEAP_COUNT, 1,
+	[Define if heap counters should be enabled.])
+fi
+unset define_enable_heap
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check for system header files.
+dnl
+AC_HEADER_STDC
+
+dnl There is no wait.h on AIX, but sys/wait.h.
+AC_MSG_CHECKING([for wait.h])
+AC_TRY_CPP([#include <wait.h>],
+    AC_DEFINE(HAVE_WAIT_H, 1, [Define if you have the <wait.h>.])
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no)
+)
+
+AC_HEADER_SYS_WAIT
+
+dnl bzero() is defined in strings.h on AIX, used by FD_ZERO()
+AC_MSG_CHECKING([for strings.h])
+AC_TRY_CPP([#include <strings.h>],
+    AC_DEFINE(HAVE_STRINGS_H, 1, [Define if you have the <strings.h>.])
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no)
+)
+
+AC_CHECK_FUNCS(strchr memcpy)
+AC_CHECK_HEADERS(stdio.h)
+AC_CHECK_HEADERS(varargs.h)
+AC_CHECK_HEADERS(getopt.h)
+
+have_getopt="no"
+have_getopt_long="no"
+AC_CHECK_FUNC(getopt, have_getopt="yes",
+    AC_CHECK_LIB(iberty, getopt, have_getopt="yeslib"))
+if test $have_getopt != "no"; then
+    AC_DEFINE(HAVE_GETOPT, 
+	1, [Define if you have the getopt function.])
+fi
+
+AC_CHECK_FUNC(getopt_long, have_getopt_long="yes",
+    AC_CHECK_LIB(iberty, getopt_long, have_getopt_long="yeslib"))
+
+dnl We might declare getopt_long ourselves if the headers do not.
+
+if test $have_getopt_long != "no"; then
+    AC_MSG_CHECKING([whether getopt_long is declared])
+    AC_EGREP_HEADER(getopt_long, getopt.h,
+	AC_MSG_RESULT([yes])
+	AC_DEFINE(DECLARED_GETOPT_LONG, 
+	    1, [Define if the getopt_long function is declared in getopt.h.]),
+	AC_MSG_RESULT([no]))
+fi
+
+if test $have_getopt_long != "no"; then
+    AC_DEFINE(HAVE_GETOPT_LONG, 
+	1, [Define if you have the getopt_long function.])
+fi
+
+if test $have_getopt = "yeslib" || test $have_getopt_long = "yeslib"; then
+    EXTRALIBS="$EXTRALIBS -liberty"
+fi
+unset have_getopt
+unset have_getopt_long
+
+dnl ----------------------------------------------------------------------
+
+dnl Check for 'uname' interface.
+
+AC_CHECK_HEADERS(sys/utsname.h)
+AC_CHECK_FUNCS(uname)
+
+dnl ----------------------------------------------------------------------
+
+dnl Check for the 'kstat' interface on Solaris.
+
+AC_CHECK_LIB(kstat, kstat_open,
+    AC_DEFINE(HAVE_LIBKSTAT, 
+	1, [Define if Solaris provides the kstat library.])
+    EXTRALIBS="$EXTRALIBS -lkstat")
+
+dnl Check for the 'pstat' interface on HP-Unix.
+
+AC_MSG_CHECKING([for pstat_getdynamic])
+AC_EGREP_HEADER(pstat_getdynamic, sys/pstat.h,
+    AC_DEFINE(HAVE_PSTAT, 
+	1, [Define if HP-Unix provides the pstat interface.])
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no))
+
+dnl Check for the 'sysget' interface on IRIX.
+
+AC_MSG_CHECKING([for sysget])
+AC_EGREP_HEADER(sysget, sys/sysget.h,
+    AC_DEFINE(HAVE_SYSGET, 
+	1, [Define if IRIX provides the sysget interface.])
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no))
+
+dnl Check for the '/proc/stat' file under Linux.
+
+AC_MSG_CHECKING([whether /proc/stat exists])
+enable_procstat=`cat /proc/stat 2>&1 | grep "cpu  "`
+if test "x$enable_procstat" != "x"; then
+    AC_DEFINE(HAVE_PROC_STAT, 
+	1, [Define if Linux supports the /proc/stat file.])
+    AC_MSG_RESULT(yes)
+else
+    AC_MSG_RESULT(no)
+fi
+unset enable_procstat
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check for existance of some useful functions.
+dnl
+AC_CHECK_FUNC(vsprintf)
+if test $ac_cv_func_vsprintf = yes; then
+  AC_DEFINE(HAVE_VSPRINTF, 1, [Define if you have the vsprintf function.])
+else
+  AC_MSG_ERROR([cannot compile without vsprintf])
+  exit
+fi
+
+dnl
+dnl Some Unices (e.g. Dec Unix) dont implement snprintf().
+dnl
+AC_CHECK_FUNC(snprintf)
+if test $ac_cv_func_snprintf = yes; then
+  AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the snprintf function.])
+else
+  AC_MSG_WARN([using function vsnprintf instead])
+fi
+
+AC_CHECK_FUNC(vsnprintf)
+if test $ac_cv_func_vsnprintf = yes; then
+  AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the vsnprintf function.])
+else
+  AC_MSG_WARN([using unsafe function vsprintf instead])
+fi
+
+dnl
+dnl Check whether extra net libraries are required.
+dnl
+AC_CHECK_FUNC(connect)
+if test $ac_cv_func_connect = no; then
+    AC_CHECK_LIB(socket, connect, EXTRALIBS="$EXTRALIBS -lsocket")
+fi
+
+dnl
+dnl Check for Solaris nsl library.
+dnl
+AC_CHECK_FUNC(gethostbyaddr)
+if test $ac_cv_func_gethostbyaddr = no; then
+    AC_CHECK_LIB(nsl, gethostbyaddr, EXTRALIBS="$EXTRALIBS -lnsl")
+fi
+
+dnl
+dnl Check for typedef socklen_t in <sys/socket.h>.
+dnl
+AC_MSG_CHECKING([for socklen_t])
+AC_EGREP_HEADER(socklen_t,
+    sys/socket.h,
+    AC_MSG_RESULT([yes]),
+    AC_MSG_RESULT([no])
+    AC_DEFINE(socklen_t, int, 
+    [Define to \`int' if <sys/socket.h> doesn't define.]))
+
+dnl
+dnl Check for the typedef SOCKET, INVALID_SOCKET and HANDLE in <winsock.h>.
+dnl
+socket_defined=no
+handle_defined=no
+invalid_defined=no
+
+if test "$MINGDIR" != "no"; then
+    AC_CHECK_HEADER(winsock.h, 
+	socket_defined=yes
+	AC_DEFINE(Win32_Winsock, 1, 
+	    [Define if you are using Windows Socket-API (not CYGWIN).])
+	AC_DEFINE(HAVE_WINSOCK_H, 1, 
+	    [Define if you have the <winsock.h>]))
+fi
+
+if test $socket_defined = yes; then
+    handle_defined=yes
+    invalid_defined=yes
+fi
+
+if test $socket_defined = no; then
+    AC_DEFINE(SOCKET, int, [Define to 'int' if <winsock.h> doesn't define.])
+fi
+if test $handle_defined = no; then
+    AC_DEFINE(HANDLE, int, [Define to 'int' if <winsock.h> doesn't define.])
+fi
+if test $invalid_defined = no; then
+    AC_DEFINE(INVALID_SOCKET, 
+    -1, [Define to -1 if <winsock.h> doesn't define.])
+fi
+unset invalid_defined
+unset socket_defined
+unset handle_defined
+
+dnl Check for Windows NT.
+
+AC_MSG_CHECKING([for extensions in winsock.h])
+AC_EGREP_HEADER(WSA_INVALID_HANDLE, winsock.h,
+    AC_DEFINE(HAVE_WSOCK_EXT, 
+	1, [Define if 'winsock.h' defines some more constants.])
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no))
+
+dnl
+dnl Determine the return type of signal handlers.
+dnl
+AC_TYPE_SIGNAL
+if test $ac_cv_type_signal != void ; then
+    AC_DEFINE(NONVOID_SIGNAL, 1, [Define if signal()s are non-void.])
+fi
+AC_TYPE_SIZE_T
+
+dnl
+dnl Checking for crypt() function.
+dnl
+
+if test $define_enable_irc_crypt = yes ; then
+    AC_CHECK_FUNC(crypt,,
+	AC_CHECK_LIB(descrypt,crypt,,
+	    AC_CHECK_LIB(crypt,crypt)))
+fi
+unset define_enable_irc_crypt
+
+dnl
+dnl Check for hstrerror(), h_errno and strsignal() functions.
+dnl
+
+AC_CHECK_FUNCS(strsignal hstrerror)
+AC_MSG_CHECKING([for h_errno])
+AC_EGREP_HEADER(h_errno, netdb.h,
+    AC_DEFINE(HAVE_H_ERRNO, 1, [Define if h_errno is supported.])
+    AC_MSG_RESULT(yes),
+    AC_MSG_RESULT(no))
+
+dnl
+dnl Check for times().
+dnl
+AC_CHECK_FUNCS(times)
+
+[LIBS="$LIBS $EXTRALIBS"]
+CPPFLAGS=$CPPEXTRAFLAGS
+
+[TIMESTAMP=`date`]
+AC_SUBST(TIMESTAMP)
+
+dnl
+dnl Output files.
+dnl
+AC_OUTPUT(
+    Makefile 
+    src/Makefile 
+    src/awcs-server/Makefile
+    src/coserver/Makefile
+    src/ctrl-server/Makefile
+    src/http-server/Makefile
+    src/irc-core/Makefile
+    src/irc-server/Makefile
+    src/foo-server/Makefile
+    doc/Makefile 
+    version.h)
+
+dnl
+dnl Print results.
+dnl
+AC_MSG_RESULT([])
+AC_MSG_RESULT([	$PACKAGE version $VERSION configured successfully.])
+AC_MSG_RESULT([])
+
+dnl
+dnl Start configuring sizzle.
+dnl
+
+cache_file="`pwd`/config.cache"
+export CPPFLAGS
+
+([cd $sizzle_dir && sh ./configure \
+    --disable-shared \
+    --enable-static \
+    --disable-debug \
+    --disable-posix \
+    --disable-regexp \
+    --disable-nls \
+    --disable-extended-math \
+    --without-included-gettext \
+    --without-catgets \
+    --with-mingw=$MINGDIR \
+    --cache-file=$cache_file])

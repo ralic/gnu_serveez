@@ -1,0 +1,51 @@
+-- 
+-- NEWS
+-- 
+-- news file.
+-- 
+-- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+-- 
+-- This is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+-- 
+-- This software is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this package; see the file COPYING.  If not, write to
+-- the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-- Boston, MA 02111-1307, USA.  
+--
+
+This file lists user visible changes that were made between releases.
+
+Version 0.0.16
+--------------
+
+ * disable heap counters by --disable-heap-count if you want to
+   enable debug outputs but without these counters, this was a problem
+   with memory aligned architectures like IP32 or RS6000, they were
+   throwing bus errors
+ * possibility to connect aWCS-Master through two unidirectional named 
+   pipes within Linux's filesystem, configure it by --enable-awcs-pipe
+ * DNS lookup coserver supported via --enable-dns
+ * reverse DNS lookup supported via --enable-reverse-dns
+
+Version 0.0.15
+--------------
+
+ * integration of sizzle as the configuration file language, new
+   configure option --with-sizzle[=DIR], the serveez package now depends
+   on the GNU sizzle package
+
+Version 0.0.14
+--------------
+
+ * speeding up the http protocol server
+ * http file cache
+ * HTTP/0.9 simple GET implemented
+ * Keep-Alive connections in http protocol

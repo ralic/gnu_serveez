@@ -1,0 +1,164 @@
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
+#undef HAVE_SYS_WAIT_H
+
+/* Define as the return type of signal handlers (int or void).  */
+#undef RETSIGTYPE
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
+/* Define if you have the ANSI C header files.  */
+#undef STDC_HEADERS
+
+/* The number of bytes in a unsigned.  */
+#undef SIZEOF_UNSIGNED
+
+/* The number of bytes in a void *.  */
+#undef SIZEOF_VOID_P
+
+/* Define if you have the hstrerror function.  */
+#undef HAVE_HSTRERROR
+
+/* Define if you have the memcpy function.  */
+#undef HAVE_MEMCPY
+
+/* Define if you have the strchr function.  */
+#undef HAVE_STRCHR
+
+/* Define if you have the strsignal function.  */
+#undef HAVE_STRSIGNAL
+
+/* Define if you have the times function.  */
+#undef HAVE_TIMES
+
+/* Define if you have the uname function.  */
+#undef HAVE_UNAME
+
+/* Define if you have the <getopt.h> header file.  */
+#undef HAVE_GETOPT_H
+
+/* Define if you have the <stdio.h> header file.  */
+#undef HAVE_STDIO_H
+
+/* Define if you have the <sys/utsname.h> header file.  */
+#undef HAVE_SYS_UTSNAME_H
+
+/* Define if you have the <varargs.h> header file.  */
+#undef HAVE_VARARGS_H
+
+/* Define if you have the descrypt library (-ldescrypt).  */
+#undef HAVE_LIBDESCRYPT
+
+/* Define if debug output should be supported. */
+#undef ENABLE_DEBUG
+
+/* Define if debug code should be suppressed. */
+#undef NDEBUG
+
+/* Define if the control protocol should be supported. */
+#undef ENABLE_CONTROL_PROTO
+
+/* Define if the IRC protocol should be supported. */
+#undef ENABLE_IRC_PROTO
+
+/* Define if the IRC protocol TimeStamp extension should be supported. */
+#undef ENABLE_TIMESTAMP
+
+/* Define if the IRC password encryption should be supported. */
+#undef ENABLE_CRYPT
+
+/* Define if the aWCS protocol should be supported. */
+#undef ENABLE_AWCS_PROTO
+
+/* Define if the HTTP protocol should be supported. */
+#undef ENABLE_HTTP_PROTO
+
+/* Define if ident authentication should be supported. */
+#undef ENABLE_IDENT
+
+/* Define if reverse DNS lookup should be supported. */
+#undef ENABLE_REVERSE_LOOKUP
+
+/* Define if DNS lookup should be supported. */
+#undef ENABLE_DNS_LOOKUP
+
+/* Define if flood protection should be supported. */
+#undef ENABLE_FLOOD_PROTECTION
+
+/* Make CygWin / MingW32 use large FD sets. */
+#undef FD_SETSIZE
+
+/* Define if support for aWCS pipe should be enabled. */
+#undef ENABLE_MASTER_PIPE
+
+/* Define if heap counters should be enabled. */
+#undef ENABLE_HEAP_COUNT
+
+/* Define if you have the <wait.h>. */
+#undef HAVE_WAIT_H
+
+/* Define if you have the <strings.h>. */
+#undef HAVE_STRINGS_H
+
+/* Define if you have the getopt function. */
+#undef HAVE_GETOPT
+
+/* Define if the getopt_long function is declared in getopt.h. */
+#undef DECLARED_GETOPT_LONG
+
+/* Define if you have the getopt_long function. */
+#undef HAVE_GETOPT_LONG
+
+/* Define if Solaris provides the kstat library. */
+#undef HAVE_LIBKSTAT
+
+/* Define if HP-Unix provides the pstat interface. */
+#undef HAVE_PSTAT
+
+/* Define if IRIX provides the sysget interface. */
+#undef HAVE_SYSGET
+
+/* Define if Linux supports the /proc/stat file. */
+#undef HAVE_PROC_STAT
+
+/* Define if you have the vsprintf function. */
+#undef HAVE_VSPRINTF
+
+/* Define if you have the snprintf function. */
+#undef HAVE_SNPRINTF
+
+/* Define if you have the vsnprintf function. */
+#undef HAVE_VSNPRINTF
+
+/* Define to `int' if <sys/socket.h> doesn't define. */
+#undef socklen_t
+
+/* Define if you are using Windows Socket-API (not CYGWIN). */
+#undef Win32_Winsock
+
+/* Define if you have the <winsock.h> */
+#undef HAVE_WINSOCK_H
+
+/* Define to 'int' if <winsock.h> doesn't define. */
+#undef SOCKET
+
+/* Define to 'int' if <winsock.h> doesn't define. */
+#undef HANDLE
+
+/* Define to -1 if <winsock.h> doesn't define. */
+#undef INVALID_SOCKET
+
+/* Define if 'winsock.h' defines some more constants. */
+#undef HAVE_WSOCK_EXT
+
+/* Define if signal()s are non-void. */
+#undef NONVOID_SIGNAL
+
+/* Define if h_errno is supported. */
+#undef HAVE_H_ERRNO
+

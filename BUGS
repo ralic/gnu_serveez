@@ -1,0 +1,89 @@
+-- 
+-- BUGS
+-- 
+-- Bug list.
+-- 
+-- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+-- 
+-- This is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+-- 
+-- This software is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this package; see the file COPYING.  If not, write to
+-- the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-- Boston, MA 02111-1307, USA.  
+--
+
+This file is intended to collect all known (fixed and unfixed) bugs in
+this package.
+
+Bug:         B0008
+From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+State:       unfixed
+Date:	     2000-04-24
+Description: http cache inconsistance.
+
+
+Bug:         B0007
+From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+State:       fixed (1999-11-18/ela)
+Date:	     1999-10-27
+Description: accept() fails under cygwin with a "bad address" error.
+
+
+Bug:         B0006
+From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+State:       fixed (1999-11-18/ela)
+Date:	     1999-10-27
+Description: accept() fails under SunOS 5.6 with a "bad address" error.
+
+
+Bug:         B0005
+From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+State:       fixed (1999-10-27/mgrabmue)
+Date:	     1999-10-27
+Description: disabling floodprotection on port <vielzuhohezahl> ...war
+	     vermutl. der selbe fehler, in der 4er ist das blos nicht
+	     gestorben.
+
+
+Bug:         B0004
+From:	     raimi <raimi@cs.tu-berlin.de>
+State:       fixed (1999-10-27/mgrabmue)
+Date:	     1999-10-27
+Description: segmentation fault das passiert wenn ein bot oder
+	     operator connected und auf diesem port die
+	     floodprotection ausgemacht werden soll... (vermutl. denn
+	     das ist es was die connects gemeinsam haben). Normale
+	     connects scheienn zu gehen.
+
+Bug:         B0003
+From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
+State:       fixed (1999-10-25/mgrabmue)
+Date:	     1999-10-21
+Description: Serveez sometimes segfaults when the massclient
+	     disconnects.
+
+
+Bug:         B0002
+From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
+State:       fixed (1999-10-25/mgrabmue)
+Date:	     1999-10-21
+Description: Serveez goes into endless loop or something when many
+	     massclients are connected.  Process uses 100% CPU and
+	     does no accept connections anymore.
+
+
+Bug:         B0001
+From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
+State:       fixed (1999-10-21/raimi)
+Date:	     1999-10-19
+Description: Perl master server dies after while when more than four
+	     massclients connect.

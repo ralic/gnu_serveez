@@ -1,0 +1,64 @@
+2000-04-12  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (define_enable_warn): Checking for -ansi compiler
+	option if Linux was detected.
+
+	* INSTALL: Detailed description of all the ./configure script
+	options.
+
+2000-03-19  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (enable_procstat): Checking for snprintf.
+
+2000-02-05  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (CPPEXTRAFLAGS): AC_HEADER_SYS_WAIT checks
+	if the <sys/wait.h> is present and includes it, if neccessary.
+
+	* configure.in (CPPEXTRAFLAGS): --enable-optimizations checks
+	for some compiler switches.
+
+	* configure.in : Checking for socklen_t, SOCKET, the library
+	wsock32 and the feature --enable-http-proto.
+
+1999-12-17  [ RAIMI ]  <raimi@lkcc.org>
+
+	* configure.in: Bumped version number to 0.0.11a. The is tons
+	of stuff todo. mgrabmue should go from here...
+
+1999-12-16  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* configure.in: Bumped version number to 0.0.11.
+	Threw in Cygwin detection, but without consequences yet.
+
+1999-11-26  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* configure.in: Bumped version number to 0.0.10.
+
+1999-11-18  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* configure.in: Bumped version number to 0.0.9.
+
+1999-10-21  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* configure.in: Added configure switch --enable-debug to
+	enable/disable debugging output and wrapped up all callers to
+	log_printf() in #if/#endifs.
+	Added check for libnsl, which is needed on Solaris for
+	gethostbyname().
+	Fixed check for vsprintf() and vsnprintf().  Now configure does
+	abort if no vsprintf() is available, and give a warning if
+	vsnprintf() is emulated by the unsafe vsprintf().
+
+1999-10-19  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* INSTALL: Cleanup and minor corrections (refer to the AUTHORS
+	file for email addresses).
+
+	* configure.in: Added support for autoconf reverse host name
+	lookup support.  Added support for user specified CC and CPP
+	flags.
+
+1999-10-03  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* configure.in: Created this package.

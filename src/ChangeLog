@@ -1,0 +1,449 @@
+2000-06-09  [ Ela ]  <ela@lkcc.org>
+
+	* socket.c (default_check_packets): This routine is a helper for
+	easy packet protocols. It is based on the socket's packet boundary 
+	and calls handle_request for each packet.
+
+	* server-socket.c (server_create): Finally fixed the SO_REUSEADDR
+	flag for server sockets. bind () will never ever return "address
+	already in use", sigh.
+
+2000-05-12  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_idle): Fixed the NAN-error
+	within the cpu/process load display. Do not use floating point
+	arithmetics.
+
+2000-05-12  [ RAIMI ]  <raimi@lkcc.org>
+
+	* Makefile.am: Program split into several parts: coservers and
+	several server modules. ar is our friend.
+	Need a good idea making server instances...
+
+2000-05-11  [ Ela ]  <ela@lkcc.org>
+
+	* util.c (util_hstrerror): Was: _hstrerror. On IRIX this is a
+	libc symbol, thus we will not preemt it anymore.
+
+	* awcs-proto.c (awcs_check_pipe): If serveez is able to open
+	a special named pipe it connects the aWCS-Master through two of
+	them.
+
+2000-05-05  [ Ela ]  <ela@lkcc.org>
+
+	* control-proto.c (get_cpu_state): Showing the serveez's process 
+	times via times() or clock().
+
+	* control-proto.c (ctrl_kill_id): Killing specific socket ids via
+	remote control protocol.
+	(ctrl_stat_id): Statistics for given socket ids via control protocol.
+	(ctrl_handle_request): The "/" just repeats the last given 
+	instruction. This might save some typing.
+
+2000-05-01  [ Ela ]  <ela@lkcc.org>
+
+	* http-proto.c (http_content): Fixed the problem with javascript
+	file content. Unfortunately we did not noticed yet...
+
+	* dns.c (handle_dns_lookup): Implemented the DNS lookup
+	coserver.
+
+	* http-proto.c (http_read_types): Read content type definitions
+	from a given file (e.g. /etc/mime.types).
+
+	* server.c (server_signal_handler): Displaying signal messages.
+
+	* util.c (get_hstrerror): Some wrapper for h_errno error messages.
+
+	* socket.c (default_check_request): Both the HTTP and IRC protocol
+	can be instanciated via different configuration hashes.
+
+	* http-proto.c (http_check_keepalive): Fixed the meaning of the
+	"max=%d" value within the "Keep-Alive:" header information.
+	(http_asc_date): Using RFC822 compliant timestamps in "Date:" and
+	"Last-Modified:" header information fields.
+
+	* http-proto.c (http_get_response): Keep-Alive header not exactly 
+	matched, but searched within "Connection:".
+
+2000-04-22  [ Ela ]  <ela@lkcc.org>
+
+	* option.c (getopt): Put all the getopt[_long]() functions and
+	definitions into seperate files.
+
+	* util.c (get_version): Detecting Win2k and Win98.
+
+2000-04-20  [ Ela ]  <ela@lkcc.org>
+
+	* cfgfile.c (load_config): Integration of sizzle, the configuration
+	file language.
+
+	* alloc.c (xfree): The allocated_bytes are now implemented at the
+	beginning of each alloc()ed block. So we save the last argument
+	in xfree() and xrealloc().
+
+	* serveez.c (main): Set maximimum verbosity to LOG_DEBUG, not 3.
+	(main): Error message if allocated_bytes left is not zero.
+
+2000-04-12  [ Ela ]  <ela@lkcc.org>
+
+	* http-cache.c (http_recent_cache): Hopefully fixed now the weird
+	recent counter of the HTTP cache file entries.
+
+	* http-cache.c (http_init_cache): The cache structures are now
+	also filename length independent.
+
+	* http-proto.c (http_check_keepalive): The HTTP 'Keep-Alive'
+	connections are now limited to a configurable timeout and amount
+	of successive requests.
+
+	* http-proto.c (http_get_response): Parsing If-Modified-Since
+	timestamp for network traffic savings.
+	(http_handle_request): HTTP/0.9 simple GET implemented.
+
+	* control-proto.c (ctrl_kill_cache): Killing all http cache entries
+	via control protocol.
+
+2000-04-07  [ Ela ]  <ela@lkcc.org>
+
+	* http-proto.c (http_keep_alive): Implemented the HTTP/1.1 feature
+	Connection: Keep-Alive. So HTTP/1.1 clients spare time for 
+	establishing new connections and get delivered even faster.
+
+	* http-cgi.c (http_pre_exec): Dropped the length limitations of 
+	cgi script file names.
+
+	* http-proto.c: Whenever using strcasecmp() and we have <strings.h>
+	it is neccessary to include this file.
+
+	* http-cgi.c (http_cgi_exec): Fixed the problem with non-blocking
+	cgi pipes -> cgi stdin/stdout MUST be blocking, they cannot handle
+	the EAGAIN error.
+
+	* http-proto.c (http_handle_request): No more limitations for
+	file lengths and GET method cgi requests.
+	(http_handle_request): Fixed the problem with spaces in file
+	requests.
+
+2000-04-02  [ Ela ]  <ela@lkcc.org>
+
+	* http-proto.c (http_detect_proto): Call check_request here
+	because HTTP requests are *very* short. The socket will not
+	be selected() anymore. But thus there is no delay anymore,
+	sigh.
+
+	* http-cache.c: Set a limit for cache file sizes.
+
+	* irc-server.c (irc_connect_server): Include TimeStamp extension
+	for the IRC protocol.
+
+	* serveez.c: Declaring getopt_long ourselves if the headers do
+	not.
+
+2000-03-25  [ RAIMI ]  <raimi@lkcc.org>
+
+	* http-dirlist.c (http_dirlist): Icons for dirs and files.
+
+2000-03-19  [ Ela ]  <ela@lkcc.org>
+
+	* util.c (snprintf): If the system you want to compile the
+	serveez software does not implement this function this will
+	handle it.
+
+	* util.c (get_version): configure.in defines if the uname() 
+	function is implemented.
+
+	* irc-proto.c (irc_detect_proto): Started the implementation
+	of a real IRC server ...
+
+2000-03-07  [ Ela ]  <ela@lkcc.org>
+
+	* http-cache.c (http_check_cache): Implemented a http file cache
+	for a maximum number of cache entries. It checks the last modification
+	timestamp for the cache strategy.
+
+	* control-proto.c (get_cpu_state): Depending on the host system
+	this functions gets called to determine the current cpu load.
+
+	* serveez.c (init_config): Now we have a real serveez
+	configuration structure, where every configurable value
+	can be stored.
+
+	* control-proto.c (ctrl_detect_proto): Made up something
+	like the control protocol implementation.
+
+2000-02-29  [ Ela ]  <ela@lkcc.org>
+
+	* http-proto.c (http_get_response): Relocation gets completed
+	by the host http property if possible.
+
+	* server.c (check_sockets): connected_sockets is now the
+	counter of the real connected sockets.
+
+	* util.h: Fixed the vsnprintf() and snprintf() problem under
+	Win32.
+
+2000-02-27  [ RAIMI ]  <raimi@lkcc.org>
+
+	* http-proto.c (http_get_response): Directory listing when 
+	accessing dirs without index.html. Redirects dirs without
+	the trailing slash.
+
+2000-02-22  [ Ela ]  <ela@lkcc.org>
+
+	* http-cgi.c (insert_env): Made up a kind of wrapper for pasting
+	environment strings in Unices and Win32.
+	(http_cgi_exec): Give the current work directory parameter to
+	CreateProcess.
+	(http_cgi_exec): Finally we 'succeeded' in porting all the cgi
+	stuff to Windows 95. The only limitation is that there is no 
+	non-blocking IO with pipes possible. That's why it might occur
+	some strange things while executing cgi scripts.
+	(http_cgi_exec): Set uid and gid of the cgi script's owner.
+	
+	* http-cgi.c (http_cgi_read): Dropped the idea to read or write
+	non-blocking into pipes, because Win95 does not implement it.
+
+2000-02-16  [ Ela ]  <ela@lkcc.org>
+
+	* http-cgi.c (http_cgi_exec): Implemented the POST method of
+	the cgi interface rudimentary.
+
+	* http-proto.c (http_get_response): Detection of a CGI request
+	via GET causes the excution of the script if possible.
+
+	* server.c (check_sockets): Hmm.. why didn't we set the
+	CLOSE-ON-EXEC-Flag explicitly ?
+
+	* http-proto.c (http_post_response): This routine implements
+	basically the post method the CGI gateway interface uses. We
+	just wrote some routines which can react on a html form whose
+	action method is "post". It forks the cgi script identified by
+	a certain url which refers to some other path where all the
+	scripts need to reside, gives the http socket to stdout,
+	pipes the content of the document into the stdin and sets some
+	useful environment variables. Much work still to do. That part was
+	Unix, Windows follows soon...
+
+2000-02-06  [ RAIMI ]  <raimi@lkcc.org>
+
+	* awcs-proto.c : Scheduled master for shutdown when master write
+	error occured (lead to infinite loop).
+
+2000-02-04  [ Ela ]  <ela@lkcc.org>
+
+	* coserver.c (send_coserver_request): Check if sending a
+	request was successful, otherwise schedule the sock for
+	shutdown.
+
+	* awcs-proto.c (awcs_disconnect_clients): Whenever the master
+	has been lost we call this method instead of abort().
+
+	* server.c (sock_enqueue): Made up Raimi's request for better
+	uniquness of textSure IDs. Now we have forthcoming IDs for
+	each connected socket.
+
+	* socket.c (default_write): Resource temporarily unavailable
+	implemented for both Unix and Win32.
+
+	* coserver.c (check_internal_coservers): Finish when all 
+	responses have been processed.
+
+	* ident.c (handle_ident): Check if it was a USERID response.
+
+	* ident.c (handle_ident): Read socket as long as there is data
+	in it.
+
+	* http-proto.c (http_get_response): Added Last-Modified
+	field to the HTTP header using the ancient ANSI C's asctime()
+	format.
+
+	* util.h : Introduced some wrapper #define's. These are
+	WRITE_SOCKET, READ_SOCKET and CLOSE_SOCKET for the socket
+	operattion which differ in Unix and Win32 and SYS_ERROR and
+	NET_ERROR.
+
+	* util.c (GetWSAErrorMessage): This routine was introduced
+	because there is nothing like strerror() for network errors
+	in Win32.
+
+	* Makefile (CFLAGS): -O3 -fomit-frame-pointer -fforce-addr 
+	-fstrength-reduce -fexpensive-optimizations -m486
+
+	* socket.c (default_read): Detect receive buffer overflow
+	properly.
+
+	* server.c (check_sockets): Do not put a socket into the
+	write FD_SET if it was unavailable.
+
+2000-01-29    <Ela@LAPTOP>
+
+	* ident.c: Implemented ident requester as internal coserver.
+	(ident_handle_request): Get a request from the coserver and
+	call the apropiate ident_func.
+	(handle_ident): Connect to the ident server, send a request and
+	read out the response. Then return the user ident if successfully
+	done.
+
+	* coserver.c (coserver_check_request): This is the new frontend
+	for the server to evaluate coserver responses. Detects line.
+	(coserver_start): Write a line to one of the running coservers.
+	(coserver_loop): This routine is the new frontend for ALL kinds
+	of internal coservers in Win32 and Unix. It is the infinite loop
+	which permanently reads requests (invoked by coserver_start),
+	processed them (via the func) and return a line for the
+	server (caught by coserver_check_request).
+
+	* http-proto.c (get_content_type): Made up simplified content
+	determination.
+	(http_file_read): Set the flag SOCK_FLAG_HTTP_DONE if file has
+	been fully read.
+	(http_default_write): Shut down the socket if the above flag was set.
+	(http_disconnect): Close the http file descriptor if an error
+	occured while sending the http file.
+	(http_get_response): Use this routine for both HEAD and GET requests.
+	This is controlled via the flag HTTP_FLAG_NOFILE.
+
+2000-01-28  [ Ela ]  <ela@lkcc.org>
+
+	* socket.h (struct socket): Defined the socket descriptor
+	as SOCKET.
+
+	* socket.c (default_check_request): Detection timeout and 
+	maximum detection receive buffer fill prevents invalid connects.
+
+	* nslookup.c
+ 	ENABLE_REVERSE_LOOKUP - ifdefs accordingly set.
+	(handle_nslookup): Return an error if the reverse nslookup 
+	failed by gethostbyaddr().
+
+	* server.c 
+	(check_sockets): Put a http file descriptor into the read and 
+	except FD_SET (Non-Win32, but Unix).
+	(server_signal_handler): Wait() for zombie'd coserver children
+	prevents reentrant signal handler for SIGCHLD under IRIX 6.x
+	Do not close() pipes previously fclose()d.
+	(validate_socket_list): Only compile this if ENABLE_DEBUG is
+	defined.
+
+2000-01-20  [ Ela ]  <ela@lkcc.org>
+
+	* awcs client-master detection only once
+	* when master has been lost only the awcs clients are kicked
+	* read() and write() from sockets and pipes only if select()ed
+	* internal nslookup coserver implemented
+	* coserver concept determined (different in Unix and Win32)
+	* strerror replaced by FormatMessage in Win32 port
+	* serveez ported to IRIX 6.x
+	
+
+1999-12-17  [ RAIMI ]  <raimi@lkcc.org>
+
+	* server.c (check_sockets): mmhh.. someone merged >= INVALID_SOCKET
+	into the accept call where != INVALID_SOCKET was correct...
+
+	* util.c (getopt): man... even this one can be implemented the
+	wrong way... shoot me
+
+	* serveez.c (main): Extra message removed, will be displayed later
+
+	* socket.c (sock_from_fd): fnctl replaced by ioctlsocket for Win32
+	(sock_from_pipe): null-function for win32... no pipe
+
+	* server.c (sock_server_loop): Win32 knows SIGBREAK but not
+	SIGHUP/SIGPIPE. Ifdefs set accordingly
+	(check_sockets): F_SETFD disabled for Win32... no fork/pipe anyway
+
+	* serveez.c / configure.in : HAVE_GETOPT_H split into HAVE_GETOPT and
+	HAVE_GETOPT_LONG. Cygwin has the header but native compile doesn't
+	have the function... 
+
+	* server.c (start_coserver): null-function in win32. just doesn't work
+
+	* Makefile.am: client.c connect.* deleted won't be used anyway
+
+1999-12-16  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* Makefile.am (EXTRA_DIST): Added echoserver, so that everyone can
+	see how great Guile is.
+	(bin_PROGRAMS): Added bla, which is a simple echo program which
+	can be used for testing the coserver feature.
+
+	* server.c, awcs-proto.c, awcs-proto.h, server.c, serveez.c,
+	connect.c, socket.c, socket.h, util.c, util.h: Merged changes I
+	made to 0.0.10 with the cygwin and solidifying stuff Ela and Raimi
+	did. ediff-merge-files-with-ancestor rules BIG time!
+
+1999-12-03  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* server.c (start_coserver): New function. Starts a seperate
+	process connecting its stdin and stdout to a socket structure.
+
+	* echoserver: New file.  This guile script simply echoes its
+	standard input to standard output. It can be used as a co-server
+	for serveez.
+
+	* socket.c (sock_alloc): Only max_sockets - spare_sockets clients
+	are allowed to connect from now on.
+	(sock_write): Whenever a whole message fits into the send buffer
+	it is copied using memmove(). This spare copying by bytes (thanks
+	to ela for suggesting).
+	(sock_from_pipe): New function. Creates a socket from a pair of
+	file descriptors.
+
+	* awcs-proto.c (status_connected): Using pre-loaded values for
+	remote address and port.
+	(internal_check_request): Created from
+	awcs_check_request. Function now takes an extra argument which
+	specifies whether requests are handled or only removed from the
+	queue.
+	(handle_master_request): Do not accept the "6 \0" message anymore.
+	(awcs_connect_socket): Send connected message for both client and
+	master now. Remove request, do not handle it.
+
+	* server.c (check_sockets): Do not write on sockets which have
+	been scheduled for shutdown in their read handler (thanks to ela).
+
+	* Applied Raimis and Elas patches.
+	
+	* server.c (sock_server_loop): Print out listening port number and
+	max. file descriptor count on startup.
+
+1999-11-18  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* server.c (check_sockets): Fixed a longstanding bug by passing
+	the correct client address size to accept().
+
+1999-11-16  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* awcs-proto.c (awcs_connect_socket): With last changes,
+	connection messages for the master server got lost. Fixed.
+
+	* serveez.c (main): Check the return value of sock_alloc().
+	(usage): Added option -m, --max-sockets to the help output.
+
+	* socket.c: Set max_sockets to the default value of 200.
+
+1999-10-26  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* server.c, server.h, connect.c, connect.h: Created.  Put in there
+	some functions from socket.{c,h} due to restructure.
+
+	* socket.c (default_check_request): Added support for protocol
+	detection.
+
+	* awcs-proto.c: Added support for protocol detection.
+	Added function documentation.
+
+	* socket.c: Added a lot of comments and cleaned the code up a
+	bit.
+
+1999-10-21  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* socket.c (sock_server_loop, server_signal_handler): Handle
+	SIGPIPE by printing a notice but otherwise ignore.
+
+1999-10-03  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* serveez.c: File created.
+
