@@ -761,9 +761,24 @@ me be the server.  Please connect to this @var{host} at this
 @var{port}.".  You are also able to implement plain clients.
 
 @item platform portability@*
-FIXME:
+When writing this software the authors always kept an eye on platform
+portability.  Thus it compiles and runs on various Unix platforms as
+well as on Windows systems. @xref{Porting issues}, for details.  Most of
+the routines in the core library can be used without caring about the
+platform you are programming on or the gory details of its underlying
+system calls.  Exceptions are noted in the documentation.  Platform
+portability also means that the code (server) you possibly want to
+implement will run on other systems too.
+
 @item powerful configuration capabilities@*
-FIXME:
+Server configuration has always been a complicated but very important
+issue.  When Serveez starts up it runs the configuration file using the
+programming language Guile.  Other applications just read it and
+remember the settings in it.  Thus Serveez's configuration files can
+also generate part of its settings dynamically.  Using the Guile
+interpreter also means that you can split your configuration into parts
+(in separate files) and load these in the main configuration file.
+
 @item easy server implementation@*
 FIXME:
 @item code reusability@*
