@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.36 2001/06/14 17:04:28 ela Exp $
+ * $Id: http-core.c,v 1.37 2001/07/01 12:29:27 ela Exp $
  *
  */
 
@@ -890,7 +890,10 @@ http_process_uri (char *uri)
 	  /* Copy rest of URI. */
 	  uri = ++p;
 	  while (*(p + 2))
-	    *p++ = *(p + 2);
+	    {
+	      *p = *(p + 2);
+	      p++;
+	    }
 	  *p = '\0';
 	}
       else

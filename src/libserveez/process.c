@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: process.c,v 1.2 2001/06/29 14:23:10 ela Exp $
+ * $Id: process.c,v 1.3 2001/07/01 12:29:27 ela Exp $
  *
  */
 
@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 
 #if HAVE_UNISTD_H
