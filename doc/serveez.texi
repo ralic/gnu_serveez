@@ -552,11 +552,12 @@ the reverse dns Co-Server to identify the host name of the remote client.
 @subsubsection General description
 
 The whole Serveez package was originally written by Martin 
-Grabmueller for a fast C backend for a chat system (now called textSure). 
+Grabmueller as a fast C backend for a chat system (now called textSure).
 This can be found at @uref{http://www.textsure.net/}. The server 
-implements two kinds of protocols, one for the master server which 
-should do all the administrative stuff and the second for the chat 
-clients. Basically the chat server is a simple multicast unit.
+implements two kinds of protocols. One is for the master server which 
+does all the administrative stuff. The second is for the chat 
+clients (applets or bots). Basically the chat server is a simple multicast
+unit.
 
 @subsubsection Specification of the Slave/Master server protocol of aWCS
 
@@ -612,10 +613,10 @@ Those special characters are followed by a single space.
 
 Messages which require additional parameters (multicast for example)
 carry these parameters after the space in a comma separated list of
-client ids in the above format.  The client id list is terminated
+client ids in the format mentioned above.  The client id list is terminated
 by the \0 character terminating the request (if no parameters follow)
-or by a single space (if parameters follow).  Note that in comma
-separated lists, no spaces are allowed.
+or by a single space (if parameters follow).  Note that no spaces are allowed
+n comma separated lists.
 
 @example
 Example:
@@ -651,6 +652,9 @@ occasions, for example when clients connect, disconnect etc.
 Status messages have the same format as other client messages for the
 master server.  The client number in the message is 0000, followed by a
 space, the status message type and additional parameters.
+
+(FIXME: I dont think it's 0000 anymore. I think the server id is dynamically
+allocated now)
 
 @multitable @columnfractions .08 .4 .52
 @item Type
@@ -701,9 +705,9 @@ The @code{netport} parameter is the default network port configuration
 where you can specify the network port and IP address.
 
 @item fsport
-This parameter could be used to specify two named pipes as connection
-device. This is thought for a local installations of the master server
-and Serveez.
+This parameter can be used to specify two named pipes as connection
+possibility. It is meant for local installations of master server and
+serveez.
 @end table
 
 @node HTTP Server, IRC Server, Chat Server, Existing Servers
@@ -711,20 +715,13 @@ and Serveez.
 
 @subsubsection General description
 
-The actual reason for writing this server was the need of an additional
-web server when using the chat system because the chat client is a web
-applet which can only connect to servers where the original html document
-with the applet tag came from. Thus you would have need for a standalone
-web server on the same machine where Serveez is running... 
-except Serveez would serve these documents too.
-
 The integrated HTTP server was originally thought to be a simple but fast
-document server. But now it can even execute CGI scripts. Both the methods
-GET and POST are full featured, HEAD too. Additionally it produces 
+document server. But now it can even execute CGI scripts. The GET, HEAD and
+POST methods are fully functional. Additionally Serveez produces 
 directory listings when no standard document file 
-(e.g. @file{index.html}) has been found at the requested document node. 
-Furthermore it implements a file cache for speeding up repetitive 
-HTTP request.
+(e.g. @file{index.html}) has been found at the requested document node
+(directory).  Furthermore it implements a file cache for speeding up
+repetitive HTTP request.
 
 In comparison to other web server projects like Apache and Roxen this
 web server is really fast. Comparative benchmarks will follow.
@@ -744,9 +741,9 @@ hits/second        501  520  481  475  420  390   295
 
 @item CGI
 The CGI test load consists of a trivial "hello world" C program. I noticed
-Linux to throw "Resource temporarily unavailable" errors when fork()ing
-very fast. This limits the test to about 200 concurrent fetches on the
-test system.
+Linux (FIXME: kernel version?) to throw "Resource temporarily unavailable"
+errors when fork()ing very fast. This limits the test to about 200 concurrent
+fetches on the test system.
 
 @item Large files
 The large-file test load consists of 100 files, each 1MB long, requested 
@@ -757,13 +754,13 @@ get 1000+ concurrent fetches.
 
 @subsubsection Configuration
 
-The following options can be set within the configuration file.
+The following options can be set from the configuration file.
 
 @table @code
 @item netport
 This is the TCP port configuration hash wherein you can set the 
 IP address this server should be bind to and the port the server is 
-listening.
+listening on.
 
 @item indexfile
 The @code{indexfile} parameter is the default file served by the HTTP 
@@ -787,31 +784,32 @@ HTTP server tries to execute the program @file{test.pl} within the
 @code{cgi-dir} (see below) and pipes its output to the user.
 
 @item cgi-dir
-The @code{cgi-dir} is the CGI document root.
+The @code{cgi-dir} is the CGI document (on the server).
 
 @item cgi-application
 Within the MinGW32 and native port you can use this hash to associate
-certain file suffixes with applications on your computer (e.g. "pl" with
+certain file suffices with applications on your computer (e.g. "pl" with
 "perl"). This is necessary because there is no possibility to check whether
-a file is executable or not in Win32.
+a file is executable on Win32.
 
 @item cache-size
-Here you might specify a maximum file size for documents which could be
-stored within the HTTP file cache.
+This specifies the size of the document cache.
 
 @item cache-entries
-This parameter specifies the maximum amount of HTTP file cache entries
+This parameter specifies the maximum number of HTTP file cache entries
 (files). When you instantiate more than one HTTP server the biggest value
-wins. This is why the HTTP file cache is shared by all HTTP servers.
+wins. The HTTP file cache is shared by all HTTP servers.
 
 @item timeout
 The @code{timeout} value is the amount of time in seconds after which 
-a kept alive connection (this is a HTTP/1.1 feature) will be closed when
-this connection has been idle.
+a keep-alive connection (this is a HTTP/1.1 feature) will be closed when
+it has been idle.
 
 @item keepalive
-On one KeepAlive-connection can be served @code{keepalive} documents 
-at all. Then the connection will be closed.
+On one keep-alive connection can be served the number of @code{keepalive}
+documents at all. Then the connection will be closed.
+(FIXME: write more prosa: why is that neccessary? The apache bug? To be
+ on the safe side?)
 
 @item default-type
 The @code{default-type} is the default content type the HTTP server
@@ -819,11 +817,12 @@ assumes if it can not identify a served file by the @code{types} hash
 and the @code{type-file} (see below).
 
 @item type-file
-This should be a file like the @file{/etc/mime.types} on GNU/Linux systems.
+This should be a file like the @file{/etc/mime.types} on Unix systems.
+It associates file suffices with MIME types.
 
 @item types
 If you want to specify special content types do it here. This parameter
-is a has associating file suffixes with HTTP content types.
+is a has associating file suffices with HTTP content types (MIME types).
 
 @item admin
 Your address, where problems with the server should be e-mailed.
@@ -831,9 +830,9 @@ This address appears on some server-generated pages, such as error
 documents.
 
 @item host
-This item allows you to set a host name which is sent back to clients for
-your server if it's different than the one the program would get. Be
-aware that you cannot invent such a name.
+This is the native host name of your webserver. Sometimes the server has
+to send back its own name to the client. It will use this value.
+Be aware that you cannot invent such a name.
 
 @item nslookup
 If this number is non-zero the HTTP server invokes a reverse DNS lookup
@@ -841,8 +840,9 @@ for each client connection in order to replace the remote ip address with
 the remote host name in the access logfile.
 
 @item logfile
-The location of the access logfile. Each HTTP request gets a line within
-this file.
+The location of the access logfile. For each HTTP request a line gets
+appended to this file.
+(FIXME: default value?)
 
 @item logformat
 The format of the access logfile. There are special placeholders for
@@ -865,37 +865,39 @@ the http response return code for this request
 delivered content length in bytes
 @end table
 @end table
+(FIXME: default value? Some notes on the CLF common logfile format ?)
 
 @node IRC Server, Control Protocol Server, HTTP Server, Existing Servers
 @subsection IRC Server
 
 @subsubsection General description
 
+Internet Relay Chat. The mother of all chat systems.
 The integrated IRC server is intended to be compatible with the EFNet.
-Because there are no good possibilities to test this in real live it is
-still under heavy construction but could be used as a standalone server
+There are no good possibilities to test this in real live, so it is
+still under heavy construction. But it can be used as a standalone server
 anyway.
 
 IRC itself is a teleconferencing system, which (through the use of
-the client-server model) is well-suited to running on many machines
+the client-server model) is well-suited for running on many machines
 in a distributed fashion. A typical setup involves a single process
 (the server) forming a central point for clients (or other servers)
 to connect to, performing the required message delivery/multiplexing
 and other functions.
 
-The server forms the backbone of IRC, providing a point to which
-clients may connect to to talk to each other, and a point for other
-servers to connect to, forming an IRC network. The only network
-configuration allowed for IRC servers is that of a spanning tree
-where each server acts as a central node for the rest of the
-net it sees.
+The server forms the backbone of IRC, providing a point for clients and
+servers to connect to. Clients connect to talk to each other. Servers
+connect to build up a network of servers. IRC servers connections have
+to build up a spanning tree. Loops are not allowed. Each server acts
+as a central node for the rest of the network it sees.
 
 @subsubsection Configuration
 
-As all the servers described in this section the IRC server is also
-instantiated and configured in the configuration file. The following
-table shows the provided configuration keys. Most of the configuration
-items are similar to those of an Hybrid IRC server.
+The following table shows the configuration keys provided. Most of the
+configuration items are similar to those of an Hybrid IRC server. They
+seem archaic at first sight but IRC operators are used to it. Refer to
+the Hybrid documentation for further information.
+(FIXME: where to find the Hybrid documentation?)
 
 @table @code
 @item port
@@ -909,11 +911,12 @@ message of the day comment. When changing on disk the server will notice
 that and reload the file automatically.
 
 @item INFO-file
-The @code{INFO-file}s content gets displayed when the user commits the
+The @code{INFO-file}s content gets displayed when the user issues the
 /INFO command.
 
 @item tsdelta
 This value is the timestamp delta value to UTC in seconds.
+(FIXME: uh? please tell me more)
 
 @item admininfo, email, location1, location2
 Some administrative information delivered on the /ADMIN command.
@@ -922,14 +925,17 @@ Some administrative information delivered on the /ADMIN command.
 This IRC server's configuration. The format of this line is:@*
 ":" VirtualHostName@*
 ":" OptionalBindAddress (real hostname)@*
-":" TextName@*
+":" TextName (FXIME: uh?)@*
 ":" Port@*
+(FIXME: what's the difference between M-line and 'port' parameter)
 
 @item A-line (Mandatory)
 The administrative info, printed by the /ADMIN command.@*
 ":" administrative info (department, university)@*
 ":" the server's geographical location@*
 ":" email address for a person responsible for the irc server@*
+(FIXME: what's the difference between A-line and the admininfo, email,
+ location1, location2 fields)
 
 @item Y-lines (Suggested)
 The connection classes.@*
@@ -938,6 +944,7 @@ The connection classes.@*
 ":" connect frequency in seconds for servers, 0 for client class@*
 ":" maximum number of links in this class @*
 ":" send queue size@*
+(FIXME: write more)
 
 @item I-lines (Mandatory)
 Authorization of clients, wildcards permitted, a valid client is matched
@@ -956,7 +963,11 @@ Authorize operator, wildcards allowed.@*
 ":" nick@*
 
 @item o-lines (Optional)
-Authorize local operator, see above at the O lines for a description.
+Authorize local operator.
+":" user@@host, user@@ forces checking ident@*
+":" password@*
+":" nick@*
+(FIXME: i just copied the items from above. correct?)
 
 @item C-lines (Networked)
 List of servers to connect to.@*
@@ -986,39 +997,43 @@ Kill user, wildcards allowed.@*
 ":" user@*
 @end table
 
+(FIXME: write something about wildcards in general. what about
+ 'user' vs. '!user' and so on.)
+
 @node Control Protocol Server, Foo Server, IRC Server, Existing Servers
 @subsection Control Protocol Server
 
 @subsubsection General description
 
 Serveez implements something like a telnet protocol for 
-administrating purposes. You just need to start a telnet session like:
+administrative purposes. You just need to start a telnet session like:
 @example
 $ telnet www.textsure.net 42420
 @end example
-After pressing @key{RET} you will be asked for a password which you 
-might setup passing the Serveez the -P argument. 
-@xref{Using Serveez}.
+After pressing @key{RET} you will be asked for a password which you
+might setup passing Serveez the -P argument. 
+@xref{Using Serveez}. The next section describes the interactive commands
+available.
 
-@subsubsection Commands
+@subsubsection Using the Control Protocol
 
 @table @samp
 @item help
 This command will give you a very short help screen of all available
-commands within the control protocol.
+commands.
 
 @item quit
 This command closes the connection to Serveez.
 
 @item restart ident
 Restarts the internal ident Co-Server. This is useful if you just want
-to start a new one if it has died or otherwise disturbed.
+to start a new one if the old one died or is otherwise unusable.
 
 @item restart dns
-Restarts an internal dns lookup server.
+Restarts the internal dns lookup server.
 
 @item restart reverse dns
-Restarts an internal reverse dns lookup server.
+Restarts the internal reverse dns lookup server.
 
 @item killall
 This might be useful if Serveez seems to be unstable but you do not
@@ -1039,8 +1054,7 @@ Statistics about all running Co-Server instances.
 
 @item stat SERVER
 This command is for selecting certain Server instances to be listed.
-SERVER should be one of server names which you specified in the 
-configuration file.
+SERVER is one of server names you specified in the configuration file.
 
 @item stat id NUM
 Show statistics about a specific connection. This will give you all
@@ -1055,8 +1069,8 @@ connections, Co-Servers or Servers you need to request these information
 with @samp{stat id NUM} or @samp{stat all}.
 
 @item stat all
-Server and Co-Server instance statistics. This command should list all 
-the information about instantiated Servers and Co-Servers. 
+Server and Co-Server instance statistics. This command lists all
+the information about instantiated servers and Co-Servers.
 @xref{Writing Servers}, for more information about how to provide these
 information.
 
@@ -1078,16 +1092,16 @@ Total : 248458 byte in 3 cache entries
 @end example
 
 @item kill cache
-Reinitialize the HTTP file cache.
+Reinitialize the HTTP file cache. Flushes all files from the cache.
 @end table
 
 @subsubsection Configuration
 
 @table @code
 @item netport
-This option is used to define the port configuration. Here it could be
-useful to declare a @code{local-ip} within this hash when you do not
-want people using this protocol from outsides.
+Sets up the TCP port and local address. It can be useful to declare a
+@code{local-ip} within this hash when you do not
+want people using this protocol from outside.
 @end table
 
 @node Foo Server, SNTP Server, Control Protocol Server, Existing Servers
@@ -1095,20 +1109,22 @@ want people using this protocol from outsides.
 
 The Foo Server is a simple example on how to write internet protocol
 servers with Serveez. @xref{Writing Servers}.
+(FIXME: the foo server can be configured. write something!)
 
 @node SNTP Server, Gnutella Spider, Foo Server, Existing Servers
 @subsection SNTP Server
 
 @subsubsection General
-The SNTP server can be requested by @samp{netdate} to set date and time 
-by ARPA Internet RFC 868. Thus it is not really an SNTP server as referred
-by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for IPv4, IPv6 
-and OSI). It is rather an excellent example how to start implementing an
-UDP server in Serveez. 
+The SNTP server can be querried with the @samp{netdate} command. It is used
+to synchronize time and dates between internet hosts. The protocol is
+described in the ARPA Internet RFC 868. Thus it is not really an SNTP server
+as described by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for
+IPv4, IPv6 and OSI). It is rather an excellent example on how to implement
+an UDP server in Serveez. 
 
 This protocol provides a site-independent, machine readable date and
-time. The Time service sends back to the originating source the time in
-seconds since midnight on January first 1900.
+time. The Time service sends back time in seconds since midnight on
+January first 1900.
 
 One motivation arises from the fact that not all systems have a
 date/time clock, and all are subject to occasional human or machine
@@ -1131,22 +1147,23 @@ to (default is any ip address).
 @subsection Gnutella Spider
 
 @subsubsection What is it ?
-The Gnutella net is some kind of peer-to-peer network which is based on
+The Gnutella net is a peer-to-peer network which is based on
 client programs only. There are no servers. The network itself is formed
 by client connections only. Generally the Gnutella network is for sharing
 files of any kind.
 
-This Gnutella spider is for seeking the needly in the haystack. Once 
+This Gnutella spider is for seeking the needle in the haystack. Once 
 connected to the network it regularly tries to find certain files in there.
 It keeps track of all connected clients and tries to reconnect them if
 the current connections are lost.
+(FIXME: write some more: who invented it, what other clients are there)
 
 @subsubsection Configuration
 The Gnutella spider knows the following configurations items.
 
 @table @code
 @item port
-This entry should contain @samp{tcp} for @samp{proto} and some port and
+This entry has to contain @samp{tcp} for @samp{proto} and some port and
 network interface. The default port is 6346. If you want to see the host
 catcher list of this Gnutella spider you can connect to this port with 
 any WWW browser at @uref{http://localhost:6346/@code{net-url}}.
@@ -1155,7 +1172,8 @@ any WWW browser at @uref{http://localhost:6346/@code{net-url}}.
 The above url is configurable via this item.
 
 @item hosts
-This is the initial host list of the clients the spider tries to 
+This is the start of the haystack,
+the initial host list of the clients the spider tries to 
 connect to. Each list item should be of the format @code{ip:port} 
 (e.g. @samp{146.145.85.34:6346}). If the port information is left
 blank it defaults to 6346. If you need some entry point for 
@@ -1163,34 +1181,37 @@ the gnutella network have a look at @uref{http://www.gnutellahosts.com/}
 or @uref{http://www.gnutellanet.com/}.
 
 @item search
-This is the so called needle. Each search line is either a set of 
-@key{SPC} delimited tokens where every token must match a search 
-reply for downloading it or a kind of wildcard expression including 
-@samp{?} and @samp{*}. Search lines are always matched case insensitive.
+This is the needle. Each search line is either a set of 
+space delimited tokens where every token must match. Or a kind of wildcard
+expression including @samp{?} and @samp{*}.
+Search lines are always matched case insensitive.
 
 @item search-limit
 This limits how many results the Gnutella spider returns to other people 
 searching your files.
+(FIXME: default value? I rule of thumb for this value?)
 
 @item max-ttl
 Every Gnutella packet has got a TTL. This is the maximum TTL allowed for
 outgoing packets.
+(FIXME: default value? I rule of thumb for this value?)
 
 @item ttl
 When creating a new Gnutella packet we use this as TTL.
+(FIXME: default value? I rule of thumb for this value?)
 
 @item download-path
 This is where the spider saves needles in.
 
 @item share-path
 Here are all the files we share with others. The Gnutella spider will 
-recurse into directories. Thus be careful with this option.
+recurse into directories. So be careful with this option.
 
 @item max-downloads
-Maximum amount of concurrent downloads from the network.
+Maximum number of concurrent downloads from the network.
 
 @item max-uploads
-Maximum amount of concurrent uploads to the network.
+Maximum number of concurrent uploads to the network.
 
 @item connection-speed
 This is what we send as our connection speed in KBit/s. We also use this
@@ -1198,7 +1219,7 @@ value to throttle down the network transfer rate for file uploads.
 
 @item min-speed
 Search for needles on hosts with a minimum speed. Set it to 0 if you do
-not care about. This value is in KBit/s, too.
+not care about that. This value is in KBit/s, too.
 
 @item file-extensions
 If we get replies on search queries we check if the file extension of this
@@ -1206,7 +1227,7 @@ reply matches one of these extensions. Useful extensions are @samp{mp3} and
 @samp{mpg}.
 
 @item connections
-This is the amount of concurrent connections the Gnutella spider tries
+This is the number of concurrent connections the Gnutella spider tries
 to keep up to the network. The IP addresses and the port information is
 taken from the host catcher hash.
 
@@ -1214,7 +1235,8 @@ taken from the host catcher hash.
 You can force the Gnutella spider to send outgoing replies with this
 IP as host information. Must be in dotted decimals notation. This is 
 useful if you are behind a masquerading gateway. You need to install
-some kind of port forwarder to let other people connect your host.
+some kind of port forwarder on the gateway so other people can reach you
+from the outside. Serveez is a good port forwarder.
 
 @item force-port
 Force the Gnutella spider to send outgoing replies with this PORT as 
@@ -1225,10 +1247,10 @@ port information. See above for more information.
 @subsection Tunnel Server
 
 @subsubsection General description
-The Tunnel server is for mapping one port configuration to another. Thus
-we should rather speak of a port forwarder. Two portwarders can form a
+The Tunnel server is for mapping one port configuration to another.
+So we should rather speak of a port forwarder. Two portforwarders can form a
 tunnel. Generally this means that you can setup Serveez to accept 
-network connections in order to pass all network data traffic on this 
+network connections in order to pass all network data on this 
 line to another address. This can be useful to workaround gateways and 
 firewalls. When instantiating an ICMP source or destination you must
 ensure root privileges for the application. One of the given examples
@@ -1237,6 +1259,8 @@ forwarding a pipe connection. Please keep in mind when forwarding an
 ICMP or UDP connection to an TCP or pipe connection the data is not
 reliable anymore because these are low level network protocols and we are 
 not willingly to reimplement a TCP stack. 
+(FIXME: what source-destination combinations are allowed? what protocol
+ is used? what is safe to do and what is not?)
 
 @subsubsection Configuration
 This might be the most easiest configuration to setup. You essentially
@@ -1267,8 +1291,9 @@ The target port configuration.
 @section What are Co-Servers
 
 If it is necessary to complete blocking tasks in Serveez you have 
-to use Co-Servers. The actual implementation in Unices is a process and in
-Win32 systems it is realized by a thread.
+to use Co-Servers. The actual implementation differs on platforms. On Unices
+they are implemented as processes communicating with Serveez over pipes.
+on Win32 Serveez uses threads and shared memory.
 
 @node Writing Co-Servers, Existing Co-Servers, What are Co-Servers, Co-Server
 @section Writing Co-Servers
@@ -1278,19 +1303,19 @@ Win32 systems it is realized by a thread.
 First you have to change into the @file{src/coserver/} directory of the 
 Serveez package. Then edit the @file{Makefile.am} and add your 
 header and implementation file to the @code{libcoserver_a_SOURCES}
-variable there.
+variable.
 
 @subsection Co-Server header file
 
-You must define the Co-Server handle routine here. This callback
+You have to declare the Co-Server handle routine here. This callback
 gets the input buffer argument and delivers the output buffer result.
 Both of these buffers are supposed to be lines separated by a @samp{\n}.
 
 @subsection Co-Server implementation file
 
 Here you need to @code{#include "coserver.h"} and implement the 
-Co-Server handle routine defined in the Co-Server header file. This 
-could be any blocking system call. On successful completion you 
+Co-Server handle routine declared in the Co-Server header file. This 
+can be any blocking system call. On successful completion you 
 can return the result or NULL on errors. The input and output 
 buffers are plain strings and can have any format with one exception. 
 Because the Co-Servers communicate via a line protocol with 
@@ -1300,7 +1325,7 @@ Serveez these buffers must not contain @samp{\n} (0x0d).
 
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
 @file{src/coserver/} directory. In the header file you have to define a 
-further COSERVER_* id and set the MAX_COSERVER_TYPES define to the 
+further COSERVER_* id (macro) and set the MAX_COSERVER_TYPES define to the 
 appropriate value. Then you should define a further coserver_* macro in the 
 same file.
 
@@ -1309,13 +1334,13 @@ takes three arguments. The first is always specific to your Co-Server and is
 used to create the actual request string. Then follows the result callback
 routine, and an optional argument for this callback. The latter two are
 simply passed to the @code{coserver_send_request} routine. This routine 
-takes four arguments at all where the first is the previously defined 
+takes four arguments where the first is the previously defined 
 COSERVER_* id and the second is the input buffer for the coserver handle 
 routine without the trailing @samp{\n}.
 
 Then you need to add your Co-Server to the @code{int_coserver_type} array
 specifying the COSERVER_* id, the Co-Server description, the Co-Server
-handle routine discussed above, the amount of Co-Server instances to be
+handle routine discussed above, the number of Co-Server instances to be
 created and an optional initialization routine.
 
 @node Existing Co-Servers,  , Writing Co-Servers, Co-Server
@@ -1323,24 +1348,25 @@ created and an optional initialization routine.
 
 @subsection Identification (Ident) Co-Server
 
-The Identification Protocol is briefly documented in RFC1413. It
+The Identification protocol is briefly documented in RFC1413. It
 provides a means to determine the identity of a user of a particular 
 TCP connection. Given a TCP port number pair, it returns a character 
-string which identifies the owner of that connection on the server's system.
+string which identifies the owner of that connection on the server's
+(that is the client's) system.
 
 This is a connection based application on TCP. A server listens for
 TCP connections on TCP port 113 (decimal). Once a connection is
 established, the server reads a line of data which specifies the
 connection of interest. If it exists, the system dependent user
 identifier of the connection of interest is sent as the reply. The
-server may then either shut the connection down or it may continue to
-read/respond to multiple queries.
+server may then either shut down the connection or it may continue to
+read/respond to more queries.
 
-Actually the Ident Co-Server is a client to this kind of service. For
+The Ident Co-Server is a client to this kind of service. For
 every established network connection you can use this service by calling
 the appropriate macro from @file{coserver.h}. But you could also use the
-Ident Co-Server as is without this macro. The format of the input buffer
-is:
+Ident Co-Server as is without this macro.
+The messages from Serveez to the this Co-Server are formated this way:
 
 @example
 Format:
@@ -1355,7 +1381,7 @@ In this context @code{sock} is of type @code{socket_t} and
 of the last two (optional) arguments identify a valid socket structure
 and @code{user} can be NULL if there is no ident daemon running on the 
 foreign machine. The last two argument within the above macro will be the 
-last two arguments in the below callback. Thus you will know what kind of 
+last two arguments in the callback below. Thus you will know what kind of 
 data the invocation of the callback is related to.
 
 @example
@@ -1371,10 +1397,10 @@ MyIdentCallback (char *user, int id, int version)
 @subsection Domain Name Server (DNS) Co-Server
 
 The DNS Co-Server is using @code{gethostbyname()} to translate a given
-hostname to the appropriate IP address. The format of the Co-Server input
+hostname to the associated IP address. The format of the Co-Server input
 line and the macro from @file{coserver.h} is shown below. The IRC server is
 currently using this Co-Server for resolving its @samp{?-Lines}.
-@xref{Existing Servers}, for more information. In the below example 
+@xref{Existing Servers}, for more information. In the example below
 @code{realhost} is something like @samp{www.textsure.net}.
 
 @example
@@ -1397,8 +1423,8 @@ irc_connect_server (char *ip, irc_server_t *server)
 
 As easily guessed from the name this Co-Server is just doing the reverse
 as the DNS Co-Server. It translates a given IP address into a hostname
-using @code{gethostbyaddr()}. Within the macro the ip address is given
-as an @code{unsigned long} in host byte order and the Reverse DNS 
+using @code{gethostbyaddr()}. In the macro the ip address is given
+as an @code{unsigned long} in host byte order. The Reverse DNS 
 Co-Server itself takes something like @samp{192.168.2.1}.
 
 @example
@@ -1423,40 +1449,44 @@ MyReverseCallback (char *host, int id, int version)
 Serveez was always designed with an eye on maximum 
 portability. Autoconf and Automake have done a great job at this. 
 A lot of @code{#define}'s help to work around some of the different 
-unices's oddities. Have a look at @file{config.h} for a complete list 
+Unix' oddities. Have a look at @file{config.h} for a complete list 
 of all these conditionals.
 
-The most doubtful might be the Win32 port. There are two different targets.
+Most doubtful might be the Win32 port. There are two different targets.
 Where the @code{__MINGW32__} port refers to a native Win32 port. The home
 of the team is @uref{http://www.mingw.org/}. The port to the
-@code{__CYGWIN__} target always depends on the unix emulation layer DLL
+@code{__CYGWIN__} target always depends on the Unix emulation layer DLL
 @file{cygwin1.dll}. Both ports are more or less advanced at this time, but
 for performance reasons it is always better to chose native Win32.
+(FIXME: In the meantime we have 3 targets: cygwin, mingw and native, dont
+ we?)
 
-The are major differences between the Win32 and Unix implementations due
+There are major differences between the Win32 and Unix implementations due
 to the completely different API those systems provide.
 
 @table @asis
 @item Processes and Threads
 Because process communication is usually done by a pair of unidirectional
-pipes we chose that method in order to implement the Co-Servers in unices.
+pipes we chose that method in order to implement the Co-Servers in Unix.
 The Win32 implementation are threads which are still part of the main
 process.
 
 @item Sockets and Handles
-In Win32 systems there is a difference in network sockets and file 
-descriptors. Those we had to implement quite a complex main socket loop.
+On Win32 systems there is a difference in network sockets and file 
+descriptors. Thus we had to implement quite a complex main socket loop.
 
 @item Named Pipes
 Both systems Unix and Win32 do provide this functionality (Windows NT 4.0
 and above). The main differences here are the completely different APIs.
-On a usual unix you create a named pipe within the filesystem via 
-@code{mkfifo()} and in Win32 you have to @code{CreateNamedPipe()} which
+On a common Unix you create a named pipe within the filesystem via 
+@code{mkfifo()}. On Win32 you have to @code{CreateNamedPipe()} which
 will create some special network device. A further difference is what you
 can do with these pipes. On Win32 systems this @samp{network device} is
-valid on remote machines. That is on Unices possible if the created 
-filesystem node is located on a NFS. Named pipes on Unices are 
-unidirectional, on Win32 these are bidirectional and instantiatable.
+valid on remote machines.
+You have to crate the fifo on a NFS shared filesystem to accomplish the same
+on Unix. (FIXME: did we actuallt try that?)
+Named pipes on Unix are unidirectional, on Win32 they are bidirectional
+and instantiatable.
 
 @item Winsock Versions
 There are some difference between the original Winsock 1.1 API and the new
@@ -1494,7 +1524,7 @@ still exists in Windows 2000.)
 
 @item Miscellaneous
 To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
-and #include "windows.h" at the top of your source file(s). You'll also
+and #include "windows.h" at the top of your source file(s). You will also
 want to add -lwsock32 to the compiler's command line so you link against 
 libwsock32.a. 
 
@@ -1504,7 +1534,7 @@ are writing a GUI program, you should either compile with -mwindows as
 explained above, or add the string "-Wl,--subsystem,windows" to the GCC 
 command line. 
 
-What preprocessor do I need to know about ?
+What preprocessor macros do I need to know about ?
 We use _WIN32 to signify access to the Win32 API and __CYGWIN__ for access 
 to the Cygwin environment provided by the dll. 
 We chose _WIN32 because this is what Microsoft defines in VC++ and we 
@@ -1527,27 +1557,29 @@ maximum number of file handles or file streams causes program failure.
 
 I know MinGW uses the msvcrt.dll and hence should have the above limitation
 but what about cygwin which uses glibc ? Just curious ... i dont think there
-is any operating system limitation may be some TLS issue from Microsoft or
+is any operating system limitation. May be some TLS issue from Microsoft or
 some other stuff like that...
 
 As far as I know, one of the big limitations of winsock is that
-the SOCKET type is *not* equivalent to file descriptor unlike that
-using BSD or POSIX sockets. That's one of the major reasons for using
-a separate data type, SOCKET, as opposed to int, typical type of a
-file descriptor. This implies that you cannot mix SOCKETs and stdio,
+the SOCKET type is *not* equivalent to file descriptor. It is
+however with BSD and POSIX sockets. That is one of the major reasons for
+using a separate data type, SOCKET, not an int, i typical type for a
+file desciptor. This implies that you cannot mix SOCKETs and stdio,
 sorry. This is the case when you use -mno-cygwin.
 
 Actually they are regular file handles, just like any other. There is a 
 bug in all 9x/kernel32 libc/msv/crtdll interface implementations 
-GetFileType() returns TYPE_UNKNOWN for handles to sockets. Since this 
+GetFileType() returns TYPE_UNKNOWN for handles to sockets
+(FIXME: what does 'for handles to sockets' mean?). Since this 
 is AFAIK the only unknown type there is, you know you have a socket handle.
-There is a fix in the more recent perl distrib's that you can use as a 
+There is a fix in the more recent perl distributions that you can use as a 
 general solution. -loldnames -lperlcrt -lmsvcrt will get you TYPE_CHAR
 for socket handles. That are put into an fd with _open_osfhandle()
-also fixes several other nasty bugs in the MS libcXXX.
+also fixes several other nasty bugs in the MS libcXXX (FIXME: what does the
+last sentence mean?)
 @end table
 
-If if you want to compile Serveez with the native 
+If you want to compile Serveez with the native 
 M$ Visual C++ compiler you have to go quite a long way. But it is 
 possible anyway. We assume you got a Cygwin development environment 
 somewhere, the Developer Studio installation and @samp{@value{s_PACKAGE}} 
@@ -1577,7 +1609,7 @@ projects you need to add all the @file{.c} files form @file{src/}
 (Serveez) and @file{lib@value{s_SIZZLE}/} (@value{SIZZLE}).
 
 @item Step 4. Define options.
-For configuring your projects you press @key{Alt-F7}. Make the following
+For configuring your projects press @key{Alt-F7}. Make the following
 definitions:
 
 @table @code
@@ -1683,6 +1715,23 @@ Winsock Development Information
 @item 
 @uref{http://www.cyberport.com/~tangent/programming/winsock/}@*
 Winsock Programmer's FAQ
+@end enumerate
+
+Some global FIXMEs:
+@enumerate
+@item 
+(FIXME: add link to some Hybrid page)
+@item
+(FIXME: perhaps use 'serveez' instead of 'Serveez')
+@item
+(FIXME: perhaps use 'coserver' instead of 'Co-Server')
+@item
+(FIXME: always document types in configuration items)
+@item
+(FIXME: netport should alway be documented more verbose. The allowed
+ proto types are missing in some places)
+@item
+(FIXME: move chat server down to be the last)
 @end enumerate
 
 @node License, , Bibliography, Top

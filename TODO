@@ -23,6 +23,7 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- rename the 'local-ip' part of port configurations to some sane name
 - Implement a DNS server for home networks.
 - Make serveez embeddable (create libserveez.[so | dll]).
 - Implement dynamic server loading capabilities.
