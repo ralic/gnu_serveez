@@ -39,7 +39,7 @@ DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c         \
   tcp-socket.c alloc.c sparsevec.c hash.c util.c vector.c socket.c        \
   server-core.c server-loop.c server-socket.c boot.c interface.c          \
   dynload.c windoze.c snprintf.c server.c core.c array.c hash.h binding.c \
-  portcfg.c array.h
+  portcfg.c array.h coserver/coserver.c coserver/coserver.h
 SED_FILE = serveez-api.sed
 HTML_DIR = html_chapter
 

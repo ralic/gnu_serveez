@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.47 2001/04/04 22:20:01 ela Exp $
+ * $Id: control-proto.c,v 1.48 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -296,7 +296,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   socket_t xsock;
   char proto[128];
   svz_server_t *server;
-  coserver_t *coserver;
+  svz_coserver_t *coserver;
 
   /* Find the appropriate client or server connection. */
   id = atoi (arg);
@@ -374,7 +374,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	{
 	  coserver = xsock->data;
 	  sock_printf (sock, "internal %s coserver\r\n",
-		       coserver_type[coserver->type].name);
+		       svz_coservertypes[coserver->type].name);
 	}
       /* unidentified */
       else
@@ -633,14 +633,13 @@ int
 ctrl_stat_coservers (socket_t sock, int flag, char *arg)
 {
   int n;
-  coserver_t *coserver;
+  svz_coserver_t *coserver;
 
   /* go through all internal coserver instances */
-  for (n = 0; n < coserver_instances; n++)
+  svz_array_foreach (svz_coservers, coserver, n)
     {
-      coserver = coserver_instance[n];
       sock_printf (sock, "\r\ninternal %s coserver:\r\n",
-		   coserver_type[coserver->type].name);
+		   svz_coservertypes[coserver->type].name);
       sock_printf (sock, 
 		   " socket id  : %d\r\n"
 		   " %s %d\r\n"
@@ -738,27 +737,26 @@ ctrl_killall (socket_t sock, int flag, char *arg)
 int
 ctrl_restart (socket_t sock, int type, char *arg)
 {
-  coserver_t *coserver;
+  svz_coserver_t *coserver;
   int n;
 
   /* find an appropriate coserver to kill */
-  for (n = 0; n < coserver_instances; n++)
+  svz_array_foreach (svz_coservers, coserver, n)
     {
-      coserver = coserver_instance[n];
       if (coserver->type == type)
 	{
-	  coserver_destroy (type);
-	  coserver_create (type);
+	  svz_coserver_destroy (type);
+	  svz_coserver_create (type);
 	  sock_printf (sock, "internal %s coserver restarted\r\n",
-		       coserver_type[type].name);
+		       svz_coservertypes[type].name);
 	  return 0;
 	}
     }
 
   /* start a new internal coserver if there has none found */
-  coserver_create (type);
+  svz_coserver_create (type);
   sock_printf (sock, "internal %s coserver invoked\r\n",
-	       coserver_type[type].name);
+	       svz_coservertypes[type].name);
   return 0;
 }
 

@@ -66,6 +66,7 @@ all parts of the API it provides.
 * Core functions::        Network core implementations
 * Client connections::    Client connection functions
 * Socket::                Socket management functions
+* Coserver::              Coserver interface
 * Server::                Server object functions
 * ServerCore::            Server core implementation
 * ServerLoop::            Server loop implementation
@@ -295,7 +296,7 @@ RAW_PUT_IP_HEADER_DEFUN
 RAW_IP_CHECKSUM_DEFUN
 RAW_CHECK_IP_HEADER_DEFUN
 
-@node Socket, Server, Client connections, Embedding API
+@node Socket, Coserver, Client connections, Embedding API
 @section Socket management
 
 SOCK_CONNECTIONS_DEFVAR
@@ -316,7 +317,27 @@ SOCK_CHECK_REQUEST_DEFUN
 SOCK_IDLE_PROTECT_DEFUN
 SOCK_FLOOD_PROTECT_DEFUN
 
-@node Server, ServerCore, Socket, Embedding API
+@node Coserver, Server, Socket, Embedding API
+@section Coserver functions
+
+SVZ_COSERVERTYPES_DEFVAR
+SVZ_COSERVERS_DEFVAR
+
+SVZ_COSERVER_CHECK_DEFUN
+SVZ_COSERVER_INIT_DEFUN
+SVZ_COSERVER_FINALIZE_DEFUN
+SVZ_COSERVER_DESTROY_DEFUN
+SVZ_COSERVER_CREATE_DEFUN
+SVZ_COSERVER_SEND_REQUEST_DEFUN
+
+SVZ_COSERVER_RDNS_INVOKE_DEFUN
+SVZ_COSERVER_RDNS_DEFMAC
+SVZ_COSERVER_DNS_INVOKE_DEFUN
+SVZ_COSERVER_DNS_DEFMAC
+SVZ_COSERVER_IDENT_INVOKE_DEFUN
+SVZ_COSERVER_IDENT_DEFMAC
+
+@node Server, ServerCore, Coserver, Embedding API
 @section Server functions
 
 SVZ_SERVERTYPES_DEFVAR

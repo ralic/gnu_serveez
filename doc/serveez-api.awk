@@ -69,10 +69,12 @@ function extract_doc(line)
 function handle_variable(line)
 {
     if (line ~ /^ / || line ~ /^\t/) { return }
-    if (line ~ /[ ]+[a-zA-Z0-9_\*\"]+\;/) {
+    if (line ~ /[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/) {
 	gsub(/ [ ]+/, " ", line)
 	gsub(/\t/, " ", line)
 	gsub(/\;/, "", line)
+	gsub(/[ ]*=$/, "", line)
+	gsub(/\[[A-Za-z0-9_]*\]/, "", line)
 	if (index(line, "/*")) {
 	    docu = extract_doc(substr(line, index(line, "/*")))
 	    gsub(/\/\*.+\*\//, "", line)
@@ -114,7 +116,7 @@ function handle_variable(line)
 	    doc = ("Initial value: " def "@*\\\n" doc)
 	}
 	replace = ("@deftypevar " vardef "\\\n" doc "\\\n" "@end deftypevar")
-	sedexp = ("/" toupper(var) "_DEFVAR/" " c\\\n" replace "\\\n")
+	sedexp = ("/^" toupper(var) "_DEFVAR/" " c\\\n" replace "\\\n")
 	print sedexp
 	docu = ""
     }
@@ -159,7 +161,7 @@ function handle_macro(line)
 	gsub(/\n/, "\\\n", doc)
         # finally create texinfo doc
 	replace = ("@defmac " macdef "\\\n" doc "\\\n" "@end defmac")
-	sedexp = ("/" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
+	sedexp = ("/^" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
         print sedexp
         docu = ""
       }
@@ -167,7 +169,7 @@ function handle_macro(line)
 }
 
 # variable declarations
-/^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*\"]+\;$/
+/^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/
 {
     handle_variable($0)
 }
@@ -189,7 +191,7 @@ function handle_macro(line)
     while (found == 0) {
 
         # handle variable definitions
-	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"]+\;/) {
+	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/) {
 	    handle_variable(ret)
 	    next
 	}
@@ -302,7 +304,7 @@ function handle_macro(line)
     funcdef = (ret " " c_func " (" c_args ")")
     gsub(/\n/, "\\\n", docu)
     replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
-    sedexp = ("/" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
+    sedexp = ("/^" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
     print sedexp
     docu = ""
   }

@@ -1,3 +1,8 @@
+2001-04-11  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/coserver/coserver.c: Cleaned up namespace for the
+	coserver API.
+
 2001-04-08  [ Ela ]  <ela@lkcc.org>
 
 	* option.c (getopt): Reimplemented this function. Now 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.23 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-core.c,v 1.24 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -129,11 +129,11 @@ irc_start_auth (socket_t sock)
     client->flag |= UMODE_PASS;
 
   /* Start here the nslookup and ident lookup. */
-  coserver_reverse (sock->remote_addr, irc_nslookup_done, 
-		    sock->id, sock->version);
+  svz_coserver_rdns (sock->remote_addr, irc_nslookup_done, 
+		     sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
       
-  coserver_ident (sock, irc_ident_done, sock->id, sock->version);
+  svz_coserver_ident (sock, irc_ident_done, sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_IDENT_INIT "\n");
 }
 

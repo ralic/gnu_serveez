@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.22 2001/04/05 18:04:35 ela Exp $
+ * $Id: irc-server.c,v 1.23 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -292,7 +292,7 @@ irc_connect_servers (irc_config_t *cfg)
       /* add this server to the server list */
       log_printf (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
       irc_add_server (cfg, ircserver);
-      coserver_dns (realhost, irc_connect_server, ircserver, NULL);
+      svz_coserver_dns (realhost, irc_connect_server, ircserver, NULL);
     }
 }
 

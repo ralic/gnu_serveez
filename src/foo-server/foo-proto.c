@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.23 2001/04/04 14:23:14 ela Exp $
+ * $Id: foo-proto.c,v 1.24 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -215,8 +215,8 @@ foo_connect_socket (void *acfg, socket_t sock)
    * Ask a coserver to resolve the client's ip
    */
   sock_printf (sock, "starting reverse lookup...\r\n");
-  coserver_reverse (sock->remote_addr, foo_handle_coserver_result,
-		    sock->id, sock->version);
+  svz_coserver_rdns (sock->remote_addr, foo_handle_coserver_result,
+		     sock->id, sock->version);
   sock_printf (sock, "...waiting...\r\n");
   return 0;
 }

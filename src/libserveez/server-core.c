@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.8 2001/04/04 22:20:02 ela Exp $
+ * $Id: server-core.c,v 1.9 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -620,7 +620,7 @@ server_periodic_tasks (void)
 
 #ifdef __MINGW32__
   /* check regularly for internal coserver responses...  */
-  coserver_check ();
+  svz_coserver_check ();
 #endif /* not __MINGW32__ */
 
   /* run the server instance timer routines */

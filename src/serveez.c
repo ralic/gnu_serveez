@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.33 2001/04/10 17:49:41 ela Exp $
+ * $Id: serveez.c,v 1.34 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -101,7 +101,7 @@ guile_entry (int argc, char **argv)
 	      svz_config.max_sockets);
 
   /* Startup the internal coservers here. */
-  if (coserver_init () == -1)
+  if (svz_coserver_init () == -1)
     {
       exit (4);
     }
@@ -126,7 +126,7 @@ guile_entry (int argc, char **argv)
 
   /* Disconnect the previously invoked internal coservers. */
   log_printf (LOG_NOTICE, "destroying internal coservers\n");
-  coserver_finalize ();
+  svz_coserver_finalize ();
 
   svz_halt ();
 

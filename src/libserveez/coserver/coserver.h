@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.3 2001/02/04 11:48:52 ela Exp $
+ * $Id: coserver.h,v 1.4 2001/04/11 13:31:05 ela Exp $
  *
  */
 
@@ -26,6 +26,7 @@
 #define __COSERVER_H__ 1
 
 #include "libserveez/defines.h"
+#include "libserveez/array.h"
 #include "libserveez/socket.h"
 
 /*
@@ -53,7 +54,7 @@ typedef struct
   int type;                     /* coserver type id */
   int busy;                     /* is this thread currently busy ? */
 }
-coserver_t;
+svz_coserver_t;
 
 /*
  * This structure contains the type id and the callback
@@ -68,32 +69,35 @@ typedef struct
   int instances;                  /* the amount of coserver instances */
   void (* init) (void);           /* coserver initialization routine */
 }
-coserver_type_t;
+svz_coservertype_t;
 
 /* Definitions for argument list of the coserver callbacks. */
-typedef void * coserver_arg_t;
+typedef void * svz_coserver_arg_t;
 #define COSERVER_ARGS 2
-#define coserver_arglist_t coserver_arg_t arg0, coserver_arg_t arg1
+#define svz_coserver_args_t \
+  svz_coserver_arg_t arg0, svz_coserver_arg_t arg1
 
 /* Buffer size for the coservers. */
 #define COSERVER_BUFSIZE 256
 
 /*
  * The callback structure is used to finally execute some code
- * which should be called whenever one of the coserver's produces
+ * which should be called whenever one of the coservers produces
  * any data for the server.
  */
-typedef int (* coserver_handle_result_t) (char *, coserver_arglist_t);
+typedef int (* svz_coserver_handle_result_t) (char *, svz_coserver_args_t);
 
 typedef struct
 {
-  coserver_handle_result_t handle_result; /* any code callback */
-  coserver_arg_t arg[COSERVER_ARGS];      /* argument array for this routine */
+  svz_coserver_handle_result_t handle_result; /* any code callback */
+  svz_coserver_arg_t arg[COSERVER_ARGS];      /* passed argument array */
 }
-coserver_callback_t;
+svz_coserver_callback_t;
 
 /* 
  * Types of internal servers you can start as threads or processes.
+ * coserver-TODO:
+ * add your coserver identification here and increase MAX_COSERVER_TYPES
  */
 #define COSERVER_REVERSE_DNS 0 /* reverse DNS lookup ID */
 #define COSERVER_IDENT       1 /* identification ID */
@@ -102,49 +106,71 @@ coserver_callback_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern coserver_type_t coserver_type[MAX_COSERVER_TYPES];
-SERVEEZ_API extern coserver_t **coserver_instance;
-SERVEEZ_API extern int coserver_instances;
+SERVEEZ_API extern svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
+SERVEEZ_API extern svz_array_t *svz_coservers;
 
 #ifdef __MINGW32__
 
-SERVEEZ_API void coserver_check __P ((void));
+SERVEEZ_API void svz_coserver_check __P ((void));
 
 #endif /* not __MINGW32__ */
 
-SERVEEZ_API int coserver_init __P ((void));
-SERVEEZ_API int coserver_finalize __P ((void));
-SERVEEZ_API void coserver_destroy __P ((int type));
-SERVEEZ_API void coserver_create __P ((int type));
-SERVEEZ_API void coserver_send_request __P ((int, char *, 
-					     coserver_handle_result_t,
-					     coserver_arglist_t));
+SERVEEZ_API int svz_coserver_init __P ((void));
+SERVEEZ_API int svz_coserver_finalize __P ((void));
+SERVEEZ_API void svz_coserver_destroy __P ((int type));
+SERVEEZ_API void svz_coserver_create __P ((int type));
+SERVEEZ_API void svz_coserver_send_request __P ((int, char *, 
+						 svz_coserver_handle_result_t,
+						 svz_coserver_args_t));
 
 /*
  * These are the three wrappers for our existing coservers.
  */
-SERVEEZ_API void coserver_reverse_invoke __P ((unsigned long, 
-					       coserver_handle_result_t, 
-					       coserver_arglist_t));
-# define coserver_reverse(ip, cb, arg0, arg1)                         \
-    coserver_reverse_invoke (ip, (coserver_handle_result_t) cb,       \
-                             (coserver_arg_t) ((unsigned long) arg0), \
-			     (coserver_arg_t) ((unsigned long) arg1))
+SERVEEZ_API void svz_coserver_rdns_invoke __P ((unsigned long, 
+						svz_coserver_handle_result_t, 
+						svz_coserver_args_t));
 
-SERVEEZ_API void coserver_dns_invoke __P ((char *, 
-					   coserver_handle_result_t, 
-					   coserver_arglist_t));
-# define coserver_dns(host, cb, arg0, arg1)                       \
-    coserver_dns_invoke (host, (coserver_handle_result_t) cb,     \
-                         (coserver_arg_t) ((unsigned long) arg0), \
-			 (coserver_arg_t) ((unsigned long) arg1))
+/*
+ * This macro is considered to be the usual way to make a request to the
+ * reverse DNS coserver. It calls @code{svz_coserver_rdns_invoke()} therefore.
+ * If the given @var{ip} has been resolved by the coserver to a valid computer
+ * name the callback @var{cb} gets invoked with the additional arguments 
+ * passed to this macro.
+ */
+#define svz_coserver_rdns(ip, cb, arg0, arg1)                            \
+  svz_coserver_rdns_invoke (ip, (svz_coserver_handle_result_t) cb,       \
+                            (svz_coserver_arg_t) ((unsigned long) arg0), \
+	                    (svz_coserver_arg_t) ((unsigned long) arg1))
 
-SERVEEZ_API void coserver_ident_invoke __P ((socket_t, 
-					     coserver_handle_result_t,
-					     coserver_arglist_t));
-# define coserver_ident(sock, cb, arg0, arg1)                       \
-    coserver_ident_invoke (sock, (coserver_handle_result_t) cb,     \
-                           (coserver_arg_t) ((unsigned long) arg0), \
-			   (coserver_arg_t) ((unsigned long) arg1))
+SERVEEZ_API void svz_coserver_dns_invoke __P ((char *, 
+					       svz_coserver_handle_result_t, 
+					       svz_coserver_args_t));
+
+/*
+ * This macro is the usual way to make use of the internal DNS coserver.
+ * When the given computer name @var{host} has been resolved to a valid
+ * ip address the function @var{cb} will be called with the additional
+ * arguments @var{arg0} and @var{arg1}.
+ */
+#define svz_coserver_dns(host, cb, arg0, arg1)                          \
+  svz_coserver_dns_invoke (host, (svz_coserver_handle_result_t) cb,     \
+                           (svz_coserver_arg_t) ((unsigned long) arg0), \
+	 		   (svz_coserver_arg_t) ((unsigned long) arg1))
+
+SERVEEZ_API void svz_coserver_ident_invoke __P ((socket_t, 
+						 svz_coserver_handle_result_t,
+						 svz_coserver_args_t));
+
+/*
+ * This macro uses the internal ident coserver in order to identify the
+ * connection of the given socket structure @var{sock}. The function @var{cb}
+ * will be called when the coserver successfully delivers the identified
+ * user on the other end of the connection. Both the arguments @var{arg0} 
+ * and @var{arg1} are passed to @var{cb}.
+ */
+#define svz_coserver_ident(sock, cb, arg0, arg1)                          \
+  svz_coserver_ident_invoke (sock, (svz_coserver_handle_result_t) cb,     \
+                             (svz_coserver_arg_t) ((unsigned long) arg0), \
+			     (svz_coserver_arg_t) ((unsigned long) arg1))
 
 #endif /* not __COSERVER_H__ */

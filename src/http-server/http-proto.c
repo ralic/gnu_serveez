@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.61 2001/04/04 14:23:14 ela Exp $
+ * $Id: http-proto.c,v 1.62 2001/04/11 13:31:04 ela Exp $
  *
  */
 
@@ -223,7 +223,7 @@ http_init (svz_server_t *server)
       host = cfg->port->addr->sin_addr.s_addr;
       if (host == INADDR_ANY)
 	host = htonl (INADDR_LOOPBACK);
-      coserver_reverse (host, http_localhost, cfg, NULL);
+      svz_coserver_rdns (host, http_localhost, cfg, NULL);
     }
 
   /* start http logging system */
@@ -671,13 +671,13 @@ http_connect_socket (void *http_cfg, socket_t sock)
   /* start reverse dns lookup for logging purposes if necessary */
   if (cfg->nslookup)
     {
-      coserver_reverse (sock->remote_addr, http_remotehost, 
-			sock->id, sock->version);
+      svz_coserver_rdns (sock->remote_addr, http_remotehost, 
+			 sock->id, sock->version);
     }
   /* start user identification if necessary */
   if (cfg->ident)
     {
-      coserver_ident (sock, http_identification, sock->id, sock->version);
+      svz_coserver_ident (sock, http_identification, sock->id, sock->version);
     }
 
   /* 
