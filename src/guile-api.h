@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.6 2001/12/28 17:11:07 ela Exp $
+ * $Id: guile-api.h,v 1.7 2002/02/12 11:45:55 ela Exp $
  *
  */
 
@@ -49,6 +49,12 @@
 #endif
 #ifndef SCM_EXACTP
 #define SCM_EXACTP(obj) SCM_NFALSEP (scm_exact_p (obj))
+#endif
+#ifndef SCM_POSITIVEP
+#define SCM_POSITIVEP(obj) SCM_NFALSEP (scm_positive_p (obj))
+#endif
+#ifndef SCM_NEGATIVEP
+#define SCM_NEGATIVEP(obj) SCM_NFALSEP (scm_negative_p (obj))
 #endif
 #ifndef SCM_PAIRP
 #define SCM_PAIRP(obj) SCM_NFALSEP (scm_pair_p (obj))
@@ -119,6 +125,10 @@
 #endif
 #ifndef scm_c_make_vector
 #define scm_c_make_vector(k, fill) scm_make_vector (scm_int2num (k), fill)
+#endif
+#ifndef SCM_OUT_OF_RANGE
+#define SCM_OUT_OF_RANGE(pos, arg) \
+    scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
 #endif
 
 /* Return an integer. If the given Guile cell @var{obj} is not such an 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.20 2002/02/11 22:04:15 raimi Exp $
+ * $Id: guile-api.c,v 1.21 2002/02/12 11:45:55 ela Exp $
  *
  */
 
@@ -63,10 +63,9 @@
 #include "libserveez.h"
 
 /* Validate network port range. */
-#define VALIDATE_NETPORT(port, cell, arg) do {       \
-  (port) = SCM_NUM2LONG (arg, cell);                 \
-  if ((port) < 0 || (port) >= 65536)                 \
-    scm_out_of_range_pos (FUNC_NAME, (cell), (arg)); \
+#define VALIDATE_NETPORT(port, cell, arg) do {                       \
+    (port) = SCM_NUM2LONG (arg, cell);                               \
+    if ((port) < 0 || (port) >= 65536) SCM_OUT_OF_RANGE (arg, cell); \
   } while (0)
 
 
@@ -162,7 +161,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
       sock = svz_icmp_connect (xhost, xport, ICMP_SERVEEZ);
       break;
     default:
-      scm_out_of_range_pos (FUNC_NAME, proto, SCM_ARG2);
+      SCM_OUT_OF_RANGE (SCM_ARG2, proto);
     }
 
   if (sock == NULL)
@@ -296,7 +295,7 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
 		       length, SCM_ARG2, FUNC_NAME, "exact");
       len = SCM_NUM2INT (SCM_ARG2, length);
       if (len < 0 || len > xsock->recv_buffer_fill)
-	scm_out_of_range_pos (FUNC_NAME, length, SCM_ARG2);
+	SCM_OUT_OF_RANGE (SCM_ARG2, length);
     }
   else
     {

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.17 2002/02/10 11:38:28 ela Exp $
+ * $Id: guile-bin.c,v 1.18 2002/02/12 11:45:55 ela Exp $
  *
  */
 
@@ -254,7 +254,7 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
   /* Check the range of the index argument. */
   idx = SCM_NUM2INT (SCM_ARG2, index);
   if (idx < 0 || idx >= bin->size)
-    scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);
+    SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
   bin->data[idx] = SCM_CHAR (value);
   return SCM_UNSPECIFIED;
@@ -276,7 +276,7 @@ guile_bin_ref (SCM binary, SCM index)
   /* Check the range of the index argument. */
   idx = SCM_NUM2INT (SCM_ARG2, index);
   if (idx < 0 || idx >= bin->size)
-    scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);
+    SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
   return SCM_MAKE_CHAR (bin->data[idx]);
 }
@@ -361,9 +361,9 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
 
   /* Check the ranges of both indices. */
   if (from < 0 || from >= bin->size || from >= end)
-    scm_out_of_range_pos (FUNC_NAME, from, SCM_ARG2);    
+    SCM_OUT_OF_RANGE (SCM_ARG2, start);
   if (to < 0 || to >= bin->size || to <= from)
-    scm_out_of_range_pos (FUNC_NAME, to, SCM_ARG3);    
+    SCM_OUT_OF_RANGE (SCM_ARG3, end);
 
   ret = MAKE_BIN_SMOB ();
   ret->size = to - from + 1;
@@ -423,7 +423,7 @@ guile_list_to_bin (SCM list)
     {
       if (!SCM_EXACTP (SCM_CAR (list)))
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
-      value = SCM_NUM2INT (SCM_ARG1, SCM_CAR (list));
+      value = SCM_NUM2INT (SCM_ARGN, SCM_CAR (list));
       if (value < 0 || value > 255)
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
       *p++ = value;
@@ -477,8 +477,8 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
   idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
-  if (idx < 0 || idx > (int) (bin->size - sizeof (ctype)))                   \
-    scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);                       \
+  if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))                  \
+    SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
   return scm_long2num ((long) ((ctype *) bin->data)[idx]);                   \
 }
 
@@ -490,22 +490,37 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
       bits <<= 1;                                                  \
   } while (0)
 
+/* Checks whether the scheme value @var{value} can be stored within a
+   @var{ctype}. The macro stores valid values in @var{val} and throws an
+   exception if it is out of range. */
+#define CTYPE_CHECK_RANGE(ctype, value, pos, val) do {             \
+    unsigned long bits; CTYPE_BITMASK (ctype, bits);               \
+    if (SCM_POSITIVEP (value)) {                                   \
+      unsigned long max = (unsigned long) bits;                    \
+      unsigned long uval = SCM_NUM2ULONG (pos, value);             \
+      if (uval > max) SCM_OUT_OF_RANGE (pos, value);               \
+      val = (unsigned long) uval;                                  \
+    } else {                                                       \
+      long min = (long) (~(bits >> 1));                            \
+      long ival = SCM_NUM2LONG (pos, value);                       \
+      if (ival < min) SCM_OUT_OF_RANGE (pos, value);               \
+      val = (unsigned long) ival;                                  \
+    }                                                              \
+  } while (0)
+
 /* The following macro expands to a function definition which accesses a
    binary smob's data for writing depending on the given @var{ctype}. */
 #define MAKE_BIN_SET(ctype)                                                  \
 static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \
 						  SCM value) {               \
-  guile_bin_t *bin; int idx; unsigned long val, bits; SCM old; ctype *data;  \
+  guile_bin_t *bin; int idx; unsigned long val; SCM old; ctype *data;        \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
   idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
-  if (idx < 0 || idx > (int) (bin->size - sizeof (ctype)))                   \
-    scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);                       \
+  if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))                  \
+    SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
   SCM_ASSERT_TYPE (SCM_EXACTP (value), value, SCM_ARG3, FUNC_NAME, "exact"); \
-  val = (unsigned long) SCM_NUM2LONG (SCM_ARG3, value);                      \
-  CTYPE_BITMASK (ctype, bits);                                               \
-  if (val & ~bits)                                                           \
-    scm_out_of_range_pos (FUNC_NAME, value, SCM_ARG3);                       \
+  CTYPE_CHECK_RANGE (ctype, value, SCM_ARG3, val);                           \
   data = (ctype *) bin->data;                                                \
   old = scm_long2num ((long) data[idx]); data[idx] = (ctype) val;            \
   return old;                                                                \

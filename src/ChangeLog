@@ -1,3 +1,7 @@
+2002-02-12  [ Ela ]  <ela@lkcc.org>
+
+	* guile-bin.c (MAKE_BIN_SET): Fixed range checking.
+
 2002-02-10  [ Ela ]  <ela@lkcc.org>
 
 	* guile-bin.c (guile_bin_init): More converter functions for
