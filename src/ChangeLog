@@ -1,3 +1,11 @@
+2000-10-16  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/nut-transfer.c (nut_send_push): Checking
+	if a push request has already been sent. Fixed memory leak.
+
+	* alist.c: Defined all array list functions which need to
+	be implemented sometime.
+
 2000-10-13  [ Ela ]  <ela@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat): Stating

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.18 2000/10/15 11:46:41 ela Exp $
+ * $Id: nut-transfer.c,v 1.19 2000/10/16 18:39:49 ela Exp $
  *
  */
 
@@ -557,6 +557,19 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       push.ip = cfg->ip ? cfg->ip : sock->local_addr;
       push.port = cfg->port ? cfg->port : htons (cfg->netport->port);
       
+      /* create push request key and check if it was already sent */
+      pushkey = xmalloc (strlen (NUT_GIVE) + 16 + NUT_GUID_SIZE * 2);
+      sprintf (pushkey, NUT_GIVE "%d:%s",
+	       push.index, nut_text_guid (push.id));
+      if ((trans = hash_get (cfg->push, pushkey)) != NULL)
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "nut: push request already sent\n");
+#endif
+	  xfree (pushkey);
+	  return -1;
+	}
+
       /* try sending header and push request */
       if (sock_write (sock, (char *) nut_put_header (&hdr), 
 		      SIZEOF_NUT_HEADER) == -1 ||
@@ -564,6 +577,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 		      SIZEOF_NUT_PUSH) == -1)
 	{
 	  sock_schedule_for_shutdown (sock);
+	  xfree (pushkey);
 	  return -1;
 	}
 
@@ -571,9 +585,6 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       trans = xmalloc (sizeof (nut_transfer_t));
       memcpy (trans, transfer, sizeof (nut_transfer_t));
       trans->file = xstrdup (transfer->file);
-      pushkey = xmalloc (strlen (NUT_GIVE) + 16 + NUT_GUID_SIZE * 2);
-      sprintf (pushkey, NUT_GIVE "%d:%s",
-	       push.index, nut_text_guid (push.id));
       hash_put (cfg->push, pushkey, trans);
       xfree (pushkey);
 
