@@ -42,7 +42,9 @@ Free Documentation License".
 
 @node Top, Introduction, (dir), (dir)
 
+@ifinfo
 This file documents the Serveez server framework.
+@end ifinfo
 
 @menu
 * Introduction::          Introduction to Serveez
@@ -436,85 +438,86 @@ object. All of the client connection specific callbacks get this object as
 first argument. Following is a description of the elements of this object.
 
 @table @code
-@item id
+@item int id
 The socket id is a unique id for a client connection.
 
-@item version
+@item int version
 This item validates this socket structure. If you pass the @code{id} and
 @code{version} to a coserver you can check if the delivered socket 
 structure is the original or not within the coserver callback.
 
-@item flags
+@item int flags
 The flag field of the client connection contains informations about the
 state of this connection. See @file{socket.h} in the @file{src/} directory 
 for more information. Basically this bitfield specifies how this object
 is handled by the main server loop.
 
-@item userflags
+@item int userflags
 This bitfield could be used for protocol specific information. You can use
 is for any information.
 
-@item boundary, boundary_size
+@item char *boundary, int boundary_size
 If you are going to write a packet oriented protocol server you can use
 the @code{default_check_request} method to parse packets. These two 
 properties describe the packet delimiter.
 
-@item send_buffer, send_buffer_size, send_buffer_fill
+@item char *send_buffer, int send_buffer_size, int send_buffer_fill
 This is the outgoing data for a client connection object.
 
-@item recv_buffer, recv_buffer_size, recv_buffer_fill
+@item char *recv_buffer, int recv_buffer_size, int recv_buffer_fill
 Within the receive buffer all incoming data for a connection object is 
 stored. This buffer is at least used for the client detection callback.
 
-@item read_socket()
+@item int read_socket (socket_t)
 This callback gets called whenever data is available on the socket.
 Normally, this is set to a default function which reads all available
 data from the socket and feeds it to @code{check_request}, but specific
 sockets may need other policies.
 
-@item write_socket()
+@item int write_socket (socket_t)
 This routine is called when data is is valid in the output buffer
 and the socket gets available for writing. You normally leave this
 callback untouched. It simply writes as much data as possible to the 
 socket and removes the data from the send buffer. 
 
-@item disconnected_socket()
+@item int disconnected_socket (socket_t)
 This gets called whenever the socket is lost for some external reason.
 
-@item connected_socket()
+@item int connected_socket (socket_t)
 If some piece of code tries to connect to another host via 
 @code{sock_connect} this connection might be established some time later.
 This callback gets called when the socket is finally connected.
 
-@item kicked_socket()
-We call this whenever the socket gets closed by us.
+@item int kicked_socket (socket_t, int)
+We call this whenever the socket gets closed by us. The second argument
+specifies a reason.
 
-@item check_request()
+@item int check_request (socket_t)
 This gets called whenever data was read from the socket.
 Its purpose is to check whether a complete request was read, and
 if it was, it should be handled and removed from the input buffer.
 
-@item handle_request()
+@item int handle_request (socket_t, char *, int)
 This gets called when the @code{check_request} got a valid packet. The 
 request arguments contains the actual packet and the second argument is the
 length of this packet including the packet delimiter.
 
-@item idle_func()
+@item int idle_func (socket_t)
 This callback gets called from the periodic task scheduler. Whenever
 @code{idle_counter} (see below) is non-zero, it is decremented and
 @code{idle_func} gets called when it drops to zero. @code{idle_func} can 
 reset @code{idle_counter} to some value and thus can re-schedule itself 
 for a later task.
 
-@item idle_counter
+@item int idle_counter
 Counter for calls to @code{idle_func}.
 
-@item data
+@item void *data
 Miscellaneous field. Listener keeps array of server instances here.
 This array is @code{NULL} terminated. Some servers store server specific 
 information here.
 
-@item cfg
+@item void *cfg
 When the final protocol detection in @code{default_detect_proto}
 has been done @code{cfg} should contain a pointer to the actual 
 configuration hash map taken from the server instance object.
@@ -596,93 +599,94 @@ get 1000+ concurrent fetches.
 The following options can be set from the configuration file.
 
 @table @code
-@item netport
+@item netport (port configuration, default: tcp, 42424, *)
 This is the TCP port configuration hash wherein you can set the 
 IP address this server should be bind to and the port the server is 
 listening on.
 
-@item indexfile
+@item indexfile (string, default: index.html)
 The @code{indexfile} parameter is the default file served by the HTTP 
 server when the user does not specify a file but a document node
 (e.g. @uref{http://www.textsure.net/}).
 
-@item docs
+@item docs (string, default: ../show)
 The @code{docs} parameter is the document root where the server finds its
 web documents.
 
-@item userdir
+@item userdir (string, default: public_html)
 Each @samp{~user} request gets converted into the given users home
 directory. The string will be appended to this directory. Its default
 value is @samp{public_html}.
 
-@item cgi-url
+@item cgi-url (string, default: /cgi-bin)
 This parameter is the first part of the URL the HTTP server identifies a
 CGI request. For instance if you specify here @file{/cgi-bin} and the
 user requests @uref{http://www.textsure.net/cgi-bin/test.pl} then the
 HTTP server tries to execute the program @file{test.pl} within the
 @code{cgi-dir} (see below) and pipes its output to the user.
 
-@item cgi-dir
-The @code{cgi-dir} is the CGI document (on the server).
+@item cgi-dir (string, default: ./cgibin)
+The @code{cgi-dir} is the CGI document root (on the server).
 
-@item cgi-application
+@item cgi-application (hash, default: empty)
 Within the MinGW32 and native port you can use this hash to associate
 certain file suffices with applications on your computer (e.g. "pl" with
 "perl"). This is necessary because there is no possibility to check whether
 a file is executable on Win32.
 
-@item cache-size
-This specifies the size of the document cache.
+@item cache-size (integer, default: 200 kb)
+This specifies the size of the document cache in bytes for each cache
+entry.
 
-@item cache-entries
+@item cache-entries (integer, default: 64)
 This parameter specifies the maximum number of HTTP file cache entries
 (files). When you instantiate more than one HTTP server the biggest value
 wins. The HTTP file cache is shared by all HTTP servers.
 
-@item timeout
+@item timeout (integer, default: 15)
 The @code{timeout} value is the amount of time in seconds after which 
 a keep-alive connection (this is a HTTP/1.1 feature) will be closed when
 it has been idle.
 
-@item keepalive
+@item keepalive (integer: default: 10)
 On one keep-alive connection can be served the number of @code{keepalive}
 documents at all. Then the connection will be closed.
-Both this and the timeout value are just to be on the safe side. They protect
-against idle and high traffic connections.
+Both this and the @code{timeout} value are just to be on the safe side. 
+They protect against idle and high traffic connections.
 
-@item default-type
+@item default-type (string, default: text/plain)
 The @code{default-type} is the default content type the HTTP server
 assumes if it can not identify a served file by the @code{types} hash
 and the @code{type-file} (see below).
 
-@item type-file
+@item type-file (string, default: /etc/mime.types)
 This should be a file like the @file{/etc/mime.types} on Unix systems.
 It associates file suffices with MIME types.
 
-@item types
+@item types (hash, default: empty)
 If you want to specify special content types do it here. This parameter
-is a has associating file suffices with HTTP content types (MIME types).
+is a hash map associating file suffices with HTTP content types (MIME types).
 
-@item admin
+@item admin (string, default: root@@localhost)
 Your address, where problems with the server should be e-mailed.
 This address appears on some server-generated pages, such as error
 documents.
 
-@item host
+@item host (string, default: localhost)
 This is the native host name of your webserver. Sometimes the server has
 to send back its own name to the client. It will use this value.
 Be aware that you cannot invent such a name.
 
-@item nslookup
+@item nslookup (integer, default: 0)
 If this number is non-zero the HTTP server invokes a reverse DNS lookup
 for each client connection in order to replace the remote ip address with
 the remote host name in the access logfile.
 
-@item logfile
+@item logfile (string, default: http-access.log)
 The location of the access logfile. For each HTTP request a line gets
 appended to this file.
 
-@item logformat
+@item logformat (string, default: %h - [%t] "%u" %c %l "%r" "%a")
 The format of the access logfile. There are special placeholders for
 different kinds of logging information.
 
@@ -738,104 +742,120 @@ the Hybrid documentation for further information. It can be found on
 the EFNet web page.
 
 @table @code
-@item port
+@item port (port configuration, default: tcp, 42424, *)
 The @code{port} parameter is, as in all the server configurations, the
 port configuration for this server, specifying IP address and the TCP/IP 
-port the server should listen on. See M-line parameter below.
+port the server should listen on. See @code{M-line} parameter below.
 
-@item MOTD-file
+@item MOTD-file (string, default: ../data/irc-MOTD.txt)
 When a user initially joins it will get this file's content as the
 message of the day comment. When changing on disk the server will notice
 that and reload the file automatically.
 
-@item INFO-file
+@item INFO-file (string, default: no file)
 The @code{INFO-file}s content gets displayed when the user issues the
 /INFO command.
 
-@item tsdelta
+@item tsdelta (integer, default: 0)
 This value is the timestamp delta value to UTC (Coordinated Universal Time)
 in seconds.
 
-@item admininfo, email, location1, location2
+@item admininfo (string, no default)
 Some administrative information delivered on the /ADMIN command.
 
-@item M-line (Mandatory)
+@item M-line (string, no default, mandatory)
 The TCP level configuration of this IRC server. The server info field
 is sometimes given to the client for informational use. All other
-values have to correspond to the settings from the @code{port} parameter.
-The format of this line is:@*
-":" virtual hostname@*
-":" optional bind address (real hostname)@*
-":" server info: "world's best irc server"@*
-":" port@*
+values have to correspond to the settings from the @code{netport} 
+parameter. The format of this line is:
+@example
+":" virtual hostname
+":" optional bind address (real hostname)
+":" server info: "World's best IRC server"
+":" port
+@end example
 
-@item A-line (Mandatory)
-The administrative info, printed by the /ADMIN command. Clashes with
-admininfo, email, location1, location2 fields. Either A-line or the others
-are to be removed.@*
-":" administrative info (department, university)@*
-":" the server's geographical location@*
-":" email address for a person responsible for the irc server@*
+@item A-line (string, no default, mandatory)
+The administrative info, printed by the /ADMIN command.
+@example
+":" administrative info (department, university)
+":" the server's geographical location
+":" email address for a person responsible for the irc server
+@end example
 
-@item Y-lines (Suggested)
+@item Y-lines (string array, no default, suggested)
 The connection classes. They are used in other paramters (e.g. I-lines).
 A Y-line describes a group of connections. You usually have at least
-2 Y-lines: One for server connections and one for client connections.
-Format of each line is:@*
-":" class number (higher numbers refer to a higher priority)@*
-":" ping frequency (in seconds)@*
-":" connect frequency in seconds for servers, 0 for client class@*
-":" maximum number of links in this class @*
-":" send queue size@*
+two Y-lines: One for server connections and one for client connections.
+Format of each line is:
+@example
+":" class number (higher numbers refer to a higher priority)
+":" ping frequency (in seconds)
+":" connect frequency in seconds for servers, 0 for client class
+":" maximum number of links in this class
+":" send queue size
+@end example
 
-@item I-lines (Mandatory)
+@item I-lines (string array, no default, mandatory)
 Authorization of clients, wildcards permitted, a valid client is matched
-@email{user@@ip} OR @email{user@@host}.@*
+@email{user@@ip} OR @email{user@@host}.
+@example
 ":" user@@ip, you can specify @samp{NOMATCH} here to force matching 
-user@@host@*
-":" password (optional)@*
-":" user@@host@*
-":" password (optional)@*
-":" connection class number (YLine)@*
+    user@@host
+":" password (optional)
+":" user@@host
+":" password (optional)
+":" connection class number (YLine)
+@end example
 
-@item O-lines (Optional)
-Authorize operator, wildcards allowed.@*
-":" user@@host, user@@ forces checking ident@*
-":" password@*
-":" nick@*
+@item O-lines (string array, no default, optional)
+Authorize operator, wildcards allowed.
+@example
+":" user@@host, user@@ forces checking ident
+":" password
+":" nick
+@end example
 
-@item o-lines (Optional)
+@item o-lines (string array, no default, optional)
 Authorize local operator.
-":" user@@host, user@@ forces checking ident@*
-":" password@*
-":" nick@*
+@example
+":" user@@host, user@@ forces checking ident
+":" password
+":" nick
+@end example
 
-@item C-lines (Networked)
-List of servers to connect to.@*
+@item C-lines (string array, no default, networked)
+List of servers to connect to.
 Note: C and N lines can also use the user@@ combination in order to 
 check specific users (ident) starting servers. C and N lines are 
-usually given in pairs.@*
-":" host name@*
-":" password@*
-":" server name (virtual)@*
-":" port (if not given we will not connect)@*
-":" connection class number (YLine)@*
+usually given in pairs.
+@example
+":" host name
+":" password
+":" server name (virtual)
+":" port (if not given we will not connect)
+":" connection class number (YLine)
+@end example
 
-@item N-lines (Networked)
-Server which may connect.@*
-":" host name@*
-":" password@*
-":" server name (virtual host name)@*
-":" password@*
+@item N-lines (string array, no default, networked)
+Server which may connect.
+@example
+":" host name
+":" password
+":" server name (virtual host name)
+":" password
 ":" how many components of your own server's name to strip off the 
-front and be replaced with a @samp{*}.@*
-":" connection class number (YLine)@*
+    front and be replaced with a @samp{*}.
+":" connection class number (YLine)
+@end example
 
-@item K-lines (Optional)
-Kill user, wildcards allowed.@*
-":" host@*
-":" time of day@*
-":" user@*
+@item K-lines (string array, no default, optional)
+Kill user, wildcards allowed.
+@example
+":" host
+":" time of day
+":" user
+@end example
 @end table
 
 @node Control Protocol Server, Foo Server, IRC Server, Existing Servers
@@ -936,22 +956,43 @@ Reinitialize the HTTP file cache. Flushes all files from the cache.
 @subsubsection Configuration
 
 @table @code
-@item netport
+@item netport (port configuration, default: tcp, 42424, *)
 Sets up the TCP port and local address. It can be useful to declare a
-@code{local-ip} within this hash when you do not
-want people using this protocol from outside.
+@code{local-ip} within this hash when you do not want people using this 
+protocol from outside.
 @end table
 
 @node Foo Server, SNTP Server, Control Protocol Server, Existing Servers
 @subsection Foo Server
 
-@subsubsection General
+@subsubsection General description
 The Foo Server is a simple example on how to write internet protocol
 servers with Serveez. @xref{Writing Servers}.
 
 @subsubsection Configuration
 There are all kinds of configuration items. They are used to explain
-the implementation of servers. A complete list will grow here sometime :-).
+the implementation of servers. A complete list will follow.
+
+@table @code
+@item port (port configuration, default: tcp, 42421, *)
+Sets up the TCP port and local address.
+
+@item bar (integer, no default)
+Some integer value. Printed as server information.
+
+@item reply (string, default: Default reply)
+Some string. Printed as server information.
+
+@item messages (string array, default: ...)
+Some string array which is actually a list of strings. Also printed as 
+server information.
+
+@item ports (integer array, default: 4, 1, 2, 3)
+Some array of integer numbers. Printed as server information.
+
+@item assoc (hash, default, default: ...)
+An hash map associating keys with values. Printed as server information.
+@end table
 
 @node SNTP Server, Gnutella Spider, Foo Server, Existing Servers
 @subsection SNTP Server
@@ -979,7 +1020,7 @@ The configuration of this server knows just a single item which is the
 port configuration.
 
 @table @code
-@item netport
+@item netport (port configuration, default: udp, 37, *)
 This item specifies the protocol (which is "udp"), the network port (by
 default 37) and the local ip address on which the server socket is bound
 to (default is any ip address).
@@ -1001,23 +1042,23 @@ the current connections are lost.
 
 Gnutella, however has nothing to do with the GNU project. The original
 client is just a free (as in free beer) piece of software. With Serveez
-you have free (as in freedom) way to use it. Have a look at the Gnutella
+you have a free (as in freedom) way to use it. Have a look at the Gnutella
 page for further information.
 
 @subsubsection Configuration
 The Gnutella spider knows the following configurations items.
 
 @table @code
-@item port
+@item port (port configuration, default: tcp, 6346, *)
 This entry has to contain @samp{tcp} for @samp{proto} and some port and
 network interface. The default port is 6346. If you want to see the host
 catcher list of this Gnutella spider you can connect to this port with 
 any WWW browser at @uref{http://localhost:6346/@code{net-url}}.
 
-@item net-url
+@item net-url (string, default: gnutella-net)
 The above url is configurable via this item.
 
-@item hosts
+@item hosts (string array, no default)
 This is the start of the haystack,
 the initial host list of the clients the spider tries to 
 connect to. Each list item should be of the format @code{ip:port} 
@@ -1026,68 +1067,68 @@ blank it defaults to 6346. If you need some entry point for
 the gnutella network have a look at @uref{http://www.gnutellahosts.com/} 
 or @uref{http://www.gnutellanet.com/}.
 
-@item search
+@item search (string array, default: Puppe3000, Meret Becker)
 This is the needle. Each search line is either a set of 
 space delimited tokens where every token must match. Or a kind of wildcard
 expression including @samp{?} and @samp{*}.
 Search lines are always matched case insensitive.
 
-@item search-limit
+@item search-limit (integer, default: 30)
 This limits how many results the Gnutella spider returns to other people 
 searching your files. This is for protection against "*" search requests.
 
-@item max-ttl
+@item max-ttl (integer, default: 5)
 Every Gnutella packet has got a TTL. This is the maximum TTL allowed for
 outgoing packets. When a packet comes in it gets its TTL value decremented
 and is forwarded to it destination. If however an incoming packet has a TTL
 larger than @code{max-ttl} the ttl value is set to @code{max-ttl}. This is
 neccessary since most people use far too large TTL values.
 
-@item ttl
+@item ttl (integer, default: 5)
 When creating a new Gnutella packet we use this as TTL. Please use a
 sane value. This ttl needs not to be as large as it is for IP packets.
-A value below 10 is more then enough. Have a look at the Gnutella page
+A value below 10 is more than enough. Have a look at the Gnutella page
 for a calculation of a 'sane value'.
 
-@item download-path
+@item download-path (string, default: /tmp)
 This is where the spider saves needles in.
 
-@item share-path
+@item share-path (string, default: /tmp)
 Here are all the files we share with others. The Gnutella spider will 
 recurse into directories. So be careful with this option.
 
-@item max-downloads
+@item max-downloads (integer, default: 4)
 Maximum number of concurrent downloads from the network.
 
-@item max-uploads
+@item max-uploads (integer, default: 4)
 Maximum number of concurrent uploads to the network.
 
-@item connection-speed
+@item connection-speed (integer; default: 28)
 This is what we send as our connection speed in KBit/s. We also use this
 value to throttle down the network transfer rate for file uploads.
 
-@item min-speed
+@item min-speed (integer; default: 28)
 Search for needles on hosts with a minimum speed. Set it to 0 if you do
 not care about that. This value is in KBit/s, too.
 
-@item file-extensions
+@item file-extensions (string array, default: empty list)
 If we get replies on search queries we check if the file extension of this
 reply matches one of these extensions. Useful extensions are @samp{mp3} and
 @samp{mpg}.
 
-@item connections
+@item connections (integer, default: 4)
 This is the number of concurrent connections the Gnutella spider tries
 to keep up to the network. The IP addresses and the port information is
 taken from the host catcher hash.
 
-@item force-ip
+@item force-ip (string, default: not set)
 You can force the Gnutella spider to send outgoing replies with this
 IP as host information. Must be in dotted decimals notation. This is 
 useful if you are behind a masquerading gateway. You need to install
 some kind of port forwarder on the gateway so other people can reach you
 from the outside. Serveez is a good port forwarder.
 
-@item force-port
+@item force-port (integer, default: not set)
 Force the Gnutella spider to send outgoing replies with this PORT as 
 port information. See above for more information.
 @end table
@@ -1122,10 +1163,10 @@ connections over UDP and ICMP. The UDP tunnel accesses the standard
 HTTP port 80 and the ICMP tunnel accesses the standard Telnet port 23.
 
 @table @code
-@item source
+@item source (port configuration, no default)
 The source port configuration.
 
-@item target
+@item target (port configuration, no default)
 The target port configuration.
 @end table
 
@@ -1281,11 +1322,11 @@ additional parameters.
 @subsubsection Configuration
 
 @table @code
-@item netport
+@item netport (port configuration, default: tcp, 42420, *)
 The @code{netport} parameter is the default network port configuration
 where you can specify the network port and IP address.
 
-@item fsport
+@item fsport (port configuration, default: pipe, .aWCSrecv, .aWCSsend)
 This parameter can be used to specify two named pipes as connection
 possibility. It is meant for local installations of master server and
 serveez.
@@ -1466,11 +1507,11 @@ Unix' oddities. Have a look at @file{config.h} for a complete list
 of all these conditionals.
 
 Most doubtful might be the Win32 port. There are three different ways of
-compiling Serveez on Win32: Using cygwin, using MingW (both gcc) and using
-the M$ Visual C++ compiler. The cygwin version of Serveez  depends on the
+compiling Serveez on Win32: Using Cygwin, using MinGW (both gcc) and using
+the M$ Visual C++ compiler. The Cygwin version of Serveez depends on the
 Unix emulation layer DLL @file{cygwin1.dll}. All three versions work
-but it is preferable to use MingW (or M$ Visual C++) for performance reasons.
-The cygwin version is slow and limited to a very low number (some 64) of
+but it is preferable to use MinGW (or M$ Visual C++) for performance reasons.
+The Cygwin version is slow and limited to a very low number (some 64) of
 open files/network connections.
 
 There are major differences between the Win32 and Unix implementations due
@@ -1511,8 +1552,7 @@ since the main WinSock 2 protocol specification is protocol-independent.
 
 The Winsock DLL and import library for version 1.1 are @file{wsock32.dll}
 and @file{wsock32.lib} and for version 2.2 it is @file{ws2_32.dll} and
-@file{ws2_32.lib}. Serveez is currently using the 1.1 version
-because there was no reason yet to switch to version 2.2.
+@file{ws2_32.lib}. Serveez is currently using version 2.2.
 
 The Winsock API is still a bit buggy. Connected datagram behaviors are 
 not pertinent to any WinSock 2 features, but to generic WinSock. On Win95 
@@ -1523,26 +1563,17 @@ any reason for, but anyway...).
 
 @item Raw sockets on Windows systems
 Raw sockets require Winsock 2. To use them under Windows NT/2000, you must 
-be logged in as an Administrator. On any other Microsoft's we are using 
-the ICMP.DLL (an idiotic and almost useless API that some guys insist on 
-using in their applications). This DLL is an undocumented API for sending 
-ICMP echo packets, also called "pings". This API works fine and is present 
-on all current Windows boxes with Microsoft Winsocks, but Microsoft says 
-they'll replace it as soon as something better comes along. (Microsoft's 
-been saying this since the Windows 95 days, however, yet this functionality 
-still exists in Windows 2000.)
+be logged in as an Administrator. On any other Microsoft's we were trying
+to use the ICMP.DLL (an idiotic and almost useless API) without success. 
+Microsoft says  they will replace it as soon as something better comes 
+along. (Microsoft's been saying this since the Windows 95 days, however, 
+yet this functionality still exists in Windows 2000.)
 
 @item Miscellaneous
 To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
 and #include "windows.h" at the top of your source file(s). You will also
 want to add -lwsock32 to the compiler's command line so you link against 
 libwsock32.a. 
-
-How do I make the console window go away ?
-The default during compilation is to produce a console application. If you 
-are writing a GUI program, you should either compile with -mwindows as
-explained above, or add the string "-Wl,--subsystem,windows" to the GCC 
-command line. 
 
 What preprocessor macros do I need to know about ?
 We use _WIN32 to signify access to the Win32 API and __CYGWIN__ for access 
@@ -1565,15 +1596,10 @@ multithread library (LIBCMT.LIB or MSVCRT.LIB and MSVCRT.DLL), have a limit
 of 256 file handles or 40 file streams. Attempting to open more than the
 maximum number of file handles or file streams causes program failure.
 
-I know MinGW uses the msvcrt.dll and hence should have the above limitation
-but what about cygwin which uses glibc ? Just curious ... i dont think there
-is any operating system limitation. May be some TLS issue from Microsoft or
-some other stuff like that...
-
-As far as I know, one of the big limitations of winsock is that
+As far as I know, one of the big limitations of Winsock is that
 the SOCKET type is *not* equivalent to file descriptor. It is
 however with BSD and POSIX sockets. That is one of the major reasons for
-using a separate data type, SOCKET, not an int, i typical type for a
+using a separate data type, SOCKET, not an int, a typical type for a
 file desciptor. This implies that you cannot mix SOCKETs and stdio,
 sorry. This is the case when you use -mno-cygwin.
 
@@ -1681,46 +1707,46 @@ order.
 
 @enumerate
 @item 
-RFC 760
+RFC 760@*
 The Internet Protocol
 @item 
-RFC 1071
+RFC 1071@*
 Computing the Internet Checksum
 @item 
-RFC 1413
+RFC 1413@*
 Identification Protocol
 @item 
-RFC 1459
+RFC 1459@*
 Internet Relay Chat Protocol
 @item 
-RFC 1945
+RFC 1945@*
 Hypertext Transfer Protocol -- HTTP/1.0
 @item 
-RFC 2068
+RFC 2068@*
 Hypertext Transfer Protocol -- HTTP/1.1
 @item 
-RFC 2616
+RFC 2616@*
 Hypertext Transfer Protocol -- HTTP/1.1
 @item 
-RFC 768
+RFC 768@*
 User Datagram Protocol
 @item 
-RFC 791
+RFC 791@*
 Internet Protocol
 @item 
-RFC 777
+RFC 777@*
 Internet Control Message Protocol
 @item
-@uref{http://www.mingw.org/}
-Home of the MingW (minimal GNU for windows) project
+@uref{http://www.mingw.org/}@*
+Home of the MinGW (Minimal GNU for Windows) project
 @item 
-@uref{http://gnutelladev.wego.com/}
+@uref{http://gnutelladev.wego.com/}@*
 The Gnutella Protocol
 @item 
-@uref{http://www.efnet.org/}
+@uref{http://www.efnet.org/}@*
 The official EFNet site (includes Hybrid IRC server)
 @item 
-@uref{http://www.sockets.com/}
+@uref{http://www.sockets.com/}@*
 Winsock Development Information
 @item 
 @uref{http://www.cyberport.com/~tangent/programming/winsock/}@*
@@ -1731,8 +1757,6 @@ Some global FIXMEs:
 @enumerate
 @item
 (FIXME: perhaps use 'serveez' instead of 'Serveez')
-@item
-(FIXME: always document types in configuration items)
 @item
 (FIXME: netport should always be documented more verbose. The allowed
  protocol types are missing in some places)

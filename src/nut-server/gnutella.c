@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.27 2000/12/29 13:05:50 ela Exp $
+ * $Id: gnutella.c,v 1.28 2000/12/30 01:59:33 ela Exp $
  *
  */
 
@@ -146,7 +146,7 @@ nut_config_t nut_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-key_value_pair_t nut_config_prototype [] = 
+key_value_pair_t nut_config_prototype[] = 
 {
   REGISTER_PORTCFG ("port", nut_config.netport, DEFAULTABLE),
   REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
@@ -384,9 +384,11 @@ nut_init (server_t *server)
       return -1;
     }
   p = cfg->save_path + strlen (cfg->save_path) - 1;
-  if (*p == '/' || *p == '\\') *p = '\0';
+  if (*p == '/' || *p == '\\')
+    *p = '\0';
   p = cfg->share_path + strlen (cfg->share_path) - 1;
-  if (*p == '/' || *p == '\\') *p = '\0';
+  if (*p == '/' || *p == '\\')
+    *p = '\0';
 
   /* check for existence and create them if necessary */
   if (cfg->save_path[0])
@@ -622,7 +624,8 @@ nut_server_notify (server_t *server)
   time_t t, received;
 
   /* go sleep if we still do not want to do something */
-  if (count-- > 0) return 0;
+  if (count-- > 0)
+    return 0;
     
   /* do we have enough connections ? */
   connect = cfg->connections - hash_size (cfg->conn);
@@ -817,7 +820,7 @@ char *
 nut_info_server (server_t *server)
 {
   nut_config_t *cfg = server->cfg;
-  static char info[80*19];
+  static char info[80 * 19];
   char *ext = NULL;
   int n;
 
@@ -901,7 +904,7 @@ char *
 nut_info_client (void *nut_cfg, socket_t sock)
 {
   nut_config_t *cfg = nut_cfg;
-  static char info[80*3];
+  static char info[80 * 3];
   static char text[128];
   nut_transfer_t *transfer = sock->data;
   nut_client_t *client = sock->data;
@@ -930,15 +933,18 @@ nut_info_client (void *nut_cfg, socket_t sock)
       current = transfer->original_size - transfer->size;
       all = transfer->original_size;
       elapsed = time (NULL) - transfer->start;
-      if (!all) all++;
-      if (!elapsed) elapsed++;
+      if (!all)
+	all++;
+      if (!elapsed)
+	elapsed++;
       sprintf (text, "  * file : %s\r\n", transfer->file);
       strcat (info, text);
       sprintf (text, "  * %s progress : %u/%u - %u.%u%% - %u.%u kb/sec\r\n",
 	       sock->userflags & NUT_FLAG_DNLOAD ? "download" : "upload",
 	       current, all,
 	       current * 100 / all, (current * 1000 / all) % 10,
-	       current / 1024 / elapsed, (current * 10 / 1024 / elapsed) % 10);
+	       current / 1024 / elapsed, 
+	       (current * 10 / 1024 / elapsed) % 10);
       strcat (info, text);
     }
 
@@ -1102,8 +1108,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
 
       /* put this client to the current connection hash */
       hash_put (cfg->conn, 
-		nut_client_key (sock->remote_addr, sock->remote_port), 
-		sock);
+		nut_client_key (sock->remote_addr, sock->remote_port), sock);
 
       return 0;
     }

@@ -1,3 +1,9 @@
+2000-12-30  [ Ela ]  <ela@lkcc.org>
+
+	* irc-server/irc-proto.c (irc_init): Reviewed A-line and M-line
+	configuration item handling. Eliminated clashes with other
+	parameters.
+
 2000-12-29  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/nut-transfer.c (nut_send_push): The keys in

@@ -23,9 +23,8 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
-- Write an identd. Raimi has a firewall :-).
-- Remove 'A-line' or admininfo,email,location1,location2 paramter.
-- Remove 'port' paramter of irc server. M-Line does it. (or vice vera)
+- Create a logo for Serveez.
+- Write an identd.
 - Define a CLF-compatible default http logfile format and make it being used.
 - Rename the 'local-ip' part of port configurations to some sane name.
 - Implement a DNS server for home networks.

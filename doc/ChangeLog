@@ -1,3 +1,11 @@
+2000-12-30  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Writing Servers): Documented data types of
+	the socket_t structure.
+	Added types and default values for each configuration item
+	for all servers. Added configuration sub section for the
+	foo server.
+
 2000-12-16  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (SNTP Server): Added a section for the new UDP

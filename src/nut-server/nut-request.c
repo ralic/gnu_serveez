@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.3 2000/11/10 19:55:48 ela Exp $
+ * $Id: nut-request.c,v 1.4 2000/12/30 01:59:34 ela Exp $
  *
  */
 
@@ -116,8 +116,9 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 	  file = p;
 
 	  /* check if the reply is valid */
-	  while (p < end && *p) p++;
-	  if (p == end || *(p+1))
+	  while (p < end && *p)
+	    p++;
+	  if (p == end || *(p + 1))
 	    {
 #if ENABLE_DEBUG
 	      log_printf (LOG_DEBUG, "nut: invalid query hit payload\n");
@@ -253,7 +254,8 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   /* check validity of search request */
   p = file = packet + SIZEOF_NUT_QUERY;
   len = SIZEOF_NUT_QUERY;
-  while (*p++ && len < hdr->length) len++;
+  while (*p++ && len < hdr->length)
+    len++;
   if (len >= hdr->length && *file)
     {
 #if ENABLE_DEBUG
@@ -268,7 +270,7 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   hdr->hop = 0;
   
   /* go through database and build the record array */
-  for (size = 0, n = 0, entry = NULL; n < 256 && (int) n < cfg->search_limit; )
+  for (size = 0, n = 0, entry = NULL; n < 256 && (int) n < cfg->search_limit;)
     {
       if ((entry = nut_find_database (cfg, entry, (char *) file)) != NULL)
 	{
@@ -287,11 +289,13 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 
 	  n++;
 	}
-      else break;
+      else
+	break;
     }
 
   /* no files found in database */
-  if (!n) return 0;
+  if (!n)
+    return 0;
 
   /* create gnutella search reply packet */
   reply.records = (byte) n;

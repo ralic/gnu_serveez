@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.10 2000/12/23 12:16:02 ela Exp $
+ * $Id: nut-route.c,v 1.11 2000/12/30 01:59:34 ela Exp $
  *
  */
 
@@ -59,7 +59,8 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   int ret = 0;
 
   /* not a valid query ? */
-  if (!*query) return -1;
+  if (!*query)
+    return -1;
 
   /* extract alphanumerics only and pack them together as lowercase */
   key = extract = p = xstrdup (query);
@@ -181,8 +182,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->ttl <= 1)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: packet died (zero TTL)\n",
-		  hdr->function);
+      log_printf (LOG_DEBUG, "nut: packet died (zero TTL)\n", hdr->function);
 #endif
       return 0;
     }
@@ -331,8 +331,10 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	  for (n = 0; n < hash_size (cfg->conn); n++)
 	    {
 	      xsock = conn[n];
-	      if (xsock == sock) continue;
-	      if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1)
+	      if (xsock == sock)
+		continue;
+	      if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == 
+		  -1)
 		{
 		  sock_schedule_for_shutdown (xsock);
 		  return 0;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.21 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-proto.c,v 1.22 2000/12/30 01:59:33 ela Exp $
  *
  */
 
@@ -40,6 +40,10 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+#endif
+
+#ifndef __MINGW32__
+# include <netinet/in.h>
 #endif
 
 #include "snprintf.h"
@@ -119,7 +123,7 @@ irc_config_t irc_config =
 /*
  * Definition of the configuration items processed by sizzle.
  */
-key_value_pair_t irc_config_prototype [] =
+key_value_pair_t irc_config_prototype[] =
 {
   REGISTER_PORTCFG ("port", irc_config.netport, DEFAULTABLE),
   REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
@@ -128,9 +132,6 @@ key_value_pair_t irc_config_prototype [] =
   REGISTER_INT ("tsdelta", irc_config.tsdelta, DEFAULTABLE),
 #endif
   REGISTER_STR ("admininfo", irc_config.admininfo, NOTDEFAULTABLE),
-  REGISTER_STR ("email", irc_config.email, NOTDEFAULTABLE),
-  REGISTER_STR ("location1", irc_config.location1, NOTDEFAULTABLE),
-  REGISTER_STR ("location2", irc_config.location2, NOTDEFAULTABLE),
   REGISTER_STR ("M-line", irc_config.MLine, NOTDEFAULTABLE),
   REGISTER_STR ("A-line", irc_config.ALine, DEFAULTABLE),
   REGISTER_STRARRAY ("Y-lines", irc_config.YLine, DEFAULTABLE),
@@ -198,9 +199,6 @@ irc_global_finalize (void)
   return 0;
 }
 
-#define MAX_HOST_LEN 256
-#define MAX_INFO_LEN 256
-
 /*
  * Initialization of the IRC server instance.
  */
@@ -208,9 +206,37 @@ int
 irc_init (server_t *server)
 {
   irc_config_t *cfg = server->cfg;
-  char info[MAX_INFO_LEN];
-  char host[MAX_HOST_LEN];
-  char realhost[MAX_HOST_LEN];
+  char tmp[256][3];
+
+  /* scan the M line (server configuration) */
+  if (!cfg->MLine || 
+      irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d", 
+		      tmp[0], tmp[1], tmp[2], &cfg->port) != 4)
+    {
+      log_printf (LOG_ERROR, "irc: invalid M line: %s\n", 
+		  cfg->MLine ? cfg->MLine : "(nil)");
+      return -1;
+    }
+  if (cfg->port != cfg->netport->port)
+    {
+      log_printf (LOG_WARNING, "irc: port in M line clashes\n");
+      cfg->netport->port = cfg->port;
+    }
+  cfg->host = xstrdup (tmp[0]);
+  cfg->realhost = xstrdup (tmp[1]);
+  cfg->info = xstrdup (tmp[2]);
+
+  /* scan the A line (administrative information) */
+  if (!cfg->ALine ||
+      irc_parse_line (cfg->ALine, "A:%s:%s:%s", tmp[0], tmp[1], tmp[2]) != 3)
+    {
+      log_printf (LOG_ERROR, "irc: invalid A line: %s\n", 
+		  cfg->ALine ? cfg->ALine : "(nil)");
+      return -1;
+    }
+  cfg->location1 = xstrdup (tmp[0]);
+  cfg->location2 = xstrdup (tmp[1]);
+  cfg->email = xstrdup (tmp[2]);
 
   /* initialize hashes and lists */
   cfg->clients = hash_create (4);
@@ -219,13 +245,6 @@ irc_init (server_t *server)
   cfg->channels->equals = irc_string_equal;
   cfg->servers = NULL;
   cfg->history = NULL;
-
-  /* scan the M line */
-  irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d", 
-		  host, realhost, info, &cfg->port);
-  cfg->host = xstrdup (host);
-  cfg->realhost = xstrdup (realhost);
-  cfg->info = xstrdup (info);
 
   irc_parse_config_lines (cfg);
   irc_connect_servers (cfg);
@@ -252,6 +271,9 @@ irc_finalize (server_t *server)
   xfree (cfg->host);
   xfree (cfg->info);
   xfree (cfg->realhost);
+  xfree (cfg->location1);
+  xfree (cfg->location2);
+  xfree (cfg->email);
 
   irc_free_config_lines (cfg);
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.14 2000/12/22 10:11:11 ela Exp $
+ * $Id: nut-core.c,v 1.15 2000/12/30 01:59:34 ela Exp $
  *
  */
 
@@ -85,7 +85,8 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
     }
 
   /* skip leading invalid characters */
-  while (*p < '0' && *p > '9' && *p) p++;
+  while (*p < '0' && *p > '9' && *p)
+    p++;
   if (!*p) 
     {
       xfree (host);
@@ -94,13 +95,15 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
   
   /* find separating colon */
   colon = p;
-  while (*colon != ':' && *colon) colon++;
+  while (*colon != ':' && *colon)
+    colon++;
   if (*colon) 
     {
       *colon = '\0';
       colon++;
     }
-  else colon = NULL;
+  else
+    colon = NULL;
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (p);
@@ -441,13 +444,16 @@ nut_parse_property (char *header, int len, char *property)
   while (h < end)
     {
       /* find beginning of property */
-      while (h < end && tolower (*h) != tolower (*p)) h++;
-      if (h >= end) return NULL;
+      while (h < end && tolower (*h) != tolower (*p))
+	h++;
+      if (h >= end)
+	return NULL;
 
       /* compare whole property name */
       header = h;
       while (h < end && *p && tolower (*h++) == tolower (*p++));
-      if (h >= end) return NULL;
+      if (h >= end)
+	return NULL;
       if (*p)
 	{
 	  /* fallback to property's first character */
@@ -458,11 +464,15 @@ nut_parse_property (char *header, int len, char *property)
       
       /* parse property value */
       while (h < end && *h++ == ' ');
-      if (h >= end || *(h-1) != ':') return NULL;
-      while (h < end && *h == ' ') h++;
+      if (h >= end || *(h - 1) != ':')
+	return NULL;
+      while (h < end && *h == ' ')
+	h++;
       header = h;
-      while (h < end && *h != '\r' && *h != '\n') h++;
-      if (h >= end || h == header) return NULL;
+      while (h < end && *h != '\r' && *h != '\n')
+	h++;
+      if (h >= end || h == header)
+	return NULL;
 
       /* copy property value */
       len = h - header;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.25 2000/12/29 13:05:50 ela Exp $
+ * $Id: nut-transfer.c,v 1.26 2000/12/30 01:59:34 ela Exp $
  *
  */
 
@@ -114,58 +114,63 @@ nut_string_regex (char *text, char *regex)
       /* all tokens must be in the text */
       for (token = strtok (reg, " "); token; token = strtok (NULL, " "))
 	{
-	  if (!strstr (str, token)) break;
+	  if (!strstr (str, token))
+	    break;
 	}
       xfree (str);
       xfree (reg);
-      if (!token) return -1;
+      if (!token)
+	return -1;
       return 0;
     }
 
   /* parse until end of both strings */
-  else while (*regex && *text)
-    {
-      /* find end of strings or '?' or '*' */
-      while (*regex != '*' && *regex != '?' && 
-             *regex && *text)
-        {
-          /* return no Match if so */
-          if (tolower (*text) != tolower (*regex))
-            return 0;
-          text++;
-          regex++;
-        }
-      /* one free character */
-      if (*regex == '?')
-        {
-          if (!(*text)) return 0;
-          text++;
-          regex++;
-        }
-      /* free characters */
-      else if (*regex == '*')
-        {
-          regex++;
-          /* skip useless '?'s after '*'s */
-          while (*regex == '?') regex++;
-           /* skip all characters until next character in pattern found */
-          while (*text && tolower (*regex) != tolower (*text)) 
-            text++;
-          /* next character in pattern found */
-          if (*text)
-            {
-              /* find the last occurrence of this character in the text */
-              p = text + strlen (text);
-              while (tolower (*p) != tolower (*text)) 
-                p--;
-              /* continue parsing at this character */
-              text = p;
-            }
-        }
-    }
-
+  else 
+    while (*regex && *text)
+      {
+	/* find end of strings or '?' or '*' */
+	while (*regex != '*' && *regex != '?' && *regex && *text)
+	  {
+	    /* return no Match if so */
+	    if (tolower (*text) != tolower (*regex))
+	      return 0;
+	    text++;
+	    regex++;
+	  }
+	/* one free character */
+	if (*regex == '?')
+	  {
+	    if (!(*text))
+	      return 0;
+	    text++;
+	    regex++;
+	  }
+	/* free characters */
+	else if (*regex == '*')
+	  {
+	    regex++;
+	    /* skip useless '?'s after '*'s */
+	    while (*regex == '?')
+	      regex++;
+	    /* skip all characters until next character in pattern found */
+	    while (*text && tolower (*regex) != tolower (*text)) 
+	      text++;
+	    /* next character in pattern found */
+	    if (*text)
+	      {
+		/* find the last occurrence of this character in the text */
+		p = text + strlen (text);
+		while (tolower (*p) != tolower (*text)) 
+		  p--;
+		/* continue parsing at this character */
+		text = p;
+	      }
+	  }
+      }
+  
   /* is the text longer than the regex ? */
-  if (!*text && !*regex) return -1;
+  if (!*text && !*regex)
+    return -1;
   return 0;
 }
 
@@ -385,7 +390,8 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 	}
       if (!cfg->search[n])
 	{
-	  log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
+	  log_printf (LOG_NOTICE, "nut: no search pattern for %s\n",
+		      savefile);
 	  xfree (file);
 	  return -1;
 	}
@@ -467,10 +473,11 @@ nut_check_given (socket_t sock)
 
       /* find start of file name */
       pushkey = p = sock->recv_buffer + strlen (NUT_GIVE);
-      while (p < sock->recv_buffer + fill && *p != '/') p++;
+      while (p < sock->recv_buffer + fill && *p != '/')
+	p++;
       if (p >= sock->recv_buffer + fill || *p != '/')
 	{
-	  log_printf (LOG_ERROR, "nut: invalid GIV line\n");
+	 log_printf (LOG_ERROR, "nut: invalid GIV line\n");
 	  return -1;
 	}
 
@@ -515,8 +522,10 @@ nut_check_given (socket_t sock)
       /* assign file descriptor and find original file name */
       sock->file_desc = fd;
       file = file + strlen (file);
-      while (*file != '/' && *file != '\\' && file > transfer->file) file--;
-      if (*file == '/' || *file == '\\') file++;
+      while (*file != '/' && *file != '\\' && file > transfer->file)
+	file--;
+      if (*file == '/' || *file == '\\')
+	file++;
 
       /* send HTTP request to the listening gnutella host */
       sock_printf (sock, NUT_GET "%d/%s " NUT_HTTP "1.0\r\n",
@@ -563,9 +572,8 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 				    htons (cfg->netport->port));
       
       /* create push request key and check if it was already sent */
-      pushkey = xmalloc (strlen (NUT_GIVE) + 16 + NUT_GUID_SIZE * 2);
-      sprintf (pushkey, "%d:%s",
-	       push.index, nut_text_guid (push.id));
+      pushkey = xmalloc (16 + NUT_GUID_SIZE * 2);
+      sprintf (pushkey, "%d:%s", push.index, nut_text_guid (push.id));
       if ((trans = hash_get (cfg->push, pushkey)) != NULL)
 	{
 #if ENABLE_DEBUG
@@ -804,16 +812,20 @@ nut_check_upload (socket_t sock)
 	  p++;
 	}
       /* parsed file index */
-      if (p >= end || *p != '/') return -1;
+      if (p >= end || *p != '/')
+	return -1;
       f = ++p;
-      while (p < end && *p != '\r' && *p != '\n') p++;
+      while (p < end && *p != '\r' && *p != '\n')
+	p++;
 
       /* got actual header property field */
       hdr = p + 2;
       len -= hdr - sock->recv_buffer;
 
-      while (p > f && memcmp (p, " " NUT_HTTP, strlen (NUT_HTTP) + 1)) p--;
-      if (p <= f) return -1;
+      while (p > f && memcmp (p, " " NUT_HTTP, strlen (NUT_HTTP) + 1))
+	p--;
+      if (p <= f)
+	return -1;
       /* parsed file itself */
       fill = p - f;
       file = xmalloc (fill + 1);
@@ -956,8 +968,7 @@ nut_file_read (socket_t sock)
    * Try to read as much data as possible from the file.
    */
   num_read = read (sock->file_desc,
-                   sock->send_buffer + sock->send_buffer_fill,
-                   do_read);
+                   sock->send_buffer + sock->send_buffer_fill, do_read);
 
   /* Read error occurred. */
   if (num_read < 0)
