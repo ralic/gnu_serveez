@@ -54,7 +54,8 @@ Installation
 ============
 
    First unpack the package archive of Serveez to the directory `serveez/'. 
-Then you need to copy some files to their native location.
+Then you need to copy some files to their native location.  The `vcgen.bat'
+batch file does this for you.
 
     $ copy config.h.serveez config.h
     $ copy src\svzconfig.h.serveez src\svzconfig.h
@@ -75,4 +76,16 @@ is optional.  You just need to adjust the paths.
     $ set PATH=%PATH%;c:\Programme\cygwin\bin
     $ set CC=cl -D__MINGW32__ -D_WIN32
     $ set LD=link
-    $ sh configure --disable-debug
+    $ sh configure --disable-debug --host=mingw32 --build=mingw32 \
+		   --with-guile=<directory>
+
+
+Requirements
+============
+
+  Serveez also depends on the GNU packages bzip2, zlib and Guile.  You 
+should install these packages somewhere the compiler can find the include
+headers and libraries.  Binary packages built with the M$ Visual C++ 
+compiler can be obtained at <http://www.textsure.net/~ela/devel.html#gnu> 
+and the packages for the MinGW32 gcc toolchain can be obtained at 
+<http://www.sourceforge.net/projects/mingwrep>.

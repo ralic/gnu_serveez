@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.22 2001/12/22 10:32:52 ela Exp $
+ * $Id: http-dirlist.c,v 1.23 2001/12/23 16:28:39 ela Exp $
  *
  */
 
@@ -86,7 +86,7 @@
 # define closedir(dir) FindClose (dir)
 #endif
 
-#ifndef DECLARED_ALPHASORT
+#if defined (HAVE_ALPHASORT) && !defined (DECLARED_ALPHASORT)
 extern int alphasort (const struct dirent **, const struct dirent **);
 #endif
 
