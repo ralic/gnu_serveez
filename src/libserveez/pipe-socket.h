@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.9 2001/07/01 15:56:48 ela Exp $
+ * $Id: pipe-socket.h,v 1.10 2001/09/04 18:22:01 ela Exp $
  *
  */
 
@@ -28,8 +28,10 @@
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
 
-#define READ  0 /* read pipe index */
-#define WRITE 1 /* write pipe index */
+#define READ           0      /* read pipe index */
+#define WRITE          1      /* write pipe index */
+#define PIPE_MAX_WRITE 0xFFFF /* maximum amount of write transfer bytes */
+#define PIPE_MAX_READ  0xFFFF /* maximum amount of read transfer bytes */
 
 /*
  * Definition of a named pipe.

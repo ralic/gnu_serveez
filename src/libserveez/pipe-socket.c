@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.16 2001/09/04 12:03:01 ela Exp $
+ * $Id: pipe-socket.c,v 1.17 2001/09/04 18:22:01 ela Exp $
  *
  */
 
@@ -212,6 +212,13 @@ svz_pipe_disconnect (svz_socket_t *sock)
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
 	{
 #ifdef __MINGW32__
+	  /* cancel any pending I/O if necessary */
+	  if (sock->flags & SOCK_FLAG_READING)
+	    if (!CancelIo (sock->pipe_desc[READ]))
+	      svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
+	  if (sock->flags & SOCK_FLAG_WRITING)
+	    if (!CancelIo (sock->pipe_desc[WRITE]))
+	      svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
 
 	  /* just disconnect client pipes */
 	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
@@ -358,11 +365,15 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 
 #ifdef __MINGW32__
-  /* use the PeekNamedPipe() call if there is no overlapped I/O in 
-     order to make the following ReadFile() non-blocking */
+  /* Named pipes in Win32 cannot transfer more than 64KB at once. */
+  if (do_read > PIPE_MAX_READ)
+    do_read = PIPE_MAX_READ;
+
+  /* Use the PeekNamedPipe() call if there is no overlapped I/O in 
+     order to make the following ReadFile() non-blocking. */
   if (sock->overlap[READ] == NULL)
     {
-      /* check how many bytes could have been read from the pipe */
+      /* Check how many bytes could have been read from the pipe. */
       if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
 			  NULL, (DWORD *) &num_read, NULL))
 	{
@@ -370,7 +381,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
 	  return -1;
 	}
 
-      /* leave this function if there is no data within the pipe */
+      /* Leave this function if there is no data within the pipe. */
       if (num_read <= 0)
 	return 0;
 
@@ -379,10 +390,10 @@ svz_pipe_read_socket (svz_socket_t *sock)
 	do_read = num_read;
     }
 
-  /* really read from pipe depending on its state */
+  /* Really read from pipe depending on its state. */
   if (sock->flags & SOCK_FLAG_READING)
     {
-      /* try to get the result of the last ReadFile() */
+      /* Try to get the result of the last ReadFile(). */
       if (!GetOverlappedResult (sock->pipe_desc[READ], sock->overlap[READ], 
                                 (DWORD *) &num_read, FALSE))
         {
@@ -392,11 +403,19 @@ svz_pipe_read_socket (svz_socket_t *sock)
 		       SYS_ERROR);
               return -1;
             }
+#if ENABLE_DEBUG
+	  svz_log (LOG_DEBUG, "pipe: ReadFile/GetOverlappedResult (%d): "
+		   "IO in progress\n", sock->pipe_desc[READ]);
+#endif
 	  return 0;
         }
       else
 	{
-	  /* schedule the pipe for the ReadFile() call again */
+#if ENABLE_DEBUG
+	  svz_log (LOG_DEBUG, "pipe: ReadFile/GetOverlappedResult (%d): "
+		   "received %d bytes\n", sock->pipe_desc[READ], num_read);
+#endif
+	  /* Schedule the pipe for the ReadFile() call again. */
 	  sock->flags &= ~SOCK_FLAG_READING;
 	}
     }
@@ -409,7 +428,11 @@ svz_pipe_read_socket (svz_socket_t *sock)
 	  svz_log (LOG_ERROR, "pipe: ReadFile: %s\n", SYS_ERROR);
 	  return -1;
         }
-      /* schedule the pipe for the GetOverlappedResult() call */
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "pipe: ReadFile (%d): scheduled %d bytes\n", 
+	       sock->pipe_desc[READ], do_read);
+#endif
+      /* Schedule the pipe for the GetOverlappedResult() call. */
       sock->flags |= SOCK_FLAG_READING;
       return 0;
     }
@@ -447,7 +470,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 
 #ifndef __MINGW32__
-  /* the socket was selected but there is no data */
+  /* The pipe was selected but there is no data. */
   else
     {
       svz_log (LOG_ERROR, "pipe: read: no data on pipe %d\n", 
@@ -478,22 +501,15 @@ svz_pipe_write_socket (svz_socket_t *sock)
 
 #ifdef __MINGW32__
   /* Named pipes in Win32 cannot transfer more than 64KB at once. */
-  if (do_write > 64 * 1024)
-    do_write = 64 * 1024;
+  if (do_write > PIPE_MAX_WRITE)
+    do_write = PIPE_MAX_WRITE;
 
-  if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
-		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
+  /* 
+   * Data bytes have been stored in system's cache. Now we are
+   * checking if pending write operation has been completed.
+   */
+  if (sock->flags & SOCK_FLAG_WRITING)
     {
-      if (GetLastError () != ERROR_IO_PENDING)
-	{
-	  svz_log (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
-	  return -1;
-	}
-
-      /* 
-       * Data bytes have been stored in system's cache. Now we are
-       * checking if pending write operation has been completed.
-       */
       if (!GetOverlappedResult (sock->pipe_desc[WRITE], sock->overlap[WRITE], 
 				(DWORD *) &num_written, FALSE))
 	{
@@ -503,8 +519,35 @@ svz_pipe_write_socket (svz_socket_t *sock)
 		       SYS_ERROR);
 	      return -1;
 	    }
+#if ENABLE_DEBUG
+	  svz_log (LOG_DEBUG, "pipe: WriteFile/GetOverlappedResult (%d): "
+		   "IO in progress\n", sock->pipe_desc[WRITE]);
+#endif
+	  return 0;
 	}
-      num_written = do_write;
+      else
+	{
+#if ENABLE_DEBUG
+	  svz_log (LOG_DEBUG, "pipe: WriteFile/GetOverlappedResult (%d): "
+		   "sent %d bytes\n", sock->pipe_desc[WRITE], num_written);
+#endif
+	  sock->flags &= ~SOCK_FLAG_WRITING;
+	}
+    }
+  else if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
+		       do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
+    {
+      if (GetLastError () != ERROR_IO_PENDING)
+	{
+	  svz_log (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
+	  return -1;
+	}
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "pipe: WriteFile (%d): scheduled %d bytes\n", 
+	       sock->pipe_desc[WRITE], do_write);
+#endif
+      sock->flags |= SOCK_FLAG_WRITING;
+      return 0;
     }
 #else /* not __MINGW32__ */
   if ((num_written = write (sock->pipe_desc[WRITE], 
@@ -725,10 +768,20 @@ svz_pipe_set_files (svz_socket_t *sock, char *recv, char *send)
   sock->recv_pipe = svz_strdup (recv);
   sock->send_pipe = svz_strdup (send);
 #else /* __MINGW32__ */
-  sock->recv_pipe = svz_malloc (strlen (recv) + 10);
-  sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", recv);
-  sock->send_pipe = svz_malloc (strlen (send) + 10);
-  sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", send);
+  if (strstr (recv, "\\pipe\\") == NULL)
+    {
+      sock->recv_pipe = svz_malloc (strlen (recv) + 10);
+      sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", recv);
+    }
+  else
+    sock->recv_pipe = svz_strdup (recv);
+  if (strstr (send, "\\pipe\\") == NULL)
+    {
+      sock->send_pipe = svz_malloc (strlen (send) + 10);
+      sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", send);
+    }
+  else
+    sock->send_pipe = svz_strdup (send);
 #endif /* __MINGW32__ */
 }
 

@@ -1,5 +1,12 @@
 2001-09-04  [ Ela ]  <ela@lkcc.org>
 
+	* pipe-socket.c (svz_pipe_read_socket): Set a limit for
+	the maximum number of transfer bytes on Win32.
+	(svz_pipe_write_socket): Apply the overlapped I/O code for
+	writing, too.
+	(svz_pipe_set_files): Allow "\\ComputerName\pipe\NameOfPipe"
+	syntax in named pipe files on Win32.
+
 	* libserveez.dsp: Added "Debug Memory Leaks" target.
 
 	* alloc.c (heap_caller): Verified StackWalk() interface.
