@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.15 2001/09/29 01:05:02 ela Exp $
+ * $Id: dynload.c,v 1.16 2001/09/30 09:05:58 ela Exp $
  *
  */
 
@@ -67,6 +67,16 @@ static dyn_library_t *dyn_library = NULL;
 /* Print the current shared library error description. */
 #if HAVE_DLOPEN
 # define dyn_error() dlerror ()
+#elif HAVE_NSADDIMAGE
+static char * 
+dyn_error (void)
+{
+  NSLinkEditErrors errors;
+  int n;
+  const char *file, *err;
+  NSLinkEditError (&errors, &n, &file, &err);
+  return (char *) err;
+}
 #else
 # define dyn_error() SYS_ERROR
 #endif
@@ -376,18 +386,14 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 			 symbol, TYPE_UNDEFINED, &address) != 0)
 	  address = NULL;
 #elif HAVE_NSADDIMAGE
-	if (NSIsSymbolNameDefinedInImage
-	    ((struct mach_header *) lib->handle, symbol))
-	  {
-	    address = NSLookupSymbolInImage 
-	      ((struct mach_header *) lib->handle, symbol,
-	       NSLOOKUPSYMBOLINIMAGE_OPTION_BIND_NOW |
-	       NSLOOKUPSYMBOLINIMAGE_OPTION_RETURN_ON_ERROR);
-	  }
+	address = NSLookupSymbolInImage 
+	  ((struct mach_header *) lib->handle, symbol,
+	   NSLOOKUPSYMBOLINIMAGE_OPTION_BIND_NOW |
+	   NSLOOKUPSYMBOLINIMAGE_OPTION_RETURN_ON_ERROR);
 #endif
 	if (address == NULL)
 	  {
-	    svz_log (LOG_ERROR, "symbol: %s (%s)\n", dyn_error (), symbol);
+	    svz_log (LOG_ERROR, "lookup: %s (%s)\n", dyn_error (), symbol);
 	  }
 	return address;
       }

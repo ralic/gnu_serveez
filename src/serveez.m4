@@ -19,8 +19,12 @@ AC_DEFUN([AC_SERVEEZ], [
 
   AC_MSG_CHECKING([for serveez installation])
   if test "x$SVZDIR" != "xno"; then
-    SVZDIR=`eval cd $SVZDIR 2>/dev/null && pwd`
-    if test -e $SVZDIR/lib/libserveez.so -o -e $SVZDIR/bin/libserveez.dll; then
+    SVZDIR=`eval cd "$SVZDIR" 2>/dev/null && pwd`
+    case $host_os in
+    mingw*) SVZDIR=`eval cygpath -w -i "$SVZDIR"` ;;
+    esac
+    if test -f "$SVZDIR/lib/libserveez.so" -o \
+	    -f "$SVZDIR/bin/libserveez.dll"; then
       if test "x$1" = "x"; then 
         CFLAGS="$CFLAGS -I$SVZDIR/include"
         LDFLAGS="$LDFLAGS -L$SVZDIR/lib"

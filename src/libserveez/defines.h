@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.5 2001/06/16 15:02:46 ela Exp $
+ * $Id: defines.h,v 1.6 2001/09/30 09:05:58 ela Exp $
  *
  */
 
@@ -65,10 +65,10 @@
    which should be exported or imported in the resulting dynamic link
    library in the Win32 port. */
 
-#if defined (__SERVEEZ_EXPORT__) || defined (DLL_EXPORT)
-# define SERVEEZ_API __declspec (dllexport)
-#elif defined (__SERVEEZ_IMPORT__)
+#if defined (__SERVEEZ_IMPORT__)
 # define SERVEEZ_API __declspec (dllimport)
+#elif defined (__SERVEEZ_EXPORT__) || defined (DLL_EXPORT)
+# define SERVEEZ_API __declspec (dllexport)
 #else
 # define SERVEEZ_API
 #endif

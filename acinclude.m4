@@ -102,7 +102,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
 
   AC_MSG_CHECKING([for guile source tree])
   if test "x$GUILESRC" != "xno"; then
-    GUILESRC=`eval cd $GUILESRC 2>/dev/null && pwd`
+    GUILESRC=`eval cd "$GUILESRC" 2>/dev/null && pwd`
     case $host_os in
     mingw*) GUILESRC=`eval cygpath -w -i "$GUILESRC"` ;;
     esac
