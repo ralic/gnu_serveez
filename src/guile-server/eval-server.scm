@@ -2,7 +2,7 @@
 ;;
 ;; eval-server.scm - example server for evaluating Scheme expressions
 ;;
-;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>,
+;; Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>,
 ;; Copyright (C) 2001 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 ;;
 ;; This is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.2 2002/07/27 13:32:14 ela Exp $
+;; $Id: eval-server.scm,v 1.3 2002/07/30 22:39:08 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -80,7 +80,7 @@
 		 (lambda args
 		   (svz:sock:print sock
 		     (string-append "Exception: "
-		       (object->string args)
+		       (apply simple-format #f (caddr args) (cadddr args))
 		       "\r\n"
 		       (svz:server:config-ref sock "prompt")))))
 	  0))))

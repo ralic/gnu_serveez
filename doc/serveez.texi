@@ -741,22 +741,36 @@ services.  It can act as a kind of server collection and may even
 replace super-servers like the inetd daemon.  Key features and its
 benefits are:
 
-@table @asis
-@item support for packet and connection oriented protocols
+@itemize @bullet
+@item support for packet and connection oriented protocols@*
+Serveez currently supports two server types.  TCP and named pipe servers
+are connection oriented servers.  This kind of servers accepts a client
+connection and communicates using a dedicated connection.  The format of
+the incoming and outgoing data stream can be any kind of protocol.
+Packet oriented servers (like UDP and ICMP) do receive data packets and
+respond to the sender with data packets.  A server in Serveez can detect
+whether it is bound to a packet or connection oriented port
+configuration and thus can act as both types.
+
+@item server and client functionality@*
+Beside a large variety of server capabilities Serveez also contains some
+client functionality.  This may be necessary when a server is meant to
+establish a connection to another server as response to an incoming
+request.  Just imagine a protocol where a client tells the server "Let
+me be the server.  Please connect to this @var{host} at this
+@var{port}.".  You are also able to implement plain clients.
+
+@item platform portability@*
 FIXME:
-@item server and client functionality
+@item powerful configuration capabilities@*
 FIXME:
-@item platform portability
+@item easy server implementation@*
 FIXME:
-@item powerful configuration capabilities
+@item code reusability@*
 FIXME:
-@item easy server implementation
+@item server instantiation and network port sharing@*
 FIXME:
-@item code reusability
-FIXME:
-@item server instantiation and network port sharing
-FIXME:
-@end table
+@end itemize
 
 @section I/O Strategy
 Serveez's I/O strategy is the traditional @code{select()} method. It 
@@ -829,7 +843,7 @@ available physical memory.
 
 @section Alternatives to Serveez's I/O strategy
 FIXME: Something about load balancing using different processes, 
-       threaded servers and asynchronous I/O.
+       threaded servers and asynchronous I/O (using signals).
 
 @node Server, Coserver, Concept, Top
 @chapter Server

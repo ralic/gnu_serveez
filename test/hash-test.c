@@ -1,7 +1,7 @@
 /*
  * test/hash-test.c - hash table tests
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.13 2001/12/13 18:37:02 ela Exp $
+ * $Id: hash-test.c,v 1.14 2002/07/30 22:39:08 ela Exp $
  *
  */
 
@@ -60,23 +60,25 @@ main (int argc, char **argv)
   test_print ("hash function test suite\n");
 
   /* hash creation */
-  test_print ("           create: ");
+  test_print ("             create: ");
   test ((hash = svz_hash_create (4, NULL)) == NULL);
 
   /* hash put and get */
-  test_print ("      put and get: ");
+  test_print (" put/get and exists: ");
   for (error = n = 0; n < REPEAT; n++)
     {
       text = svz_strdup (test_string ());
       svz_hash_put (hash, text, (void *) 0xdeadbeef);
       if (((void *) 0xdeadbeef != svz_hash_get (hash, text)))
 	error++;
+      if (svz_hash_exists (hash, text) == 0)
+	error++;
       svz_free (text);
     }
   test (error);
 
   /* hash containing a certain value */
-  test_print ("         contains: ");
+  test_print ("           contains: ");
   error = 0;
   if (svz_hash_contains (hash, NULL))
     error++;
@@ -88,7 +90,7 @@ main (int argc, char **argv)
   test (error);
 
   /* hash key deletion */
-  test_print ("           delete: ");
+  test_print ("             delete: ");
   error = 0;
   n = svz_hash_size (hash);
   if ((void *) 0xeabceabc != svz_hash_delete (hash, "1234567890"))
@@ -98,7 +100,7 @@ main (int argc, char **argv)
   test (error);
 
   /* keys and values */
-  test_print ("  keys and values: ");
+  test_print ("    keys and values: ");
   svz_hash_clear (hash);
   error = 0;
   text = svz_malloc (16);
@@ -136,7 +138,7 @@ main (int argc, char **argv)
 
   /* rehashing */
   error = 0;
-  test_print ("           rehash: ");
+  test_print ("             rehash: ");
   while (hash->buckets > HASH_MIN_SIZE)
     svz_hash_rehash (hash, HASH_SHRINK);
   while (hash->buckets < svz_hash_size (hash) * 10)
@@ -160,12 +162,12 @@ main (int argc, char **argv)
   test (error);
   
   /* hash clear */
-  test_print ("            clear: ");
+  test_print ("              clear: ");
   svz_hash_clear (hash);
   test (svz_hash_size (hash));
 
   /* hash destruction */
-  test_print ("          destroy: ");
+  test_print ("            destroy: ");
   svz_hash_destroy (hash);
   test_ok ();
 
@@ -178,7 +180,7 @@ main (int argc, char **argv)
 
   error = 0;
   val = 0;
-  test_print ("  value iteration: ");
+  test_print ("    value iteration: ");
   svz_hash_foreach_value (hash, values, n)
     {
       val += (long) values[n];
@@ -188,7 +190,7 @@ main (int argc, char **argv)
 
   error = 0;
   val = 0;
-  test_print ("    key iteration: ");
+  test_print ("      key iteration: ");
   svz_hash_foreach_key (hash, keys, n)
     {
       val += (long) svz_hash_get (hash, keys[n]);
@@ -200,7 +202,7 @@ main (int argc, char **argv)
 
 #if ENABLE_DEBUG
   /* is heap ok ? */
-  test_print ("             heap: ");
+  test_print ("               heap: ");
   test (svz_allocated_bytes || svz_allocated_blocks);
 #endif
 

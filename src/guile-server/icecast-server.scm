@@ -19,11 +19,11 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.6 2002/06/06 20:04:51 ela Exp $
+;; $Id: icecast-server.scm,v 1.7 2002/07/30 22:39:08 ela Exp $
 ;;
 
 ;; load convenience file
-(primitive-load "serveez.scm")
+(serveez-load "serveez.scm")
 
 ;; server reset callback
 (define (icecast-reset server)

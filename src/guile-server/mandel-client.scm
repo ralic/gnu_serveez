@@ -3,7 +3,7 @@
 ;; mandel-client.scm - mandelbrot fractal client
 ;;
 ;; Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
-;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>,
+;; Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>,
 ;;
 ;; This is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-client.scm,v 1.4 2001/11/22 17:17:51 ela Exp $
+;; $Id: mandel-client.scm,v 1.5 2002/07/30 22:39:08 ela Exp $
 ;;
 
 ;; load shared functionality
-(primitive-load "mandel-shared.scm")
+(serveez-load "mandel-shared.scm")
 
 ;; epsilon environment
 (define epsilon 1e-6)

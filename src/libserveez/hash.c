@@ -1,7 +1,7 @@
 /*
  * hash.c - hash table functions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.7 2001/12/07 20:37:15 ela Exp $
+ * $Id: hash.c,v 1.8 2002/07/30 22:39:08 ela Exp $
  *
  */
 
@@ -500,6 +500,30 @@ svz_hash_get (svz_hash_t *hash, char *key)
     }
 
   return NULL;
+}
+
+/*
+ * Returns a non-zero value if the given @code{key} is stored within
+ * the hash table @code{hash}.  Otherwise the function returns zero.
+ * This function is useful when you cannot tell whether the return
+ * value of @code{svz_hash_get()} (@code{== NULL}) indicates a real
+ * value in the hash or a non-existing hash key.
+ */
+int
+svz_hash_exists (svz_hash_t *hash, char *key)
+{
+  int n;
+  unsigned long code;
+  svz_hash_bucket_t *bucket;
+
+  code = hash->code (key);
+  bucket = &hash->table[HASH_BUCKET (code, hash)];
+  
+  for (n = 0; n < bucket->size; n++)
+    if (bucket->entry[n].code == code && 
+	hash->equals (bucket->entry[n].key, key) == 0)
+      return -1;
+  return 0;
 }
 
 /*

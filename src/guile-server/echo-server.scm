@@ -2,7 +2,7 @@
 ;;
 ;; echo-server.scm - example server completely written in Guile
 ;;
-;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+;; Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 ;;
 ;; This is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -19,10 +19,10 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
+;; $Id: echo-server.scm,v 1.2 2002/07/30 22:39:08 ela Exp $
 ;;
 
-(primitive-load "serveez.scm")
+(serveez-load "serveez.scm")
 
 (define (echo-global-init servertype)
   (println "Running echo global init " servertype ".")

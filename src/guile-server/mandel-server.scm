@@ -3,7 +3,7 @@
 ;; mandel-server.scm - mandelbrot fractal server
 ;;
 ;; Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
-;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>,
+;; Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>,
 ;;
 ;; This is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -20,11 +20,11 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-server.scm,v 1.5 2001/12/28 17:11:07 ela Exp $
+;; $Id: mandel-server.scm,v 1.6 2002/07/30 22:39:08 ela Exp $
 ;;
 
 ;; load shared functionality
-(primitive-load "mandel-shared.scm")
+(serveez-load "mandel-shared.scm")
 
 ;; initialize the server state by calculating values from the configuration
 (define (mandel-init server)

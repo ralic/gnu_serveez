@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.50 2002/07/29 18:32:08 ela Exp $
+ * $Id: guile-server.c,v 1.51 2002/07/30 22:39:08 ela Exp $
  *
  */
 
@@ -1100,7 +1100,6 @@ guile_server_state_ref (SCM server, SCM key)
   SCM ret = SCM_EOL;
   svz_server_t *xserver;
   char *str;
-  void *val;
   svz_hash_t *hash;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
@@ -1108,8 +1107,8 @@ guile_server_state_ref (SCM server, SCM key)
   str = guile_to_string (key);
 
   if ((hash = xserver->data) != NULL)
-    if ((val = svz_hash_get (hash, str)) != NULL)
-      ret = (SCM) SVZ_PTR2NUM (val);
+    if (svz_hash_exists (hash, str))
+      ret = (SCM) SVZ_PTR2NUM (svz_hash_get (hash, str));
   scm_c_free (str);
   return ret;
 }
@@ -1127,7 +1126,6 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
   SCM ret = SCM_EOL;
   svz_server_t *xserver;
   char *str;
-  void *val;
   svz_hash_t *hash;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
@@ -1139,11 +1137,13 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
       hash = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
       xserver->data = hash;
     }
-  if ((val = svz_hash_put (hash, str, SVZ_NUM2PTR (value))) != NULL)
+  if (svz_hash_exists (hash, str))
     {
-      ret = (SCM) SVZ_PTR2NUM (val);
+      ret = (SCM) SVZ_PTR2NUM (svz_hash_put (hash, str, SVZ_NUM2PTR (value)));
       scm_gc_unprotect_object (ret);
     }
+  else
+    svz_hash_put (hash, str, SVZ_NUM2PTR (value));
   scm_gc_protect_object (value);
   scm_c_free (str);
   return ret;

@@ -1,7 +1,7 @@
 /*
  * hash.h - hash function interface
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.14 2001/12/13 18:00:00 ela Exp $
+ * $Id: hash.h,v 1.15 2002/07/30 22:39:08 ela Exp $
  *
  */
 
@@ -89,6 +89,7 @@ SERVEEZ_API int svz_hash_size __PARAMS ((svz_hash_t *));
 SERVEEZ_API int svz_hash_capacity __PARAMS ((svz_hash_t *));
 SERVEEZ_API char *svz_hash_contains __PARAMS ((svz_hash_t *, void *));
 SERVEEZ_API void svz_hash_rehash __PARAMS ((svz_hash_t *, int));
+SERVEEZ_API int svz_hash_exists __PARAMS ((svz_hash_t *, char *));
 
 __END_DECLS
 

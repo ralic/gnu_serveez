@@ -1,3 +1,11 @@
+2002-07-31  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/*.scm: Replaced every occurrence of 
+	`primitive-load' by `serveez-load'.
+
+	* guile-server.c (guile_server_state_set_x,
+	guile_server_state_ref): Bugfix: Was not able to store `0'.
+
 2002-07-29  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm (serveez-doc-add!): Add the documentation-files
