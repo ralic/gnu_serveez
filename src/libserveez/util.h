@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.5 2001/04/01 13:32:30 ela Exp $
+ * $Id: util.h,v 1.6 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -88,15 +88,31 @@ SERVEEZ_API char *svz_tolower __P ((char *str));
 SERVEEZ_API char *svz_sys_version __P ((void));
 SERVEEZ_API const char *svz_hstrerror __P ((void));
 
-/* char pointer to integer casts, needed for aligned architectures */
+/*
+ * Convert the byte array pointed to by @var{p} to a signed 32 bit integer. 
+ * This is needed on aligned architectures where a plain type cast ends up 
+ * in a fatal bus error.
+ */
 #define INT32(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
   ((unsigned char) *(p + 2) << 16) | ((signed char) *(p + 3) << 24))
+
+/*
+ * Convert the byte array pointed to by @var{p} to a signed 16 bit integer.
+ */
 #define INT16(p) \
   ((unsigned char) *p | ((signed char) *(p + 1) << 8))
+
+/*
+ * Convert the byte array pointed to by @var{p} to an unsigned 32 bit integer.
+ */
 #define UINT32(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
   ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24))
+
+/*
+ * Convert the byte array pointed to by @var{p} to an unsigned 16 bit integer.
+ */
 #define UINT16(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8))
 

@@ -46,8 +46,8 @@ and ident lookups.
 Requirements
 ============
 
-Serveez needs Martin Grabmueller's sizzle language. This version is known
-to work with sizzle-0.0.27 and later.
+Serveez needs GNU guile (Ubiquitous Intelligent Language for Extensions). 
+This current version is known to work Guile 1.4 and later.
 
 
 Installation
@@ -65,10 +65,9 @@ $ cd serveez-<version>
 Configure the source package for your system:
 We recommend to use --enable-opt unless you have a good reason not to do so.
 
-$ ./configure --enable-opt --with-sizzle=../sizzle-<version>
+$ ./configure --enable-opt
 
-The latter option specifies the path to the sizzle source distribution.
-Now, compile the package:
+Now compile the package:
 
 $ make
   

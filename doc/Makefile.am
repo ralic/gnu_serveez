@@ -29,46 +29,44 @@ man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 	logo.jpg logosmall.jpg serveez-api.texi.in
 CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* \
-	serveez-api.texi $(SED_FILE)
+	serveez-api.texi $(SED_FILE) $(HTML_DIR)/*.html
 MAINTAINERCLEANFILES = Makefile.in
-PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
-	../TODO ../BUGS ../NEWS *.jpg
-PACK_DIR = ./pack
-DOC_DIRS = $(top_srcdir)/src/libserveez
-DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c         \
-  tcp-socket.c alloc.c sparsevec.c hash.c util.c vector.c socket.c        \
-  server-core.c server-loop.c server-socket.c boot.c interface.c          \
+DOC_DIRS = $(top_srcdir)/src/libserveez \
+  $(top_srcdir)/src/libserveez/coserver
+DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
+  tcp-socket.c alloc.c sparsevec.c hash.c util.c vector.c socket.c \
+  server-core.c server-loop.c server-socket.c boot.c interface.c \
   dynload.c windoze.c snprintf.c server.c core.c array.c hash.h binding.c \
-  portcfg.c array.h coserver/coserver.c coserver/coserver.h vector.h      \
-  portcfg.h
+  portcfg.c array.h coserver.c coserver.h vector.h portcfg.h server-core.h \
+  socket.h alloc.h server.h util.h
 SED_FILE = serveez-api.sed
-HTML_DIR = html_chapter
+HTML_DIR = manual
+SITE_DIR = $(top_srcdir)/../serveez-site
+TEXI2HTML = texi2html
+SED = sed
+MKDIR = mkdir -p
+CP = cp
+RM = rm
+SITE_FILES = serveez.en.html index.html *.jpg
+MANUAL_FILES = $(top_srcdir)/src/ChangeLog \
+  $(top_srcdir)/src/libserveez/ChangeLog \
+  $(top_srcdir)/README $(top_srcdir)/README-Win32 $(top_srcdir)/TODO \
+  $(top_srcdir)/BUGS $(top_srcdir)/NEWS
+
 
 # local dependencies
 
 distclean-local:
-	rm -rf *\~ *.orig *.rej $(HTML_DIR)/
+	$(RM) -rf *\~ *.orig *.rej $(HTML_DIR)/
 
-all-local: serveez.html serveez-api.html
+all-local: $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
 
 dist-hook:
-	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
+	$(RM) -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
 		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi
 
-pack: serveez.html serveez-api.html
-	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
-	@mkdir $(PACK_DIR)
-	for file in $(PACK_FILES); do \
-		cp -pf $$file $(PACK_DIR) >/dev/null 2>&1; done;
-	(cd $(PACK_DIR) && \
-		tar -czf ../doc_`date +%Y%m%d_%H%M`.tgz . >/dev/null 2>&1)
-	@rm -rf $(PACK_DIR)
-
-TEXI2HTML = texi2html
-SED = sed
-
 serveez-api.texi: serveez-api.texi.in
-	rm -f $(SED_FILE)
+	$(RM) -f $(SED_FILE)
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
@@ -77,7 +75,16 @@ serveez-api.texi: serveez-api.texi.in
 	done
 	$(SED) -f $(SED_FILE) < $< > $@
 
-%.html: %.texi
+site: all-local serveez.info
+	test ! -d $(SITE_DIR) || $(RM) -rf $(SITE_DIR)
+	@$(MKDIR) $(SITE_DIR)
+	$(CP) -p serveez.en.html logo.jpg $(SITE_DIR)
+	$(CP) -rp $(HTML_DIR) $(SITE_DIR)
+	$(CP) -p index.html logosmall.jpg $(SITE_DIR)/$(HTML_DIR)
+	$(CP) -p serveez.info $(SITE_DIR)/$(HTML_DIR)
+	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
+
+$(HTML_DIR)/%.html: %.texi
 	$(TEXI2HTML) -subdir $(HTML_DIR) -split_chapter $<
 
 %.info: %.texi

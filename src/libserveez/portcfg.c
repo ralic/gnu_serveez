@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.9 2001/05/04 17:43:39 ela Exp $
+ * $Id: portcfg.c,v 1.10 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -204,7 +204,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
     {
       svz_vector_foreach (svz_interfaces, ifc, n)
 	{
-	  port = svz_portcfg_copy (this);
+	  port = svz_portcfg_dup (this);
 	  addr = svz_portcfg_addr (port);
 	  addr->sin_addr.s_addr = ifc->ipaddr;
 	  svz_portcfg_set_ipaddr (port, 
@@ -215,7 +215,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
   /* No, just add the given port configuration. */
   else
     {
-      port = svz_portcfg_copy (this);
+      port = svz_portcfg_dup (this);
       svz_array_add (ports, port);
     }
   return ports;
@@ -223,10 +223,10 @@ svz_portcfg_expand (svz_portcfg_t *this)
 
 /*
  * Make a copy of the given port configuration @var{port}. This function
- * is used in @code{svz_portcfg_expand}.
+ * is used in @code{svz_portcfg_expand()}.
  */
 svz_portcfg_t *
-svz_portcfg_copy (svz_portcfg_t *port)
+svz_portcfg_dup (svz_portcfg_t *port)
 {
   svz_portcfg_t *copy;
 
@@ -386,6 +386,24 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       err = 0;
     }
   return err;
+}
+
+/*
+ * Prepare the given port configuration @var{port}. Fill in default values
+ * for yet undefined variables.
+ */
+void
+svz_portcfg_prepare (svz_portcfg_t *port)
+{
+  if (port->proto & PROTO_TCP)
+    {
+      if (!port->tcp_backlog)
+	port->tcp_backlog = SOMAXCONN;
+    }
+  if (!port->detection_fill)
+    port->detection_fill = MAX_DETECTION_FILL;
+  if (!port->detection_wait)
+    port->detection_wait = MAX_DETECTION_WAIT;
 }
 
 /*

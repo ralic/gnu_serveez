@@ -1,3 +1,8 @@
+2001-05-05  [ Ela ]  <ela@lkcc.org>
+
+	* foo-server/foo-proto.c (foo_server_definition): Using new
+	DEFINE_CONFIG() macro in the definition of the server type.
+
 2001-05-04  [ Ela ]  <ela@lkcc.org>
 
 	* guile.c (guile_define_server): Delete the server instance

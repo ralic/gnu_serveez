@@ -1,3 +1,20 @@
+2001-05-05  [ Ela ]  <ela@lkcc.org>
+
+	* portcfg.c (svz_portcfg_prepare): New function.
+	(svz_portcfg_dup): Renamed from `svz_portcfg_copy'.
+
+	* socket.c (sock_detect_proto): Using `detection_fill' value
+	of the parents port configuration.
+	(sock_idle_protect): Using `detection_wait' value of the parents 
+	port configuration.
+
+	* util.h: Documented the INT*() macros.
+
+	* alloc.h (svz_free_and_zero): Documented this macro.
+
+	* server.h (DEFINE_CONFIG): New macro. Addionally documented 
+	the REGISTER_*() macros.
+
 2001-05-04  [ Ela ]  <ela@lkcc.org>
 
 	* server.c (svz_server_configure): Stating what kind of

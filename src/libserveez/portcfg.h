@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.9 2001/04/28 12:37:06 ela Exp $
+ * $Id: portcfg.h,v 1.10 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -202,8 +202,9 @@ SERVEEZ_API svz_portcfg_t *svz_portcfg_get __P ((char *));
 SERVEEZ_API void svz_portcfg_destroy __P ((svz_portcfg_t *port));
 SERVEEZ_API void svz_portcfg_finalize __P ((void));
 SERVEEZ_API int svz_portcfg_mkaddr __P ((svz_portcfg_t *this));
+SERVEEZ_API void svz_portcfg_prepare __P ((svz_portcfg_t *port));
 SERVEEZ_API void svz_portcfg_print __P ((svz_portcfg_t *this, FILE *stream));
-SERVEEZ_API svz_portcfg_t *svz_portcfg_copy __P ((svz_portcfg_t *port));
+SERVEEZ_API svz_portcfg_t *svz_portcfg_dup __P ((svz_portcfg_t *port));
 SERVEEZ_API svz_array_t *svz_portcfg_expand __P ((svz_portcfg_t *this));
 SERVEEZ_API int svz_portcfg_set_ipaddr __P ((svz_portcfg_t *, char *));
 

@@ -1,7 +1,7 @@
 -- 
 -- README-alpha
 --
--- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
@@ -33,7 +33,7 @@ source code, keep going and give it a try.
 Further documentation may be found in the files README, INSTALL and in
 the directory doc.
 
-Please note that due to changing APIs we may rely on a specific sizzle
+Please note that due to changing APIs we may rely on a specific guile
 version. Check README to find out which version we want.
 
 Happy hacking!

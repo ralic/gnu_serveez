@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.11 2001/05/04 17:43:39 ela Exp $
+ * $Id: server.h,v 1.12 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -147,12 +147,11 @@ typedef struct
 }
 svz_server_config_t;
 
-/*
- * Helper macros for filling the config prototypes.
- */
+/* Constants for the @var{defaultable} argument. */
 #define DEFAULTABLE     1
 #define NOTDEFAULTABLE  0
 
+/* Configuration item identifier. */
 #define ITEM_END      0
 #define ITEM_INT      1
 #define ITEM_INTARRAY 2
@@ -161,6 +160,14 @@ svz_server_config_t;
 #define ITEM_HASH     5
 #define ITEM_PORTCFG  6
 
+/*
+ * Macro for defining the example server configuration @var{config} and its
+ * configuration items @var{prototypes} within a server type definition.
+ */
+#define DEFINE_CONFIG(config, prototypes) \
+  &(config), sizeof (config), (prototypes)
+
+/* Return a text representation of an item. */
 #define ITEM_TEXT(i)                                  \
   ((i) == ITEM_INT) ? "integer" :                     \
   ((i) == ITEM_INTARRAY) ? "integer array" :          \
@@ -170,47 +177,51 @@ svz_server_config_t;
   ((i) == ITEM_PORTCFG) ? "port configuration" : NULL
 
 /*
- * A simple integer.
+ * Register a simple integer. C-type: @code{int}. The given @var{name} 
+ * specifies the symbolic name of the integer and @var{item} the integer 
+ * itself (not its address). The @var{defaultable} argument can be either 
+ * @code{DEFAULTABLE} or @code{NOTDEFAULTABLE}.
  */
-#define REGISTER_INT(name, address, defaultable) \
-  { ITEM_INT, name, defaultable, &address }
+#define REGISTER_INT(name, item, defaultable) \
+  { ITEM_INT, (name), (defaultable), &(item) }
 
 /*
- * An integer array:
- * [0] is length, followed by integers.
+ * Register an array of integers. C-type: @code{svz_array_t *}.
  */
-#define REGISTER_INTARRAY(name, address, defaultable) \
-  { ITEM_INTARRAY, name, defaultable, &(address) }
+#define REGISTER_INTARRAY(name, item, defaultable) \
+  { ITEM_INTARRAY, (name), (defaultable), &(item) }
 
 /*
- * A string (char *).
+ * Register a simple charachter string. C-type: @code{char *}.
  */
-#define REGISTER_STR(name, address, defaultable) \
-  { ITEM_STR, name, defaultable, &(address) }
+#define REGISTER_STR(name, item, defaultable) \
+  { ITEM_STR, (name), (defaultable), &(item) }
 
 /*
- * A string array, NULL terminated list of pointers.
+ * Register a string array. C-type: @code{svz_array_t *}.
  */
-#define REGISTER_STRARRAY(name, address, defaultable) \
-  { ITEM_STRARRAY, name, defaultable, &(address) }
+#define REGISTER_STRARRAY(name, item, defaultable) \
+  { ITEM_STRARRAY, (name), (defaultable), &(item) }
 
 /*
- * A hash table associating strings with strings.
+ * Register a hash table associating strings with strings only. C-type:
+ * @code{svz_hash_t *}.
  */
-#define REGISTER_HASH(name, address, defaultable) \
-  { ITEM_HASH, name, defaultable, &(address) }
+#define REGISTER_HASH(name, item, defaultable) \
+  { ITEM_HASH, (name), (defaultable), &(item) }
 
 /*
- * A port configuration.
+ * Register a port configuration. C-type: @code{svz_portcgf_t *}.
  */
-#define REGISTER_PORTCFG(name, address, defaultable) \
-  { ITEM_PORTCFG, name, defaultable, &(address) }
+#define REGISTER_PORTCFG(name, item, defaultable) \
+  { ITEM_PORTCFG, (name), (defaultable), &(item) }
 
 /*
- * Dummy for terminating the list.
+ * This macro indicates the end of the list of configuration items. It is
+ * the only mandatory item you need to specify in an example configuration.
  */
 #define REGISTER_END() \
-  { ITEM_END, NULL, 0, NULL }
+  { ITEM_END, NULL, DEFAULTABLE, NULL }
 
 __BEGIN_DECLS
 

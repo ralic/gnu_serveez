@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.5 2001/04/21 16:24:24 ela Exp $
+ * $Id: alloc.h,v 1.6 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -29,6 +29,10 @@
 
 #include "libserveez/defines.h"
 
+/*
+ * Free the memory block pointed to by @var{var} and set it to @code{NULL}
+ * then.
+ */
 #define svz_free_and_zero(var) \
   do { svz_free (var); (var) = NULL; } while (0)
 

@@ -1,3 +1,22 @@
+2001-05-05  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-api.texi.in (Utility functions): Added the INI*()
+	macros.
+
+	* Makefile.am: New target `site' which copies the GNU website
+	to the directory SITE_DIR. Dropped the `pack' target.
+
+	* serveez.en.html: Changed manual link.
+
+	* serveez-api.texi.in: Updated whole API description.
+	(PortConfig): Added some words about port configurations.
+
+	* serveez.en.html: Added link to Guile home page (replaced with
+	Sizzle's link).
+
+	* serveez.texi (Porting issues): Removed most references to 
+	Sizzle and added some comments about Guile.
+
 2001-04-27  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (distclean-local): Deleting the HTML-directory.

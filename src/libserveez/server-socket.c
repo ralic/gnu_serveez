@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.8 2001/05/02 22:18:48 ela Exp $
+ * $Id: server-socket.c,v 1.9 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -145,8 +145,7 @@ svz_server_create (svz_portcfg_t *port)
       /* Prepare for listening on that port (if TCP). */
       if (port->proto & PROTO_TCP)
 	{
-	  if (listen (server_socket, 
-		      port->tcp_backlog ? port->tcp_backlog : SOMAXCONN) < 0)
+	  if (listen (server_socket, port->tcp_backlog) < 0)
 	    {
 	      log_printf (LOG_ERROR, "listen: %s\n", NET_ERROR);
 	      if (closesocket (server_socket) < 0)

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.6 2001/04/28 12:37:06 ela Exp $
+ * $Id: util.c,v 1.7 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -508,10 +508,10 @@ svz_syserror (int nr)
 
 /*
  * This variable contains the the runtime detected Win32 version. Its value
- * is setup in @code{svz_version()}.
- * 0 - Windows 3.x     1 - Windows 95      2 - Windows 98
- * 3 - Windows NT 3.x  4 - Windows NT 4.x  5 - Windows 2000
- * 6 - Windows ME
+ * is setup in @code{svz_version()} and can be @code{Win32s} for Windows 3.x,
+ * @code{Win95} for Windows 95, @code{Win98} for Windows 98, @code{WinNT3x}
+ * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
+ * Windows 2000 and @code{WinME} for Windows ME.
  */
 int svz_os_version = 0;
 

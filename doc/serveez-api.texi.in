@@ -91,10 +91,13 @@ SVZ_MALLOC_DEFUN
 SVZ_CALLOC_DEFUN
 SVZ_REALLOC_DEFUN
 SVZ_FREE_DEFUN
+SVZ_FREE_AND_ZERO_DEFMAC
 SVZ_STRDUP_DEFUN
+
 SVZ_PMALLOC_DEFUN
 SVZ_PREALLOC_DEFUN
 SVZ_PSTRDUP_DEFUN
+
 SVZ_HEAP_DEFUN
 
 @node Data structures, Utility functions, Memory management, Embedding API
@@ -123,9 +126,9 @@ SVZ_ARRAY_ADD_DEFUN
 SVZ_ARRAY_DEL_DEFUN
 SVZ_ARRAY_CAPACITY_DEFUN
 SVZ_ARRAY_SIZE_DEFUN
-SVZ_ARRAY_CONTAINS_DEFUN
-SVZ_ARRAY_IDX_DEFUN
 SVZ_ARRAY_INS_DEFUN
+SVZ_ARRAY_IDX_DEFUN
+SVZ_ARRAY_CONTAINS_DEFUN
 SVZ_ARRAY_FOREACH_DEFMAC
 
 @node Hashtable, Sparsevector, Array, Data structures
@@ -206,6 +209,12 @@ SVZ_ERRNO_DEFVAR
 
 LOG_PRINTF_DEFUN
 LOG_SET_FILE_DEFUN
+
+INT16_DEFMAC
+INT32_DEFMAC
+UINT16_DEFMAC
+UINT32_DEFMAC
+
 SVZ_HEXDUMP_DEFUN
 SVZ_ITOA_DEFUN
 SVZ_ATOI_DEFUN
@@ -319,6 +328,8 @@ SOCK_DETECT_PROTO_DEFUN
 SOCK_CHECK_REQUEST_DEFUN
 SOCK_IDLE_PROTECT_DEFUN
 SOCK_FLOOD_PROTECT_DEFUN
+SOCK_REDUCE_RECV_DEFMAC
+SOCK_REDUCE_SEND_DEFMAC
 
 @node Coserver, Server, Socket, Embedding API
 @section Coserver functions
@@ -343,6 +354,20 @@ SVZ_COSERVER_IDENT_DEFMAC
 @node Server, ServerCore, Coserver, Embedding API
 @section Server functions
 
+When specifying a server type you also need to define configuration items
+for it. These items refer to addresses in the example configuration of the
+server type. The following macro can be used to determine these items.
+
+REGISTER_INT_DEFMAC
+REGISTER_INTARRAY_DEFMAC
+REGISTER_STR_DEFMAC
+REGISTER_STRARRAY_DEFMAC
+REGISTER_HASH_DEFMAC
+REGISTER_PORTCFG_DEFMAC
+REGISTER_END_DEFMAC
+
+DEFINE_CONFIG_DEFMAC
+
 SVZ_SERVERTYPES_DEFVAR
 SVZ_SERVERTYPE_ADD_DEFUN
 SVZ_SERVERTYPE_DEL_DEFUN
@@ -361,9 +386,21 @@ SVZ_SERVER_NOTIFIERS_DEFUN
 SVZ_SERVER_INIT_ALL_DEFUN
 SVZ_SERVER_FINALIZE_ALL_DEFUN
 
-SERVER_PORTCFG_EQUAL_DEFUN
-SERVER_START_DEFUN
-SERVER_BIND_DEFUN
+SVZ_SERVER_BIND_DEFUN
+SVZ_SERVER_PORTCFG_DEFUN
+SVZ_SERVER_BINDINGS_DEFUN
+
+SVZ_SERVER_FREE_DEFUN
+SVZ_CONFIG_FREE_DEFUN
+SVZ_CONFIG_INTARRAY_CREATE_DEFUN
+SVZ_CONFIG_INTARRAY_DESTROY_DEFUN
+SVZ_CONFIG_INTARRAY_DUP_DEFUN
+SVZ_CONFIG_STRARRAY_CREATE_DEFUN
+SVZ_CONFIG_STRARRAY_DESTROY_DEFUN
+SVZ_CONFIG_STRARRAY_DUP_DEFUN
+SVZ_CONFIG_HASH_CREATE_DEFUN
+SVZ_CONFIG_HASH_DESTROY_DEFUN
+SVZ_CONFIG_HASH_DUP_DEFUN
 
 @node ServerCore, ServerLoop, Server, Embedding API
 @section Server core
@@ -379,6 +416,11 @@ SOCK_SCHEDULE_FOR_SHUTDOWN_DEFUN
 SOCK_ENQUEUE_DEFUN
 SOCK_DEQUEUE_DEFUN
 SOCK_SHUTDOWN_ALL_DEFUN
+SOCK_SETPARENT_DEFUN
+SOCK_GETPARENT_DEFUN
+SOCK_PORTCFG_DEFUN
+SVZ_SOCK_FOREACH_DEFMAC
+
 SERVER_CHECK_BOGUS_DEFUN
 SERVER_PERIODIC_TASKS_DEFUN
 SERVER_LOOP_DEFUN
@@ -395,12 +437,25 @@ SERVER_CHECK_SOCKETS_DEFUN
 @node ServerSocket, PortConfig, ServerLoop, Embedding API
 @section Server sockets
 
-SERVER_CREATE_DEFUN
+SVZ_SERVER_CREATE_DEFUN
 SERVER_ACCEPT_SOCKET_DEFUN
 SERVER_ACCEPT_PIPE_DEFUN
 
 @node PortConfig, Booting, ServerSocket, Embedding API
 @section Port configurations
+
+A port configuration is a structure defining a network or filesystem
+configuration. Depending on the type of a server it can be bound to one
+or more port configurations. There are two major types of port 
+configurations: connection and packet oriented protocol port configurations.
+TCP and PIPE configurations are connection oriented and ICMP, UDP and 
+RAW configurations are packet oriented.
+
+Serveez holds a list of port configurations. Each configuration is 
+identified by its name. When you bind a server to a port configuration it
+does not get bound to a certain name but to its content. If there are two
+or more port configuration specifying the same network or filesystem 
+configuration just a single one gets actually used.
 
 SVZ_PORTCFG_EQUAL_DEFUN
 SVZ_PORTCFG_ADD_DEFUN
@@ -409,12 +464,15 @@ SVZ_PORTCFG_GET_DEFUN
 SVZ_PORTCFG_DESTROY_DEFUN
 SVZ_PORTCFG_FINALIZE_DEFUN
 SVZ_PORTCFG_MKADDR_DEFUN
+SVZ_PORTCFG_PREPARE_DEFUN
 SVZ_PORTCFG_PRINT_DEFUN
-SVZ_PORTCFG_COPY_DEFUN
+SVZ_PORTCFG_DUP_DEFUN
 SVZ_PORTCFG_EXPAND_DEFUN
 SVZ_PORTCFG_ADDR_DEFMAC
 SVZ_PORTCFG_PORT_DEFMAC
 SVZ_PORTCFG_CREATE_DEFMAC
+SVZ_PORTCFG_IPADDR_DEFMAC
+SVZ_PORTCFG_SET_IPADDR_DEFUN
 
 @node Booting, Interface, PortConfig, Embedding API
 @section Boot functions

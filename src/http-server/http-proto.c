@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.64 2001/05/02 22:18:48 ela Exp $
+ * $Id: http-proto.c,v 1.65 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -91,8 +91,8 @@ http_config_t http_config =
 };
 
 /*
- * Definition of the configuration items processed by libsizzle (taken
- * from the config file).
+ * Definition of the configuration items processed by the configuration
+ * callbacks.
  */
 svz_key_value_pair_t http_config_prototype[] =
 {
@@ -124,7 +124,7 @@ svz_key_value_pair_t http_config_prototype[] =
 svz_servertype_t http_server_definition =
 {
   "http server",         /* long server description */
-  "http",                /* short server description (for libsizzle) */
+  "http",                /* short server description */
   http_global_init,      /* global initializer */
   http_init,             /* instance initializer */
   http_detect_proto,     /* protocol detection routine */
@@ -137,7 +137,7 @@ svz_servertype_t http_server_definition =
   NULL,                  /* handle request callback */
   &http_config,          /* default configuration */
   sizeof (http_config),  /* size of the configuration */
-  http_config_prototype  /* configuration prototypes (libsizzle) */
+  http_config_prototype  /* configuration prototypes */
 };
 
 /*

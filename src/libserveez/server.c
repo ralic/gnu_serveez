@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.14 2001/05/04 17:43:39 ela Exp $
+ * $Id: server.c,v 1.15 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -445,7 +445,7 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
 /*
  * Create an array (@code{svz_array_t}) of integers. The given integer
  * array @var{intarray} is a list of integers where its first element which
- * is @var{intarray[0]} contains the actual length of the given array.
+ * is @code{intarray[0]} contains the actual length of the given array.
  */
 svz_array_t *
 svz_config_intarray_create (int *intarray)
@@ -764,7 +764,7 @@ svz_server_configure (svz_servertype_t *server,
 		  /* Port configuration. */
 		case ITEM_PORTCFG:
 		  *(svz_portcfg_t **) target =
-		    svz_portcfg_copy (*(svz_portcfg_t **) def);
+		    svz_portcfg_dup (*(svz_portcfg_t **) def);
 		  break;
 		}
 	    }

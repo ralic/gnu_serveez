@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.7 2001/04/28 12:37:06 ela Exp $
+ * $Id: socket.c,v 1.8 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -123,9 +123,14 @@ sock_detect_proto (socket_t sock)
 {
   int n;
   svz_server_t *server;
+  svz_portcfg_t *port;
 
+  /* return if there are no servers bound to this socket */
   if (sock->data == NULL)
     return -1;
+
+  /* get port configuration of parent */
+  port = sock_portcfg (sock);
 
   /* go through each server stored in the data field of this socket */
   svz_array_foreach (sock->data, server, n)
@@ -148,7 +153,7 @@ sock_detect_proto (socket_t sock)
    * Discard this socket if there were not any valid protocol
    * detected and its receive buffer fill exceeds a maximum value.
    */
-  if (sock->recv_buffer_fill > MAX_DETECTION_FILL)
+  if (sock->recv_buffer_fill > port->detection_fill)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
@@ -167,7 +172,9 @@ sock_detect_proto (socket_t sock)
 int
 sock_idle_protect (socket_t sock)
 {
-  if (time (NULL) - sock->last_recv > MAX_DETECTION_WAIT)
+  svz_portcfg_t *port = sock_portcfg (sock);
+
+  if (time (NULL) - sock->last_recv > port->detection_wait)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "socket id %d detection failed\n", sock->id);

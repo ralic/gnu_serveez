@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.30 2001/04/28 12:37:06 ela Exp $
+ * $Id: irc-proto.c,v 1.31 2001/05/05 15:45:51 ela Exp $
  *
  */
 
@@ -101,7 +101,7 @@ irc_config_t irc_config =
 };
 
 /*
- * Definition of the configuration items processed by sizzle.
+ * Definition of the configuration items.
  */
 svz_key_value_pair_t irc_config_prototype[] =
 {
