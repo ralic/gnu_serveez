@@ -1,3 +1,8 @@
+2001-07-28  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Embedded servers): Started to document how to
+	write server modules with serveez.
+
 2001-07-19  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Writing servers): Splitted this section into

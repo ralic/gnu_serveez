@@ -522,8 +522,47 @@ This section describes each of the above possibilities in detail.
 @node Embedded servers, Guile servers, , Writing servers
 @subsection Embedded servers
 
+The core library of serveez can be used to write standalone server modules.
+Serveez defines a certain interface for shared libraries which contain
+such server modules. If serveez detects an unknown server type (server type
+which is not builtin) in its configuration file it tries to load a shared 
+library containing this server type during startup.
+
 @subsubsection Prerequisites
+
+In order to implement a server module you need an existing installation
+of serveez. This can be achieved issuing the following commands:
+
+@example
+$ ./configure --enable-shared --prefix=/usr/local
+$ make
+$ make install
+@end example
+
+After successful installation you are able to compile and link against the
+serveez core API. The headers should be available in @file{/usr/local/include}
+and the library itself (@file{libserveez.so} or @file{libserveez.dll}) is 
+located in @file{/usr/local/lib} if you passed the configure script
+@samp{--prefix=/usr/local}.
+
 @subsubsection Server definition
+
+The interface mentioned in the introduction is defined via the extern 
+declaration of the server type in the shared library of the server module. 
+Imagine you want to implement a server type called @samp{foo}. This requires
+the external symbol @code{foo_server_definition} in the shared library.
+You can achieve this inserting the following lines into your header file:
+
+@example
+/* Either Unices. */
+extern svz_servertype_t foo_server_definition;
+
+/* Or Windows. */
+__declspec (dllexport) extern svz_servertype_t foo_server_definition;
+@end example
+
+The data symbol @code{foo_server_definition} must be statically filled with
+the proper content (@xref{Builtin servers}.)
 
 @node Guile servers, Builtin servers, Embedded servers, Writing servers
 @subsection Guile servers
@@ -532,6 +571,12 @@ This section describes each of the above possibilities in detail.
 
 @node Builtin servers, , Guile servers, Writing servers
 @subsection Builtin servers
+
+All of the servers listed in @ref{Existing servers} are builtin servers.
+The following sections describe in detail how to setup a new builtin server
+type. This kind of server will be part of the serveez executable. That is
+why you should make it configurable in the configure script via a 
+@samp{--enable-xxxserver} argument.
 
 @subsubsection Making and configuring preparations
 

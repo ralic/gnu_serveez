@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.1 2001/07/19 13:50:42 ela Exp $
+ * $Id: guile-bin.c,v 1.2 2001/07/28 15:25:26 ela Exp $
  *
  */
 
@@ -66,8 +66,8 @@ static long guile_bin_tag = 0;
 #define MAKE_BIN_SMOB() \
   ((guile_bin_t *) scm_must_malloc (sizeof (guile_bin_t), "svz-binary"))
 
-/* Smob test function: Returns #t if the given cell @var{binary} is an
-   instance of the binary smob type. */
+/* Smob test function: Returns @code{#t} if the given cell @var{binary} is 
+   an instance of the binary smob type. */
 #define FUNC_NAME "binary?"
 static SCM
 guile_bin_p (SCM binary)
@@ -167,14 +167,14 @@ guile_bin_to_string (SCM binary)
 
 /* This routine searches through the binary smob @var{binary} for the cell
    @var{needle}. The latter argument can be either a number, character,
-   string or another binary smob. It returns -1 if the needle could not be
-   found and a positive number indicates the position of the first 
+   string or another binary smob. It returns @code{#f} if the needle could 
+   not be found and a positive number indicates the position of the first 
    occurrence of @var{needle} in the binary smob @var{binary}. */
 #define FUNC_NAME "binary-search"
 SCM
 guile_bin_search (SCM binary, SCM needle)
 {
-  SCM ret = gh_int2scm (-1);
+  SCM ret = SCM_BOOL_F;
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
@@ -232,7 +232,8 @@ guile_bin_search (SCM binary, SCM needle)
 #undef FUNC_NAME
 
 /* Set the byte at position @var{index} of the binary smob @var{binary} to
-   the value given in @var{value}. */
+   the value given in @var{value} which can be either a character or a 
+   number. */
 #define FUNC_NAME "binary-set!"
 SCM
 guile_bin_set_x (SCM binary, SCM index, SCM value)
@@ -242,7 +243,8 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   SCM_ASSERT_TYPE (gh_number_p (index), index, SCM_ARG2, FUNC_NAME, "number");
-  SCM_ASSERT_TYPE (gh_char_p (value), value, SCM_ARG3, FUNC_NAME, "char");
+  SCM_ASSERT_TYPE (gh_number_p (value) || gh_char_p (value), 
+		   value, SCM_ARG3, FUNC_NAME, "char or number");
 
   /* Check the range of the index argument. */
   idx = gh_scm2int (index);
@@ -291,7 +293,7 @@ guile_bin_length (SCM binary)
    smob @var{binary}. If @var{binary} has been a simple data pointer
    reference it is then a standalone binary smob as returned by
    @code{string->binary}. */
-#define FUNC_NAME "binary-concat"
+#define FUNC_NAME "binary-concat!"
 SCM
 guile_bin_concat (SCM binary, SCM append)
 {
@@ -331,9 +333,9 @@ guile_bin_concat (SCM binary, SCM append)
 
 /* Create a subset binary smob from the given binary smob @var{binary}. The
    range of this subset is specified by @var{start} and @var{end} both
-   inclusive (thus the resulting size is = end - start + 1). With a single
-   exception: If @var{end} is specified with -1 the routine returns all
-   data until the end of @var{binary}. */
+   inclusive (thus the resulting size is = @var{end} - @var{start} + 1). 
+   With a single exception: If @var{end} is not given or specified with -1 
+   the routine returns all data until the end of @var{binary}. */
 #define FUNC_NAME "binary-subset"
 SCM
 guile_bin_subset (SCM binary, SCM start, SCM end)
@@ -343,10 +345,11 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   SCM_ASSERT_TYPE (gh_number_p (start), start, SCM_ARG2, FUNC_NAME, "number");
-  SCM_ASSERT_TYPE (gh_number_p (end), end, SCM_ARG3, FUNC_NAME, "number");
+  SCM_ASSERT_TYPE (gh_number_p (end) || SCM_UNDEFINED, end, SCM_ARG3, 
+		   FUNC_NAME, "number");
 
   from = gh_scm2int (start);
-  to = gh_scm2int (end);
+  to = end == SCM_UNDEFINED ? -1 : gh_scm2int (end);
   if (to == -1)
     to = bin->size - 1;
 
@@ -476,8 +479,8 @@ guile_bin_init (void)
   gh_new_procedure ("binary-set!", guile_bin_set_x, 3, 0, 0);
   gh_new_procedure ("binary-ref", guile_bin_ref, 2, 0, 0);
   gh_new_procedure ("binary-length", guile_bin_length, 1, 0, 0);
-  gh_new_procedure ("binary-concat", guile_bin_concat, 2, 0, 0);
-  gh_new_procedure ("binary-subset", guile_bin_subset, 3, 0, 0);
+  gh_new_procedure ("binary-concat!", guile_bin_concat, 2, 0, 0);
+  gh_new_procedure ("binary-subset", guile_bin_subset, 2, 1, 0);
 }
 
 #else /* not ENABLE_GUILE_SERVER */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.11 2001/07/20 12:23:51 ela Exp $
+ * $Id: guile-server.c,v 1.12 2001/07/28 15:25:26 ela Exp $
  *
  */
 
@@ -687,7 +687,7 @@ guile_server_config_get (SCM server, SCM key)
   if (CHECK_SMOB (svz_socket, server))
     {
       xsock = GET_SMOB (svz_socket, server);
-      xserver = svz_server_find (xsock);
+      xserver = svz_server_find (xsock->cfg);
     }
   else
     xserver = GET_SMOB (svz_server, server);

@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.8 2001/07/20 11:07:12 ela Exp $
+;; $Id: echo-server.scm,v 1.9 2001/07/28 15:25:26 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -66,15 +66,16 @@
 
 (define (echo-handle-request sock request len)
   (define ret '())
-  (if (and (>= (binary-length request) 4) (= 0 (binary-search request "quit")))
-    (set! ret -1)
+  (let ((idx (binary-search request "quit")))
+    (if (and idx (= idx 0))
+	(set! ret -1)
     (begin
-      (svz:sock:print sock (binary-concat (string->binary "Echo: ") request))
+      (svz:sock:print sock (binary-concat! (string->binary "Echo: ") request))
       (set! ret 0)))
-  ret)
+    ret))
 
 (define (echo-connect-socket server sock)
-  (define hello "Hello, type `quit' to end the connection.\n")
+  (define hello "Hello, type `quit' to end the connection.\r\n")
   (println "Running connect socket.")
   (svz:sock:boundary sock "\n")
   (svz:sock:handle-request sock echo-handle-request)

@@ -19,11 +19,17 @@
 
 Here are listed all the hackers who helped creating this package:
 
+John Fitzgerald <jcf@wave.co.nz> for giving an idea about ASN.1 (Abstract
+	Syntax Notation One), PDU (Protocol Data Unit) and LER (List 
+	Encoding Rule) resulting in the "Binary Smob".
+
 Martin Grabmueller <mgrabmue@cs.tu-berlin.de> for writing the initial
 	version and keep accepting bug report and patches for Sizzle
 	which we were using for configuration file parsing.
 	Thanks for giving information about how to embed Guile into
 	Serveez and use it as configuration file parser.
+	Also for implementing the guile servers and helping to convince
+	the guile people keeping the guile distribution portable to Win32.
 
 Martin Rother <m.rother@berlin.de> for supplying working Windows
 	installations (2k, NT and 98) and testing on these platforms.

@@ -1,3 +1,16 @@
+2001-07-28  [ Ela ]  <ela@lkcc.org>
+
+	* eval-server.scm (prefix): Made prompt, quit command and
+	greeting message configurable.
+
+	* guile-bin.c (guile_bin_search): Returns #f on failure now.
+	(guile_bin_set_x): Allow numbers as "value" argument.
+	(guile_bin_concat): Renamed this procedure to "binary-concat!" 
+	because it has a side effect on the argument.
+	(guile_bin_subset): Made the "end" argument optional. The 
+	procedure returns all data until the end of the smob if this
+	argument is missing.
+
 2001-07-20  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_sock_check_request): Setter for

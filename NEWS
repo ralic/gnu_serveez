@@ -28,6 +28,9 @@ files.
 Version 0.1.1
 -------------
 
+ * Guile server examples
+ * Guile servers can be enabled via --enable-guile-server
+ * loadable server modules
 
 Version 0.1.0
 -------------
