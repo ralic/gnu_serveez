@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.10 2001/07/20 11:07:12 ela Exp $
+ * $Id: guile-server.c,v 1.11 2001/07/20 12:23:51 ela Exp $
  *
  */
 
@@ -602,6 +602,27 @@ guile_sock_receive_buffer (SCM sock)
 }
 #undef FUNC_NAME
 
+/* Associate any kind of data (any guile data type) given in the argument
+   @var{data} with the socket @var{sock}. The @var{data} argument is
+   optional. The procedure always returns a previously stored value or an 
+   empty list. */
+#define FUNC_NAME "svz:sock:data"
+SCM
+guile_sock_data (SCM sock, SCM data)
+{
+  svz_socket_t *xsock;
+  SCM ret = SCM_EOL;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+
+  if (xsock->data != NULL)
+    ret = (SCM) ((unsigned long) xsock->data);
+  if (data != SCM_UNDEFINED)
+    xsock->data = (void *) ((unsigned long) data);
+  return ret;
+}
+#undef FUNC_NAME
+
 /*
  * Convert the given value at @var{address} of the the type @var{type} into
  * a scheme cell.
@@ -1140,6 +1161,7 @@ guile_server_init (void)
 
   guile_server = svz_hash_create (4);
   guile_sock = svz_hash_create (4);
+
   gh_new_procedure ("define-servertype!", 
 		    guile_define_servertype, 1, 0, 0);
   gh_new_procedure ("svz:sock:handle-request", 
@@ -1152,6 +1174,8 @@ guile_server_init (void)
 		    guile_sock_print, 2, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer", 
 		    guile_sock_receive_buffer, 1, 0, 0);
+  gh_new_procedure ("svz:sock:data", 
+		    guile_sock_data, 1, 1, 0);
   gh_new_procedure ("svz:server:config-get", 
 		    guile_server_config_get, 2, 0, 0);
 

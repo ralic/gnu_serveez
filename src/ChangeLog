@@ -6,6 +6,7 @@
 	configuration item of a server.
 	(guile_sock_receive_buffer): Getter for the receive buffer
 	of a socket.
+	(guile_sock_data): Associate any kind of data with a socket.
 
 	* guile.c (guile_hash_to_guile): New function. Converts a
 	string hash into a scheme alist.
