@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.10 2001/12/15 13:33:38 ela Exp $
+ * $Id: prog-server.c,v 1.11 2001/12/21 15:13:30 ela Exp $
  *
  */
 
@@ -33,6 +33,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+
+#ifndef __MINGW32__
+# include <sys/types.h>
+# include <sys/socket.h>
+#endif
+
+#ifdef __MINGW32__
+# include <winsock2.h>
+#endif
 
 #include "libserveez.h"
 #include "prog-server.h"
