@@ -24,6 +24,18 @@
 This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
+Bug:	     B0015
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-09-20
+Description: The named pipes on Win32 do not work properly yet.
+
+Bug:	     B0014
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-09-20
+Description: Serveez does not run on i64 Linux.
+
 Bug:	     B0013
 From:	     ela <stefan@lkcc.org>
 State:       unfixed

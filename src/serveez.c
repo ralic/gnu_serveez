@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.13 2000/09/17 17:00:58 ela Exp $
+ * $Id: serveez.c,v 1.14 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -309,7 +309,7 @@ main (int argc, char * argv[])
   if (server_start () == -1)
     return 6;
   
-  sock_server_loop ();
+  server_loop ();
 
   /*
    * Run the finalizers

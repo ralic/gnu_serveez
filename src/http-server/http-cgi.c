@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.17 2000/09/15 08:22:51 ela Exp $
+ * $Id: http-cgi.c,v 1.18 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -82,14 +82,14 @@ http_cgi_disconnect (socket_t sock)
   /* close both of the CGI pipes if necessary */
   if (sock->pipe_desc[READ] != INVALID_HANDLE)
     {
-      if (CLOSE_HANDLE (sock->pipe_desc[READ]) == -1)
+      if (closehandle (sock->pipe_desc[READ]) == -1)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->pipe_desc[READ] = INVALID_HANDLE;
       sock->flags &= ~SOCK_FLAG_RECV_PIPE;
     }
   if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
     {
-      if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) == -1)
+      if (closehandle (sock->pipe_desc[WRITE]) == -1)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->pipe_desc[WRITE] = INVALID_HANDLE;
       sock->flags &= ~SOCK_FLAG_SEND_PIPE;
@@ -101,7 +101,7 @@ http_cgi_disconnect (socket_t sock)
    */
   if (http->pid != INVALID_HANDLE)
     {
-      if (CLOSE_HANDLE (http->pid) == -1)
+      if (closehandle (http->pid) == -1)
 	log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       http->pid = INVALID_HANDLE;
     }
@@ -834,14 +834,14 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   http->pid = pid;
 
   /* close the inherited http data handles */
-  if (CLOSE_HANDLE (out) == -1)
+  if (closehandle (out) == -1)
     {
       log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
     }
   if (type == POST_METHOD)
     {
       /* close the reading end of the pipe for the post data */
-      if (CLOSE_HANDLE (in) == -1)
+      if (closehandle (in) == -1)
 	{
 	  log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 	}

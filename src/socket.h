@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.23 2000/09/15 08:22:50 ela Exp $
+ * $Id: socket.h,v 1.24 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -132,6 +132,12 @@ struct socket
   int (* disconnected_socket) (socket_t sock);
 
   /*
+   * CONNECTED_SOCKET gets called whenever the socket is finally 
+   * connected.
+   */
+  int (* connected_socket) (socket_t sock);
+
+  /*
    * KICKED_SOCKET gets called whenever the socket gets closed by us.
    */
   int (* kicked_socket) (socket_t sock, int reason);
@@ -196,6 +202,12 @@ extern int socket_id;
  * Count the number of currently connected sockets.
  */
 extern SOCKET connected_sockets;
+
+/*
+ * Check if a given socket is still valid. Return non-zero if it is
+ * not.
+ */
+int sock_valid (socket_t sock);
 
 /*
  * Allocate a structure of type socket_t and initialize

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.h,v 1.2 2000/08/21 20:06:40 ela Exp $
+ * $Id: server-loop.h,v 1.3 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -33,15 +33,20 @@
  * Check the server and client sockets for incoming connections 
  * and data, and process outgoing data.
  */
-int check_sockets_select (void);
+int server_check_sockets_select (void);
 #if HAVE_POLL && ENABLE_POLL
-int check_sockets_poll (void);
+int server_check_sockets_poll (void);
+#endif
+#ifdef __MINGW32__
+int server_check_sockets_MinGW (void);
 #endif
 
 #if HAVE_POLL && ENABLE_POLL
-# define check_sockets() check_sockets_poll ()
+# define server_check_sockets() server_check_sockets_poll ()
+#elif defined (__MINGW32__)
+# define server_check_sockets() server_check_sockets_MinGW ()
 #else
-# define check_sockets() check_sockets_select ()
+# define server_check_sockets() server_check_sockets_select ()
 #endif
 
 #endif /* not __SERVER_LOOP_H__ */

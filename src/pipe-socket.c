@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.11 2000/09/15 08:22:50 ela Exp $
+ * $Id: pipe-socket.c,v 1.12 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -51,64 +51,109 @@
 int
 pipe_valid (socket_t sock)
 {
-  if (sock->flags & SOCK_FLAG_PIPE &&
-      sock->flags & SOCK_FLAG_CONNECTED)
-    {
-      if (sock->pipe_desc[READ] != INVALID_HANDLE && 
-	  sock->pipe_desc[WRITE] != INVALID_HANDLE)
-	{
-	  return 0;
-	}
+  if (sock->flags & SOCK_FLAG_LISTENING)
+    return 0;
+
+  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+    return -1;
+
+  if (sock->flags & SOCK_FLAG_RECV_PIPE)
+    if (sock->pipe_desc[READ] == INVALID_HANDLE)
       return -1;
-    }
+
+  if (sock->flags & SOCK_FLAG_SEND_PIPE)
+    if (sock->pipe_desc[WRITE] == INVALID_HANDLE)
+      return -1;
+
   return 0;
 }
 
 /*
  * This function is the default disconnection routine for pipe socket
- * structures. This is called via sock->disconnected_socket(). Return
- * non-zero on errors.
+ * structures. Return non-zero on errors.
  */
 int
-pipe_disconnected (socket_t sock)
+pipe_disconnect (socket_t sock)
 {
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
+      if (sock->referer)
+	{
+#ifdef __MINGW32__
+	  /* just disconnect client pipes */
+	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
+	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
+	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+#endif /* not __MINGW32__ */
+
+	  /* restart listening pipe server socket */
+	  sock->referer->flags &= ~SOCK_FLAG_INITED;
+	  sock->referer->referer = NULL;
+	}
+      else
+	{
+	  /* close both pipes */
+	  if (sock->pipe_desc[READ] != INVALID_HANDLE)
+	    if (closehandle (sock->pipe_desc[READ]) < 0)
+	      log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
+	      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	}
+
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "pipe (%d-%d) disconnected\n",
 		  sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 #endif
+
+      sock->pipe_desc[READ] = INVALID_HANDLE;
+      sock->pipe_desc[WRITE] = INVALID_HANDLE;
     }
-  else if (sock->flags & SOCK_FLAG_LISTENING)
+  
+  /* prevent a pipe server's child to reinit the pipe server */
+  if (sock->flags & SOCK_FLAG_LISTENING)
     {
+      if (sock->referer)
+	sock->referer->referer = NULL;
+
 #ifndef __MINGW32__
+
+      /* delete named pipes on file system */
       if (unlink (sock->recv_pipe) == -1)
 	log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
       if (unlink (sock->send_pipe) == -1)
 	log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
+
 #else /* __MINGW32__ */
+
+      /* disconnect and close named pipes */
       if (sock->pipe_desc[READ] != INVALID_HANDLE)
-	if (!CloseHandle (sock->pipe_desc[READ]))
-	  log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	{
+	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
+	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	  if (!CloseHandle (sock->pipe_desc[READ]))
+	    log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	}
       if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-	if (!CloseHandle (sock->pipe_desc[WRITE]))
-	  log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	{
+	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
+	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	  if (!CloseHandle (sock->pipe_desc[WRITE]))
+	    log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	}
+
+      /* free overlapped structures */
       if (sock->overlap[READ])
 	xfree (sock->overlap[READ]);
       if (sock->overlap[WRITE])
 	xfree (sock->overlap[WRITE]);
+
 #endif /* __MINGW32__ */
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "pipe listener (%s) destroyed\n",
 		  sock->send_pipe);
-#endif
-    }
-  else
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "invalid pipe id %d disconnected\n",
-		  sock->id);
 #endif
     }
 
@@ -294,7 +339,6 @@ pipe_create (HANDLE recv_fd, HANDLE send_fd)
   if ((sock = sock_alloc ()) != NULL)
     {
       sock_unique_id (sock);
-      sock->disconnected_socket = pipe_disconnected;
       sock->pipe_desc[READ] = recv_fd;
       sock->pipe_desc[WRITE] = send_fd;
       sock->flags |= (SOCK_FLAG_PIPE | SOCK_FLAG_CONNECTED);

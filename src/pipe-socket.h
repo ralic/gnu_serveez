@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.4 2000/09/12 22:14:16 ela Exp $
+ * $Id: pipe-socket.h,v 1.5 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -35,6 +35,31 @@
 #define READ  0 /* read pipe index */
 #define WRITE 1 /* write pipe index */
 
+#ifdef __MINGW32__
+
+/* pipe info structure for Win32 */
+typedef struct
+{
+  /* critical section objects for the pipe threads */
+  CRITICAL_SECTION recv_sync;
+  CRITICAL_SECTION send_sync;
+
+  /* pipe thread handles and IDs */
+  HANDLE recv_thread;
+  HANDLE send_thread;
+  DWORD recv_tid;
+  DWORD send_tid;
+}
+pipe_t;
+
+#endif /* __MINGW32__ */
+
+/*
+ * This function is for checking if a given socket is a valid pipe
+ * socket (checking both pipes). Return non-zero on errors.
+ */
+int pipe_valid (socket_t sock);
+
 /*
  * The pipe_read() function reads as much data as available on a readable
  * pipe descriptor. Return a non-zero value on errors.
@@ -49,10 +74,9 @@ int pipe_write (socket_t sock);
 
 /*
  * This function is the default disconnetion routine for pipe socket
- * structures. This is called via sock->disconnected_socket(). Return
- * no-zero on errors.
+ * structures. Return non-zero on errors.
  */
-int pipe_disconnected (socket_t sock);
+int pipe_disconnect (socket_t sock);
 
 /*
  * Create a socket structure by the two file descriptors recv_fd and

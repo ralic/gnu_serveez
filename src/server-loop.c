@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.5 2000/09/08 07:45:17 ela Exp $
+ * $Id: server-loop.c,v 1.6 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -53,12 +53,14 @@
 #include "server-core.h"
 #include "server-loop.h"
 
+#ifndef __MINGW32__
+
 /*
  * Check the server and client sockets for incoming connections 
  * and data, and process outgoing data.
  */
 int
-check_sockets_select (void)
+server_check_sockets_select (void)
 {
   int nfds;			/* count of file descriptors to check */
   fd_set read_fds;		/* bitmasks for file descriptors to check */
@@ -93,7 +95,6 @@ check_sockets_select (void)
 	      sock_schedule_for_shutdown (sock);
 	}
 
-#ifndef __MINGW32__
       /* Handle pipes. */
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
@@ -128,8 +129,7 @@ check_sockets_select (void)
 	    }
 	}
 
-#endif /* not __MINGW32__ */
-
+      /* Handle sockets. */
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
 	  /* Is the socket descriptor currently unavailable ? */
@@ -140,16 +140,21 @@ check_sockets_select (void)
 	    }
 
 	  /* Put every client's socket into EXCEPT and READ. */
-	  FD_SET (sock->sock_desc, &except_fds);
-	  FD_SET (sock->sock_desc, &read_fds);
-	  if (sock->sock_desc > (SOCKET)nfds)
-	    nfds = sock->sock_desc;
+	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
+	    {
+	      FD_SET (sock->sock_desc, &except_fds);
+	      FD_SET (sock->sock_desc, &read_fds);
+	      if (sock->sock_desc > (SOCKET) nfds)
+		nfds = sock->sock_desc;
+	    }
 
 	  /* Put a socket into WRITE if necessary and possible. */
-	  if (!sock->unavailable)
+	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
+				     sock->flags & SOCK_FLAG_CONNECTING))
 	    {
-	      if (sock->send_buffer_fill > 0)
-		FD_SET (sock->sock_desc, &write_fds);
+	      FD_SET (sock->sock_desc, &write_fds);
+	      if (sock->sock_desc > (SOCKET) nfds)
+		nfds = sock->sock_desc;
 	    }
 	}
     }
@@ -159,7 +164,7 @@ check_sockets_select (void)
   /*
    * Adjust timeout value, so we won't wait longer than we want.
    */
-  wait.tv_sec = next_notify_time - time (NULL);
+  wait.tv_sec = server_notify - time (NULL);
   if (wait.tv_sec < 0) wait.tv_sec = 0;
   wait.tv_usec = 0;
 
@@ -168,13 +173,8 @@ check_sockets_select (void)
       if (nfds < 0)
 	{
 	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
-#ifdef __MINGW32__
-	  /* FIXME: What value do we choose here ? */
-	  if (last_errno != 0)
-#else
 	  if (errno == EBADF)
-#endif
-	    check_bogus_sockets ();
+	    server_check_bogus ();
 	  return -1;
 	}
       else 
@@ -182,7 +182,7 @@ check_sockets_select (void)
 	  /*
 	   * select() timed out, so we can do some administrative stuff.
 	   */
-	  handle_periodic_tasks ();
+	  server_periodic_tasks ();
 	}
     }
 
@@ -211,7 +211,6 @@ check_sockets_select (void)
 	  /* Handle receiving pipes. */
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-#ifndef __MINGW32__
 	      if (FD_ISSET (sock->pipe_desc[READ], &except_fds))
 		{
 		  log_printf (LOG_ERROR, "exception on receiving pipe %d \n",
@@ -219,7 +218,6 @@ check_sockets_select (void)
 		  sock_schedule_for_shutdown (sock);
 		}
 	      if (FD_ISSET (sock->pipe_desc[READ], &read_fds))
-#endif /* not __MINGW32__ */
 		{
 		  if (sock->read_socket)
 		    if (sock->read_socket (sock))
@@ -230,7 +228,6 @@ check_sockets_select (void)
 	  /* Handle sending pipes. */
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
-#ifndef __MINGW32__
 	      if (FD_ISSET (sock->pipe_desc[WRITE], &except_fds))
 		{
 		  log_printf (LOG_ERROR, "exception on sending pipe %d \n",
@@ -238,7 +235,6 @@ check_sockets_select (void)
 		  sock_schedule_for_shutdown (sock);
 		}
 	      if (FD_ISSET (sock->pipe_desc[WRITE], &write_fds))
-#endif /* not __MINGW32__ */
 		{
 		  if (sock->write_socket)
 		    if (sock->write_socket (sock))
@@ -272,7 +268,17 @@ check_sockets_select (void)
 	  /* Is socket writeable ? */
 	  if (FD_ISSET (sock->sock_desc, &write_fds))
 	    {
-	      if (sock->write_socket)
+	      if (sock->flags & SOCK_FLAG_CONNECTING)
+		{
+		  if (sock->connected_socket)
+		    if (sock->connected_socket (sock))
+		      {
+			sock_schedule_for_shutdown (sock);
+			continue;
+		      }
+		}
+
+	      else if (sock->write_socket)
 		if (sock->write_socket(sock))
 		  {
 		    sock_schedule_for_shutdown (sock);
@@ -286,13 +292,15 @@ check_sockets_select (void)
    * We had no chance to time out so we have to explicitly call the
    * timeout handler.
    */
-  if (time (NULL) > next_notify_time)
+  if (time (NULL) > server_notify)
     {
-      handle_periodic_tasks ();
+      server_periodic_tasks ();
     }
   
   return 0;
 }
+
+#endif /* __MINGW32__ */
 
 #if HAVE_POLL && ENABLE_POLL /* configure'd */
 
@@ -338,7 +346,7 @@ check_sockets_select (void)
  * available under Win32.
  */
 int
-check_sockets_poll (void)
+server_check_sockets_poll (void)
 {
   static unsigned int max_nfds = 0;   /* maximum number of file descriptors */
   unsigned int nfds, fd;              /* number of fds */
@@ -412,18 +420,21 @@ check_sockets_poll (void)
 
 	  /* poll this socket for reading and writing */
 	  fd = sock->sock_desc;
-	  FD_POLL_IN (fd, sock);
-	  if (!sock->unavailable)
+	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
 	    {
-	      if (sock->send_buffer_fill > 0)
-		FD_POLL_OUT (fd, sock);
+	      FD_POLL_IN (fd, sock);
+	    }
+	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
+				     sock->flags & SOCK_FLAG_CONNECTING))
+	    {
+	      FD_POLL_OUT (fd, sock);
 	    }
 	  nfds++;
 	}
     }
   
   /* calculate timeout value */
-  timeout = (next_notify_time - time (NULL)) * 1000;
+  timeout = (server_notify - time (NULL)) * 1000;
   if (timeout < 0) timeout = 0;
 
   /* now poll() everything */
@@ -433,12 +444,12 @@ check_sockets_poll (void)
 	{
 	  log_printf (LOG_ERROR, "poll: %s\n", NET_ERROR);
 	  if (errno == EBADF)
-	    check_bogus_sockets ();
+	    server_check_bogus ();
 	  return -1;
 	}
       else 
 	{
-	  handle_periodic_tasks ();
+	  server_periodic_tasks ();
 	}
     }
 
@@ -466,7 +477,16 @@ check_sockets_poll (void)
       if (ufds[fd].revents & POLLOUT)
 	{
 	  polled--;
-	  if (sock->write_socket)
+	  if (sock->flags & SOCK_FLAG_CONNECTING)
+	    {
+	      if (sock->connected_socket)
+		if (sock->connected_socket (sock))
+		  {
+		    sock_schedule_for_shutdown (sock);
+		    continue;
+		  }
+	    }
+	  else if (sock->write_socket)
 	    if (sock->write_socket (sock))
 	      {
 		sock_schedule_for_shutdown (sock);
@@ -477,14 +497,6 @@ check_sockets_poll (void)
       /* file descriptor caused some error */
       if (ufds[fd].revents & (POLLERR | POLLHUP | POLLNVAL))
 	{
-#if 0
-	  /* 
-	   * Seems like we cannot get an error message if a descriptor
-	   * is in the exception set.
-	   */
-	  log_printf (LOG_ERROR, "poll: %s\n", NET_ERROR);
-#endif
-
 	  polled--;
 	  if (sock->flags & SOCK_FLAG_SOCK)
 	    {
@@ -508,12 +520,212 @@ check_sockets_poll (void)
     }
   
   /* handle regular tasks ... */
-  if (time (NULL) > next_notify_time)
+  if (time (NULL) > server_notify)
     {
-      handle_periodic_tasks ();
+      server_periodic_tasks ();
     }
   
   return 0;
 }
 
 #endif /* HAVE_POLL */
+
+#ifdef __MINGW32__
+
+/*
+ * This is the specialized routine for this Win32 port.
+ */
+int
+server_check_sockets_MinGW (void)
+{
+  int nfds;			/* count of file descriptors to check */
+  fd_set read_fds;		/* bitmasks for file descriptors to check */
+  fd_set write_fds;		/* dito */
+  fd_set except_fds;		/* dito */
+  struct timeval wait;		/* used for timeout in select() */
+  socket_t sock;
+
+  /*
+   * Prepare the file handle sets for the select() call below.
+   */
+  FD_ZERO (&read_fds);
+  FD_ZERO (&except_fds);
+  FD_ZERO (&write_fds);
+  nfds = 0;
+
+  /*
+   * Here we set the bitmaps for all clients we handle.
+   */
+  for (sock = socket_root; sock; sock = sock->next)
+    {
+      /* Put only those SOCKs into fd set not yet killed and skip files. */
+      if (sock->flags & SOCK_FLAG_KILLED)
+	continue;
+
+
+      /* If socket is a file descriptor, then read it here. */
+      if (sock->flags & SOCK_FLAG_FILE)
+	{
+	  if (sock->read_socket)
+	    if (sock->read_socket (sock))
+	      sock_schedule_for_shutdown (sock);
+	}
+
+      if (sock->flags & SOCK_FLAG_SOCK)
+	{
+	  /* Is the socket descriptor currently unavailable ? */
+	  if (sock->unavailable)
+	    {
+	      if (time (NULL) >= sock->unavailable)
+		sock->unavailable = 0;
+	    }
+
+	  /* Put every client's socket into EXCEPT and READ. */
+	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
+	    {
+	      FD_SET (sock->sock_desc, &except_fds);
+	      FD_SET (sock->sock_desc, &read_fds);
+	      if (sock->sock_desc > (SOCKET) nfds)
+		nfds = sock->sock_desc;
+	    }
+
+	  /* Put a socket into WRITE if necessary and possible. */
+	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
+				     sock->flags & SOCK_FLAG_CONNECTING))
+	    {
+	      FD_SET (sock->sock_desc, &write_fds);
+	      if (sock->sock_desc > (SOCKET) nfds)
+		nfds = sock->sock_desc;
+	    }
+	}
+    }
+  
+  nfds++;
+
+  /*
+   * Adjust timeout value, so we won't wait longer than we want.
+   */
+  wait.tv_sec = server_notify - time (NULL);
+  if (wait.tv_sec < 0) wait.tv_sec = 0;
+  wait.tv_usec = 0;
+
+  if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
+    {
+      if (nfds < 0)
+	{
+	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
+	  /* FIXME: What value do we choose here ? */
+	  if (last_errno != 0)
+	    server_check_bogus ();
+	  return -1;
+	}
+      else 
+	{
+	  /*
+	   * select() timed out, so we can do some administrative stuff.
+	   */
+	  server_periodic_tasks ();
+	}
+    }
+
+  /* 
+   * Go through all enqueued SOCKs and check if these have been 
+   * select()ed or could be handle in any other way.
+   */
+  for (sock = socket_root; sock; sock = sock->next)
+    {
+      if (sock->flags & SOCK_FLAG_KILLED)
+	continue;
+
+      /* Handle pipes. Different in Win32 and Unices. */
+      else if (sock->flags & SOCK_FLAG_PIPE)
+	{
+	  /* Make listening pipe servers listen. */
+	  if (sock->flags & SOCK_FLAG_LISTENING)
+	    {
+	      if (!(sock->flags & SOCK_FLAG_INITED))
+		if (sock->read_socket)
+		  if (sock->read_socket (sock))
+		    sock_schedule_for_shutdown (sock);
+	      continue;
+	    }
+
+	  /* Handle receiving pipes. */
+	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
+	    {
+		{
+		  if (sock->read_socket)
+		    if (sock->read_socket (sock))
+		      sock_schedule_for_shutdown (sock);
+		}
+	    }
+
+	  /* Handle sending pipes. */
+	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
+	    {
+		{
+		  if (sock->write_socket)
+		    if (sock->write_socket (sock))
+		      sock_schedule_for_shutdown (sock);
+		}
+	    }
+	}
+
+      /* Handle usual sockets. Socket in the exception set ? */
+      if (sock->flags & SOCK_FLAG_SOCK)
+	{
+	  if (FD_ISSET (sock->sock_desc, &except_fds))
+	    {
+	      log_printf (LOG_ERROR, "exception on socket %d\n",
+			  sock->sock_desc);
+	      sock_schedule_for_shutdown (sock);
+	      continue;
+	    }
+	  
+	  /* Is socket readable ? */
+	  if (FD_ISSET (sock->sock_desc, &read_fds))
+	    {
+	      if (sock->read_socket)
+		if (sock->read_socket (sock))
+		  {
+		    sock_schedule_for_shutdown (sock);
+		    continue;
+		  }
+	    }
+	  
+	  /* Is socket writeable ? */
+	  if (FD_ISSET (sock->sock_desc, &write_fds))
+	    {
+	      if (sock->flags & SOCK_FLAG_CONNECTING)
+		{
+		  if (sock->connected_socket)
+		    if (sock->connected_socket (sock))
+		      {
+			sock_schedule_for_shutdown (sock);
+			continue;
+		      }
+		}
+
+	      else if (sock->write_socket)
+		if (sock->write_socket(sock))
+		  {
+		    sock_schedule_for_shutdown (sock);
+		    continue;
+		  }
+	    }
+	}
+    }
+
+  /*
+   * We had no chance to time out so we have to explicitly call the
+   * timeout handler.
+   */
+  if (time (NULL) > server_notify)
+    {
+      server_periodic_tasks ();
+    }
+  
+  return 0;
+}
+
+#endif /* __MINGW32__ */

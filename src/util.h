@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.20 2000/09/17 17:00:58 ela Exp $
+ * $Id: util.h,v 1.21 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -202,11 +202,11 @@ char *get_version (void);
  *
  */
 
-char *GetErrorMessage(int);
+char *GetErrorMessage (int);
 extern int last_errno;
 
 #define MESSAGE_BUF_SIZE 256
-#define WINSOCK_VERSION  0x0202 /* This is version 2.02. */
+#define WINSOCK_VERSION  0x0202 /* This is version 2.02 */
 
 #define dup(handle) _dup(handle)
 #define dup2(handle1, handle2) _dup2(handle1, handle2)
@@ -221,8 +221,7 @@ const char * util_hstrerror (void);
 
 #ifdef __MINGW32__
 
-#define CLOSE_SOCKET(sock) closesocket (sock)
-#define CLOSE_HANDLE(handle) (CloseHandle (handle) ? 0 : -1)
+#define closehandle(handle) (CloseHandle (handle) ? 0 : -1)
 #define SYS_ERROR GetErrorMessage (GetLastError ())
 #define NET_ERROR GetErrorMessage (WSAGetLastError ())
 #define H_NET_ERROR GetErrorMessage (WSAGetLastError ())
@@ -242,8 +241,8 @@ const char * util_hstrerror (void);
 
 #else /* Unices here. */
 
-#define CLOSE_SOCKET(sock) close (sock)
-#define CLOSE_HANDLE(handle) close (handle)
+#define closesocket(sock) close (sock)
+#define closehandle(handle) close (handle)
 #define SYS_ERROR strerror (errno)
 #define NET_ERROR strerror (errno)
 #define H_NET_ERROR util_hstrerror ()

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.22 2000/09/12 22:14:16 ela Exp $
+ * $Id: socket.c,v 1.23 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -272,8 +272,7 @@ static int
 default_disconnect (socket_t sock)
 {
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "socket %d disconnected\n",
-	      sock->sock_desc);
+  log_printf (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
 #endif
 
   return 0;
@@ -548,7 +547,7 @@ int
 sock_intern_connection_info (socket_t sock)
 {
   struct sockaddr_in s;
-  socklen_t size = sizeof(s);
+  socklen_t size = sizeof (s);
   unsigned short port;
   unsigned long addr;
 
@@ -604,25 +603,20 @@ sock_unique_id (socket_t sock)
 }
 
 /*
- * Check if a given socket is still valid. Return zero (false) if it is
+ * Check if a given socket is still valid. Return non-zero if it is
  * not.
  */
 int
-sock_valid (socket_t check_sock)
+sock_valid (socket_t sock)
 {
-  socket_t sock;
+  if (!(sock->flags & (SOCK_FLAG_LISTENING | 
+		       SOCK_FLAG_CONNECTED |
+		       SOCK_FLAG_CONNECTING)))
+    return -1;
 
-  for (sock = socket_root; sock; sock = sock->next)
-    {
-      if (sock == check_sock)
-	{
-	  if (sock->flags & SOCK_FLAG_SOCK &&
-	      sock->flags & SOCK_FLAG_CONNECTED &&
-	      sock->sock_desc != INVALID_SOCKET)
-	    return -1;
-	  return 0;
-	}
-    }
+  if (sock->sock_desc == INVALID_SOCKET)
+    return -1;
+
   return 0;
 }
 
@@ -669,69 +663,23 @@ sock_create (int fd)
 int
 sock_disconnect (socket_t sock)
 {
-  /* shutdown the pipe */
-  if (sock->flags & SOCK_FLAG_PIPE)
+  /* shutdown client connection */
+  if (sock->flags & SOCK_FLAG_CONNECTED)
     {
-      if (sock->flags & SOCK_FLAG_CONNECTED)
-	{
-#ifdef __MINGW32__
-	  if (sock->referer)
-	    {
-	      /* just disconnect client pipes */
-	      if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
-		log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-	      if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
-		log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-	    }
-	  else
-#endif /* not __MINGW32__ */
-	    {
-	      /* close both pipes */
-	      if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) < 0)
-		log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
-	      if (CLOSE_HANDLE (sock->pipe_desc[READ]) < 0)
-		log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
-	    }
-	  sock->pipe_desc[READ] = INVALID_HANDLE;
-	  sock->pipe_desc[WRITE] = INVALID_HANDLE;
-	}
-  
-      /* prevent a pipe server's child to reinit the pipe server */
-      if (sock->flags & SOCK_FLAG_LISTENING)
-	{
-	  if (sock->referer)
-	    sock->referer->referer = NULL;
-	}
-      /* restart listening pipe server socket */
-      else if (sock->referer)
-	{
-	  sock->referer->flags &= ~SOCK_FLAG_INITED;
-	  sock->referer->referer = NULL;
-	}
+      if (shutdown (sock->sock_desc, 2) < 0)
+	log_printf (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
+      connected_sockets--;
     }
-  /* shutdown the network socket */
-  else if (sock->sock_desc != INVALID_SOCKET)
-    {
-      /* shutdown client connection */
-      if (sock->flags & SOCK_FLAG_CONNECTED)
-	{
-	  if (shutdown (sock->sock_desc, 2) < 0)
-	    log_printf (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
-	  connected_sockets--;
-	}
       
-      /* close the server/client socket */
-      if (CLOSE_SOCKET (sock->sock_desc) < 0)
-	log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+  /* close the server/client socket */
+  if (closesocket (sock->sock_desc) < 0)
+    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 
-      sock->sock_desc = INVALID_SOCKET;
-    }
-  else
-    {
-      log_printf (LOG_ERROR, "disconnecting unconnected socket\n");
-      return 0;
-    }
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
+#endif
 
+  sock->sock_desc = INVALID_SOCKET;
   return 0;
 }
 

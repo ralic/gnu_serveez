@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.7 2000/08/21 20:06:40 ela Exp $
+ * $Id: server-core.h,v 1.8 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -40,29 +40,23 @@
  */
 extern HANDLE server_child_died;
 
+/* 
+ * This holds the time on which the next call to server_periodic_tasks()
+ * should occur.
+ */
+extern time_t server_notify;
+
 /*
  * This is the pointer to the head of the list of sockets, which are
  * handled by the server loop.
  */
 extern socket_t socket_root;
 
-/* 
- * This holds the time on which the next call to handle_periodic_tasks()
- * should occur.
- */
-extern time_t next_notify_time;
-
-/*
- * Main server loop.  Handle all signals, incoming connections and
- * listening  server sockets.
- */
-int sock_server_loop (void);
-
 /*
  * Return the socket structure for the socket ID or NULL
  * if no such socket exists.
  */
-socket_t sock_find_id (int id);
+socket_t sock_find (int id, int version);
 
 /*
  * Mark socket SOCK as killed.  That means that no operations except
@@ -87,7 +81,7 @@ int sock_dequeue (socket_t sock);
 /*
  * Goes through all socket and shuts invalid ones down.
  */
-void check_bogus_sockets (void);
+void server_check_bogus (void);
 
 /*
  * This routine gets called once a second and is supposed to
@@ -95,6 +89,12 @@ void check_bogus_sockets (void);
  * It checks all sockets' timers and calls their timer functions
  * when necessary.
  */
-int handle_periodic_tasks (void);
+int server_periodic_tasks (void);
+
+/*
+ * Main server loop. Handle all signals, incoming connections and
+ * listening server sockets.
+ */
+int server_loop (void);
 
 #endif /* not __SERVER_CORE_H__ */

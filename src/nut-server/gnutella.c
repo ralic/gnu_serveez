@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.20 2000/09/17 17:00:58 ela Exp $
+ * $Id: gnutella.c,v 1.21 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -178,7 +178,7 @@ server_definition_t nut_server_definition =
   nut_global_finalize,                    /* class destructor */
   nut_info_client,                        /* server info callback */
   nut_info_server,                        /* client info callback */
-  nut_server_timer,                       /* server timer routine */
+  nut_server_notify,                      /* server timer routine */
   NULL,                                   /* no handle request callback */
   &nut_config,                            /* default configuration */
   sizeof (nut_config),                    /* size of this configuration */
@@ -913,11 +913,11 @@ nut_disconnect (socket_t sock)
 }
 
 /*
- * This callback is regularily called in the `handle_periodic_tasks'
+ * This callback is regularily called in the `server_periodic_tasks'
  * routine. Here we try connecting to more gnutella hosts.
  */
 int
-nut_server_timer (server_t *server)
+nut_server_notify (server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static int count = NUT_CONNECT_INTERVAL;
@@ -1208,7 +1208,7 @@ nut_info_client (void *nut_cfg, socket_t sock)
   static char text[128];
   nut_transfer_t *transfer = sock->data;
   nut_client_t *client = sock->data;
-  unsigned current, all;
+  unsigned current, all, elapsed;
 
   sprintf (info, "This is a gnutella spider client.\r\n\r\n");
 
@@ -1227,29 +1227,21 @@ nut_info_client (void *nut_cfg, socket_t sock)
       strcat (info, text);
     }
 
-  /* file download */
-  if (sock->userflags & NUT_FLAG_HTTP)
+  /* file upload and download */
+  if (sock->userflags & (NUT_FLAG_UPLOAD | NUT_FLAG_HTTP))
     {
       current = transfer->original_size - transfer->size;
       all = transfer->original_size;
+      elapsed = time (NULL) - transfer->start;
+      if (!all) all++;
+      if (!elapsed) elapsed++;
       sprintf (text, "  * file : %s\r\n", transfer->file);
       strcat (info, text);
-      sprintf (text, "  * download progress : %u/%u (%u.%u%%)\r\n",
+      sprintf (text, "  * %s progress : %u/%u - %u.%u%% - %u.%u kb/sec\r\n",
+	       sock->userflags & NUT_FLAG_HTTP ? "download" : "upload",
 	       current, all,
-	       current * 100 / all, (current * 1000 / all) % 10);
-      strcat (info, text);
-    }
-
-  /* file upload */
-  if (sock->userflags & NUT_FLAG_UPLOAD)
-    {
-      current = transfer->original_size - transfer->size;
-      all = transfer->original_size;
-      sprintf (text, "  * file : %s\r\n", transfer->file);
-      strcat (info, text);
-      sprintf (text, "  * upload progress : %u/%u (%u.%u%%)\r\n",
-	       current, all,
-	       current * 100 / all, (current * 1000 / all) % 10);
+	       current * 100 / all, (current * 1000 / all) % 10,
+	       current / 1024 / elapsed, (current * 10 / 1024 / elapsed) % 10);
       strcat (info, text);
     }
 

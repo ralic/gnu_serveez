@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.13 2000/09/08 07:45:17 ela Exp $
+ * $Id: irc-core.c,v 1.14 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -57,9 +57,9 @@ static int
 irc_nslookup_done (char *host, int id, int version)
 {
   irc_client_t *client;
-  socket_t sock = sock_find_id (id);
+  socket_t sock = sock_find (id, version);
 
-  if (host && sock && sock->version == version)
+  if (host && sock)
     {
       client = sock->data;
       client->flag |= UMODE_DNS;
@@ -81,9 +81,9 @@ static int
 irc_ident_done (char *user, int id, int version)
 {
   irc_client_t *client;
-  socket_t sock = sock_find_id (id);
+  socket_t sock = sock_find (id, version);
 
-  if (user && sock && sock->version == version)
+  if (user && sock)
     {
       client = sock->data;
       client->flag |= UMODE_IDENT;

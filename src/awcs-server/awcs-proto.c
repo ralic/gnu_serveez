@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.20 2000/09/12 22:14:16 ela Exp $
+ * $Id: awcs-proto.c,v 1.21 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -192,9 +192,9 @@ int
 awcs_nslookup_done (char *host, int id, int version)
 {
   awcs_config_t *cfg;
-  socket_t sock = sock_find_id (id);
+  socket_t sock = sock_find (id, version);
 
-  if (host && sock && sock->version == version)
+  if (host && sock)
     {
       cfg = sock->cfg;
 
@@ -236,10 +236,10 @@ awcs_nslookup_done (char *host, int id, int version)
 int
 awcs_ident_done (char *user, int id, int version)
 {
-  socket_t sock = sock_find_id (id);
+  socket_t sock = sock_find (id, version);
   awcs_config_t *cfg;
 
-  if (user && sock && sock->version == version)
+  if (user && sock)
     {
       cfg = sock->cfg;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.14 2000/09/17 17:00:59 ela Exp $
+ * $Id: nut-transfer.c,v 1.15 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -407,6 +407,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       transfer = xmalloc (sizeof (nut_transfer_t));
       transfer->original_size = record->size;
       transfer->file = xstrdup (file);
+      transfer->start = time (NULL);
       xsock->data = transfer;
 
       /* send HTTP request to the listening gnutella host */

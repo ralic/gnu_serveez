@@ -168,12 +168,16 @@ limit.
 
 @section Limits on open filehandles
 @table @asis
+
 @item Any Unix
 The limits set by @code{ulimit ()} or @code{setrlimit ()}.
+
 @item Solaris
 See the Solaris FAQ, question 3.45.
+
 @item FreeBSD 
 Use sysctl -w kern.maxfiles=nnnn to raise limit.
+
 @item Linux
 See Bodo Bauer's /proc documentation. On current 2.2.x kernels, 
 @example
@@ -189,13 +193,18 @@ Red Hat 6.0 (2.2.5 or so plus patches) can open at least 31000 file
 descriptors this way. Another fellow has verified that a process on 
 2.2.12 can open at least 90000 file descriptors this way (with 
 appropriate limits). The upper bound seems to be available memory. 
-@item Windows
+
+@item Windows 9x/ME
 On Win9x machines, there's quite-low limit imposed by the kernel: 
 100 connections. You can increase this limit by editing the registry
 key HKLM\System\CurrentControlSet\Services\VxD\MSTCP\MaxConnections. 
 On Windows 95, the key is a DWORD; on Windows 98, it's a string. 
 I've seen some reports of instability when this value is increased 
 to more than a few times its default value.
+
+@item Windows NT/2000
+More than 2000 connections tested. Seems like the limit is due to
+available physical memory.
 @end table
 
 @node Server, Co-Server, Concept, Top

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.4 2000/09/09 16:33:43 ela Exp $
+ * $Id: udp-socket.c,v 1.5 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -281,16 +281,15 @@ udp_printf (socket_t sock, const char *fmt, ...)
 socket_t
 udp_connect (unsigned long host, unsigned short port)
 {
-  struct sockaddr_in server;
-  SOCKET client_socket;
+  struct sockaddr_in client;
+  SOCKET sockfd;
   socket_t sock;
 #ifdef __MINGW32__
   unsigned long blockMode = 1;
 #endif
 
   /* create a socket for communication with the server */
-  if ((client_socket = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) 
-      == INVALID_SOCKET)
+  if ((sockfd = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
     {
       log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
       return NULL;
@@ -298,43 +297,43 @@ udp_connect (unsigned long host, unsigned short port)
 
   /* make the socket non-blocking */
 #ifdef __MINGW32__
-  if (ioctlsocket (client_socket, FIONBIO, &blockMode) == SOCKET_ERROR)
+  if (ioctlsocket (sockfd, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
       log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 #else
-  if (fcntl (client_socket, F_SETFL, O_NONBLOCK) < 0)
+  if (fcntl (sockfd, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 #endif
   
   /* try to connect to the server */
-  server.sin_family = AF_INET;
-  server.sin_addr.s_addr = host;
-  server.sin_port = port;
+  client.sin_family = AF_INET;
+  client.sin_addr.s_addr = host;
+  client.sin_port = port;
   
-  if (connect (client_socket, (struct sockaddr *) &server,
-	       sizeof (server)) == -1)
+  if (connect (sockfd, (struct sockaddr *) &client,
+	       sizeof (client)) == -1)
     {
       log_printf (LOG_NOTICE, "connect: %s\n", NET_ERROR);
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 
   /* create socket structure and enqueue it */
   if ((sock = sock_alloc ()) == NULL)
     {
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 
   sock_unique_id (sock);
-  sock->sock_desc = client_socket;
+  sock->sock_desc = sockfd;
   sock->flags |= SOCK_FLAG_SOCK;
   sock_enqueue (sock);
   sock_intern_connection_info (sock);

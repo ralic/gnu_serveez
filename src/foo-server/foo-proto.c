@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.13 2000/09/12 22:14:16 ela Exp $
+ * $Id: foo-proto.c,v 1.14 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -145,9 +145,9 @@ struct server_definition foo_server_definition =
 int
 foo_handle_coserver_result (char *host, int id, int version)
 {
-  socket_t sock = sock_find_id (id);
+  socket_t sock = sock_find (id, version);
 
-  if (host && sock && sock->version == version)
+  if (host && sock)
     sock_printf (sock, "You are `%s'\r\n", host);
   return 0;
 }

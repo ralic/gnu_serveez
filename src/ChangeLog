@@ -1,3 +1,25 @@
+2000-09-19  [ Ela ]  <ela@lkcc.org>
+
+	* server-loop.c (server_check_sockets_MinGW): Now we have
+	three different socket loops. poll(), select() and one
+	for the native MinGW32 port.
+
+	* pipe-socket.c (pipe_valid): Checking if a given socket
+	structure is valid. Both of these routines are now 
+	extensively used.
+	(pipe_disconnect): Because we have now a new code branch 
+	for the disconnection routine we use this function to 
+	disconnect pipes.
+
+	* socket.c (sock_valid): Checking if a given socket structure
+	is still valid.
+
+	* server-core.c (sock_shutdown): Differentiating between
+	pipe and socket disconnection routines.
+
+	* nut-server/gnutella.c (nut_info_client): Displaying current
+	up- and download rate. Fixed Division by zero bug.
+
 2000-09-17  [ Ela ]  <ela@lkcc.org>
 
 	* util.c (util_openfiles): Because Win9x and ME do have 

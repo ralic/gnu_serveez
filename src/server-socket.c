@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.26 2000/09/17 17:00:58 ela Exp $
+ * $Id: server-socket.c,v 1.27 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -158,7 +158,7 @@ server_create (portcfg_t *cfg)
 		      (void *) &optval, sizeof (optval)) < 0)
 	{
 	  log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
-	  if (CLOSE_SOCKET (server_socket) < 0)
+	  if (closesocket (server_socket) < 0)
 	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
@@ -174,7 +174,7 @@ server_create (portcfg_t *cfg)
 		      (void *) &optval, sizeof (optval)) < 0)
 	{
 	  log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
-	  if (CLOSE_SOCKET (server_socket) < 0)
+	  if (closesocket (server_socket) < 0)
 	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
@@ -185,7 +185,7 @@ server_create (portcfg_t *cfg)
 		sizeof (struct sockaddr)) < 0)
 	{
 	  log_printf (LOG_ERROR, "bind: %s\n", NET_ERROR);
-	  if (CLOSE_SOCKET (server_socket) < 0)
+	  if (closesocket (server_socket) < 0)
 	    {
 	      log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	    }
@@ -198,7 +198,7 @@ server_create (portcfg_t *cfg)
 	  if (listen (server_socket, SOMAXCONN) < 0)
 	    {
 	      log_printf (LOG_ERROR, "listen: %s\n", NET_ERROR);
-	      if (CLOSE_SOCKET (server_socket) < 0)
+	      if (closesocket (server_socket) < 0)
 		{
 		  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 		}
@@ -212,7 +212,7 @@ server_create (portcfg_t *cfg)
       if ((sock = sock_create (server_socket)) == NULL)
 	{
 	  /* Close the server socket if this routine failed. */
-	  if (CLOSE_SOCKET (server_socket) < 0)
+	  if (closesocket (server_socket) < 0)
 	    {
 	      log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	    }
@@ -254,7 +254,6 @@ server_create (portcfg_t *cfg)
       sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", cfg->outpipe);
 #endif /* __MINGW32__ */
       sock->read_socket = server_accept_pipe;
-      sock->disconnected_socket = pipe_disconnected;
       log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->send_pipe);
     }
   else
@@ -309,7 +308,7 @@ server_accept_socket (socket_t server_sock)
     {
       log_printf(LOG_WARNING, "socket descriptor exceeds "
 		 "socket limit %d\n", serveez_config.max_sockets);
-      if (CLOSE_SOCKET(client_socket) < 0)
+      if (closesocket(client_socket) < 0)
 	{
 	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
@@ -332,7 +331,7 @@ server_accept_socket (socket_t server_sock)
   if ((fcntl (client_socket, F_SETFD, FD_CLOEXEC)) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      if (CLOSE_SOCKET (client_socket) < 0)
+      if (closesocket (client_socket) < 0)
 	{
 	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
@@ -354,7 +353,7 @@ server_accept_socket (socket_t server_sock)
     {
       log_printf (LOG_FATAL, "socket %d already in use\n",
 		  sock->sock_desc);
-      if (CLOSE_SOCKET (client_socket) < 0)
+      if (closesocket (client_socket) < 0)
 	{
 	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
@@ -557,7 +556,7 @@ server_accept_pipe (socket_t server_sock)
     {
       connect = GetLastError ();
       /* Pipe is listening ? */
-      if (connect != ERROR_PIPE_LISTENING)
+      if (connect == ERROR_PIPE_LISTENING)
 	return 0;
       /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)
@@ -574,7 +573,7 @@ server_accept_pipe (socket_t server_sock)
     {
       connect = GetLastError ();
       /* Pipe is listening ? */
-      if (connect != ERROR_PIPE_LISTENING)
+      if (connect == ERROR_PIPE_LISTENING)
 	return 0;
       /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)

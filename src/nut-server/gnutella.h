@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.16 2000/09/17 17:00:59 ela Exp $
+ * $Id: gnutella.h,v 1.17 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -260,7 +260,7 @@ int nut_init (server_t *server);
 int nut_global_init (void);
 int nut_finalize (server_t *server);
 int nut_global_finalize (void);
-int nut_server_timer (server_t *server);
+int nut_server_notify (server_t *server);
 char *nut_info_server (server_t *server);
 char *nut_info_client (void *nut_cfg, socket_t sock);
 int nut_connect_timeout (socket_t sock);

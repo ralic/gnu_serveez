@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.35 2000/09/12 22:14:17 ela Exp $
+ * $Id: http-proto.c,v 1.36 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -351,7 +351,7 @@ http_cgi_died (socket_t sock)
 	    }
 	  else if (result != WAIT_TIMEOUT)
 	    {
-	      if (CLOSE_HANDLE (http->pid) == -1)
+	      if (closehandle (http->pid) == -1)
 		log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
 	      server_child_died = http->pid;
 	      http->pid = INVALID_HANDLE;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.11 2000/09/09 16:33:42 ela Exp $
+ * $Id: connect.c,v 1.12 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -65,18 +65,17 @@
 socket_t
 sock_connect (unsigned long host, unsigned short port)
 {
-  struct sockaddr_in server;
-  SOCKET client_socket;
+  struct sockaddr_in client;
+  SOCKET sockfd;
   socket_t sock;
 #ifdef __MINGW32__
   unsigned long blockMode = 1;
 #endif
 
   /*
-   * first, create a socket for communication with the server
+   * first, create a socket for communication with the host
    */
-  if ((client_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_IP)) 
-      == INVALID_SOCKET)
+  if ((sockfd = socket (AF_INET, SOCK_STREAM, IPPROTO_IP)) == INVALID_SOCKET)
     {
       log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
       return NULL;
@@ -86,58 +85,61 @@ sock_connect (unsigned long host, unsigned short port)
    * second, make the socket non-blocking
    */
 #ifdef __MINGW32__
-  if (ioctlsocket (client_socket, FIONBIO, &blockMode) == SOCKET_ERROR)
+  if (ioctlsocket (sockfd, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
       log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 #else
-  if (fcntl (client_socket, F_SETFL, O_NONBLOCK) < 0)
+  if (fcntl (sockfd, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 #endif
   
   /*
+   * third, try to connect to the host
+   */
+  client.sin_family = AF_INET;
+  client.sin_addr.s_addr = host;
+  client.sin_port = port;
+  
+  if (connect (sockfd, (struct sockaddr *) &client,
+	       sizeof (client)) == -1)
+    {
+      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+      if (last_errno != SOCK_INPROGRESS && last_errno != SOCK_UNAVAILABLE)
+	{
+	  closesocket (sockfd);
+	  return NULL;
+	}
+    }
+
+  /*
    * create socket structure and enqueue it
    */
   if ((sock = sock_alloc ()) == NULL)
     {
-      CLOSE_SOCKET (client_socket);
+      closesocket (sockfd);
       return NULL;
     }
 
   sock_unique_id (sock);
-  sock->sock_desc = client_socket;
-  sock->flags |= SOCK_FLAG_SOCK;
+  sock->sock_desc = sockfd;
+  sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTING);
+  sock->connected_socket = default_connect;
   sock_enqueue (sock);
-
-  /*
-   * third, try to connect to the server
-   */
-  server.sin_family = AF_INET;
-  server.sin_addr.s_addr = host;
-  server.sin_port = port;
-  
-  if (connect (client_socket, (struct sockaddr *) &server,
-	       sizeof (server)) == -1)
-    {
-      log_printf (LOG_NOTICE, "connect: %s\n", NET_ERROR);
-    }
-  sock->flags |= SOCK_FLAG_CONNECTING;
-  sock->write_socket = default_connect;
 
   return sock;
 }
 
 /*
  * The default routine for connecting a socket SOCK.
- * When we get select()ed via the WRITE_SET we simply check for 
- * network errors and assign the default_write callback then or
- * shutdown the socket otherwise.
+ * When we get select()ed or poll()ed via the WRITE_SET we simply check 
+ * for network errors,
  */
 int
 default_connect (socket_t sock)
@@ -145,6 +147,7 @@ default_connect (socket_t sock)
   int error;
   socklen_t optlen = sizeof (int);
 
+  /* check if the socket has been finally connected */
   if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
 		  (void *) &error, &optlen) < 0)
     {
@@ -153,16 +156,15 @@ default_connect (socket_t sock)
     }
   if (error)
     {
-      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
-      if (error != SOCK_INPROGRESS)
+      log_printf (LOG_ERROR, "connect()ing: %s\n", NET_ERROR);
+      if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
 	return -1;
-      else
-	return 0;
+      return 0;
     }
+
   sock->flags |= SOCK_FLAG_CONNECTED;
   sock->flags &= ~SOCK_FLAG_CONNECTING;
   sock_intern_connection_info (sock);
-  sock->write_socket = default_write;
   connected_sockets++;
 
   return 0;

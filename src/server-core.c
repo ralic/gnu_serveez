@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.23 2000/09/12 22:14:16 ela Exp $
+ * $Id: server-core.c,v 1.24 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -124,10 +124,10 @@ socket_t socket_root;
 static socket_t socket_last;
 
 /* 
- * This holds the time on which the next call to handle_periodic_tasks()
+ * This holds the time on which the next call to server_periodic_tasks()
  * should occur.
  */
-time_t next_notify_time;
+time_t server_notify;
 
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore
@@ -160,7 +160,7 @@ server_signal_handler (int sig)
       signal (SIGCHLD, server_signal_handler);
     }
   else
-#endif
+#endif /* not __MINGW32__ */
 
 #ifdef __MINGW32__
   if (sig == SIGTERM || sig == SIGINT || sig == SIGBREAK)
@@ -196,10 +196,10 @@ server_signal_handler (int sig)
  * Abort the process, printing the error message MSG first.
  */
 static int
-abort_serveez (char * msg)
+server_abort (char * msg)
 {
-  log_printf(LOG_FATAL, "list validation failed: %s\n", msg);
-  abort();
+  log_printf (LOG_FATAL, "list validation failed: %s\n", msg);
+  abort ();
   return 0;
 }
 
@@ -209,7 +209,7 @@ abort_serveez (char * msg)
  * representation of the current socket list.
  */
 static void
-list_socket_list (void)
+server_print_list (void)
 {
   socket_t sock = socket_root;
 
@@ -231,32 +231,42 @@ list_socket_list (void)
  * server is stable because this is a rather slow function.
  */
 static int
-validate_socket_list (void)
+server_validate_list (void)
 {
   socket_t sock, prev;
   
 #if 0
-  list_socket_list ();
+  server_print_list ();
 #endif
 
   prev = NULL;
   sock = socket_root;
   while (sock)
     {
+      /* check if the descriptors are valid */
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
-	  if (sock->sock_desc == INVALID_SOCKET)
+	  if (sock_valid (sock) == -1)
 	    {
-	      abort_serveez ("invalid file descriptor");
+	      server_abort ("invalid socket descriptor");
 	    }
 	}
+      if (sock->flags & SOCK_FLAG_PIPE)
+	{
+	  if (pipe_valid (sock) == -1)
+	    {
+	      server_abort ("invalid pipe descriptor");
+	    }
+	}
+      
+      /* check socket list structure */
       if (sock_lookup_table[sock->id] != sock)
 	{
-	  abort_serveez ("lookup table corrupted");
+	  server_abort ("lookup table corrupted");
 	}
       if (prev != sock->prev)
 	{
-	  abort_serveez ("list structure invalid (previous socket != prev)");
+	  server_abort ("list structure invalid (sock->prev)");
 	}
       prev = sock;
       sock = sock->next;
@@ -264,7 +274,7 @@ validate_socket_list (void)
 
   if (prev != socket_last)
     {
-      abort_serveez ("list structure invalid (last socket != end of list)");
+      server_abort ("list structure invalid (last socket)");
     }
   return 0;
 }
@@ -273,10 +283,10 @@ validate_socket_list (void)
 /*
  * Rechain the socket list to prevent sockets from starving at the end
  * of this list. We will call it everytime when a select() or poll() has
- * returned. Listeners are kept at the begiining of the chain anyway.
+ * returned. Listeners are kept at the beginning of the chain anyway.
  */
 static void
-rechain_socket_list (void)
+server_rechain_list (void)
 {
   socket_t sock;
   socket_t last_listen;
@@ -334,34 +344,35 @@ rechain_socket_list (void)
 int
 sock_enqueue (socket_t sock)
 {
+  /* check for validity of pipe descriptors */
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      if ((sock->pipe_desc[READ] == INVALID_HANDLE || 
-	   sock->pipe_desc[WRITE] == INVALID_HANDLE) &&
-	  !(sock->flags & SOCK_FLAG_LISTENING))
+      if (pipe_valid (sock) == -1)
 	{
-	  log_printf(LOG_FATAL, "cannot enqueue invalid pipe\n");
+	  log_printf (LOG_FATAL, "cannot enqueue invalid pipe\n");
 	  return -1;
 	}
     }
 
+  /* check for validity of socket descriptors */
   if (sock->flags & SOCK_FLAG_SOCK)
     {
-      if (sock->sock_desc == INVALID_SOCKET)
+      if (sock_valid (sock) == -1)
 	{
-	  log_printf(LOG_FATAL, "cannot enqueue invalid socket\n");
+	  log_printf (LOG_FATAL, "cannot enqueue invalid socket\n");
 	  return -1;
 	}
     }
 
-  if (sock_lookup_table[sock->id])
+  /* check lookup table */
+  if (sock_lookup_table[sock->id] || sock->flags & SOCK_FLAG_ENQUEUED)
     {
-      log_printf(LOG_FATAL, 
-		 "socket has been already enqueued (%d)\n",
-		 sock->id);
+      log_printf (LOG_FATAL, "socket id %d has been already enqueued\n", 
+		  sock->id);
       return -1;
     }
 
+  /* really enqueue socket */
   sock->next = NULL;
   sock->prev = NULL;
   if (!socket_root)
@@ -388,63 +399,72 @@ sock_enqueue (socket_t sock)
 int
 sock_dequeue (socket_t sock)
 {
+  /* check for validity of pipe descriptors */
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      if (!(sock->flags & SOCK_FLAG_LISTENING))
+      if (pipe_valid (sock) == -1)
 	{
-	  if (((sock->flags & SOCK_FLAG_RECV_PIPE) &&
-	       sock->pipe_desc[READ] == INVALID_HANDLE) ||
-	      ((sock->flags & SOCK_FLAG_SEND_PIPE) &&
-	       sock->pipe_desc[WRITE] == INVALID_HANDLE))
-	    {
-	      log_printf (LOG_FATAL, "cannot dequeue invalid pipe\n");
-	      return -1;
-	    }
+	  log_printf (LOG_FATAL, "cannot dequeue invalid pipe\n");
+	  return -1;
 	}
     }
 
+  /* check for validity of socket descriptors */
   if (sock->flags & SOCK_FLAG_SOCK)
     {
-      if (sock->sock_desc == INVALID_SOCKET)
+      if (sock_valid (sock) == -1)
 	{
 	  log_printf (LOG_FATAL, "cannot dequeue invalid socket\n");
 	  return -1;
 	}
     }
 
-  if (sock->flags & SOCK_FLAG_ENQUEUED)
+  /* check lookup table */
+  if (!sock_lookup_table[sock->id] || !(sock->flags & SOCK_FLAG_ENQUEUED))
     {
-      if (sock->next)
-	sock->next->prev = sock->prev;
-      else
-	socket_last = sock->prev;
-
-      if (sock->prev)
-	sock->prev->next = sock->next;
-      else
-	socket_root = sock->next;
-
-      sock->flags &= ~SOCK_FLAG_ENQUEUED;
-      sock_lookup_table[sock->id] = NULL;
+      log_printf (LOG_FATAL, "socket id %d has been already dequeued\n", 
+		  sock->id);
+      return -1;
     }
+
+  /* really dequeue socket */
+  if (sock->next)
+    sock->next->prev = sock->prev;
   else
-    {
-      log_printf (LOG_ERROR, "dequeueing unqueued socket %d\n",
-		  sock->sock_desc);
-    }
+    socket_last = sock->prev;
+
+  if (sock->prev)
+    sock->prev->next = sock->next;
+  else
+    socket_root = sock->next;
+
+  sock->flags &= ~SOCK_FLAG_ENQUEUED;
+  sock_lookup_table[sock->id] = NULL;
+
   return 0;
 }
 
 /*
- * Return the socket structure for the file descriptor FD or NULL
- * if no such socket exists.
+ * Return the socket structure for the socket id ID and the version 
+ * VERSION or NULL if no such socket exists. If VERSION is -1 it is not
+ * checked.
  */
 socket_t
-sock_find_id (int id)
+sock_find (int id, int version)
 {
+  socket_t sock;
+
   if (id & ~(SOCKET_MAX_IDS-1))
     {
       log_printf (LOG_FATAL, "socket id %d is invalid\n", id);
+      return NULL;
+    }
+
+  sock = sock_lookup_table[id];
+  if (version != -1 && sock && sock->version != version)
+    {
+      log_printf (LOG_WARNING, "socket version %d (id %d) is invalid\n", 
+		  version, id);
       return NULL;
     }
 
@@ -471,7 +491,7 @@ server_reset (void)
  * function calls SOCK's disconnect handler if defined.
  */
 static int
-shutdown_socket (socket_t sock)
+sock_shutdown (socket_t sock)
 {
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "shutting down socket id %d\n", sock->id);
@@ -481,7 +501,12 @@ shutdown_socket (socket_t sock)
     sock->disconnected_socket (sock);
 
   sock_dequeue (sock);
-  sock_disconnect (sock);
+
+  if (sock->flags & SOCK_FLAG_SOCK)
+    sock_disconnect (sock);
+  if (sock->flags & SOCK_FLAG_PIPE)
+    pipe_disconnect (sock);
+
   sock_free (sock);
 
   return 0;
@@ -514,15 +539,11 @@ sock_schedule_for_shutdown (socket_t sock)
  * when necessary.
  */
 int
-handle_periodic_tasks (void)
+server_periodic_tasks (void)
 {
   socket_t sock;
 
-  next_notify_time += 1;
-
-#if 0
-  log_printf(LOG_NOTICE, "idle\n");
-#endif
+  server_notify += 1;
 
   sock = socket_root; 
   while (sock)
@@ -552,11 +573,11 @@ handle_periodic_tasks (void)
 
 #ifdef __MINGW32__
   /* check regularly for internal coserver responses...  */
-  check_internal_coservers ();
+  coserver_check ();
 #endif /* not __MINGW32__ */
 
   /* run the server instance timer routines */
-  server_run_timer ();
+  server_run_notify ();
 
   return 0;
 }
@@ -565,7 +586,7 @@ handle_periodic_tasks (void)
  * Goes through all socket and shuts invalid ones down.
  */
 void
-check_bogus_sockets (void)
+server_check_bogus (void)
 {
 #ifdef __MINGW32__
   unsigned long readBytes;
@@ -621,7 +642,7 @@ check_bogus_sockets (void)
  * listening  server sockets.
  */
 int
-sock_server_loop (void)
+server_loop (void)
 {
   socket_t sock, next_sock;
   int rechain = 0;
@@ -655,7 +676,7 @@ sock_server_loop (void)
   server_reset_happened = 0;
 #endif /* not __MINGW32__ */
 
-  next_notify_time = time (NULL);
+  server_notify = time (NULL);
 
   while (!server_nuke_happened)
     {
@@ -664,7 +685,7 @@ sock_server_loop (void)
        * a lot of run time.
        */
 #if ENABLE_DEBUG
-      validate_socket_list ();
+      server_validate_list ();
 #endif /* ENABLE_DEBUG */
 
 #ifndef __MINGW32__
@@ -701,7 +722,7 @@ sock_server_loop (void)
        * Check for new connections on server port, incoming data from
        * clients and process queued output data.
        */
-      check_sockets ();
+      server_check_sockets ();
 
       /*
        * Reorder the socket chain every 16 select loops. We dont do it
@@ -709,7 +730,7 @@ sock_server_loop (void)
        */
       if (rechain++ & 16)
 	{
-	  rechain_socket_list ();
+	  server_rechain_list ();
 	}
 
       /*
@@ -721,7 +742,7 @@ sock_server_loop (void)
 	  next_sock = sock->next;
 	  if (sock->flags & SOCK_FLAG_KILLED)
 	    {
-	      shutdown_socket (sock);
+	      sock_shutdown (sock);
 	    }
 	  sock = next_sock;
 	}
@@ -736,7 +757,7 @@ sock_server_loop (void)
   sock = socket_root;
   while (sock)
     {
-      shutdown_socket (sock);
+      sock_shutdown (sock);
       sock = socket_root;
     }
 

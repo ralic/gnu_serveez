@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.25 2000/09/17 17:00:58 ela Exp $
+ * $Id: control-proto.c,v 1.26 2000/09/20 08:29:15 ela Exp $
  *
  */
 
@@ -319,7 +319,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 
   /* Find the appropiate client or server connection. */
   id = atoi (arg);
-  if ((xsock = sock_find_id (id)) == NULL)
+  if ((xsock = sock_find (id, -1)) == NULL)
     {
       sock_printf (sock, "no such connection: %d\r\n", id);
       return flag;
@@ -710,7 +710,7 @@ ctrl_kill_id (socket_t sock, int flag, char *arg)
   socket_t xsock;
 
   id = atoi (arg);
-  if ((xsock = sock_find_id (id)) == NULL)
+  if ((xsock = sock_find (id, -1)) == NULL)
     {
       sock_printf (sock, "no such connection: %d\r\n", id);
       return flag;
@@ -761,8 +761,8 @@ ctrl_restart (socket_t sock, int type, char *arg)
       coserver = int_coserver[n];
       if (coserver->type == type)
 	{
-	  destroy_internal_coservers (type);
-	  create_internal_coserver (type);
+	  coserver_destroy (type);
+	  coserver_create (type);
 	  sock_printf (sock, "internal %s coserver restarted\r\n",
 		       int_coserver_type[type].name);
 	  return 0;
@@ -770,7 +770,7 @@ ctrl_restart (socket_t sock, int type, char *arg)
     }
 
   /* start a new internal coserver if there has none found */
-  create_internal_coserver (type);
+  coserver_create (type);
   sock_printf (sock, "internal %s coserver invoked\r\n",
 	       int_coserver_type[type].name);
   return 0;

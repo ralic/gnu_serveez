@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.8 2000/08/02 09:45:14 ela Exp $
+ * $Id: server.h,v 1.9 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -71,7 +71,7 @@ typedef struct server
   int (* finalize)(struct server *);            /* finalize this instance */
   char * (* info_client)(void *, socket_t);     /* return client info */
   char * (* info_server)(struct server *);      /* return server info */
-  int (* timer)(struct server *);               /* server timer */
+  int (* notify)(struct server *);              /* server timer */
   int (* handle_request)(socket_t, char*, int); /* packet processing */
 }
 server_t;
@@ -115,7 +115,7 @@ typedef struct server_definition
   int (* global_finalize)(void);                /* per server def */
   char * (* info_client)(void *, socket_t);     /* return client info */
   char * (* info_server)(struct server *);      /* return server info */
-  int (* timer)(struct server *);               /* server timer */
+  int (* notify)(struct server *);              /* server timer */
   int (* handle_request)(socket_t, char*, int); /* packet processing */
 
   void *prototype_start;                        /* start of example struct */
@@ -160,9 +160,9 @@ server_t *server_find (void *cfg);
 
 /*
  * Run all the server instances's timer routines. This is called within
- * the handle_periodic_tasks() function in `server-core.c'.
+ * the server_periodic_tasks() function in `server-core.c'.
  */
-void server_run_timer (void);
+void server_run_notify (void);
 
 /*
  * Use these functions.

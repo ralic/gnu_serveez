@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: mkpassword.c,v 1.1 2000/09/17 17:00:58 ela Exp $
+ * $Id: mkpassword.c,v 1.2 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -32,8 +32,10 @@
 #include <string.h>
 #include <time.h>
 
+#if HAVE_CRYPT && ENABLE_CRYPT
 extern char *crypt (const char *key, const char *salt);
 extern char *getpass (const char *prompt);
+#endif
 
 /*
  * Main entry point.
@@ -69,7 +71,11 @@ main (int argc, char **argv)
 	}
     }
 
+#if HAVE_CRYPT && ENABLE_CRYPT
   plaintext = getpass ("Password: ");
-  printf ("%s\n", crypt (plaintext, salt));
+  fprintf (stdout, "%s\n", crypt (plaintext, salt));
+#else
+  fprintf (stderr, "please --enable-crypt\n");
+#endif
   return 0;
 }

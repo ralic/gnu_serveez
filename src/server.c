@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.22 2000/09/11 17:29:47 ela Exp $
+ * $Id: server.c,v 1.23 2000/09/20 08:29:14 ela Exp $
  *
  */
 
@@ -694,7 +694,7 @@ server_load_cfg (char *cfgfile)
 		      newserver->finalize = sd->finalize;
 		      newserver->info_client = sd->info_client;
 		      newserver->info_server = sd->info_server;
-		      newserver->timer = sd->timer;
+		      newserver->notify = sd->notify;
 		      newserver->description = sd->name;
 		      server_add (newserver);
 		    } 
@@ -777,10 +777,10 @@ server_print_definitions (void)
 
 /*
  * Run all the server instances's timer routines. This is called within
- * the handle_periodic_tasks() function in `server-core.c'.
+ * the server_periodic_tasks() function in `server-core.c'.
  */
 void
-server_run_timer (void)
+server_run_notify (void)
 {
   int n;
   server_t *server;
@@ -788,8 +788,8 @@ server_run_timer (void)
   for (n = 0; n < server_instances; n++)
     {
       server = servers[n];
-      if (server->timer)
-	server->timer (server);
+      if (server->notify)
+	server->notify (server);
     }
 }
 
