@@ -1,3 +1,8 @@
+2001-11-24  [ Ela ]  <ela@lkcc.org>
+
+	* autodsp: First draft of a perl script generating Workspace 
+	and Project files for MSVC from *.ap files.
+
 2001-10-27  [ Ela ]  <ela@lkcc.org>
 
 	* Applied John Fitzgerald's patches for the top level 

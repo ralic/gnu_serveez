@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.49 2001/11/23 13:18:38 ela Exp $
+ * $Id: guile.c,v 1.50 2001/11/24 00:08:50 ela Exp $
  *
  */
 
@@ -1550,8 +1550,6 @@ guile_access_loadpath (SCM args)
 {
   SCM list;
   svz_array_t *paths = svz_dynload_path_get ();
-  int n;
-  char *str;
 
   GUILE_PRECALL ();
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.24 2001/11/23 13:18:39 ela Exp $
+ * $Id: portcfg.c,v 1.25 2001/11/24 00:08:50 ela Exp $
  *
  */
 
@@ -249,8 +249,6 @@ svz_portcfg_t *
 svz_portcfg_dup (svz_portcfg_t *port)
 {
   svz_portcfg_t *copy;
-  int n;
-  char *str;
 
   /* Return NULL if necessary. */
   if (port == NULL)
