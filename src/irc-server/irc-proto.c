@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.16 2000/09/26 18:08:52 ela Exp $
+ * $Id: irc-proto.c,v 1.17 2000/09/28 16:25:18 ela Exp $
  *
  */
 
@@ -74,46 +74,46 @@ portcfg_t irc_port =
  */
 irc_config_t irc_config =
 {
-  &irc_port,             /* port configuration */
-  0,                     /* logged in operators */
-  0,                     /* logged in users */
-  0,                     /* unknown connections */
-  0,                     /* invisible users */
-  NULL,                  /* virtual host name */
-  NULL,                  /* read server host name */
-  42424,                 /* listening tcp port */
-  0,                     /* is USERS command disable ? */
+  &irc_port,              /* port configuration */
+  0,                      /* logged in operators */
+  0,                      /* logged in users */
+  0,                      /* unknown connections */
+  0,                      /* invisible users */
+  NULL,                   /* virtual host name */
+  NULL,                   /* read server host name */
+  42424,                  /* listening tcp port */
+  0,                      /* is USERS command disable ? */
 #if ENABLE_TIMESTAMP
-  0,                     /* delta value to UTC */
+  0,                      /* delta value to UTC */
 #endif
-  { NULL },              /* message of the day */
-  0,                     /* message of the day lines */
-  0,                     /* motd last modified date */
-  "../doc/irc-MOTD.txt", /* file name of message of the day */
-  NULL,                  /* MLine */
-  NULL,                  /* ALine */
-  NULL,                  /* YLines */
-  NULL,                  /* ILines */
-  NULL,                  /* OLines */
-  NULL,                  /* oLines */
-  NULL,                  /* CLines */
-  NULL,                  /* NLines */
-  NULL,                  /* KLines */
-  NULL,                  /* server password */
-  NULL,                  /* server info */
-  NULL,                  /* email address of maintainers */
-  NULL,                  /* admininfo */
-  NULL,                  /* location1 */
-  NULL,                  /* location2 */
-  NULL,                  /* irc channel hash */
-  NULL,                  /* irc client hash */
-  NULL,                  /* irc server list root */
-  NULL,                  /* client history list root */
-  NULL,                  /* connection classes list */
-  NULL,                  /* user authorizations */
-  NULL,                  /* operator autorizations */
-  NULL,                  /* banned users */
-  NULL                   /* name of the /INFO file */
+  { NULL },               /* message of the day */
+  0,                      /* message of the day lines */
+  0,                      /* motd last modified date */
+  "../data/irc-MOTD.txt", /* file name of message of the day */
+  NULL,                   /* MLine */
+  NULL,                   /* ALine */
+  NULL,                   /* YLines */
+  NULL,                   /* ILines */
+  NULL,                   /* OLines */
+  NULL,                   /* oLines */
+  NULL,                   /* CLines */
+  NULL,                   /* NLines */
+  NULL,                   /* KLines */
+  NULL,                   /* server password */
+  NULL,                   /* server info */
+  NULL,                   /* email address of maintainers */
+  NULL,                   /* admininfo */
+  NULL,                   /* location1 */
+  NULL,                   /* location2 */
+  NULL,                   /* irc channel hash */
+  NULL,                   /* irc client hash */
+  NULL,                   /* irc server list root */
+  NULL,                   /* client history list root */
+  NULL,                   /* connection classes list */
+  NULL,                   /* user authorizations */
+  NULL,                   /* operator autorizations */
+  NULL,                   /* banned users */
+  NULL                    /* name of the /INFO file */
 };
 
 /*

@@ -1,3 +1,9 @@
+2000-09-28  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (SUBDIRS): Added the `data' directory and put
+	all data files from the `doc' directory there. Put sizzle cgi
+	example there, too.
+
 2000-09-16  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Added some checks for the crypt() interface.

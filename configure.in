@@ -1189,6 +1189,7 @@ AC_OUTPUT(
     src/q3key-server/Makefile
     src/nut-server/Makefile
     doc/Makefile 
+    data/Makefile 
     version.h)
 
 dnl
@@ -1214,6 +1215,7 @@ if test "$sizzle_src" != "no"; then
      --disable-regexp \
      --disable-nls \
      --disable-dl \
+     --disable-readline \
      --disable-maximum-functionality \
      --without-included-gettext \
      --without-catgets \

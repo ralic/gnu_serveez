@@ -26,8 +26,6 @@ AUTOMAKE_OPTIONS = no-texinfo.tex
 
 info_TEXINFOS = serveez.texi
 
-EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg
-
 CLEANFILES = *.info *.html
 
 MAINTAINERCLEANFILES = Makefile.in

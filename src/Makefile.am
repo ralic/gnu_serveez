@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.13 2000/09/26 18:08:51 ela Exp $
+# $Id: Makefile.am,v 1.14 2000/09/28 16:25:18 ela Exp $
 #
 
 #
@@ -81,6 +81,7 @@ serveez_SOURCES = \
 	pipe-socket.c pipe-socket.h \
 	interface.c interface.h \
 	udp-socket.c udp-socket.h \
+	icmp-socket.c icmp-socket.h \
 	windoze.c windoze.h
 
 serveez_DEPENDENCIES = $(PROTOLIBS) $(SIZZLEDEP) \
@@ -102,6 +103,6 @@ $(SIZZLERULE):
 distclean-local:
 	rm -f *\~ *.orig *.rej
 
-serveez.cfg: ../doc/serveez.cfg
+serveez.cfg: ../data/serveez.cfg
 	cp $< $@
 

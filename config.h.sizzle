@@ -108,6 +108,9 @@
 /* Define if you have the __argz_stringify function.  */
 /* #undef HAVE___ARGZ_STRINGIFY */
 
+/* Define if you have the chown function.  */
+/* #undef HAVE_CHOWN */
+
 /* Define if you have the dcgettext function.  */
 /* #undef HAVE_DCGETTEXT */
 
@@ -116,6 +119,9 @@
 
 /* Define if you have the fnmatch function.  */
 /* #undef HAVE_FNMATCH */
+
+/* Define if you have the fork function.  */
+/* #undef HAVE_FORK */
 
 /* Define if you have the fsync function.  */
 /* #undef HAVE_FSYNC */
@@ -132,6 +138,9 @@
 /* Define if you have the geteuid function.  */
 /* #undef HAVE_GETEUID */
 
+/* Define if you have the getgid function.  */
+/* #undef HAVE_GETGID */
+
 /* Define if you have the getgroups function.  */
 /* #undef HAVE_GETGROUPS */
 
@@ -147,6 +156,12 @@
 /* Define if you have the getpgrp function.  */
 /* #undef HAVE_GETPGRP */
 
+/* Define if you have the getppid function.  */
+/* #undef HAVE_GETPPID */
+
+/* Define if you have the getuid function.  */
+/* #undef HAVE_GETUID */
+
 /* Define if you have the getwd function.  */
 /* #undef HAVE_GETWD */
 
@@ -156,8 +171,17 @@
 /* Define if you have the isatty function.  */
 #define HAVE_ISATTY 1
 
+/* Define if you have the kill function.  */
+/* #undef HAVE_KILL */
+
+/* Define if you have the link function.  */
+/* #undef HAVE_LINK */
+
 /* Define if you have the munmap function.  */
 /* #undef HAVE_MUNMAP */
+
+/* Define if you have the nice function.  */
+/* #undef HAVE_NICE */
 
 /* Define if you have the putenv function.  */
 #define HAVE_PUTENV 1
@@ -177,11 +201,17 @@
 /* Define if you have the seteuid function.  */
 /* #undef HAVE_SETEUID */
 
+/* Define if you have the setgid function.  */
+/* #undef HAVE_SETGID */
+
 /* Define if you have the sethostname function.  */
 /* #undef HAVE_SETHOSTNAME */
 
 /* Define if you have the setlocale function.  */
 #define HAVE_SETLOCALE 1
+
+/* Define if you have the setuid function.  */
+/* #undef HAVE_SETUID */
 
 /* Define if you have the stpcpy function.  */
 /* #undef HAVE_STPCPY */
@@ -194,6 +224,12 @@
 
 /* Define if you have the strdup function.  */
 #define HAVE_STRDUP 1
+
+/* Make CygWin / MinGW32 use large FD sets. */
+#define FD_SETSIZE 4096
+
+/* Define for faster code generation. */
+#define WIN32_LEAN_AND_MEAN 1
 
 /* Define if you have the strerror function.  */
 #define HAVE_STRERROR 1
@@ -222,6 +258,9 @@
 /* Define if you have the symlink function.  */
 /* #undef HAVE_SYMLINK */
 
+/* Define if you have the sync function.  */
+/* #undef HAVE_SYNC */
+
 /* Define if you have the times function.  */
 /* #undef HAVE_TIMES */
 
@@ -233,6 +272,9 @@
 
 /* Define if you have the uname function.  */
 /* #undef HAVE_UNAME */
+
+/* Define if you have the wait function.  */
+/* #undef HAVE_WAIT */
 
 /* Define if you have the waitpid function.  */
 /* #undef HAVE_WAITPID */
@@ -310,7 +352,10 @@
 #define PACKAGE "sizzle"
 
 /* Version number of package */
-#define VERSION "0.0.28"
+#define VERSION "0.0.29"
+
+/* Define if debug code should be suppressed. */
+#define NDEBUG 1
 
 /* Define if posix functions should be supported. */
 /* #undef ENABLE_POSIX */
@@ -323,9 +368,6 @@
 
 /* Define if dynamic linking should be compiled in. */
 /* #undef ENABLE_DL */
-
-/* Define if the readline library should be supported. */
-/* #undef ENABLE_READLINE */
 
 /* Define if you have the getopt function. */
 /* #undef HAVE_GETOPT */
@@ -350,9 +392,6 @@
 
 /* Define if math library contains rint(). */
 /* #undef HAVE_RINT */
-
-/* Define if the readline library is available. */
-/* #undef HAVE_READLINE */
 
 /* Define if the dl library is available. */
 /* #undef HAVE_DL */

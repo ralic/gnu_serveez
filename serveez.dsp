@@ -149,6 +149,10 @@ SOURCE=".\src\http-server\http-proto.c"
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\icmp-socket.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\coserver\ident.c
 # End Source File
 # Begin Source File
