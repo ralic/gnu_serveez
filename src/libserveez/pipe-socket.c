@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.20 2001/09/09 12:54:57 ela Exp $
+ * $Id: pipe-socket.c,v 1.21 2001/09/17 21:58:53 ela Exp $
  *
  */
 
@@ -390,9 +390,9 @@ svz_pipe_overlap (LPOVERLAPPED overlap)
 {
   if (overlap)
     {
-      printf ("Internal: %ld (0x%08X), InternalHigh: %ld (0x%08X)\n"
-	      "Offset: %ld (0x%08X), OffsetHigh: %ld (0x%08X)\n"
-	      "Event: %ld\n",
+      printf ("Internal: %ld (0x%08lX), InternalHigh: %ld (0x%08lX)\n"
+	      "Offset: %ld (0x%08lX), OffsetHigh: %ld (0x%08lX)\n"
+	      "Event: %p\n",
 	      overlap->Internal, overlap->Internal, overlap->InternalHigh,
 	      overlap->InternalHigh, overlap->Offset, overlap->Offset,
 	      overlap->OffsetHigh, overlap->OffsetHigh, overlap->hEvent);

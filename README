@@ -101,4 +101,4 @@ cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
 
 The password is 'anoncvs'. Run sh autogen.sh and configure with appropriate
 options. Maintainance currently requires Autoconf version 2.13, GNU libtool 
-1.4.1 and GNU automake 1.4-p2.
+1.4.2 and GNU automake 1.4-p2.
