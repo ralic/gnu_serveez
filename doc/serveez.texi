@@ -859,7 +859,8 @@ Format of each line is:
 @example
 ":" class number (higher numbers refer to a higher priority)
 ":" ping frequency (in seconds)
-":" connect frequency in seconds for servers, 0 for client class
+":" connect frequency in seconds for servers, 0 for 
+    client classes
 ":" maximum number of links in this class
 ":" send queue size
 @end example

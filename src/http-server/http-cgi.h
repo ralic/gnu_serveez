@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.5 2000/09/27 14:31:26 ela Exp $
+ * $Id: http-cgi.h,v 1.6 2001/01/03 20:02:42 ela Exp $
  *
  */
 
@@ -50,7 +50,7 @@
 #define CGI_VERSION "CGI/1.0"
 
 char *http_check_cgi (socket_t sock, char *request);
-int http_cgi_exec (socket_t, HANDLE , HANDLE, char *, char *, int);
+int http_cgi_exec (socket_t, HANDLE, HANDLE, char *, char *, int);
 int http_post_response (socket_t sock, char *request, int flags);
 int http_cgi_write (socket_t sock);
 int http_cgi_read (socket_t sock);

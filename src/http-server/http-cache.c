@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.21 2000/11/10 11:24:05 ela Exp $
+ * $Id: http-cache.c,v 1.22 2001/01/03 20:02:42 ela Exp $
  *
  */
 
@@ -126,15 +126,13 @@ http_cache_consistency (void)
 	  if (!cache[o]->ready)
 	    {
 	      assert (cache[o]->size == 0 && 
-		      cache[o]->buffer == NULL &&
-		      cache[o]->hits == 0);
+		      cache[o]->buffer == NULL && cache[o]->hits == 0);
 	    }
 	  /* if ready a cache entry must contain something */
 	  else
 	    {
 	      assert (cache[o]->size >= 0 && 
-		      cache[o]->buffer &&
-		      cache[o]->hits >= 0);
+		      cache[o]->buffer && cache[o]->hits >= 0);
 	    }
 	  
 	  /* cache urgency must be in a certain range */
@@ -222,7 +220,8 @@ http_check_cache (char *file, http_cache_t *cache)
 	  return HTTP_CACHE_COMPLETE;
 	}
       /* not but is going to be ... */
-      else return HTTP_CACHE_INCOMPLETE;
+      else
+	return HTTP_CACHE_INCOMPLETE;
     }
   return HTTP_CACHE_NO;
 }
@@ -391,7 +390,8 @@ http_cache_write (socket_t sock)
   assert (cache->entry);
 
   do_write = cache->size;
-  if (do_write > (SOCK_MAX_WRITE << 5)) do_write = (SOCK_MAX_WRITE << 5);
+  if (do_write > (SOCK_MAX_WRITE << 5))
+    do_write = (SOCK_MAX_WRITE << 5);
   num_written = send (sock->sock_desc, cache->buffer, do_write, 0);
 
   if (num_written > 0)
@@ -461,8 +461,7 @@ http_cache_read (socket_t sock)
    * Try to read as much data as possible from the file.
    */
   num_read = read (sock->file_desc,
-		   sock->send_buffer + sock->send_buffer_fill,
-		   do_read);
+		   sock->send_buffer + sock->send_buffer_fill, do_read);
   
   /* Read error occurred. */
   if (num_read < 0)
@@ -486,11 +485,9 @@ http_cache_read (socket_t sock)
        * Reserve some more memory and then copy the gained data
        * to the cache entry.
        */
-      cache->buffer = xrealloc (cache->buffer, 
-				cache->size + num_read);
+      cache->buffer = xrealloc (cache->buffer, cache->size + num_read);
       memcpy (cache->buffer + cache->size,
-	      sock->send_buffer + sock->send_buffer_fill,
-	      num_read);
+	      sock->send_buffer + sock->send_buffer_fill, num_read);
       cache->size += num_read;
 
       sock->send_buffer_fill += num_read;

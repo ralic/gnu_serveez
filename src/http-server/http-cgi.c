@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.29 2000/11/25 20:36:34 ela Exp $
+ * $Id: http-cgi.c,v 1.30 2001/01/03 20:02:42 ela Exp $
  *
  */
 
@@ -162,7 +162,8 @@ http_cgi_read (socket_t sock)
     }
 
   /* adjust number of bytes to read */
-  if (do_read > num_read) do_read = num_read;
+  if (do_read > num_read)
+    do_read = num_read;
 
   /* really read from pipe */
   if (!ReadFile (sock->pipe_desc[READ],
@@ -244,14 +245,13 @@ http_cgi_write (socket_t sock)
       log_printf (LOG_ERROR, "cgi: WriteFile: %s\n", SYS_ERROR);
       num_written = -1;
     }
-#else
+#else /* !__MINGW32__ */
   if ((num_written = write (sock->pipe_desc[WRITE], 
-			    sock->recv_buffer, 
-			    do_write)) == -1)
+			    sock->recv_buffer, do_write)) == -1)
     {
       log_printf (LOG_ERROR, "cgi: write: %s\n", SYS_ERROR);
     }
-#endif
+#endif /* !__MINGW32__ */
 
   /* data has been successfully sent */
   if (num_written > 0)
@@ -323,7 +323,7 @@ http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
     }
 #else
   /* Unices: */
-  if (*length >= ENV_ENTRIES-1)
+  if (*length >= ENV_ENTRIES - 1)
     {
       log_printf (LOG_WARNING, "cgi: all env entries %d filled\n", 
 		  ENV_ENTRIES);
@@ -392,11 +392,11 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
   /* convert some http request properties into environment variables */
   if (http->property)
     for (c = 0; env_var[c].property; c++)
-      for (n = 0; http->property[n]; n+=2)
+      for (n = 0; http->property[n]; n += 2)
 	if (!util_strcasecmp (http->property[n], env_var[c].property))
 	  {
 	    http_insert_env (env, &size, "%s=%s", 
-			     env_var[c].env, http->property[n+1]);
+			     env_var[c].env, http->property[n + 1]);
 	    break;
 	  }
 
@@ -471,7 +471,8 @@ http_check_cgi (socket_t sock, char *request)
 
   /* find the actual URL */
   p = saverequest;
-  while (*p != '?' && *p != 0) p++;
+  while (*p != '?' && *p != 0)
+    p++;
   *p = 0;
 
   size = strlen (cfg->cgidir) + len;
@@ -499,8 +500,7 @@ http_check_cgi (socket_t sock, char *request)
     }
 
   if (!(buf.st_mode & S_IFREG) ||
-      !(buf.st_mode & S_IXUSR) ||
-      !(buf.st_mode & S_IRUSR))  
+      !(buf.st_mode & S_IXUSR) || !(buf.st_mode & S_IRUSR))  
     {
       log_printf (LOG_ERROR, "cgi: no executable: %s\n", file);
       close (fd);
@@ -571,8 +571,9 @@ http_pre_exec (socket_t sock,       /* socket structure */
   if (type == GET_METHOD)
     {
       p = request;
-      while (*p != '?' && *p != 0) p++;
-      http_insert_env (envp, &size, "QUERY_STRING=%s", *p ? p+1 : "");
+      while (*p != '?' && *p != 0)
+	p++;
+      http_insert_env (envp, &size, "QUERY_STRING=%s", *p ? p + 1 : "");
 #ifdef __MINGW32__
       envp[size] = 0;
 #else
@@ -683,7 +684,8 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   StartupInfo.cb = sizeof (StartupInfo);
   StartupInfo.dwFlags = STARTF_USESTDHANDLES;
   StartupInfo.hStdOutput = out;
-  if (type == POST_METHOD) StartupInfo.hStdInput = in;
+  if (type == POST_METHOD)
+    StartupInfo.hStdInput = in;
 
   /* reserve buffer space for the environment block */
   envp = xmalloc (ENV_BLOCK_SIZE);
@@ -705,7 +707,8 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 
   /* find a cgi interpreter if possible */
   p = cgifile + strlen (cgifile) - 1;
-  while (p != cgifile && *p != '.') p--;
+  while (p != cgifile && *p != '.')
+    p--;
   suffix = p + 1;
 
   if ((p = hash_get (*(cfg->cgiapps), util_tolower (suffix))) != NULL)
@@ -767,8 +770,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 		      DETACHED_PROCESS,    /* CreationFlags */
 		      envp,                /* Environment */
 		      NULL,                /* CurrentDirectory */
-		      &StartupInfo,
-		      &ProcessInfo))
+		      &StartupInfo, &ProcessInfo))
     {
       log_printf (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
@@ -792,7 +794,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 
 #ifdef ENABLE_DEBUG
   log_printf (LOG_DEBUG, "http: cgi %s got pid 0x%08X\n", 
-	      file+1, ProcessInfo.dwProcessId);
+	      file + 1, ProcessInfo.dwProcessId);
 #endif
 
 #else /* not __MINGW32__ */
@@ -943,7 +945,7 @@ http_post_response (socket_t sock, char *request, int flags)
   http = sock->data;
 
   /* is this a valid POST request ? */
-  file = http_check_cgi(sock, request);
+  file = http_check_cgi (sock, request);
   if (file == NULL || file == HTTP_NO_CGI)
     {
       sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");

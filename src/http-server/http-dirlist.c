@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.16 2000/11/10 11:24:05 ela Exp $
+ * $Id: http-dirlist.c,v 1.17 2001/01/03 20:02:42 ela Exp $
  *
  */
 
@@ -114,9 +114,10 @@ http_create_uri (char *file)
 	      (*p >= '0' && *p <= '9') || 
 	      *p == ' ' || *p == '/' || *p == '.' || *p == '_'))
 	*dst++ = *p++;
-      if (!*p) break;
+      if (!*p)
+	break;
       *dst++ = '%';
-      sprintf (dst, "%02X", (unsigned char)*p++);
+      sprintf (dst, "%02X", (unsigned char) *p++);
       dst += 2;
     }
   *dst = '\0';
@@ -162,7 +163,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
       (dirname[strlen (dirname) - 1] == '/' ||
        dirname[strlen (dirname) - 1] == '\\')) 
     {
-      dirname[strlen(dirname) - 1] = 0;
+      dirname[strlen (dirname) - 1] = 0;
     }
 
   /* Open the directory */
@@ -191,7 +192,8 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
   if (!userdir)
     {
       i = 0;
-      while (dirname[i] == docroot[i] && docroot[i] != 0) i++;
+      while (dirname[i] == docroot[i] && docroot[i] != 0)
+	i++;
       relpath = &dirname[i];
       if (!strcmp (relpath, "/"))
 	{
@@ -199,7 +201,8 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 	  dirname++;
 	}
     }
-  else relpath = userdir + 1;
+  else
+    relpath = userdir + 1;
 
   /* Output preamble */
   while (-1 == snprintf (dirdata, datasize,
@@ -227,16 +230,14 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 #endif
     {
       /* Create fully qualified filename */
-      snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
-		dirname, FILENAME);
+      snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", dirname, FILENAME);
 
       /* Stat the given file */
       if (-1 == stat (filename, &buf)) 
 	{
 	  /* Something is wrong with this file... */
 	  snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-		    "<font color=red>%s -- %s</font>\n",
-		    FILENAME, SYS_ERROR);
+		    "<font color=red>%s -- %s</font>\n", FILENAME, SYS_ERROR);
 	} 
       else 
 	{
@@ -262,8 +263,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 			"<a href=\"%s/\">%-40s</a> "
 			"&lt;directory&gt; "
 			"%s\n",
-			http_create_uri (FILENAME), 
-			FILENAME, timestr);
+			http_create_uri (FILENAME), FILENAME, timestr);
 	    } 
 	  else 
 	    {
@@ -298,8 +298,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
   /* Output postamble */
   snprintf (postamble, DIRLIST_SPACE_POST - 1,
 	    "\n</pre><hr noshade>\n"
-	    "%d entries\n</body>\n</html>",
-	    files);
+	    "%d entries\n</body>\n</html>", files);
 
   if (datasize - strlen (dirdata) < strlen (postamble) + 1) 
     {
