@@ -1,3 +1,8 @@
+2001-09-26  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-api.texi.in: Include `version.texi'. Possible since
+	update to `GNU automake 1.4-p5'.
+
 2001-09-15  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.en.html: Dropped a note about Windows XP support.
