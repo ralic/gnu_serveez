@@ -40,6 +40,9 @@
 /* Define if you have the endrpcent function.  */
 /* #undef HAVE_ENDRPCENT */
 
+/* Define if you have the get_myaddress function.  */
+/* #undef HAVE_GET_MYADDRESS */
+
 /* Define if you have the getdtablesize function.  */
 /* #undef HAVE_GETDTABLESIZE */
 
@@ -75,6 +78,9 @@
 
 /* Define if you have the mknod function.  */
 /* #undef HAVE_MKNOD */
+
+/* Define if you have the pmap_getmaps function.  */
+/* #undef HAVE_PMAP_GETMAPS */
 
 /* Define if you have the pmap_set function.  */
 /* #undef HAVE_PMAP_SET */
@@ -154,14 +160,17 @@
 /* Define if you have the <ndir.h> header file.  */
 /* #undef HAVE_NDIR_H */
 
-/* Define if you have the <netinet/tcp.h> header file.  */
-/* #undef HAVE_NETINET_TCP_H */
-
 /* Define if you have the <pwd.h> header file.  */
 /* #undef HAVE_PWD_H */
 
+/* Define if you have the <rpc/clnt_soc.h> header file.  */
+/* #undef HAVE_RPC_CLNT_SOC_H */
+
 /* Define if you have the <rpc/pmap_clnt.h> header file.  */
 /* #undef HAVE_RPC_PMAP_CLNT_H */
+
+/* Define if you have the <rpc/pmap_prot.h> header file.  */
+/* #undef HAVE_RPC_PMAP_PROT_H */
 
 /* Define if you have the <rpc/rpc.h> header file.  */
 /* #undef HAVE_RPC_RPC_H */
@@ -290,7 +299,7 @@
 /* Define if you have the getopt function. */
 /* #undef HAVE_GETOPT */
 
-/* Define if the getopt_long function is declared in getopt.h. */
+/* Define if the getopt_long function is declared in <getopt.h>. */
 /* #undef DECLARED_GETOPT_LONG */
 
 /* Define if you have the getopt_long function. */
@@ -311,7 +320,10 @@
 /* Define if you have the strnicmp function. */
 #define HAVE_STRNICMP 1
 
-/* Define if the alphasort function is declared in dirent.h. */
+/* Define if you have the <netinet/tcp.h> header file. */
+/* #undef HAVE_NETINET_TCP_H */
+
+/* Define if the alphasort function is declared in <dirent.h>. */
 #define DECLARED_ALPHASORT 1
 
 /* Define if you have the dlopen function. */
@@ -383,22 +395,22 @@
 /* Define if you have the crypt function. */
 /* #undef HAVE_CRYPT */
 
-/* Define if the strsignal function is declared in string.h. */
+/* Define if the strsignal function is declared in <string.h>. */
 /* #undef DECLARED_STRSIGNAL */
 
 /* Define if you have the hstrerror function. */
 /* #undef HAVE_HSTRERROR */
 
-/* Define if the hstrerror function is declared in netdb.h. */
+/* Define if the hstrerror function is declared in <netdb.h>. */
 /* #undef DECLARED_HSTRERROR */
 
 /* Define if h_errno is supported. */
 /* #undef HAVE_H_ERRNO */
 
-/* Define if the setrpcent function is declared in netdb.h. */
+/* Define if the setrpcent function is declared in <netdb.h>. */
 /* #undef DECLARED_SETRPCENT */
 
-/* Define if the endrpcent function is declared in netdb.h. */
+/* Define if the endrpcent function is declared in <netdb.h>. */
 /* #undef DECLARED_ENDRPCENT */
 
 /* Define to empty if the keyword does not work. */

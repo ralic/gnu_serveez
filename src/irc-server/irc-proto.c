@@ -1,7 +1,7 @@
 /*
  * irc-proto.c - basic IRC protocol functions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.37 2001/12/07 20:37:14 ela Exp $
+ * $Id: irc-proto.c,v 1.38 2002/02/03 09:34:04 ela Exp $
  *
  */
 
@@ -187,6 +187,50 @@ irc_global_finalize (svz_servertype_t *server)
 }
 
 /*
+ * Checks the TCP bindings of the given IRC server instance @var{server}. The
+ * routine is called from the initializer callback of the IRC server and
+ * verifies that it is bound to TCP ports according to the `M-line' given in
+ * its configuration.
+ */
+static int
+irc_check_tcp_bindings (svz_server_t *server)
+{
+  irc_config_t *cfg = server->cfg;
+  svz_array_t *ports;
+  svz_portcfg_t *port;
+  int n, err = 0;
+
+  /* Is the server bound at all ? */
+  if ((ports = svz_server_portcfgs (server)) == NULL)
+    {
+      svz_log (LOG_WARNING, "irc: `%s' is not bound yet\n", server->name);
+      return -1;
+    }
+
+  /* Go through each binding. */
+  svz_array_foreach (ports, port, n)
+    {
+      /* Is it a TCP port configuration ? */
+      if (!(port->proto & PROTO_TCP))
+	{
+	  svz_log (LOG_WARNING, "irc: `%s' is bound to non-TCP port `%s'\n",
+		   server->name, port->name);
+	  err = -1;
+	}
+      /* Does the `M-line' entry clash with this port configuration ? */
+      else if (port->tcp_port != cfg->port)
+	{
+	  svz_log (LOG_WARNING, "irc: port TCP:%u in M line clashes `%s'\n",
+		   cfg->port, port->name);
+	  cfg->port = port->tcp_port;
+	  err = -1;
+	}
+    }
+  svz_array_destroy (ports);
+  return err;
+}
+
+/*
  * Initialization of the IRC server instance.
  */
 int
@@ -204,16 +248,13 @@ irc_init (svz_server_t *server)
 	       cfg->MLine ? cfg->MLine : "(nil)");
       return -1;
     }
-  /* FIXME: ???
-  if (cfg->port != cfg->netport->port)
-    {
-      svz_log (LOG_WARNING, "irc: port in M line clashes\n");
-      cfg->netport->port = (short) cfg->port;
-    }
-  */
+
   cfg->host = svz_strdup (tmp[0]);
   cfg->realhost = svz_strdup (tmp[1]);
   cfg->info = svz_strdup (tmp[2]);
+
+  /* check the bindings of this server */
+  irc_check_tcp_bindings (server);
 
   /* scan the A line (administrative information) */
   if (!cfg->ALine ||

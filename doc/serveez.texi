@@ -1768,13 +1768,12 @@ connect to this port with any WWW browser at
 depend on the bindings.
 
 @item hosts (string array, no default)
-This is the start of the haystack,
-the initial host list of the clients the spider tries to 
-connect to. Each list item should be of the format @code{ip:port} 
-(e.g. @samp{146.145.85.34:6346}). If the port information is left
-blank it defaults to 6346. If you need some entry point for 
-the Gnutella network have a look at @uref{http://www.gnutellahosts.com/} 
-or @uref{http://www.gnutellanet.com/}.
+This is the start of the haystack, the initial host list of the clients 
+the spider tries to connect to.  Each list item should be of the format 
+@code{ip:port} (e.g. @samp{146.145.85.34:6346}).  You can also pass Internet
+host names.  If the port information is left blank it defaults to 6346.  If 
+you need some entry point for the Gnutella network have a look at 
+@uref{http://www.gnutellahosts.com/} or @uref{http://www.gnutellanet.com/}.
 
 @item search (string array, default: Puppe3000, Meret Becker)
 This is the needle. Each search line is either a set of 
@@ -1838,8 +1837,13 @@ some kind of port forwarder on the gateway so other people can reach you
 from the outside. Serveez is a good port forwarder.
 
 @item force-port (integer, default: not set)
-Force the Gnutella spider to send outgoing replies with this PORT as 
-port information. See above for more information.
+Force the Gnutella spider to send outgoing replies with the 
+@code{force-port} as port information. See above for more information.
+
+@item disable (boolean, default: false)
+With this configuration option you can disable the bindings for a Gnutella
+server instance.  This means that no remote client can connect without
+being told so (e.g. by push requests).
 @end table
 
 @node Tunnel Server, Chat Server, Gnutella Spider, Existing servers

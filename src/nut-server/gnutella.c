@@ -1,7 +1,7 @@
 /*
  * gnutella.c - gnutella protocol implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.43 2001/12/07 20:37:15 ela Exp $
+ * $Id: gnutella.c,v 1.44 2002/02/03 09:34:05 ela Exp $
  *
  */
 
@@ -83,7 +83,7 @@ char *nut_search_patterns[] =
  */
 nut_config_t nut_config = 
 {
-  0,                   /* if set we do not listen on the above port cfg */
+  0,                   /* if set we do not listen on any port cfg */
   NUT_MAX_TTL,         /* maximum ttl for a gnutella packet */
   NUT_TTL,             /* initial ttl for a gnutella packet */
   NULL,                /* array of initial hosts */
@@ -151,6 +151,7 @@ svz_key_value_pair_t nut_config_prototype[] =
   SVZ_REGISTER_INT ("max-uploads", nut_config.max_uploads, 
 		    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("net-url", nut_config.net_url, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_BOOL ("disable", nut_config.disable, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -228,53 +229,99 @@ nut_connect_timeout (svz_socket_t *sock)
 }
 
 /*
- * The following routine tries to connect to a given gnutella host.
- * It returns -1 on errors and zero otherwise.
+ * The following function tries to connect to a given gnutella host specified
+ * by @var{ip:port} both in network byte order. It returns -1 on errors and 
+ * zero otherwise.
  */
 static int
-nut_connect_host (nut_config_t *cfg, char *host)
+nut_connect_ip (nut_config_t *cfg, unsigned long ip, unsigned short port)
 {
-  nut_host_t *client;
   svz_socket_t *sock;
-  unsigned long ip;
-  unsigned short port;
-  int ret = -1;
-
-  /* try getting ip address and port */
-  if (nut_parse_addr (host, &ip, &port) == -1)
-    {
-      svz_log (LOG_WARNING, "nut: invalid host `%s'\n", host);
-      return ret;
-    }
-
-  /* get client from host catcher hash */
-  client = (nut_host_t *) svz_hash_get (cfg->net, host);
 
   /* try to connect to this host */
   if ((sock = svz_tcp_connect (ip, port)) != NULL)
     {
       svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
 	       svz_inet_ntoa (ip), ntohs (port));
-      
       sock->cfg = cfg;
       sock->flags |= SOCK_FLAG_NOFLOOD;
       sock->check_request = nut_detect_connect;
       sock->idle_func = nut_connect_timeout;
       sock->idle_counter = NUT_CONNECT_TIMEOUT;
       svz_sock_printf (sock, NUT_CONNECT);
-      ret = 0;
+      return 0;
+    }
+  return -1;
+}
+
+/*
+ * This routine gets called when the DNS coserver finally resolved a given
+ * hostname to an IP address and tries to connect to the gnutella client.
+ */
+static int
+nut_nslookup_done (char *host, nut_config_t *cfg, unsigned short port)
+{
+  struct sockaddr_in addr;
+
+  if (host != NULL)
+    {
+      if (svz_inet_aton (host, &addr) == -1)
+	{
+	  svz_log (LOG_WARNING, "nut: invalid IP address `%s'\n", host);
+	  return -1;
+	}
+      return nut_connect_ip (cfg, addr.sin_addr.s_addr, port);
+    }
+  return -1;
+}
+
+/*
+ * The following routine tries to connect to a given gnutella host. The 
+ * @var{host} argument can be either in dotted decimal form or a hostname. 
+ * It returns -1 on errors and zero otherwise.
+ */
+static int
+nut_connect_host (nut_config_t *cfg, char *host)
+{
+  nut_host_t *client;
+  unsigned long ip;
+  unsigned short port;
+  char *dns = NULL;
+
+  /* try getting ip address and port */
+  if (nut_parse_addr (host, &ip, &port) == -1)
+    {
+      if ((dns = nut_parse_host (host, &port)) == NULL)
+	{
+	  svz_log (LOG_ERROR, "nut: invalid host `%s'\n", host);
+	  return -1;
+	}
     }
 
-  /* 
-   * If we could not connect then delete the client from host catcher 
-   * hash and free the client structure.
-   */
-  if (client)
+  /* try to connect to this host */
+  if (dns != NULL)
     {
-      svz_hash_delete (cfg->net, host);
-      svz_free (client);
+      /* first resolve the hostname and then connect */
+      svz_log (LOG_NOTICE, "nut: enqueuing %s\n", dns);
+      svz_coserver_dns (dns, nut_nslookup_done, cfg, port);
+      svz_free (dns);
     }
-  return ret;
+  else
+    {
+      /* try connecting immediately */
+      if (nut_connect_ip (cfg, ip, port))
+	{
+	  /* if we could not connect then delete the client from host catcher 
+	     hash and free the client structure */
+	  if ((client = (nut_host_t *) svz_hash_get (cfg->net, host)) != NULL)
+	    {
+	      svz_hash_delete (cfg->net, host);
+	      svz_free (client);
+	    }
+	  return -1;
+	}
+    }
+  return 0;
 }
 
 /*
@@ -453,10 +500,6 @@ nut_init (svz_server_t *server)
   svz_array_foreach (cfg->hosts, p, n)
     nut_connect_host (cfg, p);
 
-  /* bind listening server to configurable port address 
-     FIXME: how can we disable bindings ?
-  if (!cfg->disable)
-    server_bind (server, cfg->netport);*/
   return 0;
 }
 
@@ -960,15 +1003,18 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
   nut_config_t *cfg = server->cfg;
   int len = strlen (NUT_CONNECT);
 
-  /* detect normal connect */
-  len = strlen (NUT_CONNECT);
-  if (sock->recv_buffer_fill >= len &&
-      !memcmp (sock->recv_buffer, NUT_CONNECT, len))
+  /* detect normal connect (not if listener is disabled) */
+  if (!cfg->disable)
     {
-      sock->userflags |= NUT_FLAG_CLIENT;
-      svz_log (LOG_NOTICE, "gnutella protocol detected (client)\n");
-      svz_sock_reduce_recv (sock, len);
-      return -1;
+      len = strlen (NUT_CONNECT);
+      if (sock->recv_buffer_fill >= len &&
+	  !memcmp (sock->recv_buffer, NUT_CONNECT, len))
+	{
+	  sock->userflags |= NUT_FLAG_CLIENT;
+	  svz_log (LOG_NOTICE, "gnutella protocol detected (client)\n");
+	  svz_sock_reduce_recv (sock, len);
+	  return -1;
+	}
     }
 
   /* detect upload request */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.8 2001/08/01 10:16:23 ela Exp $
+ * $Id: nut-core.h,v 1.9 2002/02/03 09:34:05 ela Exp $
  *
  */
 
@@ -43,6 +43,7 @@ nut_client_t *nut_create_client (void);
 void nut_calc_guid (svz_uint8_t *guid);
 char *nut_print_guid (svz_uint8_t *guid);
 char *nut_text_guid (svz_uint8_t *guid);
+char *nut_parse_host (char *addr, unsigned short *port);
 int nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port);
 char *nut_client_key (unsigned long ip, unsigned short port);
 char *nut_parse_property (char *header, int len, char *property);

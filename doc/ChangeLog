@@ -1,3 +1,9 @@
+2002-02-03  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Gnutella Spider): Documented the hostname 
+	feature	of the `hosts' configuration item and added the 
+	documentation about the new `disable' configuration item.
+
 2002-01-31  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Define ports): Added a seperate section about 

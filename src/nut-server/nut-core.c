@@ -1,7 +1,7 @@
 /*
  * nut-core.c - gnutella core implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.20 2001/08/01 10:16:23 ela Exp $
+ * $Id: nut-core.c,v 1.21 2002/02/03 09:34:05 ela Exp $
  *
  */
 
@@ -63,10 +63,48 @@ nut_create_client (void)
 }
 
 /*
+ * Parses a `host:port' combination from the given character string 
+ * @var{addr} and stores the @var{port} in network byte order. If the `:port' 
+ * part is not given, a default port is delivered. Returns NULL if the 
+ * string is invalid and otherwise the hostname. The caller is responsible
+ * for freeing the returned string.
+ */
+char *
+nut_parse_host (char *addr, unsigned short *port)
+{
+  char *p, *host;
+
+  /* create a local copy of the given address string */
+  p = host = svz_strdup (addr);
+  if (!host)
+    {
+      /* address string was NULL or empty */
+      return NULL;
+    }
+
+  /* find separating colon */
+  while (*p != ':' && *p)
+    p++;
+  if (*p) 
+    {
+      *p = '\0';
+      p++;
+    }
+  else
+    p = NULL;
+
+  /* convert and store both of the parsed values */
+  *port = (unsigned short) (p ? 
+			    htons ((unsigned short) svz_atoi (p)) :
+			    htons (NUT_PORT));
+  return host;
+}
+
+/*
  * This routine parses a `a.b.c.d:port' combination from the given 
- * character string ADDR and stores both of the values in IP and PORT 
- * in network byte order. If `:port' is not given, a default port is
- * delivered.
+ * character string @var{addr} and stores both of the values in @var{ip} 
+ * and @var{port} in network byte order. If `:port' is not given, a default 
+ * port is delivered. Returns -1 on errors and otherwise zero.
  */
 int
 nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
@@ -81,10 +119,10 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
       return -1;
     }
 
-  /* skip leading invalid characters */
-  while (*p < '0' && *p > '9' && *p)
+  /* validate IP characters */
+  while (((*p >= '0' && *p <= '9') || *p == '.') && *p)
     p++;
-  if (!*p) 
+  if ((*p < '0' || *p > '9') && *p != '.' && *p && *p != ':')
     {
       svz_free (host);
       return -1;
@@ -103,12 +141,11 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
     colon = NULL;
 
   /* convert and store both of the parsed values */
-  *ip = inet_addr (p);
+  *ip = inet_addr (host);
   *port = (unsigned short) (colon ? 
 			    htons ((unsigned short) svz_atoi (colon)) : 
 			    htons (NUT_PORT));
   svz_free (host);
-
   return 0;
 }
 

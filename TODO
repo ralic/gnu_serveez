@@ -23,6 +23,7 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- Find out how to unload a shared library on MacOS.
 - Keep track of network interface changes.
 - Make some of the configure-time servers available dynamically at run-time.
 	- Let the user create network device bindings.

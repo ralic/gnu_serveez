@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.33 2002/01/24 15:18:03 ela Exp $
+ * $Id: portcfg.c,v 1.34 2002/02/03 09:34:04 ela Exp $
  *
  */
 
@@ -642,8 +642,8 @@ svz_portcfg_prepare (svz_portcfg_t *port)
 	port->detection_wait = SOCK_MAX_DETECTION_WAIT;
     }
   /* Check the initial send and receive buffer sizes. */
-  if (port->send_buffer_size <= 0
-      /* FIXME: || port->send_buffer_size >= REAL_BIG_VALUE */)
+  if (port->send_buffer_size <= 0 || 
+      port->send_buffer_size >= MAX_BUF_SIZE)
     {
       if (port->proto & (PROTO_TCP | PROTO_PIPE))
 	port->send_buffer_size = SEND_BUF_SIZE;
@@ -652,8 +652,8 @@ svz_portcfg_prepare (svz_portcfg_t *port)
       else if (port->proto & (PROTO_ICMP | PROTO_RAW))
 	port->send_buffer_size = ICMP_BUF_SIZE;
     }
-  if (port->recv_buffer_size <= 0
-      /* FIXME: || port->recv_buffer_size >= REAL_BIG_VALUE */)
+  if (port->recv_buffer_size <= 0 ||
+      port->recv_buffer_size >= MAX_BUF_SIZE)
     {
       if (port->proto & (PROTO_TCP | PROTO_PIPE))
 	port->recv_buffer_size = RECV_BUF_SIZE;
@@ -665,7 +665,7 @@ svz_portcfg_prepare (svz_portcfg_t *port)
   /* Check the connection frequency. */
   if (port->connect_freq <= 0)
     {
-      /* FIXME: sane value is ? */
+      /* Sane value is: 100 connections per second. */
       port->connect_freq = 100;
     }
 }

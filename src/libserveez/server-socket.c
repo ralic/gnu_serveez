@@ -1,7 +1,7 @@
 /*
  * server-socket.c - server sockets for TCP, UDP, ICMP and pipes
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.26 2002/01/22 20:27:00 ela Exp $
+ * $Id: server-socket.c,v 1.27 2002/02/03 09:34:05 ela Exp $
  *
  */
 
@@ -135,11 +135,9 @@ svz_server_create (svz_portcfg_t *port)
       addr = svz_portcfg_addr (port);
 
 #ifdef SO_BINDTODEVICE
-      /* FIXME:  On a Linux 2.4.0 you can bind to `eth0' by this control
-	 setting if root priviledges are ensured.  But actually you cannot
-	 connect to the listener.  We still need to investigate if this
-	 feature replaces a bind() and in which order it is meant to be 
-	 called. */
+      /* On a Linux 2.x.x you can bind to `eth0' by this control setting 
+	 if root priviledges are ensured. Includes aliases. Connections can
+	 be established from the physical outside only. */
       if (svz_portcfg_device (port))
 	{
 	  char *device = svz_portcfg_device (port);

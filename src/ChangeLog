@@ -1,3 +1,17 @@
+2002-02-03  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_connect_host): Also parses
+	Internet hostnames in the given `hosts' configuration item and
+	passes these to the DNS coserver.
+	(nut_config_prototype): Reintroduced `disable' configuration
+	item.
+	(nut_detect_proto): Consider the `disable' configuration item
+	and do not let clients connect if set.
+
+	* irc-server/irc-proto.c (irc_check_tcp_bindings): Checking
+	for the TCP bindings of a server instance and comparison with
+	the given `M-line'.
+
 2002-02-01  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/inetd.scm (check-rpc-portmapper): Uses the

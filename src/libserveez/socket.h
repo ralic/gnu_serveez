@@ -1,7 +1,7 @@
 /*
  * socket.h - socket management definitions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.17 2001/12/15 02:47:38 ela Exp $
+ * $Id: socket.h,v 1.18 2002/02/03 09:34:05 ela Exp $
  *
  */
 
@@ -37,8 +37,9 @@
 /* Do not write more than SOCK_MAX_WRITE bytes to a socket at once. */
 #define SOCK_MAX_WRITE        1024
 
-#define RECV_BUF_SIZE  (1024 * 8) /* Normal receive buffer size. */
-#define SEND_BUF_SIZE  (1024 * 8) /* Normal send buffer size. */
+#define RECV_BUF_SIZE  (1024 * 8)         /* Normal receive buffer size. */
+#define SEND_BUF_SIZE  (1024 * 8)         /* Normal send buffer size. */
+#define MAX_BUF_SIZE   (1024 * 1024 * 16) /* Maximum buffer size. */
 
 #define SOCK_FLAG_INIT        0x00000000 /* Value for initializing. */
 #define SOCK_FLAG_INBUF       0x00000001 /* Outbuf is allocated. */
