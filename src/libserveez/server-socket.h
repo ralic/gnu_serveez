@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.h,v 1.6 2001/05/19 23:04:58 ela Exp $
+ * $Id: server-socket.h,v 1.7 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -29,9 +29,9 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_socket_t *svz_server_create __P ((svz_portcfg_t *));
-SERVEEZ_API int svz_tcp_accept __P ((svz_socket_t *));
-SERVEEZ_API int svz_pipe_accept __P ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_server_create __PARAMS ((svz_portcfg_t *));
+SERVEEZ_API int svz_tcp_accept __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_accept __PARAMS ((svz_socket_t *));
 
 __END_DECLS
 

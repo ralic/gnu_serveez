@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.14 2001/09/27 15:47:36 ela Exp $
+ * $Id: http-core.h,v 1.15 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -153,7 +153,7 @@ char *http_clf_date (time_t t);
 void http_set_header (char *response);
 int http_send_header (svz_socket_t *sock);
 void http_reset_header (void);
-void http_add_header __P ((const char *fmt, ...));
+void http_add_header __PARAMS ((const char *fmt, ...));
 
 #ifdef __MINGW32__
 void http_start_netapi (void);

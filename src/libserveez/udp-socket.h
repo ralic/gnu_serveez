@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.h,v 1.4 2001/11/29 23:41:43 raimi Exp $
+ * $Id: udp-socket.h,v 1.5 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -35,14 +35,14 @@
 __BEGIN_DECLS
 
 /* exported UDP socket functions */
-SERVEEZ_API int svz_udp_read_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_udp_lazy_read_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_udp_write_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_udp_check_request __P ((svz_socket_t *));
-SERVEEZ_API svz_socket_t *svz_udp_connect __P ((unsigned long, 
-						unsigned short));
-SERVEEZ_API int svz_udp_write __P ((svz_socket_t *, char *, int));
-SERVEEZ_API int svz_udp_printf __P ((svz_socket_t *, const char *, ...));
+SERVEEZ_API int svz_udp_read_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_udp_lazy_read_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_udp_write_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_udp_check_request __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_udp_connect __PARAMS ((unsigned long, 
+						     unsigned short));
+SERVEEZ_API int svz_udp_write __PARAMS ((svz_socket_t *, char *, int));
+SERVEEZ_API int svz_udp_printf __PARAMS ((svz_socket_t *, const char *, ...));
 
 __END_DECLS
 

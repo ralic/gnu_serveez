@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: windoze.h,v 1.4 2001/05/19 23:04:58 ela Exp $
+ * $Id: windoze.h,v 1.5 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -42,20 +42,22 @@
 __BEGIN_DECLS
 
 /* exported functions */
-SERVEEZ_API int svz_windoze_start_daemon __P ((char *prog));
-SERVEEZ_API int svz_windoze_stop_daemon __P ((void));
-SERVEEZ_API WCHAR *svz_windoze_asc2uni __P ((CHAR *asc));
-SERVEEZ_API CHAR *svz_windoze_uni2asc __P ((WCHAR *unicode));
+SERVEEZ_API int svz_windoze_start_daemon __PARAMS ((char *));
+SERVEEZ_API int svz_windoze_stop_daemon __PARAMS ((void));
+SERVEEZ_API WCHAR *svz_windoze_asc2uni __PARAMS ((CHAR *asc));
+SERVEEZ_API CHAR *svz_windoze_uni2asc __PARAMS ((WCHAR *unicode));
 
 /* registry functions */
-SERVEEZ_API unsigned svz_windoze_get_reg_unsigned __P ((HKEY, char *, char *, 
-							unsigned));
-SERVEEZ_API void svz_windoze_set_reg_unsigned __P ((HKEY, char *, char *, 
-						    unsigned));
-SERVEEZ_API char *svz_windoze_get_reg_string __P ((HKEY, char *, 
-						   char *, char *));
-SERVEEZ_API void svz_windoze_set_reg_string __P ((HKEY, char *, 
-						  char *, char *));
+SERVEEZ_API unsigned svz_windoze_get_reg_unsigned __PARAMS ((HKEY, char *, 
+							     char *, 
+							     unsigned));
+SERVEEZ_API void svz_windoze_set_reg_unsigned __PARAMS ((HKEY, char *, 
+							 char *, 
+							 unsigned));
+SERVEEZ_API char *svz_windoze_get_reg_string __PARAMS ((HKEY, char *, 
+							char *, char *));
+SERVEEZ_API void svz_windoze_set_reg_string __PARAMS ((HKEY, char *, 
+						       char *, char *));
 
 __END_DECLS
 

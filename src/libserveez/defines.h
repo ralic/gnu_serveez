@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.7 2001/10/27 14:12:16 ela Exp $
+ * $Id: defines.h,v 1.8 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -48,17 +48,17 @@
 # define __END_DECLS
 #endif
 
-/* __P is a macro used to wrap function prototypes, so that compilers
+/* __PARAMS is a macro used to wrap function prototypes, so that compilers
    that don't understand ANSI C prototypes still work, and ANSI C
    compilers can issue warnings about type mismatches. */
 
-#undef __P
+#undef __PARAMS
 #if defined (__STDC__) || defined (_AIX) \
         || (defined (__mips) && defined (_SYSTYPE_SVR4)) \
         || defined (__MINGW32__) || defined (_WIN32) || defined(__cplusplus)
-# define __P(protos) protos
+# define __PARAMS(protos) protos
 #else
-# define __P(protos) ()
+# define __PARAMS(protos) ()
 #endif
 
 /* SERVEEZ_API is a macro prepended to all function and data definitions

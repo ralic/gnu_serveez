@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.h,v 1.4 2001/05/19 23:04:57 ela Exp $
+ * $Id: server-loop.h,v 1.5 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -29,7 +29,7 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_check_sockets __P ((void));
+SERVEEZ_API int svz_check_sockets __PARAMS ((void));
 
 __END_DECLS
 

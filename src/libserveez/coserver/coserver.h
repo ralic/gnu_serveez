@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.9 2001/10/27 14:12:16 ela Exp $
+ * $Id: coserver.h,v 1.10 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -110,19 +110,19 @@ __BEGIN_DECLS
 SERVEEZ_API svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
 SERVEEZ_API svz_array_t *svz_coservers;
 
-SERVEEZ_API void svz_coserver_check __P ((void));
-SERVEEZ_API int svz_coserver_init __P ((void));
-SERVEEZ_API int svz_coserver_finalize __P ((void));
-SERVEEZ_API void svz_coserver_destroy __P ((int type));
-SERVEEZ_API void svz_coserver_create __P ((int type));
-SERVEEZ_API void svz_coserver_send_request __P ((int, char *, 
+SERVEEZ_API void svz_coserver_check __PARAMS ((void));
+SERVEEZ_API int svz_coserver_init __PARAMS ((void));
+SERVEEZ_API int svz_coserver_finalize __PARAMS ((void));
+SERVEEZ_API void svz_coserver_destroy __PARAMS ((int));
+SERVEEZ_API void svz_coserver_create __PARAMS ((int));
+SERVEEZ_API void svz_coserver_send_request __PARAMS ((int, char *, 
 						 svz_coserver_handle_result_t,
 						 svz_coserver_args_t));
 
 /*
  * These are the three wrappers for our existing coservers.
  */
-SERVEEZ_API void svz_coserver_rdns_invoke __P ((unsigned long, 
+SERVEEZ_API void svz_coserver_rdns_invoke __PARAMS ((unsigned long, 
 						svz_coserver_handle_result_t, 
 						svz_coserver_args_t));
 
@@ -138,7 +138,7 @@ SERVEEZ_API void svz_coserver_rdns_invoke __P ((unsigned long,
                             (svz_coserver_arg_t) ((unsigned long) arg0), \
 	                    (svz_coserver_arg_t) ((unsigned long) arg1))
 
-SERVEEZ_API void svz_coserver_dns_invoke __P ((char *, 
+SERVEEZ_API void svz_coserver_dns_invoke __PARAMS ((char *, 
 					       svz_coserver_handle_result_t, 
 					       svz_coserver_args_t));
 
@@ -153,7 +153,7 @@ SERVEEZ_API void svz_coserver_dns_invoke __P ((char *,
                            (svz_coserver_arg_t) ((unsigned long) arg0), \
 	 		   (svz_coserver_arg_t) ((unsigned long) arg1))
 
-SERVEEZ_API void svz_coserver_ident_invoke __P ((svz_socket_t *, 
+SERVEEZ_API void svz_coserver_ident_invoke __PARAMS ((svz_socket_t *, 
 						 svz_coserver_handle_result_t,
 						 svz_coserver_args_t));
 

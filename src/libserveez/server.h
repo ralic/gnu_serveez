@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.23 2001/12/07 20:37:15 ela Exp $
+ * $Id: server.h,v 1.24 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -265,41 +265,42 @@ __BEGIN_DECLS
 
 SERVEEZ_API svz_hash_t *svz_servers;
 
-SERVEEZ_API svz_server_t *svz_server_add __P ((svz_server_t *));
-SERVEEZ_API svz_server_t *svz_server_get __P ((char *));
-SERVEEZ_API void svz_server_del __P ((char *));
-SERVEEZ_API void svz_server_free __P ((svz_server_t *));
-SERVEEZ_API void svz_config_free __P ((svz_servertype_t *, void *));
-SERVEEZ_API svz_server_t *svz_server_find __P ((void *));
-SERVEEZ_API void svz_server_notifiers __P ((void));
-SERVEEZ_API svz_server_t *svz_server_instantiate __P ((svz_servertype_t *, 
-						       char *));
-SERVEEZ_API void svz_server_finalize __P ((svz_server_t *));
+SERVEEZ_API svz_server_t *svz_server_add __PARAMS ((svz_server_t *));
+SERVEEZ_API svz_server_t *svz_server_get __PARAMS ((char *));
+SERVEEZ_API void svz_server_del __PARAMS ((char *));
+SERVEEZ_API void svz_server_free __PARAMS ((svz_server_t *));
+SERVEEZ_API void svz_config_free __PARAMS ((svz_servertype_t *, void *));
+SERVEEZ_API svz_server_t *svz_server_find __PARAMS ((void *));
+SERVEEZ_API void svz_server_notifiers __PARAMS ((void));
+SERVEEZ_API svz_server_t *svz_server_instantiate __PARAMS ((svz_servertype_t *,
+							    char *));
+SERVEEZ_API void svz_server_finalize __PARAMS ((svz_server_t *));
 
-SERVEEZ_API void *svz_server_configure __P ((svz_servertype_t *, char *, 
-					     void *, svz_server_config_t *));
-SERVEEZ_API svz_array_t *svz_config_intarray_create __P ((int *));
-SERVEEZ_API void svz_config_intarray_destroy __P ((svz_array_t *));
-SERVEEZ_API svz_array_t *svz_config_intarray_dup __P ((svz_array_t *));
-SERVEEZ_API svz_array_t *svz_config_strarray_create __P ((char **));
-SERVEEZ_API void svz_config_strarray_destroy __P ((svz_array_t *));
-SERVEEZ_API svz_array_t *svz_config_strarray_dup __P ((svz_array_t *));
-SERVEEZ_API svz_hash_t *svz_config_hash_create __P ((char **));
-SERVEEZ_API void svz_config_hash_destroy __P ((svz_hash_t *));
-SERVEEZ_API svz_hash_t *svz_config_hash_dup __P ((svz_hash_t *));
+SERVEEZ_API void *svz_server_configure __PARAMS ((svz_servertype_t *, char *, 
+						  void *, 
+						  svz_server_config_t *));
+SERVEEZ_API svz_array_t *svz_config_intarray_create __PARAMS ((int *));
+SERVEEZ_API void svz_config_intarray_destroy __PARAMS ((svz_array_t *));
+SERVEEZ_API svz_array_t *svz_config_intarray_dup __PARAMS ((svz_array_t *));
+SERVEEZ_API svz_array_t *svz_config_strarray_create __PARAMS ((char **));
+SERVEEZ_API void svz_config_strarray_destroy __PARAMS ((svz_array_t *));
+SERVEEZ_API svz_array_t *svz_config_strarray_dup __PARAMS ((svz_array_t *));
+SERVEEZ_API svz_hash_t *svz_config_hash_create __PARAMS ((char **));
+SERVEEZ_API void svz_config_hash_destroy __PARAMS ((svz_hash_t *));
+SERVEEZ_API svz_hash_t *svz_config_hash_dup __PARAMS ((svz_hash_t *));
 
-SERVEEZ_API int svz_server_init_all __P ((void));
-SERVEEZ_API int svz_server_finalize_all __P ((void));
+SERVEEZ_API int svz_server_init_all __PARAMS ((void));
+SERVEEZ_API int svz_server_finalize_all __PARAMS ((void));
 
 SERVEEZ_API svz_array_t *svz_servertypes;
-SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
-SERVEEZ_API void svz_servertype_del __P ((unsigned long));
-SERVEEZ_API svz_servertype_t *svz_servertype_get __P ((char *, int));
-SERVEEZ_API void svz_servertype_finalize __P ((void));
-SERVEEZ_API svz_servertype_t *svz_servertype_find __P ((svz_server_t *));
+SERVEEZ_API void svz_servertype_add __PARAMS ((svz_servertype_t *));
+SERVEEZ_API void svz_servertype_del __PARAMS ((unsigned long));
+SERVEEZ_API svz_servertype_t *svz_servertype_get __PARAMS ((char *, int));
+SERVEEZ_API void svz_servertype_finalize __PARAMS ((void));
+SERVEEZ_API svz_servertype_t *svz_servertype_find __PARAMS ((svz_server_t *));
 
 #if ENABLE_DEBUG
-SERVEEZ_API void svz_servertype_print __P ((void));
+SERVEEZ_API void svz_servertype_print __PARAMS ((void));
 #endif /* ENABLE_DEBUG */
 
 __END_DECLS

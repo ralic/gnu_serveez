@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.h,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: ident.h,v 1.3 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -32,7 +32,7 @@ __BEGIN_DECLS
 /*
  * Opens a connection to ident server and receives / parses the response.
  */
-char *ident_handle_request __P ((char *inbuf));
+char *ident_handle_request __PARAMS ((char *));
 
 __END_DECLS
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.c,v 1.6 2001/11/28 18:04:42 ela Exp $
+ * $Id: gzlib.c,v 1.7 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -26,7 +26,7 @@
 # include <config.h>
 #endif
 
-#if HAVE_ZLIB
+#if HAVE_ZLIB && HAVE_ZLIB_H
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -285,8 +285,8 @@ zlib_decode (svz_codec_data_t *data)
   return ret == Z_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
 
-#else /* HAVE_ZLIB */
+#else /* HAVE_ZLIB && HAVE_ZLIB_H */
 
 static int have_zlib = 0;
 
-#endif /* HAVE_ZLIB */
+#endif /* HAVE_ZLIB && HAVE_ZLIB_H */

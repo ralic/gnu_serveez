@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.h,v 1.2 2001/10/13 02:39:39 ela Exp $
+ * $Id: gzlib.h,v 1.3 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -31,14 +31,15 @@ __BEGIN_DECLS
 
 extern svz_codec_t zlib_encoder;
 extern svz_codec_t zlib_decoder;
-char * zlib_error __P ((svz_codec_data_t *));
-int zlib_encoder_init __P ((svz_codec_data_t *));
-int zlib_encoder_finalize __P ((svz_codec_data_t *));
-int zlib_encode __P ((svz_codec_data_t *));
-int zlib_decoder_init __P ((svz_codec_data_t *));
-int zlib_decoder_finalize __P ((svz_codec_data_t *));
-int zlib_decode __P ((svz_codec_data_t *));
-int zlib_ratio __P ((svz_codec_data_t *, unsigned long *, unsigned long *));
+char * zlib_error __PARAMS ((svz_codec_data_t *));
+int zlib_encoder_init __PARAMS ((svz_codec_data_t *));
+int zlib_encoder_finalize __PARAMS ((svz_codec_data_t *));
+int zlib_encode __PARAMS ((svz_codec_data_t *));
+int zlib_decoder_init __PARAMS ((svz_codec_data_t *));
+int zlib_decoder_finalize __PARAMS ((svz_codec_data_t *));
+int zlib_decode __PARAMS ((svz_codec_data_t *));
+int zlib_ratio __PARAMS ((svz_codec_data_t *, unsigned long *, 
+			  unsigned long *));
 
 __END_DECLS
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.11 2001/09/07 10:34:51 ela Exp $
+ * $Id: pipe-socket.h,v 1.12 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -50,21 +50,22 @@ svz_pipe_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_pipe_startup __P ((void));
-SERVEEZ_API int svz_pipe_cleanup __P ((void));
-SERVEEZ_API int svz_pipe_valid __P ((svz_socket_t *));
-SERVEEZ_API int svz_pipe_read_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_pipe_write_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_pipe_disconnect __P ((svz_socket_t *));
-SERVEEZ_API svz_socket_t *svz_pipe_create __P ((HANDLE, HANDLE));
-SERVEEZ_API int svz_pipe_create_pair __P ((HANDLE pipe_desc[2]));
-SERVEEZ_API svz_socket_t *svz_pipe_connect __P ((svz_pipe_t *, svz_pipe_t *));
-SERVEEZ_API int svz_pipe_listener __P ((svz_socket_t *, 
-					svz_pipe_t *, svz_pipe_t *));
-SERVEEZ_API int svz_pipe_check_user __P ((svz_pipe_t *));
-SERVEEZ_API int svz_pipe_check_group __P ((svz_pipe_t *));
-SERVEEZ_API svz_pipe_t *svz_pipe_alloc __P ((void));
-SERVEEZ_API void svz_pipe_destroy __P ((svz_pipe_t *));
+SERVEEZ_API int svz_pipe_startup __PARAMS ((void));
+SERVEEZ_API int svz_pipe_cleanup __PARAMS ((void));
+SERVEEZ_API int svz_pipe_valid __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_read_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_write_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_disconnect __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_pipe_create __PARAMS ((HANDLE, HANDLE));
+SERVEEZ_API int svz_pipe_create_pair __PARAMS ((HANDLE pipe_desc[2]));
+SERVEEZ_API svz_socket_t *svz_pipe_connect __PARAMS ((svz_pipe_t *, 
+						      svz_pipe_t *));
+SERVEEZ_API int svz_pipe_listener __PARAMS ((svz_socket_t *, 
+					     svz_pipe_t *, svz_pipe_t *));
+SERVEEZ_API int svz_pipe_check_user __PARAMS ((svz_pipe_t *));
+SERVEEZ_API int svz_pipe_check_group __PARAMS ((svz_pipe_t *));
+SERVEEZ_API svz_pipe_t *svz_pipe_alloc __PARAMS ((void));
+SERVEEZ_API void svz_pipe_destroy __PARAMS ((svz_pipe_t *));
 
 __END_DECLS
 

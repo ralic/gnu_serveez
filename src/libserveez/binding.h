@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.h,v 1.7 2001/12/06 01:08:15 ela Exp $
+ * $Id: binding.h,v 1.8 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -29,16 +29,18 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_server_bind __P ((svz_server_t *, svz_portcfg_t *));
-SERVEEZ_API svz_array_t *svz_server_portcfgs __P ((svz_server_t *));
-SERVEEZ_API char *svz_server_bindings __P ((svz_server_t *));
-SERVEEZ_API void svz_server_unbind __P ((svz_server_t *));
-SERVEEZ_API int svz_server_single_listener __P ((svz_server_t *, 
-						 svz_socket_t *));
-SERVEEZ_API svz_array_t *svz_server_listeners __P ((svz_server_t *));
-SERVEEZ_API int svz_sock_add_server __P ((svz_socket_t *, svz_server_t *));
-SERVEEZ_API int svz_sock_del_server __P ((svz_socket_t *, svz_server_t *));
-SERVEEZ_API svz_socket_t *svz_sock_find_portcfg __P ((svz_portcfg_t *));
+SERVEEZ_API int svz_server_bind __PARAMS ((svz_server_t *, svz_portcfg_t *));
+SERVEEZ_API svz_array_t *svz_server_portcfgs __PARAMS ((svz_server_t *));
+SERVEEZ_API char *svz_server_bindings __PARAMS ((svz_server_t *));
+SERVEEZ_API void svz_server_unbind __PARAMS ((svz_server_t *));
+SERVEEZ_API int svz_server_single_listener __PARAMS ((svz_server_t *, 
+						      svz_socket_t *));
+SERVEEZ_API svz_array_t *svz_server_listeners __PARAMS ((svz_server_t *));
+SERVEEZ_API int svz_sock_add_server __PARAMS ((svz_socket_t *, 
+					       svz_server_t *));
+SERVEEZ_API int svz_sock_del_server __PARAMS ((svz_socket_t *, 
+					       svz_server_t *));
+SERVEEZ_API svz_socket_t *svz_sock_find_portcfg __PARAMS ((svz_portcfg_t *));
 
 __END_DECLS
 

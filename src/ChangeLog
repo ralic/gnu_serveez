@@ -1,3 +1,9 @@
+2001-12-13  [ Ela ]  <ela@lkcc.org>
+
+	* irc-server/irc-server.h, http-server/http-core.h, 
+	irc-server/irc-proto.h: Renamed __P into __PARAMS because the 
+	use of __P conflicts with some g++ versions.
+
 2001-12-12  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/inetd.scm (bind-rpc-service): RPC service

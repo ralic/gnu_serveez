@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.h,v 1.3 2001/05/19 23:04:58 ela Exp $
+ * $Id: tcp-socket.h,v 1.4 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -32,11 +32,11 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_socket_t *svz_tcp_connect __P ((unsigned long, 
-						unsigned short));
-SERVEEZ_API int svz_tcp_default_connect __P ((svz_socket_t *));
-SERVEEZ_API int svz_tcp_read_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_tcp_write_socket __P ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_tcp_connect __PARAMS ((unsigned long, 
+						     unsigned short));
+SERVEEZ_API int svz_tcp_default_connect __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_tcp_read_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_tcp_write_socket __PARAMS ((svz_socket_t *));
 
 __END_DECLS
 

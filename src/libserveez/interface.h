@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.6 2001/10/27 14:12:16 ela Exp $
+ * $Id: interface.h,v 1.7 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -44,12 +44,12 @@ __BEGIN_DECLS
 SERVEEZ_API svz_vector_t *svz_interfaces;
 
 /* Export these functions. */
-SERVEEZ_API void svz_interface_list __P ((void));
-SERVEEZ_API void svz_interface_collect __P ((void));
-SERVEEZ_API int svz_interface_free __P ((void));
-SERVEEZ_API int svz_interface_add __P ((int, char *, unsigned long));
-SERVEEZ_API svz_interface_t *svz_interface_search __P ((char *));
-SERVEEZ_API svz_interface_t *svz_interface_get __P ((unsigned long));
+SERVEEZ_API void svz_interface_list __PARAMS ((void));
+SERVEEZ_API void svz_interface_collect __PARAMS ((void));
+SERVEEZ_API int svz_interface_free __PARAMS ((void));
+SERVEEZ_API int svz_interface_add __PARAMS ((int, char *, unsigned long));
+SERVEEZ_API svz_interface_t *svz_interface_search __PARAMS ((char *));
+SERVEEZ_API svz_interface_t *svz_interface_get __PARAMS ((unsigned long));
 
 __END_DECLS
 

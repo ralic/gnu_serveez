@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: reverse-dns.h,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: reverse-dns.h,v 1.3 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -32,12 +32,12 @@ __BEGIN_DECLS
 /*
  * Initialize the reserve DNS's cache.
  */
-void reverse_dns_init __P ((void));
+void reverse_dns_init __PARAMS ((void));
 
 /*
  * Proceed a reverse DNS lookup.
  */
-char *reverse_dns_handle_request __P ((char *inbuf));
+char *reverse_dns_handle_request __PARAMS ((char *));
 
 __END_DECLS
 

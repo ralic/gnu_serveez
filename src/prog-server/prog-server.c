@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.8 2001/11/29 23:41:43 raimi Exp $
+ * $Id: prog-server.c,v 1.9 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -261,7 +261,7 @@ prog_read_socket (svz_socket_t *sock)
 
   /* Passthrough the connection. */
   if (prog_passthrough (sock))
-    return -1;
+    return 0; /* FIXME: Call recv() to dequeue the request. */
 
   if (cfg->single_threaded)
     {

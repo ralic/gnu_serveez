@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.6 2001/12/12 19:02:50 ela Exp $
+;; $Id: inetd.scm,v 1.7 2001/12/13 18:00:00 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -130,7 +130,9 @@
 (define (get-rpc-service service-line)
   (let* ((entry (split-tuple (vector-ref service-line 0) #\/))
 	 (name (car entry))
-	 (versions (split-tuple (cdr entry) #\-))
+	 (versions (if (cdr entry) 
+		       (split-tuple (cdr entry) #\-) 
+		       (cons "1" "1")))
 	 (version-begin (car versions))
 	 (version-end (if (cdr versions) (cdr versions) version-begin)))
     (cons (lookup-rpc-service name) 
@@ -194,13 +196,15 @@
 ;; this procedure registers the rpc service identified by the triplet
 ;; [number,version,protocol] at a network port system wide.  this 
 ;; information can be obtained issuing the `rpcinfo -p' command.
-(define (run-rpc-portmapper number version protocol port)
+(define (run-rpc-portmapper name number version protocol port)
   (catch #t
 	 (lambda ()
+	   ;; should the previous setting be disabled ?
 	   (portmap number version)
 	   (portmap number version protocol port))
 	 (lambda key
-	   (display (string-append "inetd: no such rpc service `" name "'\n"))
+	   (display (string-append "inetd: portmapper for rpc service `" 
+				   name "' failed\n"))
 	   #f)))
 
 ;; when the inetd determines a valid rpc line in its configuration file
@@ -234,7 +238,8 @@
 			(do ((version (car versions) (+ version 1)))
 			    ((> version (cdr versions)))
 			  ;; create a port-mapping
-			  (run-rpc-portmapper (vector-ref rpc 2) version
+			  (run-rpc-portmapper (vector-ref rpc 0)
+					      (vector-ref rpc 2) version
 					      (rpc-ip-proto service-line)
 					      (svz:ntohs port)))
 			))

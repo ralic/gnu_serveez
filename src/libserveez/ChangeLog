@@ -1,3 +1,15 @@
+2001-12-13  [ Ela ]  <ela@lkcc.org>
+
+	* tcp-socket.h, array.h, alloc.h, hash.h, icmp-socket.h, 
+	pipe-socket.h, raw-socket.h, server-core.h, server-loop.h,
+	snprintf.h, socket.h, udp-socket.h, util.h, windoze.h, 
+	interface.h, defines.h, coserver/coserver.h, coserver/dns.h,
+	coserver/ident.h, coserver/reverse-dns.h, boot.h, server.h,
+	server-socket.h, dynload.h, vector.h, core.h, sparsevec.h,
+	portcfg.h, binding.h, codec/codec.h, codec/gzlib.h, 
+	codec/bzip2.h, passthrough.h: Renamed __P into __PARAMS because
+	the use of __P conflicts with some g++ versions in typedefs.
+
 2001-12-12  [ Ela ]  <ela@lkcc.org>
 
 	* server-socket.c (svz_server_create): Modify the port 

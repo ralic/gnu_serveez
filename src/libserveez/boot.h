@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.9 2001/10/27 14:12:16 ela Exp $
+ * $Id: boot.h,v 1.10 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -49,11 +49,11 @@ __BEGIN_DECLS
 SERVEEZ_API svz_config_t svz_config;
 
 /* Exported functions. */
-SERVEEZ_API int svz_net_startup __P ((void));
-SERVEEZ_API int svz_net_cleanup __P ((void));
-SERVEEZ_API void svz_init_config __P ((void));
-SERVEEZ_API void svz_boot __P ((void));
-SERVEEZ_API void svz_halt __P ((void));
+SERVEEZ_API int svz_net_startup __PARAMS ((void));
+SERVEEZ_API int svz_net_cleanup __PARAMS ((void));
+SERVEEZ_API void svz_init_config __PARAMS ((void));
+SERVEEZ_API void svz_boot __PARAMS ((void));
+SERVEEZ_API void svz_halt __PARAMS ((void));
 
 /* Some static strings. */
 SERVEEZ_API char *svz_library;

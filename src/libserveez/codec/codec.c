@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.8 2001/11/23 13:18:39 ela Exp $
+ * $Id: codec.c,v 1.9 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -44,7 +44,7 @@
    ((codec)->type == SVZ_CODEC_ENCODER) ? "encoder" : NULL)
 
 /* Include codec headers if any. */
-#if HAVE_ZLIB
+#if HAVE_ZLIB && HAVE_ZLIB_H
 #include "libserveez/codec/gzlib.h"
 #endif
 #if HAVE_BZ2LIB
@@ -107,10 +107,10 @@ svz_codec_list (void)
 int
 svz_codec_init (void)
 {
-#if HAVE_ZLIB
+#if HAVE_ZLIB && HAVE_ZLIB_H
   svz_codec_register (&zlib_encoder);
   svz_codec_register (&zlib_decoder);
-#endif /* HAVE_ZLIB */
+#endif /* HAVE_ZLIB && HAVE_ZLIB_H */
 #if HAVE_BZ2LIB
   svz_codec_register (&bzip2_encoder);
   svz_codec_register (&bzip2_decoder);

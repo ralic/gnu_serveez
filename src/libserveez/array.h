@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.14 2001/11/27 23:07:52 ela Exp $
+ * $Id: array.h,v 1.15 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -40,23 +40,25 @@ svz_array_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_array_t * svz_array_create __P ((unsigned long, 
-						 svz_free_func_t));
-SERVEEZ_API void svz_array_clear __P ((svz_array_t *));
-SERVEEZ_API void svz_array_destroy __P ((svz_array_t *));
-SERVEEZ_API void *svz_array_get __P ((svz_array_t *, unsigned long));
-SERVEEZ_API void *svz_array_set __P ((svz_array_t *, unsigned long, void *));
-SERVEEZ_API void svz_array_add __P ((svz_array_t *, void *));
-SERVEEZ_API void *svz_array_del __P ((svz_array_t *, unsigned long));
-SERVEEZ_API unsigned long svz_array_capacity __P ((svz_array_t *));
-SERVEEZ_API unsigned long svz_array_size __P ((svz_array_t *));
-SERVEEZ_API unsigned long svz_array_ins __P ((svz_array_t *, unsigned long, 
-					      void *));
-SERVEEZ_API unsigned long svz_array_idx __P ((svz_array_t *, void *));
-SERVEEZ_API unsigned long svz_array_contains __P ((svz_array_t *, void *));
-SERVEEZ_API svz_array_t *svz_array_dup __P ((svz_array_t *));
-SERVEEZ_API svz_array_t *svz_array_strdup __P ((svz_array_t *));
-SERVEEZ_API void **svz_array_values __P ((svz_array_t *));
+SERVEEZ_API svz_array_t * svz_array_create __PARAMS ((unsigned long, 
+						      svz_free_func_t));
+SERVEEZ_API void svz_array_clear __PARAMS ((svz_array_t *));
+SERVEEZ_API void svz_array_destroy __PARAMS ((svz_array_t *));
+SERVEEZ_API void *svz_array_get __PARAMS ((svz_array_t *, unsigned long));
+SERVEEZ_API void *svz_array_set __PARAMS ((svz_array_t *, unsigned long, 
+					   void *));
+SERVEEZ_API void svz_array_add __PARAMS ((svz_array_t *, void *));
+SERVEEZ_API void *svz_array_del __PARAMS ((svz_array_t *, unsigned long));
+SERVEEZ_API unsigned long svz_array_capacity __PARAMS ((svz_array_t *));
+SERVEEZ_API unsigned long svz_array_size __PARAMS ((svz_array_t *));
+SERVEEZ_API unsigned long svz_array_ins __PARAMS ((svz_array_t *, 
+						   unsigned long, void *));
+SERVEEZ_API unsigned long svz_array_idx __PARAMS ((svz_array_t *, void *));
+SERVEEZ_API unsigned long svz_array_contains __PARAMS ((svz_array_t *, 
+							void *));
+SERVEEZ_API svz_array_t *svz_array_dup __PARAMS ((svz_array_t *));
+SERVEEZ_API svz_array_t *svz_array_strdup __PARAMS ((svz_array_t *));
+SERVEEZ_API void **svz_array_values __PARAMS ((svz_array_t *));
 
 __END_DECLS
 

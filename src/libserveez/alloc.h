@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.10 2001/10/27 14:12:16 ela Exp $
+ * $Id: alloc.h,v 1.11 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -46,9 +46,9 @@ SERVEEZ_API unsigned int svz_allocated_blocks;
 #endif /* ENABLE_DEBUG */
 
 /* Function type definitions. */
-typedef void * (* svz_malloc_func_t) __P ((size_t));
-typedef void * (* svz_realloc_func_t) __P ((void *, size_t));
-typedef void (* svz_free_func_t) __P ((void *));
+typedef void * (* svz_malloc_func_t) __PARAMS ((size_t));
+typedef void * (* svz_realloc_func_t) __PARAMS ((void *, size_t));
+typedef void (* svz_free_func_t) __PARAMS ((void *));
 
 /* Global allocator functions. */
 SERVEEZ_API svz_malloc_func_t svz_malloc_func;
@@ -56,19 +56,19 @@ SERVEEZ_API svz_realloc_func_t svz_realloc_func;
 SERVEEZ_API svz_free_func_t svz_free_func;
 
 /* Internal allocator functions. */
-SERVEEZ_API void *svz_malloc __P ((size_t));
-SERVEEZ_API void *svz_calloc __P ((size_t));
-SERVEEZ_API void *svz_realloc __P ((void *, size_t));
-SERVEEZ_API void svz_free __P ((void *));
-SERVEEZ_API char *svz_strdup __P ((char *));
+SERVEEZ_API void *svz_malloc __PARAMS ((size_t));
+SERVEEZ_API void *svz_calloc __PARAMS ((size_t));
+SERVEEZ_API void *svz_realloc __PARAMS ((void *, size_t));
+SERVEEZ_API void svz_free __PARAMS ((void *));
+SERVEEZ_API char *svz_strdup __PARAMS ((char *));
 
 /* Internal permanent allocator functions. */
-SERVEEZ_API void *svz_pmalloc __P ((size_t));
-SERVEEZ_API void *svz_prealloc __P ((void *, size_t));
-SERVEEZ_API char *svz_pstrdup __P ((char *));
+SERVEEZ_API void *svz_pmalloc __PARAMS ((size_t));
+SERVEEZ_API void *svz_prealloc __PARAMS ((void *, size_t));
+SERVEEZ_API char *svz_pstrdup __PARAMS ((char *));
 
 #if DEBUG_MEMORY_LEAKS
-SERVEEZ_API void svz_heap __P ((void));
+SERVEEZ_API void svz_heap __PARAMS ((void));
 #endif /* DEBUG_MEMORY_LEAKS */
 
 __END_DECLS

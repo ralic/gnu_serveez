@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: bzip2.h,v 1.1 2001/10/17 11:12:20 ela Exp $
+ * $Id: bzip2.h,v 1.2 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -41,14 +41,15 @@ __BEGIN_DECLS
 
 extern svz_codec_t bzip2_encoder;
 extern svz_codec_t bzip2_decoder;
-char * bzip2_error __P ((svz_codec_data_t *));
-int bzip2_encoder_init __P ((svz_codec_data_t *));
-int bzip2_encoder_finalize __P ((svz_codec_data_t *));
-int bzip2_encode __P ((svz_codec_data_t *));
-int bzip2_decoder_init __P ((svz_codec_data_t *));
-int bzip2_decoder_finalize __P ((svz_codec_data_t *));
-int bzip2_decode __P ((svz_codec_data_t *));
-int bzip2_ratio __P ((svz_codec_data_t *, unsigned long *, unsigned long *));
+char * bzip2_error __PARAMS ((svz_codec_data_t *));
+int bzip2_encoder_init __PARAMS ((svz_codec_data_t *));
+int bzip2_encoder_finalize __PARAMS ((svz_codec_data_t *));
+int bzip2_encode __PARAMS ((svz_codec_data_t *));
+int bzip2_decoder_init __PARAMS ((svz_codec_data_t *));
+int bzip2_decoder_finalize __PARAMS ((svz_codec_data_t *));
+int bzip2_decode __PARAMS ((svz_codec_data_t *));
+int bzip2_ratio __PARAMS ((svz_codec_data_t *, unsigned long *, 
+			   unsigned long *));
 
 __END_DECLS
 

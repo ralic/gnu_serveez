@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.13 2001/12/08 13:55:11 ela Exp $
+ * $Id: hash.h,v 1.14 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -77,18 +77,18 @@ __BEGIN_DECLS
 /*
  * Basic hash table functions.
  */
-SERVEEZ_API svz_hash_t *svz_hash_create __P ((int, svz_free_func_t));
-SERVEEZ_API void svz_hash_destroy __P ((svz_hash_t *));
-SERVEEZ_API void svz_hash_clear __P ((svz_hash_t *));
-SERVEEZ_API void *svz_hash_delete __P ((svz_hash_t *, char *));
-SERVEEZ_API void *svz_hash_put __P ((svz_hash_t *, char *, void *));
-SERVEEZ_API void *svz_hash_get __P ((svz_hash_t *, char *));
-SERVEEZ_API void **svz_hash_values __P ((svz_hash_t *));
-SERVEEZ_API char **svz_hash_keys __P ((svz_hash_t *));
-SERVEEZ_API int svz_hash_size __P ((svz_hash_t *));
-SERVEEZ_API int svz_hash_capacity __P ((svz_hash_t *));
-SERVEEZ_API char *svz_hash_contains __P ((svz_hash_t *, void *));
-SERVEEZ_API void svz_hash_rehash __P ((svz_hash_t *, int));
+SERVEEZ_API svz_hash_t *svz_hash_create __PARAMS ((int, svz_free_func_t));
+SERVEEZ_API void svz_hash_destroy __PARAMS ((svz_hash_t *));
+SERVEEZ_API void svz_hash_clear __PARAMS ((svz_hash_t *));
+SERVEEZ_API void *svz_hash_delete __PARAMS ((svz_hash_t *, char *));
+SERVEEZ_API void *svz_hash_put __PARAMS ((svz_hash_t *, char *, void *));
+SERVEEZ_API void *svz_hash_get __PARAMS ((svz_hash_t *, char *));
+SERVEEZ_API void **svz_hash_values __PARAMS ((svz_hash_t *));
+SERVEEZ_API char **svz_hash_keys __PARAMS ((svz_hash_t *));
+SERVEEZ_API int svz_hash_size __PARAMS ((svz_hash_t *));
+SERVEEZ_API int svz_hash_capacity __PARAMS ((svz_hash_t *));
+SERVEEZ_API char *svz_hash_contains __PARAMS ((svz_hash_t *, void *));
+SERVEEZ_API void svz_hash_rehash __PARAMS ((svz_hash_t *, int));
 
 __END_DECLS
 

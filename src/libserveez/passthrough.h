@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.10 2001/12/12 19:02:51 ela Exp $
+ * $Id: passthrough.h,v 1.11 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -84,34 +84,35 @@ extern char **environ;
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_sock_process __P ((svz_socket_t *, char *, char *, 
-				       char **, svz_envblock_t *, int, 
-				       char *));
+SERVEEZ_API int svz_sock_process __PARAMS ((svz_socket_t *, char *, char *, 
+					    char **, svz_envblock_t *, int, 
+					    char *));
 
-SERVEEZ_API int svz_process_disconnect __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_disconnect_passthrough __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_check_request __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_idle __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_send_pipe __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_recv_pipe __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_send_socket __P ((svz_socket_t *));
-SERVEEZ_API int svz_process_recv_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_disconnect __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_disconnect_passthrough __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_check_request __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_idle __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_send_pipe __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_recv_pipe __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_send_socket __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_process_recv_socket __PARAMS ((svz_socket_t *));
 
-SERVEEZ_API int svz_process_create_child __P ((svz_process_t *));
-SERVEEZ_API int svz_process_shuffle __P ((svz_process_t *));
-SERVEEZ_API int svz_process_fork __P ((svz_process_t *));
+SERVEEZ_API int svz_process_create_child __PARAMS ((svz_process_t *));
+SERVEEZ_API int svz_process_shuffle __PARAMS ((svz_process_t *));
+SERVEEZ_API int svz_process_fork __PARAMS ((svz_process_t *));
 
-SERVEEZ_API int svz_process_check_executable __P ((char *, char **));
-SERVEEZ_API int svz_process_split_usergroup __P ((char *, char **, char **));
-SERVEEZ_API int svz_process_check_access __P ((char *, char *));
+SERVEEZ_API int svz_process_check_executable __PARAMS ((char *, char **));
+SERVEEZ_API int svz_process_split_usergroup __PARAMS ((char *, char **, 
+						       char **));
+SERVEEZ_API int svz_process_check_access __PARAMS ((char *, char *));
 
 SERVEEZ_API char **svz_environ;
-SERVEEZ_API svz_envblock_t *svz_envblock_create __P ((void));
-SERVEEZ_API int svz_envblock_default __P ((svz_envblock_t *));
-SERVEEZ_API int svz_envblock_add __P ((svz_envblock_t *, char *, ...));
-SERVEEZ_API int svz_envblock_free __P ((svz_envblock_t *));
-SERVEEZ_API void svz_envblock_destroy __P ((svz_envblock_t *));
-SERVEEZ_API svz_envp_t svz_envblock_get __P ((svz_envblock_t *));
+SERVEEZ_API svz_envblock_t *svz_envblock_create __PARAMS ((void));
+SERVEEZ_API int svz_envblock_default __PARAMS ((svz_envblock_t *));
+SERVEEZ_API int svz_envblock_add __PARAMS ((svz_envblock_t *, char *, ...));
+SERVEEZ_API int svz_envblock_free __PARAMS ((svz_envblock_t *));
+SERVEEZ_API void svz_envblock_destroy __PARAMS ((svz_envblock_t *));
+SERVEEZ_API svz_envp_t svz_envblock_get __PARAMS ((svz_envblock_t *));
 
 __END_DECLS
 

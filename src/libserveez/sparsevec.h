@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sparsevec.h,v 1.1 2001/03/08 22:15:14 raimi Exp $
+ * $Id: sparsevec.h,v 1.2 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -70,25 +70,27 @@ __BEGIN_DECLS
  * the array elements.
  */
 
-SERVEEZ_API svz_spvec_t *svz_spvec_create __P ((void));
-SERVEEZ_API void svz_spvec_destroy __P ((svz_spvec_t *));
-SERVEEZ_API void svz_spvec_add __P ((svz_spvec_t *, void *));
-SERVEEZ_API void svz_spvec_clear __P ((svz_spvec_t *));
-SERVEEZ_API unsigned long svz_spvec_contains __P ((svz_spvec_t *, void *));
-SERVEEZ_API void *svz_spvec_get __P ((svz_spvec_t *, unsigned long));
-SERVEEZ_API unsigned long svz_spvec_index __P ((svz_spvec_t *, void *));
-SERVEEZ_API void *svz_spvec_delete __P ((svz_spvec_t *, unsigned long));
-SERVEEZ_API unsigned long svz_spvec_delete_range __P ((svz_spvec_t *, 
-						       unsigned long, 
-						       unsigned long));
-SERVEEZ_API void *svz_spvec_set __P ((svz_spvec_t *, unsigned long, void *));
-SERVEEZ_API void *svz_spvec_unset __P ((svz_spvec_t *, unsigned long));
-SERVEEZ_API unsigned long svz_spvec_size __P ((svz_spvec_t *));
-SERVEEZ_API unsigned long svz_spvec_length __P ((svz_spvec_t *));
-SERVEEZ_API void svz_spvec_insert __P ((svz_spvec_t *, 
-					unsigned long, void *));
-SERVEEZ_API void **svz_spvec_values __P ((svz_spvec_t *));
-SERVEEZ_API void svz_spvec_pack __P ((svz_spvec_t *));
+SERVEEZ_API svz_spvec_t *svz_spvec_create __PARAMS ((void));
+SERVEEZ_API void svz_spvec_destroy __PARAMS ((svz_spvec_t *));
+SERVEEZ_API void svz_spvec_add __PARAMS ((svz_spvec_t *, void *));
+SERVEEZ_API void svz_spvec_clear __PARAMS ((svz_spvec_t *));
+SERVEEZ_API unsigned long svz_spvec_contains __PARAMS ((svz_spvec_t *, 
+							void *));
+SERVEEZ_API void *svz_spvec_get __PARAMS ((svz_spvec_t *, unsigned long));
+SERVEEZ_API unsigned long svz_spvec_index __PARAMS ((svz_spvec_t *, void *));
+SERVEEZ_API void *svz_spvec_delete __PARAMS ((svz_spvec_t *, unsigned long));
+SERVEEZ_API unsigned long svz_spvec_delete_range __PARAMS ((svz_spvec_t *, 
+							    unsigned long, 
+							    unsigned long));
+SERVEEZ_API void *svz_spvec_set __PARAMS ((svz_spvec_t *, unsigned long, 
+					   void *));
+SERVEEZ_API void *svz_spvec_unset __PARAMS ((svz_spvec_t *, unsigned long));
+SERVEEZ_API unsigned long svz_spvec_size __PARAMS ((svz_spvec_t *));
+SERVEEZ_API unsigned long svz_spvec_length __PARAMS ((svz_spvec_t *));
+SERVEEZ_API void svz_spvec_insert __PARAMS ((svz_spvec_t *, 
+					     unsigned long, void *));
+SERVEEZ_API void **svz_spvec_values __PARAMS ((svz_spvec_t *));
+SERVEEZ_API void svz_spvec_pack __PARAMS ((svz_spvec_t *));
 
 __END_DECLS
 

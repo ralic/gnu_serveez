@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.h,v 1.5 2001/10/18 07:53:06 ela Exp $
+ * $Id: codec.h,v 1.6 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -130,21 +130,22 @@ struct svz_codec
 __BEGIN_DECLS
 
 /* Exported functions. */
-SERVEEZ_API void svz_codec_list __P ((void));
-SERVEEZ_API svz_codec_t * svz_codec_get __P ((char *, int));
-SERVEEZ_API int svz_codec_init __P ((void));
-SERVEEZ_API int svz_codec_finalize __P ((void));
-SERVEEZ_API int svz_codec_register __P ((svz_codec_t *));
-SERVEEZ_API int svz_codec_unregister __P ((svz_codec_t *));
-SERVEEZ_API int svz_codec_sock_receive_setup __P ((svz_socket_t *, 
-						   svz_codec_t *));
-SERVEEZ_API int svz_codec_sock_receive __P ((svz_socket_t *));
-SERVEEZ_API int svz_codec_sock_send_setup __P ((svz_socket_t *, 
-						svz_codec_t *));
-SERVEEZ_API int svz_codec_sock_send __P ((svz_socket_t *));
-SERVEEZ_API int svz_codec_sock_disconnect __P ((svz_socket_t *));
-SERVEEZ_API void svz_codec_ratio __P ((svz_codec_t *, svz_codec_data_t *));
-SERVEEZ_API svz_codec_t * svz_codec_sock_detect __P ((svz_socket_t *));
+SERVEEZ_API void svz_codec_list __PARAMS ((void));
+SERVEEZ_API svz_codec_t * svz_codec_get __PARAMS ((char *, int));
+SERVEEZ_API int svz_codec_init __PARAMS ((void));
+SERVEEZ_API int svz_codec_finalize __PARAMS ((void));
+SERVEEZ_API int svz_codec_register __PARAMS ((svz_codec_t *));
+SERVEEZ_API int svz_codec_unregister __PARAMS ((svz_codec_t *));
+SERVEEZ_API int svz_codec_sock_receive_setup __PARAMS ((svz_socket_t *, 
+							svz_codec_t *));
+SERVEEZ_API int svz_codec_sock_receive __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_codec_sock_send_setup __PARAMS ((svz_socket_t *, 
+						     svz_codec_t *));
+SERVEEZ_API int svz_codec_sock_send __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_codec_sock_disconnect __PARAMS ((svz_socket_t *));
+SERVEEZ_API void svz_codec_ratio __PARAMS ((svz_codec_t *, 
+					    svz_codec_data_t *));
+SERVEEZ_API svz_codec_t * svz_codec_sock_detect __PARAMS ((svz_socket_t *));
 
 __END_DECLS
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.15 2001/11/25 03:38:23 ela Exp $
+ * $Id: socket.h,v 1.16 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -217,24 +217,24 @@ __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_connections;
 
-SERVEEZ_API int svz_sock_valid __P ((svz_socket_t *sock));
-SERVEEZ_API svz_socket_t *svz_sock_alloc __P ((void));
-SERVEEZ_API int svz_sock_free __P ((svz_socket_t *sock));
-SERVEEZ_API svz_socket_t *svz_sock_create __P ((int fd));
-SERVEEZ_API int svz_sock_disconnect __P ((svz_socket_t *sock));
-SERVEEZ_API int svz_sock_write __P ((svz_socket_t *sock, char *buf, int len));
-SERVEEZ_API int svz_sock_printf __P ((svz_socket_t *sock, 
-				      const char *fmt, ...));
-SERVEEZ_API int svz_sock_resize_buffers __P ((svz_socket_t * sock, int, int));
-SERVEEZ_API int svz_sock_intern_connection_info __P ((svz_socket_t *sock));
-SERVEEZ_API int svz_sock_error_info __P ((svz_socket_t *sock));
-SERVEEZ_API int svz_sock_unique_id __P ((svz_socket_t *sock));
-SERVEEZ_API int svz_sock_detect_proto __P ((svz_socket_t *sock));
-SERVEEZ_API int svz_sock_check_request __P ((svz_socket_t *sock));
-SERVEEZ_API int svz_sock_idle_protect __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_valid __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_sock_alloc __PARAMS ((void));
+SERVEEZ_API int svz_sock_free __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_sock_create __PARAMS ((int));
+SERVEEZ_API int svz_sock_disconnect __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_write __PARAMS ((svz_socket_t *, char *, int));
+SERVEEZ_API int svz_sock_printf __PARAMS ((svz_socket_t *,
+					   const char *, ...));
+SERVEEZ_API int svz_sock_resize_buffers __PARAMS ((svz_socket_t *, int, int));
+SERVEEZ_API int svz_sock_intern_connection_info __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_error_info __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_unique_id __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_detect_proto __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_check_request __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_idle_protect __PARAMS ((svz_socket_t *));
 
 #if ENABLE_FLOOD_PROTECTION
-SERVEEZ_API int svz_sock_flood_protect __P ((svz_socket_t *sock, int));
+SERVEEZ_API int svz_sock_flood_protect __PARAMS ((svz_socket_t *, int));
 #endif
 
 __END_DECLS

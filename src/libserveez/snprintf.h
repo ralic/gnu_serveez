@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.5 2001/07/01 15:56:48 ela Exp $
+ * $Id: snprintf.h,v 1.6 2001/12/13 18:00:01 ela Exp $
  *
  */
 
@@ -65,7 +65,8 @@ int _vsnprintf (char *, unsigned int, const char *, va_list);
 __BEGIN_DECLS
 
 #ifndef HAVE_SNPRINTF
-SERVEEZ_API int svz_snprintf __P ((char *, unsigned int, const char *, ...));
+SERVEEZ_API int svz_snprintf __PARAMS ((char *, unsigned int, 
+					const char *, ...));
 #elif !defined (svz_snprintf)
 # define svz_snprintf snprintf
 #endif

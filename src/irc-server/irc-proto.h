@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.23 2001/10/25 10:15:25 ela Exp $
+ * $Id: irc-proto.h,v 1.24 2001/12/13 18:00:00 ela Exp $
  *
  */
 
@@ -374,7 +374,7 @@ int irc_client_in_channel (svz_socket_t *, irc_client_t *, irc_channel_t *);
 int irc_check_args (svz_socket_t *, irc_client_t *, irc_config_t *, 
 		    irc_request_t *, int);
 int irc_client_absent (irc_client_t *, irc_client_t *);
-int irc_printf __P ((svz_socket_t *, const char *, ...));
+int irc_printf __PARAMS ((svz_socket_t *, const char *, ...));
 
 /* serveez callbacks */
 int irc_handle_request (svz_socket_t *sock, char *request, int len);
