@@ -1,0 +1,150 @@
+\input texinfo @c -*-texinfo-*-
+@c %**start of header
+@setfilename serveez-api.info
+@settitle Serveez Embedding Manual and API Documentation
+@c %** end of header
+
+@exampleindent 2
+@c @include version.texi
+
+@set PACKAGE Serveez
+@set s_PACKAGE serveez
+
+@dircategory Serveez - A server framework.
+@direntry
+* Serveez-API: (serveez-api).   Serveez Embedding Manual.
+@end direntry
+
+@titlepage
+@title Serveez, version @value{VERSION}
+@subtitle A server framework
+@subtitle Edition @value{EDITION},  @value{UPDATED}
+@author Stefan Jahn
+@author Raimund Jacob
+
+@page
+@vskip 0pt plus 1filll
+
+Copyright @copyright{} 2000 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000 Raimund Jacob <raimi@@lkcc.org>@*
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1
+or any later version published by the Free Software Foundation.
+A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+
+@end titlepage
+
+@node Top, Introduction, (dir), (dir)
+
+@ifinfo
+This file documents how to embed Serveez into C programs and describes
+all parts of the API it provides.
+@end ifinfo
+
+@menu
+* Introduction::          About this manual 
+* Embedding Serveez::     How to embed Serveez into C programs
+* Embedding API::         Description of functions and data in the library
+* Index::                 Overall index
+@end menu
+
+@node Introduction, Embedding Serveez, Top, Top
+@chapter Introduction
+
+@node Embedding Serveez, Embedding API, Introduction, Top
+@chapter Embedding Serveez
+
+@node Embedding API, Index, Embedding Serveez, Top
+@chapter Embedding API
+
+@menu
+* Memory management::     Memory management functions
+* Hashtable::             Hashtable implementation
+* Arraylist::             Arraylist implementation
+* Utility functions::     Miscellaneous helper functions
+* Client connections::    Client connection functions
+@end menu
+
+@node Memory management, Hashtable, , Embedding API
+@section Memory management
+
+@node Hashtable, Arraylist, Memory management, Embedding API
+@section Hashtable functions
+
+@node Arraylist, Utility functions, Hashtable, Embedding API
+@section Arraylist functions
+
+@node Utility functions, Client connections, Arraylist, Embedding API
+@section Utility functions
+
+@node Client connections, , Utility functions, Embedding API
+@section Client connections
+
+@menu
+* TCP sockets::           TCP socket functions
+* Pipe connections::      Named and anonymous pipe functions
+* UDP sockets::           UDP socket functions
+* ICMP sockets::          ICMP socket functions
+* Raw sockets::           Raw socket functions
+@end menu
+
+@node TCP sockets, Pipe connections, , Client connections
+@subsection TCP sockets
+
+TCP_CONNECT_DEFUN
+TCP_DEFAULT_CONNECT_DEFUN
+TCP_READ_SOCKET_DEFUN
+TCP_WRITE_SOCKET_DEFUN
+
+@node Pipe connections, UDP sockets, TCP sockets, Client connections
+@subsection Pipe connections
+
+PIPE_VALID_DEFUN
+PIPE_READ_SOCKET_DEFUN
+PIPE_WRITE_SOCKET_DEFUN
+PIPE_DISCONNECT_DEFUN
+PIPE_CREATE_DEFUN
+PIPE_CREATE_PAIR_DEFUN
+PIPE_CONNECT_DEFUN
+PIPE_LISTENER_DEFUN
+
+@node UDP sockets, ICMP sockets, Pipe connections, Client connections
+@subsection UDP sockets
+
+UDP_READ_SOCKET_DEFUN
+UDP_WRITE_SOCKET_DEFUN
+UDP_CHECK_REQUEST_DEFUN
+UDP_CONNECT_DEFUN
+UDP_WRITE_DEFUN
+UDP_PRINTF_DEFUN
+
+@node ICMP sockets, Raw sockets, UDP sockets, Client connections
+@subsection ICMP sockets
+
+ICMP_STARTUP_DEFUN
+ICMP_CLEANUP_DEFUN
+ICMP_READ_SOCKET_DEFUN
+ICMP_WRITE_SOCKET_DEFUN
+ICMP_CHECK_REQUEST_DEFUN
+ICMP_CONNECT_DEFUN
+ICMP_SEND_CONTROL_DEFUN
+ICMP_WRITE_DEFUN
+ICMP_PRINTF_DEFUN
+
+@node Raw sockets, , ICMP sockets, Client connections
+@subsection Raw sockets
+
+RAW_GET_IP_HEADER_DEFUN
+RAW_PUT_IP_HEADER_DEFUN
+RAW_IP_CHECKSUM_DEFUN
+RAW_CHECK_IP_HEADER_DEFUN
+
+@node Index,  , Embedding API, Top
+@unnumbered Index
+     
+@printindex fn
+
+@contents
+@bye
