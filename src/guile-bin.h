@@ -1,8 +1,7 @@
 /*
- * sizzle.h - interface to sizzle core library declarations
+ * guile-bin.h - binary data exchange layer for guile servers
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
- * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
+ * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -19,13 +18,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sizzle.h,v 1.1 2001/01/28 03:40:04 ela Exp $
+ * $Id: guile-bin.h,v 1.1 2001/07/19 13:50:42 ela Exp $
  *
  */
 
-#ifndef __SIZZLE_H__
-#define __SIZZLE_H__ 1
+#ifndef __GUILE_BIN_H__
+#define __GUILE_BIN_H__ 1
 
-int zzz_server_load_cfg (char *cfgfile);
+void guile_bin_init (void);
+int guile_bin_check (SCM);
+SCM guile_data_to_bin (void *, int);
+void *guile_bin_to_data (SCM, int *);
 
-#endif /* not __SIZZLE_H__ */
+#endif /* not __GUILE_BIN_H__ */

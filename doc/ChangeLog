@@ -1,3 +1,22 @@
+2001-07-19  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Writing servers): Splitted this section into
+	three subsection (Builtin servers, Embedded servers, 
+	Guile servers).
+
+	* serveez-api.awk: Detection of guile procedures implemented.
+	The script produces now different function definitions for
+	C and Guile functions.
+
+	* guile-api.texi.in: Included all binary smob procedures
+	and the procedures for the guile server interface. The section
+	about guile servers occurs under `Writing servers' in the main
+	documentation. The file `guile-api.texi' is included by
+	`serveez.texi'.
+
+	* Makefile.am (guile-api.texi): Added Makefile rules for
+	automatic rebuild of guile interface procedure ducumentation.
+
 2001-07-07  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.awk: Do not strip white spaces within @example

@@ -501,7 +501,39 @@ the port configuration it is bound to.
 @node Writing servers, Configuring servers, Introduction to servers, Server
 @section Writing servers
 
-@subsection Making and configuring preparations
+Serveez is meant to be a server framework. That is why it supports various
+ways to implement Internet servers. First of all there are some servers
+already included in the main serveez package. (@xref{Existing servers}.)
+These are called @samp{Builtin servers}. Another possibility to add a new
+server are @samp{Embedded servers} which are shared libraries (or DLL's)
+containing the server implementation. These can be dynamically loaded by
+serveez at runtime. This kind of server is also called @samp{Server modules}.
+A third possibility are the @samp{Guile servers} which allow even
+unexperienced schemers to write an Internet server.
+
+This section describes each of the above possibilities in detail.
+
+@menu
+* Embedded servers::    How to write dynamic server modules
+* Guile servers::       Servers using serveez's guile interface
+* Builtin servers::     Servers located in the main project
+@end menu
+
+@node Embedded servers, Guile servers, , Writing servers
+@subsection Embedded servers
+
+@subsubsection Prerequisites
+@subsubsection Server definition
+
+@node Guile servers, Builtin servers, Embedded servers, Writing servers
+@subsection Guile servers
+
+@include guile-api.texi
+
+@node Builtin servers, , Guile servers, Writing servers
+@subsection Builtin servers
+
+@subsubsection Making and configuring preparations
 
 Serveez is configured and built via automake and autoconf. That
 is why you are not supposed to write your own Makefiles but simplified
@@ -541,7 +573,7 @@ about automake read the info pages.
 
 @end itemize
 
-@subsection Server header file @file{foo-proto.h}
+@subsubsection Server header file @file{foo-proto.h}
 
 This file contains at least your server's @code{extern} declaration of your 
 server definition which must be available from the outside. 
@@ -550,7 +582,7 @@ configuration items which can be integers, integer arrays, strings, string
 arrays, port configurations, booleans and hash maps. Every item of the server 
 configuration can later be manipulated from the configuration file.
 
-@subsection Server implementation file @file{foo-proto.c}
+@subsubsection Server implementation file @file{foo-proto.c}
 
 If you want to define default values for your configuration you have
 to define them somewhere and put them into the default configuration
@@ -566,7 +598,7 @@ argument is the keyword which will occur in the configuration file, the
 second is the associated item in your default configuration structure 
 and the last argument specifies if this item is defaultable or not.
 
-@subsection Server definition
+@subsubsection Server definition
 
 The server definition is in a way the @samp{class} of your server. Together
 with the default values (@code{foo_config_prototype}) it serves as a
@@ -576,7 +608,7 @@ all server instances of this specific type. The long description is
 used in the control protocol (@xref{Control Protocol Server}.). The server
 definition also contains the callbacks your server (mandatorily) provides.
 
-@subsection Server callbacks
+@subsubsection Server callbacks
 
 There are several callback routines, which get called in order to 
 instantiate the server and for describing the actual behaviour of your 
@@ -653,13 +685,13 @@ packet. Thus it is possible that there are multiple UDP servers on a
 single port.
 @end table
 
-@subsection Make your server available
+@subsubsection Make your server available
 
 You distribute your server by editing the @file{cfgfile.c} file in the
 @file{src/} directory. There you have to include the servers header 
 file and add the server definition by calling @code{svz_servertype_add()}
 
-@subsection More detailed description of the callback system and structures
+@subsubsection More detailed description of the callback system and structures
 
 The client connection information is stored within the @code{svz_socket_t} 
 object. All of the client connection specific callbacks get this object as
@@ -757,7 +789,7 @@ has been done @code{cfg} should contain a pointer to the actual
 configuration hash map taken from the server instance object.
 @end table
 
-@subsection Using coservers
+@subsubsection Using coservers
 
 Coservers are designed to complete blocking tasks. Each coserver runs in
 its own thread/process. There are several coservers implemented: the dns, 

@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.6 2001/07/13 21:33:20 ela Exp $
+;; $Id: echo-server.scm,v 1.7 2001/07/19 13:50:42 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -52,11 +52,11 @@
 
 (define (echo-handle-request sock request len)
   (define ret '())
-  (if (and (>= len 4) (equal? (substring request 0 4) "quit"))
-      (set! ret -1)
-      (begin
-	(svz:sock:write sock (string-append "Echo: " request) (+ len 6))
-	(set! ret 0)))
+  (if (and (>= (binary-length request) 4) (= 0 (binary-search request "quit")))
+    (set! ret -1)
+    (begin
+      (svz:sock:print sock (binary-concat (string->binary "Echo: ") request))
+      (set! ret 0)))
   ret)
 
 (define (echo-connect-socket server sock)
@@ -64,25 +64,34 @@
   (println "Running connect socket.")
   (svz:sock:boundary sock "\n")
   (svz:sock:handle-request sock echo-handle-request)
-  (svz:sock:write sock hello (string-length hello))
+  (svz:sock:print sock hello)
   0)
-
-;; Servertype definitions.
-(define-servertype! '(
-		      (prefix      . "echo")
-		      (description . "guile echo server")
-		      (detect-proto    . echo-detect-proto)
-		      (global-init     . echo-global-init)
-		      (init            . echo-init)
-		      (finalize        . echo-finalize)
-		      (global-finalize . echo-global-finalize)
-		      (connect-socket  . echo-connect-socket)
-		      (info-server     . echo-info-server)
-		      ))
 
 ;; Port configuration.
 (define-port! 'echo-port '((proto . tcp)
 			   (port  . 2001)))
+
+;; Servertype definitions.
+(define-servertype! '(
+  (prefix      . "echo")
+  (description . "guile echo server")
+  (detect-proto    . echo-detect-proto)
+  (global-init     . echo-global-init)
+  (init            . echo-init)
+  (finalize        . echo-finalize)
+  (global-finalize . echo-global-finalize)
+  (connect-socket  . echo-connect-socket)
+  (info-server     . echo-info-server)
+  (configuration   . (
+    ;; (key . (type defaultable default))
+    (echo-integer       . (integer #t 0))
+    (echo-integer-array . (intarray #t (1 2 3 4 5)))
+    (echo-string        . (string #t "default-echo-string"))
+    (echo-string-array  . (strarray #t ("guile" "echo" "server")))
+    (echo-hash          . (hash #t (("echo" . "loud") ("guile" . "tricky"))))
+    (echo-port          . (portcfg #t echo-port))
+    (echo-boolean       . (boolean #t #t))
+  ))))
 
 ;; Server instantiation.
 (define-server! 'echo-server)

@@ -20,7 +20,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg hello-cgi.scm \
+EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg \
 	serveez1.ico serveez2.ico
 
 MAINTAINERCLEANFILES = Makefile.in

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.6 2001/07/12 20:23:52 ela Exp $
+ * $Id: guile.h,v 1.7 2001/07/19 13:50:42 ela Exp $
  *
  */
 
@@ -30,7 +30,7 @@
  * symbol. Returns @code{NULL} if it was neither. The new string must be 
  * explicitly @code{free()}d.
  */
-#define guile2str(scm)                                        \
+#define guile_to_string(scm)                                  \
   (gh_null_p (scm) ? NULL :                                   \
   (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) :            \
   (gh_symbol_p (scm) ? gh_symbol2newstr (scm, NULL) : NULL)))
@@ -38,15 +38,20 @@
 /* FAIL breaks to the label `out' and sets an error condition. */
 #define FAIL() do { err = -1; goto out; } while(0)
 
-/* Export functions. */
-int guile2int (SCM scm, int *target);
-int optionhash_extract_string (svz_hash_t *hash, char *key, int hasdef,
-			       char *defvar, char **target, char *txt);
-svz_hash_t *guile2optionhash (SCM pairlist, char *txt, int dounpack);
-int optionhash_validate (svz_hash_t *hash, int what, char *type, char *name);
-void optionhash_destroy (svz_hash_t *options);
-void report_error (const char *format, ...);
-SCM optionhash_get (svz_hash_t *hash, char *key);
-int guile_load_config (char *cfgfile);
+/* Export these functions. */
+int guile_to_integer (SCM, int *);
+int guile_to_boolean (SCM, int *);
+svz_array_t *guile_to_intarray (SCM, char *);
+svz_array_t *guile_to_strarray (SCM, char *);
+svz_hash_t *guile_to_hash (SCM, char *);
+svz_hash_t *guile_to_optionhash (SCM, char *, int);
+void guile_error (char *, ...);
+int guile_load_config (char *);
+
+int optionhash_validate (svz_hash_t *, int, char *, char *);
+void optionhash_destroy (svz_hash_t *);
+SCM optionhash_get (svz_hash_t *, char *);
+int optionhash_extract_string (svz_hash_t *, char *, int, char *, char **, 
+			       char *);
 
 #endif /* not __GUILE_H__ */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.19 2001/07/01 15:56:48 ela Exp $
+ * $Id: server.h,v 1.20 2001/07/19 13:50:43 ela Exp $
  *
  */
 
@@ -116,7 +116,7 @@ struct svz_servertype
   /* start of example struct */
   void *prototype_start;
   /* size of the above structure */
-  int  prototype_size;
+  int prototype_size;
   /* array of key-value-pairs of config items */
   svz_key_value_pair_t *items;
 };

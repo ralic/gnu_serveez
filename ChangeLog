@@ -1,3 +1,8 @@
+2001-07-16  [ Ela ]  <ela@lkcc.org>
+
+	* acinclude.m4: Checking for proper Guile version and state
+	a warning if it failed.
+
 2001-07-15  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (MAKEINFO): Checking the version of `makeinfo'.

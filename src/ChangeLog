@@ -1,3 +1,16 @@
+2001-07-18  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (guile_servertype_config): Manages the
+	parsing of the configuration items for a servertype defined
+	in Guile.
+	(guile_servertype_config_default): Handles the definition of
+	the default values of each item.
+
+	* guile-bin.c: Implementation of a binary smob for passing
+	data between C and Guile without copying it necessarily. It
+	also provides procedure for converting the smobs into strings
+	and lists.
+
 2001-07-12  [ Ela ]  <ela@lkcc.org>
 
 	* echo-server.scm (echo-handle-request): Implemented this

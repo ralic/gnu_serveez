@@ -55,7 +55,8 @@ serveez_SOURCES = \
 	guile.c guile.h \
 	cfgfile.c cfgfile.h \
 	option.c option.h \
-	guile-server.c guile-server.h
+	guile-server.c guile-server.h \
+	guile-bin.c guile-bin.h
 
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 

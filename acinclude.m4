@@ -40,8 +40,11 @@ AC_DEFUN([AC_GUILE], [
     GUILEDIR="/usr/local")
 
   AC_MSG_CHECKING([for guile installation])
-  [guile=`eval guile-config --version 2>&1 | \
-   	  sed -e '/^$/ d' -e 's/[^0-9\.]//g'`]
+  guile=""
+  [if test "x`eval guile-config --version 2>&1 | grep version`" != "x"; then
+    guile=`eval guile-config --version 2>&1 | \
+   	        sed -e '/^$/ d' -e 's/[^0-9\.]//g'`
+  fi]
   if test x"$guile" != "x" ; then
     case "$guile" in
     [1.3.[4-9] | 1.[4-9]* | [2-9].*)]
@@ -54,8 +57,8 @@ AC_DEFUN([AC_GUILE], [
   it handy on your system.])
       ;;
     esac
-    GUILE_CFLAGS="`guile-config compile`"
-    GUILE_LDFLAGS="`guile-config link`"
+    GUILE_CFLAGS="`eval guile-config compile`"
+    GUILE_LDFLAGS="`eval guile-config link`"
   else
     if test "x$GUILEDIR" != "xno"; then
       GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`

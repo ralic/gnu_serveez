@@ -26,10 +26,10 @@
 AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
 man_MANS = serveez.1
-EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
+EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 	logo.jpg logosmall.jpg serveez-api.texi.in serveez-api.awk
-CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* \
-	serveez-api.texi $(SED_FILE) $(HTML_DIR)/*.html
+CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
+	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html
 MAINTAINERCLEANFILES = Makefile.in
 DOC_DIRS = $(top_srcdir)/src/libserveez \
   $(top_srcdir)/src/libserveez/coserver
@@ -40,6 +40,9 @@ DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
   portcfg.c array.h coserver.c coserver.h vector.h portcfg.h server-core.h \
   socket.h alloc.h server.h util.h
 SED_FILE = serveez-api.sed
+GUILE_DOC_DIRS = $(top_srcdir)/src
+GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c
+GUILE_SED_FILE = guile-api.sed
 HTML_DIR = manual
 SITE_DIR = $(top_srcdir)/../serveez-site
 SED = sed
@@ -63,7 +66,7 @@ dist-hook:
 	$(RM) -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
 		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi
 
-serveez-api.texi: serveez-api.texi.in
+serveez-api.texi: $(top_srcdir)/doc/serveez-api.texi.in
 	$(RM) -f $(SED_FILE)
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
@@ -72,7 +75,20 @@ serveez-api.texi: serveez-api.texi.in
 	      $(SED_FILE); fi \
 	  done \
 	done
-	$(SED) -f $(SED_FILE) < $< > $@
+	$(SED) -f $(SED_FILE) < $(top_srcdir)/doc/serveez-api.texi.in > $@
+
+guile-api.texi: $(top_srcdir)/doc/guile-api.texi.in
+	$(RM) -f $(GUILE_SED_FILE)
+	for dir in $(GUILE_DOC_DIRS); do \
+	  for file in $(GUILE_DOC_FILES); do \
+	    if test -r $$dir/$$file; then \
+	      $(AWK) -f $(srcdir)/serveez-api.awk $$dir/$$file >> \
+	      $(GUILE_SED_FILE); fi \
+	  done \
+	done
+	$(SED) -f $(GUILE_SED_FILE) < $(top_srcdir)/doc/guile-api.texi.in > $@
+
+serveez.info: guile-api.texi
 
 site: all-local serveez.info serveez-api.info
 	test ! -d $(SITE_DIR) || $(RM) -rf $(SITE_DIR)
@@ -81,6 +97,8 @@ site: all-local serveez.info serveez-api.info
 	$(CP) -rp $(HTML_DIR) $(SITE_DIR)
 	$(CP) -p index.html logosmall.jpg $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
+
+$(HTML_DIR)/serveez.html: guile-api.texi
 
 $(HTML_DIR)/%.html: %.texi
 	$(TEXI2HTML) -subdir $(HTML_DIR) -split_chapter $<

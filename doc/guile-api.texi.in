@@ -1,0 +1,55 @@
+@c -*-texinfo-*-
+@c
+@c This file includes the documentation about the guile servers. It is
+@c included by `serveez.texi'.
+@c
+
+This section describes the guile interface of serveez meant to provide
+the ability to exceptionally write servers with guile. Of course you could
+do this without any help of serveez, but it makes it a lot easier. The
+guile interface of serveez reduces the guile implementation of an Internet
+server to a simple data processor.
+
+@subsubsection Special data types
+
+Serveez extends guile by various new data types which represent internal
+data structures of serveez's core API.
+
+@itemize @bullet
+@item @code{#<svz-servertype>}
+represent a server type.
+@item @code{#<svz-server>}
+represents a server (an instance of a server type).
+@item @code{#<svz-socket>}
+represents a socket structure.
+@end itemize
+
+@subsubsection Passing binary data
+
+The new binary data type (i.e. @code{#<binary>}) provides access to any
+kind of unstructured data. It manages data exchange between guile and serveez
+and the other way around. There are some converter functions for strings 
+and lists which help to process this binary data in a more complex (guile'ish) 
+way.
+
+BINARY->STRING_DEFUN
+STRING->BINARY_DEFUN
+BINARY?_DEFUN
+LIST->BINARY_DEFUN
+BINARY->LIST_DEFUN
+BINARY-SEARCH_DEFUN
+BINARY-SET!_DEFUN
+BINARY-REF_DEFUN
+BINARY-LENGTH_DEFUN
+BINARY-CONCAT_DEFUN
+BINARY-SUBSET_DEFUN
+
+@subsubsection Server definition
+
+DEFINE-SERVERTYPE!_DEFUN
+
+@subsubsection Predefined procedures
+
+SVZ:SOCK:HANDLE-REQUEST_DEFUN
+SVZ:SOCK:BOUNDARY_DEFUN
+SVZ:SOCK:PRINT_DEFUN

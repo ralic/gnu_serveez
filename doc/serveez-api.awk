@@ -130,7 +130,7 @@ function handle_variable(line)
     }
 }
 
-# handle macro defintions
+# handle macro definitions
 function handle_macro(line)
 {
     if (line ~ /^\#define /) {
@@ -194,6 +194,7 @@ function handle_macro(line)
     retry = 0
     found = 0
     dist = 0
+    guile_func = ""
     getline ret
 
     while (found == 0) {
@@ -203,8 +204,13 @@ function handle_macro(line)
 	    handle_variable(ret)
 	    next
 	}
+	# is this a guile function ?
+	else if (ret ~ /^\#define FUNC_NAME /) {
+	  gsub(/\#define FUNC_NAME \"/, "", ret)
+	  guile_func = substr(ret, 1, index(ret, "\"") - 1)
+	}
         # handle macro definitions
-	if (ret ~ /^\#define /) {
+	else if (ret ~ /^\#define /) {
 	  handle_macro(ret)
 	  next
 	}
@@ -259,6 +265,7 @@ function handle_macro(line)
     # seperate the arguments
     split(args, arg, ",")
     c_args = ""
+    guile_args = ""
     a = 0
     # count the arguments and save result
     for (x in arg) { a++ }
@@ -290,6 +297,7 @@ function handle_macro(line)
 
 	# rejoin the arguments
 	c_arg = ""
+        guile_arg = var
 	for (n = 1; n <= i; n++) {
 	    if (c_arg != "") { c_arg = (c_arg " ") }
 	    if (type[n] != var || var == "void") {
@@ -302,17 +310,24 @@ function handle_macro(line)
 	# rejoin the argument list
 	if (c_args != "") { c_args = (c_args ", ") }
 	c_args = (c_args c_arg)
+	if (guile_args != "") { guile_args = (guile_args " ") }
+	guile_args = (guile_args guile_arg)
     }
 
     # enclose the return value into braces if necessary
-    if (index(ret, " ")) {
-	ret = ("{" ret "}") }
+    if (index(ret, " ")) { ret = ("{" ret "}") }
 
     # finally the texinfo function definition and documentation
-    funcdef = (ret " " c_func " (" c_args ")")
     gsub(/\n/, "\\\n", docu)
-    replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
-    sedexp = ("/^" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
+    if (length(guile_func) > 0) {
+      funcdef = (guile_func " " guile_args)
+      replace = ("@defun " funcdef "\\\n" docu "\\\n" "@end defun")
+      sedexp = ("/^" toupper(guile_func) "_DEFUN/" " c\\\n" replace "\\\n")
+    } else {
+      funcdef = (ret " " c_func " (" c_args ")")
+      replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
+      sedexp = ("/^" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
+    }
     print sedexp
     docu = ""
   }
