@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.3 2001/04/28 12:37:06 ela Exp $
+ * $Id: binding.c,v 1.4 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -28,6 +28,7 @@
 
 #define _GNU_SOURCE
 #include <assert.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 
@@ -40,6 +41,64 @@
 #include "libserveez/portcfg.h"
 #include "libserveez/server-socket.h"
 #include "libserveez/binding.h"
+
+/*
+ * Return a static text representation of the server instances @var{server}
+ * port configuration bindings.
+ */
+char *
+svz_server_bindings (svz_server_t *server)
+{
+  static char text[256];
+  socket_t sock;
+  struct sockaddr_in *addr;
+
+  text[0] = '\0'; 
+  svz_sock_foreach (sock)
+    {
+      if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg)
+	{
+	  if (svz_array_contains (sock->data, server))
+	    {
+	      addr = svz_portcfg_addr ((svz_portcfg_t *) sock->cfg);
+	      strcat (text, svz_inet_ntoa (addr->sin_addr.s_addr));
+	      strcat (text, ":");
+	      strcat (text, svz_itoa (ntohs (addr->sin_port)));
+	      strcat (text, " ");
+	    }
+	}
+    }
+  if (strlen (text))
+    text[strlen (text) - 1] = '\0';
+  return text;
+}
+
+/*
+ * Return an array of port configuration to which the given server instance
+ * @var{server} is currently bound to or @code{NULL} ff there is no such 
+ * binding.
+ */
+svz_array_t *
+svz_server_portcfg (svz_server_t *server)
+{
+  svz_array_t *port = svz_array_create (1);
+  socket_t sock;
+
+  svz_sock_foreach (sock)
+    {
+      if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg)
+	{
+	  if (svz_array_contains (sock->data, server))
+	    svz_array_add (port, sock->cfg);
+	}
+    }
+  if (svz_array_size (port) == 0)
+    {
+      svz_array_destroy (port);
+      port = NULL;
+    }
+  return port;
+}
 
 /*
  * Return a @code{socket_t} representing a server socket with the port

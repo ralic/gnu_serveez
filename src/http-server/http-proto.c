@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.63 2001/04/28 12:37:06 ela Exp $
+ * $Id: http-proto.c,v 1.64 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -199,17 +199,21 @@ http_init (svz_server_t *server)
 {
   int types = 0;
   char *p;
-  unsigned long host;
+  unsigned long host = INADDR_ANY;
   http_config_t *cfg = server->cfg;
+  svz_array_t *ports;
+  struct sockaddr_in *addr;
 
   /* resolve localhost if server name is not set */
   if (!cfg->host)
     {
-      /*
-	FIXME: How to determine which port config ?
-	host = cfg->port->addr->sin_addr.s_addr;
-	if (host == INADDR_ANY)
-      */
+      if ((ports = svz_server_portcfg (server)) != NULL)
+	{
+	  addr = svz_portcfg_addr ((svz_portcfg_t *) svz_array_get (ports, 0));
+	  host = addr->sin_addr.s_addr;
+	  svz_array_destroy (ports);
+	}
+      if (host == INADDR_ANY)
 	host = htonl (INADDR_LOOPBACK);
       svz_coserver_rdns (host, http_localhost, cfg, NULL);
     }
@@ -858,7 +862,7 @@ http_info_server (svz_server_t *server)
   static char info[80 * 12];
   
   sprintf (info,
-	   " tcp port        : %d\r\n"
+	   " tcp bindings    : %s\r\n"
 	   " index file      : %s\r\n"
 	   " document root   : %s/\r\n"
 	   " cgi url         : %s/\r\n"
@@ -870,7 +874,7 @@ http_info_server (svz_server_t *server)
 	   " default type    : %s\r\n"
 	   " type file       : %s\r\n"
 	   " content types   : %d",
-	   0/*FIXME: cfg->port->port*/,
+	   svz_server_bindings (server),
 	   cfg->indexfile,
 	   cfg->docs,
 	   cfg->cgiurl,

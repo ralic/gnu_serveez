@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.9 2001/04/11 13:31:04 ela Exp $
+ * $Id: server-core.c,v 1.10 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -73,9 +73,10 @@
 #include "libserveez/socket.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/server-loop.h"
-#include "libserveez/server-core.h"
+#include "libserveez/portcfg.h"
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/server.h"
+#include "libserveez/server-core.h"
 
 /* 
  * When SERVER_NUKE_HAPPENED is set to a non-zero value, the server
@@ -456,9 +457,49 @@ sock_dequeue (socket_t sock)
 }
 
 /*
- * Return the socket structure for the socket id ID and the version 
- * VERSION or NULL if no such socket exists. If VERSION is -1 it is not
- * checked.
+ * Return the parents port configuration of the socket structure @var{sock}
+ * or @code{NULL} if the given socket has no parent, i.e. is a listener.
+ */
+svz_portcfg_t *
+sock_portcfg (socket_t sock)
+{
+  svz_portcfg_t *port = NULL;
+  socket_t parent;
+
+  if ((parent = sock_getparent (sock)) != NULL)
+    port = parent->cfg;
+  return port;
+}
+
+/*
+ * Set the sockets @var{child} parent to the given socket structure
+ * @var{parent}. This should be called whenever a listener accepts a
+ * connection and creates a new child socket.
+ */
+void
+sock_setparent (socket_t child, socket_t parent)
+{
+  child->parent_id = parent->id;
+  child->parent_version = parent->version;
+}
+
+/*
+ * Return the sockets @var{child} parent socket structure or @code{NULL}
+ * if this socket does not exist anymore. This might happen if a listener
+ * dies for some reason.
+ */
+socket_t
+sock_getparent (socket_t child)
+{
+  if (!child)
+    return NULL;
+  return sock_find (child->parent_id, child->parent_version);
+}
+
+/*
+ * Return the socket structure for the socket id @var{id} and the version 
+ * @var{version} or @code{NULL} if no such socket exists. If @var{version}
+ * is -1 it is not checked.
  */
 socket_t
 sock_find (int id, int version)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.2 2001/02/02 11:26:23 ela Exp $
+ * $Id: socket.h,v 1.3 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -79,6 +79,8 @@ struct socket
   socket_t prev;		/* Previous socket in chain. */
   int id;		        /* Unique ID for this socket. */
   int version;                  /* Socket version */
+  int parent_id;                /* A sockets parent ID. */
+  int parent_version;           /* A sockets parent version. */
 
   int proto;                    /* Server/Protocol flag. */
   int flags;			/* One of the SOCK_FLAG_* flags above. */

@@ -1,7 +1,7 @@
 /*
  * nut-request.c - gnutella requests implementations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.10 2001/04/28 12:37:06 ela Exp $
+ * $Id: nut-request.c,v 1.11 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -239,6 +239,8 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_file_t *entry;
   byte *file, *p, *buffer = NULL;
   unsigned n, len = 0, size;
+  struct sockaddr_in *addr;
+  svz_portcfg_t *port;
 
   /* shall we reply to this query ? */
   query = nut_get_query (packet);
@@ -293,9 +295,10 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 
   /* create gnutella search reply packet */
   reply.records = (byte) n;
-  reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : 
-				 0/*FIXME: htons (cfg->netport->port)*/);
+  port = sock_portcfg (sock);
+  addr = svz_portcfg_addr (port);
+  reply.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
+  reply.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
   reply.speed = (unsigned short) cfg->speed;
   
   /* save packet length */
@@ -370,6 +373,8 @@ nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
   nut_config_t *cfg = sock->cfg;
   nut_pong_t reply;
   byte *header, *pong;
+  struct sockaddr_in *addr;
+  svz_portcfg_t *port;
 
   /* create new gnutella packets */
   hdr->function = NUT_PING_ACK;
@@ -377,9 +382,10 @@ nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
   hdr->ttl = hdr->hop;
   hdr->hop = 0;
 
-  reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : 
-				 0 /*FIXME: htons (cfg->netport->port)*/);
+  port = sock_portcfg (sock);
+  addr = svz_portcfg_addr (port);
+  reply.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
+  reply.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.35 2001/04/28 12:37:06 ela Exp $
+ * $Id: gnutella.c,v 1.36 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -435,7 +435,8 @@ nut_init (svz_server_t *server)
   nut_calc_guid (cfg->guid);
 
   /* create detection string for gnutella host list */
-  cfg->net_detect = svz_malloc (strlen (NUT_HOSTS) + strlen (cfg->net_url) + 1);
+  cfg->net_detect = svz_malloc (strlen (NUT_HOSTS) + 
+				strlen (cfg->net_url) + 1);
   sprintf (cfg->net_detect, NUT_HOSTS, cfg->net_url);
 
   /* go through all given hosts and try to connect to them */
@@ -827,7 +828,7 @@ nut_info_server (svz_server_t *server)
     }
 
   sprintf (info,
-	   " tcp port        : %u\r\n"
+	   " tcp bindings    : %s\r\n"
 	   " force ip        : %s\r\n"
 	   " force port      : %s\r\n"
 	   " maximum ttl     : %u\r\n"
@@ -848,7 +849,7 @@ nut_info_server (svz_server_t *server)
 	   " downloads       : %u/%u\r\n"
 	   " uploads         : %u/%u\r\n"
 	   " recent queries  : %u",
-	   0 /*FIXME: cfg->netport->port*/,
+	   svz_server_bindings (server),
 	   cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
 	   cfg->port ? svz_itoa (ntohs (cfg->port)) : "no specified",
 	   cfg->max_ttl,

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.5 2001/04/19 14:08:10 ela Exp $
+ * $Id: server-core.h,v 1.6 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -30,6 +30,7 @@
 #include <time.h>
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
+#include "libserveez/portcfg.h"
 
 SERVEEZ_API extern int server_nuke_happened;
 SERVEEZ_API extern HANDLE server_child_died;
@@ -51,6 +52,9 @@ SERVEEZ_API int sock_schedule_for_shutdown __P ((socket_t sock));
 SERVEEZ_API int sock_enqueue __P ((socket_t sock));
 SERVEEZ_API int sock_dequeue __P ((socket_t sock));
 SERVEEZ_API void sock_shutdown_all __P ((void));
+SERVEEZ_API void sock_setparent __P ((socket_t child, socket_t parent));
+SERVEEZ_API socket_t sock_getparent __P ((socket_t child));
+SERVEEZ_API svz_portcfg_t *sock_portcfg __P ((socket_t sock));
 
 SERVEEZ_API void server_check_bogus __P ((void));
 SERVEEZ_API int server_periodic_tasks __P ((void));

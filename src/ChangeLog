@@ -1,3 +1,18 @@
+2001-05-02  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/nut-transfer.c (nut_send_push): Using `svz_portcfg()'
+	for specifying push request.
+
+	* nut-server/nut-request.c: Used `svz_portcfg()' where necessary.
+
+	* nut-server/gnutella.c (nut_info_server): Printing
+	server bindings here.
+
+	* http-server/http-proto.c (http_info_server): Print server
+	bindings instead of the tcp port only.
+	(http_init): Resolve the ip address of the first server binding
+	only and use it as server name if there no such configured.
+
 2001-04-28  [ Ela ]  <ela@lkcc.org>
 
 	* tunnel-server/tunnel.c: Made all necessary changes for using
@@ -11,36 +26,6 @@
 
 	* nut-server/gnutella.c: Dropped port configuration. Made
 	all changes required by this. Added lots of "FIXME"s.
-
-	* libserveez/udp-socket.c (udp_check_request): Go through
-	a svz_array_t of servers now.
-
-	* libserveez/socket.c (sock_free): Freeing port configuration
-	and server array if necessary.
-
-	* libserveez/server.h: Old `portcfg_t' completely 
-	eliminated.
-
-	* libserveez/server.c: Dropped `server_portcfg_equal()'.
-
-	* libserveez/server-socket.c: Replaced `server_ceate()' by
-	`svz_server_create()'.
-
-	* libserveez/portcfg.h (svz_portcfg_ipaddr): New macro.
-	Gets the ip address string of a given port configuration.
-
-	* libserveez/portcfg.c (svz_portcfg_set_ipaddr): New function.
-	Sets a given ip address string in a port configuration.
-
-	* libserveez/icmp-socket.c (icmp_check_request): Array of 
-	servers is now a svz_array_t.
-
-	* libserveez/boot.c (svz_halt): Added call to 
-	`svz_portcfg_finalize()'.
-
-	* libserveez/binding.c: Finally deleted both the functions
-	`server_bind()' and `server_start()'.
-	These have been replaced by `svz_server_bind()'.
 
 	* irc-server/irc-proto.c: Dropped port configuration.
 
@@ -94,32 +79,6 @@
 
 	* Makefile.am (serveez_SOURCES): Dropped `sizzle.[ch]'.
 
-2001-04-21  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/server.c (svz_server_configure): Function for
-	generic server configuration. Read <server.[ch]> for more 
-	information.
-
-2001-04-19  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/hash.c (svz_hash_put): Return the old value if any.
-
-	* libserveez/server.c (svz_server_instantiate): New function.
-
-	* libserveez/vector.h (svz_vector_foreach): New iteration 
-	macro for svz_vector_t's.
-
-	* libserveez/binding.c (svz_server_find_portcfg): New function.
-	(svz_server_bind): Fully implemented, using above function.
-
-	* libserveez/portcfg.c (svz_portcfg_mkaddr): Also put network
-	family and port if necessary.
-	(svz_portcfg_copy): New function.
-	(svz_portcfg_expand): New function.
-
-	* libserveez/server.c (svz_server_get): New function. Hides 
-	svz_hash_t structure from library user.
-
 2001-04-18  [ Ela ]  <ela@lkcc.org>
 
 	* guile.c (define_port): Default for ICMP_TYPE is ICMP_SERVEEZ.
@@ -128,65 +87,19 @@
 	Try dynamically load the server type if there is no such static
 	server type.
 
-	* libserveez/portcfg.h (PORTCFG_TYPE): Added some more string
-	constants for port configurations.
-
-2001-04-11  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/coserver/coserver.c: Cleaned up namespace for the
-	coserver API.
-
 2001-04-08  [ Ela ]  <ela@lkcc.org>
 
 	* option.c (getopt): Reimplemented this function. Now 
 	understands `optopt', `opterr' and `optind'.
 	(handle_options): Moved this piece of code into `option.c'.
 
-2001-04-05  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/binding.c (svz_server_bind): Added this file
-	into the CVS and moved some functions from serve.c here.
-
-	* libserveez/array.h (svz_array_foreach): Iteration macro
-	for arrays defined.
-
-	* libserveez/portcfg.c: Added this file for port configuration
-	maintainance.
-
 2001-04-01  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/core.c (svz_sendfile): Using TransmitFile() in the
-	Win32 port.
 
 	* http-server/http-cache.c (http_cache_read): Using ReadFile()
 	instead of read() for we are using CreateFile() in order to open
 	a file in Win32 instead of open().
 
-	* libserveez/vector.c (svz_vector_contains): New function.
-
-2001-03-10  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/array.c: Added new data structure. Implemented
-	two version. One which is for debugging and another for
-	distribution which is a fully inlined thingie.
-
-2001-03-08  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/hash.h: Put the hash functions into the namespace
-	`svz_hash_'.
-
-	* libserveez/core.c (svz_tcp_cork): Moved from `http-proto.c'.
-	(svz_sendfile): Also moved from `http-proto.c'.
-
 2001-03-04  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/core.c (svz_socket_connect): This function has
-	been introduced in order to have the `connect()' call just
-	once in the whole library.
-	(svz_socket_create): Creates a socket via `socket()'. It is
-	a wrapper for the Internet protocols UPD, TCP, ICMP and RAW.
-	(svz_inet_ntoa): Moved both the `inet_ntoa()' `and inet_aton()'
-	from `util.c' to `core.c' and renamed them.
 
 	* http-server/http-cgi.c (http_cgi_get_response): This piece
 	of code has been part of the http_get_response() function.
@@ -194,107 +107,10 @@
 	(http_cgi_exec): Piping stderr of cgi script to its output
 	stream in the release target.
 
-2001-03-01  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/server-core.c (server_signal_handler): Fixed
-	the problem with detaching and attaching the server on the
-	console via ^Z and job control.
-
-	* libserveez/coserver/coserver.c (coserver_close_pipes): Close
-	all pipes of existing coservers within a new coserver process.
-
-	* libserveez/core.c: Created this file.
-
 2001-02-28  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/server-core.c (svz_fd_cloexec): This and
-	the svz_fd_nonblock() function can be used to work on
-	file descriptors.
 
 	* http-server/http-proto.c (http_get_response): Closing
 	receiving end of a CGI pipe which got mistakenly inherited.
-
-2001-02-18  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/util.c (util_inet_aton): This function is a
-	platform wrapper for internet address conversion.
-
-2001-02-06  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/Makefile.am (libserveez_la_SOURCES): Added
-	`vector.c' and `vector.h'.
-
-	* libserveez/interface.c: The list of available network
-	interfaces `svz_interface' is now a `svz_vector'.
-
-	* libserveez/vector.c: New file implementing vector lists.
-
-	* libserveez/alist.h: Changed the name space from `alist' to
-	`svz_alist'.
-
-2001-02-05  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/dynload.c (dyn_load_library): Added support for
-	GNU dld library and Beos's load_add_on() interface.
-
-2001-02-04  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/dynload.c: Stuffed the dynamic loading interface
-	into the serveez core library.
-	(dyn_load_library): The dynamic loading interface for shared
-	libraries saves all handles for better management. Thus it might
-	be possible to load and unload server modules without restarting
-	the main module.
-
-2001-02-02  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/interface.c: Pulled the network interface detection
-	into the core library.
-
-2001-02-01  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/alloc.c (heap_caller): Defined this macro for
-	calling it at the beginning of each function using 
-	__builtin_return_address() for debugging purposes. Using
-	StackWalk() in MS Visual C++.
-
-2001-01-31  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/server-core.c (server_loop_one): Took this piece
-	of code out of `server_loop'. Thus you should be able to run
-	the server loop yourself using the library only.
-
-	* interface.c (list_local_interfaces): Fixed list of local
-	network interfaces on FreeBSD version 3.2.
-
-2001-01-30  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/icmp-socket.c: Cleaned up the name space and made
-	many of the functions static.
-
-2001-01-29  [ Ela ]  <ela@lkcc.org>
-
-	* libserveez/alist.c: Added a alot of necessary documentation
-	and changed the array list indexes's data type from `unsigned'
-	to `unsigned long'. Thus you can handle a bigger index range
-	on 64 bit architectures.
-
-2001-01-24  [ Ela ]  <ela@lkcc.org>
-
-	* util.h: Renamed `last_errno' to `svz_errno', `verbosity' to
-	`svz_verbosity' and `os_version' to `svz_os_version'.
-
-	* Makefile.am (libserveez_la_SOURCES): Wrote some Makefile
-	rules for creating a shared library called `libserveez.la'.
-	We are using libtool here.
-
-	* alloc.c: Created a namespace for the allocator functions 
-	malloc, free, etc. Gave a lot of functions and variables
-	the `svz_' prefix. Moreover you can now overwrite the default
-	allocator routine from libc (malloc, free, realloc). This is
-	especially useful if you want to use memory from a shared 
-	memory arena. The function pointers are `svz_malloc_func', 
-	`svz_free_func'	and `svz_realloc_func'.
 
 2001-01-21  [ Ela ]  <ela@lkcc.org>
 

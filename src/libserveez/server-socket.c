@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.7 2001/04/28 12:37:06 ela Exp $
+ * $Id: server-socket.c,v 1.8 2001/05/02 22:18:48 ela Exp $
  *
  */
 
@@ -252,7 +252,7 @@ svz_server_create (svz_portcfg_t *port)
 /*
  * Something happened on the a server socket, most probably a client 
  * connection which we will normally accept. This is the default callback
- * for READ_SOCKET for listening tcp sockets.
+ * for @code{read_socket} for listening tcp sockets.
  */
 int
 server_accept_socket (socket_t server_sock)
@@ -317,6 +317,7 @@ server_accept_socket (socket_t server_sock)
       sock->idle_func = sock_idle_protect; 
       sock->idle_counter = 1;
       sock_enqueue (sock);
+      sock_setparent (sock, server_sock);
       sock_connections++;
 
       /* 
@@ -452,6 +453,7 @@ server_accept_pipe (socket_t server_sock)
   sock->idle_func = sock_idle_protect;
   sock->idle_counter = 1;
   sock_enqueue (sock);
+  sock_setparent (sock, server_sock);
 
   log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
               server_sock->recv_pipe, 
