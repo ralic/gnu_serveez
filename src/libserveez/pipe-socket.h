@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.6 2001/05/21 21:20:42 ela Exp $
+ * $Id: pipe-socket.h,v 1.7 2001/06/19 21:40:55 ela Exp $
  *
  */
 
@@ -40,6 +40,7 @@ typedef struct svz_pipe
   unsigned int perm; /* user and group permmissions */
   char *user;        /* user name */
   unsigned int uid;  /* user id (calculated from user name) */
+  unsigned int pgid; /* primary group id */
   char *group;       /* group name */
   unsigned int gid;  /* group id (calculated from group name) */
 }
@@ -55,6 +56,8 @@ SERVEEZ_API svz_socket_t *svz_pipe_create __P ((HANDLE, HANDLE));
 SERVEEZ_API int svz_pipe_create_pair __P ((HANDLE pipe_desc[2]));
 SERVEEZ_API svz_socket_t *svz_pipe_connect __P ((char *, char *));
 SERVEEZ_API int svz_pipe_listener __P ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_check_user __P ((svz_pipe_t *pipe));
+SERVEEZ_API int svz_pipe_check_group __P ((svz_pipe_t *pipe));
 
 __END_DECLS
 

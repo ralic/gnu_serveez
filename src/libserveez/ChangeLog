@@ -1,3 +1,11 @@
+2001-06-19  [ Ela ]  <ela@lkcc.org>
+
+	* pipe-socket.c (svz_pipe_check_group): Consistency check
+	for the given group name of a pipe.
+
+	* dynload.c (svz_dynload_path_get): Do not use duplicate path
+	information.
+
 2001-06-13  [ Ela ]  <ela@lkcc.org>
 
 	* array.c: Modified all functions that they can handle NULL

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.19 2001/06/14 17:04:28 ela Exp $
+ * $Id: portcfg.c,v 1.20 2001/06/19 21:40:55 ela Exp $
  *
  */
 
@@ -30,10 +30,6 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
-
-#if HAVE_PWD_H
-# include <pwd.h>
-#endif
 
 #ifndef __MINGW32__
 # include <sys/socket.h>
@@ -51,6 +47,7 @@
 #include "libserveez/portcfg.h"
 #include "libserveez/udp-socket.h"
 #include "libserveez/icmp-socket.h"
+#include "libserveez/pipe-socket.h"
 #include "libserveez/interface.h"
 
 /*
@@ -434,44 +431,6 @@ svz_portcfg_finalize (void)
       svz_hash_destroy (svz_portcfgs);
       svz_portcfgs = NULL;
     }
-}
-
-/* Check the consitency of the user-uid pair. */
-static int
-svz_pipe_check_user (svz_pipe_t *pipe)
-{
-#if HAVE_PWD_H
-  struct passwd *p = NULL;
-
-  if (pipe->user)
-    {
-      if ((p = getpwnam (pipe->user)) == NULL)
-	{
-	  svz_log (LOG_WARNING, "%s: no such user `%s'\n", 
-		   pipe->name, pipe->user);
-	  return 0;
-	}
-      pipe->uid = p->pw_uid;
-    }
-  else if (pipe->uid)
-    {
-      if ((p = getpwuid (pipe->uid)) == NULL)
-	{
-	  svz_log (LOG_WARNING, "%s: no such user id `%d'\n", 
-		   pipe->name, pipe->uid);
-	  return 0;
-	}
-      pipe->user = svz_strdup (p->pw_name);
-    }
-#endif /* not HAVE_PWD_H */
-  return 0;
-}
-
-/* Check the consitency of the group-gid pair. */
-static int
-svz_pipe_check_group (svz_pipe_t *pipe)
-{
-  return 0;
 }
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.10 2001/06/01 21:24:09 ela Exp $
+ * $Id: pipe-socket.c,v 1.11 2001/06/19 21:40:55 ela Exp $
  *
  */
 
@@ -37,6 +37,14 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#if HAVE_PWD_H
+# include <pwd.h>
+#endif
+
+#if HAVE_GRP_H
+# include <grp.h>
+#endif
+
 #ifdef __MINGW32__
 # include <winsock2.h>
 #endif
@@ -47,6 +55,98 @@
 #include "libserveez/core.h"
 #include "libserveez/server-core.h"
 #include "libserveez/pipe-socket.h"
+
+/* 
+ * Check the consistency of the "user" - "user id" pair in the given pipe
+ * structure @var{pipe}. Return zero if it is ok.
+ */
+int
+svz_pipe_check_user (svz_pipe_t *pipe)
+{
+#if HAVE_PWD_H
+  struct passwd *p = NULL;
+
+  if (pipe->user)
+    {
+      if ((p = getpwnam (pipe->user)) == NULL)
+	{
+	  svz_log (LOG_WARNING, "%s: no such user `%s'\n", 
+		   pipe->name, pipe->user);
+	  return 0;
+	}
+      pipe->uid = p->pw_uid;
+      pipe->pgid = p->pw_gid;
+    }
+  else if (pipe->uid)
+    {
+      if ((p = getpwuid (pipe->uid)) == NULL)
+	{
+	  svz_log (LOG_WARNING, "%s: no such user id `%d'\n", 
+		   pipe->name, pipe->uid);
+	  return 0;
+	}
+      pipe->user = svz_strdup (p->pw_name);
+      pipe->pgid = p->pw_gid;
+    }
+#endif /* not HAVE_PWD_H */
+  return 0;
+}
+
+/*
+ * Check the consistency of the "group" - "group id" pair in the structure
+ * @var{pipe}. Return zero if it is valid.
+ */
+int
+svz_pipe_check_group (svz_pipe_t *pipe)
+{
+#if HAVE_GRP_H
+  struct group *g = NULL;
+  int n = 0;
+
+  if (pipe->group)
+    {
+      if ((g = getgrnam (pipe->group)) == NULL)
+	{
+	  svz_log (LOG_WARNING, "%s: no such group `%s'\n", 
+		   pipe->name, pipe->group);
+	  return 0;
+	}
+      pipe->gid = g->gr_gid;
+    }
+  else if (pipe->gid)
+    {
+      if ((g = getgrgid (pipe->gid)) == NULL)
+	{
+	  svz_log (LOG_WARNING, "%s: no such group id `%d'\n", 
+		   pipe->name, pipe->gid);
+	  return 0;
+	}
+      pipe->group = svz_strdup (g->gr_name);
+    }
+
+  /* Check if the user is in the selected group and croak about it
+     if not. This check is only done if all necessary info is given. */
+  if (g && g->gr_mem && pipe->user)
+    {
+      while (g->gr_mem[n])
+	{
+	  if (!strcmp (g->gr_mem[n], pipe->user))
+	    {
+	      n = -1;
+	      break;
+	    }
+	  n++;
+	}
+      if (n != -1 && pipe->gid != pipe->pgid)
+	{
+	  svz_log (LOG_WARNING, "%s: user `%s' is not in group `%s'\n",
+		   pipe->name, pipe->user, pipe->group);
+	  return 0;
+	}
+    }
+#endif /* HAVE_GRP_H */
+  return 0;
+}
 
 /*
  * This function is for checking if a given socket structure contains 

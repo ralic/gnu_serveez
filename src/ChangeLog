@@ -1,3 +1,7 @@
+2001-06-19  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.scm (bind-servers!): New function. Thanks 'mgrabmue.
+
 2001-06-13  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm: Put some convenience functions here.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.10 2001/06/16 19:48:36 ela Exp $
+ * $Id: dynload.c,v 1.11 2001/06/19 21:40:55 ela Exp $
  *
  */
 
@@ -179,8 +179,8 @@ svz_array_t *
 svz_dynload_path_get (void)
 {
   svz_array_t *paths = svz_array_create (1);
-  char *path, *p, *start;
-  int len;
+  char *path, *p, *start, *val;
+  int len, n;
 
   svz_array_add (paths, svz_strdup ("."));
   if ((p = getenv (DYNLOAD_PATH)) != NULL)
@@ -199,7 +199,16 @@ svz_dynload_path_get (void)
 	      *start-- = 0;
 	      while ((*start == '/' || *start == '\\') && start > path) 
 		*start-- = 0;
-	      svz_array_add (paths, path);
+
+	      /* Do not put duplicate paths here. */
+	      svz_array_foreach (paths, val, n)
+		if (!strcmp (val, path))
+		  {
+		    svz_free_and_zero (path);
+		    break;
+		  }
+	      if (path)
+		svz_array_add (paths, path);
 	    }
 	  if (*p)
 	    p++;
