@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.7 2001/04/09 13:46:04 ela Exp $
+ * $Id: option.c,v 1.8 2001/04/24 23:15:13 ela Exp $
  *
  */
 
@@ -29,6 +29,7 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <string.h>
 
 #include "libserveez.h"
 #include "option.h"

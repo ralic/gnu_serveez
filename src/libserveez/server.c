@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.11 2001/04/21 16:24:24 ela Exp $
+ * $Id: server.c,v 1.12 2001/04/24 23:15:13 ela Exp $
  *
  */
 
@@ -368,7 +368,7 @@ svz_server_configure (svz_servertype_t *server,
 	  size = sizeof (int);
 	  if (configure && configure->integer)
 	    e = configure->integer (name, arg, server->items[n].name,
-				    (int *) target, (int) def);
+				    (int *) target, *(int *) def);
           break;
 
           /* Integer array. */

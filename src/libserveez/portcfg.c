@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.6 2001/04/19 14:08:09 ela Exp $
+ * $Id: portcfg.c,v 1.7 2001/04/24 23:15:13 ela Exp $
  *
  */
 
@@ -28,6 +28,7 @@
 
 #define _GNU_SOURCE
 #include <assert.h>
+#include <string.h>
 #include <sys/types.h>
 
 #include "libserveez/alloc.h"
