@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.29 2000/09/27 14:31:26 ela Exp $
+ * $Id: control-proto.c,v 1.30 2000/09/29 22:00:55 ela Exp $
  *
  */
 
@@ -940,20 +940,20 @@ ctrl_get_cpu_state (void)
 
 #if HAVE_LIBKSTAT /* Solaris */
 
-  if(ksp == NULL)
+  if (ksp == NULL)
     {
-      kc = kstat_open(); 
+      kc = kstat_open ();
 
-      for(ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next) 
-	if(strncmp(ksp->ks_name, "cpu_stat", 8) == 0) 
+      for (ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next) 
+	if (strncmp (ksp->ks_name, "cpu_stat", 8) == 0) 
 	  break;
     }
   else
     {
-      if(kstat_read(kc, ksp, &cs) == -1) 
+      if (kstat_read (kc, ksp, &cs) == -1) 
 	{
-	  snprintf(cpu_state.info, STAT_BUFFER_SIZE, 
-		   "kstat_read() failed");
+	  snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
+		    "kstat_read() failed");
 	  return -1;
 	}
 
@@ -966,35 +966,35 @@ ctrl_get_cpu_state (void)
 #elif HAVE_PROC_STAT /* Linux */
 
   /* open the statistics file */
-  if((f = fopen(cpu_state.cpufile, "r")) == NULL)
+  if ((f = fopen (cpu_state.cpufile, "r")) == NULL)
     {
-      snprintf(cpu_state.info, STAT_BUFFER_SIZE, 
-	       "%s not available", cpu_state.cpufile);
+      snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
+		"%s not available", cpu_state.cpufile);
       return -1;
     }
 
   /* find the appropiate cpu statistics line */
-  while(fgets(stat, STAT_BUFFER_SIZE, f))
+  while (fgets (stat, STAT_BUFFER_SIZE, f))
     {
-      if(4 == sscanf(stat, cpu_state.cpuline, 
-		     &cpu_state.cpu[n][0], 
-		     &cpu_state.cpu[n][1], 
-		     &cpu_state.cpu[n][2], 
-		     &cpu_state.cpu[n][3]))
+      if (4 == sscanf (stat, cpu_state.cpuline, 
+		       &cpu_state.cpu[n][0], 
+		       &cpu_state.cpu[n][1], 
+		       &cpu_state.cpu[n][2], 
+		       &cpu_state.cpu[n][3]))
 	{
-	  fclose(f);
+	  fclose (f);
 	  return 0;
 	}
     }
 
   /* cpu line not found */
-  snprintf(cpu_state.info, STAT_BUFFER_SIZE, 
-	   "cpu line not found in %s", cpu_state.cpufile);
-  fclose(f);
+  snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
+	    "cpu line not found in %s", cpu_state.cpufile);
+  fclose (f);
 
 #elif HAVE_PSTAT /* HP Unix */
 
-  pstat_getdynamic(&stats, sizeof(struct pst_dynamic), 1, 0);
+  pstat_getdynamic (&stats, sizeof (struct pst_dynamic), 1, 0);
 
   cpu_state.cpu[n][0] = stats.psd_cpu_time[0];
   cpu_state.cpu[n][1] = stats.psd_cpu_time[1];
@@ -1003,8 +1003,8 @@ ctrl_get_cpu_state (void)
 
 #elif HAVE_SYSGET /* Irix */
 
-  SGT_COOKIE_INIT(&cookie);
-  sysget(SGT_SINFO_CPU, (char *)&info, sizeof(info), SGT_READ, &cookie);
+  SGT_COOKIE_INIT (&cookie);
+  sysget (SGT_SINFO_CPU, (char *) &info, sizeof (info), SGT_READ, &cookie);
 
   cpu_state.cpu[n][0] = info.cpu[CPU_USER];
   cpu_state.cpu[n][1] = info.cpu[CPU_KERNEL];
