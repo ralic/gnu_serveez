@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
+;; $Id: eval-server.scm,v 1.2 2002/07/27 13:32:14 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -36,7 +36,7 @@
         (format #f "~S" obj))
       (define (make-safe-module) #t)))
 
-(primitive-load "serveez.scm")
+(serveez-load "serveez.scm")
 
 (define (eval-global-init servertype)
   (println "Running eval global init " servertype ".")

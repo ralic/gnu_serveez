@@ -1,3 +1,10 @@
+2002-07-27  [ Ela ]  <ela@lkcc.org>
+
+	* guile.c (guile_serveez_load): New Guile procedure replacing
+	`(primitive-load)'.  Also looks for files in the load path.
+
+	* guile-bin.c: Numerous bug fixes.
+
 2002-07-26  Stefan Jahn  <s.jahn@bit-side.com>
 
 	* irc-server/irc-event-2.c (irc_join_callback): Fixed a bug

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.64 2002/07/15 07:45:04 ela Exp $
+ * $Id: guile.c,v 1.65 2002/07/27 13:32:14 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
@@ -1512,7 +1513,7 @@ guile_hash_to_guile (svz_hash_t *hash)
 }
 
 /*
- * Make the list of local interfaces accessable for guile. Returns the
+ * Make the list of local interfaces accessable for Guile. Returns the
  * local interfaces as a list of ip addresses in dotted decimal form. If
  * another list is given in @var{args} it should contain the new list of
  * local interfaces.
@@ -1565,12 +1566,12 @@ guile_access_interfaces (SCM args)
 #undef FUNC_NAME
 
 /*
- * Make the search path for the Serveez core library accessable for guile.
+ * Make the search path for the Serveez core library accessable for Guile.
  * Returns a list a each path as previously defined. Can override the current
  * definition of this load path. The load path is used to tell Serveez where
  * it can find additional server modules.
  */
-#define FUNC_NAME "serveez-load-path"
+#define FUNC_NAME "serveez-loadpath"
 SCM
 guile_access_loadpath (SCM args)
 {
@@ -1681,42 +1682,6 @@ MAKE_STRING_ACCESSOR (guile_access_passwd, svz_config.password)
 #undef FUNC_NAME
 
 /*
- * Initialize Guile. Make certain variables and functions defined above
- * available to Guile.
- */
-static void
-guile_init (void)
-{
-  /* define some variables */
-  scm_c_define ("serveez-version", scm_makfrom0str (svz_version));
-  scm_c_define ("guile-version", scm_version ());
-  scm_c_define ("have-debug", SCM_BOOL (svz_have_debug));
-  scm_c_define ("have-Win32", SCM_BOOL (svz_have_Win32));
-  scm_c_define ("have-floodprotect", SCM_BOOL (svz_have_floodprotect));
-
-  /* export accessors for global variables (read/write capable) */
-  scm_c_define_gsubr ("serveez-verbosity", 0, 1, 0, guile_access_verbosity);
-  scm_c_define_gsubr ("serveez-maxsockets", 0, 1, 0, guile_access_maxsockets);
-  scm_c_define_gsubr ("serveez-passwd", 0, 1, 0, guile_access_passwd);
-  scm_c_define_gsubr ("serveez-interfaces", 0, 1, 0, guile_access_interfaces);
-  scm_c_define_gsubr ("serveez-loadpath", 0, 1, 0, guile_access_loadpath);
-
-  /* export some new procedures */
-  scm_c_define_gsubr ("define-port!", 2, 0, 0, guile_define_port);
-  scm_c_define_gsubr ("define-server!", 1, 1, 0, guile_define_server);
-  scm_c_define_gsubr ("bind-server!", 2, 0, 0, guile_bind_server);
-
-  /* export checker functions */
-  scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
-  scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
-  scm_c_define_gsubr ("serveez-servertype?", 1, 0, 0, guile_check_stype);
-
-#if ENABLE_GUILE_SERVER
-  guile_server_init ();
-#endif /* ENABLE_GUILE_SERVER */
-}
-
-/*
  * Exception handler for guile. It is called if the evaluation of the file
  * evaluator or a guile procedure call failed.
  */
@@ -1748,6 +1713,102 @@ guile_exception (void *data, SCM tag, SCM args)
 			     SCM_CAR (SCM_CDR (SCM_CDR (args))), 
 			     scm_current_error_port ());
   return SCM_BOOL_F;
+}
+
+/* Wrapper for the exception handler in @code{(serveez-load)}. */
+static SCM
+guile_serveez_load_file (void *data)
+{
+  return scm_c_primitive_load ((char *) data);
+}
+
+/*
+ * This procedure can be used as a replacement for @code{(primitive-load)}
+ * in serveez configuration files.  It tries to locate the given filename
+ * @var{file} in the paths returned by @code{(serveez-loadpath)}.  If 
+ * @var{file} cannot be loaded the procedure returns @code{#f}.
+ */
+#define FUNC_NAME "serveez-load"
+static SCM
+guile_serveez_load (SCM file)
+{
+  char *f, *path, *full;
+  struct stat buf;
+  int error, n;
+  SCM ret;
+  svz_array_t *paths = svz_dynload_path_get ();
+
+  GUILE_PRECALL ();
+
+  /* Check argument. */
+  if ((full = guile_to_string (file)) == NULL)
+    return SCM_BOOL_F;
+  f = svz_strdup (full);
+  scm_c_free (full);
+
+  /* Iterate the loadpath and check if the given file is in there. */
+  svz_array_foreach (paths, path, n)
+    {
+      full = svz_malloc (strlen (path) + strlen (f) + 2);
+      sprintf (full, "%s/%s", path, f);
+      if ((stat (full, &buf)) != -1)
+	{
+	  svz_free (f);
+	  f = full;
+	  break;
+	}
+      svz_free (full);
+    }
+  svz_array_destroy (paths);
+
+  /* Evaluate (load) file and catch exception. */
+  ret = scm_internal_catch (SCM_BOOL_T,
+			    (scm_catch_body_t) guile_serveez_load_file,
+			    (void *) f,
+			    (scm_catch_handler_t) guile_exception,
+			    (void *) f);
+  svz_free (f);
+  return ret;
+}
+#undef FUNC_NAME
+
+/*
+ * Initialize Guile. Make certain variables and functions defined above
+ * available to Guile.
+ */
+static void
+guile_init (void)
+{
+  /* define some variables */
+  scm_c_define ("serveez-version", scm_makfrom0str (svz_version));
+  scm_c_define ("guile-version", scm_version ());
+  scm_c_define ("have-debug", SCM_BOOL (svz_have_debug));
+  scm_c_define ("have-Win32", SCM_BOOL (svz_have_Win32));
+  scm_c_define ("have-floodprotect", SCM_BOOL (svz_have_floodprotect));
+
+  /* export accessors for global variables (read/write capable) */
+  scm_c_define_gsubr ("serveez-verbosity", 0, 1, 0, guile_access_verbosity);
+  scm_c_define_gsubr ("serveez-maxsockets", 0, 1, 0, guile_access_maxsockets);
+  scm_c_define_gsubr ("serveez-passwd", 0, 1, 0, guile_access_passwd);
+  scm_c_define_gsubr ("serveez-interfaces", 0, 1, 0, guile_access_interfaces);
+  scm_c_define_gsubr ("serveez-loadpath", 0, 1, 0, guile_access_loadpath);
+
+  /* export some new procedures */
+  scm_c_define_gsubr ("define-port!", 2, 0, 0, guile_define_port);
+  scm_c_define_gsubr ("define-server!", 1, 1, 0, guile_define_server);
+  scm_c_define_gsubr ("bind-server!", 2, 0, 0, guile_bind_server);
+
+  /* export checker functions */
+  scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
+  scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
+  scm_c_define_gsubr ("serveez-servertype?", 1, 0, 0, guile_check_stype);
+
+  /* primitive load including the loadpath */
+  scm_c_define_gsubr ("serveez-load", 1, 0, 0, guile_serveez_load);
+
+#if ENABLE_GUILE_SERVER
+  guile_server_init ();
+#endif /* ENABLE_GUILE_SERVER */
 }
 
 /* Wrapper function for the file loader exception handler. */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.26 2002/07/26 12:38:09 ela Exp $
+ * $Id: guile-bin.c,v 1.27 2002/07/27 13:32:14 ela Exp $
  *
  */
 
@@ -376,9 +376,10 @@ SCM
 guile_bin_concat_x (SCM binary, SCM append)
 {
   guile_bin_t *bin, *concat = NULL;
-  int len;
+  int len, equal;
   unsigned char *p;
   
+  /* Check arguments first. */
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   SCM_ASSERT (SCM_STRINGP (append) || CHECK_BIN_SMOB (append),
 	      append, SCM_ARG2, FUNC_NAME);
@@ -388,6 +389,11 @@ guile_bin_concat_x (SCM binary, SCM append)
   len = concat ? 
     concat->size : SCM_NUM2INT (SCM_ARG2, scm_string_length (append));
   p = concat ? concat->data : SCM_STRING_UCHARS (append);
+  equal = (p == bin->data) ? 1 : 0;
+
+  /* Return here if there is nothing to concatenate. */
+  if (len <= 0)
+    return binary;
 
   if (bin->garbage)
     {
@@ -402,6 +408,9 @@ guile_bin_concat_x (SCM binary, SCM append)
 	scm_must_malloc (bin->size + len, "svz-binary-data");
       memcpy (bin->data, odata, bin->size);
     }
+
+  /* Reapply concatenation pointer if identical binaries have been passed. */
+  p = equal ? bin->data : p;
 
   memcpy (bin->data + bin->size, p, len);
   bin->size += len;
@@ -433,9 +442,9 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
     to = bin->size - 1;
 
   /* Check the ranges of both indices. */
-  if (from < 0 || from >= bin->size || from >= to)
+  if (from < 0 || from >= bin->size)
     SCM_OUT_OF_RANGE (SCM_ARG2, start);
-  if (to < 0 || to >= bin->size || to <= from)
+  if (to < 0 || to >= bin->size || to < from)
     SCM_OUT_OF_RANGE (SCM_ARG3, end);
 
   ret = MAKE_BIN_SMOB ();
@@ -465,7 +474,8 @@ guile_bin_to_list (SCM binary)
 #undef FUNC_NAME
 
 /* Convert the scheme list @var{list} into a binary smob. Each of the 
-   elements of @var{list} is checked for validity. */
+   elements of @var{list} is checked for validity.  The elements can be
+   either exact numbers in a byte's range or characters. */
 #define FUNC_NAME "list->binary"
 SCM
 guile_list_to_bin (SCM list)
@@ -473,6 +483,7 @@ guile_list_to_bin (SCM list)
   guile_bin_t *bin;
   unsigned char *p;
   int value;
+  SCM val;
 
   SCM_ASSERT_TYPE (SCM_LISTP (list), list, SCM_ARG1, FUNC_NAME, "list");
   bin = MAKE_BIN_SMOB ();
@@ -494,11 +505,21 @@ guile_list_to_bin (SCM list)
   /* Iterate over the list and build up binary smob. */
   while (SCM_PAIRP (list))
     {
-      if (!SCM_EXACTP (SCM_CAR (list)))
-	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
-      value = SCM_NUM2INT (SCM_ARGn, SCM_CAR (list));
-      if (value < 0 || value > 255)
-	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
+      val = SCM_CAR (list);
+      if (!SCM_EXACTP (val) && !SCM_CHARP (val))
+	{
+	  scm_must_free ((void *) bin->data);
+	  scm_must_free ((void *) bin);
+	  scm_wrong_type_arg_msg (FUNC_NAME, SCM_ARGn, val, "char or exact");
+	}
+      value = SCM_CHARP (val) ? 
+	((int) SCM_CHAR (val)) : SCM_NUM2INT (SCM_ARGn, val);
+      if (value < -128 || value > 255)
+	{
+	  scm_must_free ((void *) bin->data);
+	  scm_must_free ((void *) bin);
+	  SCM_OUT_OF_RANGE (SCM_ARGn, val);
+	}
       *p++ = (unsigned char) value;
       list = SCM_CDR (list);
     }

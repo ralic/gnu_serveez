@@ -1,3 +1,8 @@
+2002-07-27  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.texi.in: Aded documentation for `serveez-load',
+	`serveez-interfaces' and `serveez-loadpath'.
+
 2002-07-26  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Overall concept): New section.  To be 

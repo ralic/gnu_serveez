@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: test-suite.scm,v 1.1 2002/07/25 13:45:37 ela Exp $
+;; $Id: test-suite.scm,v 1.2 2002/07/27 13:32:14 ela Exp $
 ;;
 
 ;; Module definition.
@@ -64,7 +64,7 @@
 ;; Displays a given test 'description' with the result 'result'.  The 
 ;; displayed line is properly formatted.
 (define (report description result)
-  (let* ((text description) (n 32))
+  (let* ((text description) (n 40))
     (let loop ((i (string-length text)))
       (if (< i n) (begin
 		    (set! text (string-append " " text))
