@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.3 2000/10/19 15:08:32 ela Exp $
+ * $Id: alist.c,v 1.4 2000/10/20 13:13:48 ela Exp $
  *
  */
 
@@ -53,8 +53,25 @@ alist_create_array (unsigned offset)
   array = xmalloc (sizeof (array_t));
   memset (array, 0, sizeof (array_t));
   array->offset = offset;
-  array->size = 0;
   return array;
+}
+
+/*
+ * Print text representation of the array list.
+ */
+void
+alist_analyse (alist_t *list)
+{
+  unsigned int n;
+  array_t *array;
+
+  for (n = 0, array = list->array; array; n++, array = array->next)
+    {
+      fprintf (stdout, 
+	       "chunk %04u, offset: %04u, size: %02u, fill: 0x%08X\n",
+	       n + 1, array->offset, array->size, array->fill);
+    }
+  fprintf (stdout, "length: %u, size: %u\n", list->length, list->size);
 }
 
 /*
@@ -214,11 +231,14 @@ alist_index (alist_t *list, void *value)
  * Removes the element at the specified position in this list.
  */
 void *
-alist_del (alist_t *list, unsigned index)
+alist_delete (alist_t *list, unsigned index)
 {
   array_t *array, *prev;
   void *value = NULL;
   unsigned bit, n, idx, fill;
+
+  if (index >= list->length)
+    return NULL;
 
   for (array = prev = list->array; array; prev = array, array = array->next)
     {
@@ -227,7 +247,7 @@ alist_del (alist_t *list, unsigned index)
 	{
 	  idx = index - array->offset;
 
-	  /* is there such a value at the given index ? */
+	  /* is there any value at the given index ? */
 	  if (!(array->fill & (1 << idx)))
 	    return NULL;
 
@@ -242,20 +262,29 @@ alist_del (alist_t *list, unsigned index)
 	  if (array->fill == 0)
 	    {
 	      assert (array->size == 0);
+	      /* break here if the list is empty */
+	      if (list->size == 0)
+		{
+		  xfree (array);
+		  list->array = array = NULL;
+		  break;
+		}
+	      /* rearrange array list */
 	      if (array != prev) prev->next = array->next;
+	      else               list->array = array->next;
 	      xfree (array);
 	      array = prev->next;
 	      break;
 	    }
 
-	  /* shuffle value data */
+	  /* shuffle value data if necessary */
 	  if (idx < array->size)
 	    {
 	      /* delete a bit */
 	      for (fill = n = 0, bit = 1; n < array->size; bit <<= 1, n++)
 		{
-		  if (n <= idx) fill |= (array->fill & bit);
-		  else          fill |= (array->fill >> 1) & bit;
+		  if (n < idx) fill |= (array->fill & bit);
+		  else         fill |= (array->fill >> 1) & bit;
 		}
 	      array->fill = fill;
 	      
@@ -270,7 +299,7 @@ alist_del (alist_t *list, unsigned index)
   /* reduce array index offset by one */
   while (array)
     {
-      if (index >= array->offset + array->size)
+      if (array->offset > index)
 	array->offset--;
       array = array->next;
     }
@@ -284,7 +313,7 @@ alist_del (alist_t *list, unsigned index)
  * from, inclusive and to, exclusive.
  */
 void
-alist_del_range (alist_t *list, unsigned from, unsigned to)
+alist_delete_range (alist_t *list, unsigned from, unsigned to)
 {
 }
 
@@ -364,28 +393,29 @@ void
 alist_insert (alist_t *list, unsigned index, void *value)
 {
   array_t *array, *next;
-  unsigned idx, fill, n, bit;
+  unsigned idx, fill, n, bit, inserted = 0;
 
+  /* search through existing array chunks */
   for (array = list->array; array; array = array->next)
     {
       if (array_range_all (array, index))
 	{
+	  inserted = 1;
 	  idx = index - array->offset;
-
 	  /* can the value be inserted here ? */
 	  if (array->size < ARRAY_SIZE)
 	    {
 	      /* adjust array chunk size */
 	      array->size++;
-	      if (idx > array->size) array->size = idx + 1;
+	      if (idx >= array->size) array->size = idx + 1;
 
 	      if (idx < array->size)
 		{
 		  /* insert a bit */
 		  for (fill = n = 0, bit = 1; n < array->size; bit <<= 1, n++)
 		    {
-		      if (n <= idx) fill |= (array->fill & bit);
-		      else          fill |= (array->fill << 1) & bit;
+		      if (n < idx) fill |= (array->fill & bit);
+		      else         fill |= (array->fill << 1) & bit;
 		    }
 		  array->fill = fill;
 
@@ -397,6 +427,7 @@ alist_insert (alist_t *list, unsigned index, void *value)
 	      /* insert the value */
 	      array->fill |= (1 << idx);
 	      array->value[idx] = value;
+	      array = array->next;
 	      break;
 	    }
 
@@ -415,18 +446,36 @@ alist_insert (alist_t *list, unsigned index, void *value)
 	  array->fill |= (1 << idx);
 	  array->size = idx + 1;
 	  array->next = next;
-	  array = next;
+	  array = next->next;
 	  break;
 	}
+    }
+
+  /* add another chunk */
+  if (!inserted)
+    {
+      next = alist_create_array (index);
+      next->fill = 1;
+      next->size = 1;
+      next->value[0] = value;
+      for (array = list->array; array && array->next; array = array->next);
+      if (array) array->next = next;
+      if (!list->array) list->array = next;
+      list->length = index + 1;
+      list->size++;
+      return;
     }
 
   /* increase offset of all later array chunks */
   while (array)
     {
-      if (index <= array->offset)
+      if (array->offset + array->size > index)
 	array->offset++;
       array = array->next;
     }
+
+  list->length++;
+  list->size++;
 }
 
 /*

@@ -22,10 +22,11 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-TESTS = hash-test
+TESTS = hash-test alist-test
 
-noinst_PROGRAMS = hash-test
+noinst_PROGRAMS = hash-test alist-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
+alist_test_SOURCES = alist-test.c test.c test.h alloc.c alist.c
 
 AM_CFLAGS = -I../src
 
@@ -35,13 +36,17 @@ alloc.c: ../src/alloc.c
 hash.c: ../src/hash.c
 	ln -s $< $@
 
+alist.c: ../src/alist.c
+	ln -s $< $@
+
 distclean-local:
 	rm -f *\~ *.orig *.rej
 
 dist-hook:
 	rm -f $(distdir)/alloc.c
 	rm -f $(distdir)/hash.c
+	rm -f $(distdir)/alist.c
 
-CLEANFILES = alloc.c hash.c
+CLEANFILES = alloc.c hash.c alist.c
 
 MAINTAINERCLEANFILES = Makefile.in
