@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.10 2001/04/28 12:37:06 ela Exp $
+ * $Id: server.h,v 1.11 2001/05/04 17:43:39 ela Exp $
  *
  */
 
@@ -141,7 +141,7 @@ typedef struct
   int (* strarray) (char *server, void *arg, char *name,
 		    svz_array_t **target, svz_array_t *def);
   int (* hash)     (char *server, void *arg, char *name, 
-		    svz_hash_t ***target, svz_hash_t **def);
+		    svz_hash_t **target, svz_hash_t *def);
   int (* portcfg)  (char *server, void *arg, char *name, 
 		    svz_portcfg_t **target, svz_portcfg_t *def);
 }
@@ -160,6 +160,14 @@ svz_server_config_t;
 #define ITEM_STRARRAY 4
 #define ITEM_HASH     5
 #define ITEM_PORTCFG  6
+
+#define ITEM_TEXT(i)                                  \
+  ((i) == ITEM_INT) ? "integer" :                     \
+  ((i) == ITEM_INTARRAY) ? "integer array" :          \
+  ((i) == ITEM_STR) ? "string" :                      \
+  ((i) == ITEM_STRARRAY) ? "string array" :           \
+  ((i) == ITEM_HASH) ? "hash table" :                 \
+  ((i) == ITEM_PORTCFG) ? "port configuration" : NULL
 
 /*
  * A simple integer.
@@ -212,12 +220,24 @@ SERVEEZ_API void svz_server_add __P ((svz_server_t *));
 SERVEEZ_API svz_server_t *svz_server_get __P ((char *));
 SERVEEZ_API void svz_server_del __P ((char *));
 SERVEEZ_API void svz_server_free __P ((svz_server_t *server));
+SERVEEZ_API void svz_config_free __P ((svz_servertype_t *server, void *cfg));
 SERVEEZ_API svz_server_t *svz_server_find __P ((void *));
 SERVEEZ_API void svz_server_notifiers __P ((void));
 SERVEEZ_API svz_server_t *svz_server_instantiate __P ((svz_servertype_t *, 
 						       char *));
+
 SERVEEZ_API void *svz_server_configure __P ((svz_servertype_t *, char *, 
 					     void *, svz_server_config_t *));
+SERVEEZ_API svz_array_t *svz_config_intarray_create __P ((int *intarray));
+SERVEEZ_API void svz_config_intarray_destroy __P ((svz_array_t *intarray));
+SERVEEZ_API svz_array_t *svz_config_intarray_dup __P ((svz_array_t *intarray));
+SERVEEZ_API svz_array_t *svz_config_strarray_create __P ((char **strarray));
+SERVEEZ_API void svz_config_strarray_destroy __P ((svz_array_t *strarray));
+SERVEEZ_API svz_array_t *svz_config_strarray_dup __P ((svz_array_t *strarray));
+SERVEEZ_API svz_hash_t *svz_config_hash_create __P ((char **strarray));
+SERVEEZ_API void svz_config_hash_destroy __P ((svz_hash_t *strhash));
+SERVEEZ_API svz_hash_t *svz_config_hash_dup __P ((svz_hash_t *strhash));
+
 SERVEEZ_API int svz_server_init_all __P ((void));
 SERVEEZ_API int svz_server_finalize_all __P ((void));
 

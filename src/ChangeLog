@@ -1,3 +1,16 @@
+2001-05-04  [ Ela ]  <ela@lkcc.org>
+
+	* guile.c (guile_define_server): Delete the server instance
+	if the configuration failed and return SCM_BOOL_F.
+
+	* ctrl-server/control-proto.c (ctrl_stat): Added "FOO" to the
+	server compile features.
+	(ctrl_stat): Corrected server name detection.
+
+	* foo-server/foo-proto.c: Implemented full featured 
+	configuration the new style. All other servers wait for the
+	same...
+
 2001-05-02  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/nut-transfer.c (nut_send_push): Using `svz_portcfg()'

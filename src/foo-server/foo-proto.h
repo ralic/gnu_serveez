@@ -2,7 +2,7 @@
  * foo-proto.h - example server header
  *
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.9 2001/04/28 12:37:06 ela Exp $
+ * $Id: foo-proto.h,v 1.10 2001/05/04 17:43:39 ela Exp $
  *
  */
 
@@ -35,13 +35,13 @@
  */
 typedef struct
 {
-  int dummy;               /* integer example */
-  svz_array_t **messages;  /* string array example */
-  char *reply;             /* string example */
-  svz_array_t **ports;     /* integer array example */
-  int bar;                 /* integer example */
-  svz_portcfg_t *port;     /* example port configuration */
-  svz_hash_t **assoc;      /* a hash example */
+  int dummy;              /* integer example */
+  svz_array_t *messages;  /* string array example */
+  char *reply;            /* string example */
+  svz_array_t *ports;     /* integer array example */
+  int bar;                /* integer example */
+  svz_portcfg_t *port;    /* example port configuration */
+  svz_hash_t *assoc;      /* a hash example */
 }
 foo_config_t;
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.13 2001/04/28 12:37:06 ela Exp $
+ * $Id: server.c,v 1.14 2001/05/04 17:43:39 ela Exp $
  *
  */
 
@@ -303,36 +303,39 @@ svz_server_del (char *name)
 }
 
 /*
- * Completely destroy the given server instance @var{server}. This 
- * especially means to go through each item of the server instance's 
- * configuration.
+ * Release the configuration @var{cfg} of the given server type @var{server}.
+ * If the servers configuration equals @code{NULL} no operation is 
+ * performed.
  */
 void
-svz_server_free (svz_server_t *server)
+svz_config_free (svz_servertype_t *server, void *cfg)
 {
-  svz_servertype_t *stype = server->type;
   int n;
   void **target;
 
+  /* Return here if there nothing to do. */
+  if (server == NULL || cfg == NULL)
+    return;
+
   /* Go through the list of configuration items. */
-  for (n = 0; stype->items[n].type != ITEM_END; n++)
+  for (n = 0; server->items[n].type != ITEM_END; n++)
     {
       /* Calculate the target address. */
-      target = (void **) ((char *) server->cfg + 
-			  (unsigned long) ((char *) stype->items[n].address - 
-					   (char *) stype->prototype_start));
+      target = (void **) ((char *) cfg + 
+			  (unsigned long) ((char *) server->items[n].address - 
+					   (char *) server->prototype_start));
 
       /* Depending on the type of configuration item we need to free
 	 different data structures. */
-      switch (stype->items[n].type) 
+      switch (server->items[n].type) 
         {
           /* Integer array. */
         case ITEM_INTARRAY:
 	  if (*target)
-	    svz_array_destroy (*target);
+	    svz_config_intarray_destroy (*target);
           break;
 
-	  /* Simple string. */
+	  /* Simple character string. */
         case ITEM_STR:
 	  if (*target)
 	    svz_free (*target);
@@ -341,13 +344,13 @@ svz_server_free (svz_server_t *server)
 	  /* Array of strings. */
         case ITEM_STRARRAY:
 	  if (*target)
-	    svz_array_destroy (*target);
+	    svz_config_strarray_destroy (*target);
           break;
 
 	  /* Hash table. */
         case ITEM_HASH:
 	  if (*target)
-	    svz_hash_destroy (*target);
+	    svz_config_hash_destroy (*target);
           break;
 
 	  /* Port configuration. */
@@ -360,7 +363,53 @@ svz_server_free (svz_server_t *server)
           break;
         }
     }
-  svz_free (server->cfg);
+  svz_free (cfg);
+}
+
+/*
+ * Clear each configuration item within the given configuration @var{cfg} of
+ * the server type @var{server}. This function is used by 
+ * @code{svz_server_configure()} after copying the default configuration.
+ */
+static void
+svz_config_clobber (svz_servertype_t *server, void *cfg)
+{
+  int n;
+  void **target;
+
+  /* Return here if there nothing to do. */
+  if (server == NULL || cfg == NULL)
+    return;
+
+  /* Go through the list of configuration items. */
+  for (n = 0; server->items[n].type != ITEM_END; n++)
+    {
+      /* Calculate the target address. */
+      target = (void **) ((char *) cfg + 
+			  (unsigned long) ((char *) server->items[n].address - 
+					   (char *) server->prototype_start));
+
+      /* Clobber only configuration items which are pointers. */
+      if (server->items[n].type == ITEM_INTARRAY ||
+	  server->items[n].type == ITEM_STR ||
+	  server->items[n].type == ITEM_STRARRAY ||
+	  server->items[n].type == ITEM_HASH ||
+	  server->items[n].type == ITEM_PORTCFG)
+        {
+	  *target = NULL;
+	}
+    }
+}
+
+/*
+ * Completely destroy the given server instance @var{server}. This 
+ * especially means to go through each item of the server instance's 
+ * configuration.
+ */
+void
+svz_server_free (svz_server_t *server)
+{
+  svz_config_free (server->type, server->cfg);
   svz_free (server->name);
   svz_free (server);
 }
@@ -394,6 +443,183 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
 }
 
 /*
+ * Create an array (@code{svz_array_t}) of integers. The given integer
+ * array @var{intarray} is a list of integers where its first element which
+ * is @var{intarray[0]} contains the actual length of the given array.
+ */
+svz_array_t *
+svz_config_intarray_create (int *intarray)
+{
+  int i;
+  svz_array_t *array = svz_array_create (1);
+
+  if (intarray)
+    {
+      for (i = 0; i < intarray[0]; i++)
+	svz_array_add (array, (void *) intarray[i + 1]);
+    }
+  return array;
+}
+
+/*
+ * Destroy the given integer array @var{intarray}. This function is the
+ * counter part of @code{svz_config_intarray_create()}.
+ */
+void
+svz_config_intarray_destroy (svz_array_t *intarray)
+{
+  if (intarray)
+    {
+      svz_array_destroy (intarray);
+    }
+}
+
+/*
+ * Make a plain copy of the given integer array @var{intarray}. If this
+ * value is @code{NULL} no operation is performed and the return value
+ * is @code{NULL} too.
+ */
+svz_array_t *
+svz_config_intarray_dup (svz_array_t *intarray)
+{
+  int i;
+  void *value;
+  svz_array_t *array = NULL;
+  
+  if (intarray)
+    {
+      array = svz_array_create (svz_array_size (intarray));
+      svz_array_foreach (intarray, value, i)
+	svz_array_add (array, value);
+    }
+  return array;
+}
+
+/*
+ * Create an array of strings. The given list of strings @var{strarray}
+ * must be @code{NULL} terminated in order to indicate its end.
+ */
+svz_array_t *
+svz_config_strarray_create (char **strarray)
+{
+  int i;
+  svz_array_t *array = svz_array_create (1);
+
+  if (strarray)
+    {
+      for (i = 0; strarray[i] != NULL; i++)
+	svz_array_add (array, svz_strdup (strarray[i]));
+    }
+  return array;
+}
+
+/*
+ * Destroy the given string array @var{strarray}.
+ */
+void
+svz_config_strarray_destroy (svz_array_t *strarray)
+{
+  int i;
+  char *string;
+
+  if (strarray)
+    {
+      svz_array_foreach (strarray, string, i)
+	svz_free (string);
+      svz_array_destroy (strarray);
+    }
+}
+
+/*
+ * Duplicate the given array of strings @var{strarray}. Return @code{NULL}
+ * if @var{strarray} equals @code{NULL}.
+ */
+svz_array_t *
+svz_config_strarray_dup (svz_array_t *strarray)
+{
+  int i;
+  char *value;
+  svz_array_t *array = NULL;
+  
+  if (strarray)
+    {
+      array = svz_array_create (svz_array_size (strarray));
+      svz_array_foreach (strarray, value, i)
+	svz_array_add (array, svz_strdup (value));
+    }
+  return array;
+}
+
+/*
+ * Create a hash table from the given array of strings @var{strarray} which
+ * must be @code{NULL} terminated in order to indicate the end of the list. 
+ * The array consists of pairs of strings where the first one specifies a 
+ * key and the following the associated string value. This function is 
+ * useful when creating default values for server type configurations.
+ */
+svz_hash_t *
+svz_config_hash_create (char **strarray)
+{
+  int i;
+  svz_hash_t *hash = svz_hash_create (4);
+
+  if (strarray)
+    {
+      for (i = 0; strarray[i] != NULL; i += 2)
+	{
+	  if (strarray[i + 1])
+	    {
+	      svz_hash_put (hash, strarray[i], svz_strdup (strarray[i + 1]));
+	    }
+	}
+    }
+  return hash;
+}
+
+/*
+ * This function is the counter part of @code{svz_config_hash_create()}. It
+ * destroys the given hash table @var{strhash} assuming it is a hash 
+ * associating strings with strings.
+ */
+void
+svz_config_hash_destroy (svz_hash_t *strhash)
+{
+  char **strarray;
+  int i;
+
+  if (strhash)
+    {
+      svz_hash_foreach_value (strhash, strarray, i)
+	svz_free (strarray[i]);
+      svz_hash_destroy (strhash);
+    }
+}
+
+/*
+ * Duplicate the given hash table @var{strhash} assuming it is a hash 
+ * associating strings with strings. Return @code{NULL} if @var{strhash} is
+ * @code{NULL} too.
+ */
+svz_hash_t *
+svz_config_hash_dup (svz_hash_t *strhash)
+{
+  svz_hash_t *hash = NULL;
+  int i;
+  char **keys;
+
+  if (strhash)
+    {
+      hash = svz_hash_create (4);
+      svz_hash_foreach_key (strhash, keys, i)
+	{
+	  svz_hash_put (hash, keys[i], 
+			svz_strdup (svz_hash_get (strhash, keys[i])));
+	}
+    }
+  return hash;
+}
+
+/*
  * This function configures a server instance by modifying its default
  * configuration by the @var{configure} callbacks. Therefore you need to pass
  * the type of server in @var{server}, the @var{name} of the server instance
@@ -410,13 +636,16 @@ svz_server_configure (svz_servertype_t *server,
 {
   int e, n, error = 0;
   void *cfg, *def, *target = NULL;
-  unsigned long offset, size;
+  unsigned long offset;
 
   /* Make a simple copy of the example configuration structure definition 
      for that server instance. */
   cfg = svz_malloc (server->prototype_size);
-  /*FIXME:  memcpy (cfg, server->prototype_start, server->prototype_size); */
-  memset (cfg, 0, server->prototype_size);
+  memcpy (cfg, server->prototype_start, server->prototype_size);
+
+  /* Clear all server configuration items which are pointers. Thus we
+     are able to reverse the changes below. */
+  svz_config_clobber (server, cfg);
 
   /* Go through list of configuration items. */
   for (n = 0; server->items[n].type != ITEM_END; n++)
@@ -426,7 +655,7 @@ svz_server_configure (svz_servertype_t *server,
 	(char *) server->prototype_start;
       def = server->items[n].address;
       target = (char *) cfg + offset;
-      size = e = 0;
+      e = 0;
 
       /* Depending on the type of configuration item we need at this
 	 point we call the given callbacks and check their return values. */
@@ -434,7 +663,6 @@ svz_server_configure (svz_servertype_t *server,
         {
 	  /* Integer value. */
         case ITEM_INT:
-	  size = sizeof (int);
 	  if (configure && configure->integer)
 	    e = configure->integer (name, arg, server->items[n].name,
 				    (int *) target, *(int *) def);
@@ -442,51 +670,48 @@ svz_server_configure (svz_servertype_t *server,
 
           /* Integer array. */
         case ITEM_INTARRAY:
-	  size = sizeof (svz_array_t *);
 	  if (configure && configure->intarray)
 	    e = configure->intarray (name, arg, server->items[n].name,
 				     (svz_array_t **) target,
-				     (svz_array_t *) def);
+				     *(svz_array_t **) def);
           break;
 
 	  /* Simple string. */
         case ITEM_STR:
-	  size = sizeof (char *);
 	  if (configure && configure->string)
 	    e = configure->string (name, arg, server->items[n].name,
-				   (char **) target, (char *) def);
+				   (char **) target, *(char **) def);
           break;
           
 	  /* Array of strings. */
         case ITEM_STRARRAY:
-	  size = sizeof (svz_array_t *);
 	  if (configure && configure->strarray)
 	    e = configure->strarray (name, arg, server->items[n].name,
 				     (svz_array_t **) target, 
-				     (svz_array_t *) def);
+				     *(svz_array_t **) def);
           break;
 
 	  /* Hash table. */
         case ITEM_HASH:
-	  size = sizeof (svz_hash_t *);
 	  if (configure && configure->hash)
 	    e = configure->hash (name, arg, server->items[n].name,
-				 (svz_hash_t ***) target,
-				 (svz_hash_t **) def);
+				 (svz_hash_t **) target,
+				 *(svz_hash_t **) def);
           break;
 
 	  /* Port configuration. */
         case ITEM_PORTCFG:
-	  size = sizeof (svz_portcfg_t *);
 	  if (configure && configure->portcfg)
 	    e = configure->portcfg (name, arg, server->items[n].name,
 				    (svz_portcfg_t **) target,
-				    (svz_portcfg_t *) def);
+				    *(svz_portcfg_t **) def);
           break;
 
 	  /* Unknown configuration item. */
         default:
-          log_printf (LOG_FATAL, "inconsistent data in " __FILE__ "\n");
+          log_printf (LOG_FATAL, 
+		      "inconsistent ITEM_ data in server type `%s'\n",
+		      server->name);
           e = -1;
         }
 
@@ -494,11 +719,13 @@ svz_server_configure (svz_servertype_t *server,
 	 `target' has been modified it should return something non-zero. */
       if (e == 0)
 	{
+	  /* Target not configured. Defaultable ? */
 	  if (!server->items[n].defaultable)
 	    {
 	      log_printf (LOG_ERROR,
-			  "`%s' does not define a default for `%s' in `%s'\n",
-			  server->name, server->items[n].name, name);
+			  "`%s' lacks a default %s for `%s' in `%s'\n",
+			  server->name, ITEM_TEXT (server->items[n].type),
+			  server->items[n].name, name);
 	      error = -1;
 	    }
 	  /* Assuming default value. */
@@ -506,32 +733,57 @@ svz_server_configure (svz_servertype_t *server,
 	    {
 	      switch (server->items[n].type) 
 		{
+		  /* Normal integer. */
 		case ITEM_INT:
-		  memcpy (target, def, size);
+		  *(int *) target = *(int *) def;
 		  break;
+
+		  /* Integer array. */
 		case ITEM_INTARRAY:
+		  *(svz_array_t **) target = 
+		    svz_config_intarray_dup (*(svz_array_t **) def);
 		  break;
+
+		  /* Character string. */
 		case ITEM_STR:
-		  *((char **) &target) = (char *) svz_strdup (def);
+		  *(char **) target = (char *) svz_strdup (*(char **) def);
 		  break;
+
+		  /* Array of strings. */
 		case ITEM_STRARRAY:
+		  *(svz_array_t **) target = 
+		    svz_config_strarray_dup (*(svz_array_t **) def);
 		  break;
+
+		  /* Hash table. */
 		case ITEM_HASH:
+		  *(svz_hash_t **) target = 
+		    svz_config_hash_dup (*(svz_hash_t **) def);
 		  break;
+
+		  /* Port configuration. */
 		case ITEM_PORTCFG:
+		  *(svz_portcfg_t **) target =
+		    svz_portcfg_copy (*(svz_portcfg_t **) def);
 		  break;
 		}
 	    }
 	  continue;
         }
+      /* Negative return values indicate an error. */
       else if (e < 0)
-	error = -1;
+	{
+	  error = -1;
+	}
     }
 
-  /* Release memory reserved for configuration on errors. */
+  /* Release memory reserved for configuration on errors. This means
+     to reverse the above changes. */
   if (error)
-    svz_free_and_zero (cfg);
-
+    {
+      svz_config_free (server, cfg);
+      cfg = NULL;
+    }
   return cfg;
 }
 

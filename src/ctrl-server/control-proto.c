@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.49 2001/04/28 12:37:05 ela Exp $
+ * $Id: control-proto.c,v 1.50 2001/05/04 17:43:39 ela Exp $
  *
  */
 
@@ -420,8 +420,14 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 {
   svz_server_t *server;
   int n;
+  char *p;
 
   /* find an appropriate server instance */
+  p = arg;
+  while (*p && *p != '\r' && *p != '\n')
+    p++;
+  if (*p)
+    *p = '\0';
   if ((server = svz_hash_get (svz_servers, arg)) != NULL)
     {
       sock_printf (sock, "\r\n%s (%s):\r\n",
@@ -441,7 +447,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	       svz_time (svz_config.start_time));
 
   /* display compile time feature list */
-  sock_printf (sock, "Features  :"
+  sock_printf (sock, "Features  : FOO"
 #ifdef ENABLE_AWCS_PROTO
 	       " AWCS"
 #endif

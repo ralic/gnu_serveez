@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.25 2001/04/28 12:37:06 ela Exp $
+ * $Id: foo-proto.c,v 1.26 2001/05/04 17:43:39 ela Exp $
  *
  */
 
@@ -44,14 +44,8 @@
 char *foo_packet_delim     = "\r\n";
 int   foo_packet_delim_len = 2;
 
-/*
- * Default value definitions for the server configuration. These are
- * initialized in the global init routine for this server.
- */
+/* Default port configuration. */
 svz_portcfg_t foo_default_port;
-svz_array_t *foo_default_intarray;
-svz_array_t *foo_default_strarray;
-svz_hash_t *foo_default_hash;
 
 /*
  * Demonstrate how our private configuration looks like and provide
@@ -59,13 +53,13 @@ svz_hash_t *foo_default_hash;
  */
 foo_config_t foo_config = 
 {
-  -42,
-  &foo_default_strarray,
-  "Default reply",
-  &foo_default_intarray,
-  42,
-  &foo_default_port,
-  &foo_default_hash
+  -42,               /* dummy integer */
+  NULL,              /* string messages */
+  "Default reply",   /* reply string */
+  NULL,              /* ports (integer array) */
+  42,                /* bar */
+  &foo_default_port, /* default port configuration */
+  NULL,              /* assoc hash table */
 };
 
 /*
@@ -161,8 +155,8 @@ int
 foo_connect_socket (void *acfg, socket_t sock)
 {
   foo_config_t *cfg = acfg;
-  int i;
-  int r;
+  int i, ret;
+  char *msg;
 
   /*
    * we uses a default routine to split incoming data into packets
@@ -175,23 +169,20 @@ foo_connect_socket (void *acfg, socket_t sock)
 
   log_printf (LOG_NOTICE, "foo client detected\n");
   
-  if (cfg->messages) 
+  svz_array_foreach (cfg->messages, msg, i)
     {
-      for (i = 0; cfg->messages[i]; i++)
-	{
-	  r = sock_printf (sock, "%s\r\n", cfg->messages[i]);
-	  if (r)
-	    return r;
-	}
+      ret = sock_printf (sock, "%s\r\n", msg);
+      if (ret)
+	return ret;
     }
 
   /*
    * Ask a coserver to resolve the client's ip
    */
-  sock_printf (sock, "starting reverse lookup...\r\n");
+  sock_printf (sock, "Starting reverse lookup...\r\n");
   svz_coserver_rdns (sock->remote_addr, foo_handle_coserver_result,
 		     sock->id, sock->version);
-  sock_printf (sock, "...waiting...\r\n");
+  sock_printf (sock, "Waiting...\r\n");
   return 0;
 }
 
@@ -204,35 +195,31 @@ foo_connect_socket (void *acfg, socket_t sock)
 int
 foo_global_init (void)
 {
+  char *strarray[] = { 
+    "Hello !", "This", "is", "a", "default", "string", "array.", NULL };
+  int intarray[] = { 4, 1, 2, 3, 4 };
+  char *strhash[] = {
+    "Grass", "green",
+    "Milk",  "tasty",
+    "Sun",   "light",
+    "Moon",  "tide",
+    "GNU",   "good",
+    NULL
+  };
+
   /* Default port configuration. */
   foo_default_port.proto = PROTO_TCP;
   foo_default_port.tcp_port = 42421;
   foo_default_port.tcp_ipaddr = "*";
 
   /* Default string array. */
-  foo_default_strarray = svz_array_create (7);
-  svz_array_add (foo_default_strarray, "Hello");
-  svz_array_add (foo_default_strarray, "This");
-  svz_array_add (foo_default_strarray, "is");
-  svz_array_add (foo_default_strarray, "a");
-  svz_array_add (foo_default_strarray, "default");
-  svz_array_add (foo_default_strarray, "string");
-  svz_array_add (foo_default_strarray, "array");
+  foo_config.messages = svz_config_strarray_create (strarray);
 
   /* Default integer array. */
-  foo_default_intarray = svz_array_create (4);
-  svz_array_add (foo_default_intarray, (void *) 4);
-  svz_array_add (foo_default_intarray, (void *) 1);
-  svz_array_add (foo_default_intarray, (void *) 2);
-  svz_array_add (foo_default_intarray, (void *) 3);
+  foo_config.ports = svz_config_intarray_create (intarray);
 
   /* Default hash table. */
-  foo_default_hash = svz_hash_create (4);
-  svz_hash_put (foo_default_hash, "grass", "green");
-  svz_hash_put (foo_default_hash, "cow", "milk");
-  svz_hash_put (foo_default_hash, "sun", "light");
-  svz_hash_put (foo_default_hash, "moon", "tide");
-  svz_hash_put (foo_default_hash, "gnu", "good");
+  foo_config.assoc = svz_config_hash_create (strhash);
   return 0;
 }
 
@@ -242,9 +229,9 @@ foo_global_init (void)
 int
 foo_global_finalize (void)
 {
-  svz_array_destroy (foo_default_intarray);
-  svz_array_destroy (foo_default_strarray);
-  svz_hash_destroy (foo_default_hash);
+  svz_config_intarray_destroy (foo_config.ports);
+  svz_config_strarray_destroy (foo_config.messages);
+  svz_config_hash_destroy (foo_config.assoc);
   return 0;
 }
 
@@ -256,26 +243,8 @@ int
 foo_finalize (svz_server_t *server)
 {
   foo_config_t *c = server->cfg;
-  char **values;
-  int n;
 
   log_printf (LOG_NOTICE, "destroying %s\n", server->name);
-
-  /*
-   * Free our hash but be careful not to free it if was the
-   * default value.
-   */
-  if (*(c->assoc) != foo_default_hash)
-    {
-      if ((values = (char **) svz_hash_values (*(c->assoc))) != NULL)
-	{
-	  for (n = 0; n < svz_hash_size (*(c->assoc)); n++)
-	    svz_free (values[n]);
-	  svz_hash_xfree (values);
-	}
-      svz_hash_destroy (*(c->assoc));
-    }
-  
   return 0;
 }
 
@@ -311,24 +280,23 @@ foo_info_server (svz_server_t *server)
 	   cfg->reply, cfg->bar);
   strcpy (info, text);
 
-  svz_array_foreach (*cfg->messages, str, i)
+  svz_array_foreach (cfg->messages, str, i)
     {
       sprintf (text, " messages[%d] : %s\r\n", i, str);
       strcat (info, text);
     }
 
-  svz_array_foreach (*cfg->ports, j, i)
+  svz_array_foreach (cfg->ports, j, i)
     {
       sprintf (text, " ports[%d] : %d\r\n", i, (int) j);
       strcat (info, text);
     }
   
-  h = *(cfg->assoc);
-  if (h != NULL) 
+  if ((h = cfg->assoc) != NULL) 
     {
       keys = svz_hash_keys (h);
 
-      for (i = 0; i < h->keys; i++)
+      for (i = 0; i < svz_hash_size (h); i++)
 	{
 	  sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
 		   i, keys[i], (char *) svz_hash_get (h, keys[i]));

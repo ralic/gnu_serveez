@@ -1,3 +1,30 @@
+2001-05-04  [ Ela ]  <ela@lkcc.org>
+
+	* server.c (svz_server_configure): Stating what kind of
+	default value is missing using the ITEM_TEXT macro.
+	(svz_config_clobber): New function. Used by 
+	`svz_server_configure()' in order to reverse changes on 
+	errors.
+
+	* server.h (ITEM_TEXT): New macro returning text representation
+	of a given ITEM_* constant.
+
+	* server.c (svz_server_configure): Fully implemented the
+	handling of default values for a server configuration using
+	the `svz_config_*' functions.
+	(svz_config_free): New function. Exported from `svz_server_free()'
+	and now used by it.
+
+	* portcfg.c (svz_portcfg_copy): Return NULL is the given
+	port configuration is NULL either.
+
+	* server.c (svz_config_intarray_create, 
+	svz_config_intarray_destroy, svz_config_intarray_dup,
+	svz_config_strarray_create, svz_config_strarray_destroy,
+	svz_config_strarray_dup, svz_config_hash_create,
+	svz_config_hash_destroy, svz_config_hash_dup):
+	New functions for server instance configuration.
+
 2001-05-02  [ Ela ]  <ela@lkcc.org>
 
 	* binding.c (svz_server_portcfg): Return an array of port
