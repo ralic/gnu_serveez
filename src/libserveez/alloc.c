@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.5 2001/02/05 09:40:09 ela Exp $
+ * $Id: alloc.c,v 1.6 2001/02/23 08:29:01 ela Exp $
  *
  */
 
@@ -42,13 +42,22 @@
 #endif /* DEBUG_MEMORY_LEAKS */
 
 #if ENABLE_DEBUG
+/* The variable @var{svz_allocated_bytes} holds the overall number of bytes 
+   allocated by the core library. */
 size_t svz_allocated_bytes = 0;
+/* This variable holds the number of memory blocks reserved by the core
+   library. */
 size_t svz_allocated_blocks = 0;
 #endif /* ENABLE_DEBUG */
 
-/* initialize the global allocator functions */
+/* The @var{svz_malloc_func} variable is a function pointer for allocating 
+   dynamic memory. */
 svz_malloc_func_t svz_malloc_func = malloc;
+/* This function pointer is called whenever the core library needs to
+   reallocate (resize) a memory block. */
 svz_realloc_func_t svz_realloc_func = realloc;
+/* In order to free a block of memory the core library calls this function
+   pointer. */
 svz_free_func_t svz_free_func = free;
 
 #if DEBUG_MEMORY_LEAKS
@@ -83,7 +92,7 @@ heap_hash_code (char *id)
 typedef struct
 {
   void *ptr;     /* memory pointer */
-  size_t size; /* memory block's size */
+  size_t size;   /* memory block's size */
   void *caller;  /* the caller */
 }
 heap_block_t;
@@ -122,7 +131,7 @@ heap_add (heap_block_t *block)
 #endif /* !DEBUG_MEMORY_LEAKS */
 
 /*
- * Allocate SIZE bytes of memory and return a pointer to it.
+ * Allocate @var{size} bytes of memory and return a pointer to this block.
  */
 void * 
 svz_malloc (size_t size)
@@ -174,9 +183,9 @@ svz_malloc (size_t size)
 }
 
 /*
- * Change the size of a `svz_malloc ()'ed block of memory. SIZE is 
- * the new size of the block in bytes, PTR is the pointer returned 
- * by `svz_malloc ()' or NULL.
+ * Change the size of a @code{svz_malloc()}'ed block of memory. @var{size} 
+ * is the new size of the block in bytes, @var{ptr} is the pointer returned 
+ * by @code{svz_malloc()} or NULL.
  */
 void *
 svz_realloc (void *ptr, size_t size)
@@ -257,7 +266,8 @@ svz_realloc (void *ptr, size_t size)
 }
 
 /*
- * Free a block of `svz_malloc ()'ed or `svz_realloc()'ed memory block.
+ * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory 
+ * block.
  */
 void
 svz_free (void *ptr)
@@ -342,7 +352,7 @@ svz_heap (void)
 #endif /* DEBUG_MEMORY_LEAKS */
 
 /*
- * Duplicate a given string SRC if it is non-NULL and has got a 
+ * Duplicate the given string @var{src} if it is not NULL and has got a 
  * valid length. Return the pointer to the copied string.
  */
 char *
@@ -360,7 +370,7 @@ svz_strdup (char *src)
 }
 
 /*
- * Internal permanent memory allocators.
+ * Allocate a block of memory with the size @var{size} permanently.
  */
 void *
 svz_pmalloc (size_t size)
@@ -374,6 +384,10 @@ svz_pmalloc (size_t size)
   return ptr;
 }
 
+/*
+ * Resize the memory block pointed to by @var{ptr} to @var{size} bytes. This
+ * routine also allocates memory permanently.
+ */
 void *
 svz_prealloc (void *ptr, size_t size)
 {
@@ -386,6 +400,9 @@ svz_prealloc (void *ptr, size_t size)
   return dst;
 }
 
+/*
+ * Duplicate the given string @var{src} permanently.
+ */
 char *
 svz_pstrdup (char *src)
 {

@@ -23,41 +23,129 @@
 # Boston, MA 02111-1307, USA.  
 #
 
+# read lines until end of C comment has been reached
+function extract_doc(line)
+{
+    end = index(substr(line, 3), "*/")
+    if (!end) {
+      doc = substr (line, 3)
+    } else {
+      doc = substr (line, 3, end - 1)
+	}
+    gsub(/ [ ]+/, " ", doc)
+    gsub(/\t/, " ", doc)
+    if (doc ~ / $/) { doc = substr(doc, 1, length(doc) - 1) }
+    if (doc ~ /^ /) { doc = substr(doc, 2) }
+    while (end == 0) {
+      if (getline <= 0) {
+	err = "unexpected EOF or error"
+	err = (err ": " ERRNO)
+	print err > "/dev/stderr"
+	exit
+      }
+      end = index($0, "*/")
+      line = $0
+      if (index($0, " * ") == 1) {
+	line = substr($0, 4)
+      }
+
+      gsub(/\*\//, "", line)
+      gsub(/ [ ]+/, " ", line)
+      gsub(/\t/, " ", line)
+      if (line ~ / $/) { line = substr(line, 1, length(line) - 1) }
+      if (line ~ /^ /) { line = substr(line, 2) }
+
+      # add a line to the documentation string
+      if (length(line) > 0) { 
+	if (length(doc) > 0) { doc = (doc "\n") }
+	doc = (doc line)
+      }
+    }
+
+    return doc
+}
+
+# process variable definitions
+function handle_variable(line)
+{
+    if (line ~ /^ / || line ~ /^\t/) { return }
+    if (line ~ /[ ]+[a-zA-Z0-9_\*]+\;/) {
+	gsub(/ [ ]+/, " ", line)
+	gsub(/\t/, " ", line)
+	gsub(/\;/, "", line)
+	if (index(line, "/*")) {
+	    docu = extract_doc(substr(line, index(line, "/*")))
+	    gsub(/\/\*.+\*\//, "", line)
+	}
+	split(line, el, " ")
+	len = 1
+	for (i in el) { 
+	    len++
+	    if (el[i] == "static") { return }
+	}
+	def = ""
+	if (el[len - 2] == "=") { 
+	    def = el[len - 1]
+	    len -= 2
+	}
+	var = el[len - 1]
+	while (index(var, "*") == 1) {
+	    var = substr(var, 2)
+	    el[len - 1] = "*"
+	    len++
+	}
+	typ = ""
+	for (i = 1; i < len - 1; i++) {
+	    if (typ != "") { typ = (typ " ") }
+	    typ = (typ el[i])
+	}
+	if (typ == "") { return }
+
+        # enclose the variable type into braces if necessary
+	if (index(typ, " ")) {
+	    typ = ("{" typ "}") }
+
+        # finally the texinfo variable definition
+	vardef = (typ " " var)
+	gsub(/\*/, "", docu)
+	gsub(/\n/, "\\\n", docu)
+	doc = docu
+	if (length(def)) {
+	    doc = ("Initial value: " def "@*\\\n" doc)
+	}
+	replace = ("@deftypevar " vardef "\\\n" doc "\\\n" "@end deftypevar")
+	sedexp = ("/" toupper(var) "_DEFVAR/" " c\\\n" replace "\\\n")
+	print sedexp
+	docu = ""
+    }
+}
+
+/^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*]+\;$/
+{
+    handle_variable($0)
+}
+
 # find start of C comment
 /^\/\*/ \
 { 
   retry = 1
   while(retry) {
-    # read lines until end of C comment has been reached
-    end = index(substr($0, 4), "*/")
-    doc = substr ($0, 4, index(substr($0, 4), "*/") - 1)
-    while (end == 0) {
-	if (getline <= 0) {
-	    err = "unexpected EOF or error"
-	    err = (err ": " ERRNO)
-	    print err > "/dev/stderr"
-	    exit
-	}
-	end = index($0, "*/")
-	line = ""
-	if (end == 0) { 
-	    if (index($0, " *") == 1) {
-		line = substr($0, 4)
-	    }
-	}
-	# add a line to the documentation string
-	if (length(line) > 0) { 
-	    if (length(doc) > 0) { doc = (doc "\n") }
-	    doc = (doc line)
-	}
-    }
-    
+
+    docu = extract_doc($0)
+
     # parse the C function
     retry = 0
     found = 0
     dist = 0
     getline ret
+
     while (found == 0) {
+
+	if (ret ~ /[ ]+[a-zA-Z0-9_\*]+\;/) {
+	    handle_variable(ret)
+	    next
+	}
+
 	getline line
 	nr = FNR
 	# while trying to find a valid C function we found a new comment
@@ -89,10 +177,18 @@
 	ret = line
     }
 
+    # canonize return types
+    gsub(/ [ ]+/, " ", ret)
+    gsub(/\t/, " ", ret)
+    gsub(/[^a-zA-Z0-9\*_ ]/, "", ret)
+    if (ret ~ /^ /) { ret = substr(ret, 2) }
+    if (ret ~ / $/) { ret = substr(ret, 1, length(ret) - 1) }
+
     # drop invalid functions
     if (retry) { continue }
     if (dist > 2 || c_func ~ /typedef/ || c_func ~ /struct/ ||
-	c_func ~ /\#/ || !found || !length(c_func) || c_func ~ /\/\*/)
+	c_func ~ /\#/ || !found || !length(c_func) || c_func ~ /\/\*/ ||
+	!length(ret))
       { next }
 
     # cleanup tabs in argument list
@@ -133,7 +229,7 @@
 	c_arg = ""
 	for (n = 1; n <= i; n++) {
 	    if (c_arg != "") { c_arg = (c_arg " ") }
-	    if (type[n] != var) {
+	    if (type[n] != var || var == "void") {
 		c_arg = (c_arg type[n])
 	    } else {
 		c_arg = (c_arg "@var{" var "}")
@@ -151,9 +247,10 @@
 
     # finally the texinfo function definition and documentation
     funcdef = (ret " " c_func " (" c_args ")")
-    gsub(/\n/, "\\\n", doc)
-    replace = ("@deftypefun " funcdef "\\\n" doc "\\\n" "@end deftypefun")
+    gsub(/\n/, "\\\n", docu)
+    replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
     sedexp = ("/" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
     print sedexp
+    docu = ""
   }
 }

@@ -57,6 +57,7 @@ include_HEADERS = libserveez.h
 serveez_SOURCES = \
 	serveez.c serveez.h \
 	sizzle.c sizzle.h \
+	guile.c guile.h \
 	cfgfile.c cfgfile.h \
 	option.c option.h
 
@@ -68,7 +69,8 @@ serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLEDEP) \
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLESTATIC) \
 	libserveez/libserveez.la
 
-serveez_LDFLAGS = -L$(GUILEDIR)/lib
+serveez_LDFLAGS = $(GUILE_LINK)
+AM_CFLAGS = $(GUILE_COMPILE)
 
 mkpassword_SOURCES = mkpassword.c
 
