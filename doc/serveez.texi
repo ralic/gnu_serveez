@@ -474,7 +474,7 @@ bound to this port changes it.
 @item connect-frequency (integer)
 This item determines the maximum number of connections per second the port 
 will accept.  It is a kind of "hammer protection".  The item is evaluated
-for each remote client machine seperately.  It applies to TCP ports.
+for each remote client machine separately.  It applies to TCP ports.
 
 @item allow (list of strings)
 Both the @code{allow} and @code{deny} lists are lists of IP addresses in 
