@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.2 2001/11/01 17:03:52 ela Exp $
+ * $Id: guile-api.c,v 1.3 2001/11/02 16:09:49 ela Exp $
  *
  */
 
@@ -38,6 +38,13 @@
 
 #include "libserveez.h"
 
+/* Validate network port range. */
+#define VALIDATE_NETPORT(port, cell, arg) do {       \
+  (port) = gh_scm2long (cell);                       \
+  if ((port) < 0 || (port) >= 65536)                 \
+    scm_out_of_range_pos (FUNC_NAME, (cell), (arg)); \
+  } while (0)
+
 /* Establishes a network connection to the given @var{host} [:@var{port}].
    If @var{proto} equals @code{PROTO_ICMP} the @var{port} argument is
    ignored. Valid identifiers for @var{proto} are @code{PROTO_TCP},
@@ -52,7 +59,8 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
   svz_socket_t *sock;
   unsigned long xhost;
   unsigned short xport = 0;
-  int p, xproto;
+  long p;
+  int xproto;
   char *str;
   struct sockaddr_in addr;
   SCM ret = SCM_BOOL_F;
@@ -70,7 +78,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
       str = guile_to_string (host);
       if (svz_inet_aton (str, &addr) == -1)
 	{
-	  guile_error ("%s: IP address in dotted decimals expected",
+	  guile_error ("%s: IP address in dotted decimals expected", 
 		       FUNC_NAME);
 	  scm_must_free (str);
 	  return ret;
@@ -87,9 +95,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
     {
       SCM_ASSERT_TYPE (gh_exact_p (port),
 		       port, SCM_ARG3, FUNC_NAME, "exact");
-      p = gh_scm2int (port);
-      if (p < 0 || p > 65535)
-	scm_out_of_range_pos (FUNC_NAME, port, SCM_ARG3);
+      VALIDATE_NETPORT (p, port, SCM_ARG3);
       xport = htons ((unsigned short) p);
     }
 
@@ -118,8 +124,198 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 }
 #undef FUNC_NAME
 
+/* The @code{svz:inet-ntoa} function converts the Internet host address 
+   @var{address} given in network byte order to a string in standard
+   numbers-and-dots notation. */
+#define FUNC_NAME "svz:inet-ntoa"
+static SCM
+guile_svz_inet_ntoa (SCM address)
+{
+  char *str;
+  SCM_ASSERT_TYPE (gh_exact_p (address),
+		   address, SCM_ARG1, FUNC_NAME, "exact");
+  str = svz_inet_ntoa (gh_scm2ulong (address));
+  return gh_str02scm (str);
+}
+#undef FUNC_NAME
+
+/* Converts the Internet host address @var{address} from the standard 
+   numbers-and-dots notation into binary data in network byte order.
+   The @code{svz:inet-aton} function returns @code{#f} if the address is 
+   invalid. */
+#define FUNC_NAME "svz:inet-aton"
+static SCM
+guile_svz_inet_aton (SCM address)
+{
+  struct sockaddr_in addr;
+  char *str;
+
+  SCM_ASSERT_TYPE (gh_string_p (address),
+		   address, SCM_ARG1, FUNC_NAME, "string");
+  str = guile_to_string (address);
+  if (svz_inet_aton (str, &addr) == -1)
+    {
+      guile_error ("%s: IP address in dotted decimals expected", FUNC_NAME);
+      scm_must_free (str);
+      return SCM_BOOL_F;
+    }
+  scm_must_free (str);
+  return gh_ulong2scm (addr.sin_addr.s_addr);
+}
+#undef FUNC_NAME
+
+/* The @code{svz:ntohl} function converts the 32 bit long integer
+   @var{netlong} from network byte order to host byte order. */
+#define FUNC_NAME "svz:ntohl"
+static SCM
+guile_svz_ntohl (SCM netlong)
+{
+  SCM_ASSERT_TYPE (gh_exact_p (netlong),
+		   netlong, SCM_ARG1, FUNC_NAME, "exact");
+  return gh_ulong2scm (ntohl (gh_scm2ulong (netlong)));
+}
+#undef FUNC_NAME
+
+/* The @code{svz:htonl} function converts the 32 bit long integer
+   @var{hostlong} from host byte order to network byte order. */
+#define FUNC_NAME "svz:htonl"
+static SCM
+guile_svz_htonl (SCM hostlong)
+{
+  SCM_ASSERT_TYPE (gh_exact_p (hostlong),
+		   hostlong, SCM_ARG1, FUNC_NAME, "exact");
+  return gh_ulong2scm (htonl (gh_scm2ulong (hostlong)));
+}
+#undef FUNC_NAME
+
+/* The @code{svz:ntohs} function converts the 16 bit short integer 
+   @var{netshort} from network byte order to host byte order. */
+#define FUNC_NAME "svz:ntohs"
+static SCM
+guile_svz_ntohs (SCM netshort)
+{
+  long i;
+  SCM_ASSERT_TYPE (gh_exact_p (netshort),
+		   netshort, SCM_ARG1, FUNC_NAME, "exact");
+  VALIDATE_NETPORT (i, netshort, SCM_ARG1);
+  return gh_int2scm (ntohs ((unsigned short) i));
+}
+#undef FUNC_NAME
+
+/* The @code{svz:htons} function converts the 16 bit short integer 
+   @var{hostshort} from host byte order to network byte order. */
+#define FUNC_NAME "svz:htons"
+static SCM
+guile_svz_htons (SCM hostshort)
+{
+  long i;
+  SCM_ASSERT_TYPE (gh_exact_p (hostshort),
+		   hostshort, SCM_ARG1, FUNC_NAME, "exact");
+  VALIDATE_NETPORT (i, hostshort, SCM_ARG1);
+  return gh_int2scm (htons ((unsigned short) i));
+}
+#undef FUNC_NAME
+
+/* Return the receive buffer of the socket @var{sock} as a binary smob. */
+#define FUNC_NAME "svz:sock:receive-buffer"
+static SCM
+guile_sock_receive_buffer (SCM sock)
+{
+  svz_socket_t *xsock;
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  return guile_data_to_bin (xsock->recv_buffer, xsock->recv_buffer_fill);
+}
+#undef FUNC_NAME
+
+/* Dequeue @var{length} bytes from the receive buffer of the socket 
+   @var{sock} which must be a valid @code{<svz-socket>}. If the user omits
+   the optional @var{length} argument all of the data in the receive buffer
+   gets dequeued. Returns the number of bytes actually shuffled away. */
+#define FUNC_NAME "svz:sock:receive-buffer-reduce"
+static SCM
+guile_sock_receive_buffer_reduce (SCM sock, SCM length)
+{
+  svz_socket_t *xsock;
+  int len;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+
+  /* Check if second length argument is given. */
+  if (!gh_eq_p (length, SCM_UNDEFINED))
+    {
+      SCM_ASSERT_TYPE (gh_exact_p (length), 
+		       length, SCM_ARG2, FUNC_NAME, "exact");
+      len = gh_scm2int (length);
+      if (len < 0 || len > xsock->recv_buffer_fill)
+	scm_out_of_range_pos (FUNC_NAME, length, SCM_ARG2);
+    }
+  else
+    {
+      len = xsock->recv_buffer_fill;
+    }
+  svz_sock_reduce_recv (xsock, len);
+  return gh_int2scm (len);
+}
+#undef FUNC_NAME
+
+/* This procedure returns the current remote address as a pair like 
+   @code{(host . port)} with both entries in network byte order. If you pass
+   the optional argument @var{address} you can set the remote address of 
+   the socket @var{sock}. */
+#define FUNC_NAME "svz:sock:remote-address"
+static SCM
+guile_sock_remote_address (SCM sock, SCM address)
+{
+  svz_socket_t *xsock;
+  long port;
+  SCM pair;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  pair = gh_cons (gh_ulong2scm (xsock->remote_addr), 
+		  gh_int2scm ((int) xsock->remote_port));
+  if (!gh_eq_p (address, SCM_UNDEFINED))
+    {
+      SCM_ASSERT_TYPE (gh_pair_p (address) && gh_exact_p (gh_car (address))
+		       && gh_exact_p (gh_cdr (address)), address, SCM_ARG2, 
+		       FUNC_NAME, "pair of exact");
+      VALIDATE_NETPORT (port, gh_cdr (address), SCM_ARG2);
+      xsock->remote_addr = gh_scm2ulong (gh_car (address));
+      xsock->remote_port = (unsigned short) port;
+    }
+  return pair;
+}
+#undef FUNC_NAME
+
+/* This procedure returns the current local address as a pair like 
+   @code{(host . port)} with both entries in network byte order. If you pass
+   the optional argument @var{address} you can set the local address of 
+   the socket @var{sock}. */
+#define FUNC_NAME "svz:sock:local-address"
+static SCM
+guile_sock_local_address (SCM sock, SCM address)
+{
+  svz_socket_t *xsock;
+  long port;
+  SCM pair;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  pair = gh_cons (gh_ulong2scm (xsock->local_addr), 
+		  gh_int2scm ((int) xsock->local_port));
+  if (!gh_eq_p (address, SCM_UNDEFINED))
+    {
+      SCM_ASSERT_TYPE (gh_pair_p (address) && gh_exact_p (gh_car (address))
+		       && gh_exact_p (gh_cdr (address)), address, SCM_ARG2, 
+		       FUNC_NAME, "pair of exact");
+      VALIDATE_NETPORT (port, gh_cdr (address), SCM_ARG2);
+      xsock->local_addr = gh_scm2ulong (gh_car (address));
+      xsock->local_port = (unsigned short) port;
+    }
+  return pair;
+}
+#undef FUNC_NAME
+
 /* Set the @code{disconnected_socket} member of the socket structure 
-   @var{sock} to the guile procedure @var{proc}.  The given callback
+   @var{sock} to the guile procedure @var{proc}. The given callback
    runs whenever the socket is lost for some external reason. The procedure 
    returns the previously set handler if there is any. */
 #define FUNC_NAME "svz:sock:disconnected"
@@ -134,6 +330,20 @@ guile_api_init (void)
   gh_define ("PROTO_UDP", gh_int2scm (PROTO_UDP));
   gh_define ("PROTO_ICMP", gh_int2scm (PROTO_ICMP));
   gh_new_procedure ("svz:sock:connect", guile_sock_connect, 2, 1, 0);
+  gh_new_procedure ("svz:htons", guile_svz_htons, 1, 0, 0);
+  gh_new_procedure ("svz:ntohs", guile_svz_ntohs, 1, 0, 0);
+  gh_new_procedure ("svz:htonl", guile_svz_htonl, 1, 0, 0);
+  gh_new_procedure ("svz:ntohl", guile_svz_ntohl, 1, 0, 0);
+  gh_new_procedure ("svz:inet-aton", guile_svz_inet_aton, 1, 0, 0);
+  gh_new_procedure ("svz:inet-ntoa", guile_svz_inet_ntoa, 1, 0, 0);
+  gh_new_procedure ("svz:sock:receive-buffer", 
+		    guile_sock_receive_buffer, 1, 0, 0);
+  gh_new_procedure ("svz:sock:receive-buffer-reduce",
+		    guile_sock_receive_buffer_reduce, 1, 1, 0);
+  gh_new_procedure ("svz:sock:remote-address",
+		    guile_sock_remote_address, 1, 1, 0);
+  gh_new_procedure ("svz:sock:local-address",
+		    guile_sock_local_address, 1, 1, 0);
 
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected", disconnected_socket);
 }

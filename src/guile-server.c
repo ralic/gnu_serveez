@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.25 2001/11/01 17:03:52 ela Exp $
+ * $Id: guile-server.c,v 1.26 2001/11/02 16:09:49 ela Exp $
  *
  */
 
@@ -806,18 +806,6 @@ guile_sock_print (SCM sock, SCM buffer)
 }
 #undef FUNC_NAME
 
-/* Return the receive buffer of the socket @var{sock} as binary smob. */
-#define FUNC_NAME "svz:sock:receive-buffer"
-SCM
-guile_sock_receive_buffer (SCM sock)
-{
-  svz_socket_t *xsock;
-
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  return guile_data_to_bin (xsock->recv_buffer, xsock->recv_buffer_fill);
-}
-#undef FUNC_NAME
-
 /* Associate any kind of data (any guile data type) given in the argument
    @var{data} with the socket @var{sock}.  The @var{data} argument is
    optional.  The procedure always returns a previously stored value or an 
@@ -1399,8 +1387,6 @@ guile_server_init (void)
 		    guile_sock_floodprotect, 1, 1, 0);
   gh_new_procedure ("svz:sock:print", 
 		    guile_sock_print, 2, 0, 0);
-  gh_new_procedure ("svz:sock:receive-buffer", 
-		    guile_sock_receive_buffer, 1, 0, 0);
   gh_new_procedure ("svz:sock:data", 
 		    guile_sock_data, 1, 1, 0);
   gh_new_procedure ("svz:server:config-get", 
