@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.13 2002/06/07 16:53:44 ela Exp $
+ * $Id: tcp-socket.c,v 1.14 2002/06/08 09:23:29 ela Exp $
  *
  */
 
@@ -218,7 +218,7 @@ svz_tcp_recv_oob (svz_socket_t *sock)
   SOCKET desc = sock->sock_desc;
   int num_read, ret;
 
-#if HAVE_POLL && ENABLE_POLL && defined (linux)
+#if HAVE_POLL && ENABLE_POLL && defined (__linux__)
 #ifdef SIOCATMARK
   /* FIXME: fails for poll() on GNU/Linux ???  This is a hack !!! 
             With this hack you are missing some OOB data bytes if sent too
