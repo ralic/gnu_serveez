@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: server.c,v 1.3 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -36,13 +36,16 @@
  */
 #include "foo-server/foo-proto.h"
 #include "awcs-server/awcs-proto.h"
+#include "http-server/http-proto.h"
 
 /*
  * The list of registered server. Feel free to add yours.
  */
-struct server_definition *all_server_definitions[] = {
+struct server_definition *all_server_definitions [] = 
+{
   &foo_server_definition,
   &awcs_server_definition,
+  &http_server_definition,
   NULL
 };
 

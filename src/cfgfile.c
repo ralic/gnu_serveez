@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: cfgfile.c,v 1.3 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -44,13 +44,6 @@
 #if ENABLE_IRC_PROTO
 # include "irc-server/irc-proto.h"
 #endif
-
-#if ENABLE_HTTP_PROTO
-# include "http-server/http-proto.h"
-# include "http-server/http-cache.h"
-#endif
-
-
 
 #define LISTEND       0
 #define TYPEINT       1
@@ -115,18 +108,6 @@ load_config(char *cfgfilename, int argc, char **argv)
     REG_INT("serveez-verbosity", &verbosity, 3, 1),
     REG_STRING("serveez-pass", &serveez_config.server_password, "!", 0),
     
-    /* HTTP Server related settings */
-#if ENABLE_HTTP_PROTO
-    REG_STRING("http-indexfile", &http_config.indexfile, "index.html", 1),
-    REG_STRING("http-docs", &http_config.docs, "../show", 1),
-    REG_STRING("http-cgidir", &http_config.cgidir, "./cgibin", 1),
-    REG_STRING("http-cgiurl", &http_config.cgiurl, "/cgi-bin", 1),
-    REG_INT("http-cachesize", &http_config.cachesize, MAX_CACHE_SIZE, 1),
-    REG_INT("http-timeout", &http_config.timeout, HTTP_TIMEOUT, 1),
-    REG_INT("http-keepalive", &http_config.keepalive,
-		 HTTP_MAXKEEPALIVE, 1),
-#endif
-
     /* IRC server related settings */
 #if ENABLE_IRC_PROTO
     REG_STRING("irc-MOTD-file", &irc_config.MOTD_file,

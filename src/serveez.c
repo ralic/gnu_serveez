@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.4 2000/06/12 23:06:05 raimi Exp $
+ * $Id: serveez.c,v 1.5 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -46,11 +46,6 @@
 #include "option.h"
 #include "server-socket.h"
 #include "coserver/coserver.h"
-
-#if ENABLE_HTTP_PROTO
-# include "http-server/http-proto.h"
-# include "http-server/http-cache.h"
-#endif
 
 #if ENABLE_IRC_PROTO
 # include "irc-server/irc-proto.h"
@@ -309,15 +304,6 @@ main (int argc, char * argv[])
   
   log_printf(LOG_NOTICE, "%s\n", get_version());
   
-#if ENABLE_HTTP_PROTO
-  http_read_types ("/etc/mime.types");
-  log_printf(LOG_NOTICE, "http: %s is document root\n",
-	     http_config.docs);
-  log_printf(LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
-	     http_config.cgidir, http_config.cgiurl);
-#endif
-
-
 #ifdef __MINGW32__
   if (!net_startup ())
     return 4;
@@ -360,11 +346,6 @@ main (int argc, char * argv[])
   net_cleanup();
 #endif /* __MINGW32__ */
 
-#if ENABLE_HTTP_PROTO
-  http_free_content_types ();
-  http_free_cache();
-#endif
-  
 #if ENABLE_IRC_PROTO
   irc_close_config(&irc_config);
 #endif

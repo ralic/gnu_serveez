@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.5 2000/06/14 19:22:19 ela Exp $
+ * $Id: server-core.c,v 1.6 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -68,11 +68,6 @@
 #include "server-core.h"
 #include "serveez.h"
 #include "coserver/coserver.h"
-
-#if ENABLE_HTTP_PROTO
-# include "http-server/http-proto.h"
-# include "http-server/http-cache.h"
-#endif 
 
 /*
  * SOCK_LOOKUP_TABLE is used to speed up references to socket
@@ -373,9 +368,7 @@ find_sock_by_id (int id)
 static int
 server_reset (void)
 {
-#if ENABLE_HTTP_PROTO
-  http_free_cache();
-#endif
+  /* FIXME: Maybe server_t reset callback ? */
   return 0;
 }
 #endif
@@ -443,31 +436,6 @@ handle_periodic_tasks (void)
   sock = socket_root; 
   while (sock)
     {
-#if defined(__MINGW32__) && defined(ENABLE_HTTP_PROTO)
-      /*
-       * check if there died a process handle in Win32, this has to be
-       * done regularly here because there is no SIGCHLD in Win32 !
-       */
-      DWORD result;
-      http_socket_t *http = sock->http;
-
-      if(sock->flags & SOCK_FLAG_HTTP_CGI && http->pid != INVALID_HANDLE)
-	{
-	  result = WaitForSingleObject(http->pid, LEAST_WAIT_OBJECT);
-	  if(result == WAIT_FAILED)
-	    {
-	      log_printf(LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
-	    }
-	  else if(result != WAIT_TIMEOUT)
-	    {
-	      if(CLOSE_HANDLE(http->pid) == -1)
-		log_printf(LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-	      http->pid = INVALID_HANDLE;
-	      server_coserver_died = http->pid;
-	    }
-	}
-#endif /* not __MINGW32__ or ENABLE_HTTP_PROTO */
-
 #if ENABLE_FLOOD_PROTECTION
       if (sock->flood_points > 0)
 	{
@@ -861,39 +829,11 @@ sock_server_loop (void)
 	}
 #endif /* not __MINGW32__ */
 
-      if(server_coserver_died)
+      if (server_coserver_died)
 	{
-#if ENABLE_HTTP_PROTO
-	  http_socket_t *http;
-
-	  /*
-	   * Go through all sockets and check whether the died PID
-	   * was a CGI script...
-	   */
-	  sock = socket_root; 
-	  while (sock)
-	    {
-	      http = sock->http;
-	      if (sock->flags & SOCK_FLAG_HTTP_CLIENT)
-		{
-		  if (http->pid == server_coserver_died)
-		    {
-		      log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
-				  (int) server_coserver_died);
-		      server_coserver_died = 0;
-		      break;
-		    }
-		}
-	      sock = sock->next;
-	    }
-#endif /* ENABLE_HTTP_PROTO */
-
-	  if (server_coserver_died)
-	    {
-	      log_printf(LOG_ERROR, "pid %d died\n", 
-			 (int)server_coserver_died);
-	      server_coserver_died = 0;
-	    }
+	  log_printf (LOG_ERROR, "pid %d died\n", 
+		      (int) server_coserver_died);
+	  server_coserver_died = 0;
 	}
 
       /*

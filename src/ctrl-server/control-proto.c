@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.4 2000/06/14 19:22:20 ela Exp $
+ * $Id: control-proto.c,v 1.5 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -63,6 +63,7 @@
 
 #if ENABLE_HTTP_PROTO
 # include "http-server/http-cache.h"
+# include "http-server/http-proto.h"
 #endif
 
 #if ENABLE_AWCS_PROTO
@@ -352,21 +353,21 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
     strcat (proto, "Pipe ");
 
 #if ENABLE_HTTP_PROTO
-  if (xsock->flags & SOCK_FLAG_HTTP_CLIENT)
+  if (0/*xsock->flags & SOCK_FLAG_HTTP_CLIENT*/)
     {
       /* process HTTP procol specific flags */
       strcat (proto, "HTTP [");
-      if (xsock->flags &  SOCK_FLAG_HTTP_DONE)  strcat (proto, " DONE");
+      if (xsock->userflags &  HTTP_FLAG_DONE)  strcat (proto, " DONE");
       else                                      strcat (proto, " done");
-      if (xsock->flags &  SOCK_FLAG_HTTP_POST)  strcat (proto, " POST");
+      if (xsock->userflags &  HTTP_FLAG_POST)  strcat (proto, " POST");
       else                                      strcat (proto, " post");
-      if (xsock->flags &  SOCK_FLAG_HTTP_CGI)   strcat (proto, " CGI");
+      if (xsock->userflags &  HTTP_FLAG_CGI)   strcat (proto, " CGI");
       else                                      strcat (proto, " cgi");
-      if (xsock->flags &  SOCK_FLAG_HTTP_FILE)  strcat (proto, " FILE");
+      if (xsock->userflags &  HTTP_FLAG_FILE)  strcat (proto, " FILE");
       else                                      strcat (proto, " file");
-      if (xsock->flags &  SOCK_FLAG_HTTP_CACHE) strcat (proto, " CACHE");
+      if (xsock->userflags &  HTTP_FLAG_CACHE) strcat (proto, " CACHE");
       else                                      strcat (proto, " cache");
-      if (xsock->flags &  SOCK_FLAG_HTTP_KEEP)  strcat (proto, " KEEP");
+      if (xsock->userflags &  HTTP_FLAG_KEEP)  strcat (proto, " KEEP");
       else                                      strcat (proto, " keep");
       strcat (proto, " ]");
     }
@@ -520,8 +521,10 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 	id = "Control";
 #endif
 #if ENABLE_HTTP_PROTO
+      /*
       if(xsock->flags & SOCK_FLAG_HTTP_CLIENT)
 	id = "HTTP";
+      */
 #endif
 #ifndef __MINGW32__
       if(xsock->flags & SOCK_FLAG_PIPE)
@@ -643,8 +646,10 @@ ctrl_stat_all(socket_t sock, int flag, char *arg)
   client = 0;
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
+      /*
       if(xsock->flags & SOCK_FLAG_HTTP_CLIENT)
 	client++;
+      */
     }
   sock_printf(sock, "HTTP connections: %d clients\r\n", client);
 #endif

@@ -1,7 +1,7 @@
 /*
  * http-cache.c - http protocol file cache
  *
- * Copyright (C) 2000 Ela * Raimi
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: http-cache.c,v 1.2 2000/06/15 11:54:52 ela Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -231,7 +234,7 @@ http_cache_write (socket_t sock)
   http_cache_t *cache;
 
   /* get additional cache and http structures */
-  http = sock->http;
+  http = sock->data;
   cache = http->cache;
 
   do_write = cache->length;
@@ -291,7 +294,7 @@ http_cache_read(socket_t sock)
   http_cache_t *cache;
 
   /* get additional cache and http structures */
-  http = sock->http;
+  http = sock->data;
   cache = http->cache;
 
   do_read = sock->send_buffer_size - sock->send_buffer_fill;
@@ -359,8 +362,8 @@ http_cache_read(socket_t sock)
       cache->entry->ready = 42;
 
       /* set flags */
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
-      sock->flags &= ~SOCK_FLAG_HTTP_FILE;
+      sock->userflags |= HTTP_FLAG_DONE;
+      sock->userflags &= ~HTTP_FLAG_FILE;
     }
 
   return 0;

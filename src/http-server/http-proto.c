@@ -2,7 +2,6 @@
  * http-proto.c - http protocol implementation
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: http-proto.c,v 1.3 2000/06/15 11:54:52 ela Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -60,6 +62,7 @@
 #include "socket.h"
 #include "pipe-socket.h"
 #include "serveez.h"
+#include "server.h"
 #include "server-core.h"
 #include "http-proto.h"
 #include "http-cgi.h"
@@ -67,9 +70,71 @@
 #include "http-cache.h"
 
 /*
- * HTTP server configuration.
+ * The HTTP port configuration.
  */
-http_config_t http_config;
+portcfg_t http_port =
+{
+  PROTO_TCP,  /* TCP protocol defintion */
+  42424,      /* prefered port */
+  NULL,       /* no receiving (listening) pipe */
+  NULL        /* no sending pipe */
+};
+
+/*
+ * The HTTP server instance configuration.
+ */
+http_config_t http_config =
+{
+  &http_port,         /* port configuration */
+  "index.html",       /* standard index file  for GET request */
+  "../show",          /* document root */
+  "/cgi-bin",         /* how cgi-requests are detected */
+  "./cgibin",         /* cgi script root */
+  MAX_CACHE_SIZE,     /* maximum file size to cache them */
+  HTTP_TIMEOUT,       /* server shuts connection down after x seconds */
+  HTTP_MAXKEEPALIVE,  /* how many files when using keep-alive */
+  "text/plain",       /* standard content type */
+  "/etc/mime.types",  /* standard content type file */
+  NULL                /* current content type hash */
+};
+
+/*
+ * Defintion of the configuration items processed by libsizzle (taken
+ * from the config file).
+ */
+key_value_pair_t http_config_prototype [] =
+{
+  REGISTER_PORTCFG ("port", http_config.port, DEFAULTABLE),
+  REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
+  REGISTER_STR ("docs", http_config.docs, DEFAULTABLE),
+  REGISTER_STR ("cgiurl", http_config.cgiurl, DEFAULTABLE),
+  REGISTER_STR ("cgidir", http_config.cgidir, DEFAULTABLE),
+  REGISTER_INT ("cachesize", http_config.cachesize, DEFAULTABLE),
+  REGISTER_INT ("timeout", http_config.timeout, DEFAULTABLE),
+  REGISTER_INT ("keepalive", http_config.keepalive, DEFAULTABLE),
+  REGISTER_STR ("default-type", http_config.default_type, DEFAULTABLE),
+  REGISTER_STR ("type-file", http_config.type_file, DEFAULTABLE),
+  REGISTER_HASH ("types", http_config.types, DEFAULTABLE),
+  REGISTER_END ()
+};
+
+/*
+ * Defintion of the http server.
+ */
+server_definition_t http_server_definition =
+{
+  "http server",         /* long server description */
+  "http",                /* short server description (for libsizzle) */
+  http_global_init,      /* global initializer */
+  http_init,             /* instance initializer */
+  http_detect_proto,     /* protocol detection routine */
+  http_connect_socket,   /* connection routine */
+  http_finalize,         /* instance finalization routine */
+  http_global_finalize,  /* global finalizer */
+  &http_config,          /* default configuration */
+  sizeof (http_config),  /* size of the configuration */
+  http_config_prototype  /* configuration prototypes (libsizzle) */
+};
 
 /*
  * HTTP request types, their identification string (including its length)
@@ -135,6 +200,47 @@ http_content[] =
   {NULL, NULL}
 };
 
+int
+http_global_init (void)
+{
+  return 0;
+}
+
+int
+http_global_finalize (void)
+{
+  return 0;
+}
+
+/*
+ * Local http server instance initializer.
+ */
+int
+http_init (server_t *server)
+{
+  http_config_t *cfg = server->cfg;
+  
+  http_read_types (cfg->type_file);
+
+  log_printf (LOG_NOTICE, "http: files in %s\n", cfg->docs);
+  log_printf (LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
+	      cfg->cgidir, cfg->cgiurl);
+
+  return 0;
+}
+
+/*
+ * Local http server instance finalizer.
+ */
+int
+http_finalize (server_t *server)
+{
+  http_free_content_types ();
+  http_free_cache ();
+  
+  return 0;
+}
+
 /*
  * Add a content type definition to the content type hash
  * http_content_type.
@@ -198,7 +304,7 @@ http_free_socket (socket_t sock)
   http_socket_t *http;
 
   /* first get the http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* any property at all ? */
   if(http->property)
@@ -268,11 +374,11 @@ http_disconnect (socket_t sock)
   http_socket_t *http;
 
   /* get http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* free the http socket structures */
   http_free_socket(sock);
-  xfree(sock->http);
+  xfree(sock->data);
 
   return 0;
 }
@@ -301,20 +407,20 @@ http_idle (socket_t sock)
  * Keep-Alive connections. Return -1 if it is not 'Keep'able.
  */
 int
-http_keep_alive(socket_t sock)
+http_keep_alive (socket_t sock)
 {
-  if(sock->flags & SOCK_FLAG_HTTP_KEEP)
+  if (sock->userflags & HTTP_FLAG_KEEP)
     {
-      http_free_socket(sock);
+      http_free_socket (sock);
 
-      sock->flags &= ~SOCK_FLAG_HTTP; 
+      sock->userflags &= ~HTTP_FLAG; 
       sock->read_socket = default_read;
       sock->check_request = http_check_request;
       sock->write_socket = http_default_write;
       sock->send_buffer_fill = 0;
       sock->idle_func = http_idle;
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "http: keeping connection alive\n");
+      log_printf (LOG_DEBUG, "http: keeping connection alive\n");
 #endif
       return 0;
     }
@@ -328,10 +434,10 @@ http_keep_alive(socket_t sock)
 void
 http_check_keepalive(socket_t sock)
 {
-  http_socket_t *http = sock->http;
+  http_socket_t *http = sock->data;
   http_config_t *cfg = sock->cfg;
 
-  if(sock->flags & SOCK_FLAG_HTTP_KEEP && http->keepalive > 0)
+  if(sock->userflags & HTTP_FLAG_KEEP && http->keepalive > 0)
     {
       sock->idle_counter = cfg->timeout;
       sock_printf(sock, "Connection: Keep-Alive\r\n");
@@ -342,14 +448,14 @@ http_check_keepalive(socket_t sock)
   /* tell HTTP/1.1 clients that the connection is closed after delivery */
   else
     {
-      sock->flags &= ~SOCK_FLAG_HTTP_KEEP;
-      sock_printf(sock, "Connection: close\r\n");
+      sock->userflags &= ~HTTP_FLAG_KEEP;
+      sock_printf (sock, "Connection: close\r\n");
     }
 }
 
 /*
  * HTTP_DEFAULT_WRITE will shutdown the connection immediately when 
- * the whole response has been sent (indicated by the SOCK_FLAG_HTTP_DONE
+ * the whole response has been sent (indicated by the HTTP_FLAG_DONE
  * flag) with two exceptions. It will keep the connection if the
  * actual file is within the cache and if this is a keep-alive connection.
  */
@@ -395,7 +501,7 @@ http_default_write(socket_t sock)
    * If yes then return non-zero in order to shutdown the socket SOCK
    * and return zero if it is a keep-alive connection.
    */
-  if(sock->flags & SOCK_FLAG_HTTP_DONE && sock->send_buffer_fill == 0)
+  if(sock->userflags & HTTP_FLAG_DONE && sock->send_buffer_fill == 0)
     {
 #if ENABLE_DEBUG
       log_printf(LOG_DEBUG, "http: response successfully sent\n");
@@ -407,7 +513,7 @@ http_default_write(socket_t sock)
    * If the requested file is within the cache then start now the 
    * cache writer. Set SEND_BUFFER_FILL to something greater than zero.
    */
-  if(sock->flags & SOCK_FLAG_HTTP_CACHE && sock->send_buffer_fill == 0)
+  if(sock->userflags & HTTP_FLAG_CACHE && sock->send_buffer_fill == 0)
     {
       sock->send_buffer_fill = 42;
       sock->write_socket = http_cache_write;
@@ -423,7 +529,7 @@ http_default_write(socket_t sock)
  * The HTTP_FILE_READ reads as much data from a file as possible directly
  * into the send buffer of the socket SOCK. It returns a non-zero value 
  * on read errors. When all the file has been read then the socket flag 
- * SOCK_FLAG_HTTP_DONE is set.
+ * HTTP_FLAG_DONE is set.
  */
 int
 http_file_read (socket_t sock)
@@ -432,7 +538,7 @@ http_file_read (socket_t sock)
   int do_read;
   http_socket_t *http;
 
-  http = sock->http;
+  http = sock->data;
   do_read = sock->send_buffer_size - sock->send_buffer_fill;
 
   /* 
@@ -473,8 +579,8 @@ http_file_read (socket_t sock)
        * the writers there will notbe additional data from now on
        */
       sock->read_socket = default_read;
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
-      sock->flags &= ~SOCK_FLAG_HTTP_FILE;
+      sock->userflags |= HTTP_FLAG_DONE;
+      sock->userflags &= ~HTTP_FLAG_FILE;
     }
 
   return 0;
@@ -486,12 +592,12 @@ http_file_read (socket_t sock)
  * the receive buffer looks like an HTTP request.
  */
 int
-http_detect_proto (socket_t sock)
+http_detect_proto (void *cfg, socket_t sock)
 {
   int n;
 
   /* go through all possible request types */
-  for (n=0; n<HTTP_REQUESTS; n++)
+  for (n = 0; n < HTTP_REQUESTS; n++)
     {
       if (sock->recv_buffer_fill >= http_request[n].len)
 	{
@@ -514,10 +620,10 @@ http_detect_proto (socket_t sock)
  * be called to set all the apropiate callbacks and socket flags.
  */
 int
-http_connect (socket_t sock)
+http_connect_socket (void *http_cfg, socket_t sock)
 {
   http_socket_t *http;
-  http_config_t *cfg = sock->cfg;
+  http_config_t *cfg = http_cfg;
 
   /*
    * initialize the http socket structure
@@ -526,14 +632,13 @@ http_connect (socket_t sock)
   memset (http, 0, sizeof (http_socket_t));
   http->pid = INVALID_HANDLE;
   http->keepalive = cfg->keepalive;
-  sock->http = http;
+  sock->data = http;
 	  
   /* 
    * set the socket flag, disable flood protection and
    * set all the callback routines
    */
-  sock->flags |= SOCK_FLAG_HTTP_CLIENT;
-  sock->flags |= SOCK_FLAG_NOFLOOD;
+  sock->userflags |= SOCK_FLAG_NOFLOOD;
   sock->check_request = http_check_request;
   sock->write_socket = http_default_write;
   sock->disconnected_socket = http_disconnect;
@@ -641,7 +746,7 @@ http_parse_property(socket_t sock, char *request, char *end)
   http_socket_t *http;
 
   /* get the http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* reserve data space for the http properties */
   http->property = xmalloc(MAX_HTTP_PROPERTIES * 2 * sizeof(char *));
@@ -1081,7 +1186,7 @@ http_get_response (socket_t sock, char *request, int flags)
   http_config_t *cfg = sock->cfg;
 
   /* get the http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* check if this is a cgi request */
   cgifile = http_check_cgi(sock, request);
@@ -1090,7 +1195,7 @@ http_get_response (socket_t sock, char *request, int flags)
       if(cgifile == NULL)
 	{
 	  sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
-	  sock->flags |= SOCK_FLAG_HTTP_DONE;
+	  sock->userflags |= HTTP_FLAG_DONE;
 	  return -1;
 	}
 
@@ -1098,13 +1203,13 @@ http_get_response (socket_t sock, char *request, int flags)
       if(create_pipe(cgi2s) == -1)
 	{
 	  sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
-	  sock->flags |= SOCK_FLAG_HTTP_DONE;
+	  sock->userflags |= HTTP_FLAG_DONE;
 	  xfree(cgifile);
 	  return -1;
 	}
 
       /* execute the cgi script in CGIFILE */
-      sock->flags |= SOCK_FLAG_HTTP_CGI;
+      sock->userflags |= HTTP_FLAG_CGI;
       sock->read_socket = http_cgi_read;
       sock->pipe_desc[READ] = cgi2s[READ];
       if(http_cgi_exec(sock, INVALID_HANDLE, cgi2s[WRITE], 
@@ -1143,7 +1248,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	      log_printf(LOG_ERROR, "http dirlist: %s: %s\n", 
 			 file, SYS_ERROR);
 	      sock_printf(sock, HTTP_FILE_NOT_FOUND "\r\n");
-	      sock->flags |= SOCK_FLAG_HTTP_DONE;
+	      sock->userflags |= HTTP_FLAG_DONE;
 	      xfree(file);
 	      return -1;
 	    }
@@ -1152,7 +1257,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  sock->send_buffer = dir;
 	  sock->send_buffer_size = http_dirlist_size;
 	  sock->send_buffer_fill = strlen(dir);
-	  sock->flags |= SOCK_FLAG_HTTP_DONE;
+	  sock->userflags |= HTTP_FLAG_DONE;
 	  xfree(file);
 	  return 0;
 	}
@@ -1163,7 +1268,7 @@ http_get_response (socket_t sock, char *request, int flags)
   if(strstr(request, "..") != NULL)
     {
       sock_printf(sock, HTTP_ACCESS_DENIED "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return -1;
     }
@@ -1173,7 +1278,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       log_printf(LOG_ERROR, "stat: %s (%s)\n", SYS_ERROR, file);
       sock_printf(sock, HTTP_FILE_NOT_FOUND "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return -1;
     }
@@ -1187,7 +1292,7 @@ http_get_response (socket_t sock, char *request, int flags)
 		  host ? "http://" : "", 
 		  host ? host : "", 
 		  request);
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return 0;
     }
@@ -1201,7 +1306,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return -1;
     }
@@ -1214,7 +1319,7 @@ http_get_response (socket_t sock, char *request, int flags)
       */
       if(strstr(p, "Keep-Alive"))
 	{
-	  sock->flags |= SOCK_FLAG_HTTP_KEEP;
+	  sock->userflags |= HTTP_FLAG_KEEP;
 	}
     }
 
@@ -1232,7 +1337,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  sock_printf(sock, "\r\n");
 
 	  close(fd);
-	  sock->flags |= SOCK_FLAG_HTTP_DONE;
+	  sock->userflags |= HTTP_FLAG_DONE;
 	  xfree(file);
 	  return 0;
 	}
@@ -1260,7 +1365,7 @@ http_get_response (socket_t sock, char *request, int flags)
   if(flags & HTTP_FLAG_NOFILE)
     {
       close(fd);
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return 0;
     }
@@ -1281,7 +1386,7 @@ http_get_response (socket_t sock, char *request, int flags)
 #endif
 	  http_refresh_cache(cache);
 	  cache->entry->modified = buf.st_mtime;
-	  sock->flags |= SOCK_FLAG_HTTP_FILE;
+	  sock->userflags |= HTTP_FLAG_FILE;
 	  sock->file_desc = fd;
 	  http->filelength = buf.st_size;
 	  sock->read_socket = http_cache_read;
@@ -1291,7 +1396,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  /* no, initialize the cache routines */
 	  cache->entry->hits++;
 	  cache->entry->usage++;
-	  sock->flags |= SOCK_FLAG_HTTP_CACHE;
+	  sock->userflags |= HTTP_FLAG_CACHE;
 	  if(flags & HTTP_FLAG_SIMPLE)
 	    {
 	      sock->send_buffer_fill = 42;
@@ -1305,7 +1410,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       sock->file_desc = fd;
       http->filelength = buf.st_size;
-      sock->flags |= SOCK_FLAG_HTTP_FILE;
+      sock->userflags |= HTTP_FLAG_FILE;
 
       /* 
        * find a free slot for the new file if it is not larger
@@ -1347,7 +1452,68 @@ int
 http_default_response(socket_t sock, char *request, int flags)
 {
   sock_printf(sock, HTTP_NOT_IMPLEMENTED "\r\n");
-  sock->flags |= SOCK_FLAG_HTTP_DONE;
+  sock->userflags |= HTTP_FLAG_DONE;
+  return 0;
+}
+
+#ifdef __MINGW32__
+/*
+ * Check if there died a process handle in Win32, this has to be
+ * done regularly here because there is no SIGCHLD in Win32 !
+ */
+int
+http_check_cgi (socket_t sock)
+{
+  DWORD result;
+  http_socket_t *http = sock->data;
+
+  if (sock->userflags & HTTP_FLAG_CGI && http->pid != INVALID_HANDLE)
+    {
+      result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
+      if (result == WAIT_FAILED)
+	{
+	  log_printf (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+	}
+      else if (result != WAIT_TIMEOUT)
+	{
+	  if (CLOSE_HANDLE (http->pid) == -1)
+	    log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	  http->pid = INVALID_HANDLE;
+	  server_coserver_died = http->pid;
+	}
+    }
+  return 0;
+}
+#endif /* __MINGW32__ */
+
+/* FIXME: that was if (server_coserver_died) */
+int
+http_find_died_cgi (void)
+{
+  http_socket_t *http;
+  socket_t sock;
+
+  /*
+   * Go through all sockets and check whether the died PID
+   * was a CGI script...
+   */
+  sock = socket_root; 
+  while (sock)
+    {
+      http = sock->data;
+      if (sock->userflags & HTTP_FLAG)
+	{
+	  if (1/*http->pid == server_coserver_died*/)
+	    {
+	      log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
+			  (int) 1/*server_coserver_died*/);
+	      /*server_coserver_died = 0;*/
+	      break;
+	    }
+	}
+      sock = sock->next;
+    }
+
   return 0;
 }
 

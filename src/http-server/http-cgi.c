@@ -1,7 +1,7 @@
 /*
  * http-cgi.c - http cgi implementation
  *
- * Copyright (C) 2000 Ela * Raimi
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: http-cgi.c,v 1.3 2000/06/15 11:54:52 ela Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -55,7 +58,7 @@
 /*
  * The http cgi reader gets data from the stdout of a cgi
  * program and stores the data into the send buffer of
- * the socket structure. We set the SOCK_FLAG_HTTP_DONE flag
+ * the socket structure. We set the HTTP_FLAG_DONE flag
  * to indicate there was no more data.
  */
 int
@@ -68,7 +71,7 @@ http_cgi_read (socket_t sock)
   LPOVERLAPPED overlap;
 #endif
 
-  http = sock->http;
+  http = sock->data;
 
   /* read as much space is left in the buffer */
   do_read = sock->send_buffer_size - sock->send_buffer_fill;
@@ -110,13 +113,13 @@ http_cgi_read (socket_t sock)
     }
 
   /* no data has been received */
-  sock->flags |= SOCK_FLAG_HTTP_DONE;
+  sock->userflags |= HTTP_FLAG_DONE;
   if(sock->send_buffer_fill == 0)
     {
 #if ENABLE_DEBUG
       log_printf(LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
-      sock->flags &= ~SOCK_FLAG_HTTP_CGI;
+      sock->userflags &= ~HTTP_FLAG_CGI;
       return -1;
     }
   
@@ -139,7 +142,7 @@ http_cgi_write (socket_t sock)
 #endif
 
   /* get http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* 
    * Write as many bytes as possible, remember how many
@@ -203,8 +206,8 @@ http_cgi_write (socket_t sock)
 #if ENABLE_DEBUG
       log_printf(LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
-      sock->flags &= ~SOCK_FLAG_HTTP_POST;
-      sock->flags |= SOCK_FLAG_HTTP_CGI;
+      sock->userflags &= ~HTTP_FLAG_POST;
+      sock->userflags |= HTTP_FLAG_CGI;
       sock->read_socket = http_cgi_read;
       sock->write_socket = http_default_write;
     }
@@ -306,7 +309,7 @@ create_cgi_envp(socket_t sock,      /* socket structure for this request */
   int c;
 
   /* get http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* convert some http request properties into environment variables */
   for(c=0; env_var[c].property; c++)
@@ -577,7 +580,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   if((cgifile = http_pre_exec(sock, envp, file, request, type)) == NULL)
     {
       sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       chdir(savedir);
       xfree(envp);
       xfree(savedir);
@@ -587,7 +590,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   /* send http header response */
   if(http_cgi_accepted(sock) == -1)
     {
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       chdir(savedir);
       xfree(cgifile);
       xfree(envp);
@@ -633,7 +636,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       log_printf (LOG_DEBUG, "cannot execute: %s\n", cgifile);
 #endif
       sock_printf(sock, "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       chdir(savedir);
       xfree(cgifile);
       xfree(envp);
@@ -727,7 +730,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     {
       log_printf(LOG_ERROR, "cgi: fork: %s\n", SYS_ERROR);
       sock_printf(sock, HTTP_BAD_REQUEST "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       return -1;
     }
 
@@ -738,14 +741,14 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   /* send http header response */
   if(http_cgi_accepted(sock) == -1)
     {
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       return -1;
     }
 
 #endif
 
   /* save the process id */
-  http = sock->http;
+  http = sock->data;
   http->pid = pid;
 
   /* close the inherited http data handle */
@@ -778,14 +781,14 @@ http_post_response(socket_t sock, char *request, int flags)
   http_socket_t *http;
 
   /* get http socket structure */
-  http = sock->http;
+  http = sock->data;
 
   /* is this a valid POST request ? */
   file = http_check_cgi(sock, request);
   if(file == NULL || file == HTTP_NO_CGI)
     {
       sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       return -1;
     }
 
@@ -793,14 +796,14 @@ http_post_response(socket_t sock, char *request, int flags)
   if(create_pipe(cgi2s) == -1)
     {
       sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return -1;
     }
   if(create_pipe(s2cgi) == -1)
     {
       sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return -1;
     }
@@ -809,7 +812,7 @@ http_post_response(socket_t sock, char *request, int flags)
   if((length = http_find_property(http, "Content-length")) == NULL)
     {
       sock_printf(sock, HTTP_BAD_REQUEST "\r\n");
-      sock->flags |= SOCK_FLAG_HTTP_DONE;
+      sock->userflags |= HTTP_FLAG_DONE;
       xfree(file);
       return -1;
     }
@@ -836,7 +839,7 @@ http_post_response(socket_t sock, char *request, int flags)
 #endif
   sock->write_socket = http_cgi_write;
   sock->disconnected_socket = http_disconnect;
-  sock->flags |= SOCK_FLAG_HTTP_POST;
+  sock->userflags |= HTTP_FLAG_POST;
 
   xfree(file);
   return 0;

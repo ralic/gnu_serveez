@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.5 2000/06/14 19:22:19 ela Exp $
+ * $Id: socket.c,v 1.6 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -383,6 +383,7 @@ sock_alloc (void)
 
   sock->proto = SOCK_FLAG_INIT;
   sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
+  sock->userflags = SOCK_FLAG_INIT;
   sock->file_desc = -1;
   sock->sock_desc = -1;
   sock->pipe_desc[READ] = INVALID_HANDLE;
@@ -423,12 +424,7 @@ sock_alloc (void)
   sock->flood_limit = 100;
 #endif /* ENABLE_FLOOD_PROTECTION */
   sock->unavailable = 0;
-  
   sock->data = NULL;
-
-#if ENABLE_HTTP_PROTO
-  sock->http = NULL;
-#endif
 
   return sock;
 }

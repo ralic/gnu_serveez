@@ -1,3 +1,14 @@
+2000-06-15  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_config): Freed most filed from 
+	ENABLE_HTTP_PROTO and put all http flags into sock->userflags.
+
+	* socket.h (struct socket): Dropped sock->http, now using 
+	miscelleanous field `data' for http connections.
+
+	* http-server/http-proto.c (http_server_definition): Started to
+	rewrite http server to new concept. Not yet working...
+
 2000-06-14  [ Ela ]  <ela@lkcc.org>
 
 	* server-core.c (check_sockets): Depending on some new socket flags

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.2 2000/06/14 19:22:20 ela Exp $
+ * $Id: http-proto.h,v 1.3 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -31,14 +31,16 @@
 
 #define _GNU_SOURCE
 #include "socket.h"
+#include "hash.h"
+#include "server.h"
 #include "http-cache.h"
 
 /*
- * This is the http server configuration structure
- * filled in the init_http_server() routine.
+ * This is the http server configuration structure for one instance.
  */
 typedef struct
 {
+  portcfg_t *port;    /* tcp port configuration */
   char *indexfile;    /* the standard index file */
   char *docs;         /* http document root */
   char *cgiurl;       /* cgi url (this is for its detection) */
@@ -48,15 +50,16 @@ typedef struct
   int keepalive;      /* maximum amount of requests on a connection */
   char *default_type; /* the default content type */
   char *type_file;    /* content type file (e.g "/etc/mime.types") */
+  hash_t *types;      /* content type hash */
 } 
 http_config_t;
 
-/* The configuration itself. */
-extern http_config_t http_config;
+/* Export the http server definition. */
+extern server_definition_t http_server_definition;
 
 /*
  * This structure is used to process a HTTP connection. It will be stored
- * within the original socket structure.
+ * within the original socket structure (sock->data).
  */
 typedef struct http_socket http_socket_t;
 
@@ -99,12 +102,19 @@ struct http_socket
 #define HTTP_INTERNAL_ERROR  HTTP_VERSION " 500 Internal Server Error\r\n"
 #define HTTP_NOT_IMPLEMENTED HTTP_VERSION " 501 Not Implemented\r\n"
 
+/* server functions */
+int http_init (server_t *server);
+int http_finalize (server_t *server);
+int http_global_init (void);
+int http_global_finalize (void);
+
 /* basic protocol functions */
+int http_detect_proto (void *cfg, socket_t sock);
+int http_connect_socket (void *cfg, socket_t sock);
+
 int http_check_request (socket_t sock);
-int http_detect_proto (socket_t sock);
 int http_default_write (socket_t sock);
 int http_disconnect (socket_t sock);
-int http_connect (socket_t sock);
 
 /* helper functions */
 char *http_find_property (http_socket_t *sock, char *key);
@@ -121,5 +131,18 @@ int http_default_response (socket_t sock, char *request, int flags);
 #define HTTP_FLAG_CACHE  0x0001 /* use cache if possible */
 #define HTTP_FLAG_NOFILE 0x0002 /* do not send content, but header */
 #define HTTP_FLAG_SIMPLE 0x0004 /* HTTP/0.9 simple GET */     
+#define HTTP_FLAG_DONE   0x0008 /* HTTP request done */
+#define HTTP_FLAG_POST   0x0010 /* HTTP cgi pipe posting data */
+#define HTTP_FLAG_CGI    0x0020 /* HTTP cgi pipe getting data */
+#define HTTP_FLAG_FILE   0x0040 /* HTTP file response */
+#define HTTP_FLAG_KEEP   0x0080 /* Keep-Alive connection */
+
+/* all of the additional HTTP flags */
+#define HTTP_FLAG (HTTP_FLAG_DONE  | \
+                   HTTP_FLAG_POST  | \
+                   HTTP_FLAG_CGI   | \
+                   HTTP_FLAG_FILE  | \
+                   HTTP_FLAG_CACHE | \
+                   HTTP_FLAG_KEEP)
 
 #endif /* __HTTP_PROTO_H__ */

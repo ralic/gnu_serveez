@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.5 2000/06/14 19:22:19 ela Exp $
+ * $Id: socket.h,v 1.6 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -64,24 +64,6 @@
 #define SOCK_FLAG_PIPE               /* Socket is no socket, but pipe. */ \
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
-
-#if ENABLE_HTTP_PROTO
-#define SOCK_FLAG_HTTP_CLIENT 0x00010000 /* HTTP client detected. */
-#define SOCK_FLAG_HTTP_DONE   0x00020000 /* HTTP request done */
-#define SOCK_FLAG_HTTP_POST   0x00040000 /* HTTP cgi pipe posting data */
-#define SOCK_FLAG_HTTP_CGI    0x00080000 /* HTTP cgi pipe getting data */
-#define SOCK_FLAG_HTTP_FILE   0x00100000 /* HTTP file response */
-#define SOCK_FLAG_HTTP_CACHE  0x00200000 /* HTTP file cache */
-#define SOCK_FLAG_HTTP_KEEP   0x00400000 /* Keep-Alive connection */
-
-/* all of the additional HTTP flags */
-#define SOCK_FLAG_HTTP (SOCK_FLAG_HTTP_DONE  | \
-                        SOCK_FLAG_HTTP_POST  | \
-                        SOCK_FLAG_HTTP_CGI   | \
-                        SOCK_FLAG_HTTP_FILE  | \
-                        SOCK_FLAG_HTTP_CACHE | \
-                        SOCK_FLAG_HTTP_KEEP)
-#endif
 
 #if ENABLE_CONTROL_PROTO
 #define SOCK_FLAG_CTRL_CLIENT 0x00800000 /* control connection */
@@ -207,12 +189,7 @@ struct socket
    * When the final protocol detection in DEFAULT_CHECK_REQUEST
    * has been done CFG should get the actual configuration hash.
    */
-  void * cfg;
-
-#if ENABLE_HTTP_PROTO
-  void * http;            /* http_socket_t entry for HTTP connections */
-#endif
-
+  void *cfg;
 };
 
 extern socket_t sock_lookup_table[SOCKET_MAX_IDS];

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.4 2000/06/13 16:50:47 ela Exp $
+ * $Id: server-socket.c,v 1.5 2000/06/15 11:54:52 ela Exp $
  *
  */
 
@@ -57,10 +57,6 @@
 
 #if ENABLE_IRC_PROTO
 # include "irc-server/irc-proto.h"
-#endif
-
-#if ENABLE_HTTP_PROTO
-#include "http-server/http-proto.h"
 #endif
 
 server_binding_t *server_binding = NULL;
