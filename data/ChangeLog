@@ -1,0 +1,10 @@
+2001-10-30  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (install-init): New install target.  Creates
+	init.serveez and installs it.  Also drops a note about init
+	script conventions.
+
+	* init.serveez.in: New file.  Input file for the init script
+	of Serveez.
+
+	* ChangeLog: File created.

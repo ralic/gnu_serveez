@@ -21,7 +21,31 @@
 #
 
 EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg guile-projects.txt \
-	serveez1.ico serveez2.ico
+	serveez1.ico serveez2.ico init.serveez.in
+SED = sed
 
-CLEANFILES = *~ *.orig *.rej
+install-init: init.serveez
+	@instdir="/sbin/init.d" ; \
+	test -d $$instdir || instdir="/etc/init.d" ; \
+	$(INSTALL_SCRIPT) init.serveez $$instdir ; \
+	$(INSTALL_DATA) serveez.cfg /etc ; \
+	echo "Init script \`init.serveez' has been installed in \`$$instdir'." ; \
+	echo "  Please note that you need to set symbolic links in one of" ; \
+	echo "  the \`$$instdir/rc{runlevel}.d' directories to start and stop" ; \
+	echo "  the installed service automatically.  You can" ;\
+	echo "    $$ ln -s $$instdir/init.serveez $$instdir/rc{runlevel}.d/S99serveez" ; \
+	echo "    $$ ln -s $$instdir/init.serveez $$instdir/rc{runlevel}.d/K01serveez" ; \
+	echo "  in order to get a very late start (and early kill)."
+
+init.serveez: init.serveez.in
+	@instdir="/sbin/init.d" ; \
+	test -d $$instdir || instdir="/etc/init.d" ; \
+	echo "Generating init.serveez..." ; \
+	$(SED) < $(srcdir)/init.serveez.in \
+	  -e 's,@BINDIR@,@bindir@,g' \
+	  -e 's,@INSTDIR@,'$$instdir',g' \
+	  > $(srcdir)/init.serveez
+	@chmod +x $(srcdir)/init.serveez
+
+CLEANFILES = *~ *.orig *.rej init.serveez
 MAINTAINERCLEANFILES = Makefile.in
