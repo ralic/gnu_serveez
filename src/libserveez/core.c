@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.18 2001/07/11 18:02:59 ela Exp $
+ * $Id: core.c,v 1.19 2001/07/12 07:52:42 ela Exp $
  *
  */
 
@@ -388,14 +388,24 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
   int ret;
 #if defined (__osf__)
-  /* FIXME: What are 3 last args for ??? */
+
+  /* FIXME:
+     On True64 sendfile() is said to crash the machine. Moreover the
+     system call is not documented. Thus we do not know the exact meaning
+     of the remaining arguments. We definitely know that there must be
+     some kind of pointer (maybe specifying head and tail). */
+
   ret = sendfile (out_fd, in_fd, (off_t) *offset, count, NULL, NULL, 0);
   *offset += ((ret >= 0) ? ret : 0);
+
 #elif defined (__FreeBSD__)
+
+  /* This was tested for FreeBSD4.3 on alpha. */
   off_t sbytes;
   ret = sendfile (in_fd, out_fd, (off_t) *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
+
 #elif defined (__MINGW32__)
 
   /* TransmitFile().
@@ -407,7 +417,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
      Performance is better with about 32 KB per chunk. The function is 
      available on Windows NT and Windows 2000 only (not W95, W98 or ME). */
 
-  OVERLAPPED overlap = { 0, 0, *offset, 0, NULL };
+  OVERLAPPED overlap = { 0, 0, 0, 0, NULL };
   DWORD result;
 
   /* Data transmission via overlapped I/O. 
@@ -415,6 +425,8 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
      overlapped structure argument, but we experienced that this does not
      work. Thus we pass the overlapped structure with the Offset member
      set to the current file position. */
+
+  overlap.Offset = *offset;
   if (!TransmitFile ((SOCKET) out_fd, (HANDLE) in_fd, count, 0, 
                      &overlap, NULL, 0))
     {
@@ -427,6 +439,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 	     If waiting for the socket handle we need to ensure that no other
 	     thread is operating on the socket. This is given since serveez 
 	     is single threaded. */
+
           if ((result = WaitForSingleObject ((HANDLE) out_fd, INFINITE)) != 
               WAIT_OBJECT_0)
             {
@@ -454,8 +467,11 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
       ret = count;
     }
 
-#else /* Linux here. */
+#else 
+
+  /* Linux here. Works like charme... */
   ret = sendfile (out_fd, in_fd, (off_t *) offset, count);
+
 #endif
   return ret;
 #else

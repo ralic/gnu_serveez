@@ -50,6 +50,9 @@ AC_DEFUN([AC_GUILE], [
       if test -f "$GUILEDIR/lib/libguile.so" -o \
               -f "$GUILEDIR/bin/libguile.dll"; then
         GUILE_CFLAGS="-I$GUILEDIR/include"
+	if test x"$CYGWIN" = xyes -o x"$MINGW32" = xyes ; then
+	  GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"
+	fi
         GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
         AC_MSG_RESULT([yes])
       else
@@ -88,8 +91,8 @@ AC_DEFUN([AC_GUILE_SOURCE], [
       GUILE_LDFLAGS="$GUILESRC/libguile/libguile.la"
       GUILE_DEPENDENCY="$GUILESRC/libguile/libguile.la"
       GUILE_RULE="$GUILESRC/libguile/libguile.la"
-      GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) $(AM_MAKEFLAGS) libltdlc.la)'
-      GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) $(AM_MAKEFLAGS) libguile.la)'
+      GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) $(MAKEFLAGS) libltdlc.la)'
+      GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) $(MAKEFLAGS) libguile.la)'
       AC_SUBST(GUILE_SOURCE)
       AC_SUBST(GUILE_CFLAGS)
       AC_SUBST(GUILE_LDFLAGS)
