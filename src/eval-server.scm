@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.5 2001/09/16 13:29:26 ela Exp $
+;; $Id: eval-server.scm,v 1.6 2001/09/20 11:44:56 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -79,7 +79,7 @@
 			   (svz:server:config-get sock "prompt"))))))
 		 (lambda args
 		   (svz:sock:print sock
-		     (string-append "Exception "
+		     (string-append "Exception: "
 		       (object->string args)
 		       "\r\n"
 		       (svz:server:config-get sock "prompt")))))

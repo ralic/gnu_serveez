@@ -1,3 +1,16 @@
+2001-09-20  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (guile_sock_data): Setting up a garbage 
+	collector marking function while referring to the scheme
+	object in `sock->data'.
+
+	* guile-bin.c (guile_list_to_bin): Checking argument range of 
+	given list items.
+
+	* guile-bin.c, guile.c, guile-server.c: Using `gh_eq_p()' and
+	`!gh_eq_p()' instead of C operators `==' and `!=' when comparing
+	scheme values wherever possible.
+
 2001-09-13  [ Ela ]  <ela@lkcc.org>
 
 	* svzconfig.h.in: Reintroduced definition of `off_t'.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.6 2001/09/14 08:17:14 ela Exp $
+ * $Id: guile-bin.c,v 1.7 2001/09/20 11:44:56 ela Exp $
  *
  */
 
@@ -58,9 +58,9 @@ static long guile_bin_tag = 0;
 
 /* Useful defines for accessing the binary smob. */
 #define GET_BIN_SMOB(binary) \
-  ((guile_bin_t *) ((unsigned long) gh_cdr (binary)))
+  ((guile_bin_t *) ((unsigned long) SCM_SMOB_DATA (binary)))
 #define CHECK_BIN_SMOB(binary) \
-  (SCM_NIMP (binary) && gh_car (binary) == guile_bin_tag)
+  (SCM_NIMP (binary) && SCM_TYP16 (binary) == guile_bin_tag)
 #define CHECK_BIN_SMOB_ARG(binary, arg, var)                       \
   if (!CHECK_BIN_SMOB (binary))                                    \
     scm_wrong_type_arg_msg (FUNC_NAME, arg, binary, "svz-binary"); \
@@ -105,9 +105,9 @@ guile_bin_free (SCM binary)
   if (bin->garbage)
     {
       size += bin->size;
-      scm_must_free ((char *) bin->data);
+      scm_must_free ((void *) bin->data);
     }
-  scm_must_free ((char *) bin);
+  scm_must_free ((void *) bin);
 
   return size;
 }
@@ -315,7 +315,7 @@ guile_bin_concat (SCM binary, SCM append)
   if (bin->garbage)
     {
       bin->data = (unsigned char *) 
-	scm_must_realloc ((char *) bin->data, bin->size, bin->size + len, 
+	scm_must_realloc ((void *) bin->data, bin->size, bin->size + len, 
 			  "svz-binary-data");
     }
   else
@@ -347,11 +347,11 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   SCM_ASSERT_TYPE (gh_exact_p (start), start, SCM_ARG2, FUNC_NAME, "exact");
-  SCM_ASSERT_TYPE (gh_exact_p (end) || SCM_UNDEFINED, end, SCM_ARG3, 
-		   FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (gh_exact_p (end) || gh_eq_p (end, SCM_UNDEFINED), 
+		   end, SCM_ARG3, FUNC_NAME, "exact");
 
   from = gh_scm2int (start);
-  to = end == SCM_UNDEFINED ? -1 : gh_scm2int (end);
+  to = gh_eq_p (end, SCM_UNDEFINED) ? -1 : gh_scm2int (end);
   if (to == -1)
     to = bin->size - 1;
 
@@ -395,6 +395,7 @@ guile_list_to_bin (SCM list)
 {
   guile_bin_t *bin;
   unsigned char *p;
+  int value;
 
   SCM_ASSERT_TYPE (gh_list_p (list), list, SCM_ARG1, FUNC_NAME, "list");
   bin = MAKE_BIN_SMOB ();
@@ -418,7 +419,10 @@ guile_list_to_bin (SCM list)
     {
       if (!gh_exact_p (gh_car (list)))
 	scm_out_of_range (FUNC_NAME, gh_car (list));
-      *p++ = gh_scm2int (gh_car (list));
+      value = gh_scm2int (gh_car (list));
+      if (value < 0 || value > 255)
+	scm_out_of_range (FUNC_NAME, gh_car (list));
+      *p++ = value;
       list = gh_cdr (list);
     }
 

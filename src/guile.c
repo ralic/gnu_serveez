@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.42 2001/09/12 13:42:15 ela Exp $
+ * $Id: guile.c,v 1.43 2001/09/20 11:44:56 ela Exp $
  *
  */
 
@@ -131,7 +131,7 @@ static SCM
 guile_get_current_load_port (void)
 {
   SCM p = scm_current_load_port ();
-  if (p != SCM_BOOL_F && SCM_PORTP (p))
+  if (!gh_eq_p (p, SCM_BOOL_F) && SCM_PORTP (p))
     return p;
   if (SCM_PORTP (guile_load_port))
     return guile_load_port;
@@ -246,7 +246,7 @@ guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
   int err = 0;
 
   /* Unpack if requested, ignore if null already (null == not existent). */
-  if (dounpack && !gh_null_p (pairlist) && pairlist != SCM_UNDEFINED)
+  if (dounpack && !gh_null_p (pairlist) && !gh_eq_p (pairlist, SCM_UNDEFINED))
     pairlist = gh_car (pairlist);
 
   for ( ; gh_pair_p (pairlist); pairlist = gh_cdr (pairlist))
@@ -307,18 +307,18 @@ guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
  * error messages.
  */
 int
-guile_to_integer (SCM scm, int *target)
+guile_to_integer (SCM cell, int *target)
 {
   int err = 0;
   char *str = NULL, *endp;
 
   /* Usual guile exact number. */
-  if (gh_exact_p (scm))
+  if (gh_exact_p (cell))
     {
-      *target = gh_scm2int (scm);
+      *target = gh_scm2int (cell);
     }
   /* Try string (or even symbol) to integer conversion. */
-  else if (NULL != (str = guile_to_string (scm)))
+  else if (NULL != (str = guile_to_string (cell)))
     {
       errno = 0;
       *target = strtol (str, &endp, 10);
@@ -341,25 +341,25 @@ guile_to_integer (SCM scm, int *target)
  * to. Does not emit error messages.
  */
 int
-guile_to_boolean (SCM scm, int *target)
+guile_to_boolean (SCM cell, int *target)
 {
   int i;
   int err = 0;
   char *str;
 
   /* Usual guile boolean. */
-  if (gh_boolean_p (scm))
+  if (gh_boolean_p (cell))
     {
-      i = gh_scm2bool (scm);
+      i = gh_scm2bool (cell);
       *target = (i == 0 ? 0 : 1);
     }
   /* Try with the integer converter. */
-  else if (guile_to_integer (scm, &i) == 0)
+  else if (guile_to_integer (cell, &i) == 0)
     {
       *target = (i == 0 ? 0 : 1);
     }
   /* Neither integer nor boolean, try text conversion. */
-  else if ((str = guile_to_string (scm)) != NULL)
+  else if ((str = guile_to_string (cell)) != NULL)
     {
       if (!svz_strcasecmp (str, "yes") ||
 	  !svz_strcasecmp (str, "on") ||
@@ -560,8 +560,8 @@ optionhash_extract_int (svz_hash_t *hash,
   int err = 0;
   SCM hvalue = optionhash_get (hash, key);
 
-  /* Is there such an interger in the option-hash ? */
-  if (SCM_UNSPECIFIED == hvalue)
+  /* Is there such an integer in the option-hash ? */
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       /* Nothing in hash, try to use default. */
       if (hasdef)
@@ -599,7 +599,7 @@ optionhash_extract_string (svz_hash_t *hash,
   char *str = NULL;
 
   /* Is there such a string in the option-hash ? */
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       /* Nothing in hash, try to use default. */
       if (hasdef)
@@ -645,7 +645,7 @@ optionhash_cb_integer (char *server, void *arg, char *key, int *target,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
   
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -672,7 +672,7 @@ optionhash_cb_boolean (char *server, void *arg, char *key, int *target,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
 
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -701,7 +701,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
   SCM hvalue = optionhash_get (options, key);
 
   /* Is that integer array defined in the option-hash ? */
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -760,7 +760,7 @@ optionhash_cb_string (char *server, void *arg, char *key,
   SCM hvalue = optionhash_get (options, key);
   char *str;
 
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -790,7 +790,7 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
 
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -852,7 +852,7 @@ optionhash_cb_hash (char *server, void *arg, char *key,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
 
-  if (SCM_UNSPECIFIED == hvalue)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -958,7 +958,7 @@ optionhash_cb_portcfg (char *server, void *arg, char *key,
   char *str;
 
   /* Is the requested port configuration defined ? */
-  if (hvalue == SCM_UNSPECIFIED)
+  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -1073,7 +1073,7 @@ guile_define_server (SCM name, SCM args)
   svz_snprintf (txt, 256, "defining server `%s'", servername);
 
   /* Extract options if any. */
-  if (args == SCM_UNDEFINED)
+  if (gh_eq_p (args, SCM_UNDEFINED))
     options = svz_hash_create (4);
   else if (NULL == (options = guile_to_optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
@@ -1250,7 +1250,7 @@ guile_define_port (SCM name, SCM args)
 	  scm_must_free (str);
 	}
       /* Create local optionhash for receiving pipe direction. */
-      else if (p == SCM_UNSPECIFIED)
+      else if (gh_eq_p (p, SCM_UNSPECIFIED))
 	{
 	  guile_error ("%s: You have to define a pipe called `%s'",
 		       portname, PORTCFG_RECV);
@@ -1280,7 +1280,7 @@ guile_define_port (SCM name, SCM args)
 	  cfg->pipe_send.perm = (unsigned int) -1;
 	  scm_must_free (str);
 	}
-      else if (p == SCM_UNSPECIFIED)
+      else if (gh_eq_p (p, SCM_UNSPECIFIED))
 	{
 	  guile_error ("%s: You have to define a pipe called `%s'",
 		       portname, PORTCFG_SEND);
@@ -1320,11 +1320,13 @@ guile_define_port (SCM name, SCM args)
   if (!(cfg->proto & PROTO_PIPE))
     {
       SCM list;
-      if ((list = optionhash_get (options, PORTCFG_DENY)) != SCM_UNSPECIFIED)
+      list = optionhash_get (options, PORTCFG_DENY);
+      if (!gh_eq_p (list, SCM_UNSPECIFIED))
 	cfg->deny = guile_to_strarray (list, FUNC_NAME);
       else
 	cfg->deny = NULL;
-      if ((list = optionhash_get (options, PORTCFG_ALLOW)) != SCM_UNSPECIFIED)
+      list = optionhash_get (options, PORTCFG_ALLOW);
+      if (!gh_eq_p (list, SCM_UNSPECIFIED))
 	cfg->allow = guile_to_strarray (list, FUNC_NAME);
       else
 	cfg->allow = NULL;
@@ -1508,7 +1510,7 @@ guile_access_interfaces (SCM args)
     }
 
   /* Is there an argument given to the guile function ? */
-  if (args != SCM_UNDEFINED)
+  if (!gh_eq_p (args, SCM_UNDEFINED))
     {
       svz_interface_free ();
       if ((array = guile_to_strarray (args, FUNC_NAME)) != NULL)
@@ -1562,7 +1564,7 @@ guile_access_loadpath (SCM args)
     }
   
   /* Set the load path if argument is given. */
-  if (args != SCM_UNDEFINED)
+  if (!gh_eq_p (args, SCM_UNDEFINED))
     {
       if ((paths = guile_to_strarray (args, FUNC_NAME)) != NULL)
 	svz_dynload_path_set (paths);
@@ -1606,7 +1608,7 @@ MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_int2scm (cvar); int n;                      \
   GUILE_PRECALL ();                                          \
-  if (args != SCM_UNDEFINED) {                               \
+  if (!gh_eq_p (args, SCM_UNDEFINED)) {                      \
     if (guile_to_integer (args, &n)) {                       \
       guile_error ("%s: Invalid integer value", FUNC_NAME);  \
       guile_global_error = -1;                               \
@@ -1621,7 +1623,7 @@ static SCM cfunc (SCM args) {                                \
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_str02scm (cvar); char *str;                 \
   GUILE_PRECALL ();                                          \
-  if (args != SCM_UNDEFINED) {                               \
+  if (!gh_eq_p (args, SCM_UNDEFINED)) {                      \
     if (NULL == (str = guile_to_string (args))) {            \
       guile_error ("%s: Invalid string value", FUNC_NAME);   \
       guile_global_error = -1;                               \
@@ -1706,7 +1708,7 @@ guile_exception (void *data, SCM tag, SCM args)
       return SCM_BOOL_F;
     }
 
-  if (SCM_BOOL_F != gh_car (args))
+  if (!gh_eq_p (gh_car (args), SCM_BOOL_F))
     {
       scm_display (gh_car (args), scm_current_error_port ());
       scm_puts (": ", scm_current_error_port ());
@@ -1727,7 +1729,7 @@ guile_load_config (char *cfgfile)
   guile_global_error = 0;
   guile_init ();
 
-  if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_BOOL_F)
+  if (gh_eq_p (gh_eval_file_with_catch (cfgfile, guile_exception), SCM_BOOL_F))
     guile_global_error = -1; 
 
   return guile_global_error ? -1 : 0;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.8 2001/07/20 11:07:13 ela Exp $
+ * $Id: guile.h,v 1.9 2001/09/20 11:44:56 ela Exp $
  *
  */
 
@@ -30,10 +30,10 @@
  * symbol. Returns @code{NULL} if it was neither. The new string must be 
  * explicitly @code{free()}d.
  */
-#define guile_to_string(scm)                                  \
-  (gh_null_p (scm) ? NULL :                                   \
-  (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) :            \
-  (gh_symbol_p (scm) ? gh_symbol2newstr (scm, NULL) : NULL)))
+#define guile_to_string(cell)                                   \
+  (gh_null_p (cell) ? NULL :                                    \
+  (gh_string_p (cell) ? gh_scm2newstr (cell, NULL) :            \
+  (gh_symbol_p (cell) ? gh_symbol2newstr (cell, NULL) : NULL)))
 
 /* FAIL breaks to the label `out' and sets an error condition. */
 #define FAIL() do { err = -1; goto out; } while(0)
