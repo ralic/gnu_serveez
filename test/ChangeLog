@@ -1,3 +1,7 @@
+2001-03-29  [ Ela ]  <ela@lkcc.org>
+
+	* array-test.c (main): Added stress test for arrays.
+
 2001-03-10  [ Ela ]  <ela@lkcc.org>
 
 	* hash-test.c (main): Added tests for the iteration macros.
