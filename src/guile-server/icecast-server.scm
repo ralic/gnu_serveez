@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.4 2002/06/03 16:51:46 ela Exp $
+;; $Id: icecast-server.scm,v 1.5 2002/06/04 17:59:18 ela Exp $
 ;;
 
 ;; load convenience file
@@ -60,6 +60,14 @@
   (catch 'system-error
 	 (lambda ()
 	   (eq? (stat:type (stat directory)) 'directory))
+	 (lambda args
+	   #f)))
+
+;; checks whether given string argument a regular file
+(define (icecast-is-regular? file)
+  (catch 'system-error
+	 (lambda ()
+	   (eq? (stat:type (stat file)) 'regular))
 	 (lambda args
 	   #f)))
 
@@ -232,8 +240,12 @@
 (define (icecast-send-buffer sock buffer)
   (let* ((data (svz:sock:data sock))
 	 (pos (hash-ref data "position"))
-	 (size (hash-ref data "size"))
-	 (size (- size pos)))
+	 (size (hash-ref data "size")))
+
+    (if size 
+	(set! size (- size pos))
+	(set! size (binary-length buffer)))
+
     (if (> size 0)
 	(begin	
 	  (if (> (binary-length buffer) size)
@@ -244,15 +256,24 @@
 ;; detect whether the given file contains ID3 tags
 (define (icecast-id3-tag data)
   (let* ((file (hash-ref data "file"))
-	 (size (stat:size (stat file)))
 	 (port (hash-ref data "port"))
-	 (buffer '()))
+	 (buffer #f) (size #f))
     (hash-set! data "position" 0)
     (hash-set! data "size" size)
-    (seek port -128 SEEK_END)
-    (set! buffer (svz:read-file port 128))
-    (seek port 0 SEEK_SET)
-    (if (= (binary-length buffer) 128)
+
+    ;; check if mp3 is regular file with at least 128 bytes
+    (if (icecast-is-regular? file)
+	(begin
+	  (set! size (stat:size (stat file)))
+	  (if (> size 128)
+	      (begin
+		;; read the last 128 bytes
+		(seek port -128 SEEK_END)
+		(set! buffer (svz:read-file port 128))
+		(seek port 0 SEEK_SET))))
+	(println "icecast: `" file "'is not a regular file"))
+
+    (if (and size buffer (= (binary-length buffer) 128))
 	(let ((found (binary-search buffer "TAG")))
 	  (if (and found (= found 0))
 	      (begin
