@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.5 2000/06/13 16:50:47 ela Exp $
+ * $Id: util.c,v 1.6 2000/06/15 21:18:01 raimi Exp $
  *
  */
 
@@ -480,7 +480,7 @@ list_local_interfaces (void)
   for (;;) 
     {
       ifc.ifc_len = sizeof (struct ifreq) * numreqs;
-      ifc.ifc_buf = realloc (ifc.ifc_buf, ifc.ifc_len);
+      ifc.ifc_buf = xrealloc (ifc.ifc_buf, ifc.ifc_len);
       
       if (ioctl (fd, SIOCGIFCONF, &ifc) < 0) 
 	{
@@ -517,15 +517,13 @@ list_local_interfaces (void)
       else 
 	{
 	  perror ("SIOCGIFADDR");
-	  close (fd);
-	  free (ifc.ifc_buf);
-	  return;
+	  break;
 	}
     }
   
   printf ("\n");
   close (fd);
-  free (ifc.ifc_buf);
+  xfree (ifc.ifc_buf);
 }
 
 #else /* not ENABLE_IFLIST */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.3 2000/06/15 11:54:52 ela Exp $
+ * $Id: http-proto.h,v 1.4 2000/06/15 21:18:01 raimi Exp $
  *
  */
 
@@ -120,8 +120,8 @@ int http_disconnect (socket_t sock);
 char *http_find_property (http_socket_t *sock, char *key);
 int http_keep_alive (socket_t sock);
 void http_check_keepalive (socket_t sock);
-int http_read_types (char *file);
-void http_free_content_types (void);
+int http_read_types (http_config_t *cfg);
+void http_free_content_types (http_config_t *cfg);
 
 /* HTTP response functions including their flags */
 int http_get_response (socket_t sock, char *request, int flags);

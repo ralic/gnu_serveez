@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.6 2000/06/15 11:54:52 ela Exp $
+ * $Id: socket.h,v 1.7 2000/06/15 21:18:01 raimi Exp $
  *
  */
 
@@ -35,7 +35,7 @@
 /* This is how many ID's can exist. It MUST be a 2^X and less than 10000. */
 #define SOCKET_MAX_IDS       8192 
 /* How much data is accepted before valid detection. */
-#define MAX_DETECTION_FILL     16 
+#define MAX_DETECTION_FILL     512 /*FIXME: 16*/
 /* How much time is accepted before valid detection. */
 #define MAX_DETECTION_WAIT     30 
 /* If a socket resource is unavailable, relax for this time in seconds. */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.6 2000/06/15 11:54:52 ela Exp $
+ * $Id: server-core.c,v 1.7 2000/06/15 21:18:01 raimi Exp $
  *
  */
 
@@ -545,7 +545,7 @@ check_sockets (void)
   for (sock = socket_root; sock; sock = sock->next)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files. */
-      if (sock->flags & (SOCK_FLAG_KILLED | SOCK_FLAG_FILE))
+      if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
 
 #ifndef __MINGW32__
@@ -650,14 +650,6 @@ check_sockets (void)
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
 
-      /* If socket is a file descriptor, then read it here. */
-      if (sock->flags & SOCK_FLAG_FILE)
-	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
-	}
-
       /* Handle pipes. Different in Win32 and Unices. */
       else if (sock->flags & SOCK_FLAG_PIPE)
 	{
@@ -741,6 +733,14 @@ check_sockets (void)
 		    continue;
 		  }
 	    }
+	}
+
+      /* If socket is a file descriptor, then read it here. */
+      if (sock->flags & SOCK_FLAG_FILE)
+	{
+	  if (sock->read_socket)
+	    if (sock->read_socket (sock))
+	      sock_schedule_for_shutdown (sock);
 	}
     }
 

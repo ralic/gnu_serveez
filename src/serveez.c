@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.5 2000/06/15 11:54:52 ela Exp $
+ * $Id: serveez.c,v 1.6 2000/06/15 21:18:01 raimi Exp $
  *
  */
 
@@ -323,23 +323,24 @@ main (int argc, char * argv[])
   
      
 #if ENABLE_IRC_PROTO
+  /*
   irc_init_config(&irc_config);
   irc_resolve_cline(&irc_config);
   irc_connect_servers();
+  */
 #endif /* ENABLE_IRC_PROTO */
 
   sock_server_loop ();
 
   /*
-   * Disconnect the previously invoked internal coservers.
-   */
-  log_printf(LOG_NOTICE, "destroying internal coservers\n");
-  
-  /*
    * Run the finalizers
    */
   server_finalize_all ();
   server_global_finalize ();
+  /*
+   * Disconnect the previously invoked internal coservers.
+   */
+  log_printf(LOG_NOTICE, "destroying internal coservers\n");
   coserver_finalize ();
 
 #ifdef __MINGW32__

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.3 2000/06/15 11:54:52 ela Exp $
+ * $Id: http-proto.c,v 1.4 2000/06/15 21:18:01 raimi Exp $
  *
  */
 
@@ -63,6 +63,7 @@
 #include "pipe-socket.h"
 #include "serveez.h"
 #include "server.h"
+#include "server-socket.h"
 #include "server-core.h"
 #include "http-proto.h"
 #include "http-cgi.h"
@@ -104,7 +105,7 @@ http_config_t http_config =
  */
 key_value_pair_t http_config_prototype [] =
 {
-  REGISTER_PORTCFG ("port", http_config.port, DEFAULTABLE),
+  REGISTER_PORTCFG ("netport", http_config.port, DEFAULTABLE),
   REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
   REGISTER_STR ("docs", http_config.docs, DEFAULTABLE),
   REGISTER_STR ("cgiurl", http_config.cgiurl, DEFAULTABLE),
@@ -147,7 +148,8 @@ struct
   int len;                                /* the length of this string */
   int (*response)(socket_t, char *, int); /* the callback routine */
 } 
-http_request[HTTP_REQUESTS] = {
+http_request[HTTP_REQUESTS] = 
+{
 
   { "GET",     3, http_get_response     },
   { "HEAD",    4, http_head_response    },
@@ -171,44 +173,22 @@ typedef struct
 }
 http_content_t;
 
-hash_t *http_content_type = NULL;
-
-struct
-{
-  char *suffix; /* regognition file suffix */
-  char *type;   /* apropiate content-type string */
-}
-http_content[] =
-{
-  {"class", "application/octet-stream"},
-  {"jar",   "application/octet-stream"},
-  {"html",  "text/html"},
-  {"htm",   "text/html"},
-  {"au",    "audio/basic"},
-  {"gif",   "image/gif"},
-  {"jpg",   "image/jpeg"},
-  {"jpeg",  "image/jpeg"},
-  {"png",   "image/png"},
-  {"txt",   "text/plain"},
-  {"c",     "text/plain"},
-  {"h",     "text/plain"},
-  {"js",    "application/x-javascript"},
-  {"tgz",   "application/x-gtar"},
-  {"gz",    "application/x-gzip"},
-  {"zip",   "application/zip"},
-  {"tar",   "application/x-tar"},
-  {NULL, NULL}
-};
-
+/*
+ * Global http server initializer.
+ */
 int
 http_global_init (void)
 {
   return 0;
 }
 
+/*
+ * Global http server finalizer.
+ */
 int
 http_global_finalize (void)
 {
+  http_free_cache ();
   return 0;
 }
 
@@ -220,12 +200,17 @@ http_init (server_t *server)
 {
   http_config_t *cfg = server->cfg;
   
-  http_read_types (cfg->type_file);
+  if (http_read_types (cfg))
+    {
+      log_printf (LOG_ERROR, "unable to load content type file %s\n",
+		  cfg->type_file);
+    }
 
   log_printf (LOG_NOTICE, "http: files in %s\n", cfg->docs);
   log_printf (LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
 	      cfg->cgidir, cfg->cgiurl);
 
+  server_bind (server, cfg->port);
   return 0;
 }
 
@@ -235,60 +220,34 @@ http_init (server_t *server)
 int
 http_finalize (server_t *server)
 {
-  http_free_content_types ();
-  http_free_cache ();
+  http_config_t *cfg = server->cfg;
+
+  http_free_content_types (cfg);
   
   return 0;
-}
-
-/*
- * Add a content type definition to the content type hash
- * http_content_type.
- */
-void
-http_add_content_type (char *suffix, char *type)
-{
-  char *content_type;
-
-  /* create the hash table if neccessary */
-  if (http_content_type == NULL)
-    {
-      http_content_type = hash_create (4);
-    }
-
-  /* 
-   * add the given content type to the hash if it does not
-   * contain it already
-   */
-  if (!hash_get (http_content_type, suffix))
-    {
-      content_type = xmalloc (strlen (type) + 1);
-      strcpy (content_type, type);
-      hash_put (http_content_type, suffix, content_type);
-    }
 }
 
 /*
  * This function frees all the content type definitions.
  */
 void
-http_free_content_types (void)
+http_free_content_types (http_config_t *cfg)
 {
   char **type;
   int n;
 
-  if (http_content_type != NULL)
+  if (cfg->types != NULL)
     {
-      if ((type = (char **)hash_values (http_content_type)) != NULL)
+      if ((type = (char **)hash_values (cfg->types)) != NULL)
 	{
-	  for (n = 0; n < http_content_type->keys; n++)
+	  for (n = 0; n < hash_size (cfg->types); n++)
 	    {
 	      xfree (type[n]);
 	    }
 	  xfree (type);
 	}
-      hash_destroy (http_content_type);
-      http_content_type = NULL;
+      hash_destroy (cfg->types);
+      cfg->types = NULL;
     }
 }
 
@@ -581,6 +540,7 @@ http_file_read (socket_t sock)
       sock->read_socket = default_read;
       sock->userflags |= HTTP_FLAG_DONE;
       sock->userflags &= ~HTTP_FLAG_FILE;
+      sock->flags &= ~SOCK_FLAG_FILE;
     }
 
   return 0;
@@ -969,16 +929,23 @@ http_check_request(socket_t sock)
 #define TYPES_LINE_SIZE 1024
 
 int
-http_read_types (char *file)
+http_read_types (http_config_t *cfg)
 {
   FILE *f;
   char *line;
   char *p, *end;
   char *content;
   char *suffix;
+  char *content_type;
+
+  /* create the content type hash table if neccessary */
+  if (cfg->types == NULL)
+    {
+      cfg->types = hash_create (4);
+    }
 
   /* try open the file */
-  if ((f = fopen (file, "rt")) == NULL)
+  if ((f = fopen (cfg->type_file, "rt")) == NULL)
     {
       log_printf (LOG_ERROR, "fopen: %s\n", SYS_ERROR);
       return -1;
@@ -1013,38 +980,22 @@ http_read_types (char *file)
 	  *p++ = 0;
 	  if (strlen (suffix))
 	    {
-	      http_add_content_type (suffix, content);
+	      /* 
+	       * add the given content type to the hash if it does not
+	       * contain it already
+	       */
+	      if (!hash_get (cfg->types, suffix))
+		{
+		  content_type = xmalloc (strlen (content) + 1);
+		  strcpy (content_type, content);
+		  hash_put (cfg->types, suffix, content_type);
+		}
 	    }
 	}
     }
   fclose (f);
   xfree (line);
   return 0;
-}
-
-/*
- * Get a content type from filename. We will use here something
- * similiar to the "/etc/mime.types" file.
- */
-char *
-get_content_type (char *file)
-{
-  int n = 0;
-  char *type = file + strlen(file);
-
-  while(type > file && *type != '.') type--;
-  type++;
-
-  while(http_content[n].suffix != NULL)
-    {
-      if(!strcasecmp(type, http_content[n].suffix))
-	{
-	  return http_content[n].type;
-	}
-      n++;
-    }
-  
-  return http_content[DEFAULT_CONTENT].type;
 }
 
 /*
@@ -1064,7 +1015,7 @@ http_find_content_type (socket_t sock, char *file)
   if (suffix != file) suffix++;
 
   /* find this file suffix in the content type hash */
-  if ((type = hash_get (http_content_type, suffix)) != NULL)
+  if ((type = hash_get (cfg->types, suffix)) != NULL)
     {
       return type;
     }
@@ -1347,7 +1298,8 @@ http_get_response (socket_t sock, char *request, int flags)
   if(!(flags & HTTP_FLAG_SIMPLE))
     {
       sock_printf(sock, HTTP_OK);
-      sock_printf(sock, "Content-Type: %s\r\n", get_content_type(file));
+      sock_printf(sock, "Content-Type: %s\r\n", 
+		  http_find_content_type(sock, file));
       sock_printf(sock, "Content-Length: %d\r\n", buf.st_size);
       sock_printf(sock, "Server: %s/%s\r\n", 
 		  serveez_config.program_name,
@@ -1387,6 +1339,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  http_refresh_cache(cache);
 	  cache->entry->modified = buf.st_mtime;
 	  sock->userflags |= HTTP_FLAG_FILE;
+	  sock->flags |= SOCK_FLAG_FILE;
 	  sock->file_desc = fd;
 	  http->filelength = buf.st_size;
 	  sock->read_socket = http_cache_read;
@@ -1411,6 +1364,7 @@ http_get_response (socket_t sock, char *request, int flags)
       sock->file_desc = fd;
       http->filelength = buf.st_size;
       sock->userflags |= HTTP_FLAG_FILE;
+      sock->flags |= SOCK_FLAG_FILE;
 
       /* 
        * find a free slot for the new file if it is not larger

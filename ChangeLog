@@ -1,3 +1,10 @@
+2000-06-16  [ RAIMI ]  <raimi@lkcc.org>
+
+	* configure.in: We can now use either an already installed sizzle
+	[dynamically linked] or build our own from the source distribution
+	[statically linked]. If mgrabmue provides a 'sizzle-config link-static'
+	we can statically link against a already installed sizzle.
+
 2000-06-13  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Dropped AWCS_MASTER_PIPE feature because this is

@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.3 2000/06/13 16:50:46 ela Exp $
+# $Id: Makefile.am,v 1.4 2000/06/15 21:18:01 raimi Exp $
 #
 
 #
@@ -41,8 +41,7 @@ SUBDIRS = \
 #
 # Add your library here
 #
-LIBS = 	\
-	$(SIZZLEDIR)/libsizzle/.libs/libsizzle.a \
+PROTOLIBS = 	\
 	awcs-server/libawcs.a \
 	coserver/libcoserver.a \
 	ctrl-server/libctrl.a \
@@ -50,7 +49,6 @@ LIBS = 	\
 	irc-server/libircserver.a \
 	irc-core/libirccore.a \
 	foo-server/libfoo.a
-
 
 bin_PROGRAMS = serveez
 
@@ -69,19 +67,15 @@ serveez_SOURCES = \
 	server-core.c server-core.h \
 	pipe-socket.c pipe-socket.h
 
-serveez_DEPENDENCIES = $(LIBS) \
+serveez_DEPENDENCIES = $(PROTOLIBS) \
 	serveez.cfg
 
-serveez_LDADD = $(LIBS) \
-	-lm
+serveez_LDADD = $(PROTOLIBS) $(STATICSIZZLE)
 
 MAINTAINERCLEANFILES = Makefile.in
 
 distclean-local:
 	rm -f *\~ *.orig *.rej
-
-$(SIZZLEDIR)/libsizzle/.libs/libsizzle.a:
-	(cd $(SIZZLEDIR)/libsizzle && make)
 
 serveez.cfg: ../doc/serveez.cfg
 	cp $< $@

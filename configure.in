@@ -3,6 +3,8 @@ dnl configure.in
 dnl
 dnl Autoconf input file.
 dnl
+dnl Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+dnl Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 dnl
 dnl This is free software; you can redistribute it and/or modify
@@ -27,7 +29,7 @@ dnl
 dnl Initialize autoconf and automake
 dnl
 AC_INIT(src/serveez.c)
-AM_INIT_AUTOMAKE(serveez,0.0.17,no-define)
+AM_INIT_AUTOMAKE(serveez,0.0.17pre,no-define)
 AM_CONFIG_HEADER(config.h)
 
 dnl
@@ -650,30 +652,53 @@ fi
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Check for the additional libsizzle directory.
+dnl Find out where to get sizzle
 dnl
-AC_ARG_WITH(sizzle,
-    [  --with-sizzle=DIR       Sizzle files are in DIR [../sizzle]],
-    sizzle_dir=$withval,
-    sizzle_dir="../sizzle")
+sizzle_src="no"
+sizzle_inst="no"
 
-AC_MSG_CHECKING([for libsizzle])
+AC_MSG_CHECKING([for local sizzle installation])
+if test -n "`sizzle-config 2>/dev/null`"; then
+    AC_MSG_RESULT([yes])
+    sizzle_inst="yes"
+    sizzle_cflags=`sizzle-config compile`
+    sizzle_ldflag=`sizzle-config link`
+else
+    AC_MSG_RESULT([no])
+    sizzle_inst="no"
+fi
+
+AC_ARG_WITH(sizzle,
+    [  --with-sizzle=DIR       Sizzle source distribution in DIR [../sizzle]],
+    sizzle_dir=$withval,
+    sizzle_dir="no")
+
+AC_MSG_CHECKING([for libsizzle source distribution])
 if test ! -d $sizzle_dir; then
     AC_MSG_RESULT([not found])
-    AC_MSG_ERROR([cannot compile without libsizzle])
-    exit
+    if test "$sizzle_inst" = "no"; then
+	AC_MSG_ERROR([cannot compile without libsizzle])
+	AC_MSG_ERROR([install one or tell me where the source is])
+       exit 1
+    else
+        sizzle_src="no"
+    fi
 else
     old_dir="`pwd`"
     cd $sizzle_dir
     SIZZLEDIR="`pwd`"
     cd $old_dir
     unset old_dir
-    AC_SUBST(SIZZLEDIR)
     AC_MSG_RESULT([located in $SIZZLEDIR])
-    EXTRALIBS="$EXTRALIBS"
-    CFLAGS="$CFLAGS -I$SIZZLEDIR"
-    LDFLAGS="$LDFLAGS -L$SIZZLEDIR/libsizzle/.libs"
+    sizzle_cflags="-I$SIZZLEDIR"
+    sizzle_ldflag=""
+    STATICSIZZLE="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm"
+    AC_SUBST(STATICSIZZLE)
+    sizzle_src="yes"
 fi
+
+CFLAGS="$CFLAGS $sizzle_cflags"
+LDFLAGS="$LDFLAGS $sizzle_ldflag"
 
 dnl ----------------------------------------------------------------------
 
@@ -997,18 +1022,26 @@ dnl
 dnl Start configuring sizzle.
 dnl
 
-cache_file="`pwd`/config.cache"
-export CPPFLAGS
+if test "$sizzle_src" != "no"; then
+  cache_file="`pwd`/config.cache"
+  export CPPFLAGS
 
-([cd $sizzle_dir && sh ./configure \
-    --disable-shared \
-    --enable-static \
-    --disable-debug \
-    --disable-posix \
-    --disable-regexp \
-    --disable-nls \
-    --disable-extended-math \
-    --without-included-gettext \
-    --without-catgets \
-    --with-mingw=$MINGDIR \
-    --cache-file=$cache_file])
+  ([cd $sizzle_dir && sh ./configure \
+     --disable-shared \
+     --enable-static \
+     --disable-debug \
+     --disable-posix \
+     --disable-regexp \
+     --disable-nls \
+     --disable-maximum-functionality \
+     --disable-readline \
+     --without-included-gettext \
+     --without-catgets \
+     --with-mingw=$MINGDIR \
+     --cache-file=$cache_file])
+
+   AC_MSG_RESULT([*])
+   AC_MSG_RESULT([* You have to compile libsizzle before you can make serveez])
+   AC_MSG_RESULT([* goto $sizzle_dir and type make])
+   AC_MSG_RESULT([*])
+fi
