@@ -20,12 +20,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.5 2000/07/25 16:24:26 ela Exp $
+ * $Id: alloc.h,v 1.6 2000/08/31 21:18:29 ela Exp $
  *
  */
 
-#ifndef __ALLOC_H__
-#define __ALLOC_H__
+#ifndef __XALLOC_H__
+#define __XALLOC_H__
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -34,7 +34,7 @@
 #if ENABLE_DEBUG
 extern unsigned allocated_bytes;
 extern unsigned allocated_blocks;
-#endif
+#endif /* ENABLE_DEBUG */
 
 /*
  * xmalloc() - allocate `size' of memory and return a pointer to it
@@ -75,5 +75,4 @@ char * xpstrdup (char *);
 void xheap (void);
 #endif
 
-
-#endif /* not __ALLOC_H__ */
+#endif /* not __XALLOC_H__ */

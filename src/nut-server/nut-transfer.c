@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.3 2000/08/30 20:11:24 ela Exp $
+ * $Id: nut-transfer.c,v 1.4 2000/08/31 21:18:29 ela Exp $
  *
  */
 
@@ -246,11 +246,21 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       return -1;
     }
 
+#if 0
+  /* second check if the file matches the original search pattern */
+  if (strstr (record->file, cfg->search) == NULL)
+    {
+      log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", record->file);
+      xfree (file);
+      return -1;
+    }
+#endif
+
   /* try creating local file */
 #ifdef __MINGW32__
-  if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY)) == -1)
+  if ((fd = open (file, O_RDWR|O_CREAT|O_BINARY, S_IREAD|S_IWRITE)) == -1)
 #else
-  if ((fd = open (file, O_RDWR | O_CREAT)) == -1)
+  if ((fd = open (file, O_RDWR|O_CREAT, S_IREAD|S_IWRITE)) == -1)
 #endif
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
@@ -259,11 +269,10 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
     }
 
   /* try to connect to the host */
-  if ((xsock = sock_connect (reply->ip, htons (reply->port))) != NULL)
+  if ((xsock = sock_connect (reply->ip, little2net (reply->port))) != NULL)
     {
       log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-		  util_inet_ntoa (reply->ip), reply->port);
-
+		  util_inet_ntoa (reply->ip), little2host (reply->port));
       cfg->dnloads++;
       xsock->cfg = cfg;
       xsock->flags |= SOCK_FLAG_NOFLOOD;

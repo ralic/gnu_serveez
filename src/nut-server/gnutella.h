@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.5 2000/08/30 20:11:24 ela Exp $
+ * $Id: gnutella.h,v 1.6 2000/08/31 21:18:29 ela Exp $
  *
  */
 
@@ -49,6 +49,7 @@
 #define NUT_TTL              5
 #define NUT_MAX_TTL          5
 #define NUT_CONNECT_INTERVAL 2
+#define NUT_SEND_BUFSIZE     (1024 * 100)
 
 /* function IDs */
 #define NUT_PING_REQ   0x00 /* ping */
@@ -194,11 +195,27 @@ int nut_global_init (void);
 int nut_finalize (server_t *server);
 int nut_global_finalize (void);
 int nut_server_timer (server_t *server);
+char *nut_info_server (server_t *server);
+char *nut_info_client (void *nut_cfg, socket_t sock);
 
 /*
  * This server's definition.
  */
 extern server_definition_t nut_server_definition;
 
+/*
+ * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)
+ * values. BTW: Network byte order is big endian.
+ */
+#define little2net(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
+#define net2little(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
+
+#if WORDS_BIGENDIAN
+# define little2host(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
+# define host2little(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
+#else /* little endian */
+# define little2host(x) (x)
+# define host2little(x) (x)
+#endif
 
 #endif /* __GNUTELLA_H__ */

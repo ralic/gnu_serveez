@@ -31,12 +31,14 @@ do it this way.
 Files
 =====
 
-README-Win32     - this file
-serveez.dsw      - the serveez workspace file
-serveez.dsp      - the serveez project file
-config.h.serveez - prebuild config.h for serveez
-libsizzle.dsp    - sizzle library project file
-config.h.sizzle  - prebuild config.h for the sizzle library
+README-Win32      - this file
+serveez.dsw       - the serveez workspace file
+serveez.dsp       - the serveez project file
+config.h.serveez  - prebuild config.h for serveez
+version.h.serveez - prebuild version.h for serveez
+libsizzle.dsp     - sizzle library project file
+config.h.sizzle   - prebuild config.h for the sizzle library
+version.h.sizzle  - prebuild version.h for the sizzle library
 
 Installation
 ============
@@ -46,13 +48,26 @@ directories `serveez/' and `sizzle/'. Then you need to copy some files to
 their native location.
 
 $ copy config.h.serveez config.h
+$ copy version.h.serveez version.h
 $ copy config.h.sizzle ..\sizzle\config.h
+$ copy version.h.sizzle ..\sizzle\version.h
 $ copy libsizzle.dsp ..\sizzle\libsizzle
 
    If you have done these preperations you can open the serveez workspace
 file `serveez.dsw' which contains both of the project files with the right
 depedencies. There are generally two versions of the projects. These are
-"Dbg" and "Opt". Compile. That's it. After all you will have the 
-`serveez.exe' which depends on the `sizzle.dll'.
+"Dbg" and "Opt". Choose either of the "Debug" or "Release" version of the
+serveez project and compile. That's it. After all you will have the 
+`serveez.exe' binary which depends on the `sizzle.dll'.
+
+   All of the prebuild `version.h's and `config.h's have been created with
+a current Cygwin installation. You might create them on your own if you want
+to, but this is optional. You just need to adjust the paths.
+
+$ c:\Programme\DevStudio\VC\bin\VCVARS32.BAT
+$ set PATH=%PATH%;c:\Programme\cygnus\cygwin-b20\H-i586-cygwin32\bin
+$ set CC=cl -D__MINGW32__ -D_WIN32
+$ set LD=link
+$ sh configure --with-sizzle=../sizzle
 
 ela.

@@ -211,10 +211,6 @@ SOURCE=.\regexp.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\rlport.c
-# End Source File
-# Begin Source File
-
 SOURCE=.\scmport.c
 # End Source File
 # Begin Source File

@@ -1,3 +1,16 @@
+2000-08-31  [ Ela ]  <ela@lkcc.org>
+
+	* README: Inserted a short description of what Serveez does
+	and what not. Should get "official" description.
+
+	* README-Win32: Updated documentation about the Win32
+	port.
+
+	* Makefile.am (EXTRA_DIST): Include the `version.h' files
+	for both projects for the M$ Visual C++ compiler port.
+
+	* configure.in: Added check for big endian architectures.
+
 2000-08-29  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added files for building the

@@ -1,3 +1,18 @@
+2000-08-31  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.h (little2host): Defined some routines
+	to convert the little endian values in Gnutella packet. Sigh.
+
+	* nut-server/gnutella.c (nut_host_list): Check if the
+	send buffer queue overuns while sending gnutella host
+	catcher list.
+	(nut_info_server): Gnutella server informations callback
+	implemented. It simply states the current configurations
+	and some network statistics.
+
+	* alloc.h (__XALLOC_H__): Fixed #define clash with sizzle 
+	library.
+
 2000-08-30  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_server_timer): Added routine for

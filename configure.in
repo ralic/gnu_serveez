@@ -51,6 +51,7 @@ dnl Check for a proper C compiler.
 dnl
 AC_PROG_CC
 AC_C_CONST
+AC_C_BIGENDIAN
 AC_CHECK_SIZEOF(unsigned, 8)
 AC_CHECK_SIZEOF(void *, 8)
 
