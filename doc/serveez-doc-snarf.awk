@@ -1,6 +1,6 @@
 ## Process this file with awk to produce a sed input.
 #
-# doc/serveez-api.awk
+# doc/serveez-doc-snarf.awk
 #
 # Extract documentation string from source files and produce a sed
 # script for further processing. 
@@ -21,6 +21,8 @@
 # along with this package; see the file COPYING.  If not, write to
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
+#
+# $Id: serveez-doc-snarf.awk,v 1.1 2001/11/01 17:03:51 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -224,21 +226,29 @@ function handle_macro(line)
 	    break
 	}
 	if (line ~ /.+\(/) {
-	    c_func = substr(line, 1, index(line, "(") - 1)
-	    gsub(/[ \t]/, "", c_func)
-	    line = substr(line, index(line, "(") + 1)
 
-            # cleanup the comments in argument list
-	    gsub(/\/\*[^\*]+\*\//, "", line)
+            # special guile socket callback setter/getter
+	    if (line ~ /^MAKE_SOCK_CALLBACK/) {
+	      args = "sock, proc"
+	    } 
+	    else {
+	      c_func = substr(line, 1, index(line, "(") - 1)
+	      gsub(/[ \t]/, "", c_func)
+	      line = substr(line, index(line, "(") + 1)
 
-	    # find out about the functions arguments
-	    args = line
-	    while (index(line, ")") == 0) {
+              # cleanup the comments in argument list
+	      gsub(/\/\*[^\*]+\*\//, "", line)
+
+	      # find out about the functions arguments
+	      args = line
+	      while (index(line, ")") == 0) {
 		getline line
 		gsub(/\/\*[^\*]+\*\//, "", line)
 		args = (args line)
+	      }
+	      args = substr(args, 0, index(args, ")") - 1)
 	    }
-	    args = substr(args, 0, index(args, ")") - 1)
+
 	    found++
 	    break
 	}

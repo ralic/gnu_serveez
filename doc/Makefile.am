@@ -28,7 +28,7 @@ info_TEXINFOS = serveez.texi serveez-api.texi
 serveez_TEXINFOS = guile-api.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
-	logo.jpg logosmall.jpg serveez-api.texi.in serveez-api.awk
+	logo.jpg logosmall.jpg serveez-api.texi.in serveez-doc-snarf.awk
 CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
 	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html
 MAINTAINERCLEANFILES = Makefile.in
@@ -73,7 +73,7 @@ $(srcdir)/serveez-api.texi: $(srcdir)/serveez-api.texi.in
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
-	      $(AWK) -f $(srcdir)/serveez-api.awk $$dir/$$file >> \
+	      $(AWK) -f $(srcdir)/serveez-doc-snarf.awk $$dir/$$file >> \
 	      $(SED_FILE); fi \
 	  done \
 	done
@@ -84,7 +84,7 @@ $(srcdir)/guile-api.texi: $(srcdir)/guile-api.texi.in
 	for dir in $(GUILE_DOC_DIRS); do \
 	  for file in $(GUILE_DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
-	      $(AWK) -f $(srcdir)/serveez-api.awk $$dir/$$file >> \
+	      $(AWK) -f $(srcdir)/serveez-doc-snarf.awk $$dir/$$file >> \
 	      $(GUILE_SED_FILE); fi \
 	  done \
 	done

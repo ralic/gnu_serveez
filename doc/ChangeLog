@@ -1,3 +1,15 @@
+2001-11-01  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-doc-snarf.awk: Added yet another special case about
+	callback setter and getter.
+
+	* Makefile.am (EXTRA_DIST): Renamed `serveez-api.awk' into
+	`serveez-doc-snarf.awk' which describes the purpose of the file
+	better.
+
+	* serveez.texi (Using Serveez): Sync'ed the `configure'
+	description with the file `INSTALL'.
+
 2001-10-08  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.texi.in (Codec): New section about codec

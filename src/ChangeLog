@@ -1,3 +1,12 @@
+2001-11-01  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (svz:sock:disconncted): New callback setter/
+	getter for Guile.
+
+	* guile-server.c (MAKE_SOCK_CALLBACK): New macro defining a
+	setter/getter function exported to Guile.  The resulting 
+	procedure is for modifying socket structure callbacks.
+
 2001-10-31  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c: New file.  Provides additional Serveez API

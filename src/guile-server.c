@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.24 2001/10/31 22:51:10 ela Exp $
+ * $Id: guile-server.c,v 1.25 2001/11/01 17:03:52 ela Exp $
  *
  */
 
@@ -118,6 +118,24 @@ void guile_##cfunc##_init (void) {                                           \
 
 #define INIT_SMOB_MARKER(cfunc) \
   scm_set_smob_mark (guile_##cfunc##_tag, guile_##cfunc##_gc)
+
+/* This macro creates a socket callback getter/setter for use in Guile.
+   The procedure returns any previously set callback or an undefined value. */
+#define MAKE_SOCK_CALLBACK(func, assoc)                                \
+static SCM guile_sock_##func (SCM sock, SCM proc) {                    \
+  svz_socket_t *xsock;                                                 \
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);    \
+  if (!gh_eq_p (proc, SCM_UNDEFINED)) {                                \
+    SCM_ASSERT_TYPE (gh_procedure_p (proc), proc, SCM_ARG2, FUNC_NAME, \
+		     "procedure");                                     \
+    xsock->##func = guile_func_##func;                                 \
+    return guile_sock_setfunction (xsock, assoc, proc); }              \
+  return guile_sock_getfunction (xsock, assoc);                        \
+}
+
+/* Provides a socket callback setter/getter. */
+#define DEFINE_SOCK_CALLBACK(assoc, func) \
+  gh_new_procedure (assoc, guile_sock_##func, 1, 1, 0)
 
 MAKE_SMOB_DEFINITION (svz_socket, "svz-socket")
 MAKE_SMOB_DEFINITION (svz_server, "svz-server")
@@ -502,7 +520,7 @@ guile_sock_clear_boundary (svz_socket_t *sock)
    delete the additional guile callbacks associated with the disconnected
    socket structure. */
 static int
-guile_func_disconnected (svz_socket_t *sock)
+guile_func_disconnected_socket (svz_socket_t *sock)
 {
   SCM ret, disconnected;
   int retval = -1;
@@ -539,7 +557,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
   SCM ret;
 
   /* Setup this function for later use. */
-  sock->disconnected_socket = guile_func_disconnected;
+  sock->disconnected_socket = guile_func_disconnected_socket;
 
   if (!gh_eq_p (connect_socket, SCM_UNDEFINED))
     {
@@ -674,36 +692,14 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
    to the guile procedure @var{proc}. The procedure returns the previously
    set handler if there is any. */
 #define FUNC_NAME "svz:sock:handle-request"
-static SCM
-guile_sock_handle_request (SCM sock, SCM proc)
-{
-  svz_socket_t *xsock;
-
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (gh_procedure_p (proc), proc, SCM_ARG2, 
-		   FUNC_NAME, "procedure");
-
-  xsock->handle_request = guile_func_handle_request;
-  return guile_sock_setfunction (xsock, "handle-request", proc);
-}
+MAKE_SOCK_CALLBACK (handle_request, "handle-request")
 #undef FUNC_NAME
 
 /* Set the @code{check_request} member of the socket structure @var{sock} 
    to the guile procedure @var{proc}. Returns the previously handler if 
    there is any. */
 #define FUNC_NAME "svz:sock:check-request"
-static SCM
-guile_sock_check_request (SCM sock, SCM proc)
-{
-  svz_socket_t *xsock;
-
-  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (gh_procedure_p (proc), proc, SCM_ARG2, 
-		   FUNC_NAME, "procedure");
-
-  xsock->check_request = guile_func_check_request;
-  return guile_sock_setfunction (xsock, "check-request", proc);
-}
+MAKE_SOCK_CALLBACK (check_request, "check-request")
 #undef FUNC_NAME
 
 /* Setup the packet boundary of the socket @var{sock}. The given string value
@@ -1397,10 +1393,6 @@ guile_server_init (void)
 
   gh_new_procedure ("define-servertype!", 
 		    guile_define_servertype, 1, 0, 0);
-  gh_new_procedure ("svz:sock:handle-request", 
-		    guile_sock_handle_request, 2, 0, 0);
-  gh_new_procedure ("svz:sock:check-request", 
-		    guile_sock_check_request, 2, 0, 0);
   gh_new_procedure ("svz:sock:boundary", 
 		    guile_sock_boundary, 2, 0, 0);
   gh_new_procedure ("svz:sock:floodprotect", 
@@ -1415,6 +1407,9 @@ guile_server_init (void)
 		    guile_server_config_get, 2, 0, 0);
   gh_new_procedure ("serveez-exceptions",
 		    guile_access_exceptions, 0, 1, 0);
+
+  DEFINE_SOCK_CALLBACK ("svz:sock:handle-request", handle_request);
+  DEFINE_SOCK_CALLBACK ("svz:sock:check-request", check_request);
 
   /* Initialize the guile SMOB things. Previously defined via 
      MAKE_SMOB_DEFINITION (). */

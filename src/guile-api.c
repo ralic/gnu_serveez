@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.1 2001/10/31 22:51:10 ela Exp $
+ * $Id: guile-api.c,v 1.2 2001/11/01 17:03:52 ela Exp $
  *
  */
 
@@ -112,8 +112,18 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 
   if (sock == NULL)
     return ret;
+
+  sock->disconnected_socket = guile_func_disconnected_socket;
   return MAKE_SMOB (svz_socket, sock);
 }
+#undef FUNC_NAME
+
+/* Set the @code{disconnected_socket} member of the socket structure 
+   @var{sock} to the guile procedure @var{proc}.  The given callback
+   runs whenever the socket is lost for some external reason. The procedure 
+   returns the previously set handler if there is any. */
+#define FUNC_NAME "svz:sock:disconnected"
+MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
 #undef FUNC_NAME
 
 /* Initialize the API function calls supported by Guile. */
@@ -124,6 +134,8 @@ guile_api_init (void)
   gh_define ("PROTO_UDP", gh_int2scm (PROTO_UDP));
   gh_define ("PROTO_ICMP", gh_int2scm (PROTO_ICMP));
   gh_new_procedure ("svz:sock:connect", guile_sock_connect, 2, 1, 0);
+
+  DEFINE_SOCK_CALLBACK ("svz:sock:disconnected", disconnected_socket);
 }
 
 /* Finalize the API functions. */
