@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.h,v 1.1 2000/10/16 18:39:49 ela Exp $
+ * $Id: alist.h,v 1.2 2000/10/16 22:58:36 ela Exp $
  *
  */
 
@@ -29,18 +29,22 @@
 # include <config.h>
 #endif
 
+/* general defines */
 #define ARRAY_BITS 4
 #define ARRAY_SIZE (1 << ARRAY_BITS)
 #define ARRAY_MASK (ARRAY_SIZE - 1)
 
+/* array chunk structure */
 typedef struct
 {
   void *next;
+  unsigned offset;
   unsigned fill;
   void *value[ARRAY_SIZE];
 }
 array_t;
 
+/* top level array list structure */
 typedef struct
 {
   unsigned size;
@@ -48,7 +52,28 @@ typedef struct
 }
 alist_t;
 
+/* Exported functions. */
+alist_t * alist_create (void);
+void alist_destroy (alist_t *list);
+void alist_add (alist_t *list, void *value);
+void alist_clear (alist_t *list);
+unsigned alist_contains (alist_t *list, void *value);
+void * alist_get (alist_t *list, unsigned index);
+int alist_index (alist_t *list, void *value);
+void * alist_del (alist_t *list, unsigned index);
+void alist_del_range (alist_t *list, unsigned from, unsigned to);
+void * alist_set (alist_t *list, unsigned index, void *value);
+int alist_size (alist_t *list);
+void alist_insert (alist_t *list, int index, void *value);
+
 #endif /* not __ALIST_H__ */
+
+
+
+
+
+
+
 
 
 

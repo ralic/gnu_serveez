@@ -89,6 +89,10 @@ LINK32=link.exe
 # Name "serveez - Win32 Debug"
 # Begin Source File
 
+SOURCE=.\src\alist.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\alloc.c
 # End Source File
 # Begin Source File
