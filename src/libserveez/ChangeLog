@@ -1,3 +1,8 @@
+2001-07-31  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.c (svz_coserver_check): Do not restart 
+	coservers to fast. Timeout of 3 seconds should be enough.
+
 2001-07-29  [ Ela ]  <ela@lkcc.org>
 
 	* passthrough.c: Added a new subset of functions called 

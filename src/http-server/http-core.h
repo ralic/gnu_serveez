@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.12 2001/05/19 23:04:57 ela Exp $
+ * $Id: http-core.h,v 1.13 2001/07/31 10:15:00 ela Exp $
  *
  */
 
@@ -133,7 +133,6 @@ int http_keep_alive (svz_socket_t *sock);
 void http_check_keepalive (svz_socket_t *sock);
 
 int http_read_types (http_config_t *cfg);
-void http_free_types (http_config_t *cfg);
 char *http_find_content_type (svz_socket_t *sock, char *file);
 
 int http_parse_property (svz_socket_t *sock, char *request, char *end);

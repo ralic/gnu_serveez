@@ -1230,7 +1230,7 @@ dnl
 AC_MSG_CHECKING([for working makeinfo])
 MAKEINFO="$missing_dir/missing makeinfo"
 [info=`eval makeinfo --version 2>/dev/null | head -1 | sed -e 's/[^\(]\+(\([^\)]\+\))[^\)]\+/\1/g' -e 's/[^0-9\.]//g'`]
-[if test -n $info ; then
+[if test -z $info ; then
   info=`eval makeinfo --version 2>/dev/null | head -1 | sed 's/[^0-9\.]//g'`
 fi]
 if test -n "$info"; then

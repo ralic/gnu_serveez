@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.6 2001/07/29 09:16:41 ela Exp $
+ * $Id: coserver.h,v 1.7 2001/07/31 10:15:01 ela Exp $
  *
  */
 
@@ -68,6 +68,7 @@ typedef struct
   char * (* callback) (char *);   /* coserver callback */
   int instances;                  /* the amount of coserver instances */
   void (* init) (void);           /* coserver initialization routine */
+  long last_start;                /* time stamp of the last instance fork() */
 }
 svz_coservertype_t;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.2 2001/07/30 10:15:25 ela Exp $
+ * $Id: passthrough.c,v 1.3 2001/07/31 10:15:01 ela Exp $
  *
  */
 
@@ -59,7 +59,8 @@
  * @var{argv} and @var{envp}.
  */
 int
-svz_sock_process (svz_socket_t *sock, char *bin, char **argv, char **envp)
+svz_sock_process (svz_socket_t *sock, char *bin, 
+		  char **argv, svz_envblock_t *envp)
 {
   HANDLE pid, in, out;
   char *dir = NULL, *p, *app, *file;
@@ -123,9 +124,16 @@ svz_sock_process (svz_socket_t *sock, char *bin, char **argv, char **envp)
       if (svz_process_check_access (file) < 0)
 	exit (0);
 
+      /* Check the environment and create  a default one if necessary. */
+      if (envp == NULL)
+	{
+	  envp = svz_envblock_create ();
+	  svz_envblock_default (envp);
+	}
+
       /* Execute the file itself here overwriting the current process. */
       argv[0] = file;
-      if (execve (file, argv, envp) == -1)
+      if (execve (file, argv, svz_envblock_get (envp)) == -1)
         {
           svz_log (LOG_ERROR, "execve: %s\n", SYS_ERROR);
           exit (0);

@@ -32,5 +32,5 @@ EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
 redhat: dist redhat.sh
 	(sh redhat.sh && echo "Redhat packages done.")
 
-CLEANFILES = *~
+CLEANFILES = *~ *.rpm
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in

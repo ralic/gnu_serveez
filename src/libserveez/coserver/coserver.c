@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.20 2001/07/29 09:16:41 ela Exp $
+ * $Id: coserver.c,v 1.21 2001/07/31 10:15:01 ela Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <sys/types.h>
 #include <errno.h>
 #if HAVE_UNISTD_H
@@ -133,13 +134,13 @@ svz_coservertype_t svz_coservertypes[] =
      place coserver callbacks and identification here */
 
   { COSERVER_REVERSE_DNS, "reverse dns", 
-    reverse_dns_handle_request, 1, reverse_dns_init },
+    reverse_dns_handle_request, 1, reverse_dns_init, 0 },
 
   { COSERVER_IDENT, "ident", 
-    ident_handle_request, 1, NULL},
+    ident_handle_request, 1, NULL, 0},
 
   { COSERVER_DNS, "dns", 
-    dns_handle_request, 1, NULL }
+    dns_handle_request, 1, NULL, 0 }
 };
 
 /*
@@ -892,6 +893,7 @@ svz_coserver_start (int type)
 
 #endif /* __MINGW32__ and Unices */
 
+  svz_coservertypes[coserver->type].last_start = (long) time (NULL);
   sock->data = coserver;
   sock->check_request = svz_coserver_check_request;
   sock->handle_request = svz_coserver_handle_request;
@@ -941,20 +943,20 @@ svz_coserver_check (void)
   for (n = 0; n < MAX_COSERVER_TYPES; n++)
     {
       ctype = &svz_coservertypes[n];
-      if (svz_coserver_count (ctype->type) < ctype->instances)
+      if (svz_coserver_count (ctype->type) < ctype->instances &&
+	  ((long) time (NULL)) - ctype->last_start >= 3)
 	svz_coserver_start (ctype->type);
     }
 
   /* restart coserver instances if buffer overrun is in sight (send buffer
-     fill >= 90 percent) */
+     fill >= 75 percent) */
   svz_array_foreach (svz_coservers, coserver, n)
     {
+      ctype = &svz_coservertypes[coserver->type];
       sock = coserver->sock;
-      if (sock->send_buffer_fill * 100 / sock->send_buffer_size >= 90)
-	{
-	  svz_coserver_start (coserver->type);
-	  break;
-	}
+      if (sock->send_buffer_fill * 100 / sock->send_buffer_size >= 75 &&
+	  ((long) time (NULL)) - ctype->last_start >= 3)
+	svz_coserver_start (coserver->type);
     }
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.55 2001/07/28 19:35:11 ela Exp $
+ * $Id: control-proto.c,v 1.56 2001/07/31 10:15:00 ela Exp $
  *
  */
 
@@ -348,11 +348,12 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
       /* usual client */
       if ((server = svz_server_find (xsock->cfg)) != NULL)
 	{
+	  char *info;
 	  svz_sock_printf (sock, "%s client\r\n", server->name);
-	  if (server->info_client)
+	  if (server->info_client && 
+	      (info = server->info_client (server, xsock)) != NULL)
 	    {
-	      svz_sock_printf (sock, "            %s\r\n",
-			       server->info_client (server, xsock));
+	      svz_sock_printf (sock, "            %s\r\n", info);
 	    }
 	}
       /* coserver */
@@ -370,42 +371,52 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     }
 
   /* print all previously collected statistics of this connection */
-  svz_sock_printf (sock, 
-		   " sock fd  : %d\r\n"
-		   " file fd  : %d\r\n"
-		   " pipe fd  : %d (recv), %d (send)\r\n"
-		   " foreign  : %s:%u\r\n",
-		   xsock->sock_desc,
-		   xsock->file_desc,
-		   xsock->pipe_desc[READ],
-		   xsock->pipe_desc[WRITE],
-		   svz_inet_ntoa (xsock->remote_addr),
-		   ntohs (xsock->remote_port));
+  if (xsock->flags & SOCK_FLAG_SOCK)
+    svz_sock_printf (sock, " sock fd  : %d\r\n", xsock->sock_desc);
+  if (xsock->flags & SOCK_FLAG_FILE)
+    svz_sock_printf (sock, " file fd  : %d\r\n", xsock->file_desc);
+  if (xsock->flags & SOCK_FLAG_PIPE)
+    svz_sock_printf (sock, " pipe fd  : %d (recv), %d (send)\r\n",
+		     xsock->pipe_desc[READ], 
+		     xsock->pipe_desc[WRITE]);
 
-  /* that is why `svz_inet_ntoa' cannot be used in the same call */
+  if (xsock->flags & SOCK_FLAG_PIPE)
+    {
+      if (xsock->send_pipe)
+	svz_sock_printf (sock, " foreign  : %s\r\n", xsock->send_pipe);
+      if (xsock->recv_pipe)
+	svz_sock_printf (sock, " local    : %s\r\n", xsock->recv_pipe);
+    }
+  if (xsock->flags & SOCK_FLAG_SOCK)
+    {
+      svz_sock_printf (sock, " foreign  : %s:%u\r\n",
+		       svz_inet_ntoa (xsock->remote_addr),
+		       ntohs (xsock->remote_port));
+      svz_sock_printf (sock, " local    : %s:%u\r\n",
+		       svz_inet_ntoa (xsock->local_addr),
+		       ntohs (xsock->local_port));
+    }
+
   svz_sock_printf (sock, 
-	       " local    : %s:%u\r\n"
-	       " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
-	       " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
-	       " idle     : %d\r\n"
+		   " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
+		   " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
+		   " idle     : %d\r\n"
 #if ENABLE_FLOOD_PROTECTION
-	       " flood    : %d (points), %d (limit)\r\n"
+		   " flood    : %d (points), %d (limit)\r\n"
 #endif /* ENABLE_FLOOD_PROTECTION */
-	       " avail    : %s\r\n\r\n",
-	       svz_inet_ntoa (xsock->local_addr),
-	       ntohs (xsock->local_port),
-	       xsock->send_buffer_size,
-	       xsock->send_buffer_fill,
-	       svz_time (xsock->last_send),
-	       xsock->recv_buffer_size,
-	       xsock->recv_buffer_fill,
-	       svz_time (xsock->last_recv),
-	       xsock->idle_counter,
+		   " avail    : %s\r\n\r\n",
+		   xsock->send_buffer_size,
+		   xsock->send_buffer_fill,
+		   svz_time (xsock->last_send),
+		   xsock->recv_buffer_size,
+		   xsock->recv_buffer_fill,
+		   svz_time (xsock->last_recv),
+		   xsock->idle_counter,
 #if ENABLE_FLOOD_PROTECTION
-	       xsock->flood_points,
-	       xsock->flood_limit,
+		   xsock->flood_points,
+		   xsock->flood_limit,
 #endif /* ENABLE_FLOOD_PROTECTION */
-	       xsock->unavailable ? "no" : "yes");
+		   xsock->unavailable ? "no" : "yes");
 
   return flag;
 }
@@ -432,9 +443,9 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
     {
       svz_sock_printf (sock, "\r\n%s (%s):\r\n",
 		       server->description, server->name);
-      if (server->info_server)
+      if (server->info_server && (p = server->info_server (server)) != NULL)
 	{
-	  svz_sock_printf (sock, "%s\r\n", server->info_server (server));
+	  svz_sock_printf (sock, "%s\r\n", p);
 	}
       svz_sock_printf (sock, "\r\n");
       return flag;

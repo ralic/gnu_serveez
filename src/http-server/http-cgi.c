@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.47 2001/07/30 10:15:25 ela Exp $
+ * $Id: http-cgi.c,v 1.48 2001/07/31 10:15:00 ela Exp $
  *
  */
 
@@ -600,26 +600,6 @@ http_cgi_accepted (svz_socket_t *sock)
 			  "Connection: close\r\n",
 			  http_asc_date (time (NULL)),
 			  svz_library, svz_version);
-}
-
-/*
- * The following function will free all the cgi application 
- * associations.
- */
-void
-http_free_cgi_apps (http_config_t *cfg)
-{
-#if 0
-  /* FIXME: Is hat necessary ? */
-  char **app;
-  int n;
-
-  svz_hash_foreach_value (cfg->cgiapps, app, n)
-    svz_free (app[n]);
-      
-  svz_hash_destroy (cfg->cgiapps);
-  cfg->cgiapps = NULL;
-#endif
 }
 
 /*

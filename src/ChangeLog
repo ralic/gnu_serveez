@@ -1,3 +1,8 @@
+2001-07-31  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_stat_id): Output socket-
+	type-specific information only.
+
 2001-07-30  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-cache.c (http_free_cache): Fixed segmentation

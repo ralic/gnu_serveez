@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.10 2001/07/30 10:15:25 ela Exp $
+ * $Id: http-cgi.h,v 1.11 2001/07/31 10:15:00 ela Exp $
  *
  */
 
@@ -50,6 +50,5 @@ int http_cgi_read (svz_socket_t *sock);
 int http_cgi_disconnect (svz_socket_t *sock);
 int http_cgi_died (svz_socket_t *sock);
 void http_gen_cgi_apps (http_config_t *cfg);
-void http_free_cgi_apps (http_config_t *cfg);
 
 #endif /* __HTTP_CGI_H__ */

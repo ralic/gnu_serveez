@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.12 2001/07/28 15:25:26 ela Exp $
+ * $Id: guile-server.c,v 1.13 2001/07/31 10:15:00 ela Exp $
  *
  */
 
@@ -256,18 +256,6 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
     return SCM_UNDEFINED;
 
   return oldproc;
-}
-
-/*
- * Return a guile cell containing a unsigned long value. The given pointer
- * @var{ptr} is converted.
- * FIXME: Create unique cell types for svz_socket_t, svz_server_t and
- *        svz_servertype_t. (tags? MGrabMue?).
- */
-static SCM
-guile_ptr (void *ptr)
-{
-  return gh_ulong2scm ((unsigned long) ptr);
 }
 
 /*

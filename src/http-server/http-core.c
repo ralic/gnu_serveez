@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.39 2001/07/28 19:35:12 ela Exp $
+ * $Id: http-core.c,v 1.40 2001/07/31 10:15:00 ela Exp $
  *
  */
 
@@ -899,25 +899,6 @@ http_process_uri (char *uri)
       else
 	break;
     }
-}
-
-/*
- * This function frees all the content type definitions.
- */
-void
-http_free_types (http_config_t *cfg)
-{
-#if 0
-  /* FIXME: Is that still necessary ? */
-  char **type;
-  int n;
-
-  svz_hash_foreach_value (cfg->types, type, n)
-    svz_free (type[n]);
-      
-  svz_hash_destroy (cfg->types);
-  cfg->types = NULL;
-#endif
 }
 
 /*

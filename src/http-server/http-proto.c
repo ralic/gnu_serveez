@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.74 2001/07/28 19:35:12 ela Exp $
+ * $Id: http-proto.c,v 1.75 2001/07/31 10:15:01 ela Exp $
  *
  */
 
@@ -282,8 +282,6 @@ http_finalize (svz_server_t *server)
 {
   http_config_t *cfg = server->cfg;
 
-  http_free_types (cfg);
-  http_free_cgi_apps (cfg);
   if (cfg->log)
     svz_fclose (cfg->log);
 
@@ -944,7 +942,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
 	       cache->entry->size - cache->size, cache->entry->size,
 	       cache->entry->usage,
 	       cache->entry->hits,
-	       http_cache_urgency (cache->entry),
+	       http_cache_urgency (cache->entry) + 1,
 	       cache->entry->ready ? "yes" : "no",
 	       http_asc_date (cache->entry->date));
       strcat (info, text);

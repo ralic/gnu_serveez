@@ -32,7 +32,7 @@ unfixed) have a look at the file BUGS.
 	- Make http-cache faster (in fact, faster than the fs). Use other LRU
 	  detection.
 - Remove SOCK_MAX_ID limit.
-- Control proto 'stat id' should print socket-type specific info only.
+	- Control proto 'stat id' should print socket-type specific info only.
 	- Restartable (automatically) coservers (ident dies on aWCS mass test).
 	- Allow implementing servers in guile.
 	- Convince the guile people to accept patches for Windows 

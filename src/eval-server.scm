@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.2 2001/07/28 15:25:26 ela Exp $
+;; $Id: eval-server.scm,v 1.3 2001/07/31 10:15:00 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -113,7 +113,7 @@
   (configuration   . (
     (prompt   . ( string #t "eval: " ))
     (quit     . ( string #t "quit" ))
-    (greeting . ( string #t "Hello, type `quit' to end the connection.
+    (greeting . ( string #t "Hello, type `quit' to end the connection.\r
 Type Scheme expression to see them evaluated (but only one-liners.)" ))
     ))))
 
