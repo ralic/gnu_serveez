@@ -18,12 +18,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.8 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-transfer.h,v 1.9 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __NUT_TRANSFER_H__
-#define __NUT_TRANSFER_H__
+#define __NUT_TRANSFER_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -33,7 +33,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "socket.h"
 #include "gnutella.h"
 
 /* general definitions */
@@ -87,4 +86,4 @@ int nut_disconnect_upload (socket_t sock);
 /* recursion wrapper */
 #define nut_read_database(cfg, dir) nut_read_database_r (cfg, dir, 0)
 
-#endif /* __NUT_TRANSFER_H__ */
+#endif /* not __NUT_TRANSFER_H__ */

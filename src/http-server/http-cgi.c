@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.31 2001/01/24 15:55:29 ela Exp $
+ * $Id: http-cgi.c,v 1.32 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -61,8 +61,7 @@
 # endif
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
+#include "libserveez.h"
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cgi.h"
@@ -411,8 +410,7 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
   http_insert_env (env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
   http_insert_env (env, &size, "SERVER_PROTOCOL=%s", HTTP_VERSION);
   http_insert_env (env, &size, "SERVER_SOFTWARE=%s/%s", 
-		   serveez_config.program_name, 
-		   serveez_config.version_string);
+		   svz_library, svz_version);
   http_insert_env (env, &size, "REQUEST_METHOD=%s", request_type[type]);
 
 #ifdef __MINGW32__

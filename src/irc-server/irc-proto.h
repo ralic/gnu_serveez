@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.14 2000/09/28 21:12:54 ela Exp $
+ * $Id: irc-proto.h,v 1.15 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -32,9 +32,6 @@
 #define _GNU_SOURCE
 #include <time.h>
 
-#include "hash.h"
-#include "util.h"
-#include "server.h"
 #include "irc-core/irc-core.h"
 
 /* Some restrictions. */

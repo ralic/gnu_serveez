@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.21 2001/01/24 15:55:28 ela Exp $
+ * $Id: serveez.c,v 1.22 2001/01/28 03:26:54 ela Exp $
  *
  */
 
@@ -42,36 +42,11 @@
 # include <winsock.h>
 #endif
 
-#include "version.h"
-#include "alloc.h"
-#include "util.h"
-#include "server-core.h"
+#include "libserveez.h"
 #include "serveez.h"
 #include "cfgfile.h"
 #include "option.h"
-#include "server-socket.h"
-#include "coserver/coserver.h"
-#include "server.h"
 #include "interface.h"
-#include "windoze.h"
-
-/*
- * The configurations structure of the Serveez. Defined
- * in the serveez.h.
- */
-serveez_config_t serveez_config;
-
-/*
- * Initialization of the configuration.
- */
-static void
-init_config (void)
-{
-  serveez_config.start_time = time (NULL);
-  serveez_config.program_name = "serveez";
-  serveez_config.version_string = __serveez_version;
-  serveez_config.build_string = __serveez_timestamp;
-}
 
 /*
  * Print program version.
@@ -79,9 +54,7 @@ init_config (void)
 static void 
 version (void)
 {
-  fprintf (stdout, "%s %s\n", 
-	   serveez_config.program_name, 
-	   serveez_config.version_string);
+  fprintf (stdout, "%s %s\n", svz_library, svz_version);
 }
 
 /*
@@ -156,7 +129,7 @@ main (int argc, char * argv[])
 #endif
 
   /* initialize the configuration structure */
-  init_config ();
+  svz_init_config ();
 
 #if HAVE_GETOPT_LONG
   while ((arg = getopt_long (argc, argv, SERVEEZ_OPTIONS, serveez_options,
@@ -305,6 +278,7 @@ main (int argc, char * argv[])
   /*
    * Load configuration
    */
+  init_server_definitions ();
   if (load_config (cfg_file, argc, argv) == -1)
     {
       /* 
@@ -324,12 +298,12 @@ main (int argc, char * argv[])
     svz_verbosity = cli_verbosity;
 
   if (cli_sockets != -1)
-    serveez_config.max_sockets = cli_sockets;
+    svz_config.max_sockets = cli_sockets;
 
   if (cli_pass)
     {
-      free (serveez_config.server_password);
-      serveez_config.server_password = cli_pass;
+      free (svz_config.server_password);
+      svz_config.server_password = cli_pass;
     }
 
 #if ENABLE_DEBUG
@@ -337,7 +311,7 @@ main (int argc, char * argv[])
 #endif /* ENABLE_DEBUG */
   
   log_printf (LOG_NOTICE, "%s\n", util_version ());
-  util_openfiles ();
+  util_openfiles (svz_config.max_sockets);
   
   /* 
    * Startup the internal coservers here.

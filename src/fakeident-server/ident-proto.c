@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.3 2001/01/24 15:55:29 ela Exp $
+ * $Id: ident-proto.c,v 1.4 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -37,10 +37,8 @@
 # include <winsock.h>
 #endif
 
+#include "libserveez.h"
 #include "ident-proto.h"
-#include "server.h"
-#include "server-core.h"
-#include "server-socket.h"
 
 /*
  * Default value definitions for the server configuration.

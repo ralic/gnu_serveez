@@ -18,12 +18,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.19 2000/10/05 18:01:46 ela Exp $
+ * $Id: gnutella.h,v 1.20 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __GNUTELLA_H__
-#define __GNUTELLA_H__
+#define __GNUTELLA_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -31,9 +31,6 @@
 
 #define _GNU_SOURCE
 #include <time.h>
-
-#include "util.h"
-#include "hash.h"
 
 /* general defines */
 #define NUT_VERSION   "0.48"

@@ -32,13 +32,13 @@ alist_test_SOURCES = alist-test.c test.c test.h alloc.c alist.c
 
 AM_CFLAGS = -I$(top_srcdir)/src
 
-alloc.c: $(top_srcdir)/src/alloc.c
+alloc.c: $(top_srcdir)/src/libserveez/alloc.c
 	ln -s $< $@
 
-hash.c: $(top_srcdir)/src/hash.c
+hash.c: $(top_srcdir)/src/libserveez/hash.c
 	ln -s $< $@
 
-alist.c: $(top_srcdir)/src/alist.c
+alist.c: $(top_srcdir)/src/libserveez/alist.c
 	ln -s $< $@
 
 distclean-local:

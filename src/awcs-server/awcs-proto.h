@@ -19,20 +19,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.7 2000/09/09 16:33:43 ela Exp $
+ * $Id: awcs-proto.h,v 1.8 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __AWCS_PROTO_H__
-#define __AWCS_PROTO_H__
-
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
-#include "socket.h"
-#include "server.h"
-#include "hash.h"
+#define __AWCS_PROTO_H__ 1
 
 #define STATUS_CONNECT    0
 #define STATUS_DISCONNECT 1

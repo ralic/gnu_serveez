@@ -18,19 +18,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.h,v 1.1 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-request.h,v 1.2 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __NUT_REQUEST_H__
-#define __NUT_REQUEST_H__
+#define __NUT_REQUEST_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#define _GNU_SOURCE
-#include "socket.h"
 
 /* Exported functions. */
 int nut_reply (socket_t sock, nut_header_t *hdr, byte *packet);
@@ -39,4 +36,4 @@ int nut_query (socket_t sock, nut_header_t *hdr, byte *packet);
 int nut_pong (socket_t sock, nut_header_t *hdr, byte *packet);
 int nut_ping (socket_t sock, nut_header_t *hdr, byte *null);
 
-#endif /* __NUT_REQUEST_H__ */
+#endif /* not __NUT_REQUEST_H__ */

@@ -19,21 +19,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.5 2000/08/02 09:45:14 ela Exp $
+ * $Id: foo-proto.h,v 1.6 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __FOO_PROTO_H__
-#define __FOO_PROTO_H__
+#define __FOO_PROTO_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#define _GNU_SOURCE
-#include "hash.h"
-#include "server.h"
-#include "socket.h"
 
 /*
  * Protocol server specific configuration.
@@ -65,4 +60,4 @@ char *foo_info_server (struct server *server);
  */
 extern struct server_definition foo_server_definition;
 
-#endif /* __FOO_PROTO_H__ */
+#endif /* not __FOO_PROTO_H__ */

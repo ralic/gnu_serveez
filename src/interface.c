@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.13 2001/01/24 15:55:28 ela Exp $
+ * $Id: interface.c,v 1.14 2001/01/28 03:26:54 ela Exp $
  *
  */
 
@@ -56,8 +56,8 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
+#include "libserveez/alloc.h"
+#include "libserveez/util.h"
 #include "interface.h"
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.24 2001/01/25 21:22:36 ela Exp $
+ * $Id: irc-proto.c,v 1.25 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -47,8 +47,7 @@
 # include <netinet/in.h>
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
+#include "libserveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.26 2001/01/26 14:46:48 ela Exp $
+ * $Id: http-core.c,v 1.27 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -52,8 +52,7 @@
 # include <lm.h>
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
+#include "libserveez.h"
 #include "http-proto.h"
 #include "http-core.h"
 
@@ -66,12 +65,11 @@ http_header_t http_header;
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 # define timezone _timezone
 # define daylight _daylight
-#endif
 
+#elif !HAVE_TIMEZONE
 /*
  * For some reason FreeBSD 3.2 does not provide `timezone' and `daylight'.
  */
-#ifndef timezone
 # define timezone ((long int) 0)
 # define daylight ((int) 0)
 #endif
@@ -414,8 +412,7 @@ http_send_header (socket_t sock)
 		     "Server: %s/%s\r\n",
 		     http_header.response,
 		     http_asc_date (time (NULL)),
-		     serveez_config.program_name,
-		     serveez_config.version_string);
+		     svz_library, svz_version);
   if (ret)
     return ret;
 
@@ -609,8 +606,7 @@ http_error_response (socket_t sock, int response)
 		      "for reporting errors</i>"
 		      "</body></html>",
 		      response, txt, 
-		      serveez_config.program_name, 
-		      serveez_config.version_string,
+		      svz_library, svz_version,
 		      cfg->host ? cfg->host : 
 		      util_inet_ntoa (sock->local_addr),
 		      ntohs (sock->local_port), cfg->admin, cfg->admin);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.16 2001/01/24 15:55:29 ela Exp $
+ * $Id: nut-core.c,v 1.17 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -45,8 +45,7 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
-#include "server.h"
+#include "libserveez.h"
 #include "gnutella.h"
 #include "nut-core.h"
 

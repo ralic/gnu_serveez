@@ -18,21 +18,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.7 2000/11/30 22:16:18 ela Exp $
+ * $Id: tunnel.h,v 1.8 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __TUNNEL_H__
-#define __TUNNEL_H__
+#define __TUNNEL_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#define _GNU_SOURCE
-#include "socket.h"
-#include "hash.h"
-#include "server.h"
 
 /*
  * Tunnel server configuration structure.
@@ -103,4 +98,4 @@ int tnl_idle (socket_t sock);
  */
 extern server_definition_t tnl_server_definition;
 
-#endif /* __TUNNEL_H__ */
+#endif /* not __TUNNEL_H__ */

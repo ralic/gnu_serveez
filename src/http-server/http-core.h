@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.10 2000/12/31 13:23:36 ela Exp $
+ * $Id: http-core.h,v 1.11 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -31,9 +31,6 @@
 
 #define _GNU_SOURCE
 #include <time.h>
-
-#include "socket.h"
-#include "http-cache.h"
 
 /* Some definitions. */
 #define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.14 2001/01/24 15:55:27 ela Exp $
+ * $Id: cfgfile.c,v 1.15 2001/01/28 03:26:54 ela Exp $
  *
  */
 
@@ -34,12 +34,45 @@
 # include <winsock.h>
 #endif
 
-#include "util.h"
-#include "alloc.h"
+#include "libserveez/boot.h"
+#include "libserveez/util.h"
+#include "libserveez/alloc.h"
+#include "libserveez/hash.h"
+#include "libserveez/socket.h"
+#include "libserveez/server.h"
+#include "sizzle.h"
 #include "cfgfile.h"
-#include "serveez.h"
-#include "server.h"
-#include "libsizzle/libsizzle.h"
+
+/* 
+ * Include headers of servers.
+ */
+#include "foo-server/foo-proto.h"
+#if ENABLE_AWCS_PROTO
+# include "awcs-server/awcs-proto.h"
+#endif
+#if ENABLE_HTTP_PROTO
+# include "http-server/http-proto.h"
+#endif
+#if ENABLE_IRC_PROTO
+# include "irc-server/irc-proto.h"
+#endif
+#if ENABLE_CONTROL_PROTO
+# include "ctrl-server/control-proto.h"
+#endif
+#if ENABLE_SNTP_PROTO
+# include "sntp-server/sntp-proto.h"
+#endif
+#if ENABLE_GNUTELLA
+# include "nut-server/gnutella.h"
+#endif
+#if ENABLE_TUNNEL
+# include "tunnel-server/tunnel.h"
+#endif
+#if ENABLE_FAKEIDENT
+# include "fakeident-server/ident-proto.h"
+#endif
+
+#include <libsizzle/libsizzle.h>
 
 /* for backward compatibility with older versions of sizzle core */
 #ifndef hashtable_p
@@ -93,6 +126,37 @@ struct config_t
 #define REG_HAVEFLAG(name, location) \
 zzz_bind_bool_variable (name, location, 1)
 
+/* Initialize static server definitions. */
+void
+init_server_definitions (void)
+{
+  server_add_definition (&foo_server_definition);
+#if ENABLE_AWCS_PROTO
+  server_add_definition (&awcs_server_definition);
+#endif
+#if ENABLE_HTTP_PROTO
+  server_add_definition (&http_server_definition);
+#endif
+#if ENABLE_IRC_PROTO
+  server_add_definition (&irc_server_definition);
+#endif
+#if ENABLE_CONTROL_PROTO
+  server_add_definition (&ctrl_server_definition);
+#endif
+#if ENABLE_SNTP_PROTO
+  server_add_definition (&sntp_server_definition);
+#endif
+#if ENABLE_GNUTELLA
+  server_add_definition (&nut_server_definition);
+#endif
+#if ENABLE_TUNNEL
+  server_add_definition (&tnl_server_definition);
+#endif
+#if ENABLE_FAKEIDENT
+  server_add_definition (&fakeident_server_definition);
+#endif
+}
+
 /*
  * Loads the configuration from the .cfg file giving all setup variables
  * their default/configured values. Returns -1 on error, caller should
@@ -108,9 +172,9 @@ load_config (char *cfgfile, int argc, char **argv)
   struct config_t configs[] =
   {
     /* global settings */
-    REG_INT ("serveez-sockets", &serveez_config.max_sockets, 200, 1),
+    REG_INT ("serveez-sockets", &svz_config.max_sockets, 200, 1),
     REG_INT ("serveez-verbosity", &svz_verbosity, 3, 1),
-    REG_STRING ("serveez-pass", &serveez_config.server_password, "!", 0),
+    REG_STRING ("serveez-pass", &svz_config.server_password, "!", 0),
     REG_END
   };
 
@@ -120,8 +184,7 @@ load_config (char *cfgfile, int argc, char **argv)
   zzz_set_arguments (argc - 1, argv[0], argv + 1);
 
   /* set some information for sizzle (read-only) */
-  zzz_bind_string_variable ("serveez-version", serveez_config.version_string,
-			    0, 1);
+  zzz_bind_string_variable ("serveez-version", svz_version, 0, 1);
 
   /* register read-only boolean variables for the features in this system */
   REG_HAVEFLAG ("have-debug", &have_debug);
@@ -274,7 +337,7 @@ load_config (char *cfgfile, int argc, char **argv)
   /* 
    * Instantiate servers from symbol table.
    */
-  if (server_load_cfg (cfgfile) < 0)
+  if (zzz_server_load_cfg (cfgfile) < 0)
     retval = -1;
 
   zzz_finalize ();

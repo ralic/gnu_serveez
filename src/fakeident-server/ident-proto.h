@@ -19,21 +19,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.h,v 1.1 2001/01/04 22:34:28 raimi Exp $
+ * $Id: ident-proto.h,v 1.2 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __IDENT_PROTO_H__
-#define __IDENT_PROTO_H__
+#define __IDENT_PROTO_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#define _GNU_SOURCE
-#include "server.h"
-#include "socket.h"
-
 
 /*
  * Configuration of this server
@@ -45,10 +40,9 @@ struct fakeident_config
   struct portcfg *port;  /* port the server is bound to             */  
 };
 
-
 /*
  * This server's definition
  */
 extern struct server_definition fakeident_server_definition;
 
-#endif /* __IDENT_PROTO_H__ */
+#endif /* not __IDENT_PROTO_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.3 2001/01/26 14:46:48 ela Exp $
+ * $Id: dynload.c,v 1.4 2001/01/28 03:26:54 ela Exp $
  *
  */
 
@@ -39,9 +39,10 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "server.h"
+#include "libserveez/alloc.h"
+#include "libserveez/util.h"
+#include "libserveez/socket.h"
+#include "libserveez/server.h"
 #include "dynload.h"
 
 /*

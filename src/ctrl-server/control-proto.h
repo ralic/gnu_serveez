@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.7 2000/09/15 08:22:50 ela Exp $
+ * $Id: control-proto.h,v 1.8 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -28,10 +28,6 @@
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#define _GNU_SOURCE
-#include "socket.h"
-#include "server.h"
 
 #define STAT_BUFFER_SIZE 256
 

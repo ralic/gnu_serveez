@@ -18,18 +18,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.h,v 1.1 2001/01/21 17:09:44 ela Exp $
+ * $Id: dynload.h,v 1.2 2001/01/28 03:26:54 ela Exp $
  *
  */
 
 #ifndef __DYNLOAD_H__
-#define __DYNLOAD_H__
+#define __DYNLOAD_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#include "server.h"
 
 #ifdef __MINGW32__
 # define DYNLOAD_SUFFIX "dll"
@@ -39,4 +37,4 @@
 
 server_definition_t * dyn_load (char *description);
 
-#endif /* __DYNLOAD_H__ */
+#endif /* not __DYNLOAD_H__ */

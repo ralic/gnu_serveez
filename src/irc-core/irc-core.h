@@ -18,14 +18,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.9 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-core.h,v 1.10 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __IRC_CORE_H__
 #define __IRC_CORE_H__
-
-#include "socket.h"
 
 /* some IRC protocol limitation definitions */
 #define MAX_NICK_LEN 16     /* maximum nick name length */

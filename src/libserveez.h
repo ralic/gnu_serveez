@@ -18,26 +18,30 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: libserveez.h,v 1.1 2001/01/24 15:55:28 ela Exp $
+ * $Id: libserveez.h,v 1.2 2001/01/28 03:26:54 ela Exp $
  *
  */
 
 #ifndef __LIBSERVEEZ_H__
-#define __LIBSERVEEZ_H__
+#define __LIBSERVEEZ_H__ 1
 
-#include <alloc.h>
-#include <snprintf.h>
-#include <hash.h>
-#include <alist.h>
-#include <util.h>
-#include <connect.h>
-#include <socket.h>
-#include <pipe-socket.h>
-#include <udp-socket.h>
-#include <icmp-socket.h>
-#include <raw-socket.h>
-#include <server-core.h>
-#include <server-loop.h>
-#include <windoze.h>
+#include "libserveez/boot.h"
+#include "libserveez/alloc.h"
+#include "libserveez/snprintf.h"
+#include "libserveez/hash.h"
+#include "libserveez/alist.h"
+#include "libserveez/util.h"
+#include "libserveez/socket.h"
+#include "libserveez/server.h"
+#include "libserveez/tcp-socket.h"
+#include "libserveez/pipe-socket.h"
+#include "libserveez/udp-socket.h"
+#include "libserveez/icmp-socket.h"
+#include "libserveez/raw-socket.h"
+#include "libserveez/server-core.h"
+#include "libserveez/server-loop.h"
+#include "libserveez/server-socket.h"
+#include "libserveez/windoze.h"
+#include "libserveez/coserver/coserver.h"
 
 #endif /* __LIBSERVEEZ_H__ */

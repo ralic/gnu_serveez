@@ -63,11 +63,7 @@ all parts of the API it provides.
 * Hashtable::             Hashtable implementation
 * Arraylist::             Arraylist implementation
 * Utility functions::     Miscellaneous helper functions
-* TCP sockets::           TCP socket functions
-* Pipe connections::      Named and anonymous pipe functions
-* UDP sockets::           UDP socket functions
-* ICMP sockets::          ICMP socket functions
-* Raw sockets::           Raw socket functions
+* Client connections::    Client connection functions
 @end menu
 
 @node Memory management, Hashtable, , Embedding API
@@ -79,23 +75,34 @@ all parts of the API it provides.
 @node Arraylist, Utility functions, Hashtable, Embedding API
 @section Arraylist functions
 
-@node Utility functions, TCP sockets, Arraylist, Embedding API
+@node Utility functions, Client connections, Arraylist, Embedding API
 @section Utility functions
 
-@node TCP sockets, Pipe connections, Utility functions, Embedding API
-@section TCP sockets
+@node Client connections, , Utility functions, Embedding API
+@section Client connections
 
-@node Pipe connections, UDP sockets, TCP sockets, Embedding API
-@section Pipe connections
+@menu
+* TCP sockets::           TCP socket functions
+* Pipe connections::      Named and anonymous pipe functions
+* UDP sockets::           UDP socket functions
+* ICMP sockets::          ICMP socket functions
+* Raw sockets::           Raw socket functions
+@end menu
 
-@node UDP sockets, ICMP sockets, Pipe connections, Embedding API
-@section UDP sockets
+@node TCP sockets, Pipe connections, , Client connections
+@subsection TCP sockets
 
-@node ICMP sockets, Raw sockets, UDP sockets, Embedding API
-@section ICMP sockets
+@node Pipe connections, UDP sockets, TCP sockets, Client connections
+@subsection Pipe connections
 
-@node Raw sockets, , ICMP sockets, Embedding API
-@section Raw sockets
+@node UDP sockets, ICMP sockets, Pipe connections, Client connections
+@subsection UDP sockets
+
+@node ICMP sockets, Raw sockets, UDP sockets, Client connections
+@subsection ICMP sockets
+
+@node Raw sockets, , ICMP sockets, Client connections
+@subsection Raw sockets
 
 @contents
 @bye

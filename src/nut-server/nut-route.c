@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.12 2001/01/24 15:55:29 ela Exp $
+ * $Id: nut-route.c,v 1.13 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -38,8 +38,7 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
-#include "server.h"
+#include "libserveez.h"
 #include "gnutella.h"
 #include "nut-route.h"
 #include "nut-core.h"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-crypt.c,v 1.5 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-crypt.c,v 1.6 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -35,7 +35,7 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
+#include "libserveez.h"
 #include "irc-proto.h"
 #include "irc-crypt.h"
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.27 2001/01/24 15:55:29 ela Exp $
+ * $Id: nut-transfer.c,v 1.28 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -83,8 +83,7 @@
 # define closedir(dir) FindClose (dir)
 #endif
 
-#include <libserveez.h>
-#include "server.h"
+#include "libserveez.h"
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-transfer.h"
@@ -401,7 +400,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
     }
 
   /* try to connect to the host */
-  if ((xsock = sock_connect (reply->ip, reply->port)) != NULL)
+  if ((xsock = tcp_connect (reply->ip, reply->port)) != NULL)
     {
       log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
 		  util_inet_ntoa (reply->ip), ntohs (reply->port));

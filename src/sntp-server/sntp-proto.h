@@ -18,20 +18,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.h,v 1.1 2000/12/15 14:13:18 ela Exp $
+ * $Id: sntp-proto.h,v 1.2 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __SNTP_PROTO_H__
-#define __SNTP_PROTO_H__
+#define __SNTP_PROTO_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#define _GNU_SOURCE
-#include "server.h"
-#include "socket.h"
 
 /*
  * Protocol server specific configuration.
@@ -50,4 +46,4 @@ int sntp_handle_request (socket_t sock, char *packet, int len);
  */
 extern server_definition_t sntp_server_definition;
 
-#endif /* __SNTP_PROTO_H__ */
+#endif /* not __SNTP_PROTO_H__ */

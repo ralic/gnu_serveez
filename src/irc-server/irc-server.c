@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.17 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-server.c,v 1.18 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -46,11 +46,10 @@
 # include <arpa/inet.h>
 #endif
 
-#include <libserveez.h>
+#include "libserveez.h"
 #include "irc-proto.h"
 #include "irc-event.h"
 #include "irc-server.h"
-#include "coserver/coserver.h"
 
 #define DEFAULT_PORT 6667
 
@@ -154,7 +153,7 @@ irc_connect_server (char *ip, irc_server_t *server)
   
   /* try connecting */
   server->addr = inet_addr (ip);
-  if ((sock = sock_connect (server->addr, server->port)) == NULL)
+  if ((sock = tcp_connect (server->addr, server->port)) == NULL)
     {
       return -1;
     }

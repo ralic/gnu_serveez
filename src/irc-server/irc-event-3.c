@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.9 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-event-3.c,v 1.10 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -38,8 +38,7 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
+#include "libserveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
@@ -313,7 +312,7 @@ irc_stats_callback (socket_t sock,
        * u - returns a string showing how long the server has been up
        */
     case 'u':
-      t = time (NULL) - serveez_config.start_time;
+      t = time (NULL) - svz_config.start_time;
       sec = t % 60;
       t /= sec;
       min = t % 60;
@@ -350,7 +349,7 @@ irc_version_callback (socket_t sock,
     {
       irc_printf (sock, ":%s %03d %s " RPL_VERSION_TEXT "\n",
 		  cfg->host, RPL_VERSION, client->nick,
-		  serveez_config.version_string, serveez_config.program_name);
+		  svz_version, svz_library);
     }
   return 0;
 }

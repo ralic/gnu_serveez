@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.18 2001/01/24 15:55:29 ela Exp $
+ * $Id: foo-proto.c,v 1.19 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -35,9 +35,8 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
+#include "libserveez.h"
 #include "foo-proto.h"
-#include "coserver/coserver.h"
 
 /* 
  * Packet specification for sock_default_check_request().

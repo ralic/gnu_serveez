@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.7 2001/01/24 15:55:29 ela Exp $
+ * $Id: alist-test.c,v 1.8 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -31,8 +31,8 @@
 #include <stdlib.h>
 
 #define SERVEEZ_API
-#include "alloc.h"
-#include "alist.h"
+#include "libserveez/alloc.h"
+#include "libserveez/alist.h"
 #include "test.h"
 
 #define REPEAT 10000

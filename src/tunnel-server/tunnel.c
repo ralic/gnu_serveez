@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.14 2001/01/24 15:55:29 ela Exp $
+ * $Id: tunnel.c,v 1.15 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -45,8 +45,7 @@
 # include <arpa/inet.h>
 #endif
 
-#include <libserveez.h>
-#include "server.h"
+#include "libserveez.h"
 #include "tunnel.h"
 
 /*
@@ -266,7 +265,7 @@ tnl_create_socket (socket_t sock, int source)
   /* target is a TCP connection */
   if (sock->userflags & TNL_FLAG_TGT_TCP)
     {
-      if ((xsock = sock_connect (ip, port)) == NULL)
+      if ((xsock = tcp_connect (ip, port)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
 		      util_inet_ntoa (ip), ntohs (port));

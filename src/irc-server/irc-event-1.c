@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.15 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-event-1.c,v 1.16 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -41,8 +41,7 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
+#include "libserveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-crypt.h"
@@ -115,21 +114,17 @@ irc_send_init_block (socket_t sock, irc_client_t *client)
 
   irc_printf (sock, ":%s %03d %s :" RPL_YOURHOST_TEXT "\n",
 	      cfg->host, RPL_YOURHOST, client->nick,
-	      cfg->host, serveez_config.program_name,
-	      serveez_config.version_string);
+	      cfg->host, svz_library, svz_version);
 
   irc_printf (sock, "NOTICE %s :*** " RPL_YOURHOST_TEXT "\n",
-	      client->nick, cfg->host, serveez_config.program_name,
-	      serveez_config.version_string);
+	      client->nick, cfg->host, svz_library, svz_version);
   
   irc_printf (sock, ":%s %03d %s :" RPL_CREATED_TEXT "\n",
-	      cfg->host, RPL_CREATED, client->nick, 
-	      serveez_config.build_string);
+	      cfg->host, RPL_CREATED, client->nick, svz_build);
 
   irc_printf (sock, ":%s %03d %s " RPL_MYINFO_TEXT "\n",
 	      cfg->host, RPL_MYINFO, client->nick,
-	      cfg->host, serveez_config.program_name,
-	      serveez_config.version_string, USER_MODES, CHANNEL_MODES);
+	      cfg->host, svz_library, svz_version, USER_MODES, CHANNEL_MODES);
 
   /* send LUSER* replies */
   irc_lusers_callback (sock, client, NULL);

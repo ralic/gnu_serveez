@@ -20,12 +20,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: serveez.h,v 1.6 2000/09/11 17:29:47 ela Exp $
+ * $Id: serveez.h,v 1.7 2001/01/28 03:26:54 ela Exp $
  *
  */
 
 #ifndef __SERVEEZ_H__
-#define __SERVEEZ_H__
+#define __SERVEEZ_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -33,30 +33,8 @@
 
 #include <time.h>
 
-/*
- * General serveez configuration structure.
- */
-typedef struct
-{
-  /* program name */
-  char *program_name;
-  /* version string of program */
-  char *version_string;
-  /* biuld string of program */
-  char *build_string;
-  /* programs password */
-  char *server_password;
-  /* defines how many clients are allowed to connect */
-  SOCKET max_sockets;
-  /* when was the program started */
-  time_t start_time;
-}  
-serveez_config_t;
-
-extern serveez_config_t serveez_config;
-
 /* Exported from `util.c' because it is a central point. */
 extern int have_debug;
 extern int have_win32;
 
-#endif /* __SERVEEZ_H__ */
+#endif /* not __SERVEEZ_H__ */

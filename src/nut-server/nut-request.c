@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.5 2001/01/24 15:55:29 ela Exp $
+ * $Id: nut-request.c,v 1.6 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -44,8 +44,7 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
-#include "server.h"
+#include "libserveez.h"
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-transfer.h"
@@ -188,7 +187,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 	  (entry = nut_get_database (cfg, NULL, push->index)) != NULL)
 	{
 	  /* try to connect to given host */
-	  if ((xsock = sock_connect (push->ip, push->port)) != NULL)
+	  if ((xsock = tcp_connect (push->ip, push->port)) != NULL)
 	    {
 	      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
 			  util_inet_ntoa (push->ip), ntohs (push->port));

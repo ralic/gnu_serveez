@@ -18,12 +18,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.5 2000/07/25 16:24:27 ela Exp $
+ * $Id: http-cache.h,v 1.6 2001/01/28 03:26:55 ela Exp $
  *
  */
 
 #ifndef __HTTP_CACHE_H__
-#define __HTTP_CACHE_H__
+#define __HTTP_CACHE_H__ 1
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -31,9 +31,6 @@
 
 #define _GNU_SOURCE
 #include <time.h>
-
-#include "hash.h"
-#include "socket.h"
 
 /*
  * Some #defines. These are just default values for configurable

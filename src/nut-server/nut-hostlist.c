@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.3 2001/01/24 15:55:29 ela Exp $
+ * $Id: nut-hostlist.c,v 1.4 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -44,9 +44,7 @@
 # include <winsock.h>
 #endif
 
-#include <libserveez.h>
-#include "server.h"
-#include "serveez.h"
+#include "libserveez.h"
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-hostlist.h"
@@ -156,8 +154,7 @@ nut_hosts_check (socket_t sock)
 
   /* send HTML footer */
   if (sock_printf (sock, NUT_HTML_FOOTER,
-		   serveez_config.program_name, 
-		   serveez_config.version_string,
+		   svz_library, svz_version,
 		   util_inet_ntoa (sock->local_addr), 
 		   ntohs (sock->local_port)) == -1)
     return -1;

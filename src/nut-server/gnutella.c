@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.29 2001/01/24 15:55:29 ela Exp $
+ * $Id: gnutella.c,v 1.30 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -60,8 +60,7 @@
 # define mkdir(path, mode) mkdir (path)
 #endif
 
-#include <libserveez.h>
-#include "server.h"
+#include "libserveez.h"
 #include "gnutella.h"
 #include "nut-transfer.h"
 #include "nut-route.h"
@@ -261,7 +260,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
   client = (nut_host_t *) hash_get (cfg->net, host);
 
   /* try to connect to this host */
-  if ((sock = sock_connect (ip, port)) != NULL)
+  if ((sock = tcp_connect (ip, port)) != NULL)
     {
       log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
 		  util_inet_ntoa (ip), ntohs (port));

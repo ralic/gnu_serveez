@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.38 2001/01/25 21:22:36 ela Exp $
+ * $Id: control-proto.c,v 1.39 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -56,9 +56,7 @@
 # include <sys/times.h>
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
-#include "coserver/coserver.h"
+#include "libserveez.h"
 #include "control-proto.h"
 
 #if ENABLE_HTTP_PROTO
@@ -468,9 +466,8 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   /* print a standard output */
   sock_printf (sock, 
 	       "\r\nThis is %s version %s running since %s.\r\n", 
-	       serveez_config.program_name, 
-	       serveez_config.version_string,
-	       util_time (serveez_config.start_time));
+	       svz_library, svz_version,
+	       util_time (svz_config.start_time));
 
   /* display compile time feature list */
   sock_printf (sock, "Features  :"
@@ -529,9 +526,9 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 
   /* show general state */
   sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
-	       sock_connections, serveez_config.max_sockets);
+	       sock_connections, svz_config.max_sockets);
   sock_printf (sock, " * uptime is %s\r\n", 
-	       util_uptime (time (NULL) - serveez_config.start_time));
+	       util_uptime (time (NULL) - svz_config.start_time));
 #if ENABLE_DEBUG
   sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
 	       svz_allocated_bytes, svz_allocated_blocks);
@@ -851,11 +848,11 @@ ctrl_handle_request (socket_t sock, char *request, int len)
       if (len <= 2) return -1;
 #if ENABLE_CRYPT && HAVE_CRYPT
       request[len] = '\0';
-      if (!strcmp (crypt (request, serveez_config.server_password), 
-		   serveez_config.server_password))
+      if (!strcmp (crypt (request, svz_config.server_password), 
+		   svz_config.server_password))
 #else
-      if (!memcmp (request, serveez_config.server_password, len) &&
-	  (unsigned) len >= strlen (serveez_config.server_password))
+      if (!memcmp (request, svz_config.server_password, len) &&
+	  (unsigned) len >= strlen (svz_config.server_password))
 #endif
 	{
 	  sock->userflags |= CTRL_FLAG_PASSED;

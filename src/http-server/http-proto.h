@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.15 2000/12/31 00:03:10 ela Exp $
+ * $Id: http-proto.h,v 1.16 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -33,9 +33,6 @@
 #include <stdio.h>
 #include <sys/types.h>
 
-#include "socket.h"
-#include "hash.h"
-#include "server.h"
 #include "http-cache.h"
 
 /*

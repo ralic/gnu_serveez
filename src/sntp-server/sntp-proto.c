@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.2 2000/12/19 19:15:23 ela Exp $
+ * $Id: sntp-proto.c,v 1.3 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -49,9 +49,7 @@
 # include <netinet/in.h>
 #endif
 
-#include "util.h"
-#include "socket.h"
-#include "udp-socket.h"
+#include "libserveez.h"
 #include "sntp-proto.h"
 
 /*

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.23 2001/01/24 15:55:28 ela Exp $
+ * $Id: awcs-proto.c,v 1.24 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -46,8 +46,7 @@
 # include <netinet/in.h>
 #endif
 
-#include <libserveez.h>
-#include "coserver/coserver.h"
+#include "libserveez.h"
 #include "awcs-proto.h"
 
 /*

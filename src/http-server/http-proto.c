@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.53 2001/01/26 14:46:48 ela Exp $
+ * $Id: http-proto.c,v 1.54 2001/01/28 03:26:55 ela Exp $
  *
  */
 
@@ -73,14 +73,12 @@
 # include <netinet/tcp.h>
 #endif
 
-#include <libserveez.h>
-#include "serveez.h"
+#include "libserveez.h"
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cgi.h"
 #include "http-dirlist.h"
 #include "http-cache.h"
-#include "coserver/coserver.h"
 
 /*
  * The http port configuration.
