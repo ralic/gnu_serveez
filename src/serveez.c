@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.17 2000/09/26 18:08:51 ela Exp $
+ * $Id: serveez.c,v 1.18 2000/10/07 16:14:29 ela Exp $
  *
  */
 
@@ -79,7 +79,7 @@ init_config (void)
 static void 
 version (void)
 {
-  fprintf (stderr, "%s %s\n", 
+  fprintf (stdout, "%s %s\n", 
 	   serveez_config.program_name, 
 	   serveez_config.version_string);
 }
@@ -90,7 +90,7 @@ version (void)
 static void 
 usage (void)
 {
-  fprintf (stderr, "usage: serveez [OPTION]...\n"
+  fprintf (stdout, "usage: serveez [OPTION]...\n"
 	   "\n"
 #if HAVE_GETOPT_LONG
  "  -h, --help               display this help and exit\n"

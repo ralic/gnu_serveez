@@ -25,6 +25,9 @@
 AUTOMAKE_OPTIONS = no-texinfo.tex
 
 info_TEXINFOS = serveez.texi
+man_MANS = serveez.1
+
+EXTRA_DIST = $(man_MANS)
 
 CLEANFILES = *.info *.html
 
