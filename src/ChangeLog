@@ -1,5 +1,12 @@
 2001-07-28  [ Ela ]  <ela@lkcc.org>
 
+	* http-server/http-cache.c (http_urgent_cache): LRU detection
+	algorithm has been changed: Using a double chained list for
+	detecting the least recent cache file.
+
+	* ctrl-server/control-proto.c (ctrl_stat_cache): Adapted
+	routine to changes in the http cache.
+
 	* eval-server.scm (prefix): Made prompt, quit command and
 	greeting message configurable.
 

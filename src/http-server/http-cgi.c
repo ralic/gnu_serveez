@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.45 2001/07/05 21:35:26 ela Exp $
+ * $Id: http-cgi.c,v 1.46 2001/07/28 19:35:12 ela Exp $
  *
  */
 
@@ -155,8 +155,7 @@ http_cgi_died (svz_socket_t *sock)
       /* Test if the cgi is still running. */
       if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
 	{
-	  svz_log (LOG_NOTICE, "cgi script pid %d died\n", 
-		   (int) http->pid);
+	  svz_log (LOG_NOTICE, "cgi script pid %d died\n", (int) http->pid);
 	  http->pid = INVALID_HANDLE;
 	}
 #endif /* HAVE_WAITPID */
@@ -384,8 +383,7 @@ http_insert_env (svz_envblock_t env, /* the block to add the variable to */
   /* Unices: */
   if (*length >= ENV_ENTRIES - 1)
     {
-      svz_log (LOG_WARNING, "cgi: all env entries %d filled\n", 
-	       ENV_ENTRIES);
+      svz_log (LOG_WARNING, "cgi: all env entries %d filled\n", ENV_ENTRIES);
     }
   else
     {

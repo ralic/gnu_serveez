@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.54 2001/06/27 20:38:36 ela Exp $
+ * $Id: control-proto.c,v 1.55 2001/07/28 19:35:11 ela Exp $
  *
  */
 
@@ -568,32 +568,25 @@ ctrl_stat_cache (svz_socket_t *sock, int flag, char *arg)
 {
   int n, total, files;
   char *p;
-  http_cache_entry_t **cache;
+  http_cache_entry_t *cache;
 
   svz_sock_printf (sock, "\r\n%s", 
 		   "File                             "
 		   "Size  Usage  Hits Recent Ready\r\n");
 
-  files = total = 0;
-  if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
+  files = total = n = 0;
+  /* go through each cache entry */
+  for (cache = http_cache_first; cache; cache = cache->next, n++)
     {
-      /* go through each cache entry */
-      for (n = 0; n < svz_hash_size (http_cache); n++)
-	{
-	  files++;
-	  total += cache[n]->size;
-	  p = cache[n]->file;
-	  p += strlen (cache[n]->file);
-	  while (*p != '/' && *p != '\\' && p != cache[n]->file) p--;
-	  if (p != cache[n]->file) p++;
-	  svz_sock_printf (sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
-			   cache[n]->size,
-			   cache[n]->usage,
-			   cache[n]->hits,
-			   cache[n]->urgent,
-			   cache[n]->ready ? "Yes" : "No");
-	}
-      svz_hash_xfree (cache);
+      files++;
+      total += cache->size;
+      p = cache->file;
+      p += strlen (cache->file);
+      while (*p != '/' && *p != '\\' && p != cache->file) p--;
+      if (p != cache->file) p++;
+      svz_sock_printf (sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
+		       cache->size, cache->usage, cache->hits, n,
+		       cache->ready ? "Yes" : "No");
     }
 
   /* print cache summary */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.30 2001/07/06 16:40:02 ela Exp $
+ * $Id: http-cache.c,v 1.31 2001/07/28 19:35:12 ela Exp $
  *
  */
 
@@ -52,8 +52,10 @@
 #include "http-core.h"
 #include "http-cache.h"
 
-svz_hash_t *http_cache = NULL; /* actual cache entry hash */
-int http_cache_entries = 0;    /* maximum amount of cache entries */
+svz_hash_t *http_cache = NULL;               /* actual cache entry hash */
+int http_cache_entries = 0;                  /* amount of cache entries */
+http_cache_entry_t *http_cache_first = NULL; /* most recent entry */
+http_cache_entry_t *http_cache_last = NULL;  /* least recent entry */
 
 /*
  * This will initialize the http cache entries.
@@ -79,26 +81,24 @@ http_alloc_cache (int entries)
 void
 http_free_cache (void)
 {
-  int n, total, files;
-  http_cache_entry_t **cache;
+  int total, files;
+  http_cache_entry_t *cache;
 
-  files = 0;
-  total = 0;
-
-  svz_hash_foreach_value (http_cache, cache, n)
+  files = total = 0;
+  for (cache = http_cache_first; cache; cache = cache->next)
     {
-      total += cache[n]->size;
+      total += cache->size;
       files++;
-      svz_free (cache[n]->buffer);
-      svz_free (cache[n]->file);
-      svz_free (cache[n]);
+      svz_free (cache->buffer);
+      svz_free (cache->file);
+      svz_free (cache);
     }
 
   svz_hash_destroy (http_cache);
+  http_cache_first = http_cache_last = NULL;
   http_cache = NULL;
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", 
-	   total, files); 
+  svz_log (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", total, files); 
 #endif
 }
 
@@ -110,7 +110,7 @@ http_free_cache (void)
 static void
 http_cache_consistency (void)
 {
-  int n, i, o;
+  int n, o;
   http_cache_entry_t **cache;
 
   n = 1;
@@ -131,69 +131,82 @@ http_cache_consistency (void)
 	  assert (cache[o]->size >= 0 && 
 		  cache[o]->buffer && cache[o]->hits >= 0);
 	}
-      
-      /* cache urgency must be in a certain range */
-      assert (cache[o]->urgent >= 0 && 
-	      cache[o]->urgent <= svz_hash_size (http_cache));
-      
-      /* find each urgency */
-      for (i = 0; i < svz_hash_size (http_cache); i++)
-	{
-	  if (cache[i]->urgent == n)
-	    {
-	      n++;
-	      break;
-	    }
-	}
-      assert (i != svz_hash_size (http_cache));
     }
 }
 #else /* not ENABLE_DEBUG */
 # define http_cache_consistency()
 #endif /* not ENABLE_DEBUG */
 
+#if ENABLE_DEBUG
+static void
+http_cache_print (void)
+{
+  int n;
+  http_cache_entry_t *entry;
+
+  printf ("cache first: %p\n", http_cache_first);
+  for (n = 0, entry = http_cache_first; entry; entry = entry->next, n++)
+    {
+      printf ("cache entry: %p, prev: %p, next: %p\n",
+	      entry, entry->prev, entry->next);
+    }
+  printf ("cache last: %p\n", http_cache_last);
+}
+#else
+# define http_cache_print()
+#endif /* ENABLE_DEBUG */
+
 /*
- * This function will make the given cache entry CACHE the most recent
+ * Returns the urgency value of the given http cache entry CACHE.
+ */
+int
+http_cache_urgency (http_cache_entry_t *cache)
+{
+  int n;
+  http_cache_entry_t *entry;
+
+  for (n = 0, entry = http_cache_first; entry; entry = entry->next, n++)
+    if (entry == cache)
+      return n;
+  return -1;
+}
+
+/*
+ * This function will make the given cache entry CACHE the most recent 
  * within the whole HTTP file cache. All other used entries will be less
  * urgent afterwards.
  */
 void
 http_urgent_cache (http_cache_entry_t *cache)
 {
-  int n;
-  http_cache_entry_t **caches;
-
-  svz_hash_foreach_value (http_cache, caches, n)
+  if (cache->prev)
     {
-      /* 
-       * make all used cache entries currently being more recent 
-       * than the given entry one tick less urgent
-       */
-      if (cache != caches[n] && caches[n]->urgent > cache->urgent)
-	{
-	  caches[n]->urgent--;
-	}
+      cache->prev->next = cache->next;
+      if (cache->next)
+	cache->next->prev = cache->prev;
+      else
+	http_cache_last = cache->prev;
+      http_cache_first->prev = cache;
+      cache->next = http_cache_first;
+      cache->prev = NULL;
+      http_cache_first = cache;
     }
-  
-  /* set the given cache entry to the most recent one */
-  cache->urgent = svz_hash_size (http_cache);
 }
 
 /*
- * This routine checks if a certain FILE is already within
- * the HTTP file cache. It returns HTTP_CACHE_COMPLETE if it is 
- * already cached and fills in the CACHE entry. This entry will be 
- * additionally the most recent afterwards. 
- * If the given FILE is going to be in the cache then return 
- * HTTP_CACHE_INCOMPLETE, return HTTP_CACHE_NO if it is not at all 
- * in the cache.
+ * This routine checks if a certain FILE is already within the HTTP file 
+ * cache. It returns HTTP_CACHE_COMPLETE if it is already cached and fills 
+ * in the CACHE entry. This entry will be additionally the most recent 
+ * afterwards. If the given FILE is going to be in the cache then return 
+ * HTTP_CACHE_INCOMPLETE, return HTTP_CACHE_NO if it is not at all in the 
+ * cache.
  */
 int
 http_check_cache (char *file, http_cache_t *cache)
 {
   http_cache_entry_t *cachefile;
-  cache->entry = NULL;
 
+  cache->entry = NULL;
   if ((cachefile = svz_hash_get (http_cache, file)) != NULL)
     {
       /* set this entry to the most recent, ready or not  */
@@ -210,8 +223,7 @@ http_check_cache (char *file, http_cache_t *cache)
 	  return HTTP_CACHE_COMPLETE;
 	}
       /* not but is going to be ... */
-      else
-	return HTTP_CACHE_INCOMPLETE;
+      return HTTP_CACHE_INCOMPLETE;
     }
   return HTTP_CACHE_NO;
 }
@@ -230,28 +242,35 @@ http_cache_create_entry (void)
 }
 
 /*
- * Destroy an existing http cache entry and remove it from the cache
- * hash. Therefore we must make this entry the most urgent one in order
- * to lower the urgency of all other cache entries.
+ * Destroy an existing http cache entry and remove it from the cache hash. 
  */
 static void
 http_cache_destroy_entry (http_cache_entry_t *cache)
 {
-  http_urgent_cache (cache);
   http_cache_consistency ();
 
+  /* Delete cache entry from hash. */
   if (svz_hash_delete (http_cache, cache->file) != cache)
-    {
-      svz_log (LOG_ERROR, "cache: inconsistent http hash\n");
-    }
-  if (cache->buffer) 
+    svz_log (LOG_FATAL, "cache: inconsistent http hash\n");
+
+  /* Update the double chained list of entries. */
+  if (cache->prev)
+    cache->prev->next = cache->next;
+  else
+    http_cache_first = cache->next;
+  if (cache->next)
+    cache->next->prev = cache->prev;
+  else
+    http_cache_last = cache->prev;
+
+  if (cache->buffer)
     svz_free (cache->buffer);
   svz_free (cache->file);
   svz_free (cache);
 }
 
 /*
- * Reset the cache entry of a http sockets cache structre.
+ * Reset the cache entry of a http sockets cache structure.
  */
 static void
 http_cache_reset (http_cache_t *cache)
@@ -291,18 +310,13 @@ http_cache_disconnect (svz_socket_t *sock)
 int
 http_init_cache (char *file, http_cache_t *cache)
 {
-  int n;
-  int urgent;
-  http_cache_entry_t *slot = NULL;
-  http_cache_entry_t **caches;
-
-  urgent = svz_hash_size (http_cache);
+  http_cache_entry_t *entry, *slot = NULL;
 
   /* 
    * If there are still empty cache entries then create a 
    * new cache entry.
    */
-  if (urgent < http_cache_entries)
+  if (svz_hash_size (http_cache) < http_cache_entries)
     {
       slot = http_cache_create_entry ();
     }
@@ -313,15 +327,12 @@ http_init_cache (char *file, http_cache_t *cache)
    */
   else
     {
-      svz_hash_foreach_value (http_cache, caches, n)
-	{
-	  if (caches[n]->urgent <= urgent && 
-	      !caches[n]->usage && caches[n]->ready)
-	    {
-	      slot = caches[n];
-	      urgent = slot->urgent;
-	    }
-	}
+      for (entry = http_cache_last; entry; entry = entry->prev)
+	if (!entry->usage && entry->ready)
+	  {
+	    slot = entry;
+	    break;
+	  }
 
       /* not a "reinitialable" cache entry found */
       if (!slot) 
@@ -338,7 +349,11 @@ http_init_cache (char *file, http_cache_t *cache)
 
   svz_hash_put (http_cache, file, slot);
   slot->file = svz_strdup (file);
-  slot->urgent = svz_hash_size (http_cache);
+  if ((slot->next = http_cache_first) == NULL)
+    http_cache_last = slot;
+  else
+    http_cache_first->prev = slot;
+  http_cache_first = slot;
 
   /*
    * initialize the cache entry for the cache file reader: cachebuffer 

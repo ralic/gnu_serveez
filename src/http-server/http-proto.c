@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.73 2001/07/11 18:02:59 ela Exp $
+ * $Id: http-proto.c,v 1.74 2001/07/28 19:35:12 ela Exp $
  *
  */
 
@@ -944,7 +944,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
 	       cache->entry->size - cache->size, cache->entry->size,
 	       cache->entry->usage,
 	       cache->entry->hits,
-	       cache->entry->urgent,
+	       http_cache_urgency (cache->entry),
 	       cache->entry->ready ? "yes" : "no",
 	       http_asc_date (cache->entry->date));
       strcat (info, text);
@@ -1041,8 +1041,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 	  if ((dir = http_dirlist (file, cfg->docs, 
 				   status ? request : NULL)) == NULL)
 	    {
-	      svz_log (LOG_ERROR, "http: dirlist: %s: %s\n", 
-		       file, SYS_ERROR);
+	      svz_log (LOG_ERROR, "http: dirlist: %s: %s\n", file, SYS_ERROR);
 	      svz_sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
 	      http_error_response (sock, 404);
 	      sock->userflags |= HTTP_FLAG_DONE;

@@ -1,7 +1,7 @@
 /*
  * http-cache.h - http protocol cache header file
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.8 2001/05/19 23:04:56 ela Exp $
+ * $Id: http-cache.h,v 1.9 2001/07/28 19:35:12 ela Exp $
  *
  */
 
@@ -42,18 +42,19 @@
 /*
  * This structure contains the info for a cached file.
  */
-typedef struct
+typedef struct http_cache_entry http_cache_entry_t;
+struct http_cache_entry
 {
-  char *buffer;    /* pointer to cache buffer */
-  int size;        /* cache buffer size (size of file) */
-  char *file;      /* actual filename */
-  time_t date;     /* date of last modification */
-  int urgent;      /* lesser values refer to older entries */
-  int usage;       /* how often this is currently used */
-  int hits;        /* cache hits */
-  int ready;       /* this flag indicates if the entry is ok */
-}
-http_cache_entry_t;
+  http_cache_entry_t *next; /* next in list */
+  http_cache_entry_t *prev; /* previous in list */
+  char *buffer;             /* pointer to cache buffer */
+  int size;                 /* cache buffer size (size of file) */
+  char *file;               /* actual filename */
+  time_t date;              /* date of last modification */
+  int usage;                /* how often this is currently used */
+  int hits;                 /* cache hits */
+  int ready;                /* this flag indicates if the entry is ok */
+};
 
 /*
  * The http_cache_t type is a structure containing the info
@@ -72,6 +73,8 @@ http_cache_t;
  */
 extern svz_hash_t *http_cache;
 extern int http_cache_entries;
+extern http_cache_entry_t *http_cache_first;
+extern http_cache_entry_t *http_cache_last;
 
 /*
  * Basic http cache functions.
@@ -79,6 +82,7 @@ extern int http_cache_entries;
 void http_alloc_cache (int entries);
 void http_free_cache (void);
 void http_refresh_cache (http_cache_t *cache);
+int http_cache_urgency (http_cache_entry_t *cache);
 int http_init_cache (char *file, http_cache_t *cache);
 int http_check_cache (char *file, http_cache_t *cache);
 int http_cache_write (svz_socket_t *sock);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.38 2001/07/05 21:35:26 ela Exp $
+ * $Id: http-core.c,v 1.39 2001/07/28 19:35:12 ela Exp $
  *
  */
 
@@ -225,7 +225,7 @@ http_userdir (svz_socket_t *sock, char *uri)
 
 /*
  * When the http server has been configured to invoke identd request
- * this function is called for each client connection after successfull
+ * this function is called for each client connection after successful
  * identification.
  */
 int
@@ -450,7 +450,7 @@ http_set_header (char *response)
 
 /*
  * Create a http content range if the given line specifies a valid one.
- * Return zero on succes and -1 on errors.
+ * Return zero on success and -1 on errors.
  */
 int
 http_get_range (char *line, http_range_t *range)
@@ -697,8 +697,8 @@ http_clf_date (time_t t)
 	   tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
 	   tm->tm_hour, tm->tm_min, tm->tm_sec,
 	   timezone > 0 ? '+' : '-',
-	   timezone > 0 ? timezone / 3600 : - timezone / 3600,
-	   timezone > 0 ? (timezone / 60) % 60 : - (timezone / 60) % 60);
+	   timezone > 0 ? timezone / 3600 : -timezone / 3600,
+	   timezone > 0 ? (timezone / 60) % 60 : -(timezone / 60) % 60);
   return date;
 }
 
@@ -908,7 +908,7 @@ void
 http_free_types (http_config_t *cfg)
 {
 #if 0
-  /* FIXME: Is that still neccessary ? */
+  /* FIXME: Is that still necessary ? */
   char **type;
   int n;
 
