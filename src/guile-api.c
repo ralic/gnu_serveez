@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.3 2001/11/02 16:09:49 ela Exp $
+ * $Id: guile-api.c,v 1.4 2001/11/04 14:18:10 ela Exp $
  *
  */
 
@@ -51,7 +51,8 @@
    @code{PROTO_UDP} and @code{PROTO_ICMP}. The @var{host} argument must be 
    either a string in dotted decimal form or a exact number in network byte 
    order. The @var{port} argument must be a exact number in the range from 
-   0 to 65535. Returns a valid @code{svz-socket} or @code{#f} on failure. */
+   0 to 65535. Returns a valid @code{#<svz-socket>} or @code{#f} on 
+   failure. */
 #define FUNC_NAME "svz:sock:connect"
 SCM
 guile_sock_connect (SCM host, SCM proto, SCM port)
@@ -228,7 +229,7 @@ guile_sock_receive_buffer (SCM sock)
 #undef FUNC_NAME
 
 /* Dequeue @var{length} bytes from the receive buffer of the socket 
-   @var{sock} which must be a valid @code{<svz-socket>}. If the user omits
+   @var{sock} which must be a valid @code{#<svz-socket>}. If the user omits
    the optional @var{length} argument all of the data in the receive buffer
    gets dequeued. Returns the number of bytes actually shuffled away. */
 #define FUNC_NAME "svz:sock:receive-buffer-reduce"
@@ -314,6 +315,60 @@ guile_sock_local_address (SCM sock, SCM address)
 }
 #undef FUNC_NAME
 
+/* Return the given sockets @var{sock} parent and optionally set it to the
+   socket @var{parent}. The procedure returns either a valid 
+   @code{#<svz-socket>} or an empty list (@code{()}). */
+#define FUNC_NAME "svz:sock:parent"
+static SCM
+guile_sock_parent (SCM sock, SCM parent)
+{
+  SCM oparent = SCM_EOL;
+  svz_socket_t *xsock, *xparent;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  if ((xparent = svz_sock_getparent (xsock)) != NULL)
+    oparent = MAKE_SMOB (svz_socket, xparent);
+  if (!gh_eq_p (parent, SCM_UNDEFINED))
+    {
+      CHECK_SMOB_ARG (svz_socket, parent, SCM_ARG2, "svz-socket", xparent);
+      svz_sock_setparent (xsock, xparent);
+    }
+  return oparent;
+}
+#undef FUNC_NAME
+
+/* Return the given sockets @var{sock} referrer and optionally set it to the
+   socket @var{referrer}. The procedure returns either a valid 
+   @code{#<svz-socket>} or an empty list (@code{()}). */
+#define FUNC_NAME "svz:sock:referrer"
+static SCM
+guile_sock_referrer (SCM sock, SCM referrer)
+{
+  SCM oreferrer = SCM_EOL;
+  svz_socket_t *xsock, *xreferrer;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  if ((xreferrer = svz_sock_getreferrer (xsock)) != NULL)
+    oreferrer = MAKE_SMOB (svz_socket, xreferrer);
+  if (!gh_eq_p (referrer, SCM_UNDEFINED))
+    {
+      CHECK_SMOB_ARG (svz_socket, referrer, SCM_ARG2, "svz-socket", xreferrer);
+      svz_sock_setreferrer (xsock, xreferrer);
+    }
+  return oreferrer;
+}
+#undef FUNC_NAME
+
+/* Returns @code{#t} if the given cell @var{sock} is an instance of a valid
+   @code{#<svz-socket>}, otherwise @code{#f}. */
+#define FUNC_NAME "svz:sock?"
+static SCM
+guile_sock_p (SCM sock)
+{
+  return CHECK_SMOB (svz_socket, sock) ? SCM_BOOL_T : SCM_BOOL_F;
+}
+#undef FUNC_NAME
+
 /* Set the @code{disconnected_socket} member of the socket structure 
    @var{sock} to the guile procedure @var{proc}. The given callback
    runs whenever the socket is lost for some external reason. The procedure 
@@ -336,6 +391,9 @@ guile_api_init (void)
   gh_new_procedure ("svz:ntohl", guile_svz_ntohl, 1, 0, 0);
   gh_new_procedure ("svz:inet-aton", guile_svz_inet_aton, 1, 0, 0);
   gh_new_procedure ("svz:inet-ntoa", guile_svz_inet_ntoa, 1, 0, 0);
+  gh_new_procedure ("svz:sock:parent", guile_sock_parent, 1, 1, 0);
+  gh_new_procedure ("svz:sock:referrer", guile_sock_referrer, 1, 1, 0);
+  gh_new_procedure ("svz:sock?", guile_sock_p, 1, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer", 
 		    guile_sock_receive_buffer, 1, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer-reduce",

@@ -1,3 +1,8 @@
+2001-11-04  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (svz:sock:referrer, svz:sock:parent, svz:sock?): 
+	New Guile procedures.
+
 2001-11-02  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (svz:inet-ntoa, svz:inet-aton, svz:htons,

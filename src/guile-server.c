@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.26 2001/11/02 16:09:49 ela Exp $
+ * $Id: guile-server.c,v 1.27 2001/11/04 14:18:10 ela Exp $
  *
  */
 
@@ -516,7 +516,7 @@ guile_sock_clear_boundary (svz_socket_t *sock)
   sock->boundary_size = 0;
 }
 
-/* Wrapper for the socket disconnected callback.  Used here in order to
+/* Wrapper for the socket disconnected callback. Used here in order to
    delete the additional guile callbacks associated with the disconnected
    socket structure. */
 static int
@@ -807,8 +807,8 @@ guile_sock_print (SCM sock, SCM buffer)
 #undef FUNC_NAME
 
 /* Associate any kind of data (any guile data type) given in the argument
-   @var{data} with the socket @var{sock}.  The @var{data} argument is
-   optional.  The procedure always returns a previously stored value or an 
+   @var{data} with the socket @var{sock}. The @var{data} argument is
+   optional. The procedure always returns a previously stored value or an 
    empty list. */
 #define FUNC_NAME "svz:sock:data"
 SCM
