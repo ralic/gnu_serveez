@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.10 2001/06/29 14:23:10 ela Exp $
+ * $Id: core.h,v 1.11 2001/09/13 13:28:54 ela Exp $
  *
  */
 
@@ -56,7 +56,7 @@ SERVEEZ_API int svz_socket_connect __P ((SOCKET, unsigned long,
 SERVEEZ_API SOCKET svz_socket_create __P ((int));
 SERVEEZ_API char *svz_inet_ntoa __P ((unsigned long));
 SERVEEZ_API int svz_inet_aton __P ((char *, struct sockaddr_in *));
-SERVEEZ_API int svz_sendfile __P ((int, int, long int *, unsigned int));
+SERVEEZ_API int svz_sendfile __P ((int, int, off_t *, unsigned int));
 SERVEEZ_API int svz_open __P ((const char *, int, unsigned int));
 SERVEEZ_API int svz_close __P ((int));
 SERVEEZ_API int svz_fstat __P ((int, struct stat *));

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.19 2001/07/12 07:52:42 ela Exp $
+ * $Id: core.c,v 1.20 2001/09/13 13:28:54 ela Exp $
  *
  */
 
@@ -379,7 +379,7 @@ svz_tcp_cork (SOCKET fd, int set)
  * read/written or -1 on errors.
  */
 int
-svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
+svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 {
 #ifndef ENABLE_SENDFILE
   svz_log (LOG_ERROR, "sendfile() disabled\n");
@@ -395,14 +395,14 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
      of the remaining arguments. We definitely know that there must be
      some kind of pointer (maybe specifying head and tail). */
 
-  ret = sendfile (out_fd, in_fd, (off_t) *offset, count, NULL, NULL, 0);
+  ret = sendfile (out_fd, in_fd, *offset, count, NULL, NULL, 0);
   *offset += ((ret >= 0) ? ret : 0);
 
 #elif defined (__FreeBSD__)
 
   /* This was tested for FreeBSD4.3 on alpha. */
   off_t sbytes;
-  ret = sendfile (in_fd, out_fd, (off_t) *offset, count, NULL, &sbytes, 0);
+  ret = sendfile (in_fd, out_fd, *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
 
@@ -470,7 +470,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 #else 
 
   /* Linux here. Works like charme... */
-  ret = sendfile (out_fd, in_fd, (off_t *) offset, count);
+  ret = sendfile (out_fd, in_fd, offset, count);
 
 #endif
   return ret;
@@ -492,7 +492,7 @@ svz_file_add (int fd)
 {
   if (svz_files == NULL)
     svz_files = svz_array_create (1);
-  svz_array_add (svz_files, (void *) ((long) fd));
+  svz_array_add (svz_files, SVZ_NUM2PTR (fd));
 }
 
 /* Delete a file descriptor from the list. */
@@ -504,7 +504,7 @@ svz_file_del (int fd)
 
   svz_array_foreach (svz_files, val, n)
     {
-      if (val == (void *) ((long) fd))
+      if (val == SVZ_NUM2PTR (fd))
 	{
 	  svz_array_del (svz_files, n);
 	  break;
@@ -529,7 +529,7 @@ svz_file_closeall (void)
   unsigned long n;
 
   svz_array_foreach (svz_files, fd, n)
-    close ((int) ((long) fd));
+    close ((int) SVZ_PTR2NUM (fd));
 }
 #endif /* not __MINGW32__ */
 

@@ -1,3 +1,8 @@
+2001-09-13  [ Ela ]  <ela@lkcc.org>
+
+	* passthrough.c: Added extern declaration of the variable
+	`environ' on Unices.
+
 2001-09-12  [ Ela ]  <ela@lkcc.org>
 
 	* util.h (SVZ_NUM2PTR, SVZ_PTR2NUM): Converter macros between

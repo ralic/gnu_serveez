@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.6 2001/08/05 06:14:49 ela Exp $
+ * $Id: passthrough.c,v 1.7 2001/09/13 13:28:54 ela Exp $
  *
  */
 
@@ -35,6 +35,10 @@
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
+extern char ** environ;
 #endif
 
 #ifdef __MINGW32__

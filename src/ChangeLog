@@ -1,3 +1,7 @@
+2001-09-13  [ Ela ]  <ela@lkcc.org>
+
+	* svzconfig.h.in: Reintroduced definition of `off_t'.
+
 2001-09-12  [ Ela ]  <ela@lkcc.org>
 
 	* guile-bin.h (scm_wrong_type_arg_msg): Defined some

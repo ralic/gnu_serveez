@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.75 2001/07/31 10:15:01 ela Exp $
+ * $Id: http-proto.c,v 1.76 2001/09/13 13:28:54 ela Exp $
  *
  */
 
@@ -914,7 +914,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
   if (sock->userflags & HTTP_FLAG_SENDFILE)
     {
       sprintf (text, "  * delivering via sendfile() (offset: %lu)\r\n",
-	       http->fileoffset);
+	       (unsigned long) http->fileoffset);
       strcat (info, text);
     }
 #endif /* HAVE_SENDFILE || __MINGW32__ */
