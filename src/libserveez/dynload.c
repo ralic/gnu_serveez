@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.1 2001/02/04 11:48:52 ela Exp $
+ * $Id: dynload.c,v 1.2 2001/02/05 08:52:35 ela Exp $
  *
  */
 
@@ -29,6 +29,15 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
+#if HAVE_DL_H
+# include <dl.h>
+#endif
+#ifdef __BEOS__
+# include <kernel/image.h>
+#endif
+#if HAVE_DLD_H
+# include <dld.h>
+#endif
 #if HAVE_DLFCN_H
 # include <dlfcn.h>
 # ifndef RTLD_GLOBAL
@@ -104,6 +113,12 @@ dyn_load_library (char *file)
   /* try open the library */
 #if HAVE_DLOPEN
   handle = dlopen (file, RTLD_NOW | RTLD_GLOBAL);
+#elif defined (__BEOS__)
+  handle = load_add_on (file);
+  if ((image_id) handle <= 0)
+    handle = NULL;
+#elif HAVE_DLD_LINK
+  handle = dld_link (file);
 #elif defined (__MINGW32__)
   handle = LoadLibrary (file);
 #elif HAVE_SHL_LOAD
@@ -158,6 +173,10 @@ dyn_unload_library (dyn_library_t *lib)
 	handle = lib->handle;
 #if HAVE_DLOPEN
 	err = dlclose (handle);
+#elif defined (__BEOS__)
+	err = (unload_add_on ((image_id) handle) != B_OK);
+#elif HAVE_DLD_LINK
+	err = dld_unlink_by_file (lib->file);
 #elif defined (__MINGW32__)
 	err = FreeLibrary (handle);
 #elif HAVE_SHL_LOAD
@@ -165,7 +184,8 @@ dyn_unload_library (dyn_library_t *lib)
 #endif
 	if (err)
 	  {
-	    log_printf (LOG_ERROR, "unload: %s (%s)", dyn_error (), lib->file);
+	    log_printf (LOG_ERROR, "unload: %s (%s)", dyn_error (), 
+			lib->file);
 	    return -1;
 	  }
 
@@ -202,6 +222,12 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
       {
 #if HAVE_DLOPEN
 	address = dlsym (lib->handle, symbol);
+#elif defined (__BEOS__)
+	if (get_image_symbol ((image_id) lib->handle, symbol, 
+			      B_SYMBOL_TYPE_ANY, &address) != B_OK)
+	  address = NULL;
+#elif HAVE_DLD_LINK
+	address = dld_get_func (symbol);
 #elif defined (__MINGW32__)
 	address = GetProcAddress (lib->handle, symbol);
 #elif HAVE_SHL_LOAD

@@ -895,8 +895,12 @@ AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
   getpwnam gettimeofday shl_load)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
-  netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h)
+  netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h)
 AC_HEADER_DIRENT
+
+dnl
+dnl Checking for shared library loading interface. 
+dnl
 
 have_dlopen="no"
 AC_CHECK_FUNC(dlopen, have_dlopen="yes",
@@ -909,7 +913,13 @@ AC_CHECK_FUNC(dlopen, have_dlopen="yes",
 
 if test $have_dlopen = "yes"; then
     AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
+else
+    AC_CHECK_LIB(dld, dld_link,
+    AC_DEFINE(HAVE_DLD_LINK, 1, [Define if you have the dld_link function.])
+    EXTRALIBS="$EXTRALIBS -ldld")
 fi
+
+unset have_dlopen
 
 dnl ----------------------------------------------------------------------
 

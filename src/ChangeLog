@@ -1,3 +1,8 @@
+2001-02-05  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/dynload.c (dyn_load_library): Added support for
+	GNU dld library and Beos's load_add_on() interface.
+
 2001-02-04  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/dynload.c: Stuffed the dynamic loading interface
