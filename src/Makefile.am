@@ -24,7 +24,14 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez
+EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
+	serveez.m4
+
+#
+# Installation of the autoconf macro used to locate Serveez
+#
+aclocaldir = $(datadir)/aclocal
+aclocal_DATA = serveez.m4
 
 #
 # Add your server subdirectory here

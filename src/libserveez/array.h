@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.8 2001/05/22 21:06:41 ela Exp $
+ * $Id: array.h,v 1.9 2001/06/10 15:39:01 ela Exp $
  *
  */
 
@@ -40,25 +40,21 @@ svz_array_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_array_t * svz_array_create __P ((unsigned long capacity));
-SERVEEZ_API void svz_array_clear __P ((svz_array_t *array));
-SERVEEZ_API void svz_array_destroy __P ((svz_array_t *array));
-SERVEEZ_API void *svz_array_get __P ((svz_array_t *array, 
-				      unsigned long index));
-SERVEEZ_API void *svz_array_set __P ((svz_array_t *array, unsigned long index, 
-				      void *value));
-SERVEEZ_API void svz_array_add __P ((svz_array_t *array, void *value));
-SERVEEZ_API void *svz_array_del __P ((svz_array_t *array, 
-				      unsigned long index));
-SERVEEZ_API unsigned long svz_array_capacity __P ((svz_array_t *array));
-SERVEEZ_API unsigned long svz_array_size __P ((svz_array_t *array));
-SERVEEZ_API unsigned long svz_array_ins __P ((svz_array_t *array, 
-					      unsigned long index, 
-					      void *value));
-SERVEEZ_API unsigned long svz_array_idx __P ((svz_array_t *array, 
-					      void *value));
-SERVEEZ_API unsigned long svz_array_contains __P ((svz_array_t *array, 
-						   void *value));
+SERVEEZ_API svz_array_t * svz_array_create __P ((unsigned long));
+SERVEEZ_API void svz_array_clear __P ((svz_array_t *));
+SERVEEZ_API void svz_array_destroy __P ((svz_array_t *));
+SERVEEZ_API void *svz_array_get __P ((svz_array_t *, unsigned long));
+SERVEEZ_API void *svz_array_set __P ((svz_array_t *, unsigned long, void *));
+SERVEEZ_API void svz_array_add __P ((svz_array_t *, void *));
+SERVEEZ_API void *svz_array_del __P ((svz_array_t *, unsigned long));
+SERVEEZ_API unsigned long svz_array_capacity __P ((svz_array_t *));
+SERVEEZ_API unsigned long svz_array_size __P ((svz_array_t *));
+SERVEEZ_API unsigned long svz_array_ins __P ((svz_array_t *, unsigned long, 
+					      void *));
+SERVEEZ_API unsigned long svz_array_idx __P ((svz_array_t *, void *));
+SERVEEZ_API unsigned long svz_array_contains __P ((svz_array_t *, void *));
+SERVEEZ_API svz_array_t *svz_array_dup __P ((svz_array_t *));
+SERVEEZ_API svz_array_t *svz_array_strdup __P ((svz_array_t *));
 
 __END_DECLS
 
@@ -184,6 +180,31 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
   return index;
 }
 
+static inline svz_array_t *
+svz_array_dup (svz_array_t *array)
+{
+  svz_array_t *dup;
+  if (array == NULL)
+    return NULL;
+  dup = svz_malloc (((unsigned long) array[1] + 2) * sizeof (void *));
+  memcpy (dup, array, ((unsigned long) array[1] + 2) * sizeof (void *));
+  return dup;
+}
+
+static inline svz_array_t *
+svz_array_strdup (svz_array_t *array)
+{
+  svz_array_t *dup;
+  unsigned long n;
+  if (array == NULL)
+    return NULL;
+  dup = svz_malloc (((unsigned long) array[1] + 2) * sizeof (void *));
+  memcpy (dup, array, 2 * sizeof (void *));
+  for (n = 2; n < (unsigned long) array[0] + 2; n++)
+    dup[n] = svz_strdup (array[n]);
+  return dup;
+}
+
 #endif /* not ENABLE_DEBUG */
 
 /*
@@ -195,6 +216,6 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
 #define svz_array_foreach(array, value, i)                             \
   for ((i) = 0, (value) = (array) ? svz_array_get ((array), 0) : NULL; \
        (array) && (unsigned long) i < svz_array_size (array);          \
-       (value) = svz_array_get ((array), ++(i)))
+       ++(i), (value) = svz_array_get ((array), (i)))
 
 #endif /* not __ARRAY_H__ */

@@ -60,7 +60,7 @@ file `serveez.dsw' which contains both of the project files with the right
 depedencies. There are generally two versions of the projects. These are
 "Dbg" and "Opt". Choose either of the "Debug" or "Release" version of the
 serveez project and compile. That's it. After all you will have the 
-`serveez.exe' binary which depends on the `libguile.dll'.
+`serveez.exe' binary which depends on the `libserveez.dll'.
 
    All of the prebuild `version.h's and `config.h's have been created with
 a current Cygwin installation. You might create them on your own if you want

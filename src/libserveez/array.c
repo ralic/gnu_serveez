@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.6 2001/05/22 21:06:41 ela Exp $
+ * $Id: array.c,v 1.7 2001/06/10 15:39:01 ela Exp $
  *
  */
 
@@ -238,6 +238,45 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
   array->data[index] = value;
   array->size++;
   return index;
+}
+
+/*
+ * This function replicates the given array @var{varray}. It returns
+ * @code{NULL} if there is nothing to do and an identical copy if the
+ * array otherwise.
+ */
+svz_array_t *
+svz_array_dup (svz_array_t *array)
+{
+  svz_array_t *dup;
+
+  if (array == NULL)
+    return NULL;
+  dup = svz_array_create (array->size);
+  dup->size = array->size;
+  if (array->size)
+    memcpy (dup->data, array->data, array->size * sizeof (void *));
+  return dup;
+}
+
+/*
+ * This function works something like @code{svz_array_dup()} but considers
+ * the values within the array @var{array} to be zero-terminated character 
+ * strings and duplicates these via @code{svz_strdup()}.
+ */
+svz_array_t *
+svz_array_strdup (svz_array_t *array)
+{
+  svz_array_t *dup;
+  unsigned long n;
+
+  if (array == NULL)
+    return NULL;
+  dup = svz_array_create (array->size);
+  dup->size = array->size;
+  for (n = 0; n < array->size; n++)
+    dup->data[n] = svz_strdup (array->data[n]);
+  return dup;
 }
 
 #endif /* not ENABLE_DEBUG */

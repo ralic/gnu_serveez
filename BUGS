@@ -27,7 +27,7 @@ send Serveez bug reports to <bug-serveez@gnu.org>.
 
 Bug:	     B0017
 From:	     ela <stefan@lkcc.org>
-State:       fixed
+State:       fixed (2001-05-04/ela)
 Date:	     2000-11-11
 Description: There is no standard raw socket support in the Winsock API.
 	     Maybe we should use the ICMP.DLL API instead ? 

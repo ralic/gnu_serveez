@@ -28,6 +28,7 @@ files.
 Version 0.1.0
 -------------
 
+ * semi-automatically created core API documentation added
  * using Guile as configuration language, dropped Sizzle
  * coservers are now integral part of the core library
  * embeddable library created

@@ -1,3 +1,8 @@
+2001-06-10  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (aclocal_DATA): Added the `serveez.m4' autoconf
+	script.
+
 2001-06-04  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am ($(GUILE_RULE)): Now possible to create a static

@@ -61,13 +61,16 @@ order to write Internet protocol servers (currently TCP, UDP, ICMP and RAW
 sockets), pipe servers (connection oriented via a pair of named pipes) and 
 coservers in a portable way. All of the included servers coming with this
 package are based upon this library. It encapsulates the native network and 
-filesystem programming interface of different Unices and Windows systems.
+file system programming interface of different Unices and Windows systems.
 
 The Serveez embedding manual and the API documentation will give the reader
 an overview about how to use its core library.
 
 @node Embedding Serveez, Embedding API, Introduction, Top
 @chapter Embedding Serveez
+
+This chapter deals with embedding the Serveez core library into standalone
+C/C++ applications and using it in order to write additional servers.
 
 @menu
 * Compiling and linking::      How to compile and link against the library
@@ -161,7 +164,7 @@ feature if you consider servers being long term programs.
 The three allocator function pointers for @code{malloc()}, @code{realloc()}
 and @code{free()} make it possible to instruct Serveez to use different
 kinds of memory, which might be necessary if you want the library to work
-with shared memory arenas.
+with shared memory arenas or any other underlying memory API.
 
 SVZ_MALLOC_FUNC_DEFVAR
 SVZ_REALLOC_FUNC_DEFVAR
@@ -202,7 +205,7 @@ which come with Serveez make extensive use of them.
 @subsection Array functions
 
 The array data structure is a simple array implementation. Each array has got
-a size and capacity. The array indices range from zero to the array's size 
+a size and capacity. The array indices range from zero to the arrays size 
 minus one. You can put any kind of data into this array which fits into the
 size of a pointer. The array automatically grows if necessary.
 
@@ -219,6 +222,8 @@ SVZ_ARRAY_INS_DEFUN
 SVZ_ARRAY_IDX_DEFUN
 SVZ_ARRAY_CONTAINS_DEFUN
 SVZ_ARRAY_FOREACH_DEFMAC
+SVZ_ARRAY_STRDUP_DEFUN
+SVZ_ARRAY_DUP_DEFUN
 
 @node Hashtable, Sparsevector, Array, Data structures
 @subsection Hashtable functions
@@ -327,6 +332,10 @@ SVZ_SNPRINTF_DEFUN
 @node Core functions, Client connections, Utility functions, Embedding API
 @section Networking and other low level functions
 
+The following chapter deals with the basic networking and file systems
+functions. It encapsulates systems calls in a portable manner. These 
+functions should behave identical on Windows and Unices.
+
 SVZ_INET_NTOA_DEFUN
 SVZ_INET_ATON_DEFUN
 SVZ_SOCKET_CONNECT_DEFUN
@@ -343,6 +352,12 @@ SVZ_FCLOSE_DEFUN
 
 @node Client connections, Socket, Core functions, Embedding API
 @section Client connections
+
+Serveez tries to handle all kinds of Internet protocols like TCP (connection
+oriented), UDP, ICMP and RAW (packet oriented) and communication across
+named pipes (also connection oriented) in the same way. Therefore it uses
+a structure called @code{svz_socket_t} which is the abstraction of any kind
+of communication endpoint (can be client or server or both together).
 
 @menu
 * TCP sockets::           TCP socket functions
@@ -629,7 +644,7 @@ SVZ_PIPE_ACCEPT_DEFUN
 @node PortConfig, Booting, Server, Embedding API
 @section Port configurations
 
-A port configuration is a structure defining a network or filesystem
+A port configuration is a structure defining a network or file system
 configuration. Depending on the type of a server it can be bound to one
 or more port configurations. There are two major types of port 
 configurations: connection and packet oriented protocol port configurations.
@@ -639,7 +654,7 @@ RAW configurations are packet oriented.
 Serveez holds a list of port configurations. Each configuration is 
 identified by its name. When you bind a server to a port configuration it
 does not get bound to a certain name but to its content. If there are two
-or more port configuration specifying the same network or filesystem 
+or more port configuration specifying the same network or file system 
 configuration just a single one gets actually used.
 
 SVZ_PORTCFG_EQUAL_DEFUN
@@ -722,3 +737,5 @@ SVZ_WINDOZE_SET_REG_STRING_DEFUN
 
 @contents
 @bye
+
+@c  LocalWords:  Serveez API

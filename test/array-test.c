@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array-test.c,v 1.5 2001/04/05 22:08:44 ela Exp $
+ * $Id: array-test.c,v 1.6 2001/06/10 15:39:01 ela Exp $
  *
  */
 
@@ -33,6 +33,7 @@
 
 #define SERVEEZ_API
 #include "libserveez/alloc.h"
+#include "libserveez/util.h"
 #include "libserveez/array.h"
 #include "test.h"
 
@@ -54,7 +55,7 @@ int
 main (int argc, char **argv)
 {
   int result = 0;
-  svz_array_t *array;
+  svz_array_t *array, *dup;
   long n, error, i;
   void *value;
 
@@ -90,7 +91,7 @@ main (int argc, char **argv)
   svz_array_foreach (array, value, n)
     if (value != (void *) (n + 1))
       error++;
-  if (n != REPEAT)
+  if (n != REPEAT || (unsigned long) n != svz_array_size (array))
     error++;
   test (error);
 
@@ -258,6 +259,57 @@ main (int argc, char **argv)
   test_print (" ");
   test (error);
 
+  /* replication */
+  test_print ("       dup: ");
+  svz_array_clear (array);
+  for (n = 0; n < REPEAT; n++)
+    svz_array_add (array, (void *) n);
+  error = 0;
+  if ((dup = svz_array_dup (NULL)) != NULL)
+    error++;
+  if ((dup = svz_array_dup (array)) == NULL)
+    error++;
+  if (svz_array_size (array) != svz_array_size (dup))
+    error++;
+  svz_array_foreach (dup, value, i)
+    if (value != (void *) i)
+      error++;
+  svz_array_destroy (dup);
+  test (error);
+  
+  /* replication */
+  test_print ("    strdup: ");
+  error = 0;
+  svz_array_clear (array);
+  for (n = 0; n < REPEAT; n++)
+    svz_array_add (array, NULL);
+  if ((dup = svz_array_strdup (NULL)) != NULL)
+    error++;
+  if ((dup = svz_array_strdup (array)) == NULL)
+    error++;
+  if (svz_array_size (dup) != svz_array_size (array))
+    error++;
+  svz_array_foreach (dup, value, i)
+    if (value != NULL)
+      error++;
+  svz_array_destroy (dup);
+  svz_array_clear (array);
+  for (n = 0; n < REPEAT; n++)
+    svz_array_add (array, svz_strdup (svz_itoa (n)));
+  if ((dup = svz_array_strdup (array)) == NULL)
+    error++;
+  if (svz_array_size (dup) != svz_array_size (array))
+    error++;
+  svz_array_foreach (dup, value, i)
+    {
+      if (strcmp (value, svz_itoa (i)))
+	error++;
+      svz_free (value);
+      svz_free (svz_array_get (array, i));
+    }
+  svz_array_destroy (dup);
+  test (error);
+  
   /* destroy function */
   test_print ("   destroy: ");
   svz_array_destroy (array);

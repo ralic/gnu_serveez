@@ -87,71 +87,75 @@ Or on systems that have the `env' program, you can do it like this:
 given '--enable-<?>' options can be disabled via '--disable-<?>' 
 or '--enable-<?>=no'. 
 
- 01.   --enable-warn
-         With this option you enable the detection of various compiler
-         warning switches. Most guessed options come from GCC.
- 02.   --enable-opt
-         When enabling this feature the configure script tries some of the
-         commonly known compiler optimization switches.
- 03.   --enable-ppro
-         If you want to compile for the i686 target try this option.
- 04.   --enable-486
-         Compiler optimizations for the i486 target of GCC. If you passed
-         '--enable-ppro' and this options could be used, then the i486 option
-         will be silently dropped.
- 05.   --enable-debug
-         All of the debug messages (debug: some annoying crap text) can be 
-         suppressed by setting the debug level (-v). If you do not want these
-         messages build in at all then disable this feature.
- 06.   --enable-control-proto
-         If you enable this feature the control protocol will be supported by
-         serveez. This protocol is for remote control the server.
- 07.   --enable-irc-proto
-         When enabling this command switch you tell the software package to
-         support the IRC (Internet Relay Chat) protocol.
- 07.1. --enable-irc-ts
-         This option is only available if you enabled the IRC protocol at all.
-         If you enabled both of them the serveez will support the so called
-         TimeStamp protocol which is is a EFNet extension of the original IRC
-         protocol. In order to connect to EFNet you MUST use this option.
- 08.   --enable-awcs-proto
-         In order to use the serveez software for the textSure (C) chat system
-         you MUST enable this option.
- 09.   --enable-http-proto
-         When using the serveez as part of the textSure (C) chat system you 
-         will have need of an additional web server. This option makes 
-         serveez support a simple HTTP protocol.
- 12.   --enable-flood
-         If you enable this feature the serveez will support a simple builtin 
-         flood protection. It is always useful to protect the software from
-         flood clients.
- 13.   --with-guile=DIR
-         The DIR argument specifies the guile directory.
- 14.   --with-mingw=DIR
-         When compiling under Windows the DIR argument specifies the path
-         to the extra MinGW32 library and header files. If you want the
-         final executable depend on the Cygwin project's cygwin1.dll you have
-         to disable this option by passing configure script '--without-mingw'
-	 or '--with-mingw=no'.
- 16.   --enable-sntp-proto
-         Thereby you enable the support for a simple network time protocol
-         server.
- 17.   --enable-poll
-	 If the target system supports poll() and this option is enabled
-	 the main file descriptor loop is done via poll(). This helps to
-	 work around the (g)libc's file descriptor limit. Otherwise we
-	 always fall back to the select() system call.
- 18.   --enable-gnutella
-	 If you do not want the gnutella spider client compiled in you need
-	 to disable this option.
- 19.   --enable-crypt
-         This option tells serveez to process any passwords as crypt()ed.
- 20.   --enable-tunnel
-	 If you enable this feature the port forwarder will be included. 
-         This is useful if you plan to use serveez as a gateway or firewall
-	 workaround.
- 21.   --enable-fakeident
-	 By enabling this you will get a fake ident server included into
-	 the binary executable.
+`--enable-warn'
+	With this option you enable the detection of various compiler
+	warning switches. Most guessed options come from GCC.
+`--enable-opt'
+	When enabling this feature the configure script tries some of the
+	commonly known compiler optimization switches.
+`--enable-ppro'
+	If you want to compile for the i686 target try this option.
+`--enable-486'
+	Compiler optimizations for the i486 target of GCC. If you passed
+	'--enable-ppro' and this options could be used, then the i486 option
+	will be silently dropped.
+`--enable-debug'
+	All of the debug messages (debug: some annoying crap text) can be 
+	suppressed by setting the debug level (-v). If you do not want these
+	messages build in at all then disable this feature.
+`--enable-control-proto'
+	If you enable this feature the control protocol will be supported by
+	serveez. This protocol is for remote control the server.
+`--enable-irc-proto'
+	When enabling this command switch you tell the software package to
+	support the IRC (Internet Relay Chat) protocol.
+`--enable-irc-ts'
+	This option is only available if you enabled the IRC protocol at all.
+	If you enabled both of them the serveez will support the so called
+	TimeStamp protocol which is is a EFNet extension of the original IRC
+	protocol. In order to connect to EFNet you MUST use this option.
+`--enable-awcs-proto'
+	In order to use the serveez software for the textSure (C) chat system
+	you MUST enable this option.
+`--enable-http-proto'
+	When using the serveez as part of the textSure (C) chat system you 
+	will have need of an additional web server. This option makes 
+	serveez support a simple HTTP protocol.
+`--enable-flood'
+	If you enable this feature the serveez will support a simple builtin 
+	flood protection. It is always useful to protect the software from
+	flood clients.
+`--with-guile=DIR'
+	The DIR argument specifies a guile installation directory.
+`--with-guile-source=DIR'
+	If the user wants to link serveez against a static guile core library
+	you can pass the DIR argument to specify the location of a guile
+	source distribution which will be configured and built then.
+`--with-mingw=DIR'
+	When compiling under Windows the DIR argument specifies the path
+	to the extra MinGW32 library and header files. If you want the
+	final executable depend on the Cygwin project's cygwin1.dll you have
+	to disable this option by passing configure script '--without-mingw'
+	or '--with-mingw=no'.
+`--enable-sntp-proto'
+	Thereby you enable the support for a simple network time protocol
+	server.
+`--enable-poll'
+	If the target system supports poll() and this option is enabled
+	the main file descriptor loop is done via poll(). This helps to
+	work around the (g)libc's file descriptor limit. Otherwise we
+	always fall back to the select() system call.
+`--enable-gnutella'
+	If you do not want the gnutella spider client compiled in you need
+	to disable this option.
+`--enable-crypt'
+	This option tells serveez to process any passwords as crypt()ed.
+`--enable-tunnel'
+	If you enable this feature the port forwarder will be included. 
+	This is useful if you plan to use serveez as a gateway or firewall
+	workaround.
+`--enable-fakeident'
+	By enabling this you will get a fake ident server included into
+	the binary executable.
 
 Please read the README file also.

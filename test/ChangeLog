@@ -1,7 +1,13 @@
+2001-06-10  [ Ela ]  <ela@lkcc.org>
+
+	* array-test.c (main): Two more checks for the replication
+	functions `svz_array_dup()' and `svz_array_strdup()' 
+	implemented.
+
 2001-05-03  [ Ela ]  <ela@lkcc.org>
 
-	* test.c (svz_hexdump): Added this as wrapper if DEBUG_MEMORY_LEAKS
-	is defined.
+	* test.c (svz_hexdump): Added this as wrapper if 
+	DEBUG_MEMORY_LEAKS is defined.
 
 2001-04-04  [ Ela ]  <ela@lkcc.org>
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: spvec-test.c,v 1.1 2001/03/08 22:15:14 raimi Exp $
+ * $Id: spvec-test.c,v 1.2 2001/06/10 15:39:01 ela Exp $
  *
  */
 
@@ -374,7 +374,7 @@ main (int argc, char **argv)
       while (svz_spvec_size (list))
 	{
 	  svz_spvec_delete_range (list, test_value (i), 
-			      test_value (10 * i * 5 + 1));
+				  test_value (10 * i * 5 + 1));
 	}
       test_print (error ? "?" : ".");
     }
