@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.19 2001/09/07 10:34:51 ela Exp $
+ * $Id: pipe-socket.c,v 1.20 2001/09/09 12:54:57 ela Exp $
  *
  */
 
@@ -573,6 +573,11 @@ svz_pipe_write_socket (svz_socket_t *sock)
 	{
 	  sock->send_pending -= num_written;
 	  sock->flags &= ~SOCK_FLAG_WRITING;
+	  if (sock->send_pending != 0)
+	    {
+	      svz_log (LOG_ERROR, "pipe: %d pending send bytes left\n",
+		       sock->send_pending);
+	    }
 	}
     }
   /* Really write to the pipe. */
