@@ -1,7 +1,7 @@
 /*
  * windoze.c - windows port implementations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: windoze.c,v 1.2 2001/01/28 13:11:54 ela Exp $
  *
  */
 
@@ -38,6 +38,9 @@
 #include <windowsx.h>
 
 #include "libserveez/util.h"
+#include "libserveez/boot.h"
+#include "libserveez/socket.h"
+#include "libserveez/server-core.h"
 #include "libserveez/windoze.h"
 
 static DWORD windoze_daemon_id = 0;
@@ -49,7 +52,7 @@ static char windoze_tooltip[128];
 /*
  * Main windows thread where the window manager can pass message to.
  */
-DWORD WINAPI 
+static DWORD WINAPI 
 windoze_thread (char *prog)
 {
   HWND hwnd;      /* window handle */
@@ -194,9 +197,7 @@ void
 windoze_notify_set (HWND hwnd, UINT id)
 {
   sprintf (windoze_tooltip, "%s %s (%d connections)", 
-	   serveez_config.program_name,
-	   serveez_config.version_string,
-	   sock_connections);
+	   svz_library, svz_version, sock_connections);
 
   windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
 }

@@ -757,7 +757,10 @@ if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
     if test "$MINGDIR" != "no" -a "$MINGW32" != "yes"; then
 	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
 	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
+	AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
 	AC_MSG_RESULT([using MinGW32 headers and libraries in ${MINGDIR}])
+    fi
+    if test "$MINGW32" = "yes" ; then
 	AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
     fi
 fi

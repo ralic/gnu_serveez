@@ -19,7 +19,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.1 2001/01/28 03:26:55 ela Exp $
+# $Id: Makefile.am,v 1.2 2001/01/28 13:11:54 ela Exp $
 #
 
 SUBDIRS = coserver
@@ -28,7 +28,7 @@ SUBDIRS = coserver
 
 lib_LTLIBRARIES = libserveez.la
 
-libserveez_la_LDFLAGS = -export-dynamic
+libserveez_la_LDFLAGS = -export-dynamic -no-undefined
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la
 libserveez_la_LIBADD = coserver/libcoserver.la
 

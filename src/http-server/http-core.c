@@ -1,7 +1,7 @@
 /*
  * http-core.c - http core functionality
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.27 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-core.c,v 1.28 2001/01/28 13:11:54 ela Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 # include <winsock.h>
 # include <io.h>
 # include <lm.h>
+# include <lmerr.h>
 #endif
 
 #include "libserveez.h"

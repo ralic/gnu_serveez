@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sizzle.c,v 1.1 2001/01/28 03:40:04 ela Exp $
+ * $Id: sizzle.c,v 1.2 2001/01/28 13:11:54 ela Exp $
  *
  */
 
@@ -463,8 +463,8 @@ static int set_port (char *cfgfile, char *var, char *key,
 				  (struct sockaddr *) newaddr, &len) != 0)
 	    {
 	      fprintf (stderr, "%s: `%s': %s should be an ip address "
-		       "in dotted decimal form in `%s' (%s)\n",
-		       cfgfile, var, PORTCFG_IP, key, NET_ERROR);
+		       "in dotted decimal form in `%s'\n",
+		       cfgfile, var, PORTCFG_IP, key);
               return -1;
             }
 #else /* not HAVE_INET_ATON and not __MINGW32__ */

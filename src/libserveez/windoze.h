@@ -1,7 +1,7 @@
 /*
  * windoze.h - windows port interface
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,16 +18,14 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: windoze.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: windoze.h,v 1.2 2001/01/28 13:11:54 ela Exp $
  *
  */
 
 #ifndef __WINDOZE_H__
-#define __WINDOZE_H__
+#define __WINDOZE_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include "libserveez/defines.h"
 
 #ifdef __MINGW32__
 
@@ -41,23 +39,26 @@
 #define SERVEEZ_ICON_ID       (1001)
 #define SERVEEZ_CLASS         "serveez"
 
+__BEGIN_DECLS
+
 /* exported functions */
-DWORD WINAPI windoze_thread (char *);
-void windoze_notify_del (HWND, UINT);
-void windoze_notify_add (HWND, UINT);
-void windoze_notify_set (HWND, UINT);
+SERVEEZ_API void windoze_notify_del (HWND, UINT);
+SERVEEZ_API void windoze_notify_add (HWND, UINT);
+SERVEEZ_API void windoze_notify_set (HWND, UINT);
 LRESULT CALLBACK windoze_dialog (HWND, UINT, WPARAM, LPARAM);
-int windoze_start_daemon (char *prog);
-int windoze_stop_daemon (void);
-WCHAR *windoze_asc2uni (CHAR *asc);
-CHAR *windoze_uni2asc (WCHAR *unicode);
+SERVEEZ_API int windoze_start_daemon (char *prog);
+SERVEEZ_API int windoze_stop_daemon (void);
+SERVEEZ_API WCHAR *windoze_asc2uni (CHAR *asc);
+SERVEEZ_API CHAR *windoze_uni2asc (WCHAR *unicode);
 
 /* registry functions */
-unsigned windoze_get_reg_unsigned (HKEY, char *, char *, unsigned);
-void windoze_set_reg_unsigned (HKEY, char *, char *, unsigned);
-char *windoze_get_reg_string (HKEY, char *, char *, char *);
-void windoze_set_reg_string (HKEY, char *, char *, char *);
+SERVEEZ_API unsigned windoze_get_reg_unsigned (HKEY, char *, char *, unsigned);
+SERVEEZ_API void windoze_set_reg_unsigned (HKEY, char *, char *, unsigned);
+SERVEEZ_API char *windoze_get_reg_string (HKEY, char *, char *, char *);
+SERVEEZ_API void windoze_set_reg_string (HKEY, char *, char *, char *);
 
-#endif /* __MINGW32__ */
+__END_DECLS
 
-#endif /* __WINDOZE_H__ */
+#endif /* not __MINGW32__ */
+
+#endif /* not __WINDOZE_H__ */
