@@ -28,6 +28,8 @@ files.
 Version 0.1.1
 -------------
 
+ * zlib codec implemented
+ * specification of a transparent codec interface
  * working named pipe interface under Windows
  * package available as relocatable RPM
  * modified chat server master protocol (use textSure v1.3)

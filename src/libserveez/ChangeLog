@@ -1,3 +1,13 @@
+2001-10-07  [ Ela ]  <ela@lkcc.org>
+
+	* codec/gzlib.c: First codec implementation.
+
+	* codec/codec.c: Basic implementation of a codec interface. This
+	is yet experimental and meant to be a draft.
+
+	* coserver/coserver.c (svz_coserver_closeall): Do not close 
+	stdin/stdout pipe descriptors.
+
 2001-09-29  [ Ela ]  <ela@lkcc.org>
 
 	* dynload.c: Added Darwin (MacOS) specific code for its 

@@ -1,3 +1,8 @@
+2001-10-07  [ Ela ]  <ela@lkcc.org>
+
+	* codec-test.c: New test. Demonstrates both: using the serveez
+	core library and usage of the codec interface.
+
 2001-07-03  Stefan Jahn  <s.jahn@bit-side.de>
 
 	* test.c: Removed unnecessary functions `svz_log()' and

@@ -881,7 +881,7 @@ AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \
-  mswsock.h grp.h mach-o/dyld.h)
+  mswsock.h grp.h mach-o/dyld.h zlib.h)
 AC_HEADER_DIRENT
 
 SERVEEZLIBS=""
@@ -892,23 +892,34 @@ dnl
 
 have_dlopen="no"
 AC_CHECK_FUNC(dlopen, have_dlopen="yes",
-    AC_CHECK_LIB(dl, dlopen,
-	have_dlopen="yes"
-	SERVEEZLIBS="$SERVEEZLIBS -ldl"),
-    AC_CHECK_LIB(svld, dlopen,
-	have_dlopen="yes"
-	SERVEEZLIBS="$SERVEEZLIBS -lsvdl"))
+  AC_CHECK_LIB(dl, dlopen,
+    have_dlopen="yes"
+    SERVEEZLIBS="$SERVEEZLIBS -ldl"),
+  AC_CHECK_LIB(svld, dlopen,
+    have_dlopen="yes"
+    SERVEEZLIBS="$SERVEEZLIBS -lsvdl"))
 
-if test $have_dlopen = "yes"; then
-    AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
+if test $have_dlopen = "yes" ; then
+  AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
 else
-    AC_CHECK_LIB(dld, dld_link,
+  AC_CHECK_LIB(dld, dld_link,
     AC_DEFINE(HAVE_DLD_LINK, 1, [Define if you have the dld_link function.])
     SERVEEZLIBS="$SERVEEZLIBS -ldld")
 fi
-
 unset have_dlopen
+
+CODECLIBS=""
+
+dnl
+dnl Checking for additional codec libraries.
+dnl
+
+AC_CHECK_LIB(z, zlibVersion,
+  AC_DEFINE(HAVE_ZLIB, 1, [Define if you have the zlib library.])
+  CODECLIBS="$CODECLIBS -lz")
+
 AC_SUBST(SERVEEZLIBS)
+AC_SUBST(CODECLIBS)
 
 dnl ----------------------------------------------------------------------
 
@@ -1302,6 +1313,7 @@ dnl
 AC_OUTPUT(
     Makefile src/Makefile src/libserveez/Makefile
     src/libserveez/coserver/Makefile
+    src/libserveez/codec/Makefile
     src/serveez-config
     src/awcs-server/Makefile
     src/ctrl-server/Makefile

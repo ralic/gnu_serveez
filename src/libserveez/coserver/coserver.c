@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.21 2001/07/31 10:15:01 ela Exp $
+ * $Id: coserver.c,v 1.22 2001/10/07 17:10:28 ela Exp $
  *
  */
 
@@ -632,8 +632,10 @@ svz_coserver_closeall (void)
 	close (sock->file_desc);
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
-	  close (sock->pipe_desc[READ]);
-	  close (sock->pipe_desc[WRITE]);
+	  if (sock->pipe_desc[READ] >= 2)
+	    close (sock->pipe_desc[READ]);
+	  if (sock->pipe_desc[WRITE] >= 2)
+	    close (sock->pipe_desc[WRITE]);
 	}
     }
   svz_file_closeall ();

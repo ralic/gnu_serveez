@@ -4,7 +4,7 @@
 #
 # Automake input file for the test directory.
 #
-# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ TESTS = vector-test array-test hash-test spvec-test
 
 EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp
 
-noinst_PROGRAMS = hash-test spvec-test array-test vector-test
+noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test
 
 hash_test_SOURCES = hash-test.c test.c test.h
 hash_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
@@ -36,6 +36,8 @@ array_test_SOURCES = array-test.c test.c test.h
 array_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 vector_test_SOURCES = vector-test.c test.c test.h
 vector_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
+codec_test_SOURCES = codec-test.c
+codec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 
 INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.10 2001/09/06 21:12:26 ela Exp $
+ * $Id: socket.h,v 1.11 2001/10/07 17:10:28 ela Exp $
  *
  */
 
@@ -66,6 +66,7 @@
 					    queue is empty. */
 #define SOCK_FLAG_READING     0x00020000 /* Pending read operation. */
 #define SOCK_FLAG_WRITING     0x00040000 /* Pending write operation. */
+#define SOCK_FLAG_FLUSH       0x00080000 /* Flush receive and send queue. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
@@ -185,7 +186,7 @@ struct svz_socket
   int flood_limit;		/* Limit of the above before kicking. */
 #endif
 
-  /* Set to non-zero `time ()' value if the the socket is temporarily
+  /* Set to non-zero @code{time()} value if the the socket is temporarily
      unavailable (EAGAIN). This is why we use O_NONBLOCK socket descriptors. */
   int unavailable;              
 
@@ -199,6 +200,10 @@ struct svz_socket
 
   /* Port configuration of a parent (listener). */
   void *port;
+
+  /* Codec data pointers. Yet another extension. */
+  void *recv_codec;
+  void *send_codec;
 };
 
 __BEGIN_DECLS
