@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.7 2001/09/13 13:28:54 ela Exp $
+ * $Id: passthrough.c,v 1.8 2001/10/19 11:58:51 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
@@ -128,16 +129,209 @@ svz_sock_process (svz_socket_t *sock, char *bin,
   return ret;
 }
 
+/*
+ * Disconnection routine for a socket connection which is connected with
+ * a process's stdin/stdout via the referring passthrough pipe socket
+ * structure which gets also scheduled for shutdown if possible.
+ */
+int
+svz_process_sock_disconnect (svz_socket_t *sock)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) != NULL)
+    {
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "shutting down referring id %d\n", xsock->id);
+#endif
+      svz_sock_setreferrer (sock, NULL);
+      svz_sock_setreferrer (xsock, NULL);
+      svz_sock_schedule_for_shutdown (xsock);
+    }
+  return 0;
+}
+
+/*
+ * Disconnection routine for the passthrough pipe connected with a
+ * process's stdin/stdout. Schedules the referring socket connection for
+ * shutdown if possible.
+ */
+int
+svz_process_pipe_disconnect (svz_socket_t *sock)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) != NULL)
+    {
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "shutting down referring id %d\n", xsock->id);
+#endif
+      svz_sock_setreferrer (sock, NULL);
+      svz_sock_setreferrer (xsock, NULL);
+      svz_sock_schedule_for_shutdown (xsock);
+    }
+
+  sock->recv_buffer = sock->send_buffer = NULL;
+  sock->recv_buffer_fill = sock->recv_buffer_size = 0;
+  sock->send_buffer_fill = sock->send_buffer_size = 0;
+  return 0;
+}
+
+/*
+ * If the argument @var{set} is zero this routine makes the receive buffer
+ * of the socket structure's referrer @var{sock} the send buffer of @var{sock}
+ * itself, otherwise the other way around. Return non-zero if the routine
+ * failed to determine a referrer.
+ */
+static int
+svz_process_send_update (svz_socket_t *sock, int set)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
+    return -1;
+
+  if (set)
+    {
+      sock->send_buffer = xsock->recv_buffer;
+      sock->send_buffer_fill = xsock->recv_buffer_fill;
+      sock->send_buffer_size = xsock->recv_buffer_size;
+    }
+  else
+    {
+      xsock->recv_buffer = sock->send_buffer;
+      xsock->recv_buffer_fill = sock->send_buffer_fill;
+      xsock->recv_buffer_size = sock->send_buffer_size;
+    }
+  return 0;
+}
+
+/*
+ * Pipe writer (reading end of a process's stdin). Writes as much data as
+ * possible from the send buffer which is the receive buffer of the
+ * referring socket structure. Returns non-zero on errors.
+ */
 int
 svz_process_send_pipe (svz_socket_t *sock)
 {
-  return -1;
+  int num_written, do_write;
+
+  /* update send buffer depending on receive buffer of referrer */
+  if (svz_process_send_update (sock, 0))
+    return -1;
+
+  /* return here if there is nothing to do */
+  if ((do_write = sock->send_buffer_fill) <= 0)
+    return 0;
+
+#ifndef __MINGW32__
+  if ((num_written = write ((int) sock->pipe_desc[WRITE],
+			    sock->send_buffer, do_write)) == -1)
+    {
+      svz_log (LOG_ERROR, "write: %s\n", SYS_ERROR);
+      if (svz_errno == EAGAIN)
+	return 0;
+    }
+#else /* __MINGW32__ */
+   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
+		   do_write, (DWORD *) &num_written, NULL))
+    {
+      svz_log (LOG_ERROR, "WriteFile: %s\n", SYS_ERROR);
+      num_written = -1;
+    }
+#endif /* __MINGW32__ */
+
+  else if (num_written > 0)
+    {
+      sock->last_send = time (NULL);
+      svz_sock_reduce_send (sock, num_written);
+      svz_process_send_update (sock, 1);
+    }
+
+  return (num_written >= 0) ? 0 : -1;
 }
 
+/*
+ * Depending on the flag @var{set} this routine either makes the send buffer
+ * of the referring socket structure of @var{sock} the receive buffer of
+ * @var{sock} itself or the other way around. Returns non-zero if it failed
+ * to find a referring socket.
+ */
+static int
+svz_process_recv_update (svz_socket_t *sock, int set)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
+    return -1;
+
+  if (set)
+    {
+      sock->recv_buffer = xsock->send_buffer;
+      sock->recv_buffer_fill = xsock->send_buffer_fill;
+      sock->recv_buffer_size = xsock->send_buffer_size;
+    }
+  else
+    {
+      xsock->send_buffer = sock->recv_buffer;
+      xsock->send_buffer_fill = sock->recv_buffer_fill;
+      xsock->send_buffer_size = sock->recv_buffer_size;
+    }
+  return 0;
+}
+
+/*
+ * Pipe reader (writing end of a process's stdout). Reads as much data as
+ * possible into its receive buffer which is the send buffer of the network
+ * connection this passthrough pipe socket stems from.
+ */
 int
 svz_process_recv_pipe (svz_socket_t *sock)
 {
-  return -1;
+  int num_read, do_read;
+
+  /* update receive buffer depending on send buffer of referrer */
+  if (svz_process_recv_update (sock, 0))
+    return -1;
+
+  /* return here if there is nothing to do */
+  if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
+    return 0;
+
+#ifndef __MINGW32__
+  if ((num_read = read ((int) sock->pipe_desc[READ], 
+			sock->recv_buffer + sock->recv_buffer_fill, 
+			do_read)) == -1)
+    {
+      svz_log (LOG_ERROR, "read: %s\n", SYS_ERROR);
+      if (svz_errno == EAGAIN)
+	return 0;
+    }
+#else /* __MINGW32__ */
+  if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
+                      NULL, (DWORD *) &num_read, NULL))
+    {
+      svz_log (LOG_ERROR, "PeekNamedPipe: %s\n", SYS_ERROR);
+      return -1;
+    }
+  if (do_read > num_read)
+    do_read = num_read;
+  if (!ReadFile (sock->pipe_desc[READ],
+                 sock->recv_buffer + sock->recv_buffer_fill,
+                 do_read, (DWORD *) &num_read, NULL))
+    {
+      svz_log (LOG_ERROR, "ReadFile: %s\n", SYS_ERROR);
+      num_read = -1;
+    }
+#endif /* __MINGW32__ */
+
+  else if (num_read > 0)
+    {
+      sock->last_recv = time (NULL);
+      svz_process_recv_update (sock, 1);
+    }
+
+  return (num_read > 0) ? 0 : -1;
 }
 
 int
@@ -291,22 +485,26 @@ svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, SOCKET socket,
     return -1;
 
   /* create yet another socket structure */
-  if ((xsock = svz_sock_create (socket)) == NULL)
+  if ((xsock = svz_pipe_create (process_to_serveez[READ], 
+				serveez_to_process[WRITE])) == NULL)
     {
-      svz_log (LOG_ERROR, "failed to create passthrough socket\n");
+      svz_log (LOG_ERROR, "failed to create passthrough pipe\n");
       return -1;
     }
 
   /* prepare everything for the pipe handling */
-  sock->pipe_desc[WRITE] = serveez_to_process[WRITE];
-  sock->flags |= SOCK_FLAG_SEND_PIPE;
-  sock->write_socket = svz_process_send_pipe;
-  svz_fd_cloexec ((int) serveez_to_process[WRITE]);
-
-  xsock->pipe_desc[READ] = process_to_serveez[READ];
-  xsock->flags |= SOCK_FLAG_RECV_PIPE;
+  xsock->disconnected_socket = svz_process_pipe_disconnect;
+  sock->disconnected_socket = svz_process_sock_disconnect;
+  xsock->write_socket = svz_process_send_pipe;
   xsock->read_socket = svz_process_recv_pipe;
-  svz_fd_cloexec ((int) process_to_serveez[READ]);
+  svz_free_and_zero (xsock->recv_buffer);
+  xsock->recv_buffer_fill = xsock->recv_buffer_size = 0;
+  svz_free_and_zero (xsock->send_buffer);
+  xsock->send_buffer_fill = xsock->send_buffer_size = 0;
+  svz_sock_setreferrer (sock, xsock);
+  svz_sock_setreferrer (xsock, sock);
+
+  /* enqueue passthrough pipe socket */
   if (svz_sock_enqueue (xsock) < 0)
     return -1;
 
