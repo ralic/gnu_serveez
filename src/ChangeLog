@@ -1,3 +1,17 @@
+2000-06-23  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_config_prototype): The amount
+	of cache entries can now be configured via "cache-entries" 
+	within the configuration hash of each http server. When 
+	defining various values the largest will win. This because
+	the http cache is the same for all http servers, so we prevent
+	double caching.
+
+	* http-server/http-cache.c (http_alloc_cache): This function
+	must be called to use the http cache. This is usually done
+	within the global initializer of the http server. Now the
+	amount of cache entries could be configurable.
+
 2000-06-22  [ RAIMI ]  <raimi@lkcc.org>
 
 	* http-server/http-proto.c (http_send_file): Made it work with

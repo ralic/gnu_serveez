@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.8 2000/06/22 00:37:44 ela Exp $
+ * $Id: http-proto.h,v 1.9 2000/06/23 21:09:54 ela Exp $
  *
  */
 
@@ -46,6 +46,7 @@ typedef struct
   char *cgiurl;       /* cgi url (this is for its detection) */
   char *cgidir;       /* cgi directory where all cgi scripts are located */
   int cachesize;      /* maximum cache file size */
+  int cacheentries;   /* maximum cache entries */
   int timeout;        /* timeout in seconds for keep-alive connections */
   int keepalive;      /* maximum amount of requests on a connection */
   char *default_type; /* the default content type */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.12 2000/06/22 17:59:41 ela Exp $
+ * $Id: http-proto.c,v 1.13 2000/06/23 21:09:54 ela Exp $
  *
  */
 
@@ -102,6 +102,7 @@ http_config_t http_config =
   "/cgi-bin",         /* how cgi-requests are detected */
   "./cgibin",         /* cgi script root */
   MAX_CACHE_SIZE,     /* maximum file size to cache them */
+  MAX_CACHE,          /* maximum amount of cache entries */
   HTTP_TIMEOUT,       /* server shuts connection down after x seconds */
   HTTP_MAXKEEPALIVE,  /* how many files when using keep-alive */
   "text/plain",       /* standard content type */
@@ -120,7 +121,8 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_STR ("docs", http_config.docs, DEFAULTABLE),
   REGISTER_STR ("cgiurl", http_config.cgiurl, DEFAULTABLE),
   REGISTER_STR ("cgidir", http_config.cgidir, DEFAULTABLE),
-  REGISTER_INT ("cachesize", http_config.cachesize, DEFAULTABLE),
+  REGISTER_INT ("cache-size", http_config.cachesize, DEFAULTABLE),
+  REGISTER_INT ("cache-entries", http_config.cacheentries, DEFAULTABLE),
   REGISTER_INT ("timeout", http_config.timeout, DEFAULTABLE),
   REGISTER_INT ("keepalive", http_config.keepalive, DEFAULTABLE),
   REGISTER_STR ("default-type", http_config.default_type, DEFAULTABLE),
@@ -178,6 +180,7 @@ http_request [HTTP_REQUESTS] =
 int
 http_global_init (void)
 {
+  http_alloc_cache (MAX_CACHE);
   return 0;
 }
 
@@ -225,7 +228,10 @@ http_init (server_t *server)
 
   log_printf (LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
 	      cfg->cgidir, cfg->cgiurl);
-
+  
+  if (cfg->cacheentries > 0)
+    http_alloc_cache (cfg->cacheentries);
+  
   server_bind (server, cfg->port);
   return 0;
 }

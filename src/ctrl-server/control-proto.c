@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.8 2000/06/22 19:40:30 ela Exp $
+ * $Id: control-proto.c,v 1.9 2000/06/23 21:09:54 ela Exp $
  *
  */
 
@@ -513,9 +513,9 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 	       "File                             "
 	       "Size  Usage  Hits Recent Ready\r\n");
 
-  for(files=0, total=0, n=0; n<MAX_CACHE; n++)
+  for (files = 0, total = 0, n = 0; n < http_cache_entries; n++)
     {
-      if(http_cache[n].used)
+      if (http_cache[n].used)
 	{
 	  files++;
 	  total += http_cache[n].length;
@@ -544,8 +544,9 @@ int
 ctrl_kill_cache (socket_t sock, int flag, char *arg)
 {
   sock_printf (sock, "%d HTTP cache entries reinitialized.\r\n",
-	       cache_entries);
+	       http_cache_entries);
   http_free_cache ();
+  http_alloc_cache (http_cache_entries);
   return flag;
 }
 #endif /* ENABLE_HTTP_PROTO */

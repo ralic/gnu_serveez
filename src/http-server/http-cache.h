@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.2 2000/06/16 15:36:15 ela Exp $
+ * $Id: http-cache.h,v 1.3 2000/06/23 21:09:54 ela Exp $
  *
  */
 
@@ -34,6 +34,10 @@
 
 #include "socket.h"
 
+/*
+ * Some #defines. These are just default values for configurable
+ * variables.
+ */
 #define MAX_CACHE          64       /* cache file entries */
 #define MAX_CACHE_SIZE     1024*200 /* maximum cache file size */
 
@@ -67,9 +71,16 @@ typedef struct
 }
 http_cache_t;
 
-extern http_cache_entry_t http_cache[MAX_CACHE];
-extern int cache_entries;
+/*
+ * http cache structures.
+ */
+extern http_cache_entry_t *http_cache;
+extern int http_cache_entries;
 
+/*
+ * Basic http cache functions.
+ */
+void http_alloc_cache (int entries);
 void http_free_cache (void);
 void http_refresh_cache (http_cache_t *cache);
 int http_init_cache (char *file, http_cache_t *cache);
