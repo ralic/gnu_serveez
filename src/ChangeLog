@@ -1,3 +1,9 @@
+2002-02-05  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (guile_coserver_ident, guile_coserver_dns, 
+	guile_coserver_rdns): Three new functions being the Guile 
+	frontend to the internal coservers of Serveez.
+
 2002-02-03  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_connect_host): Also parses

@@ -155,6 +155,10 @@ SETRPC_DEFUN
 PORTMAP_DEFUN
 PORTMAP-LIST_DEFUN
 
+SVZ:COSERVER:DNS_DEFUN
+SVZ:COSERVER:REVERSE-DNS_DEFUN
+SVZ:COSERVER:IDENT_DEFUN
+
 @subsubsection Callback prototypes
 
 The Guile interface of Serveez is completely callback driven.  Callbacks

@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.12 2002/02/01 21:35:13 ela Exp $
+;; $Id: inetd.scm,v 1.13 2002/02/05 13:27:31 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -201,8 +201,8 @@
       IPPROTO_UDP))
 
 ;; checks whether the rpc service identified by [number,version] is already
-;; register at the portmapper and return #t if so.  otherwise the procedure
-;; return #f.
+;; registered at the portmapper and returns #t if so.  otherwise the 
+;; procedure returns #f.
 (define (check-rpc-portmapper number version)
   (let* ((mappings (portmap-list)) (result #f))
     (if mappings

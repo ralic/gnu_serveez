@@ -28,6 +28,7 @@ files.
 Version 0.1.3
 -------------
 
+ * added basic coserver functionality to the Guile frontend
  * HTTP partial content implemented
  * Guile version 1.3 backward compatibility
  * improved build-time behaviour (including cross compiling)
