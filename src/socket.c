@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.8 2000/06/19 22:56:14 ela Exp $
+ * $Id: socket.c,v 1.9 2000/06/22 00:37:44 ela Exp $
  *
  */
 
@@ -622,15 +622,14 @@ sock_create (int fd)
 int
 sock_disconnect (socket_t sock)
 {
-#ifndef __MINGW32__
   /* shutdown the pipe */
-  if(sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SOCK_FLAG_PIPE)
     {
       if (sock->flags & SOCK_FLAG_CONNECTED)
 	{
-	  if (close(sock->pipe_desc[WRITE]) < 0)
+	  if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) < 0)
 	    log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
-	  if (close (sock->pipe_desc[READ]) < 0)
+	  if (CLOSE_HANDLE (sock->pipe_desc[READ]) < 0)
 	    log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
 	  sock->pipe_desc[READ] = INVALID_HANDLE;
 	  sock->pipe_desc[WRITE] = INVALID_HANDLE;
@@ -640,10 +639,8 @@ sock_disconnect (socket_t sock)
       if (sock->parent)
 	sock->parent->flags &= ~SOCK_FLAG_INITED;
     }
-  else
-#endif
-    /* shutdown the network socket */
-  if(sock->sock_desc != INVALID_SOCKET)
+  /* shutdown the network socket */
+  else if(sock->sock_desc != INVALID_SOCKET)
     {
       /* shutdown client connection */
       if(sock->flags & SOCK_FLAG_CONNECTED)

@@ -1,3 +1,8 @@
+2000-06-21  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (invalid_defined): Added check for typedef off_t.
+	This is used with sendfile().
+
 2000-06-20  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (LDFLAGS): Add check for sendfile(). The 

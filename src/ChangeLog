@@ -1,3 +1,19 @@
+2000-06-22  [ Ela ]  <ela@lkcc.org>
+
+	* socket.c (sock_disconnect): Now able to disconnect pipes also.
+	This was not available under Win32 yet.
+
+	* server-core.c (sock_enqueue): Both _enqueue and _dequeue are
+	availbale under Win32 also. So we could use named pipes in Win32
+	also.
+
+	* server-socket.c (server_accept_pipe): CreateNamedPipe is now
+	checked for invalid return values. Listener will be unqueued if
+	it is not implemented (on Win95).
+
+	* http-server/http-proto.h (struct http_socket): Added fileoffset
+	to this structure for sendfile() parameter.
+
 2000-06-21  [ RAIMI ]  <raimi@lkcc.org>
 
 	* Makefile.am ($(SIZZLERULE)): When building our own sizzle from

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.10 2000/06/20 21:57:38 raimi Exp $
+ * $Id: server-socket.c,v 1.11 2000/06/22 00:37:44 ela Exp $
  *
  */
 
@@ -603,38 +603,42 @@ server_accept_pipe (socket_t server_sock)
    * Create both of the named pipes and put the handles into
    * the server socket structure.
    */
-  if (server_sock->pipe_desc[READ] == INVALID_HANDLE_VALUE)
+  if (server_sock->pipe_desc[READ] == INVALID_HANDLE)
     {
-      if ((recv_pipe = CreateNamedPipe (
-             server_sock->recv_pipe,
-	     PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,
-	     PIPE_READMODE_BYTE | PIPE_NOWAIT,
-	     1,
-	     0, 0,
-	     100,
-	     NULL)) == INVALID_HANDLE_VALUE)
+      recv_pipe = CreateNamedPipe (
+        server_sock->recv_pipe,
+	PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,
+	PIPE_READMODE_BYTE | PIPE_NOWAIT,
+	1,
+	0, 0,
+	100,
+	NULL);
+
+      if (recv_pipe == INVALID_HANDLE_VALUE || recv_pipe == 0)
 	{
 	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
-	  return 0;
+	  return -1;
 	}
       server_sock->pipe_desc[READ] = recv_pipe;
     }
   else
     recv_pipe = server_sock->pipe_desc[READ];
 
-  if (server_sock->pipe_desc[WRITE] == INVALID_HANDLE_VALUE)
+  if (server_sock->pipe_desc[WRITE] == INVALID_HANDLE)
     {
-      if ((send_pipe = CreateNamedPipe (
-             server_sock->send_pipe,
-	     PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED,
-	     PIPE_TYPE_BYTE | PIPE_NOWAIT,
-	     1,
-	     0, 0,
-	     100,
-	     NULL)) == INVALID_HANDLE_VALUE)
+      send_pipe = CreateNamedPipe (
+        server_sock->send_pipe,
+	PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED,
+	PIPE_TYPE_BYTE | PIPE_NOWAIT,
+	1,
+	0, 0,
+	100,
+	NULL);
+      
+      if (send_pipe == INVALID_HANDLE_VALUE || send_pipe == 0)
 	{
 	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
-	  return 0;
+	  return -1;
 	}
       server_sock->pipe_desc[WRITE] = send_pipe;
     }
@@ -645,14 +649,15 @@ server_accept_pipe (socket_t server_sock)
    * Now try connecting to one of these pipes. This will fail until
    * a client has been connected.
    */
-  if (!ConnectNamedPipe (recv_pipe, NULL))
+  if (!ConnectNamedPipe (recv_pipe, &server_sock->overlap[READ]))
     {
       log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
       return 0;
     }
 
-  if (!ConnectNamedPipe (send_pipe, NULL))
+  if (!ConnectNamedPipe (send_pipe, &server_sock->overlap[WRITE]))
     {
+      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
       return 0;
     }
 

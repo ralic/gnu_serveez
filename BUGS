@@ -24,6 +24,13 @@
 This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
+Bug:	     B0009
+From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+State:       unfixed
+Date:	     2000-06-21
+Description: filesize 0 for http files is not handle specifically.
+             http directory listing does not show the actual directory.
+
 Bug:         B0008
 From:	     ela <stefan@linux.f1.fhtw-berlin.de>
 State:       unfixed

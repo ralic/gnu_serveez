@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.7 2000/06/20 14:50:11 ela Exp $
+ * $Id: http-proto.h,v 1.8 2000/06/22 00:37:44 ela Exp $
  *
  */
 
@@ -70,6 +70,7 @@ struct http_socket
   int contentlength;     /* the content length for the cgi pipe */
   int filelength;        /* content length for the http file */
   int keepalive;         /* how many requests left for a connection */
+  off_t fileoffset;      /* file offset used by sendfile */
   HANDLE pid;            /* the pid of the cgi (process handle) */
 };
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.8 2000/06/16 15:36:15 ela Exp $
+ * $Id: server-core.c,v 1.9 2000/06/22 00:37:44 ela Exp $
  *
  */
 
@@ -210,31 +210,28 @@ validate_socket_list (void)
   sock = socket_root;
   while (sock)
     {
-#ifndef __MINGW32__
-      if(!(sock->flags & SOCK_FLAG_PIPE))
+      if (sock->flags & SOCK_FLAG_SOCK)
 	{
-#endif
 	  if (sock->sock_desc == INVALID_SOCKET)
 	    {
-	      abort_me("invalid file descriptor");
+	      abort_me ("invalid file descriptor");
 	    }
-	  if (sock_lookup_table[sock->socket_id] != sock)
-	    {
-	      abort_me("lookup table corrupted");
-	    }
-	  if (prev != sock->prev)
-	    {
-	      abort_me("list structure invalid (previous socket != prev)");
-	    }
-#ifndef __MINGW32__
 	}
-#endif
+      if (sock_lookup_table[sock->socket_id] != sock)
+	{
+	  abort_me ("lookup table corrupted");
+	}
+      if (prev != sock->prev)
+	{
+	  abort_me ("list structure invalid (previous socket != prev)");
+	}
       prev = sock;
       sock = sock->next;
     }
+
   if (prev != socket_last)
     {
-      abort_me("list structure invalid (last socket != end of list)");
+      abort_me ("list structure invalid (last socket != end of list)");
     }
   return 0;
 }
@@ -247,7 +244,6 @@ validate_socket_list (void)
 int
 sock_enqueue (socket_t sock)
 {
-#ifndef __MINGW32__
   if (sock->flags & SOCK_FLAG_PIPE)
     {
       if ((sock->pipe_desc[READ] == INVALID_HANDLE || 
@@ -258,12 +254,14 @@ sock_enqueue (socket_t sock)
 	  return -1;
 	}
     }
-  else
-#endif
-  if (sock->sock_desc == INVALID_SOCKET)
+
+  if (sock->flags & SOCK_FLAG_SOCK)
     {
-      log_printf(LOG_FATAL, "cannot enqueue invalid socket\n");
-      return -1;
+      if (sock->sock_desc == INVALID_SOCKET)
+	{
+	  log_printf(LOG_FATAL, "cannot enqueue invalid socket\n");
+	  return -1;
+	}
     }
 
   if (sock_lookup_table[sock->socket_id])
@@ -300,8 +298,6 @@ sock_enqueue (socket_t sock)
 int
 sock_dequeue (socket_t sock)
 {
-
-#ifndef __MINGW32__
   if (sock->flags & SOCK_FLAG_PIPE)
     {
       if (!(sock->flags & SOCK_FLAG_LISTENING))
@@ -316,7 +312,6 @@ sock_dequeue (socket_t sock)
 	    }
 	}
     }
-#endif /* not __MINGW32__ */
 
   if (sock->flags & SOCK_FLAG_SOCK)
     {
@@ -673,7 +668,8 @@ check_sockets (void)
 	    {
 	      if (!(sock->flags & SOCK_FLAG_INITED))
 		if (sock->read_socket)
-		  sock->read_socket (sock);
+		  if (sock->read_socket (sock))
+		    sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
 

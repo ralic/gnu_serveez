@@ -970,7 +970,9 @@ AC_TYPE_SIGNAL
 if test $ac_cv_type_signal != void ; then
     AC_DEFINE(NONVOID_SIGNAL, 1, [Define if signal()s are non-void.])
 fi
+
 AC_TYPE_SIZE_T
+AC_TYPE_OFF_T
 
 dnl
 dnl Checking for crypt() function.

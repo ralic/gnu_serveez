@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.9 2000/06/20 21:57:38 raimi Exp $
+ * $Id: http-proto.c,v 1.10 2000/06/22 00:37:44 ela Exp $
  *
  */
 
@@ -575,10 +575,9 @@ http_send_file (socket_t sock)
   http_socket_t *http = sock->data;
   int num_written;
 
-  /* FIXME: is that length cast ok ? (raimi) */
+  /* Try sending throughout filedescriptor to socket. */
   num_written = sendfile (sock->sock_desc, sock->file_desc,
-			  (off_t *)&http->contentlength,
-			  SOCK_MAX_WRITE);
+			  &http->fileoffset, SOCK_MAX_WRITE);
   
   /* Some error occured. */
   if (num_written < 0)
@@ -1506,7 +1505,6 @@ http_get_response (socket_t sock, char *request, int flags)
 #if HAVE_SENDFILE
 	  sock->read_socket = NULL;
 	  sock->flags &= ~SOCK_FLAG_FILE;
-	  sock->flags |= SOCK_FLAG_SENDFILE;
 #else /* not HAVE_SENDFILE */
 	  sock->read_socket = http_file_read;
 #endif /* not HAVE_SENDFILE */
