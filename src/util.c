@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: util.c,v 1.4 2000/06/12 23:06:05 raimi Exp $
  *
  */
 
@@ -34,6 +34,17 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/ioctl.h>
+#include <net/if.h>
+#include <unistd.h>
+
+/* Solaris: */
+#if HAVE_SYS_SOCKIO_H
+# include <sys/sockio.h>
+#endif
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -441,6 +452,84 @@ util_inet_ntoa (unsigned long ip)
 	    (ip >> 8) & 0xff, ip & 0xff);
   return buffer;
 }
+
+/*
+ * Print a list of local interfaces if we are able to do so
+ */
+#if ENABLE_IFLIST
+void
+list_local_interfaces(void)
+{
+  int numreqs = 16;
+  struct ifconf ifc;
+  struct ifreq *ifr;
+  struct ifreq ifr2;
+  int n;
+  int fd;
+
+  /* Get a socket out of the Internet Address Family */
+  if (( fd = socket(AF_INET, SOCK_STREAM,0)) < 0 ) {
+    perror("socket");
+    return;
+  }
+
+  /* Collect information */
+  ifc.ifc_buf = NULL;
+  for (;;) {
+    ifc.ifc_len = sizeof(struct ifreq) * numreqs;
+    ifc.ifc_buf = realloc(ifc.ifc_buf, ifc.ifc_len);
+
+    if (ioctl(fd, SIOCGIFCONF, &ifc) < 0) {
+      perror("SIOCGIFCONF");
+      return;
+    }
+
+    /* FIXME: signed and unsigned? which one to cast ? */
+    if (ifc.ifc_len == sizeof(struct ifreq) * numreqs) {
+      /* assume it overflowed and try again */
+      numreqs += 10;
+      continue;
+    }
+    break;
+  }
+
+  printf("List of local interfaces you can start ip services on:\n");
+
+  ifr = ifc.ifc_req;
+  for (n = 0; n < ifc.ifc_len; n += sizeof(struct ifreq)) {
+    strcpy(ifr2.ifr_name, ifr->ifr_name);
+    ifr2.ifr_addr.sa_family = AF_INET;
+    if ( ioctl(fd, SIOCGIFADDR, &ifr2) == 0 ) {
+      printf("%8s: %u.%u.%u.%u\n",
+	     ifr->ifr_name,
+	     (unsigned char) ifr2.ifr_addr.sa_data[2],
+	     (unsigned char) ifr2.ifr_addr.sa_data[3],
+	     (unsigned char) ifr2.ifr_addr.sa_data[4],
+	     (unsigned char) ifr2.ifr_addr.sa_data[5] );
+      
+    } else {
+      perror("SIOCGIFADDR");
+      return;
+    }
+
+    ifr++;
+  }
+
+  printf("\n");
+
+  close(fd);
+  free(ifc.ifc_buf);
+}
+#else
+void
+list_local_interfaces(void)
+{
+  printf("\n"
+	 "Sorry, the list of local interfaces is not available. If you\n"
+	 "know how to get such a list on your OS, please contact\n"
+	 "Raimund Jacob <raimi@lkcc.org>. Thanks.\n\n");
+}
+#endif /* ENABLE_IFLIST */
 
 /*
  * Converts a given string to an unsigned integer.

@@ -45,6 +45,9 @@
 /* Define if you have the <stdio.h> header file.  */
 #undef HAVE_STDIO_H
 
+/* Define if you have the <sys/sockio.h> header file.  */
+#undef HAVE_SYS_SOCKIO_H
+
 /* Define if you have the <sys/utsname.h> header file.  */
 #undef HAVE_SYS_UTSNAME_H
 
@@ -59,6 +62,9 @@
 
 /* Define if debug code should be suppressed. */
 #undef NDEBUG
+
+/* Define if we are able to list local network interfaces. */
+#undef ENABLE_IFLIST
 
 /* Define if the control protocol should be supported. */
 #undef ENABLE_CONTROL_PROTO

@@ -2,7 +2,6 @@
  * irc-proto.c - basic IRC protocol functions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: irc-proto.c,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H

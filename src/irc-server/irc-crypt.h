@@ -2,7 +2,6 @@
  * irc-crypt.h - IRC crypt header definitions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This Is Free Software; You Can Redistribute It And/Or Modify
  * It Under The Terms Of The Gnu General Public License As Published By
@@ -18,6 +17,9 @@
  * Along With This Package; See The File Copying.  If Not, Write To
  * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, Ma 02111-1307, Usa.  
+ *
+ * $Id: irc-crypt.h,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ *
  */
 
 #ifndef __IRC_CRYPT_H__

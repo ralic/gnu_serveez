@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: serveez.c,v 1.4 2000/06/12 23:06:05 raimi Exp $
  *
  */
 
@@ -93,6 +93,7 @@ usage (void)
 #if HAVE_GETOPT_LONG
  "  -h, --help               display this help and exit\n"
  "  -V, --version            display version information and exit\n"
+ "  -i, --iflist             list local network interfaces and exit\n"
  "  -f, --file               file to use as configuration file [serveez.cfg]\n"
  "  -p, --port=PORT          port number the server should listen on\n"
  "  -v, --verbose=LEVEL      set level of verbosity\n"
@@ -102,6 +103,7 @@ usage (void)
 #else /* not HAVE_GETOPT_LONG */
  "  -h           display this help and exit\n"
  "  -V           display version information and exit\n"
+ "  -i           list local network interfaces and exit\n"
  "  -f           file to use as configuration file [serveez.cfg\n"
  "  -p PORT      port number the server should listen on\n"
  "  -v LEVEL     set level of verbosity\n"
@@ -118,6 +120,7 @@ static struct option server_options[] =
 {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'V'},
+  {"iflist", no_argument, NULL, 'i'},
   {"verbose", required_argument, NULL, 'v'},
   {"file", required_argument, NULL, 'f'},
   {"port", required_argument, NULL, 'p'},
@@ -151,10 +154,10 @@ main (int argc, char * argv[])
   init_config();
 
 #if HAVE_GETOPT_LONG
-  while ((arg = getopt_long (argc, argv, "p:hVv:f:P:m:", server_options,
+  while ((arg = getopt_long (argc, argv, "p:hViv:f:P:m:", server_options,
 			     &index)) != EOF)
 #else
-  while ((arg = getopt (argc, argv, "p:hVv:f:P:m:")) != EOF)
+  while ((arg = getopt (argc, argv, "p:hViv:f:P:m:")) != EOF)
 #endif
     {
       switch (arg)
@@ -166,6 +169,11 @@ main (int argc, char * argv[])
 
 	case 'V':
 	  version ();
+	  exit (0);
+	  break;
+
+	case 'i':
+	  list_local_interfaces ();
 	  exit (0);
 	  break;
 
