@@ -145,6 +145,10 @@ or '--enable-<?>=no'.
 	the main file descriptor loop is done via poll(). This helps to
 	work around the (g)libc's file descriptor limit. Otherwise we
 	always fall back to the select() system call.
+`--enable-sendfile'
+	Enables the usage of the sendfile() system call. The option helps
+	to work around bogus implementations of this feature if you disable
+	it via `--disable-sendfile'.
 `--enable-gnutella'
 	If you do not want the gnutella spider client compiled in you need
 	to disable this option.

@@ -191,6 +191,9 @@
 /* Define if poll() should be supported if possible. */
 #define ENABLE_POLL 1
 
+/* Define if sendfile() should be supported if possible. */
+#define ENABLE_SENDFILE 1
+
 /* Define if the SNTP server should be included. */
 #define ENABLE_SNTP_PROTO 1
 

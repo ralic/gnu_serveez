@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.71 2001/07/09 12:44:17 ela Exp $
+ * $Id: http-proto.c,v 1.72 2001/07/09 23:09:55 ela Exp $
  *
  */
 
@@ -391,6 +391,7 @@ http_idle (svz_socket_t *sock)
   return http_cgi_died (sock);
 }
 
+#if ENABLE_SENDFILE
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 /*
  * This routine is using sendfile() to transport large file's content
@@ -451,6 +452,7 @@ http_send_file (svz_socket_t *sock)
   return (num_written < 0) ? -1 : 0;
 }
 #endif /* HAVE_SENDFILE */
+#endif /* ENABLE_SENDFILE */
 
 /*
  * HTTP_DEFAULT_WRITE will shutdown the connection immediately when 
@@ -519,6 +521,7 @@ http_default_write (svz_socket_t *sock)
 	  sock->send_buffer_fill = 42;
 	  sock->write_socket = http_cache_write;
 	}
+#if ENABLE_SENDFILE
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 # ifdef __MINGW32__
       else if (sock->userflags & HTTP_FLAG_SENDFILE && 
@@ -531,6 +534,7 @@ http_default_write (svz_socket_t *sock)
 	  sock->write_socket = http_send_file;
 	}
 #endif /* HAVE_SENDFILE || __MINGW32__ */
+#endif /* ENABLE_SENDFILE */
     }
 
   /*
@@ -907,6 +911,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
   int n;
 
   sprintf (info, "This is a http client connection.\r\n\r\n");
+#if ENABLE_SENDFILE
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
   if (sock->userflags & HTTP_FLAG_SENDFILE)
     {
@@ -915,6 +920,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
       strcat (info, text);
     }
 #endif /* HAVE_SENDFILE || __MINGW32__ */
+#endif /* ENABLE_SENDFILE */
   if (sock->userflags & HTTP_FLAG_KEEP)
     {
       sprintf (text, 
@@ -1261,7 +1267,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
        */
       else
 	{
-#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
+#if ENABLE_SEDNFILE && (HAVE_SENDFILE || defined (__MINGW32__))
 # ifdef __MINGW32__
 	  if (svz_os_version >= WinNT4x)
 	    {
@@ -1279,7 +1285,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 # endif
 #else /* not HAVE_SENDFILE */
 	  sock->read_socket = http_file_read;
-#endif /* HAVE_SENDFILE || __MINGW32__ */
+#endif /* HAVE_SENDFILE || __MINGW32__ && ENABLE_SENDFILE */
 	}
     }
 

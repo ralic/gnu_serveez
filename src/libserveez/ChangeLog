@@ -1,3 +1,8 @@
+2001-07-10  [ Ela ]  <ela@lkcc.org>
+
+	* core.c (svz_sendfile): Using overlapped I/O when calling 
+	TransmitFile().
+
 2001-07-09  Stefan Jahn  <s.jahn@bit-side.de>
 
 	* core.c (svz_sendfile): Fixed return value on Win32 systems.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.16 2001/07/09 12:44:17 ela Exp $
+ * $Id: core.c,v 1.17 2001/07/09 23:09:55 ela Exp $
  *
  */
 
@@ -368,7 +368,6 @@ svz_tcp_cork (SOCKET fd, int set)
   return 0;
 }
 
-#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 /*
  * This function transmits data between one file descriptor and another 
  * where @var{in_fd} is the source and @var{out_fd} the destination. The
@@ -382,6 +381,11 @@ svz_tcp_cork (SOCKET fd, int set)
 int
 svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 {
+#ifndef ENABLE_SENDFILE
+  svz_log (LOG_ERROR, "sendfile() disabled\n");
+  return -1;
+#else
+#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
   int ret;
 #if defined (__osf__)
   /* FIXME: What are 3 last args for ??? */
@@ -393,12 +397,38 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
 #elif defined (__MINGW32__)
+  OVERLAPPED overlap = { 0, 0, *offset, 0, NULL };
+  DWORD result;
+
+  /* Data transmission via overlapped I/O. */
   if (!TransmitFile ((SOCKET) out_fd, (HANDLE) in_fd, count, 0, 
-		     NULL, NULL, 0))
+                     &overlap, NULL, 0))
     {
-      svz_log (LOG_ERROR, "TransmitFile: %s\n", SYS_ERROR);
-      ret = -1;
+      /* Operation is pending. */
+      if (GetLastError () == ERROR_IO_PENDING)
+        {
+          /* Wait for the operation to complete (blocking). */
+          if ((result = WaitForSingleObject ((HANDLE) out_fd, INFINITE)) != 
+              WAIT_OBJECT_0)
+            {
+              svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+              ret = -1;
+            }
+          /* Finally transmitted the data. */
+          else
+            {
+              *offset += count;
+              ret = count;
+            }
+        }
+      /* Some error occurred. */
+      else
+        {
+          svz_log (LOG_ERROR, "TransmitFile: %s\n", SYS_ERROR);
+          ret = -1;
+        }
     }
+  /* Data transmission completed successfully at once. */
   else
     {
       *offset += count;
@@ -408,9 +438,12 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
   ret = sendfile (out_fd, in_fd, (off_t *) offset, count);
 #endif
   return ret;
-}
+#else
+  svz_log (LOG_ERROR, "sendfile() not available\n");
+  return -1;
 #endif /* HAVE_SEND_FILE */
-
+#endif /* ENABLE_SENDFILE */
+}
 
 #ifndef __MINGW32__
 

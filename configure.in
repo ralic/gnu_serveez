@@ -347,6 +347,33 @@ unset define_enable_poll
 dnl ----------------------------------------------------------------------
 
 dnl
+dnl Check whether sendfile() should be supported.
+dnl
+
+AC_MSG_CHECKING([whether to use sendfile() if possible])
+AC_ARG_ENABLE(
+    sendfile,
+    [  --enable-sendfile       Include sendfile() support [default=yes]],
+    if test x$enableval = "xyes"; then
+	define_enable_sendfile=yes
+	AC_MSG_RESULT([yes])
+    else
+	define_enable_sendfile=no
+	AC_MSG_RESULT([no])
+    fi,
+    define_enable_sendfile=yes
+    AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_sendfile = yes ; then
+  AC_DEFINE(ENABLE_SENDFILE,
+    1, [Define if sendfile() should be supported if possible.])
+fi
+unset define_enable_sendfile
+
+dnl ----------------------------------------------------------------------
+
+dnl
 dnl Check whether the SNTP server should be included.
 dnl
 

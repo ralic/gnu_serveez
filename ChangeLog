@@ -1,3 +1,7 @@
+2001-07-09  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Conditionalized the use of sendfile().
+
 2001-07-05  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Fixed a bug for which the user could not disable
