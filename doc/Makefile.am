@@ -25,7 +25,7 @@
 
 AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
-serveez_TEXINFOS = $(srcdir)/guile-api.texi
+serveez_TEXINFOS = guile-api.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 	logo.jpg logosmall.jpg mandel.jpg serveez-api.texi.in \
