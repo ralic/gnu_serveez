@@ -998,7 +998,10 @@ entry.
 @item cache-entries (integer, default: 64)
 This parameter specifies the maximum number of HTTP file cache entries
 (files). When you instantiate more than one HTTP server the biggest value
-wins. The HTTP file cache is shared by all HTTP servers.
+wins. The HTTP file cache is shared by all HTTP servers.@*
+@strong{Please note}: If your harddrive/filesystem combination proves to 
+be faster than the HTTP file cache you should disable it by setting both
+@code{cache-size} and @code{cache-entries} to zero.
 
 @item timeout (integer, default: 15)
 The @code{timeout} value is the amount of time in seconds after which 

@@ -1,3 +1,8 @@
+2001-07-30  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (HTTP Server): Added a note about the performance
+	of Linux's VFS vs. HTTP file cache.
+
 2001-07-28  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Embedded servers): Started to document how to

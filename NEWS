@@ -28,6 +28,7 @@ files.
 Version 0.1.1
 -------------
 
+ * faster http file cache
  * automatic coserver restart on buffer overrun or death
  * Guile server examples
  * Guile servers can be enabled via --enable-guile-server

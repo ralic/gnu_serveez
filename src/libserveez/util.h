@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.11 2001/07/02 11:46:34 ela Exp $
+ * $Id: util.h,v 1.12 2001/07/30 10:15:25 ela Exp $
  *
  */
 
@@ -121,12 +121,6 @@ SERVEEZ_API const char *svz_hstrerror __P ((void));
 # define SOCK_UNAVAILABLE  EAGAIN
 # define SOCK_INPROGRESS   EINPROGRESS
 #endif /* !__MINGW32__ */
-
-#ifdef __MINGW32__
-typedef char * svz_envblock_t;
-#else
-typedef char ** svz_envblock_t;
-#endif
 
 #ifdef __MINGW32__
 /*

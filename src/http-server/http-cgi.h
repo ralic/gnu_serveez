@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.9 2001/05/19 23:04:57 ela Exp $
+ * $Id: http-cgi.h,v 1.10 2001/07/30 10:15:25 ela Exp $
  *
  */
 
@@ -38,13 +38,6 @@
 #define POST_METHOD 0            /* POST id */
 #define GET_METHOD  1            /* GET id */
 #define HTTP_NO_CGI ((char *)-1) /* 'no cgi' pointer */
-
-#ifdef __MINGW32__
-# define ENV_BLOCK_SIZE 2048 /* max. environment block size */
-#else
-# define ENV_LENGTH     256  /* length of an environment variable */
-# define ENV_ENTRIES    64   /* max. amount of environment variables */
-#endif
 
 #define CGI_VERSION "CGI/1.0"
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.46 2001/07/28 19:35:12 ela Exp $
+ * $Id: http-cgi.c,v 1.47 2001/07/30 10:15:25 ela Exp $
  *
  */
 
@@ -355,59 +355,17 @@ http_cgi_write (svz_socket_t *sock)
 }
 
 /*
- * Insert a further variable into the environment block. How
- * we really do it depends on the system we compile with.
- */
-static void
-http_insert_env (svz_envblock_t env, /* the block to add the variable to */
-		 int *length,        /* pointer to the current length of it */
-		 char *fmt,          /* format string */
-		 ...)                /* arguments for the format string */
-{
-  va_list args;
-
-  va_start (args, fmt);
-#ifdef __MINGW32__
-  /* Windows: */
-  if (*length >= ENV_BLOCK_SIZE)
-    {
-      svz_log (LOG_WARNING, "cgi: env block size %d reached\n", 
-	       ENV_BLOCK_SIZE);
-    }
-  else
-    {
-      svz_vsnprintf (&env[*length], ENV_BLOCK_SIZE - (*length), fmt, args);
-      *length += strlen (&env[*length]) + 1;
-    }
-#else
-  /* Unices: */
-  if (*length >= ENV_ENTRIES - 1)
-    {
-      svz_log (LOG_WARNING, "cgi: all env entries %d filled\n", ENV_ENTRIES);
-    }
-  else
-    {
-      env[*length] = svz_malloc (ENV_LENGTH);
-      svz_vsnprintf (env[*length], ENV_LENGTH, fmt, args);
-      (*length)++;
-    }
-#endif
-  va_end (args);
-}
-
-/*
  * Create the environment block for a CGI script. Depending on the
  * system the environment is a field of null terminated char pointers
  * (for Unices) followed by a null pointer or one char pointer where
  * the variables a separated by zeros and the block is terminated
- * by a further zero. It returns either the amount of defined variables
- * or the size of the block in bytes.
+ * by a further zero. It returns the amount of defined variables.
  */
 static int
-http_create_cgi_envp (svz_socket_t *sock, /* socket for this request */
-		      svz_envblock_t env, /* env block */
-		      char *script,       /* the cgi script's filename */
-		      int type)           /* the cgi type */
+http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
+		      svz_envblock_t *env, /* env block */
+		      char *script,        /* the cgi script's filename */
+		      int type)            /* the cgi type */
 {
   http_socket_t *http;
   http_config_t *cfg = sock->cfg;
@@ -440,8 +398,10 @@ http_create_cgi_envp (svz_socket_t *sock, /* socket for this request */
   };
 
   unsigned n; 
-  int size = 0;
   int c;
+
+  /* setup default environment */
+  svz_envblock_default (env);
 
   /* get http socket structure */
   http = sock->data;
@@ -452,8 +412,8 @@ http_create_cgi_envp (svz_socket_t *sock, /* socket for this request */
       for (n = 0; http->property[n]; n += 2)
 	if (!svz_strcasecmp (http->property[n], env_var[c].property))
 	  {
-	    http_insert_env (env, &size, "%s=%s", 
-			     env_var[c].env, http->property[n + 1]);
+	    svz_envblock_add (env, "%s=%s", 
+			      env_var[c].env, http->property[n + 1]);
 	    break;
 	  }
 
@@ -461,30 +421,20 @@ http_create_cgi_envp (svz_socket_t *sock, /* socket for this request */
    * set up some more environment variables which might be 
    * necessary for the cgi script
    */
-  http_insert_env (env, &size, "SERVER_NAME=%s", 
-		   cfg->host ? cfg->host : svz_inet_ntoa (sock->local_addr));
-  http_insert_env (env, &size, "SERVER_PORT=%u", ntohs (sock->local_port));
-  http_insert_env (env, &size, "REMOTE_ADDR=%s", http->host ? http->host :
-		   svz_inet_ntoa (sock->remote_addr));
-  http_insert_env (env, &size, "REMOTE_PORT=%u", ntohs (sock->remote_port));
-  http_insert_env (env, &size, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
-  http_insert_env (env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
-  http_insert_env (env, &size, "SERVER_PROTOCOL=%s", HTTP_VERSION);
-  http_insert_env (env, &size, "SERVER_SOFTWARE=%s/%s", 
-		   svz_library, svz_version);
-  http_insert_env (env, &size, "REQUEST_METHOD=%s", request_type[type]);
+  svz_envblock_add (env, "SERVER_NAME=%s", 
+		    cfg->host ? cfg->host : svz_inet_ntoa (sock->local_addr));
+  svz_envblock_add (env, "SERVER_PORT=%u", ntohs (sock->local_port));
+  svz_envblock_add (env, "REMOTE_ADDR=%s", http->host ? http->host :
+		    svz_inet_ntoa (sock->remote_addr));
+  svz_envblock_add (env, "REMOTE_PORT=%u", ntohs (sock->remote_port));
+  svz_envblock_add (env, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
+  svz_envblock_add (env, "GATEWAY_INTERFACE=%s", CGI_VERSION);
+  svz_envblock_add (env, "SERVER_PROTOCOL=%s", HTTP_VERSION);
+  svz_envblock_add (env, "SERVER_SOFTWARE=%s/%s", 
+		    svz_library, svz_version);
+  svz_envblock_add (env, "REQUEST_METHOD=%s", request_type[type]);
 
-#ifdef __MINGW32__
-  /* now copy the original environment block */
-  for (n = 0; environ[n]; n++)
-    http_insert_env (env, &size, "%s", environ[n]);
-
-  env[size] = 0;
-#else
-  env[size] = NULL;
-#endif
-
-  return size;
+  return env->size;
 }
 
 /*
@@ -582,15 +532,14 @@ http_check_cgi (svz_socket_t *sock, char *request)
  * cgi file (including the path). This MUST be freed afterwards.
  */
 char *
-http_pre_exec (svz_socket_t *sock,  /* socket structure */
-	       svz_envblock_t envp, /* environment block to be filled */
-	       char *file,          /* plain executable name */
-	       char *request,       /* original http request */
-	       int type)            /* POST or GET ? */
+http_pre_exec (svz_socket_t *sock,   /* socket structure */
+	       svz_envblock_t *envp, /* environment block to be filled */
+	       char *file,           /* plain executable name */
+	       char *request,        /* original http request */
+	       int type)             /* POST or GET ? */
 {
   char *cgidir;
   char *cgifile;
-  int size;
   char *p;
   http_config_t *cfg = sock->cfg;
 
@@ -621,7 +570,7 @@ http_pre_exec (svz_socket_t *sock,  /* socket structure */
   svz_free (cgidir);
 
   /* create the environment block for the CGI script */
-  size = http_create_cgi_envp (sock, envp, file, type);
+  http_create_cgi_envp (sock, envp, file, type);
 
   /* put the QUERY_STRING into the env variables if necessary */
   if (type == GET_METHOD)
@@ -629,12 +578,7 @@ http_pre_exec (svz_socket_t *sock,  /* socket structure */
       p = request;
       while (*p != '?' && *p != 0)
 	p++;
-      http_insert_env (envp, &size, "QUERY_STRING=%s", *p ? p + 1 : "");
-#ifdef __MINGW32__
-      envp[size] = 0;
-#else
-      envp[size] = NULL;
-#endif
+      svz_envblock_add (envp, "QUERY_STRING=%s", *p ? p + 1 : "");
     }
 
   return cgifile;
@@ -718,17 +662,16 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   HANDLE pid;    /* the pid from fork() or the process handle in Win32 */
   char *cgifile; /* path including the name of the cgi script */
   http_socket_t *http;
+  svz_envblock_t *envp;
 
 #ifdef __MINGW32__
   http_config_t *cfg = sock->cfg;
   STARTUPINFO StartupInfo;         /* store here the inherited handles */
   PROCESS_INFORMATION ProcessInfo; /* where we get the process handle from */
   char *savedir;                   /* save the original directory */
-  char *envp;
   char *suffix, *p;
   char *cgiapp;
 #else
-  char *envp[ENV_ENTRIES];
   char *argv[2];
   struct stat buf;
   int retries;
@@ -751,7 +694,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
     StartupInfo.hStdInput = in;
 
   /* reserve buffer space for the environment block */
-  envp = svz_malloc (ENV_BLOCK_SIZE);
+  envp = svz_envblock_create ();
   savedir = svz_malloc (MAX_CGI_DIR_LEN);
 
   /* save the current directory */
@@ -763,7 +706,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
-      svz_free (envp);
+      svz_envblock_destroy (envp);
       svz_free (savedir);
       return -1;
     }
@@ -804,7 +747,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
       svz_free (cgifile);
-      svz_free (envp);
+      svz_envblock_destroy (envp);
       svz_free (savedir);
       return -1;
     }
@@ -815,20 +758,20 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
       svz_free (cgifile);
-      svz_free (envp);
+      svz_envblock_destroy (envp);
       svz_free (savedir);
       return -1;
     }
 
   /* create the process here */
-  if (!CreateProcess (NULL,                /* ApplicationName */
-		      cgifile,             /* CommandLine */
-		      NULL,                /* ProcessAttributes */
-		      NULL,                /* ThreadAttributes */
-		      TRUE,                /* InheritHandles */
-		      DETACHED_PROCESS,    /* CreationFlags */
-		      envp,                /* Environment */
-		      NULL,                /* CurrentDirectory */
+  if (!CreateProcess (NULL,                    /* ApplicationName */
+		      cgifile,                 /* CommandLine */
+		      NULL,                    /* ProcessAttributes */
+		      NULL,                    /* ThreadAttributes */
+		      TRUE,                    /* InheritHandles */
+		      DETACHED_PROCESS,        /* CreationFlags */
+		      svz_envblock_get (envp), /* Environment */
+		      NULL,                    /* CurrentDirectory */
 		      &StartupInfo, &ProcessInfo))
     {
       svz_log (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
@@ -839,7 +782,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
       svz_free (cgifile);
-      svz_free (envp);
+      svz_envblock_destroy (envp);
       svz_free (savedir);
       return -1;
     }
@@ -847,7 +790,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   /* reenter the actual directory and free reserved space */
   chdir (savedir);
   svz_free (cgifile);
-  svz_free (envp);
+  svz_envblock_destroy (envp);
   svz_free (savedir);
   pid = ProcessInfo.hProcess;
 
@@ -867,6 +810,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       /* ------ child process here ------ */
 
       /* create environment block */
+      envp = svz_envblock_create ();
       if ((cgifile = http_pre_exec (sock, envp, file, request, type)) == NULL)
 	{
 	  exit (0);
@@ -952,7 +896,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
        * Execute the CGI script itself here. This will overwrite the 
        * current process.
        */
-      if (execve (cgifile, argv, envp) == -1)
+      if (execve (cgifile, argv, svz_envblock_get (envp)) == -1)
 	{
 	  svz_log (LOG_ERROR, "cgi: execve: %s\n", SYS_ERROR);
 	  exit (0);

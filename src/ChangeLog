@@ -1,3 +1,13 @@
+2001-07-30  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-cache.c (http_free_cache): Fixed segmentation
+	fault due to pure dumbness of mine.
+
+	* http-server/http-cgi.c (http_create_cgi_envp): Adapted
+	the code to the new svz_envblock_*() functions of the core API.
+	Thereby removed the restriction for the environment sizes of cgi
+	scripts.
+	
 2001-07-28  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-cache.c (http_urgent_cache): LRU detection

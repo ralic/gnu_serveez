@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.14 2001/06/01 21:24:09 ela Exp $
+ * $Id: alloc.c,v 1.15 2001/07/30 10:15:25 ela Exp $
  *
  */
 
@@ -311,7 +311,7 @@ svz_free (void *ptr)
 		   ptr, __builtin_return_address (0));
 	  assert (0);
 	}
-     svz_free_func (block);
+      svz_free_func (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get blocksize */
@@ -324,7 +324,7 @@ svz_free (void *ptr)
 
       svz_allocated_blocks--;
 #endif /* ENABLE_DEBUG */
-     svz_free_func (ptr);
+      svz_free_func (ptr);
     }
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.1 2001/07/06 22:49:06 ela Exp $
+ * $Id: passthrough.h,v 1.2 2001/07/30 10:15:25 ela Exp $
  *
  */
 
@@ -29,12 +29,33 @@
 
 #include "libserveez/defines.h"
 
+#ifdef __MINGW32__
+typedef char * svz_envp_t;
+#else
+typedef char ** svz_envp_t;
+#endif
+
+/* Structure containing a system independent environment. */
+typedef struct
+{
+  int size;
+  char **entry;
+  char *block;
+}
+svz_envblock_t;
+
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_process __P ((svz_socket_t *, 
 				       char *, char **, char **));
 SERVEEZ_API int svz_process_check_executable __P ((char *, char **));
 SERVEEZ_API int svz_process_check_access __P ((char *));
+SERVEEZ_API int svz_envblock_add __P ((svz_envblock_t *, char *, ...));
+SERVEEZ_API svz_envblock_t *svz_envblock_create __P ((void));
+SERVEEZ_API int svz_envblock_default __P ((svz_envblock_t *));
+SERVEEZ_API int svz_envblock_free __P ((svz_envblock_t *));
+SERVEEZ_API void svz_envblock_destroy __P ((svz_envblock_t *));
+SERVEEZ_API svz_envp_t svz_envblock_get __P ((svz_envblock_t *));
 
 __END_DECLS
 

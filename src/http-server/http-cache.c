@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.31 2001/07/28 19:35:12 ela Exp $
+ * $Id: http-cache.c,v 1.32 2001/07/30 10:15:25 ela Exp $
  *
  */
 
@@ -82,11 +82,12 @@ void
 http_free_cache (void)
 {
   int total, files;
-  http_cache_entry_t *cache;
+  http_cache_entry_t *cache, *next;
 
   files = total = 0;
-  for (cache = http_cache_first; cache; cache = cache->next)
+  for (cache = http_cache_first; cache; cache = next)
     {
+      next = cache->next;
       total += cache->size;
       files++;
       svz_free (cache->buffer);
@@ -206,7 +207,6 @@ http_check_cache (char *file, http_cache_t *cache)
 {
   http_cache_entry_t *cachefile;
 
-  cache->entry = NULL;
   if ((cachefile = svz_hash_get (http_cache, file)) != NULL)
     {
       /* set this entry to the most recent, ready or not  */
@@ -263,7 +263,7 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
   else
     http_cache_last = cache->prev;
 
-  if (cache->buffer)
+  if (cache->ready)
     svz_free (cache->buffer);
   svz_free (cache->file);
   svz_free (cache);
@@ -373,8 +373,7 @@ http_init_cache (char *file, http_cache_t *cache)
 void
 http_refresh_cache (http_cache_t *cache)
 {
-  svz_free (cache->entry->buffer);
-  cache->entry->buffer = NULL;
+  svz_free_and_zero (cache->entry->buffer);
   cache->entry->ready = 0;
   cache->entry->hits = 0;
   cache->entry->usage = 0;
