@@ -1300,11 +1300,27 @@ REDHAT_TOPDIR=/opt
 AC_SUBST(REDHAT_TOPDIR)
 
 dnl
+dnl Setup configuration variables.
+dnl
+SERVEEZ_CONFIG_CFLAGS="-I$prefix/include"
+if test "x$SERVEEZ_CFLAGS" != "x" ; then
+  SERVEEZ_CONFIG_CFLAGS="$SERVEEZ_CONFIG_CFLAGS $SERVEEZ_CFLAGS"
+fi
+if test "x$enable_shared" = "xyes" ; then
+  SERVEEZ_CONFIG_LDFLAGS="-L$prefix/lib -lserveez"
+else
+  SERVEEZ_CONFIG_LDFLAGS="$prefix/lib/libserveez.a"
+fi
+AC_SUBST(SERVEEZ_CONFIG_CFLAGS)
+AC_SUBST(SERVEEZ_CONFIG_LDFLAGS)
+
+dnl
 dnl Output files.
 dnl
 AC_OUTPUT(
     Makefile src/Makefile src/libserveez/Makefile
     src/libserveez/coserver/Makefile
+    src/serveez-config
     src/awcs-server/Makefile
     src/ctrl-server/Makefile
     src/http-server/Makefile

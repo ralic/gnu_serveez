@@ -1,3 +1,8 @@
+2001-09-10  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-config.in: New file. Utility for compiling and linking
+	a program with Serveez.
+
 2001-09-08  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez.h: Including `array.h' explicitly.
