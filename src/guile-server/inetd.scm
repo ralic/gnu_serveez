@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.4 2001/11/28 23:33:35 ela Exp $
+;; $Id: inetd.scm,v 1.5 2001/12/01 12:54:11 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -57,9 +57,11 @@
 	   '())))
 
 ;; splits a string in the format "string1.string2" into a pair.  if 
-;; ".string2" is omitted the (cdr) defaults to #f.
-(define (split-tuple string)
-  (let ((i (string-index string #\.)))
+;; ".string2" is omitted the (cdr) defaults to #f.  the default delimiter
+;; for a tuple is #\. and can be set via the last argument.
+(define (split-tuple string . c)
+  (let* ((c (if (pair? c) (car c) #\.))
+	 (i (string-index string c)))
     (if i
 	(cons (substring string 0 i) (substring string (1+ i)))
 	(cons string #f))))
@@ -118,9 +120,15 @@
 (define (lookup-service service-line)
   (catch #t
 	 (lambda ()
-	   (let ((service (getservbyname (vector-ref service-line 0) 
-					 (vector-ref service-line 2))))
-	     service))
+	   (if (cdr (split-tuple (vector-ref service-line 2) #\/))
+	       (begin
+		 (display (string-append "inetd: rpc service `"
+					 (vector-ref service-line 0)
+					 "' not supported\n"))
+		 #f)
+	       (let ((service (getservbyname (vector-ref service-line 0) 
+					     (vector-ref service-line 2))))
+		 service)))
 	 (lambda key
 	   (display (string-append "inetd: no such service `"
 				   (vector-ref service-line 0)
