@@ -1,3 +1,13 @@
+2001-12-12  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/inetd.scm (bind-rpc-service): RPC service
+	capabilities added.  Ready for testing.
+
+	* guile-api.c (guile_server_listeners): New Guile procedure
+	returning a list of listening server sockets for a given
+	server instance.
+	(scm_portmap): RPC port mapper interface for Guile.
+
 2001-12-07  [ Ela ]  <ela@lkcc.org>
 
 	* guile.c (guile_define_port): Added `device' keyword for 

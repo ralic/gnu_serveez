@@ -1,3 +1,16 @@
+2001-12-12  [ Ela ]  <ela@lkcc.org>
+
+	* server-socket.c (svz_server_create): Modify the port 
+	configuration if needed.  Since we allow zero network ports it
+	can happen the system chooses one.  This choosen one is going
+	to be in the original port configuration then.
+
+	* portcfg.c (svz_portcfg_mkaddr): Also allow network port zero
+	which lets the system choose one of its own.
+
+	* passthrough.h: Moved the extern declaration of `environ'
+	here from `passthrough.c'.
+
 2001-12-10  [ Ela ]  <ela@lkcc.org>
 
 	* passthrough.h (svz_envblock_setup): New macro in order to 

@@ -1,3 +1,8 @@
+2001-12-12  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Checking for more rpc functionality and 
+	headers.
+
 2001-12-08  [ Ela ]  <ela@lkcc.org>
 
 	* acinclude.m4: New macro AC_LIBTOOL_SOLARIS.  Helps libtool

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.28 2001/12/07 22:25:49 ela Exp $
+ * $Id: portcfg.c,v 1.29 2001/12/12 19:02:51 ela Exp $
  *
  */
 
@@ -478,9 +478,9 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
     case PROTO_TCP:
       err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
       this->tcp_addr.sin_family = AF_INET;
-      if (!(this->tcp_port > 0 && this->tcp_port < 65536))
+      if (!(this->tcp_port >= 0 && this->tcp_port < 65536))
 	{
-	  svz_log (LOG_ERROR, "%s: TCP port requires a short (1..65535)\n",
+	  svz_log (LOG_ERROR, "%s: TCP port requires a short (0..65535)\n",
 		   this->name);
 	  err = -1;
 	}
@@ -496,9 +496,9 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
     case PROTO_UDP:
       err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
       this->udp_addr.sin_family = AF_INET;
-      if (!(this->udp_port > 0 && this->udp_port < 65536))
+      if (!(this->udp_port >= 0 && this->udp_port < 65536))
 	{
-	  svz_log (LOG_ERROR, "%s: UDP port requires a short (1..65535)\n",
+	  svz_log (LOG_ERROR, "%s: UDP port requires a short (0..65535)\n",
 		   this->name);
 	  err = -1;
 	}

@@ -28,6 +28,10 @@ files.
 Version 0.1.3
 -------------
 
+ * inetd runs RPC services
+ * RPC (remote procedure call) capabilities exported to Guile
+ * shared build on MacOS X10.1 possible (libtool patch)
+ * some `configure' magic to support shared build on SunOS/Solaris
 
 Version 0.1.2
 -------------

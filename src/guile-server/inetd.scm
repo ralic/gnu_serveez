@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.5 2001/12/01 12:54:11 ela Exp $
+;; $Id: inetd.scm,v 1.6 2001/12/12 19:02:50 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -113,6 +113,138 @@
 	(vector-set! vector (car tokens) (string-split string))
 	(set! vector (if (null? vector) #f (list->vector vector))))
     vector))
+
+;; returns the full rpc entry for a given service name or #f if there is
+;; no such service found in the file `/etc/rpc'
+(define (lookup-rpc-service name)
+  (catch #t
+	 (lambda ()
+	   (getrpc name))
+	 (lambda key
+	   (display (string-append "inetd: no such rpc service `" name "'\n"))
+	   #f)))
+
+;; this procedure translates a given service line into a pair containing
+;; the full rpc entry as a vector and their versions (also as a pair of 
+;; numbers)
+(define (get-rpc-service service-line)
+  (let* ((entry (split-tuple (vector-ref service-line 0) #\/))
+	 (name (car entry))
+	 (versions (split-tuple (cdr entry) #\-))
+	 (version-begin (car versions))
+	 (version-end (if (cdr versions) (cdr versions) version-begin)))
+    (cons (lookup-rpc-service name) 
+	  (cons (string->number version-begin) 
+		(string->number version-end)))))
+
+;; creates a unique name suffix for rpc servers and port configurations
+(define (protocol-rpc-string rpc proto)
+  (string-append proto "-" rpc))
+
+;; creates and defines a rpc port configuration.  the network port is set
+;; to zero in order to let the system choose one
+(define (create-rpc-portcfg rpc proto)
+  (let* ((port '()) 
+	 (name "undefined"))
+    (set! port (cons (cons "proto" proto) port))
+    (set! port (cons (cons "port" 0) port))
+    (set! name (string-append "inetd-port-"
+			      (protocol-rpc-string rpc proto)))
+    (define-port! name port)
+    name))
+
+;; creates and defines a rpc server instance from the given splitted service
+;; line.   
+(define (create-rpc-server line rpc proto)
+  (let* ((server '()) 
+	 (name "undefined")
+	 (threads (split-tuple (vector-ref line 3))))
+    (set! server (cons (cons "binary" (vector-ref line 5)) server))
+    (set! server (cons (cons "directory" directory) server))
+    (set! server (cons (cons "user" (vector-ref line 4)) server))
+    (set! server (cons (cons "do-fork" do-fork) server))
+    (set! server (cons (cons "single-threaded"
+			     (equal? (car threads) "wait")) 
+		       server))
+    (if (cdr threads)
+	(set! server (cons (cons "thread-frequency"
+				 (string->number (cdr threads)))
+			   server)))
+    (let ((argv (vector-ref line 6)))
+      (if argv
+	  (set! server (cons (cons "argv" (vector->list argv))
+			     server))))
+    (set! name (string-append "prog-server-"
+			      (protocol-rpc-string rpc proto)))
+    (define-server! name server)
+    name))
+
+;; returns either "tcp" or "udp" needed to determine the kind of port 
+;; configuration the identd has to define
+(define (rpc-protocol service-line)
+  (cdr (split-tuple (vector-ref service-line 2) #\/)))
+
+;; converts a given network protocol name into a valid ip protocol
+;; identifier
+(define (rpc-ip-proto service-line)
+  (if (equal? (rpc-protocol service-line) "tcp")
+      IPPROTO_TCP
+      IPPROTO_UDP))
+
+;; this procedure registers the rpc service identified by the triplet
+;; [number,version,protocol] at a network port system wide.  this 
+;; information can be obtained issuing the `rpcinfo -p' command.
+(define (run-rpc-portmapper number version protocol port)
+  (catch #t
+	 (lambda ()
+	   (portmap number version)
+	   (portmap number version protocol port))
+	 (lambda key
+	   (display (string-append "inetd: no such rpc service `" name "'\n"))
+	   #f)))
+
+;; when the inetd determines a valid rpc line in its configuration file
+;; this procedure is called.
+(define (bind-rpc-service service-line)
+  (let* ((service (get-rpc-service service-line))
+	 (rpc (car service))
+	 (versions (cdr service)))
+    (if rpc
+	;; create port configuration and server
+	(let* ((name (vector-ref rpc 0))
+	       (proto (rpc-protocol service-line))
+	       (port (create-rpc-portcfg name proto))
+	       (server (create-rpc-server service-line name proto)))
+	  ;; bind the server to its port
+	  (if verbose
+	      (display (string-append "inetd: binding `"
+				      server
+				      "' to `"
+				      port
+				      "'\n")))
+	  (bind-server! port server)
+
+	  ;; now go through each listening socket structure the server got
+	  ;; finally bound to
+	  (for-each (lambda (sock)
+		      ;; obtain the local network port
+		      (let ((port (cdr (svz:sock:local-address sock))))
+			;; for each version specified in the original
+			;; service line
+			(do ((version (car versions) (+ version 1)))
+			    ((> version (cdr versions)))
+			  ;; create a port-mapping
+			  (run-rpc-portmapper (vector-ref rpc 2) version
+					      (rpc-ip-proto service-line)
+					      (svz:ntohs port)))
+			))
+		    ;; get the listening socket sructures
+		    (svz:server:listeners server))
+	  ))))
+
+;; this checks if the given service line specifies a rpc service or not
+(define (rpc-service? service-line)
+  (cdr (split-tuple (vector-ref service-line 2) #\/)))
 
 ;; returns a service with fully qualified port, protocol, service 
 ;; name and its aliases if there is such a service, otherwise the 
@@ -234,18 +366,21 @@
 ;;   finally bind the server to the port.
 (define (create-bindings lines)
   (for-each (lambda (line)
-	      (let* ((service (string-split line 6))
-		     (port (create-portcfg service))
-		     (server (create-server service)))
-		(if (and port server)
+	      (let ((service (string-split line 6)))
+		(if (rpc-service? service)
+		    (bind-rpc-service service)
 		    (begin
-		      (if verbose
-			  (display (string-append "inetd: binding `"
-						  server
-						  "' to `"
-						  port
-						  "'\n")))
-		      (bind-server! port server)))))
+		      (let* ((port (create-portcfg service))
+			     (server (create-server service)))
+			(if (and port server)
+			    (begin
+			      (if verbose
+				  (display (string-append "inetd: binding `"
+							  server
+							  "' to `"
+							  port
+							  "'\n")))
+			      (bind-server! port server))))))))
 	    lines))
 
 ;; main program entry point

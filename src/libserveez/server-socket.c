@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.23 2001/12/07 22:25:49 ela Exp $
+ * $Id: server-socket.c,v 1.24 2001/12/12 19:02:51 ela Exp $
  *
  */
 
@@ -185,6 +185,17 @@ svz_server_create (svz_portcfg_t *port)
 	  if (closesocket (server_socket) < 0)
 	    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
+	}
+
+      /* Modify the port configuration if there was no network port given. 
+	 In this case the systems selects a free one. */
+      if (port->proto & (PROTO_TCP | PROTO_UDP) && addr->sin_port == 0)
+	{
+	  addr->sin_port = sock->local_port;
+	  if (port->proto & PROTO_TCP)
+	    port->tcp_port = ntohs (sock->local_port);
+	  else
+	    port->udp_port = ntohs (sock->local_port);
 	}
     }
 

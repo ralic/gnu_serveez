@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.17 2001/12/10 22:01:13 ela Exp $
+ * $Id: passthrough.c,v 1.18 2001/12/12 19:02:51 ela Exp $
  *
  */
 
@@ -48,10 +48,6 @@
 #endif
 #if HAVE_SYS_WAIT_H
 # include <sys/wait.h>
-#endif
-
-#if !defined(__MINGW32__) && !defined(__CYGWIN__)
-extern char **environ;
 #endif
 
 /*

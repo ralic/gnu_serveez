@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.13 2001/12/05 12:02:20 ela Exp $
+ * $Id: guile-api.c,v 1.14 2001/12/12 19:02:50 ela Exp $
  *
  */
 
@@ -29,14 +29,23 @@
 #if ENABLE_GUILE_SERVER
 
 #define _GNU_SOURCE
+#include <string.h>
+#include <errno.h>
 
 #ifndef __MINGW32__
 # include <sys/socket.h>
 # include <netdb.h>
+# include <netinet/in.h>
 #endif
 
 #if HAVE_RPC_RPCENT_H
 # include <rpc/rpcent.h>
+#endif
+#if HAVE_RPC_RPC_H
+# include <rpc/rpc.h>
+#endif
+#if HAVE_RPC_PMAP_CLNT_H
+# include <rpc/pmap_clnt.h>
 #endif
 
 #if GUILE_SOURCE
@@ -536,6 +545,45 @@ guile_sock_idle_counter (SCM sock, SCM counter)
 }
 #undef FUNC_NAME
 
+/* Returns a list of listening @code{#<svz-socket>} smobs to which the 
+   given server instance @var{server} is currently bound to or an empty list
+   if there is no such binding yet. */
+#define FUNC_NAME "svz:server:listeners"
+static SCM
+guile_server_listeners (SCM server)
+{
+  svz_server_t *xserver = NULL;
+  svz_array_t *listeners;
+  char *str;
+  unsigned long i;
+  SCM list = SCM_EOL;
+
+  /* Server instance name given ? */
+  if ((str = guile_to_string (server)) != NULL)
+    {
+      xserver = svz_server_get (str);
+      scm_c_free (str);
+    }
+  /* Maybe server smob given. */
+  if (xserver == NULL)
+    {
+      CHECK_SMOB_ARG (svz_server, server, SCM_ARG1, "svz-server or string", 
+		      xserver);
+    }
+
+  /* Create a list of socket smobs for the server. */
+  if ((listeners = svz_server_listeners (xserver)) != NULL)
+    {
+      for (i = 0; i < svz_array_size (listeners); i++)
+	list = scm_cons (MAKE_SMOB (svz_socket, (svz_socket_t *)
+				    svz_array_get (listeners, i)),
+			 list);
+      svz_array_destroy (listeners);
+    }
+  return scm_reverse (list);
+}
+#undef FUNC_NAME
+
 #if HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER
 static SCM
 scm_return_rpcentry (struct rpcent *entry)
@@ -622,6 +670,50 @@ scm_setrpc (SCM stayopen)
 #undef FUNC_NAME
 #endif /* HAVE_SETRPCENT && HAVE_ENDRPCENT */
 
+#if HAVE_PMAP_SET && HAVE_PMAP_UNSET
+/* A user interface to the portmap service, which establishes a mapping
+   between the triple [@var{prognum},@var{versnum},@var{protocol}] and 
+   @var{port} on the machine's portmap service. The value of @var{protocol}
+   is most likely @code{IPPROTO_UDP} or @code{IPPROTO_TCP}.
+   If the user omits @var{protocol} and @var{port} the procedure destroys
+   all mapping between the triple [@var{prognum},@var{versnum},*] and ports
+   on the machine's portmap service. */
+#define FUNC_NAME "portmap"
+SCM
+scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
+{
+  SCM_ASSERT_TYPE (SCM_INUMP (prognum), prognum, SCM_ARG1, 
+		   FUNC_NAME, "INUMP");
+  SCM_ASSERT_TYPE (SCM_INUMP (versnum), prognum, SCM_ARG2, 
+		   FUNC_NAME, "INUMP");
+
+  if (SCM_UNBNDP (protocol) && SCM_UNBNDP (port))
+    {
+      if (!pmap_unset (SCM_INUM (prognum), SCM_INUM (versnum)))
+	scm_syserror_msg (FUNC_NAME, "~A: pmap_unset ~A ~A",
+			  scm_listify (scm_makfrom0str (strerror (errno)),
+				       prognum, versnum, SCM_UNDEFINED), 
+			  errno);
+    }
+  else
+    {
+      SCM_ASSERT_TYPE (SCM_INUMP (protocol), protocol, SCM_ARG3, 
+		       FUNC_NAME, "INUMP");
+      SCM_ASSERT_TYPE (SCM_INUMP (port), port, SCM_ARG4, 
+		       FUNC_NAME, "INUMP");
+
+      if (!pmap_set (SCM_INUM (prognum), SCM_INUM (versnum), 
+		     SCM_INUM (protocol), (unsigned short) SCM_INUM (port)))
+	scm_syserror_msg (FUNC_NAME, "~A: pmap_set ~A ~A ~A ~A",
+			  scm_listify (scm_makfrom0str (strerror (errno)),
+				       prognum, versnum, protocol, port, 
+				       SCM_UNDEFINED), errno);
+    }
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+#endif /* HAVE_PMAP_SET && HAVE_PMAP_UNSET */
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
@@ -631,6 +723,11 @@ guile_api_init (void)
 #endif
 #if HAVE_SETRPCENT && HAVE_ENDRPCENT
   scm_c_define_gsubr ("setrpc", 0, 1, 0, scm_setrpc);
+#endif
+#if HAVE_PMAP_SET && HAVE_PMAP_UNSET
+  scm_c_define_gsubr ("portmap", 2, 2, 0, scm_portmap);
+  scm_c_define ("IPPROTO_UDP", scm_int2num (IPPROTO_UDP));
+  scm_c_define ("IPPROTO_TCP", scm_int2num (IPPROTO_TCP));
 #endif
   
   scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));
@@ -652,6 +749,7 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock:no-delay", 1, 1, 0, guile_sock_no_delay);
   scm_c_define_gsubr ("svz:sock?", 1, 0, 0, guile_sock_p);
   scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
+  scm_c_define_gsubr ("svz:server:listeners", 1, 0, 0, guile_server_listeners);
   scm_c_define_gsubr ("svz:sock:receive-buffer", 
 		      1, 0, 0, guile_sock_receive_buffer);
   scm_c_define_gsubr ("svz:sock:receive-buffer-reduce",

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.9 2001/12/10 22:01:13 ela Exp $
+ * $Id: passthrough.h,v 1.10 2001/12/12 19:02:51 ela Exp $
  *
  */
 
@@ -67,6 +67,11 @@ svz_process_t;
 /* Definitions for the @var{user} argument of @code{svz_sock_process()}. */
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)
+
+/* Extern declaration of the process environment pointer. */
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
+extern char **environ;
+#endif
 
 /* 
  * This macro must be called once after @code{svz_boot()} for setting up the
