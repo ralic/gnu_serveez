@@ -1,3 +1,13 @@
+2001-02-17  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (serveez-api.texi): Added a rule for creating
+	this file via the below scripts.
+
+	* serveez-api.awk: This awk script produces a sed script 
+	which replaces simple placeholders for C function within a 
+	texinfo file with its full documentation. The awk script
+	gets C source files as input.
+
 2001-02-07  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Tunnel Server): Documented the extended ICMP

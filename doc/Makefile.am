@@ -24,15 +24,20 @@
 #
 
 AUTOMAKE_OPTIONS = no-texinfo.tex
-
 info_TEXINFOS = serveez.texi serveez-api.texi
 man_MANS = serveez.1
-EXTRA_DIST = $(man_MANS) index.html logo.jpg logosmall.jpg gnu-serveez.html
-CLEANFILES = *.info serveez*.html *.tgz *~ *.info-[0-9] stamp-vti
+EXTRA_DIST = $(man_MANS) index.html gnu-serveez.html \
+	logo.jpg logosmall.jpg serveez-api.texi.in
+CLEANFILES = *.info serveez*.html *.tgz *~ *.info-[0-9] stamp-vti \
+	serveez-api.texi $(SED_FILE)
 MAINTAINERCLEANFILES = Makefile.in
 PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
 	../TODO ../BUGS ../NEWS *.jpg
 PACK_DIR = ./pack
+DOC_DIRS = $(top_srcdir)/src/libserveez
+DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
+  tcp-socket.c
+SED_FILE = serveez-api.sed
 
 # local dependencies
 
@@ -54,7 +59,18 @@ pack: serveez.html serveez-api.html
 	@rm -rf $(PACK_DIR)
 
 TEXI2HTML = texi2html
+SED = sed
 SUFFIXES = .html
+
+serveez-api.texi: serveez-api.texi.in
+	rm -f $(SED_FILE)
+	for dir in $(DOC_DIRS); do \
+	  for file in $(DOC_FILES); do \
+	    if test -r $$dir/$$file; then \
+	      $(AWK) -f serveez-api.awk $$dir/$$file >> $(SED_FILE); fi \
+	  done \
+	done
+	$(SED) -f $(SED_FILE) < $< > $@
 
 %.html: %.texi
 	$(TEXI2HTML) -split_chapter $<

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.3 2001/01/31 12:30:14 ela Exp $
+ * $Id: icmp-socket.c,v 1.4 2001/02/17 16:19:19 ela Exp $
  *
  */
 
@@ -795,6 +795,9 @@ icmp_connect (unsigned long host, unsigned short port)
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   sock_enqueue (sock);
   sock_intern_connection_info (sock);
+
+  /* put foreign address here */
+  sock->remote_addr = host;
 
   sock->read_socket = icmp_read_socket;
   sock->write_socket = icmp_write_socket;

@@ -76,6 +76,7 @@ dnl
 dnl Locate required external software.
 dnl
 AC_PROG_INSTALL
+AC_PROG_AWK
 
 dnl
 dnl Check for the ar library archiver.
