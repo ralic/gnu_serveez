@@ -1,4 +1,12 @@
-2000-01-27  Stefan Jahn  <stefan@bono.reversers.net>
+2000-07-01  [ Ela ]  <ela@lkcc.org>
+
+	* coserver.txt: Documentation on how to write coservers for 
+	blocking tasks within serveez.
+
+	* server.txt: Started to write some documentation on how to write
+	your own internet protocol server.
+
+2000-01-27  [ Ela ]  <ela@lkcc.org>
 
 	* Identification:      RFC 1413
 	* Internet Relay Chat: RFC 1459

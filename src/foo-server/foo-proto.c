@@ -1,5 +1,5 @@
 /*
- * foo-proto.c - example server
+ * foo-proto.c - example server implementation
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.6 2000/06/18 22:13:03 raimi Exp $
+ * $Id: foo-proto.c,v 1.7 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -49,11 +49,14 @@
 char *foo_packet_delim = "\r\n";
 int foo_packet_delim_len = 2;
 
+/*
+ * Default value defintions for the server configuration.
+ */
 struct portcfg some_default_port = 
 {
   PROTO_TCP,      /* we are tcp */
   42421,          /* standard port to listen on */
-  "*",            /* bind all local addresses   */
+  "*",            /* bind all local addresses */
   NULL,           /* calculated from above values later */
   NULL,           /* no inpipe for us */
   NULL            /* no outpipe for us */
@@ -82,8 +85,8 @@ char *some_default_strarray[] =
 hash_t *some_default_hash = NULL;
 
 /*
- * Demonstrate how our private cfg looks like and provide
- * default values...
+ * Demonstrate how our a private configuration looks like and provide
+ * default values.
  */
 struct foo_config mycfg = 
 {
@@ -97,21 +100,21 @@ struct foo_config mycfg =
 };
 
 /*
- * Prototype of our configuration
+ * Defining configuration file associations with key-value-pairs.
  */
-struct key_value_pair foo_config_prototype[] = 
+struct key_value_pair foo_config_prototype [] = 
 {
-  REGISTER_INT("bar", mycfg.bar, NOTDEFAULTABLE),
-  REGISTER_STR("reply", mycfg.reply, DEFAULTABLE),
-  REGISTER_STRARRAY("messages", mycfg.messages, DEFAULTABLE),
-  REGISTER_INTARRAY("ports", mycfg.ports, DEFAULTABLE),
-  REGISTER_HASH("assoc", mycfg.assoc, DEFAULTABLE),
-  REGISTER_PORTCFG("port", mycfg.port, DEFAULTABLE),
-  REGISTER_END()
+  REGISTER_INT ("bar", mycfg.bar, NOTDEFAULTABLE),
+  REGISTER_STR ("reply", mycfg.reply, DEFAULTABLE),
+  REGISTER_STRARRAY ("messages", mycfg.messages, DEFAULTABLE),
+  REGISTER_INTARRAY ("ports", mycfg.ports, DEFAULTABLE),
+  REGISTER_HASH ("assoc", mycfg.assoc, DEFAULTABLE),
+  REGISTER_PORTCFG ("port", mycfg.port, DEFAULTABLE),
+  REGISTER_END ()
 };
 
 /*
- * Definition of this server
+ * Definition of this server.
  */
 struct server_definition foo_server_definition =
 {
@@ -131,18 +134,18 @@ struct server_definition foo_server_definition =
 /* ************* Networking functions ************************* */
 
 /*
- * This callback is used when a coserver asynchonously resolved the
- * client's ip to a name
+ * This callback is used when a coserver asynchronously resolved the
+ * client's ip to a name.
  */
 int
 foo_handle_coserver_result (socket_t sock, char *hostent)
 {
-  sock_printf(sock, "You are `%s'\r\n", hostent);
+  sock_printf (sock, "You are `%s'\r\n", hostent);
   return 0;
 }
 
 /*
- * handle a single request as found by the default_check_request
+ * Handle a single request as found by the default_check_request.
  */
 int foo_handle_request (socket_t sock, char *request, int len)
 {
@@ -152,16 +155,16 @@ int foo_handle_request (socket_t sock, char *request, int len)
 }
 
 /*
- * this callback gets called whenever some unknown client connects and
- * sends some data. we check for some string that identifies the foo
- * protocol
+ * This callback gets called whenever some unknown client connects and
+ * sends some data. We check for some string that identifies the foo
+ * protocol.
  */
 int
 foo_detect_proto (void *cfg, socket_t sock)
 {
   /* see if the stream starts with our identification string */
   if (sock->recv_buffer_fill >= 5 &&
-      !memcmp(sock->recv_buffer, "foo\r\n", 5))
+      !memcmp (sock->recv_buffer, "foo\r\n", 5))
     {
 
       /* it's us: forget the id string and signal success */
@@ -174,13 +177,13 @@ foo_detect_proto (void *cfg, socket_t sock)
 }
 
 /*
- * our detect proto thinks that sock is a foo connection, so install
- * the callbacks we need...
+ * Our detect proto thinks that sock is a foo connection, so install
+ * the callbacks we need.
  */
 int
 foo_connect_socket (void *acfg, socket_t sock)
 {
-  struct foo_config *cfg = (struct foo_config *)acfg;
+  struct foo_config *cfg = (struct foo_config *) acfg;
   int i;
   int r;
 
@@ -191,10 +194,9 @@ foo_connect_socket (void *acfg, socket_t sock)
   sock->boundary = foo_packet_delim;
   sock->boundary_size = foo_packet_delim_len;
   sock->check_request = default_check_request;
-
   sock->handle_request = foo_handle_request;
 
-  log_printf (LOG_NOTICE, "Foo client detected\n");
+  log_printf (LOG_NOTICE, "foo client detected\n");
   
   if (cfg->messages) 
     {
@@ -236,7 +238,7 @@ foo_global_init (void)
 }
 
 /*
- * Called once for foo servers, free our default hash
+ * Called once for foo servers, free our default hash.
  */
 int
 foo_global_finalize (void)
@@ -247,18 +249,18 @@ foo_global_finalize (void)
 
 /*
  * A single foo server instance gets destroyed. Free the hash
- * unless it is the default hash...
+ * unless it is the default hash.
  */
 int
 foo_finalize (struct server *server)
 {
-  struct foo_config *c = (struct foo_config*)server->cfg;
+  struct foo_config *c = (struct foo_config *) server->cfg;
 
   log_printf (LOG_NOTICE, "destroying %s\n", server->name);
 
   /*
    * Free our hash but be careful not to free it if was the
-   * default value...
+   * default value.
    */
   if (*(c->assoc) != some_default_hash)
     hash_destroy (*(c->assoc));
@@ -267,66 +269,73 @@ foo_finalize (struct server *server)
 }
 
 /*
- * Initialsize a foo server instance. We use it here to print the
- * whole configuration once
- *
+ * Initialize a foo server instance. We use it here to print the
+ * whole configuration once.
  */
 int
 foo_init (struct server *server)
 {
-  struct foo_config *c = (struct foo_config*)server->cfg;
+  struct foo_config *c = (struct foo_config *) server->cfg;
   char **s = c->messages;
   int *j = c->ports;
   int i;
   char **keys;
   hash_t *h;
 
-  printf("Config %s:\n reply = %s\n bar = %d\n",
-	 server->name, c->reply, c->bar);
+  printf ("Config %s:\n reply = %s\n bar = %d\n", 
+	  server->name, c->reply, c->bar);
 
-  if ( s != NULL) {
-    for ( i = 0; s[i] != NULL; i++)
-      {
-	printf (" messages[%d] = %s\n", i, s[i]);
-      }
-  } else {
-    printf(" messages = NULL\n");
-  }
+  if (s != NULL) 
+    {
+      for (i = 0; s[i] != NULL; i++)
+	{
+	  printf (" messages[%d] = %s\n", i, s[i]);
+	}
+    } 
+  else 
+    {
+      printf (" messages = NULL\n");
+    }
 
-  if (j != NULL) {
-    for ( i = 1; i < j[0]; i++)
-      {
-	printf (" ports[%d] = %d\n", i, j[i]);
-      }
-  } else {
-    printf(" ports = NULL\n");
-  }
+  if (j != NULL) 
+    {
+      for (i = 1; i < j[0]; i++)
+	{
+	  printf (" ports[%d] = %d\n", i, j[i]);
+	}
+    } 
+  else 
+    {
+      printf (" ports = NULL\n");
+    }
   
   h = *(c->assoc);
-  if ( h != NULL) {
-    keys = hash_keys (h);
+  if (h != NULL) 
+    {
+      keys = hash_keys (h);
 
-    for ( i = 0; i < h->keys; i++)
-      {
-	printf (" assoc[%d]: `%s' => `%s'\n",
-		i, keys[i], (char*)hash_get(h, keys[i]));
-      }
-
-    xfree (keys);
-  } else {
-    printf(" *assoc = NULL\n");
-  }
+      for (i = 0; i < h->keys; i++)
+	{
+	  printf (" assoc[%d]: `%s' => `%s'\n",
+		  i, keys[i], (char *)hash_get (h, keys[i]));
+	}
+      xfree (keys);
+    } 
+  else 
+    {
+      printf (" *assoc = NULL\n");
+    }
 
   printf (" Binding on port %s:%d\n", c->port->localip, c->port->port);
 
-  if ( c->port->proto != PROTO_TCP ) {
-    fprintf (stderr, "Foo server can handle TCP only!\n");
-    return -1;
-  }
-
+  if (c->port->proto != PROTO_TCP) 
+    {
+      fprintf (stderr, "Foo server can handle TCP only!\n");
+      return -1;
+    }
 
   /*
-   * Bind this instance to the given port
+   * Bind this instance to the given port.
    */
   server_bind (server, c->port);
 

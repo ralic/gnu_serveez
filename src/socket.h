@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.13 2000/06/22 19:40:30 ela Exp $
+ * $Id: socket.h,v 1.14 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -175,13 +175,13 @@ struct socket
   int unavailable;              
 
   /*
-   * Misceleanous field. Listener keeps array of server instances here.
+   * Miscellaneous field. Listener keeps array of server instances here.
    * This array is NULL terminated.
    */
   void *data;
 
   /*
-   * When the final protocol detection in DEFAULT_CHECK_REQUEST
+   * When the final protocol detection in DEFAULT_DETECT_PROTO
    * has been done CFG should get the actual configuration hash.
    */
   void *cfg;

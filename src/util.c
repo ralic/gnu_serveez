@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.9 2000/06/25 17:31:41 ela Exp $
+ * $Id: util.c,v 1.10 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -340,6 +340,7 @@ int os_version = 0;
  * 3 - Windows NT 3.x
  * 4 - Windows NT 4.x
  * 5 - Windows 2000
+ * 6 - Windows ME
  */
 #endif /* __MINGW32__ */
 
@@ -349,7 +350,8 @@ get_version (void)
   static char os[256] = ""; /* contains the os string */
 
 #ifdef __MINGW32__
-  static char ver[][6] = { " 32s", " 95", " 98", " NT", " NT", " 2000" };
+  static char ver[][6] = 
+  { " 32s", " 95", " 98", " NT", " NT", " 2000", " ME" };
   OSVERSIONINFO osver;
 #elif HAVE_SYS_UTSNAME_H
   struct utsname buf;
@@ -381,7 +383,12 @@ get_version (void)
 	case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
 	  if ((osver.dwMajorVersion > 4) || 
 	      ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
-	    os_version = Win98;
+	    {
+	      if (osver.dwMinorVersion >= 90)
+		os_version = WinME;
+	      else
+		os_version = Win98;
+	    }
 	  else
 	    os_version = Win95;
 	  break;

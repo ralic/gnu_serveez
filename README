@@ -24,7 +24,7 @@
 Requirements
 ============
 
-serveez needs Martin Grabmueller's sizzle language. this version is known
+Serveez needs Martin Grabmueller's sizzle language. This version is known
 to work with sizzle-0.0.27.
 
 
@@ -33,14 +33,14 @@ Installation
 
 Unpack the distribution tarball:
 
-$ tar xzf serveez-<version>.tar.gz                  (using GNU tar)
-$ gzip -cd ../serveez-<version>.tar.gz | tar xf -   (using another tar)
+$ tar xzf serveez-<version>.tar.gz               (using GNU tar)
+$ gzip -cd serveez-<version>.tar.gz | tar xf -   (using another tar)
   
 Change into the source directory:
 
-$ cd serveez-<version>   
+$ cd serveez-<version>
   
-Configure the source package for your system.
+Configure the source package for your system:
 We recommend to use --enable-opt unless you have a good reason not to do so.
 
 $ ./configure --enable-opt --with-sizzle=../sizzle-<version>
@@ -50,7 +50,7 @@ Now, compile the package:
 
 $ make
   
-Install serveez.
+Install serveez:
 
 $ make install
 

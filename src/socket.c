@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.9 2000/06/22 00:37:44 ela Exp $
+ * $Id: socket.c,v 1.10 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -255,7 +255,7 @@ default_disconnect (socket_t sock)
 }
 
 /*
- * DEFAULT_CHECK_REQUEST gets called whenever data is read from a
+ * DEFAULT_DETECT_PROTO gets called whenever data is read from a
  * client network socket.
  */
 int

@@ -25,7 +25,10 @@ This file lists user visible changes that were made between releases.
 
 Version 0.0.17
 --------------
+
  * work in progress
+ * server instanciating possible
+ * documentation on how to write servers and coservers for serveez
  * opened CVS repository
 
 Version 0.0.16

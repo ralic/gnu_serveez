@@ -1,3 +1,14 @@
+2000-07-01  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.c (coserver_init): This routine is 
+	instanciating all coservers now. Thus you do not need to create
+	the coservers yourself.
+
+	* coserver/coserver.h (struct ): Added two more fields to this
+	structure. These are the amount of coserver instances you want to
+	create and an optional initializer routine which will be invoked
+	on coserver startup.
+
 2000-06-30  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): BUGFIX:

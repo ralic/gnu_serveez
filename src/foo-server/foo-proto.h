@@ -1,5 +1,5 @@
 /*
- * foo-proto.h - Example server header
+ * foo-proto.h - example server header
  *
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.3 2000/06/16 21:02:28 ela Exp $
+ * $Id: foo-proto.h,v 1.4 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -36,8 +36,7 @@
 #include "socket.h"
 
 /*
- * Protocol specific configuration
- * TODO: make sizzleable
+ * Protocol server specific configuration.
  */
 struct foo_config
 {
@@ -51,9 +50,8 @@ struct foo_config
 };
 
 /*
-int foo_detect_proto(struct foo_config *cfg, socket_t sock);
-int foo_connect_socket(struct foo_config *cfg, socket_t sock);
-*/
+ * Basic server callback definitions.
+ */
 int foo_detect_proto (void *cfg, socket_t sock);
 int foo_connect_socket (void *cfg, socket_t sock);
 int foo_init (struct server *server);
@@ -61,7 +59,9 @@ int foo_global_init (void);
 int foo_finalize (struct server *server);
 int foo_global_finalize (void);
 
-
+/*
+ * This server's definition.
+ */
 extern struct server_definition foo_server_definition;
 
-#endif
+#endif /* __FOO_SERVER_H__ */

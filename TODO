@@ -1,7 +1,5 @@
--- -*-text-*-
+--
 -- TODO
--- 
--- todo list.
 -- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -25,16 +23,16 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
-	- make serveez automatically compile sizzle again
-- hack until WsControl tells the interface list on windows
+	- Make serveez automatically compile sizzle again.
+	- Hack until WsControl tells the interface list on Windows.
 - What to do if coserver delivers argument not anymore valid ?
-- Default file reader to avoid http using its own callback.
-- Socket/protocol specific flags within socket structure.
-- find out how the list of local interfaces work on different unices
+	- Default file reader to avoid http using its own callback.
+	- Socket/protocol specific flags within socket structure.
+- Find out how the list of local interfaces work on different Unices.
 	- Do something sensible when a coserver fails its job.
-- ip address representation must be unsigned long everywhere
-- rechain socket list to avoid starving of chain end
-- convert all protocols to new scheme
+- IP address representation must be unsigned long everywhere.
+- Rechain socket list to avoid starving of chain end.
+- Convert all protocols to new scheme.
 	- support local sizzle installations ( sizzle-config )
 	- local ip addresses for portcfg
 	- List of local ip addresses on supported systems.

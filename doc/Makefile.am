@@ -23,7 +23,7 @@
 #
 
 EXTRA_DIST = awcs-proto.txt mime.types port.lst irc-MOTD.txt \
-	serveez.cfg
+	serveez.cfg server.txt coserver.txt
 
 MAINTAINERCLEANFILES = Makefile.in
 

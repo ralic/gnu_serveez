@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.7 2000/06/25 17:31:41 ela Exp $
+ * $Id: util.h,v 1.8 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -70,6 +70,7 @@ extern int verbosity;
 #define WinNT3x 3
 #define WinNT4x 4
 #define Win2k   5
+#define WinME   6
 
 extern int os_version;
 

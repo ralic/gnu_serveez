@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.9 2000/06/23 21:09:54 ela Exp $
+ * $Id: control-proto.c,v 1.10 2000/07/01 15:43:40 ela Exp $
  *
  */
 
@@ -611,16 +611,16 @@ ctrl_stat_all(socket_t sock, int flag, char *arg)
   sock_printf(sock, "IRC  connections: %d clients\r\n", client);
 #endif
 
-  for(n=0; n<MAX_COSERVERS; n++)
+  for (n = 0; n < int_coservers; n++)
     {
       coserver = &int_coserver[n];
-      if(coserver->used)
+      if (coserver->used)
 	{
-	  sock_printf(sock, "%d. internal %s coserver\r\n", n + 1,
-		      int_coserver_type[coserver->type].name);
+	  sock_printf (sock, "%d. internal %s coserver\r\n", n + 1,
+		       int_coserver_type[coserver->type].name);
 	}
     }
-  sock_printf(sock, "\r\n");
+  sock_printf (sock, "\r\n");
 
   return flag;
 }
@@ -680,24 +680,24 @@ ctrl_restart(socket_t sock, int type, char *arg)
   int_coserver_t *coserver;
   int n;
 
-  for(n = 0; n<MAX_COSERVERS; n++)
+  for (n = 0; n < int_coservers; n++)
     {
       coserver = &int_coserver[n];
-      if(coserver->used && coserver->type == type)
+      if (coserver->used && coserver->type == type)
 	{
-	  destroy_internal_coservers(type);
-	  create_internal_coserver(type);
-	  sock_printf(sock, "internal %s coserver restarted\r\n",
-		      int_coserver_type[type].name);
+	  destroy_internal_coservers (type);
+	  create_internal_coserver (type);
+	  sock_printf (sock, "internal %s coserver restarted\r\n",
+		       int_coserver_type[type].name);
 	  break;
 	}
     }
   /* start a new internal coserver */
-  if(n == MAX_COSERVERS)
+  if (n == int_coservers)
     {
-      create_internal_coserver(type);
-      sock_printf(sock, "internal %s coserver invoked\r\n",
-		  int_coserver_type[type].name);
+      create_internal_coserver (type);
+      sock_printf (sock, "internal %s coserver invoked\r\n",
+		   int_coserver_type[type].name);
     }
   return 0;
 }
