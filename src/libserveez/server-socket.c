@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.24 2001/12/12 19:02:51 ela Exp $
+ * $Id: server-socket.c,v 1.25 2002/01/20 22:08:09 raimi Exp $
  *
  */
 
@@ -153,6 +153,7 @@ svz_server_create (svz_portcfg_t *port)
 	      return NULL;
 	    }
 	  memset (&addr->sin_addr, 0, sizeof (&addr->sin_addr));
+	  port->flags |= PORTCFG_FLAG_DEVICE;
 	}
 #endif /* SO_BINDTODEVICE */
 

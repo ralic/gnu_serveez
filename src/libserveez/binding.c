@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.18 2001/12/19 23:15:06 ela Exp $
+ * $Id: binding.c,v 1.19 2002/01/20 22:08:09 raimi Exp $
  *
  */
 
@@ -374,6 +374,8 @@ svz_binding_contains (svz_array_t *bindings, svz_server_t *server)
   svz_binding_t *search;
   unsigned long i;
 
+  /* FIXME: Make any/all binding possible.  Put *all* servers into *any*
+     binding. */
   svz_array_foreach (bindings, search, i)
     if (search->server == server)
       return 1;
@@ -563,11 +565,21 @@ svz_binding_filter_net (svz_socket_t *sock,
   svz_array_foreach (bindings, binding, i)
     {
       portaddr = svz_portcfg_addr (binding->port);
+      printf ("portaddr: %s == ", svz_inet_ntoa (portaddr->sin_addr.s_addr));
+      printf ("%s\n", svz_inet_ntoa (addr));
+      printf ("port: %u == %u\n", ntohs (portaddr->sin_port), ntohs (port));
       if (portaddr->sin_addr.s_addr == addr ||
-	  binding->port->flags & PORTCFG_FLAG_ANY)
-	if (binding->port->proto & (PROTO_RAW | PROTO_ICMP) || 
-	    portaddr->sin_port == port)
-	  svz_array_add (filter, binding);
+	  binding->port->flags & 
+	  (PORTCFG_FLAG_ANY | PORTCFG_FLAG_DEVICE)) 
+	{
+	  printf ("addr ok\n");
+	  if (binding->port->proto & (PROTO_RAW | PROTO_ICMP) || 
+	      portaddr->sin_port == port) 
+	    { 
+	      printf ("port ok\n");
+	      svz_array_add (filter, binding);
+	    }
+	}
     }
   return svz_array_destroy_zero (filter);
 }
