@@ -493,6 +493,18 @@ SVZ_SOCK_REDUCE_SEND_DEFMAC
 @node Coserver, ServerType, Socket, Embedding API
 @section Coserver functions
 
+The following section describes the internal coserver interface of serveez. 
+Coservers are helper processes meant to perform blocking tasks. This is
+going to be necessary because serveez itself is single threaded. Each 
+coserver is connected via a pair of pipes to the main thread of serveez 
+communicating over a simple text line protocol. Each request/response is 
+seperated by a newline character.
+
+If the user wants to use these processes you need to start the coserver
+interface by calling @code{svz_coserver_init()} once before entering the
+main server loop and shut it down afterwards by calling 
+@code{svz_coserver_finalize()}.
+
 SVZ_COSERVERTYPES_DEFVAR
 SVZ_COSERVERS_DEFVAR
 
@@ -514,12 +526,13 @@ SVZ_COSERVER_IDENT_DEFMAC
 @section Server type functions
 
 @menu
+* ServerSetup::               Setting up a server type
 * General ServerType::        Server type implementation
 * Dynamic server::            Dynamic server type loading
 @end menu
 
-@node General ServerType, Dynamic server, , ServerType
-@subsection General server type functionality
+@node ServerSetup, General ServerType, , ServerType
+@subsection Macros for setting up a new server type
 
 When specifying a server type you also need to define configuration items
 for it. These items refer to addresses in the example configuration of the
@@ -533,8 +546,10 @@ SVZ_REGISTER_STRARRAY_DEFMAC
 SVZ_REGISTER_HASH_DEFMAC
 SVZ_REGISTER_PORTCFG_DEFMAC
 SVZ_REGISTER_END_DEFMAC
-
 SVZ_DEFINE_CONFIG_DEFMAC
+
+@node General ServerType, Dynamic server, ServerSetup, ServerType
+@subsection General server type functionality
 
 SVZ_SERVERTYPES_DEFVAR
 SVZ_SERVERTYPE_ADD_DEFUN
@@ -707,8 +722,14 @@ SVZ_HALT_DEFUN
 @node Interface, Windoze, Booting, Embedding API
 @section Network interface functions
 
-SVZ_INTERFACES_DEFVAR
+The network interface functions of the serveez core API allow the access
+to the network devices on your system. The system administrator can setup
+these devices to be bound to different Internet addresses and thereby split
+the network configuration into different "domains". Thus the system is able
+to seperate traffic of different networks. If setup correctly serveez can
+follow these rules.
 
+SVZ_INTERFACES_DEFVAR
 SVZ_INTERFACE_LIST_DEFUN
 SVZ_INTERFACE_COLLECT_DEFUN
 SVZ_INTERFACE_FREE_DEFUN
@@ -718,6 +739,11 @@ SVZ_INTERFACE_FOREACH_DEFMAC
 
 @node Windoze, , Interface, Embedding API
 @section Useful Windows functions
+
+Serveez is meant to run on Windows systems as well (with some restrictions
+of course). The following functions come up with the Windows implementation
+of the serveez core API only. They allow access to the Windows registry 
+database and some other useful things.
 
 SVZ_WINDOZE_START_DAEMON_DEFUN
 SVZ_WINDOZE_STOP_DAEMON_DEFUN
