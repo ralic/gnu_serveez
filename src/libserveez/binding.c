@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.2 2001/04/19 14:08:09 ela Exp $
+ * $Id: binding.c,v 1.3 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -41,6 +41,12 @@
 #include "libserveez/server-socket.h"
 #include "libserveez/binding.h"
 
+/*
+ * Return a @code{socket_t} representing a server socket with the port
+ * configuration @var{port} and add the given server instance @var{server}
+ * to this structure. If there is no such port configuration yet return
+ * @code{NULL}.
+ */
 static socket_t
 svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
 {
@@ -95,127 +101,20 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 	      sock->data = svz_array_create (1);
 	      svz_array_add (sock->data, server);
 	    }
+	  /* Could not create this port configuration listener. */
+	  else
+	    {
+	      svz_portcfg_destroy (copy);
+	      svz_free (copy);
+	    }
 	}
       /* Port configuration already exists. */
       else
 	{
 	  svz_portcfg_destroy (copy);
+	  svz_free (copy);
 	}
     }
   svz_array_destroy (ports);
   return 0;
-}
-
-/*
- * A list of bound servers.
- */
-int server_bindings = 0;
-server_binding_t *server_binding = NULL;
-
-/*
- * This functions binds a previously instantiated server to a specified
- * port configuration.
- */
-int
-server_bind (svz_server_t *server, portcfg_t *cfg)
-{
-  int n;
-
-  for (n = 0; n < server_bindings; n++)
-    {
-      if (server_portcfg_equal (server_binding[n].cfg, cfg))
-	{
-	  if (server_binding[n].server == server)
-	    {
-	      log_printf (LOG_ERROR, "duplicate server (%s) "
-			  "on single port\n", server->name);
-	      return -1;
-	    }
-#if ENABLE_DEBUG
-	  if (cfg->proto & PROTO_PIPE)
-	    {
-	      log_printf (LOG_DEBUG, "binding pipe server to existing "
-			  "file %s\n", cfg->outpipe);
-	    }
-	  else if (cfg->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP))
-	    {
-	      log_printf (LOG_DEBUG, "binding %s server to existing "
-			  "port %s:%d\n", 
-			  cfg->proto & PROTO_TCP ? "tcp" : "udp",
-			  cfg->ipaddr, cfg->port);
-	    }
-#endif /* ENABLE_DEBUG */
-	}
-    }
-
-  n = server_bindings++;
-  server_binding = svz_realloc (server_binding, 
-				sizeof (server_binding_t) * server_bindings);
-  server_binding[n].server = server;
-  server_binding[n].cfg = cfg;
-
-  return 0;
-}
-
-/*
- * Start all server bindings (instances of servers). Go through all port
- * configurations, skip duplicate port configurations, etc.
- */
-int
-server_start (void)
-{
-  int n, b;
-  socket_t sock;
-
-  /* Go through all port bindings. */
-  for (b = 0; b < server_bindings; b++)
-    {
-      /* Look for duplicate port configurations. */
-      for (sock = sock_root; sock; sock = sock->next)
-	{
-	  /* Is this socket usable for this port configuration ? */
-	  if (sock->data && sock->cfg && 
-	      sock->flags & SOCK_FLAG_LISTENING &&
-	      server_portcfg_equal (sock->cfg, server_binding[b].cfg))
-	    {
-	      /* Extend the server array in sock->data. */
-	      for (n = 0; SERVER (sock->data, n) != NULL; n++);
-	      sock->data = svz_realloc (sock->data, 
-					sizeof (void *) * (n + 2));
-	      SERVER (sock->data, n) = server_binding[b].server;
-	      SERVER (sock->data, n + 1) = NULL;
-	      break;
-	    }
-	}
-
-      /* No appropriate socket structure for this port configuration found. */
-      if (!sock)
-	{
-	  /* Try creating a server socket. */
-	  sock = server_create (server_binding[b].cfg);
-	  if (sock)
-	    {
-	      /* 
-	       * Enqueue the server socket, put the port config into
-	       * sock->cfg and initialize the server array (sock->data).
-	       */
-	      sock_enqueue (sock);
-	      sock->cfg = server_binding[b].cfg;
-	      sock->data = svz_malloc (sizeof (void *) * 2);
-	      SERVER (sock->data, 0) = server_binding[b].server;
-	      SERVER (sock->data, 1) = NULL;
-	    }
-	}
-    }
-  
-  if (server_bindings)
-    {
-      svz_free (server_binding);
-      server_binding = NULL;
-      server_bindings = 0;
-      return 0;
-    }
-
-  log_printf (LOG_FATAL, "no server instances found\n");
-  return -1;
 }

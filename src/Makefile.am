@@ -56,17 +56,16 @@ include_HEADERS = libserveez.h
 
 serveez_SOURCES = \
 	serveez.c serveez.h \
-	sizzle.c sizzle.h \
 	guile.c guile.h \
 	cfgfile.c cfgfile.h \
 	option.c option.h
 
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 
-serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLEDEP) \
+serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
 	serveez.cfg
 
-serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLESTATIC) \
+serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la
 
 serveez_LDFLAGS = $(GUILE_LINK)
@@ -77,13 +76,6 @@ mkpassword_SOURCES = mkpassword.c
 MAINTAINERCLEANFILES = Makefile.in
 
 CLEANFILES = *.ro
-
-# This rule is used when we build from a sizzle source distribution
-$(SIZZLERULE):
-	@echo ""
-	@echo "building sizzle core library from source distribution"
-	@echo ""
-	(cd $(SIZZLEDIR)/libsizzle && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean-local:
 	rm -f *\~ *.orig *.rej

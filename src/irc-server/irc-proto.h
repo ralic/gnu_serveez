@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.17 2001/04/04 14:23:14 ela Exp $
+ * $Id: irc-proto.h,v 1.18 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -229,7 +229,6 @@ struct irc_server
  */
 struct irc_configuration
 {
-  portcfg_t *netport;             /* port configuration */
   int operators;                  /* amount of logged in server operators */
   int users;                      /* amount of logged in users */
   int unknowns;                   /* unknown connections */
@@ -277,7 +276,7 @@ struct irc_configuration
    * :maximum number of links in this class 
    * :send queue size
    */
-  char **YLine;
+  svz_array_t *YLine;
 
   /*
    * I [Mandatory] -- authorize client, wildcards permitted, a valid client
@@ -289,7 +288,7 @@ struct irc_configuration
    * :password (optional)
    * :connection class number (YLine)
    */
-  char **ILine;
+  svz_array_t *ILine;
 
   /*
    * O [Optional] -- authorize operator, wildcards allowed
@@ -297,13 +296,13 @@ struct irc_configuration
    * :password
    * :nick
    */
-  char **OLine;
+  svz_array_t *OLine;
 
   /*
    * o [Optional] -- authorize local operator, see above at the O lines for
    *                 description
    */
-  char **oLine;
+  svz_array_t *oLine;
 
   /*
    * Note: + C and N lines can also use the user@ combination in order
@@ -319,7 +318,7 @@ struct irc_configuration
    * :port (if not given we will not connect)
    * :connection class number (YLine)
    */
-  char **CLine;
+  svz_array_t *CLine;
 
   /*
    * N [Networked] -- server which may connect
@@ -331,7 +330,7 @@ struct irc_configuration
    *  front and be replaced with a *.
    * :connection class number (YLine)
    */
-  char **NLine;
+  svz_array_t *NLine;
 
   /*
    * K [Optional] -- kill user, wildcards allowed
@@ -339,7 +338,7 @@ struct irc_configuration
    * :time of day
    * :user
    */
-  char **KLine;
+  svz_array_t *KLine;
 
   char *pass;                     /* server password */
   char *info;                     /* server info */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.8 2001/04/04 14:23:14 ela Exp $
+ * $Id: ident-proto.c,v 1.9 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -41,26 +41,12 @@
 #include "ident-proto.h"
 
 /*
- * Default value definitions for the server configuration.
- */
-struct portcfg fakeident_default_port = 
-{
-  PROTO_TCP,      /* we are tcp */
-  113,            /* standard port to listen on */
-  "*",            /* bind all local addresses */
-  NULL,           /* calculated from above values later */
-  NULL,           /* no inpipe for us */
-  NULL            /* no outpipe for us */
-};
-
-/*
  * Configuration for this server containing the default values.
  */
 struct fakeident_config fakeident_config =
 {
   "UNIX",
   NULL,
-  &fakeident_default_port
 };
 
 /*
@@ -70,7 +56,6 @@ svz_key_value_pair_t fakeident_config_prototype [] =
 {
   REGISTER_STR ("systemtype", fakeident_config.systemtype, DEFAULTABLE),
   REGISTER_STR ("username", fakeident_config.username, DEFAULTABLE),
-  REGISTER_PORTCFG ("port", fakeident_config.port, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -112,11 +97,6 @@ int
 fakeident_init (svz_server_t *server)
 {
   struct fakeident_config *c = server->cfg;
-
-  /*
-   * bind us to the port
-   */
-  server_bind (server, c->port);
 
   return 0;
 }

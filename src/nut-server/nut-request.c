@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.9 2001/04/01 13:32:30 ela Exp $
+ * $Id: nut-request.c,v 1.10 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -295,7 +295,7 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   reply.records = (byte) n;
   reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
   reply.port = (unsigned short) (cfg->port ? cfg->port : 
-				 htons (cfg->netport->port));
+				 0/*FIXME: htons (cfg->netport->port)*/);
   reply.speed = (unsigned short) cfg->speed;
   
   /* save packet length */
@@ -379,7 +379,7 @@ nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
 
   reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
   reply.port = (unsigned short) (cfg->port ? cfg->port : 
-				 htons (cfg->netport->port));
+				 0 /*FIXME: htons (cfg->netport->port)*/);
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);

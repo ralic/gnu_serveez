@@ -1,7 +1,7 @@
 /*
  * foo-proto.c - example server implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.24 2001/04/11 13:31:04 ela Exp $
+ * $Id: foo-proto.c,v 1.25 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -39,59 +39,33 @@
 #include "foo-proto.h"
 
 /* 
- * Packet specification for `sock_check_request ()'.
+ * Packet specification for @code{check_request()}.
  */
-char *foo_packet_delim = "\r\n";
-int foo_packet_delim_len = 2;
+char *foo_packet_delim     = "\r\n";
+int   foo_packet_delim_len = 2;
 
 /*
- * Default value definitions for the server configuration.
+ * Default value definitions for the server configuration. These are
+ * initialized in the global init routine for this server.
  */
-struct portcfg some_default_port = 
-{
-  PROTO_TCP,      /* we are tcp */
-  42421,          /* standard port to listen on */
-  "*",            /* bind all local addresses */
-  NULL,           /* calculated from above values later */
-  NULL,           /* no inpipe for us */
-  NULL            /* no outpipe for us */
-};
-
-int some_default_intarray[] = 
-{
-  4,
-  1,
-  2,
-  3
-};
-
-char *some_default_strarray[] = 
-{
-  "Hello",
-  "This",
-  "is",
-  "a",
-  "default",
-  "string",
-  "array",
-  NULL
-};
-
-svz_hash_t *some_default_hash = NULL;
+svz_portcfg_t foo_default_port;
+svz_array_t *foo_default_intarray;
+svz_array_t *foo_default_strarray;
+svz_hash_t *foo_default_hash;
 
 /*
  * Demonstrate how our private configuration looks like and provide
  * default values.
  */
-struct foo_config mycfg = 
+foo_config_t foo_config = 
 {
   -42,
-  some_default_strarray,
+  &foo_default_strarray,
   "Default reply",
-  some_default_intarray,
+  &foo_default_intarray,
   42,
-  &some_default_port,
-  &some_default_hash
+  &foo_default_port,
+  &foo_default_hash
 };
 
 /*
@@ -99,12 +73,12 @@ struct foo_config mycfg =
  */
 svz_key_value_pair_t foo_config_prototype [] = 
 {
-  REGISTER_INT ("bar", mycfg.bar, NOTDEFAULTABLE),
-  REGISTER_STR ("reply", mycfg.reply, DEFAULTABLE),
-  REGISTER_STRARRAY ("messages", mycfg.messages, DEFAULTABLE),
-  REGISTER_INTARRAY ("ports", mycfg.ports, DEFAULTABLE),
-  REGISTER_HASH ("assoc", mycfg.assoc, DEFAULTABLE),
-  REGISTER_PORTCFG ("port", mycfg.port, DEFAULTABLE),
+  REGISTER_INT ("bar", foo_config.bar, NOTDEFAULTABLE),
+  REGISTER_STR ("reply", foo_config.reply, DEFAULTABLE),
+  REGISTER_STRARRAY ("messages", foo_config.messages, DEFAULTABLE),
+  REGISTER_INTARRAY ("ports", foo_config.ports, DEFAULTABLE),
+  REGISTER_HASH ("assoc", foo_config.assoc, DEFAULTABLE),
+  REGISTER_PORTCFG ("port", foo_config.port, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -125,8 +99,8 @@ svz_servertype_t foo_server_definition =
   foo_info_server,
   NULL,
   NULL,
-  &mycfg,
-  sizeof (mycfg),
+  &foo_config,
+  sizeof (foo_config),
   foo_config_prototype
 };
 
@@ -152,7 +126,7 @@ foo_handle_coserver_result (char *host, int id, int version)
 int 
 foo_handle_request (socket_t sock, char *request, int len)
 {
-  struct foo_config *cfg = sock->cfg;
+  foo_config_t *cfg = sock->cfg;
 
   return sock_printf (sock, "%s: %d\r\n", cfg->reply, len);
 }
@@ -186,7 +160,7 @@ foo_detect_proto (void *cfg, socket_t sock)
 int
 foo_connect_socket (void *acfg, socket_t sock)
 {
-  struct foo_config *cfg = (struct foo_config *) acfg;
+  foo_config_t *cfg = acfg;
   int i;
   int r;
 
@@ -224,28 +198,53 @@ foo_connect_socket (void *acfg, socket_t sock)
 /* ************************** Initialization ************************** */
 
 /*
- * Called once of the foo server type. we use it to create the default
- * hash.
+ * Called once of the foo server type. We use it to create the default
+ * values.
  */
 int
 foo_global_init (void)
 {
-  some_default_hash = svz_hash_create (4);
-  svz_hash_put (some_default_hash, "grass", "green");
-  svz_hash_put (some_default_hash, "cow", "milk");
-  svz_hash_put (some_default_hash, "sun", "light");
-  svz_hash_put (some_default_hash, "moon", "tide");
-  svz_hash_put (some_default_hash, "gnu", "good");
+  /* Default port configuration. */
+  foo_default_port.proto = PROTO_TCP;
+  foo_default_port.tcp_port = 42421;
+  foo_default_port.tcp_ipaddr = "*";
+
+  /* Default string array. */
+  foo_default_strarray = svz_array_create (7);
+  svz_array_add (foo_default_strarray, "Hello");
+  svz_array_add (foo_default_strarray, "This");
+  svz_array_add (foo_default_strarray, "is");
+  svz_array_add (foo_default_strarray, "a");
+  svz_array_add (foo_default_strarray, "default");
+  svz_array_add (foo_default_strarray, "string");
+  svz_array_add (foo_default_strarray, "array");
+
+  /* Default integer array. */
+  foo_default_intarray = svz_array_create (4);
+  svz_array_add (foo_default_intarray, (void *) 4);
+  svz_array_add (foo_default_intarray, (void *) 1);
+  svz_array_add (foo_default_intarray, (void *) 2);
+  svz_array_add (foo_default_intarray, (void *) 3);
+
+  /* Default hash table. */
+  foo_default_hash = svz_hash_create (4);
+  svz_hash_put (foo_default_hash, "grass", "green");
+  svz_hash_put (foo_default_hash, "cow", "milk");
+  svz_hash_put (foo_default_hash, "sun", "light");
+  svz_hash_put (foo_default_hash, "moon", "tide");
+  svz_hash_put (foo_default_hash, "gnu", "good");
   return 0;
 }
 
 /*
- * Called once for foo servers, free our default hash.
+ * Called once for foo servers, free our default values.
  */
 int
 foo_global_finalize (void)
 {
-  svz_hash_destroy (some_default_hash);
+  svz_array_destroy (foo_default_intarray);
+  svz_array_destroy (foo_default_strarray);
+  svz_hash_destroy (foo_default_hash);
   return 0;
 }
 
@@ -256,7 +255,7 @@ foo_global_finalize (void)
 int
 foo_finalize (svz_server_t *server)
 {
-  struct foo_config *c = server->cfg;
+  foo_config_t *c = server->cfg;
   char **values;
   int n;
 
@@ -266,7 +265,7 @@ foo_finalize (svz_server_t *server)
    * Free our hash but be careful not to free it if was the
    * default value.
    */
-  if (*(c->assoc) != some_default_hash)
+  if (*(c->assoc) != foo_default_hash)
     {
       if ((values = (char **) svz_hash_values (*(c->assoc))) != NULL)
 	{
@@ -286,21 +285,7 @@ foo_finalize (svz_server_t *server)
 int
 foo_init (svz_server_t *server)
 {
-  struct foo_config *c = server->cfg;
-
-  fprintf (stderr, "foo: binding on port %s:%d\n", 
-	   c->port->ipaddr, c->port->port);
-  
-  if (c->port->proto != PROTO_TCP) 
-    {
-      fprintf (stderr, "foo: server can handle TCP only !\n");
-      return -1;
-    }
-
-  /*
-   * Bind this instance to the given port.
-   */
-  server_bind (server, c->port);
+  foo_config_t *c = server->cfg;
 
   return 0;
 }
@@ -312,10 +297,10 @@ foo_init (svz_server_t *server)
 char *
 foo_info_server (svz_server_t *server)
 {
-  struct foo_config *cfg = server->cfg;
+  foo_config_t *cfg = server->cfg;
   static char info[80*16], text[80];
-  char **s = cfg->messages;
-  int *j = cfg->ports;
+  char *str;
+  void *j;
   int i;
   char **keys;
   svz_hash_t *h;
@@ -326,31 +311,15 @@ foo_info_server (svz_server_t *server)
 	   cfg->reply, cfg->bar);
   strcpy (info, text);
 
-  if (s != NULL) 
+  svz_array_foreach (*cfg->messages, str, i)
     {
-      for (i = 0; s[i] != NULL; i++)
-	{
-	  sprintf (text, " messages[%d] : %s\r\n", i, s[i]);
-	  strcat (info, text);
-	}
-    } 
-  else 
-    {
-      sprintf (text, " messages : NULL\r\n");
+      sprintf (text, " messages[%d] : %s\r\n", i, str);
       strcat (info, text);
     }
 
-  if (j != NULL) 
+  svz_array_foreach (*cfg->ports, j, i)
     {
-      for (i = 1; i < j[0]; i++)
-	{
-	  sprintf (text, " ports[%d] : %d\r\n", i, j[i]);
-	  strcat (info, text);
-	}
-    } 
-  else 
-    {
-      sprintf (text, " ports : NULL\r\n");
+      sprintf (text, " ports[%d] : %d\r\n", i, (int) j);
       strcat (info, text);
     }
   

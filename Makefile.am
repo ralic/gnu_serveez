@@ -27,7 +27,7 @@ SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
 	serveez.dsw config.h.serveez version.h.serveez \
-	libsizzle.dsp config.h.sizzle version.h.sizzle RELEASE \
+	RELEASE \
 	vcgen.bat
 
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
@@ -41,8 +41,7 @@ dist-check: dist
 	dc_install_base=`cd $(distdir)/=inst && pwd`; \
 	cd $(distdir)/=build \
 	  && ../configure --srcdir=.. --prefix=$$dc_install_base \
-	     --enable-maintainer-mode --enable-warn \
-	     --with-sizzle=../../../sizzle \
+	     --enable-maintainer-mode --enable-warn
 	  && $(MAKE) $(AM_MAKEFLAGS) \
 	  && $(MAKE) $(AM_MAKEFLAGS) check \
 	  && $(MAKE) $(AM_MAKEFLAGS) install \

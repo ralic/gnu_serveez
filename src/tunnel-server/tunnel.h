@@ -1,7 +1,7 @@
 /*
  * tunnel.h - port forward definition header
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.10 2001/04/04 14:23:14 ela Exp $
+ * $Id: tunnel.h,v 1.11 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -34,9 +34,9 @@
  */
 typedef struct
 {
-  portcfg_t *source;  /* the source port to forward from */
-  portcfg_t *target;  /* target port to forward to */
-  svz_hash_t *client; /* source client hash */
+  svz_portcfg_t *source; /* the source port to forward from */
+  svz_portcfg_t *target; /* target port to forward to */
+  svz_hash_t *client;    /* source client hash */
 }
 tnl_config_t;
 

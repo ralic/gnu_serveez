@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.8 2001/04/04 14:23:14 ela Exp $
+ * $Id: foo-proto.h,v 1.9 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -33,16 +33,17 @@
 /*
  * Protocol server specific configuration.
  */
-struct foo_config
+typedef struct
 {
-  int dummy;            /* integer example */
-  char **messages;      /* string array example */
-  char *reply;          /* string example */
-  int *ports;           /* integer array example */
-  int bar;              /* integer example */
-  struct portcfg *port; /* example port configuration */
-  svz_hash_t **assoc;   /* a hash example */
-};
+  int dummy;               /* integer example */
+  svz_array_t **messages;  /* string array example */
+  char *reply;             /* string example */
+  svz_array_t **ports;     /* integer array example */
+  int bar;                 /* integer example */
+  svz_portcfg_t *port;     /* example port configuration */
+  svz_hash_t **assoc;      /* a hash example */
+}
+foo_config_t;
 
 /*
  * Basic server callback definitions.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.10 2001/04/21 16:24:24 ela Exp $
+ * $Id: boot.c,v 1.11 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -146,6 +146,7 @@ svz_boot (void)
 void
 svz_halt (void)
 {
+  svz_portcfg_finalize ();
   svz_dynload_finalize ();
   svz_net_cleanup ();
   svz_interface_free ();

@@ -700,62 +700,6 @@ AM_PROG_LIBTOOL
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Find out where to get sizzle
-dnl
-sizzle_src="no"
-sizzle_inst="no"
-SIZZLEDEP=""
-SIZZLERULE=""
-SIZZLESTATIC=""
-SIZZLEDIR=""
-
-AC_MSG_CHECKING([for local sizzle installation])
-if test -n "`sizzle-config 2>/dev/null`"; then
-    AC_MSG_RESULT([yes])
-    sizzle_inst="yes"
-    sizzle_cflags=`sizzle-config compile`
-    sizzle_ldflag=`sizzle-config link`
-else
-    AC_MSG_RESULT([no])
-    sizzle_inst="no"
-fi
-
-AC_ARG_WITH(sizzle,
-    [  --with-sizzle=DIR       Sizzle source distribution in DIR ],
-    sizzle_dir=$withval,
-    sizzle_dir="no")
-
-AC_MSG_CHECKING([for libsizzle source distribution])
-if test ! -d $sizzle_dir; then
-    AC_MSG_RESULT([not found])
-    if test "$sizzle_inst" = "no"; then
-	AC_MSG_ERROR([cannot compile without libsizzle])
-	AC_MSG_ERROR([install one or tell me where the source is])
-        exit 1
-    else
-        sizzle_src="no"
-    fi
-else
-    SIZZLEDIR=`cd $sizzle_dir && pwd`
-    AC_MSG_RESULT([located in $SIZZLEDIR])
-    sizzle_cflags="-I$SIZZLEDIR"
-    sizzle_ldflag=""
-    SIZZLESTATIC="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm"
-    SIZZLEDEP="$SIZZLEDIR/libsizzle/.libs/libsizzle.a"
-    SIZZLERULE="$SIZZLEDEP"
-    sizzle_src="yes"
-fi
-
-CFLAGS="$CFLAGS $sizzle_cflags"
-LDFLAGS="$LDFLAGS $sizzle_ldflag"
-AC_SUBST(SIZZLESTATIC)
-AC_SUBST(SIZZLERULE)
-AC_SUBST(SIZZLEDEP)
-AC_SUBST(SIZZLEDIR)
-
-dnl ----------------------------------------------------------------------
-
-dnl
 dnl Find out where to get guile
 dnl
 
@@ -939,17 +883,17 @@ have_dlopen="no"
 AC_CHECK_FUNC(dlopen, have_dlopen="yes",
     AC_CHECK_LIB(dl, dlopen,
 	have_dlopen="yes"
-	EXTRALIBS="$SERVEEZLIBS -ldl"),
+	SERVEEZLIBS="$SERVEEZLIBS -ldl"),
     AC_CHECK_LIB(svld, dlopen,
 	have_dlopen="yes"
-	EXTRALIBS="$SERVEEZLIBS -lsvdl"))
+	SERVEEZLIBS="$SERVEEZLIBS -lsvdl"))
 
 if test $have_dlopen = "yes"; then
     AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
 else
     AC_CHECK_LIB(dld, dld_link,
     AC_DEFINE(HAVE_DLD_LINK, 1, [Define if you have the dld_link function.])
-    EXTRALIBS="$SERVEEZLIBS -ldld")
+    SERVEEZLIBS="$SERVEEZLIBS -ldld")
 fi
 
 unset have_dlopen
@@ -1219,31 +1163,6 @@ dnl
 AC_MSG_RESULT([])
 AC_MSG_RESULT([	$PACKAGE version $VERSION configured successfully.])
 AC_MSG_RESULT([])
-
-dnl
-dnl Start configuring sizzle.
-dnl
-
-if test "$sizzle_src" != "no"; then
-  cache_file="`pwd`/$cache_file"
-  export CPPFLAGS
-
-  ([cd $sizzle_dir && sh ./configure \
-     --enable-static \
-     --disable-shared \
-     --disable-debug \
-     --disable-posix \
-     --disable-regexp \
-     --disable-nls \
-     --disable-dl \
-     --disable-readline \
-     --disable-maximum-functionality \
-     --disable-uvector \
-     --without-included-gettext \
-     --without-catgets \
-     --with-mingw=$MINGDIR \
-     --cache-file=$cache_file])
-fi
 
 dnl
 dnl Configure local guile repository.

@@ -1,7 +1,7 @@
 /*
  * gnutella.c - gnutella protocol implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.34 2001/04/04 14:23:14 ela Exp $
+ * $Id: gnutella.c,v 1.35 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -69,20 +69,6 @@
 #include "nut-request.h"
 
 /*
- * This port configuration is the default port for the gnutella server to
- * listen on.
- */
-portcfg_t nut_port = 
-{
-  PROTO_TCP,      /* tcp port */
-  NUT_PORT,       /* standard port to listen on */
-  "*",            /* bind all local addresses */
-  NULL,           /* calculated later */
-  NULL,           /* no inpipe */
-  NULL            /* no outpipe */
-};
-
-/*
  * Default search patterns.
  */
 char *nut_search_patterns[] =
@@ -97,7 +83,6 @@ char *nut_search_patterns[] =
  */
 nut_config_t nut_config = 
 {
-  &nut_port,           /* port configuration */
   0,                   /* if set we do not listen on the above port cfg */
   NUT_MAX_TTL,         /* maximum ttl for a gnutella packet */
   NUT_TTL,             /* initial ttl for a gnutella packet */
@@ -143,7 +128,6 @@ nut_config_t nut_config =
  */
 svz_key_value_pair_t nut_config_prototype[] = 
 {
-  REGISTER_PORTCFG ("port", nut_config.netport, DEFAULTABLE),
   REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
   REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
   REGISTER_INT ("search-limit", nut_config.search_limit, DEFAULTABLE),
@@ -464,9 +448,10 @@ nut_init (svz_server_t *server)
 	}
     }
 
-  /* bind listening server to configurable port address */
+  /* bind listening server to configurable port address 
+     FIXME: how can we disable bindings ?
   if (!cfg->disable)
-    server_bind (server, cfg->netport);
+    server_bind (server, cfg->netport);*/
   return 0;
 }
 
@@ -863,7 +848,7 @@ nut_info_server (svz_server_t *server)
 	   " downloads       : %u/%u\r\n"
 	   " uploads         : %u/%u\r\n"
 	   " recent queries  : %u",
-	   cfg->netport->port,
+	   0 /*FIXME: cfg->netport->port*/,
 	   cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
 	   cfg->port ? svz_itoa (ntohs (cfg->port)) : "no specified",
 	   cfg->max_ttl,

@@ -1,3 +1,99 @@
+2001-04-28  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c: Made all necessary changes for using
+	the new svz_portcfg_t... still some work needed.
+
+	* tunnel-server/tunnel.h: Using svz_portcfg_t now instead
+	of old portcfg_t.
+
+	* sntp-server/sntp-proto.c: Dropped default network port 
+	configuration.
+
+	* nut-server/gnutella.c: Dropped port configuration. Made
+	all changes required by this. Added lots of "FIXME"s.
+
+	* libserveez/udp-socket.c (udp_check_request): Go through
+	a svz_array_t of servers now.
+
+	* libserveez/socket.c (sock_free): Freeing port configuration
+	and server array if necessary.
+
+	* libserveez/server.h: Old `portcfg_t' completely 
+	eliminated.
+
+	* libserveez/server.c: Dropped `server_portcfg_equal()'.
+
+	* libserveez/server-socket.c: Replaced `server_ceate()' by
+	`svz_server_create()'.
+
+	* libserveez/portcfg.h (svz_portcfg_ipaddr): New macro.
+	Gets the ip address string of a given port configuration.
+
+	* libserveez/portcfg.c (svz_portcfg_set_ipaddr): New function.
+	Sets a given ip address string in a port configuration.
+
+	* libserveez/icmp-socket.c (icmp_check_request): Array of 
+	servers is now a svz_array_t.
+
+	* libserveez/boot.c (svz_halt): Added call to 
+	`svz_portcfg_finalize()'.
+
+	* libserveez/binding.c: Finally deleted both the functions
+	`server_bind()' and `server_start()'.
+	These have been replaced by `svz_server_bind()'.
+
+	* irc-server/irc-proto.c: Dropped port configuration.
+
+	* irc-server/irc-config.c (irc_parse_config_lines): Changed
+	data format of configuration lines (NULL terminated string
+	arrays -> svz_array_t).
+
+	* http-server/http-proto.c: Dropped network port 
+	configuration.
+	(http_init): Added some "FIXME"s.
+
+2001-04-27  [ Ela ]  <ela@lkcc.org>
+
+	* foo-server/foo-proto.h: Dropped port configuration within
+	the server instance configuration.
+
+	* foo-server/foo-proto.c: Put all default values as needed
+	by server instance configuration into the configuration. Dropped
+	port configuration.
+	(foo_global_init): Default value creation here.
+	(foo_global_finalize): Default value destruction here.
+	(foo_init): Dropped call of `server_bind()' since this is 
+	completely handled outside the actual server.
+
+	* fakeident-server/ident-proto.c (fakeident_config): Dropped
+	port configuration.
+
+	* ctrl-server/control-proto.h: Dropped port configuration
+	in the server instance configuration.
+
+	* ctrl-server/control-proto.c (ctrl_config): No more
+	port configuration in the server configuration.
+	(ctrl_stat_id): Corrected listing of servers on each listening
+	socket (is now a svz_array_t).
+
+	* awcs-server/awcs-proto.h: Port configurations not in the
+	server instance configuration anymore.
+
+	* awcs-server/awcs-proto.c: Dropped definition of network
+	and filesystem port configuration.
+	(awcs_init): Dropped `server_bind()'.
+
+	* serveez.c (guile_entry): Dropped call of `server_start()'
+	and `sizzle_load_config()'. Variable modification from Guile
+	not yet possible (svz_config.max_sockets).
+
+	* guile.c (guile_init): Added definition of Guile variables
+	which should be read out afterwards. How can we do this ?
+
+	* cfgfile.c: Dropped sizzle part within this file.
+
+	* Makefile.am (serveez_SOURCES): Dropped `sizzle.[ch]'.
+
 2001-04-21  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/server.c (svz_server_configure): Function for

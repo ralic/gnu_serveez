@@ -1,7 +1,7 @@
 /*
  * sntp-proto.c - simple network time protocol implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.6 2001/04/04 14:23:14 ela Exp $
+ * $Id: sntp-proto.c,v 1.7 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -53,24 +53,11 @@
 #include "sntp-proto.h"
 
 /*
- * Default value definitions for the server configuration.
- */
-portcfg_t sntp_port = 
-{
-  PROTO_UDP,      /* we are udp */
-  37,             /* standard port to listen on */
-  "*",            /* bind all local addresses */
-  NULL,           /* calculated from above values later */
-  NULL,           /* no inpipe for us */
-  NULL            /* no outpipe for us */
-};
-
-/*
  * Simple network time server configuration.
  */
 sntp_config_t sntp_config = 
 {
-  &sntp_port, /* default port configuration */
+  0, /* default nothing */
 };
 
 /*
@@ -78,7 +65,6 @@ sntp_config_t sntp_config =
  */
 svz_key_value_pair_t sntp_config_prototype [] = 
 {
-  REGISTER_PORTCFG ("netport", sntp_config.port, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -111,11 +97,6 @@ int
 sntp_init (svz_server_t *server)
 {
   sntp_config_t *cfg = server->cfg;
-
-  /*
-   * Bind this instance to the given port.
-   */
-  server_bind (server, cfg->port);
 
   return 0;
 }

@@ -1,7 +1,7 @@
 /*
- * cfgfile.h - Configuration file definitions
+ * cfgfile.h - configuration file definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,19 +19,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.h,v 1.5 2001/04/09 13:46:04 ela Exp $
+ * $Id: cfgfile.h,v 1.6 2001/04/28 12:37:05 ela Exp $
  *
  */
 
 #ifndef __CFGFILE_H__
 #define __CFGFILE_H__ 1
 
-/*
- * How large should string variables be (bufferspace given to sizzle).
- */
-#define STRINGVARSIZE 1024
-
 void init_server_definitions (void);
-int sizzle_load_config (char * cfgfilename, int argc, char **argv);
 
 #endif /* not __CFGFILE_H__ */

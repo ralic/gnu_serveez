@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.35 2001/04/18 19:26:57 ela Exp $
+ * $Id: serveez.c,v 1.36 2001/04/28 12:37:05 ela Exp $
  *
  */
 
@@ -64,17 +64,6 @@ guile_entry (int argc, char **argv)
       log_printf (LOG_ERROR, "error loading config file\n");
     }
 
-#if 0
-  if (sizzle_load_config (options->cfgfile, argc, argv) == -1)
-    {
-      /* 
-       * Something went wrong while configuration file loading, 
-       * Message output by function itself...
-       */
-      exit (3);
-    }
-#endif
-
   /*
    * Make command line arguments overriding the configuration 
    * file settings.
@@ -94,7 +83,11 @@ guile_entry (int argc, char **argv)
 #if ENABLE_DEBUG
   log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
-  
+
+  /* FIXME: cannot set from guile, yet */
+  if (svz_config.max_sockets < 100)
+    svz_config.max_sockets = 100;
+
   log_printf (LOG_NOTICE, "%s\n", svz_sys_version ());
   svz_openfiles (svz_config.max_sockets);
   log_printf (LOG_NOTICE, "using %d socket descriptors\n",
@@ -112,12 +105,6 @@ guile_entry (int argc, char **argv)
       exit (6);
     }
 
-  /* Actually open the ports. */
-  if (server_start () == -1)
-    {
-      exit (7);
-    }
-  
   server_loop ();
 
   /* Run the finalizers. */

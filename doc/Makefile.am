@@ -47,7 +47,7 @@ HTML_DIR = html_chapter
 # local dependencies
 
 distclean-local:
-	rm -f *\~ *.orig *.rej
+	rm -rf *\~ *.orig *.rej $(HTML_DIR)/
 
 all-local: serveez.html serveez-api.html
 

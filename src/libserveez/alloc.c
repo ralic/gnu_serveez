@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.10 2001/04/10 17:49:41 ela Exp $
+ * $Id: alloc.c,v 1.11 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -118,7 +118,7 @@ heap_add (heap_block_t *block)
 # define heap_caller()                                                     \
     STACKFRAME stack;                                                      \
     StackWalk (IMAGE_FILE_MACHINE_I386, GetCurrentProcess (),              \
-	       GetCurrentThread (), &stack, NULL, NULL, NULL, NULL, NULL); \
+	       GetCurrentThread (), &stack, NULL, NULL, NULL, NULL, NULL)
 #else
 # ifndef __GNUC__
 #  define __builtin_return_address(no) 0

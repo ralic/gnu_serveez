@@ -1,3 +1,14 @@
+2001-04-27  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Dropped everything related to sizzle.
+
+	* NEWS: Bumped up version to 0.1.0
+
+	* Makefile.am (EXTRA_DIST): Dropped sizzle specific files.
+
+	* INSTALL: Replaced `--with-sizzle' note with `--with-guile'
+	note.
+
 2001-04-01  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checking for -lmswsock library.

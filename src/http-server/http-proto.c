@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.62 2001/04/11 13:31:04 ela Exp $
+ * $Id: http-proto.c,v 1.63 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -64,24 +64,10 @@
 #include "http-cache.h"
 
 /*
- * The http port configuration.
- */
-portcfg_t http_port =
-{
-  PROTO_TCP,  /* TCP protocol definition */
-  42424,      /* preferred port */
-  "*",        /* preferred local ip address */
-  NULL,       /* calculated automatically later */
-  NULL,       /* no receiving (listening) pipe */
-  NULL        /* no sending pipe */
-};
-
-/*
  * The HTTP server instance configuration.
  */
 http_config_t http_config =
 {
-  &http_port,         /* port configuration */
   "index.html",       /* standard index file  for GET request */
   "../show",          /* document root */
   "/cgi-bin",         /* how cgi-requests are detected */
@@ -110,7 +96,6 @@ http_config_t http_config =
  */
 svz_key_value_pair_t http_config_prototype[] =
 {
-  REGISTER_PORTCFG ("netport", http_config.port, DEFAULTABLE),
   REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
   REGISTER_STR ("docs", http_config.docs, DEFAULTABLE),
   REGISTER_STR ("cgi-url", http_config.cgiurl, DEFAULTABLE),
@@ -220,8 +205,11 @@ http_init (svz_server_t *server)
   /* resolve localhost if server name is not set */
   if (!cfg->host)
     {
-      host = cfg->port->addr->sin_addr.s_addr;
-      if (host == INADDR_ANY)
+      /*
+	FIXME: How to determine which port config ?
+	host = cfg->port->addr->sin_addr.s_addr;
+	if (host == INADDR_ANY)
+      */
 	host = htonl (INADDR_LOOPBACK);
       svz_coserver_rdns (host, http_localhost, cfg, NULL);
     }
@@ -275,7 +263,6 @@ http_init (svz_server_t *server)
   /* generate cgi associations */
   http_gen_cgi_apps (cfg);
   
-  server_bind (server, cfg->port);
   return 0;
 }
 
@@ -883,7 +870,7 @@ http_info_server (svz_server_t *server)
 	   " default type    : %s\r\n"
 	   " type file       : %s\r\n"
 	   " content types   : %d",
-	   cfg->port->port,
+	   0/*FIXME: cfg->port->port*/,
 	   cfg->indexfile,
 	   cfg->docs,
 	   cfg->cgiurl,

@@ -1,7 +1,7 @@
 /*
  * awcs-proto.c - aWCS protocol implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.30 2001/04/11 13:31:04 ela Exp $
+ * $Id: awcs-proto.c,v 1.31 2001/04/28 12:37:05 ela Exp $
  *
  */
 
@@ -50,47 +50,21 @@
 #include "awcs-proto.h"
 
 /*
- * The aWCS port configuration.
- */
-portcfg_t awcs_net_port = 
-{
-  PROTO_TCP,   /* prefered protocol type */
-  42424,       /* prefered port */
-  "127.0.0.1", /* local ip */
-  NULL,        /* calculated later */
-  NULL,        /* inpipe */
-  NULL         /* outpipe */
-};
-
-portcfg_t awcs_fs_port = 
-{
-  PROTO_PIPE,  /* prefered protocol type */
-  0,           /* prefered port */
-  NULL,        /* local ip */
-  NULL,
-  ".aWCSrecv", /* inpipe */
-  ".aWCSsend"  /* outpipe */
-};
-
-/*
  * The aWCS server instance configuration.
  */
 awcs_config_t awcs_config =
 {
-  &awcs_net_port, /* current network port configuration */
-  &awcs_fs_port,  /* current filesystem port configuration */
   NULL,           /* aWCS Master server */
   0,              /* Was Master server detected ? */
   NULL            /* aWCS clients user base hash */
 };
 
 /*
- * Definition of the configuration items delivered by libsizzle.
+ * Definition of the configuration items delivered by the 
+ * configuration language.
  */
 svz_key_value_pair_t awcs_config_prototype [] =
 {
-  REGISTER_PORTCFG ("netport", awcs_config.netport, DEFAULTABLE),
-  REGISTER_PORTCFG ("fsport", awcs_config.fsport, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -113,7 +87,7 @@ svz_servertype_t awcs_server_definition =
   NULL,                  /* handle request callback */
   &awcs_config,          /* the instance configuration */
   sizeof (awcs_config),  /* sizeof the instance configuration */
-  awcs_config_prototype  /* configuration definition for libsizzle */
+  awcs_config_prototype  /* configuration definitions  */
 };
 
 /*
@@ -155,10 +129,6 @@ awcs_init (svz_server_t *server)
   cfg->clients->keylen = awcs_hash_keylen;
   cfg->clients->equals = awcs_hash_equals;
   cfg->server = NULL;
-
-  /* bind the port configuration */
-  server_bind (server, cfg->netport);
-  server_bind (server, cfg->fsport);
 
   return 0;
 }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.12 2001/04/24 23:15:13 ela Exp $
+ * $Id: server.c,v 1.13 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -292,9 +292,77 @@ svz_server_get (char *name)
 void
 svz_server_del (char *name)
 {
+  svz_server_t *server;
+
   if (svz_servers == NULL)
     return;
-  svz_hash_delete (svz_servers, name);
+  if ((server = svz_hash_delete (svz_servers, name)) != NULL)
+    {
+      svz_server_free (server);
+    }
+}
+
+/*
+ * Completely destroy the given server instance @var{server}. This 
+ * especially means to go through each item of the server instance's 
+ * configuration.
+ */
+void
+svz_server_free (svz_server_t *server)
+{
+  svz_servertype_t *stype = server->type;
+  int n;
+  void **target;
+
+  /* Go through the list of configuration items. */
+  for (n = 0; stype->items[n].type != ITEM_END; n++)
+    {
+      /* Calculate the target address. */
+      target = (void **) ((char *) server->cfg + 
+			  (unsigned long) ((char *) stype->items[n].address - 
+					   (char *) stype->prototype_start));
+
+      /* Depending on the type of configuration item we need to free
+	 different data structures. */
+      switch (stype->items[n].type) 
+        {
+          /* Integer array. */
+        case ITEM_INTARRAY:
+	  if (*target)
+	    svz_array_destroy (*target);
+          break;
+
+	  /* Simple string. */
+        case ITEM_STR:
+	  if (*target)
+	    svz_free (*target);
+          break;
+          
+	  /* Array of strings. */
+        case ITEM_STRARRAY:
+	  if (*target)
+	    svz_array_destroy (*target);
+          break;
+
+	  /* Hash table. */
+        case ITEM_HASH:
+	  if (*target)
+	    svz_hash_destroy (*target);
+          break;
+
+	  /* Port configuration. */
+        case ITEM_PORTCFG:
+	  if (*target)
+	    {
+	      svz_portcfg_destroy (*target);
+	      svz_free (*target);
+	    }
+          break;
+        }
+    }
+  svz_free (server->cfg);
+  svz_free (server->name);
+  svz_free (server);
 }
 
 /*
@@ -347,7 +415,8 @@ svz_server_configure (svz_servertype_t *server,
   /* Make a simple copy of the example configuration structure definition 
      for that server instance. */
   cfg = svz_malloc (server->prototype_size);
-  memcpy (cfg, server->prototype_start, server->prototype_size);
+  /*FIXME:  memcpy (cfg, server->prototype_start, server->prototype_size); */
+  memset (cfg, 0, server->prototype_size);
 
   /* Go through list of configuration items. */
   for (n = 0; server->items[n].type != ITEM_END; n++)
@@ -435,7 +504,23 @@ svz_server_configure (svz_servertype_t *server,
 	  /* Assuming default value. */
 	  else
 	    {
-	      memcpy (target, def, size);
+	      switch (server->items[n].type) 
+		{
+		case ITEM_INT:
+		  memcpy (target, def, size);
+		  break;
+		case ITEM_INTARRAY:
+		  break;
+		case ITEM_STR:
+		  *((char **) &target) = (char *) svz_strdup (def);
+		  break;
+		case ITEM_STRARRAY:
+		  break;
+		case ITEM_HASH:
+		  break;
+		case ITEM_PORTCFG:
+		  break;
+		}
 	    }
 	  continue;
         }
@@ -480,40 +565,21 @@ svz_server_init_all (void)
 int
 svz_server_finalize_all (void)
 {
-  int i;
+  int i, n;
   svz_server_t **server;
 
   log_printf (LOG_NOTICE, "running all server finalizers\n");
+  n = svz_hash_size (svz_servers) - 1;
   svz_hash_foreach_value (svz_servers, server, i)
     {
-      if (server[i]->finalize != NULL)
-	server[i]->finalize (server[i]);
+      if (server[n]->finalize != NULL)
+	server[n]->finalize (server[n]);
+      svz_server_del (server[n]->name);
+      i--;
+      n--;
     }
+  svz_hash_destroy (svz_servers);
+  svz_servers = NULL;
 
-  return 0;
-}
-
-/*
- * Compare if two given portcfg structures are equal i.e. specifying 
- * the same port. Returns non-zero if A and B are equal.
- */
-int
-server_portcfg_equal (portcfg_t *a, portcfg_t *b)
-{
-  if ((a->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) &&
-      (a->proto == b->proto))
-    {
-      /* 2 inet ports are equal if both local port and address are equal */
-      if (a->port == b->port && !strcmp (a->ipaddr, b->ipaddr))
-	return 1;
-    } 
-  else if (a->proto == PROTO_PIPE && a->proto == b->proto) 
-    {
-      /* 2 pipe configs are equal if they use the same files */
-      if (!strcmp (a->inpipe, b->inpipe) && !strcmp (b->outpipe, b->outpipe))
-	return 1;
-    } 
-
-  /* do not even the same proto flag -> cannot be equal */
   return 0;
 }

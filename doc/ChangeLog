@@ -1,3 +1,7 @@
+2001-04-27  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (distclean-local): Deleting the HTML-directory.
+
 2001-04-19  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.texi.in (Embedding API): Added new section about

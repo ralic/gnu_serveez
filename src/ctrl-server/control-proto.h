@@ -1,7 +1,7 @@
 /*
  * control-proto.h - control protocol header definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.9 2001/04/04 14:23:14 ela Exp $
+ * $Id: control-proto.h,v 1.10 2001/04/28 12:37:05 ela Exp $
  *
  */
 
@@ -56,11 +56,11 @@ cpu_state_t;
  */
 typedef struct
 {
-  portcfg_t *netport; /* port configuration only (yet) */
+  int nothing; /* (yet) */
 }
 ctrl_config_t;
 
-/* Export the control server definition to `server.c'. */
+/* Export the control server definition. */
 extern svz_servertype_t ctrl_server_definition;
 
 /* server functions */

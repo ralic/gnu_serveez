@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.9 2001/04/04 14:23:14 ela Exp $
+ * $Id: icmp-socket.c,v 1.10 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -703,7 +703,7 @@ icmp_check_request (socket_t sock)
     }
 
   /* Go through all icmp servers on this server socket. */
-  for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
+  svz_array_foreach (sock->data, server, n)
     {
       sock->cfg = server->cfg;
       

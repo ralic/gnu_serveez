@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.6 2001/04/04 14:23:14 ela Exp $
+ * $Id: socket.c,v 1.7 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -128,7 +128,7 @@ sock_detect_proto (socket_t sock)
     return -1;
 
   /* go through each server stored in the data field of this socket */
-  for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
+  svz_array_foreach (sock->data, server, n)
     {
       /* call protocol detection routine of the server */
       if (server->detect_proto (server->cfg, sock))
@@ -368,8 +368,16 @@ sock_free (socket_t sock)
     svz_free (sock->recv_buffer);
   if (sock->send_buffer)
     svz_free (sock->send_buffer);
-  if (sock->flags & SOCK_FLAG_LISTENING && sock->data)
-    svz_free (sock->data);
+  if (sock->flags & SOCK_FLAG_LISTENING)
+    {
+      if (sock->data)
+	svz_array_destroy (sock->data);
+      if (sock->cfg)
+	{
+	  svz_portcfg_destroy (sock->cfg);
+	  svz_free (sock->cfg);
+	}
+    }
   if (sock->recv_pipe)
     svz_free (sock->recv_pipe);
   if (sock->send_pipe)

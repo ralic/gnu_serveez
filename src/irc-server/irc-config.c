@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.12 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-config.c,v 1.13 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -72,133 +72,118 @@ irc_parse_config_lines (irc_config_t *cfg)
     tmp[n] = svz_malloc (MAX_TMP_STRLEN);
 
   /* parse connection classes */
-  if (cfg->YLine)
+  svz_array_foreach (cfg->YLine, line, n)
     {
-      for (n = 0, line = cfg->YLine[n]; line; line = cfg->YLine[++n])
+      class = svz_malloc (sizeof (irc_class_t));
+      if (5 != irc_parse_line (line, "Y:%d:%d:%d:%d:%d",
+			       &class->nr, &class->ping_freq, 
+			       &class->connect_freq, &class->max_links, 
+			       &class->sendq_size))
 	{
-	  class = svz_malloc (sizeof (irc_class_t));
-	  if (5 != irc_parse_line (line, "Y:%d:%d:%d:%d:%d",
-				   &class->nr, &class->ping_freq, 
-				   &class->connect_freq, &class->max_links, 
-				   &class->sendq_size))
-	    {
-	      log_printf (LOG_ERROR, "irc: invalid Y line: %s\n", line);
-	      svz_free (class);
-	    }
-	  else
-	    {
-	      class->links = 0;
-	      class->line = line;
-	      class->next = cfg->classes;
-	      cfg->classes = class;
-	    }
+	  log_printf (LOG_ERROR, "irc: invalid Y line: %s\n", line);
+	  svz_free (class);
+	}
+      else
+	{
+	  class->links = 0;
+	  class->line = line;
+	  class->next = cfg->classes;
+	  cfg->classes = class;
 	}
     }
 
   /* parse user authorization lines */
-  if (cfg->ILine)
+  svz_array_foreach (cfg->ILine, line, n)
     {
-      for (n = 0, line = cfg->ILine[n]; line; line = cfg->ILine[++n])
+      user = svz_malloc (sizeof (irc_user_t));
+      if (5 != irc_parse_line (line, "I:%s:%s:%s:%s:%d",
+			       tmp[0], tmp[1], tmp[2], tmp[3], 
+			       &user->class))
 	{
-	  user = svz_malloc (sizeof (irc_user_t));
-	  if (5 != irc_parse_line (line, "I:%s:%s:%s:%s:%d",
-				   tmp[0], tmp[1], tmp[2], tmp[3], 
-				   &user->class))
-	    {
-	      log_printf (LOG_ERROR, "irc: invalid I line: %s\n", line);
-	      svz_free (user);
-	    }
-	  else
-	    {
-	      user->line = line;
-	      PARSE_TILL_AT (tmp[0]);
-	      user->user_ip = svz_strdup (tmp[0]);
-	      user->ip = svz_strdup (p);
-	      user->password = svz_strdup (tmp[1]);
-	      PARSE_TILL_AT (tmp[2]);
-	      user->user_host = svz_strdup (tmp[2]);
-	      user->host = svz_strdup (p);
-	      if (!user->password)
-		user->password = svz_strdup (tmp[3]);
-	      user->next = cfg->user_auth;
-	      cfg->user_auth = user;
-	    }
+	  log_printf (LOG_ERROR, "irc: invalid I line: %s\n", line);
+	  svz_free (user);
+	}
+      else
+	{
+	  user->line = line;
+	  PARSE_TILL_AT (tmp[0]);
+	  user->user_ip = svz_strdup (tmp[0]);
+	  user->ip = svz_strdup (p);
+	  user->password = svz_strdup (tmp[1]);
+	  PARSE_TILL_AT (tmp[2]);
+	  user->user_host = svz_strdup (tmp[2]);
+	  user->host = svz_strdup (p);
+	  if (!user->password)
+	    user->password = svz_strdup (tmp[3]);
+	  user->next = cfg->user_auth;
+	  cfg->user_auth = user;
 	}
     }
 
   /* parse operator authorization lines (local and network wide) */
-  if (cfg->OLine)
+  svz_array_foreach (cfg->OLine, line, n)
     {
-      for (n = 0, line = cfg->OLine[n]; line; line = cfg->OLine[++n])
+      oper = svz_malloc (sizeof (irc_oper_t));
+      if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
+			       tmp[0], tmp[1], tmp[2], &oper->class))
 	{
-	  oper = svz_malloc (sizeof (irc_oper_t));
-	  if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-				   tmp[0], tmp[1], tmp[2], &oper->class))
-	    {
-	      log_printf (LOG_ERROR, "irc: invalid O line: %s\n", line);
-	      svz_free (oper);
-	    }
-	  else
-	    {
-	      oper->line = line;
-	      PARSE_TILL_AT (tmp[0]);
-	      oper->user = svz_strdup (tmp[0]);
-	      oper->host = svz_strdup (p);
-	      oper->password = svz_strdup (tmp[1]);
-	      oper->nick = svz_strdup (tmp[2]);
-	      oper->local = 0;
-	      oper->next = cfg->operator_auth;
-	      cfg->operator_auth = oper;
-	    }
+	  log_printf (LOG_ERROR, "irc: invalid O line: %s\n", line);
+	  svz_free (oper);
+	}
+      else
+	{
+	  oper->line = line;
+	  PARSE_TILL_AT (tmp[0]);
+	  oper->user = svz_strdup (tmp[0]);
+	  oper->host = svz_strdup (p);
+	  oper->password = svz_strdup (tmp[1]);
+	  oper->nick = svz_strdup (tmp[2]);
+	  oper->local = 0;
+	  oper->next = cfg->operator_auth;
+	  cfg->operator_auth = oper;
 	}
     }
 
-  if (cfg->oLine)
+  svz_array_foreach (cfg->oLine, line, n)
     {
-      for (n = 0, line = cfg->oLine[n]; line; line = cfg->oLine[++n])
+      oper = svz_malloc (sizeof (irc_oper_t));
+      if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
+			       tmp[0], tmp[1], tmp[2], &oper->class))
 	{
-	  oper = svz_malloc (sizeof (irc_oper_t));
-	  if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-				   tmp[0], tmp[1], tmp[2], &oper->class))
-	    {
-	      log_printf (LOG_ERROR, "irc: invalid o line: %s\n", line);
-	      svz_free (oper);
-	    }
-	  else
-	    {
-	      oper->line = line;
-	      PARSE_TILL_AT (tmp[0]);
-	      oper->user = svz_strdup (tmp[0]);
-	      oper->host = svz_strdup (p);
-	      oper->password = svz_strdup (tmp[1]);
-	      oper->nick = svz_strdup (tmp[2]);
-	      oper->local = 1;
-	      oper->next = cfg->operator_auth;
-	      cfg->operator_auth = oper;
-	    }
+	  log_printf (LOG_ERROR, "irc: invalid o line: %s\n", line);
+	  svz_free (oper);
+	}
+      else
+	{
+	  oper->line = line;
+	  PARSE_TILL_AT (tmp[0]);
+	  oper->user = svz_strdup (tmp[0]);
+	  oper->host = svz_strdup (p);
+	  oper->password = svz_strdup (tmp[1]);
+	  oper->nick = svz_strdup (tmp[2]);
+	  oper->local = 1;
+	  oper->next = cfg->operator_auth;
+	  cfg->operator_auth = oper;
 	}
     }
 
   /* parse banned clients */
-  if (cfg->KLine)
+  svz_array_foreach (cfg->KLine, line, n)
     {
-      for (n = 0, line = cfg->KLine[n]; line; line = cfg->KLine[++n])
+      kill = svz_malloc (sizeof (irc_kill_t));
+      if (4 != irc_parse_line (line, "O:%s:%d-%d:%s",
+			       tmp[0], &kill->start, &kill->end, tmp[1]))
 	{
-	  kill = svz_malloc (sizeof (irc_kill_t));
-	  if (4 != irc_parse_line (line, "O:%s:%d-%d:%s",
-				   tmp[0], &kill->start, &kill->end, tmp[1]))
-	    {
-	      log_printf (LOG_ERROR, "irc: invalid K line: %s\n", line);
-	      svz_free (kill);
-	    }
-	  else
-	    {
-	      kill->line = line;
-	      kill->host = svz_strdup (tmp[0]);
-	      kill->user = svz_strdup (tmp[1]);
-	      kill->next = cfg->banned;
-	      cfg->banned = kill;
-	    }
+	  log_printf (LOG_ERROR, "irc: invalid K line: %s\n", line);
+	  svz_free (kill);
+	}
+      else
+	{
+	  kill->line = line;
+	  kill->host = svz_strdup (tmp[0]);
+	  kill->user = svz_strdup (tmp[1]);
+	  kill->next = cfg->banned;
+	  cfg->banned = kill;
 	}
     }
 

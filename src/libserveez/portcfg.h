@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.8 2001/04/21 16:24:24 ela Exp $
+ * $Id: portcfg.h,v 1.9 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -169,6 +169,17 @@ svz_portcfg_t;
    ((port)->proto & PROTO_RAW) ? &((port)->raw_addr) : NULL) \
 
 /*
+ * Return the pointer to the ip address @code{ipaddr} of the given
+ * port configuration @var{port} if it is a network port configuration. 
+ * Otherwise return @code{NULL}.
+ */
+#define svz_portcfg_ipaddr(port)                            \
+  (((port)->proto & PROTO_TCP) ? (port)->tcp_ipaddr :       \
+   ((port)->proto & PROTO_UDP) ? (port)->udp_ipaddr :       \
+   ((port)->proto & PROTO_ICMP) ? (port)->icmp_ipaddr :     \
+   ((port)->proto & PROTO_RAW) ? (port)->raw_ipaddr : NULL) \
+
+/*
  * Return the UDP or TCP port of the given port configuration or zero
  * if it neither TCP nor UDP.
  */
@@ -194,6 +205,7 @@ SERVEEZ_API int svz_portcfg_mkaddr __P ((svz_portcfg_t *this));
 SERVEEZ_API void svz_portcfg_print __P ((svz_portcfg_t *this, FILE *stream));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_copy __P ((svz_portcfg_t *port));
 SERVEEZ_API svz_array_t *svz_portcfg_expand __P ((svz_portcfg_t *this));
+SERVEEZ_API int svz_portcfg_set_ipaddr __P ((svz_portcfg_t *, char *));
 
 __END_DECLS
 

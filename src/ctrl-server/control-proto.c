@@ -1,7 +1,7 @@
 /*
  * control-proto.c - control protocol implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.48 2001/04/11 13:31:04 ela Exp $
+ * $Id: control-proto.c,v 1.49 2001/04/28 12:37:05 ela Exp $
  *
  */
 
@@ -64,33 +64,19 @@
 #endif
 
 /*
- * The control port configuration.
- */
-portcfg_t ctrl_port =
-{
-  PROTO_TCP,  /* TCP protocol definition */
-  42424,      /* preferred port */
-  "*",        /* preferred local ip address */
-  NULL,       /* calculated automatically later */
-  NULL,       /* no receiving (listening) pipe */
-  NULL        /* no sending pipe */
-};
-
-/*
  * The control server instance configuration.
  */
 ctrl_config_t ctrl_config =
 {
-  &ctrl_port  /* port configuration only (yet) */
+  0 /* nothing */
 };
 
 /*
- * Definition of the configuration items processed by libsizzle (taken
- * from the configuration file).
+ * Definition of the configuration items processed by the configuration 
+ * language.
  */
 svz_key_value_pair_t ctrl_config_prototype [] =
 {
-  REGISTER_PORTCFG ("netport", ctrl_config.netport, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -100,7 +86,7 @@ svz_key_value_pair_t ctrl_config_prototype [] =
 svz_servertype_t ctrl_server_definition =
 {
   "control protocol server", /* long server description */
-  "control",                 /* short server description (for libsizzle) */
+  "control",                 /* short server description */
   NULL,                      /* global initializer */
   ctrl_init,                 /* instance initializer */
   ctrl_detect_proto,         /* protocol detection routine */
@@ -113,7 +99,7 @@ svz_servertype_t ctrl_server_definition =
   NULL,                      /* handle request callback */
   &ctrl_config,              /* default configuration */
   sizeof (ctrl_config),      /* size of the configuration */
-  ctrl_config_prototype      /* configuration prototypes (libsizzle) */
+  ctrl_config_prototype      /* configuration prototypes */
 };
 
 /*
@@ -131,7 +117,6 @@ ctrl_init (svz_server_t *server)
 {
   ctrl_config_t *cfg = server->cfg;
 
-  server_bind (server, cfg->netport);
   return 0;
 }
 
@@ -153,7 +138,7 @@ ctrl_info_server (svz_server_t *server)
   static char info[128];
   ctrl_config_t *cfg = server->cfg;
 
-  sprintf (info, " tcp port : %d", cfg->netport->port);
+  sprintf (info, " nothing to be configured, yet");
   return info;
 }
 
@@ -350,7 +335,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	strcat (proto, "raw ");
 
       sock_printf (sock, "%s\r\n", proto);
-      for (n = 0; (server = SERVER (xsock->data, n)) != NULL; n++)
+      svz_array_foreach (xsock->data, server, n)
 	{
 	  sock_printf (sock, "            %d. %s (%s)\r\n", 
 		       n + 1, server->name, server->description);
@@ -819,11 +804,13 @@ ctrl_handle_request (socket_t sock, char *request, int len)
       if (len <= 2) return -1;
 #if ENABLE_CRYPT && HAVE_CRYPT
       request[len] = '\0';
-      if (!strcmp (crypt (request, svz_config.server_password), 
+      if (svz_config.server_password == NULL ||
+	  !strcmp (crypt (request, svz_config.server_password), 
 		   svz_config.server_password))
 #else
-      if (!memcmp (request, svz_config.server_password, len) &&
-	  (unsigned) len >= strlen (svz_config.server_password))
+      if (svz_config.server_password == NULL ||
+	  (!memcmp (request, svz_config.server_password, len) &&
+	   (unsigned) len >= strlen (svz_config.server_password)))
 #endif
 	{
 	  sock->userflags |= CTRL_FLAG_PASSED;

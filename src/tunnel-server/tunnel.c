@@ -1,7 +1,7 @@
 /*
  * tunnel.c - port forward implementations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.19 2001/04/04 14:23:14 ela Exp $
+ * $Id: tunnel.c,v 1.20 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -115,6 +115,7 @@ int
 tnl_init (svz_server_t *server)
 {
   tnl_config_t *cfg = server->cfg;
+  struct sockaddr_in *addr;
 
   /* protocol supported ? */
   if (!(cfg->source->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)) ||
@@ -125,7 +126,7 @@ tnl_init (svz_server_t *server)
     }
 
   /* check identity of source and target port configurations */
-  if (server_portcfg_equal (cfg->source, cfg->target))
+  if (svz_portcfg_equal (cfg->source, cfg->target))
     {
       log_printf (LOG_ERROR, "tunnel: source and target identical\n");
       return -1;
@@ -134,7 +135,8 @@ tnl_init (svz_server_t *server)
   if (!(cfg->target->proto & PROTO_PIPE))
     {
       /* broadcast target ip address not allowed */
-      if (cfg->target->addr->sin_addr.s_addr == INADDR_ANY)
+      addr = svz_portcfg_addr (cfg->target);
+      if (addr->sin_addr.s_addr == INADDR_ANY)
 	{
 	  log_printf (LOG_ERROR, "tunnel: broadcast target ip not allowed\n");
 	  return -1;
@@ -150,8 +152,6 @@ tnl_init (svz_server_t *server)
   if (cfg->source->proto & PROTO_ICMP)
     server->handle_request = tnl_handle_request_icmp_source;
 
-  /* bind the source port */
-  server_bind (server, cfg->source);
   return 0;
 }
 
@@ -231,12 +231,14 @@ tnl_create_socket (socket_t sock, int source)
   unsigned long ip = 0;
   unsigned short port = 0;
   socket_t xsock = NULL;
+  struct sockaddr_in *addr;
 
   /* get host and target ip if necessary */
   if (!(cfg->target->proto & PROTO_PIPE))
     {
-      ip = cfg->target->addr->sin_addr.s_addr;
-      port = cfg->target->addr->sin_port;
+      addr = svz_portcfg_addr (cfg->target);
+      ip = addr->sin_addr.s_addr;
+      port = addr->sin_port;
     }
 
   /*
@@ -321,17 +323,17 @@ tnl_create_socket (socket_t sock, int source)
   /* target is a pipe connection */
   else if (sock->userflags & TNL_FLAG_TGT_PIPE)
     {
-      if ((xsock = pipe_connect (cfg->target->inpipe, 
-				 cfg->target->outpipe)) == NULL)
+      if ((xsock = pipe_connect (cfg->target->pipe_recv.name, 
+				 cfg->target->pipe_send.name)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: pipe: cannot connect to %s\n",
-		      cfg->target->outpipe);
+		      cfg->target->pipe_send.name);
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: pipe: connecting to %s\n",
-		  cfg->target->outpipe);
+		  cfg->target->pipe_send.name);
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_pipe_target;
       sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);

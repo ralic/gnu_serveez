@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.h,v 1.3 2001/04/04 14:23:14 ela Exp $
+ * $Id: ident-proto.h,v 1.4 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -37,7 +37,6 @@ struct fakeident_config
 {
   char *systemtype;      /* the system type in the response, 'UNIX' */
   char *username;        /* the username responded for all requests */
-  struct portcfg *port;  /* port the server is bound to             */  
 };
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.7 2001/04/24 23:15:13 ela Exp $
+ * $Id: portcfg.c,v 1.8 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -150,6 +150,41 @@ svz_portcfg_del (char *name)
 }
 
 /*
+ * This function can be used to set the character string representation
+ * of a the port configuration @var{this} in dotted decimal form
+ * (@var{ipaddr}). Returns zero on success, non-zero otherwise.
+ */
+int
+svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
+{
+  if (!this || !ipaddr)
+    return -1;
+
+  switch (this->proto)
+    {
+    case PROTO_TCP:
+      svz_free_and_zero (this->tcp_ipaddr);
+      this->tcp_ipaddr = ipaddr;
+      break;
+    case PROTO_UDP:
+      svz_free_and_zero (this->udp_ipaddr);
+      this->udp_ipaddr = ipaddr;
+      break;
+    case PROTO_ICMP:
+      svz_free_and_zero (this->icmp_ipaddr);
+      this->icmp_ipaddr = ipaddr;
+      break;
+    case PROTO_RAW:
+      svz_free_and_zero (this->raw_ipaddr);
+      this->raw_ipaddr = ipaddr;
+      break;
+    default:
+      return -1;
+    }
+  return 0;
+}
+
+/*
  * Expand the given port configuration @var{this} if it is a network port
  * configuration and if the network ip address is @code{INADDR_ANY}. Return
  * an array of port configurations which are copies of the given.
@@ -172,6 +207,8 @@ svz_portcfg_expand (svz_portcfg_t *this)
 	  port = svz_portcfg_copy (this);
 	  addr = svz_portcfg_addr (port);
 	  addr->sin_addr.s_addr = ifc->ipaddr;
+	  svz_portcfg_set_ipaddr (port, 
+				  svz_strdup (svz_inet_ntoa (ifc->ipaddr)));
 	  svz_array_add (ports, port);
 	}
     }
@@ -196,6 +233,7 @@ svz_portcfg_copy (svz_portcfg_t *port)
   /* First plain copy. */
   copy = svz_malloc (sizeof (svz_portcfg_t));
   memcpy (copy, port, sizeof (svz_portcfg_t));
+  copy->name = svz_strdup (port->name);
 
   /* Depending on the protocol, copy various strings. */
   switch (port->proto)
@@ -260,9 +298,12 @@ svz_portcfg_destroy (svz_portcfg_t *port)
     }
 
   /* FIXME: What about the values ? */
-  svz_array_destroy (port->deny);
-  svz_array_destroy (port->allow);
-  svz_hash_destroy (port->accepted);
+  if (port->deny)
+    svz_array_destroy (port->deny);
+  if (port->allow)
+    svz_array_destroy (port->allow);
+  if (port->accepted)
+    svz_hash_destroy (port->accepted);
 }
 
 /*
@@ -286,9 +327,19 @@ svz_portcfg_get (char *name)
 void
 svz_portcfg_finalize (void)
 {
+  svz_portcfg_t **port;
+  int n;
+
   if (svz_portcfgs != NULL)
-    svz_hash_destroy (svz_portcfgs);
-  svz_portcfgs = NULL;
+    {
+      svz_hash_foreach_value (svz_portcfgs, port, n)
+	{
+	  svz_portcfg_destroy (port[n]);
+	  svz_free (port[n]);
+	}
+      svz_hash_destroy (svz_portcfgs);
+      svz_portcfgs = NULL;
+    }
 }
 
 /*

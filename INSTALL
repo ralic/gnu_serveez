@@ -125,8 +125,8 @@ or '--enable-<?>=no'.
          If you enable this feature the serveez will support a simple builtin 
          flood protection. It is always useful to protect the software from
          flood clients.
- 13.   --with-sizzle=DIR
-         The DIR argument specifies the sizzle directory.
+ 13.   --with-guile=DIR
+         The DIR argument specifies the guile directory.
  14.   --with-mingw=DIR
          When compiling under Windows the DIR argument specifies the path
          to the extra MinGW32 library and header files. If you want the

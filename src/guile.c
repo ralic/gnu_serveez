@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.10 2001/04/21 16:24:24 ela Exp $
+ * $Id: guile.c,v 1.11 2001/04/28 12:37:05 ela Exp $
  *
  */
 
@@ -424,7 +424,9 @@ guile_define_server (SCM name, SCM args)
 	  server = svz_server_instantiate (stype, servername);
 	  server->cfg = guile_create_config (stype, servername, args);
 	  if (server->cfg)
-	    svz_server_add (server);
+	    {
+	      svz_server_add (server);
+	    }
 	  break;
 	}
     }
@@ -463,6 +465,23 @@ guile_define_server (SCM name, SCM args)
 #undef FUNC_NAME
 
 /*
+ * Destroy the given option-hash @var{options}.
+ */
+void
+optionhash_destroy (svz_hash_t *options)
+{
+  value_t **value;
+  int n;
+
+  if (options)
+    {
+      svz_hash_foreach_value (options, value, n)
+	svz_free (value[n]);
+      svz_hash_destroy (options);
+    }
+}
+
+/*
  * Generic port configuration definition ...
  */
 #define FUNC_NAME "define-port!"
@@ -472,9 +491,8 @@ guile_define_port (SCM symname, SCM args)
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
   svz_hash_t *options = NULL;
-  /* FIXME: use #t and #f values here */
-  SCM retval_ok = SCM_UNSPECIFIED;
-  SCM retval_fail = SCM_UNSPECIFIED;
+  SCM retval_ok = SCM_BOOL_T;
+  SCM retval_fail = SCM_BOOL_F;
   SCM retval = retval_ok;
   char *portname = guile2str (symname);
 
@@ -608,6 +626,12 @@ guile_define_port (SCM symname, SCM args)
   free (portname);
 
  out:
+  optionhash_destroy (options);
+  if (retval == retval_fail)
+    {
+      svz_portcfg_destroy (cfg);
+      svz_free (cfg);
+    }
   return retval;
 }
 #undef FUNC_NAME
@@ -663,6 +687,10 @@ guile_init (void)
   gh_define ("guile-version", scm_version ());
   gh_define ("have-debug", gh_bool2scm (have_debug));
   gh_define ("have-win32", gh_bool2scm (have_win32));
+
+  gh_define ("serveez-verbosity", gh_int2scm (svz_verbosity));
+  gh_define ("serveez-sockets", gh_int2scm (svz_config.max_sockets));
+  gh_define ("serveez-pass", gh_str02scm (svz_config.server_password));
 
   /* export some new procedures */
   def_serv = gh_new_procedure ("define-port!", guile_define_port, 1, 0, 2);

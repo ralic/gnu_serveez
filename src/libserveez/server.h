@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.9 2001/04/21 16:24:24 ela Exp $
+ * $Id: server.h,v 1.10 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -148,34 +148,6 @@ typedef struct
 svz_server_config_t;
 
 /*
- * Used when binding ports this is available from sizzle 
- * and set as a hash:
- *
- *  "proto"    => String: "tcp", "udp", "pipe" or "icmp"
- *  "port"     => Integer: for tcp/udp ports
- *  "ipaddr  " => String: (dotted decimal) for local address or "*" (default)
- *  "inpipe"   => String: pipe for sending data into serveez
- *  "outpipe"  => String: pipe serveez sends responses out on
- */
-typedef struct portcfg
-{
-  int proto;                   /* one of the PROTO_ flags */
-  unsigned short port;         /* ip port (TCP and UDP) */
-  char *ipaddr;                /* dotted decimal or "*" */
-  struct sockaddr_in *addr;    /* converted from the above 2 values */
-
-  /* Pipe */
-  char *inpipe;
-  char *outpipe;
-}
-portcfg_t;
-
-/*
- * Helper cast to get n-th server_t from a (void *).
- */
-#define SERVER(addr, no) (((svz_server_t **) addr)[no])
-
-/*
  * Helper macros for filling the config prototypes.
  */
 #define DEFAULTABLE     1
@@ -239,6 +211,7 @@ SERVEEZ_API extern svz_hash_t *svz_servers;
 SERVEEZ_API void svz_server_add __P ((svz_server_t *));
 SERVEEZ_API svz_server_t *svz_server_get __P ((char *));
 SERVEEZ_API void svz_server_del __P ((char *));
+SERVEEZ_API void svz_server_free __P ((svz_server_t *server));
 SERVEEZ_API svz_server_t *svz_server_find __P ((void *));
 SERVEEZ_API void svz_server_notifiers __P ((void));
 SERVEEZ_API svz_server_t *svz_server_instantiate __P ((svz_servertype_t *, 
@@ -247,7 +220,6 @@ SERVEEZ_API void *svz_server_configure __P ((svz_servertype_t *, char *,
 					     void *, svz_server_config_t *));
 SERVEEZ_API int svz_server_init_all __P ((void));
 SERVEEZ_API int svz_server_finalize_all __P ((void));
-SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *, portcfg_t *));
 
 SERVEEZ_API extern svz_array_t *svz_servertypes;
 SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));

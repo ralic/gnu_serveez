@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.h,v 1.3 2001/04/04 14:23:14 ela Exp $
+ * $Id: sntp-proto.h,v 1.4 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -34,7 +34,7 @@
  */
 typedef struct
 {
-  portcfg_t *port;
+  int nothing;
 }
 sntp_config_t;
 

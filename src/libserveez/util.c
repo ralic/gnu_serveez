@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.5 2001/04/01 13:32:30 ela Exp $
+ * $Id: util.c,v 1.6 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -724,7 +724,7 @@ svz_openfiles (int max_sockets)
   return 0;
 }
 
-/* Runtime checkable flags for sizzle and code. */
+/* Runtime checkable flags for configuration language and code. */
 #ifdef ENABLE_FLOOD_PROTECTION
 int have_floodprotect = 1;
 #else

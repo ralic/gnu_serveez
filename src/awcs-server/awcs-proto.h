@@ -1,7 +1,7 @@
 /*
  * awcs-proto.h - aWCS protocol declarations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.10 2001/04/04 14:23:13 ela Exp $
+ * $Id: awcs-proto.h,v 1.11 2001/04/28 12:37:05 ela Exp $
  *
  */
 
@@ -52,8 +52,6 @@
  */
 typedef struct
 {
-  portcfg_t *netport;  /* Network port configuration */
-  portcfg_t *fsport;   /* Filesystem port configuration */
   socket_t server;     /* the current master server */
   int master;          /* Was Master server detected ? */
   svz_hash_t *clients; /* this aWCS servers user base */

@@ -1,7 +1,7 @@
 /*
  * http-proto.h - http protocol header file
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.18 2001/04/04 14:23:14 ela Exp $
+ * $Id: http-proto.h,v 1.19 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -40,7 +40,6 @@
  */
 typedef struct
 {
-  portcfg_t *port;      /* tcp port configuration */
   char *indexfile;      /* the standard index file */
   char *docs;           /* http document root */
   char *cgiurl;         /* cgi url (this is for its detection) */

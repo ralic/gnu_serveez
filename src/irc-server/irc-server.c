@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.23 2001/04/11 13:31:04 ela Exp $
+ * $Id: irc-server.c,v 1.24 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -266,8 +266,7 @@ irc_connect_servers (irc_config_t *cfg)
     return;
 
   /* go through all C lines */
-  n = 0;
-  while ((cline = cfg->CLine[n++]) != NULL)
+  svz_array_foreach (cfg->CLine, cline, n)
     {
       /* scan the actual C line */
       irc_parse_line (cline, "C:%s:%s:%s:%d:%d", 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.32 2001/04/01 13:32:30 ela Exp $
+ * $Id: nut-transfer.c,v 1.33 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -560,7 +560,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       push.index = transfer->index;
       push.ip = cfg->ip ? cfg->ip : sock->local_addr;
       push.port = (unsigned short) (cfg->port ? cfg->port : 
-				    htons (cfg->netport->port));
+				    0/*FIXME: htons (cfg->netport->port)*/);
       
       /* create push request key and check if it was already sent */
       pushkey = svz_malloc (16 + NUT_GUID_SIZE * 2);

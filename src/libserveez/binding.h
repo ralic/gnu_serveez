@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.h,v 1.1 2001/04/04 22:20:02 ela Exp $
+ * $Id: binding.h,v 1.2 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -27,23 +27,8 @@
 
 #include "libserveez/defines.h"
 
-/*
- * This structure is used by `server_bind ()' to collect various server
- * instances and their port configurations.
- */
-typedef struct
-{
-  svz_server_t *server; /* server instance */
-  portcfg_t *cfg;       /* port configuration */
-}
-server_binding_t;
-
 __BEGIN_DECLS
 
-SERVEEZ_API extern int server_bindings;
-SERVEEZ_API extern server_binding_t *server_binding;
-SERVEEZ_API int server_bind __P ((svz_server_t *server, portcfg_t *cfg));
-SERVEEZ_API int server_start __P ((void));
 SERVEEZ_API int svz_server_bind __P ((svz_server_t *, svz_portcfg_t *));
 
 __END_DECLS

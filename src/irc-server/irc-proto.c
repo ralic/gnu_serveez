@@ -1,7 +1,7 @@
 /*
  * irc-proto.c - basic IRC protocol functions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.29 2001/04/05 18:04:35 ela Exp $
+ * $Id: irc-proto.c,v 1.30 2001/04/28 12:37:06 ela Exp $
  *
  */
 
@@ -55,24 +55,10 @@
 #include "irc-config.h"
 
 /*
- * The IRC port configuration.
- */
-portcfg_t irc_port =
-{
-  PROTO_TCP,  /* tcp protocol only */
-  42424,      /* preferred tcp port */
-  "*",        /* preferred local ip address */
-  NULL,       /* calculated automatically */
-  NULL,       /* no receiving pipe */
-  NULL        /* no sending (listening) pipe */
-};
-
-/*
  * The IRC server instance default configuration,
  */
 irc_config_t irc_config =
 {
-  &irc_port,              /* port configuration */
   0,                      /* logged in operators */
   0,                      /* logged in users */
   0,                      /* unknown connections */
@@ -119,7 +105,6 @@ irc_config_t irc_config =
  */
 svz_key_value_pair_t irc_config_prototype[] =
 {
-  REGISTER_PORTCFG ("port", irc_config.netport, DEFAULTABLE),
   REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
   REGISTER_STR ("INFO-file", irc_config.info_file, DEFAULTABLE),
 #if ENABLE_TIMESTAMP
@@ -215,11 +200,13 @@ irc_init (svz_server_t *server)
 		  cfg->MLine ? cfg->MLine : "(nil)");
       return -1;
     }
+  /*
   if (cfg->port != cfg->netport->port)
     {
       log_printf (LOG_WARNING, "irc: port in M line clashes\n");
       cfg->netport->port = (short) cfg->port;
     }
+  */
   cfg->host = svz_strdup (tmp[0]);
   cfg->realhost = svz_strdup (tmp[1]);
   cfg->info = svz_strdup (tmp[2]);
@@ -246,8 +233,6 @@ irc_init (svz_server_t *server)
 
   irc_parse_config_lines (cfg);
   irc_connect_servers (cfg);
-
-  server_bind (server, cfg->netport);
 
   return 0;
 }
