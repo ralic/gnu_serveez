@@ -25,8 +25,8 @@
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 
-/* The number of bytes in a unsigned.  */
-#define SIZEOF_UNSIGNED 4
+/* The number of bytes in a long.  */
+#define SIZEOF_LONG 4
 
 /* The number of bytes in a void *.  */
 #define SIZEOF_VOID_P 4
