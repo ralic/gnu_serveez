@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.21 2002/05/24 12:51:13 ela Exp $
+ * $Id: guile-bin.c,v 1.22 2002/06/02 16:22:27 ela Exp $
  *
  */
 
@@ -217,8 +217,9 @@ guile_bin_search (SCM binary, SCM needle)
       unsigned char c;
       unsigned char *p, *end;
 
-      c = SCM_CHARP (needle) ? 
-	SCM_CHAR (needle) : (unsigned char) SCM_NUM2INT (SCM_ARG2, needle);
+      c = (unsigned char) 
+	(SCM_CHARP (needle) ? SCM_CHAR (needle) : 
+	 SCM_NUM2INT (SCM_ARG2, needle));
       p = bin->data;
       end = p + bin->size;
 
@@ -312,7 +313,7 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
   if (idx < 0 || idx >= bin->size)
     SCM_OUT_OF_RANGE (SCM_ARG2, index);
 
-  bin->data[idx] = SCM_CHAR (value);
+  bin->data[idx] = (unsigned char) SCM_CHAR (value);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
@@ -482,7 +483,7 @@ guile_list_to_bin (SCM list)
       value = SCM_NUM2INT (SCM_ARGN, SCM_CAR (list));
       if (value < 0 || value > 255)
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
-      *p++ = value;
+      *p++ = (unsigned char) value;
       list = SCM_CDR (list);
     }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.9 2001/12/13 18:00:01 ela Exp $
+ * $Id: codec.c,v 1.10 2002/06/02 16:22:27 ela Exp $
  *
  */
 
@@ -399,7 +399,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
   /* Call the saved @code{check_request} callback with the new receive 
      buffer which is the output buffer of the codec. */
   svz_codec_set_recv_buffer (sock, data);
-  if ((ret = data->check_request (sock)))
+  if ((ret = data->check_request (sock)) != 0)
     {
       svz_codec_unset_recv_buffer (sock, data);
       return ret;
@@ -579,7 +579,7 @@ svz_codec_sock_send (svz_socket_t *sock)
   /* Call the saved @code{write_socket} callback with the new send 
      buffer which is the output buffer of the codec. */
   svz_codec_set_send_buffer (sock, data);
-  if ((ret = data->write_socket (sock)))
+  if ((ret = data->write_socket (sock)) != 0)
     {
       svz_codec_unset_send_buffer (sock, data);
       return ret;
