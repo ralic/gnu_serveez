@@ -1,3 +1,12 @@
+2002-07-26  Stefan Jahn  <s.jahn@bit-side.com>
+
+	* irc-server/irc-event-2.c (irc_join_callback): Fixed a bug
+	occurring when a client tries to join an invalid channel name.
+	Returning the correct error message (ERR_NOSUCHCHANNEL) now.
+
+	* guile-bin.c (guile_string_to_bin, guile_bin_search): Handle 
+	empty strings correctly.
+
 2002-07-26  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm (serveez-doc-add!): New procedure.  Adds the

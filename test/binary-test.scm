@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: binary-test.scm,v 1.1 2002/07/25 13:45:37 ela Exp $
+;; $Id: binary-test.scm,v 1.2 2002/07/26 12:38:10 ela Exp $
 ;;
 
 ;; Load the test suite module.
@@ -34,7 +34,8 @@
 
   (pass-if "string conversion"
 	   (and (equal? "foo" (binary->string (string->binary "foo")))
-		(equal? "" (binary->string (string->binary "")))))
+		(equal? "" (binary->string (string->binary "")))
+		(equal? (string->binary "") (string->binary ""))))
 
   (pass-if-exception "search wrong argument type 1"
 		     'wrong-type-arg

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.16 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-event-2.c,v 1.17 2002/07/26 12:38:09 ela Exp $
  *
  */
 
@@ -210,6 +210,13 @@ irc_join_callback (svz_socket_t *sock,
   for (n = 0; n < request->targets; n++)
     {
       chan = request->target[n].channel;
+      if (*chan == '\0')
+	{
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
+		      cfg->host, ERR_NOSUCHCHANNEL, client->nick,
+		      request->para[n]);
+	  return 0;
+	}
 
       /* does the channel already exists ? */
       if ((channel = irc_find_channel (cfg, chan)) != NULL)

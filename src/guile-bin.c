@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.25 2002/07/17 18:34:18 ela Exp $
+ * $Id: guile-bin.c,v 1.26 2002/07/26 12:38:09 ela Exp $
  *
  */
 
@@ -147,9 +147,18 @@ guile_string_to_bin (SCM string)
 
   bin = MAKE_BIN_SMOB ();
   bin->size = SCM_NUM2INT (SCM_ARG1, scm_string_length (string));
-  bin->data = (unsigned char *) scm_must_malloc (bin->size, "svz-binary-data");
-  memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
-  bin->garbage = 1;
+  if (bin->size > 0)
+    {
+      bin->data = (unsigned char *) 
+	scm_must_malloc (bin->size, "svz-binary-data");
+      memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
+      bin->garbage = 1;
+    }
+  else
+    {
+      bin->data = NULL;
+      bin->garbage = 0;
+    }
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
 }
@@ -200,6 +209,11 @@ guile_bin_search (SCM binary, SCM needle)
       start = bin->data;
       end = start + bin->size - len;
 
+      /* Return #f if searching in empty data sets. */
+      if (len == 0 || p == NULL || start == NULL)
+	return ret;
+
+      /* Iterate the data. */
       while (start <= end)
 	{
 	  if (*start == *p && memcmp (start, p, len) == 0)
