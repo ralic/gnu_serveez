@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.24 2001/01/28 03:26:55 ela Exp $
+ * $Id: awcs-proto.c,v 1.25 2001/02/04 11:48:52 ela Exp $
  *
  */
 
@@ -176,7 +176,6 @@ awcs_finalize (server_t *server)
   return 0;
 }
 
-#if ENABLE_REVERSE_LOOKUP
 /*
  * Gets called when a nslookup coserver has resolved a IP address
  * for socket SOCK to name and has been identified as an aWCS client.
@@ -219,9 +218,7 @@ awcs_nslookup_done (char *host, int id, int version)
 
   return 0;
 }
-#endif
 
-#if ENABLE_IDENT
 /*
  * Gets called when a ident coserver has resolved a IP address
  * for socket SOCK to name and has been identified as an aWCS client.
@@ -264,7 +261,6 @@ awcs_ident_done (char *user, int id, int version)
 
   return 0;
 }
-#endif
 
 /*
  * This is called when a valid aWCS client has been connected.

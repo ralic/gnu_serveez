@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.41 2001/02/02 11:26:23 ela Exp $
+ * $Id: control-proto.c,v 1.42 2001/02/04 11:48:52 ela Exp $
  *
  */
 
@@ -269,15 +269,9 @@ ctrl_help (socket_t sock, int flag, char *arg)
     "\r\n available commands:\r\n"
     "   * help                - this help screen\r\n"
     "   * quit                - quit this control connection\r\n"
-#if ENABLE_IDENT
     "   * restart ident       - restart the ident coserver\r\n"
-#endif /* ENABLE_IDENT */
-#if ENABLE_REVERSE_LOOKUP
     "   * restart reverse dns - restart reverse DNS lookup coserver\r\n"
-#endif /* ENABLE_REVERSE_LOOKUP */
-#if ENABLE_DNS_LOOKUP
     "   * restart dns         - restart the DNS lookup coserver\r\n"
-#endif /* ENABLE_DNS_LOOKUP */
     "   * killall             - shutdown all client connections\r\n"
     "   * kill id NUM         - shutdown connection NUM\r\n"
     "   * stat                - general statistics\r\n"
@@ -499,15 +493,9 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   
   /* second feature line */
   sock_printf (sock, "           "
-#ifdef ENABLE_IDENT
 	       " IDENT"
-#endif
-#ifdef ENABLE_REVERSE_LOOKUP
 	       " REVERSE-DNS"
-#endif
-#ifdef ENABLE_DNS_LOOKUP
 	       " DNS"
-#endif
 #ifdef ENABLE_FLOOD_PROTECTION
 	       " FLOOD"
 #endif
@@ -810,15 +798,9 @@ ctrl[] =
   { CTRL_CMD_STAT,          ctrl_stat, 0 },
   { CTRL_CMD_KILLALL,       ctrl_killall, 0 },
   { CTRL_CMD_KILL_ID,       ctrl_kill_id, 0 },
-#if ENABLE_REVERSE_LOOKUP
   { CTRL_CMD_RESTART_RDNS,  ctrl_restart, COSERVER_REVERSE_DNS },
-#endif
-#if ENABLE_IDENT
   { CTRL_CMD_RESTART_IDENT, ctrl_restart, COSERVER_IDENT },
-#endif
-#if ENABLE_REVERSE_LOOKUP
   { CTRL_CMD_RESTART_DNS,   ctrl_restart, COSERVER_DNS },
-#endif
   { NULL, NULL, 0 }
 };
 

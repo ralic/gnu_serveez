@@ -55,7 +55,6 @@ bin_PROGRAMS = serveez mkpassword
 include_HEADERS = libserveez.h
 
 serveez_SOURCES = \
-	dynload.c dynload.h \
 	serveez.c serveez.h \
 	sizzle.c sizzle.h \
 	cfgfile.c cfgfile.h \

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: coserver.h,v 1.3 2001/02/04 11:48:52 ela Exp $
  *
  */
 
@@ -123,7 +123,6 @@ SERVEEZ_API void coserver_send_request __P ((int, char *,
 /*
  * These are the three wrappers for our existing coservers.
  */
-#if ENABLE_REVERSE_LOOKUP
 SERVEEZ_API void coserver_reverse_invoke __P ((unsigned long, 
 					       coserver_handle_result_t, 
 					       coserver_arglist_t));
@@ -131,11 +130,7 @@ SERVEEZ_API void coserver_reverse_invoke __P ((unsigned long,
     coserver_reverse_invoke (ip, (coserver_handle_result_t) cb,       \
                              (coserver_arg_t) ((unsigned long) arg0), \
 			     (coserver_arg_t) ((unsigned long) arg1))
-#else /* not ENABLE_REVERSE_LOOKUP */
-# define coserver_reverse(ip, cb, arg0, arg1)
-#endif /* not ENABLE_REVERSE_LOOKUP */
 
-#if ENABLE_DNS_LOOKUP
 SERVEEZ_API void coserver_dns_invoke __P ((char *, 
 					   coserver_handle_result_t, 
 					   coserver_arglist_t));
@@ -143,11 +138,7 @@ SERVEEZ_API void coserver_dns_invoke __P ((char *,
     coserver_dns_invoke (host, (coserver_handle_result_t) cb,     \
                          (coserver_arg_t) ((unsigned long) arg0), \
 			 (coserver_arg_t) ((unsigned long) arg1))
-#else /* not ENABLE_DNS_LOOKUP */
-# define coserver_dns(host, cb, arg0, arg1)
-#endif /* not ENABLE_DNS_LOOKUP */
 
-#if ENABLE_IDENT
 SERVEEZ_API void coserver_ident_invoke __P ((socket_t, 
 					     coserver_handle_result_t,
 					     coserver_arglist_t));
@@ -155,8 +146,5 @@ SERVEEZ_API void coserver_ident_invoke __P ((socket_t,
     coserver_ident_invoke (sock, (coserver_handle_result_t) cb,     \
                            (coserver_arg_t) ((unsigned long) arg0), \
 			   (coserver_arg_t) ((unsigned long) arg1))
-#else /* not ENABLE_IDENT */
-# define coserver_ident(sock, cb, arg0, arg1)
-#endif /* not ENABLE_IDENT */
 
 #endif /* not __COSERVER_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.18 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-server.c,v 1.19 2001/02/04 11:48:52 ela Exp $
  *
  */
 
@@ -128,7 +128,6 @@ irc_parse_line (char *line, char *fmt, ...)
   return ret;
 }
 
-#if ENABLE_DNS_LOOKUP
 /*
  * This will be called if a DNS lookup for a remote irc server has
  * been done. Here we connect to this server then. Return non-zero on
@@ -236,7 +235,6 @@ irc_connect_server (char *ip, irc_server_t *server)
   
   return 0;
 }
-#endif /* ENABLE_DNS_LOOKUP */
 
 /*
  * Add an IRC server to the server list.

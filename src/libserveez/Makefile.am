@@ -35,7 +35,7 @@ libserveez_la_LIBADD = coserver/libcoserver.la
 libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c alist.c socket.c \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \
   server-core.c server-loop.c windoze.c boot.c server.c server-socket.c   \
-  interface.c
+  interface.c dynload.c
 
 # these file are available by #include <libserveez/foo.h>
 
@@ -44,7 +44,7 @@ libserveezdir = $(includedir)/libserveez
 libserveez_HEADERS = alloc.h util.h snprintf.h hash.h alist.h socket.h \
   tcp-socket.h pipe-socket.h udp-socket.h icmp-socket.h raw-socket.h   \
   server-core.h server-loop.h windoze.h defines.h boot.h server.h      \
-  server-socket.h interface.h
+  server-socket.h interface.h dynload.h
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 

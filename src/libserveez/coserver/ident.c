@@ -18,15 +18,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.c,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: ident.c,v 1.3 2001/02/04 11:48:52 ela Exp $
  *
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#if ENABLE_IDENT
 
 #define _GNU_SOURCE
 #include <string.h>
@@ -49,7 +47,7 @@
 #include "libserveez/socket.h"
 #include "libserveez/util.h"
 #include "libserveez/coserver/coserver.h"
-#include "ident.h"
+#include "libserveez/coserver/ident.h"
 
 #define IDENT_PORT 113 /* the identd port */
 
@@ -218,11 +216,3 @@ ident_handle_request (char *inbuf)
   sprintf (ident_response, "%s", user);
   return ident_response;
 }
-
-int have_ident = 1;
-
-#else /* ENABLE_IDENT */
-
-int have_ident = 0; /* Shut compiler warnings up, remember for runtime. */
-
-#endif /* not ENABLE_IDENT */

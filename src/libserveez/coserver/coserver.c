@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: coserver.c,v 1.3 2001/02/04 11:48:52 ela Exp $
  *
  */
 
@@ -61,18 +61,9 @@
 #include "libserveez/coserver/coserver.h"
 
 /* coserver-TODO: include header here */
-
-#if ENABLE_DNS_LOOKUP
-# include "dns.h"
-#endif
-
-#if ENABLE_REVERSE_LOOKUP
-# include "reverse-dns.h"
-#endif
-
-#if ENABLE_IDENT
-# include "ident.h"
-#endif
+#include "dns.h"
+#include "reverse-dns.h"
+#include "ident.h"
 
 #ifdef __MINGW32__
 /* define for the thread priority in Win32 */
@@ -91,7 +82,6 @@ static hash_t *coserver_hash = NULL;
 
 /* coserver-TODO: place wrapper function here */
 
-#if ENABLE_REVERSE_LOOKUP
 /*
  * This is a wrapper function for the reverse DNS lookup coserver.
  */
@@ -102,9 +92,7 @@ coserver_reverse_invoke (unsigned long ip,
   coserver_send_request (COSERVER_REVERSE_DNS, 
 			 util_inet_ntoa (ip), cb, arg0, arg1);
 }
-#endif /* ENABLE_REVERSE_LOOKUP */
 
-#if ENABLE_DNS_LOOKUP
 /*
  * Wrapper for the DNS coserver.
  */
@@ -114,9 +102,7 @@ coserver_dns_invoke (char *host,
 {
   coserver_send_request (COSERVER_DNS, host, cb, arg0, arg1);
 }
-#endif /* ENABLE_DNS_LOOKUP */
 
-#if ENABLE_IDENT
 /*
  * Wrapper for the ident coserver.
  */
@@ -130,7 +116,6 @@ coserver_ident_invoke (socket_t sock,
 	    ntohs (sock->remote_port), ntohs (sock->local_port));
   coserver_send_request (COSERVER_IDENT, buffer, cb, arg0, arg1);
 }
-#endif /* ENABLE_IDENT */
 
 /*
  * This structure contains the type id and the callback
@@ -140,28 +125,14 @@ coserver_type_t
 coserver_type[MAX_COSERVER_TYPES] = 
 {
   /* coserver-TODO: place coserver callbacks and identification here */
-
-#if ENABLE_REVERSE_LOOKUP
   { COSERVER_REVERSE_DNS, "reverse dns", 
     reverse_dns_handle_request, 1, reverse_dns_init },
-#else
-  { COSERVER_REVERSE_DNS, NULL, NULL, 0, NULL },
-#endif
 
-#if ENABLE_IDENT
   { COSERVER_IDENT, "ident", 
     ident_handle_request, 1, NULL},
-#else
-  { COSERVER_IDENT, NULL, NULL, 0, NULL},
-#endif
 
-#if ENABLE_DNS_LOOKUP
   { COSERVER_DNS, "dns", 
     dns_handle_request, 1, NULL }
-#else
-  { COSERVER_DNS, NULL, NULL, 0, NULL }
-#endif
-
 };
 
 /*

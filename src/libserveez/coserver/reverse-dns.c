@@ -18,15 +18,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: reverse-dns.c,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: reverse-dns.c,v 1.3 2001/02/04 11:48:52 ela Exp $
  *
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
-
-#if ENABLE_REVERSE_LOOKUP
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -51,7 +49,7 @@
 
 #include "libserveez/util.h"
 #include "libserveez/coserver/coserver.h"
-#include "reverse-dns.h"
+#include "libserveez/coserver/reverse-dns.h"
 
 #define MAX_CACHE_ENTRIES 1024 /* nslookup cache entries */
 
@@ -135,11 +133,3 @@ reverse_dns_handle_request (char *inbuf)
       return NULL;
     }
 }
-  
-int have_reverse_dns = 1;
-
-#else /* ENABLE_REVERSE_LOOKUP */
-
-int have_reverse_dns = 0; /* Shut compiler warnings up. */
-
-#endif /* not ENABLE_REVERSE_LOOKUP */

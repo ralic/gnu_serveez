@@ -1,3 +1,12 @@
+2001-02-04  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/dynload.c: Stuffed the dynamic loading interface
+	into the serveez core library.
+	(dyn_load_library): The dynamic loading interface for shared
+	libraries saves all handles for better management. Thus it might
+	be possible to load and unload server modules without restarting
+	the main module.
+
 2001-02-02  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/interface.c: Pulled the network interface detection

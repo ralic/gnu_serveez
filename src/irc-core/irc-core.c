@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.21 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-core.c,v 1.22 2001/02/04 11:48:52 ela Exp $
  *
  */
 
@@ -44,7 +44,6 @@
 irc_request_t irc_request; /* single IRC request */
 char irc_lcset[256];       /* lower case character set */
 
-#if ENABLE_REVERSE_LOOKUP
 /*
  * Gets called when a nslookup coserver has resolved a IP address
  * for socket SOCK.
@@ -74,9 +73,7 @@ irc_nslookup_done (char *host, int id, int version)
     }
   return -1;
 }
-#endif /* ENABLE_REVERSE_LOOKUP */
 
-#if ENABLE_IDENT
 /*
  * Gets called when an ident coserver has got a reply
  * for socket SOCK.
@@ -106,7 +103,6 @@ irc_ident_done (char *user, int id, int version)
     }
   return -1;
 }
-#endif /* ENABLE_IDENT */
 
 /*
  * Initialization of the authentication (DNS and IDENT) for an
