@@ -1,3 +1,7 @@
+2002-07-23  [ Ela ]  <ela@lkcc.org>
+
+	* test.c (test_value): Fixed 'division by zero' bug.
+
 2002-01-02  [ Ela ]  <ela@lkcc.org>
 
 	* prog-test.c: New test program.  Can be used to test the
