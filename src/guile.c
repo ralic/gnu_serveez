@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.19 2001/06/01 21:24:09 ela Exp $
+ * $Id: guile.c,v 1.20 2001/06/04 20:44:14 raimi Exp $
  *
  */
 
@@ -39,6 +39,12 @@
 
 #define valid_port(port) ((port) > 0 && (port) < 65536)
 #define FAIL() do { err = -1; goto out; } while(0)
+
+/*
+ * Error flag that is set when one of the parsing functions thinks it should
+ * fail. No other way yet...
+ */
+static int guile_global_error;
 
 /*
  * What is an 'optionhash' ?
@@ -215,7 +221,7 @@ guile2optionhash (SCM pairlist, char *msg)
 
       /* the car must be another pair which contains key and value */
       if (!gh_pair_p (pair))
-	{
+	{ /* FIXME: better errormessage, perhaps no break */
 	  report_error ("not a pair");
 	  err = 1;
 	  break;
@@ -265,8 +271,8 @@ guile2optionhash (SCM pairlist, char *msg)
 /* ********************************************************************** */
 
 /*
- * Parse an integer value from a scheme cell. Returns zero when successful 
- * and stores the integer value where @var{target} points to. Does not emit 
+ * Parse an integer value from a scheme cell. Returns zero when successful.
+ * Stores the integer value where @var{target} points to. Does not emit 
  * error messages.
  */
 static int
@@ -292,6 +298,37 @@ guile2int (SCM scm, int *target)
   else                                         /* no chance         */
     {
       err = 2;
+    }
+  return err;
+}
+
+/*
+ * Parse a boolean value from a scheme cell. We consider integers and #t/#f
+ * as boolean boolean values. Represented as Integers internally. Returns
+ * zero when successful. Stores the boolean/integer where @var{target} points
+ * to. Does not emit error messages.
+ */
+static int
+guile2boolean (SCM scm, int *target)
+{
+  int m;
+  int err = 0;
+
+  if (gh_boolean_p (scm))
+    {
+      m = gh_scm2bool (scm);
+      *target = (m == 0 ? 0 : 1);
+    }
+  else
+    { /* try with the integer converter */
+      if (guile2int (scm, &m))
+	{ /* that's no int */
+	  err = 1;
+	}
+      else
+	{ /* make sure we use 0 and 1 internally */
+	  *target = (m == 0 ? 0 : 1);
+	}
     }
   return err;
 }
@@ -399,7 +436,32 @@ optionhash_cb_integer (char *servername, void *arg, char *key, int *target,
 		       int hasdef, int def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
-  return SVZ_ITEM_DEFAULT_ERRMSG;
+  SCM hvalue = optionhash_get (options, key);
+  
+  if (SCM_UNSPECIFIED == hvalue)
+    {
+      if (hasdef)
+	{
+	  return SVZ_ITEM_DEFAULT_ERRMSG;
+	}
+      else
+	{
+	  report_error ("%s: You have to define an integer called `%s'",
+			servername, key);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+  else
+    {
+      if (guile2int (hvalue, target))
+	{
+	  report_error ("Invalid integer value for `%s'"
+			" when defining server `%s'", key, servername);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+
+  return SVZ_ITEM_OK;
 }
 
 static int
@@ -407,7 +469,32 @@ optionhash_cb_boolean (char *servername, void *arg, char *key, int *target,
 		       int hasdef, int def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
-  return SVZ_ITEM_DEFAULT_ERRMSG;
+  SCM hvalue = optionhash_get (options, key);
+
+  if (SCM_UNSPECIFIED == hvalue)
+    {
+      if (hasdef)
+	{
+	  return SVZ_ITEM_DEFAULT_ERRMSG;
+	}
+      else
+	{
+	  report_error ("%s: You have to define a boolean called `%s'",
+			servername, key);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+  else
+    {
+      if (guile2boolean (hvalue, target))
+	{
+	  report_error ("Invalid boolean value for `%s'"
+			" when defining server `%s'", key, servername);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+
+  return SVZ_ITEM_OK;
 }
 
 static int
@@ -416,7 +503,63 @@ optionhash_cb_intarray (char *servername, void *arg, char *key,
 			svz_array_t *def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
-  return SVZ_ITEM_DEFAULT_ERRMSG;
+  SCM hvalue = optionhash_get (options, key);
+
+  if (SCM_UNSPECIFIED == hvalue)
+    {
+      if (hasdef)
+	{
+	  return SVZ_ITEM_DEFAULT_ERRMSG;
+	}
+      else
+	{
+	  report_error ("%s: You have to define a integer-array called `%s'",
+			servername, key);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+  else
+    {
+      int err = 0;
+      int i;
+      svz_array_t *array = svz_array_create (0);
+
+      if (gh_list_p (hvalue))
+	{ /* iterate over the list and build up the array of int */
+	  for (i = 0; gh_pair_p (hvalue); hvalue = gh_cdr (hvalue), i++)
+	    {
+	      int m;
+	      if (guile2int (gh_car (hvalue), &m))
+		{
+		  report_error ("%s: Invalid integer element #%d when defining"
+				" integer-array `%s'", servername, i, key);
+		  err = -1;
+		}
+	      else
+		{
+		  /* FIXME: do we store it that way ? */
+		  svz_array_add (array, (void*) m);
+		}
+	    }
+	}
+      else
+	{
+	  err = -1;
+	  report_error ("%s: integer-array `%s' is not a valid list",
+			servername, key);
+	}
+
+      if (err)
+	{ /* free the int array so far */
+	  svz_array_destroy (array);
+	  return SVZ_ITEM_FAILED;
+	}
+
+      /* yippie, we have it */
+      *target = array;
+    }
+
+  return SVZ_ITEM_OK;
 }
 
 static int
@@ -424,7 +567,38 @@ optionhash_cb_string (char *servername, void *arg, char *key,
 		      char **target, int hasdef, char *def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
-  return SVZ_ITEM_DEFAULT_ERRMSG;
+  SCM hvalue = optionhash_get (options, key);
+
+  if (SCM_UNSPECIFIED == hvalue)
+    {
+      if (hasdef)
+	{
+	  return SVZ_ITEM_DEFAULT_ERRMSG;
+	}
+      else
+	{
+	  report_error ("%s: You have to define a string called `%s'",
+			servername, key);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+  else
+    {
+      char *str = guile2str (hvalue);
+      if (NULL == str)
+	{
+	  report_error ("Invalid String value for `%s'"
+			" when defining server `%s'", key, servername);
+	  return SVZ_ITEM_FAILED;
+	}
+      else
+	{
+	  *target = svz_strdup (str);
+	  free (str);
+	}
+    }
+
+  return SVZ_ITEM_OK;
 }
 
 static int
@@ -433,7 +607,69 @@ optionhash_cb_strarray (char *servername, void *arg, char *key,
 			svz_array_t *def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
-  return SVZ_ITEM_DEFAULT_ERRMSG;
+  SCM hvalue = optionhash_get (options, key);
+
+  if (SCM_UNSPECIFIED == hvalue)
+    {
+      if (hasdef)
+	{
+	  return SVZ_ITEM_DEFAULT_ERRMSG;
+	}
+      else
+	{
+	  report_error ("%s: You have to define a string-array called `%s'",
+			servername, key);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+  else
+    {
+      int err = 0;
+      int i;
+      svz_array_t *array = svz_array_create (0);
+
+      if (gh_list_p (hvalue))
+	{ /* iterate over the list and build up the array of string */
+	  for (i = 0; gh_pair_p (hvalue); hvalue = gh_cdr (hvalue), i++)
+	    {
+	      char *str = guile2str (gh_car (hvalue));
+	      if (NULL == str)
+		{ /* invalid element no. i */
+		  report_error ("%s: Invalid string element #%d when defining"
+				" string-array `%s'", servername, i, key);
+		  err = -1;
+		}
+	      else
+		{ /* valid element, add it */
+		  svz_array_add (array, svz_strdup (str));
+		  free (str);
+		}
+	    }
+	}
+      else
+	{
+	  err = -1;
+	  report_error ("%s: string-array `%s' is not a valid list",
+			servername, key);
+	}
+
+      if (err)
+	{ /* free the string array so far */
+	  char *str;
+	  int j;
+	  svz_array_foreach (array, str, j)
+	    {
+	      svz_free (str);
+	    }
+	  svz_array_destroy (array);
+	  return SVZ_ITEM_FAILED;
+	}
+
+      /* okay, that's fine so far */
+      *target = array;
+    }
+
+  return SVZ_ITEM_OK;
 }
 
 static int
@@ -442,7 +678,108 @@ optionhash_cb_hash (char *servername, void *arg, char *key,
 		    svz_hash_t *def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
-  return SVZ_ITEM_DEFAULT_ERRMSG;
+  SCM hvalue = optionhash_get (options, key);
+
+  if (SCM_UNSPECIFIED == hvalue)
+    {
+      if (hasdef)
+	{
+	  return SVZ_ITEM_DEFAULT_ERRMSG;
+	}
+      else
+	{
+	  report_error ("%s: You have to define a hash (alist) called `%s'",
+			servername, key);
+	  return SVZ_ITEM_FAILED;
+	}
+    }
+  else
+    {
+      int i;
+      int err = 0;
+      svz_hash_t *hash = svz_hash_create (7);
+
+      /* unpack again, whysoever... */
+      hvalue = gh_car (hvalue);
+
+      if (!gh_list_p (hvalue))
+	{
+	  err = -1;
+	  report_error ("%s: Not a valid list for hash (alist) `%s'",
+			servername, key);
+	}
+      else
+	{
+	  for (i = 0; gh_pair_p (hvalue); hvalue = gh_cdr (hvalue), i++)
+	    {
+	      SCM pair = gh_car (hvalue);
+	      SCM k, v;
+	      char *tmp;
+	      char *keystr, *valstr;
+
+	      if (!gh_pair_p (pair))
+		{
+		  err = -1;
+		  report_error ("%s: Elemnt #%d of hash (alist) `%s'"
+				" is not a pair", servername, i, key);
+		  continue;
+		}
+	      k = gh_car (pair);
+	      v = gh_cdr (pair);
+	      
+	      if (NULL == (tmp = guile2str (k)))
+		{ /* no valid key */
+		  err = -1;
+		  report_error ("%s: Element #%d of hash (alist) `%s'"
+				" has no valid key, must be string",
+				servername, i, key);
+		  keystr = NULL;
+		}
+	      else
+		{
+		  keystr = svz_strdup (tmp);
+		  free (tmp);
+		}
+
+	      if (NULL == (tmp = guile2str (v)))
+		{ /* no valid value */
+		  err = -1;
+		  report_error ("%s: Element #%d of hash (alist) `%s'"
+				" has no valid value, must be string",
+				servername, i, key);
+		  valstr = NULL;
+		}
+	      else
+		{
+		  valstr = svz_strdup (tmp);
+		  free (tmp);
+		}
+
+	      /* add to hash when key and value look good */
+	      if (keystr != NULL && valstr != NULL)
+		{
+		  svz_hash_put (hash, keystr, valstr);
+		}
+	    }
+	}
+
+      if (err)
+	{
+	  /* free the values, keys are freed be hash destructor */
+	  char **values; int j;
+	  svz_hash_foreach_value (hash, values, j)
+	    {
+	      svz_free (values[j]);
+	    }
+	  svz_hash_destroy (hash);
+	  return SVZ_ITEM_FAILED;
+	}
+
+      /* we call that a hash, finally */
+      *target = hash;
+    }
+  
+  return SVZ_ITEM_OK;
 }
 
 static int
@@ -451,6 +788,7 @@ optionhash_cb_portcfg (char *servername, void *arg, char *key,
 		       svz_portcfg_t *def)
 {
   svz_hash_t *options = (svz_hash_t *) arg;
+  /* FIXME: implement me */
   return SVZ_ITEM_DEFAULT_ERRMSG;
 }
 
@@ -563,6 +901,7 @@ guile_define_server (SCM name, SCM args)
   svz_free (servertype);
   free (servername);
   optionhash_destroy (options);
+  guile_global_error |= err;
   return err ? SCM_BOOL_T : SCM_BOOL_F;
 }
 #undef FUNC_NAME
@@ -710,9 +1049,11 @@ guile_define_port (SCM symname, SCM args)
     svz_portcfg_destroy (cfg);
   free (portname);
   optionhash_destroy (options);
+  guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
+
 
 /*
  * Generic port -> server(s) port binding ...
@@ -730,14 +1071,14 @@ guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
   /* Check id there is such a port configuration. */
   if ((p = svz_portcfg_get (portname)) == NULL)
     {
-      report_error ("no such port: %s", portname);
+      report_error ("No such port: %s", portname);
       error++;
     }
 
   /* Get one of the servers in the list. */
   if ((s = svz_server_get (servername)) == NULL)
     {
-      report_error ("no such server: %s", servername);
+      report_error ("No such server: %s", servername);
       error++;
     }
   
@@ -748,9 +1089,11 @@ guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
 	error++;
     }
 
+  guile_global_error |= error;
   return error ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
+
 
 /*
  * Initialize Guile.
@@ -777,6 +1120,7 @@ guile_init (void)
   def_serv = gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 3);
 }
 
+
 /*
  * Exception handler for guile. It is called if the evaluation of the given
  * file failed.
@@ -792,6 +1136,7 @@ guile_exception (void *data, SCM tag, SCM args)
   return SCM_BOOL_F;
 }
 
+
 /*
  * Get server settings from the file @var{cfgfile} and instantiate servers 
  * as needed. Return non-zero on errors.
@@ -799,8 +1144,11 @@ guile_exception (void *data, SCM tag, SCM args)
 int
 guile_load_config (char *cfgfile)
 {
+  guile_global_error = 0;
   guile_init ();
+
   if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_BOOL_F)
-    return -1;
-  return 0;
+    guile_global_error = -1; 
+
+  return guile_global_error ? -1 : 0;
 }

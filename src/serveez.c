@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.37 2001/05/19 23:04:56 ela Exp $
+ * $Id: serveez.c,v 1.38 2001/06/04 20:44:14 raimi Exp $
  *
  */
 
@@ -62,6 +62,7 @@ guile_entry (int argc, char **argv)
   if (guile_load_config (options->cfgfile) == -1)
     {
       svz_log (LOG_ERROR, "error loading config file\n");
+      exit (3);
     }
 
   /*
