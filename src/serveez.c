@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.29 2001/04/04 14:23:13 ela Exp $
+ * $Id: serveez.c,v 1.30 2001/04/04 22:20:01 ela Exp $
  *
  */
 
@@ -315,7 +315,7 @@ main (int argc, char *argv[])
   /*
    * Initialise server instances.
    */
-  if (server_init_all () == -1)
+  if (svz_server_init_all () == -1)
     {
       /* 
        * Something went wrong while the server initialised themselves.
@@ -337,8 +337,8 @@ main (int argc, char *argv[])
   /*
    * Run the finalizers.
    */
-  server_finalize_all ();
-  server_global_finalize ();
+  svz_server_finalize_all ();
+  svz_servertype_finalize ();
 
   /*
    * Disconnect the previously invoked internal coservers.

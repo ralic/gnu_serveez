@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.5 2001/04/04 14:23:14 ela Exp $
+ * $Id: server.h,v 1.6 2001/04/04 22:20:02 ela Exp $
  *
  */
 
@@ -28,6 +28,7 @@
 
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
+#include "libserveez/hash.h"
 
 /*
  * Each server can have a an array of key-value-pairs specific for it.
@@ -42,10 +43,13 @@ typedef struct svz_key_value_pair
 }
 svz_key_value_pair_t;
 
+typedef struct svz_servertype svz_servertype_t;
+typedef struct svz_server svz_server_t;
+
 /*
  * Each server instance gets such a structure.
  */
-typedef struct svz_server
+struct svz_server
 {
   /* one of the PROTO_ flags defined in <core.h> */
   int proto;
@@ -55,6 +59,8 @@ typedef struct svz_server
   char *description;
   /* configuration structure for this instance */
   void *cfg;
+  /* pointer to this server instance's server type */
+  svz_servertype_t *server;
 
   /* init of instance */
   int (* init) (struct svz_server *);
@@ -72,14 +78,13 @@ typedef struct svz_server
   int (* notify) (struct svz_server *);
   /* packet processing */
   int (* handle_request) (socket_t, char *, int);
-}
-svz_server_t;
+};
 
 /*
  * Every type (class) of server is completely defined by the following
  * structure.
  */
-typedef struct svz_servertype
+struct svz_servertype
 {
   /* full descriptive name */
   char *name;
@@ -113,8 +118,7 @@ typedef struct svz_servertype
   int  prototype_size;
   /* array of key-value-pairs of config items */
   svz_key_value_pair_t *items;
-}
-svz_servertype_t;
+};
 
 /*
  * Used when binding ports this is available from sizzle 
@@ -138,18 +142,6 @@ typedef struct portcfg
   char *outpipe;
 }
 portcfg_t;
-
-/*
- * This structure is used by `server_bind ()' to collect various server
- * instances and their port configurations.
- */
-typedef struct
-{
-  svz_server_t *server; /* server instance */
-  portcfg_t *cfg;       /* port configuration */
-}
-server_binding_t;
-
 
 /*
  * Helper cast to get n-th server_t from a (void *).
@@ -215,23 +207,24 @@ server_binding_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern svz_array_t *svz_servertypes;
-SERVEEZ_API extern int server_instances;
-SERVEEZ_API extern svz_server_t **servers;
+SERVEEZ_API extern svz_hash_t *svz_servers;
 
-SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
-SERVEEZ_API int server_start __P ((void));
-SERVEEZ_API int server_bind __P ((svz_server_t *server, portcfg_t *cfg));
-SERVEEZ_API svz_server_t *server_find __P ((void *cfg));
-SERVEEZ_API void server_add __P ((svz_server_t *server));
-SERVEEZ_API void server_run_notify __P ((void));
+SERVEEZ_API void svz_server_add __P ((svz_server_t *server));
+SERVEEZ_API void svz_server_del __P ((char *name));
+SERVEEZ_API svz_server_t *svz_server_find __P ((void *cfg));
+SERVEEZ_API void svz_server_notifiers __P ((void));
+SERVEEZ_API int svz_server_init_all __P ((void));
+SERVEEZ_API int svz_server_finalize_all __P ((void));
 SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *a, portcfg_t *b));
-SERVEEZ_API int server_init_all __P ((void));
-SERVEEZ_API int server_finalize_all __P ((void));
-SERVEEZ_API int server_global_finalize __P ((void));
+
+SERVEEZ_API extern svz_array_t *svz_servertypes;
+SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
+SERVEEZ_API void svz_servertype_del __P ((unsigned long index));
+SERVEEZ_API void svz_servertype_finalize __P ((void));
+SERVEEZ_API svz_servertype_t *svz_servertype_find __P ((svz_server_t *server));
 
 #if ENABLE_DEBUG
-SERVEEZ_API void server_print_definitions __P ((void));
+SERVEEZ_API void svz_servertype_print __P ((void));
 #endif /* ENABLE_DEBUG */
 
 __END_DECLS

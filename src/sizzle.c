@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sizzle.c,v 1.5 2001/04/04 14:23:13 ela Exp $
+ * $Id: sizzle.c,v 1.6 2001/04/04 22:20:01 ela Exp $
  *
  */
 
@@ -633,7 +633,7 @@ zzz_server_load_cfg (char *cfgfile)
 		      server->info_server = sd->info_server;
 		      server->notify = sd->notify;
 		      server->description = sd->name;
-		      server_add (server);
+		      svz_server_add (server);
 		    } 
 		  else 
 		    {

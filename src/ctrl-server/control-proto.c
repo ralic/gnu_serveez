@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.46 2001/04/04 14:23:14 ela Exp $
+ * $Id: control-proto.c,v 1.47 2001/04/04 22:20:01 ela Exp $
  *
  */
 
@@ -360,7 +360,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   else
     {
       /* usual client */
-      if ((server = server_find (xsock->cfg)) != NULL)
+      if ((server = svz_server_find (xsock->cfg)) != NULL)
 	{
 	  sock_printf (sock, "%s client\r\n", server->name);
 	  if (server->info_client)
@@ -436,21 +436,17 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   svz_server_t *server;
   int n;
 
-  /* go through all server instances */
-  for (n = 0; n < server_instances; n++)
+  /* find an appropriate server instance */
+  if ((server = svz_hash_get (svz_servers, arg)) != NULL)
     {
-      server = servers[n];
-      if (!memcmp (server->name, arg, strlen (server->name)))
+      sock_printf (sock, "\r\n%s (%s):\r\n",
+		   server->description, server->name);
+      if (server->info_server)
 	{
-	  sock_printf (sock, "\r\n%s (%s):\r\n",
-		       server->description, server->name);
-	  if (server->info_server)
-	    {
-	      sock_printf (sock, "%s\r\n", server->info_server (server));
-	    }
-	  sock_printf (sock, "\r\n");
-	  return flag;
+	  sock_printf (sock, "%s\r\n", server->info_server (server));
 	}
+      sock_printf (sock, "\r\n");
+      return flag;
     }
 
   /* print a standard output */
@@ -546,7 +542,7 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
       id = "None";
       if (xsock->flags & SOCK_FLAG_LISTENING)
 	id = "Listener";
-      else if ((server = server_find (xsock->cfg)) != NULL)
+      else if ((server = svz_server_find (xsock->cfg)) != NULL)
 	id = server->name;
       else if (xsock->flags & SOCK_FLAG_COSERVER)
 	id = "Co-Server";
@@ -669,17 +665,16 @@ int
 ctrl_stat_all (socket_t sock, int flag, char *arg)
 {
   int n;
-  svz_server_t *server;
+  svz_server_t **server;
 
   /* go through all server instances */
-  for (n = 0; n < server_instances; n++)
+  svz_hash_foreach_value (svz_servers, server, n)
     {
-      server = servers[n];
       sock_printf (sock, "\r\n%s (%s):\r\n",
-		   server->description, server->name);
-      if (server->info_server)
+		   server[n]->description, server[n]->name);
+      if (server[n]->info_server)
 	{
-	  sock_printf (sock, "%s\r\n", server->info_server (server));
+	  sock_printf (sock, "%s\r\n", server[n]->info_server (server[n]));
 	}
     }
 

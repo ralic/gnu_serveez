@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.6 2001/04/04 14:23:14 ela Exp $
+ * $Id: server.c,v 1.7 2001/04/04 22:20:02 ela Exp $
  *
  */
 
@@ -48,7 +48,6 @@
 #include "libserveez/socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
-#include "libserveez/server-socket.h"
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -99,19 +98,74 @@ svz_servertype_add (svz_servertype_t *server)
 }
 
 /*
- * A list of actually instantiated servers.
+ * Delete the server type with the index @var{index} from the list of
+ * known server types and run its global finalizer if necessary.
  */
-int server_instances = 0;
-svz_server_t **servers = NULL;
+void
+svz_servertype_del (unsigned long index)
+{
+  svz_servertype_t *server;
+
+  /* Return here if there is no such server type. */
+  if (svz_servertypes == NULL || index >= svz_array_size (svz_servertypes))
+    return;
+
+  /*
+   * Run the server type's global finalizer if necessary and delete it 
+   * from the list of known servers then.
+   */
+  if ((server = svz_array_get (svz_servertypes, index)) != NULL)
+    {
+      if (server->global_finalize != NULL)
+	server->global_finalize ();
+      svz_array_del (svz_servertypes, index);
+    }
+}
 
 /*
- * A list of bound servers.
+ * Run the global finalizers of each server type and delete all server
+ * types.
  */
-int server_bindings = 0;
-server_binding_t *server_binding = NULL;
+void
+svz_servertype_finalize (void)
+{
+  int i;
+  svz_servertype_t *stype;
+
+  log_printf (LOG_NOTICE, "running global server type finalizers\n");
+  svz_array_foreach (svz_servertypes, stype, i)
+    {
+      if (stype->global_finalize != NULL)
+	stype->global_finalize ();
+    }
+  if (svz_servertypes != NULL)
+    {
+      svz_array_destroy (svz_servertypes);
+      svz_servertypes = NULL;
+    }
+}
 
 /*
- * Debug helper function to traverse all server definitions.
+ * Find a given server instance's @var{server} server type. Return @code{NULL}
+ * if there is no such server type (which should never occur since a server is
+ * a child of an server type.
+ */
+svz_servertype_t *
+svz_servertype_find (svz_server_t *server)
+{
+  int n;
+  svz_servertype_t *stype;
+
+  svz_array_foreach (svz_servertypes, stype, n)
+    {
+      if (stype == server->server)
+	return stype;
+    }
+  return NULL;
+}
+
+/*
+ * Debug helper function to traverse all currently known server types.
  */
 #if ENABLE_DEBUG
 void
@@ -175,74 +229,91 @@ svz_servertype_print (void)
 #endif /* ENABLE_DEBUG */
 
 /*
- * Run all the server instances's timer routines. This should be called 
- * within the `server_periodic_tasks ()' function.
+ * This is the list of actually instantiated servers. The hash table 
+ * associates the servers' names with the server instances.
+ */
+svz_hash_t *svz_servers = NULL;
+
+/*
+ * Run all the server instances's notify routines. This should be regularily
+ * called within the @code{svz_server_periodic_tasks()} function.
  */
 void
-server_run_notify (void)
+svz_server_notifiers (void)
 {
   int n;
-  svz_server_t *server;
+  svz_server_t **server;
 
-  for (n = 0; n < server_instances; n++)
+  svz_hash_foreach_value (svz_servers, server, n)
     {
-      server = servers[n];
-      if (server->notify)
-	server->notify (server);
+      if (server[n]->notify)
+	server[n]->notify (server[n]);
     }
 }
 
 /*
- * Find a server instance by a given configuration structure. Return NULL
- * if there is no such configuration.
+ * Find a server instance by the given configuration structure @var{cfg}. 
+ * Return @code{NULL} if there is no such configuration in any server
+ * instance.
  */
 svz_server_t *
-server_find (void *cfg)
+svz_server_find (void *cfg)
 {
   int n;
-  
-  for (n = 0; n < server_instances; n++)
+  svz_server_t **server;
+
+  svz_hash_foreach_value (svz_servers, server, n)
     {
-      if (servers[n]->cfg == cfg)
-	return servers[n];
+      if (server[n]->cfg == cfg)
+	return server[n];
     }
   return NULL;
 }
 
 /*
- * Add a server to the list of all servers.
+ * Add the server instance @var{server} to the list of instanciated 
+ * servers.
  */
 void
-server_add (svz_server_t *server)
+svz_server_add (svz_server_t *server)
 {
-  servers = (svz_server_t **) 
-    svz_prealloc (servers, (server_instances + 1) * sizeof (svz_server_t *));
-  servers[server_instances++] = server;
+  if (svz_servers == NULL)
+    svz_servers = svz_hash_create (4);
+  svz_hash_put (svz_servers, server->name, server);
+}
+
+/*
+ * Remove the server instance identified by the name @var{name}.
+ */
+void
+svz_server_del (char *name)
+{
+  if (svz_servers == NULL)
+    return;
+  svz_hash_delete (svz_servers, name);
 }
 
 /*
  * Run the initializers of all servers, return -1 if some server did not
- * think it is a good idea to run...
+ * think it is a good idea to run.
  */
 int
-server_init_all (void)
+svz_server_init_all (void)
 {
-  int errneous = 0;
-  int i;
+  int errneous = 0, i;
+  svz_server_t **server;
 
   log_printf (LOG_NOTICE, "initializing all server instances\n");
-  for (i = 0; i < server_instances; i++)
+  svz_hash_foreach_value (svz_servers, server, i)
     {
-      if (servers[i]->init != NULL) 
-	{
-	  if (servers[i]->init (servers[i]) < 0) 
-	    {
-	      errneous = -1;
-	      fprintf (stderr, "error initializing `%s'\n", servers[i]->name);
-	    }
-	}
+      if (server[i]->init != NULL) 
+	if (server[i]->init (server[i]) < 0) 
+	  {
+	    errneous = -1;
+	    log_printf (LOG_ERROR, "error initializing `%s'\n", 
+			server[i]->name);
+	  }
     }
-
   return errneous;
 }
 
@@ -250,35 +321,16 @@ server_init_all (void)
  * Run the local finalizers for all server instances.
  */
 int
-server_finalize_all (void)
+svz_server_finalize_all (void)
 {
   int i;
+  svz_server_t **server;
 
-  log_printf (LOG_NOTICE, "running all finalizers\n");
-
-  for (i = 0; i < server_instances; i++)
+  log_printf (LOG_NOTICE, "running all server finalizers\n");
+  svz_hash_foreach_value (svz_servers, server, i)
     {
-      if (servers[i]->finalize != NULL)
-	servers[i]->finalize (servers[i]);
-    }
-
-  return 0;
-}
-
-/*
- * Run the global finalizers per server definition.
- */
-int
-server_global_finalize (void)
-{
-  int i;
-  svz_servertype_t *stype;
-
-  log_printf (LOG_NOTICE, "running global server finalizers\n");
-  svz_array_foreach (svz_servertypes, stype, i)
-    {
-      if (stype->global_finalize != NULL)
-	stype->global_finalize ();
+      if (server[i]->finalize != NULL)
+	server[i]->finalize (server[i]);
     }
 
   return 0;
@@ -307,112 +359,4 @@ server_portcfg_equal (portcfg_t *a, portcfg_t *b)
 
   /* do not even the same proto flag -> cannot be equal */
   return 0;
-}
-
-/*
- * This functions binds a previously instantiated server to a specified
- * port configuration.
- */
-int
-server_bind (svz_server_t *server, portcfg_t *cfg)
-{
-  int n;
-
-  for (n = 0; n < server_bindings; n++)
-    {
-      if (server_portcfg_equal (server_binding[n].cfg, cfg))
-	{
-	  if (server_binding[n].server == server)
-	    {
-	      log_printf (LOG_ERROR, "duplicate server (%s) "
-			  "on single port\n", server->name);
-	      return -1;
-	    }
-#if ENABLE_DEBUG
-	  if (cfg->proto & PROTO_PIPE)
-	    {
-	      log_printf (LOG_DEBUG, "binding pipe server to existing "
-			  "file %s\n", cfg->outpipe);
-	    }
-	  else if (cfg->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP))
-	    {
-	      log_printf (LOG_DEBUG, "binding %s server to existing "
-			  "port %s:%d\n", 
-			  cfg->proto & PROTO_TCP ? "tcp" : "udp",
-			  cfg->ipaddr, cfg->port);
-	    }
-#endif /* ENABLE_DEBUG */
-	}
-    }
-
-  n = server_bindings++;
-  server_binding = svz_realloc (server_binding, 
-				sizeof (server_binding_t) * server_bindings);
-  server_binding[n].server = server;
-  server_binding[n].cfg = cfg;
-
-  return 0;
-}
-
-/*
- * Start all server bindings (instances of servers). Go through all port
- * configurations, skip duplicate port configurations, etc.
- */
-int
-server_start (void)
-{
-  int n, b;
-  socket_t sock;
-
-  /* Go through all port bindings. */
-  for (b = 0; b < server_bindings; b++)
-    {
-      /* Look for duplicate port configurations. */
-      for (sock = sock_root; sock; sock = sock->next)
-	{
-	  /* Is this socket usable for this port configuration ? */
-	  if (sock->data && sock->cfg && 
-	      sock->flags & SOCK_FLAG_LISTENING &&
-	      server_portcfg_equal (sock->cfg, server_binding[b].cfg))
-	    {
-	      /* Extend the server array in sock->data. */
-	      for (n = 0; SERVER (sock->data, n) != NULL; n++);
-	      sock->data = svz_realloc (sock->data, 
-					sizeof (void *) * (n + 2));
-	      SERVER (sock->data, n) = server_binding[b].server;
-	      SERVER (sock->data, n + 1) = NULL;
-	      break;
-	    }
-	}
-
-      /* No appropriate socket structure for this port configuration found. */
-      if (!sock)
-	{
-	  /* Try creating a server socket. */
-	  sock = server_create (server_binding[b].cfg);
-	  if (sock)
-	    {
-	      /* 
-	       * Enqueue the server socket, put the port config into
-	       * sock->cfg and initialize the server array (sock->data).
-	       */
-	      sock_enqueue (sock);
-	      sock->cfg = server_binding[b].cfg;
-	      sock->data = svz_malloc (sizeof (void *) * 2);
-	      SERVER (sock->data, 0) = server_binding[b].server;
-	      SERVER (sock->data, 1) = NULL;
-	    }
-	}
-    }
-  
-  if (server_bindings)
-    {
-      svz_free (server_binding);
-      server_binding = NULL;
-      server_bindings = 0;
-      return 0;
-    }
-
-  log_printf (LOG_FATAL, "no server instances found\n");
-  return -1;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.6 2001/03/11 13:06:19 ela Exp $
+ * $Id: hash.h,v 1.7 2001/04/04 22:20:02 ela Exp $
  *
  */
 
@@ -99,9 +99,9 @@ __END_DECLS
  * Iterator macro for walking over the values of a hash. Use like:
  * @example
  *   type_t **values; int i;
- *   svz_hash_foreach_value (hash, values, i) {
- *     do_someting(values[i]);
- *   }
+ *   svz_hash_foreach_value (hash, values, i) @{
+ *     process_value (values[i]);
+ *   @}
  * @end example
  * Be sure you pass real variables and no expressions to this macro !
  */
@@ -118,9 +118,9 @@ __END_DECLS
  * Iterator macro for walking over the keys of a hash. Use like:
  * @example
  *   char **allkeys; int i;
- *   svz_hash_foreach_key (hash, allkeys, i) {
+ *   svz_hash_foreach_key (hash, allkeys, i) @{
  *     printf ("%s => %p\\n", allkeys[i], svz_hash_get (hash, allkeys[i]));
- *   }
+ *   @}
  * @end example
  * Be sure you pass real variables and no expressions to this macro !
  */

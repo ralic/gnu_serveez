@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.5 2001/04/04 14:23:14 ela Exp $
+ * $Id: array.h,v 1.6 2001/04/04 22:20:02 ela Exp $
  *
  */
 
@@ -177,9 +177,15 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
 
 #endif /* not ENABLE_DEBUG */
 
-#define svz_array_foreach(array, value, i)                     \
+/*
+ * This is the iteration macro for the array implementation of the core
+ * library. @var{array} specifies the array to iterate, @var{value} the
+ * pointer each element of the array gets assigned and @var{i} is the
+ * iteration variable.
+ */
+#define svz_array_foreach(array, value, i)                           \
   for ((i) = 0, (value) = array ? svz_array_get ((array), 0) : NULL; \
-       (value);                                                  \
+       array && (unsigned long) i < svz_array_size (array);          \
        (value) = svz_array_get ((array), ++(i)))
 
 #endif /* not __ARRAY_H__ */

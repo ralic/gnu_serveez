@@ -1,4 +1,10 @@
-2001-04-04  [ Ela ]  <ela@lkcc.org>
+2001-04-05  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/binding.c (svz_server_bind): Added this file
+	into the CVS and moved some functions from serve.c here.
+
+	* libserveez/array.h (svz_array_foreach): Iteration macro
+	for arrays defined.
 
 	* libserveez/portcfg.c: Added this file for port configuration
 	maintainance.

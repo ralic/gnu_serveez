@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.7 2001/04/01 13:32:30 ela Exp $
+ * $Id: server-core.c,v 1.8 2001/04/04 22:20:02 ela Exp $
  *
  */
 
@@ -624,7 +624,7 @@ server_periodic_tasks (void)
 #endif /* not __MINGW32__ */
 
   /* run the server instance timer routines */
-  server_run_notify ();
+  svz_server_notifiers ();
 
   return 0;
 }
