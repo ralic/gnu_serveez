@@ -1,3 +1,8 @@
+2000-10-12  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c (tnl_server_definition): Started to
+	setup a port forward server.
+
 2000-10-06  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-cache.c (http_cache_consistency): This 

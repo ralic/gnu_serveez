@@ -1,11 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 #
-# src/irc-server/Makefile.am
+# src/tunnel-server/Makefile.am
 #
-# EFNet compatible IRC server.
+# Port forwarder for TCP, UDP and ICMP.
 #
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
-# Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,22 +22,14 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-noinst_LIBRARIES = libircserver.a
+noinst_LIBRARIES = libtunnel.a
 
 AM_CPPFLAGS = -I..
 
 CLEANFILES = *~
 
-libircserver_a_SOURCES = \
-	irc-proto.c irc-proto.h \
-	irc-crypt.c irc-crypt.h \
-	irc-event.h \
-	irc-event-1.c \
-	irc-event-2.c \
-	irc-event-3.c \
-	irc-event-4.c \
-	irc-event-5.c \
-	irc-event-6.c \
-	irc-event-7.c \
-	irc-server.h irc-server.c \
-	irc-config.h irc-config.c
+libtunnel_a_SOURCES = \
+	tunnel.c tunnel.h
+
+
+

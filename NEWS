@@ -26,6 +26,7 @@ This file lists user visible changes that were made between releases.
 Version 0.0.19
 --------------
 
+ * package is available at www.freshmeat.net and www.sourceforge.net
  * cgi application associations possible in the http server
  * daemon support via command line option
 

@@ -1,8 +1,8 @@
-# Human readable control protocol
+## Process this file with automake to produce Makefile.in
 #
 # src/ctrl-server/Makefile.am
 #
-# Automake input file.
+# Human readable control protocol.
 #
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org> 
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -23,7 +23,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-noinst_LIBRARIES=libctrl.a
+noinst_LIBRARIES = libctrl.a
 
 AM_CPPFLAGS = -I..
 

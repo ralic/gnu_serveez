@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.28 2000/10/05 09:52:20 ela Exp $
+ * $Id: server.c,v 1.29 2000/10/12 10:19:45 ela Exp $
  *
  */
 
@@ -78,6 +78,9 @@
 #if ENABLE_GNUTELLA
 # include "nut-server/gnutella.h"
 #endif
+#if ENABLE_TUNNEL
+# include "tunnel-server/tunnel.h"
+#endif
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -102,6 +105,9 @@ struct server_definition * all_server_definitions [] =
 #endif
 #if ENABLE_GNUTELLA
   &nut_server_definition,
+#endif
+#if ENABLE_TUNNEL
+  &tnl_server_definition,
 #endif
   NULL
 };

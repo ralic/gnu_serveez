@@ -144,7 +144,7 @@ or '--enable-<?>=no'.
  15.   --enable-dns
 	 If you enable this feature serveez creates a dns lookup coserver
 	 which is able to make non-blocking dns lookups. This might be 
-	 necessary to resolve IRC server from C or N lines.
+	 necessary to resolve IRC servers from C or N lines.
  16.   --enable-q3key-proto
          Thereby you enable the support for a Quake III license key server.
  17.   --enable-poll
@@ -157,5 +157,11 @@ or '--enable-<?>=no'.
 	 to disable this option.
  19.   --enable-crypt
          This option tells serveez to process any passwords as crypt()ed.
+ 20.   --enable-tunnel
+	 If you enable this feature the port forwarder will be included. 
+         This is useful if you plan to use serveez as a gateway or firewall
+	 workaround.
 
 Please read the README file also.
+
+

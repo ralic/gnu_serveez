@@ -1,8 +1,8 @@
-# Small and fast minimal webserver
+## Process this file with automake to produce Makefile.in
 #
 # src/http-server/Makefile.am
 #
-# Automake input file.
+# Small and fast minimal webserver.
 #
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>

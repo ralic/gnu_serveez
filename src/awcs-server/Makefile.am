@@ -1,8 +1,8 @@
-# Server of the aWCS - another web chat system
+## Process this file with automake to produce Makefile.in
 #
 # src/awcs-server/Makefile.am
 #
-# Automake input file.
+# Server of the aWCS (another Web Chat System).
 #
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -23,7 +23,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-noinst_LIBRARIES=libawcs.a
+noinst_LIBRARIES = libawcs.a
 
 AM_CPPFLAGS = -I..
 

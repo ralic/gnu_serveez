@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.14 2000/09/20 08:29:15 ela Exp $
+ * $Id: foo-proto.c,v 1.15 2000/10/12 10:19:45 ela Exp $
  *
  */
 
@@ -86,7 +86,7 @@ char *some_default_strarray[] =
 hash_t *some_default_hash = NULL;
 
 /*
- * Demonstrate how our a private configuration looks like and provide
+ * Demonstrate how our private configuration looks like and provide
  * default values.
  */
 struct foo_config mycfg = 

@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.14 2000/09/28 16:25:18 ela Exp $
+# $Id: Makefile.am,v 1.15 2000/10/12 10:19:45 ela Exp $
 #
 
 #
@@ -46,7 +46,8 @@ SUBDIRS = \
 	irc-server \
 	foo-server \
 	q3key-server \
-	nut-server
+	nut-server \
+	tunnel-server
 
 #
 # Add your library here
@@ -60,7 +61,8 @@ PROTOLIBS = 	\
 	irc-core/libirccore.a \
 	foo-server/libfoo.a \
 	q3key-server/libq3key.a \
-	nut-server/libnut.a
+	nut-server/libnut.a \
+	tunnel-server/libtunnel.a
 
 bin_PROGRAMS = serveez mkpassword
 

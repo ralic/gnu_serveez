@@ -1,8 +1,8 @@
-# Example server
+## Process this file with automake to produce Makefile.in
 #
 # src/foo-server/Makefile.am
 #
-# Automake input file.
+# Automake input file for an example server.
 #
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>

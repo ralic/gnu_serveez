@@ -1,8 +1,8 @@
-# Example server
+## Process this file with automake to produce Makefile.in
 #
 # src/nut-server/Makefile.am
 #
-# Automake input file.
+# Gnutella spider.
 #
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 #
