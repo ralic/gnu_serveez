@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.25 2000/09/27 14:31:25 ela Exp $
+ * $Id: server.c,v 1.26 2000/09/30 09:12:59 ela Exp $
  *
  */
 
@@ -674,20 +674,21 @@ server_load_cfg (char *cfgfile)
 	   symlist = cdr (symlist))
 	{
 	  sym = car (symlist);
+	  symname = xstrdup (string_val (symbol_name (sym)));
 
 	  for (j = 0; NULL != (sd = all_server_definitions[j]); j++)
 	    {
-	      symname = xpstrdup (string_val (symbol_name (sym)));
-
 	      /* 
 	       * A varname is meant for us if it begins like one of our
 	       * server definitions and ends with a '-'. e.g.: foo => foo-
 	       */
 	      if (!strncmp (symname, sd->varname, strlen (sd->varname)) &&
-		  symname[strlen (sd->varname)] == '-' )
+		  symname[strlen (sd->varname)] == '-')
 		{
-		  zzz_get_symbol_value (zzz_interaction_environment, 
-					sym, &symval);
+		  if (zzz_get_symbol_value (zzz_interaction_environment, 
+					    sym, &symval) != RESULT_SUCCESS)
+		    continue;
+
 		  newserver_cfg = server_instantiate (cfgfile,
 						      symval,
 						      sd,
@@ -716,6 +717,7 @@ server_load_cfg (char *cfgfile)
 		    }
 		}
 	    }
+	  xfree (symname);
 	}
     }
 
@@ -1049,8 +1051,11 @@ server_start (void)
 	}
     }
   
-  xfree (server_binding);
-  server_binding = NULL;
-  server_bindings = 0;
+  if (server_bindings)
+    {
+      xfree (server_binding);
+      server_binding = NULL;
+      server_bindings = 0;
+    }
   return 0;
 }

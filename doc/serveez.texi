@@ -624,7 +624,6 @@ Status messages have the same format as other client messages for the
 master server.  The client number in the message is 0000, followed by a
 space, the status message type and additional parameters.
 
-@group
 @multitable @columnfractions .08 .4 .52
 @item Type
 @tab Description
@@ -645,9 +644,7 @@ space, the status message type and additional parameters.
 @tab Notify time elapsed.
 @tab 42
 @end multitable
-@end group
 
-@group
 @multitable @columnfractions .2 .8
 @item Error code
 @tab Description
@@ -656,9 +653,7 @@ space, the status message type and additional parameters.
 @item 1
 @tab Client closed connection
 @end multitable
-@end group
 
-@group
 @multitable @columnfractions .2 .8
 @item Kick reason
 @tab Description
@@ -667,7 +662,6 @@ space, the status message type and additional parameters.
 @item 1
 @tab Output buffer overflow
 @end multitable
-@end group
 
 @end table
 
