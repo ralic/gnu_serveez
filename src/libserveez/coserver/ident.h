@@ -1,7 +1,7 @@
 /*
  * ident.h - ident coserver header file
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,24 +18,22 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.h,v 1.1 2001/01/28 13:24:38 ela Exp $
+ * $Id: ident.h,v 1.2 2001/02/02 11:26:24 ela Exp $
  *
  */
 
 #ifndef __IDENT_H__
-#define __IDENT_H__
+#define __IDENT_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include "libserveez/defines.h"
 
-#define _GNU_SOURCE
-
-#define IDENT_PORT 113 /* the identd port */
+__BEGIN_DECLS
 
 /*
  * Opens a connection to ident server and receives / parses the response.
  */
-char * ident_handle_request (char *inbuf);
+char *ident_handle_request __P ((char *inbuf));
 
-#endif /* __IDENT_H__ */
+__END_DECLS
+
+#endif /* not __IDENT_H__ */

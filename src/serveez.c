@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.23 2001/01/31 12:30:14 ela Exp $
+ * $Id: serveez.c,v 1.24 2001/02/02 11:26:22 ela Exp $
  *
  */
 
@@ -46,7 +46,6 @@
 #include "serveez.h"
 #include "cfgfile.h"
 #include "option.h"
-#include "interface.h"
 
 /*
  * Print program version.
@@ -129,7 +128,7 @@ main (int argc, char * argv[])
 #endif
 
   /* initialize the configuration structure */
-  svz_init_config ();
+  svz_boot ();
 
 #if HAVE_GETOPT_LONG
   while ((arg = getopt_long (argc, argv, SERVEEZ_OPTIONS, serveez_options,
@@ -151,7 +150,7 @@ main (int argc, char * argv[])
 	  break;
 
 	case 'i':
-	  list_local_interfaces ();
+	  svz_interface_list ();
 	  exit (0);
 	  break;
 
@@ -265,16 +264,6 @@ main (int argc, char * argv[])
   server_print_definitions ();
 #endif
 
-#ifdef __MINGW32__
-  /*
-   * Starting network API (Winsock).
-   */
-  if (!net_startup ())
-    {
-      return 2;
-    }
-#endif /* __MINGW32__ */
-  
   /*
    * Load configuration
    */
@@ -285,9 +274,6 @@ main (int argc, char * argv[])
        * Something went wrong while configuration file loading, 
        * message output by function itself...
        */
-#ifdef __MINGW32__
-      net_cleanup ();
-#endif
       return 3;
     }
 
@@ -320,9 +306,6 @@ main (int argc, char * argv[])
    */
   if (coserver_init () == -1)
     {
-#ifdef __MINGW32__
-      net_cleanup ();
-#endif
       return 4;
     }
 
@@ -331,9 +314,6 @@ main (int argc, char * argv[])
    */
   if (server_global_init () == -1) 
     {
-#ifdef __MINGW32__
-      net_cleanup ();
-#endif
       return 5;
     }
   
@@ -343,12 +323,9 @@ main (int argc, char * argv[])
   if (server_init_all () == -1)
     {
       /* 
-       * Something went wrong while the server initialised themselfes.
+       * Something went wrong while the server initialised themselves.
        * abort silently.
        */
-#ifdef __MINGW32__
-      net_cleanup ();
-#endif
       return 6;
     }
 
@@ -357,9 +334,6 @@ main (int argc, char * argv[])
    */
   if (server_start () == -1)
     {
-#ifdef __MINGW32__
-      net_cleanup ();
-#endif
       return 7;
     }
   
@@ -377,15 +351,14 @@ main (int argc, char * argv[])
   log_printf (LOG_NOTICE, "destroying internal coservers\n");
   coserver_finalize ();
 
-#ifdef __MINGW32__
-  net_cleanup ();
-#endif /* __MINGW32__ */
+  svz_halt ();
 
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
 	      svz_allocated_bytes, svz_allocated_blocks);
+
 #if DEBUG_MEMORY_LEAKS
-  xheap ();
+  svz_heap ();
 #endif
 #endif /* ENABLE_DEBUG */
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: server-core.c,v 1.3 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -119,6 +119,14 @@ socket_t sock_root = NULL;
  * and is NULL when the queue is empty.
  */
 socket_t sock_last = NULL;
+
+/*
+ * SOCK_LOOKUP_TABLE is used to speed up references to socket
+ * structures by socket's id.
+ */
+static socket_t sock_lookup_table[SOCKET_MAX_IDS];
+static int socket_id = 0;
+static int socket_version = 0;
 
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore
@@ -458,6 +466,27 @@ sock_find (int id, int version)
     }
 
   return sock_lookup_table[id];
+}
+
+/*
+ * Calculate unique socket structure id and assign a version for a 
+ * given SOCK. The version is for validating socket structures. It is 
+ * currently used in the coserver callbacks.
+ */
+int
+sock_unique_id (socket_t sock)
+{
+  do
+    {
+      socket_id++;
+      socket_id &= (SOCKET_MAX_IDS - 1);
+    }
+  while (sock_lookup_table[socket_id]);
+
+  sock->id = socket_id;
+  sock->version = socket_version++;
+  
+  return socket_id;
 }
 
 /*

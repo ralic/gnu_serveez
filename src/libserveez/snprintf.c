@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: snprintf.c,v 1.2 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -46,4 +46,4 @@ snprintf (char *str, size_t n, const char *fmt, ...)
 
   return ret;
 }
-#endif
+#endif /* ! (HAVE_SNPRINTF || __MINGW32__) */

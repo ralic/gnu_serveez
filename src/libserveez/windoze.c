@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.2 2001/01/28 13:11:54 ela Exp $
+ * $Id: windoze.c,v 1.3 2001/02/02 11:26:24 ela Exp $
  *
  */
 
@@ -37,10 +37,8 @@
 #include <shellapi.h>
 #include <windowsx.h>
 
-#include "libserveez/util.h"
 #include "libserveez/boot.h"
-#include "libserveez/socket.h"
-#include "libserveez/server-core.h"
+#include "libserveez/util.h"
 #include "libserveez/windoze.h"
 
 static DWORD windoze_daemon_id = 0;
@@ -50,7 +48,93 @@ static HICON windoze_icon = NULL;
 static char windoze_tooltip[128];
 
 /*
- * Main windows thread where the window manager can pass message to.
+ * Modify what's within the taskbar.
+ */
+static void 
+windoze_notify_set (HWND hwnd, UINT id)
+{
+  sprintf (windoze_tooltip, "%s %s (%d connections)", 
+	   svz_library, svz_version, sock_connections);
+
+  windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
+}
+
+/*
+ * Delete something from the taskbar.
+ */
+static void 
+windoze_notify_del (HWND hwnd, UINT id)
+{
+  windoze_set_taskbar (hwnd, NIM_DELETE, id, NULL, NULL);
+}
+
+/*
+ * Add something to the taskbar.
+ */
+static void 
+windoze_notify_add (HWND hwnd, UINT id)
+{
+  sprintf (windoze_tooltip, "%s %s", svz_library, svz_version);
+
+  windoze_set_taskbar (hwnd, NIM_ADD, id, windoze_icon, windoze_tooltip);
+}
+
+/*
+ * Draw the serveez icon within the taskbar.
+ */
+static LRESULT 
+windoze_draw_icon (LPDRAWITEMSTRUCT lpdi)
+{
+  DrawIconEx (lpdi->hDC, lpdi->rcItem.left, lpdi->rcItem.top, windoze_icon,
+	      16, 16, 0, NULL, DI_NORMAL);
+
+  return TRUE;
+}
+
+/*
+ * Dialog callback procedure.
+ */
+static LRESULT CALLBACK 
+windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+  switch (msg)
+    {
+    case WM_DRAWITEM:
+      return (windoze_draw_icon ((LPDRAWITEMSTRUCT) lparam));
+      break;
+
+    case WM_DESTROY:
+      windoze_notify_del (hwnd, SERVEEZ_ICON_ID);
+      server_nuke_happened = 1;
+      break;
+
+    case WM_COMMAND:
+      break;
+
+    case WM_SERVEEZ_NOTIFYICON:
+      switch (lparam)
+	{
+	case WM_LBUTTONDOWN:
+	  break;
+
+	case WM_RBUTTONDOWN:
+	  server_nuke_happened = 1;
+	  break;
+	  
+	default:
+	  break;
+	}
+      break;
+      
+    default:
+      break;
+    }
+  
+  return DefWindowProc (hwnd, msg, wparam, lparam);
+}
+
+/*
+ * Main window thread where the window manager can pass messages to.
  */
 static DWORD WINAPI 
 windoze_thread (char *prog)
@@ -83,9 +167,8 @@ windoze_thread (char *prog)
     }
 
   /* create new main window */
-  hwnd = CreateWindow (SERVEEZ_CLASS, NULL, 0, 0, 0, 0 ,0,
+  hwnd = CreateWindow (SERVEEZ_CLASS, NULL, 0, 0, 0, 0, 0,
 		       NULL, NULL, GetModuleHandle (prog), NULL);
-
   if (hwnd == NULL)
     {
       log_printf (LOG_ERROR, "CreateWindow: %s\n", SYS_ERROR);
@@ -156,92 +239,6 @@ windoze_set_taskbar (HWND hwnd, DWORD msg, UINT id, HICON icon, PSTR tip)
     }
   
   return Shell_NotifyIcon (msg, &tnd);;
-}
-
-/*
- * Draw the serveez icon within the taskbar.
- */
-static LRESULT 
-windoze_draw_icon (LPDRAWITEMSTRUCT lpdi)
-{
-  DrawIconEx (lpdi->hDC, lpdi->rcItem.left, lpdi->rcItem.top, windoze_icon,
-	      16, 16, 0, NULL, DI_NORMAL);
-
-  return TRUE;
-}
-
-/*
- * Delete something from the taskbar.
- */
-void 
-windoze_notify_del (HWND hwnd, UINT id)
-{
-  windoze_set_taskbar (hwnd, NIM_DELETE, id, NULL, NULL);
-}
-
-/*
- * Add something to the taskbar.
- */
-void 
-windoze_notify_add (HWND hwnd, UINT id)
-{
-  sprintf (windoze_tooltip, "%s %s", svz_library, svz_version);
-
-  windoze_set_taskbar (hwnd, NIM_ADD, id, windoze_icon, windoze_tooltip);
-}
-
-/*
- * Modify what's within the taskbar.
- */
-void 
-windoze_notify_set (HWND hwnd, UINT id)
-{
-  sprintf (windoze_tooltip, "%s %s (%d connections)", 
-	   svz_library, svz_version, sock_connections);
-
-  windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
-}
-
-/*
- * Dialog callback procedure.
- */
-LRESULT CALLBACK 
-windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
-{
-  switch (msg)
-    {
-    case WM_DRAWITEM:
-      return (windoze_draw_icon ((LPDRAWITEMSTRUCT) lparam));
-      break;
-
-    case WM_DESTROY:
-      windoze_notify_del (hwnd, SERVEEZ_ICON_ID);
-      server_nuke_happened = 1;
-      break;
-
-    case WM_COMMAND:
-      break;
-
-    case WM_SERVEEZ_NOTIFYICON:
-      switch (lparam)
-	{
-	case WM_LBUTTONDOWN:
-	  break;
-
-	case WM_RBUTTONDOWN:
-	  server_nuke_happened = 1;
-	  break;
-	  
-	default:
-	  break;
-	}
-      break;
-      
-    default:
-      break;
-    }
-  
-  return DefWindowProc (hwnd, msg, wparam, lparam);
 }
 
 /*

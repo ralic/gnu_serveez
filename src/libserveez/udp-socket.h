@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: udp-socket.h,v 1.2 2001/02/02 11:26:24 ela Exp $
  *
  */
 
@@ -40,8 +40,8 @@ SERVEEZ_API int udp_write_socket __P ((socket_t sock));
 SERVEEZ_API int udp_check_request __P ((socket_t sock));
 SERVEEZ_API socket_t udp_connect __P ((unsigned long, unsigned short));
 SERVEEZ_API int udp_write __P ((socket_t sock, char *buf, int length));
-SERVEEZ_API int udp_printf __P ((socket_t sock, const char * fmt, ...));
+SERVEEZ_API int udp_printf __P ((socket_t sock, const char *fmt, ...));
 
 __END_DECLS
 
-#endif /* __UDP_SOCKET_H__ */
+#endif /* not __UDP_SOCKET_H__ */

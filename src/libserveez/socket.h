@@ -19,16 +19,15 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: socket.h,v 1.2 2001/02/02 11:26:23 ela Exp $
  *
  */
 
 #ifndef __SOCKET_H__
 #define __SOCKET_H__ 1
 
-#include "libserveez/defines.h"
-
 #include <time.h>
+#include "libserveez/defines.h"
 
 /* This is how many Id's can exist. It MUST be a 2^X and less than 10000. */
 #define SOCKET_MAX_IDS       8192 
@@ -56,7 +55,7 @@
 #define SOCK_FLAG_RECV_PIPE   0x00000100 /* Receiving pipe is active. */
 #define SOCK_FLAG_SEND_PIPE   0x00000200 /* Sending pipe is active. */
 #define SOCK_FLAG_FILE        0x00000400 /* Socket is no socket, but file. */
-#define SOCK_FLAG_COSERVER    0x00000800 /* Socket is a Co-Server */
+#define SOCK_FLAG_COSERVER    0x00000800 /* Socket is a coserver */
 #define SOCK_FLAG_SOCK        0x00001000 /* Socket is a plain socket. */
 /* Socket is no socket, but pipe. */
 #define SOCK_FLAG_PIPE \
@@ -71,7 +70,7 @@
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
-typedef struct socket * socket_t;
+typedef struct socket *socket_t;
 typedef struct socket socket_data_t;
 
 struct socket
@@ -89,7 +88,7 @@ struct socket
   HANDLE pipe_desc[2];          /* Used for the pipes and coservers. */
 
 #ifdef __MINGW32__
-  LPOVERLAPPED overlap[2];      /* the overlap info for WinNT */
+  LPOVERLAPPED overlap[2];      /* Overlap info for WinNT. */
 #endif /* not __MINGW32__ */
 
   char *recv_pipe;              /* File of the receive pipe. */
@@ -182,9 +181,8 @@ struct socket
 #endif
 
   /* 
-   * Set to non-zero time() value if the the socket is temporarily
-   * unavailable (EAGAIN). This is why we use O_NONBLOCK socket
-   * descriptors.
+   * Set to non-zero `time ()' value if the the socket is temporarily
+   * unavailable (EAGAIN). This is why we use O_NONBLOCK socket descriptors.
    */
   int unavailable;              
 
@@ -195,7 +193,7 @@ struct socket
   void *data;
 
   /*
-   * When the final protocol detection in DEFAULT_DETECT_PROTO
+   * When the final protocol detection in SOCK_DETECT_PROTO
    * has been done CFG should get the actual configuration hash.
    */
   void *cfg;
@@ -203,104 +201,31 @@ struct socket
 
 __BEGIN_DECLS
 
-/*
- * SOCK_LOOKUP_TABLE is used to speed up references to socket
- * structures by socket's id.
- */
-extern socket_t sock_lookup_table[SOCKET_MAX_IDS];
-
-/*
- * Count the number of currently connected sockets.
- */
 SERVEEZ_API extern SOCKET sock_connections;
 
-/*
- * Check if a given socket is still valid. Return non-zero if it is
- * not.
- */
 SERVEEZ_API int sock_valid __P ((socket_t sock));
-
-/*
- * Allocate a structure of type socket_t and initialize
- * its fields.
- */
 SERVEEZ_API socket_t sock_alloc __P ((void));
-
-/*
- * Free the socket structure SOCK.  Return a non-zero value on error.
- */
 SERVEEZ_API int sock_free __P ((socket_t sock));
-
-/*
- * Create a socket structure from the file descriptor FD.  Return NULL
- * on error.
- */
 SERVEEZ_API socket_t sock_create __P ((int fd));
-
-/*
- * Disconnect the socket SOCK from the network and calls the
- * disconnect function for the socket if set.  Return a non-zero
- * value on error.
- */
 SERVEEZ_API int sock_disconnect __P ((socket_t sock));
-
-/*
- * Write LEN bytes from the memory location pointed to by BUF
- * to the output buffer of the socket SOCK.  Also try to flush the
- * buffer to the network socket of SOCK if possible.  Return a non-zero
- * value on error, which normally means a buffer overflow.
- */
 SERVEEZ_API int sock_write __P ((socket_t sock, char *buf, int len));
-
-/*
- * Print a formatted string on the socket SOCK.  FMT is the printf()-
- * style format string, which describes how to format the optional
- * arguments.  See the printf(3) manual page for details.
- */
 SERVEEZ_API int sock_printf __P ((socket_t sock, const char *fmt, ...));
-
-/*
- * Resize the send and receive buffers for the socket SOCK.  SEND_BUF_SIZE
- * is the new size for the send buffer, RECV_BUF_SIZE for the receive
- * buffer.  Note that data may be lost when the buffers shrink.
- */
 SERVEEZ_API int sock_resize_buffers __P ((socket_t sock, int, int));
-
-/*
- * Get local and remote addresses/ports of socket SOCK and intern them
- * into the socket structure.
- */
 SERVEEZ_API int sock_intern_connection_info __P ((socket_t sock));
-
-/*
- * Get and clear the pending socket error of a given socket. Print
- * the result to the log file.
- */
 SERVEEZ_API int sock_error_info __P ((socket_t sock));
-
-/*
- * Calculate unique socket structure id and assign a version 
- * for a given SOCK. The version is for validating socket structures.
- * It is currently used in the coserver callbacks.
- */
 SERVEEZ_API int sock_unique_id __P ((socket_t sock));
+SERVEEZ_API int sock_detect_proto __P ((socket_t sock));
+SERVEEZ_API int sock_check_request __P ((socket_t sock));
+SERVEEZ_API int sock_idle_protect __P ((socket_t sock));
 
-/*
- * Lots of default callbacks.
- */
-SERVEEZ_API int sock_default_write __P ((socket_t sock));
-SERVEEZ_API int sock_default_read __P ((socket_t sock));
-SERVEEZ_API int sock_default_detect_proto __P ((socket_t sock));
-SERVEEZ_API int sock_default_check_request __P ((socket_t sock));
-SERVEEZ_API int sock_default_idle_func __P ((socket_t sock));
 #if ENABLE_FLOOD_PROTECTION
-SERVEEZ_API int sock_default_flood_protect __P ((socket_t sock, int));
+SERVEEZ_API int sock_flood_protect __P ((socket_t sock, int));
 #endif
 
 __END_DECLS
 
 /*
- * Shorten the receive buffer of SOCK by len bytes.
+ * Shorten the receive buffer of SOCK by LEN bytes.
  */
 #define sock_reduce_recv(sock, len)                      \
   if (len && sock->recv_buffer_fill > len) {             \
@@ -308,5 +233,15 @@ __END_DECLS
              sock->recv_buffer_fill - len);              \
   }                                                      \
   sock->recv_buffer_fill -= len;
+
+/*
+ * Reduce the send buffer of SOCK by LEN bytes.
+ */
+#define sock_reduce_send(sock, len)                      \
+  if (len && sock->send_buffer_fill > len) {             \
+    memmove (sock->send_buffer, sock->send_buffer + len, \
+	     sock->send_buffer_fill - len);              \
+  }                                                      \
+  sock->send_buffer_fill -= len;
 
 #endif /* not __SOCKET_H__ */

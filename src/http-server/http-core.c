@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.28 2001/01/28 13:11:54 ela Exp $
+ * $Id: http-core.c,v 1.29 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -625,7 +625,7 @@ http_keep_alive (socket_t sock)
       http_free_socket (sock);
 
       sock->userflags &= ~HTTP_FLAG; 
-      sock->read_socket = sock_default_read;
+      sock->read_socket = tcp_read_socket;
       sock->check_request = http_check_request;
       sock->write_socket = http_default_write;
       sock->send_buffer_fill = 0;

@@ -23,16 +23,9 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.27 2001/01/28 03:26:54 ela Exp $
-#
 
-#
-# *NEEDED* extra header files
-#
+EXTRA_DIST = serveez.rc
 
-EXTRA_DIST = \
-	include/ipdata.h include/iphlpapi.h \
-	serveez.rc
 #
 # Add your server subdirectory here
 #
@@ -64,7 +57,6 @@ include_HEADERS = libserveez.h
 serveez_SOURCES = \
 	dynload.c dynload.h \
 	serveez.c serveez.h \
-	interface.c interface.h \
 	sizzle.c sizzle.h \
 	cfgfile.c cfgfile.h \
 	option.c option.h

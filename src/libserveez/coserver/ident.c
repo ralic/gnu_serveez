@@ -1,7 +1,7 @@
 /*
  * ident.c - ident coserver implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.c,v 1.1 2001/01/28 13:24:38 ela Exp $
+ * $Id: ident.c,v 1.2 2001/02/02 11:26:24 ela Exp $
  *
  */
 
@@ -48,9 +48,10 @@
 
 #include "libserveez/socket.h"
 #include "libserveez/util.h"
-#include "libserveez/server-core.h"
 #include "libserveez/coserver/coserver.h"
-#include "libserveez/coserver/ident.h"
+#include "ident.h"
+
+#define IDENT_PORT 113 /* the identd port */
 
 /*
  * The following routine takes the input buffer in the format "%s:%u:%u"

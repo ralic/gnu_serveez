@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: snprintf.h,v 1.2 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -41,7 +41,7 @@
 #ifdef __MINGW32__
 /*
  * Both of these functions are actually implemented but not within the
- * B20.1 release of CygWin, but in the latest. Soo we define them here
+ * B20.1 release of Cygwin, but in the latest. Soo we define them here
  * ourselves.
  */
 #ifndef HAVE__SNPRINTF

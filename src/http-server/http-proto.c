@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.54 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-proto.c,v 1.55 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -568,7 +568,7 @@ http_send_file (socket_t sock)
        * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
-      sock->read_socket = sock_default_read;
+      sock->read_socket = tcp_read_socket;
       sock->recv_buffer_fill = 0;
       sock->send_buffer_fill = 0;
       sock->write_socket = http_default_write;
@@ -722,7 +722,7 @@ http_file_read (socket_t sock)
        * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
-      sock->read_socket = sock_default_read;
+      sock->read_socket = tcp_read_socket;
       sock->userflags |= HTTP_FLAG_DONE;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
@@ -1147,7 +1147,7 @@ http_get_response (socket_t sock, char *request, int flags)
 			 cgifile, request, GET_METHOD))
 	{
 	  /* some error occurred here */
-	  sock->read_socket = sock_default_read;
+	  sock->read_socket = tcp_read_socket;
 	  svz_free (cgifile);
 	  return -1;
 	}

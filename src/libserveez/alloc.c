@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.2 2001/01/29 22:41:32 ela Exp $
+ * $Id: alloc.c,v 1.3 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -88,10 +88,6 @@ typedef struct
 }
 heap_block_t;
 
-#ifndef __GNUC__
-# define __builtin_return_address(nr) 0
-#endif
-
 /* add another heap block to the heap management */
 static void
 heap_add (heap_block_t *block)
@@ -106,7 +102,24 @@ heap_add (heap_block_t *block)
   hash_put (heap, (char *) &block->ptr, block);
 }
 
-#endif /* DEBUG_MEMORY_LEAKS */
+#ifdef MSC_VER
+# include <windows.h>
+# include <imagehlp.h>
+# define __builtin_return_address(stack) stack.AddrReturn
+# define heap_caller()                                                     \
+    STACKFRAME stack;                                                      \
+    StackWalk (IMAGE_FILE_MACHINE_I386, GetCurrentProcess (),              \
+	       GetCurrentThread (), &stack, NULL, NULL, NULL, NULL, NULL); \
+#else
+# ifndef __GNUC__
+#  define __builtin_return_address(no) 0
+# endif
+# define heap_caller()
+#endif
+
+#else /* !DEBUG_MEMORY_LEAKS */
+# define heap_caller()
+#endif /* !DEBUG_MEMORY_LEAKS */
 
 /*
  * Allocate SIZE bytes of memory and return a pointer to it.
@@ -122,6 +135,7 @@ svz_malloc (unsigned size)
 #endif /* DEBUG_MEMORY_LEAKS */
 #endif /* ENABLE_DEBUG */
 
+  heap_caller ();
   assert (size);
 
 #if ENABLE_DEBUG
@@ -175,6 +189,7 @@ svz_realloc (void *ptr, unsigned size)
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
 
+  heap_caller ();
   assert (size);
 
   if (ptr)
@@ -257,6 +272,7 @@ svz_free (void *ptr)
 #endif /* ENABLE_HEAP_COUNT */
 #endif /* ENABLE_DEBUG */
 
+  heap_caller ();
   assert (ptr);
 
   if (ptr)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: server-socket.c,v 1.3 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -60,49 +60,6 @@
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
 #include "libserveez/server-socket.h"
-
-#ifdef __MINGW32__
-
-/*
- * This routine has to be called once before you could use any of the
- * Winsock32 API functions under Win32.
- */
-int
-net_startup (void)
-{
-  WSADATA WSAData;
- 
-  if (WSAStartup (WINSOCK_VERSION, &WSAData) == SOCKET_ERROR)
-    {
-      log_printf (LOG_ERROR, "WSAStartup: %s\n", NET_ERROR);
-      WSACleanup ();
-      return 0;
-    }
-  
-  /* startup ip services */
-  icmp_startup ();
-
-  return 1;
-}
-
-/*
- * Shutdown the Winsock32 API.
- */
-int
-net_cleanup (void)
-{
-  /* shutdown ip services */
-  icmp_cleanup ();
-
-  if (WSACleanup () == SOCKET_ERROR)
-    {
-      log_printf (LOG_ERROR, "WSACleanup: %s\n", NET_ERROR);
-      return 0;
-    }
-  return 1;
-}
-
-#endif /* not __MINGW32__ */
 
 /*
  * Create a listening server socket. PORTCFG is the port to bind the 
@@ -256,7 +213,7 @@ server_create (portcfg_t *cfg)
       sock->send_buffer_size = 0;
       sock->recv_buffer = NULL;
       sock->send_buffer = NULL;
-      sock->check_request = sock_default_detect_proto; 
+      sock->check_request = sock_detect_proto; 
     }
 
   /* Setup the socket structure. */
@@ -409,7 +366,7 @@ server_accept_socket (socket_t server_sock)
       sock->flags |= SOCK_FLAG_CONNECTED;
       sock->data = server_sock->data;
       sock->check_request = server_sock->check_request;
-      sock->idle_func = sock_default_idle_func; 
+      sock->idle_func = sock_idle_protect; 
       sock->idle_counter = 1;
       sock_enqueue (sock);
       sock_connections++;
@@ -538,13 +495,13 @@ server_accept_pipe (socket_t server_sock)
 #endif /* neither HAVE_MKFIFO nor __MINGW32__ */
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
-  sock->read_socket = pipe_read;
-  sock->write_socket = pipe_write;
+  sock->read_socket = pipe_read_socket;
+  sock->write_socket = pipe_write_socket;
   sock->referrer = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
-  sock->idle_func = sock_default_idle_func; 
+  sock->idle_func = sock_idle_protect;
   sock->idle_counter = 1;
   sock_enqueue (sock);
 

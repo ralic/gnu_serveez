@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.4 2001/01/28 03:26:55 ela Exp $
+ * $Id: ident-proto.c,v 1.5 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -131,7 +131,7 @@ fakeident_connect_socket (void *acfg, socket_t sock)
 
   sock->boundary = "\n";
   sock->boundary_size = 1;
-  sock->check_request = sock_default_check_request;
+  sock->check_request = sock_check_request;
   sock->handle_request = fakeident_handle_request;
 
   return 0;

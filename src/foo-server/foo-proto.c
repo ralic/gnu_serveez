@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.19 2001/01/28 03:26:55 ela Exp $
+ * $Id: foo-proto.c,v 1.20 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 #include "foo-proto.h"
 
 /* 
- * Packet specification for sock_default_check_request().
+ * Packet specification for `sock_check_request ()'.
  */
 char *foo_packet_delim = "\r\n";
 int foo_packet_delim_len = 2;
@@ -147,7 +147,7 @@ foo_handle_coserver_result (char *host, int id, int version)
 }
 
 /*
- * Handle a single request as found by the default_check_request.
+ * Handle a single request as found by the `sock_check_request ()'.
  */
 int 
 foo_handle_request (socket_t sock, char *request, int len)
@@ -196,7 +196,7 @@ foo_connect_socket (void *acfg, socket_t sock)
    */
   sock->boundary = foo_packet_delim;
   sock->boundary_size = foo_packet_delim_len;
-  sock->check_request = sock_default_check_request;
+  sock->check_request = sock_check_request;
   sock->handle_request = foo_handle_request;
 
   log_printf (LOG_NOTICE, "foo client detected\n");

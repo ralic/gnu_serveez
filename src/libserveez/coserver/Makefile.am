@@ -4,7 +4,7 @@
 #
 # Automake input file for the internal coservers.
 #
-# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify

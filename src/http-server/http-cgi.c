@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.32 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-cgi.c,v 1.33 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -987,7 +987,7 @@ http_post_response (socket_t sock, char *request, int flags)
 		     file, request, POST_METHOD))
     {
       /* some error occurred here */
-      sock->read_socket = sock_default_read;
+      sock->read_socket = tcp_read_socket;
       sock->write_socket = http_default_write;
       svz_free (file);
       return -1;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: reverse-dns.c,v 1.1 2001/01/28 13:24:38 ela Exp $
+ * $Id: reverse-dns.c,v 1.2 2001/02/02 11:26:24 ela Exp $
  *
  */
 
@@ -49,11 +49,11 @@
 # include <arpa/inet.h>
 #endif
 
-#include "libserveez/socket.h"
 #include "libserveez/util.h"
-#include "libserveez/server-core.h"
-#include "coserver.h"
+#include "libserveez/coserver/coserver.h"
 #include "reverse-dns.h"
+
+#define MAX_CACHE_ENTRIES 1024 /* nslookup cache entries */
 
 /*
  * Reverse DNS lookup cache structure.

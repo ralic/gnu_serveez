@@ -1,7 +1,7 @@
 /*
  * socket.c - socket management implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: socket.c,v 1.2 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -61,6 +61,7 @@
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
 #include "libserveez/pipe-socket.h"
+#include "libserveez/tcp-socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
 
@@ -69,179 +70,6 @@
  */
 SOCKET sock_connections = 0;
 
-/*
- * SOCK_LOOKUP_TABLE is used to speed up references to socket
- * structures by socket's id.
- */
-socket_t sock_lookup_table[SOCKET_MAX_IDS];
-static int socket_id = 0;
-static int socket_version = 0;
-
-/*
- * Default function for writing to socket SOCK. Simply flushes
- * the output buffer to the network.
- * Write as much as possible into the socket SOCK.  Writing
- * is performed non-blocking, so only as much as fits into
- * the network buffer will be written on each call.
- */
-int
-sock_default_write (socket_t sock)
-{
-  int num_written;
-  int do_write;
-  SOCKET desc;
-
-  desc = sock->sock_desc;
-
-  /* 
-   * Write as many bytes as possible, remember how many
-   * were actually sent. Limit the maximum sent bytes to
-   * SOCK_MAX_WRITE.
-   */
-  do_write = sock->send_buffer_fill;
-  if (do_write > SOCK_MAX_WRITE)
-    do_write = SOCK_MAX_WRITE;
-  num_written = send (desc, sock->send_buffer, do_write, 0);
-
-#if 0
-  util_hexdump (stdout, "sent", desc, sock->send_buffer, num_written, 0);
-#endif
-
-  /* Some data has been written. */
-  if (num_written > 0)
-    {
-      sock->last_send = time (NULL);
-
-      /*
-       * Shuffle the data in the output buffer around, so that
-       * new data can get stuffed into it.
-       */
-      if (sock->send_buffer_fill > num_written)
-	{
-	  memmove (sock->send_buffer, 
-		   sock->send_buffer + num_written,
-		   sock->send_buffer_fill - num_written);
-	}
-      sock->send_buffer_fill -= num_written;
-    }
-  /* error occurred while writing */
-  else if (num_written < 0)
-    {
-      log_printf (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
-	{
-	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
-	  num_written = 0;
-	}
-    }
-
-  /* if final write flag is set, then schedule for shutdown */
-  if (sock->flags & SOCK_FLAG_FINAL_WRITE && sock->send_buffer_fill == 0)
-    num_written = -1;
-
-  /*
-   * Return a non-zero value if an error occurred.
-   */
-  return (num_written < 0) ? -1 : 0;
-}
-
-/*
- * Default function for reading from the socket SOCK.
- * This function only reads all data from the socket and
- * calls the CHECK_REQUEST function for the socket, if set.
- * Returns -1 if the socket has died, returns 0 otherwise.
- */
-int
-sock_default_read (socket_t sock)
-{
-  int num_read;
-  int ret;
-  int do_read;
-  SOCKET desc;
-
-  desc = sock->sock_desc;
-
-  /* 
-   * Calculate how many bytes fit into the receive buffer.
-   */
-  do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
-
-  /*
-   * Check if enough space is left in the buffer, kick the socket
-   * if not. The main loop will kill the socket if we return a non-zero
-   * value.
-   */
-  if (do_read <= 0)
-    {
-      log_printf (LOG_ERROR, "receive buffer overflow on socket %d\n", desc);
-
-      if (sock->kicked_socket)
-	sock->kicked_socket (sock, 0);
-
-      return -1;
-    }
-
-  /*
-   * Try to read as much data as possible.
-   */
-  num_read = recv (desc,
-		   sock->recv_buffer + sock->recv_buffer_fill, do_read, 0);
-
-  /* error occurred while reading */
-  if (num_read < 0)
-    {
-      /*
-       * This means that the socket was shut down. Close the socket
-       * in this case, which the main loop will do for us if we
-       * return a non-zero value.
-       */
-      log_printf (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
-	{
-	  num_read = 0;
-	}
-      else
-	{
-	  return -1;
-	}
-    }
-  /* some data has been read */
-  else if (num_read > 0)
-    {
-      sock->last_recv = time (NULL);
-
-#if ENABLE_FLOOD_PROTECTION
-      if (sock_default_flood_protect (sock, num_read))
-	{
-	  log_printf (LOG_ERROR, "kicked socket %d (flood)\n", desc);
-	  return -1;
-	}
-#endif /* ENABLE_FLOOD_PROTECTION */
-
-#if 0
-      util_hexdump (stdout, "received", desc,
-		    sock->recv_buffer + sock->recv_buffer_fill, num_read, 0);
-#endif
-
-      sock->recv_buffer_fill += num_read;
-
-      if (sock->check_request)
-	{
-	  ret = sock->check_request (sock);
-	  if (ret)
-	    return ret;
-	}
-    }
-  /* the socket was selected but there is no data */
-  else
-    {
-      log_printf (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
-      return -1;
-    }
-  
-  return 0;
-}
-
 #if ENABLE_FLOOD_PROTECTION
 /*
  * This routine can be called if flood protection is wished for
@@ -249,10 +77,14 @@ sock_default_read (socket_t sock)
  * because of flood.
  */
 int
-sock_default_flood_protect (socket_t sock, int num_read)
+sock_flood_protect (socket_t sock, int num_read)
 {
   if (!(sock->flags & SOCK_FLAG_NOFLOOD))
     {
+      /* 
+       * Since the default flood limit is 100 a reader can produce 
+       * 5000 bytes per second before it gets kicked.
+       */
       sock->flood_points += 1 + (num_read / 50);
 	  
       if (sock->flood_points > sock->flood_limit)
@@ -281,11 +113,12 @@ sock_default_disconnect (socket_t sock)
 }
 
 /*
- * DEFAULT_DETECT_PROTO gets called whenever data is read from a
- * client network socket.
+ * This routine gets called whenever data is read from a client socket
+ * accepted by any connection oriented protocol layer (TCP or PIPE). We
+ * try to detect the data streams protocol here.
  */
 int
-sock_default_detect_proto (socket_t sock)
+sock_detect_proto (socket_t sock)
 {
   int n;
   server_t *server;
@@ -293,22 +126,19 @@ sock_default_detect_proto (socket_t sock)
   if (sock->data == NULL)
     return -1;
 
+  /* go through each server stored in the data field of this socket */
   for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
     {
+      /* call protocol detection routine of the server */
       if (server->detect_proto (server->cfg, sock))
 	{
 	  sock->idle_func = NULL;
 	  sock->data = NULL;
 	  sock->cfg = server->cfg;
-	  if (server->connect_socket)
-	    {
-	      if (server->connect_socket (server->cfg, sock))
-		return -1;
-	    }
-	  else
-	    {
-	      return -1;
-	    }
+	  if (!server->connect_socket)
+	    return -1;
+	  if (server->connect_socket (server->cfg, sock))
+	    return -1;
 	  return sock->check_request (sock);
 	}
     }
@@ -330,11 +160,11 @@ sock_default_detect_proto (socket_t sock)
 
 /*
  * Default idle function. This routine simply checks for "dead" 
- * (non-receiving) sockets and rejects them by return a non-zero
- * value.
+ * (non-receiving) sockets (connection oriented protocols only) and rejects 
+ * them by return a non-zero value.
  */
 int
-sock_default_idle_func (socket_t sock)
+sock_idle_protect (socket_t sock)
 {
   if (time (NULL) - sock->last_recv > MAX_DETECTION_WAIT)
     {
@@ -349,13 +179,13 @@ sock_default_idle_func (socket_t sock)
 }
 
 /*
- * This check_request () routine could be used by any protocol to 
+ * This `check_request ()' routine could be used by any protocol to 
  * detect and finally handle packets depending on a specific packet 
- * boundary. The appropriate handle_request () is called for each packet
+ * boundary. The appropriate `handle_request ()' is called for each packet
  * explicitly with the packet length inclusive the packet boundary.
  */
 static int
-sock_default_check_request_array (socket_t sock)
+sock_check_request_array (socket_t sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -398,7 +228,7 @@ sock_default_check_request_array (socket_t sock)
  * packet delimiters.
  */
 static int
-sock_default_check_request_byte (socket_t sock)
+sock_check_request_byte (socket_t sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -437,33 +267,29 @@ sock_default_check_request_byte (socket_t sock)
 }
 
 /*
- * DEFAULT_CHECK_REQUEST simply checks for the kind of packet delimiter
- * within the given socket structure and and assigns one of the above
- * check request routines (one or more byte delimiters). Afterwards this
- * routine will never ever be called again because the callback gets
+ * this function simply checks for the kind of packet delimiter within 
+ * the given socket structure and and assigns one of the above
+ * `check_request ()' routines (one or more byte delimiters). Afterwards 
+ * this routine will never ever be called again because the callback gets
  * overwritten here.
  */
 int
-sock_default_check_request (socket_t sock)
+sock_check_request (socket_t sock)
 {
   assert (sock->boundary);
   assert (sock->boundary_size);
 
   if (sock->boundary_size > 1)
-    {
-      sock->check_request = sock_default_check_request_array;
-    }
+    sock->check_request = sock_check_request_array;
   else
-    {
-      sock->check_request = sock_default_check_request_byte;
-    }
+    sock->check_request = sock_check_request_byte;
 
   return sock->check_request (sock);
 }
 
 /*
- * Allocate a structure of type socket_t and initialize
- * its fields.
+ * Allocate a structure of type `socket_t' and initialize its data
+ * fields. Assign some of the default callbacks for TCP connections.
  */
 socket_t
 sock_alloc (void)
@@ -473,9 +299,9 @@ sock_alloc (void)
   char *out;
 
   sock = svz_malloc (sizeof (socket_data_t));
+  memset (sock, 0, sizeof (socket_data_t));
   in = svz_malloc (RECV_BUF_SIZE);
   out = svz_malloc (SEND_BUF_SIZE);
-  memset (sock, 0, sizeof (socket_data_t));
 
   sock->proto = SOCK_FLAG_INIT;
   sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
@@ -485,9 +311,9 @@ sock_alloc (void)
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
 
-  sock->read_socket = sock_default_read;
-  sock->write_socket = sock_default_write;
-  sock->check_request = sock_default_detect_proto;
+  sock->read_socket = tcp_read_socket;
+  sock->write_socket = tcp_write_socket;
+  sock->check_request = sock_detect_proto;
   sock->disconnected_socket = sock_default_disconnect;
 
   sock->recv_buffer = in;
@@ -505,9 +331,9 @@ sock_alloc (void)
 }
 
 /*
- * Resize the send and receive buffers for the socket SOCK.  SEND_BUF_SIZE
+ * Resize the send and receive buffers for the socket SOCK. SEND_BUF_SIZE
  * is the new size for the send buffer, RECV_BUF_SIZE for the receive
- * buffer.  Note that data may be lost when the buffers shrink.
+ * buffer. Note that data may be lost when the buffers shrink.
  */
 int 
 sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
@@ -561,7 +387,7 @@ sock_free (socket_t sock)
 }
 
 /*
- * Get local and remote addresses/ports of socket SOCK and save them
+ * Get local and remote addresses and ports of socket SOCK and save them
  * into the socket structure.
  */
 int
@@ -632,27 +458,6 @@ sock_error_info (socket_t sock)
 }
 
 /*
- * Calculate unique socket structure id and assign a version 
- * for a given SOCK. The version is for validating socket structures.
- * It is currently used in the coserver callbacks.
- */
-int
-sock_unique_id (socket_t sock)
-{
-  do
-    {
-      socket_id++;
-      socket_id &= (SOCKET_MAX_IDS - 1);
-    }
-  while (sock_lookup_table[socket_id]);
-
-  sock->id = socket_id;
-  sock->version = socket_version++;
-  
-  return socket_id;
-}
-
-/*
  * Check if a given socket is still valid. Return non-zero if it is
  * not.
  */
@@ -670,8 +475,8 @@ sock_valid (socket_t sock)
 }
 
 /*
- * Create a socket structure from the file descriptor FD.  Return NULL
- * on error.
+ * Create a socket structure from the file descriptor FD. Set the socket
+ * descriptor to non-blocking I/O. Return NULL on errors.
  */
 socket_t
 sock_create (int fd)
@@ -686,13 +491,13 @@ sock_create (int fd)
       log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
       return NULL;
     }
-#else
+#else /* !__MINGW32__ */
   if (fcntl (fd, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return NULL;
     }
-#endif
+#endif /* !__MINGW32__ */
 
   if ((sock = sock_alloc ()) != NULL)
     {
@@ -705,9 +510,8 @@ sock_create (int fd)
 }
 
 /*
- * Disconnect the socket SOCK from the network and calls the
- * disconnect function for the socket if set.  Return a non-zero
- * value on error.
+ * Disconnect the socket SOCK from the network and calls the disconnect 
+ * function for the socket if set. Return a non-zero value on errors.
  */
 int
 sock_disconnect (socket_t sock)
@@ -733,10 +537,10 @@ sock_disconnect (socket_t sock)
 }
 
 /*
- * Write LEN bytes from the memory location pointed to by BUF
- * to the output buffer of the socket SOCK.  Also try to flush the
- * buffer to the network socket of SOCK if possible.  Return a non-zero
- * value on error, which normally means a buffer overflow.
+ * Write LEN bytes from the memory location pointed to by BUF to the 
+ * output buffer of the socket SOCK. Also try to flush the buffer to the 
+ * socket of SOCK if possible.  Return a non-zero value on error, which 
+ * normally means a buffer overflow.
  */
 int
 sock_write (socket_t sock, char *buf, int len)
@@ -749,7 +553,7 @@ sock_write (socket_t sock, char *buf, int len)
 
   while (len > 0)
     {
-      /* Try to flush the queue of this socket */
+      /* Try to flush the queue of this socket. */
       if (sock->write_socket && !sock->unavailable && 
 	  sock->flags & SOCK_FLAG_CONNECTED && sock->send_buffer_fill)
 	{
@@ -776,7 +580,7 @@ sock_write (socket_t sock, char *buf, int len)
 	  return -1;
 	}
     
-      /* Now move as much of BUF into the send queue */
+      /* Now move as much of BUF into the send queue. */
       if (sock->send_buffer_fill + len < sock->send_buffer_size)
 	{
 	  memcpy (sock->send_buffer + sock->send_buffer_fill, buf, len);
@@ -797,9 +601,9 @@ sock_write (socket_t sock, char *buf, int len)
 }
 
 /*
- * Print a formatted string on the socket SOCK.  FMT is the printf()-
+ * Print a formatted string on the socket SOCK. FMT is the printf()-
  * style format string, which describes how to format the optional
- * arguments.  See the printf(3) manual page for details.
+ * arguments. See the printf(3) manual page for details.
  */
 int
 sock_printf (socket_t sock, const char *fmt, ...)

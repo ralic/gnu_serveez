@@ -1,7 +1,7 @@
 /*
  * reverse-dns.h - reverse DNS lookup coserver header definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,29 +18,27 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: reverse-dns.h,v 1.1 2001/01/28 13:24:38 ela Exp $
+ * $Id: reverse-dns.h,v 1.2 2001/02/02 11:26:24 ela Exp $
  *
  */
 
 #ifndef __REVERSE_DNS_H__
-#define __REVERSE_DNS_H__
+#define __REVERSE_DNS_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include "libserveez/defines.h"
 
-#define _GNU_SOURCE
-
-#define MAX_CACHE_ENTRIES 1024 /* nslookup cache entries */
+__BEGIN_DECLS
 
 /*
- * Initialize the reserve dns's cache.
+ * Initialize the reserve DNS's cache.
  */
-void reverse_dns_init (void);
+void reverse_dns_init __P ((void));
 
 /*
  * Proceed a reverse DNS lookup.
  */
-char * reverse_dns_handle_request (char *inbuf);
+char *reverse_dns_handle_request __P ((char *inbuf));
 
-#endif /* __REVERSE_DNS_H__ */
+__END_DECLS
+
+#endif /* not __REVERSE_DNS_H__ */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: util.c,v 1.2 2001/02/02 11:26:24 ela Exp $
  *
  */
 
@@ -70,7 +70,6 @@
 # include <winsock.h>
 #endif
 
-#include "libserveez/defines.h"
 #include "libserveez/snprintf.h"
 #include "libserveez/windoze.h"
 #include "libserveez/util.h"
@@ -86,7 +85,7 @@
  */
 int svz_verbosity = LOG_DEBUG;
 
-char log_level[][16] = {
+static char log_level[][16] = {
   "fatal",
   "error",
   "warning",
@@ -96,7 +95,7 @@ char log_level[][16] = {
 
 /*
  * This is the file all log messages are written to. Change it with a
- * call to log_set_file().  By default, all log messages are written
+ * call to `log_set_file ()'.  By default, all log messages are written
  * to STDERR.
  */
 static FILE *log_file = NULL;
@@ -127,7 +126,7 @@ log_printf (int level, const char *format, ...)
 
 /*
  * Set the file stream FILE to the log file all messages are printed
- * to. Could also be stdout or stderr.
+ * to. Could also be STDOUT or STDERR.
  */
 void
 log_set_file (FILE * file)
@@ -136,11 +135,14 @@ log_set_file (FILE * file)
 }
 
 /*
- * Dump a request buffer to a FILE stream.
+ * Dump a BUFFER with the length LEN to the file stream OUT. You can
+ * specify a description in ACTION. The hexadecimal text representation of
+ * the given buffer will be either cut at LEN or MAX. FROM is a numerical
+ * identifier of the buffers creator.
  */
 #define MAX_DUMP_LINE 16	/* bytes per line */
 int
-util_hexdump (FILE * out,	/* output FILE stream */
+util_hexdump (FILE *out,	/* output FILE stream */
 	      char *action,	/* hex dump description */
 	      int from,		/* who created the dumped data */
 	      char *buffer,	/* the buffer to dump */
@@ -185,7 +187,8 @@ util_hexdump (FILE * out,	/* output FILE stream */
 }
 
 /*
- * This is the hstrerror() wrapper, depending on config.h ...
+ * This is the `hstrerror ()' wrapper function, depending on the 
+ * configuration file `config.h'.
  */
 const char *
 util_hstrerror (void)
@@ -206,8 +209,8 @@ util_hstrerror (void)
 }
 
 /*
- * Produce a time string representation of a given time without any
- * trailing characters.
+ * Transform the given binary data T (UTC time) to an ASCII time text
+ * representation without any trailing characters.
  */
 char *
 util_time (time_t t)
@@ -225,7 +228,8 @@ util_time (time_t t)
 }
 
 /*
- * Create some kind of uptime string.
+ * Create some kind of uptime string. It tells how long the core library
+ * has been running. 
  */
 char *
 util_uptime (time_t diff)
@@ -263,7 +267,7 @@ util_uptime (time_t diff)
 }
 
 /*
- * Convert a given string to lower case text representation.
+ * Convert the given string STR to lower case text representation.
  */
 char *
 util_tolower (char *str)
@@ -279,7 +283,9 @@ util_tolower (char *str)
 }
 
 /*
- * These are the system dependent case insensitive string compares.
+ * These are the system dependent case insensitive string compares. They
+ * compare the strings STR1 and STR2 (optional up to N characters). Return
+ * zero if both strings are equal.
  */
 int
 util_strcasecmp (const char *str1, const char *str2)
@@ -308,7 +314,7 @@ util_strcasecmp (const char *str1, const char *str2)
   while (c1 == c2);
 
   return c1 - c2;
-#endif
+#endif /* neither HAVE_STRCASECMP nor HAVE_STRICMP */
 }
 
 int
@@ -338,22 +344,25 @@ util_strncasecmp (const char *str1, const char *str2, size_t n)
   while (c1 == c2 && --n > 0);
 
   return c1 - c2;
-#endif
+#endif /* neither HAVE_STRCASECMP nor HAVE_STRICMP */
 }
 
 #ifdef __MINGW32__
 /*
- * This variable contains the last error occurred if it was
- * detected and printed. Needed for the "Resource unavailable".
+ * This variable contains the last system or network error occurred if 
+ * it was detected and printed. Needed for the "Resource unavailable" error
+ * condition.
  */
 int svz_errno = 0;
 
+#define MESSAGE_BUF_SIZE 256
+
 /*
- * There is no ErrorMessage-System for Sockets in Win32. That
- * is why we do it by hand.
+ * There is no text representation of network (Winsock API) errors in 
+ * Win32. That is why we translate it by hand.
  */
-char *
-GetWSAErrorMessage (int error)
+static char *
+util_neterror (int error)
 {
   static char message[MESSAGE_BUF_SIZE];
 
@@ -443,30 +452,8 @@ GetWSAErrorMessage (int error)
       return "WINSOCK.DLL version out of range.";
     case WSAEDISCON:
       return "Graceful shutdown in progress.";
-#if HAVE_WSOCK_EXT		/* Not defined in Win95, but WinNT. */
-    case WSA_INVALID_HANDLE:
-      return "Specified event object handle is invalid.";
-    case WSA_INVALID_PARAMETER:
-      return "One or more parameters are invalid.";
-    case WSAINVALIDPROCTABLE:
-      return "Invalid procedure table from service provider.";
-    case WSAINVALIDPROVIDER:
-      return "Invalid service provider version number.";
-    case WSA_IO_PENDING:
-      return "Overlapped operations will complete later.";
-    case WSA_IO_INCOMPLETE:
-      return "Overlapped I/O event object not in signaled state.";
-    case WSA_NOT_ENOUGH_MEMORY:
-      return "Insufficient memory available.";
-    case WSAPROVIDERFAILEDINIT:
-      return "Unable to initialize a service provider.";
-    case WSASYSCALLFAILURE:
-      return "System call failure.";
-    case WSA_OPERATION_ABORTED:
-      return "Overlapped operation aborted.";
-#endif
     default:
-      sprintf (message, "Error code %d.", error);
+      sprintf (message, "Network error code %d.", error);
       break;
     }
   return message;
@@ -474,11 +461,11 @@ GetWSAErrorMessage (int error)
 
 /*
  * Routine which forms a valid error message under Win32. It might either
- * use the GetLastError() or WSAGetLastError() in order to get a valid
+ * use the `GetLastError ()' or `WSAGetLastError ()' in order to get a valid
  * error code.
  */
 char *
-GetErrorMessage (int nr)
+util_syserror (int nr)
 {
   static char message[MESSAGE_BUF_SIZE];
   LPTSTR error;
@@ -515,27 +502,27 @@ GetErrorMessage (int nr)
   return message;
 }
 
+/*
+ * This variable contains the the runtime detected Win32 version. Its value
+ * is setup in `util_version ()'.
+ * 0 - Windows 3.x     1 - Windows 95      2 - Windows 98
+ * 3 - Windows NT 3.x  4 - Windows NT 4.x  5 - Windows 2000
+ * 6 - Windows ME
+ */
 int svz_os_version = 0;
 
 #endif /* __MINGW32__ */
 
 /*
- * This routine is for detecting the os version of 
- * Win32 and all Unices. It saves its result in the variable svz_os_version.
- *
- * 0 - Windows 3.x
- * 1 - Windows 95
- * 2 - Windows 98
- * 3 - Windows NT 3.x
- * 4 - Windows NT 4.x
- * 5 - Windows 2000
- * 6 - Windows ME
+ * This routine is for detecting the operating system version of Win32 
+ * and all Unices at runtime. You should call it at least once at startup.
+ * It saves its result in the variable `svz_os_version' and prints an
+ * appropriate message.
  */
-
 char *
 util_version (void)
 {
-  static char os[256] = "";	/* contains the os string */
+  static char os[256] = ""; /* contains the os string */
 
 #ifdef __MINGW32__
   static char ver[][6] =
@@ -545,11 +532,11 @@ util_version (void)
   struct utsname buf;
 #endif
 
+  /* detect only once */
   if (os[0])
     return os;
 
-#ifdef __MINGW32__		/* Windows */
-
+#ifdef __MINGW32__ /* Windows */
   osver.dwOSVersionInfoSize = sizeof (osver);
   if (!GetVersionEx (&osver))
     {
@@ -560,7 +547,7 @@ util_version (void)
     {
       switch (osver.dwPlatformId)
 	{
-	case VER_PLATFORM_WIN32_NT:	/* NT or Windows 2000 */
+	case VER_PLATFORM_WIN32_NT: /* NT or Windows 2000 */
 	  if (osver.dwMajorVersion == 4)
 	    svz_os_version = WinNT4x;
 	  else if (osver.dwMajorVersion <= 3)
@@ -569,7 +556,7 @@ util_version (void)
 	    svz_os_version = Win2k;
 	  break;
 
-	case VER_PLATFORM_WIN32_WINDOWS:	/* Win95 or Win98 */
+	case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
 	  if ((osver.dwMajorVersion > 4) ||
 	      ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
 	    {
@@ -582,39 +569,28 @@ util_version (void)
 	    svz_os_version = Win95;
 	  break;
 
-	case VER_PLATFORM_WIN32s:	/* Windows 3.x */
+	case VER_PLATFORM_WIN32s: /* Windows 3.x */
 	  svz_os_version = Win32s;
 	  break;
 	}
 
       sprintf (os, "Windows%s %ld.%02ld %s%s(Build %ld)",
-	       ver[svz_os_version],
-	       osver.dwMajorVersion,
-	       osver.dwMinorVersion,
-	       osver.szCSDVersion,
-	       osver.szCSDVersion[0] ? " " : "",
+	       ver[svz_os_version], 
+	       osver.dwMajorVersion, osver.dwMinorVersion,
+	       osver.szCSDVersion, osver.szCSDVersion[0] ? " " : "",
 	       osver.dwBuildNumber & 0xFFFF);
     }
-#else /* Unices */
+#elif HAVE_UNAME /* !__MINGW32__ */
+  uname (&buf);
+  sprintf (os, "%s %s on %s", buf.sysname, buf.release, buf.machine);
+#endif /* not HAVE_UNAME */
 
-#if HAVE_UNAME
-  if (uname (&buf) == -1)
-    {
-      sprintf (os, "uname: %s", SYS_ERROR);
-    }
-  else
-    {
-      sprintf (os, "%s %s on %s", buf.sysname, buf.release, buf.machine);
-    }
-#endif
-
-#endif
   return os;
 }
 
 /*
- * Converts an unsigned integer to its string representation returning
- * a pointer to an internal buffer, so copy the result.
+ * Converts an unsigned integer to its decimal string representation 
+ * returning a pointer to an internal buffer, so copy the result.
  */
 char *
 util_itoa (unsigned int i)
@@ -633,8 +609,26 @@ util_itoa (unsigned int i)
 }
 
 /*
- * Converts the given ip address to the dotted decimal representation.
- * The string is a statically allocated buffer, please copy result.
+ * Converts a given string STR in decimal format to an unsigned integer.
+ * Stops conversion on any invalid characters.
+ */
+unsigned int
+util_atoi (char *str)
+{
+  unsigned int i = 0;
+
+  while (*str >= '0' && *str <= '9')
+    {
+      i *= 10;
+      i += *str - '0';
+      str++;
+    }
+  return i;
+}
+
+/*
+ * Converts the given ip address IP to the dotted decimal representation.
+ * The string is a statically allocated buffer, please copy the result.
  * The given ip address MUST be in network byte order.
  */
 char *
@@ -651,7 +645,7 @@ util_inet_ntoa (unsigned long ip)
   static char addr[16];
 
   /* 
-   * Now, this is strange: ip is given in host byte order. nevertheless
+   * Now, this is strange: IP is given in host byte order. Nevertheless
    * conversion is endian-specific. To the binary AND and SHIFT operations
    * work differently on different architectures ?
    */
@@ -664,23 +658,6 @@ util_inet_ntoa (unsigned long ip)
   return addr;
 
 #endif /* BROKEN_INET_NTOA */
-}
-
-/*
- * Converts a given string to an unsigned integer.
- */
-unsigned int
-util_atoi (char *str)
-{
-  unsigned int i = 0;
-
-  while (*str >= '0' && *str <= '9')
-    {
-      i *= 10;
-      i += *str - '0';
-      str++;
-    }
-  return i;
 }
 
 /*
@@ -776,9 +753,9 @@ util_openfiles (int max_sockets)
   return 0;
 }
 
-/* Runtime checkable flags for sizzle and code */
+/* Runtime checkable flags for sizzle and code. */
 
-#if defined(__MINGW32__) || defined(__CYGWIN__)
+#if defined (__MINGW32__) || defined (__CYGWIN__)
 int have_win32 = 1;
 #else
 int have_win32 = 0;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.28 2001/01/28 03:26:55 ela Exp $
+ * $Id: nut-transfer.c,v 1.29 2001/02/02 11:26:24 ela Exp $
  *
  */
 
@@ -991,7 +991,7 @@ nut_file_read (socket_t sock)
        * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
-      sock->read_socket = sock_default_read;
+      sock->read_socket = tcp_read_socket;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
 

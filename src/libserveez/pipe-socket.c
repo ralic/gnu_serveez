@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: pipe-socket.c,v 1.3 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -186,12 +186,30 @@ pipe_disconnect (socket_t sock)
   return 0;
 }
 
+#ifdef __MINGW32__
+/* Print text representation of given overlapped I/O structure. */
+static void
+pipe_overlap (LPOVERLAPPED overlap)
+{
+  if (overlap)
+    {
+      printf ("Internal: %ld (0x%08X), InternalHigh: %ld (0x%08X)\n"
+	      "Offset: %ld (0x%08X), OffsetHigh: %ld (0x%08X)\n"
+	      "Event: %ld\n",
+	      overlap->Internal, overlap->Internal, overlap->InternalHigh,
+	      overlap->InternalHigh, overlap->Offset, overlap->Offset,
+	      overlap->OffsetHigh, overlap->OffsetHigh, overlap->hEvent);
+    }
+}
+#endif /* __MINGW32__ */
+
 /*
- * The `pipe_read ()' function reads as much data as available on a readable
- * pipe descriptor or handle on Win32. Return a non-zero value on errors.
+ * The `pipe_read_socket ()' function reads as much data as available on a 
+ * readable pipe descriptor or handle on Win32. Return a non-zero value on 
+ * errors.
  */
 int
-pipe_read (socket_t sock)
+pipe_read_socket (socket_t sock)
 {
   int num_read, do_read;
 
@@ -254,7 +272,7 @@ pipe_read (socket_t sock)
       sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
-      if (sock_default_flood_protect (sock, num_read))
+      if (sock_flood_protect (sock, num_read))
 	{
 	  log_printf (LOG_ERROR, "kicked pipe %d (flood)\n", 
 		      sock->pipe_desc[READ]);
@@ -283,11 +301,11 @@ pipe_read (socket_t sock)
 }
 
 /*
- * This `pipe_write ()' function writes as much data as possible into 
+ * This `pipe_write_socket ()' function writes as much data as possible into 
  * a writable pipe descriptor. It returns a non-zero value on errors.
  */
 int
-pipe_write (socket_t sock)
+pipe_write_socket (socket_t sock)
 {
   int num_written, do_write;
 
@@ -557,8 +575,8 @@ pipe_connect (char *inpipe, char *outpipe)
   sock->flags |= (SOCK_FLAG_PIPE | SOCK_FLAG_CONNECTED);
   sock_enqueue (sock);
 
-  sock->read_socket = pipe_read;
-  sock->write_socket = pipe_write;
+  sock->read_socket = pipe_read_socket;
+  sock->write_socket = pipe_write_socket;
 
   sock_connections++;
   return sock;

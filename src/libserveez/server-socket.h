@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.h,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: server-socket.h,v 1.3 2001/02/02 11:26:23 ela Exp $
  *
  */
 
@@ -32,11 +32,6 @@ __BEGIN_DECLS
 SERVEEZ_API socket_t server_create __P ((portcfg_t *cfg));
 SERVEEZ_API int server_accept_socket __P ((socket_t sock));
 SERVEEZ_API int server_accept_pipe __P ((socket_t sock));
-
-#ifdef __MINGW32__
-SERVEEZ_API int net_startup __P ((void));
-SERVEEZ_API int net_cleanup __P ((void));
-#endif /* __MINGW32__ */
 
 __END_DECLS
 

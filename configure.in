@@ -1148,17 +1148,6 @@ if test $invalid_defined = no; then
     -1, [Define to -1 if <winsock.h> does not define.])
 fi
 
-dnl Check for Windows NT.
-
-if test $socket_defined = yes; then
-    AC_MSG_CHECKING([for extensions in winsock.h])
-    AC_EGREP_HEADER(WSA_INVALID_HANDLE, winsock.h,
-	AC_DEFINE(HAVE_WSOCK_EXT, 
-	    1, [Define if 'winsock.h' defines some more constants.])
-	AC_MSG_RESULT(yes),
-	AC_MSG_RESULT(no))
-fi
-
 unset invalid_defined
 unset socket_defined
 unset handle_defined
