@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.23 2000/09/11 00:07:35 raimi Exp $
+ * $Id: util.c,v 1.24 2000/09/11 17:29:47 ela Exp $
  *
  */
 
@@ -594,14 +594,15 @@ util_inet_ntoa (unsigned long ip)
 
   static char addr[16];
 
-  /* now, this is strange: ip is given in host byte order. nevertheless
-   * conversion is endian-specific. to the binary AND and SHIFT operations
+  /* 
+   * Now, this is strange: ip is given in host byte order. nevertheless
+   * conversion is endian-specific. To the binary AND and SHIFT operations
    * work differently on different architectures ?
    */
   sprintf (addr, "%lu.%lu.%lu.%lu", 
 #if WORDS_BIGENDIAN
 	   (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
-#else
+#else /* Little Endian */
            ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
 #endif
   return addr;

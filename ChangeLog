@@ -1,8 +1,7 @@
 2000-09-11  [ RAIMI ]  <raimi@lkcc.org>
 
-	* configure.in (have_inet_aton): ela added check for broken
-	inet_ntoa. workaround is in util.c.
-	
+	* configure.in (have_inet_aton): Ela added check for broken
+	inet_ntoa. Workaround is in util.c.
 
 2000-08-31  [ Ela ]  <ela@lkcc.org>
 

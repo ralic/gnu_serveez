@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: serveez.h,v 1.5 2000/09/11 00:07:35 raimi Exp $
+ * $Id: serveez.h,v 1.6 2000/09/11 17:29:47 ela Exp $
  *
  */
 
@@ -55,7 +55,7 @@ serveez_config_t;
 
 extern serveez_config_t serveez_config;
 
-/* exported from util.c because it is a central point */
+/* Exported from `util.c' because it is a central point. */
 extern int have_debug;
 extern int have_win32;
 

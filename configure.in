@@ -1032,7 +1032,7 @@ AC_TRY_RUN([#include <stdio.h>
 	if (strcmp (inet_ntoa (ip), "18.52.86.120"))
 	    exit (1);
 	exit (0);}],
-   AC_MSG_RESULT(yes)
+   AC_MSG_RESULT([yes (Irix gcc)])
    AC_DEFINE(BORKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.]),
    AC_MSG_RESULT(no))
 

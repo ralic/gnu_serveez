@@ -161,9 +161,9 @@ limit.
 @section Limits on open filehandles
 @table @asis
 @item Any Unix
-The limits set by ulimit or setrlimit.
+The limits set by @code{ulimit ()} or @code{setrlimit ()}.
 @item Solaris
-See the Solaris FAQ, question 3.45. 
+See the Solaris FAQ, question 3.45.
 @item FreeBSD 
 Use sysctl -w kern.maxfiles=nnnn to raise limit.
 @item Linux

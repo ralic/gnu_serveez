@@ -1,11 +1,16 @@
+2000-09-11  Stefan Jahn  <s.jahn@q-bus.de>
+
+	* coserver/coserver.c (coserver_send_request): Fixed memory
+	leak in the coserver hash when one of these died.
+
 2000-09-11  [ RAIMI ]  <raimi@lkcc.org>
 
 	* nut-server/gnutella.c (nut_connect_socket): `max-connections'
 	describes now how many overall connections we have (incoming
 	and outgoing).
 
-	* server-core.c (rechain_socket_list): listeners are kept at
-	the beginning of the socket chain. hopefully fixes problem
+	* server-core.c (rechain_socket_list): Listeners are kept at
+	the beginning of the socket chain. Hopefully fixes problem
 	with very fast connects (backlog too small).
 
 2000-09-10  [ Ela ]  <ela@lkcc.org>

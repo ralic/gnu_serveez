@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.21 2000/09/11 00:07:35 raimi Exp $
+ * $Id: server-core.c,v 1.22 2000/09/11 17:29:47 ela Exp $
  *
  */
 
@@ -273,57 +273,56 @@ validate_socket_list (void)
 /*
  * Rechain the socket list to prevent sockets from starving at the end
  * of this list. We will call it everytime when a select() or poll() has
- * returned.
+ * returned. Listeners are kept at the begiining of the chain anyway.
  */
 static void
 rechain_socket_list (void)
 {
   socket_t sock;
-  socket_t last_listener;
-  socket_t new_end;
+  socket_t last_listen;
+  socket_t end_socket;
 
   sock = socket_last;
   if (sock->prev)
     {
-      new_end = sock->prev;
-      for (last_listener = socket_root;
-	   last_listener &&
-	     last_listener != sock &&
-	     last_listener->flags & SOCK_FLAG_LISTENING;
-	   last_listener = last_listener->next) ;
+      end_socket = sock->prev;
+      for (last_listen = socket_root; last_listen && last_listen != sock && 
+	     last_listen->flags & SOCK_FLAG_LISTENING;
+	   last_listen = last_listen->next);
 
       /* just listeners in the list, return */
-      if (!last_listener)
+      if (!last_listen)
 	return;
 
-      /* sock is the only non-listener connected socket */
-      if (sock == last_listener)
+      /* sock is the only non-listenening (connected) socket */
+      if (sock == last_listen)
 	return;
 
-      /* one step back unless we are at the root */
-      if (last_listener->prev) {
-	last_listener = last_listener->prev;
+      /* one step back unless we are at the socket root */
+      if (last_listen->prev)
+	{
+	  last_listen = last_listen->prev;
 
-	/* put sock in front of chain behind listeners */
-	sock->next = last_listener->next;
-	sock->next->prev = sock;
+	  /* put sock in front of chain behind listeners */
+	  sock->next = last_listen->next;
+	  sock->next->prev = sock;
 
-	/* put sock behind last listener */
-	last_listener->next = sock;
-	sock->prev = last_listener;
-
-      } else {
-	/* enque at root */
-	sock->next = socket_root;
-	sock->prev = NULL;
-	sock->next->prev = sock;
-	socket_root = sock;
-
-      }
+	  /* put sock behind last listener */
+	  last_listen->next = sock;
+	  sock->prev = last_listen;
+	}
+      else 
+	{
+	  /* enqueue at root */
+	  sock->next = socket_root;
+	  sock->prev = NULL;
+	  sock->next->prev = sock;
+	  socket_root = sock;
+	}
       
-      /* mark new end of chain */
-      new_end->next = NULL;
-      socket_last = new_end;
+      /* mark the new end of chain */
+      end_socket->next = NULL;
+      socket_last = end_socket;
     }
 }
 
