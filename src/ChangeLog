@@ -1,3 +1,15 @@
+2001-11-20  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (guile_func_kicked_socket): New kicked-
+	socket wrapper.
+	(guile_sock_boundary): More verbose documentation about this.
+
+	* guile-api.c (guile_sock_connect): Also allow specifying
+	hostnames to connect to.  These get automatically resolved.
+	(svz:sock:kicked): New Guile procedure allowing to set the
+	kicked-socket callback.
+	(guile_api_init): Defined KICK_QUEUE and KICK_FLOOD.
+
 2001-11-19  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.h: New file.  Contains compatibility code.

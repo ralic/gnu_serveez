@@ -120,6 +120,7 @@ SVZ:SOCK:RECEIVE-BUFFER_DEFUN
 SVZ:SOCK:RECEIVE-BUFFER-REDUCE_DEFUN
 SVZ:SOCK:CONNECT_DEFUN
 SVZ:SOCK:DISCONNECTED_DEFUN
+SVZ:SOCK:KICKED_DEFUN
 SVZ:SOCK:DATA_DEFUN
 SVZ:SOCK:PARENT_DEFUN
 SVZ:SOCK:REFERRER_DEFUN
@@ -209,21 +210,63 @@ success you should return zero.  Otherwise the connection will be shutdown
 by Serveez.
 
 @item (info-server #<svz-server>)
-FIXME: WriteMe
+This callback gets executed when requested by the builtin
+@ref{Control Protocol Server}.  The callback is optional and can be setup
+inside @code{(define-servertype!)}.  The returned character string can be 
+multilined separated by @code{\r\n} (but without trailing separator).
+Usually you will return information about the server instance configuration
+and/or state.
 
 @item (info-client #<svz-server> #<svz-socket>)
-FIXME: WriteMe
+This callback is optional.  You can setup it in the 
+@code{(define-servertype!)} procedure.  It is meant to provide socket 
+structure (which is a client/child of the given server instance) specific
+information.  You need to return a single line character string without
+trailing newlines.  The provided information can be requested by the 
+builtin @ref{Control Protocol Server}.
 
 @item (notify #<svz-server>)
-FIXME: WriteMe
+The server instance notifier callback will be run whenever there is some 
+time left.  In fact it is run approximately once a second.  A server 
+instance can use it to perform periodical tasks.  The callback is also 
+optional and can be setup within @code{(define-servertype!)}.
 
 @item (handle-request #<svz-socket> #<svz-binary> size)
-FIXME: WriteMe
+Usually this callback gets executed by the @code{check-request} callback 
+when it detected a complete packet in the receive buffer.  The callback gets
+the packet data passed as a @code{#<svz-binary>}.  The @var{size} argument
+is passed for convenience specifying the length of the packet in bytes.
+There are two different return value meanings.  For connection oriented
+protocols (TCP and PIPE) zero indicates success and non-zero failure.  On 
+failure Serveez will shutdown the connection.  For packet oriented protocols
+(UDP and ICMP) a non-zero return value indicates that your server was able
+to process the passed packet data, otherwise (zero return value) the packet
+can be passed to other servers listening on the same port configuration.  
+This callback must be specified within @code{(define-servertype!)} for 
+packet oriented protocols (UDP and ICMP) and is optional otherwise.  You can
+modify the callback by calling @code{(svz:sock:handle-request)}.
 
 @item (check-request #<svz-socket>)
-FIXME: WriteMe
+This callback is run whenever new data arrived in the receive buffer.  The
+receive buffer of the given @code{#<svz-socket>} can be obtained by 
+@code{(svz:sock:receive-buffer)}.  The callback is initially not set and can
+be setup by @code{(svz:sock:check-request)}.  Its purpose is to check whether
+a complete request was received, and if it was, it should be handled (by
+running the @code{handle-request} callback) and removed from the receive 
+buffer.  This can be achieved using @code{(svz:sock:receive-buffer-reduce)}.
+The callback is for connection oriented protocols (TCP and PIPE) only.  You
+should return zero to indicate success and non-zero to indicate failure.  On
+failure Serveez shuts the connection down.
 
 @item (disconnected #<svz-socket>)
-FIXME: WriteMe
+The @code{disconnected} callback gets called whenever the socket is lost for
+some external reason and is going to be shutdown by Serveez.  It can be setup
+by @code{(svz:sock:disconnected)}.
 
+@item (kicked #<svz-socket> reason)
+This callback gets called whenever the socket gets closed by Serveez 
+intentionally.  It can be setup via @code{(svz:sock:kicked)}.  The 
+@var{reason} argument can be either @code{KICK_FLOOD} indicating the socket
+is a victim of the builtin flood protection or @code{KICK_QUEUE} which 
+indicates a send buffer overflow.
 @end table

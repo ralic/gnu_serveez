@@ -1,3 +1,8 @@
+2001-11-20  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.texi.in: Documented all implemented callbacks so 
+	far.  Removed all FIXME's.
+
 2001-11-16  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-doc-snarf.awk: Place a doc-snarfer comment in front

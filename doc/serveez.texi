@@ -893,27 +893,27 @@ server assigns the @code{handle_request} method.
 @item client info (optional)
 If this callback is given the control protocol 
 (@xref{Control Protocol Server}.) can give information about a specific
-client if requested with @samp{stat id NUM}. The first argument given
+client if requested with @samp{stat id NUM}.  The first argument given
 is the server instance and the second one the client's socket
-structure. You have to return a static single line character string.
+structure.  You have to return a static single line character string.
 
 @item server info (optional)
 This function is called when listing the server instances via 
 @samp{stat all} from the control protocol (@xref{Control Protocol Server}.). 
 The returned character string might be multilined separated by 
-@code{\r\n} (no trailing separator). Usually you will return all the 
+@code{\r\n} (no trailing separator).  Usually you will return all the 
 server configuration information.
 
 @item notifier (optional)
 If this callback is not @code{NULL} it is called whenever there is some time 
-left. It gets the server instance itself as argument. Actually it gets
+left.  It gets the server instance itself as argument.  Actually it gets
 called every second.
 
 @item handle request (mandatory for UDP and ICMP servers)
 The arguments to this callback are the client's socket structure, the 
-address of the packet data and its length. When implementing a UDP or
+address of the packet data and its length.  When implementing a UDP or
 ICMP server you need to return non-zero if your server could process the 
-packet. Thus it is possible that there are multiple UDP servers on a 
+packet.  Thus it is possible that there are multiple UDP servers on a 
 single port.
 @end table
 

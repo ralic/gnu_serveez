@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.9 2001/11/19 21:13:01 ela Exp $
+ * $Id: guile-api.c,v 1.10 2001/11/20 22:57:58 ela Exp $
  *
  */
 
@@ -29,6 +29,11 @@
 #if ENABLE_GUILE_SERVER
 
 #define _GNU_SOURCE
+
+#ifndef __MINGW32__
+# include <sys/socket.h>
+# include <netdb.h>
+#endif
 
 #if GUILE_SOURCE
 # include <libguile/gh.h>
@@ -45,12 +50,32 @@
     scm_out_of_range_pos (FUNC_NAME, (cell), (arg)); \
   } while (0)
 
-/* Establishes a network connection to the given @var{host} [:@var{port}].
+
+/* Converts the given hostname @var{host} into a Internet address in host
+   byte order and stores it into @var{addr}. Returns zero on success. This
+   is a blocking operation. */
+static int
+guile_resolve (char *host, unsigned long *addr)
+{
+  struct hostent *ent;
+
+  if ((ent = gethostbyname (host)) == NULL)
+    return -1;
+  if (ent->h_addrtype == AF_INET)
+    {
+      memcpy (addr, ent->h_addr_list[0], ent->h_length);
+      return 0;
+    }
+  return -1;
+}
+
+/* Establishes a network connection to the given @var{host} [ :@var{port} ].
    If @var{proto} equals @code{PROTO_ICMP} the @var{port} argument is
    ignored. Valid identifiers for @var{proto} are @code{PROTO_TCP},
    @code{PROTO_UDP} and @code{PROTO_ICMP}. The @var{host} argument must be 
-   either a string in dotted decimal form or a exact number in host byte 
-   order. The @var{port} argument must be a exact number in the range from 
+   either a string in dotted decimal form, a valid hostname or a exact number
+   in host byte order. When giving a hostname this operation might be
+   blocking. The @var{port} argument must be a exact number in the range from 
    0 to 65535, also in host byte order. Returns a valid @code{#<svz-socket>} 
    or @code{#f} on failure. */
 #define FUNC_NAME "svz:sock:connect"
@@ -79,13 +104,17 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
       str = guile_to_string (host);
       if (svz_inet_aton (str, &addr) == -1)
 	{
-	  guile_error ("%s: IP address in dotted decimals expected", 
-		       FUNC_NAME);
-	  scm_c_free (str);
-	  return ret;
+	  if (guile_resolve (str, &xhost) == -1)
+	    {
+	      guile_error ("%s: IP in dotted decimals or hostname expected", 
+			   FUNC_NAME);
+	      scm_c_free (str);
+	      return ret;
+	    }
 	}
+      else
+	xhost = addr.sin_addr.s_addr;
       scm_c_free (str);
-      xhost = addr.sin_addr.s_addr;
     }
 
   /* Extract protocol to use. */
@@ -461,6 +490,14 @@ guile_server_p (SCM server)
 MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
 #undef FUNC_NAME
 
+/* Sets the @code{kicked-socket} callback of the given socket structure
+   @var{sock} to the Guile procedure @var{proc} and returns any previously 
+   set procedure.  This callback gets called whenever the socket gets 
+   closed by Serveez intentionally.  */
+#define FUNC_NAME "svz:sock:kicked"
+MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
+#undef FUNC_NAME
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
@@ -468,6 +505,8 @@ guile_api_init (void)
   scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));
   scm_c_define ("PROTO_UDP", scm_int2num (PROTO_UDP));
   scm_c_define ("PROTO_ICMP", scm_int2num (PROTO_ICMP));
+  scm_c_define ("KICK_FLOOD", scm_int2num (0));
+  scm_c_define ("KICK_QUEUE", scm_int2num (1));
   scm_c_define_gsubr ("svz:sock:connect", 2, 1, 0, guile_sock_connect);
   scm_c_define_gsubr ("svz:htons", 1, 0, 0, guile_svz_htons);
   scm_c_define_gsubr ("svz:ntohs", 1, 0, 0, guile_svz_ntohs);
@@ -492,6 +531,7 @@ guile_api_init (void)
 		      1, 1, 0, guile_sock_local_address);
 
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected", disconnected_socket);
+  DEFINE_SOCK_CALLBACK ("svz:sock:kicked", kicked_socket);
 }
 
 /* Finalize the API functions. */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.35 2001/11/19 21:13:01 ela Exp $
+ * $Id: guile-server.c,v 1.36 2001/11/20 22:57:58 ela Exp $
  *
  */
 
@@ -551,6 +551,21 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   return retval;
 }
 
+/* Wrapper for the kicked socket callback. */
+static int
+guile_func_kicked_socket (svz_socket_t *sock, int reason)
+{
+  SCM ret, kicked = guile_sock_getfunction (sock, "kicked");
+
+  if (!SCM_UNBNDP (kicked))
+    {
+      ret = guile_call (kicked, 2, MAKE_SMOB (svz_socket, sock), 
+			scm_int2num (reason));
+      return guile_integer (SCM_ARGn, ret, -1);
+    }
+  return 0;
+}
+
 /* Wrapper function for the socket connection after successful detection. */
 static int
 guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
@@ -739,7 +754,11 @@ MAKE_SOCK_CALLBACK (check_request, "check-request")
 
 /* Setup the packet boundary of the socket @var{sock}. The given string value
    @var{boundary} can contain any kind of data. If you pass a exact number 
-   value the socket is setup to parse fixed sized packets. For instance you 
+   value the socket is setup to parse fixed sized packets. In fact this 
+   procedure sets the @code{check-request} callback of the given socket 
+   structure @var{sock} to a predefined routine which runs the 
+   @code{handle-request} callback of the same socket when it detected a 
+   complete packet specified by @var{boundary}. For instance you 
    can setup Serveez to pass your @code{handle-request} procedure text lines 
    by calling @code{(svz:sock:boundary sock "\\n")}. */
 #define FUNC_NAME "svz:sock:boundary"
