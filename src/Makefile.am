@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.17 2000/11/22 22:27:20 ela Exp $
+# $Id: Makefile.am,v 1.18 2000/11/23 01:15:27 ela Exp $
 #
 
 #
@@ -99,9 +99,9 @@ MAINTAINERCLEANFILES = Makefile.in
 # This rule is used when we build from a sizzle source distribution
 $(SIZZLERULE):
 	@echo ""
-	@echo "Building libsizzle.a from source distribution"
+	@echo "building libsizzle.a from source distribution"
 	@echo ""
-	(cd $(SIZZLEDIR)/libsizzle && $(MAKE))
+	(cd $(SIZZLEDIR)/libsizzle && $(MAKE) $(AM_MAKEFLAGS))
 
 distclean-local:
 	rm -f *\~ *.orig *.rej

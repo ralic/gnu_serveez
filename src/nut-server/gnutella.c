@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.25 2000/11/10 19:55:48 ela Exp $
+ * $Id: gnutella.c,v 1.26 2000/11/23 01:15:27 ela Exp $
  *
  */
 
@@ -886,7 +886,7 @@ nut_info_server (server_t *server)
 	   cfg->errors,
 	   hash_size (cfg->net),
 	   cfg->size / 1024, cfg->files, cfg->nodes,
-	   cfg->db_size / 1024, cfg->db_files,
+	   cfg->db_size / 1024 / 1024, cfg->db_files,
 	   cfg->dnloads, cfg->max_dnloads,
 	   cfg->uploads, cfg->max_uploads,
 	   hash_size (cfg->query));
