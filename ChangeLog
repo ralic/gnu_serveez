@@ -1,3 +1,8 @@
+2001-09-24  Stefan Jahn  <s.jahn@bit-side.com>
+
+	* redhat.sh.in: Added RPM command lines for version 3.0.0
+	and above.
+
 2001-09-17  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (MAKEINFO): Changed sed reg-expression for 

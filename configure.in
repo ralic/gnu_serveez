@@ -1259,10 +1259,12 @@ case "$version" in
   [3.* | [4-9].*)]
     AC_MSG_RESULT($version >= 3.0.0)
     RPM="rpm"
+    RPM3="yes"
   ;;
   [*)]
     AC_MSG_RESULT($version < 3.0.0)
     RPM="rpm"
+    RPM3="no"
   ;;
 esac
 else
@@ -1271,6 +1273,7 @@ fi
 unset version
 fi
 AC_SUBST(RPM)
+AC_SUBST(RPM3)
 
 LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS

@@ -20,6 +20,7 @@ specdir=$topdir/SPECS
 sourcedir=$topdir/SOURCES
 specfile=@PACKAGE@.spec
 rcfile=rcfile
+macrofile=~/.rpmmacros
 source=@PACKAGE@-@VERSION@.tar.gz
 
 # Step 1 - Create directory structure
@@ -81,15 +82,25 @@ fi
 %files
 EOF
 
-# Step 3 - Create user defined rcfile for RPM
+# Step 3 - Create user defined rcfile or macrofile for RPM
 
+if test "@RPM3@" = "yes" ; then
+cat <<EOF > $macrofile
+%_topdir @REDHAT_TOPDIR@
+EOF
+else
 cat <<EOF > $topdir/$rcfile
 topdir: @REDHAT_TOPDIR@
 EOF
+fi
 
 # Step 4 - Rebuild the package and install it
 
-(cd $specdir && @RPM@ --rcfile $topdir/$rcfile -bi $specfile)
+if test "@RPM3@" = "yes" ; then
+  (cd $specdir && @RPM@ -bi $specfile)
+else
+  (cd $specdir && @RPM@ --rcfile $topdir/$rcfile -bi $specfile)
+fi
 
 # Step 5 - Create the installed file list and append it to the spec file
 
@@ -99,7 +110,11 @@ find $installdir -type l >> $specdir/$specfile
 
 # Step 6 - Rerun RPM to the full build
 
-(cd $specdir && @RPM@ --rcfile $topdir/$rcfile -ba $specfile)
+if test "@RPM3@" = "yes" ; then
+  (cd $specdir && @RPM@ -ba $specfile)
+else
+  (cd $specdir && @RPM@ --rcfile $topdir/$rcfile -ba $specfile)
+fi
 
 # Step 7 - Save the RPM packages
 
@@ -110,4 +125,4 @@ cp -p `find $topdir/SRPMS/ -type f` .
 
 (cd $topdir && rm -rf BUILD RPMS SOURCES SPECS SRPMS RPMS/i386)
 su -c "rm -rf $installdir"
-rm -f $topdir/$rcfile
+rm -f $topdir/$rcfile $macrofile
