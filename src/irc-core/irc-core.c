@@ -102,7 +102,7 @@ irc_start_auth (socket_t sock)
   client->since = time (NULL);
 
   /* start here the nslookup and ident */
-#if ENABLE_REVERSE_LOOKUP
+#if ENABLE_REVERSE_LOOKUP_1
   addr = sock->remote_addr;
   sprintf (req, "%d:%d.%d.%d.%d\n", 
 	   sock->socket_id,
@@ -112,7 +112,7 @@ irc_start_auth (socket_t sock)
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
 #endif
       
-#if ENABLE_IDENT
+#if ENABLE_IDENT_1
   addr = sock->remote_addr;
   sprintf (req, "%d:%d.%d.%d.%d:%d:%d\n", 
 	   sock->socket_id,

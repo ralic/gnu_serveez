@@ -1,6 +1,8 @@
 /*
  * serveez.c - main module
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -17,6 +19,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: serveez.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -237,7 +242,7 @@ main (int argc, char * argv[])
   /*
    * DEBUG: show what servers we are able to run
    */
-#if ENABLE_DEBUG
+#if 0
   server_show_definitions();
 #endif
 
@@ -304,66 +309,69 @@ main (int argc, char * argv[])
 	     http_config.cgidir, http_config.cgiurl);
 #endif
 
+
 #ifdef __MINGW32__
-  if(net_startup())
-    {
+  if (!net_startup())
+    return 4;
 #endif /* __MINGW32__ */
+  
+  /* 
+   * Startup the internal coservers here.
+   */
+  if ( coserver_init () == -1 )
+    return 5;
 
-      /* 
-       * Startup the internal coservers here.
-       */
 #if ENABLE_REVERSE_LOOKUP
-      create_internal_coserver (COSERVER_REVERSE_DNS);
+  create_internal_coserver (COSERVER_REVERSE_DNS);
 #endif
 #if ENABLE_IDENT
-      create_internal_coserver (COSERVER_IDENT);
+  create_internal_coserver (COSERVER_IDENT);
 #endif
 #if ENABLE_DNS_LOOKUP
-      create_internal_coserver (COSERVER_DNS);
+  create_internal_coserver (COSERVER_DNS);
 #endif
 
       
-      /*
-       * Actually open the ports
-       */
-      if ( server_start() == -1 )
-	{
-	  /* Something went wrong and messages are displayed
-	   */
-	  return 4;
-	}
+  /*
+   * Actually open the ports
+   */
+  if ( server_start () == -1 )
+    return 6;
+  
 
-      
-/*       if((server = server_create(PROTO_TCP,  */
-/* 				 serveez_config.port))) */
-/* 	{ */
-/* 	  sock_enqueue(server); */
+     
 #if ENABLE_IRC_PROTO
-	  irc_init_config(&irc_config);
-	  irc_resolve_cline(&irc_config);
-	  irc_connect_servers();
+  irc_init_config(&irc_config);
+  irc_resolve_cline(&irc_config);
+  irc_connect_servers();
 #endif /* ENABLE_IRC_PROTO */
-	  sock_server_loop ();
-	  /*	} */
 
-      /*
-       * Disconnect the previously invoked internal coservers.
-       */
-      log_printf(LOG_NOTICE, "destroying internal coservers\n");
+  sock_server_loop ();
 
+  /*
+   * Disconnect the previously invoked internal coservers.
+   */
+  log_printf(LOG_NOTICE, "destroying internal coservers\n");
+  
 #if ENABLE_REVERSE_LOOKUP
-      destroy_internal_coservers (COSERVER_REVERSE_DNS);
+  destroy_internal_coservers (COSERVER_REVERSE_DNS);
 #endif
 #if ENABLE_IDENT
-      destroy_internal_coservers (COSERVER_IDENT);
+  destroy_internal_coservers (COSERVER_IDENT);
 #endif
 #if ENABLE_DNS_LOOKUP
-      destroy_internal_coservers (COSERVER_DNS);
+  destroy_internal_coservers (COSERVER_DNS);
 #endif
+
+  /*
+   * Run the finalizers
+   */
+  server_finalize_all ();
+  server_global_finalize ();
+  coserver_finalize ();
 
 #ifdef __MINGW32__
-      net_cleanup();
-    }
+  net_cleanup();
 #endif /* __MINGW32__ */
 
 #if ENABLE_HTTP_PROTO

@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: hash.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #ifndef __HASH_H__
@@ -55,7 +58,7 @@ typedef struct
   int size;
   hash_entry_t *entry;
 }
-hash_node_t;
+hash_bucket_t;
 
 /*
  * This structure keeps information on a specific hash table.
@@ -67,7 +70,7 @@ typedef struct
   int keys;                        /* number of stored keys */
   int (* equals) (char *, char *); /* key string equality callback */
   unsigned long (* code) (char *); /* hash code calculation callback */
-  hash_node_t *table;              /* hash table */
+  hash_bucket_t *table;            /* hash table */
 }
 hash_t;
 

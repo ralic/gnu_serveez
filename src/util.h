@@ -1,8 +1,9 @@
 /*
  * src/util.h - utility function interface
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,6 +19,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: util.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #ifndef __UTIL_H__
@@ -74,6 +78,9 @@ extern int os_version;
 void log_printf (int level, const char *format, ...);
 void set_log_file (FILE *file);
 int dump_request (FILE *out, char * action, int from, char * req, int len);
+char *utoa(unsigned int);
+char *util_inet_ntoa(unsigned long ip);
+
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) (*p + (*(p+1)<<8) + (*(p+2)<<16) + (*(p+3)<<24))

@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: hash.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -103,7 +106,7 @@ hash_create (int size)
   hash->equals = hash_key_equals;
 
   /* allocate space for the hash table and initialize it */
-  hash->table = xmalloc (sizeof (hash_node_t) * size);
+  hash->table = xmalloc (sizeof (hash_bucket_t) * size);
   for (n = 0; n < size; n++)
     {
       hash->table[n].size = 0;
@@ -122,7 +125,7 @@ void
 hash_destroy (hash_t *hash)
 {
   int n, e;
-  hash_node_t *node;
+  hash_bucket_t *node;
 
   for (n = 0; n < hash->nodes; n++)
     {
@@ -145,7 +148,7 @@ hash_destroy (hash_t *hash)
 void
 hash_clear (hash_t *hash)
 {
-  hash_node_t *node;
+  hash_bucket_t *node;
   int n, e;
 
   /* go through all nodes of the table and delete its entries */
@@ -165,7 +168,7 @@ hash_clear (hash_t *hash)
   hash->nodes = HASH_MIN_SIZE;
   hash->fill = 0;
   hash->keys = 0;
-  hash->table = xrealloc (hash->table, sizeof (hash_node_t) * hash->nodes);
+  hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->nodes);
 }
 
 /*
@@ -177,7 +180,7 @@ void
 hash_rehash (hash_t *hash, int type)
 {
   int n, e;
-  hash_node_t *node, *next_node;
+  hash_bucket_t *node, *next_node;
 
 #if 0
   hash_analyse (hash);
@@ -189,7 +192,7 @@ hash_rehash (hash_t *hash, int type)
        * Reallocate and initialize the hash table itself.
        */
       hash->nodes <<= 1;
-      hash->table = xrealloc (hash->table, sizeof (hash_node_t) * hash->nodes);
+      hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->nodes);
       for (n = hash->nodes >> 1; n < hash->nodes; n++)
 	{
 	  hash->table[n].size = 0;
@@ -256,7 +259,7 @@ hash_rehash (hash_t *hash, int type)
 	  xfree (node->entry);
 	  hash->fill--;
 	}
-      hash->table = xrealloc (hash->table, sizeof (hash_node_t) * hash->nodes);
+      hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->nodes);
     }
 
 #if 0
@@ -277,7 +280,7 @@ hash_put (hash_t *hash, char *key, void *value)
   char *p = key;
   int e;
   hash_entry_t *entry;
-  hash_node_t *node;
+  hash_bucket_t *node;
 
   code = hash->code (key);
 
@@ -327,7 +330,7 @@ hash_delete (hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
-  hash_node_t *node;
+  hash_bucket_t *node;
   void *value;
 
   code = hash->code (key);
@@ -374,7 +377,7 @@ hash_get (hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
-  hash_node_t *node;
+  hash_bucket_t *node;
 
   code = hash->code (key);
   node = &hash->table[HASH_NODE(code, hash)];
@@ -400,7 +403,7 @@ void **
 hash_values (hash_t *hash)
 {
   void **values;
-  hash_node_t *node;
+  hash_bucket_t *node;
   int n, e, keys;
 
   if (hash->keys == 0)
@@ -430,7 +433,7 @@ char **
 hash_keys (hash_t *hash)
 {
   char **values;
-  hash_node_t *node;
+  hash_bucket_t *node;
   int n, e, keys;
 
   if (hash->keys == 0)
@@ -476,7 +479,7 @@ hash_capacity (hash_t *hash)
 char *
 hash_contains (hash_t *hash, void *value)
 {
-  hash_node_t *node;
+  hash_bucket_t *node;
   int n, e;
 
   for (n=0; n<hash->nodes; n++)
@@ -498,7 +501,7 @@ hash_contains (hash_t *hash, void *value)
 void
 hash_analyse (hash_t *hash)
 {
-  hash_node_t *node;
+  hash_bucket_t *node;
   int n, e, nodes, depth, entries;
 
   for (entries = 0, depth = 0, nodes = 0, n = 0; n < hash->nodes; n++)

@@ -4,7 +4,8 @@
 #
 # Automake input file.
 #
-# Copyright (C) 2000 Ela & Raimi
+# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org> 
+# Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

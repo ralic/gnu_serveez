@@ -1,6 +1,7 @@
 /*
  * awcs-proto.c - aWCS protocol implementation
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -17,6 +18,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: awcs-proto.c,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -56,7 +60,7 @@
 portcfg_t awcs_port = 
 {
   PROTO_TCP,   /* prefered protocol type */
-  42420,       /* prefered port */
+  42424,       /* prefered port */
   ".aWCSrecv", /* inpipe */
   ".aWCSsend"  /* outpipe */
 };
@@ -75,7 +79,7 @@ awcs_config_t awcs_config =
 /*
  * Definition of the configuration items delivered by libsizzle.
  */
-struct name_value_pair awcs_config_prototype [] =
+key_value_pair_t awcs_config_prototype [] =
 {
   REGISTER_PORTCFG ("port", awcs_config.port, DEFAULTABLE),
   REGISTER_END ()
@@ -84,27 +88,20 @@ struct name_value_pair awcs_config_prototype [] =
 /*
  * The aWCS server definition.
  */
-struct serverdefinition awcs_serverdefinition =
+server_definition_t awcs_server_definition =
 {
   "aWCS server",         /* server description */
   "aWCS",                /* server prefix used in the config file "aWCS?" */
-  awcs_global_init,      /* global initialization */
+  NULL,                  /* global initialization */
   awcs_init,             /* server instance initialization */
   awcs_detect_proto,     /* protocol detection routine */
   awcs_connect_socket,   /* callback when detected */
+  awcs_finalize,         /* server instance finalization */
+  NULL,                  /* global finalization */
   &awcs_config,          /* the instance configuration */
   sizeof (awcs_config),  /* sizeof the instance configuration */
   awcs_config_prototype  /* configuration defintion for libsizzle */
 };
-
-/*
- * Global aWCS initialization. Nothing to to, yet !
- */
-int
-awcs_global_init (void)
-{
-  return 0;
-}
 
 /*
  * Local aWCS server instance initialization routine.
@@ -131,6 +128,97 @@ awcs_init (server_t *server)
 #endif
   return 0;
 }
+
+/*
+ * Local aWCS server instance finalizer.
+ */
+int
+awcs_finalize (server_t *server)
+{
+  awcs_config_t *cfg = server->cfg;
+
+  hash_destroy (cfg->clients);
+  
+  return 0;
+}
+
+#if ENABLE_REVERSE_LOOKUP
+/*
+ * Gets called when a nslookup coserver has resolved a IP address
+ * for socket SOCK to name and has been identified as an aWCS client.
+ */
+int
+awcs_nslookup_done (socket_t sock, char *name)
+{
+  awcs_config_t *cfg = sock->cfg;
+
+  if (!cfg->server)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "awcs_nslookup_done: no master server\n");
+#endif
+      return -1;
+    }
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "sending resolved ip to master\n");
+#endif
+
+  if (sock_printf (cfg->server, "%04d %d %04d %s%c",
+		   cfg->server->socket_id,
+		   STATUS_NSLOOKUP,
+		   sock->socket_id,
+		   name, '\0'))
+    {
+      log_printf (LOG_FATAL, "master write error\n");
+      sock_schedule_for_shutdown (cfg->server);
+      cfg->server = NULL;
+      awcs_disconnect_clients (cfg);
+      return -1;
+    }
+
+  return 0;
+}
+#endif
+
+#if ENABLE_IDENT
+/*
+ * Gets called when a ident coserver has resolved a IP address
+ * for socket SOCK to name and has been identified as an aWCS client.
+ */
+int
+awcs_ident_done (socket_t sock, char *name)
+{
+  awcs_config_t *cfg = sock->cfg;
+
+  if (!cfg->server)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "awcs_ident_done: no master server\n");
+#endif
+      return -1;
+    }
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "sending identified client to master\n");
+#endif
+
+  if (sock_printf (cfg->server, "%04d %d %04d %s%c",
+		   cfg->server->socket_id,
+		   STATUS_IDENT,
+		   sock->socket_id,
+		   name, '\0'))
+    {
+      log_printf (LOG_FATAL, "master write error\n");
+      sock_schedule_for_shutdown (cfg->server);
+      cfg->server = NULL;
+      awcs_disconnect_clients (cfg);
+      return -1;
+    }
+
+  return 0;
+}
+#endif
 
 /*
  * This is called when a valid aWCS client has been connected.
@@ -178,28 +266,14 @@ status_connected (socket_t sock)
    */
   if (sock != cfg->server)
     {
-#if defined(ENABLE_REVERSE_LOOKUP) || defined(ENABLE_IDENT)
-      char request[64];
-#endif
-
 #if ENABLE_REVERSE_LOOKUP
-      sprintf (request, "%d:%d.%d.%d.%d\n", 
-	       sock->socket_id,
-	       (addr >> 24) & 0xff, (addr >> 16) & 0xff,
-	       (addr >> 8) & 0xff, addr & 0xff);
-      send_coserver_request (COSERVER_REVERSE_DNS, request);
+      coserver_reverse (addr, (handle_coserver_result_t) awcs_nslookup_done,
+			sock);
 #endif
-
 #if ENABLE_IDENT
-      sprintf (request, "%d:%d.%d.%d.%d:%d:%d\n", 
-	       sock->socket_id,
-	       (addr >> 24) & 0xff, (addr >> 16) & 0xff,
-	       (addr >> 8) & 0xff, addr & 0xff,
-	       sock->remote_port,
-	       sock->local_port);
-      send_coserver_request (COSERVER_IDENT, request);
+      coserver_ident (sock, (handle_coserver_result_t) awcs_ident_done,
+			sock);
 #endif
-
     }
 
   return 0;
@@ -614,84 +688,6 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
     }
   return 0;
 }
-
-#if ENABLE_REVERSE_LOOKUP
-/*
- * Gets called when a nslookup coserver has resolved a IP address
- * for socket SOCK to name and has been identified as an aWCS client.
- */
-int
-awcs_nslookup_done (socket_t sock, char *name)
-{
-  awcs_config_t *cfg = sock->cfg;
-
-  if (!cfg->server)
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "awcs_nslookup_done: no master server\n");
-#endif
-      return -1;
-    }
-
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "sending resolved ip to master\n");
-#endif
-
-  if (sock_printf (cfg->server, "%04d %d %04d %s%c",
-		   cfg->server->socket_id,
-		   STATUS_NSLOOKUP,
-		   sock->socket_id,
-		   name, '\0'))
-    {
-      log_printf (LOG_FATAL, "master write error\n");
-      sock_schedule_for_shutdown (cfg->server);
-      cfg->server = NULL;
-      awcs_disconnect_clients (cfg);
-      return -1;
-    }
-
-  return 0;
-}
-#endif
-
-#if ENABLE_IDENT
-/*
- * Gets called when a ident coserver has resolved a IP address
- * for socket SOCK to name and has been identified as an aWCS client.
- */
-int
-awcs_ident_done (socket_t sock, char *name)
-{
-  awcs_config_t *cfg = sock->cfg;
-
-  if (!cfg->server)
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "awcs_ident_done: no master server\n");
-#endif
-      return -1;
-    }
-
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "sending identified client to master\n");
-#endif
-
-  if (sock_printf (cfg->server, "%04d %d %04d %s%c",
-		   cfg->server->socket_id,
-		   STATUS_IDENT,
-		   sock->socket_id,
-		   name, '\0'))
-    {
-      log_printf (LOG_FATAL, "master write error\n");
-      sock_schedule_for_shutdown (cfg->server);
-      cfg->server = NULL;
-      awcs_disconnect_clients (cfg);
-      return -1;
-    }
-
-  return 0;
-}
-#endif
 
 /*
  * Checks whether a complete request has been accumulated in socket

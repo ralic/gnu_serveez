@@ -1,6 +1,7 @@
 /*
  * awcs-proto.h - aWCS protocol declarations
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -17,6 +18,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: awcs-proto.h,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ *
  */
 
 #ifndef __AWCS_PROTO_H__
@@ -64,13 +68,13 @@ awcs_config_t;
 /*
  * The aWCS server definition. Exported to "server.h".
  */
-extern struct serverdefinition awcs_serverdefinition;
+extern server_definition_t awcs_server_definition;
 
 /*
- * aWCS server initialization routines.
+ * aWCS server initialization and finalization routines.
  */
-int awcs_global_init (void);
 int awcs_init (server_t *server);
+int awcs_finalize (server_t *server);
 
 /*
  * Exported aWCS server callbacks.

@@ -1,8 +1,9 @@
 /*
  * src/util.c - utility function implementation
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,6 +19,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: util.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -411,6 +415,35 @@ get_version(void)
 #endif
   return os;
 }
+
+/*
+ * Converts an unsigned integer to its string representation returning
+ * a pointer to an internal buffer, so copy the result
+ */
+char *
+utoa(unsigned int i)
+{
+  static char buffer[32];
+  snprintf (buffer, 32, "%u", i);
+  return buffer;
+}
+
+/*
+ * Converts the given ip address to the dotted decimal representation.
+ * The string is a statically allocated buffer, please copy result.
+ */
+char *
+util_inet_ntoa(unsigned long ip)
+{
+  static char buffer[16];
+  snprintf (buffer, 16, "%lu.%lu.%lu.%lu",
+	    (ip >> 24) & 0xff,
+	    (ip >> 16) & 0xff,
+	    (ip >> 8) & 0xff,
+	    ip & 0xff);
+  return buffer;
+}
+
 
 /* Runtime checkable flags for sizzle and code */
 

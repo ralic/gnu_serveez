@@ -2,6 +2,7 @@
  * foo-proto.c - Example server
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +18,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: foo-proto.c,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ *
  */
 
 #include <stdio.h>
@@ -27,6 +31,12 @@
 #include "foo-proto.h"
 #include "server.h"
 #include "server-socket.h"
+#include "coserver/coserver.h"
+
+/* Packet spec for default_check_request
+ */
+char *foo_packet_delim = "\r\n";
+int foo_packet_delim_len = 2;
 
 struct portcfg some_default_port = {
   PROTO_TCP,
@@ -73,7 +83,7 @@ struct foo_config mycfg =
 /*
  * Prototype of our configuration
  */
-struct name_value_pair foo_config_prototype[] = 
+struct key_value_pair foo_config_prototype[] = 
 {
   REGISTER_INT("bar", mycfg.bar, NOTDEFAULTABLE),
   REGISTER_STR("reply", mycfg.reply, DEFAULTABLE),
@@ -87,7 +97,7 @@ struct name_value_pair foo_config_prototype[] =
 /*
  * Definition of this server
  */
-struct serverdefinition foo_serverdefinition =
+struct server_definition foo_server_definition =
 {
   "Foo example server",
   "foo",
@@ -95,41 +105,41 @@ struct serverdefinition foo_serverdefinition =
   foo_init,
   foo_detect_proto,
   foo_connect_socket,
+  foo_finalize,
+  foo_global_finalize,
   &mycfg,
   sizeof(mycfg),
   foo_config_prototype
 };
 
-int foo_handle_request(socket_t sock, int len, struct foo_config* cfg)
+/* ************* Networking functions ************************* */
+
+/*
+ * This callback is used when a coserver asynchonously resolved the
+ * client's ip to a name
+ */
+int
+foo_handle_coserver_result (socket_t sock, char *hostent)
 {
+  sock_printf(sock, "You are `%s'\r\n", hostent);
+  return 0;
+}
+
+/*
+ * handle a single request as found by the default_check_request
+ */
+int foo_handle_request(socket_t sock, char *request, int len)
+{
+  struct foo_config *cfg = sock->cfg;
+
   return sock_printf (sock, "%s: %d\r\n", cfg->reply, len);
 }
 
-
-int
-foo_check_request(socket_t sock)
-{
-  /* One request is a line ending in \r\n
-   */
-  char *p = sock->recv_buffer;
-  int len;
-  struct foo_config *cfg = (struct foo_config*) sock->cfg;
-  int r = 0;
-
-  while (p < sock->recv_buffer + sock->recv_buffer_fill &&
-	 *p != '\n')
-    p++;
-
-  len = p - sock->recv_buffer;
-  if (*p == '\n') {
-    r = foo_handle_request(sock, len, cfg);
-    sock_reduce_recv(sock, len + 1);
-    
-  }
-
-  return r;
-}
-
+/*
+ * this callback gets called whenever some unknown client connects and
+ * sends some data. we check for some string that identifies the foo
+ * protocol
+ */
 int
 foo_detect_proto(void *cfg, socket_t sock)
 {
@@ -146,13 +156,27 @@ foo_detect_proto(void *cfg, socket_t sock)
   return 0;
 }
 
+/*
+ * our detect proto thinks that sock is a foo connection, so install
+ * the callbacks we need...
+ */
 int
 foo_connect_socket(void *acfg, socket_t sock)
 {
   struct foo_config *cfg = (struct foo_config *)acfg;
   int i;
   int r;
-  sock->check_request = foo_check_request;
+
+  /*
+   * we uses a default routine to split incoming data into packets
+   * (which happen to be lines)
+   */
+  sock->boundary = foo_packet_delim;
+  sock->boundary_size = foo_packet_delim_len;
+  sock->check_request = default_check_request;
+
+  sock->handle_request = foo_handle_request;
+
   log_printf(LOG_NOTICE, "Foo client detected\n");
   
   if (cfg->messages) {
@@ -164,9 +188,23 @@ foo_connect_socket(void *acfg, socket_t sock)
       }
   }
 
+  /*
+   * Ask a coserver to resolve the client's ip
+   */
+  sock_printf(sock, "Starting reverse lookup...\r\n");
+  coserver_reverse (sock->remote_addr,
+		    (handle_coserver_result_t)foo_handle_coserver_result,
+		    sock);
+  sock_printf(sock, "...waiting...\r\n");
   return 0;
 }
 
+/* ************************** Initialization ************************** */
+
+/*
+ * Called once of the foo server type. we use it to create the default
+ * hash.
+ */
 int
 foo_global_init(void)
 {
@@ -179,6 +217,42 @@ foo_global_init(void)
   return 0;
 }
 
+/*
+ * Called once for foo servers, free our default hash
+ */
+int
+foo_global_finalize(void)
+{
+  hash_destroy(some_default_hash);
+  return 0;
+}
+
+/*
+ * A single foo server instance gets destroyed. Free the hash
+ * unless it is the default hash...
+ */
+int
+foo_finalize(struct server *server)
+{
+  struct foo_config *c = (struct foo_config*)server->cfg;
+
+  log_printf(LOG_NOTICE, "Destroying %s\n", server->name);
+
+  /*
+   * Free our hash but be careful not to free it if was the
+   * default value...
+   */
+  if (*(c->assoc) != some_default_hash)
+    hash_destroy(*(c->assoc));
+  
+  return 0;
+}
+
+/*
+ * Initialsize a foo server instance. We use it here to print the
+ * whole configuration once
+ *
+ */
 int
 foo_init(struct server *server)
 {
@@ -232,6 +306,10 @@ foo_init(struct server *server)
     return -1;
   }
 
+
+  /*
+   * Bind this instance to the given port
+   */
   server_bind (server, c->port);
 
   return 0;

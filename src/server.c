@@ -1,7 +1,8 @@
 /*
  * src/server.c - Register your servers here
  *
- * Copyright (C) 2000 Raimi & Ela
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -17,6 +18,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: server.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #include <stdio.h>
@@ -36,9 +40,9 @@
 /*
  * The list of registered server. Feel free to add yours.
  */
-struct serverdefinition *all_server_definitions[] = {
-  &foo_serverdefinition,
-  &awcs_serverdefinition,
+struct server_definition *all_server_definitions[] = {
+  &foo_server_definition,
+  &awcs_server_definition,
   NULL
 };
 
@@ -59,7 +63,7 @@ static int set_stringarray (char*, char*, char*, char***, zzz_scm_t, char**);
 static int set_hash (char*, char*, char*, hash_t ***, zzz_scm_t,hash_t**);
 static int set_port (char*, char*, char*, struct portcfg **, zzz_scm_t,
 		     struct portcfg *);
-void * server_instantiate (char*, zzz_scm_t, struct serverdefinition*, char*);
+void * server_instantiate (char*, zzz_scm_t, struct server_definition*, char*);
 static void server_add(struct server *);
 
 /*
@@ -221,6 +225,9 @@ set_hash (char *cfgfile,
     return 0;
   }
 
+  /*
+   * Don't forget to free in instance finalizer
+   */
   h = hash_create(17);
 
   if ( !vector_p (val)) {
@@ -249,8 +256,11 @@ set_hash (char *cfgfile,
 	    continue;
 	  }
 
+	  /*
+	   * The hash keeps a copy of the key itself
+	   */
 	  hash_put (h,
-		    xpstrdup (string_val( car (car (foo)))),
+		    string_val( car (car (foo))),
 		    xpstrdup (string_val (cdr (car (foo)))));
 	}
     }
@@ -346,12 +356,12 @@ static int set_port (char *cfgfile,
 }
 
 /*
- * Instantiate a server, given a serverdefinition and a sizzle hash
+ * Instantiate a server, given a server_definition and a sizzle hash
  */
 void *
 server_instantiate(char *cfgfile,
 		   zzz_scm_t hash,
-		   struct serverdefinition *sd,
+		   struct server_definition *sd,
 		   char *varname)
 {
   char * newserver = NULL;
@@ -473,7 +483,7 @@ server_load_cfg(char *cfgfile)
   zzz_scm_t sym = NULL;
   zzz_scm_t symval = NULL;
   unsigned int i, j;
-  struct serverdefinition *sd;
+  struct server_definition *sd;
   void *newserver_cfg;
   struct server *newserver;
   int erroneous = 0;
@@ -506,12 +516,13 @@ server_load_cfg(char *cfgfile)
 		  if ( newserver_cfg != NULL )
 		    {
 		      newserver =
-			(struct server*) xmalloc (sizeof(struct server));
+			(struct server*) xpmalloc (sizeof(struct server));
 		      newserver->cfg = newserver_cfg;
 		      newserver->name = symname;
 		      newserver->detect_proto = sd->detect_proto;
 		      newserver->connect_socket = sd->connect_socket;
 		      newserver->init = sd->init;
+		      newserver->finalize = sd->finalize;
 
 		      server_add(newserver);
 		    } else {
@@ -529,7 +540,7 @@ server_load_cfg(char *cfgfile)
 }
 
 /*
- * Debug helper funtion to traverse serverdefinitions
+ * Debug helper funtion to traverse server_definitions
  */
 #if ENABLE_DEBUG
 void
@@ -538,7 +549,7 @@ server_show_definitions (void)
   int s, i, j;
   char *str = NULL;
   char **strarray = NULL;
-  struct serverdefinition *sd;
+  struct server_definition *sd;
 
 
   for (s = 0; all_server_definitions[s] != NULL; s++)
@@ -618,7 +629,7 @@ server_global_init(void)
 {
   int erroneous = 0;
   int i;
-  struct serverdefinition *sd;
+  struct server_definition *sd;
 
   log_printf(LOG_NOTICE, "Running global initialisers\n");
 
@@ -645,7 +656,7 @@ server_init_all(void)
   int errneous = 0;
   int i;
 
-  log_printf(LOG_NOTICE, "Initialising all server instances\n");
+  log_printf(LOG_NOTICE, "initialising all server instances\n");
   for( i = 0; i < server_instances; i++)
     {
       if ( servers[i]->init != NULL ) {
@@ -659,4 +670,43 @@ server_init_all(void)
     }
 
   return errneous;
+}
+
+/*
+ * run the global finalizers per serverdefinition
+ */
+int
+server_finalize_all(void)
+{
+  int i;
+
+  log_printf(LOG_NOTICE, "running all finalizers\n");
+
+  for( i = 0; i < server_instances; i++)
+    {
+      if ( servers[i]->finalize != NULL )
+	servers[i]->finalize(servers[i]);
+    }
+
+  return 0;
+}
+
+/*
+ * Run the local finalizers for all server instances
+ */
+int
+server_global_finalize(void)
+{
+  int i;
+  struct server_definition *sd;
+
+  log_printf(LOG_NOTICE, "running global finalizers\n");
+
+  for ( i = 0; NULL != (sd = all_server_definitions[i]); i++ )
+    {
+      if (sd->global_finalize != NULL)
+	sd->global_finalize();
+    }
+
+  return 0;
 }

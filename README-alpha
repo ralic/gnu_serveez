@@ -1,8 +1,8 @@
 -- 
 -- README-alpha
--- 
--- Readme-alpha file.
--- 
+--
+-- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
 -- This is free software; you can redistribute it and/or modify
@@ -27,14 +27,13 @@ Note that this is a distribution of an alpha version.  That means,
 that you have to be aware that the programs in this distribution may
 still have a lot of bugs.
 
-* Do not use software in this package for production systems! *
-
 Nevertheless, if you are interested in hacking or just reading the
 source code, keep going and give it a try.
 
 Further documentation may be found in the files README, INSTALL and in
 the directory doc.
 
-Happy hacking!
+Please note that due to changing APIs we may rely on a specific sizzle
+version. Check README to find out which version we want.
 
-      mgrabmue
+Happy hacking!

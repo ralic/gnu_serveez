@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: server-socket.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -352,7 +355,7 @@ server_create (portcfg_t *cfg)
 	}
     }
 
-  sock->check_request = default_check_request; 
+  sock->check_request = default_detect_proto; 
 
   /* 
    * Free the receive and send buffers not needed for TCP server

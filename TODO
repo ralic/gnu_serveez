@@ -25,6 +25,9 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- do something sensible when a coserver fails its job
+- ip address representation must be unsigned long everywhere
+- rechain socket list to avoid starving of chain end
 - convert all protocols to new scheme
 - support local sizzle installations ( sizzle-config )
 - local ip addresses for portcfg

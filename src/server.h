@@ -1,7 +1,8 @@
 /*
  * src/server.h - Generic server definitions
  *
- * Copyright (C) 2000 Raimi & Ela
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -17,6 +18,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: server.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #ifndef __SERVER_H__
@@ -33,6 +37,8 @@
 int server_load_cfg (char *cfgfile);
 int server_global_init(void);
 int server_init_all (void);
+int server_finalize_all (void);
+int server_global_finalize (void);
 #if ENABLE_DEBUG
 void server_show_definitions (void);
 #endif
@@ -46,12 +52,13 @@ void server_show_definitions (void);
  * Each server can have a an array of name-value-pairs specific for it.
  * Use macros at end ot this file for setting up
  */
-struct name_value_pair {
+typedef struct key_value_pair {
   int type;
   char *name;
   int defaultable;
   void *address;
-};
+}
+key_value_pair_t;
 
 
 /*
@@ -65,6 +72,7 @@ typedef struct server
   int (* init)(struct server *);             /* Init of instance*/
   int (* detect_proto) (void *, socket_t);   /* protocol detection */
   int (* connect_socket) (void *, socket_t); /* what to do if detected */ 
+  int (* finalize)(struct server *);         /* finalize this instance */
 }
 server_t;
 
@@ -88,23 +96,26 @@ portcfg_t;
 /*
  * Every server needs such a thing
  */
-struct serverdefinition {
+typedef struct server_definition {
   char *name;                                /* Descriptive name of server */
   char *varname;                             /* varprefix as used in cfg   */
 
-  int (* global_init)(void);                 /* Run once per server        */
-  int (* init)(struct server*);              /* 1x init collback           */
+  int (* global_init)(void);                 /* Run once per serverdef.    */
+  int (* init)(struct server*);              /* per instance callback      */
   int (* detect_proto)(void *, socket_t);    /* Protocol detector          */
   int (* connect_socket)(void *, socket_t);  /* For accepting a client     */
+  int (* finalize)(struct server*);          /* per instance               */
+  int (* global_finalize)(void);             /* per serverdef              */
 
   void *prototype_start;                     /* Start of example struct    */
   int  prototype_size;                       /* sizeof() the above         */
 
-  struct name_value_pair *items;             /* Array of name-value-pairs  */
+  struct key_value_pair *items;              /* Array of name-value-pairs  */
                                              /* of config items            */
-};
+}
+server_definition_t;
 
-extern struct serverdefinition *all_server_definitions[];
+extern struct server_definition *all_server_definitions[];
 extern int server_instances;
 extern struct server **servers;
 

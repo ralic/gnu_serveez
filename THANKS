@@ -1,8 +1,6 @@
 -- -*-text-*-
 -- THANKS
 -- 
--- Thanks file.
--- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 2, or (at your option)
@@ -19,15 +17,21 @@
 -- Boston, MA 02111-1307, USA.  
 --
 
-Here are listed all the hackers who helped me with this package.
+Here are listed all the hackers who helped creating this package:
 
-Raimund Jacob <raimi@cs.tu-berlin.de> for a patch that made the whole
+Martin Grabmueller <mgrabmue@cs.tu-berlin.de> for writing the initial
+	version and keep accepting bug report and patches.
+
+----------8<----- snip ------------------------------
+This is the initial THANKS file written by Martin Grabmueller:
+
+Raimund Jacob <raimi@lkcc.org> for a patch that made the whole
 	beast working and heavy debugging and testing.  Also for brave
 	diff'ing ela's and his patches.
 	Kudos for the Cygwin port go to both Raimi and Ela.
 	Thanks also for bugging me to keep this stuff up.
 	
-Stefan Jahn <stefan@linux.f1.fhtw-berlin.de> for debugging and trying
+Stefan Jahn <stefan@lkcc.org> for debugging and trying
 	this crap under cygwin.  Also for finding the weird accept()
 	bug and submitting a patch for it.
 	For speeding up request handling and bug hunting.

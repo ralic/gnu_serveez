@@ -1,8 +1,9 @@
 /*
  * serveez.h - serveez interface
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,6 +19,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: serveez.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #ifndef __SERVEEZ_H__

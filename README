@@ -1,8 +1,8 @@
 -- 
 -- README
 -- 
--- Readme file.
--- 
+-- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
 -- This is free software; you can redistribute it and/or modify
@@ -21,7 +21,11 @@
 -- Boston, MA 02111-1307, USA.  
 --
 
-This is the README file for this package.
+Requirements
+============
+
+serveez needs Martin Grabmueller's sizzle language. this version is known
+to work with sizzle-0.0.25.
 
 
 Installation
@@ -39,9 +43,10 @@ $ cd serveez-<version>
 Configure the source package for your system.
 We recommend to use --enable-opt unless you have a good reason not to do so.
 
-$ ./configure --enable-opt
+$ ./configure --enable-opt --with-sizzle=../sizzle-<version>
 
-Compile the package recursively.
+The latter option specifies the path to the sizzle source distribution.
+Now, compile the package:
 
 $ make
   
@@ -49,9 +54,8 @@ Install serveez.
 
 $ make install
 
-You must change to root privileges, if you want to install the
-package in the standard location /usr/local or in any location that is
-only writable by root.
+You must have root privileges if you want to install the package in the
+standard location /usr/local or in any location that is only writable by root.
 
 For further information on installing the package, please consult the
 file INSTALL, included in this distribution.
@@ -60,7 +64,11 @@ file INSTALL, included in this distribution.
 Getting the latest CVS snapshot
 ===============================
 
+You can always get the latest serveez version from our cvs repository.
+Please use an official release if you want to work with serveez. The cvs
+version might not even compile.
+
 cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
 
-you probably need to run
-$ sh autogen.sh
+The password is 'anoncvs'. Run sh autogen.sh and configure with appropriate
+options.

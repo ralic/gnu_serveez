@@ -1,8 +1,8 @@
 /*
  * socket.c - socket management implementation
  *
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,6 +18,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ *
+ * $Id: socket.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ *
  */
 
 #if HAVE_CONFIG_H
@@ -270,7 +273,7 @@ default_disconnect (socket_t sock)
  * client network socket.
  */
 int
-default_check_request (socket_t sock)
+default_detect_proto (socket_t sock)
 {
   int n;
   server_t *server;
@@ -313,10 +316,13 @@ default_check_request (socket_t sock)
  * explicitly with the packet length inclusive the packet boundary.
  */
 int
-default_check_packets (socket_t sock)
+default_check_request (socket_t sock)
 {
   int len = 0;
   char *p, *packet, *end;
+
+  assert (sock->boundary);
+  assert (sock->boundary_size);
 
   p = sock->recv_buffer;
   end = p + sock->recv_buffer_fill - sock->boundary_size + 1;
@@ -333,16 +339,14 @@ default_check_packets (socket_t sock)
         {
           p += sock->boundary_size;
           len += (p - packet);
-#if 0
-          log_printf (LOG_DEBUG, "socket = %d packetsize = %d\n%s\n", 
-		      sock->sock_desc, p - packet, packet);
-#endif
+
 	  /* Call the handle request callback. */
 	  if (sock->handle_request)
 	    {
 	      if (sock->handle_request (sock, packet, p - packet))
 		return -1;
 	    }
+	  packet = p;
         }
     }
   while (p < end);
@@ -383,6 +387,9 @@ sock_alloc (void)
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
 
+  sock->boundary = NULL;
+  sock->boundary_size = 0;
+
   sock->remote_port = 0;
   sock->remote_addr = 0;
   sock->remote_host = NULL;
@@ -392,7 +399,7 @@ sock_alloc (void)
 
   sock->read_socket = default_read;
   sock->write_socket = default_write;
-  sock->check_request = default_check_request;
+  sock->check_request = default_detect_proto;
   sock->disconnected_socket = default_disconnect;
   sock->handle_request = NULL;
   sock->kicked_socket = NULL;
@@ -451,7 +458,7 @@ sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
 }
 
 /*
- * Free the socket structure SOCK.  Return a non-zero value on error.
+ * Free the socket structure SOCK. Return a non-zero value on error.
  */
 int
 sock_free (socket_t sock)
@@ -460,8 +467,12 @@ sock_free (socket_t sock)
     xfree (sock->remote_host);
   if (sock->local_host)
     xfree (sock->local_host);
-  xfree(sock->recv_buffer);
-  xfree(sock->send_buffer);
+  if (sock->recv_buffer)
+    xfree(sock->recv_buffer);
+  if (sock->send_buffer)
+    xfree(sock->send_buffer);
+  if (sock->flags & SOCK_FLAG_LISTENING && sock->data)
+    xfree (sock->data);
   xfree(sock);
 
   return 0;

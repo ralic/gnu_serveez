@@ -1,8 +1,8 @@
 -- 
 -- NEWS
 -- 
--- news file.
--- 
+-- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
 -- This is free software; you can redistribute it and/or modify
@@ -22,6 +22,11 @@
 --
 
 This file lists user visible changes that were made between releases.
+
+Version 0.0.17
+--------------
+ * work in progress
+ * opened CVS repository
 
 Version 0.0.16
 --------------

@@ -153,7 +153,7 @@ irc_resolve_cline (irc_config_t *cfg)
       irc_parse_line (cline, "C:%s:%s:%s:%d:%d", 
 		      realhost, pass, host, &port, &class);
       
-#if ENABLE_DNS_LOOKUP
+#if ENABLE_DNS_LOOKUP_1
       sprintf (request, "%s\n", realhost);
       send_coserver_request (COSERVER_DNS, request);
 #endif
