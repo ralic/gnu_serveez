@@ -1,3 +1,11 @@
+2002-01-22  [ Ela ]  <ela@lkcc.org>
+
+	* portcfg.c (svz_portcfg_equal): Return sane return values and
+	consider device bindings.
+	(svz_portcfg_mkaddr): Also setup device bindings.
+	(svz_portcfg_text): Returns a simple text representation of a 
+	port configuration.
+
 2002-01-06  [ Ela ]  <ela@lkcc.org>
 
 	* interface.c (svz_interface_check): New function which 

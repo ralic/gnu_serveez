@@ -1,7 +1,7 @@
 /*
  * tunnel.c - port forward implementations
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.28 2001/12/07 20:37:15 ela Exp $
+ * $Id: tunnel.c,v 1.29 2002/01/22 20:27:00 ela Exp $
  *
  */
 
@@ -126,7 +126,7 @@ tnl_init (svz_server_t *server)
     }
 
   /* check identity of source and target port configurations */
-  if (svz_portcfg_equal (cfg->source, cfg->target) == 0)
+  if (svz_portcfg_equal (cfg->source, cfg->target) == PORTCFG_EQUAL)
     {
       svz_log (LOG_ERROR, "tunnel: source and target identical\n");
       return -1;

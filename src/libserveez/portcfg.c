@@ -1,7 +1,7 @@
 /*
  * portcfg.c - port configuration implementation
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.31 2001/12/15 13:33:38 ela Exp $
+ * $Id: portcfg.c,v 1.32 2002/01/22 20:27:00 ela Exp $
  *
  */
 
@@ -68,10 +68,11 @@ svz_portcfg_create (void)
 
 /*
  * Check if two given port configurations structures are equal i.e. 
- * specifying the same network port or pipe files. Returns zero (0) if 
- * @var{a} and @var{b} are identical, one (1) if the network address of
- * either port configuration contains the other (INADDR_ANY match) and 
- * otherwise -1.
+ * specifying the same network port or pipe files. Returns 
+ * @code{PORTCFG_EQUAL} if @var{a} and @var{b} are identical, 
+ * @code{PORTCFG_MATCH} if the network address ofeither port 
+ * configurations contains the other (INADDR_ANY match) and otherwise 
+ * @code{PORTCFG_NOMATCH} or possibly @code{PORTCFG_CONFLICT}.
  */
 int
 svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
@@ -92,29 +93,57 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 	case PROTO_TCP:
 	  if (a_addr->sin_port == b_addr->sin_port)
 	    {
+	      if ((a->flags & PORTCFG_FLAG_DEVICE) || 
+		  (b->flags & PORTCFG_FLAG_DEVICE))
+		{
+		  if ((a->flags & PORTCFG_FLAG_DEVICE) && 
+		      (b->flags & PORTCFG_FLAG_DEVICE))
+		    {
+		      if (!strcmp (svz_portcfg_device (a), 
+				   svz_portcfg_device (b)))
+			return PORTCFG_EQUAL;
+		      return PORTCFG_NOMATCH;
+		    }
+		  return PORTCFG_CONFLICT;
+		}
 	      if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
-		return 0;
-	      else if (a->flags & PORTCFG_FLAG_ANY ||
-		       b->flags & PORTCFG_FLAG_ANY)
-		return 1;
+		return PORTCFG_EQUAL;
+	      if (a->flags & PORTCFG_FLAG_ANY || b->flags & PORTCFG_FLAG_ANY)
+		return PORTCFG_MATCH;
 	    }
 	  break;
 	case PROTO_ICMP:
 	  if (a->icmp_type == b->icmp_type)
 	    {
+	      if ((a->flags & PORTCFG_FLAG_DEVICE) || 
+		  (b->flags & PORTCFG_FLAG_DEVICE))
+		{
+		  if ((a->flags & PORTCFG_FLAG_DEVICE) && 
+		      (b->flags & PORTCFG_FLAG_DEVICE) &&
+		      !strcmp (svz_portcfg_device (a), svz_portcfg_device (b)))
+		    return PORTCFG_EQUAL;
+		  return PORTCFG_CONFLICT;
+		}
 	      if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
-		return 0;
-	      else if (a->flags & PORTCFG_FLAG_ANY ||
-		       b->flags & PORTCFG_FLAG_ANY)
-		return 1;
+		return PORTCFG_EQUAL;
+	      if (a->flags & PORTCFG_FLAG_ANY || b->flags & PORTCFG_FLAG_ANY)
+		return PORTCFG_MATCH;
 	    }
 	  break;
 	case PROTO_RAW:
+	  if ((a->flags & PORTCFG_FLAG_DEVICE) || 
+	      (b->flags & PORTCFG_FLAG_DEVICE))
+	    {
+	      if ((a->flags & PORTCFG_FLAG_DEVICE) && 
+		  (b->flags & PORTCFG_FLAG_DEVICE) &&
+		  !strcmp (svz_portcfg_device (a), svz_portcfg_device (b)))
+		return PORTCFG_EQUAL;
+	      return PORTCFG_CONFLICT;
+	    }
 	  if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
-	    return 0;
-	  else if (a->flags & PORTCFG_FLAG_ANY ||
-		   b->flags & PORTCFG_FLAG_ANY)
-	    return 1;
+	    return PORTCFG_EQUAL;
+	  if (a->flags & PORTCFG_FLAG_ANY || b->flags & PORTCFG_FLAG_ANY)
+	    return PORTCFG_MATCH;
 	  break;
 	}
     }
@@ -125,11 +154,11 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
        */
       if (!strcmp (a->pipe_recv.name, b->pipe_recv.name) && 
 	  !strcmp (b->pipe_send.name, b->pipe_send.name))
-	return 1;
+	return PORTCFG_EQUAL;
     } 
 
   /* Do not even the same proto flag -> cannot be equal. */
-  return -1;
+  return PORTCFG_NOMATCH;
 }
 
 /*
@@ -235,7 +264,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
 
   /* Is this a network port configuration and should it be expanded ? */
   if ((addr = svz_portcfg_addr (this)) != NULL && 
-      this->flags & PORTCFG_FLAG_ALL)
+      (this->flags & PORTCFG_FLAG_ALL) && !(this->flags & PORTCFG_FLAG_DEVICE))
     {
       svz_interface_foreach (ifc, n)
 	{
@@ -481,7 +510,12 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	 determine the network port (if necessary) and put the ip address. */
     case PROTO_TCP:
       this->tcp_addr.sin_family = AF_INET;
-      if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
+      if (svz_portcfg_device (this))
+	{
+	  this->flags |= PORTCFG_FLAG_DEVICE;
+	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+	}
+      else if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
 	{
 	  this->flags |= PORTCFG_FLAG_ANY;
 	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
@@ -510,15 +544,20 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       break;
     case PROTO_UDP:
       this->udp_addr.sin_family = AF_INET;
-      if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
+      if (svz_portcfg_device (this))
+	{
+	  this->flags |= PORTCFG_FLAG_DEVICE;
+	  this->udp_addr.sin_addr.s_addr = INADDR_ANY;
+	}
+      else if (!strcmp (this->udp_ipaddr, PORTCFG_ANY))
 	{
 	  this->flags |= PORTCFG_FLAG_ANY;
-	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+	  this->udp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
       else if (!strcmp (this->tcp_ipaddr, PORTCFG_NOIP))
 	{
 	  this->flags |= PORTCFG_FLAG_ALL;
-	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+	  this->udp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
       else
 	{
@@ -532,20 +571,36 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       this->udp_addr.sin_port = htons (this->udp_port);
       break;
     case PROTO_ICMP:
-      err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);
-      if (err)
+      if (svz_portcfg_device (this))
 	{
-	  svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
-		   this->name, this->icmp_ipaddr);
+	  this->flags |= PORTCFG_FLAG_DEVICE;
+	  this->icmp_addr.sin_addr.s_addr = INADDR_ANY;
+	}
+      else
+	{
+	  err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);
+	  if (err)
+	    {
+	      svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+		       this->name, this->icmp_ipaddr);
+	    }
 	}
       this->icmp_addr.sin_family = AF_INET;
       break;
     case PROTO_RAW:
-      err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
-      if (err)
+      if (svz_portcfg_device (this))
 	{
-	  svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
-		   this->name, this->raw_ipaddr);
+	  this->flags |= PORTCFG_FLAG_DEVICE;
+	  this->raw_addr.sin_addr.s_addr = INADDR_ANY;
+	}
+      else
+	{      
+	  err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
+	  if (err)
+	    {
+	      svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+		       this->name, this->raw_ipaddr);
+	    }
 	}
       this->raw_addr.sin_family = AF_INET;
       break;
@@ -613,6 +668,69 @@ svz_portcfg_prepare (svz_portcfg_t *port)
       /* FIXME: sane value is ? */
       port->connect_freq = 100;
     }
+}
+
+/*
+ * Helper function for the below routine. Converts a Internet network 
+ * address or the appropiate device into a text representation.
+ */
+static char *
+svz_portcfg_addr_text (svz_portcfg_t *port, struct sockaddr_in *addr)
+{
+  if (port->flags & PORTCFG_FLAG_DEVICE)
+    return svz_portcfg_device (port);
+  else if (port->flags & PORTCFG_FLAG_ANY)
+    return "*";
+  return svz_inet_ntoa (addr->sin_addr.s_addr);
+}
+
+/*
+ * This function returns a simple text representation of the given port
+ * configuration @var{port}. The returned character string is statically
+ * allocated. Thus you cannot use it twice in argument lists.
+ */
+char *
+svz_portcfg_text (svz_portcfg_t *port)
+{
+  static char text[128];
+  struct sockaddr_in *addr;
+
+  /* Wipe the text. */
+  text[0] = '\0';
+
+  /* TCP and UDP */ 
+  if (port->proto & (PROTO_TCP | PROTO_UDP))
+    {
+      addr = svz_portcfg_addr (port);
+      strcat (text, (port->proto & PROTO_TCP) ? "TCP [" : "UDP [");
+      strcat (text, svz_portcfg_addr_text (port, addr));
+      strcat (text, ":");
+      strcat (text, svz_itoa (ntohs (addr->sin_port)));
+      strcat (text, "]");
+    }
+  /* RAW and ICMP */
+  else if (port->proto & (PROTO_RAW | PROTO_ICMP))
+    {
+      addr = svz_portcfg_addr (port);
+      strcat (text, (port->proto & PROTO_RAW) ? "RAW [" : "ICMP [");
+      strcat (text, svz_portcfg_addr_text (port, addr));
+      if (port->proto & PROTO_ICMP)
+	{
+	  strcat (text, "/");
+	  strcat (text, svz_itoa (port->icmp_type));
+	}
+      strcat (text, "]");
+    }
+  /* PIPE */
+  else if (port->proto & PROTO_PIPE)
+    {
+      strcat (text, "PIPE [");
+      strcat (text, port->pipe_recv.name);
+      strcat (text, "]-[");
+      strcat (text, port->pipe_send.name);
+      strcat (text, "]");
+    }
+  return text;
 }
 
 /*

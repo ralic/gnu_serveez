@@ -1,7 +1,7 @@
 /*
  * portcfg.h - port configuration interface
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.19 2001/12/15 02:47:38 ela Exp $
+ * $Id: portcfg.h,v 1.20 2002/01/22 20:27:00 ela Exp $
  *
  */
 
@@ -78,6 +78,12 @@
 #define PORTCFG_FLAG_ANY    0x0001
 #define PORTCFG_FLAG_ALL    0x0002
 #define PORTCFG_FLAG_DEVICE 0x0004
+
+/* Return values for port configuration comparisons. */
+#define PORTCFG_NOMATCH  0x0001
+#define PORTCFG_EQUAL    0x0002
+#define PORTCFG_MATCH    0x0004
+#define PORTCFG_CONFLICT 0x0008
 
 /*
  * Definition of a single port configuration reflecting either a network
@@ -247,6 +253,7 @@ SERVEEZ_API void svz_portcfg_finalize __PARAMS ((void));
 SERVEEZ_API int svz_portcfg_mkaddr __PARAMS ((svz_portcfg_t *));
 SERVEEZ_API void svz_portcfg_prepare __PARAMS ((svz_portcfg_t *));
 SERVEEZ_API void svz_portcfg_print __PARAMS ((svz_portcfg_t *, FILE *));
+SERVEEZ_API char *svz_portcfg_text __PARAMS ((svz_portcfg_t *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_dup __PARAMS ((svz_portcfg_t *));
 SERVEEZ_API svz_array_t *svz_portcfg_expand __PARAMS ((svz_portcfg_t *));
 SERVEEZ_API int svz_portcfg_set_ipaddr __PARAMS ((svz_portcfg_t *, char *));

@@ -1,7 +1,7 @@
 /*
  * binding.c - server to port binding implementation
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.19 2002/01/20 22:08:09 raimi Exp $
+ * $Id: binding.c,v 1.20 2002/01/22 20:27:00 ela Exp $
  *
  */
 
@@ -59,7 +59,6 @@ svz_server_bindings (svz_server_t *server)
   static char text[256];
   svz_socket_t *sock;
   struct sockaddr_in *addr;
-  svz_portcfg_t *port;
   svz_binding_t *binding;
 
   /* Clear text. */
@@ -72,32 +71,7 @@ svz_server_bindings (svz_server_t *server)
       if ((binding = svz_binding_find (sock, server, NULL)) != NULL)
 	{
 	  /* Yes. Get port configuration. */
-	  port = binding->port;
-
-	  /* TCP and UDP */ 
-	  if (port->proto & (PROTO_TCP | PROTO_UDP))
-	    {
-	      addr = svz_portcfg_addr (port);
-	      strcat (text, (port->proto & PROTO_TCP) ? "TCP:" : "UDP:");
-	      strcat (text, svz_inet_ntoa (addr->sin_addr.s_addr));
-	      strcat (text, ":");
-	      strcat (text, svz_itoa (ntohs (addr->sin_port)));
-	    }
-	  /* RAW and ICMP */
-	  else if (port->proto & (PROTO_RAW | PROTO_ICMP))
-	    {
-	      addr = svz_portcfg_addr (port);
-	      strcat (text, (port->proto & PROTO_RAW) ? "RAW:" : "ICMP:");
-	      strcat (text, svz_inet_ntoa (addr->sin_addr.s_addr));
-	    }
-	  /* PIPE */
-	  else if (port->proto & PROTO_PIPE)
-	    {
-	      strcat (text, "PIPE:");
-	      strcat (text, port->pipe_recv.name);
-	      strcat (text, "<--->");
-	      strcat (text, port->pipe_send.name);
-	    }
+	  strcat (text, svz_portcfg_text (binding->port));
 
 	  /* Append a white space. */
 	  strcat (text, " ");
@@ -176,7 +150,7 @@ svz_sock_find_portcfg (svz_portcfg_t *port)
   svz_socket_t *sock;
   
   svz_sock_foreach_listener (sock)
-    if (svz_portcfg_equal (sock->port, port) >= 0)
+    if (svz_portcfg_equal (sock->port, port) & (PORTCFG_EQUAL | PORTCFG_MATCH))
       return sock;
   return NULL;
 }
@@ -195,7 +169,7 @@ svz_sock_find_portcfgs (svz_portcfg_t *port)
   svz_socket_t *sock;
   
   svz_sock_foreach_listener (sock)
-    if (svz_portcfg_equal (sock->port, port) >= 0)
+    if (svz_portcfg_equal (sock->port, port) & (PORTCFG_EQUAL | PORTCFG_MATCH))
       svz_array_add (listeners, sock);
   return svz_array_destroy_zero (listeners);
 }
@@ -272,6 +246,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 
 	      /* Join the bindings of the previous listeners and destroy
 		 these at once. */
+	      svz_log (LOG_NOTICE, "destroying previous bindings\n");
 	      svz_array_foreach (sockets, xsock, i)
 		{
 		  bindings = svz_binding_join (bindings, xsock);
@@ -284,6 +259,10 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 		{
 		  sock->data = bindings;
 		  svz_sock_add_server (sock, server, copy);
+		}
+	      else
+		{
+		  svz_array_destroy (bindings);
 		}
 	    }
 	  /* No. This is either a specific network interface or both have
@@ -364,21 +343,20 @@ svz_binding_destroy (svz_binding_t *binding)
 }
 
 /*
- * This function checks whether the server instance @var{server} is part of
- * one of the bindings in the array @var{bindings} and returns non-zero if 
- * so. Otherwise zero is returned.
+ * This function checks whether the server instance binding @var{binding}
+ * is part of one of the bindings in the array @var{bindings} and returns 
+ * non-zero if so. Otherwise zero is returned.
  */
 int
-svz_binding_contains (svz_array_t *bindings, svz_server_t *server)
+svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
 {
   svz_binding_t *search;
   unsigned long i;
 
-  /* FIXME: Make any/all binding possible.  Put *all* servers into *any*
-     binding. */
   svz_array_foreach (bindings, search, i)
-    if (search->server == server)
-      return 1;
+    if (search->server == binding->server)
+      if (svz_portcfg_equal (search->port, binding->port) == PORTCFG_EQUAL)
+	return 1;
   return 0;
 }
 
@@ -406,10 +384,11 @@ svz_binding_join (svz_array_t *bindings, svz_socket_t *sock)
 
   /* Join both arrays. */
   svz_array_foreach (old, binding, i)
-    if (!svz_binding_contains (bindings, binding->server))
+    if (!svz_binding_contains (bindings, binding))
       {
-	svz_array_add (bindings, binding);
-	svz_array_set (old, i, NULL);
+	svz_server_t *server = binding->server;
+	svz_portcfg_t *port = svz_portcfg_dup (binding->port);
+	svz_array_add (bindings, svz_binding_create (server, port));
       }
 
   /* Destroy the old bindings. */
@@ -470,7 +449,7 @@ svz_sock_add_server (svz_socket_t *sock,
       return 0;
     }
   /* Binding already done. */
-  svz_free (binding);
+  svz_binding_destroy (binding);
   return -1;
 }
 
@@ -565,18 +544,23 @@ svz_binding_filter_net (svz_socket_t *sock,
   svz_array_foreach (bindings, binding, i)
     {
       portaddr = svz_portcfg_addr (binding->port);
+#if DEVEL
       printf ("portaddr: %s == ", svz_inet_ntoa (portaddr->sin_addr.s_addr));
       printf ("%s\n", svz_inet_ntoa (addr));
       printf ("port: %u == %u\n", ntohs (portaddr->sin_port), ntohs (port));
+#endif
       if (portaddr->sin_addr.s_addr == addr ||
-	  binding->port->flags & 
-	  (PORTCFG_FLAG_ANY | PORTCFG_FLAG_DEVICE)) 
+	  binding->port->flags & (PORTCFG_FLAG_ANY | PORTCFG_FLAG_DEVICE)) 
 	{
+#if DEVEL
 	  printf ("addr ok\n");
+#endif
 	  if (binding->port->proto & (PROTO_RAW | PROTO_ICMP) || 
 	      portaddr->sin_port == port) 
-	    { 
+	    {
+#if DEVEL
 	      printf ("port ok\n");
+#endif
 	      svz_array_add (filter, binding);
 	    }
 	}

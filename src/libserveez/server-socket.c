@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.25 2002/01/20 22:08:09 raimi Exp $
+ * $Id: server-socket.c,v 1.26 2002/01/22 20:27:00 ela Exp $
  *
  */
 
@@ -153,7 +153,6 @@ svz_server_create (svz_portcfg_t *port)
 	      return NULL;
 	    }
 	  memset (&addr->sin_addr, 0, sizeof (&addr->sin_addr));
-	  port->flags |= PORTCFG_FLAG_DEVICE;
 	}
 #endif /* SO_BINDTODEVICE */
 
@@ -223,16 +222,13 @@ svz_server_create (svz_portcfg_t *port)
 	  svz_sock_free (sock);
 	  return NULL;
 	}
-      svz_log (LOG_NOTICE, "listening on pipe %s\n", sock->recv_pipe);
+      svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port));
     }
   else
     {
-      char *proto = "unknown";
-
       if (port->proto & PROTO_TCP)
 	{
 	  sock->read_socket = svz_tcp_accept;
-	  proto = "tcp";
 	}
       else if (port->proto & PROTO_UDP)
 	{
@@ -240,7 +236,6 @@ svz_server_create (svz_portcfg_t *port)
 	  sock->read_socket = svz_udp_lazy_read_socket;
 	  sock->write_socket = svz_udp_write_socket;
 	  sock->check_request = svz_udp_check_request;
-	  proto = "udp";
 	}
       else if (port->proto & PROTO_ICMP)
 	{
@@ -249,19 +244,9 @@ svz_server_create (svz_portcfg_t *port)
 	  sock->write_socket = svz_icmp_write_socket;
 	  sock->check_request = svz_icmp_check_request;
 	  sock->itype = port->icmp_type;
-	  proto = "icmp";
 	}
 
-      addr = svz_portcfg_addr (port);
-      if (port->proto & (PROTO_TCP | PROTO_UDP))
-	svz_log (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
-		 addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-		 svz_inet_ntoa (addr->sin_addr.s_addr),
-		 ntohs (addr->sin_port));
-      else
-	svz_log (LOG_NOTICE, "listening on %s port %s\n", proto,
-		 addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-		 svz_inet_ntoa (addr->sin_addr.s_addr));
+      svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port));
     }
   return sock;
 }

@@ -346,19 +346,20 @@ configurations. You start to define such a port using the Guile function
 name of the port configuration. The remaining argument describes the
 port in detail.
 
-A note on device bindings: Device bindings are based on the SO_BINDTODEVICE
-socket option. This option is not available on all systems. We only tested
-it on GNU/Linux (2.4.17 as of this writing). Device bindings are very
-restrictive: only root can do it and only physical devices are possible.
-The loopback device cannot be used and no interface alias (i.e. "eth0:0").
-We consider this a bug. A device binding can only be reached from the
-physical outside. The connection has to be made from a remote machine. The
-advantage of this kind of binding is that it survives changes of IP adresses.
-If you bound to an interface and bring it down you can bring it up with
-a different IP address without serveez even noticing. This is useful when
-binding to devices with changing adresses, for example dial up connections
-(e.g. ppp0, ippp0). However, this is still untested. If you want to try:
-use the @var{device} property of a port configuration. This feature is not
+A note on device bindings: Device bindings are based on the 
+@code{SO_BINDTODEVICE} socket layer option.  This option is not available 
+on all systems. We only tested it on GNU/Linux (2.4.17 as of this 
+writing).  Device bindings are very restrictive: only root can do it and 
+only physical devices are possible.  The loopback device cannot be used 
+and no interface alias (i.e. "eth0:0").  We consider this a bug.  A 
+device binding can only be reached from the physical outside.  The 
+connection has to be made from a remote machine.  The advantage of this 
+kind of binding is that it survives changes of IP addresses.  If you 
+bound to an interface and bring it down you can bring it up with a 
+different IP address without Serveez even noticing.  This is useful when
+binding to devices with changing addresses, for example dial up connections
+(e.g. ppp0, ippp0).  However, this is still untested.  If you want to try:
+use the @var{device} property of a port configuration.  This feature is not
 thoroughly tested.
 
 @subsubsection TCP port definition
