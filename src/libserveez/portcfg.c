@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.4 2001/04/13 22:17:42 raimi Exp $
+ * $Id: portcfg.c,v 1.5 2001/04/18 13:58:05 ela Exp $
  *
  */
 
@@ -146,7 +146,8 @@ svz_portcfg_del (char *name)
 }
 
 /*
- * 
+ * This function makes the given port configuration @var{port} completely 
+ * unusable. 
  */
 void
 svz_portcfg_destroy (svz_portcfg_t *port)
@@ -178,6 +179,7 @@ svz_portcfg_destroy (svz_portcfg_t *port)
       svz_free_and_zero (port->pipe_send.group);
       break;
     }
+
   /* FIXME: What about the values ? */
   svz_array_destroy (port->deny);
   svz_array_destroy (port->allow);
@@ -249,40 +251,39 @@ svz_portcfg_print (svz_portcfg_t *this, FILE *stream)
 {
   if (NULL == this)
     {
-      fprintf (stream, "Portcfg NULL!\n");
+      fprintf (stream, "portcfg is NULL !\n");
       return;
     }
 
   switch (this->proto)
     {
     case PROTO_TCP:
-      fprintf (stream, "Portcfg `%s': TCP (%s|%s):%d\n", this->name,
+      fprintf (stream, "portcfg `%s': TCP (%s|%s):%d\n", this->name,
 	       this->tcp_ipaddr,
 	       svz_inet_ntoa (this->tcp_addr.sin_addr.s_addr),
 	       this->tcp_port);
       break;
     case PROTO_UDP:
-      fprintf (stream, "Portcfg `%s': UDP (%s|%s):%d\n", this->name,
+      fprintf (stream, "portcfg `%s': UDP (%s|%s):%d\n", this->name,
 	       this->udp_ipaddr,
 	       svz_inet_ntoa (this->udp_addr.sin_addr.s_addr),
 	       this->udp_port);
       break;
     case PROTO_ICMP:
-      fprintf (stream, "Portcfg `%s': ICMP (%s|%s)\n", this->name,
+      fprintf (stream, "portcfg `%s': ICMP (%s|%s)\n", this->name,
 	       this->icmp_ipaddr,
 	       svz_inet_ntoa (this->icmp_addr.sin_addr.s_addr));
       break;
     case PROTO_RAW:
-      fprintf (stream, "Portcfg `%s': RAW (%s|%s)\n", this->name,
+      fprintf (stream, "portcfg `%s': RAW (%s|%s)\n", this->name,
 	       this->raw_ipaddr,
 	       svz_inet_ntoa (this->raw_addr.sin_addr.s_addr));
       break;
     case PROTO_PIPE:
       /* FIXME: implement me */
-      fprintf (stream, "Portcfg `%s': PIPE but unimplemented\n", this->name);
+      fprintf (stream, "portcfg `%s': PIPE but unimplemented\n", this->name);
       break;
     default:
-      fprintf (stream, "Portcfg with invalid proto field %d\n", this->proto);
+      fprintf (stream, "portcfg with invalid proto field %d\n", this->proto);
     }
-
 }

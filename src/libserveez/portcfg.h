@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.4 2001/04/13 22:17:42 raimi Exp $
+ * $Id: portcfg.h,v 1.5 2001/04/18 13:58:05 ela Exp $
  *
  */
 
@@ -49,6 +49,8 @@
 #define PORTCFG_PIPE    "pipe"
 #define PORTCFG_IP      "ipaddr"
 #define PORTCFG_NOIP    "*"
+#define PORTCFG_BACKLOG "backlog"
+#define PORTCFG_TYPE    "type"
 
 /*
  * Definition of a single port configuration reflecting either a network

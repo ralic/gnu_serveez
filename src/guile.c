@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.6 2001/04/13 22:17:42 raimi Exp $
+ * $Id: guile.c,v 1.7 2001/04/18 13:58:05 ela Exp $
  *
  */
 
@@ -39,15 +39,15 @@
 
 /*
  * What is an 'optionhash' ?
- * We build up that data structure from a scheme pairlist. The pairlist has to
- * be an alist: a key => value mapping.
- * We read that mapping and construct a svz_hash_t from it. The values of
- * that hash are value_t struct*.
- * The value_t struct contains a 'defined' field which counts the number of
- * occurences of the key. Use validate_optionhash to make sure it is 1 for
- * each key.
- * The 'use' field is to make sure that each key was needed exactly once.
- * Use validate_optionhash again to find out which ones were not needed.
+ * We build up that data structure from a scheme pairlist. The pairlist has 
+ * to be an alist which is a key => value mapping. We read that mapping and 
+ * construct a @code{svz_hash_t} from it. The values of this hash are 
+ * pointers to @code{value_t} structures. The @code{value_t} structure 
+ * contains a @code{defined} field which counts the number of occurences of 
+ * the key. Use @code{validate_optionhash} to make sure it is 1 for each key.
+ * The @code{use} field is to make sure that each key was needed exactly once.
+ * Use @code{validate_optionhash} again to find out which ones were not 
+ * needed.
  */
 
 /*
@@ -56,19 +56,19 @@
 typedef struct
 {
   SCM value;     /* the scheme value itself, invalid when defined != 1 */
-  int defined;   /* the number of definitions. 1 to be valid */
-  int use;       /* how often was it looked up in the hash. 1 to be valid */
-} value_t;
-
+  int defined;   /* the number of definitions, 1 to be valid */
+  int use;       /* how often was it looked up in the hash, 1 to be valid */
+}
+value_t;
 
 /*
- * create a new value_t with the given value. initializes use to 0.
- * define-counter is set to 1.
+ * Create a new value_t structure with the given @var{value}. Initializes 
+ * use to zero. The define counter is set to 1.
  */
 static value_t *
 new_value_t (SCM value)
 {
-  value_t *v = (value_t*) svz_malloc (sizeof (value_t));
+  value_t *v = (value_t *) svz_malloc (sizeof (value_t));
   v->value = value;
   v->defined = 1;
   v->use = 0;
@@ -102,8 +102,8 @@ report_error (const char* format, ...)
 /* ********************************************************************** */
 
 /*
- * converts SCM to char * no matter if it is String or Symbol. returns NULL
- * when it was neither. new string must be explicitly freed.
+ * Converts SCM to char * no matter if it is string or symbol. Returns NULL
+ * when it was neither. New string must be explicitly free()d.
  */
 #define guile2str(scm) \
   (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) : \
@@ -113,22 +113,22 @@ report_error (const char* format, ...)
 /* ********************************************************************** */
 
 /*
- * validate the values of the optionhhash:
- * what = 0: check if all 'use' fields are 1
- * what = 1: check if all 'defined' fields are 1
- * type    : what kind of thing the optionhash belongs to
- * name    : current variable name
- * returns number of errors
+ * Validate the values of an option-hash. Returns the number of errors.
+ * what = 0 : check if all 'use' fields are 1
+ * what = 1 : check if all 'defined' fields are 1
+ * type     : what kind of thing the option-hash belongs to
+ * name     : current variable name
  */
 static int
 validate_optionhash (svz_hash_t *hash, int what, char *type, char *name)
 {
-  int errors = 0;
-  char **keys; int i;
+  int errors = 0, i;
+  char **keys;
+
   svz_hash_foreach_key (hash, keys, i)
     {
       char *key = keys[i];
-      value_t *value = (value_t*) svz_hash_get (hash, key);
+      value_t *value = (value_t *) svz_hash_get (hash, key);
 
       if (what)
 	{
@@ -148,35 +148,32 @@ validate_optionhash (svz_hash_t *hash, int what, char *type, char *name)
 			   key, type, name);
 	    }
 	}
-
     }
 
   return errors;
 }
 
-
 /*
- * get from an optionhash and increment the 'use' field.
- * returns SCM_UNSPECIFIED when key was not found.
+ * Get a scheme value from an option-hash and increment its 'use' field.
+ * Returns SCM_UNSPECIFIED when key was not found.
  */
 static SCM
 optionhash_get (svz_hash_t *hash, char *key)
 {
   value_t *val = (value_t*) svz_hash_get (hash, key);
+
   if (NULL != val)
     {
       val->use++;
       return val->value;
     }
-
   return SCM_UNSPECIFIED;
 }
 
-
 /*
- * traverse a scheme pairlist that is an associative list and build up
- * a hash from it. emits error messages and returns NULL when it did so.
- * hash keys are the key names. hash values are value_t struct *.
+ * Traverse a scheme pairlist that is an associative list and build up
+ * a hash from it. Emits error messages and returns NULL when it did so.
+ * Hash keys are the key names. Hash values are pointers to value_t structs.
  */
 static svz_hash_t *
 guile2optionhash (SCM pairlist)
@@ -223,7 +220,7 @@ guile2optionhash (SCM pairlist)
 	  new_value->defined += old_value->defined;
 	  svz_free_and_zero (old_value);
 	}
-      svz_hash_put (hash, tmp, (void*) new_value);
+      svz_hash_put (hash, tmp, (void *) new_value);
       free (tmp);
     }
 
@@ -247,7 +244,7 @@ guile2optionhash (SCM pairlist)
 /* ********************************************************************** */
 
 /*
- * Parse an integer value from a scheme cell. returns zero when succesful.
+ * Parse an integer value from a scheme cell. Returns zero when succesful.
  * Does not emit error messages.
  */
 static int
@@ -279,7 +276,7 @@ guile2int (SCM scm, int *target)
 
 
 /*
- * Extract an integer value from an option hash. returns zero if it worked.
+ * Extract an integer value from an option hash. Returns zero if it worked.
  */
 static int
 optionhash_extract_int (svz_hash_t *hash,
@@ -294,7 +291,8 @@ optionhash_extract_int (svz_hash_t *hash,
   SCM hvalue = optionhash_get (hash, key);
 
   if (SCM_UNSPECIFIED == hvalue)
-    { /* nothing in hash, try to use default */
+    {
+      /* nothing in hash, try to use default */
       if (hasdef)
 	{
 	  *target = defvar;
@@ -306,21 +304,20 @@ optionhash_extract_int (svz_hash_t *hash,
 	}
     }
   else
-    { /* convert something              */
+    {
+      /* convert something */
       if (guile2int (hvalue, target))
 	{
 	  err = 1;
 	  report_error ("Invalid integer value for `%s' %s", key, msg);
 	}
     }
-
   return err;
 }
 
-
 /*
- * Exctract a string value from an option hash. returns zero if it worked.
- * the memory for the string is newly allocated. no matter where it came
+ * Exctract a string value from an option hash. Returns zero if it worked.
+ * The memory for the string is newly allocated, no matter where it came
  * from.
  */
 static int
@@ -337,7 +334,8 @@ optionhash_extract_string (svz_hash_t *hash,
   SCM hvalue = optionhash_get (hash, key);
 
   if (SCM_UNSPECIFIED == hvalue)
-    { /* nothing in hash, try to use default */
+    {
+      /* nothing in hash, try to use default */
       if (hasdef)
 	{
 	  *target = svz_strdup (defvar);
@@ -396,15 +394,15 @@ guile_define_server_x (SCM type, SCM name, SCM alist)
 #undef FUNC_NAME
 
 /*
- * Generic port configuration definition...
+ * Generic port configuration definition ...
  */
 #define FUNC_NAME "define-port!"
 static SCM
 define_port (SCM symname, SCM args)
 {
-  svz_portcfg_t* prev = NULL;
-  svz_portcfg_t* cfg = svz_portcfg_create ();
-  svz_hash_t* options = NULL;
+  svz_portcfg_t *prev = NULL;
+  svz_portcfg_t *cfg = svz_portcfg_create ();
+  svz_hash_t *options = NULL;
   /* FIXME: use #t and #f values here */
   SCM retval_ok = SCM_UNSPECIFIED;
   SCM retval_fail = SCM_UNSPECIFIED;
@@ -413,7 +411,8 @@ define_port (SCM symname, SCM args)
 
   if (portname == NULL)
     {
-      report_error ("First argument to define-port! must be String or Symbol");
+      report_error ("first argument to " FUNC_NAME 
+		    " must be string or symbol");
       retval = retval_fail;
       goto out;
     }
@@ -431,88 +430,90 @@ define_port (SCM symname, SCM args)
     }
 
   /* find out what protocol this portcfg will be about */
-  do {
-    char *proto = guile2str (optionhash_get (options, "proto"));
-    char *msg = svz_malloc (256);
-    snprintf (msg, 256, "when defining port `%s'", portname);
+  do 
+    {
+      char *proto = guile2str (optionhash_get (options, PORTCFG_PROTO));
+      char *msg = svz_malloc (256);
+      snprintf (msg, 256, "when defining port `%s'", portname);
 
-    if (NULL == proto) {
-      report_error ("Port `%s' requires a \"proto\" field", portname);
-      retval = retval_fail;
-      goto out;
+      if (NULL == proto)
+	{
+	  report_error ("port `%s' requires a \"proto\" field", portname);
+	  retval = retval_fail;
+	  goto out;
+	}
+
+      if (!strcmp (proto, PORTCFG_TCP))
+	{
+	  int port;
+	  cfg->proto = PROTO_TCP;
+	  optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, msg);
+	  cfg->tcp_port = (short) port;
+	  if (!valid_port (port))
+	    {
+	      report_error ("invalid port number %s", msg);
+	      retval = retval_fail;
+	    }
+	  optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0, 
+				  &(cfg->tcp_backlog), msg);
+	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+				     &(cfg->tcp_ipaddr), msg);
+	  svz_portcfg_mkaddr (cfg);
+	}
+      else if (!strcmp (proto, PORTCFG_UDP))
+	{
+	  int port;
+	  cfg->proto = PROTO_UDP;
+	  optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, msg);
+	  cfg->udp_port = (short) port;
+	  if (!valid_port (port))
+	    {
+	      report_error ("invalid port number %s", msg);
+	      retval = retval_fail;
+	    }
+	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+				     &(cfg->udp_ipaddr), msg);
+	  svz_portcfg_mkaddr (cfg);
+	}
+      else if (!strcmp (proto, PORTCFG_ICMP))
+	{
+	  int type;
+	  cfg->proto = PROTO_ICMP;
+	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+				     &(cfg->icmp_ipaddr), msg);
+	  optionhash_extract_int (options, PORTCFG_TYPE, 1, ICMP_SERVEEZ, 
+				  &type, msg);
+	  if ((type & ~0xFF) != 0)
+	    {
+	      report_error ("key '" PORTCFG_TYPE "' must be a byte %s", msg);
+	      retval = retval_fail;
+	    }
+	  cfg->icmp_type = (char) (type & 0xFF);
+	  svz_portcfg_mkaddr (cfg);
+	}
+      else if (!strcmp (proto, PORTCFG_RAW))
+	{
+	  cfg->proto = PROTO_RAW;
+	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+				     &(cfg->raw_ipaddr), msg);
+	  svz_portcfg_mkaddr (cfg);
+	}
+      else if (!strcmp (proto, PORTCFG_PIPE))
+	{
+	  cfg->proto = PROTO_PIPE;
+	  /* FIXME: implement me */
+	}
+      else
+	{
+	  report_error ("invalid \"proto\" field `%s' in `%s'.",
+			proto, portname);
+	  return SCM_UNSPECIFIED;
+	}
+
+      svz_free (msg);
+      free (proto);
     }
-
-    if (!strcmp (proto, "tcp"))
-      {
-	int port;
-	cfg->proto = PROTO_TCP;
-	optionhash_extract_int (options, "port", 0, 0, &port, msg);
-	cfg->tcp_port = (short) port;
-	if (!valid_port (port))
-	  {
-	    report_error ("Invalid port number %s", msg);
-	    retval = retval_fail;
-	  }
-	optionhash_extract_int (options, "backlog", 1, 0, &(cfg->tcp_backlog),
-				msg);
-	optionhash_extract_string (options, "ipaddr", 1, "*",
-				   &(cfg->tcp_ipaddr), msg);
-	svz_portcfg_mkaddr (cfg);
-      }
-    else if (!strcmp (proto, "udp"))
-      {
-	int port;
-	cfg->proto = PROTO_UDP;
-	optionhash_extract_int (options, "port", 0, 0, &port,msg);
-	cfg->udp_port = (short) port;
-	if (!valid_port (port))
-	  {
-	    report_error ("Invalid port number %s", msg);
-	    retval = retval_fail;
-	  }
-	optionhash_extract_string (options, "ipaddr", 1, "*",
-				   &(cfg->udp_ipaddr), msg);
-	svz_portcfg_mkaddr (cfg);
-      }
-    else if (!strcmp (proto, "icmp"))
-      {
-	int type;
-	cfg->proto = PROTO_ICMP;
-	optionhash_extract_string (options, "ipaddr", 1, "*",
-				   &(cfg->icmp_ipaddr), msg);
-	/* FIXME: default value */
-	optionhash_extract_int (options, "type", 1, 42, &type, msg);
-	if ((type & ~0xFF) != 0)
-	  {
-	    report_error ("Key 'type' must be a byte %s, msg");
-	    retval = retval_fail;
-	  }
-	cfg->icmp_type = (char)(type & 0xFF);
-	svz_portcfg_mkaddr (cfg);
-      }
-    else if (!strcmp (proto, "raw"))
-      {
-	cfg->proto = PROTO_RAW;
-	optionhash_extract_string (options, "ipaddr", 1, "*",
-				   &(cfg->raw_ipaddr), msg);
-	svz_portcfg_mkaddr (cfg);
-      }
-    else if (!strcmp (proto, "pipe"))
-      {
-	cfg->proto = PROTO_PIPE;
-	/* FIXME: implement me */
-      }
-    else
-      {
-	report_error ("Invalid \"proto\" field `%s' in `%s'.",
-		      proto, portname);
-	return SCM_UNSPECIFIED;
-      }
-
-    svz_free (msg);
-    free (proto);
-  } while (0);
-
+  while (0);
 
   /* check if too much was defined */
   if (0 != validate_optionhash (options, 0, "port", portname))
@@ -531,11 +532,11 @@ define_port (SCM symname, SCM args)
   if (prev != cfg)
     {
       /* we've overwritten something. report and dispose */
-      report_error ("Overwriting previous defintion of port `%s'", portname);
+      report_error ("overwriting previous definition of port `%s'", portname);
       svz_portcfg_destroy (prev);
     }
 
-  free(portname);
+  free (portname);
 
  out:
   return retval;

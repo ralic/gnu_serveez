@@ -1,3 +1,11 @@
+2001-04-18  [ Ela ]  <ela@lkcc.org>
+
+	* guile.c (define_port): Default for ICMP_TYPE is ICMP_SERVEEZ.
+	Using string constants from `portcfg.h'.
+
+	* libserveez/portcfg.h (PORTCFG_TYPE): Added some more string
+	constants for port configurations.
+
 2001-04-11  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/coserver/coserver.c: Cleaned up namespace for the

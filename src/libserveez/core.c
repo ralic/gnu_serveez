@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.5 2001/04/13 22:17:42 raimi Exp $
+ * $Id: core.c,v 1.6 2001/04/18 13:58:05 ela Exp $
  *
  */
 
@@ -180,7 +180,7 @@ svz_socket_create (int proto)
   if (svz_fd_nonblock (sockfd) != 0)
     {
       closesocket (sockfd);
-      return (SOCKET)-1;
+      return (SOCKET) -1;
     }
   
   /* Do not inherit this socket. */
@@ -273,15 +273,13 @@ svz_inet_ntoa (unsigned long ip)
 int
 svz_inet_aton (char *str, struct sockaddr_in *addr)
 {
-
-/* handle "*" special: use INADDR_ANY for it
- */
-if (0 == strcmp (str, "*"))
-{
-  /* FIXME: does that work ? */
-  addr->sin_addr.s_addr = INADDR_ANY;
-  return 0;
-}
+  /* Handle "*" special: use INADDR_ANY for it */
+  if (!strcmp (str, "*"))
+    {
+      /* FIXME: does that work ? */
+      addr->sin_addr.s_addr = INADDR_ANY;
+      return 0;
+    }
 
 #if HAVE_INET_ATON
   if (inet_aton (str, &addr->sin_addr) == 0)
