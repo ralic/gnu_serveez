@@ -1,7 +1,7 @@
 /*
  * guile-bin.c - binary data exchange layer for Guile servers
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.16 2001/12/28 17:11:07 ela Exp $
+ * $Id: guile-bin.c,v 1.17 2002/02/10 11:38:28 ela Exp $
  *
  */
 
@@ -469,6 +469,100 @@ guile_bin_to_data (SCM binary, int *size)
   return bin->data;
 }
 
+/* The following macro expands to a function definition which accesses a
+   binary smob's data for reading depending on the given @var{ctype}. */
+#define MAKE_BIN_REF(ctype)                                                  \
+static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
+  guile_bin_t *bin; int idx;                                                 \
+  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
+  SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
+  idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
+  if (idx < 0 || idx > (int) (bin->size - sizeof (ctype)))                   \
+    scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);                       \
+  return scm_long2num ((long) ((ctype *) bin->data)[idx]);                   \
+}
+
+/* Creates a bitmask for the given @var{ctype} and stores it within 
+   @var{bits} with each valid bit set to one. */
+#define CTYPE_BITMASK(ctype, bits) do {                            \
+    unsigned long bit = 1;                                         \
+    for (bits = 1UL; bit < sizeof (ctype) * 8; bit++, bits |= 1UL) \
+      bits <<= 1;                                                  \
+  } while (0)
+
+/* The following macro expands to a function definition which accesses a
+   binary smob's data for writing depending on the given @var{ctype}. */
+#define MAKE_BIN_SET(ctype)                                                  \
+static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \
+						  SCM value) {               \
+  guile_bin_t *bin; int idx; unsigned long val, bits; SCM old; ctype *data;  \
+  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
+  SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
+  idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
+  if (idx < 0 || idx > (int) (bin->size - sizeof (ctype)))                   \
+    scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);                       \
+  SCM_ASSERT_TYPE (SCM_EXACTP (value), value, SCM_ARG3, FUNC_NAME, "exact"); \
+  val = (unsigned long) SCM_NUM2LONG (SCM_ARG3, value);                      \
+  CTYPE_BITMASK (ctype, bits);                                               \
+  if (val & ~bits)                                                           \
+    scm_out_of_range_pos (FUNC_NAME, value, SCM_ARG3);                       \
+  data = (ctype *) bin->data;                                                \
+  old = scm_long2num ((long) data[idx]); data[idx] = (ctype) val;            \
+  return old;                                                                \
+}
+
+/* Returns the @code{long} value of the binary smob @var{binary} at the 
+   array index @var{index}. */
+#define FUNC_NAME "binary-long-ref"
+MAKE_BIN_REF (long)
+#undef FUNC_NAME
+
+/* Sets the @code{long} value of the binary smob @var{binary} at the array
+   index @var{index} to the given value @var{value}. The procedure returns
+   the previous (overridden) value. */
+#define FUNC_NAME "binary-long-set!"
+MAKE_BIN_SET (long)
+#undef FUNC_NAME
+
+/* Returns the @code{int} value of the binary smob @var{binary} at the 
+   array index @var{index}. */
+#define FUNC_NAME "binary-int-ref"
+MAKE_BIN_REF (int)
+#undef FUNC_NAME
+
+/* Sets the @code{int} value of the binary smob @var{binary} at the array
+   index @var{index} to the given value @var{value}. The procedure returns
+   the previous (overridden) value. */
+#define FUNC_NAME "binary-int-set!"
+MAKE_BIN_SET (int)
+#undef FUNC_NAME
+
+/* Returns the @code{short} value of the binary smob @var{binary} at the 
+   array index @var{index}. */
+#define FUNC_NAME "binary-short-ref"
+MAKE_BIN_REF (short)
+#undef FUNC_NAME
+
+/* Sets the @code{short} value of the binary smob @var{binary} at the array
+   index @var{index} to the given value @var{value}. The procedure returns
+   the previous (overridden) value. */
+#define FUNC_NAME "binary-short-set!"
+MAKE_BIN_SET (short)
+#undef FUNC_NAME
+
+/* Returns the @code{char} value of the binary smob @var{binary} at the 
+   array index @var{index}. */
+#define FUNC_NAME "binary-char-ref"
+MAKE_BIN_REF (char)
+#undef FUNC_NAME
+
+/* Sets the @code{char} value of the binary smob @var{binary} at the array
+   index @var{index} to the given value @var{value}. The procedure returns
+   the previous (overridden) value. */
+#define FUNC_NAME "binary-char-set!"
+MAKE_BIN_SET (char)
+#undef FUNC_NAME
+
 /* Initialize the binary smob with all its features. Call this function
    once at application startup and before running any scheme file 
    evaluation. */
@@ -499,6 +593,15 @@ guile_bin_init (void)
   scm_c_define_gsubr ("binary-length", 1, 0, 0, guile_bin_length);
   scm_c_define_gsubr ("binary-concat!", 2, 0, 0, guile_bin_concat_x);
   scm_c_define_gsubr ("binary-subset", 2, 1, 0, guile_bin_subset);
+
+  scm_c_define_gsubr ("binary-long-ref", 2, 0, 0, guile_bin_long_ref);
+  scm_c_define_gsubr ("binary-int-ref", 2, 0, 0, guile_bin_int_ref);
+  scm_c_define_gsubr ("binary-short-ref", 2, 0, 0, guile_bin_short_ref);
+  scm_c_define_gsubr ("binary-char-ref", 2, 0, 0, guile_bin_char_ref);
+  scm_c_define_gsubr ("binary-long-set!", 3, 0, 0, guile_bin_long_set);
+  scm_c_define_gsubr ("binary-int-set!", 3, 0, 0, guile_bin_int_set);
+  scm_c_define_gsubr ("binary-short-set!", 3, 0, 0, guile_bin_short_set);
+  scm_c_define_gsubr ("binary-char-set!", 3, 0, 0, guile_bin_char_set);
 }
 
 #else /* not ENABLE_GUILE_SERVER */

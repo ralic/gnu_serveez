@@ -1,7 +1,7 @@
 /*
  * guile-server.c - guile server modules
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.42 2001/12/28 17:11:07 ela Exp $
+ * $Id: guile-server.c,v 1.43 2002/02/10 11:38:28 ela Exp $
  *
  */
 
@@ -857,7 +857,7 @@ guile_sock_print (SCM sock, SCM buffer)
       buf = guile_bin_to_data (buffer, &len);
     }
 
-  /* Depending on the protcol type use different kind of senders. */
+  /* Depending on the protocol type use different kind of senders. */
   if (xsock->proto & (PROTO_TCP | PROTO_PIPE))
     ret = svz_sock_write (xsock, buf, len);
   else if (xsock->proto & PROTO_UDP)
@@ -1529,7 +1529,7 @@ guile_define_servertype (SCM args)
 /*
  * Destroys the servertype represented by the hash @var{callbacks}. Removes
  * the servertype pointer from the hash, destroys the remaining callback
- * hash and finally frees alll resources allocated by the servertype.
+ * hash and finally frees all resources allocated by the servertype.
  */
 static void
 guile_servertype_destroy (svz_hash_t *callbacks)

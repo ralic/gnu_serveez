@@ -1,7 +1,7 @@
 /*
  * guile-api.c - export additional Serveez functionality to Guile
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.18 2002/02/06 06:54:56 ela Exp $
+ * $Id: guile-api.c,v 1.19 2002/02/10 11:38:28 ela Exp $
  *
  */
 
@@ -520,7 +520,7 @@ MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
 /* This procedure sets the @code{idle} callback of the socket structure
    @var{sock} to the Guile procedure @var{proc}. It returns any previously
    set procedure. The callback is run by the periodic task scheduler when the
-   @code{idle-counter} of the socket struture drops to zero. If this counter
+   @code{idle-counter} of the socket structure drops to zero. If this counter
    is not zero it gets decremented once a second. The @code{idle}
    callback can reset @code{idle-counter} to some value and thus can 
    re-schedule itself for a later task. */
@@ -872,7 +872,7 @@ guile_coserver_rdns (SCM addr, SCM callback, SCM arg)
 /* This procedure enqueues the given @code{#<svz-socket>} @var{sock} into the
    internal ident coserver queue. When the coserver responses it runs the
    Guile procedure @var{callback} as @code{(callback user arg)} whereas 
-   @var{user} is the correspondig username for the client connection 
+   @var{user} is the corresponding username for the client connection 
    @var{sock}. The @var{arg} argument is optional. */
 #define FUNC_NAME "svz:coserver:ident"
 SCM
@@ -946,12 +946,12 @@ guile_api_init (void)
 		      1, 1, 0, guile_sock_local_address);
   scm_c_define_gsubr ("svz:sock:idle-counter",
 		      1, 1, 0, guile_sock_idle_counter);
-  scm_c_define_gsubr ("svz:coserver:dns", 2, 1, 0, 
-		      guile_coserver_dns);
-  scm_c_define_gsubr ("svz:coserver:reverse-dns", 2, 1, 0, 
-		      guile_coserver_rdns);
-  scm_c_define_gsubr ("svz:coserver:ident", 2, 1, 0, 
-		      guile_coserver_ident);
+  scm_c_define_gsubr ("svz:coserver:dns",
+		      2, 1, 0, guile_coserver_dns);
+  scm_c_define_gsubr ("svz:coserver:reverse-dns",
+		      2, 1, 0, guile_coserver_rdns);
+  scm_c_define_gsubr ("svz:coserver:ident",
+		      2, 1, 0, guile_coserver_ident);
 
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected",disconnected_socket);
   DEFINE_SOCK_CALLBACK ("svz:sock:kicked",kicked_socket);

@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.6 2001/12/15 13:33:38 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.7 2002/02/10 11:38:28 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -254,6 +254,15 @@ function handle_macro(line)
 	    if (line ~ /^MAKE_SOCK_CALLBACK/) {
 	      create_loc(0)
 	      args = "sock, proc"
+	    } 
+            # special binary smob setter/getter
+	    else if (line ~ /^MAKE_BIN_SET/) {
+	      create_loc(0)
+	      args = "binary, index, value"
+	    } 
+	    else if (line ~ /^MAKE_BIN_REF/) {
+	      create_loc(0)
+	      args = "binary, index"
 	    } 
 	    # special guile string checker
 	    else if (line ~ /^MAKE_STRING_CHECKER/) {
