@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.8 2000/07/25 16:24:27 ela Exp $
+ * $Id: http-dirlist.c,v 1.9 2000/08/18 01:01:02 ela Exp $
  *
  */
 
@@ -55,17 +55,18 @@
 #   include <ndir.h>
 #  endif
 # endif
-# define FILENAME(de) (de)->d_name
-#else 
-# include <windows.h>
-# define FILENAME(de) (de).cFileName
 #endif /* not __MINGW32__ */
+
+#if HAVE_SYS_DIRENT_H
+# include <sys/dirent.h>
+#endif
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
 
 #ifdef __MINGW32__
+# include <windows.h>
 # include <winsock.h>
 #endif
 
@@ -75,6 +76,16 @@
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-dirlist.h"
+
+#ifndef __MINGW32__
+# if HAVE_SORTED_LIST
+#  define FILENAME dir[n]->d_name
+# else
+#  define FILENAME de->d_name
+# endif
+#else 
+# define FILENAME de.cFileName
+#endif
 
 /* Size of last buffer allocated. */
 int http_dirlist_size = 0;
@@ -120,7 +131,7 @@ char *
 http_dirlist (char *dirname, char *docroot) 
 {
   char *dirdata = NULL;
-  int data_size = 0;
+  int datasize = 0;
   char *relpath = NULL;
   int i = 0;
   struct stat buf;
@@ -129,7 +140,10 @@ http_dirlist (char *dirname, char *docroot)
   char *timestr = NULL;
   char postamble[DIRLIST_SPACE_POST];
   int files = 0;
-#ifndef __MINGW32__
+#if HAVE_SORTED_LIST
+  struct dirent **dir;
+  int n;
+#elif !defined(__MINGW32__)
   DIR *dir;
   struct dirent *de = NULL;
 #else
@@ -151,7 +165,9 @@ http_dirlist (char *dirname, char *docroot)
     }
 
   /* Open the directory */
-#ifdef __MINGW32__
+#if HAVE_SORTED_LIST
+  if ((files = scandir (dirname, &dir, 0, alphasort)) == -1)
+#elif defined(__MINGW32__)
   strcpy (filename, dirname);
   if (filename[strlen (filename) - 1] == '/' ||
       filename[strlen (filename) - 1] == '\\')
@@ -168,7 +184,7 @@ http_dirlist (char *dirname, char *docroot)
     }
 
   dirdata = xmalloc (DIRLIST_SPACE);
-  data_size = DIRLIST_SPACE;
+  datasize = DIRLIST_SPACE;
 
   /* Calculate relative path */
   i = 0;
@@ -181,7 +197,7 @@ http_dirlist (char *dirname, char *docroot)
     }
 
   /* Output preamble */
-  while (-1 == snprintf (dirdata, data_size,
+  while (-1 == snprintf (dirdata, datasize,
 			 "%sContent-Type: text/html\r\n\r\n"
 			 "<html><head>\n"
 			 "<title>Directory listing of %s/</title></head>\n"
@@ -191,12 +207,14 @@ http_dirlist (char *dirname, char *docroot)
 			 "<pre>\n",
 			 HTTP_OK, relpath, relpath)) 
     {
-      dirdata = xrealloc (dirdata, data_size + DIRLIST_SPACE_GROW);
-      data_size += DIRLIST_SPACE_GROW;
+      dirdata = xrealloc (dirdata, datasize + DIRLIST_SPACE_GROW);
+      datasize += DIRLIST_SPACE_GROW;
     }
 
   /* Iterate directory */
-#ifndef __MINGW32__
+#if HAVE_SORTED_LIST
+  for (n = 0; n < files; n++)
+#elif !defined(__MINGW32__)
   while (NULL != (de = readdir (dir)))
 #else
   do
@@ -204,10 +222,9 @@ http_dirlist (char *dirname, char *docroot)
     {
       /* Create fully qualified filename */
       snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
-		dirname, FILENAME (de));
+		dirname, FILENAME);
+#ifndef HAVE_SORTED_LIST
       files++;
-#if 0
-      printf ("stat (%s)\n", filename);
 #endif
 
       /* Stat the given file */
@@ -216,7 +233,7 @@ http_dirlist (char *dirname, char *docroot)
 	  /* Something is wrong with this file... */
 	  snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
 		    "<font color=red>%s -- %s</font>\n",
-		    FILENAME (de), SYS_ERROR);
+		    FILENAME, SYS_ERROR);
 	} 
       else 
 	{
@@ -242,8 +259,8 @@ http_dirlist (char *dirname, char *docroot)
 			"<a href=\"%s/\">%-40s</a> "
 			"&lt;directory&gt; "
 			"%s\n",
-			http_create_uri (FILENAME (de)), 
-			FILENAME (de), timestr);
+			http_create_uri (FILENAME), 
+			FILENAME, timestr);
 	    } 
 	  else 
 	    {
@@ -253,16 +270,16 @@ http_dirlist (char *dirname, char *docroot)
 			"<a href=\"%s\">%-40s</a> "
 			"<b>%11d</b> "
 			"%s\n",
-			http_create_uri (FILENAME (de)), 
-			FILENAME (de), (int) buf.st_size, timestr);
+			http_create_uri (FILENAME), 
+			FILENAME, (int) buf.st_size, timestr);
 	    }
 	}
 
       /* Append this entry's data to output buffer */
-      while (data_size - strlen (dirdata) < strlen (entrystr) + 1)
+      while (datasize - strlen (dirdata) < strlen (entrystr) + 1)
 	{
-	  dirdata = xrealloc (dirdata, data_size + DIRLIST_SPACE_GROW);
-	  data_size += DIRLIST_SPACE_GROW;
+	  dirdata = xrealloc (dirdata, datasize + DIRLIST_SPACE_GROW);
+	  datasize += DIRLIST_SPACE_GROW;
 	}
       strcat (dirdata, entrystr);
     }
@@ -276,18 +293,20 @@ http_dirlist (char *dirname, char *docroot)
 	    "%d entries\n</body>\n</html>",
 	    files);
 
-  if (data_size - strlen (dirdata) < strlen (postamble) + 1) 
+  if (datasize - strlen (dirdata) < strlen (postamble) + 1) 
     {
-      dirdata = xrealloc (dirdata, data_size + strlen (postamble) + 1);
-      data_size += strlen (postamble) + 1;
+      dirdata = xrealloc (dirdata, datasize + strlen (postamble) + 1);
+      datasize += strlen (postamble) + 1;
     }
   strcat (dirdata, postamble);
 
   /* Remember buffer size for caller */
-  http_dirlist_size = data_size;
+  http_dirlist_size = datasize;
 
   /* Close the directory */
-#ifndef __MINGW32__
+#if HAVE_SORTED_LIST
+  free (dir);
+#elif !defined(__MINGW32__)
   closedir (dir);
 #else
   FindClose (dir);

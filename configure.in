@@ -808,13 +808,14 @@ AC_TRY_CPP([#include <strings.h>],
     AC_MSG_RESULT(no)
 )
 
-AC_CHECK_FUNCS(strchr memcpy)
+AC_CHECK_FUNCS(strchr memcpy chroot scandir alphasort)
 AC_CHECK_FUNCS(strcasecmp strncasecmp stricmp strnicmp)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h)
 AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h)
+AC_CHECK_HEADERS(dirent.h sys/dirent.h)
 AC_HEADER_DIRENT
 
 have_getopt="no"

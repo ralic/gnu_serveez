@@ -30,12 +30,12 @@ Free Documentation License".
 @node Top, Introduction, (dir), (dir)
 
 @menu
-* Introduction::                Introduction to Serveez
-* Using Serveez::               Startup and command line options
-* Concept::                     Conceptional thoughts
-* Server::                      Server implementation
-* Co-Server::                   Co-Server implementation
-* Porting issues::              Support of different platforms and operating systems
+* Introduction::        Introduction to Serveez
+* Using Serveez::       Startup and command line options
+* Concept::             Conceptional thoughts
+* Server::              Server implementation
+* Co-Server::           Co-Server implementation
+* Porting issues::      Support of different platforms and operating systems
 @end menu
 
 @node Introduction, Using Serveez, Top, Top
@@ -131,6 +131,7 @@ the following layout:
 @node Concept, Server, Using Serveez, Top
 @chapter Concept
 
+@section I/O Strategy
 Serveez's I/O strategy is the traditional @code{select()} method. It 
 is serving many clients in one server thread. This is done by setting to 
 nonblocking mode on all network handles, and use @code{select()} to tell 
@@ -151,6 +152,36 @@ WinNT systems.
 
 We chose this method anyway because it seems the most portable. Either in
 most Unices and Win32 this method is implemented.
+
+An alternative method to multiplex client network connections is 
+@code{poll()}. When detected by @file{configure} Serveez is using it. This
+will work around the builtin (g)libs's @code{select()} file descriptor
+limit.
+
+@section Limits on open filehandles
+@table @asis
+@item Any Unix
+The limits set by ulimit or setrlimit.
+@item Solaris
+See the Solaris FAQ, question 3.45. 
+@item FreeBSD 
+Use sysctl -w kern.maxfiles=nnnn to raise limit.
+@item Linux
+See Bodo Bauer's /proc documentation. On current 2.2.x kernels, 
+@example
+echo 32768 > /proc/sys/fs/file-max
+echo 65536 > /proc/sys/fs/inode-max
+@end example
+increases the system limit on open files, and 
+@example
+ulimit -n 32768
+@end example
+increases the current process' limit. I verified that a process on 
+Red Hat 6.0 (2.2.5 or so plus patches) can open at least 31000 file 
+descriptors this way. Another fellow has verified that a process on 
+2.2.12 can open at least 90000 file descriptors this way (with 
+appropriate limits). The upper bound seems to be available memory. 
+@end table
 
 @node Server, Co-Server, Concept, Top
 @chapter Server
@@ -981,9 +1012,48 @@ servers with Serveez. @xref{Writing Servers}.
 @node Quake III Key Server,  , Foo Server, Existing Servers
 @subsection Quake III Key Server
 
-@subsubsection General description
+@subsubsection Motivation
+
+First of all, this software is probably illegal. Period.
+
+Please buy the game. But you may need this software anyway, because
+commercial software developers are narrow minded sometimes.
+
+You just have the choice between LAN and Internet connection when running
+the game. But the real choice you have is: LAN in one broadcast domain 
+vs. permanent internet connection. This leaves the whole area of 
+subnet'ed LANs or inhouse networks, subnet'ed LAN parties or LANs 
+interconnected with phonelines. This pissed me off.
 
 @subsubsection Configuration
+
+Run this program on some computer and make the clients think this
+computer is a key server. Add following lines to @file{/eth/hosts}
+or @file{c:\windows\hosts} :
+@example
+127.0.0.1       authorize.quake3arena.com
+@end example
+Replace 127.0.0.1 by the IP address of your server machine. Perhaps 
+you want to add some entry for @uref{update.quake3arena.com}, too.
+If you have got a complete master server add entries for:
+@example
+master.quake3world.com
+master.quake3arena.com
+master3.idsoftware.com
+@end example
+The configuration of the server knows the following items.
+@table @asis
+@item netport
+This entry should contain @samp{udp} for @samp{proto} and some udp port.
+The default port is 27952.
+
+@item echo
+The key servers echo reply when authorizing.
+
+@item logfile
+All keys the clients send will be logged within this file.
+@end table
+
 
 @node Co-Server, Porting issues, Server, Top
 @chapter Co-Server

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.16 2000/08/02 09:45:14 ela Exp $
+ * $Id: util.c,v 1.17 2000/08/18 01:01:02 ela Exp $
  *
  */
 
@@ -543,6 +543,13 @@ util_inet_ntoa (unsigned long ip)
 
   addr.s_addr = ip;
   return inet_ntoa (addr);
+  /*
+  static char addr[16];
+
+  sprintf (addr, "%lu.%lu.%lu.%lu", (ip >> 24) & 0xff, (ip >> 16) & 0xff,
+	   (ip >> 8) & 0xff, ip & 0xff);
+  return addr;
+  */
 }
 
 /*

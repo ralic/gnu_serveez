@@ -1,3 +1,13 @@
+2000-08-18  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-dirlist.c (http_dirlist): Added ability
+	to sort the directory listing by scandir() and alphasort().
+
+	* q3key-server/q3key-proto.c (q3key_handle_request): Logfile
+	for quake 3 keys implemented.
+	(q3key_config_prototype): `logfile' is now configurable via
+	configuration file.
+
 2000-08-16  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-core.c (http_error_response): Added 

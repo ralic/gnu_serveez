@@ -1,3 +1,12 @@
+2000-08-17  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Quake III Key Server): Documented the 
+	integrated Quake3 key server. Including reference to possibly
+	illegal topic.
+
+	* serveez.cfg (q3key-server1): Added Quake3 key server
+	configuration.
+
 2000-07-13  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi: Added GPL to license section.

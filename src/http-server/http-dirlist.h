@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: http-dirlist.h,v 1.3 2000/06/30 15:05:39 ela Exp $
+ * $Id: http-dirlist.h,v 1.4 2000/08/18 01:01:02 ela Exp $
  *
  */
 
@@ -45,12 +45,14 @@ char *http_dirlist (char *dirname, char *docroot);
 extern int http_dirlist_size;
 
 
-/* Internal Buffersizes: */
+/* Internal buffer sizes */
 
 #define DIRLIST_SPACE 1024        /* Initial size of buffer */
 #define DIRLIST_SPACE_GROW 512    /* Growsize of buffer */
 #define DIRLIST_SPACE_NAME 1024   /* Bufferspace for stat'ed filenames */
 #define DIRLIST_SPACE_ENTRY 512   /* Max. size of a single line (1 per file) */
 #define DIRLIST_SPACE_POST 1024   /* Max. size of postamble */
+
+#define HAVE_SORTED_LIST (HAVE_SCANDIR && HAVE_ALPHASORT)
 
 #endif /* __HTTP_DIRLIST_H__ */
