@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: server.h,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -35,7 +35,7 @@
  * Use my functions:
  */
 int server_load_cfg (char *cfgfile);
-int server_global_init(void);
+int server_global_init (void);
 int server_init_all (void);
 int server_finalize_all (void);
 int server_global_finalize (void);
@@ -52,7 +52,8 @@ void server_show_definitions (void);
  * Each server can have a an array of name-value-pairs specific for it.
  * Use macros at end ot this file for setting up
  */
-typedef struct key_value_pair {
+typedef struct key_value_pair 
+{
   int type;
   char *name;
   int defaultable;

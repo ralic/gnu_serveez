@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-core.h,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -27,12 +27,20 @@
 
 #include "socket.h"
 
-#define MAX_NICK_LEN 16     /* nick name length */
-#define MAX_NAME_LEN 256    /* name length */
+/* some IRC protocol limitation defintions */
+#define MAX_NICK_LEN 16     /* maximum nick name length */
+#define MAX_NAME_LEN 256    /* maximum name length */
 #define MAX_PARAMS   16     /* parameters */
 #define MAX_TARGETS  64     /* maximum amount of targets */
 #define MAX_MSG_LEN  512    /* length of an IRC message */
 
+/* IRC server protocol flags */
+#define IRC_FLAG_SERVER 0x0001
+#define IRC_FLAG_CLIENT 0x0002
+
+/*
+ * This structure defines an IRC target.
+ */
 typedef struct
 {
   char channel[MAX_NAME_LEN]; /* channel (initiated by '#' or '&') */
@@ -43,6 +51,10 @@ typedef struct
 }
 irc_target_t;
 
+/*
+ * Here is a fully IRC request structure defined. This is very useful
+ * when parsing any request and propagating it afterwards.
+ */
 typedef struct
 {
   /* message origin (optional), initiated by ':' */
@@ -69,32 +81,37 @@ irc_request_t;
 
 extern irc_request_t irc_request;  /* single IRC request */
 
-/* Authentification strings */
+/* authentification strings */
 #define IRC_DNS_INIT   "*** Starting DNS lookup ..."
 #define IRC_DNS_DONE   "*** Successful DNS lookup (cached)."
 #define IRC_IDENT_INIT "*** Checking Ident ..."
 #define IRC_IDENT_DONE "*** Successful Identification."
 
 #if ENABLE_REVERSE_LOOKUP
-int irc_nslookup_done(socket_t sock, char *name);
+int irc_nslookup_done (socket_t sock, char *host);
 #endif
 #if ENABLE_IDENT
-int irc_ident_done(socket_t sock, char *name);
+int irc_ident_done (socket_t sock, char *user);
 #endif
 
 /* Some useful function for parsing masks. */
-int string_equal(char *str1, char *str2);
-int string_regex(char *text, char *regex);
-void irc_create_lcset(void);
+int string_equal (char *str1, char *str2);
+int string_regex (char *text, char *regex);
 
-/* Parsing routines for an IRC request */
-int irc_check_request(socket_t sock);
-int irc_parse_request(char *request, int len);
-void irc_parse_target(irc_request_t *request, int para);
-char *get_para_target(char *para, int no);
+/* 
+ * We need this for a lower case character set, because 
+ * nick and channel names in IRC are case insensitive.
+ */
+void irc_create_lcset (void);
 
-/* The standard routine for IRC detection */
-int irc_detect_proto(socket_t sock);
-int irc_connect_socket (socket_t sock);
+/* Parsing routines for an IRC request. */
+int irc_check_request (socket_t sock);
+int irc_parse_request (char *request, int len);
+void irc_parse_target (irc_request_t *request, int para);
+char *get_para_target (char *para, int no);
+
+/* The standard routine for IRC detection. */
+int irc_detect_proto (void *cfg, socket_t sock);
+int irc_connect_socket (void *cfg, socket_t sock);
 
 #endif /* __IRC_CORE_H__ */

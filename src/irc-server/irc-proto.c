@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-proto.c,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -46,95 +46,199 @@
 #include "socket.h"
 #include "alloc.h"
 #include "util.h"
+#include "server.h"
 #include "server-core.h"
+#include "server-socket.h"
 #include "serveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
 #include "irc-server.h"
 
-irc_config_t   irc_config;              /* IRC configuration hash */
-irc_channel_t *irc_channel_list = NULL; /* channel list root */
-irc_client_t  *irc_client_list  = NULL; /* client list root */
-irc_client_history_t *irc_client_history = NULL; /* client history list root */
-
-/* 
- * The lookup table for all connected IRC clients indexed
- * by the socket id. This is used to pass the second arg
- * for the callbacks.
+/*
+ * The IRC port configuration.
  */
-irc_client_t *irc_client_lookup_table[SOCKET_MAX_IDS];
+portcfg_t irc_port =
+{
+  PROTO_TCP,  /* tcp protocol only */
+  42424,      /* prefered tcp port */
+  NULL,       /* no receiving pipe */
+  NULL        /* no sending (listening) pipe */
+};
 
 /*
- * Free all the buffers of an IRC x-line.
+ * The IRC server instance default configuration,
  */
-void
-irc_free_xline(char **xline)
+irc_config_t irc_config =
 {
-  int n;
+  &irc_port,             /* port configuration */
+  0,                     /* logged in operators */
+  0,                     /* logged in users */
+  0,                     /* unknown connections */
+  0,                     /* invisible users */
+  NULL,                  /* virtual host name */
+  NULL,                  /* read server host name */
+  42424,                 /* listening tcp port */
+#if ENABLE_TIMESTAMP
+  0,                     /* delta value to UTC */
+#endif
+  { NULL },              /* message of the day */
+  0,                     /* message of the day lines */
+  0,                     /* motd last modified date */
+  "../doc/irc-MOTD.txt", /* file name of masage of the day */
+  NULL,                  /* MLine */
+  NULL,                  /* ALine */
+  NULL,                  /* YLines */
+  NULL,                  /* ILines */
+  NULL,                  /* OLines */
+  NULL,                  /* oLines */
+  NULL,                  /* CLines */
+  NULL,                  /* NLines */
+  NULL,                  /* KLines */
+  NULL,                  /* server password */
+  NULL,                  /* server info */
+  NULL,                  /* email address of maintainers */
+  NULL,                  /* admininfo */
+  NULL,                  /* location1 */
+  NULL,                  /* location2 */
+  { NULL },              /* operator host names */
+  { NULL },              /* operator passwords */
+  NULL,                  /* irc channel hash */
+  NULL,                  /* irc client hash */
+  NULL,                  /* irc server list root */
+  NULL                   /* client history list root */
+};
 
-  if(xline)
-    {
-      n = 0;
-      while(xline[n])
-	{
-	  xfree(xline[n++]);
-	}
-      xfree(xline);
-    }
+/*
+ * Definition of the configuration items processed by sizzle.
+ */
+key_value_pair_t irc_config_prototype [] =
+{
+  REGISTER_PORTCFG ("port", irc_config.netport, DEFAULTABLE),
+  REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
+#if ENABLE_TIMESTAMP
+  REGISTER_INT ("tsdelta", irc_config.tsdelta, DEFAULTABLE),
+#endif
+  REGISTER_STR ("admininfo", irc_config.admininfo, NOTDEFAULTABLE),
+  REGISTER_STR ("email", irc_config.email, NOTDEFAULTABLE),
+  REGISTER_STR ("location1", irc_config.location1, NOTDEFAULTABLE),
+  REGISTER_STR ("location2", irc_config.location2, NOTDEFAULTABLE),
+  REGISTER_STR ("M-line", irc_config.MLine, NOTDEFAULTABLE),
+  REGISTER_STR ("A-line", irc_config.ALine, DEFAULTABLE),
+  REGISTER_STRARRAY ("Y-lines", irc_config.YLine, DEFAULTABLE),
+  REGISTER_STRARRAY ("I-lines", irc_config.ILine, DEFAULTABLE),
+  REGISTER_STRARRAY ("O-lines", irc_config.OLine, DEFAULTABLE),
+  REGISTER_STRARRAY ("o-lines", irc_config.oLine, DEFAULTABLE),
+  REGISTER_STRARRAY ("C-lines", irc_config.CLine, DEFAULTABLE),
+  REGISTER_STRARRAY ("N-lines", irc_config.NLine, DEFAULTABLE),
+  REGISTER_STRARRAY ("K-lines", irc_config.KLine, DEFAULTABLE),
+  REGISTER_END ()
+};
+
+/*
+ * Definition of the IRC server.
+ */
+server_definition_t irc_server_definition =
+{
+  "irc server",        /* long description */
+  "irc",               /* short description for instanciating */
+  irc_global_init,     /* global initializer */
+  irc_init,            /* instance initializer */
+  irc_detect_proto,    /* detection routine */
+  irc_connect_socket,  /* connection routine */
+  irc_finalize,        /* instance finalizer */
+  irc_global_finalize, /* global finalizer */
+  &irc_config,         /* default configuration */
+  sizeof (irc_config), /* size of configuration */
+  irc_config_prototype /* configuration prototypes */
+};
+
+/*
+ * Global IRC server initializer.
+ */
+int
+irc_global_init (void)
+{
+  irc_create_lcset ();
+  return 0;
 }
 
 /*
- * Close the IRC Protocol configuration hash.
+ * Global IRC server finalizer.
  */
-void
-irc_close_config (irc_config_t *cfg)
+int
+irc_global_finalize (void)
 {
-  int n;
-
-  /* free the MOTD */
-  for(n=0; n<cfg->MOTDs; n++)
-    xfree(cfg->MOTD[n]);
-
-  /* free configuration hash variables */
-  xfree(cfg->host);
-  xfree(cfg->info);
-  xfree(cfg->realhost);
-  irc_free_xline(cfg->CLine);
-
-  /* free the client history */
-  irc_delete_client_history();
-
-  /* free the server IRC list */
-  irc_delete_servers();
+  return 0;
 }
 
 #define MAX_HOST_LEN 256
 #define MAX_INFO_LEN 256
 
 /*
- * Initialization of the IRC server configuration hash.
+ * Initialization of the IRC server instance.
  */
-void
-irc_init_config (irc_config_t *cfg)
+int
+irc_init (server_t *server)
 {
+  irc_config_t *cfg = server->cfg;
   char info[MAX_INFO_LEN];
   char host[MAX_HOST_LEN];
   char realhost[MAX_HOST_LEN];
   int port;
 
-  irc_create_lcset();
+  /* initialize hashes and lists */
+  cfg->clients = hash_create (4);
+  cfg->channels = hash_create (4);
+  cfg->servers = NULL;
+  cfg->history = NULL;
 
   /* scan the M line */
-  irc_parse_line(cfg->MLine, "M:%s:%s:%s:%d", 
-		 host, realhost, info, &port);
-  cfg->host = xmalloc(strlen(host) + 1);
-  strcpy(cfg->host, host);
-  cfg->realhost = xmalloc(strlen(realhost) + 1);
-  strcpy(cfg->realhost, realhost);
-  cfg->info = xmalloc(strlen(info) + 1);
-  strcpy(cfg->info, info);
+  irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d", 
+		  host, realhost, info, &port);
+  cfg->host = xmalloc (strlen (host) + 1);
+  strcpy (cfg->host, host);
+  cfg->realhost = xmalloc (strlen (realhost) + 1);
+  strcpy (cfg->realhost, realhost);
+  cfg->info = xmalloc (strlen (info) + 1);
+  strcpy (cfg->info, info);
   cfg->port = port;
+
+  irc_connect_servers (cfg);
+
+  server_bind (server, cfg->netport);
+
+  return 0;
+}
+
+/*
+ * IRC server instance finalizer.
+ */
+int
+irc_finalize (server_t *server)
+{
+  irc_config_t *cfg = server->cfg;
+  int n;
+
+  /* free the MOTD */
+  for(n = 0; n < cfg->MOTDs; n++)
+    xfree (cfg->MOTD[n]);
+
+  /* free configuration hash variables */
+  xfree (cfg->host);
+  xfree (cfg->info);
+  xfree (cfg->realhost);
+
+  /* free the client history */
+  irc_delete_client_history (cfg);
+
+  /* free the server IRC list */
+  irc_delete_servers (cfg);
+
+  hash_destroy (cfg->clients);
+  hash_destroy (cfg->channels);
+
+  return 0;
 }
 
 /*
@@ -178,22 +282,22 @@ add_client_to_channel (irc_config_t *cfg,
   int n;
 
   /* does the channel exist locally ? */
-  if((channel = irc_find_channel(chan)))
+  if ((channel = irc_find_channel (cfg, chan)))
     {
       /* is the nick already in the channel ? */
-      for(n=0; n<channel->clients; n++)
-	if(channel->client[n] == client->nick)
+      for (n = 0; n < channel->clients; n++)
+	if (channel->client[n] == client->nick)
 	  break;
 
       /* no, add nick to channel */
-      if(n == channel->clients)
+      if (n == channel->clients)
 	{
 	  channel->client[n] = client->nick;
 	  channel->cflag[n] = 0;
 	  channel->clients++;
 #if ENABLE_DEBUG
-	  log_printf(LOG_DEBUG, "irc: %s joined channel %s\n", 
-		     client->nick, channel->name);
+	  log_printf (LOG_DEBUG, "irc: %s joined channel %s\n", 
+		      client->nick, channel->name);
 #endif
 	  n = client->channels;
 	  client->channel[n] = channel->name;
@@ -205,16 +309,16 @@ add_client_to_channel (irc_config_t *cfg,
   else
     {
       /* create one and set the first client as operator */
-      channel = irc_add_channel(cfg, chan);
+      channel = irc_add_channel (cfg, chan);
       channel->client[0] = client->nick;
       channel->cflag[0] = MODE_OPERATOR;
       channel->clients++;
-      strcpy(channel->by, client->nick);
-      channel->since = time(NULL);
+      strcpy (channel->by, client->nick);
+      channel->since = time (NULL);
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "irc: channel %s created\n", channel->name);
-      log_printf(LOG_DEBUG, "irc: %s joined channel %s\n", 
-		 client->nick, channel->name);
+      log_printf (LOG_DEBUG, "irc: channel %s created\n", channel->name);
+      log_printf (LOG_DEBUG, "irc: %s joined channel %s\n", 
+		  client->nick, channel->name);
 #endif
       n = client->channels;
       client->channel[n] = channel->name;
@@ -236,24 +340,24 @@ del_client_of_channel (irc_config_t *cfg,
   int n, i, last;
 
   /* does the channel exist ? */
-  if((channel = irc_find_channel(chan)))
+  if ((channel = irc_find_channel (cfg, chan)))
     {
       /* delete the client of this channel */
       last = channel->clients - 1;
-      for(n=0; n<channel->clients; n++)
-	if(channel->client[n] == client->nick)
+      for (n = 0; n < channel->clients; n++)
+	if (channel->client[n] == client->nick)
 	  {
 	    channel->client[n] = channel->client[last];
 	    channel->cflag[n] = channel->cflag[last];
 	    channel->clients--;
 #if ENABLE_DEBUG
-	    log_printf(LOG_DEBUG, "irc: %s left channel %s\n",
-		       client->nick, chan);
+	    log_printf (LOG_DEBUG, "irc: %s left channel %s\n",
+			client->nick, chan);
 #endif
 	    /* clear this channel of client's list */
 	    last = client->channels - 1;
-	    for(i=0; i<client->channels; i++)
-	      if(client->channel[i] == channel->name)
+	    for (i = 0; i < client->channels; i++)
+	      if (client->channel[i] == channel->name)
 		{
 		  client->channel[i] = client->channel[last];
 		  client->channels--;
@@ -262,10 +366,10 @@ del_client_of_channel (irc_config_t *cfg,
 	    break;
 	  }
       /* no client in channel ? */
-      if(channel->clients == 0)
+      if (channel->clients == 0)
 	{
 #if ENABLE_DEBUG
-	  log_printf(LOG_DEBUG, "irc: channel %s destroyed\n", chan);
+	  log_printf (LOG_DEBUG, "irc: channel %s destroyed\n", chan);
 #endif
 	  irc_delete_channel (cfg, chan);
 	}
@@ -337,31 +441,31 @@ del_client_of_channels (irc_config_t *cfg,
   sock = find_sock_by_id (client->id);
 
   /* go through all channels */
-  while(client->channels)
+  while (client->channels)
     {
-      channel = irc_find_channel(client->channel[0]);
+      channel = irc_find_channel (cfg, client->channel[0]);
 
       /* tell all clients in the channel about disconnecting */
-      for(i=0; i<channel->clients; i++)
+      for (i = 0; i < channel->clients; i++)
 	{
-	  if(channel->client[i] == client->nick)
+	  if (channel->client[i] == client->nick)
 	    continue;
 	  
-	  cl = irc_find_nick(channel->client[i]);
-	  xsock = find_sock_by_id(cl->id);
-	  irc_printf(xsock, ":%s!%s@%s QUIT :%s\n",
-		     client->nick, client->user, client->host, reason);
+	  cl = irc_find_nick (cfg, channel->client[i]);
+	  xsock = find_sock_by_id (cl->id);
+	  irc_printf (xsock, ":%s!%s@%s QUIT :%s\n",
+		      client->nick, client->user, client->host, reason);
 	}
 	  
       /* delete this client of channel */
-      del_client_of_channel(cfg, client, client->channel[0]);
+      del_client_of_channel (cfg, client, client->channel[0]);
     }
 
   /* send last error Message */
-  irc_printf(sock, "ERROR :" IRC_CLOSING_LINK "\n", client->host, reason);
+  irc_printf (sock, "ERROR :" IRC_CLOSING_LINK "\n", client->host, reason);
 
   /* delete this client */
-  irc_delete_client (cfg, sock->socket_id);
+  irc_delete_client (cfg, client);
 
   return 0;
 }
@@ -374,13 +478,10 @@ int
 irc_disconnect (socket_t sock)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_client_t *client;
+  irc_client_t *client = sock->data;
   
   /* is it a valid IRC connection ? */
-  if((client = irc_find_client(sock->socket_id)))
-    {
-      del_client_of_channels(cfg, client, IRC_CONNECTION_LOST);
-    }
+  del_client_of_channels (cfg, client, IRC_CONNECTION_LOST);
   return 0;
 }
 
@@ -392,15 +493,13 @@ int
 irc_idle (socket_t sock)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_client_t *client;
+  irc_client_t *client = sock->data;
 
-  client = irc_find_client(sock->socket_id);
-  
   /* 
    * Shutdown this connection if the client did not respond
    * within a certain period of time.
    */
-  if(client->ping > 0)
+  if (client->ping > 0)
     {
       return -1;
     }
@@ -408,9 +507,9 @@ irc_idle (socket_t sock)
   /*
    * Ping a client connection if necessary.
    */
-  if((time(NULL) - sock->last_recv) >= IRC_PING_INTERVAL)
+  if ((time (NULL) - sock->last_recv) >= IRC_PING_INTERVAL)
     {
-      irc_printf(sock, "PING %s\n", cfg->host);
+      irc_printf (sock, "PING %s\n", cfg->host);
       client->ping++;
     }
 
@@ -467,24 +566,23 @@ int
 irc_handle_request (socket_t sock, char *request, int len)
 {
   irc_config_t *cfg = sock->cfg;
+  irc_client_t *client = sock->data;
   int n;
-  irc_client_t *client;
 
-  irc_parse_request(request, len);
-  client = irc_find_client(sock->socket_id);
+  irc_parse_request (request, len);
 
-  for(n=0; irc_callback[n].request; n++)
+  for(n = 0; irc_callback[n].request; n++)
     {
-      if(!strcasecmp(irc_callback[n].request, irc_request.request))
+      if (!strcasecmp (irc_callback[n].request, irc_request.request))
 	{
 	  return 
-	    irc_callback[n].func(sock, client, &irc_request);
+	    irc_callback[n].func (sock, client, &irc_request);
 	}
     }
 
-  irc_printf(sock, ":%s %03d %s " ERR_UNKNOWNCOMMAND_TEXT "\n",
-	     cfg->host, ERR_UNKNOWNCOMMAND, client->nick,
-	     irc_request.request);
+  irc_printf (sock, ":%s %03d %s " ERR_UNKNOWNCOMMAND_TEXT "\n",
+	      cfg->host, ERR_UNKNOWNCOMMAND, client->nick,
+	      irc_request.request);
 
   return 0;
 }
@@ -496,21 +594,16 @@ irc_handle_request (socket_t sock, char *request, int len)
 int
 irc_delete_channel (irc_config_t *cfg, char *channel)
 {
-  irc_channel_t *chan, *old;
+  irc_channel_t *chan;
   int n;
 
-  for(chan = old = irc_channel_list; chan; old = chan, chan = chan->next)
+  if ((chan = hash_get (cfg->channels, channel)) != NULL)
     {
-      if(!strcmp(chan->name, channel))
-	{
-	  old->next = chan->next;
-	  if(chan == irc_channel_list) irc_channel_list = chan->next;
-	  for(n=0; n<chan->bans; n++)
-	    xfree(chan->ban[n]);
-	  xfree(chan);
-	  cfg->channels--;
-	  return 0;
-	}
+      for (n = 0; n < chan->bans; n++)
+	xfree (chan->ban[n]);
+      xfree (chan);
+      hash_delete (cfg->channels, channel);
+      return 0;
     }
   return -1;
 }
@@ -520,37 +613,40 @@ irc_delete_channel (irc_config_t *cfg, char *channel)
  * the channel has not been found.
  */
 irc_channel_t *
-irc_find_channel(char *channel)
+irc_find_channel (irc_config_t *cfg, char *channel)
 {
   irc_channel_t *chan;
 
-  for(chan = irc_channel_list; chan; chan = chan->next)
-    {
-      if(!string_equal(chan->name, channel))
-	{
-	  return chan;
-	}
-    }
-  return NULL;
+  chan = hash_get (cfg->channels, channel);
+  return chan;
 }
 
 /*
- * Find a Matching channel in the current channel list. Return NULL if
- * no channel has not been found and return the first channel been found.
- * Start searching at the given channel (if NULL start at the beginning).
+ * Find all matching channels in the current channel list. Return NULL if
+ * no channel has not been found. You MUST xfree() this list if non-NULL.
+ * The delivered array is NULL terminated.
  */
-irc_channel_t *
-irc_regex_channel(irc_channel_t *ch, char *regex)
+irc_channel_t **
+irc_regex_channel (irc_config_t *cfg, char *regex)
 {
-  irc_channel_t *channel;
+  irc_channel_t **channel, **fchannel;
+  int n, found, size;
 
-  channel = ch ? ch->next : irc_channel_list;
-  for(; channel; channel = channel->next)
+  if ((channel = (irc_channel_t **)hash_values (cfg->channels)) != NULL)
     {
-      if(string_regex(channel->name, regex))
+      size = hash_size (cfg->channels);
+      fchannel = xmalloc (sizeof (irc_channel_t *) * (size + 1));
+      for (found = n = 0; n < size; n++)
 	{
-	  return channel;
+	  if (string_regex (channel[n]->name, regex))
+	    {
+	      fchannel[found++] = channel[n];
+	    }
 	}
+      xfree (channel);
+      fchannel[found++] = NULL;
+      fchannel = xrealloc (fchannel, sizeof (irc_channel_t *) * (found));
+      return fchannel;
     }
   return NULL;
 }
@@ -559,50 +655,51 @@ irc_regex_channel(irc_channel_t *ch, char *regex)
  * Add a new channel to the channel list.
  */
 irc_channel_t *
-irc_add_channel (irc_config_t *cfg, char *channel)
+irc_add_channel (irc_config_t *cfg, char *name)
 {
-  irc_channel_t *chan;
+  irc_channel_t *channel;
 
-  if(irc_find_channel(channel))
+  if (irc_find_channel (cfg, name))
     return NULL;
 
-  chan = xmalloc(sizeof(irc_channel_t));
-  memset(chan, 0, sizeof(irc_channel_t));
-  strcpy(chan->name, channel);
-  chan->next = irc_channel_list;
-  irc_channel_list = chan;
-  cfg->channels++;
-  return chan;
+  channel = xmalloc (sizeof (irc_channel_t));
+  memset (channel, 0, sizeof (irc_channel_t));
+  strcpy (channel->name, name);
+  hash_put (cfg->channels, name, channel);
+  return channel;
 }
 
 /*
  * Add a client to the client history list.
  */
 void
-irc_add_client_history(irc_client_t *cl)
+irc_add_client_history (irc_config_t *cfg, irc_client_t *cl)
 {
   irc_client_history_t *client;
 
-  client = xmalloc(sizeof(irc_client_history_t));
-  client->next = irc_client_history;
-  irc_client_history = client;
-  strcpy(client->nick, cl->nick);
-  strcpy(client->user, cl->user);
-  strcpy(client->host, cl->host);
-  strcpy(client->real, cl->real);
+  client = xmalloc (sizeof (irc_client_history_t));
+  strcpy (client->nick, cl->nick);
+  strcpy (client->user, cl->user);
+  strcpy (client->host, cl->host);
+  strcpy (client->real, cl->real);
+  
+  client->next = cfg->history;
+  cfg->history = client;
 }
 
 /*
  * Find a nick in the history client list. Return NULL if
- * no nick has not been found and return the first client been found.
- * Start searching at the given client (if NULL start at the beginning).
+ * no nick has not been found. Otherwise the first client found within
+ * the history list.
  */
 irc_client_history_t *
-irc_find_nick_history(irc_client_history_t *cl, char *nick)
+irc_find_nick_history (irc_config_t *cfg, 
+		       irc_client_history_t *cl, 
+		       char *nick)
 {
   irc_client_history_t *client;
 
-  client = cl ? cl->next : irc_client_history;
+  client = cl ? cl->next : cfg->history;
   for(; client; client = client->next)
     {
       if(!string_equal(client->nick, nick))
@@ -617,17 +714,17 @@ irc_find_nick_history(irc_client_history_t *cl, char *nick)
  * Delete all the client history.
  */
 void
-irc_delete_client_history(void)
+irc_delete_client_history (irc_config_t *cfg)
 {
   irc_client_history_t *client;
   irc_client_history_t *old;
 
-  for(client = irc_client_history; client; client = old)
+  for (client = cfg->history; client; client = old)
     {
       old = client->next;
-      xfree(client);
+      xfree (client);
     }
-  irc_client_history = NULL;
+  cfg->history = NULL;
 }
 
 /*
@@ -635,29 +732,18 @@ irc_delete_client_history(void)
  * apropiate client.
  */
 int
-irc_delete_client (irc_config_t *cfg, int id)
+irc_delete_client (irc_config_t *cfg, irc_client_t *client)
 {
-  irc_client_t *client;
-  irc_client_t *old = NULL;
+  /* put this client into the history list */
+  irc_add_client_history (cfg, client);
+  
+  if (hash_delete (cfg->clients, client->nick) == NULL)
+    return -1;
 
-  for(client = irc_client_list; client; client = client->next)
-    {
-      if(client->id == id)
-	{
-	  /* put this client into the history list */
-	  irc_add_client_history(client);
+  xfree (client);
+  cfg->users--;
 
-	  irc_client_lookup_table[id] = NULL;
-	  if(old) old->next = client->next;
-	  if(client == irc_client_list) irc_client_list = client->next;
-	  xfree(client);
-	  cfg->clients--;
-	  cfg->users--;
-	  return 0;
-	}
-      old = client;
-    }
-  return -1;
+  return 0;
 }
 
 /*
@@ -665,29 +751,27 @@ irc_delete_client (irc_config_t *cfg, int id)
  * no client has not been found.
  */
 irc_client_t *
-irc_find_userhost(char *user, char *host)
+irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 {
-  irc_client_t *client;
+  irc_client_t **client;
+  irc_client_t *fclient;
+  int n;
 
-  for(client = irc_client_list; client; client = client->next)
+  if ((client = (irc_client_t **)hash_values (cfg->clients)) != NULL)
     {
-      if(!strcmp(client->user, user) && !strcmp(client->host, host))
+      for (n = 0; n < hash_size (cfg->clients); n++)
 	{
-	  return client;
+	  if (!strcmp (client[n]->user, user) && 
+	      !strcmp (client[n]->host, host))
+	    {
+	      fclient = client[n];
+	      xfree (client);
+	      return fclient;
+	    }
 	}
+      xfree (client);
     }
   return NULL;
-}
-
-/*
- * Find a client within the current client list. Return NULL if
- * the client has not been found.
- */
-irc_client_t *
-irc_find_client(int id)
-{
-  return 
-    irc_client_lookup_table[id];
 }
 
 /*
@@ -695,37 +779,43 @@ irc_find_client(int id)
  * the nick has not been found.
  */
 irc_client_t *
-irc_find_nick(char *nick)
+irc_find_nick (irc_config_t *cfg, char *nick)
 {
   irc_client_t *client;
 
-  for(client = irc_client_list; client; client = client->next)
+  if ((client = hash_get (cfg->clients, nick)) != NULL)
     {
-      if(!string_equal(client->nick, nick))
-	{
-	  return client;
-	}
+      return client;
     }
   return NULL;
 }
 
 /*
- * Find a Matching nick in the current client list. Return NULL if
- * no nick has not been found and return the first client been found.
- * Start searching at the given client (if NULL start at the beginning).
+ * Find all matching nicks in the current client list. Return NULL if
+ * no nick has not been found. You MUST xfree() this array if it is
+ * non-NULL. The delivered clients are NULL terminated.
  */
-irc_client_t *
-irc_regex_nick(irc_client_t *cl, char *regex)
+irc_client_t **
+irc_regex_nick (irc_config_t *cfg, char *regex)
 {
-  irc_client_t *client;
+  irc_client_t **client, **fclient;
+  int n, found, size;
 
-  client = cl ? cl->next : irc_client_list;
-  for(; client; client = client->next)
+  if ((client = (irc_client_t **)hash_values (cfg->clients)) != NULL)
     {
-      if(string_regex(client->nick, regex))
+      size = hash_size (cfg->clients);
+      fclient = xmalloc (sizeof (irc_client_t *) * (size + 1));
+      for (found = n = 0; n < size; n++)
 	{
-	  return client;
+	  if (string_regex (client[n]->nick, regex))
+	    {
+	      fclient[found++] = client[n];
+	    }
 	}
+      xfree (client);
+      fclient[found++] = NULL;
+      fclient = xrealloc (fclient, sizeof (irc_client_t *) * (found));
+      return fclient;
     }
   return NULL;
 }
@@ -734,21 +824,27 @@ irc_regex_nick(irc_client_t *cl, char *regex)
  * Add a new client to the client list.
  */
 irc_client_t *
-irc_add_client (irc_config_t *cfg, int id)
+irc_add_client (irc_config_t *cfg, irc_client_t *client)
+{
+  if (irc_find_nick (cfg, client->nick))
+    return NULL;
+
+  hash_put (cfg->clients, client->nick, client);
+  return client;
+}
+
+/*
+ * Create a new IRC client structure. This will be stored within the
+ * miscelleanous data field in the socket structure (sock->data).
+ */
+irc_client_t *
+irc_create_client (irc_config_t *cfg)
 {
   irc_client_t *client;
 
-  if(irc_find_client(id))
-    return NULL;
-
-  client = xmalloc(sizeof(irc_client_t));
-  memset(client, 0, sizeof(irc_client_t));
-  client->id = id;
-  client->next = irc_client_list;
-  irc_client_list = client;
-  cfg->clients++;
+  client = xmalloc (sizeof (irc_client_t));
+  memset (client, 0, sizeof (irc_client_t));
   cfg->users++;
-  irc_client_lookup_table[id] = client;
   return client;
 }
 
@@ -756,7 +852,7 @@ irc_add_client (irc_config_t *cfg, int id)
  * Print a formatted string to the socket SOCK.
  */
 int
-irc_printf(socket_t sock, const char *fmt, ...)
+irc_printf (socket_t sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -770,10 +866,10 @@ irc_printf(socket_t sock, const char *fmt, ...)
   va_end (args);
 
   /* Just to be sure... */
-  if (len > sizeof(buffer))
-    len = sizeof(buffer);
+  if (len > sizeof (buffer))
+    len = sizeof (buffer);
 
-  if((len = sock_write(sock, buffer, len)))
+  if ((len = sock_write (sock, buffer, len)))
     {
       sock->flags |= SOCK_FLAG_KILLED;
     }

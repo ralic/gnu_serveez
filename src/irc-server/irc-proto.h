@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-proto.h,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -32,6 +32,8 @@
 #define _GNU_SOURCE
 #include <time.h>
 
+#include "hash.h"
+#include "server.h"
 #include "irc-core/irc-core.h"
 
 /* Some restrictions. */
@@ -147,6 +149,7 @@ typedef struct
   char *host;                     /* server name (virtual host) */
   char *pass;                     /* password */
   int id;                         /* socket id */
+  void *cfg;                      /* irc server configuration hash */
   void *next;                     /* next server in the list */
 }
 irc_server_t;
@@ -156,13 +159,11 @@ irc_server_t;
  */
 typedef struct
 {
-  int servers;                    /* amount of connected servers */
+  portcfg_t *netport;             /* port configuration */
   int operators;                  /* amount of logged in server operators */
   int users;                      /* amount of logged in users */
   int unknowns;                   /* unknown connections */
-  int channels;                   /* formed channels on this server */
   int invisibles;                 /* invisible users */
-  int clients;                    /* amount of clients */
 
   char *host;                     /* local server virtual host */
   char *realhost;                 /* local server host */
@@ -278,16 +279,16 @@ typedef struct
   char *location2;                /* university, department */
   char *oper_host[MAX_OPERS];     /* accept operator hosts from */
   char *oper_pass[MAX_OPERS];     /* accept operator passwords (use crypt) */
+
+  hash_t *channels; /* channel list root */
+  hash_t *clients;  /* client list root */
+  irc_server_t *servers;  /* server list root */
+  irc_client_history_t *history; /* client history list root */
 }
 irc_config_t;
 
-extern irc_config_t   irc_config;       /* IRC configuration */
-extern irc_channel_t *irc_channel_list; /* channel list root */
-extern irc_client_t  *irc_client_list;  /* client list root */
-extern irc_server_t  *irc_server_list;  /* server list root */
-
-/* IRC client lookup table */
-irc_client_t *irc_client_lookup_table[SOCKET_MAX_IDS]; 
+/* Export the irc server definition to `server.c'. */
+extern server_definition_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
 int is_client_in_channel(socket_t sock, 
@@ -309,27 +310,31 @@ int irc_disconnect(socket_t sock);
 int irc_idle(socket_t sock);
 
 /* channel operations */
-int irc_delete_channel(irc_config_t *cfg, char *channel);
-irc_channel_t *irc_add_channel(irc_config_t *cfg, char *channel);
-irc_channel_t *irc_find_channel(char *channel);
-irc_channel_t *irc_regex_channel(irc_channel_t *ch, char *regex);
+int irc_delete_channel (irc_config_t *cfg, char *channel);
+irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
+irc_channel_t *irc_find_channel (irc_config_t *cfg, char *channel);
+irc_channel_t **irc_regex_channel (irc_config_t *cfg, char *regex);
 int add_client_to_channel(irc_config_t *cfg, irc_client_t *client, char *chan);
 int del_client_of_channel(irc_config_t *cfg, irc_client_t *client, char *chan);
 int del_client_of_channels(irc_config_t *, irc_client_t *, char *reason);
 
 /* client operations */
-void irc_delete_client_history(void);
-void irc_add_client_history(irc_client_t *cl);
-int irc_delete_client(irc_config_t *cfg, int id);
-irc_client_t *irc_add_client(irc_config_t *cfg, int id);
-irc_client_t *irc_find_client(int id);
-irc_client_t *irc_find_nick(char *nick);
-irc_client_t *irc_find_userhost(char *user, char *host);
-irc_client_t *irc_regex_nick(irc_client_t *cl, char *regex);
-irc_client_history_t *irc_find_nick_history(irc_client_history_t *, char *);
+void irc_delete_client_history (irc_config_t *cfg);
+void irc_add_client_history (irc_config_t *cfg, irc_client_t *cl);
+int irc_delete_client (irc_config_t *cfg, irc_client_t *cl);
+irc_client_t *irc_add_client (irc_config_t *cfg, irc_client_t *client);
+irc_client_t *irc_create_client (irc_config_t *cfg);
+irc_client_t *irc_find_nick (irc_config_t *cfg, char *nick);
+irc_client_t *irc_find_userhost (irc_config_t *cfg, char *user, char *host);
+irc_client_t **irc_regex_nick (irc_config_t *cfg, char *regex);
+irc_client_history_t *irc_find_nick_history (irc_config_t *, 
+					     irc_client_history_t *, char *);
 
-void irc_init_config(irc_config_t *cfg);
-void irc_close_config(irc_config_t *cfg);
+/* irc server functions */
+int irc_init (server_t *server);
+int irc_global_init (void);
+int irc_finalize (server_t *server);
+int irc_global_finalize (void);
 
 #define IRC_CLOSING_LINK    "Closing Link: %s (%s)"
 #define IRC_CONNECTION_LOST "Connection reset by peer"
@@ -360,6 +365,8 @@ void irc_close_config(irc_config_t *cfg);
 #define UMODE_PASS      0x0020 /* password + crypt flag */
 #define UMODE_NICK      0x0040 /* nick flag */
 #define UMODE_USER      0x0080 /* user flag */
+#define UMODE_IDENT     0x0100 /* identification flag */
+#define UMODE_DNS       0x0200 /* nslookup flag */
 
 #define UMODE_REGISTERED (UMODE_NICK | UMODE_USER | UMODE_PASS)
 

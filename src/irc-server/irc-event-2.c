@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-event-2.c,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -62,18 +62,18 @@ irc_part_callback (socket_t sock,
   int n;
 
   /* do you have enough paras ? */
-  if(check_paras(sock, client, cfg, request, 1))
+  if (check_paras (sock, client, cfg, request, 1))
     return 0;
 
   /* go through all targets in the first para */
-  for(n=0; n<request->targets; n++)
+  for (n = 0; n < request->targets; n++)
     {
       /* does the channel exist ? */
-      if(!(channel = irc_find_channel(request->target[n].channel)))
+      if(!(channel = irc_find_channel (cfg, request->target[n].channel)))
 	{
-	  irc_printf(sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
-		     cfg->host, ERR_NOSUCHCHANNEL, client->nick,
-		     request->target[n].channel);
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
+		      cfg->host, ERR_NOSUCHCHANNEL, client->nick,
+		      request->target[n].channel);
 	  return 0;
 	}
 
@@ -84,8 +84,8 @@ irc_part_callback (socket_t sock,
       /* send back the PART to all channel clients */
       for(n=0; n<channel->clients; n++)
 	{
-	  cl = irc_find_nick(channel->client[n]);
-	  xsock = find_sock_by_id(cl->id);
+	  cl = irc_find_nick (cfg, channel->client[n]);
+	  xsock = find_sock_by_id (cl->id);
 	  irc_printf(xsock, ":%s!%s@%s PART %s :%s\n",
 		     client->nick, client->user, client->host, 
 		     channel->name, request->para[1]);
@@ -160,27 +160,27 @@ send_channel_users (socket_t sock,
   int n;
 
   /* prebuild the nicklist */
-  for(nicklist[0]=0, n=0; n<channel->clients; n++)
+  for (nicklist[0] = 0, n = 0; n < channel->clients; n++)
     {
       /* check if the client is visible or not */
-      cl = irc_find_nick(channel->client[n]);
-      if(!(cl->flag & UMODE_INVISIBLE) &&
-	 is_client_in_channel(NULL, client, channel) != -1)
+      cl = irc_find_nick (cfg, channel->client[n]);
+      if (!(cl->flag & UMODE_INVISIBLE) &&
+	  is_client_in_channel (NULL, client, channel) != -1)
 	{
-	  if(channel->cflag[n] & MODE_OPERATOR) 
-	    strcat(nicklist, "@");
-	  else if(channel->cflag[n] & MODE_VOICE) 
-	    strcat(nicklist, "+");
-	  strcat(nicklist, channel->client[n]);
-	  strcat(nicklist, " ");
+	  if (channel->cflag[n] & MODE_OPERATOR) 
+	    strcat (nicklist, "@");
+	  else if (channel->cflag[n] & MODE_VOICE) 
+	    strcat (nicklist, "+");
+	  strcat (nicklist, channel->client[n]);
+	  strcat (nicklist, " ");
 	}
     }
 
   /* send channel info */
-  irc_printf(sock, ":%s %03d %s %c %s :%s\n",
-	     cfg->host, RPL_NAMREPLY, client->nick,
-	     channel->flag & (MODE_PRIVATE | MODE_SECRET) ? '*' : '=',
-	     channel->name, nicklist);
+  irc_printf (sock, ":%s %03d %s %c %s :%s\n",
+	      cfg->host, RPL_NAMREPLY, client->nick,
+	      channel->flag & (MODE_PRIVATE | MODE_SECRET) ? '*' : '=',
+	      channel->name, nicklist);
 }
 
 /*
@@ -214,7 +214,7 @@ irc_join_callback (socket_t sock,
       chan = request->target[n].channel;
 
       /* does the channel already exists ? */
-      if((channel = irc_find_channel(chan)))
+      if ((channel = irc_find_channel (cfg, chan)))
 	{
 	  /* is a key set for this channel and is the given one ok ? */
 	  if(channel->flag & MODE_KEY &&
@@ -276,15 +276,15 @@ irc_join_callback (socket_t sock,
 
       /* done, do not deny this channel ! */
       add_client_to_channel (cfg, client, chan);
-      channel = irc_find_channel(chan);
+      channel = irc_find_channel (cfg, chan);
 
       /* send back the JOIN to all channel clients */
-      for(i=0; i<channel->clients; i++)
+      for (i = 0; i < channel->clients; i++)
 	{
-	  cl = irc_find_nick(channel->client[i]);
-	  xsock = find_sock_by_id(cl->id);
-	  irc_printf(xsock, ":%s!%s@%s JOIN :%s\n",
-		     client->nick, client->user, client->host, chan);
+	  cl = irc_find_nick (cfg, channel->client[i]);
+	  xsock = find_sock_by_id (cl->id);
+	  irc_printf (xsock, ":%s!%s@%s JOIN :%s\n",
+		      client->nick, client->user, client->host, chan);
 	}
 
       /* send topic */
@@ -363,6 +363,7 @@ set_client_flag (irc_client_t *client,   /* client changing the flag */
 		 int flag,               /* flag to be set / unset */
 		 char set)               /* set / unset */
 {
+  irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   socket_t xsock;
   int i, n;
@@ -399,13 +400,13 @@ set_client_flag (irc_client_t *client,   /* client changing the flag */
     }
 
   /* propagate Mode change to channel users */
-  for(n=0; n<channel->clients; n++)
+  for (n = 0; n < channel->clients; n++)
     {
-      cl = irc_find_nick(channel->client[n]);
-      xsock = find_sock_by_id(cl->id);
-      irc_printf(xsock, ":%s!%s@%s MODE %s %c%c %s\n",
-		 client->nick, client->user, client->host, channel->name, 
-		 set ? '+' : '-', Mode, channel->client[i]);
+      cl = irc_find_nick (cfg, channel->client[n]);
+      xsock = find_sock_by_id (cl->id);
+      irc_printf (xsock, ":%s!%s@%s MODE %s %c%c %s\n",
+		  client->nick, client->user, client->host, channel->name, 
+		  set ? '+' : '-', Mode, channel->client[i]);
     }
 
   return 0;
@@ -472,6 +473,7 @@ set_channel_flag (irc_client_t *client,   /* client changing the flag */
 		  int flag,               /* flag to be set / unset */
 		  char set)               /* set / unset */
 {
+  irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   socket_t xsock;
   int n;
@@ -494,13 +496,13 @@ set_channel_flag (irc_client_t *client,   /* client changing the flag */
   else    channel->flag &= ~flag;
 
   /* propagate Mode change to channel users */
-  for(n=0; n<channel->clients; n++)
+  for (n = 0; n < channel->clients; n++)
     {
-      cl = irc_find_nick(channel->client[n]);
-      xsock = find_sock_by_id(cl->id);
-      irc_printf(xsock, ":%s!%s@%s MODE %s %c%c\n",
-		 client->nick, client->user, client->host, channel->name, 
-		 set ? '+' : '-', Mode);
+      cl = irc_find_nick (cfg, channel->client[n]);
+      xsock = find_sock_by_id (cl->id);
+      irc_printf (xsock, ":%s!%s@%s MODE %s %c%c\n",
+		  client->nick, client->user, client->host, channel->name, 
+		  set ? '+' : '-', Mode);
     }
 
   return 0;
@@ -685,15 +687,15 @@ set_channel_arg (irc_client_t *client,   /* client changing the flag */
     }
 
   /* propagate Mode change to channel users */
-  for(n=0; n<channel->clients; n++)
+  for (n = 0; n < channel->clients; n++)
     {
-      cl = irc_find_nick(channel->client[n]);
-      xsock = find_sock_by_id(cl->id);
-      irc_printf(xsock, ":%s!%s@%s MODE %s %c%c%s%s\n",
-		 client->nick, client->user, client->host,
-		 channel->name, 
-		 set ? '+' : '-', Mode, 
-		 set ? " " : "", set ? arg : "");
+      cl = irc_find_nick (cfg, channel->client[n]);
+      xsock = find_sock_by_id (cl->id);
+      irc_printf (xsock, ":%s!%s@%s MODE %s %c%c%s%s\n",
+		  client->nick, client->user, client->host,
+		  channel->name, 
+		  set ? '+' : '-', Mode, 
+		  set ? " " : "", set ? arg : "");
     }
 
   return 0;
@@ -786,20 +788,20 @@ irc_mode_callback (socket_t sock,
   int n, para;
 
   /* enough paras, but at least one ? */
-  if(check_paras(sock, client, cfg, request, 1))
+  if (check_paras (sock, client, cfg, request, 1))
     return 0;
 
   chan = nick = request->para[0];
 
   /* is target channel ? */
-  if((channel = irc_find_channel(chan)))
+  if ((channel = irc_find_channel (cfg, chan)))
     {
       /* this is a request only ? */
-      if(request->paras < 2)
+      if (request->paras < 2)
 	{
-	  irc_printf(sock, ":%s %03d %s %s %s\n", cfg->host,
-		     RPL_CHANNELMODEIS,  client->nick, channel->name,
-		     get_channel_flags(channel));
+	  irc_printf (sock, ":%s %03d %s %s %s\n", cfg->host,
+		      RPL_CHANNELMODEIS,  client->nick, channel->name,
+		      get_channel_flags (channel));
 	  return 0;
 	}
 
@@ -914,7 +916,7 @@ irc_mode_callback (socket_t sock,
     }
   
   /* is target nick ? */
-  else if((cl = irc_find_nick(nick)))
+  else if ((cl = irc_find_nick (cfg, nick)))
     {
       /* get and set user flag only by itself ! */
       if(cl != client)
@@ -998,9 +1000,9 @@ irc_topic_callback (socket_t sock,
     return 0;
 
   /* get the channel target */
-  if((channel = irc_find_channel(request->target[0].channel)))
+  if ((channel = irc_find_channel (cfg, request->target[0].channel)))
     {
-      if((n = is_client_in_channel(sock, client, channel)) != -1)
+      if((n = is_client_in_channel (sock, client, channel)) != -1)
 	{
 	  /* just send TOPIC back */
 	  if(request->paras < 2)
@@ -1020,13 +1022,13 @@ irc_topic_callback (socket_t sock,
 	      channel->topic_since = time(NULL);
 
 	      /* send topic to all clients in channel */
-	      for(i=0; i<channel->clients; i++)
+	      for(i = 0; i < channel->clients; i++)
 		{
-		  cl = irc_find_nick(channel->client[i]);
-		  xsock = find_sock_by_id(cl->id);
-		  irc_printf(xsock, ":%s!%s@%s TOPIC %s :%s\n",
-			     client->nick, client->user, client->host, 
-			     channel->name, channel->topic);
+		  cl = irc_find_nick (cfg, channel->client[i]);
+		  xsock = find_sock_by_id (cl->id);
+		  irc_printf (xsock, ":%s!%s@%s TOPIC %s :%s\n",
+			      client->nick, client->user, client->host, 
+			      channel->name, channel->topic);
 		}
 	    }
 	}
@@ -1045,27 +1047,32 @@ irc_names_callback (socket_t sock,
 		    irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_client_t *cl;
-  irc_channel_t *ch;
+  irc_client_t **cl;
+  irc_channel_t **ch;
+  irc_channel_t *channel;
   static char text[MAX_MSG_LEN];
-  int n;
+  int n, i;
 
   /* list all channels and users ? */
-  if(request->paras < 1)
+  if (request->paras < 1)
     {
       /* go through all channels */
-      for(ch = irc_channel_list; ch; ch = ch->next)
+      if ((ch = (irc_channel_t **)hash_values (cfg->channels)) != NULL)
 	{
-	  /* 
-	   * you can't see secret and private channels, 
-	   * except you are in it
-	   */
-	  if(is_client_in_channel(NULL, client, ch) == -1 &&
-	     (ch->flag & (MODE_SECRET | MODE_PRIVATE)))
-	    continue;
+	  for (n = 0; n < hash_size (cfg->channels); n++)
+	    {
+	      /* 
+	       * you can't see secret and private channels, 
+	       * except you are in it
+	       */
+	      if (is_client_in_channel (NULL, client, ch[n]) == -1 &&
+		  (ch[n]->flag & (MODE_SECRET | MODE_PRIVATE)))
+		continue;
 
-	  /* send a line */
-	  send_channel_users (sock, client, ch);
+	      /* send a line */
+	      send_channel_users (sock, client, ch[n]);
+	    }
+	  xfree (ch);
 	}
 
       /* 
@@ -1074,53 +1081,59 @@ irc_names_callback (socket_t sock,
        * Public channels are not secret or private or channels
        * clients share.
        */
-      for(text[0] = 0, cl = irc_client_list; cl; cl = cl->next)
+      if ((cl = (irc_client_t **)hash_values (cfg->clients)) != NULL)
 	{
-	  /* visible ? */
-	  if(!(cl->flag & UMODE_INVISIBLE))
+	  for (n = 0; n < hash_size (cfg->clients); n++)
 	    {
-	      /* go through all channels of the client */
-	      for(n=0; n<cl->channels; n++)
+	      text[0] = 0;
+
+	      /* visible ? */
+	      if (!(cl[n]->flag & UMODE_INVISIBLE))
 		{
-		  ch = irc_find_channel(cl->channel[n]);
-		  /* is it public or a shared channel ? */
-		  if(!(ch->flag & (MODE_SECRET | MODE_PRIVATE)) ||
-		     is_client_in_channel(NULL, client, ch) != -1)
-		    break;
-		}
-	      /* is the client in no channel or in no shared or public ? */
-	      if(n == cl->channels)
-		{
-		  if(cl->flag & UMODE_OPERATOR)
-		    strcat(text, "@");
-		  strcat(text, cl->nick);
-		  strcat(text, " ");
+		  /* go through all channels of the client */
+		  for (i = 0; i < cl[n]->channels; i++)
+		    {
+		      channel = irc_find_channel (cfg, cl[n]->channel[i]);
+		      /* is it public or a shared channel ? */
+		      if (!(channel->flag & (MODE_SECRET | MODE_PRIVATE)) ||
+			  is_client_in_channel (NULL, client, channel) != -1)
+			break;
+		    }
+		  /* is the client in no channel or in no shared or public ? */
+		  if (n == cl[n]->channels)
+		    {
+		      if (cl[n]->flag & UMODE_OPERATOR)
+			strcat (text, "@");
+		      strcat (text, cl[n]->nick);
+		      strcat (text, " ");
+		    }
 		}
 	    }
+	  xfree (cl);
 	}
       /* send the (*) reply */
-      irc_printf(sock, ":%s %03d %s * * :%s\n",
-		 cfg->host, RPL_NAMREPLY, client->nick, text);
+      irc_printf (sock, ":%s %03d %s * * :%s\n",
+		  cfg->host, RPL_NAMREPLY, client->nick, text);
 
       /* send endo of list */
-      irc_printf(sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
-		 cfg->host, RPL_ENDOFNAMES, client->nick, "");
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
+		  cfg->host, RPL_ENDOFNAMES, client->nick, "");
     }
   /* list only specified channels */
   else
     {
-      for(n=0; n<request->targets; n++)
+      for (n = 0; n < request->targets; n++)
 	{
-	  if((ch = irc_find_channel(request->target[n].channel)))
+	  if ((channel = irc_find_channel (cfg, request->target[n].channel)))
 	    {
-	      if(is_client_in_channel(NULL, client, ch) == -1 &&
-		 (ch->flag & (MODE_SECRET | MODE_PRIVATE)))
+	      if (is_client_in_channel(NULL, client, channel) == -1 &&
+		  (channel->flag & (MODE_SECRET | MODE_PRIVATE)))
 		continue;
-	      send_channel_users(sock, client, ch);
+	      send_channel_users (sock, client, channel);
 	    }
-	  irc_printf(sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
-		     cfg->host, RPL_ENDOFNAMES, client->nick, 
-		     ch->name);
+	  irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
+		      cfg->host, RPL_ENDOFNAMES, client->nick, 
+		      channel->name);
 	}
     }
 
@@ -1141,27 +1154,27 @@ send_channel_list (socket_t sock,
   int visibles;
 
   /* hide secret channels */
-  if(channel->flag & MODE_SECRET)
+  if (channel->flag & MODE_SECRET)
     return;
 
   /* hide private channels you're not in */
-  if(channel->flag & MODE_PRIVATE &&
-     is_client_in_channel(NULL, client, channel) == -1)
+  if (channel->flag & MODE_PRIVATE &&
+     is_client_in_channel (NULL, client, channel) == -1)
     return;
 
   /* count visible clients in the channel */
-  for(visibles=0, n=0; n<channel->clients; n++)
+  for (visibles = 0, n = 0; n < channel->clients; n++)
     {
-      cl = irc_find_nick(channel->client[n]);
-      if(!(cl->flag & UMODE_INVISIBLE))
+      cl = irc_find_nick (cfg, channel->client[n]);
+      if (!(cl->flag & UMODE_INVISIBLE))
 	visibles++;
     }
 
   /* send channel info */
-  irc_printf(sock, ":%s %03d %s %s" RPL_LIST_TEXT "\n", 
-	     cfg->host, RPL_LIST, client->nick, 
-	     channel->flag & MODE_PRIVATE ? "* " : "",
-	     channel->name, visibles, channel->topic);
+  irc_printf (sock, ":%s %03d %s %s" RPL_LIST_TEXT "\n", 
+	      cfg->host, RPL_LIST, client->nick, 
+	      channel->flag & MODE_PRIVATE ? "* " : "",
+	      channel->name, visibles, channel->topic);
 
 }
 
@@ -1177,34 +1190,38 @@ irc_list_callback (socket_t sock,
 		   irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_channel_t *ch;
+  irc_channel_t **ch;
+  irc_channel_t *channel;
   int n;
 
   irc_printf(sock, ":%s %03d %s " RPL_LISTSTART_TEXT "\n", 
 	     cfg->host, RPL_LISTSTART, client->nick);
 
   /* list all channels */
-  if(request->paras < 1)
+  if (request->paras < 1)
     {
-      for(ch = irc_channel_list; ch; ch=ch->next)
+      if ((ch = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
 	{
-	  send_channel_list (sock, client, ch);
+	  for (n = 0; n < hash_size (cfg->channels); n++)
+	    {
+	      send_channel_list (sock, client, ch[n]);
+	    }
 	}
     }
   /* list specified channels */
   else
     {
-      for(n=0; n<request->targets; n++)
+      for(n = 0; n < request->targets; n++)
 	{
-	  if((ch = irc_find_channel(request->target[n].channel)))
+	  if ((channel = irc_find_channel (cfg, request->target[n].channel)))
 	    {
-	      send_channel_list (sock, client, ch);
+	      send_channel_list (sock, client, channel);
 	    }
 	}
     }
 
-  irc_printf(sock, ":%s %03d " RPL_LISTEND_TEXT "\n", 
-	     cfg->host, RPL_LISTEND);
+  irc_printf (sock, ":%s %03d " RPL_LISTEND_TEXT "\n", 
+	      cfg->host, RPL_LISTEND);
 
   return 0;
 }
@@ -1237,14 +1254,14 @@ irc_invite_callback (socket_t sock,
   channel = request->para[1];
 
   /* does the nick exist ? */
-  if(!(cl = irc_find_nick(nick)))
+  if (!(cl = irc_find_nick (cfg, nick)))
     {
       irc_printf(sock, ":%s %03d %s " ERR_NOSUCHNICK_TEXT "\n",
 		 cfg->host, ERR_NOSUCHNICK, client->nick, nick);
       return 0;
     }
   /* does the channel exist ? */
-  if(!(ch = irc_find_channel(channel)))
+  if (!(ch = irc_find_channel (cfg, channel)))
     {
       irc_printf(sock, ":%s %03d %s " ERR_NOSUCHNICK_TEXT "\n",
 		 cfg->host, ERR_NOSUCHNICK, client->nick, channel);
@@ -1308,14 +1325,14 @@ irc_kick_callback (socket_t sock,
     return 0;
 
   /* go through all targets (channels) */
-  for(n=0; n<request->targets; n++)
+  for (n = 0; n < request->targets; n++)
     {
       /* does the requested channel exist ? */
-      if(!(channel = irc_find_channel(request->target[n].channel)))
+      if (!(channel = irc_find_channel (cfg, request->target[n].channel)))
 	{
-	  irc_printf(sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
-		     cfg->host, ERR_NOSUCHCHANNEL, client->nick,
-		     request->target[n].channel);
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
+		      cfg->host, ERR_NOSUCHCHANNEL, client->nick,
+		      request->target[n].channel);
 	  continue;
 	}
 
@@ -1328,7 +1345,8 @@ irc_kick_callback (socket_t sock,
 	continue;
       
       /* kick the requested user */
-      if(!(victim = irc_find_nick(get_para_target(request->para[1], n))))
+      if (!(victim = irc_find_nick (cfg, 
+				    get_para_target (request->para[1], n))))
 	continue;
       
       if(is_client_in_channel(NULL, victim, channel) == -1)
@@ -1336,7 +1354,7 @@ irc_kick_callback (socket_t sock,
 
       for(i=0; i<channel->clients; i++)
 	{
-	  cl = irc_find_nick(channel->client[i]);
+	  cl = irc_find_nick (cfg, channel->client[i]);
 
 	  xsock = find_sock_by_id(cl->id);
 	  irc_printf(xsock, ":%s!%s@%s KICK %s %s :%s\n",

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.6 2000/06/15 21:18:01 raimi Exp $
+ * $Id: serveez.c,v 1.7 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -46,12 +46,6 @@
 #include "option.h"
 #include "server-socket.h"
 #include "coserver/coserver.h"
-
-#if ENABLE_IRC_PROTO
-# include "irc-server/irc-proto.h"
-# include "irc-server/irc-server.h"
-#endif
-
 #include "server.h"
 
 /*
@@ -280,40 +274,46 @@ main (int argc, char * argv[])
       serveez_config.server_password = cli_pass;
     }
 
-  /*
-   * Initialise servers globaly
-   */
-  if ( server_global_init() == -1 ) {
-    return 2;
-  }
-  
-  /*
-   * Initialise servers
-   */
-  if ( server_init_all() == -1 )
-    {
-      /* Something went wrong while the server initialised themselfes.
-       * abort solently
-       */
-      return 3;
-    }
-
-#if ENABLE_DEBUG
-  log_printf(LOG_NOTICE, "serveez starting, debugging enabled\n");
-#endif /* ENABLE_DEBUG */
-  
-  log_printf(LOG_NOTICE, "%s\n", get_version());
-  
 #ifdef __MINGW32__
   if (!net_startup ())
-    return 4;
+    {
+      return 4;
+    }
 #endif /* __MINGW32__ */
+  
+#if ENABLE_DEBUG
+  log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
+#endif /* ENABLE_DEBUG */
+  
+  log_printf (LOG_NOTICE, "%s\n", get_version());
   
   /* 
    * Startup the internal coservers here.
    */
   if (coserver_init () == -1)
-    return 5;
+    {
+      return 5;
+    }
+
+  /*
+   * Initialise servers globally.
+   */
+  if (server_global_init() == -1) 
+    {
+      return 2;
+    }
+  
+  /*
+   * Initialise server instances.
+   */
+  if (server_init_all() == -1)
+    {
+      /* 
+       * Something went wrong while the server initialised themselfes.
+       * abort silently.
+       */
+      return 3;
+    }
 
   /*
    * Actually open the ports.
@@ -321,15 +321,6 @@ main (int argc, char * argv[])
   if (server_start () == -1)
     return 6;
   
-     
-#if ENABLE_IRC_PROTO
-  /*
-  irc_init_config(&irc_config);
-  irc_resolve_cline(&irc_config);
-  irc_connect_servers();
-  */
-#endif /* ENABLE_IRC_PROTO */
-
   sock_server_loop ();
 
   /*
@@ -337,29 +328,26 @@ main (int argc, char * argv[])
    */
   server_finalize_all ();
   server_global_finalize ();
+
   /*
    * Disconnect the previously invoked internal coservers.
    */
-  log_printf(LOG_NOTICE, "destroying internal coservers\n");
+  log_printf (LOG_NOTICE, "destroying internal coservers\n");
   coserver_finalize ();
 
 #ifdef __MINGW32__
   net_cleanup();
 #endif /* __MINGW32__ */
 
-#if ENABLE_IRC_PROTO
-  irc_close_config(&irc_config);
-#endif
-
 #if ENABLE_DEBUG
-  log_printf(LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
-	     allocated_bytes, allocated_blocks);
+  log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
+	      allocated_bytes, allocated_blocks);
 #endif /* ENABLE_DEBUG */
 
-  log_printf(LOG_NOTICE, "serveez terminating\n");
+  log_printf (LOG_NOTICE, "serveez terminating\n");
 
   if (log_file != stderr)
-    fclose(log_file);
-
+    fclose (log_file);
+  
   return 0;
 }

@@ -1,3 +1,15 @@
+2000-06-18  [ Ela ]  <ela@lkcc.org>
+
+	* irc-server/irc-proto.c (irc_server_definition): IRC server
+	is now fully instanciatable. But might not be working, yet...
+
+	* irc-server/irc-server.c (irc_connect_server): IRC server
+	connections now non-blocking (using DNS coserver).
+
+	* serveez.c (main): Changed server/coserver initialization 
+	startup, to allow servers instances to use coserver requests 
+	within their initialization routines.
+
 2000-06-18  [ RAIMI ]  <raimi@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): changed display format

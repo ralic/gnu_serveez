@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.8 2000/06/16 15:36:15 ela Exp $
+ * $Id: socket.h,v 1.9 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -68,11 +68,6 @@
 #if ENABLE_CONTROL_PROTO
 #define SOCK_FLAG_CTRL_CLIENT 0x00800000 /* control connection */
 #define SOCK_FLAG_CTRL_PASSED 0x01000000 /* got right password */
-#endif
-
-#if ENABLE_IRC_PROTO
-#define SOCK_FLAG_IRC_CLIENT  0x02000000 /* IRC connection */
-#define SOCK_FLAG_IRC_SERVER  0x04000000 /* IRC server connection */
 #endif
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */

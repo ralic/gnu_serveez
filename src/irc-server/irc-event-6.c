@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-6.c,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-event-6.c,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -153,7 +153,7 @@ irc_kill_callback (socket_t sock,
     }
 
   /* find the IRC client */
-  if(!(cl = irc_find_nick(request->para[0])))
+  if (!(cl = irc_find_nick (cfg, request->para[0])))
     {
       irc_printf(sock, ":%s %03d " ERR_NOSUCHNICK_TEXT "\n",
 		 cfg->host, ERR_NOSUCHNICK, request->para[0]);

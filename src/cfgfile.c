@@ -1,5 +1,5 @@
 /*
- * cfgfile.c - Configurationfile implementation with help of sizzle
+ * cfgfile.c - configuration file implementation with help of sizzle
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.4 2000/06/15 21:18:01 raimi Exp $
+ * $Id: cfgfile.c,v 1.5 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -41,10 +41,6 @@
 #include "server.h"
 #include "libsizzle/libsizzle.h"
 
-#if ENABLE_IRC_PROTO
-# include "irc-server/irc-proto.h"
-#endif
-
 #define LISTEND       0
 #define TYPEINT       1
 #define TYPEBOOL      2
@@ -54,7 +50,8 @@
 /*
  * Structure of things we need to know about any variable
  */
-struct config_t {
+struct config_t 
+{
   int type;              /* What kind of configitem is this ? */
   char *name;            /* Name of the variable in initfile */
   void *location;        /* Where is it (int*, char** or char***) */
@@ -108,21 +105,6 @@ load_config(char *cfgfilename, int argc, char **argv)
     REG_INT("serveez-verbosity", &verbosity, 3, 1),
     REG_STRING("serveez-pass", &serveez_config.server_password, "!", 0),
     
-    /* IRC server related settings */
-#if ENABLE_IRC_PROTO
-    REG_STRING("irc-MOTD-file", &irc_config.MOTD_file,
-		    "../doc/irc-MOTD.txt", 1),
-#if ENABLE_TIMESTAMP
-    REG_INT("irc-tsdelta", &irc_config.tsdelta, 0, 1),
-#endif
-    REG_STRING("irc-admininfo", &irc_config.admininfo, "!", 0),
-    REG_STRING("irc-email", &irc_config.email, "!", 0),
-    REG_STRING("irc-location1", &irc_config.location1, "!", 0),
-    REG_STRING("irc-location2", &irc_config.location2, "!", 0),
-    REG_STRING("irc-M-line", &irc_config.MLine, "!", 0),
-    REG_STRARRAY("irc-C-lines", &irc_config.CLine, 1),
-#endif
-
     { LISTEND,      NULL, NULL,  0, NULL,  0, NULL, NULL }
   };
 

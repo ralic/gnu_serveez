@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-4.c,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-event-4.c,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -85,7 +85,7 @@ irc_priv_callback (socket_t sock,
   for(n=0; n<request->targets; n++)
     {
       /* is receiver nick ? */
-      if((cl = irc_find_nick(request->target[n].nick)))
+      if ((cl = irc_find_nick (cfg, request->target[n].nick)))
 	{
 	  /* is this client away ? */
 	  if(is_client_absent(cl, client)) continue;
@@ -102,7 +102,7 @@ irc_priv_callback (socket_t sock,
 	}
 
       /* is receiver a channel ? */
-      else if((channel = irc_find_channel(request->target[n].channel)))
+      else if ((channel = irc_find_channel (cfg, request->target[n].channel)))
 	{
 	  i = is_client_in_channel(sock, client, channel);
 	  
@@ -134,7 +134,7 @@ irc_priv_callback (socket_t sock,
 	  /* tell all clients in this channel about */
 	  for(i=0; i<channel->clients; i++)
 	    {
-	      cl = irc_find_nick(channel->client[i]);
+	      cl = irc_find_nick (cfg, channel->client[i]);
 	      if(cl->nick != client->nick)
 		{
 		  xsock = find_sock_by_id(cl->id);
@@ -202,7 +202,7 @@ irc_note_callback (socket_t sock,
     }
 
   /* is target a nick ? */
-  if((cl = irc_find_nick(request->target[0].nick)))
+  if ((cl = irc_find_nick (cfg, request->target[0].nick)))
      {
        /* is this client away ? */
        if(is_client_absent(cl, client)) return 0;

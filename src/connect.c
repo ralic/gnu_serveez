@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: connect.c,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -58,7 +58,7 @@
  * structure SOCK to the resulting socket. Return a zero value on error.
  */
 socket_t
-sock_connect(unsigned host, int port)
+sock_connect (unsigned host, int port)
 {
   struct sockaddr_in server;
   SOCKET client_socket;
@@ -67,9 +67,9 @@ sock_connect(unsigned host, int port)
   /*
    * first, create a socket for communication with the server
    */
-  if ((client_socket = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+  if ((client_socket = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
-      log_printf(LOG_ERROR, "socket: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
       return NULL;
     }
 
@@ -80,13 +80,13 @@ sock_connect(unsigned host, int port)
   server.sin_addr.s_addr = host;
   server.sin_port = port;
   
-  if (connect(client_socket, (struct sockaddr *) &server,
-	      sizeof(server)) == -1)
+  if (connect (client_socket, (struct sockaddr *) &server,
+	       sizeof (server)) == -1)
     {
-      log_printf(LOG_ERROR, "connect: %s\n", NET_ERROR);
-      if (CLOSE_SOCKET(client_socket) < 0)
+      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+      if (CLOSE_SOCKET (client_socket) < 0)
 	{
-	  log_printf(LOG_ERROR, "close: %s\n", NET_ERROR);
+	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
       return NULL;
     }
@@ -94,9 +94,9 @@ sock_connect(unsigned host, int port)
   /*
    * third, create socket structure and enqueue it
    */
-  if((sock = sock_create (client_socket)))
+  if ((sock = sock_create (client_socket)))
     {
-      sock_enqueue(sock);
+      sock_enqueue (sock);
       connected_sockets++;
       sock->flags |= SOCK_FLAG_CONNECTED;
     }

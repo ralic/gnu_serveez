@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.6 2000/06/16 15:36:15 ela Exp $
+ * $Id: control-proto.c,v 1.7 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -377,10 +377,12 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
     strcat (proto, "Control ");
 #endif /* ENABLE_CONTROL_PROTO */
 #if ENABLE_IRC_PROTO
+  /*
   if (xsock->flags & SOCK_FLAG_IRC_CLIENT)
     strcat (proto, "IRC-Client ");
   if (xsock->flags & SOCK_FLAG_IRC_SERVER)
     strcat (proto, "IRC-Server ");
+  */
 #endif /* ENABLE_IRC_PROTO */
 
   /* print all previously collected statistics of this connection */
@@ -539,8 +541,10 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
       */
 #endif
 #ifdef ENABLE_IRC_PROTO
+      /*
       if(xsock->flags & SOCK_FLAG_IRC_CLIENT)
 	id = "IRC";
+      */
 #endif
 
       n = xsock->local_addr;
@@ -666,8 +670,10 @@ ctrl_stat_all(socket_t sock, int flag, char *arg)
   client = 0;
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
+      /*
       if(xsock->flags & SOCK_FLAG_IRC_CLIENT)
 	client++;
+      */
     }
   sock_printf(sock, "IRC  connections: %d clients\r\n", client);
 #endif

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.h,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-server.h,v 1.3 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -31,11 +31,11 @@
 
 #define _GNU_SOURCE
 
-int irc_parse_line(char *line, char *fmt, ...);
-void irc_del_server(irc_server_t *server);
-void irc_delete_servers(void);
-void irc_connect_servers(void);
-void irc_resolve_cline(irc_config_t *cfg);
-irc_server_t *irc_add_server(irc_server_t *server);
+int irc_parse_line (char *line, char *fmt, ...);
+void irc_del_server (irc_config_t *cfg, irc_server_t *server);
+void irc_delete_servers (irc_config_t *cfg);
+void irc_connect_servers (irc_config_t *cfg);
+void irc_resolve_cline (irc_config_t *cfg);
+irc_server_t *irc_add_server (irc_config_t *cfg, irc_server_t *server);
 
 #endif /* __IRC_SERVER_H__ */

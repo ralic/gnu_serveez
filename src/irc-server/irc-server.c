@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.3 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-server.c,v 1.4 2000/06/18 16:25:19 ela Exp $
  *
  */
 
@@ -36,10 +36,13 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
-#else
+#endif
+
+#ifndef __MINGW32__
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <netdb.h>
+# include <arpa/inet.h>
 #endif
 
 #include "alloc.h"
@@ -125,24 +128,130 @@ irc_parse_line(char *line, char *fmt, ...)
   return ret;
 }
 
+#if ENABLE_DNS_LOOKUP
+/*
+ * This will be called if a DNS lookup for a remote irc server has
+ * been done. Here we connect to this server then. Return non-zero on
+ * errors.
+ */
+int
+irc_connect_server (irc_server_t *server, char *ip)
+{
+  irc_config_t *cfg = server->cfg;
+  socket_t sock;
+  irc_client_t **cl;
+  irc_channel_t **ch;
+  char nicklist[MAX_MSG_LEN];
+  int n, i;
+
+  /* check if dns lookup was successful */
+  if (!ip)
+    {
+      log_printf (LOG_ERROR, "irc: cannot connect to %s\n", server->realhost);
+      return -1;
+    }
+  
+  /* try connecting */
+  server->addr = inet_addr (ip);
+  if (!(sock = sock_connect (server->addr, server->port)))
+    {
+      return -1;
+    }
+
+  log_printf (LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
+  sock->data = server;
+  server->id = sock->socket_id;
+  sock->userflags |= IRC_FLAG_SERVER;
+  sock->check_request = irc_check_request;
+
+  /* send initial requests introducing this server */
+#ifndef ENABLE_TIMESTAMP
+  irc_printf (sock, "PASS %s\n", server->pass);
+#else
+  irc_printf (sock, "PASS %s %s\n", server->pass, TS_PASS);
+#endif
+  irc_printf (sock, "SERVER %s 1 :%s\n", cfg->host, cfg->info);
+
+#if ENABLE_TIMESTAMP
+  irc_printf (sock, "SVINFO %d %d %d :%d\n",
+	      TS_CURRENT, TS_MIN, 0, time(NULL) + cfg->tsdelta);
+#endif
+
+  /* now propagate user information to this server */
+  if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+    {
+      for (n = 0; n < hash_size (cfg->clients); n++)
+	{
+#if ENABLE_TIMESTAMP
+	  irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
+		      cl[n]->nick, cl[n]->hopcount, cl[n]->since, 
+		      get_client_flags (cl[n]), 
+		      cl[n]->user, cl[n]->host,
+		      cl[n]->server, "EFNet?");
+#else
+	  irc_printf (sock, "NICK %s\n", cl[n]->nick);
+	  irc_printf (sock, "USER %s %s %s %s\n", 
+		      cl[n]->user, cl[n]->host, 
+		      cl[n]->server, cl[n]->real);
+	  irc_printf (sock, "MODE %s %s\n", 
+		      cl[n]->nick, get_client_flags(cl[n]));
+#endif
+	}
+      xfree (cl);
+    }
+
+  /* propagate all channel information to the server */
+  if ((ch = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
+    {
+      for (i = 0; i < hash_size (cfg->channels); i++)
+	{
+#if ENABLE_TIMESTAMP
+	  /* create nick list */
+	  for (nicklist[0] = 0, n = 0; n < ch[n]->clients; n++)
+	    {
+	      if(ch[i]->cflag[n] & MODE_OPERATOR)
+		strcat (nicklist, "@");
+	      else if (ch[i]->cflag[n] & MODE_VOICE)
+		strcat (nicklist, "+");
+	      strcat (nicklist, ch[i]->client[n]);
+	      strcat (nicklist, " ");
+	    }
+	}
+      /* propagate one channel in one request */
+      irc_printf (sock, "SJOIN %d %s %s :%s\n",
+		  ch[i]->since, ch[i]->name, get_channel_flags(ch[i]),
+		  nicklist);
+#else
+      for (n = 0; n < ch[i]->clients; n++)
+	{
+	  irc_printf (sock, ":%s JOIN %s\n", 
+		      ch[i]->client[n], ch[i]->name);
+	}
+      irc_printf (sock, "MODE %s %s\n", 
+		  ch[i]->name, get_channel_flags(ch[i]));
+#endif
+    }
+  xfree (ch);
+  
+  return 0;
+}
+#endif /* ENABLE_DNS_LOOKUP */
+
 /*
  * Go through all C lines in the IRC server configuration
  * and resolve all hosts.
  */
 void
-irc_resolve_cline (irc_config_t *cfg)
+irc_connect_servers (irc_config_t *cfg)
 {
   char realhost[MAX_HOST_LEN];
   char pass[MAX_PASS_LEN];
   char host[MAX_NAME_LEN];
   int port;
   int class;
-  unsigned *addr;
-  struct hostent *server_host;
   irc_server_t *ircserver;
   char *cline;
   int n;
-  char request[MAX_HOST_LEN];
 
   /* any C lines at all ? */
   if (!cfg->CLine) return;
@@ -155,154 +264,25 @@ irc_resolve_cline (irc_config_t *cfg)
       irc_parse_line (cline, "C:%s:%s:%s:%d:%d", 
 		      realhost, pass, host, &port, &class);
       
-#if ENABLE_DNS_LOOKUP_1
-      sprintf (request, "%s\n", realhost);
-      send_coserver_request (COSERVER_DNS, request);
-#endif
-
-      /* find the host by its name */
-      if ((server_host = gethostbyname (realhost)) == NULL)
-	{
-	  log_printf (LOG_ERROR, "gethostbyname: %s\n", H_NET_ERROR);
-	  log_printf (LOG_ERROR, "cannot find %s\n", realhost);
-	  continue;
-	}
-
       /* create new IRC server structure */
-      ircserver = xmalloc(sizeof(irc_server_t));
-
-      /* get the inet address in network byte order */
-      if(server_host->h_addrtype == AF_INET &&
-	 server_host->h_length == 4)
-	{
-	  ircserver->addr = UINT32 (server_host->h_addr_list[0]);
-	}
-
-      ircserver->port = htons(port);
+      ircserver = xmalloc (sizeof (irc_server_t));
+      ircserver->port = htons (port);
       ircserver->id = -1;
-      ircserver->realhost = xmalloc(strlen(realhost) + 1);
-      strcpy(ircserver->realhost, realhost);
-      ircserver->host = xmalloc(strlen(host) + 1);
-      strcpy(ircserver->host, host);
-      ircserver->pass = xmalloc(strlen(pass) + 1);
-      strcpy(ircserver->pass, pass);
+      ircserver->realhost = xmalloc (strlen (realhost) + 1);
+      strcpy (ircserver->realhost, realhost);
+      ircserver->host = xmalloc (strlen (host) + 1);
+      strcpy (ircserver->host, host);
+      ircserver->pass = xmalloc (strlen (pass) + 1);
+      strcpy (ircserver->pass, pass);
+      ircserver->cfg = cfg;
       ircserver->next = NULL;
 
       /* add this server to the server list */
-      log_printf(LOG_NOTICE, "irc: resolved %s\n", ircserver->realhost);
-      irc_add_server(ircserver);
-    }
-}
+      log_printf (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
+      irc_add_server (cfg, ircserver);
+      coserver_dns (realhost, (coserver_handle_result_t) irc_connect_server,
+		    ircserver);
 
-/*
- * Connect to a remote IRC server. Return non-zero on errors.
- */
-int
-irc_connect_server(char *host, irc_config_t *cfg)
-{
-  socket_t sock;
-  irc_server_t *server;
-  irc_client_t *cl;
-  irc_channel_t *ch;
-  char nicklist[MAX_MSG_LEN];
-  int n;
-
-  server = irc_server_list;
-
-  while(server)
-    {
-      if(!strcmp(host, server->host) && server->port)
-	{
-	  if(!(sock = sock_connect(server->addr, server->port)))
-	    {
-	      return -1;
-	    }
-	  log_printf(LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
-	  server->id = sock->socket_id;
-	  sock->flags |= SOCK_FLAG_IRC_SERVER;
-	  sock->check_request = irc_check_request;
-
-	  /* send initial requests introducing this server */
-#ifndef ENABLE_TIMESTAMP
-	  irc_printf(sock, "PASS %s\n", server->pass);
-#else
-	  irc_printf(sock, "PASS %s %s\n", server->pass, TS_PASS);
-#endif
-	  irc_printf(sock, "SERVER %s 1 :%s\n", cfg->host, cfg->info);
-
-#if ENABLE_TIMESTAMP
-	  irc_printf(sock, "SVINFO %d %d %d :%d\n",
-		     TS_CURRENT, TS_MIN, 0, time(NULL) + cfg->tsdelta);
-#endif
-
-	  /* now propagate user information to this server */
-	  for(cl = irc_client_list; cl; cl = cl->next)
-	    {
-#if ENABLE_TIMESTAMP
-	      irc_printf(sock, "NICK %s %d %d %s %s %s %s :%s\n",
-			 cl->nick, cl->hopcount, cl->since, 
-			 get_client_flags(cl), cl->user, cl->host,
-			 cl->server, "EFNet?");
-#else
-	      irc_printf(sock, "NICK %s\n", cl->nick);
-	      irc_printf(sock, "USER %s %s %s %s\n", 
-			 cl->user, cl->host, cl->server, cl->real);
-	      irc_printf(sock, "MODE %s %s\n", 
-			 cl->nick, get_client_flags(cl));
-#endif
-	    }
-
-	  /* propagate all channel information to the server */
-	  for(ch = irc_channel_list; ch; ch = ch->next)
-	    {
-#if ENABLE_TIMESTAMP
-	      /* create nick list */
-	      for(nicklist[0]=0, n=0; n<ch->clients; n++)
-		{
-		  if(ch->cflag[n] & MODE_OPERATOR)
-		    strcat(nicklist, "@");
-		  else if(ch->cflag[n] & MODE_VOICE)
-		    strcat(nicklist, "+");
-		  strcat(nicklist, ch->client[n]);
-		  strcat(nicklist, " ");
-		}
-	      /* propagate one channel in one request */
-	      irc_printf(sock, "SJOIN %d %s %s :%s\n",
-			 ch->since, ch->name, get_channel_flags(ch),
-			 nicklist);
-#else
-	      for(n=0; n<ch->clients; n++)
-		{
-		  irc_printf(sock, ":%s JOIN %s\n", ch->client[n], ch->name);
-		}
-	      irc_printf(sock, "MODE %s %s\n", 
-			 ch->name, get_channel_flags(ch));
-#endif
-	    }
-
-	  return 0;
-	}
-      server = server->next;
-    }
-
-  return -1;
-}
-
-/*
- * This function goes through all N lines and tries to connect to
- * all IRC servers.
- */
-void
-irc_connect_servers(void)
-{
-  irc_server_t *server;
-  
-  server = irc_server_list;
-
-  while(server)
-    {
-      irc_connect_server(server->host, &irc_config);
-      server = server->next;
     }
 }
 
@@ -310,23 +290,23 @@ irc_connect_servers(void)
  * Add an IRC server to the server list.
  */
 irc_server_t *
-irc_add_server(irc_server_t *server)
+irc_add_server (irc_config_t *cfg, irc_server_t *server)
 {
-  server->next = irc_server_list;
-  irc_server_list = server;
+  server->next = cfg->servers;
+  cfg->servers = server;
     
-  return irc_server_list;
+  return cfg->servers;
 }
 
 /*
  * Delete all IRC servers.
  */
 void
-irc_delete_servers(void)
+irc_delete_servers (irc_config_t *cfg)
 {
-  while(irc_server_list)
+  while (cfg->servers)
     {
-      irc_del_server(irc_server_list);
+      irc_del_server (cfg, cfg->servers);
     }
 }
 
@@ -334,24 +314,24 @@ irc_delete_servers(void)
  * Delete an IRC server of the current list.
  */
 void
-irc_del_server(irc_server_t *server)
+irc_del_server (irc_config_t *cfg, irc_server_t *server)
 {
   irc_server_t *srv;
   irc_server_t *prev;
 
-  prev = srv = irc_server_list;
-  while(srv)
+  prev = srv = cfg->servers;
+  while (srv)
     {
-      if(srv == server)
+      if (srv == server)
 	{
-	  xfree(server->realhost);
-	  xfree(server->host);
-	  xfree(server->pass);
-	  if(prev == srv)
-	    irc_server_list = server->next;
+	  xfree (server->realhost);
+	  xfree (server->host);
+	  xfree (server->pass);
+	  if (prev == srv)
+	    cfg->servers = server->next;
 	  else
 	    prev->next = server->next;
-	  xfree(server);
+	  xfree (server);
 	  return;
 	}
       prev = srv;
