@@ -43,6 +43,7 @@ Distribution process:
 * Bump up version.
   - Add a ChangeLog entry in toplevel directory.
   - Add new section in NEWS.
+  - Bump up version number in `configure.in'.
   - Check into CVS.
 
 * Distribute the package. 

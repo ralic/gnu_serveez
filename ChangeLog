@@ -1,3 +1,7 @@
+2001-01-13  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Bumped up version to 0.0.21
+
 2001-01-04  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
 
 	* configure.in: Configuring the `ENABLE_FAKEIDENT' define
