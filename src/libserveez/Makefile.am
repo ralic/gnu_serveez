@@ -19,7 +19,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.2 2001/01/28 13:11:54 ela Exp $
+# $Id: Makefile.am,v 1.3 2001/01/30 11:49:57 ela Exp $
 #
 
 SUBDIRS = coserver
@@ -33,7 +33,7 @@ libserveez_la_DEPENDENCIES = coserver/libcoserver.la
 libserveez_la_LIBADD = coserver/libcoserver.la
 
 libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c alist.c socket.c \
-  tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c \
+  tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \
   server-core.c server-loop.c windoze.c boot.c server.c server-socket.c
 
 # these file are available by #include <libserveez/foo.h>
@@ -41,8 +41,8 @@ libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c alist.c socket.c \
 libserveezdir = $(includedir)/libserveez
 
 libserveez_HEADERS = alloc.h util.h snprintf.h hash.h alist.h socket.h \
-  tcp-socket.h pipe-socket.h udp-socket.h icmp-socket.h raw-socket.h \
-  server-core.h server-loop.h windoze.h defines.h boot.h server.h \
+  tcp-socket.h pipe-socket.h udp-socket.h icmp-socket.h raw-socket.h   \
+  server-core.h server-loop.h windoze.h defines.h boot.h server.h      \
   server-socket.h
 
 INCLUDES = -I..

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: hash.c,v 1.2 2001/01/30 11:49:57 ela Exp $
  *
  */
 
@@ -42,11 +42,16 @@
 # define svz_realloc(ptr, size) svz_realloc_func (ptr, size)
 #endif /* DEBUG_MEMORY_LEAKS */
 
+/* some useful defines */
+#define HASH_SHRINK_LIMIT(hash) (hash->buckets >> 2)
+#define HASH_EXPAND_LIMIT(hash) ((hash->buckets >> 1) + (hash->buckets >> 2))
+#define HASH_BUCKET(code, hash) (code & (hash->buckets - 1))
+
 /*
- * Calculate the hashcode for a given key. This is the standard callback
- * for any newly created hash.
+ * Calculate the hash code for a given string KEY. This is the standard 
+ * callback for any newly created hash table.
  */
-unsigned long
+static unsigned long
 hash_code (char *key)
 {
   unsigned long code = 0;
@@ -64,10 +69,10 @@ hash_code (char *key)
 
 /*
  * This is the default callback for any newly created hash for determining
- * two keys being equal. Return zero if both strings are equal, otherwise
- * non-zero.
+ * two keys (KEY1 and KEY2) being equal. Return zero if both strings are 
+ * equal, otherwise non-zero.
  */
-int
+static int
 hash_key_equals (char *key1, char *key2)
 {
   char *p1, *p2;
@@ -94,9 +99,10 @@ hash_key_equals (char *key1, char *key2)
 }
 
 /*
- * This is the default routine for determining the actual key length.
+ * This is the default routine for determining the actual hash table 
+ * key length of the given key KEY.
  */
-unsigned
+static unsigned
 hash_key_length (char *key)
 {
   unsigned len = 0;
@@ -110,8 +116,45 @@ hash_key_length (char *key)
 }
 
 /*
- * Create a new hash table with an initial capacity. Return a non-zero 
- * pointer to the newly created hash.
+ * This routine prints all the hash table HASH. It is for debugging 
+ * purposes only and should not go into distributions.
+ */
+static void
+hash_analyse (hash_t *hash)
+{
+  hash_bucket_t *bucket;
+  int n, e, buckets, depth, entries;
+
+  for (entries = 0, depth = 0, buckets = 0, n = 0; n < hash->buckets; n++)
+    {
+      bucket = &hash->table[n];
+      if (bucket->size > 0)
+	buckets++;
+      for (e = 0; e < bucket->size; e++)
+	{
+	  entries++;
+#if 0
+	  fprintf (stdout, "bucket %04d: entry %02d: code: %08lu "
+		   "value: %p key: %-20s\n",
+		   n + 1, e + 1, bucket->entry[e].code, 
+		   bucket->entry[e].value, bucket->entry[e].key);
+#endif /* 0 */
+	  if (e > depth)
+	    depth = e;
+	}
+    }
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, 
+	      "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
+	      buckets, hash->buckets, hash->fill, 
+	      entries, hash->keys, depth + 1);
+#endif /* ENABLE_DEBUG */
+}
+
+/*
+ * Create a new hash table with an initial capacity SIZE. Return a 
+ * non-zero pointer to the newly created hash. The size is calculated down
+ * to a binary value.
  */
 hash_t *
 hash_create (int size)
@@ -146,9 +189,9 @@ hash_create (int size)
 }
 
 /*
- * Destroy an existing hash. Therefore we svz_free() all keys within the hash,
- * the hash table and the hash itself. The values keep untouched. So you
- * might want to svz_free() them yourself.
+ * Destroy the existing hash table HASH. Therefore we `svz_free ()' all 
+ * keys within the hash, the hash table and the hash itself. The values 
+ * keep untouched. So you might want to `svz_free ()' them yourself.
  */
 void
 hash_destroy (hash_t *hash)
@@ -173,9 +216,9 @@ hash_destroy (hash_t *hash)
 }
 
 /*
- * Clear the hash table of a given hash. Afterwards it does not contains any
- * key. In contradiction to hash_destroy() this functions does not destroy
- * the hash itself. But shrinks it to a minimal size.
+ * Clear the hash table of a given hash HASH. Afterwards it does not 
+ * contains any key. In contradiction to `hash_destroy ()' this functions 
+ * does not destroy the hash itself. But shrinks it to a minimal size.
  */
 void
 hash_clear (hash_t *hash)
@@ -208,9 +251,9 @@ hash_clear (hash_t *hash)
 }
 
 /*
- * Rehash a given hash. Double its size and expand the hashcodes or half 
- * its size and shrink the hashcodes if these would be placed somewhere 
- * else.
+ * Rehash a given hash table HASH. Double (TYPE is HASH_EXPAND) its size 
+ * and expand the hash codes or half (TYPE is HASH_SHRINK) its size and 
+ * shrink the hash codes if these would be placed somewhere else.
  */
 void
 hash_rehash (hash_t *hash, int type)
@@ -314,8 +357,8 @@ hash_rehash (hash_t *hash, int type)
 
 /*
  * This function adds a new element consisting of KEY and VALUE to an
- * existing hash. If the hash is 75% filled it gets rehashed (size will
- * be doubled). When the key already exists then the value just gets
+ * existing hash HASH. If the hash is 75% filled it gets rehashed (size 
+ * will be doubled). When the key already exists then the value just gets
  * replaced.
  */
 void
@@ -366,8 +409,9 @@ hash_put (hash_t *hash, char *key, void *value)
 }
 
 /*
- * Delete an existing hash entry accessed via a given key. Return NULL if
- * the key has not been found within the hash, otherwise the VALUE.
+ * Delete an existing hash entry accessed via a given key KEY form the
+ * hash table HASH. Return NULL if the key has not been found within 
+ * the hash, otherwise the previous value.
  */
 void *
 hash_delete (hash_t *hash, char *key)
@@ -414,8 +458,8 @@ hash_delete (hash_t *hash, char *key)
 }
 
 /*
- * Hash lookup. Find a VALUE for a given KEY. Return NULL if the key has
- * not been found within the hash table.
+ * Hash table lookup. Find a value for a given KEY in the hash table 
+ * HASH. Return NULL if the key has not been found within the hash table.
  */
 void *
 hash_get (hash_t *hash, char *key)
@@ -440,9 +484,9 @@ hash_get (hash_t *hash, char *key)
 }
 
 /*
- * This function delivers all values within a hash table. It returns NULL 
- * if there were no values in the hash. You MUST hash_xfree() a non-NULL 
- * return value.
+ * This function delivers all values within a hash table HASH. It 
+ * returns NULL if there were no values in the hash. You MUST `hash_xfree ()' 
+ * a non-NULL return value.
  */
 void **
 hash_values (hash_t *hash)
@@ -470,9 +514,9 @@ hash_values (hash_t *hash)
 }
 
 /*
- * This function delivers all keys within a hash table. It returns NULL 
- * if there were no keys in the hash. You MUST hash_xfree() a non-NULL 
- * return value.
+ * This function delivers all keys within a hash table HASH. It 
+ * returns NULL if there were no keys in the hash. You MUST `hash_xfree ()' 
+ * a non-NULL return value.
  */
 char **
 hash_keys (hash_t *hash)
@@ -500,7 +544,7 @@ hash_keys (hash_t *hash)
 }
 
 /*
- * This routine delivers the number of keys in the hash's hash table.
+ * This routine delivers the number of keys in the hash table HASH.
  */
 int
 hash_size (hash_t *hash)
@@ -509,7 +553,7 @@ hash_size (hash_t *hash)
 }
 
 /*
- * This function returns the current capacity of a given hash.
+ * This function returns the current capacity of a given hash table HASH.
  */
 int
 hash_capacity (hash_t *hash)
@@ -518,8 +562,8 @@ hash_capacity (hash_t *hash)
 }
 
 /*
- * This function can be used to determine if some key maps to the value 
- * argument in this hash table. Returns the appropriate key or NULL.
+ * This function can be used to determine if some key points to the VALUE
+ * argument in the hash table HASH. Returns the appropriate key or NULL.
  */
 char *
 hash_contains (hash_t *hash, void *value)
@@ -537,40 +581,4 @@ hash_contains (hash_t *hash, void *value)
 	}
     }
   return NULL;
-}
-
-/*
- * This routine prints all the hash table. It is for debugging purposes
- * only.
- */
-void
-hash_analyse (hash_t *hash)
-{
-  hash_bucket_t *bucket;
-  int n, e, buckets, depth, entries;
-
-  for (entries = 0, depth = 0, buckets = 0, n = 0; n < hash->buckets; n++)
-    {
-      bucket = &hash->table[n];
-      if (bucket->size > 0)
-	buckets++;
-      for (e = 0; e < bucket->size; e++)
-	{
-	  entries++;
-#if 0
-	  printf ("bucket %04d: entry %02d: code: %08lu "
-		  "value: %p key: %-20s\n",
-		  n + 1, e + 1, bucket->entry[e].code, bucket->entry[e].value,
-		  bucket->entry[e].key);
-#endif /* 0 */
-	  if (e > depth)
-	    depth = e;
-	}
-    }
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, 
-	      "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
-	      buckets, hash->buckets, hash->fill, 
-	      entries, hash->keys, depth + 1);
-#endif /* ENABLE_DEBUG */
 }

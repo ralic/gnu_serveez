@@ -18,22 +18,22 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: boot.h,v 1.2 2001/01/30 11:49:57 ela Exp $
  *
  */
 
 #ifndef __BOOT_H__
 #define __BOOT_H__ 1
 
-#include "libserveez/defines.h"
 #include <time.h>
+#include "libserveez/defines.h"
 
 /*
  * General serveez configuration structure.
  */
 typedef struct
 {
-  /* programs password */
+  /* program's password */
   char *server_password;
   /* defines how many clients are allowed to connect */
   SOCKET max_sockets;
@@ -46,6 +46,8 @@ __BEGIN_DECLS
 
 SERVEEZ_API extern svz_config_t svz_config;
 SERVEEZ_API void svz_init_config __P ((void));
+SERVEEZ_API void svz_boot __P ((void));
+SERVEEZ_API void svz_finalize __P ((void));
 
 /* Some static strings. */
 SERVEEZ_API extern char *svz_library;

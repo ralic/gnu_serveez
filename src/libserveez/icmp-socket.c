@@ -1,5 +1,5 @@
 /*
- * icmp-socket.c - Internet Control Message Protocol socket implementations
+ * icmp-socket.c - ICMP socket implementations
  *
  * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: icmp-socket.c,v 1.2 2001/01/30 11:49:57 ela Exp $
  *
  */
 
@@ -57,8 +57,7 @@
 #include "libserveez/server.h"
 
 /* Text representation of ICMP type codes. */
-char *icmp_request[] =
-{
+static char *icmp_request[] = {
   "echo reply",
   NULL,
   NULL,
@@ -82,12 +81,102 @@ char *icmp_request[] =
 
 #ifdef __MINGW32__
 
+/*
+ * Microsoft discourages the use of their ICMP.DLL API, but it seems
+ * to be the only way to make use of raw sockets anyway. The API is
+ * almostly unusable because:
+ * 1. you cannot receive if not previously sent a packet
+ * 2. the IcmpSendEcho call is blocking
+ * 3. receive and send is one call
+ * 4. you cannot set the ICMP header (type, code)
+ */
+
+/* 
+ * Note 2: For the most part, you can refer to RFC 791 for details 
+ * on how to fill in values for the IP option information structure. 
+ */
+typedef struct ip_option_information
+{
+  unsigned char Ttl;          /* Time To Live (used for traceroute) */
+  unsigned char Tos;          /* Type Of Service (usually 0) */
+  unsigned char Flags;        /* IP header flags (usually 0) */
+  unsigned char OptionsSize;  /* Size of options data (usually 0, max 40) */
+  unsigned char *OptionsData; /* Options data buffer */
+}
+IPINFO;
+
+/* 
+ * Note 1: The Reply Buffer will have an array of ICMP_ECHO_REPLY
+ * structures, followed by options and the data in ICMP echo reply
+ * datagram received. You must have room for at least one ICMP
+ * echo reply structure, plus 8 bytes for an ICMP header. 
+ */
+typedef struct icmp_echo_reply
+{
+  unsigned long Address;   /* source address */
+  unsigned long Status;    /* IP status value (see below) */
+  unsigned long RTTime;    /* Round Trip Time in milliseconds */
+  unsigned short DataSize; /* reply data size */
+  unsigned short Reserved; /* */
+  void *Data;              /* reply data buffer */
+  IPINFO Options;          /* reply options */
+}
+ICMPECHO;
+
+/*
+ * DLL function definitions of IcmpCloseHandle, IcmpCreateFile, 
+ * IcmpParseReplies, IcmpSendEcho and IcmpSendEcho2.
+ */
+typedef HANDLE (__stdcall * IcmpCreateFileProc) (void);
+typedef BOOL (__stdcall * IcmpCloseHandleProc) (HANDLE IcmpHandle);
+typedef DWORD (__stdcall * IcmpSendEchoProc) (
+  HANDLE IcmpHandle,          /* handle returned from IcmpCreateFile() */
+  unsigned long DestAddress,  /* destination IP address (in network order) */
+  void *RequestData,          /* pointer to buffer to send */
+  unsigned short RequestSize, /* length of data in buffer */
+  IPINFO *RequestOptns,       /* see Note 2 */
+  void *ReplyBuffer,          /* see Note 1 */
+  unsigned long ReplySize,    /* length of reply (at least 1 reply) */
+  unsigned long Timeout       /* time in milliseconds to wait for reply */
+);
+
+/*
+ * Error definitions.
+ */
+#define IP_STATUS_BASE           11000
+#define IP_SUCCESS               0
+#define IP_BUF_TOO_SMALL         (IP_STATUS_BASE + 1)
+#define IP_DEST_NET_UNREACHABLE  (IP_STATUS_BASE + 2)
+#define IP_DEST_HOST_UNREACHABLE (IP_STATUS_BASE + 3)
+#define IP_DEST_PROT_UNREACHABLE (IP_STATUS_BASE + 4)
+#define IP_DEST_PORT_UNREACHABLE (IP_STATUS_BASE + 5)
+#define IP_NO_RESOURCES          (IP_STATUS_BASE + 6)
+#define IP_BAD_OPTION            (IP_STATUS_BASE + 7)
+#define IP_HW_ERROR              (IP_STATUS_BASE + 8)
+#define IP_PACKET_TOO_BIG        (IP_STATUS_BASE + 9)
+#define IP_REQ_TIMED_OUT         (IP_STATUS_BASE + 10)
+#define IP_BAD_REQ               (IP_STATUS_BASE + 11)
+#define IP_BAD_ROUTE             (IP_STATUS_BASE + 12)
+#define IP_TTL_EXPIRED_TRANSIT   (IP_STATUS_BASE + 13)
+#define IP_TTL_EXPIRED_REASSEM   (IP_STATUS_BASE + 14)
+#define IP_PARAM_PROBLEM         (IP_STATUS_BASE + 15)
+#define IP_SOURCE_QUENCH         (IP_STATUS_BASE + 16)
+#define IP_OPTION_TOO_BIG        (IP_STATUS_BASE + 17)
+#define IP_BAD_DESTINATION       (IP_STATUS_BASE + 18)
+#define IP_ADDR_DELETED          (IP_STATUS_BASE + 19)
+#define IP_SPEC_MTU_CHANGE       (IP_STATUS_BASE + 20)
+#define IP_MTU_CHANGE            (IP_STATUS_BASE + 21)
+#define IP_UNLOAD                (IP_STATUS_BASE + 22)
+#define IP_GENERAL_FAILURE       (IP_STATUS_BASE + 50)
+#define MAX_IP_STATUS            IP_GENERAL_FAILURE
+#define IP_PENDING               (IP_STATUS_BASE + 255)
+
 /* Functions and handles for the ICMP.DLL API. */
-IcmpCreateFileProc IcmpCreateFile = NULL;
-IcmpCloseHandleProc IcmpCloseHandle = NULL;
-IcmpSendEchoProc IcmpSendEcho = NULL;
-HANDLE IcmpHandle = NULL;
-HANDLE hIcmp = INVALID_HANDLE_VALUE;
+static IcmpCreateFileProc IcmpCreateFile = NULL;
+static IcmpCloseHandleProc IcmpCloseHandle = NULL;
+static IcmpSendEchoProc IcmpSendEcho = NULL;
+static HANDLE IcmpHandle = NULL;
+static HANDLE hIcmp = INVALID_HANDLE_VALUE;
 
 /*
  * Load the ICMP.DLL library into process address space and get all
@@ -187,7 +276,7 @@ icmp_get_header (byte *data)
 /*
  * Create ICMP header (data block) from given structure.
  */
-byte *
+static byte *
 icmp_put_header (icmp_header_t *hdr)
 {
   static byte buffer[ICMP_HEADER_SIZE];
@@ -458,7 +547,7 @@ icmp_write_socket (socket_t sock)
 
 /*
  * If you are calling this function we will send an empty ICMP packet
- * signalling that this connection is going down soon.
+ * signaling that this connection is going down soon.
  */
 int
 icmp_send_control (socket_t sock, byte type)
@@ -671,6 +760,7 @@ icmp_connect (unsigned long host, unsigned short port)
       return NULL;
     }
 #endif
+
   /* try to connect to the server */
   client.sin_family = AF_INET;
   client.sin_addr.s_addr = host;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: hash.h,v 1.2 2001/01/30 11:49:57 ela Exp $
  *
  */
 
@@ -27,13 +27,10 @@
 
 #include "libserveez/defines.h"
 
-/* useful define's */
+/* useful defines */
 #define HASH_SHRINK 4
 #define HASH_EXPAND 8
-#define HASH_SHRINK_LIMIT(hash) (hash->buckets >> 2)
-#define HASH_EXPAND_LIMIT(hash) ((hash->buckets >> 1) + (hash->buckets >> 2))
 #define HASH_MIN_SIZE 4
-#define HASH_BUCKET(code, hash) (code & (hash->buckets - 1))
 
 /*
  * This is the basic structure of a hash entry consisting of its
@@ -77,7 +74,7 @@ hash_t;
 __BEGIN_DECLS
 
 /*
- * Basic hashtable functions.
+ * Basic hash table functions.
  */
 SERVEEZ_API hash_t *hash_create __P ((int size));
 SERVEEZ_API void hash_destroy __P ((hash_t *hash));
@@ -90,7 +87,6 @@ SERVEEZ_API char **hash_keys __P ((hash_t *hash));
 SERVEEZ_API int hash_size __P ((hash_t *hash));
 SERVEEZ_API int hash_capacity __P ((hash_t *hash));
 SERVEEZ_API char *hash_contains __P ((hash_t *hash, void *value));
-SERVEEZ_API void hash_analyse __P ((hash_t *hash));
 
 __END_DECLS
 

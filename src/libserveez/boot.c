@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.2 2001/01/28 13:11:54 ela Exp $
+ * $Id: boot.c,v 1.3 2001/01/30 11:49:57 ela Exp $
  *
  */
 
@@ -37,7 +37,7 @@
 #include "libserveez/boot.h"
 
 /*
- * The configuration structure of the Serveez.
+ * The configuration structure of the core library.
  */
 svz_config_t svz_config;
 
@@ -55,4 +55,21 @@ void
 svz_init_config (void)
 {
   svz_config.start_time = time (NULL);
+}
+
+/*
+ * Initialization of the core library.
+ */
+void
+svz_boot (void)
+{
+  svz_init_config ();
+}
+
+/*
+ * Finalization of the core library.
+ */
+void
+svz_finalize (void)
+{
 }
