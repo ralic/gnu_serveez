@@ -40,6 +40,8 @@ version.h.serveez - prebuild version.h for serveez
 libsizzle.dsp     - sizzle library project file
 config.h.sizzle   - prebuild config.h for the sizzle library
 version.h.sizzle  - prebuild version.h for the sizzle library
+test/hash.dsp     - hash test project file
+test/alist.dsp    - array list project file
 
 Installation
 ============

@@ -1591,7 +1591,7 @@ $ set LD=link
 
 @item Step 2. Configure.
 @example
-$ sh configure --with-@value{s_SIZZLE}=../@value{s_SIZZLE}/
+$ sh configure --with-@value{s_SIZZLE}=../@value{s_SIZZLE}/ --disable-debug
 @end example
 
 @item Step 3. Create project and workspace for both @value{PACKAGE} and @value{SIZZLE}.
@@ -1616,7 +1616,8 @@ for @value{PACKAGE}.
 Add the following paths: @file{.,..,../@value{s_SIZZLE},./src,../..}.
 
 @item Object-Modules.
-Simply add @file{wsock32.lib} and @file{@value{s_SIZZLE}.lib} 
+Simply add @file{kernel32.lib}, @file{ws2_32.lib}, @file{advapi32.lib}, 
+@file{shell32.lib}, @file{user32.lib} and @file{lib@value{s_SIZZLE}.lib} 
 (for @value{PACKAGE} only).
 
 @item Library paths.
@@ -1628,7 +1629,7 @@ project.
 @end table
 
 Compiling now via @key{F7} you got a completely native Win32 application
-which is linked against the @file{kernel32.dll} and @file{wsock32.dll}.
+which is linked against the above dynamic link libraries.
 
 Now follows the list on which operating systems and architectures
 @value{PACKAGE} has been build and tested successfully.
