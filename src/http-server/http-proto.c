@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.19 2000/07/21 21:19:31 ela Exp $
+ * $Id: http-proto.c,v 1.20 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -69,17 +69,10 @@
 #include "server-socket.h"
 #include "server-core.h"
 #include "http-proto.h"
+#include "http-core.h"
 #include "http-cgi.h"
 #include "http-dirlist.h"
 #include "http-cache.h"
-
-/*
- * In Win32 OS's both of these defines are necessary for portability.
- */
-#if defined (__CYGWIN__) || defined (__MINGW32__)
-# define timezone _timezone
-# define daylight _daylight
-#endif
 
 /*
  * The http port configuration.
@@ -147,7 +140,7 @@ server_definition_t http_server_definition =
   http_connect_socket,   /* connection routine */
   http_finalize,         /* instance finalization routine */
   http_global_finalize,  /* global finalizer */
-  NULL,                  /* client info */
+  http_info_client,      /* client info */
   NULL,                  /* server info */
   NULL,                  /* server timer */
   &http_config,          /* default configuration */
@@ -255,30 +248,6 @@ http_finalize (server_t *server)
 }
 
 /*
- * This function frees all the content type definitions.
- */
-void
-http_free_types (http_config_t *cfg)
-{
-  char **type;
-  int n;
-
-  if (cfg->types != NULL)
-    {
-      if ((type = (char **)hash_values (cfg->types)) != NULL)
-	{
-	  for (n = 0; n < hash_size (cfg->types); n++)
-	    {
-	      xfree (type[n]);
-	    }
-	  xfree (type);
-	}
-      hash_destroy (cfg->types);
-      cfg->types = NULL;
-    }
-}
-
-/*
  * This function frees all HTTP request properties previously reserved
  * and frees the cache structure if neccessary. Nevertheless the 
  * socket structure SOCK should still be usable for keep-alive connections.
@@ -368,10 +337,8 @@ http_free_socket (socket_t sock)
 int
 http_disconnect (socket_t sock)
 {
-  http_socket_t *http;
-
   /* get http socket structure */
-  http = sock->data;
+  http_socket_t *http = sock->data;
 
   /* free the http socket structures */
   http_free_socket (sock);
@@ -451,57 +418,6 @@ http_idle (socket_t sock)
   sock->idle_counter = 1;
 
   return http_cgi_died (sock);
-}
-
-/*
- * This function is used to re-initialize a HTTP connection for
- * Keep-Alive connections. Return -1 if it is not 'Keep'able.
- */
-int
-http_keep_alive (socket_t sock)
-{
-  if (sock->userflags & HTTP_FLAG_KEEP)
-    {
-      http_free_socket (sock);
-
-      sock->userflags &= ~HTTP_FLAG; 
-      sock->read_socket = default_read;
-      sock->check_request = http_check_request;
-      sock->write_socket = http_default_write;
-      sock->send_buffer_fill = 0;
-      sock->idle_func = http_idle;
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "http: keeping connection alive\n");
-#endif
-      return 0;
-    }
-  return -1;
-}
-
-/*
- * This function is used to check if the connection in SOCK is a
- * Keep-Alive connection and sends the apropiate HTTP header property.
- */
-void
-http_check_keepalive (socket_t sock)
-{
-  http_socket_t *http = sock->data;
-  http_config_t *cfg = sock->cfg;
-
-  if ((sock->userflags & HTTP_FLAG_KEEP) && http->keepalive > 0)
-    {
-      sock->idle_counter = cfg->timeout;
-      sock_printf (sock, "Connection: Keep-Alive\r\n");
-      sock_printf (sock, "Keep-Alive: timeout=%d, max=%d\r\n", 
-		   sock->idle_counter, cfg->keepalive);
-      http->keepalive--;
-    }
-  /* tell HTTP/1.1 clients that the connection is closed after delivery */
-  else
-    {
-      sock->userflags &= ~HTTP_FLAG_KEEP;
-      sock_printf (sock, "Connection: close\r\n");
-    }
 }
 
 #if HAVE_SENDFILE
@@ -627,7 +543,6 @@ http_default_write (socket_t sock)
 	  sock->write_socket = http_send_file;
 	}
 #endif /* HAVE_SENDFILE */
-
     }
 
   /*
@@ -760,171 +675,6 @@ http_connect_socket (void *http_cfg, socket_t sock)
 }
 
 /*
- * Produce a ASCTIME date without the trailing '\n' from a given time_t.
- */
-static char *
-http_asc_date (time_t t)
-{
-  static char asc[64];
-  struct tm * gm_time;
-
-  gm_time = gmtime (&t);
-  strftime (asc, 64, "%a, %d %b %Y %H:%M:%S GMT", gm_time);
-
-  return asc;
-}
-
-/*
- * Extract a date information from a given string and return a 
- * UTC time (time_t) as time() does.
- */
-time_t
-http_parse_date (char *date)
-{
-  struct tm parse_time;
-  int n;
-  char _month[4];
-  char _wkday[10];
-  time_t ret;
-
-  static char month[12][4] = {
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
-
-  switch (date[3])
-    {
-      /* ASCTIME-Date */
-    case ' ':
-      sscanf (date, "%3s %3s %2d %02d:%02d:%02d %04d",
-	      _wkday,
-	      _month,
-	      &parse_time.tm_mday,
-	      &parse_time.tm_hour, 
-	      &parse_time.tm_min,
-	      &parse_time.tm_sec,
-	      &parse_time.tm_year);
-      
-      break;
-      /* RFC1123-Date */
-    case ',':
-      sscanf (date, "%3s, %02d %3s %04d %02d:%02d:%02d GMT", 
-	      _wkday,
-	      &parse_time.tm_mday,
-	      _month,
-	      &parse_time.tm_year,
-	      &parse_time.tm_hour, 
-	      &parse_time.tm_min,
-	      &parse_time.tm_sec);
-
-      break;
-      /* RFC850-Date */
-    default:
-      sscanf (date, "%s, %02d-%3s-%02d %02d:%02d:%02d GMT", 
-	      _wkday,
-	      &parse_time.tm_mday,
-	      _month,
-	      &parse_time.tm_year,
-	      &parse_time.tm_hour, 
-	      &parse_time.tm_min,
-	      &parse_time.tm_sec);
-
-      parse_time.tm_mon += parse_time.tm_mon >= 70 ? 1900 : 2000;
-
-      break;
-    }
-    
-  /* find the month identifier */
-  for (n = 0; n < 12; n++)
-    if (!memcmp (_month, month[n], 3))
-      parse_time.tm_mon = n;
-
-  parse_time.tm_isdst = daylight;
-  parse_time.tm_year -= 1900;
-  ret = mktime (&parse_time);
-  ret -= timezone;
-  if (daylight > 0) ret += 3600;
-  return ret;
-}
-
-/*
- * Parse part of the receive buffer for HTTP request properties
- * and store it in the socket structure SOCK. Return the amount of
- * properties found in the request.
- */
-static int
-http_parse_property (socket_t sock, char *request, char *end)
-{
-  int properties, n;
-  char *p;
-  http_socket_t *http;
-
-  /* get the http socket structure */
-  http = sock->data;
-
-  /* reserve data space for the http properties */
-  http->property = xmalloc (MAX_HTTP_PROPERTIES * 2 * sizeof(char *));
-  properties = 0;
-  n = 0;
-
-  /* find out properties if necessary */
-  while (INT16 (request) != CRLF && 
-	 properties < MAX_HTTP_PROPERTIES - 1)
-    {
-      /* get property entity identifier */
-      p = request;
-      while (*p != ':' && p < end) p++;
-      if (p == end) break;
-      http->property[n] = xmalloc (p-request+1);
-      strncpy (http->property[n], request, p-request);
-      http->property[n][p-request] = 0;
-      n++;
-      request = p+2;
-
-      /* get property entitiy body */
-      while (INT16 (p) != CRLF && p < end) p++;
-      if (p == end || p <= request) break;
-      http->property[n] = xmalloc (p-request+1);
-      strncpy (http->property[n], request, p-request);
-      http->property[n][p-request] = 0;
-      n++;
-      properties++;
-      request = p+2;
-
-#if 0
-      printf ("http header: {%s} = {%s}\n", 
-	      http->property[n-2], http->property[n-1]);
-#endif
-    }
-
-  request += 2;
-  http->property[n] = NULL;
-
-  return properties;
-}
-
-/*
- * Find a given property entity in the HTTP request properties.
- * Return a NULL pointer if not found.
- */
-char *
-http_find_property (http_socket_t *http, char *key)
-{
-  int n;
-
-  /* search through all the http properties */
-  n = 0;
-  while (http->property[n])
-    {
-      if (!util_strcasecmp (http->property[n], key))
-	{
-	  return http->property[n+1];
-	}
-      n += 2;
-    }
-  return NULL;
-}
-
-/*
  * This routine is called from http_check_request if there was
  * seen a full HTTP request (ends with a double CRLF).
  */
@@ -934,7 +684,7 @@ http_handle_request (socket_t sock, int len)
   int n;
   char *p, *line, *end;
   char *request;
-  char *option;
+  char *uri;
   int flag;
   int version[2];
   
@@ -954,7 +704,7 @@ http_handle_request (socket_t sock, int len)
   strcpy (request, line);
   line = p + 1;
 
-  /* scan the option (file), "line" points to first character */
+  /* scan the URI (file), `line' points to first character */
   while (*p != '\r' && p < end) p++;
   if (p == end)
     {
@@ -970,9 +720,9 @@ http_handle_request (socket_t sock, int len)
     {
       flag |= HTTP_FLAG_SIMPLE;
       while (*p != '\r') p++;
-      option = xmalloc (p - line + 1);
-      strncpy (option, line, p - line);
-      option[p-line] = 0;
+      uri = xmalloc (p - line + 1);
+      strncpy (uri, line, p - line);
+      uri[p-line] = 0;
       line = p;
     }
   /* no, it is a real HTTP/1.x request */
@@ -984,15 +734,15 @@ http_handle_request (socket_t sock, int len)
 	  return -1;
 	}
       *p = 0;
-      option = xmalloc(p - line + 1);
-      strcpy (option, line);
+      uri = xmalloc(p - line + 1);
+      strcpy (uri, line);
       line = p + 1;
   
       /* scan the version string of the HTTP request */
       if (memcmp (line, "HTTP/", 5))
 	{
 	  xfree (request);
-	  xfree (option);
+	  xfree (uri);
 	  return -1;
 	}
       line += 5;
@@ -1008,7 +758,7 @@ http_handle_request (socket_t sock, int len)
       INT16 (line) != CRLF)
     {
       xfree (request);
-      xfree (option);
+      xfree (uri);
       return -1;
     }
   line += 2;
@@ -1016,15 +766,18 @@ http_handle_request (socket_t sock, int len)
   /* find out properties */
   http_parse_property (sock, line, end);
 
+  /* convert URI if necessary */
+  http_process_uri (uri);
+
   /* find an apropiate request callback */
-  for(n = 0; n < HTTP_REQUESTS; n++)
+  for (n = 0; n < HTTP_REQUESTS; n++)
     {
       if (!memcmp (request, http_request[n].ident, http_request[n].len))
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "http: %s received\n", request);
 #endif
-	  http_request[n].response (sock, option, flag);
+	  http_request[n].response (sock, uri, flag);
 	  break;
 	}
     }
@@ -1032,11 +785,11 @@ http_handle_request (socket_t sock, int len)
   /* Return a "404 Bad Request" if the request type is unknown. */
   if (n == HTTP_REQUESTS)
     {
-      http_default_response (sock, option, 0);
+      http_default_response (sock, uri, 0);
     }
 
   xfree (request);
-  xfree (option);
+  xfree (uri);
   return 0;
 }
 
@@ -1075,197 +828,81 @@ http_check_request (socket_t sock)
 }
 
 /*
- * This routine gets all available content types from a given
- * file which should have kind of "/etc/mime.types"s format.
- */
-
-#define TYPES_LINE_SIZE 1024
-
-int
-http_read_types (http_config_t *cfg)
-{
-  FILE *f;
-  char *line;
-  char *p, *end;
-  char *content;
-  char *suffix;
-  char *content_type;
-
-  /* create the content type hash table if neccessary */
-  if (cfg->types == NULL)
-    {
-      cfg->types = hash_create (4);
-    }
-
-  /* try open the file */
-  if ((f = fopen (cfg->type_file, "rt")) == NULL)
-    {
-      log_printf (LOG_ERROR, "fopen: %s\n", SYS_ERROR);
-      return -1;
-    }
-
-  line = xmalloc (TYPES_LINE_SIZE);
-
-  /* read all lines within the file */
-  while ((fgets (line, TYPES_LINE_SIZE, f)) != NULL)
-    {
-      /* delete all trailing newline characters */
-      p = line + strlen (line) - 1;
-      while (p != line && (*p == '\r' || *p == '\n')) p--;
-      if (p == line) continue;
-      *(p+1) = 0;
-
-      p = line;
-      end = line + strlen (line);
-
-      /* parse content type */
-      content = line;
-      while (p < end && (*p != ' ' && *p != '\t')) p++;
-      *p++ = 0;
-
-      /* parse all file suffixes associated with this content type */
-      while (p < end)
-	{
-	  while (p < end && (*p == ' ' || *p == '\t')) p++;
-	  if (p == end) break;
-	  suffix = p;
-	  while (p < end && (*p != ' ' && *p != '\t')) p++;
-	  *p++ = 0;
-	  if (strlen (suffix))
-	    {
-	      /* 
-	       * add the given content type to the hash if it does not
-	       * contain it already
-	       */
-	      if (!hash_get (cfg->types, suffix))
-		{
-		  content_type = xmalloc (strlen (content) + 1);
-		  strcpy (content_type, content);
-		  hash_put (cfg->types, suffix, content_type);
-		}
-	    }
-	}
-    }
-  fclose (f);
-  xfree (line);
-  return 0;
-}
-
-/*
- * This routine delivers a valid content type for a given file.
- * It falls back to the socket's http configuration default content
- * type if the suffix could not be found.
+ * Client info callback for the http protocol.
  */
 char *
-http_find_content_type (socket_t sock, char *file)
+http_info_client (void *http_cfg, socket_t sock)
 {
-  http_config_t *cfg = sock->cfg;
-  char *suffix = file + strlen(file) - 1;
-  char *type;
+  http_config_t *cfg = http_cfg;
+  http_socket_t *http = sock->data;
+  http_cache_t *cache = http->cache;
+  static char info[80*32], text[80*8];
+  int n;
 
-  /* parse file back until a trailing '.' */
-  while (suffix > file && *suffix != '.') suffix--;
-  if (suffix != file) suffix++;
-
-  /* find this file suffix in the content type hash */
-  if ((type = hash_get (cfg->types, suffix)) != NULL)
+  sprintf (info, "This is a http client connection.\r\n\r\n");
+  if (sock->userflags & HTTP_FLAG_SENDFILE)
     {
-      return type;
+      sprintf (text, "  * delivering via sendfile() (offset: %lu)\r\n",
+	       http->fileoffset);
+      strcat (info, text);
+    }
+  if (sock->userflags & HTTP_FLAG_KEEP)
+    {
+      sprintf (text, 
+	       "  * keeping connection alive, "
+	       "%d requests and %d secs left\r\n",
+	       http->keepalive, sock->idle_counter);
+      strcat (info, text);
+    }
+  if (sock->userflags & HTTP_FLAG_CACHE)
+    {
+      sprintf (text, 
+	       "  * sending cache entry\r\n"
+	       "    file    : %s\r\n"
+	       "    size    : %d of %d bytes sent\r\n"
+	       "    usage   : %d\r\n"
+	       "    hits    : %d\r\n"
+	       "    urgency : %d\r\n"
+	       "    ready   : %s\r\n"
+	       "    date    : %s\r\n",
+	       cache->entry->file,
+	       cache->entry->size - cache->size, cache->entry->size,
+	       cache->entry->usage,
+	       cache->entry->hits,
+	       cache->entry->urgent,
+	       cache->entry->ready ? "yes" : "no",
+	       http_asc_date (cache->entry->date));
+      strcat (info, text);
+    }
+  if (sock->userflags & HTTP_FLAG_CGI)
+    {
+      sprintf (text, "  * sending cgi output (pid: %d)\r\n", http->pid);
+      strcat (info, text);
+    }
+  if (sock->userflags & HTTP_FLAG_POST)
+    {
+      sprintf (text, 
+	       "  * receiving cgi input\r\n"
+	       "    pid            : %d\r\n"
+	       "    content-length : %d bytes left\r\n", 
+	       http->pid, 
+	       http->contentlength);
+      strcat (info, text);
+    }
+  sprintf (text, "  * %d bytes left of original file size\r\n",
+	   http->filelength);
+  strcat (info, text);
+  strcat (info, "  * request property list:\r\n");
+  n = 0;
+  while (http->property[n])
+    {
+      sprintf (text, "    %s => %s\r\n",
+	       http->property[n], http->property[n+1]);
+      n += 2;
+      strcat (info, text);
     }
 
-  return cfg->default_type;
-}
-
-/*
- * This routine converts a relative file/path name into an
- * absolute file/path name. The given argument will be reallocated
- * if neccessary.
- */
-
-#define MAX_DIR_LEN 1024
-
-char *
-http_absolute_file (char *file)
-{
-  char *savedir;
-  char *p;
-  char *savefile;
-  char *dir;
-  int have_path = 0;
-
-  /* find any path seperator in the file */
-  p = file + strlen (file) - 1;
-  while (p > file && *p != '/' && *p != '\\') p--;
-  if (*p == '/' || *p == '\\')
-    {
-      have_path = 1;
-      p++;
-    }
-
-  /* save the filename within a buffer */
-  savefile = xmalloc (strlen (p) + 1);
-  strcpy (savefile, p);
-
-  /* get current work directory */
-  savedir = xmalloc (MAX_DIR_LEN);
-  if ((getcwd (savedir, MAX_DIR_LEN)) == NULL)
-    {
-      log_printf (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      xfree (savefile);
-      xfree (savedir);
-      return file;
-    }
-  
-  /* 
-   * If there was no path seperator in the filename then just concate
-   * current work directory and filename.
-   */
-  if (!have_path)
-    {
-      strcat (savedir, "/");
-      strcat (savedir, savefile);
-      savedir = xrealloc (savedir, strlen (savedir) + 1);
-      xfree (file);
-      return savedir;
-    }
-  
-  /* change to give directory (absolute or relative)  */
-  *p = 0;
-  if (chdir (file) == -1)
-    {
-      *p = '/';
-      log_printf (LOG_ERROR, "chdir: %s\n", SYS_ERROR);
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cannot change dir: %s\n", file);
-#endif
-      xfree (savefile);
-      xfree (savedir);
-      return file;
-    }
-  *p = '/';
-
-  /* get now the current work directory */
-  dir = xmalloc (MAX_DIR_LEN);
-  if ((getcwd (dir, MAX_DIR_LEN)) == NULL)
-    {
-      log_printf (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      xfree (dir);
-      xfree (savefile);
-      xfree (savedir);
-      return file;
-    }
-
-  /* concate new work directory with given filename */
-  strcat (dir, "/");
-  strcat (dir, savefile);
-  dir = xrealloc (dir, strlen (dir) + 1);
-  xfree (savefile);
-  xfree (file);
-
-  /* change back to the original work directory */
-  chdir (savedir);
-  xfree (savedir);
-  return dir;
+  return info;
 }
 
 /*
@@ -1276,7 +913,7 @@ int
 http_get_response (socket_t sock, char *request, int flags)
 {
   int fd;
-  int size;
+  int size, status;
   char *file;
   struct stat buf;
   char *cgifile;
@@ -1479,8 +1116,11 @@ http_get_response (socket_t sock, char *request, int flags)
   cache = xmalloc (sizeof (http_cache_t));
   http->cache = cache;
       
-  /* is the requested file already in the cache ? */
-  if (http_check_cache (file, cache) != -1)
+  /* return the file's current cache status */
+  status = http_check_cache (file, cache);
+
+  /* is the requested file already fully in the cache ? */
+  if (status == HTTP_CACHE_COMPLETE)
     {
       if (buf.st_mtime > cache->entry->date ||
 	  buf.st_size != cache->entry->size)
@@ -1495,6 +1135,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  sock->file_desc = fd;
 	  http->filelength = buf.st_size;
 	  sock->read_socket = http_cache_read;
+	  sock->disconnected_socket = http_cache_disconnect;
 	}
       else
 	{
@@ -1519,14 +1160,20 @@ http_get_response (socket_t sock, char *request, int flags)
 
       /* 
        * find a free slot for the new file if it is not larger
-       * than a certain size
+       * than a certain size and is not "partly" in the cache
        */
-      if (buf.st_size > 0 && buf.st_size < cfg->cachesize &&
+      if (status == HTTP_CACHE_NO && 
+	  buf.st_size > 0 && buf.st_size < cfg->cachesize &&
 	  http_init_cache (file, cache) != -1)
 	{
 	  sock->read_socket = http_cache_read;
-	  cache->entry->date = buf.st_size;
+	  sock->disconnected_socket = http_cache_disconnect;
+	  cache->entry->date = buf.st_mtime;
 	}
+      /*
+       * either the file is not cacheable or it is currently
+       * going to be in the http cache (not yet cache->ready)
+       */
       else
 	{
 #if HAVE_SENDFILE

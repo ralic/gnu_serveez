@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.6 2000/07/19 14:12:33 ela Exp $
+ * $Id: snprintf.h,v 1.7 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -34,7 +34,7 @@
 #include <stdarg.h>
 
 /* to be sure not to redefine va_start in stdarg.h */
-#if defined(HAVE_VARARGS_H) && !defined(va_start)
+#if defined (HAVE_VARARGS_H) && !defined (va_start)
 # include <varargs.h>
 #endif
 
@@ -54,10 +54,10 @@ int _vsnprintf (char *, size_t, const char *, va_list);
 #endif
 # define vsnprintf _vsnprintf
 # define snprintf _snprintf
-#endif
+#endif /* __MINGW32__ */
 
 #ifndef HAVE_VSNPRINTF
-# define vsnprintf(str, n, format, ap) vsprintf(str, format, ap)
+# define vsnprintf(str, n, format, ap) vsprintf (str, format, ap)
 #endif
 
 /* snprintf() */

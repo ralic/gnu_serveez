@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.6 2000/07/09 20:03:06 ela Exp $
+ * $Id: hash.c,v 1.7 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -34,6 +34,12 @@
 #include "alloc.h"
 #include "util.h"
 #include "hash.h"
+
+#if DEBUG_MEMORY_LEAKS
+# define xfree(ptr) free (ptr)
+# define xmalloc(size) malloc (size)
+# define xrealloc(ptr, size) realloc (ptr, size)
+#endif
 
 /*
  * Calculate the hashcode for a given key. This is the standard callback
@@ -407,8 +413,8 @@ hash_get (hash_t *hash, char *key)
 
 /*
  * This function delivers all values within a hash table. It returns NULL 
- * if there were no values in the hash. You MUST xfree() a non-NULL return
- * value.
+ * if there were no values in the hash. You MUST hash_xfree() a non-NULL 
+ * return value.
  */
 void **
 hash_values (hash_t *hash)
@@ -437,8 +443,8 @@ hash_values (hash_t *hash)
 
 /*
  * This function delivers all keys within a hash table. It returns NULL 
- * if there were no keyss in the hash. You MUST xfree() a non-NULL return
- * value.
+ * if there were no keys in the hash. You MUST hash_xfree() a non-NULL 
+ * return value.
  */
 char **
 hash_keys (hash_t *hash)

@@ -1155,6 +1155,32 @@ of the team is @uref{http://www.mingw.org/}. The port to the
 @file{cygwin1.dll}. Both ports are more or less advanced at this time, but
 for performance reasons it is always better to chose native Win32.
 
+The are major differences between the Win32 and Unix implementations due
+to the completely different API those systems provide.
+
+@table @asis
+@item Processes and Threads
+Because process communication is usually done by a pair of unidirectional
+pipes we chose that method in order to implement the Co-Servers in unices.
+The Win32 implementation are threads which are still part of the main
+process.
+
+@item Sockets and Handles
+In Win32 systems there is a difference in network sockets and file 
+descriptors. Those we had to implement quite a complex main socket loop.
+
+@item Named Pipes
+Both systems Unix and Win32 do provide this functionality (Windows NT 4.0
+and above). The main differences here are the completely different APIs.
+On a usual unix you create a named pipe within the filesystem via 
+@code{mkfifo()} and in Win32 you have to @code{CreateNamedPipe()} which
+will create some special network device. A further difference is what you
+can do with these pipes. On Win32 systems this @samp{network device} is
+valid on remote machines. That is on Unices possible if the created 
+filesystem node is located on a NFS. Named pipes on Unices are 
+unidirectional, on Win32 these are bidirectional and instanciatable.
+@end table
+
 Now follows the list on which operating systems and architectures
 Serveez has been build and tested successfully.
 

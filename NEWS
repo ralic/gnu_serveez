@@ -29,6 +29,7 @@ Version 0.0.17
  * work in progress
  * server protocols via named pipes on Linux and Win32 systems
  * TexInfo documentation
+ * multiple servers on a single port and servers on multiple ports
  * server instanciating possible
  * documentation on how to write servers and coservers for serveez
  * opened CVS repository

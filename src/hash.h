@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: hash.h,v 1.3 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -89,5 +89,12 @@ int hash_size (hash_t *hash);
 int hash_capacity (hash_t *hash);
 char *hash_contains (hash_t *hash, void *value);
 void hash_analyse (hash_t *hash);
+
+#if DEBUG_MEMORY_LEAKS
+# include <stdlib.h>
+# define hash_xfree(ptr) free (ptr)
+#else
+# define hash_xfree(ptr) xfree (ptr);
+#endif
 
 #endif /* not __HASH_H__ */

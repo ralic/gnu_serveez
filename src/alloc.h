@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.4 2000/07/19 14:12:33 ela Exp $
+ * $Id: alloc.h,v 1.5 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -70,5 +70,10 @@ char * xstrdup (char *src);
 void * xpmalloc (unsigned);
 void * xprealloc (void *, unsigned);
 char * xpstrdup (char *);
+
+#if DEBUG_MEMORY_LEAKS
+void xheap (void);
+#endif
+
 
 #endif /* not __ALLOC_H__ */

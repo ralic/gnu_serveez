@@ -916,10 +916,17 @@ AC_CHECK_FUNC(gethostbyaddr)
 if test $ac_cv_func_gethostbyaddr = no; then
     AC_CHECK_LIB(nsl, gethostbyaddr, EXTRALIBS="$EXTRALIBS -lnsl")
 fi
-AC_CHECK_FUNC(inet_aton)
+have_inet_aton="no"
+AC_CHECK_FUNC(inet_aton, have_inet_aton="yes")
 if test $ac_cv_func_inet_aton = no; then
-    AC_CHECK_LIB(resolv, inet_aton, EXTRALIBS="$EXTRALIBS -lresolv")
+    AC_CHECK_LIB(resolv, inet_aton,
+	have_inet_aton="yes"
+	EXTRALIBS="$EXTRALIBS -lresolv")
 fi
+if test $have_inet_aton = "yes"; then
+    AC_DEFINE(HAVE_INET_ATON, 1, [Define if you have the inet_aton function.])
+fi
+unset have_inet_aton
 
 dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.10 2000/07/17 21:26:02 raimi Exp $
+ * $Id: http-proto.h,v 1.11 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -59,47 +59,6 @@ http_config_t;
 /* Export the http server definition to `server.c'. */
 extern server_definition_t http_server_definition;
 
-/*
- * This structure is used to process a http connection. It will be stored
- * within the original socket structure (sock->data).
- */
-typedef struct http_socket http_socket_t;
-
-struct http_socket
-{
-  http_cache_t *cache;   /* a http file cache structure */
-  char **property;       /* property list of a http request */
-  int contentlength;     /* the content length for the cgi pipe */
-  int filelength;        /* content length for the http file */
-  int keepalive;         /* how many requests left for a connection */
-  off_t fileoffset;      /* file offset used by sendfile */
-  HANDLE pid;            /* the pid of the cgi (process handle) */
-};
-
-/* Some definitions. */
-#define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */
-#define MAJOR_VERSION       0          /* MajorVersion index */
-#define MINOR_VERSION       1          /* MinorVersion index */
-#define MAX_HTTP_PROPERTIES 32         /* all http properties */
-#define CRLF                0x0A0D     /* \r\n */
-#define CRLF2               0x0A0D0A0D /* \r\n\r\n */
-#define HTTP_REQUESTS       8          /* number of known request types */
-#define HTTP_TIMEOUT        15         /* default timeout value */
-#define HTTP_MAXKEEPALIVE   10         /* number of requests per connection */
-
-#define HTTP_VERSION "HTTP/1.0"        /* the current HTTP protocol version */
-
-/* HTTP resonse header definitions */
-#define HTTP_OK              HTTP_VERSION " 200 OK\r\n"
-#define HTTP_ACCEPTED        HTTP_VERSION " 202 Accepted\r\n"
-#define HTTP_RELOCATE        HTTP_VERSION " 302 Temporary Relocation\r\n"
-#define HTTP_NOT_MODIFIED    HTTP_VERSION " 304 Not Modified\r\n"
-#define HTTP_BAD_REQUEST     HTTP_VERSION " 400 Bad Request\r\n"
-#define HTTP_ACCESS_DENIED   HTTP_VERSION " 403 Forbidden\r\n"
-#define HTTP_FILE_NOT_FOUND  HTTP_VERSION " 404 Not Found\r\n"
-#define HTTP_INTERNAL_ERROR  HTTP_VERSION " 500 Internal Server Error\r\n"
-#define HTTP_NOT_IMPLEMENTED HTTP_VERSION " 501 Not Implemented\r\n"
-
 /* server functions */
 int http_init (server_t *server);
 int http_finalize (server_t *server);
@@ -109,39 +68,18 @@ int http_global_finalize (void);
 /* basic protocol functions */
 int http_detect_proto (void *cfg, socket_t sock);
 int http_connect_socket (void *cfg, socket_t sock);
+char *http_info_client (void *cfg, socket_t sock);
 
 /* internal protocol functions */
 int http_check_request (socket_t sock);
 int http_default_write (socket_t sock);
 int http_disconnect (socket_t sock);
-
-/* helper functions */
-char *http_find_property (http_socket_t *sock, char *key);
-int http_keep_alive (socket_t sock);
-void http_check_keepalive (socket_t sock);
-int http_read_types (http_config_t *cfg);
-void http_free_types (http_config_t *cfg);
+void http_free_socket (socket_t sock);
+int http_idle (socket_t sock);
 
 /* http response functions including their flags */
 int http_get_response (socket_t sock, char *request, int flags);
 int http_head_response (socket_t sock, char *request, int flags);
 int http_default_response (socket_t sock, char *request, int flags);
-
-#define HTTP_FLAG_CACHE    0x0001 /* use cache if possible */
-#define HTTP_FLAG_NOFILE   0x0002 /* do not send content, but header */
-#define HTTP_FLAG_SIMPLE   0x0004 /* HTTP/0.9 simple GET */     
-#define HTTP_FLAG_DONE     0x0008 /* http request done */
-#define HTTP_FLAG_POST     0x0010 /* http cgi pipe posting data */
-#define HTTP_FLAG_CGI      0x0020 /* http cgi pipe getting data */
-#define HTTP_FLAG_KEEP     0x0040 /* keep alive connection */
-#define HTTP_FLAG_SENDFILE 0x0080 /* use sendfile for HTTP requests */
-
-/* all of the additional http flags */
-#define HTTP_FLAG (HTTP_FLAG_DONE      | \
-                   HTTP_FLAG_POST      | \
-                   HTTP_FLAG_CGI       | \
-                   HTTP_FLAG_CACHE     | \
-                   HTTP_FLAG_KEEP      | \
-                   HTTP_FLAG_SENDFILE)
 
 #endif /* __HTTP_PROTO_H__ */

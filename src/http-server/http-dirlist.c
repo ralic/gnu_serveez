@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.7 2000/07/15 11:44:17 ela Exp $
+ * $Id: http-dirlist.c,v 1.8 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -73,11 +73,49 @@
 #include "alloc.h"
 #include "util.h"
 #include "http-proto.h"
+#include "http-core.h"
 #include "http-dirlist.h"
 
 /* Size of last buffer allocated. */
 int http_dirlist_size = 0;
 
+/*
+ * Convert a given filename to an apropiate http request URI.
+ * This is necessary because of special characters within
+ * these.
+ */
+static char *
+http_create_uri (char *file)
+{
+  static char uri[DIRLIST_SPACE_NAME];
+  char *p, *dst;
+
+  p = file;
+  dst = uri;
+  
+  /* go throughout the filename */
+  while (*p)
+    {
+      /* check if the current character is valid */
+      while (*p && 
+	     ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
+	      (*p >= '0' && *p <= '9') || 
+	      *p == ' ' || *p == '/' || *p == '.' || *p == '_'))
+	*dst++ = *p++;
+      if (!*p) break;
+      *dst++ = '%';
+      sprintf (dst, "%02X", (unsigned char)*p++);
+      dst += 2;
+    }
+  *dst = '\0';
+  return uri;
+}
+
+/*
+ * Return a buffer to a http directory listing refering to DIRNAME
+ * and being part of the document root DOCROOT. Do not to forget to
+ * xfree() the return buffer. Return NULL on errors.
+ */
 char *
 http_dirlist (char *dirname, char *docroot) 
 {
@@ -204,7 +242,8 @@ http_dirlist (char *dirname, char *docroot)
 			"<a href=\"%s/\">%-40s</a> "
 			"&lt;directory&gt; "
 			"%s\n",
-			FILENAME (de), FILENAME (de), timestr);
+			http_create_uri (FILENAME (de)), 
+			FILENAME (de), timestr);
 	    } 
 	  else 
 	    {
@@ -214,8 +253,8 @@ http_dirlist (char *dirname, char *docroot)
 			"<a href=\"%s\">%-40s</a> "
 			"<b>%11d</b> "
 			"%s\n",
-			FILENAME (de), FILENAME (de), 
-			(int) buf.st_size, timestr);
+			http_create_uri (FILENAME (de)), 
+			FILENAME (de), (int) buf.st_size, timestr);
 	    }
 	}
 

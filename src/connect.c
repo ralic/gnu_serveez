@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.7 2000/07/15 11:44:16 ela Exp $
+ * $Id: connect.c,v 1.8 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -136,7 +136,7 @@ int
 default_connect (socket_t sock)
 {
   int error;
-  socklen_t optlen;
+  socklen_t optlen = sizeof (int);
 
   if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
 		  (void *) &error, &optlen) < 0)

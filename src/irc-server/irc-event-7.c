@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.9 2000/07/21 21:19:31 ela Exp $
+ * $Id: irc-event-7.c,v 1.10 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -192,7 +192,7 @@ irc_users_callback (socket_t sock,
 	    }
 	  irc_printf (sock, ":%s %03d %s " RPL_ENDOFUSERS_TEXT "\n",
 		      cfg->host, RPL_ENDOFUSERS, client->nick);
-	  xfree (cl);
+	  hash_xfree (cl);
 	}
       else
 	{

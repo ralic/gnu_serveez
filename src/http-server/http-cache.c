@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.9 2000/07/19 14:12:34 ela Exp $
+ * $Id: http-cache.c,v 1.10 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 #include "util.h"
 #include "hash.h"
 #include "http-proto.h"
+#include "http-core.h"
 #include "http-cache.h"
 
 hash_t *http_cache = NULL;   /* actual cache entriy hash */
@@ -86,11 +87,13 @@ http_free_cache (void)
     {
       for (n = 0; n < hash_size (http_cache); n++)
 	{
-	  xfree (cache[n]->buffer);
 	  total += cache[n]->size;
 	  files++;
+	  xfree (cache[n]->buffer);
+	  xfree (cache[n]->file);
+	  xfree (cache[n]);
 	}
-      xfree (cache);
+      hash_xfree (cache);
     }
   hash_destroy (http_cache);
   http_cache = NULL;
@@ -125,7 +128,7 @@ http_urgent_cache (http_cache_entry_t *cache)
 	      caches[n]->urgent--;
 	    }
 	}
-      xfree (caches);
+      hash_xfree (caches);
     }
 
   /* set the given cache entry to the most recent one */
@@ -134,17 +137,24 @@ http_urgent_cache (http_cache_entry_t *cache)
 
 /*
  * This routine checks if a certain FILE is already within
- * the HTTP file cache. It returns zero if it is already cached and
- * fills in the CACHE entry. This entry will be additionally the most
- * recent afterwards.
+ * the HTTP file cache. It returns HTTP_CACHE_COMPLETE if it is 
+ * already cached and fills in the CACHE entry. This entry will be 
+ * additionally the most recent afterwards. 
+ * If the given FILE is going to be in the cache then return 
+ * HTTP_CACHE_INCOMPLETE, return HTTP_CACHE_NO if it is not at all 
+ * in the cache.
  */
 int
 http_check_cache (char *file, http_cache_t *cache)
 {
   http_cache_entry_t *cachefile;
+  cache->entry = NULL;
 
   if ((cachefile = hash_get (http_cache, file)) != NULL)
     {
+      /* set this entry to the most recent, ready or not  */
+      http_urgent_cache (cachefile);
+
       /* is this entry fully read by the cache reader ? */
       if (cachefile->ready)
 	{
@@ -152,13 +162,12 @@ http_check_cache (char *file, http_cache_t *cache)
 	  cache->entry = cachefile;
 	  cache->buffer = cachefile->buffer;
 	  cache->size = cachefile->size;
-
-	  /* set this entry to the most recent */
-	  http_urgent_cache (cachefile);
-	  return 0;
+	  return HTTP_CACHE_COMPLETE;
 	}
+      /* not but is going to be ... */
+      else return HTTP_CACHE_INCOMPLETE;
     }
-  return -1;
+  return HTTP_CACHE_NO;
 }
 
 /*
@@ -172,6 +181,43 @@ http_cache_create_entry (void)
   cache = xmalloc (sizeof (http_cache_entry_t));
   memset (cache, 0, sizeof (http_cache_entry_t));
   return cache;
+}
+
+/*
+ * Destroy an existing http cache entry and remove it from the cache
+ * hash. Therefore we must make this entry the most urgent one in order
+ * to lower the urgency of all other cache entries.
+ */
+static void
+http_cache_destroy_entry (http_cache_entry_t *cache)
+{
+  http_urgent_cache (cache);
+  hash_delete (http_cache, cache->file);
+  if (cache->buffer) xfree (cache->buffer);
+  xfree (cache->file);
+  xfree (cache);
+}
+
+/*
+ * This is a extended callback for the sock->disconnected_socket entry
+ * of a socket structure. You should assign it if the socket reads a
+ * cache entry.
+ */
+int
+http_cache_disconnect (socket_t sock)
+{
+  http_socket_t *http = sock->data;
+
+  if (http->cache->entry)
+    {
+      /* if the cache entry has not been fully read then free it */
+      if (!http->cache->entry->ready)
+	{
+	  http_cache_destroy_entry (http->cache->entry);
+	  http->cache->entry = NULL;
+	}
+    }
+  return http_disconnect (sock);
 }
 
 /*
@@ -195,7 +241,6 @@ http_init_cache (char *file, http_cache_t *cache)
   if (urgent < http_cache_entries)
     {
       slot = http_cache_create_entry ();
-      slot->urgent = hash_size (http_cache);
     }
 
   /*
@@ -204,29 +249,33 @@ http_init_cache (char *file, http_cache_t *cache)
    */
   else
     {
-      caches = (http_cache_entry_t **) hash_values (http_cache);
-      for (n = 0; n < hash_size (http_cache); n++)
+      if ((caches = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
 	{
-	  if (caches[n]->urgent <= urgent && !caches[n]->usage)
+	  for (n = 0; n < hash_size (http_cache); n++)
 	    {
-	      slot = caches[n];
-	      urgent = slot->urgent;
+	      if (caches[n]->urgent <= urgent && 
+		  !caches[n]->usage && caches[n]->ready)
+		{
+		  slot = caches[n];
+		  urgent = slot->urgent;
+		}
 	    }
+	  hash_xfree (caches);
 	}
       /* not a "reinitialable" cache entry found */
-      if (!slot) return -1;
+      if (!slot) 
+	{
+	  cache->entry = NULL;
+	  return -1;
+	}
 
       /* is currently used, so free the entry previously */
-      xfree (slot->buffer);
-      hash_delete (http_cache, slot->file);
-      xfree (slot->file);
+      http_cache_destroy_entry (slot);
       slot = http_cache_create_entry ();
-      slot->urgent = urgent;
-      http_urgent_cache (slot);
     }
 
-  slot->file = xmalloc (strlen (file) + 1);
-  strcpy (slot->file, file);
+  slot->urgent = hash_size (http_cache);
+  slot->file = xstrdup (file);
   hash_put (http_cache, file, slot);
 
   /*
@@ -242,7 +291,7 @@ http_init_cache (char *file, http_cache_t *cache)
 
 /*
  * Refresh a certain cache entry for reusing it afterwards. So we do not
- * destroy the "used" flag and the "file", but the actual cache content.
+ * destroy the entry, but the actual cache content.
  */
 void
 http_refresh_cache (http_cache_t *cache)
@@ -355,13 +404,12 @@ http_cache_read (socket_t sock)
       log_printf (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
 
       /* release the actual cache entry previously reserved */
-      http_urgent_cache (cache->entry);
       if (cache->size > 0) 
 	{
 	  xfree (cache->buffer);
 	  cache->buffer = NULL;
+	  cache->size = 0;
 	}
-      hash_delete (http_cache, cache->entry->file);
       return -1;
     }
 

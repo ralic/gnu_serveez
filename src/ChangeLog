@@ -1,3 +1,44 @@
+2000-07-25  [ Ela ]  <ela@lkcc.org>
+
+	* alloc.c (xheap): Made up some routines that save all
+	xmalloc()ed pointers in a hash structure. Thus we can
+	debug memory leaks except within the hash implementation.
+	This is for developement purposes only and can be switched
+	by the defintion of DEBUG_MEMORY_LEAKS.
+
+	* http-server/http-cache.c (http_check_cache): Figured
+	out the main reason for memory leaks within the http
+	cache structures. This could happen because of not yet
+	fully read cache entries which got simply overwritten
+	and therefore lost.
+
+	* http-server/http-core.c: Put some of the basic http
+	function into this file to decrease the file sizes of
+	the http server.
+
+	* http-server/http-proto.c (http_info_client): Made up
+	the http client info callback. Here we show all the
+	information refering to a http client connection within
+	the control protocol.
+
+	* irc-server/irc-proto.c (irc_delete_client): Fixed irc
+	client hash memory leak.
+
+	* http-server/http-cache.c (http_free_cache): Fixed http
+	cache memory leak.
+
+	* http-server/http-dirlist.c (http_create_uri): Here we
+	create URIs as converted in the below routine. When having
+	special characters within file or directory names we have
+	to convert them to %XX sequences.
+
+	* http-server/http-proto.c (http_process_uri): Added URI
+	convert routine to convert URIs with %XX within file
+	requests.
+
+	* server.c (set_port): Use either inet_aton() or inet_addr()
+	for forming a valid internet address.
+
 2000-07-21  [ Ela ]  <ela@lkcc.org>
 
 	* socket.c (default_flood_protect): This function should be

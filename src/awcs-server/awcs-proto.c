@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.11 2000/07/21 21:19:30 ela Exp $
+ * $Id: awcs-proto.c,v 1.12 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -446,7 +446,7 @@ process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
 	      sock_schedule_for_shutdown (sock[n]);
 	    }
 	}
-      xfree (sock);
+      hash_xfree (sock);
     }
   return 0;
 }
@@ -655,7 +655,7 @@ awcs_disconnect_clients (awcs_config_t *cfg)
 	{
 	  sock_schedule_for_shutdown (sock[n]);
 	}
-      xfree (sock);
+      hash_xfree (sock);
     }
 }
 

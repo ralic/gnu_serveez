@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.4 2000/07/09 20:03:07 ela Exp $
+ * $Id: http-cache.h,v 1.5 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -86,5 +86,13 @@ int http_init_cache (char *file, http_cache_t *cache);
 int http_check_cache (char *file, http_cache_t *cache);
 int http_cache_write (socket_t sock);
 int http_cache_read (socket_t sock);
+int http_cache_disconnect (socket_t sock);
+
+/*
+ * Return values for http_check_cache().
+ */
+#define HTTP_CACHE_COMPLETE   0 /* file is in the cache */
+#define HTTP_CACHE_INCOMPLETE 1 /* file is going to be in the cache */
+#define HTTP_CACHE_NO         2 /* file is not in the cache */
 
 #endif /* __HTTP_CACHE_H__ */

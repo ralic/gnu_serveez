@@ -22,7 +22,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-noinst_LIBRARIES=libhttp.a
+noinst_LIBRARIES = libhttp.a
 
 AM_CPPFLAGS = -I..
 
@@ -32,5 +32,5 @@ libhttp_a_SOURCES = \
 	http-cache.c http-cache.h \
 	http-cgi.c http-cgi.h \
 	http-dirlist.c http-dirlist.h \
-	http-proto.c http-proto.h
-
+	http-proto.c http-proto.h \
+	http-core.c http-core.h

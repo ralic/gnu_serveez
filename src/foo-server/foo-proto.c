@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.9 2000/07/21 21:19:30 ela Exp $
+ * $Id: foo-proto.c,v 1.10 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -324,7 +324,7 @@ foo_init (struct server *server)
 	  printf (" assoc[%d]: `%s' => `%s'\n",
 		  i, keys[i], (char *)hash_get (h, keys[i]));
 	}
-      xfree (keys);
+      hash_xfree (keys);
     } 
   else 
     {

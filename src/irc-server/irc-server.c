@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.9 2000/07/20 22:49:01 ela Exp $
+ * $Id: irc-server.c,v 1.10 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -161,6 +161,7 @@ irc_connect_server (irc_server_t *server, char *ip)
 
   log_printf (LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
   sock->data = server;
+  sock->cfg = cfg;
   server->id = sock->socket_id;
   server->connected = 1;
   sock->userflags |= IRC_FLAG_SERVER;
@@ -199,7 +200,7 @@ irc_connect_server (irc_server_t *server, char *ip)
 		      cl[n]->nick, irc_client_flag_string (cl[n]));
 #endif /* not ENABLE_TIMESTAMP */
 	}
-      xfree (cl);
+      hash_xfree (cl);
     }
 
   /* propagate all channel information to the server */
@@ -233,7 +234,7 @@ irc_connect_server (irc_server_t *server, char *ip)
 		  ch[i]->name, irc_channel_flag_string (ch[i]));
 #endif /* not ENABLE_TIMESTAMP */
 
-      xfree (ch);
+      hash_xfree (ch);
     }
   
   return 0;

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.7 2000/07/20 14:39:54 ela Exp $
+ * $Id: alloc.c,v 1.8 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -35,9 +35,17 @@
 #include "alloc.h"
 #include "util.h"
 
+#if DEBUG_MEMORY_LEAKS
+# include "hash.h"
+#endif
+
 #if ENABLE_DEBUG
 unsigned allocated_bytes = 0;
 unsigned allocated_blocks = 0;
+#endif
+
+#if DEBUG_MEMORY_LEAKS
+hash_t *heap = NULL;
 #endif
 
 void * 
@@ -58,8 +66,14 @@ xmalloc (unsigned size)
       /* save size at the beginning of the block */
       up = (unsigned *)ptr;
       *up = size;
-      up+=2;
+      up += 2;
       ptr = (void *)up;
+#if  DEBUG_MEMORY_LEAKS      
+      /* put heap pointer into special heap hash */
+      if (heap == NULL)	heap = hash_create (4);
+      hash_put (heap, util_itoa ((int)ptr), ptr);
+#endif
+
       allocated_bytes += size;
 #endif /* ENABLE_HEAP_COUNT */
       allocated_blocks++;
@@ -93,11 +107,18 @@ xrealloc (void * ptr, unsigned size)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
+#if DEBUG_MEMORY_LEAKS
+      if (hash_delete (heap, util_itoa ((int)ptr)) != ptr)
+	{
+	  log_printf (LOG_DEBUG, "xrealloc: %p not found in heap\n", ptr);
+	}
+#endif
       /* get previous blocksize */
       up = (unsigned *)ptr;
-      up-=2;
+      up -= 2;
       old_size = *up;
       ptr = (void *)up;
+
 #endif /* ENABLE_HEAP_COUNT */
 
       if ((ptr = (void *) realloc (ptr, size + 2*SIZEOF_UNSIGNED)) != NULL)
@@ -106,8 +127,11 @@ xrealloc (void * ptr, unsigned size)
 	  /* save block size */
 	  up = (unsigned *)ptr;
 	  *up = size;
-	  up+=2;
+	  up += 2;
 	  ptr = (void *)up;
+#if DEBUG_MEMORY_LEAKS
+	  hash_put (heap, util_itoa ((int)ptr), ptr);
+#endif
 	  allocated_bytes += size - old_size;
 #endif /* ENABLE_HEAP_COUNT */
 
@@ -146,19 +170,65 @@ xfree (void * ptr)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-      /* get blocksize */
       up = (unsigned *)ptr;
-      up-=2;
-      size = *up;
-      assert (size);
-      allocated_bytes -= size;
-      ptr = (void *)up;
+
+#if DEBUG_MEMORY_LEAKS
+      if (hash_delete (heap, util_itoa ((int)ptr)) != ptr)
+	{
+	  log_printf (LOG_DEBUG, "xfree: %p not found in heap\n", ptr);
+	  allocated_blocks++;
+	}
+      else
+#endif
+	{
+	  /* get blocksize */
+	  up -= 2;
+	  size = *up;
+	  assert (size);
+	  allocated_bytes -= size;
+	  ptr = (void *)up;
+	}
 #endif /* ENABLE_HEAP_COUNT */
       allocated_blocks--;
 #endif /* ENABLE_DEBUG */
       free (ptr);
     }
 }
+
+#if DEBUG_MEMORY_LEAKS
+/*
+ * Print a list of non-released memory blocks. This is for debugging only
+ * and should never occur in final software releases.
+ */
+void
+xheap (void)
+{
+  char **ptr, p;
+  unsigned n, i;
+  unsigned *up;
+  
+  if ((ptr = (char **)hash_values (heap)) != NULL)
+    {
+      for (n = 0; n < (unsigned)hash_size (heap); n++)
+	{
+	  up = (unsigned *)ptr[n];
+	  up -= 2;
+	  printf ("heap ptr %p (size: %u) not released.\n", ptr[n], *up);
+	  for (i = 0; i < *up && i < 64; i++)
+	    {
+	      if (ptr[n][i] >= ' ')
+		printf ("%c", ptr[n][i]);
+	      else
+		printf ("{0x%02x}", (unsigned char)ptr[n][i]);
+	    }
+	  printf ("\n");
+	}
+      hash_xfree (ptr);
+    }
+  hash_destroy (heap);
+  heap = NULL;
+}
+#endif /* DEBUG_MEMORY_LEAKS */
 
 char *
 xstrdup (char *src)

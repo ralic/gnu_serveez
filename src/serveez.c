@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.10 2000/07/15 11:44:16 ela Exp $
+ * $Id: serveez.c,v 1.11 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -329,6 +329,9 @@ main (int argc, char * argv[])
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
 	      allocated_bytes, allocated_blocks);
+#if DEBUG_MEMORY_LEAKS
+  xheap ();
+#endif
 #endif /* ENABLE_DEBUG */
 
   log_printf (LOG_NOTICE, "serveez terminating\n");

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.11 2000/07/21 21:19:31 ela Exp $
+ * $Id: irc-proto.c,v 1.12 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -741,7 +741,7 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
 	      fchannel[found++] = channel[n];
 	    }
 	}
-      xfree (channel);
+      hash_xfree (channel);
       fchannel[found++] = NULL;
       fchannel = xrealloc (fchannel, sizeof (irc_channel_t *) * (found));
       return fchannel;
@@ -835,15 +835,20 @@ irc_delete_client_history (irc_config_t *cfg)
 int
 irc_delete_client (irc_config_t *cfg, irc_client_t *client)
 {
-  /* put this client into the history list */
-  irc_add_client_history (cfg, client);
-  
-  if (hash_delete (cfg->clients, client->nick) == NULL)
-    return -1;
+  int ret = 0;
+
+  if (client->nick)
+    {
+      /* put this client into the history list */
+      irc_add_client_history (cfg, client);
+      if (hash_delete (cfg->clients, client->nick) == NULL)
+	ret = -1;
+    }
 
   if (client->nick) xfree (client->nick);
   if (client->real) xfree (client->real);
   if (client->user) xfree (client->user);
+  if (client->host) xfree (client->host);
   if (client->server) xfree (client->server);
   if (client->channel) xfree (client->channel);
   if (client->pass) xfree (client->pass);
@@ -851,7 +856,7 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
   xfree (client);
   cfg->users--;
 
-  return 0;
+  return ret;
 }
 
 /*
@@ -877,7 +882,7 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 	      return fclient;
 	    }
 	}
-      xfree (client);
+      hash_xfree (client);
     }
   return NULL;
 }
@@ -920,7 +925,7 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
 	      fclient[found++] = client[n];
 	    }
 	}
-      xfree (client);
+      hash_xfree (client);
       fclient[found++] = NULL;
       fclient = xrealloc (fclient, sizeof (irc_client_t *) * (found));
       return fclient;

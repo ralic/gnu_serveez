@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.8 2000/07/19 14:12:34 ela Exp $
+ * $Id: http-cgi.c,v 1.9 2000/07/25 16:24:27 ela Exp $
  *
  */
 
@@ -56,6 +56,7 @@
 #include "alloc.h"
 #include "serveez.h"
 #include "http-proto.h"
+#include "http-core.h"
 #include "http-cgi.h"
 
 /*

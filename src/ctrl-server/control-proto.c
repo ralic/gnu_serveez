@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.13 2000/07/21 21:19:30 ela Exp $
+ * $Id: control-proto.c,v 1.14 2000/07/25 16:24:26 ela Exp $
  *
  */
 
@@ -587,7 +587,7 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 		       cache[n]->urgent,
 		       cache[n]->ready ? "Yes" : "No");
 	}
-      xfree (cache);
+      hash_xfree (cache);
     }
   sock_printf (sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
 	       total, files);
