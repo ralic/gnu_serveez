@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.14 2001/11/28 18:04:41 ela Exp $
+ * $Id: guile-bin.c,v 1.15 2001/12/27 18:27:51 ela Exp $
  *
  */
 
@@ -474,10 +474,16 @@ guile_bin_to_data (SCM binary, int *size)
 void
 guile_bin_init (void)
 {
+#if GUILE_OLD_SMOBS
+  static scm_smobfuns guile_bin_funs = {
+    NULL, guile_bin_free, guile_bin_print, guile_bin_equal };
+  guile_bin_tag = scm_newsmob (&guile_bin_funs);
+#else
   guile_bin_tag = scm_make_smob_type ("svz-binary", 0);
   scm_set_smob_print (guile_bin_tag, guile_bin_print);
   scm_set_smob_free (guile_bin_tag, guile_bin_free);
   scm_set_smob_equalp (guile_bin_tag, guile_bin_equal);
+#endif
 
   scm_c_define_gsubr ("binary?", 1, 0, 0, guile_bin_p);
   scm_c_define_gsubr ("string->binary", 1, 0, 0, guile_string_to_bin);

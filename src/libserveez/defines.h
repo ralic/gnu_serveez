@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.8 2001/12/13 18:00:00 ela Exp $
+ * $Id: defines.h,v 1.9 2001/12/27 18:27:51 ela Exp $
  *
  */
 
@@ -55,7 +55,7 @@
 #undef __PARAMS
 #if defined (__STDC__) || defined (_AIX) \
         || (defined (__mips) && defined (_SYSTYPE_SVR4)) \
-        || defined (__MINGW32__) || defined (_WIN32) || defined(__cplusplus)
+        || defined (__MINGW32__) || defined (_WIN32) || defined (__cplusplus)
 # define __PARAMS(protos) protos
 #else
 # define __PARAMS(protos) ()

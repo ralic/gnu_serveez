@@ -1,3 +1,9 @@
+2001-12-27  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.h: Added some more backward compatibility 
+	definitions.  Also defined a pre-ansi C string concatinator
+	macro.
+
 2001-12-22  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/nut-transfer.c, http-server/http-dirlist.c: Do 

@@ -51,14 +51,14 @@ AC_DEFUN([AC_GUILE], [
   fi]
   if test x"$guile" != "x" ; then
     case "$guile" in
-    [1.3.[4-9] | 1.[4-9]* | [2-9].*)]
-      AC_MSG_RESULT($guile >= 1.3.4)
+    [1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*)]
+      AC_MSG_RESULT($guile >= 1.3)
       GUILE_BUILD="yes"
       ;;
     [*)]
-      AC_MSG_RESULT($guile < 1.3.4)
+      AC_MSG_RESULT($guile < 1.3)
       AC_MSG_WARN([
-  GNU Guile version 1.3.4 or above is needed, and you do not seem to have
+  GNU Guile version 1.3 or above is needed, and you do not seem to have
   it handy on your system.])
       ;;
     esac
@@ -120,13 +120,16 @@ AC_DEFUN([AC_GUILE_SOURCE], [
 	GUILESRC="`echo "$GUILESRC" | sed -e 's%\\\\%/%g'`"
 	;;
     esac
-    if test -f "$GUILESRC/configure"; then
+    if test -f "$GUILESRC/configure" ; then
       GUILE_SOURCE="$GUILESRC"
-      GUILE_CFLAGS="-I$GUILESRC -DGUILE_SOURCE"
+      GUILE_CFLAGS="-I$GUILESRC -I$GUILESRC/libguile -DGUILE_SOURCE"
       GUILE_LDFLAGS="$GUILESRC/libguile/libguile.la"
       GUILE_DEPENDENCY="$GUILESRC/libguile/libguile.la"
       GUILE_RULE="$GUILESRC/libguile/libguile.la"
       GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) libltdlc.la)'
+      if test ! -f "$GUILESRC/libltdl/configure" ; then 
+	GUILE_MAKE_LTDL="# $GUILE_MAKE_LTDL"
+      fi
       GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) libguile.la)'
       AC_SUBST(GUILE_SOURCE)
       AC_SUBST(GUILE_CFLAGS)
@@ -165,10 +168,11 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
         --enable-static --disable-shared \
         --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
         --disable-arrays --disable-posix --enable-networking --disable-regex \
-        --without-threads \
+        --without-threads --enable-ltdl-convenience --prefix=$prefix \
         --cache-file=$cache_file])
     else
-      AC_MSG_RESULT([Guile already configured... skipped])
+      AC_MSG_RESULT([The file \`$GUILE_SOURCE/libguile/scmconfig.h' exists.])
+      AC_MSG_RESULT([Guile already configured... skipped.])
     fi
   fi
 ])
@@ -189,8 +193,8 @@ AC_DEFUN([AC_LIBTOOL_SOLARIS], [
     case $host_os in
     solaris*)
       LIBERTY="`gcc --print-file-name=libiberty.a`"
-      LIBERTY="-L`dirname LIBERTY 2>/dev/null`"
-      LIBS="`echo "$LIBS" | sed -e 's/-liberty/$LIBERTY -liberty/g'`"
+      LIBERTY="-L`dirname $LIBERTY 2>/dev/null`"
+      LIBS="`echo "$LIBS" | sed -e 's%-liberty%'$LIBERTY' -liberty%g'`"
       GCCLIB="`gcc --print-libgcc-file-name`"
       GCCDIR="-L`dirname $GCCLIB 2>/dev/null`"
       GCCFILE="`basename $GCCLIB 2>/dev/null`"

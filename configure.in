@@ -976,13 +976,13 @@ AC_CHECK_LIB(z, zlibVersion,
 
 have_bz2=no
 AC_CHECK_LIB(bz2, bzCompress, have_bz2=yes,
-  [AC_CHECK_LIB(bz2, BZ2_bzCompress, have_bz2=prefix)])
+  [AC_CHECK_LIB(bz2, BZ2_bzCompress, have_bz2=bz2_prefix)])
 if test $have_bz2 != no ; then
   AC_DEFINE(HAVE_BZ2LIB, 1, [Define if you have the bz2 library.])
   CODECLIBS="$CODECLIBS -lbz2"
-  if test $have_bz2 = prefix ; then
-  AC_DEFINE(HAVE_BZ2LIB_PREFIX, 1, 
-    [Define if you have a prefixed bz2 library (>= v1.0)])
+  if test $have_bz2 = bz2_prefix ; then
+    AC_DEFINE(HAVE_BZ2LIB_PREFIX, 1, 
+      [Define if you have a prefixed bz2 library (>= v1.0)])
   fi
 fi
 

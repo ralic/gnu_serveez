@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.14 2001/12/12 19:02:50 ela Exp $
+ * $Id: guile-api.c,v 1.15 2001/12/27 18:27:51 ela Exp $
  *
  */
 
@@ -761,9 +761,9 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock:idle-counter",
 		      1, 1, 0, guile_sock_idle_counter);
 
-  DEFINE_SOCK_CALLBACK ("svz:sock:disconnected", disconnected_socket);
-  DEFINE_SOCK_CALLBACK ("svz:sock:kicked", kicked_socket);
-  DEFINE_SOCK_CALLBACK ("svz:sock:idle", idle_func);
+  DEFINE_SOCK_CALLBACK ("svz:sock:disconnected",disconnected_socket);
+  DEFINE_SOCK_CALLBACK ("svz:sock:kicked",kicked_socket);
+  DEFINE_SOCK_CALLBACK ("svz:sock:idle",idle_func);
 }
 
 /* Finalize the API functions. */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.56 2001/12/15 02:47:38 ela Exp $
+ * $Id: guile.c,v 1.57 2001/12/27 18:27:51 ela Exp $
  *
  */
 
@@ -135,7 +135,7 @@ guile_get_current_load_port (void)
   SCM p = scm_current_load_port ();
   if (!SCM_FALSEP (p) && SCM_PORTP (p))
     return p;
-  if (SCM_PORTP (guile_load_port))
+  if (!SCM_UNBNDP (guile_load_port) && SCM_PORTP (guile_load_port))
     return guile_load_port;
   return SCM_UNDEFINED;
 }
@@ -151,13 +151,13 @@ guile_error (char *format, ...)
   va_list args;
   /* FIXME: Why is this port undefined in guile exceptions ? */
   SCM lp = guile_get_current_load_port ();
-  char *file = 
-    SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
+  char *file = (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ? 
+    gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
   /* guile counts lines from 0, we have to add one */
   fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined", 
-	   SCM_PORTP (lp) ? SCM_LINUM (lp) + 1 : 0, 
-	   SCM_PORTP (lp) ? SCM_COL (lp) : 0);
+	   (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ? SCM_LINUM (lp) + 1 : 0, 
+	   (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ? SCM_COL (lp) : 0);
   if (file)
     scm_c_free (file);
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.4 2001/12/04 17:26:00 ela Exp $
+ * $Id: guile-api.h,v 1.5 2001/12/27 18:27:51 ela Exp $
  *
  */
 
@@ -125,5 +125,33 @@
    integer the routine return the default value @var{def}. */
 #define guile_integer(pos, obj, def) \
     ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
+
+/* The GUILE_CONCAT macros create a new concatenated symbol for the 
+   compiler in a portable way. It is essential to use these macros like
+   GUILE_CONCAT (a,b) and *not* like GUILE_CONCAT (a, b) or its variants. */
+#if defined (__STDC__) || defined (__cplusplus)
+# define GUILE_CONCAT2(a, b) a##b
+# define GUILE_CONCAT3(a, b, c) a##b##c
+#else
+# define GUILE_CONCAT2(a, b) a/* */b
+# define GUILE_CONCAT3(a, b, c) a/* */b/* */c
+#endif
+
+#ifndef SCM_NEWSMOB
+#define SCM_NEWSMOB(value, tag, data) do {                         \
+    SCM_NEWCELL (value);                                           \
+    SCM_SETCDR (value, data); SCM_SETCAR (value, tag); } while (0)
+#endif
+#ifndef SCM_RETURN_NEWSMOB
+#define SCM_RETURN_NEWSMOB(tag, data) do { \
+    SCM value;                             \
+    SCM_NEWSMOB (value, tag, data);        \
+    return value; } while (0)
+#endif
+#ifndef SCM_SMOB_DATA
+#define SCM_SMOB_DATA(data) SCM_CDR (data)
+#define gh_scm2chars(obj, lenp) guile_to_string (obj)
+#define GUILE_OLD_SMOBS 1
+#endif
 
 #endif /* not __GUILE_API_H__ */
