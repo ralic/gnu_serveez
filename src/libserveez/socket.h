@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.20 2002/06/06 20:04:51 ela Exp $
+ * $Id: socket.h,v 1.21 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -68,6 +68,7 @@
 #define SOCK_FLAG_WRITING     0x00040000 /* Pending write operation. */
 #define SOCK_FLAG_FLUSH       0x00080000 /* Flush receive and send queue. */
 #define SOCK_FLAG_NOSHUTDOWN  0x00100000 /* Disable shutdown. */
+#define SOCK_FLAG_NOOVERFLOW  0x00200000 /* Disable receive buffer overflow. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
@@ -274,21 +275,21 @@ __END_DECLS
 /*
  * Shorten the receive buffer of @var{sock} by @var{len} bytes.
  */
-#define svz_sock_reduce_recv(sock, len)                  \
-  if (len && sock->recv_buffer_fill > len) {             \
-    memmove (sock->recv_buffer, sock->recv_buffer + len, \
-             sock->recv_buffer_fill - len);              \
-  }                                                      \
-  sock->recv_buffer_fill -= len;
+#define svz_sock_reduce_recv(sock, len)			       \
+  if ((len) && (sock)->recv_buffer_fill > (len)) {	       \
+    memmove ((sock)->recv_buffer, (sock)->recv_buffer + (len), \
+	     (sock)->recv_buffer_fill - (len));		       \
+  }							       \
+  (sock)->recv_buffer_fill -= (len);
 
 /*
  * Reduce the send buffer of @var{sock} by @var{len} bytes.
  */
-#define svz_sock_reduce_send(sock, len)                  \
-  if (len && sock->send_buffer_fill > len) {             \
-    memmove (sock->send_buffer, sock->send_buffer + len, \
-	     sock->send_buffer_fill - len);              \
-  }                                                      \
-  sock->send_buffer_fill -= len;
+#define svz_sock_reduce_send(sock, len)			       \
+  if ((len) && (sock)->send_buffer_fill > (len)) {	       \
+    memmove ((sock)->send_buffer, (sock)->send_buffer + (len), \
+	     (sock)->send_buffer_fill - (len));		       \
+  }							       \
+  (sock)->send_buffer_fill -= (len);
 
 #endif /* not __SOCKET_H__ */

@@ -1,7 +1,7 @@
 /*
  * server-loop.c - server loop implementation
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.9 2002/06/09 10:13:09 ela Exp $
+ * $Id: server-loop.c,v 1.10 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -85,6 +85,12 @@
 	  svz_sock_schedule_for_shutdown (sock); \
   } while (0)
 
+
+#define SOCK_READABLE(sock)				   \
+  (!((sock)->flags & SOCK_FLAG_NOOVERFLOW) ||		   \
+   ((sock)->recv_buffer_fill < (sock)->recv_buffer_size && \
+    (sock)->recv_buffer_size > 0))
+
 #ifndef __MINGW32__
 
 /*
@@ -149,7 +155,8 @@ svz_check_sockets_select (void)
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
 	      FD_SET (sock->pipe_desc[READ], &except_fds);
-	      FD_SET (sock->pipe_desc[READ], &read_fds);
+	      if (SOCK_READABLE (sock))
+		FD_SET (sock->pipe_desc[READ], &read_fds);
 	      if (sock->pipe_desc[READ] > nfds)
 		nfds = sock->pipe_desc[READ];
 	    }
@@ -172,9 +179,8 @@ svz_check_sockets_select (void)
 
 	  /* Put socket into READ if necessary. */
 	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
-	    {
+	    if (SOCK_READABLE (sock))
 	      FD_SET (sock->sock_desc, &read_fds);
-	    }
 
 	  /* Put a socket into WRITE if necessary and possible. */
 	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
@@ -445,15 +451,20 @@ svz_check_sockets_poll (void)
 	  /* receive pipe ? */
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-	      fd = sock->pipe_desc[READ];
-	      FD_POLL_IN (fd, sock);
-	      nfds++;
+	      if (SOCK_READABLE (sock))
+		{
+		  fd = sock->pipe_desc[READ];
+		  FD_POLL_IN (fd, sock);
+		  nfds++;
+		}
 	    }
 	}
 
       /* normal bi-directional socket connection */
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
+	  int polled = 0;
+
 	  /* process lingering connection counter */
 	  if (sock->unavailable)
 	    {
@@ -465,14 +476,19 @@ svz_check_sockets_poll (void)
 	  fd = sock->sock_desc;
 	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
 	    {
-	      FD_POLL_IN (fd, sock);
+	      if (SOCK_READABLE (sock))
+		{
+		  FD_POLL_IN (fd, sock);
+		  polled = 1;
+		}
 	    }
 	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
 				     sock->flags & SOCK_FLAG_CONNECTING))
 	    {
 	      FD_POLL_OUT (fd, sock);
+	      polled = 1;
 	    }
-	  nfds++;
+	  nfds += polled;
 	}
     }
   
@@ -652,9 +668,10 @@ svz_check_sockets_MinGW (void)
 	   */
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-	      if (sock->read_socket)
-		if (sock->read_socket (sock))
-		  svz_sock_schedule_for_shutdown (sock);
+	      if (SOCK_READABLE (sock))
+		if (sock->read_socket)
+		  if (sock->read_socket (sock))
+		    svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
 
@@ -674,9 +691,8 @@ svz_check_sockets_MinGW (void)
 
 	  /* Put a client's socket into READ if necessary. */
 	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
-	    {
+	    if (SOCK_READABLE (sock))
 	      FD_SET (sock->sock_desc, &read_fds);
-	    }
 
 	  /* Put a socket into WRITE if necessary and possible. */
 	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 

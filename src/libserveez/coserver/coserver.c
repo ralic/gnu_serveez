@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.29 2002/05/15 14:00:46 ela Exp $
+ * $Id: coserver.c,v 1.30 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -339,7 +339,7 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 	  COSERVER_RESULT ();
 	}
     }
-  
+
   /* error in reading pipe */
   if (fclose (in))
     svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
@@ -753,6 +753,7 @@ svz_coserver_start (int type)
   coserver = svz_malloc (sizeof (svz_coserver_t));
   coserver->type = type;
   coserver->busy = 0;
+  coserver->sock = NULL;
 
   if (svz_coservers == NULL)
     svz_coservers = svz_array_create (MAX_COSERVER_TYPES, NULL);

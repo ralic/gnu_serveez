@@ -5,7 +5,7 @@
 # Automake input file for the documentation directory.
 #
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
-# Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
 serveez_TEXINFOS = guile-api.texi
-man_MANS = serveez.1
+man_MANS = serveez.1 serveez-config.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 	logo.jpg logosmall.jpg mandel.jpg serveez-api.texi.in \
 	serveez-doc-snarf.awk
@@ -34,15 +34,15 @@ CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
 	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html \
 	$(GUILE_TXT_FILE)
 MAINTAINERCLEANFILES = Makefile.in
-DOC_DIRS = $(top_srcdir)/src/libserveez $(top_srcdir)/src/libserveez/coserver \
-  $(top_srcdir)/src/libserveez/codec
-DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
-  tcp-socket.c alloc.c sparsevec.c hash.c util.c vector.c socket.c \
+DOC_DIRS = $(top_srcdir)/src/libserveez \
+  $(top_srcdir)/src/libserveez/coserver $(top_srcdir)/src/libserveez/codec
+DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c	     \
+  tcp-socket.c alloc.c sparsevec.c hash.c util.c vector.c socket.c	     \
   server-core.c server-loop.c server-socket.c boot.c interface.c interface.h \
-  dynload.c windoze.c snprintf.c server.c core.c array.c hash.h binding.c \
-  portcfg.c array.h coserver.c coserver.h vector.h portcfg.h server-core.h \
+  dynload.c windoze.c snprintf.c server.c core.c array.c hash.h binding.c    \
+  portcfg.c array.h coserver.c coserver.h vector.h portcfg.h server-core.h   \
   socket.h alloc.h server.h util.h codec.c passthrough.c passthrough.h cfg.c \
-  cfg.h asprintf.c
+  cfg.h asprintf.c mutex.h
 SED_FILE = serveez-api.sed
 GUILE_DOC_DIRS = $(top_srcdir)/src
 GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c guile-api.c

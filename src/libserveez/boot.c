@@ -1,7 +1,7 @@
 /*
  * boot.c - configuration and boot functions
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.22 2002/12/05 16:57:56 ela Exp $
+ * $Id: boot.c,v 1.23 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -46,6 +46,7 @@
 #include "libserveez/server.h"
 #include "libserveez/dynload.h"
 #include "libserveez/boot.h"
+#include "libserveez/mutex.h"
 #include "libserveez/server-core.h"
 #include "libserveez/codec/codec.h"
 
@@ -82,6 +83,9 @@ int svz_have_floodprotect = 1;
 #else
 int svz_have_floodprotect = 0;
 #endif
+
+/* Extern declaration of the logging mutex. */
+svz_mutex_declare (svz_log_mutex)
 
 /*
  * This routine has to be called once before you could use any of the
@@ -149,6 +153,7 @@ svz_init_config (void)
 void
 svz_boot (void)
 {
+  svz_mutex_create (svz_log_mutex);
   svz_strsignal_init ();
   svz_sock_table_create ();
   svz_signal_up ();
@@ -178,4 +183,5 @@ svz_halt (void)
   svz_signal_dn ();
   svz_sock_table_destroy ();
   svz_strsignal_destroy ();
+  svz_mutex_destroy (svz_log_mutex);
 }

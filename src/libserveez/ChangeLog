@@ -1,3 +1,27 @@
+2003-01-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* server-loop.c (SOCK_READABLE): Using this macro (taking 
+	the below flag into account) to determine whether a client 
+	connection can be read or not.
+
+	* socket.h (SOCK_FLAG_NOOVERFLOW): New socket flag.
+
+	* util.c (svz_log): Function is now thread safe.
+
+	* server-core.c (svz_signal_handler): Moved calls to 
+	`svz_log()' outside this function.  Thus it is reentrant now.
+
+	* boot.c (svz_boot, svz_halt): Creation and destruction of
+	the logging mutex.
+
+2002-12-19  Andreas Rottmann   <a.rottmann@gmx.at>
+
+	* coserver/coserver.c (svz_coserver_start): Initialize 
+	coserver->sock (was not initialized on non-MINGW platforms).
+
+	* socket.h (svz_sock_reduce_recv, svz_sock_reduce_send): Macros
+	arguments now correctly bracketed.
+
 2002-12-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* server.h, server.c, asprintf.h, asprintf.c, cfg.h, cfg.c:

@@ -1,7 +1,7 @@
 /*
  * server-core.c - server core implementation
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.40 2002/07/25 13:45:37 ela Exp $
+ * $Id: server-core.c,v 1.41 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -118,6 +118,18 @@ static int svz_pipe_broke;
  * receives a SIGCHLD signal.
  */
 HANDLE svz_child_died;
+
+/*
+ * The @var{svz_uncaught_signal} variable is set to a value greater or
+ * equal zero when the server receives a signal which is not handled.  
+ */
+static int svz_uncaught_signal = -1;
+
+/*
+ * The @var{svz_signal} variable is set to a value greater or equal
+ * zero for every received signal.  
+ */
+static int svz_signal = -1;
 
 /* 
  * This holds the time on which the next call to @code{svz_periodic_tasks()}
@@ -263,11 +275,12 @@ svz_signal_handler (int sig)
       break;
 #endif
     default:
-      svz_log (LOG_DEBUG, "uncaught signal %d\n", sig);
+      svz_uncaught_signal = sig;
       break;
     }
 
-  svz_log (LOG_WARNING, "signal: %s\n", svz_strsignal (sig));
+  /* save current signal */
+  svz_signal = sig;
 
 #ifdef NONVOID_SIGNAL
   return 0;
@@ -351,7 +364,7 @@ svz_strsignal (int sig)
     return (char *) svz_array_get (svz_signal_strings, sig);
   else
     {
-      svz_snprintf (fallback, 128, "Impossible signal %d", sig);
+      svz_snprintf (fallback, 128, "No such signal %d", sig);
       return fallback;
     }
 }
@@ -1249,6 +1262,20 @@ svz_loop_one (void)
       /* SIGCHLD received. */
       svz_log (LOG_NOTICE, "child pid %d died\n", (int) svz_child_died);
       svz_child_died = 0;
+    }
+
+  if (svz_signal != -1)
+    {
+      /* Log the current signal. */
+      svz_log (LOG_WARNING, "signal: %s\n", svz_strsignal (svz_signal));
+      svz_signal = -1;
+    }
+
+  if (svz_uncaught_signal != -1)
+    {
+      /* Uncaught signal received. */
+      svz_log (LOG_DEBUG, "uncaught signal %d\n", svz_uncaught_signal);
+      svz_uncaught_signal = -1;
     }
 
   /*

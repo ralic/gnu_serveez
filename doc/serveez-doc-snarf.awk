@@ -5,7 +5,7 @@
 # Extract documentation strings from source files and produce a sed
 # script for further processing or a Guile documentation file.
 #
-# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.14 2002/12/05 16:57:55 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.15 2003/01/05 15:28:08 ela Exp $
 #
 
 # evaluate command line arguments
@@ -231,14 +231,14 @@ function handle_variable(line)
 # handle macro definitions
 function handle_macro(line)
 {
-    if (line ~ /^\#define /) {
-      gsub(/\#define /, "", line)
+    if (line ~ /^\#[ ]*define /) {
+      gsub(/\#[ ]*define /, "", line)
       end = index(line, "(")
 
       # expression macro
       if (end > index(line, " ")) { 
 	end = index(line, " ") 
-	mac = substr(line, 1, end)
+	mac = substr(line, 1, end - 1)
 	macdef = mac
       # statement macro
       } else if (end != -1) {
@@ -314,7 +314,7 @@ function handle_macro(line)
 	  guile_func = substr(ret, 1, index(ret, "\"") - 1)
 	}
         # handle macro definitions
-	else if (ret ~ /^\#define /) {
+	else if (ret ~ /^\#[ ]*define /) {
 	  create_loc(0)
 	  handle_macro(ret)
 	  next

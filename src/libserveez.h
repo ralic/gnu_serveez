@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: libserveez.h,v 1.14 2002/12/05 16:57:56 ela Exp $
+ * $Id: libserveez.h,v 1.15 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -54,5 +54,6 @@
 #include "libserveez/dynload.h"
 #include "libserveez/passthrough.h"
 #include "libserveez/codec/codec.h"
+#include "libserveez/mutex.h"
 
 #endif /* __LIBSERVEEZ_H__ */

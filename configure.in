@@ -4,7 +4,7 @@ dnl configure.in
 dnl
 dnl Autoconf input file.
 dnl
-dnl Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+dnl Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 dnl Copyright (C) 2000, 2001 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 dnl
@@ -111,6 +111,14 @@ if test "x$osversion" = "x"; then
 ])
 fi
 unset osversion
+
+dnl ----------------------------------------------------------------------
+
+case $host in
+  mipsel-unknown-linux-gnu | mips-unknown-linux-gnu) NOUNDEFINED="" ;;
+  *) NOUNDEFINED="-no-undefined" ;;
+esac
+AC_SUBST(NOUNDEFINED)
 
 dnl ----------------------------------------------------------------------
 
@@ -397,6 +405,21 @@ if test $define_enable_sendfile = yes ; then
     1, [Define if sendfile() should be supported if possible.])
 fi
 unset define_enable_sendfile
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether some thread safety functionality should be included.
+dnl
+
+AC_ARG_WITH([thread-safety],
+  [  --with-thread-safety    Enable some thread-safety functionality [default=no]],
+  [case "$withval" in
+   no)  enable_threads="no" ;;
+   yes) enable_threads="yes" ;;
+   *)   enable_threads="yes" ;;
+  esac],
+  enable_threads="no")
 
 dnl ----------------------------------------------------------------------
 
@@ -946,7 +969,7 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   mswsock.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
   mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h \
-  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h)
+  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h)
 AC_HEADER_DIRENT
 
 dnl
@@ -1024,6 +1047,26 @@ if test $have_bz2 != no ; then
       [Define if you have a prefixed bz2 library (>= v1.0)])
   fi
 fi
+
+dnl
+dnl Check for thread libraries.
+dnl
+
+have_threads=no
+if test $enable_threads = yes ; then
+  if test "$MINGW32" = "yes" ; then
+    have_threads=yes
+  else
+    AC_CHECK_LIB(pthread, main,
+      have_threads=yes
+      LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lpthread")
+  fi
+fi
+if test $have_threads = yes ; then
+  AC_DEFINE(HAVE_THREADS, 1, [Define if you have a thread library.])
+fi
+unset enable_threads
+unset have_threads
 
 AC_SUBST(LIBSERVEEZLIBS)
 AC_SUBST(CODECLIBS)
@@ -1513,6 +1556,12 @@ AC_OUTPUT(
     redhat.sh
     debian.sh
     version.h)
+
+dnl
+dnl Apply executable permissions to scripts.
+dnl
+chmod +x redhat.sh
+chmod +x debian.sh
 
 dnl
 dnl Print results.

@@ -5,7 +5,7 @@
 -- 
 -- Copyright (C) Free Software Foundation
 -- Portions Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
--- Portions Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Portions Copyright (C) 2000, 2003 Stefan Jahn <stefan@lkcc.org>
 -- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -188,5 +188,9 @@ or `--enable-<?>=no'.
 	This option depends on `--enable-debug'.  With the debugging option
 	disabled there is also no support for heap counters.  The heap
 	counters are used to detect memory leaks in Serveez.
+`--with-thread-safety'
+	If this option is enabled (disabled by default) Serveez provides
+	some thread safety functionality which can be used by applications
+	based on the Serveez core API and by Serveez itself.
 
 Please also read the README file.

@@ -1,3 +1,17 @@
+2003-01-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez-doc-snarf.awk: Widened patterns for documentation
+	of `#define' macros.
+
+	* serveez-api.texi.in (Thread safety): New section.
+
+	* Makefile.am (DOC_FILES): Added `mutex.h' to the list
+	of documentations files.
+
+2002-12-08  Stefan Jahn  <stefan@lkcc.org>
+
+	* Makefile.am (man_MANS): Added `serveez-config' man page.
+
 2002-12-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in: Added new library functions.

@@ -1,9 +1,9 @@
-2002-11-28  Andreas Rottmann  <rottmann@users.sourceforge.net>
+2002-11-28  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* fakeident-server/ident-proto.c (fakeident_server_definition):
 	Use SVZ_DEFINE_CONFIG.
 
-2002-11-27  Andreas Rottmann  <rottmann@users.sourceforge.net>
+2002-11-27  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* guile.c (guile_config_instantiate): New guile API function 
 	"instantiate-config-type!".

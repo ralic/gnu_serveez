@@ -4,7 +4,7 @@
 #
 # Automake input file for the serveez core library.
 #
-# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ SUBDIRS = coserver codec
 
 lib_LTLIBRARIES = libserveez.la
 
-libserveez_la_LDFLAGS = -export-dynamic -no-undefined -release @VERSION@
+libserveez_la_LDFLAGS = -export-dynamic @NOUNDEFINED@ -release @VERSION@
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la codec/libcodec.la
 libserveez_la_LIBADD = coserver/libcoserver.la codec/libcodec.la \
   $(LIBSERVEEZLIBS)
@@ -49,7 +49,7 @@ libserveez_HEADERS = alloc.h util.h snprintf.h hash.h sparsevec.h socket.h \
   tcp-socket.h pipe-socket.h udp-socket.h icmp-socket.h raw-socket.h       \
   server-core.h server-loop.h windoze.h defines.h boot.h server.h          \
   server-socket.h interface.h dynload.h vector.h core.h array.h portcfg.h  \
-  binding.h passthrough.h cfg.h asprintf.h
+  binding.h passthrough.h cfg.h asprintf.h mutex.h
 
 # generate path info (included in <libserveez/dynload.c>
 

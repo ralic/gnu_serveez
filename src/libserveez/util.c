@@ -1,7 +1,7 @@
 /*
  * util.c - utility function implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.23 2001/09/27 15:47:36 ela Exp $
+ * $Id: util.c,v 1.24 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -74,6 +74,7 @@
 #include "libserveez/snprintf.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"
+#include "libserveez/mutex.h"
 #include "libserveez/util.h"
 
 /* 
@@ -101,6 +102,9 @@ static char log_level[][16] = {
  */
 static FILE *svz_logfile = NULL;
 
+/* Global definition of the logging mutex. */
+svz_mutex_define (svz_log_mutex)
+
 /*
  * Print a message to the log system. @var{level} specifies the prefix.
  */
@@ -115,6 +119,7 @@ svz_log (int level, const char *format, ...)
       feof (svz_logfile) || ferror (svz_logfile))
     return;
 
+  svz_mutex_lock (svz_log_mutex);
   tm = time (NULL);
   t = localtime (&tm);
   fprintf (svz_logfile, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
@@ -124,6 +129,7 @@ svz_log (int level, const char *format, ...)
   vfprintf (svz_logfile, format, args);
   va_end (args);
   fflush (svz_logfile);
+  svz_mutex_unlock (svz_log_mutex);
 }
 
 /*

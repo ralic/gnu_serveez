@@ -1,3 +1,17 @@
+2003-01-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in: New option `--with-thread-safety'.  Enables
+	support for some thread safety functionality.
+	Conditionalized the `-no-undefined' flag for libtool. 
+
+2002-12-08  Stefan Jahn  <stefan@lkcc.org>
+
+	* debian.sh.in: Added `check' target and use of some 
+	standard variables.
+
+	* README: Propagated the CVS repository at 
+	<subversions.gnu.org>.
+
 2002-10-14  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Released version `0.1.4' and bumped up to 
@@ -157,7 +171,7 @@
 
 2001-09-29  Stefan Jahn  <stefan@lkcc.org>
 
-	* configure.in: Checking for NSAddImage() and the appropiate
+	* configure.in: Checking for NSAddImage() and the appropriate
 	header. This dynamic linker interface is Darwin (MacOS) 
 	specific.
 
@@ -342,7 +356,7 @@
 
 2000-12-15  Stefan Jahn  <stefan@lkcc.org>
 
-	* INSTALL: Documented newly avaiable option 
+	* INSTALL: Documented newly available option 
 	`--enable-sntp-proto' and dropped `--enable-q3key-proto'.
 
 	* configure.in: Checking for gettimeofday() for the newly
@@ -457,7 +471,7 @@
 2000-06-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Add check for sendfile(). The 
-	intergrated http server might use it.
+	integrated http server might use it.
 
 2000-06-16  Stefan Jahn  <stefan@lkcc.org>
 

@@ -1,7 +1,7 @@
 /*
  * util.h - utility function interface
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.21 2002/07/15 07:45:05 ela Exp $
+ * $Id: util.h,v 1.22 2003/01/05 15:28:08 ela Exp $
  *
  */
 
@@ -76,7 +76,7 @@ SERVEEZ_API unsigned int svz_atoi __PARAMS ((char *));
 SERVEEZ_API int svz_strcasecmp __PARAMS ((const char *, const char *));
 SERVEEZ_API int svz_strncasecmp __PARAMS ((const char *, const char *, 
 					   unsigned int));
-SERVEEZ_API char * svz_getcwd __PARAMS ((void));
+SERVEEZ_API char *svz_getcwd __PARAMS ((void));
 SERVEEZ_API int svz_openfiles __PARAMS ((int));
 SERVEEZ_API char *svz_time __PARAMS ((long));
 SERVEEZ_API char *svz_uptime __PARAMS ((long));

@@ -25,7 +25,7 @@
 @page
 @vskip 0pt plus 1filll
 
-Copyright @copyright{} 2000, 2001 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000, 2001, 2002, 2003 Stefan Jahn <stefan@@lkcc.org>@*
 Copyright @copyright{} 2000, 2001 Raimund Jacob <raimi@@lkcc.org>@*
 
 Permission is granted to copy, distribute and/or modify this document
@@ -154,6 +154,7 @@ variables in most cases and big letter symbols refer to macros.
 * Memory management::     How memory is managed in Serveez
 * Data structures::       Data structure helpers
 * Utility functions::     Miscellaneous helper functions
+* Thread safety::         Some thread-safety functionality
 * Core functions::        Network core implementations
 * Client connections::    Client connection functions
 * Socket::                Socket management functions
@@ -314,7 +315,7 @@ SVZ_VECTOR_CONTAINS_DEFUN
 SVZ_VECTOR_LENGTH_DEFUN
 SVZ_VECTOR_FOREACH_DEFMAC
 
-@node Utility functions, Core functions, Data structures, Embedding API
+@node Utility functions, Thread safety, Data structures, Embedding API
 @section Utility functions
 
 Within this section you will find some miscellaneous functionality and
@@ -353,7 +354,23 @@ SVZ_SYSERROR_DEFUN
 SVZ_SNPRINTF_DEFUN
 SVZ_ASPRINTF_DEFUN
 
-@node Core functions, Client connections, Utility functions, Embedding API
+@node Thread safety, Core functions, Utility functions, Embedding API
+@section Thread safety
+
+The following macros and functions can be used to implement certain
+thread safety functionality inside applications using the core library
+(including Serveez itself).  The user must explicitly enable this
+functionality when configure'ing the Serveez package.  Otherwise the
+macros default to empty statements.
+
+SVZ_MUTEX_DEFINE_DEFMAC
+SVZ_MUTEX_DECLARE_DEFMAC
+SVZ_MUTEX_CREATE_DEFMAC
+SVZ_MUTEX_DESTROY_DEFMAC
+SVZ_MUTEX_LOCK_DEFMAC
+SVZ_MUTEX_UNLOCK_DEFMAC
+
+@node Core functions, Client connections, Thread safety, Embedding API
 @section Networking and other low level functions
 
 The following chapter deals with the basic networking and file systems
