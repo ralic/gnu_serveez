@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.4 2000/09/04 14:11:54 ela Exp $
+ * $Id: nut-transfer.h,v 1.5 2000/09/08 07:45:18 ela Exp $
  *
  */
 
@@ -30,6 +30,7 @@
 #endif
 
 #define _GNU_SOURCE
+#include <stdlib.h>
 
 #include "socket.h"
 #include "gnutella.h"
@@ -53,5 +54,11 @@ typedef struct
 nut_transfer_t;
 
 int nut_init_transfer (socket_t, nut_reply_t *, nut_record_t *, char *);
+int nut_read_database (nut_config_t *cfg, char *dirname);
+void nut_add_database (nut_config_t *cfg, char *file, off_t size);
+void nut_destroy_database (nut_config_t *cfg);
+nut_file_t *nut_get_database (nut_config_t *, char *, unsigned);
+nut_file_t *nut_find_database (nut_config_t *, nut_file_t *, char *);
+int nut_check_upload (socket_t sock);
 
 #endif /* __NUT_TRANSFER_H__ */

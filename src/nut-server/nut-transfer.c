@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.8 2000/09/05 20:21:36 ela Exp $
+ * $Id: nut-transfer.c,v 1.9 2000/09/08 07:45:18 ela Exp $
  *
  */
 
@@ -46,11 +46,40 @@
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
-#endif
+
+# if HAVE_DIRENT_H
+#  include <dirent.h>
+#  define NAMLEN(dirent) strlen((dirent)->d_name)
+# else
+#  define dirent direct
+#  define NAMLEN(dirent) (dirent)->d_namlen
+#  if HAVE_SYS_NDIR_H
+#   include <sys/ndir.h>
+#  endif
+#  if HAVE_SYS_DIR_H
+#   include <sys/dir.h>
+#  endif
+#  if HAVE_NDIR_H
+#   include <ndir.h>
+#  endif
+# endif
+#endif /* not __MINGW32__ */
 
 #ifdef __MINGW32__
+# include <windows.h>
 # include <winsock.h>
 # include <io.h>
+#endif
+
+#if HAVE_SYS_DIRENT_H
+# include <sys/dirent.h>
+#endif
+
+#ifndef __MINGW32__
+# define FILENAME de->d_name
+#else 
+# define FILENAME de.cFileName
+# define closedir(dir) FindClose (dir)
 #endif
 
 #include "alloc.h"
@@ -62,8 +91,8 @@
 #include "nut-transfer.h"
 
 /*
- * Check if a given search pattern matches a filename. Return zero on succes
- * and non-zero otherwise.
+ * Check if a given search pattern matches a filename. Return non-zero 
+ * on succes and zero otherwise.
  */
 static int
 nut_string_regex (char *text, char *regex)
@@ -71,7 +100,7 @@ nut_string_regex (char *text, char *regex)
   char *p, *token, *str, *reg;
   
   /* first check if text tokens are in text */
-  if (!strchr (text, '*') && !strchr (text, '?'))
+  if (!strchr (regex, '*') && !strchr (regex, '?'))
     {
       str = xstrdup (text);
       reg = xstrdup (regex);
@@ -85,8 +114,8 @@ nut_string_regex (char *text, char *regex)
 	}
       xfree (str);
       xfree (reg);
-      if (!token) return 0;
-      return -1;
+      if (!token) return -1;
+      return 0;
     }
 
   /* parse until end of both strings */
@@ -338,7 +367,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
     }
 
   /* second check if the file matches the original search pattern */
-  if (nut_string_regex (savefile, cfg->search))
+  if (!nut_string_regex (savefile, cfg->search))
     {
       log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
       xfree (file);
@@ -388,6 +417,197 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 
   close (fd);
   xfree (file);
+  return 0;
+}
+
+/*
+ * Destroy database.
+ */
+void
+nut_destroy_database (nut_config_t *cfg)
+{
+  nut_file_t *entry;
+  
+  while ((entry = cfg->database) != NULL)
+    {
+      cfg->database = entry->next;
+      xfree (entry->file);
+      xfree (entry);
+    }
+  cfg->db_files = 0;
+  cfg->db_size = 0;
+}
+
+/*
+ * Add a further file to our database.
+ */
+void
+nut_add_database (nut_config_t *cfg, char *file, off_t size)
+{
+  nut_file_t *entry;
+
+  entry = xmalloc (sizeof (nut_file_t));
+  entry->file = xstrdup (file);
+  entry->size = size;
+  entry->index = cfg->db_files;
+  entry->next = cfg->database;
+  cfg->database = entry;
+  cfg->db_files++;
+  cfg->db_size += size;
+}
+
+/*
+ * Find a given search pattern within the database. Start to find it
+ * at the given ENTRY. If it is NULL we start at the very beginning.
+ */
+nut_file_t *
+nut_find_database (nut_config_t *cfg, nut_file_t *entry, char *search)
+{
+  if (entry == NULL)
+    entry = cfg->database;
+  else
+    entry = entry->next;
+
+  while (entry)
+    {
+      if (nut_string_regex (entry->file, search))
+	return entry;
+      entry = entry->next;
+    }
+  return NULL;
+}
+
+/*
+ * This routine gets a gnutella database entry from a given FILE and
+ * its appropiate INDEX. If no matching file has been found then return
+ * NULL.
+ */
+nut_file_t *
+nut_get_database (nut_config_t *cfg, char *file, unsigned index)
+{
+  nut_file_t *entry;
+
+  for (entry = cfg->database; entry; entry = entry->next)
+    {
+      if (entry->index == index && !strcmp (entry->file, file))
+	return entry;
+    }
+
+  return entry;
+}
+
+/*
+ * This routine will re-read the share directory.
+ */
+int
+nut_read_database (nut_config_t *cfg, char *dirname)
+{
+  int i = 0;
+  struct stat buf;
+  int files = 0;
+  char filename[1024];
+#ifndef __MINGW32__
+  DIR *dir;
+  struct dirent *de = NULL;
+#else
+  WIN32_FIND_DATA de;
+  HANDLE dir;
+#endif
+
+  /* free previous database */
+  nut_destroy_database (cfg);
+
+  /* open the directory */
+#ifdef __MINGW32__
+  sprintf (filename, "%s/*", dirname);
+      
+  if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE_VALUE)
+#else
+  if ((dir = opendir (dirname)) == NULL)
+#endif
+    {
+      return files;
+    }
+
+  /* iterate directory */
+#ifndef __MINGW32__
+  while (NULL != (de = readdir (dir)))
+#else
+  do
+#endif
+    {
+      sprintf (filename, "%s/%s", dirname, FILENAME);
+
+      /* stat the given file */
+      if (stat (filename, &buf) != -1 && 
+	  S_ISREG (buf.st_mode) && buf.st_size > 0)
+        {
+	  nut_add_database (cfg, FILENAME, buf.st_size);
+	  files++;
+        } 
+    }
+#ifdef __MINGW32__
+  while (FindNextFile (dir, &de));
+#endif
+
+  closedir (dir);
+  return files;
+}
+
+/*
+ * This routine checks for a valid http header for gnutella upload 
+ * requests.
+ */
+int
+nut_check_upload (socket_t sock)
+{
+  char *p = sock->recv_buffer;
+  int len, fill = strlen (NUT_GET);
+  unsigned index = 0;
+
+  /* enough receive buffer fill ? */
+  if (sock->recv_buffer_fill < fill)
+    return 0;
+
+  /* initial gnutella request detection */
+  if (memcmp (p, NUT_GET, fill))
+    return -1;
+
+  /* parse whole upload header and find the end of the HTTP header */
+  fill = sock->recv_buffer_fill;
+  while (p < sock->recv_buffer + (fill - 3) && memcmp (p, NUT_SEPERATOR, 4))
+    p++;
+
+  if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: upload header received\n");
+#endif
+      /* parse first (GET) line */
+
+      /* here we parse all the header properties */
+    }
+
+  return 0;
+}
+
+/*
+ * Default gnutella file reader. It is the sock->read_socket callback for
+ * file uploads.
+ */
+int
+nut_file_read (socket_t sock)
+{
+  return 0;
+}
+
+/*
+ * This function is the upload callback for the gnutella server. It 
+ * throttles its network output to a configured value.
+ */
+int
+nut_file_write (socket_t sock)
+{
   return 0;
 }
 

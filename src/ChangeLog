@@ -1,3 +1,18 @@
+2000-09-08  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_query): Fixed byte order of
+	the port property of the push request and header.
+
+	* nut-server/gnutella.c (nut_query): Theoretically the 
+	gnutella spider is able to repond to search queries within
+	its own database. Cannot send files, yet.
+
+	* nut-server/nut-transfer.c (nut_read_database): This function
+	will re-read the share directory and create a new database.
+
+	* cfgfile.c (load_config): Added `have_gnutella' variable to
+	sizzle context.
+
 2000-09-05  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_server_timer): Try to connect 
@@ -351,7 +366,7 @@
 	xmalloc()ed pointers in a hash structure. Thus we can
 	debug memory leaks except within the hash implementation.
 	This is for developement purposes only and can be switched
-	by the defintion of DEBUG_MEMORY_LEAKS.
+	by the definition of DEBUG_MEMORY_LEAKS.
 
 	* http-server/http-cache.c (http_check_cache): Figured
 	out the main reason for memory leaks within the http
@@ -930,7 +945,7 @@
 	cgi script file names.
 
 	* http-proto.c: Whenever using strcasecmp() and we have <strings.h>
-	it is neccessary to include this file.
+	it is necessary to include this file.
 
 	* http-cgi.c (http_cgi_exec): Fixed the problem with non-blocking
 	cgi pipes -> cgi stdin/stdout MUST be blocking, they cannot handle

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.14 2000/08/18 14:14:47 ela Exp $
+ * $Id: http-cache.c,v 1.15 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -221,7 +221,7 @@ http_cache_disconnect (socket_t sock)
 }
 
 /*
- * Find a free slot in the http file cache entries. If neccessary
+ * Find a free slot in the http file cache entries. If necessary
  * delete the least recent. Return zero if there was a free slot.
  */
 int

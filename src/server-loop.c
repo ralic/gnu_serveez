@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.4 2000/09/05 20:21:36 ela Exp $
+ * $Id: server-loop.c,v 1.5 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -296,7 +296,7 @@ check_sockets_select (void)
 
 #if HAVE_POLL && ENABLE_POLL /* configure'd */
 
-/* re-allocate static buffers if neccessary */
+/* re-allocate static buffers if necessary */
 #define FD_EXPAND()                                             \
   if (nfds >= max_nfds) {                                       \
     max_nfds++;                                                 \

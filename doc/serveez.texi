@@ -43,7 +43,7 @@ Free Documentation License".
 
 Serveez is a server listening on multiple tcp and udp ports and interfaces
 and handling all client connections within a single process 
-(non forking behaviour). The overall concept is as loose as neccessary 
+(non forking behaviour). The overall concept is as loose as necessary 
 and possible. The server is able to handle various internet protocols 
 and can be run on different platforms
 and operating systems. Until now we implemented our own chat protocol, 
@@ -1085,12 +1085,15 @@ catcher list of this Gnutella spider you can connect to this port with
 any WWW browser at @uref{http://localhost:6346/gnutella-net}.
 
 @item hosts
-This is the initial host list of the clients the spider tries connect.
+This is the initial host list of the clients the spider tries to connect.
 Each list item should be of the format @code{ip:port} (e.g. 
 @samp{146.145.85.34:6346}).
 
 @item search
-This is the so called needle.
+This is the so called needle. Each search line is either a set of 
+@key{SPC} delimited tokens where every token must match a search 
+reply for downloading it or a kind of wildcard expression including 
+@samp{?} and @samp{*}. Search lines are always matched case insensitive.
 
 @item max-ttl
 Every Gnutella packet has got a TTL. This is the maximum TTL allowed for

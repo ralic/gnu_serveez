@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.7 2000/08/26 18:05:18 ela Exp $
+ * $Id: http-core.c,v 1.8 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -404,7 +404,7 @@ http_read_types (http_config_t *cfg)
   char *suffix;
   char *content_type;
 
-  /* create the content type hash table if neccessary */
+  /* create the content type hash table if necessary */
   if (*(cfg->types) == NULL)
     {
       *(cfg->types) = hash_create (4);
@@ -492,7 +492,7 @@ http_find_content_type (socket_t sock, char *file)
 /*
  * This routine converts a relative file/path name into an
  * absolute file/path name. The given argument will be reallocated
- * if neccessary.
+ * if necessary.
  */
 #define MAX_DIR_LEN 1024
 

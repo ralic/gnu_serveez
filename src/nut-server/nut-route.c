@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.5 2000/09/05 20:21:36 ela Exp $
+ * $Id: nut-route.c,v 1.6 2000/09/08 07:45:18 ela Exp $
  *
  */
 
@@ -106,7 +106,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
 
-#if 1
+#if 0
   fprintf (stdout, "validating packet 0x%02X (%s)\n", 
 	   hdr->function, nut_print_guid (hdr->id));
 #endif /* 1 */
@@ -264,7 +264,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	      cfg->errors++;
 	      return -1;
 	    }
-#if 1
+#if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: packet 0x%02X reply received\n",
 		      hdr->function);
 #endif

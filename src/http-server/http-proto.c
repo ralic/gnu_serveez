@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.31 2000/08/29 10:44:03 ela Exp $
+ * $Id: http-proto.c,v 1.32 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -84,7 +84,7 @@
  */
 portcfg_t http_port =
 {
-  PROTO_TCP,  /* TCP protocol defintion */
+  PROTO_TCP,  /* TCP protocol definition */
   42424,      /* prefered port */
   "*",        /* prefered local ip address */
   NULL,       /* calculated automatically later */
@@ -112,7 +112,7 @@ http_config_t http_config =
 };
 
 /*
- * Defintion of the configuration items processed by libsizzle (taken
+ * Definition of the configuration items processed by libsizzle (taken
  * from the config file).
  */
 key_value_pair_t http_config_prototype [] =
@@ -133,7 +133,7 @@ key_value_pair_t http_config_prototype [] =
 };
 
 /*
- * Defintion of the http server.
+ * Definition of the http server.
  */
 server_definition_t http_server_definition =
 {
@@ -251,7 +251,7 @@ http_finalize (server_t *server)
 
 /*
  * This function frees all HTTP request properties previously reserved
- * and frees the cache structure if neccessary. Nevertheless the 
+ * and frees the cache structure if necessary. Nevertheless the 
  * socket structure SOCK should still be usable for keep-alive connections.
  */
 void

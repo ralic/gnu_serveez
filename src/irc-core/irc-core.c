@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.12 2000/08/21 20:06:41 ela Exp $
+ * $Id: irc-core.c,v 1.13 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -270,7 +270,7 @@ irc_parse_request (char *request, int len)
   
   p = request;
 
-  /* parse message origin if neccessary */
+  /* parse message origin if necessary */
   if (*p == ':')
     {
       n = 0;

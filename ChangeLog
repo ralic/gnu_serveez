@@ -91,7 +91,7 @@
 2000-02-05  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (CPPEXTRAFLAGS): AC_HEADER_SYS_WAIT checks
-	if the <sys/wait.h> is present and includes it, if neccessary.
+	if the <sys/wait.h> is present and includes it, if necessary.
 
 	* configure.in (CPPEXTRAFLAGS): --enable-optimizations checks
 	for some compiler switches.

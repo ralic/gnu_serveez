@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.13 2000/08/18 14:14:47 ela Exp $
+ * $Id: http-cgi.c,v 1.14 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -194,7 +194,7 @@ http_cgi_read (socket_t sock)
 
 /*
  * HTTP_CGI_WRITE pipes all read data from the http socket connection 
- * into the cgi stdin. This is neccessary for the so called post method.
+ * into the cgi stdin. This is necessary for the so called post method.
  * It directly reads from the RECV_BUFFER of the socket structure.
  */
 int
@@ -556,7 +556,7 @@ http_pre_exec (socket_t sock,       /* socket structure */
   /* create the environment block for the CGI script */
   size = create_cgi_envp (sock, envp, file, type);
 
-  /* put the QUERY_STRING into the env variables if neccessary */
+  /* put the QUERY_STRING into the env variables if necessary */
   if (type == GET_METHOD)
     {
       p = request;
@@ -633,7 +633,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 #ifdef __MINGW32__
   /* 
    * Clean the StartupInfo, use the stdio handles, and store the
-   * pipe handles there if neccessary (depends on type).
+   * pipe handles there if necessary (depends on type).
    */
   memset (&StartupInfo, 0, sizeof (StartupInfo));
   StartupInfo.cb = sizeof (StartupInfo);
@@ -670,7 +670,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       return -1;
     }
 
-  /* find cgi interpreter if neccessary */
+  /* find cgi interpreter if necessary */
   p = cgifile + strlen (cgifile) - 1;
   while (p != cgifile && *p != '.') p--;
   n = 0;

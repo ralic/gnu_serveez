@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.9 2000/07/25 16:24:27 ela Exp $
+ * $Id: irc-event-2.c,v 1.10 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -341,7 +341,7 @@ irc_ban_string (irc_ban_t *ban)
 
 /*
  * Check if a given client is channel operator in its channel and
- * send an error about this if neccessary. The function returns a non
+ * send an error about this if necessary. The function returns a non
  * zero value if the client is an operator otherwise zero.
  */
 static int
@@ -779,7 +779,7 @@ irc_channel_flag_string (irc_channel_t *channel)
 	Mode[++i] = Modes[n];
     }
 
-  /* add flag para if neccessary */
+  /* add flag para if necessary */
   if (channel->flag & MODE_ULIMIT)
     {
       sprintf (arg, " %d", channel->users);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.11 2000/09/05 20:21:36 ela Exp $
+ * $Id: gnutella.h,v 1.12 2000/09/08 07:45:18 ela Exp $
  *
  */
 
@@ -42,15 +42,16 @@
 #define NUT_HOSTS     "GET /gnutella-net HTTP/1."
 
 /* default values */
-#define NUT_PORT             6346
+#define NUT_PORT             6346         /* gnutella default tcp port */
 #define NUT_GUID             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-#define NUT_GUID_SIZE        16
-#define NUT_SEARCH_INTERVAL  10
-#define NUT_TTL              5
-#define NUT_MAX_TTL          5
-#define NUT_CONNECT_INTERVAL 2
-#define NUT_SEND_BUFSIZE     (1024 * 100)
-#define NUT_CONNECT_TIMEOUT  20
+#define NUT_GUID_SIZE        16           /* GUID length in bytes */
+#define NUT_SEARCH_INTERVAL  10           /* send search queries */
+#define NUT_TTL              5            /* default packet TTL */
+#define NUT_MAX_TTL          5            /* default maximum packet TTL */
+#define NUT_CONNECT_INTERVAL 2            /* reconnect to gnutella hosts */
+#define NUT_SEND_BUFSIZE     (1024 * 100) /* host list buffer size */
+#define NUT_CONNECT_TIMEOUT  20           /* close connection then */
+#define NUT_ENTRY_AGE        (60 * 3)     /* maximum hash entry age */
 
 /* function IDs */
 #define NUT_PING_REQ   0x00 /* ping */
@@ -64,6 +65,7 @@
 #define NUT_FLAG_HDR    0x0002
 #define NUT_FLAG_HOSTS  0x0004
 #define NUT_FLAG_CLIENT 0x0008
+#define NUT_FLAG_UPLOAD 0x0010
 
 /* guid:
  * The header contains a Microsoft GUID (Globally Unique Identifier for 
@@ -188,6 +190,16 @@ typedef struct
 }
 nut_push_reply_t;
 
+/* files in the sharing directory */
+typedef struct
+{
+  off_t size;
+  unsigned index;
+  char *file;
+  void *next;
+}
+nut_file_t;
+
 /*
  * Protocol server specific configuration.
  */
@@ -219,6 +231,9 @@ typedef struct
   unsigned long ip;         /* calculated from `force_ip' */
   hash_t *query;            /* recent query hash */
   hash_t *reply;            /* reply hash for routing push requests */
+  nut_file_t *database;     /* shared file array */
+  unsigned db_files;        /* number of database files */
+  unsigned db_size;         /* size of database in bytes */
 }
 nut_config_t;
 

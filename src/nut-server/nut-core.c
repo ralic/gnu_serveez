@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.3 2000/09/05 20:21:36 ela Exp $
+ * $Id: nut-core.c,v 1.4 2000/09/08 07:45:18 ela Exp $
  *
  */
 
@@ -303,7 +303,6 @@ nut_reply_t *
 nut_get_reply (byte *data)
 {
   static nut_reply_t reply;
-  unsigned int uint32;
   unsigned short uint16;
 
   reply.records = *data++;
@@ -322,7 +321,6 @@ nut_put_reply (nut_reply_t *reply)
 {
   static byte buffer[SIZEOF_NUT_REPLY];
   byte *data = buffer;
-  unsigned int uint32;
   unsigned short uint16;
 
   *data++ = reply->records;

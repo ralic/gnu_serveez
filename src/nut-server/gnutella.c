@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.13 2000/09/05 21:00:41 ela Exp $
+ * $Id: gnutella.c,v 1.14 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -116,6 +116,9 @@ nut_config_t nut_config =
   INADDR_NONE, /* calculated from `force_ip' */
   NULL,        /* recent query hash */
   NULL,        /* reply hash for routing push requests */
+  NULL,        /* shared file array */
+  0,           /* number of database files */
+  0,           /* size of database in KB */
 };
 
 /*
@@ -370,6 +373,9 @@ nut_init (server_t *server)
 	}
     }
 
+  /* read sharing files */
+  nut_read_database (cfg, cfg->share_path);
+
   /* calculate forced local ip if necessary */
   if (cfg->force_ip)
     {
@@ -431,6 +437,9 @@ nut_finalize (server_t *server)
   nut_host_t **client;
   nut_packet_t **pkt;
   int n;
+
+  /* destroy sharing files */
+  nut_destroy_database (cfg);
 
   hash_destroy (cfg->conn);
   hash_destroy (cfg->route);
@@ -546,7 +555,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   if (pkt != NULL)
     {
       xsock = pkt->sock;
-#if 1
+#if 0
       printf ("records : %d\n", reply->records);
       printf ("port    : %u\n", ntohs (reply->port));
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
@@ -577,7 +586,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 		  return -1;
 		}
 	      p += 2;
-#if 1
+#if 0
 	      printf ("record %d\n", n + 1);
 	      printf ("file index : %u\n", record->index);
 	      printf ("file size  : %u\n", record->size);
@@ -591,7 +600,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 		}
 	    }
 	  id = (byte *) p;
-#if 1
+#if 0
 	  printf ("guid    : %s\n", nut_print_guid (id));
 #endif
 	}
@@ -670,7 +679,83 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
+  nut_reply_t reply;
+  nut_record_t record;
+  nut_query_t *query;
+  nut_file_t *entry;
+  byte *file, *p, *buffer = NULL;
+  unsigned n, len = 0, size;
 
+  /* shall we reply to this query ? */
+  query = nut_get_query (packet);
+  if (query->speed > cfg->speed)
+    return -1;
+
+  /* check validity of search request */
+  p = file = packet + SIZEOF_NUT_QUERY;
+  len = SIZEOF_NUT_QUERY;
+  while (*p++ && len < hdr->length) len++;
+  if (len >= hdr->length && *file)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: invalid query payload\n");
+#endif
+      return -1;
+    }
+
+  /* create new gnutella header */
+  hdr->function = NUT_SEARCH_ACK;
+  hdr->ttl = hdr->hop;
+  hdr->hop = 0;
+  
+  /* go through database and build the record array */
+  for (size = 0, n = 0, entry = NULL; n < 256; )
+    {
+      if ((entry = nut_find_database (cfg, entry, (char *) file)) != NULL)
+	{
+	  len = strlen (entry->file) + 2;
+	  size += SIZEOF_NUT_RECORD + len;
+	  buffer = xrealloc (buffer, size);
+	  p = buffer + size - len;
+	  memcpy (p, entry->file, len - 1);
+	  p += len - 1;
+	  *p = '\0';
+
+	  p = buffer + size - len - SIZEOF_NUT_RECORD;
+	  record.index = entry->index;
+	  record.size = entry->size;
+	  memcpy (p, nut_put_record (&record), SIZEOF_NUT_RECORD);
+
+	  n++;
+	}
+      else break;
+    }
+
+  /* no files found in database */
+  if (!n) return 0;
+
+  /* create gnutella search reply packet */
+  reply.records = n;
+  reply.port = htons (cfg->port->port);
+  reply.ip = cfg->ip != INADDR_NONE ? cfg->ip : sock->local_addr;
+  reply.speed = cfg->speed;
+  
+  /* save packet length */
+  hdr->length = SIZEOF_NUT_REPLY + size + NUT_GUID_SIZE;
+  
+  /* send header, reply, array of records and guid */
+  if (sock_write (sock, (char *) nut_put_header (hdr), 
+		  SIZEOF_NUT_HEADER) == -1 ||
+      sock_write (sock, (char *) nut_put_reply (&reply), 
+		  SIZEOF_NUT_REPLY) == -1 ||
+      sock_write (sock, (char *) buffer, size) == -1 ||
+      sock_write (sock, (char *) cfg->guid, NUT_GUID_SIZE) == -1)
+    {
+      xfree (buffer);
+      return -1;
+    }
+
+  xfree (buffer);
   return 0;
 }
 
@@ -696,7 +781,7 @@ nut_ping_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   if (pkt != NULL)
     {
       xsock = pkt->sock;
-#if 1
+#if 0
       printf ("port    : %u\n", ntohs (reply->port));
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
       printf ("files   : %u\n", reply->files);
@@ -732,12 +817,13 @@ nut_ping_request (socket_t sock, nut_header_t *hdr, byte *null)
   hdr->function = NUT_PING_ACK;
   hdr->length = SIZEOF_NUT_PING_REPLY;
   hdr->ttl = hdr->hop;
+  hdr->hop = 0;
 
-  reply.port = cfg->port->port;
+  reply.port = htons (cfg->port->port);
   if (cfg->ip != INADDR_NONE) reply.ip = cfg->ip;
   else                        reply.ip = sock->local_addr;
-  reply.files = 0;
-  reply.size = 0;
+  reply.files = cfg->db_files;
+  reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);
   pong = nut_put_ping_reply (&reply);
   
@@ -824,7 +910,7 @@ nut_server_timer (server_t *server)
   char **keys;
   nut_packet_t *pkt;
   int n, size, connect;
-  time_t t, recv;
+  time_t t, received;
 
   /* go sleep if we still do not want to do something */
   if (count-- > 0) return 0;
@@ -858,7 +944,7 @@ nut_server_timer (server_t *server)
       for (n = 0; n < size; n++)
 	{
 	  pkt = (nut_packet_t *) hash_get (cfg->packet, keys[n]);
-	  if (t - pkt->sent > 60 * 3)
+	  if (t - pkt->sent > NUT_ENTRY_AGE)
 	    {
 	      hash_delete (cfg->packet, keys[n]);
 	      xfree (pkt);
@@ -874,8 +960,8 @@ nut_server_timer (server_t *server)
       size = hash_size (cfg->query);
       for (n = 0; n < size; n++)
 	{
-	  recv = (time_t) hash_get (cfg->query, keys[n]);
-	  if (t - recv > 60 * 3)
+	  received = (time_t) hash_get (cfg->query, keys[n]);
+	  if (t - received > NUT_ENTRY_AGE)
 	    {
 	      hash_delete (cfg->query, keys[n]);
 	    }
@@ -1121,7 +1207,7 @@ nut_hosts_check (socket_t sock)
     {
       for (n = 0; n < hash_size (cfg->net); n++)
 	{
-	  if (sock->send_buffer_fill > NUT_SEND_BUFSIZE - 256)
+	  if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
 	    {
 	      /* send buffer queue overrun ... */
 	      if (sock_printf (sock, ".\n.\n.\n") == -1)
@@ -1301,7 +1387,7 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       !memcmp (sock->recv_buffer, NUT_CONNECT, len))
     {
       sock->userflags |= NUT_FLAG_CLIENT;
-      log_printf (LOG_NOTICE, "gnutella protocol detected\n");
+      log_printf (LOG_NOTICE, "gnutella protocol detected (client)\n");
       sock_reduce_recv (sock, len);
       return -1;
     }
@@ -1314,6 +1400,16 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       sock->userflags |= NUT_FLAG_HOSTS;
       log_printf (LOG_NOTICE, "gnutella protocol detected (host list)\n");
       sock_reduce_recv (sock, len);
+      return -1;
+    }
+
+  /* detect upload request */
+  len = strlen (NUT_GET);
+  if (sock->recv_buffer_fill >= len &&
+      !memcmp (sock->recv_buffer, NUT_GET, len))
+    {
+      sock->userflags |= NUT_FLAG_UPLOAD;
+      log_printf (LOG_NOTICE, "gnutella protocol detected (upload)\n");
       return -1;
     }
 
@@ -1334,6 +1430,13 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
     {
       sock->check_request = nut_hosts_check;
       sock->write_socket = nut_hosts_write;
+      return 0;
+    }
+
+  /* assign upload request routines */
+  if (sock->userflags & NUT_FLAG_UPLOAD)
+    {
+      sock->check_request = nut_check_upload;
       return 0;
     }
 

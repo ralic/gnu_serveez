@@ -1,5 +1,5 @@
 /*
- * irc-config.c - IRC server configuration defintions
+ * irc-config.c - IRC server configuration definitions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.h,v 1.2 2000/07/20 14:39:54 ela Exp $
+ * $Id: irc-config.h,v 1.3 2000/09/08 07:45:17 ela Exp $
  *
  */
 

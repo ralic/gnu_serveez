@@ -23,6 +23,7 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- Gnutella spider should share files.
 - Make http cgi file extension associations configurable in Win32.
 	- Add --disable-poll option.
 	- For directory list: scandir, alphasort, qsort.

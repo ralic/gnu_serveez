@@ -1,5 +1,5 @@
 /*
- * cfgfile.h - Configurationfile definitions
+ * cfgfile.h - Configuration file definitions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: cfgfile.h,v 1.3 2000/09/08 07:45:16 ela Exp $
  *
  */
 
@@ -27,11 +27,10 @@
 #define __CFGFILE_H__
 
 /*
- * How large should string variables be
- * (Bufferspace given to sizzle)
+ * How large should string variables be (bufferspace given to sizzle).
  */
 #define STRINGVARSIZE 1024
 
-int load_config(char * cfgfilename, int argc, char **argv);
+int load_config (char * cfgfilename, int argc, char **argv);
 
 #endif

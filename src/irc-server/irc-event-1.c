@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.10 2000/09/02 15:48:13 ela Exp $
+ * $Id: irc-event-1.c,v 1.11 2000/09/08 07:45:17 ela Exp $
  *
  */
 
@@ -355,7 +355,7 @@ irc_motd_callback (socket_t sock,
       fclose (f);
     }
   
-  /* send the "Message of the Day" if neccessary */
+  /* send the "Message of the Day" if necessary */
   if (cfg->MOTDs)
     {
       /* start */

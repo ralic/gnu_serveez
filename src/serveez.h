@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: serveez.h,v 1.3 2000/07/07 16:26:20 ela Exp $
+ * $Id: serveez.h,v 1.4 2000/09/08 07:45:16 ela Exp $
  *
  */
 
@@ -65,6 +65,7 @@ extern serveez_config_t serveez_config;
 extern int have_awcs;
 extern int have_floodprotect;
 extern int have_http;
+extern int have_gnutella;
 extern int have_irc;
 extern int have_ctrl;
 extern int have_ident;
