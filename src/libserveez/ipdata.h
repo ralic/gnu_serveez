@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: ipdata.h,v 1.1 2001/02/02 11:30:34 ela Exp $
+ * $Id: ipdata.h,v 1.2 2002/01/14 23:05:30 ela Exp $
  *
  */
 
