@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.4 2000/06/13 16:50:47 ela Exp $
+ * $Id: server-core.h,v 1.5 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -32,6 +32,12 @@
 #endif
 
 #include "socket.h"
+
+/*
+ * SERVER_CHILD_DIED is set to a non-zero value whenever the server
+ * receives a SIGCHLD signal.
+ */
+extern HANDLE server_child_died;
 
 /*
  * This is the pointer to the head of the list of sockets, which are

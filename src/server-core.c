@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.7 2000/06/15 21:18:01 raimi Exp $
+ * $Id: server-core.c,v 1.8 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -97,10 +97,10 @@ int server_pipe_broke;
 #endif
 
 /*
- * SERVER_COSERVER_DIED is set to a non-zero value whenever the server
+ * SERVER_CHILD_DIED is set to a non-zero value whenever the server
  * receives a SIGCHLD signal.
  */
-HANDLE server_coserver_died;
+HANDLE server_child_died;
 
 /*
  * This is the pointer to the head of the list of sockets, which are
@@ -147,7 +147,7 @@ server_signal_handler (int sig)
     }
   else if (sig == SIGCHLD)
     {
-      server_coserver_died = wait(NULL);
+      server_child_died = wait(NULL);
       signal(SIGCHLD, server_signal_handler);
     }
   else
@@ -304,21 +304,27 @@ sock_dequeue (socket_t sock)
 #ifndef __MINGW32__
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      if ((sock->pipe_desc[READ] == INVALID_HANDLE || 
-	   sock->pipe_desc[WRITE] == INVALID_HANDLE) &&
-	  !(sock->flags & SOCK_FLAG_LISTENING))
+      if (!(sock->flags & SOCK_FLAG_LISTENING))
 	{
-	  log_printf (LOG_FATAL, "cannot dequeue invalid pipe\n");
-	  return -1;
+	  if (((sock->flags & SOCK_FLAG_RECV_PIPE) &&
+	       sock->pipe_desc[READ] == INVALID_HANDLE) ||
+	      ((sock->flags & SOCK_FLAG_SEND_PIPE) &&
+	       sock->pipe_desc[WRITE] == INVALID_HANDLE))
+	    {
+	      log_printf (LOG_FATAL, "cannot dequeue invalid pipe\n");
+	      return -1;
+	    }
 	}
     }
-  else
 #endif /* not __MINGW32__ */
 
-  if (sock->sock_desc == INVALID_SOCKET)
+  if (sock->flags & SOCK_FLAG_SOCK)
     {
-      log_printf(LOG_FATAL, "cannot dequeue invalid socket\n");
-      return -1;
+      if (sock->sock_desc == INVALID_SOCKET)
+	{
+	  log_printf (LOG_FATAL, "cannot dequeue invalid socket\n");
+	  return -1;
+	}
     }
 
   if(sock->flags & SOCK_FLAG_ENQUEUED)
@@ -548,6 +554,15 @@ check_sockets (void)
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
 
+
+      /* If socket is a file descriptor, then read it here. */
+      if (sock->flags & SOCK_FLAG_FILE)
+	{
+	  if (sock->read_socket)
+	    if (sock->read_socket (sock))
+	      sock_schedule_for_shutdown (sock);
+	}
+
 #ifndef __MINGW32__
       /* Handle pipes. */
       if (sock->flags & SOCK_FLAG_PIPE)
@@ -734,14 +749,6 @@ check_sockets (void)
 		  }
 	    }
 	}
-
-      /* If socket is a file descriptor, then read it here. */
-      if (sock->flags & SOCK_FLAG_FILE)
-	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
-	}
     }
 
   /*
@@ -788,7 +795,7 @@ sock_server_loop (void)
    * command processing routine.
    */
   server_nuke_happened = 0;
-  server_coserver_died = 0;
+  server_child_died = 0;
 
 #ifndef __MINGW32__
   server_reset_happened = 0;
@@ -829,18 +836,18 @@ sock_server_loop (void)
 	}
 #endif /* not __MINGW32__ */
 
-      if (server_coserver_died)
+      if (server_child_died)
 	{
-	  log_printf (LOG_ERROR, "pid %d died\n", 
-		      (int) server_coserver_died);
-	  server_coserver_died = 0;
+	  log_printf (LOG_ERROR, "child pid %d died\n", 
+		      (int) server_child_died);
+	  server_child_died = 0;
 	}
 
       /*
        * Check for new connections on server port, incoming data from
        * clients and process queued output data.
        */
-      check_sockets();
+      check_sockets ();
 
       /*
        * Shut down all sockets that have been scheduled for closing.

@@ -20,12 +20,16 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: alloc.h,v 1.3 2000/06/16 15:36:15 ela Exp $
  *
  */
 
 #ifndef __ALLOC_H__
 #define __ALLOC_H__
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif 
 
 #if ENABLE_DEBUG
 extern unsigned allocated_bytes;

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.6 2000/06/15 11:54:52 ela Exp $
+ * $Id: socket.c,v 1.7 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -274,25 +274,27 @@ default_detect_proto (socket_t sock)
       if (server->detect_proto (server->cfg, sock))
 	{
 	  sock->idle_func = NULL;
+	  sock->data = NULL;
 	  sock->cfg = server->cfg;
 	  if (server->connect_socket (server->cfg, sock))
 	    return -1;
 	  return sock->check_request (sock);
 	}
-      
-      /*
-       * Discard this socket if there were not any valid protocol
-       * detected and its receive buffer fill exceeds a maximum value.
-       */
-      if (sock->recv_buffer_fill > MAX_DETECTION_FILL)
-	{
-#if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "socket id %d detection failed\n",
-		      sock->socket_id);
-#endif
-	  return -1;
-	}
     }
+
+  /*
+   * Discard this socket if there were not any valid protocol
+   * detected and its receive buffer fill exceeds a maximum value.
+   */
+  if (sock->recv_buffer_fill > MAX_DETECTION_FILL)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "socket id %d detection failed\n",
+		  sock->socket_id);
+#endif
+      return -1;
+    }
+
   return 0;
 }
 

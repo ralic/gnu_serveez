@@ -1,3 +1,17 @@
+2000-06-16  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_get_response): POST and GET method
+	do work again. Whole http server is now quite ported to new server
+	concept and can be instanciated.
+	(http_free_socket): Made a cgi script die if the http connection is
+	lost by user abort.
+
+	* alloc.c (xmalloc): Made heap counters available on aligned
+	machines.
+
+	* socket.c (default_detect_proto): Fixed the detection fill problem.
+	Now using just 16 byte maximum detection fill.
+
 2000-06-15  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.c (http_config): Freed most filed from 

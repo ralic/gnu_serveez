@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: snprintf.h,v 1.3 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -40,34 +40,19 @@
 
 /* vsnprintf() */
 
-#ifndef HAVE_VSNPRINTF
-# ifdef __MINGW32__
-/* 
- * the latest snapshot of CygWin do define vsnprintf(), but not
- * the official B20.1 release
- */
-int _vsnprintf(char *, size_t, const char *, va_list);
+#ifdef __MINGW32__
+#define vsnprintf _vsnprintf
+#define snprintf _snprintf
+#endif
 
-#  define vsnprintf _vsnprintf
-# else
-#  define vsnprintf(str, n, format, ap) vsprintf(str, format, ap)
-# endif
+#ifndef HAVE_VSNPRINTF
+# define vsnprintf(str, n, format, ap) vsprintf(str, format, ap)
 #endif
 
 /* snprintf() */
 
 #ifndef HAVE_SNPRINTF
-# ifdef __MINGW32__
-/* 
- * the latest snapshot of CygWin do define snprintf(), but not
- * the official B20.1 release
- */
-int _snprintf(char *, size_t ,const char *, ...);
-
-#  define snprintf _snprintf
-# else
-int snprintf(char *, size_t ,const char *, ...);
-# endif
+int snprintf(char *, size_t, const char *, ...);
 #endif
 
 #endif /* not __SNPRINTF_H__ */

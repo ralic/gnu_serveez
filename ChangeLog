@@ -1,3 +1,8 @@
+2000-06-16  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (enable_procstat): Added detection of _vsprintf,
+	_vsnprintf and _snprintf.
+
 2000-06-16  [ RAIMI ]  <raimi@lkcc.org>
 
 	* configure.in: We can now use either an already installed sizzle

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.6 2000/06/15 21:18:01 raimi Exp $
+ * $Id: util.c,v 1.7 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -499,7 +499,7 @@ list_local_interfaces (void)
       break;
     }
 
-  printf ("List of local interfaces you can start ip services on:\n");
+  printf ("--- list of local interfaces you can start ip services on ---\n");
 
   ifr = ifc.ifc_req;
   for (n = 0; n < ifc.ifc_len; n += sizeof (struct ifreq), ifr++)

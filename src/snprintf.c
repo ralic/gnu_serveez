@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: snprintf.c,v 1.3 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -36,14 +36,14 @@
  * if vsnprintf() does not exist.
  */
 int 
-snprintf(char *str, size_t n, const char *fmt, ...)
+snprintf (char *str, size_t n, const char *fmt, ...)
 {
   int ret;
   va_list args;
 
-  va_start(args, fmt);
-  ret = vsnprintf(str, n, fmt, args);
-  va_end(args);
+  va_start (args, fmt);
+  ret = vsnprintf (str, n, fmt, args);
+  va_end (args);
 
   return ret;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.4 2000/06/15 21:18:01 raimi Exp $
+ * $Id: http-proto.c,v 1.5 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -38,6 +38,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
+#include <signal.h>
 
 #if HAVE_STRINGS_H
 # include <strings.h>
@@ -49,11 +50,6 @@
 
 #ifndef __MINGW32__
 # include <sys/socket.h>
-#endif
-
-#if defined(__CYGWIN__) || defined(__MINGW32__)
-# define timezone _timezone
-# define daylight _daylight
 #endif
 
 #include "util.h"
@@ -71,7 +67,15 @@
 #include "http-cache.h"
 
 /*
- * The HTTP port configuration.
+ * In Win32 OS's both of these defines are necessary for portability.
+ */
+#if defined(__CYGWIN__) || defined(__MINGW32__)
+# define timezone _timezone
+# define daylight _daylight
+#endif
+
+/*
+ * The http port configuration.
  */
 portcfg_t http_port =
 {
@@ -148,7 +152,7 @@ struct
   int len;                                /* the length of this string */
   int (*response)(socket_t, char *, int); /* the callback routine */
 } 
-http_request[HTTP_REQUESTS] = 
+http_request [HTTP_REQUESTS] = 
 {
 
   { "GET",     3, http_get_response     },
@@ -161,17 +165,6 @@ http_request[HTTP_REQUESTS] =
   { "CONNECT", 7, http_default_response }
 
 };
-
-/*
- * Content type definitions. Maybe later you could add this to the 
- * configuration hash and read it from "/etc/mime.types" !
- */
-typedef struct
-{
-  char *suffix; /* recognition file suffix */
-  char *type;   /* apropiate content-type string */
-}
-http_content_t;
 
 /*
  * Global http server initializer.
@@ -198,14 +191,20 @@ http_global_finalize (void)
 int
 http_init (server_t *server)
 {
+  int types = 0;
   http_config_t *cfg = server->cfg;
+  
+  if (cfg->types)
+    types = hash_size (cfg->types);
   
   if (http_read_types (cfg))
     {
-      log_printf (LOG_ERROR, "unable to load content type file %s\n",
+      log_printf (LOG_ERROR, "http: unable to load content type file %s\n",
 		  cfg->type_file);
     }
 
+  log_printf (LOG_NOTICE, "http: %d+%d content types (%s)\n",
+	      types, hash_size (cfg->types) - types, cfg->type_file);
   log_printf (LOG_NOTICE, "http: files in %s\n", cfg->docs);
   log_printf (LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
 	      cfg->cgidir, cfg->cgiurl);
@@ -222,7 +221,7 @@ http_finalize (server_t *server)
 {
   http_config_t *cfg = server->cfg;
 
-  http_free_content_types (cfg);
+  http_free_types (cfg);
   
   return 0;
 }
@@ -231,7 +230,7 @@ http_finalize (server_t *server)
  * This function frees all the content type definitions.
  */
 void
-http_free_content_types (http_config_t *cfg)
+http_free_types (http_config_t *cfg)
 {
   char **type;
   int n;
@@ -266,60 +265,71 @@ http_free_socket (socket_t sock)
   http = sock->data;
 
   /* any property at all ? */
-  if(http->property)
+  if (http->property)
     {
       /* go through all properties */
       n = 0;
-      while(http->property[n])
+      while (http->property[n])
 	{
-	  xfree(http->property[n]);
+	  xfree (http->property[n]);
 	  n++;
 	}
-      xfree(http->property);
+      xfree (http->property);
       http->property = NULL;
     }
 
   /* is the cache entry used ? */
-  if(http->cache)
+  if (http->cache)
     {
-      xfree(http->cache);
+      xfree (http->cache);
       http->cache = NULL;
     }
 
   /* close the file descriptor for usual http file transfer */
-  if(sock->file_desc != -1)
+  if (sock->file_desc != -1)
     {
-      if(close(sock->file_desc) == -1)
-	log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+      if (close (sock->file_desc) == -1)
+	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->file_desc = -1;
     }
 
   /* close both of the CGI pipes if necessary */
-  if(sock->pipe_desc[READ] != INVALID_HANDLE)
+  if (sock->pipe_desc[READ] != INVALID_HANDLE)
     {
-      if(CLOSE_HANDLE(sock->pipe_desc[READ]) == -1)
-	log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+      if (CLOSE_HANDLE (sock->pipe_desc[READ]) == -1)
+	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->pipe_desc[READ] = INVALID_HANDLE;
+      sock->flags &= ~SOCK_FLAG_RECV_PIPE;
     }
-  if(sock->pipe_desc[WRITE] != INVALID_HANDLE)
+  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
     {
-      if(CLOSE_HANDLE(sock->pipe_desc[WRITE]) == -1)
-	log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+      if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) == -1)
+	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->pipe_desc[WRITE] = INVALID_HANDLE;
+      sock->flags &= ~SOCK_FLAG_SEND_PIPE;
     }
 
 #ifdef __MINGW32__
   /* 
-   * close the process handle if necessary, 
-   * but only in the Windows-Port ! 
+   * Close the process handle if necessary, but only in the Windows-Port ! 
    */
-  if(http->pid != INVALID_HANDLE)
+  if (http->pid != INVALID_HANDLE)
     {
-      if(CLOSE_HANDLE(http->pid) == -1)
-	log_printf(LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      if (CLOSE_HANDLE (http->pid) == -1)
+	log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       http->pid = INVALID_HANDLE;
     }
-#endif
+#else /* not __MINGW32__ */
+  /*
+   * Try killing the cgi script.
+   */
+  if (http->pid != INVALID_HANDLE)
+    {
+      if (kill (http->pid, SIGKILL) == -1)
+	log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+      http->pid = INVALID_HANDLE;
+    }
+#endif /* not __MINGW32__ */
 
 }
 
@@ -336,9 +346,62 @@ http_disconnect (socket_t sock)
   http = sock->data;
 
   /* free the http socket structures */
-  http_free_socket(sock);
-  xfree(sock->data);
+  http_free_socket (sock);
 
+  if (sock->data)
+    {
+      xfree (sock->data);
+      sock->data = NULL;
+    }
+
+  return 0;
+}
+
+/*
+ * This is the default idle function for http connections. It checks 
+ * whether any died child was a cgi script.
+ */
+int
+http_cgi_died (socket_t sock)
+{
+  http_socket_t *http = sock->data;
+#ifdef __MINGW32__
+  DWORD result;
+#endif
+
+  if (sock->flags & SOCK_FLAG_PIPE)
+    {
+#ifndef __MINGW32__
+      if (server_child_died && http->pid == server_child_died)
+	{
+	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
+		      (int) server_child_died);
+	  server_child_died = 0;
+	}
+#else /* __MINGW32__ */
+      /*
+       * Check if there died a process handle in Win32, this has to be
+       * done regularly here because there is no SIGCHLD in Win32 !
+       */
+      if (http->pid != INVALID_HANDLE)
+	{
+	  result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
+	  if (result == WAIT_FAILED)
+	    {
+	      log_printf (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+	    }
+	  else if (result != WAIT_TIMEOUT)
+	    {
+	      if (CLOSE_HANDLE (http->pid) == -1)
+		log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	      server_coserver_died = http->pid;
+	      http->pid = INVALID_HANDLE;
+	    }
+	}
+#endif /* __MINGW32__ */
+    }
+  
+  sock->idle_counter = 1;
   return 0;
 }
 
@@ -353,12 +416,13 @@ http_idle (socket_t sock)
   time_t now;
   http_config_t *cfg = sock->cfg;
 
-  now = time(NULL);
-  if(now - sock->last_recv > cfg->timeout &&
-     now - sock->last_send > cfg->timeout)
+  now = time (NULL);
+  if (now - sock->last_recv > cfg->timeout &&
+      now - sock->last_send > cfg->timeout)
     return -1;
   sock->idle_counter = 1;
-  return 0;
+
+  return http_cgi_died (sock);
 }
 
 /*
@@ -391,17 +455,17 @@ http_keep_alive (socket_t sock)
  * Keep-Alive connection and sends the apropiate HTTP header property.
  */
 void
-http_check_keepalive(socket_t sock)
+http_check_keepalive (socket_t sock)
 {
   http_socket_t *http = sock->data;
   http_config_t *cfg = sock->cfg;
 
-  if(sock->userflags & HTTP_FLAG_KEEP && http->keepalive > 0)
+  if ((sock->userflags & HTTP_FLAG_KEEP) && http->keepalive > 0)
     {
       sock->idle_counter = cfg->timeout;
-      sock_printf(sock, "Connection: Keep-Alive\r\n");
-      sock_printf(sock, "Keep-Alive: timeout=%d, max=%d\r\n", 
-		  sock->idle_counter, cfg->keepalive);
+      sock_printf (sock, "Connection: Keep-Alive\r\n");
+      sock_printf (sock, "Keep-Alive: timeout=%d, max=%d\r\n", 
+		   sock->idle_counter, cfg->keepalive);
       http->keepalive--;
     }
   /* tell HTTP/1.1 clients that the connection is closed after delivery */
@@ -419,7 +483,7 @@ http_check_keepalive(socket_t sock)
  * actual file is within the cache and if this is a keep-alive connection.
  */
 int
-http_default_write(socket_t sock)
+http_default_write (socket_t sock)
 {
   int num_written;
 
@@ -427,19 +491,19 @@ http_default_write(socket_t sock)
    * Write as many bytes as possible, remember how many
    * were actually sent.
    */
-  num_written = send(sock->sock_desc, sock->send_buffer,
-		     sock->send_buffer_fill, 0);
+  num_written = send (sock->sock_desc, sock->send_buffer,
+		      sock->send_buffer_fill, 0);
 
   /* some data has been written */
-  if(num_written > 0)
+  if (num_written > 0)
     {
-      sock->last_send = time(NULL);
+      sock->last_send = time (NULL);
 
-      if(sock->send_buffer_fill > num_written)
+      if (sock->send_buffer_fill > num_written)
 	{
-	  memmove(sock->send_buffer, 
-		  sock->send_buffer + num_written,
-		  sock->send_buffer_fill - num_written);
+	  memmove (sock->send_buffer, 
+		   sock->send_buffer + num_written,
+		   sock->send_buffer_fill - num_written);
 	}
       sock->send_buffer_fill -= num_written;
     }
@@ -447,8 +511,8 @@ http_default_write(socket_t sock)
   /* write error occured */
   else if (num_written < 0)
     {
-      log_printf(LOG_ERROR, "http: write: %s\n", NET_ERROR);
-      if(last_errno == SOCK_UNAVAILABLE)
+      log_printf (LOG_ERROR, "http: write: %s\n", NET_ERROR);
+      if (last_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
 	  num_written = 0;
@@ -460,19 +524,19 @@ http_default_write(socket_t sock)
    * If yes then return non-zero in order to shutdown the socket SOCK
    * and return zero if it is a keep-alive connection.
    */
-  if(sock->userflags & HTTP_FLAG_DONE && sock->send_buffer_fill == 0)
+  if ((sock->userflags & HTTP_FLAG_DONE) && sock->send_buffer_fill == 0)
     {
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "http: response successfully sent\n");
+      log_printf (LOG_DEBUG, "http: response successfully sent\n");
 #endif
-      num_written = http_keep_alive(sock);
+      num_written = http_keep_alive (sock);
     }
 
   /*
    * If the requested file is within the cache then start now the 
    * cache writer. Set SEND_BUFFER_FILL to something greater than zero.
    */
-  if(sock->userflags & HTTP_FLAG_CACHE && sock->send_buffer_fill == 0)
+  if ((sock->userflags & HTTP_FLAG_CACHE) && sock->send_buffer_fill == 0)
     {
       sock->send_buffer_fill = 42;
       sock->write_socket = http_cache_write;
@@ -504,7 +568,7 @@ http_file_read (socket_t sock)
    * This means the send buffer is currently full, we have to 
    * wait until some data has been send via the socket.
    */
-  if(do_read <= 0)
+  if (do_read <= 0)
     {
       return 0;
     }
@@ -512,14 +576,14 @@ http_file_read (socket_t sock)
   /*
    * Try to read as much data as possible from the file.
    */
-  num_read = read(sock->file_desc,
-		  sock->send_buffer + sock->send_buffer_fill,
-		  do_read);
+  num_read = read (sock->file_desc,
+		   sock->send_buffer + sock->send_buffer_fill,
+		   do_read);
 
   /* Read error occured. */
-  if(num_read < 0)
+  if (num_read < 0)
     {
-      log_printf(LOG_ERROR, "http: read: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "http: read: %s\n", SYS_ERROR);
       return -1;
     }
 
@@ -528,10 +592,10 @@ http_file_read (socket_t sock)
   http->filelength -= num_read;
 
   /* Read all file data ? */
-  if(http->filelength <= 0)
+  if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "http: file successfully read\n");
+      log_printf (LOG_DEBUG, "http: file successfully read\n");
 #endif
       /* 
        * no further read()s from the file descriptor, signalling 
@@ -539,7 +603,6 @@ http_file_read (socket_t sock)
        */
       sock->read_socket = default_read;
       sock->userflags |= HTTP_FLAG_DONE;
-      sock->userflags &= ~HTTP_FLAG_FILE;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
 
@@ -565,7 +628,7 @@ http_detect_proto (void *cfg, socket_t sock)
 		       http_request[n].len))
 	    {
 #if ENABLE_DEBUG
-	      log_printf(LOG_DEBUG, "http client detected\n");
+	      log_printf (LOG_DEBUG, "http client detected\n");
 #endif
 	      return -1;
 	    }
@@ -598,10 +661,12 @@ http_connect_socket (void *http_cfg, socket_t sock)
    * set the socket flag, disable flood protection and
    * set all the callback routines
    */
-  sock->userflags |= SOCK_FLAG_NOFLOOD;
+  sock->flags |= SOCK_FLAG_NOFLOOD;
   sock->check_request = http_check_request;
   sock->write_socket = http_default_write;
   sock->disconnected_socket = http_disconnect;
+  sock->idle_func = http_cgi_died;
+  sock->idle_counter = 1;
 
   return 0;
 }
@@ -626,7 +691,7 @@ http_asc_date (time_t t)
  * UTC time (time_t) as time() does.
  */
 time_t
-http_parse_date(char *date)
+http_parse_date (char *date)
 {
   struct tm parse_time;
   int n;
@@ -638,42 +703,42 @@ http_parse_date(char *date)
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-  switch(date[3])
+  switch (date[3])
     {
       /* ASCTIME-Date */
     case ' ':
-      sscanf(date, "%3s %3s %2d %02d:%02d:%02d %04d",
-	     _wkday,
-	     _month,
-	     &parse_time.tm_mday,
-	     &parse_time.tm_hour, 
-	     &parse_time.tm_min,
-	     &parse_time.tm_sec,
-	     &parse_time.tm_year);
-	     
+      sscanf (date, "%3s %3s %2d %02d:%02d:%02d %04d",
+	      _wkday,
+	      _month,
+	      &parse_time.tm_mday,
+	      &parse_time.tm_hour, 
+	      &parse_time.tm_min,
+	      &parse_time.tm_sec,
+	      &parse_time.tm_year);
+      
       break;
       /* RFC1123-Date */
     case ',':
-      sscanf(date, "%3s, %02d %3s %04d %02d:%02d:%02d GMT", 
-	     _wkday,
-	     &parse_time.tm_mday,
-	     _month,
-	     &parse_time.tm_year,
-	     &parse_time.tm_hour, 
-	     &parse_time.tm_min,
-	     &parse_time.tm_sec);
+      sscanf (date, "%3s, %02d %3s %04d %02d:%02d:%02d GMT", 
+	      _wkday,
+	      &parse_time.tm_mday,
+	      _month,
+	      &parse_time.tm_year,
+	      &parse_time.tm_hour, 
+	      &parse_time.tm_min,
+	      &parse_time.tm_sec);
 
       break;
       /* RFC850-Date */
     default:
-      sscanf(date, "%s, %02d-%3s-%02d %02d:%02d:%02d GMT", 
-	     _wkday,
-	     &parse_time.tm_mday,
-	     _month,
-	     &parse_time.tm_year,
-	     &parse_time.tm_hour, 
-	     &parse_time.tm_min,
-	     &parse_time.tm_sec);
+      sscanf (date, "%s, %02d-%3s-%02d %02d:%02d:%02d GMT", 
+	      _wkday,
+	      &parse_time.tm_mday,
+	      _month,
+	      &parse_time.tm_year,
+	      &parse_time.tm_hour, 
+	      &parse_time.tm_min,
+	      &parse_time.tm_sec);
 
       parse_time.tm_mon += parse_time.tm_mon >= 70 ? 1900 : 2000;
 
@@ -681,15 +746,15 @@ http_parse_date(char *date)
     }
     
   /* find the month identifier */
-  for(n=0; n<12; n++)
-    if(!memcmp(_month, month[n], 3))
+  for (n = 0; n < 12; n++)
+    if (!memcmp (_month, month[n], 3))
       parse_time.tm_mon = n;
 
   parse_time.tm_isdst = daylight;
   parse_time.tm_year -= 1900;
-  ret = mktime(&parse_time);
+  ret = mktime (&parse_time);
   ret -= timezone;
-  if(daylight > 0) ret += 3600;
+  if (daylight > 0) ret += 3600;
   return ret;
 }
 
@@ -699,7 +764,7 @@ http_parse_date(char *date)
  * properties found in the request.
  */
 int
-http_parse_property(socket_t sock, char *request, char *end)
+http_parse_property (socket_t sock, char *request, char *end)
 {
   int properties, n;
   char *p;
@@ -709,41 +774,41 @@ http_parse_property(socket_t sock, char *request, char *end)
   http = sock->data;
 
   /* reserve data space for the http properties */
-  http->property = xmalloc(MAX_HTTP_PROPERTIES * 2 * sizeof(char *));
+  http->property = xmalloc (MAX_HTTP_PROPERTIES * 2 * sizeof(char *));
   properties = 0;
   n = 0;
 
   /* find out properties if necessary */
-  while(INT16(request) != CRLF && 
-	properties < MAX_HTTP_PROPERTIES - 1)
+  while (INT16 (request) != CRLF && 
+	 properties < MAX_HTTP_PROPERTIES - 1)
     {
       /* get property entity identifier */
       p = request;
-      while(*p != ':' && p < end) p++;
-      if(p == end) break;
-      http->property[n] = xmalloc(p-request+1);
-      strncpy(http->property[n], request, p-request);
+      while (*p != ':' && p < end) p++;
+      if (p == end) break;
+      http->property[n] = xmalloc (p-request+1);
+      strncpy (http->property[n], request, p-request);
       http->property[n][p-request] = 0;
       n++;
       request = p+2;
 
       /* get property entitiy body */
-      while(INT16(p) != CRLF && p < end) p++;
-      if(p == end || p <= request) break;
-      http->property[n] = xmalloc(p-request+1);
-      strncpy(http->property[n], request, p-request);
+      while (INT16 (p) != CRLF && p < end) p++;
+      if (p == end || p <= request) break;
+      http->property[n] = xmalloc (p-request+1);
+      strncpy (http->property[n], request, p-request);
       http->property[n][p-request] = 0;
       n++;
       properties++;
       request = p+2;
 
 #if 0
-      printf("http header: {%s} = {%s}\n", 
-	     http->property[n-2], http->property[n-1]);
+      printf ("http header: {%s} = {%s}\n", 
+	      http->property[n-2], http->property[n-1]);
 #endif
     }
 
-  request+=2;
+  request += 2;
   http->property[n] = NULL;
 
   return properties;
@@ -754,19 +819,19 @@ http_parse_property(socket_t sock, char *request, char *end)
  * Return a NULL pointer if not found.
  */
 char *
-http_find_property(http_socket_t *http, char *key)
+http_find_property (http_socket_t *http, char *key)
 {
   int n;
 
   /* search through all the http properties */
   n = 0;
-  while(http->property[n])
+  while (http->property[n])
     {
-      if(!strcasecmp(http->property[n], key))
+      if (!strcasecmp (http->property[n], key))
 	{
 	  return http->property[n+1];
 	}
-      n+=2;
+      n += 2;
     }
   return NULL;
 }
@@ -776,7 +841,7 @@ http_find_property(http_socket_t *http, char *key)
  * seen a full HTTP request (ends with a double CRLF).
  */
 int
-http_handle_request(socket_t sock, int len)
+http_handle_request (socket_t sock, int len)
 {
   int n;
   char *p, *line, *end;
@@ -791,55 +856,55 @@ http_handle_request(socket_t sock, int len)
   flag = 0;
 
   /* scan request type */
-  while(*p != ' ' && p < end) p++;
-  if(p == end)
+  while (*p != ' ' && p < end) p++;
+  if (p == end)
     {
       return -1;
     }
   *p = 0;
-  request = xmalloc(p - line + 1);
-  strcpy(request, line);
+  request = xmalloc (p - line + 1);
+  strcpy (request, line);
   line = p + 1;
 
   /* scan the option (file) */
-  while(*p != '\r' && p < end) p++;
-  if(p == end)
+  while (*p != '\r' && p < end) p++;
+  if (p == end)
     {
-      xfree(request);
+      xfree (request);
       return -1;
     }
 
   /* scan back until beginning of HTTP version */
-  while(*p != ' ' && *p) p--;
+  while (*p != ' ' && *p) p--;
 
   /* is this a HTTP/0.9 request ? */
-  if(!memcmp(request, "GET", 3) && memcmp(p+1, "HTTP/", 5))
+  if (!memcmp (request, "GET", 3) && memcmp (p+1, "HTTP/", 5))
     {
       flag |= HTTP_FLAG_SIMPLE;
-      while(*p != '\r') p++;
-      option = xmalloc(p - line + 1);
-      strncpy(option, line, p - line);
+      while (*p != '\r') p++;
+      option = xmalloc (p - line + 1);
+      strncpy (option, line, p - line);
       option[p-line] = 0;
       line = p;
     }
   /* no, it is a real HTTP/1.x request */
   else
     {
-      if(p <= line)
+      if (p <= line)
 	{
-	  xfree(request);
+	  xfree (request);
 	  return -1;
 	}
       *p = 0;
       option = xmalloc(p - line + 1);
-      strcpy(option, line);
+      strcpy (option, line);
       line = p + 1;
   
       /* scan the version string of the HTTP request */
-      if(memcmp(line, "HTTP/", 5))
+      if (memcmp (line, "HTTP/", 5))
 	{
-	  xfree(request);
-	  xfree(option);
+	  xfree (request);
+	  xfree (option);
 	  return -1;
 	}
       line += 5;
@@ -850,40 +915,40 @@ http_handle_request(socket_t sock, int len)
     }
 
   /* check the remaining part of the first line the version */
-  if(((version[MAJOR_VERSION] != HTTP_MAJOR_VERSION ||
-       version[MINOR_VERSION] > 1 ||*(line-2) != '.') && !flag) || 
-     INT16(line) != CRLF)
+  if (((version[MAJOR_VERSION] != HTTP_MAJOR_VERSION ||
+	version[MINOR_VERSION] > 1 ||*(line-2) != '.') && !flag) || 
+      INT16 (line) != CRLF)
     {
-      xfree(request);
-      xfree(option);
+      xfree (request);
+      xfree (option);
       return -1;
     }
-  line+=2;
+  line += 2;
 
   /* find out properties */
-  http_parse_property(sock, line, end);
+  http_parse_property (sock, line, end);
 
   /* find an apropiate request callback */
-  for(n=0; n<HTTP_REQUESTS; n++)
+  for(n = 0; n < HTTP_REQUESTS; n++)
     {
-      if(!strcmp(request, http_request[n].ident))
+      if (!memcmp (request, http_request[n].ident, http_request[n].len))
 	{
 #if ENABLE_DEBUG
-	  log_printf(LOG_DEBUG, "http: %s received\n", request);
+	  log_printf (LOG_DEBUG, "http: %s received\n", request);
 #endif
-	  http_request[n].response(sock, option, flag);
+	  http_request[n].response (sock, option, flag);
 	  break;
 	}
     }
 
   /* Return a "404 Bad Request" if the request type is unknown. */
-  if(n == HTTP_REQUESTS)
+  if (n == HTTP_REQUESTS)
     {
-      http_default_response(sock, option, 0);
+      http_default_response (sock, option, 0);
     }
 
-  xfree(request);
-  xfree(option);
+  xfree (request);
+  xfree (option);
   return 0;
 }
 
@@ -892,28 +957,28 @@ http_handle_request(socket_t sock, int len)
  * http request and call http_handle_request if necessary.
  */
 int 
-http_check_request(socket_t sock)
+http_check_request (socket_t sock)
 {
   char *p;
   int len;
 
   p = sock->recv_buffer;
 
-  while(p < sock->recv_buffer + sock->recv_buffer_fill - 3 && 
-	INT32(p) != CRLF2)
+  while (p < sock->recv_buffer + sock->recv_buffer_fill - 3 && 
+	 INT32(p) != CRLF2)
     p++;
   
-  if(INT32(p) == CRLF2 && 
-     p < sock->recv_buffer + sock->recv_buffer_fill - 3)
+  if (INT32 (p) == CRLF2 && 
+      p < sock->recv_buffer + sock->recv_buffer_fill - 3)
     {
       len = p - sock->recv_buffer + 4;
-      if(http_handle_request(sock, len))
+      if (http_handle_request (sock, len))
 	return -1;
 
-      if(sock->recv_buffer_fill > len )
+      if (sock->recv_buffer_fill > len)
 	{
-	  memmove(sock->recv_buffer, sock->recv_buffer + len,
-		  sock->recv_buffer_fill - len);
+	  memmove (sock->recv_buffer, sock->recv_buffer + len,
+		   sock->recv_buffer_fill - len);
 	}
       sock->recv_buffer_fill -= len;
     }
@@ -1140,119 +1205,120 @@ http_get_response (socket_t sock, char *request, int flags)
   http = sock->data;
 
   /* check if this is a cgi request */
-  cgifile = http_check_cgi(sock, request);
-  if(cgifile != HTTP_NO_CGI)
+  cgifile = http_check_cgi (sock, request);
+  if (cgifile != HTTP_NO_CGI)
     {
-      if(cgifile == NULL)
+      if (cgifile == NULL)
 	{
-	  sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
+	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
 	  sock->userflags |= HTTP_FLAG_DONE;
 	  return -1;
 	}
 
       /* create a pipe for the cgi script process */
-      if(create_pipe(cgi2s) == -1)
+      if (create_pipe (cgi2s) == -1)
 	{
-	  sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
+	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
 	  sock->userflags |= HTTP_FLAG_DONE;
-	  xfree(cgifile);
+	  xfree (cgifile);
 	  return -1;
 	}
 
       /* execute the cgi script in CGIFILE */
       sock->userflags |= HTTP_FLAG_CGI;
+      sock->flags |= SOCK_FLAG_RECV_PIPE;
       sock->read_socket = http_cgi_read;
       sock->pipe_desc[READ] = cgi2s[READ];
-      if(http_cgi_exec(sock, INVALID_HANDLE, cgi2s[WRITE], 
-		       cgifile, request, GET_METHOD))
+      if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE], 
+			 cgifile, request, GET_METHOD))
 	{
 	  /* some error occured here */
 	  sock->read_socket = default_read;
-	  xfree(cgifile);
+	  xfree (cgifile);
 	  return -1;
 	}
-      xfree(cgifile);
+      xfree (cgifile);
       return 0;
     }
 
   /* this is a usual file request */
   size = 
-    strlen(cfg->docs) + 
-    strlen(request) + 
-    strlen(cfg->indexfile) + 1;
+    strlen (cfg->docs) + 
+    strlen (request) + 
+    strlen (cfg->indexfile) + 4;
 
-  file = xmalloc(size);
-  strcpy(file, cfg->docs);
-  strcat(file, request);
+  file = xmalloc (size);
+  strcpy (file, cfg->docs);
+  strcat (file, request);
 
   /* concate the IndexFile if necessary */
-  if(file[strlen(file)-1] == '/')
+  if (file[strlen (file) - 1] == '/')
     {
-      strcat(file, cfg->indexfile);
+      strcat (file, cfg->indexfile);
       /* get directory listing if there is no index file */
-      if((fd = open(file, O_RDONLY)) == -1)
+      if ((fd = open (file, O_RDONLY)) == -1)
 	{
-	  strcpy(file, cfg->docs);
-	  strcat(file, request);
-	  if((dir = http_dirlist(file, cfg->docs)) == NULL)
+	  strcpy (file, cfg->docs);
+	  strcat (file, request);
+	  if ((dir = http_dirlist (file, cfg->docs)) == NULL)
 	    {
-	      log_printf(LOG_ERROR, "http dirlist: %s: %s\n", 
-			 file, SYS_ERROR);
-	      sock_printf(sock, HTTP_FILE_NOT_FOUND "\r\n");
+	      log_printf (LOG_ERROR, "http dirlist: %s: %s\n", 
+			  file, SYS_ERROR);
+	      sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
 	      sock->userflags |= HTTP_FLAG_DONE;
-	      xfree(file);
+	      xfree (file);
 	      return -1;
 	    }
 	  /* send the directory listing */
-	  xfree(sock->send_buffer);
+	  xfree (sock->send_buffer);
 	  sock->send_buffer = dir;
 	  sock->send_buffer_size = http_dirlist_size;
-	  sock->send_buffer_fill = strlen(dir);
+	  sock->send_buffer_fill = strlen (dir);
 	  sock->userflags |= HTTP_FLAG_DONE;
-	  xfree(file);
+	  xfree (file);
 	  return 0;
 	}
-      close(fd);
+      close (fd);
     }
 
   /* check if there are '..' in the requested file's path */
-  if(strstr(request, "..") != NULL)
+  if (strstr (request, "..") != NULL)
     {
-      sock_printf(sock, HTTP_ACCESS_DENIED "\r\n");
+      sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return -1;
     }
 
   /* get length of file and other properties */
-  if(stat(file, &buf) == -1)
+  if (stat (file, &buf) == -1)
     {
-      log_printf(LOG_ERROR, "stat: %s (%s)\n", SYS_ERROR, file);
-      sock_printf(sock, HTTP_FILE_NOT_FOUND "\r\n");
+      log_printf (LOG_ERROR, "stat: %s (%s)\n", SYS_ERROR, file);
+      sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return -1;
     }
 
   /* if directory then relocate to it */
-  if(S_ISDIR(buf.st_mode))
+  if (S_ISDIR (buf.st_mode))
     {
-      host = http_find_property(http, "Host");
-      sock_printf(sock, "%sLocation: %s%s%s/\r\n\r\n", 
-		  HTTP_RELOCATE, 
-		  host ? "http://" : "", 
-		  host ? host : "", 
-		  request);
+      host = http_find_property (http, "Host");
+      sock_printf (sock, "%sLocation: %s%s%s/\r\n\r\n", 
+		   HTTP_RELOCATE, 
+		   host ? "http://" : "", 
+		   host ? host : "", 
+		   request);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return 0;
     }
 
   /* open the file for reading */
 #ifdef __MINGW32__
-  if((fd = open (file, O_RDONLY | O_BINARY)) == -1)
+  if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
 #else
-  if((fd = open (file, O_RDONLY | O_NONBLOCK)) == -1)
+  if ((fd = open (file, O_RDONLY | O_NONBLOCK)) == -1)
 #endif
     {
       log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
@@ -1263,82 +1329,79 @@ http_get_response (socket_t sock, char *request, int flags)
     }
 
   /* check if this it could be a Keep-Alive connection */
-  if((p = http_find_property(http, "Connection")) != NULL)
+  if ((p = http_find_property (http, "Connection")) != NULL)
     {
-      /*
-      if(!strcasecmp(p, "Keep-Alive"))
-      */
-      if(strstr(p, "Keep-Alive"))
+      if (strstr (p, "Keep-Alive"))
 	{
 	  sock->userflags |= HTTP_FLAG_KEEP;
 	}
     }
 
   /* check if this a If-Modified-Since request */
-  if((p = http_find_property(http, "If-Modified-Since")) != NULL)
+  if ((p = http_find_property (http, "If-Modified-Since")) != NULL)
     {
-      date = http_parse_date(p);
-      if(date >= buf.st_mtime)
+      date = http_parse_date (p);
+      if (date >= buf.st_mtime)
 	{
 #if ENABLE_DEBUG
-	  log_printf(LOG_DEBUG, "http: %s not changed\n", file);
+	  log_printf (LOG_DEBUG, "http: %s not changed\n", file);
 #endif
-	  sock_printf(sock, HTTP_NOT_MODIFIED);
-	  http_check_keepalive(sock);
-	  sock_printf(sock, "\r\n");
+	  sock_printf (sock, HTTP_NOT_MODIFIED);
+	  http_check_keepalive (sock);
+	  sock_printf (sock, "\r\n");
 
-	  close(fd);
+	  close (fd);
 	  sock->userflags |= HTTP_FLAG_DONE;
-	  xfree(file);
+	  xfree (file);
 	  return 0;
 	}
     }
 
   /* send a http header to the client */
-  if(!(flags & HTTP_FLAG_SIMPLE))
+  if (!(flags & HTTP_FLAG_SIMPLE))
     {
-      sock_printf(sock, HTTP_OK);
-      sock_printf(sock, "Content-Type: %s\r\n", 
-		  http_find_content_type(sock, file));
-      sock_printf(sock, "Content-Length: %d\r\n", buf.st_size);
-      sock_printf(sock, "Server: %s/%s\r\n", 
-		  serveez_config.program_name,
-		  serveez_config.version_string);
-      sock_printf(sock, "Date: %s\r\n", http_asc_date (time (NULL)));
-      sock_printf(sock, "Last-Modified: %s\r\n", http_asc_date (buf.st_mtime));
+      sock_printf (sock, HTTP_OK);
+      sock_printf (sock, "Content-Type: %s\r\n", 
+		   http_find_content_type (sock, file));
+      sock_printf (sock, "Content-Length: %d\r\n", buf.st_size);
+      sock_printf (sock, "Server: %s/%s\r\n", 
+		   serveez_config.program_name,
+		   serveez_config.version_string);
+      sock_printf (sock, "Date: %s\r\n", http_asc_date (time (NULL)));
+      sock_printf (sock, "Last-Modified: %s\r\n", 
+		   http_asc_date (buf.st_mtime));
 
-      http_check_keepalive(sock);
+      http_check_keepalive (sock);
 
       /* request foorter */
-      sock_printf(sock, "\r\n");
+      sock_printf (sock, "\r\n");
     }
 
   /* just a HEAD response handled by this GET handler */
-  if(flags & HTTP_FLAG_NOFILE)
+  if (flags & HTTP_FLAG_NOFILE)
     {
-      close(fd);
+      close (fd);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return 0;
     }
 
   /* create a cache structure for the http socket structure */
-  cache = xmalloc(sizeof(http_cache_t));
+  cache = xmalloc (sizeof (http_cache_t));
   http->cache = cache;
       
   /* is the requested file already in the cache ? */
-  if(http_check_cache(file, cache) != -1)
+  if (http_check_cache (file, cache) != -1)
     {
-      if(buf.st_mtime > cache->entry->modified ||
-	 buf.st_size != cache->entry->length)
+      if (buf.st_mtime > cache->entry->modified ||
+	  buf.st_size != cache->entry->length)
 	{
 	  /* the file on disk has changed ? */
 #if ENABLE_DEBUG
-	  log_printf(LOG_DEBUG, "cache: %s has changed\n", file);
+	  log_printf (LOG_DEBUG, "cache: %s has changed\n", file);
 #endif
-	  http_refresh_cache(cache);
+	  http_refresh_cache (cache);
 	  cache->entry->modified = buf.st_mtime;
-	  sock->userflags |= HTTP_FLAG_FILE;
 	  sock->flags |= SOCK_FLAG_FILE;
 	  sock->file_desc = fd;
 	  http->filelength = buf.st_size;
@@ -1350,28 +1413,27 @@ http_get_response (socket_t sock, char *request, int flags)
 	  cache->entry->hits++;
 	  cache->entry->usage++;
 	  sock->userflags |= HTTP_FLAG_CACHE;
-	  if(flags & HTTP_FLAG_SIMPLE)
+	  if (flags & HTTP_FLAG_SIMPLE)
 	    {
 	      sock->send_buffer_fill = 42;
 	      sock->write_socket = http_cache_write;
 	    }
-	  close(fd);
+	  close (fd);
 	}
     }
-  /* the fils is not in the cache structures yet */
+  /* the file is not in the cache structures yet */
   else
     {
       sock->file_desc = fd;
       http->filelength = buf.st_size;
-      sock->userflags |= HTTP_FLAG_FILE;
       sock->flags |= SOCK_FLAG_FILE;
 
       /* 
        * find a free slot for the new file if it is not larger
        * than a certain size
        */
-      if(buf.st_size < cfg->cachesize &&
-	 http_init_cache(file, cache) != -1)
+      if (buf.st_size < cfg->cachesize &&
+	  http_init_cache (file, cache) != -1)
 	{
 	  sock->read_socket = http_cache_read;
 	  cache->entry->modified = buf.st_mtime;
@@ -1382,7 +1444,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	}
     }
 
-  xfree(file);
+  xfree (file);
 
   return 0;
 }
@@ -1393,9 +1455,9 @@ http_get_response (socket_t sock, char *request, int flags)
  * the file info.
  */
 int
-http_head_response(socket_t sock, char *request, int flags)
+http_head_response (socket_t sock, char *request, int flags)
 {
-  http_get_response(sock, request, flags | HTTP_FLAG_NOFILE);
+  http_get_response (sock, request, flags | HTTP_FLAG_NOFILE);
   return 0;
 }
 
@@ -1403,71 +1465,10 @@ http_head_response(socket_t sock, char *request, int flags)
  * The default http response (Bad Request).
  */
 int
-http_default_response(socket_t sock, char *request, int flags)
+http_default_response (socket_t sock, char *request, int flags)
 {
-  sock_printf(sock, HTTP_NOT_IMPLEMENTED "\r\n");
+  sock_printf (sock, HTTP_NOT_IMPLEMENTED "\r\n");
   sock->userflags |= HTTP_FLAG_DONE;
-  return 0;
-}
-
-#ifdef __MINGW32__
-/*
- * Check if there died a process handle in Win32, this has to be
- * done regularly here because there is no SIGCHLD in Win32 !
- */
-int
-http_check_cgi (socket_t sock)
-{
-  DWORD result;
-  http_socket_t *http = sock->data;
-
-  if (sock->userflags & HTTP_FLAG_CGI && http->pid != INVALID_HANDLE)
-    {
-      result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
-      if (result == WAIT_FAILED)
-	{
-	  log_printf (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
-	}
-      else if (result != WAIT_TIMEOUT)
-	{
-	  if (CLOSE_HANDLE (http->pid) == -1)
-	    log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-	  http->pid = INVALID_HANDLE;
-	  server_coserver_died = http->pid;
-	}
-    }
-  return 0;
-}
-#endif /* __MINGW32__ */
-
-/* FIXME: that was if (server_coserver_died) */
-int
-http_find_died_cgi (void)
-{
-  http_socket_t *http;
-  socket_t sock;
-
-  /*
-   * Go through all sockets and check whether the died PID
-   * was a CGI script...
-   */
-  sock = socket_root; 
-  while (sock)
-    {
-      http = sock->data;
-      if (sock->userflags & HTTP_FLAG)
-	{
-	  if (1/*http->pid == server_coserver_died*/)
-	    {
-	      log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
-			  (int) 1/*server_coserver_died*/);
-	      /*server_coserver_died = 0;*/
-	      break;
-	    }
-	}
-      sock = sock->next;
-    }
-
   return 0;
 }
 

@@ -1,7 +1,7 @@
 /*
  * http-cgi.h - http cgi header file
  *
- * Copyright (C) 2000 Ela * Raimi
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: http-cgi.h,v 1.3 2000/06/16 15:36:15 ela Exp $
+ *
  */
 
 #ifndef __HTTP_CGI_H__

@@ -857,8 +857,8 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Check for existance of some useful functions.
 dnl
-AC_CHECK_FUNC(vsprintf)
-if test $ac_cv_func_vsprintf = yes; then
+AC_CHECK_FUNCS(vsprintf _vsprintf)
+if test $ac_cv_func_vsprintf = yes -o $ac_cv_func__vsprintf = yes; then
   AC_DEFINE(HAVE_VSPRINTF, 1, [Define if you have the vsprintf function.])
 else
   AC_MSG_ERROR([cannot compile without vsprintf])
@@ -866,17 +866,17 @@ else
 fi
 
 dnl
-dnl Some Unices (e.g. Dec Unix) dont implement snprintf().
+dnl Some Unices (e.g. Dec Unix) do not implement snprintf().
 dnl
-AC_CHECK_FUNC(snprintf)
-if test $ac_cv_func_snprintf = yes; then
+AC_CHECK_FUNCS(snprintf _snprintf)
+if test $ac_cv_func_snprintf = yes -o $ac_cv_func__snprintf = yes; then
   AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the snprintf function.])
 else
   AC_MSG_WARN([using function vsnprintf instead])
 fi
 
-AC_CHECK_FUNC(vsnprintf)
-if test $ac_cv_func_vsnprintf = yes; then
+AC_CHECK_FUNCS(vsnprintf _vsnprintf)
+if test $ac_cv_func_vsnprintf = yes -o $ac_cv_func__vsnprintf = yes; then
   AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the vsnprintf function.])
 else
   AC_MSG_WARN([using unsafe function vsprintf instead])
@@ -1041,7 +1041,7 @@ if test "$sizzle_src" != "no"; then
      --cache-file=$cache_file])
 
    AC_MSG_RESULT([*])
-   AC_MSG_RESULT([* You have to compile libsizzle before you can make serveez])
-   AC_MSG_RESULT([* goto $sizzle_dir and type make])
+   AC_MSG_RESULT([* You need to compile libsizzle seperately before you can])
+   AC_MSG_RESULT([* make serveez, goto \`$sizzle_dir' and type \`make'.])
    AC_MSG_RESULT([*])
 fi

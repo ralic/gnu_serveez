@@ -1,7 +1,7 @@
 /*
  * http-cache.h - http protocol cache header file
  *
- * Copyright (C) 2000 Ela * Raimi
+ * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: http-cache.h,v 1.2 2000/06/16 15:36:15 ela Exp $
+ *
  */
 
 #ifndef __HTTP_CACHE_H__
@@ -67,11 +70,11 @@ http_cache_t;
 extern http_cache_entry_t http_cache[MAX_CACHE];
 extern int cache_entries;
 
-void http_free_cache(void);
-void http_refresh_cache(http_cache_t *cache);
-int http_init_cache(char *file, http_cache_t *cache);
-int http_check_cache(char *file, http_cache_t *cache);
-int http_cache_write(socket_t sock);
-int http_cache_read(socket_t sock);
+void http_free_cache (void);
+void http_refresh_cache (http_cache_t *cache);
+int http_init_cache (char *file, http_cache_t *cache);
+int http_check_cache (char *file, http_cache_t *cache);
+int http_cache_write (socket_t sock);
+int http_cache_read (socket_t sock);
 
 #endif /* __HTTP_CACHE_H__ */

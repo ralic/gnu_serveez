@@ -20,9 +20,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: alloc.c,v 1.3 2000/06/16 15:36:15 ela Exp $
  *
  */
+
+#if HAVE_CONFIG_H
+# include <config.h>
+#endif 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,7 +41,7 @@ unsigned allocated_blocks = 0;
 #endif
 
 void * 
-xmalloc(unsigned size)
+xmalloc (unsigned size)
 {
   void *ptr;
 
@@ -46,13 +50,13 @@ xmalloc(unsigned size)
 #endif
 
 #if ENABLE_DEBUG
-  if((ptr = (void *) malloc(size + SIZEOF_UNSIGNED)) != NULL)
+  if ((ptr = (void *) malloc (size + 2*SIZEOF_UNSIGNED)) != NULL)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
       up = (unsigned *)ptr;
       *up = size;
-      up++;
+      up+=2;
       ptr = (void *)up;
       allocated_bytes += size;
 #endif /* ENABLE_HEAP_COUNT */
@@ -60,95 +64,96 @@ xmalloc(unsigned size)
 
       return ptr;
     }
-#else
-  if((ptr = (void *) malloc(size)) != NULL)
+#else /* not ENABLE_DEBUG */
+  if ((ptr = (void *) malloc (size)) != NULL)
     {
       return ptr;
     }
-#endif
+#endif /* not ENABLE_DEBUG */
   else
     {
-      log_printf(LOG_FATAL, "virtual memory exhausted\n");
-      exit(1);
+      log_printf (LOG_FATAL, "virtual memory exhausted\n");
+      exit (1);
     }
 }
 
 void *
-xrealloc(void * ptr, unsigned size)
+xrealloc (void * ptr, unsigned size)
 {
 #if ENABLE_DEBUG
   unsigned old_size;
   unsigned *up;
 #endif
 
-  if(ptr)
+  if (ptr)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
       /* get previous blocksize */
       up = (unsigned *)ptr;
-      up--;
+      up-=2;
       old_size = *up;
       ptr = (void *)up;
 #endif /* ENABLE_HEAP_COUNT */
 
-      if((ptr = (void *) realloc(ptr, size + SIZEOF_UNSIGNED)) != NULL)
+      if ((ptr = (void *) realloc (ptr, size + 2*SIZEOF_UNSIGNED)) != NULL)
 	{
 #if ENABLE_HEAP_COUNT
 	  /* save block size */
 	  up = (unsigned *)ptr;
 	  *up = size;
-	  up++;
+	  up+=2;
 	  ptr = (void *)up;
 	  allocated_bytes += size - old_size;
 #endif /* ENABLE_HEAP_COUNT */
 
 	  return ptr;
 	}
-#else
-      if((ptr = (void *) realloc(ptr, size)) != NULL)
+#else /* not ENABLE_DEBUG */
+      if ((ptr = (void *) realloc (ptr, size)) != NULL)
 	{
 	  return ptr;
 	}      
-#endif
+#endif /* not ENABLE_DEBUG */
       else
 	{
-	  log_printf(LOG_FATAL, "virtual memory exhausted\n");
-	  exit(1);
+	  log_printf (LOG_FATAL, "virtual memory exhausted\n");
+	  exit (1);
 	}
     }
   else
     {
-      ptr = xmalloc(size);
+      ptr = xmalloc (size);
       return ptr;
     }
 }
 
 void
-xfree(void * ptr)
+xfree (void * ptr)
 {
 #if ENABLE_DEBUG
   unsigned size;
   unsigned *up;
 #endif
 
-  if(ptr)
+  if (ptr)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
       /* get blocksize */
       up = (unsigned *)ptr;
-      up--;
+      up-=2;
       size = *up;
-      ptr = (void *)up;
+      assert (size);
       allocated_bytes -= size;
+      ptr = (void *)up;
+      assert (ptr);
 #endif /* ENABLE_HEAP_COUNT */
       allocated_blocks--;
-#endif
-      free(ptr);
+#endif /* ENABLE_DEBUG */
+      free (ptr);
     }
 }
-
 
 /*
  * Permanent memory allocators
@@ -156,29 +161,31 @@ xfree(void * ptr)
 void *
 xpmalloc (unsigned size)
 {
-  void * newmem = malloc (size);
-  if ( newmem == NULL ) {
-    log_printf(LOG_FATAL, "virtual memory exhausted\n");
-    exit(1);
-  }
+  void *newmem = malloc (size);
+  if (newmem == NULL) 
+    {
+      log_printf (LOG_FATAL, "virtual memory exhausted\n");
+      exit (1);
+    }
   return newmem;
 }
 
 void *
 xprealloc (void * ptr, unsigned size)
 {
-  void * newmem = realloc (ptr, size);
-  if ( newmem == NULL ) {
-    log_printf(LOG_FATAL, "virtual memory exhausted\n");
-    exit(1);
-  }
+  void *newmem = realloc (ptr, size);
+  if (newmem == NULL) 
+    {
+      log_printf (LOG_FATAL, "virtual memory exhausted\n");
+      exit (1);
+    }
   return newmem;
 }
 
 char *
 xpstrdup (char *src)
 {
-  char * dst = xpmalloc (strlen (src) + 1);
+  char *dst = xpmalloc (strlen (src) + 1);
 
   memcpy (dst, src, strlen (src) + 1);
 

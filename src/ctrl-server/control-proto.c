@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.5 2000/06/15 11:54:52 ela Exp $
+ * $Id: control-proto.c,v 1.6 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -363,7 +363,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
       else                                      strcat (proto, " post");
       if (xsock->userflags &  HTTP_FLAG_CGI)   strcat (proto, " CGI");
       else                                      strcat (proto, " cgi");
-      if (xsock->userflags &  HTTP_FLAG_FILE)  strcat (proto, " FILE");
+      if (xsock->flags &  SOCK_FLAG_FILE)  strcat (proto, " FILE");
       else                                      strcat (proto, " file");
       if (xsock->userflags &  HTTP_FLAG_CACHE) strcat (proto, " CACHE");
       else                                      strcat (proto, " cache");

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.3 2000/06/15 11:54:52 ela Exp $
+ * $Id: http-cgi.c,v 1.4 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -120,6 +120,7 @@ http_cgi_read (socket_t sock)
       log_printf(LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_CGI;
+      sock->flags &= ~SOCK_FLAG_RECV_PIPE;
       return -1;
     }
   
@@ -207,7 +208,9 @@ http_cgi_write (socket_t sock)
       log_printf(LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_POST;
+      sock->flags &= ~SOCK_FLAG_SEND_PIPE;
       sock->userflags |= HTTP_FLAG_CGI;
+      sock->flags |= SOCK_FLAG_RECV_PIPE;
       sock->read_socket = http_cgi_read;
       sock->write_socket = http_default_write;
     }
@@ -839,6 +842,7 @@ http_post_response(socket_t sock, char *request, int flags)
 #endif
   sock->write_socket = http_cgi_write;
   sock->disconnected_socket = http_disconnect;
+  sock->flags |= SOCK_FLAG_SEND_PIPE;
   sock->userflags |= HTTP_FLAG_POST;
 
   xfree(file);

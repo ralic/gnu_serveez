@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.4 2000/06/15 21:18:01 raimi Exp $
+ * $Id: http-proto.h,v 1.5 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -54,11 +54,11 @@ typedef struct
 } 
 http_config_t;
 
-/* Export the http server definition. */
+/* Export the http server definition to `server.c'. */
 extern server_definition_t http_server_definition;
 
 /*
- * This structure is used to process a HTTP connection. It will be stored
+ * This structure is used to process a http connection. It will be stored
  * within the original socket structure (sock->data).
  */
 typedef struct http_socket http_socket_t;
@@ -81,13 +81,12 @@ struct http_socket
 #define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */
 #define MAJOR_VERSION       0          /* MajorVersion index */
 #define MINOR_VERSION       1          /* MinorVersion index */
-#define MAX_HTTP_PROPERTIES 32         /* all HTTP properties */
+#define MAX_HTTP_PROPERTIES 32         /* all http properties */
 #define CRLF                0x0A0D     /* \r\n */
 #define CRLF2               0x0A0D0A0D /* \r\n\r\n */
-#define HTTP_REQUESTS       8          /* all kinds of requests */
-#define DEFAULT_CONTENT     0          /* the default content type */
-#define HTTP_TIMEOUT        15
-#define HTTP_MAXKEEPALIVE   10
+#define HTTP_REQUESTS       8          /* number of known request types */
+#define HTTP_TIMEOUT        15         /* default timeout value */
+#define HTTP_MAXKEEPALIVE   10         /* number of requests per connection */
 
 #define HTTP_VERSION "HTTP/1.0"        /* the current HTTP protocol version */
 
@@ -112,6 +111,7 @@ int http_global_finalize (void);
 int http_detect_proto (void *cfg, socket_t sock);
 int http_connect_socket (void *cfg, socket_t sock);
 
+/* internal protocol functions */
 int http_check_request (socket_t sock);
 int http_default_write (socket_t sock);
 int http_disconnect (socket_t sock);
@@ -121,9 +121,9 @@ char *http_find_property (http_socket_t *sock, char *key);
 int http_keep_alive (socket_t sock);
 void http_check_keepalive (socket_t sock);
 int http_read_types (http_config_t *cfg);
-void http_free_content_types (http_config_t *cfg);
+void http_free_types (http_config_t *cfg);
 
-/* HTTP response functions including their flags */
+/* http response functions including their flags */
 int http_get_response (socket_t sock, char *request, int flags);
 int http_head_response (socket_t sock, char *request, int flags);
 int http_default_response (socket_t sock, char *request, int flags);
@@ -131,17 +131,15 @@ int http_default_response (socket_t sock, char *request, int flags);
 #define HTTP_FLAG_CACHE  0x0001 /* use cache if possible */
 #define HTTP_FLAG_NOFILE 0x0002 /* do not send content, but header */
 #define HTTP_FLAG_SIMPLE 0x0004 /* HTTP/0.9 simple GET */     
-#define HTTP_FLAG_DONE   0x0008 /* HTTP request done */
-#define HTTP_FLAG_POST   0x0010 /* HTTP cgi pipe posting data */
-#define HTTP_FLAG_CGI    0x0020 /* HTTP cgi pipe getting data */
-#define HTTP_FLAG_FILE   0x0040 /* HTTP file response */
-#define HTTP_FLAG_KEEP   0x0080 /* Keep-Alive connection */
+#define HTTP_FLAG_DONE   0x0008 /* http request done */
+#define HTTP_FLAG_POST   0x0010 /* http cgi pipe posting data */
+#define HTTP_FLAG_CGI    0x0020 /* http cgi pipe getting data */
+#define HTTP_FLAG_KEEP   0x0080 /* keep alive connection */
 
-/* all of the additional HTTP flags */
+/* all of the additional http flags */
 #define HTTP_FLAG (HTTP_FLAG_DONE  | \
                    HTTP_FLAG_POST  | \
                    HTTP_FLAG_CGI   | \
-                   HTTP_FLAG_FILE  | \
                    HTTP_FLAG_CACHE | \
                    HTTP_FLAG_KEEP)
 

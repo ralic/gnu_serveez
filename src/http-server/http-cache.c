@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.3 2000/06/15 21:18:01 raimi Exp $
+ * $Id: http-cache.c,v 1.4 2000/06/16 15:36:15 ela Exp $
  *
  */
 
@@ -363,7 +363,6 @@ http_cache_read(socket_t sock)
 
       /* set flags */
       sock->userflags |= HTTP_FLAG_DONE;
-      sock->userflags &= ~HTTP_FLAG_FILE;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
 
