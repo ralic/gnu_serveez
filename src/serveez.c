@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.19 2000/12/10 12:26:38 ela Exp $
+ * $Id: serveez.c,v 1.20 2000/12/22 20:58:04 ela Exp $
  *
  */
 
@@ -90,7 +90,7 @@ version (void)
 static void 
 usage (void)
 {
-  fprintf (stdout, "usage: serveez [OPTION]...\n"
+  fprintf (stdout, "Usage: serveez [OPTION]...\n"
 	   "\n"
 #if HAVE_GETOPT_LONG
  "  -h, --help               display this help and exit\n"
@@ -114,7 +114,7 @@ usage (void)
  "  -d           start as daemon in background\n"
 #endif /* not HAVE_GETOPT_LONG */
  "\n"
- "See README for reporting bugs.\n");
+ "Report bugs to <bug-serveez@gnu.org>.\n");
 }
 
 #if HAVE_GETOPT_LONG
