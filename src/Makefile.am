@@ -67,7 +67,7 @@ serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
 	serveez.cfg $(GUILE_DEPENDENCY)
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
-	libserveez/libserveez.la
+	libserveez/libserveez.la $(SERVEEZLIBS)
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS)
 INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)

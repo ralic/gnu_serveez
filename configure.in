@@ -89,11 +89,13 @@ EXTRALIBS=""
 CPPEXTRAFLAGS=""
 SERVERLIBS=""
 SERVERDIRS=""
+SERVEEZLIBS=""
 
 AC_SUBST(CPPEXTRAFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(SERVERLIBS)
 AC_SUBST(SERVERDIRS)
+AC_SUBST(SERVEEZLIBS)
 
 dnl ----------------------------------------------------------------------
 
@@ -911,7 +913,7 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   mswsock.h grp.h mach-o/dyld.h zlib.h bzlib.h)
 AC_HEADER_DIRENT
 
-SERVEEZLIBS=""
+LIBSERVEEZLIBS=""
 
 dnl
 dnl Checking for shared library loading interface. 
@@ -921,17 +923,17 @@ have_dlopen="no"
 AC_CHECK_FUNC(dlopen, have_dlopen="yes",
   AC_CHECK_LIB(dl, dlopen,
     have_dlopen="yes"
-    SERVEEZLIBS="$SERVEEZLIBS -ldl"),
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldl"),
   AC_CHECK_LIB(svld, dlopen,
     have_dlopen="yes"
-    SERVEEZLIBS="$SERVEEZLIBS -lsvdl"))
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lsvdl"))
 
 if test $have_dlopen = "yes" ; then
   AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
 else
   AC_CHECK_LIB(dld, dld_link,
     AC_DEFINE(HAVE_DLD_LINK, 1, [Define if you have the dld_link function.])
-    SERVEEZLIBS="$SERVEEZLIBS -ldld")
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld")
 fi
 unset have_dlopen
 
@@ -957,7 +959,7 @@ if test $have_bz2 != no ; then
   fi
 fi
 
-AC_SUBST(SERVEEZLIBS)
+AC_SUBST(LIBSERVEEZLIBS)
 AC_SUBST(CODECLIBS)
 
 dnl ----------------------------------------------------------------------
