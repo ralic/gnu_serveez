@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.h,v 1.4 2001/11/19 13:31:50 ela Exp $
+ * $Id: guile-bin.h,v 1.5 2002/05/24 12:51:13 ela Exp $
  *
  */
 
@@ -27,6 +27,7 @@
 
 void guile_bin_init (void);
 int guile_bin_check (SCM);
+SCM guile_garbage_to_bin (void *, int);
 SCM guile_data_to_bin (void *, int);
 void *guile_bin_to_data (SCM, int *);
 

@@ -1,3 +1,19 @@
+2002-05-24  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/icecast-server.scm (icecast-server): New
+	icecast compatible guile server added.
+
+	* guile-server.c (guile_func_trigger_cond, 
+	guile_func_trigger_func): New wrappers for the additional
+	socket callbacks.
+
+	* guile-bin.c (guile_garbage_to_bin): Converts data buffer 
+	allocated by scm_must_malloc() into a binary smob.
+
+	* guile-api.c (svz:read-file, svz:sock:receive-buffer-size, 
+	svz:sock:send-buffer-size, svz:sock:trigger-condition, 
+	svz:sock:trigger): New Guile procedures.
+
 2002-05-05  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.c (main): Close stdin, stdout, stderr if these are 

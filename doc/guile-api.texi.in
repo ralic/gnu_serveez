@@ -139,11 +139,15 @@ SVZ:SOCK:PRINT_DEFUN
 SVZ:SOCK:FINAL-PRINT_DEFUN
 SVZ:SOCK:NO-DELAY_DEFUN
 SVZ:SOCK:SEND-BUFFER_DEFUN
+SVZ:SOCK:SEND-BUFFER-SIZE_DEFUN
 SVZ:SOCK:RECEIVE-BUFFER_DEFUN
+SVZ:SOCK:RECEIVE-BUFFER-SIZE_DEFUN
 SVZ:SOCK:RECEIVE-BUFFER-REDUCE_DEFUN
 SVZ:SOCK:CONNECT_DEFUN
 SVZ:SOCK:DISCONNECTED_DEFUN
 SVZ:SOCK:KICKED_DEFUN
+SVZ:SOCK:TRIGGER_DEFUN
+SVZ:SOCK:TRIGGER-CONDITION_DEFUN
 SVZ:SOCK:IDLE_DEFUN
 SVZ:SOCK:IDLE-COUNTER_DEFUN
 SVZ:SOCK:DATA_DEFUN
@@ -155,6 +159,7 @@ SVZ:SOCK:REMOTE-ADDRESS_DEFUN
 SVZ:SOCK:FIND_DEFUN
 SVZ:SOCK:IDENT_DEFUN
 SVZ:SOCK:PROTOCOL_DEFUN
+SVZ:READ-FILE_DEFUN
 
 SVZ:HTONS_DEFUN
 SVZ:NTOHS_DEFUN
@@ -442,4 +447,18 @@ callback is executed when it drops to zero.  The @code{idle} callback can
 set its socket's @code{idle-counter} to some value with the procedure
 @code{(svz:sock:idle-counter)} and thus re-schedule itself for a later
 task.  You can set up this callback with @code{(svz:sock:idle)}.
+
+@item (trigger-condition #<svz-socket>)
+This callback is run once every server loop for the socket structure.
+If you return @code{#f} nothing else is happening.  Otherwise the 
+@code{trigger} callback will be run immediately.  You can set up the 
+callback using the procedure @code{(svz:sock:trigger-condition)}.
+
+@item (trigger #<svz-socket>)
+The @code{trigger} callback is run when the @code{trigger-condition} 
+returns @code{#t}.  The callback can be set up with the procedure 
+@code{(svz:sock:trigger)}.  Returning a non-zero value shuts the 
+connection down.  A zero return value indicates success.  This callback
+can be used to perform connection related updates, e.g. you can ensure
+a certain send buffer fill.
 @end table

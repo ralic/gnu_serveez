@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.5 2001/05/22 21:06:42 ela Exp $
+ * $Id: server-loop.c,v 1.6 2002/05/24 12:51:13 ela Exp $
  *
  */
 
@@ -100,7 +100,6 @@ svz_check_sockets_select (void)
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
 
-
       /* If socket is a file descriptor, then read it here. */
       if (sock->flags & SOCK_FLAG_FILE)
 	{
@@ -108,6 +107,13 @@ svz_check_sockets_select (void)
 	    if (sock->read_socket (sock))
 	      svz_sock_schedule_for_shutdown (sock);
 	}
+
+      /* Issue the trigger funcionality. */
+      if (sock->trigger_cond)
+	if (sock->trigger_cond (sock))
+	  if (sock->trigger_func)
+	    if (sock->trigger_func (sock))
+	      svz_sock_schedule_for_shutdown (sock);
 
       /* Handle pipes. */
       if (sock->flags & SOCK_FLAG_PIPE)
@@ -400,6 +406,13 @@ svz_check_sockets_poll (void)
 	      svz_sock_schedule_for_shutdown (sock);
 	}
 
+      /* issue the trigger funcionality */
+      if (sock->trigger_cond)
+	if (sock->trigger_cond (sock))
+	  if (sock->trigger_func)
+	    if (sock->trigger_func (sock))
+	      svz_sock_schedule_for_shutdown (sock);
+
       /* process pipes */
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
@@ -610,6 +623,13 @@ svz_check_sockets_MinGW (void)
 	    if (sock->read_socket (sock))
 	      svz_sock_schedule_for_shutdown (sock);
 	}
+
+      /* Issue the trigger funcionality. */
+      if (sock->trigger_cond)
+	if (sock->trigger_cond (sock))
+	  if (sock->trigger_func)
+	    if (sock->trigger_func (sock))
+	      svz_sock_schedule_for_shutdown (sock);
 
       /* Handle pipes. */
       if (sock->flags & SOCK_FLAG_PIPE)

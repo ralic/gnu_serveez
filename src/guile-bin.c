@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.20 2002/03/22 08:05:59 ela Exp $
+ * $Id: guile-bin.c,v 1.21 2002/05/24 12:51:13 ela Exp $
  *
  */
 
@@ -510,6 +510,22 @@ guile_data_to_bin (void *data, int size)
   bin->size = size;
   bin->data = data;
   bin->garbage = 0;
+  SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
+}
+
+/* Converts the data pointer @var{data} with a size of @var{size} bytes
+   into a binary smob which is marked as garbage.  This means the data 
+   pointer must be allocated by @code{scm_must_malloc()} or 
+   @code{scm_must_realloc()}. */
+SCM
+guile_garbage_to_bin (void *data, int size)
+{
+  guile_bin_t *bin;
+     
+  bin = MAKE_BIN_SMOB ();
+  bin->size = size;
+  bin->data = data;
+  bin->garbage = 1;
   SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
 }
 

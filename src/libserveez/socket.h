@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.18 2002/02/03 09:34:05 ela Exp $
+ * $Id: socket.h,v 1.19 2002/05/24 12:51:13 ela Exp $
  *
  */
 
@@ -174,6 +174,17 @@ struct svz_socket
    * equals the one signaled by the internal signal handler.
    */
   int (* child_died) (svz_socket_t *sock);
+
+  /*
+   * Called if TRIGGER_COND returned non-zero.
+   */
+  int (* trigger_func) (svz_socket_t *sock);
+
+  /*
+   * TRIGGER_COND is called once every server loop.  If it returns 
+   * non-zero TRIGGER_FUNC is run.
+   */
+  int (* trigger_cond) (svz_socket_t *sock);
 
   /*
    * IDLE_FUNC gets called from the periodic task scheduler.  Whenever

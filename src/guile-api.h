@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.9 2002/05/15 14:00:46 ela Exp $
+ * $Id: guile-api.h,v 1.10 2002/05/24 12:51:13 ela Exp $
  *
  */
 
@@ -175,6 +175,9 @@
 #define SCM_SMOB_DATA(data) SCM_CDR (data)
 #define gh_scm2chars(obj, lenp) guile_to_string (obj)
 #define HAVE_OLD_SMOBS 1
+#endif
+#ifndef SCM_FPORT_FDES
+#define SCM_FPORT_FDES(port) fileno ((FILE *) SCM_STREAM (port))
 #endif
 
 #endif /* not __GUILE_API_H__ */

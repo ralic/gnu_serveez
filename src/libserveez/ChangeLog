@@ -1,3 +1,15 @@
+2002-05-24  [ Ela ]  <ela@lkcc.org>
+
+	* socket.h (struct svz_socket): Added trigger function and
+	trigger condition function callback to socket structure.
+
+	* socket.c (svz_sock_detect_proto): Checks whether the 
+	check_request callback has been modified in connect_socket or
+	detect_proto.
+
+	* server-loop.c (svz_check_sockets_select): Added trigger
+	functionality.
+
 2002-05-06  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (svz_coserver_closeall): Fixed a segfault

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.25 2002/05/15 14:00:46 ela Exp $
+ * $Id: guile-api.c,v 1.26 2002/05/24 12:51:12 ela Exp $
  *
  */
 
@@ -52,6 +52,12 @@
 #endif
 #if HAVE_RPC_PMAP_PROT_H
 # include <rpc/pmap_prot.h>
+#endif
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#if HAVE_IO_H
+# include <io.h>
 #endif
 
 #if GUILE_SOURCE
@@ -275,6 +281,29 @@ guile_sock_receive_buffer (SCM sock)
 }
 #undef FUNC_NAME
 
+/* Returns the current receive buffers size and fill status in bytes of 
+   the socket @var{sock} as a pair of exact numbers.  If the optional 
+   argument @var{size} is given the receive buffer will be set to the 
+   specified size in bytes. */
+#define FUNC_NAME "svz:sock:receive-buffer-size"
+static SCM
+guile_sock_receive_buffer_size (SCM sock, SCM size)
+{
+  svz_socket_t *xsock;
+  int len;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  if (!SCM_UNBNDP (size))
+    {
+      SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
+      len = SCM_NUM2INT (SCM_ARG2, size);
+      svz_sock_resize_buffers (xsock, xsock->send_buffer_size, len);
+    }
+  return scm_cons (scm_int2num (xsock->recv_buffer_size), 
+		   scm_int2num (xsock->recv_buffer_fill));
+}
+#undef FUNC_NAME
+
 /* Return the send buffer of the socket @var{sock} as a binary smob. */
 #define FUNC_NAME "svz:sock:send-buffer"
 static SCM
@@ -283,6 +312,29 @@ guile_sock_send_buffer (SCM sock)
   svz_socket_t *xsock;
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   return guile_data_to_bin (xsock->send_buffer, xsock->send_buffer_fill);
+}
+#undef FUNC_NAME
+
+/* This procedure returns the current send buffer size and fill status in 
+   bytes of the socket @var{sock} as a pair of exact numbers.  If the 
+   optional argument @var{size} is given the send buffer will be set to 
+   the specified size in bytes. */
+#define FUNC_NAME "svz:sock:send-buffer-size"
+static SCM
+guile_sock_send_buffer_size (SCM sock, SCM size)
+{
+  svz_socket_t *xsock;
+  int len;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  if (!SCM_UNBNDP (size))
+    {
+      SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
+      len = SCM_NUM2INT (SCM_ARG2, size);
+      svz_sock_resize_buffers (xsock, len, xsock->recv_buffer_size);
+    }
+  return scm_cons (scm_int2num (xsock->send_buffer_size), 
+		   scm_int2num (xsock->send_buffer_fill));
 }
 #undef FUNC_NAME
 
@@ -540,6 +592,23 @@ MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
    closed by Serveez intentionally.  */
 #define FUNC_NAME "svz:sock:kicked"
 MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
+#undef FUNC_NAME
+
+/* This procedure sets the @code{trigger-condition} callback for the socket
+   structure @var{sock} to the Guile procedure @var{proc}.  It returns the
+   previously set procedure if available.  The callback is run once every
+   server loop indicating whether the @code{trigger} callback should be
+   run or not. */
+#define FUNC_NAME "svz:sock:trigger-condition"
+MAKE_SOCK_CALLBACK (trigger_cond, "trigger-condition")
+#undef FUNC_NAME
+
+/* Sets the @code{trigger} callback of the socket structure @var{sock} to
+   the Guile procedure @var{proc} and returns any previously set procedure.
+   The callback is run when the @code{trigger-condition} callback returned
+   @code{#t}. */
+#define FUNC_NAME "svz:sock:trigger"
+MAKE_SOCK_CALLBACK (trigger_func, "trigger")
 #undef FUNC_NAME
 
 /* This procedure sets the @code{idle} callback of the socket structure
@@ -961,6 +1030,60 @@ guile_sock_ident (SCM sock)
 }
 #undef FUNC_NAME
 
+/* This procedure returns either a binary smob containing a data block read
+   from the open input port @var{port} with a maximum number of @var{size}
+   bytes or the end-of-file object if the underlying ports end has been 
+   reached.  The size of the returned binary smob may be less than the 
+   requested size @var{size} if it exceed the current size of the given port
+   @var{port}.  The procedure throws an exception if an error occurred while
+   reading from the port. */
+#define FUNC_NAME "svz:read-file"
+static SCM
+guile_read_file (SCM port, SCM size)
+{
+  int fdes, len, ret;
+  void *data;
+
+  /* Check argument list. */
+  SCM_ASSERT_TYPE (SCM_NIMP (port) && SCM_FPORTP (port) && 
+		   SCM_OPINFPORTP (port),
+                   port, SCM_ARG1, FUNC_NAME, "open input port");
+  SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
+
+  /* Get underlying file descriptor. */
+  fdes = SCM_FPORT_FDES (port);
+
+  if ((len = SCM_NUM2INT (SCM_ARG1, size)) <= 0)
+    SCM_OUT_OF_RANGE (SCM_ARG2, size);
+
+  /* Allocate necessary data. */
+  data = (unsigned char *) scm_must_malloc (len, "svz-binary-data");
+
+  /* Read from file descriptor and evaluate return value. */
+  if ((ret = read (fdes, data, len)) < 0)
+    {
+      scm_must_free (data);
+      scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
+			scm_listify (scm_makfrom0str (strerror (errno)),
+				     scm_int2num (fdes), size, SCM_UNDEFINED),
+			errno);
+    }
+  else if (ret == 0)
+    {
+      scm_must_free (data);
+      return SCM_EOF_VAL;
+    }
+  else if (ret != len)
+    {
+      data = (unsigned char *) 
+	scm_must_realloc (data, len, ret, "svz-binary-data");
+    }
+
+  /* Finally return binary smob. */
+  return guile_garbage_to_bin (data, ret);
+}
+#undef FUNC_NAME
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
@@ -1006,8 +1129,12 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
   scm_c_define_gsubr ("svz:server:listeners", 1, 0, 0, guile_server_listeners);
   scm_c_define_gsubr ("svz:sock:send-buffer", 1, 0, 0, guile_sock_send_buffer);
+  scm_c_define_gsubr ("svz:sock:send-buffer-size",
+		      1, 1, 0, guile_sock_send_buffer_size);
   scm_c_define_gsubr ("svz:sock:receive-buffer",
 		      1, 0, 0, guile_sock_receive_buffer);
+  scm_c_define_gsubr ("svz:sock:receive-buffer-size",
+		      1, 1, 0, guile_sock_receive_buffer_size);
   scm_c_define_gsubr ("svz:sock:receive-buffer-reduce",
 		      1, 1, 0, guile_sock_receive_buffer_reduce);
   scm_c_define_gsubr ("svz:sock:remote-address",
@@ -1022,7 +1149,11 @@ guile_api_init (void)
 		      2, 1, 0, guile_coserver_rdns);
   scm_c_define_gsubr ("svz:coserver:ident",
 		      2, 1, 0, guile_coserver_ident);
+  scm_c_define_gsubr ("svz:read-file",
+		      2, 0, 0, guile_read_file);
 
+  DEFINE_SOCK_CALLBACK ("svz:sock:trigger-condition",trigger_cond);
+  DEFINE_SOCK_CALLBACK ("svz:sock:trigger",trigger_func);
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected",disconnected_socket);
   DEFINE_SOCK_CALLBACK ("svz:sock:kicked",kicked_socket);
   DEFINE_SOCK_CALLBACK ("svz:sock:idle",idle_func);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.45 2002/03/22 08:05:59 ela Exp $
+ * $Id: guile-server.c,v 1.46 2002/05/24 12:51:13 ela Exp $
  *
  */
 
@@ -743,6 +743,34 @@ guile_func_idle_func (svz_socket_t *sock)
   if (!SCM_UNBNDP (idle_func))
     {
       ret = guile_call (idle_func, 1, MAKE_SMOB (svz_socket, sock));
+      return guile_integer (SCM_ARGn, ret, -1);
+    }
+  return 0;
+}
+
+/* Wrapper for the socket trigger condition func callback. */
+static int
+guile_func_trigger_cond (svz_socket_t *sock)
+{
+  SCM ret, trigger_cond = guile_sock_getfunction (sock, "trigger-condition");
+
+  if (!SCM_UNBNDP (trigger_cond))
+    {
+      ret = guile_call (trigger_cond, 1, MAKE_SMOB (svz_socket, sock));
+      return SCM_NFALSEP (ret);
+    }
+  return 0;
+}
+
+/* Wrapper for the socket trigger func callback. */
+static int
+guile_func_trigger_func (svz_socket_t *sock)
+{
+  SCM ret, trigger_func = guile_sock_getfunction (sock, "trigger");
+
+  if (!SCM_UNBNDP (trigger_func))
+    {
+      ret = guile_call (trigger_func, 1, MAKE_SMOB (svz_socket, sock));
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
