@@ -1,7 +1,7 @@
 /*
  * guile-api.h - compatibility and miscellaneous guile functionality
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.7 2002/02/12 11:45:55 ela Exp $
+ * $Id: guile-api.h,v 1.8 2002/03/03 08:57:52 ela Exp $
  *
  */
 
@@ -34,6 +34,17 @@
 #define scm_out_of_range_pos(_subr, _bad, _pos) \
     scm_out_of_range (_subr, _bad)
 #endif /* not SCM_ASSERT_TYPE */
+
+/* Redefinition of the string and symbol predicates because they segfault
+   for Guile 1.3.4 and pre version when passing immediate values. */
+#ifdef SCM_STRINGP
+#undef SCM_STRINGP
+#endif
+#define SCM_STRINGP(obj) SCM_NFALSEP (scm_string_p (obj))
+#ifdef SCM_SYMBOLP
+#undef SCM_SYMBOLP
+#endif
+#define SCM_SYMBOLP(obj) SCM_NFALSEP (scm_symbol_p (obj))
 
 /* Compatibility definitions for various Guile versions.  These definitions
    are mainly due to the fact that the gh interface is deprecated in newer
