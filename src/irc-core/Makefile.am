@@ -25,9 +25,9 @@
 
 noinst_LIBRARIES = libirccore.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libirccore_a_SOURCES = \
 	irc-core.c irc-core.h
+
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

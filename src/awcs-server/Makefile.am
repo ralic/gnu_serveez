@@ -25,11 +25,9 @@
 
 noinst_LIBRARIES = libawcs.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libawcs_a_SOURCES = \
 	awcs-proto.c awcs-proto.h
 
-
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

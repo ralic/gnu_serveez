@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.8 2001/05/21 21:20:41 ela Exp $
+ * $Id: core.c,v 1.9 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -273,6 +273,10 @@ svz_inet_ntoa (unsigned long ip)
 int
 svz_inet_aton (char *str, struct sockaddr_in *addr)
 {
+#ifdef __MINGW32__
+  int len;
+#endif
+
   /* Handle "*" special: use INADDR_ANY for it */
   if (!strcmp (str, "*"))
     {
@@ -287,7 +291,7 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
       return -1;
     }
 #elif defined (__MINGW32__)
-  int len = sizeof (struct sockaddr_in);
+  len = sizeof (struct sockaddr_in);
   if (WSAStringToAddress (str, AF_INET, NULL, 
                           (struct sockaddr *) addr, &len) != 0)
     {
@@ -365,7 +369,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
       ret = 0;
     }
 #else
-  ret = sendfile (out_fd, in_fd, (off_t) offset, count);
+  ret = sendfile (out_fd, in_fd, (off_t *) offset, count);
 #endif
   return ret;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.6 2001/05/19 23:04:58 ela Exp $
+ * $Id: windoze.c,v 1.7 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -179,7 +179,7 @@ windoze_thread (char *prog)
   windoze_icon = LoadIcon (GetModuleHandle (prog), "SERVEEZ_ICON_TINY");
   if (windoze_icon == NULL)
     {
-      log_printf (LOG_ERROR, "LoadIcon: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "LoadIcon: %s\n", SYS_ERROR);
       windoze_icon = LoadIcon (NULL, IDI_WINLOGO);
     }
 
@@ -192,7 +192,7 @@ windoze_thread (char *prog)
   /* register window class */
   if ((atom = RegisterClass (&class)) == 0)
     {
-      log_printf (LOG_ERROR, "RegisterClass: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegisterClass: %s\n", SYS_ERROR);
       ExitThread (0);
     }
 
@@ -201,7 +201,7 @@ windoze_thread (char *prog)
 		       NULL, NULL, GetModuleHandle (prog), NULL);
   if (hwnd == NULL)
     {
-      log_printf (LOG_ERROR, "CreateWindow: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "CreateWindow: %s\n", SYS_ERROR);
       ExitThread (0);
     }
 
@@ -233,11 +233,11 @@ windoze_thread (char *prog)
   /* destroy window and window class */
   if (!DestroyWindow (hwnd))
     {
-      log_printf (LOG_ERROR, "DestroyWindow: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "DestroyWindow: %s\n", SYS_ERROR);
     }
   if (!UnregisterClass (SERVEEZ_CLASS, GetModuleHandle (prog)))
     {
-      log_printf (LOG_ERROR, "UnRegisterClass: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "UnRegisterClass: %s\n", SYS_ERROR);
     }
 
   return 0;
@@ -258,14 +258,14 @@ svz_windoze_start_daemon (char *prog)
 	0, 
 	&windoze_daemon_id)) == NULL)
     {
-      log_printf (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
       return -1;
     }
 
   /* detach program from console */
   if (!FreeConsole ())
     {
-      log_printf (LOG_ERROR, "FreeConsole: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "FreeConsole: %s\n", SYS_ERROR);
       return -1;
     }
 
@@ -294,14 +294,14 @@ svz_windoze_stop_daemon (void)
   ret = WaitForSingleObject (windoze_daemon_handle, INFINITE);
   if (ret != WAIT_OBJECT_0)
     {
-      log_printf (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
       return -1;
     }
 
   /* close thread handle */
   if (!CloseHandle (windoze_daemon_handle))
     {
-      log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       return -1;
     }
   return 0;
@@ -320,7 +320,7 @@ svz_windoze_get_reg_unsigned (HKEY key, char *subkey,
 
   if (RegOpenKeyEx (key, subkey, 0, KEY_QUERY_VALUE, &reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
       return def;
     }
 
@@ -329,13 +329,13 @@ svz_windoze_get_reg_unsigned (HKEY key, char *subkey,
   if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
 		       (BYTE *) &value, &size) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
       value = def;
     }
 
   if (RegCloseKey (reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
     }
   return value;
 }
@@ -352,7 +352,7 @@ svz_windoze_set_reg_unsigned (HKEY key, char *subkey,
 
   if (RegOpenKeyEx (key, subkey, 0, KEY_SET_VALUE, &reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
       return;
     }
 
@@ -361,12 +361,12 @@ svz_windoze_set_reg_unsigned (HKEY key, char *subkey,
   if (RegSetValueEx (reg, subsubkey, 0, type, 
 		     (BYTE *) &value, size) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
     }
 
   if (RegCloseKey (reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
     }
 }
 
@@ -382,7 +382,7 @@ svz_windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
 
   if (RegOpenKeyEx (key, subkey, 0, KEY_QUERY_VALUE, &reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
       return def;
     }
 
@@ -391,13 +391,13 @@ svz_windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
   if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
 		       (BYTE *) value, &size) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
       strcpy (value, def);
     }
 
   if (RegCloseKey (reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
     }
   return value;
 }
@@ -414,7 +414,7 @@ svz_windoze_set_reg_string (HKEY key, char *subkey,
 
   if (RegOpenKeyEx (key, subkey, 0, KEY_SET_VALUE, &reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
       return;
     }
 
@@ -423,12 +423,12 @@ svz_windoze_set_reg_string (HKEY key, char *subkey,
   if (RegSetValueEx (reg, subsubkey, 0, type, 
 		     (BYTE *) value, size) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
     }
 
   if (RegCloseKey (reg) != ERROR_SUCCESS)
     {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
     }
 }
 

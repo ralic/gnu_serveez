@@ -18,12 +18,15 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.3 2001/05/19 23:04:57 ela Exp $
+ * $Id: defines.h,v 1.4 2001/05/22 21:06:41 ela Exp $
  *
  */
 
 #ifndef __DEFINES_H__
 #define __DEFINES_H__ 1
+
+/* Depending on the kind of build include either <config.h> (for internal
+   build) or <svzconfig.h> for the external usage of the core library. */
 
 #if defined (HAVE_CONFIG_H) && defined (__BUILD_SVZ_LIBRARY__)
 # include <config.h>
@@ -68,6 +71,13 @@
 # define SERVEEZ_API __declspec (dllimport)
 #else
 # define SERVEEZ_API
+#endif
+
+/* When building the core library or any outside module on Win32 systems
+   include the Winsock interface here. */
+
+#ifdef __MINGW32__
+# include <winsock2.h>
 #endif
 
 #endif /* !__DEFINES_H__ */

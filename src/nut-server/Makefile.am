@@ -24,10 +24,6 @@
 
 noinst_LIBRARIES = libnut.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libnut_a_SOURCES = \
 	gnutella.c gnutella.h \
 	nut-transfer.c nut-transfer.h \
@@ -35,3 +31,7 @@ libnut_a_SOURCES = \
 	nut-core.c nut-core.h \
 	nut-hostlist.c nut-hostlist.h \
 	nut-request.c nut-request.h
+
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

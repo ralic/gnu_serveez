@@ -25,11 +25,9 @@
 
 noinst_LIBRARIES = libfakeident.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
-MAINTAINERCLEANFILES = Makefile.in
-
 libfakeident_a_SOURCES = \
         ident-proto.h ident-proto.c
+
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

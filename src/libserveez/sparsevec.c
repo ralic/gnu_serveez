@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sparsevec.c,v 1.1 2001/03/08 22:15:14 raimi Exp $
+ * $Id: sparsevec.c,v 1.2 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -197,11 +197,12 @@ svz_spvec_analyse (svz_spvec_t *spvec)
       fprintf (stdout, 
 	       "chunk %06lu at %p, ofs: %06lu, size: %02lu, fill: %08lX, "
 	       "prev: %p, next %p\n",
-	       n + 1, chunk, chunk->offset, chunk->size, chunk->fill, 
-	       chunk->prev, chunk->next);
+	       n + 1, (void *) chunk, chunk->offset, chunk->size, chunk->fill, 
+	       (void *) chunk->prev, (void *) chunk->next);
     }
   fprintf (stdout, "length: %lu, size: %lu, first: %p, last: %p\n", 
-	   spvec->length, spvec->size, spvec->first, spvec->last);
+	   spvec->length, spvec->size, 
+	   (void *) spvec->first, (void *) spvec->last);
 }
 
 /*

@@ -46,7 +46,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I "../.." /I ".." /D "NDEBUG" /D "_WINDOWS" /D "__SERVEEZ_EXPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I "../.." /I ".." /D "NDEBUG" /D "_WINDOWS" /D "__SERVEEZ_EXPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__BUILD_SVZ_LIBRARY__" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
@@ -73,7 +73,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "../.." /I ".." /D "_DEBUG" /D "_WINDOWS" /D "__SERVEEZ_EXPORT__" /D "ENABLE_DEBUG" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "../.." /I ".." /D "_DEBUG" /D "ENABLE_DEBUG" /D "_WINDOWS" /D "__SERVEEZ_EXPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__BUILD_SVZ_LIBRARY__" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
@@ -99,6 +99,10 @@ SOURCE=.\alloc.c
 # Begin Source File
 
 SOURCE=.\array.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\binding.c
 # End Source File
 # Begin Source File
 
@@ -139,6 +143,10 @@ SOURCE=.\interface.c
 # Begin Source File
 
 SOURCE=".\pipe-socket.c"
+# End Source File
+# Begin Source File
+
+SOURCE=.\portcfg.c
 # End Source File
 # Begin Source File
 

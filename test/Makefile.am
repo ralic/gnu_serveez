@@ -4,7 +4,7 @@
 #
 # Automake input file for the test directory.
 #
-# Copyright (C)  2000 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,21 +32,26 @@ spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c hash.c
 array_test_SOURCES = array-test.c test.c test.h alloc.c array.c hash.c
 vector_test_SOURCES = vector-test.c test.c test.h alloc.c vector.c hash.c
 
-AM_CFLAGS = -I$(top_srcdir)/src
+INCLUDES = -I$(top_srcdir)/src
 
-%.c: $(top_srcdir)/src/libserveez/%.c
+alloc.c: $(top_srcdir)/src/libserveez/alloc.c
 	cp -p $< $(srcdir)/$@
 
-distclean-local:
-	rm -f *\~ *.orig *.rej
+hash.c: $(top_srcdir)/src/libserveez/hash.c
+	cp -p $< $(srcdir)/$@
+
+sparsevec.c: $(top_srcdir)/src/libserveez/sparsevec.c
+	cp -p $< $(srcdir)/$@
+
+array.c: $(top_srcdir)/src/libserveez/array.c
+	cp -p $< $(srcdir)/$@
+
+vector.c: $(top_srcdir)/src/libserveez/vector.c
+	cp -p $< $(srcdir)/$@
 
 dist-hook:
 	rm -f $(distdir)/alloc.c $(distdir)/hash.c $(distdir)/sparsevec.c \
 		$(distdir)/array.c $(distdir)/vector.c
 
-CLEANFILES = alloc.c hash.c sparsevec.c array.c vector.c
-
+CLEANFILES = *~ *.orig *.rej alloc.c hash.c sparsevec.c array.c vector.c
 MAINTAINERCLEANFILES = Makefile.in
-
-SUFFIXES = .c
-

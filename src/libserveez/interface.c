@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.4 2001/04/01 13:32:29 ela Exp $
+ * $Id: interface.c,v 1.5 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -511,7 +511,7 @@ svz_interface_collect (void)
 #endif
 	  svz_interface_add (index, ifr->ifr_name, 
 			     (*(struct sockaddr_in *) 
-			      &ifr2.ifr_addr).sin_addr.s_addr);
+			      (void *) &ifr2.ifr_addr).sin_addr.s_addr);
 	}
     }
   

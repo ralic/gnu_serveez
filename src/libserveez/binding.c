@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.7 2001/05/19 23:04:57 ela Exp $
+ * $Id: binding.c,v 1.8 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -30,7 +30,14 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/socket.h>
+
+#ifndef __MINGW32__
+# include <sys/socket.h>
+#endif
+
+#ifdef __MINGW32__
+# include <winsock2.h>
+#endif
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"

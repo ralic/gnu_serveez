@@ -27,7 +27,7 @@ AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
-	logo.jpg logosmall.jpg serveez-api.texi.in
+	logo.jpg logosmall.jpg serveez-api.texi.in serveez-api.awk
 CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* \
 	serveez-api.texi $(SED_FILE) $(HTML_DIR)/*.html
 MAINTAINERCLEANFILES = Makefile.in
@@ -70,7 +70,7 @@ serveez-api.texi: serveez-api.texi.in
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
-	      $(AWK) -f serveez-api.awk $$dir/$$file >> $(SED_FILE); fi \
+	      $(AWK) -f $(srcdir)/serveez-api.awk $$dir/$$file >> $(SED_FILE); fi \
 	  done \
 	done
 	$(SED) -f $(SED_FILE) < $< > $@

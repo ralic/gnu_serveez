@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.11 2001/05/19 23:04:57 ela Exp $
+ * $Id: server-socket.c,v 1.12 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -273,7 +273,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
       return 0;
     }
 
-  if (svz_sock_connections >= svz_config.max_sockets)
+  if ((SOCKET) svz_sock_connections >= svz_config.max_sockets)
     {
       svz_log (LOG_WARNING, "socket descriptor exceeds "
 	       "socket limit %d\n", svz_config.max_sockets);

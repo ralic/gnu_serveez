@@ -1,3 +1,10 @@
+2001-05-22  [ Ela ]  <ela@lkcc.org>
+
+	* Wiped out all references to sizzle within the sources. 
+	Documentation is still waiting for that...
+	* Made a lot of changes in order to get the package compiled
+	under Win32 and GNU/Linux-ia64.
+
 2001-05-18  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Let the `configure' script create a 

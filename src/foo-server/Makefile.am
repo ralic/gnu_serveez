@@ -25,10 +25,9 @@
 
 noinst_LIBRARIES = libfoo.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libfoo_a_SOURCES = \
 	foo-proto.h foo-proto.c
 
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

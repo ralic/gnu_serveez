@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.5 2001/05/19 23:04:57 ela Exp $
+ * $Id: hash.c,v 1.6 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -190,13 +190,17 @@ svz_hash_create (int size)
 /*
  * Destroy the existing hash table @var{hash}. Therefore we @code{svz_free()}
  * all keys within the hash, the hash table and the hash itself. The values 
- * keep untouched. So you might want to @code{svz_free()} them yourself.
+ * keep untouched. So you might want to @code{svz_free()} them yourself. If
+ * @var{hash} is @code{NULL} no operation is performed.
  */
 void
 svz_hash_destroy (svz_hash_t *hash)
 {
   int n, e;
   svz_hash_bucket_t *bucket;
+
+  if (hash == NULL)
+    return;
 
   for (n = 0; n < hash->buckets; n++)
     {
@@ -502,7 +506,7 @@ svz_hash_values (svz_hash_t *hash)
   svz_hash_bucket_t *bucket;
   int n, e, keys;
 
-  if (hash->keys == 0)
+  if (hash == NULL || hash->keys == 0)
     return NULL;
 
   values = svz_malloc (sizeof (void *) * hash->keys);
@@ -532,7 +536,7 @@ svz_hash_keys (svz_hash_t *hash)
   svz_hash_bucket_t *bucket;
   int n, e, keys;
 
-  if (hash->keys == 0)
+  if (hash == NULL || hash->keys == 0)
     return NULL;
 
   values = svz_malloc (sizeof (void *) * hash->keys);
@@ -551,11 +555,14 @@ svz_hash_keys (svz_hash_t *hash)
 }
 
 /*
- * This routine delivers the number of keys in the hash table @var{hash}.
+ * This routine delivers the number of keys in the hash table @var{hash}. If
+ * the given @var{hash} is @code{NULL} it returns zero.
  */
 int
 svz_hash_size (svz_hash_t *hash)
 {
+  if (hash == NULL)
+    return 0;
   return hash->keys;
 }
 

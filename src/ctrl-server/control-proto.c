@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.51 2001/05/19 23:04:56 ela Exp $
+ * $Id: control-proto.c,v 1.52 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -420,7 +420,6 @@ int
 ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 {
   svz_server_t *server;
-  int n;
   char *p;
 
   /* find an appropriate server instance */

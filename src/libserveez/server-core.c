@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.13 2001/05/21 21:20:42 ela Exp $
+ * $Id: server-core.c,v 1.14 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -232,8 +232,9 @@ svz_sock_print_list (void)
   while (sock)
     {
       fprintf (stdout, "id: %04d, sock: %p == %p, prev: %p, next: %p\n",
-	       sock->id, sock, svz_sock_lookup_table[sock->id], 
-	       sock->prev, sock->next);
+	       sock->id, (void *) sock, 
+	       (void *) svz_sock_lookup_table[sock->id], 
+	       (void *) sock->prev, (void *) sock->next);
       sock = sock->next;
     }
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.5 2001/05/19 23:04:57 ela Exp $
+ * $Id: array.c,v 1.6 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -109,7 +109,7 @@ void *
 svz_array_get (svz_array_t *array, unsigned long index)
 {
   assert (array);
-  if (index >= array->size)
+  if (array == NULL || index >= array->size)
     return NULL;
   return array->data[index];
 }

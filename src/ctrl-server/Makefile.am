@@ -25,10 +25,9 @@
 
 noinst_LIBRARIES = libctrl.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libctrl_a_SOURCES = \
 	control-proto.c control-proto.h
 
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

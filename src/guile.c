@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.16 2001/05/21 21:20:41 ela Exp $
+ * $Id: guile.c,v 1.17 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -536,7 +536,7 @@ guile_define_port (SCM symname, SCM args)
     {
       char *proto = guile2str (optionhash_get (options, PORTCFG_PROTO));
       char *msg = svz_malloc (256);
-      snprintf (msg, 256, "when defining port `%s'", portname);
+      svz_snprintf (msg, 256, "when defining port `%s'", portname);
 
       if (NULL == proto)
 	{

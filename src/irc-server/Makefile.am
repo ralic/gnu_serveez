@@ -25,10 +25,6 @@
 
 noinst_LIBRARIES = libircserver.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libircserver_a_SOURCES = \
 	irc-proto.c irc-proto.h \
 	irc-crypt.c irc-crypt.h \
@@ -42,3 +38,7 @@ libircserver_a_SOURCES = \
 	irc-event-7.c \
 	irc-server.h irc-server.c \
 	irc-config.h irc-config.c
+
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

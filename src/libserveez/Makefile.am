@@ -52,7 +52,7 @@ libserveez_HEADERS = alloc.h util.h snprintf.h hash.h sparsevec.h socket.h \
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 
-INCLUDES = -I..
+INCLUDES = -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
 

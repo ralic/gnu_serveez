@@ -24,11 +24,9 @@
 
 noinst_LIBRARIES = libsntp.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
-MAINTAINERCLEANFILES = Makefile.in
-
 libsntp_a_SOURCES = \
 	sntp-proto.h sntp-proto.c
+
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.13 2001/05/19 23:04:57 ela Exp $
+ * $Id: portcfg.c,v 1.14 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -30,6 +30,14 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
+
+#ifndef __MINGW32__
+# include <sys/socket.h>
+#endif
+
+#ifdef __MINGW32__
+# include <winsock2.h>
+#endif
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
@@ -139,8 +147,6 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
 svz_portcfg_t *
 svz_portcfg_del (char *name)
 {
-  svz_portcfg_t *port;
-
   /* List of port configurations is empty. */
   if (svz_portcfgs == NULL || name == NULL)
     return NULL;

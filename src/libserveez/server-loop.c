@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.4 2001/05/19 23:04:57 ela Exp $
+ * $Id: server-loop.c,v 1.5 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -40,6 +40,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>

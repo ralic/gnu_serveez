@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I ".." /I "." /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "__SIZZLE_IMPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I ".." /I "." /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib libserveez.lib ws2_32.lib libsizzle.lib shell32.lib /nologo /subsystem:console /pdb:none /machine:I386 /libpath:"libserveez/Opt" /libpath:"../../sizzle/libsizzle/Opt"
+# ADD LINK32 kernel32.lib libserveez.lib libguile.lib ws2_32.lib shell32.lib /nologo /subsystem:console /pdb:none /machine:I386 /libpath:"libserveez/Opt"
 
 !ELSEIF  "$(CFG)" == "serveez - Win32 Debug"
 
@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I ".." /I "." /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "__SIZZLE_IMPORT__" /D "ENABLE_DEBUG" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I ".." /I "." /D "_DEBUG" /D "ENABLE_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib libserveez.lib ws2_32.lib libsizzle.lib shell32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"libserveez/Dbg" /libpath:"../../sizzle/libsizzle/Dbg"
+# ADD LINK32 kernel32.lib libserveez.lib libguile.lib ws2_32.lib shell32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"libserveez/Dbg"
 
 !ENDIF 
 
@@ -106,6 +106,10 @@ SOURCE=".\foo-server\foo-proto.c"
 # Begin Source File
 
 SOURCE=".\nut-server\gnutella.c"
+# End Source File
+# Begin Source File
+
+SOURCE=.\guile.c
 # End Source File
 # Begin Source File
 
@@ -217,10 +221,6 @@ SOURCE=.\serveez.rc
 
 !ENDIF 
 
-# End Source File
-# Begin Source File
-
-SOURCE=.\sizzle.c
 # End Source File
 # Begin Source File
 

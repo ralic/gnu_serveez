@@ -24,12 +24,9 @@
 
 noinst_LIBRARIES = libtunnel.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/src
-
-CLEANFILES = *~
-
 libtunnel_a_SOURCES = \
 	tunnel.c tunnel.h
 
-
-
+INCLUDES = -I$(top_srcdir)/src
+CLEANFILES = *~
+MAINTAINERCLEANFILES = Makefile.in

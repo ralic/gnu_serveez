@@ -24,7 +24,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in
+EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez
 
 #
 # Add your server subdirectory here
@@ -73,9 +73,11 @@ AM_CFLAGS = $(GUILE_COMPILE)
 
 mkpassword_SOURCES = mkpassword.c
 
+CLEANFILES = *~ *.ro
 MAINTAINERCLEANFILES = Makefile.in
 
-CLEANFILES = *.ro
+dist-hook:
+	rm -f $(distdir)/svzconfig.h
 
 distclean-local:
 	rm -f *\~ *.orig *.rej

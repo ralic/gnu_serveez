@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.7 2001/05/19 23:04:57 ela Exp $
+ * $Id: array.h,v 1.8 2001/05/22 21:06:41 ela Exp $
  *
  */
 
@@ -67,6 +67,7 @@ __END_DECLS
 /* Everything via inline functions. */
 
 #include <string.h>
+#include "libserveez/alloc.h"
 
 typedef void * svz_array_t;
 
@@ -84,22 +85,25 @@ svz_array_create (unsigned long capacity)
 }
 
 #define svz_array_clear(array) \
-  (array)[0] = (void *) 0
+  ((void **) (array))[0] = (void *) 0
 
 #define svz_array_destroy(array) \
   svz_free ((array))
 
-#define svz_array_ensure_capacity(array, size)                         \
-  if ((size) > (unsigned long) (array)[1])                             \
-    {                                                                  \
-      (array)[1] = (void *) ((unsigned long) (array)[1] * 3 / 2 + 1);  \
-      (array) = svz_realloc ((array), (2 + (unsigned long) (array)[1]) \
-                             * sizeof (void *));                       \
+#define svz_array_ensure_capacity(array, size)                            \
+  if ((size) > (unsigned long) ((void **) (array))[1])                    \
+    {                                                                     \
+      ((void **) (array))[1] =                                            \
+        (void *) ((unsigned long) ((void **) (array))[1] * 3 / 2 + 1);    \
+      (array) = svz_realloc ((array),                                     \
+                             (2 + (unsigned long) ((void **) (array))[1]) \
+                             * sizeof (void *));                          \
     }                                                                  
 
-#define svz_array_get(array, index)                                 \
-  (((unsigned long) (index) >= (unsigned long) (array)[0]) ? NULL : \
-    (array)[index + 2])
+#define svz_array_get(array, index)                                    \
+  (((array) == NULL ||                                                 \
+    (unsigned long) (index) >= (unsigned long) ((void **) (array))[0]) \
+    ? NULL : ((void **) (array))[index + 2])
 
 static inline void *
 svz_array_set (svz_array_t *array, unsigned long index, void *value)
@@ -113,11 +117,14 @@ svz_array_set (svz_array_t *array, unsigned long index, void *value)
   return prev;
 }
 
-#define svz_array_add(array, value)                                        \
-  do {                                                                     \
-    svz_array_ensure_capacity ((array), ((unsigned long) (array)[0] + 1)); \
-    (array)[(unsigned long) (array)[0] + 2] = (value);                     \
-    (array)[0] = (void *) ((unsigned long) (array)[0] + 1);                \
+#define svz_array_add(array, value)                                   \
+  do {                                                                \
+    svz_array_ensure_capacity ((array),                               \
+      ((unsigned long) ((void **) (array))[0] + 1));                  \
+    ((void **) (array))[(unsigned long) ((void **) (array))[0] + 2] = \
+      (value);                                                        \
+    ((void **) (array))[0] =                                          \
+      (void *) ((unsigned long) ((void **) (array))[0] + 1);          \
   } while (0)
 
 static inline void *
@@ -136,10 +143,10 @@ svz_array_del (svz_array_t *array, unsigned long index)
 }
 
 #define svz_array_capacity(array) \
-  ((unsigned long) (array)[1])
+  ((unsigned long) ((void **) (array))[1])
 
 #define svz_array_size(array) \
-  ((unsigned long) (array)[0])
+  ((unsigned long) ((void **) (array))[0])
 
 static inline unsigned long
 svz_array_contains (svz_array_t *array, void *value)
@@ -185,9 +192,9 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
  * pointer each element of the array gets assigned and @var{i} is the
  * iteration variable.
  */
-#define svz_array_foreach(array, value, i)                           \
-  for ((i) = 0, (value) = array ? svz_array_get ((array), 0) : NULL; \
-       array && (unsigned long) i < svz_array_size (array);          \
+#define svz_array_foreach(array, value, i)                             \
+  for ((i) = 0, (value) = (array) ? svz_array_get ((array), 0) : NULL; \
+       (array) && (unsigned long) i < svz_array_size (array);          \
        (value) = svz_array_get ((array), ++(i)))
 
 #endif /* not __ARRAY_H__ */

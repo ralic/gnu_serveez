@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.18 2001/05/20 20:30:43 ela Exp $
+ * $Id: server.c,v 1.19 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -186,7 +186,7 @@ svz_servertype_print (void)
       printf ("[%d] - %s\n", s, stype->name);
       printf ("  detect_proto() at %p"
 	      "  connect_socket() at %p\n",
-	      stype->detect_proto, stype->connect_socket);
+	      (void *) stype->detect_proto, (void *) stype->connect_socket);
       
       if (stype->prototype_start != NULL)
 	{
@@ -340,9 +340,9 @@ svz_config_free (svz_servertype_t *server, void *cfg)
   for (n = 0; server->items[n].type != ITEM_END; n++)
     {
       /* Calculate the target address. */
-      target = (void **) ((char *) cfg + 
-			  (unsigned long) ((char *) server->items[n].address - 
-					   (char *) server->prototype_start));
+      target = (void **) ((long) cfg + 
+			  (long) ((long) server->items[n].address - 
+				  (long) server->prototype_start));
 
       /* Depending on the type of configuration item we need to free
 	 different data structures. */
@@ -401,9 +401,9 @@ svz_config_clobber (svz_servertype_t *server, void *cfg)
   for (n = 0; server->items[n].type != ITEM_END; n++)
     {
       /* Calculate the target address. */
-      target = (void **) ((char *) cfg + 
-			  (unsigned long) ((char *) server->items[n].address - 
-					   (char *) server->prototype_start));
+      target = (void **) ((long) cfg + 
+			  (long) ((long) server->items[n].address - 
+				  (long) server->prototype_start));
 
       /* Clobber only configuration items which are pointers. */
       if (server->items[n].type == ITEM_INTARRAY ||
@@ -472,7 +472,7 @@ svz_config_intarray_create (int *intarray)
   if (intarray)
     {
       for (i = 0; i < intarray[0]; i++)
-	svz_array_add (array, (void *) intarray[i + 1]);
+	svz_array_add (array, (void *) ((long) intarray[i + 1]));
     }
   return array;
 }

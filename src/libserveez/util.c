@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.10 2001/05/21 21:20:42 ela Exp $
+ * $Id: util.c,v 1.11 2001/05/22 21:06:42 ela Exp $
  *
  */
 
@@ -696,14 +696,14 @@ svz_openfiles (int max_sockets)
       svz_os_version == Win98 || svz_os_version == WinME)
     {
       if (svz_os_version == Win95)
-	sockets = windoze_get_reg_unsigned (MaxSocketKey,
-					    MaxSocketSubKey,
-					    MaxSocketSubSubKey, sockets);
+	sockets = svz_windoze_get_reg_unsigned (MaxSocketKey,
+						MaxSocketSubKey,
+						MaxSocketSubSubKey, sockets);
       else
-	sockets = svz_atoi (windoze_get_reg_string (MaxSocketKey,
-						    MaxSocketSubKey,
-						    MaxSocketSubSubKey,
-						    svz_itoa (sockets)));
+	sockets = svz_atoi (svz_windoze_get_reg_string (MaxSocketKey,
+							MaxSocketSubKey,
+							MaxSocketSubSubKey,
+							svz_itoa (sockets)));
 
       svz_log (LOG_NOTICE, "current open file limit: %u\n", sockets);
 
@@ -712,13 +712,14 @@ svz_openfiles (int max_sockets)
 	  sockets = max_sockets;
 
 	  if (svz_os_version == Win95)
-	    windoze_set_reg_unsigned (MaxSocketKey,
-				      MaxSocketSubKey,
-				      MaxSocketSubSubKey, sockets);
+	    svz_windoze_set_reg_unsigned (MaxSocketKey,
+					  MaxSocketSubKey,
+					  MaxSocketSubSubKey, sockets);
 	  else
-	    windoze_set_reg_string (MaxSocketKey,
-				    MaxSocketSubKey,
-				    MaxSocketSubSubKey, svz_itoa (sockets));
+	    svz_windoze_set_reg_string (MaxSocketKey,
+					MaxSocketSubKey,
+					MaxSocketSubSubKey, 
+					svz_itoa (sockets));
 
 	  svz_log (LOG_NOTICE, "open file limit set to: %u\n", sockets);
 	}
