@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.29 2000/09/27 14:31:25 ela Exp $
+ * $Id: server-socket.c,v 1.30 2000/10/01 11:11:20 ela Exp $
  *
  */
 
@@ -52,6 +52,7 @@
 #include "socket.h"
 #include "pipe-socket.h"
 #include "udp-socket.h"
+#include "icmp-socket.h"
 #include "server-core.h"
 #include "serveez.h"
 #include "server-socket.h"
@@ -273,7 +274,7 @@ server_create (portcfg_t *cfg)
 	}
       else if (cfg->proto & PROTO_ICMP)
 	{
-	  /* FIXME: */
+	  sock->read_socket = icmp_read_socket;
 	}
 
       log_printf (LOG_NOTICE, "listening on %s port %s:%u\n",

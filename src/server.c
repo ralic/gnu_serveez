@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.26 2000/09/30 09:12:59 ela Exp $
+ * $Id: server.c,v 1.27 2000/10/01 11:11:21 ela Exp $
  *
  */
 
@@ -699,7 +699,7 @@ server_load_cfg (char *cfgfile)
 		      newserver =
 			(struct server*) xpmalloc (sizeof (struct server));
 		      newserver->cfg = newserver_cfg;
-		      newserver->name = symname;
+		      newserver->name = xpstrdup (symname);
 		      newserver->detect_proto = sd->detect_proto;
 		      newserver->connect_socket = sd->connect_socket;
 		      newserver->handle_request = sd->handle_request;

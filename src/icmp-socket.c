@@ -1,5 +1,5 @@
 /*
- * icmp-socket.c - icmp socket implementations
+ * icmp-socket.c - Internet Control Message Protocol socket implementations
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.1 2000/09/28 16:27:34 ela Exp $
+ * $Id: icmp-socket.c,v 1.2 2000/10/01 11:11:20 ela Exp $
  *
  */
 
@@ -53,3 +53,107 @@
 #include "server-core.h"
 #include "icmp-socket.h"
 
+/* Static buffer for ip packets. */
+static char icmp_buffer[ICMP_BUFFER_SIZE];
+
+/*
+ * Get IP header from plain data.
+ */
+ip_header_t *
+icmp_get_ip_header (byte *data)
+{
+  static ip_header_t hdr;
+  unsigned short uint16;
+  unsigned int uint32;
+
+  hdr.version_length = *data++;
+  hdr.unused = *data++;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.length = uint16;
+  data += SIZEOF_UINT16;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.id = uint16;
+  data += SIZEOF_UINT16;
+  hdr.flags = *data++;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.frag_offset = uint16;
+  data += SIZEOF_UINT16;
+  hdr.ttl = *data++;
+  hdr.protocol = *data++;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.checksum = uint16;
+  data += SIZEOF_UINT16;
+  memcpy (&uint32, data, SIZEOF_UINT32);
+  hdr.src = uint32;
+  data += SIZEOF_UINT32;
+  memcpy (&uint32, data, SIZEOF_UINT32);
+  hdr.dst = uint32;
+
+  return &hdr;
+}
+
+/*
+ * Parse and check IP and ICMP header.
+ */
+static int
+icmp_check_packet (byte *data)
+{
+  ip_header_t *ip_header;
+
+  ip_header = icmp_get_ip_header (data);
+  return 0;
+}
+
+/*
+ * Default reader for icmp sockets.
+ */
+int
+icmp_read_socket (socket_t sock)
+{
+  int do_read, num_read;
+  socklen_t len;
+  struct sockaddr_in sender;
+
+  len = sizeof (struct sockaddr_in);
+  do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
+  if (do_read <= 0)
+    {
+      log_printf (LOG_ERROR, "receive buffer overflow on icmp socket %d\n",
+		  sock->sock_desc);
+      return -1;
+    }
+  
+  num_read = recvfrom (sock->sock_desc, icmp_buffer, ICMP_BUFFER_SIZE, 
+		       0, (struct sockaddr *) &sender, &len);
+
+  /* Valid packet data arrived. */
+  if (num_read > 0)
+    {
+#if 1
+      util_hexdump (stdout, "icmp received", sock->sock_desc,
+		    icmp_buffer, num_read, 0);
+#endif
+      sock->last_recv = time (NULL);
+      sock->remote_port = sender.sin_port;
+      sock->remote_addr = sender.sin_addr.s_addr;
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp packet received from %s:%u\n",
+		  util_inet_ntoa (sock->remote_addr),
+		  ntohs (sock->remote_port));
+#endif
+
+      /* Check ICMP packet and put packet load only to receive buffer. */
+      icmp_check_packet ((byte *) icmp_buffer);
+
+      if (sock->check_request)
+        sock->check_request (sock);
+    }
+  /* Some error occured. */
+  else
+    {
+      log_printf (LOG_ERROR, "icmp read: %s\n", NET_ERROR);
+      if (last_errno != SOCK_UNAVAILABLE)
+	return -1;
+    }
+  return 0;
+}
