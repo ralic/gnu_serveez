@@ -30,6 +30,9 @@ dnl
 dnl Initialize autoconf and automake
 dnl
 AC_INIT(serveez,0.1.6,bug-serveez@gnu.org)
+AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(serveez,0.1.6,no-define)
 AM_CONFIG_HEADER(config.h src/svzconfig.h)
 
@@ -41,16 +44,8 @@ AM_MAINTAINER_MODE
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Determine default prefix
-dnl
-test x$prefix = "xNONE" && prefix="$ac_default_prefix"
-
-dnl ----------------------------------------------------------------------
-
-dnl
 dnl Check for a proper C compiler.
 dnl
-AC_CANONICAL_HOST
 AC_PROG_CC
 
 AC_C_CONST
@@ -97,12 +92,12 @@ AC_CHECK_PROG(WINDRES, windres, windres, :)
 
 dnl ----------------------------------------------------------------------
 
-osversion="`grep \"$host\" $srcdir/data/PLATFORMS 2>/dev/null`"
+osversion="`grep \"$host_alias\" $srcdir/data/PLATFORMS 2>/dev/null`"
 if test "x$osversion" = "x"; then
   AC_MSG_RESULT([
   The Serveez package has never been compiled or run on this platform.  
   Please send an email to <dev-serveez@gnu.org> including your compiler 
-  version and whether it worked correctly or not.  '$host' 
+  version and whether it worked correctly or not.  '$host_alias' 
   will then be added to the PLATFORMS file included in this package.
 ])
 fi
@@ -110,7 +105,7 @@ unset osversion
 
 dnl ----------------------------------------------------------------------
 
-case $host in
+case $host_alias in
   mipsel-unknown-linux-gnu | mips-unknown-linux-gnu) NOUNDEFINED="" ;;
   *) NOUNDEFINED="-no-undefined" ;;
 esac
@@ -1144,7 +1139,7 @@ if test $svz_cv_sys_proc_stat = yes ; then
       1, [Define if Linux supports the /proc/stat file.])
     ;;
   *)
-    AC_MSG_WARN([disabled '/proc/stat' since '$host_os' is not linux])
+    AC_MSG_WARN([disabled '/proc/stat' since '$host_os' is not 'linux'])
     ;;
   esac
 fi

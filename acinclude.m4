@@ -168,7 +168,7 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
         --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
         --disable-arrays --disable-posix --enable-networking --disable-regex \
         --without-threads --enable-ltdl-convenience --prefix=$prefix \
-	--host=$host --build=$build --target=$target \
+        --host=$host_alias --build=$build_alias --target=$target_alias \
         --cache-file=$cache_file])
     else
       AC_MSG_RESULT([The file \`$GUILE_SOURCE/libguile/scmconfig.h' exists.])

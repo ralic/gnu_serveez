@@ -1,3 +1,9 @@
+2003-06-29  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in, acinclude.m4: Proper use of the AC_CANONICAL_* 
+	macros.	 Using host_alias instead of host, build_alias instead
+	of build and target_alias instead of target.
+
 2003-06-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Removed the SVZ_ENABLE_CRYPT #define.
