@@ -112,6 +112,7 @@
 	    var = type[v]
 	    i++
 	}
+
 	# check if last item has a '*' prefix
 	if (index(var, "*")) {
 	    type[i] = "*"
@@ -119,24 +120,37 @@
 	    var = type[i+1]
 	    i++
 	}
+
+	# check if last item has a trailing '[]'
+	if (index(var, "[")) {
+	    type[i] = substr(var, 1, index(var, "[") - 1)
+	    type[i+1] = substr(var, index(var, "["))
+	    var = type[i]
+	    i++
+	}
+
 	# rejoin the arguments
 	c_arg = ""
 	for (n = 1; n <= i; n++) {
+	    if (c_arg != "") { c_arg = (c_arg " ") }
 	    if (type[n] != var) {
-		c_arg = (c_arg type[n] " ")
+		c_arg = (c_arg type[n])
+	    } else {
+		c_arg = (c_arg "@var{" var "}")
 	    }
 	}
-	c_arg = (c_arg "@var{" var "}")
 	
 	# rejoin the argument list
 	if (c_args != "") { c_args = (c_args ", ") }
 	c_args = (c_args c_arg)
     }
 
+    # enclose the return value into braces if necessary
+    if (index(ret, " ")) {
+	ret = ("{" ret "}") }
+
     # finally the texinfo function definition and documentation
-#    gsub(/\[/, "@[", c_args)
-#    gsub(/\]/, "@]", c_args)
-    funcdef = ("@var{" ret "} " c_func " (" c_args ")")
+    funcdef = (ret " " c_func " (" c_args ")")
     gsub(/\n/, "\\\n", doc)
     replace = ("@deftypefun " funcdef "\\\n" doc "\\\n" "@end deftypefun")
     sedexp = ("/" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
