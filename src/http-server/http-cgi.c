@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.10 2000/08/02 09:45:14 ela Exp $
+ * $Id: http-cgi.c,v 1.11 2000/08/16 11:40:05 ela Exp $
  *
  */
 
@@ -40,6 +40,7 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
+#include <signal.h>
 
 #if HAVE_STRINGS_H
 # include <strings.h>
@@ -62,6 +63,62 @@
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cgi.h"
+
+/*
+ * Extended disconnect_socket callback for CGIs. Handling CGI related
+ * topics and afterwards we process the normal http disconnection
+ * functionality.
+ */
+int
+http_cgi_disconnect (socket_t sock)
+{
+  http_socket_t *http = sock->data;
+
+  /* flush CGI output if necessary */
+  if (sock->flags & SOCK_FLAG_PIPE && sock->send_buffer_fill > 0)
+    if (sock->write_socket)
+      sock->write_socket (sock);
+
+  /* close both of the CGI pipes if necessary */
+  if (sock->pipe_desc[READ] != INVALID_HANDLE)
+    {
+      if (CLOSE_HANDLE (sock->pipe_desc[READ]) == -1)
+	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+      sock->pipe_desc[READ] = INVALID_HANDLE;
+      sock->flags &= ~SOCK_FLAG_RECV_PIPE;
+    }
+  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+    {
+      if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) == -1)
+	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+      sock->pipe_desc[WRITE] = INVALID_HANDLE;
+      sock->flags &= ~SOCK_FLAG_SEND_PIPE;
+    }
+
+#ifdef __MINGW32__
+  /* 
+   * Close the process handle if necessary, but only in the Windows-Port ! 
+   */
+  if (http->pid != INVALID_HANDLE)
+    {
+      if (CLOSE_HANDLE (http->pid) == -1)
+	log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      http->pid = INVALID_HANDLE;
+    }
+#else /* not __MINGW32__ */
+  /*
+   * Try killing the cgi script.
+   */
+  if (http->pid != INVALID_HANDLE)
+    {
+      if (kill (http->pid, SIGKILL) == -1)
+	log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+      http->pid = INVALID_HANDLE;
+    }
+#endif /* not __MINGW32__ */
+
+  return http_disconnect (sock);
+}
 
 /*
  * The http cgi reader gets data from the stdout of a cgi
@@ -90,31 +147,31 @@ http_cgi_read (socket_t sock)
 
 #ifdef __MINGW32__
   overlap = (os_version >= WinNT4x) ? &sock->overlap[READ] : NULL;
-  if(!ReadFile(sock->pipe_desc[READ],
-	       sock->send_buffer + sock->send_buffer_fill,
-	       do_read,
-	       (DWORD *)&num_read,
-	       overlap))
+  if (!ReadFile (sock->pipe_desc[READ],
+		 sock->send_buffer + sock->send_buffer_fill,
+		 do_read,
+		 (DWORD *) &num_read,
+		 overlap))
     {
-      log_printf(LOG_ERROR, "cgi: ReadFile: %s\n", SYS_ERROR);
-      if(last_errno == ERROR_IO_PENDING)
-	GetOverlappedResult(sock->pipe_desc[READ], overlap, 
-			    (DWORD *)&num_read, FALSE);
+      log_printf (LOG_ERROR, "cgi: ReadFile: %s\n", SYS_ERROR);
+      if (last_errno == ERROR_IO_PENDING)
+	GetOverlappedResult (sock->pipe_desc[READ], overlap, 
+			     (DWORD *) &num_read, FALSE);
       else
 	num_read = -1;
     }
-#else
-  if((num_read = read(sock->pipe_desc[READ],
-		      sock->send_buffer + sock->send_buffer_fill,
-		      do_read)) == -1)
+#else /* not __MINGW32__ */
+  if ((num_read = read (sock->pipe_desc[READ],
+			sock->send_buffer + sock->send_buffer_fill,
+			do_read)) == -1)
     {
-      log_printf(LOG_ERROR, "cgi: read: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "cgi: read: %s\n", SYS_ERROR);
       return -1;
     }
-#endif
+#endif /* not __MINGW32__ */
 
   /* data has been read */
-  else if(num_read > 0)
+  else if (num_read > 0)
     {
       sock->send_buffer_fill += num_read;
       return 0;
@@ -122,10 +179,10 @@ http_cgi_read (socket_t sock)
 
   /* no data has been received */
   sock->userflags |= HTTP_FLAG_DONE;
-  if(sock->send_buffer_fill == 0)
+  if (sock->send_buffer_fill == 0)
     {
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "cgi: data successfully received and resent\n");
+      log_printf (LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_CGI;
       sock->flags &= ~SOCK_FLAG_RECV_PIPE;
@@ -159,47 +216,47 @@ http_cgi_write (socket_t sock)
    * length of the post data.
    */
   do_write = sock->recv_buffer_fill;
-  if(do_write > http->contentlength)
+  if (do_write > http->contentlength)
     do_write = http->contentlength;
 
 #ifdef __MINGW32__
   overlap = (os_version >= WinNT4x) ? &sock->overlap[WRITE] : NULL;
-  if(!WriteFile(sock->pipe_desc[WRITE], 
-		sock->recv_buffer, 
-		do_write,
-		(DWORD *)&num_written,
-		overlap))
+  if (!WriteFile (sock->pipe_desc[WRITE], 
+		  sock->recv_buffer, 
+		  do_write,
+		  (DWORD *) &num_written,
+		  overlap))
     {
-      log_printf(LOG_ERROR, "cgi: WriteFile: %s\n", SYS_ERROR);
-      if(last_errno == ERROR_IO_PENDING)
-	GetOverlappedResult(sock->pipe_desc[WRITE], overlap, 
-			    (DWORD *)&num_written, FALSE);
+      log_printf (LOG_ERROR, "cgi: WriteFile: %s\n", SYS_ERROR);
+      if (last_errno == ERROR_IO_PENDING)
+	GetOverlappedResult (sock->pipe_desc[WRITE], overlap, 
+			     (DWORD *) &num_written, FALSE);
       else
 	num_written = -1;
     }
 #else
-  if((num_written = write(sock->pipe_desc[WRITE], 
-			  sock->recv_buffer, 
-			  do_write)) == -1)
+  if ((num_written = write (sock->pipe_desc[WRITE], 
+			    sock->recv_buffer, 
+			    do_write)) == -1)
     {
-      log_printf(LOG_ERROR, "cgi: write: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "cgi: write: %s\n", SYS_ERROR);
     }
 #endif
 
   /* data has been successfully sent */
-  if(num_written > 0)
+  if (num_written > 0)
     {
-      sock->last_send = time(NULL);
+      sock->last_send = time (NULL);
 
       /*
        * Shuffle the data in the output buffer around, so that
        * new data can get stuffed into it.
        */
-      if(sock->recv_buffer_fill > num_written)
+      if (sock->recv_buffer_fill > num_written)
 	{
-	  memmove(sock->recv_buffer, 
-		  sock->recv_buffer + num_written,
-		  sock->recv_buffer_fill - num_written);
+	  memmove (sock->recv_buffer, 
+		   sock->recv_buffer + num_written,
+		   sock->recv_buffer_fill - num_written);
 	}
       sock->recv_buffer_fill -= num_written;
       http->contentlength -= num_written;
@@ -210,10 +267,10 @@ http_cgi_write (socket_t sock)
    * reading from the CGI's stdout and write again to the http
    * connection.
    */
-  if(http->contentlength <= 0)
+  if (http->contentlength <= 0)
     {
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "cgi: post data sent to cgi\n");
+      log_printf (LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_POST;
       sock->flags &= ~SOCK_FLAG_SEND_PIPE;
@@ -234,41 +291,41 @@ http_cgi_write (socket_t sock)
  * we really do it depends on the system we compile with.
  */
 void
-insert_env(ENV_BLOCK_TYPE env, /* the block to add the variable to */
-	   int *length,        /* pointer to the current length of it */
-	   char *fmt,          /* format string */
-	   ...)                /* arguments for the format string */
+insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
+	    int *length,        /* pointer to the current length of it */
+	    char *fmt,          /* format string */
+	    ...)                /* arguments for the format string */
 {
   va_list args;
 
-  va_start(args, fmt);
+  va_start (args, fmt);
 #ifdef __MINGW32__
   /* Windows: */
-  if(*length >= ENV_BLOCK_SIZE)
+  if (*length >= ENV_BLOCK_SIZE)
     {
-      log_printf(LOG_WARNING, "cgi: env block size %d reached\n", 
-		 ENV_BLOCK_SIZE);
+      log_printf (LOG_WARNING, "cgi: env block size %d reached\n", 
+		  ENV_BLOCK_SIZE);
     }
   else
     {
-      vsnprintf(&env[*length], ENV_BLOCK_SIZE - (*length), fmt, args);
-      *length += strlen(&env[*length]) + 1;
+      vsnprintf (&env[*length], ENV_BLOCK_SIZE - (*length), fmt, args);
+      *length += strlen (&env[*length]) + 1;
     }
 #else
   /* Unices: */
-  if(*length >= ENV_ENTRIES-1)
+  if (*length >= ENV_ENTRIES-1)
     {
-      log_printf(LOG_WARNING, "cgi: all env entries %d filled\n", 
-		 ENV_ENTRIES);
+      log_printf (LOG_WARNING, "cgi: all env entries %d filled\n", 
+		  ENV_ENTRIES);
     }
   else
     {
-      env[*length] = xmalloc(ENV_LENGTH);
-      vsnprintf(env[*length], ENV_LENGTH, fmt, args);
+      env[*length] = xmalloc (ENV_LENGTH);
+      vsnprintf (env[*length], ENV_LENGTH, fmt, args);
       (*length)++;
     }
 #endif
-  va_end(args);
+  va_end (args);
 }
 
 /*
@@ -371,7 +428,7 @@ create_cgi_envp (socket_t sock,      /* socket structure for this request */
  * xfree()ed after use.
  */
 char *
-http_check_cgi(socket_t sock, char *request)
+http_check_cgi (socket_t sock, char *request)
 {
 #ifndef __MINGW32__
   struct stat buf;
@@ -385,7 +442,7 @@ http_check_cgi(socket_t sock, char *request)
   http_config_t *cfg = sock->cfg;
 
   /* check if the request is a real cgi request */
-  if(strstr(request, cfg->cgiurl) != request)
+  if (strstr (request, cfg->cgiurl) != request)
     {
       return HTTP_NO_CGI;
     }
@@ -397,57 +454,57 @@ http_check_cgi(socket_t sock, char *request)
    */
 
   /* store the request in a local variable */
-  len = strlen(request) + 1 - strlen(cfg->cgiurl);
-  saverequest = xmalloc(len);
-  strcpy(saverequest, request + strlen(cfg->cgiurl));
+  len = strlen (request) + 1 - strlen (cfg->cgiurl);
+  saverequest = xmalloc (len);
+  strcpy (saverequest, request + strlen (cfg->cgiurl));
 
   /* find the actual URL */
   p = saverequest;
-  while(*p != '?' && *p != 0) p++;
+  while (*p != '?' && *p != 0) p++;
   *p = 0;
 
-  size = strlen(cfg->cgidir) + len;
-  file = xmalloc(size);
-  sprintf(file, "%s%s", cfg->cgidir, saverequest);
+  size = strlen (cfg->cgidir) + len;
+  file = xmalloc (size);
+  sprintf (file, "%s%s", cfg->cgidir, saverequest);
 
   /* test if the file really exists and close it again */
-  if((fd = open(file, O_RDONLY)) == -1)
+  if ((fd = open (file, O_RDONLY)) == -1)
     {
-      log_printf(LOG_ERROR, "cgi: open: %s (%s)\n", SYS_ERROR, file);
-      xfree(file);
-      xfree(saverequest);
+      log_printf (LOG_ERROR, "cgi: open: %s (%s)\n", SYS_ERROR, file);
+      xfree (file);
+      xfree (saverequest);
       return NULL;
     }
 
 #ifndef __MINGW32__
   /* test the file being an executable */
-  if(fstat(fd, &buf) == -1)
+  if (fstat (fd, &buf) == -1)
     {
-      log_printf(LOG_ERROR, "cgi: fstat: %s\n", SYS_ERROR);
-      close(fd);
-      xfree(file);
-      xfree(saverequest);
+      log_printf (LOG_ERROR, "cgi: fstat: %s\n", SYS_ERROR);
+      close (fd);
+      xfree (file);
+      xfree (saverequest);
       return NULL;
     }
 
-  if(!(buf.st_mode & S_IFREG) ||
-     !(buf.st_mode & S_IXUSR) ||
-     !(buf.st_mode & S_IRUSR))  
+  if (!(buf.st_mode & S_IFREG) ||
+      !(buf.st_mode & S_IXUSR) ||
+      !(buf.st_mode & S_IRUSR))  
     {
-      log_printf(LOG_ERROR, "cgi: no executable: %s\n", file);
-      close(fd);
-      xfree(file);
-      xfree(saverequest);
+      log_printf (LOG_ERROR, "cgi: no executable: %s\n", file);
+      close (fd);
+      xfree (file);
+      xfree (saverequest);
       return NULL;
     }
 #endif
-  if(close(fd) == -1)
-    log_printf(LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+  if (close (fd) == -1)
+    log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 
   /* return a pointer refering to the actual plain cgi file */
-  strcpy(file, saverequest);
-  xrealloc(file, strlen(file) + 1);
-  xfree(saverequest);
+  strcpy (file, saverequest);
+  xrealloc (file, strlen(file) + 1);
+  xfree (saverequest);
   return file;
 }
 
@@ -458,11 +515,11 @@ http_check_cgi(socket_t sock, char *request)
  * cgi file (including the path). This MUST be freed afterwards.
  */
 char *
-http_pre_exec(socket_t sock,       /* socket structure */
-	      ENV_BLOCK_TYPE envp, /* environment block to be filled */
-	      char *file,          /* plain executable name */
-	      char *request,       /* original http request */
-	      int type)            /* POST or GET ? */
+http_pre_exec (socket_t sock,       /* socket structure */
+	       ENV_BLOCK_TYPE envp, /* environment block to be filled */
+	       char *file,          /* plain executable name */
+	       char *request,       /* original http request */
+	       int type)            /* POST or GET ? */
 {
   char *cgidir;
   char *cgifile;
@@ -473,7 +530,7 @@ http_pre_exec(socket_t sock,       /* socket structure */
   /* change into the CGI directory temporarily */
   if (chdir (cfg->cgidir) == -1)
     {
-      log_printf(LOG_ERROR, "cgi: chdir: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "cgi: chdir: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "cannot change dir: %s\n", cfg->cgidir);
 #endif
@@ -481,30 +538,30 @@ http_pre_exec(socket_t sock,       /* socket structure */
     }
 
   /* reserve buffer for the directory */
-  cgidir = xmalloc(MAX_CGI_DIR_LEN);
+  cgidir = xmalloc (MAX_CGI_DIR_LEN);
 
   /* get the current directory and concate the cgifile */
-  if(getcwd(cgidir, MAX_CGI_DIR_LEN) == NULL)
+  if (getcwd (cgidir, MAX_CGI_DIR_LEN) == NULL)
     {
-      log_printf(LOG_ERROR, "cgi: getcwd: %s\n", SYS_ERROR);
-      xfree(cgidir);
+      log_printf (LOG_ERROR, "cgi: getcwd: %s\n", SYS_ERROR);
+      xfree (cgidir);
       return NULL;
     }
   
   /* put the directory and file together */
-  cgifile = xmalloc(strlen(cgidir) + strlen(file) + 1);
-  sprintf(cgifile, "%s%s", cgidir, file);
-  xfree(cgidir);
+  cgifile = xmalloc (strlen (cgidir) + strlen (file) + 1);
+  sprintf (cgifile, "%s%s", cgidir, file);
+  xfree (cgidir);
 
   /* create the environment block for the CGI script */
-  size = create_cgi_envp(sock, envp, file, type);
+  size = create_cgi_envp (sock, envp, file, type);
 
   /* put the QUERY_STRING into the env variables if neccessary */
-  if(type == GET_METHOD)
+  if (type == GET_METHOD)
     {
       p = request;
-      while(*p != '?' && *p != 0) p++;
-      insert_env(envp, &size, "QUERY_STRING=%s", *p ? p+1 : "");
+      while (*p != '?' && *p != 0) p++;
+      insert_env (envp, &size, "QUERY_STRING=%s", *p ? p+1 : "");
 #ifdef __MINGW32__
       envp[size] = 0;
 #else
@@ -520,9 +577,9 @@ http_pre_exec(socket_t sock,       /* socket structure */
  * right after the the actual CGI script has been invoked.
  */
 int
-http_cgi_accepted(socket_t sock)
+http_cgi_accepted (socket_t sock)
 {
-  return sock_printf(sock, HTTP_ACCEPTED);
+  return sock_printf (sock, HTTP_ACCEPTED);
 }
 
 /*
@@ -546,6 +603,8 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   PROCESS_INFORMATION ProcessInfo; /* where we get the process handle from */
   char *savedir;                   /* save the original directory */
   char *envp;
+
+  /* this is necessary for accosiating programs with file suffixes */
   struct interpreter
   {
     char *suffix;
@@ -553,10 +612,10 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   }
   cgiexe[] =
   {
-    { ".exe", NULL   },
-    { ".com", NULL   },
-    { ".bat", NULL   },
-    { ".pl",  "perl" },
+    { ".exe", NULL   }, /* normal binaries */
+    { ".com", NULL   }, /* small binaries */
+    { ".bat", NULL   }, /* batch files */
+    { ".pl",  "perl" }, /* perl scripts */
     { NULL,   NULL   }
   };
   int n;
@@ -567,6 +626,9 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   char *argv[2];
   struct stat buf;
 #endif
+
+  /* Assign local CGI disconnection routine. */
+  sock->disconnected_socket = http_cgi_disconnect;
 
 #ifdef __MINGW32__
   /* 
@@ -589,6 +651,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   if ((cgifile = http_pre_exec (sock, envp, file, request, type)) == NULL)
     {
       sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+      http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
       xfree (envp);
@@ -629,126 +692,135 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     }
 
   /* create the process here */
-  if(!CreateProcess(NULL,                /* ApplicationName */
-		    cgifile,             /* CommandLine */
-		    NULL,                /* ProcessAttributes */
-		    NULL,                /* ThreadAttributes */
-		    TRUE,                /* InheritHandles */
-		    IDLE_PRIORITY_CLASS, /* CreationFlags */
-		    envp,                /* Environment */
-		    NULL,                /* CurrentDirectory */
-		    &StartupInfo,
-		    &ProcessInfo))
+  if (!CreateProcess (NULL,                /* ApplicationName */
+		      cgifile,             /* CommandLine */
+		      NULL,                /* ProcessAttributes */
+		      NULL,                /* ThreadAttributes */
+		      TRUE,                /* InheritHandles */
+		      IDLE_PRIORITY_CLASS, /* CreationFlags */
+		      envp,                /* Environment */
+		      NULL,                /* CurrentDirectory */
+		      &StartupInfo,
+		      &ProcessInfo))
     {
-      log_printf(LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "cannot execute: %s\n", cgifile);
 #endif
-      sock_printf(sock, "\r\n");
+      sock_printf (sock, "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
-      chdir(savedir);
-      xfree(cgifile);
-      xfree(envp);
-      xfree(savedir);
+      chdir (savedir);
+      xfree (cgifile);
+      xfree (envp);
+      xfree (savedir);
       return -1;
     }
   
   /* reenter the actual directory and free reserved space */
-  chdir(savedir);
-  xfree(cgifile);
-  xfree(envp);
-  xfree(savedir);
+  chdir (savedir);
+  xfree (cgifile);
+  xfree (envp);
+  xfree (savedir);
   pid = ProcessInfo.hProcess;
 
 #ifdef ENABLE_DEBUG
-  log_printf(LOG_DEBUG, "http: cgi %s got pid 0x%08X\n", 
-	     file+1, ProcessInfo.dwProcessId);
+  log_printf (LOG_DEBUG, "http: cgi %s got pid 0x%08X\n", 
+	      file+1, ProcessInfo.dwProcessId);
 #endif
 
-#else
+#else /* not __MINGW32__ */
+
   /* fork us here */
-  if((pid = fork()) == 0)
+  if ((pid = fork ()) == 0)
     {
-      /* create env block, etc. */
-      if((cgifile = http_pre_exec(sock, envp, file, request, type)) == NULL)
+      /* ------ child process here ------ */
+
+      /* create environment block */
+      if ((cgifile = http_pre_exec (sock, envp, file, request, type)) == NULL)
 	{
-	  exit(0);
+	  exit (0);
 	}
 
-      /* Make the output blocking ! */
-      if(fcntl(out, F_SETFL, ~O_NONBLOCK) == -1)
+      /* make the output blocking */
+      if (fcntl (out, F_SETFL, ~O_NONBLOCK) == -1)
 	{
-	  log_printf(LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-	  exit(0);
+	  log_printf (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+	  exit (0);
 	}
 
       /* duplicate the receiving pipe descriptor to stdout */
-      if(dup2(out, 1) != 1)
+      if (dup2 (out, 1) != 1)
 	{
-	  log_printf(LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
-	  exit(0);
+	  log_printf (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
+	  exit (0);
 	}
 
-      if(type == POST_METHOD)
+      if (type == POST_METHOD)
 	{
-
-	  /* Make the input blocking ! */
-	  if(fcntl(in, F_SETFL, ~O_NONBLOCK) == -1)
+	  /* make the input blocking */
+	  if (fcntl (in, F_SETFL, ~O_NONBLOCK) == -1)
 	    {
-	      log_printf(LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-	      exit(0);
+	      log_printf (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+	      exit (0);
 	    }
 
 	  /* duplicate the sending pipe descriptor to stdin */
-	  if(dup2(in, 0) != 0)
+	  if (dup2 (in, 0) != 0)
 	    {
-	      log_printf(LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
-	      exit(0);
+	      log_printf (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
+	      exit (0);
 	    }
 	}
 
       /* set the apropiate user permissions */
-      if(stat(cgifile, &buf) == -1)
+      if (stat (cgifile, &buf) == -1)
 	{
-	  log_printf(LOG_ERROR, "cgi: stat: %s\n", SYS_ERROR);
-	  exit(0);
+	  log_printf (LOG_ERROR, "cgi: stat: %s\n", SYS_ERROR);
+	  exit (0);
 	}
-      if(setgid(buf.st_gid) == -1)
+      if (setgid (buf.st_gid) == -1)
 	{
-	  log_printf(LOG_ERROR, "cgi: setgid: %s\n", SYS_ERROR);
-	  exit(0);
+	  log_printf (LOG_ERROR, "cgi: setgid: %s\n", SYS_ERROR);
+	  exit (0);
 	}
-      if(setuid(buf.st_uid) == -1)
+      if (setuid (buf.st_uid) == -1)
 	{
-	  log_printf(LOG_ERROR, "cgi: setuid: %s\n", SYS_ERROR);
-	  exit(0);
+	  log_printf (LOG_ERROR, "cgi: setuid: %s\n", SYS_ERROR);
+	  exit (0);
 	}
 
       /* create the argv[] and envp[] pointers */
       argv[0] = cgifile;
       argv[1] = NULL;
 
-      /* execute the CGI script itself here */
-      if(execve(cgifile, argv, envp) == -1)
+      /* 
+       * Execute the CGI script itself here. This will overwrite the 
+       * current process.
+       */
+      if (execve (cgifile, argv, envp) == -1)
 	{
-	  log_printf(LOG_ERROR, "cgi: execve: %s\n", SYS_ERROR);
-	  exit(0);
+	  log_printf (LOG_ERROR, "cgi: execve: %s\n", SYS_ERROR);
+	  exit (0);
 	}
     }
-  else if(pid == -1)
+  else if (pid == -1)
     {
-      log_printf(LOG_ERROR, "cgi: fork: %s\n", SYS_ERROR);
-      sock_printf(sock, HTTP_BAD_REQUEST "\r\n");
+      /* ------ error forking new process ------ */
+      log_printf (LOG_ERROR, "cgi: fork: %s\n", SYS_ERROR);
+      sock_printf (sock, HTTP_BAD_REQUEST "\r\n");
+      http_error_response (sock, 400);
       sock->userflags |= HTTP_FLAG_DONE;
       return -1;
     }
 
+  /* ------ still current (parent) process here ------ */
+
 #ifdef ENABLE_DEBUG
-  log_printf(LOG_DEBUG, "http: cgi %s got pid %d\n", file + 1, pid);
+  log_printf (LOG_DEBUG, "http: cgi %s got pid %d\n", file + 1, pid);
 #endif
 
   /* send http header response */
-  if(http_cgi_accepted(sock) == -1)
+  if (http_cgi_accepted (sock) == -1)
     {
       sock->userflags |= HTTP_FLAG_DONE;
       return -1;
@@ -760,17 +832,17 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   http = sock->data;
   http->pid = pid;
 
-  /* close the inherited http data handle */
-  if(CLOSE_HANDLE(out) == -1)
+  /* close the inherited http data handles */
+  if (CLOSE_HANDLE (out) == -1)
     {
-      log_printf(LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
     }
-  if(type == POST_METHOD)
+  if (type == POST_METHOD)
     {
       /* close the reading end of the pipe for the post data */
-      if(CLOSE_HANDLE(in) == -1)
+      if (CLOSE_HANDLE (in) == -1)
 	{
-	  log_printf(LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+	  log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 	}
     }
 
@@ -781,7 +853,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
  * The http POST request response.
  */
 int
-http_post_response(socket_t sock, char *request, int flags)
+http_post_response (socket_t sock, char *request, int flags)
 {
   char *file;
   char *length;
@@ -794,64 +866,68 @@ http_post_response(socket_t sock, char *request, int flags)
 
   /* is this a valid POST request ? */
   file = http_check_cgi(sock, request);
-  if(file == NULL || file == HTTP_NO_CGI)
+  if (file == NULL || file == HTTP_NO_CGI)
     {
-      sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
+      sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+      http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
       return -1;
     }
 
   /* create a pair of pipes for the cgi script process */
-  if(create_pipe(cgi2s) == -1)
+  if (create_pipe (cgi2s) == -1)
     {
-      sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
+      sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+      http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return -1;
     }
-  if(create_pipe(s2cgi) == -1)
+  if (create_pipe (s2cgi) == -1)
     {
-      sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
+      sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+      http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return -1;
     }
 
   /* get the content length from the header information */
-  if((length = http_find_property(http, "Content-length")) == NULL)
+  if ((length = http_find_property (http, "Content-length")) == NULL)
     {
-      sock_printf(sock, HTTP_BAD_REQUEST "\r\n");
+      sock_printf (sock, HTTP_BAD_REQUEST "\r\n");
+      http_error_response (sock, 411);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree(file);
+      xfree (file);
       return -1;
     }
-  http->contentlength = atoi(length);
+  http->contentlength = util_atoi (length);
 
   /* prepare everything for the cgi pipe handling */
   sock->pipe_desc[WRITE] = s2cgi[WRITE];
   sock->pipe_desc[READ] = cgi2s[READ];
 
   /* execute the cgi script in FILE */
-  if(http_cgi_exec(sock, s2cgi[READ], cgi2s[WRITE], 
-		   file, request, POST_METHOD))
+  if (http_cgi_exec (sock, s2cgi[READ], cgi2s[WRITE], 
+		     file, request, POST_METHOD))
     {
       /* some error occured here */
       sock->read_socket = default_read;
       sock->write_socket = http_default_write;
-      xfree(file);
+      xfree (file);
       return -1;
     }
 
 #ifdef __MINGW32__
-  memset(&sock->overlap[READ], 0, sizeof(OVERLAPPED));
-  memset(&sock->overlap[WRITE], 0, sizeof(OVERLAPPED));
+  /* clear overlap structures */
+  memset (&sock->overlap[READ], 0, sizeof(OVERLAPPED));
+  memset (&sock->overlap[WRITE], 0, sizeof(OVERLAPPED));
 #endif
   sock->write_socket = http_cgi_write;
-  sock->disconnected_socket = http_disconnect;
   sock->flags |= SOCK_FLAG_SEND_PIPE;
   sock->userflags |= HTTP_FLAG_POST;
 
-  xfree(file);
+  xfree (file);
   return 0;
 }
 

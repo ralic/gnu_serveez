@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.1 2000/07/26 21:09:43 ela Exp $
+ * $Id: http-core.h,v 1.2 2000/08/16 11:40:05 ela Exp $
  *
  */
 
@@ -105,6 +105,8 @@ int http_parse_property (socket_t sock, char *request, char *end);
 char *http_find_property (http_socket_t *sock, char *key);
 
 void http_process_uri (char *uri);
+
+int http_error_response (socket_t sock, int response);
 
 time_t http_parse_date (char *date);
 char *http_asc_date (time_t t);

@@ -639,10 +639,14 @@ would serve these documents too.
 
 The integrated HTTP server was originally thought to be a simple but fast
 document server. But now it can even execute CGI scripts. Both the methods
-GET and POST are full featured. Additionally it produces directory listings
-when no standard document file (e.g. @file{index.html}) has been found
-at the requested document node. Furthermore it implements a file cache for
-speeding up repetitive HTTP request.
+GET and POST are full featured, HEAD too. Additionally it produces 
+directory listings when no standard document file 
+(e.g. @file{index.html}) has been found at the requested document node. 
+Furthermore it implements a file cache for speeding up repetitive 
+HTTP request.
+
+In comparison to other web server projects like Apache and Roxen this
+web server is really fast. Comparative benchmarks will follow.
 
 @subsubsection Configuration
 
@@ -976,6 +980,10 @@ servers with Serveez. @xref{Writing Servers}.
 
 @node Quake III Key Server,  , Foo Server, Existing Servers
 @subsection Quake III Key Server
+
+@subsubsection General description
+
+@subsubsection Configuration
 
 @node Co-Server, Porting issues, Server, Top
 @chapter Co-Server

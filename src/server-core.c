@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.16 2000/08/16 01:06:11 ela Exp $
+ * $Id: server-core.c,v 1.17 2000/08/16 11:40:05 ela Exp $
  *
  */
 
@@ -405,7 +405,7 @@ shutdown_socket (socket_t sock)
 #endif
 
   if (sock->disconnected_socket)
-    sock->disconnected_socket(sock);
+    sock->disconnected_socket (sock);
 
   sock_dequeue (sock);
   sock_disconnect (sock);

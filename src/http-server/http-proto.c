@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.25 2000/08/16 01:06:11 ela Exp $
+ * $Id: http-proto.c,v 1.26 2000/08/16 11:40:05 ela Exp $
  *
  */
 
@@ -283,45 +283,6 @@ http_free_socket (socket_t sock)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->file_desc = -1;
     }
-
-  /* close both of the CGI pipes if necessary */
-  if (sock->pipe_desc[READ] != INVALID_HANDLE)
-    {
-      if (CLOSE_HANDLE (sock->pipe_desc[READ]) == -1)
-	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      sock->pipe_desc[READ] = INVALID_HANDLE;
-      sock->flags &= ~SOCK_FLAG_RECV_PIPE;
-    }
-  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-    {
-      if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) == -1)
-	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      sock->pipe_desc[WRITE] = INVALID_HANDLE;
-      sock->flags &= ~SOCK_FLAG_SEND_PIPE;
-    }
-
-#ifdef __MINGW32__
-  /* 
-   * Close the process handle if necessary, but only in the Windows-Port ! 
-   */
-  if (http->pid != INVALID_HANDLE)
-    {
-      if (CLOSE_HANDLE (http->pid) == -1)
-	log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-      http->pid = INVALID_HANDLE;
-    }
-#else /* not __MINGW32__ */
-  /*
-   * Try killing the cgi script.
-   */
-  if (http->pid != INVALID_HANDLE)
-    {
-      if (kill (http->pid, SIGKILL) == -1)
-	log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
-      http->pid = INVALID_HANDLE;
-    }
-#endif /* not __MINGW32__ */
-
 }
 
 /*
@@ -1013,6 +974,7 @@ http_get_response (socket_t sock, char *request, int flags)
       if (cgifile == NULL)
 	{
 	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+	  http_error_response (sock, 500);
 	  sock->userflags |= HTTP_FLAG_DONE;
 	  return -1;
 	}
@@ -1021,6 +983,7 @@ http_get_response (socket_t sock, char *request, int flags)
       if (create_pipe (cgi2s) == -1)
 	{
 	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+	  http_error_response (sock, 500);
 	  sock->userflags |= HTTP_FLAG_DONE;
 	  xfree (cgifile);
 	  return -1;
@@ -1067,6 +1030,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	      log_printf (LOG_ERROR, "http dirlist: %s: %s\n", 
 			  file, SYS_ERROR);
 	      sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
+	      http_error_response (sock, 404);
 	      sock->userflags |= HTTP_FLAG_DONE;
 	      xfree (file);
 	      return -1;
@@ -1087,6 +1051,7 @@ http_get_response (socket_t sock, char *request, int flags)
   if (strstr (request, "..") != NULL)
     {
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
+      http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return -1;
@@ -1097,6 +1062,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       log_printf (LOG_ERROR, "stat: %s (%s)\n", SYS_ERROR, file);
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
+      http_error_response (sock, 404);
       sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return -1;
@@ -1109,6 +1075,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       log_printf (LOG_ERROR, "%s: not a regular file\n", file);
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
+      http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return -1;
@@ -1137,6 +1104,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
+      http_error_response (sock, 404);
       sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return -1;
@@ -1300,6 +1268,7 @@ int
 http_default_response (socket_t sock, char *request, int flags)
 {
   sock_printf (sock, HTTP_NOT_IMPLEMENTED "\r\n");
+  http_error_response (sock, 501);
   sock->userflags |= HTTP_FLAG_DONE;
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.3 2000/08/02 09:45:14 ela Exp $
+ * $Id: http-core.c,v 1.4 2000/08/16 11:40:05 ela Exp $
  *
  */
 
@@ -38,6 +38,10 @@
 # include <unistd.h>
 #endif
 
+#ifndef __MINGW32__
+# include <netinet/in.h>
+#endif
+
 #ifdef __MINGW32__
 # include <winsock.h>
 # include <io.h>
@@ -46,6 +50,7 @@
 #include "util.h"
 #include "alloc.h"
 #include "hash.h"
+#include "serveez.h"
 #include "http-proto.h"
 #include "http-core.h"
 
@@ -56,6 +61,57 @@
 # define timezone _timezone
 # define daylight _daylight
 #endif
+
+/*
+ * Send an error message response body to the http client connection.
+ * This is not actually necessary, because an apropiate response header
+ * should work out fine. But most browsers indicate "document contained
+ * not data." if this occurs.
+ */
+int
+http_error_response (socket_t sock, int response)
+{
+  char *txt;
+
+  switch (response)
+    {
+    case 400: txt = "Bad Request"; break;
+    case 401: txt = "Unauthorized"; break;
+    case 402: txt = "Payment Required"; break;
+    case 403: txt = "Forbidden"; break;
+    case 404: txt = "Not Found"; break;
+    case 405: txt = "Method Not Allowed"; break;
+    case 406: txt = "Not Acceptable"; break;
+    case 407: txt = "Proxy Authentication Required"; break;
+    case 408: txt = "Request Timeout"; break;
+    case 409: txt = "Conflict"; break;
+    case 410: txt = "Gone"; break;
+    case 411: txt = "Length Required"; break;
+    case 412: txt = "Precondition Failed"; break;
+    case 413: txt = "Request Entity Too Large"; break;
+    case 414: txt = "Request-URI Too Long"; break;
+    case 415: txt = "Unsupported Media Type"; break;
+    case 416: txt = "Requested Range Not Satisfiable"; break;
+    case 417: txt = "Expectation Failed"; break;
+    case 500: txt = "Internal Server Error"; break;
+    case 501: txt = "Not Implemented"; break;
+    case 502: txt = "Bad Gateway"; break;
+    case 503: txt = "Service Unavailable"; break;
+    case 504: txt = "Gateway Timeout"; break;
+    case 505: txt = "HTTP Version Not Supported"; break;
+    default:  txt = "Bad Request"; 
+    }
+  return sock_printf (sock, 
+		      "<html><body bgcolor=white text=black><br>"
+		      "<h1>%d %s</h1>"
+		      "<hr noshade><i>%s/%s server at %s port %d</i>"
+		      "</body></html>",
+		      response, txt, 
+		      serveez_config.program_name, 
+		      serveez_config.version_string,
+		      util_inet_ntoa (sock->local_addr),
+		      ntohs (sock->local_port));
+}
 
 /*
  * This function is used to re-initialize a HTTP connection for

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.3 2000/06/16 15:36:15 ela Exp $
+ * $Id: http-cgi.h,v 1.4 2000/08/16 11:40:05 ela Exp $
  *
  */
 
@@ -36,24 +36,25 @@
 
 #define MAX_CGI_DIR_LEN  256 /* length of a cgi script directory */
 
-#define POST_METHOD     0            /* POST id */
-#define GET_METHOD      1            /* GET id */
-#define HTTP_NO_CGI     ((char *)-1) /* 'no cgi' pointer */
+#define POST_METHOD 0            /* POST id */
+#define GET_METHOD  1            /* GET id */
+#define HTTP_NO_CGI ((char *)-1) /* 'no cgi' pointer */
 
 #ifdef __MINGW32__
-# define ENV_BLOCK_SIZE  2048 /* max. environment block size */
+# define ENV_BLOCK_SIZE 2048 /* max. environment block size */
 #else
-# define ENV_LENGTH      256  /* length of an environment variable */
-# define ENV_ENTRIES     64   /* max. amount of environment variables */
+# define ENV_LENGTH     256  /* length of an environment variable */
+# define ENV_ENTRIES    64   /* max. amount of environment variables */
 #endif
 
 #define CGI_VERSION "CGI/1.0"
 
-char *http_check_cgi(socket_t sock, char *request);
-int create_cgi_envp(socket_t, ENV_BLOCK_TYPE env, char *, int);
-int http_cgi_exec(socket_t, HANDLE , HANDLE, char *, char *, int);
-int http_post_response(socket_t sock, char *request, int flags);
-int http_cgi_write(socket_t sock);
-int http_cgi_read(socket_t sock);
+char *http_check_cgi (socket_t sock, char *request);
+int create_cgi_envp (socket_t, ENV_BLOCK_TYPE env, char *, int);
+int http_cgi_exec (socket_t, HANDLE , HANDLE, char *, char *, int);
+int http_post_response (socket_t sock, char *request, int flags);
+int http_cgi_write (socket_t sock);
+int http_cgi_read (socket_t sock);
+int http_cgi_disconnect (socket_t sock);
 
 #endif /* __HTTP_CGI_H__ */
