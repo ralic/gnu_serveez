@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.5 2001/09/12 13:42:15 ela Exp $
+ * $Id: guile-bin.c,v 1.6 2001/09/14 08:17:14 ela Exp $
  *
  */
 
@@ -105,9 +105,9 @@ guile_bin_free (SCM binary)
   if (bin->garbage)
     {
       size += bin->size;
-      scm_must_free (bin->data);
+      scm_must_free ((char *) bin->data);
     }
-  scm_must_free (bin);
+  scm_must_free ((char *) bin);
 
   return size;
 }
@@ -315,7 +315,7 @@ guile_bin_concat (SCM binary, SCM append)
   if (bin->garbage)
     {
       bin->data = (unsigned char *) 
-	scm_must_realloc (bin->data, bin->size, bin->size + len, 
+	scm_must_realloc ((char *) bin->data, bin->size, bin->size + len, 
 			  "svz-binary-data");
     }
   else
