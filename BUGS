@@ -26,10 +26,13 @@ this package.
 
 Bug:	     B0017
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed
 Date:	     2000-11-11
 Description: There is no standard raw socket support in the Winsock API.
 	     Maybe we should use the ICMP.DLL API instead ? 
+Fix:	     Noticed that the above DLL is unusable for our purposes.
+	     Windows 2000 is said to support raw sockets like any other Unix
+	     but it is *not* well known to work properly.
 
 Bug:	     B0016
 From:	     ela <stefan@lkcc.org>
@@ -52,6 +55,8 @@ From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-10-01/mgrabmue)
 Date:	     2000-09-20
 Description: Serveez does not run on i64 Linux.
+Fix:	     Made minor changes to the Sizzle core library (garbage 
+	     collection).
 
 Bug:	     B0013
 From:	     ela <stefan@lkcc.org>
@@ -96,8 +101,9 @@ Bug:	     B0009
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-07-06/raimi)
 Date:	     2000-06-21
-Description: Filesize 0 for http files is not handled specifically.
-             http directory listing does not show the actual directory.
+Description: Filesize 0 (zero) for http files is not handled specifically.
+             HTTP directory listing does not show the actual directory.
+Fix:	     Added some extra code for this.
 
 Bug:         B0008
 From:	     ela <stefan@lkcc.org>
@@ -118,7 +124,6 @@ From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-11-18/ela)
 Date:	     1999-10-27
 Description: accept() fails under SunOS 5.6 with a "bad address" error.
-
 
 Bug:         B0005
 From:	     ela <stefan@lkcc.org>

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.20 2000/12/10 12:26:38 ela Exp $
+ * $Id: pipe-socket.c,v 1.21 2000/12/12 12:12:38 ela Exp $
  *
  */
 
@@ -287,6 +287,9 @@ pipe_write (socket_t sock)
   do_write = sock->send_buffer_fill;
 
 #ifdef __MINGW32__
+  /* Named pipes in Win32 cannot transfer more than 64KB at once. */
+  if (do_write > 64 * 1024) do_write = 64 * 1024;
+
   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
 		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
     {
@@ -301,7 +304,8 @@ pipe_write (socket_t sock)
        * checking if pending write operation has been completed.
        */
       if (!GetOverlappedResult (sock->pipe_desc[WRITE], 
-				sock->overlap[WRITE], &num_written, FALSE))
+				sock->overlap[WRITE], 
+				(DWORD *) &num_written, FALSE))
 	{
 	  if (GetLastError () != ERROR_IO_INCOMPLETE)
 	    {
@@ -327,7 +331,7 @@ pipe_write (socket_t sock)
 #endif /* not __MINGW32__ */
 
   /* Some data has been successfully written to the pipe. */
-  else if (num_written > 0)
+  if (num_written > 0)
     {
       sock->last_send = time (NULL);
       if (sock->send_buffer_fill > num_written)

@@ -1,3 +1,8 @@
+2000-12-12  [ Ela ]  <ela@lkcc.org>
+
+	* server-socket.c (server_create): Print some error message if
+	IP_HDRINCL is not defined.
+
 2000-12-09  [ Ela ]  <ela@lkcc.org>
 
 	* pipe-socket.c (pipe_write): Using Overlapped I/O when writing

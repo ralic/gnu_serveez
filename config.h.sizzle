@@ -343,7 +343,7 @@
 #define PACKAGE "sizzle"
 
 /* Version number of package */
-#define VERSION "0.0.29"
+#define VERSION "0.0.30"
 
 /* Define if debug code should be suppressed. */
 #define NDEBUG 1

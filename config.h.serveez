@@ -49,6 +49,9 @@
 /* Define if you have the mkfifo function.  */
 /* #undef HAVE_MKFIFO */
 
+/* Define if you have the mknod function.  */
+/* #undef HAVE_MKNOD */
+
 /* Define if you have the poll function.  */
 /* #undef HAVE_POLL */
 
@@ -129,6 +132,9 @@
 
 /* Define if you have the <varargs.h> header file.  */
 #define HAVE_VARARGS_H 1
+
+/* Define if you have the <ws2tcpip.h> header file.  */
+#define HAVE_WS2TCPIP_H 1
 
 /* Define if your processor stores words with the most significant 
    byte first (like Motorola and SPARC, unlike Intel and VAX). */

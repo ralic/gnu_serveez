@@ -1,3 +1,10 @@
+2000-12-12  [ Ela ]  <ela@lkcc.org>
+
+	* Release of version 0.0.19: Last known to include the Quake III
+	license server which we are going to drop due to legacy reasons
+	and the support of commercial software which is not the aim
+	of the GNU project.
+
 2000-12-06  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
 
 	* autogen.sh: Added `--enable-maintainer-mode' so that the

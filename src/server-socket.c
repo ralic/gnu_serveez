@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.41 2000/12/10 12:26:38 ela Exp $
+ * $Id: server-socket.c,v 1.42 2000/12/12 12:12:38 ela Exp $
  *
  */
 
@@ -173,6 +173,7 @@ server_create (portcfg_t *cfg)
        */
       if (cfg->proto & PROTO_RAW)
 	{
+#ifdef IP_HDRINCL
 	  optval = 1;
 	  if (setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
 			  (void *) &optval, sizeof (optval)) < 0)
@@ -182,6 +183,11 @@ server_create (portcfg_t *cfg)
 		log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	      return NULL;
 	    }
+#else /* not IP_HDRINCL */
+	  closesocket (server_socket);
+	  log_printf (LOG_ERROR, "setsockopt: IP_HDRINCL undefined\n");
+	  return NULL;
+#endif /* IP_HDRINCL */
 	}
 
       /* 
