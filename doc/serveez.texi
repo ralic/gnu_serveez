@@ -1501,6 +1501,17 @@ but on NT4 recvfrom()/WSARecvFrom fail with 10056 (WSAEISCONN). NOTE:
 sendto()/WSASendTo() fail with WSAEISCONN on both (which I don't see 
 any reason for, but anyway...).
 
+@item Raw sockets on Windows systems
+Raw sockets require Winsock 2. To use them under Windows NT/2000, you must 
+be logged in as an Administrator. On any other Microsoft's we are using 
+the ICMP.DLL (an idiotic and almost useless API that some guys insist on 
+using in their applications). This DLL is an undocumented API for sending 
+ICMP echo packets, also called "pings". This API works fine and is present 
+on all current Windows boxes with Microsoft Winsocks, but Microsoft says 
+they'll replace it as soon as something better comes along. (Microsoft's 
+been saying this since the Windows 95 days, however, yet this functionality 
+still exists in Windows 2000.)
+
 @item Miscellaneous
 To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
 and #include "windows.h" at the top of your source file(s). You'll also
@@ -1958,9 +1969,11 @@ Software Foundation, write to the Free Software Foundation; we sometimes
 make exceptions for this.  Our decision will be guided by the two goals
 of preserving the free status of all derivatives of our free software and
 of promoting the sharing and reuse of software generally.
+@end enumerate
 
 @section No warranty
 
+@enumerate 11
 @item
 BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
 FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
