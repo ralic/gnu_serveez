@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.15 2000/09/08 07:45:17 ela Exp $
+ * $Id: http-cache.c,v 1.16 2000/09/21 15:27:11 ela Exp $
  *
  */
 
@@ -192,7 +192,10 @@ static void
 http_cache_destroy_entry (http_cache_entry_t *cache)
 {
   http_urgent_cache (cache);
-  hash_delete (http_cache, cache->file);
+  if (hash_delete (http_cache, cache->file) != cache)
+    {
+      log_printf (LOG_ERROR, "cache: inconsistent http hash\n");
+    }
   if (cache->buffer) xfree (cache->buffer);
   xfree (cache->file);
   xfree (cache);
@@ -266,6 +269,7 @@ http_init_cache (char *file, http_cache_t *cache)
       if (!slot) 
 	{
 	  cache->entry = NULL;
+	  cache->buffer = NULL;
 	  return -1;
 	}
 

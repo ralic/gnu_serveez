@@ -458,6 +458,11 @@ the send buffer.
 @item disconnected_socket
 This gets called whenever the socket is lost for some external reason.
 
+@item connected_socket
+If some piece of code tries to connect to another host via 
+@code{sock_connect} this connection might be established some time later.
+Thus this callback gets called whenever the socket is finally connected.
+
 @item kicked_socket
 We call this whenever the socket gets closed by us.
 
@@ -708,6 +713,32 @@ HTTP request.
 
 In comparison to other web server projects like Apache and Roxen this
 web server is really fast. Comparative benchmarks will follow.
+The benchmark system is a 233 MHz Mobile Pentium MMX. Both the server and
+the client (http_load - multiprocessing http test client) ran on the same
+computer.
+
+@table @asis
+@item Small files
+The small-file test load consists of 1000 files, each 1KB long, requested 
+randomly.
+
+@example
+concurrent fetches   1   10   50  100  200  500  1000
+hits/second        501  520  481  475  420  390   295
+@end example
+
+@item CGI
+The CGI test load consists of a trivial "hello world" C program. I noticed
+Linux to throw "Resource temporarily unavailable" errors when fork()ing
+very fast. This limits the test to about 200 concurrent fetches on the
+test system.
+
+@item Large files
+The large-file test load consists of 100 files, each 1MB long, requested 
+randomly. Also, each connection is throttled to simulate a 33.6Kbps modem. 
+Note that 1000 33.6Kbps connections is 3/4 of a T3. There was no problem to
+get 1000+ concurrent fetches.
+@end table
 
 @subsubsection Configuration
 
@@ -944,7 +975,7 @@ might setup passing the Serveez the -P argument. @xref{Using Serveez}.
 @table @samp
 @item help
 This command will give you a very short help screen of all available
-commands within the control protcol.
+commands within the control protocol.
 
 @item quit
 This command closes the connection to Serveez.
@@ -980,9 +1011,19 @@ state of Serveez in general.
 @exdent Os        : Linux 2.2.10 on i586
 @exdent Sys-Load  : user 0.0%, nice 0.0%, sys 1.0%, idle 99.0%
 @exdent Proc-Load : user 0.0%, sys 0.0%, child user 0.0%, child sys 0.0%
-@exdent 1 connected sockets (hard limit is 200)
+
+@exdent * 1 connected sockets (hard limit is 200)
+@exdent * 178813 bytes of memory in 515 blocks allocated
 @end group
 @end example
+
+@item stat coserver
+Statistics about all running Co-Server instances.
+
+@item stat SERVER
+This command ist for selecting certain Server instances to be listed.
+SERVER should be one of server names which you specified in the 
+configuration file.
 
 @item stat id NUM
 Show statistics about a specific connection. This will give you all

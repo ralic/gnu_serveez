@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.12 2000/09/17 17:00:57 ela Exp $
+ * $Id: alloc.c,v 1.13 2000/09/21 15:27:11 ela Exp $
  *
  */
 
@@ -180,9 +180,8 @@ xrealloc (void * ptr, unsigned size)
       if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
 	{
-	  log_printf (LOG_DEBUG, 
-		      "xrealloc: %p not found in heap (caller: %p)\n", 
-		      ptr, __builtin_return_address (0));
+	  fprintf (stdout, "xrealloc: %p not found in heap (caller: %p)\n", 
+		   ptr, __builtin_return_address (0));
 	  assert (0);
 	}
       free (block);
@@ -267,9 +266,8 @@ xfree (void * ptr)
       if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
 	{
-	  log_printf (LOG_DEBUG, 
-		      "xfree: %p not found in heap (caller: %p)\n", 
-		      ptr, __builtin_return_address (0));
+	  fprintf (stdout, "xfree: %p not found in heap (caller: %p)\n", 
+		   ptr, __builtin_return_address (0));
 	  assert (0);
 	}
       free (block);
@@ -307,7 +305,7 @@ xheap (void)
 	{
 	  up = (unsigned *) block[n]->ptr;
 	  up -= 2;
-	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
+	  fprintf (stdout, "xheap: caller = %p, ptr = %p, size = %u\n",
 		   block[n]->caller, block[n]->ptr, block[n]->size);
 	  util_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
 			block[n]->ptr, *up, 256);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.6 2000/09/20 08:29:14 ela Exp $
+ * $Id: server-loop.c,v 1.7 2000/09/21 15:27:11 ela Exp $
  *
  */
 
@@ -103,22 +103,19 @@ server_check_sockets_select (void)
 	    continue;
 
 	  /* 
-	   * Put a pipe's descriptor into WRITE and EXCEPT set. Do this 
-	   * if it is Unix not Win32.
+	   * Put a pipe's descriptor into WRITE and EXCEPT set.
 	   */
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
 	      FD_SET (sock->pipe_desc[WRITE], &except_fds);
 	      if (sock->pipe_desc[WRITE] > nfds)
 		nfds = sock->pipe_desc[WRITE];
-
 	      if (sock->send_buffer_fill > 0)
 		FD_SET (sock->pipe_desc[WRITE], &write_fds);
 	    }
 
 	  /* 
 	   * Put a pipe's descriptor into READ set for getting data.
-	   * Do this if it is Unix not Win32.
 	   */
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
@@ -195,8 +192,8 @@ server_check_sockets_select (void)
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
 
-      /* Handle pipes. Different in Win32 and Unices. */
-      else if (sock->flags & SOCK_FLAG_PIPE)
+      /* Handle pipes. */
+      if (sock->flags & SOCK_FLAG_PIPE)
 	{
 	  /* Make listening pipe servers listen. */
 	  if (sock->flags & SOCK_FLAG_LISTENING)
@@ -268,6 +265,7 @@ server_check_sockets_select (void)
 	  /* Is socket writeable ? */
 	  if (FD_ISSET (sock->sock_desc, &write_fds))
 	    {
+	      /* Socket connecting ? */
 	      if (sock->flags & SOCK_FLAG_CONNECTING)
 		{
 		  if (sock->connected_socket)
@@ -277,13 +275,16 @@ server_check_sockets_select (void)
 			continue;
 		      }
 		}
-
-	      else if (sock->write_socket)
-		if (sock->write_socket(sock))
-		  {
-		    sock_schedule_for_shutdown (sock);
-		    continue;
-		  }
+	      /* No. Just writeable. */
+	      else 
+		{
+		  if (sock->write_socket)
+		    if (sock->write_socket(sock))
+		      {
+			sock_schedule_for_shutdown (sock);
+			continue;
+		      }
+		}
 	    }
 	}
     }
@@ -300,7 +301,7 @@ server_check_sockets_select (void)
   return 0;
 }
 
-#endif /* __MINGW32__ */
+#endif /* not __MINGW32__ */
 
 #if HAVE_POLL && ENABLE_POLL /* configure'd */
 
@@ -477,6 +478,7 @@ server_check_sockets_poll (void)
       if (ufds[fd].revents & POLLOUT)
 	{
 	  polled--;
+	  /* socket connected ? */
 	  if (sock->flags & SOCK_FLAG_CONNECTING)
 	    {
 	      if (sock->connected_socket)
@@ -486,12 +488,16 @@ server_check_sockets_poll (void)
 		    continue;
 		  }
 	    }
-	  else if (sock->write_socket)
-	    if (sock->write_socket (sock))
-	      {
-		sock_schedule_for_shutdown (sock);
-		continue;
-	      }
+	  /* ready for writing */
+	  else 
+	    {
+	      if (sock->write_socket)
+		if (sock->write_socket (sock))
+		  {
+		    sock_schedule_for_shutdown (sock);
+		    continue;
+		  }
+	    }
 	}
 
       /* file descriptor caused some error */
@@ -638,7 +644,7 @@ server_check_sockets_MinGW (void)
 	continue;
 
       /* Handle pipes. Different in Win32 and Unices. */
-      else if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SOCK_FLAG_PIPE)
 	{
 	  /* Make listening pipe servers listen. */
 	  if (sock->flags & SOCK_FLAG_LISTENING)
@@ -650,24 +656,20 @@ server_check_sockets_MinGW (void)
 	      continue;
 	    }
 
-	  /* Handle receiving pipes. */
+	  /* Handle receiving pipes. Is blocking ! */
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-		{
-		  if (sock->read_socket)
-		    if (sock->read_socket (sock))
-		      sock_schedule_for_shutdown (sock);
-		}
+	      if (sock->read_socket)
+		if (sock->read_socket (sock))
+		  sock_schedule_for_shutdown (sock);
 	    }
 
-	  /* Handle sending pipes. */
+	  /* Handle sending pipes. Is blocking ! */
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
-		{
-		  if (sock->write_socket)
-		    if (sock->write_socket (sock))
-		      sock_schedule_for_shutdown (sock);
-		}
+	      if (sock->write_socket)
+		if (sock->write_socket (sock))
+		  sock_schedule_for_shutdown (sock);
 	    }
 	}
 
@@ -696,6 +698,7 @@ server_check_sockets_MinGW (void)
 	  /* Is socket writeable ? */
 	  if (FD_ISSET (sock->sock_desc, &write_fds))
 	    {
+	      /* Finally connected * */
 	      if (sock->flags & SOCK_FLAG_CONNECTING)
 		{
 		  if (sock->connected_socket)
@@ -705,13 +708,16 @@ server_check_sockets_MinGW (void)
 			continue;
 		      }
 		}
-
-	      else if (sock->write_socket)
-		if (sock->write_socket(sock))
-		  {
-		    sock_schedule_for_shutdown (sock);
-		    continue;
-		  }
+	      /* Just writable. */
+	      else 
+		{
+		  if (sock->write_socket)
+		    if (sock->write_socket(sock))
+		      {
+			sock_schedule_for_shutdown (sock);
+			continue;
+		      }
+		}
 	    }
 	}
     }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.26 2000/09/20 08:29:15 ela Exp $
+ * $Id: control-proto.c,v 1.27 2000/09/21 15:27:11 ela Exp $
  *
  */
 
@@ -333,21 +333,22 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
    * to set bits and lowercase to unset bits.
    */
   sock_printf (sock,
-	       " flags    : %s %s %s %s %s %s\r\n"
-	       "            %s %s %s %s %s %s %s\r\n",
-	       xsock->flags & SOCK_FLAG_INBUF ?     "INBUF" : "inbuf",
-	       xsock->flags & SOCK_FLAG_OUTBUF ?    "OUTBUF" : "outbuf",
-	       xsock->flags & SOCK_FLAG_CONNECTED ? "CONNECTED" : "connected",
-	       xsock->flags & SOCK_FLAG_LISTENING ? "LISTENING" : "listening",
-	       xsock->flags & SOCK_FLAG_KILLED ?    "KILLED" : "killed",
-	       xsock->flags & SOCK_FLAG_NOFLOOD ?   "flood" : "FLOOD",
-	       xsock->flags & SOCK_FLAG_INITED ?    "INITED" : "inited",
-	       xsock->flags & SOCK_FLAG_COSERVER ?  "COSERVER" : "coserver",
-	       xsock->flags & SOCK_FLAG_PIPE ?      "PIPE" : "pipe",
-	       xsock->flags & SOCK_FLAG_FILE ?      "FILE" : "file",
-	       xsock->flags & SOCK_FLAG_SOCK ?      "SOCK" : "sock",
-	       xsock->flags & SOCK_FLAG_ENQUEUED ?  "ENQUEUED" : "enqueued",
-	       xsock->flags & SOCK_FLAG_PRIORITY ?  "PRIORITY" : "priority");
+    " flags    : %s %s %s %s %s %s %s\r\n"
+    "            %s %s %s %s %s %s %s\r\n",
+    xsock->flags & SOCK_FLAG_INBUF ?      "INBUF" : "inbuf",
+    xsock->flags & SOCK_FLAG_OUTBUF ?     "OUTBUF" : "outbuf",
+    xsock->flags & SOCK_FLAG_CONNECTED ?  "CONNECTED" : "connected",
+    xsock->flags & SOCK_FLAG_LISTENING ?  "LISTENING" : "listening",
+    xsock->flags & SOCK_FLAG_KILLED ?     "KILLED" : "killed",
+    xsock->flags & SOCK_FLAG_NOFLOOD ?    "flood" : "FLOOD",
+    xsock->flags & SOCK_FLAG_CONNECTING ? "CONNECTING" : "connecting",
+    xsock->flags & SOCK_FLAG_INITED ?     "INITED" : "inited",
+    xsock->flags & SOCK_FLAG_COSERVER ?   "COSERVER" : "coserver",
+    xsock->flags & SOCK_FLAG_PIPE ?       "PIPE" : "pipe",
+    xsock->flags & SOCK_FLAG_FILE ?       "FILE" : "file",
+    xsock->flags & SOCK_FLAG_SOCK ?       "SOCK" : "sock",
+    xsock->flags & SOCK_FLAG_ENQUEUED ?   "ENQUEUED" : "enqueued",
+    xsock->flags & SOCK_FLAG_PRIORITY ?   "PRIORITY" : "priority");
 
   sock_printf (sock, " protocol : ");
 

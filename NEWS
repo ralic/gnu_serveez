@@ -26,6 +26,7 @@ This file lists user visible changes that were made between releases.
 Version 0.0.18
 --------------
 
+ * --enable-crypt option
  * native Win32 port with M$ Visual C++ compiler
  * Gnutella spider, enable via --enable-gnutella
  * --disable-poll option
