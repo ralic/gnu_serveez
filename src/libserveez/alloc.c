@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.17 2001/09/11 15:05:48 ela Exp $
+ * $Id: alloc.c,v 1.18 2001/09/25 16:19:38 ela Exp $
  *
  */
 
@@ -138,7 +138,7 @@ svz_malloc (size_t size)
 {
   void *ptr;
 #if ENABLE_DEBUG
-  size_t *up;
+  size_t *p;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
@@ -152,10 +152,10 @@ svz_malloc (size_t size)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
-      up = (size_t *) ptr;
-      *up = size;
-      up += 2;
-      ptr = (void *) up;
+      p = (size_t *) ptr;
+      *p = size;
+      p += 2;
+      ptr = (void *) p;
 #if DEBUG_MEMORY_LEAKS
       /* put heap pointer into special heap hash */
       block = svz_malloc_func (sizeof (heap_block_t));
@@ -195,17 +195,16 @@ svz_calloc (size_t size)
 }
 
 /*
- * Change the size of a @code{svz_malloc()}'ed block of memory. @var{size} 
- * is the new size of the block in bytes, The given variable @var{ptr} should 
- * be a pointer previously returned by @code{svz_malloc()} or @code{NULL} if
- * you just want to allocate a new block.
+ * Change the size of a @code{svz_malloc()}'ed block of memory. The @var{size} 
+ * argument is the new size of the block in bytes, The given variable 
+ * @var{ptr} must be a pointer previously returned by @code{svz_malloc()} or 
+ * @code{NULL} if you want to allocate a new block.
  */
 void *
 svz_realloc (void *ptr, size_t size)
 {
 #if ENABLE_DEBUG
-  size_t old_size;
-  size_t *up;
+  size_t old_size, *p;
 #endif /* ENABLE_DEBUG */
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
@@ -230,10 +229,10 @@ svz_realloc (void *ptr, size_t size)
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get previous blocksize */
-      up = (size_t *) ptr;
-      up -= 2;
-      old_size = *up;
-      ptr = (void *) up;
+      p = (size_t *) ptr;
+      p -= 2;
+      old_size = *p;
+      ptr = (void *) p;
 #endif /* ENABLE_HEAP_COUNT */
 
       if ((ptr = (void *) svz_realloc_func (ptr, size + 2 * sizeof (size_t))) 
@@ -241,10 +240,10 @@ svz_realloc (void *ptr, size_t size)
 	{
 #if ENABLE_HEAP_COUNT
 	  /* save block size */
-	  up = (size_t *) ptr;
-	  *up = size;
-	  up += 2;
-	  ptr = (void *) up;
+	  p = (size_t *) ptr;
+	  *p = size;
+	  p += 2;
+	  ptr = (void *) p;
 
 #if DEBUG_MEMORY_LEAKS
 	  block = svz_malloc_func (sizeof (heap_block_t));
@@ -287,8 +286,7 @@ svz_free (void *ptr)
 {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-  size_t size;
-  size_t *up;
+  size_t size, *p;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
@@ -301,8 +299,6 @@ svz_free (void *ptr)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-      up = (size_t *) ptr;
-
 #if DEBUG_MEMORY_LEAKS
       if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
@@ -315,11 +311,12 @@ svz_free (void *ptr)
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get blocksize */
-      up -= 2;
-      size = *up;
+      p = (size_t *) ptr;
+      p -= 2;
+      size = *p;
+      ptr = (void *) p;
       assert (size);
       svz_allocated_bytes -= size;
-      ptr = (void *) up;
 #endif /* ENABLE_HEAP_COUNT */
 
       svz_allocated_blocks--;
@@ -331,25 +328,26 @@ svz_free (void *ptr)
 #if DEBUG_MEMORY_LEAKS
 /*
  * Print a list of non-released memory blocks. This is for debugging only
- * and should never occur in final software releases.
+ * and should never occur in final software releases. The function goes
+ * through the heap hash and states each blocks address, size and caller.
  */
 void
 svz_heap (void)
 {
   heap_block_t **block;
   unsigned long n;
-  size_t *up;
+  size_t *p;
 
   if ((block = (heap_block_t **) svz_hash_values (heap)) != NULL)
     {
       for (n = 0; n < (unsigned long) svz_hash_size (heap); n++)
 	{
-	  up = (size_t *) block[n]->ptr;
-	  up -= 2;
+	  p = (size_t *) block[n]->ptr;
+	  p -= 2;
 	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
 		   block[n]->caller, block[n]->ptr, block[n]->size);
 	  svz_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
-		       block[n]->ptr, *up, 256);
+		       block[n]->ptr, *p, 256);
 	  svz_free_func (block[n]);
 	}
       svz_hash_xfree (block);

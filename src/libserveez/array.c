@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.9 2001/07/01 15:56:48 ela Exp $
+ * $Id: array.c,v 1.10 2001/09/25 16:19:38 ela Exp $
  *
  */
 
@@ -114,7 +114,9 @@ svz_array_get (svz_array_t *array, unsigned long index)
 /*
  * Replace the array element at the position @var{index} of the array
  * @var{array} with the value @var{value} and return the previous value
- * at this index.
+ * at this index. Returns @code{NULL} and does not perform any operation
+ * if @var{array} is @code{NULL} or the @var{index} is out of the array
+ * range.
  */
 void *
 svz_array_set (svz_array_t *array, unsigned long index, void *value)
@@ -130,7 +132,7 @@ svz_array_set (svz_array_t *array, unsigned long index, void *value)
 
 /*
  * Append the value @var{value} at the end of the array @var{array}. Does
- * not perform any operation if @var{array} id @code{NULL}.
+ * not perform any operation if @var{array} is @code{NULL}.
  */
 void
 svz_array_add (svz_array_t *array, void *value)

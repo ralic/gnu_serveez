@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.8 2001/09/11 15:05:48 ela Exp $
+ * $Id: alloc.h,v 1.9 2001/09/25 16:19:38 ela Exp $
  *
  */
 
@@ -33,7 +33,7 @@
 
 /*
  * Free the memory block pointed to by @var{var} and set it to @code{NULL}
- * then.
+ * afterwards. The argument @var{var} is passed to @code{svz_free()}.
  */
 #define svz_free_and_zero(var) \
   do { svz_free (var); (var) = NULL; } while (0)
