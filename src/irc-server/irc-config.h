@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.h,v 1.1 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-config.h,v 1.2 2000/07/20 14:39:54 ela Exp $
  *
  */
 
@@ -37,5 +37,6 @@
 void irc_parse_config_lines (irc_config_t *cfg);
 void irc_free_config_lines (irc_config_t *cfg);
 int irc_client_valid (irc_client_t *client, irc_config_t *cfg);
+int irc_oper_valid (irc_client_t *client, irc_config_t *cfg);
 
 #endif /* __IRC_CONFIG_H__ */

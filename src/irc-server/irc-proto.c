@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.9 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-proto.c,v 1.10 2000/07/20 14:39:55 ela Exp $
  *
  */
 
@@ -298,22 +298,45 @@ irc_join_channel (irc_config_t *cfg,
       /* no, add nick to channel */
       if (n == channel->clients)
 	{
-	  channel->client[n] = client;
-	  channel->cflag[n] = 0;
-	  channel->clients++;
+	  /* joined just too many channels ? */
+	  if (client->channels >= MAX_CHANNELS)
+	    {
+	      irc_printf (client->sock, 
+			  ":%s %03d %s " ERR_TOOMANYCHANNELS_TEXT "\n",
+			  cfg->host, ERR_TOOMANYCHANNELS, client->nick,
+			  channel->name);
+	    }
+	  else
+	    {
+	      channel->client[n] = client;
+	      channel->cflag[n] = 0;
+	      channel->clients++;
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "irc: %s joined channel %s\n", 
-		      client->nick, channel->name);
+	      log_printf (LOG_DEBUG, "irc: %s joined channel %s\n", 
+			  client->nick, channel->name);
 #endif
-	  n = client->channels;
-	  client->channel[n] = channel;
-	  client->channels++;
+	      n = client->channels;
+	      client->channel = xrealloc (client->channel, 
+					  sizeof (irc_channel_t *) * (n + 1));
+	      client->channel[n] = channel;
+	      client->channels++;
+	    }
 	}
     }
 
   /* no, the channel does not exists, yet */
   else
     {
+      /* check if the client has not joined too many channels */
+      if (client->channels >= MAX_CHANNELS)
+	{
+	  irc_printf (client->sock, 
+		      ":%s %03d %s " ERR_TOOMANYCHANNELS_TEXT "\n",
+		      cfg->host, ERR_TOOMANYCHANNELS, client->nick,
+		      chan);
+	  return 0;
+	}
+
       /* create one and set the first client as operator */
       channel = irc_add_channel (cfg, chan);
       channel->client[0] = client;
@@ -327,6 +350,8 @@ irc_join_channel (irc_config_t *cfg,
 		  client->nick, channel->name);
 #endif
       n = client->channels;
+      client->channel = xrealloc (client->channel, 
+				  sizeof (irc_channel_t *) * (n + 1));
       client->channel[n] = channel;
       client->channels++;
     }
@@ -362,6 +387,17 @@ irc_leave_channel (irc_config_t *cfg,
 	  if (client->channel[i] == channel)
 	    {
 	      client->channel[i] = client->channel[last];
+	      if (client->channels != 1)
+		{
+		  client->channel = xrealloc (client->channel, 
+					      sizeof (irc_channel_t *) * 
+					      (client->channels - 1));
+		}
+	      else
+		{
+		  xfree (client->channel);
+		  client->channel = NULL;
+		}
 	      client->channels--;
 	      break;
 	    }
@@ -533,6 +569,7 @@ irc_idle (socket_t sock)
  */
 irc_callback_t irc_callback[] =
 {
+  { 0, "OPER",     irc_oper_callback     },
   { 0, "INFO",     irc_info_callback     },
   { 0, "KILL",     irc_kill_callback     },
   { 0, "ERROR",    irc_error_callback    },
@@ -582,6 +619,8 @@ irc_handle_request (socket_t sock, char *request, int len)
       if (!util_strcasecmp (irc_callback[n].request, irc_request.request))
 	{
 	  irc_callback[n].count++;
+	  client->recv_bytes += len;
+	  client->recv_packets++;
 	  return 
 	    irc_callback[n].func (sock, client, &irc_request);
 	}
@@ -684,11 +723,10 @@ irc_add_client_history (irc_config_t *cfg, irc_client_t *cl)
   irc_client_history_t *client;
 
   client = xmalloc (sizeof (irc_client_history_t));
-  strcpy (client->nick, cl->nick);
-  strcpy (client->user, cl->user);
-  strcpy (client->host, cl->host);
-  strcpy (client->real, cl->real);
-  
+  client->nick = xstrdup (cl->nick);
+  client->user = xstrdup (cl->user);
+  client->host = xstrdup (cl->host);
+  client->real = xstrdup (cl->real);
   client->next = cfg->history;
   cfg->history = client;
 }
@@ -706,9 +744,9 @@ irc_find_nick_history (irc_config_t *cfg,
   irc_client_history_t *client;
 
   client = cl ? cl->next : cfg->history;
-  for(; client; client = client->next)
+  for (; client; client = client->next)
     {
-      if(!irc_string_equal(client->nick, nick))
+      if (!irc_string_equal (client->nick, nick))
 	{
 	  return client;
 	}
@@ -728,6 +766,10 @@ irc_delete_client_history (irc_config_t *cfg)
   for (client = cfg->history; client; client = old)
     {
       old = client->next;
+      xfree (client->nick);
+      xfree (client->user);
+      xfree (client->host);
+      xfree (client->real);
       xfree (client);
     }
   cfg->history = NULL;
@@ -746,6 +788,13 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
   if (hash_delete (cfg->clients, client->nick) == NULL)
     return -1;
 
+  if (client->nick) xfree (client->nick);
+  if (client->real) xfree (client->real);
+  if (client->user) xfree (client->user);
+  if (client->server) xfree (client->server);
+  if (client->channel) xfree (client->channel);
+  if (client->pass) xfree (client->pass);
+  if (client->away) xfree (client->away);
   xfree (client);
   cfg->users--;
 

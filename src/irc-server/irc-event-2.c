@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.6 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-event-2.c,v 1.7 2000/07/20 14:39:54 ela Exp $
  *
  */
 
@@ -276,7 +276,8 @@ irc_join_callback (socket_t sock,
 
       /* done, do not deny this channel ! */
       irc_join_channel (cfg, client, chan);
-      channel = irc_find_channel (cfg, chan);
+      if ((channel = irc_find_channel (cfg, chan)) == NULL)
+	continue;
 
       /* send back the JOIN to all channel clients */
       for (i = 0; i < channel->clients; i++)

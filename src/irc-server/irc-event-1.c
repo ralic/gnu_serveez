@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.8 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-event-1.c,v 1.9 2000/07/20 14:39:54 ela Exp $
  *
  */
 
@@ -83,7 +83,8 @@ irc_pass_callback (socket_t sock,
   if (irc_check_args (sock, client, cfg, request, 1))
     return -1;
 
-  strcpy (client->pass, request->para[0]);
+  if (client->pass) xfree (client->pass);
+  client->pass = xstrdup (request->para[0]);
   client->key = irc_gen_key (client->pass);
   client->flag |= UMODE_PASS;
 
@@ -231,8 +232,6 @@ irc_nick_callback (socket_t sock,
   /* do you have already specified a valid nick ? */
   if (client->flag & UMODE_NICK)
     {
-      irc_add_client_history (cfg, client);
-
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "irc: %s changed nick to %s\n", 
 		  client->nick, nick);
@@ -250,12 +249,15 @@ irc_nick_callback (socket_t sock,
 			  client->nick, client->user, client->host, nick);
 	    }
 	}
-      strcpy (client->nick, nick);
+      irc_delete_client (cfg, client);
+      xfree (client->nick);
+      client->nick = xstrdup (nick);
+      irc_add_client (cfg, client);
       return 0;
     }
 
   /* this is the first nick you specified ! send init block */
-  strcpy (client->nick, nick);
+  client->nick = xstrdup (nick);
   client->flag |= UMODE_NICK;
 
   return 0;
@@ -286,10 +288,14 @@ irc_user_callback (socket_t sock,
     }
 
   /* store paras in client structure if not done by AUTH-callbacks */
-  if (!client->user[0]) sprintf (client->user, "~%s", request->para[0]);
-  if (!client->host[0]) sprintf (client->host, "%s", request->para[1]);
-  if (!client->server[0]) sprintf (client->server, "%s", request->para[2]);
-  strcpy (client->real, request->para[3]);
+  if (!client->user) 
+    {
+      client->user = xmalloc (strlen (request->para[0]) + 2);
+      sprintf (client->user, "~%s", request->para[0]);
+    }
+  if (!client->host) client->host = xstrdup (request->para[1]);
+  if (!client->server) client->server = xstrdup (request->para[2]);
+  if (!client->real) client->real = xstrdup (request->para[3]);
   client->flag |= UMODE_USER;
 
   return 0;
@@ -372,6 +378,43 @@ irc_motd_callback (socket_t sock,
 		  cfg->host, RPL_ENDOFMOTD, client->nick, cfg->host);
     }
 
+  return 0;
+}
+
+/*
+ *         Command: OPER
+ *      Parameters: <user> <password>
+ * Numeric Replies: ERR_NEEDMOREPARAMS RPL_YOUREOPER
+ *                  ERR_NOOPERHOST     ERR_PASSWDMISMATCH
+ */
+int
+irc_oper_callback (socket_t sock, 
+		   irc_client_t *client,
+		   irc_request_t *request)
+{
+  irc_config_t *cfg = sock->cfg;
+
+  /* did the client send a complete parameter list ? */
+  if (irc_check_args (sock, client, cfg, request, 2))
+    return 0;
+
+  /* copy both parameters into client structure */
+  strcpy (client->pass, request->para[1]);
+  if (!client->user[0]) strcpy (client->user, request->para[0]);
+
+  /* check if this client may be an IRC operator */
+  if (irc_oper_valid (client, cfg))
+    {
+      cfg->operators++;
+      client->flag |= UMODE_OPERATOR;
+      irc_printf (sock, ":%s %03d %s " RPL_YOUREOPER_TEXT "\n",
+		  cfg->host, RPL_YOUREOPER, client->nick); 
+    }
+  else
+    {
+      irc_printf (sock, ":%s %03d %s " ERR_NOOPERHOST_TEXT "\n",
+		  cfg->host, ERR_NOOPERHOST, client->nick);
+    }
   return 0;
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.9 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-core.c,v 1.10 2000/07/20 14:39:54 ela Exp $
  *
  */
 
@@ -37,8 +37,9 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
+#include "alloc.h"
 #include "util.h"
+#include "socket.h"
 #include "coserver/coserver.h"
 #include "irc-core.h"
 #include "irc-server/irc-proto.h"
@@ -60,7 +61,8 @@ irc_nslookup_done (socket_t sock, char *host)
   if (host)
     {
       client->flag |= UMODE_DNS;
-      strcpy (client->host, host);
+      if (client->host) xfree (client->host);
+      client->host = xstrdup (host);
       irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
       return 0;
     }
@@ -82,7 +84,8 @@ irc_ident_done (socket_t sock, char *user)
   if (user)
     {
       client->flag |= UMODE_IDENT;
-      strcpy (client->user, user);
+      if (client->user) xfree (client->user);
+      client->user = xstrdup (user);
       irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
       return 0;
     }
@@ -105,7 +108,7 @@ irc_start_auth (socket_t sock)
    * actual client hash. 
    */
   client = irc_create_client (cfg);
-  strcpy (client->server, cfg->host);
+  client->server = xstrdup (cfg->host);
   client->since = time (NULL);
   client->sock = sock;
   sock->data = client;
@@ -488,15 +491,17 @@ irc_string_regex (char *text, char *regex)
 	{
 	  if (!(*text)) return 0;
 	  text++;
+	  regex++;
 	}
       /* free characters */
       else if (*regex == '*')
 	{
+	  regex++;
 	  /* skip useless '?'s after '*'s */
-	  while (*(regex+1) == '?') regex++;
+	  while (*regex == '?') regex++;
 	  /* skip all characters until next character in pattern found */
 	  while (*text && 
-		 irc_lcset[(unsigned)*(regex+1)] != 
+		 irc_lcset[(unsigned)*regex] != 
 		 irc_lcset[(unsigned)*text]) 
 	    text++;
 	  /* next character in pattern found */
@@ -510,7 +515,6 @@ irc_string_regex (char *text, char *regex)
 	      text = p;
 	    }
 	}
-      regex++;
     }
 
   /* is the text longer than the regex ? */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.9 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-proto.h,v 1.10 2000/07/20 14:39:55 ela Exp $
  *
  */
 
@@ -49,9 +49,6 @@
 
 #define MAX_CHANNELS   32   /* maximum amount of channels per client */
 #define MAX_CLIENTS    128  /* maximum amount of clients per channels */
-#define MAX_SERVERS    4    /* servers this servers can connect to */
-#define MAX_HOSTS      256  /* maximum allowed IRC servers */
-#define MAX_OPERS      4    /* maximum allowed IRC operators */
 #define MAX_MOTD_LINES 256  /* Message of the Day lines */
 #define MOTD_LINE_LEN  80   /* lenght of one MOTD line */
 
@@ -142,23 +139,26 @@ struct irc_kill_user
  */
 struct irc_client
 {
-  char nick[MAX_NICK_LEN];     /* nick name */
-  char real[MAX_NAME_LEN];     /* real name */
-  char user[MAX_NAME_LEN];     /* user name (ident) */
-  char host[MAX_NAME_LEN];     /* host name (nslookup) */
-  char server[MAX_NAME_LEN];   /* the server the client is connected to */
-  /* array of channels this client joined */
-  irc_channel_t *channel[MAX_CHANNELS]; 
-  int channels;                /* amount of channels the client joined */
-  socket_t sock;               /* this clients socket structure */
-  int flag;                    /* this client's user flags */
-  byte key;                    /* the key */
-  char pass[MAX_NAME_LEN];     /* the given password */
-  char away[MAX_MSG_LEN];      /* the away message if UMODE_AWAY is set */
-  int hopcount;                /* the client's hopcount (server distance) */
-  time_t since;                /* signon time */
-  int ping;                    /* ping <-> pong counter */
-  int registered;              /* is client fully registered ? */
+  char *nick;              /* nick name */
+  char *real;              /* real name */
+  char *user;              /* user name (ident) */
+  char *host;              /* host name (nslookup) */
+  char *server;            /* the server the client is connected to */
+  irc_channel_t **channel; /* array of channels this client joined */
+  int channels;            /* amount of channels the client joined */
+  socket_t sock;           /* this clients socket structure */
+  int flag;                /* this client's user flags */
+  byte key;                /* the key */
+  char *pass;              /* the given password */
+  char *away;              /* the away message if UMODE_AWAY is set */
+  int hopcount;            /* the client's hopcount (server distance) */
+  time_t since;            /* signon time */
+  int ping;                /* ping <-> pong counter */
+  int registered;          /* is client fully registered ? */
+  int recv_packets;        /* amount of received messages */
+  int recv_bytes;          /* received bytes */
+  int send_packets;        /* amount of sent messages */
+  int send_bytes;          /* sent bytes */
 };
 
 /*
@@ -166,11 +166,11 @@ struct irc_client
  */
 struct irc_client_history
 {
-  char nick[MAX_NICK_LEN];     /* nick name */
-  char real[MAX_NAME_LEN];     /* real name */
-  char user[MAX_NAME_LEN];     /* user name (ident) */
-  char host[MAX_NAME_LEN];     /* host name (nslookup) */
-  void *next;                  /* next client in the history list */
+  char *nick;                 /* nick name */
+  char *real;                 /* real name */
+  char *user;                 /* user name (ident) */
+  char *host;                 /* host name (nslookup) */
+  irc_client_history_t *next; /* next client in the history list */
 };
 
 /*
@@ -224,7 +224,7 @@ struct irc_server
   int class;                      /* connection class number */
   int connect;                    /* connect = 1 (C line), = 0 (N line) */
   void *cfg;                      /* irc server configuration hash */
-  void *next;                     /* next server in the list */
+  irc_server_t *next;             /* next server in the list */
 };
 
 /*
@@ -476,6 +476,7 @@ int irc_global_finalize (void);
 #define ERR_CANNOTSENDTOCHAN_TEXT "%s :Cannot send to channel."
 
 #define ERR_TOOMANYCHANNELS       405
+#define ERR_TOOMANYCHANNELS_TEXT  "%s :You have joined too many channels"
 
 #define ERR_WASNOSUCHNICK         406
 #define ERR_WASNOSUCHNICK_TEXT    "%s :There was no such nickname"
@@ -565,7 +566,10 @@ int irc_global_finalize (void);
 #define ERR_CHANOPRIVSNEEDED_TEXT "%s :You're not channel operator."
 
 #define ERR_CANTKILLSERVER        483
+
 #define ERR_NOOPERHOST            491
+#define ERR_NOOPERHOST_TEXT       ":No O-lines for your host"
+
 #define ERR_UMODEUNKNOWNFLAG      501
 
 #define ERR_USERSDONTMATCH        502
@@ -675,6 +679,8 @@ int irc_global_finalize (void);
 #define RPL_ENDOFMOTD_TEXT        ":End of /MOTD command"
 
 #define RPL_YOUREOPER             381
+#define RPL_YOUREOPER_TEXT        ":You are now an IRC operator"
+
 #define RPL_REHASHING             382
 
 #define RPL_TIME                  391

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.7 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-event-7.c,v 1.8 2000/07/20 14:39:55 ela Exp $
  *
  */
 
@@ -143,7 +143,8 @@ irc_away_callback (socket_t sock,
       irc_printf (sock, ":%s %03d %s " RPL_NOWAWAY_TEXT "\n",
 		  cfg->host, RPL_NOWAWAY, client->nick);
       client->flag |= UMODE_AWAY;
-      strcpy (client->away, request->para[0]);
+      if (client->away) xfree (client->away);
+      client->away = xstrdup (request->para[0]);
     }
   return 0;
 }

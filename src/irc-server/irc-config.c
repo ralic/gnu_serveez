@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.2 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-config.c,v 1.3 2000/07/20 14:39:54 ela Exp $
  *
  */
 
@@ -370,6 +370,38 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
     }
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "irc: not a valid client (%s@%s)\n",
+	      client->user, client->host);
+#endif
+
+  return 0;
+}
+
+/*
+ * The following function performs a check for the given client 
+ * being able to get IRC operator. Return NULL on errors.
+ */
+int
+irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
+{
+  irc_oper_t *oper;
+
+  for (oper = cfg->operator_auth; oper; oper = oper->next)
+    {
+      if (irc_string_regex (client->user, oper->user) &&
+	  irc_string_regex (client->host, oper->host) &&
+	  irc_string_regex (client->nick, oper->nick) &&
+	  !strcmp (client->pass, oper->password))
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "irc: valid operator: %s\n",
+		      oper->line);
+#endif
+	  return -1;
+	}
+    }
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "irc: not a valid operator (%s@%s)\n",
 	      client->user, client->host);
 #endif
 

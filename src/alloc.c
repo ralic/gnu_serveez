@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.6 2000/07/19 14:12:33 ela Exp $
+ * $Id: alloc.c,v 1.7 2000/07/20 14:39:54 ela Exp $
  *
  */
 
@@ -164,12 +164,13 @@ char *
 xstrdup (char *src)
 {
   char *dst;
+  int len;
 
-  if (src == NULL || strlen (src) == 0)
+  if (src == NULL || (len = strlen (src)) == 0)
     return NULL;
 
-  dst = xmalloc (strlen (src) + 1);
-  memcpy (dst, src, strlen (src) + 1);
+  dst = xmalloc (len + 1);
+  memcpy (dst, src, len + 1);
 
   return dst;
 }

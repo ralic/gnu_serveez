@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event.h,v 1.6 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-event.h,v 1.7 2000/07/20 14:39:55 ela Exp $
  *
  */
 
@@ -43,7 +43,7 @@
  *    4.1.2 Nickname message           * Yes  * Ok
  *    4.1.3 User message               * Yes  * Ok
  *    4.1.4 Server message             * No   *
- *    4.1.5 Operator message           * No   *
+ *    4.1.5 Operator message           * Yes  * Seems Ok
  *    4.1.6 Quit message               * Yes  * Ok
  *    4.1.7 Server Quit message        * No   *
  * 4.2 Channel operations
@@ -65,7 +65,7 @@
  *    4.3.5 Connect message            * No   *
  *    4.3.6 Trace message              * No   *
  *    4.3.7 Admin message              * Yes  *
- *    4.3.8 Info message               * No   *
+ *    4.3.8 Info message               * Yes  *
  * 4.4 Sending messages
  *    4.4.1 Private messages           * Yes  * Ok
  *    4.4.2 Notice messages            * Yes  * Ok
@@ -109,6 +109,7 @@ int irc_user_callback (CALLBACK_ARGS);
 int irc_nick_callback (CALLBACK_ARGS);
 int irc_quit_callback (CALLBACK_ARGS);
 int irc_motd_callback (CALLBACK_ARGS);
+int irc_oper_callback (CALLBACK_ARGS);
 
 /* Channel operations */
 int irc_part_callback   (CALLBACK_ARGS);
