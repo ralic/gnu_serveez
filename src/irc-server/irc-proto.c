@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.34 2001/06/27 20:38:36 ela Exp $
+ * $Id: irc-proto.c,v 1.35 2001/07/06 16:40:02 ela Exp $
  *
  */
 
@@ -910,7 +910,7 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 	      !strcmp (client[n]->host, host))
 	    {
 	      fclient = client[n];
-	      svz_free (client);
+	      svz_hash_xfree (client);
 	      return fclient;
 	    }
 	}

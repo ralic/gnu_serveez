@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.8 2001/05/19 23:04:58 ela Exp $
+ * $Id: nut-hostlist.c,v 1.9 2001/07/06 16:40:03 ela Exp $
  *
  */
 
@@ -129,8 +129,10 @@ nut_hosts_check (svz_socket_t *sock)
 	    {
 	      /* send buffer queue overrun ... */
 	      if (svz_sock_printf (sock, ".\n.\n.\n") == -1)
-		return -1;
-	      break;
+		{
+		  svz_hash_xfree (host);
+		  return -1;
+		}
 	    }
 	  else
 	    {
@@ -146,7 +148,10 @@ nut_hosts_check (svz_socket_t *sock)
 	      if (svz_sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
 				   nut_client_key (host[n]->ip, host[n]->port),
 				   day, hour, min, sec) == -1)
-		return -1;
+		{
+		  svz_hash_xfree (host);
+		  return -1;
+		}
 	    }
 	}
       svz_hash_xfree (host);

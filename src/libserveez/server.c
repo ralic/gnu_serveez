@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.25 2001/07/01 15:56:48 ela Exp $
+ * $Id: server.c,v 1.26 2001/07/06 16:40:03 ela Exp $
  *
  */
 
@@ -279,7 +279,7 @@ svz_hash_t *svz_servers = NULL;
 
 /*
  * Run all the server instances's notify routines. This should be regularly
- * called within the @code{svz_server_periodic_tasks()} function.
+ * called within the @code{svz_periodic_tasks()} function.
  */
 void
 svz_server_notifiers (void)

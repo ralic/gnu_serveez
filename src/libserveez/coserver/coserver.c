@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.18 2001/07/05 21:35:26 ela Exp $
+ * $Id: coserver.c,v 1.19 2001/07/06 16:40:03 ela Exp $
  *
  */
 
@@ -973,9 +973,7 @@ svz_coserver_finalize (void)
 
   /* @code{svz_free()} all callbacks left so far. */
   svz_hash_foreach_value (svz_coserver_callbacks, cb, n)
-    {
-      svz_free (cb[n]);
-    }
+    svz_free (cb[n]);
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "coserver: %d callback(s) left\n",
 	   svz_hash_size (svz_coserver_callbacks));

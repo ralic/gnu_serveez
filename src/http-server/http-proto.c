@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.69 2001/06/27 20:38:36 ela Exp $
+ * $Id: http-proto.c,v 1.70 2001/07/06 16:40:02 ela Exp $
  *
  */
 
@@ -29,6 +29,7 @@
 #if ENABLE_HTTP_PROTO
 
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -333,10 +334,7 @@ http_free_socket (svz_socket_t *sock)
 
   /* is the cache entry used ? */
   if (http->cache)
-    {
-      svz_free (http->cache);
-      http->cache = NULL;
-    }
+    svz_free_and_zero (http->cache);
 
   /* close the file descriptor for usual http file transfer */
   if (sock->file_desc != -1)
@@ -1196,7 +1194,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
     }
 
   /* create a cache structure for the http socket structure */
-  cache = svz_malloc (sizeof (http_cache_t));
+  cache = svz_calloc (sizeof (http_cache_t));
   http->cache = cache;
       
   /* return the file's current cache status */

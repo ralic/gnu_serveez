@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.29 2001/07/03 10:43:31 ela Exp $
+ * $Id: http-cache.c,v 1.30 2001/07/06 16:40:02 ela Exp $
  *
  */
 
@@ -85,7 +85,7 @@ http_free_cache (void)
   files = 0;
   total = 0;
 
-  svz_hash_foreach_value (http_cache, cache ,n)
+  svz_hash_foreach_value (http_cache, cache, n)
     {
       total += cache[n]->size;
       files++;
@@ -122,7 +122,7 @@ http_cache_consistency (void)
       /* cache entry must be completely unused if not ready */
       if (!cache[o]->ready)
 	{
-	  assert (cache[o]->size == 0 && 
+	  assert (cache[o]->size == 0 &&
 		  cache[o]->buffer == NULL && cache[o]->hits == 0);
 	}
       /* if ready a cache entry must contain something */
@@ -244,13 +244,21 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
     {
       svz_log (LOG_ERROR, "cache: inconsistent http hash\n");
     }
-  if (cache->ready)
-    {
-      if (cache->buffer) 
-	svz_free (cache->buffer);
-    }
+  if (cache->buffer) 
+    svz_free (cache->buffer);
   svz_free (cache->file);
   svz_free (cache);
+}
+
+/*
+ * Reset the cache entry of a http sockets cache structre.
+ */
+static void
+http_cache_reset (http_cache_t *cache)
+{
+  cache->size = 0;
+  cache->buffer = NULL;
+  cache->entry = NULL;
 }
 
 /*
@@ -269,7 +277,8 @@ http_cache_disconnect (svz_socket_t *sock)
       if (!http->cache->entry->ready)
 	{
 	  http_cache_destroy_entry (http->cache->entry);
-	  http->cache->entry = NULL;
+	  svz_free (http->cache->buffer);
+	  http_cache_reset (http->cache);
 	}
     }
   return http_disconnect (sock);
@@ -317,8 +326,7 @@ http_init_cache (char *file, http_cache_t *cache)
       /* not a "reinitialable" cache entry found */
       if (!slot) 
 	{
-	  cache->entry = NULL;
-	  cache->buffer = NULL;
+	  http_cache_reset (cache);
 	  http_cache_consistency ();
 	  return -1;
 	}
@@ -336,9 +344,8 @@ http_init_cache (char *file, http_cache_t *cache)
    * initialize the cache entry for the cache file reader: cachebuffer 
    * is not allocated yet and current cache length is zero
    */
+  http_cache_reset (cache);
   cache->entry = slot;
-  cache->buffer = NULL;
-  cache->size = 0;
 
   http_cache_consistency ();
   return 0;
@@ -472,8 +479,7 @@ http_cache_read (svz_socket_t *sock)
       if (cache->size > 0) 
 	{
 	  svz_free (cache->buffer);
-	  cache->buffer = NULL;
-	  cache->size = 0;
+	  http_cache_reset (cache);
 	}
       return -1;
     }
@@ -501,6 +507,7 @@ http_cache_read (svz_socket_t *sock)
       cache->entry->size = cache->size;
       cache->entry->buffer = cache->buffer;
       cache->entry->ready = 42;
+      http_cache_reset (cache);
       return -1;
     }
 
@@ -508,15 +515,18 @@ http_cache_read (svz_socket_t *sock)
   if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cache: file successfully read\n");
+      svz_log (LOG_DEBUG, "cache: `%s' successfully read\n", 
+	       cache->entry->file);
 #endif
 
       /* fill in the actual cache entry */
       cache->entry->size = cache->size;
       cache->entry->buffer = cache->buffer;
       cache->entry->ready = 42;
+      http_cache_reset (cache);
 
-      /* set flags */
+      /* set flags and reassign default reader */
+      sock->read_socket = svz_tcp_read_socket;
       sock->userflags |= HTTP_FLAG_DONE;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
