@@ -336,8 +336,10 @@ port in detail.
 
 @subsubsection TCP port definition
 Definition of a TCP port configuration with the name "foo-tcp-port". The
-enhanced settings are all optional including the "ipaddr" property which
-defaults to "*" if not given.
+enhanced settings are all optional including the @var{ipaddr} property which
+defaults to @samp{*} if not given. The @var{ipaddr} item can contain any
+form of a dotted decimal internet address, a @samp{*} or a interface 
+description which you can get by running @samp{./serveez -i}.
 
 @example
 (define-port! 'foo-tcp-port '(
@@ -2279,17 +2281,18 @@ Serveez has been build and tested successfully.
 
 @itemize @bullet
 
-@item FreeBSD 3.3 on Intel
-@item FreeBSD 4.0 on Intel
+@item FreeBSD 3.3, 4.0, 4.3 on Intel
 @item FreeBSD 4.0 on Alpha
 @item NetBSD 1.5 on Alpha
 @item GNU/Linux 2.x.x on Intel
 @item GNU/Linux 2.x.x on Alpha
-@item GNU/Linux 2.4.x on i64 (Itanium)
+@item GNU/Linux 2.2.x on Sparc64 (UltraSparcII + MachV)
+@item GNU/Linux 2.2.x on PowerPC (RS/6000)
+@item GNU/Linux 2.4.x on ia64 (Itanium)
 @item GNU/Linux 2.4.x on StrongARM (iPAQ)
-@item Solaris 2.6, 2.7 on Sparc 32, Sparc 64
+@item Solaris 2.6, 2.7, 2.8 on Sparc32, Sparc64
 @item SunOS 5.6 on Intel
-@item AIX 4.3 on RS6000
+@item AIX 4.3 on RS/6000
 @item Windows 95 on Intel
 @item Windows 98 on Intel
 @item Windows Millennium Edition on Intel

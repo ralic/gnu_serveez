@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.22 2001/09/15 16:10:58 ela Exp $
+ * $Id: util.c,v 1.23 2001/09/27 15:47:36 ela Exp $
  *
  */
 
@@ -192,27 +192,27 @@ svz_hexdump (FILE *out,    /* output FILE stream */
 /* On some platforms @code{hstrerror()} can be resolved but is not declared
    anywhere. That is why we do it here by hand. */
 #if defined (HAVE_HSTRERROR) && !defined (DECLARED_HSTRERROR)
-extern const char * hstrerror (int);
+extern char * hstrerror (int);
 #endif
 
 /*
  * This is the @code{hstrerror()} wrapper function, depending on the 
  * configuration file @file{config.h}.
  */
-const char *
+char *
 svz_hstrerror (void)
 {
 #if HAVE_HSTRERROR
 # if HAVE_H_ERRNO
-  return hstrerror (h_errno);
+  return (char *) hstrerror (h_errno);
 # else
-  return hstrerror (errno);
+  return (char *) hstrerror (errno);
 # endif
 #else /* not HAVE_HSTRERROR */
 # if HAVE_H_ERRNO
-  return strerror (h_errno);
+  return (char *) strerror (h_errno);
 # else
-  return strerror (errno);
+  return (char *) strerror (errno);
 # endif
 #endif /* not HAVE_HSTRERROR */
 }

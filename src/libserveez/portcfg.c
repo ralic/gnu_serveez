@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.22 2001/07/01 15:56:48 ela Exp $
+ * $Id: portcfg.c,v 1.23 2001/09/27 15:47:36 ela Exp $
  *
  */
 
@@ -444,6 +444,24 @@ svz_portcfg_finalize (void)
 }
 
 /*
+ * Converts the given network address @var{str} either given in dotted
+ * decimal form or as network interface name and saves the result in the
+ * @code{sockaddr_in.sin_addr.s_addr} field. Return zero on success.
+ */
+static int
+svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
+{
+  svz_interface_t *ifc;
+
+  if ((ifc = svz_interface_search (str)) != NULL)
+    {
+      addr->sin_addr.s_addr = ifc->ipaddr;
+      return 0;
+    }
+  return svz_inet_aton (str, addr);
+}
+
+/*
  * Construct the @code{sockaddr_in} fields from the @code{ipaddr} field.
  * Returns zero if it worked. If it does not work the @code{ipaddr} field
  * did not consist of an ip address in dotted decimal form.
@@ -458,7 +476,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       /* For all network protocols we assign AF_INET as protocol family,
 	 determine the network port (if necessary) and put the ip address. */
     case PROTO_TCP:
-      err = svz_inet_aton (this->tcp_ipaddr, &this->tcp_addr);
+      err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
       this->tcp_addr.sin_family = AF_INET;
       if (!(this->tcp_port > 0 && this->tcp_port < 65536))
 	{
@@ -476,7 +494,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	}
       break;
     case PROTO_UDP:
-      err = svz_inet_aton (this->udp_ipaddr, &this->udp_addr);
+      err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
       this->udp_addr.sin_family = AF_INET;
       if (!(this->udp_port > 0 && this->udp_port < 65536))
 	{
@@ -488,11 +506,11 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	this->udp_addr.sin_port = htons (this->udp_port);
       break;
     case PROTO_ICMP:
-      err = svz_inet_aton (this->icmp_ipaddr, &this->icmp_addr);
+      err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);
       this->icmp_addr.sin_family = AF_INET;
       break;
     case PROTO_RAW:
-      err = svz_inet_aton (this->raw_ipaddr, &this->raw_addr);
+      err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
       this->raw_addr.sin_family = AF_INET;
       break;
       /* The pipe protocol needs a check for the validity of the permissions,

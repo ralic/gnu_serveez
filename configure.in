@@ -1145,7 +1145,7 @@ dnl
 dnl Check for hstrerror(), h_errno and strsignal() functions.
 dnl
 
-AC_CHECK_FUNCS(strsignal hstrerror)
+AC_CHECK_FUNCS(strsignal)
 AC_CACHE_CHECK([whether strsignal is declared], svz_cv_decl_strsignal,
 AC_EGREP_CPP(strsignal, [
     #define _GNU_SOURCE
@@ -1156,6 +1156,12 @@ if test $svz_cv_decl_strsignal = yes ; then
   AC_DEFINE(DECLARED_STRSIGNAL, 1, 
     [Define if the strsignal function is declared in string.h.])
 fi
+
+AC_CHECK_FUNC(hstrerror, have_hstrerror=yes,
+  AC_CHECK_LIB(resolv, hstrerror, have_hstrerror=yes, have_hstrerror=no))
+if test $have_hstrerror = yes ; then
+  AC_DEFINE(HAVE_HSTRERROR, 1, [Define if you have the hstrerror function.])
+fi
 AC_CACHE_CHECK([whether hstrerror is declared], svz_cv_decl_hstrerror,
 AC_EGREP_HEADER(hstrerror, netdb.h,
   svz_cv_decl_hstrerror=yes,
@@ -1164,6 +1170,7 @@ if test $svz_cv_decl_hstrerror = yes ; then
   AC_DEFINE(DECLARED_HSTRERROR, 1, 
     [Define if the hstrerror function is declared in netdb.h.])
 fi
+
 AC_CACHE_CHECK([for h_errno], svz_cv_var_h_errno,
 AC_EGREP_HEADER(h_errno, netdb.h,
   svz_cv_var_h_errno=yes,

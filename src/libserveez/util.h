@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.15 2001/09/12 13:42:15 ela Exp $
+ * $Id: util.h,v 1.16 2001/09/27 15:47:36 ela Exp $
  *
  */
 
@@ -82,7 +82,7 @@ SERVEEZ_API char *svz_time __P ((long));
 SERVEEZ_API char *svz_uptime __P ((long));
 SERVEEZ_API char *svz_tolower __P ((char *));
 SERVEEZ_API char *svz_sys_version __P ((void));
-SERVEEZ_API const char *svz_hstrerror __P ((void));
+SERVEEZ_API char *svz_hstrerror __P ((void));
 
 /*
  * Convert the byte array pointed to by @var{p} to a signed 32 bit integer. 

@@ -1,3 +1,9 @@
+2001-09-27  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Define ports): Added a note about the 
+	possibility to bind servers to ports whose ip address is given
+	as an interface description string.
+
 2001-09-26  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.texi.in: Include `version.texi'. Possible since

@@ -1,7 +1,7 @@
 /*
  * irc-proto.h - IRC protocol header definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.21 2001/08/01 10:16:22 ela Exp $
+ * $Id: irc-proto.h,v 1.22 2001/09/27 15:47:36 ela Exp $
  *
  */
 
@@ -380,11 +380,7 @@ int irc_client_in_channel (svz_socket_t *, irc_client_t *, irc_channel_t *);
 int irc_check_args (svz_socket_t *, irc_client_t *, irc_config_t *, 
 		    irc_request_t *, int);
 int irc_client_absent (irc_client_t *, irc_client_t *);
-#ifndef __STDC__
-int irc_printf ();
-#else
-int irc_printf (svz_socket_t *, const char *, ...);
-#endif
+int irc_printf __P ((svz_socket_t *, const char *, ...));
 
 /* serveez callbacks */
 int irc_handle_request (svz_socket_t *sock, char *request, int len);

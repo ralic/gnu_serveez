@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.h,v 1.6 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-server.h,v 1.7 2001/09/27 15:47:36 ela Exp $
  *
  */
 
@@ -29,16 +29,10 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE
-
 /*
  * These functions are exported from this IRC server module.
  */
-#ifndef __STDC__
-int irc_parse_line ();
-#else
-int irc_parse_line (char *line, char *fmt, ...);
-#endif
+int irc_parse_line __P ((char *line, char *fmt, ...));
 void irc_delete_servers (irc_config_t *cfg);
 void irc_connect_servers (irc_config_t *cfg);
 int irc_count_servers (irc_config_t *cfg);

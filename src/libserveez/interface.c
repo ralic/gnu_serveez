@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.9 2001/09/11 15:05:48 ela Exp $
+ * $Id: interface.c,v 1.10 2001/09/27 15:47:36 ela Exp $
  *
  */
 
@@ -628,6 +628,23 @@ svz_interface_get (unsigned long addr)
       if (ifc->ipaddr == addr)
 	return ifc;
     }
+  return NULL;
+}
+
+/*
+ * The following function returns a network interface structure for a given
+ * interface name (e.g. eth0). If no such interface exists it returns 
+ * @code{NULL}.
+ */
+svz_interface_t *
+svz_interface_search (char *desc)
+{
+  svz_interface_t *ifc;
+  int n;
+
+  svz_vector_foreach (svz_interfaces, ifc, n)
+    if (!strcmp (ifc->description, desc))
+      return ifc;
   return NULL;
 }
 

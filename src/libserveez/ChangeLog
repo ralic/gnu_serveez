@@ -1,3 +1,13 @@
+2001-09-27  [ Ela ]  <ela@lkcc.org>
+
+	* interface.c (svz_interface_search): New library function.
+	Return the full network interface information for a given
+	interface name.
+
+	* portcfg.c (svz_portcfg_convert_addr): Convert either
+	dotted decimal form or network interface description into
+	ip address.
+
 2001-09-19  [ Ela ]  <ela@lkcc.org>
 
 	* icmp-socket.c, udp-socket.c (svz_icmp_read_socket, 
