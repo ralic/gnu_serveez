@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.29 2001/06/13 20:29:25 ela Exp $
+ * $Id: guile.c,v 1.30 2001/06/17 20:15:04 raimi Exp $
  *
  */
 
@@ -123,8 +123,9 @@ report_error (const char *format, ...)
   SCM lp = scm_current_load_port ();
   char *file = SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
+  /* guile counts lines from 0, we have to add one */
   fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined", 
-	   SCM_PORTP (lp) ? SCM_LINUM (lp) : 0, 
+	   SCM_PORTP (lp) ? SCM_LINUM (lp) + 1 : 0, 
 	   SCM_PORTP (lp) ? SCM_COL (lp) : 0);
   if (file)
     free (file);
@@ -1027,7 +1028,7 @@ guile_define_port (SCM name, SCM args)
   /* Find out what protocol this portcfg will be about. */
   if (NULL == (proto = guile2str (optionhash_get (options, PORTCFG_PROTO))))
     {
-      report_error ("Port `%s' requires a \"" PORTCFG_PROTO "\" field", 
+      report_error ("Port `%s' requires a `" PORTCFG_PROTO "' string field",
 		    portname);
       FAIL ();
     }
@@ -1143,7 +1144,7 @@ guile_define_port (SCM name, SCM args)
     }
   else
     {
-      report_error ("Invalid \"" PORTCFG_PROTO "\" field `%s' in port `%s'",
+      report_error ("Invalid `" PORTCFG_PROTO "' field `%s' in port `%s'",
 		    proto, portname);
       FAIL ();
     }
