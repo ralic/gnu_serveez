@@ -1,3 +1,11 @@
+2001-08-03  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-cgi.c (http_cgi_exec): Removed limit of
+	directory name lengths.
+
+	* http-server/http-core.c (http_absolute_file): Removed limit
+	for directory lengths.
+
 2001-07-31  [ Ela ]  <ela@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat_id): Output socket-

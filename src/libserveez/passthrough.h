@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.4 2001/08/01 10:16:22 ela Exp $
+ * $Id: passthrough.h,v 1.5 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -54,7 +54,15 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_sock_process __P ((svz_socket_t *, char *, 
 				       char **, svz_envblock_t *, int));
 SERVEEZ_API int svz_process_fork __P ((char *, char *, HANDLE, HANDLE, 
-				       char **, svz_envblock_t *));
+				       char **, svz_envblock_t *, char *));
+SERVEEZ_API int svz_process_shuffle __P ((svz_socket_t *, char *, char *, 
+					  SOCKET socket, char **, 
+					  svz_envblock_t *, char *));
+SERVEEZ_API int svz_process_create_child __P ((char *, char *, HANDLE, HANDLE, 
+					       char **, svz_envblock_t *, 
+					       char *));
+SERVEEZ_API int svz_process_send_pipe __P ((svz_socket_t *));
+SERVEEZ_API int svz_process_recv_pipe __P ((svz_socket_t *));
 SERVEEZ_API int svz_process_check_executable __P ((char *, char **));
 SERVEEZ_API int svz_process_check_access __P ((char *));
 SERVEEZ_API int svz_envblock_add __P ((svz_envblock_t *, char *, ...));

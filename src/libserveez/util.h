@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.13 2001/08/01 10:16:22 ela Exp $
+ * $Id: util.h,v 1.14 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -76,6 +76,7 @@ SERVEEZ_API unsigned int svz_atoi __P ((char *));
 SERVEEZ_API int svz_strcasecmp __P ((const char *, const char *));
 SERVEEZ_API int svz_strncasecmp __P ((const char *, const char *, 
 				      unsigned int));
+SERVEEZ_API char * svz_getcwd __P ((void));
 SERVEEZ_API int svz_openfiles __P ((int));
 SERVEEZ_API char *svz_time __P ((long));
 SERVEEZ_API char *svz_uptime __P ((long));

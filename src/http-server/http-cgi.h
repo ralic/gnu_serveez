@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.11 2001/07/31 10:15:00 ela Exp $
+ * $Id: http-cgi.h,v 1.12 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -32,8 +32,6 @@
 #define _GNU_SOURCE
 
 #include "http-proto.h"
-
-#define MAX_CGI_DIR_LEN  256 /* length of a cgi script directory */
 
 #define POST_METHOD 0            /* POST id */
 #define GET_METHOD  1            /* GET id */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.41 2001/08/01 10:16:22 ela Exp $
+ * $Id: http-core.c,v 1.42 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -1012,8 +1012,6 @@ http_find_content_type (svz_socket_t *sock, char *file)
  * absolute file/path name. The given argument will be reallocated
  * if necessary.
  */
-#define MAX_DIR_LEN 1024
-
 char *
 http_absolute_file (char *file)
 {
@@ -1034,18 +1032,10 @@ http_absolute_file (char *file)
     }
 
   /* save the filename within a buffer */
-  savefile = svz_malloc (strlen (p) + 1);
-  strcpy (savefile, p);
+  savefile = svz_strdup (p);
 
   /* get current work directory */
-  savedir = svz_malloc (MAX_DIR_LEN);
-  if ((getcwd (savedir, MAX_DIR_LEN)) == NULL)
-    {
-      svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      svz_free (savefile);
-      svz_free (savedir);
-      return file;
-    }
+  savedir = svz_getcwd ();
   
   /* 
    * If there was no path separator in the filename then just concate
@@ -1053,9 +1043,9 @@ http_absolute_file (char *file)
    */
   if (!have_path)
     {
+      savedir = svz_realloc (savedir, strlen (savedir) + strlen (file) + 2);
       strcat (savedir, "/");
       strcat (savedir, savefile);
-      savedir = svz_realloc (savedir, strlen (savedir) + 1);
       svz_free (file);
       return savedir;
     }
@@ -1076,20 +1066,12 @@ http_absolute_file (char *file)
   *p = '/';
 
   /* get now the current work directory */
-  dir = svz_malloc (MAX_DIR_LEN);
-  if ((getcwd (dir, MAX_DIR_LEN)) == NULL)
-    {
-      svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      svz_free (dir);
-      svz_free (savefile);
-      svz_free (savedir);
-      return file;
-    }
+  dir = svz_getcwd ();
 
   /* concate new work directory with given filename */
+  dir = svz_realloc (dir, strlen (dir) + strlen (savefile) + 2);
   strcat (dir, "/");
   strcat (dir, savefile);
-  dir = svz_realloc (dir, strlen (dir) + 1);
   svz_free (savefile);
   svz_free (file);
 

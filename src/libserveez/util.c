@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.16 2001/08/01 10:16:22 ela Exp $
+ * $Id: util.c,v 1.17 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -70,6 +70,7 @@
 # include <sys/utsname.h>
 #endif
 
+#include "libserveez/alloc.h"
 #include "libserveez/snprintf.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"
@@ -634,6 +635,28 @@ svz_atoi (char *str)
       str++;
     }
   return i;
+}
+
+/*
+ * Returns the current working directory. The returned pointer needs to be
+ * @code{svz_free()}'ed after usage.
+ */
+char *
+svz_getcwd (void)
+{
+  char *buf, *dir;
+  int len = 64;
+
+  buf = dir = NULL;
+  do
+    {
+      buf = svz_realloc (buf, len);
+      dir = getcwd (buf, len);
+      len *= 2;
+    }
+  while (dir == NULL);
+
+  return dir;
 }
 
 /*

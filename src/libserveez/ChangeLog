@@ -1,3 +1,10 @@
+2001-08-03  [ Ela ]  <ela@lkcc.org>
+
+	* passthrough.c (svz_process_shuffle): New function.
+
+	* util.c (svz_getcwd): New function. Wrapper for getcwd()
+	allocating successively memory to get the current directory.
+
 2001-08-01  [ Ela ]  <ela@lkcc.org>
 
 	* util.h: Replaced definition of "byte" by "svz_uint8_t". 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.48 2001/07/31 10:15:00 ela Exp $
+ * $Id: http-cgi.c,v 1.49 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -553,16 +553,8 @@ http_pre_exec (svz_socket_t *sock,   /* socket structure */
       return NULL;
     }
 
-  /* reserve buffer for the directory */
-  cgidir = svz_malloc (MAX_CGI_DIR_LEN);
-
-  /* get the current directory and concate the cgifile */
-  if (getcwd (cgidir, MAX_CGI_DIR_LEN) == NULL)
-    {
-      svz_log (LOG_ERROR, "cgi: getcwd: %s\n", SYS_ERROR);
-      svz_free (cgidir);
-      return NULL;
-    }
+  /* get the current directory  */
+  cgidir = svz_getcwd ();
   
   /* put the directory and file together */
   cgifile = svz_malloc (strlen (cgidir) + strlen (file) + 1);
@@ -675,10 +667,9 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 
   /* reserve buffer space for the environment block */
   envp = svz_envblock_create ();
-  savedir = svz_malloc (MAX_CGI_DIR_LEN);
 
   /* save the current directory */
-  getcwd (savedir, MAX_CGI_DIR_LEN);
+  savedir = svz_getcwd ();
 
   if ((cgifile = http_pre_exec (sock, envp, file, request, type)) == NULL)
     {

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.4 2001/08/01 10:16:22 ela Exp $
+ * $Id: passthrough.c,v 1.5 2001/08/03 18:09:04 ela Exp $
  *
  */
 
@@ -103,9 +103,10 @@ svz_sock_process (svz_socket_t *sock, char *bin,
   switch (flag)
     {
     case SVZ_PROCESS_FORK:
-      ret = svz_process_fork (file, dir, in, out, argv, envp);
+      ret = svz_process_fork (file, dir, in, out, argv, envp, app);
       break;
     case SVZ_PROCESS_SHUFFLE:
+      ret = svz_process_shuffle (sock, file, dir, in, argv, envp, app);
       break;
     default:
       svz_log (LOG_ERROR, "invalid flag (%d)\n", flag);
@@ -118,16 +119,208 @@ svz_sock_process (svz_socket_t *sock, char *bin,
   return ret;
 }
 
-/*
- * Create two more socket structure in order to passthrough the transactions
- * of the given descriptors @var{in} and @var{out}.
- */
 int
-svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, 
-		     HANDLE in, HANDLE out, 
-		     char **argv, svz_envblock_t *envp)
+svz_process_send_pipe (svz_socket_t *sock)
 {
   return -1;
+}
+
+int
+svz_process_recv_pipe (svz_socket_t *sock)
+{
+  return -1;
+}
+
+int
+svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out, 
+			  char **argv, svz_envblock_t *envp, char *app)
+{
+  /* Change directory, make descriptors blocking, setup environment,
+     set permissions, duplicate descriptors and finally execute the 
+     program. */
+
+#ifndef __MINGW32__      
+  if (chdir (dir) < 0)
+    {
+      svz_log (LOG_ERROR, "chdir (%s): %s\n", dir, SYS_ERROR);
+      return -1;
+    }
+
+  if (svz_fd_block (out) < 0 || svz_fd_block (in) < 0)
+    return -1;
+
+  if (dup2 (out, 1) != 1 || dup2 (in, 0) != 0)
+    {
+      svz_log (LOG_ERROR, "unable to redirect: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  if (svz_process_check_access (file) < 0)
+    return -1;
+
+  /* Check the environment and create  a default one if necessary. */
+  if (envp == NULL)
+    {
+      envp = svz_envblock_create ();
+      svz_envblock_default (envp);
+    }
+
+  /* Execute the file itself here overwriting the current process. */
+  argv[0] = file;
+  if (execve (file, argv, svz_envblock_get (envp)) == -1)
+    {
+      svz_log (LOG_ERROR, "execve: %s\n", SYS_ERROR);
+      return -1;
+    }
+  return getpid ();
+
+#else /* __MINGW32__ */
+
+  STARTUPINFO startup_info;
+  PROCESS_INFORMATION process_info;
+  char *savedir, *application;
+  int pid, n;
+
+  /* Clean the Startup-Info, use the stdio handles, and store the pipe 
+     handles there if necessary. */
+  memset (&startup_info, 0, sizeof (startup_info));
+  startup_info.cb = sizeof (startup_info);
+  startup_info.dwFlags = STARTF_USESTDHANDLES;
+  startup_info.hStdOutput = out;
+  startup_info.hStdInput = in;
+
+  /* Save current directory and change into application's. */
+  savedir = svz_getcwd ();
+  if (chdir (dir) < 0)
+    {
+      svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
+      svz_free (savedir);
+      return -1;
+    }
+
+  /* Check the access to the file. */
+  if (svz_process_check_access (file) < 0)
+    {
+      chdir (savedir);
+      svz_free (savedir);
+      return -1;
+    }
+
+  /* Create sane environment. */
+  if (envp == NULL)
+    {
+      envp = svz_envblock_create ();
+      svz_envblock_default (envp);
+    }
+
+  /* Concatenate application name. */
+  if (app != NULL)
+    {
+      application = svz_malloc (strlen (file) + strlen (app) + 2);
+      sprintf (application, "%s %s", app, file);
+    }
+  else
+    application = svz_strdup (file);
+
+  /* Append program arguments. */
+  for (n = 1; argv[n] != NULL; n++)
+    {
+      application = svz_realloc (application, strlen (application) + 
+				 strlen (argv[n]) + 2);
+      strcat (application, " ");
+      strcat (application, argv[n]);
+    }
+
+  if (!CreateProcess (NULL,                    /* ApplicationName */
+                      application,             /* CommandLine */
+                      NULL,                    /* ProcessAttributes */
+                      NULL,                    /* ThreadAttributes */
+                      TRUE,                    /* InheritHandles */
+                      DETACHED_PROCESS,        /* CreationFlags */
+                      svz_envblock_get (envp), /* Environment */
+                      NULL,                    /* CurrentDirectory */
+                      &startup_info, &process_info))
+    {
+      svz_log (LOG_ERROR, "CreateProcess (%s): %s\n", application, SYS_ERROR);
+      chdir (savedir);
+      svz_free (savedir);
+      svz_free (application);
+      return -1;
+    }
+  
+  chdir (savedir);
+  svz_free (savedir);
+  svz_free (application);
+  pid = (int) process_info.hProcess;
+
+#ifdef ENABLE_DEBUG
+  svz_log (LOG_DEBUG, "process `%s' got pid 0x%08X\n", file, 
+	   process_info.dwProcessId);
+#endif
+  return pid;
+#endif /* __MINGW32__ */
+}
+
+/*
+ * Create two pairs of pipes in order to passthrough the transactions of the 
+ * given socket descriptor @var{socket}.
+ */
+int
+svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, SOCKET socket,
+		     char **argv, svz_envblock_t *envp, char *app)
+{
+  HANDLE process_to_serveez[2];
+  HANDLE serveez_to_process[2];
+  HANDLE in, out;
+  svz_socket_t *xsock;
+  int pid;
+
+  /* create the pairs of pipes for the process */
+  if (svz_pipe_create_pair (process_to_serveez) == -1)
+    return -1;
+  if (svz_pipe_create_pair (serveez_to_process) == -1)
+    return -1;
+
+  /* create yet another socket structure */
+  if ((xsock = svz_sock_create (socket)) == NULL)
+    {
+      svz_log (LOG_ERROR, "failed to create passthrough socket\n");
+      return -1;
+    }
+
+  /* prepare everything for the pipe handling */
+  sock->pipe_desc[WRITE] = serveez_to_process[WRITE];
+  sock->flags |= SOCK_FLAG_SEND_PIPE;
+  sock->write_socket = svz_process_send_pipe;
+  svz_fd_cloexec ((int) serveez_to_process[WRITE]);
+
+  xsock->pipe_desc[READ] = process_to_serveez[READ];
+  xsock->flags |= SOCK_FLAG_RECV_PIPE;
+  xsock->read_socket = svz_process_recv_pipe;
+  svz_fd_cloexec ((int) process_to_serveez[READ]);
+  if (svz_sock_enqueue (xsock) < 0)
+    return -1;
+
+  in = serveez_to_process[READ];
+  out = process_to_serveez[WRITE];
+
+  /* create a process and pass the left-over pipe ends to it */
+#ifndef __MINGW32__
+  if ((pid = fork ()) == 0)
+    {
+      svz_process_create_child (file, dir, in, out, argv, envp, app);
+      exit (0);
+    }
+  else if (pid == -1)
+    {
+      svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+      return -1;
+    }
+#else /* __MINGW32__ */
+  pid = svz_process_create_child (file, dir, in, out, argv, envp, app);
+  return pid;
+#endif /*  __MINGW32__ */
+  return 0;
 }
 
 /*
@@ -141,7 +334,7 @@ svz_process_shuffle (svz_socket_t *sock, char *file, char *dir,
  */
 int
 svz_process_fork (char *file, char *dir, HANDLE in, HANDLE out, 
-		  char **argv, svz_envblock_t *envp)
+		  char **argv, svz_envblock_t *envp, char *app)
 {
 #ifdef __MINGW32__
   svz_log (LOG_FATAL, "fork() and exec() not supported\n");
@@ -152,42 +345,7 @@ svz_process_fork (char *file, char *dir, HANDLE in, HANDLE out,
   /* The child process here. */
   if ((pid = fork ()) == 0)
     {
-      /* Change directory, make descriptors blocking, setup environment,
-	 set permissions, duplicate descriptors and finally execute the 
-	 program. */
-      
-      if (chdir (dir) < 0)
-	{
-	  svz_log (LOG_ERROR, "chdir (%s): %s\n", dir, SYS_ERROR);
-	  exit (0);
-	}
-
-      if (svz_fd_block (out) < 0 || svz_fd_block (in) < 0)
-	exit (0);
-
-      if (dup2 (out, 1) != 1 || dup2 (in, 0) != 0)
-	{
-	  svz_log (LOG_ERROR, "unable to redirect: %s\n", SYS_ERROR);
-	  exit (0);
-	}
-
-      if (svz_process_check_access (file) < 0)
-	exit (0);
-
-      /* Check the environment and create  a default one if necessary. */
-      if (envp == NULL)
-	{
-	  envp = svz_envblock_create ();
-	  svz_envblock_default (envp);
-	}
-
-      /* Execute the file itself here overwriting the current process. */
-      argv[0] = file;
-      if (execve (file, argv, svz_envblock_get (envp)) == -1)
-        {
-          svz_log (LOG_ERROR, "execve: %s\n", SYS_ERROR);
-          exit (0);
-        }
+      svz_process_create_child (file, dir, in, out, argv, envp, app);
     }
   else if (pid == -1)
     {
@@ -395,7 +553,7 @@ svz_envblock_sort (const void *data1, const void *data2)
 svz_envp_t
 svz_envblock_get (svz_envblock_t *env)
 {
-  char *buf, *dir;
+  char *dir;
   int len = 32;
 #ifdef __MINGW32__
   svz_envp_t block = NULL;
@@ -403,13 +561,7 @@ svz_envblock_get (svz_envblock_t *env)
 #endif
 
   /* Setup the PWD environment variable correctly. */
-  buf = dir = NULL;
-  while (dir == NULL)
-    {
-      buf = svz_realloc (buf, len);
-      dir = getcwd (buf, len);
-      len *= 2;
-    }
+  dir = svz_getcwd ();
   svz_envblock_add (env, "PWD=%s", dir);
   svz_free (dir);
 
