@@ -70,10 +70,10 @@ AC_DEFUN([AC_GUILE], [
       case $host_os in
       mingw*) GUILEDIR=`eval cygpath -w -i "$GUILEDIR"` ;;
       esac
-      if test -f "$GUILEDIR/lib/libguile.so" -o 
-	      -f "$GUILEDIR/lib/libguile.so.[0-9]" -o \
-	      -f "$GUILEDIR/lib/libguile.dylib" -o \
-              -f "$GUILEDIR/bin/libguile.dll"; then
+      if test -f "$GUILEDIR/lib/libguile.so" -o \
+	 -n "`find "$GUILEDIR/lib" -name "libguile.so.*" 2>/dev/null`" -o \
+	 -f "$GUILEDIR/lib/libguile.dylib" -o \
+         -f "$GUILEDIR/bin/libguile.dll"; then
         GUILE_CFLAGS="-I$GUILEDIR/include"
 	if test x"$CYGWIN" = xyes -o x"$MINGW32" = xyes ; then
 	  GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"
