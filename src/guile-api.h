@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.14 2003/03/24 16:54:49 ela Exp $
+ * $Id: guile-api.h,v 1.15 2003/04/06 20:01:24 ela Exp $
  *
  */
 
@@ -168,6 +168,15 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define scm_gc_free(mem, len, name) scm_must_free (mem)
 #define scm_gc_realloc(mem, olen, nlen, name) \
     scm_must_realloc (mem, olen, nlen, name)
+#endif
+#ifndef SCM_VERSION_17X
+#define scm_c_scm2chars(obj, data) gh_scm2chars (obj, data)
+#endif
+#ifndef SCM_VERSION_17X
+#define scm_c_string2str(obj, str, lenp) gh_scm2newstr (obj, lenp)
+#endif
+#ifndef SCM_VERSION_17X
+#define scm_c_symbol2str(obj, str, lenp) gh_symbol2newstr (obj, lenp)
 #endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.50 2002/05/05 08:36:41 ela Exp $
+ * $Id: serveez.c,v 1.51 2003/04/06 20:01:25 ela Exp $
  *
  */
 
@@ -51,6 +51,7 @@
 #include "serveez.h"
 #include "cfgfile.h"
 #include "option.h"
+#include "guile-api.h"
 #include "guile.h"
 #include "guile-server.h"
 

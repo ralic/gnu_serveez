@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.53 2003/02/05 17:04:25 ela Exp $
+ * $Id: guile-server.c,v 1.54 2003/04/06 20:01:25 ela Exp $
  *
  */
 
@@ -888,7 +888,7 @@ guile_sock_boundary (SCM sock, SCM boundary)
   /* Handle packet delimiters. */
   else
     {
-      xsock->boundary = gh_scm2chars (boundary, NULL);
+      xsock->boundary = scm_c_scm2chars (boundary, NULL);
       xsock->boundary_size = SCM_NUM2INT (SCM_ARG2, 
 					  scm_string_length (boundary));
     }

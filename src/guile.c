@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.70 2003/02/05 17:04:25 ela Exp $
+ * $Id: guile.c,v 1.71 2003/04/06 20:01:25 ela Exp $
  *
  */
 
@@ -162,7 +162,7 @@ guile_error (char *format, ...)
   /* FIXME: Why is this port undefined in guile exceptions ? */
   SCM lp = guile_get_current_load_port ();
   char *file = (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ? 
-    gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
+    scm_c_string2str (SCM_FILENAME (lp), NULL, NULL) : NULL;
 
   /* guile counts lines from 0, we have to add one */
   fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined",
