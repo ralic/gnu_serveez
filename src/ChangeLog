@@ -1,3 +1,9 @@
+2000-06-21  [ RAIMI ]  <raimi@lkcc.org>
+
+	* Makefile.am ($(SIZZLERULE)): When building our own sizzle from
+	source distribution the user doesnt need to make anymore. added
+	a makefile target and configure.in stuff to do so.
+
 2000-06-20  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.c (http_send_file): Added support

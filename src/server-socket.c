@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.9 2000/06/19 22:56:14 ela Exp $
+ * $Id: server-socket.c,v 1.10 2000/06/20 21:57:38 raimi Exp $
  *
  */
 
@@ -404,11 +404,11 @@ server_create (portcfg_t *cfg)
   else
     {
       sock->read_socket = server_accept_socket;
-      log_printf (LOG_NOTICE, "listening on %s port %d (%s)\n",
+      log_printf (LOG_NOTICE, "listening on %s port %s:%d\n",
 		  cfg->proto & PROTO_TCP ? "tcp" : "udp",
-		  sock->local_port, 
-		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "all IPs" : 
-		  util_inet_ntoa (htonl (cfg->localaddr->sin_addr.s_addr)));
+		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "*" : 
+		  util_inet_ntoa (htonl (cfg->localaddr->sin_addr.s_addr)),
+		  sock->local_port);
     }
 
   return sock;

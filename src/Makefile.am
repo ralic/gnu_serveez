@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.4 2000/06/15 21:18:01 raimi Exp $
+# $Id: Makefile.am,v 1.5 2000/06/20 21:57:38 raimi Exp $
 #
 
 #
@@ -67,12 +67,19 @@ serveez_SOURCES = \
 	server-core.c server-core.h \
 	pipe-socket.c pipe-socket.h
 
-serveez_DEPENDENCIES = $(PROTOLIBS) \
+serveez_DEPENDENCIES = $(PROTOLIBS) $(SIZZLEDEP) \
 	serveez.cfg
 
-serveez_LDADD = $(PROTOLIBS) $(STATICSIZZLE)
+serveez_LDADD = $(PROTOLIBS) $(SIZZLESTATIC)
 
 MAINTAINERCLEANFILES = Makefile.in
+
+# This rule is used when we build from a sizzle source distribution
+$(SIZZLERULE):
+	@echo ""
+	@echo "Building libsizzle.a from source distribution"
+	@echo ""
+	(cd $(SIZZLEDIR)/libsizzle && make)
 
 distclean-local:
 	rm -f *\~ *.orig *.rej

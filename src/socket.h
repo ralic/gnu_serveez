@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.10 2000/06/19 22:56:14 ela Exp $
+ * $Id: socket.h,v 1.11 2000/06/20 21:57:38 raimi Exp $
  *
  */
 
@@ -64,6 +64,7 @@
 #define SOCK_FLAG_PIPE               /* Socket is no socket, but pipe. */ \
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
+#define SOCK_FLAG_SENDFILE    0x4000 /* FIXME: describe me (raimi) */
 
 #if ENABLE_CONTROL_PROTO
 #define SOCK_FLAG_CTRL_CLIENT 0x00800000 /* control connection */

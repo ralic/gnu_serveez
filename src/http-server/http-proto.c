@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.8 2000/06/20 14:50:10 ela Exp $
+ * $Id: http-proto.c,v 1.9 2000/06/20 21:57:38 raimi Exp $
  *
  */
 
@@ -42,6 +42,10 @@
 
 #if HAVE_STRINGS_H
 # include <strings.h>
+#endif
+
+#if HAVE_SYS_SENDFILE_H
+# include <sys/sendfile.h>
 #endif
 
 #ifdef __MINGW32__
@@ -571,9 +575,10 @@ http_send_file (socket_t sock)
   http_socket_t *http = sock->data;
   int num_written;
 
+  /* FIXME: is that length cast ok ? (raimi) */
   num_written = sendfile (sock->sock_desc, sock->file_desc,
-			  &http->contentlength,
-			  SOCK_MAX_WRITE)
+			  (off_t *)&http->contentlength,
+			  SOCK_MAX_WRITE);
   
   /* Some error occured. */
   if (num_written < 0)

@@ -656,6 +656,10 @@ dnl Find out where to get sizzle
 dnl
 sizzle_src="no"
 sizzle_inst="no"
+SIZZLEDEP=""
+SIZZLERULE=""
+SIZZLESTATIC=""
+SIZZLEDIR=""
 
 AC_MSG_CHECKING([for local sizzle installation])
 if test -n "`sizzle-config 2>/dev/null`"; then
@@ -669,7 +673,7 @@ else
 fi
 
 AC_ARG_WITH(sizzle,
-    [  --with-sizzle=DIR       Sizzle source distribution in DIR [../sizzle]],
+    [  --with-sizzle=DIR       Sizzle source distribution in DIR ],
     sizzle_dir=$withval,
     sizzle_dir="no")
 
@@ -692,13 +696,18 @@ else
     AC_MSG_RESULT([located in $SIZZLEDIR])
     sizzle_cflags="-I$SIZZLEDIR"
     sizzle_ldflag=""
-    STATICSIZZLE="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm"
-    AC_SUBST(STATICSIZZLE)
+    SIZZLESTATIC="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm"
+    SIZZLEDEP="$SIZZLEDIR/libsizzle/.libs/libsizzle.a"
+    SIZZLERULE="$SIZZLEDEP"
     sizzle_src="yes"
 fi
 
 CFLAGS="$CFLAGS $sizzle_cflags"
 LDFLAGS="$LDFLAGS $sizzle_ldflag"
+AC_SUBST(SIZZLESTATIC)
+AC_SUBST(SIZZLERULE)
+AC_SUBST(SIZZLEDEP)
+AC_SUBST(SIZZLEDIR)
 
 dnl ----------------------------------------------------------------------
 
@@ -770,6 +779,7 @@ AC_CHECK_HEADERS(stdio.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h)
+AC_CHECK_HEADERS(sys/sendfile.h)
 
 have_getopt="no"
 have_getopt_long="no"
@@ -1039,9 +1049,4 @@ if test "$sizzle_src" != "no"; then
      --without-catgets \
      --with-mingw=$MINGDIR \
      --cache-file=$cache_file])
-
-   AC_MSG_RESULT([*])
-   AC_MSG_RESULT([* You need to compile libsizzle seperately before you can])
-   AC_MSG_RESULT([* make serveez, goto \`$sizzle_dir' and type \`make'.])
-   AC_MSG_RESULT([*])
 fi
