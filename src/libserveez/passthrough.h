@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.8 2001/11/22 17:17:51 ela Exp $
+ * $Id: passthrough.h,v 1.9 2001/12/10 22:01:13 ela Exp $
  *
  */
 
@@ -68,6 +68,15 @@ svz_process_t;
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)
 
+/* 
+ * This macro must be called once after @code{svz_boot()} for setting up the
+ * @code{svz_environ} variable. It simply passes the @code{environ} variable
+ * of the calling application to the underlying Serveez core API. This is
+ * necessary to make the @code{svz_envblock_default()} function working 
+ * correctly.
+ */
+#define svz_envblock_setup() do { svz_environ = environ; } while (0)
+
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_process __P ((svz_socket_t *, char *, char *, 
@@ -91,6 +100,7 @@ SERVEEZ_API int svz_process_check_executable __P ((char *, char **));
 SERVEEZ_API int svz_process_split_usergroup __P ((char *, char **, char **));
 SERVEEZ_API int svz_process_check_access __P ((char *, char *));
 
+SERVEEZ_API char **svz_environ;
 SERVEEZ_API svz_envblock_t *svz_envblock_create __P ((void));
 SERVEEZ_API int svz_envblock_default __P ((svz_envblock_t *));
 SERVEEZ_API int svz_envblock_add __P ((svz_envblock_t *, char *, ...));

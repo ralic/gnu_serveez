@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.47 2001/11/29 12:56:27 ela Exp $
+ * $Id: serveez.c,v 1.48 2001/12/10 22:01:13 ela Exp $
  *
  */
 
@@ -165,6 +165,7 @@ main (int argc, char *argv[])
   /* Initialize the the core library. */
   svz_boot ();
   svz_executable (argv[0]);
+  svz_envblock_setup ();
 
   /* Handle command line arguments. */
   options = handle_options (argc, argv);

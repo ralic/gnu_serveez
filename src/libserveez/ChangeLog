@@ -1,3 +1,11 @@
+2001-12-10  [ Ela ]  <ela@lkcc.org>
+
+	* passthrough.h (svz_envblock_setup): New macro in order to 
+	setup the `environ' pointer of an application in the core 
+	library.  This change was necessary to allow the *very 
+	pedantic* linker of MacOS 10.1 to build a shared library, 
+	since `extern char **environ;' is an unresolved symbol somehow.
+
 2001-12-07  [ Ela ]  <ela@lkcc.org>
 
 	* hash.c (svz_hash_create): Using an additional argument in 

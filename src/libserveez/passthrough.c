@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.16 2001/11/30 16:10:23 ela Exp $
+ * $Id: passthrough.c,v 1.17 2001/12/10 22:01:13 ela Exp $
  *
  */
 
@@ -51,8 +51,15 @@
 #endif
 
 #if !defined(__MINGW32__) && !defined(__CYGWIN__)
-extern char ** environ;
+extern char **environ;
 #endif
+
+/*
+ * This variable is meant to hold the @code{environ} variable of the 
+ * application using the Serveez core API. It must be setup via the macro
+ * @code{svz_envblock_setup()}.
+ */
+char **svz_environ = NULL;
 
 #ifdef __MINGW32__
 # include <winsock2.h>
@@ -1088,12 +1095,12 @@ svz_envblock_default (svz_envblock_t *env)
   if (env->size)
     svz_envblock_free (env);
 
-  for (n = 0; environ[n] != NULL; n++)
+  for (n = 0; svz_environ != NULL && svz_environ[n] != NULL; n++)
     {
       env->size++;
       env->entry = svz_realloc (env->entry, 
 				sizeof (char *) * (env->size + 1));
-      env->entry[env->size - 1] = svz_strdup (environ[n]);
+      env->entry[env->size - 1] = svz_strdup (svz_environ[n]);
     }
 
   env->entry[env->size] = NULL;
