@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.35 2002/01/06 13:18:52 ela Exp $
+ * $Id: server-core.c,v 1.36 2002/02/07 13:09:55 ela Exp $
  *
  */
 
@@ -34,7 +34,9 @@
 
 /* Some Unices define the strsignal() function depending on 
    this definition. */
-#define __EXTENSIONS__
+#ifndef __EXTENSIONS__
+# define __EXTENSIONS__
+#endif
 #include <string.h>
 
 #include <errno.h>
