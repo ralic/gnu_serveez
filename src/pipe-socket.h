@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id
+ * $Id: pipe-socket.h,v 1.2 2000/06/14 19:22:19 ela Exp $
  *
  */
 

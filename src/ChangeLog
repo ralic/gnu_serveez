@@ -1,3 +1,14 @@
+2000-06-14  [ Ela ]  <ela@lkcc.org>
+
+	* server-core.c (check_sockets): Depending on some new socket flags
+	this routine, which might be the most important within serveez, has
+	been fully rewritten. All this has been done to unify pipes, sockets
+	and files (all fds).
+
+	* socket.h (struct socket): Added sock->userflags for protocol 
+	specific flags which cannot be hold within the sock->cfg because
+	they are also socket specific.
+
 2000-06-13  [ Ela ]  <ela@lkcc.org>
 
 	* awcs-server/awcs-proto.c: The ENABLE_AWCS_PROTO define is now in

@@ -2,7 +2,6 @@
  * http-proto.h - http protocol header file
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
- * Portions (C) 1995, 1996 Free Software Foundation, Inc.
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +17,9 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
+ *
+ * $Id: http-proto.h,v 1.2 2000/06/14 19:22:20 ela Exp $
+ *
  */
 
 #ifndef __HTTP_PROTO_H__
@@ -98,22 +100,23 @@ struct http_socket
 #define HTTP_NOT_IMPLEMENTED HTTP_VERSION " 501 Not Implemented\r\n"
 
 /* basic protocol functions */
-int http_check_request(socket_t sock);
-int http_detect_proto(socket_t sock);
-int http_default_write(socket_t sock);
-int http_disconnect(socket_t sock);
+int http_check_request (socket_t sock);
+int http_detect_proto (socket_t sock);
+int http_default_write (socket_t sock);
+int http_disconnect (socket_t sock);
 int http_connect (socket_t sock);
 
-char *http_find_property(http_socket_t *sock, char *key);
-int http_keep_alive(socket_t sock);
-void http_check_keepalive(socket_t sock);
+/* helper functions */
+char *http_find_property (http_socket_t *sock, char *key);
+int http_keep_alive (socket_t sock);
+void http_check_keepalive (socket_t sock);
 int http_read_types (char *file);
 void http_free_content_types (void);
 
 /* HTTP response functions including their flags */
-int http_get_response(socket_t sock, char *request, int flags);
-int http_head_response(socket_t sock, char *request, int flags);
-int http_default_response(socket_t sock, char *request, int flags);
+int http_get_response (socket_t sock, char *request, int flags);
+int http_head_response (socket_t sock, char *request, int flags);
+int http_default_response (socket_t sock, char *request, int flags);
 
 #define HTTP_FLAG_CACHE  0x0001 /* use cache if possible */
 #define HTTP_FLAG_NOFILE 0x0002 /* do not send content, but header */

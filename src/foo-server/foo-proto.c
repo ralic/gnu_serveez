@@ -19,11 +19,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.3 2000/06/12 13:59:38 ela Exp $
+ * $Id: foo-proto.c,v 1.4 2000/06/14 19:22:20 ela Exp $
  *
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "util.h"
 #include "hash.h"

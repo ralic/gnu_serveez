@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.4 2000/06/13 16:50:47 ela Exp $
+ * $Id: socket.h,v 1.5 2000/06/14 19:22:19 ela Exp $
  *
  */
 
@@ -31,7 +31,6 @@
 #endif
 
 #include <time.h>
-#include <string.h>
 
 /* This is how many ID's can exist. It MUST be a 2^X and less than 10000. */
 #define SOCKET_MAX_IDS       8192 
@@ -50,30 +49,30 @@
 #define SOCK_FLAG_INIT        0x0000 /* Value for initializing. */
 #define SOCK_FLAG_INBUF       0x0001 /* Outbuf is allocated. */
 #define SOCK_FLAG_OUTBUF      0x0002 /* Inbuf is allocated. */
-#define SOCK_FLAG_CONNECTED   0x0010 /* Socket is connected. */
-#define SOCK_FLAG_LISTENING   0x0020 /* Socket is listening. */
-#define SOCK_FLAG_AUTH        0x0100 /* Socket has been authenticated. */
-#define SOCK_FLAG_KILLED      0x0200 /* Socket will be shut down soon. */
-#define SOCK_FLAG_NOFLOOD     0x0400 /* Flood protection off. */
-#define SOCK_FLAG_INITED      0x0800 /* Socket was initialized. */
-#define SOCK_FLAG_ENQUEUED    0x1000 /* Socket is on socket queue. */
-
-#ifdef __MINGW32__
-#define SOCK_FLAG_THREAD      0x2000 /* Win32 thread. */
-#else
-#define SOCK_FLAG_PIPE        0x2000 /* Socket is no socket, but pipe. */
-#endif
-
-#define SOCK_FLAG_AWCS_CLIENT 0x0004 /* aWCS client detected. */
+#define SOCK_FLAG_CONNECTED   0x0004 /* Socket is connected. */
+#define SOCK_FLAG_LISTENING   0x0008 /* Socket is listening. */
+#define SOCK_FLAG_AUTH        0x0010 /* Socket has been authenticated. */
+#define SOCK_FLAG_KILLED      0x0020 /* Socket will be shut down soon. */
+#define SOCK_FLAG_NOFLOOD     0x0040 /* Flood protection off. */
+#define SOCK_FLAG_INITED      0x0080 /* Socket was initialized. */
+#define SOCK_FLAG_ENQUEUED    0x0100 /* Socket is on socket queue. */
+#define SOCK_FLAG_RECV_PIPE   0x0200 /* Receiving pipe is active. */
+#define SOCK_FLAG_SEND_PIPE   0x0400 /* Sending pipe is active. */
+#define SOCK_FLAG_FILE        0x0800 /* Socket is no socket, but file. */
+#define SOCK_FLAG_THREAD      0x1000 /* Win32 thread. */
+#define SOCK_FLAG_SOCK        0x2000 /* Socket is a plain socket. */
+#define SOCK_FLAG_PIPE               /* Socket is no socket, but pipe. */ \
+  ( SOCK_FLAG_RECV_PIPE | \
+    SOCK_FLAG_SEND_PIPE )
 
 #if ENABLE_HTTP_PROTO
-#define SOCK_FLAG_HTTP_CLIENT 0x0008 /* HTTP client detected. */
-#define SOCK_FLAG_HTTP_DONE   0x0040 /* HTTP request done */
-#define SOCK_FLAG_HTTP_POST   0x0080 /* HTTP cgi pipe posting data */
-#define SOCK_FLAG_HTTP_CGI    0x4000 /* HTTP cgi pipe getting data */
-#define SOCK_FLAG_HTTP_FILE   0x8000 /* HTTP file response */
-#define SOCK_FLAG_HTTP_CACHE  0x00040000 /* HTTP file cache */
-#define SOCK_FLAG_HTTP_KEEP   0x00200000 /* Keep-Alive connection */
+#define SOCK_FLAG_HTTP_CLIENT 0x00010000 /* HTTP client detected. */
+#define SOCK_FLAG_HTTP_DONE   0x00020000 /* HTTP request done */
+#define SOCK_FLAG_HTTP_POST   0x00040000 /* HTTP cgi pipe posting data */
+#define SOCK_FLAG_HTTP_CGI    0x00080000 /* HTTP cgi pipe getting data */
+#define SOCK_FLAG_HTTP_FILE   0x00100000 /* HTTP file response */
+#define SOCK_FLAG_HTTP_CACHE  0x00200000 /* HTTP file cache */
+#define SOCK_FLAG_HTTP_KEEP   0x00400000 /* Keep-Alive connection */
 
 /* all of the additional HTTP flags */
 #define SOCK_FLAG_HTTP (SOCK_FLAG_HTTP_DONE  | \
@@ -85,13 +84,13 @@
 #endif
 
 #if ENABLE_CONTROL_PROTO
-#define SOCK_FLAG_CTRL_CLIENT 0x00010000 /* control connection */
-#define SOCK_FLAG_CTRL_PASSED 0x00020000 /* got right password */
+#define SOCK_FLAG_CTRL_CLIENT 0x00800000 /* control connection */
+#define SOCK_FLAG_CTRL_PASSED 0x01000000 /* got right password */
 #endif
 
 #if ENABLE_IRC_PROTO
-#define SOCK_FLAG_IRC_CLIENT  0x00080000 /* IRC connection */
-#define SOCK_FLAG_IRC_SERVER  0x00100000 /* IRC server connection */
+#define SOCK_FLAG_IRC_CLIENT  0x02000000 /* IRC connection */
+#define SOCK_FLAG_IRC_SERVER  0x04000000 /* IRC server connection */
 #endif
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
@@ -107,6 +106,7 @@ struct socket
 
   int proto;                    /* Server/Protocol flag. */
   int flags;			/* One of the SOCK_FLAG_* flags above. */
+  int userflags;                /* Can be used for protocol specific flags. */
   SOCKET sock_desc;		/* Socket descriptor. */
   int file_desc;		/* Used for files descriptors. */
   HANDLE pipe_desc[2];          /* Used for the pipes and coservers. */
@@ -165,16 +165,6 @@ struct socket
    */
   int (* check_request) (socket_t sock);
 
-#if ENABLE_HTTP_PROTO
-  void * http;            /* http_socket_t entry for HTTP connections */
-#endif
-
-  /*
-   * When the final protocol detection in DEFAULT_CHECK_REQUEST
-   * has been done CFG should get the actual configuration hash.
-   */
-  void * cfg;
-
   /*
    * HANDLE_REQUEST gets called when the CHECK_REQUEST got
    * a valid packet.
@@ -208,11 +198,21 @@ struct socket
   int unavailable;              
 
   /*
-   * Misc field. Listener keeps array of server instances here.
-   * NULL terminated.
-   *
+   * Misceleanous field. Listener keeps array of server instances here.
+   * This array is NULL terminated.
    */
   void *data;
+
+  /*
+   * When the final protocol detection in DEFAULT_CHECK_REQUEST
+   * has been done CFG should get the actual configuration hash.
+   */
+  void * cfg;
+
+#if ENABLE_HTTP_PROTO
+  void * http;            /* http_socket_t entry for HTTP connections */
+#endif
+
 };
 
 extern socket_t sock_lookup_table[SOCKET_MAX_IDS];

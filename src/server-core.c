@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.4 2000/06/13 16:50:46 ela Exp $
+ * $Id: server-core.c,v 1.5 2000/06/14 19:22:19 ela Exp $
  *
  */
 
@@ -513,16 +513,16 @@ check_bogus_sockets(void)
   socket_t sock;
 
 #if ENABLE_DEBUG
-  log_printf(LOG_DEBUG, "checking for bogus sockets\n");
+  log_printf (LOG_DEBUG, "checking for bogus sockets\n");
 #endif /* ENABLE_DEBUG */
 
   for (sock = socket_root; sock; sock = sock->next)
     {
 #ifdef __MINGW32__
-      if (ioctlsocket(sock->sock_desc, FIONREAD, &readBytes) == SOCKET_ERROR)
+      if (ioctlsocket (sock->sock_desc, FIONREAD, &readBytes) == SOCKET_ERROR)
 	{
 #else /* not __MINGW32__ */
-      if (fcntl(sock->sock_desc, F_GETFL) < 0)
+      if (fcntl (sock->sock_desc, F_GETFL) < 0)
 	{
 #endif /* not __MINGW32__ */
 	  log_printf (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
@@ -566,123 +566,77 @@ check_sockets (void)
   /*
    * Prepare the file handle sets for the select() call below.
    */
-  FD_ZERO(&read_fds);
-  FD_ZERO(&except_fds);
-  FD_ZERO(&write_fds);
+  FD_ZERO (&read_fds);
+  FD_ZERO (&except_fds);
+  FD_ZERO (&write_fds);
   nfds = 0;
 
   /*
    * Here we set the bitmaps for all clients we handle.
    */
-  for(sock = socket_root; sock; sock = sock->next)
+  for (sock = socket_root; sock; sock = sock->next)
     {
-      /* only put the SOCK into fd set if not killed already */
-      if (!(sock->flags & SOCK_FLAG_KILLED))
-	{
-#if ENABLE_HTTP_PROTO
-	  /* 
-	   * Do not put a http client's file descriptor into the FD_SET 
-	   * but read the file.
-	   */
-	  if(sock->flags & SOCK_FLAG_HTTP_FILE)
-	    {
-	      if(sock->read_socket)
-		if(sock->read_socket(sock))
-		  sock_schedule_for_shutdown(sock);
-	    }
-
-	  /* 
-	   * Put a cgi pipe's descriptor into WRITE set for posting data.
-	   * Do this if it is Unix not Win32. Otherwise simply write blocking.
-	   */
-	  if(sock->flags & SOCK_FLAG_HTTP_POST)
-	    {
-#ifdef __MINGW32__
-	      if(sock->write_socket)
-		if(sock->write_socket(sock))
-		  sock_schedule_for_shutdown(sock);
-#else /* not __MINGW32__ */
-	      FD_SET(sock->pipe_desc[WRITE], &write_fds);
-	      if(sock->pipe_desc[WRITE] > nfds)
-		nfds = sock->pipe_desc[WRITE];
-#endif /* not __MINGW32__ */
-	    }
-
-	  /* 
-	   * Put a cgi pipe's descriptor into READ set for getting data.
-	   * Do this if it is Unix not Win32. Otherwise simply read blocking.
-	   */
-	  if(sock->flags & SOCK_FLAG_HTTP_CGI)
-	    {
-#ifdef __MINGW32__
-	      if(sock->read_socket)
-		if(sock->read_socket(sock))
-		  sock_schedule_for_shutdown(sock);
-#else  /* not __MINGW32__ */
-	      FD_SET(sock->pipe_desc[READ], &read_fds);
-	      if(sock->pipe_desc[READ] > nfds)
-		nfds = sock->pipe_desc[READ];
-#endif	  
-	    }
-#endif /* not ENABLE_HTTP_PROTO */
+      /* Put only those SOCKs into fd set not yet killed and skip files. */
+      if (sock->flags & (SOCK_FLAG_KILLED | SOCK_FLAG_FILE))
+	continue;
 
 #ifndef __MINGW32__
-	  /*
-	   * Put all coserver pipes into the READ/WRITE/EXCEPT set.
+      /* Handle pipes. */
+      if (sock->flags & SOCK_FLAG_PIPE)
+	{
+	  /* Do not handle listening pipes here. */
+	  if (sock->flags & SOCK_FLAG_LISTENING)
+	    continue;
+
+	  /* 
+	   * Put a pipe's descriptor into WRITE and EXCEPT set. Do this 
+	   * if it is Unix not Win32.
 	   */
-	  if (sock->flags & SOCK_FLAG_PIPE)
+	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
-	      if (sock->flags & SOCK_FLAG_LISTENING)
-		{
-		  if (!(sock->flags & SOCK_FLAG_INITED))
-		    {
-		      if (sock->read_socket)
-			sock->read_socket (sock);
-		    }
-		}
-	      else
-		{
-		  if (sock->send_buffer_fill > 0)
-		    {
-		      FD_SET (sock->pipe_desc[WRITE], &except_fds);
-		      FD_SET (sock->pipe_desc[WRITE], &write_fds);
-		      if (sock->pipe_desc[WRITE] > nfds)
-			nfds = sock->pipe_desc[WRITE];
-		    }
-		  
-		  FD_SET (sock->pipe_desc[READ], &except_fds);
-		  FD_SET (sock->pipe_desc[READ], &read_fds);
-		  if (sock->pipe_desc[READ] > nfds)
-		    nfds = sock->pipe_desc[READ];
-		}
+	      FD_SET (sock->pipe_desc[WRITE], &except_fds);
+	      if (sock->pipe_desc[WRITE] > nfds)
+		nfds = sock->pipe_desc[WRITE];
+
+	      if (sock->send_buffer_fill > 0)
+		FD_SET (sock->pipe_desc[WRITE], &write_fds);
 	    }
-	  else
-#endif /* not __MINGW32__ */
+
+	  /* 
+	   * Put a pipe's descriptor into READ set for getting data.
+	   * Do this if it is Unix not Win32.
+	   */
+	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-	      /* is the socket descriptor unavailable ? */
-	      if(sock->unavailable)
-		{
-		  if(time (NULL) >= sock->unavailable)
-		    sock->unavailable = 0;
-		}
+	      FD_SET (sock->pipe_desc[READ], &except_fds);
+	      FD_SET (sock->pipe_desc[READ], &read_fds);
+	      if (sock->pipe_desc[READ] > nfds)
+		nfds = sock->pipe_desc[READ];
+	    }
+	}
 
-	      /* every client's socket into EXCEPT and READ */
-	      if(!sock->unavailable)
-		{
-		  FD_SET(sock->sock_desc, &except_fds);
-		  FD_SET(sock->sock_desc, &read_fds);
-		  if(sock->sock_desc > (SOCKET)nfds)
-		    nfds = sock->sock_desc;
+#endif /* not __MINGW32__ */
 
-		  /* 
-		   * put a client's socket into WRITE if necessary 
-		   * and possible 
-		   */
-		  if(sock->send_buffer_fill > 0)
-		    {
-		      FD_SET(sock->sock_desc, &write_fds);
-		    }
-		}
+      if (sock->flags & SOCK_FLAG_SOCK)
+	{
+	  /* Is the socket descriptor unavailable ? */
+	  if (sock->unavailable)
+	    {
+	      if (time (NULL) >= sock->unavailable)
+		sock->unavailable = 0;
+	    }
+
+	  /* Put every client's socket into EXCEPT and READ. */
+	  if (!sock->unavailable)
+	    {
+	      FD_SET (sock->sock_desc, &except_fds);
+	      FD_SET (sock->sock_desc, &read_fds);
+	      if (sock->sock_desc > (SOCKET)nfds)
+		nfds = sock->sock_desc;
+
+	      /* Put a socket into WRITE if necessary and possible. */
+	      if (sock->send_buffer_fill > 0)
+		FD_SET (sock->sock_desc, &write_fds);
 	    }
 	}
     }
@@ -690,25 +644,24 @@ check_sockets (void)
   nfds++;
 
   /*
-   * Adjust timeout value, so we won't wait longer than
-   * we want.
+   * Adjust timeout value, so we won't wait longer than we want.
    */
   wait.tv_sec = next_notify_time - time(NULL);
   if (wait.tv_sec < 0) wait.tv_sec = 0;
   wait.tv_usec = 0;
 
-  if((nfds = select(nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
+  if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
     {
-      if(nfds < 0)
+      if (nfds < 0)
 	{
-	  log_printf(LOG_ERROR, "select: %s\n", NET_ERROR);
+	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
 #ifdef __MINGW32__
 	  /* FIXME: What value do we choose here ? */
-	  if(last_errno != 0)
+	  if (last_errno != 0)
 #else
-	  if(errno == EBADF)
+	  if (errno == EBADF)
 #endif
-	    check_bogus_sockets();
+	    check_bogus_sockets ();
 	  return -1;
 	}
       else 
@@ -716,108 +669,110 @@ check_sockets (void)
 	  /*
 	   * select() timed out, so we can do some administrative stuff.
 	   */
-	  handle_periodic_tasks();
+	  handle_periodic_tasks ();
 	}
-      return 0;
     }
 
-  /* go through all enqueued SOCKs */
+  /* 
+   * Go through all enqueued SOCKs and check if these have been 
+   * select()ed or could be handle in any other way.
+   */
   for (sock = socket_root; sock; sock = sock->next)
     {
+      if (sock->flags & SOCK_FLAG_KILLED)
+	continue;
 
-#ifndef __MINGW32__
-      /* outgoing pipe to coserver writable ? */
-      if (sock->flags & SOCK_FLAG_PIPE)
+      /* If socket is a file descriptor, then read it here. */
+      if (sock->flags & SOCK_FLAG_FILE)
 	{
+	  if (sock->read_socket)
+	    if (sock->read_socket (sock))
+	      sock_schedule_for_shutdown (sock);
+	}
+
+      /* Handle pipes. Different in Win32 and Unices. */
+      else if (sock->flags & SOCK_FLAG_PIPE)
+	{
+	  /* Make listening pipe servers listen. */
 	  if (sock->flags & SOCK_FLAG_LISTENING)
-	    continue;
-	  if (FD_ISSET (sock->pipe_desc[WRITE], &except_fds) ||
-	      FD_ISSET (sock->pipe_desc[READ], &except_fds))
 	    {
-	      log_printf(LOG_ERROR, "exception on pipe %d %d\n",
-			 sock->pipe_desc[WRITE],
-			 sock->pipe_desc[READ]);
-	      sock_schedule_for_shutdown(sock);
+	      if (!(sock->flags & SOCK_FLAG_INITED))
+		if (sock->read_socket)
+		  sock->read_socket (sock);
 	      continue;
 	    }
-	  if(FD_ISSET(sock->pipe_desc[WRITE], &write_fds))
+
+	  /* Handle receiving pipes. */
+	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-	      if(sock->write_socket)
-		if(sock->write_socket(sock))
-		  {
-		    sock_schedule_for_shutdown(sock);
-		    continue;
-		  }
+#ifndef __MINGW32__
+	      if (FD_ISSET (sock->pipe_desc[READ], &except_fds))
+		{
+		  log_printf (LOG_ERROR, "exception on receiving pipe %d \n",
+			      sock->pipe_desc[READ]);
+		  sock_schedule_for_shutdown (sock);
+		}
+	      if (FD_ISSET (sock->pipe_desc[READ], &read_fds))
+#endif /* not __MINGW32__ */
+		{
+		  if (sock->read_socket)
+		    if (sock->read_socket (sock))
+		      sock_schedule_for_shutdown (sock);
+		}
 	    }
-	  if(FD_ISSET(sock->pipe_desc[READ], &read_fds))
+
+	  /* Handle sending pipes. */
+	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
-	      if(sock->read_socket)
-		if(sock->read_socket(sock))
-		  {
-		    sock_schedule_for_shutdown(sock);
-		    continue;
-		  }
+#ifndef __MINGW32__
+	      if (FD_ISSET (sock->pipe_desc[WRITE], &except_fds))
+		{
+		  log_printf (LOG_ERROR, "exception on sending pipe %d \n",
+			      sock->pipe_desc[WRITE]);
+		  sock_schedule_for_shutdown (sock);
+		}
+	      if (FD_ISSET (sock->pipe_desc[WRITE], &write_fds))
+#endif /* not __MINGW32__ */
+		{
+		  if (sock->write_socket)
+		    if (sock->write_socket (sock))
+		      sock_schedule_for_shutdown (sock);
+		}
 	    }
 	}
-      else
-#endif
+
+      /* Handle usual sockets. Socket in the exception set ? */
+      if (sock->flags & SOCK_FLAG_SOCK)
 	{
-	  /* in the exception set ? */
-	  if(FD_ISSET(sock->sock_desc, &except_fds))
+	  if (FD_ISSET (sock->sock_desc, &except_fds))
 	    {
-	      log_printf(LOG_ERROR, "exception on socket %d\n",
-			 sock->sock_desc);
-	      sock_schedule_for_shutdown(sock);
+	      log_printf (LOG_ERROR, "exception on socket %d\n",
+			  sock->sock_desc);
+	      sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
-
-	  /* socket readable ? */
-	  if(FD_ISSET(sock->sock_desc, &read_fds))
+	  
+	  /* Is socket readable ? */
+	  if (FD_ISSET (sock->sock_desc, &read_fds))
 	    {
-	      if(sock->read_socket)
-		if(sock->read_socket(sock))
+	      if (sock->read_socket)
+		if (sock->read_socket (sock))
 		  {
-		    sock_schedule_for_shutdown(sock);
+		    sock_schedule_for_shutdown (sock);
 		    continue;
 		  }
 	    }
-
-	  /* socket writeable and not kicked while reading ? */
-	  if(FD_ISSET(sock->sock_desc, &write_fds))
+	  
+	  /* Is socket writeable ? */
+	  if (FD_ISSET (sock->sock_desc, &write_fds))
 	    {
-	      if(sock->write_socket)
-		if(sock->write_socket(sock))
+	      if (sock->write_socket)
+		if (sock->write_socket(sock))
 		  {
-		    sock_schedule_for_shutdown(sock);
+		    sock_schedule_for_shutdown (sock);
 		    continue;
 		  }
 	    }
-
-#if defined(ENABLE_HTTP_PROTO) && !defined(__MINGW32__)
-	  /* outgoing pipe to cgi script writable ? */
-	  if(sock->flags & SOCK_FLAG_HTTP_POST &&
-	     FD_ISSET(sock->pipe_desc[WRITE], &write_fds))
-	    {
-	      if(sock->write_socket)
-		if(sock->write_socket(sock))
-		  {
-		    sock_schedule_for_shutdown(sock);
-		    continue;
-		  }
-	    }
-
-	  /* incoming pipe from cgi script readable ? */
-	  if (sock->flags & SOCK_FLAG_HTTP_CGI &&
-	      FD_ISSET(sock->pipe_desc[READ], &read_fds))
-	    {
-	      if(sock->read_socket)
-		if(sock->read_socket(sock))
-		  {
-		    sock_schedule_for_shutdown(sock);
-		    continue;
-		  }
-	    }
-#endif
 	}
     }
 
@@ -825,11 +780,11 @@ check_sockets (void)
    * We had no chance to time out so we have to explicitly call the
    * timeout handler.
    */
-  if(time(NULL) > next_notify_time)
+  if (time (NULL) > next_notify_time)
     {
-      handle_periodic_tasks();
+      handle_periodic_tasks ();
     }
-
+  
   return 0;
 }
 

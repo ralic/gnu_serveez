@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.3 2000/06/13 16:50:47 ela Exp $
+ * $Id: control-proto.c,v 1.4 2000/06/14 19:22:20 ela Exp $
  *
  */
 
@@ -337,11 +337,11 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
     {
       strcat (proto, "aWCS-Master ");
     }
-  */
   if (xsock->flags & SOCK_FLAG_AWCS_CLIENT)
     {
       strcat (proto, "aWCS-Client ");
     }
+  */
 #endif /* ENABLE_AWCS_PROTO */
 
 #ifdef __MINGW32__
@@ -528,9 +528,9 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 	id = "Pipe";
 #endif
 #if ENABLE_AWCS_PROTO
+      /*
       if(xsock->flags & SOCK_FLAG_AWCS_CLIENT)
 	id = "aWCS-Client";
-      /*
       if(xsock == master_server)
 	id = "aWCS-Master";
       */
@@ -629,9 +629,9 @@ ctrl_stat_all(socket_t sock, int flag, char *arg)
   n = 0;
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
+      /*
       if(xsock->flags & SOCK_FLAG_AWCS_CLIENT)
 	client++;
-      /*
       if(xsock == master_server)
 	n++;
       */

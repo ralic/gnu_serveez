@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.4 2000/06/13 16:50:47 ela Exp $
+ * $Id: awcs-proto.c,v 1.5 2000/06/14 19:22:19 ela Exp $
  *
  */
 
@@ -920,7 +920,6 @@ awcs_detect_proto (void *config, socket_t sock)
     {
       cfg->master = 0;
       log_printf (LOG_NOTICE, "awcs client detected\n");
-      sock->flags |= SOCK_FLAG_AWCS_CLIENT;
       len = CLIENT_DETECTION;
     }
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.4 2000/06/13 16:50:47 ela Exp $
+ * $Id: socket.c,v 1.5 2000/06/14 19:22:19 ela Exp $
  *
  */
 
@@ -358,12 +358,7 @@ default_check_request (socket_t sock)
   while (p < end);
   
   /* Shuffle data in the receive buffer around. */
-  if (len > 0 && sock->recv_buffer_fill > len)
-    {
-      memmove (sock->recv_buffer, packet,
-               sock->recv_buffer_fill - len);
-    }
-  sock->recv_buffer_fill -= len;
+  sock_reduce_recv (sock, len);
   
   return 0;
 }
@@ -573,7 +568,7 @@ sock_create (int fd)
     {
       sock_unique_id (sock);
       sock->sock_desc = fd;
-      sock->flags |= SOCK_FLAG_CONNECTED;
+      sock->flags |= (SOCK_FLAG_CONNECTED | SOCK_FLAG_SOCK);
       sock_intern_connection_info (sock);
     }
   return sock;
