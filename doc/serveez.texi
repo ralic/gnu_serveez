@@ -27,7 +27,7 @@ Free Documentation License".
 
 @end titlepage
 
-@node Top, (dir), (dir), (dir)
+@node Top, Introduction, (dir), (dir)
 
 @menu
 * Introduction::        Introduction to Serveez
@@ -38,7 +38,7 @@ Free Documentation License".
 * Porting issues::      Support of different platforms and operating systems
 @end menu
 
-@node Introduction, Using Serveez, ,Top
+@node Introduction, Using Serveez, Top, Top
 @chapter Introduction
 
 Serveez is a server listening on a multiple tcp ports and handling all
@@ -128,6 +128,27 @@ the following layout:
 @node Concept, Server, Using Serveez, Top
 @chapter Concept
 
+Serveez's I/O strategy is the traditional @code{select()} method. It 
+is serving many clients in one server thread. This is done by setting to 
+nonblocking mode on all network handles, and use @code{select()} to tell 
+which network handle has data waiting. This is the traditional favorite. 
+
+An important bottleneck in this method is that @code{read()} or 
+@code{sendfile()} from disk blocks if the page is not in core at the 
+moment, setting nonblocking mode on a disk file handle has no effect. 
+Same thing goes for memory-mapped disk files. The first time a server
+needs disk I/O, its process blocks, all clients must wait, and that 
+raw nonthreaded performance goes to waste. 
+
+Unfortunately, @code{select()} is limited to @code{FD_SETSIZE} handles. 
+This limit is compiled in to the standard library and user programs. 
+Nevertheless Serveez is able to serve about one thousand and more 
+clients on Linux, a hundred on Win95 and about five hundred on 
+WinNT systems.
+
+We chose this method anyway because it seems the most portable. Either in
+most Unices and Win32 this method is implemented.
+
 @node Server, Co-Server, Concept, Top
 @chapter Server
 
@@ -137,7 +158,7 @@ the following layout:
 * Existing Servers::            Which kind of servers do we have already ?
 @end menu
 
-@node Introduction to Servers, Writing Servers, , Server
+@node Introduction to Servers, Writing Servers, Server, Server
 @section Introduction to Servers
 
 This package includes a kind of server server. It allows different 
@@ -155,7 +176,7 @@ but could be a basis for a new protocol server. We are now going to describe
 how this specific server works. Eventually the reader might have got an idea
 what is going on here.
 
-@node Writing Servers, Existing Servers ,Introduction to Servers, Server
+@node Writing Servers, Existing Servers, Introduction to Servers, Server
 @section Writing Servers
 
 @subsection Making and configuring preperations
@@ -400,7 +421,7 @@ request could not be fulfilled. To invoke a Co-Server request you use one
 of the coserver_* macros. The foo server uses the reverse dns Co-Server to
 identify the host name of the remote client.
 
-@node Existing Servers, ,Writing Servers, Server
+@node Existing Servers,  , Writing Servers, Server
 @section Existing Servers
 
 @menu
@@ -411,7 +432,7 @@ identify the host name of the remote client.
 * Foo Server::                  Example server implementation
 @end menu
 
-@node Chat Server, HTTP Server, , Existing Servers
+@node Chat Server, HTTP Server, Existing Servers, Existing Servers
 @subsection Chat Server
 
 @subsubsection General description
@@ -758,7 +779,7 @@ want people using this protocol from outsides.
 
 @end table
 
-@node Foo Server, , Control Protocol Server, Existing Servers
+@node Foo Server,  , Control Protocol Server, Existing Servers
 @subsection Foo Server
 
 The Foo Server is a simple example on how to write internet protocol
@@ -773,7 +794,7 @@ servers with Serveez. @xref{Writing Servers}.
 * Existing Co-Servers::         What kind of Co-Servers already exist ?
 @end menu
 
-@node What are Co-Servers, Writing Co-Servers, , Co-Server
+@node What are Co-Servers, Writing Co-Servers, Co-Server, Co-Server
 @section What are Co-Servers
 
 If it is necessary to complete blocking tasks in Serveez you have 
@@ -827,16 +848,115 @@ specifying the COSERVER_* id, the Co-Server description, the Co-Server
 handle routine discussed above, the amount of Co-Server instances to be
 created and an optional initialization routine.
 
-@node Existing Co-Servers, , Writing Co-Servers, Co-Server
+@node Existing Co-Servers,  , Writing Co-Servers, Co-Server
 @section Existing Co-Servers
 
 @subsection Identification (Ident) Co-Server
 
+The Identification Protocol is briefly documented in RFC1413. It
+provides a means to determine the identity of a user of a particular 
+TCP connection.  Given a TCP port number pair, it returns a character 
+string which identifies the owner of that connection on the server's system.
+
+This is a connection based application on TCP. A server listens for
+TCP connections on TCP port 113 (decimal). Once a connection is
+established, the server reads a line of data which specifies the
+connection of interest. If it exists, the system dependent user
+identifier of the connection of interest is sent as the reply. The
+server may then either shut the connection down or it may continue to
+read/respond to multiple queries.
+
+Actually the Ident Co-Server is a client to this kind of service. For
+every established network connection you can use this service by calling
+the apropiate macro from @file{coserver.h}. But you could also use the
+Ident Co-Server as is without this macro. The format of the input buffer
+is:
+
+@example
+Format:
+RemoteAddressInDottedDecimals ":" RemotePort ":" LocalPort
+
+Macro:
+sock->ref++;
+coserver_ident (sock, (coserver_handle_result_t) MyIdentCallback, 
+                sock);
+@end example
+
+In this context @code{sock} is of type @code{socket_t} and 
+@code{MyIdentCallback} is something like the following example. You need
+to decrease the socket reference counter (this is necessary for
+callbacks which get a @code{socket_t} as first (optional) argument only)
+and @code{user} can be NULL if there is no ident deamon running on the 
+foreign machine. The last argument within the above macro will be the 
+first argument in the below callback. Thus you will know what kind of 
+data the invocation of the callback is related to.
+
+@example
+Callback:
+int
+MyIdentCallback (socket_t sock, char *user)
+@{
+  sock->ref--;
+  printf ("Identified user: %s\n", user);
+  return 0;
+@}
+@end example
+
 @subsection Domain Name Server (DNS) Co-Server
+
+The DNS Co-Server is using @code{gethostbyname()} to translate a given
+hostname to the apropiate IP address. The format of the Co-Server input
+line and the macro from @file{coserver.h} is shown below. The IRC server is
+currently using this Co-Server for resolving its @samp{?-Lines}.
+@xref{Existing Servers}, for more information. In the below example 
+@code{realhost} is something like @samp{www.textsure.net}.
+
+@example
+Format:
+RemoteHostname
+
+Macro:
+coserver_dns (realhost, (coserver_handle_result_t) irc_connect_server, 
+              ircserver);
+
+Callback:
+int
+irc_connect_server (irc_server_t *server, char *ip)
+@{
+  printf ("The ip address is: %s\n", ip);
+  return 0;
+@}
+
+@end example
 
 @subsection Reverse Domain Name Server (reverse DNS) Co-Server
 
-@node Porting issues, , Co-Server, Top
+As easily guessed from the name this Co-Server is just doing the reverse
+as the DNS Co-Server. It translates a given IP address into a hostname
+using @code{gethostbyaddr()}. Within the macro the ip address is given
+as an @code{unsigned long} in host byte order and the Reverse DNS 
+Co-Server itself takes something like @samp{192.168.2.1}.
+
+@example
+Format:
+RemoteAddressInDottedDecimals
+
+Macro:
+sock->ref++;
+coserver_reverse (addr, (coserver_handle_result_t) MyReverseCallback, 
+                  sock);
+
+Callback:
+int
+MyReverseCallback (socket_t sock, char *host)
+@{
+  sock->ref--;
+  printf ("Hostname is: %s\n", host);
+  return 0;
+@}
+@end example
+
+@node Porting issues,  , Co-Server, Top
 @chapter Porting issues
 
 Serveez was always designed with an eye on maximum portability. Autoconf 

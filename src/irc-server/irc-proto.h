@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.6 2000/07/15 11:44:17 ela Exp $
+ * $Id: irc-proto.h,v 1.7 2000/07/17 16:15:04 ela Exp $
  *
  */
 
@@ -171,6 +171,7 @@ typedef struct
   char *host;                     /* local server virtual host */
   char *realhost;                 /* local server host */
   int port;
+  int users_disabled;             /* is USERS command disabled ? */
 
 #if ENABLE_TIMESTAMP  
   time_t tsdelta;                 /* delta value to UTC */
@@ -431,11 +432,11 @@ int irc_global_finalize (void);
 #define ERR_NOLOGIN               444
 #define ERR_SUMMONDISABLED        445
 #define ERR_USERSDISABLED         446
+#define ERR_USERSDISABLED_TEXT    ":USERS has been disabled"
 #define ERR_NOTREGISTERED         451
 
 #define ERR_NEEDMOREPARAMS        461
 #define ERR_NEEDMOREPARAMS_TEXT   "%s :Not enough parameters."
-
 
 #define ERR_ALREADYREGISTRED      462
 #define ERR_ALREADYREGISTRED_TEXT ":You may not reregister"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.6 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-proto.c,v 1.7 2000/07/17 16:15:04 ela Exp $
  *
  */
 
@@ -81,13 +81,14 @@ irc_config_t irc_config =
   NULL,                  /* virtual host name */
   NULL,                  /* read server host name */
   42424,                 /* listening tcp port */
+  0,                     /* is USERS command disable ? */
 #if ENABLE_TIMESTAMP
   0,                     /* delta value to UTC */
 #endif
   { NULL },              /* message of the day */
   0,                     /* message of the day lines */
   0,                     /* motd last modified date */
-  "../doc/irc-MOTD.txt", /* file name of masage of the day */
+  "../doc/irc-MOTD.txt", /* file name of message of the day */
   NULL,                  /* MLine */
   NULL,                  /* ALine */
   NULL,                  /* YLines */
@@ -550,6 +551,7 @@ irc_callback[] =
   { "PRIVMSG",  irc_priv_callback     },
   { "USERHOST", irc_userhost_callback },
   { "ISON",     irc_ison_callback     },
+  { "USERS",    irc_users_callback    },
   { "PART",     irc_part_callback     },
   { "QUIT",     irc_quit_callback     },
   { "JOIN",     irc_join_callback     },

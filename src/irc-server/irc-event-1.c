@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.6 2000/07/14 00:42:07 ela Exp $
+ * $Id: irc-event-1.c,v 1.7 2000/07/17 16:15:04 ela Exp $
  *
  */
 
@@ -298,7 +298,8 @@ irc_motd_callback (socket_t sock,
   /* try requesting the file */
   if (stat (cfg->MOTD_file, &buf) == -1)
     {
-      log_printf (LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "irc: /MOTD error: %s (%s)\n", 
+		  SYS_ERROR, cfg->MOTD_file);
       irc_printf (sock, ":%s %03d %s " ERR_NOMOTD_TEXT "\n",
 		  cfg->host, ERR_NOMOTD, client->nick);
       return 0;

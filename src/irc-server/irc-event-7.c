@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.5 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-event-7.c,v 1.6 2000/07/17 16:15:04 ela Exp $
  *
  */
 
@@ -147,6 +147,33 @@ irc_away_callback (socket_t sock,
     }
   return 0;
 }
+
+/*
+ *         Command: USERS
+ *      Parameters: [<server>]
+ * Numeric Replies: ERR_NOSUCHSERVER  ERR_FILEERROR
+ *                  RPL_USERSSTART    RPL_USERS
+ *                  RPL_NOUSERS       RPL_ENDOFUSERS
+ *                  ERR_USERSDISABLED
+ */
+int
+irc_users_callback (socket_t sock, 
+		    irc_client_t *client,
+		    irc_request_t *request)
+{
+  irc_config_t *cfg = sock->cfg;
+
+  if (!cfg->users_disabled)
+    {
+      irc_printf (sock, ":%s %03d %s " ERR_USERSDISABLED_TEXT "\n",
+		  cfg->host, ERR_USERSDISABLED, client->nick);
+      return 0;
+    }
+
+  return 0;
+}
+
+
 
 #else /* not ENABLE_IRC_PROTO */
 
