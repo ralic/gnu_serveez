@@ -1,3 +1,21 @@
+2001-04-19  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/server.c (svz_server_instantiate): New function.
+
+	* libserveez/vector.h (svz_vector_foreach): New iteration 
+	macro for svz_vector_t's.
+
+	* libserveez/binding.c (svz_server_find_portcfg): New function.
+	(svz_server_bind): Fully implemented, using above function.
+
+	* libserveez/portcfg.c (svz_portcfg_mkaddr): Also put network
+	family and port if necessary.
+	(svz_portcfg_copy): New function.
+	(svz_portcfg_expand): New function.
+
+	* libserveez/server.c (svz_server_get): New function. Hides 
+	svz_hash_t structure from library user.
+
 2001-04-18  [ Ela ]  <ela@lkcc.org>
 
 	* guile.c (define_port): Default for ICMP_TYPE is ICMP_SERVEEZ.

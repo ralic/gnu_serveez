@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.5 2001/03/04 13:13:41 ela Exp $
+ * $Id: server-socket.c,v 1.6 2001/04/19 14:08:10 ela Exp $
  *
  */
 
@@ -60,7 +60,194 @@
 #include "libserveez/icmp-socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
+#include "libserveez/portcfg.h"
 #include "libserveez/server-socket.h"
+
+/*
+ * Create a listening server socket (network or pipe). @var{port} is the 
+ * port configuration to bind the server socket to. Return a @code{NULL}
+ * pointer on errors.
+ */
+socket_t
+svz_server_create (svz_portcfg_t *port)
+{
+  SOCKET server_socket;      /* server socket descriptor */
+  socket_t sock;             /* socket structure */
+  int optval;                /* value for setsockopt() */
+  struct sockaddr_in *addr;  /* bind address */
+
+  /* Create listening pipe server ? */
+  if (port->proto & PROTO_PIPE)
+    {
+      if ((sock = sock_alloc ()) != NULL)
+	{
+	  sock_unique_id (sock);
+	}
+      else
+	{
+	  log_printf (LOG_ERROR, "unable to allocate socket structure\n");
+	  return NULL;
+	}
+    }
+
+  /* Create listening TCP, UDP, ICMP or RAW server socket. */
+  else
+    {
+      /* First, create a server socket for listening. */
+      if ((server_socket = svz_socket_create (port->proto)) == -1)
+	return NULL;
+
+      /* Set this ip option if we are using raw sockets. */
+      if (port->proto & PROTO_RAW)
+	{
+#ifdef IP_HDRINCL
+	  optval = 1;
+	  if (setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
+			  (void *) &optval, sizeof (optval)) < 0)
+	    {
+	      log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	      if (closesocket (server_socket) < 0)
+		log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	      return NULL;
+	    }
+#else /* not IP_HDRINCL */
+	  closesocket (server_socket);
+	  log_printf (LOG_ERROR, "setsockopt: IP_HDRINCL undefined\n");
+	  return NULL;
+#endif /* IP_HDRINCL */
+	}
+
+      /* 
+       * Make the socket be reusable (Minimize socket deadtime on 
+       * server death).
+       */
+      optval = 1;
+      if (setsockopt (server_socket, SOL_SOCKET, SO_REUSEADDR,
+		      (void *) &optval, sizeof (optval)) < 0)
+	{
+	  log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	  if (closesocket (server_socket) < 0)
+	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  return NULL;
+	}
+
+      /* Second, bind the socket to a port. */
+      addr = svz_portcfg_addr (port);
+      if (bind (server_socket, (struct sockaddr *) addr,
+		sizeof (struct sockaddr)) < 0)
+	{
+	  log_printf (LOG_ERROR, "bind: %s\n", NET_ERROR);
+	  if (closesocket (server_socket) < 0)
+	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  return NULL;
+	}
+
+      /* Prepare for listening on that port (if TCP). */
+      if (port->proto & PROTO_TCP)
+	{
+	  if (listen (server_socket, 
+		      port->tcp_backlog ? port->tcp_backlog : SOMAXCONN) < 0)
+	    {
+	      log_printf (LOG_ERROR, "listen: %s\n", NET_ERROR);
+	      if (closesocket (server_socket) < 0)
+		log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	      return NULL;
+	    }
+	}
+
+      /* Create a unique socket structure for the listening server socket. */
+      if ((sock = sock_create (server_socket)) == NULL)
+	{
+	  /* Close the server socket if this routine failed. */
+	  if (closesocket (server_socket) < 0)
+	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  return NULL;
+	}
+    }
+
+  /* 
+   * Free the receive and send buffers not needed for TCP server
+   * sockets and PIPE server.
+   */
+  if (port->proto & (PROTO_TCP | PROTO_PIPE))
+    {
+      svz_free (sock->recv_buffer);
+      svz_free (sock->send_buffer);
+      sock->recv_buffer_size = 0;
+      sock->send_buffer_size = 0;
+      sock->recv_buffer = NULL;
+      sock->send_buffer = NULL;
+      sock->check_request = sock_detect_proto; 
+    }
+
+  /* Setup the socket structure. */
+  sock->flags |= SOCK_FLAG_LISTENING;
+  sock->flags &= ~SOCK_FLAG_CONNECTED;
+  sock->proto |= port->proto;
+
+  if (port->proto & PROTO_PIPE)
+    {
+#ifndef __MINGW32__
+      sock->recv_pipe = svz_malloc (strlen (port->pipe_recv.name) + 1);
+      strcpy (sock->recv_pipe, port->pipe_recv.name);
+      sock->send_pipe = svz_malloc (strlen (port->pipe_send.name) + 1);
+      strcpy (sock->send_pipe, port->pipe_send.name);
+#else /* __MINGW32__ */
+      sock->recv_pipe = svz_malloc (strlen (port->pipe_recv.name) + 10);
+      sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", port->pipe_recv.name);
+      sock->send_pipe = svz_malloc (strlen (port->pipe_send.name) + 10);
+      sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", port->pipe_send.name);
+#endif /* __MINGW32__ */
+      sock->read_socket = server_accept_pipe;
+      if (pipe_listener (sock) == -1)
+	{
+	  sock_free (sock);
+	  return NULL;
+	}
+      log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->recv_pipe);
+    }
+  else
+    {
+      char *proto = "unknown";
+
+      if (port->proto & PROTO_TCP)
+	{
+	  sock->read_socket = server_accept_socket;
+	  proto = "tcp";
+	}
+      else if (port->proto & PROTO_UDP)
+	{
+	  sock_resize_buffers (sock,
+			       port->send_buffer_size ? 
+			       port->send_buffer_size : UDP_BUF_SIZE, 
+			       port->recv_buffer_size ?
+			       port->recv_buffer_size : UDP_BUF_SIZE);
+	  sock->read_socket = udp_read_socket;
+	  sock->write_socket = udp_write_socket;
+	  sock->check_request = udp_check_request;
+	  proto = "udp";
+	}
+      else if (port->proto & PROTO_ICMP)
+	{
+	  sock_resize_buffers (sock,
+			       port->send_buffer_size ? 
+			       port->send_buffer_size : ICMP_BUF_SIZE, 
+			       port->recv_buffer_size ?
+			       port->recv_buffer_size : ICMP_BUF_SIZE);
+	  sock->read_socket = icmp_read_socket;
+	  sock->write_socket = icmp_write_socket;
+	  sock->check_request = icmp_check_request;
+	  proto = "icmp";
+	}
+
+      addr = svz_portcfg_addr (port);
+      log_printf (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
+		  addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
+		  svz_inet_ntoa (addr->sin_addr.s_addr),
+		  ntohs (addr->sin_port));
+    }
+  return sock;
+}
 
 /*
  * Create a listening server socket. PORTCFG is the port to bind the 

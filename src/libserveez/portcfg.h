@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.5 2001/04/18 13:58:05 ela Exp $
+ * $Id: portcfg.h,v 1.6 2001/04/19 14:08:10 ela Exp $
  *
  */
 
@@ -152,6 +152,16 @@ svz_portcfg_t;
 #define pipe_recv protocol.pipe.recv
 #define pipe_send protocol.pipe.send
 
+#define svz_portcfg_addr(port)                               \
+  (((port)->proto & PROTO_TCP) ? &((port)->tcp_addr) :       \
+   ((port)->proto & PROTO_UDP) ? &((port)->udp_addr) :       \
+   ((port)->proto & PROTO_ICMP) ? &((port)->icmp_addr) :     \
+   ((port)->proto & PROTO_RAW) ? &((port)->raw_addr) : NULL) \
+
+#define svz_portcfg_port(port)                         \
+  (((port)->proto & PROTO_TCP) ? (port)->tcp_port :    \
+   ((port)->proto & PROTO_UDP) ? (port)->udp_port : 0) \
+
 #define svz_portcfg_create() \
   (svz_portcfg_t *) svz_calloc (sizeof (svz_portcfg_t))
 
@@ -165,6 +175,8 @@ SERVEEZ_API void svz_portcfg_destroy __P ((svz_portcfg_t *port));
 SERVEEZ_API void svz_portcfg_finalize __P ((void));
 SERVEEZ_API int svz_portcfg_mkaddr __P ((svz_portcfg_t *this));
 SERVEEZ_API void svz_portcfg_print __P ((svz_portcfg_t *this, FILE *stream));
+SERVEEZ_API svz_portcfg_t *svz_portcfg_copy __P ((svz_portcfg_t *port));
+SERVEEZ_API svz_array_t *svz_portcfg_expand __P ((svz_portcfg_t *this));
 
 __END_DECLS
 

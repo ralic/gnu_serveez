@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector.h,v 1.2 2001/04/01 13:32:30 ela Exp $
+ * $Id: vector.h,v 1.3 2001/04/19 14:08:10 ela Exp $
  *
  */
 
@@ -35,6 +35,11 @@ typedef struct
   void *chunks;             /* pointer to first element */
 }
 svz_vector_t;
+
+#define svz_vector_foreach(vector, value, i)                            \
+  for ((i) = 0, (value) = vector ? svz_vector_get ((vector), 0) : NULL; \
+       vector && (unsigned long) i < svz_vector_length (vector);        \
+       (value) = svz_vector_get ((vector), ++(i)))
 
 __BEGIN_DECLS
 

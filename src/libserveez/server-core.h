@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.4 2001/03/02 21:12:53 ela Exp $
+ * $Id: server-core.h,v 1.5 2001/04/19 14:08:10 ela Exp $
  *
  */
 
@@ -37,6 +37,12 @@ SERVEEZ_API extern time_t server_notify;
 
 SERVEEZ_API extern socket_t sock_root;
 SERVEEZ_API extern socket_t sock_last;
+
+/*
+ * Go through each socket structure in the chained list.
+ */
+#define svz_sock_foreach(sock) \
+  for ((sock) = sock_root; (sock) != NULL; (sock) = (sock)->next)
 
 __BEGIN_DECLS
 

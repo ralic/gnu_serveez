@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.8 2001/04/18 19:26:57 ela Exp $
+ * $Id: guile.c,v 1.9 2001/04/19 14:08:09 ela Exp $
  *
  */
 
@@ -382,38 +382,6 @@ guile_create_config (svz_servertype_t *stype)
 }
 
 /*
- * Create a new server instance of the server type @var{stype} with the
- * instance name @var{name}.
- */
-static svz_server_t *
-guile_instantiate_server (svz_servertype_t *stype, char *name)
-{
-  svz_server_t *server;
-  
-  /* Create server instance. */
-  server = (svz_server_t *) svz_malloc (sizeof (svz_server_t));
-  server->name = svz_strdup (name);
-  server->type = stype;
-
-  /* Make server configuration. */
-  server->cfg = guile_create_config (stype);
-
-  /* Transfer callbacks. */
-  server->detect_proto = stype->detect_proto;
-  server->connect_socket = stype->connect_socket;
-  server->handle_request = stype->handle_request;
-  server->init = stype->init;
-  server->finalize = stype->finalize;
-  server->info_client = stype->info_client;
-  server->info_server = stype->info_server;
-  server->notify = stype->notify;
-  server->description = stype->name;
-  svz_server_add (server);
-
-  return server;
-}
-
-/*
  * Generic server definition ...
  */
 #define FUNC_NAME "define-server!"
@@ -438,7 +406,8 @@ guile_define_server (SCM name, SCM args)
       if (!strncmp (servername, stype->varname, strlen (stype->varname)) &&
 	  servername[strlen (stype->varname)] == '-')
 	{
-	  server = guile_instantiate_server (stype, servername);
+	  server = svz_server_instantiate (stype, servername);
+	  server->cfg = guile_create_config (stype);
 	  break;
 	}
     }
@@ -450,7 +419,8 @@ guile_define_server (SCM name, SCM args)
       if ((stype = svz_server_load (server_description)) != NULL)
 	{
 	  svz_servertype_add (stype);
-	  server = guile_instantiate_server (stype, servername);
+	  server = svz_server_instantiate (stype, servername);
+	  server->cfg = guile_create_config (stype);
 	}
     }
 
@@ -624,13 +594,40 @@ guile_define_port (SCM symname, SCM args)
 #undef FUNC_NAME
 
 /*
- * Generic server -> port binding...
+ * Generic port -> server(s) port binding ...
  */
 #define FUNC_NAME "bind-server!"
 SCM
-guile_bind_server (SCM type, SCM name, SCM alist)
+guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
 {
-  return SCM_UNSPECIFIED;
+  char *portname = guile2str (port);
+  char *servername = guile2str (server);
+  svz_server_t *s;
+  svz_portcfg_t *p;
+  int error = 0;
+
+  /* Check id there is such a port configuration. */
+  if ((p = svz_portcfg_get (portname)) == NULL)
+    {
+      report_error ("no such port: %s", portname);
+      error++;
+    }
+
+  /* Get one of the servers in the list. */
+  if ((s = svz_server_get (servername)) == NULL)
+    {
+      report_error ("no such server: %s", servername);
+      error++;
+    }
+  
+  /* Bind a given server instance to a port configuration. */
+  if (s != NULL && p != NULL)
+    {
+      if (svz_server_bind (s, p) < 0)
+	error++;
+    }
+
+  return error ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
 
@@ -651,7 +648,7 @@ guile_init (void)
   /* export some new procedures */
   def_serv = gh_new_procedure ("define-port!", guile_define_port, 1, 0, 2);
   def_serv = gh_new_procedure ("define-server!", guile_define_server, 1, 0, 2);
-  def_serv = gh_new_procedure3_0 ("bind-server!", guile_bind_server);
+  def_serv = gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 3);
 }
 
 /*

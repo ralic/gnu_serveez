@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.7 2001/04/06 15:32:35 raimi Exp $
+ * $Id: server.h,v 1.8 2001/04/19 14:08:10 ela Exp $
  *
  */
 
@@ -209,19 +209,22 @@ __BEGIN_DECLS
 
 SERVEEZ_API extern svz_hash_t *svz_servers;
 
-SERVEEZ_API void svz_server_add __P ((svz_server_t *server));
-SERVEEZ_API void svz_server_del __P ((char *name));
-SERVEEZ_API svz_server_t *svz_server_find __P ((void *cfg));
+SERVEEZ_API void svz_server_add __P ((svz_server_t *));
+SERVEEZ_API svz_server_t *svz_server_get __P ((char *));
+SERVEEZ_API void svz_server_del __P ((char *));
+SERVEEZ_API svz_server_t *svz_server_find __P ((void *));
 SERVEEZ_API void svz_server_notifiers __P ((void));
+SERVEEZ_API svz_server_t *svz_server_instantiate __P ((svz_servertype_t *, 
+						       char *));
 SERVEEZ_API int svz_server_init_all __P ((void));
 SERVEEZ_API int svz_server_finalize_all __P ((void));
-SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *a, portcfg_t *b));
+SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *, portcfg_t *));
 
 SERVEEZ_API extern svz_array_t *svz_servertypes;
 SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
-SERVEEZ_API void svz_servertype_del __P ((unsigned long index));
+SERVEEZ_API void svz_servertype_del __P ((unsigned long));
 SERVEEZ_API void svz_servertype_finalize __P ((void));
-SERVEEZ_API svz_servertype_t *svz_servertype_find __P ((svz_server_t *server));
+SERVEEZ_API svz_servertype_t *svz_servertype_find __P ((svz_server_t *));
 
 #if ENABLE_DEBUG
 SERVEEZ_API void svz_servertype_print __P ((void));

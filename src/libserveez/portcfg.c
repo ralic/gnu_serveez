@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.5 2001/04/18 13:58:05 ela Exp $
+ * $Id: portcfg.c,v 1.6 2001/04/19 14:08:09 ela Exp $
  *
  */
 
@@ -33,7 +33,10 @@
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/core.h"
+#include "libserveez/vector.h"
+#include "libserveez/array.h"
 #include "libserveez/portcfg.h"
+#include "libserveez/interface.h"
 
 /*
  * This hash holds all port configurations created by the configuration
@@ -146,6 +149,81 @@ svz_portcfg_del (char *name)
 }
 
 /*
+ * Expand the given port configuration @var{this} if it is a network port
+ * configuration and if the network ip address is @code{INADDR_ANY}. Return
+ * an array of port configurations which are copies of the given.
+ */
+svz_array_t *
+svz_portcfg_expand (svz_portcfg_t *this)
+{
+  svz_array_t *ports = svz_array_create (1);
+  svz_portcfg_t *port;
+  struct sockaddr_in *addr;
+  int n;
+  ifc_entry_t *ifc;
+
+  /* Is this a network port configuration and should it be expanded ? */
+  if ((addr = svz_portcfg_addr (this)) != NULL && 
+      addr->sin_addr.s_addr == INADDR_ANY)
+    {
+      svz_vector_foreach (svz_interfaces, ifc, n)
+	{
+	  port = svz_portcfg_copy (this);
+	  addr = svz_portcfg_addr (port);
+	  addr->sin_addr.s_addr = ifc->ipaddr;
+	  svz_array_add (ports, port);
+	}
+    }
+  /* No, just add the given port configuration. */
+  else
+    {
+      port = svz_portcfg_copy (this);
+      svz_array_add (ports, port);
+    }
+  return ports;
+}  
+
+/*
+ * Make a copy of the given port configuration @var{port}. This function
+ * is used in @code{svz_portcfg_expand}.
+ */
+svz_portcfg_t *
+svz_portcfg_copy (svz_portcfg_t *port)
+{
+  svz_portcfg_t *copy;
+
+  /* First plain copy. */
+  copy = svz_malloc (sizeof (svz_portcfg_t));
+  memcpy (copy, port, sizeof (svz_portcfg_t));
+
+  /* Depending on the protocol, copy various strings. */
+  switch (port->proto)
+    {
+    case PROTO_TCP:
+      copy->tcp_ipaddr = svz_strdup (port->tcp_ipaddr);
+      break;
+    case PROTO_UDP:
+      copy->udp_ipaddr = svz_strdup (port->udp_ipaddr);
+      break;
+    case PROTO_ICMP:
+      copy->icmp_ipaddr = svz_strdup (port->icmp_ipaddr);
+      break;
+    case PROTO_RAW:
+      copy->raw_ipaddr = svz_strdup (port->raw_ipaddr);
+      break;
+    case PROTO_PIPE:
+      copy->pipe_recv.name = svz_strdup (port->pipe_recv.name);
+      copy->pipe_recv.user = svz_strdup (port->pipe_recv.user);
+      copy->pipe_recv.group = svz_strdup (port->pipe_recv.group);
+      copy->pipe_send.name = svz_strdup (port->pipe_send.name);
+      copy->pipe_send.user = svz_strdup (port->pipe_send.user);
+      copy->pipe_send.group = svz_strdup (port->pipe_send.group);
+      break;
+    }
+  return copy;
+}
+
+/*
  * This function makes the given port configuration @var{port} completely 
  * unusable. 
  */
@@ -220,26 +298,38 @@ svz_portcfg_finalize (void)
 int
 svz_portcfg_mkaddr (svz_portcfg_t *this)
 {
+  int err = 0;
+
   switch (this->proto)
     {
     case PROTO_TCP:
-      return svz_inet_aton (this->tcp_ipaddr, &this->tcp_addr);
+      /* put ip address here */
+      err = svz_inet_aton (this->tcp_ipaddr, &this->tcp_addr);
+      /* this surely is internet */
+      this->tcp_addr.sin_family = AF_INET;
+      /* determine network port */
+      this->tcp_addr.sin_port = htons (this->tcp_port);
       break;
     case PROTO_UDP:
-      return svz_inet_aton (this->udp_ipaddr, &this->udp_addr);
+      err = svz_inet_aton (this->udp_ipaddr, &this->udp_addr);
+      this->udp_addr.sin_family = AF_INET;
+      this->udp_addr.sin_port = htons (this->tcp_port);
       break;
     case PROTO_ICMP:
-      return svz_inet_aton (this->icmp_ipaddr, &this->icmp_addr);
+      err = svz_inet_aton (this->icmp_ipaddr, &this->icmp_addr);
+      this->icmp_addr.sin_family = AF_INET;
       break;
     case PROTO_RAW:
-      return svz_inet_aton (this->raw_ipaddr, &this->raw_addr);
+      err = svz_inet_aton (this->raw_ipaddr, &this->raw_addr);
+      this->raw_addr.sin_family = AF_INET;
       break;
     case PROTO_PIPE:
+      err = 0;
+      break;
     default:
-      return -1;
+      err = 0;
     }
-
-  return -1;
+  return err;
 }
 
 /*

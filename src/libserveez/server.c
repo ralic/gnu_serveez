@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.8 2001/04/06 15:32:35 raimi Exp $
+ * $Id: server.c,v 1.9 2001/04/19 14:08:10 ela Exp $
  *
  */
 
@@ -275,6 +275,18 @@ svz_server_add (svz_server_t *server)
 }
 
 /*
+ * Get the server instance with the given instance name @var{name}.
+ * Return @code{NULL} if there is no such server yet.
+ */
+svz_server_t *
+svz_server_get (char *name)
+{
+  if (svz_servers == NULL || name == NULL)
+    return NULL;
+  return svz_hash_get (svz_servers, name);
+}
+
+/*
  * Remove the server instance identified by the name @var{name}.
  */
 void
@@ -283,6 +295,36 @@ svz_server_del (char *name)
   if (svz_servers == NULL)
     return;
   svz_hash_delete (svz_servers, name);
+}
+
+/*
+ * Create a new server instance of the server type @var{stype} with the
+ * instance name @var{name}.
+ */
+svz_server_t *
+svz_server_instantiate (svz_servertype_t *stype, char *name)
+{
+  svz_server_t *server;
+  
+  /* Create server instance itself. */
+  server = (svz_server_t *) svz_malloc (sizeof (svz_server_t));
+  server->name = svz_strdup (name);
+  server->type = stype;
+
+  /* Transfer callbacks. */
+  server->detect_proto = stype->detect_proto;
+  server->connect_socket = stype->connect_socket;
+  server->handle_request = stype->handle_request;
+  server->init = stype->init;
+  server->finalize = stype->finalize;
+  server->info_client = stype->info_client;
+  server->info_server = stype->info_server;
+  server->notify = stype->notify;
+  server->description = stype->name;
+
+  /* Add this server to the instance hash. */
+  svz_server_add (server);
+  return server;
 }
 
 /*
