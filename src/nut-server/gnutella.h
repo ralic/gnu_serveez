@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.4 2000/08/29 13:37:31 ela Exp $
+ * $Id: gnutella.h,v 1.5 2000/08/30 20:11:24 ela Exp $
  *
  */
 
@@ -42,12 +42,13 @@
 #define NUT_HOSTS     "GET /gnutella-net HTTP/1."
 
 /* default values */
-#define NUT_PORT            6346
-#define NUT_GUID            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-#define NUT_GUID_SIZE       16
-#define NUT_SEARCH_INTERVAL 10
-#define NUT_TTL             5
-#define NUT_MAX_TTL         5
+#define NUT_PORT             6346
+#define NUT_GUID             {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+#define NUT_GUID_SIZE        16
+#define NUT_SEARCH_INTERVAL  10
+#define NUT_TTL              5
+#define NUT_MAX_TTL          5
+#define NUT_CONNECT_INTERVAL 2
 
 /* function IDs */
 #define NUT_PING_REQ   0x00 /* ping */
@@ -174,6 +175,9 @@ typedef struct
   int min_speed;            /* minimum connection speed for searching */
   char **extensions;        /* file extensions */
   hash_t *net;              /* host catcher */
+  int connections;          /* number of connections to keep up */
+  char *force_ip;           /* force the local ip to this value */
+  unsigned long ip;         /* calculated from `force_ip' */
 }
 nut_config_t;
 
@@ -189,6 +193,7 @@ int nut_init (server_t *server);
 int nut_global_init (void);
 int nut_finalize (server_t *server);
 int nut_global_finalize (void);
+int nut_server_timer (server_t *server);
 
 /*
  * This server's definition.

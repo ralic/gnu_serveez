@@ -1068,6 +1068,7 @@ The Gnutella net is some kind of peer-to-peer network which is based on
 client programs only. There are no servers. The network itself is formed
 by client connections only. Generally the Gnutella network is for sharing
 files of any kind.
+
 This Gnutella spider is for seeking the needly in the haystack. Once 
 connected to the network it regulary tries to find certain files in there.
 It keeps track of all connected clients and tries to reconnect them if
@@ -1079,7 +1080,9 @@ The Gnutella spider knows the following configurations items.
 @table @asis
 @item port
 This entry should contain @samp{tcp} for @samp{proto} and some port and
-network interface. The default port is 6346.
+network interface. The default port is 6346. If you want to see the host
+catcher list of this Gnutella spider you can connect to this port with 
+any WWW browser at @uref{http://localhost:6346/gnutella-net}.
 
 @item hosts
 This is the initial host list of the clients the spider tries connect.
@@ -1116,6 +1119,15 @@ not care about. This value is in KBit/s, too.
 If we get replies on search queries we check if the file extension of this
 reply matches one of these extensions. Useful extensions are @samp{mp3} and
 @samp{mpg}.
+
+@item connections
+This is the amount of concurrent connections the Gnutella spider tries
+to keep up to the network. The IP addresses and the port information is
+taken from the host catcher hash.
+
+@item force-ip
+You can force the Gnutella spider to send outgoing ping replies with this
+IP as host information. Must be in dotted decimals notation.
 @end table
 
 @node Co-Server, Porting issues, Server, Top

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.2 2000/08/29 19:15:39 ela Exp $
+ * $Id: nut-transfer.c,v 1.3 2000/08/30 20:11:24 ela Exp $
  *
  */
 
@@ -71,21 +71,29 @@ nut_save_transfer (socket_t sock)
   nut_transfer_t *transfer = sock->data;
   int num_written;
 
+  /* do we have something to write in the receive buffer ? */
   if (fill > 0)
     {
+      /* write as much data as possible */
       num_written = write (sock->file_desc, sock->recv_buffer, fill);
+
+      /* seems like an error occured */
       if (num_written < 0)
 	{
 	  log_printf (LOG_ERROR, "nut: write: %s\n", SYS_ERROR);
 	  return -1;
 	}
+      
+      /* crop written data from receive buffer */
       sock_reduce_recv (sock, num_written);
-      transfer->size -= num_written;
-      if (transfer->size <= 0)
+
+      /* did we get all data */
+      if ((transfer->size -= num_written) <= 0)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: file successfully received\n");
 #endif
+	  /* yes, shutdown the connection */
 	  return -1;
 	}
     }
@@ -105,14 +113,19 @@ nut_check_transfer (socket_t sock)
   char *p = sock->recv_buffer;
   nut_transfer_t *transfer = sock->data;
 
+  /* check if got at least the first part of the HTTP header */
   if (fill >= len && !memcmp (sock->recv_buffer, NUT_GET_OK, len))
     {
       len = 0;
+
+      /* find the end of the HTTP header (twice a CR/LF) */
       while (p < sock->recv_buffer + (fill - 3) && 
 	     memcmp (p, NUT_SEPERATOR, 4))
 	{
+	  /* parse the content length field */
 	  if (!memcmp (p, NUT_LENGTH, strlen (NUT_LENGTH)))
 	    {
+	      /* get the actual content length stored within the header */
 	      p += strlen (NUT_LENGTH);
 	      while (*p < '0' || *p > '9') p++;
 	      while (*p >= '0' && *p <= '9')
@@ -125,13 +138,19 @@ nut_check_transfer (socket_t sock)
 	    }
 	  p++;
 	}
-      if (p < sock->recv_buffer + (fill - 3) && 
-	  !memcmp (p, NUT_SEPERATOR, 4))
+
+      /* did we get all the header information ? */
+      if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: header received, length %d\n", len);
 #endif
 	  sock->userflags |= NUT_FLAG_HDR;
+
+	  /* 
+	   * check if the announced file length in the search reply
+	   * corresponds to the content length of this HTTP header
+	   */
 	  transfer->size = len;
 	  if (transfer->original_size != transfer->size)
 	    {
@@ -139,9 +158,12 @@ nut_check_transfer (socket_t sock)
 			  "nut: transfer sizes differ (%d!=%d)\n",
 			  transfer->original_size, transfer->size);
 	    }
+
+	  /* assign the appropiate gnutella transfer callbacks */
 	  sock->check_request = nut_save_transfer;
 	  sock->write_socket = NULL;
 
+	  /* crop header from receive buffer */
 	  len = (p - sock->recv_buffer) + 4;
 	  sock_reduce_recv (sock, len);
 	}
@@ -151,21 +173,25 @@ nut_check_transfer (socket_t sock)
 }
 
 /*
- * This callback is executed whenever a gnutella file transfer aborted.
+ * This callback is executed whenever a gnutella file transfer aborted
+ * or successfully exited.
  */
 static int
 nut_disconnect_transfer (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
 
+  /* free the transfer data */
   if (sock->data)
     {
       xfree (sock->data);
       sock->data = NULL;
     }
 
+  /* decrement amount of concurrent downloads */
   cfg->dnloads--;
 
+  /* finally close the received file */
   if (close (sock->file_desc) == -1)
     log_printf (LOG_ERROR, "nut: close: %s\n", SYS_ERROR);
 
@@ -249,6 +275,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       transfer->original_size = record->size;
       xsock->data = transfer;
 
+      /* send HTTP request to the listening gnutella host */
       sock_printf (xsock, NUT_GET "%d/%s " NUT_HTTP "\r\n",
 		   record->index, record->file);
       sock_printf (xsock, NUT_AGENT);

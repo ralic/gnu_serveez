@@ -1,3 +1,20 @@
+2000-08-30  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_server_timer): Added routine for
+	regurlarly reconnects.
+	(nut_connect_host): Use this routine to connect to other
+	gnutella hosts.
+	(nut_config_prototype): Added new configurations item
+	"connections" which is the number of connections you want
+	to keep up to the gnutella network.
+	(nut_config_prototype): New configuration item "force-ip"
+	can be used to force outgoing ping replies carry this as the 
+	host ip.
+
+	* ctrl-server/control-proto.c (ctrl_stat_id): Fixed the
+	double call of `util_inet_ntoa'. It delivers a static string.
+	Thus it showed the latter result only.
+
 2000-08-29  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_calc_guid): Using original

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.5 2000/08/29 19:15:39 ela Exp $
+ * $Id: gnutella.c,v 1.6 2000/08/30 20:11:24 ela Exp $
  *
  */
 
@@ -62,6 +62,7 @@
 #include "socket.h"
 #include "connect.h"
 #include "server.h"
+#include "server-core.h"
 #include "serveez.h"
 #include "gnutella.h"
 #include "nut-transfer.h"
@@ -105,6 +106,9 @@ nut_config_t nut_config =
   28,          /* minimum connection speed for searching */
   NULL,        /* file extensions */
   NULL,        /* host catcher */
+  4,           /* number of connections to keep up */
+  NULL,        /* force the local ip to this value */
+  INADDR_NONE, /* calculated from `force_ip' */
 };
 
 /*
@@ -123,6 +127,8 @@ key_value_pair_t nut_config_prototype [] =
   REGISTER_INT ("connection-speed", nut_config.speed, DEFAULTABLE),
   REGISTER_INT ("min-speed", nut_config.min_speed, DEFAULTABLE),
   REGISTER_STRARRAY ("file-extensions", nut_config.extensions, DEFAULTABLE),
+  REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
+  REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -141,7 +147,7 @@ server_definition_t nut_server_definition =
   nut_global_finalize,                    /* class destructor */
   NULL,                                   /* */
   NULL,                                   /* */
-  NULL,                                   /* */
+  nut_server_timer,                       /* server timer routine */
   NULL,                                   /* */
   &nut_config,                            /* default configuration */
   sizeof (nut_config),                    /* size of this configuration */
@@ -220,23 +226,101 @@ nut_hash_code (char *id)
 static int
 nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
 {
-  char *p = addr, *colon;
+  char *p, *colon, *host;
+
+  /* create a local copy of the given address string */
+  p = host = xstrdup (addr);
 
   /* skip leading invalid characters */
   while (*p < '0' && *p > '9' && *p) p++;
-  if (!*p) return -1;
+  if (!*p) 
+    {
+      xfree (host);
+      return -1;
+    }
   
   /* find seperating colon */
   colon = p;
   while (*colon != ':' && *colon) colon++;
-  if (!*colon) return -1;
+  if (!*colon) 
+    {
+      xfree (host);
+      return -1;
+    }
+
   *colon = '\0';
   colon++;
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (p);
   *port = htons ((unsigned short) util_atoi (colon));
+  xfree (host);
+
   return 0;
+}
+
+/*
+ * This function creates a hash key for a given IP and PORT information
+ * for the host catcher hash.
+ */
+char *
+nut_client_key (unsigned long ip, unsigned short port)
+{
+  static char key[32];
+
+  sprintf (key, "%s:%u", util_inet_ntoa (ip), port);
+  return key;
+}
+
+/*
+ * The following routine tries to connect to a given gnutella host.
+ * It returns -1 on errors and zero otherwise.
+ */
+static int
+nut_connect_host (nut_config_t *cfg, char *host)
+{
+  nut_client_t *client;
+  socket_t sock;
+  unsigned long ip;
+  unsigned short port;
+  int ret = -1;
+
+  /* try getting ip address and port */
+  if (nut_parse_addr (host, &ip, &port) == -1)
+    {
+      log_printf (LOG_WARNING, "nut: invalid host `%s'\n", host);
+      return ret;
+    }
+
+  /* get client from host catcher hash */
+  client = (nut_client_t *) hash_get (cfg->net, host);
+
+  /* try to connect to this host */
+  if ((sock = sock_connect (ip, port)) != NULL)
+    {
+      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
+		  util_inet_ntoa (ip), ntohs (port));
+      
+      sock->cfg = cfg;
+      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->disconnected_socket = nut_disconnect;
+      sock->check_request = nut_check_request;
+      sock->idle_func = nut_idle_searching;
+      sock->idle_counter = NUT_SEARCH_INTERVAL;
+      sock_printf (sock, NUT_CONNECT);
+      ret = 0;
+    }
+
+  /* 
+   * If we could not connect then delete the client from host catcher 
+   * hash and free the client structure.
+   */
+  if (client)
+    {
+      hash_delete (cfg->net, host);
+      xfree (client);
+    }
+  return ret;
 }
 
 /*
@@ -336,6 +420,12 @@ nut_init (server_t *server)
 	}
     }
 
+  /* calculate forced local ip if necessary */
+  if (cfg->force_ip)
+    {
+      cfg->ip = inet_addr (cfg->force_ip);
+    }
+
   /* create and modify packet hash */
   cfg->packet = hash_create (4);
   cfg->packet->code = nut_hash_code;
@@ -362,30 +452,7 @@ nut_init (server_t *server)
     {
       while (cfg->hosts[n])
 	{
-	  /* try getting ip address and port */
-	  if (nut_parse_addr (cfg->hosts[n], &ip, &port) == -1)
-	    {
-	      log_printf (LOG_WARNING, "nut: invalid host `%s'\n",
-			  cfg->hosts[n]);
-	      n++;
-	      continue;
-	    }
-
-	  /* try to connect to this host */
-	  if ((sock = sock_connect (ip, port)) != NULL)
-	    {
-	      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-			  util_inet_ntoa (ip), ntohs (port));
-
-	      sock->cfg = cfg;
-	      sock->flags |= SOCK_FLAG_NOFLOOD;
-	      sock->disconnected_socket = nut_disconnect;
-	      sock->check_request = nut_check_request;
-	      sock->idle_func = nut_idle_searching;
-	      sock->idle_counter = NUT_SEARCH_INTERVAL;
-	      sock_printf (sock, NUT_CONNECT);
-	      hash_put (cfg->conn, util_itoa (sock->id), sock);
-	    }
+	  nut_connect_host (cfg, cfg->hosts[n]);
 	  n++;
 	}
     }
@@ -437,19 +504,6 @@ nut_global_finalize (void)
 }
 
 /*
- * This function creates a hash key for a given IP and PORT information
- * for the host catcher hash.
- */
-char *
-nut_client_key (unsigned long ip, unsigned short port)
-{
-  static char key[32];
-
-  sprintf (key, "%s:%u", util_inet_ntoa (ip), port);
-  return key;
-}
-
-/*
  * Within this routine we collect all available gnutella hosts. Thus
  * we might never ever lack of gnutella net connections.
  */
@@ -496,7 +550,7 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
       log_printf (LOG_DEBUG, "nut: packet 0x%02X died (zero TTL)\n",
 		  hdr->function);
 #endif
-      return -1;
+      return 0;
     }
 
   /* 
@@ -515,7 +569,7 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
       log_printf (LOG_DEBUG, "nut: packet 0x%02X died (HOP > TTL)\n",
 		  hdr->function); 
 #endif
-      return -1;
+      return 0;
     }
 
   /* route replies here */
@@ -543,9 +597,21 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
       /* yes, send it to the connection the query came from */
       else
 	{
-	  sock_write (xsock, (char *) hdr, sizeof (nut_header_t));
+	  /* try sending the header */
+	  if (sock_write (xsock, (char *) hdr, sizeof (nut_header_t)) == -1)
+	    {
+	      sock_schedule_for_shutdown (xsock);
+	      return 0;
+	    }
+	  /* send the packet body if necessary */
 	  if (hdr->length)
-	    sock_write (xsock, packet, hdr->length);
+	    {
+	      if (sock_write (xsock, packet, hdr->length) == -1)
+		{
+		  sock_schedule_for_shutdown (xsock);
+		  return 0;
+		}
+	    }
 	}
     }
   /* route queries here */
@@ -588,13 +654,23 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
 	    {
 	      xsock = conn[n];
 	      if (xsock == sock) continue;
-	      sock_write (xsock, (char *) hdr, sizeof (nut_header_t));
+	      if (sock_write (xsock, (char *) hdr, 
+			      sizeof (nut_header_t)) == -1)
+		{
+		  sock_schedule_for_shutdown (xsock);
+		  return 0;
+		}
 	      if (hdr->length)
-		sock_write (xsock, packet, hdr->length);
+		{
+		  if (sock_write (xsock, packet, hdr->length) == -1)
+		    {
+		      sock_schedule_for_shutdown (xsock);
+		      return 0;
+		    }
+		}
 	    }
 	  hash_xfree (conn);
 	}
-      
     }
   return 0;
 }
@@ -669,8 +745,10 @@ nut_ping_reply (socket_t sock, nut_header_t *hdr, nut_ping_reply_t *reply)
   nut_config_t *cfg = sock->cfg;
   socket_t xsock;
 
+  /* put to host catcher hash */
   nut_host_catcher (cfg, reply->ip, reply->port);
 
+  /* is this a reply to my own gnutella packet ? */
   if ((xsock = (socket_t) hash_get (cfg->packet, (char *) hdr->id)) != NULL)
     {
 #if 1
@@ -696,15 +774,25 @@ nut_ping_request (socket_t sock, nut_header_t *hdr, void *null)
   nut_config_t *cfg = sock->cfg;
   nut_ping_reply_t reply;
 
+  /* create new gnutella packet */
   hdr->function = NUT_PING_ACK;
   hdr->length = sizeof (nut_ping_reply_t);
   hdr->ttl = hdr->hop;
   reply.port = cfg->port->port;
-  reply.ip = sock->local_addr;
+  if (cfg->ip != INADDR_NONE)
+    reply.ip = cfg->ip;
+  else
+    reply.ip = sock->local_addr;
   reply.files = 0;
   reply.size = 0;
-  sock_write (sock, (char *) hdr, sizeof (nut_header_t));
-  sock_write (sock, (char *) &reply, hdr->length);
+  
+  /* try sending this packet */
+  if (sock_write (sock, (char *) hdr, sizeof (nut_header_t)) == -1 ||
+      sock_write (sock, (char *) &reply, hdr->length) == -1)
+    {
+      sock_schedule_for_shutdown (sock);
+      return -1;
+    }
 
   return 0;
 }
@@ -729,7 +817,8 @@ nut_disconnect (socket_t sock)
     hash_delete (cfg->route, (char *) id);
 
   /* remove this socket from the current connection hash */
-  hash_delete (cfg->conn, util_itoa (sock->id));
+  hash_delete (cfg->conn, nut_client_key (sock->remote_addr, 
+					  ntohs (sock->remote_port)));
 
   /* remove the connection from the host catcher */
   client = hash_delete (cfg->net, nut_client_key (sock->remote_addr, 
@@ -740,12 +829,54 @@ nut_disconnect (socket_t sock)
 }
 
 /*
+ * This callback is regularily called in the `handle_periodic_tasks'
+ * routine. Here we try connecting to more gnutella hosts.
+ */
+int
+nut_server_timer (server_t *server)
+{
+  nut_config_t *cfg = server->cfg;
+  static int count = NUT_CONNECT_INTERVAL;
+  char **keys;
+  nut_client_t *client;
+  int n;
+
+  /* go sleep if we still do not want to do something */
+  if (count-- > 0) return 0;
+    
+  /* do we have enough connections ? */
+  if (cfg->connections > hash_size (cfg->conn))
+    {
+      /* are there hosts in the host catcher hash ? */
+      if ((keys = (char **) hash_keys (cfg->net)) != NULL)
+	{
+	  /* go through all caught hosts */
+	  for (n = 0; n < hash_size (cfg->net); n++)
+	    {
+	      /* check if we are not already connected */
+	      if (hash_get (cfg->conn, keys[n]) == NULL)
+		{
+		  nut_connect_host (cfg, keys[n]);
+		  break;
+		}
+	    }
+	  hash_xfree (keys);
+	}
+    }
+
+  /* wake up in a certain time */
+  count = NUT_CONNECT_INTERVAL;
+  return 0;
+}
+
+/*
  * Whenever there is data arriving for this socket we call this 
  * routine.
  */
 int
 nut_check_request (socket_t sock)
 {
+  nut_config_t *cfg = sock->cfg;
   nut_header_t *hdr;
   void *request;
   int len = strlen (NUT_OK);
@@ -754,11 +885,18 @@ nut_check_request (socket_t sock)
   /* check for self connected response */
   if (fill >= (unsigned) len && !memcmp (sock->recv_buffer, NUT_OK, len))
     {
+      /* add this client to the current connection hash */
+      hash_put (cfg->conn, 
+		nut_client_key (sock->remote_addr, ntohs (sock->remote_port)), 
+		sock);
+
       log_printf (LOG_NOTICE, "nut: host %s:%u connected\n",
 		  util_inet_ntoa (sock->remote_addr),
 		  ntohs (sock->remote_port));
       sock_reduce_recv (sock, len);
-      nut_init_ping (sock);
+
+      if (nut_init_ping (sock) == -1) 
+	return -1;
     }
 
   /* go through all packets in the receive queue */
@@ -800,6 +938,7 @@ nut_check_request (socket_t sock)
 			      hdr->function);
 		}
 	    }
+	  /* cut this packet from the send buffer queue */
 	  sock_reduce_recv (sock, len);
 	}
       else
@@ -820,8 +959,10 @@ nut_idle_searching (socket_t sock)
   nut_query_t query;
   int len;
 
+  /* search string given ? */
   if (cfg->search)
     {
+      /* create new gnutella packet */
       nut_calc_guid ((byte *) &hdr.id);
       hdr.function = NUT_SEARCH_REQ;
       hdr.ttl = cfg->ttl;
@@ -831,13 +972,19 @@ nut_idle_searching (socket_t sock)
       len = sizeof (nut_query_t) - sizeof (char *);
       hdr.length += len;
 
-      sock_write (sock, (char *) &hdr, sizeof (hdr));
-      sock_write (sock, (char *) &query, len);
-      sock_write (sock, cfg->search, strlen (cfg->search) + 1);
-
+      /* try sending this packet to this connection */
+      if (sock_write (sock, (char *) &hdr, sizeof (hdr)) == -1 ||
+	  sock_write (sock, (char *) &query, len) == -1 ||
+	  sock_write (sock, cfg->search, strlen (cfg->search) + 1) == -1)
+	{
+	  return -1;
+	}
+      
+      /* save this packet for later routing */
       hash_put (cfg->packet, (char *) &hdr.id, sock);
     }
 
+  /* wake up in a certain time */
   sock->idle_counter = NUT_SEARCH_INTERVAL;
   return 0;
 }
@@ -852,13 +999,16 @@ nut_host_list_write (socket_t sock)
 {
   int num_written;
 
+  /* write as much data as possible */
   num_written = send (sock->sock_desc, sock->send_buffer,
                       sock->send_buffer_fill, 0);
 
+  /* some data has been written */
   if (num_written > 0)
     {
       sock->last_send = time (NULL);
 
+      /* reduce send buffer */
       if (sock->send_buffer_fill > num_written)
         {
           memmove (sock->send_buffer, 
@@ -867,7 +1017,7 @@ nut_host_list_write (socket_t sock)
         }
       sock->send_buffer_fill -= num_written;
     }
-
+  /* seems like an error */
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "nut: write: %s\n", NET_ERROR);
@@ -878,13 +1028,13 @@ nut_host_list_write (socket_t sock)
         }
     }
   
+  /* has all data been sent successfully ? */
   if (sock->send_buffer_fill <= 0 && !(sock->userflags & NUT_FLAG_HOSTS))
     {
       num_written = -1;
     }
 
   return (num_written < 0) ? -1 : 0;
-
 }
 
 /*
@@ -897,21 +1047,25 @@ nut_host_list (socket_t sock)
   nut_client_t **client;
   int n;
 
+  /* do not enter this routine if you do not want to send something */
   if (!(sock->userflags & NUT_FLAG_HOSTS))
     return 0;
 
+  /* send normal HTTP header */
   sock_printf (sock, 
 	       "HTTP 200 OK\r\n"
-	       "Server: Gnutella"
+	       "Server: Gnutella\r\n"
 	       "Content-type: text/html\r\n"
 	       "\r\n");
 
+  /* send HTML header */
   sock_printf (sock,
 	       "<html><body bgcolor=white text=black><br>"
-	       "<h1>Gnutella Host Catcher (%d)</h1>"
+	       "<h1>%d Gnutella Hosts</h1>"
 	       "<hr noshade><pre>",
 	       hash_size (cfg->net));
 
+  /* go through all caught gnutella hosts and print their info */
   if ((client = (nut_client_t **) hash_values (cfg->net)) != NULL)
     {
       for (n = 0; n < hash_size (cfg->net); n++)
@@ -923,6 +1077,7 @@ nut_host_list (socket_t sock)
       hash_xfree (client);
     }
 
+  /* send HTML footer */
   sock_printf (sock,
 	       "</pre><hr noshade><i>%s/%s server at %s port %d</i>"
 	       "</body></html>",
@@ -931,12 +1086,12 @@ nut_host_list (socket_t sock)
 	       util_inet_ntoa (sock->local_addr),
 	       ntohs (sock->local_port));
 
+  /* state that we have sent all available data */
   sock->userflags &= ~NUT_FLAG_HOSTS;
 
+  /* shutdown the socket if all data has been written */
   if (sock->send_buffer_fill <= 0)
-    {
-      return -1;
-    }
+    return -1;
 
   return 0;
 }
@@ -949,6 +1104,7 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
 {
   int len = strlen (NUT_CONNECT);
 
+  /* detect normal connect */
   len = strlen (NUT_CONNECT);
   if (sock->recv_buffer_fill >= len &&
       !memcmp (sock->recv_buffer, NUT_CONNECT, len))
@@ -958,6 +1114,7 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       return -1;
     }
 
+  /* detect host catcher request */
   len = strlen (NUT_HOSTS);
   if (sock->recv_buffer_fill >= len &&
       !memcmp (sock->recv_buffer, NUT_HOSTS, len))
@@ -980,6 +1137,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
 {
   nut_config_t *cfg = nut_cfg;
 
+  /* assign host catcher request routines */
   if (sock->userflags & NUT_FLAG_HOSTS)
     {
       sock->check_request = nut_host_list;
@@ -997,8 +1155,15 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
   sock->check_request = nut_check_request;
   sock->idle_func = nut_idle_searching;
   sock->idle_counter = NUT_SEARCH_INTERVAL;
-  nut_init_ping (sock);
-  hash_put (cfg->conn, util_itoa (sock->id), sock);
+
+  /* send inital ping */
+  if (nut_init_ping (sock) == -1)
+    return -1;
+
+  /* put this client to the current connection hash */
+  hash_put (cfg->conn, 
+	    nut_client_key (sock->remote_addr, ntohs (sock->remote_port)), 
+	    sock);
 
   return 0;
 }

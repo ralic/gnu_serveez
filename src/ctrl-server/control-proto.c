@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.19 2000/08/21 20:06:40 ela Exp $
+ * $Id: control-proto.c,v 1.20 2000/08/30 20:11:24 ela Exp $
  *
  */
 
@@ -419,7 +419,16 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       " sock fd  : %d\r\n"
 	       " file fd  : %d\r\n"
 	       " pipe fd  : %d (recv), %d (send)\r\n"
-	       " foreign  : %s:%u\r\n"
+	       " foreign  : %s:%u\r\n",
+	       xsock->sock_desc,
+	       xsock->file_desc,
+	       xsock->pipe_desc[READ],
+	       xsock->pipe_desc[WRITE],
+	       util_inet_ntoa (xsock->remote_addr),
+	       ntohs (xsock->remote_port));
+
+  /* that is why `util_inet_ntoa' cannot be used in the same call */
+  sock_printf (sock, 
 	       " local    : %s:%u\r\n"
 	       " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
 	       " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
@@ -428,12 +437,6 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       " flood    : %d (points), %d (limit)\r\n"
 #endif /* ENABLE_FLOOD_PROTECTION */
 	       " avail    : %s\r\n\r\n",
-	       xsock->sock_desc,
-	       xsock->file_desc,
-	       xsock->pipe_desc[READ],
-	       xsock->pipe_desc[WRITE],
-	       util_inet_ntoa (xsock->remote_addr),
-	       ntohs (xsock->remote_port),
 	       util_inet_ntoa (xsock->local_addr),
 	       ntohs (xsock->local_port),
 	       xsock->send_buffer_size,
