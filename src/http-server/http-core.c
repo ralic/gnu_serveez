@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.11 2000/11/02 12:51:57 ela Exp $
+ * $Id: http-core.c,v 1.12 2000/11/03 21:42:23 ela Exp $
  *
  */
 
@@ -51,6 +51,7 @@
 #include "alloc.h"
 #include "hash.h"
 #include "serveez.h"
+#include "server-core.h"
 #include "http-proto.h"
 #include "http-core.h"
 
@@ -61,6 +62,38 @@
 # define timezone _timezone
 # define daylight _daylight
 #endif
+
+/*
+ * Each http client gets resolved by this callback.
+ */
+int
+http_remotehost (char *host, int id, int version)
+{
+  http_socket_t *http;
+  socket_t sock = sock_find (id, version);
+
+  if (host && sock)
+    {
+      http = sock->data;
+      if (!http->host) http->host = xstrdup (host);
+    } 
+
+  return 0;
+}
+
+/*
+ * When the localhost has been resolved to a hostname this callback is
+ * invoked by the main loop. Put the result into the http configuration.
+ */
+int
+http_localhost (char *host, http_config_t *cfg)
+{
+  if (host && !cfg->host)
+    {
+      cfg->host = xpstrdup (host);
+    }
+  return 0;
+}
 
 /*
  * Write a logging notification to the access logfile if possible
@@ -96,7 +129,8 @@ http_log (socket_t sock)
 		{
 		  /* %h - host name */
 		case 'h':
-		  strcat (line, util_inet_ntoa (sock->remote_addr));
+		  strcat (line, http->host ? http->host :
+			  util_inet_ntoa (sock->remote_addr));
 		  p++;
 		  break;
 		  /* %t - request time stamp */

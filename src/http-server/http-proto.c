@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.41 2000/11/02 12:51:57 ela Exp $
+ * $Id: http-proto.c,v 1.42 2000/11/03 21:42:23 ela Exp $
  *
  */
 
@@ -84,6 +84,7 @@
 #include "http-cgi.h"
 #include "http-dirlist.h"
 #include "http-cache.h"
+#include "coserver/coserver.h"
 
 /*
  * The http port configuration.
@@ -226,7 +227,16 @@ http_init (server_t *server)
 {
   int types = 0;
   char *p;
+  unsigned long host;
   http_config_t *cfg = server->cfg;
+
+  /* resolve localhost if server name is not set */
+  if (!cfg->host)
+    {
+      host = cfg->port->localaddr->sin_addr.s_addr;
+      if (host == INADDR_ANY) host = htonl (INADDR_LOOPBACK);
+      coserver_reverse (host, http_localhost, cfg, NULL);
+    }
 
   /* start http logging system */
   if (cfg->logfile)
@@ -355,9 +365,10 @@ http_disconnect (socket_t sock)
   /* free the http socket structures */
   http_free_socket (sock);
 
-  if (sock->data)
+  if (http)
     {
-      xfree (sock->data);
+      if (http->host) xfree (http->host);
+      xfree (http);
       sock->data = NULL;
     }
 
@@ -729,7 +740,9 @@ http_connect_socket (void *http_cfg, socket_t sock)
   http->pid = INVALID_HANDLE;
   http->keepalive = cfg->keepalive;
   sock->data = http;
-	  
+  coserver_reverse (sock->remote_addr, http_remotehost, 
+		    sock->id, sock->version);
+
   /* 
    * set the socket flag, disable flood protection and
    * set all the callback routines

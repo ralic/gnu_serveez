@@ -1,3 +1,11 @@
+2000-11-03  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-core.c (http_localhost): The local server
+	name is resolved at server startup if necessary.
+	(http_remotehost): When a new client connects to the http
+	server its remote address gets resolved and put to the access
+	logfile and cgi environment.
+
 2000-11-02  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.h: The following configuration items
