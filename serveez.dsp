@@ -209,6 +209,10 @@ SOURCE=".\src\nut-server\nut-transfer.c"
 # End Source File
 # Begin Source File
 
+SOURCE=".\src\nut-server\nut-route.c"
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\option.c
 # End Source File
 # Begin Source File

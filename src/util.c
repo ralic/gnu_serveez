@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.19 2000/08/29 10:44:03 ela Exp $
+ * $Id: util.c,v 1.20 2000/09/02 15:48:13 ela Exp $
  *
  */
 
@@ -188,6 +188,39 @@ util_hstrerror (void)
   return strerror (errno);
 # endif
 #endif /* not HAVE_HSTRERROR */
+}
+
+/*
+ * Produce a time string representation of a given time without any
+ * trailing characters.
+ */
+char *
+util_time (time_t t)
+{
+  static char *asc;
+  char *p;
+
+  p = asc = ctime (&t);
+  while (*p) p++;
+  while (*p < ' ') *(p--) = '\0';
+
+  return asc;
+}
+
+/*
+ * Convert a given string to lower case text representation.
+ */
+char *
+util_tolower (char *str)
+{
+  char *p = str;
+
+  while (*p)
+    {
+      *p = isupper (*p) ? tolower (*p) : *p;
+      p++;
+    }
+  return str;
 }
 
 /*

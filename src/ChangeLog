@@ -1,3 +1,35 @@
+2000-09-02  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_host_catcher): Canonizing ip
+	addresses and tcp ports for the host catcher.
+	(nut_server_timer): Forget about self sent packets after a
+	certain time.
+
+	* util.c (util_tolower): This routine converts a given string
+	to lower case.
+	(util_time): In this function a given time is converted into
+	its text representation without unwanted trailing characters.
+
+	* nut-server/nut-transfer.c (nut_string_regex): Added routine
+	to check search patterns against constant filenames.
+
+	* nut-server/nut-route.c (nut_validate_packet): Message
+	validation keeps the gnutella network clean and the client
+	stable.
+
+	* nut-server/gnutella.c (nut_info_client): Implemented
+	gnutella client information callback.
+
+	* nut-server/nut-route.c (nut_route): Moved all routing 
+	routines to this file.
+
+	* nut-server/Makefile.am (libnut_a_SOURCES): Added
+	`nut-route.c' and `nut-route.h' to the gnutella sources.
+
+	* nut-server/gnutella.c (nut_connect_timeout): This routine
+	returns an error if the connected socket has not been connected
+	within a certain time interval.
+
 2000-08-31  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.h (little2host): Defined some routines

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.6 2000/08/31 21:18:29 ela Exp $
+ * $Id: gnutella.h,v 1.7 2000/09/02 15:48:14 ela Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 #define NUT_MAX_TTL          5
 #define NUT_CONNECT_INTERVAL 2
 #define NUT_SEND_BUFSIZE     (1024 * 100)
+#define NUT_CONNECT_TIMEOUT  20
 
 /* function IDs */
 #define NUT_PING_REQ   0x00 /* ping */
@@ -59,9 +60,10 @@
 #define NUT_SEARCH_ACK 0x81 /* search response */
 
 /* protocol flags */
-#define NUT_FLAG_INIT  0x00
-#define NUT_FLAG_HDR   0x01
-#define NUT_FLAG_HOSTS 0x02
+#define NUT_FLAG_HTTP   0x0001
+#define NUT_FLAG_HDR    0x0002
+#define NUT_FLAG_HOSTS  0x0004
+#define NUT_FLAG_CLIENT 0x0008
 
 /* id:
  * The header contains a Microsoft GUID (Globally Unique Identifier for 
@@ -141,15 +143,32 @@ nut_push_t;
 /* that is for default align */
 #pragma pack()
 
-/* gnutella client host structure */
+/* gnutella host structure */
 typedef struct
 {
   byte id[NUT_GUID_SIZE]; /* clientID128 GUID */
-  unsigned long ip;
-  unsigned short port;
-  time_t last_reply;
+  unsigned long ip;       /* IP address */
+  unsigned short port;    /* TCP port */
+  time_t last_reply;      /* last packet received */
+}
+nut_host_t;
+
+/* each gnutella host connection gets such a structure */
+typedef struct
+{
+  unsigned dropped; /* number of dropped packets */
+  unsigned packets; /* number of received packets */
+  unsigned invalid; /* number of invalid packet types */
 }
 nut_client_t;
+
+/* sent packet structure */
+typedef struct
+{
+  time_t sent;   /* when was this packet sent */
+  socket_t sock; /* sent to this socket */
+}
+nut_packet_t;
 
 /*
  * Protocol server specific configuration.
@@ -197,6 +216,7 @@ int nut_global_finalize (void);
 int nut_server_timer (server_t *server);
 char *nut_info_server (server_t *server);
 char *nut_info_client (void *nut_cfg, socket_t sock);
+int nut_connect_timeout (socket_t sock);
 
 /*
  * This server's definition.
@@ -207,12 +227,16 @@ extern server_definition_t nut_server_definition;
  * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)
  * values. BTW: Network byte order is big endian.
  */
-#define little2net(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
-#define net2little(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
+#define little2net(x) ((unsigned short) \
+                      (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
+#define net2little(x) ((unsigned short) \
+                      (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
 
 #if WORDS_BIGENDIAN
-# define little2host(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
-# define host2little(x) (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00))
+# define little2host(x) ((unsigned short) \
+                        (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
+# define host2little(x) ((unsigned short) \
+                        (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
 #else /* little endian */
 # define little2host(x) (x)
 # define host2little(x) (x)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.20 2000/08/30 20:11:24 ela Exp $
+ * $Id: control-proto.c,v 1.21 2000/09/02 15:48:13 ela Exp $
  *
  */
 
@@ -304,25 +304,6 @@ ctrl_help (socket_t sock, int flag, char *arg)
 }
 
 /*
- * Snip unprintable characters from a given string. It chops leading and
- * trailing whitespaces from ARG.
- */
-char *
-ctrl_chop (char *arg)
-{
-  static char text[256];
-  char *p;
-  char *t;
-
-  p = arg;
-  t = text;
-  while (*p == ' ') p++;
-  while (*p >= ' ') *t++ = *p++;
-  while (*t == ' ' && t > text) *t-- = 0;
-  return text;
-}
-
-/*
  * ID's connection info. This function displays a given socket id's
  * socket structure.
  */
@@ -441,10 +422,10 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       ntohs (xsock->local_port),
 	       xsock->send_buffer_size,
 	       xsock->send_buffer_fill,
-	       ctrl_chop (ctime (&xsock->last_send)),
+	       util_time (xsock->last_send),
 	       xsock->recv_buffer_size,
 	       xsock->recv_buffer_fill,
-	       ctrl_chop (ctime (&xsock->last_recv)),
+	       util_time (xsock->last_recv),
 	       xsock->idle_counter,
 #if ENABLE_FLOOD_PROTECTION
 	       xsock->flood_points,
@@ -462,15 +443,12 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 int
 ctrl_stat (socket_t sock, int flag, char *arg)
 {
-  char *starttime;
-
-  starttime = ctime (&serveez_config.start_time);
-  starttime[strlen (starttime) - 1] = '\0';
+  /* print standard output */
   sock_printf (sock, 
 	       "\r\nThis is %s version %s running since %s.\r\n", 
 	       serveez_config.program_name, 
 	       serveez_config.version_string,
-	       starttime);
+	       util_time (serveez_config.start_time));
 
   /* display compile time feature list */
   sock_printf (sock, "Features  :"

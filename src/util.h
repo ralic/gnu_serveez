@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.18 2000/08/29 10:44:03 ela Exp $
+ * $Id: util.h,v 1.19 2000/09/02 15:48:13 ela Exp $
  *
  */
 
@@ -33,6 +33,7 @@
 
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
@@ -89,6 +90,8 @@ unsigned int util_atoi (char *);
 int util_strcasecmp (const char *str1, const char *str2);
 int util_strncasecmp (const char *str1, const char *str2, size_t n);
 int util_openfiles (void);
+char *util_time (time_t t);
+char *util_tolower (char *str);
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) ((unsigned char)*p + \

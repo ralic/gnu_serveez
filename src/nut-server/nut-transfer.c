@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.4 2000/08/31 21:18:29 ela Exp $
+ * $Id: nut-transfer.c,v 1.5 2000/09/02 15:48:14 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <sys/stat.h>
 #if HAVE_UNISTD_H
@@ -59,6 +60,78 @@
 #include "server.h"
 #include "gnutella.h"
 #include "nut-transfer.h"
+
+/*
+ * Check if a given search pattern matches a filename. Return zero on succes
+ * and non-zero otherwise.
+ */
+static int
+nut_string_regex (char *text, char *regex)
+{
+  char *p, *token, *str, *reg;
+  
+  /* first check if text tokens are in text */
+  if (!strchr (text, '*') && !strchr (text, '?'))
+    {
+      str = xstrdup (text);
+      reg = xstrdup (regex);
+      util_tolower (str);
+      util_tolower (reg);
+      for (token = strtok (reg, " "); token; token = strtok (NULL, " "))
+	{
+	  if (strstr (str, token)) break;
+	}
+      xfree (str);
+      xfree (reg);
+      if (token) return 0;
+    }
+
+  /* parse until end of both strings */
+  else while (*regex && *text)
+    {
+      /* find end of strings or '?' or '*' */
+      while (*regex != '*' && *regex != '?' && 
+             *regex && *text)
+        {
+          /* return no Match if so */
+          if (tolower (*text) != tolower (*regex))
+            return 0;
+          text++;
+          regex++;
+        }
+      /* one free character */
+      if (*regex == '?')
+        {
+          if (!(*text)) return 0;
+          text++;
+          regex++;
+        }
+      /* free characters */
+      else if (*regex == '*')
+        {
+          regex++;
+          /* skip useless '?'s after '*'s */
+          while (*regex == '?') regex++;
+           /* skip all characters until next character in pattern found */
+          while (*text && tolower (*regex) != tolower (*text)) 
+            text++;
+          /* next character in pattern found */
+          if (*text)
+            {
+              /* find the last occurence of this character in the text */
+              p = text + strlen (text);
+              while (tolower (*p) != tolower (*text)) 
+                p--;
+              /* continue parsing at this character */
+              text = p;
+            }
+        }
+    }
+
+  /* is the text longer than the regex ? */
+  if (!*text && !*regex) return -1;
+  return 0;
+}
 
 /*
  * Within this callback the actual file transfer is done.
@@ -162,6 +235,7 @@ nut_check_transfer (socket_t sock)
 	  /* assign the appropiate gnutella transfer callbacks */
 	  sock->check_request = nut_save_transfer;
 	  sock->write_socket = NULL;
+	  sock->idle_func = NULL;
 
 	  /* crop header from receive buffer */
 	  len = (p - sock->recv_buffer) + 4;
@@ -246,15 +320,13 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       return -1;
     }
 
-#if 0
   /* second check if the file matches the original search pattern */
-  if (strstr (record->file, cfg->search) == NULL)
+  if (nut_string_regex (record->file, cfg->search))
     {
       log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", record->file);
       xfree (file);
       return -1;
     }
-#endif
 
   /* try creating local file */
 #ifdef __MINGW32__
@@ -278,8 +350,10 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       xsock->flags |= SOCK_FLAG_NOFLOOD;
       xsock->disconnected_socket = nut_disconnect_transfer;
       xsock->check_request = nut_check_transfer;
-      xsock->userflags = NUT_FLAG_INIT;
+      xsock->userflags = NUT_FLAG_HTTP;
       xsock->file_desc = fd;
+      xsock->idle_func = nut_connect_timeout;
+      xsock->idle_counter = NUT_CONNECT_TIMEOUT;
       transfer = xmalloc (sizeof (nut_transfer_t));
       transfer->original_size = record->size;
       xsock->data = transfer;

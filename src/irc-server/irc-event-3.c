@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.6 2000/07/19 20:07:08 ela Exp $
+ * $Id: irc-event-3.c,v 1.7 2000/09/02 15:48:13 ela Exp $
  *
  */
 
@@ -101,7 +101,6 @@ irc_time_callback (socket_t sock,
 		   irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
-  time_t t;
 
   /* server para is given */
   if (request->paras > 1)
@@ -117,10 +116,9 @@ irc_time_callback (socket_t sock,
     }
   
   /* reply the local time */
-  t = time (NULL);
-  irc_printf (sock, ":%s %03d %s " RPL_TIME_TEXT,
+  irc_printf (sock, ":%s %03d %s " RPL_TIME_TEXT "\n",
 	      cfg->host, RPL_TIME, client->nick, 
-	      cfg->host, ctime (&t));
+	      cfg->host, util_time (time (NULL)));
 
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.9 2000/07/20 14:39:54 ela Exp $
+ * $Id: irc-event-1.c,v 1.10 2000/09/02 15:48:13 ela Exp $
  *
  */
 
@@ -360,8 +360,8 @@ irc_motd_callback (socket_t sock,
     {
       /* start */
       irc_printf (sock, 
-		  "NOTICE %s :*** The MOTD file was last modified at %s",
-		  client->nick, ctime (&cfg->MOTD_lastModified));
+		  "NOTICE %s :*** The MOTD file was last modified at %s\n",
+		  client->nick, util_time (cfg->MOTD_lastModified));
 
       irc_printf (sock, ":%s %03d %s " RPL_MOTDSTART_TEXT "\n",
 		  cfg->host, RPL_MOTDSTART, client->nick, cfg->host);
