@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.12 2000/10/25 07:54:06 ela Exp $
+ * $Id: hash.c,v 1.13 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -349,7 +349,7 @@ hash_put (hash_t *hash, char *key, void *value)
   if (bucket->size == 1)
     {
       hash->fill++;
-      if (hash->fill > HASH_EXPAND_LIMIT(hash))
+      if (hash->fill > HASH_EXPAND_LIMIT (hash))
 	{
 	  hash_rehash (hash, HASH_EXPAND);
 	}
@@ -390,7 +390,7 @@ hash_delete (hash_t *hash, char *key)
 	      xfree (bucket->entry);
 	      bucket->entry = NULL;
 	      hash->fill--;
-	      if (hash->fill < HASH_SHRINK_LIMIT(hash))
+	      if (hash->fill < HASH_SHRINK_LIMIT (hash))
 		{
 		  hash_rehash (hash, HASH_SHRINK);
 		}

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.31 2000/11/10 19:55:48 ela Exp $
+ * $Id: util.c,v 1.32 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -87,8 +87,7 @@
  */
 int verbosity = LOG_DEBUG;
 
-char log_level[][16] =
-{
+char log_level[][16] = {
   "fatal",
   "error",
   "warning",
@@ -101,7 +100,7 @@ char log_level[][16] =
  * call to log_set_file().  By default, all log messages are written
  * to STDERR.
  */
-static FILE * log_file = NULL;
+static FILE *log_file = NULL;
 
 /*
  * Print a message to the log system.
@@ -111,7 +110,7 @@ log_printf (int level, const char *format, ...)
 {
   va_list args;
   time_t tm;
-  struct tm * t;
+  struct tm *t;
 
   if (level > verbosity || log_file == NULL)
     return;
@@ -120,8 +119,7 @@ log_printf (int level, const char *format, ...)
   t = localtime (&tm);
   fprintf (log_file, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
 	   t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-	   t->tm_hour, t->tm_min, t->tm_sec,
-	   log_level[level]);
+	   t->tm_hour, t->tm_min, t->tm_sec, log_level[level]);
   va_start (args, format);
   vfprintf (log_file, format, args);
   va_end (args);
@@ -132,7 +130,7 @@ log_printf (int level, const char *format, ...)
  * Set the file stream FILE to the log file all messages are printed
  * to. Could also be stdout or stderr.
  */
-void 
+void
 log_set_file (FILE * file)
 {
   log_file = file;
@@ -141,23 +139,26 @@ log_set_file (FILE * file)
 /*
  * Dump a request buffer to a FILE stream.
  */
-#define MAX_DUMP_LINE 16 /* bytes per line */
+#define MAX_DUMP_LINE 16	/* bytes per line */
 int
-util_hexdump (FILE *out,    /* output FILE stream */
-	      char *action, /* hex dump description */
-	      int from,     /* who created the dumped data */
-	      char *buffer, /* the buffer to dump */
-	      int len,      /* length of that buffer */
-	      int max)      /* maximum amount of bytes to dump (0 = all) */
+util_hexdump (FILE * out,	/* output FILE stream */
+	      char *action,	/* hex dump description */
+	      int from,		/* who created the dumped data */
+	      char *buffer,	/* the buffer to dump */
+	      int len,		/* length of that buffer */
+	      int max)		/* maximum amount of bytes to dump (0 = all) */
 {
   int row, col, x, max_col;
 
-  if (!max) max = len;
-  if (max > len) max = len;
+  if (!max)
+    max = len;
+  if (max > len)
+    max = len;
   max_col = max / MAX_DUMP_LINE;
-  if ((max % MAX_DUMP_LINE) != 0) max_col++;
-    
-  fprintf (out, "%s [ FROM:0x%08X SIZE:%d ]\n", action, (unsigned)from, len);
+  if ((max % MAX_DUMP_LINE) != 0)
+    max_col++;
+
+  fprintf (out, "%s [ FROM:0x%08X SIZE:%d ]\n", action, (unsigned) from, len);
 
   for (x = row = 0; row < max_col && x < max; row++)
     {
@@ -166,7 +167,7 @@ util_hexdump (FILE *out,    /* output FILE stream */
       for (col = 0; col < MAX_DUMP_LINE; col++, x++)
 	{
 	  if (x < max)
-	    fprintf (out, "%02X ", (unsigned char)buffer[x]);
+	    fprintf (out, "%02X ", (unsigned char) buffer[x]);
 	  else
 	    fprintf (out, "   ");
 	}
@@ -216,8 +217,10 @@ util_time (time_t t)
   char *p;
 
   p = asc = ctime (&t);
-  while (*p) p++;
-  while (*p < ' ') *(p--) = '\0';
+  while (*p)
+    p++;
+  while (*p < ' ')
+    *(p--) = '\0';
 
   return asc;
 }
@@ -270,7 +273,7 @@ util_tolower (char *str)
 
   while (*p)
     {
-      *p = (char) (isupper ((byte) *p) ? tolower ((byte) *p) : *p);
+      *p = (char) (isupper ((byte) * p) ? tolower ((byte) * p) : *p);
       p++;
     }
   return str;
@@ -291,13 +294,15 @@ util_strcasecmp (const char *str1, const char *str2)
   const char *p2 = str2;
   unsigned char c1, c2;
 
-  if (p1 == p2) return 0;
+  if (p1 == p2)
+    return 0;
 
   do
     {
       c1 = isupper (*p1) ? tolower (*p1) : *p1;
       c2 = isupper (*p2) ? tolower (*p2) : *p2;
-      if (c1 == '\0') break;
+      if (c1 == '\0')
+	break;
       ++p1;
       ++p2;
     }
@@ -319,13 +324,15 @@ util_strncasecmp (const char *str1, const char *str2, size_t n)
   const char *p2 = str2;
   unsigned char c1, c2;
 
-  if (p1 == p2) return 0;
+  if (p1 == p2)
+    return 0;
 
   do
     {
       c1 = isupper (*p1) ? tolower (*p1) : *p1;
       c2 = isupper (*p2) ? tolower (*p2) : *p2;
-      if (c1 == '\0') break;
+      if (c1 == '\0')
+	break;
       ++p1;
       ++p2;
     }
@@ -437,7 +444,7 @@ GetWSAErrorMessage (int error)
       return "WINSOCK.DLL version out of range.";
     case WSAEDISCON:
       return "Graceful shutdown in progress.";
-#if HAVE_WSOCK_EXT /* Not defined in Win95, but WinNT. */
+#if HAVE_WSOCK_EXT		/* Not defined in Win95, but WinNT. */
     case WSA_INVALID_HANDLE:
       return "Specified event object handle is invalid.";
     case WSA_INVALID_PARAMETER:
@@ -447,7 +454,7 @@ GetWSAErrorMessage (int error)
     case WSAINVALIDPROVIDER:
       return "Invalid service provider version number.";
     case WSA_IO_PENDING:
-      return "Overlapped operations will complete later."; 
+      return "Overlapped operations will complete later.";
     case WSA_IO_INCOMPLETE:
       return "Overlapped I/O event object not in signaled state.";
     case WSA_NOT_ENOUGH_MEMORY:
@@ -483,7 +490,7 @@ GetErrorMessage (int nr)
   /* return a net error if necessary */
   if (nr >= WSABASEERR)
     return GetWSAErrorMessage (nr);
-  
+
   /* 
    * if the error is not valid (GetLastError returned zero)
    * fall back to the errno variable of the usual crtdll.
@@ -492,20 +499,17 @@ GetErrorMessage (int nr)
     nr = errno;
 
   /* return a sys error */
-  if (0 == FormatMessage ( 
-    FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
-    FORMAT_MESSAGE_ARGUMENT_ARRAY,
-    NULL,
-    nr,
-    MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-    (char *) &error,
-    0,
-    NULL))
+  if (0 ==
+      FormatMessage (FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		     FORMAT_MESSAGE_FROM_SYSTEM |
+		     FORMAT_MESSAGE_ARGUMENT_ARRAY, NULL, nr,
+		     MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+		     (char *) &error, 0, NULL))
     {
       sprintf (message, "FormatMessage: error code %ld", GetLastError ());
       return message;
     }
-  
+
   strcpy (message, error);
   message[strlen (message) - 2] = 0;
   LocalFree (error);
@@ -532,19 +536,20 @@ int os_version = 0;
 char *
 util_version (void)
 {
-  static char os[256] = ""; /* contains the os string */
+  static char os[256] = "";	/* contains the os string */
 
 #ifdef __MINGW32__
-  static char ver[][6] = 
-  { " 32s", " 95", " 98", " NT", " NT", " 2000", " ME" };
+  static char ver[][6] =
+    { " 32s", " 95", " 98", " NT", " NT", " 2000", " ME" };
   OSVERSIONINFO osver;
 #elif HAVE_SYS_UTSNAME_H
   struct utsname buf;
 #endif
 
-  if (os[0]) return os;
-  
-#ifdef __MINGW32__ /* Windows */
+  if (os[0])
+    return os;
+
+#ifdef __MINGW32__		/* Windows */
 
   osver.dwOSVersionInfoSize = sizeof (osver);
   if (!GetVersionEx (&osver))
@@ -556,7 +561,7 @@ util_version (void)
     {
       switch (osver.dwPlatformId)
 	{
-	case VER_PLATFORM_WIN32_NT: /* NT or Windows 2000 */
+	case VER_PLATFORM_WIN32_NT:	/* NT or Windows 2000 */
 	  if (osver.dwMajorVersion == 4)
 	    os_version = WinNT4x;
 	  else if (osver.dwMajorVersion <= 3)
@@ -565,8 +570,8 @@ util_version (void)
 	    os_version = Win2k;
 	  break;
 
-	case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
-	  if ((osver.dwMajorVersion > 4) || 
+	case VER_PLATFORM_WIN32_WINDOWS:	/* Win95 or Win98 */
+	  if ((osver.dwMajorVersion > 4) ||
 	      ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
 	    {
 	      if (osver.dwMinorVersion >= 90)
@@ -578,14 +583,14 @@ util_version (void)
 	    os_version = Win95;
 	  break;
 
-	case VER_PLATFORM_WIN32s: /* Windows 3.x */
+	case VER_PLATFORM_WIN32s:	/* Windows 3.x */
 	  os_version = Win32s;
 	  break;
 	}
 
       sprintf (os, "Windows%s %ld.%02ld %s%s(Build %ld)",
-	       ver[os_version], 
-	       osver.dwMajorVersion, 
+	       ver[os_version],
+	       osver.dwMajorVersion,
 	       osver.dwMinorVersion,
 	       osver.szCSDVersion,
 	       osver.szCSDVersion[0] ? " " : "",
@@ -651,11 +656,11 @@ util_inet_ntoa (unsigned long ip)
    * conversion is endian-specific. To the binary AND and SHIFT operations
    * work differently on different architectures ?
    */
-  sprintf (addr, "%lu.%lu.%lu.%lu", 
+  sprintf (addr, "%lu.%lu.%lu.%lu",
 #if WORDS_BIGENDIAN
 	   (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
 #else /* Little Endian */
-           ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+	   ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
 #endif
   return addr;
 
@@ -712,10 +717,10 @@ util_openfiles (void)
       log_printf (LOG_ERROR, "getrlimit: %s\n", SYS_ERROR);
       return -1;
     }
-  log_printf (LOG_NOTICE, "current open file limit: %d/%d\n", 
-	      rlim.rlim_cur,  rlim.rlim_max);
+  log_printf (LOG_NOTICE, "current open file limit: %d/%d\n",
+	      rlim.rlim_cur, rlim.rlim_max);
 
-  if ((int) rlim.rlim_max < (int) serveez_config.max_sockets || 
+  if ((int) rlim.rlim_max < (int) serveez_config.max_sockets ||
       (int) rlim.rlim_cur < (int) serveez_config.max_sockets)
     {
       rlim.rlim_max = serveez_config.max_sockets;
@@ -728,46 +733,41 @@ util_openfiles (void)
 	}
       getrlimit (RLIMIT_NOFILE, &rlim);
       log_printf (LOG_NOTICE, "open file limit set to: %d/%d\n",
-		  rlim.rlim_cur,  rlim.rlim_max);
+		  rlim.rlim_cur, rlim.rlim_max);
     }
 
-#elif defined (__MINGW32__) /* HAVE_GETRLIMIT */
+#elif defined (__MINGW32__)	/* HAVE_GETRLIMIT */
 
   unsigned sockets = 100;
-  
+
   if (os_version == Win95 || os_version == Win98 || os_version == WinME)
     {
       if (os_version == Win95)
-	sockets = windoze_get_reg_unsigned (MaxSocketKey, 
-					    MaxSocketSubKey, 
-					    MaxSocketSubSubKey, 
-					    sockets);
+	sockets = windoze_get_reg_unsigned (MaxSocketKey,
+					    MaxSocketSubKey,
+					    MaxSocketSubSubKey, sockets);
       else
-	sockets = util_atoi (windoze_get_reg_string (MaxSocketKey, 
-						     MaxSocketSubKey, 
-						     MaxSocketSubSubKey, 
+	sockets = util_atoi (windoze_get_reg_string (MaxSocketKey,
+						     MaxSocketSubKey,
+						     MaxSocketSubSubKey,
 						     util_itoa (sockets)));
-	
-      log_printf (LOG_NOTICE, "current open file limit: %u\n", 
-		  sockets);
+
+      log_printf (LOG_NOTICE, "current open file limit: %u\n", sockets);
 
       if (sockets < (unsigned) serveez_config.max_sockets)
 	{
 	  sockets = serveez_config.max_sockets;
 
 	  if (os_version == Win95)
-	    windoze_set_reg_unsigned (MaxSocketKey, 
-				      MaxSocketSubKey, 
-				      MaxSocketSubSubKey, 
-				      sockets);
+	    windoze_set_reg_unsigned (MaxSocketKey,
+				      MaxSocketSubKey,
+				      MaxSocketSubSubKey, sockets);
 	  else
-	    windoze_set_reg_string (MaxSocketKey, 
-				    MaxSocketSubKey, 
-				    MaxSocketSubSubKey, 
-				    util_itoa (sockets));
+	    windoze_set_reg_string (MaxSocketKey,
+				    MaxSocketSubKey,
+				    MaxSocketSubSubKey, util_itoa (sockets));
 
-	  log_printf (LOG_NOTICE, "open file limit set to: %u\n",
-		      sockets);
+	  log_printf (LOG_NOTICE, "open file limit set to: %u\n", sockets);
 	}
     }
 #endif /* MINGW32__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.33 2000/12/15 14:13:18 ela Exp $
+ * $Id: control-proto.c,v 1.34 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -213,7 +213,7 @@ ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
 	}
       sock->recv_buffer_fill -= ret;
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "control protocol client detected\n");
+      log_printf (LOG_DEBUG, "control protocol client detected\n");
 #endif
       return -1;
     }
@@ -841,7 +841,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
   int l;
 
   /* search through if there is an input line */
-  while (request[len-1] == '\r' || request[len-1] == '\n')
+  while (request[len - 1] == '\r' || request[len - 1] == '\n')
     len--;
   
   /* password given ? */
@@ -884,7 +884,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
 	      memcpy (last_request, request, last_len = len);
 
 	      /* execute valid command and give the prompt */
-	      ret = ctrl[n].func (sock, ctrl[n].flag, &request[l+1]);
+	      ret = ctrl[n].func (sock, ctrl[n].flag, &request[l + 1]);
 	      sock_printf (sock, "%s", CTRL_PROMPT);
 	      return ret;
 	    }
@@ -1050,14 +1050,14 @@ ctrl_idle (socket_t sock)
       if (all != 0)
 	{
 	  snprintf (c->pinfo, STAT_BUFFER_SIZE, PROC_FORMAT,
-		    PROC_DIFF(0) * 100 / all,
-		    PROC_DIFF(0) * 1000 / all % 10,
-		    PROC_DIFF(1) * 100 / all,
-		    PROC_DIFF(1) * 1000 / all % 10,
-		    PROC_DIFF(2) * 100 / all,
-		    PROC_DIFF(2) * 1000 / all % 10,
-		    PROC_DIFF(3) * 100 / all,
-		    PROC_DIFF(3) * 1000 / all % 10);
+		    PROC_DIFF (0) * 100 / all,
+		    PROC_DIFF (0) * 1000 / all % 10,
+		    PROC_DIFF (1) * 100 / all,
+		    PROC_DIFF (1) * 1000 / all % 10,
+		    PROC_DIFF (2) * 100 / all,
+		    PROC_DIFF (2) * 1000 / all % 10,
+		    PROC_DIFF (3) * 100 / all,
+		    PROC_DIFF (3) * 1000 / all % 10);
 	}
 
       /* calculate cpu specific info */

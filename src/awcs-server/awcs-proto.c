@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.21 2000/09/20 08:29:14 ela Exp $
+ * $Id: awcs-proto.c,v 1.22 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -467,7 +467,7 @@ awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
   log_printf (LOG_DEBUG, "awcs: broadcasting\n");
 #endif /* ENABLE_DEBUG */
 
-  if ((sock = (socket_t *)hash_values (cfg->clients)) != NULL)
+  if ((sock = (socket_t *) hash_values (cfg->clients)) != NULL)
     {
       for (n = 0; n < hash_size (cfg->clients); n++)
 	{
@@ -787,7 +787,7 @@ awcs_check_request (socket_t sock)
         {
           p++;
           request_len += (p - packet);
-	  retval = awcs_handle_request(sock, packet, p - packet);
+	  retval = awcs_handle_request (sock, packet, p - packet);
           packet = p;
         }
     }
@@ -795,8 +795,8 @@ awcs_check_request (socket_t sock)
   
   if (request_len > 0)
     {
-      memmove(sock->recv_buffer, packet,
-              sock->recv_buffer_fill - request_len);
+      memmove (sock->recv_buffer, packet,
+	       sock->recv_buffer_fill - request_len);
     }
   sock->recv_buffer_fill -= request_len;
 

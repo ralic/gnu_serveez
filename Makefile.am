@@ -28,7 +28,8 @@ EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
 	serveez.dsw serveez.dsp config.h.serveez version.h.serveez \
 	libsizzle.dsp config.h.sizzle version.h.sizzle RELEASE
 
-MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in
+MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
+	stamp-h.in
 
 distclean-local:
 	rm -f *\~

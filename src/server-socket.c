@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.42 2000/12/12 12:12:38 ela Exp $
+ * $Id: server-socket.c,v 1.43 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -132,7 +132,7 @@ server_create (portcfg_t *cfg)
 	}
     }
 
-  /* create listening tcp or udp server ! */
+  /* Create listening TCP, UDP, ICMP or RAW server socket. */
   else
     {
 
@@ -151,6 +151,9 @@ server_create (portcfg_t *cfg)
 	  stype = SOCK_RAW;
 	  ptype = IPPROTO_ICMP;
 	  break;
+	  /* This protocol is for sending packets only. The kernel filters
+	     any received packets by the socket protocol (here: IPPROTO_RAW
+	     which is unspecified). */
 	case PROTO_RAW:
 	  stype = SOCK_RAW;
 	  ptype = IPPROTO_RAW;
@@ -168,9 +171,7 @@ server_create (portcfg_t *cfg)
 	  return NULL;
 	}
 
-      /*
-       * Set this ip option if we are using raw sockets.
-       */
+      /* Set this ip option if we are using raw sockets. */
       if (cfg->proto & PROTO_RAW)
 	{
 #ifdef IP_HDRINCL
@@ -191,7 +192,7 @@ server_create (portcfg_t *cfg)
 	}
 
       /* 
-       * Make the socket be reusable (minimize socket dead-time on 
+       * Make the socket be reusable (Minimize socket deadtime on 
        * server death).
        */
       optval = 1;
@@ -363,9 +364,9 @@ server_accept_socket (socket_t server_sock)
 
   if (connected_sockets >= serveez_config.max_sockets)
     {
-      log_printf(LOG_WARNING, "socket descriptor exceeds "
-		 "socket limit %d\n", serveez_config.max_sockets);
-      if (closesocket(client_socket) < 0)
+      log_printf (LOG_WARNING, "socket descriptor exceeds "
+		  "socket limit %d\n", serveez_config.max_sockets);
+      if (closesocket (client_socket) < 0)
 	{
 	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
@@ -394,7 +395,7 @@ server_accept_socket (socket_t server_sock)
 	}
       return 0;
     }
-#endif
+#endif /* !__MINGW32__ */
 	  
   log_printf (LOG_NOTICE, "TCP:%u: accepting client on socket %d\n", 
 	      ntohs (server_sock->local_port), client_socket);

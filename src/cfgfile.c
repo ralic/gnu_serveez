@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.12 2000/10/05 09:52:19 ela Exp $
+ * $Id: cfgfile.c,v 1.13 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -62,7 +62,7 @@ struct config_t
 {
   int type;              /* what kind of configitem is this ? */
   char *name;            /* name of the variable in initfile */
-  void *location;        /* nhere is it (int*, char** or char***) */
+  void *location;        /* nhere is it (int *, char ** or char ***) */
   int defaultable;       /* is it ok to use the default? */
   char *string_buffer;   /* string buffer we give to sizzle */
 
@@ -171,7 +171,7 @@ load_config (char *cfgfile, int argc, char **argv)
 	{
 	case TYPEINT:
 	  if (!configs[i].defaultable &&
-	      *(int*) configs[i].location == configs[i].default_int)
+	      *(int *) configs[i].location == configs[i].default_int)
 	    {
 	      fprintf (stderr, "%s: integer `%s' has no default value\n",
 		       cfgfile, configs[i].name);
@@ -181,7 +181,7 @@ load_config (char *cfgfile, int argc, char **argv)
 
 	case TYPEBOOL:
 	  if (!configs[i].defaultable &&
-	      *(int*) configs[i].location == configs[i].default_int)
+	      *(int *) configs[i].location == configs[i].default_int)
 	    {
 	      fprintf (stderr, "%s: boolean `%s' has no default value\n",
 		       cfgfile, configs[i].name);
@@ -199,9 +199,10 @@ load_config (char *cfgfile, int argc, char **argv)
 	    }
 	  else
 	    {
-	      *(char**) configs[i].location =
+	      *(char **) configs[i].location =
 		xpmalloc (strlen (configs[i].string_buffer) + 1);
-	      strcpy (*(char**) configs[i].location, configs[i].string_buffer);
+	      strcpy (*(char **) configs[i].location, 
+		      configs[i].string_buffer);
 	      xfree (configs[i].string_buffer);
 	    }
 	  break;
@@ -232,9 +233,9 @@ load_config (char *cfgfile, int argc, char **argv)
 		}
 
 	      /* allocate memory for this array */
-	      *(char***) configs[i].location = xmalloc ((length + 1) *
-							sizeof (char *));
-	      array = *(char***) configs[i].location;
+	      *(char ***) configs[i].location = xmalloc ((length + 1) *
+							 sizeof (char *));
+	      array = *(char ***) configs[i].location;
 
 	      /* copy list elements */
 	      while (cons_p (s)) 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.15 2000/10/12 10:19:45 ela Exp $
+ * $Id: foo-proto.c,v 1.16 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -155,7 +155,8 @@ foo_handle_coserver_result (char *host, int id, int version)
 /*
  * Handle a single request as found by the default_check_request.
  */
-int foo_handle_request (socket_t sock, char *request, int len)
+int 
+foo_handle_request (socket_t sock, char *request, int len)
 {
   struct foo_config *cfg = sock->cfg;
 
@@ -367,7 +368,7 @@ foo_info_server (struct server *server)
       for (i = 0; i < h->keys; i++)
 	{
 	  sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
-		   i, keys[i], (char *)hash_get (h, keys[i]));
+		   i, keys[i], (char *) hash_get (h, keys[i]));
 	  strcat (info, text);
 	}
       hash_xfree (keys);

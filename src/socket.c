@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.30 2000/12/10 12:26:38 ela Exp $
+ * $Id: socket.c,v 1.31 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -110,7 +110,7 @@ default_write (socket_t sock)
   /* Some data has been written. */
   if (num_written > 0)
     {
-      sock->last_send = time(NULL);
+      sock->last_send = time (NULL);
 
       /*
        * Shuffle the data in the output buffer around, so that
@@ -328,7 +328,7 @@ default_detect_proto (socket_t sock)
 int
 default_idle_func (socket_t sock)
 {
-  if (time(NULL) - sock->last_recv > MAX_DETECTION_WAIT)
+  if (time (NULL) - sock->last_recv > MAX_DETECTION_WAIT)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "socket id %d detection failed\n",
@@ -635,7 +635,7 @@ sock_unique_id (socket_t sock)
   do
     {
       socket_id++;
-      socket_id &= (SOCKET_MAX_IDS-1);
+      socket_id &= (SOCKET_MAX_IDS - 1);
     }
   while (sock_lookup_table[socket_id]);
 
@@ -683,7 +683,7 @@ sock_create (int fd)
 #else
   if (fcntl (fd, F_SETFL, O_NONBLOCK) < 0)
     {
-      log_printf(LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return NULL;
     }
 #endif

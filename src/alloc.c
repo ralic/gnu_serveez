@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.14 2000/11/02 12:51:57 ela Exp $
+ * $Id: alloc.c,v 1.15 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -120,10 +120,10 @@ xmalloc (unsigned size)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
-      up = (unsigned *)ptr;
+      up = (unsigned *) ptr;
       *up = size;
       up += 2;
-      ptr = (void *)up;
+      ptr = (void *) up;
 #if DEBUG_MEMORY_LEAKS
       /* put heap pointer into special heap hash */
       block = malloc (sizeof (heap_block_t));
@@ -188,10 +188,10 @@ xrealloc (void * ptr, unsigned size)
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get previous blocksize */
-      up = (unsigned *)ptr;
+      up = (unsigned *) ptr;
       up -= 2;
       old_size = *up;
-      ptr = (void *)up;
+      ptr = (void *) up;
 
 #endif /* ENABLE_HEAP_COUNT */
 
@@ -199,10 +199,10 @@ xrealloc (void * ptr, unsigned size)
 	{
 #if ENABLE_HEAP_COUNT
 	  /* save block size */
-	  up = (unsigned *)ptr;
+	  up = (unsigned *) ptr;
 	  *up = size;
 	  up += 2;
-	  ptr = (void *)up;
+	  ptr = (void *) up;
 
 #if DEBUG_MEMORY_LEAKS
 	  block = malloc (sizeof (heap_block_t));
@@ -260,7 +260,7 @@ xfree (void * ptr)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-      up = (unsigned *)ptr;
+      up = (unsigned *) ptr;
 
 #if DEBUG_MEMORY_LEAKS
       if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
@@ -278,7 +278,7 @@ xfree (void * ptr)
       size = *up;
       assert (size);
       allocated_bytes -= size;
-      ptr = (void *)up;
+      ptr = (void *) up;
 #endif /* ENABLE_HEAP_COUNT */
 
       allocated_blocks--;

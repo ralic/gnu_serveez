@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.36 2000/12/15 14:13:18 ela Exp $
+ * $Id: server.c,v 1.37 2000/12/16 10:57:23 ela Exp $
  *
  */
 
@@ -170,7 +170,7 @@ set_int (char *cfgfile,
 
 static int
 set_intarray (char *cfgfile, char *var, char *key, int **location,
-	      zzz_scm_t val, int* def)
+	      zzz_scm_t val, int *def)
 {
   int erroneous = 0;
   int i;
@@ -182,7 +182,7 @@ set_intarray (char *cfgfile, char *var, char *key, int **location,
       return 0;
     }
 
-  array = (int *) xpmalloc (sizeof (int) * (zzz_list_length (val) +1));
+  array = (int *) xpmalloc (sizeof (int) * (zzz_list_length (val) + 1));
 
   for (i = 1; cons_p (val); i++, val = cdr (val))
     {
@@ -231,8 +231,8 @@ set_string (char *cfgfile, char *var, char *key, char **location,
 }
 
 static int
-set_stringarray (char *cfgfile, char *var, char *key, char*** location,
-		 zzz_scm_t val, char** def)
+set_stringarray (char *cfgfile, char *var, char *key, char ***location,
+		 zzz_scm_t val, char **def)
 {
   int erroneous = 0;
   int i;
@@ -252,7 +252,7 @@ set_stringarray (char *cfgfile, char *var, char *key, char*** location,
       return -1;
     }
 
-  array = (char**) xpmalloc (sizeof (char *) * (zzz_list_length (val) + 1));
+  array = (char **) xpmalloc (sizeof (char *) * (zzz_list_length (val) + 1));
 
   for (i = 0; cons_p (val); i++, val = cdr (val))
     {
@@ -510,7 +510,7 @@ static int set_port (char *cfgfile, char *var, char *key,
   if (newport->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) 
     {
       /* prepare the local address structure */
-      newaddr = (struct sockaddr_in*) xpmalloc (sizeof (struct sockaddr_in));
+      newaddr = (struct sockaddr_in *) xpmalloc (sizeof (struct sockaddr_in));
       newport->localaddr = newaddr;
       memset (newaddr, 0, sizeof (struct sockaddr_in));
 
@@ -627,7 +627,7 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
 	case ITEM_STRARRAY:
 	  e = set_stringarray (cfgfile, var, sd->items[i].name,
 			       (char ***) target, hashval,
-			       *(char ***)sd->items[i].address);
+			       *(char ***) sd->items[i].address);
 	  break;
 
 	case ITEM_HASH:
@@ -744,10 +744,10 @@ server_print_definitions (void)
   for (s = 0; all_server_definitions[s] != NULL; s++)
     {
       sd = all_server_definitions[s];
-      printf("[%d] - %s\n", s, sd->name);
-      printf("  detect_proto() at %p"
-	     "  connect_socket() at %p\n",
-	     sd->detect_proto, sd->connect_socket);
+      printf ("[%d] - %s\n", s, sd->name);
+      printf ("  detect_proto() at %p"
+	      "  connect_socket() at %p\n",
+	      sd->detect_proto, sd->connect_socket);
       
       if (sd->prototype_start != NULL)
 	{
@@ -760,8 +760,8 @@ server_print_definitions (void)
 		(char *) sd->prototype_start;
 	      
 	      printf ("   variable `%s' at offset %d, %sdefaultable: ",
-		      sd->items[i].name, (int)offset,
-		      (sd->items[i].defaultable?"":"not "));
+		      sd->items[i].name, (int) offset,
+		      (sd->items[i].defaultable ? "" : "not "));
 
 	      switch (sd->items[i].type) 
 		{
@@ -837,7 +837,7 @@ server_find (void *cfg)
 static void
 server_add (struct server *server)
 {
-  servers = (struct server**) 
+  servers = (struct server **) 
     xprealloc (servers, (server_instances + 1) * sizeof (struct server *));
   servers[server_instances++] = server;
 }
@@ -859,7 +859,7 @@ server_global_init (void)
     {
       if (sd->global_init != NULL) 
 	{
-	  if (sd->global_init() < 0) 
+	  if (sd->global_init () < 0) 
 	    {
 	      erroneous = -1;
 	      fprintf (stderr, 
@@ -886,7 +886,7 @@ server_init_all (void)
     {
       if (servers[i]->init != NULL) 
 	{
-	  if (servers[i]->init(servers[i]) < 0) 
+	  if (servers[i]->init (servers[i]) < 0) 
 	    {
 	      errneous = -1;
 	      fprintf (stderr, 
