@@ -25,6 +25,13 @@ This file is intended to collect all known (fixed and unfixed) bugs in
 this package. We will consider these to be fixed sooner or later. Please
 send Serveez bug reports to <bug-serveez@gnu.org>.
 
+Bug:	     B0018
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-07-01
+Description: Cannot recompute the Linux kernels checksums of larger (> MTU, 
+	     fragmented) ICMP packets.
+
 Bug:	     B0017
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2001-05-04/ela)

@@ -23,6 +23,7 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- Allow implementing servers in guile.
 - Convince the guile people to accept patches for Windows compatibility.
 - Write a replacement for the inetd.
 	- Make protocol detection limits / timeouts configurable.

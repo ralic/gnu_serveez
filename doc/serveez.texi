@@ -144,9 +144,9 @@ There are three things you have to do in the configuration file.
 @subsection Define ports
 
 A @code{port} (in serveez) is a transport endpoint. You might know them
-from other tcp or udp server applications. For example: web servers
-(http) usually listen on tcp port 80. However, there is more than tcp
-ports: we have udp, icmp and named pipes each with different options to
+from other TCP or UDP server applications. For example: web servers
+(HTTP) usually listen on TCP port 80. However, there is more than TCP
+ports: we have UDP, ICMP and named pipes each with different options to
 set. Every port has a unique name you assign to it. The name of the port is
 later used to bind servers to it.
 
@@ -157,7 +157,7 @@ name of the port configuration. The remaiming argument describes the
 port in detail.
 
 @subsubsection TCP port definition
-Definition of a tcp port configuration with the name "foo-tcp-port". The
+Definition of a TCP port configuration with the name "foo-tcp-port". The
 enhanced settings are all optional including the "ipaddr" property which
 defaults to "*" if not given.
 
@@ -188,13 +188,17 @@ bound to any server it creates the receiving end and listens on that. If some
 client accesses this named pipe the server opens the sending end which the
 client has to create previously.
 
+The only mandatory item is the file name of each pipe. If you want to 
+specify a user creating the named pipe (file ownership) use either the "user"
+or the "uid" setting. Same goes with "group" and "gid".
+
 @example
 (define-port! 'foo-pipe-port `(
     (proto . pipe)                     ;; protocol is named pipe
 
     ;; specify the receiving endpoint    
     (recv . ((name . ".foo-recv")      ;; name of the pipe
-             (permissions . #o0666)    ;; create it with this umask
+             (permissions . #o0666)    ;; create it with these permissions
              (user . "calvin")         ;; as user "calvin"
              (uid . 50)                ;; with the user id 50
              (group . "heros")         ;; which is in the group "heros"
@@ -211,7 +215,7 @@ client has to create previously.
 @end example
 
 @subsubsection ICMP port definition
-Define an icmp port configuration which will accept connections from the
+Define an ICMP port configuration which will accept connections from the
 network interface "127.0.0.1" only and communicates via the message type 8
 as described in the @ref{Tunnel Server} chapter. The name of this port
 configuration is "foo-icmp-port". When you are going to bind some server to
@@ -225,7 +229,7 @@ privileges.
 @end example
 
 @subsubsection UDP port definition
-Simple definition of a udp port configuration with the name "foo-udp-port".
+Simple definition of a UDP port configuration with the name "foo-udp-port".
 
 @example
 (define-port! 'foo-udp-port `((proto . udp)
@@ -241,21 +245,22 @@ your own, too. For example we provide a webserver implementing the
 Hypertext Transfer Protocol (HTTP). Each server has a different set of
 options you can change. You can have many instances of every server, each
 with a different set of options. For example: You can create a webserver
-on tcp port 42420 publishing the serveez documentation and also have another
+on TCP port 42420 publishing the serveez documentation and also have another
 webserver on a different port publishing something else. Every server
 has a unique name you assign to it. The name of the server is later used
 to bind it to a port.
 
 The following example instantiates a server with the short name "foo". Each
 server in serveez has got a short name. @xref{Existing servers}, for the 
-details. The example contains all types of settings a server can have. You
-start a definitions of a server with the guile function 
+details. This example demonstrates everything which is possible in server
+configurations. You start a definition of a server with the guile function 
 @code{(define-server!)}. The following argument specifies the name of the
 server instance (in this case "foo-server") which starts with the short 
-name. The remaining argument describes the server in detail. Each 
+name. The second argument describes the server in detail. Each 
 configuration item is setup with a @code{(key . value)} pair where "key" is
 the name of the configuration item and "value" is the value which depends
-on the type of the item. 
+on the type of the item. @xref{Configuring servers}, for a detailed 
+description of each type of value.
 
 @example
 (define-server! 'foo-server '(
@@ -270,6 +275,11 @@ on the type of the item.
     (truth . #f)                                    ;; boolean value
   ))
 @end example
+
+Serveez provides a number of server types. Each of them has a short name.
+The name of the server instance has to begin with this short name followed
+by a dash (-). You can append any suffix then. In the example above "foo" 
+is the short name and "foo-server" the name of the server instance.
 
 @node Bind servers to ports, , Define servers, Using Serveez
 @subsection Bind servers to ports
@@ -296,7 +306,7 @@ firewall configurations or proxy servers. It is also possible to bind
 servers to ports they are actually not designed for. This might be used
 for debugging servers or other funny things (again, think about the
 firewall). This is the point we have to warn you: Some protocols cannot
-share the same port (no example yet) and some protocols simply won't
+share the same port (e.g. the tunnel server) and some protocols simply won't
 work on 'wrong' ports. Additionally, you will not get error messages when
 that happens. The server just will not work then.
 
@@ -312,7 +322,9 @@ file @file{serveez.scm}.
 @item (interface-add! . interface)
 Add one more network interface to the list of known interfaces. You can get
 the list of known interfaces by running @samp{serveez -i}. The @var{interface}
-argument must be in dotted decimal form (e.g. 127.0.0.1).
+argument must be in dotted decimal form (e.g. 127.0.0.1). Serveez provides
+this function for systems where it is unable to detect the list of network
+interface automatically.
 
 @item (loadpath-add! . path)
 Extends the load path for server modules by the path name @var{path}.
@@ -322,7 +334,7 @@ This function is based upon @code{(bind-server!)}. It takes a list of port
 configurations and servers and binds each to another.
 
 @item (bind-tcp-port-range! from to . servers)
-Bind the list of @var{servers} to simple tcp port configurations whose network
+Bind the list of @var{servers} to simple TCP port configurations whose network
 ports range between @var{from} and @var{to} both inclusive.
 
 @item (serveez-verbosity verbosity)
@@ -351,18 +363,18 @@ servers (@xref{Existing servers}.).
 Serveez's I/O strategy is the traditional @code{select()} method. It 
 is serving many clients in a single server thread. This is done by setting
 all network handles to non-blocking mode. We then use @code{select()} to tell 
-which network handle have data waiting. This is the traditional Unix style
+which network handles have data waiting. This is the traditional Unix style
 multiplexing.
 
 An important bottleneck in this method is that @code{read()} or 
 @code{sendfile()} from disk blocks if the page is not in core at the 
 moment. Setting non-blocking mode on a disk file handle has no effect. 
 Same thing goes for memory-mapped disk files. The first time a server
-needs disk I/O, its process blocks, all clients must wait, and raw
-non-threaded performance goes to waste. 
+needs disk I/O, its process blocks, all clients have to wait, and raw
+non-threaded performance may go to waste. 
 
 Unfortunately, @code{select()} is limited to the number of 
-@code{FD_SETSIZE} handles. This limit is compiled in to the standard 
+@code{FD_SETSIZE} handles. This limit is compiled into the standard 
 library and user programs (and sometimes the kernel). Nevertheless 
 Serveez is able to serve about one thousand and more 
 clients on GNU/Linux, a hundred on Win95 and some more on later Windows 
@@ -430,7 +442,7 @@ available physical memory.
 @node Introduction to servers, Writing servers, Server, Server
 @section Introduction to servers
 
-This package is a kind of server server. It allows different protocol
+Serveez is a kind of server server. It allows different protocol
 servers to listen on various TCP/UDP ports, on ICMP sockets and on named
 pipes. Servers are instantiated with a certain configuration. It is
 possible to run multiple different servers on the same port.
@@ -475,11 +487,13 @@ configurations. Different server instances (of the same and/or different
 server type) can share the same port configuration.
 
 @item port configuration
-A port configuration can be a special configuration item within a server 
-configuration. It is a @code{svz_portcfg_t} structure and contains a protocol
-type, a network port address, an ip address, an incoming pipe name and an
-outgoing pipe name (some fields optional). It has been introduced because
-every server needs a port configuration to be bound at all.
+A port configuration in Serveez is represented by the @code{svz_portcfg_t} 
+structure. Depending on a shared flag it contains different type of 
+information specifying a transport endpoint. @xref{Define ports}, for more
+on this topic. It also can be a special configuration item within a server 
+configuration. This is necessary if a server needs for some reason a remote 
+transport endpoint. A server instance does not usually need to know about 
+the port configuration it is bound to.
 @end table
 
 @node Writing servers, Configuring servers, Introduction to servers, Server
@@ -527,10 +541,9 @@ about automake read the info pages.
 
 @subsection Server header file @file{foo-proto.h}
 
-This file contains at least your server's configuration structure and
-some global definitions of server routines which must be available from
-the outside. Furthermore it contains the extern declaration of your 
-server definition. The @code{foo} server implements all kinds of 
+This file contains at least your server's @code{extern} declaration of your 
+server definition which must be available from the outside. 
+The @code{foo} server implements all kinds of 
 configuration items which can be integers, integer arrays, strings, string
 arrays, port configurations, booleans and hash maps. Every item of the server 
 configuration can later be manipulated from the configuration file.
@@ -593,7 +606,7 @@ You have to free all resources used by this server instance.
 @item protocol detection (mandatory)
 Because it is possible to have more than one server listening on one 
 network port we need to detect the type of client which is connecting
-to this port. The foo servers checks if the first five bytes the client
+to this port. The foo server checks if the first five bytes the client
 was sending is identifying it as a foo client. This routine is getting
 two arguments where the first one is a pointer to this servers instance
 and the second is the client socket object containing all
@@ -632,7 +645,7 @@ called every second.
 
 @item handle request (mandatory for UDP and ICMP servers)
 The arguments to this callback are the client's socket structure, the 
-address of the packet data and its length. When implementing an UDP or
+address of the packet data and its length. When implementing a UDP or
 ICMP server you need to return non-zero if your server could process the 
 packet. Thus it is possible that there are multiple UDP servers on a 
 single port.
@@ -758,7 +771,39 @@ the reverse dns coserver to identify the host name of the remote client.
 @node Configuring servers, Existing servers, Writing servers, Server
 @section Some words about server configuration
 
-The following chapter describes the servers currently implemented using 
+If you define a server you basically pass an instance name and a list of
+items to the @code{(define-server!)} function. Each item has a name and a
+value. A value has a type. We provide several types: integers (numbers),
+integer arrays, strings, string arrays, booleans (yes/no-values), hashes
+(associations) and port configurations.
+
+The following table shows how each kind of value is set up in the 
+configuration file. @var{item} is the name of the item to be configured.
+
+@table @asis
+@item Integer@*
+Example: (item . 42)
+@item Integer array@*
+Example: (item . (0 1 2 3))
+@item String@*
+Example: (item . "a character string")
+@item String array@*
+Example: (item . ("abc" "cba" "bca" "acb"))
+@item Boolean@*
+A normal boolean in guile is represented by #t or #f. But the configuration
+file parser additional understand some bare words and numbers.@*
+Example: (item . #f)
+@item Hash@*
+Hash maps associate keys with values. Both must be character strings.@*
+Example: (item . (key1 . "value1") (key2 . "value2"))
+@item Port configuration@*
+@xref{Define ports}, for more information on this. When configuring a port
+configuration you need to define it via @code{(define-port!)} previously and
+put its symbolic name into the configuration.@*
+Example: (item . foo-tcp-port)
+@end table
+
+The next chapter describes the servers currently implemented using 
 Serveez. The configuration items used by each of them are described in the 
 following format:
 
@@ -770,43 +815,8 @@ sensitive). @samp{Type} can be either @samp{integer}, @samp{integer array},
 @samp{port configuration}. The @samp{Comments} is an optional text.
 @end table
 
-This table shows how each kind of configuration is setup in the 
-configuration file parsed by the configuration file parser where @var{item} 
-is the assumed configuration item.
-
-@table @asis
-@item Integer@*
-Examples:
-(item . 42)
-(item . "42")
-(item . ,(+ 21 21))
-@item Integer array@*
-Examples:
-(item . (0 1 2 3))
-(item . ("3" "2" "1" "0"))
-@item String@*
-Examples:
-(item . "a character string")
-(item . string)
-@item String array@*
-Examples:
-(item . ("abc" "cba" "bca" "acb"))
-@item Boolean@*
-A normal boolean in guile is represented by #t or #f. But the configuration
-file parser additional understand some bare words and numbers.@*
-Examples:
-(item . #f)
-(item . false)
-(item . no)
-(item . 1)
-@item Hash@*
-Hash maps associate keys with values. Both must be character strings.@*
-Examples:
-(item . (key1 . value1) (key2 . "value2"))
-@item Port configuration
-@xref{Define ports}, for more information on this.
-@end table
-
+@file{data/serveez.cfg} contains an example definition of each server already
+implemented. You can copy and modify the example for an easy start.
 
 @node Existing servers,  , Configuring servers, Server
 @section Existing servers
@@ -829,7 +839,7 @@ Examples:
 
 @subsubsection General description
 
-The integrated HTTP server was originally thought to be a simple but fast
+The integrated HTTP server was originally meant to be a simple but fast
 document server. But now it can even execute CGI scripts. The GET, HEAD and
 POST methods are fully functional. Additionally Serveez produces 
 directory listings when no standard document file 
@@ -1023,7 +1033,7 @@ and other functions.
 
 The server forms the backbone of IRC, providing a point for clients and
 servers to connect to. Clients connect to talk to each other. Servers
-connect to build up a network of servers. IRC servers connections have
+connect to build up a network of servers. IRC server connections have
 to build up a spanning tree. Loops are not allowed. Each server acts
 as a central node for the rest of the network it sees.
 
@@ -1291,7 +1301,7 @@ to synchronize time and dates between internet hosts. The protocol is
 described in the ARPA Internet RFC 868. Thus it is not really an SNTP server
 as described by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for
 IPv4, IPv6 and OSI). It is rather an excellent example on how to implement
-an UDP server in Serveez. 
+a UDP server in Serveez. 
 
 This protocol provides a site-independent, machine readable date and
 time. The Time service sends back time in seconds since midnight on
@@ -1468,15 +1478,15 @@ get touched by the kernel at all. The ICMP socket implementation of Serveez
 differentiates two types of sockets: listening and connected ICMP sockets. 
 This is non-standard because it actually makes no sense since there is no 
 difference for the kernel. The introduction of these semantics allow 
-Serveez to forward data between connection (TCP and named pipes) and packet 
-(UDP and ICMP) oriented protocols.
+Serveez to forward data between connection-oriented (TCP and named pipes) 
+and packet-oriented (UDP and ICMP) protocols.
 
 @table @asis
 @item Message type
 Valid message types are for instance @samp{8} for an echo message and
 @samp{0} for its echo reply. These two messages are used for the systems
 builtin ping services. Serveez uses its own message type identifier 
-which is @samp{42} (@code{ICMP_SERVEEZ}).
+which is @samp{42} (@code{ICMP_SERVEEZ}) by default.
 
 @item Message type sub code
 Serveez also defines its own message type sub codes described 
@@ -1667,7 +1677,7 @@ additional parameters.
 @subsubsection Configuration
 
 There is nothing to be configured yet. You should notice that it is possible
-to bind this server to both named pipes and tcp ports.
+to bind this server to both named pipes and TCP ports.
 
 @node Fake Ident Server, , Chat Server, Existing servers
 @subsection Fake Ident Server
@@ -1802,7 +1812,7 @@ Format:
 RemoteAddressInDottedDecimals ":" RemotePort ":" LocalPort
 
 Macro:
-coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
+svz_coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
 @end example
 
 In this context @code{sock} is of type @code{svz_socket_t} and 
@@ -1837,7 +1847,7 @@ Format:
 RemoteHostname
 
 Macro:
-coserver_dns (realhost, irc_connect_server, ircserver, NULL);
+svz_coserver_dns (realhost, irc_connect_server, ircserver, NULL);
 
 Callback:
 int
@@ -1861,7 +1871,7 @@ Format:
 RemoteAddressInDottedDecimals
 
 Macro:
-coserver_reverse (addr, MyReverseCallback, sock->id, sock->version);
+svz_coserver_reverse (addr, MyReverseCallback, sock->id, sock->version);
 
 Callback:
 int

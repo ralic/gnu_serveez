@@ -21,7 +21,7 @@ Here are listed all the hackers who helped creating this package:
 
 Martin Grabmueller <mgrabmue@cs.tu-berlin.de> for writing the initial
 	version and keep accepting bug report and patches for Sizzle
-	which we are currently using for configuration file parsing.
+	which we were using for configuration file parsing.
 	Thanks for giving information about how to embed Guile into
 	Serveez and use it as configuration file parser.
 
