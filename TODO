@@ -25,7 +25,6 @@ unfixed) have a look at the file BUGS.
 
 	- Start a reverse nslookup for each HTTP client.
 - Allow "/~user/*" HTTP requests. 
-	- Usage of Pipe-Threads in the native Win32 port. (topic dropped)
 	- Using encryption for passwords (libcrypt).
 	- Port forwarder for UDP and TCP.
 - Some solution for upcoming IPv6 ?

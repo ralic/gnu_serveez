@@ -24,6 +24,14 @@
 This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
+Bug:	     B0016
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-11-04
+Description: The Winsock API cannot sendto() or recvfrom() "connected"
+	     UDP and ICMP sockets. The calls return with "Socket is already
+	     connected". Thus the tunnel server will not work properly.
+
 Bug:	     B0015
 From:	     ela <stefan@lkcc.org>
 State:       unfixed

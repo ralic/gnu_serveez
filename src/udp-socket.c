@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.10 2000/10/28 13:03:11 ela Exp $
+ * $Id: udp-socket.c,v 1.11 2000/11/04 15:01:08 ela Exp $
  *
  */
 
@@ -147,19 +147,13 @@ udp_write_socket (socket_t sock)
   num_written = sendto (sock->sock_desc, p, 
 			do_write - (p - sock->send_buffer),
 			0, (struct sockaddr *) &receiver, len);
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "udp: sendto: %s:%u (%u bytes)\n",
-	      util_inet_ntoa (receiver.sin_addr.s_addr),
-	      ntohs (receiver.sin_port),
-	      do_write - (p - sock->send_buffer));
-#endif  
 
   /* Some error occured while sending. */
   if (num_written < 0)
     {
       log_printf (LOG_ERROR, "udp: sendto: %s\n", NET_ERROR);
-      if (last_errno != SOCK_UNAVAILABLE)
-	return -1;
+      if (last_errno == SOCK_UNAVAILABLE)
+	num_written = 0;
     }
   /* Packet data could be transmitted. */
   else
@@ -173,7 +167,15 @@ udp_write_socket (socket_t sock)
         }
       sock->send_buffer_fill -= do_write;
     }
-  return 0;
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "udp: sendto: %s:%u (%u bytes)\n",
+	      util_inet_ntoa (receiver.sin_addr.s_addr),
+	      ntohs (receiver.sin_port),
+	      do_write - (p - sock->send_buffer));
+#endif  
+
+  return num_written < 0 ? -1 : 0;
 }
 
 /*

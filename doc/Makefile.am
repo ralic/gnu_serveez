@@ -26,12 +26,12 @@ AUTOMAKE_OPTIONS = no-texinfo.tex
 
 info_TEXINFOS = serveez.texi
 man_MANS = serveez.1
-
-EXTRA_DIST = $(man_MANS)
-
-CLEANFILES = *.info *.html
-
+EXTRA_DIST = $(man_MANS) index.html
+CLEANFILES = *.info serveez*.html *.tgz *~
 MAINTAINERCLEANFILES = Makefile.in
+PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
+	../TODO ../BUGS ../NEWS
+PACK_DIR = ./pack
 
 # local dependencies
 
@@ -42,6 +42,15 @@ all-local: serveez.html serveez.dvi
 
 dist-hook:
 	rm -f $(distdir)/*.info
+
+pack: serveez.html
+	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
+	@mkdir $(PACK_DIR)
+	for file in $(PACK_FILES); do \
+		cp -f $$file $(PACK_DIR) >/dev/null 2>&1; done;
+	(cd $(PACK_DIR) && \
+		tar -cvzf ../doc_`date +%Y%m%d_%H%M`.tgz . >/dev/null 2>&1)
+	@rm -rf $(PACK_DIR)
 
 TEXI2HTML = texi2html
 SUFFIXES = .html
