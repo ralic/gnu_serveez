@@ -1103,7 +1103,7 @@ AC_TRY_RUN([#include <stdio.h>
    svz_cv_func_inet_ntoa_broken=no))
 
 if test $svz_cv_func_inet_ntoa_broken = yes ; then
-   AC_DEFINE(BROKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.]),
+   AC_DEFINE(BROKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.])
 fi
 
 dnl
