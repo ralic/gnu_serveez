@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.61 2002/05/05 08:36:41 ela Exp $
+ * $Id: guile.c,v 1.62 2002/05/06 20:36:38 ela Exp $
  *
  */
 
@@ -1758,7 +1758,8 @@ guile_eval_file (void *data)
 #else
   error = svz_fstat (fileno (stdin), &buf);
 #endif
-  if (file == NULL || (error != -1 && !isatty (fileno (stdin))))
+  if (file == NULL || (error != -1 && !isatty (fileno (stdin)) &&
+		       !S_ISCHR (buf.st_mode) && !S_ISBLK (buf.st_mode)))
     {
       SCM ret = SCM_BOOL_F, line;
       while (!SCM_EOF_OBJECT_P (line = scm_read (scm_def_inp)))
