@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.32 2001/06/21 11:25:46 ela Exp $
+ * $Id: guile.c,v 1.33 2001/06/22 19:17:50 ela Exp $
  *
  */
 
@@ -1534,28 +1534,26 @@ guile_exception (void *data, SCM tag, SCM args)
   report_error ("Exception due to `%s'", str);
   free (str);
 
-  /* tag contains internal exception name
-   * scm_display (tag, scm_current_error_port ());
-   */
-  scm_display (gh_str02scm ("guile-error: ") , scm_current_error_port ());
+  /* `tag' contains internal exception name */
+  scm_puts ("guile-error: " , scm_current_error_port ());
 
   /* on quit/exit */
   if (gh_null_p (args))
     {
       scm_display (tag, scm_current_error_port ());
-      scm_display (gh_str02scm ("\n"), scm_current_error_port ());
+      scm_puts ("\n", scm_current_error_port ());
       return SCM_BOOL_F;
     }
 
   if (SCM_BOOL_F != gh_car (args))
     {
       scm_display (gh_car (args), scm_current_error_port ());
-      scm_display (gh_str02scm (": "), scm_current_error_port ());
+      scm_puts (": ", scm_current_error_port ());
     }
   scm_simple_format (scm_current_error_port (),
 		     gh_car (gh_cdr (args)),
 		     gh_car (gh_cdr (gh_cdr (args))));
-  scm_display (gh_str02scm ("\n"), scm_current_error_port ());
+  scm_puts ("\n", scm_current_error_port ());
   return SCM_BOOL_F;
 }
 
