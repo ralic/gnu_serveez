@@ -115,16 +115,16 @@ site: all-local info
 	$(CP) -p index.html logosmall.jpg mandel.jpg $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
-$(HTML_DIR)/serveez.html: serveez.texi $(builddir)/guile-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $<
+$(HTML_DIR)/serveez.html: serveez.texi guile-api.texi
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter serveez.texi
 
 $(HTML_DIR)/serveez-api.html: serveez-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $<
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter serveez-api.texi
 
-%.info: %.texi
+.texi.info:
 	$(MAKEINFO) -o $(srcdir)/$@ -I $(srcdir) --no-split $<
 
-%.dvi: %.texi
+.texi.dvi:
 	$(TEXI2DVI) -I $(srcdir) -I $(builddir) $<
 
 SUFFIXES = .html .info .dvi

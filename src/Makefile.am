@@ -85,7 +85,7 @@ serveez.cfg: $(top_srcdir)/data/serveez.cfg
 
 SUFFIXES = .rc .ro
 
-%.ro: %.rc
+.rc.ro:
 	$(WINDRES) -i $< -o $@
 
 $(GUILE_RULE):
