@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.5 2001/05/05 15:45:51 ela Exp $
+ * $Id: binding.c,v 1.6 2001/05/07 21:02:58 ela Exp $
  *
  */
 
@@ -52,18 +52,39 @@ svz_server_bindings (svz_server_t *server)
   static char text[256];
   socket_t sock;
   struct sockaddr_in *addr;
+  svz_portcfg_t *port;
 
   text[0] = '\0'; 
   svz_sock_foreach (sock)
     {
       if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg)
 	{
-	  if (svz_array_contains (sock->data, server))
+	  /* The server in the array of servers and port configuration
+	     valid ? */
+	  if (svz_array_contains (sock->data, server) && 
+	      (port = sock->cfg) != NULL)
 	    {
-	      addr = svz_portcfg_addr ((svz_portcfg_t *) sock->cfg);
-	      strcat (text, svz_inet_ntoa (addr->sin_addr.s_addr));
-	      strcat (text, ":");
-	      strcat (text, svz_itoa (ntohs (addr->sin_port)));
+	      /* TCP and UDP */ 
+	      if (port->proto & (PROTO_TCP | PROTO_UDP))
+		{
+		  addr = svz_portcfg_addr (port);
+		  strcat (text, svz_inet_ntoa (addr->sin_addr.s_addr));
+		  strcat (text, ":");
+		  strcat (text, svz_itoa (ntohs (addr->sin_port)));
+		}
+	      /* RAW and ICMP */
+	      else if (port->proto & (PROTO_RAW | PROTO_ICMP))
+		{
+		  addr = svz_portcfg_addr (port);
+		  strcat (text, svz_inet_ntoa (addr->sin_addr.s_addr));
+		}
+	      /* PIPE */
+	      else if (port->proto & PROTO_PIPE)
+		{
+		  strcat (text, port->pipe_recv.name);
+		  strcat (text, "<-->");
+		  strcat (text, port->pipe_send.name);
+		}
 	      strcat (text, " ");
 	    }
 	}
@@ -130,8 +151,8 @@ svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
  * Bind the server instance @var{server} to the port configuration 
  * @var{port} if possible. Return non-zero on errors otherwise zero. It
  * might occur that a single server is bound to more than one network port 
- * if e.g. the tcp/ip address is specified by "*" since we do not do any
- * INADDR_ANY bindings.
+ * if e.g. the TCP/IP address is specified by "*" since we do not do any
+ * @code{INADDR_ANY} bindings.
  */
 int
 svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
@@ -167,16 +188,58 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 	  else
 	    {
 	      svz_portcfg_destroy (copy);
-	      svz_free (copy);
 	    }
 	}
       /* Port configuration already exists. */
       else
 	{
 	  svz_portcfg_destroy (copy);
-	  svz_free (copy);
 	}
     }
   svz_array_destroy (ports);
   return 0;
+}
+
+/*
+ * Remove the given server instance @var{server} entirely from the list
+ * of enqueued sockets. This means to delete it from each server socket on
+ * the one hand and to shutdown every child client spawned from this server
+ * on the other hand.
+ */
+void
+svz_server_unbind (svz_server_t *server)
+{
+  socket_t sock, parent;
+  unsigned long n;
+
+  /* Go through all enqueued sockets. */
+  svz_sock_foreach (sock)
+    {
+      /* Client structures. */
+      if (!(sock->flags & SOCK_FLAG_LISTENING) && 
+	  (parent = sock_getparent (sock)) != NULL)
+	{
+	  /* If the parent of a client is the given servers child
+	     then also shutdown this client. */
+	  if (parent->flags & SOCK_FLAG_LISTENING && parent->cfg && 
+	      parent->data && svz_array_contains (parent->data, server))
+	    sock_schedule_for_shutdown (sock);
+	}
+    }
+
+  /* Go through all enqueued sockets once more. */
+  svz_sock_foreach (sock)
+    {
+      /* A server socket structure ? */
+      if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg && sock->data)
+	{
+	  /* Delete all servers and shutdown the socket structure if
+	     there are no more servers left. */
+	  while ((n = svz_array_idx (sock->data, server)) != 
+		 (unsigned long) -1)
+	    svz_array_del (sock->data, n);
+	  if (svz_array_size (sock->data) == 0)
+	    sock_schedule_for_shutdown (sock);
+	}
+    }
 }

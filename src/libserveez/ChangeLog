@@ -1,3 +1,19 @@
+2001-05-07  [ Ela ]  <ela@lkcc.org>
+
+	* server.c (svz_servertype_del): Undbind, remove and finalize 
+	each server instance of the server type.
+
+	* binding.c (svz_server_unbind): New function.
+
+	* portcfg.c (svz_portcfg_finalize): Fixed memory leak due to
+	changes at `svz_portcfg_destroy'.
+
+	* binding.c (svz_server_bindings): Text representaion depending
+	on the types of port configurations.
+
+	* portcfg.c (svz_portcfg_destroy): Also `svz_free()' the given
+	port configuration itself. Changed all callers.
+
 2001-05-05  [ Ela ]  <ela@lkcc.org>
 
 	* portcfg.c (svz_portcfg_prepare): New function.

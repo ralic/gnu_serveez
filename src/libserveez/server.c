@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.15 2001/05/05 15:45:51 ela Exp $
+ * $Id: server.c,v 1.16 2001/05/07 21:02:58 ela Exp $
  *
  */
 
@@ -48,6 +48,7 @@
 #include "libserveez/socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
+#include "libserveez/binding.h"
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -99,25 +100,39 @@ svz_servertype_add (svz_servertype_t *server)
 
 /*
  * Delete the server type with the index @var{index} from the list of
- * known server types and run its global finalizer if necessary.
+ * known server types and run its global finalizer if necessary. Moreover
+ * we remove and finalize each server instance of this server type.
  */
 void
 svz_servertype_del (unsigned long index)
 {
-  svz_servertype_t *server;
+  svz_servertype_t *stype;
+  svz_server_t **server;
+  int n, i;
 
   /* Return here if there is no such server type. */
   if (svz_servertypes == NULL || index >= svz_array_size (svz_servertypes))
     return;
 
-  /*
-   * Run the server type's global finalizer if necessary and delete it 
-   * from the list of known servers then.
-   */
-  if ((server = svz_array_get (svz_servertypes, index)) != NULL)
+  /* Run the server type's global finalizer if necessary and delete it 
+     from the list of known servers then. */
+  if ((stype = svz_array_get (svz_servertypes, index)) != NULL)
     {
-      if (server->global_finalize != NULL)
-	server->global_finalize ();
+      /* Find server instance of this server type and remove and finalize
+	 them if necessary. */
+      n = svz_hash_size (svz_servers) - 1;
+      svz_hash_foreach_value (svz_servers, server, i)
+	{
+	  if (server[n]->type == stype)
+	    {
+	      svz_server_del (server[n]->name);
+	      i--;
+	    }
+	  n--;
+	}
+
+      if (stype->global_finalize != NULL)
+	stype->global_finalize ();
       svz_array_del (svz_servertypes, index);
     }
 }
@@ -298,6 +313,7 @@ svz_server_del (char *name)
     return;
   if ((server = svz_hash_delete (svz_servers, name)) != NULL)
     {
+      svz_server_unbind (server);
       svz_server_free (server);
     }
 }
@@ -356,10 +372,7 @@ svz_config_free (svz_servertype_t *server, void *cfg)
 	  /* Port configuration. */
         case ITEM_PORTCFG:
 	  if (*target)
-	    {
-	      svz_portcfg_destroy (*target);
-	      svz_free (*target);
-	    }
+	    svz_portcfg_destroy (*target);
           break;
         }
     }

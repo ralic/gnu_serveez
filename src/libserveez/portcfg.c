@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.10 2001/05/05 15:45:51 ela Exp $
+ * $Id: portcfg.c,v 1.11 2001/05/07 21:02:58 ela Exp $
  *
  */
 
@@ -268,36 +268,48 @@ svz_portcfg_dup (svz_portcfg_t *port)
 
 /*
  * This function makes the given port configuration @var{port} completely 
- * unusable. 
+ * unusable. No operation is performed if @var{port} is @code{NULL}. If the
+ * port configuration is part of the list of known port configurations it
+ * it thrown out of them.
  */
 void
 svz_portcfg_destroy (svz_portcfg_t *port)
 {
+  char *name;
+
+  /* Return here if NULL pointer given. */
   if (port == NULL)
     return;
 
-  svz_free_and_zero (port->name);
+  /* Delete from port configuration hash if necessary. */
+  if ((name = svz_hash_contains (svz_portcfgs, port)) != NULL)
+    svz_hash_delete (svz_portcfgs, name);
+
+  /* Free the name of the port configuration. */
+  svz_free (port->name);
+
+  /* Depending on the type of configuration perform various operations. */
   switch (port->proto)
     {
     case PROTO_TCP:
-      svz_free_and_zero (port->tcp_ipaddr);
+      svz_free (port->tcp_ipaddr);
       break;
     case PROTO_UDP:
-      svz_free_and_zero (port->udp_ipaddr);
+      svz_free (port->udp_ipaddr);
       break;
     case PROTO_ICMP:
-      svz_free_and_zero (port->icmp_ipaddr);
+      svz_free (port->icmp_ipaddr);
       break;
     case PROTO_RAW:
-      svz_free_and_zero (port->raw_ipaddr);
+      svz_free (port->raw_ipaddr);
       break;
     case PROTO_PIPE:
-      svz_free_and_zero (port->pipe_recv.user);
-      svz_free_and_zero (port->pipe_recv.name);
-      svz_free_and_zero (port->pipe_recv.group);
-      svz_free_and_zero (port->pipe_send.user);
-      svz_free_and_zero (port->pipe_send.name);
-      svz_free_and_zero (port->pipe_send.group);
+      svz_free (port->pipe_recv.user);
+      svz_free (port->pipe_recv.name);
+      svz_free (port->pipe_recv.group);
+      svz_free (port->pipe_send.user);
+      svz_free (port->pipe_send.name);
+      svz_free (port->pipe_send.group);
       break;
     }
 
@@ -308,6 +320,9 @@ svz_portcfg_destroy (svz_portcfg_t *port)
     svz_array_destroy (port->allow);
   if (port->accepted)
     svz_hash_destroy (port->accepted);
+
+  /* Free the port configuration otself. */
+  svz_free (port);
 }
 
 /*
@@ -332,14 +347,16 @@ void
 svz_portcfg_finalize (void)
 {
   svz_portcfg_t **port;
-  int n;
+  int n, i;
 
   if (svz_portcfgs != NULL)
     {
-      svz_hash_foreach_value (svz_portcfgs, port, n)
+      n = svz_hash_size (svz_portcfgs) - 1;
+      svz_hash_foreach_value (svz_portcfgs, port, i)
 	{
 	  svz_portcfg_destroy (port[n]);
-	  svz_free (port[n]);
+	  n--;
+	  i--;
 	}
       svz_hash_destroy (svz_portcfgs);
       svz_portcfgs = NULL;

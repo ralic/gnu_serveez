@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.12 2001/05/04 17:43:39 ela Exp $
+ * $Id: guile.c,v 1.13 2001/05/07 21:02:58 ela Exp $
  *
  */
 
@@ -623,7 +623,7 @@ guile_define_port (SCM symname, SCM args)
       goto out;
     }
 
-  /* now rememver the name and add that config */
+  /* now remember the name and add that config */
   cfg->name = svz_strdup (portname);
 
   /* FIXME: remove when it works */
@@ -642,10 +642,7 @@ guile_define_port (SCM symname, SCM args)
  out:
   optionhash_destroy (options);
   if (retval == retval_fail)
-    {
-      svz_portcfg_destroy (cfg);
-      svz_free (cfg);
-    }
+    svz_portcfg_destroy (cfg);
   return retval;
 }
 #undef FUNC_NAME

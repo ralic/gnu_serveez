@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.h,v 1.3 2001/05/02 22:18:48 ela Exp $
+ * $Id: binding.h,v 1.4 2001/05/07 21:02:58 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_server_bind __P ((svz_server_t *, svz_portcfg_t *));
 SERVEEZ_API svz_array_t *svz_server_portcfg __P ((svz_server_t *server));
 SERVEEZ_API char *svz_server_bindings __P ((svz_server_t *server));
+SERVEEZ_API void svz_server_unbind __P ((svz_server_t *server));
 
 __END_DECLS
 
