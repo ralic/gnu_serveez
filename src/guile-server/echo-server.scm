@@ -1,6 +1,6 @@
 ;; -*-scheme-*-
 ;;
-;; echo-server.scm - Example server completely written in Guile
+;; echo-server.scm - example server completely written in Guile
 ;;
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 ;;
@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.11 2001/11/09 12:33:10 ela Exp $
+;; $Id: echo-server.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")

@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.1 2001/11/01 17:03:51 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.2 2001/11/10 17:45:11 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -323,6 +323,9 @@ function handle_macro(line)
 	if (guile_args != "") { guile_args = (guile_args " ") }
 	guile_args = (guile_args guile_arg)
     }
+
+    # correct guile argument list
+    if (guile_args == "void") { guile_args = "" }
 
     # enclose the return value into braces if necessary
     if (index(ret, " ")) { ret = ("{" ret "}") }

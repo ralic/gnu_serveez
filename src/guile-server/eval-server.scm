@@ -1,6 +1,6 @@
 ;; -*-scheme-*-
 ;;
-;; eval-server.scm - Example server for evaluating Scheme expressions
+;; eval-server.scm - example server for evaluating Scheme expressions
 ;;
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>,
 ;; Copyright (C) 2001 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.7 2001/11/09 12:33:10 ela Exp $
+;; $Id: eval-server.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile

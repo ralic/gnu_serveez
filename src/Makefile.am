@@ -25,8 +25,7 @@
 #
 
 EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
-	serveez.m4 serveez.scm echo-server.scm eval-server.scm \
-	serveez-config.in
+	serveez.m4 serveez.scm serveez-config.in
 
 #
 # Installation of the autoconf macro used to locate Serveez
@@ -35,12 +34,12 @@ aclocaldir = $(datadir)/aclocal
 aclocal_DATA = serveez.m4
 
 # Yet another script
-bin_SCRIPTS = serveez.scm echo-server.scm eval-server.scm serveez-config
+bin_SCRIPTS = serveez.scm serveez-config
 
 #
 # Add your server subdirectory here
 #
-SUBDIRS = libserveez foo-server $(SERVERDIRS)
+SUBDIRS = libserveez foo-server guile-server $(SERVERDIRS)
 
 #
 # Add your library here

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.29 2001/11/09 17:13:03 ela Exp $
+ * $Id: guile-server.c,v 1.30 2001/11/10 17:45:11 ela Exp $
  *
  */
 
@@ -319,6 +319,20 @@ guile_integer (SCM value, int def)
     return gh_scm2int (value);
   return def;
 }
+
+/*
+ * This procedure can be used to schedule Serveez for shutdown within Guile.
+ * Serveez will shutdown all network connections and terminate after the next
+ * event loop. You should use this instead of issuing @code{(quit)}.
+ */
+#define FUNC_NAME "serveez-nuke"
+SCM
+guile_nuke_happened (void)
+{
+  svz_nuke_happened = 1;
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
 
 /*
  * Controls the use of exceptions handlers for the Guile procedure calls
@@ -1495,7 +1509,8 @@ guile_server_init (void)
 		    guile_server_state_to_hash, 1, 0, 0);
   gh_new_procedure ("serveez-exceptions",
 		    guile_access_exceptions, 0, 1, 0);
-
+  gh_new_procedure ("serveez-nuke",
+		    guile_nuke_happened, 0, 0, 0);
   DEFINE_SOCK_CALLBACK ("svz:sock:handle-request", handle_request);
   DEFINE_SOCK_CALLBACK ("svz:sock:check-request", check_request);
 

@@ -1,3 +1,13 @@
+2001-11-10  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (guile_sock_final_print): New Guile procedure.
+
+	* guile-server.c (guile_nuke_happened): New Guile procedure.
+
+	* guile-server/mandel-server.scm: New server implementation.
+	Completely in Guile.  Added the directory `guile-server' and put
+	all existing servers there.
+
 2001-11-09  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (guile_sock_server, guile_server_p): New

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.5 2001/11/09 12:33:10 ela Exp $
+ * $Id: guile-api.c,v 1.6 2001/11/10 17:45:11 ela Exp $
  *
  */
 
@@ -386,6 +386,21 @@ guile_sock_server (SCM sock, SCM server)
 }
 #undef FUNC_NAME
 
+/* This procedure schedules the socket @var{sock} for shutdown after all data
+   within the send buffer queue has been send. The user should issue this
+   procedure call right *before* the last call to @code{(svz:sock:print)}. */
+#define FUNC_NAME "svz:sock:final-print"
+static SCM
+guile_sock_final_print (SCM sock)
+{
+  svz_socket_t *xsock;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  xsock->flags |= SOCK_FLAG_FINAL_WRITE;
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+
 /* Returns @code{#t} if the given cell @var{sock} is an instance of a valid
    @code{#<svz-socket>}, otherwise @code{#f}. */
 #define FUNC_NAME "svz:sock?"
@@ -431,6 +446,7 @@ guile_api_init (void)
   gh_new_procedure ("svz:sock:parent", guile_sock_parent, 1, 1, 0);
   gh_new_procedure ("svz:sock:referrer", guile_sock_referrer, 1, 1, 0);
   gh_new_procedure ("svz:sock:server", guile_sock_server, 1, 1, 0);
+  gh_new_procedure ("svz:sock:final-print", guile_sock_final_print, 1, 0, 0);
   gh_new_procedure ("svz:sock?", guile_sock_p, 1, 0, 0);
   gh_new_procedure ("svz:server?", guile_server_p, 1, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer", 

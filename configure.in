@@ -1365,6 +1365,7 @@ AC_OUTPUT(
     src/tunnel-server/Makefile
     src/fakeident-server/Makefile
     src/prog-server/Makefile
+    src/guile-server/Makefile
     doc/Makefile 
     data/Makefile
     test/Makefile
