@@ -40,8 +40,20 @@ AC_DEFUN([AC_GUILE], [
     GUILEDIR="/usr/local")
 
   AC_MSG_CHECKING([for guile installation])
-  [if test "x`eval guile-config --version 2>&1 | grep version`" != "x"; then]
-    AC_MSG_RESULT([yes])
+  [guile=`eval guile-config --version 2>&1 | \
+   	  sed -e '/^$/ d' -e 's/[^0-9\.]//g'`]
+  if test x"$guile" != "x" ; then
+    case "$guile" in
+    [1.3.[4-9] | 1.[4-9]* | [2-9].*)]
+      AC_MSG_RESULT($guile >= 1.3.4)
+      ;;
+    [*)]
+      AC_MSG_RESULT($guile < 1.3.4)
+      AC_MSG_WARN([
+  GNU Guile version 1.3.4 or above is needed, and you do not seem to have
+  it handy on your system.])
+      ;;
+    esac
     GUILE_CFLAGS="`guile-config compile`"
     GUILE_LDFLAGS="`guile-config link`"
   else
@@ -56,7 +68,7 @@ AC_DEFUN([AC_GUILE], [
         GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
         AC_MSG_RESULT([yes])
       else
-        AC_MSG_RESULT([none])
+        AC_MSG_RESULT([missing])
         GUILE_CFLAGS=""
         GUILE_LDFLAGS=""
       fi
@@ -66,7 +78,7 @@ AC_DEFUN([AC_GUILE], [
       GUILE_LDFLAGS=""
     fi
   fi
-
+  unset guile
   unset GUILEDIR
   AC_SUBST(GUILE_CFLAGS)
   AC_SUBST(GUILE_LDFLAGS)
@@ -102,7 +114,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
       AC_SUBST(GUILE_MAKE_LIB)
       AC_MSG_RESULT([yes])
     else
-      AC_MSG_RESULT([configure script not found])
+      AC_MSG_RESULT([missing])
       GUILE_SOURCE="no"
     fi
   else

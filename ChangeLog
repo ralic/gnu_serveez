@@ -1,3 +1,8 @@
+2001-07-15  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (MAKEINFO): Checking the version of `makeinfo'.
+	We require version >= 4.0 because texi files use @exampleindent.
+
 2001-07-13  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Released version `0.1.0' and bumped up to 

@@ -1195,9 +1195,11 @@ dnl
 AC_MSG_CHECKING([for working texi2dvi])
 TEXI2DVI="texi2dvi"
 if test "x`eval tex --version 2>/dev/null`" = "x"; then
+  AC_MSG_RESULT(missing)
   TEXI2DVI=":"
+else
+  AC_MSG_RESULT($TEXI2DVI)
 fi
-AC_MSG_RESULT($TEXI2DVI)
 AC_SUBST(TEXI2DVI)
 
 dnl
@@ -1205,7 +1207,7 @@ dnl Checking for working Texi2HTML.
 dnl
 AC_MSG_CHECKING([for working texi2html])
 TEXI2HTML=":"
-[tex=`eval texi2html --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
+[tex=`eval texi2html --version 2>/dev/null | head -1 | sed 's/[^0-9\.]//g'`]
 if test -n "$tex"; then
 case "$tex" in
   [1.6[4-9] | 1.[789]* | [2-9].*)]
@@ -1217,10 +1219,33 @@ case "$tex" in
   ;;
 esac
 else
-    AC_MSG_RESULT(not found)
+    AC_MSG_RESULT(missing)
 fi
 AC_SUBST(TEXI2HTML)
 unset tex
+
+dnl
+dnl Checking for working Makeinfo.
+dnl
+AC_MSG_CHECKING([for working makeinfo])
+MAKEINFO="$missing_dir/missing makeinfo"
+[info=`eval makeinfo --version 2>/dev/null | head -1 | sed 's/[^0-9\.]//g'`]
+if test -n "$info"; then
+case "$info" in
+  [4.* | [5-9].*)]
+    AC_MSG_RESULT($info >= 4.0)
+    MAKEINFO="makeinfo"
+  ;;
+  [*)]
+    AC_MSG_RESULT($info < 4.0)
+  ;;
+esac
+else
+    AC_MSG_RESULT(missing)
+fi
+AC_SUBST(MAKEINFO)
+unset info
+
 
 LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS
