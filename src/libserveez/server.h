@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server.h,v 1.2 2001/01/31 19:28:31 ela Exp $
  *
  */
 
@@ -37,14 +37,14 @@
 
 /*
  * Each server can have a an array of name-value-pairs specific for it.
- * Use macros at end ot this file for setting up these.
+ * Use macros at end of this file for setting up these.
  */
 typedef struct key_value_pair 
 {
-  int type;
-  char *name;
-  int defaultable;
-  void *address;
+  int type;        /* data type (string, integer, etc.) */
+  char *name;      /* variable name (symbol) */
+  int defaultable; /* set if this item is defaultable */
+  void *address;   /* memory address of the variable */
 }
 key_value_pair_t;
 
@@ -92,11 +92,11 @@ typedef struct portcfg
 portcfg_t;
 
 /*
- * Every server needs such a thing
+ * Every server needs such a thing.
  */
 typedef struct server_definition 
 {
-  char *name;                                   /* escriptive name of server */
+  char *name;                                   /* descriptive name */
   char *varname;                                /* varprefix as used in cfg */
 
   int (* global_init)(void);                    /* run once per server def */
@@ -119,7 +119,7 @@ typedef struct server_definition
 server_definition_t;
 
 /*
- * This structure is used by server_bind () to collect various server
+ * This structure is used by `server_bind ()' to collect various server
  * instances and their port configurations.
  */
 typedef struct
@@ -129,62 +129,6 @@ typedef struct
 }
 server_binding_t;
 
-__BEGIN_DECLS
-
-SERVEEZ_API extern int server_definitions;
-SERVEEZ_API extern struct server_definition **server_definition;
-SERVEEZ_API extern int server_instances;
-SERVEEZ_API extern struct server **servers;
-
-SERVEEZ_API void server_add_definition __P ((server_definition_t *));
-
-/*
- * Start all server bindings (instances of servers).
- */
-SERVEEZ_API int server_start __P ((void));
-
-/*
- * This functions binds a previouly instanciated server to a specified
- * port configuration.
- */
-SERVEEZ_API int server_bind __P ((server_t *server, portcfg_t *cfg));
-
-/*
- * Find a server instance by a given configuration structure. Return NULL
- * if there is no such configuration.
- */
-SERVEEZ_API server_t *server_find __P ((void *cfg));
-
-/*
- * Add a server to the list of all servers.
- */
-SERVEEZ_API void server_add __P ((struct server *server));
-
-/*
- * Run all the server instances's timer routines. This is called within
- * the server_periodic_tasks() function in `server-core.c'.
- */
-SERVEEZ_API void server_run_notify __P ((void));
-
-/*
- * Compare if two given portcfg structures are equal i.e. specifying 
- * the same port. Returns non-zero if a and b are equal.
- */
-SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *a, portcfg_t *b));
-
-/*
- * Use these functions.
- */
-SERVEEZ_API int server_global_init __P ((void));
-SERVEEZ_API int server_init_all __P ((void));
-SERVEEZ_API int server_finalize_all __P ((void));
-SERVEEZ_API int server_global_finalize __P ((void));
-
-#if ENABLE_DEBUG
-SERVEEZ_API void server_print_definitions __P ((void));
-#endif
-
-__END_DECLS
 
 /*
  * Helper cast to get n-th server_t from a (void *).
@@ -206,16 +150,16 @@ __END_DECLS
 #define ITEM_PORTCFG  6
 
 /*
- * A simple int.
+ * A simple integer.
  */
 #define REGISTER_INT(name, address, defaultable) \
   { ITEM_INT, name, defaultable, &address }
 
 /*
- * An int array:
- * [0] is length, followed by ints.
+ * An integer array:
+ * [0] is length, followed by integers.
  */
-#define REGISTER_INTARRAY(name, address, defaultable)\
+#define REGISTER_INTARRAY(name, address, defaultable) \
   { ITEM_INTARRAY, name, defaultable, &(address) }
 
 /*
@@ -231,7 +175,7 @@ __END_DECLS
   { ITEM_STRARRAY, name, defaultable, &(address) }
 
 /*
- * A hashtable associating strings with strings.
+ * A hash table associating strings with strings.
  */
 #define REGISTER_HASH(name, address, defaultable) \
   { ITEM_HASH, name, defaultable, &(address) }
@@ -247,5 +191,30 @@ __END_DECLS
  */
 #define REGISTER_END() \
   { ITEM_END, NULL, 0, NULL }
+
+__BEGIN_DECLS
+
+SERVEEZ_API extern int server_definitions;
+SERVEEZ_API extern struct server_definition **server_definition;
+SERVEEZ_API extern int server_instances;
+SERVEEZ_API extern struct server **servers;
+
+SERVEEZ_API void server_add_definition __P ((server_definition_t *));
+SERVEEZ_API int server_start __P ((void));
+SERVEEZ_API int server_bind __P ((server_t *server, portcfg_t *cfg));
+SERVEEZ_API server_t *server_find __P ((void *cfg));
+SERVEEZ_API void server_add __P ((struct server *server));
+SERVEEZ_API void server_run_notify __P ((void));
+SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *a, portcfg_t *b));
+SERVEEZ_API int server_global_init __P ((void));
+SERVEEZ_API int server_init_all __P ((void));
+SERVEEZ_API int server_finalize_all __P ((void));
+SERVEEZ_API int server_global_finalize __P ((void));
+
+#if ENABLE_DEBUG
+SERVEEZ_API void server_print_definitions __P ((void));
+#endif /* ENABLE_DEBUG */
+
+__END_DECLS
 
 #endif /* not __SERVER_H__ */

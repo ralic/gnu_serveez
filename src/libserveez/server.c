@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: server.c,v 1.3 2001/01/31 19:28:31 ela Exp $
  *
  */
 
@@ -54,13 +54,39 @@
 int server_definitions = 0;
 server_definition_t **server_definition = NULL;
 
+/*
+ * Add another server definition to the currently registered servers.
+ */
 void
 server_add_definition (server_definition_t *definition)
 {
+  int n;
+
+  /* Check if the server definition is valid. */
+  if (!definition || !definition->varname || !definition->name)
+    {
+      log_printf (LOG_ERROR, "invalid server definition\n");
+      return;
+    }
+
+  /* Check if the server is already registered. */
+  for (n = 0; n < server_definitions; n++)
+    if (!strcmp (definition->varname, server_definition[n]->varname))
+      {
+	log_printf (LOG_ERROR, "server `%s' already registered\n", 
+		    definition->name);
+	return;
+      }
+
+  /* Add this definition to the registered servers. */
   server_definition = (server_definition_t **) 
     svz_prealloc (server_definition, (server_definitions + 1) * 
 		  sizeof (server_definition_t *));
   server_definition[server_definitions++] = definition;
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "`%s' registered\n", definition->name);
+#endif
 }
 
 /*
@@ -76,7 +102,7 @@ int server_bindings = 0;
 server_binding_t *server_binding = NULL;
 
 /*
- * Debug helper function to traverse server_definitions.
+ * Debug helper function to traverse all server definitions.
  */
 #if ENABLE_DEBUG
 void
@@ -105,7 +131,7 @@ server_print_definitions (void)
 	      
 	      printf ("   variable `%s' at offset %d, %sdefaultable: ",
 		      sd->items[i].name, (int) offset,
-		      (sd->items[i].defaultable ? "" : "not "));
+		      sd->items[i].defaultable ? "" : "not ");
 
 	      switch (sd->items[i].type) 
 		{
@@ -141,8 +167,8 @@ server_print_definitions (void)
 #endif /* ENABLE_DEBUG */
 
 /*
- * Run all the server instances's timer routines. This is called within
- * the server_periodic_tasks() function in `server-core.c'.
+ * Run all the server instances's timer routines. This should be called 
+ * within the `server_periodic_tasks ()' function.
  */
 void
 server_run_notify (void)
@@ -187,8 +213,8 @@ server_add (struct server *server)
 }
 
 /*
- * Run the global initializers of all servers. return -1 if some
- * server(class) doesn't feel like running.
+ * Run the global initializers of all servers. Return -1 if some
+ * server (class) does not feel like running.
  */
 int
 server_global_init (void)
@@ -217,8 +243,8 @@ server_global_init (void)
 }
 
 /*
- * Run the initializers of all servers, return -1 if some server didn't
- * think it's a good idea to run...
+ * Run the initializers of all servers, return -1 if some server did not
+ * think it is a good idea to run...
  */
 int
 server_init_all (void)
@@ -234,8 +260,7 @@ server_init_all (void)
 	  if (servers[i]->init (servers[i]) < 0) 
 	    {
 	      errneous = -1;
-	      fprintf (stderr, 
-		       "error while initializing %s\n", servers[i]->name);
+	      fprintf (stderr, "error initializing `%s'\n", servers[i]->name);
 	    }
 	}
     }
@@ -285,7 +310,7 @@ server_global_finalize (void)
 
 /*
  * Compare if two given portcfg structures are equal i.e. specifying 
- * the same port. Returns non-zero if a and b are equal.
+ * the same port. Returns non-zero if A and B are equal.
  */
 int
 server_portcfg_equal (portcfg_t *a, portcfg_t *b)
