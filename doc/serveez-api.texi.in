@@ -148,13 +148,14 @@ SVZ_VECTOR_INS_DEFUN
 SVZ_VECTOR_IDX_DEFUN
 SVZ_VECTOR_LENGTH_DEFUN
 
-@node Utility functions, Client connections, Arraylist, Embedding API
+@node Utility functions, Client connections, Vectorlist, Embedding API
 @section Utility functions
 
 LOG_PRINTF_DEFUN
 LOG_SET_FILE_DEFUN
 UTIL_HEXDUMP_DEFUN
 UTIL_INET_NTOA_DEFUN
+UTIL_INET_ATON_DEFUN
 UTIL_ITOA_DEFUN
 UTIL_ATOI_DEFUN
 UTIL_STRCASECMP_DEFUN

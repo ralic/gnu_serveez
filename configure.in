@@ -758,6 +758,31 @@ AC_SUBST(SIZZLEDIR)
 dnl ----------------------------------------------------------------------
 
 dnl
+dnl Find out where to get guile
+dnl
+
+AC_MSG_CHECKING([for guile installation])
+if test -n "`guile-config 2>/dev/null`"; then
+    AC_MSG_RESULT([yes])
+    guile_inst="yes"
+    guile_cflags=`guile-config compile`
+    guile_ldflags=`guile-config link`
+else
+    AC_MSG_RESULT([no])
+    guile_inst="no"
+fi
+
+AC_ARG_WITH(guile,
+    [  --with-guile=DIR        Guile installation in DIR],
+    guile_dir=$withval,
+    guile_dir="no")
+
+GUILEDIR=""
+AC_SUBST(GUILEDIR)
+
+dnl ----------------------------------------------------------------------
+
+dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
 

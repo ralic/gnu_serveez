@@ -1,3 +1,8 @@
+2001-02-18  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/util.c (util_inet_aton): This function is a
+	platform wrapper for internet address conversion.
+
 2001-02-06  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/Makefile.am (libserveez_la_SOURCES): Added

@@ -68,6 +68,8 @@ serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLEDEP) \
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLESTATIC) \
 	libserveez/libserveez.la
 
+serveez_LDFLAGS = -L$(GUILEDIR)/lib
+
 mkpassword_SOURCES = mkpassword.c
 
 MAINTAINERCLEANFILES = Makefile.in

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.2 2001/01/31 19:28:31 ela Exp $
+ * $Id: server.h,v 1.3 2001/02/18 22:27:28 ela Exp $
  *
  */
 
@@ -34,6 +34,19 @@
 #define PROTO_PIPE  0x00000004 /* pipe - unidirectional, reliable */
 #define PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
 #define PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
+
+/* Port configuration items. */
+#define PORTCFG_PORT    "port"
+#define PORTCFG_PROTO   "proto"
+#define PORTCFG_INPIPE  "inpipe"
+#define PORTCFG_OUTPIPE "outpipe"
+#define PORTCFG_TCP     "tcp"
+#define PORTCFG_UDP     "udp"
+#define PORTCFG_ICMP    "icmp"
+#define PORTCFG_RAW     "raw"
+#define PORTCFG_PIPE    "pipe"
+#define PORTCFG_IP      "ipaddr"
+#define PORTCFG_NOIP    "*"
 
 /*
  * Each server can have a an array of name-value-pairs specific for it.

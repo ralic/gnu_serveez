@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: util.c,v 1.3 2001/02/18 22:27:28 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez/snprintf.h"
@@ -658,6 +658,33 @@ util_inet_ntoa (unsigned long ip)
   return addr;
 
 #endif /* BROKEN_INET_NTOA */
+}
+
+/*
+ * Converts the Internet host address @var{str} from the standard 
+ * numbers-and-dots notation into binary data and stores it in the 
+ * structure that @var{addr} points to. @code{util_inet_aton()} returns 
+ * zero if the address is valid, nonzero if not.
+ */
+int
+util_inet_aton (char *str, struct sockaddr_in *addr)
+{
+#if HAVE_INET_ATON
+  if (inet_aton (str, &addr->sin_addr) == 0)
+    {
+      return -1;
+    }
+#elif defined (__MINGW32__)
+  int len = sizeof (struct sockaddr_in);
+  if (WSAStringToAddress (str, AF_INET, NULL, 
+                          (struct sockaddr *) addr, &len) != 0)
+    {
+      return -1;
+    }
+#else /* not HAVE_INET_ATON and not __MINGW32__ */
+  addr->sin_addr.s_addr = inet_addr (str);
+#endif /* not HAVE_INET_ATON */
+  return 0;
 }
 
 /*

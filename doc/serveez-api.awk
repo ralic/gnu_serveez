@@ -134,6 +134,8 @@
     }
 
     # finally the texinfo function definition and documentation
+#    gsub(/\[/, "@[", c_args)
+#    gsub(/\]/, "@]", c_args)
     funcdef = ("@var{" ret "} " c_func " (" c_args ")")
     gsub(/\n/, "\\\n", doc)
     replace = ("@deftypefun " funcdef "\\\n" doc "\\\n" "@end deftypefun")
