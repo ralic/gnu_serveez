@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.3 2001/02/02 11:26:23 ela Exp $
+ * $Id: alloc.c,v 1.4 2001/02/05 09:10:38 ela Exp $
  *
  */
 
@@ -42,8 +42,8 @@
 #endif /* DEBUG_MEMORY_LEAKS */
 
 #if ENABLE_DEBUG
-unsigned svz_allocated_bytes = 0;
-unsigned svz_allocated_blocks = 0;
+size_t svz_allocated_bytes = 0;
+size_t svz_allocated_blocks = 0;
 #endif /* ENABLE_DEBUG */
 
 /* initialize the global allocator functions */
@@ -83,7 +83,7 @@ heap_hash_code (char *id)
 typedef struct
 {
   void *ptr;     /* memory pointer */
-  unsigned size; /* memory block's size */
+  size_t size; /* memory block's size */
   void *caller;  /* the caller */
 }
 heap_block_t;
@@ -125,11 +125,11 @@ heap_add (heap_block_t *block)
  * Allocate SIZE bytes of memory and return a pointer to it.
  */
 void * 
-svz_malloc (unsigned size)
+svz_malloc (size_t size)
 {
   void *ptr;
 #if ENABLE_DEBUG
-  unsigned *up;
+  size_t *up;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
@@ -143,7 +143,7 @@ svz_malloc (unsigned size)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
-      up = (unsigned *) ptr;
+      up = (size_t *) ptr;
       *up = size;
       up += 2;
       ptr = (void *) up;
@@ -179,11 +179,11 @@ svz_malloc (unsigned size)
  * by `svz_malloc ()' or NULL.
  */
 void *
-svz_realloc (void *ptr, unsigned size)
+svz_realloc (void *ptr, size_t size)
 {
 #if ENABLE_DEBUG
-  unsigned old_size;
-  unsigned *up;
+  size_t old_size;
+  size_t *up;
 #endif /* ENABLE_DEBUG */
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
@@ -208,7 +208,7 @@ svz_realloc (void *ptr, unsigned size)
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get previous blocksize */
-      up = (unsigned *) ptr;
+      up = (size_t *) ptr;
       up -= 2;
       old_size = *up;
       ptr = (void *) up;
@@ -219,7 +219,7 @@ svz_realloc (void *ptr, unsigned size)
 	{
 #if ENABLE_HEAP_COUNT
 	  /* save block size */
-	  up = (unsigned *) ptr;
+	  up = (size_t *) ptr;
 	  *up = size;
 	  up += 2;
 	  ptr = (void *) up;
@@ -264,8 +264,8 @@ svz_free (void *ptr)
 {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-  unsigned size;
-  unsigned *up;
+  size_t size;
+  size_t *up;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
@@ -279,7 +279,7 @@ svz_free (void *ptr)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-      up = (unsigned *) ptr;
+      up = (size_t *) ptr;
 
 #if DEBUG_MEMORY_LEAKS
       if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
@@ -316,13 +316,13 @@ svz_heap (void)
 {
   heap_block_t **block;
   unsigned n;
-  unsigned *up;
+  size_t *up;
 
   if ((block = (heap_block_t **) hash_values (heap)) != NULL)
     {
       for (n = 0; n < (unsigned) hash_size (heap); n++)
 	{
-	  up = (unsigned *) block[n]->ptr;
+	  up = (size_t *) block[n]->ptr;
 	  up -= 2;
 	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
 		   block[n]->caller, block[n]->ptr, block[n]->size);
@@ -363,7 +363,7 @@ svz_strdup (char *src)
  * Internal permanent memory allocators.
  */
 void *
-svz_pmalloc (unsigned size)
+svz_pmalloc (size_t size)
 {
   void *ptr = svz_malloc_func (size);
   if (ptr == NULL) 
@@ -375,7 +375,7 @@ svz_pmalloc (unsigned size)
 }
 
 void *
-svz_prealloc (void *ptr, unsigned size)
+svz_prealloc (void *ptr, size_t size)
 {
   void *dst = svz_realloc_func (ptr, size);
   if (dst == NULL) 
