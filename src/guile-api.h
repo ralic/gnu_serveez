@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.1 2001/11/19 13:31:49 ela Exp $
+ * $Id: guile-api.h,v 1.2 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -53,32 +53,47 @@
 #ifndef SCM_PAIRP
 #define SCM_PAIRP(obj) SCM_NFALSEP (scm_pair_p (obj))
 #endif
+#ifndef SCM_LISTP
+#define SCM_LISTP(obj) SCM_NFALSEP (scm_list_p (obj))
+#endif
+#ifndef SCM_BOOLP
+#define SCM_BOOLP(obj) SCM_NFALSEP (scm_boolean_p (obj))
+#endif
+#ifndef SCM_BOOL
+#define SCM_BOOL(x) ((x) ? SCM_BOOL_T : SCM_BOOL_F)
+#endif
+#ifndef SCM_EQ_P
+#define SCM_EQ_P(x, y) SCM_NFALSEP (scm_eq_p (x, y))
+#endif
+#ifndef SCM_CHARP
+#define SCM_CHARP(obj) SCM_NFALSEP (scm_char_p (obj))
+#endif
+#ifndef SCM_CHAR
+#define SCM_CHAR(x) SCM_ICHR (x)
+#endif
+#ifndef SCM_MAKE_CHAR
+#define SCM_MAKE_CHAR(x) SCM_MAKICHR (x)
+#endif
 #ifndef scm_num2int
-#define SCM_C_NUM2INT(pos, obj) gh_scm2int (obj)
-#else
-#define SCM_C_NUM2INT(pos, obj) scm_num2int (obj, pos, FUNC_NAME)
+#define SCM_NUM2INT(pos, obj) gh_scm2int (obj)
 #endif
-#ifndef scm_num2ulong
-#define SCM_C_NUM2ULONG(pos, obj) gh_scm2ulong (obj)
-#else
-#define SCM_C_NUM2ULONG(pos, obj) scm_num2ulong (obj, pos, FUNC_NAME)
+#ifndef SCM_NUM2LONG
+#define SCM_NUM2LONG(pos, obj) scm_num2long (obj, (char *) pos, FUNC_NAME)
 #endif
-#ifndef scm_num2long
-#define SCM_C_NUM2LONG(pos, obj) gh_scm2long (obj)
-#else
-#define SCM_C_NUM2LONG(pos, obj) scm_num2long (obj, pos, FUNC_NAME)
+#ifndef SCM_NUM2ULONG
+#define SCM_NUM2ULONG(pos, obj) scm_num2ulong (obj, (char *) pos, FUNC_NAME)
 #endif
 #ifndef scm_int2num
 #define scm_int2num(x) scm_long2num ((long) (x))
-#endif
-#ifndef SCM_LISTP
-#define SCM_LISTP(obj) SCM_NFALSEP (scm_list_p (obj))
 #endif
 #ifndef scm_mem2string
 #define scm_mem2string(str, len) gh_str2scm (str, len)
 #endif
 #ifndef scm_c_define
 #define scm_c_define(name, val) gh_define (name, val)
+#endif
+#ifndef scm_c_free
+#define scm_c_free(p) scm_must_free (p)
 #endif
 #ifndef scm_c_define_gsubr
 #define scm_c_define_gsubr(name, req, opt, rst, fcn) \
@@ -88,5 +103,18 @@
 #define scm_c_primitive_load(file) \
     scm_primitive_load (scm_makfrom0str (file))
 #endif
+#ifndef scm_current_module_lookup_closure
+#define guile_lookup(var, name) (var) = gh_lookup (name)
+#else
+#define guile_lookup(var, name) do {                                        \
+    (var) = scm_sym2var (scm_str2symbol (name),                             \
+	  	         scm_current_module_lookup_closure (), SCM_BOOL_F); \
+    if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED; } while (0)
+#endif
+
+/* Return an integer. If the given Guile cell @var{obj} is not such an 
+   integer the routine return the default value @var{def}. */
+#define guile_integer(pos, obj, def) \
+    ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
 
 #endif /* not __GUILE_API_H__ */

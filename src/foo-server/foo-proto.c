@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.32 2001/06/27 20:38:36 ela Exp $
+ * $Id: foo-proto.c,v 1.33 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -243,8 +243,6 @@ foo_global_finalize (svz_servertype_t *server)
 int
 foo_finalize (svz_server_t *server)
 {
-  foo_config_t *c = server->cfg;
-
   svz_log (LOG_NOTICE, "destroying %s\n", server->name);
   return 0;
 }
@@ -255,8 +253,6 @@ foo_finalize (svz_server_t *server)
 int
 foo_init (svz_server_t *server)
 {
-  foo_config_t *c = server->cfg;
-
   return 0;
 }
 

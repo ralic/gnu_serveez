@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.8 2001/10/19 11:58:51 ela Exp $
+ * $Id: passthrough.c,v 1.9 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -761,8 +761,8 @@ svz_envp_t
 svz_envblock_get (svz_envblock_t *env)
 {
   char *dir;
-  int len = 32;
 #ifdef __MINGW32__
+  int len = 32;
   svz_envp_t block = NULL;
   int n, size;
 #endif

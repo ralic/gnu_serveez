@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.8 2001/11/19 13:31:49 ela Exp $
+ * $Id: guile-api.c,v 1.9 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -40,7 +40,7 @@
 
 /* Validate network port range. */
 #define VALIDATE_NETPORT(port, cell, arg) do {       \
-  (port) = SCM_C_NUM2LONG (arg, cell);               \
+  (port) = SCM_NUM2LONG (arg, cell);                 \
   if ((port) < 0 || (port) >= 65536)                 \
     scm_out_of_range_pos (FUNC_NAME, (cell), (arg)); \
   } while (0)
@@ -73,7 +73,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 
   /* Extract host to connect to. */
   if (SCM_EXACTP (host))
-    xhost = htonl ((unsigned long) SCM_C_NUM2INT (SCM_ARG1, host));
+    xhost = htonl ((unsigned long) SCM_NUM2INT (SCM_ARG1, host));
   else
     {
       str = guile_to_string (host);
@@ -81,15 +81,15 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 	{
 	  guile_error ("%s: IP address in dotted decimals expected", 
 		       FUNC_NAME);
-	  scm_must_free (str);
+	  scm_c_free (str);
 	  return ret;
 	}
-      scm_must_free (str);
+      scm_c_free (str);
       xhost = addr.sin_addr.s_addr;
     }
 
   /* Extract protocol to use. */
-  xproto = SCM_C_NUM2INT (SCM_ARG2, proto);
+  xproto = SCM_NUM2INT (SCM_ARG2, proto);
 
   /* Find out about given port. */
   if (!SCM_UNBNDP (port))
@@ -135,7 +135,7 @@ guile_svz_inet_ntoa (SCM address)
   char *str;
   SCM_ASSERT_TYPE (SCM_EXACTP (address),
 		   address, SCM_ARG1, FUNC_NAME, "exact");
-  str = svz_inet_ntoa (SCM_C_NUM2ULONG (SCM_ARG1, address));
+  str = svz_inet_ntoa (SCM_NUM2ULONG (SCM_ARG1, address));
   return scm_makfrom0str (str);
 }
 #undef FUNC_NAME
@@ -157,10 +157,10 @@ guile_svz_inet_aton (SCM address)
   if (svz_inet_aton (str, &addr) == -1)
     {
       guile_error ("%s: IP address in dotted decimals expected", FUNC_NAME);
-      scm_must_free (str);
+      scm_c_free (str);
       return SCM_BOOL_F;
     }
-  scm_must_free (str);
+  scm_c_free (str);
   return scm_ulong2num (addr.sin_addr.s_addr);
 }
 #undef FUNC_NAME
@@ -173,7 +173,7 @@ guile_svz_ntohl (SCM netlong)
 {
   SCM_ASSERT_TYPE (SCM_EXACTP (netlong),
 		   netlong, SCM_ARG1, FUNC_NAME, "exact");
-  return scm_ulong2num (ntohl (SCM_C_NUM2ULONG (SCM_ARG1, netlong)));
+  return scm_ulong2num (ntohl (SCM_NUM2ULONG (SCM_ARG1, netlong)));
 }
 #undef FUNC_NAME
 
@@ -185,7 +185,7 @@ guile_svz_htonl (SCM hostlong)
 {
   SCM_ASSERT_TYPE (SCM_EXACTP (hostlong),
 		   hostlong, SCM_ARG1, FUNC_NAME, "exact");
-  return scm_ulong2num (htonl (SCM_C_NUM2ULONG (SCM_ARG1, hostlong)));
+  return scm_ulong2num (htonl (SCM_NUM2ULONG (SCM_ARG1, hostlong)));
 }
 #undef FUNC_NAME
 
@@ -246,7 +246,7 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (length), 
 		       length, SCM_ARG2, FUNC_NAME, "exact");
-      len = SCM_C_NUM2INT (SCM_ARG2, length);
+      len = SCM_NUM2INT (SCM_ARG2, length);
       if (len < 0 || len > xsock->recv_buffer_fill)
 	scm_out_of_range_pos (FUNC_NAME, length, SCM_ARG2);
     }
@@ -280,7 +280,7 @@ guile_sock_remote_address (SCM sock, SCM address)
 		       && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2, 
 		       FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
-      xsock->remote_addr = SCM_C_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
+      xsock->remote_addr = SCM_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
       xsock->remote_port = (unsigned short) port;
     }
   return pair;
@@ -308,7 +308,7 @@ guile_sock_local_address (SCM sock, SCM address)
 		       && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2, 
 		       FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
-      xsock->local_addr = SCM_C_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
+      xsock->local_addr = SCM_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
       xsock->local_port = (unsigned short) port;
     }
   return pair;
@@ -421,7 +421,7 @@ guile_sock_no_delay (SCM sock, SCM enable)
 	  SCM_ASSERT_TYPE (SCM_BOOLP (enable) || SCM_EXACTP (enable), 
 			   enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
 	  if ((SCM_BOOLP (enable) && SCM_NFALSEP (enable) != 0) ||
-	      (SCM_EXACTP (enable) && SCM_C_NUM2INT (SCM_ARG2, enable) != 0))
+	      (SCM_EXACTP (enable) && SCM_NUM2INT (SCM_ARG2, enable) != 0))
 	    set = 1;
 	}
       if (svz_tcp_nodelay (xsock->sock_desc, set, &old) < 0)

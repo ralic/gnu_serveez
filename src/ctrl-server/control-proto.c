@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.58 2001/10/27 14:12:16 ela Exp $
+ * $Id: control-proto.c,v 1.59 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -115,8 +115,6 @@ cpu_state_t cpu_state;
 int
 ctrl_init (svz_server_t *server)
 {
-  ctrl_config_t *cfg = server->cfg;
-
   return 0;
 }
 
@@ -136,7 +134,6 @@ char *
 ctrl_info_server (svz_server_t *server)
 {
   static char info[128];
-  ctrl_config_t *cfg = server->cfg;
 
   sprintf (info, " nothing to be configured, yet");
   return info;

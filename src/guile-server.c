@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.34 2001/11/19 13:31:50 ela Exp $
+ * $Id: guile-server.c,v 1.35 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -199,7 +199,7 @@ optionhash_extract_proc (svz_hash_t *hash,
     }
   else if ((str = guile_to_string (hvalue)) != NULL)
     {
-      proc = gh_lookup (str);
+      guile_lookup (proc, str);
       if (!SCM_UNBNDP (proc) && SCM_PROCEDUREP (proc))
 	*target = proc;
       else
@@ -207,7 +207,7 @@ optionhash_extract_proc (svz_hash_t *hash,
 	  guile_error ("No such procedure `%s' for `%s' %s", str, key, txt);
 	  err = 1;
 	}
-      scm_must_free (str);
+      scm_c_free (str);
     }
   else
     {
@@ -310,18 +310,6 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 }
 
 /*
- * Return an integer. If the given guile cell @var{value} is not such an 
- * integer the routine return the default value @var{def}.
- */
-static int
-guile_integer (SCM value, int def)
-{
-  if (SCM_EXACTP (value))
-    return SCM_C_NUM2INT (SCM_ARG1, value);
-  return def;
-}
-
-/*
  * This procedure can be used to schedule Serveez for shutdown within Guile.
  * Serveez will shutdown all network connections and terminate after the next
  * event loop. You should use this instead of issuing @code{(quit)}.
@@ -391,7 +379,7 @@ guile_call_handler (SCM data, SCM tag, SCM args)
   scm_puts (str, scm_current_error_port ());
   scm_puts ("'\n", scm_current_error_port ());
   scm_puts ("guile-error: ", scm_current_error_port ());
-  scm_must_free (str);
+  scm_c_free (str);
 
   /* on quit/exit */
   if (SCM_NULLP (args))
@@ -401,7 +389,7 @@ guile_call_handler (SCM data, SCM tag, SCM args)
       return SCM_BOOL_F;
     }
 
-  if (!SCM_EQ_P (SCM_CAR (args), SCM_BOOL_F))
+  if (!SCM_FALSEP (SCM_CAR (args)))
     {
       scm_display (SCM_CAR (args), scm_current_error_port ());
       scm_puts (": ", scm_current_error_port ());
@@ -469,7 +457,7 @@ guile_func_global_init (svz_servertype_t *stype)
   if (!SCM_UNBNDP (global_init))
     {
       ret = guile_call (global_init, 1, MAKE_SMOB (svz_servertype, stype));
-      return guile_integer (ret, -1);
+      return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
 }
@@ -485,7 +473,7 @@ guile_func_init (svz_server_t *server)
   if (!SCM_UNBNDP (init))
     {
       ret = guile_call (init, 1, MAKE_SMOB (svz_server, server));
-      return guile_integer (ret, -1);
+      return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
 }
@@ -502,7 +490,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
     {
       ret = guile_call (detect_proto, 2, MAKE_SMOB (svz_server, server), 
 			MAKE_SMOB (svz_socket, sock));
-      return guile_integer (ret, 0);
+      return guile_integer (SCM_ARGn, ret, 0);
     }
   return 0;
 }
@@ -526,7 +514,7 @@ guile_sock_clear_boundary (svz_socket_t *sock)
 {
   if (sock->boundary)
     {
-      scm_must_free (sock->boundary);
+      scm_c_free (sock->boundary);
       sock->boundary = NULL;
     }
   sock->boundary_size = 0;
@@ -546,7 +534,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
   if (!SCM_UNBNDP (disconnected))
     {
       ret = guile_call (disconnected, 1, MAKE_SMOB (svz_socket, sock));
-      retval = guile_integer (ret, -1);
+      retval = guile_integer (SCM_ARGn, ret, -1);
     }
 
   /* Delete all the associated guile callbacks and unprotect these. */
@@ -578,7 +566,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
     {
       ret = guile_call (connect_socket, 2, MAKE_SMOB (svz_server, server), 
 			MAKE_SMOB (svz_socket, sock));
-      return guile_integer (ret, 0);
+      return guile_integer (SCM_ARGn, ret, 0);
     }
   return 0;
 }
@@ -596,7 +584,7 @@ guile_func_finalize (svz_server_t *server)
   if (!SCM_UNBNDP (finalize))
     {
       ret = guile_call (finalize, 1, MAKE_SMOB (svz_server, server));
-      retval = guile_integer (ret, -1);
+      retval = guile_integer (SCM_ARGn, ret, -1);
     }
 
   /* Release associated guile server state objects is necessary. */
@@ -621,7 +609,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
   if (!SCM_UNBNDP (global_finalize))
     {
       ret = guile_call (global_finalize, 1, MAKE_SMOB (svz_servertype, stype));
-      return guile_integer (ret, -1);
+      return guile_integer (SCM_ARGn, ret, -1);
     }
   return 0;
 }
@@ -648,7 +636,7 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 	{
 	  memset (text, 0, sizeof (text));
 	  memcpy (text, str, GUILE_MIN (strlen (str) + 1, sizeof (text) - 1));
-	  scm_must_free (str);
+	  scm_c_free (str);
 	  return text;
 	}
     }
@@ -672,7 +660,7 @@ guile_func_info_server (svz_server_t *server)
 	{
 	  memset (text, 0, sizeof (text));
 	  memcpy (text, str, GUILE_MIN (strlen (str) + 1, sizeof (text) - 1));
-	  scm_must_free (str);
+	  scm_c_free (str);
 	  return text;
 	}
     }
@@ -689,7 +677,7 @@ guile_func_notify (svz_server_t *server)
   if (!SCM_UNBNDP (notify))
     {
       ret = guile_call (notify, 1, MAKE_SMOB (svz_server, server));
-      return guile_integer (ret, -1);
+      return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
 }
@@ -704,7 +692,7 @@ guile_func_check_request (svz_socket_t *sock)
   if (!SCM_UNBNDP (check_request))
     {
       ret = guile_call (check_request, 1, MAKE_SMOB (svz_socket, sock));
-      return guile_integer (ret, -1);
+      return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
 }
@@ -730,7 +718,7 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
     {
       ret = guile_call (handle_request, 3, MAKE_SMOB (svz_socket, sock), 
 			guile_data_to_bin (request, len), scm_int2num (len));
-      return guile_integer (ret, -1);
+      return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
 }
@@ -771,14 +759,14 @@ guile_sock_boundary (SCM sock, SCM boundary)
   if (SCM_EXACTP (boundary))
     {
       xsock->boundary = NULL;
-      xsock->boundary_size = SCM_C_NUM2INT (SCM_ARG2, boundary);
+      xsock->boundary_size = SCM_NUM2INT (SCM_ARG2, boundary);
     }
   /* Handle packet delimiters. */
   else
     {
       xsock->boundary = gh_scm2chars (boundary, NULL);
-      xsock->boundary_size = SCM_C_NUM2INT (SCM_ARG2, 
-					    scm_string_length (boundary));
+      xsock->boundary_size = SCM_NUM2INT (SCM_ARG2, 
+					  scm_string_length (boundary));
     }
 
   /* Only assign this callback for connection oriented protocols. */
@@ -806,7 +794,7 @@ guile_sock_floodprotect (SCM sock, SCM flag)
       SCM_ASSERT_TYPE (SCM_BOOLP (flag) || SCM_EXACTP (flag), 
 		       flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
       if ((SCM_BOOLP (flag) && SCM_NFALSEP (flag) != 0) ||
-	  (SCM_EXACTP (flag) && SCM_C_NUM2INT (SCM_ARG2, flag) != 0))
+	  (SCM_EXACTP (flag) && SCM_NUM2INT (SCM_ARG2, flag) != 0))
 	xsock->flags &= ~SOCK_FLAG_NOFLOOD;
       else
 	xsock->flags |= SOCK_FLAG_NOFLOOD;
@@ -833,7 +821,7 @@ guile_sock_print (SCM sock, SCM buffer)
   if (SCM_STRINGP (buffer))
     {
       buf = SCM_STRING_CHARS (buffer);
-      len = SCM_C_NUM2INT (SCM_ARG2, scm_string_length (buffer));
+      len = SCM_NUM2INT (SCM_ARG2, scm_string_length (buffer));
     }
   else
     {
@@ -972,7 +960,7 @@ guile_server_config_ref (SCM server, SCM key)
 	  break;
 	}
     }
-  scm_must_free (str);
+  scm_c_free (str);
   return ret;
 }
 #undef FUNC_NAME
@@ -998,7 +986,7 @@ guile_server_state_ref (SCM server, SCM key)
   if ((hash = xserver->data) != NULL)
     if ((val = svz_hash_get (hash, str)) != NULL)
       ret = (SCM) SVZ_PTR2NUM (val);
-  scm_must_free (str);
+  scm_c_free (str);
   return ret;
 }
 #undef FUNC_NAME
@@ -1033,7 +1021,7 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
       scm_unprotect_object (ret);
     }
   scm_protect_object (value);
-  scm_must_free (str);
+  scm_c_free (str);
   return ret;
 }
 #undef FUNC_NAME
@@ -1233,7 +1221,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
 	{
 	  txt = svz_strdup (str);
 	  memcpy (address, &txt, len);
-	  scm_must_free (str);
+	  scm_c_free (str);
 	}
       break;
 
@@ -1265,12 +1253,12 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
 	{
 	  guile_error ("%s: No such port configuration: `%s'", 
 		       server->prefix, str);
-	  scm_must_free (str);
+	  scm_c_free (str);
 	  err = -1;
 	}
       else
 	{
-	  scm_must_free (str);
+	  scm_c_free (str);
 	  dup = svz_portcfg_dup (port);
 	  memcpy (address, &dup, len);
 	}
@@ -1299,6 +1287,7 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
  * Parse the configuration of the server type @var{server} stored in the
  * scheme cell @var{cfg}.
  */
+#define FUNC_NAME "guile_servertype_config"
 static int
 guile_servertype_config (svz_servertype_t *server, SCM cfg)
 {
@@ -1337,7 +1326,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 
       /* Each configuration item must be a scheme list with three elements. */
       if (!SCM_LISTP (list) || 
-	  SCM_C_NUM2ULONG (SCM_ARG1, scm_length (list)) != 3)
+	  SCM_NUM2ULONG (SCM_ARG1, scm_length (list)) != 3)
 	{
 	  guile_error ("Invalid definition for `%s' %s", key[n], txt);
 	  err = -1;
@@ -1358,7 +1347,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
       else
 	{
 	  len = guile_servertype_config_type (str, &item, &size);
-	  scm_must_free (str);
+	  scm_c_free (str);
 	  if (len == 0)
 	    {
 	      guile_error ("Invalid type for `%s' %s", key[n], txt);
@@ -1428,6 +1417,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
   svz_free (txt);
   return err;
 }
+#undef FUNC_NAME
 
 /*
  * Guile server definition: This procedure takes one argument containing

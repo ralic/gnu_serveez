@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.12 2001/11/19 13:31:49 ela Exp $
+ * $Id: guile-bin.c,v 1.13 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -145,7 +145,7 @@ guile_string_to_bin (SCM string)
 		   SCM_ARG1, FUNC_NAME, "string");
 
   bin = MAKE_BIN_SMOB ();
-  bin->size = SCM_C_NUM2INT (SCM_ARG1, scm_string_length (string));
+  bin->size = SCM_NUM2INT (SCM_ARG1, scm_string_length (string));
   bin->data = (unsigned char *) scm_must_malloc (bin->size, "svz-binary-data");
   memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
   bin->garbage = 1;
@@ -193,8 +193,8 @@ guile_bin_search (SCM binary, SCM needle)
 
       if (CHECK_BIN_SMOB (needle))
 	search = GET_BIN_SMOB (needle);
-      len = search ? search->size : SCM_C_NUM2INT (SCM_ARG2, 
-						   scm_string_length (needle));
+      len = search ? search->size : SCM_NUM2INT (SCM_ARG2, 
+						 scm_string_length (needle));
       p = search ? search->data : SCM_STRING_UCHARS (needle);
       start = bin->data;
       end = start + bin->size - len;
@@ -217,7 +217,7 @@ guile_bin_search (SCM binary, SCM needle)
       unsigned char *p, *end;
 
       c = SCM_CHARP (needle) ? 
-	SCM_CHAR (needle) : SCM_C_NUM2INT (SCM_ARG2, needle);
+	SCM_CHAR (needle) : SCM_NUM2INT (SCM_ARG2, needle);
       p = bin->data;
       end = p + bin->size;
 
@@ -251,7 +251,7 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
 		   value, SCM_ARG3, FUNC_NAME, "char or exact");
 
   /* Check the range of the index argument. */
-  idx = SCM_C_NUM2INT (SCM_ARG2, index);
+  idx = SCM_NUM2INT (SCM_ARG2, index);
   if (idx < 0 || idx >= bin->size)
     scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);
 
@@ -273,7 +273,7 @@ guile_bin_ref (SCM binary, SCM index)
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact");
 
   /* Check the range of the index argument. */
-  idx = SCM_C_NUM2INT (SCM_ARG2, index);
+  idx = SCM_NUM2INT (SCM_ARG2, index);
   if (idx < 0 || idx >= bin->size)
     scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);
 
@@ -312,7 +312,7 @@ guile_bin_concat_x (SCM binary, SCM append)
   if (CHECK_BIN_SMOB (append))
     concat = GET_BIN_SMOB (append);
   len = concat ? 
-    concat->size : SCM_C_NUM2INT (SCM_ARG2, scm_string_length (append));
+    concat->size : SCM_NUM2INT (SCM_ARG2, scm_string_length (append));
   p = concat ? concat->data : SCM_STRING_UCHARS (append);
 
   if (bin->garbage)
@@ -353,8 +353,8 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
   SCM_ASSERT_TYPE (SCM_EXACTP (end) || SCM_UNBNDP (end), 
 		   end, SCM_ARG3, FUNC_NAME, "exact");
 
-  from = SCM_C_NUM2INT (SCM_ARG2, start);
-  to = SCM_UNBNDP (end) ? -1 : SCM_C_NUM2INT (SCM_ARG3, end);
+  from = SCM_NUM2INT (SCM_ARG2, start);
+  to = SCM_UNBNDP (end) ? -1 : SCM_NUM2INT (SCM_ARG3, end);
   if (to == -1)
     to = bin->size - 1;
 
@@ -402,7 +402,7 @@ guile_list_to_bin (SCM list)
 
   SCM_ASSERT_TYPE (SCM_LISTP (list), list, SCM_ARG1, FUNC_NAME, "list");
   bin = MAKE_BIN_SMOB ();
-  bin->size = SCM_C_NUM2ULONG (SCM_ARG1, scm_length (list));
+  bin->size = SCM_NUM2ULONG (SCM_ARG1, scm_length (list));
 
   if (bin->size > 0)
     {
@@ -422,7 +422,7 @@ guile_list_to_bin (SCM list)
     {
       if (!SCM_EXACTP (SCM_CAR (list)))
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
-      value = SCM_C_NUM2INT (SCM_ARG1, SCM_CAR (list));
+      value = SCM_NUM2INT (SCM_ARG1, SCM_CAR (list));
       if (value < 0 || value > 255)
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
       *p++ = value;

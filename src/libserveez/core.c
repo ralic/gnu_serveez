@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.22 2001/11/12 10:27:19 ela Exp $
+ * $Id: core.c,v 1.23 2001/11/19 21:13:01 ela Exp $
  *
  */
 
@@ -238,7 +238,8 @@ svz_socket_type (SOCKET fd, int *type)
 
   if (type)
     {
-      if (getsockopt (fd, SOL_SOCKET, SO_TYPE, &optval, &optlen) < 0)
+      if (getsockopt (fd, SOL_SOCKET, SO_TYPE, 
+		      (void *) &optval, &optlen) < 0)
 	{
 	  svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
 	  return -1;
@@ -391,6 +392,11 @@ svz_tcp_cork (SOCKET fd, int set)
   return 0;
 }
 
+/* M$-Windows compatibility definition. */
+#ifndef SOL_TCP
+#define SOL_TCP IPPROTO_TCP
+#endif
+
 /*
  * Enable or disable the @code{TCP_NODELAY} setting for the given socket
  * descriptor @var{fd} depending on the flag @var{set}. In fact its turns 
@@ -409,7 +415,8 @@ svz_tcp_nodelay (SOCKET fd, int set, int *old)
   /* Get old setting if required. */
   if (old != NULL)
     {  
-      if (getsockopt (fd, SOL_TCP, TCP_NODELAY, &optval, &optlen) < 0)
+      if (getsockopt (fd, SOL_TCP, TCP_NODELAY, 
+		      (void *) &optval, &optlen) < 0)
 	{
 	  svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
 	  return -1;
@@ -419,7 +426,8 @@ svz_tcp_nodelay (SOCKET fd, int set, int *old)
 
   /* Set the setting. */
   optval = set ? 1 : 0;
-  if (setsockopt (fd, SOL_TCP, TCP_NODELAY, &optval, sizeof (optval)) < 0)
+  if (setsockopt (fd, SOL_TCP, TCP_NODELAY, 
+		  (void *) &optval, sizeof (optval)) < 0)
     {
       svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
       return -1;
