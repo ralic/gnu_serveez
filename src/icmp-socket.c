@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.19 2001/01/07 13:58:33 ela Exp $
+ * $Id: icmp-socket.c,v 1.20 2001/01/08 23:27:20 ela Exp $
  *
  */
 
@@ -342,9 +342,10 @@ icmp_read_socket (socket_t sock)
 	  sock->remote_addr = sender.sin_addr.s_addr;
 	}
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: recvfrom: %s (%u bytes)\n",
+      log_printf (LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
+		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
 		  util_inet_ntoa (sock->remote_addr), num_read);
-#endif
+#endif /* ENABLE_DEBUG */
 
       /* Check ICMP packet and put packet load only to receive buffer. */
       if ((trunc = 
@@ -374,7 +375,8 @@ icmp_read_socket (socket_t sock)
   /* Some error occurred. */
   else
     {
-      log_printf (LOG_ERROR, "icmp: recvfrom: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "icmp: recv%s: %s\n", 
+		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
       if (last_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
@@ -427,7 +429,8 @@ icmp_write_socket (socket_t sock)
   /* Some error occurred while sending. */
   if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "icmp: sendto: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "icmp: send%s: %s\n", 
+		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
         num_written = 0;
     }
@@ -445,10 +448,11 @@ icmp_write_socket (socket_t sock)
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "icmp: sendto: %s (%u bytes)\n",
+  log_printf (LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
+	      sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
               util_inet_ntoa (receiver.sin_addr.s_addr),
               do_write - (p - sock->send_buffer));
-#endif  
+#endif /* ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
 }

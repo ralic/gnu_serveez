@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.13 2000/11/12 01:48:54 ela Exp $
+ * $Id: udp-socket.c,v 1.14 2001/01/08 23:27:21 ela Exp $
  *
  */
 
@@ -106,17 +106,19 @@ udp_read_socket (socket_t sock)
 	  sock->remote_addr = sender.sin_addr.s_addr;
 	}
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "udp: recvfrom: %s:%u (%d bytes)\n",
+      log_printf (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
+		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
 		  util_inet_ntoa (sock->remote_addr),
 		  ntohs (sock->remote_port), num_read);
-#endif
+#endif /* ENABLE_DEBUG */
       if (sock->check_request)
         sock->check_request (sock);
     }
   /* Some error occurred. */
   else
     {
-      log_printf (LOG_ERROR, "udp: recvfrom: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "udp: recv%s: %s\n",
+		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
       if (last_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
@@ -170,7 +172,8 @@ udp_write_socket (socket_t sock)
   /* Some error occurred while sending. */
   if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "udp: sendto: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "udp: send%s: %s\n", 
+		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	num_written = 0;
     }
@@ -188,11 +191,12 @@ udp_write_socket (socket_t sock)
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "udp: sendto: %s:%u (%u bytes)\n",
+  log_printf (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
+	      sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", 
 	      util_inet_ntoa (receiver.sin_addr.s_addr),
 	      ntohs (receiver.sin_port),
 	      do_write - (p - sock->send_buffer));
-#endif  
+#endif /* ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
 }

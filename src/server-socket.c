@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.46 2001/01/07 13:58:33 ela Exp $
+ * $Id: server-socket.c,v 1.47 2001/01/08 23:27:20 ela Exp $
  *
  */
 
@@ -491,25 +491,6 @@ server_accept_pipe (socket_t server_sock)
   recv_pipe = server_sock->pipe_desc[READ];
   send_pipe = server_sock->pipe_desc[WRITE];
 
-#if 1
-  /*
-   * Initialize overlapped structures.
-   */
-  if (os_version >= WinNT4x)
-    {
-      if (!server_sock->overlap[READ])
-	{
-	  server_sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
-	  memset (server_sock->overlap[READ], 0, sizeof (OVERLAPPED));
-	}
-      if (!server_sock->overlap[WRITE])
-	{
-	  server_sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
-	  memset (server_sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
-	}
-    }
-#endif /* 1 */
-
   /*
    * Now try connecting to one of these pipes. This will fail until
    * a client has been connected.
@@ -558,14 +539,12 @@ server_accept_pipe (socket_t server_sock)
       return 0;
     }
 
-#if 1
-  /* Copy overlapped structures. */
+  /* Copy overlapped structures to client pipes. */
   if (os_version >= WinNT4x)
     {
       sock->overlap[READ] = server_sock->overlap[READ];
       sock->overlap[WRITE] = server_sock->overlap[WRITE];
     }
-#endif /* 1 */
 
 #else /* not __MINGW32__ */
 
@@ -590,6 +569,12 @@ server_accept_pipe (socket_t server_sock)
 
   server_sock->flags |= SOCK_FLAG_INITED;
   server_sock->referrer = sock;
+
+  /* Call the check_request() routine once for greedy protocols. */
+  if (sock->check_request)
+    if (sock->check_request (sock))
+      sock_schedule_for_shutdown (sock);
+
   return 0;
 #endif /* HAVE_MKFIFO or __MINGW32__ */
 }

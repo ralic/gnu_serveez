@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.32 2001/01/04 22:11:59 raimi Exp $
+ * $Id: socket.c,v 1.33 2001/01/08 23:27:21 ela Exp $
  *
  */
 
@@ -765,10 +765,16 @@ sock_write (socket_t sock, char * buf, int len)
 
       if (sock->send_buffer_fill >= sock->send_buffer_size)
 	{
-	  /* Queue is full, unlucky socket ... */
-	  log_printf (LOG_ERROR,
-		      "send buffer overflow on socket %d (id %d)\n",
-		      sock->sock_desc, sock->id);
+	  /* Queue is full, unlucky socket or pipe ... */
+	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
+	    log_printf (LOG_ERROR,
+			"send buffer overflow on pipe (%d-%d) (id %d)\n",
+			sock->pipe_desc[READ], sock->pipe_desc[WRITE],
+			sock->id);
+	  else
+	    log_printf (LOG_ERROR,
+			"send buffer overflow on socket %d (id %d)\n",
+			sock->sock_desc, sock->id);
 	
 	  if (sock->kicked_socket)
 	    sock->kicked_socket (sock, 1);

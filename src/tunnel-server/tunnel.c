@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.12 2001/01/07 13:58:33 ela Exp $
+ * $Id: tunnel.c,v 1.13 2001/01/08 23:27:21 ela Exp $
  *
  */
 
@@ -794,6 +794,7 @@ tnl_disconnect_source (socket_t sock)
 #endif /* ENABLE_DEBUG */
       sock_schedule_for_shutdown (xsock);
       xsock->data = NULL;
+      tnl_free_connect (sock);
     }
 
   return 0;

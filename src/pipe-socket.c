@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.21 2000/12/12 12:12:38 ela Exp $
+ * $Id: pipe-socket.c,v 1.22 2001/01/08 23:27:20 ela Exp $
  *
  */
 
@@ -88,6 +88,15 @@ pipe_disconnect (socket_t sock)
 	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
 	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
 	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+
+	  /* reinitialize the overlapped structure */
+	  if (os_version >= WinNT4x)
+	    {
+	      memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
+	      memset (sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
+	      sock->overlap[READ] = NULL;
+	      sock->overlap[WRITE] = NULL;
+	    }
 
 #else /* not __MINGW32__ */
 
@@ -677,28 +686,17 @@ pipe_listener (socket_t server_sock)
   server_sock->pipe_desc[WRITE] = send_pipe;
   server_sock->flags |= SOCK_FLAG_SEND_PIPE;
 
-#if 0
   /*
-   * Initialize overlapped structures.
+   * Initialize the overlapped structures for this server socket. Each
+   * client connected gets it passed.
    */
   if (os_version >= WinNT4x)
     {
-      if (!server_sock->overlap[READ])
-	{
-	  server_sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
-	  memset (server_sock->overlap[READ], 0, sizeof (OVERLAPPED));
-	  server_sock->overlap[READ]->hEvent = 
-	    CreateEvent (NULL, TRUE, TRUE, NULL);
-	}
-      if (!server_sock->overlap[WRITE])
-	{
-	  server_sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
-	  memset (server_sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
-	  server_sock->overlap[WRITE]->hEvent = 
-	    CreateEvent (NULL, TRUE, TRUE, NULL);
-	}
+      server_sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
+      memset (server_sock->overlap[READ], 0, sizeof (OVERLAPPED));
+      server_sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
+      memset (server_sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
     }
-#endif /* 0 */
 
 #else /* not __MINGW32__ */
 
