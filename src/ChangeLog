@@ -1,3 +1,33 @@
+2000-09-03  [ Ela ]  <ela@lkcc.org>
+
+	* util.c (util_inet_ntoa): Using old function instead
+	of `inet_ntoa' to get an ip address text respresentation.
+
+	* interface.c (list_local_interfaces): The `inet_ntoa'
+	network library functions seems to be broken on some systems.
+	Thus we leave it out.
+
+	* nut-server/gnutella.h: Gave up one byte memory alignment
+	for the binary gnutella packets and wrote some functions
+	which convert them to appropiate structures.
+
+	* nut-server/Makefile.am (libnut_a_SOURCES): Added the
+	file `nut-core.c' and `nut-core.h' to the gnutella source
+	tree.
+
+	* nut-server/nut-core.c (nut_get_header): Moved some
+	gnutella core functions to this file.
+
+	* nut-server/gnutella.h (__BSWAP_32): Added lots of conversion
+	macros for dealing with little endian data in gnutella packets.
+
+	* nut-server/gnutella.c (nut_server_timer): Removing old
+	entries from the query hash.
+
+	* nut-server/nut-route.c (nut_canonize_query): This 
+	function should save the gnutella network from unpatient 
+	users.
+
 2000-09-02  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_host_catcher): Canonizing ip

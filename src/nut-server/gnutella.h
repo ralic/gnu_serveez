@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.8 2000/09/02 19:33:01 ela Exp $
+ * $Id: gnutella.h,v 1.9 2000/09/03 21:28:05 ela Exp $
  *
  */
 
@@ -65,7 +65,7 @@
 #define NUT_FLAG_HOSTS  0x0004
 #define NUT_FLAG_CLIENT 0x0008
 
-/* id:
+/* guid:
  * The header contains a Microsoft GUID (Globally Unique Identifier for 
  * you nonWinblows people) which is the message identifer. My crystal ball 
  * reports that "the GUIDs only have to be unique on the client", which 
@@ -76,8 +76,11 @@
  * response and send it on it's way.
  */
 
-/* that is for byte align */
-#pragma pack(1)
+/*
+ * The Gnutella packets are all in little endian byte order except
+ * ip adresses which are in network byte order (big endian). So they
+ * need to be converted to host byte order if necessary.
+ */
 
 /* gnutella header */
 typedef struct
@@ -89,6 +92,7 @@ typedef struct
   unsigned int length;    /* data length */
 }
 nut_header_t;
+#define SIZEOF_NUT_HEADER (NUT_GUID_SIZE + 7)
 
 /* ping response structure */
 typedef struct
@@ -99,14 +103,16 @@ typedef struct
   unsigned int size;   /* total size of files shared by the host, in KB */
 }
 nut_ping_reply_t;
+#define SIZEOF_NUT_PING_REPLY (14)
 
 /* search query header */
 typedef struct
 {
   unsigned short speed; /* minimum speed (in kbps) */
-  char *search;         /* search request (NULL terminated) */
+  char search[1];       /* search request (NULL terminated) */
 }
 nut_query_t;
+#define SIZEOF_NUT_QUERY (2)
 
 /* search record structure */
 typedef struct
@@ -116,6 +122,7 @@ typedef struct
   char file[1];       /* file name (double-NULL terminated) */
 }
 nut_record_t;
+#define SIZEOF_NUT_RECORD (8)
 
 /* search reply header */
 typedef struct
@@ -129,6 +136,7 @@ typedef struct
   byte id[NUT_GUID_SIZE]; /* clientID128 of the host */
 }
 nut_reply_t;
+#define SIZEOF_NUT_REPLY (11)
 
 /* client push request structure */
 typedef struct
@@ -139,9 +147,7 @@ typedef struct
   unsigned short port;    /* port number of the host requesting the push */
 }
 nut_push_t;
-
-/* that is for default align */
-#pragma pack()
+#define SIZEOF_NUT_PUSH (26)
 
 /* gnutella host structure */
 typedef struct
@@ -199,6 +205,7 @@ typedef struct
   int connections;          /* number of connections to keep up */
   char *force_ip;           /* force the local ip to this value */
   unsigned long ip;         /* calculated from `force_ip' */
+  hash_t *query;            /* recent query hash */
 }
 nut_config_t;
 
@@ -228,19 +235,31 @@ extern server_definition_t nut_server_definition;
  * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)
  * values. BTW: Network byte order is big endian.
  */
-#define little2net(x) ((unsigned short) \
-                      (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
-#define net2little(x) ((unsigned short) \
-                      (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
 
-#if WORDS_BIGENDIAN
-# define little2host(x) ((unsigned short) \
-                        (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
-# define host2little(x) ((unsigned short) \
-                        (((x >> 8) & 0x00ff) | ((x << 8) & 0xff00)))
+#define SIZEOF_UINT16 2
+#define SIZEOF_UINT32 4
+
+#define __BSWAP_32(x) ((unsigned long) \
+  ((((x) & 0xff000000) >> 24) | (((x) & 0x000000ff) << 24) | \
+   (((x) & 0x0000ff00) << 8)  | (((x) & 0x00ff0000) >> 8)))
+#define __BSWAP_16(x) ((unsigned short) \
+  ((((x) >> 8) & 0x00ff) | (((x) << 8) & 0xff00)))
+
+#define ltons(x) __BSWAP_16(x)
+#define ntols(x) __BSWAP_16(x)
+#define ltonl(x) __BSWAP_32(x)
+#define ntoll(x) __BSWAP_32(x)
+
+#if WORDS_BIGENDIAN /* big endian */
+# define ltohs(x) __BSWAP_16(x)
+# define htols(x) __BSWAP_16(x)
+# define ltohl(x) __BSWAP_32(x)
+# define htoll(x) __BSWAP_32(x)
 #else /* little endian */
-# define little2host(x) (x)
-# define host2little(x) (x)
+# define ltohs(x) (x)
+# define htols(x) (x)
+# define ltohl(x) (x)
+# define htoll(x) (x)
 #endif
 
 #endif /* __GNUTELLA_H__ */

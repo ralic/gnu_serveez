@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.9 2000/08/02 09:45:14 ela Exp $
+ * $Id: interface.c,v 1.10 2000/09/03 21:28:04 ela Exp $
  *
  */
 
@@ -507,8 +507,8 @@ list_local_interfaces (void)
 	   * end... phew
 	   */
 	  printf ("%40s: %s\n", ifr->ifr_name,
-		  inet_ntoa ((*(struct sockaddr_in *)
-			      &ifr2.ifr_addr).sin_addr));
+		  util_inet_ntoa ((*(struct sockaddr_in *)
+				   &ifr2.ifr_addr).sin_addr.s_addr));
 	}
       else 
 	{

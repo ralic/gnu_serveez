@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.2 2000/08/29 19:15:39 ela Exp $
+ * $Id: nut-transfer.h,v 1.3 2000/09/03 21:28:05 ela Exp $
  *
  */
 
@@ -51,6 +51,6 @@ typedef struct
 }
 nut_transfer_t;
 
-int nut_init_transfer (socket_t, nut_reply_t *, nut_record_t *);
+int nut_init_transfer (socket_t, nut_reply_t *, nut_record_t *, char *);
 
 #endif /* __NUT_TRANSFER_H__ */

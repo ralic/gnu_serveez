@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.5 2000/09/02 15:48:14 ela Exp $
+ * $Id: nut-transfer.c,v 1.6 2000/09/03 21:28:05 ela Exp $
  *
  */
 
@@ -77,13 +77,16 @@ nut_string_regex (char *text, char *regex)
       reg = xstrdup (regex);
       util_tolower (str);
       util_tolower (reg);
+
+      /* all tokens must be in the text */
       for (token = strtok (reg, " "); token; token = strtok (NULL, " "))
 	{
-	  if (strstr (str, token)) break;
+	  if (!strstr (str, token)) break;
 	}
       xfree (str);
       xfree (reg);
-      if (token) return 0;
+      if (!token) return 0;
+      return -1;
     }
 
   /* parse until end of both strings */
@@ -277,7 +280,8 @@ nut_disconnect_transfer (socket_t sock)
  * get a certain file.
  */
 int
-nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
+nut_init_transfer (socket_t sock, nut_reply_t *reply, 
+		   nut_record_t *record, char *savefile)
 {
   nut_config_t *cfg = sock->cfg;
   socket_t xsock;
@@ -293,10 +297,11 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       /* go through all file extensions */
       while (cfg->extensions[n])
 	{
-	  if (strlen (record->file) > strlen (cfg->extensions[n]))
+	  if (strlen (savefile) > strlen (cfg->extensions[n]))
 	    {
-	      pos = strlen (record->file) - strlen (cfg->extensions[n]);
-	      if (!util_strcasecmp (&record->file[pos], cfg->extensions[n]))
+	      pos = strlen (savefile) - strlen (cfg->extensions[n]);
+	      if (pos < 0 ||
+		  !util_strcasecmp (&savefile[pos], cfg->extensions[n]))
 		break;
 	    }
 	  n++;
@@ -305,25 +310,25 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       if (!cfg->extensions[n])
 	{
 	  log_printf (LOG_WARNING, "nut: not a valid extension: %s\n",
-		      record->file);
+		      savefile);
 	  return -1;
 	}
     }
 
   /* first check if the requested file is not already created */
-  file = xmalloc (strlen (cfg->save_path) + strlen (record->file) + 2);
-  sprintf (file, "%s/%s", cfg->save_path, record->file);
+  file = xmalloc (strlen (cfg->save_path) + strlen (savefile) + 2);
+  sprintf (file, "%s/%s", cfg->save_path, savefile);
   if (stat (file, &buf) != -1)
     {
-      log_printf (LOG_NOTICE, "nut: %s already exists\n", record->file);
+      log_printf (LOG_NOTICE, "nut: %s already exists\n", savefile);
       xfree (file);
       return -1;
     }
 
   /* second check if the file matches the original search pattern */
-  if (nut_string_regex (record->file, cfg->search))
+  if (nut_string_regex (savefile, cfg->search))
     {
-      log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", record->file);
+      log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
       xfree (file);
       return -1;
     }
@@ -341,10 +346,10 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
     }
 
   /* try to connect to the host */
-  if ((xsock = sock_connect (reply->ip, little2net (reply->port))) != NULL)
+  if ((xsock = sock_connect (reply->ip, reply->port)) != NULL)
     {
       log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-		  util_inet_ntoa (reply->ip), little2host (reply->port));
+		  util_inet_ntoa (reply->ip), ntohs (reply->port));
       cfg->dnloads++;
       xsock->cfg = cfg;
       xsock->flags |= SOCK_FLAG_NOFLOOD;
@@ -360,7 +365,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
 
       /* send HTTP request to the listening gnutella host */
       sock_printf (xsock, NUT_GET "%d/%s " NUT_HTTP "\r\n",
-		   record->index, record->file);
+		   record->index, savefile);
       sock_printf (xsock, NUT_AGENT);
       sock_printf (xsock, NUT_RANGE " bytes=0-\r\n");
       sock_printf (xsock, "\r\n");

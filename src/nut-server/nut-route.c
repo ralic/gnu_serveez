@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.2 2000/09/02 19:33:01 ela Exp $
+ * $Id: nut-route.c,v 1.3 2000/09/03 21:28:05 ela Exp $
  *
  */
 
@@ -45,17 +45,21 @@
 #include "server-core.h"
 #include "gnutella.h"
 #include "nut-route.h"
+#include "nut-core.h"
 
 /*
  * This function canonizes gnutella queries. Thus we prevent the network
  * from unpatient users and often repeated queries.
  */
-int
+static int
 nut_canonize_query (nut_config_t *cfg, char *query)
 {
   char *buffer, *p, *save;
   time_t t;
   int ret = 0;
+
+  /* no query ? */
+  if (!*query) return -1;
 
   /* extract alphanumerics only and pack them together as lowercase */
   save = p = buffer = xstrdup (query);
@@ -65,8 +69,9 @@ nut_canonize_query (nut_config_t *cfg, char *query)
       p++;
     }
   *save = '\0';
-  /*
-  if ((t = (time_t) hash_get (cfg->query, save)) != 0)
+
+  /* check if it is in the recent query hash */
+  if ((t = (time_t) hash_get (cfg->query, buffer)) != 0)
     {
       if (time (NULL) - t < 10)
 	{
@@ -78,8 +83,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
     }
 
   t = time (NULL);
-  hash_put (cfg->query, save, t);
-  */
+  hash_put (cfg->query, buffer, (void *) t);
   xfree (buffer);
 
   return ret;
@@ -94,7 +98,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
  * -1 = invalid packet, do not process at all
  */
 int
-nut_validate_packet (socket_t sock, nut_header_t *hdr)
+nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
@@ -123,7 +127,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr)
       break;
       /* Pong */
     case 0x01:
-      if (hdr->length != sizeof (nut_ping_reply_t))
+      if (hdr->length != SIZEOF_NUT_PING_REPLY)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: invalid pong payload\n");
@@ -133,7 +137,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr)
       break;
       /* Push Request */
     case 0x40:
-      if (hdr->length != sizeof (nut_push_t))
+      if (hdr->length != SIZEOF_NUT_PUSH)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: invalid push request payload\n");
@@ -150,10 +154,12 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr)
 #endif
 	  return -1;
 	}
+      if (nut_canonize_query (cfg, (char *) packet + SIZEOF_NUT_QUERY) == -1)
+	return -1;
       break;
       /* Query hits */
     case 0x81:
-      if (hdr->length > (sizeof (nut_record_t) + 256) * 256)
+      if (hdr->length > (SIZEOF_NUT_RECORD + 256) * 256)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: payload of query hits too big\n");
@@ -215,7 +221,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
-		  hdr->ttl, cfg->max_ttl);
+		  hdr->ttl, cfg->max_ttl - hdr->hop);
 #endif
       hdr->ttl = cfg->max_ttl - hdr->hop;
     }
@@ -229,16 +235,17 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr)
  * zero.
  */
 int
-nut_route (socket_t sock, nut_header_t *hdr, void *packet)
+nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_packet_t *pkt;
   socket_t xsock;
   socket_t *conn;
+  byte header[SIZEOF_NUT_HEADER];
   int n;
 
   /* packet validation */
-  n = nut_validate_packet (sock, hdr);
+  n = nut_validate_packet (sock, hdr, packet);
   if (n == -1)
     return -1;
   else if (n == 0)
@@ -268,7 +275,8 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
       else
 	{
 	  /* try sending the header */
-	  if (sock_write (xsock, (char *) hdr, sizeof (nut_header_t)) == -1)
+	  nut_put_header (hdr, header);
+	  if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1)
 	    {
 	      sock_schedule_for_shutdown (xsock);
 	      return 0;
@@ -276,7 +284,7 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
 	  /* send the packet body if necessary */
 	  if (hdr->length)
 	    {
-	      if (sock_write (xsock, packet, hdr->length) == -1)
+	      if (sock_write (xsock, (char *) packet, hdr->length) == -1)
 		{
 		  sock_schedule_for_shutdown (xsock);
 		  return 0;
@@ -318,19 +326,19 @@ nut_route (socket_t sock, nut_header_t *hdr, void *packet)
        */
       if ((conn = (socket_t *) hash_values (cfg->conn)) != NULL)
 	{
+	  nut_put_header (hdr, header);
 	  for (n = 0; n < hash_size (cfg->conn); n++)
 	    {
 	      xsock = conn[n];
 	      if (xsock == sock) continue;
-	      if (sock_write (xsock, (char *) hdr, 
-			      sizeof (nut_header_t)) == -1)
+	      if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1)
 		{
 		  sock_schedule_for_shutdown (xsock);
 		  return 0;
 		}
 	      if (hdr->length)
 		{
-		  if (sock_write (xsock, packet, hdr->length) == -1)
+		  if (sock_write (xsock, (char *) packet, hdr->length) == -1)
 		    {
 		      sock_schedule_for_shutdown (xsock);
 		      return 0;

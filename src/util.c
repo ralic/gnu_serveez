@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.20 2000/09/02 15:48:13 ela Exp $
+ * $Id: util.c,v 1.21 2000/09/03 21:28:04 ela Exp $
  *
  */
 
@@ -583,17 +583,21 @@ util_itoa (unsigned int i)
 char *
 util_inet_ntoa (unsigned long ip)
 {
+  /* That does not work on IRIX ???
   struct in_addr addr;
 
   addr.s_addr = ip;
   return inet_ntoa (addr);
-  /*
+  */
   static char addr[16];
 
-  sprintf (addr, "%lu.%lu.%lu.%lu", (ip >> 24) & 0xff, (ip >> 16) & 0xff,
-	   (ip >> 8) & 0xff, ip & 0xff);
+  sprintf (addr, "%lu.%lu.%lu.%lu", 
+#if WORDS_BIGENDIAN
+	   (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
+#else
+           ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+#endif
   return addr;
-  */
 }
 
 /*
@@ -634,8 +638,8 @@ util_openfiles (void)
   log_printf (LOG_NOTICE, "current open file limit: %d/%d\n", 
 	      rlim.rlim_cur,  rlim.rlim_max);
 
-  if (rlim.rlim_max < serveez_config.max_sockets || 
-      rlim.rlim_cur < serveez_config.max_sockets)
+  if ((int) rlim.rlim_max < (int) serveez_config.max_sockets || 
+      (int) rlim.rlim_cur < (int) serveez_config.max_sockets)
     {
       rlim.rlim_max = serveez_config.max_sockets;
       rlim.rlim_cur = serveez_config.max_sockets;

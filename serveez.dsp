@@ -205,6 +205,10 @@ SOURCE=".\src\irc-server\irc-server.c"
 # End Source File
 # Begin Source File
 
+SOURCE=".\src\nut-server\nut-core.c"
+# End Source File
+# Begin Source File
+
 SOURCE=".\src\nut-server\nut-transfer.c"
 # End Source File
 # Begin Source File

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.h,v 1.1 2000/09/02 15:48:14 ela Exp $
+ * $Id: nut-route.h,v 1.2 2000/09/03 21:28:05 ela Exp $
  *
  */
 
@@ -29,7 +29,7 @@
 # include <config.h>
 #endif
 
-int nut_route (socket_t sock, nut_header_t *hdr, void *packet);
+int nut_route (socket_t sock, nut_header_t *hdr, byte *packet);
 
 
 #endif /* __NUT_ROUTE_H__ */

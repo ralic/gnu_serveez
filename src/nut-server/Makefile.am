@@ -31,4 +31,5 @@ CLEANFILES = *~
 libnut_a_SOURCES = \
 	gnutella.c gnutella.h \
 	nut-transfer.c nut-transfer.h \
-	nut-route.c nut-route.h
+	nut-route.c nut-route.h \
+	nut-core.c nut-core.h
