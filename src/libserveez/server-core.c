@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.36 2002/02/07 13:09:55 ela Exp $
+ * $Id: server-core.c,v 1.37 2002/02/15 12:16:07 ela Exp $
  *
  */
 
@@ -806,7 +806,7 @@ svz_sock_find (int id, int version)
 
   if (id & ~(svz_sock_limit - 1))
     {
-      svz_log (LOG_FATAL, "socket id %d is invalid\n", id);
+      svz_log (LOG_WARNING, "socket id %d is invalid\n", id);
       return NULL;
     }
 

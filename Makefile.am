@@ -32,6 +32,9 @@ EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
 redhat: @MAINTAINER_MODE_TRUE@ dist redhat.sh
 	@MAINTAINER_MODE_TRUE@ @sh redhat.sh && echo "Redhat packages done."
 
-CLEANFILES = *~ *.rpm
+debian: @MAINTAINER_MODE_TRUE@ dist debian.sh
+	@MAINTAINER_MODE_TRUE@ @sh debian.sh && echo "Debian packages done."
+
+CLEANFILES = *~ *.rpm *.deb *.changes
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
 	stamp-h.in serveez.dsw

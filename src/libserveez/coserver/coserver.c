@@ -1,7 +1,7 @@
 /*
  * coserver.c - basic internal coserver routines
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.25 2002/02/14 03:17:43 raimi Exp $
+ * $Id: coserver.c,v 1.26 2002/02/15 12:16:07 ela Exp $
  *
  */
 
@@ -486,8 +486,9 @@ svz_coserver_check_request (svz_socket_t *sock)
   char *p = packet;
   int request_len;
   int len = 0;
-  svz_coserver_t *coserver;
+  svz_coserver_t *coserver = sock->data;
 
+  assert (coserver);
   do
     {
       /* find a line (trailing '\n') */
@@ -498,8 +499,6 @@ svz_coserver_check_request (svz_socket_t *sock)
       if (*p == COSERVER_PACKET_BOUNDARY && 
 	  p < sock->recv_buffer + sock->recv_buffer_fill)
 	{
-	  coserver = sock->data;
-	  assert (coserver);
 	  coserver->busy--;
 	  p++;
 	  request_len = p - packet;
@@ -512,7 +511,8 @@ svz_coserver_check_request (svz_socket_t *sock)
   while (p < sock->recv_buffer + sock->recv_buffer_fill);
       
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "coserver: %d byte response\n", len);
+  svz_log (LOG_DEBUG, "%s: %d byte response\n", 
+	   svz_coservertypes[coserver->type].name, len);
 #endif
 
   /* remove data from receive buffer if necessary */

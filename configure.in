@@ -1438,6 +1438,8 @@ CPPFLAGS=$CPPEXTRAFLAGS
 
 TIMESTAMP=`date`
 AC_SUBST(TIMESTAMP)
+TIMESTAMP_RFC822=`date -R`
+AC_SUBST(TIMESTAMP_RFC822)
 
 REDHAT_TOPDIR=/opt
 AC_SUBST(REDHAT_TOPDIR)
@@ -1481,6 +1483,7 @@ AC_OUTPUT(
     data/Makefile
     test/Makefile
     redhat.sh
+    debian.sh
     version.h)
 
 dnl

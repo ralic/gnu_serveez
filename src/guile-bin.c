@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.18 2002/02/12 11:45:55 ela Exp $
+ * $Id: guile-bin.c,v 1.19 2002/02/15 12:16:07 ela Exp $
  *
  */
 
@@ -482,30 +482,21 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
   return scm_long2num ((long) ((ctype *) bin->data)[idx]);                   \
 }
 
-/* Creates a bitmask for the given @var{ctype} and stores it within 
-   @var{bits} with each valid bit set to one. */
-#define CTYPE_BITMASK(ctype, bits) do {                            \
-    unsigned long bit = 1;                                         \
-    for (bits = 1UL; bit < sizeof (ctype) * 8; bit++, bits |= 1UL) \
-      bits <<= 1;                                                  \
-  } while (0)
-
 /* Checks whether the scheme value @var{value} can be stored within a
    @var{ctype}. The macro stores valid values in @var{val} and throws an
    exception if it is out of range. */
-#define CTYPE_CHECK_RANGE(ctype, value, pos, val) do {             \
-    unsigned long bits; CTYPE_BITMASK (ctype, bits);               \
-    if (SCM_POSITIVEP (value)) {                                   \
-      unsigned long max = (unsigned long) bits;                    \
-      unsigned long uval = SCM_NUM2ULONG (pos, value);             \
-      if (uval > max) SCM_OUT_OF_RANGE (pos, value);               \
-      val = (unsigned long) uval;                                  \
-    } else {                                                       \
-      long min = (long) (~(bits >> 1));                            \
-      long ival = SCM_NUM2LONG (pos, value);                       \
-      if (ival < min) SCM_OUT_OF_RANGE (pos, value);               \
-      val = (unsigned long) ival;                                  \
-    }                                                              \
+#define CTYPE_CHECK_RANGE(ctype, value, pos, val) do {                 \
+    if (SCM_POSITIVEP (value)) {                                       \
+      unsigned long uval = SCM_NUM2ULONG (pos, value);                 \
+      unsigned ctype cval = (unsigned ctype) uval;                     \
+      if (uval != (unsigned long) cval) SCM_OUT_OF_RANGE (pos, value); \
+      val = (unsigned long) uval;                                      \
+    } else {                                                           \
+      signed long ival = SCM_NUM2LONG (pos, value);                    \
+      signed ctype cval = (signed ctype) ival;                         \
+      if (ival != (signed long) cval) SCM_OUT_OF_RANGE (pos, value);   \
+      val = (unsigned long) ival;                                      \
+    }                                                                  \
   } while (0)
 
 /* The following macro expands to a function definition which accesses a

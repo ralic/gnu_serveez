@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.21 2002/02/12 11:45:55 ela Exp $
+ * $Id: guile-api.c,v 1.22 2002/02/15 12:16:07 ela Exp $
  *
  */
 
@@ -896,6 +896,45 @@ guile_coserver_ident (SCM sock, SCM callback, SCM arg)
 }
 #undef FUNC_NAME
 
+/* The given argument @var{ident} must be a pair of numbers whereas the
+   car is a @code{#<svz-socket>}'s identification number and the cdr the 
+   version number. The procedure returns either the identified 
+   @code{#<svz-socket>} or @code{#f} if the given combination is not 
+   valid anymore. */
+#define FUNC_NAME "svz:sock:find"
+SCM
+guile_sock_find (SCM ident)
+{
+  int version, id;
+  svz_socket_t *sock;
+
+  SCM_ASSERT_TYPE (SCM_PAIRP (ident) && SCM_INUMP (SCM_CAR (ident)) &&
+		   SCM_INUMP (SCM_CDR (ident)), ident, SCM_ARG1, 
+		   FUNC_NAME, "pair of INUMP");
+  id = SCM_NUM2INT (SCM_ARG1, SCM_CAR (ident));
+  version = SCM_NUM2INT (SCM_ARG1, SCM_CDR (ident));
+  if ((sock = svz_sock_find (id, version)) != NULL)
+    return MAKE_SMOB (svz_socket, sock);
+  return SCM_BOOL_F;
+}
+#undef FUNC_NAME
+
+/* This procedure returns a pair of numbers identifying the given 
+   @code{#<svz-socket>} @var{sock} which can be passed to 
+   @code{(svz:sock:find)}. This may be necessary when you are passing
+   a @code{#<svz-socket>} through coserver callback arguments in order to
+   verify that the passed @code{#<svz-socket>} is still valid when the
+   coserver callback runs. */
+#define FUNC_NAME "svz:sock:ident"
+SCM
+guile_sock_ident (SCM sock)
+{
+  svz_socket_t *xsock;
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  return scm_cons (scm_int2num (xsock->id), scm_int2num (xsock->version));
+}
+#undef FUNC_NAME
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
@@ -932,6 +971,8 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock:server", 1, 1, 0, guile_sock_server);
   scm_c_define_gsubr ("svz:sock:final-print", 1, 0, 0, guile_sock_final_print);
   scm_c_define_gsubr ("svz:sock:no-delay", 1, 1, 0, guile_sock_no_delay);
+  scm_c_define_gsubr ("svz:sock:ident", 1, 0, 0, guile_sock_ident);
+  scm_c_define_gsubr ("svz:sock:find", 1, 0, 0, guile_sock_find);
   scm_c_define_gsubr ("svz:sock?", 1, 0, 0, guile_sock_p);
   scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
   scm_c_define_gsubr ("svz:server:listeners", 1, 0, 0, guile_server_listeners);

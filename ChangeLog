@@ -1,3 +1,9 @@
+2002-02-15  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (debian): Rule for running the Debian script.
+
+	* debian.sh.in: New file.  For automated Debian packaging.
+
 2002-02-01  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Added some more checks for RPC capabilities.
