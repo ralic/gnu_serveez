@@ -20,10 +20,8 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg \
+EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg guile-projects.txt \
 	serveez1.ico serveez2.ico
 
+CLEANFILES = *~ *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in
-
-distclean-local:
-	rm -f *\~ *.orig *.rej
