@@ -1,6 +1,6 @@
 ;; -*-scheme-*-
 ;;
-;; echo-server.scm - example server completely written in guile
+;; echo-server.scm - Example server completely written in Guile
 ;;
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 ;;
@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.10 2001/09/16 13:29:26 ela Exp $
+;; $Id: echo-server.scm,v 1.11 2001/11/09 12:33:10 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -49,19 +49,19 @@
   (println "Running echo server info " server ".")
   (set! ret " This is the echo server.")
   (println " echo-integer: " 
-	   (svz:server:config-get server "echo-integer"))
+	   (svz:server:config-ref server "echo-integer"))
   (println " echo-integer-array: " 
-	   (svz:server:config-get server "echo-integer-array"))
+	   (svz:server:config-ref server "echo-integer-array"))
   (println " echo-string: " 
-	   (svz:server:config-get server "echo-string"))
+	   (svz:server:config-ref server "echo-string"))
   (println " echo-string-array: " 
-	   (svz:server:config-get server "echo-string-array"))
+	   (svz:server:config-ref server "echo-string-array"))
   (println " echo-hash: " 
-	   (svz:server:config-get server "echo-hash"))
+	   (svz:server:config-ref server "echo-hash"))
   (println " echo-port: " 
-	   (svz:server:config-get server "echo-port"))
+	   (svz:server:config-ref server "echo-port"))
   (println " echo-boolean: " 
-	   (svz:server:config-get server "echo-boolean"))
+	   (svz:server:config-ref server "echo-boolean"))
   ret)
 
 (define (echo-handle-request sock request len)

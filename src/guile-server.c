@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.27 2001/11/04 14:18:10 ela Exp $
+ * $Id: guile-server.c,v 1.28 2001/11/09 12:33:10 ela Exp $
  *
  */
 
@@ -321,8 +321,8 @@ guile_integer (SCM value, int def)
 }
 
 /*
- * Controls the use of exceptions handlers for the guile procedure calls
- * of guile server callbacks. If the optional argument @var{enable} set to 
+ * Controls the use of exceptions handlers for the Guile procedure calls
+ * of Guile server callbacks. If the optional argument @var{enable} set to 
  * @code{#t} exception handling is enabled and if set to @code{#f} 
  * exception handling is disabled. The procedure always returns the 
  * current value of this behaviour.
@@ -522,10 +522,9 @@ guile_sock_clear_boundary (svz_socket_t *sock)
 static int
 guile_func_disconnected_socket (svz_socket_t *sock)
 {
-  SCM ret, disconnected;
+  SCM ret, disconnected = guile_sock_getfunction (sock, "disconnected");
   int retval = -1;
   svz_hash_t *gsock;
-  disconnected = guile_sock_getfunction (sock, "disconnected");
 
   /* First call the guile callback if necessary. */
   if (!gh_eq_p (disconnected, SCM_UNDEFINED))
@@ -573,15 +572,27 @@ static int
 guile_func_finalize (svz_server_t *server)
 {
   svz_servertype_t *stype = svz_servertype_find (server);
-  SCM finalize = guile_servertype_getfunction (stype, "finalize");
-  SCM ret;
+  SCM ret, finalize = guile_servertype_getfunction (stype, "finalize");
+  int i, retval = 0;
+  svz_hash_t *state;
+  void **object;
 
   if (!gh_eq_p (finalize, SCM_UNDEFINED))
     {
       ret = guile_call (finalize, 1, MAKE_SMOB (svz_server, server));
-      return guile_integer (ret, -1);
+      retval = guile_integer (ret, -1);
     }
-  return 0;
+
+  /* Release associated guile server state objects is necessary. */
+  if ((state = server->data) != NULL)
+    {
+      svz_hash_foreach_value (state, object, i)
+	scm_unprotect_object ((SCM) SVZ_PTR2NUM (object[i]));
+      svz_hash_destroy (state);
+      server->data = NULL;
+    }
+
+  return retval;
 }
 
 /* Wrapper routine for the global finalization of a server type. */
@@ -688,15 +699,15 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
   return -1;
 }
 
-/* Set the @code{handle_request} member of the socket structure @var{sock} 
-   to the guile procedure @var{proc}. The procedure returns the previously
+/* Set the @code{handle-request} member of the socket structure @var{sock} 
+   to the Guile procedure @var{proc}. The procedure returns the previously
    set handler if there is any. */
 #define FUNC_NAME "svz:sock:handle-request"
 MAKE_SOCK_CALLBACK (handle_request, "handle-request")
 #undef FUNC_NAME
 
-/* Set the @code{check_request} member of the socket structure @var{sock} 
-   to the guile procedure @var{proc}. Returns the previously handler if 
+/* Set the @code{check-request} member of the socket structure @var{sock} 
+   to the Guile procedure @var{proc}. Returns the previously handler if 
    there is any. */
 #define FUNC_NAME "svz:sock:check-request"
 MAKE_SOCK_CALLBACK (check_request, "check-request")
@@ -705,7 +716,7 @@ MAKE_SOCK_CALLBACK (check_request, "check-request")
 /* Setup the packet boundary of the socket @var{sock}. The given string value
    @var{boundary} can contain any kind of data. If you pass a exact number 
    value the socket is setup to parse fixed sized packets. For instance you 
-   can setup serveez to pass your @code{handle_request} procedure text lines 
+   can setup Serveez to pass your @code{handle-request} procedure text lines 
    by calling @code{(svz:sock:boundary sock "\\n")}. */
 #define FUNC_NAME "svz:sock:boundary"
 static SCM
@@ -806,7 +817,7 @@ guile_sock_print (SCM sock, SCM buffer)
 }
 #undef FUNC_NAME
 
-/* Associate any kind of data (any guile data type) given in the argument
+/* Associate any kind of data (any Guile object) given in the argument
    @var{data} with the socket @var{sock}. The @var{data} argument is
    optional. The procedure always returns a previously stored value or an 
    empty list. */
@@ -874,36 +885,38 @@ guile_config_convert (void *address, int type)
   return ret;
 }
 
+/* Checks if the given Guile object @var{smob} in position @var{arg} is a 
+   server or socket and throws an exception if not. Otherwise it saves the
+   server in the variable @var{var}. */
+#define CHECK_SERVER_SMOB_ARG(smob, arg, var)                                \
+  do {                                                                       \
+    SCM_ASSERT_TYPE (CHECK_SMOB (svz_server, smob) ||                        \
+		     CHECK_SMOB (svz_socket, smob), smob, arg,               \
+		     FUNC_NAME, "svz-server or svz-socket");                 \
+    var = CHECK_SMOB (svz_server, smob) ? GET_SMOB (svz_server, smob) :      \
+      svz_server_find (((svz_socket_t *) GET_SMOB (svz_socket, smob))->cfg); \
+  } while (0)
+
 /* This procedure returns the configuration item specified by @var{key} of
    the given server instance @var{server}. You can pass this function a
    socket too. In this case the procedure will lookup the appropriate server
    instance itself. If the given string @var{key} is invalid (not defined 
    in the configuration alist in @code{(define-servertype!)}) then it returns
    an empty list. */
-#define FUNC_NAME "svz:server:config-get"
+#define FUNC_NAME "svz:server:config-ref"
 SCM
-guile_server_config_get (SCM server, SCM key)
+guile_server_config_ref (SCM server, SCM key)
 {
   SCM ret = SCM_EOL;
   svz_servertype_t *stype;
   svz_server_t *xserver;
-  svz_socket_t *xsock;
   int i;
   void *cfg, *address;
   char *str;
 
-  SCM_ASSERT_TYPE (CHECK_SMOB (svz_server, server) || 
-		   CHECK_SMOB (svz_socket, server), server, SCM_ARG1, 
-		   FUNC_NAME, "svz-server or svz-socket");
+  CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   SCM_ASSERT_TYPE (gh_string_p (key), key, SCM_ARG2, FUNC_NAME, "string");
 
-  if (CHECK_SMOB (svz_socket, server))
-    {
-      xsock = GET_SMOB (svz_socket, server);
-      xserver = svz_server_find (xsock->cfg);
-    }
-  else
-    xserver = GET_SMOB (svz_server, server);
   str = guile_to_string (key);
   stype = svz_servertype_find (xserver);
   cfg = xserver->cfg;
@@ -920,6 +933,65 @@ guile_server_config_get (SCM server, SCM key)
 	}
     }
   scm_must_free (str);
+  return ret;
+}
+#undef FUNC_NAME
+
+/* Returns the Guile object associated with the string value @var{key} which
+   needs to be set via @code{(svz:server:state-set!)} previously. Otherwise
+   the return value is an empty list. The given @var{server} argument must be
+   either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}. */
+#define FUNC_NAME "svz:server:state-ref"
+SCM
+guile_server_state_ref (SCM server, SCM key)
+{
+  SCM ret = SCM_EOL;
+  svz_server_t *xserver;
+  char *str;
+  void *val;
+  svz_hash_t *hash;
+
+  CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
+  SCM_ASSERT_TYPE (gh_string_p (key), key, SCM_ARG2, FUNC_NAME, "string");
+  str = guile_to_string (key);
+
+  if ((hash = xserver->data) != NULL)
+    if ((val = svz_hash_get (hash, str)) != NULL)
+      ret = (SCM) SVZ_PTR2NUM (val);
+  return ret;
+}
+#undef FUNC_NAME
+
+/* Associates the Guile object @var{value} with the string @var{key}. The
+   given @var{server} argument can be both, a @code{#<svz-server>} or a 
+   @code{#<svz-socket>}. Returns the previously associated object or an
+   empty list if there was no such association. This procedure is useful 
+   for server instance state savings. */
+#define FUNC_NAME "svz:server:state-set!"
+SCM
+guile_server_state_set_x (SCM server, SCM key, SCM value)
+{
+  SCM ret = SCM_EOL;
+  svz_server_t *xserver;
+  char *str;
+  void *val;
+  svz_hash_t *hash;
+
+  CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
+  SCM_ASSERT_TYPE (gh_string_p (key), key, SCM_ARG2, FUNC_NAME, "string");
+  str = guile_to_string (key);
+
+  if ((hash = xserver->data) == NULL)
+    {
+      hash = svz_hash_create (4);
+      xserver->data = hash;
+    }
+  if ((val = svz_hash_put (hash, str, SVZ_NUM2PTR (value))) != NULL)
+    {
+      ret = (SCM) SVZ_PTR2NUM (val);
+      scm_unprotect_object (ret);
+    }
+  scm_protect_object (value);
   return ret;
 }
 #undef FUNC_NAME
@@ -1367,7 +1439,7 @@ guile_define_servertype (SCM args)
 
 /*
  * Initialization of the guile server module. Should be run before calling
- * @code{gh_eval_file}. It registers some new guile procedures and creates
+ * @code{gh_eval_file()}. It registers some new guile procedures and creates
  * some static data.
  */
 void
@@ -1389,8 +1461,12 @@ guile_server_init (void)
 		    guile_sock_print, 2, 0, 0);
   gh_new_procedure ("svz:sock:data", 
 		    guile_sock_data, 1, 1, 0);
-  gh_new_procedure ("svz:server:config-get", 
-		    guile_server_config_get, 2, 0, 0);
+  gh_new_procedure ("svz:server:config-ref", 
+		    guile_server_config_ref, 2, 0, 0);
+  gh_new_procedure ("svz:server:state-ref",
+		    guile_server_state_ref, 2, 0, 0);
+  gh_new_procedure ("svz:server:state-set!",
+		    guile_server_state_set_x, 3, 0, 0);
   gh_new_procedure ("serveez-exceptions",
 		    guile_access_exceptions, 0, 1, 0);
 

@@ -1,5 +1,5 @@
 /*
- * guile-bin.c - binary data exchange layer for guile servers
+ * guile-bin.c - binary data exchange layer for Guile servers
  *
  * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.7 2001/09/20 11:44:56 ela Exp $
+ * $Id: guile-bin.c,v 1.8 2001/11/09 12:33:10 ela Exp $
  *
  */
 

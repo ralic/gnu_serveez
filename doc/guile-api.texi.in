@@ -1,19 +1,19 @@
 @c -*-texinfo-*-
 @c
-@c This file includes the documentation about the guile servers. It is
+@c This file includes the documentation about the Guile servers. It is
 @c included by `serveez.texi'.
 @c
 
-This section describes the guile interface of serveez meant to provide
-the ability to exceptionally write servers with guile. Of course you could
-do this without any help of serveez, but it makes it a lot easier. The
-guile interface of serveez reduces the guile implementation of an Internet
+This section describes the Guile interface of Serveez meant to provide
+the ability to exceptionally write servers with Guile. Of course you could
+do this without any help of Serveez, but it makes it a lot easier. The
+Guile interface of Serveez reduces the Guile implementation of an Internet
 server to a simple data processor.
 
 @subsubsection Special data types
 
-Serveez extends guile by various new data types which represent internal
-data structures of serveez's core API.
+Serveez extends Guile by various new data types which represent internal
+data structures of Serveez's core API.
 
 @itemize @bullet
 @item @code{#<svz-servertype>}
@@ -27,7 +27,7 @@ represents a socket structure.
 @subsubsection Passing binary data
 
 The new binary data type (i.e. @code{#<binary>}) provides access to any
-kind of unstructured data. It manages data exchange between guile and serveez
+kind of unstructured data. It manages data exchange between Guile and Serveez
 and the other way around. There are some converter functions for strings 
 and lists which help to process this binary data in a more complex (guile'ish) 
 way.
@@ -102,11 +102,11 @@ DEFINE-SERVERTYPE!_DEFUN
 
 @subsubsection Predefined procedures
 
-The following subset of procedures can be used to implement a guile server.
+The following subset of procedures can be used to implement a Guile server.
 They should be used within the callbacks defined in the 
 @code{(define-servertype!)} procedure. Each of these callbacks gets passed
 the appropriate arguments needed to stuff into the below procedures. Please
-have a look at the example guile servers for the very details.
+have a look at the example Guile servers for the very details.
 
 SVZ:SOCK?_DEFUN
 SVZ:SOCK:CHECK-REQUEST_DEFUN
@@ -121,13 +121,20 @@ SVZ:SOCK:DISCONNECTED_DEFUN
 SVZ:SOCK:DATA_DEFUN
 SVZ:SOCK:PARENT_DEFUN
 SVZ:SOCK:REFERRER_DEFUN
+SVZ:SOCK:SERVER_DEFUN
 SVZ:SOCK:LOCAL-ADDRESS_DEFUN
 SVZ:SOCK:REMOTE-ADDRESS_DEFUN
-SVZ:SERVER:CONFIG-GET_DEFUN
-SERVEEZ-EXCEPTIONS_DEFUN
+
 SVZ:HTONS_DEFUN
 SVZ:NTOHS_DEFUN
 SVZ:HTONL_DEFUN
 SVZ:NTOHL_DEFUN
 SVZ:INET-ATON_DEFUN
 SVZ:INET-NTOA_DEFUN
+
+SVZ:SERVER?_DEFUN
+SVZ:SERVER:CONFIG-REF_DEFUN
+SVZ:SERVER:STATE-SET!_DEFUN
+SVZ:SERVER:STATE-REF_DEFUN
+
+SERVEEZ-EXCEPTIONS_DEFUN

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.28 2001/08/17 13:54:15 ela Exp $
+ * $Id: server.c,v 1.29 2001/11/09 12:33:11 ela Exp $
  *
  */
 
@@ -477,6 +477,7 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
   server = (svz_server_t *) svz_malloc (sizeof (svz_server_t));
   server->name = svz_strdup (name);
   server->type = stype;
+  server->data = NULL;
 
   /* Transfer callbacks. */
   server->detect_proto = stype->detect_proto;

@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.6 2001/09/20 11:44:56 ela Exp $
+;; $Id: eval-server.scm,v 1.7 2001/11/09 12:33:10 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -63,7 +63,7 @@
   " This is the eval server.")
 
 (define (eval-handle-request sock request len)
-  (let ((idx (binary-search request (svz:server:config-get sock "quit"))))
+  (let ((idx (binary-search request (svz:server:config-ref sock "quit"))))
     (if (and idx (= idx 0))
 	-1
 	(let ((safe-module (make-safe-module)))
@@ -76,13 +76,13 @@
 		         (string-append "=> "
 			   (object->string res)
 			   "\r\n"
-			   (svz:server:config-get sock "prompt"))))))
+			   (svz:server:config-ref sock "prompt"))))))
 		 (lambda args
 		   (svz:sock:print sock
 		     (string-append "Exception: "
 		       (object->string args)
 		       "\r\n"
-		       (svz:server:config-get sock "prompt")))))
+		       (svz:server:config-ref sock "prompt")))))
 	  0))))
 
 (define (eval-connect-socket server sock)
@@ -90,9 +90,9 @@
   (svz:sock:boundary sock "\n")
   (svz:sock:handle-request sock eval-handle-request)
   (svz:sock:print sock (string-append 
-			(svz:server:config-get server "greeting") 
+			(svz:server:config-ref server "greeting") 
 			"\r\n" 
-			(svz:server:config-get server "prompt")))
+			(svz:server:config-ref server "prompt")))
   0)
 
 ;; Port configuration.

@@ -1,3 +1,15 @@
+2001-11-09  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (guile_sock_server, guile_server_p): New
+	Guile procedures known as `svz:server?' and `svz:sock:server'.
+
+	* guile-server.c (guile_server_config_ref): Renamed 
+	`svz:server:config-get' into `svz:server:config-ref'.
+	(guile_server_state_ref, guile_server_state_set_x): New Guile
+	procedure known as `svz:server:state-ref' and 
+	`svz:server:state-set!'.  Both implementing server instance state
+	savings for Guile servers.
+
 2001-11-04  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (svz:sock:referrer, svz:sock:parent, svz:sock?): 

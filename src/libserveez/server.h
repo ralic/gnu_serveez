@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.21 2001/10/27 14:12:16 ela Exp $
+ * $Id: server.h,v 1.22 2001/11/09 12:33:11 ela Exp $
  *
  */
 
@@ -62,6 +62,8 @@ struct svz_server
   void *cfg;
   /* pointer to this server instances server type */
   svz_servertype_t *type;
+  /* arbitrary data field */
+  void *data;
 
   /* init of instance */
   int (* init) (svz_server_t *);

@@ -1,5 +1,5 @@
 /*
- * guile.c - interface to guile core library
+ * guile.c - interface to Guile core library
  *
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.44 2001/09/21 13:12:41 ela Exp $
+ * $Id: guile.c,v 1.45 2001/11/09 12:33:10 ela Exp $
  *
  */
 
@@ -1538,9 +1538,9 @@ guile_access_interfaces (SCM args)
 #undef FUNC_NAME
 
 /*
- * Make the search path for the serveez core library accessable for guile.
+ * Make the search path for the Serveez core library accessable for guile.
  * Returns a list a each path as previously defined. Can override the current
- * definition of this load path. The load path is used to tell serveez where
+ * definition of this load path. The load path is used to tell Serveez where
  * it can find additional server modules.
  */
 #define FUNC_NAME "serveez-load-path"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.4 2001/11/04 14:18:10 ela Exp $
+ * $Id: guile-api.c,v 1.5 2001/11/09 12:33:10 ela Exp $
  *
  */
 
@@ -125,7 +125,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 }
 #undef FUNC_NAME
 
-/* The @code{svz:inet-ntoa} function converts the Internet host address 
+/* The @code{(svz:inet-ntoa)} function converts the Internet host address 
    @var{address} given in network byte order to a string in standard
    numbers-and-dots notation. */
 #define FUNC_NAME "svz:inet-ntoa"
@@ -142,7 +142,7 @@ guile_svz_inet_ntoa (SCM address)
 
 /* Converts the Internet host address @var{address} from the standard 
    numbers-and-dots notation into binary data in network byte order.
-   The @code{svz:inet-aton} function returns @code{#f} if the address is 
+   The @code{(svz:inet-aton)} function returns @code{#f} if the address is 
    invalid. */
 #define FUNC_NAME "svz:inet-aton"
 static SCM
@@ -165,7 +165,7 @@ guile_svz_inet_aton (SCM address)
 }
 #undef FUNC_NAME
 
-/* The @code{svz:ntohl} function converts the 32 bit long integer
+/* The @code{(svz:ntohl)} function converts the 32 bit long integer
    @var{netlong} from network byte order to host byte order. */
 #define FUNC_NAME "svz:ntohl"
 static SCM
@@ -177,7 +177,7 @@ guile_svz_ntohl (SCM netlong)
 }
 #undef FUNC_NAME
 
-/* The @code{svz:htonl} function converts the 32 bit long integer
+/* The @code{(svz:htonl)} function converts the 32 bit long integer
    @var{hostlong} from host byte order to network byte order. */
 #define FUNC_NAME "svz:htonl"
 static SCM
@@ -189,7 +189,7 @@ guile_svz_htonl (SCM hostlong)
 }
 #undef FUNC_NAME
 
-/* The @code{svz:ntohs} function converts the 16 bit short integer 
+/* The @code{(svz:ntohs)} function converts the 16 bit short integer 
    @var{netshort} from network byte order to host byte order. */
 #define FUNC_NAME "svz:ntohs"
 static SCM
@@ -203,7 +203,7 @@ guile_svz_ntohs (SCM netshort)
 }
 #undef FUNC_NAME
 
-/* The @code{svz:htons} function converts the 16 bit short integer 
+/* The @code{(svz:htons)} function converts the 16 bit short integer 
    @var{hostshort} from host byte order to network byte order. */
 #define FUNC_NAME "svz:htons"
 static SCM
@@ -317,7 +317,7 @@ guile_sock_local_address (SCM sock, SCM address)
 
 /* Return the given sockets @var{sock} parent and optionally set it to the
    socket @var{parent}. The procedure returns either a valid 
-   @code{#<svz-socket>} or an empty list (@code{()}). */
+   @code{#<svz-socket>} object or an empty list. */
 #define FUNC_NAME "svz:sock:parent"
 static SCM
 guile_sock_parent (SCM sock, SCM parent)
@@ -339,7 +339,7 @@ guile_sock_parent (SCM sock, SCM parent)
 
 /* Return the given sockets @var{sock} referrer and optionally set it to the
    socket @var{referrer}. The procedure returns either a valid 
-   @code{#<svz-socket>} or an empty list (@code{()}). */
+   @code{#<svz-socket>} or an empty list. */
 #define FUNC_NAME "svz:sock:referrer"
 static SCM
 guile_sock_referrer (SCM sock, SCM referrer)
@@ -359,6 +359,33 @@ guile_sock_referrer (SCM sock, SCM referrer)
 }
 #undef FUNC_NAME
 
+/* This procedure returns the @code{#<svz-server>} object associated with the
+   given argument @var{sock}. The optional argument @var{server} can be used
+   to redefine this association and must be a valid @code{#<svz-server>}
+   object. For a usual socket callback like @code{connect-socket} or
+   @code{handle-request} the association is already in place. But for sockets
+   created by @code{(svz:sock:connect)} you can use it in order to make the
+   returned socket object part of a server. */
+#define FUNC_NAME "svz:sock:server"
+static SCM
+guile_sock_server (SCM sock, SCM server)
+{
+  SCM oserver = SCM_EOL;
+  svz_socket_t *xsock;
+  svz_server_t *xserver;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  if ((xserver = svz_server_find (xsock->cfg)) != NULL)
+    oserver = MAKE_SMOB (svz_server, xserver);
+  if (!gh_eq_p (server, SCM_UNDEFINED))
+    {
+      CHECK_SMOB_ARG (svz_server, server, SCM_ARG2, "svz-server", xserver);
+      xsock->cfg = xserver->cfg;
+    }
+  return oserver;
+}
+#undef FUNC_NAME
+
 /* Returns @code{#t} if the given cell @var{sock} is an instance of a valid
    @code{#<svz-socket>}, otherwise @code{#f}. */
 #define FUNC_NAME "svz:sock?"
@@ -369,8 +396,18 @@ guile_sock_p (SCM sock)
 }
 #undef FUNC_NAME
 
-/* Set the @code{disconnected_socket} member of the socket structure 
-   @var{sock} to the guile procedure @var{proc}. The given callback
+/* Returns @code{#t} if the given cell @var{server} is an instance of a valid
+   @code{#<svz-server>}, otherwise @code{#f}. */
+#define FUNC_NAME "svz:server?"
+static SCM
+guile_server_p (SCM server)
+{
+  return CHECK_SMOB (svz_server, server) ? SCM_BOOL_T : SCM_BOOL_F;
+}
+#undef FUNC_NAME
+
+/* Set the @code{disconnected-socket} member of the socket structure 
+   @var{sock} to the Guile procedure @var{proc}. The given callback
    runs whenever the socket is lost for some external reason. The procedure 
    returns the previously set handler if there is any. */
 #define FUNC_NAME "svz:sock:disconnected"
@@ -393,7 +430,9 @@ guile_api_init (void)
   gh_new_procedure ("svz:inet-ntoa", guile_svz_inet_ntoa, 1, 0, 0);
   gh_new_procedure ("svz:sock:parent", guile_sock_parent, 1, 1, 0);
   gh_new_procedure ("svz:sock:referrer", guile_sock_referrer, 1, 1, 0);
+  gh_new_procedure ("svz:sock:server", guile_sock_server, 1, 1, 0);
   gh_new_procedure ("svz:sock?", guile_sock_p, 1, 0, 0);
+  gh_new_procedure ("svz:server?", guile_server_p, 1, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer", 
 		    guile_sock_receive_buffer, 1, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer-reduce",
