@@ -43,7 +43,7 @@ DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c	     \
   dynload.c windoze.c snprintf.c server.c core.c array.c hash.h binding.c    \
   portcfg.c array.h coserver.c coserver.h vector.h portcfg.h server-core.h   \
   socket.h alloc.h server.h util.h codec.c passthrough.c passthrough.h cfg.c \
-  cfg.h asprintf.c mutex.h
+  cfg.h asprintf.c mutex.c mutex.h
 SED_FILE = serveez-api.sed
 GUILE_DOC_DIRS = $(top_srcdir)/src
 GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c guile-api.c

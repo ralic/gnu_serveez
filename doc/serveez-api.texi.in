@@ -365,10 +365,10 @@ macros default to empty statements.
 
 SVZ_MUTEX_DEFINE_DEFMAC
 SVZ_MUTEX_DECLARE_DEFMAC
-SVZ_MUTEX_CREATE_DEFMAC
-SVZ_MUTEX_DESTROY_DEFMAC
-SVZ_MUTEX_LOCK_DEFMAC
-SVZ_MUTEX_UNLOCK_DEFMAC
+SVZ_MUTEX_CREATE_DEFUN
+SVZ_MUTEX_DESTROY_DEFUN
+SVZ_MUTEX_LOCK_DEFUN
+SVZ_MUTEX_UNLOCK_DEFUN
 
 @node Core functions, Client connections, Thread safety, Embedding API
 @section Networking and other low level functions

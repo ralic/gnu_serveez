@@ -1,7 +1,7 @@
 /*
  * defines.h - useful global definitions for portability
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.9 2001/12/27 18:27:51 ela Exp $
+ * $Id: defines.h,v 1.10 2003/06/18 03:32:49 ela Exp $
  *
  */
 
@@ -73,11 +73,33 @@
 # define SERVEEZ_API extern
 #endif
 
-/* When building the core library or any outside module on Win32 systems
-   include the Winsock interface here. */
+/* Define if debug code should be suppressed. */
+#ifndef SVZ_ENABLE_DEBUG
+#define NDEBUG 1
+#endif
+
+#if defined (__MINGW32__) || defined (__CYGWIN__)
+
+/* Make CygWin / MinGW32 use large FD sets. */
+#undef  FD_SETSIZE
+#define FD_SETSIZE 4096
+
+/* Define for faster code generation. */
+#undef  WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN 1
+
+#endif /* __MINGW32__ || __CYGWIN__ */
 
 #ifdef __MINGW32__
-# include <winsock2.h>
-#endif
+
+/* Define if you are using Windows Socket-API (not CYGWIN). */
+#undef  Win32_Winsock
+#define Win32_Winsock 1
+
+/* When building the core library or any outside module on Win32 systems
+   include the Winsock interface here. */
+#include <winsock2.h>
+
+#endif /* __MINGW32__ */
 
 #endif /* !__DEFINES_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.24 2003/06/14 14:57:59 ela Exp $
+ * $Id: boot.c,v 1.25 2003/06/18 03:32:49 ela Exp $
  *
  */
 
@@ -153,7 +153,7 @@ svz_init_config (void)
 void
 svz_boot (void)
 {
-  svz_mutex_create (svz_log_mutex);
+  svz_mutex_create (&svz_log_mutex);
   svz_strsignal_init ();
   svz_sock_table_create ();
   svz_signal_up ();
@@ -183,5 +183,5 @@ svz_halt (void)
   svz_signal_dn ();
   svz_sock_table_destroy ();
   svz_strsignal_destroy ();
-  svz_mutex_destroy (svz_log_mutex);
+  svz_mutex_destroy (&svz_log_mutex);
 }

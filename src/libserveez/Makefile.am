@@ -39,7 +39,7 @@ libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c sparsevec.c      \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \
   server-core.c server-loop.c windoze.c boot.c server.c server-socket.c   \
   interface.c dynload.c vector.c core.c socket.c array.c portcfg.c        \
-  binding.c passthrough.c cfg.c asprintf.c
+  binding.c passthrough.c cfg.c asprintf.c mutex.c
 
 # these file are available by #include <libserveez/foo.h>
 

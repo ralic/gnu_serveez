@@ -45,18 +45,6 @@
 /* Define to `long' if <sys/types.h> doesn't define 'off_t'. */
 #undef svz_t_off
 
-/* Make CygWin / MinGW32 use large FD sets. */
-#undef FD_SETSIZE
-
-/* Define if you are using Windows Socket-API (not CYGWIN). */
-#undef Win32_Winsock
-
-/* Define for faster code generation. */
-#undef WIN32_LEAN_AND_MEAN
-
-/* Define if debug code should be suppressed. */
-#undef NDEBUG
-
 /* Define if debug output should be supported. */
 #undef SVZ_ENABLE_DEBUG
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.25 2003/06/14 14:58:00 ela Exp $
+ * $Id: util.c,v 1.26 2003/06/18 03:32:49 ela Exp $
  *
  */
 
@@ -119,7 +119,7 @@ svz_log (int level, svz_c_const char *format, ...)
       feof (svz_logfile) || ferror (svz_logfile))
     return;
 
-  svz_mutex_lock (svz_log_mutex);
+  svz_mutex_lock (&svz_log_mutex);
   tm = time (NULL);
   t = localtime (&tm);
   fprintf (svz_logfile, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
@@ -129,7 +129,7 @@ svz_log (int level, svz_c_const char *format, ...)
   vfprintf (svz_logfile, format, args);
   va_end (args);
   fflush (svz_logfile);
-  svz_mutex_unlock (svz_log_mutex);
+  svz_mutex_unlock (&svz_log_mutex);
 }
 
 /*

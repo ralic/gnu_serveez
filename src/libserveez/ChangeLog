@@ -1,3 +1,12 @@
+2003-06-18  Stefan Jahn  <stefan@lkcc.org>
+
+	* mutex.c: New file implementing the mutex API.  Some of the
+	macros in 'mutex.h' are now real library functions.  Changed
+	all callers.
+
+	* defines.h: Added some MinGW and CygWin specific stuff (taken 
+	from svzconfig.h.in).
+
 2003-06-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* snprintf.h: Removed the unnecessary check for HAVE__SNPRINTF 

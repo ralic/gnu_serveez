@@ -1,3 +1,8 @@
+2003-06-18  Stefan Jahn  <stefan@lkcc.org>
+
+	* svzconfig.h.in: Removed all of the remaining #define's which
+	are not prefixed by 'SVZ_' or 'svz_'.
+
 2003-06-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* mkpassword.ap (DEFS): Changed the SVZ_HAVE_CRYPT #define
