@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.27 2000/10/26 13:43:31 ela Exp $
+ * $Id: socket.h,v 1.28 2000/10/31 10:08:11 ela Exp $
  *
  */
 
@@ -90,11 +90,11 @@ struct socket
   LPOVERLAPPED overlap[2];      /* the overlap info for WinNT */
 #endif /* not __MINGW32__ */
 
-  char *recv_pipe;              /* File of the receive pipe. */
-  char *send_pipe;              /* File of the send pipe. */
+  char * recv_pipe;             /* File of the receive pipe. */
+  char * send_pipe;             /* File of the send pipe. */
   socket_t referrer;            /* Referring socket structure. */
 
-  char *boundary;               /* Packet boundary. */
+  char * boundary;              /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
 
   /* The following items always MUST be in network byte order. */
@@ -109,6 +109,10 @@ struct socket
   int recv_buffer_size;		/* Size of RECV_BUFFER. */
   int send_buffer_fill;		/* Valid bytes in SEND_BUFFER. */
   int recv_buffer_fill;		/* Valid bytes in RECV_BUFFER. */
+
+  unsigned short sequence;      /* Currently received sequence. */
+  unsigned short send_seq;      /* Send stream sequence number. */
+  unsigned short recv_seq;      /* Receive stream sequence number. */
 
   /*
    * READ_SOCKET gets called whenever data is available on the socket.
@@ -186,18 +190,20 @@ struct socket
    * Miscellaneous field. Listener keeps array of server instances here.
    * This array is NULL terminated.
    */
-  void *data;
+  void * data;
 
   /*
    * When the final protocol detection in DEFAULT_DETECT_PROTO
    * has been done CFG should get the actual configuration hash.
    */
-  void *cfg;
-
+  void * cfg;
 };
 
+/*
+ * SOCK_LOOKUP_TABLE is used to speed up references to socket
+ * structures by socket's id.
+ */
 extern socket_t sock_lookup_table[SOCKET_MAX_IDS];
-extern int socket_id;
 
 /*
  * Count the number of currently connected sockets.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.6 2000/10/30 20:49:57 ela Exp $
+ * $Id: icmp-socket.c,v 1.7 2000/10/31 10:08:11 ela Exp $
  *
  */
 
@@ -92,6 +92,43 @@ icmp_get_ip_header (byte *data)
   hdr.dst = uint32;
 
   return &hdr;
+}
+
+/*
+ * Put IP header to plain data. This is currently not in use but can be
+ * used when creating raw sockets with setsockopt (SOL_IP, IP_HDRINCL).
+ */
+byte *
+icmp_put_ip_header (ip_header_t *hdr)
+{
+  static byte buffer[IP_HEADER_SIZE];
+  byte *data = buffer;
+  unsigned short uint16;
+  unsigned int uint32;
+
+  *data++ = hdr->version_length;
+  *data++ = hdr->tos;
+  uint16 = htons (hdr->length);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+  data += SIZEOF_UINT16;
+  uint16 = htons (hdr->ident);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+  data += SIZEOF_UINT16;
+  uint16 = htons (hdr->frag_offset);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+  data += SIZEOF_UINT16;
+  *data++ = hdr->ttl;
+  *data++ = hdr->protocol;
+  uint16 = htons (hdr->checksum);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+  data += SIZEOF_UINT16;
+  uint32 = hdr->src;
+  memcpy (data, &uint32, SIZEOF_UINT32);
+  data += SIZEOF_UINT32;
+  uint32 = hdr->dst;
+  memcpy (data, &uint32, SIZEOF_UINT32);
+
+  return buffer;
 }
 
 /*

@@ -1,3 +1,8 @@
+2000-10-31  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi: All occurrences of serveez, sizzle and 
+	versions replaced by meta variables.
+
 2000-10-07  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.1: Simple man page added.

@@ -1,7 +1,12 @@
-2000-10-30  [ Ela ]  <ela@lkcc.org>
+2000-10-31  [ Ela ]  <ela@lkcc.org>
+
+	* icmp-socket.c (icmp_put_ip_header): Put a given IP header
+	structure into plain data. Could be used with IP_HDRINCL.
 
 	* nut-server/nut-core.c (nut_canonize_file): This routine
 	converts any filename to something printable.
+
+2000-10-30  [ Ela ]  <ela@lkcc.org>
 
 	* icmp-socket.c (icmp_connect): Each `connected' ICMP
 	sockets gets a unique remote port for identifying data

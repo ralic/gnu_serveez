@@ -1,3 +1,8 @@
+2000-10-31  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Replaced the AC_C_BIGENDIAN macro to keep the
+	configure script still usable for cross compilers.
+
 2000-10-04  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Check for `waitpid'.

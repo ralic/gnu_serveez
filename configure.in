@@ -51,9 +51,25 @@ dnl Check for a proper C compiler.
 dnl
 AC_PROG_CC
 AC_C_CONST
-AC_C_BIGENDIAN
-AC_CHECK_SIZEOF(unsigned, 8)
-AC_CHECK_SIZEOF(void *, 8)
+
+AC_MSG_CHECKING([checking whether byte ordering is bigendian])
+AC_TRY_RUN([#include <stdio.h>
+  #include <string.h>
+  main () {
+    unsigned char c_big[] = {0x12, 0x34};
+    unsigned short s_big = 0x1234;
+    if (!memcmp (c_big, &s_big, sizeof (char) * 2))
+      exit (0);
+    exit (1);}],
+  AC_MSG_RESULT([yes])
+  AC_DEFINE(WORDS_BIGENDIAN, 1, 
+  [Define if your processor stores words with the most significant 
+   byte first (like Motorola and SPARC, unlike Intel and VAX).]),
+  AC_MSG_RESULT(no),
+  AC_MSG_RESULT(no))
+
+AC_CHECK_SIZEOF(unsigned, 4)
+AC_CHECK_SIZEOF(void *, 4)
 
 dnl
 dnl Locate required external software.

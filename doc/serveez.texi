@@ -5,9 +5,14 @@
 @c %** end of header
 
 @set VERSION 0.0.19
+@set PACKAGE Serveez
+@set s_PACKAGE serveez
+@set SIZZLE Sizzle
+@set s_SIZZLE sizzle
+@set b_SIZZLE SIZZLE
 
 @titlepage
-@title Serveez
+@title @value{PACKAGE}
 @subtitle Documentation
 @subtitle Version @value{VERSION}
 @author Stefan Jahn
@@ -15,9 +20,9 @@
 @page
 @vskip 0pt plus 1filll
 
-Copyright @copyright{} 2000 Stefan Jahn @email{stefan@@lkcc.org}@*
-Copyright @copyright{} 2000 Raimund Jacob @email{raimi@@lkcc.org}@*
-Copyright @copyright{} 1999 Martin Grabmueller @email{mgrabmue@@cs.tu-berlin.de}@*
+Copyright @copyright{} 2000 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000 Raimund Jacob <raimi@@lkcc.org>@*
+Copyright @copyright{} 1999 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
 
 Permission is granted to copy, distribute and/or modify this document
 under the terms of the GNU Free Documentation License, Version 1.1
@@ -30,18 +35,18 @@ Free Documentation License".
 @node Top, Introduction, (dir), (dir)
 
 @menu
-* Introduction::        Introduction to Serveez
-* Using Serveez::       Startup and command line options
-* Concept::             Conceptional thoughts
-* Server::              Server implementation
-* Co-Server::           Co-Server implementation
-* Porting issues::      Support of different platforms and operating systems
+* Introduction::          Introduction to @value{PACKAGE}
+* Using @value{PACKAGE}:: Startup and command line options
+* Concept::               Conceptional thoughts
+* Server::                Server implementation
+* Co-Server::             Co-Server implementation
+* Porting issues::        Support of different platforms and operating systems
 @end menu
 
-@node Introduction, Using Serveez, Top, Top
+@node Introduction, Using @value{PACKAGE}, Top, Top
 @chapter Introduction
 
-Serveez is a server framework. It provides routines and help for
+@value{PACKAGE} is a server framework. It provides routines and help for
 implementing IP based servers (currently TCP and UDP). We think it is
 worth the effort because many people need server functionality within
 their applications. However, many people experience problems with select()-
@@ -57,16 +62,17 @@ that you can run all protocols on the same port. The application itself is
 single threaded but it uses helper processes for concurrent name resolution
 and ident lookups.
 
-@node Using Serveez, Concept, Introduction, Top
-@chapter Using Serveez
+@node Using @value{PACKAGE}, Concept, Introduction, Top
+@chapter Using @value{PACKAGE}
 
-@section Starting Serveez
+@section Starting @value{PACKAGE}
 
-To start Serveez simply type @samp{serveez} at your command line prompt
-and press @key{RET}. This will invoke the @file{serveez.[exe]} which will
-read its configuration from a file called @file{serveez.cfg} in the current
-directory and run the server loop afterwards. Press @key{^C} to abort the
-execution of this program.
+To start @value{PACKAGE} simply type @samp{@value{s_PACKAGE}} at your 
+command line prompt and press @key{RET}. This will invoke the 
+@file{@value{s_PACKAGE}.[exe]} which will read its configuration 
+from a file called @file{@value{s_PACKAGE}.cfg} in the current 
+directory and run the server loop afterwards. Press @key{^C} to abort 
+the execution of this program.
 
 @section Command line options
 
@@ -78,7 +84,7 @@ Display version information and exit.
 @item -i, --iflist
 List local network interfaces and exit.
 @item -f, --cfg-file=FILENAME
-File to use as configuration file (serveez.cfg).
+File to use as configuration file (@value{s_PACKAGE}.cfg).
 @item -v, --verbose=LEVEL
 Set level of logging verbosity.
 @item -l, --log-file=FILENAME
@@ -91,14 +97,15 @@ Set the maximum number of socket descriptors.
 Start as daemon in background.
 @end table
 
-@section Configuring Serveez
+@section Configuring @value{PACKAGE}
 
-As noted above Serveez is configured via a configuration file which is
-by default @file{serveez.cfg} and can be set by passing the -f command
-line argument. We are using the Scheme dialect called Sizzle for this
-configuration file. This package is maintained by Martin Grabmueller
-(@email{mgrabmue@@cs.tu-berlin.de}). Because we do not want you to learn
-too much about that computer language we delivered an example 
+As noted above @value{PACKAGE} is configured via a configuration 
+file which is by default @file{@value{s_PACKAGE}.cfg} and can be set 
+by passing the -f command line argument. We are using the Scheme 
+dialect called @value{SIZZLE} for this configuration file. This 
+package is maintained by Martin Grabmueller 
+(@email{mgrabmue@@cs.tu-berlin.de}). Because we do not want you to 
+learn too much about that computer language we delivered an example 
 configuration file in the @file{data/} directory.
 
 Generally you can determine special variables in this file and you have
@@ -134,11 +141,11 @@ the following layout:
                     @}
 @end example
 
-@node Concept, Server, Using Serveez, Top
+@node Concept, Server, Using @value{PACKAGE}, Top
 @chapter Concept
 
 @section I/O Strategy
-Serveez's I/O strategy is the traditional @code{select()} method. It 
+@value{PACKAGE}'s I/O strategy is the traditional @code{select()} method. It 
 is serving many clients in a single server thread. This is done by setting to 
 non-blocking mode on all network handles, and use @code{select()} to tell 
 which network handle has data waiting. This is the traditional favorite. 
@@ -152,16 +159,16 @@ raw non-threaded performance goes to waste.
 
 Unfortunately, @code{select()} is limited to @code{FD_SETSIZE} handles. 
 This limit is compiled in to the standard library and user programs. 
-Nevertheless Serveez is able to serve about one thousand and more 
+Nevertheless @value{PACKAGE} is able to serve about one thousand and more 
 clients on Linux, a hundred on Win95 and some more on later Windows systems.
 
 We chose this method anyway because it seems the most portable. Either in
 most Unices and Win32 this method is implemented.
 
 An alternative method to multiplex client network connections is 
-@code{poll()}. When detected by @file{configure} Serveez is using it. This
-will work around the builtin (g)libs's @code{select()} file descriptor
-limit.
+@code{poll()}. When detected by @file{configure} @value{PACKAGE} is 
+using it. This will work around the builtin (g)libs's @code{select()} 
+file descriptor limit.
 
 @section Limits on open filehandles
 @table @asis
@@ -208,7 +215,7 @@ available physical memory.
 @chapter Server
 
 @menu
-* Introduction to Servers::     Protocol servers in Serveez
+* Introduction to Servers::     Protocol servers in @value{PACKAGE}
 * Writing Servers::             How to write internet protocol servers
 * Existing Servers::            Which kind of servers do we have already ?
 @end menu
@@ -237,7 +244,7 @@ what is going on here.
 
 @subsection Making and configuring preparations
 
-Serveez is configured and build via automake and autoconf. That
+@value{PACKAGE} is configured and build via automake and autoconf. That
 is why you are not supposed to write your own Makefiles but simplified
 @file{Makefile.am}s. Automake will automatically generate dependencies and
 compiler and linker command lines. Here are the steps you basically need 
@@ -512,7 +519,7 @@ of the remote client.
 * Chat Server::                 Chat Server (aWCS, textSure) description
 * HTTP Server::                 Integrated Web Server description
 * IRC Server::                  EFNet IRC Server
-* Control Protocol Server::     Serveez control center
+* Control Protocol Server::     @value{PACKAGE} control center
 * Foo Server::                  Example server implementation
 * Quake III Key Server::        Quake 3 License Key Server description
 * Gnutella Spider::             Gnutella Client description
@@ -524,12 +531,12 @@ of the remote client.
 
 @subsubsection General description
 
-The whole Serveez package was originally written by Martin Grabmueller for
-a fast C backend for a chat system (now called textSure). This can be
-found at @uref{http://www.textsure.net/}. The server implements two kinds
-of protocols, one for the master server which should do all the 
-administrative stuff and the second for the chat clients. Basically the 
-chat server is a simple multicast unit.
+The whole @value{PACKAGE} package was originally written by Martin 
+Grabmueller for a fast C backend for a chat system (now called textSure). 
+This can be found at @uref{http://www.textsure.net/}. The server 
+implements two kinds of protocols, one for the master server which 
+should do all the administrative stuff and the second for the chat 
+clients. Basically the chat server is a simple multicast unit.
 
 @subsubsection Specification of the Slave/Master server protocol of aWCS
 
@@ -676,7 +683,7 @@ where you can specify the network port and IP address.
 @item fsport
 This parameter could be used to specify two named pipes as connection
 device. This is thought for a local installations of the master server
-and Serveez.
+and @value{PACKAGE}.
 @end table
 
 @node HTTP Server, IRC Server, Chat Server, Existing Servers
@@ -688,8 +695,8 @@ The actual reason for writing this server was the need of an additional
 web server when using the chat system because the chat client is a web
 applet which can only connect to servers where the original html document
 with the applet tag came from. Thus you would have need for a standalone
-web server on the same machine where Serveez is running... except Serveez
-would serve these documents too.
+web server on the same machine where @value{PACKAGE} is running... 
+except @value{PACKAGE} would serve these documents too.
 
 The integrated HTTP server was originally thought to be a simple but fast
 document server. But now it can even execute CGI scripts. Both the methods
@@ -936,13 +943,14 @@ Kill user, wildcards allowed.
 
 @subsubsection General description
 
-Serveez implements something like a telnet protocol for administrating 
-purposes. You just need to start a telnet session like:
+@value{PACKAGE} implements something like a telnet protocol for 
+administrating purposes. You just need to start a telnet session like:
 @example
 $ telnet www.textsure.net 42420
 @end example
 After pressing @key{RET} you will be asked for a password which you 
-might setup passing the Serveez the -P argument. @xref{Using Serveez}.
+might setup passing the @value{PACKAGE} the -P argument. 
+@xref{Using @value{PACKAGE}}.
 
 @subsubsection Commands
 
@@ -952,7 +960,7 @@ This command will give you a very short help screen of all available
 commands within the control protocol.
 
 @item quit
-This command closes the connection to Serveez.
+This command closes the connection to @value{PACKAGE}.
 
 @item restart ident
 Restarts the internal ident Co-Server. This is useful if you just want
@@ -965,7 +973,7 @@ Restarts an internal dns lookup server.
 Restarts an internal reverse dns lookup server.
 
 @item killall
-This might be useful if Serveez seems to be unstable but you do not
+This might be useful if @value{PACKAGE} seems to be unstable but you do not
 want to restart it. With @samp{killall} you disconnect all client
 network connections except the control protocol connections.
 
@@ -974,12 +982,12 @@ Disconnects a specific connection identified by its ID. These IDs will
 be stated when you type @samp{stat con} (see below).
 
 @item stat
-General statistics about Serveez. This will show you some useful
-information about the computer Serveez is running on and about the
-state of Serveez in general.
+General statistics about @value{PACKAGE}. This will show you some useful
+information about the computer @value{PACKAGE} is running on and about the
+state of @value{PACKAGE} in general.
 
 @example
-@exdent This is serveez version 0.0.17pre running since Sat Jul 15 18:45:58 2000.
+@exdent This is @value{s_PACKAGE} version @value{VERSION} running since Sat Jul 15 18:45:58 2000.
 @exdent Features  : AWCS HTTP IDENT REVERSE-DNS DNS FLOOD DEBUG IRC CTRL
 @exdent Os        : Linux 2.2.10 on i586
 @exdent Sys-Load  : user 0.0%, nice 0.0%, sys 1.0%, idle 99.0%
@@ -1005,7 +1013,7 @@ information.
 
 @item stat con
 Connection statistics. This will give a list of all socket structures
-within Serveez. If you want more detailed information about specific
+within @value{PACKAGE}. If you want more detailed information about specific
 connections, Co-Servers or Servers you need to request these information
 with @samp{stat id NUM} or @samp{stat all}.
 
@@ -1049,7 +1057,7 @@ want people using this protocol from outsides.
 @subsection Foo Server
 
 The Foo Server is a simple example on how to write internet protocol
-servers with Serveez. @xref{Writing Servers}.
+servers with @value{PACKAGE}. @xref{Writing Servers}.
 
 @node Quake III Key Server, Gnutella Spider, Foo Server, Existing Servers
 @subsection Quake III Key Server
@@ -1194,7 +1202,7 @@ port information. See above for more information.
 
 @subsubsection General description
 The Tunnel server is for mapping one port configuration to another. 
-Generally this means that you can setup Serveez to accept network
+Generally this means that you can setup @value{PACKAGE} to accept network
 connections in order to pass all network data traffic on this line to
 another address. This can be useful to workaround gateways and 
 firewalls.
@@ -1202,7 +1210,10 @@ firewalls.
 @subsubsection Configuration
 This might be the most easiest configuration to setup. You essentially
 need to define the source port configuration and the target port 
-configuration.
+configuration. The @file{@value{s_PACKAGE}.cfg} in the @file{data/} 
+directory shows two example configurations how to tunnel TCP 
+connections over UDP and ICMP. The UDP tunnel accesses the standard 
+HTTP port 80 and the UDP tunnel accesses the standard Telnet port 23.
 
 @table @asis
 @item source
@@ -1216,15 +1227,15 @@ The target port configuration.
 @chapter Co-Server
 
 @menu
-* What are Co-Servers::         The use of Co-Servers in Serveez
-* Writing Co-Servers::          How to write Co-Servers with Serveez
+* What are Co-Servers::         The use of Co-Servers in @value{PACKAGE}
+* Writing Co-Servers::          How to write Co-Servers with @value{PACKAGE}
 * Existing Co-Servers::         What kind of Co-Servers already exist ?
 @end menu
 
 @node What are Co-Servers, Writing Co-Servers, Co-Server, Co-Server
 @section What are Co-Servers
 
-If it is necessary to complete blocking tasks in Serveez you have 
+If it is necessary to complete blocking tasks in @value{PACKAGE} you have 
 to use Co-Servers. The actual implementation in Unices is a process and in
 Win32 systems it is realized by a thread.
 
@@ -1234,7 +1245,7 @@ Win32 systems it is realized by a thread.
 @subsection Making and configuring preparations
 
 First you have to change into the @file{src/coserver/} directory of the 
-Serveez package. Then edit the @file{Makefile.am} and add your 
+@value{PACKAGE} package. Then edit the @file{Makefile.am} and add your 
 header and implementation file to the @code{libcoserver_a_SOURCES}
 variable there.
 
@@ -1246,14 +1257,15 @@ Both of these buffers are supposed to be lines separated by a @samp{\n}.
 
 @subsection Co-Server implementation file
 
-Here you need to @code{#include "coserver.h"} and implement the Co-Server 
-handle routine defined in the Co-Server header file. This could be any blocking
-system call. On successful completion you can return the result or NULL on
-errors. The input and output buffers are plain strings and can have any
-format with one exception. Because the Co-Servers communicate via a line
-protocol with Serveez these buffers must not contain @samp{\n} (0x0d).
+Here you need to @code{#include "coserver.h"} and implement the 
+Co-Server handle routine defined in the Co-Server header file. This 
+could be any blocking system call. On successful completion you 
+can return the result or NULL on errors. The input and output 
+buffers are plain strings and can have any format with one exception. 
+Because the Co-Servers communicate via a line protocol with 
+@value{PACKAGE} these buffers must not contain @samp{\n} (0x0d).
 
-@subsection Make your Co-Server available in Serveez
+@subsection Make your Co-Server available in @value{PACKAGE}
 
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
 @file{src/coserver/} directory. In the header file you have to define a 
@@ -1377,10 +1389,11 @@ MyReverseCallback (char *host, int id, int version)
 @node Porting issues,  , Co-Server, Top
 @chapter Porting issues
 
-Serveez was always designed with an eye on maximum portability. Autoconf 
-and Automake have done a great job at this. A lot of @code{#define}s help
-to work around some of the different unices oddities. Have a look at
-@file{config.h} for a complete list of all these conditionals.
+@value{PACKAGE} was always designed with an eye on maximum 
+portability. Autoconf and Automake have done a great job at this. 
+A lot of @code{#define}s help to work around some of the different 
+unices oddities. Have a look at @file{config.h} for a complete list 
+of all these conditionals.
 
 The most doubtful might be the Win32 port. There are two different targets.
 Where the @code{__MINGW32__} port refers to a native Win32 port. The home
@@ -1469,10 +1482,11 @@ for socket handles. That are put into an fd with _open_osfhandle()
 also fixes several other nasty bugs in the MS libcXXX.
 @end table
 
-If if you want to compile Serveez with the native M$ Visual C++ compiler
-you have to go quite a long way. But it is possible anyway. We assume you
-got a Cygwin development environment somewhere, the Developer Studio
-installation and @samp{serveez} and @samp{sizzle} in separate directories.
+If if you want to compile @value{PACKAGE} with the native 
+M$ Visual C++ compiler you have to go quite a long way. But it is 
+possible anyway. We assume you got a Cygwin development environment 
+somewhere, the Developer Studio installation and @samp{@value{s_PACKAGE}} 
+and @samp{@value{s_SIZZLE}} in separate directories.
 
 @table @asis
 @item Step 1. Create development environment for VC.
@@ -1487,15 +1501,15 @@ $ set LD=link
 
 @item Step 2. Configure.
 @example
-$ sh configure --with-sizzle=../sizzle/
+$ sh configure --with-@value{s_SIZZLE}=../@value{s_SIZZLE}/
 @end example
 
-@item Step 3. Create project and workspace for both Serveez and Sizzle.
-Start your Developer Studio and create a new project. For Serveez you need
-to create a @samp{Win32 console application} and for Sizzle a
-@samp{Win32 static library} then. For both projects you need to add all
-the @file{.c} files form @file{src/} (Serveez) and @file{libsizzle/}
-(Sizzle).
+@item Step 3. Create project and workspace for both @value{PACKAGE} and @value{SIZZLE}.
+Start your Developer Studio and create a new project. For 
+@value{PACKAGE} you need to create a @samp{Win32 console application} 
+and for @value{SIZZLE} a @samp{Win32 static library} then. For both 
+projects you need to add all the @file{.c} files form @file{src/} 
+(@value{PACKAGE}) and @file{lib@value{s_SIZZLE}/} (@value{SIZZLE}).
 
 @item Step 4. Define options.
 For configuring your projects you press @key{Alt-F7}. Make the following
@@ -1503,21 +1517,23 @@ definitions:
 
 @table @asis
 @item Preprocessor.
-@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__SIZZLE_EXPORT__=1} 
-for Sizzle and
-@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__SIZZLE_IMPORT__=1} 
-for Serveez.
+@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__@value{b_SIZZLE}_EXPORT__=1} 
+for @value{SIZZLE} and
+@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__@value{b_SIZZLE}_IMPORT__=1} 
+for @value{PACKAGE}.
 
 @item Include directories.
-Add the following paths: @file{.,..,../sizzle,./src,../..}.
+Add the following paths: @file{.,..,../@value{s_SIZZLE},./src,../..}.
 
 @item Object-Modules.
-Simply add @file{wsock32.lib} and @file{sizzle.lib} (for Serveez only).
+Simply add @file{wsock32.lib} and @file{@value{s_SIZZLE}.lib} 
+(for @value{PACKAGE} only).
 
 @item Library paths.
-In order to link against the previously created Sizzle library you have
-to specify the additional library path @file{../sizzle/libsizzle} in the
-Serveez project.
+In order to link against the previously created @value{SIZZLE} library 
+you have to specify the additional library path 
+@file{../@value{s_SIZZLE}/lib@value{s_SIZZLE}} in the @value{PACKAGE} 
+project.
 @end table
 @end table
 
@@ -1525,7 +1541,7 @@ Compiling now via @key{F7} you got a completely native Win32 application
 which is linked against the @file{KERNEL32.DLL} and @file{WINSOCK32.DLL}.
 
 Now follows the list on which operating systems and architectures
-Serveez has been build and tested successfully.
+@value{PACKAGE} has been build and tested successfully.
 
 @itemize @bullet
 
