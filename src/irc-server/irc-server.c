@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.7 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-server.c,v 1.8 2000/07/19 20:07:08 ela Exp $
  *
  */
 
@@ -153,7 +153,7 @@ irc_connect_server (irc_server_t *server, char *ip)
   
   /* try connecting */
   server->addr = inet_addr (ip);
-  if (!(sock = sock_connect (server->addr, server->port)))
+  if (!(sock = sock_connect (server->addr, htons (server->port))))
     {
       return -1;
     }
@@ -261,8 +261,7 @@ irc_connect_servers (irc_config_t *cfg)
   char realhost[MAX_HOST_LEN];
   char pass[MAX_PASS_LEN];
   char host[MAX_NAME_LEN];
-  unsigned short port;
-  int class;
+  int class, port;
   irc_server_t *ircserver;
   char *cline;
   int n;
@@ -280,7 +279,8 @@ irc_connect_servers (irc_config_t *cfg)
       
       /* create new IRC server structure */
       ircserver = xmalloc (sizeof (irc_server_t));
-      ircserver->port = htons (port);
+      ircserver->port = port;
+      ircserver->class = class;
       ircserver->id = -1;
       ircserver->realhost = xmalloc (strlen (realhost) + 1);
       strcpy (ircserver->realhost, realhost);
@@ -291,6 +291,7 @@ irc_connect_servers (irc_config_t *cfg)
       ircserver->cfg = cfg;
       ircserver->next = NULL;
       ircserver->connected = 0;
+      ircserver->connect = 1;
 
       /* add this server to the server list */
       log_printf (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.8 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-proto.c,v 1.9 2000/07/19 20:07:08 ela Exp $
  *
  */
 
@@ -113,6 +113,7 @@ irc_config_t irc_config =
   NULL,                  /* user authorizations */
   NULL,                  /* operator autorizations */
   NULL,                  /* banned users */
+  NULL                   /* name of the /INFO file */
 };
 
 /*
@@ -122,6 +123,7 @@ key_value_pair_t irc_config_prototype [] =
 {
   REGISTER_PORTCFG ("port", irc_config.netport, DEFAULTABLE),
   REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
+  REGISTER_STR ("INFO-file", irc_config.info_file, DEFAULTABLE),
 #if ENABLE_TIMESTAMP
   REGISTER_INT ("tsdelta", irc_config.tsdelta, DEFAULTABLE),
 #endif
@@ -531,6 +533,7 @@ irc_idle (socket_t sock)
  */
 irc_callback_t irc_callback[] =
 {
+  { 0, "INFO",     irc_info_callback     },
   { 0, "KILL",     irc_kill_callback     },
   { 0, "ERROR",    irc_error_callback    },
   { 0, "WHOWAS",   irc_whowas_callback   },

@@ -714,6 +714,10 @@ When a user initially joins it will get this file's content as the
 message of the day comment. When changing on disk the server will notice
 that and reload the file automatically.
 
+@item INFO-file
+The @samp{INFO-file}s content gets displayed when the user commits the
+/INFO command.
+
 @item tsdelta
 This value is the timestamp delta value to UTC in seconds.
 

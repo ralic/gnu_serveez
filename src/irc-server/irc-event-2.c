@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.5 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-event-2.c,v 1.6 2000/07/19 20:07:08 ela Exp $
  *
  */
 
@@ -832,7 +832,7 @@ irc_mode_callback (socket_t sock,
 		{
 		  for (n = 0; n < channel->bans; n++)
 		    {
-		      irc_printf (sock, ":%s %03d %s %s %s %s %d\n", 
+		      irc_printf (sock, ":%s %03d %s " RPL_BANLIST_TEXT "\n", 
 				  cfg->host,
 				  RPL_BANLIST, client->nick, channel->name,
 				  irc_ban_string (channel->ban[n]),

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.5 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-event-3.c,v 1.6 2000/07/19 20:07:08 ela Exp $
  *
  */
 
@@ -29,15 +29,18 @@
 #if ENABLE_IRC_PROTO
 
 #define _GNU_SOURCE
+#include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>
 #endif
 
-#include "socket.h"
+#include "alloc.h"
 #include "util.h"
+#include "socket.h"
 #include "server-core.h"
 #include "serveez.h"
 #include "irc-core/irc-core.h"
@@ -183,6 +186,11 @@ irc_stats_callback (socket_t sock,
   char stat;
   time_t t, sec, hour, min, day;
   int n;
+  irc_server_t *server;
+  irc_user_t *user;
+  irc_class_t *class;
+  irc_oper_t *oper;
+  irc_kill_t *kill;
 
   /* no paras given */
   if (!request->paras)
@@ -213,6 +221,25 @@ irc_stats_callback (socket_t sock,
        *     connections from
        */
     case 'c':
+      for (server = cfg->servers; server; server = server->next)
+	{
+	  /* actively connecting */
+	  if (server->connect)
+	    {
+	      irc_printf (sock, ":%s %03d %s " RPL_STATSCLINE_TEXT "\n",
+			  cfg->host, RPL_STATSCLINE, client->nick,
+			  server->realhost, server->host, server->port,
+			  server->class);
+	    }
+	  /* is allowed to connect */
+	  else
+	    {
+	      irc_printf (sock, ":%s %03d %s " RPL_STATSNLINE_TEXT "\n",
+			  cfg->host, RPL_STATSNLINE, client->nick,
+			  server->realhost, server->host, server->port,
+			  server->class);
+	    }
+	}
       break;
       /* 
        * h - returns a list of servers which are either forced to be
@@ -225,12 +252,28 @@ irc_stats_callback (socket_t sock,
        *     to connect from
        */
     case 'i':
+      for (user = cfg->user_auth; user; user = user->next)
+	{
+	  irc_printf (sock, ":%s %03d %s " RPL_STATSILINE_TEXT "\n",
+		      cfg->host, RPL_STATSILINE, client->nick,
+		      user->user_ip, 
+		      user->ip ? "@" : "", user->ip ? user->ip : "",
+		      user->user_host, 
+		      user->host ? "@" : "", user->host ? user->host : "",
+		      cfg->port, user->class);
+	}
       break;
       /* 
        * k - returns a list of banned username/hostname combinations
        *     for that server
        */
     case 'k':
+      for (kill = cfg->banned; kill; kill = kill->next)
+	{
+	  irc_printf (sock, ":%s %03d %s "  RPL_STATSKLINE_TEXT "\n",
+		      cfg->host,  RPL_STATSKLINE, client->nick,
+		      kill->host, kill->user, cfg->port, 0);
+	}
       break;
       /*
        * l - returns a list of the server's connections, showing how
@@ -260,11 +303,24 @@ irc_stats_callback (socket_t sock,
        *     become operators
        */
     case 'o':
+      for (oper = cfg->operator_auth; oper; oper = oper->next)
+	{
+	  irc_printf (sock, ":%s %03d %s " RPL_STATSOLINE_TEXT "\n",
+		      cfg->host, RPL_STATSOLINE, client->nick,
+		      oper->host, oper->user);
+	}
       break;
       /*
        * y - show Y (Class) lines from server's configuration file
        */
     case 'y':
+      for (class = cfg->classes; class; class = class->next)
+	{
+	  irc_printf (sock, ":%s %03d %s " RPL_STATSYLINE_TEXT "\n",
+		      cfg->host, RPL_STATSYLINE, client->nick,
+		      class->nr, class->ping_freq, class->connect_freq,
+		      class->sendq_size);
+	}
       break;
       /*
        * u - returns a string showing how long the server has been up
@@ -272,12 +328,12 @@ irc_stats_callback (socket_t sock,
     case 'u':
       t = time (NULL) - serveez_config.start_time;
       sec = t % 60;
-      t -= sec;
+      t /= sec;
       min = t % 60;
-      t -= min * 60;
-      hour = t % 3600;
-      t -= hour * 3600;
-      day = t / (3600 * 24);
+      t /= 60;
+      hour = t % 24;
+      t /= 24;
+      day = t % 24;
       irc_printf (sock, ":%s %03d %s " RPL_STATSUPTIME_TEXT "\n",
 		  cfg->host, RPL_STATSUPTIME, client->nick, 
 		  day, hour, min, sec);
@@ -310,6 +366,48 @@ irc_version_callback (socket_t sock,
 		  cfg->host, RPL_VERSION, client->nick,
 		  serveez_config.version_string, 
 		  serveez_config.program_name);
+    }
+  return 0;
+}
+
+/*
+ *         Command: INFO
+ *      Parameters: [<server>]
+ * Numeric Replies: ERR_NOSUCHSERVER
+ *                  RPL_INFO         RPL_ENDOFINFO
+ */
+int
+irc_info_callback (socket_t sock, 
+		   irc_client_t *client,
+		   irc_request_t *request)
+{
+  irc_config_t *cfg = sock->cfg;
+  char *text;
+  FILE *f;
+
+  if (!request->paras)
+    {
+      if ((f = fopen (cfg->info_file, "r")) == NULL)
+	{
+	  log_printf (LOG_ERROR, "irc: /INFO error: %s\n", SYS_ERROR);
+	  irc_printf (sock, ":%s %03d %s " ERR_FILEERROR_TEXT "\n",
+		      cfg->host, ERR_FILEERROR, client->nick,
+		      "open", cfg->info_file);
+	  return 0;
+	}
+
+      /* read every line (restrict line length) */
+      text = xmalloc (MOTD_LINE_LEN);
+      while (fgets (text, MOTD_LINE_LEN, f) != NULL)
+	{
+	  irc_printf (sock, ":%s %03d %s " RPL_INFO_TEXT "\n",
+		      cfg->host, RPL_INFO, client->nick, text);
+	}
+      xfree (text);
+      fclose (f);
+
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFINFO_TEXT "\n",
+		  cfg->host, RPL_ENDOFINFO, client->nick, text);
     }
   return 0;
 }

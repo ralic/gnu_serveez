@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event.h,v 1.5 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-event.h,v 1.6 2000/07/19 20:07:08 ela Exp $
  *
  */
 
@@ -126,6 +126,7 @@ int irc_version_callback (CALLBACK_ARGS);
 int irc_lusers_callback  (CALLBACK_ARGS);
 int irc_time_callback    (CALLBACK_ARGS);
 int irc_admin_callback   (CALLBACK_ARGS);
+int irc_info_callback    (CALLBACK_ARGS);
 
 /* Sending messages */
 int irc_note_callback (CALLBACK_ARGS);

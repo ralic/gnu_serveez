@@ -1,5 +1,9 @@
 2000-07-19  [ Ela ]  <ela@lkcc.org>
 
+	* irc-server/irc-event-3.c (irc_stats_callback): Added all
+	the statistics refering ? lines.
+	(irc_info_callback): Added the /INFO command replies.
+
 	* irc-server/irc-config.c (irc_parse_config_lines): Added this
 	file. This routine is taking all the X-lines and converts them
 	into useful structures.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.8 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-proto.h,v 1.9 2000/07/19 20:07:08 ela Exp $
  *
  */
 
@@ -84,7 +84,8 @@ struct irc_connection_class
   int nr;            /* class number */
   int ping_freq;     /* ping frequency in seconds */
   int connect_freq;  /* connect frequency in seconds, zero for clients */
-  int links;         /* maximum number of links */
+  int max_links;     /* maximum number of links */
+  int links;         /* current number of links */
   int sendq_size;    /* send queue size */
   char *line;        /* refering Y line */
   irc_class_t *next; /* pointer to next connection class */
@@ -220,6 +221,8 @@ struct irc_server
   char *pass;                     /* password */
   int id;                         /* socket id */
   int connected;                  /* is that server really connected ? */
+  int class;                      /* connection class number */
+  int connect;                    /* connect = 1 (C line), = 0 (N line) */
   void *cfg;                      /* irc server configuration hash */
   void *next;                     /* next server in the list */
 };
@@ -357,6 +360,7 @@ typedef struct
   irc_user_t *user_auth;          /* user authorizations */
   irc_oper_t *operator_auth;      /* operator autorizations */
   irc_kill_t *banned;             /* banned users */
+  char *info_file;                /* name of the /INFO file */
 }
 irc_config_t;
 
@@ -497,6 +501,7 @@ int irc_global_finalize (void);
 
 #define ERR_NOADMININFO           423
 #define ERR_FILEERROR             424
+#define ERR_FILEERROR_TEXT        ":File error doing %s on %s"
 
 #define ERR_NONICKNAMEGIVEN       431
 #define ERR_NONICKNAMEGIVEN_TEXT  ":No nickname given"
@@ -530,7 +535,9 @@ int irc_global_finalize (void);
 
 #define ERR_NOPERMFORHOST         463
 #define ERR_PASSWDMISMATCH        464
+#define ERR_PASSWDMISMATCH_TEXT   ":Password incorrect"
 #define ERR_YOUREBANNEDCREEP      465
+#define ERR_YOUREBANNEDCREEP_TEXT ":You are banned from this server"
 
 #define ERR_KEYSET                467
 #define ERR_KEYSET_TEXT           "%s :Channel key already set."
@@ -649,12 +656,14 @@ int irc_global_finalize (void);
 #define RPL_LINKS                 364
 #define RPL_ENDOFLINKS            365
 #define RPL_BANLIST               367
-
+#define RPL_BANLIST_TEXT          "%s %s %s %d"
 #define RPL_ENDOFBANLIST          368
 #define RPL_ENDOFBANLIST_TEXT     "%s :End of channel ban list"
 
 #define RPL_INFO                  371
+#define RPL_INFO_TEXT             ":%s"
 #define RPL_ENDOFINFO             374
+#define RPL_ENDOFINFO_TEXT        ":End of /INFO list"
 
 #define RPL_MOTDSTART             375
 #define RPL_MOTDSTART_TEXT        ":- Message of the day - %s -"
@@ -698,9 +707,9 @@ int irc_global_finalize (void);
 #define RPL_STATSNLINE            214
 #define RPL_STATSNLINE_TEXT       "N %s * %s %d %d"
 #define RPL_STATSILINE            215
-#define RPL_STATSILINE_TEXT       "I %s * %s %d %d"
+#define RPL_STATSILINE_TEXT       "I %s%s%s * %s%s%s %d %d"
 #define RPL_STATSKLINE            216
-#define RPL_STATSKLINE_TEXT       "K %s * % %d %d"
+#define RPL_STATSKLINE_TEXT       "K %s * %s %d %d"
 #define RPL_STATSYLINE            218
 #define RPL_STATSYLINE_TEXT       "Y %d %d %d %d"
 
@@ -714,6 +723,8 @@ int irc_global_finalize (void);
 #define RPL_STATSUPTIME_TEXT      ":Server Up %d days %d:%02d:%02d"
 
 #define RPL_STATSOLINE            243
+#define RPL_STATSOLINE_TEXT        "O %s * %s"
+
 #define RPL_STATSHLINE            244
 
 #define RPL_UMODEIS               221
