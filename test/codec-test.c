@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: codec-test.c,v 1.2 2001/10/08 13:02:54 ela Exp $
+ * $Id: codec-test.c,v 1.3 2001/10/11 11:13:15 ela Exp $
  *
  */
 
@@ -134,8 +134,14 @@ main (int argc, char **argv)
   svz_log_setfile (stderr);
 #endif
 
+#ifdef __MINGW32__
+  setmode (fileno (stdin), O_BINARY);
+  setmode (fileno (stdout), O_BINARY);
+#endif
+
   /* Create single pipe socket for stdin and stdout. */
-  if ((sock = svz_pipe_create ((HANDLE) 0, (HANDLE) 1)) == NULL)
+  if ((sock = svz_pipe_create ((HANDLE) fileno (stdin), 
+			       (HANDLE) fileno (stdout))) == NULL)
     return result;
   sock->read_socket = codec_recv;
   sock->write_socket = codec_send;
@@ -161,7 +167,7 @@ main (int argc, char **argv)
     }
   if (svz_codec_sock_send_setup (sock, codec))
     return result;
-
+  
   /* Run server loop. */
   svz_loop_pre ();
   do

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.c,v 1.1 2001/10/07 17:10:28 ela Exp $
+ * $Id: gzlib.c,v 1.2 2001/10/11 11:13:15 ela Exp $
  *
  */
 
@@ -174,10 +174,7 @@ zlib_encode (svz_codec_data_t *data)
     flush = Z_SYNC_FLUSH;
 
   if (data->flag & SVZ_CODEC_FINISH)
-    {
-      s->avail_in = 0;
-      flush = Z_FINISH;
-    }
+    flush = Z_FINISH;
 
   ret = deflate (s, flush);
   if (ret != Z_OK && ret != Z_STREAM_END)
@@ -185,7 +182,7 @@ zlib_encode (svz_codec_data_t *data)
 
   /* Correct the values in the input and output buffer. */
   if (s->avail_in > 0)
-    memmove (data->in_buffer, s->next_in, data->in_fill - s->avail_in);
+    memmove (data->in_buffer, s->next_in, s->avail_in);
   data->in_fill = s->avail_in;
   data->out_fill = (int) data->out_size - s->avail_out;
 
@@ -254,7 +251,7 @@ zlib_decode (svz_codec_data_t *data)
     return SVZ_CODEC_ERROR;
 
   if (s->avail_in > 0)
-    memmove (data->in_buffer, s->next_in, data->in_fill - s->avail_in);
+    memmove (data->in_buffer, s->next_in, s->avail_in);
   data->in_fill = s->avail_in;
   data->out_fill = (int) data->out_size - s->avail_out;
 

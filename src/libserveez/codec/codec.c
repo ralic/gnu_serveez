@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.3 2001/10/09 20:45:10 ela Exp $
+ * $Id: codec.c,v 1.4 2001/10/11 11:13:15 ela Exp $
  *
  */
 
@@ -265,6 +265,7 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
   data = svz_calloc (sizeof (svz_codec_data_t));
   data->codec = codec;
   data->flag = SVZ_CODEC_INIT;
+  data->state = SVZ_CODEC_NONE;
   data->config = data->data = NULL;
   sock->recv_codec = data;
 
@@ -292,6 +293,7 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
       svz_codec_sock_recv_revert (sock);
       return -1;
     }
+  data->state |= SVZ_CODEC_READY;
   svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
 	   SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
@@ -312,6 +314,12 @@ svz_codec_sock_receive (svz_socket_t *sock)
   svz_codec_t *codec = data->codec;
   int ret;
 
+  /* Check internal state of codec first. */
+  if (!(data->state & SVZ_CODEC_READY))
+    {
+      return 0;
+    }
+
   /* Run the encoder / decoder of the applied codec. */
   data->flag = SVZ_CODEC_CODE;
   if (sock->flags & SOCK_FLAG_FLUSH)
@@ -320,7 +328,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
   while ((ret = codec->code (data)) == SVZ_CODEC_MORE_OUT)
     {
       /* Resize output buffer if necessary. */
-      data->flag = SVZ_CODEC_FLUSH;
+      data->flag |= SVZ_CODEC_FLUSH;
       data->out_size *= 2;
       data->out_buffer = svz_realloc (data->out_buffer, data->out_size);
     }
@@ -341,6 +349,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
 	}
       else
 	{
+	  data->state &= ~SVZ_CODEC_READY;
 	  svz_log (LOG_NOTICE, "%s: %s finalized\n", 
 		   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
 	}
@@ -436,6 +445,7 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
   data = svz_calloc (sizeof (svz_codec_data_t));
   data->codec = codec;
   data->flag = SVZ_CODEC_INIT;
+  data->state = SVZ_CODEC_NONE;
   data->config = data->data = NULL;
   sock->send_codec = data;
 
@@ -463,6 +473,7 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
       svz_codec_sock_send_revert (sock);
       return -1;
     }
+  data->state |= SVZ_CODEC_READY;
   svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
 	   SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
@@ -482,6 +493,12 @@ svz_codec_sock_send (svz_socket_t *sock)
   svz_codec_t *codec = data->codec;
   int ret;
 
+  /* Check internal state of codec first. */
+  if (!(data->state & SVZ_CODEC_READY))
+    {
+      return 0;
+    }
+
   /* Run the encoder / decoder of the applied codec. */
   data->flag = SVZ_CODEC_CODE;
   if (sock->flags & SOCK_FLAG_FLUSH)
@@ -490,7 +507,7 @@ svz_codec_sock_send (svz_socket_t *sock)
   while ((ret = codec->code (data)) == SVZ_CODEC_MORE_OUT)
     {
       /* Resize output buffer if necessary. */
-      data->flag = SVZ_CODEC_FLUSH;
+      data->flag |= SVZ_CODEC_FLUSH;
       data->out_size *= 2;
       data->out_buffer = svz_realloc (data->out_buffer, data->out_size);
     }
@@ -511,6 +528,7 @@ svz_codec_sock_send (svz_socket_t *sock)
 	}
       else
 	{
+	  data->state &= ~SVZ_CODEC_READY;
 	  svz_log (LOG_NOTICE, "%s: %s finalized\n", 
 		   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
 	}
@@ -561,14 +579,16 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
   if ((data = (svz_codec_data_t *) sock->recv_codec) != NULL)
     {
       disconnected = data->disconnected_socket;
-      data->codec->finalize (data);
+      if (data->state & SVZ_CODEC_READY)
+	data->codec->finalize (data);
       svz_codec_sock_recv_revert (sock);
     }
   /* Check and release sending codec. */
   if ((data = (svz_codec_data_t *) sock->send_codec) != NULL)
     {
       disconnected = data->disconnected_socket;
-      data->codec->finalize (data);
+      if (data->state & SVZ_CODEC_READY)
+	data->codec->finalize (data);
       svz_codec_sock_send_revert (sock);
     }
 

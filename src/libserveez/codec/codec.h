@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.h,v 1.2 2001/10/08 13:02:54 ela Exp $
+ * $Id: codec.h,v 1.3 2001/10/11 11:13:15 ela Exp $
  *
  */
 
@@ -42,6 +42,10 @@
 #define SVZ_CODEC_MORE_OUT 0x0008
 #define SVZ_CODEC_MORE_IN  0x0010
 
+/* Internal state of a codec. */
+#define SVZ_CODEC_NONE  0x0000
+#define SVZ_CODEC_READY 0x0001
+
 /* Codec types. */
 #define SVZ_CODEC_ENCODER 0x0001
 #define SVZ_CODEC_DECODER 0x0002
@@ -57,8 +61,11 @@ struct svz_codec_data
   /* Current codec class. */
   svz_codec_t *codec;
 
-  /* Operation flag. */
+  /* Operation flags. */
   int flag;
+
+  /* Current state flags. */
+  int state;
 
   /* Input buffer description. */
   char *in_buffer;
