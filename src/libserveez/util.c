@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.14 2001/06/12 17:27:21 raimi Exp $
+ * $Id: util.c,v 1.15 2001/07/02 11:46:34 ela Exp $
  *
  */
 
@@ -190,7 +190,7 @@ svz_hexdump (FILE *out,    /* output FILE stream */
 
 /*
  * This is the @code{hstrerror()} wrapper function, depending on the 
- * configuration file `config.h'.
+ * configuration file @file{config.h}.
  */
 const char *
 svz_hstrerror (void)

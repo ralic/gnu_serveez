@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: process.c,v 1.3 2001/07/01 12:29:27 ela Exp $
+ * $Id: process.c,v 1.4 2001/07/02 11:46:34 ela Exp $
  *
  */
 
@@ -68,7 +68,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char **argv, char **envp)
     return -1;
 
   /* Setup descriptors depending on the type of socket structure. */
-  in = out = sock->sock_desc;
+  in = out = (HANDLE) sock->sock_desc;
   if (sock->flags & SOCK_FLAG_PIPE)
     {
       in = sock->pipe_desc[READ];

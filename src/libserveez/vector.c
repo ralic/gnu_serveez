@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector.c,v 1.3 2001/04/01 13:32:30 ela Exp $
+ * $Id: vector.c,v 1.4 2001/07/02 11:46:34 ela Exp $
  *
  */
 
@@ -84,7 +84,7 @@ svz_vector_clear (svz_vector_t *vec)
 /*
  * Add an element to the end of the given vector list @var{vec}. Return the
  * position the element got. @var{value} is a pointer to a chunk of the
- * vector list's chunk size.
+ * vector lists chunk size.
  */
 unsigned long
 svz_vector_add (svz_vector_t *vec, void *value)
@@ -181,7 +181,7 @@ svz_vector_ins (svz_vector_t *vec, unsigned long index, void *value)
   vec->length++;
   vec->chunks = svz_realloc (vec->chunks, vec->chunk_size * vec->length);
 
-  /* append at vector list's end */
+  /* append at vector lists end */
   if (vec->length == index)
     {
       memcpy ((char *) vec->chunks + vec->chunk_size * index, value,

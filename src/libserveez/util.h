@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.10 2001/06/06 17:40:21 raimi Exp $
+ * $Id: util.h,v 1.11 2001/07/02 11:46:34 ela Exp $
  *
  */
 
@@ -130,8 +130,8 @@ typedef char ** svz_envblock_t;
 
 #ifdef __MINGW32__
 /*
- * The variable `svz_os_version' could be used to differentiate between
- * some Win32 versions.
+ * The variable @code{svz_os_version} could be used to differentiate 
+ * between some Win32 versions.
  */
 #define Win32s  0
 #define Win95   1

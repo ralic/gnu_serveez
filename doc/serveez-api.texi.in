@@ -105,7 +105,7 @@ The following small example shows how to use the Serveez core library to
 print the list of known network interface. As you will notice there are three
 major steps to do: Include the library header with 
 @code{#include <libserveez.h>}, initialize the library via @code{svz_boot()} 
-and finalize it via @code{svz_halt()}. It between these calls you can use
+and finalize it via @code{svz_halt()}. In between these calls you can use
 all of the API functions, variables and macros described in 
 @ref{Embedding API}. 
 

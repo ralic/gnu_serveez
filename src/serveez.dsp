@@ -109,6 +109,10 @@ SOURCE=".\nut-server\gnutella.c"
 # End Source File
 # Begin Source File
 
+SOURCE=".\guile-server.c"
+# End Source File
+# Begin Source File
+
 SOURCE=.\guile.c
 # End Source File
 # Begin Source File

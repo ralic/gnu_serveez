@@ -143,7 +143,7 @@ There are three things you have to do in the configuration file.
 @node Define ports, Define servers, , Using Serveez
 @subsection Define ports
 
-A @code{port} (in serveez) is a transport endpoint. You might know them
+A @code{port} (in Serveez) is a transport endpoint. You might know them
 from other TCP or UDP server applications. For example: web servers
 (HTTP) usually listen on TCP port 80. However, there is more than TCP
 ports: we have UDP, ICMP and named pipes each with different options to
@@ -153,7 +153,7 @@ later used to bind servers to it.
 The following examples show how you setup different types of port 
 configurations. You start to define such a port using the guile function
 @code{(define-port!)}. The first argument to this functions specifies the
-name of the port configuration. The remaiming argument describes the
+name of the port configuration. The remaining argument describes the
 port in detail.
 
 @subsubsection TCP port definition
@@ -239,19 +239,19 @@ Simple definition of a UDP port configuration with the name "foo-udp-port".
 @node Define servers, Bind servers to ports, Define ports, Using Serveez
 @subsection Define servers
 
-A @code{server} (in serveez) is a snippet of code that implements some
-protocol. There are many servers built into serveez but you can implement
+A @code{server} (in Serveez) is a snippet of code that implements some
+protocol. There are many servers built into Serveez but you can implement
 your own, too. For example we provide a webserver implementing the
 Hypertext Transfer Protocol (HTTP). Each server has a different set of
 options you can change. You can have many instances of every server, each
 with a different set of options. For example: You can create a webserver
-on TCP port 42420 publishing the serveez documentation and also have another
+on TCP port 42420 publishing the Serveez documentation and also have another
 webserver on a different port publishing something else. Every server
 has a unique name you assign to it. The name of the server is later used
 to bind it to a port.
 
 The following example instantiates a server with the short name "foo". Each
-server in serveez has got a short name. @xref{Existing servers}, for the 
+server in Serveez has got a short name. @xref{Existing servers}, for the 
 details. This example demonstrates everything which is possible in server
 configurations. You start a definition of a server with the guile function 
 @code{(define-server!)}. The following argument specifies the name of the
@@ -286,7 +286,7 @@ is the short name and "foo-server" the name of the server instance.
 
 Finally you can bind servers to ports. When you do so the server you
 created listens on the port, accepts connections and serves clients. It
-does so as soon as serveez enters its main loop right after running the
+does so as soon as Serveez enters its main loop right after running the
 configuration file. Serveez won't stop until you interrupt it (e.g. by
 pressing @key{^C} in the terminal you started it in).
 
@@ -300,7 +300,7 @@ you can write this statement.
 (bind-server! 'foo-tcp-port 'foo-server)
 @end example
 
-One of the main features of serveez is that you can bind multiple
+One of the main features of Serveez is that you can bind multiple
 servers to the same port. This for example useful to pass braindead
 firewall configurations or proxy servers. It is also possible to bind
 servers to ports they are actually not designed for. This might be used
@@ -344,7 +344,7 @@ line.
 
 @item (serveez-maxsockets max)
 Set the number of maximum socket descriptors (number of concurrent 
-connections). When passing serveez the -m command line argument this setting
+connections). When passing Serveez the -m command line argument this setting
 gets overridden, too.
 
 @item (serveez-passwd password)
@@ -434,7 +434,7 @@ available physical memory.
 
 @menu
 * Introduction to servers::     Protocol servers in Serveez
-* Writing servers::             How to write internet protocol servers
+* Writing servers::             How to write Internet protocol servers
 * Configuring servers::         How do I configure an existing server ?
 * Existing servers::            Which kind of servers do we have already ?
 @end menu
@@ -447,7 +447,7 @@ servers to listen on various TCP/UDP ports, on ICMP sockets and on named
 pipes. Servers are instantiated with a certain configuration. It is
 possible to run multiple different servers on the same port.
 
-This chapter covers all questions about how to write your own internet
+This chapter covers all questions about how to write your own Internet
 protocol server with this package. Most of the common tasks of
 such a server have got a generic solution (default routines) which could be 
 "overridden" by your own routines. There are some examples within this 
@@ -585,7 +585,7 @@ have to be implemented. Others have reasonable default values.
 @item global initializer (optional)
 This callback is executed once for every type of server. Here you can
 initialize data or whatever is shared between all instances of your server. 
-For instance the http server would load the mime type file here. The 
+For instance the HTTP server would load the mime type file here. The 
 foo server creates its default hash properties because a hash cannot 
 be statically initialized.
 
@@ -1079,7 +1079,7 @@ The administrative info, printed by the /ADMIN command.
 @example
 ":" administrative info (department, university)
 ":" the server's geographical location
-":" email address for a person responsible for the irc server
+":" email address for a person responsible for the IRC server
 @end example
 
 @item Y-lines (string array, no default, suggested)
@@ -1261,7 +1261,7 @@ There is nothing to be configured yet.
 @subsection Foo Server
 
 @subsubsection General description
-The Foo Server is a simple example on how to write internet protocol
+The Foo Server is a simple example on how to write Internet protocol
 servers with Serveez. @xref{Writing servers}.
 
 @subsubsection Configuration
@@ -1297,7 +1297,7 @@ Some boolean value. Printed as server information.
 
 @subsubsection General
 The SNTP server can be queried with the @samp{netdate} command. It is used
-to synchronize time and dates between internet hosts. The protocol is
+to synchronize time and dates between Internet hosts. The protocol is
 described in the ARPA Internet RFC 868. Thus it is not really an SNTP server
 as described by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for
 IPv4, IPv6 and OSI). It is rather an excellent example on how to implement
@@ -1352,7 +1352,7 @@ the initial host list of the clients the spider tries to
 connect to. Each list item should be of the format @code{ip:port} 
 (e.g. @samp{146.145.85.34:6346}). If the port information is left
 blank it defaults to 6346. If you need some entry point for 
-the gnutella network have a look at @uref{http://www.gnutellahosts.com/} 
+the Gnutella network have a look at @uref{http://www.gnutellahosts.com/} 
 or @uref{http://www.gnutellanet.com/}.
 
 @item search (string array, default: Puppe3000, Meret Becker)
@@ -1426,7 +1426,7 @@ port information. See above for more information.
 
 @subsubsection General description
 The Tunnel server is for mapping one port configuration to another.
-So we should rather speak of a port forwarder. Two portforwarders can 
+So we should rather speak of a port forwarder. Two port forwarders can 
 form a tunnel. Generally this means that you can setup Serveez to accept 
 network or pipe connections in order to pass all transfer data on this 
 line to another port configuration. This can be useful to work around 
@@ -1957,7 +1957,7 @@ however, yet this functionality still exists in Windows 2000.)
 It seems like you cannot send ICMP or even raw packets from the userspace
 of Windows (except via the @file{ICMP.DLL} which is limited to echo 
 requests). We also noticed that you cannot receive any packets previously
-sent. The only thing wich works on all Windows systems (9x/ME/NT/2000) is
+sent. The only thing which works on all Windows systems (9x/ME/NT/2000) is
 receiving packets the "kernel" itself generated (like echo replies).
 One good thing we noticed about Windows 2000 is that the checksums of
 fragmented ICMP packets get correctly recalculated. That is not the case

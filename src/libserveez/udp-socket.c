@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.10 2001/05/21 21:20:42 ela Exp $
+ * $Id: udp-socket.c,v 1.11 2001/07/02 11:46:34 ela Exp $
  *
  */
 
@@ -58,7 +58,7 @@
 #include "libserveez/udp-socket.h"
 
 /*
- * This routine is the default reader for udp sockets. Whenever the socket
+ * This routine is the default reader for UDP sockets. Whenever the socket
  * descriptor is @code{select()}'ed for reading it is called by default and 
  * reads as much data as possible (whole packets only) and saves the sender 
  * into the @code{sock->remote_addr} field. The packet load is written into 
@@ -134,7 +134,7 @@ svz_udp_read_socket (svz_socket_t *sock)
 
 /*
  * The @code{svz_udp_write_socket()} callback should be called whenever 
- * the udp socket descriptor is ready for sending. It sends a single packet 
+ * the UDP socket descriptor is ready for sending. It sends a single packet 
  * within the @code{sock->send_buffer} to the destination address specified 
  * by @code{sock->remote_addr} and @code{sock->remote_port}.
  */
@@ -202,8 +202,8 @@ svz_udp_write_socket (svz_socket_t *sock)
 }
 
 /*
- * This is the default @code{check_request()} routine for udp servers. 
- * Whenever new data arrived at an udp server socket we call this function to
+ * This is the default @code{check_request()} routine for UDP servers. 
+ * Whenever new data arrived at an UDP server socket we call this function to
  * process the packet data. Any given @code{handle_request()} callback MUST 
  * return zero if it successfully processed the data and non-zero if it 
  * could not.
@@ -265,7 +265,7 @@ svz_udp_check_request (svz_socket_t *sock)
 /*
  * Write the given @var{buf} into the send queue of the UDP socket. If the
  * length argument supersedes the maximum length for UDP messages it
- * is splitted into smaller packets.
+ * is split into smaller packets.
  */
 int
 svz_udp_write (svz_socket_t *sock, char *buf, int length)
@@ -318,7 +318,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 }
 
 /*
- * Print a formatted string on the udp socket @var{sock}. @var{fmt} is 
+ * Print a formatted string on the UDP socket @var{sock}. @var{fmt} is 
  * the printf()-style format string, which describes how to format the 
  * optional arguments. See the printf(3) manual page for details. The 
  * destination address and port is saved for sending. This you might 
@@ -347,8 +347,8 @@ svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
  * on errors. This function can be used for port bouncing. If you assign the
  * @code{handle_request} callback to something server specific and the 
  * @var{cfg} field to the server's configuration to the returned socket 
- * structure this socket is able to handle a dedicated udp connection to 
- * some other udp server.
+ * structure this socket is able to handle a dedicated UDP connection to 
+ * some other UDP server.
  */
 svz_socket_t *
 svz_udp_connect (unsigned long host, unsigned short port)

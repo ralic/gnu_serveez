@@ -37,6 +37,12 @@
 /* Define if you have the getdtablesize function.  */
 /* #undef HAVE_GETDTABLESIZE */
 
+/* Define if you have the getegid function.  */
+/* #undef HAVE_GETEGID */
+
+/* Define if you have the geteuid function.  */
+/* #undef HAVE_GETEUID */
+
 /* Define if you have the getpwnam function.  */
 /* #undef HAVE_GETPWNAM */
 
@@ -66,6 +72,12 @@
 
 /* Define if you have the sendfile function.  */
 /* #undef HAVE_SENDFILE */
+
+/* Define if you have the setegid function.  */
+/* #undef HAVE_SETEGID */
+
+/* Define if you have the seteuid function.  */
+/* #undef HAVE_SETEUID */
 
 /* Define if you have the shl_load function.  */
 /* #undef HAVE_SHL_LOAD */
@@ -105,6 +117,9 @@
 
 /* Define if you have the <getopt.h> header file.  */
 /* #undef HAVE_GETOPT_H */
+
+/* Define if you have the <grp.h> header file.  */
+/* #undef HAVE_GRP_H */
 
 /* Define if you have the <mswsock.h> header file.  */
 #define HAVE_MSWSOCK_H 1
@@ -214,6 +229,9 @@
 
 /* Define for faster code generation. */
 #define WIN32_LEAN_AND_MEAN 1
+
+/* Define if guile servers should be supported. */
+#define ENABLE_GUILE_SERVER 1
 
 /* Define if heap counters should be enabled. */
 #define ENABLE_HEAP_COUNT 1

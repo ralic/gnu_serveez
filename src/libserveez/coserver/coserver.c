@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.16 2001/06/21 11:25:47 ela Exp $
+ * $Id: coserver.c,v 1.17 2001/07/02 11:46:34 ela Exp $
  *
  */
 
@@ -355,7 +355,7 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 #ifdef __MINGW32__
 
 /*
- * This routine is the actual threads callback, but calls the coserver's 
+ * This routine is the actual threads callback, but calls the coservers 
  * callback indeed. It is a wrapper routine for Win32, because you can pass 
  * only a single argument to a thread routine.
  */
@@ -403,7 +403,7 @@ svz_coserver_activate (int type)
 /*
  * Call this routine whenever there is time, e.g. within the timeout of 
  * the @code{select()} statement. Indeed I built it in the 
- * @code{server_periodic_tasks()} statement. The routine checks if there was 
+ * @code{svz_periodic_tasks()} statement. The routine checks if there was 
  * any response from an active coserver.
  */
 void
@@ -572,8 +572,7 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
     }
   if (p == end)
     {
-      svz_log (LOG_WARNING, 
-	       "coserver: invalid coserver response (no id)\n");
+      svz_log (LOG_WARNING, "coserver: invalid coserver response (no id)\n");
       return -1;
     }
   data = ++p;
@@ -660,7 +659,7 @@ svz_coserver_closeall (void)
 }
 
 /*
- * Setup signalling for a coserver process. This is necessary since 
+ * Setup signaling for a coserver process. This is necessary since 
  * the original signal handlers get confused about signals raised by its
  * children.
  */
@@ -921,7 +920,7 @@ svz_coserver_start (int type)
 }
 
 /*
- * Create a signle coserver with the given type @var{type}.
+ * Create a single coserver with the given type @var{type}.
  */
 void 
 svz_coserver_create (int type)
