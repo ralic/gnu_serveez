@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.12 2000/09/20 08:29:14 ela Exp $
+ * $Id: pipe-socket.c,v 1.13 2000/09/22 18:39:52 ela Exp $
  *
  */
 
@@ -143,18 +143,15 @@ pipe_disconnect (socket_t sock)
 	    log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
 	}
 
-      /* free overlapped structures */
-      if (sock->overlap[READ])
-	xfree (sock->overlap[READ]);
-      if (sock->overlap[WRITE])
-	xfree (sock->overlap[WRITE]);
-
 #endif /* __MINGW32__ */
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "pipe listener (%s) destroyed\n",
 		  sock->send_pipe);
 #endif
+
+      sock->pipe_desc[READ] = INVALID_HANDLE;
+      sock->pipe_desc[WRITE] = INVALID_HANDLE;
     }
 
   return 0;
@@ -186,27 +183,24 @@ pipe_read (socket_t sock)
     }
 
 #ifdef __MINGW32__
-  /*
-   * On Win32 systems we use ReadFile with overlapped I/O to
-   * "emulate" non-blocking descriptors. We MUST set it to NULL
-   * for Win95 and less versions.
-   */
+  /* check how many bytes could be read from the cgi pipe */
+  if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
+		      NULL, (DWORD *) &num_read, NULL))
+    {
+      log_printf (LOG_ERROR, "pipe PeekNamedPipe: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  /* adjust number of bytes to read */
+  if (do_read > num_read) do_read = num_read;
+
+  /* really read from pipe */
   if (!ReadFile (sock->pipe_desc[READ],
 		 sock->recv_buffer + sock->recv_buffer_fill,
-		 do_read, (DWORD *) &num_read, sock->overlap[READ]))
+		 do_read, (DWORD *) &num_read, NULL))
     {
       log_printf (LOG_ERROR, "pipe ReadFile: %s\n", SYS_ERROR);
-      if (last_errno == ERROR_IO_PENDING)
-	{
-	  if (!GetOverlappedResult (sock->pipe_desc[READ], 
-				    sock->overlap[READ], 
-				    (DWORD *) &num_read, FALSE))
-	    {
-	      log_printf (LOG_ERROR, "GetOverlappedResult: %s\n", SYS_ERROR);
-	      return -1;
-	    }
-	}
-      else return -1;
+      return -1;
     }
 #else /* not __MINGW32__ */
   if ((num_read = read (sock->pipe_desc[READ],
@@ -267,32 +261,22 @@ pipe_write (socket_t sock)
 
 #ifdef __MINGW32__
   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
-		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
+		  do_write, (DWORD *) &num_written, NULL))
     {
       log_printf (LOG_ERROR, "pipe WriteFile: %s\n", SYS_ERROR);
-      if (last_errno == ERROR_IO_PENDING)
-	{
-	  if (!GetOverlappedResult (sock->pipe_desc[WRITE], 
-				    sock->overlap[WRITE], 
-				    (DWORD *) &num_written, FALSE))
-	    {
-	      log_printf (LOG_ERROR, "GetOverlappedResult: %s\n", SYS_ERROR);
-	      return -1;
-	    }
-	}
-      else num_written = -1;
+      num_written = -1;
     }
 #else /* not __MINGW32__ */
   if ((num_written = write (sock->pipe_desc[WRITE], 
 			    sock->send_buffer, 
 			    do_write)) == -1)
     {
+      log_printf (LOG_ERROR, "pipe write: %s\n", SYS_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	{
-	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
+	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
 	}
-      log_printf (LOG_ERROR, "pipe write: %s\n", SYS_ERROR);
     }
 #endif /* not __MINGW32__ */
 

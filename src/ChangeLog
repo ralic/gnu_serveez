@@ -1,3 +1,12 @@
+2000-09-22  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.c (main): Fixed arguments for getopt() and
+	getopt_long().
+
+	* http-server/http-cgi.c (http_cgi_read): Using PeekNamedPipe
+	to check if there is data within the receiving cgi pipe and
+	read via ReadFile as much bytes as stated.
+
 2000-09-19  [ Ela ]  <ela@lkcc.org>
 
 	* server-loop.c (server_check_sockets_MinGW): Now we have

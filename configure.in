@@ -29,7 +29,7 @@ dnl
 dnl Initialize autoconf and automake
 dnl
 AC_INIT(src/serveez.c)
-AM_INIT_AUTOMAKE(serveez,0.0.18,no-define)
+AM_INIT_AUTOMAKE(serveez,0.0.19,no-define)
 AM_CONFIG_HEADER(config.h)
 
 dnl

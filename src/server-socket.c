@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.27 2000/09/20 08:29:14 ela Exp $
+ * $Id: server-socket.c,v 1.28 2000/09/22 18:39:52 ela Exp $
  *
  */
 
@@ -527,6 +527,7 @@ server_accept_pipe (socket_t server_sock)
   else
     send_pipe = server_sock->pipe_desc[WRITE];
 
+#if 0
   /*
    * Initialize overlapped structures.
    */
@@ -547,12 +548,13 @@ server_accept_pipe (socket_t server_sock)
 	    CreateEvent (NULL, TRUE, TRUE, NULL);
 	}
     }
+#endif
 
   /*
    * Now try connecting to one of these pipes. This will fail until
    * a client has been connected.
    */
-  if (!ConnectNamedPipe (recv_pipe, server_sock->overlap[READ]))
+  if (!ConnectNamedPipe (recv_pipe, NULL))
     {
       connect = GetLastError ();
       /* Pipe is listening ? */
@@ -569,7 +571,7 @@ server_accept_pipe (socket_t server_sock)
   /* Because these pipes are non-blocking this is never occuring. */
   else return 0;
 
-  if (!ConnectNamedPipe (send_pipe, server_sock->overlap[WRITE]))
+  if (!ConnectNamedPipe (send_pipe, NULL))
     {
       connect = GetLastError ();
       /* Pipe is listening ? */
@@ -596,12 +598,14 @@ server_accept_pipe (socket_t server_sock)
       return 0;
     }
 
+#if 0
   /* Copy overlapped structures. */
   if (os_version >= WinNT4x)
     {
       sock->overlap[READ] = server_sock->overlap[READ];
       sock->overlap[WRITE] = server_sock->overlap[WRITE];
     }
+#endif
 
 #else /* not __MINGW32__ */
 

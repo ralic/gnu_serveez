@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.15 2000/09/21 15:27:11 ela Exp $
+ * $Id: serveez.c,v 1.16 2000/09/22 18:39:52 ela Exp $
  *
  */
 
@@ -104,7 +104,7 @@ usage (void)
 }
 
 #if HAVE_GETOPT_LONG
-static struct option server_options[] =
+static struct option serveez_options[] =
 {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'V'},
@@ -117,6 +117,7 @@ static struct option server_options[] =
   {NULL, 0, NULL, 0}
 };
 #endif /* HAVE_GETOPT_LONG */
+#define SERVEEZ_OPTIONS "l:hViv:f:P:m:"
 
 int
 main (int argc, char * argv[])
@@ -139,10 +140,10 @@ main (int argc, char * argv[])
   init_config ();
 
 #if HAVE_GETOPT_LONG
-  while ((arg = getopt_long (argc, argv, "p:hViv:f:P:m:", server_options,
+  while ((arg = getopt_long (argc, argv, SERVEEZ_OPTIONS, serveez_options,
 			     &index)) != EOF)
 #else
-  while ((arg = getopt (argc, argv, "p:hViv:f:P:m:")) != EOF)
+  while ((arg = getopt (argc, argv, SERVEEZ_OPTIONS)) != EOF)
 #endif
     {
       switch (arg)
@@ -184,14 +185,7 @@ main (int argc, char * argv[])
 	case 'P':
 	  if (optarg)
 	    {
-	      /*
-	      strncpy (serveez_config.server_password, optarg, 
-		      sizeof (serveez_config.server_password));
-	      serveez_config.server_password[
-	        sizeo f(serveez_config.server_password) - 1] = '\0';
-	      */
-	      cli_pass = xmalloc (strlen (optarg) + 1);
-	      strcpy (cli_pass, optarg);
+	      cli_pass = xstrdup (optarg);
 	    }
 	  break;
 
@@ -216,15 +210,15 @@ main (int argc, char * argv[])
 	}
     }
 
+  /*
+   * Send all log messages to LOG_FILE.
+   */
   if (log_file_name && log_file_name[0])
-    log_file = fopen(log_file_name, "w");
+    log_file = fopen (log_file_name, "w");
   
   if (!log_file)
     log_file = stderr;
 
-  /*
-   * Send all log messages to LOG_FILE.
-   */
   set_log_file (log_file);
 
 #if 0

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.4 2000/09/21 15:27:11 ela Exp $
+ * $Id: option.c,v 1.5 2000/09/22 18:39:52 ela Exp $
  *
  */
 
@@ -48,7 +48,6 @@ int
 getopt (int argc, char * const argv[], const char *optstring) 
 {
   static int i = 1;
-  static char *nextchar;
   int n;
 
   while (i < argc) 
@@ -78,6 +77,7 @@ getopt (int argc, char * const argv[], const char *optstring)
 	}
       i++;
     }
+  i = 1;
   return EOF;
 }
 

@@ -4,7 +4,7 @@
 @settitle Serveez Documention
 @c %** end of header
 
-@set VERSION 0.0.18
+@set VERSION 0.0.19
 
 @titlepage
 @title Serveez
