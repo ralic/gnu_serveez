@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.18 2001/09/20 11:44:56 ela Exp $
+ * $Id: guile-server.c,v 1.19 2001/09/20 16:06:21 ela Exp $
  *
  */
 
@@ -113,7 +113,7 @@ void guile_##cfunc##_init (void) {                                           \
 #define GET_SMOB(cfunc, smob) \
   guile_##cfunc##_get (smob)
 
-#define SET_SMOB_MARKER(cfunc) \
+#define INIT_SMOB_MARKER(cfunc) \
   scm_set_smob_mark (guile_##cfunc##_tag, guile_##cfunc##_gc)
 
 MAKE_SMOB_DEFINITION (svz_socket, "svz-socket")
@@ -658,11 +658,7 @@ guile_sock_data (SCM sock, SCM data)
   if (xsock->data != NULL)
     ret = (SCM) SVZ_PTR2NUM (xsock->data);
   if (!gh_eq_p (data, SCM_UNDEFINED))
-    {
-      /* Setup garbage collector marking function. */
-      SET_SMOB_MARKER (svz_socket);
-      xsock->data = SVZ_NUM2PTR (data);
-    }
+    xsock->data = SVZ_NUM2PTR (data);
   return ret;
 }
 #undef FUNC_NAME
@@ -1229,6 +1225,9 @@ guile_server_init (void)
   INIT_SMOB (svz_socket);
   INIT_SMOB (svz_server);
   INIT_SMOB (svz_servertype);
+  
+  /* Setup garbage collector marking functions. */
+  INIT_SMOB_MARKER (svz_socket);
 
   guile_bin_init ();
 }
