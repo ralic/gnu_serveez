@@ -1,7 +1,7 @@
 /*
  * control-proto.h - control protocol header definitions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.12 2001/06/27 20:38:36 ela Exp $
+ * $Id: control-proto.h,v 1.13 2002/07/31 20:21:32 ela Exp $
  *
  */
 
@@ -95,6 +95,9 @@ int ctrl_handle_request (svz_socket_t *sock, char *request, int len);
 #elif HAVE_SYSGET
 # define CPU_FORMAT \
   "user %ld.%01ld%%, sys %ld.%01ld%%, wait %ld.%01ld%%, idle %ld.%01ld%%"
+#elif HAVE_HOST_STATISTICS
+# define CPU_FORMAT \
+  "user %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%, nice %ld.%01ld%%"
 #else
 # define CPU_FORMAT "no cpu info available"
 #endif

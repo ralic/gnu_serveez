@@ -97,7 +97,7 @@ libraries and the @samp{-l} argument the library itself to link against.
 $ cc svztest.c -I/usr/local/include -o svztest -L/usr/local/lib -lserveez
 @end example
 
-In order to obtain then correct compiler and linker flag you can also
+In order to obtain the correct compiler and linker flag you can also
 run the @samp{serveez-config} script which gets installed with the Serveez
 package.  The @samp{serveez-config} script can be invoked with the 
 following set of option.

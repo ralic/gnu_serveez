@@ -1078,15 +1078,19 @@ if test $svz_cv_sys_proc_stat = yes ; then
   esac
 fi
 
+dnl Check for the 'host_statistics' interface on MacOS.
+
+AC_CHECK_FUNC(host_statistics,
+  AC_DEFINE(HAVE_HOST_STATISTICS, 
+    1, [Define if MacOS provides the host_statistics interface.]))
+
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Check for existance of some useful functions.
+dnl Check for existence of some useful functions.
 dnl
 AC_CHECK_FUNCS(vsprintf)
-if test $ac_cv_func_vsprintf = yes ; then
-  AC_DEFINE(HAVE_VSPRINTF, 1, [Define if you have the vsprintf function.])
-else
+if test $ac_cv_func_vsprintf = no ; then
   AC_MSG_ERROR([cannot compile without vsprintf])
   exit
 fi

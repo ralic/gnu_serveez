@@ -1,5 +1,8 @@
 2002-07-31  [ Ela ]  <ela@lkcc.org>
 
+	* ctrl-server/control-proto.c (ctrl_get_cpu_state): Added
+	support for MacOS cpu load via `host_statistics()'.
+
 	* guile-server/*.scm: Replaced every occurrence of 
 	`primitive-load' by `serveez-load'.
 

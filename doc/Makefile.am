@@ -116,7 +116,7 @@ site: all-local info
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
 $(HTML_DIR)/serveez.html: serveez.texi guile-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter serveez.texi
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $(srcdir)/serveez.texi
 
 $(HTML_DIR)/serveez-api.html: serveez-api.texi
 	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter serveez-api.texi

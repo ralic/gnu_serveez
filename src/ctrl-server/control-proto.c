@@ -1,7 +1,7 @@
 /*
  * control-proto.c - control protocol implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.61 2002/05/31 14:34:21 ela Exp $
+ * $Id: control-proto.c,v 1.62 2002/07/31 20:21:32 ela Exp $
  *
  */
 
@@ -50,6 +50,9 @@
 #elif HAVE_SYSGET
 # include <sys/sysget.h>
 # include <sys/sysinfo.h>
+#elif HAVE_HOST_STATISTICS
+# include <mach/mach_init.h>
+# include <mach/mach_host.h>
 #endif
 
 #if HAVE_TIMES
@@ -876,6 +879,8 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
  * Linux   -- /proc/stat
  * HP-Unix -- pstat_getdynamic()
  * Solaris -- kstat_read()
+ * Irix    -- sysget()
+ * MacOS   -- host_statistics()
  */
 static int
 ctrl_get_cpu_state (void)
@@ -894,6 +899,9 @@ ctrl_get_cpu_state (void)
 #elif HAVE_SYSGET
   struct sysinfo_cpu info;
   sgt_cookie_t cookie;
+#elif HAVE_HOST_STATISTICS
+  host_cpu_load_info_data_t info;
+  mach_msg_type_number_t count;
 #endif
 
 #if HAVE_TIMES
@@ -986,7 +994,17 @@ ctrl_get_cpu_state (void)
   cpu_state.cpu[n][1] = info.cpu[CPU_KERNEL];
   cpu_state.cpu[n][2] = info.cpu[CPU_WAIT];
   cpu_state.cpu[n][3] = info.cpu[CPU_IDLE];
-  
+
+#elif HAVE_HOST_STATISTICS /* MacOS */
+
+  host_statistics (mach_host_self (), 
+		   HOST_CPU_LOAD_INFO, (host_info_t) &info, &count);
+
+  cpu_state.cpu[n][0] = info.cpu_ticks[CPU_STATE_USER];
+  cpu_state.cpu[n][1] = info.cpu_ticks[CPU_STATE_SYSTEM];
+  cpu_state.cpu[n][2] = info.cpu_ticks[CPU_STATE_IDLE];
+  cpu_state.cpu[n][3] = info.cpu_ticks[CPU_STATE_NICE];
+
 #endif
   return 0;
 }
