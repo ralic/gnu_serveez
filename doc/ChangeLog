@@ -1,3 +1,7 @@
+2001-11-16  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.texi.in: New `Callback prototypes' section.
+
 2001-11-10  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-doc-snarf.awk: Correcting documentation string for

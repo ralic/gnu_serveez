@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.31 2001/11/11 23:32:56 ela Exp $
+ * $Id: guile-server.c,v 1.32 2001/11/16 09:08:22 ela Exp $
  *
  */
 
@@ -809,7 +809,7 @@ guile_sock_print (SCM sock, SCM buffer)
 
   if (gh_string_p (buffer))
     {
-      buf = (char *) SCM_VELTS (buffer);
+      buf = SCM_STRING_CHARS (buffer);
       len = gh_scm2int (scm_string_length (buffer));
     }
   else

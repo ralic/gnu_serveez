@@ -1,12 +1,12 @@
 @c -*-texinfo-*-
 @c
-@c This file includes the documentation about the Guile servers. It is
+@c This file includes the documentation about the Guile servers.  It is
 @c included by `serveez.texi'.
 @c
 
 This section describes the Guile interface of Serveez meant to provide
-the ability to exceptionally write servers with Guile. Of course you could
-do this without any help of Serveez, but it makes it a lot easier. The
+the ability to exceptionally write servers with Guile.  Of course you could
+do this without any help of Serveez, but it makes it a lot easier.  The
 Guile interface of Serveez reduces the Guile implementation of an Internet
 server to a simple data processor.
 
@@ -26,9 +26,9 @@ represents a socket structure.
 
 @subsubsection Passing binary data
 
-The new binary data type (i.e. @code{#<binary>}) provides access to any
-kind of unstructured data. It manages data exchange between Guile and Serveez
-and the other way around. There are some converter functions for strings 
+The new binary data type (i.e. @code{#<svz-binary>}) provides access to any
+kind of unstructured data.  It manages data exchange between Guile and Serveez
+and the other way around.  There are some converter functions for strings 
 and lists which help to process this binary data in a more complex (guile'ish) 
 way.
 
@@ -47,9 +47,9 @@ BINARY-SUBSET_DEFUN
 @subsubsection Server definition
 
 In order to setup a new server type you use the procedure 
-@code{(define-servertype!)}. This procedure takes one argument which must be
-a associative list specifying the server type in detail. There are 
-optional and mandatory elements you can setup in this alist. The following
+@code{(define-servertype!)}.  This procedure takes one argument which must be
+a associative list specifying the server type in detail.  There are 
+optional and mandatory elements you can setup in this alist.  The following
 example shows the overall syntax of this procedure:
 
 @lisp
@@ -85,7 +85,7 @@ example shows the overall syntax of this procedure:
   ;; Mandatory: server type configuration
   (configuration   . (
 
-    ;; The server configuration is an alist (associative list) again. Each
+    ;; The server configuration is an alist (associative list) again.  Each
     ;; item consist of an item name and a list describing the item itself.
     ;; Syntax: (key . (type defaultable default))
     (foo-integer       . (integer  #t 0))
@@ -104,8 +104,8 @@ DEFINE-SERVERTYPE!_DEFUN
 
 The following subset of procedures can be used to implement a Guile server.
 They should be used within the callbacks defined in the 
-@code{(define-servertype!)} procedure. Each of these callbacks gets passed
-the appropriate arguments needed to stuff into the below procedures. Please
+@code{(define-servertype!)} procedure.  Each of these callbacks gets passed
+the appropriate arguments needed to stuff into the below procedures.  Please
 have a look at the example Guile servers for the very details.
 
 SVZ:SOCK?_DEFUN
@@ -142,3 +142,51 @@ SVZ:SERVER:STATE->HASH_DEFUN
 
 SERVEEZ-EXCEPTIONS_DEFUN
 SERVEEZ-NUKE_DEFUN
+
+@subsubsection Callback prototypes
+
+The Guile interface of Serveez is completely callback driven.  Each of the
+procedures specified within the associative list passed to 
+@code{(define-servertype!)} and the callbacks setup with one of the 
+predefined procedures in the above section gets certain arguments passed and
+is meant to return specific values to indicate success or failure.  This 
+section describes each of of these callbacks.
+
+@table @code
+@item (global-init #<svz-servertype>)
+FIXME: WriteMe
+
+@item (global-finalize #<svz-servertype>)
+FIXME: WriteMe
+
+@item (init #<svz-server>)
+FIXME: WriteMe
+
+@item (finalize #<svz-server>)
+FIXME: WriteMe
+
+@item (detect-proto #<svz-server> #<svz-socket>)
+FIXME: WriteMe
+
+@item (connect-socket #<svz-server> #<svz-socket>)
+FIXME: WriteMe
+
+@item (info-server #<svz-server>)
+FIXME: WriteMe
+
+@item (info-client #<svz-server> #<svz-socket>)
+FIXME: WriteMe
+
+@item (notify #<svz-server>)
+FIXME: WriteMe
+
+@item (handle-request #<svz-socket> #<svz-binary> size)
+FIXME: WriteMe
+
+@item (check-request #<svz-socket>)
+FIXME: WriteMe
+
+@item (disconnected #<svz-socket>)
+FIXME: WriteMe
+
+@end table

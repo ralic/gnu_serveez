@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.10 2001/11/11 23:32:56 ela Exp $
+ * $Id: guile-bin.c,v 1.11 2001/11/16 09:08:22 ela Exp $
  *
  */
 
@@ -146,7 +146,7 @@ guile_string_to_bin (SCM string)
   bin = MAKE_BIN_SMOB ();
   bin->size = gh_scm2int (scm_string_length (string));
   bin->data = (unsigned char *) scm_must_malloc (bin->size, "svz-binary-data");
-  memcpy (bin->data, SCM_VELTS (string), bin->size);
+  memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
   bin->garbage = 1;
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
@@ -193,7 +193,7 @@ guile_bin_search (SCM binary, SCM needle)
       if (CHECK_BIN_SMOB (needle))
 	search = GET_BIN_SMOB (needle);
       len = search ? search->size : gh_scm2int (scm_string_length (needle));
-      p = search ? search->data : (unsigned char *) SCM_VELTS (needle);
+      p = search ? search->data : SCM_STRING_UCHARS (needle);
       start = bin->data;
       end = start + bin->size - len;
 
@@ -309,7 +309,7 @@ guile_bin_concat (SCM binary, SCM append)
   if (CHECK_BIN_SMOB (append))
     concat = GET_BIN_SMOB (append);
   len = concat ? concat->size : gh_scm2int (scm_string_length (append));
-  p = concat ? concat->data : (unsigned char *) SCM_VELTS (append);
+  p = concat ? concat->data : SCM_STRING_UCHARS (append);
 
   if (bin->garbage)
     {

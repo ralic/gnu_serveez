@@ -1,3 +1,8 @@
+2001-11-16  [ Ela ]  <ela@lkcc.org>
+
+	* guile-bin.h (SCM_STRING_UCHARS, SCM_STRING_CHARS): Defined
+	for Guile versions compatibility.  Changed all callers.
+
 2001-11-12  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (guile_sock_no_delay): New Guile procedure switching

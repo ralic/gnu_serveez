@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-client.scm,v 1.2 2001/11/11 11:32:08 ela Exp $
+;; $Id: mandel-client.scm,v 1.3 2001/11/16 09:08:22 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -110,4 +110,4 @@
     (svz:sock:print sock mandel-magic)
     ))
 
-(mandel-main 10000)
+(mandel-main (* 320 240))
