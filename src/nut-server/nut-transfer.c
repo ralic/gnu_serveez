@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.12 2000/09/12 22:14:17 ela Exp $
+ * $Id: nut-transfer.c,v 1.13 2000/09/15 08:22:51 ela Exp $
  *
  */
 
@@ -715,6 +715,7 @@ nut_init_upload (socket_t sock, nut_file_t *entry)
   memset (transfer, 0, sizeof (nut_transfer_t));
   transfer->size = buf.st_size;
   transfer->original_size = buf.st_size;
+  transfer->file = xstrdup (file);
   transfer->start = time (NULL);
   sock->data = transfer;
 
@@ -741,6 +742,7 @@ nut_disconnect_upload (socket_t sock)
   /* free the transfer data */
   if (transfer)
     {
+      xfree (transfer->file);
       xfree (transfer);
       sock->data = NULL;
     }

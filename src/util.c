@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.24 2000/09/11 17:29:47 ela Exp $
+ * $Id: util.c,v 1.25 2000/09/15 08:22:50 ela Exp $
  *
  */
 
@@ -445,12 +445,12 @@ GetErrorMessage (int nr)
     FORMAT_MESSAGE_ARGUMENT_ARRAY,
     NULL,
     nr,
-    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-    (char *)&error,
+    MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+    (char *) &error,
     0,
     NULL))
     {
-      sprintf (message, "FormatMessage: error code %d", GetLastError ());
+      sprintf (message, "FormatMessage: error code %ld", GetLastError ());
       return message;
     }
   
@@ -531,7 +531,7 @@ get_version (void)
 	  break;
 	}
 
-      sprintf (os, "Windows%s %d.%02d %s%s(Build %d)",
+      sprintf (os, "Windows%s %ld.%02ld %s%s(Build %ld)",
 	       ver[os_version], 
 	       osver.dwMajorVersion, 
 	       osver.dwMinorVersion,

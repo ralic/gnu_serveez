@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.4 2000/09/10 10:51:18 ela Exp $
+ * $Id: nut-core.h,v 1.5 2000/09/15 08:22:51 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@ extern HMODULE oleHandle;
 #endif /* __MINGW32__ */
 
 /* Gnutella core functions. */
+nut_client_t *nut_create_client (void);
 void nut_calc_guid (byte *guid);
 char *nut_print_guid (byte *guid);
 char *nut_text_guid (byte *guid);

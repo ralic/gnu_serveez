@@ -1103,6 +1103,10 @@ This is the so called needle. Each search line is either a set of
 reply for downloading it or a kind of wildcard expression including 
 @samp{?} and @samp{*}. Search lines are always matched case insensitive.
 
+@item search-limit
+This limits how many results the Gnutella spider returns to other people 
+searching your files.
+
 @item max-ttl
 Every Gnutella packet has got a TTL. This is the maximum TTL allowed for
 outgoing packets.

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.11 2000/09/12 22:14:15 ela Exp $
+ * $Id: interface.c,v 1.12 2000/09/15 08:22:50 ela Exp $
  *
  */
 
@@ -411,7 +411,7 @@ list_local_interfaces (void)
 	    }
 	  if (i == ipTable->dwNumEntries)
 	    {
-	      fprintf (stdout, "%31s%09u: %s\n",
+	      fprintf (stdout, "%31s%09lu: %s\n",
 		       "interface # ",
 		       ipTable->table[n].dwIndex,
 		       util_inet_ntoa (ipTable->table[n].dwAddr));

@@ -972,16 +972,16 @@ fi
 dnl
 dnl Some Unices (e.g. Dec Unix) do not implement snprintf().
 dnl
-AC_CHECK_FUNCS(snprintf _snprintf)
-if test $ac_cv_func_snprintf = yes -o $ac_cv_func__snprintf = yes; then
-  AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the (_)snprintf function.])
+AC_CHECK_FUNC(snprintf, , AC_CHECK_FUNC(_snprintf))
+if test x$ac_cv_func_snprintf = xyes -o x$ac_cv_func__snprintf = xyes; then
+  AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the snprintf function.])
 else
   AC_MSG_WARN([using function vsnprintf instead])
 fi
 
-AC_CHECK_FUNCS(vsnprintf _vsnprintf)
-if test $ac_cv_func_vsnprintf = yes -o $ac_cv_func__vsnprintf = yes; then
-  AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the (_)vsnprintf function.])
+AC_CHECK_FUNC(vsnprintf, , AC_CHECK_FUNC(_vsnprintf))
+if test x$ac_cv_func_vsnprintf = xyes -o x$ac_cv_func__vsnprintf = xyes; then
+  AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the vsnprintf function.])
 else
   AC_MSG_WARN([using unsafe function vsprintf instead])
 fi
@@ -1058,15 +1058,12 @@ invalid_defined=no
 if test "$MINGDIR" != "no"; then
     AC_CHECK_HEADER(winsock.h, 
 	socket_defined=yes
+	handle_defined=yes
+	invalid_defined=yes
 	AC_DEFINE(Win32_Winsock, 1, 
 	    [Define if you are using Windows Socket-API (not CYGWIN).])
 	AC_DEFINE(HAVE_WINSOCK_H, 1, 
 	    [Define if you have the <winsock.h>]))
-fi
-
-if test $socket_defined = yes; then
-    handle_defined=yes
-    invalid_defined=yes
 fi
 
 if test $socket_defined = no; then
@@ -1079,18 +1076,21 @@ if test $invalid_defined = no; then
     AC_DEFINE(INVALID_SOCKET, 
     -1, [Define to -1 if <winsock.h> doesn't define.])
 fi
-unset invalid_defined
-unset socket_defined
-unset handle_defined
 
 dnl Check for Windows NT.
 
-AC_MSG_CHECKING([for extensions in winsock.h])
-AC_EGREP_HEADER(WSA_INVALID_HANDLE, winsock.h,
-    AC_DEFINE(HAVE_WSOCK_EXT, 
-	1, [Define if 'winsock.h' defines some more constants.])
-    AC_MSG_RESULT(yes),
-    AC_MSG_RESULT(no))
+if test $socket_defined = yes; then
+    AC_MSG_CHECKING([for extensions in winsock.h])
+    AC_EGREP_HEADER(WSA_INVALID_HANDLE, winsock.h,
+	AC_DEFINE(HAVE_WSOCK_EXT, 
+	    1, [Define if 'winsock.h' defines some more constants.])
+	AC_MSG_RESULT(yes),
+	AC_MSG_RESULT(no))
+fi
+
+unset invalid_defined
+unset socket_defined
+unset handle_defined
 
 dnl
 dnl Determine the return type of signal handlers.

@@ -1,3 +1,20 @@
+2000-09-14  [ Ela ]  <ela@lkcc.org>
+
+	* server-socket.c (server_accept_pipe): Extra check if
+	mkfifo() really produced a named pipe.
+
+	* nut-server/gnutella.c (nut_query): Limiting the amount of
+	search reply records with the parameter `search-limit'.
+
+	* nut-server/nut-hostlist.c (nut_hosts_check): Moved
+	all functions for the html host list to this file.
+
+	* ctrl-server/control-proto.c (ctrl_stat): When giving a
+	certain server's name we stat this server instance only.
+	(ctrl_stat_coservers): Stating coserver instances here.
+	The command `stat coserver' will show information on coserver
+	instances only.
+
 2000-09-12  [ Ela ]  <ela@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat_id): Indicating

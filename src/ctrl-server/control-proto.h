@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.6 2000/08/21 20:06:41 ela Exp $
+ * $Id: control-proto.h,v 1.7 2000/09/15 08:22:50 ela Exp $
  *
  */
 
@@ -133,18 +133,21 @@ int ctrl_handle_request (socket_t sock, char *request, int len);
 #define CTRL_LOAD_UPDATE 1
 
 /* these are all available instructions */
-#define CTRL_CMD_HELP                "help"
-#define CTRL_CMD_QUIT                "quit"
-#define CTRL_CMD_STAT                "stat"
-#define CTRL_CMD_STAT_CON            "stat con"
-#define CTRL_CMD_STAT_ALL            "stat all"
-#define CTRL_CMD_STAT_ID             "stat id"
-#define CTRL_CMD_STAT_CACHE          "stat cache"
-#define CTRL_CMD_KILL_CACHE          "kill cache"
-#define CTRL_CMD_KILLALL             "killall"
-#define CTRL_CMD_KILL_ID             "kill id"
-#define CTRL_CMD_RESTART_REVERSE_DNS "restart reverse dns"
-#define CTRL_CMD_RESTART_DNS         "restart dns"
-#define CTRL_CMD_RESTART_IDENT       "restart ident"
+#define CTRL_CMD_HELP          "help"
+#define CTRL_CMD_QUIT          "quit"
+#define CTRL_CMD_EXIT          "exit"
+#define CTRL_CMD_BYE           "bye"
+#define CTRL_CMD_STAT          "stat"
+#define CTRL_CMD_STAT_CON      "stat con"
+#define CTRL_CMD_STAT_ALL      "stat all"
+#define CTRL_CMD_STAT_ID       "stat id"
+#define CTRL_CMD_STAT_COSERVER "stat coserver"
+#define CTRL_CMD_STAT_CACHE    "stat cache"
+#define CTRL_CMD_KILL_CACHE    "kill cache"
+#define CTRL_CMD_KILLALL       "killall"
+#define CTRL_CMD_KILL_ID       "kill id"
+#define CTRL_CMD_RESTART_RDNS  "restart reverse dns"
+#define CTRL_CMD_RESTART_DNS   "restart dns"
+#define CTRL_CMD_RESTART_IDENT "restart ident"
 
 #endif /* __CONTROL_PROTO_H__ */

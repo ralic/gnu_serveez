@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.14 2000/09/12 22:14:17 ela Exp $
+ * $Id: gnutella.h,v 1.15 2000/09/15 08:22:51 ela Exp $
  *
  */
 
@@ -207,6 +207,7 @@ nut_file_t;
 typedef struct
 {
   portcfg_t *port;          /* port configuration */
+  int disable;              /* if set we do not listen on the above port cfg */
   int max_ttl;              /* maximum ttl for a gnutella packet */
   int ttl;                  /* initial ttl for a gnutella packet */
   char **hosts;             /* array of initial hosts */
@@ -215,6 +216,7 @@ typedef struct
   hash_t *conn;             /* connected hosts hash */
   char **search;            /* search pattern array */
   int search_index;         /* current search pattern index */
+  int search_limit;         /* limit amount of search reply records */
   hash_t *packet;           /* this servers created packets */
   unsigned errors;          /* routing errors */
   unsigned files;           /* files within connected network */

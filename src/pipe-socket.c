@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.10 2000/09/12 22:14:16 ela Exp $
+ * $Id: pipe-socket.c,v 1.11 2000/09/15 08:22:50 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 # include <winsock.h>
 #endif
 
+#include "alloc.h"
 #include "socket.h"
 #include "util.h"
 #include "pipe-socket.h"
@@ -92,6 +93,10 @@ pipe_disconnected (socket_t sock)
       if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
 	if (!CloseHandle (sock->pipe_desc[WRITE]))
 	  log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      if (sock->overlap[READ])
+	xfree (sock->overlap[READ]);
+      if (sock->overlap[WRITE])
+	xfree (sock->overlap[WRITE]);
 #endif /* __MINGW32__ */
 
 #if ENABLE_DEBUG
@@ -118,9 +123,6 @@ int
 pipe_read (socket_t sock)
 {
   int num_read, do_read;
-#ifdef __MINGW32__
-  LPOVERLAPPED overlap;
-#endif
 
   /* 
    * Read as much space is left in the receive buffer and return 
@@ -144,17 +146,22 @@ pipe_read (socket_t sock)
    * "emulate" non-blocking descriptors. We MUST set it to NULL
    * for Win95 and less versions.
    */
-  overlap = (os_version >= WinNT4x) ? &sock->overlap[READ] : NULL;
   if (!ReadFile (sock->pipe_desc[READ],
 		 sock->recv_buffer + sock->recv_buffer_fill,
-		 do_read, (DWORD *) &num_read, overlap))
+		 do_read, (DWORD *) &num_read, sock->overlap[READ]))
     {
       log_printf (LOG_ERROR, "pipe ReadFile: %s\n", SYS_ERROR);
       if (last_errno == ERROR_IO_PENDING)
-	GetOverlappedResult (sock->pipe_desc[READ], overlap, 
-			     (DWORD *) &num_read, FALSE);
-      else
-	return -1;
+	{
+	  if (!GetOverlappedResult (sock->pipe_desc[READ], 
+				    sock->overlap[READ], 
+				    (DWORD *) &num_read, FALSE))
+	    {
+	      log_printf (LOG_ERROR, "GetOverlappedResult: %s\n", SYS_ERROR);
+	      return -1;
+	    }
+	}
+      else return -1;
     }
 #else /* not __MINGW32__ */
   if ((num_read = read (sock->pipe_desc[READ],
@@ -205,9 +212,6 @@ int
 pipe_write (socket_t sock)
 {
   int num_written, do_write;
-#ifdef __MINGW32__
-  LPOVERLAPPED overlap;
-#endif
 
   /* 
    * Write as many bytes as possible, remember how many
@@ -217,17 +221,21 @@ pipe_write (socket_t sock)
   do_write = sock->send_buffer_fill;
 
 #ifdef __MINGW32__
-  overlap = (os_version >= WinNT4x) ? &sock->overlap[WRITE] : NULL;
-  if (!WriteFile (sock->pipe_desc[WRITE], 
-		  sock->send_buffer, 
-		  do_write, (DWORD *) &num_written, overlap))
+  if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
+		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
     {
       log_printf (LOG_ERROR, "pipe WriteFile: %s\n", SYS_ERROR);
       if (last_errno == ERROR_IO_PENDING)
-	GetOverlappedResult (sock->pipe_desc[WRITE], overlap, 
-			     (DWORD *) &num_written, FALSE);
-      else
-	num_written = -1;
+	{
+	  if (!GetOverlappedResult (sock->pipe_desc[WRITE], 
+				    sock->overlap[WRITE], 
+				    (DWORD *) &num_written, FALSE))
+	    {
+	      log_printf (LOG_ERROR, "GetOverlappedResult: %s\n", SYS_ERROR);
+	      return -1;
+	    }
+	}
+      else num_written = -1;
     }
 #else /* not __MINGW32__ */
   if ((num_written = write (sock->pipe_desc[WRITE], 

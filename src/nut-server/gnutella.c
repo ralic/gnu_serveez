@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.18 2000/09/12 22:14:17 ela Exp $
+ * $Id: gnutella.c,v 1.19 2000/09/15 08:22:51 ela Exp $
  *
  */
 
@@ -53,8 +53,10 @@
 # include <io.h>
 #endif
 
-#if HAVE_DIRECT_H && defined (__MINGW32__)
+#if HAVE_DIRECT_H
 # include <direct.h>
+#endif
+#ifdef __MINGW32__
 # define mkdir(path, mode) mkdir (path)
 #endif
 
@@ -64,11 +66,11 @@
 #include "connect.h"
 #include "server.h"
 #include "server-core.h"
-#include "serveez.h"
 #include "gnutella.h"
 #include "nut-transfer.h"
 #include "nut-route.h"
 #include "nut-core.h"
+#include "nut-hostlist.h"
 
 /*
  * This port configuration is the default port for the gnutella server to
@@ -100,6 +102,7 @@ char *nut_search_patterns[] =
 nut_config_t nut_config = 
 {
   &nut_port,           /* port configuration */
+  0,                   /* if set we do not listen on the above port cfg */
   NUT_MAX_TTL,         /* maximum ttl for a gnutella packet */
   NUT_TTL,             /* initial ttl for a gnutella packet */
   NULL,                /* array of initial hosts */
@@ -108,6 +111,7 @@ nut_config_t nut_config =
   NULL,                /* connected hosts hash */
   nut_search_patterns, /* default search pattern */
   0,                   /* current search pattern index */
+  30,                  /* limit amount of search reply records */
   NULL,                /* this servers created packets */
   0,                   /* routing errors */
   0,                   /* files within connected network */
@@ -141,6 +145,7 @@ key_value_pair_t nut_config_prototype [] =
   REGISTER_PORTCFG ("port", nut_config.port, DEFAULTABLE),
   REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
   REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
+  REGISTER_INT ("search-limit", nut_config.search_limit, DEFAULTABLE),
   REGISTER_INT ("max-ttl", nut_config.max_ttl, DEFAULTABLE),
   REGISTER_INT ("ttl", nut_config.ttl, DEFAULTABLE),
   REGISTER_STR ("download-path", nut_config.save_path, DEFAULTABLE),
@@ -422,7 +427,8 @@ nut_init (server_t *server)
     }
 
   /* bind listening server to configurable port address */
-  server_bind (server, cfg->port);
+  if (!cfg->disable)
+    server_bind (server, cfg->port);
   return 0;
 }
 
@@ -485,51 +491,6 @@ nut_global_finalize (void)
 }
 
 /*
- * Within this routine we collect all available gnutella hosts. Thus
- * we might never ever lack of gnutella net connections. IP and PORT
- * must be both in network byte order.
- */
-static int
-nut_host_catcher (nut_config_t *cfg, unsigned long ip, unsigned short port)
-{
-  nut_host_t *client;
-
-  client = (nut_host_t *) hash_get (cfg->net, nut_client_key (ip, port));
-
-  /* not yet in host catcher hash */
-  if (client == NULL)
-    {
-      /* check if it is a valid ip/host combination */
-      if ((ip & 0xff000000) == 0 || (ip & 0x00ff0000) == 0 ||
-	  (ip & 0x0000ff00) == 0 || (ip & 0x000000ff) == 0 ||
-	  (ip & 0xff000000) == 0xff000000 || (ip & 0x00ff0000) == 0x00ff0000 ||
-	  (ip & 0x0000ff00) == 0x0000ff00 || (ip & 0x000000ff) == 0x000000ff ||
-	  port == 0)
-	{
-#if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: invalid host: %s:%u\n", 
-		      util_inet_ntoa (ip), ntohs (port));
-#endif
-	  return -1;
-	}
-
-      client = xmalloc (sizeof (nut_host_t));
-      client->last_reply = time (NULL);
-      client->ip = ip;
-      client->port = port;
-      memset (client->id, 0, NUT_GUID_SIZE);
-      hash_put (cfg->net, nut_client_key (ip, port), client);
-    }
-  
-  /* just update last seen time stamp */
-  else
-    {
-      client->last_reply = time (NULL);
-    }
-  return 0;
-}
-
-/*
  * This routine will be called when a search reply occurs. Here we
  * can check if the reply was created by a packet we sent ourselves.
  */
@@ -547,7 +508,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_reply_t *reply;
 
   reply = nut_get_reply (packet);
-  nut_host_catcher (cfg, reply->ip, reply->port);
+  nut_host_catcher (sock, reply->ip, reply->port);
   pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
 
   /* is that query hit (reply) an answer to my own request ? */
@@ -737,7 +698,7 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   hdr->hop = 0;
   
   /* go through database and build the record array */
-  for (size = 0, n = 0, entry = NULL; n < 256; )
+  for (size = 0, n = 0, entry = NULL; n < 256 && (int) n < cfg->search_limit; )
     {
       if ((entry = nut_find_database (cfg, entry, (char *) file)) != NULL)
 	{
@@ -802,7 +763,7 @@ nut_ping_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 
   /* put to host catcher hash */
   reply = nut_get_ping_reply (packet);
-  nut_host_catcher (cfg, reply->ip, reply->port);
+  nut_host_catcher (sock, reply->ip, reply->port);
   pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
 
   /* is this a reply to my own gnutella packet ? */
@@ -1003,19 +964,6 @@ nut_server_timer (server_t *server)
 }
 
 /*
- * Gnutella client structure creator.
- */
-nut_client_t *
-nut_create_client (void)
-{
-  nut_client_t *client;
-
-  client = xmalloc (sizeof (nut_client_t));
-  memset (client, 0, sizeof (nut_client_t));
-  return client;
-}
-
-/*
  * Whenever there is data arriving for this socket we call this 
  * routine.
  */
@@ -1166,137 +1114,6 @@ nut_idle_searching (socket_t sock)
 }
 
 /*
- * This routine is the write_socket callback when delivering the 
- * host catcher list. It just waits until the whole HTML has been
- * successfully sent and closes the connection afterwards.
- */
-static int
-nut_hosts_write (socket_t sock)
-{
-  int num_written;
-
-  /* write as much data as possible */
-  num_written = send (sock->sock_desc, sock->send_buffer,
-                      sock->send_buffer_fill, 0);
-
-  /* some data has been written */
-  if (num_written > 0)
-    {
-      sock->last_send = time (NULL);
-
-      /* reduce send buffer */
-      if (sock->send_buffer_fill > num_written)
-        {
-          memmove (sock->send_buffer, 
-                   sock->send_buffer + num_written,
-                   sock->send_buffer_fill - num_written);
-        }
-      sock->send_buffer_fill -= num_written;
-    }
-  /* seems like an error */
-  else if (num_written < 0)
-    {
-      log_printf (LOG_ERROR, "nut: write: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
-        {
-          sock->unavailable = time (NULL) + RELAX_FD_TIME;
-          num_written = 0;
-        }
-    }
-  
-  /* has all data been sent successfully ? */
-  if (sock->send_buffer_fill <= 0 && !(sock->userflags & NUT_FLAG_HOSTS))
-    {
-      num_written = -1;
-    }
-
-  return (num_written < 0) ? -1 : 0;
-}
-
-/*
- * This is the check_request callback for the HTML host list output.
- */
-#define NUT_HTTP_HEADER "HTTP 200 OK\r\n"                           \
-		        "Server: Gnutella\r\n"                      \
-		        "Content-type: text/html\r\n"               \
-		        "\r\n"
-#define NUT_HTML_HEADER "<html><body bgcolor=white text=black><br>" \
-	                "<h1>%d Gnutella Hosts</h1>"                \
-	                "<hr noshade><pre>"
-#define NUT_HTML_FOOTER "</pre><hr noshade>"                        \
-                         "<i>%s/%s server at %s port %d</i>"        \
-	                 "</body></html>"
-
-static int
-nut_hosts_check (socket_t sock)
-{
-  nut_config_t *cfg = sock->cfg;
-  nut_host_t **host;
-  int n, t, day, hour, min, sec;
-
-  /* do not enter this routine if you do not want to send something */
-  if (!(sock->userflags & NUT_FLAG_HOSTS))
-    return 0;
-
-  /* send normal HTTP header */
-  if (sock_printf (sock, NUT_HTTP_HEADER) == -1)
-    return -1;
-
-  /* send HTML header */
-  if (sock_printf (sock, NUT_HTML_HEADER, hash_size (cfg->net)) == -1)
-    return -1;
-
-  /* go through all caught gnutella hosts and print their info */
-  if ((host = (nut_host_t **) hash_values (cfg->net)) != NULL)
-    {
-      for (n = 0; n < hash_size (cfg->net); n++)
-	{
-	  if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
-	    {
-	      /* send buffer queue overrun ... */
-	      if (sock_printf (sock, ".\n.\n.\n") == -1)
-		return -1;
-	      break;
-	    }
-	  else
-	    {
-	      /* usual gnutella host output */
-	      t = time (NULL) - host[n]->last_reply;
-	      day = t / (3600 * 24);
-	      t %= (3600 * 24);
-	      hour = t / 3600;
-	      t %= 3600;
-	      min = t / 60;
-	      t %= 60;
-	      sec = t;
-	      if (sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
-			       nut_client_key (host[n]->ip, host[n]->port),
-			       day, hour, min, sec) == -1)
-		return -1;
-	    }
-	}
-      hash_xfree (host);
-    }
-
-  /* send HTML footer */
-  if (sock_printf (sock, NUT_HTML_FOOTER,
-		   serveez_config.program_name, 
-		   serveez_config.version_string,
-		   util_inet_ntoa (sock->local_addr), 
-		   ntohs (sock->local_port)) == -1)
-    return -1;
-
-  /* state that we have sent all available data */
-  sock->userflags &= ~NUT_FLAG_HOSTS;
-
-  /* shutdown the socket if all data has been written */
-  if (sock->send_buffer_fill <= 0)
-    return -1;
-
-  return 0;
-}
-
-/*
  * Gnutella server info callback.
  */
 char *
@@ -1393,6 +1210,7 @@ nut_info_client (void *nut_cfg, socket_t sock)
 
   sprintf (info, "This is a gnutella spider client.\r\n\r\n");
 
+  /* normal gnutella host */
   if (sock->userflags & NUT_FLAG_CLIENT)
     {
       sprintf (text, 
@@ -1407,33 +1225,39 @@ nut_info_client (void *nut_cfg, socket_t sock)
       strcat (info, text);
     }
 
+  /* file download */
   if (sock->userflags & NUT_FLAG_HTTP)
     {
       current = transfer->original_size - transfer->size;
       all = transfer->original_size;
-      sprintf (text, 
-	       "  * download progress : %u/%u (%u.%u%%)\r\n",
+      sprintf (text, "  * file : %s\r\n", transfer->file);
+      strcat (info, text);
+      sprintf (text, "  * download progress : %u/%u (%u.%u%%)\r\n",
 	       current, all,
 	       current * 100 / all, (current * 1000 / all) % 10);
       strcat (info, text);
     }
 
+  /* file upload */
   if (sock->userflags & NUT_FLAG_UPLOAD)
     {
       current = transfer->original_size - transfer->size;
       all = transfer->original_size;
-      sprintf (text, 
-	       "  * upload progress   : %u/%u (%u.%u%%)\r\n",
+      sprintf (text, "  * file : %s\r\n", transfer->file);
+      strcat (info, text);
+      sprintf (text, "  * upload progress : %u/%u (%u.%u%%)\r\n",
 	       current, all,
 	       current * 100 / all, (current * 1000 / all) % 10);
       strcat (info, text);
     }
 
+  /* http header received ? */
   if (sock->userflags & NUT_FLAG_HDR)
     {
       strcat (info, "  * header received\r\n");
     }
 
+  /* host list */
   if (sock->userflags & NUT_FLAG_HOSTS)
     {
       strcat (info, "  * sending host catcher list\r\n");

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.23 2000/09/12 22:14:16 ela Exp $
+ * $Id: control-proto.c,v 1.24 2000/09/15 08:22:50 ela Exp $
  *
  */
 
@@ -275,8 +275,7 @@ int
 ctrl_help (socket_t sock, int flag, char *arg)
 {
   sock_printf (sock, 
-    "\r\n%s",
-    " available commands:\r\n"
+    "\r\n available commands:\r\n"
     "   * help                - this help screen\r\n"
     "   * quit                - quit this control connection\r\n"
 #if ENABLE_IDENT
@@ -291,6 +290,8 @@ ctrl_help (socket_t sock, int flag, char *arg)
     "   * killall             - shutdown all client connections\r\n"
     "   * kill id NUM         - shutdown connection NUM\r\n"
     "   * stat                - general statistics\r\n"
+    "   * stat SERVER         - SERVER's statistic\r\n"
+    "   * stat coserver       - coserver statistics\r\n"
     "   * stat con            - connection statistics\r\n"
     "   * stat id NUM         - NUM's connnection info\r\n"
     "   * stat all            - server and coserver state\r\n"
@@ -440,10 +441,32 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 /*
  * General statistics about Serveez. Here we display all the information
  * we could get from the system and the process itself.
+ * Furthermore we check if the command is something about a certain
+ * server and give information about it if so.
  */
 int
 ctrl_stat (socket_t sock, int flag, char *arg)
 {
+  server_t *server;
+  int n;
+
+  /* go through all server instances */
+  for (n = 0; n < server_instances; n++)
+    {
+      server = servers[n];
+      if (!memcmp (server->name, arg, strlen (server->name)))
+	{
+	  sock_printf (sock, "\r\n%s (%s):\r\n",
+		       server->description, server->name);
+	  if (server->info_server)
+	    {
+	      sock_printf (sock, "%s\r\n", server->info_server (server));
+	    }
+	  sock_printf (sock, "\r\n");
+	  return flag;
+	}
+    }
+
   /* print standard output */
   sock_printf (sock, 
 	       "\r\nThis is %s version %s running since %s.\r\n", 
@@ -485,6 +508,9 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 #endif
 #if ENABLE_Q3KEY_PROTO
 	       " Q3KEY"
+#endif
+#if ENABLE_GNUTELLA
+	       " NUT"
 #endif
 	       "\r\n");
 
@@ -614,13 +640,44 @@ ctrl_kill_cache (socket_t sock, int flag, char *arg)
 #endif /* ENABLE_HTTP_PROTO */
 
 /*
+ * Show all Co-Server instances statistics.
+ */
+int
+ctrl_stat_coservers (socket_t sock, int flag, char *arg)
+{
+  int n;
+  int_coserver_t *coserver;
+
+  /* go through all internal coserver instances */
+  for (n = 0; n < int_coservers; n++)
+    {
+      coserver = int_coserver[n];
+      sock_printf (sock, "\r\ninternal %s coserver:\r\n",
+		   int_coserver_type[coserver->type].name);
+      sock_printf (sock, 
+		   " socket id  : %d\r\n"
+		   " %s %d\r\n"
+		   " requests   : %d\r\n",
+		   coserver->sock->id,
+#ifndef __MINGW32__
+		   "process id :", coserver->pid,
+#else /* __MINGW32__ */
+		   "thread id  :", coserver->tid,
+#endif /* __MINGW32__ */
+		   coserver->busy);
+    }
+
+  sock_printf (sock, "\r\n");
+  return flag;
+}
+
+/*
  * Server and Co-Server instance statistics.
  */
 int
 ctrl_stat_all (socket_t sock, int flag, char *arg)
 {
   int n;
-  int_coserver_t *coserver;
   server_t *server;
 
   /* go through all server instances */
@@ -634,30 +691,9 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
 	  sock_printf (sock, "%s\r\n", server->info_server (server));
 	}
     }
-  sock_printf (sock, "\r\n");
 
-  /* go through all internal coserver instances */
-  for (n = 0; n < int_coservers; n++)
-    {
-      coserver = int_coserver[n];
-      sock_printf (sock, "internal %s coserver:\r\n",
-		   int_coserver_type[coserver->type].name);
-      sock_printf (sock, 
-		   " socket id  : %d\r\n"
-#ifndef __MINGW32__
-		   " process id : %d\r\n"
-#else /* __MINGW32__ */
-		   " thread id  : %d\r\n"
-#endif /* __MINGW32__ */
-		   " requests   : %d\r\n\r\n",
-		   coserver->sock->id,
-#ifndef __MINGW32__
-		   coserver->pid,
-#else /* __MINGW32__ */
-		   coserver->tid,
-#endif /* __MINGW32__ */
-		   coserver->busy);
-    }
+  /* show coserver statistics */
+  ctrl_stat_coservers (sock, flag, arg);
 
   return flag;
 }
@@ -752,26 +788,29 @@ struct
 }
 ctrl[] =
 {
-  { CTRL_CMD_HELP,     ctrl_help, 0 },
-  { CTRL_CMD_QUIT,     ctrl_quit, -1 },
-  { CTRL_CMD_STAT_CON, ctrl_stat_con, 0 },
-  { CTRL_CMD_STAT_ID,  ctrl_stat_id, 0 },
-  { CTRL_CMD_STAT_ALL, ctrl_stat_all, 0 },
+  { CTRL_CMD_HELP,          ctrl_help, 0 },
+  { CTRL_CMD_QUIT,          ctrl_quit, -1 },
+  { CTRL_CMD_EXIT,          ctrl_quit, -1 },
+  { CTRL_CMD_BYE,           ctrl_quit, -1 },
+  { CTRL_CMD_STAT_COSERVER, ctrl_stat_coservers, 0 },
+  { CTRL_CMD_STAT_CON,      ctrl_stat_con, 0 },
+  { CTRL_CMD_STAT_ID,       ctrl_stat_id, 0 },
+  { CTRL_CMD_STAT_ALL,      ctrl_stat_all, 0 },
 #if ENABLE_HTTP_PROTO
-  { CTRL_CMD_STAT_CACHE, ctrl_stat_cache, 0 },
-  { CTRL_CMD_KILL_CACHE, ctrl_kill_cache, 0 },
+  { CTRL_CMD_STAT_CACHE,    ctrl_stat_cache, 0 },
+  { CTRL_CMD_KILL_CACHE,    ctrl_kill_cache, 0 },
 #endif
-  { CTRL_CMD_STAT,    ctrl_stat, 0 },
-  { CTRL_CMD_KILLALL, ctrl_killall, 0 },
-  { CTRL_CMD_KILL_ID, ctrl_kill_id, 0 },
+  { CTRL_CMD_STAT,          ctrl_stat, 0 },
+  { CTRL_CMD_KILLALL,       ctrl_killall, 0 },
+  { CTRL_CMD_KILL_ID,       ctrl_kill_id, 0 },
 #if ENABLE_REVERSE_LOOKUP
-  { CTRL_CMD_RESTART_REVERSE_DNS, ctrl_restart, COSERVER_REVERSE_DNS },
+  { CTRL_CMD_RESTART_RDNS,  ctrl_restart, COSERVER_REVERSE_DNS },
 #endif
 #if ENABLE_IDENT
-  { CTRL_CMD_RESTART_IDENT,       ctrl_restart, COSERVER_IDENT },
+  { CTRL_CMD_RESTART_IDENT, ctrl_restart, COSERVER_IDENT },
 #endif
 #if ENABLE_REVERSE_LOOKUP
-  { CTRL_CMD_RESTART_DNS,         ctrl_restart, COSERVER_DNS },
+  { CTRL_CMD_RESTART_DNS,   ctrl_restart, COSERVER_DNS },
 #endif
   { NULL, NULL, 0 }
 };
@@ -789,35 +828,44 @@ ctrl_handle_request (socket_t sock, char *request, int len)
   int ret = 0;
   int l;
 
+  /* serach through if there is an input line */
   while (request[len-1] == '\r' || request[len-1] == '\n')
     len--;
   
+  /* password given ? */
   if (!(sock->userflags & CTRL_FLAG_PASSED))
     {
       /*
        * check here the control protocol password
        */
       if (len <= 2) return -1;
-      if (!memcmp (request, serveez_config.server_password, len - 1))
+      if (!memcmp (request, serveez_config.server_password, len) &&
+	  (unsigned) len >= strlen (serveez_config.server_password))
 	{
 	  sock->userflags |= CTRL_FLAG_PASSED;
 	  sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);
 	}
       else return -1;
     }
+  /* yes, already logged in */
   else if (len > 0)
     {
+      /* repeat last command */
       if (!memcmp (request, "/\r\n", 3))
 	{
 	  memcpy (request, last_request, len = last_len);
 	}
+      /* go through all commands */
       n = 0;
       while (ctrl[n].command != NULL)
 	{
 	  l = strlen (ctrl[n].command);
 	  if (!memcmp (request, ctrl[n].command, l))
 	    {
+	      /* save this command for repitition */
 	      memcpy (last_request, request, last_len = len);
+
+	      /* execute valid command and give the prompt */
 	      ret = ctrl[n].func (sock, ctrl[n].flag, &request[l+1]);
 	      sock_printf (sock, "%s", CTRL_PROMPT);
 	      return ret;

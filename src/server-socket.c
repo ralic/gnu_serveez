@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.24 2000/09/12 22:14:16 ela Exp $
+ * $Id: server-socket.c,v 1.25 2000/09/15 08:22:50 ela Exp $
  *
  */
 
@@ -413,20 +413,30 @@ server_accept_pipe (socket_t server_sock)
    */
   if (stat (server_sock->recv_pipe, &buf) == -1)
     {
-      if (mkfifo (server_sock->recv_pipe, 0666) == -1)
+      if (mkfifo (server_sock->recv_pipe, 0666) != 0)
         {
           log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
           return -1;
         }
+      if (stat (server_sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+	{
+          log_printf (LOG_ERROR, "stat: mkfifo() did not create a fifo\n");
+          return -1;
+	}
     }
 
   if (stat (server_sock->send_pipe, &buf) == -1)
     {
-      if (mkfifo (server_sock->send_pipe, 0666) == -1)
+      if (mkfifo (server_sock->send_pipe, 0666) != 0)
         {
           log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
           return -1;
         }
+      if (stat (server_sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+	{
+          log_printf (LOG_ERROR, "stat: mkfifo() did not create a fifo\n");
+          return -1;
+	}
     }
 
   /* 
@@ -468,13 +478,13 @@ server_accept_pipe (socket_t server_sock)
   if (server_sock->pipe_desc[READ] == INVALID_HANDLE)
     {
       recv_pipe = CreateNamedPipe (
-	server_sock->recv_pipe,                   /* path */
-	PIPE_ACCESS_INBOUND | PIPE_READMODE_BYTE, /* reveive + binary */
-	FILE_FLAG_OVERLAPPED | PIPE_NOWAIT,       /* non-blocking */
-	1,                                        /* one instance */
-	0, 0,                                     /* default buffer sizes */
-	100,                                      /* timeout in ms */
-	NULL);                                    /* no security */
+	server_sock->recv_pipe,                     /* path */
+	PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, /* receive + overlapped */
+	PIPE_READMODE_BYTE | PIPE_NOWAIT,           /* binary + non-blocking */
+	1,                                          /* one instance only */
+	0, 0,                                       /* default buffer sizes */
+	100,                                        /* timeout in ms */
+	NULL);                                      /* no security */
 
       if (recv_pipe == INVALID_HANDLE_VALUE || !recv_pipe)
 	{
@@ -489,13 +499,13 @@ server_accept_pipe (socket_t server_sock)
   if (server_sock->pipe_desc[WRITE] == INVALID_HANDLE)
     {
       send_pipe = CreateNamedPipe (
-	server_sock->send_pipe,                /* path */
-	PIPE_ACCESS_OUTBOUND | PIPE_TYPE_BYTE, /* send + binary */
-	FILE_FLAG_OVERLAPPED | PIPE_NOWAIT,    /* non-blocking */
-	1,                                     /* one instance */
-	0, 0,                                  /* default buffer sizes */
-	100,                                   /* timeout in ms */
-	NULL);                                 /* no security */
+	server_sock->send_pipe,                      /* path */
+	PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED, /* send + overlapped */
+	PIPE_TYPE_BYTE | PIPE_NOWAIT,                /* bin + non-blocking */
+	1,                                           /* one instance only */
+	0, 0,                                        /* default buffer sizes */
+	100,                                         /* timeout in ms */
+	NULL);                                       /* no security */
       
       if (send_pipe == INVALID_HANDLE_VALUE || !send_pipe)
 	{
@@ -508,36 +518,58 @@ server_accept_pipe (socket_t server_sock)
     send_pipe = server_sock->pipe_desc[WRITE];
 
   /*
+   * Initialize overlapped structures.
+   */
+  if (os_version >= WinNT4x)
+    {
+      if (!server_sock->overlap[READ])
+	{
+	  server_sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
+	  memset (server_sock->overlap[READ], 0, sizeof (OVERLAPPED));
+	  server_sock->overlap[READ]->hEvent = 
+	    CreateEvent (NULL, TRUE, TRUE, NULL);
+	}
+      if (!server_sock->overlap[WRITE])
+	{
+	  server_sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
+	  memset (server_sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
+	  server_sock->overlap[WRITE]->hEvent = 
+	    CreateEvent (NULL, TRUE, TRUE, NULL);
+	}
+    }
+
+  /*
    * Now try connecting to one of these pipes. This will fail until
    * a client has been connected.
    */
-  if (!ConnectNamedPipe (recv_pipe, &server_sock->overlap[READ]))
+  if (!ConnectNamedPipe (recv_pipe, server_sock->overlap[READ]))
     {
       connect = GetLastError ();
+      /* Pipe is listening ? */
+      if (connect != ERROR_PIPE_LISTENING)
+	return 0;
+      /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)
 	{
-	  /* Pipe is listening ? */
-	  if (connect != ERROR_PIPE_LISTENING)
-	    {
-	      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-	      return 0;
-	    }
+	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  return -1;
 	}
       /* If we got here then a client pipe is successfully connected. */
     }
   /* Because these pipes are non-blocking this is never occuring. */
   else return 0;
 
-  if (!ConnectNamedPipe (send_pipe, &server_sock->overlap[WRITE]))
+  if (!ConnectNamedPipe (send_pipe, server_sock->overlap[WRITE]))
     {
       connect = GetLastError ();
+      /* Pipe is listening ? */
+      if (connect != ERROR_PIPE_LISTENING)
+	return 0;
+      /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)
 	{
-	  if (connect != ERROR_PIPE_LISTENING)
-	    {
-	      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-	      return 0;
-	    }
+	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  return -1;
 	}
     }
   /* Overlapped ConnectNamedPipe should return zero. */
@@ -547,9 +579,18 @@ server_accept_pipe (socket_t server_sock)
   if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
     {
       /* Just disconnect the client pipes. */
-      DisconnectNamedPipe (send_pipe);
-      DisconnectNamedPipe (recv_pipe);
+      if (!DisconnectNamedPipe (send_pipe))
+	log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+      if (!DisconnectNamedPipe (recv_pipe))
+	log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
       return 0;
+    }
+
+  /* Copy overlapped structures. */
+  if (os_version >= WinNT4x)
+    {
+      sock->overlap[READ] = server_sock->overlap[READ];
+      sock->overlap[WRITE] = server_sock->overlap[WRITE];
     }
 
 #else /* not __MINGW32__ */

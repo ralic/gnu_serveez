@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.16 2000/09/12 22:14:17 ela Exp $
+ * $Id: http-cgi.c,v 1.17 2000/09/15 08:22:51 ela Exp $
  *
  */
 
@@ -131,12 +131,7 @@ http_cgi_read (socket_t sock)
 {
   int do_read;
   int num_read;
-  http_socket_t *http;
-#ifdef __MINGW32__
-  LPOVERLAPPED overlap;
-#endif
-
-  http = sock->data;
+  http_socket_t *http = sock->data;
 
   /* read as much space is left in the buffer */
   do_read = sock->send_buffer_size - sock->send_buffer_fill;
@@ -146,17 +141,22 @@ http_cgi_read (socket_t sock)
     }
 
 #ifdef __MINGW32__
-  overlap = (os_version >= WinNT4x) ? &sock->overlap[READ] : NULL;
   if (!ReadFile (sock->pipe_desc[READ],
 		 sock->send_buffer + sock->send_buffer_fill,
-		 do_read,
-		 (DWORD *) &num_read,
-		 overlap))
+		 do_read, (DWORD *) &num_read, sock->overlap[READ]))
     {
       log_printf (LOG_ERROR, "cgi: ReadFile: %s\n", SYS_ERROR);
       if (last_errno == ERROR_IO_PENDING)
-	GetOverlappedResult (sock->pipe_desc[READ], overlap, 
-			     (DWORD *) &num_read, FALSE);
+	{
+	  if (!GetOverlappedResult (sock->pipe_desc[READ], 
+				    sock->overlap[READ], 
+				    (DWORD *) &num_read, FALSE))
+	    {
+	      log_printf (LOG_ERROR, "cgi: GetOverlappedResult: %s\n", 
+			  SYS_ERROR);
+	      return -1;
+	    }
+	}
       else
 	num_read = -1;
     }
@@ -202,13 +202,7 @@ http_cgi_write (socket_t sock)
 {
   int do_write;
   int num_written;
-  http_socket_t *http;
-#ifdef __MINGW32__
-  LPOVERLAPPED overlap;
-#endif
-
-  /* get http socket structure */
-  http = sock->data;
+  http_socket_t *http = sock->data;
 
   /* 
    * Write as many bytes as possible, remember how many
@@ -220,17 +214,21 @@ http_cgi_write (socket_t sock)
     do_write = http->contentlength;
 
 #ifdef __MINGW32__
-  overlap = (os_version >= WinNT4x) ? &sock->overlap[WRITE] : NULL;
-  if (!WriteFile (sock->pipe_desc[WRITE], 
-		  sock->recv_buffer, 
-		  do_write,
-		  (DWORD *) &num_written,
-		  overlap))
+  if (!WriteFile (sock->pipe_desc[WRITE], sock->recv_buffer, 
+		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
     {
       log_printf (LOG_ERROR, "cgi: WriteFile: %s\n", SYS_ERROR);
       if (last_errno == ERROR_IO_PENDING)
-	GetOverlappedResult (sock->pipe_desc[WRITE], overlap, 
-			     (DWORD *) &num_written, FALSE);
+	{
+	  if (!GetOverlappedResult (sock->pipe_desc[WRITE], 
+				    sock->overlap[WRITE], 
+				    (DWORD *) &num_written, FALSE))
+	    {
+	      log_printf (LOG_ERROR, "cgi: GetOverlappedResult: %s\n", 
+			  SYS_ERROR);
+	      return -1;
+	    }
+	}
       else
 	num_written = -1;
     }
@@ -923,8 +921,8 @@ http_post_response (socket_t sock, char *request, int flags)
 
 #ifdef __MINGW32__
   /* clear overlap structures */
-  memset (&sock->overlap[READ], 0, sizeof(OVERLAPPED));
-  memset (&sock->overlap[WRITE], 0, sizeof(OVERLAPPED));
+  sock->overlap[READ] = NULL;
+  sock->overlap[WRITE] = NULL;
 #endif
   sock->write_socket = http_cgi_write;
   sock->flags |= SOCK_FLAG_SEND_PIPE;

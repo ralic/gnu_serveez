@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.6 2000/09/10 10:51:18 ela Exp $
+ * $Id: nut-core.c,v 1.7 2000/09/15 08:22:51 ela Exp $
  *
  */
 
@@ -51,6 +51,19 @@
 #include "server.h"
 #include "gnutella.h"
 #include "nut-core.h"
+
+/*
+ * Gnutella client structure creator.
+ */
+nut_client_t *
+nut_create_client (void)
+{
+  nut_client_t *client;
+
+  client = xmalloc (sizeof (nut_client_t));
+  memset (client, 0, sizeof (nut_client_t));
+  return client;
+}
 
 /*
  * This routine parses a `a.b.c.d:port' combination from the given 
