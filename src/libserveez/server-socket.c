@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.22 2001/12/05 12:02:20 ela Exp $
+ * $Id: server-socket.c,v 1.23 2001/12/07 22:25:49 ela Exp $
  *
  */
 
@@ -131,6 +131,9 @@ svz_server_create (svz_portcfg_t *port)
 	  return NULL;
 	}
 
+      /* Fetch the bind() address. */
+      addr = svz_portcfg_addr (port);
+
 #ifdef SO_BINDTODEVICE
       /* FIXME:  On a Linux 2.4.0 you can bind to `eth0' by this control
 	 setting if root priviledges are ensured.  But actually you cannot
@@ -143,25 +146,24 @@ svz_server_create (svz_portcfg_t *port)
 	  if (setsockopt (server_socket, SOL_SOCKET, SO_BINDTODEVICE,
 			  (void *) device, strlen (device) + 1) < 0)
 	    {
-	      svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	      svz_log (LOG_ERROR, "setsockopt (%s): %s\n", 
+		       device, NET_ERROR);
 	      if (closesocket (server_socket) < 0)
 		svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	      return NULL;
 	    }
+	  memset (&addr->sin_addr, 0, sizeof (&addr->sin_addr));
 	}
-      else
 #endif /* SO_BINDTODEVICE */
+
+      /* Second, bind the socket to a port. */
+      if (bind (server_socket, (struct sockaddr *) addr,
+		sizeof (struct sockaddr)) < 0)
 	{
-	  /* Second, bind the socket to a port. */
-	  addr = svz_portcfg_addr (port);
-	  if (bind (server_socket, (struct sockaddr *) addr,
-		    sizeof (struct sockaddr)) < 0)
-	    {
-	      svz_log (LOG_ERROR, "bind: %s\n", NET_ERROR);
-	      if (closesocket (server_socket) < 0)
-		svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
-	      return NULL;
-	    }
+	  svz_log (LOG_ERROR, "bind: %s\n", NET_ERROR);
+	  if (closesocket (server_socket) < 0)
+	    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  return NULL;
 	}
 
       /* Prepare for listening on that port (if TCP). */

@@ -1,3 +1,8 @@
+2001-12-07  [ Ela ]  <ela@lkcc.org>
+
+	* guile.c (guile_define_port): Added `device' keyword for 
+	network	port configurations.
+
 2001-12-04  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm: Added Scheme procedures using the below new

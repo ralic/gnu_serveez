@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.54 2001/12/07 20:37:14 ela Exp $
+ * $Id: guile.c,v 1.55 2001/12/07 22:25:49 ela Exp $
  *
  */
 
@@ -1196,6 +1196,8 @@ guile_define_port (SCM name, SCM args)
 				     &(cfg->tcp_backlog), txt);
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
 					&(cfg->tcp_ipaddr), txt);
+      err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
+					&(cfg->tcp_device), txt);
     }
   /* Maybe UDP ? */
   else if (!strcmp (proto, PORTCFG_UDP))
@@ -1206,6 +1208,8 @@ guile_define_port (SCM name, SCM args)
       cfg->udp_port = (short) port;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
 					&(cfg->udp_ipaddr), txt);
+      err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
+					&(cfg->udp_device), txt);
     }
   /* Maybe ICMP ? */
   else if (!strcmp (proto, PORTCFG_ICMP))
@@ -1214,6 +1218,8 @@ guile_define_port (SCM name, SCM args)
       cfg->proto = PROTO_ICMP;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
 					&(cfg->icmp_ipaddr), txt);
+      err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
+					&(cfg->icmp_device), txt);
       err |= optionhash_extract_int (options, PORTCFG_TYPE, 1, ICMP_SERVEEZ, 
 				     &type, txt);
       if (type & ~0xff)
@@ -1230,6 +1236,8 @@ guile_define_port (SCM name, SCM args)
       cfg->proto = PROTO_RAW;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
 					&(cfg->raw_ipaddr), txt);
+      err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
+					&(cfg->raw_device), txt);
     }
   /* Finally a PIPE ? */
   else if (!strcmp (proto, PORTCFG_PIPE))

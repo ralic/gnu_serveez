@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.27 2001/12/07 20:37:15 ela Exp $
+ * $Id: portcfg.c,v 1.28 2001/12/07 22:25:49 ela Exp $
  *
  */
 
@@ -279,15 +279,19 @@ svz_portcfg_dup (svz_portcfg_t *port)
     {
     case PROTO_TCP:
       copy->tcp_ipaddr = svz_strdup (port->tcp_ipaddr);
+      copy->tcp_device = svz_strdup (port->tcp_device);
       break;
     case PROTO_UDP:
       copy->udp_ipaddr = svz_strdup (port->udp_ipaddr);
+      copy->udp_device = svz_strdup (port->udp_device);
       break;
     case PROTO_ICMP:
       copy->icmp_ipaddr = svz_strdup (port->icmp_ipaddr);
+      copy->icmp_device = svz_strdup (port->icmp_device);
       break;
     case PROTO_RAW:
       copy->raw_ipaddr = svz_strdup (port->raw_ipaddr);
+      copy->raw_device = svz_strdup (port->raw_device);
       break;
     case PROTO_PIPE:
       copy->pipe_recv.name = svz_strdup (port->pipe_recv.name);
@@ -323,15 +327,19 @@ svz_portcfg_free (svz_portcfg_t *port)
     {
     case PROTO_TCP:
       svz_free (port->tcp_ipaddr);
+      svz_free (port->tcp_device);
       break;
     case PROTO_UDP:
       svz_free (port->udp_ipaddr);
+      svz_free (port->udp_device);
       break;
     case PROTO_ICMP:
       svz_free (port->icmp_ipaddr);
+      svz_free (port->icmp_device);
       break;
     case PROTO_RAW:
       svz_free (port->raw_ipaddr);
+      svz_free (port->raw_device);
       break;
     case PROTO_PIPE:
       svz_free (port->pipe_recv.user);
