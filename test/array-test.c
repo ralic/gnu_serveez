@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array-test.c,v 1.1 2001/03/11 00:11:35 ela Exp $
+ * $Id: array-test.c,v 1.2 2001/03/11 13:06:19 ela Exp $
  *
  */
 
@@ -62,7 +62,7 @@ main (int argc, char **argv)
   
   /* array creation */
   error = 0;
-  test_print ("   create: ");
+  test_print ("    create: ");
   if ((array = svz_array_create (0)) == NULL)
     error++;
   if (svz_array_size (array) != 0)
@@ -70,24 +70,24 @@ main (int argc, char **argv)
   test (error);
 
   /* add and get functions */
-  test_print ("      add: ");
+  test_print ("       add: ");
   for (n = 0; n < REPEAT; n++)
     svz_array_add (array, (void *) (n + 1));
   test (svz_array_size (array) != REPEAT);
 
-  test_print ("      get: ");
+  test_print ("       get: ");
   for (error = n = 0; n < REPEAT; n++)
     if (svz_array_get (array, n) != (void *) (n + 1))
       error++;
   test (error);
   
-  test_print ("      set: ");
+  test_print ("       set: ");
   for (error = n = 0; n < REPEAT; n++)
     if (svz_array_set (array, n, (void *) (REPEAT - n)) != (void *) (n + 1))
       error++;
   test (error);
 
-  test_print ("   delete: ");
+  test_print ("    delete: ");
   for (error = n = 0; n < REPEAT; n++)
     if (svz_array_del (array, 0) != (void *) (REPEAT - n))
       error++;
@@ -102,19 +102,76 @@ main (int argc, char **argv)
     error++;
   test (error);
 
-  test_print ("    clear: ");
+  test_print ("     clear: ");
   for (n = 0; n < REPEAT; n++)
     svz_array_add (array, (void *) n);
   svz_array_clear (array);
   test (svz_array_size (array) != 0);
 
-  test_print ("  destroy: ");
+  /* check the `contains' function */
+  test_print ("  contains: ");
+  error = 0;
+  if (svz_array_contains (array, (void *) 0))
+    error++;
+  for (n = 0; n < REPEAT; n++)
+    {
+      svz_array_add (array, (void *) n);
+      if (svz_array_contains (array, (void *) n) != 1)
+	error++;
+    }
+  for (n = 0; n < REPEAT; n++)
+    {
+      svz_array_set (array, n, (void *) 0);
+      if (svz_array_contains (array, (void *) 0) != (unsigned long) n + 1)
+	error++;
+    }
+  test (error);
+
+  /* check the `index' function */
+  test_print ("     index: ");
+  error = 0;
+  if (svz_array_idx (array, (void *) 0) != 0)
+    error++;
+  for (n = 0; n < REPEAT; n++)
+    {
+      if (svz_array_idx (array, (void *) (n + 1)) != (unsigned long) -1)
+	error++;
+      svz_array_set (array, n, (void *) (n + 1));
+      if (svz_array_idx (array, (void *) (n + 1)) != (unsigned long) n)
+	error++;
+    }
+  test (error);
+
+  /* check the `insert' function */
+  test_print ("    insert: ");
+  error = 0;
+  svz_array_clear (array);
+  for (n = 0; n < REPEAT; n++)
+    if (svz_array_ins (array, 0, (void *) n) != 0)
+      error++;
+  if (svz_array_size (array) != REPEAT)
+    error++;
+  for (n = 0; n < REPEAT; n++)
+    if (svz_array_get (array, n) != (void *) (REPEAT - n - 1))
+      error++;
+  svz_array_clear (array);
+  for (n = 0; n < REPEAT; n++)
+    if (svz_array_ins (array, n, (void *) n) != (unsigned long) n)
+      error++;
+  if (svz_array_size (array) != REPEAT)
+    error++;
+  for (n = 0; n < REPEAT; n++)
+    if (svz_array_get (array, n) != (void *) n)
+      error++;
+  test (error);
+
+  test_print ("   destroy: ");
   svz_array_destroy (array);
   test_ok ();
 
 #if ENABLE_DEBUG
   /* is heap ok ? */
-  test_print ("     heap: ");
+  test_print ("      heap: ");
   test (svz_allocated_bytes || svz_allocated_blocks);
 #endif /* ENABLE_DEBUG */
 

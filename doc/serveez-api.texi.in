@@ -61,10 +61,7 @@ all parts of the API it provides.
 
 @menu
 * Memory management::     Memory management functions
-* Array::                 Array implementation
-* Hashtable::             Hashtable implementation
-* Sparsevector::          Sparsevector implementation
-* Vectorlist::            Vectorlist implementation
+* Data structures::       Data structure helpers
 * Utility functions::     Miscellaneous helper functions
 * Core functions::        Network core implementations
 * Client connections::    Client connection functions
@@ -79,7 +76,7 @@ all parts of the API it provides.
 * Windoze::               Windows port implementations
 @end menu
 
-@node Memory management, Array, , Embedding API
+@node Memory management, Data structures, , Embedding API
 @section Memory management
 
 SVZ_ALLOCATED_BYTES_DEFVAR
@@ -97,8 +94,22 @@ SVZ_PREALLOC_DEFUN
 SVZ_PSTRDUP_DEFUN
 SVZ_HEAP_DEFUN
 
-@node Array, Hashtable, Memory management, Embedding API
-@section Array functions
+@node Data structures, Utility functions, Memory management, Embedding API
+@section Data structures
+
+@menu
+* Array::                 Array implementation
+* Hashtable::             Hashtable implementation
+* Sparsevector::          Sparsevector implementation
+* Vectorlist::            Vectorlist implementation
+@end menu
+
+@node Array, Hashtable, , Data structures
+@subsection Array functions
+
+The array data structure is a simple array implementation. Each array has got
+a size and capacity. The array indices range from zero to the array's size 
+minus one.
 
 SVZ_ARRAY_CREATE_DEFUN
 SVZ_ARRAY_CLEAR_DEFUN
@@ -108,9 +119,16 @@ SVZ_ARRAY_ADD_DEFUN
 SVZ_ARRAY_DEL_DEFUN
 SVZ_ARRAY_CAPACITY_DEFUN
 SVZ_ARRAY_SIZE_DEFUN
+SVZ_ARRAY_CONTAINS_DEFUN
+SVZ_ARRAY_IDX_DEFUN
+SVZ_ARRAY_INS_DEFUN
 
-@node Hashtable, Sparsevector, Array, Embedding API
-@section Hashtable functions
+@node Hashtable, Sparsevector, Array, Data structures
+@subsection Hashtable functions
+
+A hashtable associates keys of arbitrary size and content with values. You
+cannot store two values associated with the same key. The values can have
+any simple C types like integers and pointers.
 
 SVZ_HASH_CREATE_DEFUN
 SVZ_HASH_DESTROY_DEFUN
@@ -123,15 +141,16 @@ SVZ_HASH_KEYS_DEFUN
 SVZ_HASH_SIZE_DEFUN
 SVZ_HASH_CAPACITY_DEFUN
 SVZ_HASH_CONTAINS_DEFUN
+SVZ_HASH_FOREACH_KEY_DEFMAC
+SVZ_HASH_FOREACH_VALUE_DEFMAC
 
-@node Sparsevector, Vectorlist, Hashtable, Embedding API
-@section Sparsevector functions
+@node Sparsevector, Vectorlist, Hashtable, Data structures
+@subsection Sparsevector functions
 
-A sparse vector is a kind of data array 
-which grows and shrinks on demand. It unifies the advantages of chained
-lists (less memory usage than simple arrays) and arrays (faster access 
-to specific elements). This implementation can handle gaps in between
-the array elements.
+A sparse vector is a kind of data array which grows and shrinks on demand. 
+It unifies the advantages of chained lists (less memory usage than simple 
+arrays) and arrays (faster access to specific elements). This implementation 
+can handle gaps in between the array elements.
 
 SVZ_SPVEC_CREATE_DEFUN
 SVZ_SPVEC_DESTROY_DEFUN
@@ -150,13 +169,15 @@ SVZ_SPVEC_INSERT_DEFUN
 SVZ_SPVEC_VALUES_DEFUN
 SVZ_SPVEC_PACK_DEFUN
 
-@node Vectorlist, Utility functions, Sparsevector, Embedding API
-@section Vectorlist functions
+@node Vectorlist, , Sparsevector, Data structures
+@subsection Vectorlist functions
 
 A vector list is an array of memory chunks with a fixed size. It
 holds copies of the values you added to the vector list. When deleting
-or inserting an element the indexes of the following elements get
-either decremented or incremented.
+or inserting an element the indices of the following elements get
+either decremented or incremented. This data structure is especially useful
+if you actually want to forget about the pointers you put into it for it
+saves copies and not the pointers itself.
 
 SVZ_VECTOR_CREATE_DEFUN
 SVZ_VECTOR_DESTROY_DEFUN
@@ -169,7 +190,7 @@ SVZ_VECTOR_INS_DEFUN
 SVZ_VECTOR_IDX_DEFUN
 SVZ_VECTOR_LENGTH_DEFUN
 
-@node Utility functions, Core functions, Vectorlist, Embedding API
+@node Utility functions, Core functions, Data structures, Embedding API
 @section Utility functions
 
 SVZ_VERBOSITY_DEFVAR

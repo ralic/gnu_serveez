@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.2 2001/03/11 00:11:34 ela Exp $
+ * $Id: array.c,v 1.3 2001/03/11 13:06:19 ela Exp $
  *
  */
 
@@ -70,6 +70,7 @@ svz_array_clear (svz_array_t *array)
       svz_free (array->data);
       array->data = NULL;
       array->size = 0;
+      array->capacity = 0;
     }
 }
 
@@ -107,7 +108,7 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
 void *
 svz_array_get (svz_array_t *array, unsigned long index)
 {
-  assert (array  && array->data);
+  assert (array);
   if (index >= array->size)
     return NULL;
   return array->data[index];
@@ -183,8 +184,60 @@ svz_array_size (svz_array_t *array)
   return array->size;
 }
 
-#else /* ENABLE_DEBUG */
-
-int array_dummy = 0; /* Shutup compiler. */
-
 #endif /* not ENABLE_DEBUG */
+
+/*
+ * Returns how often the given value @var{value} is stored in the the array
+ * @var{array}. Return zero if there is no such value.
+ */
+unsigned long
+svz_array_contains (svz_array_t *array, void *value)
+{
+  unsigned long n, found;
+
+  assert (array);
+  for (found = n = 0; n < array->size; n++)
+    {
+      if (array->data[n] == value)
+	found++;
+    }
+  return found;
+}
+
+/*
+ * This function returns the index of the first occurence of the value 
+ * @var{value} in the array @var{array}. It returns (-1) if there is no
+ * such value stored within the array.
+ */
+unsigned long
+svz_array_idx (svz_array_t *array, void *value)
+{
+  unsigned long n;
+
+  assert (array);
+  for (n = 0; n < array->size; n++)
+    if (array->data[n] == value)
+      return n;
+  return (unsigned long) -1;
+}
+
+/*
+ * This routine inserts the given value @var{value} at the position 
+ * @var{index}. The indexes of all following values in the array @var{array}
+ * and the size of the array get automatically incremented. Return the
+ * values index or (-1) if the the index is out of array bounds.
+ */
+unsigned long
+svz_array_ins (svz_array_t *array, unsigned long index, void *value)
+{
+  assert (array);
+  if (index > array->size)
+    return (unsigned long) -1;
+  svz_array_ensure_capacity (array, array->size + 1);
+  if (index < array->size && array->size)
+    memmove (&array->data[index + 1], &array->data[index], 
+	     (array->size - index) * sizeof (void *));
+  array->data[index] = value;
+  array->size++;
+  return index;
+}

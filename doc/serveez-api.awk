@@ -120,6 +120,54 @@ function handle_variable(line)
     }
 }
 
+# handle macro defintions
+function handle_macro(line)
+{
+    if (line ~ /^\#define /) {
+      gsub(/\#define /, "", line)
+      end = index(line, "(")
+
+      # expression macro
+      if (end > index(line, " ")) { 
+	end = index(line, " ") 
+	mac = substr(line, 1, end)
+	macdef = mac
+      # statement macro
+      } else if (end != -1) {
+	mac = substr(line, 1, end - 1)
+	line = substr(line, end + 1)
+	end = index(line, ")")
+	args = substr(line, 1, end - 1)
+	split(args, arg, ",")
+	n = 0
+	for(i in arg) {
+	  gsub(/[ \t]/, "", arg[i])
+	  n++
+	}
+	macdef = (mac " (")
+	for(a = 1; a <= n; a++) { 
+          if (a == 1) {
+            macdef = (macdef arg[a]) 
+	  } else {
+            macdef = (macdef ", " arg[a])
+	  }
+	} 
+	macdef = (macdef ")")
+      }
+      if (length(mac)) {
+	doc = docu
+	gsub(/\n/, "\\\n", doc)
+	gsub(/}/, "@}", doc)
+	gsub(/{/, "@{", doc)
+        # finally create texinfo doc
+	replace = ("@defmac " macdef "\\\n" doc "\\\n" "@end defmac")
+	sedexp = ("/" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
+        print sedexp
+        docu = ""
+      }
+    }
+}
+
 # variable declarations
 /^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*\"]+\;$/
 {
@@ -142,9 +190,15 @@ function handle_variable(line)
 
     while (found == 0) {
 
+        # handle variable definitions
 	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"]+\;/) {
 	    handle_variable(ret)
 	    next
+	}
+        # handle macro definitions
+	if (ret ~ /^\#define /) {
+	  handle_macro(ret)
+	  next
 	}
 
 	getline line

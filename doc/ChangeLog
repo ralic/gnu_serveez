@@ -1,3 +1,10 @@
+2001-03-11  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-api.texi.in (Data structures): Put the data structure
+	sections for sparse vectors, vectors, arrays and hashes here.
+
+	* serveez-api.awk: Added macro snarf function.
+
 2001-02-17  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.awk: Dropping C comments within argument lists.
