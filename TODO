@@ -23,6 +23,10 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- Make some of the configure-time servers available dynamically at run-time.
+- Let the user create network device bindings.  This requires checking
+  the system's network device configuration in some way.
+- Allow INADDR_ANY bindings again with all consequences.
 - Resolve libcoserver problem (some linkers swallow syms because they
   are not needed in libserveez).
 	- Document compilation hints (--disable-shared, static guile, ...)

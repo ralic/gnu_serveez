@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.12 2001/12/07 20:37:15 ela Exp $
+ * $Id: hash-test.c,v 1.13 2001/12/13 18:37:02 ela Exp $
  *
  */
 
@@ -52,7 +52,7 @@ main (int argc, char **argv)
 {
   int result = 0;
   svz_hash_t *hash;
-  long n, error;
+  long n, error, val;
   char *text;
   char **keys;
   void **values;
@@ -172,25 +172,29 @@ main (int argc, char **argv)
   /* hash iteration */
   hash = svz_hash_create (4, NULL);
 
-  svz_hash_put (hash, "1234567890", (void *) 0xaaaaeabc);
-  svz_hash_put (hash, "1234567891", (void *) 0xbbbbeabd);
-  svz_hash_put (hash, "1234567892", (void *) 0xcccceabe);
+  svz_hash_put (hash, "1234567890", (void *) 1);
+  svz_hash_put (hash, "1234567891", (void *) 2);
+  svz_hash_put (hash, "1234567892", (void *) 3);
 
   error = 0;
+  val = 0;
   test_print ("  value iteration: ");
   svz_hash_foreach_value (hash, values, n)
     {
+      val += (long) values[n];
       error++;
     }
-  test (error != 3);
+  test (error != 3 || val != 6);
 
   error = 0;
+  val = 0;
   test_print ("    key iteration: ");
   svz_hash_foreach_key (hash, keys, n)
     {
+      val += (long) svz_hash_get (hash, keys[n]);
       error++;
     }
-  test (error != 3);
+  test (error != 3 || val != 6);
   svz_hash_destroy (hash);
 
 

@@ -1,3 +1,8 @@
+2001-12-13  [ Ela ]  <ela@lkcc.org>
+
+	* hash-test.c (main): Better hash iteration testing.  Reveals
+	the invalid code of gcc version 2.8.1 on IRIX.
+
 2001-10-08  [ Ela ]  <ela@lkcc.org>
 
 	* codec.dsp: New file. Project file for the codec test under
