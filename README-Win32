@@ -1,7 +1,7 @@
 -- 
 -- README-Win32
 -- 
--- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 -- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ Files
 README-Win32      - this file
 serveez.dsw       - the serveez workspace file
 serveez.dsp       - the serveez project file
+vcgen.bat	  - copies files to the final location
 config.h.serveez  - prebuild config.h for serveez
 version.h.serveez - prebuild version.h for serveez
 libsizzle.dsp     - sizzle library project file
@@ -74,7 +75,3 @@ $ set LD=link
 $ sh configure --with-sizzle=../sizzle --disable-debug
 
 ela.
-
-
-
-

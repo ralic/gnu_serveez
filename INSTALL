@@ -101,7 +101,7 @@ or '--enable-<?>=no'.
          will be silently dropped.
  05.   --enable-debug
          All of the debug messages (debug: some annoying crap text) can be 
-         supressed by setting the debug level (-v). If you do not want these
+         suppressed by setting the debug level (-v). If you do not want these
          messages build in at all then disable this feature.
  06.   --enable-control-proto
          If you enable this feature the control protocol will be supported by
@@ -112,14 +112,14 @@ or '--enable-<?>=no'.
  07.1. --enable-irc-ts
          This option is only available if you enabled the IRC protocol at all.
          If you enabled both of them the serveez will support the so called
-         TimeStamp protocol which is is a EF-Net extension of the original IRC
-         protocol. In order to connect to EF-Net you MUST use this option.
+         TimeStamp protocol which is is a EFNet extension of the original IRC
+         protocol. In order to connect to EFNet you MUST use this option.
  08.   --enable-awcs-proto
          In order to use the serveez software for the textSure (C) chat system
          you MUST enable this option.
  09.   --enable-http-proto
          When using the serveez as part of the textSure (C) chat system you 
-         will have need of an additional www server. This option makes 
+         will have need of an additional web server. This option makes 
          serveez support a simple HTTP protocol.
  10.   --enable-ident
          It is always useful to enable this option. For the IRC server you 
@@ -138,7 +138,7 @@ or '--enable-<?>=no'.
  14.   --with-mingw=DIR
          When compiling under Windows the DIR argument specifies the path
          to the extra MinGW32 library and header files. If you want the
-         final executable depend on the cygwin project's cygwin1.dll you have
+         final executable depend on the Cygwin project's cygwin1.dll you have
          to disable this option by passing configure script '--without-mingw'
 	 or '--with-mingw=no'.
  15.   --enable-dns

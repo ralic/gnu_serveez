@@ -2,7 +2,7 @@
 # 
 # data/Makefile.am
 #
-# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,11 +20,8 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = mime.types \
-	irc-MOTD.txt \
-	serveez.cfg \
-	hello-cgi.scm \
-	serveez[0-9].ico
+EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg hello-cgi.scm \
+	serveez1.ico serveez2.ico
 
 MAINTAINERCLEANFILES = Makefile.in
 

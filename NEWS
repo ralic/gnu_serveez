@@ -1,7 +1,7 @@
 -- 
 -- NEWS
 -- 
--- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
@@ -21,7 +21,9 @@
 -- Boston, MA 02111-1307, USA.  
 --
 
-This file lists user visible changes that were made between releases.
+This file lists user visible changes that were made between releases. For
+more verbose descriptions of these and internal changes see the ChangeLog
+files.
 
 Version 0.0.20
 --------------

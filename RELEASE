@@ -3,7 +3,7 @@
 -- 
 -- release instructions.
 -- 
--- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 -- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ Distribution process:
   - Check the TODO, NEWS and BUGS files for pending or completed tasks.
   - Check the documentation for spelling mistakes and completion.
   - Are the Windows files up to date (*.dsp, *.dsw) ?
-  - Compile, run and test it on Windows (MinGW32, CygWin and MSVC). 
+  - Compile, run and test it on Windows (MinGW32, Cygwin and MSVC). 
   - Make sure INSTALL, THANKS and README-* is up to date.
 
 * Test build and packaging.

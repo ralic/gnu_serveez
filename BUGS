@@ -1,7 +1,7 @@
 -- 
 -- BUGS
 -- 
--- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
@@ -22,7 +22,8 @@
 --
 
 This file is intended to collect all known (fixed and unfixed) bugs in
-this package.
+this package. We will consider these to be fixed sooner or later. Please
+send Serveez bug reports to <bug-serveez@gnu.org>.
 
 Bug:	     B0017
 From:	     ela <stefan@lkcc.org>
@@ -118,6 +119,7 @@ From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-11-18/ela)
 Date:	     1999-10-27
 Description: accept() fails under Cygwin with a "bad address" error.
+Fix:	     Set accept()'s third argument (addrlen) before.
 
 Bug:         B0006
 From:	     ela <stefan@lkcc.org>
@@ -137,10 +139,10 @@ Bug:         B0004
 From:	     raimi <raimi@cs.tu-berlin.de>
 State:       fixed (1999-10-27/mgrabmue)
 Date:	     1999-10-27
-Description: segmentation fault das passiert wenn ein bot oder
-	     operator connected und auf diesem port die
+Description: Segmentation fault: das passiert wenn ein Bot oder
+	     Operator connected und auf diesem Port die
 	     floodprotection ausgemacht werden soll... (vermutl. denn
-	     das ist es was die connects gemeinsam haben). Normale
+	     das ist es, was die connects gemeinsam haben). Normale
 	     connects scheinen zu gehen.
 
 Bug:         B0003

@@ -20,9 +20,10 @@
 Here are listed all the hackers who helped creating this package:
 
 Martin Grabmueller <mgrabmue@cs.tu-berlin.de> for writing the initial
-	version and keep accepting bug report and patches.
+	version and keep accepting bug report and patches for Sizzle
+	which we are currently using for configuration file parsing.
 
-----------8<----- snip ------------------------------
+----------8<----- snip ------------------------------------------------
 This is the initial THANKS file written by Martin Grabmueller:
 
 Raimund Jacob <raimi@lkcc.org> for a patch that made the whole
@@ -36,3 +37,4 @@ Stefan Jahn <stefan@lkcc.org> for debugging and trying
 	bug and submitting a patch for it.
 	For speeding up request handling and bug hunting.
 	Kudos for the Cygwin port go to both Ela and Raimi.
+---------->8----- snap ------------------------------------------------
