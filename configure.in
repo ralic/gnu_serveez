@@ -893,9 +893,53 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Check for system header files.
 dnl
+
 AC_HEADER_STDC
 
-dnl There is no wait.h on AIX, but sys/wait.h.
+dnl
+dnl Checking for getopt() and getopt_long() functions and headers.
+dnl
+
+have_getopt="no"
+have_getopt_long="no"
+AC_CHECK_FUNC(getopt, have_getopt="yes",
+    AC_CHECK_LIB(iberty, getopt, have_getopt="yeslib"))
+if test $have_getopt != "no"; then
+    AC_DEFINE(HAVE_GETOPT, 
+	1, [Define if you have the getopt function.])
+fi
+
+AC_CHECK_FUNC(getopt_long, have_getopt_long="yes",
+    AC_CHECK_LIB(iberty, getopt_long, have_getopt_long="yeslib"))
+
+dnl
+dnl We might declare getopt_long ourselves if the headers do not.
+dnl
+
+if test $have_getopt_long != "no"; then
+    AC_MSG_CHECKING([whether getopt_long is declared])
+    AC_EGREP_HEADER(getopt_long, getopt.h,
+	AC_MSG_RESULT([yes])
+	AC_DEFINE(DECLARED_GETOPT_LONG, 
+	    1, [Define if the getopt_long function is declared in getopt.h.]),
+	AC_MSG_RESULT([no]))
+fi
+
+if test $have_getopt_long != "no"; then
+    AC_DEFINE(HAVE_GETOPT_LONG, 
+	1, [Define if you have the getopt_long function.])
+fi
+
+if test $have_getopt = "yeslib" -o $have_getopt_long = "yeslib"; then
+    LIBS="$LIBS -liberty"
+fi
+unset have_getopt
+unset have_getopt_long
+
+dnl
+dnl There is no <wait.h> on AIX, but <sys/wait.h>.
+dnl
+
 AC_MSG_CHECKING([for wait.h])
 AC_TRY_CPP([#include <wait.h>],
     AC_DEFINE(HAVE_WAIT_H, 1, [Define if you have the <wait.h>.])
@@ -905,12 +949,14 @@ AC_TRY_CPP([#include <wait.h>],
 
 AC_HEADER_SYS_WAIT
 
-dnl bzero() is defined in strings.h on AIX, used by FD_ZERO()
+dnl
+dnl bzero() is defined in <strings.h> on AIX, used by FD_ZERO()
+dnl
+
 AC_MSG_CHECKING([for strings.h])
 AC_TRY_CPP([#include <strings.h>],
     AC_DEFINE(HAVE_STRINGS_H, 1, [Define if you have the <strings.h>.])
-    AC_MSG_RESULT(yes),
-    AC_MSG_RESULT(no)
+    AC_MSG_RESULT(yes), AC_MSG_RESULT(no)
 )
 
 AC_CHECK_FUNC(strcasecmp,
@@ -936,40 +982,6 @@ AC_CHECK_HEADERS(sys/sockio.h sys/resource.h)
 AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h)
 AC_CHECK_HEADERS(dirent.h sys/dirent.h direct.h)
 AC_HEADER_DIRENT
-
-have_getopt="no"
-have_getopt_long="no"
-AC_CHECK_FUNC(getopt, have_getopt="yes",
-    AC_CHECK_LIB(iberty, getopt, have_getopt="yeslib"))
-if test $have_getopt != "no"; then
-    AC_DEFINE(HAVE_GETOPT, 
-	1, [Define if you have the getopt function.])
-fi
-
-AC_CHECK_FUNC(getopt_long, have_getopt_long="yes",
-    AC_CHECK_LIB(iberty, getopt_long, have_getopt_long="yeslib"))
-
-dnl We might declare getopt_long ourselves if the headers do not.
-
-if test $have_getopt_long != "no"; then
-    AC_MSG_CHECKING([whether getopt_long is declared])
-    AC_EGREP_HEADER(getopt_long, getopt.h,
-	AC_MSG_RESULT([yes])
-	AC_DEFINE(DECLARED_GETOPT_LONG, 
-	    1, [Define if the getopt_long function is declared in getopt.h.]),
-	AC_MSG_RESULT([no]))
-fi
-
-if test $have_getopt_long != "no"; then
-    AC_DEFINE(HAVE_GETOPT_LONG, 
-	1, [Define if you have the getopt_long function.])
-fi
-
-if test $have_getopt = "yeslib" || test $have_getopt_long = "yeslib"; then
-    EXTRALIBS="$EXTRALIBS -liberty"
-fi
-unset have_getopt
-unset have_getopt_long
 
 dnl ----------------------------------------------------------------------
 

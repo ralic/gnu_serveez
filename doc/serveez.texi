@@ -816,6 +816,11 @@ This item allows you to set a host name which is sent back to clients for
 your server if it's different than the one the program would get. Be
 aware that you cannot invent such a name.
 
+@item nslookup
+If this number is non-zero the HTTP server invokes a reverse DNS lookup
+for each client connection in order to replace the remote ip address with
+the remote host name in the access logfile.
+
 @item logfile
 The location of the access logfile. Each HTTP request gets a line within
 this file.

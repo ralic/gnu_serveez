@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.44 2000/11/12 01:48:54 ela Exp $
+ * $Id: http-proto.c,v 1.45 2000/11/14 07:35:43 ela Exp $
  *
  */
 
@@ -150,6 +150,7 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_STR ("logfile", http_config.logfile, DEFAULTABLE),
   REGISTER_STR ("logformat", http_config.logformat, DEFAULTABLE),
   REGISTER_STR ("userdir", http_config.userdir, DEFAULTABLE),
+  REGISTER_INT ("nslookup", http_config.nslookup, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -760,8 +761,13 @@ http_connect_socket (void *http_cfg, socket_t sock)
   http->pid = INVALID_HANDLE;
   http->keepalive = cfg->keepalive;
   sock->data = http;
-  coserver_reverse (sock->remote_addr, http_remotehost, 
-		    sock->id, sock->version);
+
+  /* start reverse dns lookup for logging purposes if necessary */
+  if (cfg->nslookup)
+    {
+      coserver_reverse (sock->remote_addr, http_remotehost, 
+			sock->id, sock->version);
+    }
 
   /* 
    * set the socket flag, disable flood protection and
