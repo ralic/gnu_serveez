@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.77 2001/11/25 15:51:16 ela Exp $
+ * $Id: http-proto.c,v 1.78 2002/01/20 17:12:29 ela Exp $
  *
  */
 
@@ -990,7 +990,7 @@ int
 http_get_response (svz_socket_t *sock, char *request, int flags)
 {
   int fd;
-  int size, status, partial = 0;
+  int size, status;
   struct stat buf;
   char *dir, *host, *p, *file;
   time_t date;
@@ -1153,38 +1153,82 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
   if ((p = http_find_property (http, "Range")) != NULL)
     {
       if (http_get_range (p, &http->range) != -1)
-	partial = 1;
+	flags |= HTTP_FLAG_PARTIAL;
     }
   else if ((p = http_find_property (http, "Request-Range")) != NULL)
     {
       if (http_get_range (p, &http->range) != -1)
-	partial = 1;
+	flags |= HTTP_FLAG_PARTIAL;
     }
 
   /* check if partial content can be delivered or not */
-  if (partial)
+  if (flags & HTTP_FLAG_PARTIAL)
     {
-      if (http->range.first <= 0 || 
-	  (http->range.last && http->range.last <= http->range.first) ||
-	  http->range.last >= buf.st_size || http->range.length > buf.st_size)
-	partial = 0;
+      if (http_check_range (&http->range, buf.st_size))
+	flags &= ~HTTP_FLAG_PARTIAL;
+      else
+	{
+	  /* recheck content range */
+	  http->range.length = buf.st_size;
+	  if (http->range.last == 0)
+	    http->range.last = http->range.length - 1;
 
-      http->range.length = buf.st_size;
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "http: partial content: %ld-%ld/%ld\n",
-	       http->range.first, http->range.last, http->range.length);
+	  svz_log (LOG_DEBUG, "http: partial content: %ld-%ld/%ld\n",
+		   http->range.first, http->range.last, http->range.length);
 #endif
+
+	  /* setup file descriptor and size */
+	  buf.st_size = http->range.last - http->range.first + 1;
+	  if (lseek (fd, http->range.first, SEEK_SET) != http->range.first)
+	    {
+	      svz_log (LOG_ERROR, "http: lseek: %s\n", SYS_ERROR);
+	      flags &= ~HTTP_FLAG_PARTIAL;
+	    }
+	}
+
+      /* return an error reponse if necessary */
+      if (!(flags & HTTP_FLAG_PARTIAL))
+	{
+	  svz_sock_printf (sock, HTTP_INVALID_RANGE "\r\n");
+	  http_error_response (sock, 416);
+	  sock->userflags |= HTTP_FLAG_DONE;
+	  svz_close (fd);
+	  svz_free (file);
+	  return -1;
+	}
     }
 
   /* send a http header to the client */
   if (!(flags & HTTP_FLAG_SIMPLE))
     {
-      http->response = 200;
-      http_set_header (HTTP_OK);
+      /* repond via partial or full content */
+      if (flags & HTTP_FLAG_PARTIAL)
+	{
+	  http->response = 206;
+	  http_set_header (HTTP_PARTIAL);
+	}
+      else
+	{
+	  http->response = 200;
+	  http_set_header (HTTP_OK);
+	}
+
       http_add_header ("Content-Type: %s\r\n",
 		       http_find_content_type (sock, file));
-      if (buf.st_size > 0)
-	http_add_header ("Content-Length: %d\r\n", buf.st_size);
+
+      /* set content range if possible */
+      if (flags & HTTP_FLAG_PARTIAL)
+	{
+	  http_add_header ("Content-Length: %ld\r\n",
+			   http->range.last - http->range.first + 1);
+	  http_add_header ("Content-Range: bytes %ld-%ld/%ld\r\n",
+			   http->range.first, http->range.last,
+			   http->range.length);
+	}
+      else if (buf.st_size > 0)
+	http_add_header ("Content-Length: %ld\r\n", buf.st_size);
+
       http_add_header ("Last-Modified: %s\r\n", http_asc_date (buf.st_mtime));
       http_add_header ("Accept-Ranges: bytes\r\n");
       http_check_keepalive (sock);
@@ -1203,9 +1247,17 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
   /* create a cache structure for the http socket structure */
   cache = svz_calloc (sizeof (http_cache_t));
   http->cache = cache;
-      
-  /* return the file's current cache status */
-  status = http_check_cache (file, cache);
+
+  /* disable caching if delivering partial content */
+  if (flags & HTTP_FLAG_PARTIAL)
+    {
+      status = HTTP_CACHE_INHIBIT;
+    }
+  else
+    {
+      /* return the file's current cache status */
+      status = http_check_cache (file, cache);
+    }
 
   /* is the requested file already fully in the cache ? */
   if (status == HTTP_CACHE_COMPLETE)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.15 2001/12/13 18:00:00 ela Exp $
+ * $Id: http-core.h,v 1.16 2002/01/20 17:12:29 ela Exp $
  *
  */
 
@@ -108,6 +108,7 @@ struct http_socket
 #define HTTP_BAD_REQUEST     HTTP_VERSION " 400 Bad Request\r\n"
 #define HTTP_ACCESS_DENIED   HTTP_VERSION " 403 Forbidden\r\n"
 #define HTTP_FILE_NOT_FOUND  HTTP_VERSION " 404 Not Found\r\n"
+#define HTTP_INVALID_RANGE   HTTP_VERSION " 416 Requested Range Not Satisfiable\r\n"
 #define HTTP_INTERNAL_ERROR  HTTP_VERSION " 500 Internal Server Error\r\n"
 #define HTTP_NOT_IMPLEMENTED HTTP_VERSION " 501 Not Implemented\r\n"
 
@@ -119,6 +120,7 @@ struct http_socket
 #define HTTP_FLAG_CGI      0x0020 /* http cgi pipe getting data */
 #define HTTP_FLAG_KEEP     0x0040 /* keep alive connection */
 #define HTTP_FLAG_SENDFILE 0x0080 /* use sendfile for HTTP requests */
+#define HTTP_FLAG_PARTIAL  0x0100 /* partial content requested */
 
 /* all of the additional http flags */
 #define HTTP_FLAG (HTTP_FLAG_DONE      | \
@@ -126,7 +128,8 @@ struct http_socket
                    HTTP_FLAG_CGI       | \
                    HTTP_FLAG_CACHE     | \
                    HTTP_FLAG_KEEP      | \
-                   HTTP_FLAG_SENDFILE)
+                   HTTP_FLAG_SENDFILE  | \
+                   HTTP_FLAG_PARTIAL)
 
 /* exported http core functions */
 int http_keep_alive (svz_socket_t *sock);
@@ -138,6 +141,7 @@ char *http_find_content_type (svz_socket_t *sock, char *file);
 int http_parse_property (svz_socket_t *sock, char *request, char *end);
 char *http_find_property (http_socket_t *sock, char *key);
 
+int http_check_range (http_range_t *range, off_t filesize);
 int http_get_range (char *line, http_range_t *range);
 char *http_userdir (svz_socket_t *sock, char *uri);
 int http_remotehost (char *host, int id, int version);

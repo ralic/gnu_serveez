@@ -1,3 +1,13 @@
+2002-01-20  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_get_response): Considers
+	content range requests.  When the request is satisfiable the
+	HTTP server sends partial content.
+
+	* http-server/http-core.c (http_check_range): Validates
+	content range specifier send in a HTTP header.
+	(http_get_range): Parses a content range specifier.
+
 2001-12-27  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.h: Added some more backward compatibility 

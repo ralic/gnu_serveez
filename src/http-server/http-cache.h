@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.9 2001/07/28 19:35:12 ela Exp $
+ * $Id: http-cache.h,v 1.10 2002/01/20 17:12:29 ela Exp $
  *
  */
 
@@ -95,5 +95,6 @@ int http_cache_disconnect (svz_socket_t *sock);
 #define HTTP_CACHE_COMPLETE   0 /* file is in the cache */
 #define HTTP_CACHE_INCOMPLETE 1 /* file is going to be in the cache */
 #define HTTP_CACHE_NO         2 /* file is not in the cache */
+#define HTTP_CACHE_INHIBIT    3 /* inhibit file caching */
 
 #endif /* __HTTP_CACHE_H__ */

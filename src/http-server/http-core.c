@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.43 2001/12/07 20:37:14 ela Exp $
+ * $Id: http-core.c,v 1.44 2002/01/20 17:12:29 ela Exp $
  *
  */
 
@@ -449,6 +449,30 @@ http_set_header (char *response)
 }
 
 /*
+ * Check if the a content range is valid for the given file size and return
+ * zero on success, non-zero otherwise.
+ */
+int
+http_check_range (http_range_t *range, off_t filesize)
+{
+  if ((range->first <= 0) ||
+      (range->last != 0 && range->last <= range->first) ||
+      (range->last >= filesize || range->length > filesize))
+    {
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG,
+	       "http: invalid content range (%ld-%ld/%ld not in %ld) \n",
+	       range->first, range->last, range->length, filesize);
+#endif
+      return -1;
+    }
+  return 0;
+}
+
+#define HTTP_BYTES        "bytes"
+#define HTTP_BYTES_LENGTH 5
+
+/*
  * Create a http content range if the given line specifies a valid one.
  * Return zero on success and -1 on errors.
  */
@@ -458,24 +482,20 @@ http_get_range (char *line, http_range_t *range)
   char *p = line;
   off_t n;
 
-  /* parse until byte-range specifier */ 
+  /* check args */
   if (!line || !range)
     return -1;
-  while (*p && *p != ':')
-    p++;
-  if (!*p || *(p + 1) != ' ')
-    return -1;
-  p += 2;
 
   /* check identifier */
-  if (memcmp (p, "bytes", 5))
+  if (strlen (p) >= HTTP_BYTES_LENGTH && 
+      memcmp (p, HTTP_BYTES, HTTP_BYTES_LENGTH))
     {
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
 #endif
       return -1;
     }
-  p += 5;
+  p += HTTP_BYTES_LENGTH;
 
   /* parse content range itself */
   range->first = range->last = range->length = 0;
