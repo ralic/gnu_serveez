@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.12 2002/09/28 10:33:48 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.13 2002/10/01 15:07:01 ela Exp $
 #
 
 # evaluate command line arguments
@@ -40,13 +40,13 @@ BEGIN {
 	produce_txt = 1
       else if (ARGV[i] == "-h") {
 	err = sprintf("usage: %s file [-h] [-s] [-t]", ARGV[0])
-	print err > "/dev/stderr"
+	print err | "cat 1>&2"
 	exit
       }
       else if (ARGV[i] ~ /^-?/) {
 	err = sprintf("%s: unrecognized option -- %c", ARGV[0], 
 		      substr(ARGV[i], 2, 1))
-	print err > "/dev/stderr"
+	print err | "cat 1>&2"
 	exit
       }
       else break
@@ -117,7 +117,7 @@ function extract_doc(line)
       if (getline <= 0) {
 	err = "unexpected EOF or error"
 	err = (err ": " ERRNO)
-	print err > "/dev/stderr"
+	print err | "cat 1>&2"
 	exit
       }
       end = index($0, "*/")

@@ -1,3 +1,20 @@
+2002-10-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez.ap (PROJECTS): Added the `prog' and `mkpassword'
+	project.  Updated the project dependencies.
+
+	* configure.in: Fixed check for `getrpcent()'.
+
+	* config.h.serveez, version.h.serveez: Updated.
+
+	* config.guess, config.sub: Updated these files from the
+	GNU servers.
+	
+	* autodsp (create_dsp): Some more sane checks for certain
+	variable names.  Bumped up version number.
+
+	* vcgen.bat: Additionally copy `svzpath.h.serveez'.
+
 2002-09-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* Changed every occurrence of <ftp://ftp.gnu.org/...> into 

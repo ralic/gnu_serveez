@@ -1,3 +1,7 @@
+2002-10-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* PLATFORMS: Added some more platforms to the list.
+
 2002-07-23  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): New file `libtool-MacOS.diff' 

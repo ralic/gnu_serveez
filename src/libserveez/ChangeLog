@@ -1,3 +1,8 @@
+2002-10-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* Makefile.am (EXTRA_DIST): Added `svzpath.h.serveez'.
+	Added installation rules for `libserveez.dll.a'.
+
 2002-07-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* hash.c (svz_hash_exists): New library function.

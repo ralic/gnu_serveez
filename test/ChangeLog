@@ -1,3 +1,9 @@
+2002-10-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* prog-test.c: Include <io.h> for MinGW32.
+
+	* Makefile.am (EXTRA_DIST): Added `prog.dsp' and `prog.ap'.
+
 2002-07-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* hash-test.c: Checking `svz_hash_exists()'.

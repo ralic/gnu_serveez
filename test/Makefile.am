@@ -24,8 +24,8 @@
 
 TESTS = vector-test array-test hash-test spvec-test
 
-EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp \
-	hash.ap vector.ap array.ap spvec.ap codec.ap \
+EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp \
+	hash.ap vector.ap array.ap spvec.ap codec.ap prog.ap \
 	prog-test.cfg test-suite.scm binary-test.scm
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test \
@@ -47,4 +47,4 @@ INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in \
-	hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp
+	hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp

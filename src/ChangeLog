@@ -1,3 +1,8 @@
+2002-10-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* Makefile.am (EXTRA_DIST): Added `mkpassword.dsp' and 
+	`mkpassword.ap'.
+
 2002-07-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_get_cpu_state): Added

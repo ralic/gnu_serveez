@@ -1,3 +1,9 @@
+2002-10-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez-doc-snarf.awk: Replaced `> "/dev/stderr"' by
+	`| "cat 1>&2"'.  This is useful for platforms where the
+	device file "/dev/stderr" does not exist.
+
 2002-09-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Concept): Finally completed this section.

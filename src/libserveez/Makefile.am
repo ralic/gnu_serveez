@@ -22,7 +22,8 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog svzpath.h.in
+EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog svzpath.h.in \
+	svzpath.h.serveez
 SUBDIRS = coserver codec
 
 # the serveez core library rules
@@ -61,6 +62,12 @@ svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
 	  -e 's,@PKGDATADIR@,@datadir@/serveez,g' \
 	  -e 's,@LIBDIR@,@libdir@,g' \
 	  > svzpath.h
+
+# FIXME: Install the DLL import library.  As long as `libtool' does not.
+#        Works for Cygwin but not for MinGW32.
+install-exec-hook:
+	test ! -f .libs/libserveez.dll.a || \
+	$(INSTALL_PROGRAM) .libs/libserveez.dll.a $(libdir)/libserveez.dll.a
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 

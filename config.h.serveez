@@ -190,6 +190,9 @@
 /* Define if you have the <sys/dirent.h> header file.  */
 /* #undef HAVE_SYS_DIRENT_H */
 
+/* Define if you have the <sys/ioctl.h> header file.  */
+/* #undef HAVE_SYS_IOCTL_H */
+
 /* Define if you have the <sys/ndir.h> header file.  */
 /* #undef HAVE_SYS_NDIR_H */
 
@@ -353,8 +356,8 @@
 /* Define if Linux supports the /proc/stat file. */
 /* #undef HAVE_PROC_STAT */
 
-/* Define if you have the vsprintf function. */
-#define HAVE_VSPRINTF 1
+/* Define if MacOS provides the host_statistics interface. */
+/* #undef HAVE_HOST_STATISTICS */
 
 /* Define if you have the snprintf function. */
 #define HAVE_SNPRINTF 1

@@ -1316,7 +1316,7 @@ AC_CHECK_FUNCS(times poll waitpid)
 dnl
 dnl Checks for RPC services.
 dnl
-AC_CHECK_FUNC(getrpcent)
+AC_CHECK_FUNCS(getrpcent)
 if test $ac_cv_func_getrpcent = no; then
     dnl On HP-UX these functions reside in -lnsl
     AC_CHECK_LIB(nsl, getrpcent, EXTRALIBS="$EXTRALIBS -lnsl")

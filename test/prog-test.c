@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: prog-test.c,v 1.1 2002/01/02 16:12:43 ela Exp $
+ * $Id: prog-test.c,v 1.2 2002/10/01 15:07:01 ela Exp $
  *
  */
 
@@ -44,6 +44,7 @@
 #else
 # define sleep(x) Sleep ((x) * 1000)
 # include <winsock2.h>
+# include <io.h>
 #endif
 
 /*
