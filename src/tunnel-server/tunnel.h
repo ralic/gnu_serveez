@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.6 2000/11/29 20:25:08 ela Exp $
+ * $Id: tunnel.h,v 1.7 2000/11/30 22:16:18 ela Exp $
  *
  */
 
@@ -53,20 +53,24 @@ typedef struct
   socket_t source_sock; /* source socket structure */
   socket_t target_sock; /* target socket */
 }
-tnl_source_t;
+tnl_connect_t;
 
 /* tunnel server specific protocol flags */
 #define TNL_TIMEOUT       30
+
+/* flags for targets */
 #define TNL_FLAG_SRC_TCP  0x0001
 #define TNL_FLAG_SRC_UDP  0x0002
 #define TNL_FLAG_SRC_ICMP 0x0004
 #define TNL_FLAG_SRC_PIPE 0x0008
+#define TNL_FLAG_SRC (TNL_FLAG_SRC_TCP  | TNL_FLAG_SRC_UDP | \
+                      TNL_FLAG_SRC_ICMP | TNL_FLAG_SRC_PIPE)
+
+/* flags for sources */
 #define TNL_FLAG_TGT_TCP  0x0010
 #define TNL_FLAG_TGT_UDP  0x0020
 #define TNL_FLAG_TGT_ICMP 0x0040
 #define TNL_FLAG_TGT_PIPE 0x0080
-#define TNL_FLAG_SRC (TNL_FLAG_SRC_TCP  | TNL_FLAG_SRC_UDP | \
-                      TNL_FLAG_SRC_ICMP | TNL_FLAG_SRC_PIPE)
 #define TNL_FLAG_TGT (TNL_FLAG_TGT_TCP  | TNL_FLAG_TGT_UDP | \
                       TNL_FLAG_TGT_ICMP | TNL_FLAG_TGT_PIPE)
 
@@ -87,7 +91,8 @@ int tnl_handle_request_udp_source (socket_t sock, char *packet, int len);
 int tnl_handle_request_udp_target (socket_t sock, char *packet, int len);
 int tnl_handle_request_icmp_source (socket_t sock, char *packet, int len);
 int tnl_handle_request_icmp_target (socket_t sock, char *packet, int len);
-int tnl_disconnect (socket_t sock);
+int tnl_disconnect_source (socket_t sock);
+int tnl_disconnect_target (socket_t sock);
 int tnl_idle (socket_t sock);
 
 #define tnl_check_request_pipe_source tnl_check_request_tcp_source

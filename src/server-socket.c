@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.39 2000/11/29 20:25:08 ela Exp $
+ * $Id: server-socket.c,v 1.40 2000/11/30 22:16:18 ela Exp $
  *
  */
 
@@ -172,7 +172,7 @@ server_create (portcfg_t *cfg)
       if (cfg->proto & PROTO_RAW)
 	{
 	  optval = 1;
-	  if(setsockopt (server_socket, SOL_IP, IP_HDRINCL,
+	  if(setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
 			 (void *) &optval, sizeof (optval)) < 0)
 	    {
 	      log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
@@ -274,7 +274,6 @@ server_create (portcfg_t *cfg)
 
   if (cfg->proto & PROTO_PIPE)
     {
-      sock->flags |= SOCK_FLAG_PIPE;
 #ifndef __MINGW32__
       sock->recv_pipe = xmalloc (strlen (cfg->inpipe) + 1);
       strcpy (sock->recv_pipe, cfg->inpipe);
@@ -287,7 +286,12 @@ server_create (portcfg_t *cfg)
       sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", cfg->outpipe);
 #endif /* __MINGW32__ */
       sock->read_socket = server_accept_pipe;
-      log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->send_pipe);
+      if (pipe_listener (sock) == -1)
+	{
+	  sock_free (sock);
+	  return NULL;
+	}
+      log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->recv_pipe);
     }
   else
     {
@@ -430,11 +434,6 @@ server_accept_socket (socket_t server_sock)
 int
 server_accept_pipe (socket_t server_sock)
 {
-#if HAVE_MKFIFO
-  struct stat buf;
-  mode_t mask;
-#endif
-
 #ifdef __MINGW32__
   DWORD connect;
 #endif
@@ -443,57 +442,9 @@ server_accept_pipe (socket_t server_sock)
   HANDLE recv_pipe, send_pipe;
   socket_t sock;
   server_sock->idle_counter = 1;
-
-  /*
-   * Pipe requested via port configuration ?
-   */
-  if (!server_sock->recv_pipe || !server_sock->send_pipe)
-    return -1;
 #endif
 
 #if HAVE_MKFIFO
-  /* Save old permissions and set new. */
-  mask = umask (0);
-
-  /* 
-   * Test if both of the named pipes have been created yet. 
-   * If not then create them locally.
-   */
-  if (stat (server_sock->recv_pipe, &buf) == -1)
-    {
-      if (mkfifo (server_sock->recv_pipe, 0666) != 0)
-        {
-          log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
-	  umask (mask);
-          return -1;
-        }
-      if (stat (server_sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
-	{
-          log_printf (LOG_ERROR, "stat: mkfifo() did not create a fifo\n");
-	  umask (mask);
-          return -1;
-	}
-    }
-
-  if (stat (server_sock->send_pipe, &buf) == -1)
-    {
-      if (mkfifo (server_sock->send_pipe, 0666) != 0)
-        {
-          log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
-	  umask (mask);
-          return -1;
-        }
-      if (stat (server_sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
-	{
-          log_printf (LOG_ERROR, "stat: mkfifo() did not create a fifo\n");
-	  umask (mask);
-          return -1;
-	}
-    }
-
-  /* reassign old umask permissions */
-  umask (mask);
-
   /* 
    * Try opening the server's send pipe. This will fail 
    * until the client has opened it for reading.
@@ -507,70 +458,19 @@ server_accept_pipe (socket_t server_sock)
 	}
       return 0;
     }
-
-  /* Try opening the server's read pipe. Should always be possible. */
-  if ((recv_pipe = open (server_sock->recv_pipe, O_NONBLOCK|O_RDONLY)) == -1)
-    {
-      close (send_pipe);
-      log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
-      return 0;
-    }
+  recv_pipe = server_sock->pipe_desc[READ];
 
   /* Create a socket structure for the client pipe. */
   if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
     {
       close (send_pipe);
-      close (recv_pipe);
       return 0;
     }
 
 #elif defined (__MINGW32__) /* not HAVE_MKFIFO */
 
-  /*
-   * Create both of the named pipes and put the handles into
-   * the server socket structure.
-   */
-  if (server_sock->pipe_desc[READ] == INVALID_HANDLE)
-    {
-      recv_pipe = CreateNamedPipe (
-	server_sock->recv_pipe,                     /* path */
-	PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, /* receive + overlapped */
-	PIPE_READMODE_BYTE | PIPE_NOWAIT,           /* binary + non-blocking */
-	1,                                          /* one instance only */
-	0, 0,                                       /* default buffer sizes */
-	100,                                        /* timeout in ms */
-	NULL);                                      /* no security */
-
-      if (recv_pipe == INVALID_HANDLE_VALUE || !recv_pipe)
-	{
-	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
-	  return -1;
-	}
-      server_sock->pipe_desc[READ] = recv_pipe;
-    }
-  else
-    recv_pipe = server_sock->pipe_desc[READ];
-
-  if (server_sock->pipe_desc[WRITE] == INVALID_HANDLE)
-    {
-      send_pipe = CreateNamedPipe (
-	server_sock->send_pipe,                      /* path */
-	PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED, /* send + overlapped */
-	PIPE_TYPE_BYTE | PIPE_NOWAIT,                /* bin + non-blocking */
-	1,                                           /* one instance only */
-	0, 0,                                        /* default buffer sizes */
-	100,                                         /* timeout in ms */
-	NULL);                                       /* no security */
-      
-      if (send_pipe == INVALID_HANDLE_VALUE || !send_pipe)
-	{
-	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
-	  return -1;
-	}
-      server_sock->pipe_desc[WRITE] = send_pipe;
-    }
-  else
-    send_pipe = server_sock->pipe_desc[WRITE];
+  recv_pipe = server_sock->pipe_desc[READ];
+  send_pipe = server_sock->pipe_desc[WRITE];
 
 #if 0
   /*
@@ -593,12 +493,28 @@ server_accept_pipe (socket_t server_sock)
 	    CreateEvent (NULL, TRUE, TRUE, NULL);
 	}
     }
-#endif
+#endif /* 0 */
 
   /*
    * Now try connecting to one of these pipes. This will fail until
    * a client has been connected.
    */
+  if (!ConnectNamedPipe (send_pipe, NULL))
+    {
+      connect = GetLastError ();
+      /* Pipe is listening ? */
+      if (connect == ERROR_PIPE_LISTENING)
+	return 0;
+      /* Pipe finally connected ? */
+      if (connect != ERROR_PIPE_CONNECTED)
+	{
+	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  return -1;
+	}
+    }
+  /* Overlapped ConnectNamedPipe should return zero. */
+  else return 0;
+
   if (!ConnectNamedPipe (recv_pipe, NULL))
     {
       connect = GetLastError ();
@@ -614,22 +530,6 @@ server_accept_pipe (socket_t server_sock)
       /* If we got here then a client pipe is successfully connected. */
     }
   /* Because these pipes are non-blocking this is never occurring. */
-  else return 0;
-
-  if (!ConnectNamedPipe (send_pipe, NULL))
-    {
-      connect = GetLastError ();
-      /* Pipe is listening ? */
-      if (connect == ERROR_PIPE_LISTENING)
-	return 0;
-      /* Pipe finally connected ? */
-      if (connect != ERROR_PIPE_CONNECTED)
-	{
-	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-	  return -1;
-	}
-    }
-  /* Overlapped ConnectNamedPipe should return zero. */
   else return 0;
 
   /* Create a socket structure for the client pipe. */
@@ -661,7 +561,6 @@ server_accept_pipe (socket_t server_sock)
 #if defined (HAVE_MKFIFO) || defined (__MINGW32__)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
-  sock->flags |= SOCK_FLAG_PIPE;
   sock->referrer = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
@@ -671,7 +570,7 @@ server_accept_pipe (socket_t server_sock)
   sock_enqueue (sock);
 
   log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
-              server_sock->send_pipe, 
+              server_sock->recv_pipe, 
 	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 
   server_sock->flags |= SOCK_FLAG_INITED;

@@ -1253,12 +1253,15 @@ port information. See above for more information.
 @subsection Tunnel Server
 
 @subsubsection General description
-The Tunnel server is for mapping one port configuration to another. 
-Generally this means that you can setup @value{PACKAGE} to accept network
-connections in order to pass all network data traffic on this line to
-another address. This can be useful to workaround gateways and 
+The Tunnel server is for mapping one port configuration to another. Thus
+we should rather speak of a port forwarder. Two portwarder can form a
+tunnel. Generally this means that you can setup @value{PACKAGE} to accept 
+network connections in order to pass all network data traffic on this 
+line to another address. This can be useful to workaround gateways and 
 firewalls. When instantiating an ICMP source or destination you must
-ensure root privileges for the application.
+ensure root privileges for the application. One of the given examples
+in @file{serveez.cfg} shows how you can setup a tunnel server for 
+forwarding a pipe connection.
 
 @subsubsection Configuration
 This might be the most easiest configuration to setup. You essentially

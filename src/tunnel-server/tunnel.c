@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.9 2000/11/29 20:25:08 ela Exp $
+ * $Id: tunnel.c,v 1.10 2000/11/30 22:16:18 ela Exp $
  *
  */
 
@@ -168,11 +168,11 @@ int
 tnl_finalize (server_t *server)
 {
   tnl_config_t *cfg = server->cfg;
-  tnl_source_t **source;
+  tnl_connect_t **source;
   int n;
 
   /* release source connection hash if necessary */
-  if ((source = (tnl_source_t **) hash_values (cfg->client)) != NULL)
+  if ((source = (tnl_connect_t **) hash_values (cfg->client)) != NULL)
     {
       for (n = 0; n < hash_size (cfg->client); n++)
 	{
@@ -197,6 +197,32 @@ tnl_addr (socket_t sock)
   sprintf (addr, "%s:%u", util_inet_ntoa (sock->remote_addr), 
 	   ntohs (sock->remote_port));
   return addr;
+}
+
+/*
+ * Release referring tunnel structure.
+ */
+static void
+tnl_free_connect (socket_t sock)
+{
+  if (sock->data)
+    {
+      xfree (sock->data);
+      sock->data = NULL;
+    }
+}
+
+/*
+ * Create a referring tunnel connection structure.
+ */
+static tnl_connect_t *
+tnl_create_connect (void)
+{
+  tnl_connect_t *source;
+
+  source = xmalloc (sizeof (tnl_connect_t));
+  memset (source, 0, sizeof (tnl_connect_t));
+  return source;
 }
 
 /*
@@ -320,9 +346,7 @@ tnl_create_socket (socket_t sock, int source)
   xsock->cfg = cfg;
   xsock->flags |= SOCK_FLAG_NOFLOOD;
   xsock->userflags = (sock->userflags | source) & ~(TNL_FLAG_TGT);
-  xsock->disconnected_socket = tnl_disconnect;
-  xsock->referrer = sock;
-  sock->referrer = xsock;
+  xsock->disconnected_socket = tnl_disconnect_target;
 
   return xsock;
 }
@@ -407,17 +431,29 @@ int
 tnl_connect_socket (void *config, socket_t sock)
 {
   tnl_config_t *cfg = config;
+  socket_t xsock = NULL;
+  tnl_connect_t *source;
   
   sock->flags |= SOCK_FLAG_NOFLOOD;
   sock->check_request = sock->flags & SOCK_FLAG_PIPE ?
     tnl_check_request_pipe_source : tnl_check_request_tcp_source;
-  sock->disconnected_socket = tnl_disconnect;
+  sock->disconnected_socket = tnl_disconnect_source;
   sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
 
   /* try connecting to target */
-  if (tnl_create_socket (sock, sock->flags & SOCK_FLAG_PIPE ?
-			 TNL_FLAG_SRC_PIPE : TNL_FLAG_SRC_TCP) == NULL)
+  xsock = tnl_create_socket (sock, sock->flags & SOCK_FLAG_PIPE ?
+			     TNL_FLAG_SRC_PIPE : TNL_FLAG_SRC_TCP);
+  if (xsock == NULL)
     return -1;
+
+  /* put the source connection into data field */
+  source = tnl_create_connect ();
+  source->source_sock = sock;
+  source->target_sock = xsock;
+  source->ip = sock->remote_addr;
+  source->port = sock->remote_port;
+  xsock->data = source;
+  sock->data = source;
 
   return 0;
 }
@@ -431,21 +467,13 @@ int
 tnl_check_request_tcp_target (socket_t sock)
 {
   socket_t xsock = NULL;
-  tnl_source_t *source;
+  tnl_connect_t *source;
 
-  /* source is a TCP connection */
-  if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
-    {
-      xsock = sock->referrer;
-    }
-  /* source is an UDP connection */
-  else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
-    {
-      source = sock->data;
-      xsock = source->source_sock;
-      xsock->remote_addr = source->ip;
-      xsock->remote_port = source->port;
-    }
+  /* obtain source connection */
+  source = sock->data;
+  xsock = source->source_sock;
+  xsock->remote_addr = source->ip;
+  xsock->remote_port = source->port;
 
   /* forward data to source connection */
   if (tnl_send_request_target (xsock, sock->recv_buffer, 
@@ -469,9 +497,14 @@ int
 tnl_check_request_tcp_source (socket_t sock)
 {
   tnl_config_t *cfg = sock->cfg;
+  tnl_connect_t *target = sock->data;
+  socket_t xsock;
+
+  /* obtain target connection */
+  xsock = target->target_sock;
 
   /* forward data to target connection */
-  if (tnl_send_request_source (sock->referrer, sock->recv_buffer, 
+  if (tnl_send_request_source (xsock, sock->recv_buffer, 
 			       sock->recv_buffer_fill, 
 			       sock->userflags) == -1)
     {
@@ -489,24 +522,14 @@ int
 tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
-  tnl_source_t *source;
+  tnl_connect_t *source;
   socket_t xsock = NULL;
 
-  /* the source connection is TCP */
-  if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
-    {
-      if ((xsock = sock->referrer) == NULL)
-	return -1;
-    }
-  /* source connection is UDP or ICMP */
-  else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
-    {
-      /* get source connection from data field */
-      source = sock->data;
-      xsock = source->source_sock;
-      xsock->remote_addr = source->ip;
-      xsock->remote_port = source->port;
-    } 
+  /* get source connection from data field */
+  source = sock->data;
+  xsock = source->source_sock;
+  xsock->remote_addr = source->ip;
+  xsock->remote_port = source->port;
 
   /* forward packet data to source connection */
   if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
@@ -528,7 +551,7 @@ int
 tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
-  tnl_source_t *source;
+  tnl_connect_t *source;
   socket_t xsock = NULL;
 
   /* check if there is such a connection in the source hash already */
@@ -545,7 +568,7 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
 	return 0;
 
       /* foreign address not in hash, create new target connection */
-      source = xmalloc (sizeof (tnl_source_t));
+      source = tnl_create_connect ();
       source->source_sock = sock;
       source->ip = sock->remote_addr;
       source->port = sock->remote_port;
@@ -573,24 +596,14 @@ int
 tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
-  tnl_source_t *source;
+  tnl_connect_t *source;
   socket_t xsock = NULL;
 
-  /* the source connection is TCP */
-  if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
-    {
-      if ((xsock = sock->referrer) == NULL)
-	return -1;
-    }
-  /* source connection is UDP or ICMP */
-  else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
-    {
-      /* get source connection from data field */
-      source = sock->data;
-      xsock = source->source_sock;
-      xsock->remote_addr = source->ip;
-      xsock->remote_port = source->port;
-    } 
+  /* get source connection from data field */
+  source = sock->data;
+  xsock = source->source_sock;
+  xsock->remote_addr = source->ip;
+  xsock->remote_port = source->port;
 
   /* forward packet data to source connection */
   if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
@@ -612,7 +625,7 @@ int
 tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
-  tnl_source_t *source;
+  tnl_connect_t *source;
   socket_t xsock = NULL;
 
   /* check if there is such a connection in the source hash already */
@@ -629,7 +642,7 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
 	return 0;
 
       /* foreign address not in hash, create new target connection */
-      source = xmalloc (sizeof (tnl_source_t));
+      source = tnl_create_connect ();
       source->source_sock = sock;
       source->ip = sock->remote_addr;
       source->port = sock->remote_port;
@@ -651,53 +664,78 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
 }
 
 /*
- * What happens if a connection gets lost.
+ * The targets's disconnection routine.
  */
 int
-tnl_disconnect (socket_t sock)
+tnl_disconnect_target (socket_t sock)
 {
   tnl_config_t *cfg = sock->cfg;
   char *key;
+  tnl_connect_t *source = sock->data;
 
-  /* do not anything if we are shutting down */
-  if (server_nuke_happened)
-    return 0;
-
-  /* if the source connection is ICMP send a disconnection message */
-  if (sock->userflags & TNL_FLAG_SRC_ICMP && sock->referrer)
+  /* do not do anything if we are shutting down */
+  if (!server_nuke_happened)
     {
+      /* if the source connection is ICMP send a disconnection message */
+      if (sock->userflags & TNL_FLAG_SRC_ICMP)
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: sending icmp disconnect\n");
+	  log_printf (LOG_DEBUG, "tunnel: sending icmp disconnect\n");
 #endif
-      icmp_write (sock->referrer, NULL, 0);
-    }
+	  icmp_write (source->source_sock, NULL, 0);
+	}
 
-  /* if source is TCP shutdown referring connection */
-  if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE) && 
-      sock->referrer)
-    {
+      /* if source is TCP or PIPE then shutdown referring connection */
+      if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
-		  sock->referrer->id);
+	  log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
+		      source->source_sock->id);
 #endif
-      sock_schedule_for_shutdown (sock->referrer);
+	  sock_schedule_for_shutdown (source->source_sock);
+	  tnl_free_connect (sock);
+	}
+      /* else delete target connection from its hash */
+      else if ((key = hash_contains (cfg->client, source)) != NULL)
+	{
+	  hash_delete (cfg->client, key);
+	  tnl_free_connect (sock);
+	}
     }
   else
     {
-      if ((key = hash_contains (cfg->client, sock->data)) != NULL)
+      /* if source is TCP or PIPE then shutdown referring connection */
+      if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
 	{
-	  hash_delete (cfg->client, key);
-	  xfree (sock->data);
-	  sock->data = NULL;
+	  tnl_free_connect (sock);
 	}
     }
 
-  /* disable the referring socket structure */
-  if (sock->referrer)
+  return 0;
+}
+
+/*
+ * What happens if a source connection gets lost.
+ */
+int
+tnl_disconnect_source (socket_t sock)
+{
+  tnl_connect_t *target = sock->data;
+
+  /* do not anything if we are shutting down */
+  if (!server_nuke_happened)
     {
-      sock->referrer->referrer = NULL;
-      sock->referrer = NULL;
+      /* if source is TCP or PIPE shutdown referring connection */
+      if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_PIPE) && target)
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
+		      target->target_sock->id);
+#endif
+	  sock_schedule_for_shutdown (target->target_sock);
+	}
     }
+
   return 0;
 }
 

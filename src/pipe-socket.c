@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.18 2000/11/29 20:25:08 ela Exp $
+ * $Id: pipe-socket.c,v 1.19 2000/11/30 22:16:17 ela Exp $
  *
  */
 
@@ -89,6 +89,13 @@ pipe_disconnect (socket_t sock)
 	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
 #endif /* not __MINGW32__ */
 
+	  /* close sending pipe */
+	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
+	      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+
+	  /* FIXME: reset receiving pipe ??? */
+
 	  /* restart listening pipe server socket */
 	  sock->referrer->flags &= ~SOCK_FLAG_INITED;
 	  sock->referrer->referrer = NULL;
@@ -121,6 +128,11 @@ pipe_disconnect (socket_t sock)
 
 #ifndef __MINGW32__
 
+      /* close listening pipe */
+      if (sock->pipe_desc[READ] != INVALID_HANDLE)
+	if (closehandle (sock->pipe_desc[READ]) < 0)
+	  log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+
       /* delete named pipes on file system */
       if (unlink (sock->recv_pipe) == -1)
 	log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
@@ -149,7 +161,7 @@ pipe_disconnect (socket_t sock)
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "pipe listener (%s) destroyed\n",
-		  sock->send_pipe);
+		  sock->recv_pipe);
 #endif
 
       sock->pipe_desc[READ] = INVALID_HANDLE;
@@ -446,7 +458,7 @@ pipe_connect (char *inpipe, char *outpipe)
     }
 
   /* try opening sending pipe for writing */
-  if ((send_pipe = open (sock->send_pipe, O_WRONLY /*| O_NONBLOCK*/)) == -1)
+  if ((send_pipe = open (sock->send_pipe, O_WRONLY | O_NONBLOCK)) == -1)
     {
       log_printf (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
       close (recv_pipe);
@@ -502,4 +514,156 @@ pipe_connect (char *inpipe, char *outpipe)
 
   connected_sockets++;
   return sock;
+}
+
+/*
+ * Create a socket structure for listening pipe sockets. Open the reading
+ * end of such a connection. Return either zero or non-zero on errors.
+ */
+int
+pipe_listener (socket_t server_sock)
+{
+#if HAVE_MKFIFO
+  struct stat buf;
+  mode_t mask;
+#endif
+
+#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
+  HANDLE recv_pipe, send_pipe;
+
+  /*
+   * Pipe requested via port configuration ?
+   */
+  if (!server_sock->recv_pipe || !server_sock->send_pipe)
+    return -1;
+#endif
+
+#if HAVE_MKFIFO
+  /* Save old permissions and set new. */
+  mask = umask (0);
+
+  /* 
+   * Test if both of the named pipes have been created yet. 
+   * If not then create them locally.
+   */
+  if (stat (server_sock->recv_pipe, &buf) == -1)
+    {
+      if (mkfifo (server_sock->recv_pipe, 0666) != 0)
+        {
+          log_printf (LOG_ERROR, "pipe: mkfifo: %s\n", SYS_ERROR);
+	  umask (mask);
+          return -1;
+        }
+      if (stat (server_sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+	{
+          log_printf (LOG_ERROR, 
+		      "pipe: stat: mkfifo() did not create a fifo\n");
+	  umask (mask);
+          return -1;
+	}
+    }
+
+  if (stat (server_sock->send_pipe, &buf) == -1)
+    {
+      if (mkfifo (server_sock->send_pipe, 0666) != 0)
+        {
+          log_printf (LOG_ERROR, "pipe: mkfifo: %s\n", SYS_ERROR);
+	  umask (mask);
+          return -1;
+        }
+      if (stat (server_sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+	{
+          log_printf (LOG_ERROR, 
+		      "pipe: stat: mkfifo() did not create a fifo\n");
+	  umask (mask);
+          return -1;
+	}
+    }
+
+  /* reassign old umask permissions */
+  umask (mask);
+
+  /* Try opening the server's read pipe. Should always be possible. */
+  if ((recv_pipe = open (server_sock->recv_pipe, O_NONBLOCK|O_RDONLY)) == -1)
+    {
+      log_printf (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
+      return -1;
+    }
+  server_sock->pipe_desc[READ] = recv_pipe;
+  server_sock->flags |= SOCK_FLAG_RECV_PIPE;
+
+#elif defined (__MINGW32__) /* not HAVE_MKFIFO */
+
+  /*
+   * Create both of the named pipes and put the handles into
+   * the server socket structure.
+   */
+  recv_pipe = CreateNamedPipe (
+    server_sock->recv_pipe,                     /* path */
+    PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, /* receive + overlapped */
+    PIPE_READMODE_BYTE | PIPE_NOWAIT,           /* binary + non-blocking */
+    1,                                          /* one instance only */
+    0, 0,                                       /* default buffer sizes */
+    100,                                        /* timeout in ms */
+    NULL);                                      /* no security */
+
+  if (recv_pipe == INVALID_HANDLE_VALUE || !recv_pipe)
+    {
+      log_printf (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);
+      return -1;
+    }
+  server_sock->pipe_desc[READ] = recv_pipe;
+  server_sock->flags |= SOCK_FLAG_RECV_PIPE;
+
+  send_pipe = CreateNamedPipe (
+    server_sock->send_pipe,                      /* path */
+    PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED, /* send + overlapped */
+    PIPE_TYPE_BYTE | PIPE_NOWAIT,                /* bin + non-blocking */
+    1,                                           /* one instance only */
+    0, 0,                                        /* default buffer sizes */
+    100,                                         /* timeout in ms */
+    NULL);                                       /* no security */
+      
+  if (send_pipe == INVALID_HANDLE_VALUE || !send_pipe)
+    {
+      log_printf (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);
+      return -1;
+    }
+  server_sock->pipe_desc[WRITE] = send_pipe;
+  server_sock->flags |= SOCK_FLAG_SEND_PIPE;
+
+#if 0
+  /*
+   * Initialize overlapped structures.
+   */
+  if (os_version >= WinNT4x)
+    {
+      if (!server_sock->overlap[READ])
+	{
+	  server_sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
+	  memset (server_sock->overlap[READ], 0, sizeof (OVERLAPPED));
+	  server_sock->overlap[READ]->hEvent = 
+	    CreateEvent (NULL, TRUE, TRUE, NULL);
+	}
+      if (!server_sock->overlap[WRITE])
+	{
+	  server_sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
+	  memset (server_sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
+	  server_sock->overlap[WRITE]->hEvent = 
+	    CreateEvent (NULL, TRUE, TRUE, NULL);
+	}
+    }
+#endif /* 0 */
+
+#else /* not __MINGW32__ */
+
+  return -1;
+
+#endif /* neither HAVE_MKFIFO nor __MINGW32__ */
+
+#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
+
+  return 0;
+
+#endif /* HAVE_MKFIFO or __MINGW32__ */
 }

@@ -1,3 +1,14 @@
+2000-11-30  [ Ela ]  <ela@lkcc.org>
+
+	* pipe-socket.c (pipe_listener): Added a routine for creating
+	a pipe listener structure. Now we are even able to forward pipe
+	connections.
+
+	* tunnel-server/tunnel.c (tnl_disconnect_source): Separated
+	source and target disconnection routine.
+	Dismissed the usage of the referrer entry of the socket
+	structure for enabling the pipe forwarder.
+
 2000-11-28  [ Ela ]  <ela@lkcc.org>
 
 	* tunnel-server/tunnel.c (tnl_create_socket): Added routines and

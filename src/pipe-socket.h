@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.6 2000/11/29 20:25:08 ela Exp $
+ * $Id: pipe-socket.h,v 1.7 2000/11/30 22:16:18 ela Exp $
  *
  */
 
@@ -95,5 +95,11 @@ int pipe_create_pair (HANDLE pipe_desc[2]);
  * pipe. Return NULL on errors.
  */
 socket_t pipe_connect (char *inpipe, char *outpipe);
+
+/*
+ * Create a socket structure for listening pipe sockets. Open the reading
+ * end of such a connection. Return either zero or non-zero on errors.
+ */
+int pipe_listener (socket_t server_sock);
 
 #endif /* __PIPE_SOCKET_H__ */

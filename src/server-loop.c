@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.14 2000/11/10 19:55:48 ela Exp $
+ * $Id: server-loop.c,v 1.15 2000/11/30 22:16:18 ela Exp $
  *
  */
 
@@ -401,9 +401,9 @@ server_check_sockets_poll (void)
       /* process pipes */
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
+	  /* handle listening pipe */
 	  if (sock->flags & SOCK_FLAG_LISTENING)
 	    {
-	      /* check for named pipe connection */
 	      if (!(sock->flags & SOCK_FLAG_INITED))
 		if (sock->read_socket)
 		  if (sock->read_socket (sock))
