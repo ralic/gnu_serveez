@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.9 2000/09/03 21:28:05 ela Exp $
+ * $Id: gnutella.h,v 1.10 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -166,6 +166,8 @@ typedef struct
   unsigned packets; /* number of received packets */
   unsigned invalid; /* number of invalid packet types */
   unsigned queries; /* number of queries */
+  unsigned files;   /* file at this connection */
+  unsigned size;    /* file size (in KB) here */
 }
 nut_client_t;
 
@@ -176,6 +178,14 @@ typedef struct
   socket_t sock; /* sent to this socket */
 }
 nut_packet_t;
+
+/* reply structure */
+typedef struct
+{
+  socket_t sock;      /* routing information */
+  unsigned int index; /* file index to push */
+}
+nut_push_reply_t;
 
 /*
  * Protocol server specific configuration.
@@ -191,9 +201,9 @@ typedef struct
   hash_t *conn;             /* connected hosts hash */
   char *search;             /* search pattern */
   hash_t *packet;           /* this servers created packets */
-  int errors;               /* routing errors */
-  int files;                /* files within connected network */
-  int size;                 /* file size (in KB) */
+  unsigned errors;          /* routing errors */
+  unsigned files;           /* files within connected network */
+  unsigned size;            /* file size (in KB) */
   char *save_path;          /* where to store downloaded files */
   char *share_path;         /* local search database path */
   int dnloads;              /* concurrent downloads */
@@ -206,6 +216,7 @@ typedef struct
   char *force_ip;           /* force the local ip to this value */
   unsigned long ip;         /* calculated from `force_ip' */
   hash_t *query;            /* recent query hash */
+  hash_t *reply;            /* reply hash for routing push requests */
 }
 nut_config_t;
 
@@ -230,36 +241,5 @@ int nut_connect_timeout (socket_t sock);
  * This server's definition.
  */
 extern server_definition_t nut_server_definition;
-
-/*
- * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)
- * values. BTW: Network byte order is big endian.
- */
-
-#define SIZEOF_UINT16 2
-#define SIZEOF_UINT32 4
-
-#define __BSWAP_32(x) ((unsigned long) \
-  ((((x) & 0xff000000) >> 24) | (((x) & 0x000000ff) << 24) | \
-   (((x) & 0x0000ff00) << 8)  | (((x) & 0x00ff0000) >> 8)))
-#define __BSWAP_16(x) ((unsigned short) \
-  ((((x) >> 8) & 0x00ff) | (((x) << 8) & 0xff00)))
-
-#define ltons(x) __BSWAP_16(x)
-#define ntols(x) __BSWAP_16(x)
-#define ltonl(x) __BSWAP_32(x)
-#define ntoll(x) __BSWAP_32(x)
-
-#if WORDS_BIGENDIAN /* big endian */
-# define ltohs(x) __BSWAP_16(x)
-# define htols(x) __BSWAP_16(x)
-# define ltohl(x) __BSWAP_32(x)
-# define htoll(x) __BSWAP_32(x)
-#else /* little endian */
-# define ltohs(x) (x)
-# define htols(x) (x)
-# define ltohl(x) (x)
-# define htoll(x) (x)
-#endif
 
 #endif /* __GNUTELLA_H__ */

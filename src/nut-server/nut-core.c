@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.1 2000/09/03 21:28:05 ela Exp $
+ * $Id: nut-core.c,v 1.2 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -33,6 +33,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef __MINGW32__
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+#endif
+
 #ifdef __MINGW32__
 # include <winsock.h>
 #endif
@@ -45,7 +51,116 @@
 #include "nut-core.h"
 
 /*
- * Convert gnutella header to binary data and back,
+ * This routine parses a `a.b.c.d:port' combination from the given 
+ * character string ADDR and stores both of the values in IP and PORT 
+ * in network byte order.
+ */
+int
+nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
+{
+  char *p, *colon, *host;
+
+  /* create a local copy of the given address string */
+  p = host = xstrdup (addr);
+
+  /* skip leading invalid characters */
+  while (*p < '0' && *p > '9' && *p) p++;
+  if (!*p) 
+    {
+      xfree (host);
+      return -1;
+    }
+  
+  /* find seperating colon */
+  colon = p;
+  while (*colon != ':' && *colon) colon++;
+  if (!*colon) 
+    {
+      xfree (host);
+      return -1;
+    }
+
+  *colon = '\0';
+  colon++;
+
+  /* convert and store both of the parsed values */
+  *ip = inet_addr (p);
+  *port = htons ((unsigned short) util_atoi (colon));
+  xfree (host);
+
+  return 0;
+}
+
+/*
+ * This function creates a hash key for a given IP and PORT information
+ * for the host catcher hash. Both values must be given in network byte
+ * order.
+ */
+char *
+nut_client_key (unsigned long ip, unsigned short port)
+{
+  static char key[32];
+
+  sprintf (key, "%s:%u", util_inet_ntoa (ip), ntohs (port));
+  return key;
+}
+
+/* these definitions are for the GUID creating functions in Win32 */
+#ifdef __MINGW32__
+typedef int (__stdcall *CreateGuidProc) (byte *);
+static CreateGuidProc CreateGuid = NULL;
+static HMODULE oleHandle = NULL;
+#endif /* __MINGW32__ */
+
+/*
+ * This routine randomly calculates a Globally Unique Identifier (GUID)
+ * and stores it in the given argument.
+ */
+void
+nut_calc_guid (byte *guid)
+{
+  int n;
+
+#ifdef __MINGW32__
+  if (CreateGuid != NULL)
+    {
+      CreateGuid (guid);
+      return;
+    }
+  else
+#endif /* __MINGW32__ */
+
+  for (n = 0; n < NUT_GUID_SIZE; n++)
+    {
+      /*guid[n] = 256 * rand () / RAND_MAX;*/
+      guid[n] = (rand () >> 1) & 0xff;
+    }
+}
+
+/*
+ * The following routine delivers a text representation of the given
+ * GUID. The format is taken from he M$ headers.
+ */
+char *
+nut_print_guid (byte *guid)
+{
+  static char id[NUT_GUID_SIZE * 2 + 4];
+
+  sprintf (id, 
+	   "%02X%02X%02X%02X-"
+	   "%02X%02X-"
+	   "%02X%02X-"
+	   "%02X%02X%02X%02X%02X%02X%02X%02X",
+	   guid[0],guid[1],guid[2],guid[3],
+	   guid[4],guid[5],
+	   guid[6],guid[7],
+	   guid[8],guid[9],guid[10],guid[11],
+	   guid[12],guid[13],guid[14],guid[15]);
+
+  return id;
+}
+/*
+ * Convert gnutella header to binary data and back.
  */
 nut_header_t *
 nut_get_header (byte *data)
@@ -78,7 +193,7 @@ nut_put_header (nut_header_t *hdr, byte *data)
 }
 
 /*
- * Convert gnutella ping response to binary data and back,
+ * Convert gnutella ping response to binary data and back.
  */
 nut_ping_reply_t *
 nut_get_ping_reply (byte *data)
@@ -121,7 +236,7 @@ nut_put_ping_reply (nut_ping_reply_t *reply, byte *data)
 }
 
 /*
- * Convert gnutella search query to binary data and back,
+ * Convert gnutella search query to binary data and back.
  */
 nut_query_t *
 nut_get_query (byte *data)
@@ -144,7 +259,7 @@ nut_put_query (nut_query_t *query, byte *data)
 }
 
 /*
- * Convert gnutella file records to binary data and back,
+ * Convert gnutella file records to binary data and back.
  */
 nut_record_t *
 nut_get_record (byte *data)
@@ -173,7 +288,7 @@ nut_put_record (nut_record_t *record, byte *data)
 }
 
 /*
- * Convert gnutella query hits to binary data and back,
+ * Convert gnutella query hits to binary data and back.
  */
 nut_reply_t *
 nut_get_reply (byte *data)
@@ -212,7 +327,7 @@ nut_put_reply (nut_reply_t *reply, byte *data)
 }
 
 /*
- * Convert gnutella push request to binary data and back,
+ * Convert gnutella push request to binary data and back.
  */
 nut_push_t *
 nut_get_push (byte *data)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.6 2000/09/03 21:28:05 ela Exp $
+ * $Id: nut-transfer.c,v 1.7 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -257,13 +257,7 @@ static int
 nut_disconnect_transfer (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
-
-  /* free the transfer data */
-  if (sock->data)
-    {
-      xfree (sock->data);
-      sock->data = NULL;
-    }
+  nut_transfer_t *transfer = sock->data;
 
   /* decrement amount of concurrent downloads */
   cfg->dnloads--;
@@ -271,6 +265,24 @@ nut_disconnect_transfer (socket_t sock)
   /* finally close the received file */
   if (close (sock->file_desc) == -1)
     log_printf (LOG_ERROR, "nut: close: %s\n", SYS_ERROR);
+
+  /* free the transfer data */
+  if (transfer)
+    {
+      /* if the transfer was really aborted we remove the downloaded file */
+      if (transfer->size > 0)
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "nut: downloading `%s' aborted\n",
+		      transfer->file);
+#endif
+	  if (unlink (transfer->file) == -1)
+	    log_printf (LOG_ERROR, "nut: unlink: %s\n", SYS_ERROR);
+	}
+      xfree (transfer->file);
+      xfree (transfer);
+      sock->data = NULL;
+    }
 
   return 0;
 }
@@ -361,6 +373,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       xsock->idle_counter = NUT_CONNECT_TIMEOUT;
       transfer = xmalloc (sizeof (nut_transfer_t));
       transfer->original_size = record->size;
+      transfer->file = xstrdup (file);
       xsock->data = transfer;
 
       /* send HTTP request to the listening gnutella host */

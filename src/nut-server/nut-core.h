@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.1 2000/09/03 21:28:05 ela Exp $
+ * $Id: nut-core.h,v 1.2 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -31,11 +31,16 @@
 
 #define _GNU_SOURCE
 
+/* Gnutella core functions. */
+void nut_calc_guid (byte *guid);
+char *nut_print_guid (byte *guid);
+int nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port);
+char *nut_client_key (unsigned long ip, unsigned short port);
+
 /*
  * Because the gnutella protocol is a binary protocol we need to convert
  * packets to structures and backwards.
  */
-
 nut_header_t * nut_get_header (byte *data);
 void nut_put_header (nut_header_t *hdr, byte *data);
 nut_ping_reply_t * nut_get_ping_reply (byte *data);
@@ -48,5 +53,36 @@ nut_reply_t * nut_get_reply (byte *data);
 void nut_put_reply (nut_reply_t *reply, byte *data);
 nut_push_t * nut_get_push (byte *data);
 void nut_put_push (nut_push_t *push, byte *data);
+
+/*
+ * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)
+ * values. BTW: Network byte order is big endian.
+ */
+
+#define SIZEOF_UINT16 2
+#define SIZEOF_UINT32 4
+
+#define __BSWAP_32(x) ((unsigned long) \
+  ((((x) & 0xff000000) >> 24) | (((x) & 0x000000ff) << 24) | \
+   (((x) & 0x0000ff00) << 8)  | (((x) & 0x00ff0000) >> 8)))
+#define __BSWAP_16(x) ((unsigned short) \
+  ((((x) >> 8) & 0x00ff) | (((x) << 8) & 0xff00)))
+
+#define ltons(x) __BSWAP_16(x)
+#define ntols(x) __BSWAP_16(x)
+#define ltonl(x) __BSWAP_32(x)
+#define ntoll(x) __BSWAP_32(x)
+
+#if WORDS_BIGENDIAN /* big endian */
+# define ltohs(x) __BSWAP_16(x)
+# define htols(x) __BSWAP_16(x)
+# define ltohl(x) __BSWAP_32(x)
+# define htoll(x) __BSWAP_32(x)
+#else /* little endian */
+# define ltohs(x) (x)
+# define htols(x) (x)
+# define ltohl(x) (x)
+# define htoll(x) (x)
+#endif
 
 #endif /* __NUT_CORE_H__ */

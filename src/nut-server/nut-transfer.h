@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.3 2000/09/03 21:28:05 ela Exp $
+ * $Id: nut-transfer.h,v 1.4 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -48,6 +48,7 @@ typedef struct
 {
   int original_size;
   int size;
+  char *file;
 }
 nut_transfer_t;
 

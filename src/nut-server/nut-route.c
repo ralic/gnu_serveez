@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.3 2000/09/03 21:28:05 ela Exp $
+ * $Id: nut-route.c,v 1.4 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -54,24 +54,24 @@
 static int
 nut_canonize_query (nut_config_t *cfg, char *query)
 {
-  char *buffer, *p, *save;
+  char *key, *p, *extract;
   time_t t;
   int ret = 0;
 
-  /* no query ? */
+  /* not a valid query ? */
   if (!*query) return -1;
 
   /* extract alphanumerics only and pack them together as lowercase */
-  save = p = buffer = xstrdup (query);
+  key = extract = p = xstrdup (query);
   while (*p)
     {
-      if (isalnum (*p)) *save++ = isupper (*p) ? tolower (*p) : *p;
+      if (isalnum (*p)) *extract++ = isupper (*p) ? tolower (*p) : *p;
       p++;
     }
-  *save = '\0';
+  *extract = '\0';
 
   /* check if it is in the recent query hash */
-  if ((t = (time_t) hash_get (cfg->query, buffer)) != 0)
+  if ((t = (time_t) hash_get (cfg->query, key)) != 0)
     {
       if (time (NULL) - t < 10)
 	{
@@ -82,9 +82,10 @@ nut_canonize_query (nut_config_t *cfg, char *query)
 	}
     }
 
+  /* put the query extraction to the recent query hash */
   t = time (NULL);
-  hash_put (cfg->query, buffer, (void *) t);
-  xfree (buffer);
+  hash_put (cfg->query, key, (void *) t);
+  xfree (key);
 
   return ret;
 }
@@ -104,19 +105,15 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_client_t *client = sock->data;
 
 #if 1
-  int n;
-  char id[NUT_GUID_SIZE*2+1] = "";
-  fprintf (stdout, "validating packet 0x%02X (", hdr->function);
-  for (n = 0; n < NUT_GUID_SIZE; n++)
-    fprintf (stdout, "%02X", hdr->id[n]);
-  fprintf (stdout, ")\n");
+  fprintf (stdout, "validating packet 0x%02X (%s)\n", 
+	   hdr->function, nut_print_guid (hdr->id));
 #endif /* 1 */
 
   /* Packet size validation */
   switch (hdr->function)
     {
       /* Ping */
-    case 0x00:
+    case NUT_PING_REQ:
       if (hdr->length != 0)
 	{
 #if ENABLE_DEBUG
@@ -126,7 +123,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
 	}
       break;
       /* Pong */
-    case 0x01:
+    case NUT_PING_ACK:
       if (hdr->length != SIZEOF_NUT_PING_REPLY)
 	{
 #if ENABLE_DEBUG
@@ -136,7 +133,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
 	}
       break;
       /* Push Request */
-    case 0x40:
+    case NUT_PUSH_REQ:
       if (hdr->length != SIZEOF_NUT_PUSH)
 	{
 #if ENABLE_DEBUG
@@ -146,7 +143,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
 	}
       break;
       /* Query */
-    case 0x80:
+    case NUT_SEARCH_REQ:
       if (hdr->length > 257)
 	{
 #if ENABLE_DEBUG
@@ -158,7 +155,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
 	return -1;
       break;
       /* Query hits */
-    case 0x81:
+    case NUT_SEARCH_ACK:
       if (hdr->length > (SIZEOF_NUT_RECORD + 256) * 256)
 	{
 #if ENABLE_DEBUG
@@ -245,8 +242,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
   int n;
 
   /* packet validation */
-  n = nut_validate_packet (sock, hdr, packet);
-  if (n == -1)
+  if ((n = nut_validate_packet (sock, hdr, packet)) == -1)
     return -1;
   else if (n == 0)
     return 0;
@@ -271,7 +267,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 		      hdr->function);
 #endif
 	}
-      /* yes, send it to the connection the query came from */
+      /* yes, send it to the connection the original query came from */
       else
 	{
 	  /* try sending the header */
@@ -292,8 +288,11 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	    }
 	}
     }
-  /* route queries here */
-  else
+  /* 
+   * route queries here (hdr->function & 0x01 == 0x00), push request 
+   * will be handle later.
+   */
+  else if (hdr->function != NUT_PUSH_REQ)
     {
       /* check if this query has been seen already */
       xsock = (socket_t) hash_get (cfg->route, (char *) hdr->id);

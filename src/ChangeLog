@@ -1,3 +1,21 @@
+2000-09-04  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_disconnect): Every 
+	connections `files' and `size' property will be substracted
+	from the overall values.
+
+	* nut-server/nut-transfer.c (nut_disconnect_transfer): If
+	the downloaded file is broken we remove it and could 
+	therefore try it again a bit later.
+
+	* nut-server/nut-core.c (nut_print_guid): This routine
+	delivers a text representation of a GUID.
+
+	* nut-server/gnutella.c (nut_push_request): Routing push
+	request correctly. Was: broadcast. Is: Sent to where thee
+	original query reply came from.
+	(nut_reply): Saving replies for later push request routing.
+
 2000-09-03  [ Ela ]  <ela@lkcc.org>
 
 	* util.c (util_inet_ntoa): Using old function instead

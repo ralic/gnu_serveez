@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.10 2000/09/03 21:28:04 ela Exp $
+ * $Id: gnutella.c,v 1.11 2000/09/04 14:11:54 ela Exp $
  *
  */
 
@@ -114,6 +114,7 @@ nut_config_t nut_config =
   NULL,        /* force the local ip to this value */
   INADDR_NONE, /* calculated from `force_ip' */
   NULL,        /* recent query hash */
+  NULL,        /* reply hash for routing push requests */
 };
 
 /*
@@ -159,39 +160,6 @@ server_definition_t nut_server_definition =
   nut_config_prototype                    /* configuration items */
 };
 
-/* these definitions are for the GUID creating functions in Win32 */
-#ifdef __MINGW32__
-typedef int (__stdcall *CreateGuidProc) (byte *);
-static CreateGuidProc CreateGuid = NULL;
-static HMODULE oleHandle = NULL;
-#endif /* __MINGW32__ */
-
-/*
- * This routine randomly calculates a Globally Unique Identifier (GUID)
- * and stores it in the given argument.
- */
-static void
-nut_calc_guid (byte *guid)
-{
-  int n;
-
-#ifdef __MINGW32__
-  if (CreateGuid != NULL)
-    {
-      CreateGuid (guid);
-      return;
-    }
-  else
-#endif /* __MINGW32__ */
-
-  for (n = 0; n < NUT_GUID_SIZE; n++)
-    {
-      /*guid[n] = 256 * rand () / RAND_MAX;*/
-      guid[n] = (rand () >> 1) & 0xff;
-    }
-}
-
-
 /*
  * The next three functions `nut_hash_keylen', `nut_hash_equals' and
  * `nut_hash_code' are the routing table hash callbacks to handle
@@ -221,61 +189,6 @@ nut_hash_code (char *id)
     }
 
   return code;
-}
-
-/*
- * This routine parses a `a.b.c.d:port' combination from the given 
- * character string ADDR and stores both of the values in IP and PORT 
- * in network byte order.
- */
-static int
-nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
-{
-  char *p, *colon, *host;
-
-  /* create a local copy of the given address string */
-  p = host = xstrdup (addr);
-
-  /* skip leading invalid characters */
-  while (*p < '0' && *p > '9' && *p) p++;
-  if (!*p) 
-    {
-      xfree (host);
-      return -1;
-    }
-  
-  /* find seperating colon */
-  colon = p;
-  while (*colon != ':' && *colon) colon++;
-  if (!*colon) 
-    {
-      xfree (host);
-      return -1;
-    }
-
-  *colon = '\0';
-  colon++;
-
-  /* convert and store both of the parsed values */
-  *ip = inet_addr (p);
-  *port = htons ((unsigned short) util_atoi (colon));
-  xfree (host);
-
-  return 0;
-}
-
-/*
- * This function creates a hash key for a given IP and PORT information
- * for the host catcher hash. Both values must be given in network byte
- * order.
- */
-char *
-nut_client_key (unsigned long ip, unsigned short port)
-{
-  static char key[32];
-
-  sprintf (key, "%s:%u", util_inet_ntoa (ip), ntohs (port));
-  return key;
 }
 
 /*
@@ -348,10 +261,11 @@ int
 nut_init_ping (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_header_t hdr;
   nut_packet_t *pkt;
+  nut_header_t hdr;
   byte header[SIZEOF_NUT_HEADER];
 
+  /* create new gnutella header */
   nut_calc_guid (hdr.id);
   hdr.function = NUT_PING_REQ;
   hdr.ttl = cfg->ttl;
@@ -375,6 +289,7 @@ int
 nut_global_init (void)
 {
 #ifdef __MINGW32__
+  /* try getting M$'s GUID creation routine */
   if ((oleHandle = LoadLibrary ("ole32.dll")) != NULL)
     {
       CreateGuid = (CreateGuidProc) 
@@ -382,6 +297,7 @@ nut_global_init (void)
     }
 #endif /* __MINGW32__ */
 
+  /* initialize random seed */
   srand (time (NULL));
   return 0;
 }
@@ -411,12 +327,14 @@ nut_init (server_t *server)
   /* check for existence and create them if necessary */
   if (stat (cfg->save_path, &buf) == -1)
     {
+      /* create the download directory */
       if (mkdir (cfg->save_path, S_IRWXU) == -1)
 	{
 	  log_printf (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
 	  return -1;
 	}
     }
+  /* check if the given path is a directory already */
   else if (!S_ISDIR (buf.st_mode))
     {
       log_printf (LOG_ERROR, "nut: %s is not a directory\n", cfg->save_path);
@@ -454,6 +372,12 @@ nut_init (server_t *server)
   cfg->packet->equals = nut_hash_equals;
   cfg->packet->keylen = nut_hash_keylen;
 
+  /* create and modify reply hash */
+  cfg->reply = hash_create (4);
+  cfg->reply->code = nut_hash_code;
+  cfg->reply->equals = nut_hash_equals;
+  cfg->reply->keylen = nut_hash_keylen;
+
   /* create current connection hash */
   cfg->conn = hash_create (4);
 
@@ -472,7 +396,7 @@ nut_init (server_t *server)
   /* calculate this server instance's GUID */
   nut_calc_guid (cfg->guid);
 
-  /* go through all given hosts */
+  /* go through all given hosts and try to connect to them */
   if (cfg->hosts)
     {
       while (cfg->hosts[n])
@@ -501,6 +425,7 @@ nut_finalize (server_t *server)
   hash_destroy (cfg->conn);
   hash_destroy (cfg->route);
   hash_destroy (cfg->query);
+  hash_destroy (cfg->reply);
 
   /* destroy sent packet hash */
   if ((pkt = (nut_packet_t **) hash_values (cfg->packet)) != NULL)
@@ -617,11 +542,13 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
       printf ("speed   : %u kbit/s\n", reply->speed);
 #endif
+
       /* process only if the connection has a minimum speed */
       if (reply->speed >= cfg->min_speed)
 	{
 	  p = (char *) packet + SIZEOF_NUT_REPLY;
 	  end = p + hdr->length;
+
 	  /* go through all query hit records */
 	  for (n = 0; n < reply->records && p < end; n++)
 	    {
@@ -646,6 +573,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 	      printf ("file size  : %u\n", record->size);
 	      printf ("file       : %s\n", file);
 #endif
+
 	      /* startup transfer if possible */
 	      if (cfg->dnloads < cfg->max_dnloads)
 		{
@@ -653,7 +581,72 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 		}
 	    }
 	  id = (byte *) p;
+#if 1
+	  printf ("guid    : %s\n", nut_print_guid (id));
+#endif
 	}
+    }
+  /* save the reply id to the reply hash for routing push requests */
+  else
+    {
+      id = packet + hdr->length - NUT_GUID_SIZE;
+      if (id < packet + SIZEOF_NUT_REPLY)
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "nut: dropping invalid query hit\n");
+#endif
+	  client->dropped++;
+	  return -1;
+	}
+      hash_put (cfg->reply, (char *) id, sock);
+    }
+
+  return 0;
+}
+
+/*
+ * This is the callback for push requests.
+ */
+static int
+nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
+{
+  nut_config_t *cfg = sock->cfg;
+  nut_client_t *client = sock->data;
+  socket_t xsock;
+  nut_push_t *push;
+  byte header[SIZEOF_NUT_HEADER];
+
+  push = nut_get_push (packet);
+
+  /* is the guid of this push request in the reply hash ? */
+  if ((xsock = (socket_t) hash_get (cfg->reply, (char *) push->id)) != NULL)
+    {
+      nut_put_header (hdr, header);
+      if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
+	  sock_write (xsock, (char *) packet, SIZEOF_NUT_PUSH) == -1)
+	{
+	  sock_schedule_for_shutdown (xsock);
+	  return -1;
+	}
+    }
+  /* push request for ourselves ? */
+  else if (!memcmp (cfg->guid, push->id, NUT_GUID_SIZE))
+    {
+#if 1
+      printf ("push request for us\n"
+	      "file index : %u\n", push->index);
+      printf ("ip         : %s\n", util_inet_ntoa (push->ip));
+      printf ("port       : %u\n", htons (push->port));
+#endif
+    }
+  /* drop this push request */
+  else
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: dropping push request\n");
+#endif
+      client->dropped++;
+      return -1;
     }
 
   return 0;
@@ -682,6 +675,7 @@ nut_ping_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   socket_t xsock;
   nut_packet_t *pkt;
   nut_ping_reply_t *reply;
+  nut_client_t *client = sock->data;
 
   /* put to host catcher hash */
   reply = nut_get_ping_reply (packet);
@@ -695,11 +689,16 @@ nut_ping_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 #if 1
       printf ("port    : %u\n", ntohs (reply->port));
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
-      printf ("files   : %d\n", reply->files);
-      printf ("size    : %d kb\n", reply->size);
+      printf ("files   : %u\n", reply->files);
+      printf ("size    : %u kb\n", reply->size);
 #endif
-      cfg->files += reply->files;
-      cfg->size += reply->size;
+      if (reply->files && reply->size)
+	{
+	  cfg->files += reply->files;
+	  cfg->size += reply->size;
+	  client->files += reply->files;
+	  client->size += reply->size;
+	}
     } 
 
   return 0;
@@ -748,30 +747,51 @@ int
 nut_disconnect (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_host_t *client;
+  nut_host_t *host;
   byte *id;
+  char *key, **keys;
+  int size, n;
+  nut_packet_t *pkt;
+  nut_client_t *client = sock->data;
+
+  /* delete all push request routing information for this connection */
+  while ((id = (byte *) hash_contains (cfg->reply, sock)) != NULL)
+    hash_delete (cfg->reply, (char *) id);
 
   /* delete all routing information for this connection */
   while ((id = (byte *) hash_contains (cfg->route, sock)) != NULL)
     hash_delete (cfg->route, (char *) id);
 
   /* drop all packet information for this connection */
-  while ((id = (byte *) hash_contains (cfg->route, sock)) != NULL)
-    hash_delete (cfg->route, (char *) id);
-
+  if ((keys = (char **) hash_keys (cfg->packet)) != NULL)
+    {
+      size = hash_size (cfg->packet);
+      for (n = 0; n < size; n++)
+	{
+	  pkt = (nut_packet_t *) hash_get (cfg->packet, keys[n]);
+	  if (pkt->sock == sock)
+	    {
+	      hash_delete (cfg->packet, keys[n]);
+	      xfree (pkt);
+	    }
+	}
+      hash_xfree (keys);
+    }
+  
   /* remove this socket from the current connection hash */
-  hash_delete (cfg->conn, nut_client_key (sock->remote_addr, 
-					  sock->remote_port));
+  key = nut_client_key (sock->remote_addr, sock->remote_port);
+  hash_delete (cfg->conn, key);
 
   /* remove the connection from the host catcher */
-  client = hash_delete (cfg->net, nut_client_key (sock->remote_addr, 
-						  sock->remote_port));
-  if (client) xfree (client);
+  if ((host = hash_delete (cfg->net, key)) != NULL)
+    xfree (host);
 
   /* free client structure */
-  if (sock->data)
+  if (client)
     {
-      xfree (sock->data);
+      cfg->files -= client->files;
+      cfg->size -= client->size;
+      xfree (client);
       sock->data = NULL;
     }
 
@@ -894,7 +914,7 @@ nut_check_request (socket_t sock)
 		  ntohs (sock->remote_port));
       sock_reduce_recv (sock, len);
 
-      client = sock->data = nut_create_client ();
+      sock->data = nut_create_client ();
       sock->idle_func = nut_idle_searching;
       sock->idle_counter = NUT_SEARCH_INTERVAL;
 
@@ -932,7 +952,7 @@ nut_check_request (socket_t sock)
 		  nut_ping_reply (sock, hdr, packet);
 		  break;
 		case NUT_PUSH_REQ:
-		  /* FIXME: TODO */
+		  nut_push_request (sock, hdr, packet);
 		  break;
 		case NUT_SEARCH_REQ:
 		  nut_query (sock, hdr, packet);
@@ -1067,7 +1087,7 @@ static int
 nut_hosts_check (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_host_t **client;
+  nut_host_t **host;
   int n;
 
   /* do not enter this routine if you do not want to send something */
@@ -1083,7 +1103,7 @@ nut_hosts_check (socket_t sock)
     return -1;
 
   /* go through all caught gnutella hosts and print their info */
-  if ((client = (nut_host_t **) hash_values (cfg->net)) != NULL)
+  if ((host = (nut_host_t **) hash_values (cfg->net)) != NULL)
     {
       for (n = 0; n < hash_size (cfg->net); n++)
 	{
@@ -1096,14 +1116,14 @@ nut_hosts_check (socket_t sock)
 	    }
 	  else
 	    {
-	      /* usual gnutella client output */
+	      /* usual gnutella host output */
 	      if (sock_printf (sock, "%-32s %-20s\n",
-			       nut_client_key (client[n]->ip, client[n]->port),
-			       util_time (client[n]->last_reply)) == -1)
+			       nut_client_key (host[n]->ip, host[n]->port),
+			       util_time (host[n]->last_reply)) == -1)
 		return -1;
 	    }
 	}
-      hash_xfree (client);
+      hash_xfree (host);
     }
 
   /* send HTML footer */
