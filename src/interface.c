@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.4 2000/07/04 09:50:34 raimi Exp $
+ * $Id: interface.c,v 1.5 2000/07/04 19:33:55 raimi Exp $
  *
  */
 
@@ -40,6 +40,9 @@
 # include <sys/ioctl.h>
 # include <net/if.h>
 # include <unistd.h>
+
+# include <netinet/in.h>
+# include <arpa/inet.h>
 #endif
 
 /* Solaris, IRIX */
@@ -491,15 +494,28 @@ list_local_interfaces (void)
   ifr = ifc.ifc_req;
   for (n = 0; n < ifc.ifc_len; n += sizeof (struct ifreq), ifr++)
     {
+
+      /*
+       * On AIX (and perhaps others) you get interfaces that are not AF_INET
+       * from the first ioctl, so filter here again
+       */
+      if (ifr->ifr_addr.sa_family != AF_INET)
+	continue;
+
       strcpy (ifr2.ifr_name, ifr->ifr_name);
       ifr2.ifr_addr.sa_family = AF_INET;
       if (ioctl (fd, SIOCGIFADDR, &ifr2) == 0)
 	{
-	  printf ("%8s: %u.%u.%u.%u\n", ifr->ifr_name,
-		  (unsigned char) ifr2.ifr_addr.sa_data[2],
-		  (unsigned char) ifr2.ifr_addr.sa_data[3],
-		  (unsigned char) ifr2.ifr_addr.sa_data[4],
-		  (unsigned char) ifr2.ifr_addr.sa_data[5]);
+	  /* The following cast looks bogus. ifr2.ifr_addr is a
+	   * (struct sockaddr), but we know that we deal with a 
+	   * (struct sockaddr_in) here. since you cannot cast structures
+	   * in C, I cast addresses just to get a (struct sockaddr_in) in the
+	   * end... phew
+	   */
+	  printf ("%8s: %s\n", ifr->ifr_name,
+		  inet_ntoa ( (*((struct sockaddr_in*)
+				 &ifr2.ifr_addr)).sin_addr) );
+
 	}
       else 
 	{

@@ -3,6 +3,10 @@
 	* interface.c (list_local_interfaces): made work partly under AIX.
 	interfaces still get listed multiple times but they get listed.
 
+	(list_local_interfaces): fixed multiple device listings. removed
+	that ugly sa_data[] method of convertig a sockaddr_in to the
+	dotted decimal representation. the cast is even uglier :)
+
 2000-07-01  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (coserver_init): This routine is 
