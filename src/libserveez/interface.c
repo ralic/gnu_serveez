@@ -1,5 +1,5 @@
 /*
- * src/interfaces.c - network interface function implementation
+ * interfaces.c - network interface function implementation
  *
  * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.15 2001/01/31 12:30:14 ela Exp $
+ * $Id: interface.c,v 1.1 2001/02/02 11:30:34 ela Exp $
  *
  */
 
@@ -54,38 +54,47 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+# include "libserveez/ipdata.h" 
+# include "libserveez/iphlpapi.h"
 #endif
+
+#endif /* ENABLE_IFLIST */
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
-#include "interface.h"
+#include "libserveez/interface.h"
 
 /*
- * Print a list of all local interfaces if we are able to do so.
+ * The available interface list.
  */
-#define NET_LIST_STRING \
-  "--- list of local interfaces you " \
-  "can start ip services on ---\n"
+int svz_interfaces = 0;
+ifc_entry_t *svz_interface = NULL;
+
+#if ENABLE_IFLIST
 
 #ifdef __MINGW32__
 
-/*
- * The local interface list is requested by some "unrevealed"
- * WinSocket-Routine called "WsControl".
- * Works with: Win95, Win98
- * Or we try using the IP Helper API. Works with WinNT4x / Win2k.
- */
+/* Function pointer definition for use with GetProcAddress. */
+typedef int (__stdcall *WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
+					LPVOID, LPDWORD);
+#define WSCTL_TCP_QUERY_INFORMATION 0
+#define WSCTL_TCP_SET_INFORMATION   1   
 
-WsControlProc WsControl = NULL;
-GetIfTableProc GetIfTable = NULL;
-GetIpAddrTableProc GetIpAddrTable = NULL;
+/*
+ * The local interface list is requested by some "unrevealed" Winsock API 
+ * routine called "WsControl". Works with Win95 and Win98.
+ * Otherwise try using the IP Helper API which works with WinNT4x and Win2k.
+ */
+static WsControlProc WsControl = NULL;
+static GetIfTableProc GetIfTable = NULL;
+static GetIpAddrTableProc GetIpAddrTable = NULL;
 
 #define NO_METHOD    0
 #define WSCTL_METHOD 1
 #define IPAPI_METHOD 2
 
 void
-list_local_interfaces (void)
+svz_interface_collect (void)
 {
   int result = 0;
   HMODULE WSockHandle;
@@ -108,8 +117,6 @@ list_local_interfaces (void)
   PMIB_IPADDRTABLE ipTable;
   unsigned long addr;
 
-  DWORD ifEntries = 0;
-  ifList_t *ifList = NULL;
   DWORD Method = NO_METHOD;
 
   /*
@@ -128,7 +135,7 @@ list_local_interfaces (void)
 	    GetProcAddress (WSockHandle, "WsControl");
 	  if (!WsControl)
 	    {
-	      fprintf (stderr, "GetProcAddress (WsControl): %s\n", SYS_ERROR);
+	      printf ("GetProcAddress (WsControl): %s\n", SYS_ERROR);
 	      FreeLibrary (WSockHandle);
 	      return;
 	    }
@@ -136,7 +143,7 @@ list_local_interfaces (void)
 	}
       else
 	{
-	  fprintf (stderr, "LoadLibrary (WSock32.dll): %s\n", SYS_ERROR);
+	  printf ("LoadLibrary (WSock32.dll): %s\n", SYS_ERROR);
 	  return;
 	}
     }
@@ -146,7 +153,7 @@ list_local_interfaces (void)
       result = WSAStartup (MAKEWORD (1, 1), &WSAData);
       if (result) 
 	{
-	  fprintf (stderr, "WSAStartup: %s\n", NET_ERROR);
+	  printf ("WSAStartup: %s\n", NET_ERROR);
 	  FreeLibrary (WSockHandle);
 	  return;
 	}
@@ -165,7 +172,7 @@ list_local_interfaces (void)
        * is the highest entity value that can be defined.
        */
       entityIdsBufSize = MAX_TDI_ENTITIES * sizeof (TDIEntityID);
-      entityIds = (TDIEntityID *) calloc (entityIdsBufSize, 1);
+      entityIds = (TDIEntityID *) calloc (1, entityIdsBufSize);
       
       result = WsControl (IPPROTO_TCP,
 			  WSCTL_TCP_QUERY_INFORMATION,
@@ -174,13 +181,14 @@ list_local_interfaces (void)
       
       if (result) 
 	{
-	  fprintf (stderr, "WsControl: %s\n", NET_ERROR);
+	  printf ("WsControl: %s\n", NET_ERROR);
 	  WSACleanup ();
 	  FreeLibrary (WSockHandle);
+	  free (entityIds);
 	  return;
 	}
 
-      /*...after the call we compute: */
+      /* ... after the call we compute */
       entityCount = entityIdsBufSize / sizeof (TDIEntityID);
       ifCount = 0;
 
@@ -209,9 +217,10 @@ list_local_interfaces (void)
 	      
 	      if (result) 
 		{
-		  fprintf (stderr, "WsControl: %s\n", NET_ERROR);
+		  printf ("WsControl: %s\n", NET_ERROR);
 		  WSACleanup ();
 		  FreeLibrary (WSockHandle);
+		  free (entityIds);
 		  return;
 		}
 
@@ -237,26 +246,16 @@ list_local_interfaces (void)
 
 		  if (result) 
 		    {
-		      fprintf (stderr, "WsControl: %s\n", NET_ERROR);
+		      printf ("WsControl: %s\n", NET_ERROR);
 		      WSACleanup ();
 		      FreeLibrary (WSockHandle);
 		      return;
 		    }
 
 		  /* store interface index and description */
-		  *(ifEntry->if_descr + ifEntry->if_descrlen) = 0;
-		  ifEntries++;
-		  if (ifList == NULL)
-		    ifList = (ifList_t *) 
-		      malloc (ifEntries * sizeof (ifList_t));
-		  else
-		    ifList = (ifList_t *) 
-		      realloc (ifList, ifEntries * sizeof (ifList_t));
-		  ifList[ifEntries-1].index = ifEntry->if_index;
-		  ifList[ifEntries-1].description = 
-		    (char *) malloc (ifEntry->if_descrlen + 1);
-		  memcpy (ifList[ifEntries-1].description, 
-			  ifEntry->if_descr, ifEntry->if_descrlen + 1);
+		  *(ifEntry->if_descr + ifEntry->if_descrlen) = '\0';
+		  svz_interface_add (ifEntry->if_index, ifEntry->if_descr,
+				     ifEntry->if_index);
 		}
 	    }
 	}
@@ -284,7 +283,7 @@ list_local_interfaces (void)
 
 	      if (result) 
 		{
-		  fprintf (stderr, "WsControl: %s\n", NET_ERROR);
+		  printf ("WsControl: %s\n", NET_ERROR);
 		  WSACleanup ();
 		  FreeLibrary (WSockHandle);
 		  return;
@@ -297,7 +296,8 @@ list_local_interfaces (void)
 		  tcpRequestQueryInfoEx.ID.toi_id = IP_MIB_ADDRTABLE_ENTRY_ID;
 
 		  ipAddrEntryBufSize = sizeof (IPAddrEntry) * ifCount;
-		  ipAddrEntry = (IPAddrEntry*) calloc (ipAddrEntryBufSize, 1);
+		  ipAddrEntry = 
+		    (IPAddrEntry *) calloc (ipAddrEntryBufSize, 1);
 
 		  result = WsControl (IPPROTO_TCP,
 				      WSCTL_TCP_QUERY_INFORMATION,
@@ -307,39 +307,20 @@ list_local_interfaces (void)
 
 		  if (result) 
 		    {
-		      fprintf (stderr, "WsControl: %s\n", NET_ERROR);
+		      printf ("WsControl: %s\n", NET_ERROR);
 		      WSACleanup ();
 		      FreeLibrary (WSockHandle);
 		      return;
 		    }
 		
-		  printf (NET_LIST_STRING);
-
-		  /* print ip address list and interface description */
+		  /* find ip address list and interface description */
 		  for (n = 0; n < ifCount; n++) 
 		    {
 		      memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
 
-		      for (k = 0; k < ifEntries; k++)
-			if (ifList[k].index == ipAddrEntry[n].iae_index)
-			  break;
-
-		      if (k != ifEntries)
-			{
-			  /* interface with description */
-			  fprintf (stdout, "%40s: %s\n",
-				   ifList[k].description,
-				   util_inet_ntoa (addr));
-			}
-		      else
-			{
-			  /* interface with interface # only */
-			  fprintf (stdout,
-				   "%31s%09lu: %s\n",
-				   "interface # ",
-				   ipAddrEntry[n].iae_index,
-				   util_inet_ntoa (addr));
-			}
+		      for (k = 0; k < svz_interfaces; k++)
+			if (svz_interface[k].index == ipAddrEntry[n].iae_index)
+			  svz_interface[k].ipaddr = addr;
 		    }
 		}
 	    }
@@ -357,7 +338,7 @@ list_local_interfaces (void)
 	GetProcAddress (WSockHandle, "GetIfTable");
       if (!GetIfTable)
 	{
-	  fprintf (stderr, "GetProcAddress (GetIfTable): %s\n", SYS_ERROR);
+	  printf ("GetProcAddress (GetIfTable): %s\n", SYS_ERROR);
 	  FreeLibrary (WSockHandle);
 	  return;
 	}
@@ -366,35 +347,36 @@ list_local_interfaces (void)
 	GetProcAddress (WSockHandle, "GetIpAddrTable");
       if (!GetIpAddrTable)
 	{
-	  fprintf (stderr, "GetProcAddress (GetIpAddrTable): %s\n", SYS_ERROR);
+	  printf ("GetProcAddress (GetIpAddrTable): %s\n", SYS_ERROR);
 	  FreeLibrary (WSockHandle);
 	  return;
 	}
 
       ifTableSize = sizeof (MIB_IFTABLE);
-      ifTable = (PMIB_IFTABLE) malloc (ifTableSize);
+      ifTable = (PMIB_IFTABLE) svz_malloc (ifTableSize);
       GetIfTable (ifTable, &ifTableSize, FALSE);
-      ifTable = (PMIB_IFTABLE) realloc (ifTable, ifTableSize);
+      ifTable = (PMIB_IFTABLE) svz_realloc (ifTable, ifTableSize);
       if (GetIfTable (ifTable, &ifTableSize, FALSE) != NO_ERROR)
 	{
-	  fprintf (stderr, "GetIfTable: %s\n", SYS_ERROR);
+	  printf ("GetIfTable: %s\n", SYS_ERROR);
 	  FreeLibrary (WSockHandle);
+	  svz_free (ifTable);
 	  return;
 	}
   
       ipTableSize = sizeof (MIB_IPADDRTABLE);
-      ipTable = (PMIB_IPADDRTABLE) malloc (ipTableSize);
+      ipTable = (PMIB_IPADDRTABLE) svz_malloc (ipTableSize);
       GetIpAddrTable (ipTable, &ipTableSize, FALSE);
-      ipTable = (PMIB_IPADDRTABLE) realloc (ipTable, ipTableSize);
+      ipTable = (PMIB_IPADDRTABLE) svz_realloc (ipTable, ipTableSize);
       if (GetIpAddrTable (ipTable, &ipTableSize, FALSE) != NO_ERROR)
 	{
-	  fprintf (stderr, "GetIpAddrTable: %s\n", SYS_ERROR);
+	  printf ("GetIpAddrTable: %s\n", SYS_ERROR);
 	  FreeLibrary (WSockHandle);
+	  svz_free (ipTable);
+	  svz_free (ifTable);
 	  return;
 	}
       
-      printf (NET_LIST_STRING);
-
       for (n = 0; n < ipTable->dwNumEntries; n++)
 	{
 	  for (i = 0; i < ifTable->dwNumEntries; i++)
@@ -402,35 +384,33 @@ list_local_interfaces (void)
 	      if (ifTable->table[i].dwIndex == ipTable->table[n].dwIndex)
 		{
 		  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
-		  
-		  fprintf (stdout, "%40s: %s\n",
-			   ifTable->table[i].bDescr,
-			   util_inet_ntoa (ipTable->table[n].dwAddr));
+		  svz_interface_add (ipTable->table[n].dwIndex, 
+				     ifTable->table[i].bDescr,
+				     ipTable->table[n].dwAddr);
 		  break;
 		}
 	    }
-	  if (i == ipTable->dwNumEntries)
+	  if (i == ifTable->dwNumEntries)
 	    {
-	      fprintf (stdout, "%31s%09lu: %s\n",
-		       "interface # ",
-		       ipTable->table[n].dwIndex,
-		       util_inet_ntoa (ipTable->table[n].dwAddr));
+	      svz_interface_add (ipTable->table[n].dwIndex, NULL,
+				 ipTable->table[n].dwAddr);
 	    }
 	}
 
+      svz_free (ipTable);
+      svz_free (ifTable);
       FreeLibrary (WSockHandle);
     }
   else
     {
-      fprintf (stderr, 
-	       "Neither IPHlpApi.dll nor WSock32.WsControl found...\n");
+      printf ("Neither IPHlpApi.dll nor WSock32.WsControl found...\n");
     }
 }
 
 #else /* not __MINGW32__ */
 
 void
-list_local_interfaces (void)
+svz_interface_collect (void)
 {
   int numreqs = 16;
   struct ifconf ifc;
@@ -440,7 +420,7 @@ list_local_interfaces (void)
   int fd;
 
   /* Get a socket out of the Internet Address Family. */
-  if ((fd = socket (AF_INET, SOCK_STREAM,0)) < 0) 
+  if ((fd = socket (AF_INET, SOCK_STREAM, 0)) < 0) 
     {
       perror ("socket");
       return;
@@ -462,7 +442,7 @@ list_local_interfaces (void)
 	{
 	  perror ("OSIOCGIFCONF");
 	  close (fd);
-	  free (ifc.ifc_buf);
+	  svz_free (ifc.ifc_buf);
 	  return;	  
 	}
 #else /* OSIOCGIFCONF */
@@ -470,7 +450,7 @@ list_local_interfaces (void)
 	{
 	  perror ("SIOCGIFCONF");
 	  close (fd);
-	  free (ifc.ifc_buf);
+	  svz_free (ifc.ifc_buf);
 	  return;
 	}
 #endif /* OSIOCGIFCONF */
@@ -483,8 +463,6 @@ list_local_interfaces (void)
 	}
       break;
     }
-
-  printf (NET_LIST_STRING);
 
   ifr = ifc.ifc_req;
   for (n = 0; n < ifc.ifc_len; n += sizeof (struct ifreq), ifr++)
@@ -504,19 +482,23 @@ list_local_interfaces (void)
       ifr2.ifr_addr.sa_family = AF_INET;
       if (ioctl (fd, SIOCGIFADDR, &ifr2) == 0)
 	{
-	  /* The following cast looks bogus. ifr2.ifr_addr is a
+	  static int index = 0;
+
+	  /* 
+	   * The following cast looks bogus. ifr2.ifr_addr is a
 	   * (struct sockaddr), but we know that we deal with a 
 	   * (struct sockaddr_in) here. Since you cannot cast structures
-	   * in C, I cast addresses just to get a (struct sockaddr_in) in the
-	   * end... phew
+	   * in C, I cast addresses just to get a (struct sockaddr_in) in 
+	   * the end ...
 	   */
-	  printf ("%40s: %s\n", ifr->ifr_name,
-		  util_inet_ntoa ((*(struct sockaddr_in *)
-				   &ifr2.ifr_addr).sin_addr.s_addr));
-	}
-      else 
-	{
-	  perror ("SIOCGIFADDR");
+#ifdef ifr_ifindex
+	  index = ifr->ifr_ifindex;
+#else
+	  index++;
+#endif
+	  svz_interface_add (index, ifr->ifr_name, 
+			     (*(struct sockaddr_in *) 
+			      &ifr2.ifr_addr).sin_addr.s_addr);
 	}
     }
   
@@ -529,7 +511,7 @@ list_local_interfaces (void)
 #else /* not ENABLE_IFLIST */
 
 void
-list_local_interfaces (void)
+svz_interface_collect (void)
 {
   printf ("\n"
 	  "Sorry, the list of local interfaces is not available. If you\n"
@@ -538,3 +520,76 @@ list_local_interfaces (void)
 }
 
 #endif /* not ENABLE_IFLIST */
+
+/*
+ * Print the text representation of all the network interfaces.
+ */
+void
+svz_interface_list (void)
+{
+  int n;
+
+  printf ("--- list of local interfaces you can start ip services on ---\n");
+
+  for (n = 0; n < svz_interfaces; n++)
+    {
+      /* interface with description */
+      if (svz_interface[n].description)
+	{
+	  printf ("%40s: %s\n", svz_interface[n].description, 
+		  util_inet_ntoa (svz_interface[n].ipaddr));
+	}
+      else
+	{
+	  /* interface with interface # only */
+	  printf ("%31s%09lu: %s\n", "interface # ",
+		  svz_interface[n].index,
+		  util_inet_ntoa (svz_interface[n].ipaddr));
+	}
+    }
+}
+
+/*
+ * Add a network interface to the current list of known interfaces. Drop
+ * duplicate entries.
+ */
+int
+svz_interface_add (int index, char *desc, unsigned long addr)
+{
+  int n;
+
+  /* Check if there is such an interface already. */
+  for (n = 0; n < svz_interfaces; n++)
+    if (svz_interface[n].ipaddr == addr)
+      return -1;
+
+  /* Actually add this interface. */
+  svz_interface = svz_realloc (svz_interface, sizeof (ifc_entry_t) * (n + 1));
+  svz_interface[n].index = index;
+  svz_interface[n].ipaddr = addr;
+  svz_interface[n].description = svz_strdup (desc);
+  svz_interfaces++;
+  return 0;
+}
+
+/*
+ * Free the network interface list.
+ */
+int
+svz_interface_free (void)
+{
+  int n;
+
+  if (svz_interfaces)
+    {
+      for (n = 0; n < svz_interfaces; n++)
+	if (svz_interface[n].description)
+	  svz_free (svz_interface[n].description);
+
+      svz_free (svz_interface);
+      svz_interface = NULL;
+      svz_interfaces = 0;
+      return 0;
+    }
+  return -1;
+}

@@ -1,7 +1,7 @@
 /*
- * src/interfaces.h - network interface definitions
+ * interfaces.h - network interface definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,39 +19,37 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.3 2000/09/12 22:14:16 ela Exp $
+ * $Id: interface.h,v 1.1 2001/02/02 11:30:34 ela Exp $
  *
  */
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#ifndef __INTERFACE_H__
+#define __INTERFACE_H__ 1
 
-/* Export this function. */
-void list_local_interfaces (void);
-
-#ifdef __MINGW32__
-
-#include "include/ipdata.h" 
-#include "include/iphlpapi.h"
-
-/*
- * Function pointer definitions for use with GetProcAddress.
- */
-typedef int (__stdcall *WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
-					LPVOID, LPDWORD);
-
-#define WSCTL_TCP_QUERY_INFORMATION 0
-#define WSCTL_TCP_SET_INFORMATION   1   
+#include "libserveez/defines.h"
 
 /*
  * Structure for collecting IP interfaces.
  */
 typedef struct
 {
-  DWORD index;       /* IF index */
-  char *description; /* interface description */
+  unsigned long index;  /* interface index */
+  char *description;    /* interface description */
+  unsigned long ipaddr; /* its IP address */
 }
-ifList_t;
+ifc_entry_t;
 
-#endif /* not __MINGW32__ */
+__BEGIN_DECLS
+
+SERVEEZ_API extern int svz_interfaces;
+SERVEEZ_API extern ifc_entry_t *svz_interface;
+
+/* Export these functions. */
+SERVEEZ_API void svz_interface_list __P ((void));
+SERVEEZ_API void svz_interface_collect __P ((void));
+SERVEEZ_API int svz_interface_free __P ((void));
+SERVEEZ_API int svz_interface_add __P ((int, char *, unsigned long));
+
+__END_DECLS
+
+#endif /* not __INTERFACE_H__ */
