@@ -20,21 +20,20 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.8 2001/05/19 23:04:57 ela Exp $
+ * $Id: server-core.h,v 1.9 2001/05/21 21:20:42 ela Exp $
  *
  */
 
 #ifndef __SERVER_CORE_H__
 #define __SERVER_CORE_H__ 1
 
-#include <time.h>
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
 #include "libserveez/portcfg.h"
 
 SERVEEZ_API extern int svz_nuke_happened;
 SERVEEZ_API extern HANDLE svz_child_died;
-SERVEEZ_API extern time_t svz_notify;
+SERVEEZ_API extern long svz_notify;
 
 SERVEEZ_API extern svz_socket_t *svz_sock_root;
 SERVEEZ_API extern svz_socket_t *svz_sock_last;

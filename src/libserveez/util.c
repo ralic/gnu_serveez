@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.9 2001/05/20 20:30:43 ela Exp $
+ * $Id: util.c,v 1.10 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -214,7 +214,7 @@ svz_hstrerror (void)
  * representation without any trailing characters.
  */
 char *
-svz_time (time_t t)
+svz_time (long t)
 {
   static char *asc;
   char *p;
@@ -233,7 +233,7 @@ svz_time (time_t t)
  * has been running. 
  */
 char *
-svz_uptime (time_t diff)
+svz_uptime (long diff)
 {
   static char text[64];
   time_t sec, min, hour, day, old;
@@ -326,7 +326,7 @@ svz_strcasecmp (const char *str1, const char *str2)
  * @var{str2}. It only compares the first @var{n} characters of @var{str1}.
  */
 int
-svz_strncasecmp (const char *str1, const char *str2, size_t n)
+svz_strncasecmp (const char *str1, const char *str2, unsigned int n)
 {
 #if HAVE_STRNCASECMP
   return strncasecmp (str1, str2, n);

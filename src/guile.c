@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.15 2001/05/20 20:30:43 ela Exp $
+ * $Id: guile.c,v 1.16 2001/05/21 21:20:41 ela Exp $
  *
  */
 
@@ -377,6 +377,7 @@ guile_create_config (svz_servertype_t *stype, char *name, SCM list)
   void *cfg;
   svz_server_config_t configure = {
     NULL, /* integers */
+    NULL, /* boolean */
     NULL, /* integer arrays */
     NULL, /* strings */
     NULL, /* string arrays */

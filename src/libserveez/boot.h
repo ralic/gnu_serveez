@@ -18,14 +18,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.5 2001/05/20 20:30:43 ela Exp $
+ * $Id: boot.h,v 1.6 2001/05/21 21:20:41 ela Exp $
  *
  */
 
 #ifndef __BOOT_H__
 #define __BOOT_H__ 1
 
-#include <time.h>
 #include "libserveez/defines.h"
 
 /*
@@ -38,7 +37,7 @@ typedef struct
   /* defines how many clients are allowed to connect */
   SOCKET max_sockets;
   /* when was the program started */
-  time_t start_time;
+  long start_time;
 }  
 svz_config_t;
 

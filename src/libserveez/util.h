@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.8 2001/05/20 20:30:43 ela Exp $
+ * $Id: util.h,v 1.9 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -32,7 +32,6 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <time.h>
 
 /* `open ()' files with this additional flag */
 #ifndef O_BINARY
@@ -70,18 +69,19 @@ __BEGIN_DECLS
 
 SERVEEZ_API extern int svz_verbosity;
 
-SERVEEZ_API void svz_log __P ((int level, const char *format, ...));
+SERVEEZ_API void svz_log __P ((int, const char *, ...));
 SERVEEZ_API void svz_log_setfile __P ((FILE *));
 
 SERVEEZ_API int svz_hexdump __P ((FILE *, char *, int, char *, int, int));
 SERVEEZ_API char *svz_itoa __P ((unsigned int));
 SERVEEZ_API unsigned int svz_atoi __P ((char *));
 SERVEEZ_API int svz_strcasecmp __P ((const char *, const char *));
-SERVEEZ_API int svz_strncasecmp __P ((const char *, const char *, size_t));
-SERVEEZ_API int svz_openfiles __P ((int max_sockets));
-SERVEEZ_API char *svz_time __P ((time_t t));
-SERVEEZ_API char *svz_uptime __P ((time_t diff));
-SERVEEZ_API char *svz_tolower __P ((char *str));
+SERVEEZ_API int svz_strncasecmp __P ((const char *, const char *, 
+				      unsigned int));
+SERVEEZ_API int svz_openfiles __P ((int));
+SERVEEZ_API char *svz_time __P ((long));
+SERVEEZ_API char *svz_uptime __P ((long));
+SERVEEZ_API char *svz_tolower __P ((char *));
 SERVEEZ_API char *svz_sys_version __P ((void));
 SERVEEZ_API const char *svz_hstrerror __P ((void));
 

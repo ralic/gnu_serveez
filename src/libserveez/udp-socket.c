@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.9 2001/05/19 23:04:58 ela Exp $
+ * $Id: udp-socket.c,v 1.10 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -32,6 +32,8 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <time.h>
+
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.12 2001/05/19 23:04:57 ela Exp $
+ * $Id: alloc.c,v 1.13 2001/05/21 21:20:41 ela Exp $
  *
  */
 
@@ -44,10 +44,10 @@
 #if ENABLE_DEBUG
 /* The variable @var{svz_allocated_bytes} holds the overall number of bytes 
    allocated by the core library. */
-size_t svz_allocated_bytes = 0;
+unsigned int svz_allocated_bytes = 0;
 /* This variable holds the number of memory blocks reserved by the core
    library. */
-size_t svz_allocated_blocks = 0;
+unsigned int svz_allocated_blocks = 0;
 #endif /* ENABLE_DEBUG */
 
 /* The @var{svz_malloc_func} variable is a function pointer for allocating 
@@ -91,9 +91,9 @@ heap_hash_code (char *id)
 /* structure for heap management */
 typedef struct
 {
-  void *ptr;     /* memory pointer */
-  size_t size;   /* memory block's size */
-  void *caller;  /* the caller */
+  void *ptr;         /* memory pointer */
+  unsigned int size; /* memory block's size */
+  void *caller;      /* the caller */
 }
 heap_block_t;
 
@@ -134,7 +134,7 @@ heap_add (heap_block_t *block)
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  */
 void * 
-svz_malloc (size_t size)
+svz_malloc (unsigned int size)
 {
   void *ptr;
 #if ENABLE_DEBUG
@@ -187,7 +187,7 @@ svz_malloc (size_t size)
  * The memory is cleared (filled with zeros).
  */
 void * 
-svz_calloc (size_t size)
+svz_calloc (unsigned int size)
 {
   void *ptr = svz_malloc (size);
   memset (ptr, 0, size);
@@ -201,7 +201,7 @@ svz_calloc (size_t size)
  * you just want to allocate a new block.
  */
 void *
-svz_realloc (void *ptr, size_t size)
+svz_realloc (void *ptr, unsigned int size)
 {
 #if ENABLE_DEBUG
   size_t old_size;
@@ -388,7 +388,7 @@ svz_strdup (char *src)
  * tracking.
  */
 void *
-svz_pmalloc (size_t size)
+svz_pmalloc (unsigned int size)
 {
   void *ptr = svz_malloc_func (size);
   if (ptr == NULL) 
@@ -404,7 +404,7 @@ svz_pmalloc (size_t size)
  * The memory block is cleared (filled with zeros) and considered permanently.
  */
 void * 
-svz_pcalloc (size_t size)
+svz_pcalloc (unsigned int size)
 {
   void *ptr = svz_malloc (size);
   memset (ptr, 0, size);
@@ -416,7 +416,7 @@ svz_pcalloc (size_t size)
  * routine also allocates memory permanently.
  */
 void *
-svz_prealloc (void *ptr, size_t size)
+svz_prealloc (void *ptr, unsigned int size)
 {
   void *dst = svz_realloc_func (ptr, size);
   if (dst == NULL) 

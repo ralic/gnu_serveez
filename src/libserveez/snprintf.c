@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.c,v 1.3 2001/04/01 13:32:30 ela Exp $
+ * $Id: snprintf.c,v 1.4 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -35,7 +35,7 @@
  * @code{vsprintf()} if @code{vsnprintf()} does not exist.
  */
 int 
-svz_snprintf (char *str, size_t n, const char *fmt, ...)
+svz_snprintf (char *str, unsigned int n, const char *fmt, ...)
 {
   int ret;
   va_list args;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.8 2001/05/19 23:04:57 ela Exp $
+ * $Id: pipe-socket.c,v 1.9 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -35,6 +35,7 @@
 #endif
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #ifdef __MINGW32__
 # include <winsock2.h>

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.7 2001/05/19 23:04:57 ela Exp $
+ * $Id: core.c,v 1.8 2001/05/21 21:20:41 ela Exp $
  *
  */
 
@@ -344,12 +344,12 @@ svz_tcp_cork (SOCKET fd, int set)
  * read/written or -1 on errors.
  */
 int
-svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
+svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 {
   int ret;
 #ifdef __FreeBSD__
   off_t sbytes;
-  ret = sendfile (in_fd, out_fd, *offset, count, NULL, &sbytes, 0);
+  ret = sendfile (in_fd, out_fd, (off_t) *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
 #elif defined (__MINGW32__)
@@ -365,7 +365,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
       ret = 0;
     }
 #else
-  ret = sendfile (out_fd, in_fd, offset, count);
+  ret = sendfile (out_fd, in_fd, (off_t) offset, count);
 #endif
   return ret;
 }
@@ -377,12 +377,12 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
  * the permissions if the @code{O_CREAT} flag is set.
  */
 int
-svz_open (const char *file, int flags, mode_t mode)
+svz_open (const char *file, int flags, unsigned int mode)
 {
 #ifndef __MINGW32__
   int fd;
 
-  if ((fd = open (file, flags, mode)) < 0)
+  if ((fd = open (file, flags, (mode_t) mode)) < 0)
     {
       svz_log (LOG_ERROR, "open (%s): %s\n", file, SYS_ERROR);
       return -1;

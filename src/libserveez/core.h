@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.6 2001/05/20 20:30:43 ela Exp $
+ * $Id: core.h,v 1.7 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -46,21 +46,20 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_fd_nonblock __P ((int fd));
-SERVEEZ_API int svz_fd_cloexec __P ((int fd));
-SERVEEZ_API int svz_tcp_cork __P ((SOCKET fd, int set));
-SERVEEZ_API int svz_socket_connect __P ((SOCKET sockfd, unsigned long host, 
-					 unsigned short port));
-SERVEEZ_API SOCKET svz_socket_create __P ((int proto));
-SERVEEZ_API char *svz_inet_ntoa __P ((unsigned long ip));
-SERVEEZ_API int svz_inet_aton __P ((char *str, struct sockaddr_in *addr));
-SERVEEZ_API int svz_sendfile __P ((int out_fd, int in_fd, 
-				   off_t *offset, size_t count));
-SERVEEZ_API int svz_open __P ((const char *file, int flags, mode_t mode));
-SERVEEZ_API int svz_close __P ((int fd));
-SERVEEZ_API int svz_fstat __P ((int fd, struct stat *buf));
-SERVEEZ_API FILE *svz_fopen __P ((const char *file, const char *mode));
-SERVEEZ_API int svz_fclose __P ((FILE *f));
+SERVEEZ_API int svz_fd_nonblock __P ((int));
+SERVEEZ_API int svz_fd_cloexec __P ((int));
+SERVEEZ_API int svz_tcp_cork __P ((SOCKET, int));
+SERVEEZ_API int svz_socket_connect __P ((SOCKET, unsigned long, 
+					 unsigned short));
+SERVEEZ_API SOCKET svz_socket_create __P ((int));
+SERVEEZ_API char *svz_inet_ntoa __P ((unsigned long));
+SERVEEZ_API int svz_inet_aton __P ((char *, struct sockaddr_in *));
+SERVEEZ_API int svz_sendfile __P ((int, int, long int *, unsigned int));
+SERVEEZ_API int svz_open __P ((const char *, int, unsigned int));
+SERVEEZ_API int svz_close __P ((int));
+SERVEEZ_API int svz_fstat __P ((int, struct stat *));
+SERVEEZ_API FILE *svz_fopen __P ((const char *, const char *));
+SERVEEZ_API int svz_fclose __P ((FILE *));
 
 __END_DECLS
 

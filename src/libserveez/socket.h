@@ -19,14 +19,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.4 2001/05/19 23:04:58 ela Exp $
+ * $Id: socket.h,v 1.5 2001/05/21 21:20:42 ela Exp $
  *
  */
 
 #ifndef __SOCKET_H__
 #define __SOCKET_H__ 1
 
-#include <time.h>
 #include "libserveez/defines.h"
 
 /* This is how many Id's can exist. It MUST be a 2^X and less than 10000. */
@@ -173,8 +172,8 @@ struct svz_socket
 
   int idle_counter;		/* Counter for calls to IDLE_FUNC. */
 
-  time_t last_send;		/* Timestamp of last send to socket. */
-  time_t last_recv;		/* Timestamp of last receive from socket */
+  long last_send;		/* Timestamp of last send to socket. */
+  long last_recv;		/* Timestamp of last receive from socket */
 
 #if ENABLE_FLOOD_PROTECTION
   int flood_points;		/* Accumulated flood points. */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.12 2001/05/19 23:04:57 ela Exp $
+ * $Id: server-core.c,v 1.13 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -109,7 +109,7 @@ HANDLE svz_child_died;
  * This holds the time on which the next call to @code{svz_periodic_tasks()}
  * should occur.
  */
-time_t svz_notify;
+long svz_notify;
 
 /*
  * @var{svz_sock_root} is the pointer to the head of the list of sockets, 

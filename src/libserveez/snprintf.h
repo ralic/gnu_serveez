@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.3 2001/04/01 13:32:30 ela Exp $
+ * $Id: snprintf.h,v 1.4 2001/05/21 21:20:42 ela Exp $
  *
  */
 
@@ -44,10 +44,10 @@
  * ourselves.
  */
 # if !defined (HAVE__SNPRINTF) && !defined (HAVE_SNPRINTF)
-int _snprintf (char *, size_t, const char *, ...);
+int _snprintf (char *, unsigned int, const char *, ...);
 # endif
 # if !defined (HAVE__VSNPRINTF) && !defined (HAVE_VSNPRINTF)
-int _vsnprintf (char *, size_t, const char *, va_list);
+int _vsnprintf (char *, unsigned int, const char *, va_list);
 # endif
 # define svz_vsnprintf _vsnprintf
 # define svz_snprintf _snprintf
@@ -65,7 +65,7 @@ int _vsnprintf (char *, size_t, const char *, va_list);
 __BEGIN_DECLS
 
 #ifndef HAVE_SNPRINTF
-SERVEEZ_API int svz_snprintf __P ((char *, size_t, const char *, ...));
+SERVEEZ_API int svz_snprintf __P ((char *, unsigned int, const char *, ...));
 #elif !defined (svz_snprintf)
 # define svz_snprintf snprintf
 #endif
