@@ -470,6 +470,11 @@ SVZ_RAW_CHECK_IP_HEADER_DEFUN
 @node Socket, Coserver, Client connections, Embedding API
 @section Socket management
 
+The function subset described in the following section deals with the
+creation, destruction and other simple operations on socket structures
+called @code{svz_socket_t}. See for the details at the description of each 
+function which kind of socket it can handle and what they are for.
+
 SVZ_SOCK_CONNECTIONS_DEFVAR
 
 SVZ_SOCK_VALID_DEFUN
@@ -525,6 +530,13 @@ SVZ_COSERVER_IDENT_DEFMAC
 @node ServerType, Server, Coserver, Embedding API
 @section Server type functions
 
+As already noted in the main serveez manual a server type is the 
+main specification of the abilities and configuration items of a server
+which can be instantiated. It is represented by the C structure
+@code{svz_servertype_t} in serveez. It contains server specific members 
+like its name, different callbacks, a single default configuration and a 
+list of configuration items which determines what can be configured.
+
 @menu
 * ServerSetup::               Setting up a server type
 * General ServerType::        Server type implementation
@@ -536,7 +548,7 @@ SVZ_COSERVER_IDENT_DEFMAC
 
 When specifying a server type you also need to define configuration items
 for it. These items refer to addresses in the example configuration of the
-server type. The following macro can be used to determine these items.
+server type. The following macros can be used to determine these items.
 
 SVZ_REGISTER_INT_DEFMAC
 SVZ_REGISTER_BOOL_DEFMAC
@@ -551,6 +563,10 @@ SVZ_DEFINE_CONFIG_DEFMAC
 @node General ServerType, Dynamic server, ServerSetup, ServerType
 @subsection General server type functionality
 
+The following set of functions are used to manage the list of known server
+types in the serveez core libary. Serveez itself uses some of these functions
+to register its builtin server types. 
+
 SVZ_SERVERTYPES_DEFVAR
 SVZ_SERVERTYPE_ADD_DEFUN
 SVZ_SERVERTYPE_DEL_DEFUN
@@ -561,6 +577,12 @@ SVZ_SERVERTYPE_PRINT_DEFUN
 
 @node Dynamic server, , General ServerType, ServerType
 @subsection Dynamic server loading
+
+The core API of serveez is able to register server types dynamically at 
+runtime. It uses the dynamic linker capabilities of the underlying operating
+system to load shared libraries (or DLLs on Win32). This has been 
+successfully tested on Windows and GNU/Linux. Other systems are supported
+but yet untested. Please tell us if noticing any misbehaviour.
 
 SVZ_DYNLOAD_INIT_DEFUN
 SVZ_DYNLOAD_FINALIZE_DEFUN
@@ -707,6 +729,12 @@ SVZ_PORTCFG_DESTROY_ACCESS_DEFUN
 @node Booting, Interface, PortConfig, Embedding API
 @section Boot functions
 
+This section contains the description of some runtime checkable flags 
+indicating the abilities of the running serveez core API and the underlying
+operating system. It also describes the most important functions 
+@code{svz_boot()} and @code{svz_halt()} which must be the first and the last
+call to the core API.
+
 SVZ_CONFIG_DEFVAR
 SVZ_LIBRARY_DEFVAR
 SVZ_VERSION_DEFVAR
@@ -760,7 +788,7 @@ SVZ_WINDOZE_SET_REG_STRING_DEFUN
 @chapter Index
 
 @menu
-* Function index::            All functions of the C API
+* Function index::            All functions and macros of the C API
 * Variable index::            All variables in the C API
 @end menu
 
