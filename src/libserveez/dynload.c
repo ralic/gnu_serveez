@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.16 2001/09/30 09:05:58 ela Exp $
+ * $Id: dynload.c,v 1.17 2001/09/30 11:51:48 ela Exp $
  *
  */
 
@@ -277,7 +277,7 @@ dyn_load_library (char *file)
 
   if (handle == NULL)
     {
-      svz_log (LOG_ERROR, "load: unable to locate %s\n", file);
+      svz_log (LOG_ERROR, "link: unable to locate %s\n", file);
       return NULL;
     }
 
@@ -336,7 +336,7 @@ dyn_unload_library (dyn_library_t *lib)
 #endif
 	if (err)
 	  {
-	    svz_log (LOG_ERROR, "unload: %s (%s)\n", dyn_error (), lib->file);
+	    svz_log (LOG_ERROR, "unlink: %s (%s)\n", dyn_error (), lib->file);
 	    return -1;
 	  }
 
