@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.9 2001/11/09 22:23:40 raimi Exp $
+ * $Id: guile-bin.c,v 1.10 2001/11/11 23:32:56 ela Exp $
  *
  */
 
@@ -108,7 +108,6 @@ guile_bin_free (SCM binary)
       scm_must_free ((void *) bin->data);
     }
   scm_must_free ((void *) bin);
-
   return size;
 }
 
@@ -268,7 +267,7 @@ guile_bin_ref (SCM binary, SCM index)
   int idx;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_exact_p (index), index, SCM_ARG1, FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (gh_exact_p (index), index, SCM_ARG2, FUNC_NAME, "exact");
 
   /* Check the range of the index argument. */
   idx = gh_scm2int (index);

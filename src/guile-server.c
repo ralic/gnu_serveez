@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.30 2001/11/10 17:45:11 ela Exp $
+ * $Id: guile-server.c,v 1.31 2001/11/11 23:32:56 ela Exp $
  *
  */
 
@@ -390,6 +390,7 @@ guile_call_handler (SCM data, SCM tag, SCM args)
   scm_puts (str, scm_current_error_port ());
   scm_puts ("'\n", scm_current_error_port ());
   scm_puts ("guile-error: ", scm_current_error_port ());
+  scm_must_free (str);
 
   /* on quit/exit */
   if (gh_null_p (args))
@@ -636,6 +637,7 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
     {
       ret = guile_call (info_client, 2, MAKE_SMOB (svz_server, server),
 			MAKE_SMOB (svz_socket, sock));
+      /* FIXME: leaking here. */
       return guile_to_string (ret);
     }
   return NULL;
@@ -652,6 +654,7 @@ guile_func_info_server (svz_server_t *server)
   if (!gh_eq_p (info_server, SCM_UNDEFINED))
     {
       ret = guile_call (info_server, 1, MAKE_SMOB (svz_server, server));
+      /* FIXME: leaking here. */
       return guile_to_string (ret);
     }
   return NULL;
@@ -972,6 +975,7 @@ guile_server_state_ref (SCM server, SCM key)
   if ((hash = xserver->data) != NULL)
     if ((val = svz_hash_get (hash, str)) != NULL)
       ret = (SCM) SVZ_PTR2NUM (val);
+  scm_must_free (str);
   return ret;
 }
 #undef FUNC_NAME
@@ -1006,6 +1010,7 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
       scm_unprotect_object (ret);
     }
   scm_protect_object (value);
+  scm_must_free (str);
   return ret;
 }
 #undef FUNC_NAME
@@ -1326,11 +1331,16 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 	  err = -1;
 	  continue;
 	}
-      else if ((len = guile_servertype_config_type (str, &item, &size)) == 0)
+      else
 	{
-	  guile_error ("Invalid type for `%s' %s", key[n], txt);
-	  err = -1;
-	  continue;
+	  len = guile_servertype_config_type (str, &item, &size);
+	  scm_must_free (str);
+	  if (len == 0)
+	    {
+	      guile_error ("Invalid type for `%s' %s", key[n], txt);
+	      err = -1;
+	      continue;
+	    }
 	}
 
       /* Then appears a boolean value specifying if the configuration 

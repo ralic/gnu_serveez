@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.45 2001/11/09 12:33:10 ela Exp $
+ * $Id: guile.c,v 1.46 2001/11/11 23:32:56 ela Exp $
  *
  */
 
@@ -371,6 +371,7 @@ guile_to_boolean (SCM cell, int *target)
 	*target = 0;
       else
 	err = 1;
+      scm_must_free (str);
     }
   else
     {
