@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.1 2000/10/17 21:12:01 ela Exp $
+ * $Id: hash-test.c,v 1.2 2000/10/17 21:24:25 ela Exp $
  *
  */
 
@@ -53,7 +53,7 @@ main (int argc, char **argv)
 {
   int result = 0;
   hash_t *hash;
-  int n, error;
+  long n, error;
   char *text, *key;
   char **keys;
   void **values;
@@ -105,7 +105,7 @@ main (int argc, char **argv)
   text = xmalloc (16);
   for (n = 0; n < REPEAT; n++)
     {
-      sprintf (text, "%015u", (unsigned) n);
+      sprintf (text, "%015lu", (unsigned long) n);
       hash_put (hash, text, (void *) n);
       if (hash_get (hash, text) != (void *) n)
 	error++;
@@ -119,7 +119,7 @@ main (int argc, char **argv)
     { 
       for (n = 0; n < REPEAT; n++)
 	{
-	  if (atoi (keys[n]) != (int) values[n])
+	  if (atol (keys[n]) != (long) values[n])
 	    error++;
 	  if (hash_get (hash, keys[n]) != values[n])
 	    error++;
@@ -148,7 +148,7 @@ main (int argc, char **argv)
   text = xmalloc (16);
   for (n = 0; n < REPEAT; n++)
     {
-      sprintf (text, "%015u", (unsigned) n);
+      sprintf (text, "%015lu", (unsigned long) n);
       if (hash_get (hash, text) != (void *) n)
 	error++;
       if (hash_delete (hash, text) != (void *) n)
