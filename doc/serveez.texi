@@ -1,0 +1,352 @@
+\input texinfo
+@c %**start of header
+@setfilename serveez.info
+@settitle Serveey Documention
+@c %** end of header
+
+@node Top, (dir), (dir), (dir)
+
+@ifinfo
+This document covers all questions about ser GNU package serveey and 
+refers to the current version 0.0.12.
+@end ifinfo
+
+@menu
+* Introduction::        Introduction to Serveez
+* Using Serveez::       Command line options
+* Concept::             Conceptional thoughts
+* Server::              Server implementation
+* Co-Server::           Co-Server implementation
+@end menu
+
+@node Introduction, Using Serveez, , Top
+@chapter Introduction
+
+@node Using Serveez, Concept, Introduction, Top
+@chapter Using Serveez
+
+@node Concept, Server, Using Serveez, Top
+@chapter Concept
+
+@node Server, Co-Server, Concept, Top
+@chapter Server
+
+@menu
+* Introduction to servers::     Protocol servers in serveez
+* Writing servers::             How to write internet protocol servers
+@end menu
+
+@node Introduction to servers, Writing servers, , Server
+@section Introduction to servers
+
+This package includes a kind of server server. It allows different 
+protocol servers to listen on various TCP/IP ports and server instanciating.
+Thus it is possible to to have different servers on the same TCP/IP port.
+
+This chapter covers all questions about how to write your own internet
+protocol server with little help of this package. Most of the usual tasks of
+such a server have got their generic solutions which could be shadowed by 
+your own routines. There are some examples within this package showing the
+possibilities and one very simple example how to implement such a server.
+
+The foo server does not do anything at all and is of no use actually
+but could be a basis for a new protocol server. We are now going to describe
+how this specific server works. Eventually the reader might have got an idea
+what is going on here.
+
+@node Writing servers, ,Introduction to servers, Server
+@section Writing servers
+
+@subsection Making and configuring preperations
+
+Serveez is configured and build via automake and autoconf. That
+is why you are not supposed to write your own Makefiles but simplified
+`Makefile.am's. Automake will automatically generate dependencies and
+compiler and linker command lines.
+
+@unnumbered
+Change to the src/ directory in the source tree.
+
+Edit the `Makefile.am'. Add your sub directory name and library name
+which you are going to create.
+
+Now create the sub directory and change into it.
+
+There you need to create a new `Makefile.am'. You have to put at least
+the following into it:
+
+noinst_LIBRARIES=libfoo.a
+AM_CPPFLAGS = -I..
+CLEANFILES = *~
+libfoo_a_SOURCES = foo-proto.h foo-proto.c
+
+Just have a look at all the other server directories. For more information
+about the Automake read the info pages.
+
+@subsection Server header file `foo-proto.h'
+
+This file contains at least your servers configuration structure and
+some global definitions of server routines which must be available outside.
+Furthermore it contains the global definition of your server definition. The
+foo server implementents all kinds of configurations items which could be
+integers, string arrays, strings, integer arrays, port configurations and
+hashes. Every thing within this configuration will be configurable within
+the configuration file later.
+
+@subsection Server implementation file `foo-proto.c'
+
+If you want to define default values for your configuration you have
+to define it somewhere and put it into the default configuration structure.
+This structure will be used to instanciate your server. In this case we 
+called it simply `mycfg'.
+
+In order to associate the configurations items in a server 
+configuration to keywords within the configuration file you have to define a
+array of key-value-pairs. This is done in the `foo_config_prototype' field.
+There are several macros which make different associations. These are the
+REGISTER_* macros which take three arguments. The first argument is the
+keyword which will occur in the configuration file, the second is the
+associated item in your default configuration structure and the last argument
+specifies if this item is defaultable or not.
+
+@subsection Server definition
+
+The server definition is the representation of your server object 
+which will be instanciatable. You have to put in this structure a long and
+a short description of your server. The short name will be used to instanciate
+the server object via the configuration file. You can instanciate it by
+writing "(define foo-server1 '#( ... ))" where `foo' is your 
+servers short name. Moreover you have to put there the server 
+callbacks which will be described later and the configuration 
+associations described above.
+
+@subsection Server callbacks
+
+There are several callback routines, which get called in order to 
+instanciate the server and for describing the actual behaviour of your server.
+Here is the description of all of these.
+
+@itemize @bullet
+
+@item global initializer (optional)
+
+This callback is executed once for initializing the server. Here you can
+initialize data or whatever shared by all instances of your server. For
+instance the http server would load the mime type file here. The foo
+server creates its default hash property because a hash cannot be
+statically initialized.
+
+@item global finalizer (optional)
+
+If you want to free shared resources which were possibly allocated within
+the global initializer you can do so here. The foo server frees its
+default hash previouly allocated in the global initializer.
+
+@item instance finalizer (optional)
+
+The server instance finalizer gets its instance representation as argument.
+You have to free all resources used by this server instance. The foo server
+destroys its hash if it was not the default hash which gets freed within
+the global finalizer.
+
+@item instance initializer (mandatory)
+
+Within this routine you can initialize all you might need for one instance
+of your server. Secondly you have to bind this instance to some port
+configuration. In most cases you want to have this port configuration
+accessable via the configuration file. Therefore you have to 
+REGISTER_PORTCFG () in your servers configuration definition. The port
+configuration is then part of your servers instance configuration
+structure. The foo server prints its whole configuration just for debugging
+purposes. It simply shows how configurable items from the configuration
+file fall to the server instance configuration. If you are going to plan
+that one server instance listens on different ports you can do so.
+
+@item protocol detection (mandatory)
+
+Because it is possible to have more than one server listening on one 
+network port we are going to detect the type of client which is connecting
+to this port. The foo servers checks if the first five bytes the client
+was sending is identifying it as a foo client. This routine is getting
+two arguments where the first one is a pointer to this servers instance
+configuration and the second is the client socket object containing all
+information of the client connection. This structure is describe a bit
+later. Be patient. For successful client detection return non-zero 
+otherwise zero.
+
+@item connect socket (mandatory)
+
+If the client detection signaled success this routine is called to assign
+the client connection to this servers instance. The arguments are just
+the same as in the detection routine. In this callback you can assign
+all the connection specific callbacks for your server and do some initial
+things. The foo server sets the check_request callback to the 
+default_check_request which is using the packet delimiter information to
+find whole packets. When a client sent such a packet the handle_request
+callback is executed. That is why the foo server assigns the handle_request
+method.
+
+@end itemize
+
+@subsection Make your server available
+
+You distribute your server by editing the `server.c' file in the
+src/ directory. There you have to include the the servers header file and add
+the server defintion to the all_server_defintion array.
+
+@subsection More detailed description of the callback system and structures
+
+The client connection information is stored within the socket_t 
+object. All of the client connection specific callbacks get this object as
+first argument. Here follows a decription of the elements of this object.
+
+@itemize @bullet
+
+@item socket_id
+The socket id is a unique id for a client connection.
+
+@item flags
+The flag field of the client connection contains informations about the
+state of this connection. See 'socket.h' in the src/ directory for more 
+information. Basically this bitfield specifies how this object is handle
+by the main server loop.
+
+@item userflags
+This bitfield could be used for protocol specific information. You can use
+is for any information.
+
+@item boundary, boundary_size
+If you are going to write a packet oriented protocol server you can use
+the default_check_request method to parse packets. These two properties
+describe the packet delimiter.
+
+@item send_buffer, send_buffer_size, send_buffer_fill
+This is the outgoing data for a client connection object.
+
+@item recv_buffer, recv_buffer_size, recv_buffer_fill
+Within the receive buffer all incoming data for a connection object is 
+stored. This buffer is at least used for the client detection callback.
+
+@item read_socket
+This callback gets called whenever data is available on the socket.
+Normally, this is set to a default function which reads all available
+data from the socket and feeds it to check_request, but specific
+sockets may need another policy.
+
+@item write_socket
+This routine is called when data is is valid in the output buffer
+and the socket gets available for writing.  Normally, this simply
+writes as much data as possible to the socket and removes it from
+the send buffer.
+
+@item disconnected_socket
+This gets called whenever the socket is lost for some external reason.
+
+@item kicked_socket
+We call this whenever the socket gets closed by us.
+
+@item check_request
+This gets called whenever data was read from the socket.
+Its purpose is to check whether a complete request was read, and
+if it was, it should be handled and removed from the input buffer.
+
+@item handle_request
+This gets called when the check_request got a valid packet. The request
+arguments contains the actual packet and the second argument is the
+length of this packet including the packet delimiter.
+
+@item idle_func
+This callback gets called from the periodic task scheduler. Whenever
+idle_counter (see below) is non-zero, it is decremented and
+idle_func gets called when it drops to zero. idle_func can reset
+idle_counter to some value and thus can re-schedule itself for a
+later task.
+ 
+@item idle_counter
+Counter for calls to idle_func.
+
+@item data
+Miscellaneous field. Listener keeps array of server instances here.
+This array is NULL terminated.
+
+@item cfg
+When the final protocol detection in default_detect_proto
+has been done cfg should get the actual configuration hash.
+
+@end itemize
+
+@subsection Using coservers
+
+Coservers are designed to complete blocking tasks. There are several
+coservers implemented. These are the dns, reverse dns and ident coserver.
+If you want to use these you have to #include "coserver/coserver.h". Secondly
+you need to implement the callback which gets called when a coserver completed
+its task. This routine must be a `coserver_handle_result_t'. The first 
+argument is the argument you specified yourself invoking the request and the
+second argument is the actual coserver result. This might be NULL if the
+request could not be fulfilled. To invoke a coserver request you use one
+of the coserver_* macros. The foo server uses the reverse dns coserver to
+identify the host name of the remote client.
+
+@node Co-Server, , Server, Top
+@chapter Co-Server
+
+@menu
+* Writing Co-Servers::          How to write Co-Servers with serveez
+* What are Co-Servers::         The use of Co-Servers in serveez
+@end menu
+
+@node What are Co-Servers, Writing Co-Servers, , Co-Server
+@section What are Co-Servers
+
+If it is necessary to complete blocking tasks in serveez you have 
+to use coservers. The actual implementation in Unices is a process and in
+Win32 systems it is realized by a thread.
+
+@node Writing Co-Servers, , What are Co-Servers, Co-Server
+@section Writing Co-Servers
+
+@subsection Making and configuring preperations
+
+First you have yo change into the src/coserver/ directory of the 
+serveez package. Then edit the `Makefile.am' and add your 
+header and implementation file to the libcoserver_a_SOURCES 
+variable there.
+
+@subsection Co-Server header file
+
+You must define the coserver handle routine here. This callback
+gets the inbuffer argument and delivers the outbuffer result.
+
+@subsection Co-Server implementation file
+
+Here you need to #include `coserver.h' and implement the coserver 
+handle routine defined in the coserver header file. This could be any blocking
+system call. On successful completion you can return the result or NULL on
+errors. The input and output buffers are plain strings and can have any
+format with one exception. Because the coservers communicate via a line
+protocol with serveez these buffers must not contain `\n' (0x0d).
+
+@subsection Make your Co-Server available in serveez
+
+For this you have to edit `coserver.h' and `coserver.c' in the
+src/coserver/ directory. In the header file you have to define a further
+COSERVER_* id and set the MAX_COSERVER_TYPES define to the apropiate value. 
+Then you should define a further coserver_* macro in the same file.
+
+In `coserver.c' you have to implement the coserver_* macro. This macro
+takes three arguments. The first is always specific to your coserver and is
+used to create the actual request string. Then follows the result callback
+routine, and an optional argument for this callback. The latter two are
+simply passed to the coserver_send_request routine. This routine takes four
+arguments at all where the first is the previously defined COSERVER_* id and
+the second is the input buffer for the coserver handle routine without
+the trailing `\n'.
+
+Then you need to add your coserver to the int_coserver_type array
+specifying the COSERVER_* id, the coserver description, the coserver
+handle routine discussed above, the amount of coserver instances to be
+created and an optional initialization routine.
+
+@cindex
+@bye
