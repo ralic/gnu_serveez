@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.10 2001/05/02 22:18:48 ela Exp $
+ * $Id: server-core.c,v 1.11 2001/05/09 21:04:09 ela Exp $
  *
  */
 
@@ -70,7 +70,9 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
+#include "libserveez/vector.h"
 #include "libserveez/socket.h"
+#include "libserveez/core.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/server-loop.h"
 #include "libserveez/portcfg.h"
@@ -452,6 +454,109 @@ sock_dequeue (socket_t sock)
 
   sock->flags &= ~SOCK_FLAG_ENQUEUED;
   sock_lookup_table[sock->id] = NULL;
+
+  return 0;
+}
+
+/*
+ * This routine checks the connection frequency of the socket structure
+ * @var{child} for the port configuration of the listener socket structure
+ * @var{parent}. Returns zero if the connection frequency is valid,
+ * otherwise non-zero.
+ */
+int
+sock_check_frequency (socket_t parent, socket_t child)
+{
+  svz_portcfg_t *port = parent->cfg;
+  char *ip = svz_inet_ntoa (child->remote_addr);
+  time_t *t, current;
+  int nr, n, ret = 0;
+  svz_vector_t *accepted = NULL;
+
+  /* Check connect frequency. */
+  if (port->accepted)
+    accepted = (svz_vector_t *) svz_hash_get (port->accepted, ip);
+  else
+    port->accepted = svz_hash_create (4);
+  current = time (NULL);
+
+  if (accepted != NULL)
+    {
+      /* Delete older entries and count valid entries. */
+      nr = 0;
+      svz_vector_foreach (accepted, t, n)
+	{
+	  if (*t < current - 4)
+	    {
+	      svz_vector_del (accepted, n);
+	      n--;
+	    }
+	  else
+	    nr++;
+	}
+      /* Check the connection frequency. */
+      if ((nr /= 4) > port->connect_freq)
+	{
+	  log_printf (LOG_NOTICE, "connect frequency reached: %s: %d/%d\n", 
+		      ip, nr, port->connect_freq);
+	  ret = -1;
+	}
+    }
+  /* Not yet connected. */
+  else
+    {
+      accepted = svz_vector_create (sizeof (time_t));
+    }
+
+  svz_vector_add (accepted, &current);
+  svz_hash_put (port->accepted, ip, accepted);
+  return ret;
+}
+
+/*
+ * This function returns zero if the @var{child} socket is allowed to 
+ * connect to the port configuration of the @var{parent} socket structure
+ * which needs to be a listener therefore.
+ */
+int
+sock_check_access (socket_t parent, socket_t child)
+{
+  svz_portcfg_t *port = parent->cfg;
+  char *ip;
+  int n, ret;
+  char *remote = svz_inet_ntoa (child->remote_addr);
+
+  /* Check the deny IP addresses. */
+  if (port->deny)
+    {
+      svz_array_foreach (port->deny, ip, n)
+	{
+	  if (!strcmp (ip, remote))
+	    {
+	      log_printf (LOG_NOTICE, "denying access from %s\n", ip);
+	      return -1;
+	    }
+	}
+    }
+
+  /* Check allow IP addresses. */
+  if (port->allow)
+    {
+      ret = -1;
+      svz_array_foreach (port->allow, ip, n)
+	{
+	  if (!strcmp (ip, remote))
+	    {
+	      log_printf (LOG_NOTICE, "allowing access from %s\n", ip);
+	      ret = 0;
+	    }
+	}
+      if (ret)
+	{
+	  log_printf (LOG_NOTICE, "denying unallowed access from %s\n", ip);
+	  return ret;
+	}
+    }
 
   return 0;
 }

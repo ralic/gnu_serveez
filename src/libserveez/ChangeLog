@@ -1,3 +1,14 @@
+2001-05-09  [ Ela ]  <ela@lkcc.org>
+
+	* portcfg.c (svz_portcfg_destroy_access,
+	svz_portcfg_destroy_accepted): New functions.
+
+	* server-socket.c (server_accept_socket): Checking access list 
+	and connect frequency.
+
+	* server-core.c (sock_check_frequency, sock_check_access):
+	New functions.
+
 2001-05-07  [ Ela ]  <ela@lkcc.org>
 
 	* server.c (svz_servertype_del): Undbind, remove and finalize 

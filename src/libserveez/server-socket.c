@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.9 2001/05/05 15:45:51 ela Exp $
+ * $Id: server-socket.c,v 1.10 2001/05/09 21:04:09 ela Exp $
  *
  */
 
@@ -318,6 +318,11 @@ server_accept_socket (socket_t server_sock)
       sock_enqueue (sock);
       sock_setparent (sock, server_sock);
       sock_connections++;
+
+      /* Check access and connect frequency here. */
+      if (sock_check_access (server_sock, sock) < 0 ||
+	  sock_check_frequency (server_sock, sock) < 0)
+	sock_schedule_for_shutdown (sock);
 
       /* 
        * We call the check_request() routine here once in order to

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.11 2001/05/07 21:02:58 ela Exp $
+ * $Id: portcfg.c,v 1.12 2001/05/09 21:04:09 ela Exp $
  *
  */
 
@@ -313,16 +313,57 @@ svz_portcfg_destroy (svz_portcfg_t *port)
       break;
     }
 
-  /* FIXME: What about the values ? */
-  if (port->deny)
-    svz_array_destroy (port->deny);
-  if (port->allow)
-    svz_array_destroy (port->allow);
-  if (port->accepted)
-    svz_hash_destroy (port->accepted);
+  /* Destroy access and connection list. */
+  svz_portcfg_destroy_access (port);
+  svz_portcfg_destroy_accepted (port);
 
-  /* Free the port configuration otself. */
+  /* Free the port configuration itself. */
   svz_free (port);
+}
+
+/*
+ * Destroy the deny and allowed access list of the given port configuration 
+ * @var{port}.
+ */
+void
+svz_portcfg_destroy_access (svz_portcfg_t *port)
+{
+  char *ip;
+  int n;
+
+  if (port->deny)
+    {
+      svz_array_foreach (port->deny, ip, n)
+	svz_free (ip);
+      svz_array_destroy (port->deny);
+      port->deny = NULL;
+    }
+  if (port->allow)
+    {
+      svz_array_foreach (port->allow, ip, n)
+	svz_free (ip);
+      svz_array_destroy (port->allow);
+      port->allow = NULL;
+    }  
+}
+
+/*
+ * Destroy the list of connections for each ip address ever connected to the
+ * given port configuration @var{port}.
+ */
+void
+svz_portcfg_destroy_accepted (svz_portcfg_t *port)
+{
+  int n;
+  char **ip;
+
+  if (port->accepted)
+    {
+      svz_hash_foreach_key (port->accepted, ip, n)
+	svz_vector_destroy (svz_hash_get (port->accepted, ip[n]));
+      svz_hash_destroy (port->accepted);
+      port->accepted = NULL;
+    }
 }
 
 /*
