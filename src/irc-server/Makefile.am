@@ -23,14 +23,14 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-noinst_LIBRARIES=libircserver.a
+noinst_LIBRARIES = libircserver.a
 
 AM_CPPFLAGS = -I..
 
 CLEANFILES = *~
 
 libircserver_a_SOURCES = \
-	irc-proto.c  irc-proto.h \
+	irc-proto.c irc-proto.h \
 	irc-crypt.c irc-crypt.h \
 	irc-event.h \
 	irc-event-1.c \
@@ -40,4 +40,5 @@ libircserver_a_SOURCES = \
 	irc-event-5.c \
 	irc-event-6.c \
 	irc-event-7.c \
-	irc-server.h  irc-server.c
+	irc-server.h irc-server.c \
+	irc-config.h irc-config.c

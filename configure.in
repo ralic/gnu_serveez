@@ -782,6 +782,7 @@ AC_TRY_CPP([#include <strings.h>],
 )
 
 AC_CHECK_FUNCS(strchr memcpy)
+AC_CHECK_FUNCS(strcasecmp strncasecmp stricmp strnicmp)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.7 2000/07/15 11:44:17 ela Exp $
+ * $Id: http-cgi.c,v 1.8 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -47,6 +47,7 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+# include <io.h>
 #endif
 
 #include "snprintf.h"
@@ -317,12 +318,12 @@ create_cgi_envp(socket_t sock,      /* socket structure for this request */
   http = sock->data;
 
   /* convert some http request properties into environment variables */
-  for(c=0; env_var[c].property; c++)
-    for(n=0; http->property[n]; n+=2)
-      if(!strcasecmp(http->property[n], env_var[c].property))
+  for (c = 0; env_var[c].property; c++)
+    for (n = 0; http->property[n]; n+=2)
+      if (!util_strcasecmp (http->property[n], env_var[c].property))
 	{
-	  insert_env(env, &size, "%s=%s", 
-		     env_var[c].env, http->property[n+1]);
+	  insert_env (env, &size, "%s=%s", 
+		      env_var[c].env, http->property[n+1]);
 	  break;
 	}
 

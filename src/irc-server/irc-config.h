@@ -1,5 +1,5 @@
 /*
- * irc-server.h - IRC server header definitions
+ * irc-config.c - IRC server configuration defintions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,29 +18,24 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.h,v 1.6 2000/07/19 14:12:34 ela Exp $
+ * $Id: irc-config.h,v 1.1 2000/07/19 14:12:34 ela Exp $
  *
  */
-
-#ifndef __IRC_SERVER_H__
-#define __IRC_SERVER_H__
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
 
+#ifndef __IRC_CONFIG_H__
+#define __IRC_CONFIG_H__
+
 #define _GNU_SOURCE
 
 /*
- * These functions are exported from this IRC server module.
+ * Export these routines.
  */
-#ifndef __STDC__
-int irc_parse_line ();
-#else
-int irc_parse_line (char *line, char *fmt, ...);
-#endif
-void irc_delete_servers (irc_config_t *cfg);
-void irc_connect_servers (irc_config_t *cfg);
-int irc_count_servers (irc_config_t *cfg);
+void irc_parse_config_lines (irc_config_t *cfg);
+void irc_free_config_lines (irc_config_t *cfg);
+int irc_client_valid (irc_client_t *client, irc_config_t *cfg);
 
-#endif /* __IRC_SERVER_H__ */
+#endif /* __IRC_CONFIG_H__ */

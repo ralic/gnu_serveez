@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.8 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-core.c,v 1.9 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -167,7 +167,7 @@ irc_connect_socket (void *cfg, socket_t sock)
   sock->check_request = irc_check_request;
   sock->disconnected_socket = irc_disconnect;
   sock->idle_func = irc_idle;
-  sock->idle_counter = IRC_PING_INTERVAL;
+  sock->idle_counter = 1;
   irc_start_auth (sock);
 
   return 0;

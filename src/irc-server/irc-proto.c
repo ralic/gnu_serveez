@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.7 2000/07/17 16:15:04 ela Exp $
+ * $Id: irc-proto.c,v 1.8 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -54,6 +54,7 @@
 #include "irc-proto.h"
 #include "irc-event.h"
 #include "irc-server.h"
+#include "irc-config.h"
 
 /*
  * The IRC port configuration.
@@ -104,12 +105,14 @@ irc_config_t irc_config =
   NULL,                  /* admininfo */
   NULL,                  /* location1 */
   NULL,                  /* location2 */
-  { NULL },              /* operator host names */
-  { NULL },              /* operator passwords */
   NULL,                  /* irc channel hash */
   NULL,                  /* irc client hash */
   NULL,                  /* irc server list root */
-  NULL                   /* client history list root */
+  NULL,                  /* client history list root */
+  NULL,                  /* connection classes list */
+  NULL,                  /* user authorizations */
+  NULL,                  /* operator autorizations */
+  NULL,                  /* banned users */
 };
 
 /*
@@ -188,7 +191,6 @@ irc_init (server_t *server)
   char info[MAX_INFO_LEN];
   char host[MAX_HOST_LEN];
   char realhost[MAX_HOST_LEN];
-  int port;
 
   /* initialize hashes and lists */
   cfg->clients = hash_create (4);
@@ -198,15 +200,12 @@ irc_init (server_t *server)
 
   /* scan the M line */
   irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d", 
-		  host, realhost, info, &port);
-  cfg->host = xmalloc (strlen (host) + 1);
-  strcpy (cfg->host, host);
-  cfg->realhost = xmalloc (strlen (realhost) + 1);
-  strcpy (cfg->realhost, realhost);
-  cfg->info = xmalloc (strlen (info) + 1);
-  strcpy (cfg->info, info);
-  cfg->port = port;
+		  host, realhost, info, &cfg->port);
+  cfg->host = xstrdup (host);
+  cfg->realhost = xstrdup (realhost);
+  cfg->info = xstrdup (info);
 
+  irc_parse_config_lines (cfg);
   irc_connect_servers (cfg);
 
   server_bind (server, cfg->netport);
@@ -224,13 +223,15 @@ irc_finalize (server_t *server)
   int n;
 
   /* free the MOTD */
-  for(n = 0; n < cfg->MOTDs; n++)
+  for (n = 0; n < cfg->MOTDs; n++)
     xfree (cfg->MOTD[n]);
 
   /* free configuration hash variables */
   xfree (cfg->host);
   xfree (cfg->info);
   xfree (cfg->realhost);
+
+  irc_free_config_lines (cfg);
 
   /* free the client history */
   irc_delete_client_history (cfg);
@@ -493,6 +494,14 @@ irc_idle (socket_t sock)
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client = sock->data;
 
+  if (!client->registered)
+    {
+      if (irc_register_client (sock, client, cfg))
+	return -1;
+      sock->idle_counter = 1;
+      return 0;
+    }
+
   /* 
    * Shutdown this connection if the client did not respond
    * within a certain period of time.
@@ -520,45 +529,40 @@ irc_idle (socket_t sock)
  * to react like an IRC server. The actual routines are defined in the
  * irc-event.h and implemented in the irc-event-?.c files.
  */
-struct
+irc_callback_t irc_callback[] =
 {
-  char *request;
-  int (* func)(socket_t, irc_client_t *, irc_request_t *);
-}
-irc_callback[] =
-{
-  { "KILL",     irc_kill_callback     },
-  { "ERROR",    irc_error_callback    },
-  { "WHOWAS",   irc_whowas_callback   },
-  { "ADMIN",    irc_admin_callback    },
-  { "TIME",     irc_time_callback     },
-  { "LUSERS",   irc_lusers_callback   },
-  { "STATS",    irc_stats_callback    },
-  { "PING",     irc_ping_callback     },
-  { "PONG",     irc_pong_callback     },
-  { "VERSION",  irc_version_callback  },
-  { "KICK",     irc_kick_callback     },
-  { "AWAY",     irc_away_callback     },
-  { "WHO",      irc_who_callback      },
-  { "WHOIS",    irc_whois_callback    },
-  { "MOTD",     irc_motd_callback     },
-  { "INVITE",   irc_invite_callback   },
-  { "LIST",     irc_list_callback     },
-  { "NAMES",    irc_names_callback    },
-  { "NOTICE",   irc_note_callback     },
-  { "TOPIC",    irc_topic_callback    },
-  { "MODE",     irc_mode_callback     },
-  { "PRIVMSG",  irc_priv_callback     },
-  { "USERHOST", irc_userhost_callback },
-  { "ISON",     irc_ison_callback     },
-  { "USERS",    irc_users_callback    },
-  { "PART",     irc_part_callback     },
-  { "QUIT",     irc_quit_callback     },
-  { "JOIN",     irc_join_callback     },
-  { "PASS",     irc_pass_callback     },
-  { "USER",     irc_user_callback     },
-  { "NICK",     irc_nick_callback     },
-  { NULL,       NULL                  }
+  { 0, "KILL",     irc_kill_callback     },
+  { 0, "ERROR",    irc_error_callback    },
+  { 0, "WHOWAS",   irc_whowas_callback   },
+  { 0, "ADMIN",    irc_admin_callback    },
+  { 0, "TIME",     irc_time_callback     },
+  { 0, "LUSERS",   irc_lusers_callback   },
+  { 0, "STATS",    irc_stats_callback    },
+  { 0, "PING",     irc_ping_callback     },
+  { 0, "PONG",     irc_pong_callback     },
+  { 0, "VERSION",  irc_version_callback  },
+  { 0, "KICK",     irc_kick_callback     },
+  { 0, "AWAY",     irc_away_callback     },
+  { 0, "WHO",      irc_who_callback      },
+  { 0, "WHOIS",    irc_whois_callback    },
+  { 0, "MOTD",     irc_motd_callback     },
+  { 0, "INVITE",   irc_invite_callback   },
+  { 0, "LIST",     irc_list_callback     },
+  { 0, "NAMES",    irc_names_callback    },
+  { 0, "NOTICE",   irc_note_callback     },
+  { 0, "TOPIC",    irc_topic_callback    },
+  { 0, "MODE",     irc_mode_callback     },
+  { 0, "PRIVMSG",  irc_priv_callback     },
+  { 0, "USERHOST", irc_userhost_callback },
+  { 0, "ISON",     irc_ison_callback     },
+  { 0, "USERS",    irc_users_callback    },
+  { 0, "PART",     irc_part_callback     },
+  { 0, "QUIT",     irc_quit_callback     },
+  { 0, "JOIN",     irc_join_callback     },
+  { 0, "PASS",     irc_pass_callback     },
+  { 0, "USER",     irc_user_callback     },
+  { 0, "NICK",     irc_nick_callback     },
+  { 0, NULL,       NULL                  }
 };
 
 int
@@ -572,8 +576,9 @@ irc_handle_request (socket_t sock, char *request, int len)
 
   for(n = 0; irc_callback[n].request; n++)
     {
-      if (!strcasecmp (irc_callback[n].request, irc_request.request))
+      if (!util_strcasecmp (irc_callback[n].request, irc_request.request))
 	{
+	  irc_callback[n].count++;
 	  return 
 	    irc_callback[n].func (sock, client, &irc_request);
 	}

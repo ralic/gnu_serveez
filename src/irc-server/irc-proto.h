@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.7 2000/07/17 16:15:04 ela Exp $
+ * $Id: irc-proto.h,v 1.8 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -70,6 +70,71 @@ typedef struct irc_client_history irc_client_history_t;
 typedef struct irc_ban irc_ban_t;
 typedef struct irc_channel irc_channel_t;
 typedef struct irc_server irc_server_t;
+typedef struct irc_connection_class irc_class_t;
+typedef struct irc_user_authorization irc_user_t;
+typedef struct irc_oper_authorization irc_oper_t;
+typedef struct irc_kill_user irc_kill_t;
+
+/*
+ * This structure contains all the information for an IRC connection
+ * class which is defined with a Y line.
+ */
+struct irc_connection_class
+{
+  int nr;            /* class number */
+  int ping_freq;     /* ping frequency in seconds */
+  int connect_freq;  /* connect frequency in seconds, zero for clients */
+  int links;         /* maximum number of links */
+  int sendq_size;    /* send queue size */
+  char *line;        /* refering Y line */
+  irc_class_t *next; /* pointer to next connection class */
+};
+
+/*
+ * This structure contains an IRC user authorization defined in
+ * a I line within the configuration.
+ */
+struct irc_user_authorization
+{
+  char *user_ip;    /* username, "NOMATCH" to force user@host */
+  char *ip;         /* IP address mask */
+  char *user_host;  /* username mask */
+  char *host;       /* host name mask */
+  char *password;   /* optional password */
+  int class;        /* connection class number */
+  char *line;       /* refering I line */
+  irc_user_t *next; /* pointer to next user authorization */
+};
+
+/*
+ * The following structure defines an IRC operator authorization line
+ * as given in a O or o line.
+ */
+struct irc_oper_authorization
+{
+  int local;        /* is the operator local or network wide ? */
+  char *nick;       /* nick name */
+  char *user;       /* user name, only matched if '@' is given */
+  char *host;       /* host name mask */
+  char *password;   /* password */
+  int class;        /* connection class */
+  char *line;       /* refering O or o line */
+  irc_oper_t *next; /* pointer to next structure in list */
+};
+
+/*
+ * This is a structure containing the information about banned users
+ * which can be defined in a K line.
+ */
+struct irc_kill_user
+{
+  char *user;       /* user name mask */
+  char *host;       /* host name mask */
+  int start;        /* start time, defining a time span */
+  int end;          /* end time */
+  char *line;       /* refering K line */
+  irc_kill_t *next; /* next structure */
+};
 
 /*
  * Client structure.
@@ -92,6 +157,7 @@ struct irc_client
   int hopcount;                /* the client's hopcount (server distance) */
   time_t since;                /* signon time */
   int ping;                    /* ping <-> pong counter */
+  int registered;              /* is client fully registered ? */
 };
 
 /*
@@ -153,6 +219,7 @@ struct irc_server
   char *host;                     /* server name (virtual host) */
   char *pass;                     /* password */
   int id;                         /* socket id */
+  int connected;                  /* is that server really connected ? */
   void *cfg;                      /* irc server configuration hash */
   void *next;                     /* next server in the list */
 };
@@ -281,15 +348,30 @@ typedef struct
   char *admininfo;                /* administrative info */
   char *location1;                /* city, state, country */
   char *location2;                /* university, department */
-  char *oper_host[MAX_OPERS];     /* accept operator hosts from */
-  char *oper_pass[MAX_OPERS];     /* accept operator passwords (use crypt) */
 
-  hash_t *channels; /* channel list root */
-  hash_t *clients;  /* client list root */
-  irc_server_t *servers;  /* server list root */
-  irc_client_history_t *history; /* client history list root */
+  hash_t *channels;               /* channel hash */
+  hash_t *clients;                /* client hash */
+  irc_server_t *servers;          /* server list root */
+  irc_client_history_t *history;  /* client history list root */
+  irc_class_t *classes;           /* connection classes list */
+  irc_user_t *user_auth;          /* user authorizations */
+  irc_oper_t *operator_auth;      /* operator autorizations */
+  irc_kill_t *banned;             /* banned users */
 }
 irc_config_t;
+
+/*
+ * This structure contains all an IRC command needs to exist.
+ */
+typedef struct
+{
+  int count;     /* the command has been count times processed */
+  char *request; /* name of the command */
+  int (* func)(socket_t, irc_client_t *, irc_request_t *);
+}
+irc_callback_t;
+
+extern irc_callback_t irc_callback[];
 
 /* Export the irc server definition to `server.c'. */
 extern server_definition_t irc_server_definition;
@@ -369,7 +451,12 @@ int irc_global_finalize (void);
 #define UMODE_IDENT     0x0100 /* identification flag */
 #define UMODE_DNS       0x0200 /* nslookup flag */
 
-#define UMODE_REGISTERED (UMODE_NICK | UMODE_USER | UMODE_PASS)
+#define UMODE_REGISTERED \
+  (UMODE_NICK  | \
+   UMODE_USER  | \
+   UMODE_PASS  | \
+   UMODE_IDENT | \
+   UMODE_DNS)
 
 /* Error Replies. */
 #define ERR_NOSUCHNICK            401
@@ -585,9 +672,13 @@ int irc_global_finalize (void);
 #define RPL_TIME_TEXT             "%s :%s"
 
 #define RPL_USERSSTART            392
+#define RPL_USERSSTART_TEXT       ":Nick      UserID    Host"
 #define RPL_USERS                 393
+#define RPL_USERS_TEXT            ":%-9s %-9s %-8s"
 #define RPL_ENDOFUSERS            394
+#define RPL_ENDOFUSERS_TEXT       ":End of users"
 #define RPL_NOUSERS               395
+#define RPL_NOUSERS_TEXT          ":Nobody logged in"
 
 #define RPL_TRACELINK             200
 #define RPL_TRACECONNECTING       201
@@ -601,16 +692,23 @@ int irc_global_finalize (void);
 
 #define RPL_STATSLINKINFO         211
 #define RPL_STATSCOMMANDS         212
+#define RPL_STATSCOMMANDS_TEXT    "%s %d"
 #define RPL_STATSCLINE            213
+#define RPL_STATSCLINE_TEXT       "C %s * %s %d %d"
 #define RPL_STATSNLINE            214
+#define RPL_STATSNLINE_TEXT       "N %s * %s %d %d"
 #define RPL_STATSILINE            215
+#define RPL_STATSILINE_TEXT       "I %s * %s %d %d"
 #define RPL_STATSKLINE            216
+#define RPL_STATSKLINE_TEXT       "K %s * % %d %d"
 #define RPL_STATSYLINE            218
+#define RPL_STATSYLINE_TEXT       "Y %d %d %d %d"
 
 #define RPL_ENDOFSTATS            219
 #define RPL_ENDOFSTATS_TEXT       "%c :End of /STATS report"
 
 #define RPL_STATSLLINE            241
+#define RPL_STATSLLINE_TEXT       "L %s * %s %d"
 
 #define RPL_STATSUPTIME           242
 #define RPL_STATSUPTIME_TEXT      ":Server Up %d days %d:%02d:%02d"

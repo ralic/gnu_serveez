@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.17 2000/07/15 11:44:17 ela Exp $
+ * $Id: http-proto.c,v 1.18 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -52,6 +52,7 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+# include <io.h>
 #endif
 
 #ifndef __MINGW32__
@@ -911,7 +912,7 @@ http_find_property (http_socket_t *http, char *key)
   n = 0;
   while (http->property[n])
     {
-      if (!strcasecmp (http->property[n], key))
+      if (!util_strcasecmp (http->property[n], key))
 	{
 	  return http->property[n+1];
 	}

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.10 2000/07/15 11:44:17 ela Exp $
+ * $Id: util.h,v 1.11 2000/07/19 14:12:33 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #endif
 
 #include <stdio.h>
+#include <sys/stat.h>
 
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
@@ -84,9 +85,11 @@ void log_printf (int level, const char *format, ...);
 
 void set_log_file (FILE *file);
 int dump_request (FILE *out, char * action, int from, char * req, int len);
-char *util_inet_ntoa(unsigned long ip);
+char *util_inet_ntoa (unsigned long ip);
 char *util_itoa (unsigned int);
 unsigned int util_atoi (char *);
+int util_strcasecmp (const char *str1, const char *str2);
+int util_strncasecmp (const char *str1, const char *str2, size_t n);
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) (*p + (*(p+1)<<8) + (*(p+2)<<16) + (*(p+3)<<24))
@@ -213,6 +216,17 @@ const char * util_hstrerror (void);
 #define H_NET_ERROR GetErrorMessage(WSAGetLastError())
 #define getcwd(buf, size) (GetCurrentDirectory (size, buf) ? buf : NULL)
 #define chdir(path) (SetCurrentDirectory (path) ? 0 : -1)
+
+/* 
+ * This little modification is necessary for the native Win32 compiler.
+ * We do have these macros defined in the MinGW32 and Cygwin headers
+ * but not within the native Win32 headers.
+ */
+#ifndef S_ISDIR
+#define S_ISDIR(Mode) ((Mode) & S_IFDIR)
+#define S_ISCHR(Mode) ((Mode) & S_IFCHR)
+#define S_ISREG(Mode) ((Mode) & S_IFREG)
+#endif /* not S_ISDIR */
 
 #else /* Unices here. */
 

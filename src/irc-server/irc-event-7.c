@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.6 2000/07/17 16:15:04 ela Exp $
+ * $Id: irc-event-7.c,v 1.7 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -162,18 +162,54 @@ irc_users_callback (socket_t sock,
 		    irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
+  irc_client_t **cl;
+  int n;
 
-  if (!cfg->users_disabled)
+  /* Return a messages saying this feature has been disabled. */
+  if (cfg->users_disabled)
     {
       irc_printf (sock, ":%s %03d %s " ERR_USERSDISABLED_TEXT "\n",
 		  cfg->host, ERR_USERSDISABLED, client->nick);
       return 0;
     }
 
+  /* 
+   * If no parameter is given then return the local users 
+   * list of this server.
+   */
+  if (request->paras < 1)
+    {
+      if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
+	{
+	  irc_printf (sock, ":%s %03d %s " RPL_USERSSTART_TEXT "\n",
+		      cfg->host, RPL_USERSSTART, client->nick);
+	  for (n = 0; n < hash_size (cfg->clients); n++)
+	    {
+	      irc_printf (sock, ":%s %03d %s " RPL_USERS_TEXT "\n",
+			  cfg->host, RPL_USERS, client->nick,
+			  cl[n]->nick, cl[n]->user, cl[n]->host);
+	    }
+	  irc_printf (sock, ":%s %03d %s " RPL_ENDOFUSERS_TEXT "\n",
+		      cfg->host, RPL_ENDOFUSERS, client->nick);
+	  xfree (cl);
+	}
+      else
+	{
+	  irc_printf (sock, "%s %03d %s " RPL_NOUSERS_TEXT "\n",
+		      cfg->host, RPL_NOUSERS, client->nick);
+	}
+      
+    }
+  /* Return the list of remote servers if possible. */
+  else
+    {
+      irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
+		  cfg->host, ERR_NOSUCHSERVER, client->nick,
+		  request->para[0]);
+    }
+
   return 0;
 }
-
-
 
 #else /* not ENABLE_IRC_PROTO */
 

@@ -1,3 +1,28 @@
+2000-07-19  [ Ela ]  <ela@lkcc.org>
+
+	* irc-server/irc-config.c (irc_parse_config_lines): Added this
+	file. This routine is taking all the X-lines and converts them
+	into useful structures.
+	(irc_client_valid): Started to implement something like a
+	user authorization.
+
+	* irc-server/irc-event-3.c (irc_stats_callback): One more
+	/STATS command ('m') has now been implemented.
+
+	* irc-server/irc-event-7.c (irc_users_callback): /USERS
+	command fully implemented.
+
+	* util.h (S_ISDIR): Definition of those S_-macros if
+	necessary in the Win32 port.
+
+	* http-server/http-cache.c: Everywhere we are using file
+	I/O operations we #include <io.h> when building via 
+	__MINGW32__.
+
+	* util.c (util_strcasecmp): Added both `util_strcasecmp' and
+	`util_strncasecmp'. We are using either the libc version,
+	Win32's str(n)icmp() implementation or a fallback.
+
 2000-07-15  [ Ela ]  <ela@lkcc.org>
 
 	* option.h: Declaring `optarg' if necessary.

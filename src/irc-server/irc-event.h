@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event.h,v 1.4 2000/07/17 16:15:04 ela Exp $
+ * $Id: irc-event.h,v 1.5 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -83,7 +83,7 @@
  *    5.2 Rehash command               * No   *
  *    5.3 Restart command              * No   *
  *    5.4 Summon message               * No   *
- *    5.5 Users message                * No   *
+ *    5.5 Users message                * Yes  *
  *    5.6 Operwall command             * No   *
  *    5.7 Userhost message             * Yes  * Ok
  *    5.8 Ison message                 * Yes  * Ok
@@ -99,6 +99,7 @@
 /* Miscellaneous functions */
 char *irc_client_flag_string (irc_client_t *client);
 char *irc_channel_flag_string (irc_channel_t *channel);
+int irc_register_client (socket_t, irc_client_t *, irc_config_t *);
 
 #define CALLBACK_ARGS socket_t, irc_client_t *, irc_request_t *
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.11 2000/07/15 11:44:17 ela Exp $
+ * $Id: util.c,v 1.12 2000/07/19 14:12:33 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
 #include <errno.h>
 
@@ -149,6 +150,65 @@ util_hstrerror (void)
   return strerror (errno);
 # endif
 #endif /* not HAVE_HSTRERROR */
+}
+
+/*
+ * These are the system dependent case insensitive string compares.
+ */
+int
+util_strcasecmp (const char *str1, const char *str2)
+{
+#if defined HAVE_STRCASECMP
+  return strcasecmp (str1, str2);
+#elif defined HAVE_STRICMP
+  return stricmp (str1, str2);
+#else
+  char *p1 = str1;
+  char *p2 = str2;
+  unsigned char c1, c2;
+
+  if (p1 == p2) return 0;
+
+  do
+    {
+      c1 = isupper (*p1) ? tolower (*p1) : *p1;
+      c2 = isupper (*p2) ? tolower (*p2) : *p2;
+      if (c1 == '\0') break;
+      ++p1;
+      ++p2;
+    }
+  while (c1 == c2);
+
+  return c1 - c2;
+#endif
+}
+
+int
+util_strncasecmp (const char *str1, const char *str2, size_t n)
+{
+#if defined HAVE_STRNCASECMP
+  return strncasecmp (str1, str2, n);
+#elif defined HAVE_STRNICMP
+  return strnicmp (str1, str2, n);
+#else
+  char *p1 = str1;
+  char *p2 = str2;
+  unsigned char c1, c2;
+
+  if (p1 == p2) return 0;
+
+  do
+    {
+      c1 = isupper (*p1) ? tolower (*p1) : *p1;
+      c2 = isupper (*p2) ? tolower (*p2) : *p2;
+      if (c1 == '\0') break;
+      ++p1;
+      ++p2;
+    }
+  while (c1 == c2 && --n > 0);
+
+  return c1 - c2;
+#endif
 }
 
 #ifdef __MINGW32__

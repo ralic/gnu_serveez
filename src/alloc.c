@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.5 2000/06/30 15:05:39 ela Exp $
+ * $Id: alloc.c,v 1.6 2000/07/19 14:12:33 ela Exp $
  *
  */
 
@@ -160,6 +160,20 @@ xfree (void * ptr)
     }
 }
 
+char *
+xstrdup (char *src)
+{
+  char *dst;
+
+  if (src == NULL || strlen (src) == 0)
+    return NULL;
+
+  dst = xmalloc (strlen (src) + 1);
+  memcpy (dst, src, strlen (src) + 1);
+
+  return dst;
+}
+
 /*
  * Permanent memory allocators.
  */
@@ -190,8 +204,10 @@ xprealloc (void * ptr, unsigned size)
 char *
 xpstrdup (char *src)
 {
-  char *dst = xpmalloc (strlen (src) + 1);
+  char *dst;
 
+  assert (src);
+  dst = xpmalloc (strlen (src) + 1);
   memcpy (dst, src, strlen (src) + 1);
 
   return dst;

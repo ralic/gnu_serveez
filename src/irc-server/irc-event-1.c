@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.7 2000/07/17 16:15:04 ela Exp $
+ * $Id: irc-event-1.c,v 1.8 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 #include "irc-proto.h"
 #include "irc-crypt.h"
 #include "irc-event.h"
+#include "irc-config.h"
 
 /*
  *    Command: QUIT
@@ -135,6 +136,24 @@ irc_send_init_block (socket_t sock,
 
   /* send the "Message of the Day" */
   irc_motd_callback (sock, client, NULL);
+}
+
+/*
+ * If a client has been fully registered and identified it gets
+ * validated by the config lines.
+ */
+int
+irc_register_client (socket_t sock, irc_client_t *client, irc_config_t *cfg)
+{
+  if ((client->flag & UMODE_REGISTERED) == UMODE_REGISTERED)
+    {
+      if (!irc_client_valid (client, cfg))
+	return -1;
+      irc_add_client (cfg, client);
+      irc_send_init_block (sock, client);
+      client->registered = 1;
+    }
+  return 0;
 }
 
 /*
@@ -232,15 +251,12 @@ irc_nick_callback (socket_t sock,
 	    }
 	}
       strcpy (client->nick, nick);
+      return 0;
     }
+
   /* this is the first nick you specified ! send init block */
-  else
-    {
-      strcpy (client->nick, nick);
-      irc_add_client (cfg, client);
-      irc_send_init_block (sock, client);
-      client->flag |= UMODE_NICK;
-    }
+  strcpy (client->nick, nick);
+  client->flag |= UMODE_NICK;
 
   return 0;
 }
@@ -262,7 +278,7 @@ irc_user_callback (socket_t sock,
     return 0;
   
   /* is this client already fully registered ? */
-  if ((client->flag & UMODE_REGISTERED) == UMODE_REGISTERED)
+  if (client->flag & UMODE_USER)
     {
       irc_printf (sock, ":%s %03d %s " ERR_ALREADYREGISTRED_TEXT "\n", 
 		  cfg->host, ERR_ALREADYREGISTRED, client->nick);

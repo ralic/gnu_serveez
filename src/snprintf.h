@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.5 2000/07/15 11:44:17 ela Exp $
+ * $Id: snprintf.h,v 1.6 2000/07/19 14:12:33 ela Exp $
  *
  */
 
@@ -46,8 +46,12 @@
  * B20.1 release of CygWin, but in the latest. Soo we define them here
  * ourselves.
  */
+#ifndef HAVE__SNPRINTF
 int _snprintf (char *, size_t, const char *, ...);
+#endif
+#ifndef HAVE__VSNPRINTF
 int _vsnprintf (char *, size_t, const char *, va_list);
+#endif
 # define vsnprintf _vsnprintf
 # define snprintf _snprintf
 #endif

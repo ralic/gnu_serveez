@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.8 2000/07/14 00:42:06 ela Exp $
+ * $Id: http-cache.c,v 1.9 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -38,6 +38,7 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+# include <io.h>
 #endif
 
 #ifndef __MINGW32__
@@ -140,7 +141,6 @@ http_urgent_cache (http_cache_entry_t *cache)
 int
 http_check_cache (char *file, http_cache_t *cache)
 {
-  int n;
   http_cache_entry_t *cachefile;
 
   if ((cachefile = hash_get (http_cache, file)) != NULL)

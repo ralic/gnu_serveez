@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.6 2000/07/07 16:26:21 ela Exp $
+ * $Id: irc-server.c,v 1.7 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -161,6 +161,7 @@ irc_connect_server (irc_server_t *server, char *ip)
   log_printf (LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
   sock->data = server;
   server->id = sock->socket_id;
+  server->connected = 1;
   sock->userflags |= IRC_FLAG_SERVER;
   sock->check_request = irc_check_request;
 
@@ -260,7 +261,7 @@ irc_connect_servers (irc_config_t *cfg)
   char realhost[MAX_HOST_LEN];
   char pass[MAX_PASS_LEN];
   char host[MAX_NAME_LEN];
-  int port;
+  unsigned short port;
   int class;
   irc_server_t *ircserver;
   char *cline;
@@ -289,6 +290,7 @@ irc_connect_servers (irc_config_t *cfg)
       strcpy (ircserver->pass, pass);
       ircserver->cfg = cfg;
       ircserver->next = NULL;
+      ircserver->connected = 0;
 
       /* add this server to the server list */
       log_printf (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
@@ -338,6 +340,24 @@ irc_delete_servers (irc_config_t *cfg)
     {
       irc_del_server (cfg, cfg->servers);
     }
+}
+
+/*
+ * Count the amount of currently connected IRC servers.
+ */
+int
+irc_count_servers (irc_config_t *cfg)
+{
+  irc_server_t *server;
+  int n = 0;
+  
+  for (server = cfg->servers; server; server = server->next)
+    {
+      if (server->connected)
+	n++;
+    }
+
+  return n;
 }
 
 /*

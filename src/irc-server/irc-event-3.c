@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.4 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-event-3.c,v 1.5 2000/07/19 14:12:34 ela Exp $
  *
  */
 
@@ -43,6 +43,7 @@
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
+#include "irc-server.h"
 
 /* 
  *         Command: ADMIN
@@ -138,7 +139,8 @@ irc_lusers_callback (socket_t sock,
   /* send LUSER* replies */
   irc_printf (sock, ":%s %03d %s " RPL_LUSERCLIENT_TEXT "\n",
 	      cfg->host, RPL_LUSERCLIENT, client->nick,
-	      cfg->users, cfg->invisibles, cfg->servers);
+	      cfg->users, cfg->invisibles, 
+	      irc_count_servers (cfg));
 
   irc_printf (sock, ":%s %03d %s " RPL_LUSEROP_TEXT "\n",
 	      cfg->host, RPL_LUSEROP, client->nick,
@@ -156,7 +158,7 @@ irc_lusers_callback (socket_t sock,
 
   irc_printf (sock, ":%s %03d %s " RPL_LUSERME_TEXT "\n",
 	      cfg->host, RPL_LUSERME, client->nick,
-	      hash_size (cfg->clients), cfg->servers);
+	      hash_size (cfg->clients), irc_count_servers (cfg));
   
   return 0;
 }
@@ -180,6 +182,7 @@ irc_stats_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
   char stat;
   time_t t, sec, hour, min, day;
+  int n;
 
   /* no paras given */
   if (!request->paras)
@@ -242,6 +245,15 @@ irc_stats_callback (socket_t sock,
        *     the usage count for each if the usage count is non zero
        */
     case 'm':
+      for (n = 0; irc_callback[n].func; n++)
+	{
+	  if (irc_callback[n].count)
+	    {
+	      irc_printf (sock, ":%s %03d %s " RPL_STATSCOMMANDS_TEXT "\n",
+			  cfg->host, RPL_STATSCOMMANDS, client->nick,
+			  irc_callback[n].request, irc_callback[n].count);
+	    }
+	}
       break;
       /*
        * o - returns a list of hosts from which normal clients may

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.16 2000/07/15 11:44:16 ela Exp $
+ * $Id: server-socket.c,v 1.17 2000/07/19 14:12:33 ela Exp $
  *
  */
 
@@ -373,7 +373,9 @@ server_accept_socket (socket_t server_sock)
 int
 server_accept_pipe (socket_t server_sock)
 {
+#ifndef __MINGW32__
   struct stat buf;
+#endif
   HANDLE recv_pipe, send_pipe;
   socket_t sock;
 
