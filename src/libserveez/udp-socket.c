@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.16 2001/11/21 21:37:42 ela Exp $
+ * $Id: udp-socket.c,v 1.17 2001/11/29 23:41:43 raimi Exp $
  *
  */
 
@@ -55,6 +55,7 @@
 #include "libserveez/core.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
+#include "libserveez/portcfg.h"
 #include "libserveez/udp-socket.h"
 
 /*
@@ -134,6 +135,23 @@ svz_udp_read_socket (svz_socket_t *sock)
 	return -1;
     }
   return 0;
+}
+
+/*
+ * This routine is the default reader for UDP server sockets. It allocates
+ * necessary buffers (that's why it's called lazy) and reverts to the default
+ * @code{svz_udp_read_socket()}.
+ */
+int
+svz_udp_lazy_read_socket (svz_socket_t *sock)
+{
+  svz_portcfg_t *port = sock->port;
+
+  svz_sock_resize_buffers (sock, port->send_buffer_size,
+			   port->recv_buffer_size);
+  sock->read_socket = svz_udp_read_socket;
+
+  return sock->read_socket (sock);
 }
 
 /*

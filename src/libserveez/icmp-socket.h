@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.6 2001/08/01 10:16:22 ela Exp $
+ * $Id: icmp-socket.h,v 1.7 2001/11/29 23:41:43 raimi Exp $
  *
  */
 
@@ -81,6 +81,7 @@ SERVEEZ_API void svz_icmp_cleanup __P ((void));
 
 /* Exported ICMP socket functions. */
 SERVEEZ_API int svz_icmp_read_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_icmp_lazy_read_socket __P ((svz_socket_t *));
 SERVEEZ_API int svz_icmp_write_socket __P ((svz_socket_t *));
 SERVEEZ_API int svz_icmp_check_request __P ((svz_socket_t *));
 SERVEEZ_API svz_socket_t *svz_icmp_connect __P ((unsigned long,

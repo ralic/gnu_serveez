@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.20 2001/10/31 22:51:10 ela Exp $
+ * $Id: server-socket.c,v 1.21 2001/11/29 23:41:43 raimi Exp $
  *
  */
 
@@ -170,12 +170,7 @@ svz_server_create (svz_portcfg_t *port)
    */
   if (port->proto & (PROTO_TCP | PROTO_PIPE))
     {
-      svz_free (sock->recv_buffer);
-      svz_free (sock->send_buffer);
-      sock->recv_buffer_size = 0;
-      sock->send_buffer_size = 0;
-      sock->recv_buffer = NULL;
-      sock->send_buffer = NULL;
+      svz_sock_resize_buffers (sock, 0, 0);
       sock->check_request = svz_sock_detect_proto; 
     }
 
@@ -205,18 +200,16 @@ svz_server_create (svz_portcfg_t *port)
 	}
       else if (port->proto & PROTO_UDP)
 	{
-	  svz_sock_resize_buffers (sock, port->send_buffer_size,
-				   port->recv_buffer_size);
-	  sock->read_socket = svz_udp_read_socket;
+	  svz_sock_resize_buffers (sock, 0, 0);
+	  sock->read_socket = svz_udp_lazy_read_socket;
 	  sock->write_socket = svz_udp_write_socket;
 	  sock->check_request = svz_udp_check_request;
 	  proto = "udp";
 	}
       else if (port->proto & PROTO_ICMP)
 	{
-	  svz_sock_resize_buffers (sock, port->send_buffer_size,
-				   port->recv_buffer_size);
-	  sock->read_socket = svz_icmp_read_socket;
+	  svz_sock_resize_buffers (sock, 0, 0);
+	  sock->read_socket = svz_icmp_lazy_read_socket;
 	  sock->write_socket = svz_icmp_write_socket;
 	  sock->check_request = svz_icmp_check_request;
 	  sock->itype = port->icmp_type;

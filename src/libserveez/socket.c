@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.19 2001/11/27 14:21:33 ela Exp $
+ * $Id: socket.c,v 1.20 2001/11/29 23:41:43 raimi Exp $
  *
  */
 
@@ -390,7 +390,8 @@ svz_sock_alloc (void)
  * Resize the send and receive buffers for the socket @var{sock}. 
  * @var{send_buf_size} is the new size for the send buffer, 
  * @var{recv_buf_size} for the receive buffer. Note that data may be lost 
- * when the buffers shrink.
+ * when the buffers shrink. For a new buffer size of 0 the buffer is
+ * freed and the pointer set to NULL.
  */
 int 
 svz_sock_resize_buffers (svz_socket_t *sock, 
@@ -398,11 +399,22 @@ svz_sock_resize_buffers (svz_socket_t *sock,
 {
   char *send, *recv;
 
-  if (sock->send_buffer_size != send_buf_size)
+  if (send_buf_size == 0)
+    {
+      svz_free (sock->send_buffer);
+      send = NULL;
+    }
+  else if (sock->send_buffer_size != send_buf_size)
     send = svz_realloc (sock->send_buffer, send_buf_size);
   else
     send = sock->send_buffer;
-  if (sock->recv_buffer_size != recv_buf_size)
+
+  if (recv_buf_size == 0)
+    {
+      svz_free (sock->recv_buffer);
+      recv = NULL;
+    }
+  else if (sock->recv_buffer_size != recv_buf_size)
     recv = svz_realloc (sock->recv_buffer, recv_buf_size);
   else
     recv = sock->recv_buffer;

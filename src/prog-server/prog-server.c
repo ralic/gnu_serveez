@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.7 2001/11/27 14:21:33 ela Exp $
+ * $Id: prog-server.c,v 1.8 2001/11/29 23:41:43 raimi Exp $
  *
  */
 
@@ -161,7 +161,11 @@ prog_passthrough (svz_socket_t *sock)
   argv = (char **) svz_array_values (cfg->argv);
   if ((pid = svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
 			       cfg->fork ? SVZ_PROCESS_FORK :
+#if HAVE_SOCKETPAIR
 			       SVZ_PROCESS_SHUFFLE_SOCK,
+#else
+			       SVZ_PROCESS_SHUFFLE_PIPE,
+#endif
 			       cfg->user ? cfg->user :	SVZ_PROCESS_NONE)) < 0)
     {
       svz_log (LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);

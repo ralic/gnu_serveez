@@ -428,6 +428,7 @@ service. Packets may be reordered or duplicated before they arrive. UDP
 generates and checks checksums to catch transmission errors.
 
 SVZ_UDP_READ_SOCKET_DEFUN
+SVZ_UDP_LAZY_READ_SOCKET_DEFUN
 SVZ_UDP_WRITE_SOCKET_DEFUN
 SVZ_UDP_CHECK_REQUEST_DEFUN
 SVZ_UDP_CONNECT_DEFUN
@@ -448,6 +449,7 @@ always processed by the kernel too, even when passed to a user socket.
 SVZ_ICMP_STARTUP_DEFUN
 SVZ_ICMP_CLEANUP_DEFUN
 SVZ_ICMP_READ_SOCKET_DEFUN
+SVZ_ICMP_LAZY_READ_SOCKET_DEFUN
 SVZ_ICMP_WRITE_SOCKET_DEFUN
 SVZ_ICMP_CHECK_REQUEST_DEFUN
 SVZ_ICMP_CONNECT_DEFUN

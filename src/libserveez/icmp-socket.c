@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.18 2001/10/31 22:51:10 ela Exp $
+ * $Id: icmp-socket.c,v 1.19 2001/11/29 23:41:43 raimi Exp $
  *
  */
 
@@ -486,6 +486,22 @@ svz_icmp_read_socket (svz_socket_t *sock)
 	return -1;
     }
   return 0;
+}
+
+/*
+ * Default reader for ICMP server sockets. Allocates necessary buffers and
+ * reverts to @code{svz_icmp_read_socket()}.
+ */
+int
+svz_icmp_lazy_read_socket (svz_socket_t *sock)
+{
+  svz_portcfg_t *port = sock->port;
+
+  svz_sock_resize_buffers (sock, port->send_buffer_size,
+			   port->recv_buffer_size);
+  sock->read_socket = svz_icmp_read_socket;
+
+  return sock->read_socket (sock);
 }
 
 /*

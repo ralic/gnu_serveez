@@ -179,6 +179,6 @@ or `--enable-<?>=no'.
 	using Guile.
 `--enable-passthrough'
 	This includes the program passthrough server in the Serveez 
-	binary.  The server provides basic inetd daemon functionality.
+	binary.  The server provides basic inetd functionality.
 
 Please also read the README file.

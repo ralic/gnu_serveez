@@ -206,7 +206,7 @@ If you enable this feature the user is able to write servers
 using Guile.
 @item --enable-passthrough
 This includes the program passthrough server in the Serveez 
-binary.  The server provides basic inetd daemon functionality.
+binary.  The server provides basic inetd functionality.
 @end table
 
 @example
@@ -1997,7 +1997,7 @@ Use your favourite nickname here.
 @subsection Passthrough Server
 
 @subsubsection General description
-The program passthrough server provides basic inetd daemon functionality.
+The program passthrough server provides basic inetd functionality.
 Basically it can accept connections and pass this connection to the standard
 input (stdin) and standard output (stdout) handles of programs.  Depending
 on the platform (operating system) the user is able to configure different
@@ -2005,15 +2005,15 @@ methods how this can be achieved.
 
 @subsubsection Configuration
 This server has different types of configuration options specifying its
-behaviour.  Some of them are mandatory and some are optional.  At least you
-need to configure the program which should be started if a new connection
-is triggered.
+behaviour.  Some of them are mandatory and some are optional.  The very
+least to configure is the program to be started when a new connection is
+made.
 
 @table @code
 @item binary (string, no default)
 This parameter specifies the program to execute when a new connection
 has been accepted.  The parameter is mandatory and must be a fully qualified
-file name (including path if necessary).
+file name (including path).
 
 @item directory (string, no default)
 This will be the working directory of the executed program.  If you omit 
@@ -2021,7 +2021,7 @@ this parameter the server uses the current directory (the directory is not
 changed).
 
 @item user (string, no default)
-If the user omits this parameter no user or group will be set for the 
+If you omit this parameter no user or group will be set for the 
 started program.  Otherwise you need to specify this information in the
 format @samp{user[.group]}.  If the group is omitted the user's primary
 group will be used.
@@ -2029,14 +2029,14 @@ group will be used.
 @item argv (string array, no default)
 This list of character strings is going to be the program's argument list
 (command line).  If the first list item (which is argv[0] and the program's
-name) is left blank it defaults to the program's name specified in the
+name) is left blank it defaults to the name specified in the
 @code{binary} parameter.
 
 @item do-fork (boolean, default: true)
-This flag specifies the method how the connection is passed to the program.
+This flag specifies the method used to pass the connection to the program.
 If it is true the server uses the Unix'ish @code{fork()} and @code{exec()}
-method.  Otherwise it will pass the connection transactions through a 
-unnamed pair of sockets [ or two pairs of anonymous pipes ].
+method.  Otherwise it will pass the data through a unnamed pair of
+sockets [ or two pairs of anonymous pipes ].
 
 @item single-threaded (boolean, default: true)
 This parameter applies to servers bound to UDP and ICMP port configurations
@@ -2055,7 +2055,7 @@ of 60 seconds.
 @subsection Mandel Server
 
 @html
-<pre>[ Example Mandelbrot server picture. ]</pre>
+<pre>[ Example Mandelbrot picture. ]</pre>
 <img src="mandel.jpg" border="0" width="320" height="240" 
      alt="Mandelbrot Set">
 @end html
@@ -2100,7 +2100,7 @@ iteration depth.
 
 @item outfile (string, default: mandel.xpm)
 When the Mandel server has managed to calculate the whole bitmap it produces
-an output file in the XPM format.  Here the user can specify the location of
+an output file in the XPM format.  You can specify the name and location of
 this output file.
 
 @item viewer (string, default: xv)
