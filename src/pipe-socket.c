@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.5 2000/06/28 18:45:51 ela Exp $
+ * $Id: pipe-socket.c,v 1.6 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -30,7 +30,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <fcntl.h>
 
 #ifdef __MINGW32__

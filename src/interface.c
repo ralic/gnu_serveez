@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.7 2000/07/09 20:03:06 ela Exp $
+ * $Id: interface.c,v 1.8 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -39,7 +39,9 @@
 # include <sys/socket.h>
 # include <sys/ioctl.h>
 # include <net/if.h>
-# include <unistd.h>
+# if HAVE_UNISTD_H
+#  include <unistd.h>
+# endif
 
 # include <netinet/in.h>
 # include <arpa/inet.h>

@@ -135,6 +135,11 @@ if test x$GCC = xyes ; then
     AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
 	AC_MSG_RESULT([yes]), 
 	AC_MSG_RESULT([no]))
+    CFLAGS="-Wno-long-long"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
+	AC_MSG_RESULT([yes]), 
+	AC_MSG_RESULT([no]))
 
 dnl
 dnl Test this compiler flag under Linux only.
@@ -775,7 +780,7 @@ AC_TRY_CPP([#include <strings.h>],
 )
 
 AC_CHECK_FUNCS(strchr memcpy)
-AC_CHECK_HEADERS(stdio.h)
+AC_CHECK_HEADERS(stdio.h unistd.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.5 2000/07/09 20:03:06 ela Exp $
+ * $Id: connect.c,v 1.6 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -30,7 +30,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>

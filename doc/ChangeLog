@@ -1,3 +1,10 @@
+2000-07-13  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi: Added GPL to license section.
+
+	* Makefile.am: Using `texi2html' we can now produce a HTML
+ 	documentation on the fly (added to all-local).
+
 2000-07-09  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am: Added info_TEXINFOS for creating info and dvi

@@ -14,9 +14,17 @@
 @author Raimund Jacob
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2000 Stefan Jahn @email{stefan@@lkcc.org}
-Copyright @copyright{} 2000 Raimund Jacob @email{raimi@@lkcc.org}
-Copyright @copyright{} 1999 Martin Grabmueller @email{mgrabmue@@cs.tu-berlin.de}
+
+Copyright @copyright{} 2000 Stefan Jahn @email{stefan@@lkcc.org}@*
+Copyright @copyright{} 2000 Raimund Jacob @email{raimi@@lkcc.org}@*
+Copyright @copyright{} 1999 Martin Grabmueller @email{mgrabmue@@cs.tu-berlin.de}@*
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1
+or any later version published by the Free Software Foundation.
+A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+
 @end titlepage
 
 @node Top, (dir), (dir), (dir)
@@ -428,7 +436,7 @@ separated lists, no spaces are allowed.
 @example
 Example:
 
-0 Hallo Welt\0  
+0 Hallo Welt\0
   - Send "Hallo Welt\0" to all clients except the master server.
 
 1 0001,0004,0006 Gruezi!\0
@@ -447,7 +455,7 @@ Example:
   - Turn on flood protection for clients 1 and 5.
 
 6 \0
-  - Initialize data structures and accept the connection as the 
+  - Initialize data structures and accept the connection as the
     master server.
 
 @end example
@@ -604,6 +612,9 @@ is a has associating file suffixes with HTTP content types.
 
 @node Foo Server, , Control Protocol Server, Existing Servers
 @subsection Foo Server
+
+The Foo Server is a simple example on how to write internet protocol
+servers with Serveez. @xref{Writing Servers}.
 
 @node Co-Server, Porting issues, Server, Top
 @chapter Co-Server

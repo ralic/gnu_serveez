@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.5 2000/06/30 15:05:39 ela Exp $
+ * $Id: http-dirlist.c,v 1.6 2000/07/14 00:42:07 ela Exp $
  *
  */
 
@@ -36,7 +36,9 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <dirent.h>
 #include <errno.h>
 

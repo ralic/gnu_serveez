@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.5 2000/06/19 22:56:14 ela Exp $
+ * $Id: http-cgi.c,v 1.6 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -37,7 +37,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #if HAVE_STRINGS_H
 # include <strings.h>

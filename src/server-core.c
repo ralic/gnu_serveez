@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.10 2000/07/07 16:26:20 ela Exp $
+ * $Id: server-core.c,v 1.11 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -32,7 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -496,9 +498,9 @@ check_bogus_sockets (void)
 
   for (sock = socket_root; sock; sock = sock->next)
     {
-#ifdef __MINGW32__
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
+#ifdef __MINGW32__
 	  if (ioctlsocket (sock->sock_desc, FIONREAD, &readBytes) == 
 	      SOCKET_ERROR)
 	    {
@@ -508,6 +510,7 @@ check_bogus_sockets (void)
 #endif /* not __MINGW32__ */
 	      log_printf (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
 	      sock_schedule_for_shutdown (sock);
+	    }
 	}
 
 #ifndef __MINGW32__

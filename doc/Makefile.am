@@ -22,17 +22,28 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-TEXINFO_TEX = no-texinfo.tex
+AUTOMAKE_OPTIONS = no-texinfo.tex
 
 info_TEXINFOS = serveez.texi
 
 EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg
 
-CLEANFILES = *.info
+CLEANFILES = *.info *.html
 
 MAINTAINERCLEANFILES = Makefile.in
+
+# local dependencies
 
 distclean-local:
 	rm -f *\~ *.orig *.rej
 
-# local dependencies
+all-local: serveez.html serveez.dvi
+
+dist-hook:
+	rm -f $(distdir)/*.info
+
+TEXI2HTML = texi2html
+SUFFIXES = .html
+
+%.html: %.texi
+	$(TEXI2HTML) -split_chapter $<

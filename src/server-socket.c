@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.14 2000/07/04 20:58:41 ela Exp $
+ * $Id: server-socket.c,v 1.15 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -29,11 +29,12 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>

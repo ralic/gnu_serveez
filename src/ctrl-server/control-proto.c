@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.11 2000/07/09 20:03:07 ela Exp $
+ * $Id: control-proto.c,v 1.12 2000/07/14 00:42:06 ela Exp $
  *
  */
 
@@ -619,11 +619,8 @@ ctrl_stat_all(socket_t sock, int flag, char *arg)
   for (n = 0; n < int_coservers; n++)
     {
       coserver = &int_coserver[n];
-      if (coserver->used)
-	{
-	  sock_printf (sock, "%d. internal %s coserver\r\n", n + 1,
-		       int_coserver_type[coserver->type].name);
-	}
+      sock_printf (sock, "%d. internal %s coserver\r\n", n + 1,
+		   int_coserver_type[coserver->type].name);
     }
   sock_printf (sock, "\r\n");
 
@@ -688,7 +685,7 @@ ctrl_restart(socket_t sock, int type, char *arg)
   for (n = 0; n < int_coservers; n++)
     {
       coserver = &int_coserver[n];
-      if (coserver->used && coserver->type == type)
+      if (coserver->type == type)
 	{
 	  destroy_internal_coservers (type);
 	  create_internal_coserver (type);
