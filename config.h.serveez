@@ -40,6 +40,9 @@
 /* Define if you have the getrlimit function.  */
 /* #undef HAVE_GETRLIMIT */
 
+/* Define if you have the gettimeofday function.  */
+/* #undef HAVE_GETTIMEOFDAY */
+
 /* Define if you have the hstrerror function.  */
 /* #undef HAVE_HSTRERROR */
 
@@ -152,8 +155,8 @@
 /* Define if poll() should be supported if possible. */
 #define ENABLE_POLL 1
 
-/* Define if Quake3 license key server should be included. */
-#define ENABLE_Q3KEY_PROTO 1
+/* Define if the SNTP server should be included. */
+#define ENABLE_SNTP_PROTO 1
 
 /* Define if Gnutella spider should be included. */
 #define ENABLE_GNUTELLA 1

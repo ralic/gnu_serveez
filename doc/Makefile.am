@@ -38,7 +38,7 @@ PACK_DIR = ./pack
 distclean-local:
 	rm -f *\~ *.orig *.rej
 
-all-local: serveez.html serveez.dvi
+all-local: serveez.html
 
 dist-hook:
 	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] $(distdir)/stamp-vti
@@ -47,7 +47,7 @@ pack: serveez.html
 	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
 	@mkdir $(PACK_DIR)
 	for file in $(PACK_FILES); do \
-		cp -f $$file $(PACK_DIR) >/dev/null 2>&1; done;
+		cp -pf $$file $(PACK_DIR) >/dev/null 2>&1; done;
 	(cd $(PACK_DIR) && \
 		tar -czf ../doc_`date +%Y%m%d_%H%M`.tgz . >/dev/null 2>&1)
 	@rm -rf $(PACK_DIR)

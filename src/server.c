@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.35 2000/12/10 12:26:38 ela Exp $
+ * $Id: server.c,v 1.36 2000/12/15 14:13:18 ela Exp $
  *
  */
 
@@ -72,8 +72,8 @@
 #if ENABLE_CONTROL_PROTO
 # include "ctrl-server/control-proto.h"
 #endif
-#if ENABLE_Q3KEY_PROTO
-# include "q3key-server/q3key-proto.h"
+#if ENABLE_SNTP_PROTO
+# include "sntp-server/sntp-proto.h"
 #endif
 #if ENABLE_GNUTELLA
 # include "nut-server/gnutella.h"
@@ -100,8 +100,8 @@ struct server_definition * all_server_definitions [] =
 #if ENABLE_CONTROL_PROTO
   &ctrl_server_definition,
 #endif
-#if ENABLE_Q3KEY_PROTO
-  &q3key_server_definition,
+#if ENABLE_SNTP_PROTO
+  &sntp_server_definition,
 #endif
 #if ENABLE_GNUTELLA
   &nut_server_definition,

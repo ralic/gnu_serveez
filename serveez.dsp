@@ -240,10 +240,6 @@ SOURCE=".\src\pipe-socket.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\q3key-server\q3key-proto.c"
-# End Source File
-# Begin Source File
-
 SOURCE=".\src\raw-socket.c"
 # End Source File
 # Begin Source File
@@ -273,6 +269,10 @@ SOURCE=.\src\server.c
 # Begin Source File
 
 SOURCE=.\src\snprintf.c
+# End Source File
+# Begin Source File
+
+SOURCE=".\src\sntp-server\sntp-proto.c"
 # End Source File
 # Begin Source File
 

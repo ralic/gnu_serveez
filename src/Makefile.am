@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.20 2000/12/10 12:26:38 ela Exp $
+# $Id: Makefile.am,v 1.21 2000/12/15 14:13:18 ela Exp $
 #
 
 #
@@ -45,7 +45,7 @@ SUBDIRS = \
 	irc-core \
 	irc-server \
 	foo-server \
-	q3key-server \
+	sntp-server \
 	nut-server \
 	tunnel-server
 
@@ -60,7 +60,7 @@ PROTOLIBS = 	\
 	irc-server/libircserver.a \
 	irc-core/libirccore.a \
 	foo-server/libfoo.a \
-	q3key-server/libq3key.a \
+	sntp-server/libsntp.a \
 	nut-server/libnut.a \
 	tunnel-server/libtunnel.a
 

@@ -103,6 +103,10 @@ SOURCE=.\boolean.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\box.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\capi.c
 # End Source File
 # Begin Source File

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.32 2000/10/25 07:54:06 ela Exp $
+ * $Id: control-proto.c,v 1.33 2000/12/15 14:13:18 ela Exp $
  *
  */
 
@@ -491,8 +491,8 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 #if ENABLE_CONTROL_PROTO
 	       " CTRL"
 #endif
-#if ENABLE_Q3KEY_PROTO
-	       " Q3KEY"
+#if ENABLE_SNTP_PROTO
+	       " SNTP"
 #endif
 #if ENABLE_GNUTELLA
 	       " NUT"

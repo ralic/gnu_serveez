@@ -1,3 +1,11 @@
+2000-12-15  [ Ela ]  <ela@lkcc.org>
+
+	* INSTALL: Documented newly avaiable option 
+	`--enable-sntp-proto' and dropped `--enable-q3key-proto'.
+
+	* configure.in: Checking for gettimeofday() for the newly
+	created SNTP server.
+
 2000-12-12  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Bumped up version to 0.0.20

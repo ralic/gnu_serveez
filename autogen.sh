@@ -44,7 +44,8 @@ echo "done."
 if [ -r config.status ]; then
   CMD=`awk '/^#.*\/?configure .*/ { $1 = ""; print; exit }' < config.status`
 else
-  CMD="./configure --enable-maintainer-mode"
+  CMD="./configure --enable-maintainer-mode --enable-warn \
+		   --with-sizzle=../sizzle"
 fi
 echo "Running $CMD $@ ..."
 $CMD "$@"

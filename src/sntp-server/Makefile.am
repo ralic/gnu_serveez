@@ -1,10 +1,10 @@
 ## Process this file with automake to produce Makefile.in
-# 
-# Makefile.am
 #
-# Automake input file.
+# src/sntp-server/Makefile.am
 #
-# Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+# Simple network time protocol server.
+#
+# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-SUBDIRS = src data test doc
+noinst_LIBRARIES = libsntp.a
 
-EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
-	serveez.dsw serveez.dsp config.h.serveez version.h.serveez \
-	libsizzle.dsp config.h.sizzle version.h.sizzle RELEASE
+AM_CPPFLAGS = -I..
 
-MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in
+CLEANFILES = *~
 
-distclean-local:
-	rm -f *\~
+MAINTAINERCLEANFILES = Makefile.in
+
+libsntp_a_SOURCES = \
+	sntp-proto.h sntp-proto.c

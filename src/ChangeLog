@@ -1,3 +1,15 @@
+2000-12-15  [ Ela ]  <ela@lkcc.org>
+
+	* sntp-server/Makefile.am: Created this file for building
+	the SNTP server library.
+
+	* server.c (all_server_definitions): Added the SNTP server
+	here and removed the Q3KEY license server.
+
+	* sntp-server/sntp-proto.c (sntp_handle_request): Added
+	a simple network time protocol packet processor which creates
+	time stamps according to RFC 868.
+
 2000-12-12  [ Ela ]  <ela@lkcc.org>
 
 	* server-socket.c (server_create): Print some error message if

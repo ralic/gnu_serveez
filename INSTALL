@@ -145,8 +145,9 @@ or '--enable-<?>=no'.
 	 If you enable this feature serveez creates a dns lookup coserver
 	 which is able to make non-blocking dns lookups. This might be 
 	 necessary to resolve IRC servers from C or N lines.
- 16.   --enable-q3key-proto
-         Thereby you enable the support for a Quake III license key server.
+ 16.   --enable-sntp-proto
+         Thereby you enable the support for a simple network time protocol
+         server.
  17.   --enable-poll
 	 If the target system supports poll() and this option is enabled
 	 the main file descriptor loop is done via poll(). This helps to

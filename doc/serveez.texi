@@ -12,6 +12,11 @@
 @set s_SIZZLE sizzle
 @set b_SIZZLE SIZZLE
 
+@dircategory Serveez - A server framework.
+@direntry
+* serveez: (serveez).           Serveez Documentation.
+@end direntry
+
 @titlepage
 @title @value{PACKAGE}, version @value{VERSION}
 @subtitle A server framework

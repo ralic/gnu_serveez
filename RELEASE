@@ -1,0 +1,53 @@
+-- 
+-- RELEASE
+-- 
+-- release instructions.
+-- 
+-- Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+-- 
+-- This is free software; you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation; either version 2, or (at your option)
+-- any later version.
+-- 
+-- This software is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this package; see the file COPYING.  If not, write to
+-- the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-- Boston, MA 02111-1307, USA.  
+--
+
+Distribution process:
+---------------------
+
+* Ensure the release is complete.
+  - Check if TODO, NEWS and BUGS files for pending or completed tasks.
+  - Check the documentation for spelling mistakes and completion.
+  - Are the Windows files up to date ?
+  - Compile, run and test it on Windows (MinGW32, CygWin and MSVC). 
+  - Make sure INSTALL, THANKS and README is up to date.
+
+* Test build and packaging.
+  - Run `make distclean', `sh autogen' and `make all'.
+  - Check if the binaries properly work.
+  - Run `make check' and `make distcheck'.
+  - Check this status into CVS and tag it.
+  - Run `make dist'.
+  - Run `make pack' in the `doc/' directory and save the tarball.
+  - Make a binary package for Windows.
+
+* Bump up version.
+  - Add a ChangeLog entry in toplevel directory.
+  - Add new section in NEWS.
+  - Check into CVS.
+
+* Distribute the package. 
+  - Upload the package to <www.texture.net>.
+  - Release at SourceForge (incl. documentation tarball).
+  - Announce at Freshmeat.
+  - Update <www.SoftSeek.com> entry.
+  - Send the announcement to <serveez-discuss@lists.sourceforge.net>.

@@ -342,30 +342,30 @@ unset define_enable_poll
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Check whether the Quake3 license key server should be included.
+dnl Check whether the SNTP server should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable Quake3 license key server])
+AC_MSG_CHECKING([whether to enable the SNTP server])
 AC_ARG_ENABLE(
-    q3key,
-    [  --enable-q3key-proto    Include Quake3 license server [default=yes]],
+    sntp,
+    [  --enable-sntp-proto     Include the SNTP server [default=yes]],
     if test x$enableval = "xyes"; then
-	define_enable_q3key=yes
+	define_enable_sntp=yes
 	AC_MSG_RESULT([yes])
     else
-	define_enable_q3key=no
+	define_enable_sntp=no
 	AC_MSG_RESULT([no])
     fi,
-	define_enable_q3key=yes
+	define_enable_sntp=yes
 	AC_MSG_RESULT([yes])
 )
 
-if test $define_enable_q3key = yes ; then
-    AC_DEFINE(ENABLE_Q3KEY_PROTO,
+if test $define_enable_sntp = yes ; then
+    AC_DEFINE(ENABLE_SNTP_PROTO,
     1,
-    [Define if Quake3 license key server should be included.])
+    [Define if the SNTP server should be included.])
 fi
-unset define_enable_q3key
+unset define_enable_sntp
 
 dnl ----------------------------------------------------------------------
 
@@ -916,7 +916,7 @@ AC_CHECK_FUNC(strncasecmp,
 	    [Define if you have the strnicmp function.])))
 
 AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize)
-AC_CHECK_FUNCS(getpwnam)
+AC_CHECK_FUNCS(getpwnam gettimeofday)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
@@ -1185,7 +1185,7 @@ AC_OUTPUT(
     src/irc-core/Makefile
     src/irc-server/Makefile
     src/foo-server/Makefile
-    src/q3key-server/Makefile
+    src/sntp-server/Makefile
     src/nut-server/Makefile
     src/tunnel-server/Makefile
     doc/Makefile 

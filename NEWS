@@ -26,7 +26,9 @@ This file lists user visible changes that were made between releases.
 Version 0.0.20
 --------------
 
-
+ * enable the SNTP server via --enable-sntp-proto
+ * dropped the Quake III license key server for legacy reasons
+ * serveez becomes a GNU software package
 
 Version 0.0.19
 --------------

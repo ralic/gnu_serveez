@@ -23,7 +23,10 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
-- Implement another example for an UDP server (drop q3key).
+- Make serveez embeddable (create libserveez.[so | dll]).
+- Implement dynamic server loading capabilities.
+- Consider Guile as configuration file parser.
+	- Implement another example for an UDP server (drop q3key).
 	- Start a reverse nslookup for each HTTP client.
 	- Allow "/~user/*" HTTP requests. 
 	- Using encryption for passwords (libcrypt).
