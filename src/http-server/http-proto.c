@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.13 2000/06/23 21:09:54 ela Exp $
+ * $Id: http-proto.c,v 1.14 2000/06/29 16:53:40 ela Exp $
  *
  */
 
@@ -938,9 +938,9 @@ http_handle_request (socket_t sock, int len)
   p = line;
   flag = 0;
 
-  /* scan request type */
-  while (*p != ' ' && p < end) p++;
-  if (p == end)
+  /* scan the request type */
+  while (*p != ' ' && p < end - 1) p++;
+  if (p == end || *(p+1) != '/')
     {
       return -1;
     }
@@ -949,7 +949,7 @@ http_handle_request (socket_t sock, int len)
   strcpy (request, line);
   line = p + 1;
 
-  /* scan the option (file) */
+  /* scan the option (file), "line" points to first character */
   while (*p != '\r' && p < end) p++;
   if (p == end)
     {
