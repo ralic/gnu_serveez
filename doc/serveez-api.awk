@@ -61,7 +61,7 @@
 	getline line
 	nr = FNR
 	# while trying to find a valid C function we found a new comment
-	if (line ~ /\/\*/) { 
+	if (line ~ /^\/\*/) { 
 	    $0 = line
 	    retry = 1
 	    break
@@ -71,13 +71,17 @@
 	    gsub(/[ \t]/, "", c_func)
 	    line = substr(line, index(line, "(") + 1)
 
+            # cleanup the comments in argument list
+	    gsub(/\/\*[^\*]+\*\//, "", line)
+
 	    # find out about the functions arguments
 	    args = line
 	    while (index(line, ")") == 0) {
 		getline line
+		gsub(/\/\*[^\*]+\*\//, "", line)
 		args = (args line)
 	    }
-	    args = substr(args, 0, length(args) - 1)
+	    args = substr(args, 0, index(args, ")") - 1)
 	    found++
 	    break
 	}
@@ -87,13 +91,19 @@
 
     # drop invalid functions
     if (retry) { continue }
-    if (dist > 1 || c_func ~ /typedef/ || c_func ~ /struct/ ||
-	c_func ~ /\#/ || !found) { next }
+    if (dist > 2 || c_func ~ /typedef/ || c_func ~ /struct/ ||
+	c_func ~ /\#/ || !found || !length(c_func) || c_func ~ /\/\*/)
+      { next }
 
+    # cleanup tabs in argument list
+    gsub(/\t/, " ", args)
     # seperate the arguments
     split(args, arg, ",")
     c_args = ""
-    for (x in arg) {
+    a = 0
+    # count the arguments and save result
+    for (x in arg) { a++ }
+    for (x = 1; x <= a; x++) {
 	# split the type definition
 	split(arg[x], type, " ")
 	# find last item
@@ -111,9 +121,9 @@
 	}
 	# rejoin the arguments
 	c_arg = ""
-	for (v in type) {
-	    if (type[v] != var) {
-		c_arg = (c_arg type[v] " ")
+	for (n = 1; n <= i; n++) {
+	    if (type[n] != var) {
+		c_arg = (c_arg type[n] " ")
 	    }
 	}
 	c_arg = (c_arg "@var{" var "}")

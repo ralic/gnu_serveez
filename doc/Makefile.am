@@ -36,7 +36,9 @@ PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
 PACK_DIR = ./pack
 DOC_DIRS = $(top_srcdir)/src/libserveez
 DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
-  tcp-socket.c
+  tcp-socket.c alloc.c alist.c hash.c util.c vector.c socket.c server-core.c \
+  server-loop.c server-socket.c boot.c interface.c dynload.c windoze.c \
+  snprintf.c server.c
 SED_FILE = serveez-api.sed
 
 # local dependencies

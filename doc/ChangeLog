@@ -1,5 +1,10 @@
 2001-02-17  [ Ela ]  <ela@lkcc.org>
 
+	* serveez-api.awk: Dropping C comments within argument lists.
+
+	* serveez-api.texi.in (Embedding API): Added documentation for
+	all function in the core library.
+
 	* Makefile.am (serveez-api.texi): Added a rule for creating
 	this file via the below scripts.
 

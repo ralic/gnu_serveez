@@ -63,23 +63,112 @@ all parts of the API it provides.
 * Memory management::     Memory management functions
 * Hashtable::             Hashtable implementation
 * Arraylist::             Arraylist implementation
+* Vectorlist::            Vectorlist implementation
 * Utility functions::     Miscellaneous helper functions
 * Client connections::    Client connection functions
+* Socket::                Socket management functions
+* Server::                Server object functions
+* ServerCore::            Server core implementation
+* ServerLoop::            Server loop implementation
+* ServerSocket::          Server sockets for TCP, UDP, ICMP and pipes
+* Booting::               Configuration and boot functions
+* Interface::             Network interface function implementation
+* Dynamic server::        Dynamic server loading implementation
+* Windoze::               Windows port implementations
 @end menu
 
 @node Memory management, Hashtable, , Embedding API
 @section Memory management
 
+SVZ_MALLOC_DEFUN
+SVZ_REALLOC_DEFUN
+SVZ_FREE_DEFUN
+SVZ_STRDUP_DEFUN
+SVZ_PMALLOC_DEFUN
+SVZ_PREALLOC_DEFUN
+SVZ_PSTRDUP_DEFUN
+SVZ_HEAP_DEFUN
+
 @node Hashtable, Arraylist, Memory management, Embedding API
 @section Hashtable functions
 
-@node Arraylist, Utility functions, Hashtable, Embedding API
+HASH_CREATE_DEFUN
+HASH_DESTROY_DEFUN
+HASH_CLEAR_DEFUN
+HASH_DELETE_DEFUN
+HASH_PUT_DEFUN
+HASH_GET_DEFUN
+HASH_VALUES_DEFUN
+HASH_KEYS_DEFUN
+HASH_SIZE_DEFUN
+HASH_CAPACITY_DEFUN
+HASH_CONTAINS_DEFUN
+
+@node Arraylist, Vectorlist, Hashtable, Embedding API
 @section Arraylist functions
+
+An array list is a kind of data array which grows and shrinks on demand. 
+It unifies the advantages of chained lists (less memory usage than simple 
+arrays) and arrays (faster access to specific elements). This implementation
+can handle gaps in between the array elements.
+
+SVZ_ALIST_CREATE_DEFUN
+SVZ_ALIST_DESTROY_DEFUN
+SVZ_ALIST_ADD_DEFUN
+SVZ_ALIST_CLEAR_DEFUN
+SVZ_ALIST_CONTAINS_DEFUN
+SVZ_ALIST_GET_DEFUN
+SVZ_ALIST_INDEX_DEFUN
+SVZ_ALIST_DELETE_DEFUN
+SVZ_ALIST_DELETE_RANGE_DEFUN
+SVZ_ALIST_SET_DEFUN
+SVZ_ALIST_UNSET_DEFUN
+SVZ_ALIST_SIZE_DEFUN
+SVZ_ALIST_LENGTH_DEFUN
+SVZ_ALIST_INSERT_DEFUN
+SVZ_ALIST_VALUES_DEFUN
+SVZ_ALIST_PACK_DEFUN
+
+@node Vectorlist, Utility functions, Arraylist, Embedding API
+@section Vectorlist functions
+
+A vector list is an array of memory chunks with a fixed size. It
+holds copies of the values you added to the vector list. When deleting
+or inserting an element the indexes of the following elements get
+either decremented or incremented.
+
+SVZ_VECTOR_CREATE_DEFUN
+SVZ_VECTOR_DESTROY_DEFUN
+SVZ_VECTOR_DELETE_DEFUN
+SVZ_VECTOR_ADD_DEFUN
+SVZ_VECTOR_GET_DEFUN
+SVZ_VECTOR_SET_DEFUN
+SVZ_VECTOR_DEL_DEFUN
+SVZ_VECTOR_INS_DEFUN
+SVZ_VECTOR_IDX_DEFUN
+SVZ_VECTOR_LENGTH_DEFUN
 
 @node Utility functions, Client connections, Arraylist, Embedding API
 @section Utility functions
 
-@node Client connections, , Utility functions, Embedding API
+LOG_PRINTF_DEFUN
+LOG_SET_FILE_DEFUN
+UTIL_HEXDUMP_DEFUN
+UTIL_INET_NTOA_DEFUN
+UTIL_ITOA_DEFUN
+UTIL_ATOI_DEFUN
+UTIL_STRCASECMP_DEFUN
+UTIL_STRNCASECMP_DEFUN
+UTIL_OPENFILES_DEFUN
+UTIL_TIME_DEFUN
+UTIL_UPTIME_DEFUN
+UTIL_TOLOWER_DEFUN
+UTIL_VERSION_DEFUN
+UTIL_HSTRERROR_DEFUN
+UTIL_SYSERROR_DEFUN
+SNPRINTF_DEFUN
+
+@node Client connections, Socket, Utility functions, Embedding API
 @section Client connections
 
 @menu
@@ -140,6 +229,108 @@ RAW_GET_IP_HEADER_DEFUN
 RAW_PUT_IP_HEADER_DEFUN
 RAW_IP_CHECKSUM_DEFUN
 RAW_CHECK_IP_HEADER_DEFUN
+
+@node Socket, Server, Client connections, Embedding API
+@section Socket management
+
+SOCK_VALID_DEFUN
+SOCK_ALLOC_DEFUN
+SOCK_FREE_DEFUN
+SOCK_CREATE_DEFUN
+SOCK_DISCONNECT_DEFUN
+SOCK_WRITE_DEFUN
+SOCK_PRINTF_DEFUN
+SOCK_RESIZE_BUFFERS_DEFUN
+SOCK_INTERN_CONNECTION_INFO_DEFUN
+SOCK_ERROR_INFO_DEFUN
+SOCK_UNIQUE_ID_DEFUN
+SOCK_DETECT_PROTO_DEFUN
+SOCK_CHECK_REQUEST_DEFUN
+SOCK_IDLE_PROTECT_DEFUN
+SOCK_FLOOD_PROTECT_DEFUN
+
+@node Server, ServerCore, Socket, Embedding API
+@section Server functions
+
+SERVER_ADD_DEFINITION_DEFUN
+SERVER_START_DEFUN
+SERVER_BIND_DEFUN
+SERVER_FIND_DEFUN
+SERVER_ADD_DEFUN
+SERVER_RUN_NOTIFY_DEFUN
+SERVER_PORTCFG_EQUAL_DEFUN
+SERVER_GLOBAL_INIT_DEFUN
+SERVER_INIT_ALL_DEFUN
+SERVER_FINALIZE_ALL_DEFUN
+SERVER_GLOBAL_FINALIZE_DEFUN
+SERVER_PRINT_DEFINITIONS_DEFUN
+
+@node ServerCore, ServerLoop, Server, Embedding API
+@section Server core
+
+SOCK_FIND_DEFUN
+SOCK_SCHEDULE_FOR_SHUTDOWN_DEFUN
+SOCK_ENQUEUE_DEFUN
+SOCK_DEQUEUE_DEFUN
+SOCK_SHUTDOWN_ALL_DEFUN
+SERVER_CHECK_BOGUS_DEFUN
+SERVER_PERIODIC_TASKS_DEFUN
+SERVER_LOOP_DEFUN
+SERVER_LOOP_ONE_DEFUN
+SERVER_SIGNAL_UP_DEFUN
+SERVER_SIGNAL_DN_DEFUN
+SERVER_SIGNAL_HANDLER_DEFUN
+
+@node ServerLoop, ServerSocket, ServerCore, Embedding API
+@section Server loop
+
+SERVER_CHECK_SOCKETS_SELECT_DEFUN
+SERVER_CHECK_SOCKETS_POLL_DEFUN
+SERVER_CHECK_SOCKETS_MINGW_DEFUN
+
+@node ServerSocket, Booting, ServerLoop, Embedding API
+@section Server sockets
+
+SERVER_CREATE_DEFUN
+SERVER_ACCEPT_SOCKET_DEFUN
+SERVER_ACCEPT_PIPE_DEFUN
+
+@node Booting, Interface, ServerSocket, Embedding API
+@section Boot functions
+
+SVZ_NET_STARTUP_DEFUN
+SVZ_NET_CLEANUP_DEFUN
+SVZ_INIT_CONFIG_DEFUN
+SVZ_BOOT_DEFUN
+SVZ_HALT_DEFUN
+
+@node Interface, Dynamic server, Booting, Embedding API
+@section Network interface functions
+
+SVZ_INTERFACE_LIST_DEFUN
+SVZ_INTERFACE_COLLECT_DEFUN
+SVZ_INTERFACE_FREE_DEFUN
+SVZ_INTERFACE_ADD_DEFUN
+
+@node Dynamic server, Windoze, Interface, Embedding API
+@section Dynamic server loading
+
+SVZ_DYNLOAD_INIT_DEFUN
+SVZ_DYNLOAD_FINALIZE_DEFUN
+SERVER_LOAD_DEFUN
+SERVER_UNLOAD_DEFUN
+
+@node Windoze, , Dynamic server, Embedding API
+@section Useful Windows functions
+
+WINDOZE_START_DAEMON_DEFUN
+WINDOZE_STOP_DAEMON_DEFUN
+WINDOZE_ASC2UNI_DEFUN
+WINDOZE_UNI2ASC_DEFUN
+WINDOZE_GET_REG_UNSIGNED_DEFUN
+WINDOZE_SET_REG_UNSIGNED_DEFUN
+WINDOZE_GET_REG_STRING_DEFUN
+WINDOZE_SET_REG_STRING_DEFUN
 
 @node Index,  , Embedding API, Top
 @unnumbered Index
