@@ -1,3 +1,8 @@
+2002-06-03  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/icecast-server.scm (icecast-id3-tag): 
+	Stripping ID3v1 tags from mp3 files.
+
 2002-05-31  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/icecast-server.scm (icecast-dns): Demonstrating

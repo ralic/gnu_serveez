@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.3 2002/05/31 14:34:21 ela Exp $
+;; $Id: icecast-server.scm,v 1.4 2002/06/03 16:51:46 ela Exp $
 ;;
 
 ;; load convenience file
@@ -193,9 +193,13 @@
 
     (if (input-port? port)
 	(let* ((user (hash-ref data "user"))
-	       (host (hash-ref data "host")))
+	       (host (hash-ref data "host"))
+	       (addr (svz:sock:remote-address sock)))
 	  (hash-set! data "file" file)
 	  (hash-set! data "port" port)
+	  (icecast-id3-tag data)
+	  (if (not host)
+	      (set! host (svz:inet-ntoa (car addr))))
 	  (if (and host user)
 	      (set! host (string-append user "@" host)))
 	  (println "icecast: uploading `" file "'"
@@ -221,8 +225,40 @@
 	    (set! buffer (icecast-readbuffer port read-bytes))
 	    (if (eof-object? buffer)
 		(icecast-next-file sock)
-		(svz:sock:print sock buffer)))))
+		(icecast-send-buffer sock buffer)))))
   0))
+
+;; send mp3 data only, strip ID3 tag
+(define (icecast-send-buffer sock buffer)
+  (let* ((data (svz:sock:data sock))
+	 (pos (hash-ref data "position"))
+	 (size (hash-ref data "size"))
+	 (size (- size pos)))
+    (if (> size 0)
+	(begin	
+	  (if (> (binary-length buffer) size)
+	      (set! buffer (binary-subset buffer 0 (- size 1))))
+	  (hash-set! data "position" (+ pos (binary-length buffer)))
+	  (svz:sock:print sock buffer)))))
+
+;; detect whether the given file contains ID3 tags
+(define (icecast-id3-tag data)
+  (let* ((file (hash-ref data "file"))
+	 (size (stat:size (stat file)))
+	 (port (hash-ref data "port"))
+	 (buffer '()))
+    (hash-set! data "position" 0)
+    (hash-set! data "size" size)
+    (seek port -128 SEEK_END)
+    (set! buffer (svz:read-file port 128))
+    (seek port 0 SEEK_SET)
+    (if (= (binary-length buffer) 128)
+	(let ((found (binary-search buffer "TAG")))
+	  (if (and found (= found 0))
+	      (begin
+		(hash-set! data "size" (- size 128))
+		(println "icecast: stripping ID3 tag of `" file "'")))))))
+		
 
 ;; reverse DNS callback
 (define (icecast-dns host ident)
