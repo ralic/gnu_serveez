@@ -1,5 +1,8 @@
 2001-09-07  [ Ela ]  <ela@lkcc.org>
 
+	* util.c (svz_syserror): Do not let the system allocate error
+	message buffer; provide it instead.
+
 	* pipe-socket.c (svz_pipe_startup): New function. Tries
 	to load the CancelIo() symbol from `Kernel32.dll' under
 	Windows. This is necessary since it is available in Windows

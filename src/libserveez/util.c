@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.17 2001/08/03 18:09:04 ela Exp $
+ * $Id: util.c,v 1.18 2001/09/07 15:37:46 ela Exp $
  *
  */
 
@@ -479,7 +479,6 @@ char *
 svz_syserror (int nr)
 {
   static char message[MESSAGE_BUF_SIZE];
-  LPTSTR error;
 
   /* save the last error */
   svz_errno = nr;
@@ -496,20 +495,17 @@ svz_syserror (int nr)
     nr = errno;
 
   /* return a sys error */
-  if (0 ==
-      FormatMessage (FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		     FORMAT_MESSAGE_FROM_SYSTEM |
-		     FORMAT_MESSAGE_ARGUMENT_ARRAY, NULL, nr,
-		     MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-		     (char *) &error, 0, NULL))
+  if (0 == FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM |
+			  FORMAT_MESSAGE_ARGUMENT_ARRAY, NULL, nr,
+			  MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+			  (char *) message, MESSAGE_BUF_SIZE, NULL))
     {
-      sprintf (message, "FormatMessage: error code %ld", GetLastError ());
+      sprintf (message, "FormatMessage (%d): error code %ld", 
+	       nr, GetLastError ());
       return message;
     }
 
-  strcpy (message, error);
   message[strlen (message) - 2] = 0;
-  LocalFree (error);
   return message;
 }
 
