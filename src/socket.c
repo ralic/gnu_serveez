@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.7 2000/06/16 15:36:15 ela Exp $
+ * $Id: socket.c,v 1.8 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -90,8 +90,8 @@ default_write (socket_t sock)
    * SOCK_MAX_WRITE.
    */
   do_write = sock->send_buffer_fill;
-  if(do_write > SOCK_MAX_WRITE) do_write = SOCK_MAX_WRITE;
-  num_written = send(desc, sock->send_buffer, do_write, 0);
+  if (do_write > SOCK_MAX_WRITE) do_write = SOCK_MAX_WRITE;
+  num_written = send (desc, sock->send_buffer, do_write, 0);
 
 #if 0
   dump_request(stdout, "sent", desc, sock->send_buffer, num_written);
@@ -106,21 +106,21 @@ default_write (socket_t sock)
        * Shuffle the data in the output buffer around, so that
        * new data can get stuffed into it.
        */
-      if(sock->send_buffer_fill > num_written)
+      if (sock->send_buffer_fill > num_written)
 	{
-	  memmove(sock->send_buffer, 
-		  sock->send_buffer + num_written,
-		  sock->send_buffer_fill - num_written);
+	  memmove (sock->send_buffer, 
+		   sock->send_buffer + num_written,
+		   sock->send_buffer_fill - num_written);
 	}
       sock->send_buffer_fill -= num_written;
     }
   /* error occured while writing */
   else if (num_written < 0)
     {
-      log_printf(LOG_ERROR, "sock write: %s\n", NET_ERROR);
-      if(last_errno == SOCK_UNAVAILABLE)
+      log_printf (LOG_ERROR, "sock write: %s\n", NET_ERROR);
+      if (last_errno == SOCK_UNAVAILABLE)
 	{
-	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
+	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
 	}
     }
@@ -159,11 +159,10 @@ default_read (socket_t sock)
    */
   if (do_read <= 0)
     {
-      log_printf(LOG_ERROR, "receive buffer overflow on socket %d\n",
-		 desc);
+      log_printf (LOG_ERROR, "receive buffer overflow on socket %d\n", desc);
 
       if (sock->kicked_socket)
-	sock->kicked_socket(sock, 0);
+	sock->kicked_socket (sock, 0);
 
       return -1;
     }
@@ -171,9 +170,9 @@ default_read (socket_t sock)
   /*
    * Try to read as much data as possible.
    */
-  num_read = recv(desc,
-		  sock->recv_buffer + sock->recv_buffer_fill,
-		  do_read, 0);
+  num_read = recv (desc,
+		   sock->recv_buffer + sock->recv_buffer_fill,
+		   do_read, 0);
 
   /* error occured while reading */
   if (num_read < 0)
@@ -183,8 +182,8 @@ default_read (socket_t sock)
        * in this case, which the main loop will do for us if we
        * return a non-zero value.
        */
-      log_printf(LOG_ERROR, "sock read: %s\n", NET_ERROR);
-      if(last_errno == SOCK_UNAVAILABLE)
+      log_printf (LOG_ERROR, "sock read: %s\n", NET_ERROR);
+      if (last_errno == SOCK_UNAVAILABLE)
 	{
 	  num_read = 0;
 	}
@@ -196,7 +195,7 @@ default_read (socket_t sock)
   /* some data has been read */
   else if (num_read > 0)
     {
-      sock->last_recv = time(NULL);
+      sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
       if (!(sock->flags & SOCK_FLAG_NOFLOOD))
@@ -205,11 +204,10 @@ default_read (socket_t sock)
 	  
 	  if (sock->flood_points > sock->flood_limit)
 	    {
-	      log_printf(LOG_ERROR, "kicking socket %d (flood)\n",
-			 desc);
+	      log_printf (LOG_ERROR, "kicking socket %d (flood)\n", desc);
 	      
 	      if (sock->kicked_socket)
-		sock->kicked_socket(sock, 0);
+		sock->kicked_socket (sock, 0);
 	      
 	      return -1;
 	    }
@@ -217,16 +215,16 @@ default_read (socket_t sock)
 #endif /* ENABLE_FLOOD_PROTECTION */
 
 #if 0
-      dump_request(stdout, "received", desc,
-		   sock->recv_buffer + sock->recv_buffer_fill,
-		   num_read);
+      dump_request (stdout, "received", desc,
+		    sock->recv_buffer + sock->recv_buffer_fill,
+		    num_read);
 #endif
 
       sock->recv_buffer_fill += num_read;
 
       if (sock->check_request)
 	{
-	  ret = sock->check_request(sock);
+	  ret = sock->check_request (sock);
 	  if (ret)
 	    return ret;
 	}
@@ -234,7 +232,7 @@ default_read (socket_t sock)
   /* the socket was selected but there is no data */
   else
     {
-      log_printf(LOG_ERROR, "read: no data on socket %d\n", desc);
+      log_printf (LOG_ERROR, "read: no data on socket %d\n", desc);
       return -1;
     }
   
@@ -299,7 +297,9 @@ default_detect_proto (socket_t sock)
 }
 
 /*
- * Default idle function.
+ * Default idle function. This routine simply checks for "dead" 
+ * (non-receiving) sockets and rejects them by return a non-zero
+ * value.
  */
 int
 default_idle_func (socket_t sock)
@@ -324,13 +324,10 @@ default_idle_func (socket_t sock)
  * explicitly with the packet length inclusive the packet boundary.
  */
 int
-default_check_request (socket_t sock)
+default_check_request_array (socket_t sock)
 {
   int len = 0;
   char *p, *packet, *end;
-
-  assert (sock->boundary);
-  assert (sock->boundary_size);
 
   p = sock->recv_buffer;
   end = p + sock->recv_buffer_fill - sock->boundary_size + 1;
@@ -366,6 +363,74 @@ default_check_request (socket_t sock)
 }
 
 /*
+ * This is just the same routine as above, but optimized for one byte
+ * packet delimiters.
+ */
+int
+default_check_request_byte (socket_t sock)
+{
+  int len = 0;
+  char *p, *packet, *end;
+
+  p = sock->recv_buffer;
+  end = p + sock->recv_buffer_fill;
+  packet = p;
+
+  do
+    {
+      /* Find packet boundary in the receive buffer. */
+      while (p < end && *p != *sock->boundary)
+        p++;
+
+      /* Found ? */
+      if (p < end && *p == *sock->boundary)
+        {
+          p++;
+          len += (p - packet);
+
+	  /* Call the handle request callback. */
+	  if (sock->handle_request)
+	    {
+	      if (sock->handle_request (sock, packet, p - packet))
+		return -1;
+	    }
+	  packet = p;
+        }
+    }
+  while (p < end);
+  
+  /* Shuffle data in the receive buffer around. */
+  sock_reduce_recv (sock, len);
+  
+  return 0;
+}
+
+/*
+ * DEFAULT_CHECK_REQUEST simply checks for the kind of packet delimiter
+ * within the given socket structure and and assigns one of the above
+ * check request routines (one or more byte delimiters). Afterwards this
+ * routine will never ever be called again because the callback gets
+ * overwritten here.
+ */
+int
+default_check_request (socket_t sock)
+{
+  assert (sock->boundary);
+  assert (sock->boundary_size);
+
+  if (sock->boundary_size > 1)
+    {
+      sock->check_request = default_check_request_array;
+    }
+  else
+    {
+      sock->check_request = default_check_request_byte;
+    }
+
+  return sock->check_request (sock);
+}
+
+/*
  * Allocate a structure of type socket_t and initialize
  * its fields.
  */
@@ -373,15 +438,13 @@ socket_t
 sock_alloc (void)
 {
   socket_t sock;
-  char * in;
-  char * out;
+  char *in;
+  char *out;
 
-  sock = xmalloc(sizeof(socket_data_t));
-  in   = xmalloc(RECV_BUF_SIZE);
-  out  = xmalloc(SEND_BUF_SIZE);
-
-  sock->next = NULL;
-  sock->prev = NULL;
+  sock = xmalloc (sizeof (socket_data_t));
+  in   = xmalloc (RECV_BUF_SIZE);
+  out  = xmalloc (SEND_BUF_SIZE);
+  memset (sock, 0, sizeof (socket_data_t));
 
   sock->proto = SOCK_FLAG_INIT;
   sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
@@ -390,43 +453,22 @@ sock_alloc (void)
   sock->sock_desc = -1;
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
-  sock->parent = NULL;
-  sock->recv_pipe = NULL;
-  sock->send_pipe = NULL;
-
-  sock->boundary = NULL;
-  sock->boundary_size = 0;
-
-  sock->remote_port = 0;
-  sock->remote_addr = 0;
-  sock->remote_host = NULL;
-  sock->local_port  = 0;
-  sock->local_addr  = 0;
-  sock->local_host = NULL;
 
   sock->read_socket = default_read;
   sock->write_socket = default_write;
   sock->check_request = default_detect_proto;
   sock->disconnected_socket = default_disconnect;
-  sock->handle_request = NULL;
-  sock->kicked_socket = NULL;
-  sock->idle_func = NULL;
-  sock->idle_counter = 0;
 
   sock->recv_buffer = in;
   sock->recv_buffer_size = RECV_BUF_SIZE;
-  sock->recv_buffer_fill = 0;
   sock->send_buffer = out;
   sock->send_buffer_size = SEND_BUF_SIZE;
-  sock->send_buffer_fill = 0;
-  sock->last_send = time(NULL);
-  sock->last_recv = time(NULL);
+  sock->last_send = time (NULL);
+  sock->last_recv = time (NULL);
+
 #if ENABLE_FLOOD_PROTECTION
-  sock->flood_points = 0;
   sock->flood_limit = 100;
 #endif /* ENABLE_FLOOD_PROTECTION */
-  sock->unavailable = 0;
-  sock->data = NULL;
 
   return sock;
 }
@@ -441,8 +483,8 @@ sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
 {
   char * send, * recv;
 
-  send = xrealloc(sock->send_buffer, send_buf_size);
-  recv = xrealloc(sock->recv_buffer, recv_buf_size);
+  send = xrealloc (sock->send_buffer, send_buf_size);
+  recv = xrealloc (sock->recv_buffer, recv_buf_size);
 
   sock->send_buffer = send;
   sock->recv_buffer = recv;
@@ -489,10 +531,10 @@ sock_intern_connection_info (socket_t sock)
   unsigned short port;
   unsigned addr;
 
-  if (!getpeername(sock->sock_desc, (struct sockaddr *) &s, &size))
+  if (!getpeername (sock->sock_desc, (struct sockaddr *) &s, &size))
     {
-      addr = ntohl(s.sin_addr.s_addr);
-      port = ntohs(s.sin_port);
+      addr = ntohl (s.sin_addr.s_addr);
+      port = ntohs (s.sin_port);
     }
   else
     {
@@ -502,11 +544,11 @@ sock_intern_connection_info (socket_t sock)
   sock->remote_port = port;
   sock->remote_addr = addr;
 
-  size = sizeof(s);
-  if (!getsockname(sock->sock_desc, (struct sockaddr *) &s, &size))
+  size = sizeof (s);
+  if (!getsockname (sock->sock_desc, (struct sockaddr *) &s, &size))
     {
-      addr = ntohl(s.sin_addr.s_addr);
-      port = ntohs(s.sin_port);
+      addr = ntohl (s.sin_addr.s_addr);
+      port = ntohs (s.sin_port);
     }
   else
     {
@@ -644,21 +686,21 @@ sock_write (socket_t sock, char * buf, int len)
   while (len > 0)
     {
       /* Try to flush the queue of this socket */
-      if(sock->write_socket && !sock->unavailable)
+      if (sock->write_socket && !sock->unavailable)
 	{
-	  if ((ret = sock->write_socket(sock)) != 0)
+	  if ((ret = sock->write_socket (sock)) != 0)
 	    return ret;
 	}
 
       if (sock->send_buffer_fill >= sock->send_buffer_size)
 	{
 	  /* Queue is full, unlucky socket ... */
-	  log_printf(LOG_ERROR,
-		     "send buffer overflow on socket %d\n",
-		     sock->sock_desc);
+	  log_printf (LOG_ERROR,
+		      "send buffer overflow on socket %d\n",
+		      sock->sock_desc);
 	
 	  if (sock->kicked_socket)
-	    sock->kicked_socket(sock, 1);
+	    sock->kicked_socket (sock, 1);
 
 	  return -1;
 	}
@@ -666,15 +708,15 @@ sock_write (socket_t sock, char * buf, int len)
       /* Now move as much of BUF into the send queue */
       if (sock->send_buffer_fill + len < sock->send_buffer_size)
 	{
-	  memcpy(sock->send_buffer + sock->send_buffer_fill, buf, len);
-	  sock->send_buffer_fill+=len;
+	  memcpy (sock->send_buffer + sock->send_buffer_fill, buf, len);
+	  sock->send_buffer_fill += len;
 	  len = 0;
 	}
       else
 	{
 	  space = sock->send_buffer_size - sock->send_buffer_fill;
-	  memcpy(sock->send_buffer + sock->send_buffer_fill, buf, space);
-	  sock->send_buffer_fill+=space;
+	  memcpy (sock->send_buffer + sock->send_buffer_fill, buf, space);
+	  sock->send_buffer_fill += space;
 	  len -= space;
 	  buf += space;
 	}
@@ -703,8 +745,8 @@ sock_printf (socket_t sock, const char *fmt, ...)
   va_end (args);
 
   /* Just to be sure... */
-  if (len > sizeof(buffer))
-    len = sizeof(buffer);
+  if (len > sizeof (buffer))
+    len = sizeof (buffer);
 
   return sock_write (sock, buffer, len);
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.2 2000/06/14 19:22:19 ela Exp $
+ * $Id: pipe-socket.h,v 1.3 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -58,8 +58,7 @@ int pipe_disconnected (socket_t sock);
  * Create a socket structure by the two file descriptors recv_fd and
  * send_fd. This is used by coservers only, yet. Return NULL on errors.
  */
-socket_t pipe_create (int recv_fd, int send_fd);
-
+socket_t pipe_create (HANDLE recv_fd, HANDLE send_fd);
 
 /*
  * Create a (non blocking) pipe. Differs in Win32 and Unices.

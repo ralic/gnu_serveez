@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.4 2000/06/16 15:36:15 ela Exp $
+ * $Id: http-cgi.c,v 1.5 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -81,7 +81,7 @@ http_cgi_read (socket_t sock)
     }
 
 #ifdef __MINGW32__
-  overlap = (os_version >= WinNT4x) ? &http->overlap[READ] : NULL;
+  overlap = (os_version >= WinNT4x) ? &sock->overlap[READ] : NULL;
   if(!ReadFile(sock->pipe_desc[READ],
 	       sock->send_buffer + sock->send_buffer_fill,
 	       do_read,
@@ -155,7 +155,7 @@ http_cgi_write (socket_t sock)
     do_write = http->contentlength;
 
 #ifdef __MINGW32__
-  overlap = (os_version >= WinNT4x) ? &http->overlap[WRITE] : NULL;
+  overlap = (os_version >= WinNT4x) ? &sock->overlap[WRITE] : NULL;
   if(!WriteFile(sock->pipe_desc[WRITE], 
 		sock->recv_buffer, 
 		do_write,
@@ -837,8 +837,8 @@ http_post_response(socket_t sock, char *request, int flags)
     }
 
 #ifdef __MINGW32__
-  memset(&http->overlap[READ], 0, sizeof(OVERLAPPED));
-  memset(&http->overlap[WRITE], 0, sizeof(OVERLAPPED));
+  memset(&sock->overlap[READ], 0, sizeof(OVERLAPPED));
+  memset(&sock->overlap[WRITE], 0, sizeof(OVERLAPPED));
 #endif
   sock->write_socket = http_cgi_write;
   sock->disconnected_socket = http_disconnect;

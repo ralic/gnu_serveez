@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.9 2000/06/18 16:25:19 ela Exp $
+ * $Id: socket.h,v 1.10 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -87,6 +87,11 @@ struct socket
   SOCKET sock_desc;		/* Socket descriptor. */
   int file_desc;		/* Used for files descriptors. */
   HANDLE pipe_desc[2];          /* Used for the pipes and coservers. */
+
+#ifdef __MINGW32__
+  OVERLAPPED overlap[2];        /* the overlap info for WinNT */
+#endif /* not __MINGW32__ */
+
   char *recv_pipe;              /* File of the receive pipe. */
   char *send_pipe;              /* File of the send pipe. */
   socket_t parent;              /* Parent pipe server for pipe clients. */

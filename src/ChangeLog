@@ -1,4 +1,29 @@
+2000-06-20  [ Ela ]  <ela@lkcc.org>
+
+	* server.c (set_port): Using inet_addr() instead of 
+	inet_aton in Win32, because it is not implemented there.
+
+	* server-socket.c (server_create): Named pipes in Win32 are
+	located in "\\.\pipe\". So we put the leading path to the
+	actual pipe's name.
+	(server_accept_pipe): Here we give ConnectNamedPipe a try
+	to listen for connected clients at this pipe.
+
+	* pipe-socket.c (pipe_create): Now we can also create pipe
+	sockets in Win32. Non-blocking I/O will be realised via
+	overlapped I/O.
+
 2000-06-19  [ Ela ]  <ela@lkcc.org>
+
+	* pipe-socket.c (pipe_write): Using overlapped I/O on Win32
+	systems for pipe reading and writing.
+
+	* coserver/coserver.c (start_internal_coserver): Do not set 
+	process priority class, but thread priority only.
+
+	* socket.c (default_check_request_byte): Added a array and one
+	byte packet delimiter check_request callback for optimizing 
+	speed.
 
 	* server.c (set_port): When creating a inet address via
 	inet_ntoa the whole structure seems to be destroyed except

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.7 2000/06/19 15:24:49 ela Exp $
+ * $Id: server.c,v 1.8 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -430,6 +430,7 @@ static int set_port (char *cfgfile,
 	} 
       else 
 	{
+#ifndef __MINGW32__
 	  if (inet_aton (string_val (tmp), &newaddr->sin_addr) == 0) 
 	    {
 	      fprintf (stderr, "%s: `%s': local-ip should be an ip address "
@@ -437,6 +438,9 @@ static int set_port (char *cfgfile,
 		       cfgfile, varname, keyname);
 	      return -1;
 	    }
+#else /* __MINGW32__ */
+	  newaddr->sin_addr.s_addr = inet_addr (string_val (tmp));
+#endif /* __MINGW32__ */
 	}
 
       /* this surely is internet */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.5 2000/06/13 16:50:47 ela Exp $
+ * $Id: util.h,v 1.6 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -204,8 +204,6 @@ const char * util_hstrerror (void);
 #define SYS_ERROR GetErrorMessage(GetLastError())
 #define NET_ERROR GetErrorMessage(WSAGetLastError())
 #define H_NET_ERROR GetErrorMessage(WSAGetLastError())
-#define WRITE_PIPE(pipe, buffer, count) write(pipe, buffer, count)
-#define READ_PIPE(pipe, buffer, count) read(pipe, buffer, count)
 
 #else /* Unices here. */
 
@@ -214,8 +212,6 @@ const char * util_hstrerror (void);
 #define SYS_ERROR strerror(errno)
 #define NET_ERROR strerror(errno)
 #define H_NET_ERROR util_hstrerror()
-#define WRITE_PIPE(pipe, buffer, count) write(pipe, buffer, count)
-#define READ_PIPE(pipe, buffer, count) read(pipe, buffer, count)
 #define last_errno errno
 
 #endif

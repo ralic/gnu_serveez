@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.8 2000/06/19 15:24:49 ela Exp $
+ * $Id: server-socket.c,v 1.9 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -386,10 +386,17 @@ server_create (portcfg_t *cfg)
   if (cfg->proto & PROTO_PIPE)
     {
       sock->flags |= SOCK_FLAG_PIPE;
+#ifndef __MINGW32__
       sock->recv_pipe = xmalloc (strlen (cfg->inpipe) + 1);
       strcpy (sock->recv_pipe, cfg->inpipe);
       sock->send_pipe = xmalloc (strlen (cfg->outpipe) + 1);
       strcpy (sock->send_pipe, cfg->outpipe);
+#else /* __MINGW32__ */
+      sock->recv_pipe = xmalloc (strlen (cfg->inpipe) + 10);
+      sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", cfg->inpipe);
+      sock->send_pipe = xmalloc (strlen (cfg->outpipe) + 10);
+      sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", cfg->outpipe);
+#endif /* __MINGW32__ */
       sock->read_socket = server_accept_pipe;
       sock->disconnected_socket = pipe_disconnected;
       log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->send_pipe);
@@ -514,7 +521,7 @@ int
 server_accept_pipe (socket_t server_sock)
 {
   struct stat buf;
-  int recv_pipe, send_pipe;
+  HANDLE recv_pipe, send_pipe;
   socket_t sock;
 
   server_sock->idle_counter = 1;
@@ -590,7 +597,93 @@ server_accept_pipe (socket_t server_sock)
 
   server_sock->flags |= SOCK_FLAG_INITED;
 
-#else /* not HAVE_MKFIFO */
+#elif defined (__MINGW32__) /* not HAVE_MKFIFO */
+
+  /*
+   * Create both of the named pipes and put the handles into
+   * the server socket structure.
+   */
+  if (server_sock->pipe_desc[READ] == INVALID_HANDLE_VALUE)
+    {
+      if ((recv_pipe = CreateNamedPipe (
+             server_sock->recv_pipe,
+	     PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,
+	     PIPE_READMODE_BYTE | PIPE_NOWAIT,
+	     1,
+	     0, 0,
+	     100,
+	     NULL)) == INVALID_HANDLE_VALUE)
+	{
+	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
+	  return 0;
+	}
+      server_sock->pipe_desc[READ] = recv_pipe;
+    }
+  else
+    recv_pipe = server_sock->pipe_desc[READ];
+
+  if (server_sock->pipe_desc[WRITE] == INVALID_HANDLE_VALUE)
+    {
+      if ((send_pipe = CreateNamedPipe (
+             server_sock->send_pipe,
+	     PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED,
+	     PIPE_TYPE_BYTE | PIPE_NOWAIT,
+	     1,
+	     0, 0,
+	     100,
+	     NULL)) == INVALID_HANDLE_VALUE)
+	{
+	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
+	  return 0;
+	}
+      server_sock->pipe_desc[WRITE] = send_pipe;
+    }
+  else
+    send_pipe = server_sock->pipe_desc[WRITE];
+
+  /*
+   * Now try connecting to one of these pipes. This will fail until
+   * a client has been connected.
+   */
+  if (!ConnectNamedPipe (recv_pipe, NULL))
+    {
+      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+      return 0;
+    }
+
+  if (!ConnectNamedPipe (send_pipe, NULL))
+    {
+      return 0;
+    }
+
+  /* Create a socket structure for the client pipe. */
+  if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
+    {
+      DisconnectNamedPipe (send_pipe);
+      CloseHandle (send_pipe);
+      DisconnectNamedPipe (recv_pipe);
+      CloseHandle (recv_pipe);
+      return 0;
+    }
+
+  sock->read_socket = pipe_read;
+  sock->write_socket = pipe_write;
+  sock->flags |= SOCK_FLAG_PIPE;
+  sock->parent = server_sock;
+  sock->data = server_sock->data;
+  sock->check_request = server_sock->check_request;
+  sock->disconnected_socket = server_sock->disconnected_socket;
+  sock->idle_func = default_idle_func; 
+  sock->idle_counter = 1;
+  sock_enqueue (sock);
+
+  server_sock->flags |= SOCK_FLAG_INITED;
+
+  log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
+              server_sock->send_pipe, 
+	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+
+#else /* not __MINGW32__ */
 
   return 0;
 

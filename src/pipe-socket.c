@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.3 2000/06/16 21:02:28 ela Exp $
+ * $Id: pipe-socket.c,v 1.4 2000/06/19 22:56:14 ela Exp $
  *
  */
 
@@ -92,44 +92,94 @@ pipe_disconnected (socket_t sock)
 
 /*
  * The pipe_read() function reads as much data as available on a readable
- * pipe descriptor. Return a non-zero value on errors.
+ * pipe descriptor or handle on Win32. Return a non-zero value on errors.
  */
 int
 pipe_read (socket_t sock)
 {
-  int num_read;
-  int ret;
-  int do_read;
-  int desc;
+  int num_read, do_read;
+#ifdef __MINGW32__
+  LPOVERLAPPED overlap;
+#endif
 
-  desc = (int) sock->pipe_desc[READ];
+  /* 
+   * Read as much space is left in the receive buffer and return 
+   * zero if there is no more space.
+   */
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
+  if (do_read <= 0) 
+    {
+      log_printf (LOG_ERROR, "receive buffer overflow on pipe %d\n", 
+		  sock->pipe_desc[READ]);
+      
+      if (sock->kicked_socket)
+	sock->kicked_socket (sock, 0);
+      
+      return -1;
+    }
 
-  num_read = READ_PIPE (desc, sock->recv_buffer + sock->recv_buffer_fill,
-			do_read);
-
-  /* error occured while reading */
-  if (num_read < 0)
+#ifdef __MINGW32__
+  /*
+   * On Win32 systems we use ReadFile with overlapped I/O to
+   * "emulate" non-blocking descriptors. We MUST set it to NULL
+   * for Win95 and less versions.
+   */
+  overlap = (os_version >= WinNT4x) ? &sock->overlap[READ] : NULL;
+  if (!ReadFile (sock->pipe_desc[READ],
+		 sock->recv_buffer + sock->recv_buffer_fill,
+		 do_read, (DWORD *) &num_read, overlap))
+    {
+      log_printf (LOG_ERROR, "pipe ReadFile: %s\n", SYS_ERROR);
+      if (last_errno == ERROR_IO_PENDING)
+	GetOverlappedResult (sock->pipe_desc[READ], overlap, 
+			     (DWORD *) &num_read, FALSE);
+      else
+	num_read = -1;
+    }
+#else /* not __MINGW32__ */
+  if ((num_read = read (sock->pipe_desc[READ],
+			sock->recv_buffer + sock->recv_buffer_fill,
+			do_read)) == -1)
     {
       log_printf (LOG_ERROR, "pipe read: %s\n", SYS_ERROR);
       return -1;
     }
-  /* some data has been read */
+#endif /* not __MINGW32__ */
+
+  /* Some data has been read from the pipe. */
   else if (num_read > 0)
     {
       sock->last_recv = time (NULL);
+
+#if ENABLE_FLOOD_PROTECTION
+      if (!(sock->flags & SOCK_FLAG_NOFLOOD))
+	{
+	  sock->flood_points += 1 + (num_read / 50);
+	  
+	  if (sock->flood_points > sock->flood_limit)
+	    {
+	      log_printf (LOG_ERROR, "kicking pipe %d (flood)\n", 
+			  sock->pipe_desc[READ]);
+	      
+	      if (sock->kicked_socket)
+		sock->kicked_socket (sock, 0);
+	      
+	      return -1;
+	    }
+	}
+#endif /* ENABLE_FLOOD_PROTECTION */
+
       sock->recv_buffer_fill += num_read;
 
       if (sock->check_request)
-	{
-	  if ((ret = sock->check_request(sock)) != 0)
-	    return ret;
-	}
+	if (sock->check_request (sock))
+	  return -1;
     }
   /* the socket was selected but there is no data */
   else
     {
-      log_printf (LOG_ERROR, "pipe read: no data on pipe %d\n", desc);
+      log_printf (LOG_ERROR, "pipe read: no data on pipe %d\n", 
+		  sock->pipe_desc[READ]);
       return -1;
     }
   
@@ -143,16 +193,47 @@ pipe_read (socket_t sock)
 int
 pipe_write (socket_t sock)
 {
-  int num_written;
-  int do_write;
-  int desc;
+  int num_written, do_write;
+#ifdef __MINGW32__
+  LPOVERLAPPED overlap;
+#endif
 
-  desc = (int) sock->pipe_desc[WRITE];
+  /* 
+   * Write as many bytes as possible, remember how many
+   * were actually sent. Do not write more than the content
+   * length of the post data.
+   */
   do_write = sock->send_buffer_fill;
-  num_written = WRITE_PIPE (desc, sock->send_buffer, do_write);
 
-  /* some data has been written */
-  if (num_written > 0)
+#ifdef __MINGW32__
+  overlap = (os_version >= WinNT4x) ? &sock->overlap[WRITE] : NULL;
+  if (!WriteFile (sock->pipe_desc[WRITE], 
+		  sock->send_buffer, 
+		  do_write, (DWORD *) &num_written, overlap))
+    {
+      log_printf (LOG_ERROR, "pipe WriteFile: %s\n", SYS_ERROR);
+      if (last_errno == ERROR_IO_PENDING)
+	GetOverlappedResult (sock->pipe_desc[WRITE], overlap, 
+			     (DWORD *) &num_written, FALSE);
+      else
+	num_written = -1;
+    }
+#else /* not __MINGW32__ */
+  if ((num_written = write (sock->pipe_desc[WRITE], 
+			    sock->send_buffer, 
+			    do_write)) == -1)
+    {
+      if (last_errno == SOCK_UNAVAILABLE)
+	{
+	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
+	  num_written = 0;
+	}
+      log_printf (LOG_ERROR, "pipe write: %s\n", SYS_ERROR);
+    }
+#endif /* not __MINGW32__ */
+
+  /* Some data has been successfully written to the pipe. */
+  else if (num_written > 0)
     {
       sock->last_send = time (NULL);
       if (sock->send_buffer_fill > num_written)
@@ -163,31 +244,20 @@ pipe_write (socket_t sock)
 	}
       sock->send_buffer_fill -= num_written;
     }
-  /* error occured while writing */
-  else if (num_written < 0)
-    {
-      log_printf (LOG_ERROR, "pipe write: %s\n", SYS_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
-	{
-	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
-	  num_written = 0;
-	}
-    }
 
   return (num_written < 0) ? -1 : 0;
 }
-
-#ifndef __MINGW32__
 
 /*
  * Create a socket structure by the two file descriptors recv_fd and
  * send_fd. This is used by coservers only, yet. Return NULL on errors.
  */
 socket_t
-pipe_create (int recv_fd, int send_fd)
+pipe_create (HANDLE recv_fd, HANDLE send_fd)
 {
   socket_t sock;
 
+#ifndef __MINGW32__
   if (fcntl (recv_fd, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
@@ -199,6 +269,7 @@ pipe_create (int recv_fd, int send_fd)
       log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
       return NULL;
     }
+#endif /* not __MINGW32__ */
 
   if ((sock = sock_alloc ()) != NULL)
     {
@@ -211,8 +282,6 @@ pipe_create (int recv_fd, int send_fd)
 
   return sock;
 }
-
-#endif /* __MINGW32__ */
 
 /*
  * Create a (non blocking) pipe. Differs in Win32 and Unices.
