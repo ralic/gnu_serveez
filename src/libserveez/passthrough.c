@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.12 2001/11/22 17:17:51 ela Exp $
+ * $Id: passthrough.c,v 1.13 2001/11/25 03:38:23 ela Exp $
  *
  */
 
@@ -499,6 +499,9 @@ svz_process_recv_socket (svz_socket_t *sock)
       sock->recv_buffer_fill += num_read;      
       svz_process_recv_update (sock, 0);
     }
+  else
+    svz_log (LOG_ERROR, "passthrough: recv: no data on socket %d\n", 
+	     sock->sock_desc);
 
   return (num_read > 0) ? 0 : -1;
 }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.14 2001/11/21 21:37:42 ela Exp $
+ * $Id: socket.h,v 1.15 2001/11/25 03:38:23 ela Exp $
  *
  */
 
@@ -167,6 +167,12 @@ struct svz_socket
    * a valid packet.
    */
   int (* handle_request) (svz_socket_t *sock, char *request, int len);
+
+  /*
+   * CHILD_DIED is called when the PID stored in the socket structure 
+   * equals the one signaled by the internal signal handler.
+   */
+  int (* child_died) (svz_socket_t *sock);
 
   /*
    * IDLE_FUNC gets called from the periodic task scheduler.  Whenever

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.31 2001/11/23 13:18:39 ela Exp $
+ * $Id: server-core.c,v 1.32 2001/11/25 03:38:23 ela Exp $
  *
  */
 
@@ -1130,6 +1130,70 @@ svz_signal_dn (void)
 }
 
 /*
+ * This routine checks whether the child process specified by the @code{pid}
+ * handle stored in the socket structure @var{sock} is still alive. It 
+ * returns zero if so, otherwise (when the child process died) non-zero. This
+ * routine is called from @code{svz_sock_check_children()}.
+ */
+int
+svz_sock_child_died (svz_socket_t *sock)
+{
+#ifdef __MINGW32__
+
+  DWORD result;
+
+  result = WaitForSingleObject (sock->pid, LEAST_WAIT_OBJECT);
+  if (result == WAIT_FAILED)
+    {
+      svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+      return 0;
+    }
+  else if (result != WAIT_TIMEOUT)
+    {
+      if (closehandle (sock->pid) == -1)
+        svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+#else /* !__MINGW32__ */
+
+  if (svz_child_died == sock->pid)
+    return -1;
+
+#if HAVE_WAITPID
+  if (waitpid (sock->pid, NULL, WNOHANG) == -1 && errno == ECHILD)
+    return -1;
+#endif /* HAVE_WAITPID */
+
+#endif /* !__MINGW32__ */
+  return 0;
+}
+
+/*
+ * Goes through the list of socket structures and checks whether each
+ * @code{pid} stored in a socket structure has died. If so, the
+ * @code{child_died} callback is called. If this callback returned non-zero
+ * the appropriate socket structure gets scheduled for shutdown.
+ */
+void
+svz_sock_check_children (void)
+{
+  svz_socket_t *sock;
+
+  svz_sock_foreach (sock)
+    if (sock->pid != INVALID_HANDLE && svz_sock_child_died (sock))
+      {
+	sock->pid = INVALID_HANDLE;
+#if ENABLE_DEBUG
+	svz_log (LOG_DEBUG, "child of socket id %d died\n", sock->id);
+#endif /* ENABLE_DEBUG */
+	if (sock->child_died)
+	  if (sock->child_died (sock))
+	    svz_sock_schedule_for_shutdown (sock);
+      }
+}
+
+/*
  * This routine handles all things once and is called regularly in the
  * below @code{svz_loop()} routine.
  */
@@ -1161,18 +1225,21 @@ svz_loop_one (void)
       svz_pipe_broke = 0;
     }
 
-  if (svz_child_died)
-    {
-      /* SIGCHLD received. */
-      svz_log (LOG_ERROR, "child pid %d died\n", (int) svz_child_died);
-      svz_child_died = 0;
-    }
-
   /*
    * Check for new connections on server port, incoming data from
    * clients and process queued output data.
    */
   svz_check_sockets ();
+
+  /* Check if a child died. Checks all socket structures. */
+  svz_sock_check_children ();
+
+  if (svz_child_died)
+    {
+      /* SIGCHLD received. */
+      svz_log (LOG_NOTICE, "child pid %d died\n", (int) svz_child_died);
+      svz_child_died = 0;
+    }
 
   /*
    * Reorder the socket chain every 16 select loops. We do not do it
