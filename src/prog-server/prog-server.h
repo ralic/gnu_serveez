@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.h,v 1.4 2001/11/22 17:17:51 ela Exp $
+ * $Id: prog-server.h,v 1.5 2001/11/25 15:51:16 ela Exp $
  *
  */
 
@@ -30,11 +30,13 @@
  */
 typedef struct
 {
-  char *bin;         /* Executable file. */
-  char *dir;         /* Working directory or NULL. */
-  char *user;        /* user[.group] or NULL. */
-  svz_array_t *argv; /* Arguments for the executable. Watch argv[0]. */
-  int fork;          /* Flag: fork or shuffle for passthrough method. */
+  char *bin;           /* Executable file. */
+  char *dir;           /* Working directory or NULL. */
+  char *user;          /* user[.group] or NULL. */
+  svz_array_t *argv;   /* Arguments for the executable. Watch argv[0]. */
+  int fork;            /* Flag: fork or shuffle for passthrough method. */
+  int single_threaded; /* Flag: single- or multi-threaded packet server. */
+  int (* check_request) (svz_socket_t *);
 }
 prog_config_t;
 
@@ -51,6 +53,9 @@ int prog_notify (svz_server_t *server);
 char *prog_info_server (svz_server_t *server);
 char *prog_info_client (svz_server_t *server, svz_socket_t *sock);
 int prog_handle_request (svz_socket_t *sock, char *request, int len);
+int prog_read_socket (svz_socket_t *sock);
+int prog_check_request (svz_socket_t *sock);
+int prog_child_died (svz_socket_t *sock);
 
 /*
  * This server's definition.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.13 2001/11/25 03:38:23 ela Exp $
+ * $Id: passthrough.c,v 1.14 2001/11/25 15:51:16 ela Exp $
  *
  */
 
@@ -170,12 +170,12 @@ svz_process_disconnect (svz_socket_t *sock)
 
   if ((xsock = svz_sock_getreferrer (sock)) != NULL)
     {
+      svz_sock_setreferrer (sock, NULL);
+      svz_sock_setreferrer (xsock, NULL);
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n", 
 	       xsock->id);
 #endif
-      svz_sock_setreferrer (sock, NULL);
-      svz_sock_setreferrer (xsock, NULL);
       svz_sock_schedule_for_shutdown (xsock);
     }
   return 0;
@@ -184,7 +184,7 @@ svz_process_disconnect (svz_socket_t *sock)
 /*
  * Disconnection routine for the passthrough socket structure @var{sock}
  * connected with a process's stdin/stdout. Schedules the referring socket
- * connection for shutdown if possible.
+ * connection for shutdown if necessary and possible.
  */
 int
 svz_process_disconnect_passthrough (svz_socket_t *sock)
@@ -193,13 +193,16 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
 
   if ((xsock = svz_sock_getreferrer (sock)) != NULL)
     {
-#if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n", 
-	       xsock->id);
-#endif
       svz_sock_setreferrer (sock, NULL);
       svz_sock_setreferrer (xsock, NULL);
-      svz_sock_schedule_for_shutdown (xsock);
+      if (sock->flags & (PROTO_TCP | PROTO_PIPE))
+	{
+#if ENABLE_DEBUG
+	  svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n", 
+		   xsock->id);
+#endif
+	  svz_sock_schedule_for_shutdown (xsock);
+	}
     }
 
   /* Clean up receive and send buffer. */
@@ -550,6 +553,9 @@ svz_process_create_child (svz_process_t *proc)
 
   if (proc->argv[0] == NULL)
     proc->argv[0] = proc->bin;
+
+  /* Disconnect this process from our TTY. */
+  close (fileno (stderr));
 
   /* Execute the file itself here overwriting the current process. */
   if (execve (proc->bin, proc->argv, svz_envblock_get (proc->envp)) == -1)

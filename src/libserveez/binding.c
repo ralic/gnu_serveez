@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.13 2001/11/23 13:18:38 ela Exp $
+ * $Id: binding.c,v 1.14 2001/11/25 15:51:16 ela Exp $
  *
  */
 
@@ -107,7 +107,7 @@ svz_server_bindings (svz_server_t *server)
  * binding.
  */
 svz_array_t *
-svz_server_portcfg (svz_server_t *server)
+svz_server_portcfgs (svz_server_t *server)
 {
   svz_array_t *port = svz_array_create (1, NULL);
   svz_socket_t *sock;
@@ -135,7 +135,7 @@ svz_server_portcfg (svz_server_t *server)
  * returned array via @code{svz_array_destroy()}.
  */
 svz_array_t *
-svz_server_listener (svz_server_t *server)
+svz_server_listeners (svz_server_t *server)
 {
   svz_array_t *listener = svz_array_create (1, NULL);
   svz_socket_t *sock;
@@ -156,7 +156,7 @@ svz_server_listener (svz_server_t *server)
 /*
  * This function checks if the given server instance @var{server} is
  * bound to the listening socket structure @var{sock} and returns non-zero 
- * if it is the only server instance bound to the this socket. Otherwise
+ * if it is the only server instance bound to this socket. Otherwise
  * the routine returns zero.
  */
 int

@@ -2037,6 +2037,13 @@ This flag specifies the method how the connection is passed to the program.
 If it is true the server uses the Unix'ish @code{fork()} and @code{exec()}
 method.  Otherwise it will pass the connection transactions through a 
 unnamed pair of sockets [ or two pairs of anonymous pipes ].
+
+@item single-threaded (boolean, default: true)
+This parameter applies to servers bound to UDP and ICMP port configurations
+only.  For programs which process all incoming packets and eventually time 
+out, the program is said to be @samp{single-threaded} and should use a true
+value here.  If a program gets a packets and can receive further packets, it 
+is said to be a @samp{multi-threaded} program, and should use a false value.
 @end table
 
 @node Mandel Server, , Passthrough Server, Existing servers

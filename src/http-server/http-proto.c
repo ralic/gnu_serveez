@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.76 2001/09/13 13:28:54 ela Exp $
+ * $Id: http-proto.c,v 1.77 2001/11/25 15:51:16 ela Exp $
  *
  */
 
@@ -211,7 +211,7 @@ http_init (svz_server_t *server)
   /* resolve localhost if server name is not set */
   if (!cfg->host)
     {
-      if ((ports = svz_server_portcfg (server)) != NULL)
+      if ((ports = svz_server_portcfgs (server)) != NULL)
 	{
 	  addr = svz_portcfg_addr ((svz_portcfg_t *) svz_array_get (ports, 0));
 	  host = addr->sin_addr.s_addr;

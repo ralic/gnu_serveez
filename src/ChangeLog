@@ -1,3 +1,8 @@
+2001-11-25  [ Ela ]  <ela@lkcc.org>
+
+	* prog-server/prog-server.c: Also UDP and ICMP bindings
+	supported.  Added `single-threaded' option.
+
 2001-11-21  [ Ela ]  <ela@lkcc.org>
 
 	* prog-server/prog-server.c (prog_connect_socket): Adapted
