@@ -1,3 +1,8 @@
+2001-10-17  [ Ela ]  <ela@lkcc.org>
+
+	* codec/bzip2.c: New codec implementation for the bzip2
+	block-sorting compression library.
+
 2001-10-09  [ Ela ]  <ela@lkcc.org>
 
 	* codec/codec.c (svz_codec_sock_disconnect): Fixed fatal bug

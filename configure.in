@@ -881,7 +881,7 @@ AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \
-  mswsock.h grp.h mach-o/dyld.h zlib.h)
+  mswsock.h grp.h mach-o/dyld.h zlib.h bzlib.h)
 AC_HEADER_DIRENT
 
 SERVEEZLIBS=""
@@ -917,6 +917,18 @@ dnl
 AC_CHECK_LIB(z, zlibVersion,
   AC_DEFINE(HAVE_ZLIB, 1, [Define if you have the zlib library.])
   CODECLIBS="$CODECLIBS -lz")
+
+have_bz2=no
+AC_CHECK_LIB(bz2, bzCompress, have_bz2=yes,
+  [AC_CHECK_LIB(bz2, BZ2_bzCompress, have_bz2=prefix)])
+if test $have_bz2 != no ; then
+  AC_DEFINE(HAVE_BZ2LIB, 1, [Define if you have the bz2 library.])
+  CODECLIBS="$CODECLIBS -lbz2"
+  if test $have_bz2 = prefix ; then
+  AC_DEFINE(HAVE_BZ2LIB_PREFIX, 1, 
+    [Define if you have a prefixed bz2 library (>= v1.0)])
+  fi
+fi
 
 AC_SUBST(SERVEEZLIBS)
 AC_SUBST(CODECLIBS)

@@ -28,6 +28,8 @@ files.
 Version 0.1.2
 -------------
 
+ * bzip2 codec implementation
+ * included codecs in the Win32 binary release
 
 Version 0.1.1
 -------------

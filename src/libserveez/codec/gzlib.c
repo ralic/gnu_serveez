@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.c,v 1.3 2001/10/13 02:39:39 ela Exp $
+ * $Id: gzlib.c,v 1.4 2001/10/17 11:12:20 ela Exp $
  *
  */
 
@@ -171,7 +171,7 @@ zlib_encoder_finalize (svz_codec_data_t *data)
 }
 
 /* Codec `code' callback:
-   Encoding routine of ' zlib' codec. The callback is meant to do what is
+   Encoding routine of 'zlib' codec. The callback is meant to do what is
    described by the `flag' member of @code{svz_codec_data_t}. The coding
    routine must interpret the input buffer and output buffer description 
    correctly and should remove the input bytes consumed by the codec. 
@@ -275,7 +275,7 @@ zlib_decode (svz_codec_data_t *data)
   data->in_fill = s->avail_in;
   data->out_fill = (int) data->out_size - s->avail_out;
 
-  if (s->avail_out == 0)
+  if (s->avail_out == 0 && ret != Z_STREAM_END)
     return SVZ_CODEC_MORE_OUT;
 
   return ret == Z_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
