@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-server.scm,v 1.2 2001/11/11 11:32:08 ela Exp $
+;; $Id: mandel-server.scm,v 1.3 2001/11/11 20:32:15 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -85,12 +85,12 @@
 	    (set! bpp (let loop ((n 1) (cols char-range))
 			(if (>= cols colors) n
 			    (loop (1+ n) (* cols char-range)))))
-	    (set! val (+ (inexact->exact (* 127 (- 1 (cos r))))
+	    (set! val (+ (inexact->exact (* 127 (- 1 (cos b))))
 			 (* 256 (inexact->exact (* 127 (- 1 (cos g)))))
-			 (* 256 256 (inexact->exact (* 127 (- 1 (cos b)))))))
+			 (* 256 256 (inexact->exact (* 127 (- 1 (cos r)))))))
 	    (vector-set! (car rgb) i (generate-ascii char-range bpp i))
 	    (vector-set! (cdr rgb) i (left-zeros (number->string val 16) 6))
-	    (loop (1- i) (+ r 0.26) (+ g 0.02) (+ b 0.345)))))
+	    (loop (1- i) (+ r 0.2) (+ g 0.02) (+ b 0.33)))))
     (svz:server:state-set! server "palette" rgb)
     (svz:server:state-set! server "bpp" (number->string bpp))))
 
