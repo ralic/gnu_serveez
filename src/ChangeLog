@@ -1,3 +1,18 @@
+2002-07-29  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.scm (serveez-doc-add!): Add the documentation-files
+	for each loadpath entry.
+
+	* guile.c (guile_define_port, guile_define_server): Bugfix: 
+	Do not drop previously defined entities when detecting duplicate
+	definitions.
+
+	* guile-server.c (guile_define_servertype): Checking for
+	duplicate servertype definitions.
+
+	* Makefile.am (install-exec-hook): Workaround for mingw32 and
+	cygwin host builds.
+
 2002-07-27  [ Ela ]  <ela@lkcc.org>
 
 	* guile.c (guile_serveez_load): New Guile procedure replacing

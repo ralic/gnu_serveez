@@ -28,6 +28,7 @@ files.
 Version 0.1.4
 -------------
 
+ * support for HP-UX platforms
  * support for urgent (out-of-band) data on stream-like network 
    connections (i.e. TCP connections)
  * introduced server reset and socket trigger callback

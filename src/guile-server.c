@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.49 2002/07/15 07:45:04 ela Exp $
+ * $Id: guile-server.c,v 1.50 2002/07/29 18:32:08 ela Exp $
  *
  */
 
@@ -1591,9 +1591,19 @@ guile_define_servertype (SCM args)
 	scm_gc_protect_object (proc);
     }
 
-  /* Check the configuration items for this servertype. */
-  err |= guile_servertype_config (server, 
-				  optionhash_get (options, "configuration"));
+  /* Check duplicate server types. */
+  if (svz_servertype_get (server->prefix, 0) != NULL)
+    {
+      guile_error ("Duplicate servertype definition: `%s'", server->prefix);
+      err = -1;
+    }
+  else
+    {
+      /* Check the configuration items for this servertype. */
+      err |= guile_servertype_config (server, 
+				      optionhash_get (options, 
+						      "configuration"));
+    }
 
   if (!err)
     {
@@ -1622,6 +1632,7 @@ guile_define_servertype (SCM args)
  out:
   optionhash_destroy (options);
   svz_free (txt);
+  guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.12 2002/03/03 08:57:52 ela Exp $
+ * $Id: guile.h,v 1.13 2002/07/29 18:32:09 ela Exp $
  *
  */
 
@@ -37,6 +37,9 @@
 
 /* FAIL breaks to the label `out' and sets an error condition. */
 #define FAIL() do { err = -1; goto out; } while(0)
+
+/* Global error flag. */
+int guile_global_error;
 
 /* Export these functions. */
 int guile_to_integer (SCM, int *);

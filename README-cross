@@ -83,3 +83,7 @@ will get a complete installation tree meant to run from this directory.
 Thus the `serveez-config' script might deliver wrong results when you 
 transfer the installation tree from your build system to the target system 
 to a different location.
+
+  When cross-compiling to a mingw32 host you need to set the environment
+variable HOST_CC="gcc" while `make'ing.  Current libtool versions need this 
+to create the file `impgen' which is run on the build system.

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.66 2002/07/28 12:13:17 ela Exp $
+ * $Id: guile.c,v 1.67 2002/07/29 18:32:08 ela Exp $
  *
  */
 
@@ -56,7 +56,7 @@
  * Global error flag that indicating failure of one of the parsing 
  * functions.
  */
-static int guile_global_error = 0;
+int guile_global_error = 0;
 
 /* 
  * Global variable containing the current load port in exceptions. 
@@ -1132,12 +1132,13 @@ guile_define_server (SCM name, SCM args)
   /* Add server if configuration is ok, no error yet. */
   if (!err)
     {
-      if ((server = svz_server_add (server)) != NULL)
+      if (svz_server_get (servername) != NULL)
 	{
 	  guile_error ("Duplicate server definition: `%s'", servername);
 	  svz_server_free (server);
 	  FAIL ();
 	}
+      svz_server_add (server);
     }
   else
     {
@@ -1379,13 +1380,14 @@ guile_define_port (SCM name, SCM args)
   if (err)
     FAIL ();
 
-  if ((prev = svz_portcfg_add (portname, cfg)) != cfg)
+  if ((prev = svz_portcfg_get (portname)) != NULL)
     {
       /* We've overwritten something. Report and dispose. */
       guile_error ("Duplicate definition of port `%s'", portname);
       err = -1;
-      svz_portcfg_destroy (prev);
     }
+  else
+    svz_portcfg_add (portname, cfg);
 
  out:
   if (err)

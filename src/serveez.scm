@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: serveez.scm,v 1.6 2002/07/26 06:34:53 ela Exp $
+;; $Id: serveez.scm,v 1.7 2002/07/29 18:32:09 ela Exp $
 ;;
 
 ;;
@@ -130,7 +130,23 @@
 ;; === Include documentation file into Guile help system
 ;;
 (define (serveez-doc-add!)
-  (use-modules (ice-9 session))
-  (use-modules (ice-9 documentation))
-  (set! documentation-files 
-	(cons "serveez-procedures.txt" documentation-files)))
+  (catch #t
+	 (lambda ()
+	   (use-modules (ice-9 session))
+	   (use-modules (ice-9 documentation))
+	   (for-each 
+	    (lambda (path)
+	      (let ((file (string-append path "/serveez-procedures.txt"))
+		    (found #f))
+		(for-each 
+		 (lambda (f) (if (equal? f file) (set! found #t)))
+		 documentation-files)
+		(if (not found)
+		    (set! documentation-files 
+			  (cons file documentation-files)))))
+	    (serveez-loadpath))
+	   (display "Serveez documentation file successfully added.\n")
+	   #t)
+	 (lambda args
+	   (display "Failed to add Serveez documentation file.\n")
+	   #f)))

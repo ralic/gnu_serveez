@@ -80,6 +80,11 @@ MAINTAINERCLEANFILES = Makefile.in serveez.dsp
 dist-hook:
 	rm -f $(distdir)/svzconfig.h
 
+# FIXME: Install the executable.  As long as `libtool' does not.
+install-exec-hook:
+	test ! -f .libs/serveez.exe || \
+	$(INSTALL_PROGRAM) .libs/serveez.exe $(bindir)/serveez.exe
+
 serveez.cfg: $(top_srcdir)/data/serveez.cfg
 	cp -p $(top_srcdir)/data/serveez.cfg $@
 

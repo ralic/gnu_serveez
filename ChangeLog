@@ -1,3 +1,8 @@
+2002-07-29  [ Ela ]  <ela@lkcc.org>
+
+	* README-cross: Added comment about the `HOST_CC' environment
+	variable for mingw32 host builds.
+
 2002-07-25  [ Ela ]  <ela@lkcc.org>
 
 	* depcomp: New file.
