@@ -1,7 +1,7 @@
 /*
  * alloc.c - memory allocation module implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: alloc.c,v 1.2 2001/01/29 22:41:32 ela Exp $
  *
  */
 
@@ -53,7 +53,7 @@ svz_free_func_t svz_free_func = free;
 
 #if DEBUG_MEMORY_LEAKS
 
-/* heap hash */
+/* heap hash table */
 static hash_t *heap = NULL;
 
 /* return static heap hash code key length */
@@ -83,7 +83,7 @@ heap_hash_code (char *id)
 typedef struct
 {
   void *ptr;     /* memory pointer */
-  unsigned size; /* block size */
+  unsigned size; /* memory block's size */
   void *caller;  /* the caller */
 }
 heap_block_t;
@@ -93,7 +93,7 @@ heap_block_t;
 #endif
 
 /* add another heap block to the heap management */
-void
+static void
 heap_add (heap_block_t *block)
 {
   if (heap == NULL)
@@ -109,7 +109,7 @@ heap_add (heap_block_t *block)
 #endif /* DEBUG_MEMORY_LEAKS */
 
 /*
- * Allocate `size' of memory and return a pointer to it.
+ * Allocate SIZE bytes of memory and return a pointer to it.
  */
 void * 
 svz_malloc (unsigned size)
@@ -160,8 +160,9 @@ svz_malloc (unsigned size)
 }
 
 /*
- * Change the size of a malloc()'ed block of memory. `size' is the new 
- * size of the block, `ptr' is the pointer returned by malloc() or NULL.
+ * Change the size of a `svz_malloc ()'ed block of memory. SIZE is 
+ * the new size of the block in bytes, PTR is the pointer returned 
+ * by `svz_malloc ()' or NULL.
  */
 void *
 svz_realloc (void *ptr, unsigned size)
@@ -241,7 +242,7 @@ svz_realloc (void *ptr, unsigned size)
 }
 
 /*
- * Free a block of malloc()'ed or realloc()'ed	memory.
+ * Free a block of `svz_malloc ()'ed or `svz_realloc()'ed memory block.
  */
 void
 svz_free (void *ptr)
@@ -325,7 +326,8 @@ svz_heap (void)
 #endif /* DEBUG_MEMORY_LEAKS */
 
 /*
- * Duplicate a given string if it is non-NULL and has got a valid length.
+ * Duplicate a given string SRC if it is non-NULL and has got a 
+ * valid length. Return the pointer to the copied string.
  */
 char *
 svz_strdup (char *src)

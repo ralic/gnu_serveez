@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: alist.c,v 1.2 2001/01/29 22:41:32 ela Exp $
  *
  */
 
@@ -36,19 +36,23 @@
 #include "libserveez/util.h"
 #include "libserveez/alist.h"
 
+/* check if a given array index can be in this array chunk */
 #define array_range_all(ARRAY, IDX) \
   (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY_SIZE)
 
+/* check if a given array index is in this array chunk */
 #define array_range(ARRAY, IDX) \
   (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY->size)
 
+/* define if development code should be included */
 #define DEVEL 1
 
 /*
- * Create and initialize a new array chunk at a given index offset.
+ * Create and initialize a new array chunk at a given array index OFFSET.
+ * Return this array chunk.
  */
 static array_t *
-alist_create_array (unsigned offset)
+alist_create_array (unsigned long offset)
 {
   array_t *array;
 
@@ -102,7 +106,7 @@ alist_hook (alist_t *list, array_t *insert)
 }
 
 /*
- * Cut the given chunk off the array list chain.
+ * Cut the given array chunk DELETE off the array list LIST chain.
  */
 static void
 alist_unhook (alist_t *list, array_t *delete)
@@ -136,11 +140,11 @@ alist_unhook (alist_t *list, array_t *delete)
 }
 
 /*
- * Try to find a given INDEX in the array list chunks as fast as
- * possible.
+ * Try to find a given array list INDEX in the array list chunks as 
+ * fast as possible and return it.
  */
 static array_t *
-alist_find_array (alist_t *list, unsigned index)
+alist_find_array (alist_t *list, unsigned long index)
 {
   array_t *array = NULL;
 
@@ -178,36 +182,44 @@ alist_find_array (alist_t *list, unsigned index)
 }
 
 /*
- * Print text representation of the array list.
+ * Print text representation of the array list LIST. This function is 
+ * for testing and debugging purposes only and should not go into any 
+ * distribution.
  */
 void
 alist_analyse (alist_t *list)
 {
-  unsigned int n;
+  unsigned long n;
   array_t *array;
 
   for (n = 0, array = list->first; array; n++, array = array->next)
     {
       fprintf (stdout, 
-	       "chunk %06u at %p, ofs: %06u, size: %02u, fill: %08X, "
+	       "chunk %06lu at %p, ofs: %06lu, size: %02lu, fill: %08lX, "
 	       "prev: %p, next %p\n",
 	       n + 1, array, array->offset, array->size, array->fill, 
 	       array->prev, array->next);
     }
-  fprintf (stdout, "length: %u, size: %u, first: %p, last: %p\n", 
+  fprintf (stdout, "length: %lu, size: %lu, first: %p, last: %p\n", 
 	   list->length, list->size, list->first, list->last);
 }
 
 /*
- * Validates the given array list and prints invalid lists.
+ * Validate the given array list LIST and print invalid array lists.
+ * Passing the DESCRIPTION text you can figure out the stage an error
+ * occurred. Return zero if there occurred an error otherwise non-zero.
  */
-int
+static int
 alist_validate (alist_t *list, char *description)
 {
   array_t *array, *next, *prev;
-  unsigned ok = 1, n, bits;
+  unsigned long n, bits;
+  int ok = 1;
 
+  /* any valid list ? */
   assert (list);
+
+  /* go through all the array list chunks */
   for (n = 0, array = list->first; array; n++, array = array->next)
     {
       next = array->next;
@@ -245,6 +257,7 @@ alist_validate (alist_t *list, char *description)
 	  break;
 	}
     }
+
   /* check array length */
   array = list->last;
   if (array && array->offset + array->size != list->length)
@@ -253,31 +266,35 @@ alist_validate (alist_t *list, char *description)
       ok = 0;
     }
 
+  /* print out error description and array list text representation 
+     if necessary */
   if (!ok)
     {
-      fprintf (stdout, "error in chunk %06u (%s)\n", n + 1, description);
+      fprintf (stdout, "error in chunk %06lu (%s)\n", n + 1,
+	       description ? description : "unspecified");
       alist_analyse (list);
     }
   return ok;
 }
 
 /*
- * Constructs an empty list without initial capacity.
+ * Construct an empty array list without initial capacity. Return the
+ * newly created array list.
  */
 alist_t *
 alist_create (void)
 {
   alist_t *list;
 
-  assert (ARRAY_SIZE <= sizeof (unsigned) * 8);
+  assert (ARRAY_SIZE <= sizeof (unsigned long) * 8);
   list = svz_malloc (sizeof (alist_t));
   memset (list, 0, sizeof (alist_t));
   return list;
 }
 
 /*
- * Destroys the given list completely. The argument cannot be used
- * afterwards.
+ * Destroy the given array list completely. The argument cannot be used
+ * afterwards because it is invalid.
  */
 void
 alist_destroy (alist_t *list)
@@ -291,7 +308,7 @@ alist_destroy (alist_t *list)
 }
 
 /*
- * Appends the specified element to the end of this list.
+ * Appends the specified element VALUE at the end of the array list LIST.
  */
 void
 alist_add (alist_t *list, void *value)
@@ -302,7 +319,7 @@ alist_add (alist_t *list, void *value)
   alist_validate (list, "add");
 #endif /* DEVEL */
 
-  /* append a chunk if necessary */
+  /* append an array chunk if necessary */
   if (!last || last->size == ARRAY_SIZE)
     {
       array = alist_create_array (last ? last->offset + ARRAY_SIZE : 0);
@@ -327,13 +344,14 @@ alist_add (alist_t *list, void *value)
 }
 
 /*
- * Removes all of the elements from this list.
+ * Removes all of the elements from the array list LIST. The array list
+ * will be as clean as created with `alist_create ()' then.
  */
 void
 alist_clear (alist_t *list)
 {
   array_t *next, *array = list->first;
-  unsigned length = list->length;
+  unsigned long length = list->length;
 
 #if DEVEL
   alist_validate (list, "clear");
@@ -363,13 +381,14 @@ alist_clear (alist_t *list)
 }
 
 /*
- * Returns non-zero if this list contains the specified element.
+ * Returns non-zero if the array list LIST contains the specified element 
+ * VALUE.
  */
-unsigned
+unsigned long
 alist_contains (alist_t *list, void *value)
 {
   array_t *array = list->first;
-  unsigned n, fill, found = 0;
+  unsigned long n, fill, found = 0;
 
 #if DEVEL
   alist_validate (list, "contains");
@@ -389,10 +408,11 @@ alist_contains (alist_t *list, void *value)
 }
 
 /*
- * Returns the element at the specified position in this list.
+ * Returns the element at the specified position INDEX in the array 
+ * list LIST or NULL if there is no such element.
  */
 void *
-alist_get (alist_t *list, unsigned index)
+alist_get (alist_t *list, unsigned long index)
 {
   array_t *array;
 
@@ -428,14 +448,14 @@ alist_get (alist_t *list, unsigned index)
 }
 
 /*
- * Searches for the first occurrence of the given argument. Return -1 if
- * the value could not be found.
+ * Searches for the first occurrence of the given argument VALUE. 
+ * Return -1 if the value VALUE could not be found in the array list LIST.
  */
-int
+unsigned long
 alist_index (alist_t *list, void *value)
 {
   array_t *array = list->first;
-  unsigned n, fill;
+  unsigned long n, fill;
 
 #if DEVEL
   alist_validate (list, "index");
@@ -450,18 +470,19 @@ alist_index (alist_t *list, void *value)
 	}
       array = array->next;
     }
-  return -1;
+  return (unsigned long) -1;
 }
 
 /*
- * Removes the element at the specified position in this list.
+ * Removes the element at the specified position INDEX in the array 
+ * list LIST and returns its previous value.
  */
 void *
-alist_delete (alist_t *list, unsigned index)
+alist_delete (alist_t *list, unsigned long index)
 {
   array_t *array, *next;
   void *value = NULL;
-  unsigned bit, idx, fill;
+  unsigned long bit, idx, fill;
 
 #if DEVEL
   char text[128];
@@ -559,7 +580,7 @@ alist_delete (alist_t *list, unsigned index)
     }
 
 #if DEVEL
-  sprintf (text, "post-delete (%u) = %p", index, value);
+  sprintf (text, "post-delete (%lu) = %p", index, value);
   alist_validate (list, "delete");
 #endif /* DEVEL */
 
@@ -568,14 +589,14 @@ alist_delete (alist_t *list, unsigned index)
 }
 
 /*
- * Removes from this list all of the elements whose index is between 
- * from, inclusive and to, exclusive. Return the amount of really 
- * deleted items.
+ * Removes all of the elements whose index is between FROM (inclusive) 
+ * and TO (exclusive) from the array list LIST. Returns the amount of 
+ * actually deleted elements.
  */
-unsigned
-alist_delete_range (alist_t *list, unsigned from, unsigned to)
+unsigned long
+alist_delete_range (alist_t *list, unsigned long from, unsigned long to)
 {
-  unsigned idx, n = 0;
+  unsigned long idx, n = 0;
 
 #if DEVEL
   alist_validate (list, "delete range");
@@ -620,15 +641,15 @@ alist_delete_range (alist_t *list, unsigned from, unsigned to)
 }
 
 /*
- * Replaces the element at the specified position in this list with 
- * the specified element.
+ * Replaces the element at the specified position INDEX in the array 
+ * list LIST by the specified element VALUE and return its previous value.
  */
 void *
-alist_set (alist_t *list, unsigned index, void *value)
+alist_set (alist_t *list, unsigned long index, void *value)
 {
   array_t *array, *next;
   void *replace = NULL;
-  unsigned idx;
+  unsigned long idx;
 
 #if DEVEL
   alist_validate (list, "set");
@@ -680,16 +701,16 @@ alist_set (alist_t *list, unsigned index, void *value)
 }
 
 /*
- * Delete the element at the given position but leave all following
- * elements untouched (unlike alist_delete). Return the unset value
- * if there is one otherwise return NULL.
+ * Delete the element at the given position INDEX from the array list LIST 
+ * but leave all following elements untouched (unlike `alist_delete ()'). 
+ * Return the its previous value if there is one otherwise return NULL.
  */
 void *
-alist_unset (alist_t *list, unsigned index)
+alist_unset (alist_t *list, unsigned long index)
 {
   array_t *array;
   void *unset = NULL;
-  unsigned idx, bit;
+  unsigned long idx, bit;
 
 #if DEVEL
   alist_validate (list, "unset");
@@ -733,9 +754,9 @@ alist_unset (alist_t *list, unsigned index)
 }
 
 /*
- * Returns the number of elements in this list.
+ * Returns the number of elements in the array list LIST.
  */
-unsigned
+unsigned long
 alist_size (alist_t *list)
 {
 #if DEVEL
@@ -746,9 +767,9 @@ alist_size (alist_t *list)
 }
 
 /*
- * Returns the index of the last element of this list plus one.
+ * Returns the index of the last element of the array list LIST plus one.
  */
-unsigned
+unsigned long
 alist_length (alist_t *list)
 {
 #if DEVEL
@@ -759,13 +780,14 @@ alist_length (alist_t *list)
 }
 
 /*
- * Inserts the specified element at the specified position in this list.
+ * Inserts the specified element VALUE at the given position INDEX in 
+ * the array list LIST.
  */
 void
-alist_insert (alist_t *list, unsigned index, void *value)
+alist_insert (alist_t *list, unsigned long index, void *value)
 {
   array_t *array, *next;
-  unsigned idx, fill, bit;
+  unsigned long idx, fill, bit;
 
 #if DEVEL
   alist_validate (list, "insert");
@@ -852,14 +874,15 @@ alist_insert (alist_t *list, unsigned index, void *value)
 }
 
 /*
- * Rearranges the given array list. After that there are no gaps within
- * the array list.
+ * Rearranges the given array list LIST. After that there are no more gaps 
+ * within the array list. The index - value relationship gets totally lost
+ * by this operation.
  */
 void
 alist_pack (alist_t *list)
 {
   array_t *array, *next, *prev;
-  unsigned need2pack, bits, n, size;
+  unsigned long need2pack, bits, n, size;
   void **value;
 
 #if DEVEL
@@ -941,15 +964,15 @@ alist_pack (alist_t *list)
 }
 
 /*
- * Delivers all values within this list in a single linear chunk. You 
- * must svz_free() it after usage.
+ * Delivers all values within the given array list LIST in a single linear 
+ * chunk. You have to `svz_free ()' it after usage.
  */
 void **
 alist_values (alist_t *list)
 {
   array_t *array;
   void **value;
-  unsigned index, bit, n;
+  unsigned long index, bit, n;
 
 #if DEVEL
   alist_validate (list, "values");

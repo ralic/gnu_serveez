@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.8 2001/01/28 03:26:55 ela Exp $
+ * $Id: alist-test.c,v 1.9 2001/01/29 22:41:32 ela Exp $
  *
  */
 
@@ -35,6 +35,7 @@
 #include "libserveez/alist.h"
 #include "test.h"
 
+/* general array list test defines */
 #define REPEAT 10000
 #define SIZE   1000
 #define GAP    5
@@ -54,7 +55,7 @@ main (int argc, char **argv)
 {
   int result = 0;
   alist_t *list;
-  long n, error, i;
+  unsigned long n, error, i;
   void **values;
 
   test_init ();
@@ -95,7 +96,7 @@ main (int argc, char **argv)
     error++;
   if (alist_index (list, (void *) 0xeabceabc) != REPEAT)
     error++;
-  if (alist_index (list, NULL) != -1)
+  if (alist_index (list, NULL) != (unsigned long) -1)
     error++;
   test (error);
 
@@ -373,6 +374,18 @@ main (int argc, char **argv)
 	}
       test_print (error ? "?" : ".");
     }
+
+  /* check functions set() and unset() */
+  for (i = 0; i < REPEAT; i++)
+    {
+      n = test_value (i * 20 + test_value (20));
+      if (alist_set (list, n, (void *) n) != NULL)
+	error++;
+      if ((void *) n != alist_unset (list, n))
+	error++;
+    }
+  test_print (error ? "?" : ".");
+
   test_print (" ");
   test (error);
 

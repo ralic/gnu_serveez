@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: alist.h,v 1.2 2001/01/29 22:41:32 ela Exp $
  *
  */
 
@@ -27,10 +27,16 @@
 
 #include "libserveez/defines.h"
 
-/* general defines */
-#define ARRAY_BITS 4
-#define ARRAY_SIZE (1 << ARRAY_BITS)
+/* general array list defines */
+#define ARRAY_BITS 4                       /* values 1 .. 6 possible */
+#define ARRAY_SIZE (1 << ARRAY_BITS)       /* values 1 .. 64 possible */
 #define ARRAY_MASK ((1 << ARRAY_SIZE) - 1)
+
+/* 
+ * On 32 bit architectures ARRAY_SIZE is no larger than 32 and on 64 bit
+ * architectures it is no larger than 64. It specifies the number of bits
+ * the `alist->fill' (unsigned long) field can hold.
+ */
 
 /* array chunk structure */
 typedef struct array_chunk array_t;
@@ -38,9 +44,9 @@ struct array_chunk
 {
   array_t *next;           /* pointer to next array chunk */
   array_t *prev;           /* pointer to previous array chunk */
-  unsigned offset;         /* first array index in this chunk */
-  unsigned fill;           /* usage bit-field */
-  unsigned size;           /* size of this chunk */
+  unsigned long offset;    /* first array index in this chunk */
+  unsigned long fill;      /* usage bit-field */
+  unsigned long size;      /* size of this chunk */
   void *value[ARRAY_SIZE]; /* value storage */
 };
 
@@ -48,29 +54,37 @@ struct array_chunk
 typedef struct array_list alist_t;
 struct array_list
 {
-  unsigned length; /* size of the array (last index plus one) */
-  unsigned size;   /* element count */
-  array_t *first;  /* first array chunk */
-  array_t *last;   /* last array chunk */
+  unsigned long length; /* size of the array (last index plus one) */
+  unsigned long size;   /* element count */
+  array_t *first;       /* first array chunk */
+  array_t *last;        /* last array chunk */
 };
 
 __BEGIN_DECLS
 
-/* Exported functions. */
+/* 
+ * Exported array list functions. An array list is a kind of data array 
+ * which grows and shrinks on demand. It unifies the advantages of chained
+ * lists (less memory usage than simple arrays) and arrays (faster access 
+ * to specific elements). This implementation can handle gaps in between
+ * the array elements.
+ */
+
 SERVEEZ_API alist_t * alist_create __P ((void));
 SERVEEZ_API void alist_destroy __P ((alist_t *list));
 SERVEEZ_API void alist_add __P ((alist_t *list, void *value));
 SERVEEZ_API void alist_clear __P ((alist_t *list));
-SERVEEZ_API unsigned alist_contains __P ((alist_t *list, void *value));
-SERVEEZ_API void * alist_get __P ((alist_t *list, unsigned index));
-SERVEEZ_API int alist_index __P ((alist_t *list, void *value));
-SERVEEZ_API void * alist_delete __P ((alist_t *list, unsigned index));
-SERVEEZ_API unsigned alist_delete_range __P ((alist_t *, unsigned, unsigned));
-SERVEEZ_API void * alist_set __P ((alist_t *, unsigned, void *));
-SERVEEZ_API void * alist_unset __P ((alist_t *list, unsigned index));
-SERVEEZ_API unsigned alist_size __P ((alist_t *list));
-SERVEEZ_API unsigned alist_length __P ((alist_t *list));
-SERVEEZ_API void alist_insert __P ((alist_t *, unsigned, void *));
+SERVEEZ_API unsigned long alist_contains __P ((alist_t *list, void *value));
+SERVEEZ_API void * alist_get __P ((alist_t *list, unsigned long index));
+SERVEEZ_API unsigned long alist_index __P ((alist_t *list, void *value));
+SERVEEZ_API void * alist_delete __P ((alist_t *list, unsigned long index));
+SERVEEZ_API unsigned long alist_delete_range __P ((alist_t *, unsigned long, 
+						   unsigned long));
+SERVEEZ_API void * alist_set __P ((alist_t *, unsigned long, void *));
+SERVEEZ_API void * alist_unset __P ((alist_t *list, unsigned long index));
+SERVEEZ_API unsigned long alist_size __P ((alist_t *list));
+SERVEEZ_API unsigned long alist_length __P ((alist_t *list));
+SERVEEZ_API void alist_insert __P ((alist_t *, unsigned long, void *));
 SERVEEZ_API void ** alist_values __P ((alist_t *list));
 SERVEEZ_API void alist_pack __P ((alist_t *list));
 

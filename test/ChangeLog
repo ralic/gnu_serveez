@@ -1,3 +1,8 @@
+2001-01-29  [ Ela ]  <ela@lkcc.org>
+
+	* alist-test.c (main): Added new stress test for alist_set()
+	and alist_unset() functions.
+
 2001-01-13  [ Ela ]  <ela@lkcc.org>
 
 	* alist-test.c (main): Testing new function alist_unset().

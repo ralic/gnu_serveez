@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: alloc.h,v 1.2 2001/01/29 22:41:32 ela Exp $
  *
  */
 
@@ -63,4 +63,4 @@ SERVEEZ_API void svz_heap __P ((void));
 
 __END_DECLS
 
-#endif /* !__XALLOC_H__ */
+#endif /* not __XALLOC_H__ */
