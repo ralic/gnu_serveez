@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.8 2000/11/02 12:51:57 ela Exp $
+ * $Id: alist.c,v 1.9 2000/11/03 01:25:06 ela Exp $
  *
  */
 
@@ -105,8 +105,6 @@ alist_hook (alist_t *list, array_t *insert)
 static void
 alist_unhook (alist_t *list, array_t *delete)
 {
-  array_t *array;
-
   if (list->first == delete)
     {
       list->first = delete->next;

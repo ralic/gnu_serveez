@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: windoze.h,v 1.2 2000/09/27 14:31:26 ela Exp $
+ * $Id: windoze.h,v 1.3 2000/11/03 01:25:06 ela Exp $
  *
  */
 
@@ -47,7 +47,7 @@ DWORD WINAPI windoze_thread (char *);
 void windoze_notify_del (HWND, UINT);
 void windoze_notify_add (HWND, UINT);
 void windoze_notify_set (HWND, UINT);
-BOOL CALLBACK windoze_dialog (HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK windoze_dialog (HWND, UINT, WPARAM, LPARAM);
 int windoze_start_daemon (char *prog);
 int windoze_stop_daemon (void);
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.3 2000/10/25 07:54:06 ela Exp $
+ * $Id: windoze.c,v 1.4 2000/11/03 01:25:06 ela Exp $
  *
  */
 
@@ -210,7 +210,7 @@ windoze_notify_set (HWND hwnd, UINT id)
 /*
  * Dialog callback procedure.
  */
-BOOL CALLBACK 
+LRESULT CALLBACK 
 windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
   switch (msg)
@@ -259,7 +259,7 @@ windoze_start_daemon (char *prog)
   if ((windoze_daemon_handle = CreateThread (
         NULL, 
 	0, 
-	windoze_thread, 
+	(LPTHREAD_START_ROUTINE) windoze_thread, 
 	prog, 
 	0, 
 	&windoze_daemon_id)) == NULL)

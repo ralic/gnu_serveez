@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.11 2000/10/12 15:32:03 ela Exp $
+ * $Id: server.h,v 1.12 2000/11/03 01:25:06 ela Exp $
  *
  */
 
@@ -81,7 +81,7 @@ server_t;
  * Used when binding ports this is available from sizzle 
  * and set as a hash:
  *
- *  "proto"    => String: "tcp", "udp", "pipe"
+ *  "proto"    => String: "tcp", "udp", "pipe" or "icmp"
  *  "port"     => Integer: for tcp/udp ports
  *  "local-ip" => String: (dotted decimal) for local address or "*" (default)
  *  "inpipe"   => String: pipe for sending data into serveez

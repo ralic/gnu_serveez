@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.8 2000/11/02 12:51:57 ela Exp $
+ * $Id: icmp-socket.c,v 1.9 2000/11/03 01:25:06 ela Exp $
  *
  */
 
@@ -290,8 +290,8 @@ icmp_check_ip_header (byte *data, int len)
     }
 
   /* Recalculate and check the header checksum. */
-  if (/*icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
-	ip_header->checksum*/0)
+  if (icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
+      ip_header->checksum)
     {
       /* FIXME: Why are header checksum invalid on big packets ? */
 #if ENABLE_DEBUG
@@ -300,7 +300,9 @@ icmp_check_ip_header (byte *data, int len)
 		  icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
 		  ip_header->checksum);
 #endif
+#if 0
       return -1;
+#endif
     }
 
   return IP_HDR_LENGTH (ip_header);

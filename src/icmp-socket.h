@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.7 2000/10/31 10:08:11 ela Exp $
+ * $Id: icmp-socket.h,v 1.8 2000/11/03 01:25:06 ela Exp $
  *
  */
 
@@ -109,9 +109,9 @@ socket_t icmp_connect (unsigned long host, unsigned short port);
 int icmp_write (socket_t sock, char *buf, int length);
 
 #ifndef __STDC__
-int udp_printf ();
+int icmp_printf ();
 #else
-int udp_printf (socket_t sock, const char * fmt, ...);
+int icmp_printf (socket_t sock, const char * fmt, ...);
 #endif
 
 #endif /* __ICMP_SOCKET_H__ */

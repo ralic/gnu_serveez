@@ -41,13 +41,14 @@ Free Documentation License".
 * Server::                Server implementation
 * Co-Server::             Co-Server implementation
 * Porting issues::        Support of different platforms and operating systems
+* Bibliography::          Useful documents we refer to
 @end menu
 
 @node Introduction, Using @value{PACKAGE}, Top, Top
 @chapter Introduction
 
 @value{PACKAGE} is a server framework. It provides routines and help for
-implementing IP based servers (currently TCP and UDP). We think it is
+implementing IP based servers (currently TCP, UDP and ICMP). We think it is
 worth the effort because many people need server functionality within
 their applications. However, many people experience problems with select()-
 or poll()-loops and non-blocking operations.
@@ -123,7 +124,7 @@ hash contains key value pairs which set up this specific server.
 @end example
 
 When we are referring to @samp{port configuration}s this is a special hash
-determining a network or file system configuration. This structure got
+determining a network or file system configuration. This structure has got
 the following layout:
 
 @example
@@ -224,9 +225,9 @@ available physical memory.
 @section Introduction to Servers
 
 This package includes a kind of server server. It allows different 
-protocol servers to listen on various TCP/IP or UDP ports and server 
-instantiating. Thus it is possible to to have different servers on the 
-same port.
+protocol servers to listen on various TCP or UDP ports, on ICMP sockets
+or on named pipes and server instantiating. Thus it is possible to to 
+have different servers on the same port.
 
 This chapter covers all questions about how to write your own internet
 protocol server with little help of this package. Most of the usual tasks of
@@ -395,11 +396,11 @@ If this callback is non-NULL it is called whenever there is some time
 left. It gets the server instance itself as argument. Actually it gets
 called every second.
 
-@item handle request (mandatory for udp servers)
+@item handle request (mandatory for UDP and ICMP servers)
 The arguments to this callback specify a whole packet, its address and the
-length. When implementing a udp server you need to return non-zero if your
+length. When implementing a UDP server you need to return non-zero if your
 server could process the packet and zero otherwise. Thus it is possible that
-there are multiple udp servers on a single port.
+there are multiple UDP servers on a single port. Same goes for ICMP servers.
 @end table
 
 @subsection Make your server available
@@ -495,7 +496,7 @@ information here.
 
 @item cfg
 When the final protocol detection in default_detect_proto
-has been done cfg should get the actual configuration hash.
+has been done @code{cfg} should get the actual configuration hash.
 @end table
 
 @subsection Using Co-Servers
@@ -741,7 +742,7 @@ The following options can be set within the configuration file.
 
 @table @code
 @item netport
-This is the TCP or UDP port configuration hash wherein you can set the 
+This is the TCP port configuration hash wherein you can set the 
 IP address this server should be bind to and the port the server is 
 listening.
 
@@ -1245,7 +1246,7 @@ need to define the source port configuration and the target port
 configuration. The @file{@value{s_PACKAGE}.cfg} in the @file{data/} 
 directory shows two example configurations how to tunnel TCP 
 connections over UDP and ICMP. The UDP tunnel accesses the standard 
-HTTP port 80 and the UDP tunnel accesses the standard Telnet port 23.
+HTTP port 80 and the ICMP tunnel accesses the standard Telnet port 23.
 
 @table @code
 @item source
@@ -1418,7 +1419,7 @@ MyReverseCallback (char *host, int id, int version)
 @}
 @end example
 
-@node Porting issues,  , Co-Server, Top
+@node Porting issues, Bibliography, Co-Server, Top
 @chapter Porting issues
 
 @value{PACKAGE} was always designed with an eye on maximum 
@@ -1596,6 +1597,42 @@ Now follows the list on which operating systems and architectures
 @item Tru64/OSF1 UNIX V5.0 (former Digital UNIX) on Alpha
 
 @end itemize
+
+@node Bibliography, , Porting issues, Top
+@chapter Bibliography
+
+This section contain some of the documents and resources we read and used
+to implement various parts of this package. They appear in no specific
+order.
+
+@table @asis
+@item [1] RFC 760
+The Internet Protocol
+@item [2] RFC 1071
+Computing the Internet Checksum
+@item [3] RFC 1413
+Identification Protocol
+@item [4] RFC 1459
+Internet Relay Chat Protocol
+@item [5] RFC 1945
+Hypertext Transfer Protocol -- HTTP/1.0
+@item [6] RFC 2068
+Hypertext Transfer Protocol -- HTTP/1.1
+@item [7] RFC 2616
+Hypertext Transfer Protocol -- HTTP/1.1
+@item [8] RFC 768
+User Datagram Protocol
+@item [9] RFC 791
+Internet Protocol
+@item [10] RFC 777
+Internet Control Message Protocol
+@item [11] @uref{http://gnutelladev.wego.com}
+The Gnutella Protocol
+@item [12] @uref{http://www.efnet.org}
+The official EFNet site
+@item [13] @uref{http://www.gamers.org/dEngine/quake/}
+Quake Developer's Page
+@end table
 
 @contents
 @bye
