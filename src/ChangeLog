@@ -1,3 +1,15 @@
+2002-03-27  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (guile_sock_send_buffer): New Guile procedure 
+	returning the send buffer of the given socket structure as
+	binary smob.
+
+	* option.c (handle_options): New command line switch (-c and
+	--stdin).  Forces standard input as configuration file.
+
+	* guile.c (guile_eval_file): Use the standard input stream as
+	configuration file when required and possible.
+
 2002-03-22  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (guile_sock_protocol): Returns the type of socket

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.59 2002/01/06 13:18:52 ela Exp $
+ * $Id: guile.c,v 1.60 2002/03/27 14:34:47 ela Exp $
  *
  */
 
@@ -32,6 +32,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+#ifdef __MINGW32__
+# include <io.h>
+#endif
+
 #if GUILE_SOURCE
 # include <libguile/gh.h>
 #else
@@ -1741,6 +1749,17 @@ static SCM
 guile_eval_file (void *data)
 {
   char *file = (char *) data;
+
+  /* Parse configuration from standard input stream. */
+  if (file == NULL || !isatty (fileno (stdin)))
+    {
+      SCM ret = SCM_BOOL_F, line;
+      while (!SCM_EOF_OBJECT_P (line = scm_read (scm_def_inp)))
+	ret = scm_eval_x (line);
+      return SCM_BOOL_T;
+    }
+
+  /* Load configuration from file. */
   return scm_c_primitive_load (file);
 }
 

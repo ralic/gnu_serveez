@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.23 2002/03/22 08:05:59 ela Exp $
+ * $Id: guile-api.c,v 1.24 2002/03/27 14:34:47 ela Exp $
  *
  */
 
@@ -272,6 +272,17 @@ guile_sock_receive_buffer (SCM sock)
   svz_socket_t *xsock;
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   return guile_data_to_bin (xsock->recv_buffer, xsock->recv_buffer_fill);
+}
+#undef FUNC_NAME
+
+/* Return the send buffer of the socket @var{sock} as a binary smob. */
+#define FUNC_NAME "svz:sock:send-buffer"
+static SCM
+guile_sock_send_buffer (SCM sock)
+{
+  svz_socket_t *xsock;
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  return guile_data_to_bin (xsock->send_buffer, xsock->send_buffer_fill);
 }
 #undef FUNC_NAME
 
@@ -994,7 +1005,8 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock?", 1, 0, 0, guile_sock_p);
   scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
   scm_c_define_gsubr ("svz:server:listeners", 1, 0, 0, guile_server_listeners);
-  scm_c_define_gsubr ("svz:sock:receive-buffer", 
+  scm_c_define_gsubr ("svz:sock:send-buffer", 1, 0, 0, guile_sock_send_buffer);
+  scm_c_define_gsubr ("svz:sock:receive-buffer",
 		      1, 0, 0, guile_sock_receive_buffer);
   scm_c_define_gsubr ("svz:sock:receive-buffer-reduce",
 		      1, 1, 0, guile_sock_receive_buffer_reduce);

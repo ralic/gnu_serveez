@@ -329,22 +329,27 @@ Use @code{FILENAME} for logging (default is stderr).
 Set the password for control connections.
 @item -m, --max-sockets=COUNT
 Set the maximum number of socket descriptors.
-@item  -d, --daemon
+@item -d, --daemon
 Start as daemon in background.
+@item -c, --stdin
+Use standard input as configuration file.
 @end table
 
 @section Configuring Serveez
 
-As noted above Serveez is configured via a configuration 
-file which is by default @file{serveez.cfg} and can be set 
-by passing the -f command line argument. To make configuring more fun we
-did not invent yet another configuration file format. Instead we use a dialect
-of the Scheme programming language called GNU Guile
-(@uref{http://www.gnu.org/software/guile/}). There is no need to be worried
-if you are not a programmer. What you have to do is really simple and this
-document shows you everything you need to know. We also provide many examples.
-However there are some simple concepts you have to understand. The following
-paragraphs will explain them.
+As noted above Serveez is configured via a configuration file which is by 
+default @file{serveez.cfg} and can be set by passing the @samp{-f} command 
+line argument.  When you pipe a file into Serveez or pass the @samp{-c} 
+argument on the command line the input stream will be used as configuration
+file no matter whether you passed a @samp{-f} command line switch or not.
+
+To make configuring more fun we did not invent yet another configuration 
+file format.  Instead we use a dialect of the Scheme programming language 
+called GNU Guile (@uref{http://www.gnu.org/software/guile/}).  There is no 
+need to be worried if you are not a programmer.  What you have to do is 
+really simple and this document shows you everything you need to know.  We 
+also provide many examples.  However there are some simple concepts you 
+have to understand.  The following paragraphs will explain them.
 
 The idea of the configuration file is this: Serveez starts, runs the 
 configuration file (other applications usually just read them and remember 

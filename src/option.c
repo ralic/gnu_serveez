@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.9 2001/06/16 19:48:36 ela Exp $
+ * $Id: option.c,v 1.10 2002/03/27 14:34:48 ela Exp $
  *
  */
 
@@ -139,6 +139,7 @@ usage (void)
  "  -P, --password=STRING    set the password for control connections\n"
  "  -m, --max-sockets=COUNT  set the max. number of socket descriptors\n"
  "  -d, --daemon             start as daemon in background\n"
+ "  -c, --stdin              use standard input as configuration file\n"
 #else /* not HAVE_GETOPT_LONG */
  "  -h           display this help and exit\n"
  "  -V           display version information and exit\n"
@@ -149,6 +150,7 @@ usage (void)
  "  -P STRING    set the password for control connections\n"
  "  -m COUNT     set the max. number of socket descriptors\n"
  "  -d           start as daemon in background\n"
+ "  -c           use standard input as configuration file\n"
 #endif /* not HAVE_GETOPT_LONG */
  "\nReport bugs to <bug-serveez@gnu.org>.\n");
 }
@@ -162,6 +164,7 @@ static struct option serveez_options[] = {
   {"version", no_argument, NULL, 'V'},
   {"iflist", no_argument, NULL, 'i'},
   {"daemon", no_argument, NULL, 'd'},
+  {"stdin", no_argument, NULL, 'c'},
   {"verbose", required_argument, NULL, 'v'},
   {"cfg-file", required_argument, NULL, 'f'},
   {"log-file", required_argument, NULL, 'l'},
@@ -171,7 +174,7 @@ static struct option serveez_options[] = {
 };
 #endif /* HAVE_GETOPT_LONG */
 
-#define SERVEEZ_OPTIONS "l:hViv:f:P:m:d"
+#define SERVEEZ_OPTIONS "l:hViv:f:P:m:dc"
 
 /*
  * Parse the command line options. If these have been correct the function
@@ -183,6 +186,7 @@ option_t *
 handle_options (int argc, char **argv)
 {
   static option_t options;
+  static char *cfgfile = "serveez.cfg";
   int arg;
 #if HAVE_GETOPT_LONG
   int index;
@@ -190,7 +194,7 @@ handle_options (int argc, char **argv)
 
   /* initialize command line options */
   options.logfile = NULL;
-  options.cfgfile = "serveez.cfg";
+  options.cfgfile = cfgfile;
   options.verbosity = -1;
   options.sockets = -1;
   options.pass = NULL;
@@ -222,8 +226,17 @@ handle_options (int argc, char **argv)
 	  exit (0);
 	  break;
 
+	case 'c':
+	  if (options.cfgfile != cfgfile)
+	    {
+	      usage ();
+	      exit (1);
+	    }
+	  options.cfgfile = NULL;
+	  break;
+
 	case 'f':
-	  if (!optarg)
+	  if (!optarg || options.cfgfile == NULL)
 	    {
 	      usage ();
 	      exit (1);
