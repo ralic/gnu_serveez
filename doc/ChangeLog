@@ -1,3 +1,9 @@
+2001-12-19  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-api.texi.in (Passthrough connections): Added an
+	important note about passing socket handles to child processes
+	on Win32 platforms.
+
 2001-11-22  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added `mandel.jpg'.

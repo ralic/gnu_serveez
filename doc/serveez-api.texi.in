@@ -506,6 +506,14 @@ SVZ_PROCESS_SEND_SOCKET_DEFUN
 SVZ_PROCESS_RECV_SOCKET_DEFUN
 
 SVZ_PROCESS_CREATE_CHILD_DEFUN
+@strong{Please note}:
+On M$-Windows platforms it is not possible to pass a socket connection 
+to a child process's stdin/stdout.  That is why this function creates an 
+inheritable version of the socket and puts the socket handle number 
+into the environment variables @code{SEND_HANDLE} and @code{RECV_HANDLE}. 
+A spawned child process can use these handles as if these were created 
+by itself.  After calling @code{WSAStartup()} the child process can 
+@code{send()} and @code{recv()} as usual.
 SVZ_PROCESS_SHUFFLE_DEFUN
 SVZ_PROCESS_FORK_DEFUN
 

@@ -1,3 +1,13 @@
+2001-12-19  [ Ela ]  <ela@lkcc.org>
+
+	* passthrough.c (svz_process_create_child): Put the passed 
+	receiving and sending connection end for a child process into
+	the environment on Win32.  Thus we can also pass socket 
+	connections on this platforms.
+	(svz_process_create_child): Close and replace the original handles 
+	which have been duplicated in order to make them inheritable on
+	Win32.
+
 2001-12-15  [ Ela ]  <ela@lkcc.org>
 
 	* udp-socket.c (svz_udp_check_request): Using the binding

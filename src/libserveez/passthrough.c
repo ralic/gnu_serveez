@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.18 2001/12/12 19:02:51 ela Exp $
+ * $Id: passthrough.c,v 1.19 2001/12/19 23:15:06 ela Exp $
  *
  */
 
@@ -50,13 +50,6 @@
 # include <sys/wait.h>
 #endif
 
-/*
- * This variable is meant to hold the @code{environ} variable of the 
- * application using the Serveez core API. It must be setup via the macro
- * @code{svz_envblock_setup()}.
- */
-char **svz_environ = NULL;
-
 #ifdef __MINGW32__
 # include <winsock2.h>
 # include <io.h>
@@ -74,6 +67,13 @@ char **svz_environ = NULL;
 #include "libserveez/server-core.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/passthrough.h"
+
+/*
+ * This variable is meant to hold the @code{environ} variable of the 
+ * application using the Serveez core API. It must be setup via the macro
+ * @code{svz_envblock_setup()}.
+ */
+char **svz_environ = NULL;
 
 /*
  * This routine starts a new program specified by @var{bin} passing the
@@ -635,22 +635,33 @@ svz_process_create_child (svz_process_t *proc)
      and pass them to the child program. */
   if (proc->flag == SVZ_PROCESS_FORK)
     {
+      HANDLE fd;
+
       if (proc->in != proc->out)
 	{
-	  proc->in = svz_process_duplicate (proc->in, proc->sock->proto);
-	  if (proc->in == INVALID_HANDLE)
+	  /* Create an inheritable receive pipe and replace it. */
+	  fd = svz_process_duplicate (proc->in, proc->sock->proto);
+	  if (fd == INVALID_HANDLE)
 	    return -1;
-	  proc->out = svz_process_duplicate (proc->out, proc->sock->proto);
-	  if (proc->out == INVALID_HANDLE)
+          closehandle (proc->sock->pipe_desc[READ]);
+          proc->in = proc->sock->pipe_desc[READ] = fd;
+
+	  /* Create an inheritable send pipe and replace it. */
+	  fd = svz_process_duplicate (proc->out, proc->sock->proto);
+	  if (fd == INVALID_HANDLE)
 	    return -1;
+          closehandle (proc->sock->pipe_desc[WRITE]);
+          proc->out = proc->sock->pipe_desc[WRITE] = fd;
 	}
       else
 	{
-	  HANDLE fd;
+	  /* Create an inheritable socket and replace it. */
 	  fd = svz_process_duplicate (proc->in, proc->sock->proto);
 	  if (fd == INVALID_HANDLE)
 	    return -1;
 	  proc->in = proc->out = fd;
+          closesocket (proc->sock->sock_desc);
+          proc->sock->sock_desc = (SOCKET) fd;
 	}
     }
 
@@ -678,12 +689,17 @@ svz_process_create_child (svz_process_t *proc)
       return -1;
     }
 
-  /* Create sane environment. */
+  /* Create sane environment and pass the receive and send handle to
+     the child process via two environment variables. */
   if (proc->envp == NULL)
     {
       proc->envp = svz_envblock_create ();
       svz_envblock_default (proc->envp);
     }
+  svz_envblock_add (proc->envp, "%s=%ld", 
+		    SVZ_PROCESS_RECV_HANDLE, (long) proc->in);
+  svz_envblock_add (proc->envp, "%s=%ld", 
+		    SVZ_PROCESS_SEND_HANDLE, (long) proc->out);
 
   /* Concatenate application name. */
   if (proc->app != NULL)

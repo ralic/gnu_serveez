@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.h,v 1.11 2001/12/13 18:00:00 ela Exp $
+ * $Id: passthrough.h,v 1.12 2001/12/19 23:15:07 ela Exp $
  *
  */
 
@@ -67,6 +67,11 @@ svz_process_t;
 /* Definitions for the @var{user} argument of @code{svz_sock_process()}. */
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)
+
+/* Envrionment variables used to pass the receive and send sockets to
+   the child process on Win32. */
+#define SVZ_PROCESS_RECV_HANDLE "RECV_HANDLE"
+#define SVZ_PROCESS_SEND_HANDLE "SEND_HANDLE"
 
 /* Extern declaration of the process environment pointer. */
 #if !defined(__MINGW32__) && !defined(__CYGWIN__)

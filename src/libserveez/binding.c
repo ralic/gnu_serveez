@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.17 2001/12/15 02:47:38 ela Exp $
+ * $Id: binding.c,v 1.18 2001/12/19 23:15:06 ela Exp $
  *
  */
 
@@ -532,7 +532,7 @@ svz_array_t *
 svz_binding_filter_pipe (svz_socket_t *sock) 
 {
   svz_array_t *filter = svz_array_create (1, NULL);
-  svz_array_t *bindings = svz_sock_bindings (sock);
+  svz_array_t *bindings = sock->data;
   svz_binding_t *binding;
   unsigned long i;
 
@@ -554,7 +554,7 @@ svz_binding_filter_net (svz_socket_t *sock,
 			unsigned long addr, unsigned short port)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
-  svz_array_t *bindings = svz_sock_bindings (sock);
+  svz_array_t *bindings = sock->data;
   struct sockaddr_in *portaddr;
   svz_binding_t *binding;
   unsigned long i;
