@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: spvec-test.c,v 1.2 2001/06/10 15:39:01 ela Exp $
+ * $Id: spvec-test.c,v 1.3 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -30,7 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SERVEEZ_API
 #include "libserveez/alloc.h"
 #include "libserveez/sparsevec.h"
 #include "test.h"

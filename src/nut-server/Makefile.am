@@ -32,6 +32,6 @@ libnut_a_SOURCES = \
 	nut-hostlist.c nut-hostlist.h \
 	nut-request.c nut-request.h
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -27,6 +27,6 @@ noinst_LIBRARIES = libtunnel.a
 libtunnel_a_SOURCES = \
 	tunnel.c tunnel.h
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

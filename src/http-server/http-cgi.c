@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.41 2001/06/07 17:22:01 ela Exp $
+ * $Id: http-cgi.c,v 1.42 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -769,7 +769,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
     p--;
   suffix = p + 1;
 
-  if ((p = svz_hash_get (*(cfg->cgiapps), svz_tolower (suffix))) != NULL)
+  if ((p = svz_hash_get (cfg->cgiapps, svz_tolower (suffix))) != NULL)
     {
       if (strcmp (p, DEFAULT_CGIAPP))
 	{

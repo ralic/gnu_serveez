@@ -720,6 +720,18 @@ if test x$host_sys = x; then
 fi
 AC_MSG_RESULT($host_sys)
 
+dnl
+dnl Create additional CFLAGS for MinGW32 and CygWin.
+dnl
+
+SERVEEZ_CFLAGS=""
+if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
+    if test "x$enable_shared" = "xyes"; then
+	SERVEEZ_CFLAGS="-D__SERVEEZ_IMPORT__"
+    fi
+fi
+AC_SUBST(SERVEEZ_CFLAGS)
+
 dnl ----------------------------------------------------------------------
 
 dnl
@@ -848,7 +860,8 @@ AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
   getpwnam gettimeofday shl_load)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
-  netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h)
+  netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \
+  mswsock.h)
 AC_HEADER_DIRENT
 
 SERVEEZLIBS=""
@@ -1017,32 +1030,32 @@ AC_EGREP_HEADER(socklen_t,
     [Define to 'int' if <sys/socket.h> does not define.]))
 
 dnl
-dnl Check for the typedef SOCKET, INVALID_SOCKET and HANDLE in <winsock.h>.
+dnl Check for the typedef SOCKET, INVALID_SOCKET and HANDLE in <winsock2.h>.
 dnl
 socket_defined=no
 handle_defined=no
 invalid_defined=no
 
 if test "$MINGDIR" != "no"; then
-    AC_CHECK_HEADER(winsock.h, 
+    AC_CHECK_HEADER(winsock2.h, 
 	socket_defined=yes
 	handle_defined=yes
 	invalid_defined=yes
 	AC_DEFINE(Win32_Winsock, 1, 
 	    [Define if you are using Windows Socket-API (not CYGWIN).])
-	AC_DEFINE(HAVE_WINSOCK_H, 1, 
-	    [Define if you have the <winsock.h>]))
+	AC_DEFINE(HAVE_WINSOCK2_H, 1, 
+	    [Define if you have the <winsock2.h>]))
 fi
 
 if test $socket_defined = no; then
-    AC_DEFINE(SOCKET, int, [Define to 'int' if <winsock.h> does not define.])
+    AC_DEFINE(SOCKET, int, [Define to 'int' if <winsock2.h> does not define.])
 fi
 if test $handle_defined = no; then
-    AC_DEFINE(HANDLE, int, [Define to 'int' if <winsock.h> does not define.])
+    AC_DEFINE(HANDLE, int, [Define to 'int' if <winsock2.h> does not define.])
 fi
 if test $invalid_defined = no; then
     AC_DEFINE(INVALID_SOCKET, 
-    -1, [Define to -1 if <winsock.h> does not define.])
+    -1, [Define to -1 if <winsock2.h> does not define.])
 fi
 
 unset invalid_defined

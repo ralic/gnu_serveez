@@ -27,6 +27,6 @@ noinst_LIBRARIES = libsntp.a
 libsntp_a_SOURCES = \
 	sntp-proto.h sntp-proto.c
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

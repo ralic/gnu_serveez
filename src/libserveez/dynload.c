@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.8 2001/06/07 17:22:01 ela Exp $
+ * $Id: dynload.c,v 1.9 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -70,7 +70,11 @@ static dyn_library_t *dyn_library = NULL;
 
 /* Define library prefix and suffix. */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
-# define DYNLOAD_PREFIX "lib"
+# if defined (__CYGWIN__)
+#  define DYNLOAD_PREFIX "cyg"
+# else
+#  define DYNLOAD_PREFIX "lib"
+# endif
 # define DYNLOAD_SUFFIX "dll"
 # define DYNLOAD_PATH_SEPERATOR ';'
 #else

@@ -28,6 +28,6 @@ noinst_LIBRARIES = libawcs.a
 libawcs_a_SOURCES = \
 	awcs-proto.c awcs-proto.h
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -27,8 +27,7 @@ SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
 	serveez.dsw config.h.serveez version.h.serveez \
-	RELEASE \
-	vcgen.bat
+	RELEASE vcgen.bat
 
 CLEANFILES = *~
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in

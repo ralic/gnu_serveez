@@ -28,6 +28,6 @@ noinst_LIBRARIES = libirccore.a
 libirccore_a_SOURCES = \
 	irc-core.c irc-core.h
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.19 2001/06/14 17:04:28 ela Exp $
+ * $Id: server-core.c,v 1.20 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -289,7 +289,7 @@ svz_strsignal_init (void)
   for (i = 0; i < SVZ_NUMBER_OF_SIGNALS; i++)
     {
 #if HAVE_STRSIGNAL
-      if (NULL == (str = strsignal (i)))
+      if (NULL == (str = (char *) strsignal (i)))
 	{
 	  str = svz_malloc (128);
 	  svz_snprintf (str, 128, format, i);

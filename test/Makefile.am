@@ -37,7 +37,7 @@ array_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 vector_test_SOURCES = vector-test.c test.c test.h
 vector_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in

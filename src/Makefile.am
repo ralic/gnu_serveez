@@ -79,7 +79,7 @@ serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS)
-INCLUDES = $(GUILE_CFLAGS)
+INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 

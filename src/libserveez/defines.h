@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.4 2001/05/22 21:06:41 ela Exp $
+ * $Id: defines.h,v 1.5 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@
 
 #if defined (__SERVEEZ_EXPORT__) || defined (DLL_EXPORT)
 # define SERVEEZ_API __declspec (dllexport)
-#elif __SERVEEZ_IMPORT__
+#elif defined (__SERVEEZ_IMPORT__)
 # define SERVEEZ_API __declspec (dllimport)
 #else
 # define SERVEEZ_API

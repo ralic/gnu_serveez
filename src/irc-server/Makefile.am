@@ -39,6 +39,6 @@ libircserver_a_SOURCES = \
 	irc-server.h irc-server.c \
 	irc-config.h irc-config.c
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -25,7 +25,7 @@
 
 noinst_LTLIBRARIES = libcoserver.la
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
 
 libcoserver_la_SOURCES = coserver.c dns.c ident.c reverse-dns.c
 

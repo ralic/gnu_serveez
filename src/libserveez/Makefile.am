@@ -32,7 +32,6 @@ lib_LTLIBRARIES = libserveez.la
 libserveez_la_LDFLAGS = -export-dynamic -no-undefined
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la
 libserveez_la_LIBADD = coserver/libcoserver.la $(SERVEEZLIBS)
-AM_CFLAGS = -D__BUILD_SVZ_LIBRARY__
 
 libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c sparsevec.c      \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \
@@ -52,7 +51,7 @@ libserveez_HEADERS = alloc.h util.h snprintf.h hash.h sparsevec.h socket.h \
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
 

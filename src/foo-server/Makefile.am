@@ -28,6 +28,6 @@ noinst_LIBRARIES = libfoo.a
 libfoo_a_SOURCES = \
 	foo-proto.h foo-proto.c
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -32,6 +32,6 @@ libhttp_a_SOURCES = \
 	http-proto.c http-proto.h \
 	http-core.c http-core.h
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

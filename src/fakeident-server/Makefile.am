@@ -28,6 +28,6 @@ noinst_LIBRARIES = libfakeident.a
 libfakeident_a_SOURCES = \
         ident-proto.h ident-proto.c
 
-INCLUDES = -I$(top_srcdir)/src
+INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

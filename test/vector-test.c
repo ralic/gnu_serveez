@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector-test.c,v 1.1 2001/04/01 13:32:31 ela Exp $
+ * $Id: vector-test.c,v 1.2 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -31,7 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SERVEEZ_API
 #include "libserveez/alloc.h"
 #include "libserveez/vector.h"
 #include "test.h"

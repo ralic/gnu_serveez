@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.11 2001/06/11 19:46:32 ela Exp $
+ * $Id: core.c,v 1.12 2001/06/16 15:02:46 ela Exp $
  *
  */
 
@@ -56,6 +56,9 @@
 
 #ifdef __MINGW32__
 # include <winsock2.h>
+#endif
+
+#if HAVE_MSWSOCK_H
 # include <mswsock.h>
 #endif
 
