@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.15 2001/12/27 18:27:51 ela Exp $
+ * $Id: guile-api.c,v 1.16 2002/02/01 21:35:13 ela Exp $
  *
  */
 
@@ -44,8 +44,14 @@
 #if HAVE_RPC_RPC_H
 # include <rpc/rpc.h>
 #endif
+#if HAVE_RPC_CLNT_SOC_H
+# include <rpc/clnt_soc.h>
+#endif
 #if HAVE_RPC_PMAP_CLNT_H
 # include <rpc/pmap_clnt.h>
+#endif
+#if HAVE_RPC_PMAP_PROT_H
+# include <rpc/pmap_prot.h>
 #endif
 
 #if GUILE_SOURCE
@@ -670,6 +676,60 @@ scm_setrpc (SCM stayopen)
 #undef FUNC_NAME
 #endif /* HAVE_SETRPCENT && HAVE_ENDRPCENT */
 
+#if HAVE_PMAP_GETMAPS
+/* This procedure returns a list of the current RPC program-to-port mappings
+   on the host located at IP address @var{address}. When you leave this 
+   argument it defaults to the local machine's IP address. This routine 
+   can return @code{#f} indicating there is no such list available. */
+#define FUNC_NAME "portmap-list"
+SCM
+scm_portmap_list (SCM address)
+{
+  struct sockaddr_in addr, raddr;
+  struct pmaplist *map;
+  char *str;
+  SCM list = SCM_EOL, mapping, *ve;
+
+  memset (&addr, 0, sizeof (struct sockaddr_in));
+#if HAVE_GET_MYADDRESS
+  get_myaddress (&addr);
+#else
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons (PMAPPORT);
+  addr.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
+#endif
+  if (!SCM_UNBNDP (address))
+    {
+      SCM_ASSERT_TYPE (SCM_STRINGP (address), address, SCM_ARG1, 
+		       FUNC_NAME, "string");
+      str = guile_to_string (address);
+      if (svz_inet_aton (str, &raddr) == -1)
+	{
+	  guile_error ("%s: IP in dotted decimals expected", FUNC_NAME);
+	  scm_c_free (str);
+	  return SCM_BOOL_F;
+	}
+      addr.sin_addr.s_addr = raddr.sin_addr.s_addr;
+    }
+
+  if ((map = pmap_getmaps (&addr)) == NULL)
+    return SCM_BOOL_F;
+  do
+    {
+      mapping = scm_c_make_vector (4, SCM_UNSPECIFIED);
+      ve = SCM_VELTS (mapping);
+      ve[0] = scm_ulong2num ((unsigned long) map->pml_map.pm_prog);
+      ve[1] = scm_ulong2num ((unsigned long) map->pml_map.pm_vers);
+      ve[2] = scm_ulong2num ((unsigned long) map->pml_map.pm_prot);
+      ve[3] = scm_ulong2num ((unsigned long) map->pml_map.pm_port);
+      list = scm_cons (mapping ,list);
+    }
+  while ((map = map->pml_next) != NULL);
+  return scm_reverse (list);
+}
+#undef FUNC_NAME
+#endif /* HAVE_PMAP_GETMAPS */
+
 #if HAVE_PMAP_SET && HAVE_PMAP_UNSET
 /* A user interface to the portmap service, which establishes a mapping
    between the triple [@var{prognum},@var{versnum},@var{protocol}] and 
@@ -728,6 +788,9 @@ guile_api_init (void)
   scm_c_define_gsubr ("portmap", 2, 2, 0, scm_portmap);
   scm_c_define ("IPPROTO_UDP", scm_int2num (IPPROTO_UDP));
   scm_c_define ("IPPROTO_TCP", scm_int2num (IPPROTO_TCP));
+#endif
+#if HAVE_PMAP_GETMAPS
+  scm_c_define_gsubr ("portmap-list", 0, 1, 0, scm_portmap_list);
 #endif
   
   scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));

@@ -1,3 +1,12 @@
+2002-02-01  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/inetd.scm (check-rpc-portmapper): Uses the
+	below function (portmap-list) in order to check whether a
+	certain RPC mapping is already registered or not.
+
+	* guile-api.c (scm_portmap_list): New function.  Returns the
+	current list of RPC port mappings.
+
 2002-01-28  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm (bind-udp-port-range!): New function.

@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.11 2002/01/28 18:03:28 ela Exp $
+;; $Id: inetd.scm,v 1.12 2002/02/01 21:35:13 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -200,6 +200,19 @@
       IPPROTO_TCP
       IPPROTO_UDP))
 
+;; checks whether the rpc service identified by [number,version] is already
+;; register at the portmapper and return #t if so.  otherwise the procedure
+;; return #f.
+(define (check-rpc-portmapper number version)
+  (let* ((mappings (portmap-list)) (result #f))
+    (if mappings
+	(for-each (lambda (mapping)
+		    (if (and (equal? (vector-ref mapping 0) number)
+			     (equal? (vector-ref mapping 1) version))
+			(set! result #t)))
+		  mappings))
+    result))
+
 ;; this procedure registers the rpc service identified by the triplet
 ;; [number,version,protocol] at a network port system wide.  this 
 ;; information can be obtained issuing the `rpcinfo -p' command.
@@ -208,8 +221,14 @@
     ;; should the previous setting really be disabled ?
     (catch #t
 	   (lambda ()
-	     (portmap number version)
-	     (set! reult #t))
+	     (if (check-rpc-portmapper number version)
+		 (begin
+		   (if verbose
+		       (display
+			(string-append "inetd: unregistering rpc service `" 
+				       name "'\n")))
+		   (portmap number version)))
+	     (set! result #t))
 	   (lambda key
 	     (display (string-append "inetd: portmapping for rpc service `" 
 				     name "' cannot be unregistered\n"))
