@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.21 2002/01/24 15:18:03 ela Exp $
+ * $Id: binding.c,v 1.22 2002/01/24 18:15:58 ela Exp $
  *
  */
 
@@ -58,7 +58,6 @@ svz_server_bindings (svz_server_t *server)
 {
   static char text[256];
   svz_socket_t *sock;
-  struct sockaddr_in *addr;
   svz_array_t *bindings;
   svz_binding_t *binding;
   int i;
