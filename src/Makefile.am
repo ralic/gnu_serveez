@@ -87,7 +87,6 @@ serveez.cfg: $(top_srcdir)/data/serveez.cfg
 	cp -p $(top_srcdir)/data/serveez.cfg $@
 
 SUFFIXES = .rc .ro
-WINDRES = windres
 
 %.ro: %.rc
 	$(WINDRES) -i $< -o $@

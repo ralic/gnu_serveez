@@ -1,3 +1,11 @@
+2002-01-02  [ Ela ]  <ela@lkcc.org>
+
+	* acinclude.m4: Let `--with-guile=DIR' override the results
+	from `guile-config'.
+
+	* README-cross: New file describing how to cross-compile
+	the Serveez package.
+
 2001-12-27  [ Ela ]  <ela@lkcc.org>
 
 	* acinclude.m4: Widened pattern to allow Guile 1.3 

@@ -44,58 +44,57 @@ AC_DEFUN([AC_GUILE], [
     GUILEDIR="/usr/local")
 
   AC_MSG_CHECKING([for guile installation])
-  guile=""
-  [if test "x`eval guile-config --version 2>&1 | grep version`" != "x"; then
-    guile="`eval guile-config --version 2>&1 | grep version`"
-    guile="`echo $guile | sed -e 's/[^0-9\.]//g'`"
-  fi]
-  if test x"$guile" != "x" ; then
-    case "$guile" in
-    [1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*)]
-      AC_MSG_RESULT($guile >= 1.3)
-      GUILE_BUILD="yes"
-      ;;
-    [*)]
-      AC_MSG_RESULT($guile < 1.3)
-      AC_MSG_WARN([
-  GNU Guile version 1.3 or above is needed, and you do not seem to have
-  it handy on your system.])
-      ;;
-    esac
-    GUILE_CFLAGS="`eval guile-config compile`"
-    GUILE_LDFLAGS="`eval guile-config link`"
-  else
-    if test "x$GUILEDIR" != "xno" ; then
-      GUILEDIR="`eval cd "$GUILEDIR" 2>/dev/null && pwd`"
-      case $host_os in
-      mingw*)
+  if test "x$GUILEDIR" != "xno" ; then
+    GUILEDIR="`eval cd "$GUILEDIR" 2>/dev/null && pwd`"
+    case $build_os in
+    mingw*)
 	GUILEDIR="`eval cygpath -w -i "$GUILEDIR"`"
 	GUILEDIR="`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`"
 	;;
-      esac
-      if test -f "$GUILEDIR/lib/libguile.so" -o \
-	 -n "`find "$GUILEDIR/lib" -name "libguile.so.*" 2>/dev/null`" -o \
-	 -f "$GUILEDIR/lib/libguile.dylib" -o \
-	 -f "$GUILEDIR/bin/libguile.dll"; then
-        GUILE_CFLAGS="-I$GUILEDIR/include"
-	if test x"$CYGWIN" = xyes -o x"$MINGW32" = xyes ; then
-	  GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"
-	fi
-        GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
-	GUILE_BUILD="yes"
-        AC_MSG_RESULT([yes])
-      else
-        AC_MSG_RESULT([missing])
-        GUILE_CFLAGS=""
-        GUILE_LDFLAGS=""
+    esac
+    if test -f "$GUILEDIR/lib/libguile.so" -o \
+      -n "`find "$GUILEDIR/lib" -name "libguile.so.*" 2>/dev/null`" -o \
+      -f "$GUILEDIR/lib/libguile.dylib" -o \
+      -f "$GUILEDIR/bin/libguile.dll" -o \
+      -f "$GUILEDIR/bin/cygguile.dll" ; then
+      GUILE_CFLAGS="-I$GUILEDIR/include"
+      if test x"$CYGWIN" = xyes -o x"$MINGW32" = xyes ; then
+	GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"
       fi
+      GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
+      GUILE_BUILD="yes"
+      AC_MSG_RESULT([yes])
+    fi
+  fi
+
+  if test "x$GUILE_BUILD" != "xyes" ; then
+    guile=""
+    if test "x`eval guile-config --version 2>&1 | grep version`" != "x" ; then
+      guile="`eval guile-config --version 2>&1 | grep version`"
+      [guile="`echo $guile | sed -e 's/[^0-9\.]//g'`"]
+    fi
+    if test "x$guile" != "x" ; then
+      case "$guile" in
+      [1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*)]
+	AC_MSG_RESULT($guile >= 1.3)
+	GUILE_BUILD="yes"
+	;;
+      [*)]
+	AC_MSG_RESULT($guile < 1.3)
+	AC_MSG_WARN([
+  GNU Guile version 1.3 or above is needed, and you do not seem to have
+  it handy on your system.])
+	;;
+      esac
+      GUILE_CFLAGS="`eval guile-config compile`"
+      GUILE_LDFLAGS="`eval guile-config link`"
     else
-      AC_MSG_RESULT([disabled])
+      AC_MSG_RESULT([missing])
       GUILE_CFLAGS=""
       GUILE_LDFLAGS=""
     fi
+    unset guile
   fi
-  unset guile
   unset GUILEDIR
   AC_SUBST(GUILE_CFLAGS)
   AC_SUBST(GUILE_LDFLAGS)
@@ -114,7 +113,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
   AC_MSG_CHECKING([for guile source tree])
   if test "x$GUILESRC" != "xno"; then
     GUILESRC="`eval cd "$GUILESRC" 2>/dev/null && pwd`"
-    case $host_os in
+    case $build_os in
     mingw*) 
 	GUILESRC="`eval cygpath -w -i "$GUILESRC"`"
 	GUILESRC="`echo "$GUILESRC" | sed -e 's%\\\\%/%g'`"
@@ -156,7 +155,7 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
     if test "`echo "$cache_file" | cut -b 1`" != "/" ; then
       cache_file="`pwd`/$cache_file"
     fi
-    case $host_os in
+    case $build_os in
     mingw*)
 	cache_file="`eval cygpath -w -i "$cache_file"`"
 	cache_file="`echo "$cache_file" | sed -e 's%\\\\%/%g'`"
@@ -205,7 +204,7 @@ AC_DEFUN([AC_LIBTOOL_SOLARIS], [
   '$LIBERTY $GCCDIR $GCCFILE'
   to your linker line.  This may not be what you want.  Please report
   to <bug-serveez@gnu.org> if we failed to build shared libraries 
-  on '$host_os'.])
+  for '$host_os'.])
       unset LIBERTY
       unset GCCLIB
       unset GCCDIR

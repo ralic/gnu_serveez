@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: bzip2.c,v 1.3 2001/10/18 07:53:06 ela Exp $
+ * $Id: bzip2.c,v 1.4 2002/01/02 16:12:43 ela Exp $
  *
  */
 
@@ -186,10 +186,15 @@ bzip2_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
     {
       bz = data->data;
 #if HAVE_BZ2LIB_PREFIX
+# if SIZEOF_LONG <= 4
+      *in = (unsigned long) bz->stream.total_in_lo32;
+      *out = (unsigned long) bz->stream.total_out_lo32;
+# else
       *in = (unsigned long) bz->stream.total_in_hi32 << 32;
       *in += (unsigned long) bz->stream.total_in_lo32;
       *out = (unsigned long) bz->stream.total_out_hi32 << 32;
       *out += (unsigned long) bz->stream.total_out_lo32;
+# endif
 #else
       *in = (unsigned long) bz->stream.total_in;
       *out = (unsigned long) bz->stream.total_out;

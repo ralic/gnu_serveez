@@ -28,6 +28,8 @@ files.
 Version 0.1.3
 -------------
 
+ * Guile version 1.3 backward compatibility
+ * improved build-time behaviour (including cross compiling)
  * allow INADDR_ANY bindings by the keyword `any' in network port 
    configurations and appropiate mixtures of this binding with explicit
    network interface bindings

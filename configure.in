@@ -4,7 +4,7 @@ dnl configure.in
 dnl
 dnl Autoconf input file.
 dnl
-dnl Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+dnl Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 dnl Copyright (C) 2000, 2001 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 dnl
@@ -50,6 +50,7 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Check for a proper C compiler.
 dnl
+AC_CANONICAL_HOST
 AC_PROG_CC
 AC_C_CONST
 
@@ -72,8 +73,11 @@ if test $svz_cv_sys_bigendian = yes ; then
    byte first (like Motorola and SPARC, unlike Intel and VAX).])
 fi
 
-AC_CHECK_SIZEOF(unsigned, 4)
+AC_CHECK_SIZEOF(long, 4)
 AC_CHECK_SIZEOF(void *, 4)
+if test $ac_cv_sizeof_long -lt $ac_cv_sizeof_void_p ; then
+  AC_MSG_ERROR([A 'void *' value does not fit into a 'long' value.])
+fi
 
 dnl
 dnl Locate required external software.
@@ -82,6 +86,7 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PROG_AWK
 AC_CHECK_PROG(AR, ar, ar, :)
+AC_CHECK_PROG(WINDRES, windres, windres, :)
 
 dnl ----------------------------------------------------------------------
 
@@ -778,12 +783,6 @@ dnl Check whether to include support for named pipes under Linux.
 dnl
 
 AC_CHECK_FUNCS(mkfifo mknod sendfile)
-AC_MSG_CHECKING([for host system])
-host_sys="`uname -s`"
-if test x$host_sys = x; then
-    host_sys="`ver`"
-fi
-AC_MSG_RESULT($host_sys)
 
 dnl
 dnl Create additional CFLAGS for MinGW32 and CygWin.
@@ -1030,17 +1029,27 @@ fi
 dnl Check for the '/proc/stat' file under Linux.
 
 AC_CACHE_CHECK([whether /proc/stat exists], svz_cv_sys_proc_stat,
-  [enable_procstat=`cat /proc/stat 2>&1 | grep "cpu  "`
-  if test "x$enable_procstat" != "x" ; then
+  [have_procstat=`cat /proc/stat 2>&1 | grep "cpu  "`
+  if test "x$have_procstat" != "x" ; then
     svz_cv_sys_proc_stat=yes
   else
     svz_cv_sys_proc_stat=no
   fi])
+unset have_procstat
+
+test x$target = "xNONE" && target="$host"
 
 if test $svz_cv_sys_proc_stat = yes ; then
-  AC_DEFINE(HAVE_PROC_STAT, 1, [Define if Linux supports the /proc/stat file.])
+  case "$target" in
+  *linux*)
+    AC_DEFINE(HAVE_PROC_STAT, 
+      1, [Define if Linux supports the /proc/stat file.])
+    ;;
+  *)
+    AC_MSG_WARN([disabled '/proc/stat' since '$target' is not linux])
+    ;;
+  esac
 fi
-unset enable_procstat
 
 dnl ----------------------------------------------------------------------
 
@@ -1048,7 +1057,7 @@ dnl
 dnl Check for existance of some useful functions.
 dnl
 AC_CHECK_FUNCS(vsprintf)
-if test $ac_cv_func_vsprintf = yes;  then
+if test $ac_cv_func_vsprintf = yes ; then
   AC_DEFINE(HAVE_VSPRINTF, 1, [Define if you have the vsprintf function.])
 else
   AC_MSG_ERROR([cannot compile without vsprintf])
@@ -1336,7 +1345,7 @@ case "$tex" in
   ;;
 esac
 else
-    AC_MSG_RESULT(missing)
+  AC_MSG_RESULT(missing)
 fi
 AC_SUBST(TEXI2HTML)
 unset tex

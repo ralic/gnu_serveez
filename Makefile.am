@@ -25,7 +25,7 @@
 
 SUBDIRS = src data test doc
 
-EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
+EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
 	serveez.dsw config.h.serveez version.h.serveez \
 	RELEASE vcgen.bat autodsp serveez.ap
 
