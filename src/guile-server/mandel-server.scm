@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-server.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
+;; $Id: mandel-server.scm,v 1.2 2001/11/11 11:32:08 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -57,32 +57,42 @@
 		  (loop (1+ i)))))
   text)
 
+;; create an ascii representation for the given index i, each character is
+;; limited to a certain range, creates a string with bpp (bytes per pixel)
+;; characters
+(define (generate-ascii range bpp i)
+  (let* ((ascii (make-string bpp #\space)))
+    (let loop ((n 0) (i i))
+      (if (< n bpp)
+	  (let ((c (integer->char (+ (modulo i range)
+				     (char->integer #\space)))))
+	    (if (equal? c #\")
+		(set! c (integer->char (+ range (char->integer #\space)))))
+	    (string-set! ascii n c)
+	    (loop (1+ n) (divide i range)))))
+    ascii))
+
 ;; generate a colourful palette
 (define (mandel-palette server)
   (let* ((colors (svz:server:config-ref server "colors"))
-	 (rgb (cons (make-vector colors) (make-vector colors))))
+	 (rgb (cons (make-vector colors) (make-vector colors)))
+	 (bpp 1))
     (let loop ((i (1- colors)) (r 0) (g 0) (b 0))
       (if (>= i 0)
-	  (let* ((ascii "  ") (triplet ""))
-	    (string-set! ascii 0 (integer->char (+ (modulo i 94)
-						   (char->integer #\space))))
-	    (string-set! ascii 1 (integer->char (+ (divide i 94)
-						   (char->integer #\space))))
-	    (set! triplet (left-zeros (number->string (+ r 
-							 (* g 256) 
-							 (* b 256 256)) 16) 6))
-	    (if (equal? (string-ref ascii 0) #\")
-		(string-set! ascii 0 (integer->char 127)))
-	    (if (equal? (string-ref ascii 1) #\")
-		(string-set! ascii 1 (integer->char 127)))
-	    (vector-set! (car rgb) i (string-copy ascii))
-	    (vector-set! (cdr rgb) i triplet)
+	  (let* ((val 0) 
+		 (char-range (- (char->integer #\~) (char->integer #\space))))
 
-	    (loop (1- i)
-		  (modulo (+ r 21) 256)
-		  (modulo (+ g 11) 256)
-		  (modulo (+ b 35) 256)))))
-    (svz:server:state-set! server "palette" rgb)))
+	    (set! bpp (let loop ((n 1) (cols char-range))
+			(if (>= cols colors) n
+			    (loop (1+ n) (* cols char-range)))))
+	    (set! val (+ (inexact->exact (* 127 (- 1 (cos r))))
+			 (* 256 (inexact->exact (* 127 (- 1 (cos g)))))
+			 (* 256 256 (inexact->exact (* 127 (- 1 (cos b)))))))
+	    (vector-set! (car rgb) i (generate-ascii char-range bpp i))
+	    (vector-set! (cdr rgb) i (left-zeros (number->string val 16) 6))
+	    (loop (1- i) (+ r 0.26) (+ g 0.02) (+ b 0.345)))))
+    (svz:server:state-set! server "palette" rgb)
+    (svz:server:state-set! server "bpp" (number->string bpp))))
 
 ;; save the generated palette to a file
 (define (mandel-save-palette server outfile)
@@ -125,7 +135,9 @@
 			       (number->string y-res)
 			       " "
 			       (number->string colors)
-			       " 2\",")
+			       " "
+			       (svz:server:state-ref server "bpp")
+			       "\",")
 		outfile)
 
     ;; write palette information
@@ -277,7 +289,7 @@
 					 (end     . (string #t "+1.1+1.5i"))
 					 (x-res   . (integer #t 320))
 					 (y-res   . (integer #t 240))
-					 (colors  . (integer #t 729))
+					 (colors  . (integer #t 256))
 					 (outfile . (string #t "mandel.xpm"))
 					 (viewer  . (string #t "xv"))
 					 ))))

@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-client.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
+;; $Id: mandel-client.scm,v 1.2 2001/11/11 11:32:08 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -80,8 +80,9 @@
 				       ")\r\n"))
 	(if (= 0 (1- todo))
 	    (begin
-	      (serveez-nuke)
-	      -1)
+	      (svz:sock:final-print sock)
+	      (svz:sock:print sock "(dnc:bye)\r\n")
+	      0)
 	    (begin 
 	      (hash-set! (svz:sock:data sock) "todo" (1- todo))
 	      (svz:sock:print sock "(dnc:request)\r\n")
@@ -90,6 +91,11 @@
      ;; invalid server request
      (else -1))
     ))
+
+;; disconnected callback
+(define (mandel-disconnected sock)
+  (serveez-nuke)
+  0)
 
 ;; main program entry point
 (define (mandel-main todo)
@@ -100,6 +106,7 @@
     (hash-set! state "todo" todo)
     (svz:sock:data sock state)
     (svz:sock:handle-request sock mandel-handle-request)
+    (svz:sock:disconnected sock mandel-disconnected)
     (svz:sock:print sock mandel-magic)
     ))
 
