@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.46 2001/11/11 23:32:56 ela Exp $
+ * $Id: guile.c,v 1.47 2001/11/19 13:31:50 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #endif
 
 #include "libserveez.h"
+#include "guile-api.h"
 #include "guile-server.h"
 #include "guile.h"
 
@@ -131,7 +132,7 @@ static SCM
 guile_get_current_load_port (void)
 {
   SCM p = scm_current_load_port ();
-  if (!gh_eq_p (p, SCM_BOOL_F) && SCM_PORTP (p))
+  if (!SCM_EQ_P (p, SCM_BOOL_F) && SCM_PORTP (p))
     return p;
   if (SCM_PORTP (guile_load_port))
     return guile_load_port;
@@ -246,24 +247,24 @@ guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
   int err = 0;
 
   /* Unpack if requested, ignore if null already (null == not existent). */
-  if (dounpack && !gh_null_p (pairlist) && !gh_eq_p (pairlist, SCM_UNDEFINED))
-    pairlist = gh_car (pairlist);
+  if (dounpack && !SCM_NULLP (pairlist) && !SCM_UNBNDP (pairlist))
+    pairlist = SCM_CAR (pairlist);
 
-  for ( ; gh_pair_p (pairlist); pairlist = gh_cdr (pairlist))
+  for ( ; SCM_PAIRP (pairlist); pairlist = SCM_CDR (pairlist))
     {
-      SCM pair = gh_car (pairlist);
+      SCM pair = SCM_CAR (pairlist);
       SCM key, val;
       char *str = NULL;
 
       /* The car must be another pair which contains key and value. */
-      if (!gh_pair_p (pair))
+      if (!SCM_PAIRP (pair))
 	{
 	  guile_error ("Not a pair %s", txt);
 	  err = 1;
 	  break;
 	}
-      key = gh_car (pair);
-      val = gh_cdr (pair);
+      key = SCM_CAR (pair);
+      val = SCM_CDR (pair);
 
       if (NULL == (str = guile_to_string (key)))
 	{
@@ -285,8 +286,8 @@ guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
       scm_must_free (str);
     }
 
-  /* Pairlist must be gh_null_p() now or that was not a good pairlist. */
-  if (!err && !gh_null_p (pairlist))
+  /* Pairlist must be SCM_NULLP() now or that was not a good pairlist. */
+  if (!err && !SCM_NULLP (pairlist))
     {
       guile_error ("Invalid pairlist %s", txt);
       err = 1;
@@ -313,9 +314,9 @@ guile_to_integer (SCM cell, int *target)
   char *str = NULL, *endp;
 
   /* Usual guile exact number. */
-  if (gh_exact_p (cell))
+  if (SCM_EXACTP (cell))
     {
-      *target = gh_scm2int (cell);
+      *target = SCM_C_NUM2INT (SCM_ARG1, cell);
     }
   /* Try string (or even symbol) to integer conversion. */
   else if (NULL != (str = guile_to_string (cell)))
@@ -348,9 +349,9 @@ guile_to_boolean (SCM cell, int *target)
   char *str;
 
   /* Usual guile boolean. */
-  if (gh_boolean_p (cell))
+  if (SCM_BOOLP (cell))
     {
-      i = gh_scm2bool (cell);
+      i = SCM_NFALSEP (cell);
       *target = (i == 0 ? 0 : 1);
     }
   /* Try with the integer converter. */
@@ -391,7 +392,7 @@ guile_to_hash (SCM list, char *prefix)
   svz_hash_t *hash;
 
   /* Is this valid guile list at all ? */
-  if (!gh_list_p (list))
+  if (!SCM_LISTP (list))
     {
       err = -1;
       guile_error ("%s: Not a valid list for hash (alist)", prefix);
@@ -399,21 +400,21 @@ guile_to_hash (SCM list, char *prefix)
     }
 
   /* Iterate the alist. */
-  hash = svz_hash_create (gh_length (list));
-  for (i = 0; gh_pair_p (list); list = gh_cdr (list), i++)
+  hash = svz_hash_create (SCM_C_NUM2ULONG (SCM_ARG1, scm_length (list)));
+  for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
-      SCM k, v, pair = gh_car (list);
+      SCM k, v, pair = SCM_CAR (list);
       char *str, *keystr, *valstr;
 
-      if (!gh_pair_p (pair))
+      if (!SCM_PAIRP (pair))
 	{
 	  err = -1;
 	  guile_error ("%s: Element #%d of hash (alist) is not a pair", 
 		       prefix, i);
 	  continue;
 	}
-      k = gh_car (pair);
-      v = gh_cdr (pair);
+      k = SCM_CAR (pair);
+      v = SCM_CDR (pair);
 	     
       /* Obtain key character string. */
       if (NULL == (str = guile_to_string (k)))
@@ -478,17 +479,17 @@ guile_to_strarray (SCM list, char *func)
   char *str;
 
   /* Check if the given scheme cell is a valid list. */
-  if (!gh_list_p (list))
+  if (!SCM_LISTP (list))
     {
       guile_error ("%s: String array is not a valid list", func);
       return NULL;
     }
 
   /* Iterate over the list and build up the array of strings. */
-  array = svz_array_create (gh_length (list));
-  for (i = 0; gh_pair_p (list); list = gh_cdr (list), i++)
+  array = svz_array_create (SCM_C_NUM2ULONG (SCM_ARG1, scm_length (list)));
+  for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
-      if ((str = guile_to_string (gh_car (list))) == NULL)
+      if ((str = guile_to_string (SCM_CAR (list))) == NULL)
 	{
 	  guile_error ("%s: String expected in position %d", func, i);
 	  guile_global_error = -1;
@@ -519,17 +520,17 @@ guile_to_intarray (SCM list, char *func)
   int i, n;
 
   /* Check if the given scheme cell is a valid associative list. */
-  if (!gh_list_p (list))
+  if (!SCM_LISTP (list))
     {
       guile_error ("%s: Integer array is not a valid list", func);
       return NULL;
     }
 
   /* Iterate over the list and build up the array of strings. */
-  array = svz_array_create (gh_length (list));
-  for (i = 0; gh_pair_p (list); list = gh_cdr (list), i++)
+  array = svz_array_create (SCM_C_NUM2ULONG (SCM_ARG1, scm_length (list)));
+  for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
-      if (guile_to_integer (gh_car (list), &n) != 0)
+      if (guile_to_integer (SCM_CAR (list), &n) != 0)
 	{
 	  guile_error ("%s: Integer expected in position %d", func, i);
 	  guile_global_error = -1;
@@ -562,7 +563,7 @@ optionhash_extract_int (svz_hash_t *hash,
   SCM hvalue = optionhash_get (hash, key);
 
   /* Is there such an integer in the option-hash ? */
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       /* Nothing in hash, try to use default. */
       if (hasdef)
@@ -600,7 +601,7 @@ optionhash_extract_string (svz_hash_t *hash,
   char *str = NULL;
 
   /* Is there such a string in the option-hash ? */
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       /* Nothing in hash, try to use default. */
       if (hasdef)
@@ -646,7 +647,7 @@ optionhash_cb_integer (char *server, void *arg, char *key, int *target,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
   
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -673,7 +674,7 @@ optionhash_cb_boolean (char *server, void *arg, char *key, int *target,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
 
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -702,7 +703,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
   SCM hvalue = optionhash_get (options, key);
 
   /* Is that integer array defined in the option-hash ? */
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -718,7 +719,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
       svz_array_t *array;
 
       /* Is it a valid list ? */
-      if (!gh_list_p (hvalue))
+      if (!SCM_LISTP (hvalue))
 	{
 	  guile_error ("%s: Integer array `%s' is not a valid list",
 		       server, key);
@@ -727,9 +728,9 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
 
       /* Iterate over the list and build up the array of integers. */
       array = svz_array_create (0);
-      for (i = 0; gh_pair_p (hvalue); hvalue = gh_cdr (hvalue), i++)
+      for (i = 0; SCM_PAIRP (hvalue); hvalue = SCM_CDR (hvalue), i++)
 	{
-	  if (guile_to_integer (gh_car (hvalue), &val))
+	  if (guile_to_integer (SCM_CAR (hvalue), &val))
 	    {
 	      guile_error ("%s: Invalid integer element #%d in "
 			   "integer array `%s'", server, i, key);
@@ -761,7 +762,7 @@ optionhash_cb_string (char *server, void *arg, char *key,
   SCM hvalue = optionhash_get (options, key);
   char *str;
 
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -791,7 +792,7 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
 
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -807,7 +808,7 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
       char *str;
 
       /* Check if this is really a list. */
-      if (!gh_list_p (hvalue))
+      if (!SCM_LISTP (hvalue))
 	{
 	  guile_error ("%s: String array `%s' is not a valid list",
 		       server, key);
@@ -816,9 +817,9 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
 
       /* Iterate over the list and build up the array of strings. */
       array = svz_array_create (0);
-      for (i = 0; gh_pair_p (hvalue); hvalue = gh_cdr (hvalue), i++)
+      for (i = 0; SCM_PAIRP (hvalue); hvalue = SCM_CDR (hvalue), i++)
 	{
-	  if (NULL == (str = guile_to_string (gh_car (hvalue))))
+	  if (NULL == (str = guile_to_string (SCM_CAR (hvalue))))
 	    {
 	      guile_error ("%s: Invalid string element #%d in "
 			   "string array `%s'", server, i, key);
@@ -853,7 +854,7 @@ optionhash_cb_hash (char *server, void *arg, char *key,
   svz_hash_t *options = arg;
   SCM hvalue = optionhash_get (options, key);
 
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -868,7 +869,7 @@ optionhash_cb_hash (char *server, void *arg, char *key,
       svz_hash_t *hash;
 
       /* Unpack again... Whysoever. */
-      if (!gh_list_p (hvalue))
+      if (!SCM_LISTP (hvalue))
 	{
 	  err = -1;
 	  guile_error ("%s: Not a valid list for hash (alist) `%s'",
@@ -878,20 +879,20 @@ optionhash_cb_hash (char *server, void *arg, char *key,
 
       /* Iterate the alist. */
       hash = svz_hash_create (7);
-      for (i = 0; gh_pair_p (hvalue); hvalue = gh_cdr (hvalue), i++)
+      for (i = 0; SCM_PAIRP (hvalue); hvalue = SCM_CDR (hvalue), i++)
 	{
-	  SCM k, v, pair = gh_car (hvalue);
+	  SCM k, v, pair = SCM_CAR (hvalue);
 	  char *str, *keystr, *valstr;
 
-	  if (!gh_pair_p (pair))
+	  if (!SCM_PAIRP (pair))
 	    {
 	      err = -1;
 	      guile_error ("%s: Element #%d of hash (alist) `%s' "
 			   "is not a pair", server, i, key);
 	      continue;
 	    }
-	  k = gh_car (pair);
-	  v = gh_cdr (pair);
+	  k = SCM_CAR (pair);
+	  v = SCM_CDR (pair);
 	     
 	  /* Obtain key character string. */
 	  if (NULL == (str = guile_to_string (k)))
@@ -959,7 +960,7 @@ optionhash_cb_portcfg (char *server, void *arg, char *key,
   char *str;
 
   /* Is the requested port configuration defined ? */
-  if (gh_eq_p (hvalue, SCM_UNSPECIFIED))
+  if (SCM_EQ_P (hvalue, SCM_UNSPECIFIED))
     {
       if (hasdef)
 	return SVZ_ITEM_DEFAULT_ERRMSG;
@@ -1074,7 +1075,7 @@ guile_define_server (SCM name, SCM args)
   svz_snprintf (txt, 256, "defining server `%s'", servername);
 
   /* Extract options if any. */
-  if (gh_eq_p (args, SCM_UNDEFINED))
+  if (SCM_UNBNDP (args))
     options = svz_hash_create (4);
   else if (NULL == (options = guile_to_optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
@@ -1251,7 +1252,7 @@ guile_define_port (SCM name, SCM args)
 	  scm_must_free (str);
 	}
       /* Create local optionhash for receiving pipe direction. */
-      else if (gh_eq_p (p, SCM_UNSPECIFIED))
+      else if (SCM_EQ_P (p, SCM_UNSPECIFIED))
 	{
 	  guile_error ("%s: You have to define a pipe called `%s'",
 		       portname, PORTCFG_RECV);
@@ -1281,7 +1282,7 @@ guile_define_port (SCM name, SCM args)
 	  cfg->pipe_send.perm = (unsigned int) -1;
 	  scm_must_free (str);
 	}
-      else if (gh_eq_p (p, SCM_UNSPECIFIED))
+      else if (SCM_EQ_P (p, SCM_UNSPECIFIED))
 	{
 	  guile_error ("%s: You have to define a pipe called `%s'",
 		       portname, PORTCFG_SEND);
@@ -1322,12 +1323,12 @@ guile_define_port (SCM name, SCM args)
     {
       SCM list;
       list = optionhash_get (options, PORTCFG_DENY);
-      if (!gh_eq_p (list, SCM_UNSPECIFIED))
+      if (!SCM_EQ_P (list, SCM_UNSPECIFIED))
 	cfg->deny = guile_to_strarray (list, FUNC_NAME);
       else
 	cfg->deny = NULL;
       list = optionhash_get (options, PORTCFG_ALLOW);
-      if (!gh_eq_p (list, SCM_UNSPECIFIED))
+      if (!SCM_EQ_P (list, SCM_UNSPECIFIED))
 	cfg->allow = guile_to_strarray (list, FUNC_NAME);
       else
 	cfg->allow = NULL;
@@ -1436,8 +1437,9 @@ guile_strarray_to_guile (svz_array_t *array)
 
   /* Go through all the strings and add these to a guile list. */
   for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
-    list = gh_cons (gh_str02scm ((char *) svz_array_get (array, i)), list);
-  return gh_reverse (list);
+    list = scm_cons (scm_makfrom0str ((char *) svz_array_get (array, i)), 
+		     list);
+  return scm_reverse (list);
 }
 
 /*
@@ -1455,8 +1457,8 @@ guile_intarray_to_guile (svz_array_t *array)
 
   /* Go through all the strings and add these to a guile list. */
   for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
-    list = gh_cons (gh_long2scm ((long) svz_array_get (array, i)), list);
-  return gh_reverse (list);
+    list = scm_cons (scm_long2num ((long) svz_array_get (array, i)), list);
+  return scm_reverse (list);
 }
 
 /*
@@ -1471,9 +1473,9 @@ guile_hash_to_guile (svz_hash_t *hash)
   
   svz_hash_foreach_key (hash, key, n)
     {
-      pair = gh_cons (gh_str02scm (key[n]),
-		      gh_str02scm ((char *) svz_hash_get (hash, key[n])));
-      alist = gh_cons (pair, alist);
+      pair = scm_cons (scm_makfrom0str (key[n]),
+		       scm_makfrom0str ((char *) svz_hash_get (hash, key[n])));
+      alist = scm_cons (pair, alist);
     }
   return alist;
 }
@@ -1511,7 +1513,7 @@ guile_access_interfaces (SCM args)
     }
 
   /* Is there an argument given to the guile function ? */
-  if (!gh_eq_p (args, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (args))
     {
       svz_interface_free ();
       if ((array = guile_to_strarray (args, FUNC_NAME)) != NULL)
@@ -1565,7 +1567,7 @@ guile_access_loadpath (SCM args)
     }
   
   /* Set the load path if argument is given. */
-  if (!gh_eq_p (args, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (args))
     {
       if ((paths = guile_to_strarray (args, FUNC_NAME)) != NULL)
 	svz_dynload_path_set (paths);
@@ -1607,9 +1609,9 @@ MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
  */
 #define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
 static SCM cfunc (SCM args) {                                \
-  SCM value = gh_int2scm (cvar); int n;                      \
+  SCM value = scm_int2num (cvar); int n;                     \
   GUILE_PRECALL ();                                          \
-  if (!gh_eq_p (args, SCM_UNDEFINED)) {                      \
+  if (!SCM_UNBNDP (args)) {                                  \
     if (guile_to_integer (args, &n)) {                       \
       guile_error ("%s: Invalid integer value", FUNC_NAME);  \
       guile_global_error = -1;                               \
@@ -1622,9 +1624,9 @@ static SCM cfunc (SCM args) {                                \
  */
 #define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
 static SCM cfunc (SCM args) {                                \
-  SCM value = gh_str02scm (cvar); char *str;                 \
+  SCM value = scm_makfrom0str (cvar); char *str;             \
   GUILE_PRECALL ();                                          \
-  if (!gh_eq_p (args, SCM_UNDEFINED)) {                      \
+  if (!SCM_UNBNDP (args)) {                                  \
     if (NULL == (str = guile_to_string (args))) {            \
       guile_error ("%s: Invalid string value", FUNC_NAME);   \
       guile_global_error = -1;                               \
@@ -1659,27 +1661,27 @@ static void
 guile_init (void)
 {
   /* define some variables */
-  gh_define ("serveez-version", gh_str02scm (svz_version));
-  gh_define ("guile-version", scm_version ());
-  gh_define ("have-debug", gh_bool2scm (svz_have_debug));
-  gh_define ("have-Win32", gh_bool2scm (svz_have_Win32));
-  gh_define ("have-floodprotect", gh_bool2scm (svz_have_floodprotect));
+  scm_c_define ("serveez-version", scm_makfrom0str (svz_version));
+  scm_c_define ("guile-version", scm_version ());
+  scm_c_define ("have-debug", SCM_BOOL (svz_have_debug));
+  scm_c_define ("have-Win32", SCM_BOOL (svz_have_Win32));
+  scm_c_define ("have-floodprotect", SCM_BOOL (svz_have_floodprotect));
 
   /* export accessors for global variables (read/write capable) */
-  gh_new_procedure ("serveez-verbosity", guile_access_verbosity, 0, 1, 0);
-  gh_new_procedure ("serveez-maxsockets", guile_access_maxsockets, 0, 1, 0);
-  gh_new_procedure ("serveez-passwd", guile_access_passwd, 0, 1, 0);
-  gh_new_procedure ("serveez-interfaces", guile_access_interfaces, 0, 1, 0);
-  gh_new_procedure ("serveez-loadpath", guile_access_loadpath, 0, 1, 0);
+  scm_c_define_gsubr ("serveez-verbosity", 0, 1, 0, guile_access_verbosity);
+  scm_c_define_gsubr ("serveez-maxsockets", 0, 1, 0, guile_access_maxsockets);
+  scm_c_define_gsubr ("serveez-passwd", 0, 1, 0, guile_access_passwd);
+  scm_c_define_gsubr ("serveez-interfaces", 0, 1, 0, guile_access_interfaces);
+  scm_c_define_gsubr ("serveez-loadpath", 0, 1, 0, guile_access_loadpath);
 
   /* export some new procedures */
-  gh_new_procedure ("define-port!", guile_define_port, 2, 0, 0);
-  gh_new_procedure ("define-server!", guile_define_server, 1, 1, 0);
-  gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 0);
+  scm_c_define_gsubr ("define-port!", 2, 0, 0, guile_define_port);
+  scm_c_define_gsubr ("define-server!", 1, 1, 0, guile_define_server);
+  scm_c_define_gsubr ("bind-server!", 2, 0, 0, guile_bind_server);
 
   /* export checker functions */
-  gh_new_procedure ("serveez-port?", guile_check_port, 1, 0, 0);
-  gh_new_procedure ("serveez-server?", guile_check_server, 1, 0, 0);
+  scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
+  scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
 
 #if ENABLE_GUILE_SERVER
   guile_server_init ();
@@ -1702,22 +1704,30 @@ guile_exception (void *data, SCM tag, SCM args)
   scm_puts ("guile-error: ", scm_current_error_port ());
 
   /* on quit/exit */
-  if (gh_null_p (args))
+  if (SCM_NULLP (args))
     {
       scm_display (tag, scm_current_error_port ());
       scm_puts ("\n", scm_current_error_port ());
       return SCM_BOOL_F;
     }
 
-  if (!gh_eq_p (gh_car (args), SCM_BOOL_F))
+  if (!SCM_EQ_P (SCM_CAR (args), SCM_BOOL_F))
     {
-      scm_display (gh_car (args), scm_current_error_port ());
+      scm_display (SCM_CAR (args), scm_current_error_port ());
       scm_puts (": ", scm_current_error_port ());
     }
-  scm_display_error_message (gh_car (gh_cdr (args)), 
-			     gh_car (gh_cdr (gh_cdr (args))), 
+  scm_display_error_message (SCM_CAR (SCM_CDR (args)), 
+			     SCM_CAR (SCM_CDR (SCM_CDR (args))), 
 			     scm_current_error_port ());
   return SCM_BOOL_F;
+}
+
+/* Wrapper function for the file loader exception handler. */
+static SCM
+guile_eval_file (void *data)
+{
+  char *file = (char *) data;
+  return scm_c_primitive_load (file);
 }
 
 /*
@@ -1727,10 +1737,17 @@ guile_exception (void *data, SCM tag, SCM args)
 int
 guile_load_config (char *cfgfile)
 {
+  SCM ret;
   guile_global_error = 0;
   guile_init ();
 
-  if (gh_eq_p (gh_eval_file_with_catch (cfgfile, guile_exception), SCM_BOOL_F))
+  ret = scm_internal_catch (SCM_BOOL_T,
+			    (scm_catch_body_t) guile_eval_file, 
+			    (void *) cfgfile, 
+			    (scm_catch_handler_t) guile_exception,
+			    (void *) cfgfile);
+
+  if (SCM_EQ_P (ret, SCM_BOOL_F))
     guile_global_error = -1; 
 
   return guile_global_error ? -1 : 0;

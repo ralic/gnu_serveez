@@ -58,7 +58,7 @@ serveez_SOURCES = \
 	guile-server.c guile-server.h \
 	guile-bin.c guile-bin.h
 
-EXTRA_serveez_SOURCES = guile-api.c
+EXTRA_serveez_SOURCES = guile-api.c guile-api.h
 
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.11 2001/11/16 09:08:22 ela Exp $
+ * $Id: guile-bin.c,v 1.12 2001/11/19 13:31:49 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #endif
 
 #include "libserveez.h"
+#include "guile-api.h"
 #include "guile-bin.h"
 
 /*
@@ -140,11 +141,11 @@ guile_string_to_bin (SCM string)
 {
   guile_bin_t *bin;
 
-  SCM_ASSERT_TYPE (gh_string_p (string), string, 
+  SCM_ASSERT_TYPE (SCM_STRINGP (string), string, 
 		   SCM_ARG1, FUNC_NAME, "string");
 
   bin = MAKE_BIN_SMOB ();
-  bin->size = gh_scm2int (scm_string_length (string));
+  bin->size = SCM_C_NUM2INT (SCM_ARG1, scm_string_length (string));
   bin->data = (unsigned char *) scm_must_malloc (bin->size, "svz-binary-data");
   memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
   bin->garbage = 1;
@@ -162,7 +163,7 @@ guile_bin_to_string (SCM binary)
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  return gh_str2scm ((char *) bin->data, bin->size);
+  return scm_mem2string ((char *) bin->data, bin->size);
 }
 #undef FUNC_NAME
 
@@ -179,12 +180,12 @@ guile_bin_search (SCM binary, SCM needle)
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT (gh_string_p (needle) || gh_char_p (needle) || 
-	      gh_exact_p (needle) || CHECK_BIN_SMOB (needle),
+  SCM_ASSERT (SCM_STRINGP (needle) || SCM_CHARP (needle) || 
+	      SCM_EXACTP (needle) || CHECK_BIN_SMOB (needle),
 	      needle, SCM_ARG2, FUNC_NAME);
 
   /* Search for a pattern. */
-  if (gh_string_p (needle) || CHECK_BIN_SMOB (needle))
+  if (SCM_STRINGP (needle) || CHECK_BIN_SMOB (needle))
     {
       guile_bin_t *search = NULL;
       int len;
@@ -192,7 +193,8 @@ guile_bin_search (SCM binary, SCM needle)
 
       if (CHECK_BIN_SMOB (needle))
 	search = GET_BIN_SMOB (needle);
-      len = search ? search->size : gh_scm2int (scm_string_length (needle));
+      len = search ? search->size : SCM_C_NUM2INT (SCM_ARG2, 
+						   scm_string_length (needle));
       p = search ? search->data : SCM_STRING_UCHARS (needle);
       start = bin->data;
       end = start + bin->size - len;
@@ -201,7 +203,7 @@ guile_bin_search (SCM binary, SCM needle)
 	{
 	  if (*start == *p && memcmp (start, p, len) == 0)
 	    {
-	      ret = gh_int2scm (start - bin->data);
+	      ret = scm_int2num (start - bin->data);
 	      break;
 	    }
 	  start++;
@@ -209,12 +211,13 @@ guile_bin_search (SCM binary, SCM needle)
     }
 
   /* Search for a single byte. */
-  else if (gh_char_p (needle) || gh_exact_p (needle))
+  else if (SCM_CHARP (needle) || SCM_EXACTP (needle))
     {
       unsigned char c;
       unsigned char *p, *end;
 
-      c = gh_char_p (needle) ? gh_scm2char (needle) : gh_scm2int (needle);
+      c = SCM_CHARP (needle) ? 
+	SCM_CHAR (needle) : SCM_C_NUM2INT (SCM_ARG2, needle);
       p = bin->data;
       end = p + bin->size;
 
@@ -222,7 +225,7 @@ guile_bin_search (SCM binary, SCM needle)
 	{
 	  if (*p == c)
 	    {
-	      ret = gh_int2scm (p - bin->data);
+	      ret = scm_int2num (p - bin->data);
 	      break;
 	    }
 	  p++;
@@ -243,16 +246,16 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
   int idx;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_exact_p (index), index, SCM_ARG2, FUNC_NAME, "exact");
-  SCM_ASSERT_TYPE (gh_exact_p (value) || gh_char_p (value), 
+  SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (SCM_EXACTP (value) || SCM_CHARP (value), 
 		   value, SCM_ARG3, FUNC_NAME, "char or exact");
 
   /* Check the range of the index argument. */
-  idx = gh_scm2int (index);
+  idx = SCM_C_NUM2INT (SCM_ARG2, index);
   if (idx < 0 || idx >= bin->size)
     scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);
 
-  bin->data[idx] = gh_scm2char (value);
+  bin->data[idx] = SCM_CHAR (value);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
@@ -267,14 +270,14 @@ guile_bin_ref (SCM binary, SCM index)
   int idx;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_exact_p (index), index, SCM_ARG2, FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact");
 
   /* Check the range of the index argument. */
-  idx = gh_scm2int (index);
+  idx = SCM_C_NUM2INT (SCM_ARG2, index);
   if (idx < 0 || idx >= bin->size)
     scm_out_of_range_pos (FUNC_NAME, index, SCM_ARG2);
 
-  return gh_char2scm (bin->data[idx]);
+  return SCM_MAKE_CHAR (bin->data[idx]);
 }
 #undef FUNC_NAME
 
@@ -286,7 +289,7 @@ guile_bin_length (SCM binary)
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  return gh_int2scm (bin->size);
+  return scm_int2num (bin->size);
 }
 #undef FUNC_NAME
 
@@ -296,19 +299,20 @@ guile_bin_length (SCM binary)
    @code{string->binary}. */
 #define FUNC_NAME "binary-concat!"
 SCM
-guile_bin_concat (SCM binary, SCM append)
+guile_bin_concat_x (SCM binary, SCM append)
 {
   guile_bin_t *bin, *concat = NULL;
   int len;
   unsigned char *p;
   
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT (gh_string_p (append) || CHECK_BIN_SMOB (append),
+  SCM_ASSERT (SCM_STRINGP (append) || CHECK_BIN_SMOB (append),
 	      append, SCM_ARG2, FUNC_NAME);
 
   if (CHECK_BIN_SMOB (append))
     concat = GET_BIN_SMOB (append);
-  len = concat ? concat->size : gh_scm2int (scm_string_length (append));
+  len = concat ? 
+    concat->size : SCM_C_NUM2INT (SCM_ARG2, scm_string_length (append));
   p = concat ? concat->data : SCM_STRING_UCHARS (append);
 
   if (bin->garbage)
@@ -345,12 +349,12 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
   int from, to;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_exact_p (start), start, SCM_ARG2, FUNC_NAME, "exact");
-  SCM_ASSERT_TYPE (gh_exact_p (end) || gh_eq_p (end, SCM_UNDEFINED), 
+  SCM_ASSERT_TYPE (SCM_EXACTP (start), start, SCM_ARG2, FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (SCM_EXACTP (end) || SCM_UNBNDP (end), 
 		   end, SCM_ARG3, FUNC_NAME, "exact");
 
-  from = gh_scm2int (start);
-  to = gh_eq_p (end, SCM_UNDEFINED) ? -1 : gh_scm2int (end);
+  from = SCM_C_NUM2INT (SCM_ARG2, start);
+  to = SCM_UNBNDP (end) ? -1 : SCM_C_NUM2INT (SCM_ARG3, end);
   if (to == -1)
     to = bin->size - 1;
 
@@ -381,7 +385,7 @@ guile_bin_to_list (SCM binary)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   for (list = SCM_EOL, p = bin->data + bin->size; p-- > bin->data; )
-    list = gh_cons (gh_ulong2scm (*p), list);
+    list = scm_cons (scm_ulong2num (*p), list);
   return list;
 }
 #undef FUNC_NAME
@@ -396,9 +400,9 @@ guile_list_to_bin (SCM list)
   unsigned char *p;
   int value;
 
-  SCM_ASSERT_TYPE (gh_list_p (list), list, SCM_ARG1, FUNC_NAME, "list");
+  SCM_ASSERT_TYPE (SCM_LISTP (list), list, SCM_ARG1, FUNC_NAME, "list");
   bin = MAKE_BIN_SMOB ();
-  bin->size = gh_length (list);
+  bin->size = SCM_C_NUM2ULONG (SCM_ARG1, scm_length (list));
 
   if (bin->size > 0)
     {
@@ -414,15 +418,15 @@ guile_list_to_bin (SCM list)
     }
 	
   /* Iterate over the list and build up binary smob. */
-  while (gh_pair_p (list))
+  while (SCM_PAIRP (list))
     {
-      if (!gh_exact_p (gh_car (list)))
-	scm_out_of_range (FUNC_NAME, gh_car (list));
-      value = gh_scm2int (gh_car (list));
+      if (!SCM_EXACTP (SCM_CAR (list)))
+	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
+      value = SCM_C_NUM2INT (SCM_ARG1, SCM_CAR (list));
       if (value < 0 || value > 255)
-	scm_out_of_range (FUNC_NAME, gh_car (list));
+	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
       *p++ = value;
-      list = gh_cdr (list);
+      list = SCM_CDR (list);
     }
 
   SCM_RETURN_NEWSMOB (guile_bin_tag, bin);
@@ -475,17 +479,17 @@ guile_bin_init (void)
   scm_set_smob_free (guile_bin_tag, guile_bin_free);
   scm_set_smob_equalp (guile_bin_tag, guile_bin_equal);
 
-  gh_new_procedure ("binary?", guile_bin_p, 1, 0, 0);
-  gh_new_procedure ("string->binary", guile_string_to_bin, 1, 0, 0);
-  gh_new_procedure ("binary->string", guile_bin_to_string, 1, 0, 0);
-  gh_new_procedure ("list->binary", guile_list_to_bin, 1, 0, 0);
-  gh_new_procedure ("binary->list", guile_bin_to_list, 1, 0, 0);
-  gh_new_procedure ("binary-search", guile_bin_search, 2, 0, 0);
-  gh_new_procedure ("binary-set!", guile_bin_set_x, 3, 0, 0);
-  gh_new_procedure ("binary-ref", guile_bin_ref, 2, 0, 0);
-  gh_new_procedure ("binary-length", guile_bin_length, 1, 0, 0);
-  gh_new_procedure ("binary-concat!", guile_bin_concat, 2, 0, 0);
-  gh_new_procedure ("binary-subset", guile_bin_subset, 2, 1, 0);
+  scm_c_define_gsubr ("binary?", 1, 0, 0, guile_bin_p);
+  scm_c_define_gsubr ("string->binary", 1, 0, 0, guile_string_to_bin);
+  scm_c_define_gsubr ("binary->string", 1, 0, 0, guile_bin_to_string);
+  scm_c_define_gsubr ("list->binary", 1, 0, 0, guile_list_to_bin);
+  scm_c_define_gsubr ("binary->list", 1, 0, 0, guile_bin_to_list);
+  scm_c_define_gsubr ("binary-search", 2, 0, 0, guile_bin_search);
+  scm_c_define_gsubr ("binary-set!", 3, 0, 0, guile_bin_set_x);
+  scm_c_define_gsubr ("binary-ref", 2, 0, 0, guile_bin_ref);
+  scm_c_define_gsubr ("binary-length", 1, 0, 0, guile_bin_length);
+  scm_c_define_gsubr ("binary-concat!", 2, 0, 0, guile_bin_concat_x);
+  scm_c_define_gsubr ("binary-subset", 2, 1, 0, guile_bin_subset);
 }
 
 #else /* not ENABLE_GUILE_SERVER */

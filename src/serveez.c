@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.45 2001/09/04 12:03:01 ela Exp $
+ * $Id: serveez.c,v 1.46 2001/11/19 13:31:50 ela Exp $
  *
  */
 
@@ -56,6 +56,15 @@
 
 /* Command line option structure. */
 option_t *options = NULL;
+
+/* Our private launch pad. */
+void
+guile_launch_pad (void *closure, int argc, char **argv)
+{
+  void (* entry) (int, char **) = (void (*) (int, char **)) closure;
+  entry (argc, argv);
+  exit (0);
+}
 
 /*
  * This is the entry point for the guile interface.
@@ -207,6 +216,7 @@ main (int argc, char *argv[])
 #endif
 
   /* Enter the main guile function. */
-  gh_enter (argc, argv, guile_entry);
+  scm_boot_guile (argc, argv, guile_launch_pad, (void *) guile_entry);
+  /* Never reached. */
   return 0;
 }

@@ -1,3 +1,12 @@
+2001-11-19  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.h: New file.  Contains compatibility code.
+
+	* guile-server.c, guile-bin.c, serveez.c, guile-api.c,
+	guile.c: Tried to drop most of the gh_*() functionality.  The
+	Guile people are going to deprecate this interface.  That is
+	why need to find proper replacements in the scm_*() interface.
+
 2001-11-16  [ Ela ]  <ela@lkcc.org>
 
 	* guile-bin.h (SCM_STRING_UCHARS, SCM_STRING_CHARS): Defined

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.9 2001/09/20 11:44:56 ela Exp $
+ * $Id: guile.h,v 1.10 2001/11/19 13:31:50 ela Exp $
  *
  */
 
@@ -31,9 +31,9 @@
  * explicitly @code{free()}d.
  */
 #define guile_to_string(cell)                                   \
-  (gh_null_p (cell) ? NULL :                                    \
-  (gh_string_p (cell) ? gh_scm2newstr (cell, NULL) :            \
-  (gh_symbol_p (cell) ? gh_symbol2newstr (cell, NULL) : NULL)))
+  (SCM_NULLP (cell) ? NULL :                                    \
+  (SCM_STRINGP (cell) ? gh_scm2newstr (cell, NULL) :            \
+  (SCM_SYMBOLP (cell) ? gh_symbol2newstr (cell, NULL) : NULL)))
 
 /* FAIL breaks to the label `out' and sets an error condition. */
 #define FAIL() do { err = -1; goto out; } while(0)

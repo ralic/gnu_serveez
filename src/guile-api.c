@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.7 2001/11/12 10:27:19 ela Exp $
+ * $Id: guile-api.c,v 1.8 2001/11/19 13:31:49 ela Exp $
  *
  */
 
@@ -40,7 +40,7 @@
 
 /* Validate network port range. */
 #define VALIDATE_NETPORT(port, cell, arg) do {       \
-  (port) = gh_scm2long (cell);                       \
+  (port) = SCM_C_NUM2LONG (arg, cell);               \
   if ((port) < 0 || (port) >= 65536)                 \
     scm_out_of_range_pos (FUNC_NAME, (cell), (arg)); \
   } while (0)
@@ -66,14 +66,14 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
   struct sockaddr_in addr;
   SCM ret = SCM_BOOL_F;
 
-  SCM_ASSERT_TYPE (gh_exact_p (host) || gh_string_p (host), 
+  SCM_ASSERT_TYPE (SCM_EXACTP (host) || SCM_STRINGP (host), 
                    host, SCM_ARG1, FUNC_NAME, "string or exact");
-  SCM_ASSERT_TYPE (gh_exact_p (proto),
+  SCM_ASSERT_TYPE (SCM_EXACTP (proto),
                    proto, SCM_ARG2, FUNC_NAME, "exact");
 
   /* Extract host to connect to. */
-  if (gh_exact_p (host))
-    xhost = htonl ((unsigned long) gh_scm2int (host));
+  if (SCM_EXACTP (host))
+    xhost = htonl ((unsigned long) SCM_C_NUM2INT (SCM_ARG1, host));
   else
     {
       str = guile_to_string (host);
@@ -89,12 +89,12 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
     }
 
   /* Extract protocol to use. */
-  xproto = gh_scm2int (proto);
+  xproto = SCM_C_NUM2INT (SCM_ARG2, proto);
 
   /* Find out about given port. */
-  if (!gh_eq_p (port, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (port))
     {
-      SCM_ASSERT_TYPE (gh_exact_p (port),
+      SCM_ASSERT_TYPE (SCM_EXACTP (port),
 		       port, SCM_ARG3, FUNC_NAME, "exact");
       VALIDATE_NETPORT (p, port, SCM_ARG3);
       xport = htons ((unsigned short) p);
@@ -133,10 +133,10 @@ static SCM
 guile_svz_inet_ntoa (SCM address)
 {
   char *str;
-  SCM_ASSERT_TYPE (gh_exact_p (address),
+  SCM_ASSERT_TYPE (SCM_EXACTP (address),
 		   address, SCM_ARG1, FUNC_NAME, "exact");
-  str = svz_inet_ntoa (gh_scm2ulong (address));
-  return gh_str02scm (str);
+  str = svz_inet_ntoa (SCM_C_NUM2ULONG (SCM_ARG1, address));
+  return scm_makfrom0str (str);
 }
 #undef FUNC_NAME
 
@@ -151,7 +151,7 @@ guile_svz_inet_aton (SCM address)
   struct sockaddr_in addr;
   char *str;
 
-  SCM_ASSERT_TYPE (gh_string_p (address),
+  SCM_ASSERT_TYPE (SCM_STRINGP (address),
 		   address, SCM_ARG1, FUNC_NAME, "string");
   str = guile_to_string (address);
   if (svz_inet_aton (str, &addr) == -1)
@@ -161,7 +161,7 @@ guile_svz_inet_aton (SCM address)
       return SCM_BOOL_F;
     }
   scm_must_free (str);
-  return gh_ulong2scm (addr.sin_addr.s_addr);
+  return scm_ulong2num (addr.sin_addr.s_addr);
 }
 #undef FUNC_NAME
 
@@ -171,9 +171,9 @@ guile_svz_inet_aton (SCM address)
 static SCM
 guile_svz_ntohl (SCM netlong)
 {
-  SCM_ASSERT_TYPE (gh_exact_p (netlong),
+  SCM_ASSERT_TYPE (SCM_EXACTP (netlong),
 		   netlong, SCM_ARG1, FUNC_NAME, "exact");
-  return gh_ulong2scm (ntohl (gh_scm2ulong (netlong)));
+  return scm_ulong2num (ntohl (SCM_C_NUM2ULONG (SCM_ARG1, netlong)));
 }
 #undef FUNC_NAME
 
@@ -183,9 +183,9 @@ guile_svz_ntohl (SCM netlong)
 static SCM
 guile_svz_htonl (SCM hostlong)
 {
-  SCM_ASSERT_TYPE (gh_exact_p (hostlong),
+  SCM_ASSERT_TYPE (SCM_EXACTP (hostlong),
 		   hostlong, SCM_ARG1, FUNC_NAME, "exact");
-  return gh_ulong2scm (htonl (gh_scm2ulong (hostlong)));
+  return scm_ulong2num (htonl (SCM_C_NUM2ULONG (SCM_ARG1, hostlong)));
 }
 #undef FUNC_NAME
 
@@ -196,10 +196,10 @@ static SCM
 guile_svz_ntohs (SCM netshort)
 {
   long i;
-  SCM_ASSERT_TYPE (gh_exact_p (netshort),
+  SCM_ASSERT_TYPE (SCM_EXACTP (netshort),
 		   netshort, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_NETPORT (i, netshort, SCM_ARG1);
-  return gh_int2scm (ntohs ((unsigned short) i));
+  return scm_int2num (ntohs ((unsigned short) i));
 }
 #undef FUNC_NAME
 
@@ -210,10 +210,10 @@ static SCM
 guile_svz_htons (SCM hostshort)
 {
   long i;
-  SCM_ASSERT_TYPE (gh_exact_p (hostshort),
+  SCM_ASSERT_TYPE (SCM_EXACTP (hostshort),
 		   hostshort, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_NETPORT (i, hostshort, SCM_ARG1);
-  return gh_int2scm (htons ((unsigned short) i));
+  return scm_int2num (htons ((unsigned short) i));
 }
 #undef FUNC_NAME
 
@@ -242,11 +242,11 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
 
   /* Check if second length argument is given. */
-  if (!gh_eq_p (length, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (length))
     {
-      SCM_ASSERT_TYPE (gh_exact_p (length), 
+      SCM_ASSERT_TYPE (SCM_EXACTP (length), 
 		       length, SCM_ARG2, FUNC_NAME, "exact");
-      len = gh_scm2int (length);
+      len = SCM_C_NUM2INT (SCM_ARG2, length);
       if (len < 0 || len > xsock->recv_buffer_fill)
 	scm_out_of_range_pos (FUNC_NAME, length, SCM_ARG2);
     }
@@ -255,7 +255,7 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
       len = xsock->recv_buffer_fill;
     }
   svz_sock_reduce_recv (xsock, len);
-  return gh_int2scm (len);
+  return scm_int2num (len);
 }
 #undef FUNC_NAME
 
@@ -272,15 +272,15 @@ guile_sock_remote_address (SCM sock, SCM address)
   SCM pair;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  pair = gh_cons (gh_ulong2scm (xsock->remote_addr), 
-		  gh_int2scm ((int) xsock->remote_port));
-  if (!gh_eq_p (address, SCM_UNDEFINED))
+  pair = scm_cons (scm_ulong2num (xsock->remote_addr), 
+		   scm_int2num ((int) xsock->remote_port));
+  if (!SCM_UNBNDP (address))
     {
-      SCM_ASSERT_TYPE (gh_pair_p (address) && gh_exact_p (gh_car (address))
-		       && gh_exact_p (gh_cdr (address)), address, SCM_ARG2, 
+      SCM_ASSERT_TYPE (SCM_PAIRP (address) && SCM_EXACTP (SCM_CAR (address))
+		       && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2, 
 		       FUNC_NAME, "pair of exact");
-      VALIDATE_NETPORT (port, gh_cdr (address), SCM_ARG2);
-      xsock->remote_addr = gh_scm2ulong (gh_car (address));
+      VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
+      xsock->remote_addr = SCM_C_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
       xsock->remote_port = (unsigned short) port;
     }
   return pair;
@@ -300,15 +300,15 @@ guile_sock_local_address (SCM sock, SCM address)
   SCM pair;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  pair = gh_cons (gh_ulong2scm (xsock->local_addr), 
-		  gh_int2scm ((int) xsock->local_port));
-  if (!gh_eq_p (address, SCM_UNDEFINED))
+  pair = scm_cons (scm_ulong2num (xsock->local_addr), 
+		   scm_int2num ((int) xsock->local_port));
+  if (!SCM_UNBNDP (address))
     {
-      SCM_ASSERT_TYPE (gh_pair_p (address) && gh_exact_p (gh_car (address))
-		       && gh_exact_p (gh_cdr (address)), address, SCM_ARG2, 
+      SCM_ASSERT_TYPE (SCM_PAIRP (address) && SCM_EXACTP (SCM_CAR (address))
+		       && SCM_EXACTP (SCM_CDR (address)), address, SCM_ARG2, 
 		       FUNC_NAME, "pair of exact");
-      VALIDATE_NETPORT (port, gh_cdr (address), SCM_ARG2);
-      xsock->local_addr = gh_scm2ulong (gh_car (address));
+      VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
+      xsock->local_addr = SCM_C_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
       xsock->local_port = (unsigned short) port;
     }
   return pair;
@@ -328,7 +328,7 @@ guile_sock_parent (SCM sock, SCM parent)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xparent = svz_sock_getparent (xsock)) != NULL)
     oparent = MAKE_SMOB (svz_socket, xparent);
-  if (!gh_eq_p (parent, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (parent))
     {
       CHECK_SMOB_ARG (svz_socket, parent, SCM_ARG2, "svz-socket", xparent);
       svz_sock_setparent (xsock, xparent);
@@ -350,7 +350,7 @@ guile_sock_referrer (SCM sock, SCM referrer)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xreferrer = svz_sock_getreferrer (xsock)) != NULL)
     oreferrer = MAKE_SMOB (svz_socket, xreferrer);
-  if (!gh_eq_p (referrer, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (referrer))
     {
       CHECK_SMOB_ARG (svz_socket, referrer, SCM_ARG2, "svz-socket", xreferrer);
       svz_sock_setreferrer (xsock, xreferrer);
@@ -377,7 +377,7 @@ guile_sock_server (SCM sock, SCM server)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   if ((xserver = svz_server_find (xsock->cfg)) != NULL)
     oserver = MAKE_SMOB (svz_server, xserver);
-  if (!gh_eq_p (server, SCM_UNDEFINED))
+  if (!SCM_UNBNDP (server))
     {
       CHECK_SMOB_ARG (svz_server, server, SCM_ARG2, "svz-server", xserver);
       xsock->cfg = xserver->cfg;
@@ -416,20 +416,20 @@ guile_sock_no_delay (SCM sock, SCM enable)
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   if (xsock->proto & PROTO_TCP)
     {
-      if (!gh_eq_p (enable, SCM_UNDEFINED))
+      if (!SCM_UNBNDP (enable))
 	{
-	  SCM_ASSERT_TYPE (gh_boolean_p (enable) || gh_exact_p (enable), 
+	  SCM_ASSERT_TYPE (SCM_BOOLP (enable) || SCM_EXACTP (enable), 
 			   enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
-	  if ((gh_boolean_p (enable) && gh_scm2bool (enable) != 0) ||
-	      (gh_exact_p (enable) && gh_scm2int (enable) != 0))
+	  if ((SCM_BOOLP (enable) && SCM_NFALSEP (enable) != 0) ||
+	      (SCM_EXACTP (enable) && SCM_C_NUM2INT (SCM_ARG2, enable) != 0))
 	    set = 1;
 	}
       if (svz_tcp_nodelay (xsock->sock_desc, set, &old) < 0)
 	old = 0;
-      else if (gh_eq_p (enable, SCM_UNDEFINED))
+      else if (SCM_UNBNDP (enable))
 	svz_tcp_nodelay (xsock->sock_desc, old, NULL);
     }
-  return gh_bool2scm (old);
+  return SCM_BOOL (old);
 }
 #undef FUNC_NAME
 
@@ -465,31 +465,31 @@ MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
 void
 guile_api_init (void)
 {
-  gh_define ("PROTO_TCP", gh_int2scm (PROTO_TCP));
-  gh_define ("PROTO_UDP", gh_int2scm (PROTO_UDP));
-  gh_define ("PROTO_ICMP", gh_int2scm (PROTO_ICMP));
-  gh_new_procedure ("svz:sock:connect", guile_sock_connect, 2, 1, 0);
-  gh_new_procedure ("svz:htons", guile_svz_htons, 1, 0, 0);
-  gh_new_procedure ("svz:ntohs", guile_svz_ntohs, 1, 0, 0);
-  gh_new_procedure ("svz:htonl", guile_svz_htonl, 1, 0, 0);
-  gh_new_procedure ("svz:ntohl", guile_svz_ntohl, 1, 0, 0);
-  gh_new_procedure ("svz:inet-aton", guile_svz_inet_aton, 1, 0, 0);
-  gh_new_procedure ("svz:inet-ntoa", guile_svz_inet_ntoa, 1, 0, 0);
-  gh_new_procedure ("svz:sock:parent", guile_sock_parent, 1, 1, 0);
-  gh_new_procedure ("svz:sock:referrer", guile_sock_referrer, 1, 1, 0);
-  gh_new_procedure ("svz:sock:server", guile_sock_server, 1, 1, 0);
-  gh_new_procedure ("svz:sock:final-print", guile_sock_final_print, 1, 0, 0);
-  gh_new_procedure ("svz:sock:no-delay", guile_sock_no_delay, 1, 1, 0);
-  gh_new_procedure ("svz:sock?", guile_sock_p, 1, 0, 0);
-  gh_new_procedure ("svz:server?", guile_server_p, 1, 0, 0);
-  gh_new_procedure ("svz:sock:receive-buffer", 
-		    guile_sock_receive_buffer, 1, 0, 0);
-  gh_new_procedure ("svz:sock:receive-buffer-reduce",
-		    guile_sock_receive_buffer_reduce, 1, 1, 0);
-  gh_new_procedure ("svz:sock:remote-address",
-		    guile_sock_remote_address, 1, 1, 0);
-  gh_new_procedure ("svz:sock:local-address",
-		    guile_sock_local_address, 1, 1, 0);
+  scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));
+  scm_c_define ("PROTO_UDP", scm_int2num (PROTO_UDP));
+  scm_c_define ("PROTO_ICMP", scm_int2num (PROTO_ICMP));
+  scm_c_define_gsubr ("svz:sock:connect", 2, 1, 0, guile_sock_connect);
+  scm_c_define_gsubr ("svz:htons", 1, 0, 0, guile_svz_htons);
+  scm_c_define_gsubr ("svz:ntohs", 1, 0, 0, guile_svz_ntohs);
+  scm_c_define_gsubr ("svz:htonl", 1, 0, 0, guile_svz_htonl);
+  scm_c_define_gsubr ("svz:ntohl", 1, 0, 0, guile_svz_ntohl);
+  scm_c_define_gsubr ("svz:inet-aton", 1, 0, 0, guile_svz_inet_aton);
+  scm_c_define_gsubr ("svz:inet-ntoa", 1, 0, 0, guile_svz_inet_ntoa);
+  scm_c_define_gsubr ("svz:sock:parent", 1, 1, 0, guile_sock_parent);
+  scm_c_define_gsubr ("svz:sock:referrer", 1, 1, 0, guile_sock_referrer);
+  scm_c_define_gsubr ("svz:sock:server", 1, 1, 0, guile_sock_server);
+  scm_c_define_gsubr ("svz:sock:final-print", 1, 0, 0, guile_sock_final_print);
+  scm_c_define_gsubr ("svz:sock:no-delay", 1, 1, 0, guile_sock_no_delay);
+  scm_c_define_gsubr ("svz:sock?", 1, 0, 0, guile_sock_p);
+  scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
+  scm_c_define_gsubr ("svz:sock:receive-buffer", 
+		      1, 0, 0, guile_sock_receive_buffer);
+  scm_c_define_gsubr ("svz:sock:receive-buffer-reduce",
+		      1, 1, 0, guile_sock_receive_buffer_reduce);
+  scm_c_define_gsubr ("svz:sock:remote-address",
+		      1, 1, 0, guile_sock_remote_address);
+  scm_c_define_gsubr ("svz:sock:local-address",
+		      1, 1, 0, guile_sock_local_address);
 
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected", disconnected_socket);
 }
