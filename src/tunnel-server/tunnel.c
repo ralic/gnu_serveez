@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.17 2001/03/08 11:53:56 ela Exp $
+ * $Id: tunnel.c,v 1.18 2001/04/01 13:32:31 ela Exp $
  *
  */
 
@@ -36,7 +36,7 @@
 #include <time.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.59 2001/03/08 11:53:56 ela Exp $
+ * $Id: http-proto.c,v 1.60 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -46,7 +46,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 # include <io.h>
 #endif
 
@@ -229,13 +229,11 @@ http_init (server_t *server)
   /* start http logging system */
   if (cfg->logfile)
     {
-      if ((cfg->log = fopen (cfg->logfile, "at")) == NULL)
+      if ((cfg->log = svz_fopen (cfg->logfile, "at")) == NULL)
 	{
-	  log_printf (LOG_ERROR, "http: fopen: %s\n", SYS_ERROR);
 	  log_printf (LOG_ERROR, "http: cannot open access logfile %s\n",
 		      cfg->logfile);
 	}
-      svz_fd_cloexec (fileno (cfg->log));
     }
   
   /* create content type hash */
@@ -292,7 +290,7 @@ http_finalize (server_t *server)
   http_free_types (cfg);
   http_free_cgi_apps (cfg);
   if (cfg->log)
-    fclose (cfg->log);
+    svz_fclose (cfg->log);
 
   return 0;
 }
@@ -349,7 +347,7 @@ http_free_socket (socket_t sock)
   /* close the file descriptor for usual http file transfer */
   if (sock->file_desc != -1)
     {
-      if (close (sock->file_desc) == -1)
+      if (svz_close (sock->file_desc) == -1)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->file_desc = -1;
     }
@@ -401,7 +399,7 @@ http_idle (socket_t sock)
   return http_cgi_died (sock);
 }
 
-#if HAVE_SENDFILE
+#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 /*
  * This routine is using sendfile() to transport large file's content
  * to a network socket. It is replacing HTTP_DEFAULT_WRITE on systems where
@@ -525,13 +523,18 @@ http_default_write (socket_t sock)
 	  sock->send_buffer_fill = 42;
 	  sock->write_socket = http_cache_write;
 	}
-#if HAVE_SENDFILE
+#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
+# ifdef __MINGW32__
+      else if (sock->userflags & HTTP_FLAG_SENDFILE && 
+	       svz_os_version >= WinNT4x)
+# else
       else if (sock->userflags & HTTP_FLAG_SENDFILE)
+# endif
 	{
 	  sock->send_buffer_fill = 42;
 	  sock->write_socket = http_send_file;
 	}
-#endif /* HAVE_SENDFILE */
+#endif /* HAVE_SENDFILE || __MINGW32__ */
     }
 
   /*
@@ -565,6 +568,7 @@ http_file_read (socket_t sock)
       return 0;
     }
 
+#ifndef __MINGW32__
   /*
    * Try to read as much data as possible from the file.
    */
@@ -577,6 +581,15 @@ http_file_read (socket_t sock)
       log_printf (LOG_ERROR, "http: read: %s\n", SYS_ERROR);
       return -1;
     }
+#else
+  if (!ReadFile ((HANDLE) sock->file_desc,
+		 sock->send_buffer + sock->send_buffer_fill,
+		 do_read, (DWORD *) &num_read, NULL))
+    {
+      log_printf (LOG_ERROR, "http: ReadFile: %s\n", SYS_ERROR);
+      return -1;
+    }
+#endif
 
   /* Bogus file. File size from stat() was not true. */
   if (num_read == 0 && http->filelength != 0)
@@ -898,14 +911,14 @@ http_info_client (void *http_cfg, socket_t sock)
   int n;
 
   sprintf (info, "This is a http client connection.\r\n\r\n");
-#if HAVE_SENDFILE
+#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
   if (sock->userflags & HTTP_FLAG_SENDFILE)
     {
       sprintf (text, "  * delivering via sendfile() (offset: %lu)\r\n",
 	       http->fileoffset);
       strcat (info, text);
     }
-#endif /* HAVE_SENDFILE */
+#endif /* HAVE_SENDFILE || __MINGW32__ */
   if (sock->userflags & HTTP_FLAG_KEEP)
     {
       sprintf (text, 
@@ -1099,9 +1112,8 @@ http_get_response (socket_t sock, char *request, int flags)
     }
 
   /* open the file for reading */
-  if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
+  if ((fd = svz_open (file, O_RDONLY | O_BINARY, 0)) == -1)
     {
-      log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
       http_error_response (sock, 404);
       sock->userflags |= HTTP_FLAG_DONE;
@@ -1131,7 +1143,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  http_set_header (HTTP_NOT_MODIFIED);
 	  http_check_keepalive (sock);
 	  http_send_header (sock);
-	  close (fd);
+	  svz_close (fd);
 	  sock->userflags |= HTTP_FLAG_DONE;
 	  svz_free (file);
 	  return 0;
@@ -1183,7 +1195,7 @@ http_get_response (socket_t sock, char *request, int flags)
   /* just a HEAD response handled by this GET handler */
   if (flags & HTTP_FLAG_NOFILE)
     {
-      close (fd);
+      svz_close (fd);
       sock->userflags |= HTTP_FLAG_DONE;
       svz_free (file);
       return 0;
@@ -1225,7 +1237,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	      sock->send_buffer_fill = 42;
 	      sock->write_socket = http_cache_write;
 	    }
-	  close (fd);
+	  svz_close (fd);
 	}
     }
   /* the file is not in the cache structures yet */
@@ -1253,14 +1265,25 @@ http_get_response (socket_t sock, char *request, int flags)
        */
       else
 	{
-#if HAVE_SENDFILE
+#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
+# ifdef __MINGW32__
+	  if (svz_os_version >= WinNT4x)
+	    {
+	      sock->read_socket = NULL;
+	      sock->flags &= ~SOCK_FLAG_FILE;
+	      sock->userflags |= HTTP_FLAG_SENDFILE;
+	    }
+	  else
+	    sock->read_socket = http_file_read;
+# else
 	  sock->read_socket = NULL;
 	  sock->flags &= ~SOCK_FLAG_FILE;
 	  sock->userflags |= HTTP_FLAG_SENDFILE;
 	  svz_tcp_cork (sock->sock_desc, 1);
+# endif
 #else /* not HAVE_SENDFILE */
 	  sock->read_socket = http_file_read;
-#endif /* not HAVE_SENDFILE */
+#endif /* HAVE_SENDFILE || __MINGW32__ */
 	}
     }
 

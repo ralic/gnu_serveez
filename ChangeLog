@@ -1,3 +1,8 @@
+2001-04-01  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Checking for -lmswsock library.
+	Included AC_TYPE_MODE_T. 
+
 2001-02-04  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Dropped configure options for the coservers. 

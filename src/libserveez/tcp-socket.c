@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.5 2001/03/04 13:13:41 ela Exp $
+ * $Id: tcp-socket.c,v 1.6 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -43,7 +43,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.15 2001/01/28 03:26:54 ela Exp $
+ * $Id: cfgfile.c,v 1.16 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -31,7 +31,7 @@
 #include <string.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez/boot.h"

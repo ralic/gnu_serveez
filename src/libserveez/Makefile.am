@@ -22,6 +22,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
+EXTRA_DIST = libserveez.dsp
 SUBDIRS = coserver
 
 # the serveez core library rules

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.22 2001/02/04 11:48:52 ela Exp $
+ * $Id: irc-core.c,v 1.23 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -34,7 +34,7 @@
 #include <ctype.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -210,8 +210,8 @@ irc_check_request (socket_t sock)
           p++;
           request_len += (p - packet);
 #if 0
-	  util_hexdump (stdout, "irc packet", sock->sock_desc,
-			packet, p - packet, 0);
+	  svz_hexdump (stdout, "irc packet", sock->sock_desc,
+		       packet, p - packet, 0);
 #endif
           retval = irc_handle_request (sock, packet, p - packet - 
 				       ((*(p - 2) == '\r') ? 2 : 1));

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array-test.c,v 1.3 2001/03/29 21:11:59 ela Exp $
+ * $Id: array-test.c,v 1.4 2001/04/01 13:32:31 ela Exp $
  *
  */
 
@@ -57,7 +57,6 @@ main (int argc, char **argv)
   svz_array_t *array;
   long n, error, i;
   void *value;
-  char *text;
 
   test_init ();
   test_print ("array function test suite\n");

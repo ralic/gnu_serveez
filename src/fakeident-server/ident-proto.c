@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.6 2001/03/08 11:53:56 ela Exp $
+ * $Id: ident-proto.c,v 1.7 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -34,7 +34,7 @@
 #include <ctype.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.17 2001/03/08 11:53:56 ela Exp $
+ * $Id: irc-event-1.c,v 1.18 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -38,7 +38,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -363,7 +363,7 @@ irc_motd_callback (socket_t sock,
       /* start */
       irc_printf (sock, 
 		  "NOTICE %s :*** The MOTD file was last modified at %s\n",
-		  client->nick, util_time (cfg->MOTD_lastModified));
+		  client->nick, svz_time (cfg->MOTD_lastModified));
 
       irc_printf (sock, ":%s %03d %s " RPL_MOTDSTART_TEXT "\n",
 		  cfg->host, RPL_MOTDSTART, client->nick, cfg->host);

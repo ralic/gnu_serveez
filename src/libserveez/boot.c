@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.8 2001/03/04 13:13:40 ela Exp $
+ * $Id: boot.c,v 1.9 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -30,7 +30,7 @@
 #include <time.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "version.h"
@@ -38,6 +38,7 @@
 #include "libserveez/vector.h"
 #include "libserveez/interface.h"
 #include "libserveez/socket.h"
+#include "libserveez/icmp-socket.h"
 #include "libserveez/server.h"
 #include "libserveez/dynload.h"
 #include "libserveez/boot.h"
@@ -53,6 +54,20 @@ char *svz_library = "serveez";
 char *svz_version = __serveez_version;
 /* Timestamp when core library has been build. */
 char *svz_build = __serveez_timestamp;
+
+/* Runtime flag if this is Win32 or not. */
+#if defined (__MINGW32__) || defined (__CYGWIN__)
+int have_win32 = 1;
+#else
+int have_win32 = 0;
+#endif
+
+/* Runtime flag if this is the debug version or not. */
+#ifdef ENABLE_DEBUG
+int have_debug = 1;
+#else
+int have_debug = 0;
+#endif
 
 /*
  * This routine has to be called once before you could use any of the

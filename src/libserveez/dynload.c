@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.2 2001/02/05 08:52:35 ela Exp $
+ * $Id: dynload.c,v 1.3 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -46,7 +46,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez/alloc.h"
@@ -191,7 +191,7 @@ dyn_unload_library (dyn_library_t *lib)
 
 	/* rearrange the library structure */
 	svz_free (lib->file);
-	if (--dyn_libraries)
+	if (--dyn_libraries > 0)
 	  {
 	    *lib = dyn_library[dyn_libraries];
 	    svz_realloc (dyn_library, sizeof (dyn_library_t) * dyn_libraries);
@@ -229,7 +229,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 #elif HAVE_DLD_LINK
 	address = dld_get_func (symbol);
 #elif defined (__MINGW32__)
-	address = GetProcAddress (lib->handle, symbol);
+	*((FARPROC *) &address) = GetProcAddress (lib->handle, symbol);
 #elif HAVE_SHL_LOAD
 	if (shl_findsym ((shl_t *) &lib->handle,
 			 symbol, TYPE_UNDEFINED, &address) != 0)

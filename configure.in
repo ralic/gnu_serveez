@@ -30,7 +30,7 @@ dnl
 dnl Initialize autoconf and automake
 dnl
 AC_INIT(src/serveez.c)
-AM_INIT_AUTOMAKE(serveez,0.0.21,no-define)
+AM_INIT_AUTOMAKE(serveez,0.1.0,no-define)
 AM_CONFIG_HEADER(config.h)
 
 dnl
@@ -678,10 +678,12 @@ if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
 	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
 	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
 	AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
+	AC_CHECK_LIB(mswsock, main, EXTRALIBS="$EXTRALIBS -lmswsock")
 	AC_MSG_RESULT([using MinGW32 headers and libraries in ${MINGDIR}])
     fi
     if test "$MINGW32" = "yes" ; then
 	AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
+	AC_CHECK_LIB(mswsock, main, EXTRALIBS="$EXTRALIBS -lmswsock")
     fi
 fi
 AC_SUBST(resource_FILES)
@@ -1132,6 +1134,7 @@ fi
 
 AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
+AC_TYPE_MODE_T
 
 dnl
 dnl Checking for crypt() function.

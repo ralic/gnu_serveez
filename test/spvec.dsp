@@ -1,27 +1,27 @@
-# Microsoft Developer Studio Project File - Name="hash" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="spvec" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 5.00
 # ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=hash - Win32 Debug
+CFG=spvec - Win32 Debug
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit\
  NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den\
  Befehl
 !MESSAGE 
-!MESSAGE NMAKE /f "hash.mak".
+!MESSAGE NMAKE /f "spvec.mak".
 !MESSAGE 
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
-!MESSAGE NMAKE /f "hash.mak" CFG="hash - Win32 Debug"
+!MESSAGE NMAKE /f "spvec.mak" CFG="spvec - Win32 Debug"
 !MESSAGE 
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "hash - Win32 Release" (basierend auf\
+!MESSAGE "spvec - Win32 Release" (basierend auf\
   "Win32 (x86) Console Application")
-!MESSAGE "hash - Win32 Debug" (basierend auf\
+!MESSAGE "spvec - Win32 Debug" (basierend auf\
   "Win32 (x86) Console Application")
 !MESSAGE 
 
@@ -31,7 +31,7 @@ CFG=hash - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "hash - Win32 Release"
+!IF  "$(CFG)" == "spvec - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,9 +54,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"hash-test.exe"
+# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"spvec-test.exe"
 
-!ELSEIF  "$(CFG)" == "hash - Win32 Debug"
+!ELSEIF  "$(CFG)" == "spvec - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -79,25 +79,25 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /out:"hash-test.exe"
+# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /out:"spvec-test.exe"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "hash - Win32 Release"
-# Name "hash - Win32 Debug"
+# Name "spvec - Win32 Release"
+# Name "spvec - Win32 Debug"
 # Begin Source File
 
 SOURCE=..\src\libserveez\alloc.c
 # End Source File
 # Begin Source File
 
-SOURCE=".\hash-test.c"
+SOURCE=..\src\libserveez\sparsevec.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\libserveez\hash.c
+SOURCE=".\spvec-test.c"
 # End Source File
 # Begin Source File
 

@@ -26,7 +26,7 @@
 SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
-	serveez.dsw serveez.dsp config.h.serveez version.h.serveez \
+	serveez.dsw config.h.serveez version.h.serveez \
 	libsizzle.dsp config.h.sizzle version.h.sizzle RELEASE \
 	vcgen.bat
 

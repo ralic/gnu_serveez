@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.c,v 1.3 2001/02/04 11:48:52 ela Exp $
+ * $Id: ident.c,v 1.4 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -33,7 +33,7 @@
 # include <unistd.h>
 #endif
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__

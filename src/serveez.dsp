@@ -35,8 +35,8 @@ RSC=rc.exe
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "Opt"
-# PROP BASE Intermediate_Dir "Opt"
+# PROP BASE Output_Dir "Release"
+# PROP BASE Intermediate_Dir "Release"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
@@ -45,7 +45,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /Ob2 /I "." /I ".." /I "../sizzle" /I "./src" /I "../.." /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "_WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__SIZZLE_IMPORT__" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I ".." /I "." /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "__SIZZLE_IMPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -54,14 +54,14 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib ws2_32.lib advapi32.lib shell32.lib user32.lib libsizzle.lib /nologo /subsystem:console /pdb:none /machine:I386 /libpath:"../sizzle/libsizzle/Opt"
+# ADD LINK32 kernel32.lib libserveez.lib ws2_32.lib libsizzle.lib shell32.lib /nologo /subsystem:console /pdb:none /machine:I386 /libpath:"libserveez/Opt" /libpath:"../../sizzle/libsizzle/Opt"
 
 !ELSEIF  "$(CFG)" == "serveez - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "Dbg"
-# PROP BASE Intermediate_Dir "Dbg"
+# PROP BASE Output_Dir "Debug"
+# PROP BASE Intermediate_Dir "Debug"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
@@ -70,7 +70,8 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "." /I ".." /I "../sizzle" /I "./src" /I "../.." /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "_WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__SIZZLE_IMPORT__" /D ENABLE_DEBUG=1 /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I ".." /I "." /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "__SIZZLE_IMPORT__" /D "ENABLE_DEBUG" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /FD /c
+# SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -78,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib ws2_32.lib advapi32.lib shell32.lib user32.lib libsizzle.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"../sizzle/libsizzle/Dbg"
+# ADD LINK32 kernel32.lib libserveez.lib ws2_32.lib libsizzle.lib shell32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"libserveez/Dbg" /libpath:"../../sizzle/libsizzle/Dbg"
 
 !ENDIF 
 
@@ -88,175 +89,127 @@ LINK32=link.exe
 # Name "serveez - Win32 Debug"
 # Begin Source File
 
-SOURCE=.\src\alist.c
+SOURCE=".\awcs-server\awcs-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\alloc.c
+SOURCE=.\cfgfile.c
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\awcs-server\awcs-proto.c"
+SOURCE=".\ctrl-server\control-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\cfgfile.c
+SOURCE=".\foo-server\foo-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\connect.c
+SOURCE=".\nut-server\gnutella.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\ctrl-server\control-proto.c"
+SOURCE=".\http-server\http-cache.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\coserver\coserver.c
+SOURCE=".\http-server\http-cgi.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\coserver\dns.c
+SOURCE=".\http-server\http-core.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\foo-server\foo-proto.c"
+SOURCE=".\http-server\http-dirlist.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\nut-server\gnutella.c"
+SOURCE=".\http-server\http-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\hash.c
+SOURCE=".\fakeident-server\ident-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\http-server\http-cache.c"
+SOURCE=".\irc-server\irc-config.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\http-server\http-cgi.c"
+SOURCE=".\irc-core\irc-core.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\http-server\http-core.c"
+SOURCE=".\irc-server\irc-crypt.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\http-server\http-dirlist.c"
+SOURCE=".\irc-server\irc-event-1.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\http-server\http-proto.c"
+SOURCE=".\irc-server\irc-event-2.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\icmp-socket.c"
+SOURCE=".\irc-server\irc-event-3.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\fakeident-server\ident-proto.c"
+SOURCE=".\irc-server\irc-event-4.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\coserver\ident.c
+SOURCE=".\irc-server\irc-event-5.c"
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\interface.c
+SOURCE=".\irc-server\irc-event-6.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-config.c"
+SOURCE=".\irc-server\irc-event-7.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-core\irc-core.c"
+SOURCE=".\irc-server\irc-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-crypt.c"
+SOURCE=".\irc-server\irc-server.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-1.c"
+SOURCE=".\nut-server\nut-core.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-2.c"
+SOURCE=".\nut-server\nut-hostlist.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-3.c"
+SOURCE=".\nut-server\nut-request.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-4.c"
+SOURCE=".\nut-server\nut-route.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-5.c"
+SOURCE=".\nut-server\nut-transfer.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-6.c"
+SOURCE=.\option.c
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-event-7.c"
+SOURCE=.\serveez.c
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\irc-server\irc-proto.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\irc-server\irc-server.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\nut-server\nut-core.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\nut-server\nut-hostlist.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\nut-server\nut-request.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\nut-server\nut-route.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\nut-server\nut-transfer.c"
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\option.c
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\pipe-socket.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\raw-socket.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\coserver\reverse-dns.c"
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\serveez.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\serveez.rc
+SOURCE=.\serveez.rc
 
 !IF  "$(CFG)" == "serveez - Win32 Release"
 
@@ -267,55 +220,15 @@ SOURCE=.\src\serveez.rc
 # End Source File
 # Begin Source File
 
-SOURCE=.\data\serveez1.ico
+SOURCE=.\sizzle.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\data\serveez2.ico
+SOURCE=".\sntp-server\sntp-proto.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\server-core.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\server-loop.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\server-socket.c"
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\server.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\snprintf.c
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\sntp-server\sntp-proto.c"
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\socket.c
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\tunnel-server\tunnel.c"
-# End Source File
-# Begin Source File
-
-SOURCE=".\src\udp-socket.c"
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\util.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\src\windoze.c
+SOURCE=".\tunnel-server\tunnel.c"
 # End Source File
 # End Target
 # End Project

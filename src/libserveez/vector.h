@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector.h,v 1.1 2001/02/06 17:24:20 ela Exp $
+ * $Id: vector.h,v 1.2 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -47,7 +47,7 @@ __BEGIN_DECLS
 
 SERVEEZ_API svz_vector_t *svz_vector_create __P ((unsigned long size));
 SERVEEZ_API void svz_vector_destroy __P ((svz_vector_t *vec));
-SERVEEZ_API unsigned long int svz_vector_delete __P ((svz_vector_t *vec));
+SERVEEZ_API unsigned long int svz_vector_clear __P ((svz_vector_t *vec));
 SERVEEZ_API unsigned long svz_vector_add __P ((svz_vector_t *vec, 
 					       void *value));
 SERVEEZ_API void *svz_vector_get __P ((svz_vector_t *vec, 
@@ -61,6 +61,8 @@ SERVEEZ_API unsigned long svz_vector_ins __P ((svz_vector_t *vec,
 					       void *value));
 SERVEEZ_API unsigned long svz_vector_idx __P ((svz_vector_t *vec, 
 					       void *value));
+SERVEEZ_API unsigned long svz_vector_contains __P ((svz_vector_t *vec, 
+						    void *value));
 SERVEEZ_API unsigned long svz_vector_length __P ((svz_vector_t *vec));
 
 __END_DECLS

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.38 2001/03/08 22:15:13 raimi Exp $
+ * $Id: http-cgi.c,v 1.39 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -46,7 +46,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 # include <io.h>
 # include <shellapi.h>
 #endif
@@ -360,7 +360,7 @@ http_cgi_write (socket_t sock)
  * we really do it depends on the system we compile with.
  */
 static void
-http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
+http_insert_env (svz_envblock_t env, /* the block to add the variable to */
 		 int *length,        /* pointer to the current length of it */
 		 char *fmt,          /* format string */
 		 ...)                /* arguments for the format string */
@@ -377,7 +377,7 @@ http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
     }
   else
     {
-      vsnprintf (&env[*length], ENV_BLOCK_SIZE - (*length), fmt, args);
+      svz_vsnprintf (&env[*length], ENV_BLOCK_SIZE - (*length), fmt, args);
       *length += strlen (&env[*length]) + 1;
     }
 #else
@@ -390,7 +390,7 @@ http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
   else
     {
       env[*length] = svz_malloc (ENV_LENGTH);
-      vsnprintf (env[*length], ENV_LENGTH, fmt, args);
+      svz_vsnprintf (env[*length], ENV_LENGTH, fmt, args);
       (*length)++;
     }
 #endif
@@ -407,7 +407,7 @@ http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
  */
 static int
 http_create_cgi_envp (socket_t sock,      /* socket for this request */
-		      ENV_BLOCK_TYPE env, /* env block */
+		      svz_envblock_t env, /* env block */
 		      char *script,       /* the cgi script's filename */
 		      int type)           /* the cgi type */
 {
@@ -452,7 +452,7 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
   if (http->property)
     for (c = 0; env_var[c].property; c++)
       for (n = 0; http->property[n]; n += 2)
-	if (!util_strcasecmp (http->property[n], env_var[c].property))
+	if (!svz_strcasecmp (http->property[n], env_var[c].property))
 	  {
 	    http_insert_env (env, &size, "%s=%s", 
 			     env_var[c].env, http->property[n + 1]);
@@ -585,7 +585,7 @@ http_check_cgi (socket_t sock, char *request)
  */
 char *
 http_pre_exec (socket_t sock,       /* socket structure */
-	       ENV_BLOCK_TYPE envp, /* environment block to be filled */
+	       svz_envblock_t envp, /* environment block to be filled */
 	       char *file,          /* plain executable name */
 	       char *request,       /* original http request */
 	       int type)            /* POST or GET ? */
@@ -767,7 +767,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     p--;
   suffix = p + 1;
 
-  if ((p = svz_hash_get (*(cfg->cgiapps), util_tolower (suffix))) != NULL)
+  if ((p = svz_hash_get (*(cfg->cgiapps), svz_tolower (suffix))) != NULL)
     {
       if (strcmp (p, DEFAULT_CGIAPP))
 	{
@@ -1039,7 +1039,7 @@ http_cgi_get_response (socket_t sock, char *request, int flags)
   sock->flags |= SOCK_FLAG_RECV_PIPE;
   sock->read_socket = http_cgi_read;
   sock->pipe_desc[READ] = cgi2s[READ];
-  svz_fd_cloexec (cgi2s[READ]);
+  svz_fd_cloexec ((int) cgi2s[READ]);
 
   if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE], 
 		     file, request, GET_METHOD))
@@ -1105,13 +1105,13 @@ http_post_response (socket_t sock, char *request, int flags)
       svz_free (file);
       return -1;
     }
-  http->contentlength = util_atoi (length);
+  http->contentlength = svz_atoi (length);
 
   /* prepare everything for the cgi pipe handling */
   sock->pipe_desc[WRITE] = s2cgi[WRITE];
   sock->pipe_desc[READ] = cgi2s[READ];
-  svz_fd_cloexec (s2cgi[WRITE]);
-  svz_fd_cloexec (cgi2s[READ]);
+  svz_fd_cloexec ((int) s2cgi[WRITE]);
+  svz_fd_cloexec ((int) cgi2s[READ]);
 
   /* execute the cgi script in FILE */
   if (http_cgi_exec (sock, s2cgi[READ], cgi2s[WRITE], 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector.c,v 1.2 2001/03/11 13:06:19 ela Exp $
+ * $Id: vector.c,v 1.3 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -70,7 +70,7 @@ svz_vector_destroy (svz_vector_t *vec)
  * have then is an empty vector list. Returns the previous length.
  */
 unsigned long
-svz_vector_delete (svz_vector_t *vec)
+svz_vector_clear (svz_vector_t *vec)
 {
   unsigned long length = vec->length;
 
@@ -221,10 +221,33 @@ svz_vector_idx (svz_vector_t *vec, void *value)
 }
 
 /*
+ * Return how often the vector list @var{vec} contains the element given
+ * in @var{value}.
+ */
+unsigned long
+svz_vector_contains (svz_vector_t *vec, void *value)
+{
+  char *p;
+  unsigned long found = 0, index;
+
+  if (value == NULL || vec->length == 0)
+    return found;
+
+  p = vec->chunks;
+  for (index = 0; index < vec->length; index++, p += vec->chunk_size)
+    {
+      if (!memcmp (p, value, vec->chunk_size))
+	found++;
+    }
+  return found;
+}
+
+/*
  * Return the current length of the vector list @var{vec}.
  */
 unsigned long
 svz_vector_length (svz_vector_t *vec)
 {
+  assert (vec);
   return vec->length;
 }

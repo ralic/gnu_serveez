@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 5.00
 
 ###############################################################################
 
-Project: "alist"=.\test\alist.dsp - Package Owner=<4>
+Project: "array"=.\test\array.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,6 +27,18 @@ Package=<4>
 
 ###############################################################################
 
+Project: "libserveez"=.\src\libserveez\libserveez.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "libsizzle"=..\sizzle\libsizzle\libsizzle.dsp - Package Owner=<4>
 
 Package=<5>
@@ -39,7 +51,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "serveez"=.\serveez.dsp - Package Owner=<4>
+Project: "serveez"=.\src\serveez.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -48,8 +60,35 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
+    Project_Dep_Name libserveez
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name libsizzle
     End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "spvec"=.\test\spvec.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "vector"=.\test\vector.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
 }}}
 
 ###############################################################################

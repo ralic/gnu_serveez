@@ -10,6 +10,9 @@
 /* Define as __inline if that's what the C compiler calls it.  */
 #define inline __inline
 
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#define mode_t int
+
 /* Define to `long' if <sys/types.h> doesn't define.  */
 /* #undef off_t */
 
@@ -64,6 +67,9 @@
 /* Define if you have the sendfile function.  */
 /* #undef HAVE_SENDFILE */
 
+/* Define if you have the shl_load function.  */
+/* #undef HAVE_SHL_LOAD */
+
 /* Define if you have the strchr function.  */
 #define HAVE_STRCHR 1
 
@@ -87,6 +93,15 @@
 
 /* Define if you have the <dirent.h> header file.  */
 /* #undef HAVE_DIRENT_H */
+
+/* Define if you have the <dl.h> header file.  */
+/* #undef HAVE_DL_H */
+
+/* Define if you have the <dld.h> header file.  */
+/* #undef HAVE_DLD_H */
+
+/* Define if you have the <dlfcn.h> header file.  */
+/* #undef HAVE_DLFCN_H */
 
 /* Define if you have the <getopt.h> header file.  */
 /* #undef HAVE_GETOPT_H */
@@ -126,6 +141,9 @@
 
 /* Define if you have the <sys/time.h> header file.  */
 /* #undef HAVE_SYS_TIME_H */
+
+/* Define if you have the <sys/uio.h> header file.  */
+/* #undef HAVE_SYS_UIO_H */
 
 /* Define if you have the <sys/utsname.h> header file.  */
 /* #undef HAVE_SYS_UTSNAME_H */
@@ -185,15 +203,6 @@
 /* Define if the Fake Ident Server should be included. */
 #define ENABLE_FAKEIDENT 1
 
-/* Define if ident authentication should be supported. */
-#define ENABLE_IDENT 1
-
-/* Define if reverse DNS lookup should be supported. */
-#define ENABLE_REVERSE_LOOKUP 1
-
-/* Define if DNS lookup should be supported. */
-#define ENABLE_DNS_LOOKUP 1
-
 /* Define if flood protection should be supported. */
 #define ENABLE_FLOOD_PROTECTION 1
 
@@ -215,6 +224,9 @@
 /* Define if you have the getopt_long function. */
 /* #undef HAVE_GETOPT_LONG */
 
+/* Define if you have timezone and daylight. */
+#define HAVE_TIMEZONE 1
+
 /* Define if you have the <wait.h>. */
 /* #undef HAVE_WAIT_H */
 
@@ -232,6 +244,12 @@
 
 /* Define if you have the strnicmp function. */
 #define HAVE_STRNICMP 1
+
+/* Define if you have the dlopen function. */
+/* #undef HAVE_DLOPEN */
+
+/* Define if you have the dld_link function. */
+/* #undef HAVE_DLD_LINK */
 
 /* Define if Solaris provides the kstat library. */
 /* #undef HAVE_LIBKSTAT */
@@ -277,9 +295,6 @@
 
 /* Define to -1 if <winsock.h> does not define. */
 /* #undef INVALID_SOCKET */
-
-/* Define if 'winsock.h' defines some more constants. */
-/* #undef HAVE_WSOCK_EXT */
 
 /* Define if signal()s are non-void. */
 /* #undef NONVOID_SIGNAL */

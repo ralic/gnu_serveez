@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.44 2001/03/08 11:53:56 ela Exp $
+ * $Id: control-proto.c,v 1.45 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -34,7 +34,7 @@
 #include <time.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__
@@ -410,10 +410,10 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       ntohs (xsock->local_port),
 	       xsock->send_buffer_size,
 	       xsock->send_buffer_fill,
-	       util_time (xsock->last_send),
+	       svz_time (xsock->last_send),
 	       xsock->recv_buffer_size,
 	       xsock->recv_buffer_fill,
-	       util_time (xsock->last_recv),
+	       svz_time (xsock->last_recv),
 	       xsock->idle_counter,
 #if ENABLE_FLOOD_PROTECTION
 	       xsock->flood_points,
@@ -457,7 +457,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   sock_printf (sock, 
 	       "\r\nThis is %s version %s running since %s.\r\n", 
 	       svz_library, svz_version,
-	       util_time (svz_config.start_time));
+	       svz_time (svz_config.start_time));
 
   /* display compile time feature list */
   sock_printf (sock, "Features  :"
@@ -504,7 +504,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	       "\r\n");
 
   /* display system and process information */
-  sock_printf (sock, "Os        : %s\r\n", util_version ());
+  sock_printf (sock, "Os        : %s\r\n", svz_sys_version ());
   sock_printf (sock, "Sys-Load  : %s\r\n", cpu_state.info);
   sock_printf (sock, "Proc-Load : %s\r\n", cpu_state.pinfo);
 
@@ -512,7 +512,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
 	       sock_connections, svz_config.max_sockets);
   sock_printf (sock, " * uptime is %s\r\n", 
-	       util_uptime (time (NULL) - svz_config.start_time));
+	       svz_uptime (time (NULL) - svz_config.start_time));
 #if ENABLE_DEBUG
   sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
 	       svz_allocated_bytes, svz_allocated_blocks);
@@ -934,8 +934,8 @@ ctrl_get_cpu_state (void)
     {
       if (kstat_read (kc, ksp, &cs) == -1) 
 	{
-	  snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
-		    "kstat_read() failed");
+	  svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
+			"kstat_read() failed");
 	  return -1;
 	}
 
@@ -948,10 +948,10 @@ ctrl_get_cpu_state (void)
 #elif HAVE_PROC_STAT /* Linux */
 
   /* open the statistics file */
-  if ((f = fopen (cpu_state.cpufile, "r")) == NULL)
+  if ((f = svz_fopen (cpu_state.cpufile, "r")) == NULL)
     {
-      snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
-		"%s not available", cpu_state.cpufile);
+      svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
+		    "%s not available", cpu_state.cpufile);
       return -1;
     }
 
@@ -964,15 +964,15 @@ ctrl_get_cpu_state (void)
 		       &cpu_state.cpu[n][2], 
 		       &cpu_state.cpu[n][3]))
 	{
-	  fclose (f);
+	  svz_fclose (f);
 	  return 0;
 	}
     }
 
   /* cpu line not found */
-  snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
-	    "cpu line not found in %s", cpu_state.cpufile);
-  fclose (f);
+  svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
+		"cpu line not found in %s", cpu_state.cpufile);
+  svz_fclose (f);
 
 #elif HAVE_PSTAT /* HP Unix */
 
@@ -1022,15 +1022,15 @@ ctrl_idle (socket_t sock)
       all = c->ptotal[n] - c->ptotal[old]; 
       if (all != 0)
 	{
-	  snprintf (c->pinfo, STAT_BUFFER_SIZE, PROC_FORMAT,
-		    PROC_DIFF (0) * 100 / all,
-		    PROC_DIFF (0) * 1000 / all % 10,
-		    PROC_DIFF (1) * 100 / all,
-		    PROC_DIFF (1) * 1000 / all % 10,
-		    PROC_DIFF (2) * 100 / all,
-		    PROC_DIFF (2) * 1000 / all % 10,
-		    PROC_DIFF (3) * 100 / all,
-		    PROC_DIFF (3) * 1000 / all % 10);
+	  svz_snprintf (c->pinfo, STAT_BUFFER_SIZE, PROC_FORMAT,
+			PROC_DIFF (0) * 100 / all,
+			PROC_DIFF (0) * 1000 / all % 10,
+			PROC_DIFF (1) * 100 / all,
+			PROC_DIFF (1) * 1000 / all % 10,
+			PROC_DIFF (2) * 100 / all,
+			PROC_DIFF (2) * 1000 / all % 10,
+			PROC_DIFF (3) * 100 / all,
+			PROC_DIFF (3) * 1000 / all % 10);
 	}
 
       /* calculate cpu specific info */
@@ -1038,15 +1038,15 @@ ctrl_idle (socket_t sock)
       all = c->total[n] - c->total[old];
       if (all != 0)
 	{
-	  snprintf (c->info, STAT_BUFFER_SIZE, c->cpuinfoline,
-		    CPU_DIFF (0) * 100 / all,
-		    CPU_DIFF (0) * 1000 / all % 10,
-		    CPU_DIFF (1) * 100 / all,
-		    CPU_DIFF (1) * 1000 / all % 10,
-		    CPU_DIFF (2) * 100 / all,
-		    CPU_DIFF (2) * 1000 / all % 10,
-		    CPU_DIFF (3) * 100 / all,
-		    CPU_DIFF (3) * 1000 / all % 10);
+	  svz_snprintf (c->info, STAT_BUFFER_SIZE, c->cpuinfoline,
+			CPU_DIFF (0) * 100 / all,
+			CPU_DIFF (0) * 1000 / all % 10,
+			CPU_DIFF (1) * 100 / all,
+			CPU_DIFF (1) * 1000 / all % 10,
+			CPU_DIFF (2) * 100 / all,
+			CPU_DIFF (2) * 1000 / all % 10,
+			CPU_DIFF (3) * 100 / all,
+			CPU_DIFF (3) * 1000 / all % 10);
 	}
     }
   

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.3 2001/03/04 13:13:40 ela Exp $
+ * $Id: interface.c,v 1.4 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -53,7 +53,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 # include "libserveez/ipdata.h" 
 # include "libserveez/iphlpapi.h"
 #endif
@@ -69,7 +69,7 @@
 /*
  * The available interface list.
  */
-svz_vector_t *svz_interface = NULL;
+svz_vector_t *svz_interfaces = NULL;
 
 #if ENABLE_IFLIST
 
@@ -256,7 +256,8 @@ svz_interface_collect (void)
 
 		  /* store interface index and description */
 		  *(ifEntry->if_descr + ifEntry->if_descrlen) = '\0';
-		  svz_interface_add (ifEntry->if_index, ifEntry->if_descr,
+		  svz_interface_add (ifEntry->if_index, 
+				     (char *) ifEntry->if_descr,
 				     ifEntry->if_index);
 		}
 	    }
@@ -320,11 +321,12 @@ svz_interface_collect (void)
 		    {
 		      memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
 
-		      for (k = 0; k < svz_vector_length (svz_interface); k++)
+		      for (k = 0; k < svz_vector_length (svz_interfaces); k++)
 			{
-			  ifc = svz_vector_get (svz_interface, k);
+			  ifc = svz_vector_get (svz_interfaces, k);
 			  if (ifc->index == ipAddrEntry[n].iae_index)
 			    ifc->ipaddr = addr;
+			}
 		    }
 		}
 	    }
@@ -389,7 +391,7 @@ svz_interface_collect (void)
 		{
 		  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
 		  svz_interface_add (ipTable->table[n].dwIndex, 
-				     ifTable->table[i].bDescr,
+				     (char *) ifTable->table[i].bDescr,
 				     ipTable->table[n].dwAddr);
 		  break;
 		}
@@ -415,7 +417,7 @@ svz_interface_collect (void)
 
 /*
  * Collect all available network interfaces and put them into the list
- * @var{svz_interface}. This is useful in order to @code{bind()} server
+ * @var{svz_interfaces}. This is useful in order to @code{bind()} server
  * sockets to specific network interfaces. Thus you can make certain 
  * services accessable from "outside" or "inside" a network installation
  * only.
@@ -543,9 +545,13 @@ svz_interface_list (void)
 
   printf ("--- list of local interfaces you can start ip services on ---\n");
 
-  for (n = 0; n < svz_vector_length (svz_interface); n++)
+  /* any interfaces at all ? */
+  if (!svz_interfaces)
+    return;
+
+  for (n = 0; n < svz_vector_length (svz_interfaces); n++)
     {
-      ifc = svz_vector_get (svz_interface, n);
+      ifc = svz_vector_get (svz_interfaces, n);
 
       /* interface with description */
       if (ifc->description)
@@ -573,15 +579,15 @@ svz_interface_add (int index, char *desc, unsigned long addr)
   ifc_entry_t *ifc;
 
   /* Check if there is such an interface already. */
-  if (svz_interface == NULL)
+  if (svz_interfaces == NULL)
     {
-      svz_interface = svz_vector_create (sizeof (ifc_entry_t));
+      svz_interfaces = svz_vector_create (sizeof (ifc_entry_t));
     }
   else
     {
-      for (n = 0; n < svz_vector_length (svz_interface); n++)
+      for (n = 0; n < svz_vector_length (svz_interfaces); n++)
 	{
-	  ifc = svz_vector_get (svz_interface, n);
+	  ifc = svz_vector_get (svz_interfaces, n);
 	  if (ifc->ipaddr == addr)
 	    return -1;
 	}
@@ -592,7 +598,7 @@ svz_interface_add (int index, char *desc, unsigned long addr)
   ifc->index = index;
   ifc->ipaddr = addr;
   ifc->description = svz_strdup (desc);
-  svz_vector_add (svz_interface, ifc);
+  svz_vector_add (svz_interfaces, ifc);
   svz_free (ifc);
   return 0;
 }
@@ -606,16 +612,16 @@ svz_interface_free (void)
   unsigned long n;
   ifc_entry_t *ifc;
 
-  if (svz_interface)
+  if (svz_interfaces)
     {
-      for (n = 0; n < svz_vector_length (svz_interface); n++)
+      for (n = 0; n < svz_vector_length (svz_interfaces); n++)
 	{
-	  ifc = svz_vector_get (svz_interface, n);
+	  ifc = svz_vector_get (svz_interfaces, n);
 	  if (ifc->description)
 	    svz_free (ifc->description);
 	}
-      svz_vector_destroy(svz_interface);
-      svz_interface = NULL;
+      svz_vector_destroy(svz_interfaces);
+      svz_interfaces = NULL;
       return 0;
     }
   return -1;

@@ -22,14 +22,15 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-TESTS = array-test hash-test spvec-test
+TESTS = vector-test array-test hash-test spvec-test
 
-EXTRA_DIST = hash.dsp spvec.dsp
+EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp
 
-noinst_PROGRAMS = hash-test spvec-test array-test
+noinst_PROGRAMS = hash-test spvec-test array-test vector-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
 spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c
 array_test_SOURCES = array-test.c test.c test.h alloc.c array.c
+vector_test_SOURCES = vector-test.c test.c test.h alloc.c vector.c
 
 AM_CFLAGS = -I$(top_srcdir)/src
 
@@ -41,10 +42,11 @@ distclean-local:
 
 dist-hook:
 	rm -f $(distdir)/alloc.c $(distdir)/hash.c $(distdir)/sparsevec.c \
-		$(distdir)/array.c
+		$(distdir)/array.c $(distdir)/vector.c
 
-CLEANFILES = alloc.c hash.c sparsevec.c array.c
+CLEANFILES = alloc.c hash.c sparsevec.c array.c vector.c
 
 MAINTAINERCLEANFILES = Makefile.in
 
 SUFFIXES = .c
+

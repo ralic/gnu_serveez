@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.32 2001/03/08 22:15:13 raimi Exp $
+ * $Id: http-core.c,v 1.33 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -47,7 +47,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 # include <io.h>
 # include <lm.h>
 # include <lmerr.h>
@@ -65,7 +65,9 @@ http_header_t http_header;
  */
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 # define timezone _timezone
-# define daylight _daylight
+# ifndef daylight
+#  define daylight _daylight
+# endif
 
 #elif !HAVE_TIMEZONE
 /*
@@ -321,12 +323,12 @@ http_log (socket_t sock)
 	      break;
 	      /* %l - delivered content length */
 	    case 'l':
-	      strcat (line, util_itoa (http->length));
+	      strcat (line, svz_itoa (http->length));
 	      p++;
 	      break;
 	      /* %c - http response code */
 	    case 'c':
-	      strcat (line, util_itoa (http->response));
+	      strcat (line, svz_itoa (http->response));
 	      p++;
 	      break;
 	      /* %h - host name */
@@ -394,7 +396,7 @@ http_add_header (const char *fmt, ...)
   if (len >= HTTP_HEADER_SIZE)
     return;
   va_start (args, fmt);
-  vsnprintf (p, HTTP_HEADER_SIZE - len, fmt, args);
+  svz_vsnprintf (p, HTTP_HEADER_SIZE - len, fmt, args);
   va_end (args);
 }
 
@@ -838,7 +840,7 @@ http_find_property (http_socket_t *http, char *key)
   n = 0;
   while (http->property[n])
     {
-      if (!util_strcasecmp (http->property[n], key))
+      if (!svz_strcasecmp (http->property[n], key))
 	{
 	  return http->property[n + 1];
 	}
@@ -928,9 +930,8 @@ http_read_types (http_config_t *cfg)
     }
 
   /* try open the file */
-  if ((f = fopen (cfg->type_file, "rt")) == NULL)
+  if ((f = svz_fopen (cfg->type_file, "rt")) == NULL)
     {
-      log_printf (LOG_ERROR, "fopen: %s\n", SYS_ERROR);
       return -1;
     }
 
@@ -982,7 +983,7 @@ http_read_types (http_config_t *cfg)
 	    }
 	}
     }
-  fclose (f);
+  svz_fclose (f);
   svz_free (line);
   return 0;
 }

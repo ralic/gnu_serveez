@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.26 2001/03/08 11:53:56 ela Exp $
+ * $Id: irc-proto.c,v 1.27 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__
@@ -218,7 +218,7 @@ irc_init (server_t *server)
   if (cfg->port != cfg->netport->port)
     {
       log_printf (LOG_WARNING, "irc: port in M line clashes\n");
-      cfg->netport->port = cfg->port;
+      cfg->netport->port = (short) cfg->port;
     }
   cfg->host = svz_strdup (tmp[0]);
   cfg->realhost = svz_strdup (tmp[1]);
@@ -686,7 +686,7 @@ irc_handle_request (socket_t sock, char *request, int len)
 
   for (n = 0; irc_callback[n].request; n++)
     {
-      if (!util_strcasecmp (irc_callback[n].request, irc_request.request))
+      if (!svz_strcasecmp (irc_callback[n].request, irc_request.request))
 	{
 	  irc_callback[n].count++;
 	  client->recv_bytes += len;
@@ -1030,7 +1030,7 @@ irc_printf (socket_t sock, const char *fmt, ...)
     return 0;
 
   va_start (args, fmt);
-  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
+  len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
 
   /* Just to be sure... */

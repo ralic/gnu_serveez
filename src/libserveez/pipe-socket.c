@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.6 2001/03/08 11:53:56 ela Exp $
+ * $Id: pipe-socket.c,v 1.7 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -37,7 +37,7 @@
 #include <sys/stat.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez/alloc.h"
@@ -388,15 +388,15 @@ pipe_create (HANDLE recv_fd, HANDLE send_fd)
 
 
   /* Try to set to non-blocking I/O. */
-  if (svz_fd_nonblock (recv_fd) != 0)
+  if (svz_fd_nonblock ((int) recv_fd) != 0)
     return NULL;
-  if (svz_fd_nonblock (send_fd) != 0)
+  if (svz_fd_nonblock ((int) send_fd) != 0)
     return NULL;
 
   /* Do not inherit these pipes */
-  if (svz_fd_cloexec (recv_fd) != 0)
+  if (svz_fd_cloexec ((int) recv_fd) != 0)
     return NULL;
-  if (svz_fd_cloexec (send_fd) != 0)
+  if (svz_fd_cloexec ((int) send_fd) != 0)
     return NULL;
 
   if ((sock = sock_alloc ()) != NULL)
@@ -599,7 +599,7 @@ pipe_listener (socket_t server_sock)
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
-  HANDLE recv_pipe;
+  HANDLE recv_pipe, send_pipe;
 
   /*
    * Pipe requested via port configuration ?

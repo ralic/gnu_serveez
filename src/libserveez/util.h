@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.4 2001/03/04 13:13:41 ela Exp $
+ * $Id: util.h,v 1.5 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -76,17 +76,17 @@ SERVEEZ_API extern int svz_verbosity;
 SERVEEZ_API void log_printf __P ((int level, const char *format, ...));
 SERVEEZ_API void log_set_file __P ((FILE *));
 
-SERVEEZ_API int util_hexdump __P ((FILE *, char *, int, char *, int, int));
-SERVEEZ_API char *util_itoa __P ((unsigned int));
-SERVEEZ_API unsigned int util_atoi __P ((char *));
-SERVEEZ_API int util_strcasecmp __P ((const char *, const char *));
-SERVEEZ_API int util_strncasecmp __P ((const char *, const char *, size_t));
-SERVEEZ_API int util_openfiles __P ((int max_sockets));
-SERVEEZ_API char *util_time __P ((time_t t));
-SERVEEZ_API char *util_uptime __P ((time_t diff));
-SERVEEZ_API char *util_tolower __P ((char *str));
-SERVEEZ_API char *util_version __P ((void));
-SERVEEZ_API const char *util_hstrerror __P ((void));
+SERVEEZ_API int svz_hexdump __P ((FILE *, char *, int, char *, int, int));
+SERVEEZ_API char *svz_itoa __P ((unsigned int));
+SERVEEZ_API unsigned int svz_atoi __P ((char *));
+SERVEEZ_API int svz_strcasecmp __P ((const char *, const char *));
+SERVEEZ_API int svz_strncasecmp __P ((const char *, const char *, size_t));
+SERVEEZ_API int svz_openfiles __P ((int max_sockets));
+SERVEEZ_API char *svz_time __P ((time_t t));
+SERVEEZ_API char *svz_uptime __P ((time_t diff));
+SERVEEZ_API char *svz_tolower __P ((char *str));
+SERVEEZ_API char *svz_sys_version __P ((void));
+SERVEEZ_API const char *svz_hstrerror __P ((void));
 
 /* char pointer to integer casts, needed for aligned architectures */
 #define INT32(p) \
@@ -101,17 +101,21 @@ SERVEEZ_API const char *util_hstrerror __P ((void));
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8))
 
 #ifdef __MINGW32__
-# define ENV_BLOCK_TYPE    char *
 # define INVALID_HANDLE    NULL
 # define LEAST_WAIT_OBJECT 1
 # define SOCK_UNAVAILABLE  WSAEWOULDBLOCK
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
-# define ENV_BLOCK_TYPE    char **
 # define INVALID_HANDLE    -1
 # define SOCK_UNAVAILABLE  EAGAIN
 # define SOCK_INPROGRESS   EINPROGRESS
 #endif /* !__MINGW32__ */
+
+#ifdef __MINGW32__
+typedef char * svz_envblock_t;
+#else
+typedef char ** svz_envblock_t;
+#endif
 
 #ifdef __MINGW32__
 /*
@@ -128,7 +132,7 @@ SERVEEZ_API const char *util_hstrerror __P ((void));
 
 SERVEEZ_API extern int svz_os_version;
 SERVEEZ_API extern int svz_errno;
-SERVEEZ_API char *util_syserror __P ((int));
+SERVEEZ_API char *svz_syserror __P ((int));
 
 #endif /* __MINGW32__ */
 
@@ -137,9 +141,9 @@ __END_DECLS
 /* Definition of very system dependent routines. */
 #ifdef __MINGW32__
 # define closehandle(handle) (CloseHandle (handle) ? 0 : -1)
-# define SYS_ERROR util_syserror (GetLastError ())
-# define NET_ERROR util_syserror (WSAGetLastError ())
-# define H_NET_ERROR util_syserror (WSAGetLastError ())
+# define SYS_ERROR svz_syserror (GetLastError ())
+# define NET_ERROR svz_syserror (WSAGetLastError ())
+# define H_NET_ERROR svz_syserror (WSAGetLastError ())
 # define getcwd(buf, size) (GetCurrentDirectory (size, buf) ? buf : NULL)
 # define chdir(path) (SetCurrentDirectory (path) ? 0 : -1)
 #else /* Unices here */
@@ -147,7 +151,7 @@ __END_DECLS
 # define closehandle(handle) close (handle)
 # define SYS_ERROR strerror (errno)
 # define NET_ERROR strerror (errno)
-# define H_NET_ERROR util_hstrerror ()
+# define H_NET_ERROR svz_hstrerror ()
 # define svz_errno errno
 #endif /* !__MINGW32__ */
 

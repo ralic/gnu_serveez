@@ -24,7 +24,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = serveez.rc
+EXTRA_DIST = serveez.rc serveez.dsp
 
 #
 # Add your server subdirectory here

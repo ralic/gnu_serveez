@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.2 2001/02/02 11:26:23 ela Exp $
+ * $Id: snprintf.h,v 1.3 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -27,16 +27,15 @@
 
 #include "libserveez/defines.h"
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 
-/* to be sure not to redefine va_start in stdarg.h */
+/* to be sure not to redefine `va_start' in <stdarg.h> */
 #if defined (HAVE_VARARGS_H) && !defined (va_start)
 # include <varargs.h>
 #endif
-
-/* vsnprintf() */
 
 #ifdef __MINGW32__
 /*
@@ -44,26 +43,31 @@
  * B20.1 release of Cygwin, but in the latest. Soo we define them here
  * ourselves.
  */
-#ifndef HAVE__SNPRINTF
+# if !defined (HAVE__SNPRINTF) && !defined (HAVE_SNPRINTF)
 int _snprintf (char *, size_t, const char *, ...);
-#endif
-#ifndef HAVE__VSNPRINTF
+# endif
+# if !defined (HAVE__VSNPRINTF) && !defined (HAVE_VSNPRINTF)
 int _vsnprintf (char *, size_t, const char *, va_list);
-#endif
-# define vsnprintf _vsnprintf
-# define snprintf _snprintf
-#endif /* __MINGW32__ */
+# endif
+# define svz_vsnprintf _vsnprintf
+# define svz_snprintf _snprintf
+
+#else /* __MINGW32__ */
 
 #ifndef HAVE_VSNPRINTF
-# define vsnprintf(str, n, format, ap) vsprintf (str, format, ap)
+# define svz_vsnprintf(str, n, format, ap) vsprintf (str, format, ap)
+#else
+# define svz_vsnprintf(str, n, format, ap) vsnprintf (str, n, format, ap)
 #endif
 
-/* snprintf() */
+#endif
 
 __BEGIN_DECLS
 
 #ifndef HAVE_SNPRINTF
-SERVEEZ_API int snprintf __P ((char *, size_t, const char *, ...));
+SERVEEZ_API int svz_snprintf __P ((char *, size_t, const char *, ...));
+#elif !defined (svz_snprintf)
+# define svz_snprintf snprintf
 #endif
 
 __END_DECLS

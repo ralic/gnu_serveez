@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.7 2001/03/04 13:13:40 ela Exp $
+ * $Id: icmp-socket.c,v 1.8 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -44,7 +44,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 # include <process.h>
 #endif
 
@@ -426,8 +426,8 @@ icmp_read_socket (socket_t sock)
   if (num_read > 0)
     {
 #if 0
-      util_hexdump (stdout, "icmp packet received", sock->sock_desc,
-		    icmp_buffer, num_read, 0);
+      svz_hexdump (stdout, "icmp packet received", sock->sock_desc,
+		   icmp_buffer, num_read, 0);
 #endif
       sock->last_recv = time (NULL);
       if (!(sock->flags & SOCK_FLAG_FIXED))
@@ -669,7 +669,7 @@ icmp_printf (socket_t sock, const char *fmt, ...)
 
   /* save actual packet load */
   va_start (args, fmt);
-  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
+  len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
   
   return icmp_write (sock, buffer, len);

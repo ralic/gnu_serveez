@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.19 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-dirlist.c,v 1.20 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@
 
 #ifdef __MINGW32__
 # include <windows.h>
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -203,16 +203,16 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
     relpath = userdir + 1;
 
   /* Output preamble */
-  while (-1 == snprintf (dirdata, datasize,
-			 "%sContent-Type: text/html\r\n\r\n"
-			 "<html><head>\n"
-			 "<title>Directory listing of %s%s</title></head>\n"
-			 "<body bgcolor=white text=black link=blue>\n"
-			 "<h1>Directory listing of %s%s</h1>\n"
-			 "<hr noshade>\n"
-			 "<pre>\n",
-			 HTTP_OK, relpath, userdir ? "" : "/", 
-			 relpath, userdir ? "" : "/"))
+  while (-1 == svz_snprintf (dirdata, datasize,
+			     "%sContent-Type: text/html\r\n\r\n"
+			     "<html><head>\n"
+			     "<title>Directory listing of %s%s</title></head>"
+			     "\n<body bgcolor=white text=black link=blue>\n"
+			     "<h1>Directory listing of %s%s</h1>\n"
+			     "<hr noshade>\n"
+			     "<pre>\n",
+			     HTTP_OK, relpath, userdir ? "" : "/", 
+			     relpath, userdir ? "" : "/"))
     {
       dirdata = svz_realloc (dirdata, datasize + DIRLIST_SPACE_GROW);
       datasize += DIRLIST_SPACE_GROW;
@@ -228,14 +228,16 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 #endif
     {
       /* Create fully qualified filename */
-      snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", dirname, FILENAME);
+      svz_snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
+		    dirname, FILENAME);
 
       /* Stat the given file */
       if (-1 == stat (filename, &buf)) 
 	{
 	  /* Something is wrong with this file... */
-	  snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-		    "<font color=red>%s -- %s</font>\n", FILENAME, SYS_ERROR);
+	  svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+			"<font color=red>%s -- %s</font>\n", 
+			FILENAME, SYS_ERROR);
 	} 
       else 
 	{
@@ -256,23 +258,23 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 	  if (S_ISDIR (buf.st_mode)) 
 	    {
 	      /* This is a directory... */
-	      snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-			"<img border=0 src=internal-gopher-menu> "
-			"<a href=\"%s/\">%-40s</a> "
-			"&lt;directory&gt; "
-			"%s\n",
-			http_create_uri (FILENAME), FILENAME, timestr);
+	      svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+			    "<img border=0 src=internal-gopher-menu> "
+			    "<a href=\"%s/\">%-40s</a> "
+			    "&lt;directory&gt; "
+			    "%s\n",
+			    http_create_uri (FILENAME), FILENAME, timestr);
 	    } 
 	  else 
 	    {
 	      /* Let's treat this as a normal file */
-	      snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-			"<img border=0 src=internal-gopher-text> "
-			"<a href=\"%s\">%-40s</a> "
-			"<b>%11d</b> "
-			"%s\n",
-			http_create_uri (FILENAME), 
-			FILENAME, (int) buf.st_size, timestr);
+	      svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+			    "<img border=0 src=internal-gopher-text> "
+			    "<a href=\"%s\">%-40s</a> "
+			    "<b>%11d</b> "
+			    "%s\n",
+			    http_create_uri (FILENAME), 
+			    FILENAME, (int) buf.st_size, timestr);
 	    }
 	}
 
@@ -294,9 +296,9 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 #endif
 
   /* Output postamble */
-  snprintf (postamble, DIRLIST_SPACE_POST - 1,
-	    "\n</pre><hr noshade>\n"
-	    "%d entries\n</body>\n</html>", files);
+  svz_snprintf (postamble, DIRLIST_SPACE_POST - 1,
+		"\n</pre><hr noshade>\n"
+		"%d entries\n</body>\n</html>", files);
 
   if (datasize - strlen (dirdata) < strlen (postamble) + 1) 
     {

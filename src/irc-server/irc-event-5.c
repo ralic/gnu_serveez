@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.10 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-event-5.c,v 1.11 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -33,7 +33,7 @@
 #include <stdlib.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include <libserveez.h>

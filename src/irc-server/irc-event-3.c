@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.11 2001/03/08 11:53:56 ela Exp $
+ * $Id: irc-event-3.c,v 1.12 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -35,7 +35,7 @@
 #include <errno.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -109,7 +109,7 @@ irc_time_callback (socket_t sock,
   /* reply the local time */
   irc_printf (sock, ":%s %03d %s " RPL_TIME_TEXT "\n",
 	      cfg->host, RPL_TIME, client->nick, 
-	      cfg->host, util_time (time (NULL)));
+	      cfg->host, svz_time (time (NULL)));
 
   return 0;
 }

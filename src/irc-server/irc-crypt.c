@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-crypt.c,v 1.6 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-crypt.c,v 1.7 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 #include <string.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -54,7 +54,7 @@ irc_gen_key (char *pass)
   p = (byte *) pass;
   while (*p)
     {
-      key += ((byte) ((*p + n) ^ IRC_CRYPT_BYTE));
+      key += (byte) ((*p + n) ^ IRC_CRYPT_BYTE);
       n++;
       p++;
     }

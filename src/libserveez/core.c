@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.3 2001/03/08 11:53:56 ela Exp $
+ * $Id: core.c,v 1.4 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -32,9 +32,10 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #ifndef __MINGW32__
-# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
@@ -55,6 +56,7 @@
 
 #ifdef __MINGW32__
 # include <winsock2.h>
+# include <mswsock.h>
 #endif
 
 #include "libserveez/util.h"
@@ -171,21 +173,21 @@ svz_socket_create (int proto)
   if ((sockfd = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
     {
       log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
-      return -1;
+      return (SOCKET) -1;
     }
 
   /* Make the socket non-blocking. */
   if (svz_fd_nonblock (sockfd) != 0)
     {
       closesocket (sockfd);
-      return -1;
+      return (SOCKET)-1;
     }
   
   /* Do not inherit this socket. */
   if (svz_fd_cloexec (sockfd) != 0)
     {
       closesocket (sockfd);
-      return -1;
+      return (SOCKET) -1;
     }
 
   return sockfd;
@@ -321,7 +323,7 @@ svz_tcp_cork (SOCKET fd, int set)
   return 0;
 }
 
-#if HAVE_SENDFILE
+#if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 /*
  * This function transmits data between one file descriptor and another 
  * where @var{in_fd} is the source and @var{out_fd} the destination. The
@@ -341,9 +343,206 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
   ret = sendfile (in_fd, out_fd, *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
+#elif defined (__MINGW32__)
+  if (!TransmitFile ((SOCKET) out_fd, (HANDLE) in_fd, count, 0, 
+		     NULL, NULL, 0))
+    {
+      log_printf (LOG_ERROR, "TransmitFile: %s\n", SYS_ERROR);
+      ret = -1;
+    }
+  else
+    {
+      *offset += count;
+      ret = 0;
+    }
 #else
   ret = sendfile (out_fd, in_fd, offset, count);
 #endif
   return ret;
 }
 #endif /* HAVE_SEND_FILE */
+
+/*
+ * Open the filename @var{file} and convert it into a file handle. The
+ * given @var{flags} specify the access mode and the @var{mode} argument
+ * the permissions if the @code{O_CREAT} flag is set.
+ */
+int
+svz_open (const char *file, int flags, mode_t mode)
+{
+#ifndef __MINGW32__
+  int fd;
+
+  if ((fd = open (file, flags, mode)) < 0)
+    {
+      log_printf (LOG_ERROR, "open (%s): %s\n", file, SYS_ERROR);
+      return -1;
+    }
+  if (svz_fd_cloexec (fd) < 0)
+    {
+      close (fd);
+      return -1;
+    }
+  return fd;
+
+#else /* __MINGW32__ */
+  DWORD access = 0, creation = 0;
+  HANDLE fd;
+
+  /* drop this flag */
+  flags &= ~O_BINARY;
+
+  /* translate access */
+  if (flags == O_RDONLY)
+    access = GENERIC_READ;
+  else if (flags & O_WRONLY)
+    access = GENERIC_WRITE;
+  else if (flags & O_RDWR)
+    access = GENERIC_READ | GENERIC_WRITE;
+
+  /* creation necessary ? */
+  if (flags & O_CREAT)
+    {
+      creation |= CREATE_ALWAYS;
+      if (flags & O_EXCL)
+        creation |= CREATE_NEW;
+    }
+  else
+    {
+      creation |= OPEN_EXISTING;
+      if (flags & O_TRUNC)
+        creation |= TRUNCATE_EXISTING;
+    }
+
+  if ((fd = CreateFile (file, access, 0, NULL, creation, 0, NULL)) == 
+      INVALID_HANDLE_VALUE)
+    {
+      log_printf (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
+      return -1;
+    }
+
+  if (flags & O_APPEND)
+    SetFilePointer (fd, 0, 0, FILE_END);
+  return (int) fd;
+
+#endif /* not __MINGW32__ */
+}
+
+/*
+ * Close the given file handle @var{fd}. Return -1 on errors.
+ */
+int
+svz_close (int fd)
+{
+#ifndef __MINGW32__
+  if (close (fd) < 0)
+    {
+      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+      return -1;
+    }
+#else /* __MINGW32__ */
+  if (!CloseHandle ((HANDLE) fd))
+    {
+      log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      return -1;
+    }
+#endif /* not __MINGW32__ */
+  return 0;
+}
+
+/*
+ * Conversion from FILETIME (100 nano-sec intervals from 1.1.1601) to
+ * UTC time (seconds since 1.1.1970).
+ */
+#define DIFF_FT_LT                             \
+  /* there have been 89 years with 366 days */ \
+  ((((__int64) (1970 - 1601) * 365 + 89) * 24 * 3600) * 10000000L)
+
+#define ft2lt(ft)                                                    \
+  ((time_t) (((ft.dwLowDateTime | (__int64) ft.dwHighDateTime << 32) \
+               - DIFF_FT_LT) / 10000000L))
+
+/*
+ * Return information about the specified file associated with the file
+ * descriptor @var{fd} returned by @code{svz_open()}. Stores available
+ * information in the stat buffer @var{buf}.
+ */
+int
+svz_fstat (int fd, struct stat *buf)
+{
+#ifndef __MINGW32__
+  if (fstat (fd, buf) < 0)
+    {
+      log_printf (LOG_ERROR, "fstat: %s\n", SYS_ERROR);
+      return -1;
+    }
+#else /* __MINGW32__ */
+  BY_HANDLE_FILE_INFORMATION info;
+
+  if (buf == NULL)
+    return -1;
+
+  if (!GetFileInformationByHandle ((HANDLE) fd, &info))
+    {
+      log_printf (LOG_ERROR, "GetFileInformationByHandle: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  buf->st_mode = 0;
+  if (info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+    buf->st_mode |= (S_IFDIR | _S_IREAD | _S_IWRITE | _S_IEXEC);
+  else if (!(info.dwFileAttributes & FILE_ATTRIBUTE_OFFLINE))
+    buf->st_mode |= (S_IFREG | _S_IREAD | _S_IWRITE | _S_IEXEC);
+
+  buf->st_dev = info.dwVolumeSerialNumber;
+  buf->st_ino = (short) info.nFileIndexLow;
+  buf->st_nlink = (short) info.nNumberOfLinks;
+  buf->st_uid = 0;
+  buf->st_gid = 0;
+  buf->st_rdev = 0;
+  buf->st_size = (off_t) (((__int64) info.nFileSizeHigh << 32) | 
+			  info.nFileSizeLow);
+  buf->st_atime = ft2lt (info.ftLastAccessTime);
+  buf->st_mtime = ft2lt (info.ftLastWriteTime);
+  buf->st_ctime = ft2lt (info.ftCreationTime);
+#endif  /* not __MINGW32__ */
+  return 0;
+}
+
+/*
+ * Open the file whose name is the string pointed to by @var{file} and 
+ * associates a stream with it.
+ */
+FILE *
+svz_fopen (const char *file, const char *mode)
+{
+  FILE *f;
+
+  if ((f = fopen (file, mode)) == NULL)
+    {
+      log_printf (LOG_ERROR, "fopen (%s): %s\n", file, SYS_ERROR);
+      return NULL;
+    }
+#ifndef __MINGW32__
+  if (svz_fd_cloexec (fileno (f)) < 0)
+    {
+      fclose (f);
+      return NULL;
+    }
+#endif
+  return f;
+}
+
+/*
+ * Dissociates the named stream @var{f} from its underlying file.
+ */
+int
+svz_fclose (FILE *f)
+{
+  if (fclose (f) < 0)
+    {
+      log_printf (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+      return -1;
+    }
+  return 0;
+}

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.4 2001/03/04 13:13:41 ela Exp $
+ * $Id: util.c,v 1.5 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -71,13 +71,13 @@
 #include "libserveez/util.h"
 
 /* 
- * Level of server's verbosity:
+ * Level of the logging interfaces verbosity:
  * 0 - only fatal error messages
  * 1 - error messages
  * 2 - warnings
  * 3 - informational messages
  * 4 - debugging output
- * levels always imply numerically lesser levels
+ * Levels always imply numerically lesser levels.
  */
 int svz_verbosity = LOG_DEBUG;
 
@@ -91,13 +91,13 @@ static char log_level[][16] = {
 
 /*
  * This is the file all log messages are written to. Change it with a
- * call to `log_set_file ()'.  By default, all log messages are written
- * to STDERR.
+ * call to @code{log_set_file()}. By default, all log messages are written
+ * to @code{stderr}.
  */
 static FILE *log_file = NULL;
 
 /*
- * Print a message to the log system.
+ * Print a message to the log system. @var{level} specifies the prefix.
  */
 void
 log_printf (int level, const char *format, ...)
@@ -121,8 +121,8 @@ log_printf (int level, const char *format, ...)
 }
 
 /*
- * Set the file stream FILE to the log file all messages are printed
- * to. Could also be STDOUT or STDERR.
+ * Set the file stream @var{file} to the log file all messages are printed
+ * to. Could also be @code{stdout} or @code{stderr}.
  */
 void
 log_set_file (FILE * file)
@@ -130,20 +130,21 @@ log_set_file (FILE * file)
   log_file = file;
 }
 
+#define MAX_DUMP_LINE 16   /* bytes per line */
+
 /*
- * Dump a BUFFER with the length LEN to the file stream OUT. You can
- * specify a description in ACTION. The hexadecimal text representation of
- * the given buffer will be either cut at LEN or MAX. FROM is a numerical
- * identifier of the buffers creator.
+ * Dump a @var{buffer} with the length @var{len} to the file stream @var{out}.
+ * You can specify a description in @var{action}. The hexadecimal text 
+ * representation of the given buffer will be either cut at @var{len} or 
+ * @var{max}. @var{from} is a numerical identifier of the buffers creator.
  */
-#define MAX_DUMP_LINE 16	/* bytes per line */
 int
-util_hexdump (FILE *out,	/* output FILE stream */
-	      char *action,	/* hex dump description */
-	      int from,		/* who created the dumped data */
-	      char *buffer,	/* the buffer to dump */
-	      int len,		/* length of that buffer */
-	      int max)		/* maximum amount of bytes to dump (0 = all) */
+svz_hexdump (FILE *out,    /* output FILE stream */
+	     char *action, /* hex dump description */
+	     int from,	   /* who created the dumped data */
+	     char *buffer, /* the buffer to dump */
+	     int len,	   /* length of that buffer */
+	     int max)	   /* maximum amount of bytes to dump (0 = all) */
 {
   int row, col, x, max_col;
 
@@ -183,11 +184,11 @@ util_hexdump (FILE *out,	/* output FILE stream */
 }
 
 /*
- * This is the `hstrerror ()' wrapper function, depending on the 
+ * This is the @code{hstrerror()} wrapper function, depending on the 
  * configuration file `config.h'.
  */
 const char *
-util_hstrerror (void)
+svz_hstrerror (void)
 {
 #if HAVE_HSTRERROR
 # if HAVE_H_ERRNO
@@ -205,11 +206,11 @@ util_hstrerror (void)
 }
 
 /*
- * Transform the given binary data T (UTC time) to an ASCII time text
+ * Transform the given binary data @var{t} (UTC time) to an ASCII time text
  * representation without any trailing characters.
  */
 char *
-util_time (time_t t)
+svz_time (time_t t)
 {
   static char *asc;
   char *p;
@@ -228,7 +229,7 @@ util_time (time_t t)
  * has been running. 
  */
 char *
-util_uptime (time_t diff)
+svz_uptime (time_t diff)
 {
   static char text[64];
   time_t sec, min, hour, day, old;
@@ -263,10 +264,10 @@ util_uptime (time_t diff)
 }
 
 /*
- * Convert the given string STR to lower case text representation.
+ * Convert the given string @var{str} to lower case text representation.
  */
 char *
-util_tolower (char *str)
+svz_tolower (char *str)
 {
   char *p = str;
 
@@ -284,7 +285,7 @@ util_tolower (char *str)
  * strings are equal.
  */
 int
-util_strcasecmp (const char *str1, const char *str2)
+svz_strcasecmp (const char *str1, const char *str2)
 {
 #if HAVE_STRCASECMP
   return strcasecmp (str1, str2);
@@ -314,14 +315,14 @@ util_strcasecmp (const char *str1, const char *str2)
 }
 
 /*
- * The @code{util_strncasecmp()} function compares the two strings @var{str1}
+ * The @code{svz_strncasecmp()} function compares the two strings @var{str1}
  * and @var{str2}, ignoring the case of the characters. It returns an
  * integer less than, equal to, or greater than zero if @var{str1} is
  * found, respectively, to be less than, to match, or be greater than 
  * @var{str2}. It only compares the first @var{n} characters of @var{str1}.
  */
 int
-util_strncasecmp (const char *str1, const char *str2, size_t n)
+svz_strncasecmp (const char *str1, const char *str2, size_t n)
 {
 #if HAVE_STRNCASECMP
   return strncasecmp (str1, str2, n);
@@ -365,7 +366,7 @@ int svz_errno = 0;
  * Win32. That is why we translate it by hand.
  */
 static char *
-util_neterror (int error)
+svz_neterror (int error)
 {
   static char message[MESSAGE_BUF_SIZE];
 
@@ -464,11 +465,11 @@ util_neterror (int error)
 
 /*
  * Routine which forms a valid error message under Win32. It might either
- * use the `GetLastError ()' or `WSAGetLastError ()' in order to get a valid
- * error code.
+ * use the @code{GetLastError()} or @code{WSAGetLastError()} in order to 
+ * get a valid error code.
  */
 char *
-util_syserror (int nr)
+svz_syserror (int nr)
 {
   static char message[MESSAGE_BUF_SIZE];
   LPTSTR error;
@@ -478,7 +479,7 @@ util_syserror (int nr)
 
   /* return a net error if necessary */
   if (nr >= WSABASEERR)
-    return GetWSAErrorMessage (nr);
+    return svz_neterror (nr);
 
   /* 
    * if the error is not valid (GetLastError returned zero)
@@ -507,7 +508,7 @@ util_syserror (int nr)
 
 /*
  * This variable contains the the runtime detected Win32 version. Its value
- * is setup in `util_version ()'.
+ * is setup in @code{svz_version()}.
  * 0 - Windows 3.x     1 - Windows 95      2 - Windows 98
  * 3 - Windows NT 3.x  4 - Windows NT 4.x  5 - Windows 2000
  * 6 - Windows ME
@@ -519,11 +520,11 @@ int svz_os_version = 0;
 /*
  * This routine is for detecting the operating system version of Win32 
  * and all Unices at runtime. You should call it at least once at startup.
- * It saves its result in the variable `svz_os_version' and prints an
+ * It saves its result in the variable @code{svz_os_version} and prints an
  * appropriate message.
  */
 char *
-util_version (void)
+svz_sys_version (void)
 {
   static char os[256] = ""; /* contains the os string */
 
@@ -596,7 +597,7 @@ util_version (void)
  * returning a pointer to an internal buffer, so copy the result.
  */
 char *
-util_itoa (unsigned int i)
+svz_itoa (unsigned int i)
 {
   static char buffer[32];
   char *p = buffer + sizeof (buffer) - 1;
@@ -612,11 +613,11 @@ util_itoa (unsigned int i)
 }
 
 /*
- * Converts a given string STR in decimal format to an unsigned integer.
+ * Converts a given string @var{str} in decimal format to an unsigned integer.
  * Stops conversion on any invalid characters.
  */
 unsigned int
-util_atoi (char *str)
+svz_atoi (char *str)
 {
   unsigned int i = 0;
 
@@ -632,10 +633,11 @@ util_atoi (char *str)
 /*
  * This routine checks for the current and maximum limit of open files
  * of the current process. The function heavily depends on the underlying
- * platform. It tries to set the limit to the given MAX_SOCKETS amount.
+ * platform. It tries to set the limit to the given @var{max_sockets} 
+ * amount.
  */
 int
-util_openfiles (int max_sockets)
+svz_openfiles (int max_sockets)
 {
 #if HAVE_GETRLIMIT
   struct rlimit rlim;
@@ -694,10 +696,10 @@ util_openfiles (int max_sockets)
 					    MaxSocketSubKey,
 					    MaxSocketSubSubKey, sockets);
       else
-	sockets = util_atoi (windoze_get_reg_string (MaxSocketKey,
-						     MaxSocketSubKey,
-						     MaxSocketSubSubKey,
-						     util_itoa (sockets)));
+	sockets = svz_atoi (windoze_get_reg_string (MaxSocketKey,
+						    MaxSocketSubKey,
+						    MaxSocketSubSubKey,
+						    svz_itoa (sockets)));
 
       log_printf (LOG_NOTICE, "current open file limit: %u\n", sockets);
 
@@ -712,7 +714,7 @@ util_openfiles (int max_sockets)
 	  else
 	    windoze_set_reg_string (MaxSocketKey,
 				    MaxSocketSubKey,
-				    MaxSocketSubSubKey, util_itoa (sockets));
+				    MaxSocketSubSubKey, svz_itoa (sockets));
 
 	  log_printf (LOG_NOTICE, "open file limit set to: %u\n", sockets);
 	}
@@ -723,21 +725,8 @@ util_openfiles (int max_sockets)
 }
 
 /* Runtime checkable flags for sizzle and code. */
-
-#if defined (__MINGW32__) || defined (__CYGWIN__)
-int have_win32 = 1;
-#else
-int have_win32 = 0;
-#endif
-
 #ifdef ENABLE_FLOOD_PROTECTION
 int have_floodprotect = 1;
 #else
 int have_floodprotect = 0;
-#endif
-
-#ifdef ENABLE_DEBUG
-int have_debug = 1;
-#else
-int have_debug = 0;
 #endif

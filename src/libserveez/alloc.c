@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.7 2001/03/08 11:53:56 ela Exp $
+ * $Id: alloc.c,v 1.8 2001/04/01 13:32:29 ela Exp $
  *
  */
 
@@ -336,9 +336,9 @@ svz_heap (void)
 	  up -= 2;
 	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
 		   block[n]->caller, block[n]->ptr, block[n]->size);
-	  util_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
-			block[n]->ptr, *up, 256);
-	 svz_free_func (block[n]);
+	  svz_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
+		       block[n]->ptr, *up, 256);
+	  svz_free_func (block[n]);
 	}
       svz_hash_xfree (block);
     }

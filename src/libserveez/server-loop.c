@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: server-loop.c,v 1.3 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -56,7 +56,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez/alloc.h"
@@ -72,7 +72,7 @@
  * Check the server and client sockets for incoming connections 
  * and data, and process outgoing data.
  */
-int
+static int
 server_check_sockets_select (void)
 {
   int nfds;			/* count of file descriptors to check */
@@ -369,7 +369,7 @@ server_check_sockets_select (void)
  * descriptor limit of the (g)libc select(). This routine will NOT be
  * available under Win32.
  */
-int
+static int
 server_check_sockets_poll (void)
 {
   static unsigned int max_nfds = 0;   /* maximum number of file descriptors */
@@ -574,7 +574,7 @@ server_check_sockets_poll (void)
 /*
  * This is the specialized routine for this Win32 port.
  */
-int
+static int
 server_check_sockets_MinGW (void)
 {
   int nfds;			/* count of file descriptors to check */
@@ -668,7 +668,12 @@ server_check_sockets_MinGW (void)
     wait.tv_sec = 0;
   wait.tv_usec = 0;
 
-  if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
+  /* Just sleep a bit if there is no file descriptor to be select()'ed. */
+  if (nfds < 2)
+    Sleep (1);
+
+  else if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) 
+	   <= 0)
     {
       if (nfds < 0)
 	{
@@ -790,3 +795,19 @@ server_check_sockets_MinGW (void)
 }
 
 #endif /* __MINGW32__ */
+
+/*
+ * Check the server and client sockets for incoming connections 
+ * and data, and process outgoing data.
+ */
+int
+server_check_sockets (void)
+{
+#if HAVE_POLL && ENABLE_POLL
+  return server_check_sockets_poll ();
+#elif defined (__MINGW32__)
+  return server_check_sockets_MinGW ();
+#else
+  return server_check_sockets_select ();
+#endif
+}

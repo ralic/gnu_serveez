@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.4 2001/03/08 11:53:56 ela Exp $
+ * $Id: sntp-proto.c,v 1.5 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -41,7 +41,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__
@@ -135,7 +135,7 @@ sntp_handle_request (socket_t sock, char *packet, int len)
 #endif
 
 #if 0
-  util_hexdump (stdout, "sntp packet", sock->sock_desc, packet, len, 0);
+  svz_hexdump (stdout, "sntp packet", sock->sock_desc, packet, len, 0);
 #endif
 
 #if HAVE_GETTIMEOFDAY

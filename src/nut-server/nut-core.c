@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.18 2001/03/04 13:13:41 ela Exp $
+ * $Id: nut-core.c,v 1.19 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -42,7 +42,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -105,7 +105,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
   /* convert and store both of the parsed values */
   *ip = inet_addr (p);
   *port = (unsigned short) (colon ? 
-			    htons ((unsigned short) util_atoi (colon)) : 
+			    htons ((unsigned short) svz_atoi (colon)) : 
 			    htons (NUT_PORT));
   svz_free (host);
 

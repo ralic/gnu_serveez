@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.27 2001/03/11 00:11:34 ela Exp $
+ * $Id: serveez.c,v 1.28 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #include "libserveez.h"
@@ -214,7 +214,7 @@ main (int argc, char *argv[])
    * Send all log messages to LOG_HANDLE.
    */
   if (log_file && log_file[0])
-    log_handle = fopen (log_file, "w");
+    log_handle = svz_fopen (log_file, "w");
   
   if (!log_handle)
     log_handle = stderr;
@@ -299,8 +299,8 @@ main (int argc, char *argv[])
   log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
   
-  log_printf (LOG_NOTICE, "%s\n", util_version ());
-  util_openfiles (svz_config.max_sockets);
+  log_printf (LOG_NOTICE, "%s\n", svz_sys_version ());
+  svz_openfiles (svz_config.max_sockets);
   log_printf (LOG_NOTICE, "using %d socket descriptors\n",
 	      svz_config.max_sockets);
 
@@ -375,7 +375,7 @@ main (int argc, char *argv[])
   log_printf (LOG_NOTICE, "serveez terminating\n");
 
   if (log_handle != stderr)
-    fclose (log_handle);
+    svz_fclose (log_handle);
   
   return 0;
 }

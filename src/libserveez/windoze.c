@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.4 2001/03/04 13:13:41 ela Exp $
+ * $Id: windoze.c,v 1.5 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -33,12 +33,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <winsock.h>
+#include <winsock2.h>
 #include <shellapi.h>
 #include <windowsx.h>
 
 #include "libserveez/boot.h"
 #include "libserveez/util.h"
+#include "libserveez/socket.h"
+#include "libserveez/server-core.h"
 #include "libserveez/windoze.h"
 
 static DWORD windoze_daemon_id = 0;
@@ -46,6 +48,34 @@ static HANDLE windoze_daemon_handle = NULL;
 static BOOL windoze_run = FALSE;
 static HICON windoze_icon = NULL;
 static char windoze_tooltip[128];
+
+/*
+ * Modify the windows taskbar.
+ */
+static BOOL 
+windoze_set_taskbar (HWND hwnd, DWORD msg, UINT id, HICON icon, PSTR tip)
+{
+  NOTIFYICONDATA tnd;
+
+  /* setup taskbar icon */
+  tnd.cbSize = sizeof (NOTIFYICONDATA);
+  tnd.hWnd = hwnd;
+  tnd.uID = id;
+  tnd.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
+  tnd.uCallbackMessage = WM_SERVEEZ_NOTIFYICON;
+  tnd.hIcon = icon;
+
+  if (tip)
+    {
+      strncpy (tnd.szTip, tip, sizeof (tnd.szTip));
+    }
+  else
+    {
+      tnd.szTip[0] = '\0';
+    }
+  
+  return Shell_NotifyIcon (msg, &tnd);;
+}
 
 /*
  * Modify what's within the taskbar.
@@ -211,34 +241,6 @@ windoze_thread (char *prog)
     }
 
   return 0;
-}
-
-/*
- * Modify the windows taskbar.
- */
-static BOOL 
-windoze_set_taskbar (HWND hwnd, DWORD msg, UINT id, HICON icon, PSTR tip)
-{
-  NOTIFYICONDATA tnd;
-
-  /* setup taskbar icon */
-  tnd.cbSize = sizeof (NOTIFYICONDATA);
-  tnd.hWnd = hwnd;
-  tnd.uID = id;
-  tnd.uFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP;
-  tnd.uCallbackMessage = WM_SERVEEZ_NOTIFYICON;
-  tnd.hIcon = icon;
-
-  if (tip)
-    {
-      strncpy (tnd.szTip, tip, sizeof (tnd.szTip));
-    }
-  else
-    {
-      tnd.szTip[0] = '\0';
-    }
-  
-  return Shell_NotifyIcon (msg, &tnd);;
 }
 
 /*

@@ -1,3 +1,14 @@
+2001-04-01  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/core.c (svz_sendfile): Using TransmitFile() in the
+	Win32 port.
+
+	* http-server/http-cache.c (http_cache_read): Using ReadFile()
+	instead of read() for we are using CreateFile() in order to open
+	a file in Win32 instead of open().
+
+	* libserveez/vector.c (svz_vector_contains): New function.
+
 2001-03-10  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/array.c: Added new data structure. Implemented

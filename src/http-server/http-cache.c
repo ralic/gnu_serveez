@@ -1,7 +1,7 @@
 /*
  * http-cache.c - http protocol file cache
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.26 2001/03/08 22:15:13 raimi Exp $
+ * $Id: http-cache.c,v 1.27 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -38,7 +38,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 # include <io.h>
 #endif
 
@@ -445,13 +445,26 @@ http_cache_read (socket_t sock)
   /*
    * Try to read as much data as possible from the file.
    */
+#ifndef __MINGW32__
   num_read = read (sock->file_desc,
 		   sock->send_buffer + sock->send_buffer_fill, do_read);
+#else
+  if (!ReadFile ((HANDLE) sock->file_desc,
+		 sock->send_buffer + sock->send_buffer_fill,
+		 do_read, (DWORD *) &num_read, NULL))
+    {
+      num_read = -1;
+    }
+#endif
   
   /* Read error occurred. */
   if (num_read < 0)
     {
+#ifndef __MINGW32__
       log_printf (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
+#else
+      log_printf (LOG_ERROR, "cache: ReadFile: %s\n", SYS_ERROR);
+#endif
 
       /* release the actual cache entry previously reserved */
       if (cache->size > 0) 

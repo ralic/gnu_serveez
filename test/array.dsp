@@ -1,27 +1,27 @@
-# Microsoft Developer Studio Project File - Name="alist" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="array" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 5.00
 # ** NICHT BEARBEITEN **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=alist - Win32 Debug
+CFG=array - Win32 Debug
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit\
  NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den\
  Befehl
 !MESSAGE 
-!MESSAGE NMAKE /f "alist.mak".
+!MESSAGE NMAKE /f "array.mak".
 !MESSAGE 
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
-!MESSAGE NMAKE /f "alist.mak" CFG="alist - Win32 Debug"
+!MESSAGE NMAKE /f "array.mak" CFG="array - Win32 Debug"
 !MESSAGE 
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
-!MESSAGE "alist - Win32 Release" (basierend auf\
+!MESSAGE "array - Win32 Release" (basierend auf\
   "Win32 (x86) Console Application")
-!MESSAGE "alist - Win32 Debug" (basierend auf\
+!MESSAGE "array - Win32 Debug" (basierend auf\
   "Win32 (x86) Console Application")
 !MESSAGE 
 
@@ -31,7 +31,7 @@ CFG=alist - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "alist - Win32 Release"
+!IF  "$(CFG)" == "array - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -41,11 +41,11 @@ RSC=rc.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir ""
-# PROP Intermediate_Dir "../Opt"
+# PROP Intermediate_Dir ""
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /Ob2 /I ".." /I "." /I "../src" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "__MINGW32__" /D "HAVE_CONFIG_H" /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2 /I "." /I ".." /I "../src" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "HAVE_CONFIG_H" /D "__MINGW32__" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -54,9 +54,9 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"alist-test.exe"
+# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"array-test.exe"
 
-!ELSEIF  "$(CFG)" == "alist - Win32 Debug"
+!ELSEIF  "$(CFG)" == "array - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -66,11 +66,11 @@ LINK32=link.exe
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir ""
-# PROP Intermediate_Dir "../Dbg"
+# PROP Intermediate_Dir ""
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I ".." /I "." /I "../src" /D "_DEBUG" /D "ENABLE_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "__MINGW32__" /D "HAVE_CONFIG_H" /FD /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "." /I ".." /I "../src" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_MBCS" /D "HAVE_CONFIG_H" /D "__MINGW32__" /D "ENABLE_DEBUG" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -79,25 +79,25 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /out:"alist-test.exe"
+# ADD LINK32 kernel32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /out:"array-test.exe"
 
 !ENDIF 
 
 # Begin Target
 
-# Name "alist - Win32 Release"
-# Name "alist - Win32 Debug"
+# Name "array - Win32 Release"
+# Name "array - Win32 Debug"
 # Begin Source File
 
-SOURCE=".\alist-test.c"
+SOURCE=..\src\libserveez\alloc.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\alist.c
+SOURCE=".\array-test.c"
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\alloc.c
+SOURCE=..\src\libserveez\array.c
 # End Source File
 # Begin Source File
 

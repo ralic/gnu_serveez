@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.9 2001/03/11 00:11:34 ela Exp $
+ * $Id: coserver.c,v 1.10 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -112,9 +112,9 @@ coserver_ident_invoke (socket_t sock,
 		       coserver_handle_result_t cb, coserver_arglist_t)
 {
   char buffer[COSERVER_BUFSIZE];
-  snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
-	    svz_inet_ntoa (sock->remote_addr),
-	    ntohs (sock->remote_port), ntohs (sock->local_port));
+  svz_snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
+		svz_inet_ntoa (sock->remote_addr),
+		ntohs (sock->remote_port), ntohs (sock->local_port));
   coserver_send_request (COSERVER_IDENT, buffer, cb, arg0, arg1);
 }
 
@@ -182,7 +182,7 @@ coserver_put_id (unsigned id, char *response)
 {
   char buffer[COSERVER_BUFSIZE];
 
-  snprintf (buffer, COSERVER_BUFSIZE, "%u:%s\n", id, response);
+  svz_snprintf (buffer, COSERVER_BUFSIZE, "%u:%s\n", id, response);
   strcpy (response, buffer);
 }
 
@@ -593,7 +593,7 @@ coserver_handle_request (socket_t sock, char *request, int len)
   *p = '\0';
 
   /* Have a look at the coserver callback hash. */
-  if (NULL == (cb = svz_hash_get (coserver_hash, util_itoa (id))))
+  if (NULL == (cb = svz_hash_get (coserver_hash, svz_itoa (id))))
     {
       log_printf (LOG_ERROR, "coserver: invalid callback for id %u\n", id);
       return -1;
@@ -605,7 +605,7 @@ coserver_handle_request (socket_t sock, char *request, int len)
    * callback structure and delete it from the coserver callback hash.
    */
   ret = cb->handle_result (*data ? data : NULL, cb->arg[0], cb->arg[1]);
-  svz_hash_delete (coserver_hash, util_itoa (id));
+  svz_hash_delete (coserver_hash, svz_itoa (id));
   svz_free (cb);
 
   return ret;
@@ -986,7 +986,7 @@ coserver_send_request (int type, char *request,
       cb->handle_result = handle_result;
       cb->arg[0] = arg0;
       cb->arg[1] = arg1;
-      svz_hash_put (coserver_hash, util_itoa (coserver_hash_id), cb);
+      svz_hash_put (coserver_hash, svz_itoa (coserver_hash_id), cb);
 
       coserver->busy++;
 #ifdef __MINGW32__

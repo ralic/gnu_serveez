@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.c,v 1.2 2001/02/02 11:26:23 ela Exp $
+ * $Id: snprintf.c,v 1.3 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -30,12 +30,12 @@
 
 #if (!defined (HAVE_SNPRINTF)) && (!defined (__MINGW32__))
 /*
- * Implementation of the snprintf() if it is not defined. It uses
- * the vsnprintf() function therefore which will fall back to vsprintf()
- * if vsnprintf() does not exist.
+ * Implementation of the @code{snprintf()} if it is not defined. It uses
+ * the @code{vsnprintf()} function therefore which will fall back to 
+ * @code{vsprintf()} if @code{vsnprintf()} does not exist.
  */
 int 
-snprintf (char *str, size_t n, const char *fmt, ...)
+svz_snprintf (char *str, size_t n, const char *fmt, ...)
 {
   int ret;
   va_list args;

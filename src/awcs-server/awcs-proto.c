@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.27 2001/03/08 11:53:56 ela Exp $
+ * $Id: awcs-proto.c,v 1.28 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 #endif
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__
@@ -493,7 +493,7 @@ awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
 
   for (;;)
     {
-      address = util_atoi (cmd);
+      address = svz_atoi (cmd);
       sock = (socket_t) svz_hash_get (cfg->clients, (char *) &address);
 
       if (sock)
@@ -546,7 +546,7 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
 
   for (;;)
     {
-      address = util_atoi (cmd);
+      address = svz_atoi (cmd);
       sock = (socket_t) svz_hash_get (cfg->clients, (char *) &address);
 
       if (sock)
@@ -593,7 +593,7 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
 
   for (;;)
     {
-      address = util_atoi (cmd);
+      address = svz_atoi (cmd);
       sock = (socket_t) svz_hash_get (cfg->clients, (char *) &address);
 
       if (sock)
@@ -637,8 +637,8 @@ awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
     return -1;
 
 #if 0
-  util_hexdump (stdout, "master request", cfg->server->sock_desc,
-		request, request_len, 0);
+  svz_hexdump (stdout, "master request", cfg->server->sock_desc,
+	       request, request_len, 0);
 #endif
 
   request_len--;
@@ -716,8 +716,8 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
   awcs_config_t *cfg = sock->cfg;
 
 #if 0
-  util_hexdump (stdout, "awcs request", sock->sock_desc, 
-		request, request_len, 1000);
+  svz_hexdump (stdout, "awcs request", sock->sock_desc, 
+	       request, request_len, 1000);
 #endif
 
   if (!cfg->server)
@@ -953,8 +953,8 @@ awcs_detect_proto (void *config, socket_t sock)
   int len = 0;
 
 #if 0
-  util_hexdump (stdout, "detecting awcs", sock->sock_desc,
-		sock->recv_buffer, sock->recv_buffer_fill, 0);
+  svz_hexdump (stdout, "detecting awcs", sock->sock_desc,
+	       sock->recv_buffer, sock->recv_buffer_fill, 0);
 #endif
 
   if (sock->recv_buffer_fill >= MASTER_DETECTION && 

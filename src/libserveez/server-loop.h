@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.h,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: server-loop.h,v 1.3 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -27,24 +27,10 @@
 
 #include "libserveez/defines.h"
 
-/*
- * Check the server and client sockets for incoming connections 
- * and data, and process outgoing data.
- */
-int server_check_sockets_select (void);
-#if HAVE_POLL && ENABLE_POLL
-int server_check_sockets_poll (void);
-#endif
-#ifdef __MINGW32__
-int server_check_sockets_MinGW (void);
-#endif
+__BEGIN_DECLS
 
-#if HAVE_POLL && ENABLE_POLL
-# define server_check_sockets() server_check_sockets_poll ()
-#elif defined (__MINGW32__)
-# define server_check_sockets() server_check_sockets_MinGW ()
-#else
-# define server_check_sockets() server_check_sockets_select ()
-#endif
+SERVEEZ_API int server_check_sockets __P ((void));
+
+__END_DECLS
 
 #endif /* not __SERVER_LOOP_H__ */

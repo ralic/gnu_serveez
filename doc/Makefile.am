@@ -50,7 +50,8 @@ distclean-local:
 all-local: serveez.html serveez-api.html
 
 dist-hook:
-	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] $(distdir)/stamp-vti*
+	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
+		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi
 
 pack: serveez.html serveez-api.html
 	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)

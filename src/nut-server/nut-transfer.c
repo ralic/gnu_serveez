@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.31 2001/03/08 11:53:56 ela Exp $
+ * $Id: nut-transfer.c,v 1.32 2001/04/01 13:32:30 ela Exp $
  *
  */
 
@@ -68,7 +68,7 @@
 
 #ifdef __MINGW32__
 # include <windows.h>
-# include <winsock.h>
+# include <winsock2.h>
 # include <io.h>
 #endif
 
@@ -102,8 +102,8 @@ nut_string_regex (char *text, char *regex)
     {
       str = svz_strdup (text);
       reg = svz_strdup (regex);
-      util_tolower (str);
-      util_tolower (reg);
+      svz_tolower (str);
+      svz_tolower (reg);
 
       /* all tokens must be in the text */
       for (token = strtok (reg, " "); token; token = strtok (NULL, " "))
@@ -249,7 +249,7 @@ nut_check_transfer (socket_t sock)
 	   * corresponds to the content length of this HTTP header
 	   */
 	  sock->userflags |= NUT_FLAG_HDR;
-	  transfer->size = util_atoi (length);
+	  transfer->size = svz_atoi (length);
 	  svz_free (length);
 	  if (transfer->original_size != transfer->size)
 	    {
@@ -347,7 +347,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 	    {
 	      pos = strlen (savefile) - strlen (cfg->extensions[n]);
 	      if (pos < 0 ||
-		  !util_strcasecmp (&savefile[pos], cfg->extensions[n]))
+		  !svz_strcasecmp (&savefile[pos], cfg->extensions[n]))
 		break;
 	    }
 	  n++;
@@ -717,7 +717,7 @@ nut_read_database_r (nut_config_t *cfg, char *dirname, int depth)
 
       /* open the directory */
 #ifdef __MINGW32__
-      if (snprintf (filename, NUT_PATH_SIZE - 1, "%s/*", dirname) == -1)
+      if (svz_snprintf (filename, NUT_PATH_SIZE - 1, "%s/*", dirname) == -1)
 	return;
       
       if ((dir = FindFirstFile (filename, &de)) != INVALID_HANDLE_VALUE)
@@ -732,8 +732,8 @@ nut_read_database_r (nut_config_t *cfg, char *dirname, int depth)
 	  do
 #endif
 	    {
-	      if (snprintf (filename, NUT_PATH_SIZE - 1,
-			    "%s/%s", dirname, FILENAME) == -1)
+	      if (svz_snprintf (filename, NUT_PATH_SIZE - 1,
+				"%s/%s", dirname, FILENAME) == -1)
 		continue;
 
 	      /* stat the given file */

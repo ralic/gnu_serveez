@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: serveez.h,v 1.7 2001/01/28 03:26:54 ela Exp $
+ * $Id: serveez.h,v 1.8 2001/04/01 13:32:28 ela Exp $
  *
  */
 
@@ -32,9 +32,5 @@
 #endif
 
 #include <time.h>
-
-/* Exported from `util.c' because it is a central point. */
-extern int have_debug;
-extern int have_win32;
 
 #endif /* not __SERVEEZ_H__ */
