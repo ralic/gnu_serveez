@@ -375,6 +375,8 @@ SVZ_CLOSE_DEFUN
 SVZ_FSTAT_DEFUN
 SVZ_FOPEN_DEFUN
 SVZ_FCLOSE_DEFUN
+SVZ_FILE_PATH_DEFUN
+SVZ_FILE_CHECK_DEFUN
 
 @node Client connections, Socket, Core functions, Embedding API
 @section Client connections

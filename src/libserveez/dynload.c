@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.21 2002/07/13 15:45:54 ela Exp $
+ * $Id: dynload.c,v 1.22 2002/07/28 12:13:17 ela Exp $
  *
  */
 
@@ -57,10 +57,12 @@
 # include <winsock2.h>
 #endif
 
+#include "svzpath.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
 #include "libserveez/server.h"
+#include "libserveez/core.h"
 #include "libserveez/dynload.h"
 
 /* Internal list of shared libraries. */
@@ -143,8 +145,7 @@ dyn_get_library (char *path, char *file)
   void *handle = NULL;
   char *lib;
 
-  lib = svz_malloc ((path ? strlen (path) + 1 : 0) + strlen (file) + 1);
-  sprintf (lib, "%s%s%s", path ? path : "", path ? "/" : "", file);
+  lib = svz_file_path (path, file);
 
 #if HAVE_DLOPEN
   handle = dlopen (lib, RTLD_NOW | RTLD_GLOBAL);
@@ -215,7 +216,13 @@ svz_dynload_path_get (void)
   char *path, *p, *start, *val;
   int len, n;
 
+  /* Add some default paths. */
   svz_array_add (paths, svz_strdup ("."));
+  svz_array_add (paths, svz_strdup (SVZ_LIBDIR));
+  svz_array_add (paths, svz_strdup (SVZ_BINDIR));
+  svz_array_add (paths, svz_strdup (SVZ_PKGDATADIR));
+
+  /* Add environment variable paths. */
   if ((p = getenv (DYNLOAD_PATH)) != NULL)
     {
       while (*p)

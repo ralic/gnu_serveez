@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.65 2002/07/27 13:32:14 ela Exp $
+ * $Id: guile.c,v 1.66 2002/07/28 12:13:17 ela Exp $
  *
  */
 
@@ -1733,8 +1733,7 @@ static SCM
 guile_serveez_load (SCM file)
 {
   char *f, *path, *full;
-  struct stat buf;
-  int error, n;
+  int n;
   SCM ret;
   svz_array_t *paths = svz_dynload_path_get ();
 
@@ -1746,18 +1745,20 @@ guile_serveez_load (SCM file)
   f = svz_strdup (full);
   scm_c_free (full);
 
-  /* Iterate the loadpath and check if the given file is in there. */
-  svz_array_foreach (paths, path, n)
+  if (svz_file_check (f) == -1)
     {
-      full = svz_malloc (strlen (path) + strlen (f) + 2);
-      sprintf (full, "%s/%s", path, f);
-      if ((stat (full, &buf)) != -1)
+      /* Iterate the loadpath and check if the given file is in there. */
+      svz_array_foreach (paths, path, n)
 	{
-	  svz_free (f);
-	  f = full;
-	  break;
+	  full = svz_file_path (path, f);
+	  if (svz_file_check (full) != -1)
+	    {
+	      svz_free (f);
+	      f = full;
+	      break;
+	    }
+	  svz_free (full);
 	}
-      svz_free (full);
     }
   svz_array_destroy (paths);
 

@@ -4,7 +4,7 @@
 #
 # Automake input file for the serveez core library.
 #
-# Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog
+EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog svzpath.h.in
 SUBDIRS = coserver codec
 
 # the serveez core library rules
@@ -50,10 +50,22 @@ libserveez_HEADERS = alloc.h util.h snprintf.h hash.h sparsevec.h socket.h \
   server-socket.h interface.h dynload.h vector.h core.h array.h portcfg.h  \
   binding.h passthrough.h
 
+# generate path info (included in <libserveez/dynload.c>
+
+SED = sed
+
+svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile
+	@echo "Generating svzpath.h..."
+	@$(SED) < $(srcdir)/svzpath.h.in \
+	  -e 's,@BINDIR@,@bindir@,g' \
+	  -e 's,@PKGDATADIR@,@datadir@/serveez,g' \
+	  -e 's,@LIBDIR@,@libdir@,g' \
+	  > svzpath.h
+
 noinst_HEADERS = ipdata.h iphlpapi.h
 
 INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
 
-CLEANFILES = *~ *.orig *.rej
+CLEANFILES = *~ *.orig *.rej svzpath.h
 
 MAINTAINERCLEANFILES = Makefile.in libserveez.dsp

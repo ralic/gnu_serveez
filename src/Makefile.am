@@ -4,7 +4,7 @@
 #
 # Automake input file.
 #
-# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 #
@@ -74,14 +74,11 @@ INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 
-CLEANFILES = *~ *.ro serveez.cfg
+CLEANFILES = *~ *.ro serveez.cfg *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in serveez.dsp
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h
-
-distclean-local:
-	rm -f *\~ *.orig *.rej
 
 serveez.cfg: $(top_srcdir)/data/serveez.cfg
 	cp -p $(top_srcdir)/data/serveez.cfg $@

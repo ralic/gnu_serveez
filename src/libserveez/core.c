@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.27 2002/07/13 15:45:54 ela Exp $
+ * $Id: core.c,v 1.28 2002/07/28 12:13:17 ela Exp $
  *
  */
 
@@ -162,7 +162,7 @@ svz_fd_cloexec (int fd)
 }
 
 /*
- * This funtion creates an unnamed pair of connected sockets with the 
+ * This function creates an unnamed pair of connected sockets with the 
  * specified protocol @var{proto}. The descriptors used in referencing the 
  * new sockets are returned in desc[0] and desc[1]. The two sockets are 
  * indistinguishable. Also make both of them non-blocking and 
@@ -545,7 +545,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 
   /* TransmitFile().
      This system call provides something likely the Unix sendfile(). It
-     is a M$ specific entension to Winsock. The function comes from the
+     is a M$ specific extension to Winsock. The function comes from the
      MSWSOCK.DLL and should be prototyped in MSWSOCK.H. It operates on
      file handles gained from kernel32.CreateFile() only. We experienced
      quite low performance on small (less than 4096 byte) file chunks. 
@@ -611,7 +611,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 
 #else 
 
-  /* Linux here. Works like charme... */
+  /* Linux here. Works like charm... */
   ret = sendfile (out_fd, in_fd, offset, count);
 
 #endif
@@ -864,4 +864,33 @@ svz_fclose (FILE *f)
       return -1;
     }
   return 0;
+}
+
+/*
+ * Checks for the existence of the given file system node @var{file} and 
+ * return zero on success.  Otherwise the function returns non-zero.
+ */
+int
+svz_file_check (char *file)
+{
+  struct stat buf;
+  return file ? stat (file, &buf) : -1;
+}
+
+/*
+ * Constructs a fully qualified file name form @var{path} and @var{file}.
+ * If @var{path} is omitted (@code{NULL}) the function returns @var{file}
+ * only.  If @var{file} is @code{NULL} a null pointer is returned.
+ * Please remember to @code{svz_free()} the returned pointer.
+ */
+char *
+svz_file_path (char *path, char *file)
+{
+  char *full;
+
+  if (file == NULL)
+    return NULL;
+  full = svz_malloc ((path ? strlen (path) + 1 : 0) + strlen (file) + 1);
+  sprintf (full, "%s%s%s", path ? path : "", path ? "/" : "", file);
+  return full;
 }

@@ -64,6 +64,8 @@ pkgdata_DATA = $(GUILE_TXT_FILE)
 
 # local dependencies
 
+builddir = $(top_builddir)/doc
+
 distclean-local:
 	$(RM) -rf *\~ *.orig *.rej $(HTML_DIR)/
 
@@ -74,7 +76,7 @@ dist-hook:
 		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi \
 		$(distdir)/guile-api.texi
 
-$(srcdir)/serveez-api.texi: $(srcdir)/serveez-api.texi.in
+serveez-api.texi: $(srcdir)/serveez-api.texi.in
 	$(RM) -f $(SED_FILE)
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
@@ -83,8 +85,9 @@ $(srcdir)/serveez-api.texi: $(srcdir)/serveez-api.texi.in
 	  done \
 	done
 	$(SED) -f $(SED_FILE) < $(srcdir)/serveez-api.texi.in > $@
+	test -f $(srcdir)/serveez-api.texi || cp -p serveez-api.texi $(srcdir)
 
-$(srcdir)/guile-api.texi: $(srcdir)/guile-api.texi.in
+guile-api.texi: $(srcdir)/guile-api.texi.in
 	$(RM) -f $(GUILE_SED_FILE)
 	for dir in $(GUILE_DOC_DIRS); do \
 	  for file in $(GUILE_DOC_FILES); do \
@@ -93,6 +96,7 @@ $(srcdir)/guile-api.texi: $(srcdir)/guile-api.texi.in
 	  done \
 	done
 	$(SED) -f $(GUILE_SED_FILE) < $(srcdir)/guile-api.texi.in > $@
+	test -f $(srcdir)/guile-api.texi || cp -p guile-api.texi $(srcdir)
 
 $(GUILE_TXT_FILE):
 	$(RM) -f $@
@@ -111,12 +115,16 @@ site: all-local info
 	$(CP) -p index.html logosmall.jpg mandel.jpg $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
-$(HTML_DIR)/serveez.html: $(srcdir)/guile-api.texi
+$(HTML_DIR)/serveez.html: serveez.texi $(builddir)/guile-api.texi
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $<
 
-$(HTML_DIR)/%.html: %.texi
+$(HTML_DIR)/serveez-api.html: serveez-api.texi
 	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $<
 
 %.info: %.texi
 	$(MAKEINFO) -o $(srcdir)/$@ -I $(srcdir) --no-split $<
 
-SUFFIXES = .html .info
+%.dvi: %.texi
+	$(TEXI2DVI) -I $(srcdir) -I $(builddir) $<
+
+SUFFIXES = .html .info .dvi

@@ -1,3 +1,13 @@
+2002-07-28  [ Ela ]  <ela@lkcc.org>
+
+	* dynload.c (svz_dynload_path_get): Adding the paths located
+	in `svzpath.h' to the load path.
+
+	* core.c (svz_file_check, svz_file_path): New library 
+	functions (used in `dynload.c' and `guile.c').
+
+	* svzpath.h.in: New file.
+
 2002-07-25  [ Ela ]  <ela@lkcc.org>
 
 	* server-core.c: Initialize the 'svz_nuke_happened' variable

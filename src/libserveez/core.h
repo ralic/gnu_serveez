@@ -1,7 +1,7 @@
 /*
  * core.h - socket and file descriptor declarations and definitions
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.14 2001/12/13 18:00:00 ela Exp $
+ * $Id: core.h,v 1.15 2002/07/28 12:13:17 ela Exp $
  *
  */
 
@@ -65,6 +65,8 @@ SERVEEZ_API int svz_close __PARAMS ((int));
 SERVEEZ_API int svz_fstat __PARAMS ((int, struct stat *));
 SERVEEZ_API FILE *svz_fopen __PARAMS ((const char *, const char *));
 SERVEEZ_API int svz_fclose __PARAMS ((FILE *));
+SERVEEZ_API int svz_file_check __PARAMS ((char *));
+SERVEEZ_API char *svz_file_path __PARAMS ((char *, char *));
 
 #ifndef __MINGW32__
 SERVEEZ_API void svz_file_closeall __PARAMS ((void));
