@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.12 2001/05/21 21:20:42 ela Exp $
+ * $Id: icmp-socket.c,v 1.13 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -328,7 +328,7 @@ svz_icmp_check_packet (svz_socket_t *sock, byte *data, int len)
   len -= length + ICMP_HEADER_SIZE;
 
   /* Do these checks only if it is the right kind of packet. */
-  if (header->type == ICMP_SERVEEZ)
+  if (header->type == sock->itype)
     {
       /* validate the ICMP data checksum */
       if (header->checksum != svz_raw_ip_checksum (p, len))
@@ -362,7 +362,7 @@ svz_icmp_check_packet (svz_socket_t *sock, byte *data, int len)
 
   /* What kind of packet is this ? */
 #if ENABLE_DEBUG
-  if (header->type <= ICMP_MAX_TYPE)
+  else if (header->type <= ICMP_MAX_TYPE)
     {
       if (svz_icmp_request[header->type])
 	svz_log (LOG_DEBUG, "icmp: %s received\n", 
@@ -374,7 +374,7 @@ svz_icmp_check_packet (svz_socket_t *sock, byte *data, int len)
     }
 #endif /* ENABLE_DEBUG */
 
-  if (header->type == ICMP_SERVEEZ)
+  if (header->type == sock->itype)
     {
       if (header->code == ICMP_SERVEEZ_CONNECT && 
 	  sock->flags & SOCK_FLAG_LISTENING)
@@ -577,7 +577,7 @@ svz_icmp_send_control (svz_socket_t *sock, byte type)
   memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
   len += sizeof (sock->remote_port);
 
-  hdr.type = ICMP_SERVEEZ;
+  hdr.type = sock->itype;
   hdr.code = type;
   hdr.checksum = svz_raw_ip_checksum (NULL, 0);
   hdr.ident = (unsigned short) (getpid () + sock->id);
@@ -626,7 +626,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
 	size = ICMP_MSG_SIZE;
 
       /* Create ICMP header and put it in front of packet load. */
-      hdr.type = ICMP_SERVEEZ;
+      hdr.type = sock->itype;
       hdr.code = ICMP_SERVEEZ_DATA;
       hdr.checksum = svz_raw_ip_checksum ((byte *) buf, size);
       hdr.ident = (unsigned short) (getpid () + sock->id);
@@ -742,7 +742,8 @@ svz_icmp_check_request (svz_socket_t *sock)
  * Return @code{NULL} on errors, otherwise an enqueued socket structure.
  */
 svz_socket_t *
-svz_icmp_connect (unsigned long host, unsigned short port)
+svz_icmp_connect (unsigned long host, unsigned short port,
+		  unsigned char type)
 {
   SOCKET sockfd;
   svz_socket_t *sock;
@@ -766,16 +767,17 @@ svz_icmp_connect (unsigned long host, unsigned short port)
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
+  sock->itype = type;
   svz_sock_enqueue (sock);
   svz_sock_intern_connection_info (sock);
 
   /* Put foreign address here. */
   sock->remote_addr = host;
+  sock->remote_port = (unsigned short) sock->id;
 
   sock->read_socket = svz_icmp_read_socket;
   sock->write_socket = svz_icmp_write_socket;
   sock->check_request = svz_icmp_check_request;
-  sock->remote_port = (unsigned short) sock->id;
 
   /* Finally send a connection message. */
   svz_icmp_send_control (sock, ICMP_SERVEEZ_CONNECT);

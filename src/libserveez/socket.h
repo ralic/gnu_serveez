@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.6 2001/06/01 21:24:09 ela Exp $
+ * $Id: socket.h,v 1.7 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -116,6 +116,7 @@ struct svz_socket
   unsigned short sequence;      /* Currently received sequence. */
   unsigned short send_seq;      /* Send stream sequence number. */
   unsigned short recv_seq;      /* Receive stream sequence number. */
+  unsigned char itype;          /* ICMP message type. */
 
   /*
    * READ_SOCKET gets called whenever data is available on the socket.

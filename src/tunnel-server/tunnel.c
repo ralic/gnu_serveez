@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.22 2001/06/01 21:24:09 ela Exp $
+ * $Id: tunnel.c,v 1.23 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -304,7 +304,8 @@ tnl_create_socket (svz_socket_t *sock, int source)
   /* target is an ICMP connection */
   else if (sock->userflags & TNL_FLAG_TGT_ICMP)
     {
-      if ((xsock = svz_icmp_connect (ip, port)) == NULL)
+      if ((xsock = svz_icmp_connect (ip, port, cfg->target->icmp_type)) 
+	  == NULL)
 	{
 	  svz_log (LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
 		   svz_inet_ntoa (ip));

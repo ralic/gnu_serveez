@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.13 2001/06/05 17:57:22 ela Exp $
+ * $Id: portcfg.h,v 1.14 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -54,14 +54,23 @@
 #define PORTCFG_NOIP    "*"
 #define PORTCFG_BACKLOG "backlog"
 #define PORTCFG_TYPE    "type"
-#define PORTCFG_RECV    "recv"
-#define PORTCFG_SEND    "send"
-#define PORTCFG_NAME    "name"
-#define PORTCFG_PERMS   "permissions"
-#define PORTCFG_USER    "user"
-#define PORTCFG_GROUP   "group"
-#define PORTCFG_UID     "uid"
-#define PORTCFG_GID     "gid"
+
+/* Pipe definitions. */
+#define PORTCFG_RECV  "recv"
+#define PORTCFG_SEND  "send"
+#define PORTCFG_NAME  "name"
+#define PORTCFG_PERMS "permissions"
+#define PORTCFG_USER  "user"
+#define PORTCFG_GROUP "group"
+#define PORTCFG_UID   "uid"
+#define PORTCFG_GID   "gid"
+
+/* Miscellaneous definitions. */
+#define PORTCFG_SEND_BUFSIZE "send-buffer-size"
+#define PORTCFG_RECV_BUFSIZE "recv-buffer-size"
+#define PORTCFG_FREQ         "connect-frequency"
+#define PORTCFG_ALLOW        "allow"
+#define PORTCFG_DENY         "deny"
 
 /*
  * Definition of a single port configuration reflecting either a network

@@ -1,3 +1,8 @@
+2001-06-08  [ Ela ]  <ela@lkcc.org>
+
+	* icmp-socket.c (svz_icmp_check_packet): Using configured
+	ICMP type field of the related port configuration.
+
 2001-06-07  [ Ela ]  <ela@lkcc.org>
 
 	* portcfg.c (svz_portcfg_destroy): Buf fix: Do not check

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.14 2001/06/05 17:57:22 ela Exp $
+ * $Id: server-socket.c,v 1.15 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -214,11 +214,8 @@ svz_server_create (svz_portcfg_t *port)
 	}
       else if (port->proto & PROTO_UDP)
 	{
-	  svz_sock_resize_buffers (sock,
-				   port->send_buffer_size ? 
-				   port->send_buffer_size : UDP_BUF_SIZE, 
-				   port->recv_buffer_size ?
-				   port->recv_buffer_size : UDP_BUF_SIZE);
+	  svz_sock_resize_buffers (sock, port->send_buffer_size,
+				   port->recv_buffer_size);
 	  sock->read_socket = svz_udp_read_socket;
 	  sock->write_socket = svz_udp_write_socket;
 	  sock->check_request = svz_udp_check_request;
@@ -226,22 +223,25 @@ svz_server_create (svz_portcfg_t *port)
 	}
       else if (port->proto & PROTO_ICMP)
 	{
-	  svz_sock_resize_buffers (sock,
-				   port->send_buffer_size ? 
-				   port->send_buffer_size : ICMP_BUF_SIZE, 
-				   port->recv_buffer_size ?
-				   port->recv_buffer_size : ICMP_BUF_SIZE);
+	  svz_sock_resize_buffers (sock, port->send_buffer_size,
+				   port->recv_buffer_size);
 	  sock->read_socket = svz_icmp_read_socket;
 	  sock->write_socket = svz_icmp_write_socket;
 	  sock->check_request = svz_icmp_check_request;
+	  sock->itype = port->icmp_type;
 	  proto = "icmp";
 	}
 
       addr = svz_portcfg_addr (port);
-      svz_log (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
-	       addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-	       svz_inet_ntoa (addr->sin_addr.s_addr),
-	       ntohs (addr->sin_port));
+      if (port->proto & (PROTO_TCP | PROTO_UDP))
+	svz_log (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
+		 addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
+		 svz_inet_ntoa (addr->sin_addr.s_addr),
+		 ntohs (addr->sin_port));
+      else
+	svz_log (LOG_NOTICE, "listening on %s port %s\n", proto,
+		 addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
+		 svz_inet_ntoa (addr->sin_addr.s_addr));
     }
   return sock;
 }
@@ -258,6 +258,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
   struct sockaddr_in client;	/* address of connecting clients */
   socklen_t client_size;	/* size of the address above */
   svz_socket_t *sock;
+  svz_portcfg_t *port = server_sock->port;;
 
   memset (&client, 0, sizeof (client));
   client_size = sizeof (client);
@@ -313,6 +314,9 @@ svz_tcp_accept (svz_socket_t *server_sock)
       sock->check_request = server_sock->check_request;
       sock->idle_func = svz_sock_idle_protect; 
       sock->idle_counter = 1;
+      
+      svz_sock_resize_buffers (sock, port->send_buffer_size,
+			       port->recv_buffer_size);
       svz_sock_enqueue (sock);
       svz_sock_setparent (sock, server_sock);
       svz_sock_connections++;
@@ -350,6 +354,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
   HANDLE recv_pipe, send_pipe;
   svz_socket_t *sock;
+  svz_portcfg_t *port = server_sock->port;
   server_sock->idle_counter = 1;
 #endif
 
@@ -454,6 +459,8 @@ svz_pipe_accept (svz_socket_t *server_sock)
   sock->disconnected_socket = server_sock->disconnected_socket;
   sock->idle_func = svz_sock_idle_protect;
   sock->idle_counter = 1;
+  svz_sock_resize_buffers (sock, port->send_buffer_size,
+			   port->recv_buffer_size);
   svz_sock_enqueue (sock);
   svz_sock_setparent (sock, server_sock);
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.15 2001/06/01 21:24:09 ela Exp $
+ * $Id: server-core.c,v 1.16 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -554,7 +554,7 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 	}
       if (ret)
 	{
-	  svz_log (LOG_NOTICE, "denying unallowed access from %s\n", ip);
+	  svz_log (LOG_NOTICE, "denying unallowed access from %s\n", remote);
 	  return ret;
 	}
     }

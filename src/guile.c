@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.25 2001/06/07 22:01:14 raimi Exp $
+ * $Id: guile.c,v 1.26 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -48,6 +48,12 @@
  * functions.
  */
 static int guile_global_error = 0;
+
+/* 
+ * Global variable containing the current load port in exceptions. 
+ * FIXME: Where should I aquire it ? In each function ?
+ */
+static SCM guile_load_port = 0;
 
 /*
  * What is an 'option-hash' ?
@@ -352,6 +358,47 @@ guile2boolean (SCM scm, int *target)
       err = 2;
     }
   return err;
+}
+
+/*
+ * Convert the given scheme cell @var{list} which needs to be a valid guile
+ * list into an array of duplicated strings. Returns @code{NULL} if it is not
+ * a valid guile list. Print an error message if one of the list's elements
+ * is not a string. The additional argument @var{func} should be the name of 
+ * the calling function.
+ */
+static svz_array_t *
+guile2strarray (SCM list, char *func)
+{
+  svz_array_t *array;
+  int i;
+  char *str;
+
+  /* Check if the given scheme cell is a valid list. */
+  if (!gh_list_p (list))
+    return NULL;
+
+  /* Iterate over the list and build up the array of strings. */
+  array = svz_array_create (gh_length (list));
+  for (i = 0; gh_pair_p (list); list = gh_cdr (list), i++)
+    {
+      if ((str = guile2str (gh_car (list))) == NULL)
+	{
+	  report_error ("%s: String expected in position %d", func, i);
+	  guile_global_error = -1;
+	  continue;
+	}
+      svz_array_add (array, svz_strdup (str));
+      free (str);
+    }
+
+  /* Check the size of the resulting string array. */
+  if (svz_array_size (array) == 0)
+    {
+      svz_array_destroy (array);
+      array = NULL;
+    }
+  return array;
 }
 
 /*
@@ -1098,9 +1145,30 @@ guile_define_port (SCM name, SCM args)
 		    proto, portname);
       FAIL ();
     }
-  svz_free (txt);
   free (proto);
+
+  /* Access the send and receive buffer sizes. */
+  err |= optionhash_extract_int (options, PORTCFG_SEND_BUFSIZE, 1, 0,
+				 &(cfg->send_buffer_size), txt);
+  err |= optionhash_extract_int (options, PORTCFG_RECV_BUFSIZE, 1, 0,
+				 &(cfg->recv_buffer_size), txt);
   
+  /* Aquire the connect frequency. */
+  if (cfg->proto & PROTO_TCP)
+    err |= optionhash_extract_int (options, PORTCFG_FREQ, 1, 0,
+				   &(cfg->connect_freq), txt);
+
+  /* Obtain the access lists "allow" and "deny". */
+  if (!(cfg->proto & PROTO_PIPE))
+    {
+      cfg->deny = guile2strarray (optionhash_get (options, PORTCFG_DENY),
+				  FUNC_NAME);
+      cfg->allow = guile2strarray (optionhash_get (options, PORTCFG_ALLOW),
+				   FUNC_NAME);
+    }
+
+  svz_free (txt);
+
   /* Check for unused keys in input. */
   if (0 != optionhash_validate (options, 0, "port", portname))
     FAIL (); /* Message already emitted. */
@@ -1169,47 +1237,6 @@ guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
   return error ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
-
-/*
- * Convert the given scheme cell @var{list} which needs to be a valid guile
- * list into an array of duplicated strings. Returns @code{NULL} if it is not
- * a valid guile list. Print an error message if one of the list's elements
- * is not a string. The additional argument @var{func} should be the name of 
- * the calling function.
- */
-static svz_array_t *
-guile2strarray (SCM list, char *func)
-{
-  svz_array_t *array;
-  int i;
-  char *str;
-
-  /* Check if the given scheme cell is a valid list. */
-  if (!gh_list_p (list))
-    return NULL;
-
-  /* Iterate over the list and build up the array of strings. */
-  array = svz_array_create (gh_length (list));
-  for (i = 0; gh_pair_p (list); list = gh_cdr (list), i++)
-    {
-      if ((str = guile2str (gh_car (list))) == NULL)
-	{
-	  report_error ("%s: String expected in position %d", func, i);
-	  guile_global_error = -1;
-	  continue;
-	}
-      svz_array_add (array, svz_strdup (str));
-      free (str);
-    }
-
-  /* Check the size of the resulting string array. */
-  if (svz_array_size (array) == 0)
-    {
-      svz_array_destroy (array);
-      array = NULL;
-    }
-  return array;
-}
 
 /*
  * Converts the given array of strings @var{array} into a guile list.

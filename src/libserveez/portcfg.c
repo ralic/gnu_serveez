@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.17 2001/06/07 17:22:01 ela Exp $
+ * $Id: portcfg.c,v 1.18 2001/06/08 15:37:37 ela Exp $
  *
  */
 
@@ -49,6 +49,8 @@
 #include "libserveez/vector.h"
 #include "libserveez/array.h"
 #include "libserveez/portcfg.h"
+#include "libserveez/udp-socket.h"
+#include "libserveez/icmp-socket.h"
 #include "libserveez/interface.h"
 
 /*
@@ -85,7 +87,8 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 	    return 1;
 	  break;
 	case PROTO_ICMP:
-	  if (!strcmp (a->icmp_ipaddr, b->icmp_ipaddr))
+	  if (!strcmp (a->icmp_ipaddr, b->icmp_ipaddr) &&
+	      a->icmp_type == b->icmp_type)
 	    return 1;
 	  break;
 	case PROTO_RAW:
@@ -239,6 +242,8 @@ svz_portcfg_t *
 svz_portcfg_dup (svz_portcfg_t *port)
 {
   svz_portcfg_t *copy;
+  int n;
+  char *str;
 
   /* Return NULL if necessary. */
   if (port == NULL)
@@ -273,6 +278,23 @@ svz_portcfg_dup (svz_portcfg_t *port)
       copy->pipe_send.group = svz_strdup (port->pipe_send.group);
       break;
     }
+
+  copy->accepted = NULL;
+
+  /* Make a copy of the "deny" and "allow" access lists. */
+  if (port->allow)
+    {
+      copy->allow = svz_array_create (svz_array_size (port->allow));
+      svz_array_foreach (port->allow, str, n)
+	svz_array_add (copy->allow, svz_strdup (str));
+    }
+  if (port->deny)
+    {
+      copy->deny = svz_array_create (svz_array_size (port->deny));
+      svz_array_foreach (port->deny, str, n)
+	svz_array_add (copy->deny, svz_strdup (str));
+    }
+
   return copy;
 }
 
@@ -470,15 +492,29 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       err = svz_inet_aton (this->tcp_ipaddr, &this->tcp_addr);
       this->tcp_addr.sin_family = AF_INET;
       if (!(this->tcp_port > 0 && this->tcp_port < 65536))
-	err = -1;
+	{
+	  svz_log (LOG_ERROR, "%s: TCP port requires a short (1..65535)\n",
+		   this->name);
+	  err = -1;
+	}
       else
 	this->tcp_addr.sin_port = htons (this->tcp_port);
+      if (this->tcp_backlog > SOMAXCONN)
+	{
+	  svz_log (LOG_ERROR, "%s: TCP backlog out of range (1..%d)\n",
+		   this->name, SOMAXCONN);
+	  err = -1;
+	}
       break;
     case PROTO_UDP:
       err = svz_inet_aton (this->udp_ipaddr, &this->udp_addr);
       this->udp_addr.sin_family = AF_INET;
       if (!(this->udp_port > 0 && this->udp_port < 65536))
-	err = -1;
+	{
+	  svz_log (LOG_ERROR, "%s: UDP port requires a short (1..65535)\n",
+		   this->name);
+	  err = -1;
+	}
       else
 	this->udp_addr.sin_port = htons (this->udp_port);
       break;
@@ -511,15 +547,43 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 void
 svz_portcfg_prepare (svz_portcfg_t *port)
 {
+  /* Check the TCP backlog value. */
   if (port->proto & PROTO_TCP)
     {
-      if (!port->tcp_backlog)
+      if (port->tcp_backlog <= 0 || port->tcp_backlog > SOMAXCONN)
 	port->tcp_backlog = SOMAXCONN;
     }
-  if (!port->detection_fill)
-    port->detection_fill = SOCK_MAX_DETECTION_FILL;
-  if (!port->detection_wait)
-    port->detection_wait = SOCK_MAX_DETECTION_WAIT;
+  /* Check the detection barriers for pipe and tcp sockets. */
+  if (port->proto & (PROTO_PIPE | PROTO_TCP))
+    {
+      if (port->detection_fill <= 0 || 
+	  port->detection_fill > SOCK_MAX_DETECTION_FILL)
+	port->detection_fill = SOCK_MAX_DETECTION_FILL;
+      if (port->detection_wait <= 0 ||
+	  port->detection_wait > SOCK_MAX_DETECTION_WAIT)
+	port->detection_wait = SOCK_MAX_DETECTION_WAIT;
+    }
+  /* Check the initial send and receive buffer sizes. */
+  if (port->send_buffer_size <= 0
+      /* FIXME: || port->send_buffer_size >= REAL_BIG_VALUE */)
+    {
+      if (port->proto & (PROTO_TCP | PROTO_PIPE))
+	port->send_buffer_size = SEND_BUF_SIZE;
+      else if (port->proto & PROTO_UDP)
+	port->send_buffer_size = UDP_BUF_SIZE;
+      else if (port->proto & (PROTO_ICMP | PROTO_RAW))
+	port->send_buffer_size = ICMP_BUF_SIZE;
+    }
+  if (port->recv_buffer_size <= 0
+      /* FIXME: || port->recv_buffer_size >= REAL_BIG_VALUE */)
+    {
+      if (port->proto & (PROTO_TCP | PROTO_PIPE))
+	port->recv_buffer_size = RECV_BUF_SIZE;
+      else if (port->proto & PROTO_UDP)
+	port->recv_buffer_size = UDP_BUF_SIZE;
+      else if (port->proto & (PROTO_ICMP | PROTO_RAW))
+	port->recv_buffer_size = ICMP_BUF_SIZE;
+    }
 }
 
 /*
