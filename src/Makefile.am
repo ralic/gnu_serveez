@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.23 2001/01/04 22:11:59 raimi Exp $
+# $Id: Makefile.am,v 1.24 2001/01/16 22:51:57 ela Exp $
 #
 
 #
@@ -31,9 +31,8 @@
 #
 
 EXTRA_DIST = \
-	include/ipdata.h \
-	include/iphlpapi.h
-
+	include/ipdata.h include/iphlpapi.h \
+	serveez.rc
 #
 # Add your subdirectory here
 #
@@ -90,14 +89,18 @@ serveez_SOURCES = \
 	alist.c alist.h \
 	raw-socket.c raw-socket.h
 
-serveez_DEPENDENCIES = $(PROTOLIBS) $(SIZZLEDEP) \
-	serveez.cfg serveez1.ico
+resource_OBJECTS = $(resource_FILES:.rc=.ro)
 
-serveez_LDADD = $(PROTOLIBS) $(SIZZLESTATIC)
+serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLEDEP) \
+	serveez.cfg
+
+serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLESTATIC)
 
 mkpassword_SOURCES = mkpassword.c
 
 MAINTAINERCLEANFILES = Makefile.in
+
+CLEANFILES = *.ro
 
 # This rule is used when we build from a sizzle source distribution
 $(SIZZLERULE):
@@ -112,5 +115,8 @@ distclean-local:
 serveez.cfg: $(top_srcdir)/data/serveez.cfg
 	cp -p $< $@
 
-serveez1.ico: $(top_srcdir)/data/serveez1.ico
-	cp -p $< $@
+SUFFIXES = .rc .ro
+WINDRES = windres
+
+%.ro: %.rc
+	$(WINDRES) -i $< -o $@

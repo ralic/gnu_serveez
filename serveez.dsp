@@ -256,6 +256,25 @@ SOURCE=.\src\serveez.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\serveez.rc
+
+!IF  "$(CFG)" == "serveez - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "serveez - Win32 Debug"
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\data\serveez1.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\data\serveez2.ico
+# End Source File
+# Begin Source File
+
 SOURCE=".\src\server-core.c"
 # End Source File
 # Begin Source File

@@ -744,12 +744,14 @@ dnl
 AC_CYGWIN
 AC_EXEEXT
 AC_OBJEXT
+resource_FILES=""
 if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
     AC_DEFINE(FD_SETSIZE, 4096, [Make CygWin / MinGW32 use large FD sets.])
     AC_DEFINE(WIN32_LEAN_AND_MEAN, 1, [Define for faster code generation.])
     AC_CHECK_LIB(advapi32, main, EXTRALIBS="$EXTRALIBS -ladvapi32")
     AC_CHECK_LIB(shell32, main, EXTRALIBS="$EXTRALIBS -lshell32")
     AC_CHECK_LIB(user32, main, EXTRALIBS="$EXTRALIBS -luser32")
+    resource_FILES="serveez.rc"
     if test "$MINGDIR" != "no" -a "$MINGW32" != "yes"; then
 	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
 	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
@@ -757,6 +759,7 @@ if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
 	AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
     fi
 fi
+AC_SUBST(resource_FILES)
 
 dnl ----------------------------------------------------------------------
 

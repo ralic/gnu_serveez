@@ -1,3 +1,14 @@
+2001-01-16  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am: Added rules for processing Windows resources
+	with `windres'. The VC++ compiler can do that as well.
+
+	* serveez.rc: File created. Defined both of the two icons
+	for Serveez.
+
+	* windoze.c (windoze_thread): Loading tiny taskbar icon from
+	a buildin resource now.
+
 2001-01-13  [ Ela ]  <ela@lkcc.org>
 
 	* alist.c (alist_unset): Implemented this function which

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.6 2000/11/12 01:48:54 ela Exp $
+ * $Id: windoze.c,v 1.7 2001/01/16 22:51:57 ela Exp $
  *
  */
 
@@ -62,11 +62,10 @@ windoze_thread (char *prog)
   int count = 0;  /* notify interval counter */
   
   /* load appropriate icon */
-  windoze_icon = (HICON) LoadImage (NULL, SERVEEZ_ICON_FILE, IMAGE_ICON,
-				    0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+  windoze_icon = LoadIcon (GetModuleHandle (prog), "SERVEEZ_ICON_TINY");
   if (windoze_icon == NULL)
     {
-      log_printf (LOG_ERROR, "LoadImage: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "LoadIcon: %s\n", SYS_ERROR);
       windoze_icon = LoadIcon (NULL, IDI_WINLOGO);
     }
 
