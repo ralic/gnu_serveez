@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.28 2000/11/25 15:07:33 ela Exp $
+ * $Id: http-cgi.c,v 1.29 2000/11/25 20:36:34 ela Exp $
  *
  */
 
@@ -122,7 +122,7 @@ http_cgi_disconnect (socket_t sock)
       if (kill (http->pid, SIGKILL) == -1)
 	log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
 #if HAVE_WAITPID
-      /* Test if the cgi is still running. */
+      /* Test if the cgi is still running and cleanup. */
       waitpid (http->pid, NULL, 0);
 #endif
       http->pid = INVALID_HANDLE;

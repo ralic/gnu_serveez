@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.10 2000/11/23 19:41:57 ela Exp $
+ * $Id: icmp-socket.h,v 1.11 2000/11/25 20:36:34 ela Exp $
  *
  */
 
@@ -35,7 +35,11 @@
 #ifdef __MINGW32__
 /*
  * Microsoft discourages the use of their ICMP.DLL API, but it seems
- * to be the only way to make use of raw sockets anyway.
+ * to be the only way to make use of raw sockets anyway. The API is
+ * almostly unusable because:
+ * 1. you cannot receive if not previously sent a packet
+ * 2. the IcmpSendEcho call is blocking
+ * 3. receive and send is one call
  */
 
 /* 

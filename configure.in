@@ -699,10 +699,10 @@ unset define_enable_flood
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Check for additional searchpath for MingW32 headers and libraries.
+dnl Check for additional searchpath for MinGW32 headers and libraries.
 dnl
 AC_ARG_WITH(mingw,
-    [  --with-mingw=DIR        MingW32 files are in DIR [/usr/local/mingw]],
+    [  --with-mingw=DIR        MinGW32 files are in DIR [/usr/local/mingw]],
     [case "$withval" in
      no)  MINGDIR="no" ;;
      yes) MINGDIR="/usr/local/mingw" ;;

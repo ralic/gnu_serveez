@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.18 2000/11/23 19:41:57 ela Exp $
+ * $Id: http-core.c,v 1.19 2000/11/25 20:36:34 ela Exp $
  *
  */
 
@@ -200,6 +200,13 @@ http_userdir (socket_t sock, char *uri)
 	  xfree (user);
 	  return file;
 	}
+#if ENABLE_DEBUG
+      else if (entry)
+	{
+	  log_printf (LOG_DEBUG, "http: home directory for %s not set\n",
+		      windoze_uni2asc (entry->usri1_name));
+	}
+#endif /* ENABLE_DEBUG */
 #endif /* not HAVE_GETPWNAM and not __MINGW32__ */
 
       xfree (user);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.14 2000/11/23 19:41:57 ela Exp $
+ * $Id: icmp-socket.c,v 1.15 2000/11/25 20:36:34 ela Exp $
  *
  */
 
@@ -401,34 +401,38 @@ icmp_check_packet (socket_t sock, byte *data, int len)
   p += length + ICMP_HEADER_SIZE;
   len -= length + ICMP_HEADER_SIZE;
 
-  /* validate the ICMP data checksum */
-  if (header->checksum != icmp_ip_checksum (p, len))
+  /* Do these checks only if it is the right kind of packet. */
+  if (header->type == ICMP_SERVEEZ)
     {
+      /* validate the ICMP data checksum */
+      if (header->checksum != icmp_ip_checksum (p, len))
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: invalid data checksum\n");
+	  log_printf (LOG_DEBUG, "icmp: invalid data checksum\n");
 #endif
-      return -1;
-    }
+	  return -1;
+	}
 
-  /* check the ICMP header identification */
-  if (header->ident == getpid () + sock->id)
-    {
+      /* check the ICMP header identification */
+      if (header->ident == getpid () + sock->id)
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: rejecting native packet\n");
+	  log_printf (LOG_DEBUG, "icmp: rejecting native packet\n");
 #endif
-      return -1;
-    }
+	  return -1;
+	}
 
-  /* check ICMP remote port */
-  if ((header->port != sock->remote_port) && 
-      !(sock->flags & SOCK_FLAG_LISTENING))
-    {
+      /* check ICMP remote port */
+      if ((header->port != sock->remote_port) && 
+	  !(sock->flags & SOCK_FLAG_LISTENING))
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: rejecting filtered packet\n");
+	  log_printf (LOG_DEBUG, "icmp: rejecting filtered packet\n");
 #endif
-      return -1;
+	  return -1;
+	}
+      sock->remote_port = header->port;
     }
-  sock->remote_port = header->port;
 
   /* What kind of packet is this ? */
   switch (header->type)
