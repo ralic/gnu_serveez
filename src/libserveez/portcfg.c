@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.32 2002/01/22 20:27:00 ela Exp $
+ * $Id: portcfg.c,v 1.33 2002/01/24 15:18:03 ela Exp $
  *
  */
 
@@ -702,7 +702,7 @@ svz_portcfg_text (svz_portcfg_t *port)
   if (port->proto & (PROTO_TCP | PROTO_UDP))
     {
       addr = svz_portcfg_addr (port);
-      strcat (text, (port->proto & PROTO_TCP) ? "TCP [" : "UDP [");
+      strcat (text, (port->proto & PROTO_TCP) ? "TCP:[" : "UDP:[");
       strcat (text, svz_portcfg_addr_text (port, addr));
       strcat (text, ":");
       strcat (text, svz_itoa (ntohs (addr->sin_port)));
@@ -712,7 +712,7 @@ svz_portcfg_text (svz_portcfg_t *port)
   else if (port->proto & (PROTO_RAW | PROTO_ICMP))
     {
       addr = svz_portcfg_addr (port);
-      strcat (text, (port->proto & PROTO_RAW) ? "RAW [" : "ICMP [");
+      strcat (text, (port->proto & PROTO_RAW) ? "RAW:[" : "ICMP:[");
       strcat (text, svz_portcfg_addr_text (port, addr));
       if (port->proto & PROTO_ICMP)
 	{
@@ -724,7 +724,7 @@ svz_portcfg_text (svz_portcfg_t *port)
   /* PIPE */
   else if (port->proto & PROTO_PIPE)
     {
-      strcat (text, "PIPE [");
+      strcat (text, "PIPE:[");
       strcat (text, port->pipe_recv.name);
       strcat (text, "]-[");
       strcat (text, port->pipe_send.name);

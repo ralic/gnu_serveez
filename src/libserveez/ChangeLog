@@ -1,3 +1,10 @@
+2002-01-24  [ Ela ]  <ela@lkcc.org>
+
+	* binding.c (svz_binding_find_server, 
+	svz_binding_contains_server): Two new functions which were still
+	necessary in order to allow all kinds of mixtures of 'any', 'all'
+	and 'specific' network binding.
+
 2002-01-22  [ Ela ]  <ela@lkcc.org>
 
 	* portcfg.c (svz_portcfg_equal): Return sane return values and
