@@ -1,3 +1,8 @@
+2003-06-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* portcfg.c (svz_portcfg_mkaddr): Bug fixes due to 
+	uninitialized values.
+
 2003-05-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* server.c (svz_server_clients): New function.

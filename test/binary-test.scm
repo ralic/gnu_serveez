@@ -19,11 +19,18 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: binary-test.scm,v 1.3 2002/07/27 13:32:14 ela Exp $
+;; $Id: binary-test.scm,v 1.4 2003/06/01 12:57:07 ela Exp $
 ;;
 
 ;; Load the test suite module.
 (use-modules (test-suite))
+
+;; This code exports the public symbols of the guile-user module.
+(if (defined? 'micro-version)
+    (begin
+      (export serveez-verbosity)
+      (export serveez-exceptions)
+      (export serveez-nuke)))
 
 ;; Run the test suite for the binary smob used in serveez.
 (test-suite "binary function test suite"

@@ -1,3 +1,8 @@
+2003-06-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* guile.c: Some major bug fixes which have been unrevealed
+	by the new test file 'server-test.scm'.
+
 2003-05-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_server_clients): New Guile procedure.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.31 2003/05/31 12:12:08 ela Exp $
+ * $Id: guile-api.c,v 1.32 2003/06/01 12:57:07 ela Exp $
  *
  */
 
@@ -727,7 +727,7 @@ guile_server_clients (SCM server)
 	list = scm_cons (MAKE_SMOB (svz_socket, sock), list);
       svz_array_destroy (clients);
     }
-  return scm_reverse (list);
+  return list;
 }
 #undef FUNC_NAME
 

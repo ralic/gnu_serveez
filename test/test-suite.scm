@@ -19,11 +19,15 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: test-suite.scm,v 1.3 2003/05/31 12:12:09 ela Exp $
+;; $Id: test-suite.scm,v 1.4 2003/06/01 12:57:07 ela Exp $
 ;;
 
 ;; Module definition.
 (define-module (test-suite))
+
+;; Import the public serveez symbols.
+(if (defined? 'micro-version)
+    (use-modules (guile-user)))
 
 ;; This is the test suite library's core.  It evaluates the 'test' 
 ;; expression giving it the title 'description' and compares its result
@@ -74,20 +78,10 @@
     (display result)
     (display "\r\n")))
 
-;; FIXME: Does this code import the public symbols of the guile-user 
-;; module into the current module?
-(define (resolve-serveez-api)
-  (module-for-each
-   (lambda (symbol variable)
-     (module-add! %module-public-interface symbol variable))
-   (resolve-module '(guile-user))))
-
 ;; Main entry point for a test suite using this library.  Display the test
 ;; suite description 'title' and runs any given 'test' expression which is
 ;; usually a number of 'pass-if' statements.
 (define (run-test-suite title test)
-  (if (defined? 'micro-version)
-      (resolve-serveez-api))
   (serveez-verbosity 0)
   (serveez-exceptions #f)
   (display title)

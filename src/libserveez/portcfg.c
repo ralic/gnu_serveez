@@ -1,7 +1,7 @@
 /*
  * portcfg.c - port configuration implementation
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.34 2002/02/03 09:34:04 ela Exp $
+ * $Id: portcfg.c,v 1.35 2003/06/01 12:57:07 ela Exp $
  *
  */
 
@@ -515,6 +515,11 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	  this->flags |= PORTCFG_FLAG_DEVICE;
 	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
+      else if (this->tcp_ipaddr == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no TCP/IP address given\n", this->name);
+	  err = -1;
+	}
       else if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
 	{
 	  this->flags |= PORTCFG_FLAG_ANY;
@@ -549,6 +554,11 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	  this->flags |= PORTCFG_FLAG_DEVICE;
 	  this->udp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
+      else if (this->udp_ipaddr == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no UDP/IP address given\n", this->name);
+	  err = -1;
+	}
       else if (!strcmp (this->udp_ipaddr, PORTCFG_ANY))
 	{
 	  this->flags |= PORTCFG_FLAG_ANY;
@@ -576,6 +586,11 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	  this->flags |= PORTCFG_FLAG_DEVICE;
 	  this->icmp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
+      else if (this->icmp_ipaddr == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no ICMP/IP address given\n", this->name);
+	  err = -1;
+	}
       else
 	{
 	  err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);
@@ -593,6 +608,11 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	  this->flags |= PORTCFG_FLAG_DEVICE;
 	  this->raw_addr.sin_addr.s_addr = INADDR_ANY;
 	}
+      else if (this->raw_ipaddr == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no IP address given\n", this->name);
+	  err = -1;
+	}
       else
 	{      
 	  err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
@@ -607,10 +627,28 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       /* The pipe protocol needs a check for the validity of the permissions,
 	 the group and user names and its id's. */
     case PROTO_PIPE:
-      err |= svz_pipe_check_user (&this->pipe_recv);
-      err |= svz_pipe_check_group (&this->pipe_recv);
-      err |= svz_pipe_check_user (&this->pipe_send);
-      err |= svz_pipe_check_group (&this->pipe_send);
+      if (this->pipe_recv.name == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no receiving pipe file given\n",
+		   this->name);
+	  err = -1;
+	}
+      else
+	{
+	  err |= svz_pipe_check_user (&this->pipe_recv);
+	  err |= svz_pipe_check_group (&this->pipe_recv);
+	}
+      if (this->pipe_send.name == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no sending pipe file given\n",
+		   this->name);
+	  err = -1;
+	}
+      else
+	{
+	  err |= svz_pipe_check_user (&this->pipe_send);
+	  err |= svz_pipe_check_group (&this->pipe_send);
+	}
       break;
     default:
       err = 0;

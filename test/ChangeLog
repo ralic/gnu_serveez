@@ -1,3 +1,11 @@
+2003-06-01  Stefan Jahn  <stefan@lkcc.org>
+
+	* server-test.scm: New test. Basically tests the error conditions
+	of (define-port!) (define-server!) and (bind-server!).
+
+	* test-suite.scm, binary-test.scm: Hopefully fixed the 
+	Guile 1.6.x issue about	modules.
+
 2003-05-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* test-suite.scm (resolve-serveez-api): In Guile 1.6.x a post
