@@ -1,3 +1,8 @@
+2001-07-13  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Released version `0.1.0' and bumped up to 
+	version `0.1.1'.
+
 2001-07-11  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Caching some more results.
