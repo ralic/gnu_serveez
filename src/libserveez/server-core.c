@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.23 2001/07/03 20:02:42 ela Exp $
+ * $Id: server-core.c,v 1.24 2001/07/05 21:35:26 ela Exp $
  *
  */
 
@@ -175,14 +175,14 @@ svz_segfault_exception (int sig)
   rlim.rlim_max = RLIM_INFINITY;
   rlim.rlim_cur = RLIM_INFINITY;
   setrlimit (RLIMIT_CORE, &rlim);
-#endif
+#endif /* HAVE_GETRLIMIT */
 
-  signal (SIGSEGV, SIG_DFL);
+  signal (sig, SIG_DFL);
   fprintf (stderr, SIGSEGV_TEXT,
-	   svz_executable_file ? svz_executable_file : "MyProg");
-  raise (SIGSEGV);
+	   svz_executable_file ? svz_executable_file : "binary");
+  raise (sig);
 }
-#endif
+#endif /* SIGSEGV */
 
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore

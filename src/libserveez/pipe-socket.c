@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.14 2001/07/03 10:43:31 ela Exp $
+ * $Id: pipe-socket.c,v 1.15 2001/07/05 21:35:26 ela Exp $
  *
  */
 
@@ -867,7 +867,10 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
-  HANDLE recv_pipe, send_pipe;
+#ifdef __MINGW32__
+  HANDLE send_pipe;
+#endif
+  HANDLE recv_pipe;
 
   /* Setup the text representation of the fifo names. */
   svz_pipe_set_files (sock, recv->name, send->name);

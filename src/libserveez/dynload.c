@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.13 2001/07/01 15:56:48 ela Exp $
+ * $Id: dynload.c,v 1.14 2001/07/05 21:35:26 ela Exp $
  *
  */
 
@@ -173,7 +173,10 @@ svz_dynload_path_set (svz_array_t *paths)
 
 /*
  * Create an array of strings containing each an additional search path.
- * The returned array needs to be destroyed after usage.
+ * The loadpath is hold in the environment variable @samp{SERVEEZ_LOAD_PATH}
+ * which can be set from outside the library or modified using 
+ * @code{svz_dynload_path_set()}. The returned array needs to be destroyed 
+ * after usage.
  */
 svz_array_t *
 svz_dynload_path_get (void)

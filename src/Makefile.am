@@ -39,26 +39,12 @@ bin_SCRIPTS = serveez.scm echo-server.scm
 #
 # Add your server subdirectory here
 #
-SUBDIRS = \
-	libserveez \
-	awcs-server \
-	ctrl-server \
-	http-server \
-	irc-core \
-	irc-server \
-	foo-server \
-	sntp-server \
-	nut-server \
-	tunnel-server \
-	fakeident-server
+SUBDIRS = libserveez foo-server $(SERVERDIRS)
 
 #
 # Add your library here
 #
-PROTOLIBS = $(SERVERLIBS) \
-	irc-server/libircserver.a \
-	irc-core/libirccore.a \
-	foo-server/libfoo.a
+PROTOLIBS = foo-server/libfoo.a $(SERVERLIBS)
 
 bin_PROGRAMS = serveez mkpassword
 

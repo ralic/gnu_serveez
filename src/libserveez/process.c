@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: process.c,v 1.4 2001/07/02 11:46:34 ela Exp $
+ * $Id: process.c,v 1.5 2001/07/05 21:35:26 ela Exp $
  *
  */
 
@@ -62,7 +62,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char **argv, char **envp)
 {
   HANDLE pid, in, out;
   char *dir = NULL, *p, *app, *file;
-  int flag, len;
+  int len;
 
   if (sock == NULL || bin == NULL)
     return -1;
@@ -160,7 +160,9 @@ int
 svz_process_check_executable (char *file, char **app)
 {
   struct stat buf;
+#ifdef __MINGW32__
   char *suffix;
+#endif
 
   /* Check the existence of the file. */
   if (stat (file, &buf) < 0)

@@ -1,5 +1,12 @@
 2001-07-05  [ Ela ]  <ela@lkcc.org>
 
+	* configure.in: Fixed a bug for which the user could not disable
+	the sntp server.
+	(SERVERDIRS): The server sub directories. If you are going to 
+	disable one of the servers the build process will leave the
+	directories untouched. Thus if you want to `make dist' make sure
+	you enabled all servers.
+
 	* README: Added a paragraph about build problems due to
 	dynamic linking.
 

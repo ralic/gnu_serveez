@@ -148,7 +148,6 @@ variables in most cases and big letter symbols refer to macros.
 * PortConfig::            Port configuration functions
 * Booting::               Configuration and boot functions
 * Interface::             Network interface function implementation
-* Dynamic server::        Dynamic server loading implementation
 * Windoze::               Windows port implementations
 @end menu
 

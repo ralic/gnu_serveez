@@ -1,5 +1,10 @@
 2001-07-05  [ Ela ]  <ela@lkcc.org>
 
+	* dynload.c (svz_dynload_path_get): Added documentation about
+	the environment variable `SERVEEZ_LOAD_PATH'.
+
+	* Eliminated some unused variables. 
+
 	* core.c (svz_sendfile): Partly figured out how sendfile()
 	works on OSF4.0g (True64).
 
