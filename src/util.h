@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.4 2000/06/12 23:06:05 raimi Exp $
+ * $Id: util.h,v 1.5 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -93,9 +93,6 @@ void list_local_interfaces(void);
                   ((unsigned char)*(p+3)<<24))
 #define UINT16(p) ((unsigned char)*p + \
                   ((unsigned char)*(p+1)<<8))
-
-#define READ  0 /* read pipe */
-#define WRITE 1 /* write pipe */
 
 #ifdef __MINGW32__
 # define ENV_BLOCK_TYPE char *
@@ -187,6 +184,10 @@ char *GetErrorMessage(int);
 extern int last_errno;
 
 #define MESSAGE_BUF_SIZE 256
+#define WINSOCK_VERSION  0x0202 /* This is version 2.02. */
+
+#define dup(handle) _dup(handle)
+#define dup2(handle1, handle2) _dup2(handle1, handle2)
 
 #endif /* __MINGW32__ */
 

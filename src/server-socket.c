@@ -1,5 +1,5 @@
 /*
- * server-socket.c - server sockets for TCP and UDP
+ * server-socket.c - server sockets for TCP, UDP and pipes
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: server-socket.c,v 1.4 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -49,6 +49,7 @@
 #include "util.h"
 #include "alloc.h"
 #include "socket.h"
+#include "pipe-socket.h"
 #include "server-core.h"
 #include "serveez.h"
 #include "server-socket.h"
@@ -147,11 +148,13 @@ server_start (void)
 	  server = NULL;
 	  for (n = 0; sock->data && (server = SERVER (sock->data, n)); n++)
 	    {
-	      if (server == server_binding[b].server)
+	      if (server->cfg == server_binding[b].server->cfg &&
+		  sock->proto == server_binding[b].server->proto)
 		{
-		  fprintf (stderr, "cannot bind duplicate servers "
-			   "to a single port.\n");
-		  /* FIXME: break;*/
+		  fprintf (stderr, "Cannot bind duplicate server (%s) "
+			   "to a single port.\n",
+			   server->name);
+		  break;
 		}
 	    }
 	  /*
@@ -162,7 +165,7 @@ server_start (void)
 	      /*
 	       * Is this socket usable for this port configuration ?
 	       */
-	      if (sock->sflags & PROTO_TCP &&
+	      if (sock->proto & PROTO_TCP &&
 		  server_binding[b].cfg->proto & PROTO_TCP &&
 		  server_binding[b].cfg->port == sock->local_port)
 		{
@@ -175,7 +178,7 @@ server_start (void)
 		  break;
 		}
 
-	      if (sock->sflags & PROTO_PIPE &&
+	      if (sock->proto & PROTO_PIPE &&
 		  server_binding[b].cfg->proto & PROTO_PIPE &&
 		  !strcmp (server_binding[b].cfg->outpipe, sock->send_pipe))
 		{
@@ -258,14 +261,7 @@ server_create (portcfg_t *cfg)
       sock = sock_alloc ();
       if (sock)
 	{
-	  do
-	    {
-	      socket_id++;
-	      socket_id &= (SOCKET_MAX_IDS-1);
-	    }
-	  while (sock_lookup_table[socket_id]);
-
-	  sock->socket_id = socket_id;
+	  sock_unique_id (sock);
 	}
       else
 	{
@@ -375,7 +371,7 @@ server_create (portcfg_t *cfg)
   sock->flags |= SOCK_FLAG_LISTENING;
   sock->flags &= ~SOCK_FLAG_CONNECTED;
   sock->local_addr = INADDR_ANY;
-  sock->sflags |= cfg->proto;
+  sock->proto |= cfg->proto;
 
   if (cfg->proto & PROTO_PIPE)
     {
@@ -564,11 +560,9 @@ server_accept_pipe (socket_t server_sock)
       return 0;
     }
 
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "%s: accepted client on pipe (%d, %d)\n",
+  log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
               server_sock->send_pipe, 
 	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
-#endif /* ENABLE_DEBUG */
 
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;

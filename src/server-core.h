@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: server-core.h,v 1.4 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -70,20 +70,5 @@ int sock_enqueue (socket_t sock);
  * the server loop.
  */
 int sock_dequeue (socket_t sock);
-
-int pipe_read (socket_t sock);
-int pipe_write (socket_t sock);
-int pipe_disconnected (socket_t sock);
-
-#ifdef __MINGW32__
-
-#define WINSOCK_VERSION 0x0202 /* This is version 2.02. */
-#define PIPE_BUF_SIZE   1024   /* Pipe buffer size. */
-
-#define pipe(phandle) _pipe(phandle, PIPE_BUF_SIZE, O_BINARY)
-#define dup(handle) _dup(handle)
-#define dup2(handle1, handle2) _dup2(handle1, handle2)
-
-#endif
 
 #endif /* not __SERVER_H__ */

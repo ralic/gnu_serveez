@@ -25,21 +25,24 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- What to do if coserver delivers argument not anymore valid ?
+- Default file reader to avoid http using its own callback.
+- Socket/protocol specific flags within socket structure.
 - find out how the list of local interfaces work on different unices
-- do something sensible when a coserver fails its job
+	- Do something sensible when a coserver fails its job.
 - ip address representation must be unsigned long everywhere
 - rechain socket list to avoid starving of chain end
 - convert all protocols to new scheme
 - support local sizzle installations ( sizzle-config )
 - local ip addresses for portcfg
-- list of local ip addresses on supported systems
+	- List of local ip addresses on supported systems.
 - Control specified connections via control protocol.
 - HTTP: .htaccess, DefaultType, TypesConfig, SERVER_NAME 
   all configurable.
 - Support for UDP sockets.
 - HTTP access log.
-- Implement a real nslookup coserver or integrate it in the 
-  reverser lookup coserver.
+	- Implement a real nslookup coserver or integrate it in the 
+	  reverser lookup coserver.
 - How to exec cgi scripts on Win32 that are not exe/com/bat ?
 	- HTTP cache reinit via control protocol.
 	- Configuration file handling.

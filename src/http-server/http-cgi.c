@@ -46,55 +46,11 @@
 
 #include "snprintf.h"
 #include "util.h"
+#include "pipe-socket.h"
 #include "alloc.h"
 #include "serveez.h"
 #include "http-proto.h"
 #include "http-cgi.h"
-
-/*
- * Create a (non blocking) pipe. Differs in Win32 and Unices.
- * Return a non-zero value on errors.
- */
-int
-create_pipe(HANDLE pipe_desc[2])
-{
-#ifdef __MINGW32__
-  SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), 
-			     NULL,    /* NULL security descriptor */
-			     TRUE };  /* Inherit handles */
-
-  if(!CreatePipe(&pipe_desc[READ], &pipe_desc[WRITE], &sa, 0))
-    {
-      log_printf(LOG_ERROR, "cgi: CreatePipe: %s\n", SYS_ERROR);
-      return -1;
-    }
-#else
-  if(pipe(pipe_desc) == -1)
-    {
-      log_printf(LOG_ERROR, "cgi: pipe: %s\n", SYS_ERROR);
-      return -1;
-    }
-
-  /* Make both ends of the pipe non blocking. */
-
-  /* 
-   * FIXME: Maybe cgi pipes MUST be blocking for *very* fast
-   *        outputs because thay cannot handle the EAGAIN error.
-   */
-
-  if(fcntl(pipe_desc[READ], F_SETFL, O_NONBLOCK) == -1)
-    {
-      log_printf(LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-      return -1;
-    }
-  if(fcntl(pipe_desc[WRITE], F_SETFL, O_NONBLOCK) == -1)
-    {
-      log_printf(LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-      return -1;
-    }
-#endif
-  return 0;
-}
 
 /*
  * The http cgi reader gets data from the stdout of a cgi

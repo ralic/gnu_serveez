@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: socket.c,v 1.4 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -52,21 +52,9 @@
 #include "alloc.h"
 #include "util.h"
 #include "socket.h"
+#include "pipe-socket.h"
 #include "server-socket.h"
 #include "server.h"
-
-#if ENABLE_HTTP_PROTO
-# include "http-server/http-proto.h"
-#endif 
-
-#if ENABLE_CONTROL_PROTO
-# include "ctrl-server/control-proto.h"
-#endif
-
-#if ENABLE_IRC_PROTO
-# include "irc-core/irc-core.h"
-# include "irc-server/irc-proto.h"
-#endif
 
 /*
  * Count the number of currently connected sockets.
@@ -88,7 +76,7 @@ int socket_id = 0;
  * the network buffer will be written on each call.
  */
 static int
-default_write(socket_t sock)
+default_write (socket_t sock)
 {
   int num_written;
   int do_write;
@@ -398,7 +386,7 @@ sock_alloc (void)
   sock->next = NULL;
   sock->prev = NULL;
 
-  sock->sflags = SOCK_FLAG_INIT;
+  sock->proto = SOCK_FLAG_INIT;
   sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
   sock->file_desc = -1;
   sock->sock_desc = -1;
@@ -539,6 +527,24 @@ sock_intern_connection_info (socket_t sock)
 }
 
 /*
+ * Calculate unique socket structure id for a given SOCK.
+ */
+int
+sock_unique_id (socket_t sock)
+{
+  do
+    {
+      socket_id++;
+      socket_id &= (SOCKET_MAX_IDS-1);
+    }
+  while (sock_lookup_table[socket_id]);
+
+  sock->socket_id = socket_id;
+  
+  return socket_id;
+}
+
+/*
  * Create a socket structure from the file descriptor FD.  Return NULL
  * on error.
  */
@@ -550,79 +556,28 @@ sock_create (int fd)
 #ifdef __MINGW32__
   unsigned long blockMode = 1;
 
-  if(ioctlsocket(fd, FIONBIO, &blockMode) == SOCKET_ERROR)
+  if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
-      log_printf(LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
       return NULL;
     }
 #else
-  if (fcntl(fd, F_SETFL, O_NONBLOCK) < 0)
+  if (fcntl (fd, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf(LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return NULL;
     }
 #endif
 
-  sock = sock_alloc();
-  if (sock)
+  if ((sock = sock_alloc ()) != NULL)
     {
-      do
-	{
-	  socket_id++;
-	  socket_id &= (SOCKET_MAX_IDS-1);
-	}
-      while(sock_lookup_table[socket_id]);
-
-      sock->socket_id = socket_id;
+      sock_unique_id (sock);
       sock->sock_desc = fd;
       sock->flags |= SOCK_FLAG_CONNECTED;
       sock_intern_connection_info (sock);
     }
   return sock;
 }
-
-#ifndef __MINGW32__
-
-/*
- * Create a socket structure from the two file descriptors in FD.
- * Return NULL on error.
- */
-socket_t
-pipe_create (int read_fd, int write_fd)
-{
-  socket_t sock;
-
-  if (fcntl(read_fd, F_SETFL, O_NONBLOCK) < 0)
-    {
-      log_printf(LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
-      return NULL;
-    }
-
-  if (fcntl(write_fd, F_SETFL, O_NONBLOCK) < 0)
-    {
-      log_printf(LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
-      return NULL;
-    }
-
-  sock = sock_alloc();
-  if (sock)
-    {
-      do
-	{
-	  socket_id++;
-	  socket_id &= (SOCKET_MAX_IDS-1);
-	}
-      while(sock_lookup_table[socket_id]);
-      sock->socket_id = socket_id;
-      sock->pipe_desc[READ] = read_fd;
-      sock->pipe_desc[WRITE] = write_fd;
-      sock->flags |= SOCK_FLAG_PIPE;
-    }
-
-  return sock;
-}
-
-#endif /* __MINGW32__ */
 
 /*
  * Disconnect the socket SOCK from the network and calls the
@@ -636,17 +591,17 @@ sock_disconnect (socket_t sock)
   /* shutdown the pipe */
   if(sock->flags & SOCK_FLAG_PIPE)
     {
-      if (!(sock->flags & SOCK_FLAG_LISTENING))
+      if (sock->flags & SOCK_FLAG_CONNECTED)
 	{
-	  if(close(sock->pipe_desc[WRITE]) < 0)
-	    log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
-	  if(close(sock->pipe_desc[READ]) < 0)
+	  if (close(sock->pipe_desc[WRITE]) < 0)
+	    log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	  if (close (sock->pipe_desc[READ]) < 0)
 	    log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
 	  sock->pipe_desc[READ] = INVALID_HANDLE;
 	  sock->pipe_desc[WRITE] = INVALID_HANDLE;
 	}
-
-      /* restart pipe server listening */
+  
+      /* restart listening pipe server socket */
       if (sock->parent)
 	sock->parent->flags &= ~SOCK_FLAG_INITED;
     }
@@ -658,20 +613,20 @@ sock_disconnect (socket_t sock)
       /* shutdown client connection */
       if(sock->flags & SOCK_FLAG_CONNECTED)
 	{
-	  if(shutdown(sock->sock_desc, 2) < 0)
-	    log_printf(LOG_ERROR, "shutdown: %s\n", NET_ERROR);
+	  if (shutdown (sock->sock_desc, 2) < 0)
+	    log_printf (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
 	  connected_sockets--;
 	}
       
       /* close the server/client socket */
-      if(CLOSE_SOCKET(sock->sock_desc) < 0)
-	log_printf(LOG_ERROR, "close: %s\n", NET_ERROR);
+      if (CLOSE_SOCKET (sock->sock_desc) < 0)
+	log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 
       sock->sock_desc = INVALID_SOCKET;
     }
   else
     {
-      log_printf(LOG_ERROR, "disconnecting unconnected socket\n");
+      log_printf (LOG_ERROR, "disconnecting unconnected socket\n");
       return 0;
     }
 
@@ -741,7 +696,7 @@ sock_write (socket_t sock, char * buf, int len)
  * arguments.  See the printf(3) manual page for details.
  */
 int
-sock_printf(socket_t sock, const char *fmt, ...)
+sock_printf (socket_t sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -758,5 +713,5 @@ sock_printf(socket_t sock, const char *fmt, ...)
   if (len > sizeof(buffer))
     len = sizeof(buffer);
 
-  return sock_write(sock, buffer, len);
+  return sock_write (sock, buffer, len);
 }

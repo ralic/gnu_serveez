@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: awcs-proto.c,v 1.4 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -32,14 +32,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#if ENABLE_MASTER_PIPE
-# include <sys/stat.h>
-# include <sys/types.h>
-# include <unistd.h>
-# include <fcntl.h>
-# include <errno.h>
-#endif
+#include <unistd.h>
+#include <errno.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -47,6 +41,7 @@
 
 #include "util.h"
 #include "socket.h"
+#include "pipe-socket.h"
 #include "alloc.h"
 #include "server-core.h"
 #include "coserver/coserver.h"
@@ -157,7 +152,7 @@ awcs_finalize (server_t *server)
  * for socket SOCK to name and has been identified as an aWCS client.
  */
 int
-awcs_nslookup_done (socket_t sock, char *name)
+awcs_nslookup_done (socket_t sock, char *host)
 {
   awcs_config_t *cfg = sock->cfg;
 
@@ -169,7 +164,7 @@ awcs_nslookup_done (socket_t sock, char *name)
       return -1;
     }
 
-  if (name != NULL)
+  if (host)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "sending resolved ip to master\n");
@@ -179,7 +174,7 @@ awcs_nslookup_done (socket_t sock, char *name)
 		       cfg->server->socket_id,
 		       STATUS_NSLOOKUP,
 		       sock->socket_id,
-		       name, '\0'))
+		       host, '\0'))
 	{
 	  log_printf (LOG_FATAL, "master write error\n");
 	  sock_schedule_for_shutdown (cfg->server);
@@ -199,7 +194,7 @@ awcs_nslookup_done (socket_t sock, char *name)
  * for socket SOCK to name and has been identified as an aWCS client.
  */
 int
-awcs_ident_done (socket_t sock, char *name)
+awcs_ident_done (socket_t sock, char *user)
 {
   awcs_config_t *cfg = sock->cfg;
 
@@ -211,7 +206,7 @@ awcs_ident_done (socket_t sock, char *name)
       return -1;
     }
 
-  if (name != NULL)
+  if (user)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "sending identified client to master\n");
@@ -221,7 +216,7 @@ awcs_ident_done (socket_t sock, char *name)
 		       cfg->server->socket_id,
 		       STATUS_IDENT,
 		       sock->socket_id,
-		       name, '\0'))
+		       user, '\0'))
 	{
 	  log_printf (LOG_FATAL, "master write error\n");
 	  sock_schedule_for_shutdown (cfg->server);
@@ -627,7 +622,7 @@ handle_master_request (awcs_config_t *cfg, char *request, int request_len)
        * thus the call to abort() below.
        */
       log_printf (LOG_NOTICE, 
-		  "awcs: master connected via pipe, skipping...\n");
+		  "awcs: skipping '6' ...\n");
       break;
     default:
       log_printf (LOG_ERROR, "awcs: bad master server request\n");
@@ -783,7 +778,7 @@ awcs_connect_socket (void *config, socket_t sock)
 #if ENABLE_DEBUG
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      log_printf (LOG_DEBUG, "awcs: connection on pipe (%d, %d)\n",
+      log_printf (LOG_DEBUG, "awcs: connection on pipe (%d-%d)\n",
 		  sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
     }
   else 
@@ -802,7 +797,7 @@ awcs_connect_socket (void *config, socket_t sock)
 #if ENABLE_DEBUG
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
-	  log_printf (LOG_NOTICE, "master server connected on pipe (%d, %d)\n",
+	  log_printf (LOG_NOTICE, "master server connected on pipe (%d-%d)\n",
 		      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 	}
       else

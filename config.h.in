@@ -99,9 +99,6 @@
 /* Make CygWin / MingW32 use large FD sets. */
 #undef FD_SETSIZE
 
-/* Define if support for aWCS pipe should be enabled. */
-#undef ENABLE_MASTER_PIPE
-
 /* Define if heap counters should be enabled. */
 #undef ENABLE_HEAP_COUNT
 

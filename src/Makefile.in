@@ -34,7 +34,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.in,v 1.3 2000/06/12 23:06:05 raimi Exp $
+# $Id: Makefile.in,v 1.4 2000/06/13 16:50:46 ela Exp $
 #
 
 #
@@ -114,7 +114,7 @@ LIBS =  	$(SIZZLEDIR)/libsizzle/.libs/libsizzle.a 	awcs-server/libawcs.a 	coserv
 
 bin_PROGRAMS = serveez
 
-serveez_SOURCES =  	serveez.c serveez.h 	alloc.c alloc.h 	util.c 	util.h 	socket.c socket.h 	server.c server.h 	connect.h connect.c 	cfgfile.c cfgfile.h 	option.c option.h 	snprintf.h snprintf.c 	server-socket.c server-socket.h 	hash.c hash.h 	server-core.c server-core.h
+serveez_SOURCES =  	serveez.c serveez.h 	alloc.c alloc.h 	util.c 	util.h 	socket.c socket.h 	server.c server.h 	connect.h connect.c 	cfgfile.c cfgfile.h 	option.c option.h 	snprintf.h snprintf.c 	server-socket.c server-socket.h 	hash.c hash.h 	server-core.c server-core.h 	pipe-socket.c pipe-socket.h
 
 
 serveez_DEPENDENCIES = $(LIBS) 	serveez.cfg
@@ -133,7 +133,8 @@ PROGRAMS =  $(bin_PROGRAMS)
 
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 serveez_OBJECTS =  serveez.o alloc.o util.o socket.o server.o connect.o \
-cfgfile.o option.o snprintf.o server-socket.o hash.o server-core.o
+cfgfile.o option.o snprintf.o server-socket.o hash.o server-core.o \
+pipe-socket.o
 serveez_LDFLAGS = 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -146,7 +147,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/alloc.P .deps/cfgfile.P .deps/connect.P .deps/hash.P \
-.deps/option.P .deps/serveez.P .deps/server-core.P \
+.deps/option.P .deps/pipe-socket.P .deps/serveez.P .deps/server-core.P \
 .deps/server-socket.P .deps/server.P .deps/snprintf.P .deps/socket.P \
 .deps/util.P
 SOURCES = $(serveez_SOURCES)

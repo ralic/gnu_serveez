@@ -1,3 +1,8 @@
+2000-06-13  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Dropped AWCS_MASTER_PIPE feature because this is
+	now part of the general server concept.
+
 2000-04-12  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (define_enable_warn): Checking for -ansi compiler

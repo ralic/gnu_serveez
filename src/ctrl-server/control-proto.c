@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ * $Id: control-proto.c,v 1.3 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -54,6 +54,7 @@
 #include "snprintf.h"
 #include "util.h"
 #include "socket.h"
+#include "pipe-socket.h"
 #include "server-core.h"
 #include "server-socket.h"
 #include "serveez.h"
@@ -276,35 +277,35 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
     }
 
   /* process connection type server flags */
-  if (xsock->sflags & PROTO_TCP)
+  if (xsock->proto & PROTO_TCP)
     strcat (sflags, "tcp ");
-  if (xsock->sflags & PROTO_UDP)
+  if (xsock->proto & PROTO_UDP)
     strcat (sflags, "udp ");
 
   
   /* process protocol type server flags */
-  if ((xsock->sflags & SERV_FLAG_UNIVERSAL) == SERV_FLAG_UNIVERSAL)
+  if ((xsock->proto & SERV_FLAG_UNIVERSAL) == SERV_FLAG_UNIVERSAL)
     {
       strcat (sflags, "universal ");
     }
   else
     {
 #if ENABLE_IRC_PROTO
-      if (xsock->sflags & SERV_FLAG_IRC) 
+      if (xsock->proto & SERV_FLAG_IRC) 
 	strcat (sflags, "IRC ");
 #endif /* ENABLE_IRC_PROTO */
 #if ENABLE_AWCS_PROTO
-      if (xsock->sflags & SERV_FLAG_AWCS_MASTER) 
+      if (xsock->proto & SERV_FLAG_AWCS_MASTER) 
 	strcat (sflags, "aWCS-Master ");
-      if (xsock->sflags & SERV_FLAG_AWCS_CLIENT)
+      if (xsock->proto & SERV_FLAG_AWCS_CLIENT)
 	strcat (sflags, "aWCS-Client ");
 #endif /* ENABLE_AWCS_PROTO */
 #if ENABLE_CONTROL_PROTO
-      if (xsock->sflags & SERV_FLAG_CTRL)
+      if (xsock->proto & SERV_FLAG_CTRL)
 	strcat (sflags, "ctrl ");
 #endif /* ENABLE_CONTROL_PROTO */
 #if ENABLE_HTTP_PROTO
-      if (xsock->sflags & SERV_FLAG_HTTP)
+      if (xsock->proto & SERV_FLAG_HTTP)
 	strcat (sflags, "HTTP ");
 #endif /* ENABLE_DNS_PROTO */
     }
@@ -512,7 +513,7 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
       id = "None";
-      if(xsock->sflags)
+      if(xsock->proto)
 	id = "Server";
 #if ENABLE_CONTROL_PROTO
       if(xsock->flags & SOCK_FLAG_CTRL_CLIENT)

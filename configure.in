@@ -680,35 +680,14 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
-AC_MSG_CHECKING([whether to enable support for aWCS pipes])
-AC_ARG_ENABLE(
-  awcs-pipe,
-  [  --enable-awcs-pipe      Include support for aWCS pipes [default=yes]],
-  if test x$enableval = "xyes"; then
-    define_enable_pipe=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_pipe=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_pipe=yes
-  AC_MSG_RESULT([yes])
-)
 
-if test $define_enable_pipe = "yes"; then
-    AC_MSG_CHECKING([for host system])
-    host_sys="`uname -s`"
-    if test x$host_sys = x; then
-	host_sys="`ver`"
-    fi
-    AC_MSG_RESULT($host_sys)
-    AC_CHECK_FUNC(mkfifo)
-    if test x$host_sys = "xLinux" -a x$ac_cv_func_mkfifo = "xyes"; then
-	AC_DEFINE(ENABLE_MASTER_PIPE, 1,
-	    [Define if support for aWCS pipe should be enabled.])
-    fi
+AC_CHECK_FUNC(mkfifo)
+AC_MSG_CHECKING([for host system])
+host_sys="`uname -s`"
+if test x$host_sys = x; then
+    host_sys="`ver`"
 fi
-unset define_enable_pipe
+AC_MSG_RESULT($host_sys)
 
 dnl ----------------------------------------------------------------------
 

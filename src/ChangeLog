@@ -1,3 +1,37 @@
+2000-06-13  [ Ela ]  <ela@lkcc.org>
+
+	* awcs-server/awcs-proto.c: The ENABLE_AWCS_PROTO define is now in
+	"awcs-server" directory only (except ctrl-server).
+	(awcs_finalize): For now we delete newly created named pipes on 
+	the local filesystem by hand here (should be done in the 
+	disconnection routine of pipe servers).
+
+	* server-core.c (check_sockets): Made it possible to listen on 
+	named pipes via flags and a sock->read_socket callback for 
+	these (see below).
+
+	* server-socket.c (server_accept_pipe): Generic named pipe listener.
+	(server_create): Added creation of pipe servers.
+
+	* socket.c (sock_disconnect): When a pipe client which was created
+	by a pipe server, this client resets the pipe server. When this 
+	client has been disconnected the server can start listening again.
+	This is procedure indicated by the SOCK_FLAG_INITED flag of 
+	the server.
+
+	* socket.h (struct socket): Dropped sflags, is now proto just as it
+	comes from the server_t server definitions.
+	(struct socket): Added "parent" for listening pipe servers.
+
+	* pipe-socket.c: This file contains all pipe related functions.
+
+	* socket.c (sock_unique_id): This function creates a unique id for
+	a socket structure (checked via socket lookup table).
+
+	* util.c (list_local_interfaces): Fixed the signed/unsigned 
+	comaprison (always compare sizes unsigned) and free/close resources
+	on return.
+
 2000-06-13  [ RAIMI ]  <raimi@lkcc.org>
 
 	* util.c: Added a helper function that can list the local network

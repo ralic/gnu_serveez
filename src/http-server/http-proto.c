@@ -58,6 +58,7 @@
 #include "alloc.h"
 #include "hash.h"
 #include "socket.h"
+#include "pipe-socket.h"
 #include "serveez.h"
 #include "server-core.h"
 #include "http-proto.h"

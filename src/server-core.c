@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: server-core.c,v 1.4 2000/06/13 16:50:46 ela Exp $
  *
  */
 
@@ -64,6 +64,7 @@
 #include "alloc.h"
 #include "util.h"
 #include "socket.h"
+#include "pipe-socket.h"
 #include "server-core.h"
 #include "serveez.h"
 #include "coserver/coserver.h"
@@ -403,120 +404,6 @@ shutdown_socket (socket_t sock)
 }
 
 /*
- * PIPE_DISCONNECTED is the default disconnetion routine for pipes.
- */
-int
-pipe_disconnected (socket_t sock)
-{
-#if ENABLE_DEBUG
-  if (!(sock->flags & SOCK_FLAG_LISTENING))
-    {
-      log_printf (LOG_DEBUG, "pipe (%d, %d) disconnected\n",
-		  sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
-    }
-  else
-    {
-      log_printf (LOG_DEBUG, "pipe listener disconnected (%s)\n",
-		  sock->send_pipe);
-    }
-#endif
-
-  return 0;
-}
-
-/*
- * The PIPE_READ function reads as much data as available on a readable
- * pipe descriptor. Return a non zero value on errors.
- */
-int
-pipe_read (socket_t sock)
-{
-  int num_read;
-  int ret;
-  int do_read;
-  int desc;
-
-  desc = (int)sock->pipe_desc[READ];
-  do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
-
-  num_read = READ_PIPE(desc,
-		       sock->recv_buffer + sock->recv_buffer_fill,
-		       do_read);
-
-  /* error occured while reading */
-  if (num_read < 0)
-    {
-      log_printf(LOG_ERROR, "pipe read: %s\n", SYS_ERROR);
-    }
-  /* some data has been read */
-  else if (num_read > 0)
-    {
-      sock->last_recv = time(NULL);
-      sock->recv_buffer_fill += num_read;
-
-      if (sock->check_request)
-	{
-	  ret = sock->check_request(sock);
-	  if (ret)
-	    return ret;
-	}
-    }
-  /* the socket was selected but there is no data */
-  else
-    {
-      log_printf(LOG_ERROR, "read: no data on pipe %d\n", desc);
-      return -1;
-    }
-  
-  return 0;
-}
-
-/*
- * PIPE_WRITE writes as much data as possible into a writeable
- * pipe descriptor. It returns a non zero value on errors.
- */
-int
-pipe_write (socket_t sock)
-{
-  int num_written;
-  int do_write;
-  int desc;
-
-  desc = (int)sock->pipe_desc[WRITE];
-  do_write = sock->send_buffer_fill;
-  num_written = WRITE_PIPE(desc, sock->send_buffer, do_write);
-
-#if 0
-  printf ("pipe %d: %d bytes written\n", desc, num_written);
-#endif
-
-  /* Some data has been written. */
-  if (num_written > 0)
-    {
-      sock->last_send = time(NULL);
-      if(sock->send_buffer_fill > num_written)
-	{
-	  memmove(sock->send_buffer, 
-		  sock->send_buffer + num_written,
-		  sock->send_buffer_fill - num_written);
-	}
-      sock->send_buffer_fill -= num_written;
-    }
-  /* error occured while writing */
-  else if (num_written < 0)
-    {
-      log_printf (LOG_ERROR, "pipe write: %s\n", SYS_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
-	{
-	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
-	  num_written = 0;
-	}
-    }
-
-  return (num_written < 0) ? -1 : 0;
-}
-
-/*
  * Mark socket SOCK as killed.  That means that no operations except
  * disconnecting and freeing are allowed anymore.  All marked sockets
  * will be deleted once the server loop is through.  
@@ -610,16 +497,6 @@ handle_periodic_tasks (void)
    */
   check_internal_coservers();
 #endif /* not __MINGW32__ */
-
-#if ENABLE_MASTER_PIPE
-
-  /*
-   * FIXME: pass this call to the idle_func of the listeing server...
-   *
-   * awcs_check_pipe ();
-   */
-
-#endif /* ENABLE_MASTER_PIPE */
 
   return 0;
 }

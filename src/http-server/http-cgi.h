@@ -52,6 +52,5 @@ int http_cgi_exec(socket_t, HANDLE , HANDLE, char *, char *, int);
 int http_post_response(socket_t sock, char *request, int flags);
 int http_cgi_write(socket_t sock);
 int http_cgi_read(socket_t sock);
-int create_pipe(HANDLE pipe_desc[2]);
 
 #endif /* __HTTP_CGI_H__ */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: awcs-proto.h,v 1.4 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -92,9 +92,5 @@ int awcs_disconnected_socket (socket_t sock);
 int awcs_kicked_socket (socket_t sock, int reason);
 int awcs_idle_func (socket_t sock);
 int awcs_nslookup_done (socket_t sock, char *name);
-
-#if ENABLE_MASTER_PIPE
-int awcs_check_pipe (socket_t sock);
-#endif
 
 #endif /* not __AWCS_PROTO_H__ */

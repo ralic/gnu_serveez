@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.3 2000/06/12 13:59:37 ela Exp $
+ * $Id: socket.h,v 1.4 2000/06/13 16:50:47 ela Exp $
  *
  */
 
@@ -105,7 +105,7 @@ struct socket
   socket_t prev;		/* Previous socket in chain. */
   int socket_id;		/* Unique ID for this socket. */
 
-  int sflags;                   /* Server/Protocol flag. */
+  int proto;                    /* Server/Protocol flag. */
   int flags;			/* One of the SOCK_FLAG_* flags above. */
   SOCKET sock_desc;		/* Socket descriptor. */
   int file_desc;		/* Used for files descriptors. */
@@ -275,24 +275,20 @@ int sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size);
  */
 int sock_intern_connection_info (socket_t sock);
 
-/*
- * Create a socket structure for reading and writing to a pipe.
- */
-socket_t pipe_create (int read_fd, int write_fd);
-
 int default_read (socket_t sock);
 int default_detect_proto (socket_t sock);
 int default_check_request (socket_t sock);
 int default_idle_func (socket_t sock);
+int sock_unique_id (socket_t sock);
 
 /*
- * Shorten the receive buffer of sock
+ * Shorten the receive buffer of SOCK by len bytes.
  */
-#define sock_reduce_recv(sock, len) \
-  if (sock->recv_buffer_fill > len) { \
-    memmove (sock->recv_buffer, sock->recv_buffer+len, \
-             sock->recv_buffer_fill - len); \
-  } \
+#define sock_reduce_recv(sock, len)                      \
+  if (len && sock->recv_buffer_fill > len) {             \
+    memmove (sock->recv_buffer, sock->recv_buffer + len, \
+             sock->recv_buffer_fill - len);              \
+  }                                                      \
   sock->recv_buffer_fill -= len;
 
 #endif /* not __SOCKET_H__ */
