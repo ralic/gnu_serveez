@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.19 2002/02/10 11:38:28 ela Exp $
+ * $Id: guile-api.c,v 1.20 2002/02/11 22:04:15 raimi Exp $
  *
  */
 
@@ -802,7 +802,7 @@ guile_coserver_callback (char *res, SCM callback, SCM arg)
 }
 
 /* This procedure enqueues the @var{host} string argument into the internal
-   dns coserver queue. When this coserver responses the Guile procedure
+   dns coserver queue. When the coserver responds the Guile procedure
    @var{callback} is run as @code{(callback addr arg)}. The @var{addr} 
    argument passed to the callback is a string representing the appropriate 
    IP address for the given hostname @var{host}. If you omit the optional 
@@ -839,7 +839,7 @@ guile_coserver_dns (SCM host, SCM callback, SCM arg)
 
 /* This Guile procedure enqueues the given @var{addr} argument which must be
    an IP address in network byte order into the internal reverse dns coserver
-   queue. When this coserver responses the Guile procedure @var{callback} is
+   queue. When the coserver responds the Guile procedure @var{callback} is
    run as @code{(callback host arg)} whereas @var{host} is the hostname of the
    requested IP address @var{addr}. The last argument @var{arg} is 
    optional. */
@@ -870,7 +870,7 @@ guile_coserver_rdns (SCM addr, SCM callback, SCM arg)
 #undef FUNC_NAME
 
 /* This procedure enqueues the given @code{#<svz-socket>} @var{sock} into the
-   internal ident coserver queue. When the coserver responses it runs the
+   internal ident coserver queue. When the coserver responds it runs the
    Guile procedure @var{callback} as @code{(callback user arg)} whereas 
    @var{user} is the corresponding username for the client connection 
    @var{sock}. The @var{arg} argument is optional. */
