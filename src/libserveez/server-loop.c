@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.7 2002/06/06 20:04:51 ela Exp $
+ * $Id: server-loop.c,v 1.8 2002/06/07 16:53:44 ela Exp $
  *
  */
 
@@ -520,15 +520,6 @@ svz_check_sockets_poll (void)
 	      }
 	}
       
-      /* urgent data (out-of-band) on the file descriptor ? */
-      if (ufds[fd].revents & POLLPRI)
-	if (sock->read_socket_oob)
-	  if (sock->read_socket_oob (sock))
-	    {
-	      svz_sock_schedule_for_shutdown (sock);
-	      continue;
-	    }
-
       /* file descriptor ready for writing */
       if (ufds[fd].revents & POLLOUT)
 	{
@@ -553,6 +544,15 @@ svz_check_sockets_poll (void)
 		  }
 	    }
 	}
+
+      /* urgent data (out-of-band) on the file descriptor ? */
+      if (ufds[fd].revents & POLLPRI)
+	if (sock->read_socket_oob)
+	  if (sock->read_socket_oob (sock))
+	    {
+	      svz_sock_schedule_for_shutdown (sock);
+	      continue;
+	    }
 
       /* file descriptor caused some error */
       if (ufds[fd].revents & (POLLERR | POLLHUP | POLLNVAL))

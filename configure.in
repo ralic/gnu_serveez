@@ -933,7 +933,7 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   mswsock.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
   mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h \
-  rpc/pmap_prot.h rpc/clnt_soc.h)
+  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h)
 AC_HEADER_DIRENT
 
 dnl

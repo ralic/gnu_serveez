@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.38 2002/05/31 14:34:21 ela Exp $
+ * $Id: server-core.c,v 1.39 2002/06/07 16:53:44 ela Exp $
  *
  */
 
@@ -1096,6 +1096,9 @@ svz_signal_up (void)
 #ifdef SIGPIPE
   signal (SIGPIPE, svz_signal_handler);
 #endif
+#ifdef SIGURG
+  signal (SIGURG, svz_signal_handler);
+#endif
 #ifdef SIGSEGV
   signal (SIGSEGV, svz_segfault_exception);
 #endif
@@ -1127,6 +1130,9 @@ svz_signal_dn (void)
 #endif
 #ifdef SIGPIPE
   signal (SIGPIPE, SIG_DFL);
+#endif
+#ifdef SIGURG
+  signal (SIGURG, SIG_DFL);
 #endif
 #ifdef SIGSEGV
   signal (SIGSEGV, SIG_DFL);

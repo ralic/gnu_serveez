@@ -1,7 +1,7 @@
 -- 
 -- BUGS
 -- 
--- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
@@ -24,6 +24,17 @@
 This file is intended to collect all known bugs (fixed or unfixed) in
 this package.  We will consider fixing these sooner or later.  Please
 send Serveez bug reports to <bug-serveez@gnu.org>.
+
+Bug:	     B0019
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2002-06-07
+Description: On a GNU/Linux system on x86 out-of-band data can be detected
+	     by select() and poll().  When trying to `recv(..., MSG_OOB)'
+	     the byte the system call returns EINVAL when sent too frequently
+	     and detected by poll().  In case of select() this does not 
+	     occur.  Currently we are using `ioctl(SIOCATMARK)' to detect
+	     if recv() would fail.  This is a work-around, not a real fix.
 
 Bug:	     B0018
 From:	     ela <stefan@lkcc.org>

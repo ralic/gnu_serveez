@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.12 2002/06/06 20:04:51 ela Exp $
+ * $Id: tcp-socket.c,v 1.13 2002/06/07 16:53:44 ela Exp $
  *
  */
 
@@ -41,6 +41,10 @@
 
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>
+#endif
+
+#if HAVE_SYS_IOCTL_H
+# include <sys/ioctl.h>
 #endif
 
 #ifdef __MINGW32__
@@ -213,6 +217,22 @@ svz_tcp_recv_oob (svz_socket_t *sock)
 #ifdef MSG_OOB
   SOCKET desc = sock->sock_desc;
   int num_read, ret;
+
+#if HAVE_POLL && ENABLE_POLL && defined (linux)
+#ifdef SIOCATMARK
+  /* FIXME: fails for poll() on GNU/Linux ???  This is a hack !!! 
+            With this hack you are missing some OOB data bytes if sent too
+            frequently.  It is *not* necessary for `select()'.  Don't ask. 
+            The symptom is: `recv(..., MSG_OOB)' return `EINVAL'.  */
+  ret = ioctl (desc, SIOCATMARK, &num_read);
+  if (ret != -1 && num_read == 0)
+    {
+      svz_log (LOG_FATAL, "cannot read OOB data byte\n");
+      num_read = 0;
+    }
+  else
+#endif /* SIOCATMARK */
+#endif /* HAVE_POLL && ENABLE_POLL && linux */
 
   num_read = recv (desc, &sock->oob, 1, MSG_OOB);
   if (num_read < 0)
