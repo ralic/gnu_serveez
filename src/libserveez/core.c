@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.15 2001/07/05 17:29:17 ela Exp $
+ * $Id: core.c,v 1.16 2001/07/09 12:44:17 ela Exp $
  *
  */
 
@@ -402,7 +402,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
   else
     {
       *offset += count;
-      ret = 0;
+      ret = count;
     }
 #else /* Linux here. */
   ret = sendfile (out_fd, in_fd, (off_t *) offset, count);

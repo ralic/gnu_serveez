@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.70 2001/07/06 16:40:02 ela Exp $
+ * $Id: http-proto.c,v 1.71 2001/07/09 12:44:17 ela Exp $
  *
  */
 
@@ -402,11 +402,15 @@ int
 http_send_file (svz_socket_t *sock)
 {
   http_socket_t *http = sock->data;
-  int num_written;
+  int num_written, do_write;
+
+  /* Limitate the number of bytes to write at once. */
+  do_write = http->filelength > SOCK_MAX_WRITE 
+    ? SOCK_MAX_WRITE : http->filelength;
 
   /* Try sending throughout file descriptor to socket. */
   num_written = svz_sendfile (sock->sock_desc, sock->file_desc,
-			      &http->fileoffset, SOCK_MAX_WRITE);
+			      &http->fileoffset, do_write);
 
   /* Some error occurred. */
   if (num_written < 0)
