@@ -41,6 +41,13 @@ Free Documentation License".
 @node Introduction, Using Serveez, ,Top
 @chapter Introduction
 
+Serveez is a server listening on a multiple tcp ports and handling all
+client connections within a single process (non forking behaviour). The
+overall concept is as loose as neccessary and possible. The server is able
+to handle various internet protocols and can be run on different platforms
+and operating systems. Until now we implemented our own chat protocol, 
+the IRC protocol, HTTP and an internal control protocol.
+
 @node Using Serveez, Concept, Introduction, Top
 @chapter Using Serveez
 
@@ -58,19 +65,19 @@ execution of this program.
 
 @item -h, --help
 Display this help and exit.
-@item -V, --version            
+@item -V, --version
 Display version information and exit.
-@item -i, --iflist             
+@item -i, --iflist
 List local network interfaces and exit.
-@item -f, --file               
-File to use as configuration file [serveez.cfg].
-@item -v, --verbose=LEVEL      
+@item -f, --file=FILENAME
+File to use as configuration file (serveez.cfg).
+@item -v, --verbose=LEVEL
 Set level of logging verbosity.
-@item -l, --log-file=FILENAME  
-Use FILENAME for logging [default is stderr].
-@item -P, --password=STRING    
+@item -l, --log-file=FILENAME
+Use FILENAME for logging (default is stderr).
+@item -P, --password=STRING
 Set the password for control connections.
-@item -m, --max-sockets=COUNT  
+@item -m, --max-sockets=COUNT
 Set the maximum number of socket descriptors.
 
 @end table
@@ -567,7 +574,7 @@ This parameter is the first part of the URL the HTTP server identifies a
 CGI request. For instance if you specify here @file{/cgi-bin} and the
 user requests @uref{http://www.textsure.net/cgi-bin/test.pl} then the
 HTTP server tries to execute the program @file{test.pl} within the
-@code{cgidir} (see below) and pipe its output to the user.
+@code{cgidir} (see below) and pipes its output to the user.
 
 @item cgidir
 The @code{cgidir} is the CGI document root.
@@ -609,6 +616,73 @@ is a has associating file suffixes with HTTP content types.
 
 @node Control Protocol Server, Foo Server, IRC Server, Existing Servers
 @subsection Control Protocol Server
+
+@subsubsection General description
+
+Serveez implements something like a telnet protocol for administrating 
+purposes. You just need to start a telnet session like:
+@example
+$ telnet www.textsure.net 42420
+@end example
+After pressing @key{RET} you will be asked for a password which you 
+might setup passing the Serveez the -P argument. @xref{Using Serveez}.
+
+@subsubsection Commands
+
+@table @samp
+
+@item help
+This command will give you a very short help screen of all available
+commands.
+
+@item quit
+Closes the connection to the server.
+
+@item restart ident
+Restarts the internal ident Co-Server. This is useful if you just want
+to start a new one if it has died.
+
+@item restart dns
+Restarts an internal dns lookup server.
+
+@item restart reverse dns
+Restarts an internal reverse dns lookup server.
+
+
+@item killall
+This might be useful if Serveez seems to be unstable but you do not
+want to restart it. With @samp{killall} you disconnect all network connections
+except the control protocol connections.
+
+@item kill id NUM
+Disconnect a specific connection.
+
+@item stat
+General statistics.
+
+@item stat id NUM
+Show statistics about a specific connection.
+
+@item stat con
+Connection statistics.
+
+@item stat all
+Short connection statistics.
+
+@item stat cache
+HTTP cache statistics. This command produces an output something like the 
+following where @samp{File} is the short name of the cache entry, 
+@samp{Size} the cache size, @samp{Usage} the amount of connections 
+currently using this entry, @samp{Hits} the amount of cache hits, 
+@samp{Recent} the cache strategy flag (newer entries have larger numbers) 
+and @samp{Ready} is the current state of the cache entry.
+
+@item kill cache
+Reinitialize the HTTP file cache.
+
+@end table
+
+@subsubsection Configuration
 
 @node Foo Server, , Control Protocol Server, Existing Servers
 @subsection Foo Server

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.16 2000/07/14 00:42:07 ela Exp $
+ * $Id: http-proto.c,v 1.17 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -1454,7 +1454,7 @@ http_get_response (socket_t sock, char *request, int flags)
 		   serveez_config.version_string);
       sock_printf (sock, "Date: %s\r\n", http_asc_date (time (NULL)));
       sock_printf (sock, "Last-Modified: %s\r\n", 
-		   http_asc_date (buf.st_mtime));
+		   http_asc_date (buf.st_size));
 
       http_check_keepalive (sock);
 
@@ -1521,7 +1521,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  http_init_cache (file, cache) != -1)
 	{
 	  sock->read_socket = http_cache_read;
-	  cache->entry->date = buf.st_mtime;
+	  cache->entry->date = buf.st_size;
 	}
       else
 	{

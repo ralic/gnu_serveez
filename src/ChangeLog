@@ -1,3 +1,20 @@
+2000-07-15  [ Ela ]  <ela@lkcc.org>
+
+	* option.h: Declaring `optarg' if necessary.
+
+	* util.h (getcwd): Using native GetCurrentDirectory in Win32.
+	(chdir): Using native SetCurrentDirectory in Win32.
+	Made all declarations with variable argument list (...) 
+	available for non-std-c compiler.
+
+	* http-server/http-dirlist.c (http_dirlist): Replaced
+	opendir, readdir and closedir by native functions
+	FindFirstFile, FindNextFile and FindClose in Win32.
+
+	* coserver/coserver.c (coserver_send_request): If you have
+	more than one coserver of the same type instanciated the 
+	requests for these instance will be apportioned.
+
 2000-07-09  [ Ela ]  <ela@lkcc.org>
 
 	* connect.c (default_connect): Moved this function to the
@@ -7,7 +24,6 @@
 	http file cache is now a hash using the stored files's names
 	as key and the http_cache_entry_t structure as values. 
 	Maybe thus we speed up the cache lookup a bit.
-	
 
 2000-07-07  [ Ela ]  <ela@lkcc.org>
 
@@ -675,7 +691,6 @@
 	* strerror replaced by FormatMessage in Win32 port
 	* serveez ported to IRIX 6.x
 	
-
 1999-12-17  [ RAIMI ]  <raimi@lkcc.org>
 
 	* server.c (check_sockets): mmhh.. someone merged >= INVALID_SOCKET

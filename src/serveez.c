@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.9 2000/07/07 16:26:20 ela Exp $
+ * $Id: serveez.c,v 1.10 2000/07/15 11:44:16 ela Exp $
  *
  */
 
@@ -84,7 +84,7 @@ usage (void)
  "  -h, --help               display this help and exit\n"
  "  -V, --version            display version information and exit\n"
  "  -i, --iflist             list local network interfaces and exit\n"
- "  -f, --file               file to use as configuration file [serveez.cfg]\n"
+ "  -f, --file=FILENAME      file to use as configuration file (serveez.cfg)\n"
  "  -v, --verbose=LEVEL      set level of verbosity\n"
  "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
  "  -P, --password=STRING    set the password for control connections\n"
@@ -93,7 +93,7 @@ usage (void)
  "  -h           display this help and exit\n"
  "  -V           display version information and exit\n"
  "  -i           list local network interfaces and exit\n"
- "  -f           file to use as configuration file [serveez.cfg\n"
+ "  -f FILENAME  file to use as configuration file [serveez.cfg\n"
  "  -v LEVEL     set level of verbosity\n"
  "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
  "  -P STRING    set the password for control connections\n"

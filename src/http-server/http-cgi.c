@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.6 2000/07/14 00:42:06 ela Exp $
+ * $Id: http-cgi.c,v 1.7 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -569,37 +569,37 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
    * Clean the StartupInfo, use the stdio handles, and store the
    * pipe handles there if neccessary (depends on type).
    */
-  memset(&StartupInfo, 0, sizeof(StartupInfo));
-  StartupInfo.cb = sizeof(StartupInfo);
+  memset (&StartupInfo, 0, sizeof (StartupInfo));
+  StartupInfo.cb = sizeof (StartupInfo);
   StartupInfo.dwFlags = STARTF_USESTDHANDLES;
   StartupInfo.hStdOutput = out;
-  if(type == POST_METHOD) StartupInfo.hStdInput = in;
+  if (type == POST_METHOD) StartupInfo.hStdInput = in;
 
   /* reserve buffer space for the environment block */
-  envp = xmalloc(ENV_BLOCK_SIZE);
-  savedir = xmalloc(MAX_CGI_DIR_LEN);
+  envp = xmalloc (ENV_BLOCK_SIZE);
+  savedir = xmalloc (MAX_CGI_DIR_LEN);
 
   /* save the current directory */
-  getcwd(savedir, MAX_CGI_DIR_LEN);
+  getcwd (savedir, MAX_CGI_DIR_LEN);
 
-  if((cgifile = http_pre_exec(sock, envp, file, request, type)) == NULL)
+  if ((cgifile = http_pre_exec (sock, envp, file, request, type)) == NULL)
     {
-      sock_printf(sock, HTTP_INTERNAL_ERROR "\r\n");
+      sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
-      chdir(savedir);
-      xfree(envp);
-      xfree(savedir);
+      chdir (savedir);
+      xfree (envp);
+      xfree (savedir);
       return -1;
     }
 
   /* send http header response */
-  if(http_cgi_accepted(sock) == -1)
+  if (http_cgi_accepted (sock) == -1)
     {
       sock->userflags |= HTTP_FLAG_DONE;
-      chdir(savedir);
-      xfree(cgifile);
-      xfree(envp);
-      xfree(savedir);
+      chdir (savedir);
+      xfree (cgifile);
+      xfree (envp);
+      xfree (savedir);
       return -1;
     }
 

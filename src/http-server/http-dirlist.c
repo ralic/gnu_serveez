@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.6 2000/07/14 00:42:07 ela Exp $
+ * $Id: http-dirlist.c,v 1.7 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -36,11 +36,34 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
+
+#ifndef __MINGW32__
+# if HAVE_DIRENT_H
+#  include <dirent.h>
+#  define NAMLEN(dirent) strlen((dirent)->d_name)
+# else
+#  define dirent direct
+#  define NAMLEN(dirent) (dirent)->d_namlen
+#  if HAVE_SYS_NDIR_H
+#   include <sys/ndir.h>
+#  endif
+#  if HAVE_SYS_DIR_H
+#   include <sys/dir.h>
+#  endif
+#  if HAVE_NDIR_H
+#   include <ndir.h>
+#  endif
+# endif
+# define FILENAME(de) (de)->d_name
+#else 
+# include <windows.h>
+# define FILENAME(de) (de).cFileName
+#endif /* not __MINGW32__ */
+
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-#include <dirent.h>
-#include <errno.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -62,14 +85,19 @@ http_dirlist (char *dirname, char *docroot)
   int data_size = 0;
   char *relpath = NULL;
   int i = 0;
-  DIR *dir;
-  struct dirent *de = NULL;
-  struct stat statbuf;
+  struct stat buf;
   char filename[DIRLIST_SPACE_NAME];
   char entrystr[DIRLIST_SPACE_ENTRY];
   char *timestr = NULL;
   char postamble[DIRLIST_SPACE_POST];
   int files = 0;
+#ifndef __MINGW32__
+  DIR *dir;
+  struct dirent *de = NULL;
+#else
+  WIN32_FIND_DATA de;
+  HANDLE dir;
+#endif
 
   /* Initialze data fields */
   memset (filename, 0, DIRLIST_SPACE_NAME);
@@ -85,7 +113,18 @@ http_dirlist (char *dirname, char *docroot)
     }
 
   /* Open the directory */
+#ifdef __MINGW32__
+  strcpy (filename, dirname);
+  if (filename[strlen (filename) - 1] == '/' ||
+      filename[strlen (filename) - 1] == '\\')
+    strcat (filename, "*");
+  else
+    strcat (filename, "/*");
+      
+  if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE_VALUE)
+#else
   if ((dir = opendir (dirname)) == NULL)
+#endif
     {
       return NULL;
     }
@@ -119,33 +158,37 @@ http_dirlist (char *dirname, char *docroot)
     }
 
   /* Iterate directory */
-  while (NULL != (de = readdir (dir))) 
+#ifndef __MINGW32__
+  while (NULL != (de = readdir (dir)))
+#else
+  do
+#endif
     {
       /* Create fully qualified filename */
       snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
-		dirname, de->d_name);
+		dirname, FILENAME (de));
       files++;
 #if 0
       printf ("stat (%s)\n", filename);
 #endif
 
       /* Stat the given file */
-      if (-1 == stat (filename, &statbuf)) 
+      if (-1 == stat (filename, &buf)) 
 	{
 	  /* Something is wrong with this file... */
 	  snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
 		    "<font color=red>%s -- %s</font>\n",
-		    de->d_name, SYS_ERROR);
+		    FILENAME (de), SYS_ERROR);
 	} 
       else 
 	{
 	  /* Get filetime and remove trailing newline */
-	  if (localtime (&statbuf.st_mtime))
-	    timestr = asctime (localtime (&statbuf.st_mtime));
+	  if (localtime (&buf.st_mtime))
+	    timestr = asctime (localtime (&buf.st_mtime));
 	  else
 	    {
-	      statbuf.st_mtime = 0;
-	      timestr = asctime (localtime (&statbuf.st_mtime));
+	      buf.st_mtime = 0;
+	      timestr = asctime (localtime (&buf.st_mtime));
 	    }
 	  if (timestr[strlen (timestr) - 1] == '\n') 
 	    {
@@ -153,7 +196,7 @@ http_dirlist (char *dirname, char *docroot)
 	    }
 
 	  /* Emit beautiful description */
-	  if (S_ISDIR (statbuf.st_mode)) 
+	  if (S_ISDIR (buf.st_mode)) 
 	    {
 	      /* This is a directory... */
 	      snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
@@ -161,7 +204,7 @@ http_dirlist (char *dirname, char *docroot)
 			"<a href=\"%s/\">%-40s</a> "
 			"&lt;directory&gt; "
 			"%s\n",
-			de->d_name, de->d_name, timestr);
+			FILENAME (de), FILENAME (de), timestr);
 	    } 
 	  else 
 	    {
@@ -171,8 +214,8 @@ http_dirlist (char *dirname, char *docroot)
 			"<a href=\"%s\">%-40s</a> "
 			"<b>%11d</b> "
 			"%s\n",
-			de->d_name, de->d_name, 
-			(int)statbuf.st_size, timestr);
+			FILENAME (de), FILENAME (de), 
+			(int) buf.st_size, timestr);
 	    }
 	}
 
@@ -184,6 +227,9 @@ http_dirlist (char *dirname, char *docroot)
 	}
       strcat (dirdata, entrystr);
     }
+#ifdef __MINGW32__
+  while (FindNextFile (dir, &de));
+#endif
 
   /* Output postamble */
   snprintf (postamble, DIRLIST_SPACE_POST - 1,
@@ -202,7 +248,11 @@ http_dirlist (char *dirname, char *docroot)
   http_dirlist_size = data_size;
 
   /* Close the directory */
+#ifndef __MINGW32__
   closedir (dir);
+#else
+  FindClose (dir);
+#endif
   
   return dirdata;
 }

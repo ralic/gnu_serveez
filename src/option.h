@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: option.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: option.h,v 1.3 2000/07/15 11:44:16 ela Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 
 #if HAVE_GETOPT_H
 # include <getopt.h>
-#else
+#elif HAVE_UNISTD_H
 # define __EXTENSIONS__
 /* FreeBSD and probably all commercial Un*ces define getopt() 
    in this specific file */
@@ -43,7 +43,9 @@
  * Defining here the struct and #define's for getopt_long() if it
  * is in libiberty.a but could not be found in getopt.h
  */
-#if defined(HAVE_GETOPT_LONG) && !defined(DECLARED_GETOPT_LONG)
+#if defined (HAVE_GETOPT_LONG) && !defined (DECLARED_GETOPT_LONG)
+
+extern char *optarg;
 
 struct option
 {
@@ -57,19 +59,19 @@ struct option
 #define required_argument 1
 #define optional_argument 2
 
-extern int getopt_long(int argc, 
-		       char * const argv[], 
-		       const char *optstring,
-		       const struct option *longopts, 
-		       int *longindex);
+extern int getopt_long (int argc, 
+			char * const argv[], 
+			const char *optstring,
+			const struct option *longopts, 
+			int *longindex);
 
 #endif /* DECLARED_GETOPT_LONG */
 
 #ifndef HAVE_GETOPT
 
-int getopt(int argc, char * const argv[], const char *optstring);
+int getopt (int argc, char * const argv[], const char *optstring);
 extern char *optarg;
 
-#endif
+#endif /* not HAVE_GETOPT */
 
 #endif /* __OPTION_H__ */

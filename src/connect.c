@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.6 2000/07/14 00:42:06 ela Exp $
+ * $Id: connect.c,v 1.7 2000/07/15 11:44:16 ela Exp $
  *
  */
 
@@ -30,13 +30,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>
-#include <sys/time.h>
+
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
+#if HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
 
 #ifdef __MINGW32__
 # include <winsock.h>

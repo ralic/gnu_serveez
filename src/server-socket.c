@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.15 2000/07/14 00:42:06 ela Exp $
+ * $Id: server-socket.c,v 1.16 2000/07/15 11:44:16 ela Exp $
  *
  */
 
@@ -504,15 +504,23 @@ server_accept_pipe (socket_t server_sock)
    */
   if (!ConnectNamedPipe (recv_pipe, &server_sock->overlap[READ]))
     {
-      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-      return 0;
+      if (GetLastError () != ERROR_PIPE_CONNECTED)
+	{
+	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  return 0;
+	}
     }
+  else return 0;
 
   if (!ConnectNamedPipe (send_pipe, &server_sock->overlap[WRITE]))
     {
-      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-      return 0;
+      if (GetLastError () != ERROR_PIPE_CONNECTED)
+	{
+	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  return 0;
+	}
     }
+  else return 0;
 
   /* Create a socket structure for the client pipe. */
   if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)

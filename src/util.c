@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.10 2000/07/01 15:43:40 ela Exp $
+ * $Id: util.c,v 1.11 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -330,9 +330,11 @@ GetErrorMessage (int nr)
 
 int os_version = 0;
 
+#endif /* __MINGW32__ */
+
 /*
- * This routine id for detecting the os version of 
- * Win32. It saves its result in the variable os_version.
+ * This routine is for detecting the os version of 
+ * Win32 and all Unices. It saves its result in the variable os_version.
  *
  * 0 - Windows 3.x
  * 1 - Windows 95
@@ -342,7 +344,6 @@ int os_version = 0;
  * 5 - Windows 2000
  * 6 - Windows ME
  */
-#endif /* __MINGW32__ */
 
 char *
 get_version (void)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.16 2000/07/09 20:03:06 ela Exp $
+ * $Id: socket.h,v 1.17 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -240,7 +240,11 @@ int sock_write (socket_t sock, char * buf, int len);
  * style format string, which describes how to format the optional
  * arguments.  See the printf(3) manual page for details.
  */
+#ifndef __STDC__
+int sock_printf ();
+#else
 int sock_printf (socket_t sock, const char * fmt, ...);
+#endif
 
 /*
  * Resize the send and receive buffers for the socket SOCK.  SEND_BUF_SIZE

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.4 2000/06/16 21:02:28 ela Exp $
+ * $Id: snprintf.h,v 1.5 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -59,7 +59,11 @@ int _vsnprintf (char *, size_t, const char *, va_list);
 /* snprintf() */
 
 #ifndef HAVE_SNPRINTF
+# ifndef __STDC__
+int snprintf ();
+# else
 int snprintf (char *, size_t, const char *, ...);
+# endif
 #endif
 
 #endif /* not __SNPRINTF_H__ */

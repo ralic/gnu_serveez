@@ -1,16 +1,19 @@
-2000-07-04  [ Ela ]  <ela@lkcc.org>
+2000-07-14  [ Ela ]  <ela@lkcc.org>
 
-	* configure.in (enable_procstat): Checking for inet_aton in the
+	* configure.in (host_sys): Added check for unistd.h,
+	sys/time.h and the AC_HEADER_DIRENT macro.
+
+	* configure.in: Checking for inet_aton in the
 	library "libresolv.so" on Solaris.
 
 2000-06-21  [ Ela ]  <ela@lkcc.org>
 
-	* configure.in (invalid_defined): Added check for typedef off_t.
+	* configure.in: Added check for typedef off_t.
 	This is used with sendfile().
 
 2000-06-20  [ Ela ]  <ela@lkcc.org>
 
-	* configure.in (LDFLAGS): Add check for sendfile(). The 
+	* configure.in: Add check for sendfile(). The 
 	intergrated http server might use it.
 
 2000-06-16  [ Ela ]  <ela@lkcc.org>

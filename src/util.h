@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.9 2000/07/09 20:03:07 ela Exp $
+ * $Id: util.h,v 1.10 2000/07/15 11:44:17 ela Exp $
  *
  */
 
@@ -76,7 +76,12 @@ extern int os_version;
 
 #endif /* __MINGW32__ */
 
+#ifndef __STDC__
+void log_printf ();
+#else
 void log_printf (int level, const char *format, ...);
+#endif
+
 void set_log_file (FILE *file);
 int dump_request (FILE *out, char * action, int from, char * req, int len);
 char *util_inet_ntoa(unsigned long ip);
@@ -206,6 +211,8 @@ const char * util_hstrerror (void);
 #define SYS_ERROR GetErrorMessage(GetLastError())
 #define NET_ERROR GetErrorMessage(WSAGetLastError())
 #define H_NET_ERROR GetErrorMessage(WSAGetLastError())
+#define getcwd(buf, size) (GetCurrentDirectory (size, buf) ? buf : NULL)
+#define chdir(path) (SetCurrentDirectory (path) ? 0 : -1)
 
 #else /* Unices here. */
 
