@@ -46,7 +46,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /GX /O2 /Ob2 /I "." /I ".." /D "_WINDOWS" /D "__MAKEDLL__" /D "WIN32" /D "NDEBUG" /D "_WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /FD /c
+# ADD CPP /nologo /MT /W3 /GX /O2 /Ob2 /I "." /I ".." /D "_WINDOWS" /D "__SIZZLE_EXPORT__" /D "WIN32" /D "NDEBUG" /D "_WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /o NUL /win32
@@ -73,7 +73,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "." /I ".." /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_WIN32" /D "__MAKEDLL__" /D "HAVE_CONFIG_H" /D "__MINGW32__" /FD /c
+# ADD CPP /nologo /MTd /W3 /GX /Zi /Od /I "." /I ".." /D "_DEBUG" /D "WIN32" /D "_WINDOWS" /D "_WIN32" /D "__SIZZLE_EXPORT__" /D "HAVE_CONFIG_H" /D "__MINGW32__" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /o NUL /win32

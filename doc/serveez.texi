@@ -1479,9 +1479,10 @@ definitions:
 
 @table @asis
 @item Preprocessor.
-@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__MAKEDLL__=1} for 
-Sizzle and
-@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__USDLL__=1} for Serveez.
+@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__SIZZLE_EXPORT__=1} 
+for Sizzle and
+@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__SIZZLE_IMPORT__=1} 
+for Serveez.
 
 @item Include directories.
 Add the following paths: @file{.,..,../sizzle,./src,../..}.
