@@ -5,7 +5,7 @@
 # Extract documentation string from source files and produce a sed
 # script for further processing. 
 #
-# Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.7 2002/02/10 11:38:28 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.8 2002/02/12 20:50:17 ela Exp $
 #
 
 # read lines until end of C comment has been reached

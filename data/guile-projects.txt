@@ -7,10 +7,11 @@ Subject: Guile Project Submission
  (category "Applications/Network")
  (description "GNU Serveez is a server framework; it provides routines "
               "and help for IP-based servers (TCP, UDP and ICMP) as well "
-              "as \"named pipes\" for all connection-based protocols.")
+              "as \"named pipes\". It demonstrates portable network "
+	      "programming optimized for speed and reliability.")
  (authors "Raimund Jacob, Martin Grabmueller and Stefan Jahn")
  (maintainer (email "Stefan Jahn" "stefan@lkcc.org"))
  (mailing-list (email "help-serveez" "help-serveez@gnu.org"))
  (license "GPL")
- (requires "GNU Guile version 1.3")
+ (requires "GNU Guile version 1.3 or later")
  (status "version 0.1.3 released 2002/xx/xx"))
