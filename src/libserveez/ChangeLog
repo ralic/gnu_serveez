@@ -1,3 +1,9 @@
+2002-03-09  [ Ela ]  <ela@lkcc.org>
+
+	* tcp-socket.c (svz_tcp_connect): Setting up the `check_request'
+	callback (NULL).  Fixes problem when connecting a socket without
+	assigning an appropiate `check_request' callback.
+
 2002-02-14  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
 
 	* coserver/coserver.c (svz_coserver_check): Do not start too

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.10 2001/10/31 22:51:10 ela Exp $
+ * $Id: tcp-socket.c,v 1.11 2002/03/09 19:23:25 ela Exp $
  *
  */
 
@@ -230,6 +230,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
   sock->proto = PROTO_TCP;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTING);
   sock->connected_socket = svz_tcp_default_connect;
+  sock->check_request = NULL;
   svz_sock_enqueue (sock);
 
   return sock;
