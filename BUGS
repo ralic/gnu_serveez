@@ -26,7 +26,7 @@ this package.  We will consider fixing these sooner or later.  Please
 send Serveez bug reports to <bug-serveez@gnu.org>.
 
 Bug:	     B0019
-From:	     ela <stefan@lkcc.org>
+From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed
 Date:	     2002-06-07
 Description: On a GNU/Linux system on x86 out-of-band data can be detected
@@ -41,7 +41,7 @@ Fix:	     When POLLPRI has been detected you are meant to
 	     or `recv(..., 0)' has been called before `recv(..., MSG_OOB)'.
 
 Bug:	     B0018
-From:	     ela <stefan@lkcc.org>
+From:	     Stefan Jahn <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-07-01
 Description: Cannot recompute the Linux kernel's checksums of larger (larger
@@ -51,8 +51,8 @@ Description: Cannot recompute the Linux kernel's checksums of larger (larger
 	     More-Fragments-Flag set.
 
 Bug:	     B0017
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2001-05-04/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2001-05-04/stefan)
 Date:	     2000-11-11
 Description: There is no standard raw socket support in the Winsock API.
 	     Maybe we should use the ICMP.DLL API instead? 
@@ -61,8 +61,8 @@ Fix:	     Noticed that the above DLL is unusable for our purposes.
 	     do, but it is *not* well known to work properly.
 
 Bug:	     B0016
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2000-11-11/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2000-11-11/stefan)
 Date:	     2000-11-04
 Description: The Winsock API cannot sendto() or recvfrom() "connected"
 	     UDP and ICMP sockets.  The calls return with "Socket is already
@@ -71,8 +71,8 @@ Fix:	     Use send() and recv() instead of their -to() and -from()
 	     versions.
 
 Bug:	     B0015
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2001-09-15/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2001-09-15/stefan)
 Date:	     2000-09-20
 Description: The named pipes on Win32 do not work properly yet.
 Fix:	     Due to the bad documentation and the lack of open source
@@ -80,7 +80,7 @@ Fix:	     Due to the bad documentation and the lack of open source
 	     finally working.
 
 Bug:	     B0014
-From:	     ela <stefan@lkcc.org>
+From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed (2000-10-01/mgrabmue)
 Date:	     2000-09-20
 Description: Serveez does not run on i64 Linux.
@@ -88,8 +88,8 @@ Fix:	     Made minor changes to the Sizzle core library (garbage
 	     collection).
 
 Bug:	     B0013
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2000-10-03/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2000-10-03/stefan)
 Date:	     2000-09-12
 Description: Bigger CGI scripts under Win95 will lock the server.  (Bigger
 	     means more content production here.)  This happened with batch
@@ -98,7 +98,7 @@ Fix:	     Pipes have been done non-blocking via PeekNamedPipe() in the
 	     Win32 port.
 
 Bug:	     B0012
-From:	     ela <stefan@lkcc.org>
+From:	     Stefan Jahn <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-09-12
 Description: If the server has many open connections with much traffic
@@ -109,8 +109,8 @@ Description: If the server has many open connections with much traffic
 	     Errors happen to be on outgoing connections only.
 
 Bug:	     B0011
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2000-09-22/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2000-09-22/stefan)
 Date:	     2000-09-12
 Description: On some Linuxs the named pipe behaviour is not as it is
 	     documented.  See `man 4 fifo' for more information.
@@ -118,8 +118,8 @@ Fix:	     Checking for the file flags (S_ISFIFO) of a previously created
 	     named pipe.  This has been a problem on NFS mounts.
 
 Bug:	     B0010
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2000-08-20/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2000-08-20/stefan)
 Date:	     2000-08-19
 Description: Ident coserver dies because of queue overrun.  Thus the
 	     socket references cannot get decreased.
@@ -127,7 +127,7 @@ Fix:	     Using a general coserver request hash instead of socket
 	     structure references.
 
 Bug:	     B0009
-From:	     ela <stefan@lkcc.org>
+From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed (2000-07-06/raimi)
 Date:	     2000-06-21
 Description: Filesize 0 (zero) for HTTP files is not handled specifically.
@@ -135,28 +135,28 @@ Description: Filesize 0 (zero) for HTTP files is not handled specifically.
 Fix:	     Added some extra code for this.
 
 Bug:         B0008
-From:	     ela <stefan@lkcc.org>
-State:       fixed (2000-11-11/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (2000-11-11/stefan)
 Date:	     2000-04-24
 Description: HTTP cache inconsistency.
 Fix:         With help of a special paranoid checking function all bugs
 	     have been caught. 
 
 Bug:         B0007
-From:	     ela <stefan@lkcc.org>
-State:       fixed (1999-11-18/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (1999-11-18/stefan)
 Date:	     1999-10-27
 Description: accept() fails under Cygwin with a "bad address" error.
 Fix:	     Set accept()'s third argument (addrlen) beforehand.
 
 Bug:         B0006
-From:	     ela <stefan@lkcc.org>
-State:       fixed (1999-11-18/ela)
+From:	     Stefan Jahn <stefan@lkcc.org>
+State:       fixed (1999-11-18/stefan)
 Date:	     1999-10-27
 Description: accept() fails under SunOS 5.6 with a "bad address" error.
 
 Bug:         B0005
-From:	     ela <stefan@lkcc.org>
+From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed (1999-10-27/mgrabmue)
 Date:	     1999-10-27
 Description: Disabling floodprotection on port <vielzuhohezahl> ... War
@@ -164,7 +164,7 @@ Description: Disabling floodprotection on port <vielzuhohezahl> ... War
 	     gestorben.
 
 Bug:         B0004
-From:	     raimi <raimi@cs.tu-berlin.de>
+From:	     Raimund Jacob <raimi@cs.tu-berlin.de>
 State:       fixed (1999-10-27/mgrabmue)
 Date:	     1999-10-27
 Description: Segmentation fault: das passiert wenn ein Bot oder
@@ -174,14 +174,14 @@ Description: Segmentation fault: das passiert wenn ein Bot oder
 	     connects scheinen zu gehen.
 
 Bug:         B0003
-From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
+From:	     Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 State:       fixed (1999-10-25/mgrabmue)
 Date:	     1999-10-21
 Description: Serveez sometimes segfaults when the massclient
 	     disconnects.
 
 Bug:         B0002
-From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
+From:	     Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 State:       fixed (1999-10-25/mgrabmue)
 Date:	     1999-10-21
 Description: Serveez goes into an endless loop or something when many
@@ -189,7 +189,7 @@ Description: Serveez goes into an endless loop or something when many
 	     does not accept connections anymore.
 
 Bug:         B0001
-From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
+From:	     Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 State:       fixed (1999-10-21/raimi)
 Date:	     1999-10-19
 Description: Perl master server dies after a while when more than four

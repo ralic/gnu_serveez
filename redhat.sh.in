@@ -1,6 +1,7 @@
 #!/bin/sh
 # 
-# redhat.sh.in - RPM package builder
+# redhat.sh - RPM package builder
+# @configure_input@
 #
 # Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 #
@@ -38,7 +39,7 @@ Version: @VERSION@
 Release: 1
 Copyright: GPL
 Group: Applications/Networking
-Source: ftp://ftp.gnu.org/gnu/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz
+Source: http://ftp.gnu.org/gnu/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz
 URL: http://www.gnu.org/software/serveez/index.html
 Packager: Stefan Jahn <stefan@lkcc.org>
 Prefix: @REDHAT_TOPDIR@/@PACKAGE@

@@ -1,9 +1,17 @@
-2002-07-27  [ Ela ]  <ela@lkcc.org>
+2002-09-28  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez.texi (Concept): Finally completed this section.
+	Needs yet a proof-reader.
+
+	* guile-api.texi.in: Added John Fitzgerald's patch.  Thanks
+	alot for proof-reading, corrections and additions.
+
+2002-07-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.texi.in: Aded documentation for `serveez-load',
 	`serveez-interfaces' and `serveez-loadpath'.
 
-2002-07-26  [ Ela ]  <ela@lkcc.org>
+2002-07-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Overall concept): New section.  To be 
 	continued...
@@ -14,7 +22,7 @@
 	* Makefile.am (serveez-procedures.txt): Added Makefile target
 	for generating and installing this Guile documentation file.
 
-2002-07-13  [ Ela ]  <ela@lkcc.org>
+2002-07-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.en.html: Updated anonymous CVS instructions.
 
@@ -25,12 +33,12 @@
 	which is a GNU extension of `gawk'.
 	Quoted any occurrence of `{' and `}' in regular expressions.
 
-2002-05-15  [ Ela ]  <ela@lkcc.org>
+2002-05-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.texi.in: Applied John Fitzgerald's modifications
 	of the Guile server documentation.  Thanks a lot!
 
-2002-02-16  [ Ela ]  <ela@lkcc.org>
+2002-02-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Using Serveez): Small section about installing
 	the Debian package added.
@@ -38,51 +46,51 @@
 	* serveez-api.texi.in (Compiling and linking): Documented the
 	use of the `serveez-config' script.
 
-2002-02-03  [ Ela ]  <ela@lkcc.org>
+2002-02-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Gnutella Spider): Documented the hostname 
 	feature	of the `hosts' configuration item and added the 
 	documentation about the new `disable' configuration item.
 
-2002-01-31  [ Ela ]  <ela@lkcc.org>
+2002-01-31  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Define ports): Added a seperate section about 
+	* serveez.texi (Define ports): Added a separate section about 
 	each possible port configuration item.
 
-2002-01-28  [ Ela ]  <ela@lkcc.org>
+2002-01-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Define ports): Some explaining text for device
 	bindings added.
 	(Bind servers to ports): Documented (bind-udp-port-range!).
 
-2002-01-06  [ Ela ]  <ela@lkcc.org>
+2002-01-06  Stefan Jahn  <stefan@lkcc.org>
 
 	* index.html: Additional reference to `README-cross'.
 
-2001-12-19  [ Ela ]  <ela@lkcc.org>
+2001-12-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Passthrough connections): Added an
 	important note about passing socket handles to child processes
 	on Win32 platforms.
 
-2001-11-22  [ Ela ]  <ela@lkcc.org>
+2001-11-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added `mandel.jpg'.
 
 	* serveez.texi (Mandel Server, Passthrough Server): Two new
 	sections describing these servers.
 
-2001-11-21  [ Ela ]  <ela@lkcc.org>
+2001-11-21  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Passthrough connections): Added a new
 	section describing the passthrough functionality.
 
-2001-11-20  [ Ela ]  <ela@lkcc.org>
+2001-11-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.texi.in: Documented all implemented callbacks so 
 	far.  Removed all FIXME's.
 
-2001-11-16  [ Ela ]  <ela@lkcc.org>
+2001-11-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-doc-snarf.awk: Place a doc-snarfer comment in front
 	of each replaced item which informs about the file and line the
@@ -90,12 +98,12 @@
 
 	* guile-api.texi.in: New `Callback prototypes' section.
 
-2001-11-10  [ Ela ]  <ela@lkcc.org>
+2001-11-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-doc-snarf.awk: Correcting documentation string for
 	Guile procedures without arguments.
 
-2001-11-01  [ Ela ]  <ela@lkcc.org>
+2001-11-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-doc-snarf.awk: Added yet another special case about
 	callback setter and getter.
@@ -107,52 +115,52 @@
 	* serveez.texi (Using Serveez): Sync'ed the `configure'
 	description with the file `INSTALL'.
 
-2001-10-08  [ Ela ]  <ela@lkcc.org>
+2001-10-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Codec): New section about codec
 	interface added.
 
-2001-10-02  [ Ela ]  <ela@lkcc.org>
+2001-10-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am: Reorganized rules to get `make distcheck'
 	working again.
 
-2001-09-27  [ Ela ]  <ela@lkcc.org>
+2001-09-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Define ports): Added a note about the 
 	possibility to bind servers to ports whose ip address is given
 	as an interface description string.
 
-2001-09-26  [ Ela ]  <ela@lkcc.org>
+2001-09-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in: Include `version.texi'. Possible since
 	update to `GNU automake 1.4-p5'.
 
-2001-09-15  [ Ela ]  <ela@lkcc.org>
+2001-09-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.en.html: Dropped a note about Windows XP support.
 
-2001-09-05  [ Ela ]  <ela@lkcc.org>
+2001-09-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Using Serveez): Added a section about building
 	and installing the package.
 
-2001-08-12  [ Ela ]  <ela@lkcc.org>
+2001-08-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Chat Server): Adjusted documentation about
 	the master server protocol.
 
-2001-07-30  [ Ela ]  <ela@lkcc.org>
+2001-07-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (HTTP Server): Added a note about the performance
 	of Linux's VFS vs. HTTP file cache.
 
-2001-07-28  [ Ela ]  <ela@lkcc.org>
+2001-07-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Embedded servers): Started to document how to
 	write server modules with serveez.
 
-2001-07-19  [ Ela ]  <ela@lkcc.org>
+2001-07-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Writing servers): Splitted this section into
 	three subsection (Builtin servers, Embedded servers, 
@@ -171,12 +179,12 @@
 	* Makefile.am (guile-api.texi): Added Makefile rules for
 	automatic rebuild of guile interface procedure ducumentation.
 
-2001-07-07  [ Ela ]  <ela@lkcc.org>
+2001-07-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.awk: Do not strip white spaces within @example
 	tags.
 
-2001-07-03  [ Ela ]  <ela@lkcc.org>
+2001-07-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am: Verified the build process of the web site at
 	www.gnu.org. The `site' target creates part of the directory
@@ -189,23 +197,23 @@
 	(Introduction to servers, Writing servers, IRC Server): Minor topy
 	fixes.
 
-2001-06-24  [ Ela ]  <ela@lkcc.org>
+2001-06-24  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Define ports): Added some nodes for the
 	configuration section, examples for basic functionality and a
 	section about additional possibilities.
 
-2001-05-18  [ Ela ]  <ela@lkcc.org>
+2001-05-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Memory management): Added some 
 	introductory words on this chapter.
 
-2001-05-08  [ Ela ]  <ela@lkcc.org>
+2001-05-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in: Restructured the API documentation and
 	added some introductory materials.
 
-2001-05-05  [ Ela ]  <ela@lkcc.org>
+2001-05-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Utility functions): Added the INI*()
 	macros.
@@ -224,28 +232,28 @@
 	* serveez.texi (Porting issues): Removed most references to 
 	Sizzle and added some comments about Guile.
 
-2001-04-27  [ Ela ]  <ela@lkcc.org>
+2001-04-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (distclean-local): Deleting the HTML-directory.
 
-2001-04-19  [ Ela ]  <ela@lkcc.org>
+2001-04-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Embedding API): Added new section about
 	port configurations.
 
-2001-04-11  [ Ela ]  <ela@lkcc.org>
+2001-04-11  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Coserver): New section about the coserver
 	API of the core library.
 
-2001-03-11  [ Ela ]  <ela@lkcc.org>
+2001-03-11  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in (Data structures): Put the data structure
 	sections for sparse vectors, vectors, arrays and hashes here.
 
 	* serveez-api.awk: Added macro snarf function.
 
-2001-02-17  [ Ela ]  <ela@lkcc.org>
+2001-02-17  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.awk: Dropping C comments within argument lists.
 
@@ -260,13 +268,13 @@
 	texinfo file with its full documentation. The awk script
 	gets C source files as input.
 
-2001-02-07  [ Ela ]  <ela@lkcc.org>
+2001-02-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Tunnel Server): Documented the extended ICMP
 	protocol used in Serveez which has been introduced in order
 	to help implementing the tunnel server.
 
-2001-01-24  [ Ela ]  <ela@lkcc.org>
+2001-01-24  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi: Added this file for documentaion of
 	the embedding manual. It should describe the whole API
@@ -276,12 +284,12 @@
 
 	* serveez.texi: Some minor typos corrected.
 
-2000-12-31  [ Ela ]  <ela@lkcc.org>
+2000-12-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Introduction to servers): Added some kind
 	of terminology clarification.
 
-2000-12-30  [ Ela ]  <ela@lkcc.org>
+2000-12-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Writing Servers): Documented data types of
 	the socket_t structure.
@@ -289,7 +297,7 @@
 	for all servers. Added configuration sub section for the
 	foo server.
 
-2000-12-16  [ Ela ]  <ela@lkcc.org>
+2000-12-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (SNTP Server): Added a section for the new UDP
 	server. We dropped the Quake III license key server.
@@ -297,34 +305,34 @@
 	* index.html: Added the SourceForge logo and slightly changed
 	the appearance of the main page.
 
-2000-11-23  [ Ela ]  <ela@lkcc.org>
+2000-11-23  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi: Including `version.texi' which gets
 	automatically generated when enabling maintainer mode. The
 	support for this file requires the `mdate-sh' script.
 
-2000-10-31  [ Ela ]  <ela@lkcc.org>
+2000-10-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi: All occurrences of serveez, sizzle and 
 	versions replaced by meta variables.
 
-2000-10-07  [ Ela ]  <ela@lkcc.org>
+2000-10-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.1: Simple man page added.
 
-2000-08-29  [ Ela ]  <ela@lkcc.org>
+2000-08-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Gnutella Spider): Documented the included
 	Gnutella server sparely.
 
-2000-08-20  [ Ela ]  <ela@lkcc.org>
+2000-08-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Existing Co-Servers): "Redocumented" the
 	Co-Server section.
 	(Writing Servers): Documented the `version' and `id' items
 	in the socket structure.
 
-2000-08-17  [ Ela ]  <ela@lkcc.org>
+2000-08-17  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Quake III Key Server): Documented the 
 	integrated Quake3 key server. Including reference to possibly
@@ -333,14 +341,14 @@
 	* serveez.cfg (q3key-server1): Added Quake3 key server
 	configuration.
 
-2000-07-13  [ Ela ]  <ela@lkcc.org>
+2000-07-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi: Added GPL to license section.
 
 	* Makefile.am: Using `texi2html' we can now produce a HTML
  	documentation on the fly (added to all-local).
 
-2000-07-09  [ Ela ]  <ela@lkcc.org>
+2000-07-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am: Added info_TEXINFOS for creating info and dvi
 	files.
@@ -348,7 +356,7 @@
 	* serveez.texi: Started documentation written in texinfo, the
 	GNU documentation format.
 
-2000-07-01  [ Ela ]  <ela@lkcc.org>
+2000-07-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* coserver.txt: Documentation on how to write coservers for 
 	blocking tasks within serveez.
@@ -356,7 +364,7 @@
 	* server.txt: Started to write some documentation on how to write
 	your own internet protocol server.
 
-2000-01-27  [ Ela ]  <ela@lkcc.org>
+2000-01-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* Identification:      RFC 1413
 	* Internet Relay Chat: RFC 1459

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.67 2002/07/29 18:32:08 ela Exp $
+ * $Id: guile.c,v 1.68 2002/09/28 10:33:48 ela Exp $
  *
  */
 
@@ -243,12 +243,12 @@ optionhash_get (svz_hash_t *hash, char *key)
 
 /*
  * Traverse a scheme pairlist that is an associative list and build up
- * a hash from it. Emits error messages and returns NULL when it did so.
- * Hash keys are the key names. Hash values are pointers to guile_value_t 
- * structures. If @var{dounpack} is set the pairlist's car is used instead
- * of the pairlist itself. You have to unpack when no "." is in front of
- * the pairlist definitiion (in scheme code). Some please explain the "." to
- * Ela and Raimi...
+ * a hash from it. Emits error messages and returns NULL when it did
+ * so.  Hash keys are the key names. Hash values are pointers to
+ * guile_value_t structures. If @var{dounpack} is set the pairlist's
+ * car is used instead of the pairlist itself. You have to unpack when
+ * no "." is in front of the pairlist definition (in scheme
+ * code). Some please explain the "." to Stefan and Raimi...
  */
 svz_hash_t *
 guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
@@ -1096,7 +1096,7 @@ guile_define_server (SCM name, SCM args)
   else if (NULL == (options = guile_to_optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
 
-  /* Seperate server description. */
+  /* Separate server description. */
   p = servertype = svz_strdup (servername);
   while (*p && *p != '-')
     p++;
@@ -1515,7 +1515,7 @@ guile_hash_to_guile (svz_hash_t *hash)
 }
 
 /*
- * Make the list of local interfaces accessable for Guile. Returns the
+ * Make the list of local interfaces accessible for Guile. Returns the
  * local interfaces as a list of ip addresses in dotted decimal form. If
  * another list is given in @var{args} it should contain the new list of
  * local interfaces.
@@ -1568,7 +1568,7 @@ guile_access_interfaces (SCM args)
 #undef FUNC_NAME
 
 /*
- * Make the search path for the Serveez core library accessable for Guile.
+ * Make the search path for the Serveez core library accessible for Guile.
  * Returns a list a each path as previously defined. Can override the current
  * definition of this load path. The load path is used to tell Serveez where
  * it can find additional server modules.

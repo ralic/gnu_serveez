@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.11 2002/07/26 06:34:53 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.12 2002/09/28 10:33:48 ela Exp $
 #
 
 # evaluate command line arguments
@@ -400,7 +400,7 @@ function handle_macro(line)
 
     # cleanup tabs in argument list
     gsub(/\t/, " ", args)
-    # seperate the arguments
+    # separate the arguments
     split(args, arg, ",")
     c_args = ""
     guile_args = ""

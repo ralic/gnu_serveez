@@ -1,16 +1,16 @@
-2002-07-23  [ Ela ]  <ela@lkcc.org>
+2002-07-23  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): New file `libtool-MacOS.diff' 
 	added.  The patch should be applied after `configure'ing on
 	`powerpc-apple-darwin*' platforms.  It corrects generation of
 	shared libraries.
 
-2002-07-13  [ Ela ]  <ela@lkcc.org>
+2002-07-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* PLATFORMS: Added some more platforms.  Tested at Compaq
 	Testdrive accounts.
 
-2001-10-30  [ Ela ]  <ela@lkcc.org>
+2001-10-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (install-init): New install target.  Creates
 	init.serveez and installs it.  Also drops a note about init

@@ -590,7 +590,7 @@ Coservers are helper processes meant to perform blocking tasks. This is
 going to be necessary because serveez itself is single threaded. Each 
 coserver is connected via a pair of pipes to the main thread of serveez 
 communicating over a simple text line protocol. Each request/response is 
-seperated by a newline character.
+separated by a newline character.
 
 If the user wants to use these processes you need to start the coserver
 interface by calling @code{svz_coserver_init()} once before entering the

@@ -1,4 +1,4 @@
-2002-07-31  [ Ela ]  <ela@lkcc.org>
+2002-07-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_get_cpu_state): Added
 	support for MacOS cpu load via `host_statistics()'.
@@ -9,7 +9,7 @@
 	* guile-server.c (guile_server_state_set_x,
 	guile_server_state_ref): Bugfix: Was not able to store `0'.
 
-2002-07-29  [ Ela ]  <ela@lkcc.org>
+2002-07-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm (serveez-doc-add!): Add the documentation-files
 	for each loadpath entry.
@@ -24,7 +24,7 @@
 	* Makefile.am (install-exec-hook): Workaround for mingw32 and
 	cygwin host builds.
 
-2002-07-27  [ Ela ]  <ela@lkcc.org>
+2002-07-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile.c (guile_serveez_load): New Guile procedure replacing
 	`(primitive-load)'.  Also looks for files in the load path.
@@ -40,12 +40,12 @@
 	* guile-bin.c (guile_string_to_bin, guile_bin_search): Handle 
 	empty strings correctly.
 
-2002-07-26  [ Ela ]  <ela@lkcc.org>
+2002-07-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm (serveez-doc-add!): New procedure.  Adds the
 	serveez documentation file to the help system of Guile.
 
-2002-07-15  [ Ela ]  <ela@lkcc.org>
+2002-07-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile.c (guile_to_integer): Added FUNC_NAME macro.
 	(guile_error): Fixed argument type.
@@ -60,7 +60,7 @@
 	* guile-api.h (SCM_VERSION_15X): Compatibility macros for
 	Guile 1.5.6 added and tested.
 
-2002-06-06  [ Ela ]  <ela@lkcc.org>
+2002-06-06  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-bin.c (guile_bin_set_x): Fixed a bug in argument 
 	handling (forgot to differentiate between char and exact 
@@ -69,22 +69,22 @@
 	* guile-api.c (svz:sock:check-oob-request, svz:sock:send-oob):
 	New Guile procedures.
 
-2002-06-03  [ Ela ]  <ela@lkcc.org>
+2002-06-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/icecast-server.scm (icecast-id3-tag): 
 	Stripping ID3v1 tags from mp3 files.
 
-2002-05-31  [ Ela ]  <ela@lkcc.org>
+2002-05-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/icecast-server.scm (icecast-dns): Demonstrating
 	usage of coservers from Guile.
 
-2002-05-29  [ Ela ]  <ela@lkcc.org>
+2002-05-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/icecast-server.scm: Recurses into sub
 	directories while collecting mp3 files.
 
-2002-05-24  [ Ela ]  <ela@lkcc.org>
+2002-05-24  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/icecast-server.scm (icecast-server): New
 	icecast compatible guile server added.
@@ -100,7 +100,7 @@
 	svz:sock:send-buffer-size, svz:sock:trigger-condition, 
 	svz:sock:trigger): New Guile procedures.
 
-2002-05-05  [ Ela ]  <ela@lkcc.org>
+2002-05-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.c (main): Close stdin, stdout, stderr if these are 
 	tty's only.
@@ -108,7 +108,7 @@
 	* guile.c (guile_eval_file): Inhibit usage of the stdin file
 	descriptor for configuration input if it is actually closed.
 
-2002-03-27  [ Ela ]  <ela@lkcc.org>
+2002-03-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_sock_send_buffer): New Guile procedure 
 	returning the send buffer of the given socket structure as
@@ -120,7 +120,7 @@
 	* guile.c (guile_eval_file): Use the standard input stream as
 	configuration file when required and possible.
 
-2002-03-22  [ Ela ]  <ela@lkcc.org>
+2002-03-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_sock_protocol): Returns the type of socket
 	structure.
@@ -128,7 +128,7 @@
 	* guile-bin.c (guile_bin_reverse_x, guile_bin_reverse): Two
 	new convenience functions for Guile servers.
 
-2002-03-01  [ Ela ]  <ela@lkcc.org>
+2002-03-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile.h (guile_to_string): This macro segfaulted when passing
 	immediate values in Guile 1.3.4! Thanks for reporting this bug
@@ -137,22 +137,22 @@
 	* guile-server.c (guile_define_servertype): Fixed memory leak
 	occuring when servertype definition fails.
 
-2002-02-15  [ Ela ]  <ela@lkcc.org>
+2002-02-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_sock_find, guile_sock_ident): New 
 	functions for the Guile frontend dealing with socket structure
 	indentification.
 
-2002-02-12  [ Ela ]  <ela@lkcc.org>
+2002-02-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-bin.c (MAKE_BIN_SET): Fixed range checking.
 
-2002-02-10  [ Ela ]  <ela@lkcc.org>
+2002-02-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-bin.c (guile_bin_init): More converter functions for
 	binary smobs for long, int, short and char access.
 
-2002-02-05  [ Ela ]  <ela@lkcc.org>
+2002-02-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (scm_portmap_list): Now returns an empty list
 	if there are no RPC port mappings or an error occurred.
@@ -164,7 +164,7 @@
 	guile_coserver_rdns): Three new functions being the Guile 
 	frontend to the internal coservers of Serveez.
 
-2002-02-03  [ Ela ]  <ela@lkcc.org>
+2002-02-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_connect_host): Also parses
 	Internet hostnames in the given `hosts' configuration item and
@@ -178,7 +178,7 @@
 	for the TCP bindings of a server instance and comparison with
 	the given `M-line'.
 
-2002-02-01  [ Ela ]  <ela@lkcc.org>
+2002-02-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/inetd.scm (check-rpc-portmapper): Uses the
 	below function (portmap-list) in order to check whether a
@@ -187,11 +187,11 @@
 	* guile-api.c (scm_portmap_list): New function.  Returns the
 	current list of RPC port mappings.
 
-2002-01-28  [ Ela ]  <ela@lkcc.org>
+2002-01-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm (bind-udp-port-range!): New function.
 
-2002-01-20  [ Ela ]  <ela@lkcc.org>
+2002-01-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_get_response): Considers
 	content range requests.  When the request is satisfiable the
@@ -201,19 +201,19 @@
 	content range specifier send in a HTTP header.
 	(http_get_range): Parses a content range specifier.
 
-2001-12-27  [ Ela ]  <ela@lkcc.org>
+2001-12-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.h: Added some more backward compatibility 
 	definitions.  Also defined a pre-ansi C string concatinator
 	macro.
 
-2001-12-22  [ Ela ]  <ela@lkcc.org>
+2001-12-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/nut-transfer.c, http-server/http-dirlist.c: Do 
 	not include <dirent.h> with <sys/dirent.h> together to inhibit 
 	redeclaration of `struct dirent'.
 
-2001-12-15  [ Ela ]  <ela@lkcc.org>
+2001-12-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* prog-server/prog-server.c (prog_read_sock_drop): Dropping
 	unread data on failed ICMP and UDP sockets.
@@ -221,13 +221,13 @@
 	* guile.c (guile_define_port): Checking for network port 
 	range (0 .. 65535).
 
-2001-12-13  [ Ela ]  <ela@lkcc.org>
+2001-12-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* irc-server/irc-server.h, http-server/http-core.h, 
 	irc-server/irc-proto.h: Renamed __P into __PARAMS because the 
 	use of __P conflicts with some g++ versions.
 
-2001-12-12  [ Ela ]  <ela@lkcc.org>
+2001-12-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/inetd.scm (bind-rpc-service): RPC service
 	capabilities added.  Ready for testing.
@@ -237,12 +237,12 @@
 	server instance.
 	(scm_portmap): RPC port mapper interface for Guile.
 
-2001-12-07  [ Ela ]  <ela@lkcc.org>
+2001-12-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile.c (guile_define_port): Added `device' keyword for 
 	network	port configurations.
 
-2001-12-04  [ Ela ]  <ela@lkcc.org>
+2001-12-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm: Added Scheme procedures using the below new
 	Guile primitives.
@@ -250,12 +250,12 @@
 	* guile-api.c (scm_getrpc, scm_setrpc): New Guile 
 	primitives.
 
-2001-12-01  [ Ela ]  <ela@lkcc.org>
+2001-12-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/inetd.scm (lookup-service): Detect rpc services
 	and drop a `no support' note.
 
-2001-11-29  [ Ela ]  <ela@lkcc.org>
+2001-11-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/Makefile.am (pkgdata_DATA): Install
 	all `*.scm' files.
@@ -265,7 +265,7 @@
 	* serveez.c (main): Setup command line verbosity also before
 	evaluating the configuration file.
 
-2001-11-27  [ Ela ]  <ela@lkcc.org>
+2001-11-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* sntp-server/sntp-proto.c: Made the server TCP/PIPE-able.
 
@@ -284,22 +284,22 @@
 	Checks whether the given string is a servertype's short 
 	name.
 
-2001-11-25  [ Ela ]  <ela@lkcc.org>
+2001-11-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/inetd.scm: Inetd replacement script.  Reads a
 	configuration file and instantiates `prog-server's.
 
-2001-11-25  [ Ela ]  <ela@lkcc.org>
+2001-11-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* prog-server/prog-server.c: Also UDP and ICMP bindings
 	supported.  Added `single-threaded' option.
 
-2001-11-21  [ Ela ]  <ela@lkcc.org>
+2001-11-21  Stefan Jahn  <stefan@lkcc.org>
 
 	* prog-server/prog-server.c (prog_connect_socket): Adapted
 	to new functions in `passthrough.c'.
 
-2001-11-20  [ Ela ]  <ela@lkcc.org>
+2001-11-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_func_kicked_socket): New kicked-
 	socket wrapper.
@@ -311,7 +311,7 @@
 	kicked-socket callback.
 	(guile_api_init): Defined KICK_QUEUE and KICK_FLOOD.
 
-2001-11-19  [ Ela ]  <ela@lkcc.org>
+2001-11-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.h: New file.  Contains compatibility code.
 
@@ -320,23 +320,23 @@
 	Guile people are going to deprecate this interface.  That is
 	why need to find proper replacements in the scm_*() interface.
 
-2001-11-16  [ Ela ]  <ela@lkcc.org>
+2001-11-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-bin.h (SCM_STRING_UCHARS, SCM_STRING_CHARS): Defined
 	for Guile versions compatibility.  Changed all callers.
 
-2001-11-12  [ Ela ]  <ela@lkcc.org>
+2001-11-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_sock_no_delay): New Guile procedure switching
 	TCP Nagle algorithm on or off.
 
-2001-11-11  [ Ela ]  <ela@lkcc.org>
+2001-11-11  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server/mandel-server.scm (mandel-palette): More
 	flexible colour palette generator.  Can handle any colour 
 	depth.
 
-2001-11-10  [ Ela ]  <ela@lkcc.org>
+2001-11-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_sock_final_print): New Guile procedure.
 
@@ -346,7 +346,7 @@
 	Completely in Guile.  Added the directory `guile-server' and put
 	all existing servers there.
 
-2001-11-09  [ Ela ]  <ela@lkcc.org>
+2001-11-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (guile_sock_server, guile_server_p): New
 	Guile procedures known as `svz:server?' and `svz:sock:server'.
@@ -358,12 +358,12 @@
 	`svz:server:state-set!'.  Both implementing server instance state
 	savings for Guile servers.
 
-2001-11-04  [ Ela ]  <ela@lkcc.org>
+2001-11-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (svz:sock:referrer, svz:sock:parent, svz:sock?): 
 	New Guile procedures.
 
-2001-11-02  [ Ela ]  <ela@lkcc.org>
+2001-11-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (svz:inet-ntoa, svz:inet-aton, svz:htons,
 	svz:ntohs, svz:htonl, svz:ntohl): New guile procedures.
@@ -374,7 +374,7 @@
 	procedures: `svz:sock:remote-address' and 
 	`svz:sock:local-address'.
 
-2001-11-01  [ Ela ]  <ela@lkcc.org>
+2001-11-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c (svz:sock:disconnected): New callback setter/
 	getter for Guile.
@@ -383,7 +383,7 @@
 	setter/getter function exported to Guile.  The resulting 
 	procedure is for modifying socket structure callbacks.
 
-2001-10-31  [ Ela ]  <ela@lkcc.org>
+2001-10-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c: New file.  Provides additional Serveez API
 	functionality for Guile.
@@ -391,7 +391,7 @@
 	* guile-server.c (guile_sock_print): Check for protocol flag
 	to differentiate TCP/UDP/ICMP/PIPE.
 
-2001-10-26  [ Ela ]  <ela@lkcc.org>
+2001-10-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat): Appended the
 	builtin program passthrough server to the feature list.
@@ -402,7 +402,7 @@
 	* prog-server/prog-server.c: Framework for the upcoming 
 	program passthrough server added.
 
-2001-10-25  [ Ela ]  <ela@lkcc.org>
+2001-10-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_sock_data): Protect associated guile
 	object via scm_protect_object().  Unprotect these objects when
@@ -417,26 +417,26 @@
 	* irc-server/irc-proto.h (struct irc_configuration): Made
 	the number of maximum channels per user configurable.
 
-2001-10-07  [ Ela ]  <ela@lkcc.org>
+2001-10-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_access_exceptions): New guile procedure.
 	Thus the user can determine the use of exception handlers as
 	needed.
 
-2001-09-22  [ Ela ]  <ela@lkcc.org>
+2001-09-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_svz_servertype_gc): Setup marker
 	functions for the guile garbage collection. This is necessary
 	if you are defining (lambda) expressions for callback functions.
 
-2001-09-21  [ Ela ]  <ela@lkcc.org>
+2001-09-21  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_call): Wrapper function for `scm_apply()'
 	catching exceptions within guile procedure calls if requested.
 	This behaviour can be disabled by setting `guile_use_exceptions'
 	to zero.
 
-2001-09-20  [ Ela ]  <ela@lkcc.org>
+2001-09-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_sock_data): Setting up a garbage 
 	collector marking function while referring to the scheme
@@ -449,11 +449,11 @@
 	`!gh_eq_p()' instead of C operators `==' and `!=' when comparing
 	scheme values wherever possible.
 
-2001-09-13  [ Ela ]  <ela@lkcc.org>
+2001-09-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* svzconfig.h.in: Reintroduced definition of `off_t'.
 
-2001-09-12  [ Ela ]  <ela@lkcc.org>
+2001-09-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-bin.h (scm_wrong_type_arg_msg): Defined some
 	backward compatibility macros with "Guile 1.3.4".
@@ -463,18 +463,18 @@
 	(guile_get_current_load_port): Checking for SCM_BOOL_P before
 	testing SCM_PORTP().
 
-2001-09-10  [ Ela ]  <ela@lkcc.org>
+2001-09-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* svzconfig.h.in: Added `size_t'.
 
 	* serveez-config.in: New file. Utility for compiling and linking
 	a program with Serveez.
 
-2001-09-08  [ Ela ]  <ela@lkcc.org>
+2001-09-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* libserveez.h: Including `array.h' explicitly.
 
-2001-09-07  [ Ela ]  <ela@lkcc.org>
+2001-09-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_sock_floodprotect): New setter and getter
 	for the flood protection bit accessible from guile scripts.
@@ -483,12 +483,12 @@
 	gh_number_p() into gh_exact_p() for integer values throughout 
 	these files.
 
-2001-09-04  [ Ela ]  <ela@lkcc.org>
+2001-09-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.c (guile_entry): Detect operating system before running
 	the configuration file.
 
-2001-08-12  [ Ela ]  <ela@lkcc.org>
+2001-08-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* awcs-server/awcs-proto.c: Slightly modified the client id
 	parsing everywhere in this file. The client id's are no more
@@ -499,7 +499,7 @@
 	* ctrl-server/control-proto.c (ctrl_idle): Print process state
 	also if cpu state should not be available.
 
-2001-08-03  [ Ela ]  <ela@lkcc.org>
+2001-08-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cgi.c (http_cgi_exec): Removed limit of
 	directory name lengths.
@@ -507,12 +507,12 @@
 	* http-server/http-core.c (http_absolute_file): Removed limit
 	for directory lengths.
 
-2001-07-31  [ Ela ]  <ela@lkcc.org>
+2001-07-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat_id): Output socket-
 	type-specific information only.
 
-2001-07-30  [ Ela ]  <ela@lkcc.org>
+2001-07-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cache.c (http_free_cache): Fixed segmentation
 	fault due to pure dumbness of mine.
@@ -522,7 +522,7 @@
 	Thereby removed the restriction for the environment sizes of cgi
 	scripts.
 	
-2001-07-28  [ Ela ]  <ela@lkcc.org>
+2001-07-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cache.c (http_urgent_cache): LRU detection
 	algorithm has been changed: Using a double chained list for
@@ -542,7 +542,7 @@
 	procedure returns all data until the end of the smob if this
 	argument is missing.
 
-2001-07-20  [ Ela ]  <ela@lkcc.org>
+2001-07-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_sock_check_request): Setter for
 	the check_request callback.
@@ -558,7 +558,7 @@
 	* guile-server.c (guile_sock_handle_request): New function for
 	setting up the check_request member of a socket structure.
 
-2001-07-18  [ Ela ]  <ela@lkcc.org>
+2001-07-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (guile_servertype_config): Manages the
 	parsing of the configuration items for a servertype defined
@@ -571,7 +571,7 @@
 	also provides procedure for converting the smobs into strings
 	and lists.
 
-2001-07-12  [ Ela ]  <ela@lkcc.org>
+2001-07-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* echo-server.scm (echo-handle-request): Implemented this
 	function. Simply echos the input with a prefix and quits
@@ -580,36 +580,36 @@
 	* guile-server.c: Some more work on guile servers completed.
 	Echo server even does something now.
 
-2001-07-07  [ Ela ]  <ela@lkcc.org>
+2001-07-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server.c (MAKE_SMOB_DEFINITION): Started to encapsulate
 	some of the data structures of the core library into a guile
 	representation called `smob' (small object).
 
-2001-07-03  Stefan Jahn  <s.jahn@bit-side.de>
+2001-07-03  Stefan Jahn  <s.jahn@bit-side.com>
 
 	* nut-server/nut-route.c (nut_route): Fixed memory leak.
 
 	* nut-server/nut-transfer.c (nut_init_transfer): Bugfix: 
 	Corrected the test for valid file extensions.
 
-2001-06-27  [ Ela ]  <ela@lkcc.org>
+2001-06-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* echo-server.scm: An example server in guile.
 
 	* guile-server.c: New file containing some code for the full
 	implementation of servers with guile. Yet very experimental.
 
-2001-06-21  [ Ela ]  <ela@lkcc.org>
+2001-06-21  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm (create-tcp-port!, bind-tcp-port-range!): 
 	New functions. (by 'mgrabmue)
 
-2001-06-19  [ Ela ]  <ela@lkcc.org>
+2001-06-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm (bind-servers!): New function. Thanks 'mgrabmue.
 
-2001-06-13  [ Ela ]  <ela@lkcc.org>
+2001-06-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.scm: Put some convenience functions here.
 
@@ -621,30 +621,30 @@
 	`serveez-server?' which check its argument being a valid port or
 	server.
 
-2001-06-10  [ Ela ]  <ela@lkcc.org>
+2001-06-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (aclocal_DATA): Added the `serveez.m4' autoconf
 	script.
 
-2001-06-04  [ Ela ]  <ela@lkcc.org>
+2001-06-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am ($(GUILE_RULE)): Now possible to create a static
 	guile library and link against it. This is especially useful
 	if a user wants to compile and run serveez without having a full
 	guile installation on its system.
 
-2001-05-18  [ Ela ]  <ela@lkcc.org>
+2001-05-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* svzconfig.h.in: New file.
 
 	* Makefile.am (EXTRA_DIST): Added `svzconfig.h.in'.
 
-2001-05-05  [ Ela ]  <ela@lkcc.org>
+2001-05-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* foo-server/foo-proto.c (foo_server_definition): Using new
 	DEFINE_CONFIG() macro in the definition of the server type.
 
-2001-05-04  [ Ela ]  <ela@lkcc.org>
+2001-05-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile.c (guile_define_server): Delete the server instance
 	if the configuration failed and return SCM_BOOL_F.
@@ -657,7 +657,7 @@
 	configuration the new style. All other servers wait for the
 	same...
 
-2001-05-02  [ Ela ]  <ela@lkcc.org>
+2001-05-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/nut-transfer.c (nut_send_push): Using `svz_portcfg()'
 	for specifying push request.
@@ -672,7 +672,7 @@
 	(http_init): Resolve the ip address of the first server binding
 	only and use it as server name if there no such configured.
 
-2001-04-28  [ Ela ]  <ela@lkcc.org>
+2001-04-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* tunnel-server/tunnel.c: Made all necessary changes for using
 	the new svz_portcfg_t... still some work needed.
@@ -696,7 +696,7 @@
 	configuration.
 	(http_init): Added some "FIXME"s.
 
-2001-04-27  [ Ela ]  <ela@lkcc.org>
+2001-04-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* foo-server/foo-proto.h: Dropped port configuration within
 	the server instance configuration.
@@ -738,7 +738,7 @@
 
 	* Makefile.am (serveez_SOURCES): Dropped `sizzle.[ch]'.
 
-2001-04-18  [ Ela ]  <ela@lkcc.org>
+2001-04-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile.c (define_port): Default for ICMP_TYPE is ICMP_SERVEEZ.
 	Using string constants from `portcfg.h'.
@@ -746,19 +746,19 @@
 	Try dynamically load the server type if there is no such static
 	server type.
 
-2001-04-08  [ Ela ]  <ela@lkcc.org>
+2001-04-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* option.c (getopt): Reimplemented this function. Now 
 	understands `optopt', `opterr' and `optind'.
 	(handle_options): Moved this piece of code into `option.c'.
 
-2001-04-01  [ Ela ]  <ela@lkcc.org>
+2001-04-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cache.c (http_cache_read): Using ReadFile()
 	instead of read() for we are using CreateFile() in order to open
 	a file in Win32 instead of open().
 
-2001-03-04  [ Ela ]  <ela@lkcc.org>
+2001-03-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cgi.c (http_cgi_get_response): This piece
 	of code has been part of the http_get_response() function.
@@ -766,12 +766,12 @@
 	(http_cgi_exec): Piping stderr of cgi script to its output
 	stream in the release target.
 
-2001-02-28  [ Ela ]  <ela@lkcc.org>
+2001-02-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_get_response): Closing
 	receiving end of a CGI pipe which got mistakenly inherited.
 
-2001-01-21  [ Ela ]  <ela@lkcc.org>
+2001-01-21  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (serveez_SOURCES): Added `dynload.c' and 
 	`dynload.h' files.
@@ -783,7 +783,7 @@
 	* pipe-socket.c (pipe_listener): Check if the file descriptor
 	gained from open() is a pipe descriptor via fstat().
 
-2001-01-16  [ Ela ]  <ela@lkcc.org>
+2001-01-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am: Added rules for processing Windows resources
 	with `windres'. The VC++ compiler can do that as well.
@@ -794,17 +794,17 @@
 	* windoze.c (windoze_thread): Loading tiny taskbar icon from
 	a builtin resource now.
 
-2001-01-13  [ Ela ]  <ela@lkcc.org>
+2001-01-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* alist.c (alist_unset): Implemented this function which
 	is the opposite of alist_set().
 
-2001-01-08  [ Ela ]  <ela@lkcc.org>
+2001-01-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-socket.c (server_accept_pipe): Calling here the
 	check_request() callback for greedy protocols on pipes.
 
-2001-01-07  [ Ela ]  <ela@lkcc.org>
+2001-01-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* tunnel-server/tunnel.c (tnl_disconnect_target): Send
 	a disconnection message if the source port is ICMP.
@@ -825,12 +825,12 @@
 	fixed the problem with disconnecting referring pipe or tcp
 	connections.
 
-2001-01-05  [ Ela ]  <ela@lkcc.org>
+2001-01-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* icmp-socket.c (icmp_request): Text definition of all known
 	ICMP type codes. Printed when received.
 
-2001-01-04  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+2001-01-04  Raimund Jacob  <raimi@lkcc.org>
 
 	* socket.c (sock_write): Prevent serveez from sending empty
 	buffers.
@@ -840,12 +840,12 @@
 
 	* fakeident-server/Makefile.am: New server.
 
-2001-01-02  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+2001-01-02  Raimund Jacob  <raimi@lkcc.org>
 
 	* server.h (portcfg): Renamed 'local-ip' and friends to some
 	generic name.
 
-2000-12-31  [ Ela ]  <ela@lkcc.org>
+2000-12-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_config_prototype): `ident'
 	is a new configuration item which enables the identfication
@@ -857,13 +857,13 @@
 	routine for identd result handling.
 	(http_clf_date): This routine produces a CLF date.
 
-2000-12-30  [ Ela ]  <ela@lkcc.org>
+2000-12-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* irc-server/irc-proto.c (irc_init): Reviewed A-line and M-line
 	configuration item handling. Eliminated clashes with other
 	parameters.
 
-2000-12-29  [ Ela ]  <ela@lkcc.org>
+2000-12-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/nut-transfer.c (nut_send_push): The keys in
 	the push request hash table now correspond when received/sent.
@@ -875,7 +875,7 @@
 	a push request here if the connection process itself has
 	been aborted (as is when connecting firewalls or gateways).
 
-2000-12-18  [ Ela ]  <ela@lkcc.org>
+2000-12-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* irc-core/irc-core.c (irc_string_regex): Fixed spelling
 	errors in documentation.
@@ -883,7 +883,7 @@
 	* coserver/coserver.c: Made a lot of changes concerning the
 	readability of the coserver code. Cleaned up the namespace.
 
-2000-12-15  [ Ela ]  <ela@lkcc.org>
+2000-12-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* sntp-server/Makefile.am: Created this file for building
 	the SNTP server library.
@@ -895,12 +895,12 @@
 	a simple network time protocol packet processor which creates
 	time stamps according to RFC 868.
 
-2000-12-12  [ Ela ]  <ela@lkcc.org>
+2000-12-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-socket.c (server_create): Print some error message if
 	IP_HDRINCL is not defined.
 
-2000-12-09  [ Ela ]  <ela@lkcc.org>
+2000-12-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* pipe-socket.c (pipe_write): Using Overlapped I/O when writing
 	data to a pipe.
@@ -921,14 +921,14 @@
 	* pipe-socket.c (pipe_listener): If mkfifo() is not available
 	we are using mknod() in order to create a named pipe.
 
-2000-12-02  [ Ela ]  <ela@lkcc.org>
+2000-12-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-core.c: Added http_add_header, http_set_header,
 	http_send_header and http_reset_header for building a valid
 	http header. These are currently used within the GET response
 	routines.
 
-2000-12-01  [ Ela ]  <ela@lkcc.org>
+2000-12-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_get_response): Checking for
 	content range request. Not yet fulfilled...
@@ -937,7 +937,7 @@
 	parses a content range header line and saves its results in
 	a given http socket structure.
 
-2000-11-30  [ Ela ]  <ela@lkcc.org>
+2000-11-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* pipe-socket.c (pipe_listener): Added a routine for creating
 	a pipe listener structure. Now we are even able to forward pipe
@@ -948,7 +948,7 @@
 	Dismissed the usage of the referrer entry of the socket
 	structure for enabling the pipe forwarder.
 
-2000-11-28  [ Ela ]  <ela@lkcc.org>
+2000-11-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* tunnel-server/tunnel.c (tnl_create_socket): Added routines and
 	definitions for the support of forwarding named pipes.
@@ -957,7 +957,7 @@
 	of named pipes. It is the counterpart of the server_accept_pipe()
 	function.
 
-2000-11-26  [ Ela ]  <ela@lkcc.org>
+2000-11-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* server.h (PROTO_RAW): Added some definitions for latter support
 	of raw sockets which will be able to sent the ip header in front
@@ -972,7 +972,7 @@
 	files to the CVS. There we find additional routines for raw
 	sockets.
 
-2000-11-25  [ Ela ]  <ela@lkcc.org>
+2000-11-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cgi.c (http_cgi_exec): Enhanced the 
 	behaviour of fork(). Under heavy load the http server retries
@@ -980,14 +980,14 @@
 	(http_cgi_disconnect): Cleanup zombie processes with waitpid()
 	if possible.
 
-2000-11-23  [ Ela ]  <ela@lkcc.org>
+2000-11-23  Stefan Jahn  <stefan@lkcc.org>
 
 	* icmp-socket.c (icmp_startup): This routine starts the ip
 	services on Win32 systems. It loads the ICMP.DLL, obtains
 	the appropriate functions and retrieves a single handle from
 	this DLL.
 
-2000-11-11  [ Ela ]  <ela@lkcc.org>
+2000-11-11  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-core.c (http_start_netapi): Here we load
 	the netapi32.dll to get some functions for handling user 
@@ -1001,7 +1001,7 @@
 	* tunnel-server/tunnel.c (tnl_disconnect): Fixed some of the
 	segmentation fault candidates due to invalid socket referers.
 
-2000-11-09  [ Ela ]  <ela@lkcc.org>
+2000-11-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_init): The user directory
 	path is configurable via "userdir" in each http instance.
@@ -1013,7 +1013,7 @@
 	(http_log): '%c' gets replaced by the response code and '%l'
 	by the content length in the access logfile.
 
-2000-11-08  [ Ela ]  <ela@lkcc.org>
+2000-11-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* alist.c (alist_insert): Fixed another bug causing an invalid
 	array list length (off by one).
@@ -1032,7 +1032,7 @@
 	* alist.c (alist_delete): Fixed a bug in this function which
 	caused invalid array list lengths and array chunk sizes.
 
-2000-11-03  [ Ela ]  <ela@lkcc.org>
+2000-11-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-core.c (http_localhost): The local server
 	name is resolved at server startup if necessary.
@@ -1040,7 +1040,7 @@
 	server its remote address gets resolved and put to the access
 	logfile and cgi environment.
 
-2000-11-02  [ Ela ]  <ela@lkcc.org>
+2000-11-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.h: The following configuration items
 	have been added to the HTTP configuration:
@@ -1053,7 +1053,7 @@
 	system. Each http request gets a line within a configurable
 	access logfile.
 
-2000-11-01  [ Ela ]  <ela@lkcc.org>
+2000-11-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* icmp-socket.c (icmp_ip_checksum): Fixed ip checksum 
 	generation algorithm due to RFC 1071 (Computing the Internet 
@@ -1068,7 +1068,7 @@
 	port given in the form `ip:port' it defaults to NUT_PORT
 	which is 6346.
 
-2000-10-31  [ Ela ]  <ela@lkcc.org>
+2000-10-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* icmp-socket.c (icmp_put_ip_header): Put a given IP header
 	structure into plain data. Could be used with IP_HDRINCL.
@@ -1076,7 +1076,7 @@
 	* nut-server/nut-core.c (nut_canonize_file): This routine
 	converts any filename to something printable.
 
-2000-10-30  [ Ela ]  <ela@lkcc.org>
+2000-10-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* icmp-socket.c (icmp_connect): Each `connected' ICMP
 	sockets gets a unique remote port for identifying data
@@ -1086,7 +1086,7 @@
 	now an additional remote port information for filtering
 	dedicated ICMP connections.
 
-2000-10-28  [ Ela ]  <ela@lkcc.org>
+2000-10-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* tunnel-server/tunnel.c (tnl_init): Assigning either UDP or
 	ICMP handle request routine to the server instance.
@@ -1094,7 +1094,7 @@
 	* udp-socket.c (udp_write): Splitting large UDP messages if
 	necessary.
 
-2000-10-26  [ Ela ]  <ela@lkcc.org>
+2000-10-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* tunnel-server/tunnel.c: The port forwarder for UDP and TCP
 	is fully implemented but must be tested yet.
@@ -1110,7 +1110,7 @@
 	* udp-socket.c (udp_write): Added this routine for sending
 	whole buffers via UDP connection.
 
-2000-10-23  [ Ela ]  <ela@lkcc.org>
+2000-10-23  Stefan Jahn  <stefan@lkcc.org>
 
 	* alist.c (alist_delete): Optimized deletion and insertion
 	of fill bits.
@@ -1119,14 +1119,14 @@
 	chained. Thus accesses to specific elements can be optimized 
 	a bit.
 
-2000-10-22  [ Ela ]  <ela@lkcc.org>
+2000-10-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* alist.c: Most of the array list functions have been 
 	implemented and tested. This implementation can be used for
 	linear lists of values and prevents the processor from copying
 	large arrays in memory.
 
-2000-10-16  [ Ela ]  <ela@lkcc.org>
+2000-10-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/nut-transfer.c (nut_send_push): Checking
 	if a push request has already been sent. Fixed memory leak.
@@ -1134,7 +1134,7 @@
 	* alist.c: Defined all array list functions which need to
 	be implemented sometime.
 
-2000-10-13  [ Ela ]  <ela@lkcc.org>
+2000-10-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat): Stating
 	server uptime.
@@ -1143,20 +1143,20 @@
 	error message if a socket has gone into the exception set
 	of poll() or select().
 
-2000-10-12  [ Ela ]  <ela@lkcc.org>
+2000-10-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* tunnel-server/tunnel.c (tnl_server_definition): Started to
 	setup a port forward server.
 	(tnl_check_request_tcp): TCP ports can be forwarded now. The
 	routine simply copies data from one connection to another.
 
-2000-10-06  [ Ela ]  <ela@lkcc.org>
+2000-10-06  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-cache.c (http_cache_consistency): This 
 	function pedanticly checks the consistency of the http
 	cache entries.
 
-2000-10-05  [ Ela ]  <ela@lkcc.org>
+2000-10-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/nut-request.c: Moved all gnutella request handlers
 	to this file. `gnutella.c' was going too big.
@@ -1195,7 +1195,7 @@
 	* nut-server/nut-core.c (nut_parse_addr): Prevent serveez from
 	segfaulting if a given host string is empty.
 
-2000-10-01  [ Ela ]  <ela@lkcc.org>
+2000-10-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* util.c: Modifications for compiling on AIX without unwanted
 	warnings.
@@ -1206,7 +1206,7 @@
 	* icmp-socket.c (icmp_read_socket): Started to implement
 	a reader for icmp sockets. Not yet working...
 
-2000-09-27  [ Ela ]  <ela@lkcc.org>
+2000-09-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* server.c (set_port): Prepared everything to support ICMP
 	sockets in the port configuration.
@@ -1228,7 +1228,7 @@
 	* http-server/http-proto.c (http_config_prototype): Added
 	support for configurable cgi application associations.
 
-2000-09-26  [ Ela ]  <ela@lkcc.org>
+2000-09-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* windoze.c: Moved some functions to this file. That is
 	because there is now a lot of them in different source files.
@@ -1236,7 +1236,7 @@
 	(windoze_set_taskbar): When the application gets invoked as
 	daemon under Win32 it is put into the taskbar.
 
-2000-09-24  [ Ela ]  <ela@lkcc.org>
+2000-09-24  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.c (main): Added new command line option `--daemon'
 	which tells the program to fork() into background and close
@@ -1252,7 +1252,7 @@
 	* irc-server/irc-proto.c (irc_init): Both the client and
 	channel hash are case insensitive now.
 
-2000-09-22  [ Ela ]  <ela@lkcc.org>
+2000-09-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.c (main): Fixed arguments for getopt() and
 	getopt_long().
@@ -1261,7 +1261,7 @@
 	to check if there is data within the receiving cgi pipe and
 	read via ReadFile as much bytes as stated.
 
-2000-09-19  [ Ela ]  <ela@lkcc.org>
+2000-09-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-loop.c (server_check_sockets_MinGW): Now we have
 	three different socket loops. poll(), select() and one
@@ -1283,7 +1283,7 @@
 	* nut-server/gnutella.c (nut_info_client): Displaying current
 	up- and download rate. Fixed Division by zero bug.
 
-2000-09-17  [ Ela ]  <ela@lkcc.org>
+2000-09-17  Stefan Jahn  <stefan@lkcc.org>
 
 	* util.c (util_openfiles): Because Win9x and ME do have 
 	their maximum open connections (socket) system limit
@@ -1305,7 +1305,7 @@
 	(nut_config_prototype): The configuration item `net-url'
 	is for the gnutella host list.
 
-2000-09-14  [ Ela ]  <ela@lkcc.org>
+2000-09-14  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-socket.c (server_accept_pipe): Extra check if
 	mkfifo() really produced a named pipe.
@@ -1322,7 +1322,7 @@
 	The command `stat coserver' will show information on coserver
 	instances only.
 
-2000-09-12  [ Ela ]  <ela@lkcc.org>
+2000-09-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat_id): Indicating
 	additional priority flag.
@@ -1360,7 +1360,7 @@
 	* coserver/coserver.c (coserver_send_request): Fixed memory
 	leak in the coserver hash when one of these died.
 
-2000-09-11  [ RAIMI ]  <raimi@lkcc.org>
+2000-09-11  Raimund Jacob  <raimi@lkcc.org>
 
 	* nut-server/gnutella.c (nut_connect_socket): `max-connections'
 	describes now how many overall connections we have (incoming
@@ -1370,7 +1370,7 @@
 	the beginning of the socket chain. Hopefully fixes problem
 	with very fast connects (backlog too small).
 
-2000-09-10  [ Ela ]  <ela@lkcc.org>
+2000-09-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_push_request): When receiving
 	a push request for ourselves we connect to the given host and
@@ -1391,7 +1391,7 @@
 	* ctrl-server/control-proto.c (ctrl_stat): This function
 	show additionally the current heap allocator values.
 
-2000-09-09  [ Ela ]  <ela@lkcc.org>
+2000-09-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* hash.c (hash_analyse): Changed name conventions. A 
 	`node' is now a `bucket'.
@@ -1406,7 +1406,7 @@
 	* nut-server/nut-core.c: When including <sys/socket.h> 
 	we also have to include <sys/types.h> previously.
 
-2000-09-08  [ Ela ]  <ela@lkcc.org>
+2000-09-08  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_query): Fixed byte order of
 	the port property of the push request and header.
@@ -1421,7 +1421,7 @@
 	* cfgfile.c (load_config): Added `have_gnutella' variable to
 	sizzle context.
 
-2000-09-05  [ Ela ]  <ela@lkcc.org>
+2000-09-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_server_timer): Try to connect 
 	to as many gnutella hosts as necessary.
@@ -1432,7 +1432,7 @@
 	* nut-server/gnutella.h (nut_client_t): Included statistics
 	about each connections nodes, number and size of files.
 
-2000-09-04  [ Ela ]  <ela@lkcc.org>
+2000-09-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_disconnect): Every 
 	connections `files' and `size' property will be subtracted
@@ -1450,7 +1450,7 @@
 	original query reply came from.
 	(nut_reply): Saving replies for later push request routing.
 
-2000-09-03  [ Ela ]  <ela@lkcc.org>
+2000-09-03  Stefan Jahn  <stefan@lkcc.org>
 
 	* util.c (util_inet_ntoa): Using old function instead
 	of `inet_ntoa' to get an ip address text representation.
@@ -1480,7 +1480,7 @@
 	function should save the gnutella network from unpatient 
 	users.
 
-2000-09-02  [ Ela ]  <ela@lkcc.org>
+2000-09-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_host_catcher): Canonizing ip
 	addresses and tcp ports for the host catcher.
@@ -1512,7 +1512,7 @@
 	returns an error if the connected socket has not been connected
 	within a certain time interval.
 
-2000-08-31  [ Ela ]  <ela@lkcc.org>
+2000-08-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.h (little2host): Defined some routines
 	to convert the little endian values in Gnutella packet. Sigh.
@@ -1527,7 +1527,7 @@
 	* alloc.h (__XALLOC_H__): Fixed #define clash with sizzle 
 	library.
 
-2000-08-30  [ Ela ]  <ela@lkcc.org>
+2000-08-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_server_timer): Added routine for
 	regularly reconnects.
@@ -1544,7 +1544,7 @@
 	double call of `util_inet_ntoa'. It delivers a static string.
 	Thus it showed the latter result only.
 
-2000-08-29  [ Ela ]  <ela@lkcc.org>
+2000-08-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_calc_guid): Using original
 	"CoCreateGuid" routine from ole32.dll if available in Win32.
@@ -1570,7 +1570,7 @@
 	* nut-server/gnutella.c (nut_host_list): Added this routine
 	for nice HTML output of the current host catcher list.
 
-2000-08-28  [ Ela ]  <ela@lkcc.org>
+2000-08-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c (nut_route): Prevent native 
 	packets from further routing.
@@ -1584,7 +1584,7 @@
 	* nut-server/gnutella.c (nut_init_transfer): This routine 
 	will be called when invoking a new gnutella file transfer.
 
-2000-08-27  [ Ela ]  <ela@lkcc.org>
+2000-08-27  Stefan Jahn  <stefan@lkcc.org>
 
 	* nut-server/gnutella.c: Sparely documented the gnutella
 	routines and data structures.
@@ -1595,7 +1595,7 @@
 	(nut_idle_searching): Gnutella net search queries for each
 	connection is done separately.
 
-2000-08-26  [ Ela ]  <ela@lkcc.org>
+2000-08-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (SUBDIRS): Added the nut-server directory
 	with the files gnutella.c, gnutella.h and a new 
@@ -1609,13 +1609,13 @@
 	* hash.c (hash_key_length): Added callback for the actual
 	hash key length. Useful for non-string keys.
 
-2000-08-25  [ Ela ]  <ela@lkcc.org>
+2000-08-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-core.c (rechain_socket_list): This routine cycles
 	the current socket list. It prevents the end of this list to
 	starve processing.
 
-2000-08-20  [ Ela ]  <ela@lkcc.org>
+2000-08-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_connect_socket): 
 	Resizing send and receive buffer. Was a problem for
@@ -1635,13 +1635,13 @@
 	* socket.h (struct socket): Added `version', renamed 
 	`socket_id' to `id' and removed `ref'.
 
-2000-08-19  [ Ela ]  <ela@lkcc.org>
+2000-08-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* util.c (util_openfiles): Display the current and maximum 
 	open file limit via getrlimit() and try setting it via 
 	setrlimit() if necessary and possible.
 
-2000-08-18  [ Ela ]  <ela@lkcc.org>
+2000-08-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): Added ability
 	to sort the directory listing by scandir() and alphasort().
@@ -1651,7 +1651,7 @@
 	(q3key_config_prototype): `logfile' is now configurable via
 	configuration file.
 
-2000-08-16  [ Ela ]  <ela@lkcc.org>
+2000-08-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-core.c (http_error_response): Added 
 	some routine which shows server and client errors as nice
@@ -1661,7 +1661,7 @@
 	this function as separate (extended) callback for http
 	connections.
 
-2000-08-15  [ Ela ]  <ela@lkcc.org>
+2000-08-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_tcp_cork): Setting and
 	unsetting this socket option when using sendfile() to prevent
@@ -1673,7 +1673,7 @@
 	of select(). Thus we beat the (g)libc's builtin file 
 	descriptor limit of select().
 
-2000-07-31  [ Ela ]  <ela@lkcc.org>
+2000-07-31  Stefan Jahn  <stefan@lkcc.org>
 
 	* udp-socket.c (udp_connect): This routine creates a new socket
 	structure with a udp connection to some remote server.
@@ -1731,7 +1731,7 @@
 
 	* util.h: Included <assert.h> where necessary.
 
-2000-07-28  [ Ela ]  <ela@lkcc.org>
+2000-07-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* socket.c (sock_disconnect): Added solid behaviour if
 	a pipe server disconnects with having lingering children.
@@ -1758,7 +1758,7 @@
 	* server.c (server_instantiate): Copy example configuration
 	definition to server instance config.
 
-2000-07-26  [ Ela ]  <ela@lkcc.org>
+2000-07-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* udp-socket.c (udp_read_socket): Default reader for
 	udp sockets.
@@ -1768,7 +1768,7 @@
 	kind of memory to a given file stream. It replaces the
 	for dump_request function.
 
-2000-07-25  [ Ela ]  <ela@lkcc.org>
+2000-07-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* alloc.c (xheap): Made up some routines that save all
 	xmalloc()ed pointers in a hash structure. Thus we can
@@ -1809,7 +1809,7 @@
 	* server.c (set_port): Use either inet_aton() or inet_addr()
 	for forming a valid Internet address.
 
-2000-07-21  [ Ela ]  <ela@lkcc.org>
+2000-07-21  Stefan Jahn  <stefan@lkcc.org>
 
 	* socket.c (default_flood_protect): This function should be
 	called whenever you want to use flood protection within
@@ -1853,7 +1853,7 @@
 	* irc-server/irc-event-1.c (irc_oper_callback): Implemented
 	/OPER command.
 
-2000-07-19  [ Ela ]  <ela@lkcc.org>
+2000-07-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* irc-server/irc-event-3.c (irc_stats_callback): Added all
 	the statistics referring ? lines.
@@ -1882,7 +1882,7 @@
 	`util_strncasecmp'. We are using either the libc version,
 	Win32's str(n)icmp() implementation or a fallback.
 
-2000-07-15  [ Ela ]  <ela@lkcc.org>
+2000-07-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* option.h: Declaring `optarg' if necessary.
 
@@ -1899,7 +1899,7 @@
 	more than one coserver of the same type instantiated the 
 	requests for these instance will be apportioned.
 
-2000-07-09  [ Ela ]  <ela@lkcc.org>
+2000-07-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* connect.c (default_connect): Moved this function to the
 	source file `connect.c'.
@@ -1909,7 +1909,7 @@
 	as key and the http_cache_entry_t structure as values. 
 	Maybe thus we speed up the cache lookup a bit.
 
-2000-07-07  [ Ela ]  <ela@lkcc.org>
+2000-07-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* socket.c (default_connect): This function determines if
 	a connection process is still in progress and sets up the
@@ -1932,12 +1932,12 @@
 	socket shutdown. This is useful if a coserver is still having
 	a socket structure in its callback hash.
 
-2000-07-04  [ Ela ]  <ela@lkcc.org>
+2000-07-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* server.c (server_bind): Moved some of the server_* functions
 	from "server-socket.c" to "server.c".
 
-2000-07-04  [ RAIMI ]  <raimi@lkcc.org>
+2000-07-04  Raimund Jacob  <raimi@lkcc.org>
 
 	* interface.c (list_local_interfaces): made work partly under AIX.
 	interfaces still get listed multiple times but they get listed.
@@ -1946,7 +1946,7 @@
 	that ugly sa_data[] method of converting a sockaddr_in to the
 	dotted decimal representation. the cast is even uglier :)
 
-2000-07-01  [ Ela ]  <ela@lkcc.org>
+2000-07-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* coserver/coserver.c (coserver_init): This routine is 
 	instantiating all coservers now. Thus you do not need to create
@@ -1957,7 +1957,7 @@
 	instances you want to create and an optional initializer 
 	routine which will be invoked on coserver startup.
 
-2000-06-30  [ Ela ]  <ela@lkcc.org>
+2000-06-30  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): BUGFIX:
 	localtime() could deliver a NULL pointer. That's why we need
@@ -1970,7 +1970,7 @@
 	"NET_LIST_STRING" in front of network interface list when
 	using the IP-Helper-API method.
 
-2000-06-28  [ Ela ]  <ela@lkcc.org>
+2000-06-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added the appropriate headers
 	for the network interface listing in the "include" directory.
@@ -1979,13 +1979,13 @@
 	Helper API for getting interface information on WinNT4x and
 	such.
 
-2000-06-26  [ Ela ]  <ela@lkcc.org>
+2000-06-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* pipe-socket.c (pipe_disconnected): Differentiate shutdown
 	of named pipe listeners in Win32: "CloseHandle" and Unices:
 	"unlink".
 
-2000-06-25  [ Ela ]  <ela@lkcc.org>
+2000-06-25  Stefan Jahn  <stefan@lkcc.org>
 
 	* interface.c (list_local_interfaces): Made the list of
 	local interface under Win9x available via WsControl.
@@ -1995,7 +1995,7 @@
 	(serveez_SOURCES): Added interface.h and interface.c for
 	network interface list.
 
-2000-06-23  [ Ela ]  <ela@lkcc.org>
+2000-06-23  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_config_prototype): The amount
 	of cache entries can now be configured via "cache-entries" 
@@ -2009,12 +2009,12 @@
 	within the global initializer of the http server. Now the
 	amount of cache entries could be configurable.
 
-2000-06-22  [ RAIMI ]  <raimi@lkcc.org>
+2000-06-22  Raimund Jacob  <raimi@lkcc.org>
 
 	* http-server/http-proto.c (http_send_file): Made it work with
-	ela on the phone. I typed what he said.
+	stefan on the phone. I typed what he said.
 
-2000-06-22  [ Ela ]  <ela@lkcc.org>
+2000-06-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_server_definition): Ported
 	control protocol to new server concept. This has been the last
@@ -2038,13 +2038,13 @@
 	* http-server/http-proto.h (struct http_socket): Added fileoffset
 	to this structure for sendfile() parameter.
 
-2000-06-21  [ RAIMI ]  <raimi@lkcc.org>
+2000-06-21  Raimund Jacob  <raimi@lkcc.org>
 
 	* Makefile.am ($(SIZZLERULE)): When building our own sizzle from
 	source distribution the user doesn't need to make anymore. added
 	a makefile target and configure.in stuff to do so.
 
-2000-06-20  [ Ela ]  <ela@lkcc.org>
+2000-06-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_send_file): Added support
 	for sendfile() for sending large http file requests.
@@ -2062,7 +2062,7 @@
 	sockets in Win32. Non-blocking I/O will be realized via
 	overlapped I/O.
 
-2000-06-19  [ Ela ]  <ela@lkcc.org>
+2000-06-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* pipe-socket.c (pipe_write): Using overlapped I/O on Win32
 	systems for pipe reading and writing.
@@ -2090,13 +2090,13 @@
 	* irc-server/irc-proto.h (struct irc_client): Channel and 
 	client lookup simplified.
 
-2000-06-19  [ RAIMI ]  <raimi@lkcc.org>
+2000-06-19  Raimund Jacob  <raimi@lkcc.org>
 
 	* server.c (set_port): it's now possible to bind ip servers to
 	specific local interfaces. pipes can be read from cfgfile now, too.
 	the bad news is that it doesn't work and I don't know why...
 	
-2000-06-18  [ Ela ]  <ela@lkcc.org>
+2000-06-18  Stefan Jahn  <stefan@lkcc.org>
 
 	* irc-server/irc-proto.c (irc_server_definition): IRC server
 	is now fully instantiatable. But might not be working, yet...
@@ -2108,19 +2108,19 @@
 	startup, to allow servers instances to use coserver requests 
 	within their initialization routines.
 
-2000-06-18  [ RAIMI ]  <raimi@lkcc.org>
+2000-06-18  Raimund Jacob  <raimi@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): changed display format
 	of listing. looks a bit strange now due to the underlining of links.
 	but is lynx-safe and loads faster because there are no tables in it
 	anymore.
 
-2000-06-17  [ Ela ]  <ela@lkcc.org>
+2000-06-17  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): Fixed the "Too many 
 	open files" bug for *many* http dirlists (missing closedir()).
 
-2000-06-16  [ Ela ]  <ela@lkcc.org>
+2000-06-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_get_response): POST and GET method
 	do work again. Whole http server is now quite ported to new server
@@ -2134,7 +2134,7 @@
 	* socket.c (default_detect_proto): Fixed the detection fill problem.
 	Now using just 16 byte maximum detection fill.
 
-2000-06-15  [ Ela ]  <ela@lkcc.org>
+2000-06-15  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-server/http-proto.c (http_config): Freed most filed from 
 	ENABLE_HTTP_PROTO and put all http flags into sock->userflags.
@@ -2145,7 +2145,7 @@
 	* http-server/http-proto.c (http_server_definition): Started to
 	rewrite http server to new concept. Not yet working...
 
-2000-06-14  [ Ela ]  <ela@lkcc.org>
+2000-06-14  Stefan Jahn  <stefan@lkcc.org>
 
 	* server-core.c (check_sockets): Depending on some new socket flags
 	this routine, which might be the most important within serveez, has
@@ -2156,7 +2156,7 @@
 	specific flags which cannot be hold within the sock->cfg because
 	they are also socket specific.
 
-2000-06-13  [ Ela ]  <ela@lkcc.org>
+2000-06-13  Stefan Jahn  <stefan@lkcc.org>
 
 	* awcs-server/awcs-proto.c: The ENABLE_AWCS_PROTO define is now in
 	"awcs-server" directory only (except ctrl-server).
@@ -2190,7 +2190,7 @@
 	comparison (always compare sizes unsigned) and free/close resources
 	on return.
 
-2000-06-13  [ RAIMI ]  <raimi@lkcc.org>
+2000-06-13  Raimund Jacob  <raimi@lkcc.org>
 
 	* util.c: Added a helper function that can list the local network
 	interfaces. It's pretty useless but may help a user or two.
@@ -2199,7 +2199,7 @@
 
 	Completed the copyright-string review... hopefully
 
-2000-06-12  [ Ela ]  <ela@lkcc.org>
+2000-06-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* socket.c (default_idle_func): Default idle function for not yet
 	identified connections (pipes and sockets). After a certain time
@@ -2237,7 +2237,7 @@
 	some callback hash and call this when a coserver delivered some
 	result.
 
-2000-06-09  [ Ela ]  <ela@lkcc.org>
+2000-06-09  Stefan Jahn  <stefan@lkcc.org>
 
 	* socket.c (default_check_packets): This routine is a helper for
 	easy packet protocols. It is based on the socket's packet boundary 
@@ -2247,19 +2247,19 @@
 	flag for server sockets. bind () will never ever return "address
 	already in use", sigh.
 
-2000-05-12  [ Ela ]  <ela@lkcc.org>
+2000-05-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_idle): Fixed the NAN-error
 	within the cpu/process load display. Do not use floating point
 	arithmetics.
 
-2000-05-12  [ RAIMI ]  <raimi@lkcc.org>
+2000-05-12  Raimund Jacob  <raimi@lkcc.org>
 
 	* Makefile.am: Program split into several parts: coservers and
 	several server modules. ar is our friend.
 	Need a good idea making server instances...
 
-2000-05-11  [ Ela ]  <ela@lkcc.org>
+2000-05-11  Stefan Jahn  <stefan@lkcc.org>
 
 	* util.c (util_hstrerror): Was: _hstrerror. On IRIX this is a
 	libc symbol, thus we will not preempt it anymore.
@@ -2268,7 +2268,7 @@
 	a special named pipe it connects the aWCS-Master through two of
 	them.
 
-2000-05-05  [ Ela ]  <ela@lkcc.org>
+2000-05-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* control-proto.c (get_cpu_state): Showing the serveez's process 
 	times via times() or clock().
@@ -2279,7 +2279,7 @@
 	(ctrl_handle_request): The "/" just repeats the last given 
 	instruction. This might save some typing.
 
-2000-05-01  [ Ela ]  <ela@lkcc.org>
+2000-05-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-proto.c (http_content): Fixed the problem with javascript
 	file content. Unfortunately we did not noticed yet...
@@ -2305,14 +2305,14 @@
 	* http-proto.c (http_get_response): Keep-Alive header not exactly 
 	matched, but searched within "Connection:".
 
-2000-04-22  [ Ela ]  <ela@lkcc.org>
+2000-04-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* option.c (getopt): Put all the getopt[_long]() functions and
 	definitions into separate files.
 
 	* util.c (get_version): Detecting Win2k and Win98.
 
-2000-04-20  [ Ela ]  <ela@lkcc.org>
+2000-04-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* cfgfile.c (load_config): Integration of sizzle, the configuration
 	file language.
@@ -2324,7 +2324,7 @@
 	* serveez.c (main): Set maximum verbosity to LOG_DEBUG, not 3.
 	(main): Error message if allocated_bytes left is not zero.
 
-2000-04-12  [ Ela ]  <ela@lkcc.org>
+2000-04-12  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-cache.c (http_recent_cache): Hopefully fixed now the weird
 	recent counter of the HTTP cache file entries.
@@ -2343,7 +2343,7 @@
 	* control-proto.c (ctrl_kill_cache): Killing all http cache entries
 	via control protocol.
 
-2000-04-07  [ Ela ]  <ela@lkcc.org>
+2000-04-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-proto.c (http_keep_alive): Implemented the HTTP/1.1 feature
 	Connection: Keep-Alive. So HTTP/1.1 clients spare time for 
@@ -2364,7 +2364,7 @@
 	(http_handle_request): Fixed the problem with spaces in file
 	requests.
 
-2000-04-02  [ Ela ]  <ela@lkcc.org>
+2000-04-02  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-proto.c (http_detect_proto): Call check_request here
 	because HTTP requests are *very* short. The socket will not
@@ -2379,11 +2379,11 @@
 	* serveez.c: Declaring getopt_long ourselves if the headers do
 	not.
 
-2000-03-25  [ RAIMI ]  <raimi@lkcc.org>
+2000-03-25  Raimund Jacob  <raimi@lkcc.org>
 
 	* http-dirlist.c (http_dirlist): Icons for dirs and files.
 
-2000-03-19  [ Ela ]  <ela@lkcc.org>
+2000-03-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* util.c (snprintf): If the system you want to compile the
 	serveez software does not implement this function this will
@@ -2395,7 +2395,7 @@
 	* irc-proto.c (irc_detect_proto): Started the implementation
 	of a real IRC server ...
 
-2000-03-07  [ Ela ]  <ela@lkcc.org>
+2000-03-07  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-cache.c (http_check_cache): Implemented a http file cache
 	for a maximum number of cache entries. It checks the last modification
@@ -2411,7 +2411,7 @@
 	* control-proto.c (ctrl_detect_proto): Made up something
 	like the control protocol implementation.
 
-2000-02-29  [ Ela ]  <ela@lkcc.org>
+2000-02-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-proto.c (http_get_response): Relocation gets completed
 	by the host http property if possible.
@@ -2422,13 +2422,13 @@
 	* util.h: Fixed the vsnprintf() and snprintf() problem under
 	Win32.
 
-2000-02-27  [ RAIMI ]  <raimi@lkcc.org>
+2000-02-27  Raimund Jacob  <raimi@lkcc.org>
 
 	* http-proto.c (http_get_response): Directory listing when 
 	accessing dirs without index.html. Redirects dirs without
 	the trailing slash.
 
-2000-02-22  [ Ela ]  <ela@lkcc.org>
+2000-02-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-cgi.c (insert_env): Made up a kind of wrapper for pasting
 	environment strings in Unices and Win32.
@@ -2443,7 +2443,7 @@
 	* http-cgi.c (http_cgi_read): Dropped the idea to read or write
 	non-blocking into pipes, because Win95 does not implement it.
 
-2000-02-16  [ Ela ]  <ela@lkcc.org>
+2000-02-16  Stefan Jahn  <stefan@lkcc.org>
 
 	* http-cgi.c (http_cgi_exec): Implemented the POST method of
 	the cgi interface rudimentary.
@@ -2464,12 +2464,12 @@
 	useful environment variables. Much work still to do. That part was
 	Unix, Windows follows soon...
 
-2000-02-06  [ RAIMI ]  <raimi@lkcc.org>
+2000-02-06  Raimund Jacob  <raimi@lkcc.org>
 
 	* awcs-proto.c : Scheduled master for shutdown when master write
 	error occurred (lead to infinite loop).
 
-2000-02-04  [ Ela ]  <ela@lkcc.org>
+2000-02-04  Stefan Jahn  <stefan@lkcc.org>
 
 	* coserver.c (send_coserver_request): Check if sending a
 	request was successful, otherwise schedule the sock for
@@ -2515,7 +2515,7 @@
 	* server.c (check_sockets): Do not put a socket into the
 	write FD_SET if it was unavailable.
 
-2000-01-29  [ Ela ]  <ela@lkcc.org>
+2000-01-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* ident.c: Implemented ident requester as internal coserver.
 	(ident_handle_request): Get a request from the coserver and
@@ -2543,7 +2543,7 @@
 	(http_get_response): Use this routine for both HEAD and GET requests.
 	This is controlled via the flag HTTP_FLAG_NOFILE.
 
-2000-01-28  [ Ela ]  <ela@lkcc.org>
+2000-01-28  Stefan Jahn  <stefan@lkcc.org>
 
 	* socket.h (struct socket): Defined the socket descriptor
 	as SOCKET.
@@ -2565,7 +2565,7 @@
 	(validate_socket_list): Only compile this if ENABLE_DEBUG is
 	defined.
 
-2000-01-20  [ Ela ]  <ela@lkcc.org>
+2000-01-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* awcs client-master detection only once
 	* when master has been lost only the awcs clients are kicked
@@ -2575,7 +2575,7 @@
 	* strerror replaced by FormatMessage in Win32 port
 	* serveez ported to IRIX 6.x
 	
-1999-12-17  [ RAIMI ]  <raimi@lkcc.org>
+1999-12-17  Raimund Jacob  <raimi@lkcc.org>
 
 	* server.c (check_sockets): mmhh.. someone merged >= INVALID_SOCKET
 	into the accept call where != INVALID_SOCKET was correct...
@@ -2609,8 +2609,8 @@
 
 	* server.c, awcs-proto.c, awcs-proto.h, server.c, serveez.c,
 	connect.c, socket.c, socket.h, util.c, util.h: Merged changes I
-	made to 0.0.10 with the cygwin and solidifying stuff Ela and Raimi
-	did. ediff-merge-files-with-ancestor rules BIG time!
+	made to 0.0.10 with the cygwin and solidifying stuff Stefan and 
+	Raimi did. ediff-merge-files-with-ancestor rules BIG time!
 
 1999-12-03  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
 
@@ -2625,7 +2625,7 @@
 	are allowed to connect from now on.
 	(sock_write): Whenever a whole message fits into the send buffer
 	it is copied using memmove(). This spare copying by bytes (thanks
-	to ela for suggesting).
+	to stefan for suggesting).
 	(sock_from_pipe): New function. Creates a socket from a pair of
 	file descriptors.
 
@@ -2640,9 +2640,10 @@
 	master now. Remove request, do not handle it.
 
 	* server.c (check_sockets): Do not write on sockets which have
-	been scheduled for shutdown in their read handler (thanks to ela).
+	been scheduled for shutdown in their read handler (thanks to 
+	stefan).
 
-	* Applied Raimis and Elas patches.
+	* Applied Raimis and Stefans patches.
 	
 	* server.c (sock_server_loop): Print out listening port number and
 	max. file descriptor count on startup.

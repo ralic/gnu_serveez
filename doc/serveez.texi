@@ -94,7 +94,7 @@ You can skip this section if you are familiar with the GNU'ish way of
 configuring, compiling and installing a GNU package.
 
 @subsubsection Getting the source
-Serveez can be found on @uref{ftp://ftp.gnu.org/gnu/serveez/}, on one of 
+Serveez can be found on @uref{http://ftp.gnu.org/gnu/serveez/}, on one of 
 the mirrors (@uref{http://www.gnu.org/prep/ftp.html}) or at its original 
 location @uref{http://www.textsure.net/~ela/download/}. At this location
 you will also find the RPM package mentioned in the next section.
@@ -102,7 +102,7 @@ you will also find the RPM package mentioned in the next section.
 @subsubsection Requirements
 Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions).
 The current version of Serveez is known to work with Guile 1.3 and later.
-Guile can be downloaded at @uref{ftp://ftp.gnu.org/gnu/guile/}.
+Guile can be downloaded at @uref{http://ftp.gnu.org/gnu/guile/}.
 
 @subsubsection Installation
 @table @asis
@@ -780,11 +780,29 @@ interpreter also means that you can split your configuration into parts
 (in separate files) and load these in the main configuration file.
 
 @item easy server implementation@*
-FIXME:
+Serveez is a server framework.  When implementing a new server the
+programmer does not (or at least very little) need to care about the
+networking code but about the protocol (e.g. FTP or HTTP are such
+protocols) the server is meant to support.  The @ref{Writing servers}
+section describes this process in detail.
+
 @item code reusability@*
-FIXME:
+The Serveez package comes along with a core API library (depending on
+system this is a static library, shared library or a DLL) which contains
+most of the functionality necessary to write an Internet server.  Most
+probably a programmer can also use the library for other (network
+programming related) purposes.
+
 @item server instantiation and network port sharing@*
-FIXME:
+Once you have written a protocol server and integrated into Serveez's
+concept of servers the user can instantiate (multiply) the server.  At
+the first glimpse this sounds silly, but with different server
+configurations it does not.  If an administrator wants to run two or
+more HTTP servers with different document roots that is possibly without
+starting yet another process.  Serveez can handle them all in a single
+process.  Also if the same administrator wants to run a HTTP server and
+some other server on the same network port this is possible with
+Serveez.  You can run a single server on different network ports too.
 @end itemize
 
 @section I/O Strategy
@@ -857,8 +875,30 @@ available physical memory.
 @end table
 
 @section Alternatives to Serveez's I/O strategy
-FIXME: Something about load balancing using different processes, 
-       threaded servers and asynchronous I/O (using signals).
+One of the problems with the traditional @code{select()} method with
+non-blocking file descriptors occurs when passing loads of descriptors
+to the @code{select()} system call.  The server loop then goes through
+all the descriptors, decides which has pending data, reads and handles
+this data.  For a very lot of connections (e.g. 90000) this results in
+temporary CPU load peaks even if there is no network traffic.
+
+Along with this behaviour comes the problem of "starving" connections.
+Connections which reside at the beginning of the @code{select()} set are
+processed immediately and those at the end are processed significantly
+later and may possibly even die because of buffer overruns.  That is the
+reason why Serveez features priority connection, serves listening
+sockets first and rolls the order of the remaining connections.  Thereby
+each non-priority connection is handled equally.
+
+Other server implementations solve these problems differently.  Some
+start a new process for each connection (full-threaded server) or split
+the @code{select()} set into pieces and let different processes handle
+them (threaded server).  This method shifts the priority scheduling to
+the underlying operating system.  Another method is the usage of
+asynchronous I/O based upon signals whereas the server process receives
+signals when pending data is detected at a connection.  The signal
+handler queues these events in order of appearance and the main server
+loop continuously processes this queue.
 
 @node Server, Coserver, Concept, Top
 @chapter Server
@@ -2731,7 +2771,7 @@ The official EFNet site (includes Hybrid IRC server)
 @uref{http://www.sockets.com/}@*
 Winsock Development Information
 @item 
-@uref{http://www.cyberport.com/~tangent/programming/winsock/}@*
+@uref{http://tangentsoft.net/wskfaq/}@*
 Winsock Programmer's FAQ
 @end enumerate
 

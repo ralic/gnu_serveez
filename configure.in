@@ -101,6 +101,17 @@ target_cpu=`echo $target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
 ]
 AC_MSG_RESULT([$target])
 
+osversion="`grep \"$host\" $srcdir/data/PLATFORMS 2>/dev/null`"
+if test "x$osversion" = "x"; then
+  AC_MSG_RESULT([
+  The Serveez package has never been compiled or run on this platform.  
+  Please send an email to <dev-serveez@gnu.org> including your compiler 
+  version and whether it worked correctly or not.  '$host' 
+  will then be added to the PLATFORMS file included in this package.
+])
+fi
+unset osversion
+
 dnl ----------------------------------------------------------------------
 
 EXTRALIBS=""
@@ -139,7 +150,7 @@ if test "x$define_enable_warn" = "xyes" ; then
   fi
 
   dnl Test this compiler flag under Linux only.
-  case $target_os in
+  case $host_os in
     linux*)
 	warnflags="$warnflags -ansi"
 	;;

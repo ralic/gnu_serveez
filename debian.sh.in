@@ -1,6 +1,7 @@
 #!/bin/sh
 # 
-# debian.sh.in - Debian package builder
+# debian.sh - Debian package builder
+# @configure_input@
 #
 # Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
 #
@@ -71,7 +72,7 @@ cat <<EOF > $copyrightfile
 This package was debianized by Stefan Jahn <stefan@lkcc.org> on
 @TIMESTAMP@.
 
-It was downloaded from <ftp://ftp.gnu.org/gnu/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz>.
+It was downloaded from <http://ftp.gnu.org/gnu/@PACKAGE@/@PACKAGE@-@VERSION@.tar.gz>.
 
 Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 Copyright (C) 2000, 2001, 2002 Raimund Jacob <raimi@lkcc.org>
