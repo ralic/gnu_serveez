@@ -1033,7 +1033,7 @@ interconnected with phonelines. This pissed me off.
 @subsubsection Configuration
 
 Run this program on some computer and make the clients think this
-computer is a key server. Add following lines to @file{/eth/hosts}
+computer is a key server. Add following lines to @file{/etc/hosts}
 or @file{c:\windows\hosts} :
 @example
 127.0.0.1       authorize.quake3arena.com

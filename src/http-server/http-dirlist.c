@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.10 2000/08/18 14:14:47 ela Exp $
+ * $Id: http-dirlist.c,v 1.11 2000/08/25 13:51:23 ela Exp $
  *
  */
 
@@ -85,6 +85,7 @@
 # endif
 #else 
 # define FILENAME de.cFileName
+# define closedir(dir) FindClose (dir)
 #endif
 
 /* Size of last buffer allocated. */
@@ -151,7 +152,7 @@ http_dirlist (char *dirname, char *docroot)
   HANDLE dir;
 #endif
 
-  /* Initialze data fields */
+  /* Initialize data fields */
   memset (filename, 0, DIRLIST_SPACE_NAME);
   memset (entrystr, 0, DIRLIST_SPACE_ENTRY);
   memset (postamble, 0, DIRLIST_SPACE_POST);
@@ -306,10 +307,8 @@ http_dirlist (char *dirname, char *docroot)
   /* Close the directory */
 #if HAVE_SORTED_LIST
   free (dir);
-#elif !defined(__MINGW32__)
-  closedir (dir);
 #else
-  FindClose (dir);
+  closedir (dir);
 #endif
   
   return dirdata;

@@ -30,10 +30,10 @@ unfixed) have a look at the file BUGS.
 	- What to do if coserver delivers argument not anymore valid ?
 	- Default file reader to avoid http using its own callback.
 	- Socket/protocol specific flags within socket structure.
-- Find out how the list of local interfaces work on different Unices.
+- Find out how the list of local interfaces works on different Unices.
 	- Do something sensible when a coserver fails its job.
 - IP address representation must be unsigned long everywhere.
-- Rechain socket list to avoid starving of chain end.
+	- Rechain socket list to avoid starving of chain end.
 	- Convert all protocols to new scheme.
 	- support local sizzle installations (sizzle-config)
 	- local ip addresses for portcfg

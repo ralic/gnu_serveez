@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.28 2000/08/18 14:14:48 ela Exp $
+ * $Id: http-proto.c,v 1.29 2000/08/25 13:51:23 ela Exp $
  *
  */
 
@@ -216,13 +216,16 @@ http_init (server_t *server)
     {
       log_printf (LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
     }
+  log_printf (LOG_NOTICE, "http: %d+%d known content types\n",
+	      types, hash_size (*(cfg->types)) - types);
 
-  /* checking whether http doc root path ends in '/' or '\'. */
   if (!strlen (cfg->docs))
     {
-      log_printf (LOG_ERROR, "http: no valid directory given\n");
+      log_printf (LOG_ERROR, "http: not a valid document root\n");
       return -1;
     }
+
+  /* checking whether http doc root path ends in '/' or '\'. */
   p = cfg->docs + strlen (cfg->docs) - 1;
   if (*p == '/' || *p == '\\') *p = '\0';
 

@@ -26,6 +26,7 @@ This file lists user visible changes that were made between releases.
 Version 0.0.18
 --------------
 
+ * --disable-poll option
  * sorted HTTP directory listing
  * Quake III license key server, enable via --enable-q3key-proto
  * support for UDP servers

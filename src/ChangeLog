@@ -1,3 +1,9 @@
+2000-08-25  [ Ela ]  <ela@lkcc.org>
+
+	* server-core.c (rechain_socket_list): This routine cycles
+	the current socket list. It prevents the end of this list to
+	starve processing.
+
 2000-08-20  [ Ela ]  <ela@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_connect_socket): 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.18 2000/08/18 14:14:47 ela Exp $
+ * $Id: server.c,v 1.19 2000/08/25 13:51:23 ela Exp $
  *
  */
 
@@ -662,7 +662,8 @@ server_load_cfg (char *cfgfile)
 	      symname = xpstrdup (string_val (symbol_name (sym)));
 	      if (strncmp (symname, sd->varname, strlen (sd->varname)) == 0)
 		{
-		  zzz_get_symbol_value (zzz_toplevel_env, sym, &symval);
+		  zzz_get_symbol_value (zzz_interaction_environment, 
+					sym, &symval);
 		  newserver_cfg = server_instantiate (cfgfile,
 						      symval,
 						      sd,

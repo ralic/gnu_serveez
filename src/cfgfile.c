@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.7 2000/07/07 16:26:20 ela Exp $
+ * $Id: cfgfile.c,v 1.8 2000/08/25 13:51:22 ela Exp $
  *
  */
 
@@ -163,7 +163,7 @@ load_config (char *cfgfilename, int argc, char **argv)
     }
 
   /* Evaluate the configfile, doing nothing when file was not found */
-  if (zzz_evaluate_file(zzz_toplevel_env, cfgfilename) == -2) 
+  if (zzz_evaluate_file (zzz_interaction_environment, cfgfilename) == -2) 
     return -1;
 
   for (i = 0; configs[i].type != LISTEND; i++)

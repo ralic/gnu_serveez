@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.18 2000/08/21 20:06:40 ela Exp $
+ * $Id: server-core.c,v 1.19 2000/08/25 13:51:22 ela Exp $
  *
  */
 
@@ -195,7 +195,7 @@ server_signal_handler (int sig)
  * Abort the process, printing the error message MSG first.
  */
 static int
-abort_me (char * msg)
+abort_serveez (char * msg)
 {
   log_printf(LOG_FATAL, "list validation failed: %s\n", msg);
   abort();
@@ -203,6 +203,24 @@ abort_me (char * msg)
 }
 
 #if ENABLE_DEBUG
+/*
+ * This function is for debugging purposes only. It shows a text 
+ * representation of the current socket list.
+ */
+static void
+list_socket_list (void)
+{
+  socket_t sock = socket_root;
+
+  while (sock)
+    {
+      fprintf (stdout, "id: %04d, sock: %p == %p, prev: %p, next: %p\n",
+	       sock->id, sock, sock_lookup_table[sock->id], 
+	       sock->prev, sock->next);
+      sock = sock->next;
+    }
+}
+
 /*
  * Go through the socket list and check if it still consistent.
  * Abort the prgram with an error message, if not.
@@ -214,6 +232,10 @@ validate_socket_list (void)
 {
   socket_t sock, prev;
   
+#if 0
+  list_socket_list ();
+#endif
+
   prev = NULL;
   sock = socket_root;
   while (sock)
@@ -222,16 +244,16 @@ validate_socket_list (void)
 	{
 	  if (sock->sock_desc == INVALID_SOCKET)
 	    {
-	      abort_me ("invalid file descriptor");
+	      abort_serveez ("invalid file descriptor");
 	    }
 	}
       if (sock_lookup_table[sock->id] != sock)
 	{
-	  abort_me ("lookup table corrupted");
+	  abort_serveez ("lookup table corrupted");
 	}
       if (prev != sock->prev)
 	{
-	  abort_me ("list structure invalid (previous socket != prev)");
+	  abort_serveez ("list structure invalid (previous socket != prev)");
 	}
       prev = sock;
       sock = sock->next;
@@ -239,11 +261,33 @@ validate_socket_list (void)
 
   if (prev != socket_last)
     {
-      abort_me ("list structure invalid (last socket != end of list)");
+      abort_serveez ("list structure invalid (last socket != end of list)");
     }
   return 0;
 }
-#endif
+#endif /* ENABLE_DEBUG */
+
+/*
+ * Rechain the socket list to prevent sockets from starving at the end
+ * of this list. We will call it everytime when a select() or poll() has
+ * returned.
+ */
+static void
+rechain_socket_list (void)
+{
+  socket_t sock;
+  
+  sock = socket_last;
+  if (sock->prev)
+    {
+      socket_last = sock->prev;
+      socket_last->next = NULL;
+      sock->next = socket_root;
+      sock->prev = NULL;
+      socket_root->prev = sock;
+      socket_root = sock;
+    }
+}
 
 /*
  * Enqueue the socket SOCK into the list of sockets handled by
@@ -619,6 +663,7 @@ sock_server_loop (void)
        * clients and process queued output data.
        */
       check_sockets ();
+      rechain_socket_list ();
 
       /*
        * Shut down all sockets that have been scheduled for closing.

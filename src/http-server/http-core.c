@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.5 2000/08/18 14:14:47 ela Exp $
+ * $Id: http-core.c,v 1.6 2000/08/25 13:51:23 ela Exp $
  *
  */
 
@@ -267,7 +267,7 @@ http_parse_property (socket_t sock, char *request, char *end)
   http = sock->data;
 
   /* reserve data space for the http properties */
-  http->property = xmalloc (MAX_HTTP_PROPERTIES * 2 * sizeof(char *));
+  http->property = xmalloc (MAX_HTTP_PROPERTIES * 2 * sizeof (char *));
   properties = 0;
   n = 0;
 
@@ -422,7 +422,7 @@ http_read_types (http_config_t *cfg)
   /* read all lines within the file */
   while ((fgets (line, TYPES_LINE_SIZE, f)) != NULL)
     {
-      /* delete all trailing newline characters */
+      /* delete all trailing newline characters, skip empty lines */
       p = line + strlen (line) - 1;
       while (p != line && (*p == '\r' || *p == '\n')) p--;
       if (p == line) continue;
