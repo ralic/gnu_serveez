@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: windoze.h,v 1.4 2000/11/12 01:48:54 ela Exp $
+ * $Id: windoze.h,v 1.5 2001/01/03 13:00:21 ela Exp $
  *
  */
 
@@ -40,7 +40,7 @@
 #define WM_SERVEEZ_NOTIFYICON (WM_APP + 100)
 #define SERVEEZ_ICON_ID       (1001)
 #define SERVEEZ_CLASS         "serveez"
-#define SERVEEZ_ICON_FILE     "penguin.ico"
+#define SERVEEZ_ICON_FILE     "serveez1.ico"
 
 /* exported functions */
 DWORD WINAPI windoze_thread (char *);
