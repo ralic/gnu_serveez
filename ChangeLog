@@ -1,3 +1,10 @@
+2001-05-28  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Added checks for texi2dvi (requires tex)
+	and texi2html (version >= 1.64 required). Target "distcheck"
+	now successfully processing due to some changes to the
+	Makefile.am's in `doc/' and `test/' directory.
+
 2001-05-22  [ Ela ]  <ela@lkcc.org>
 
 	* Wiped out all references to sizzle within the sources. 

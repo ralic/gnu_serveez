@@ -27,31 +27,17 @@ TESTS = vector-test array-test hash-test spvec-test
 EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test
-hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
-spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c hash.c
-array_test_SOURCES = array-test.c test.c test.h alloc.c array.c hash.c
-vector_test_SOURCES = vector-test.c test.c test.h alloc.c vector.c hash.c
+
+hash_test_SOURCES = hash-test.c test.c test.h
+hash_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
+spvec_test_SOURCES = spvec-test.c test.c test.h
+spvec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
+array_test_SOURCES = array-test.c test.c test.h
+array_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
+vector_test_SOURCES = vector-test.c test.c test.h
+vector_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 
 INCLUDES = -I$(top_srcdir)/src
 
-alloc.c: $(top_srcdir)/src/libserveez/alloc.c
-	cp -p $< $(srcdir)/$@
-
-hash.c: $(top_srcdir)/src/libserveez/hash.c
-	cp -p $< $(srcdir)/$@
-
-sparsevec.c: $(top_srcdir)/src/libserveez/sparsevec.c
-	cp -p $< $(srcdir)/$@
-
-array.c: $(top_srcdir)/src/libserveez/array.c
-	cp -p $< $(srcdir)/$@
-
-vector.c: $(top_srcdir)/src/libserveez/vector.c
-	cp -p $< $(srcdir)/$@
-
-dist-hook:
-	rm -f $(distdir)/alloc.c $(distdir)/hash.c $(distdir)/sparsevec.c \
-		$(distdir)/array.c $(distdir)/vector.c
-
-CLEANFILES = *~ *.orig *.rej alloc.c hash.c sparsevec.c array.c vector.c
+CLEANFILES = *~ *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in

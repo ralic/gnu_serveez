@@ -704,7 +704,7 @@ dnl Find out where to get guile
 dnl
 
 AC_MSG_CHECKING([for guile installation])
-if test -n `guile-config 2>/dev/null`; then
+if test "x`guile-config --version 2>&1 | grep version`" != "x"; then
     AC_MSG_RESULT([yes])
     GUILE_COMPILE=`guile-config compile`
     GUILE_LINK=`guile-config link`
@@ -1123,12 +1123,47 @@ dnl Check for times, poll and waitpid.
 dnl
 AC_CHECK_FUNCS(times poll waitpid)
 
+dnl
 dnl Find a working inline.
+dnl
 save_cflags="$CFLAGS"
 CFLAGS="$CFLAGS $CPPEXTRAFLAGS"
 AC_C_INLINE
 CFLAGS="$save_cflags"
 unset save_cflags
+
+dnl
+dnl Check for working Tex.
+dnl
+AC_MSG_CHECKING([for working texi2dvi])
+TEXI2DVI="texi2dvi"
+if test "x`tex 2>/dev/null`" = "x"; then
+  TEXI2DVI=":"
+fi
+AC_MSG_RESULT($TEXI2DVI)
+AC_SUBST(TEXI2DVI)
+
+dnl
+dnl Checking for working Texi2HTML.
+dnl
+AC_MSG_CHECKING([for working texi2html])
+TEXI2HTML=":"
+[tex=`texi2html --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
+if test -n "$tex"; then
+case "$tex" in
+  [1.6[4-9] | 1.[789]* | [2-9].*)]
+    AC_MSG_RESULT($tex >= 1.64)
+    TEXI2HTML="texi2html"
+  ;;
+  [*)]
+    AC_MSG_RESULT($tex < 1.64)
+  ;;
+esac
+else
+    AC_MSG_RESULT(not found)
+fi
+AC_SUBST(TEXI2HTML)
+unset tex
 
 LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS

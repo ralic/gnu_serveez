@@ -42,7 +42,6 @@ DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
 SED_FILE = serveez-api.sed
 HTML_DIR = manual
 SITE_DIR = $(top_srcdir)/../serveez-site
-TEXI2HTML = texi2html
 SED = sed
 MKDIR = mkdir -p
 CP = cp
@@ -70,7 +69,8 @@ serveez-api.texi: serveez-api.texi.in
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
-	      $(AWK) -f $(srcdir)/serveez-api.awk $$dir/$$file >> $(SED_FILE); fi \
+	      $(AWK) -f $(srcdir)/serveez-api.awk $$dir/$$file >> \
+	      $(SED_FILE); fi \
 	  done \
 	done
 	$(SED) -f $(SED_FILE) < $< > $@

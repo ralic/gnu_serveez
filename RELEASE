@@ -32,12 +32,13 @@ Distribution process:
   - Make sure INSTALL, THANKS and README-* is up to date.
 
 * Test build and packaging.
-  - Run `make distclean', `sh autogen' and `make all'.
+  - Run `make distclean', `sh autogen.sh' and `make all'.
   - Check if the binaries properly work.
-  - Run `make dist-check'.
+  - Run `make distcheck'.
   - Check this status into CVS and tag it.
   - Run `make dist'.
-  - Run `make pack' in the `doc/' directory and save the tarball.
+  - Run `make site' in the `doc/' directory and check this status into
+    the savannah.gnu.org CVS.
   - Create a binary package for Windows.
 
 * Bump up version.
@@ -48,7 +49,7 @@ Distribution process:
 
 * Distribute the package. 
   - Upload the package to <www.textsure.net>.
-  - Release at SourceForge (incl. documentation tarball).
+  - Release at SourceForge.
   - Announce the release at Freshmeat.
   - Update <www.SoftSeek.com> entry.
   - Send an announcement to <help-serveez@gnu.org>.
