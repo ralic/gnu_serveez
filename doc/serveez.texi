@@ -217,7 +217,7 @@ sleepless ~/serveez-@value{VERSION}> make install
 
 If you have problems building the package out of the box this is due to
 GNU libtool's inability to handle dynamic linking in most cases. That is
-why we recommend to try to configure the package with @samp{--disable-static}
+why we recommend to try to configure the package with @samp{--disable-shared}
 and/or the native compiler (if any). When the build process is not able to 
 link against an existing Guile installation you can try to use the
 @samp{--with-guile-source=DIR} configure option.

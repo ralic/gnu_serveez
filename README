@@ -81,7 +81,7 @@ by root.
 
 If you have problems building the package out of the box this is due to
 GNU libtool's inability to handle dynamic linking in most cases. That is
-why we recommend to try to configure the package with `--disable-static'
+why we recommend to try to configure the package with `--disable-shared'
 and/or the native compiler (if any). When the build process is not able to 
 link against an existing Guile installation you can try to use the
 `--with-guile-source=DIR' configure option.
@@ -99,6 +99,6 @@ version might not even compile.
 
 cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
 
-The password is 'anoncvs'. Run sh autogen.sh and configure with appropriate
-options. Maintainance currently requires Autoconf version 2.13, GNU libtool 
-1.4.2 and GNU automake 1.4-p5.
+The password is 'anoncvs'. Run `sh autogen.sh' and `configure' with 
+appropriate options. Maintainance currently requires 
+Autoconf version 2.13, GNU libtool 1.4.2 and GNU automake 1.4-p5.

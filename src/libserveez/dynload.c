@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.17 2001/09/30 11:51:48 ela Exp $
+ * $Id: dynload.c,v 1.18 2001/10/03 14:42:43 ela Exp $
  *
  */
 
@@ -390,6 +390,8 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 	  ((struct mach_header *) lib->handle, symbol,
 	   NSLOOKUPSYMBOLINIMAGE_OPTION_BIND_NOW |
 	   NSLOOKUPSYMBOLINIMAGE_OPTION_RETURN_ON_ERROR);
+        if (address != NULL)
+          address = NSAddressOfSymbol (address);
 #endif
 	if (address == NULL)
 	  {
