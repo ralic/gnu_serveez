@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.3 2001/02/18 22:27:28 ela Exp $
+ * $Id: server.h,v 1.4 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -27,13 +27,6 @@
 #define __SERVER_H__ 1
 
 #include "libserveez/defines.h"
-
-/* protocol definitions */
-#define PROTO_TCP   0x00000001 /* tcp  - bidirectional, reliable */
-#define PROTO_UDP   0x00000002 /* udp  - multidirectional, unreliable */
-#define PROTO_PIPE  0x00000004 /* pipe - unidirectional, reliable */
-#define PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
-#define PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
 
 /* Port configuration items. */
 #define PORTCFG_PORT    "port"

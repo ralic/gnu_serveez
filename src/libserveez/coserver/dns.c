@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: dns.c,v 1.3 2001/02/04 11:48:52 ela Exp $
+ * $Id: dns.c,v 1.4 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -48,6 +48,7 @@
 #endif
 
 #include "libserveez/util.h"
+#include "libserveez/core.h"
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/coserver/dns.h"
 
@@ -78,9 +79,9 @@ dns_handle_request (char *inbuf)
 
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "dns: %s is %s\n",
-		      host->h_name, util_inet_ntoa (addr));
+		      host->h_name, svz_inet_ntoa (addr));
 #endif /* ENABLE_DEBUG */
-	  sprintf (resolved, "%s", util_inet_ntoa (addr));
+	  sprintf (resolved, "%s", svz_inet_ntoa (addr));
 	  return resolved;
 	}
     } 

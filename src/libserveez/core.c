@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.1 2001/03/02 21:12:53 ela Exp $
+ * $Id: core.c,v 1.2 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -29,8 +29,16 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 #include <fcntl.h>
+
+#ifndef __MINGW32__
+# include <sys/types.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
+#endif
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
@@ -41,6 +49,7 @@
 #endif
 
 #include "libserveez/util.h"
+#include "libserveez/core.h"
 
 /*
  * Set the given file descriptor to nonblocking I/O. This heavily differs
@@ -106,5 +115,166 @@ svz_fd_cloexec (int fd)
 
 #endif /* !__MINGW32__ */
 
+  return 0;
+}
+
+/*
+ * Create a new non-blocking socket which does not get inherited on 
+ * @code{exec()}. The protocol is specified by @var{proto}. Return the
+ * socket descriptor or -1 on errors.
+ */
+SOCKET
+svz_socket_create (int proto)
+{
+  int stype;                 /* socket type (STREAM or DGRAM or RAW) */
+  int ptype;                 /* protocol type (IP or UDP or ICMP) */
+  SOCKET sockfd;
+
+  /* Assign the appropriate socket type. */
+  switch (proto)
+    {
+    case PROTO_TCP:
+      stype = SOCK_STREAM;
+      ptype = IPPROTO_IP;
+      break;
+    case PROTO_UDP:
+      stype = SOCK_DGRAM;
+      ptype = IPPROTO_UDP;
+      break;
+    case PROTO_ICMP:
+      stype = SOCK_RAW;
+      ptype = IPPROTO_ICMP;
+      break;
+      /* This protocol is for sending packets only. The kernel filters
+	 any received packets by the socket protocol (here: IPPROTO_RAW
+	 which is unspecified). */
+    case PROTO_RAW:
+      stype = SOCK_RAW;
+      ptype = IPPROTO_RAW;
+      break;
+    default:
+      stype = SOCK_STREAM;
+      ptype = IPPROTO_IP;
+      break;
+    }
+
+  /* Create a socket for communication with a server. */
+  if ((sockfd = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
+    {
+      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
+      return -1;
+    }
+
+  /* Make the socket non-blocking. */
+  if (svz_fd_nonblock (sockfd) != 0)
+    {
+      closesocket (sockfd);
+      return -1;
+    }
+  
+  /* Do not inherit this socket. */
+  if (svz_fd_cloexec (sockfd) != 0)
+    {
+      closesocket (sockfd);
+      return -1;
+    }
+
+  return sockfd;
+}
+
+/*
+ * Connect the given socket descriptor @var{sockfd} to the host @var{host}
+ * at the network port @var{port}. Return non-zero on errors.
+ */
+int
+svz_socket_connect (SOCKET sockfd, unsigned long host, unsigned short port)
+{
+  struct sockaddr_in server;
+  int error;
+
+  /* Setup the server address. */
+  server.sin_family = AF_INET;
+  server.sin_addr.s_addr = host;
+  server.sin_port = port;
+  
+  /* Try to connect to the server, */
+  if (connect (sockfd, (struct sockaddr *) &server, sizeof (server)) == -1)
+    {
+#ifdef __MINGW32__
+      error = WSAGetLastError ();
+#else
+      error = errno;
+#endif
+      if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
+        {
+          log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+          closesocket (sockfd);
+          return -1;
+        }
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+#endif
+    }
+  return 0;
+}
+
+/*
+ * Converts the given ip address @var{ip} to the dotted decimal 
+ * representation. The string is a statically allocated buffer, please 
+ * copy the result. The given ip address MUST be in network byte order.
+ */
+char *
+svz_inet_ntoa (unsigned long ip)
+{
+#if !BROKEN_INET_NTOA
+  struct in_addr addr;
+
+  addr.s_addr = ip;
+  return inet_ntoa (addr);
+
+#else /* BROKEN_INET_NTOA */
+
+  static char addr[16];
+
+  /* 
+   * Now, this is strange: IP is given in host byte order. Nevertheless
+   * conversion is endian-specific. To the binary AND and SHIFT operations
+   * work differently on different architectures ?
+   */
+  sprintf (addr, "%lu.%lu.%lu.%lu",
+#if WORDS_BIGENDIAN
+	   (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
+#else /* Little Endian */
+	   ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+#endif
+  return addr;
+
+#endif /* BROKEN_INET_NTOA */
+}
+
+/*
+ * Converts the Internet host address @var{str} from the standard 
+ * numbers-and-dots notation into binary data and stores it in the 
+ * structure that @var{addr} points to. @code{svz_inet_aton()} returns 
+ * zero if the address is valid, nonzero if not.
+ */
+int
+svz_inet_aton (char *str, struct sockaddr_in *addr)
+{
+#if HAVE_INET_ATON
+  if (inet_aton (str, &addr->sin_addr) == 0)
+    {
+      return -1;
+    }
+#elif defined (__MINGW32__)
+  int len = sizeof (struct sockaddr_in);
+  if (WSAStringToAddress (str, AF_INET, NULL, 
+                          (struct sockaddr *) addr, &len) != 0)
+    {
+      return -1;
+    }
+#else /* not HAVE_INET_ATON and not __MINGW32__ */
+  addr->sin_addr.s_addr = inet_addr (str);
+#endif /* not HAVE_INET_ATON */
   return 0;
 }

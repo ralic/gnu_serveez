@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.17 2001/01/28 03:26:55 ela Exp $
+ * $Id: nut-core.c,v 1.18 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -122,7 +122,7 @@ nut_client_key (unsigned long ip, unsigned short port)
 {
   static char key[32];
 
-  sprintf (key, "%s:%u", util_inet_ntoa (ip), ntohs (port));
+  sprintf (key, "%s:%u", svz_inet_ntoa (ip), ntohs (port));
   return key;
 }
 

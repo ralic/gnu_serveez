@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.4 2001/02/28 21:51:19 raimi Exp $
+ * $Id: server-socket.c,v 1.5 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -53,6 +53,7 @@
 #include "libserveez/boot.h"
 #include "libserveez/util.h"
 #include "libserveez/alloc.h"
+#include "libserveez/core.h"
 #include "libserveez/socket.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/udp-socket.h"
@@ -70,9 +71,7 @@ server_create (portcfg_t *cfg)
 {
   SOCKET server_socket;      /* server socket descriptor */
   socket_t sock;             /* socket structure */
-  int stype;                 /* socket type (STREAM or DGRAM or RAW) */
   int optval;                /* value for setsockopt() */
-  int ptype;                 /* protocol type (IP or UDP or ICMP) */
 
   /* create listening pipe server ? */
   if (cfg->proto & PROTO_PIPE)
@@ -92,41 +91,9 @@ server_create (portcfg_t *cfg)
   /* Create listening TCP, UDP, ICMP or RAW server socket. */
   else
     {
-
-      /* Assign the appropriate socket type. */
-      switch (cfg->proto)
-	{
-	case PROTO_TCP:
-	  stype = SOCK_STREAM;
-	  ptype = IPPROTO_IP;
-	  break;
-	case PROTO_UDP:
-	  stype = SOCK_DGRAM;
-	  ptype = IPPROTO_UDP;
-	  break;
-	case PROTO_ICMP:
-	  stype = SOCK_RAW;
-	  ptype = IPPROTO_ICMP;
-	  break;
-	  /* This protocol is for sending packets only. The kernel filters
-	     any received packets by the socket protocol (here: IPPROTO_RAW
-	     which is unspecified). */
-	case PROTO_RAW:
-	  stype = SOCK_RAW;
-	  ptype = IPPROTO_RAW;
-	  break;
-	default:
-	  stype = SOCK_STREAM;
-	  ptype = IPPROTO_IP;
-	  break;
-	}
-
-      /* First, create a server socket for listening.  */
-      if ((server_socket = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
-	{
-	  log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
-	  return NULL;
-	}
+      /* First, create a server socket for listening. */
+      if ((server_socket = svz_socket_create (cfg->proto)) == -1)
+	return NULL;
 
       /* Set this ip option if we are using raw sockets. */
       if (cfg->proto & PROTO_RAW)
@@ -270,7 +237,7 @@ server_create (portcfg_t *cfg)
 
       log_printf (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
 		  cfg->addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-		  util_inet_ntoa (cfg->addr->sin_addr.s_addr),
+		  svz_inet_ntoa (cfg->addr->sin_addr.s_addr),
 		  ntohs (sock->local_port));
     }
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sizzle.c,v 1.2 2001/01/28 13:11:54 ela Exp $
+ * $Id: sizzle.c,v 1.3 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -51,6 +51,7 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/hash.h"
+#include "libserveez/core.h"
 #include "libserveez/socket.h"
 #include "libserveez/server.h"
 
@@ -449,27 +450,13 @@ static int set_port (char *cfgfile, char *var, char *key,
 	} 
       else 
 	{
-#if HAVE_INET_ATON
-	  if (inet_aton (string_val (hash_val), &newaddr->sin_addr) == 0) 
+	  if (svz_inet_aton (string_val (hash_val), newaddr) == -1)
 	    {
 	      fprintf (stderr, "%s: `%s': %s should be an ip address "
 		       "in dotted decimal form in `%s'\n",
 		       cfgfile, var, PORTCFG_IP, key);
 	      return -1;
 	    }
-#elif defined (__MINGW32__)
-	  int len = sizeof (struct sockaddr_in);
-	  if (WSAStringToAddress (string_val (hash_val), AF_INET, NULL, 
-				  (struct sockaddr *) newaddr, &len) != 0)
-	    {
-	      fprintf (stderr, "%s: `%s': %s should be an ip address "
-		       "in dotted decimal form in `%s'\n",
-		       cfgfile, var, PORTCFG_IP, key);
-              return -1;
-            }
-#else /* not HAVE_INET_ATON and not __MINGW32__ */
-	  newaddr->sin_addr.s_addr = inet_addr (string_val (hash_val));
-#endif /* not HAVE_INET_ATON */
 	}
 
       /* this surely is internet */

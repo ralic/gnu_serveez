@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.4 2001/01/28 03:26:55 ela Exp $
+ * $Id: nut-hostlist.c,v 1.5 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -155,7 +155,7 @@ nut_hosts_check (socket_t sock)
   /* send HTML footer */
   if (sock_printf (sock, NUT_HTML_FOOTER,
 		   svz_library, svz_version,
-		   util_inet_ntoa (sock->local_addr), 
+		   svz_inet_ntoa (sock->local_addr), 
 		   ntohs (sock->local_port)) == -1)
     return -1;
 
@@ -195,7 +195,7 @@ nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: invalid host: %s:%u\n", 
-		      util_inet_ntoa (ip), ntohs (port));
+		      svz_inet_ntoa (ip), ntohs (port));
 #endif
 	  return -1;
 	}

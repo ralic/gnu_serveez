@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.1 2001/03/02 21:12:53 ela Exp $
+ * $Id: core.h,v 1.2 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -27,11 +27,30 @@
 
 #include "libserveez/defines.h"
 
+#ifndef __MINGW32__
+# include <netinet/in.h>
+#endif
+#ifdef __MINGW32__
+# include <winsock2.h>
+#endif
+
+/* protocol definitions */
+#define PROTO_TCP   0x00000001 /* tcp  - bidirectional, reliable */
+#define PROTO_UDP   0x00000002 /* udp  - multidirectional, unreliable */
+#define PROTO_PIPE  0x00000004 /* pipe - unidirectional, reliable */
+#define PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
+#define PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
+
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_fd_nonblock __P ((int fd));
 SERVEEZ_API int svz_fd_cloexec __P ((int fd));
+SERVEEZ_API int svz_socket_connect __P ((SOCKET sockfd, unsigned long host, 
+					 unsigned short port));
+SERVEEZ_API SOCKET svz_socket_create __P ((int proto));
+SERVEEZ_API char *svz_inet_ntoa __P ((unsigned long ip));
+SERVEEZ_API int svz_inet_aton __P ((char *str, struct sockaddr_in *addr));
 
 __END_DECLS
 
-#endif /* not __SERVER_CORE_H__ */
+#endif /* not __CORE_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: raw-socket.c,v 1.3 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -185,8 +185,8 @@ raw_check_ip_header (byte *data, int len)
 	  IP_HDR_VERSION (ip_header), IP_HDR_LENGTH (ip_header),
 	  ip_header->tos, ip_header->length, ip_header->ident,
 	  ip_header->frag_offset, ip_header->ttl, ip_header->protocol,
-	  ip_header->checksum, util_inet_ntoa (ip_header->src));
-  printf ("destination     : %s\n", util_inet_ntoa (ip_header->dst));
+	  ip_header->checksum, svz_inet_ntoa (ip_header->src));
+  printf ("destination     : %s\n", svz_inet_ntoa (ip_header->dst));
 #endif
 
   /* Is this IPv4 version ? */

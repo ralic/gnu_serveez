@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.3 2001/02/18 22:27:28 ela Exp $
+ * $Id: util.h,v 1.4 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -35,17 +35,6 @@
 #include <time.h>
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
-#endif
-
-#ifndef __MINGW32__
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
-#endif
-
-#ifdef __MINGW32__
-# include <winsock2.h>
 #endif
 
 /* `open ()' files with this additional flag */
@@ -88,8 +77,6 @@ SERVEEZ_API void log_printf __P ((int level, const char *format, ...));
 SERVEEZ_API void log_set_file __P ((FILE *));
 
 SERVEEZ_API int util_hexdump __P ((FILE *, char *, int, char *, int, int));
-SERVEEZ_API char *util_inet_ntoa __P ((unsigned long ip));
-SERVEEZ_API int util_inet_aton __P ((char *str, struct sockaddr_in *addr));
 SERVEEZ_API char *util_itoa __P ((unsigned int));
 SERVEEZ_API unsigned int util_atoi __P ((char *));
 SERVEEZ_API int util_strcasecmp __P ((const char *, const char *));

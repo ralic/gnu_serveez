@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.15 2001/01/28 03:26:55 ela Exp $
+ * $Id: tunnel.c,v 1.16 2001/03/04 13:13:42 ela Exp $
  *
  */
 
@@ -188,7 +188,7 @@ tnl_addr (socket_t sock)
 {
   static char addr[24];
 
-  sprintf (addr, "%s:%u", util_inet_ntoa (sock->remote_addr), 
+  sprintf (addr, "%s:%u", svz_inet_ntoa (sock->remote_addr), 
 	   ntohs (sock->remote_port));
   return addr;
 }
@@ -268,13 +268,13 @@ tnl_create_socket (socket_t sock, int source)
       if ((xsock = tcp_connect (ip, port)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
-		      util_inet_ntoa (ip), ntohs (port));
+		      svz_inet_ntoa (ip), ntohs (port));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: tcp: connecting to %s:%u\n",
-		  util_inet_ntoa (ip), ntohs (port));
+		  svz_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_tcp_target;
       sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
@@ -286,13 +286,13 @@ tnl_create_socket (socket_t sock, int source)
       if ((xsock = udp_connect (ip, port)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: udp: cannot connect to %s:%u\n",
-		      util_inet_ntoa (ip), ntohs (port));
+		      svz_inet_ntoa (ip), ntohs (port));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: udp: connecting to %s:%u\n",
-		  util_inet_ntoa (ip), ntohs (port));
+		  svz_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_udp_target;
       xsock->idle_func = tnl_idle;
@@ -305,13 +305,13 @@ tnl_create_socket (socket_t sock, int source)
       if ((xsock = icmp_connect (ip, port)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
-		      util_inet_ntoa (ip));
+		      svz_inet_ntoa (ip));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: icmp: connecting to %s\n",
-		  util_inet_ntoa (ip));
+		  svz_inet_ntoa (ip));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_icmp_target;
       xsock->idle_func = tnl_idle;

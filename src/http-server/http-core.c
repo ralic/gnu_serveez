@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.29 2001/02/02 11:26:23 ela Exp $
+ * $Id: http-core.c,v 1.30 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -332,7 +332,7 @@ http_log (socket_t sock)
 	      /* %h - host name */
 	    case 'h':
 	      strcat (line, http->host ? http->host :
-		      util_inet_ntoa (sock->remote_addr));
+		      svz_inet_ntoa (sock->remote_addr));
 	      p++;
 	      break;
 	      /* %t - request time stamp */
@@ -609,7 +609,7 @@ http_error_response (socket_t sock, int response)
 		      response, txt, 
 		      svz_library, svz_version,
 		      cfg->host ? cfg->host : 
-		      util_inet_ntoa (sock->local_addr),
+		      svz_inet_ntoa (sock->local_addr),
 		      ntohs (sock->local_port), cfg->admin, cfg->admin);
 }
 

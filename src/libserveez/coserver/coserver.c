@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.5 2001/03/02 21:12:53 ela Exp $
+ * $Id: coserver.c,v 1.6 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 #include <signal.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
 #endif
 
 #ifndef __MINGW32__
@@ -55,6 +55,7 @@
 #include "libserveez/snprintf.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
+#include "libserveez/core.h"
 #include "libserveez/hash.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/server-core.h"
@@ -90,7 +91,7 @@ coserver_reverse_invoke (unsigned long ip,
 			 coserver_handle_result_t cb, coserver_arglist_t)
 {
   coserver_send_request (COSERVER_REVERSE_DNS, 
-			 util_inet_ntoa (ip), cb, arg0, arg1);
+			 svz_inet_ntoa (ip), cb, arg0, arg1);
 }
 
 /*
@@ -112,7 +113,7 @@ coserver_ident_invoke (socket_t sock,
 {
   char buffer[COSERVER_BUFSIZE];
   snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
-	    util_inet_ntoa (sock->remote_addr),
+	    svz_inet_ntoa (sock->remote_addr),
 	    ntohs (sock->remote_port), ntohs (sock->local_port));
   coserver_send_request (COSERVER_IDENT, buffer, cb, arg0, arg1);
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.42 2001/02/04 11:48:52 ela Exp $
+ * $Id: control-proto.c,v 1.43 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -397,10 +397,10 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       xsock->file_desc,
 	       xsock->pipe_desc[READ],
 	       xsock->pipe_desc[WRITE],
-	       util_inet_ntoa (xsock->remote_addr),
+	       svz_inet_ntoa (xsock->remote_addr),
 	       ntohs (xsock->remote_port));
 
-  /* that is why `util_inet_ntoa' cannot be used in the same call */
+  /* that is why `svz_inet_ntoa' cannot be used in the same call */
   sock_printf (sock, 
 	       " local    : %s:%u\r\n"
 	       " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
@@ -410,7 +410,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       " flood    : %d (points), %d (limit)\r\n"
 #endif /* ENABLE_FLOOD_PROTECTION */
 	       " avail    : %s\r\n\r\n",
-	       util_inet_ntoa (xsock->local_addr),
+	       svz_inet_ntoa (xsock->local_addr),
 	       ntohs (xsock->local_port),
 	       xsock->send_buffer_size,
 	       xsock->send_buffer_fill,
@@ -557,11 +557,11 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 
       /* print local and remote end of the connection */
       sprintf (linet, "%s:%u",
-	       util_inet_ntoa (xsock->local_addr),
+	       svz_inet_ntoa (xsock->local_addr),
 	       ntohs (xsock->local_port));
 
       sprintf (rinet, "%s:%u",
-	       util_inet_ntoa (xsock->remote_addr),
+	       svz_inet_ntoa (xsock->remote_addr),
 	       ntohs (xsock->remote_port));
       
       /* gather all information from above */

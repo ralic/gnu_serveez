@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.6 2001/01/28 03:26:55 ela Exp $
+ * $Id: nut-request.c,v 1.7 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -94,7 +94,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 #if 0
       printf ("records : %d\n", reply->records);
       printf ("port    : %u\n", ntohs (reply->port));
-      printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
+      printf ("ip      : %s\n", svz_inet_ntoa (reply->ip));
       printf ("speed   : %u kbit/s\n", reply->speed);
       printf ("guid    : %s\n", nut_print_guid (reply->id));
 #endif /* 0 */
@@ -178,7 +178,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 #if 0
       printf ("push request for us\n"
 	      "file index : %u\n", push->index);
-      printf ("ip         : %s\n", util_inet_ntoa (push->ip));
+      printf ("ip         : %s\n", svz_inet_ntoa (push->ip));
       printf ("port       : %u\n", htons (push->port));
 #endif
 
@@ -190,7 +190,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 	  if ((xsock = tcp_connect (push->ip, push->port)) != NULL)
 	    {
 	      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-			  util_inet_ntoa (push->ip), ntohs (push->port));
+			  svz_inet_ntoa (push->ip), ntohs (push->port));
 
 	      xsock->userflags |= NUT_FLAG_UPLOAD;
 	      xsock->cfg = cfg;
@@ -342,7 +342,7 @@ nut_pong (socket_t sock, nut_header_t *hdr, byte *packet)
       xsock = pkt->sock;
 #if 0
       printf ("port    : %u\n", ntohs (reply->port));
-      printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
+      printf ("ip      : %s\n", svz_inet_ntoa (reply->ip));
       printf ("files   : %u\n", reply->files);
       printf ("size    : %u kb\n", reply->size);
 #endif

@@ -69,7 +69,7 @@ function extract_doc(line)
 function handle_variable(line)
 {
     if (line ~ /^ / || line ~ /^\t/) { return }
-    if (line ~ /[ ]+[a-zA-Z0-9_\*]+\;/) {
+    if (line ~ /[ ]+[a-zA-Z0-9_\*\"]+\;/) {
 	gsub(/ [ ]+/, " ", line)
 	gsub(/\t/, " ", line)
 	gsub(/\;/, "", line)
@@ -120,7 +120,8 @@ function handle_variable(line)
     }
 }
 
-/^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*]+\;$/
+# variable declarations
+/^[a-zA-Z0-9_\*]+[ ]+[a-zA-Z0-9_\*\"]+\;$/
 {
     handle_variable($0)
 }
@@ -141,7 +142,7 @@ function handle_variable(line)
 
     while (found == 0) {
 
-	if (ret ~ /[ ]+[a-zA-Z0-9_\*]+\;/) {
+	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"]+\;/) {
 	    handle_variable(ret)
 	    next
 	}

@@ -65,6 +65,7 @@ all parts of the API it provides.
 * Arraylist::             Arraylist implementation
 * Vectorlist::            Vectorlist implementation
 * Utility functions::     Miscellaneous helper functions
+* Core functions::        Network core implementations
 * Client connections::    Client connection functions
 * Socket::                Socket management functions
 * Server::                Server object functions
@@ -154,7 +155,7 @@ SVZ_VECTOR_INS_DEFUN
 SVZ_VECTOR_IDX_DEFUN
 SVZ_VECTOR_LENGTH_DEFUN
 
-@node Utility functions, Client connections, Vectorlist, Embedding API
+@node Utility functions, Core functions, Vectorlist, Embedding API
 @section Utility functions
 
 SVZ_VERBOSITY_DEFVAR
@@ -164,8 +165,6 @@ SVZ_ERRNO_DEFVAR
 LOG_PRINTF_DEFUN
 LOG_SET_FILE_DEFUN
 UTIL_HEXDUMP_DEFUN
-UTIL_INET_NTOA_DEFUN
-UTIL_INET_ATON_DEFUN
 UTIL_ITOA_DEFUN
 UTIL_ATOI_DEFUN
 UTIL_STRCASECMP_DEFUN
@@ -179,7 +178,17 @@ UTIL_HSTRERROR_DEFUN
 UTIL_SYSERROR_DEFUN
 SNPRINTF_DEFUN
 
-@node Client connections, Socket, Utility functions, Embedding API
+@node Core functions, Client connections, Utility functions, Embedding API
+@section Network core functions
+
+SVZ_INET_NTOA_DEFUN
+SVZ_INET_ATON_DEFUN
+SVZ_SOCKET_CONNECT_DEFUN
+SVZ_SOCKET_CREATE_DEFUN
+SVZ_FD_CLOEXEC_DEFUN
+SVZ_FD_NONBLOCK_DEFUN
+
+@node Client connections, Socket, Core functions, Embedding API
 @section Client connections
 
 @menu

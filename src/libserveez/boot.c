@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.7 2001/02/06 17:24:20 ela Exp $
+ * $Id: boot.c,v 1.8 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -47,11 +47,11 @@
  */
 svz_config_t svz_config;
 
-/*
- * Setup some static strings.
- */
+/* The symbolic name of the core library. */
 char *svz_library = "serveez";
+/* The version of the core library. */
 char *svz_version = __serveez_version;
+/* Timestamp when core library has been build. */
 char *svz_build = __serveez_timestamp;
 
 /*

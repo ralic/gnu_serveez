@@ -1,3 +1,19 @@
+2001-03-04  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/core.c (svz_socket_connect): This function has
+	been introduced in order to have the `connect()' call just
+	once in the whole library.
+	(svz_socket_create): Creates a socket via `socket()'. It is
+	a wrapper for the Internet protocols UPD, TCP, ICMP and RAW.
+	(svz_inet_ntoa): Moved both the `inet_ntoa()' `and inet_aton()'
+	from `util.c' to `core.c' and renamed them.
+
+	* http-server/http-cgi.c (http_cgi_get_response): This piece
+	of code has been part of the http_get_response() function.
+	Moved it beneath the http_post_response() function.
+	(http_cgi_exec): Piping stderr of cgi script to its output
+	stream in the release target.
+
 2001-03-01  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/server-core.c (server_signal_handler): Fixed

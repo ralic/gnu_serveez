@@ -1,7 +1,7 @@
 /*
  * http-proto.c - http protocol implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.57 2001/03/02 21:12:53 ela Exp $
+ * $Id: http-proto.c,v 1.58 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -37,7 +37,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <time.h>
-#include <signal.h>
 
 #if HAVE_STRINGS_H
 # include <strings.h>
@@ -55,12 +54,6 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
-# if HAVE_WAIT_H
-#  include <wait.h>
-# endif
-# if HAVE_SYS_WAIT_H
-#  include <sys/wait.h>
-# endif
 #endif
 
 #if HAVE_SYS_SENDFILE_H
@@ -395,66 +388,6 @@ http_disconnect (socket_t sock)
       sock->data = NULL;
     }
 
-  return 0;
-}
-
-/*
- * This is the default idle function for http connections. It checks 
- * whether any died child was a cgi script.
- */
-int
-http_cgi_died (socket_t sock)
-{
-  http_socket_t *http = sock->data;
-#ifdef __MINGW32__
-  DWORD result;
-#endif
-
-  if (sock->flags & SOCK_FLAG_PIPE)
-    {
-#ifndef __MINGW32__
-      /* Check if a died child is this cgi. */
-      if (server_child_died && http->pid == server_child_died)
-	{
-	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
-		      (int) server_child_died);
-	  server_child_died = 0;
-	}
-#if HAVE_WAITPID
-      /* Test if the cgi is still running. */
-      if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
-	{
-	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
-		      (int) http->pid);
-	  http->pid = INVALID_HANDLE;
-	}
-#endif /* HAVE_WAITPID */
-
-#else /* __MINGW32__ */
-
-      /*
-       * Check if there died a process handle in Win32, this has to be
-       * done regularly here because there is no SIGCHLD in Win32 !
-       */
-      if (http->pid != INVALID_HANDLE)
-	{
-	  result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
-	  if (result == WAIT_FAILED)
-	    {
-	      log_printf (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
-	    }
-	  else if (result != WAIT_TIMEOUT)
-	    {
-	      if (closehandle (http->pid) == -1)
-		log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-	      server_child_died = http->pid;
-	      http->pid = INVALID_HANDLE;
-	    }
-	}
-#endif /* __MINGW32__ */
-    }
-  
-  sock->idle_counter = 1;
   return 0;
 }
 
@@ -1104,59 +1037,18 @@ http_get_response (socket_t sock, char *request, int flags)
   int fd;
   int size, status, partial = 0;
   struct stat buf;
-  char *cgifile, *dir, *host, *p, *file;
+  char *dir, *host, *p, *file;
   time_t date;
-  HANDLE cgi2s[2];
   http_cache_t *cache;
-  http_socket_t *http;
+  http_socket_t *http = sock->data;
   http_config_t *cfg = sock->cfg;
 
   /* reset current http header */
   http_reset_header ();
 
-  /* get the http socket structure */
-  http = sock->data;
-
   /* check if this is a cgi request */
-  cgifile = http_check_cgi (sock, request);
-  if (cgifile != HTTP_NO_CGI)
-    {
-      if (cgifile == NULL)
-	{
-	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
-	  http_error_response (sock, 500);
-	  sock->userflags |= HTTP_FLAG_DONE;
-	  return -1;
-	}
-
-      /* create a pipe for the cgi script process */
-      if (pipe_create_pair (cgi2s) == -1)
-	{
-	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
-	  http_error_response (sock, 500);
-	  sock->userflags |= HTTP_FLAG_DONE;
-	  svz_free (cgifile);
-	  return -1;
-	}
-
-      /* execute the cgi script in CGIFILE */
-      sock->userflags |= HTTP_FLAG_CGI;
-      sock->flags |= SOCK_FLAG_RECV_PIPE;
-      sock->read_socket = http_cgi_read;
-      sock->pipe_desc[READ] = cgi2s[READ];
-      svz_fd_cloexec (cgi2s[READ]);
-
-      if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE], 
-			 cgifile, request, GET_METHOD))
-	{
-	  /* some error occurred here */
-	  sock->read_socket = tcp_read_socket;
-	  svz_free (cgifile);
-	  return -1;
-	}
-      svz_free (cgifile);
-      return 0;
-    }
+  if ((status = http_cgi_get_response (sock, request, 0)) != -2)
+    return status;
 
   /* check for "~user" syntax here */
   if ((p = http_userdir (sock, request)) != NULL)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.30 2001/01/28 03:26:55 ela Exp $
+ * $Id: gnutella.c,v 1.31 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -263,7 +263,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
   if ((sock = tcp_connect (ip, port)) != NULL)
     {
       log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-		  util_inet_ntoa (ip), ntohs (port));
+		  svz_inet_ntoa (ip), ntohs (port));
       
       sock->cfg = cfg;
       sock->flags |= SOCK_FLAG_NOFLOOD;
@@ -865,7 +865,7 @@ nut_info_server (server_t *server)
 	   " uploads         : %u/%u\r\n"
 	   " recent queries  : %u",
 	   cfg->netport->port,
-	   cfg->ip ? util_inet_ntoa (cfg->ip) : "no specified",
+	   cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
 	   cfg->port ? util_itoa (ntohs (cfg->port)) : "no specified",
 	   cfg->max_ttl,
 	   cfg->ttl,
@@ -975,7 +975,7 @@ nut_detect_connect (socket_t sock)
     {
       sock->userflags |= (NUT_FLAG_CLIENT | NUT_FLAG_SELF);
       log_printf (LOG_NOTICE, "nut: host %s:%u connected\n",
-		  util_inet_ntoa (sock->remote_addr),
+		  svz_inet_ntoa (sock->remote_addr),
 		  ntohs (sock->remote_port));
       sock_reduce_recv (sock, len);
 

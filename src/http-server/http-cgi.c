@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.35 2001/03/02 21:12:53 ela Exp $
+ * $Id: http-cgi.c,v 1.36 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -127,6 +127,66 @@ http_cgi_disconnect (socket_t sock)
 #endif /* not __MINGW32__ */
 
   return http_disconnect (sock);
+}
+
+/*
+ * This is the default idle function for http connections. It checks 
+ * whether any died child was a cgi script.
+ */
+int
+http_cgi_died (socket_t sock)
+{
+  http_socket_t *http = sock->data;
+#ifdef __MINGW32__
+  DWORD result;
+#endif
+
+  if (sock->flags & SOCK_FLAG_PIPE)
+    {
+#ifndef __MINGW32__
+      /* Check if a died child is this cgi. */
+      if (server_child_died && http->pid == server_child_died)
+	{
+	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
+		      (int) server_child_died);
+	  server_child_died = 0;
+	}
+#if HAVE_WAITPID
+      /* Test if the cgi is still running. */
+      if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
+	{
+	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
+		      (int) http->pid);
+	  http->pid = INVALID_HANDLE;
+	}
+#endif /* HAVE_WAITPID */
+
+#else /* __MINGW32__ */
+
+      /*
+       * Check if there died a process handle in Win32, this has to be
+       * done regularly here because there is no SIGCHLD in Win32 !
+       */
+      if (http->pid != INVALID_HANDLE)
+	{
+	  result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
+	  if (result == WAIT_FAILED)
+	    {
+	      log_printf (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+	    }
+	  else if (result != WAIT_TIMEOUT)
+	    {
+	      if (closehandle (http->pid) == -1)
+		log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	      server_child_died = http->pid;
+	      http->pid = INVALID_HANDLE;
+	    }
+	}
+#endif /* __MINGW32__ */
+    }
+  
+  sock->idle_counter = 1;
+  return 0;
 }
 
 /*
@@ -402,10 +462,10 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
    * necessary for the cgi script
    */
   http_insert_env (env, &size, "SERVER_NAME=%s", 
-		   cfg->host ? cfg->host : util_inet_ntoa (sock->local_addr));
+		   cfg->host ? cfg->host : svz_inet_ntoa (sock->local_addr));
   http_insert_env (env, &size, "SERVER_PORT=%u", ntohs (sock->local_port));
   http_insert_env (env, &size, "REMOTE_ADDR=%s", http->host ? http->host :
-		   util_inet_ntoa (sock->remote_addr));
+		   svz_inet_ntoa (sock->remote_addr));
   http_insert_env (env, &size, "REMOTE_PORT=%u", ntohs (sock->remote_port));
   http_insert_env (env, &size, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
   http_insert_env (env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
@@ -813,12 +873,20 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	  exit (0);
 	}
 
-      /* duplicate the receiving pipe descriptor to stdout and stderr */
-      if (dup2 (out, 1) != 1 /* || dup2 (out, 2) != 2 */)
+      /* duplicate the receiving pipe descriptor to stdout */
+      if (dup2 (out, 1) != 1)
 	{
 	  log_printf (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
 	  exit (0);
 	}
+#ifndef ENABLE_DEBUG
+      /* duplicate stderr to the cgi output */
+      if (dup2 (out, 2) != 2)
+	{
+	  log_printf (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
+	  exit (0);
+	}
+#endif /* !ENABLE_DEBUG */
 
       /* handle post method */
       if (type == POST_METHOD)
@@ -933,6 +1001,56 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	}
     }
 
+  return 0;
+}
+
+/*
+ * The http GET cgi request response.
+ */
+int
+http_cgi_get_response (socket_t sock, char *request, int flags)
+{
+  HANDLE cgi2s[2];
+  char *file;
+
+  /* check if this is a cgi request at all */
+  if ((file = http_check_cgi (sock, request)) == HTTP_NO_CGI)
+    return -2;
+
+  if (file == NULL)
+    {
+      sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+      http_error_response (sock, 500);
+      sock->userflags |= HTTP_FLAG_DONE;
+      return -1;
+    }
+
+  /* create a pipe for the cgi script process */
+  if (pipe_create_pair (cgi2s) == -1)
+    {
+      sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
+      http_error_response (sock, 500);
+      sock->userflags |= HTTP_FLAG_DONE;
+      svz_free (file);
+      return -1;
+    }
+
+  /* execute the cgi script in FILE */
+  sock->userflags |= HTTP_FLAG_CGI;
+  sock->flags |= SOCK_FLAG_RECV_PIPE;
+  sock->read_socket = http_cgi_read;
+  sock->pipe_desc[READ] = cgi2s[READ];
+  svz_fd_cloexec (cgi2s[READ]);
+
+  if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE], 
+		     file, request, GET_METHOD))
+    {
+      /* some error occurred here */
+      sock->read_socket = tcp_read_socket;
+      svz_free (file);
+      return -1;
+    }
+  svz_free (file);
   return 0;
 }
 

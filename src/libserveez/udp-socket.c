@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.4 2001/03/02 21:12:53 ela Exp $
+ * $Id: udp-socket.c,v 1.5 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -110,7 +110,7 @@ udp_read_socket (socket_t sock)
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
 		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
-		  util_inet_ntoa (sock->remote_addr),
+		  svz_inet_ntoa (sock->remote_addr),
 		  ntohs (sock->remote_port), num_read);
 #endif /* ENABLE_DEBUG */
 
@@ -192,7 +192,7 @@ udp_write_socket (socket_t sock)
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
 	      sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", 
-	      util_inet_ntoa (receiver.sin_addr.s_addr),
+	      svz_inet_ntoa (receiver.sin_addr.s_addr),
 	      ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
 #endif /* ENABLE_DEBUG */
 
@@ -340,55 +340,29 @@ udp_printf (socket_t sock, const char *fmt, ...)
 }
 
 /*
- * Create a UDP connection to HOST and set the socket descriptor in
- * structure SOCK to the resulting socket. Return a NULL value on errors.
- * This function can be used for port bouncing. If you assign the
- * `handle_request' callback to something server specific and the `cfg'
- * field to the server's configuration to the returned socket structure this
- * socket is able to handle a dedicated udp connection to some other
- * udp server.
+ * Create a UDP connection to @var{host} and set the socket descriptor in
+ * structure @var{sock} to the resulting socket. Return a NULL value on 
+ * errors. This function can be used for port bouncing. If you assign the
+ * @code{handle_request} callback to something server specific and the 
+ * @var{cfg} field to the server's configuration to the returned socket 
+ * structure this socket is able to handle a dedicated udp connection to 
+ * some other udp server.
  */
 socket_t
 udp_connect (unsigned long host, unsigned short port)
 {
-  struct sockaddr_in client;
   SOCKET sockfd;
   socket_t sock;
 
-  /* create a socket for communication with the server */
-  if ((sockfd = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
-    {
-      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
+  /* Create a client socket. */
+  if ((sockfd = svz_socket_create (PROTO_UDP)) == -1)
       return NULL;
-    }
 
-  /* make the socket non-blocking */
-  if (svz_fd_nonblock (sockfd) != 0)
-    {
-      closesocket (sockfd);
-      return NULL;
-    }
-  
-  /* do not inherit this socket */
-  if (svz_fd_cloexec (sockfd) != 0)
-    {
-      closesocket (sockfd);
-      return NULL;
-    }
+  /* Try to connect to the server. Does it make sense for ICMP ? */
+  if (svz_socket_connect (sockfd, host, port) == -1)
+     return NULL;
 
-  /* try to connect to the server */
-  client.sin_family = AF_INET;
-  client.sin_addr.s_addr = host;
-  client.sin_port = port;
-  
-  if (connect (sockfd, (struct sockaddr *) &client, sizeof (client)) == -1)
-    {
-      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
-      closesocket (sockfd);
-      return NULL;
-    }
-
-  /* create socket structure and enqueue it */
+  /* Create socket structure and enqueue it. */
   if ((sock = sock_alloc ()) == NULL)
     {
       closesocket (sockfd);

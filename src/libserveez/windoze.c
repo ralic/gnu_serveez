@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.3 2001/02/02 11:26:24 ela Exp $
+ * $Id: windoze.c,v 1.4 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -306,8 +306,7 @@ windoze_stop_daemon (void)
 }
 
 /*
- * Read and write an unsigned integer value from and to the 
- * Windows Registry Database.
+ * Read an unsigned integer value from the Windows Registry Database.
  */
 unsigned
 windoze_get_reg_unsigned (HKEY key, char *subkey, 
@@ -339,6 +338,9 @@ windoze_get_reg_unsigned (HKEY key, char *subkey,
   return value;
 }
 
+/*
+ * Write an unsigned integer value to the Windows Registry Database.
+ */
 void
 windoze_set_reg_unsigned (HKEY key, char *subkey, 
 			  char *subsubkey, unsigned value)
@@ -367,7 +369,7 @@ windoze_set_reg_unsigned (HKEY key, char *subkey,
 }
 
 /*
- * Read and write a string value from and to the Windows Registry Database.
+ * Read a string value from the Windows Registry Database.
  */
 char *
 windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
@@ -398,6 +400,9 @@ windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
   return value;
 }
 
+/*
+ * Write a string value to the Windows Registry Database.
+ */
 void
 windoze_set_reg_string (HKEY key, char *subkey, char *subsubkey, char *value)
 {

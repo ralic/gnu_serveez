@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.2 2001/02/06 17:24:20 ela Exp $
+ * $Id: interface.c,v 1.3 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -62,6 +62,7 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
+#include "libserveez/core.h"
 #include "libserveez/vector.h"
 #include "libserveez/interface.h"
 
@@ -412,6 +413,13 @@ svz_interface_collect (void)
 
 #else /* not __MINGW32__ */
 
+/*
+ * Collect all available network interfaces and put them into the list
+ * @var{svz_interface}. This is useful in order to @code{bind()} server
+ * sockets to specific network interfaces. Thus you can make certain 
+ * services accessable from "outside" or "inside" a network installation
+ * only.
+ */
 void
 svz_interface_collect (void)
 {
@@ -543,13 +551,13 @@ svz_interface_list (void)
       if (ifc->description)
 	{
 	  printf ("%40s: %s\n", ifc->description, 
-		  util_inet_ntoa (ifc->ipaddr));
+		  svz_inet_ntoa (ifc->ipaddr));
 	}
       else
 	{
 	  /* interface with interface # only */
 	  printf ("%31s%09lu: %s\n", "interface # ",
-		  ifc->index, util_inet_ntoa (ifc->ipaddr));
+		  ifc->index, svz_inet_ntoa (ifc->ipaddr));
 	}
     }
 }

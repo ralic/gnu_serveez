@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.4 2001/03/02 21:12:53 ela Exp $
+ * $Id: tcp-socket.c,v 1.5 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -199,69 +199,25 @@ tcp_read_socket (socket_t sock)
 }
 
 /*
- * Create a TCP connection to host HOST and set the socket descriptor in
- * structure SOCK to the resulting socket. Return a zero value on error.
+ * Create a TCP connection to host @var{host} and set the socket descriptor
+ * in structure @var{sock} to the resulting socket. Return a zero value on 
+ * errors.
  */
 socket_t
 tcp_connect (unsigned long host, unsigned short port)
 {
-  struct sockaddr_in client;
   SOCKET sockfd;
   socket_t sock;
-  int error;
 
-  /*
-   * first, create a socket for communication with the host
-   */
-  if ((sockfd = socket (AF_INET, SOCK_STREAM, IPPROTO_IP)) == INVALID_SOCKET)
-    {
-      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
-      return NULL;
-    }
+  /* Create a socket. */
+  if ((sockfd = svz_socket_create (PROTO_TCP)) == -1)
+    return NULL;
 
-  /*
-   * second, make the socket non-blocking and do not inherit this 
-   * client socket
-   */
-  if (svz_fd_nonblock (sockfd) != 0)
-    {
-      closesocket (sockfd);
-      return NULL;
-    }
-  if (svz_fd_cloexec (sockfd) != 0)
-    {
-      closesocket (sockfd);
-      return NULL;
-    }
-  
-  /*
-   * third, try to connect to the host
-   */
-  client.sin_family = AF_INET;
-  client.sin_addr.s_addr = host;
-  client.sin_port = port;
-  
-  if (connect (sockfd, (struct sockaddr *) &client, sizeof (client)) == -1)
-    {
-#ifdef __MINGW32__
-      error = WSAGetLastError ();
-#else
-      error = errno;
-#endif
-      if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
-	{
-	  log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
-	  closesocket (sockfd);
-	  return NULL;
-	}
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "connect: %s\n", NET_ERROR);
-#endif
-    }
+  /* Try connecting. */
+  if (svz_socket_connect (sockfd, host, port) == -1)
+    return NULL;
 
-  /*
-   * create socket structure and enqueue it
-   */
+  /* Create socket structure and enqueue it. */
   if ((sock = sock_alloc ()) == NULL)
     {
       closesocket (sockfd);
@@ -278,9 +234,9 @@ tcp_connect (unsigned long host, unsigned short port)
 }
 
 /*
- * The default routine for connecting a socket SOCK. When we get 
- * `select ()'ed or `poll ()'ed via the WRITE_SET we simply check for 
- * network errors,
+ * The default routine for connecting a socket @var{sock}. When we get 
+ * @code{select()}ed or @code{poll()}ed via the @var{WRITE_SET} we simply 
+ * check for network errors,
  */
 int
 tcp_default_connect (socket_t sock)

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.3 2001/02/18 22:27:28 ela Exp $
+ * $Id: util.c,v 1.4 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -60,10 +60,6 @@
 
 #ifndef __MINGW32__
 # include <netdb.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <arpa/inet.h>
 #endif
 
 #ifdef __MINGW32__
@@ -283,9 +279,9 @@ util_tolower (char *str)
 }
 
 /*
- * These are the system dependent case insensitive string compares. They
- * compare the strings STR1 and STR2 (optional up to N characters). Return
- * zero if both strings are equal.
+ * This is the system dependent case insensitive string compare. It
+ * compares the strings @var{str1} and @var{str2} and returns zero if both 
+ * strings are equal.
  */
 int
 util_strcasecmp (const char *str1, const char *str2)
@@ -317,6 +313,13 @@ util_strcasecmp (const char *str1, const char *str2)
 #endif /* neither HAVE_STRCASECMP nor HAVE_STRICMP */
 }
 
+/*
+ * The @code{util_strncasecmp()} function compares the two strings @var{str1}
+ * and @var{str2}, ignoring the case of the characters. It returns an
+ * integer less than, equal to, or greater than zero if @var{str1} is
+ * found, respectively, to be less than, to match, or be greater than 
+ * @var{str2}. It only compares the first @var{n} characters of @var{str1}.
+ */
 int
 util_strncasecmp (const char *str1, const char *str2, size_t n)
 {
@@ -624,67 +627,6 @@ util_atoi (char *str)
       str++;
     }
   return i;
-}
-
-/*
- * Converts the given ip address IP to the dotted decimal representation.
- * The string is a statically allocated buffer, please copy the result.
- * The given ip address MUST be in network byte order.
- */
-char *
-util_inet_ntoa (unsigned long ip)
-{
-#if !BROKEN_INET_NTOA
-  struct in_addr addr;
-
-  addr.s_addr = ip;
-  return inet_ntoa (addr);
-
-#else /* BROKEN_INET_NTOA */
-
-  static char addr[16];
-
-  /* 
-   * Now, this is strange: IP is given in host byte order. Nevertheless
-   * conversion is endian-specific. To the binary AND and SHIFT operations
-   * work differently on different architectures ?
-   */
-  sprintf (addr, "%lu.%lu.%lu.%lu",
-#if WORDS_BIGENDIAN
-	   (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
-#else /* Little Endian */
-	   ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
-#endif
-  return addr;
-
-#endif /* BROKEN_INET_NTOA */
-}
-
-/*
- * Converts the Internet host address @var{str} from the standard 
- * numbers-and-dots notation into binary data and stores it in the 
- * structure that @var{addr} points to. @code{util_inet_aton()} returns 
- * zero if the address is valid, nonzero if not.
- */
-int
-util_inet_aton (char *str, struct sockaddr_in *addr)
-{
-#if HAVE_INET_ATON
-  if (inet_aton (str, &addr->sin_addr) == 0)
-    {
-      return -1;
-    }
-#elif defined (__MINGW32__)
-  int len = sizeof (struct sockaddr_in);
-  if (WSAStringToAddress (str, AF_INET, NULL, 
-                          (struct sockaddr *) addr, &len) != 0)
-    {
-      return -1;
-    }
-#else /* not HAVE_INET_ATON and not __MINGW32__ */
-  addr->sin_addr.s_addr = inet_addr (str);
-#endif /* not HAVE_INET_ATON */
-  return 0;
 }
 
 /*

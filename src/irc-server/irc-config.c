@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.10 2001/01/25 10:57:57 ela Exp $
+ * $Id: irc-config.c,v 1.11 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -352,7 +352,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
   for (user = cfg->user_auth; user; user = user->next)
     {
       if ((irc_string_regex (client->user, user->user_ip) &&
-	   irc_string_regex (util_inet_ntoa (client->sock->remote_addr), 
+	   irc_string_regex (svz_inet_ntoa (client->sock->remote_addr), 
 			     user->ip)) ||
 	  (irc_string_regex (client->user, user->user_host) &&
 	   irc_string_regex (client->host, user->host)))

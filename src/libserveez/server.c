@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.4 2001/03/02 21:12:53 ela Exp $
+ * $Id: server.c,v 1.5 2001/03/04 13:13:41 ela Exp $
  *
  */
 
@@ -43,6 +43,7 @@
 #include "libserveez/alloc.h"
 #include "libserveez/hash.h"
 #include "libserveez/util.h"
+#include "libserveez/core.h"
 #include "libserveez/socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"

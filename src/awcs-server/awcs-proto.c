@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.25 2001/02/04 11:48:52 ela Exp $
+ * $Id: awcs-proto.c,v 1.26 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -294,7 +294,7 @@ awcs_status_connected (socket_t sock)
 		   cfg->server->id,
 		   STATUS_CONNECT,
 		   sock->id,
-		   util_inet_ntoa (addr),
+		   svz_inet_ntoa (addr),
 		   htons (port), '\0'))
     {
       log_printf (LOG_FATAL, "awcs: master write error\n");

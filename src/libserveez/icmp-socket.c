@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.6 2001/03/02 21:12:53 ela Exp $
+ * $Id: icmp-socket.c,v 1.7 2001/03/04 13:13:40 ela Exp $
  *
  */
 
@@ -437,7 +437,7 @@ icmp_read_socket (socket_t sock)
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
 		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
-		  util_inet_ntoa (sock->remote_addr), num_read);
+		  svz_inet_ntoa (sock->remote_addr), num_read);
 #endif /* ENABLE_DEBUG */
 
       /* 
@@ -547,7 +547,7 @@ icmp_write_socket (socket_t sock)
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
 	      sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
-              util_inet_ntoa (receiver.sin_addr.s_addr),
+              svz_inet_ntoa (receiver.sin_addr.s_addr),
               do_write - (p - sock->send_buffer));
 #endif /* ENABLE_DEBUG */
 
@@ -739,45 +739,18 @@ icmp_check_request (socket_t sock)
 socket_t
 icmp_connect (unsigned long host, unsigned short port)
 {
-  struct sockaddr_in client;
   SOCKET sockfd;
   socket_t sock;
 
-  /* create a socket for communication with the server */
-  if ((sockfd = socket (AF_INET, SOCK_RAW, IPPROTO_ICMP)) == INVALID_SOCKET)
-    {
-      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
+  /* Create a client socket. */
+  if ((sockfd = svz_socket_create (PROTO_ICMP)) == -1)
       return NULL;
-    }
 
-  /* make the socket non-blocking */
-  if (svz_fd_nonblock (sockfd) != 0)
-    {
-      closesocket (sockfd);
-      return NULL;
-    }
-  
-  /* do not inherit this client socket */
-  if (svz_fd_cloexec (sockfd) != 0)
-    {
-      closesocket (sockfd);
-      return NULL;
-    }
+  /* Try to connect to the server. Does it make sense for ICMP ? */
+  if (svz_socket_connect (sockfd, host, port) == -1)
+     return NULL;
 
-  /* try to connect to the server */
-  client.sin_family = AF_INET;
-  client.sin_addr.s_addr = host;
-  client.sin_port = port;
-  
-  /* not sure if it makes any sense to `connect ()' an ICMP socket */
-  if (connect (sockfd, (struct sockaddr *) &client, sizeof (client)) == -1)
-    {
-      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
-      closesocket (sockfd);
-      return NULL;
-    }
-
-  /* create socket structure and enqueue it */
+  /* Create socket structure and enqueue it. */
   if ((sock = sock_alloc ()) == NULL)
     {
       closesocket (sockfd);
@@ -791,7 +764,7 @@ icmp_connect (unsigned long host, unsigned short port)
   sock_enqueue (sock);
   sock_intern_connection_info (sock);
 
-  /* put foreign address here */
+  /* Put foreign address here. */
   sock->remote_addr = host;
 
   sock->read_socket = icmp_read_socket;
@@ -799,7 +772,7 @@ icmp_connect (unsigned long host, unsigned short port)
   sock->check_request = icmp_check_request;
   sock->remote_port = (unsigned short) sock->id;
 
-  /* finally send a connection message */
+  /* Finally send a connection message. */
   icmp_send_control (sock, ICMP_SERVEEZ_CONNECT);
   sock_connections++;
   return sock;

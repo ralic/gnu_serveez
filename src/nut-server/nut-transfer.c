@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.29 2001/02/02 11:26:24 ela Exp $
+ * $Id: nut-transfer.c,v 1.30 2001/03/04 13:13:42 ela Exp $
  *
  */
 
@@ -403,7 +403,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
   if ((xsock = tcp_connect (reply->ip, reply->port)) != NULL)
     {
       log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-		  util_inet_ntoa (reply->ip), ntohs (reply->port));
+		  svz_inet_ntoa (reply->ip), ntohs (reply->port));
       cfg->dnloads++;
       xsock->cfg = cfg;
       xsock->flags |= SOCK_FLAG_NOFLOOD;
@@ -597,7 +597,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "nut: sent push request to %s:%u\n",
-		  util_inet_ntoa (sock->remote_addr), 
+		  svz_inet_ntoa (sock->remote_addr), 
 		  ntohs (sock->remote_port));
 #endif
 
