@@ -100,7 +100,7 @@ location @uref{http://www.textsure.net/~ela/download/}. At this location
 you will also find the RPM package mentioned in the next section.
 
 @subsubsection Requirements
-Serveez needs GNU guile (Ubiquitous Intelligent Language for Extensions).
+Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions).
 The current version of Serveez is known to work with Guile 1.3.4 and later.
 Guile can be downloaded at @uref{ftp://ftp.gnu.org/gnu/guile/}.
 
@@ -236,7 +236,7 @@ link against an existing Guile installation you can try to use the
 
 @subsection Installing the RPM package
 The binary RPM distribution @file{serveez-@value{VERSION}-1.i386.rpm} of
-serveez has been prebuild on a x86 / GNU/Linux 2.4 machine. It is a 
+Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine. It is a 
 relocatable package with its default installation directory in 
 @file{/opt/serveez}. You need to ensure root privileges in order to install 
 or remove rpm packages.
@@ -260,7 +260,7 @@ sleepless ~> rpm -ev serveez-@value{VERSION}
 @section Environment variables
 
 When using the serveezopt package or playing around with the dynamic server 
-module loader of serveez you can tell the core API of serveez (which is the
+module loader of Serveez you can tell the core API of Serveez (which is the
 @file{libserveez.[so|dll]} library) to use an additional load path to find
 these server modules. The environment variable @samp{SERVEEZ_LOAD_PATH} holds
 this information. You can set it up via:
@@ -310,7 +310,7 @@ As noted above Serveez is configured via a configuration
 file which is by default @file{serveez.cfg} and can be set 
 by passing the -f command line argument. To make configuring more fun we
 did not invent yet another configuration file format. Instead we use a dialect
-of the Scheme programming language called GNU guile
+of the Scheme programming language called GNU Guile
 (@uref{http://www.gnu.org/software/guile/}). There is no need to be worried
 if you are not a programmer. What you have to do is really simple and this
 document shows you everything you need to know. We also provide many examples.
@@ -583,7 +583,7 @@ An alternative method to multiplex client network connections is
 @table @code
 
 @item Any Unix
-The limits set by @code{ulimit ()} or @code{setrlimit ()}.
+The limits set by @code{ulimit()} or @code{setrlimit()}.
 
 @item Solaris
 See the Solaris FAQ, question 3.45.
@@ -619,9 +619,6 @@ to more than a few times its default value.
 More than 2000 connections tested. Seems like the limit is due to
 available physical memory.
 @end table
-
-Serveez currently has a limit of 8192 open connections (our socket structure
-that is). This limit exists for legacy reasons and is going to be removed.
 
 @node Server, Coserver, Concept, Top
 @chapter Server
@@ -699,7 +696,7 @@ already included in the main serveez package. (@xref{Existing servers}.)
 These are called @samp{Builtin servers}. Another possibility to add a new
 server are @samp{Embedded servers} which are shared libraries (or DLL's)
 containing the server implementation. These can be dynamically loaded by
-serveez at runtime. This kind of server is also called @samp{Server modules}.
+Serveez at runtime. This kind of server is also called @samp{Server modules}.
 A third possibility are the @samp{Guile servers} which allow even
 unexperienced schemers to write an Internet server.
 
@@ -707,23 +704,23 @@ This section describes each of the above possibilities in detail.
 
 @menu
 * Embedded servers::    How to write dynamic server modules
-* Guile servers::       Servers using serveez's guile interface
+* Guile servers::       Servers using Serveez's guile interface
 * Builtin servers::     Servers located in the main project
 @end menu
 
 @node Embedded servers, Guile servers, , Writing servers
 @subsection Embedded servers
 
-The core library of serveez can be used to write standalone server modules.
+The core library of Serveez can be used to write standalone server modules.
 Serveez defines a certain interface for shared libraries which contain
-such server modules. If serveez detects an unknown server type (server type
+such server modules. If Serveez detects an unknown server type (server type
 which is not builtin) in its configuration file it tries to load a shared 
 library containing this server type during startup.
 
 @subsubsection Prerequisites
 
 In order to implement a server module you need an existing installation
-of serveez. This can be achieved issuing the following commands:
+of Serveez. This can be achieved issuing the following commands:
 
 @example
 $ ./configure --enable-shared --prefix=/usr/local
@@ -732,7 +729,7 @@ $ make install
 @end example
 
 After successful installation you are able to compile and link against the
-serveez core API. The headers should be available in @file{/usr/local/include}
+Serveez core API. The headers should be available in @file{/usr/local/include}
 and the library itself (@file{libserveez.so} or @file{libserveez.dll}) is 
 located in @file{/usr/local/lib} if you passed the configure script
 @samp{--prefix=/usr/local}.
@@ -766,7 +763,7 @@ the proper content (@xref{Builtin servers}.)
 
 All of the servers listed in @ref{Existing servers} are builtin servers.
 The following sections describe in detail how to setup a new builtin server
-type. This kind of server will be part of the serveez executable. That is
+type. This kind of server will be part of the Serveez executable. That is
 why you should make it configurable in the configure script via a 
 @samp{--enable-xxxserver} argument.
 
