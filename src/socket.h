@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.30 2000/11/29 20:25:08 ela Exp $
+ * $Id: socket.h,v 1.31 2001/01/04 22:11:59 raimi Exp $
  *
  */
 
@@ -46,26 +46,30 @@
 #define RECV_BUF_SIZE  (1024 * 8) /* Normal receive buffer size. */
 #define SEND_BUF_SIZE  (1024 * 8) /* Normal send buffer size. */
 
-#define SOCK_FLAG_INIT        0x0000 /* Value for initializing. */
-#define SOCK_FLAG_INBUF       0x0001 /* Outbuf is allocated. */
-#define SOCK_FLAG_OUTBUF      0x0002 /* Inbuf is allocated. */
-#define SOCK_FLAG_CONNECTED   0x0004 /* Socket is connected. */
-#define SOCK_FLAG_LISTENING   0x0008 /* Socket is listening. */
-#define SOCK_FLAG_KILLED      0x0010 /* Socket will be shut down soon. */
-#define SOCK_FLAG_NOFLOOD     0x0020 /* Flood protection off. */
-#define SOCK_FLAG_INITED      0x0040 /* Socket was initialized. */
-#define SOCK_FLAG_ENQUEUED    0x0080 /* Socket is on socket queue. */
-#define SOCK_FLAG_RECV_PIPE   0x0100 /* Receiving pipe is active. */
-#define SOCK_FLAG_SEND_PIPE   0x0200 /* Sending pipe is active. */
-#define SOCK_FLAG_FILE        0x0400 /* Socket is no socket, but file. */
-#define SOCK_FLAG_COSERVER    0x0800 /* Socket is a Co-Server */
-#define SOCK_FLAG_SOCK        0x1000 /* Socket is a plain socket. */
-#define SOCK_FLAG_PIPE               /* Socket is no socket, but pipe. */ \
+#define SOCK_FLAG_INIT        0x00000000 /* Value for initializing. */
+#define SOCK_FLAG_INBUF       0x00000001 /* Outbuf is allocated. */
+#define SOCK_FLAG_OUTBUF      0x00000002 /* Inbuf is allocated. */
+#define SOCK_FLAG_CONNECTED   0x00000004 /* Socket is connected. */
+#define SOCK_FLAG_LISTENING   0x00000008 /* Socket is listening. */
+#define SOCK_FLAG_KILLED      0x00000010 /* Socket will be shut down soon. */
+#define SOCK_FLAG_NOFLOOD     0x00000020 /* Flood protection off. */
+#define SOCK_FLAG_INITED      0x00000040 /* Socket was initialized. */
+#define SOCK_FLAG_ENQUEUED    0x00000080 /* Socket is on socket queue. */
+#define SOCK_FLAG_RECV_PIPE   0x00000100 /* Receiving pipe is active. */
+#define SOCK_FLAG_SEND_PIPE   0x00000200 /* Sending pipe is active. */
+#define SOCK_FLAG_FILE        0x00000400 /* Socket is no socket, but file. */
+#define SOCK_FLAG_COSERVER    0x00000800 /* Socket is a Co-Server */
+#define SOCK_FLAG_SOCK        0x00001000 /* Socket is a plain socket. */
+/* Socket is no socket, but pipe. */
+#define SOCK_FLAG_PIPE \
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
-#define SOCK_FLAG_CONNECTING  0x2000 /* Socket is still connecting */
-#define SOCK_FLAG_PRIORITY    0x4000 /* Enqueue socket preferred. */
-#define SOCK_FLAG_FIXED       0x8000 /* Dedicated UDP connection. */
+#define SOCK_FLAG_CONNECTING  0x00002000 /* Socket is still connecting */
+#define SOCK_FLAG_PRIORITY    0x00004000 /* Enqueue socket preferred. */
+#define SOCK_FLAG_FIXED       0x00008000 /* Dedicated UDP connection. */
+
+#define SOCK_FLAG_FINAL_WRITE 0x00010000 /* Disconnect as soon as send 
+					    queue is empty. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 

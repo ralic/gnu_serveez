@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.38 2001/01/02 00:52:46 raimi Exp $
+ * $Id: server.c,v 1.39 2001/01/04 22:11:59 raimi Exp $
  *
  */
 
@@ -81,6 +81,9 @@
 #if ENABLE_TUNNEL
 # include "tunnel-server/tunnel.h"
 #endif
+#if ENABLE_FAKEIDENT
+# include "fakeident-server/ident-proto.h"
+#endif
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -108,6 +111,9 @@ struct server_definition * all_server_definitions [] =
 #endif
 #if ENABLE_TUNNEL
   &tnl_server_definition,
+#endif
+#if ENABLE_FAKEIDENT
+  &fakeident_server_definition,
 #endif
   NULL
 };

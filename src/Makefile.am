@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.22 2001/01/03 13:00:21 ela Exp $
+# $Id: Makefile.am,v 1.23 2001/01/04 22:11:59 raimi Exp $
 #
 
 #
@@ -47,7 +47,8 @@ SUBDIRS = \
 	foo-server \
 	sntp-server \
 	nut-server \
-	tunnel-server
+	tunnel-server \
+	fakeident-server
 
 #
 # Add your library here
@@ -62,7 +63,8 @@ PROTOLIBS = 	\
 	foo-server/libfoo.a \
 	sntp-server/libsntp.a \
 	nut-server/libnut.a \
-	tunnel-server/libtunnel.a
+	tunnel-server/libtunnel.a \
+	fakeident-server/libfakeident.a
 
 bin_PROGRAMS = serveez mkpassword
 

@@ -162,6 +162,9 @@ or '--enable-<?>=no'.
 	 If you enable this feature the port forwarder will be included. 
          This is useful if you plan to use serveez as a gateway or firewall
 	 workaround.
+ 21.   --enable-fakeident
+	 By enabling this you will get a fake ident server included into
+	 the binary executable.
 
 Please read the README file also.
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.31 2000/12/16 10:57:23 ela Exp $
+ * $Id: socket.c,v 1.32 2001/01/04 22:11:59 raimi Exp $
  *
  */
 
@@ -100,7 +100,8 @@ default_write (socket_t sock)
    * SOCK_MAX_WRITE.
    */
   do_write = sock->send_buffer_fill;
-  if (do_write > SOCK_MAX_WRITE) do_write = SOCK_MAX_WRITE;
+  if (do_write > SOCK_MAX_WRITE)
+    do_write = SOCK_MAX_WRITE;
   num_written = send (desc, sock->send_buffer, do_write, 0);
 
 #if 0
@@ -134,6 +135,10 @@ default_write (socket_t sock)
 	  num_written = 0;
 	}
     }
+
+  /* if final write flag is set, then schedule for shutdown */
+  if (sock->flags & SOCK_FLAG_FINAL_WRITE && sock->send_buffer_fill == 0)
+    num_written = -1;
 
   /*
    * Return a non-zero value if an error occurred.
@@ -298,8 +303,15 @@ default_detect_proto (socket_t sock)
 	  sock->idle_func = NULL;
 	  sock->data = NULL;
 	  sock->cfg = server->cfg;
-	  if (server->connect_socket (server->cfg, sock))
-	    return -1;
+	  if (server->connect_socket)
+	    {
+	      if (server->connect_socket (server->cfg, sock))
+		return -1;
+	    }
+	  else
+	    {
+	      return -1;
+	    }
 	  return sock->check_request (sock);
 	}
     }
@@ -745,7 +757,7 @@ sock_write (socket_t sock, char * buf, int len)
     {
       /* Try to flush the queue of this socket */
       if (sock->write_socket && !sock->unavailable && 
-	  sock->flags & SOCK_FLAG_CONNECTED)
+	  sock->flags & SOCK_FLAG_CONNECTED && sock->send_buffer_fill)
 	{
 	  if ((ret = sock->write_socket (sock)) != 0)
 	    return ret;

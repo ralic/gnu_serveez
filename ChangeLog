@@ -1,3 +1,8 @@
+2001-01-04  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+
+	* configure.in: Configuring the `ENABLE_FAKEIDENT' define
+	for the Fake Ident Server.
+
 2001-01-02  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (dist-check): This target is derived from the

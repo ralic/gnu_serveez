@@ -1,3 +1,13 @@
+2001-01-04  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+
+	* socket.c (sock_write): Prevent serveez from sending empty
+	buffers.
+	(default_write): When setting `SOCK_FLAG_FINAL_WRITE' before
+	the final `sock_printf' or `sock_write' then the connection
+	gets closed as soon the send buffer queue is empty.
+
+	* fakeident-server/Makefile.am: new server
+
 2001-01-02  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
 
 	* server.h (portcfg): renamed 'local-ip' and friends to some

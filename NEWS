@@ -26,9 +26,10 @@ This file lists user visible changes that were made between releases.
 Version 0.0.20
 --------------
 
+ * enable the fake identd via --enable-fakeident
  * HTTP server is able to produce the Common Log Format (CLF)
  * enable the SNTP server via --enable-sntp-proto
- * dropped the Quake III license key server for legacy reasons
+ * dropped the Quake III license key server for legal reasons
  * serveez becomes a GNU software package
 
 Version 0.0.19

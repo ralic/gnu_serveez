@@ -83,12 +83,11 @@ and ident lookups.
 
 @section Starting Serveez
 
-To start Serveez simply type @samp{@value{s_PACKAGE}} at your 
-command line prompt and press @key{RET}. This will invoke the 
-@file{@value{s_PACKAGE}[.exe]} which will read its configuration 
-from a file called @file{@value{s_PACKAGE}.cfg} in the current 
-directory and run the server loop afterwards. Press @key{^C} to abort 
-the execution of this program.
+When Serveez is started it reads its configuration from a file called
+@file{@value{s_PACKAGE}.cfg} in the current directory and runs the server
+loop afterwards. Press @key{^C} to abort the execution of this program.
+Serveez is not interactive and does not automatically detach from the
+terminal.
 
 @section Command line options
 
@@ -589,6 +588,7 @@ the reverse dns coserver to identify the host name of the remote client.
 * Gnutella Spider::             Gnutella Client description
 * Tunnel Server::               Description of the port forwarder
 * Chat Server::                 Chat Server (aWCS, textSure) description
+* Fake Ident Server::           Description of a simple ident server
 @end menu
 
 
@@ -869,8 +869,8 @@ Format of each line is:
 Authorization of clients, wildcards permitted, a valid client is matched
 @email{user@@ip} OR @email{user@@host}.
 @example
-":" user@@ip, you can specify @samp{NOMATCH} here to force matching 
-    user@@host
+":" user@@ip, you can specify @samp{NOMATCH} here to force
+    matching user@@host
 ":" password (optional)
 ":" user@@host
 ":" password (optional)
@@ -913,8 +913,8 @@ Servers which may connect.
 ":" password
 ":" server name (virtual host name)
 ":" password
-":" how many components of your own server's name to strip off the 
-    front and be replaced with a @samp{*}.
+":" how many components of your own server's name to strip
+    off the front and be replaced with a @samp{*}.
 ":" connection class number (YLine)
 @end example
 
@@ -1239,7 +1239,7 @@ The source port configuration.
 The target port configuration.
 @end table
 
-@node Chat Server, , Tunnel Server, Existing servers
+@node Chat Server, Fake Ident Server, Tunnel Server, Existing servers
 @subsection Chat Server
 
 @subsubsection General description
@@ -1312,7 +1312,7 @@ or by a single space (if parameters follow).  Note that no spaces are allowed
 n comma separated lists.
 
 @example
-Example:
+Examples:
 
 0 Hallo Welt\0
   - Send "Hallo Welt\0" to all clients except the 
@@ -1401,6 +1401,47 @@ possibility. It is meant for local installations of master server and
 Serveez.
 @end table
 
+@node Fake Ident Server, , Chat Server, Existing servers
+@subsection Fake Ident Server
+
+@subsubsection General description
+
+Most systems run the 'ident protocol' on port 113. Internet hosts can connect
+to that port and find out what user is having a connection to the host. For
+example a webserver can query your username when you fetch a file (e.g.
+Serveez' internal ident-coserver can do that).
+Most IRC servers protect themselves by allowing only users that have a valid
+ident response. Therefore mIRC (for windoze) has a built in ident server.
+This fake ident server can be used to 'fake' a response. This is useful
+when you connect through a masquerading gateway and the gateway cannot handle
+ident requests correctly. (Or, of course, you are using windoze, need an
+ident response and do not have mIRC at hand.)
+
+This server has two modes of operation. In one mode all requests get
+"ERROR : NO-USER" as response. This is a valid but not very helpful response.
+The other mode makes the server send a valid and useful response. It contains
+a system type and a username. The system type is usually 'UNIX'. Others are
+valid but never used (at least i have never seen something else).
+
+@subsubsection Configuration
+
+This server is easy to configure.
+
+@table @code
+@item port (port configuration, default: tcp, 113, *)
+The port to listen on. Only TCP makes sense here.
+
+@item systemtype (string, default: UNIX)
+The system type to respond. The username field of the response has other
+meanings depending on this field, so do not make things up here. Read
+the RFC to learn more.
+
+@item username (string, default: <NULL>)
+If no username is set (which means this field does not appear in the 
+configuration file) the server runs in the flag-all-requests-as-error mode.
+Use your favourite nickname here.
+@end table
+
 @node Coserver, Porting issues, Server, Top
 @chapter Coserver
 
@@ -1448,21 +1489,21 @@ Serveez these buffers must not contain @samp{\n} (0x0d).
 
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
 @file{src/coserver/} directory. In the header file you have to define a 
-further COSERVER_* id (macro) and set the MAX_COSERVER_TYPES define to the 
-appropriate value. Then you should define a further coserver_* macro in the 
-same file.
+further @code{COSERVER_*} id (macro) and set the @code{MAX_COSERVER_TYPES} 
+define to the appropriate value. Then you should define a further 
+@code{coserver_*} macro in the same file.
 
-In @file{coserver.c} you have to implement the coserver_* macro. This macro
-takes three arguments. The first is always specific to your coserver and is
-used to create the actual request string. Then follows the result callback
-routine, and an optional argument for this callback. The latter two are
-simply passed to the @code{coserver_send_request} routine. This routine 
-takes four arguments where the first is the previously defined 
-COSERVER_* id and the second is the input buffer for the coserver handle 
-routine without the trailing @samp{\n}.
+In @file{coserver.c} you have to implement the @code{coserver_*} macro. 
+This macro takes three arguments. The first is always specific to your 
+coserver and is used to create the actual request string. Then follows the 
+result callback routine, and an optional argument for this callback. The 
+latter two are simply passed to the @code{coserver_send_request()} routine. 
+This routine takes four arguments where the first is the previously defined 
+@code{COSERVER_*} id and the second is the input buffer for the coserver 
+handle routine without the trailing @samp{\n}.
 
 Then you need to add your coserver to the @code{int_coserver_type} array
-specifying the COSERVER_* id, the coserver description, the coserver
+specifying the @code{COSERVER_*} id, the coserver description, the coserver
 handle routine discussed above, the number of coserver instances to be
 created and an optional initialization routine.
 
@@ -1842,9 +1883,9 @@ the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
 @*
-Copyright @copyright{} 1999 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
-Copyright @copyright{} 2000 Raimund Jacob <raimi@@lkcc.org>@*
-Copyright @copyright{} 2000 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 1999, 2000, 2001 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
+Copyright @copyright{} 2000, 2001 Raimund Jacob <raimi@@lkcc.org>@*
+Copyright @copyright{} 2000, 2001 Stefan Jahn <stefan@@lkcc.org>@*
 
 Verbatim copying and distribution of this entire document is
 permitted in any medium, provided this notice is preserved.

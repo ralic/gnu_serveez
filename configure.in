@@ -1,10 +1,11 @@
 dnl -*-shell-script-*-
+dnl
 dnl configure.in
 dnl
 dnl Autoconf input file.
 dnl
-dnl Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
-dnl Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
+dnl Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+dnl Copyright (C) 2000, 2001 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 dnl
 dnl This is free software; you can redistribute it and/or modify
@@ -587,6 +588,33 @@ if test $define_enable_http_proto = yes ; then
     [Define if the HTTP protocol should be supported.])
 fi
 unset define_enable_http_proto
+
+dnl ----------------------------------------------------------------------
+
+dnl
+dnl Check whether the Fake Ident Server should be included.
+dnl
+AC_MSG_CHECKING([whether to enable the fake ident server])
+AC_ARG_ENABLE(
+  fakeident, 
+  [  --enable-fakeident      Include the fake ident server [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_fakeident=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_fakeident=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_fakeident=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_fakeident = yes ; then
+  AC_DEFINE(ENABLE_FAKEIDENT,
+    1,
+    [Define if the Fake Ident Server should be included.])
+fi
+unset define_enable_fakeident
 
 dnl ----------------------------------------------------------------------
 
@@ -1188,6 +1216,7 @@ AC_OUTPUT(
     src/sntp-server/Makefile
     src/nut-server/Makefile
     src/tunnel-server/Makefile
+    src/fakeident-server/Makefile
     doc/Makefile 
     data/Makefile
     test/Makefile
