@@ -1,3 +1,8 @@
+2001-10-25  [ Ela ]  <ela@lkcc.org>
+
+	* irc-server/irc-proto.h (struct irc_configuration): Made
+	the number of maximum channels per user configurable.
+
 2001-10-07  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_access_exceptions): New guile procedure.

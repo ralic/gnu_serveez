@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.35 2001/07/06 16:40:02 ela Exp $
+ * $Id: irc-proto.c,v 1.36 2001/10/25 10:15:24 ela Exp $
  *
  */
 
@@ -67,6 +67,7 @@ irc_config_t irc_config =
   NULL,                   /* read server host name */
   42424,                  /* listening tcp port */
   0,                      /* is USERS command disable ? */
+  MAX_CHANNELS,           /* maximum number of channels per user */
 #if ENABLE_TIMESTAMP
   0,                      /* delta value to UTC */
 #endif
@@ -121,6 +122,8 @@ svz_key_value_pair_t irc_config_prototype[] =
   SVZ_REGISTER_STRARRAY ("C-lines", irc_config.CLine, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STRARRAY ("N-lines", irc_config.NLine, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STRARRAY ("K-lines", irc_config.KLine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("channels-per-user", irc_config.channels_per_user,
+		    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -323,7 +326,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
       if (n == channel->clients)
 	{
 	  /* joined just too many channels ? */
-	  if (client->channels >= MAX_CHANNELS)
+	  if (client->channels >= cfg->channels_per_user)
 	    {
 	      irc_printf (client->sock, 
 			  ":%s %03d %s " ERR_TOOMANYCHANNELS_TEXT "\n",
@@ -358,7 +361,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
   else
     {
       /* check if the client has not joined too many channels */
-      if (client->channels >= MAX_CHANNELS)
+      if (client->channels >= cfg->channels_per_user)
 	{
 	  irc_printf (client->sock, 
 		      ":%s %03d %s " ERR_TOOMANYCHANNELS_TEXT "\n",

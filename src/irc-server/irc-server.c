@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.25 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-server.c,v 1.26 2001/10/25 10:15:25 ela Exp $
  *
  */
 
@@ -57,7 +57,6 @@ irc_server_t *irc_server_list;  /* server list root */
 
 #define MAX_HOST_LEN 256
 #define MAX_PASS_LEN 256
-#define MAX_NAME_LEN 256
 
 /*
  * Parse one of the config lines in the IRC configuration.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.12 2001/06/27 20:38:36 ela Exp $
+ * $Id: irc-core.h,v 1.13 2001/10/25 10:15:24 ela Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 #define MAX_PARAMS   16     /* parameters */
 #define MAX_TARGETS  64     /* maximum amount of targets */
 #define MAX_MSG_LEN  512    /* length of an IRC message */
+#define MAX_CHAN_LEN 200    /* maximum channel name length */
 
 /* IRC server protocol flags */
 #define IRC_FLAG_SERVER 0x0001

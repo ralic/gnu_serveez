@@ -1322,6 +1322,9 @@ The @code{INFO-file}s content gets displayed when the user issues the
 This value is the timestamp delta value to UTC (Coordinated Universal Time)
 in seconds.
 
+@item channels-per-user (integer, default: 10)
+Configures the maximum number of channels a single local user can join.
+
 @item admininfo (string, no default)
 Some administrative information delivered on the /ADMIN command.
 

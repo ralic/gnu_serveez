@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.22 2001/09/27 15:47:36 ela Exp $
+ * $Id: irc-proto.h,v 1.23 2001/10/25 10:15:25 ela Exp $
  *
  */
 
@@ -34,18 +34,11 @@
 
 #include "irc-core/irc-core.h"
 
-/* Some restrictions. */
-#define MAX_CHANNEL_LEN       200 /* maximum channel name length */
+#define IRC_PING_INTERVAL (3*60)  /* three (3) minutes intervals */
 #define INVALID_CHANNEL_CHARS "\007, "
 
-#define IRC_PING_INTERVAL (3*60)  /* three (3) minutes intervals */
-
 #define MAX_MODE_LEN   32   /* length of mode string (user or channel) */
-#define MAX_NICK_LEN   16   /* nick name length */
-#define MAX_NAME_LEN   256  /* name length */
-#define MAX_MSG_LEN    512  /* length of an IRC message */
-
-#define MAX_CHANNELS   32   /* maximum amount of channels per client */
+#define MAX_CHANNELS   10   /* maximum amount of channels per user */
 #define MAX_CLIENTS    128  /* maximum amount of clients per channels */
 #define MAX_MOTD_LINES 256  /* Message of the Day lines */
 #define MOTD_LINE_LEN  80   /* lenght of one MOTD line */
@@ -238,6 +231,7 @@ struct irc_configuration
   char *realhost;                 /* local server host */
   int port;
   int users_disabled;             /* is USERS command disabled ? */
+  int channels_per_user;          /* maximum number of channels per user */
 
 #if ENABLE_TIMESTAMP  
   time_t tsdelta;                 /* delta value to UTC */
