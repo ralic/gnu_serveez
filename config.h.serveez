@@ -136,6 +136,9 @@
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1
 
+/* Define if you have the <strings.h> header file.  */
+/* #undef HAVE_STRINGS_H */
+
 /* Define if you have the <sys/dir.h> header file.  */
 /* #undef HAVE_SYS_DIR_H */
 
@@ -171,6 +174,9 @@
 
 /* Define if you have the <varargs.h> header file.  */
 #define HAVE_VARARGS_H 1
+
+/* Define if you have the <wait.h> header file.  */
+/* #undef HAVE_WAIT_H */
 
 /* Define if you have the <ws2tcpip.h> header file.  */
 #define HAVE_WS2TCPIP_H 1
@@ -250,12 +256,6 @@
 
 /* Define if you have timezone and daylight. */
 #define HAVE_TIMEZONE 1
-
-/* Define if you have the <wait.h>. */
-/* #undef HAVE_WAIT_H */
-
-/* Define if you have the <strings.h>. */
-/* #undef HAVE_STRINGS_H */
 
 /* Define if you have the strcasecmp function. */
 /* #undef HAVE_STRCASECMP */

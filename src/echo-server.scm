@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.5 2001/07/13 19:07:42 ela Exp $
+;; $Id: echo-server.scm,v 1.6 2001/07/13 21:33:20 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -89,9 +89,3 @@
 
 ;; Bind server to port.
 (bind-server! 'echo-port 'echo-server)
-
-(define-port! 'control-port `((proto . tcp)
-			      (port  . 42420)))
-
-(define-server! 'control-server)
-(bind-server! 'control-port 'control-server)
