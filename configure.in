@@ -124,7 +124,7 @@ dnl Only make these tests if we are using GNU C
 dnl
 if test x$GCC = xyes ; then
     for flag in "-Wall" "-Wcast-align" "-Wstrict-prototypes" \
-                "-Wformat" "-Wno-long-long"; do
+                "-Wformat" "-Wno-unused" "-Wno-long-long"; do
 	CFLAGS="$flag"
 	AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
 	AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 

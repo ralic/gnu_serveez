@@ -61,8 +61,9 @@ all parts of the API it provides.
 
 @menu
 * Memory management::     Memory management functions
+* Array::                 Array implementation
 * Hashtable::             Hashtable implementation
-* Arraylist::             Arraylist implementation
+* Sparsevector::          Sparsevector implementation
 * Vectorlist::            Vectorlist implementation
 * Utility functions::     Miscellaneous helper functions
 * Core functions::        Network core implementations
@@ -78,7 +79,7 @@ all parts of the API it provides.
 * Windoze::               Windows port implementations
 @end menu
 
-@node Memory management, Hashtable, , Embedding API
+@node Memory management, Array, , Embedding API
 @section Memory management
 
 SVZ_ALLOCATED_BYTES_DEFVAR
@@ -96,7 +97,19 @@ SVZ_PREALLOC_DEFUN
 SVZ_PSTRDUP_DEFUN
 SVZ_HEAP_DEFUN
 
-@node Hashtable, Arraylist, Memory management, Embedding API
+@node Array, Hashtable, Memory management, Embedding API
+@section Array functions
+
+SVZ_ARRAY_CREATE_DEFUN
+SVZ_ARRAY_CLEAR_DEFUN
+SVZ_ARRAY_DESTROY_DEFUN
+SVZ_ARRAY_GET_DEFUN
+SVZ_ARRAY_ADD_DEFUN
+SVZ_ARRAY_DEL_DEFUN
+SVZ_ARRAY_CAPACITY_DEFUN
+SVZ_ARRAY_SIZE_DEFUN
+
+@node Hashtable, Sparsevector, Array, Embedding API
 @section Hashtable functions
 
 SVZ_HASH_CREATE_DEFUN
@@ -111,32 +124,33 @@ SVZ_HASH_SIZE_DEFUN
 SVZ_HASH_CAPACITY_DEFUN
 SVZ_HASH_CONTAINS_DEFUN
 
-@node Arraylist, Vectorlist, Hashtable, Embedding API
-@section Arraylist functions
+@node Sparsevector, Vectorlist, Hashtable, Embedding API
+@section Sparsevector functions
 
-An array list is a kind of data array which grows and shrinks on demand. 
-It unifies the advantages of chained lists (less memory usage than simple 
-arrays) and arrays (faster access to specific elements). This implementation
-can handle gaps in between the array elements.
+A sparse vector is a kind of data array 
+which grows and shrinks on demand. It unifies the advantages of chained
+lists (less memory usage than simple arrays) and arrays (faster access 
+to specific elements). This implementation can handle gaps in between
+the array elements.
 
-SVZ_ALIST_CREATE_DEFUN
-SVZ_ALIST_DESTROY_DEFUN
-SVZ_ALIST_ADD_DEFUN
-SVZ_ALIST_CLEAR_DEFUN
-SVZ_ALIST_CONTAINS_DEFUN
-SVZ_ALIST_GET_DEFUN
-SVZ_ALIST_INDEX_DEFUN
-SVZ_ALIST_DELETE_DEFUN
-SVZ_ALIST_DELETE_RANGE_DEFUN
-SVZ_ALIST_SET_DEFUN
-SVZ_ALIST_UNSET_DEFUN
-SVZ_ALIST_SIZE_DEFUN
-SVZ_ALIST_LENGTH_DEFUN
-SVZ_ALIST_INSERT_DEFUN
-SVZ_ALIST_VALUES_DEFUN
-SVZ_ALIST_PACK_DEFUN
+SVZ_SPVEC_CREATE_DEFUN
+SVZ_SPVEC_DESTROY_DEFUN
+SVZ_SPVEC_ADD_DEFUN
+SVZ_SPVEC_CLEAR_DEFUN
+SVZ_SPVEC_CONTAINS_DEFUN
+SVZ_SPVEC_GET_DEFUN
+SVZ_SPVEC_INDEX_DEFUN
+SVZ_SPVEC_DELETE_DEFUN
+SVZ_SPVEC_DELETE_RANGE_DEFUN
+SVZ_SPVEC_SET_DEFUN
+SVZ_SPVEC_UNSET_DEFUN
+SVZ_SPVEC_SIZE_DEFUN
+SVZ_SPVEC_LENGTH_DEFUN
+SVZ_SPVEC_INSERT_DEFUN
+SVZ_SPVEC_VALUES_DEFUN
+SVZ_SPVEC_PACK_DEFUN
 
-@node Vectorlist, Utility functions, Arraylist, Embedding API
+@node Vectorlist, Utility functions, Sparsevector, Embedding API
 @section Vectorlist functions
 
 A vector list is an array of memory chunks with a fixed size. It

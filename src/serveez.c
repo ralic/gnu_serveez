@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.25 2001/02/14 17:53:01 ela Exp $
+ * $Id: serveez.c,v 1.26 2001/03/08 22:15:13 raimi Exp $
  *
  */
 
@@ -241,8 +241,6 @@ main (int argc, char *argv[])
 	}
       if (log_handle == stderr)
 	log_set_file (NULL);
-      close (0);
-      close (1);
       close (2);
 
 #else /* __MINGW32__ */
@@ -310,6 +308,12 @@ main (int argc, char *argv[])
       return 4;
     }
 
+  if (cli_daemon)
+    {
+      close (0);
+      close (1);
+    }
+  
   /*
    * Initialise servers globally.
    */

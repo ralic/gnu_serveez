@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.37 2001/03/08 11:53:56 ela Exp $
+ * $Id: http-cgi.c,v 1.38 2001/03/08 22:15:13 raimi Exp $
  *
  */
 
@@ -236,6 +236,8 @@ http_cgi_read (socket_t sock)
 			do_read)) == -1)
     {
       log_printf (LOG_ERROR, "cgi: read: %s\n", SYS_ERROR);
+      if (svz_errno == EAGAIN)
+	return 0;
       num_read = -1;
     }
 #endif /* not __MINGW32__ */
@@ -665,14 +667,11 @@ http_free_cgi_apps (http_config_t *cfg)
 
   if (*(cfg->cgiapps))
     {
-      if ((app = (char **) svz_hash_values (*(cfg->cgiapps))) != NULL)
+      svz_hash_foreach_value (*(cfg->cgiapps), app, n)
 	{
-	  for (n = 0; n < svz_hash_size (*(cfg->cgiapps)); n++)
-	    {
-	      svz_free (app[n]);
-	    }
-	  svz_hash_xfree (app);
+	  svz_free (app[n]);
 	}
+      
       svz_hash_destroy (*(cfg->cgiapps));
       *(cfg->cgiapps) = NULL;
     }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.31 2001/03/08 11:53:56 ela Exp $
+ * $Id: http-core.c,v 1.32 2001/03/08 22:15:13 raimi Exp $
  *
  */
 
@@ -895,14 +895,11 @@ http_free_types (http_config_t *cfg)
 
   if (*(cfg->types))
     {
-      if ((type = (char **) svz_hash_values (*(cfg->types))) != NULL)
+      svz_hash_foreach_value (*(cfg->types), type, n)
 	{
-	  for (n = 0; n < svz_hash_size (*(cfg->types)); n++)
-	    {
-	      svz_free (type[n]);
-	    }
-	  svz_hash_xfree (type);
+	  svz_free (type[n]);
 	}
+      
       svz_hash_destroy (*(cfg->types));
       *(cfg->types) = NULL;
     }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.7 2001/03/08 11:53:56 ela Exp $
+ * $Id: hash-test.c,v 1.8 2001/03/08 22:15:14 raimi Exp $
  *
  */
 
@@ -171,6 +171,32 @@ main (int argc, char **argv)
   test_print ("          destroy: ");
   svz_hash_destroy (hash);
   test_ok ();
+
+
+  /* hash iteration */
+  hash = svz_hash_create (4);
+
+  svz_hash_put (hash, "1234567890", (void *) 0xaaaaeabc);
+  svz_hash_put (hash, "1234567891", (void *) 0xbbbbeabd);
+  svz_hash_put (hash, "1234567892", (void *) 0xcccceabe);
+
+  error = 0;
+  test_print ("  value iteration: ");
+  svz_hash_foreach_value (hash, values, n)
+    {
+      error++;
+    }
+  test (error != 3);
+
+  error = 0;
+  test_print ("    key iteration: ");
+  svz_hash_foreach_key (hash, keys, n)
+    {
+      error++;
+    }
+  test (error != 3);
+  svz_hash_destroy (hash);
+
 
 #if ENABLE_DEBUG
   /* is heap ok ? */

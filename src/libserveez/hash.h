@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.3 2001/03/08 11:53:56 ela Exp $
+ * $Id: hash.h,v 1.4 2001/03/08 22:15:13 raimi Exp $
  *
  */
 
@@ -90,11 +90,51 @@ SERVEEZ_API char *svz_hash_contains __P ((svz_hash_t *hash, void *value));
 
 __END_DECLS
 
+/*
+ * Helper macros for better usage
+ */
+
+
+/*
+ * Iterator macro for walking over the values of a hash. Use like:
+ *   type_t **values; int i;
+ *   svz_hash_foreach_value (hash, values, i) {
+ *     do_someting(values[i]);
+ *   }
+ * Be sure you pass real variables and no expressions to this macro !
+ */
+#define svz_hash_foreach_value(hash, iterarray, i)                           \
+ for (                                                                       \
+  ((i) = (((*((void***)&(iterarray))) = svz_hash_values (hash)) == NULL ?    \
+                                  -1 : 0));                                  \
+  ( (i) != -1 );                                                             \
+  ( (++(i)) < svz_hash_size (hash)) ? 42 :                                   \
+                    (svz_hash_xfree (iterarray), iterarray = NULL, (i) = -1) \
+ )
+
+/*
+ * Iterator macro for walking over the keys of a hash. Use like:
+ *   char **allkeys; int i;
+ *   svz_hash_foreach_key (hash, allkeys, i) {
+ *    printf (" `%s' => %p\n", allkeys[i], svz_hash_get (hash, allkeys[i]));
+ *   }
+ * Be sure you pass real variables and no expressions to this macro !
+ */
+#define svz_hash_foreach_key(hash, iterarray, i)                             \
+ for (                                                                       \
+  ((i) = (((*((void***)&(iterarray))) = svz_hash_keys (hash)) == NULL ?      \
+                                  -1 : 0));                                  \
+  ( (i) != -1 );                                                             \
+  ( (++(i)) < svz_hash_size (hash)) ? 42 :                                   \
+                    (svz_hash_xfree (iterarray), iterarray = NULL, (i) = -1) \
+ )
+
+
 #if DEBUG_MEMORY_LEAKS
 # include <stdlib.h>
 # define svz_hash_xfree(ptr) svz_free_func (ptr)
 #else
-# define svz_hash_xfree(ptr) svz_free (ptr);
+# define svz_hash_xfree(ptr) svz_free (ptr)
 #endif
 
 #endif /* not __HASH_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.7 2001/03/08 11:53:56 ela Exp $
+ * $Id: coserver.c,v 1.8 2001/03/08 22:15:14 raimi Exp $
  *
  */
 
@@ -788,7 +788,7 @@ coserver_start (int type)
 	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
       if (dup2 (out, 1) != 1)
 	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
-
+      
       /* close the old pipe descriptors */
       close (in);
       close (out);

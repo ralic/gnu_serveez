@@ -22,13 +22,13 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-TESTS = hash-test alist-test
+TESTS = hash-test spvec-test
 
-EXTRA_DIST = hash.dsp alist.dsp
+EXTRA_DIST = hash.dsp spvec.dsp
 
-noinst_PROGRAMS = hash-test alist-test
+noinst_PROGRAMS = hash-test spvec-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
-alist_test_SOURCES = alist-test.c test.c test.h alloc.c alist.c
+spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c
 
 AM_CFLAGS = -I$(top_srcdir)/src
 
@@ -38,7 +38,7 @@ alloc.c: $(top_srcdir)/src/libserveez/alloc.c
 hash.c: $(top_srcdir)/src/libserveez/hash.c
 	ln -s $< $@
 
-alist.c: $(top_srcdir)/src/libserveez/alist.c
+sparsevec.c: $(top_srcdir)/src/libserveez/sparsevec.c
 	ln -s $< $@
 
 distclean-local:
@@ -47,8 +47,8 @@ distclean-local:
 dist-hook:
 	rm -f $(distdir)/alloc.c
 	rm -f $(distdir)/hash.c
-	rm -f $(distdir)/alist.c
+	rm -f $(distdir)/sparsevec.c
 
-CLEANFILES = alloc.c hash.c alist.c
+CLEANFILES = alloc.c hash.c sparsevec.c
 
 MAINTAINERCLEANFILES = Makefile.in

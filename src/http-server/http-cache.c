@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.25 2001/03/08 11:53:56 ela Exp $
+ * $Id: http-cache.c,v 1.26 2001/03/08 22:15:13 raimi Exp $
  *
  */
 
@@ -82,18 +82,16 @@ http_free_cache (void)
 
   files = 0;
   total = 0;
-  if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
+
+  svz_hash_foreach_value (http_cache, cache ,n)
     {
-      for (n = 0; n < svz_hash_size (http_cache); n++)
-	{
-	  total += cache[n]->size;
-	  files++;
-	  svz_free (cache[n]->buffer);
-	  svz_free (cache[n]->file);
-	  svz_free (cache[n]);
-	}
-      svz_hash_xfree (cache);
+      total += cache[n]->size;
+      files++;
+      svz_free (cache[n]->buffer);
+      svz_free (cache[n]->file);
+      svz_free (cache[n]);
     }
+
   svz_hash_destroy (http_cache);
   http_cache = NULL;
 #if ENABLE_DEBUG
@@ -113,42 +111,39 @@ http_cache_consistency (void)
   int n, i, o;
   http_cache_entry_t **cache;
 
-  if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
+  n = 1;
+  svz_hash_foreach_value (http_cache, cache, o)
     {
-      for (n = 1, o = 0; o < svz_hash_size (http_cache); o++)
+      /* each cache entry must have a file name */
+      assert (cache[o]->file);
+
+      /* cache entry must be completely unused if not ready */
+      if (!cache[o]->ready)
 	{
-	  /* each cache entry must have a file name */
-	  assert (cache[o]->file);
-
-	  /* cache entry must be completely unused if not ready */
-	  if (!cache[o]->ready)
-	    {
-	      assert (cache[o]->size == 0 && 
-		      cache[o]->buffer == NULL && cache[o]->hits == 0);
-	    }
-	  /* if ready a cache entry must contain something */
-	  else
-	    {
-	      assert (cache[o]->size >= 0 && 
-		      cache[o]->buffer && cache[o]->hits >= 0);
-	    }
-	  
-	  /* cache urgency must be in a certain range */
-	  assert (cache[o]->urgent >= 0 && 
-		  cache[o]->urgent <= svz_hash_size (http_cache));
-
-	  /* find each urgency */
-	  for (i = 0; i < svz_hash_size (http_cache); i++)
-	    {
-	      if (cache[i]->urgent == n)
-		{
-		  n++;
-		  break;
-		}
-	    }
-	  assert (i != svz_hash_size (http_cache));
+	  assert (cache[o]->size == 0 && 
+		  cache[o]->buffer == NULL && cache[o]->hits == 0);
 	}
-      svz_hash_xfree (cache);
+      /* if ready a cache entry must contain something */
+      else
+	{
+	  assert (cache[o]->size >= 0 && 
+		  cache[o]->buffer && cache[o]->hits >= 0);
+	}
+      
+      /* cache urgency must be in a certain range */
+      assert (cache[o]->urgent >= 0 && 
+	      cache[o]->urgent <= svz_hash_size (http_cache));
+      
+      /* find each urgency */
+      for (i = 0; i < svz_hash_size (http_cache); i++)
+	{
+	  if (cache[i]->urgent == n)
+	    {
+	      n++;
+	      break;
+	    }
+	}
+      assert (i != svz_hash_size (http_cache));
     }
 }
 #else /* not ENABLE_DEBUG */
@@ -166,23 +161,18 @@ http_urgent_cache (http_cache_entry_t *cache)
   int n;
   http_cache_entry_t **caches;
 
-  /* go through all cache entries */
-  if ((caches = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
+  svz_hash_foreach_value (http_cache, caches, n)
     {
-      for (n = 0; n < svz_hash_size (http_cache); n++)
+      /* 
+       * make all used cache entries currently being more recent 
+       * than the given entry one tick less urgent
+       */
+      if (cache != caches[n] && caches[n]->urgent > cache->urgent)
 	{
-	  /* 
-	   * make all used cache entries currently being more recent 
-	   * than the given entry one tick less urgent
-	   */
-	  if (cache != caches[n] && caches[n]->urgent > cache->urgent)
-	    {
-	      caches[n]->urgent--;
-	    }
+	  caches[n]->urgent--;
 	}
-      svz_hash_xfree (caches);
     }
-
+  
   /* set the given cache entry to the most recent one */
   cache->urgent = svz_hash_size (http_cache);
 }
@@ -312,20 +302,16 @@ http_init_cache (char *file, http_cache_t *cache)
    */
   else
     {
-      caches = (http_cache_entry_t **) svz_hash_values (http_cache);
-      if (caches != NULL)
+      svz_hash_foreach_value (http_cache, caches, n)
 	{
-	  for (n = 0; n < svz_hash_size (http_cache); n++)
+	  if (caches[n]->urgent <= urgent && 
+	      !caches[n]->usage && caches[n]->ready)
 	    {
-	      if (caches[n]->urgent <= urgent && 
-		  !caches[n]->usage && caches[n]->ready)
-		{
-		  slot = caches[n];
-		  urgent = slot->urgent;
-		}
+	      slot = caches[n];
+	      urgent = slot->urgent;
 	    }
-	  svz_hash_xfree (caches);
 	}
+
       /* not a "reinitialable" cache entry found */
       if (!slot) 
 	{
