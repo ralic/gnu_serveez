@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.19 2001/09/20 16:06:21 ela Exp $
+ * $Id: guile-server.c,v 1.20 2001/09/21 13:12:40 ela Exp $
  *
  */
 
@@ -55,6 +55,9 @@ static char *guile_functions[] = {
   "global-init", "init", "detect-proto", "connect-socket", "finalize",
   "global-finalize", "info-client", "info-server", "notify", 
   "handle-request", NULL };
+
+/* If set to zero exception handling is disabled. */
+static int guile_use_exceptions = 1;
 
 /*
  * Creates a Guile SMOB (small object). The @var{cfunc} specifies a base 
@@ -285,6 +288,104 @@ guile_integer (SCM value, int def)
   return def;
 }
 
+/*
+ * The @code{guile_call()} function puts the procedure to call including
+ * the arguments to it into a single scheme cell passed to this function
+ * in @var{data}. The functions unpacks this cell and applies it to
+ * @code{scm_apply()}.
+ * By convention the @var{data} argument cell consists of three items chained
+ * like this: @code{(procedure first-argument (remaining-argument-list))}
+ */
+static SCM
+guile_call_body (SCM data)
+{
+  return scm_apply (gh_car (data), 
+		    gh_car (gh_cdr (data)), gh_cdr (gh_cdr (data)));
+}
+
+/*
+ * This is the exception handler for calls by @code{guile_call()}. Prints
+ * the procedure (passed in @var{data}), the name of the exception and the
+ * error message if possible.
+ */
+static SCM
+guile_call_handler (SCM data, SCM tag, SCM args)
+{
+  char *str = guile_to_string (tag);
+
+  scm_puts ("exception in ", scm_current_error_port ());
+  scm_display (data, scm_current_error_port ());
+  scm_puts (" due to `", scm_current_error_port ());
+  scm_puts (str, scm_current_error_port ());
+  scm_puts ("'\n", scm_current_error_port ());
+  scm_puts ("guile-error: ", scm_current_error_port ());
+
+  /* on quit/exit */
+  if (gh_null_p (args))
+    {
+      scm_display (tag, scm_current_error_port ());
+      scm_puts ("\n", scm_current_error_port ());
+      return SCM_BOOL_F;
+    }
+
+  if (!gh_eq_p (gh_car (args), SCM_BOOL_F))
+    {
+      scm_display (gh_car (args), scm_current_error_port ());
+      scm_puts (": ", scm_current_error_port ());
+    }
+  scm_display_error_message (gh_car (gh_cdr (args)), 
+			     gh_car (gh_cdr (gh_cdr (args))), 
+			     scm_current_error_port ());
+  return SCM_BOOL_F;
+}
+
+/*
+ * The following function takes an arbitrary number of arguments (specified
+ * in @var{args}) passed to @code{scm_apply()} calling the guile procedure 
+ * @var{code}. The function catches exceptions occuring in the procedure 
+ * @var{code}. On success (no exception) the routine returns the value 
+ * returned by @code{scm_apply()} otherwise @code{SCM_BOOL_F}.
+ */
+static SCM
+guile_call (SCM code, int args, ...)
+{
+  va_list list;
+  SCM body_data, handler_data;
+  SCM arg = SCM_EOL, arglist = SCM_EOL, ret;
+
+  /* Setup arg and arglist correctly for use with scm_apply(). */
+  va_start (list, args);
+  if (args > 0)
+    {
+      arg = va_arg (list, SCM);
+      while (--args)
+	arglist = gh_cons (va_arg (list, SCM), arglist);
+      arglist = gh_cons (gh_reverse (arglist), SCM_EOL);
+    }
+  va_end (list);
+
+  /* Put both arguments and the procedure together into a single argument
+     for the catch body. */
+  body_data = gh_cons (code, gh_cons (arg, arglist));
+  handler_data = code;
+
+  /* Use exception handling if requested. */
+  if (guile_use_exceptions)
+    {
+      ret = gh_catch (SCM_BOOL_T,
+		      (scm_catch_body_t) guile_call_body, 
+		      (void *) body_data, 
+		      (scm_catch_handler_t) guile_call_handler, 
+		      (void *) handler_data);
+    }
+  else
+    {
+      ret = guile_call_body (body_data);
+    }
+
+  return ret;
+}
+
 /* Wrapper function for the global initialization of a server type. */
 static int
 guile_func_global_init (svz_servertype_t *stype)
@@ -294,7 +395,7 @@ guile_func_global_init (svz_servertype_t *stype)
 
   if (!gh_eq_p (global_init, SCM_UNDEFINED))
     {
-      ret = gh_call1 (global_init, MAKE_SMOB (svz_servertype, stype));
+      ret = guile_call (global_init, 1, MAKE_SMOB (svz_servertype, stype));
       return guile_integer (ret, -1);
     }
   return 0;
@@ -310,7 +411,7 @@ guile_func_init (svz_server_t *server)
 
   if (!gh_eq_p (init, SCM_UNDEFINED))
     {
-      ret = gh_call1 (init, MAKE_SMOB (svz_server, server));
+      ret = guile_call (init, 1, MAKE_SMOB (svz_server, server));
       return guile_integer (ret, -1);
     }
   return 0;
@@ -326,8 +427,8 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
 
   if (!gh_eq_p (detect_proto, SCM_UNDEFINED))
     {
-      ret = gh_call2 (detect_proto, MAKE_SMOB (svz_server, server), 
-		      MAKE_SMOB (svz_socket, sock));
+      ret = guile_call (detect_proto, 2, MAKE_SMOB (svz_server, server), 
+			MAKE_SMOB (svz_socket, sock));
       return guile_integer (ret, 0);
     }
   return 0;
@@ -347,7 +448,7 @@ guile_func_disconnected (svz_socket_t *sock)
   /* First call the guile callback if necessary. */
   if (!gh_eq_p (disconnected, SCM_UNDEFINED))
     {
-      ret = gh_call1 (disconnected, MAKE_SMOB (svz_socket, sock));
+      ret = guile_call (disconnected, 1, MAKE_SMOB (svz_socket, sock));
       retval = guile_integer (ret, -1);
     }
 
@@ -373,8 +474,8 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
 
   if (!gh_eq_p (connect_socket, SCM_UNDEFINED))
     {
-      ret = gh_call2 (connect_socket, MAKE_SMOB (svz_server, server), 
-		      MAKE_SMOB (svz_socket, sock));
+      ret = guile_call (connect_socket, 2, MAKE_SMOB (svz_server, server), 
+			MAKE_SMOB (svz_socket, sock));
       return guile_integer (ret, 0);
     }
   return 0;
@@ -390,7 +491,7 @@ guile_func_finalize (svz_server_t *server)
 
   if (!gh_eq_p (finalize, SCM_UNDEFINED))
     {
-      ret = gh_call1 (finalize, MAKE_SMOB (svz_server, server));
+      ret = guile_call (finalize, 1, MAKE_SMOB (svz_server, server));
       return guile_integer (ret, -1);
     }
   return 0;
@@ -405,7 +506,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
 
   if (!gh_eq_p (global_finalize, SCM_UNDEFINED))
     {
-      ret = gh_call1 (global_finalize, MAKE_SMOB (svz_servertype, stype));
+      ret = guile_call (global_finalize, 1, MAKE_SMOB (svz_servertype, stype));
       return guile_integer (ret, -1);
     }
   return 0;
@@ -421,8 +522,8 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 
   if (!gh_eq_p (info_client, SCM_UNDEFINED))
     {
-      ret = gh_call2 (info_client, MAKE_SMOB (svz_server, server),
-		      MAKE_SMOB (svz_socket, sock));
+      ret = guile_call (info_client, 2, MAKE_SMOB (svz_server, server),
+			MAKE_SMOB (svz_socket, sock));
       return guile_to_string (ret);
     }
   return NULL;
@@ -438,7 +539,7 @@ guile_func_info_server (svz_server_t *server)
 
   if (!gh_eq_p (info_server, SCM_UNDEFINED))
     {
-      ret = gh_call1 (info_server, MAKE_SMOB (svz_server, server));
+      ret = guile_call (info_server, 1, MAKE_SMOB (svz_server, server));
       return guile_to_string (ret);
     }
   return NULL;
@@ -453,7 +554,7 @@ guile_func_notify (svz_server_t *server)
 
   if (!gh_eq_p (notify, SCM_UNDEFINED))
     {
-      ret = gh_call1 (notify, MAKE_SMOB (svz_server, server));
+      ret = guile_call (notify, 1, MAKE_SMOB (svz_server, server));
       return guile_integer (ret, -1);
     }
   return -1;
@@ -468,7 +569,7 @@ guile_func_check_request (svz_socket_t *sock)
 
   if (!gh_eq_p (check_request, SCM_UNDEFINED))
     {
-      ret = gh_call1 (check_request, MAKE_SMOB (svz_socket, sock));
+      ret = guile_call (check_request, 1, MAKE_SMOB (svz_socket, sock));
       return guile_integer (ret, -1);
     }
   return -1;
@@ -493,8 +594,8 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 
   if (!gh_eq_p (handle_request, SCM_UNDEFINED))
     {
-      ret = gh_call3 (handle_request, MAKE_SMOB (svz_socket, sock), 
-		      guile_data_to_bin (request, len), gh_int2scm (len));
+      ret = guile_call (handle_request, 3, MAKE_SMOB (svz_socket, sock), 
+			guile_data_to_bin (request, len), gh_int2scm (len));
       return guile_integer (ret, -1);
     }
   return -1;

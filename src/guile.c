@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.43 2001/09/20 11:44:56 ela Exp $
+ * $Id: guile.c,v 1.44 2001/09/21 13:12:41 ela Exp $
  *
  */
 
@@ -1686,10 +1686,10 @@ guile_init (void)
 }
 
 /*
- * Exception handler for guile. It is called if the evaluation of the given
- * file failed.
+ * Exception handler for guile. It is called if the evaluation of the file
+ * evaluator or a guile procedure call failed.
  */
-static SCM 
+static SCM
 guile_exception (void *data, SCM tag, SCM args)
 {
   /* FIXME: current-load-port is not defined in this state. Why ? */

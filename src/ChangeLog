@@ -1,3 +1,10 @@
+2001-09-21  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (guile_call): Wrapper function for `scm_apply()'
+	catching exceptions within guile procedure calls if requested.
+	This behaviour can be disabled by setting `guile_use_exceptions'
+	to zero.
+
 2001-09-20  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_sock_data): Setting up a garbage 
