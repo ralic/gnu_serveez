@@ -28,9 +28,9 @@ EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
-spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c
-array_test_SOURCES = array-test.c test.c test.h alloc.c array.c
-vector_test_SOURCES = vector-test.c test.c test.h alloc.c vector.c
+spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c hash.c
+array_test_SOURCES = array-test.c test.c test.h alloc.c array.c hash.c
+vector_test_SOURCES = vector-test.c test.c test.h alloc.c vector.c hash.c
 
 AM_CFLAGS = -I$(top_srcdir)/src
 

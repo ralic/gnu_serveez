@@ -1,7 +1,7 @@
 /*
  * test/test.c - test suite utility functions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: test.c,v 1.2 2000/10/22 19:11:03 ela Exp $
+ * $Id: test.c,v 1.3 2001/05/03 20:07:41 ela Exp $
  *
  */
 
@@ -84,9 +84,17 @@ test_failed (void)
   fflush (stderr);
 }
 
-/* Wrapper for `util.h'. Do nothing. */
+/* Wrappers for `util.h'. Do nothing. */
 void
 log_printf (int level, const char *format, ...)
 {
   return;
 }
+
+#if DEBUG_MEMORY_LEAKS
+int
+svz_hexdump (FILE *out, char *action, int from, char *buf, int len, int max)
+{
+  return 0;
+}
+#endif /* DEBUG_MEMORY_LEAKS */
