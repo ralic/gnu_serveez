@@ -33,6 +33,9 @@ EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
 aclocaldir = $(datadir)/aclocal
 aclocal_DATA = serveez.m4
 
+# Yet another script
+bin_SCRIPTS = serveez.scm
+
 #
 # Add your server subdirectory here
 #
@@ -90,7 +93,7 @@ distclean-local:
 	rm -f *\~ *.orig *.rej
 
 serveez.cfg: $(top_srcdir)/data/serveez.cfg
-	cp -p $< $@
+	cp -p $(top_srcdir)/data/serveez.cfg $@
 
 SUFFIXES = .rc .ro
 WINDRES = windres

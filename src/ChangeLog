@@ -1,3 +1,15 @@
+2001-06-13  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.scm: Put some convenience functions here.
+
+	* guile.c (guile_bind_server): Check the argument type for port
+	and server name.
+	(guile_init): Now using the arguments of `gh_new_procedure()' in 
+	the right context (Guile can check number arguments).
+	(guile_init): Two new functions exported: `serveez-port?' and
+	`serveez-server?' which check its argument being a valid port or
+	server.
+
 2001-06-10  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (aclocal_DATA): Added the `serveez.m4' autoconf

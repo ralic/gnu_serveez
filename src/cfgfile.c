@@ -1,5 +1,5 @@
 /*
- * cfgfile.c - configuration file implementation
+ * cfgfile.c - configuration file and left overs
  *
  * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.19 2001/04/28 12:37:05 ela Exp $
+ * $Id: cfgfile.c,v 1.20 2001/06/13 20:29:25 ela Exp $
  *
  */
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.28 2001/06/12 17:27:20 raimi Exp $
+ * $Id: guile.c,v 1.29 2001/06/13 20:29:25 ela Exp $
  *
  */
 
@@ -227,7 +227,7 @@ guile2optionhash (SCM pairlist, char *txt, int dounpack)
   int err = 0;
 
   /* Unpack if requested, ignore if null already (null == not existent). */
-  if (dounpack && !gh_null_p (pairlist))
+  if (dounpack && !gh_null_p (pairlist) && pairlist != SCM_UNDEFINED)
     pairlist = gh_car (pairlist);
 
   for ( ; gh_pair_p (pairlist); pairlist = gh_cdr (pairlist))
@@ -924,9 +924,11 @@ guile_define_server (SCM name, SCM args)
 
   txt = svz_malloc (256);
   svz_snprintf (txt, 256, "defining server `%s'", servername);
-    
-  /* Extract options. */
-  if (NULL == (options = guile2optionhash (args, txt, 1)))
+
+  /* Extract options if any. */
+  if (args == SCM_UNDEFINED)
+    options = svz_hash_create (4);
+  else if (NULL == (options = guile2optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
 
   /* Seperate server description. */
@@ -1015,7 +1017,7 @@ guile_define_port (SCM name, SCM args)
   txt = svz_malloc (256);
   svz_snprintf (txt, 256, "defining port `%s'", portname);
 
-  if (NULL == (options = guile2optionhash (args, txt, 1)))
+  if (NULL == (options = guile2optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
 
   /* Every key defined only once ? */
@@ -1204,37 +1206,54 @@ guile_define_port (SCM name, SCM args)
  */
 #define FUNC_NAME "bind-server!"
 SCM
-guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
+guile_bind_server (SCM port, SCM server)
 {
   char *portname = guile2str (port);
   char *servername = guile2str (server);
   svz_server_t *s;
   svz_portcfg_t *p;
-  int error = 0;
+  int err = 0;
+
+  /* Check arguments. */
+  if (portname == NULL)
+    {
+      report_error ("%s: First argument must be string or symbol",
+		    FUNC_NAME);
+      FAIL ();
+    }
+  if (servername == NULL)
+    {
+      report_error ("%s: Second argument must be string or symbol", 
+		    FUNC_NAME);
+      FAIL ();
+    }
 
   /* Check id there is such a port configuration. */
   if ((p = svz_portcfg_get (portname)) == NULL)
     {
       report_error ("%s: No such port: %s", FUNC_NAME, portname);
-      error++;
+      err++;
     }
 
   /* Get one of the servers in the list. */
   if ((s = svz_server_get (servername)) == NULL)
     {
       report_error ("%s: No such server: %s", FUNC_NAME, servername);
-      error++;
+      err++;
     }
   
   /* Bind a given server instance to a port configuration. */
   if (s != NULL && p != NULL)
     {
       if (svz_server_bind (s, p) < 0)
-	error++;
+	err++;
     }
 
-  guile_global_error |= error;
-  return error ? SCM_BOOL_F : SCM_BOOL_T;
+ out:
+  free (portname);
+  free (servername);
+  guile_global_error |= err;
+  return err ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
 
@@ -1350,12 +1369,39 @@ guile_access_loadpath (SCM args)
 #undef FUNC_NAME
 
 /*
+ * Create a checker function named @var{cfunc} which evaluates the boolean
+ * expression @var{expression}. The argument for this function is a character
+ * string which can be uses as @var{str} within the expression.
+ */
+#define MAKE_STRING_CHECKER(cfunc, expression) \
+SCM cfunc (SCM arg) {                          \
+  char *str;                                   \
+  if ((str = guile2str (arg)) == NULL)         \
+    return SCM_BOOL_F;                         \
+  if (!(expression)) {                         \
+    free (str);                                \
+    return SCM_BOOL_F; }                       \
+  free (str);                                  \
+  return SCM_BOOL_T;                           \
+}
+
+/* Guile function checking for a valid port configuration. */
+#define FUNC_NAME "serveez-port?"
+MAKE_STRING_CHECKER (guile_check_port, svz_portcfg_get (str) != NULL)
+#undef FUNC_NAME
+
+/* Guile function checking for a valid server. */
+#define FUNC_NAME "serveez-server?"
+MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
+#undef FUNC_NAME
+
+/*
  * Create an accessor function to read and write a C int variable.
  */
 #define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_int2scm (cvar); int n;                      \
-  if (args != SCM_UNDEFINED){                                \
+  if (args != SCM_UNDEFINED) {                               \
     if (guile2int (args, &n)) {                              \
       report_error ("%s: Invalid integer value", FUNC_NAME); \
       guile_global_error = -1;                               \
@@ -1369,7 +1415,7 @@ static SCM cfunc (SCM args) {                                \
 #define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_str02scm (cvar); char *str;                 \
-  if (args != SCM_UNDEFINED){                                \
+  if (args != SCM_UNDEFINED) {                               \
     if (NULL == (str = guile2str (args))) {                  \
       report_error ("%s: Invalid string value", FUNC_NAME);  \
       guile_global_error = -1;                               \
@@ -1418,12 +1464,13 @@ guile_init (void)
   gh_new_procedure ("serveez-loadpath", guile_access_loadpath, 0, 1, 0);
 
   /* export some new procedures */
-  /* FIXME: change it to "x, 1, 0)" instead of "x, 0, 1)". requires change
-   *        of prototypes of the implementation..
-   */
-  gh_new_procedure ("define-port!", guile_define_port, 1, 0, 1);
-  gh_new_procedure ("define-server!", guile_define_server, 1, 0, 1);
-  gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 1);
+  gh_new_procedure ("define-port!", guile_define_port, 2, 0, 0);
+  gh_new_procedure ("define-server!", guile_define_server, 1, 1, 0);
+  gh_new_procedure ("bind-server!", guile_bind_server, 2, 0, 0);
+
+  /* export checker functions */
+  gh_new_procedure ("serveez-port?", guile_check_port, 1, 0, 0);
+  gh_new_procedure ("serveez-server?", guile_check_server, 1, 0, 0);
 }
 
 /*

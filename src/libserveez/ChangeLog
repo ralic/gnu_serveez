@@ -1,3 +1,11 @@
+2001-06-13  [ Ela ]  <ela@lkcc.org>
+
+	* array.c: Modified all functions that they can handle NULL
+	arguments.
+
+	* array.h: Removed all inline functions and macros. The macros
+	would have never been working...
+
 2001-06-12  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
 
 	* util.c (svz_log): svz_logfile is checked for feof() or ferror()

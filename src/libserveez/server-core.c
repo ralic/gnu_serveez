@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.17 2001/06/12 17:27:20 raimi Exp $
+ * $Id: server-core.c,v 1.18 2001/06/13 20:29:25 ela Exp $
  *
  */
 
@@ -208,14 +208,10 @@ svz_signal_handler (int sig)
 #endif
 }
 
-/*
- * 64 is hopefully a safe bet, kill(1) accepts 0..64, *sigh*
- */
+/* 64 is hopefully a safe bet, kill(1) accepts 0..64, *sigh* */
 #define SVZ_NUMBER_OF_SIGNALS 65
 
-/*
- * cached results of strsignal calls
- */
+/* Cached results of strsignal calls. */
 static svz_array_t *svz_signal_strings = NULL;
 
 /*
@@ -225,42 +221,49 @@ static svz_array_t *svz_signal_strings = NULL;
 void
 svz_strsignal_init (void)
 {
-  int i; char *tmp; const char *format = "Signal %d";
+  int i;
+  char *str;
+  const char *format = "Signal %d";
+
+  if (svz_signal_strings != NULL)
+    return;
+
   svz_signal_strings = svz_array_create (SVZ_NUMBER_OF_SIGNALS);
   for (i = 0; i < SVZ_NUMBER_OF_SIGNALS; i++)
     {
 #if HAVE_STRSIGNAL
-      if (NULL == (tmp = strsignal (i)))
+      if (NULL == (str = strsignal (i)))
 	{
-	  tmp = svz_malloc (128);
-	  svz_snprintf (tmp, 128, format, i);
-	  svz_array_add (svz_signal_strings, svz_strdup (tmp));
-	  svz_free (tmp);
+	  str = svz_malloc (128);
+	  svz_snprintf (str, 128, format, i);
+	  svz_array_add (svz_signal_strings, svz_strdup (str));
+	  svz_free (str);
 	}
       else
 	{
-	  svz_array_add (svz_signal_strings, svz_strdup (tmp));
+	  svz_array_add (svz_signal_strings, svz_strdup (str));
 	}
-#else
-      tmp = svz_malloc (128);
-      svz_snprintf (tmp, 128, format, i);
-      svz_array_add (svz_signal_strings, svz_strdup (tmp));
-      svz_free (tmp);
-#endif
+#else /* not HAVE_STRSIGNAL */
+      str = svz_malloc (128);
+      svz_snprintf (str, 128, format, i);
+      svz_array_add (svz_signal_strings, svz_strdup (str));
+      svz_free (str);
+#endif /* HAVE_STRSIGNAL */
     }
 }
 
-
 /*
- * @code{svz_strsignal()} does not work afterwards anymore.
+ * The function @code{svz_strsignal()} does not work afterwards anymore.
  * Called from @code{svz_halt()}.
  */
 void
 svz_strsignal_destroy (void)
 {
-  int i; char *value;
+  int i;
+  char *value;
+
   svz_array_foreach (svz_signal_strings, value, i)
-      svz_free (value);
+    svz_free (value);
   svz_array_destroy (svz_signal_strings);
   svz_signal_strings = NULL;
 }
@@ -274,22 +277,21 @@ svz_strsignal_destroy (void)
  * destroys the reentrance, of course) [who cares :-].
  */
 char *
-svz_strsignal (int signum)
+svz_strsignal (int sig)
 {
-  static char emergency[128];
+  static char fallback[128];
 
-  if (signum >= 0 && signum < SVZ_NUMBER_OF_SIGNALS)
-    return (char*) svz_array_get (svz_signal_strings, signum);
+  if (sig >= 0 && sig < SVZ_NUMBER_OF_SIGNALS)
+    return (char*) svz_array_get (svz_signal_strings, sig);
   else
     {
-      svz_snprintf (emergency, 128, "Impossible signal %d", signum);
-      return emergency;
+      svz_snprintf (fallback, 128, "Impossible signal %d", sig);
+      return fallback;
     }
 }
 
-
 /*
- * Abort the process, printing the error message MSG first.
+ * Abort the process, printing the error message @var{msg} first.
  */
 static int
 svz_abort (char *msg)

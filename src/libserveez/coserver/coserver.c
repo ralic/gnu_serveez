@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.14 2001/06/11 19:46:32 ela Exp $
+ * $Id: coserver.c,v 1.15 2001/06/13 20:29:25 ela Exp $
  *
  */
 
@@ -679,8 +679,8 @@ svz_coserver_signals (void)
 #ifdef SIGPIPE
   signal (SIGPIPE, SIG_IGN);
 #endif
-#ifdef SIGSTOP
-  signal (SIGSTOP, SIG_IGN);
+#ifdef SIGQUIT
+  signal (SIGQUIT, SIG_IGN);
 #endif
 }
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.7 2001/06/10 15:39:01 ela Exp $
+ * $Id: array.c,v 1.8 2001/06/13 20:29:25 ela Exp $
  *
  */
 
@@ -37,11 +37,9 @@
 #include "libserveez/util.h"
 #include "libserveez/array.h"
 
-#if ENABLE_DEBUG
-
 /*
  * Create a new array with the initial capacity @var{capacity} and return
- * a pointer to it.
+ * a pointer to it. If @var{capacity} is zero it defaults to some value.
  */
 svz_array_t *
 svz_array_create (unsigned long capacity)
@@ -49,7 +47,7 @@ svz_array_create (unsigned long capacity)
   svz_array_t *array;
 
   if (!capacity)
-    capacity = 16;
+    capacity = 4;
   array = svz_malloc (sizeof (svz_array_t));
   memset (array, 0, sizeof (svz_array_t));
   array->data = svz_malloc (sizeof (void *) * capacity);
@@ -59,13 +57,13 @@ svz_array_create (unsigned long capacity)
 
 /*
  * Delete all values within the array @var{array} and set its size to zero.
- * The array itself keeps valid.
+ * The array @var{array} itself keeps valid. Do not perform any operation
+ * if @var{array} is @code{NULL}.
  */
 void
 svz_array_clear (svz_array_t *array)
 {
-  assert (array);
-  if (array->data)
+  if (array && array->data)
     {
       svz_free (array->data);
       array->data = NULL;
@@ -108,7 +106,6 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
 void *
 svz_array_get (svz_array_t *array, unsigned long index)
 {
-  assert (array);
   if (array == NULL || index >= array->size)
     return NULL;
   return array->data[index];
@@ -124,8 +121,7 @@ svz_array_set (svz_array_t *array, unsigned long index, void *value)
 {
   void *prev;
 
-  assert (array  && array->data);
-  if (index >= array->size)
+  if (array == NULL || index >= array->size)
     return NULL;
   prev = array->data[index];
   array->data[index] = value;
@@ -133,14 +129,17 @@ svz_array_set (svz_array_t *array, unsigned long index, void *value)
 }
 
 /*
- * Append the value @var{value} at the end of the array @var{array}.
+ * Append the value @var{value} at the end of the array @var{array}. Does
+ * not perform any operation if @var{array} id @code{NULL}.
  */
 void
 svz_array_add (svz_array_t *array, void *value)
 {
-  assert (array);
-  svz_array_ensure_capacity (array, array->size + 1);
-  array->data[array->size++] = value;
+  if (array)
+    {
+      svz_array_ensure_capacity (array, array->size + 1);
+      array->data[array->size++] = value;
+    }
 }
 
 /*
@@ -153,8 +152,7 @@ svz_array_del (svz_array_t *array, unsigned long index)
 {
   void *value;
 
-  assert (array && array->data);
-  if (index >= array->size)
+  if (array == NULL || index >= array->size)
     return NULL;
   value = array->data[index];
   if (index != array->size - 1)
@@ -170,7 +168,8 @@ svz_array_del (svz_array_t *array, unsigned long index)
 unsigned long
 svz_array_capacity (svz_array_t *array)
 {
-  assert (array);
+  if (array == NULL)
+    return 0;
   return array->capacity;
 }
 
@@ -180,12 +179,13 @@ svz_array_capacity (svz_array_t *array)
 unsigned long
 svz_array_size (svz_array_t *array)
 {
-  assert (array);
+  if (array == NULL)
+    return 0;
   return array->size;
 }
 
 /*
- * Returns how often the given value @var{value} is stored in the the array
+ * Returns how often the given value @var{value} is stored in the array
  * @var{array}. Return zero if there is no such value.
  */
 unsigned long
@@ -193,12 +193,11 @@ svz_array_contains (svz_array_t *array, void *value)
 {
   unsigned long n, found;
 
-  assert (array);
+  if (array == NULL)
+    return 0;
   for (found = n = 0; n < array->size; n++)
-    {
-      if (array->data[n] == value)
-	found++;
-    }
+    if (array->data[n] == value)
+      found++;
   return found;
 }
 
@@ -212,7 +211,8 @@ svz_array_idx (svz_array_t *array, void *value)
 {
   unsigned long n;
 
-  assert (array);
+  if (array == NULL)
+    return (unsigned long) -1;
   for (n = 0; n < array->size; n++)
     if (array->data[n] == value)
       return n;
@@ -223,13 +223,12 @@ svz_array_idx (svz_array_t *array, void *value)
  * This routine inserts the given value @var{value} at the position 
  * @var{index}. The indices of all following values in the array @var{array}
  * and the size of the array get automatically incremented. Return the
- * values index or (-1) if the the index is out of array bounds.
+ * values index or (-1) if the index is out of array bounds.
  */
 unsigned long
 svz_array_ins (svz_array_t *array, unsigned long index, void *value)
 {
-  assert (array);
-  if (index > array->size)
+  if (array == NULL || index > array->size)
     return (unsigned long) -1;
   svz_array_ensure_capacity (array, array->size + 1);
   if (index < array->size)
@@ -278,5 +277,3 @@ svz_array_strdup (svz_array_t *array)
     dup->data[n] = svz_strdup (array->data[n]);
   return dup;
 }
-
-#endif /* not ENABLE_DEBUG */
