@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.8 2001/01/28 03:26:55 ela Exp $
+ * $Id: control-proto.h,v 1.9 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -61,12 +61,12 @@ typedef struct
 ctrl_config_t;
 
 /* Export the control server definition to `server.c'. */
-extern server_definition_t ctrl_server_definition;
+extern svz_servertype_t ctrl_server_definition;
 
 /* server functions */
-int ctrl_init (server_t *server);
-int ctrl_finalize (server_t *server);
-char *ctrl_info_server (server_t *server);
+int ctrl_init (svz_server_t *server);
+int ctrl_finalize (svz_server_t *server);
+char *ctrl_info_server (svz_server_t *server);
 char *ctrl_info_client (void *ctrl_cfg, socket_t sock);
 
 /* basic protocol functions */

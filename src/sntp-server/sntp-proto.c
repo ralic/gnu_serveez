@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.5 2001/04/01 13:32:30 ela Exp $
+ * $Id: sntp-proto.c,v 1.6 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -76,7 +76,7 @@ sntp_config_t sntp_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-key_value_pair_t sntp_config_prototype [] = 
+svz_key_value_pair_t sntp_config_prototype [] = 
 {
   REGISTER_PORTCFG ("netport", sntp_config.port, DEFAULTABLE),
   REGISTER_END ()
@@ -85,7 +85,7 @@ key_value_pair_t sntp_config_prototype [] =
 /*
  * Definition of this server.
  */
-server_definition_t sntp_server_definition =
+svz_servertype_t sntp_server_definition =
 {
   "Simple Network Time Protocol server",
   "sntp",
@@ -108,7 +108,7 @@ server_definition_t sntp_server_definition =
  * Initialize a SNTP server instance.
  */
 int
-sntp_init (server_t *server)
+sntp_init (svz_server_t *server)
 {
   sntp_config_t *cfg = server->cfg;
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.4 2001/03/12 21:45:04 ela Exp $
+ * $Id: array.h,v 1.5 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -176,5 +176,10 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
 }
 
 #endif /* not ENABLE_DEBUG */
+
+#define svz_array_foreach(array, value, i)                     \
+  for ((i) = 0, (value) = array ? svz_array_get ((array), 0) : NULL; \
+       (value);                                                  \
+       (value) = svz_array_get ((array), ++(i)))
 
 #endif /* not __ARRAY_H__ */

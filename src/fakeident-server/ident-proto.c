@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.7 2001/04/01 13:32:28 ela Exp $
+ * $Id: ident-proto.c,v 1.8 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -66,7 +66,7 @@ struct fakeident_config fakeident_config =
 /*
  * The config prototype. Register items that can be configured.
  */
-struct key_value_pair fakeident_config_prototype [] =
+svz_key_value_pair_t fakeident_config_prototype [] =
 {
   REGISTER_STR ("systemtype", fakeident_config.systemtype, DEFAULTABLE),
   REGISTER_STR ("username", fakeident_config.username, DEFAULTABLE),
@@ -77,16 +77,16 @@ struct key_value_pair fakeident_config_prototype [] =
 /*
  * Function forward declaration.
  */
-int fakeident_init (struct server *server);
+int fakeident_init (svz_server_t *server);
 int fakeident_connect_socket (void *acfg, socket_t sock);
 int fakeident_detect_proto (void *something, socket_t sock);
 int fakeident_handle_request (socket_t sock, char *request, int len);
-char *fakeident_info_server (struct server *server);
+char *fakeident_info_server (svz_server_t *server);
 
 /*
  * The actual server definition.
  */
-struct server_definition fakeident_server_definition = 
+svz_servertype_t fakeident_server_definition = 
 {
   "simple fake ident server",
   "fakeident",
@@ -109,7 +109,7 @@ struct server_definition fakeident_server_definition =
  * Initialize a fakeident server instance
  */
 int
-fakeident_init (struct server *server)
+fakeident_init (svz_server_t *server)
 {
   struct fakeident_config *c = server->cfg;
 
@@ -229,7 +229,7 @@ fakeident_handle_request (socket_t sock, char *request, int len)
  * Info about server as seen in control protocol.
  */
 char *
-fakeident_info_server (struct server *server)
+fakeident_info_server (svz_server_t *server)
 {
   struct fakeident_config *cfg = server->cfg;
   static char info[80];

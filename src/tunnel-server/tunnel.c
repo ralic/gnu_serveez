@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.18 2001/04/01 13:32:31 ela Exp $
+ * $Id: tunnel.c,v 1.19 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -61,7 +61,7 @@ tnl_config_t tnl_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-key_value_pair_t tnl_config_prototype [] = 
+svz_key_value_pair_t tnl_config_prototype [] = 
 {
   REGISTER_PORTCFG ("source", tnl_config.source, NOTDEFAULTABLE),
   REGISTER_PORTCFG ("target", tnl_config.target, NOTDEFAULTABLE),
@@ -71,7 +71,7 @@ key_value_pair_t tnl_config_prototype [] =
 /*
  * Definition of this server.
  */
-server_definition_t tnl_server_definition =
+svz_servertype_t tnl_server_definition =
 {
   "tunnel server",
   "tunnel",
@@ -112,7 +112,7 @@ tnl_global_finalize (void)
  * Tunnel server instance initializer. Check the configuration.
  */
 int
-tnl_init (server_t *server)
+tnl_init (svz_server_t *server)
 {
   tnl_config_t *cfg = server->cfg;
 
@@ -159,7 +159,7 @@ tnl_init (server_t *server)
  * The tunnel server instance finalizer.
  */
 int
-tnl_finalize (server_t *server)
+tnl_finalize (svz_server_t *server)
 {
   tnl_config_t *cfg = server->cfg;
   tnl_connect_t **source;

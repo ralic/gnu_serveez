@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.27 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-proto.c,v 1.28 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -117,7 +117,7 @@ irc_config_t irc_config =
 /*
  * Definition of the configuration items processed by sizzle.
  */
-key_value_pair_t irc_config_prototype[] =
+svz_key_value_pair_t irc_config_prototype[] =
 {
   REGISTER_PORTCFG ("port", irc_config.netport, DEFAULTABLE),
   REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
@@ -141,7 +141,7 @@ key_value_pair_t irc_config_prototype[] =
 /*
  * Definition of the IRC server.
  */
-server_definition_t irc_server_definition =
+svz_servertype_t irc_server_definition =
 {
   "irc server",        /* long description */
   "irc",               /* short description for instantiating */
@@ -201,7 +201,7 @@ irc_global_finalize (void)
  * Initialization of the IRC server instance.
  */
 int
-irc_init (server_t *server)
+irc_init (svz_server_t *server)
 {
   irc_config_t *cfg = server->cfg;
   char tmp[256][3];
@@ -256,7 +256,7 @@ irc_init (server_t *server)
  * IRC server instance finalizer.
  */
 int
-irc_finalize (server_t *server)
+irc_finalize (svz_server_t *server)
 {
   irc_config_t *cfg = server->cfg;
   int n;

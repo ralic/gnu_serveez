@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.60 2001/04/01 13:32:29 ela Exp $
+ * $Id: http-proto.c,v 1.61 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -108,7 +108,7 @@ http_config_t http_config =
  * Definition of the configuration items processed by libsizzle (taken
  * from the config file).
  */
-key_value_pair_t http_config_prototype[] =
+svz_key_value_pair_t http_config_prototype[] =
 {
   REGISTER_PORTCFG ("netport", http_config.port, DEFAULTABLE),
   REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
@@ -136,7 +136,7 @@ key_value_pair_t http_config_prototype[] =
 /*
  * Definition of the http server.
  */
-server_definition_t http_server_definition =
+svz_servertype_t http_server_definition =
 {
   "http server",         /* long server description */
   "http",                /* short server description (for libsizzle) */
@@ -210,7 +210,7 @@ http_global_finalize (void)
  * Local http server instance initializer.
  */
 int
-http_init (server_t *server)
+http_init (svz_server_t *server)
 {
   int types = 0;
   char *p;
@@ -283,7 +283,7 @@ http_init (server_t *server)
  * Local http server instance finalizer.
  */
 int
-http_finalize (server_t *server)
+http_finalize (svz_server_t *server)
 {
   http_config_t *cfg = server->cfg;
 
@@ -865,7 +865,7 @@ http_check_request (socket_t sock)
  * it for displaying the server configuration within the control protocol.
  */
 char *
-http_info_server (server_t *server)
+http_info_server (svz_server_t *server)
 {
   http_config_t *cfg = server->cfg;
   static char info[80 * 12];

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.17 2001/03/08 11:53:56 ela Exp $
+ * $Id: http-proto.h,v 1.18 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -65,11 +65,11 @@ typedef struct
 http_config_t;
 
 /* Export the http server definition to `server.c'. */
-extern server_definition_t http_server_definition;
+extern svz_servertype_t http_server_definition;
 
 /* server functions */
-int http_init (server_t *server);
-int http_finalize (server_t *server);
+int http_init (svz_server_t *server);
+int http_finalize (svz_server_t *server);
 int http_global_init (void);
 int http_global_finalize (void);
 
@@ -77,7 +77,7 @@ int http_global_finalize (void);
 int http_detect_proto (void *cfg, socket_t sock);
 int http_connect_socket (void *cfg, socket_t sock);
 char *http_info_client (void *cfg, socket_t sock);
-char *http_info_server (server_t *server);
+char *http_info_server (svz_server_t *server);
 
 /* internal protocol functions */
 int http_check_request (socket_t sock);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.16 2001/04/01 13:32:28 ela Exp $
+ * $Id: cfgfile.c,v 1.17 2001/04/04 14:23:13 ela Exp $
  *
  */
 
@@ -130,30 +130,30 @@ zzz_bind_bool_variable (name, location, 1)
 void
 init_server_definitions (void)
 {
-  server_add_definition (&foo_server_definition);
+  svz_servertype_add (&foo_server_definition);
 #if ENABLE_AWCS_PROTO
-  server_add_definition (&awcs_server_definition);
+  svz_servertype_add (&awcs_server_definition);
 #endif
 #if ENABLE_HTTP_PROTO
-  server_add_definition (&http_server_definition);
+  svz_servertype_add (&http_server_definition);
 #endif
 #if ENABLE_IRC_PROTO
-  server_add_definition (&irc_server_definition);
+  svz_servertype_add (&irc_server_definition);
 #endif
 #if ENABLE_CONTROL_PROTO
-  server_add_definition (&ctrl_server_definition);
+  svz_servertype_add (&ctrl_server_definition);
 #endif
 #if ENABLE_SNTP_PROTO
-  server_add_definition (&sntp_server_definition);
+  svz_servertype_add (&sntp_server_definition);
 #endif
 #if ENABLE_GNUTELLA
-  server_add_definition (&nut_server_definition);
+  svz_servertype_add (&nut_server_definition);
 #endif
 #if ENABLE_TUNNEL
-  server_add_definition (&tnl_server_definition);
+  svz_servertype_add (&tnl_server_definition);
 #endif
 #if ENABLE_FAKEIDENT
-  server_add_definition (&fakeident_server_definition);
+  svz_servertype_add (&fakeident_server_definition);
 #endif
 }
 

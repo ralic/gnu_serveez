@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.3 2001/02/02 11:26:23 ela Exp $
+ * $Id: pipe-socket.h,v 1.4 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -30,6 +30,20 @@
 
 #define READ  0 /* read pipe index */
 #define WRITE 1 /* write pipe index */
+
+/*
+ * Definition of a named pipe.
+ */
+typedef struct svz_pipe
+{
+  char *name;  /* name of named pipe */
+  mode_t perm; /* user and group permmissions */
+  char *user;  /* user name */
+  uid_t uid;   /* user id (calculated from user name) */
+  char *group; /* group name */
+  gid_t gid;   /* group id (calculated from group name) */
+}
+svz_pipe_t;
 
 __BEGIN_DECLS
 

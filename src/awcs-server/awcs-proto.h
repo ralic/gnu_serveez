@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.9 2001/03/08 11:53:56 ela Exp $
+ * $Id: awcs-proto.h,v 1.10 2001/04/04 14:23:13 ela Exp $
  *
  */
 
@@ -63,13 +63,13 @@ awcs_config_t;
 /*
  * The aWCS server definition. Exported to "server.h".
  */
-extern server_definition_t awcs_server_definition;
+extern svz_servertype_t awcs_server_definition;
 
 /*
  * aWCS server initialization and finalization routines.
  */
-int awcs_init (server_t *server);
-int awcs_finalize (server_t *server);
+int awcs_init (svz_server_t *server);
+int awcs_finalize (svz_server_t *server);
 
 /*
  * Exported aWCS server callbacks.

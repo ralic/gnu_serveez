@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.5 2001/03/04 13:13:41 ela Exp $
+ * $Id: server.c,v 1.6 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -44,6 +44,7 @@
 #include "libserveez/hash.h"
 #include "libserveez/util.h"
 #include "libserveez/core.h"
+#include "libserveez/array.h"
 #include "libserveez/socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
@@ -52,45 +53,56 @@
 /*
  * The list of registered server. Feel free to add yours.
  */
-int server_definitions = 0;
-server_definition_t **server_definition = NULL;
+svz_array_t *svz_servertypes = NULL;
 
 /*
- * Add another server definition to the currently registered servers.
+ * Add the server type @var{server} to the currently registered servers.
  */
 void
-server_add_definition (server_definition_t *definition)
+svz_servertype_add (svz_servertype_t *server)
 {
   int n;
+  svz_servertype_t *stype;
 
   /* Check if the server definition is valid. */
-  if (!definition || !definition->varname || !definition->name)
+  if (!server || !server->varname || !server->name)
     {
-      log_printf (LOG_ERROR, "invalid server definition\n");
+      log_printf (LOG_ERROR, "invalid server type\n");
       return;
     }
 
   /* Check if the server is already registered. */
-  for (n = 0; n < server_definitions; n++)
-    if (!strcmp (definition->varname, server_definition[n]->varname))
+  svz_array_foreach (svz_servertypes, stype, n)
+    {
+      if (!strcmp (server->varname, stype->varname))
+	{
+	  log_printf (LOG_ERROR, "server type `%s' already registered\n", 
+		      server->name);
+	  return;
+	}
+    }
+
+  /* Run the global server type initializer. */
+  if (server->global_init != NULL) 
+    if (server->global_init () < 0) 
       {
-	log_printf (LOG_ERROR, "server `%s' already registered\n", 
-		    definition->name);
+	log_printf (LOG_ERROR, "error running global init for `%s'\n",
+		    server->name);
 	return;
       }
 
   /* Add this definition to the registered servers. */
-  server_definition = (server_definition_t **) 
-    svz_prealloc (server_definition, (server_definitions + 1) * 
-		  sizeof (server_definition_t *));
-  server_definition[server_definitions++] = definition;
+  if (svz_servertypes == NULL)
+    if ((svz_servertypes = svz_array_create (1)) == NULL)
+      return;
+  svz_array_add (svz_servertypes, server);
 }
 
 /*
  * A list of actually instantiated servers.
  */
 int server_instances = 0;
-struct server **servers = NULL;
+svz_server_t **servers = NULL;
 
 /*
  * A list of bound servers.
@@ -103,34 +115,33 @@ server_binding_t *server_binding = NULL;
  */
 #if ENABLE_DEBUG
 void
-server_print_definitions (void)
+svz_servertype_print (void)
 {
   int s, i;
-  struct server_definition *sd;
+  svz_servertype_t *stype;
 
-  for (s = 0; s < server_definitions; s++)
+  svz_array_foreach (svz_servertypes, stype, s)
     {
-      sd = server_definition[s];
-      printf ("[%d] - %s\n", s, sd->name);
+      printf ("[%d] - %s\n", s, stype->name);
       printf ("  detect_proto() at %p"
 	      "  connect_socket() at %p\n",
-	      sd->detect_proto, sd->connect_socket);
+	      stype->detect_proto, stype->connect_socket);
       
-      if (sd->prototype_start != NULL)
+      if (stype->prototype_start != NULL)
 	{
 	  printf ("  configblock %d byte at %p: \n",
-		  sd->prototype_size, sd->prototype_start);
+		  stype->prototype_size, stype->prototype_start);
 
-	  for (i = 0; sd->items[i].type != ITEM_END; i++)
+	  for (i = 0; stype->items[i].type != ITEM_END; i++)
 	    {
-	      long offset = (char *) sd->items[i].address -
-		(char *) sd->prototype_start;
+	      long offset = (char *) stype->items[i].address -
+		(char *) stype->prototype_start;
 	      
 	      printf ("   variable `%s' at offset %d, %sdefaultable: ",
-		      sd->items[i].name, (int) offset,
-		      sd->items[i].defaultable ? "" : "not ");
+		      stype->items[i].name, (int) offset,
+		      stype->items[i].defaultable ? "" : "not ");
 
-	      switch (sd->items[i].type) 
+	      switch (stype->items[i].type) 
 		{
 		case ITEM_INT:
 		  printf ("int\n");
@@ -171,7 +182,7 @@ void
 server_run_notify (void)
 {
   int n;
-  server_t *server;
+  svz_server_t *server;
 
   for (n = 0; n < server_instances; n++)
     {
@@ -185,7 +196,7 @@ server_run_notify (void)
  * Find a server instance by a given configuration structure. Return NULL
  * if there is no such configuration.
  */
-server_t *
+svz_server_t *
 server_find (void *cfg)
 {
   int n;
@@ -202,41 +213,11 @@ server_find (void *cfg)
  * Add a server to the list of all servers.
  */
 void
-server_add (struct server *server)
+server_add (svz_server_t *server)
 {
-  servers = (struct server **) 
-    svz_prealloc (servers, (server_instances + 1) * sizeof (struct server *));
+  servers = (svz_server_t **) 
+    svz_prealloc (servers, (server_instances + 1) * sizeof (svz_server_t *));
   servers[server_instances++] = server;
-}
-
-/*
- * Run the global initializers of all servers. Return -1 if some
- * server (class) does not feel like running.
- */
-int
-server_global_init (void)
-{
-  int erroneous = 0;
-  int i;
-  struct server_definition *sd;
-
-  log_printf (LOG_NOTICE, "running global initializers\n");
-  
-  for (i = 0; i < server_definitions; i++)
-    {
-      sd = server_definition[i];
-      if (sd->global_init != NULL) 
-	{
-	  if (sd->global_init () < 0) 
-	    {
-	      erroneous = -1;
-	      fprintf (stderr, 
-		       "error running global init for `%s'\n", sd->name);
-	    }
-	}
-    }
-
-  return erroneous;
 }
 
 /*
@@ -266,7 +247,7 @@ server_init_all (void)
 }
 
 /*
- * Run the global finalizers per server definition.
+ * Run the local finalizers for all server instances.
  */
 int
 server_finalize_all (void)
@@ -285,21 +266,19 @@ server_finalize_all (void)
 }
 
 /*
- * Run the local finalizers for all server instances.
+ * Run the global finalizers per server definition.
  */
 int
 server_global_finalize (void)
 {
   int i;
-  struct server_definition *sd;
+  svz_servertype_t *stype;
 
-  log_printf (LOG_NOTICE, "running global finalizers\n");
-
-  for (i = 0; i < server_definitions; i++)
+  log_printf (LOG_NOTICE, "running global server finalizers\n");
+  svz_array_foreach (svz_servertypes, stype, i)
     {
-      sd = server_definition[i];
-      if (sd->global_finalize != NULL)
-	sd->global_finalize ();
+      if (stype->global_finalize != NULL)
+	stype->global_finalize ();
     }
 
   return 0;
@@ -335,7 +314,7 @@ server_portcfg_equal (portcfg_t *a, portcfg_t *b)
  * port configuration.
  */
 int
-server_bind (server_t *server, portcfg_t *cfg)
+server_bind (svz_server_t *server, portcfg_t *cfg)
 {
   int n;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.9 2001/03/08 11:53:56 ela Exp $
+ * $Id: tunnel.h,v 1.10 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -72,9 +72,9 @@ tnl_connect_t;
 /*
  * Basic server callback definitions.
  */
-int tnl_init (server_t *server);
+int tnl_init (svz_server_t *server);
 int tnl_global_init (void);
-int tnl_finalize (server_t *server);
+int tnl_finalize (svz_server_t *server);
 int tnl_global_finalize (void);
 
 /* Rest of all the callbacks. */
@@ -96,6 +96,6 @@ int tnl_idle (socket_t sock);
 /*
  * This server's definition.
  */
-extern server_definition_t tnl_server_definition;
+extern svz_servertype_t tnl_server_definition;
 
 #endif /* not __TUNNEL_H__ */

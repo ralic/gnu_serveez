@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.45 2001/04/01 13:32:28 ela Exp $
+ * $Id: control-proto.c,v 1.46 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -88,7 +88,7 @@ ctrl_config_t ctrl_config =
  * Definition of the configuration items processed by libsizzle (taken
  * from the configuration file).
  */
-key_value_pair_t ctrl_config_prototype [] =
+svz_key_value_pair_t ctrl_config_prototype [] =
 {
   REGISTER_PORTCFG ("netport", ctrl_config.netport, DEFAULTABLE),
   REGISTER_END ()
@@ -97,7 +97,7 @@ key_value_pair_t ctrl_config_prototype [] =
 /*
  * Definition of the control protocol server.
  */
-server_definition_t ctrl_server_definition =
+svz_servertype_t ctrl_server_definition =
 {
   "control protocol server", /* long server description */
   "control",                 /* short server description (for libsizzle) */
@@ -127,7 +127,7 @@ cpu_state_t cpu_state;
  * server to a given port configuration.
  */
 int
-ctrl_init (server_t *server)
+ctrl_init (svz_server_t *server)
 {
   ctrl_config_t *cfg = server->cfg;
 
@@ -139,7 +139,7 @@ ctrl_init (server_t *server)
  * Server instance finalizer.
  */
 int
-ctrl_finalize (server_t *server)
+ctrl_finalize (svz_server_t *server)
 {
   return 0;
 }
@@ -148,7 +148,7 @@ ctrl_finalize (server_t *server)
  * Server info callback.
  */
 char *
-ctrl_info_server (server_t *server)
+ctrl_info_server (svz_server_t *server)
 {
   static char info[128];
   ctrl_config_t *cfg = server->cfg;
@@ -295,7 +295,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   int id, n;
   socket_t xsock;
   char proto[128];
-  server_t *server;
+  svz_server_t *server;
   coserver_t *coserver;
 
   /* Find the appropriate client or server connection. */
@@ -433,7 +433,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 int
 ctrl_stat (socket_t sock, int flag, char *arg)
 {
-  server_t *server;
+  svz_server_t *server;
   int n;
 
   /* go through all server instances */
@@ -533,7 +533,7 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
   char *id;
   char linet[64];  
   char rinet[64];
-  server_t *server;
+  svz_server_t *server;
 
   sock_printf (sock, "\r\n%s", 
 	       "Proto              Id  RecvQ  SendQ "
@@ -669,7 +669,7 @@ int
 ctrl_stat_all (socket_t sock, int flag, char *arg)
 {
   int n;
-  server_t *server;
+  svz_server_t *server;
 
   /* go through all server instances */
   for (n = 0; n < server_instances; n++)

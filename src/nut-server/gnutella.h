@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.21 2001/03/08 11:53:56 ela Exp $
+ * $Id: gnutella.h,v 1.22 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -270,17 +270,17 @@ int nut_idle_searching (socket_t sock);
 int nut_connect_timeout (socket_t sock);
 
 /* server functions */
-int nut_init (server_t *server);
+int nut_init (svz_server_t *server);
 int nut_global_init (void);
-int nut_finalize (server_t *server);
+int nut_finalize (svz_server_t *server);
 int nut_global_finalize (void);
-int nut_server_notify (server_t *server);
-char *nut_info_server (server_t *server);
+int nut_server_notify (svz_server_t *server);
+char *nut_info_server (svz_server_t *server);
 char *nut_info_client (void *nut_cfg, socket_t sock);
 
 /*
  * This server's definition.
  */
-extern server_definition_t nut_server_definition;
+extern svz_servertype_t nut_server_definition;
 
 #endif /* __GNUTELLA_H__ */

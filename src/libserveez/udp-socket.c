@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.6 2001/04/01 13:32:30 ela Exp $
+ * $Id: udp-socket.c,v 1.7 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -210,7 +210,7 @@ int
 udp_check_request (socket_t sock)
 {
   int n;
-  server_t *server;
+  svz_server_t *server;
 
   if (sock->data == NULL && sock->handle_request == NULL)
     return -1;

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.7 2001/03/08 11:53:56 ela Exp $
+ * $Id: foo-proto.h,v 1.8 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -49,15 +49,15 @@ struct foo_config
  */
 int foo_detect_proto (void *cfg, socket_t sock);
 int foo_connect_socket (void *cfg, socket_t sock);
-int foo_init (struct server *server);
+int foo_init (svz_server_t *server);
 int foo_global_init (void);
-int foo_finalize (struct server *server);
+int foo_finalize (svz_server_t *server);
 int foo_global_finalize (void);
-char *foo_info_server (struct server *server);
+char *foo_info_server (svz_server_t *server);
 
 /*
  * This server's definition.
  */
-extern struct server_definition foo_server_definition;
+extern svz_servertype_t foo_server_definition;
 
 #endif /* not __FOO_PROTO_H__ */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.28 2001/04/01 13:32:28 ela Exp $
+ * $Id: awcs-proto.c,v 1.29 2001/04/04 14:23:13 ela Exp $
  *
  */
 
@@ -87,7 +87,7 @@ awcs_config_t awcs_config =
 /*
  * Definition of the configuration items delivered by libsizzle.
  */
-key_value_pair_t awcs_config_prototype [] =
+svz_key_value_pair_t awcs_config_prototype [] =
 {
   REGISTER_PORTCFG ("netport", awcs_config.netport, DEFAULTABLE),
   REGISTER_PORTCFG ("fsport", awcs_config.fsport, DEFAULTABLE),
@@ -97,7 +97,7 @@ key_value_pair_t awcs_config_prototype [] =
 /*
  * The aWCS server definition.
  */
-server_definition_t awcs_server_definition =
+svz_servertype_t awcs_server_definition =
 {
   "aWCS server",         /* server description */
   "aWCS",                /* server prefix used in the config file "aWCS?" */
@@ -144,7 +144,7 @@ awcs_hash_code (char *id)
  * Local aWCS server instance initialization routine.
  */
 int
-awcs_init (server_t *server)
+awcs_init (svz_server_t *server)
 {
   awcs_config_t *cfg = server->cfg;
 
@@ -167,7 +167,7 @@ awcs_init (server_t *server)
  * Local aWCS server instance finalizer.
  */
 int
-awcs_finalize (server_t *server)
+awcs_finalize (svz_server_t *server)
 {
   awcs_config_t *cfg = server->cfg;
   

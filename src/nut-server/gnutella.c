@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.33 2001/04/01 13:32:30 ela Exp $
+ * $Id: gnutella.c,v 1.34 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -141,7 +141,7 @@ nut_config_t nut_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-key_value_pair_t nut_config_prototype[] = 
+svz_key_value_pair_t nut_config_prototype[] = 
 {
   REGISTER_PORTCFG ("port", nut_config.netport, DEFAULTABLE),
   REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
@@ -166,7 +166,7 @@ key_value_pair_t nut_config_prototype[] =
 /*
  * Definition of this server.
  */
-server_definition_t nut_server_definition =
+svz_servertype_t nut_server_definition =
 {
   "gnutella spider version " NUT_VERSION, /* long description */
   "nut",                                  /* instance description */
@@ -365,7 +365,7 @@ nut_global_init (void)
  * Gnutella spider server's instance initializer.
  */
 int
-nut_init (server_t *server)
+nut_init (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   int n = 0;
@@ -474,7 +474,7 @@ nut_init (server_t *server)
  * Instance finalizer.
  */
 int
-nut_finalize (server_t *server)
+nut_finalize (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   nut_host_t **client;
@@ -609,7 +609,7 @@ nut_disconnect (socket_t sock)
  * routine. Here we try connecting to more gnutella hosts.
  */
 int
-nut_server_notify (server_t *server)
+nut_server_notify (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static int count = NUT_CONNECT_INTERVAL;
@@ -811,7 +811,7 @@ nut_idle_searching (socket_t sock)
  * Gnutella server info callback.
  */
 char *
-nut_info_server (server_t *server)
+nut_info_server (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static char info[80 * 19];

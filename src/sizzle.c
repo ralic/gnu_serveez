@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sizzle.c,v 1.4 2001/03/08 11:53:56 ela Exp $
+ * $Id: sizzle.c,v 1.5 2001/04/04 14:23:13 ela Exp $
  *
  */
 
@@ -476,7 +476,7 @@ static int set_port (char *cfgfile, char *var, char *key,
  */
 static void *
 zzz_server_instantiate (char *cfgfile, zzz_scm_t hash,
-			server_definition_t *sd, char *var)
+			svz_servertype_t *sd, char *var)
 {
   void *cfg = NULL;
   void *target = NULL;
@@ -584,8 +584,8 @@ zzz_server_load_cfg (char *cfgfile)
   zzz_scm_t symval = NULL;
   unsigned int i, j;
   int erroneous = 0;
-  server_definition_t *sd;
-  server_t *server;
+  svz_servertype_t *sd;
+  svz_server_t *server;
   void *cfg;
 
   /*
@@ -603,10 +603,8 @@ zzz_server_load_cfg (char *cfgfile)
 	  sym = car (symlist);
 	  symname = svz_strdup (string_val (symbol_name (sym)));
 
-	  for (j = 0; j < (unsigned) server_definitions; j++)
+	  svz_array_foreach (svz_servertypes, sd, j)
 	    {
-	      sd = server_definition[j];
-
 	      /* 
 	       * A varname is meant for us if it begins like one of our
 	       * server definitions and ends with a '-'. e.g.: foo => foo-
@@ -622,7 +620,8 @@ zzz_server_load_cfg (char *cfgfile)
 
 		  if (cfg != NULL)
 		    {
-		      server = (server_t *) svz_pmalloc (sizeof (server_t));
+		      server = (svz_server_t *) 
+			svz_pmalloc (sizeof (svz_server_t));
 		      server->cfg = cfg;
 		      server->name = svz_pstrdup (symname);
 		      server->detect_proto = sd->detect_proto;

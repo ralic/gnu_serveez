@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.4 2001/03/04 13:13:41 ela Exp $
+ * $Id: server.h,v 1.5 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -27,52 +27,94 @@
 #define __SERVER_H__ 1
 
 #include "libserveez/defines.h"
-
-/* Port configuration items. */
-#define PORTCFG_PORT    "port"
-#define PORTCFG_PROTO   "proto"
-#define PORTCFG_INPIPE  "inpipe"
-#define PORTCFG_OUTPIPE "outpipe"
-#define PORTCFG_TCP     "tcp"
-#define PORTCFG_UDP     "udp"
-#define PORTCFG_ICMP    "icmp"
-#define PORTCFG_RAW     "raw"
-#define PORTCFG_PIPE    "pipe"
-#define PORTCFG_IP      "ipaddr"
-#define PORTCFG_NOIP    "*"
+#include "libserveez/array.h"
 
 /*
- * Each server can have a an array of name-value-pairs specific for it.
+ * Each server can have a an array of key-value-pairs specific for it.
  * Use macros at end of this file for setting up these.
  */
-typedef struct key_value_pair 
+typedef struct svz_key_value_pair 
 {
   int type;        /* data type (string, integer, etc.) */
   char *name;      /* variable name (symbol) */
   int defaultable; /* set if this item is defaultable */
   void *address;   /* memory address of the variable */
 }
-key_value_pair_t;
+svz_key_value_pair_t;
 
 /*
  * Each server instance gets such a structure.
  */
-typedef struct server
+typedef struct svz_server
 {
-  int  proto;           /* one of the PROTO_ flags */
-  char *name;           /* variable name in sizzle, used to identify it */
-  char *description;    /* server description */
-  void *cfg;                                    /* configuration structure */
-  int (* init)(struct server *);                /* init of instance */
-  int (* detect_proto) (void *, socket_t);      /* protocol detection */
-  int (* connect_socket) (void *, socket_t);    /* what to do if detected */ 
-  int (* finalize)(struct server *);            /* finalize this instance */
-  char * (* info_client)(void *, socket_t);     /* return client info */
-  char * (* info_server)(struct server *);      /* return server info */
-  int (* notify)(struct server *);              /* server timer */
-  int (* handle_request)(socket_t, char*, int); /* packet processing */
+  /* one of the PROTO_ flags defined in <core.h> */
+  int proto;
+  /* variable name in configuration language, used to identify it */
+  char *name;
+  /* server description */
+  char *description;
+  /* configuration structure for this instance */
+  void *cfg;
+
+  /* init of instance */
+  int (* init) (struct svz_server *);
+  /* protocol detection */
+  int (* detect_proto) (void *, socket_t);
+  /* what to do if detected */ 
+  int (* connect_socket) (void *, socket_t);
+  /* finalize this instance */
+  int (* finalize) (struct svz_server *);
+  /* return client info */
+  char * (* info_client) (void *, socket_t);
+  /* return server info */
+  char * (* info_server) (struct svz_server *);
+  /* server timer */
+  int (* notify) (struct svz_server *);
+  /* packet processing */
+  int (* handle_request) (socket_t, char *, int);
 }
-server_t;
+svz_server_t;
+
+/*
+ * Every type (class) of server is completely defined by the following
+ * structure.
+ */
+typedef struct svz_servertype
+{
+  /* full descriptive name */
+  char *name;
+  /* varprefix (short name) as used in configuration */
+  char *varname;
+
+  /* run once per server definition */
+  int (* global_init) (void);
+  /* per server instance callback */
+  int (* init) (svz_server_t *);
+  /* protocol detection routine */
+  int (* detect_proto) (void *, socket_t);
+  /* for accepting a client (tcp or pipe only) */
+  int (* connect_socket) (void *, socket_t);
+  /* per instance */
+  int (* finalize) (svz_server_t *);
+  /* per server definition */
+  int (* global_finalize) (void);
+  /* return client info */
+  char * (* info_client) (void *, socket_t);
+  /* return server info */
+  char * (* info_server) (svz_server_t *);
+  /* server timer */
+  int (* notify) (svz_server_t *);
+  /* packet processing */
+  int (* handle_request) (socket_t, char *, int);
+
+  /* start of example struct */
+  void *prototype_start;
+  /* size of the above structure */
+  int  prototype_size;
+  /* array of key-value-pairs of config items */
+  svz_key_value_pair_t *items;
+}
+svz_servertype_t;
 
 /*
  * Used when binding ports this is available from sizzle 
@@ -98,40 +140,13 @@ typedef struct portcfg
 portcfg_t;
 
 /*
- * Every server needs such a thing.
- */
-typedef struct server_definition 
-{
-  char *name;                                   /* descriptive name */
-  char *varname;                                /* varprefix as used in cfg */
-
-  int (* global_init)(void);                    /* run once per server def */
-  int (* init)(struct server*);                 /* per instance callback */
-  int (* detect_proto)(void *, socket_t);       /* protocol detector */
-  int (* connect_socket)(void *, socket_t);     /* for accepting a client */
-  int (* finalize)(struct server*);             /* per instance */
-  int (* global_finalize)(void);                /* per server def */
-  char * (* info_client)(void *, socket_t);     /* return client info */
-  char * (* info_server)(struct server *);      /* return server info */
-  int (* notify)(struct server *);              /* server timer */
-  int (* handle_request)(socket_t, char*, int); /* packet processing */
-
-  void *prototype_start;                        /* start of example struct */
-  int  prototype_size;                          /* sizeof() the above */
-
-  struct key_value_pair *items;                 /* array of key-value-pairs */
-                                                /* of config items */
-}
-server_definition_t;
-
-/*
  * This structure is used by `server_bind ()' to collect various server
  * instances and their port configurations.
  */
 typedef struct
 {
-  server_t *server; /* server instance */
-  portcfg_t *cfg;   /* port configuration */
+  svz_server_t *server; /* server instance */
+  portcfg_t *cfg;       /* port configuration */
 }
 server_binding_t;
 
@@ -139,7 +154,7 @@ server_binding_t;
 /*
  * Helper cast to get n-th server_t from a (void *).
  */
-#define SERVER(addr, no) (((server_t **) addr)[no])
+#define SERVER(addr, no) (((svz_server_t **) addr)[no])
 
 /*
  * Helper macros for filling the config prototypes.
@@ -200,19 +215,17 @@ server_binding_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern int server_definitions;
-SERVEEZ_API extern struct server_definition **server_definition;
+SERVEEZ_API extern svz_array_t *svz_servertypes;
 SERVEEZ_API extern int server_instances;
-SERVEEZ_API extern struct server **servers;
+SERVEEZ_API extern svz_server_t **servers;
 
-SERVEEZ_API void server_add_definition __P ((server_definition_t *));
+SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
 SERVEEZ_API int server_start __P ((void));
-SERVEEZ_API int server_bind __P ((server_t *server, portcfg_t *cfg));
-SERVEEZ_API server_t *server_find __P ((void *cfg));
-SERVEEZ_API void server_add __P ((struct server *server));
+SERVEEZ_API int server_bind __P ((svz_server_t *server, portcfg_t *cfg));
+SERVEEZ_API svz_server_t *server_find __P ((void *cfg));
+SERVEEZ_API void server_add __P ((svz_server_t *server));
 SERVEEZ_API void server_run_notify __P ((void));
 SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *a, portcfg_t *b));
-SERVEEZ_API int server_global_init __P ((void));
 SERVEEZ_API int server_init_all __P ((void));
 SERVEEZ_API int server_finalize_all __P ((void));
 SERVEEZ_API int server_global_finalize __P ((void));

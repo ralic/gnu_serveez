@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.4 2001/04/01 13:32:29 ela Exp $
+ * $Id: core.h,v 1.5 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -27,6 +27,11 @@
 
 #include "libserveez/defines.h"
 
+#include <stdio.h>
+#include <sys/stat.h>
+#if HAVE_UNISTD_H
+#include <unistd.h>
+#endif
 #ifndef __MINGW32__
 # include <netinet/in.h>
 #endif

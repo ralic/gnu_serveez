@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.22 2001/04/01 13:32:28 ela Exp $
+ * $Id: foo-proto.c,v 1.23 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -97,7 +97,7 @@ struct foo_config mycfg =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-struct key_value_pair foo_config_prototype [] = 
+svz_key_value_pair_t foo_config_prototype [] = 
 {
   REGISTER_INT ("bar", mycfg.bar, NOTDEFAULTABLE),
   REGISTER_STR ("reply", mycfg.reply, DEFAULTABLE),
@@ -111,7 +111,7 @@ struct key_value_pair foo_config_prototype [] =
 /*
  * Definition of this server.
  */
-struct server_definition foo_server_definition =
+svz_servertype_t foo_server_definition =
 {
   "foo example server",
   "foo",
@@ -254,7 +254,7 @@ foo_global_finalize (void)
  * unless it is the default hash.
  */
 int
-foo_finalize (struct server *server)
+foo_finalize (svz_server_t *server)
 {
   struct foo_config *c = server->cfg;
   char **values;
@@ -284,7 +284,7 @@ foo_finalize (struct server *server)
  * Initialize a foo server instance.
  */
 int
-foo_init (struct server *server)
+foo_init (svz_server_t *server)
 {
   struct foo_config *c = server->cfg;
 
@@ -310,7 +310,7 @@ foo_init (struct server *server)
  * whole configuration once.
  */
 char *
-foo_info_server (struct server *server)
+foo_info_server (svz_server_t *server)
 {
   struct foo_config *cfg = server->cfg;
   static char info[80*16], text[80];

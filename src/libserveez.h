@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: libserveez.h,v 1.7 2001/03/08 22:15:13 raimi Exp $
+ * $Id: libserveez.h,v 1.8 2001/04/04 14:23:13 ela Exp $
  *
  */
 
@@ -34,6 +34,7 @@
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"
+#include "libserveez/portcfg.h"
 #include "libserveez/server.h"
 #include "libserveez/tcp-socket.h"
 #include "libserveez/pipe-socket.h"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.h,v 1.2 2001/01/28 03:26:55 ela Exp $
+ * $Id: sntp-proto.h,v 1.3 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -38,12 +38,12 @@ typedef struct
 }
 sntp_config_t;
 
-int sntp_init (server_t *server);
+int sntp_init (svz_server_t *server);
 int sntp_handle_request (socket_t sock, char *packet, int len);
 
 /*
  * This server's definition.
  */
-extern server_definition_t sntp_server_definition;
+extern svz_servertype_t sntp_server_definition;
 
 #endif /* not __SNTP_PROTO_H__ */

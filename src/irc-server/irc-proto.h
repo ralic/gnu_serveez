@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.16 2001/03/08 11:53:56 ela Exp $
+ * $Id: irc-proto.h,v 1.17 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -374,7 +374,7 @@ irc_callback_t;
 extern irc_callback_t irc_callback[];
 
 /* Export the irc server definition to `server.c'. */
-extern server_definition_t irc_server_definition;
+extern svz_servertype_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
 int irc_client_in_channel (socket_t, irc_client_t *, irc_channel_t *);
@@ -412,9 +412,9 @@ irc_client_history_t *irc_find_nick_history (irc_config_t *,
 					     irc_client_history_t *, char *);
 
 /* irc server functions */
-int irc_init (server_t *server);
+int irc_init (svz_server_t *server);
 int irc_global_init (void);
-int irc_finalize (server_t *server);
+int irc_finalize (svz_server_t *server);
 int irc_global_finalize (void);
 
 #define IRC_CLOSING_LINK    "Closing Link: %s (%s)"

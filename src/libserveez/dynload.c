@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.3 2001/04/01 13:32:29 ela Exp $
+ * $Id: dynload.c,v 1.4 2001/04/04 14:23:14 ela Exp $
  *
  */
 
@@ -304,12 +304,12 @@ dyn_create_symbol (char *description)
  * Load an additional server definition from a shared library. The given
  * descriptive name DESCRIPTION must be part of the library's name.
  */
-server_definition_t *
+svz_servertype_t *
 server_load (char *description)
 {
   char *file, *def;
   dyn_library_t *lib;
-  server_definition_t *server;
+  svz_servertype_t *server;
 
   /* load library */
   file = dyn_create_file (description);
