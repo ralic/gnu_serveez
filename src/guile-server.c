@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.16 2001/09/11 15:05:48 ela Exp $
+ * $Id: guile-server.c,v 1.17 2001/09/12 13:42:15 ela Exp $
  *
  */
 
@@ -252,7 +252,7 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 
   if ((oldproc = 
        ((SCM) (unsigned long) 
-	svz_hash_put (gsock, func, (void *) ((unsigned long) proc)))) == 0)
+	svz_hash_put (gsock, func, SVZ_NUM2PTR (proc)))) == 0)
     return SCM_UNDEFINED;
 
   return oldproc;
@@ -643,7 +643,7 @@ guile_sock_data (SCM sock, SCM data)
   if (xsock->data != NULL)
     ret = (SCM) ((unsigned long) xsock->data);
   if (data != SCM_UNDEFINED)
-    xsock->data = (void *) ((unsigned long) data);
+    xsock->data = SVZ_NUM2PTR (data);
   return ret;
 }
 #undef FUNC_NAME
@@ -1018,7 +1018,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 	}
       
       /* Assign address offset. */
-      item.address = (void *) ((unsigned long) size);
+      item.address = SVZ_NUM2PTR (size);
 
       /* First appears the type of item. */
       value = gh_car (list);
@@ -1139,8 +1139,7 @@ guile_define_servertype (SCM args)
     {
       err |= optionhash_extract_proc (options, guile_functions[n],
 				      1, SCM_UNDEFINED, &proc, txt);
-      svz_hash_put (functions, guile_functions[n], 
-		    (void *) ((unsigned long) proc));
+      svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
     }
 
   /* Check the configuration items for this servertype. */

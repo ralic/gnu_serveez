@@ -1,3 +1,13 @@
+2001-09-12  [ Ela ]  <ela@lkcc.org>
+
+	* guile-bin.h (scm_wrong_type_arg_msg): Defined some
+	backward compatibility macros with "Guile 1.3.4".
+
+	* guile.c (guile_exception): Replace `scm_simple_format' by
+	`scm_display_error_message'.
+	(guile_get_current_load_port): Checking for SCM_BOOL_P before
+	testing SCM_PORTP().
+
 2001-09-10  [ Ela ]  <ela@lkcc.org>
 
 	* svzconfig.h.in: Added `size_t'.

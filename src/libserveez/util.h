@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.14 2001/08/03 18:09:04 ela Exp $
+ * $Id: util.h,v 1.15 2001/09/12 13:42:15 ela Exp $
  *
  */
 
@@ -112,6 +112,16 @@ SERVEEZ_API const char *svz_hstrerror __P ((void));
 #define SVZ_UINT16(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8))
 
+/* Converts the integer value @var{n} into a pointer platform independently.
+   Both of the @code{SVZ_NUM2PTR()} and @code{SVZ_PTR2NUM()} macros rely on
+   the @code{(unsigned long)} having the same size as @code{(void *)}. */
+#define SVZ_NUM2PTR(n) \
+  ((void *) ((unsigned long) (n)))
+
+/* Convert the pointer @var{p} into a integer value platform independently. */
+#define SVZ_PTR2NUM(p) \
+  ((unsigned long) ((void *) (p)))
+
 #ifdef __MINGW32__
 # define INVALID_HANDLE    NULL
 # define LEAST_WAIT_OBJECT 1
@@ -134,7 +144,8 @@ SERVEEZ_API const char *svz_hstrerror __P ((void));
 #define WinNT3x 3
 #define WinNT4x 4
 #define Win2k   5
-#define WinME   6
+#define WinXP   6
+#define WinME   7
 
 SERVEEZ_API extern int svz_os_version;
 SERVEEZ_API extern int svz_errno;

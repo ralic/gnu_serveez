@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.32 2001/07/30 10:15:25 ela Exp $
+ * $Id: http-cache.c,v 1.33 2001/09/12 13:42:15 ela Exp $
  *
  */
 
@@ -145,13 +145,13 @@ http_cache_print (void)
   int n;
   http_cache_entry_t *entry;
 
-  printf ("cache first: %p\n", http_cache_first);
+  printf ("cache first: %p\n", (void *) http_cache_first);
   for (n = 0, entry = http_cache_first; entry; entry = entry->next, n++)
     {
       printf ("cache entry: %p, prev: %p, next: %p\n",
-	      entry, entry->prev, entry->next);
+	      (void *) entry, (void *) entry->prev, (void *) entry->next);
     }
-  printf ("cache last: %p\n", http_cache_last);
+  printf ("cache last: %p\n", (void *) http_cache_last);
 }
 #else
 # define http_cache_print()

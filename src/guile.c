@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.41 2001/09/07 10:34:51 ela Exp $
+ * $Id: guile.c,v 1.42 2001/09/12 13:42:15 ela Exp $
  *
  */
 
@@ -131,7 +131,7 @@ static SCM
 guile_get_current_load_port (void)
 {
   SCM p = scm_current_load_port ();
-  if (SCM_PORTP (p))
+  if (p != SCM_BOOL_F && SCM_PORTP (p))
     return p;
   if (SCM_PORTP (guile_load_port))
     return guile_load_port;
@@ -534,7 +534,7 @@ guile_to_intarray (SCM list, char *func)
 	  guile_global_error = -1;
 	  continue;
 	}
-      svz_array_add (array, (void *) ((unsigned long) n));
+      svz_array_add (array, SVZ_NUM2PTR (n));
     }
 
   /* Check the size of the resulting integer array. */
@@ -735,7 +735,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
 	      err = -1;
 	      continue;
 	    }
-	  svz_array_add (array, (void *) ((long) val));
+	  svz_array_add (array, SVZ_NUM2PTR (val));
 	}
 
       if (err)
@@ -1711,9 +1711,9 @@ guile_exception (void *data, SCM tag, SCM args)
       scm_display (gh_car (args), scm_current_error_port ());
       scm_puts (": ", scm_current_error_port ());
     }
-  scm_simple_format (scm_current_error_port (),
-		     gh_car (gh_cdr (args)), gh_car (gh_cdr (gh_cdr (args))));
-  scm_puts ("\n", scm_current_error_port ());
+  scm_display_error_message (gh_car (gh_cdr (args)), 
+			     gh_car (gh_cdr (gh_cdr (args))), 
+			     scm_current_error_port ());
   return SCM_BOOL_F;
 }
 

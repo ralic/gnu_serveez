@@ -66,7 +66,7 @@ with select()- or poll()-loops and non-blocking operations.
 This application demonstrates various aspects of advanced network
 programming in a portable manner. It is known to compile and run on 
 GNU/Linux systems, as well as other 32-bit and 64-bit flavours of Unix, 
-and on Microsoft Windows (9x/ME/NT/2000).
+and on Microsoft Windows (9x/ME/NT/2000/XP).
 You can use it for implementing your own servers or for understanding how
 certain network services and operations work.
 The package includes a number of servers that work already: a HTTP server,
@@ -2295,6 +2295,7 @@ Serveez has been build and tested successfully.
 @item Windows Millennium Edition on Intel
 @item Windows NT 4.0 on Intel
 @item Windows 2000 on Intel
+@item Windows XP on Intel
 @item IRIX 6.x on MIPS
 @item Tru64/OSF1 UNIX V4.0 (former Digital UNIX) on Alpha
 @item Tru64/OSF1 UNIX V5.x (former Digital UNIX) on Alpha

@@ -1,3 +1,9 @@
+2001-09-12  [ Ela ]  <ela@lkcc.org>
+
+	* util.h (SVZ_NUM2PTR, SVZ_PTR2NUM): Converter macros between
+	integer and address values; platform independent. Used to hide
+	some ugly casts.
+
 2001-09-11  [ Ela ]  <ela@lkcc.org>
 
 	* server-core.c: Declare strsignal() here if it can be resolved

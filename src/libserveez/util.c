@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.19 2001/09/11 15:05:48 ela Exp $
+ * $Id: util.c,v 1.20 2001/09/12 13:42:15 ela Exp $
  *
  */
 
@@ -520,7 +520,7 @@ svz_syserror (int nr)
  * is setup in @code{svz_version()} and can be @code{Win32s} for Windows 3.x,
  * @code{Win95} for Windows 95, @code{Win98} for Windows 98, @code{WinNT3x}
  * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
- * Windows 2000 and @code{WinME} for Windows ME.
+ * Windows 2000, @code{WinXP} for Windows XP and @code{WinME} for Windows ME.
  */
 int svz_os_version = 0;
 
@@ -539,7 +539,7 @@ svz_sys_version (void)
 
 #ifdef __MINGW32__
   static char ver[][6] =
-    { " 32s", " 95", " 98", " NT", " NT", " 2000", " ME" };
+    { " 32s", " 95", " 98", " NT", " NT", " 2000", " XP", " ME" };
   OSVERSIONINFO osver;
 #elif HAVE_SYS_UTSNAME_H
   struct utsname buf;

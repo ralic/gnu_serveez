@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.4 2001/09/11 15:05:48 ela Exp $
+ * $Id: guile-bin.c,v 1.5 2001/09/12 13:42:15 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #endif
 
 #include "libserveez.h"
+#include "guile-bin.h"
 
 /*
  * Structure definition of the data the binary smob refers to.
