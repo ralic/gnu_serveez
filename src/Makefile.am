@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.16 2000/10/16 18:39:49 ela Exp $
+# $Id: Makefile.am,v 1.17 2000/11/22 22:27:20 ela Exp $
 #
 
 #
@@ -101,7 +101,7 @@ $(SIZZLERULE):
 	@echo ""
 	@echo "Building libsizzle.a from source distribution"
 	@echo ""
-	(cd $(SIZZLEDIR)/libsizzle && make)
+	(cd $(SIZZLEDIR)/libsizzle && $(MAKE))
 
 distclean-local:
 	rm -f *\~ *.orig *.rej
