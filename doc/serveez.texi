@@ -81,7 +81,7 @@ and ident lookups.
 We know, you usually don't read the documentation. Who does. But please,
 read at the very least this chapter. It contains information on the basic
 concepts. Larger parts of the manual can be used as a reference manual
-for the various server.
+for the various servers.
 
 @section Starting Serveez
 
@@ -119,7 +119,7 @@ Start as daemon in background.
 As noted above Serveez is configured via a configuration 
 file which is by default @file{serveez.cfg} and can be set 
 by passing the -f command line argument. To make configuring more fun we
-did not invent yet another config file format. Instead we use a dialect
+did not invent yet another configuration file format. Instead we use a dialect
 of the Scheme programming language called GNU guile
 (@uref{http://www.gnu.org/software/guile/}). There is no need to be worried
 if you are not a programmer. What you have to do is really simple and this
@@ -127,23 +127,113 @@ document shows you everything you need to know. We also provide many examples.
 However there are some simple concepts you have to understand. The following
 paragraphs will explain them.
 
-The idea of the config file is this: Serveez starts, runs the configuration
-file (other applications usually just read them and remember the settings)
-and finally enters its main loop doing the things you wanted it to.
+The idea of the configuration file is this: Serveez starts, runs the 
+configuration file (other applications usually just read them and remember 
+the settings) and finally enters its main loop doing the things you wanted 
+it to.
 
-There are three things you have to do in the configuration file:
-@table @asis
-@item Define ports
-@item Define servers
-@item Bind servers to ports
-@end table
+There are three things you have to do in the configuration file.
+
+@menu
+* Define ports::           Port configuration definition
+* Define servers::         Server definition
+* Bind servers to ports::  How to bind servers to port configurations
+@end menu
+
+@node Define ports, Define servers, , Using Serveez
+@subsection Define ports
 
 A @code{port} (in serveez) is a transport endpoint. You might know them
 from other tcp or udp server applications. For example: web servers
-(http) usually runs on tcp port 80. However, there is more than tcp
+(http) usually listen on tcp port 80. However, there is more than tcp
 ports: we have udp, icmp and named pipes each with different options to
 set. Every port has a unique name you assign to it. The name of the port is
 later used to bind servers to it.
+
+The following examples show how you setup different types of port 
+configurations. You start to define such a port using the guile function
+@code{(define-port!)}. The first argument to this functions specifies the
+name of the port configuartion. The remaiming argument describes the
+port in detail.
+
+@subsubsection TCP port definition
+Definition of a tcp port configuration with the name "foo-tcp-port". The
+enhanced settings are all optional including the "ipaddr" property which
+defaults to "*" if not given.
+
+@example
+(define-port! 'foo-tcp-port '(
+    ;; usual settings
+    (proto  . tcp)              ;; protocol is tcp
+    (port   . 42421)            ;; network port 42421
+    (ipaddr . *)                ;; bind to all known interfaces
+
+    ;; enhanced settings
+    (backlog           . 5)     ;; enqueue max. 5 connections
+    (connect-frequency . 1)     ;; allow 1 connect per second
+    (send-buffer-size  . 1024)  ;; initial send buffer size in bytes
+    (recv-buffer-size  . 1024)  ;; initial receive buffer size in bytes
+
+    ;; allow connections from these ip addresses
+    (allow             . (127.0.0.1 127.0.0.2))
+
+    ;; refuse connections from this ip address
+    (deny              . (192.168.2.7))
+  ))
+@end example
+
+@subsubsection Pipe port definition
+Definition of a pipe port configuration with the name "foo-pipe-port". When
+bound to any server it creates the receiving end and listens on that. If some
+client accesses this named pipe the server opens the sending end which the
+client has to create previously.
+
+@example
+(define-port! 'foo-pipe-port `(
+    (proto . pipe)                     ;; protocol is named pipe
+
+    ;; specify the receiving endpoint    
+    (recv . ((name . ".foo-recv")      ;; name of the pipe
+             (permissions . #o0666)    ;; create it with this umask
+             (user . "calvin")         ;; as user "calvin"
+             (uid . 50)                ;; with the user id 50
+             (group . "heros")         ;; which is in the group "heros"
+             (gid . 100)))             ;; with the group id 100
+
+    ;; specify the sending endpoint
+    (send . ((name . ".foo-send")
+             (permissions . #o0666)
+             (user . "hobbes")
+             (uid . 51)
+             (group . "teddies")
+             (gid . 101)))
+   ))
+@end example
+
+@subsubsection ICMP port definition
+Define an icmp port configuration which will accept connections from the
+network interface "127.0.0.1" only and communicates via the message type 8
+as described in the @ref{Tunnel Server} chapter. The name of this port
+configuration is "foo-icmp-port". When you are going to bind some server to
+this kind of port you have to ensure root (or Administrator under Windows) 
+privileges.
+
+@example
+(define-port! 'foo-icmp-port '((proto  . icmp)
+                               (ipaddr . 127.0.0.1)
+                               (type   . 8)))
+@end example
+
+@subsubsection UDP port definition
+Simple definition of a udp port configuration with the name "foo-udp-port".
+
+@example
+(define-port! 'foo-udp-port `((proto . udp)
+                              (port  . 27952)))
+@end example
+
+@node Define servers, Bind servers to ports, Define ports, Using Serveez
+@subsection Define servers
 
 A @code{server} (in serveez) is a snippet of code that implements some
 protocol. There are many servers built into serveez but you can implement
@@ -151,16 +241,54 @@ your own, too. For example we provide a webserver implementing the
 Hypertext Transfer Protocol (HTTP). Each server has a different set of
 options you can change. You can have many instances of every server, each
 with a different set of options. For example: You can create a webserver
-on tcp port 4242 publishing the serveez documentation and also have another
+on tcp port 42420 publishing the serveez documentation and also have another
 webserver on a different port publishing something else. Every server
 has a unique name you assign to it. The name of the server is later used
 to bind it to a port.
+
+The following example instantiates a server with the short name "foo". Each
+server in serveez has got a short name. @xref{Existing servers}, for the 
+details. The example contains all types of settings a server can have. You
+start a definitions of a server with the guile function 
+@code{(define-server!)}. The following argument specifies the name of the
+server instance (in this case "foo-server") which starts with the short 
+name. The remaining argument describes the server in detail. Each 
+configuration item is setup with a @code{(key . value)} pair where "key" is
+the name of the configuration item and "value" is the value which depends
+on the type of the item. 
+
+@example
+(define-server! 'foo-server '(
+    (bar . 100)                                     ;; number
+    (reply . "Booo")                                ;; character string
+    (messages . ("Welcome to the foo test server."  ;; list of strings
+                 "This one echos your lines."))
+    (ports . (5 6 7 8 9))                           ;; list of numbers
+    (port . foo-tcp-port)                           ;; a port configuration
+    (assoc . (( "GNU" . "great" )                   ;; associative list
+              ( "Tree" . "tall" )))
+    (truth . #f)                                    ;; boolean value
+  ))
+@end example
+
+@node Bind servers to ports, , Define servers, Using Serveez
+@subsection Bind servers to ports
 
 Finally you can bind servers to ports. When you do so the server you
 created listens on the port, accepts connections and serves clients. It
 does so as soon as serveez enters its main loop right after running the
 configuration file. Serveez won't stop until you interrupt it (e.g. by
 pressing @key{^C} in the terminal you started it in).
+
+This example binds the server "foo-server" (s.a.) to the port "foo-tcp-port"
+which was described above. Therefore you need to call the guile function
+@code{(bind-server!)} which takes two arguments specifying the name of a port 
+configuration and a server instance. Both need to be defined before
+you can write this statement.
+
+@example
+(bind-server! 'foo-tcp-port 'foo-server)
+@end example
 
 One of the main features of serveez is that you can bind multiple
 servers to the same port. This for example useful to pass braindead
@@ -169,18 +297,48 @@ servers to ports they are actually not designed for. This might be used
 for debugging servers or other funny things (again, think about the
 firewall). This is the point we have to warn you: Some protocols cannot
 share the same port (no example yet) and some protocols simply won't
-work on 'wrong' ports. Additionally, you will not get errormessages when
+work on 'wrong' ports. Additionally, you will not get error messages when
 that happens. The server just will not work then.
 
-FIXME: add more:
+@subsection Additional configuration possibilities
+
+The three functions @code{(define-port!)}, @code{(define-server!)} and 
+@code{(bind-server!)} return @code{#t} on success and @code{#f} on failure.
+For your convenience we provide some more guile functions. Some of these
+are based upon the above. You will find the additional functions in the
+file @file{serveez.scm}.
+
 @table @code
-@item a word about types: strings, string arrays, int, int arrays, bool, hash
-@item generic port config
-@item complete example for each port type ?
-@item generic server config
-@item generic binding
-@item perhaps add nodes/sections ?
+@item (interface-add! . interface)
+Add one more network interface to the list of known interfaces. You can get
+the list of known interfaces by running @samp{serveez -i}. The @var{interface}
+argument must be in dotted decimal form (e.g. 127.0.0.1).
+
+@item (loadpath-add! . path)
+Extends the load path for server modules by the path name @var{path}.
+
+@item (bind-servers! . args)
+This function is based upon @code{(bind-server!)}. It takes a list of port
+configurations and servers and binds each to another.
+
+@item (bind-tcp-port-range! from to . servers)
+Bind the list of @var{servers} to simple tcp port configurations whose network
+ports range between @var{from} and @var{to} both inclusive.
+
+@item (serveez-verbosity verbosity)
+Set the core library's logging verbosity to the @var{verbosity} level. Lesser
+values mean fewer logging messages. This settings gets overridden by command
+line.
+
+@item (serveez-maxsockets max)
+Set the number of maximum socket descriptors (number of concurrent 
+connections). When passing serveez the -m command line argument this setting
+gets overridden, too.
+
+@item (serveez-passwd password)
+Set the @var{password} for the control protol.
 @end table
+
 
 We now have a closer look at the internals of Serveez. If you
 are not interested in that have a look at the existing
@@ -489,7 +647,7 @@ single port.
 @subsection Make your server available
 
 You distribute your server by editing the @file{server.c} file in the
-@file{src/} directory. There you have to include the the servers header 
+@file{src/} directory. There you have to include the servers header 
 file and add the server definition to the @code{all_server_definition} array.
 
 @subsection More detailed description of the callback system and structures
