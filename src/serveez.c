@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.38 2001/06/04 20:44:14 raimi Exp $
+ * $Id: serveez.c,v 1.39 2001/06/04 22:47:50 ela Exp $
  *
  */
 
@@ -34,7 +34,11 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#include <guile/gh.h>
+#if GUILE_SOURCE
+# include <libguile/gh.h>
+#else
+# include <guile/gh.h>
+#endif
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.20 2001/06/04 20:44:14 raimi Exp $
+ * $Id: guile.c,v 1.21 2001/06/04 22:47:50 ela Exp $
  *
  */
 
@@ -32,8 +32,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <guile/gh.h>
-#include <libguile.h>
+#if GUILE_SOURCE
+# include <libguile/gh.h>
+#else
+# include <guile/gh.h>
+#endif
 
 #include "libserveez.h"
 

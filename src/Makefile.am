@@ -63,13 +63,13 @@ serveez_SOURCES = \
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 
 serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
-	serveez.cfg
+	serveez.cfg $(GUILE_DEPENDENCY)
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la
 
-serveez_LDFLAGS = $(GUILE_LINK)
-AM_CFLAGS = $(GUILE_COMPILE)
+serveez_LDFLAGS = $(GUILE_LDFLAGS)
+INCLUDES = $(GUILE_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 
@@ -90,3 +90,7 @@ WINDRES = windres
 
 %.ro: %.rc
 	$(WINDRES) -i $< -o $@
+
+$(GUILE_RULE):
+	@GUILE_MAKE_LTDL@
+	@GUILE_MAKE_LIB@

@@ -1,3 +1,10 @@
+2001-06-04  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am ($(GUILE_RULE)): Now possible to create a static
+	guile library and link against it. This is especially useful
+	if a user wants to compile and run serveez without having a full
+	guile installation on its system.
+
 2001-05-18  [ Ela ]  <ela@lkcc.org>
 
 	* svzconfig.h.in: New file.

@@ -691,7 +691,7 @@ AC_SUBST(resource_FILES)
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Checking for libtool support
+dnl Checking for libtool support.
 dnl 
 
 AC_LIBTOOL_WIN32_DLL
@@ -700,34 +700,11 @@ AM_PROG_LIBTOOL
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Find out where to get guile
+dnl Check Guile installation.
 dnl
 
-AC_MSG_CHECKING([for guile installation])
-if test "x`guile-config --version 2>&1 | grep version`" != "x"; then
-    AC_MSG_RESULT([yes])
-    GUILE_COMPILE=`guile-config compile`
-    GUILE_LINK=`guile-config link`
-else
-    AC_MSG_RESULT([no])
-    GUILE_COMPILE=""
-    GUILE_LINK=""
-fi
-
-GUILEDIR=""
-AC_ARG_WITH(guile,
-  [  --with-guile=DIR        Guile installation in DIR],
-  if test x$withval != "xyes" -a x$withval != "xno"; then
-    GUILEDIR="$withval"
-  fi)
-
-if test x$GUILEDIR != "x"; then
-    GUILE_COMPILE="-I$GUILEDIR/include"
-    GUILE_LINK="-L$GUILEDIR/lib -lguile"
-fi
-unset GUILEDIR
-AC_SUBST(GUILE_COMPILE)
-AC_SUBST(GUILE_LINK)
+AC_GUILE
+AC_GUILE_SOURCE
 
 dnl ----------------------------------------------------------------------
 
@@ -1200,18 +1177,7 @@ AC_MSG_RESULT([	$PACKAGE version $VERSION configured successfully.])
 AC_MSG_RESULT([])
 
 dnl
-dnl Configure local guile repository.
+dnl Configure local guile source tree.
 dnl
 
-guile_src="no"
-if test "$guile_src" != "no"; then
-  cache_file="`pwd`/$cache_file"
-  export CPPFLAGS
-
-  ([cd $guile_dir && sh ./configure \
-    --enable-static --disable-shared \
-    --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
-    --disable-arrays --disable-posix --disable-networking --disable-regex \
-    --without-threads \
-    --cache-file=$cache_file])
-fi
+AC_GUILE_CONFIGURE

@@ -1,3 +1,12 @@
+2001-06-04  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Use the below macros. Those we have a new
+	configure option: `--with-guile-source=DIR' specifying a guile
+	source tree (tested with Guile 1.4 only).
+
+	* acinclude.m4: New file containing three m4 macros: 
+	AC_GUILE, AC_GUILE_SOURCE and AC_GUILE_CONFIGURE.
+
 2001-05-28  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Added checks for texi2dvi (requires tex)
