@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.1 2001/06/27 20:38:36 ela Exp $
+ * $Id: guile-server.c,v 1.2 2001/06/28 13:06:28 ela Exp $
  *
  */
 
@@ -97,6 +97,11 @@ optionhash_extract_proc (svz_hash_t *hash,
 	}
       free (str);
     }
+  else
+    {
+      report_error ("Invalid procedure for `%s' %s", key, txt);
+      err = 1;
+    }
   return err;
 }
 
@@ -139,7 +144,8 @@ guile_servertype_getfunction (svz_servertype_t *server, char *func)
 /*
  * Return a guile cell containing a unsigned long value. The given pointer
  * @var{ptr} is converted.
- * FIXME: Create unique cell types (tags?).
+ * FIXME: Create unique cell types for svz_socket_t, svz_server_t and
+ *        svz_servertype_t. (tags? MGrabMue?).
  */
 static SCM
 guile_ptr (void *ptr)
@@ -309,6 +315,9 @@ guile_define_servertype (SCM args)
 				 &server->prefix, txt) != 0)
     FAIL ();
   svz_snprintf (txt, 256, "defining servertype `%s'", server->prefix);
+  
+  /* Check the servertype definition once. */
+  err |= optionhash_validate (options, 1, "servertype", server->prefix);
   
   /* Get the description of the server type. */
   err |= optionhash_extract_string (options, "description", 0, NULL, 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.34 2001/06/27 20:38:36 ela Exp $
+ * $Id: guile.c,v 1.35 2001/06/28 13:06:28 ela Exp $
  *
  */
 
@@ -171,7 +171,7 @@ report_error (const char *format, ...)
  * type     : what kind of thing the option-hash belongs to
  * name     : current variable name (specifying the alist)
  */
-static int
+int
 optionhash_validate (svz_hash_t *hash, int what, char *type, char *name)
 {
   int errors = 0, i;

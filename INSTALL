@@ -157,5 +157,8 @@ or '--enable-<?>=no'.
 `--enable-fakeident'
 	By enabling this you will get a fake ident server included into
 	the binary executable.
+`--enable-guile-server'
+	If you enable this feature the user is able to write servers with
+	guile. This is yet experimental.
 
 Please read the README file also.
