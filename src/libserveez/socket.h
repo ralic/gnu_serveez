@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.9 2001/09/04 12:03:02 ela Exp $
+ * $Id: socket.h,v 1.10 2001/09/06 21:12:26 ela Exp $
  *
  */
 
@@ -92,6 +92,8 @@ struct svz_socket
 
 #ifdef __MINGW32__
   LPOVERLAPPED overlap[2];      /* Overlap info for WinNT. */
+  int recv_pending;             /* Number of pending read bytes. */
+  int send_pending;             /* Number of pending write bytes. */
 #endif /* not __MINGW32__ */
 
   char *recv_pipe;              /* File of the receive pipe. */

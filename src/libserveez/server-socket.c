@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.17 2001/07/06 22:49:06 ela Exp $
+ * $Id: server-socket.c,v 1.18 2001/09/06 21:12:26 ela Exp $
  *
  */
 
@@ -378,44 +378,92 @@ svz_pipe_accept (svz_socket_t *server_sock)
   recv_pipe = server_sock->pipe_desc[READ];
   send_pipe = server_sock->pipe_desc[WRITE];
 
-  /*
-   * Now try connecting to one of these pipes. This will fail until
-   * a client has been connected.
-   */
-  if (!ConnectNamedPipe (send_pipe, server_sock->overlap[WRITE]))
+  /* Try connecting to one of these pipes. This will fail until a client 
+     has been connected. */
+  if (server_sock->flags & SOCK_FLAG_CONNECTING)
     {
-      connect = GetLastError ();
-      /* Pipe is listening ? */
-      if (connect == ERROR_PIPE_LISTENING)
-	return 0;
-      /* Pipe finally connected ? */
-      if (connect != ERROR_PIPE_CONNECTED)
+      if (!GetOverlappedResult (send_pipe, server_sock->overlap[WRITE], 
+                                &connect, FALSE))
+        {
+          if (GetLastError () != ERROR_IO_INCOMPLETE)
+            {
+              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n", 
+		       SYS_ERROR);
+              return -1;
+            }
+	  return 0;
+        }
+      else
 	{
-	  svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-	  return -1;
+	  server_sock->flags &= ~SOCK_FLAG_CONNECTING;
+	  svz_log (LOG_NOTICE, "pipe: send pipe %s connected\n",
+		   server_sock->send_pipe);
 	}
-    }
-  /* Overlapped ConnectNamedPipe should return zero. */
-  else
-    return 0;
 
-  if (!ConnectNamedPipe (recv_pipe, server_sock->overlap[READ]))
+      if (!GetOverlappedResult (recv_pipe, server_sock->overlap[READ], 
+                                &connect, FALSE))
+        {
+          if (GetLastError () != ERROR_IO_INCOMPLETE)
+            {
+              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n", 
+		       SYS_ERROR);
+              return -1;
+            }
+	  return 0;
+        }
+      else
+	{
+	  server_sock->flags &= ~SOCK_FLAG_CONNECTING;
+	  svz_log (LOG_NOTICE, "pipe: receive pipe %s connected\n",
+		   server_sock->recv_pipe);
+	}
+    }
+
+  /* Try to schedule both of the named pipes for connection. */
+  else
     {
+      if (ConnectNamedPipe (send_pipe, server_sock->overlap[WRITE]))
+	return 0;
       connect = GetLastError ();
+
       /* Pipe is listening ? */
       if (connect == ERROR_PIPE_LISTENING)
 	return 0;
+      /* Connection in progress ? */
+      else if (connect == ERROR_IO_PENDING)
+	server_sock->flags |= SOCK_FLAG_CONNECTING;
+      /* Pipe finally connected ? */
+      else if (connect != ERROR_PIPE_CONNECTED)
+	{
+	  svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  return -1;
+	}
+
+      if (ConnectNamedPipe (recv_pipe, server_sock->overlap[READ]))
+	return 0;
+      connect = GetLastError ();
+
+      /* Pipe is listening ? */
+      if (connect == ERROR_PIPE_LISTENING)
+	return 0;
+      /* Connection in progress ? */
+      else if (connect == ERROR_IO_PENDING)
+	server_sock->flags |= SOCK_FLAG_CONNECTING;
       /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)
 	{
 	  svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
 	  return -1;
 	}
-      /* If we got here then a client pipe is successfully connected. */
+
+      /* Both pipes scheduled for connection ? */
+      if (server_sock->flags & SOCK_FLAG_CONNECTING)
+	{
+	  svz_log (LOG_NOTICE, "connection scheduled for pipe (%d-%d)\n",
+		   recv_pipe, send_pipe);
+	  return 0;
+	}
     }
-  /* Because these pipes are non-blocking this is never occurring. */
-  else
-    return 0;
 
   /* Create a socket structure for the client pipe. */
   if ((sock = svz_pipe_create (recv_pipe, send_pipe)) == NULL)

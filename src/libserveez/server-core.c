@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.26 2001/08/12 10:59:04 ela Exp $
+ * $Id: server-core.c,v 1.27 2001/09/06 21:12:26 ela Exp $
  *
  */
 
@@ -936,6 +936,15 @@ svz_sock_schedule_for_shutdown (svz_socket_t *sock)
 #endif /* ENABLE_DEBUG */
 
       sock->flags |= SOCK_FLAG_KILLED;
+
+      /* Shutdown each child for listeners. */
+      if (sock->flags & SOCK_FLAG_LISTENING)
+	{
+	  svz_socket_t *child;
+	  svz_sock_foreach (child)
+	    if (svz_sock_getparent (child) == sock)
+	      svz_sock_schedule_for_shutdown (child);
+	}
     }
   return 0;
 }
