@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.44 2000/12/19 13:54:13 ela Exp $
+ * $Id: server-socket.c,v 1.45 2001/01/02 00:52:46 raimi Exp $
  *
  */
 
@@ -223,7 +223,7 @@ server_create (portcfg_t *cfg)
       */
 
       /* Second, bind the socket to a port. */
-      if (bind (server_socket, (struct sockaddr *) cfg->localaddr, 
+      if (bind (server_socket, (struct sockaddr *) cfg->addr, 
 		sizeof (struct sockaddr)) < 0)
 	{
 	  log_printf (LOG_ERROR, "bind: %s\n", NET_ERROR);
@@ -329,8 +329,8 @@ server_create (portcfg_t *cfg)
 	}
 
       log_printf (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
-		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-		  util_inet_ntoa (cfg->localaddr->sin_addr.s_addr),
+		  cfg->addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
+		  util_inet_ntoa (cfg->addr->sin_addr.s_addr),
 		  ntohs (sock->local_port));
     }
 

@@ -1,3 +1,8 @@
+2001-01-02  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+
+	* server.h (portcfg): renamed 'local-ip' and friends to some
+	generic name.
+
 2000-12-31  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.c (http_config_prototype): `ident'

@@ -148,7 +148,7 @@ Serveez. The structure of a port configuration is:
         ;; tcp or udp port number
         "port"     => 42420
         ;; ip address to bind the server to
-        "local-ip" => "*" || xxx.xxx.xxx.xxx
+        "ipaddr" => "*" || xxx.xxx.xxx.xxx
         ;; receiving pipe
         "inpipe"   => "MyRecvPipe"
         ;; sending pipe
@@ -261,39 +261,39 @@ but could be a basis for a new protocol server. We are now going to describe
 how this specific server works. Eventually the reader might get an 
 impression of what is going on.
 
-For better understanding the below text we will provided the following
+For better understanding the text below we will use the following
 terminology:
 @table @asis
 
 @item server definition
-A server definition is represented by the @code{server_definition_t} 
-structure which contains server specific members like its name, different
-callbacks, a single default configuration and configuration items which
-determine what can be configured in the default configuration.
+A server definition is a @code{server_definition_t} structure which contains
+server specific members like its name, different callbacks, a single default
+configuration and a list of configuration items which determine what can be
+configured.
 
 @item server configuration
 A server configuration can be any kind of structure. The default server
 configuration must be specified within the server definition (see above).
 When instantiating a server (which is done via the configuration file) the
 configuration items specified in the server definition get processed and
-put into a copy of the default configuration. Thus we get an instance.
+are put into a copy of the default configuration. Thus we get an instance.
 
 @item server instance
 A server instance is a copy of the server definition including the modified
 server configuration. A server gets instantiated by the configuration file
 parser. The concept of server instances has been introduced because we 
-wanted Serveez being capable of: A single server can have multiple 
-instances with different behaviour due to different server configurations.
-A server instance can be bound to multiple port configurations. Different 
-server instances (of the same and/or different server) can share the same 
-port configuration.
+wanted Serveez to have the following features. A single server can have
+multiple instances with different behaviour due to different server
+configurations. A server instance can be bound to multiple port
+configurations. Different server instances (of the same and/or different
+server type) can share the same port configuration.
 
 @item port configuration
 A port configuration can be a special configuration item within a server 
-configuration. It is represented by the @code{portcfg_t} structure and 
-contains a protocol type, a network port address, an ip address, an incoming
-pipe name and an outgoing pipe name. It has been introduced because this
-is something almostly every server needs to be configured.
+configuration. It is a @code{portcfg_t} structure and contains a protocol
+type, a network port address, an ip address, an incoming pipe name and an
+outgoing pipe name (some fields optional). It has been introduced because
+every server needs a port configuration to be bound at all.
 @end table
 
 @node Writing servers, Existing servers, Introduction to servers, Server
@@ -641,7 +641,7 @@ The following options can be set from the configuration file.
 @table @code
 @item netport (port configuration, default: tcp, 42424, *)
 This is the TCP port configuration hash wherein you can set the 
-IP address this server should be bind to and the port the server is 
+IP address this server should be bound to and the port the server is 
 listening on.
 
 @item indexfile (string, default: index.html)
@@ -1026,7 +1026,7 @@ Reinitialize the HTTP file cache. Flushes all files from the cache.
 @table @code
 @item netport (port configuration, default: tcp, 42424, *)
 Sets up the TCP port and local address. It can be useful to declare a
-@code{local-ip} within this hash when you do not want people using this 
+@code{ipaddr} within this hash when you do not want people using this 
 protocol from outside.
 @end table
 
@@ -1819,17 +1819,6 @@ Winsock Development Information
 @item 
 @uref{http://www.cyberport.com/~tangent/programming/winsock/}@*
 Winsock Programmer's FAQ
-@end enumerate
-
-Some global FIXMEs:
-@enumerate
-@item
-(FIXME: perhaps use 'serveez' instead of 'Serveez')
-@item
-(FIXME: netport should always be documented more verbose. The allowed
- protocol types are missing in some places)
-@item
-(FIXME: add introductory material about server types, server instances etc.)
 @end enumerate
 
 @node License, , Bibliography, Top

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.13 2000/11/26 12:22:10 ela Exp $
+ * $Id: server.h,v 1.14 2001/01/02 00:52:46 raimi Exp $
  *
  */
 
@@ -85,16 +85,16 @@ server_t;
  *
  *  "proto"    => String: "tcp", "udp", "pipe" or "icmp"
  *  "port"     => Integer: for tcp/udp ports
- *  "local-ip" => String: (dotted decimal) for local address or "*" (default)
+ *  "ipaddr  " => String: (dotted decimal) for local address or "*" (default)
  *  "inpipe"   => String: pipe for sending data into serveez
  *  "outpipe"  => String: pipe serveez sends responses out on
  */
 typedef struct portcfg
 {
-  int proto;                      /* one of the PROTO_ flags */
-  unsigned short port;            /* ip port (TCP and UDP) */
-  char *localip;                  /* dotted decimal or "*" */
-  struct sockaddr_in *localaddr;  /* converted from the above 2 values */
+  int proto;                   /* one of the PROTO_ flags */
+  unsigned short port;         /* ip port (TCP and UDP) */
+  char *ipaddr;                /* dotted decimal or "*" */
+  struct sockaddr_in *addr;    /* converted from the above 2 values */
 
   /* Pipe */
   char *inpipe;

@@ -27,8 +27,9 @@ unfixed) have a look at the file BUGS.
 - Write an identd.
 	- Define a CLF-compatible default http logfile format and make 
           it being used.
-- Rename the 'local-ip' part of port configurations to some sane name.
+	- Rename the 'local-ip' part of port configurations to some sane name.
 - Implement a DNS server for home networks.
+- Implement a DNS client.
 - Make serveez embeddable (create libserveez.[so | dll]).
 - Implement dynamic server loading capabilities.
 - Consider Guile as configuration file parser.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.10 2000/11/30 22:16:18 ela Exp $
+ * $Id: tunnel.c,v 1.11 2001/01/02 00:52:46 raimi Exp $
  *
  */
 
@@ -140,7 +140,7 @@ tnl_init (server_t *server)
   if (!(cfg->target->proto & PROTO_PIPE))
     {
       /* broadcast target ip address not allowed */
-      if (cfg->target->localaddr->sin_addr.s_addr == INADDR_ANY)
+      if (cfg->target->addr->sin_addr.s_addr == INADDR_ANY)
 	{
 	  log_printf (LOG_ERROR, "tunnel: broadcast target ip not allowed\n");
 	  return -1;
@@ -241,8 +241,8 @@ tnl_create_socket (socket_t sock, int source)
   /* get host and target ip if necessary */
   if (!(cfg->target->proto & PROTO_PIPE))
     {
-      ip = cfg->target->localaddr->sin_addr.s_addr;
-      port = cfg->target->localaddr->sin_port;
+      ip = cfg->target->addr->sin_addr.s_addr;
+      port = cfg->target->addr->sin_port;
     }
 
   /*

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.16 2000/12/16 10:57:23 ela Exp $
+ * $Id: foo-proto.c,v 1.17 2001/01/02 00:52:46 raimi Exp $
  *
  */
 
@@ -295,7 +295,7 @@ foo_init (struct server *server)
   struct foo_config *c = server->cfg;
 
   fprintf (stderr, "foo: binding on port %s:%d\n", 
-	   c->port->localip, c->port->port);
+	   c->port->ipaddr, c->port->port);
   
   if (c->port->proto != PROTO_TCP) 
     {

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.50 2000/12/31 13:23:36 ela Exp $
+ * $Id: http-proto.c,v 1.51 2001/01/02 00:52:46 raimi Exp $
  *
  */
 
@@ -243,7 +243,7 @@ http_init (server_t *server)
   /* resolve localhost if server name is not set */
   if (!cfg->host)
     {
-      host = cfg->port->localaddr->sin_addr.s_addr;
+      host = cfg->port->addr->sin_addr.s_addr;
       if (host == INADDR_ANY)
 	host = htonl (INADDR_LOOPBACK);
       coserver_reverse (host, http_localhost, cfg, NULL);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.37 2000/12/16 10:57:23 ela Exp $
+ * $Id: server.c,v 1.38 2001/01/02 00:52:46 raimi Exp $
  *
  */
 
@@ -356,7 +356,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
 #define PORTCFG_ICMP    "icmp"
 #define PORTCFG_RAW     "raw"
 #define PORTCFG_PIPE    "pipe"
-#define PORTCFG_IP      "local-ip"
+#define PORTCFG_IP      "ipaddr"
 #define PORTCFG_NOIP    "*"
 
 /*
@@ -449,11 +449,11 @@ static int set_port (char *cfgfile, char *var, char *key,
 
 	  if (hash_val == zzz_undefined) 
 	    {
-	      newport->localip = PORTCFG_NOIP;
+	      newport->ipaddr = PORTCFG_NOIP;
 	    } 
 	  else if (string_p (hash_val)) 
 	    {
-	      newport->localip = xpstrdup (string_val (hash_val));
+	      newport->ipaddr = xpstrdup (string_val (hash_val));
 	    }
 	  else 
 	    {
@@ -511,11 +511,11 @@ static int set_port (char *cfgfile, char *var, char *key,
     {
       /* prepare the local address structure */
       newaddr = (struct sockaddr_in *) xpmalloc (sizeof (struct sockaddr_in));
-      newport->localaddr = newaddr;
+      newport->addr = newaddr;
       memset (newaddr, 0, sizeof (struct sockaddr_in));
 
       /* ...and the local ip address with "*" being any */
-      if (!strcmp (newport->localip, PORTCFG_NOIP)) 
+      if (!strcmp (newport->ipaddr, PORTCFG_NOIP)) 
 	{
 	  newaddr->sin_addr.s_addr = INADDR_ANY;
 	} 
@@ -948,7 +948,7 @@ server_portcfg_equal (portcfg_t *a, portcfg_t *b)
       (a->proto == b->proto))
     {
       /* 2 inet ports are equal if both local port and address are equal */
-      if (a->port == b->port && !strcmp (a->localip, b->localip))
+      if (a->port == b->port && !strcmp (a->ipaddr, b->ipaddr))
 	return 1;
     } 
   else if (a->proto == PROTO_PIPE && a->proto == b->proto) 
@@ -992,7 +992,7 @@ server_bind (server_t *server, portcfg_t *cfg)
 	      log_printf (LOG_DEBUG, "binding %s server to existing "
 			  "port %s:%d\n", 
 			  cfg->proto & PROTO_TCP ? "tcp" : "udp",
-			  cfg->localip, cfg->port);
+			  cfg->ipaddr, cfg->port);
 	    }
 #endif /* ENABLE_DEBUG */
 	}
