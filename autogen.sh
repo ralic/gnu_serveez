@@ -25,6 +25,14 @@
 here=`pwd`
 cd `dirname $0`
 
+# let automake find this automatic created file
+if ! test -f doc/serveez-api.texi; then
+cat <<EOF > doc/serveez-api.texi
+@setfilename serveez-api.info
+EOF
+touched="yes"
+fi
+
 echo -n "Creating aclocal.m4... "
 aclocal
 echo "done."
@@ -37,6 +45,9 @@ echo "done."
 echo -n "Creating configure... "
 autoconf
 echo "done."
+
+# reschedule this file for building
+if test x"$touched" = xyes; then rm -f doc/serveez-api.texi; fi
 
 #
 # run configure, maybe with parameters recorded in config.status

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.27 2001/07/20 11:07:13 ela Exp $
+ * $Id: server.c,v 1.28 2001/08/17 13:54:15 ela Exp $
  *
  */
 
@@ -715,6 +715,18 @@ svz_server_configure (svz_servertype_t *server,
       def = server->items[n].address;
       target = (char *) cfg + offset;
       e = SVZ_ITEM_DEFAULT_ERRMSG;
+
+      /* Check the address of the target. */
+      if ((unsigned long) target < (unsigned long) cfg ||
+	  (unsigned long) target >= 
+	  ((unsigned long) cfg + (unsigned long) server->prototype_size))
+	{
+	  svz_log (LOG_FATAL, "%s: invalid target address for %s `%s'\n",
+		   server->prefix, SVZ_ITEM_TEXT (server->items[n].type),
+		   server->items[n].name);
+	  error = -1;
+	  continue;
+	}
 
       /* Depending on the type of configuration item we need at this
 	 point we call the given callbacks and check their return values. */

@@ -1,3 +1,12 @@
+2001-08-17  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (libserveez_la_LDFLAGS): Added release information
+	onto the core library.
+
+	* server.c (svz_server_configure): Checking the validity of
+	the configuratiom item addresses. These must reside inside the
+	default configuration address range.
+
 2001-08-13  [ Ela ]  <ela@lkcc.org>
 
 	* socket.c (svz_sock_check_request_size): New function. Checks

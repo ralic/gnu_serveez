@@ -29,7 +29,7 @@ SUBDIRS = coserver
 
 lib_LTLIBRARIES = libserveez.la
 
-libserveez_la_LDFLAGS = -export-dynamic -no-undefined
+libserveez_la_LDFLAGS = -export-dynamic -no-undefined -release @VERSION@
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la
 libserveez_la_LIBADD = coserver/libcoserver.la $(SERVEEZLIBS)
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.39 2001/07/20 11:07:12 ela Exp $
+ * $Id: guile.c,v 1.40 2001/08/17 13:54:15 ela Exp $
  *
  */
 
@@ -149,7 +149,8 @@ guile_error (char *format, ...)
   va_list args;
   /* FIXME: Why is this port undefined in guile exceptions ? */
   SCM lp = guile_get_current_load_port ();
-  char *file = SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
+  char *file = 
+    SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
   /* guile counts lines from 0, we have to add one */
   fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined", 
@@ -201,8 +202,7 @@ optionhash_validate (svz_hash_t *hash, int what, char *type, char *name)
 	  if (value->use == 0)
 	    {
 	      errors++;
-	      guile_error ("Unused variable `%s' in %s `%s'",
-			   key, type, name);
+	      guile_error ("Unused variable `%s' in %s `%s'", key, type, name);
 	    }
 	  break;
 	}
@@ -419,8 +419,7 @@ guile_to_hash (SCM list, char *prefix)
 	{
 	  err = -1;
 	  guile_error ("%s: Element #%d of hash (alist) "
-		       "has no valid key (string required)",
-		       prefix, i);
+		       "has no valid key (string required)", prefix, i);
 	  keystr = NULL;
 	}
       else
@@ -434,8 +433,7 @@ guile_to_hash (SCM list, char *prefix)
 	{
 	  err = -1;
 	  guile_error ("%s: Element #%d of hash (alist) "
-		       "has no valid value (string required)",
-		       prefix, i);
+		       "has no valid value (string required)", prefix, i);
 	  valstr = NULL;
 	}
       else
@@ -1086,7 +1084,7 @@ guile_define_server (SCM name, SCM args)
     p++;
 
   /* Extract server type and sanity check. */
-  if (*p == '-' && *(p+1) != '\0')
+  if (*p == '-' && *(p + 1) != '\0')
     *p = '\0';
   else
     {
@@ -1343,7 +1341,7 @@ guile_define_port (SCM name, SCM args)
   err |= svz_portcfg_mkaddr (cfg);
 
   if (err)
-    FAIL();
+    FAIL ();
 
   if ((prev = svz_portcfg_add (portname, cfg)) != cfg)
     {
@@ -1698,7 +1696,7 @@ guile_exception (void *data, SCM tag, SCM args)
   scm_must_free (str);
 
   /* `tag' contains internal exception name */
-  scm_puts ("guile-error: " , scm_current_error_port ());
+  scm_puts ("guile-error: ", scm_current_error_port ());
 
   /* on quit/exit */
   if (gh_null_p (args))
@@ -1714,8 +1712,7 @@ guile_exception (void *data, SCM tag, SCM args)
       scm_puts (": ", scm_current_error_port ());
     }
   scm_simple_format (scm_current_error_port (),
-		     gh_car (gh_cdr (args)),
-		     gh_car (gh_cdr (gh_cdr (args))));
+		     gh_car (gh_cdr (args)), gh_car (gh_cdr (gh_cdr (args))));
   scm_puts ("\n", scm_current_error_port ());
   return SCM_BOOL_F;
 }

@@ -1,3 +1,10 @@
+2001-08-17  [ Ela ]  <ela@lkcc.org>
+
+	* autogen.sh: Let automake find "doc/serveez-api.texi".
+
+	* configure.in: Disable test for "-fschedule-insns2" on i386 and
+	i486 architectures.
+
 2001-07-25  [ Ela ]  <ela@lkcc.org>
 
 	* redhat.sh.in: New file. Creates a source and binary RPM 

@@ -188,16 +188,23 @@ dnl
 dnl Only make these tests if we are using GNU C
 dnl
 if test x$GCC = xyes ; then
-    for flag in "-fomit-frame-pointer" "-fstrength-reduce" "-funroll-loops" \
-                "-finline-functions" "-fexpensive-optimizations" \
-	        "-fcaller-saves" "-fschedule-insns2" "-frerun-loop-opt" \
-	        "-foptimize-register-move" \
-		"-ffunction-cse" "-fpeephole" "-momit-leaf-frame-pointer"; do
+    optflags="-fomit-frame-pointer -fstrength-reduce -funroll-loops \
+              -finline-functions -fexpensive-optimizations \
+	      -fcaller-saves -frerun-loop-opt -foptimize-register-move \
+	      -ffunction-cse -fpeephole -momit-leaf-frame-pointer"
+    [arch=`eval uname -m 2>/dev/null | sed 's/i\([0-9]\)86/\1/g'`
+    if test `expr length "$arch"` -ne 1; then arch="5"; fi
+    if test `expr $arch` -gt 4; then
+      optflags="$optflags -fschedule-insns2"
+    fi]
+    for flag in $optflags; do
 	CFLAGS="$flag"
 	AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
 	AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
 	    AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
     done
+    unset arch
+    unset optflags
     CFLAGS="-m486"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
     AC_TRY_COMPILE(,,

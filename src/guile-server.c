@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.13 2001/07/31 10:15:00 ela Exp $
+ * $Id: guile-server.c,v 1.14 2001/08/17 13:54:15 ela Exp $
  *
  */
 
@@ -522,9 +522,10 @@ guile_sock_check_request (SCM sock, SCM proc)
 #undef FUNC_NAME
 
 /* Setup the packet boundary of the socket @var{sock}. The given string value
-   @var{boundary} can contain any kind of data. For instance you can setup
-   serveez to pass your @code{handle_request} procedure text lines by calling
-   @code{(svz:sock:boundary sock "\\n")}. */
+   @var{boundary} can contain any kind of data. If you pass a number value 
+   the socket is setup to parse fixed sized packets. For instance you can 
+   setup serveez to pass your @code{handle_request} procedure text lines by 
+   calling @code{(svz:sock:boundary sock "\\n")}. */
 #define FUNC_NAME "svz:sock:boundary"
 static SCM
 guile_sock_boundary (SCM sock, SCM boundary)
@@ -532,12 +533,22 @@ guile_sock_boundary (SCM sock, SCM boundary)
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (gh_string_p (boundary), boundary, SCM_ARG2, 
-		   FUNC_NAME, "string");
+  SCM_ASSERT_TYPE (gh_number_p (boundary) || gh_string_p (boundary), 
+		   boundary, SCM_ARG2, FUNC_NAME, "string or number");
 
-  /* FIXME: leaking here ... */
-  xsock->boundary = gh_scm2chars (boundary, NULL);
-  xsock->boundary_size = gh_scm2int (scm_string_length (boundary));
+  /* Setup for fixed sized packets. */
+  if (gh_number_p (boundary))
+    {
+      xsock->boundary = NULL;
+      xsock->boundary_size = gh_scm2int (boundary);
+    }
+  /* Handle packet delimiters. */
+  else
+    {
+      /* FIXME: leaking here ... */
+      xsock->boundary = gh_scm2chars (boundary, NULL);
+      xsock->boundary_size = gh_scm2int (scm_string_length (boundary));
+    }
   xsock->check_request = svz_sock_check_request;
 
   return SCM_BOOL_T;
@@ -1103,7 +1114,7 @@ guile_define_servertype (SCM args)
       err |= optionhash_extract_proc (options, guile_functions[n],
 				      1, SCM_UNDEFINED, &proc, txt);
       svz_hash_put (functions, guile_functions[n], 
-		    (void * ) ((unsigned long) proc));
+		    (void *) ((unsigned long) proc));
     }
 
   /* Check the configuration items for this servertype. */

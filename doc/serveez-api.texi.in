@@ -564,7 +564,7 @@ SVZ_DEFINE_CONFIG_DEFMAC
 @subsection General server type functionality
 
 The following set of functions are used to manage the list of known server
-types in the serveez core libary. Serveez itself uses some of these functions
+types in the serveez core library. Serveez itself uses some of these functions
 to register its builtin server types. 
 
 SVZ_SERVERTYPES_DEFVAR
@@ -594,6 +594,10 @@ SVZ_DYNLOAD_PATH_GET_DEFUN
 @node Server, PortConfig, ServerType, Embedding API
 @section Server functions
 
+A server in serveez is an instantiated (configured) server type. It is 
+merely a copy of a specific server type with a unique server name. It is
+represented by the C structure @code{svz_server_t} in the core library.
+
 @menu
 * ServerGeneral::         General server instance implementations
 * ServerConfig::          Server instance configuration
@@ -605,6 +609,10 @@ SVZ_DYNLOAD_PATH_GET_DEFUN
 
 @node ServerGeneral, ServerConfig, , Server
 @subsection General functionality
+
+The following section contains functions dealing with the list of known
+servers in the core library of serveez, also with the basics like creation 
+and destruction of such servers.
 
 SVZ_SERVERS_DEFVAR
 SVZ_SERVER_FIND_DEFUN
@@ -619,6 +627,10 @@ SVZ_SERVER_FREE_DEFUN
 
 @node ServerConfig, ServerBind, ServerGeneral, Server
 @subsection Configuration
+
+These functions provide an interface for configuring a server. They are
+used to create and modify the default configuration of a server type in
+order to create a server configuration.
 
 SVZ_SERVER_CONFIGURE_DEFUN
 SVZ_CONFIG_FREE_DEFUN
@@ -635,6 +647,11 @@ SVZ_CONFIG_HASH_DUP_DEFUN
 @node ServerBind, ServerCore, ServerConfig, Server
 @subsection Bindings
 
+The following functionality represents the relationship between port 
+configurations as described in @ref{PortConfig} and server instances. When
+binding a server to a specific port configuration the core library creates 
+listeners as needed by itself.
+
 SVZ_SERVER_BIND_DEFUN
 SVZ_SERVER_UNBIND_DEFUN
 SVZ_SERVER_PORTCFG_DEFUN
@@ -646,9 +663,11 @@ SVZ_SERVER_BINDINGS_DEFUN
 SVZ_NUKE_HAPPENED_DEFVAR
 SVZ_CHILD_DIED_DEFVAR
 SVZ_NOTIFY_DEFVAR
+SVZ_EXECUTABLE_DEFUN
+SVZ_PERIODIC_TASKS_DEFUN
+
 SVZ_SOCK_ROOT_DEFVAR
 SVZ_SOCK_LAST_DEFVAR
-
 SVZ_SOCK_FIND_DEFUN
 SVZ_SOCK_SCHEDULE_FOR_SHUTDOWN_DEFUN
 SVZ_SOCK_ENQUEUE_DEFUN
@@ -664,14 +683,8 @@ SVZ_SOCK_CHECK_FREQUENCY_DEFUN
 SVZ_SOCK_CHECK_ACCESS_DEFUN
 SVZ_SOCK_TABLE_CREATE_DEFUN
 SVZ_SOCK_TABLE_DESTROY_DEFUN
-
 SVZ_SOCK_CHECK_BOGUS_DEFUN
-SVZ_PERIODIC_TASKS_DEFUN
-SVZ_LOOP_PRE_DEFUN
-SVZ_LOOP_POST_DEFUN
-SVZ_LOOP_DEFUN
-SVZ_LOOP_ONE_DEFUN
-SVZ_EXECUTABLE_DEFUN
+
 SVZ_SIGNAL_UP_DEFUN
 SVZ_SIGNAL_DN_DEFUN
 SVZ_SIGNAL_HANDLER_DEFUN
@@ -682,10 +695,27 @@ SVZ_STRSIGNAL_DEFUN
 @node ServerLoop, ServerSocket, ServerCore, Server
 @subsection Server loop
 
+This paragraph describes the main server loop functionality. There two modes
+of operation. The default mode as used in serveez is to jump into the loop
+and waiting until the core library drops out of it. The user can also tell
+the serveez core library to pass its socket chain once and return 
+immediately. Thus you are able to issue additional functionality in between
+each pass if you cannot handle this within the timers (notifiers) of servers
+and sockets.
+
 SVZ_CHECK_SOCKETS_DEFUN
+SVZ_LOOP_PRE_DEFUN
+SVZ_LOOP_POST_DEFUN
+SVZ_LOOP_DEFUN
+SVZ_LOOP_ONE_DEFUN
 
 @node ServerSocket, , ServerLoop, Server
 @subsection Server sockets
+
+The next section deals with creating and handling listeners. The functions
+below provide the default routines invoked when accepting a new connection
+on a listener. This is necessary for connection oriented protocols (TCP and 
+named pipes) only.
 
 SVZ_SERVER_CREATE_DEFUN
 SVZ_TCP_ACCEPT_DEFUN
@@ -756,7 +786,7 @@ The network interface functions of the serveez core API allow the access
 to the network devices on your system. The system administrator can setup
 these devices to be bound to different Internet addresses and thereby split
 the network configuration into different "domains". Thus the system is able
-to seperate traffic of different networks. If setup correctly serveez can
+to separate traffic of different networks. If setup correctly serveez can
 follow these rules.
 
 SVZ_INTERFACES_DEFVAR
@@ -804,5 +834,3 @@ SVZ_WINDOZE_SET_REG_STRING_DEFUN
 
 @contents
 @bye
-
-@c  LocalWords:  Serveez API
