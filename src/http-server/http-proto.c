@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.24 2000/08/02 09:45:14 ela Exp $
+ * $Id: http-proto.c,v 1.25 2000/08/16 01:06:11 ela Exp $
  *
  */
 
@@ -416,6 +416,35 @@ http_idle (socket_t sock)
 
 #if HAVE_SENDFILE
 /*
+ * Enable and disable the TCP_CORK socket option. This is useful for 
+ * performance reasons when using sendfile() with a prepending header
+ * to deliver a http document.
+ */
+static int
+http_tcp_cork (SOCKET sock, int set)
+{
+  /* get current socket options */
+  if ((flags = fcntl (sock, F_GETFL)) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+
+  /* set / unset cork option */
+  if (set) flags |= TCP_CORK;
+  else     flags &= ~TCP_CORK;
+
+  /* set new socket option */
+  if (fcntl (sock, F_SETFL, flags) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+
+  return 0;
+}
+
+/*
  * This routine is using sendfile() to transport large file's content
  * to a network socket. It is replacing HTTP_DEFAULT_WRITE on systems where
  * this function is implemented. Furthermore you do not need to set
@@ -463,6 +492,7 @@ http_send_file (socket_t sock)
       sock->write_socket = http_default_write;
       sock->userflags &= ~HTTP_FLAG_SENDFILE;
       num_written = http_keep_alive (sock);
+      http_tcp_cork (sock->sock_desc, 0);
     }
 
   return (num_written < 0) ? -1 : 0;
@@ -885,12 +915,14 @@ http_info_client (void *http_cfg, socket_t sock)
   int n;
 
   sprintf (info, "This is a http client connection.\r\n\r\n");
+#if HAVE_SENDFILE
   if (sock->userflags & HTTP_FLAG_SENDFILE)
     {
       sprintf (text, "  * delivering via sendfile() (offset: %lu)\r\n",
 	       http->fileoffset);
       strcat (info, text);
     }
+#endif /* HAVE_SENDFILE */
   if (sock->userflags & HTTP_FLAG_KEEP)
     {
       sprintf (text, 
@@ -1237,6 +1269,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  sock->read_socket = NULL;
 	  sock->flags &= ~SOCK_FLAG_FILE;
 	  sock->userflags |= HTTP_FLAG_SENDFILE;
+	  http_tcp_cork (sock->sock_desc, 1);
 #else /* not HAVE_SENDFILE */
 	  sock->read_socket = http_file_read;
 #endif /* not HAVE_SENDFILE */

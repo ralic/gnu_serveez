@@ -1,3 +1,15 @@
+2000-08-15  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_tcp_cork): Setting and
+	unsetting this socket option when using sendfile() to prevent
+	the system to send partial tcp frames.
+
+	* server-loop.c (check_sockets): Put this function into a 
+	seperate file for later extensions by poll().
+	(check_sockets_poll): Added this function using poll() instead
+	of select(). Thus we beat the (g)libc's builtin file 
+	descriptor limit of select().
+
 2000-07-31  [ Ela ]  <ela@lkcc.org>
 
 	* udp-socket.c (udp_connect): This routine creates a new socket

@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.9 2000/08/02 09:45:13 ela Exp $
+# $Id: Makefile.am,v 1.10 2000/08/16 01:06:11 ela Exp $
 #
 
 #
@@ -75,6 +75,7 @@ serveez_SOURCES = \
 	server-socket.c server-socket.h \
 	hash.c hash.h \
 	server-core.c server-core.h \
+	server-loop.c server-loop.h \
 	pipe-socket.c pipe-socket.h \
 	interface.c interface.h \
 	udp-socket.c udp-socket.h

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.5 2000/06/16 15:36:15 ela Exp $
+ * $Id: server-core.h,v 1.6 2000/08/16 01:06:11 ela Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 # include <config.h>
 #endif
 
+#include <time.h>
 #include "socket.h"
 
 /*
@@ -44,6 +45,12 @@ extern HANDLE server_child_died;
  * handled by the server loop.
  */
 extern socket_t socket_root;
+
+/* 
+ * This holds the time on which the next call to handle_periodic_tasks()
+ * should occur.
+ */
+extern time_t next_notify_time;
 
 /*
  * Main server loop.  Handle all signals, incoming connections and
@@ -77,4 +84,17 @@ int sock_enqueue (socket_t sock);
  */
 int sock_dequeue (socket_t sock);
 
-#endif /* not __SERVER_H__ */
+/*
+ * Goes through all socket and shuts invalid ones down.
+ */
+void check_bogus_sockets (void);
+
+/*
+ * This routine gets called once a second and is supposed to
+ * perform any task that has to get scheduled periodically.
+ * It checks all sockets' timers and calls their timer functions
+ * when necessary.
+ */
+int handle_periodic_tasks (void);
+
+#endif /* not __SERVER_CORE_H__ */

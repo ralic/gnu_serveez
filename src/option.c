@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: option.c,v 1.3 2000/08/16 01:06:11 ela Exp $
  *
  */
 
@@ -45,25 +45,25 @@ int opterr;
 int optopt;
 
 int 
-getopt(int argc, char * const argv[], const char *optstring) 
+getopt (int argc, char * const argv[], const char *optstring) 
 {
   static int i = 1;
   static char *nextchar;
   int n;
 
-  while(i < argc) 
+  while (i < argc) 
     {
-      if(argv[i][0] == '-') 
+      if (argv[i][0] == '-') 
 	{
 	  n = 0;
 	  /* go through all option characters */
-	  while(optstring[n]) 
+	  while (optstring[n]) 
 	    {
-	      if(optstring[n] == argv[i][1])
+	      if (optstring[n] == argv[i][1])
 		{
 		  i++;
-		  if(optstring[n+1] == ':') optarg = argv[i];
-		  else 		            optarg = NULL;
+		  if (optstring[n+1] == ':') optarg = argv[i];
+		  else  		     optarg = NULL;
 		  return argv[i-1][1];
 		}
 	      n++;

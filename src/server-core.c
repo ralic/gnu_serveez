@@ -1,5 +1,5 @@
 /*
- * server.c - server loop implementation
+ * server-core.c - server core implementation
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.15 2000/07/28 12:26:23 ela Exp $
+ * $Id: server-core.c,v 1.16 2000/08/16 01:06:11 ela Exp $
  *
  */
 
@@ -72,6 +72,7 @@
 #include "socket.h"
 #include "pipe-socket.h"
 #include "server-core.h"
+#include "server-loop.h"
 #include "server.h"
 #include "serveez.h"
 #include "coserver/coserver.h"
@@ -125,7 +126,7 @@ static socket_t socket_last;
  * This holds the time on which the next call to handle_periodic_tasks()
  * should occur.
  */
-static time_t next_notify_time;
+time_t next_notify_time;
 
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore
@@ -439,7 +440,7 @@ sock_schedule_for_shutdown (socket_t sock)
  * It checks all sockets' timers and calls their timer functions
  * when necessary.
  */
-static int
+int
 handle_periodic_tasks (void)
 {
   socket_t sock;
@@ -543,247 +544,6 @@ check_bogus_sockets (void)
 }
 
 /*
- * Check the server and client sockets for incoming connections 
- * and data, and process outgoing data.
- */
-static int
-check_sockets (void)
-{
-  int nfds;			/* count of file descriptors to check */
-  fd_set read_fds;		/* bitmasks for file descriptors to check */
-  fd_set write_fds;		/* dito */
-  fd_set except_fds;		/* dito */
-  struct timeval wait;		/* used for timeout in select() */
-  socket_t sock;
-
-  /*
-   * Prepare the file handle sets for the select() call below.
-   */
-  FD_ZERO (&read_fds);
-  FD_ZERO (&except_fds);
-  FD_ZERO (&write_fds);
-  nfds = 0;
-
-  /*
-   * Here we set the bitmaps for all clients we handle.
-   */
-  for (sock = socket_root; sock; sock = sock->next)
-    {
-      /* Put only those SOCKs into fd set not yet killed and skip files. */
-      if (sock->flags & SOCK_FLAG_KILLED)
-	continue;
-
-
-      /* If socket is a file descriptor, then read it here. */
-      if (sock->flags & SOCK_FLAG_FILE)
-	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
-	}
-
-#ifndef __MINGW32__
-      /* Handle pipes. */
-      if (sock->flags & SOCK_FLAG_PIPE)
-	{
-	  /* Do not handle listening pipes here. */
-	  if (sock->flags & SOCK_FLAG_LISTENING)
-	    continue;
-
-	  /* 
-	   * Put a pipe's descriptor into WRITE and EXCEPT set. Do this 
-	   * if it is Unix not Win32.
-	   */
-	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
-	    {
-	      FD_SET (sock->pipe_desc[WRITE], &except_fds);
-	      if (sock->pipe_desc[WRITE] > nfds)
-		nfds = sock->pipe_desc[WRITE];
-
-	      if (sock->send_buffer_fill > 0)
-		FD_SET (sock->pipe_desc[WRITE], &write_fds);
-	    }
-
-	  /* 
-	   * Put a pipe's descriptor into READ set for getting data.
-	   * Do this if it is Unix not Win32.
-	   */
-	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
-	    {
-	      FD_SET (sock->pipe_desc[READ], &except_fds);
-	      FD_SET (sock->pipe_desc[READ], &read_fds);
-	      if (sock->pipe_desc[READ] > nfds)
-		nfds = sock->pipe_desc[READ];
-	    }
-	}
-
-#endif /* not __MINGW32__ */
-
-      if (sock->flags & SOCK_FLAG_SOCK)
-	{
-	  /* Is the socket descriptor currently unavailable ? */
-	  if (sock->unavailable)
-	    {
-	      if (time (NULL) >= sock->unavailable)
-		sock->unavailable = 0;
-	    }
-
-	  /* Put every client's socket into EXCEPT and READ. */
-	  FD_SET (sock->sock_desc, &except_fds);
-	  FD_SET (sock->sock_desc, &read_fds);
-	  if (sock->sock_desc > (SOCKET)nfds)
-	    nfds = sock->sock_desc;
-
-	  /* Put a socket into WRITE if necessary and possible. */
-	  if (!sock->unavailable)
-	    {
-	      if (sock->send_buffer_fill > 0)
-		FD_SET (sock->sock_desc, &write_fds);
-	    }
-	}
-    }
-  
-  nfds++;
-
-  /*
-   * Adjust timeout value, so we won't wait longer than we want.
-   */
-  wait.tv_sec = next_notify_time - time (NULL);
-  if (wait.tv_sec < 0) wait.tv_sec = 0;
-  wait.tv_usec = 0;
-
-  if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
-    {
-      if (nfds < 0)
-	{
-	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
-#ifdef __MINGW32__
-	  /* FIXME: What value do we choose here ? */
-	  if (last_errno != 0)
-#else
-	  if (errno == EBADF)
-#endif
-	    check_bogus_sockets ();
-	  return -1;
-	}
-      else 
-	{
-	  /*
-	   * select() timed out, so we can do some administrative stuff.
-	   */
-	  handle_periodic_tasks ();
-	}
-    }
-
-  /* 
-   * Go through all enqueued SOCKs and check if these have been 
-   * select()ed or could be handle in any other way.
-   */
-  for (sock = socket_root; sock; sock = sock->next)
-    {
-      if (sock->flags & SOCK_FLAG_KILLED)
-	continue;
-
-      /* Handle pipes. Different in Win32 and Unices. */
-      else if (sock->flags & SOCK_FLAG_PIPE)
-	{
-	  /* Make listening pipe servers listen. */
-	  if (sock->flags & SOCK_FLAG_LISTENING)
-	    {
-	      if (!(sock->flags & SOCK_FLAG_INITED))
-		if (sock->read_socket)
-		  if (sock->read_socket (sock))
-		    sock_schedule_for_shutdown (sock);
-	      continue;
-	    }
-
-	  /* Handle receiving pipes. */
-	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
-	    {
-#ifndef __MINGW32__
-	      if (FD_ISSET (sock->pipe_desc[READ], &except_fds))
-		{
-		  log_printf (LOG_ERROR, "exception on receiving pipe %d \n",
-			      sock->pipe_desc[READ]);
-		  sock_schedule_for_shutdown (sock);
-		}
-	      if (FD_ISSET (sock->pipe_desc[READ], &read_fds))
-#endif /* not __MINGW32__ */
-		{
-		  if (sock->read_socket)
-		    if (sock->read_socket (sock))
-		      sock_schedule_for_shutdown (sock);
-		}
-	    }
-
-	  /* Handle sending pipes. */
-	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
-	    {
-#ifndef __MINGW32__
-	      if (FD_ISSET (sock->pipe_desc[WRITE], &except_fds))
-		{
-		  log_printf (LOG_ERROR, "exception on sending pipe %d \n",
-			      sock->pipe_desc[WRITE]);
-		  sock_schedule_for_shutdown (sock);
-		}
-	      if (FD_ISSET (sock->pipe_desc[WRITE], &write_fds))
-#endif /* not __MINGW32__ */
-		{
-		  if (sock->write_socket)
-		    if (sock->write_socket (sock))
-		      sock_schedule_for_shutdown (sock);
-		}
-	    }
-	}
-
-      /* Handle usual sockets. Socket in the exception set ? */
-      if (sock->flags & SOCK_FLAG_SOCK)
-	{
-	  if (FD_ISSET (sock->sock_desc, &except_fds))
-	    {
-	      log_printf (LOG_ERROR, "exception on socket %d\n",
-			  sock->sock_desc);
-	      sock_schedule_for_shutdown (sock);
-	      continue;
-	    }
-	  
-	  /* Is socket readable ? */
-	  if (FD_ISSET (sock->sock_desc, &read_fds))
-	    {
-	      if (sock->read_socket)
-		if (sock->read_socket (sock))
-		  {
-		    sock_schedule_for_shutdown (sock);
-		    continue;
-		  }
-	    }
-	  
-	  /* Is socket writeable ? */
-	  if (FD_ISSET (sock->sock_desc, &write_fds))
-	    {
-	      if (sock->write_socket)
-		if (sock->write_socket(sock))
-		  {
-		    sock_schedule_for_shutdown (sock);
-		    continue;
-		  }
-	    }
-	}
-    }
-
-  /*
-   * We had no chance to time out so we have to explicitly call the
-   * timeout handler.
-   */
-  if (time (NULL) > next_notify_time)
-    {
-      handle_periodic_tasks ();
-    }
-  
-  return 0;
-}
-
-/*
  * Main server loop.  Handle all signals, incoming connections and
  * listening  server sockets.
  */
@@ -795,15 +555,15 @@ sock_server_loop (void)
   /*
    * Setup signaling.
    */
-  signal(SIGTERM, server_signal_handler);
-  signal(SIGINT, server_signal_handler);
+  signal (SIGTERM, server_signal_handler);
+  signal (SIGINT, server_signal_handler);
 
 #ifdef __MINGW32__
-  signal(SIGBREAK, server_signal_handler);
+  signal (SIGBREAK, server_signal_handler);
 #else
-  signal(SIGCHLD, server_signal_handler);
-  signal(SIGHUP, server_signal_handler);
-  signal(SIGPIPE, server_signal_handler);
+  signal (SIGCHLD, server_signal_handler);
+  signal (SIGHUP, server_signal_handler);
+  signal (SIGPIPE, server_signal_handler);
 #endif
 
   log_printf (LOG_NOTICE, "starting server loop\n");

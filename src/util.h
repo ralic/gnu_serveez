@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.14 2000/08/02 09:45:14 ela Exp $
+ * $Id: util.h,v 1.15 2000/08/16 01:06:11 ela Exp $
  *
  */
 
@@ -223,10 +223,10 @@ const char * util_hstrerror (void);
  * but not within the native Win32 headers.
  */
 #ifndef S_ISDIR
-#define S_ISDIR(Mode) ((Mode) & S_IFDIR)
-#define S_ISCHR(Mode) ((Mode) & S_IFCHR)
-#define S_ISREG(Mode) ((Mode) & S_IFREG)
-#define S_ISLNK(Mode) S_ISREG (Mode)
+# define S_ISDIR(Mode) ((Mode) & S_IFDIR)
+# define S_ISCHR(Mode) ((Mode) & S_IFCHR)
+# define S_ISREG(Mode) ((Mode) & S_IFREG)
+# define S_ISLNK(Mode) S_ISREG (Mode)
 #endif /* not S_ISDIR */
 
 #else /* Unices here. */
