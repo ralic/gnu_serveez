@@ -1,3 +1,9 @@
+2003-06-02  Stefan Jahn  <stefan@lkcc.org>
+
+	* THANKS, NEWS, config.h.serveez, version.h.serveez, 
+	src/svzconfig.h.serveez: Updated these file for the upcoming
+	release.
+
 2003-05-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* Updated configure and build system to `libtool 1.4.2', 

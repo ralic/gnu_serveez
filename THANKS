@@ -21,7 +21,8 @@ Here are listed all the hackers who helped creating this package:
 
 Andreas Rottmann <a.rottmann@gmx.at> for contributing the "configurable
 	type" idea and appropriate patches.  Also thanks for sending
-	patches regarding Guile 1.7.x support.
+	patches regarding Guile 1.7.x support and maintaining the Debian
+	packages.
 
 John Fitzgerald <webmaster@has.org.nz> for giving an idea about ASN.1
         (Abstract Syntax Notation One), PDUs (Protocol Data Units) and

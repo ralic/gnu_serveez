@@ -28,6 +28,7 @@ files.
 Version 0.1.5
 -------------
 
+ * bugfixes in core API and Guile interface
  * minor enhancements of the core API and the Guile interface
  * updated configure and build system to autoconf 2.57, automake 1.7.5 
    and libtool 1.5
