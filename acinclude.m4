@@ -46,9 +46,9 @@ AC_DEFUN([AC_GUILE], [
     GUILE_LDFLAGS="`guile-config link`"
   else
     if test "x$GUILEDIR" != "xno"; then
-      GUILEDIR=`eval cd $GUILEDIR 2>/dev/null && pwd`
-      if test -e $GUILEDIR/lib/libguile.so -o \
-              -e $GUILEDIR/bin/libguile.dll; then
+      GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`
+      if test -f "$GUILEDIR/lib/libguile.so" -o \
+              -f "$GUILEDIR/bin/libguile.dll"; then
         GUILE_CFLAGS="-I$GUILEDIR/include"
         GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
         AC_MSG_RESULT([yes])
@@ -82,7 +82,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
   AC_MSG_CHECKING([for guile source tree])
   if test "x$GUILESRC" != "xno"; then
     GUILESRC=`eval cd $GUILESRC 2>/dev/null && pwd`
-    if test -e $GUILESRC/configure; then
+    if test -f "$GUILESRC/configure"; then
       GUILE_SOURCE="$GUILESRC"
       GUILE_CFLAGS="-I$GUILESRC -DGUILE_SOURCE"
       GUILE_LDFLAGS="$GUILESRC/libguile/libguile.la"
@@ -113,7 +113,7 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
   if test "x$GUILE_SOURCE" != "xno"; then
     cache_file="`pwd`/$cache_file"
 
-    if test ! -e $GUILE_SOURCE/libguile/scmconfig.h; then
+    if test ! -f "$GUILE_SOURCE/libguile/scmconfig.h"; then
       AC_MSG_RESULT([configuring guile...])
       ([cd $GUILE_SOURCE && $SHELL configure \
         --enable-static --disable-shared \

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.12 2001/06/27 20:38:36 ela Exp $
+ * $Id: ident-proto.c,v 1.13 2001/07/04 20:14:56 raimi Exp $
  *
  */
 
@@ -128,7 +128,7 @@ fakeident_detect_proto (svz_server_t *server, svz_socket_t *sock)
   char *end = sock->recv_buffer + sock->recv_buffer_fill;
 
   /* first a number */
-  for (; p < end && isdigit (*p); p++);
+  for (; p < end && isdigit ((int) *p); p++);
   if (p == end)
     goto out;
 
