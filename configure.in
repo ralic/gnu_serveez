@@ -941,6 +941,22 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   mswsock.h grp.h mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h)
 AC_HEADER_DIRENT
 
+dnl
+dnl Check if alphasort() is declared.
+dnl
+if test $ac_cv_header_dirent_h = yes ; then
+AC_CACHE_CHECK([whether alphasort is declared], svz_cv_decl_alphasort,
+AC_EGREP_HEADER(alphasort, dirent.h,
+  svz_cv_decl_alphasort=yes,
+  svz_cv_decl_alphasort=no))
+else
+  svz_cv_decl_alphasort=yes
+fi
+if test $svz_cv_decl_alphasort = yes ; then
+  AC_DEFINE(DECLARED_ALPHASORT, 1,
+    [Define if the alphasort function is declared in dirent.h.])
+fi
+
 LIBSERVEEZLIBS=""
 
 dnl
