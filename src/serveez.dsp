@@ -247,6 +247,10 @@ SOURCE=.\option.c
 # End Source File
 # Begin Source File
 
+SOURCE=".\prog-server\prog-server.c"
+# End Source File
+# Begin Source File
+
 SOURCE=.\serveez.c
 # End Source File
 # Begin Source File

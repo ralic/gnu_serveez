@@ -239,6 +239,9 @@
 /* Define if the Fake Ident Server should be included. */
 #define ENABLE_FAKEIDENT 1
 
+/* Define if the program passthrough server should be included. */
+#define ENABLE_PROG_SERVER 1
+
 /* Define if flood protection should be supported. */
 #define ENABLE_FLOOD_PROTECTION 1
 
