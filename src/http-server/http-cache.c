@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.5 2000/06/23 21:09:54 ela Exp $
+ * $Id: http-cache.c,v 1.6 2000/06/30 15:05:39 ela Exp $
  *
  */
 
@@ -203,8 +203,13 @@ http_init_cache (char *file, http_cache_t *cache)
   /* is currently used, so free the entry previously */
   else
     {
-      xfree (slot->buffer);
+      if (slot->buffer)
+	{
+	  xfree (slot->buffer);
+	  slot->buffer = NULL;
+	}
       xfree (slot->file);
+      slot->file = NULL;
       http_recent_cache (slot);
     }
 
@@ -233,6 +238,7 @@ void
 http_refresh_cache (http_cache_t *cache)
 {
   xfree (cache->entry->buffer);
+  cache->entry->buffer = NULL;
   cache->entry->ready = 0;
   cache->entry->hits = 0;
   cache->entry->usage = 0;
@@ -342,8 +348,13 @@ http_cache_read (socket_t sock)
       http_recent_cache (cache->entry);
       cache->entry->used = 0;
       http_used_entries--;
-      if (cache->length > 0) xfree (cache->buffer);
+      if (cache->length > 0) 
+	{
+	  xfree (cache->buffer);
+	  cache->buffer = NULL;
+	}
       xfree (cache->entry->file);
+      cache->entry->file = NULL;
       return -1;
     }
 

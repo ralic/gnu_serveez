@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.2 2000/06/28 18:45:51 ela Exp $
+ * $Id: interface.c,v 1.3 2000/06/30 15:05:39 ela Exp $
  *
  */
 
@@ -58,6 +58,9 @@
 /*
  * Print a list of all local interfaces if we are able to do so.
  */
+#define NET_LIST_STRING \
+  "--- list of local interfaces you " \
+  "can start ip services on ---\n"
 
 #ifdef _WIN32
 
@@ -305,8 +308,7 @@ list_local_interfaces (void)
 		      return;
 		    }
 		
-		  printf ("--- list of local interfaces you "
-			  "can start ip services on ---\n");
+		  printf (NET_LIST_STRING);
 
 		  /* print ip address list and interface description */
 		  for (n = 0; n < ifCount; n++) 
@@ -386,6 +388,8 @@ list_local_interfaces (void)
 	  return;
 	}
       
+      printf (NET_LIST_STRING);
+
       for (n = 0; n < ipTable->dwNumEntries; n++)
 	{
 	  for (i = 0; i < ifTable->dwNumEntries; i++)
@@ -416,6 +420,11 @@ list_local_interfaces (void)
 	}
 
       FreeLibrary (WSockHandle);
+    }
+  else
+    {
+      fprintf (stderr, 
+	       "Neither IPHlpApi.dll nor WSock32.WsControl found...\n");
     }
 }
 
@@ -462,7 +471,7 @@ list_local_interfaces (void)
       break;
     }
 
-  printf ("--- list of local interfaces you can start ip services on ---\n");
+  printf (NET_LIST_STRING);
 
   ifr = ifc.ifc_req;
   for (n = 0; n < ifc.ifc_len; n += sizeof (struct ifreq), ifr++)

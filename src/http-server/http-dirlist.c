@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.4 2000/06/30 00:11:59 raimi Exp $
+ * $Id: http-dirlist.c,v 1.5 2000/06/30 15:05:39 ela Exp $
  *
  */
 
@@ -27,10 +27,9 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE
-
 #if ENABLE_HTTP_PROTO
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,6 +69,11 @@ http_dirlist (char *dirname, char *docroot)
   char postamble[DIRLIST_SPACE_POST];
   int files = 0;
 
+  /* Initialze data fields */
+  memset (filename, 0, DIRLIST_SPACE_NAME);
+  memset (entrystr, 0, DIRLIST_SPACE_ENTRY);
+  memset (postamble, 0, DIRLIST_SPACE_POST);
+
   /* Remove trailing slash of dirname */
   if (strlen (dirname) != 1 && 
       (dirname[strlen (dirname) - 1] == '/' ||
@@ -89,7 +93,7 @@ http_dirlist (char *dirname, char *docroot)
 
   /* Calculate relative path */
   i = 0;
-  while ( dirname[i] == docroot[i] && docroot[i] != 0 ) i++;
+  while (dirname[i] == docroot[i] && docroot[i] != 0) i++;
   relpath = &dirname[i];
   if (!strcmp (relpath, "/"))
     {
@@ -116,25 +120,31 @@ http_dirlist (char *dirname, char *docroot)
   while (NULL != (de = readdir (dir))) 
     {
       /* Create fully qualified filename */
-      snprintf (filename, DIRLIST_SPACE_NAME, "%s/%s", dirname, de->d_name);
+      snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
+		dirname, de->d_name);
       files++;
-      printf ("statting: %s\n", filename);
+#if 0
+      printf ("stat (%s)\n", filename);
+#endif
 
       /* Stat the given file */
       if (-1 == stat (filename, &statbuf)) 
 	{
 	  /* Something is wrong with this file... */
-	  if (-1 == snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-			      "<font color=red>%s -- %s</font>\n",
-			      de->d_name, SYS_ERROR))
-	    {
-	      log_printf (LOG_ERROR, "dirlist: %s\n", SYS_ERROR);
-	    }
+	  snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+		    "<font color=red>%s -- %s</font>\n",
+		    de->d_name, SYS_ERROR);
 	} 
       else 
 	{
 	  /* Get filetime and remove trailing newline */
-	  timestr = asctime (localtime (&statbuf.st_mtime));
+	  if (localtime (&statbuf.st_mtime))
+	    timestr = asctime (localtime (&statbuf.st_mtime));
+	  else
+	    {
+	      statbuf.st_mtime = 0;
+	      timestr = asctime (localtime (&statbuf.st_mtime));
+	    }
 	  if (timestr[strlen (timestr) - 1] == '\n') 
 	    {
 	      timestr[strlen (timestr) - 1] = 0;
@@ -144,49 +154,42 @@ http_dirlist (char *dirname, char *docroot)
 	  if (S_ISDIR (statbuf.st_mode)) 
 	    {
 	      /* This is a directory... */
-	      if (-1 == snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-				  "<img border=0 src=internal-gopher-menu> "
-				  "<a href=\"%s/\">%-40s</a> "
-				  "&lt;directory&gt; "
-				  "%s\n",
-				  de->d_name, de->d_name, timestr))
-		{
-		  log_printf (LOG_ERROR, "dirlist: %s\n", SYS_ERROR);
-		}
+	      snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+			"<img border=0 src=internal-gopher-menu> "
+			"<a href=\"%s/\">%-40s</a> "
+			"&lt;directory&gt; "
+			"%s\n",
+			de->d_name, de->d_name, timestr);
 	    } 
 	  else 
 	    {
 	      /* Let's treat this as a normal file */
-	      if (-1 == snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-				  "<img border=0 src=internal-gopher-text> "
-				  "<a href=\"%s\">%-40s</a> "
-				  "<b>%11d</b> "
-				  "%s\n",
-				  de->d_name, de->d_name, 
-				  (int)statbuf.st_size, timestr))
-		{
-		  log_printf (LOG_ERROR, "dirlist: %s\n", SYS_ERROR);
-		}
+	      snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+			"<img border=0 src=internal-gopher-text> "
+			"<a href=\"%s\">%-40s</a> "
+			"<b>%11d</b> "
+			"%s\n",
+			de->d_name, de->d_name, 
+			(int)statbuf.st_size, timestr);
 	    }
 	}
 
       /* Append this entry's data to output buffer */
-      while (data_size - strlen (dirdata) < strlen (entrystr)) 
+      while (data_size - strlen (dirdata) < strlen (entrystr) + 1)
 	{
-	  dirdata = xrealloc (dirdata, data_size + DIRLIST_SPACE_GROW + 1);
-	  data_size += DIRLIST_SPACE_GROW + 1;
+	  dirdata = xrealloc (dirdata, data_size + DIRLIST_SPACE_GROW);
+	  data_size += DIRLIST_SPACE_GROW;
 	}
-
       strcat (dirdata, entrystr);
     }
 
   /* Output postamble */
-  snprintf (postamble, DIRLIST_SPACE_POST, 
+  snprintf (postamble, DIRLIST_SPACE_POST - 1,
 	    "\n</pre><hr noshade>\n"
 	    "%d entries\n</body>\n</html>",
 	    files);
 
-  if (data_size - strlen (dirdata) < strlen (postamble)) 
+  if (data_size - strlen (dirdata) < strlen (postamble) + 1) 
     {
       dirdata = xrealloc (dirdata, data_size + strlen (postamble) + 1);
       data_size += strlen (postamble) + 1;

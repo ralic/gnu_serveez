@@ -1,3 +1,16 @@
+2000-06-30  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-dirlist.c (http_dirlist): BUGFIX:
+	localtime() could deliver a NULL pointer. That's why we need
+	to check for this. Occured: stat()ing ".." when this refers
+	to the root directory in Win95.
+	(http_dirlist): BUGFIX: Off by one failure when resizing
+	dirlist buffer (dirdata).
+
+	* interface.c (list_local_interfaces): BUGFIX: Printing
+	"NET_LIST_STRING" in front of network interface list when
+	using the IP-Helper-API method.
+
 2000-06-28  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added the apropiate headers

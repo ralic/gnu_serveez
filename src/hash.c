@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.4 2000/06/30 00:11:59 raimi Exp $
+ * $Id: hash.c,v 1.5 2000/06/30 15:05:39 ela Exp $
  *
  */
 
@@ -130,12 +130,14 @@ hash_destroy (hash_t *hash)
   for (n = 0; n < hash->nodes; n++)
     {
       node = &hash->table[n];
-      for (e = 0; e < node->size; e++)
-	{
-	  xfree (node->entry[e].key);
-	}
       if (node->size)
-	xfree (node->entry);
+	{
+	  for (e = 0; e < node->size; e++)
+	    {
+	      xfree (node->entry[e].key);
+	    }
+	  xfree (node->entry);
+	}
     }
   xfree (hash->table);
   xfree (hash);
@@ -156,13 +158,16 @@ hash_clear (hash_t *hash)
   for (n = 0; n < hash->nodes; n++)
     {
       node = &hash->table[n];
-      for (e = 0; e < node->size; e++)
+      if (node->size)
 	{
-	  xfree (node->entry[e].key);
+	  for (e = 0; e < node->size; e++)
+	    {
+	      xfree (node->entry[e].key);
+	    }
+	  xfree (node->entry);
+	  node->entry = NULL;
+	  node->size = 0;
 	}
-      xfree (node->entry);
-      node->entry = NULL;
-      node->size = 0;
     }
 
   /* reinitialize the hash table */
@@ -193,7 +198,8 @@ hash_rehash (hash_t *hash, int type)
        * Reallocate and initialize the hash table itself.
        */
       hash->nodes <<= 1;
-      hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->nodes);
+      hash->table = xrealloc (hash->table, 
+			      sizeof (hash_bucket_t) * hash->nodes);
       for (n = hash->nodes >> 1; n < hash->nodes; n++)
 	{
 	  hash->table[n].size = 0;
@@ -260,7 +266,8 @@ hash_rehash (hash_t *hash, int type)
 	  xfree (node->entry);
 	  hash->fill--;
 	}
-      hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->nodes);
+      hash->table = xrealloc (hash->table, 
+			      sizeof (hash_bucket_t) * hash->nodes);
     }
 
 #if 0

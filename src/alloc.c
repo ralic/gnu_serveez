@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.4 2000/06/30 00:11:59 raimi Exp $
+ * $Id: alloc.c,v 1.5 2000/06/30 15:05:39 ela Exp $
  *
  */
 
@@ -153,7 +153,6 @@ xfree (void * ptr)
       assert (size);
       allocated_bytes -= size;
       ptr = (void *)up;
-      assert (ptr);
 #endif /* ENABLE_HEAP_COUNT */
       allocated_blocks--;
 #endif /* ENABLE_DEBUG */
@@ -162,7 +161,7 @@ xfree (void * ptr)
 }
 
 /*
- * Permanent memory allocators
+ * Permanent memory allocators.
  */
 void *
 xpmalloc (unsigned size)
