@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.4 2001/09/15 17:04:57 mgrabmue Exp $
+;; $Id: eval-server.scm,v 1.5 2001/09/16 13:29:26 ela Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -33,7 +33,7 @@
         (set! eval (lambda (expr env)
                      (real-eval expr))))
       (define (object->string obj)
-        (format #f "~s" obj))
+        (format #f "~S" obj))
       (define (make-safe-module) #t)))
 
 (primitive-load "serveez.scm")
@@ -114,7 +114,7 @@
     (prompt   . ( string #t "eval: " ))
     (quit     . ( string #t "quit" ))
     (greeting . ( string #t "Hello, type `quit' to end the connection.\r
-Type Scheme expression to see them evaluated (but only one-liners.)" ))
+Type Scheme expression to see them evaluated (but only one-liners)." ))
     ))))
 
 ;; Server instantiation.

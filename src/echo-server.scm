@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.9 2001/07/28 15:25:26 ela Exp $
+;; $Id: echo-server.scm,v 1.10 2001/09/16 13:29:26 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -84,7 +84,7 @@
 
 ;; Port configuration.
 (define-port! 'echo-port '((proto . tcp)
-			   (port  . 2001)))
+			   (port  . 2000)))
 
 ;; Servertype definitions.
 (define-servertype! '(
