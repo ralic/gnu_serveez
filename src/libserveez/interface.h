@@ -1,7 +1,7 @@
 /*
  * interfaces.h - network interface definitions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.7 2001/12/13 18:00:00 ela Exp $
+ * $Id: interface.h,v 1.8 2002/01/06 13:18:52 ela Exp $
  *
  */
 
@@ -36,6 +36,7 @@ typedef struct svz_interface
   unsigned long index;  /* interface index */
   char *description;    /* interface description */
   unsigned long ipaddr; /* its IP address */
+  int detected;         /* interface flag */
 }
 svz_interface_t;
 
@@ -47,9 +48,10 @@ SERVEEZ_API svz_vector_t *svz_interfaces;
 SERVEEZ_API void svz_interface_list __PARAMS ((void));
 SERVEEZ_API void svz_interface_collect __PARAMS ((void));
 SERVEEZ_API int svz_interface_free __PARAMS ((void));
-SERVEEZ_API int svz_interface_add __PARAMS ((int, char *, unsigned long));
+SERVEEZ_API int svz_interface_add __PARAMS ((int, char *, unsigned long, int));
 SERVEEZ_API svz_interface_t *svz_interface_search __PARAMS ((char *));
 SERVEEZ_API svz_interface_t *svz_interface_get __PARAMS ((unsigned long));
+SERVEEZ_API void svz_interface_check __PARAMS ((void));
 
 __END_DECLS
 

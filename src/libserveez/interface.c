@@ -1,7 +1,7 @@
 /*
  * interfaces.c - network interface function implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.11 2001/12/22 10:32:52 ela Exp $
+ * $Id: interface.c,v 1.12 2002/01/06 13:18:52 ela Exp $
  *
  */
 
@@ -258,7 +258,7 @@ svz_interface_collect (void)
 		  *(ifEntry->if_descr + ifEntry->if_descrlen) = '\0';
 		  svz_interface_add (ifEntry->if_index, 
 				     (char *) ifEntry->if_descr,
-				     ifEntry->if_index);
+				     ifEntry->if_index, 1);
 		}
 	    }
 	}
@@ -392,14 +392,14 @@ svz_interface_collect (void)
 		  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
 		  svz_interface_add (ipTable->table[n].dwIndex, 
 				     (char *) ifTable->table[i].bDescr,
-				     ipTable->table[n].dwAddr);
+				     ipTable->table[n].dwAddr, 1);
 		  break;
 		}
 	    }
 	  if (i == ifTable->dwNumEntries)
 	    {
 	      svz_interface_add (ipTable->table[n].dwIndex, NULL,
-				 ipTable->table[n].dwAddr);
+				 ipTable->table[n].dwAddr, 1);
 	    }
 	}
 
@@ -513,7 +513,7 @@ svz_interface_collect (void)
 #endif
 	  svz_interface_add (index, ifr->ifr_name, 
 			     (*(struct sockaddr_in *) 
-			      (void *) &ifr2.ifr_addr).sin_addr.s_addr);
+			      (void *) &ifr2.ifr_addr).sin_addr.s_addr, 1);
 	}
     }
   
@@ -572,10 +572,13 @@ svz_interface_list (void)
 
 /*
  * Add a network interface to the current list of known interfaces. Drop
- * duplicate entries.
+ * duplicate entries. The given arguments @var{index} specifies the network
+ * interface index number, @var{desc} an interface desription, @var{addr}
+ * the IP address in network byte order and the @var{detected} flag if
+ * the given network interface has been detected by Serveez itself or not.
  */
 int
-svz_interface_add (int index, char *desc, unsigned long addr)
+svz_interface_add (int index, char *desc, unsigned long addr, int detected)
 {
   char *p;
   unsigned long n;
@@ -598,6 +601,7 @@ svz_interface_add (int index, char *desc, unsigned long addr)
 
   /* Actually add this interface. */
   ifc = svz_malloc (sizeof (svz_interface_t));
+  ifc->detected = detected ? 1 : 0;
   ifc->index = index;
   ifc->ipaddr = addr;
   ifc->description = svz_strdup (desc);
@@ -661,7 +665,6 @@ svz_interface_free (void)
     {
       svz_vector_foreach (svz_interfaces, ifc, n)
 	{
-	  ifc = svz_vector_get (svz_interfaces, n);
 	  if (ifc->description)
 	    svz_free (ifc->description);
 	}
@@ -670,4 +673,75 @@ svz_interface_free (void)
       return 0;
     }
   return -1;
+}
+
+/*
+ * This function checks for network interface changes. It emits messages for
+ * new and removed interfaces. Software interfaces which have not been 
+ * detected by Serveez stay untouched. If Serveez receives a @code{SIGHUP} 
+ * signal the signal handler runs it once.
+ */
+void
+svz_interface_check (void)
+{
+  svz_vector_t *interfaces = NULL;
+  svz_interface_t *ofc, *ifc;
+  int o, n, found, changes = 0;
+
+  if (svz_interfaces)
+    {
+      /* Save old interface list. */
+      interfaces = svz_interfaces;
+      svz_interfaces = NULL;
+      svz_interface_collect ();
+
+      /* Look for removed network interfaces. */
+      svz_vector_foreach (interfaces, ifc, n)
+	{
+	  if (svz_interface_get (ifc->ipaddr) == NULL)
+	    {
+	      if (!ifc->detected)
+		{
+		  /* Re-apply software network interfaces. */
+		  svz_interface_add (ifc->index, ifc->description, 
+				     ifc->ipaddr, ifc->detected);
+		}
+	      else
+		{
+		  svz_log (LOG_NOTICE, "%s: %s has been removed\n",
+			   ifc->description, svz_inet_ntoa (ifc->ipaddr));
+		  changes++;
+		}
+	    }
+	}
+
+      /* Look for new network interfaces. */
+      svz_vector_foreach (svz_interfaces, ifc, n)
+	{
+	  found = 0;
+	  svz_vector_foreach (interfaces, ofc, o)
+	    {
+	      if (ofc->ipaddr == ifc->ipaddr)
+		found++;
+	    }
+	  if (!found)
+	    {
+	      svz_log (LOG_NOTICE, "%s: %s has been added\n",
+		       ifc->description, svz_inet_ntoa (ifc->ipaddr));
+	      changes++;
+	    }
+	}
+
+      /* Destroy old interface list and apply new interface list. */
+      svz_vector_foreach (interfaces, ifc, n)
+	if (ifc->description)
+	  svz_free (ifc->description);
+      svz_vector_destroy (interfaces);
+    }
+
+  /* Print a notification message if no changes occured. */
+  if (!changes)
+    {
+      svz_log (LOG_NOTICE, "no network interface changes detected\n");
+    }
 }

@@ -1,3 +1,8 @@
+2002-01-06  [ Ela ]  <ela@lkcc.org>
+
+	* interface.c (svz_interface_check): New function which 
+	detects network interface changes.
+
 2001-12-22  [ Ela ]  <ela@lkcc.org>
 
 	* dynload.c (RTLD_NOW): Define this constant to zero if it 

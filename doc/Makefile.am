@@ -54,7 +54,7 @@ RM = rm
 SITE_FILES = serveez.en.html index.html *.jpg
 MANUAL_FILES = \
   $(top_srcdir)/README $(top_srcdir)/README-Win32 $(top_srcdir)/TODO \
-  $(top_srcdir)/BUGS $(top_srcdir)/NEWS
+  $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 
 
 # local dependencies

@@ -1,7 +1,7 @@
 /*
  * server-core.c - server core implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.34 2001/12/15 02:47:38 ela Exp $
+ * $Id: server-core.c,v 1.35 2002/01/06 13:18:52 ela Exp $
  *
  */
 
@@ -87,6 +87,7 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/server-loop.h"
 #include "libserveez/portcfg.h"
+#include "libserveez/interface.h"
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/server.h"
 #include "libserveez/server-core.h"
@@ -885,6 +886,7 @@ static int
 svz_reset (void)
 {
   /* FIXME: Maybe `server_t' reset callback ? */
+  svz_interface_check ();
   return 0;
 }
 

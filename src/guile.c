@@ -2,7 +2,7 @@
  * guile.c - interface to Guile core library
  *
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.58 2001/12/28 17:11:07 ela Exp $
+ * $Id: guile.c,v 1.59 2002/01/06 13:18:52 ela Exp $
  *
  */
 
@@ -1540,7 +1540,7 @@ guile_access_interfaces (SCM args)
 		  continue;
 		}
 	      sprintf (description, "guile interface %d", n);
-	      svz_interface_add (n, description, addr.sin_addr.s_addr);
+	      svz_interface_add (n, description, addr.sin_addr.s_addr, 0);
 	    }
 	  svz_array_destroy (array);
 	}
