@@ -1,7 +1,7 @@
 /*
  * guile-server.c - guile server modules
  *
- * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.56 2003/06/29 09:21:28 ela Exp $
+ * $Id: guile-server.c,v 1.57 2004/03/20 10:43:32 ela Exp $
  *
  */
 
@@ -33,6 +33,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if HAVE_FLOSS_H
+# include <floss.h>
+#endif
 #if GUILE_SOURCE
 # include <libguile/gh.h>
 #else

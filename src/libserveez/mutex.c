@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: mutex.c,v 1.1 2003/06/18 03:32:49 ela Exp $
+ * $Id: mutex.c,v 1.2 2004/03/20 10:43:32 ela Exp $
  *
  */
 
@@ -29,6 +29,11 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#if SVZ_HAVE_PTHREAD_H
+# include <pthread.h>
+#endif
 
 #include "libserveez/util.h"
 #include "libserveez/mutex.h"
@@ -41,7 +46,7 @@
 int
 svz_mutex_create (svz_mutex_t *mutex)
 {
-#if SCM_HAVE_THREADS
+#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__ /* Windoze native */
   if ((*mutex = CreateMutex (NULL, FALSE, NULL)) == NULL)
     {
@@ -62,7 +67,7 @@ svz_mutex_create (svz_mutex_t *mutex)
 int
 svz_mutex_destroy (svz_mutex_t *mutex)
 {
-#if SCM_HAVE_THREADS
+#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__
   if (!CloseHandle (*mutex))
     {
@@ -77,7 +82,6 @@ svz_mutex_destroy (svz_mutex_t *mutex)
       svz_log (LOG_ERROR, "pthread_mutex_destroy: %s\n", SYS_ERROR);
       return -1;
     }
-  mutex = SVZ_MUTEX_INITIALIZER;
   return 0;
 #endif
 #else
@@ -91,7 +95,7 @@ svz_mutex_destroy (svz_mutex_t *mutex)
 int
 svz_mutex_lock (svz_mutex_t *mutex)
 {
-#if SCM_HAVE_THREADS
+#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__
   if (WaitForSingleObject (*mutex, INFINITE) == WAIT_FAILED)
     {
@@ -117,7 +121,7 @@ svz_mutex_lock (svz_mutex_t *mutex)
 int
 svz_mutex_unlock (svz_mutex_t *mutex)
 {
-#if SCM_HAVE_THREADS
+#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__
   if (!ReleaseMutex (mutex))
     {

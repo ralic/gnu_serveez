@@ -1,7 +1,7 @@
 /*
  * nut-transfer.c - gnutella file transfer implementation
  *
- * Copyright (C) 2000, 2001, 2003 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.41 2003/06/14 14:58:00 ela Exp $
+ * $Id: nut-transfer.c,v 1.42 2004/03/20 10:43:32 ela Exp $
  *
  */
 
@@ -35,6 +35,9 @@
 #include <ctype.h>
 #include <time.h>
 #include <sys/stat.h>
+#if HAVE_FLOSS_H
+# include <floss.h>
+#endif
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif

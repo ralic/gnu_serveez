@@ -2816,7 +2816,7 @@ Boston, MA 02111-1307, USA.
 @*
 Copyright @copyright{} 1999, 2000, 2001, 2002 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
 Copyright @copyright{} 2000, 2001, 2002 Raimund Jacob <raimi@@lkcc.org>@*
-Copyright @copyright{} 2000, 2001, 2002, 2003 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@@lkcc.org>@*
 
 Verbatim copying and distribution of this entire document is
 permitted in any medium, provided this notice is preserved.

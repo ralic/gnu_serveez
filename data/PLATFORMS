@@ -56,3 +56,4 @@ hppa-unknown-linux-gnu		gcc	0.1.4	  ok
 hppa2.0w-hp-hpux11.11		cc	0.1.4	  ok
 s390-ibm-linux-gnu		gcc	0.1.4	  ok
 m68k-unknown-linux-gnu		gcc	0.1.4	  ok
+nsr-tandem-nsk			gcc	0.1.6	  ok

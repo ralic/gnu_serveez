@@ -1,7 +1,7 @@
 /*
  * server-loop.c - server loop implementation
  *
- * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.11 2003/06/14 14:57:59 ela Exp $
+ * $Id: server-loop.c,v 1.12 2004/03/20 10:43:32 ela Exp $
  *
  */
 
@@ -42,6 +42,9 @@
 #include <errno.h>
 #include <time.h>
 
+#if HAVE_FLOSS_H
+# include <floss.h>
+#endif
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif

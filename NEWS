@@ -1,7 +1,7 @@
 -- 
 -- NEWS
 -- 
--- Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000, 2002 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 -- 
@@ -28,6 +28,7 @@ files.
 Version 0.1.6
 -------------
 
+ * support for the nsr-tandem-nsk platform
  * improvement and bug fixes in the build system
  * prefixed the #define's in 'svzconfig.h' by 'SVZ_' or 'svz_' to avoid 
    name space clashes with other applications

@@ -4,7 +4,7 @@ dnl configure.in
 dnl
 dnl Autoconf input file.
 dnl
-dnl Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
+dnl Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
 dnl Copyright (C) 2000, 2001 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 dnl
@@ -969,7 +969,7 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
   mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h \
-  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h)
+  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h)
 AC_HEADER_DIRENT
 
 dnl
