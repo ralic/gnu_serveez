@@ -1,7 +1,7 @@
 /*
  * test/hash-test.c - hash table tests
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.4 2001/01/13 18:12:49 ela Exp $
+ * $Id: hash-test.c,v 1.5 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define SERVEEZ_API
 #include "alloc.h"
 #include "hash.h"
 #include "test.h"
@@ -69,11 +70,11 @@ main (int argc, char **argv)
   test_print ("      put and get: ");
   for (error = n = 0; n < REPEAT; n++)
     {
-      text = xstrdup (test_string ());
+      text = svz_strdup (test_string ());
       hash_put (hash, text, (void *) 0xdeadbeef);
       if (((void *) 0xdeadbeef != hash_get (hash, text)))
 	error++;
-      xfree (text);
+      svz_free (text);
     }
   test (error);
 
@@ -103,7 +104,7 @@ main (int argc, char **argv)
   test_print ("  keys and values: ");
   hash_clear (hash);
   error = 0;
-  text = xmalloc (16);
+  text = svz_malloc (16);
   for (n = 0; n < REPEAT; n++)
     {
       sprintf (text, "%015lu", (unsigned long) n);
@@ -111,7 +112,7 @@ main (int argc, char **argv)
       if (hash_get (hash, text) != (void *) n)
 	error++;
     }
-  xfree (text);
+  svz_free (text);
   if (n != hash_size (hash))
     error++;
   values = hash_values (hash);
@@ -147,7 +148,7 @@ main (int argc, char **argv)
     hash_rehash (hash, HASH_SHRINK);
   while (hash->buckets < hash_size (hash) * 10)
     hash_rehash (hash, HASH_EXPAND);
-  text = xmalloc (16);
+  text = svz_malloc (16);
   for (n = 0; n < REPEAT; n++)
     {
       sprintf (text, "%015lu", (unsigned long) n);
@@ -158,7 +159,7 @@ main (int argc, char **argv)
     }
   if (hash_size (hash))
     error++;
-  xfree (text);
+  svz_free (text);
   test (error);
   
   /* hash clear */
@@ -174,7 +175,7 @@ main (int argc, char **argv)
 #if ENABLE_DEBUG
   /* is heap ok ? */
   test_print ("             heap: ");
-  test (allocated_bytes || allocated_blocks);
+  test (svz_allocated_bytes || svz_allocated_blocks);
 #endif
 
   return result;

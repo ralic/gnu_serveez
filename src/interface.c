@@ -1,7 +1,7 @@
 /*
  * src/interfaces.c - network interface function implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.12 2000/09/15 08:22:50 ela Exp $
+ * $Id: interface.c,v 1.13 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -451,7 +451,7 @@ list_local_interfaces (void)
   for (;;) 
     {
       ifc.ifc_len = sizeof (struct ifreq) * numreqs;
-      ifc.ifc_buf = xrealloc (ifc.ifc_buf, ifc.ifc_len);
+      ifc.ifc_buf = svz_realloc (ifc.ifc_buf, ifc.ifc_len);
 
       /*
        * On newer AIXes we cannot use SIOCGICONF anymore, although it is
@@ -518,7 +518,7 @@ list_local_interfaces (void)
     }
   
   close (fd);
-  xfree (ifc.ifc_buf);
+  svz_free (ifc.ifc_buf);
 }
 
 #endif /* not __MINGW32__ */

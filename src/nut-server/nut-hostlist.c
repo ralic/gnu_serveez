@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.2 2000/09/27 14:31:27 ela Exp $
+ * $Id: nut-hostlist.c,v 1.3 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -44,9 +44,7 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
+#include <libserveez.h>
 #include "server.h"
 #include "serveez.h"
 #include "gnutella.h"
@@ -85,7 +83,7 @@ nut_hosts_write (socket_t sock)
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
           num_written = 0;
@@ -205,7 +203,7 @@ nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
 	  return -1;
 	}
 
-      client = xmalloc (sizeof (nut_host_t));
+      client = svz_malloc (sizeof (nut_host_t));
       client->last_reply = time (NULL);
       client->ip = ip;
       client->port = port;

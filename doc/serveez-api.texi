@@ -1,0 +1,85 @@
+\input texinfo
+@c %**start of header
+@setfilename serveez-api.info
+@settitle Serveez Embedding Manual and API Documentation
+@c %** end of header
+
+@exampleindent 2
+@c @include version.texi
+
+@set PACKAGE Serveez
+@set s_PACKAGE serveez
+
+@dircategory Serveez - A server framework.
+@direntry
+* Serveez-API: (serveez-api).   Serveez Embedding Manual.
+@end direntry
+
+@titlepage
+@title Serveez, version @value{VERSION}
+@subtitle A server framework
+@subtitle Edition @value{EDITION},  @value{UPDATED}
+@author Stefan Jahn
+@author Raimund Jacob
+
+@page
+@vskip 0pt plus 1filll
+
+Copyright @copyright{} 2000 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000 Raimund Jacob <raimi@@lkcc.org>@*
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.1
+or any later version published by the Free Software Foundation.
+A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+
+@end titlepage
+
+@node Top, Introduction, (dir), (dir)
+
+@ifinfo
+This file documents how to embed Serveez into C programs and describes
+all parts of the API it provides.
+@end ifinfo
+
+@menu
+* Introduction::          About this manual 
+* Embedding Serveez::     How to embed Serveez into C programs
+* Embedding API::         Description of functions and data in the library
+@end menu
+
+@node Introduction, Embedding Serveez, Top, Top
+@chapter Introduction
+
+@node Embedding Serveez, Embedding API, Introduction, Top
+@chapter Embedding Serveez
+
+@node Embedding API, , Embedding Serveez, Top
+@chapter Embedding API
+
+@menu
+* Memory management::     Memory management functions
+* Hashtable::             Hashtable implementation
+* Arraylist::             Arraylist implementation
+* Utility functions::     Miscellaneous helper functions
+* TCP sockets::           TCP socket functions
+@end menu
+
+@node Memory management, Hashtable, , Embedding API
+@section Memory management
+
+@node Hashtable, Arraylist, Memory management, Embedding API
+@section Hashtable functions
+
+@node Arraylist, Utility functions, Hashtable, Embedding API
+@section Arraylist functions
+
+@node Utility functions, TCP sockets, Arraylist, Embedding API
+@section Utility functions
+
+@node TCP sockets, , Utility functions, Embedding API
+@section Utility functions
+
+@contents
+@bye

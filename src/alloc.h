@@ -1,7 +1,7 @@
 /*
  * alloc.h - memory allocation module declarations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,59 +20,47 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.6 2000/08/31 21:18:29 ela Exp $
+ * $Id: alloc.h,v 1.7 2001/01/24 15:55:27 ela Exp $
  *
  */
 
 #ifndef __XALLOC_H__
-#define __XALLOC_H__
+#define __XALLOC_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif 
+#include <internal.h>
+
+__BEGIN_DECLS
 
 #if ENABLE_DEBUG
-extern unsigned allocated_bytes;
-extern unsigned allocated_blocks;
+SERVEEZ_API extern unsigned svz_allocated_bytes;
+SERVEEZ_API extern unsigned svz_allocated_blocks;
 #endif /* ENABLE_DEBUG */
 
-/*
- * xmalloc() - allocate `size' of memory and return a pointer to it
- */
-void * xmalloc (unsigned size);
+/* Function type definitions. */
+typedef void * (* svz_malloc_func_t) __P ((unsigned));
+typedef void * (* svz_realloc_func_t) __P ((void *, unsigned));
+typedef void (* svz_free_func_t) __P ((void *));
 
-/*
- * xrealloc() - change the size of a xmalloc()'ed block of memory.
- *	`size' is the new size of the block, `old_size' is the
- *	current size. `ptr' is the pointer returned by xmalloc() or
- *	NULL.
- */
-void * xrealloc (void * ptr, unsigned size);
+/* Global allocator functions. */
+SERVEEZ_API extern svz_malloc_func_t svz_malloc_func;
+SERVEEZ_API extern svz_realloc_func_t svz_realloc_func;
+SERVEEZ_API extern svz_free_func_t svz_free_func;
 
-/*
- * xfree() - free a block of xmalloc()'ed or xrealloc()'ed
- *	memory. `size' is only used to calculate the amount of
- *	memory which got x{m,re}alloc()'ed but not xfree()'ed
- */
-void xfree (void * ptr);
+/* Internal allocator functions. */
+SERVEEZ_API void *svz_malloc __P ((unsigned size));
+SERVEEZ_API void *svz_realloc __P ((void *ptr, unsigned size));
+SERVEEZ_API void svz_free __P ((void *ptr));
+SERVEEZ_API char *svz_strdup __P ((char *src));
 
-/*
- * xstrdup() - copy a block of memory if it is non-NULL and
- *     does not have a string length of zero. Otherwise
- *     return NULL.
- */
-char * xstrdup (char *src);
-
-/*
- * The xp-functions allocate memory which is not planned 
- * to free again.
- */
-void * xpmalloc (unsigned);
-void * xprealloc (void *, unsigned);
-char * xpstrdup (char *);
+/* Internal permanent allocator functions. */
+SERVEEZ_API void *svz_pmalloc __P ((unsigned size));
+SERVEEZ_API void *svz_prealloc __P ((void *ptr, unsigned size));
+SERVEEZ_API char *svz_pstrdup __P ((char *src));
 
 #if DEBUG_MEMORY_LEAKS
-void xheap (void);
-#endif
+SERVEEZ_API void svz_heap __P ((void));
+#endif /* DEBUG_MEMORY_LEAKS */
 
-#endif /* not __XALLOC_H__ */
+__END_DECLS
+
+#endif /* !__XALLOC_H__ */

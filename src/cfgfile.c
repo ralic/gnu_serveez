@@ -1,7 +1,7 @@
 /*
  * cfgfile.c - configuration file implementation with help of sizzle
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.13 2000/12/16 10:57:23 ela Exp $
+ * $Id: cfgfile.c,v 1.14 2001/01/24 15:55:27 ela Exp $
  *
  */
 
@@ -109,7 +109,7 @@ load_config (char *cfgfile, int argc, char **argv)
   {
     /* global settings */
     REG_INT ("serveez-sockets", &serveez_config.max_sockets, 200, 1),
-    REG_INT ("serveez-verbosity", &verbosity, 3, 1),
+    REG_INT ("serveez-verbosity", &svz_verbosity, 3, 1),
     REG_STRING ("serveez-pass", &serveez_config.server_password, "!", 0),
     REG_END
   };
@@ -143,7 +143,7 @@ load_config (char *cfgfile, int argc, char **argv)
 	  break;
 
 	case TYPESTRING:
-	  configs[i].string_buffer = xmalloc (STRINGVARSIZE);
+	  configs[i].string_buffer = svz_malloc (STRINGVARSIZE);
 	  strncpy (configs[i].string_buffer,
 		   configs[i].default_string, STRINGVARSIZE);
 	  zzz_bind_string_variable (configs[i].name, configs[i].string_buffer,
@@ -200,10 +200,10 @@ load_config (char *cfgfile, int argc, char **argv)
 	  else
 	    {
 	      *(char **) configs[i].location =
-		xpmalloc (strlen (configs[i].string_buffer) + 1);
+		svz_pmalloc (strlen (configs[i].string_buffer) + 1);
 	      strcpy (*(char **) configs[i].location, 
 		      configs[i].string_buffer);
-	      xfree (configs[i].string_buffer);
+	      svz_free (configs[i].string_buffer);
 	    }
 	  break;
       
@@ -233,8 +233,8 @@ load_config (char *cfgfile, int argc, char **argv)
 		}
 
 	      /* allocate memory for this array */
-	      *(char ***) configs[i].location = xmalloc ((length + 1) *
-							 sizeof (char *));
+	      *(char ***) configs[i].location = svz_malloc ((length + 1) *
+							    sizeof (char *));
 	      array = *(char ***) configs[i].location;
 
 	      /* copy list elements */
@@ -245,7 +245,7 @@ load_config (char *cfgfile, int argc, char **argv)
 		      if (retval == 0) /* idle if already in error-mode */
 			{
 			  char *element = string_val (car (s));
-			  array[m] = xmalloc (strlen (element) + 1);
+			  array[m] = svz_malloc (strlen (element) + 1);
 			  strcpy (array[m], element);
 			}
 		    } 

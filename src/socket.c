@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.33 2001/01/08 23:27:21 ela Exp $
+ * $Id: socket.c,v 1.34 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -68,15 +68,15 @@
 /*
  * Count the number of currently connected sockets.
  */
-SOCKET connected_sockets = 0;
+SOCKET sock_connections = 0;
 
 /*
  * SOCK_LOOKUP_TABLE is used to speed up references to socket
  * structures by socket's id.
  */
 socket_t sock_lookup_table[SOCKET_MAX_IDS];
-int socket_id = 0;
-int socket_version = 0;
+static int socket_id = 0;
+static int socket_version = 0;
 
 /*
  * Default function for writing to socket SOCK. Simply flushes
@@ -86,7 +86,7 @@ int socket_version = 0;
  * the network buffer will be written on each call.
  */
 int
-default_write (socket_t sock)
+sock_default_write (socket_t sock)
 {
   int num_written;
   int do_write;
@@ -129,7 +129,7 @@ default_write (socket_t sock)
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
@@ -153,7 +153,7 @@ default_write (socket_t sock)
  * Returns -1 if the socket has died, returns 0 otherwise.
  */
 int
-default_read (socket_t sock)
+sock_default_read (socket_t sock)
 {
   int num_read;
   int ret;
@@ -186,8 +186,7 @@ default_read (socket_t sock)
    * Try to read as much data as possible.
    */
   num_read = recv (desc,
-		   sock->recv_buffer + sock->recv_buffer_fill,
-		   do_read, 0);
+		   sock->recv_buffer + sock->recv_buffer_fill, do_read, 0);
 
   /* error occurred while reading */
   if (num_read < 0)
@@ -198,7 +197,7 @@ default_read (socket_t sock)
        * return a non-zero value.
        */
       log_printf (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  num_read = 0;
 	}
@@ -213,7 +212,7 @@ default_read (socket_t sock)
       sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
-      if (default_flood_protect (sock, num_read))
+      if (sock_default_flood_protect (sock, num_read))
 	{
 	  log_printf (LOG_ERROR, "kicked socket %d (flood)\n", desc);
 	  return -1;
@@ -222,8 +221,7 @@ default_read (socket_t sock)
 
 #if 0
       util_hexdump (stdout, "received", desc,
-		    sock->recv_buffer + sock->recv_buffer_fill,
-		    num_read, 0);
+		    sock->recv_buffer + sock->recv_buffer_fill, num_read, 0);
 #endif
 
       sock->recv_buffer_fill += num_read;
@@ -252,7 +250,7 @@ default_read (socket_t sock)
  * because of flood.
  */
 int
-default_flood_protect (socket_t sock, int num_read)
+sock_default_flood_protect (socket_t sock, int num_read)
 {
   if (!(sock->flags & SOCK_FLAG_NOFLOOD))
     {
@@ -274,7 +272,7 @@ default_flood_protect (socket_t sock, int num_read)
  * its socket. SOCK is the socket which was closed.
  */
 static int
-default_disconnect (socket_t sock)
+sock_default_disconnect (socket_t sock)
 {
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
@@ -288,7 +286,7 @@ default_disconnect (socket_t sock)
  * client network socket.
  */
 int
-default_detect_proto (socket_t sock)
+sock_default_detect_proto (socket_t sock)
 {
   int n;
   server_t *server;
@@ -323,8 +321,7 @@ default_detect_proto (socket_t sock)
   if (sock->recv_buffer_fill > MAX_DETECTION_FILL)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "socket id %d detection failed\n",
-		  sock->id);
+      log_printf (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
     }
@@ -338,13 +335,12 @@ default_detect_proto (socket_t sock)
  * value.
  */
 int
-default_idle_func (socket_t sock)
+sock_default_idle_func (socket_t sock)
 {
   if (time (NULL) - sock->last_recv > MAX_DETECTION_WAIT)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "socket id %d detection failed\n",
-		  sock->id);
+      log_printf (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
     }
@@ -359,8 +355,8 @@ default_idle_func (socket_t sock)
  * boundary. The appropriate handle_request () is called for each packet
  * explicitly with the packet length inclusive the packet boundary.
  */
-int
-default_check_request_array (socket_t sock)
+static int
+sock_default_check_request_array (socket_t sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -402,8 +398,8 @@ default_check_request_array (socket_t sock)
  * This is just the same routine as above, but optimized for one byte
  * packet delimiters.
  */
-int
-default_check_request_byte (socket_t sock)
+static int
+sock_default_check_request_byte (socket_t sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -449,18 +445,18 @@ default_check_request_byte (socket_t sock)
  * overwritten here.
  */
 int
-default_check_request (socket_t sock)
+sock_default_check_request (socket_t sock)
 {
   assert (sock->boundary);
   assert (sock->boundary_size);
 
   if (sock->boundary_size > 1)
     {
-      sock->check_request = default_check_request_array;
+      sock->check_request = sock_default_check_request_array;
     }
   else
     {
-      sock->check_request = default_check_request_byte;
+      sock->check_request = sock_default_check_request_byte;
     }
 
   return sock->check_request (sock);
@@ -477,9 +473,9 @@ sock_alloc (void)
   char *in;
   char *out;
 
-  sock = xmalloc (sizeof (socket_data_t));
-  in   = xmalloc (RECV_BUF_SIZE);
-  out  = xmalloc (SEND_BUF_SIZE);
+  sock = svz_malloc (sizeof (socket_data_t));
+  in = svz_malloc (RECV_BUF_SIZE);
+  out = svz_malloc (SEND_BUF_SIZE);
   memset (sock, 0, sizeof (socket_data_t));
 
   sock->proto = SOCK_FLAG_INIT;
@@ -490,10 +486,10 @@ sock_alloc (void)
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
 
-  sock->read_socket = default_read;
-  sock->write_socket = default_write;
-  sock->check_request = default_detect_proto;
-  sock->disconnected_socket = default_disconnect;
+  sock->read_socket = sock_default_read;
+  sock->write_socket = sock_default_write;
+  sock->check_request = sock_default_detect_proto;
+  sock->disconnected_socket = sock_default_disconnect;
 
   sock->recv_buffer = in;
   sock->recv_buffer_size = RECV_BUF_SIZE;
@@ -517,14 +513,14 @@ sock_alloc (void)
 int 
 sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
 {
-  char * send, * recv;
+  char *send, *recv;
 
   if (sock->send_buffer_size != send_buf_size)
-    send = xrealloc (sock->send_buffer, send_buf_size);
+    send = svz_realloc (sock->send_buffer, send_buf_size);
   else
     send = sock->send_buffer;
   if (sock->recv_buffer_size != recv_buf_size)
-    recv = xrealloc (sock->recv_buffer, recv_buf_size);
+    recv = svz_realloc (sock->recv_buffer, recv_buf_size);
   else
     recv = sock->recv_buffer;
 
@@ -543,24 +539,24 @@ int
 sock_free (socket_t sock)
 {
   if (sock->recv_buffer)
-    xfree (sock->recv_buffer);
+    svz_free (sock->recv_buffer);
   if (sock->send_buffer)
-    xfree (sock->send_buffer);
+    svz_free (sock->send_buffer);
   if (sock->flags & SOCK_FLAG_LISTENING && sock->data)
-    xfree (sock->data);
+    svz_free (sock->data);
   if (sock->recv_pipe)
-    xfree (sock->recv_pipe);
+    svz_free (sock->recv_pipe);
   if (sock->send_pipe)
-    xfree (sock->send_pipe);
+    svz_free (sock->send_pipe);
 
 #ifdef __MINGW32__
   if (sock->overlap[READ])
-    xfree (sock->overlap[READ]);
+    svz_free (sock->overlap[READ]);
   if (sock->overlap[WRITE])
-    xfree (sock->overlap[WRITE]);
+    svz_free (sock->overlap[WRITE]);
 #endif /* __MINGW32__ */
 
-  xfree(sock);
+  svz_free (sock);
 
   return 0;
 }
@@ -665,8 +661,7 @@ int
 sock_valid (socket_t sock)
 {
   if (!(sock->flags & (SOCK_FLAG_LISTENING | 
-		       SOCK_FLAG_CONNECTED |
-		       SOCK_FLAG_CONNECTING)))
+		       SOCK_FLAG_CONNECTED | SOCK_FLAG_CONNECTING)))
     return -1;
 
   if (sock->sock_desc == INVALID_SOCKET)
@@ -723,7 +718,7 @@ sock_disconnect (socket_t sock)
     {
       if (shutdown (sock->sock_desc, 2) < 0)
 	log_printf (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
-      connected_sockets--;
+      sock_connections--;
     }
       
   /* close the server/client socket */
@@ -745,7 +740,7 @@ sock_disconnect (socket_t sock)
  * value on error, which normally means a buffer overflow.
  */
 int
-sock_write (socket_t sock, char * buf, int len)
+sock_write (socket_t sock, char *buf, int len)
 {
   int ret;
   int space;

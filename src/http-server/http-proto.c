@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.51 2001/01/02 00:52:46 raimi Exp $
+ * $Id: http-proto.c,v 1.52 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -70,15 +70,8 @@
 # include <netinet/tcp.h>
 #endif
 
-#include "util.h"
-#include "alloc.h"
-#include "hash.h"
-#include "socket.h"
-#include "pipe-socket.h"
+#include <libserveez.h>
 #include "serveez.h"
-#include "server.h"
-#include "server-socket.h"
-#include "server-core.h"
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cgi.h"
@@ -334,7 +327,7 @@ http_free_socket (socket_t sock)
   http_log (sock);
   if (http->request)
     {
-      xfree (http->request);
+      svz_free (http->request);
       http->request = NULL;
     }
   http->timestamp = 0;
@@ -348,10 +341,10 @@ http_free_socket (socket_t sock)
       n = 0;
       while (http->property[n])
 	{
-	  xfree (http->property[n]);
+	  svz_free (http->property[n]);
 	  n++;
 	}
-      xfree (http->property);
+      svz_free (http->property);
       http->property = NULL;
     }
 
@@ -364,7 +357,7 @@ http_free_socket (socket_t sock)
   /* is the cache entry used ? */
   if (http->cache)
     {
-      xfree (http->cache);
+      svz_free (http->cache);
       http->cache = NULL;
     }
 
@@ -393,10 +386,10 @@ http_disconnect (socket_t sock)
   if (http)
     {
       if (http->host)
-	xfree (http->host);
+	svz_free (http->host);
       if (http->ident)
-	xfree (http->ident);
-      xfree (http);
+	svz_free (http->ident);
+      svz_free (http);
       sock->data = NULL;
     }
 
@@ -562,7 +555,7 @@ http_send_file (socket_t sock)
        * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
-      sock->read_socket = default_read;
+      sock->read_socket = sock_default_read;
       sock->recv_buffer_fill = 0;
       sock->send_buffer_fill = 0;
       sock->write_socket = http_default_write;
@@ -611,7 +604,7 @@ http_default_write (socket_t sock)
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "http: send: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
@@ -716,7 +709,7 @@ http_file_read (socket_t sock)
        * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
-      sock->read_socket = default_read;
+      sock->read_socket = sock_default_read;
       sock->userflags |= HTTP_FLAG_DONE;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
@@ -766,7 +759,7 @@ http_connect_socket (void *http_cfg, socket_t sock)
   /*
    * initialize the http socket structure
    */
-  http = xmalloc (sizeof (http_socket_t));
+  http = svz_malloc (sizeof (http_socket_t));
   memset (http, 0, sizeof (http_socket_t));
   http->pid = INVALID_HANDLE;
   http->keepalive = cfg->keepalive;
@@ -826,7 +819,7 @@ http_handle_request (socket_t sock, int len)
       return -1;
     }
   *p = 0;
-  request = xmalloc (p - line + 1);
+  request = svz_malloc (p - line + 1);
   strcpy (request, line);
   line = p + 1;
 
@@ -835,7 +828,7 @@ http_handle_request (socket_t sock, int len)
     p++;
   if (p == end)
     {
-      xfree (request);
+      svz_free (request);
       return -1;
     }
 
@@ -849,7 +842,7 @@ http_handle_request (socket_t sock, int len)
       flag |= HTTP_FLAG_SIMPLE;
       while (*p != '\r')
 	p++;
-      uri = xmalloc (p - line + 1);
+      uri = svz_malloc (p - line + 1);
       strncpy (uri, line, p - line);
       uri[p - line] = 0;
       line = p;
@@ -861,19 +854,19 @@ http_handle_request (socket_t sock, int len)
     {
       if (p <= line)
 	{
-	  xfree (request);
+	  svz_free (request);
 	  return -1;
 	}
       *p = 0;
-      uri = xmalloc (p - line + 1);
+      uri = svz_malloc (p - line + 1);
       strcpy (uri, line);
       line = p + 1;
   
       /* scan the version string of the HTTP request */
       if (memcmp (line, "HTTP/", 5))
 	{
-	  xfree (request);
-	  xfree (uri);
+	  svz_free (request);
+	  svz_free (uri);
 	  return -1;
 	}
       line += 5;
@@ -888,8 +881,8 @@ http_handle_request (socket_t sock, int len)
 	version[MINOR_VERSION] > 1 || *(line - 2) != '.') && !flag) || 
       INT16 (line) != CRLF)
     {
-      xfree (request);
-      xfree (uri);
+      svz_free (request);
+      svz_free (uri);
       return -1;
     }
   line += 2;
@@ -902,7 +895,7 @@ http_handle_request (socket_t sock, int len)
 
   /* assign request properties to http structure */
   http->timestamp = time (NULL);
-  http->request = xmalloc (strlen (request) + strlen (uri) + 11);
+  http->request = svz_malloc (strlen (request) + strlen (uri) + 11);
   sprintf (http->request, "%s %s HTTP/%d.%d",
 	   request, uri, version[MAJOR_VERSION], version[MINOR_VERSION]);
 
@@ -925,8 +918,8 @@ http_handle_request (socket_t sock, int len)
       http_default_response (sock, uri, 0);
     }
 
-  xfree (request);
-  xfree (uri);
+  svz_free (request);
+  svz_free (uri);
   return 0;
 }
 
@@ -1128,7 +1121,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
 	  http_error_response (sock, 500);
 	  sock->userflags |= HTTP_FLAG_DONE;
-	  xfree (cgifile);
+	  svz_free (cgifile);
 	  return -1;
 	}
 
@@ -1141,11 +1134,11 @@ http_get_response (socket_t sock, char *request, int flags)
 			 cgifile, request, GET_METHOD))
 	{
 	  /* some error occurred here */
-	  sock->read_socket = default_read;
-	  xfree (cgifile);
+	  sock->read_socket = sock_default_read;
+	  svz_free (cgifile);
 	  return -1;
 	}
-      xfree (cgifile);
+      svz_free (cgifile);
       return 0;
     }
 
@@ -1153,9 +1146,9 @@ http_get_response (socket_t sock, char *request, int flags)
   if ((p = http_userdir (sock, request)) != NULL)
     {
       size = strlen (p) + strlen (cfg->indexfile) + 1;
-      file = xmalloc (size);
+      file = svz_malloc (size);
       strcpy (file, p);
-      xfree (p);
+      svz_free (p);
       status = 1;
     }
   /* this is a usual file request */
@@ -1164,7 +1157,7 @@ http_get_response (socket_t sock, char *request, int flags)
       size = 
 	strlen (cfg->docs) + strlen (request) + strlen (cfg->indexfile) + 4;
 
-      file = xmalloc (size);
+      file = svz_malloc (size);
       strcpy (file, cfg->docs);
       strcat (file, request);
       status = 0;
@@ -1188,18 +1181,18 @@ http_get_response (socket_t sock, char *request, int flags)
 	      sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
 	      http_error_response (sock, 404);
 	      sock->userflags |= HTTP_FLAG_DONE;
-	      xfree (file);
+	      svz_free (file);
 	      return -1;
 	    }
 	  /* send the directory listing */
 	  http->response = 200;
 	  http->length = strlen (dir);
-	  xfree (sock->send_buffer);
+	  svz_free (sock->send_buffer);
 	  sock->send_buffer = dir;
 	  sock->send_buffer_size = http_dirlist_size;
 	  sock->send_buffer_fill = strlen (dir);
 	  sock->userflags |= HTTP_FLAG_DONE;
-	  xfree (file);
+	  svz_free (file);
 	  return 0;
 	}
       close (fd);
@@ -1211,7 +1204,7 @@ http_get_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -1222,7 +1215,7 @@ http_get_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
       http_error_response (sock, 404);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -1237,7 +1230,7 @@ http_get_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -1251,7 +1244,7 @@ http_get_response (socket_t sock, char *request, int flags)
 		       host ? "http://" : "", host ? host : "", request);
       http_send_header (sock);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return 0;
     }
 
@@ -1262,7 +1255,7 @@ http_get_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
       http_error_response (sock, 404);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -1290,7 +1283,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  http_send_header (sock);
 	  close (fd);
 	  sock->userflags |= HTTP_FLAG_DONE;
-	  xfree (file);
+	  svz_free (file);
 	  return 0;
 	}
     }
@@ -1342,12 +1335,12 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       close (fd);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return 0;
     }
 
   /* create a cache structure for the http socket structure */
-  cache = xmalloc (sizeof (http_cache_t));
+  cache = svz_malloc (sizeof (http_cache_t));
   http->cache = cache;
       
   /* return the file's current cache status */
@@ -1421,7 +1414,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	}
     }
 
-  xfree (file);
+  svz_free (file);
 
   return 0;
 }

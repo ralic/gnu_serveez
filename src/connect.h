@@ -1,7 +1,7 @@
 /*
  * connect.h - socket connection definition
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,20 +20,21 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.h,v 1.4 2000/08/02 09:45:13 ela Exp $
+ * $Id: connect.h,v 1.5 2001/01/24 15:55:28 ela Exp $
  *
  */
 
 #ifndef __CONNECT_H__
-#define __CONNECT_H__
+#define __CONNECT_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
+#include <internal.h>
 #include "socket.h"
 
-socket_t sock_connect (unsigned long host, unsigned short port);
-int default_connect (socket_t sock);
+__BEGIN_DECLS
+
+SERVEEZ_API socket_t sock_connect __P ((unsigned long, unsigned short));
+SERVEEZ_API int sock_default_connect __P ((socket_t sock));
+
+__END_DECLS
 
 #endif /* not __CONNECT_H__ */

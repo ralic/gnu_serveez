@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.12 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-event-7.c,v 1.13 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -36,10 +36,7 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
-#include "alloc.h"
-#include "util.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
@@ -139,8 +136,8 @@ irc_away_callback (socket_t sock,
 		  cfg->host, RPL_NOWAWAY, client->nick);
       client->flag |= UMODE_AWAY;
       if (client->away)
-	xfree (client->away);
-      client->away = xstrdup (request->para[0]);
+	svz_free (client->away);
+      client->away = svz_strdup (request->para[0]);
     }
   return 0;
 }

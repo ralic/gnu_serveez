@@ -1,7 +1,7 @@
 /*
  * src/server.c - register your servers here
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.39 2001/01/04 22:11:59 raimi Exp $
+ * $Id: server.c,v 1.40 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -188,7 +188,7 @@ set_intarray (char *cfgfile, char *var, char *key, int **location,
       return 0;
     }
 
-  array = (int *) xpmalloc (sizeof (int) * (zzz_list_length (val) + 1));
+  array = (int *) svz_pmalloc (sizeof (int) * (zzz_list_length (val) + 1));
 
   for (i = 1; cons_p (val); i++, val = cdr (val))
     {
@@ -220,7 +220,7 @@ set_string (char *cfgfile, char *var, char *key, char **location,
       if (def == NULL)
 	(*location) = NULL;
       else
-	(*location) = xpstrdup (def);
+	(*location) = svz_pstrdup (def);
       return 0;
     }
 
@@ -232,7 +232,7 @@ set_string (char *cfgfile, char *var, char *key, char **location,
       return -1;
     }
 
-  (*location) = xpstrdup (string_val (val)); 
+  (*location) = svz_pstrdup (string_val (val)); 
   return 0;
 }
 
@@ -258,7 +258,7 @@ set_stringarray (char *cfgfile, char *var, char *key, char ***location,
       return -1;
     }
 
-  array = (char **) xpmalloc (sizeof (char *) * (zzz_list_length (val) + 1));
+  array = (char **) svz_pmalloc (sizeof (char *) * (zzz_list_length (val) + 1));
 
   for (i = 0; cons_p (val); i++, val = cdr (val))
     {
@@ -271,7 +271,7 @@ set_stringarray (char *cfgfile, char *var, char *key, char ***location,
 	} 
       else 
 	{
-	  array[i] = xpstrdup (string_val (car (val)));
+	  array[i] = svz_pstrdup (string_val (car (val)));
 	}
     }
   array[i] = NULL;
@@ -288,7 +288,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
   unsigned int i;
   zzz_scm_t foo;
   hash_t *h;
-  hash_t **href = xpmalloc (sizeof (hash_t **));
+  hash_t **href = svz_pmalloc (sizeof (hash_t **));
 
   if (val == zzz_undefined) 
     {
@@ -343,7 +343,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
 	   * The hash keeps a copy of the key itself.
 	   */
 	  hash_put (h, string_val (car (car (foo))),
-		    xstrdup (string_val (cdr (car (foo)))));
+		    svz_strdup (string_val (cdr (car (foo)))));
 	}
     }
 
@@ -389,13 +389,13 @@ static int set_port (char *cfgfile, char *var, char *key,
 	  return -1;
 	}
 
-      (*location) = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
+      (*location) = (struct portcfg *) svz_pmalloc (sizeof (struct portcfg));
       memcpy ((*location), def, sizeof (struct portcfg));
       newport = (*location);
     } 
   else 
     {
-      newport = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
+      newport = (struct portcfg *) svz_pmalloc (sizeof (struct portcfg));
     
       if (!hashtable_p (val)) 
 	{
@@ -459,7 +459,7 @@ static int set_port (char *cfgfile, char *var, char *key,
 	    } 
 	  else if (string_p (hash_val)) 
 	    {
-	      newport->ipaddr = xpstrdup (string_val (hash_val));
+	      newport->ipaddr = svz_pstrdup (string_val (hash_val));
 	    }
 	  else 
 	    {
@@ -483,7 +483,7 @@ static int set_port (char *cfgfile, char *var, char *key,
 		       cfgfile, var, PORTCFG_INPIPE, key);
 	      return -1;
 	    }
-	  newport->inpipe = xpstrdup (string_val (hash_val));
+	  newport->inpipe = svz_pstrdup (string_val (hash_val));
 
 	  hash_key = zzz_make_string (PORTCFG_OUTPIPE, -1);
 	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
@@ -496,7 +496,7 @@ static int set_port (char *cfgfile, char *var, char *key,
 	      return -1;
 	    }
 
-	  newport->outpipe = xpstrdup (string_val (hash_val));
+	  newport->outpipe = svz_pstrdup (string_val (hash_val));
 
 	} 
       else 
@@ -516,7 +516,7 @@ static int set_port (char *cfgfile, char *var, char *key,
   if (newport->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) 
     {
       /* prepare the local address structure */
-      newaddr = (struct sockaddr_in *) xpmalloc (sizeof (struct sockaddr_in));
+      newaddr = (struct sockaddr_in *) svz_pmalloc (sizeof (struct sockaddr_in));
       newport->addr = newaddr;
       memset (newaddr, 0, sizeof (struct sockaddr_in));
 
@@ -588,7 +588,7 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
    * Make a simple copy of the example configuration structure 
    * definition for that server instance.
    */
-  cfg = xpmalloc (sd->prototype_size);
+  cfg = svz_pmalloc (sd->prototype_size);
   memcpy (cfg, sd->prototype_start, sd->prototype_size);
 
   /* Go through list of configuration items. */
@@ -690,7 +690,7 @@ server_load_cfg (char *cfgfile)
 	   symlist = cdr (symlist))
 	{
 	  sym = car (symlist);
-	  symname = xstrdup (string_val (symbol_name (sym)));
+	  symname = svz_strdup (string_val (symbol_name (sym)));
 
 	  for (j = 0; NULL != (sd = all_server_definitions[j]); j++)
 	    {
@@ -710,9 +710,9 @@ server_load_cfg (char *cfgfile)
 
 		  if (cfg != NULL)
 		    {
-		      server = (server_t *) xpmalloc (sizeof (server_t));
+		      server = (server_t *) svz_pmalloc (sizeof (server_t));
 		      server->cfg = cfg;
-		      server->name = xpstrdup (symname);
+		      server->name = svz_pstrdup (symname);
 		      server->detect_proto = sd->detect_proto;
 		      server->connect_socket = sd->connect_socket;
 		      server->handle_request = sd->handle_request;
@@ -730,7 +730,7 @@ server_load_cfg (char *cfgfile)
 		    }
 		}
 	    }
-	  xfree (symname);
+	  svz_free (symname);
 	}
     }
 
@@ -844,7 +844,7 @@ static void
 server_add (struct server *server)
 {
   servers = (struct server **) 
-    xprealloc (servers, (server_instances + 1) * sizeof (struct server *));
+    svz_prealloc (servers, (server_instances + 1) * sizeof (struct server *));
   servers[server_instances++] = server;
 }
 
@@ -1005,8 +1005,8 @@ server_bind (server_t *server, portcfg_t *cfg)
     }
 
   n = server_bindings++;
-  server_binding = xrealloc (server_binding, 
-			     sizeof (server_binding_t) * server_bindings);
+  server_binding = svz_realloc (server_binding, 
+				sizeof (server_binding_t) * server_bindings);
   server_binding[n].server = server;
   server_binding[n].cfg = cfg;
 
@@ -1036,8 +1036,8 @@ server_start (void)
 	    {
 	      /* Extend the server array in sock->data. */
 	      for (n = 0; SERVER (sock->data, n) != NULL; n++);
-	      sock->data = xrealloc (sock->data, 
-				     sizeof (void *) * (n + 2));
+	      sock->data = svz_realloc (sock->data, 
+					sizeof (void *) * (n + 2));
 	      SERVER (sock->data, n) = server_binding[b].server;
 	      SERVER (sock->data, n + 1) = NULL;
 	      break;
@@ -1057,7 +1057,7 @@ server_start (void)
 	       */
 	      sock_enqueue (sock);
 	      sock->cfg = server_binding[b].cfg;
-	      sock->data = xmalloc (sizeof (void *) * 2);
+	      sock->data = svz_malloc (sizeof (void *) * 2);
 	      SERVER (sock->data, 0) = server_binding[b].server;
 	      SERVER (sock->data, 1) = NULL;
 	    }
@@ -1066,7 +1066,7 @@ server_start (void)
   
   if (server_bindings)
     {
-      xfree (server_binding);
+      svz_free (server_binding);
       server_binding = NULL;
       server_bindings = 0;
       return 0;

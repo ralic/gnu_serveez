@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.15 2000/12/30 01:59:34 ela Exp $
+ * $Id: nut-core.c,v 1.16 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -45,9 +45,7 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
+#include <libserveez.h>
 #include "server.h"
 #include "gnutella.h"
 #include "nut-core.h"
@@ -60,7 +58,7 @@ nut_create_client (void)
 {
   nut_client_t *client;
 
-  client = xmalloc (sizeof (nut_client_t));
+  client = svz_malloc (sizeof (nut_client_t));
   memset (client, 0, sizeof (nut_client_t));
   return client;
 }
@@ -77,7 +75,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
   char *p, *colon, *host;
 
   /* create a local copy of the given address string */
-  p = host = xstrdup (addr);
+  p = host = svz_strdup (addr);
   if (!host)
     {
       /* address string was NULL or empty */
@@ -89,7 +87,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
     p++;
   if (!*p) 
     {
-      xfree (host);
+      svz_free (host);
       return -1;
     }
   
@@ -110,7 +108,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
   *port = (unsigned short) (colon ? 
 			    htons ((unsigned short) util_atoi (colon)) : 
 			    htons (NUT_PORT));
-  xfree (host);
+  svz_free (host);
 
   return 0;
 }
@@ -434,7 +432,7 @@ nut_canonize_file (char *file)
 /*
  * This routine parses a given gnutella (HTTP) header for certain 
  * properties and delivers either a property value which must be 
- * xfree()'d afterwards or NULL.
+ * svz_free()'d afterwards or NULL.
  */
 char *
 nut_parse_property (char *header, int len, char *property)
@@ -476,7 +474,7 @@ nut_parse_property (char *header, int len, char *property)
 
       /* copy property value */
       len = h - header;
-      value = xmalloc (len + 1);
+      value = svz_malloc (len + 1);
       memcpy (value, header, len);
       value[len] = '\0';
       return value;

@@ -1,7 +1,7 @@
 /*
- * src/snprintf.c - (v)snprintf function implementation
+ * libserveez.h - serveez core library include header
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,33 +18,26 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.c,v 1.4 2001/01/24 15:55:28 ela Exp $
+ * $Id: libserveez.h,v 1.1 2001/01/24 15:55:28 ela Exp $
  *
  */
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#ifndef __LIBSERVEEZ_H__
+#define __LIBSERVEEZ_H__
 
-#define _GNU_SOURCE
-#include "snprintf.h"
+#include <alloc.h>
+#include <snprintf.h>
+#include <hash.h>
+#include <alist.h>
+#include <util.h>
+#include <connect.h>
+#include <socket.h>
+#include <pipe-socket.h>
+#include <udp-socket.h>
+#include <icmp-socket.h>
+#include <raw-socket.h>
+#include <server-core.h>
+#include <server-loop.h>
+#include <windoze.h>
 
-#if (!defined (HAVE_SNPRINTF)) && (!defined (__MINGW32__))
-/*
- * Implementation of the snprintf() if it is not defined. It uses
- * the vsnprintf() function therefore which will fall back to vsprintf()
- * if vsnprintf() does not exist.
- */
-int 
-snprintf (char *str, size_t n, const char *fmt, ...)
-{
-  int ret;
-  va_list args;
-
-  va_start (args, fmt);
-  ret = vsnprintf (str, n, fmt, args);
-  va_end (args);
-
-  return ret;
-}
-#endif
+#endif /* __LIBSERVEEZ_H__ */

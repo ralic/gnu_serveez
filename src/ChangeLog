@@ -1,3 +1,20 @@
+2001-01-24  [ Ela ]  <ela@lkcc.org>
+
+	* util.h: Renamed `last_errno' to `svz_errno', `verbosity' to
+	`svz_verbosity' and `os_version' to `svz_os_version'.
+
+	* Makefile.am (libserveez_la_SOURCES): Wrote some Makefile
+	rules for creating a shared library called `libserveez.la'.
+	We are using libtool here.
+
+	* alloc.c: Created a namespace for the allocator functions 
+	malloc, free, etc. Gave a lot of functions and variables
+	the `svz_' prefix. Moreover you can now overwrite the default
+	allocator routine from libc (malloc, free, realloc). This is
+	especially useful if you want to use memory from a shared 
+	memory arena. The function pointers are `svz_malloc_func', 
+	`svz_free_func'	and `svz_realloc_func'.
+
 2001-01-21  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (serveez_SOURCES): Added `dynload.c' and 

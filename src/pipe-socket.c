@@ -1,7 +1,7 @@
 /*
  * pipe-socket.c - pipes in socket structures
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.23 2001/01/21 17:09:44 ela Exp $
+ * $Id: pipe-socket.c,v 1.24 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -90,7 +90,7 @@ pipe_disconnect (socket_t sock)
 	    log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
 
 	  /* reinitialize the overlapped structure */
-	  if (os_version >= WinNT4x)
+	  if (svz_os_version >= WinNT4x)
 	    {
 	      memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
 	      memset (sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
@@ -251,7 +251,7 @@ pipe_read (socket_t sock)
       sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
-      if (default_flood_protect (sock, num_read))
+      if (sock_default_flood_protect (sock, num_read))
 	{
 	  log_printf (LOG_ERROR, "kicked pipe %d (flood)\n", 
 		      sock->pipe_desc[READ]);
@@ -331,7 +331,7 @@ pipe_write (socket_t sock)
 			    do_write)) == -1)
     {
       log_printf (LOG_ERROR, "pipe: write: %s\n", SYS_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
@@ -457,14 +457,14 @@ pipe_connect (char *inpipe, char *outpipe)
     }
 
 #ifndef __MINGW32__
-  sock->recv_pipe = xmalloc (strlen (inpipe) + 1);
+  sock->recv_pipe = svz_malloc (strlen (inpipe) + 1);
   strcpy (sock->recv_pipe, inpipe);
-  sock->send_pipe = xmalloc (strlen (outpipe) + 1);
+  sock->send_pipe = svz_malloc (strlen (outpipe) + 1);
   strcpy (sock->send_pipe, outpipe);
 #else /* __MINGW32__ */
-  sock->recv_pipe = xmalloc (strlen (inpipe) + 10);
+  sock->recv_pipe = svz_malloc (strlen (inpipe) + 10);
   sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", inpipe);
-  sock->send_pipe = xmalloc (strlen (outpipe) + 10);
+  sock->send_pipe = svz_malloc (strlen (outpipe) + 10);
   sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", outpipe);
 #endif /* __MINGW32__ */
 
@@ -537,11 +537,11 @@ pipe_connect (char *inpipe, char *outpipe)
     }
 
   /* initialize the overlap structure on WinNT systems */
-  if (os_version >= WinNT4x)
+  if (svz_os_version >= WinNT4x)
     {
-      sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
+      sock->overlap[READ] = svz_malloc (sizeof (OVERLAPPED));
       memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
-      sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
+      sock->overlap[WRITE] = svz_malloc (sizeof (OVERLAPPED));
       memset (sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
     }
 
@@ -557,7 +557,7 @@ pipe_connect (char *inpipe, char *outpipe)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
 
-  connected_sockets++;
+  sock_connections++;
   return sock;
 }
 
@@ -698,11 +698,11 @@ pipe_listener (socket_t server_sock)
    * Initialize the overlapped structures for this server socket. Each
    * client connected gets it passed.
    */
-  if (os_version >= WinNT4x)
+  if (svz_os_version >= WinNT4x)
     {
-      server_sock->overlap[READ] = xmalloc (sizeof (OVERLAPPED));
+      server_sock->overlap[READ] = svz_malloc (sizeof (OVERLAPPED));
       memset (server_sock->overlap[READ], 0, sizeof (OVERLAPPED));
-      server_sock->overlap[WRITE] = xmalloc (sizeof (OVERLAPPED));
+      server_sock->overlap[WRITE] = svz_malloc (sizeof (OVERLAPPED));
       memset (server_sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
     }
 

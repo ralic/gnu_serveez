@@ -25,7 +25,7 @@
 
 AUTOMAKE_OPTIONS = no-texinfo.tex
 
-info_TEXINFOS = serveez.texi
+info_TEXINFOS = serveez.texi serveez-api.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html logo.jpg logosmall.jpg gnu-serveez.html
 CLEANFILES = *.info serveez*.html *.tgz *~ *.info-[0-9] stamp-vti
@@ -39,12 +39,12 @@ PACK_DIR = ./pack
 distclean-local:
 	rm -f *\~ *.orig *.rej
 
-all-local: serveez.html
+all-local: serveez.html serveez-api.html
 
 dist-hook:
 	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] $(distdir)/stamp-vti
 
-pack: serveez.html
+pack: serveez.html serveez-api.html
 	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
 	@mkdir $(PACK_DIR)
 	for file in $(PACK_FILES); do \

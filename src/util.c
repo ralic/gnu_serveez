@@ -1,7 +1,7 @@
 /*
  * src/util.c - utility function implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.32 2000/12/16 10:57:23 ela Exp $
+ * $Id: util.c,v 1.33 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -70,6 +70,7 @@
 # include <winsock.h>
 #endif
 
+#include <internal.h>
 #include "snprintf.h"
 #include "alloc.h"
 #include "util.h"
@@ -85,7 +86,7 @@
  * 4 - debugging output
  * levels always imply numerically lesser levels
  */
-int verbosity = LOG_DEBUG;
+int svz_verbosity = LOG_DEBUG;
 
 char log_level[][16] = {
   "fatal",
@@ -112,7 +113,7 @@ log_printf (int level, const char *format, ...)
   time_t tm;
   struct tm *t;
 
-  if (level > verbosity || log_file == NULL)
+  if (level > svz_verbosity || log_file == NULL)
     return;
 
   tm = time (NULL);
@@ -516,13 +517,13 @@ GetErrorMessage (int nr)
   return message;
 }
 
-int os_version = 0;
+int svz_os_version = 0;
 
 #endif /* __MINGW32__ */
 
 /*
  * This routine is for detecting the os version of 
- * Win32 and all Unices. It saves its result in the variable os_version.
+ * Win32 and all Unices. It saves its result in the variable svz_os_version.
  *
  * 0 - Windows 3.x
  * 1 - Windows 95
@@ -563,11 +564,11 @@ util_version (void)
 	{
 	case VER_PLATFORM_WIN32_NT:	/* NT or Windows 2000 */
 	  if (osver.dwMajorVersion == 4)
-	    os_version = WinNT4x;
+	    svz_os_version = WinNT4x;
 	  else if (osver.dwMajorVersion <= 3)
-	    os_version = WinNT3x;
+	    svz_os_version = WinNT3x;
 	  else if (osver.dwMajorVersion == 5)
-	    os_version = Win2k;
+	    svz_os_version = Win2k;
 	  break;
 
 	case VER_PLATFORM_WIN32_WINDOWS:	/* Win95 or Win98 */
@@ -575,21 +576,21 @@ util_version (void)
 	      ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
 	    {
 	      if (osver.dwMinorVersion >= 90)
-		os_version = WinME;
+		svz_os_version = WinME;
 	      else
-		os_version = Win98;
+		svz_os_version = Win98;
 	    }
 	  else
-	    os_version = Win95;
+	    svz_os_version = Win95;
 	  break;
 
 	case VER_PLATFORM_WIN32s:	/* Windows 3.x */
-	  os_version = Win32s;
+	  svz_os_version = Win32s;
 	  break;
 	}
 
       sprintf (os, "Windows%s %ld.%02ld %s%s(Build %ld)",
-	       ver[os_version],
+	       ver[svz_os_version],
 	       osver.dwMajorVersion,
 	       osver.dwMinorVersion,
 	       osver.szCSDVersion,
@@ -740,9 +741,10 @@ util_openfiles (void)
 
   unsigned sockets = 100;
 
-  if (os_version == Win95 || os_version == Win98 || os_version == WinME)
+  if (svz_os_version == Win95 || 
+      svz_os_version == Win98 || svz_os_version == WinME)
     {
-      if (os_version == Win95)
+      if (svz_os_version == Win95)
 	sockets = windoze_get_reg_unsigned (MaxSocketKey,
 					    MaxSocketSubKey,
 					    MaxSocketSubSubKey, sockets);
@@ -758,7 +760,7 @@ util_openfiles (void)
 	{
 	  sockets = serveez_config.max_sockets;
 
-	  if (os_version == Win95)
+	  if (svz_os_version == Win95)
 	    windoze_set_reg_unsigned (MaxSocketKey,
 				      MaxSocketSubKey,
 				      MaxSocketSubSubKey, sockets);

@@ -1,7 +1,7 @@
 /*
  * connect.c - socket connection implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.14 2000/10/15 11:46:41 ela Exp $
+ * $Id: connect.c,v 1.15 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -139,7 +139,7 @@ sock_connect (unsigned long host, unsigned short port)
   sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTING);
-  sock->connected_socket = default_connect;
+  sock->connected_socket = sock_default_connect;
   sock_enqueue (sock);
 
   return sock;
@@ -151,7 +151,7 @@ sock_connect (unsigned long host, unsigned short port)
  * for network errors,
  */
 int
-default_connect (socket_t sock)
+sock_default_connect (socket_t sock)
 {
   int error;
   socklen_t optlen = sizeof (int);
@@ -184,7 +184,7 @@ default_connect (socket_t sock)
   sock->flags |= SOCK_FLAG_CONNECTED;
   sock->flags &= ~SOCK_FLAG_CONNECTING;
   sock_intern_connection_info (sock);
-  connected_sockets++;
+  sock_connections++;
 
   return 0;
 }

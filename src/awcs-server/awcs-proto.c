@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.22 2000/12/16 10:57:23 ela Exp $
+ * $Id: awcs-proto.c,v 1.23 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -46,15 +46,9 @@
 # include <netinet/in.h>
 #endif
 
-#include "util.h"
-#include "socket.h"
-#include "pipe-socket.h"
-#include "alloc.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "coserver/coserver.h"
 #include "awcs-proto.h"
-#include "server.h"
-#include "server-socket.h"
 
 /*
  * The aWCS port configuration.

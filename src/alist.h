@@ -1,7 +1,7 @@
 /*
  * src/alist.h - array list interface
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,16 +18,14 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.h,v 1.8 2001/01/13 18:12:49 ela Exp $
+ * $Id: alist.h,v 1.9 2001/01/24 15:55:27 ela Exp $
  *
  */
 
 #ifndef __ALIST_H__
-#define __ALIST_H__
+#define __ALIST_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <internal.h>
 
 /* general defines */
 #define ARRAY_BITS 4
@@ -56,22 +54,26 @@ struct array_list
   array_t *last;   /* last array chunk */
 };
 
+__BEGIN_DECLS
+
 /* Exported functions. */
-alist_t * alist_create (void);
-void alist_destroy (alist_t *list);
-void alist_add (alist_t *list, void *value);
-void alist_clear (alist_t *list);
-unsigned alist_contains (alist_t *list, void *value);
-void * alist_get (alist_t *list, unsigned index);
-int alist_index (alist_t *list, void *value);
-void * alist_delete (alist_t *list, unsigned index);
-unsigned alist_delete_range (alist_t *list, unsigned from, unsigned to);
-void * alist_set (alist_t *list, unsigned index, void *value);
-void * alist_unset (alist_t *list, unsigned index);
-unsigned alist_size (alist_t *list);
-unsigned alist_length (alist_t *list);
-void alist_insert (alist_t *list, unsigned index, void *value);
-void ** alist_values (alist_t *list);
-void alist_pack (alist_t *list);
+SERVEEZ_API alist_t * alist_create __P ((void));
+SERVEEZ_API void alist_destroy __P ((alist_t *list));
+SERVEEZ_API void alist_add __P ((alist_t *list, void *value));
+SERVEEZ_API void alist_clear __P ((alist_t *list));
+SERVEEZ_API unsigned alist_contains __P ((alist_t *list, void *value));
+SERVEEZ_API void * alist_get __P ((alist_t *list, unsigned index));
+SERVEEZ_API int alist_index __P ((alist_t *list, void *value));
+SERVEEZ_API void * alist_delete __P ((alist_t *list, unsigned index));
+SERVEEZ_API unsigned alist_delete_range __P ((alist_t *, unsigned, unsigned));
+SERVEEZ_API void * alist_set __P ((alist_t *, unsigned, void *));
+SERVEEZ_API void * alist_unset __P ((alist_t *list, unsigned index));
+SERVEEZ_API unsigned alist_size __P ((alist_t *list));
+SERVEEZ_API unsigned alist_length __P ((alist_t *list));
+SERVEEZ_API void alist_insert __P ((alist_t *, unsigned, void *));
+SERVEEZ_API void ** alist_values __P ((alist_t *list));
+SERVEEZ_API void alist_pack __P ((alist_t *list));
+
+__END_DECLS
 
 #endif /* not __ALIST_H__ */

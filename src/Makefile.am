@@ -4,7 +4,7 @@
 #
 # Automake input file.
 #
-# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 #
@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.25 2001/01/21 17:09:44 ela Exp $
+# $Id: Makefile.am,v 1.26 2001/01/24 15:55:27 ela Exp $
 #
 
 #
@@ -34,7 +34,7 @@ EXTRA_DIST = \
 	include/ipdata.h include/iphlpapi.h \
 	serveez.rc
 #
-# Add your subdirectory here
+# Add your server subdirectory here
 #
 SUBDIRS = \
 	awcs-server \
@@ -52,50 +52,53 @@ SUBDIRS = \
 #
 # Add your library here
 #
-PROTOLIBS = 	\
-	awcs-server/libawcs.a \
+PROTOLIBS = $(SERVERLIBS) \
 	coserver/libcoserver.a \
-	ctrl-server/libctrl.a \
-	http-server/libhttp.a \
 	irc-server/libircserver.a \
 	irc-core/libirccore.a \
-	foo-server/libfoo.a \
-	sntp-server/libsntp.a \
-	nut-server/libnut.a \
-	tunnel-server/libtunnel.a \
-	fakeident-server/libfakeident.a
+	foo-server/libfoo.a
+
+#
+# Serveez core library
+#
+lib_LTLIBRARIES = libserveez.la
+libserveez_la_SOURCES = \
+	alloc.c alloc.h \
+	util.c util.h \
+	snprintf.h snprintf.c \
+	hash.c hash.h \
+	alist.c alist.h \
+	socket.c socket.h \
+	connect.h connect.c \
+	pipe-socket.c pipe-socket.h \
+	udp-socket.c udp-socket.h \
+	icmp-socket.c icmp-socket.h \
+	raw-socket.c raw-socket.h \
+	server-core.c server-core.h \
+	server-loop.c server-loop.h \
+	windoze.c windoze.h \
+	libserveez.h internal.h
+
+libserveez_la_LDFLAGS = -export-dynamic
 
 bin_PROGRAMS = serveez mkpassword
 
 serveez_SOURCES = \
 	dynload.c dynload.h \
 	serveez.c serveez.h \
-	alloc.c alloc.h \
-	util.c 	util.h \
-	socket.c socket.h \
+	interface.c interface.h \
 	server.c server.h \
-	connect.h connect.c \
 	cfgfile.c cfgfile.h \
 	option.c option.h \
-	snprintf.h snprintf.c \
-	server-socket.c server-socket.h \
-	hash.c hash.h \
-	server-core.c server-core.h \
-	server-loop.c server-loop.h \
-	pipe-socket.c pipe-socket.h \
-	interface.c interface.h \
-	udp-socket.c udp-socket.h \
-	icmp-socket.c icmp-socket.h \
-	windoze.c windoze.h \
-	alist.c alist.h \
-	raw-socket.c raw-socket.h
+	server-socket.c server-socket.h
 
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 
 serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLEDEP) \
 	serveez.cfg
 
-serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLESTATIC)
+serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) $(SIZZLESTATIC) \
+	libserveez.la
 
 mkpassword_SOURCES = mkpassword.c
 

@@ -1,3 +1,10 @@
+2001-01-24  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (SERVERLIBS): If you add some additional library
+	here you can include static/shared server modules.
+
+	* configure.in: Checking for GNU libtool.
+
 2001-01-21  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checking for dl library and the `dlfcn.h' header

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.4 2000/12/30 01:59:34 ela Exp $
+ * $Id: nut-request.c,v 1.5 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -44,12 +44,8 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
-#include "connect.h"
+#include <libserveez.h>
 #include "server.h"
-#include "server-core.h"
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-transfer.h"
@@ -276,7 +272,7 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 	{
 	  len = strlen (entry->file) + 2;
 	  size += SIZEOF_NUT_RECORD + len;
-	  buffer = xrealloc (buffer, size);
+	  buffer = svz_realloc (buffer, size);
 	  p = buffer + size - len;
 	  memcpy (p, entry->file, len - 1);
 	  p += len - 1;
@@ -315,11 +311,11 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
       sock_write (sock, (char *) buffer, size) == -1 ||
       sock_write (sock, (char *) cfg->guid, NUT_GUID_SIZE) == -1)
     {
-      xfree (buffer);
+      svz_free (buffer);
       return -1;
     }
 
-  xfree (buffer);
+  svz_free (buffer);
   return 0;
 }
 

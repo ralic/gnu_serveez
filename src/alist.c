@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.11 2001/01/13 18:12:49 ela Exp $
+ * $Id: alist.c,v 1.12 2001/01/24 15:55:27 ela Exp $
  *
  */
 
@@ -52,7 +52,7 @@ alist_create_array (unsigned offset)
 {
   array_t *array;
 
-  array = xmalloc (sizeof (array_t));
+  array = svz_malloc (sizeof (array_t));
   memset (array, 0, sizeof (array_t));
   array->offset = offset;
   return array;
@@ -270,7 +270,7 @@ alist_create (void)
   alist_t *list;
 
   assert (ARRAY_SIZE <= sizeof (unsigned) * 8);
-  list = xmalloc (sizeof (alist_t));
+  list = svz_malloc (sizeof (alist_t));
   memset (list, 0, sizeof (alist_t));
   return list;
 }
@@ -287,7 +287,7 @@ alist_destroy (alist_t *list)
 #endif /* DEVEL */
 
   alist_clear (list);
-  xfree (list);
+  svz_free (list);
 }
 
 /*
@@ -351,7 +351,7 @@ alist_clear (alist_t *list)
       length -= array->size;
       if (next)
 	length -= (next->offset - array->offset - array->size);
-      xfree (array);
+      svz_free (array);
       array = next;
     }
 
@@ -523,7 +523,7 @@ alist_delete (alist_t *list, unsigned index)
       /* break here if the list is empty */
       if (list->size == 0)
 	{
-	  xfree (array);
+	  svz_free (array);
 	  list->last = list->first = array = NULL;
 	  list->length = 0;
 	  return value;
@@ -532,7 +532,7 @@ alist_delete (alist_t *list, unsigned index)
       /* rearrange array list */
       alist_unhook (list, array);
       next = array->next;
-      xfree (array);
+      svz_free (array);
       array = next;
     }
 
@@ -725,7 +725,7 @@ alist_unset (alist_t *list, unsigned index)
   if (array->size == 0)
     {
       alist_unhook (list, array);
-      xfree (array);
+      svz_free (array);
     }
 
   /* return unset value */
@@ -937,12 +937,12 @@ alist_pack (alist_t *list)
     }
   list->last = array;
   list->length = list->size;
-  xfree (value);
+  svz_free (value);
 }
 
 /*
  * Delivers all values within this list in a single linear chunk. You 
- * must xfree() it after usage.
+ * must svz_free() it after usage.
  */
 void **
 alist_values (alist_t *list)
@@ -958,7 +958,7 @@ alist_values (alist_t *list)
   if (!list->size) 
     return NULL;
 
-  value = xmalloc (list->size * sizeof (void *));
+  value = svz_malloc (list->size * sizeof (void *));
   for (index = 0, array = list->first; array; array = array->next) 
     {
       for (bit = 1, n = 0; n < array->size; bit <<= 1, n++)

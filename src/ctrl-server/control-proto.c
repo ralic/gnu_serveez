@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.36 2001/01/05 01:52:45 ela Exp $
+ * $Id: control-proto.c,v 1.37 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -55,15 +55,7 @@
 # include <sys/times.h>
 #endif
 
-#include "snprintf.h"
-#include "alloc.h"
-#include "hash.h"
-#include "util.h"
-#include "socket.h"
-#include "pipe-socket.h"
-#include "server-core.h"
-#include "server-socket.h"
-#include "server.h"
+#include <libserveez.h>
 #include "serveez.h"
 #include "coserver/coserver.h"
 #include "control-proto.h"
@@ -232,7 +224,7 @@ ctrl_connect_socket (void *ctrlcfg, socket_t sock)
   ctrl_config_t *cfg = ctrlcfg;
 
   sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
-  sock->check_request = default_check_request;
+  sock->check_request = sock_default_check_request;
   sock->handle_request = ctrl_handle_request;
   sock->boundary = CTRL_PACKET_DELIMITER;
   sock->boundary_size = CTRL_PACKET_DELIMITER_LEN;
@@ -536,13 +528,13 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 
   /* show general state */
   sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
-	       connected_sockets, serveez_config.max_sockets);
+	       sock_connections, serveez_config.max_sockets);
   sock_printf (sock, " * uptime is %s\r\n", 
 	       util_uptime (time (NULL) - serveez_config.start_time));
 #if ENABLE_DEBUG
   sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
-	       allocated_bytes, allocated_blocks);
-#endif
+	       svz_allocated_bytes, svz_allocated_blocks);
+#endif /* ENABLE_DEBUG */
   sock_printf (sock, "\r\n");
 
   return flag;

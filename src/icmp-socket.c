@@ -1,7 +1,7 @@
 /*
  * icmp-socket.c - Internet Control Message Protocol socket implementations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.20 2001/01/08 23:27:20 ela Exp $
+ * $Id: icmp-socket.c,v 1.21 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -49,7 +49,6 @@
 #endif
 
 #include "socket.h"
-#include "alloc.h"
 #include "util.h"
 #include "snprintf.h"
 #include "server.h"
@@ -377,7 +376,7 @@ icmp_read_socket (socket_t sock)
     {
       log_printf (LOG_ERROR, "icmp: recv%s: %s\n", 
 		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
-      if (last_errno != SOCK_UNAVAILABLE)
+      if (svz_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
   return 0;
@@ -431,7 +430,7 @@ icmp_write_socket (socket_t sock)
     {
       log_printf (LOG_ERROR, "icmp: send%s: %s\n", 
 		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
         num_written = 0;
     }
   /* Packet data could be transmitted. */
@@ -703,7 +702,7 @@ icmp_connect (unsigned long host, unsigned short port)
   sock->check_request = icmp_check_request;
   sock->remote_port = (unsigned short) sock->id;
 
-  connected_sockets++;
+  sock_connections++;
   icmp_send_control (sock, ICMP_SERVEEZ_CONNECT);
   return sock;
 }

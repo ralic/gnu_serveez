@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.16 2000/12/18 18:28:36 ela Exp $
+ * $Id: irc-server.c,v 1.17 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -46,14 +46,10 @@
 # include <arpa/inet.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
-#include "snprintf.h"
+#include <libserveez.h>
 #include "irc-proto.h"
 #include "irc-event.h"
 #include "irc-server.h"
-#include "connect.h"
 #include "coserver/coserver.h"
 
 #define DEFAULT_PORT 6667
@@ -283,15 +279,15 @@ irc_connect_servers (irc_config_t *cfg)
 		      realhost, pass, host, &port, &class);
       
       /* create new IRC server structure */
-      ircserver = xmalloc (sizeof (irc_server_t));
+      ircserver = svz_malloc (sizeof (irc_server_t));
       ircserver->port = htons ((unsigned short) port);
       ircserver->class = class;
       ircserver->id = -1;
-      ircserver->realhost = xmalloc (strlen (realhost) + 1);
+      ircserver->realhost = svz_malloc (strlen (realhost) + 1);
       strcpy (ircserver->realhost, realhost);
-      ircserver->host = xmalloc (strlen (host) + 1);
+      ircserver->host = svz_malloc (strlen (host) + 1);
       strcpy (ircserver->host, host);
-      ircserver->pass = xmalloc (strlen (pass) + 1);
+      ircserver->pass = svz_malloc (strlen (pass) + 1);
       strcpy (ircserver->pass, pass);
       ircserver->cfg = cfg;
       ircserver->next = NULL;
@@ -319,14 +315,14 @@ irc_del_server (irc_config_t *cfg, irc_server_t *server)
     {
       if (srv == server)
 	{
-	  xfree (server->realhost);
-	  xfree (server->host);
-	  xfree (server->pass);
+	  svz_free (server->realhost);
+	  svz_free (server->host);
+	  svz_free (server->pass);
 	  if (prev == srv)
 	    cfg->servers = server->next;
 	  else
 	    prev->next = server->next;
-	  xfree (server);
+	  svz_free (server);
 	  return;
 	}
       prev = srv;

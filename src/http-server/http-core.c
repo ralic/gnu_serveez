@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.23 2000/12/31 13:23:36 ela Exp $
+ * $Id: http-core.c,v 1.24 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -52,13 +52,8 @@
 # include <lm.h>
 #endif
 
-#include "util.h"
-#include "alloc.h"
-#include "windoze.h"
-#include "hash.h"
-#include "snprintf.h"
+#include <libserveez.h>
 #include "serveez.h"
-#include "server-core.h"
 #include "http-proto.h"
 #include "http-core.h"
 
@@ -146,23 +141,23 @@ http_userdir (socket_t sock, char *uri)
       if (p - uri <= 2)
 	return NULL;
 
-      user = xmalloc (p - uri - 1);
+      user = svz_malloc (p - uri - 1);
       memcpy (user, uri + 2, p - uri - 2);
       user[p - uri - 2] = '\0';
       
 #if HAVE_GETPWNAM
       if ((entry = getpwnam (user)) != NULL)
 	{
-	  file = xmalloc (strlen (entry->pw_dir) + strlen (cfg->userdir) + 
-			  strlen (p) + 2);
+	  file = svz_malloc (strlen (entry->pw_dir) + strlen (cfg->userdir) + 
+			     strlen (p) + 2);
 	  sprintf (file, "%s/%s%s", entry->pw_dir, cfg->userdir, p);
-	  xfree (user);
+	  svz_free (user);
 	  return file;
 	}
 #elif defined (__MINGW32__)
       if (GetUserInfo == NULL)
 	{
-	  xfree (user);
+	  svz_free (user);
 	  return NULL;
 	}
 
@@ -195,12 +190,12 @@ http_userdir (socket_t sock, char *uri)
       /* successfully got the user information ? */
       else if (entry && entry->usri1_home_dir && entry->usri1_home_dir[0])
 	{
-	  file = xmalloc (strlen (windoze_uni2asc (entry->usri1_home_dir)) +
-			  strlen (cfg->userdir) + strlen (p) + 2);
+	  file = svz_malloc (strlen (windoze_uni2asc (entry->usri1_home_dir)) +
+			     strlen (cfg->userdir) + strlen (p) + 2);
 	  sprintf (file, "%s/%s%s", 
 		   windoze_uni2asc (entry->usri1_home_dir), cfg->userdir, p);
 	  FreeUserInfo (entry);
-	  xfree (user);
+	  svz_free (user);
 	  return file;
 	}
 #if ENABLE_DEBUG
@@ -212,7 +207,7 @@ http_userdir (socket_t sock, char *uri)
 #endif /* ENABLE_DEBUG */
 #endif /* not HAVE_GETPWNAM and not __MINGW32__ */
 
-      xfree (user);
+      svz_free (user);
     }
   return NULL;
 }
@@ -232,7 +227,7 @@ http_identification (char *ident, int id, int version)
     {
       http = sock->data;
       if (!http->ident)
-	http->ident = xstrdup (ident);
+	http->ident = svz_strdup (ident);
     } 
 
   return 0;
@@ -251,7 +246,7 @@ http_remotehost (char *host, int id, int version)
     {
       http = sock->data;
       if (!http->host)
-	http->host = xstrdup (host);
+	http->host = svz_strdup (host);
     } 
 
   return 0;
@@ -266,7 +261,7 @@ http_localhost (char *host, http_config_t *cfg)
 {
   if (host && !cfg->host)
     {
-      cfg->host = xpstrdup (host);
+      cfg->host = svz_pstrdup (host);
     }
   return 0;
 }
@@ -625,7 +620,7 @@ http_keep_alive (socket_t sock)
       http_free_socket (sock);
 
       sock->userflags &= ~HTTP_FLAG; 
-      sock->read_socket = default_read;
+      sock->read_socket = sock_default_read;
       sock->check_request = http_check_request;
       sock->write_socket = http_default_write;
       sock->send_buffer_fill = 0;
@@ -778,7 +773,7 @@ http_parse_property (socket_t sock, char *request, char *end)
   http = sock->data;
 
   /* reserve data space for the http properties */
-  http->property = xmalloc (MAX_HTTP_PROPERTIES * 2 * sizeof (char *));
+  http->property = svz_malloc (MAX_HTTP_PROPERTIES * 2 * sizeof (char *));
   properties = 0;
   n = 0;
 
@@ -791,7 +786,7 @@ http_parse_property (socket_t sock, char *request, char *end)
 	p++;
       if (p == end)
 	break;
-      http->property[n] = xmalloc (p - request + 1);
+      http->property[n] = svz_malloc (p - request + 1);
       strncpy (http->property[n], request, p - request);
       http->property[n][p - request] = 0;
       n++;
@@ -802,7 +797,7 @@ http_parse_property (socket_t sock, char *request, char *end)
 	p++;
       if (p == end || p <= request)
 	break;
-      http->property[n] = xmalloc (p - request + 1);
+      http->property[n] = svz_malloc (p - request + 1);
       strncpy (http->property[n], request, p - request);
       http->property[n][p - request] = 0;
       n++;
@@ -899,7 +894,7 @@ http_free_types (http_config_t *cfg)
 	{
 	  for (n = 0; n < hash_size (*(cfg->types)); n++)
 	    {
-	      xfree (type[n]);
+	      svz_free (type[n]);
 	    }
 	  hash_xfree (type);
 	}
@@ -937,7 +932,7 @@ http_read_types (http_config_t *cfg)
       return -1;
     }
 
-  line = xmalloc (TYPES_LINE_SIZE);
+  line = svz_malloc (TYPES_LINE_SIZE);
 
   /* read all lines within the file */
   while ((fgets (line, TYPES_LINE_SIZE, f)) != NULL)
@@ -978,7 +973,7 @@ http_read_types (http_config_t *cfg)
 	       */
 	      if (!hash_get (*(cfg->types), suffix))
 		{
-		  content_type = xmalloc (strlen (content) + 1);
+		  content_type = svz_malloc (strlen (content) + 1);
 		  strcpy (content_type, content);
 		  hash_put (*(cfg->types), suffix, content_type);
 		}
@@ -986,7 +981,7 @@ http_read_types (http_config_t *cfg)
 	}
     }
   fclose (f);
-  xfree (line);
+  svz_free (line);
   return 0;
 }
 
@@ -1044,16 +1039,16 @@ http_absolute_file (char *file)
     }
 
   /* save the filename within a buffer */
-  savefile = xmalloc (strlen (p) + 1);
+  savefile = svz_malloc (strlen (p) + 1);
   strcpy (savefile, p);
 
   /* get current work directory */
-  savedir = xmalloc (MAX_DIR_LEN);
+  savedir = svz_malloc (MAX_DIR_LEN);
   if ((getcwd (savedir, MAX_DIR_LEN)) == NULL)
     {
       log_printf (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      xfree (savefile);
-      xfree (savedir);
+      svz_free (savefile);
+      svz_free (savedir);
       return file;
     }
   
@@ -1065,8 +1060,8 @@ http_absolute_file (char *file)
     {
       strcat (savedir, "/");
       strcat (savedir, savefile);
-      savedir = xrealloc (savedir, strlen (savedir) + 1);
-      xfree (file);
+      savedir = svz_realloc (savedir, strlen (savedir) + 1);
+      svz_free (file);
       return savedir;
     }
   
@@ -1079,33 +1074,33 @@ http_absolute_file (char *file)
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "cannot change dir: %s\n", file);
 #endif
-      xfree (savefile);
-      xfree (savedir);
+      svz_free (savefile);
+      svz_free (savedir);
       return file;
     }
   *p = '/';
 
   /* get now the current work directory */
-  dir = xmalloc (MAX_DIR_LEN);
+  dir = svz_malloc (MAX_DIR_LEN);
   if ((getcwd (dir, MAX_DIR_LEN)) == NULL)
     {
       log_printf (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      xfree (dir);
-      xfree (savefile);
-      xfree (savedir);
+      svz_free (dir);
+      svz_free (savefile);
+      svz_free (savedir);
       return file;
     }
 
   /* concate new work directory with given filename */
   strcat (dir, "/");
   strcat (dir, savefile);
-  dir = xrealloc (dir, strlen (dir) + 1);
-  xfree (savefile);
-  xfree (file);
+  dir = svz_realloc (dir, strlen (dir) + 1);
+  svz_free (savefile);
+  svz_free (file);
 
   /* change back to the original work directory */
   chdir (savedir);
-  xfree (savedir);
+  svz_free (savedir);
   return dir;
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.9 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-event-5.c,v 1.10 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -36,10 +36,7 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
-#include "alloc.h"
-#include "util.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
@@ -238,7 +235,7 @@ irc_whois_callback (socket_t sock,
 		    continue;
 		  irc_user_info (sock, client, cl[n]);
 		}
-	      xfree (cl);
+	      svz_free (cl);
 	    }
 	}
       /* is target a plain nick ? */
@@ -319,7 +316,7 @@ irc_who_callback (socket_t sock,
 	}
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHO_TEXT "\n",
 		  cfg->host, RPL_ENDOFWHO, client->nick, name);
-      xfree (channel);
+      svz_free (channel);
       return 0;
     }
   
@@ -336,7 +333,7 @@ irc_who_callback (socket_t sock,
 	}
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHO_TEXT "\n",
 		  cfg->host, RPL_ENDOFWHO, client->nick, name);
-      xfree (cl);
+      svz_free (cl);
     }
 
   return 0;

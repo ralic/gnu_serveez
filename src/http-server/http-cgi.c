@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.30 2001/01/03 20:02:42 ela Exp $
+ * $Id: http-cgi.c,v 1.31 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -61,10 +61,7 @@
 # endif
 #endif
 
-#include "snprintf.h"
-#include "util.h"
-#include "pipe-socket.h"
-#include "alloc.h"
+#include <libserveez.h>
 #include "serveez.h"
 #include "http-proto.h"
 #include "http-core.h"
@@ -330,7 +327,7 @@ http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
     }
   else
     {
-      env[*length] = xmalloc (ENV_LENGTH);
+      env[*length] = svz_malloc (ENV_LENGTH);
       vsnprintf (env[*length], ENV_LENGTH, fmt, args);
       (*length)++;
     }
@@ -436,7 +433,7 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
  * parses the text of the request and delivers the real file to be
  * invoked. This function makes sure that the cgi script file exists
  * and is executable. On success it delivers a pointer which must be
- * xfree()ed after use.
+ * svz_free()ed after use.
  */
 char *
 http_check_cgi (socket_t sock, char *request)
@@ -466,7 +463,7 @@ http_check_cgi (socket_t sock, char *request)
 
   /* store the request in a local variable */
   len = strlen (request) + 1 - strlen (cfg->cgiurl);
-  saverequest = xmalloc (len);
+  saverequest = svz_malloc (len);
   strcpy (saverequest, request + strlen (cfg->cgiurl));
 
   /* find the actual URL */
@@ -476,15 +473,15 @@ http_check_cgi (socket_t sock, char *request)
   *p = 0;
 
   size = strlen (cfg->cgidir) + len;
-  file = xmalloc (size);
+  file = svz_malloc (size);
   sprintf (file, "%s%s", cfg->cgidir, saverequest);
 
   /* test if the file really exists and close it again */
   if ((fd = open (file, O_RDONLY)) == -1)
     {
       log_printf (LOG_ERROR, "cgi: open: %s (%s)\n", SYS_ERROR, file);
-      xfree (file);
-      xfree (saverequest);
+      svz_free (file);
+      svz_free (saverequest);
       return NULL;
     }
 
@@ -494,8 +491,8 @@ http_check_cgi (socket_t sock, char *request)
     {
       log_printf (LOG_ERROR, "cgi: fstat: %s\n", SYS_ERROR);
       close (fd);
-      xfree (file);
-      xfree (saverequest);
+      svz_free (file);
+      svz_free (saverequest);
       return NULL;
     }
 
@@ -504,8 +501,8 @@ http_check_cgi (socket_t sock, char *request)
     {
       log_printf (LOG_ERROR, "cgi: no executable: %s\n", file);
       close (fd);
-      xfree (file);
-      xfree (saverequest);
+      svz_free (file);
+      svz_free (saverequest);
       return NULL;
     }
 #endif
@@ -514,8 +511,8 @@ http_check_cgi (socket_t sock, char *request)
 
   /* return a pointer referring to the actual plain cgi file */
   strcpy (file, saverequest);
-  file = xrealloc (file, strlen (file) + 1);
-  xfree (saverequest);
+  file = svz_realloc (file, strlen (file) + 1);
+  svz_free (saverequest);
   return file;
 }
 
@@ -549,20 +546,20 @@ http_pre_exec (socket_t sock,       /* socket structure */
     }
 
   /* reserve buffer for the directory */
-  cgidir = xmalloc (MAX_CGI_DIR_LEN);
+  cgidir = svz_malloc (MAX_CGI_DIR_LEN);
 
   /* get the current directory and concate the cgifile */
   if (getcwd (cgidir, MAX_CGI_DIR_LEN) == NULL)
     {
       log_printf (LOG_ERROR, "cgi: getcwd: %s\n", SYS_ERROR);
-      xfree (cgidir);
+      svz_free (cgidir);
       return NULL;
     }
   
   /* put the directory and file together */
-  cgifile = xmalloc (strlen (cgidir) + strlen (file) + 1);
+  cgifile = svz_malloc (strlen (cgidir) + strlen (file) + 1);
   sprintf (cgifile, "%s%s", cgidir, file);
-  xfree (cgidir);
+  svz_free (cgidir);
 
   /* create the environment block for the CGI script */
   size = http_create_cgi_envp (sock, envp, file, type);
@@ -613,7 +610,7 @@ http_free_cgi_apps (http_config_t *cfg)
 	{
 	  for (n = 0; n < hash_size (*(cfg->cgiapps)); n++)
 	    {
-	      xfree (app[n]);
+	      svz_free (app[n]);
 	    }
 	  hash_xfree (app);
 	}
@@ -636,9 +633,9 @@ http_gen_cgi_apps (http_config_t *cfg)
     }
 
   /* the associations need to be in the hash to be executed at all */
-  hash_put (*(cfg->cgiapps), "exe", xstrdup (DEFAULT_CGIAPP));
-  hash_put (*(cfg->cgiapps), "com", xstrdup (DEFAULT_CGIAPP));
-  hash_put (*(cfg->cgiapps), "bat", xstrdup (DEFAULT_CGIAPP));
+  hash_put (*(cfg->cgiapps), "exe", svz_strdup (DEFAULT_CGIAPP));
+  hash_put (*(cfg->cgiapps), "com", svz_strdup (DEFAULT_CGIAPP));
+  hash_put (*(cfg->cgiapps), "bat", svz_strdup (DEFAULT_CGIAPP));
 }
 
 /*
@@ -688,8 +685,8 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     StartupInfo.hStdInput = in;
 
   /* reserve buffer space for the environment block */
-  envp = xmalloc (ENV_BLOCK_SIZE);
-  savedir = xmalloc (MAX_CGI_DIR_LEN);
+  envp = svz_malloc (ENV_BLOCK_SIZE);
+  savedir = svz_malloc (MAX_CGI_DIR_LEN);
 
   /* save the current directory */
   getcwd (savedir, MAX_CGI_DIR_LEN);
@@ -700,8 +697,8 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
-      xfree (envp);
-      xfree (savedir);
+      svz_free (envp);
+      svz_free (savedir);
       return -1;
     }
 
@@ -715,9 +712,9 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     {
       if (strcmp (p, DEFAULT_CGIAPP))
 	{
-	  cgiapp = xmalloc (strlen (cgifile) + strlen (p) + 2);
+	  cgiapp = svz_malloc (strlen (cgifile) + strlen (p) + 2);
 	  sprintf (cgiapp, "%s %s", p, cgifile);
-	  xfree (cgifile);
+	  svz_free (cgifile);
 	  cgifile = cgiapp;
 	}
     }
@@ -725,7 +722,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   else
     {
       /* find an appropriate system association */
-      cgiapp = xmalloc (MAX_PATH);
+      cgiapp = svz_malloc (MAX_PATH);
       if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
 	{
 	  log_printf (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
@@ -737,16 +734,16 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	  log_printf (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
 	}
 #endif
-      xfree (cgiapp);
+      svz_free (cgiapp);
 
       /* print some error message */
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
-      xfree (cgifile);
-      xfree (envp);
-      xfree (savedir);
+      svz_free (cgifile);
+      svz_free (envp);
+      svz_free (savedir);
       return -1;
     }
 
@@ -755,9 +752,9 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     {
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
-      xfree (cgifile);
-      xfree (envp);
-      xfree (savedir);
+      svz_free (cgifile);
+      svz_free (envp);
+      svz_free (savedir);
       return -1;
     }
 
@@ -779,17 +776,17 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       sock_printf (sock, "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
       chdir (savedir);
-      xfree (cgifile);
-      xfree (envp);
-      xfree (savedir);
+      svz_free (cgifile);
+      svz_free (envp);
+      svz_free (savedir);
       return -1;
     }
   
   /* reenter the actual directory and free reserved space */
   chdir (savedir);
-  xfree (cgifile);
-  xfree (envp);
-  xfree (savedir);
+  svz_free (cgifile);
+  svz_free (envp);
+  svz_free (savedir);
   pid = ProcessInfo.hProcess;
 
 #ifdef ENABLE_DEBUG
@@ -960,7 +957,7 @@ http_post_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
       http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
   if (pipe_create_pair (s2cgi) == -1)
@@ -968,7 +965,7 @@ http_post_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
       http_error_response (sock, 500);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -978,7 +975,7 @@ http_post_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_BAD_REQUEST "\r\n");
       http_error_response (sock, 411);
       sock->userflags |= HTTP_FLAG_DONE;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
   http->contentlength = util_atoi (length);
@@ -992,9 +989,9 @@ http_post_response (socket_t sock, char *request, int flags)
 		     file, request, POST_METHOD))
     {
       /* some error occurred here */
-      sock->read_socket = default_read;
+      sock->read_socket = sock_default_read;
       sock->write_socket = http_default_write;
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -1002,7 +999,7 @@ http_post_response (socket_t sock, char *request, int flags)
   sock->flags |= SOCK_FLAG_SEND_PIPE;
   sock->userflags |= HTTP_FLAG_POST;
 
-  xfree (file);
+  svz_free (file);
   return 0;
 }
 

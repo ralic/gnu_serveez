@@ -1,7 +1,7 @@
 /*
  * serveez.c - main module
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.20 2000/12/22 20:58:04 ela Exp $
+ * $Id: serveez.c,v 1.21 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -205,9 +205,9 @@ main (int argc, char * argv[])
 	  if (optarg && strlen (optarg) >= 2)
 	    {
 #if ENABLE_CRYPT && HAVE_CRYPT
-	      cli_pass = xpstrdup (crypt (optarg, optarg));
+	      cli_pass = svz_pstrdup (crypt (optarg, optarg));
 #else
-	      cli_pass = xpstrdup (optarg);
+	      cli_pass = svz_pstrdup (optarg);
 #endif
 	    }
 	  break;
@@ -220,7 +220,7 @@ main (int argc, char * argv[])
 	      usage ();
 	      exit (1);
 	    }
-	  if (verbosity <= 0)
+	  if (svz_verbosity <= 0)
 	    {
 	      usage ();
 	      exit (1);
@@ -321,7 +321,7 @@ main (int argc, char * argv[])
    * Make command line arguments overriding the configuration file settings.
    */
   if (cli_verbosity != -1)
-    verbosity = cli_verbosity;
+    svz_verbosity = cli_verbosity;
 
   if (cli_sockets != -1)
     serveez_config.max_sockets = cli_sockets;
@@ -407,7 +407,7 @@ main (int argc, char * argv[])
 
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
-	      allocated_bytes, allocated_blocks);
+	      svz_allocated_bytes, svz_allocated_blocks);
 #if DEBUG_MEMORY_LEAKS
   xheap ();
 #endif

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.28 2000/12/30 01:59:33 ela Exp $
+ * $Id: gnutella.c,v 1.29 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -60,12 +60,8 @@
 # define mkdir(path, mode) mkdir (path)
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
-#include "connect.h"
+#include <libserveez.h>
 #include "server.h"
-#include "server-core.h"
 #include "gnutella.h"
 #include "nut-transfer.h"
 #include "nut-route.h"
@@ -286,7 +282,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
   if (client)
     {
       hash_delete (cfg->net, host);
-      xfree (client);
+      svz_free (client);
     }
   return ret;
 }
@@ -313,7 +309,7 @@ nut_init_ping (socket_t sock)
   header = nut_put_header (&hdr);
 
   /* put into sent packet hash */
-  pkt = xmalloc (sizeof (nut_packet_t));
+  pkt = svz_malloc (sizeof (nut_packet_t));
   pkt->sock = sock;
   pkt->sent = time (NULL);
   hash_put (cfg->packet, (char *) hdr.id, pkt);
@@ -456,7 +452,7 @@ nut_init (server_t *server)
   nut_calc_guid (cfg->guid);
 
   /* create detection string for gnutella host list */
-  cfg->net_detect = xmalloc (strlen (NUT_HOSTS) + strlen (cfg->net_url) + 1);
+  cfg->net_detect = svz_malloc (strlen (NUT_HOSTS) + strlen (cfg->net_url) + 1);
   sprintf (cfg->net_detect, NUT_HOSTS, cfg->net_url);
 
   /* go through all given hosts and try to connect to them */
@@ -500,7 +496,7 @@ nut_finalize (server_t *server)
     {
       for (n = 0; n < hash_size (cfg->packet); n++)
 	{
-	  xfree (pkt[n]);
+	  svz_free (pkt[n]);
 	}
       hash_xfree (pkt);
     }
@@ -511,7 +507,7 @@ nut_finalize (server_t *server)
     {
       for (n = 0; n < hash_size (cfg->net); n++)
 	{
-	  xfree (client[n]);
+	  svz_free (client[n]);
 	}
       hash_xfree (client);
     }
@@ -522,15 +518,15 @@ nut_finalize (server_t *server)
     {
       for (n = 0; n < hash_size (cfg->push); n++)
 	{
-	  xfree (transfer[n]->file);
-	  xfree (transfer[n]);
+	  svz_free (transfer[n]->file);
+	  svz_free (transfer[n]);
 	}
       hash_xfree (transfer);
     }
   hash_destroy (cfg->push);
 
   /* free detection string */
-  xfree (cfg->net_detect);
+  svz_free (cfg->net_detect);
 
   return 0;
 }
@@ -582,7 +578,7 @@ nut_disconnect (socket_t sock)
 	  if (pkt->sock == sock)
 	    {
 	      hash_delete (cfg->packet, keys[n]);
-	      xfree (pkt);
+	      svz_free (pkt);
 	    }
 	}
       hash_xfree (keys);
@@ -594,7 +590,7 @@ nut_disconnect (socket_t sock)
 
   /* remove the connection from the host catcher */
   if ((host = hash_delete (cfg->net, key)) != NULL)
-    xfree (host);
+    svz_free (host);
 
   /* free client structure */
   if (client)
@@ -602,7 +598,7 @@ nut_disconnect (socket_t sock)
       cfg->nodes -= client->nodes;
       cfg->files -= client->files;
       cfg->size -= client->size;
-      xfree (client);
+      svz_free (client);
       sock->data = NULL;
     }
 
@@ -659,7 +655,7 @@ nut_server_notify (server_t *server)
 	  if (t - pkt->sent > NUT_ENTRY_AGE)
 	    {
 	      hash_delete (cfg->packet, keys[n]);
-	      xfree (pkt);
+	      svz_free (pkt);
 	    }
 	}
       hash_xfree (keys);
@@ -802,7 +798,7 @@ nut_idle_searching (socket_t sock)
 	}
       
       /* save this packet for later routing */
-      pkt = xmalloc (sizeof (nut_packet_t));
+      pkt = svz_malloc (sizeof (nut_packet_t));
       pkt->sock = sock;
       pkt->sent = time (NULL);
       hash_put (cfg->packet, (char *) hdr.id, pkt);
@@ -832,13 +828,13 @@ nut_info_server (server_t *server)
 	{
 	  if (!ext)
 	    {
-	      ext = xmalloc (strlen (cfg->extensions[n]) + 2);
+	      ext = svz_malloc (strlen (cfg->extensions[n]) + 2);
 	      strcpy (ext, cfg->extensions[n]);
 	    }
 	  else
 	    {
-	      ext = xrealloc (ext, strlen (ext) + 
-			      strlen (cfg->extensions[n]) + 2);
+	      ext = svz_realloc (ext, strlen (ext) + 
+				 strlen (cfg->extensions[n]) + 2);
 	      strcat (ext, cfg->extensions[n]);
 	    }
 	  n++;
@@ -893,7 +889,7 @@ nut_info_server (server_t *server)
 	   cfg->uploads, cfg->max_uploads,
 	   hash_size (cfg->query));
 
-  xfree (ext);
+  svz_free (ext);
   return info;
 }
 

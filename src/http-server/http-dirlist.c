@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.17 2001/01/03 20:02:42 ela Exp $
+ * $Id: http-dirlist.c,v 1.18 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -70,9 +70,7 @@
 # include <winsock.h>
 #endif
 
-#include "snprintf.h"
-#include "alloc.h"
-#include "util.h"
+#include <libserveez.h>
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-dirlist.h"
@@ -127,7 +125,7 @@ http_create_uri (char *file)
 /*
  * Return a buffer to a http directory listing referring to DIRNAME
  * and being part of the document root DOCROOT. Do not to forget to
- * xfree() the return buffer. Return NULL on errors.
+ * svz_free() the return buffer. Return NULL on errors.
  */
 char *
 http_dirlist (char *dirname, char *docroot, char *userdir)
@@ -185,7 +183,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
       return NULL;
     }
 
-  dirdata = xmalloc (DIRLIST_SPACE);
+  dirdata = svz_malloc (DIRLIST_SPACE);
   datasize = DIRLIST_SPACE;
 
   /* Calculate relative path */
@@ -216,7 +214,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 			 HTTP_OK, relpath, userdir ? "" : "/", 
 			 relpath, userdir ? "" : "/"))
     {
-      dirdata = xrealloc (dirdata, datasize + DIRLIST_SPACE_GROW);
+      dirdata = svz_realloc (dirdata, datasize + DIRLIST_SPACE_GROW);
       datasize += DIRLIST_SPACE_GROW;
     }
 
@@ -286,7 +284,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
       /* Append this entry's data to output buffer */
       while (datasize - strlen (dirdata) < strlen (entrystr) + 1)
 	{
-	  dirdata = xrealloc (dirdata, datasize + DIRLIST_SPACE_GROW);
+	  dirdata = svz_realloc (dirdata, datasize + DIRLIST_SPACE_GROW);
 	  datasize += DIRLIST_SPACE_GROW;
 	}
       strcat (dirdata, entrystr);
@@ -302,7 +300,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 
   if (datasize - strlen (dirdata) < strlen (postamble) + 1) 
     {
-      dirdata = xrealloc (dirdata, datasize + strlen (postamble) + 1);
+      dirdata = svz_realloc (dirdata, datasize + strlen (postamble) + 1);
       datasize += strlen (postamble) + 1;
     }
   strcat (dirdata, postamble);

@@ -1,7 +1,7 @@
 /*
  * src/hash.h - hash function interface
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,16 +18,14 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.5 2000/09/09 16:33:42 ela Exp $
+ * $Id: hash.h,v 1.6 2001/01/24 15:55:28 ela Exp $
  *
  */
 
 #ifndef __HASH_H__
-#define __HASH_H__
+#define __HASH_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <internal.h>
 
 /* useful define's */
 #define HASH_SHRINK 4
@@ -62,7 +60,7 @@ typedef struct
 hash_bucket_t;
 
 /*
- * This structure keeps information on a specific hash table.
+ * This structure keeps information of a specific hash table.
  */
 typedef struct
 {
@@ -76,27 +74,31 @@ typedef struct
 }
 hash_t;
 
+__BEGIN_DECLS
+
 /*
- * Basic hash functions.
+ * Basic hashtable functions.
  */
-hash_t *hash_create (int size);
-void hash_destroy (hash_t *hash);
-void hash_clear (hash_t *hash);
-void *hash_delete (hash_t *hash, char *key);
-void hash_put (hash_t *hash, char *key, void *value);
-void *hash_get (hash_t *hash, char *key);
-void **hash_values (hash_t *hash);
-char **hash_keys (hash_t *hash);
-int hash_size (hash_t *hash);
-int hash_capacity (hash_t *hash);
-char *hash_contains (hash_t *hash, void *value);
-void hash_analyse (hash_t *hash);
+SERVEEZ_API hash_t *hash_create __P ((int size));
+SERVEEZ_API void hash_destroy __P ((hash_t *hash));
+SERVEEZ_API void hash_clear __P ((hash_t *hash));
+SERVEEZ_API void *hash_delete __P ((hash_t *hash, char *key));
+SERVEEZ_API void hash_put __P ((hash_t *hash, char *key, void *value));
+SERVEEZ_API void *hash_get __P ((hash_t *hash, char *key));
+SERVEEZ_API void **hash_values __P ((hash_t *hash));
+SERVEEZ_API char **hash_keys __P ((hash_t *hash));
+SERVEEZ_API int hash_size __P ((hash_t *hash));
+SERVEEZ_API int hash_capacity __P ((hash_t *hash));
+SERVEEZ_API char *hash_contains __P ((hash_t *hash, void *value));
+SERVEEZ_API void hash_analyse __P ((hash_t *hash));
+
+__END_DECLS
 
 #if DEBUG_MEMORY_LEAKS
 # include <stdlib.h>
-# define hash_xfree(ptr) free (ptr)
+# define hash_xfree(ptr) svz_free_func (ptr)
 #else
-# define hash_xfree(ptr) xfree (ptr);
+# define hash_xfree(ptr) svz_free (ptr);
 #endif
 
-#endif /* not __HASH_H__ */
+#endif /* !__HASH_H__ */

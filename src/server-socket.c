@@ -1,7 +1,7 @@
 /*
  * server-socket.c - server sockets for TCP, UDP, ICMP and pipes
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.47 2001/01/08 23:27:20 ela Exp $
+ * $Id: server-socket.c,v 1.48 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -267,13 +267,13 @@ server_create (portcfg_t *cfg)
    */
   if (cfg->proto & (PROTO_TCP | PROTO_PIPE))
     {
-      xfree (sock->recv_buffer);
-      xfree (sock->send_buffer);
+      svz_free (sock->recv_buffer);
+      svz_free (sock->send_buffer);
       sock->recv_buffer_size = 0;
       sock->send_buffer_size = 0;
       sock->recv_buffer = NULL;
       sock->send_buffer = NULL;
-      sock->check_request = default_detect_proto; 
+      sock->check_request = sock_default_detect_proto; 
     }
 
   /* Setup the socket structure. */
@@ -284,14 +284,14 @@ server_create (portcfg_t *cfg)
   if (cfg->proto & PROTO_PIPE)
     {
 #ifndef __MINGW32__
-      sock->recv_pipe = xmalloc (strlen (cfg->inpipe) + 1);
+      sock->recv_pipe = svz_malloc (strlen (cfg->inpipe) + 1);
       strcpy (sock->recv_pipe, cfg->inpipe);
-      sock->send_pipe = xmalloc (strlen (cfg->outpipe) + 1);
+      sock->send_pipe = svz_malloc (strlen (cfg->outpipe) + 1);
       strcpy (sock->send_pipe, cfg->outpipe);
 #else /* __MINGW32__ */
-      sock->recv_pipe = xmalloc (strlen (cfg->inpipe) + 10);
+      sock->recv_pipe = svz_malloc (strlen (cfg->inpipe) + 10);
       sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", cfg->inpipe);
-      sock->send_pipe = xmalloc (strlen (cfg->outpipe) + 10);
+      sock->send_pipe = svz_malloc (strlen (cfg->outpipe) + 10);
       sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", cfg->outpipe);
 #endif /* __MINGW32__ */
       sock->read_socket = server_accept_pipe;
@@ -362,7 +362,7 @@ server_accept_socket (socket_t server_sock)
       return 0;
     }
 
-  if (connected_sockets >= serveez_config.max_sockets)
+  if (sock_connections >= serveez_config.max_sockets)
     {
       log_printf (LOG_WARNING, "socket descriptor exceeds "
 		  "socket limit %d\n", serveez_config.max_sockets);
@@ -427,10 +427,10 @@ server_accept_socket (socket_t server_sock)
       sock->flags |= SOCK_FLAG_CONNECTED;
       sock->data = server_sock->data;
       sock->check_request = server_sock->check_request;
-      sock->idle_func = default_idle_func; 
+      sock->idle_func = sock_default_idle_func; 
       sock->idle_counter = 1;
       sock_enqueue (sock);
-      connected_sockets++;
+      sock_connections++;
 
       /* 
        * We call the check_request() routine here once in order to
@@ -540,7 +540,7 @@ server_accept_pipe (socket_t server_sock)
     }
 
   /* Copy overlapped structures to client pipes. */
-  if (os_version >= WinNT4x)
+  if (svz_os_version >= WinNT4x)
     {
       sock->overlap[READ] = server_sock->overlap[READ];
       sock->overlap[WRITE] = server_sock->overlap[WRITE];
@@ -559,7 +559,7 @@ server_accept_pipe (socket_t server_sock)
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
-  sock->idle_func = default_idle_func; 
+  sock->idle_func = sock_default_idle_func; 
   sock->idle_counter = 1;
   sock_enqueue (sock);
 

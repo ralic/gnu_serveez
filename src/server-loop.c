@@ -1,7 +1,7 @@
 /*
  * server-loop.c - server loop implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.15 2000/11/30 22:16:18 ela Exp $
+ * $Id: server-loop.c,v 1.16 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -328,14 +328,14 @@ server_check_sockets_select (void)
 #if HAVE_POLL && ENABLE_POLL /* configured */
 
 /* re-allocate static buffers if necessary */
-#define FD_EXPAND()                                             \
-  if (nfds >= max_nfds) {                                       \
-    max_nfds++;                                                 \
-    ufds = xprealloc (ufds, sizeof (struct pollfd) * max_nfds); \
-    memset (&ufds[max_nfds-1], 0, sizeof (struct pollfd));      \
-    sfds = xprealloc (sfds, sizeof (socket_t) * max_nfds);      \
-    memset (&sfds[max_nfds-1], 0, sizeof (socket_t));           \
-  }                                                             \
+#define FD_EXPAND()                                                \
+  if (nfds >= max_nfds) {                                          \
+    max_nfds++;                                                    \
+    ufds = svz_prealloc (ufds, sizeof (struct pollfd) * max_nfds); \
+    memset (&ufds[max_nfds-1], 0, sizeof (struct pollfd));         \
+    sfds = svz_prealloc (sfds, sizeof (socket_t) * max_nfds);      \
+    memset (&sfds[max_nfds-1], 0, sizeof (socket_t));              \
+  }                                                                \
 
 /* check for incoming data */
 #define FD_POLL_IN(fd, sock)                 \

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.22 2000/12/30 01:59:33 ela Exp $
+ * $Id: irc-proto.c,v 1.23 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -46,13 +46,7 @@
 # include <netinet/in.h>
 #endif
 
-#include "snprintf.h"
-#include "socket.h"
-#include "alloc.h"
-#include "util.h"
-#include "server.h"
-#include "server-core.h"
-#include "server-socket.h"
+#include <libserveez.h>
 #include "serveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
@@ -222,9 +216,9 @@ irc_init (server_t *server)
       log_printf (LOG_WARNING, "irc: port in M line clashes\n");
       cfg->netport->port = cfg->port;
     }
-  cfg->host = xstrdup (tmp[0]);
-  cfg->realhost = xstrdup (tmp[1]);
-  cfg->info = xstrdup (tmp[2]);
+  cfg->host = svz_strdup (tmp[0]);
+  cfg->realhost = svz_strdup (tmp[1]);
+  cfg->info = svz_strdup (tmp[2]);
 
   /* scan the A line (administrative information) */
   if (!cfg->ALine ||
@@ -234,9 +228,9 @@ irc_init (server_t *server)
 		  cfg->ALine ? cfg->ALine : "(nil)");
       return -1;
     }
-  cfg->location1 = xstrdup (tmp[0]);
-  cfg->location2 = xstrdup (tmp[1]);
-  cfg->email = xstrdup (tmp[2]);
+  cfg->location1 = svz_strdup (tmp[0]);
+  cfg->location2 = svz_strdup (tmp[1]);
+  cfg->email = svz_strdup (tmp[2]);
 
   /* initialize hashes and lists */
   cfg->clients = hash_create (4);
@@ -265,15 +259,15 @@ irc_finalize (server_t *server)
 
   /* free the MOTD */
   for (n = 0; n < cfg->MOTDs; n++)
-    xfree (cfg->MOTD[n]);
+    svz_free (cfg->MOTD[n]);
 
   /* free configuration hash variables */
-  xfree (cfg->host);
-  xfree (cfg->info);
-  xfree (cfg->realhost);
-  xfree (cfg->location1);
-  xfree (cfg->location2);
-  xfree (cfg->email);
+  svz_free (cfg->host);
+  svz_free (cfg->info);
+  svz_free (cfg->realhost);
+  svz_free (cfg->location1);
+  svz_free (cfg->location2);
+  svz_free (cfg->email);
 
   irc_free_config_lines (cfg);
 
@@ -348,10 +342,11 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 	    }
 	  else
 	    {
-	      channel->client = xrealloc (channel->client,
-					  sizeof (irc_client_t *) * (n + 1));
-	      channel->cflag = xrealloc (channel->cflag,
-					 sizeof (int) * (n + 1));
+	      channel->client = svz_realloc (channel->client,
+					     sizeof (irc_client_t *) * 
+					     (n + 1));
+	      channel->cflag = svz_realloc (channel->cflag,
+					    sizeof (int) * (n + 1));
 	      channel->client[n] = client;
 	      channel->cflag[n] = 0;
 	      channel->clients++;
@@ -360,8 +355,9 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 			  client->nick, channel->name);
 #endif
 	      n = client->channels;
-	      client->channel = xrealloc (client->channel, 
-					  sizeof (irc_channel_t *) * (n + 1));
+	      client->channel = svz_realloc (client->channel, 
+					     sizeof (irc_channel_t *) * 
+					     (n + 1));
 	      client->channel[n] = channel;
 	      client->channels++;
 	    }
@@ -382,12 +378,12 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 
       /* create one and set the first client as operator */
       channel = irc_add_channel (cfg, chan);
-      channel->client = xmalloc (sizeof (irc_client_t *));
-      channel->cflag = xmalloc (sizeof (int));
+      channel->client = svz_malloc (sizeof (irc_client_t *));
+      channel->cflag = svz_malloc (sizeof (int));
       channel->client[0] = client;
       channel->cflag[0] = MODE_OPERATOR;
       channel->clients = 1;
-      channel->by = xstrdup (client->nick);
+      channel->by = svz_strdup (client->nick);
       channel->since = time (NULL);
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "irc: channel %s created\n", channel->name);
@@ -395,8 +391,8 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 		  client->nick, channel->name);
 #endif
       n = client->channels;
-      client->channel = xrealloc (client->channel, 
-				  sizeof (irc_channel_t *) * (n + 1));
+      client->channel = svz_realloc (client->channel, 
+				     sizeof (irc_channel_t *) * (n + 1));
       client->channel[n] = channel;
       client->channels++;
     }
@@ -423,15 +419,16 @@ irc_leave_channel (irc_config_t *cfg,
 	  {
 	    channel->client[n] = channel->client[last];
 	    channel->cflag[n] = channel->cflag[last];
-	    channel->client = xrealloc (channel->client, 
-					sizeof (irc_client_t *) * last);
-	    channel->cflag = xrealloc (channel->cflag, sizeof (int) * last);
+	    channel->client = svz_realloc (channel->client, 
+					   sizeof (irc_client_t *) * last);
+	    channel->cflag = svz_realloc (channel->cflag, 
+					  sizeof (int) * last);
 	  }
 	else
 	  {
-	    xfree (channel->client);
+	    svz_free (channel->client);
 	    channel->client = NULL;
-	    xfree (channel->cflag);
+	    svz_free (channel->cflag);
 	    channel->cflag = NULL;
 	  }
 #if ENABLE_DEBUG
@@ -446,13 +443,13 @@ irc_leave_channel (irc_config_t *cfg,
 	      if (--client->channels != 0)
 		{
 		  client->channel[i] = client->channel[last];
-		  client->channel = xrealloc (client->channel, 
-					      sizeof (irc_channel_t *) * 
-					      client->channels);
+		  client->channel = svz_realloc (client->channel, 
+						 sizeof (irc_channel_t *) * 
+						 client->channels);
 		}
 	      else
 		{
-		  xfree (client->channel);
+		  svz_free (client->channel);
 		  client->channel = NULL;
 		}
 	      break;
@@ -712,26 +709,26 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 
   if (hash_contains (cfg->channels, channel))
     {
-      /* xfree() all the channel ban entries */
+      /* svz_free() all the channel ban entries */
       for (n = 0; n < channel->bans; n++)
 	irc_destroy_ban (channel->ban[n]);
       if (channel->ban)
-	xfree (channel->ban);
+	svz_free (channel->ban);
 
       hash_delete (cfg->channels, channel->name);
       
       if (channel->topic)
-	xfree (channel->topic);
+	svz_free (channel->topic);
       if (channel->topic_by)
-	xfree (channel->topic_by);
+	svz_free (channel->topic_by);
       if (channel->key)
-	xfree (channel->key);
+	svz_free (channel->key);
       if (channel->invite)
-	xfree (channel->invite);
+	svz_free (channel->invite);
 
-      xfree (channel->by);
-      xfree (channel->name);
-      xfree (channel);
+      svz_free (channel->by);
+      svz_free (channel->name);
+      svz_free (channel);
       return 0;
     }
   return -1;
@@ -752,7 +749,7 @@ irc_find_channel (irc_config_t *cfg, char *channel)
 
 /*
  * Find all matching channels in the current channel list. Return NULL if
- * no channel has not been found. You MUST xfree() this list if non-NULL.
+ * no channel has not been found. You MUST svz_free() this list if non-NULL.
  * The delivered array is NULL terminated.
  */
 irc_channel_t **
@@ -764,7 +761,7 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
   if ((channel = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
     {
       size = hash_size (cfg->channels);
-      fchannel = xmalloc (sizeof (irc_channel_t *) * (size + 1));
+      fchannel = svz_malloc (sizeof (irc_channel_t *) * (size + 1));
       for (found = n = 0; n < size; n++)
 	{
 	  if (irc_string_regex (channel[n]->name, regex))
@@ -777,12 +774,12 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
       /* return NULL if there is not channel */
       if (!found)
 	{
-	  xfree (fchannel);
+	  svz_free (fchannel);
 	  return NULL;
 	}
 
       fchannel[found++] = NULL;
-      fchannel = xrealloc (fchannel, sizeof (irc_channel_t *) * found);
+      fchannel = svz_realloc (fchannel, sizeof (irc_channel_t *) * found);
       return fchannel;
     }
   return NULL;
@@ -799,9 +796,9 @@ irc_add_channel (irc_config_t *cfg, char *name)
   if (irc_find_channel (cfg, name))
     return NULL;
 
-  channel = xmalloc (sizeof (irc_channel_t));
+  channel = svz_malloc (sizeof (irc_channel_t));
   memset (channel, 0, sizeof (irc_channel_t));
-  channel->name = xstrdup (name);
+  channel->name = svz_strdup (name);
   hash_put (cfg->channels, name, channel);
   return channel;
 }
@@ -814,11 +811,11 @@ irc_add_client_history (irc_config_t *cfg, irc_client_t *cl)
 {
   irc_client_history_t *client;
 
-  client = xmalloc (sizeof (irc_client_history_t));
-  client->nick = xstrdup (cl->nick);
-  client->user = xstrdup (cl->user);
-  client->host = xstrdup (cl->host);
-  client->real = xstrdup (cl->real);
+  client = svz_malloc (sizeof (irc_client_history_t));
+  client->nick = svz_strdup (cl->nick);
+  client->user = svz_strdup (cl->user);
+  client->host = svz_strdup (cl->host);
+  client->real = svz_strdup (cl->real);
   client->next = cfg->history;
   cfg->history = client;
 }
@@ -857,11 +854,11 @@ irc_delete_client_history (irc_config_t *cfg)
   for (client = cfg->history; client; client = old)
     {
       old = client->next;
-      xfree (client->nick);
-      xfree (client->user);
-      xfree (client->host);
-      xfree (client->real);
-      xfree (client);
+      svz_free (client->nick);
+      svz_free (client->user);
+      svz_free (client->host);
+      svz_free (client->real);
+      svz_free (client);
     }
   cfg->history = NULL;
 }
@@ -881,25 +878,25 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
       irc_add_client_history (cfg, client);
       if (hash_delete (cfg->clients, client->nick) == NULL)
 	ret = -1;
-      xfree (client->nick);
+      svz_free (client->nick);
     }
 
   /* free all client properties */
   if (client->real)
-    xfree (client->real);
+    svz_free (client->real);
   if (client->user)
-    xfree (client->user);
+    svz_free (client->user);
   if (client->host)
-    xfree (client->host);
+    svz_free (client->host);
   if (client->server)
-    xfree (client->server);
+    svz_free (client->server);
   if (client->channel)
-    xfree (client->channel);
+    svz_free (client->channel);
   if (client->pass)
-    xfree (client->pass);
+    svz_free (client->pass);
   if (client->away)
-    xfree (client->away);
-  xfree (client);
+    svz_free (client->away);
+  svz_free (client);
   cfg->users--;
 
   return ret;
@@ -924,7 +921,7 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 	      !strcmp (client[n]->host, host))
 	    {
 	      fclient = client[n];
-	      xfree (client);
+	      svz_free (client);
 	      return fclient;
 	    }
 	}
@@ -951,7 +948,7 @@ irc_find_nick (irc_config_t *cfg, char *nick)
 
 /*
  * Find all matching nicks in the current client list. Return NULL if
- * no nick has not been found. You MUST xfree() this array if it is
+ * no nick has not been found. You MUST svz_free() this array if it is
  * non-NULL. The delivered clients are NULL terminated.
  */
 irc_client_t **
@@ -963,7 +960,7 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
   if ((client = (irc_client_t **) hash_values (cfg->clients)) != NULL)
     {
       size = hash_size (cfg->clients);
-      fclient = xmalloc (sizeof (irc_client_t *) * (size + 1));
+      fclient = svz_malloc (sizeof (irc_client_t *) * (size + 1));
       for (found = n = 0; n < size; n++)
 	{
 	  if (irc_string_regex (client[n]->nick, regex))
@@ -976,12 +973,12 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
       /* return NULL if there is not client */
       if (!found)
 	{
-	  xfree (fclient);
+	  svz_free (fclient);
 	  return NULL;
 	}
 
       fclient[found++] = NULL;
-      fclient = xrealloc (fclient, sizeof (irc_client_t *) * found);
+      fclient = svz_realloc (fclient, sizeof (irc_client_t *) * found);
       return fclient;
     }
   return NULL;
@@ -1009,7 +1006,7 @@ irc_create_client (irc_config_t *cfg)
 {
   irc_client_t *client;
 
-  client = xmalloc (sizeof (irc_client_t));
+  client = svz_malloc (sizeof (irc_client_t));
   memset (client, 0, sizeof (irc_client_t));
   cfg->users++;
   return client;

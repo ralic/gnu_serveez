@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.8 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-event-3.c,v 1.9 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -38,10 +38,7 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "serveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
@@ -384,13 +381,13 @@ irc_info_callback (socket_t sock,
 	}
 
       /* read every line (restrict line length) */
-      text = xmalloc (MOTD_LINE_LEN);
+      text = svz_malloc (MOTD_LINE_LEN);
       while (fgets (text, MOTD_LINE_LEN, f) != NULL)
 	{
 	  irc_printf (sock, ":%s %03d %s " RPL_INFO_TEXT "\n",
 		      cfg->host, RPL_INFO, client->nick, text);
 	}
-      xfree (text);
+      svz_free (text);
       fclose (f);
 
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFINFO_TEXT "\n",

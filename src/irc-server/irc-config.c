@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.8 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-config.c,v 1.9 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -34,8 +34,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "alloc.h"
-#include "util.h"
+#include <libserveez.h>
 #include "irc-proto.h"
 #include "irc-server.h"
 #include "irc-config.h"
@@ -66,21 +65,21 @@ irc_parse_config_lines (irc_config_t *cfg)
   
   /* reserve some buffer space */
   for (n = 0; n < MAX_TMP_ARRAY; n++)
-    tmp[n] = xmalloc (MAX_TMP_STRLEN);
+    tmp[n] = svz_malloc (MAX_TMP_STRLEN);
 
   /* parse connection classes */
   if (cfg->YLine)
     {
       for (n = 0, line = cfg->YLine[n]; line; line = cfg->YLine[++n])
 	{
-	  class = xmalloc (sizeof (irc_class_t));
+	  class = svz_malloc (sizeof (irc_class_t));
 	  if (5 != irc_parse_line (line, "Y:%d:%d:%d:%d:%d",
 				   &class->nr, &class->ping_freq, 
 				   &class->connect_freq, &class->max_links, 
 				   &class->sendq_size))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid Y line: %s\n", line);
-	      xfree (class);
+	      svz_free (class);
 	    }
 	  else
 	    {
@@ -97,26 +96,26 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       for (n = 0, line = cfg->ILine[n]; line; line = cfg->ILine[++n])
 	{
-	  user = xmalloc (sizeof (irc_user_t));
+	  user = svz_malloc (sizeof (irc_user_t));
 	  if (5 != irc_parse_line (line, "I:%s:%s:%s:%s:%d",
 				   tmp[0], tmp[1], tmp[2], tmp[3], 
 				   &user->class))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid I line: %s\n", line);
-	      xfree (user);
+	      svz_free (user);
 	    }
 	  else
 	    {
 	      user->line = line;
 	      PARSE_TILL_AT (tmp[0]);
-	      user->user_ip = xstrdup (tmp[0]);
-	      user->ip = xstrdup (p);
-	      user->password = xstrdup (tmp[1]);
+	      user->user_ip = svz_strdup (tmp[0]);
+	      user->ip = svz_strdup (p);
+	      user->password = svz_strdup (tmp[1]);
 	      PARSE_TILL_AT (tmp[2]);
-	      user->user_host = xstrdup (tmp[2]);
-	      user->host = xstrdup (p);
+	      user->user_host = svz_strdup (tmp[2]);
+	      user->host = svz_strdup (p);
 	      if (!user->password)
-		user->password = xstrdup (tmp[3]);
+		user->password = svz_strdup (tmp[3]);
 	      user->next = cfg->user_auth;
 	      cfg->user_auth = user;
 	    }
@@ -128,21 +127,21 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       for (n = 0, line = cfg->OLine[n]; line; line = cfg->OLine[++n])
 	{
-	  oper = xmalloc (sizeof (irc_oper_t));
+	  oper = svz_malloc (sizeof (irc_oper_t));
 	  if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
 				   tmp[0], tmp[1], tmp[2], &oper->class))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid O line: %s\n", line);
-	      xfree (oper);
+	      svz_free (oper);
 	    }
 	  else
 	    {
 	      oper->line = line;
 	      PARSE_TILL_AT (tmp[0]);
-	      oper->user = xstrdup (tmp[0]);
-	      oper->host = xstrdup (p);
-	      oper->password = xstrdup (tmp[1]);
-	      oper->nick = xstrdup (tmp[2]);
+	      oper->user = svz_strdup (tmp[0]);
+	      oper->host = svz_strdup (p);
+	      oper->password = svz_strdup (tmp[1]);
+	      oper->nick = svz_strdup (tmp[2]);
 	      oper->local = 0;
 	      oper->next = cfg->operator_auth;
 	      cfg->operator_auth = oper;
@@ -154,21 +153,21 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       for (n = 0, line = cfg->oLine[n]; line; line = cfg->oLine[++n])
 	{
-	  oper = xmalloc (sizeof (irc_oper_t));
+	  oper = svz_malloc (sizeof (irc_oper_t));
 	  if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
 				   tmp[0], tmp[1], tmp[2], &oper->class))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid o line: %s\n", line);
-	      xfree (oper);
+	      svz_free (oper);
 	    }
 	  else
 	    {
 	      oper->line = line;
 	      PARSE_TILL_AT (tmp[0]);
-	      oper->user = xstrdup (tmp[0]);
-	      oper->host = xstrdup (p);
-	      oper->password = xstrdup (tmp[1]);
-	      oper->nick = xstrdup (tmp[2]);
+	      oper->user = svz_strdup (tmp[0]);
+	      oper->host = svz_strdup (p);
+	      oper->password = svz_strdup (tmp[1]);
+	      oper->nick = svz_strdup (tmp[2]);
 	      oper->local = 1;
 	      oper->next = cfg->operator_auth;
 	      cfg->operator_auth = oper;
@@ -181,18 +180,18 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       for (n = 0, line = cfg->KLine[n]; line; line = cfg->KLine[++n])
 	{
-	  kill = xmalloc (sizeof (irc_kill_t));
+	  kill = svz_malloc (sizeof (irc_kill_t));
 	  if (4 != irc_parse_line (line, "O:%s:%d-%d:%s",
 				   tmp[0], &kill->start, &kill->end, tmp[1]))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid K line: %s\n", line);
-	      xfree (kill);
+	      svz_free (kill);
 	    }
 	  else
 	    {
 	      kill->line = line;
-	      kill->host = xstrdup (tmp[0]);
-	      kill->user = xstrdup (tmp[1]);
+	      kill->host = svz_strdup (tmp[0]);
+	      kill->user = svz_strdup (tmp[1]);
 	      kill->next = cfg->banned;
 	      cfg->banned = kill;
 	    }
@@ -201,7 +200,7 @@ irc_parse_config_lines (irc_config_t *cfg)
 
   /* free the previously allocated buffer space */
   for (n = 0; n < MAX_TMP_ARRAY; n++)
-    xfree (tmp[n]);
+    svz_free (tmp[n]);
 }
 
 /*
@@ -219,7 +218,7 @@ irc_free_config_lines (irc_config_t *cfg)
   while ((class = cfg->classes) != NULL)
     {
       cfg->classes = class->next;
-      xfree (class);
+      svz_free (class);
     }
 
   /* free user authorization list */
@@ -227,16 +226,16 @@ irc_free_config_lines (irc_config_t *cfg)
     {
       cfg->user_auth = user->next;
       if (user->user_ip)
-	xfree (user->user_ip);
+	svz_free (user->user_ip);
       if (user->ip)
-	xfree (user->ip);
+	svz_free (user->ip);
       if (user->user_host)
-	xfree (user->user_host);
+	svz_free (user->user_host);
       if (user->host)
-	xfree (user->host);
+	svz_free (user->host);
       if (user->password)
-	xfree (user->password);
-      xfree (user);
+	svz_free (user->password);
+      svz_free (user);
     }
 
   /* free operator authorization list */
@@ -244,14 +243,14 @@ irc_free_config_lines (irc_config_t *cfg)
     {
       cfg->operator_auth = oper->next;
       if (oper->nick)
-	xfree (oper->nick);
+	svz_free (oper->nick);
       if (oper->user)
-	xfree (oper->user);
+	svz_free (oper->user);
       if (oper->host)
-	xfree (oper->host);
+	svz_free (oper->host);
       if (oper->password)
-	xfree (oper->password);
-      xfree (oper);
+	svz_free (oper->password);
+      svz_free (oper);
     }
 
   /* free banned user list */
@@ -259,10 +258,10 @@ irc_free_config_lines (irc_config_t *cfg)
     {
       cfg->banned = kill->next;
       if (kill->user)
-	xfree (kill->user);
+	svz_free (kill->user);
       if (kill->host)
-	xfree (kill->host);
-      xfree (kill);
+	svz_free (kill->host);
+      svz_free (kill);
     }
 }
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.17 2001/01/02 00:52:46 raimi Exp $
+ * $Id: foo-proto.c,v 1.18 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -35,17 +35,12 @@
 # include <winsock.h>
 #endif
 
-#include "util.h"
-#include "hash.h"
-#include "alloc.h"
+#include <libserveez.h>
 #include "foo-proto.h"
-#include "server.h"
-#include "server-core.h"
-#include "server-socket.h"
 #include "coserver/coserver.h"
 
 /* 
- * Packet specification for default_check_request.
+ * Packet specification for sock_default_check_request().
  */
 char *foo_packet_delim = "\r\n";
 int foo_packet_delim_len = 2;
@@ -202,7 +197,7 @@ foo_connect_socket (void *acfg, socket_t sock)
    */
   sock->boundary = foo_packet_delim;
   sock->boundary_size = foo_packet_delim_len;
-  sock->check_request = default_check_request;
+  sock->check_request = sock_default_check_request;
   sock->handle_request = foo_handle_request;
 
   log_printf (LOG_NOTICE, "foo client detected\n");
@@ -277,7 +272,7 @@ foo_finalize (struct server *server)
       if ((values = (char **) hash_values (*(c->assoc))) != NULL)
 	{
 	  for (n = 0; n < hash_size (*(c->assoc)); n++)
-	    xfree (values[n]);
+	    svz_free (values[n]);
 	  hash_xfree (values);
 	}
       hash_destroy (*(c->assoc));

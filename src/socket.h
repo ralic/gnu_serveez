@@ -1,7 +1,7 @@
 /*
  * socket.h - socket management definition
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,16 +19,14 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.31 2001/01/04 22:11:59 raimi Exp $
+ * $Id: socket.h,v 1.32 2001/01/24 15:55:28 ela Exp $
  *
  */
 
 #ifndef __SOCKET_H__
-#define __SOCKET_H__
+#define __SOCKET_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <internal.h>
 
 #include <time.h>
 
@@ -94,11 +92,11 @@ struct socket
   LPOVERLAPPED overlap[2];      /* the overlap info for WinNT */
 #endif /* not __MINGW32__ */
 
-  char * recv_pipe;             /* File of the receive pipe. */
-  char * send_pipe;             /* File of the send pipe. */
+  char *recv_pipe;              /* File of the receive pipe. */
+  char *send_pipe;              /* File of the send pipe. */
   socket_t referrer;            /* Referring socket structure. */
 
-  char * boundary;              /* Packet boundary. */
+  char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
 
   /* The following items always MUST be in network byte order. */
@@ -107,8 +105,8 @@ struct socket
   unsigned short local_port;	/* Port number of local end. */
   unsigned long local_addr;	/* IP address of local end. */
 
-  char * send_buffer;		/* Buffer for outbound data. */
-  char * recv_buffer;		/* Buffer for inbound data. */
+  char *send_buffer;		/* Buffer for outbound data. */
+  char *recv_buffer;		/* Buffer for inbound data. */
   int send_buffer_size;		/* Size of SEND_BUFFER. */
   int recv_buffer_size;		/* Size of RECV_BUFFER. */
   int send_buffer_fill;		/* Valid bytes in SEND_BUFFER. */
@@ -194,14 +192,16 @@ struct socket
    * Miscellaneous field. Listener keeps array of server instances here.
    * This array is NULL terminated.
    */
-  void * data;
+  void *data;
 
   /*
    * When the final protocol detection in DEFAULT_DETECT_PROTO
    * has been done CFG should get the actual configuration hash.
    */
-  void * cfg;
+  void *cfg;
 };
+
+__BEGIN_DECLS
 
 /*
  * SOCK_LOOKUP_TABLE is used to speed up references to socket
@@ -212,37 +212,37 @@ extern socket_t sock_lookup_table[SOCKET_MAX_IDS];
 /*
  * Count the number of currently connected sockets.
  */
-extern SOCKET connected_sockets;
+SERVEEZ_API extern SOCKET sock_connections;
 
 /*
  * Check if a given socket is still valid. Return non-zero if it is
  * not.
  */
-int sock_valid (socket_t sock);
+SERVEEZ_API int sock_valid __P ((socket_t sock));
 
 /*
  * Allocate a structure of type socket_t and initialize
  * its fields.
  */
-socket_t sock_alloc (void);
+SERVEEZ_API socket_t sock_alloc __P ((void));
 
 /*
  * Free the socket structure SOCK.  Return a non-zero value on error.
  */
-int sock_free (socket_t sock);
+SERVEEZ_API int sock_free __P ((socket_t sock));
 
 /*
  * Create a socket structure from the file descriptor FD.  Return NULL
  * on error.
  */
-socket_t sock_create (int fd);
+SERVEEZ_API socket_t sock_create __P ((int fd));
 
 /*
  * Disconnect the socket SOCK from the network and calls the
  * disconnect function for the socket if set.  Return a non-zero
  * value on error.
  */
-int sock_disconnect (socket_t sock);
+SERVEEZ_API int sock_disconnect __P ((socket_t sock));
 
 /*
  * Write LEN bytes from the memory location pointed to by BUF
@@ -250,47 +250,54 @@ int sock_disconnect (socket_t sock);
  * buffer to the network socket of SOCK if possible.  Return a non-zero
  * value on error, which normally means a buffer overflow.
  */
-int sock_write (socket_t sock, char * buf, int len);
+SERVEEZ_API int sock_write __P ((socket_t sock, char *buf, int len));
 
 /*
  * Print a formatted string on the socket SOCK.  FMT is the printf()-
  * style format string, which describes how to format the optional
  * arguments.  See the printf(3) manual page for details.
  */
-#ifndef __STDC__
-int sock_printf ();
-#else
-int sock_printf (socket_t sock, const char * fmt, ...);
-#endif
+SERVEEZ_API int sock_printf __P ((socket_t sock, const char *fmt, ...));
 
 /*
  * Resize the send and receive buffers for the socket SOCK.  SEND_BUF_SIZE
  * is the new size for the send buffer, RECV_BUF_SIZE for the receive
  * buffer.  Note that data may be lost when the buffers shrink.
  */
-int sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size);
+SERVEEZ_API int sock_resize_buffers __P ((socket_t sock, int, int));
 
 /*
  * Get local and remote addresses/ports of socket SOCK and intern them
  * into the socket structure.
  */
-int sock_intern_connection_info (socket_t sock);
+SERVEEZ_API int sock_intern_connection_info __P ((socket_t sock));
 
 /*
  * Get and clear the pending socket error of a given socket. Print
  * the result to the log file.
  */
-int sock_error_info (socket_t sock);
+SERVEEZ_API int sock_error_info __P ((socket_t sock));
 
-int default_write (socket_t sock);
-int default_read (socket_t sock);
-int default_detect_proto (socket_t sock);
-int default_check_request (socket_t sock);
-int default_idle_func (socket_t sock);
-int sock_unique_id (socket_t sock);
+/*
+ * Calculate unique socket structure id and assign a version 
+ * for a given SOCK. The version is for validating socket structures.
+ * It is currently used in the coserver callbacks.
+ */
+SERVEEZ_API int sock_unique_id __P ((socket_t sock));
+
+/*
+ * Lots of default callbacks.
+ */
+SERVEEZ_API int sock_default_write __P ((socket_t sock));
+SERVEEZ_API int sock_default_read __P ((socket_t sock));
+SERVEEZ_API int sock_default_detect_proto __P ((socket_t sock));
+SERVEEZ_API int sock_default_check_request __P ((socket_t sock));
+SERVEEZ_API int sock_default_idle_func __P ((socket_t sock));
 #if ENABLE_FLOOD_PROTECTION
-int default_flood_protect (socket_t sock, int num_read);
+SERVEEZ_API int sock_default_flood_protect __P ((socket_t sock, int));
 #endif
+
+__END_DECLS
 
 /*
  * Shorten the receive buffer of SOCK by len bytes.

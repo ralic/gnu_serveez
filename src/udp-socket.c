@@ -1,7 +1,7 @@
 /*
  * udp-socket.c - udp socket implementations
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.14 2001/01/08 23:27:21 ela Exp $
+ * $Id: udp-socket.c,v 1.15 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -119,7 +119,7 @@ udp_read_socket (socket_t sock)
     {
       log_printf (LOG_ERROR, "udp: recv%s: %s\n",
 		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
-      if (last_errno != SOCK_UNAVAILABLE)
+      if (svz_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
   return 0;
@@ -174,7 +174,7 @@ udp_write_socket (socket_t sock)
     {
       log_printf (LOG_ERROR, "udp: send%s: %s\n", 
 		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
 	num_written = 0;
     }
   /* Packet data could be transmitted. */
@@ -278,9 +278,9 @@ udp_write (socket_t sock, char *buf, int length)
     return 0;
 
   /* allocate memory block */
-  buffer = xmalloc ((length > UDP_MSG_SIZE ? UDP_MSG_SIZE : length) + 
-		    sizeof (len) + sizeof (sock->remote_addr) +
-		    sizeof (sock->remote_port));
+  buffer = svz_malloc ((length > UDP_MSG_SIZE ? UDP_MSG_SIZE : length) + 
+		       sizeof (len) + sizeof (sock->remote_addr) +
+		       sizeof (sock->remote_port));
 
   while (length)
     {
@@ -311,7 +311,7 @@ udp_write (socket_t sock, char *buf, int length)
     }
 
   /* release memory block */
-  xfree (buffer);
+  svz_free (buffer);
   return ret;
 }
 
@@ -414,6 +414,6 @@ udp_connect (unsigned long host, unsigned short port)
   sock->write_socket = udp_write_socket;
   sock->check_request = udp_check_request;
 
-  connected_sockets++;
+  sock_connections++;
   return sock;
 }

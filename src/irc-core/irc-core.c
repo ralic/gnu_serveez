@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.19 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-core.c,v 1.20 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -37,10 +37,7 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "coserver/coserver.h"
 #include "irc-core.h"
 #include "irc-server/irc-proto.h"
@@ -66,8 +63,8 @@ irc_nslookup_done (char *host, int id, int version)
       if (host)
 	{
 	  if (client->host)
-	    xfree (client->host);
-	  client->host = xstrdup (host);
+	    svz_free (client->host);
+	  client->host = svz_strdup (host);
 	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
 	}
       else
@@ -98,8 +95,8 @@ irc_ident_done (char *user, int id, int version)
       if (user)
 	{
 	  if (client->user)
-	    xfree (client->user);
-	  client->user = xstrdup (user);
+	    svz_free (client->user);
+	  client->user = svz_strdup (user);
 	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
 	}
       else
@@ -127,7 +124,7 @@ irc_start_auth (socket_t sock)
    * actual client hash. 
    */
   client = irc_create_client (cfg);
-  client->server = xstrdup (cfg->host);
+  client->server = svz_strdup (cfg->host);
   client->since = time (NULL);
   client->sock = sock;
   sock->data = client;

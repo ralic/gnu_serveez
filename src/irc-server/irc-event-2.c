@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.12 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-event-2.c,v 1.13 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -36,10 +36,7 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
-#include "alloc.h"
-#include "util.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"
@@ -250,13 +247,13 @@ irc_join_callback (socket_t sock,
 		  if (--channel->invites != 0)
 		    {
 		      channel->invite[i] = channel->invite[channel->invites];
-		      channel->invite = xrealloc (channel->invite,
-						  sizeof (irc_client_t *) *
-						  channel->invites);
+		      channel->invite = svz_realloc (channel->invite,
+						     sizeof (irc_client_t *) *
+						     channel->invites);
 		    }
 		  else
 		    {
-		      xfree (channel->invite);
+		      svz_free (channel->invite);
 		      channel->invite = NULL;
 		    }
 		}
@@ -522,18 +519,18 @@ irc_channel_flag (irc_client_t *client,   /* client changing the flag */
 }
 
 /*
- * Destroy and xfree() a given ban entry.
+ * Destroy and svz_free() a given ban entry.
  */
 void
 irc_destroy_ban (irc_ban_t *ban)
 {
   if (ban->nick)
-    xfree (ban->nick);
+    svz_free (ban->nick);
   if (ban->user)
-    xfree (ban->user);
-  xfree (ban->host);
-  xfree (ban->by);
-  xfree (ban);
+    svz_free (ban->user);
+  svz_free (ban->host);
+  svz_free (ban->by);
+  svz_free (ban);
 }
 
 /*
@@ -547,14 +544,14 @@ irc_create_ban (irc_client_t *client, char *request, int len)
   int n, size = 0;
 
   /* reserve and initialize buffer space */
-  ban = xmalloc (sizeof (irc_ban_t));
+  ban = svz_malloc (sizeof (irc_ban_t));
   memset (ban, 0, sizeof (irc_ban_t));
-  tmp = xmalloc (MAX_MSG_LEN);
+  tmp = svz_malloc (MAX_MSG_LEN);
   memset (tmp, 0, MAX_MSG_LEN);
 
   ban->since = time (NULL);
   sprintf (tmp, "%s!%s@%s", client->nick, client->user, client->host);
-  ban->by = xstrdup (tmp);
+  ban->by = svz_strdup (tmp);
 
   p = request;
   n = 0;
@@ -567,7 +564,7 @@ irc_create_ban (irc_client_t *client, char *request, int len)
   if (*p == '!')
     {
       tmp[n] = '\0';
-      ban->nick = xstrdup (tmp);
+      ban->nick = svz_strdup (tmp);
       p++;
       size++;
       n = 0;
@@ -580,7 +577,7 @@ irc_create_ban (irc_client_t *client, char *request, int len)
       if (*p == '@')
 	{
 	  tmp[n] = '\0';
-	  ban->user = xstrdup (tmp);
+	  ban->user = svz_strdup (tmp);
 	  p++;
 	  size++;
 	  n = 0;
@@ -590,14 +587,14 @@ irc_create_ban (irc_client_t *client, char *request, int len)
 	      size++;
 	    }
 	  tmp[n] = '\0';
-	  ban->host = xstrdup (tmp);
+	  ban->host = svz_strdup (tmp);
 	}
     }
   /* here user parsed without nick */
   else if (*p == '@')
     {
       tmp[n] = '\0';
-      ban->user = xstrdup (tmp);
+      ban->user = svz_strdup (tmp);
       p++;
       size++;
       n = 0;
@@ -607,16 +604,16 @@ irc_create_ban (irc_client_t *client, char *request, int len)
 	  size++;
 	}
       tmp[n] = '\0';
-      ban->host = xstrdup (tmp);
+      ban->host = svz_strdup (tmp);
     }
   /* parsed just a host without user and nick */
   else
     {
       tmp[n] = '\0';
-      ban->host = xstrdup (tmp);
+      ban->host = svz_strdup (tmp);
     }
 
-  xfree (tmp);
+  svz_free (tmp);
   return ban;
 }
 
@@ -673,8 +670,8 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 	      return 0;
 	    }
 	  if (channel->key)
-	    xfree (channel->key);
-	  channel->key = xstrdup (arg);
+	    svz_free (channel->key);
+	  channel->key = svz_strdup (arg);
 	  channel->flag |= flag;
 	  break;
 	case MODE_ULIMIT:
@@ -683,8 +680,8 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 	  break;
 	case MODE_BAN:
 	  n = channel->bans;
-	  channel->ban = xrealloc (channel->ban, 
-				   sizeof (irc_ban_t *) * (n + 1));
+	  channel->ban = svz_realloc (channel->ban, 
+				      sizeof (irc_ban_t *) * (n + 1));
 	  channel->ban[n] = irc_create_ban (client, arg, strlen (arg));
 	  channel->bans++;
 	  break;
@@ -704,13 +701,13 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 		  if (--channel->bans != 0)
 		    {
 		      channel->ban[n] = channel->ban[channel->bans];
-		      channel->ban = xrealloc (channel->ban,
-					       sizeof (irc_ban_t *) *
-					       channel->bans);
+		      channel->ban = svz_realloc (channel->ban,
+						  sizeof (irc_ban_t *) *
+						  channel->bans);
 		    }
 		  else
 		    {
-		      xfree (channel->ban);
+		      svz_free (channel->ban);
 		      channel->ban = NULL;
 		    }
 		  break;
@@ -1054,11 +1051,11 @@ irc_topic_callback (socket_t sock,
 
 	      /* change the topic */
 	      if (channel->topic)
-		xfree (channel->topic);
-	      channel->topic = xstrdup (request->para[1]);
+		svz_free (channel->topic);
+	      channel->topic = svz_strdup (request->para[1]);
 	      if (channel->topic_by)
-		xfree (channel->topic_by);
-	      channel->topic_by = xstrdup (client->nick);
+		svz_free (channel->topic_by);
+	      channel->topic_by = svz_strdup (client->nick);
 	      channel->topic_since = time (NULL);
 
 	      /* send topic to all clients in channel */
@@ -1333,7 +1330,7 @@ irc_invite_callback (socket_t sock,
 
   /* fill in the invited client into the channels invite array */
   n = ch->invites;
-  ch->invite = xrealloc (ch->invite, sizeof (irc_client_t *) * (n + 1));
+  ch->invite = svz_realloc (ch->invite, sizeof (irc_client_t *) * (n + 1));
   ch->invite[n] = cl;
   ch->invites++;
 

@@ -1,7 +1,7 @@
 /*
  * server-core.c - server core implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.26 2000/10/15 11:46:41 ela Exp $
+ * $Id: server-core.c,v 1.27 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -77,12 +77,6 @@
 #include "server.h"
 #include "serveez.h"
 #include "coserver/coserver.h"
-
-/*
- * SOCK_LOOKUP_TABLE is used to speed up references to socket
- * structures by socket's id.
- */
-extern socket_t sock_lookup_table[SOCKET_MAX_IDS];
 
 /* 
  * When SERVER_NUKE_HAPPENED is set to a non-zero value, the server

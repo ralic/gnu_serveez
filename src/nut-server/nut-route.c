@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.11 2000/12/30 01:59:34 ela Exp $
+ * $Id: nut-route.c,v 1.12 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -38,11 +38,8 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "socket.h"
+#include <libserveez.h>
 #include "server.h"
-#include "server-core.h"
 #include "gnutella.h"
 #include "nut-route.h"
 #include "nut-core.h"
@@ -63,7 +60,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
     return -1;
 
   /* extract alphanumerics only and pack them together as lowercase */
-  key = extract = p = xstrdup (query);
+  key = extract = p = svz_strdup (query);
   while (*p)
     {
       if (isalnum ((byte) *p)) 
@@ -90,7 +87,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
       hash_put (cfg->query, key, (void *) t);
     }
 
-  xfree (key);
+  svz_free (key);
   return ret;
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.7 2001/01/16 22:51:57 ela Exp $
+ * $Id: windoze.c,v 1.8 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -201,7 +201,7 @@ windoze_notify_set (HWND hwnd, UINT id)
   sprintf (windoze_tooltip, "%s %s (%d connections)", 
 	   serveez_config.program_name,
 	   serveez_config.version_string,
-	   connected_sockets);
+	   sock_connections);
 
   windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
 }

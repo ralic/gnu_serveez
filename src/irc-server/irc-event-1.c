@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.14 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-event-1.c,v 1.15 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -41,10 +41,7 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
-#include "alloc.h"
-#include "util.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "serveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
@@ -82,8 +79,8 @@ irc_pass_callback (socket_t sock,
     return -1;
 
   if (client->pass)
-    xfree (client->pass);
-  client->pass = xstrdup (request->para[0]);
+    svz_free (client->pass);
+  client->pass = svz_strdup (request->para[0]);
   client->key = irc_gen_key (client->pass);
   client->flag |= UMODE_PASS;
 
@@ -262,11 +259,11 @@ irc_nick_callback (socket_t sock,
 	  hash_put (cfg->clients, nick, client);
 	}
 
-      xfree (client->nick);
+      svz_free (client->nick);
     }
 
   /* this is the first nick you specified ! */
-  client->nick = xstrdup (nick);
+  client->nick = svz_strdup (nick);
   client->flag |= UMODE_NICK;
 
   return 0;
@@ -298,15 +295,15 @@ irc_user_callback (socket_t sock,
   /* store paras in client structure if not done by AUTH-callbacks */
   if (!client->user) 
     {
-      client->user = xmalloc (strlen (request->para[0]) + 2);
+      client->user = svz_malloc (strlen (request->para[0]) + 2);
       sprintf (client->user, "~%s", request->para[0]);
     }
   if (!client->host)
-    client->host = xstrdup (request->para[1]);
+    client->host = svz_strdup (request->para[1]);
   if (!client->server)
-    client->server = xstrdup (request->para[2]);
+    client->server = svz_strdup (request->para[2]);
   if (!client->real)
-    client->real = xstrdup (request->para[3]);
+    client->real = svz_strdup (request->para[3]);
   client->flag |= UMODE_USER;
 
   return 0;
@@ -349,18 +346,18 @@ irc_motd_callback (socket_t sock,
 
       /* free the previous MOTD content */
       for (n = 0; n < cfg->MOTDs; n++)
-	xfree (cfg->MOTD[n]);
+	svz_free (cfg->MOTD[n]);
 
       /* read every line (restrict line length) */
       n = 0;
-      cfg->MOTD[n] = xmalloc (MOTD_LINE_LEN);
+      cfg->MOTD[n] = svz_malloc (MOTD_LINE_LEN);
       while (fgets (cfg->MOTD[n], MOTD_LINE_LEN, f) && n < MAX_MOTD_LINES)
 	{
 	  cfg->MOTD[n][strlen (cfg->MOTD[n]) - 1] = '\0';
 	  n++;
-	  cfg->MOTD[n] = xmalloc (MOTD_LINE_LEN);
+	  cfg->MOTD[n] = svz_malloc (MOTD_LINE_LEN);
 	}
-      xfree (cfg->MOTD[n]);
+      svz_free (cfg->MOTD[n]);
       cfg->MOTDs = n;
       fclose (f);
     }

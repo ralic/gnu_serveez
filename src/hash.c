@@ -1,7 +1,7 @@
 /*
  * src/hash.c - hash table functions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.13 2000/12/16 10:57:23 ela Exp $
+ * $Id: hash.c,v 1.14 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -37,10 +37,10 @@
 #include "hash.h"
 
 #if DEBUG_MEMORY_LEAKS
-# define xfree(ptr) free (ptr)
-# define xmalloc(size) malloc (size)
-# define xrealloc(ptr, size) realloc (ptr, size)
-#endif
+# define svz_free(ptr) svz_free_func (ptr)
+# define svz_malloc(size) svz_malloc_func (size)
+# define svz_realloc(ptr, size) svz_realloc_func (ptr, size)
+#endif /* DEBUG_MEMORY_LEAKS */
 
 /*
  * Calculate the hashcode for a given key. This is the standard callback
@@ -74,19 +74,22 @@ hash_key_equals (char *key1, char *key2)
 
   assert (key1 && key2);
 
-  if (key1 == key2) return 0;
+  if (key1 == key2)
+    return 0;
   
   p1 = key1;
   p2 = key2;
 
   while (*p1 && *p2)
     {
-      if (*p1 != *p2) return -1;
+      if (*p1 != *p2)
+	return -1;
       p1++;
       p2++;
     }
 
-  if(!*p1 && !*p2) return 0;
+  if (!*p1 && !*p2)
+    return 0;
   return -1;
 }
 
@@ -99,7 +102,8 @@ hash_key_length (char *key)
   unsigned len = 0;
 
   assert (key);
-  while (*key++) len++;
+  while (*key++)
+    len++;
   len++;
 
   return len;
@@ -116,11 +120,13 @@ hash_create (int size)
   hash_t *hash;
 
   /* set initial hash table size to a binary value */
-  for (n = size, size = 1; n != 1; n >>= 1)  size <<= 1;
-  if (size < HASH_MIN_SIZE) size = HASH_MIN_SIZE;
+  for (n = size, size = 1; n != 1; n >>= 1) 
+    size <<= 1;
+  if (size < HASH_MIN_SIZE)
+    size = HASH_MIN_SIZE;
 
   /* allocate space for the hash itself */
-  hash = xmalloc (sizeof (hash_t));
+  hash = svz_malloc (sizeof (hash_t));
   hash->buckets = size;
   hash->fill = 0;
   hash->keys = 0;
@@ -129,7 +135,7 @@ hash_create (int size)
   hash->keylen = hash_key_length;
 
   /* allocate space for the hash table and initialize it */
-  hash->table = xmalloc (sizeof (hash_bucket_t) * size);
+  hash->table = svz_malloc (sizeof (hash_bucket_t) * size);
   for (n = 0; n < size; n++)
     {
       hash->table[n].size = 0;
@@ -140,9 +146,9 @@ hash_create (int size)
 }
 
 /*
- * Destroy an existing hash. Therefore we xfree() all keys within the hash,
+ * Destroy an existing hash. Therefore we svz_free() all keys within the hash,
  * the hash table and the hash itself. The values keep untouched. So you
- * might want to xfree() them yourself.
+ * might want to svz_free() them yourself.
  */
 void
 hash_destroy (hash_t *hash)
@@ -157,13 +163,13 @@ hash_destroy (hash_t *hash)
 	{
 	  for (e = 0; e < bucket->size; e++)
 	    {
-	      xfree (bucket->entry[e].key);
+	      svz_free (bucket->entry[e].key);
 	    }
-	  xfree (bucket->entry);
+	  svz_free (bucket->entry);
 	}
     }
-  xfree (hash->table);
-  xfree (hash);
+  svz_free (hash->table);
+  svz_free (hash);
 }
 
 /*
@@ -185,9 +191,9 @@ hash_clear (hash_t *hash)
 	{
 	  for (e = 0; e < bucket->size; e++)
 	    {
-	      xfree (bucket->entry[e].key);
+	      svz_free (bucket->entry[e].key);
 	    }
-	  xfree (bucket->entry);
+	  svz_free (bucket->entry);
 	  bucket->entry = NULL;
 	  bucket->size = 0;
 	}
@@ -197,7 +203,8 @@ hash_clear (hash_t *hash)
   hash->buckets = HASH_MIN_SIZE;
   hash->fill = 0;
   hash->keys = 0;
-  hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->buckets);
+  hash->table = svz_realloc (hash->table, 
+			     sizeof (hash_bucket_t) * hash->buckets);
 }
 
 /*
@@ -221,8 +228,8 @@ hash_rehash (hash_t *hash, int type)
        * Reallocate and initialize the hash table itself.
        */
       hash->buckets <<= 1;
-      hash->table = xrealloc (hash->table, 
-			      sizeof (hash_bucket_t) * hash->buckets);
+      hash->table = svz_realloc (hash->table, 
+				 sizeof (hash_bucket_t) * hash->buckets);
       for (n = hash->buckets >> 1; n < hash->buckets; n++)
 	{
 	  hash->table[n].size = 0;
@@ -244,27 +251,28 @@ hash_rehash (hash_t *hash, int type)
 		  /* copy this entry to the far entry */
 		  next_bucket = 
 		    &hash->table[HASH_BUCKET (bucket->entry[e].code, hash)];
-		  next_bucket->entry = xrealloc (next_bucket->entry,
-						 (next_bucket->size + 1) *
-						 sizeof (hash_entry_t));
+		  next_bucket->entry = svz_realloc (next_bucket->entry,
+						    (next_bucket->size + 1) *
+						    sizeof (hash_entry_t));
 		  next_bucket->entry[next_bucket->size] = bucket->entry[e];
 		  next_bucket->size++;
-		  if (next_bucket->size == 1) hash->fill++;
+		  if (next_bucket->size == 1)
+		    hash->fill++;
 	      
 		  /* delete this entry */
 		  bucket->size--;
 		  if (bucket->size == 0)
 		    {
-		      xfree (bucket->entry);
+		      svz_free (bucket->entry);
 		      bucket->entry = NULL;
 		      hash->fill--;
 		    }
 		  else
 		    {
 		      bucket->entry[e] = bucket->entry[bucket->size];
-		      bucket->entry = xrealloc (bucket->entry,
-						bucket->size *
-						sizeof (hash_entry_t));
+		      bucket->entry = svz_realloc (bucket->entry,
+						   bucket->size *
+						   sizeof (hash_entry_t));
 		    }
 		  e--;
 		}
@@ -283,19 +291,20 @@ hash_rehash (hash_t *hash, int type)
 		{
 		  next_bucket = 
 		    &hash->table[HASH_BUCKET (bucket->entry[e].code, hash)];
-		  next_bucket->entry = xrealloc (next_bucket->entry,
-						 (next_bucket->size + 1) *
-						 sizeof (hash_entry_t));
+		  next_bucket->entry = svz_realloc (next_bucket->entry,
+						    (next_bucket->size + 1) *
+						    sizeof (hash_entry_t));
 		  next_bucket->entry[next_bucket->size] = bucket->entry[e];
 		  next_bucket->size++;
-		  if (next_bucket->size == 1) hash->fill++;
+		  if (next_bucket->size == 1)
+		    hash->fill++;
 		}
-	      xfree (bucket->entry);
+	      svz_free (bucket->entry);
 	    }
 	  hash->fill--;
 	}
-      hash->table = xrealloc (hash->table, 
-			      sizeof (hash_bucket_t) * hash->buckets);
+      hash->table = svz_realloc (hash->table, 
+				 sizeof (hash_bucket_t) * hash->buckets);
     }
 
 #if 0
@@ -333,12 +342,12 @@ hash_put (hash_t *hash, char *key, void *value)
 
   /* Reallocate this bucket. */
   bucket = &hash->table[HASH_BUCKET (code, hash)];
-  bucket->entry = xrealloc (bucket->entry, 
-			    sizeof (hash_entry_t) * (bucket->size + 1));
+  bucket->entry = svz_realloc (bucket->entry, 
+			       sizeof (hash_entry_t) * (bucket->size + 1));
 
   /* Fill this entry. */
   entry = &bucket->entry[bucket->size];
-  entry->key = xmalloc (hash->keylen (key));
+  entry->key = svz_malloc (hash->keylen (key));
   memcpy (entry->key, key, hash->keylen (key));
   entry->value = value;
   entry->code = code;
@@ -378,16 +387,17 @@ hash_delete (hash_t *hash, char *key)
 	{
 	  value = bucket->entry[n].value;
 	  bucket->size--;
-	  xfree (bucket->entry[n].key);
+	  svz_free (bucket->entry[n].key);
 	  if (bucket->size)
 	    {
 	      bucket->entry[n] = bucket->entry[bucket->size];
-	      bucket->entry = xrealloc (bucket->entry, 
-					sizeof (hash_entry_t) * bucket->size);
+	      bucket->entry = svz_realloc (bucket->entry, 
+					   sizeof (hash_entry_t) * 
+					   bucket->size);
 	    }
 	  else
 	    {
-	      xfree (bucket->entry);
+	      svz_free (bucket->entry);
 	      bucket->entry = NULL;
 	      hash->fill--;
 	      if (hash->fill < HASH_SHRINK_LIMIT (hash))
@@ -444,7 +454,7 @@ hash_values (hash_t *hash)
   if (hash->keys == 0)
     return NULL;
 
-  values = xmalloc (sizeof (void *) * hash->keys);
+  values = svz_malloc (sizeof (void *) * hash->keys);
 
   for (keys = 0, n = 0; n < hash->buckets; n++)
     {
@@ -474,7 +484,7 @@ hash_keys (hash_t *hash)
   if (hash->keys == 0)
     return NULL;
 
-  values = xmalloc (sizeof (void *) * hash->keys);
+  values = svz_malloc (sizeof (void *) * hash->keys);
 
   for (keys = 0, n = 0; n < hash->buckets; n++)
     {
@@ -542,7 +552,8 @@ hash_analyse (hash_t *hash)
   for (entries = 0, depth = 0, buckets = 0, n = 0; n < hash->buckets; n++)
     {
       bucket = &hash->table[n];
-      if (bucket->size > 0) buckets++;
+      if (bucket->size > 0)
+	buckets++;
       for (e = 0; e < bucket->size; e++)
 	{
 	  entries++;
@@ -552,7 +563,8 @@ hash_analyse (hash_t *hash)
 		  n + 1, e + 1, bucket->entry[e].code, bucket->entry[e].value,
 		  bucket->entry[e].key);
 #endif /* 0 */
-	  if (e > depth) depth = e;
+	  if (e > depth)
+	    depth = e;
 	}
     }
 #if ENABLE_DEBUG

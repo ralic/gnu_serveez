@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.15 2000/12/16 10:57:23 ela Exp $
+ * $Id: alloc.c,v 1.16 2001/01/24 15:55:27 ela Exp $
  *
  */
 
@@ -39,31 +39,38 @@
 
 #if DEBUG_MEMORY_LEAKS
 # include "hash.h"
-#endif
+#endif /* DEBUG_MEMORY_LEAKS */
 
 #if ENABLE_DEBUG
-unsigned allocated_bytes = 0;
-unsigned allocated_blocks = 0;
-#endif
+unsigned svz_allocated_bytes = 0;
+unsigned svz_allocated_blocks = 0;
+#endif /* ENABLE_DEBUG */
+
+/* initialize the global allocator functions */
+svz_malloc_func_t svz_malloc_func = malloc;
+svz_realloc_func_t svz_realloc_func = realloc;
+svz_free_func_t svz_free_func = free;
 
 #if DEBUG_MEMORY_LEAKS
 
 /* heap hash */
-hash_t *heap = NULL;
+static hash_t *heap = NULL;
 
-/* These 3 (three) routines are for modifying the heap hash key processing. */
+/* return static heap hash code key length */
 static unsigned
 heap_hash_keylen (char *id)
 {
   return SIZEOF_VOID_P;
 }
 
+/* compare two heap hash values */
 static int 
 heap_hash_equals (char *id1, char *id2)
 {
   return memcmp (id1, id2, SIZEOF_VOID_P);
 }
- 
+
+/* calculate heap hash code */
 static unsigned long 
 heap_hash_code (char *id)
 {
@@ -72,6 +79,7 @@ heap_hash_code (char *id)
   return code;
 }
 
+/* structure for heap management */
 typedef struct
 {
   void *ptr;     /* memory pointer */
@@ -84,6 +92,7 @@ heap_block_t;
 # define __builtin_return_address(nr) 0
 #endif
 
+/* add another heap block to the heap management */
 void
 heap_add (heap_block_t *block)
 {
@@ -100,23 +109,23 @@ heap_add (heap_block_t *block)
 #endif /* DEBUG_MEMORY_LEAKS */
 
 /*
- * xmalloc() - allocate `size' of memory and return a pointer to it
+ * Allocate `size' of memory and return a pointer to it.
  */
 void * 
-xmalloc (unsigned size)
+svz_malloc (unsigned size)
 {
   void *ptr;
 #if ENABLE_DEBUG
   unsigned *up;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
-#endif
-#endif
+#endif /* DEBUG_MEMORY_LEAKS */
+#endif /* ENABLE_DEBUG */
 
   assert (size);
 
 #if ENABLE_DEBUG
-  if ((ptr = (void *) malloc (size + 2 * SIZEOF_UNSIGNED)) != NULL)
+  if ((ptr = (void *) svz_malloc_func (size + 2 * SIZEOF_UNSIGNED)) != NULL)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
@@ -126,48 +135,44 @@ xmalloc (unsigned size)
       ptr = (void *) up;
 #if DEBUG_MEMORY_LEAKS
       /* put heap pointer into special heap hash */
-      block = malloc (sizeof (heap_block_t));
+      block = svz_malloc_func (sizeof (heap_block_t));
       block->ptr = ptr;
       block->size = size;
       block->caller = __builtin_return_address (0);
       heap_add (block);
 #endif /* DEBUG_MEMORY_LEAKS */
-
-      allocated_bytes += size;
+      svz_allocated_bytes += size;
 #endif /* ENABLE_HEAP_COUNT */
-      allocated_blocks++;
-
+      svz_allocated_blocks++;
       return ptr;
     }
 #else /* not ENABLE_DEBUG */
-  if ((ptr = (void *) malloc (size)) != NULL)
+  if ((ptr = (void *) svz_malloc_func (size)) != NULL)
     {
       return ptr;
     }
 #endif /* not ENABLE_DEBUG */
   else
     {
-      log_printf (LOG_FATAL, "virtual memory exhausted\n");
+      log_printf (LOG_FATAL, "malloc: virtual memory exhausted\n");
       exit (1);
     }
 }
 
 /*
- * xrealloc() - change the size of a xmalloc()'ed block of memory.
- *	`size' is the new size of the block, `old_size' is the
- *	current size. `ptr' is the pointer returned by xmalloc() or
- *	NULL.
+ * Change the size of a malloc()'ed block of memory. `size' is the new 
+ * size of the block, `ptr' is the pointer returned by malloc() or NULL.
  */
 void *
-xrealloc (void * ptr, unsigned size)
+svz_realloc (void *ptr, unsigned size)
 {
 #if ENABLE_DEBUG
   unsigned old_size;
   unsigned *up;
-#endif
+#endif /* ENABLE_DEBUG */
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
-#endif
+#endif /* DEBUG_MEMORY_LEAKS */
 
   assert (size);
 
@@ -175,16 +180,15 @@ xrealloc (void * ptr, unsigned size)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
-
 #if DEBUG_MEMORY_LEAKS
       if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
 	{
-	  fprintf (stdout, "xrealloc: %p not found in heap (caller: %p)\n", 
+	  fprintf (stdout, "realloc: %p not found in heap (caller: %p)\n", 
 		   ptr, __builtin_return_address (0));
 	  assert (0);
 	}
-      free (block);
+      svz_free_func (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get previous blocksize */
@@ -192,10 +196,10 @@ xrealloc (void * ptr, unsigned size)
       up -= 2;
       old_size = *up;
       ptr = (void *) up;
-
 #endif /* ENABLE_HEAP_COUNT */
 
-      if ((ptr = (void *) realloc (ptr, size + 2 * SIZEOF_UNSIGNED)) != NULL)
+      if ((ptr = (void *) svz_realloc_func (ptr, size + 2 * SIZEOF_UNSIGNED)) 
+	  != NULL)
 	{
 #if ENABLE_HEAP_COUNT
 	  /* save block size */
@@ -205,44 +209,42 @@ xrealloc (void * ptr, unsigned size)
 	  ptr = (void *) up;
 
 #if DEBUG_MEMORY_LEAKS
-	  block = malloc (sizeof (heap_block_t));
+	  block = svz_malloc_func (sizeof (heap_block_t));
 	  block->ptr = ptr;
 	  block->size = size;
 	  block->caller = __builtin_return_address (0);
 	  heap_add (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
-	  allocated_bytes += size - old_size;
+	  svz_allocated_bytes += size - old_size;
 #endif /* ENABLE_HEAP_COUNT */
 
 	  return ptr;
 	}
 #else /* not ENABLE_DEBUG */
-      if ((ptr = (void *) realloc (ptr, size)) != NULL)
+      if ((ptr = (void *) svz_realloc_func (ptr, size)) != NULL)
 	{
 	  return ptr;
-	}      
+	}
 #endif /* not ENABLE_DEBUG */
       else
 	{
-	  log_printf (LOG_FATAL, "virtual memory exhausted\n");
+	  log_printf (LOG_FATAL, "realloc: virtual memory exhausted\n");
 	  exit (1);
 	}
     }
   else
     {
-      ptr = xmalloc (size);
+      ptr = svz_malloc (size);
       return ptr;
     }
 }
 
 /*
- * xfree() - free a block of xmalloc()'ed or xrealloc()'ed
- *	memory. `size' is only used to calculate the amount of
- *	memory which got x{m,re}alloc()'ed but not xfree()'ed
+ * Free a block of malloc()'ed or realloc()'ed	memory.
  */
 void
-xfree (void * ptr)
+svz_free (void *ptr)
 {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
@@ -250,9 +252,9 @@ xfree (void * ptr)
   unsigned *up;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
-#endif
-#endif
-#endif
+#endif /* DEBUG_MEMORY_LEAKS */
+#endif /* ENABLE_HEAP_COUNT */
+#endif /* ENABLE_DEBUG */
 
   assert (ptr);
 
@@ -266,24 +268,24 @@ xfree (void * ptr)
       if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
 	  block->ptr != ptr)
 	{
-	  fprintf (stdout, "xfree: %p not found in heap (caller: %p)\n", 
+	  fprintf (stdout, "free: %p not found in heap (caller: %p)\n", 
 		   ptr, __builtin_return_address (0));
 	  assert (0);
 	}
-      free (block);
+     svz_free_func (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
       /* get blocksize */
       up -= 2;
       size = *up;
       assert (size);
-      allocated_bytes -= size;
+      svz_allocated_bytes -= size;
       ptr = (void *) up;
 #endif /* ENABLE_HEAP_COUNT */
 
-      allocated_blocks--;
+      svz_allocated_blocks--;
 #endif /* ENABLE_DEBUG */
-      free (ptr);
+     svz_free_func (ptr);
     }
 }
 
@@ -293,7 +295,7 @@ xfree (void * ptr)
  * and should never occur in final software releases.
  */
 void
-xheap (void)
+svz_heap (void)
 {
   heap_block_t **block;
   unsigned n;
@@ -305,25 +307,28 @@ xheap (void)
 	{
 	  up = (unsigned *) block[n]->ptr;
 	  up -= 2;
-	  fprintf (stdout, "xheap: caller = %p, ptr = %p, size = %u\n",
+	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
 		   block[n]->caller, block[n]->ptr, block[n]->size);
 	  util_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
 			block[n]->ptr, *up, 256);
-	  free (block[n]);
+	 svz_free_func (block[n]);
 	}
       hash_xfree (block);
     }
   else
     {
-      fprintf (stdout, "xheap: no unreleased heap blocks\n");
+      fprintf (stdout, "heap: no unreleased heap blocks\n");
     }
   hash_destroy (heap);
   heap = NULL;
 }
 #endif /* DEBUG_MEMORY_LEAKS */
 
+/*
+ * Duplicate a given string if it is non-NULL and has got a valid length.
+ */
 char *
-xstrdup (char *src)
+svz_strdup (char *src)
 {
   char *dst;
   int len;
@@ -331,46 +336,45 @@ xstrdup (char *src)
   if (src == NULL || (len = strlen (src)) == 0)
     return NULL;
 
-  dst = xmalloc (len + 1);
+  dst = svz_malloc (len + 1);
   memcpy (dst, src, len + 1);
-
   return dst;
 }
 
 /*
- * Permanent memory allocators.
+ * Internal permanent memory allocators.
  */
 void *
-xpmalloc (unsigned size)
+svz_pmalloc (unsigned size)
 {
-  void *newmem = malloc (size);
-  if (newmem == NULL) 
+  void *ptr = svz_malloc_func (size);
+  if (ptr == NULL) 
     {
-      log_printf (LOG_FATAL, "virtual memory exhausted\n");
+      log_printf (LOG_FATAL, "malloc: virtual memory exhausted\n");
       exit (1);
     }
-  return newmem;
+  return ptr;
 }
 
 void *
-xprealloc (void * ptr, unsigned size)
+svz_prealloc (void *ptr, unsigned size)
 {
-  void *newmem = realloc (ptr, size);
-  if (newmem == NULL) 
+  void *dst = svz_realloc_func (ptr, size);
+  if (dst == NULL) 
     {
-      log_printf (LOG_FATAL, "virtual memory exhausted\n");
+      log_printf (LOG_FATAL, "realloc: virtual memory exhausted\n");
       exit (1);
     }
-  return newmem;
+  return dst;
 }
 
 char *
-xpstrdup (char *src)
+svz_pstrdup (char *src)
 {
   char *dst;
 
   assert (src);
-  dst = xpmalloc (strlen (src) + 1);
+  dst = svz_pmalloc (strlen (src) + 1);
   memcpy (dst, src, strlen (src) + 1);
 
   return dst;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.1 2001/01/21 17:09:44 ela Exp $
+ * $Id: dynload.c,v 1.2 2001/01/24 15:55:28 ela Exp $
  *
  */
 
@@ -36,10 +36,10 @@
 # include <winsock.h>
 #endif
 
-#include <alloc.h>
-#include <util.h>
-#include <server.h>
-#include <dynload.h>
+#include "alloc.h"
+#include "util.h"
+#include "server.h"
+#include "dynload.h"
 
 /*
  * Load an additional server definition from a shared library. The given
@@ -52,7 +52,7 @@ dyn_load (char *description)
   void *handle;
   server_definition_t *server;
 
-  lib = xmalloc (strlen (description) + 8);
+  lib = svz_malloc (strlen (description) + 8);
   sprintf (lib, "lib%s." DYNLOAD_SUFFIX, description);
 #ifdef __MINGW32__
 #else /* ! __MINGW32__ */
@@ -63,13 +63,13 @@ dyn_load (char *description)
       log_printf (LOG_DEBUG, "dynload: unable to load library '%s'", lib);
 #endif /* ENABLE_DEBUG */
       log_printf (LOG_ERROR, "dlopen: %s\n", dlerror ());
-      xfree (lib);
+      svz_free (lib);
       return NULL;
     }
-  xfree (lib);
+  svz_free (lib);
 
   /* obtain exported data */
-  def = xmalloc (strlen (description) + strlen ("_server_definition") + 1);
+  def = svz_malloc (strlen (description) + strlen ("_server_definition") + 1);
   sprintf (def, "%s_server_definition", description);
   if ((server = dlsym (handle, def)) == NULL)
     {
@@ -77,7 +77,7 @@ dyn_load (char *description)
       log_printf (LOG_DEBUG, "dynload: unable to obtain symbol '%s'", def);
 #endif /* ENABLE_DEBUG */
       log_printf (LOG_ERROR, "dlsym: %s\n", dlerror ());
-      xfree (def);
+      svz_free (def);
       return NULL;
     }
 #endif /* ! __MINGW32__ */

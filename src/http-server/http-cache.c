@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.22 2001/01/03 20:02:42 ela Exp $
+ * $Id: http-cache.c,v 1.23 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -47,9 +47,7 @@
 # include <sys/socket.h>
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "hash.h"
+#include <libserveez.h>
 #include "http-proto.h"
 #include "http-core.h"
 #include "http-cache.h"
@@ -90,9 +88,9 @@ http_free_cache (void)
 	{
 	  total += cache[n]->size;
 	  files++;
-	  xfree (cache[n]->buffer);
-	  xfree (cache[n]->file);
-	  xfree (cache[n]);
+	  svz_free (cache[n]->buffer);
+	  svz_free (cache[n]->file);
+	  svz_free (cache[n]);
 	}
       hash_xfree (cache);
     }
@@ -234,7 +232,7 @@ http_cache_create_entry (void)
 {
   http_cache_entry_t *cache;
 
-  cache = xmalloc (sizeof (http_cache_entry_t));
+  cache = svz_malloc (sizeof (http_cache_entry_t));
   memset (cache, 0, sizeof (http_cache_entry_t));
   return cache;
 }
@@ -257,10 +255,10 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
   if (cache->ready)
     {
       if (cache->buffer) 
-	xfree (cache->buffer);
+	svz_free (cache->buffer);
     }
-  xfree (cache->file);
-  xfree (cache);
+  svz_free (cache->file);
+  svz_free (cache);
 }
 
 /*
@@ -342,7 +340,7 @@ http_init_cache (char *file, http_cache_t *cache)
     }
 
   hash_put (http_cache, file, slot);
-  slot->file = xstrdup (file);
+  slot->file = svz_strdup (file);
   slot->urgent = hash_size (http_cache);
 
   /*
@@ -364,7 +362,7 @@ http_init_cache (char *file, http_cache_t *cache)
 void
 http_refresh_cache (http_cache_t *cache)
 {
-  xfree (cache->entry->buffer);
+  svz_free (cache->entry->buffer);
   cache->entry->buffer = NULL;
   cache->entry->ready = 0;
   cache->entry->hits = 0;
@@ -404,7 +402,7 @@ http_cache_write (socket_t sock)
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "cache: send: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
@@ -471,7 +469,7 @@ http_cache_read (socket_t sock)
       /* release the actual cache entry previously reserved */
       if (cache->size > 0) 
 	{
-	  xfree (cache->buffer);
+	  svz_free (cache->buffer);
 	  cache->buffer = NULL;
 	  cache->size = 0;
 	}
@@ -485,7 +483,7 @@ http_cache_read (socket_t sock)
        * Reserve some more memory and then copy the gained data
        * to the cache entry.
        */
-      cache->buffer = xrealloc (cache->buffer, cache->size + num_read);
+      cache->buffer = svz_realloc (cache->buffer, cache->size + num_read);
       memcpy (cache->buffer + cache->size,
 	      sock->send_buffer + sock->send_buffer_fill, num_read);
       cache->size += num_read;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.26 2000/12/30 01:59:34 ela Exp $
+ * $Id: nut-transfer.c,v 1.27 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -83,13 +83,8 @@
 # define closedir(dir) FindClose (dir)
 #endif
 
-#include "alloc.h"
-#include "util.h"
-#include "snprintf.h"
-#include "socket.h"
-#include "connect.h"
+#include <libserveez.h>
 #include "server.h"
-#include "server-core.h"
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-transfer.h"
@@ -106,8 +101,8 @@ nut_string_regex (char *text, char *regex)
   /* first check if text tokens are in text */
   if (!strchr (regex, '*') && !strchr (regex, '?'))
     {
-      str = xstrdup (text);
-      reg = xstrdup (regex);
+      str = svz_strdup (text);
+      reg = svz_strdup (regex);
       util_tolower (str);
       util_tolower (reg);
 
@@ -117,8 +112,8 @@ nut_string_regex (char *text, char *regex)
 	  if (!strstr (str, token))
 	    break;
 	}
-      xfree (str);
-      xfree (reg);
+      svz_free (str);
+      svz_free (reg);
       if (!token)
 	return -1;
       return 0;
@@ -258,7 +253,7 @@ nut_check_transfer (socket_t sock)
 	   */
 	  sock->userflags |= NUT_FLAG_HDR;
 	  transfer->size = util_atoi (length);
-	  xfree (length);
+	  svz_free (length);
 	  if (transfer->original_size != transfer->size)
 	    {
 	      log_printf (LOG_WARNING,
@@ -321,8 +316,8 @@ nut_disconnect_transfer (socket_t sock)
 	  nut_send_push (sock->cfg, sock->data);
 	}
 
-      xfree (transfer->file);
-      xfree (transfer);
+      svz_free (transfer->file);
+      svz_free (transfer);
       sock->data = NULL;
     }
 
@@ -371,12 +366,12 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
     }
 
   /* first check if the requested file is not already created */
-  file = xmalloc (strlen (cfg->save_path) + strlen (savefile) + 2);
+  file = svz_malloc (strlen (cfg->save_path) + strlen (savefile) + 2);
   sprintf (file, "%s/%s", cfg->save_path, savefile);
   if (stat (file, &buf) != -1)
     {
       log_printf (LOG_NOTICE, "nut: %s already exists\n", savefile);
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -392,7 +387,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 	{
 	  log_printf (LOG_NOTICE, "nut: no search pattern for %s\n",
 		      savefile);
-	  xfree (file);
+	  svz_free (file);
 	  return -1;
 	}
     }
@@ -401,7 +396,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
   if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -421,10 +416,10 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       xsock->idle_counter = NUT_CONNECT_TIMEOUT;
 
       /* initialize transfer data */
-      transfer = xmalloc (sizeof (nut_transfer_t));
+      transfer = svz_malloc (sizeof (nut_transfer_t));
       memset (transfer, 0, sizeof (nut_transfer_t));
       transfer->original_size = record->size;
-      transfer->file = xstrdup (file);
+      transfer->file = svz_strdup (file);
       transfer->start = time (NULL);
       xsock->data = transfer;
 
@@ -440,12 +435,12 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       sock_printf (xsock, NUT_AGENT);
       sock_printf (xsock, NUT_RANGE ": bytes=0-\r\n");
       sock_printf (xsock, "\r\n");
-      xfree (file);
+      svz_free (file);
       return 0;
     }
 
   close (fd);
-  xfree (file);
+  svz_free (file);
   return 0;
 }
 
@@ -572,14 +567,14 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 				    htons (cfg->netport->port));
       
       /* create push request key and check if it was already sent */
-      pushkey = xmalloc (16 + NUT_GUID_SIZE * 2);
+      pushkey = svz_malloc (16 + NUT_GUID_SIZE * 2);
       sprintf (pushkey, "%d:%s", push.index, nut_text_guid (push.id));
       if ((trans = hash_get (cfg->push, pushkey)) != NULL)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: push request already sent\n");
 #endif
-	  xfree (pushkey);
+	  svz_free (pushkey);
 	  return -1;
 	}
 
@@ -590,16 +585,16 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 		      SIZEOF_NUT_PUSH) == -1)
 	{
 	  sock_schedule_for_shutdown (sock);
-	  xfree (pushkey);
+	  svz_free (pushkey);
 	  return -1;
 	}
 
       /* put push request into hash for later reply detection */
-      trans = xmalloc (sizeof (nut_transfer_t));
+      trans = svz_malloc (sizeof (nut_transfer_t));
       memcpy (trans, transfer, sizeof (nut_transfer_t));
-      trans->file = xstrdup (transfer->file);
+      trans->file = svz_strdup (transfer->file);
       hash_put (cfg->push, pushkey, trans);
-      xfree (pushkey);
+      svz_free (pushkey);
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "nut: sent push request to %s:%u\n",
@@ -608,7 +603,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 #endif
 
       /* put into sent packet hash */
-      pkt = xmalloc (sizeof (nut_packet_t));
+      pkt = svz_malloc (sizeof (nut_packet_t));
       pkt->sock = sock;
       pkt->sent = time (NULL);
       hash_put (cfg->packet, (char *) hdr.id, pkt);
@@ -627,9 +622,9 @@ nut_destroy_database (nut_config_t *cfg)
   while ((entry = cfg->database) != NULL)
     {
       cfg->database = entry->next;
-      xfree (entry->file);
-      xfree (entry->path);
-      xfree (entry);
+      svz_free (entry->file);
+      svz_free (entry->path);
+      svz_free (entry);
     }
   cfg->db_files = 0;
   cfg->db_size = 0;
@@ -643,9 +638,9 @@ nut_add_database (nut_config_t *cfg, char *path, char *file, off_t size)
 {
   nut_file_t *entry;
 
-  entry = xmalloc (sizeof (nut_file_t));
-  entry->file = xstrdup (file);
-  entry->path = xstrdup (path);
+  entry = svz_malloc (sizeof (nut_file_t));
+  entry->file = svz_strdup (file);
+  entry->path = svz_strdup (path);
   entry->size = size;
   entry->index = cfg->db_files;
   entry->next = cfg->database;
@@ -756,9 +751,9 @@ nut_read_database_r (nut_config_t *cfg, char *dirname, int depth)
 		  /* recurse into directories */
 		  else if (S_ISDIR (buf.st_mode) && FILENAME[0] != '.')
 		    {
-		      path = xstrdup (filename);
+		      path = svz_strdup (filename);
 		      nut_read_database_r (cfg, path, depth);
-		      xfree (path);
+		      svz_free (path);
 		    }
 		}
 	    }
@@ -828,7 +823,7 @@ nut_check_upload (socket_t sock)
 	return -1;
       /* parsed file itself */
       fill = p - f;
-      file = xmalloc (fill + 1);
+      file = svz_malloc (fill + 1);
       memcpy (file, f, fill);
       file[fill] = '\0';
 
@@ -840,12 +835,12 @@ nut_check_upload (socket_t sock)
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: no such file: %s, %u\n", file, index);
 #endif
-	  xfree (file);
+	  svz_free (file);
 	  return -1;
 	}
       len = end - sock->recv_buffer + 3;
       sock_reduce_recv (sock, len);
-      xfree (file);
+      svz_free (file);
 
       /* disable connection timeout */
       sock->idle_func = NULL;
@@ -872,14 +867,14 @@ nut_init_upload (socket_t sock, nut_file_t *entry)
   nut_transfer_t *transfer;
 
   /* create filename */
-  file = xmalloc (strlen (entry->path) + strlen (entry->file) + 2);
+  file = svz_malloc (strlen (entry->path) + strlen (entry->file) + 2);
   sprintf (file, "%s/%s", entry->path, entry->file);
   
   /* check file */
   if (stat (file, &buf) == -1 || !S_ISREG (buf.st_mode) || buf.st_size <= 0)
     {
       log_printf (LOG_ERROR, "nut: invalid file: %s %s\n", file);
-      xfree (file);
+      svz_free (file);
       return -1;
     }
   
@@ -887,7 +882,7 @@ nut_init_upload (socket_t sock, nut_file_t *entry)
   if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
-      xfree (file);
+      svz_free (file);
       return -1;
     }
 
@@ -903,15 +898,15 @@ nut_init_upload (socket_t sock, nut_file_t *entry)
   sock->flags |= SOCK_FLAG_FILE;
   cfg->uploads++;
 
-  transfer = xmalloc (sizeof (nut_transfer_t));
+  transfer = svz_malloc (sizeof (nut_transfer_t));
   memset (transfer, 0, sizeof (nut_transfer_t));
   transfer->size = buf.st_size;
   transfer->original_size = buf.st_size;
-  transfer->file = xstrdup (file);
+  transfer->file = svz_strdup (file);
   transfer->start = time (NULL);
   sock->data = transfer;
 
-  xfree (file);
+  svz_free (file);
   return 0;
 }
 
@@ -934,8 +929,8 @@ nut_disconnect_upload (socket_t sock)
   /* free the transfer data */
   if (transfer)
     {
-      xfree (transfer->file);
-      xfree (transfer);
+      svz_free (transfer->file);
+      svz_free (transfer);
       sock->data = NULL;
     }
 
@@ -997,7 +992,7 @@ nut_file_read (socket_t sock)
        * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
-      sock->read_socket = default_read;
+      sock->read_socket = sock_default_read;
       sock->flags &= ~SOCK_FLAG_FILE;
     }
 
@@ -1051,7 +1046,7 @@ nut_file_write (socket_t sock)
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
-      if (last_errno == SOCK_UNAVAILABLE)
+      if (svz_errno == SOCK_UNAVAILABLE)
         {
           sock->unavailable = t + RELAX_FD_TIME;
           num_written = 0;

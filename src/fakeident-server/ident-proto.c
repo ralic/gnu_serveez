@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.2 2001/01/05 01:52:45 ela Exp $
+ * $Id: ident-proto.c,v 1.3 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -123,7 +123,6 @@ fakeident_init (struct server *server)
   return 0;
 }
 
-
 /*
  * When we get a connection this callback is invoked. set up more callbacks.
  */
@@ -134,12 +133,11 @@ fakeident_connect_socket (void *acfg, socket_t sock)
 
   sock->boundary = "\n";
   sock->boundary_size = 1;
-  sock->check_request = default_check_request;
+  sock->check_request = sock_default_check_request;
   sock->handle_request = fakeident_handle_request;
 
   return 0;
 }
-
 
 /*
  * Try to find out of that line is meant for us.

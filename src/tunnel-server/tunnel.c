@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.13 2001/01/08 23:27:21 ela Exp $
+ * $Id: tunnel.c,v 1.14 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -45,15 +45,7 @@
 # include <arpa/inet.h>
 #endif
 
-#include "util.h"
-#include "hash.h"
-#include "alloc.h"
-#include "socket.h"
-#include "connect.h"
-#include "udp-socket.h"
-#include "icmp-socket.h"
-#include "pipe-socket.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "server.h"
 #include "tunnel.h"
 
@@ -179,7 +171,7 @@ tnl_finalize (server_t *server)
     {
       for (n = 0; n < hash_size (cfg->client); n++)
 	{
-	  xfree (source[n]);
+	  svz_free (source[n]);
 	}
       hash_xfree (source);
     }
@@ -210,7 +202,7 @@ tnl_free_connect (socket_t sock)
 {
   if (sock->data)
     {
-      xfree (sock->data);
+      svz_free (sock->data);
       sock->data = NULL;
     }
 }
@@ -223,7 +215,7 @@ tnl_create_connect (void)
 {
   tnl_connect_t *source;
 
-  source = xmalloc (sizeof (tnl_connect_t));
+  source = svz_malloc (sizeof (tnl_connect_t));
   memset (source, 0, sizeof (tnl_connect_t));
   return source;
 }

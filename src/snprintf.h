@@ -1,7 +1,7 @@
 /*
  * src/snprintf.h - (v)snprintf function interface
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,16 +18,14 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.7 2000/07/25 16:24:26 ela Exp $
+ * $Id: snprintf.h,v 1.8 2001/01/24 15:55:28 ela Exp $
  *
  */
 
 #ifndef __SNPRINTF_H__
-#define __SNPRINTF_H__
+#define __SNPRINTF_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <internal.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -62,12 +60,12 @@ int _vsnprintf (char *, size_t, const char *, va_list);
 
 /* snprintf() */
 
+__BEGIN_DECLS
+
 #ifndef HAVE_SNPRINTF
-# ifndef __STDC__
-int snprintf ();
-# else
-int snprintf (char *, size_t, const char *, ...);
-# endif
+SERVEEZ_API int snprintf __P ((char *, size_t, const char *, ...));
 #endif
+
+__END_DECLS
 
 #endif /* not __SNPRINTF_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.6 2001/01/13 18:12:49 ela Exp $
+ * $Id: alist-test.c,v 1.7 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define SERVEEZ_API
 #include "alloc.h"
 #include "alist.h"
 #include "test.h"
@@ -204,7 +205,7 @@ main (int argc, char **argv)
 	  if (values[n] != (void *) n)
 	    error++;
 	}
-      xfree (values);
+      svz_free (values);
     }
   else
     error++;
@@ -331,7 +332,7 @@ main (int argc, char **argv)
 	      values[n] != (void *) 0xdeadbeef)
 	    error++;
 	}
-      xfree (values);
+      svz_free (values);
     }
   else
     error++;
@@ -383,7 +384,7 @@ main (int argc, char **argv)
 #if ENABLE_DEBUG
   /* is heap ok ? */
   test_print ("           heap: ");
-  test (allocated_bytes || allocated_blocks);
+  test (svz_allocated_bytes || svz_allocated_blocks);
 #endif /* ENABLE_DEBUG */
 
   return result;

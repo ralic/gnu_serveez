@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-6.c,v 1.7 2000/12/18 18:28:35 ela Exp $
+ * $Id: irc-event-6.c,v 1.8 2001/01/24 15:55:29 ela Exp $
  *
  */
 
@@ -36,10 +36,7 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
-#include "alloc.h"
-#include "util.h"
-#include "server-core.h"
+#include <libserveez.h>
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
 #include "irc-event.h"

@@ -1,7 +1,7 @@
 /*
  * src/util.h - utility function interface
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,22 +20,19 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.25 2000/12/10 12:26:38 ela Exp $
+ * $Id: util.h,v 1.26 2001/01/24 15:55:28 ela Exp $
  *
  */
 
 #ifndef __UTIL_H__
-#define __UTIL_H__
+#define __UTIL_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <internal.h>
 
 #include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -45,8 +42,8 @@
 #if __CRYPT_IMPORT__
 #include <crypt.h>
 #else
-extern char *crypt (const char *key, const char *salt);
-extern char *getpass (const char *prompt);
+extern char *crypt __P ((const char *key, const char *salt));
+extern char *getpass __P ((const char *prompt));
 #endif /* __CRYPT_IMPORT__ */
 #endif
 
@@ -67,7 +64,9 @@ typedef unsigned char byte;
 #define LOG_NOTICE    3
 #define LOG_DEBUG     4
 
-extern int verbosity;
+__BEGIN_DECLS
+
+SERVEEZ_API extern int svz_verbosity;
 
 #ifdef __MINGW32__
 
@@ -83,7 +82,7 @@ extern int verbosity;
 #define Win2k   5
 #define WinME   6
 
-extern int os_version;
+SERVEEZ_API extern int svz_os_version;
 
 #endif /* __MINGW32__ */
 
@@ -91,24 +90,21 @@ extern int os_version;
 # define O_BINARY 0
 #endif
 
-#ifndef __STDC__
-void log_printf ();
-#else
-void log_printf (int level, const char *format, ...);
-#endif
-void log_set_file (FILE *file);
+SERVEEZ_API void log_printf __P ((int level, const char *format, ...));
+SERVEEZ_API void log_set_file __P ((FILE *));
 
-int util_hexdump (FILE *out, char *, int, char *, int, int);
-char *util_inet_ntoa (unsigned long ip);
-char *util_itoa (unsigned int);
-unsigned int util_atoi (char *);
-int util_strcasecmp (const char *str1, const char *str2);
-int util_strncasecmp (const char *str1, const char *str2, size_t n);
-int util_openfiles (void);
-char *util_time (time_t t);
-char *util_uptime (time_t diff);
-char *util_tolower (char *str);
-char *util_version (void);
+SERVEEZ_API int util_hexdump __P ((FILE *, char *, int, char *, int, int));
+SERVEEZ_API char *util_inet_ntoa __P ((unsigned long ip));
+SERVEEZ_API char *util_itoa __P ((unsigned int));
+SERVEEZ_API unsigned int util_atoi __P ((char *));
+SERVEEZ_API int util_strcasecmp __P ((const char *, const char *));
+SERVEEZ_API int util_strncasecmp __P ((const char *, const char *, size_t));
+SERVEEZ_API int util_openfiles __P ((void));
+SERVEEZ_API char *util_time __P ((time_t t));
+SERVEEZ_API char *util_uptime __P ((time_t diff));
+SERVEEZ_API char *util_tolower __P ((char *str));
+SERVEEZ_API char *util_version __P ((void));
+SERVEEZ_API const char *util_hstrerror __P ((void));
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) ((unsigned char)*p + \
@@ -140,8 +136,8 @@ char *util_version (void);
 
 #ifdef __MINGW32__
 
-char *GetErrorMessage (int);
-extern int last_errno;
+SERVEEZ_API char *GetErrorMessage __P ((int));
+SERVEEZ_API extern int svz_errno;
 
 #define MESSAGE_BUF_SIZE 256
 #ifndef WINSOCK_VERSION
@@ -152,8 +148,6 @@ extern int last_errno;
 #define dup2(handle1, handle2) _dup2(handle1, handle2)
 
 #endif /* __MINGW32__ */
-
-const char * util_hstrerror (void);
 
 /*
  * Definition of sys-dependent routines.
@@ -179,15 +173,17 @@ const char * util_hstrerror (void);
 # define S_ISREG(Mode) ((Mode) & S_IFREG)
 #endif /* not S_ISDIR */
 
-#else /* Unices here. */
+#else /* Unices here */
 
 #define closesocket(sock) close (sock)
 #define closehandle(handle) close (handle)
 #define SYS_ERROR strerror (errno)
 #define NET_ERROR strerror (errno)
 #define H_NET_ERROR util_hstrerror ()
-#define last_errno errno
+#define svz_errno errno
 
-#endif
+#endif /* !__MINGW32__ */
 
-#endif /* not __UTIL_H__ */
+__END_DECLS
+
+#endif /* !__UTIL_H__ */
