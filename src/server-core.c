@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.12 2000/07/15 11:44:16 ela Exp $
+ * $Id: server-core.c,v 1.13 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -72,6 +72,7 @@
 #include "socket.h"
 #include "pipe-socket.h"
 #include "server-core.h"
+#include "server.h"
 #include "serveez.h"
 #include "coserver/coserver.h"
 
@@ -463,12 +464,12 @@ handle_periodic_tasks (void)
 	{
 	  if (--sock->idle_counter <= 0)
 	    {
-	      if (sock->idle_func(sock))
+	      if (sock->idle_func (sock))
 		{
 		  log_printf(LOG_ERROR, 
 			     "idle function for socket id %d "
 			     "returned error\n", sock->socket_id);
-		  sock_schedule_for_shutdown(sock);
+		  sock_schedule_for_shutdown (sock);
 		}
 	    }
 	}
@@ -476,11 +477,12 @@ handle_periodic_tasks (void)
     }
 
 #ifdef __MINGW32__
-  /*
-   * check regularly for internal coserver responses ... *sigh*
-   */
-  check_internal_coservers();
+  /* check regularly for internal coserver responses...  */
+  check_internal_coservers ();
 #endif /* not __MINGW32__ */
+
+  /* run the server instance timer routines */
+  server_run_timer ();
 
   return 0;
 }

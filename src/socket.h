@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.17 2000/07/15 11:44:17 ela Exp $
+ * $Id: socket.h,v 1.18 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -51,7 +51,6 @@
 #define SOCK_FLAG_OUTBUF      0x0002 /* Inbuf is allocated. */
 #define SOCK_FLAG_CONNECTED   0x0004 /* Socket is connected. */
 #define SOCK_FLAG_LISTENING   0x0008 /* Socket is listening. */
-#define SOCK_FLAG_AUTH        0x0010 /* Socket has been authenticated. */
 #define SOCK_FLAG_KILLED      0x0020 /* Socket will be shut down soon. */
 #define SOCK_FLAG_NOFLOOD     0x0040 /* Flood protection off. */
 #define SOCK_FLAG_INITED      0x0080 /* Socket was initialized. */
@@ -97,10 +96,8 @@ struct socket
 
   unsigned short remote_port;	/* Port number of remote end. */
   unsigned remote_addr;		/* IP address of remote end. */
-  char *remote_host;            /* Hostname of the remote end. */
   unsigned short local_port;	/* Port number of local end. */
   unsigned local_addr;		/* IP address of local end. */
-  char *local_host;             /* Hostname of the local end. */
 
   char * send_buffer;		/* Buffer for outbound data. */
   char * recv_buffer;		/* Buffer for inbound data. */
@@ -265,6 +262,9 @@ int default_detect_proto (socket_t sock);
 int default_check_request (socket_t sock);
 int default_idle_func (socket_t sock);
 int sock_unique_id (socket_t sock);
+#if ENABLE_FLOOD_PROTECTION
+int default_flood_protect (socket_t sock, int num_read);
+#endif
 
 /*
  * Shorten the receive buffer of SOCK by len bytes.

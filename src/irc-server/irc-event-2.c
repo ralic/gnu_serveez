@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.7 2000/07/20 14:39:54 ela Exp $
+ * $Id: irc-event-2.c,v 1.8 2000/07/21 21:19:31 ela Exp $
  *
  */
 
@@ -126,14 +126,14 @@ irc_channel_topic (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* send topic if there is one */
-  if (channel->topic[0])
+  if (channel->topic)
     {
-      irc_printf (sock, ":%s %03d %s %s :%s\n",
+      irc_printf (sock, ":%s %03d %s " RPL_TOPIC_TEXT "\n",
 		  cfg->host, RPL_TOPIC, client->nick,
 		  channel->name, channel->topic);
 
       /* send topic date and nick (this is not part of the RFC) */
-      irc_printf (sock, ":%s %03d %s %s %s %d\n",
+      irc_printf (sock, ":%s %03d %s " RPL_TOPICSET_TEXT "\n",
 		  cfg->host, RPL_TOPICSET, client->nick, channel->name, 
 		  channel->topic_by, channel->topic_since);
     }
@@ -177,7 +177,7 @@ irc_channel_users (socket_t sock,
     }
 
   /* send channel info */
-  irc_printf (sock, ":%s %03d %s %c %s :%s\n",
+  irc_printf (sock, ":%s %03d %s " RPL_NAMREPLY_TEXT "\n",
 	      cfg->host, RPL_NAMREPLY, client->nick,
 	      channel->flag & (MODE_PRIVATE | MODE_SECRET) ? '*' : '=',
 	      channel->name, nicklist);
@@ -231,7 +231,7 @@ irc_join_callback (socket_t sock,
 	    {
 	      /* find the nick in the ivite list of the channel */
 	      for (i = 0; i < channel->invites; i++)
-		if (channel->invite[i] == client->nick)
+		if (channel->invite[i] == client)
 		  break;
 
 	      /* not in this list ! */
@@ -246,8 +246,18 @@ irc_join_callback (socket_t sock,
 	      /* clear this invite entry */
 	      else
 		{
-		  channel->invite[i] = channel->invite[channel->invites - 1];
-		  channel->invites--;
+		  if (--channel->invites)
+		    {
+		      channel->invite[i] = channel->invite[channel->invites];
+		      channel->invite = xrealloc (channel->invite,
+						  sizeof (irc_client_t *) *
+						  channel->invites);
+		    }
+		  else
+		    {
+		      xfree (channel->invite);
+		      channel->invite = NULL;
+		    }
 		}
 	    }
 	  /* is channel full ? */
@@ -292,7 +302,7 @@ irc_join_callback (socket_t sock,
       irc_channel_topic (sock, client, channel);
 
       /* send creation date and nick (this is not part of the RFC) */
-      irc_printf (sock, ":%s %03d %s %s %d\n",
+      irc_printf (sock, ":%s %03d %s " RPL_CHANCREATED_TEXT "\n",
 		  cfg->host, RPL_CHANCREATED, client->nick,
 		  channel->name, channel->since);
 
@@ -314,12 +324,12 @@ irc_ban_string (irc_ban_t *ban)
 {
   static char text[MAX_MSG_LEN] = "";
 
-  if (ban->nick[0]) 
+  if (ban->nick)
     {
       strcat (text, ban->nick);
       strcat (text, "!");
     }
-  if (ban->user[0])
+  if (ban->user)
     {
       strcat (text, ban->user);
       strcat (text, "@");
@@ -510,86 +520,99 @@ irc_channel_flag (irc_client_t *client,   /* client changing the flag */
 }
 
 /*
+ * Destroy and xfree() a given ban entry.
+ */
+void
+irc_destroy_ban (irc_ban_t *ban)
+{
+  if (ban->nick) xfree (ban->nick);
+  if (ban->user) xfree (ban->user);
+  xfree (ban->host);
+  xfree (ban->by);
+  xfree (ban);
+}
+
+/*
  * This function creates a ban entry.
  */
 static irc_ban_t *
 irc_create_ban (irc_client_t *client, char *request, int len)
 {
   irc_ban_t *ban;
-  char *p;
+  char *p, *tmp;
   int n, size = 0;
 
   /* reserve and initialize buffer space */
   ban = xmalloc (sizeof (irc_ban_t));
   memset (ban, 0, sizeof (irc_ban_t));
+  tmp = xmalloc (MAX_MSG_LEN);
+  memset (tmp, 0, MAX_MSG_LEN);
+
   ban->since = time (NULL);
-  sprintf (ban->by, "%s!%s@%s", client->nick, client->user, client->host);
+  sprintf (tmp, "%s!%s@%s", client->nick, client->user, client->host);
+  ban->by = xstrdup (tmp);
 
   p = request;
-
   n = 0;
   while (size < len && *p != '!' && *p != '@')
     {
-      ban->nick[n] = *p;
-      ban->host[n] = *p;
-      ban->user[n] = *p;
-      n++;
+      tmp[n++] = *p++;
       size++;
-      p++;
     }
-  /* nick parsed */
+  /* nick has been parsed */
   if (*p == '!')
     {
-      memset (ban->host, 0, MAX_NAME_LEN);
-      memset (ban->user, 0, MAX_NAME_LEN);
+      tmp[n] = '\0';
+      ban->nick = xstrdup (tmp);
       p++;
       size++;
       n = 0;
       while (size < len && *p != '@')
 	{
-	  ban->user[n] = *p;
-	  n++;
+	  tmp[n++] = *p++;
 	  size++;
-	  p++;
 	}
       /* user parsed */
       if (*p == '@')
 	{
+	  tmp[n] = '\0';
+	  ban->user = xstrdup (tmp);
 	  p++;
 	  size++;
 	  n = 0;
 	  while (size < len)
 	    {
-	      ban->host[n] = *p;
-	      n++;
+	      tmp[n++] = *p++;
 	      size++;
-	      p++;
 	    }
+	  tmp[n] = '\0';
+	  ban->host = xstrdup (tmp);
 	}
     }
-  /* here user parsed */
+  /* here user parsed without nick */
   else if (*p == '@')
     {
-      memset (ban->nick, 0, MAX_NAME_LEN);
-      memset (ban->host, 0, MAX_NAME_LEN);
+      tmp[n] = '\0';
+      ban->user = xstrdup (tmp);
       p++;
       size++;
       n = 0;
       while (size < len)
 	{
-	  ban->host[n] = *p;
-	  n++;
+	  tmp[n++] = *p++;
 	  size++;
-	  p++;
 	}
+      tmp[n] = '\0';
+      ban->host = xstrdup (tmp);
     }
-  /* parsed just a host */
+  /* parsed just a host without user and nick */
   else
     {
-      memset (ban->nick, 0, MAX_NAME_LEN);
-      memset (ban->user, 0, MAX_NAME_LEN);
+      tmp[n] = '\0';
+      ban->host = xstrdup (tmp);
     }
 
+  xfree (tmp);
   return ban;
 }
 
@@ -612,7 +635,6 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
   unsigned l;
   char *Modes = CHANNEL_MODES;
   char Mode = ' ';
-  char ban[MAX_NAME_LEN];
 
   /* enough paras ? */
   if (set && arg[0] == 0)
@@ -648,7 +670,8 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 			  channel->name);
 	      return 0;
 	    }
-	  strcpy (channel->key, arg);
+	  if (channel->key) xfree (channel->key);
+	  channel->key = xstrdup (arg);
 	  channel->flag |= flag;
 	  break;
 	case MODE_ULIMIT:
@@ -657,6 +680,8 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 	  break;
 	case MODE_BAN:
 	  n = channel->bans;
+	  channel->ban = xrealloc (channel->ban, 
+				   sizeof (irc_ban_t *) * (n + 1));
 	  channel->ban[n] = irc_create_ban (client, arg, strlen (arg));
 	  channel->bans++;
 	  break;
@@ -670,13 +695,21 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 	{
 	  for (n = 0; n < channel->bans; n++)
 	    {
-	      sprintf (ban, "%s!%s@%s", channel->ban[n]->nick,
-		       channel->ban[n]->user, channel->ban[n]->host);
-	      if (!strcmp (arg, ban))
+	      if (!strcmp (arg, irc_ban_string (channel->ban[n])))
 		{
-		  channel->ban[n] = channel->ban[channel->bans - 1];
-		  xfree(channel->ban[channel->bans - 1]);
-		  channel->bans--;
+		  irc_destroy_ban (channel->ban[n]);
+		  if (--channel->bans)
+		    {
+		      channel->ban[n] = channel->ban[channel->bans];
+		      channel->ban = xrealloc (channel->ban,
+					       sizeof (irc_ban_t *) *
+					       channel->bans);
+		    }
+		  else
+		    {
+		      xfree (channel->ban);
+		      channel->ban = NULL;
+		    }
 		  break;
 		}
 	    }
@@ -800,8 +833,9 @@ irc_mode_callback (socket_t sock,
       /* this is a request only ? */
       if (request->paras < 2)
 	{
-	  irc_printf (sock, ":%s %03d %s %s %s\n", cfg->host,
-		      RPL_CHANNELMODEIS,  client->nick, channel->name,
+	  irc_printf (sock, ":%s %03d %s " RPL_CHANNELMODEIS_TEXT "\n", 
+		      cfg->host, RPL_CHANNELMODEIS, client->nick, 
+		      channel->name,
 		      irc_channel_flag_string (channel));
 	  return 0;
 	}
@@ -1018,8 +1052,10 @@ irc_topic_callback (socket_t sock,
 		return 0;
 
 	      /* change the topic */
-	      strcpy (channel->topic, request->para[1]);
-	      strcpy (channel->topic_by, client->nick);
+	      if (channel->topic) xfree (channel->topic);
+	      channel->topic = xstrdup (request->para[1]);
+	      if (channel->topic_by) xfree (channel->topic_by);
+	      channel->topic_by = xstrdup (client->nick);
 	      channel->topic_since = time (NULL);
 
 	      /* send topic to all clients in channel */
@@ -1113,8 +1149,9 @@ irc_names_callback (socket_t sock,
 	  xfree (cl);
 	}
       /* send the (*) reply */
-      irc_printf (sock, ":%s %03d %s * * :%s\n",
-		  cfg->host, RPL_NAMREPLY, client->nick, text);
+      irc_printf (sock, ":%s %03d %s " RPL_NAMREPLY_TEXT "\n",
+		  cfg->host, RPL_NAMREPLY, client->nick, 
+		  '*', "*", text);
 
       /* send endo of list */
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
@@ -1290,12 +1327,14 @@ irc_invite_callback (socket_t sock,
 
   /* send the invite Message */
   xsock = cl->sock;
-  irc_printf (xsock, ":%s!%s@%s INVITE %s :%s\n",
-	      client->nick, client->user, client->host, cl->nick, ch->name);
+  irc_printf (xsock, ":%s!%s@%s INVITE %s " RPL_INVITING_TEXT "\n",
+	      client->nick, client->user, client->host, cl->nick, 
+	      ch->name, cl->nick);
 
-  /* fill in the invited nick into the channel */
+  /* fill in the invited client into the channels invite array */
   n = ch->invites;
-  ch->invite[n] = cl->nick;
+  ch->invite = xrealloc (ch->invite, sizeof (irc_client_t *) * (n + 1));
+  ch->invite[n] = cl;
   ch->invites++;
 
   return 0;

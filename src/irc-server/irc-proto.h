@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.10 2000/07/20 14:39:55 ela Exp $
+ * $Id: irc-proto.h,v 1.11 2000/07/21 21:19:31 ela Exp $
  *
  */
 
@@ -178,11 +178,11 @@ struct irc_client_history
  */
 struct irc_ban
 {
-  char nick[MAX_NAME_LEN]; /* nick name */
-  char user[MAX_NAME_LEN]; /* user name */
-  char host[MAX_NAME_LEN]; /* host name */
-  char by[MAX_NAME_LEN];   /* created by  */
-  time_t since;            /* banned since */
+  char *nick;   /* nick name */
+  char *user;   /* user name */
+  char *host;   /* host name */
+  char *by;     /* created by: "nick!user@host" */
+  time_t since; /* banned since */
 };
 
 /*
@@ -190,23 +190,22 @@ struct irc_ban
  */
 struct irc_channel
 {
-  char name[MAX_NAME_LEN];        /* channel name (max. 200 characters) */
-  char topic[MAX_NAME_LEN];       /* current topic */
-  char topic_by[MAX_NAME_LEN];    /* topic set by */
-  time_t topic_since;             /* topic set at */
-  /* array of clients in this channel */
-  irc_client_t *client[MAX_CLIENTS]; 
-  int cflag[MAX_CLIENTS];         /* these clients's channel flags */
-  int clients;                    /* clients in this channel */
-  int flag;                       /* channel flags */
-  irc_ban_t *ban[MAX_CLIENTS];    /* channel bans */
-  int bans;                       /* amount of active channel bans */
-  int users;                      /* user limit */
-  char key[MAX_NAME_LEN];         /* the key */
-  char by[MAX_NAME_LEN];          /* this channel is created by */
-  time_t since;                   /* channel exists since */
-  char *invite[MAX_CLIENTS];      /* invited clients's nick names */
-  int invites;                    /* number of invited clients */
+  char *name;            /* channel name (max. 200 characters) */
+  char *topic;           /* current topic */
+  char *topic_by;        /* topic set by */
+  time_t topic_since;    /* topic set at */
+  irc_client_t **client; /* array of clients in this channel */
+  int *cflag;            /* these clients's channel flags */
+  int clients;           /* clients in this channel */
+  int flag;              /* channel flags */
+  irc_ban_t **ban;       /* channel bans */
+  int bans;              /* amount of active channel bans */
+  int users;             /* user limit */
+  char *key;             /* the channel key */
+  char *by;              /* this channel is created by */
+  time_t since;          /* channel exists since */
+  irc_client_t **invite; /* array of invited clients */
+  int invites;           /* number of invited clients */
 };
 
 /*
@@ -514,7 +513,9 @@ int irc_global_finalize (void);
 #define ERR_NICKNAMEINUSE_TEXT    "%s :Nickname is already in use"
 
 #define ERR_NICKCOLLISION         436
+#define ERR_NICKCOLLISION_TEXT    "%s :Nickname collision KILL"
 #define ERR_USERNOTINCHANNEL      441
+#define ERR_USERNOTINCHANNEL_TEXT "%s %s :They aren't on that channel"
 
 #define ERR_NOTONCHANNEL          442
 #define ERR_NOTONCHANNEL_TEXT     "%s :You're not on that channel."
@@ -523,10 +524,13 @@ int irc_global_finalize (void);
 #define ERR_USERONCHANNEL_TEXT    "%s %s :is already on channel."
 
 #define ERR_NOLOGIN               444
+#define ERR_NOLOGIN_TEXT          "%s :User not logged in"
 #define ERR_SUMMONDISABLED        445
+#define ERR_SUMMONDISABLED_TEXT   ":SUMMON has been disabled"
 #define ERR_USERSDISABLED         446
 #define ERR_USERSDISABLED_TEXT    ":USERS has been disabled"
 #define ERR_NOTREGISTERED         451
+#define ERR_NOTREGISTERED_TEXT    ":You have not registered"
 
 #define ERR_NEEDMOREPARAMS        461
 #define ERR_NEEDMOREPARAMS_TEXT   "%s :Not enough parameters."
@@ -589,9 +593,11 @@ int irc_global_finalize (void);
 #define RPL_MYINFO_TEXT           "%s %s-%s %s %s"
 
 #define RPL_NONE                  300
+#define RPL_NONE_TEXT             "Dummy reply number. Not used."
 #define RPL_USERHOST              302
+#define RPL_USERHOST_TEXT         ":%s"
 #define RPL_ISON                  303
-
+#define RPL_ISON_TEXT             ":%s"
 #define RPL_AWAY                  301
 #define RPL_AWAY_TEXT             "%s :%s"
 
@@ -635,25 +641,31 @@ int irc_global_finalize (void);
 #define RPL_LISTEND_TEXT          ":End of /LIST"
 
 #define RPL_CHANNELMODEIS         324
-
+#define RPL_CHANNELMODEIS_TEXT    "%s %s"
 #define RPL_CHANCREATED           329
+#define RPL_CHANCREATED_TEXT      "%s %d"
 
 #define RPL_NOTOPIC               331
 #define RPL_NOTOPIC_TEXT          "%s :No topic is set"
-
 #define RPL_TOPIC                 332
+#define RPL_TOPIC_TEXT            "%s :%s"
 #define RPL_TOPICSET              333
+#define RPL_TOPICSET_TEXT         "%s %s %d"
 
 #define RPL_INVITING              341
+#define RPL_INVITING_TEXT         ":%s %s"
 #define RPL_SUMMONING             342
 
 #define RPL_VERSION               351
 #define RPL_VERSION_TEXT          "%s %s :place a version comment here"
 
 #define RPL_WHOREPLY              352
+#define RPL_WHOREPLY_TEXT         "%s %s %s %s %s %c %s%s :%d %s"
 #define RPL_ENDOFWHO              315
-#define RPL_NAMREPLY              353
+#define RPL_ENDOFWHO_TEXT         "%s :End of /WHO list"
 
+#define RPL_NAMREPLY              353
+#define RPL_NAMREPLY_TEXT         "%c %s :%s"
 #define RPL_ENDOFNAMES            366
 #define RPL_ENDOFNAMES_TEXT       "%s :End of /NAMES list"
 

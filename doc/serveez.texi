@@ -309,11 +309,29 @@ If the client detection signaled success this routine is called to assign
 the client connection to this servers instance. The arguments are just
 the same as in the detection routine. In this callback you can assign
 all the connection specific callbacks for your server and do some initial
-things. The foo server sets the check_request callback to the 
-default_check_request which is using the packet delimiter information to
-find whole packets. When a client sent such a packet the handle_request
-callback is executed. That is why the foo server assigns the handle_request
-method.
+things. The foo server sets the @code{check_request} callback to the 
+@code{default_check_request} which is using the packet delimiter 
+information to find whole packets. When a client sent such a packet the 
+@code{handle_request} callback is executed. That is why the foo server 
+assigns the @code{handle_request} method.
+
+@item client info (optional)
+If this callback is given the control protocol 
+(@xref{Control Protocol Server}.) can give information about a specific
+client if requested with @samp{stat id NUM}. The first arguments given
+is the server configuration hash and the second one the clients socket
+structure. You must return a static single line character string.
+
+@item server info (optional)
+When listing the server instances via @samp{stat all} within the control
+protocol (@xref{Control Protocol Server}.) the returned character string
+which might be multiline seperated by @code{\r\n} (no trailing seperator).
+Usually you will return all the server configuration information.
+
+@item timer (optional)
+If this callback is non-NULL it is called whenever there is some time 
+left. It gets the server instance itself as argument. Actually it gets
+called every second.
 @end table
 
 @subsection Make your server available
@@ -394,7 +412,8 @@ Counter for calls to idle_func.
 
 @item data
 Miscellaneous field. Listener keeps array of server instances here.
-This array is NULL terminated.
+This array is NULL terminated. Some servers store server specific 
+information here.
 
 @item cfg
 When the final protocol detection in default_detect_proto
@@ -890,13 +909,20 @@ Proc-Load : user 0.0%, sys 0.0%, child user 0.0%, child sys 0.0%
 @item stat id NUM
 Show statistics about a specific connection. This will give you all
 available information about every connection you specified.
+@xref{Writing Servers}, for more information about how to provide these
+information.
 
 @item stat con
-Connection statistics.
+Connection statistics. This will give a list of all socket structures
+within Serveez. If you want more detailed information about specific
+connections, Co-Servers or Servers you need to request these information
+with @samp{stat id NUM} or @samp{stat all}.
 
 @item stat all
-Short connection statistics. This command should list all the information
-about instanciated Servers and Co-Servers.
+Server and Co-Server instance statistics. This command should list all 
+the information about instanciated Servers and Co-Servers. 
+@xref{Writing Servers}, for more information about how to provide these
+information.
 
 @item stat cache
 HTTP cache statistics. This command produces an output something like the 

@@ -1,4 +1,39 @@
-2000-07-20  [ Ela ]  <ela@lkcc.org>
+2000-07-21  [ Ela ]  <ela@lkcc.org>
+
+	* socket.c (default_flood_protect): This function should be
+	called whenever you want to use flood protection within
+	your read_socket callback. It is built in the default readers.
+
+	* server.c (server_find): Find a server instance by a given
+	server configuration structure. This routine is used by the
+	control protocol to determine a client connections server.
+	(server_run_timer): This routine is called by 
+	handle_periadic_tasks() in `server-core.c' for each server
+	instance.
+
+	* coserver/coserver.c (coserver_delete): Co-Server
+	instanciating is now possible via the `int_coserver'
+	array.
+
+	* ctrl-server/control-proto.c (ctrl_stat_id): Made the
+	client/server info available via new callbacks. Showing
+	server instances on listening ports.
+	(ctrl_stat_con): Dropped socket descriptor and added the
+	server instance name if available for clients. Displaying
+	"Listener" and "Co-Server" if so.
+	(ctrl_stat_all): Here we show all the server and coserver
+	instances and the information about them using the 
+	`server_info' callback and the instance arrays.
+	(ctrl_info_client): First implemented `info_client' callback
+	within serveez. Dummy implementation.
+	(ctrl_info_server): Displaying the tcp port as `info_server'
+	information, printed when listing the server instances.
+
+	* server.h (server_t): Added `info_client', `info_server' and
+	`timer' callback.
+
+	* irc-server/irc-proto.h (struct irc_channel): All the
+	IRC structures have now dynamic sizes.
 
 	* irc-server/irc-proto.h (struct irc_client): This 
 	structure is now fully dynamic. Thus we save a lot of

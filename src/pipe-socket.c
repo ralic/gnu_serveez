@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.6 2000/07/14 00:42:06 ela Exp $
+ * $Id: pipe-socket.c,v 1.7 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -168,20 +168,11 @@ pipe_read (socket_t sock)
       sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
-      if (!(sock->flags & SOCK_FLAG_NOFLOOD))
+      if (default_flood_protect (sock, num_read))
 	{
-	  sock->flood_points += 1 + (num_read / 50);
-	  
-	  if (sock->flood_points > sock->flood_limit)
-	    {
-	      log_printf (LOG_ERROR, "kicking pipe %d (flood)\n", 
-			  sock->pipe_desc[READ]);
-	      
-	      if (sock->kicked_socket)
-		sock->kicked_socket (sock, 0);
-	      
-	      return -1;
-	    }
+	  log_printf (LOG_ERROR, "kicked pipe %d (flood)\n", 
+		      sock->pipe_desc[READ]);
+	  return -1;
 	}
 #endif /* ENABLE_FLOOD_PROTECTION */
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.13 2000/07/20 22:49:01 ela Exp $
+ * $Id: server.c,v 1.14 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -85,9 +85,9 @@ server_binding_t *server_binding = NULL;
 /*
  * Local forward declarations.
  */
-static int set_int (char*,  char*, char*, int *, zzz_scm_t, int);
+static int set_int (char *, char *, char *, int *, zzz_scm_t, int);
 static int set_intarray (char*, char*, char*, int **, zzz_scm_t, int*);
-static int set_string (char*,  char*, char*, char**, zzz_scm_t, char*);
+static int set_string (char*, char*, char*, char**, zzz_scm_t, char*);
 static int set_stringarray (char*, char*, char*, char***, zzz_scm_t, char**);
 static int set_hash (char*, char*, char*, hash_t ***, zzz_scm_t,hash_t**);
 static int set_port (char*, char*, char*, struct portcfg **, zzz_scm_t,
@@ -97,20 +97,19 @@ static void * server_instantiate (char*, zzz_scm_t,
 static void server_add (struct server *);
 
 /*
- * Helpers to extract info from val, if val == NULL, use the default.
+ * Helpers to extract info from val. If val is NULL then use the default.
  */
 static int
-set_int (char *cfgfile,
-	 char *varname,
-	 char *keyname,
-	 int *where,
-	 zzz_scm_t val,
+set_int (char *cfgfile, 
+	 char *var, 
+	 char *key, 
+	 int *location,
+	 zzz_scm_t val, 
 	 int def)
 {
-  
   if (val == zzz_undefined) 
     {
-      (*where) = def;
+      (*location) = def;
       return 0;
     }
   
@@ -118,22 +117,18 @@ set_int (char *cfgfile,
     {
       fprintf (stderr,
 	       "%s: property `%s' of %s should be an integer but is not\n",
-	       cfgfile, keyname, varname);
+	       cfgfile, key, var);
       return -1;
     }
 
   /* FIXME: do strings and atoi() ? */
-  (*where) = integer_val (val);
+  (*location) = integer_val (val);
   return 0;
 }
 
 static int
-set_intarray (char *cfgfile,
-	      char *varname,
-	      char *keyname,
-	      int **where,
-	      zzz_scm_t val,
-	      int* def)
+set_intarray (char *cfgfile, char *var, char *key, int **location,
+	      zzz_scm_t val, int* def)
 {
   int erroneous = 0;
   int i;
@@ -141,7 +136,7 @@ set_intarray (char *cfgfile,
 
   if (val == zzz_undefined) 
     {
-      (*where) = def;
+      (*location) = def;
       return 0;
     }
 
@@ -153,7 +148,7 @@ set_intarray (char *cfgfile,
 	{
 	  fprintf  (stderr,
 		    "%s: element %d of list `%s' is not an integer in `%s'\n",
-		    cfgfile, i - 1, keyname, varname);
+		    cfgfile, i - 1, key, var);
 	  erroneous = -1;
 	} 
       else 
@@ -163,25 +158,21 @@ set_intarray (char *cfgfile,
     }
   array[0] = i;
 
-  (*where) = array;
+  (*location) = array;
 
   return erroneous;
 }
 
 static int
-set_string (char *cfgfile,
-	    char *varname,
-	    char *keyname,
-	    char **where,
-	    zzz_scm_t val,
-	    char *def)
+set_string (char *cfgfile, char *var, char *key, char **location,
+	    zzz_scm_t val, char *def)
 {
   if (val == zzz_undefined) 
     {
       if (def == NULL)
-	(*where) = NULL;
+	(*location) = NULL;
       else
-	(*where) = xpstrdup (def);
+	(*location) = xpstrdup (def);
       return 0;
     }
 
@@ -189,21 +180,17 @@ set_string (char *cfgfile,
     {
       fprintf (stderr,
 	       "%s: property `%s' of %s should be a string but is not\n",
-	       cfgfile, keyname, varname);
+	       cfgfile, key, var);
       return -1;
     }
 
-  (*where) = xpstrdup (string_val (val)); 
+  (*location) = xpstrdup (string_val (val)); 
   return 0;
 }
 
 static int
-set_stringarray (char *cfgfile,
-		 char *varname,
-		 char *keyname,
-		 char*** where,
-		 zzz_scm_t val,
-		 char** def)
+set_stringarray (char *cfgfile, char *var, char *key, char*** location,
+		 zzz_scm_t val, char** def)
 {
   int erroneous = 0;
   int i;
@@ -211,7 +198,7 @@ set_stringarray (char *cfgfile,
 
   if (val == zzz_undefined)
     {
-      (*where) = def;
+      (*location) = def;
       return 0;
     }
 
@@ -219,7 +206,7 @@ set_stringarray (char *cfgfile,
     {
       fprintf (stderr,
 	       "%s: property `%s' of %s should be a list but is not\n",
-	       cfgfile, keyname, varname);
+	       cfgfile, key, var);
       return -1;
     }
 
@@ -231,7 +218,7 @@ set_stringarray (char *cfgfile,
 	{
 	  fprintf (stderr,
 		   "%s: element %d of list `%s' is not a string in `%s'\n",
-		   cfgfile, i, keyname, varname);
+		   cfgfile, i, key, var);
 	  erroneous = -1;
 	} 
       else 
@@ -241,17 +228,13 @@ set_stringarray (char *cfgfile,
     }
   array[i] = NULL;
 
-  (*where) = array;
+  (*location) = array;
   return erroneous;
 }
 
 static int
-set_hash (char *cfgfile,
-	  char *varname,
-	  char *keyname,
-	  hash_t *** where,
-	  zzz_scm_t val,
-	  hash_t ** def)
+set_hash (char *cfgfile, char *var, char *key, hash_t *** location,
+	  zzz_scm_t val, hash_t ** def)
 {
   int erroneous = 0;
   unsigned int i;
@@ -261,7 +244,7 @@ set_hash (char *cfgfile,
 
   if (val == zzz_undefined) 
     {
-      (*where) = def;
+      (*location) = def;
       return 0;
     }
 
@@ -274,7 +257,7 @@ set_hash (char *cfgfile,
     {
       fprintf (stderr, 
 	       "%s: element `%s' of `%s' should be a hash but is not\n",
-	       cfgfile, keyname, varname);
+	       cfgfile, key, var);
       return -1;
     }
 
@@ -285,7 +268,7 @@ set_hash (char *cfgfile,
 	  if (!string_p (car (car (foo)))) 
 	    {
 	      fprintf (stderr, "%s: hash `%s' in `%s' is broken\n",
-		       cfgfile, keyname, varname);
+		       cfgfile, key, var);
 	      erroneous = -1;
 	      continue;
 	    }
@@ -294,8 +277,8 @@ set_hash (char *cfgfile,
 	    {
 	      fprintf (stderr, 
 		       "%s: %s: value of `%s' is not a string in `%s'\n",
-		       cfgfile, varname, string_val (car (car (foo))), 
-		       keyname);
+		       cfgfile, var, string_val (car (car (foo))), 
+		       key);
 	      erroneous = -1;
 	      continue;
 	    }
@@ -309,7 +292,7 @@ set_hash (char *cfgfile,
     }
 
   (*href) = h;
-  (*where) = href;
+  (*location) = href;
   
   return erroneous;
 }
@@ -317,15 +300,12 @@ set_hash (char *cfgfile,
 /*
  * Set a portcfg from a scheme variable. The default value is copied.
  */
-static int set_port (char *cfgfile,
-		     char *varname,
-		     char *keyname,
-		     struct portcfg **where,
-		     zzz_scm_t val,
-		     struct portcfg *def)
+static int set_port (char *cfgfile, char *var, char *key, 
+		     struct portcfg **location, 
+		     zzz_scm_t val, struct portcfg *def)
 {
-  zzz_scm_t key = NULL;
-  zzz_scm_t tmp = NULL;
+  zzz_scm_t hash_key = NULL;
+  zzz_scm_t hash_val = NULL;
   char *tstr = NULL;
   struct portcfg *newport;
   struct sockaddr_in *newaddr;
@@ -337,13 +317,13 @@ static int set_port (char *cfgfile,
 	{
 	  fprintf (stderr, "%s: the default value of a portcfg may not be "
 		   "a null pointer (`%s' in `%s')\n",
-		   cfgfile, keyname, varname);
+		   cfgfile, key, var);
 	  return -1;
 	}
 
-      (*where) = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
-      memcpy ((*where), def, sizeof (struct portcfg));
-      newport = (*where);
+      (*location) = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
+      memcpy ((*location), def, sizeof (struct portcfg));
+      newport = (*location);
     } 
   else 
     {
@@ -353,23 +333,23 @@ static int set_port (char *cfgfile,
 	{
 	  fprintf (stderr,
 		   "%s: portcfg `%s' of `%s' does not specify a protocol\n",
-		   cfgfile, keyname, varname);
+		   cfgfile, key, var);
 	  return -1;
 	}
 
       /* First, find out what kind of port is about to be recognized. */
-      key = zzz_make_string ("proto", -1);
-      tmp = zzz_hash_ref (val, key, zzz_undefined);
+      hash_key = zzz_make_string ("proto", -1);
+      hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
-      if (!string_p (tmp)) 
+      if (!string_p (hash_val)) 
 	{
 	  fprintf (stderr,
 		   "%s: `proto' of portcfg `%s' of `%s' should be a string\n",
-		   cfgfile, keyname, varname);
+		   cfgfile, key, var);
 	  return -1;
 	}
 
-      tstr = string_val (tmp);
+      tstr = string_val (hash_val);
 
       if (!strcmp (tstr, "tcp") || !strcmp (tstr, "udp")) 
 	{
@@ -380,34 +360,34 @@ static int set_port (char *cfgfile,
 	    newport->proto = PROTO_UDP;
 
 	  /* Figure out the port value and set it. */
-	  key = zzz_make_string ("port", -1);
-	  tmp = zzz_hash_ref (val, key, zzz_undefined);
+	  hash_key = zzz_make_string ("port", -1);
+	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
       
-	  if (!integer_p (tmp)) 
+	  if (!integer_p (hash_val)) 
 	    {
 	      fprintf (stderr, "%s: `%s': port is not numerical in `%s'\n",
-		       cfgfile, varname, keyname);
+		       cfgfile, var, key);
 	      return -1;
 	    }
-	  newport->port = (unsigned short int) integer_val (tmp);
+	  newport->port = (unsigned short int) integer_val (hash_val);
 
 	  /* Figure out the local ip address, "*" means any. */
-	  key = zzz_make_string ("local-ip", -1);
-	  tmp = zzz_hash_ref (val, key, zzz_undefined);
+	  hash_key = zzz_make_string ("local-ip", -1);
+	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
-	  if (tmp == zzz_undefined) 
+	  if (hash_val == zzz_undefined) 
 	    {
 	      newport->localip = "*";
 	    } 
-	  else if (string_p (tmp)) 
+	  else if (string_p (hash_val)) 
 	    {
-	      newport->localip = xpstrdup (string_val (tmp));
+	      newport->localip = xpstrdup (string_val (hash_val));
 	    }
 	  else 
 	    {
 	      fprintf (stderr, 
 		       "%s: `%s': local-ip should be a string in `%s'\n",
-		       cfgfile, varname, keyname);
+		       cfgfile, var, key);
 	      return -1;
 	    }
 	} 
@@ -415,30 +395,30 @@ static int set_port (char *cfgfile,
 	{
 	  newport->proto = PROTO_PIPE;
 
-	  key = zzz_make_string ("inpipe", -1);
-	  tmp = zzz_hash_ref (val, key, zzz_undefined);
+	  hash_key = zzz_make_string ("inpipe", -1);
+	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
-	  if (!string_p (tmp)) 
+	  if (!string_p (hash_val)) 
 	    {
 	      fprintf (stderr, 
 		       "%s: `%s': inpipe should be a string in `%s'\n",
-		       cfgfile, varname, keyname);
+		       cfgfile, var, key);
 	      return -1;
 	    }
-	  newport->inpipe = xpstrdup (string_val (tmp));
+	  newport->inpipe = xpstrdup (string_val (hash_val));
 
-	  key = zzz_make_string ("outpipe", -1);
-	  tmp = zzz_hash_ref (val, key, zzz_undefined);
+	  hash_key = zzz_make_string ("outpipe", -1);
+	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
-	  if (!string_p (tmp)) 
+	  if (!string_p (hash_val)) 
 	    {
 	      fprintf (stderr, 
 		       "%s: `%s': outpipe should be a string in `%s'\n",
-		       cfgfile, varname, keyname);
+		       cfgfile, var, key);
 	      return -1;
 	    }
 
-	  newport->outpipe = xpstrdup (string_val (tmp));
+	  newport->outpipe = xpstrdup (string_val (hash_val));
 
 	} 
       else 
@@ -446,11 +426,11 @@ static int set_port (char *cfgfile,
 	  fprintf (stderr,
 		   "%s: `proto' of portcfg `%s' of `%s' does not specify a "
 		   "valid protocol (tcp, udp, pipe)\n",
-		   cfgfile, keyname, varname);
+		   cfgfile, key, var);
 	  return -1;
 	}
     
-      (*where) = newport;
+      (*location) = newport;
     }
 
   /* Second, fill the sockaddr struct from the values we just read. */
@@ -469,15 +449,15 @@ static int set_port (char *cfgfile,
       else 
 	{
 #ifndef __MINGW32__
-	  if (inet_aton (string_val (tmp), &newaddr->sin_addr) == 0) 
+	  if (inet_aton (string_val (hash_val), &newaddr->sin_addr) == 0) 
 	    {
 	      fprintf (stderr, "%s: `%s': local-ip should be an ip address "
 		       "in dotted decimal form in `%s'\n",
-		       cfgfile, varname, keyname);
+		       cfgfile, var, key);
 	      return -1;
 	    }
 #else /* __MINGW32__ */
-	  newaddr->sin_addr.s_addr = inet_addr (string_val (tmp));
+	  newaddr->sin_addr.s_addr = inet_addr (string_val (hash_val));
 #endif /* __MINGW32__ */
 	}
 
@@ -495,10 +475,8 @@ static int set_port (char *cfgfile,
  * Instantiate a server, given a server_definition and a sizzle hash.
  */
 static void *
-server_instantiate (char *cfgfile,
-		    zzz_scm_t hash,
-		    struct server_definition *sd,
-		    char *varname)
+server_instantiate (char *cfgfile, zzz_scm_t hash,
+		    struct server_definition *sd, char *var)
 {
   char * newserver = NULL;
   int i, e = 0;
@@ -512,7 +490,7 @@ server_instantiate (char *cfgfile,
    */
   if (!vector_p (hash) || error_p(hash)) 
     {
-      fprintf (stderr, "%s: %s is not a hash\n", cfgfile, varname);
+      fprintf (stderr, "%s: %s is not a hash\n", cfgfile, var);
       return NULL;
     }
 
@@ -533,7 +511,7 @@ server_instantiate (char *cfgfile,
 	{
 	  fprintf (stderr,
 		   "%s: `%s' does not define a default for `%s' in `%s'\n",
-		   cfgfile, sd->name, sd->items[i].name, varname);
+		   cfgfile, sd->name, sd->items[i].name, var);
 	  erroneous = -1;
 	  continue;
 	}
@@ -542,7 +520,7 @@ server_instantiate (char *cfgfile,
 	{
 	case ITEM_INT:
 	  e = set_int (cfgfile,
-		       varname,
+		       var,
 		       sd->items[i].name,
 		       (int *)(newserver + offset),
 		       hashval,
@@ -551,7 +529,7 @@ server_instantiate (char *cfgfile,
 	  
 	case ITEM_INTARRAY:
 	  e = set_intarray (cfgfile,
-			    varname,
+			    var,
 			    sd->items[i].name,
 			    (int **)(newserver + offset),
 			    hashval,
@@ -560,16 +538,16 @@ server_instantiate (char *cfgfile,
 
 	case ITEM_STR:
 	  e = set_string (cfgfile,
-			  varname,
+			  var,
 			  sd->items[i].name,
 			  (char **)(newserver + offset),
 			  hashval,
-			  *(char **)sd->items[i].address ) ;
+			  *(char **)sd->items[i].address) ;
 	  break;
 	  
 	case ITEM_STRARRAY:
 	  e = set_stringarray (cfgfile,
-			       varname,
+			       var,
 			       sd->items[i].name,
 			       (char ***)(newserver + offset),
 			       hashval,
@@ -578,7 +556,7 @@ server_instantiate (char *cfgfile,
 
 	case ITEM_HASH:
 	  e = set_hash (cfgfile,
-			varname,
+			var,
 			sd->items[i].name,
 			(hash_t ***)(newserver + offset),
 			hashval,
@@ -587,7 +565,7 @@ server_instantiate (char *cfgfile,
 
 	case ITEM_PORTCFG:
 	  e = set_port (cfgfile,
-			varname,
+			var,
 			sd->items[i].name,
 			(struct portcfg **)(newserver + offset),
 			hashval,
@@ -640,7 +618,7 @@ server_load_cfg (char *cfgfile)
 	  for (j = 0; NULL != (sd = all_server_definitions[j]); j++)
 	    {
 	      symname = xpstrdup (string_val (symbol_name (sym)));
-	      if (strncmp (symname, sd->varname, strlen (sd->varname)) == 0 )
+	      if (strncmp (symname, sd->varname, strlen (sd->varname)) == 0)
 		{
 		  zzz_get_symbol_value (zzz_toplevel_env, sym, &symval);
 		  newserver_cfg = server_instantiate (cfgfile,
@@ -658,7 +636,11 @@ server_load_cfg (char *cfgfile)
 		      newserver->connect_socket = sd->connect_socket;
 		      newserver->init = sd->init;
 		      newserver->finalize = sd->finalize;
-		      server_add(newserver);
+		      newserver->info_client = sd->info_client;
+		      newserver->info_server = sd->info_server;
+		      newserver->timer = sd->timer;
+		      newserver->description = sd->name;
+		      server_add (newserver);
 		    } 
 		  else 
 		    {
@@ -700,7 +682,7 @@ server_print_definitions (void)
 	  for (i = 0; sd->items[i].type != ITEM_END; i++)
 	    {
 	      long offset = (char *) sd->items[i].address -
-		(char *)sd->prototype_start;
+		(char *) sd->prototype_start;
 	      
 	      printf ("   variable `%s' at offset %d, %sdefaultable: ",
 		      sd->items[i].name, (int)offset,
@@ -738,6 +720,41 @@ server_print_definitions (void)
     }
 }
 #endif /* ENABLE_DEBUG */
+
+/*
+ * Run all the server instances's timer routines. This is called within
+ * the handle_periodic_tasks() function in `server-core.c'.
+ */
+void
+server_run_timer (void)
+{
+  int n;
+  server_t *server;
+
+  for (n = 0; n < server_instances; n++)
+    {
+      server = servers[n];
+      if (server->timer)
+	server->timer (server);
+    }
+}
+
+/*
+ * Find a server instance by a given configuration structure. Return NULL
+ * if there is no such configuration.
+ */
+server_t *
+server_find (void *cfg)
+{
+  int n;
+  
+  for (n = 0; n < server_instances; n++)
+    {
+      if (servers[n]->cfg == cfg)
+	return servers[n];
+    }
+  return NULL;
+}
 
 /*
  * Add a server to the list of all servers.

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.10 2000/07/14 00:42:06 ela Exp $
+ * $Id: awcs-proto.c,v 1.11 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -110,6 +110,9 @@ server_definition_t awcs_server_definition =
   awcs_connect_socket,   /* callback when detected */
   awcs_finalize,         /* server instance finalization */
   NULL,                  /* global finalization */
+  NULL,                  /* client info */
+  NULL,                  /* server info */
+  NULL,                  /* server timer */
   &awcs_config,          /* the instance configuration */
   sizeof (awcs_config),  /* sizeof the instance configuration */
   awcs_config_prototype  /* configuration defintion for libsizzle */

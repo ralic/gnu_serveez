@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.14 2000/07/15 11:44:17 ela Exp $
+ * $Id: socket.c,v 1.15 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -205,19 +205,10 @@ default_read (socket_t sock)
       sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
-      if (!(sock->flags & SOCK_FLAG_NOFLOOD))
+      if (default_flood_protect (sock, num_read))
 	{
-	  sock->flood_points += 1 + (num_read / 50);
-	  
-	  if (sock->flood_points > sock->flood_limit)
-	    {
-	      log_printf (LOG_ERROR, "kicking socket %d (flood)\n", desc);
-	      
-	      if (sock->kicked_socket)
-		sock->kicked_socket (sock, 0);
-	      
-	      return -1;
-	    }
+	  log_printf (LOG_ERROR, "kicked socket %d (flood)\n", desc);
+	  return -1;
 	}
 #endif /* ENABLE_FLOOD_PROTECTION */
 
@@ -245,6 +236,30 @@ default_read (socket_t sock)
   
   return 0;
 }
+
+#if ENABLE_FLOOD_PROTECTION
+/*
+ * This routine can be called if flood protection is wished for
+ * socket readers. Return non-zero if the socket should be kicked
+ * because of flood.
+ */
+int
+default_flood_protect (socket_t sock, int num_read)
+{
+  if (!(sock->flags & SOCK_FLAG_NOFLOOD))
+    {
+      sock->flood_points += 1 + (num_read / 50);
+	  
+      if (sock->flood_points > sock->flood_limit)
+	{
+	  if (sock->kicked_socket)
+	    sock->kicked_socket (sock, 0);
+	  return -1;
+	}
+    }
+  return 0;
+}
+#endif /* ENABLE_FLOOD_PROTECTION */
 
 /*
  * The default function which gets called when a client shuts down
@@ -507,10 +522,6 @@ sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
 int
 sock_free (socket_t sock)
 {
-  if (sock->remote_host)
-    xfree (sock->remote_host);
-  if (sock->local_host)
-    xfree (sock->local_host);
   if (sock->recv_buffer)
     xfree(sock->recv_buffer);
   if (sock->send_buffer)

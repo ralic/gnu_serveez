@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.10 2000/07/20 14:39:55 ela Exp $
+ * $Id: irc-proto.c,v 1.11 2000/07/21 21:19:31 ela Exp $
  *
  */
 
@@ -156,6 +156,9 @@ server_definition_t irc_server_definition =
   irc_connect_socket,  /* connection routine */
   irc_finalize,        /* instance finalizer */
   irc_global_finalize, /* global finalizer */
+  NULL,                /* client info */
+  NULL,                /* server info */
+  NULL,                /* server timer */
   &irc_config,         /* default configuration */
   sizeof (irc_config), /* size of configuration */
   irc_config_prototype /* configuration prototypes */
@@ -167,6 +170,20 @@ server_definition_t irc_server_definition =
 int
 irc_global_init (void)
 {
+#if 0
+  printf ("sizeof (socket_t) = %d\n", sizeof (socket_data_t));
+  printf ("sizeof (irc_ban_t) = %d\n", sizeof (irc_ban_t));
+  printf ("sizeof (irc_channel_t) = %d\n", sizeof (irc_channel_t));
+  printf ("sizeof (irc_client_t) = %d\n", sizeof (irc_client_t));
+  printf ("sizeof (irc_client_history_t) = %d\n", 
+	  sizeof (irc_client_history_t));
+  printf ("sizeof (irc_server_t) = %d\n", sizeof (irc_server_t));
+  printf ("sizeof (irc_user_t) = %d\n", sizeof (irc_user_t));
+  printf ("sizeof (irc_kill_t) = %d\n", sizeof (irc_kill_t));
+  printf ("sizeof (irc_oper_t) = %d\n", sizeof (irc_oper_t));
+  printf ("sizeof (irc_class_t) = %d\n", sizeof (irc_class_t));
+#endif
+
   irc_create_lcset ();
   return 0;
 }
@@ -308,6 +325,10 @@ irc_join_channel (irc_config_t *cfg,
 	    }
 	  else
 	    {
+	      channel->client = xrealloc (channel->client,
+					  sizeof (irc_client_t *) * (n + 1));
+	      channel->cflag = xrealloc (channel->cflag,
+					 sizeof (int) * (n + 1));
 	      channel->client[n] = client;
 	      channel->cflag[n] = 0;
 	      channel->clients++;
@@ -339,10 +360,12 @@ irc_join_channel (irc_config_t *cfg,
 
       /* create one and set the first client as operator */
       channel = irc_add_channel (cfg, chan);
+      channel->client = xmalloc (sizeof (irc_client_t *));
+      channel->cflag = xmalloc (sizeof (int));
       channel->client[0] = client;
       channel->cflag[0] = MODE_OPERATOR;
-      channel->clients++;
-      strcpy (channel->by, client->nick);
+      channel->clients = 1;
+      channel->by = xstrdup (client->nick);
       channel->since = time (NULL);
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "irc: channel %s created\n", channel->name);
@@ -374,9 +397,23 @@ irc_leave_channel (irc_config_t *cfg,
   for (n = 0; n < channel->clients; n++)
     if (channel->client[n] == client)
       {
-	channel->client[n] = channel->client[last];
-	channel->cflag[n] = channel->cflag[last];
 	channel->clients--;
+	if (last)
+	  {
+	    channel->client[n] = channel->client[last];
+	    channel->cflag[n] = channel->cflag[last];
+	    channel->client = xrealloc (channel->client, 
+					sizeof (irc_client_t *) * last);
+	    channel->cflag = xrealloc (channel->cflag, 
+				       sizeof (int) * last);
+	  }
+	else
+	  {
+	    xfree (channel->client);
+	    channel->client = NULL;
+	    xfree (channel->cflag);
+	    channel->cflag = NULL;
+	  }
 #if ENABLE_DEBUG
 	log_printf (LOG_DEBUG, "irc: %s left channel %s\n",
 		    client->nick, channel->name);
@@ -386,19 +423,18 @@ irc_leave_channel (irc_config_t *cfg,
 	for (i = 0; i < client->channels; i++)
 	  if (client->channel[i] == channel)
 	    {
-	      client->channel[i] = client->channel[last];
-	      if (client->channels != 1)
+	      if (--client->channels)
 		{
+		  client->channel[i] = client->channel[last];
 		  client->channel = xrealloc (client->channel, 
 					      sizeof (irc_channel_t *) * 
-					      (client->channels - 1));
+					      client->channels);
 		}
 	      else
 		{
 		  xfree (client->channel);
 		  client->channel = NULL;
 		}
-	      client->channels--;
 	      break;
 	    }
 	break;
@@ -495,14 +531,17 @@ irc_leave_all_channels (irc_config_t *cfg,
 	}
 	  
       /* delete this client of channel */
-      irc_leave_channel (cfg, client, client->channel[0]);
+      irc_leave_channel (cfg, client, channel);
     }
 
   /* send last error Message */
+  sock->flags &= ~SOCK_FLAG_KILLED;
   irc_printf (sock, "ERROR :" IRC_CLOSING_LINK "\n", client->host, reason);
+  sock->flags |= SOCK_FLAG_KILLED;
 
   /* delete this client */
   irc_delete_client (cfg, client);
+  sock->data = NULL;
 
   return 0;
 }
@@ -518,7 +557,10 @@ irc_disconnect (socket_t sock)
   irc_client_t *client = sock->data;
   
   /* is it a valid IRC connection ? */
-  irc_leave_all_channels (cfg, client, IRC_CONNECTION_LOST);
+  if (client)
+    {
+      irc_leave_all_channels (cfg, client, IRC_CONNECTION_LOST);
+    }
   return 0;
 }
 
@@ -644,9 +686,20 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 
   if (hash_contains (cfg->channels, channel))
     {
+      /* xfree() all the channel ban entries */
       for (n = 0; n < channel->bans; n++)
-	xfree (channel->ban[n]);
+	irc_destroy_ban (channel->ban[n]);
+      if (channel->ban) xfree (channel->ban);
+
       hash_delete (cfg->channels, channel->name);
+      
+      if (channel->topic) xfree (channel->topic);
+      if (channel->topic_by) xfree (channel->topic_by);
+      if (channel->key) xfree (channel->key);
+      if (channel->invite) xfree (channel->invite);
+
+      xfree (channel->by);
+      xfree (channel->name);
       xfree (channel);
       return 0;
     }
@@ -709,7 +762,7 @@ irc_add_channel (irc_config_t *cfg, char *name)
 
   channel = xmalloc (sizeof (irc_channel_t));
   memset (channel, 0, sizeof (irc_channel_t));
-  strcpy (channel->name, name);
+  channel->name = xstrdup (name);
   hash_put (cfg->channels, name, channel);
   return channel;
 }

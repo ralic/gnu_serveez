@@ -1,5 +1,5 @@
 /*
- * src/server.h - Generic server definitions
+ * src/server.h - generic server definitions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.6 2000/07/04 20:58:41 ela Exp $
+ * $Id: server.h,v 1.7 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -45,7 +45,7 @@
 
 /*
  * Each server can have a an array of name-value-pairs specific for it.
- * Use macros at end ot this file for setting up
+ * Use macros at end ot this file for setting up these.
  */
 typedef struct key_value_pair 
 {
@@ -57,36 +57,38 @@ typedef struct key_value_pair
 key_value_pair_t;
 
 /*
- * Each server instance gets such a struct
+ * Each server instance gets such a structure.
  */
 typedef struct server
 {
   int  proto;           /* one of the PROTO_ flags */
-  char *name;           /* Variable name in sizzle, used to identify it */
+  char *name;           /* variable name in sizzle, used to identify it */
+  char *description;    /* server description */
   void *cfg;                                 /* configuration structure */
-  int (* init)(struct server *);             /* Init of instance*/
+  int (* init)(struct server *);             /* init of instance */
   int (* detect_proto) (void *, socket_t);   /* protocol detection */
   int (* connect_socket) (void *, socket_t); /* what to do if detected */ 
   int (* finalize)(struct server *);         /* finalize this instance */
+  char * (* info_client)(void *, socket_t);  /* return client info */
+  char * (* info_server)(struct server *);   /* return server info */
+  int (* timer)(struct server *);            /* server timer */
 }
 server_t;
 
 /*
- * Used when binding ports
- * this is available from sizzle and set as a hash:
- *  "proto" => String: "tcp", "udp", "pipe"
- *  "port" => int: for tcp/udp ports
- *  "local-ip" => String: (dotted decimal) for local address or "*" (default)
- *  "inpipe" => String: pipe for sending data into serveez
- *  "outpipe" => String: pipe serveez sends responses out on
+ * Used when binding ports this is available from sizzle 
+ * and set as a hash:
  *
+ *  "proto"    => String: "tcp", "udp", "pipe"
+ *  "port"     => Integer: for tcp/udp ports
+ *  "local-ip" => String: (dotted decimal) for local address or "*" (default)
+ *  "inpipe"   => String: pipe for sending data into serveez
+ *  "outpipe"  => String: pipe serveez sends responses out on
  */
 typedef struct portcfg
 {
   int proto;                      /* one of the PROTO_ flags */
-
-  /* TCP and UDP */
-  unsigned short int port;        /* ip port */
+  unsigned short int port;        /* ip port (TCP and UDP) */
   char *localip;                  /* dotted decimal or "*" */
   struct sockaddr_in *localaddr;  /* converted from the above 2 values */
 
@@ -110,6 +112,9 @@ typedef struct server_definition
   int (* connect_socket)(void *, socket_t);  /* For accepting a client     */
   int (* finalize)(struct server*);          /* per instance               */
   int (* global_finalize)(void);             /* per serverdef              */
+  char * (* info_client)(void *, socket_t);  /* return client info         */
+  char * (* info_server)(struct server *);   /* return server info         */
+  int (* timer)(struct server *);            /* server timer               */
 
   void *prototype_start;                     /* Start of example struct    */
   int  prototype_size;                       /* sizeof() the above         */
@@ -146,7 +151,19 @@ int server_start (void);
 int server_bind (server_t *server, portcfg_t *cfg);
 
 /*
- * Use my functions:
+ * Find a server instance by a given configuration structure. Return NULL
+ * if there is no such configuration.
+ */
+server_t *server_find (void *cfg);
+
+/*
+ * Run all the server instances's timer routines. This is called within
+ * the handle_periodic_tasks() function in `server-core.c'.
+ */
+void server_run_timer (void);
+
+/*
+ * Use these functions.
  */
 int server_load_cfg (char *cfgfile);
 int server_global_init (void);

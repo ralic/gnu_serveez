@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.8 2000/07/07 16:26:20 ela Exp $
+ * $Id: foo-proto.c,v 1.9 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -126,6 +126,9 @@ struct server_definition foo_server_definition =
   foo_connect_socket,
   foo_finalize,
   foo_global_finalize,
+  NULL,
+  NULL,
+  NULL,
   &mycfg,
   sizeof(mycfg),
   foo_config_prototype

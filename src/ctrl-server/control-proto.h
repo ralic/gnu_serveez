@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.3 2000/06/22 19:40:30 ela Exp $
+ * $Id: control-proto.h,v 1.4 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -70,6 +70,8 @@ extern server_definition_t ctrl_server_definition;
 /* server functions */
 int ctrl_init (server_t *server);
 int ctrl_finalize (server_t *server);
+char *ctrl_info_server (server_t *server);
+char *ctrl_info_client (void *ctrl_cfg, socket_t sock);
 
 /* basic protocol functions */
 int ctrl_detect_proto (void *cfg, socket_t sock);

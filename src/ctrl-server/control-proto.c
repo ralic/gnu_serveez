@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.12 2000/07/14 00:42:06 ela Exp $
+ * $Id: control-proto.c,v 1.13 2000/07/21 21:19:30 ela Exp $
  *
  */
 
@@ -112,6 +112,9 @@ server_definition_t ctrl_server_definition =
   ctrl_connect_socket,       /* connection routine */
   ctrl_finalize,             /* instance finalization routine */
   NULL,                      /* global finalizer */
+  ctrl_info_client,          /* client info */
+  ctrl_info_server,          /* server info */
+  NULL,                      /* server timer */
   &ctrl_config,              /* default configuration */
   sizeof (ctrl_config),      /* size of the configuration */
   ctrl_config_prototype      /* configuration prototypes (libsizzle) */
@@ -145,14 +148,40 @@ ctrl_finalize (server_t *server)
 }
 
 /*
+ * Server info callback.
+ */
+char *
+ctrl_info_server (server_t *server)
+{
+  static char info[128];
+  ctrl_config_t *cfg = server->cfg;
+
+  sprintf (info, " tcp port : %d", cfg->netport->port);
+  return info;
+}
+
+/*
+ * Client info callback.
+ */
+char *
+ctrl_info_client (void *ctrl_cfg, socket_t sock)
+{
+  ctrl_config_t *cfg = ctrl_cfg;
+  static char info[128];
+
+  sprintf (info, "This is a control connection client.");
+  return info;
+}
+
+/*
  * This function gets called for new sockets which are not yet
  * identified.  It returns a non-zero value when the content in
  * the receive buffer looks like the control protocol.
  */
 int
-ctrl_detect_proto (void *ctrlcfg, socket_t sock)
+ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
 {
-  ctrl_config_t *cfg = ctrlcfg;
+  ctrl_config_t *cfg = ctrl_cfg;
   int ret = 0;
 
   /* accept both CRLF and CR */
@@ -294,11 +323,13 @@ ctrl_chop (char *arg)
 int
 ctrl_stat_id (socket_t sock, int flag, char *arg)
 {
-  int id;
+  int id, n;
   socket_t xsock;
-  char sflags[128] = "";
-  char flags[128] = "";
-  char proto[128] = "";
+  char flags[128];
+  char proto[128];
+  char info[128];
+  server_t *server;
+  int_coserver_t *coserver;
 
   /* find the apropiate client or server connection */
   id = atoi (arg);
@@ -308,53 +339,73 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
       return flag;
     }
 
-  /* process connection type server flags */
-  if (xsock->proto & PROTO_TCP)
-    strcat (sflags, "tcp ");
-  if (xsock->proto & PROTO_UDP)
-    strcat (sflags, "udp ");
-  if (xsock->proto & PROTO_PIPE)
-    strcat (sflags, "pipe ");
-
-  
-  /* process protocol type server flags */
-  /* FIXME: server depending string */
-  strcat (sflags, "unknown server ");
+  sock_printf (sock, "\r\nconnection id %d statistics\r\n\r\n", id);
 
   /* 
    * Process general socket structure's flags. Uppercase words refer
    * to set bits and lowercase to unset bits.
    */
-  sprintf (flags, "%s %s %s %s %s %s %s %s %s %s %s %s %s",
-	   xsock->flags & SOCK_FLAG_INBUF ?     "INBUF" : "inbuf",
-	   xsock->flags & SOCK_FLAG_OUTBUF ?    "OUTBUF" : "outbuf",
-	   xsock->flags & SOCK_FLAG_CONNECTED ? "CONNECT" : "connect",
-	   xsock->flags & SOCK_FLAG_LISTENING ? "LISTEN" : "listen",
-	   xsock->flags & SOCK_FLAG_AUTH ?      "AUTH" : "auth",
-	   xsock->flags & SOCK_FLAG_KILLED ?    "KILL" : "kill",
-	   xsock->flags & SOCK_FLAG_NOFLOOD ?   "flood" : "FLOOD",
-	   xsock->flags & SOCK_FLAG_INITED ?    "INIT" : "init",
-	   xsock->flags & SOCK_FLAG_THREAD ?    "THREAD" : "thread",
-	   xsock->flags & SOCK_FLAG_PIPE ?      "PIPE" : "pipe",
-	   xsock->flags & SOCK_FLAG_FILE ?      "FILE" : "file",
-	   xsock->flags & SOCK_FLAG_SOCK ?      "SOCK" : "sock",
-	   xsock->flags & SOCK_FLAG_ENQUEUED ?  "ENQUEUED" : "enqueued");
+  sock_printf (sock,
+	       " flags    : %s %s %s %s %s %s\r\n"
+	       "            %s %s %s %s %s %s\r\n",
+	       xsock->flags & SOCK_FLAG_INBUF ?     "INBUF" : "inbuf",
+	       xsock->flags & SOCK_FLAG_OUTBUF ?    "OUTBUF" : "outbuf",
+	       xsock->flags & SOCK_FLAG_CONNECTED ? "CONNECTED" : "connected",
+	       xsock->flags & SOCK_FLAG_LISTENING ? "LISTENING" : "listening",
+	       xsock->flags & SOCK_FLAG_KILLED ?    "KILLED" : "killed",
+	       xsock->flags & SOCK_FLAG_NOFLOOD ?   "flood" : "FLOOD",
+	       xsock->flags & SOCK_FLAG_INITED ?    "INITED" : "inited",
+	       xsock->flags & SOCK_FLAG_THREAD ?    "THREAD" : "thread",
+	       xsock->flags & SOCK_FLAG_PIPE ?      "PIPE" : "pipe",
+	       xsock->flags & SOCK_FLAG_FILE ?      "FILE" : "file",
+	       xsock->flags & SOCK_FLAG_SOCK ?      "SOCK" : "sock",
+	       xsock->flags & SOCK_FLAG_ENQUEUED ?  "ENQUEUED" : "enqueued");
 
-  /* process protocol specific flags */
-  /* FIXME: protocol depending output here ! */
-  strcat (proto, "unknown protocol ");
+  sock_printf (sock, " protocol : ");
+
+  /* process connection type server flags */
+  if (xsock->flags & SOCK_FLAG_LISTENING)
+    {
+      strcpy (proto, "server: ");
+      if (xsock->proto & PROTO_TCP)
+	strcat (proto, "tcp ");
+      if (xsock->proto & PROTO_UDP)
+	strcat (proto, "udp ");
+      if (xsock->proto & PROTO_PIPE)
+	strcat (proto, "pipe ");
+
+      sock_printf (sock, "%s\r\n", proto);
+      for (n = 0; (server = SERVER (xsock->data, n)) != NULL; n++)
+	sock_printf (sock, "            %d. %s (%s)\r\n", 
+		     n + 1, server->name, server->description);
+    }
+  /* process client info */
+  else
+    {
+      if ((server = server_find (xsock->cfg)) != NULL)
+	{
+	  sock_printf (sock, "%s client\r\n", server->name);
+	  if (server->info_client)
+	    {
+	      sock_printf (sock, "            %s\r\n",
+			   server->info_client (server->cfg, xsock));
+	    }
+	}
+      else
+	{
+	  coserver = xsock->data;
+	  sock_printf (sock, "internal %s coserver\r\n",
+		       int_coserver_type[coserver->type].name);
+	}
+    }
 
   /* print all previously collected statistics of this connection */
   sock_printf (sock, 
-	       "\r\nconnection id %d statistics\r\n\r\n"
-	       " sflags   : %s\r\n"
-	       " flags    : %s\r\n"
-	       " protocol : %s\r\n"
 	       " sock fd  : %d\r\n"
 	       " file fd  : %d\r\n"
 	       " pipe fd  : %d (recv), %d (send)\r\n"
-	       " foreign  : %d.%d.%d.%d:%d (%s)\r\n"
-	       " local    : %d.%d.%d.%d:%d (%s)\r\n"
+	       " foreign  : %d.%d.%d.%d:%d\r\n"
+	       " local    : %d.%d.%d.%d:%d\r\n"
 	       " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
 	       " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
 	       " idle     : %d\r\n"
@@ -362,10 +413,6 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       " flood    : %d (points), %d (limit)\r\n"
 #endif /* ENABLE_FLOOD_PROTECTION */
 	       " avail    : %s\r\n\r\n",
-	       id,
-	       sflags[0] ? sflags : "none",
-	       flags,
-	       proto[0] ? proto : "none",
 	       xsock->sock_desc,
 	       xsock->file_desc,
 	       xsock->pipe_desc[READ],
@@ -375,13 +422,11 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       (xsock->remote_addr >> 8) & 0xff,
 	       xsock->remote_addr & 0xff,
 	       xsock->remote_port,
-	       xsock->remote_host ? xsock->remote_host : "unresolved",
 	       (xsock->local_addr >> 24) & 0xff,
 	       (xsock->local_addr >> 16) & 0xff,
 	       (xsock->local_addr >> 8) & 0xff,
 	       xsock->local_addr & 0xff,
 	       xsock->local_port,
-	       xsock->local_host ? xsock->local_host : "unresolved",
 	       xsock->send_buffer_size,
 	       xsock->send_buffer_fill,
 	       ctrl_chop (ctime (&xsock->last_send)),
@@ -467,17 +512,26 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
   char linet[64];  
   char rinet[64];
   int n;
+  server_t *server;
 
   sock_printf(sock, "\r\n%s", 
-	      "Proto         Id  RecvQ  SendQ Sock "
+	      "Proto              Id  RecvQ  SendQ "
 	      "Local                Foreign\r\n");
 
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
-      id = "None";
-      if (xsock->proto)
-	id = "Server";
-      /* FIXME: protocol specific */
+      if (xsock->flags & SOCK_FLAG_LISTENING)
+	{
+	  id = "Listener";
+	}
+      else if ((server = server_find (xsock->cfg)) != NULL)
+	{
+	  id = server->name;
+	}
+      else
+	{
+	  id = "Co-Server";
+	}
 
       n = xsock->local_addr;
       sprintf (linet, "%d.%d.%d.%d:%d", (n>>24)&0xff, 
@@ -490,10 +544,9 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 	       xsock->remote_port);
       
       sock_printf (sock, 
-		   "%-11s %4d %6d %6d %4d %-20s %-20s\r\n", id,
+		   "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
 		   xsock->socket_id, xsock->recv_buffer_fill,
 		   xsock->send_buffer_fill, 
-		   xsock->sock_desc,
 		   linet, rinet);
     }
   sock_printf (sock, "\r\n");
@@ -557,72 +610,51 @@ ctrl_kill_cache (socket_t sock, int flag, char *arg)
 #endif /* ENABLE_HTTP_PROTO */
 
 /*
- * Connection statitics (short).
+ * Server and Co-Server instance statistics.
  */
 int
-ctrl_stat_all(socket_t sock, int flag, char *arg)
+ctrl_stat_all (socket_t sock, int flag, char *arg)
 {
   int client, n;
   int_coserver_t *coserver;
   socket_t xsock;
+  server_t *server;
 
-  sock_printf(sock, "\r\n");
-#if ENABLE_AWCS_PROTO
-  client = 0;
-  n = 0;
-  for (xsock = socket_root; xsock; xsock = xsock->next)
+  /* go through all server instances */
+  for (n = 0; n < server_instances; n++)
     {
-      /*
-      if(xsock->flags & SOCK_FLAG_AWCS_CLIENT)
-	client++;
-      if(xsock == master_server)
-	n++;
-      */
+      server = servers[n];
+      sock_printf (sock, "\r\n%s (%s):\r\n",
+		   server->description, server->name);
+      if (server->info_server)
+	{
+	  sock_printf (sock, "%s\r\n", server->info_server (server));
+	}
     }
-  sock_printf(sock, "aWCS connections: %d clients, %d master\r\n",
-	      client, n);
-#endif
-#if ENABLE_HTTP_PROTO
-  client = 0;
-  for (xsock = socket_root; xsock; xsock = xsock->next)
-    {
-      /*
-      if(xsock->flags & SOCK_FLAG_HTTP_CLIENT)
-	client++;
-      */
-    }
-  sock_printf(sock, "HTTP connections: %d clients\r\n", client);
-#endif
-#if ENABLE_CONTROL_PROTO
-  client = 0;
-  for (xsock = socket_root; xsock; xsock = xsock->next)
-    {
-      /*
-      if(xsock->flags & SOCK_FLAG_CTRL_CLIENT)
-	client++;
-      */
-    }
-  sock_printf(sock, "Ctrl connections: %d clients\r\n", client);
-#endif
-#if ENABLE_IRC_PROTO
-  client = 0;
-  for (xsock = socket_root; xsock; xsock = xsock->next)
-    {
-      /*
-      if(xsock->flags & SOCK_FLAG_IRC_CLIENT)
-	client++;
-      */
-    }
-  sock_printf(sock, "IRC  connections: %d clients\r\n", client);
-#endif
-
+  
+  sock_printf (sock, "\r\n");
+  /* go through all internal coserver instances */
   for (n = 0; n < int_coservers; n++)
     {
-      coserver = &int_coserver[n];
-      sock_printf (sock, "%d. internal %s coserver\r\n", n + 1,
+      coserver = int_coserver[n];
+      sock_printf (sock, "internal %s coserver:\r\n",
 		   int_coserver_type[coserver->type].name);
+      sock_printf (sock, 
+		   " socket id  : %d\r\n"
+#ifndef __MINGW32__
+		   " process id : %d\r\n"
+#else
+		   " thread id  : %d\r\n"
+#endif
+		   " requests   : %d\r\n\r\n",
+		   coserver->sock->socket_id,
+#ifndef __MINGW32__
+		   coserver->pid,
+#else
+		   coserver->tid,
+#endif
+		   coserver->busy);
     }
-  sock_printf (sock, "\r\n");
 
   return flag;
 }
@@ -677,14 +709,14 @@ ctrl_killall (socket_t sock, int flag, char *arg)
  * Restart coservers.
  */	  
 int
-ctrl_restart(socket_t sock, int type, char *arg)
+ctrl_restart (socket_t sock, int type, char *arg)
 {
   int_coserver_t *coserver;
   int n;
 
   for (n = 0; n < int_coservers; n++)
     {
-      coserver = &int_coserver[n];
+      coserver = int_coserver[n];
       if (coserver->type == type)
 	{
 	  destroy_internal_coservers (type);
@@ -837,7 +869,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
  * Solaris -- kstat_read()
  */
 int
-get_cpu_state(void)
+get_cpu_state (void)
 {
   int n;
 

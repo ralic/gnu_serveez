@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.5 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-event-5.c,v 1.6 2000/07/21 21:19:31 ela Exp $
  *
  */
 
@@ -280,7 +280,7 @@ irc_client_info (socket_t sock,          /* this client's socket */
   else if (channel->cflag[n] & MODE_VOICE)
     flag = "+";
 
-  sprintf (text, "%s %s %s %s %s %c %s%s :%d %s",
+  sprintf (text, RPL_WHOREPLY_TEXT,
 	   channel->name, cl->user, cl->host, cl->server, cl->nick, 
 	   cl->flag & UMODE_AWAY ? 'G' : 'H',
 	   cl->flag & UMODE_OPERATOR ? "*" : "",
@@ -321,9 +321,8 @@ irc_who_callback (socket_t sock,
 	      irc_client_info (sock, client, xcl, channel[i]);
 	    }
 	}
-      irc_printf (sock, ":%s %03d %s %s :%s\n",
-		  cfg->host, RPL_ENDOFWHO, client->nick,
-		  name, "End of /WHO list.");
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHO_TEXT "\n",
+		  cfg->host, RPL_ENDOFWHO, client->nick, name);
     }
   if (channel)
     {

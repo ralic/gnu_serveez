@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.18 2000/07/19 14:12:34 ela Exp $
+ * $Id: http-proto.c,v 1.19 2000/07/21 21:19:31 ela Exp $
  *
  */
 
@@ -147,6 +147,9 @@ server_definition_t http_server_definition =
   http_connect_socket,   /* connection routine */
   http_finalize,         /* instance finalization routine */
   http_global_finalize,  /* global finalizer */
+  NULL,                  /* client info */
+  NULL,                  /* server info */
+  NULL,                  /* server timer */
   &http_config,          /* default configuration */
   sizeof (http_config),  /* size of the configuration */
   http_config_prototype  /* configuration prototypes (libsizzle) */
