@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.9 2001/01/29 22:41:32 ela Exp $
+ * $Id: alist-test.c,v 1.10 2001/02/06 17:24:20 ela Exp $
  *
  */
 
@@ -54,7 +54,7 @@ int
 main (int argc, char **argv)
 {
   int result = 0;
-  alist_t *list;
+  svz_alist_t *list;
   unsigned long n, error, i;
   void **values;
 
@@ -63,54 +63,54 @@ main (int argc, char **argv)
   
   /* array list creation */
   test_print ("         create: ");
-  test ((list = alist_create ()) == NULL);
+  test ((list = svz_alist_create ()) == NULL);
 
   /* add and get */
   test_print ("    add and get: ");
   for (n = error = 0; n < REPEAT; n++)
     {
-      alist_add (list, (void *) 0xdeadbeef);
-      if (alist_get (list, n) != (void *) 0xdeadbeef)
+      svz_alist_add (list, (void *) 0xdeadbeef);
+      if (svz_alist_get (list, n) != (void *) 0xdeadbeef)
 	error++;
     }
-  if (alist_size (list) != REPEAT || alist_length (list) != REPEAT)
+  if (svz_alist_size (list) != REPEAT || svz_alist_length (list) != REPEAT)
     error++;
   test (error);
 
   /* contains */
   error = 0;
   test_print ("       contains: ");
-  if (alist_contains (list, NULL))
+  if (svz_alist_contains (list, NULL))
     error++;
-  if (alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
+  if (svz_alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
     error++;
-  alist_add (list, (void *) 0xeabceabc);
-  if (alist_contains (list, (void *) 0xeabceabc) != 1)
+  svz_alist_add (list, (void *) 0xeabceabc);
+  if (svz_alist_contains (list, (void *) 0xeabceabc) != 1)
     error++;
   test (error);
 
   /* searching */
   error = 0;
   test_print ("          index: ");
-  if (alist_index (list, (void *) 0xdeadbeef) != 0)
+  if (svz_alist_index (list, (void *) 0xdeadbeef) != 0)
     error++;
-  if (alist_index (list, (void *) 0xeabceabc) != REPEAT)
+  if (svz_alist_index (list, (void *) 0xeabceabc) != REPEAT)
     error++;
-  if (alist_index (list, NULL) != (unsigned long) -1)
+  if (svz_alist_index (list, NULL) != (unsigned long) -1)
     error++;
   test (error);
 
   /* deletion */
   error = 0;
   test_print ("         delete: ");
-  if (alist_delete (list, REPEAT) != (void *) 0xeabceabc)
+  if (svz_alist_delete (list, REPEAT) != (void *) 0xeabceabc)
     error++;
   for (n = 0; n < REPEAT; n++)
     {
-      if (alist_delete (list, 0) != (void *) 0xdeadbeef)
+      if (svz_alist_delete (list, 0) != (void *) 0xdeadbeef)
 	error++;
     }
-  if (alist_length (list) || alist_size (list))
+  if (svz_alist_length (list) || svz_alist_size (list))
     error++;
   test (error);
 
@@ -119,79 +119,81 @@ main (int argc, char **argv)
   test_print ("         insert: ");
   for (n = 0; n < REPEAT; n++)
     {
-      alist_insert (list, 0, (void *) 0xeabceabc);
-      if (alist_get (list, 0) != (void *) 0xeabceabc)
+      svz_alist_insert (list, 0, (void *) 0xeabceabc);
+      if (svz_alist_get (list, 0) != (void *) 0xeabceabc)
 	error++;
-      if (alist_delete (list, 0) != (void *) 0xeabceabc)
+      if (svz_alist_delete (list, 0) != (void *) 0xeabceabc)
 	error++;
 
-      alist_insert (list, n, (void *) 0xdeadbeef);
-      if (alist_get (list, n) != (void *) 0xdeadbeef)
+      svz_alist_insert (list, n, (void *) 0xdeadbeef);
+      if (svz_alist_get (list, n) != (void *) 0xdeadbeef)
 	error++;
     }
-  if (alist_length (list) != REPEAT || alist_size (list) != REPEAT)
+  if (svz_alist_length (list) != REPEAT || svz_alist_size (list) != REPEAT)
     error++;
   test (error);
 
   /* set (replace) and unset (clear) */
-  alist_clear (list);
+  svz_alist_clear (list);
   error = 0;
   test_print ("  set and unset: ");
   for (n = 0; n < REPEAT / GAP; n++)
     {
-      if (alist_set (list, n * GAP, (void *) (n * GAP)) != NULL)
+      if (svz_alist_set (list, n * GAP, (void *) (n * GAP)) != NULL)
 	error++;
-      if (alist_unset (list, n * GAP) != (void *) (n * GAP))
+      if (svz_alist_unset (list, n * GAP) != (void *) (n * GAP))
 	error++;
 
       for (i = GAP - 1; i > 0; i--)
 	{ 
-	  if (alist_set (list, n * GAP + i, (void *) ((n * GAP) + i)) != NULL)
+	  if (svz_alist_set (list, n * GAP + i, (void *) ((n * GAP) + i)) != 
+	      NULL)
 	    error++;
-	  if (alist_unset (list, n * GAP + i) != (void *) ((n * GAP) + i))
+	  if (svz_alist_unset (list, n * GAP + i) != (void *) ((n * GAP) + i))
 	    error++;
 	}
     }
   
-  if (alist_length (list) != 0 || alist_size (list) != 0)
+  if (svz_alist_length (list) != 0 || svz_alist_size (list) != 0)
     error++;
   for (n = 0; n < REPEAT; n++)
-    alist_add (list, (void *) n);
+    svz_alist_add (list, (void *) n);
   for (n = REPEAT; n != 0; n--)
     {
-      if (alist_unset (list, n - 1) != (void *) (n - 1))
+      if (svz_alist_unset (list, n - 1) != (void *) (n - 1))
 	error++;
-      if (alist_size (list) != (unsigned) n - 1)
+      if (svz_alist_size (list) != (unsigned) n - 1)
 	error++;
     }
 
   test (error);
 
   /* set (replace) and get */
-  alist_clear (list);
+  svz_alist_clear (list);
   error = 0;
   test_print ("    set and get: ");
   for (n = 0; n < REPEAT / GAP; n++)
     {
-      if (alist_set (list, n * GAP, (void *) (n * GAP)) != NULL)
+      if (svz_alist_set (list, n * GAP, (void *) (n * GAP)) != NULL)
 	error++;
-      if (alist_get (list, n * GAP) != (void *) (n * GAP))
+      if (svz_alist_get (list, n * GAP) != (void *) (n * GAP))
 	error++;
 
       for (i = GAP - 1; i > 0; i--)
 	{ 
-	  if (alist_set (list, n * GAP + i, (void *) ((n * GAP) + i)) != NULL)
+	  if (svz_alist_set (list, n * GAP + i, (void *) ((n * GAP) + i)) != 
+	      NULL)
 	    error++;
-	  if (alist_get (list, n * GAP + i) != (void *) ((n * GAP) + i))
+	  if (svz_alist_get (list, n * GAP + i) != (void *) ((n * GAP) + i))
 	    error++;
 	}
     }
   
-  if (alist_length (list) != REPEAT || alist_size (list) != REPEAT)
+  if (svz_alist_length (list) != REPEAT || svz_alist_size (list) != REPEAT)
     error++;
   for (n = 0; n < REPEAT; n++)
     {
-      if (alist_get (list, n) != (void *) n)
+      if (svz_alist_get (list, n) != (void *) n)
 	error++;
     }
   test (error);
@@ -199,7 +201,7 @@ main (int argc, char **argv)
   /* values */
   error = 0;
   test_print ("         values: ");
-  if ((values = alist_values (list)) != NULL)
+  if ((values = svz_alist_values (list)) != NULL)
     {
       for (n = 0; n < REPEAT; n++)
 	{
@@ -214,22 +216,22 @@ main (int argc, char **argv)
 
   /* pack */
   error = 0;
-  alist_clear (list);
+  svz_alist_clear (list);
   test_print ("           pack: ");
   for (n = 0; n < REPEAT; n++)
     {
-      if (alist_set (list, n * GAP, (void *) n) != NULL)
+      if (svz_alist_set (list, n * GAP, (void *) n) != NULL)
 	error++;
     }
-  if (alist_length (list) != REPEAT * GAP - GAP + 1 || 
-      alist_size (list) != REPEAT)
+  if (svz_alist_length (list) != REPEAT * GAP - GAP + 1 || 
+      svz_alist_size (list) != REPEAT)
     error++;
-  alist_pack (list);
-  if (alist_length (list) != REPEAT || alist_size (list) != REPEAT)
+  svz_alist_pack (list);
+  if (svz_alist_length (list) != REPEAT || svz_alist_size (list) != REPEAT)
     error++;
   for (n = 0; n < REPEAT; n++)
     {
-      if (alist_get (list, n) != (void *) n)
+      if (svz_alist_get (list, n) != (void *) n)
 	error++;
     }
   test (error);
@@ -237,58 +239,59 @@ main (int argc, char **argv)
   /* range deletion */
   error = 0;
   test_print ("   delete range: ");
-  alist_set (list, 0, (void *) 0xdeadbeef);
-  for (n = 0; (unsigned) n < alist_length (list) - GAP; n++)
+  svz_alist_set (list, 0, (void *) 0xdeadbeef);
+  for (n = 0; (unsigned) n < svz_alist_length (list) - GAP; n++)
     {
-      if (alist_delete_range (list, n, n + GAP) != GAP)
+      if (svz_alist_delete_range (list, n, n + GAP) != GAP)
 	error++;
       n += GAP;
     }
   n++;
-  if (alist_size (list) != (unsigned) n || alist_length (list) != (unsigned) n)
+  if (svz_alist_size (list) != (unsigned) n || 
+      svz_alist_length (list) != (unsigned) n)
     error++;
-  for (i = GAP, n = 0; (unsigned) n < alist_length (list) - 1; n++, i++)
+  for (i = GAP, n = 0; (unsigned) n < svz_alist_length (list) - 1; n++, i++)
     {
-      if (alist_get (list, n) != (void *) i)
+      if (svz_alist_get (list, n) != (void *) i)
 	error++;
       if (((n + 1) % (GAP + 1)) == 0)
 	i += GAP;
     }
-  n = alist_length (list);
-  if (alist_delete_range (list, 0, n) != (unsigned) n)
+  n = svz_alist_length (list);
+  if (svz_alist_delete_range (list, 0, n) != (unsigned) n)
     error++;
-  if (alist_size (list) != 0 || alist_length (list) != 0)
+  if (svz_alist_size (list) != 0 || svz_alist_length (list) != 0)
     error++;
   test (error);
 
   /* stress test */
   error = 0;
-  alist_clear (list);
+  svz_alist_clear (list);
   test_print ("         stress: ");
 
   /* put any values to array until a certain size (no order) */
-  while (alist_size (list) != SIZE)
+  while (svz_alist_size (list) != SIZE)
     {
       n = test_value (SIZE);
-      if (alist_get (list, n) != (void *) (n + SIZE))
+      if (svz_alist_get (list, n) != (void *) (n + SIZE))
 	{
-	  alist_set (list, n, (void *) (n + SIZE));
+	  svz_alist_set (list, n, (void *) (n + SIZE));
 	}
     }
 
   /* check for final size and length */
-  if (alist_size (list) != SIZE || alist_length (list) != SIZE)
+  if (svz_alist_size (list) != SIZE || svz_alist_length (list) != SIZE)
     error++;
   test_print (error ? "?" : ".");
 
   /* check contains(), index() and get() */
   for (n = 0; n < SIZE; n++)
     {
-      if (alist_contains (list, (void *) (n + SIZE)) != 1)
+      if (svz_alist_contains (list, (void *) (n + SIZE)) != 1)
 	error++;
-      if (alist_index (list, (void *) (n + SIZE)) != n)
+      if (svz_alist_index (list, (void *) (n + SIZE)) != n)
 	error++;
-      if (alist_get (list, n) != (void *) (n + SIZE))
+      if (svz_alist_get (list, n) != (void *) (n + SIZE))
 	error++;
     }
   test_print (error ? "?" : ".");
@@ -296,40 +299,41 @@ main (int argc, char **argv)
   /* delete all values */
   for (n = 0; n < SIZE; n++)
     {
-      if (alist_delete (list, 0) != (void *) (n + SIZE))
+      if (svz_alist_delete (list, 0) != (void *) (n + SIZE))
 	error++;
     }
 
   /* check "post" size */
-  if (alist_size (list) || alist_length (list))
+  if (svz_alist_size (list) || svz_alist_length (list))
     error++;
   test_print (error ? "?" : ".");
 
   /* build array insert()ing values */
-  while (alist_size (list) != REPEAT)
+  while (svz_alist_size (list) != REPEAT)
     {
       n = test_value (REPEAT);
-      alist_insert (list, n, (void *) 0xdeadbeef);
+      svz_alist_insert (list, n, (void *) 0xdeadbeef);
     }
 
   /* check size and length of array */
-  if (alist_size (list) > alist_length (list))
+  if (svz_alist_size (list) > svz_alist_length (list))
     error++;
 
   /* check all values */
-  if (alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
+  if (svz_alist_contains (list, (void *) 0xdeadbeef) != REPEAT)
     error++;
   test_print (error ? "?" : ".");
 
   /* save values, pack() list and check "post" get() values */
-  if ((values = alist_values (list)) != NULL)
+  if ((values = svz_alist_values (list)) != NULL)
     {
-      alist_pack (list);
-      if (alist_size (list) != REPEAT || alist_length (list) != REPEAT)
+      svz_alist_pack (list);
+      if (svz_alist_size (list) != REPEAT || 
+	  svz_alist_length (list) != REPEAT)
 	error++;
       for (n = 0; n < REPEAT; n++)
 	{
-	  if (alist_get (list, n) != values[n] || 
+	  if (svz_alist_get (list, n) != values[n] || 
 	      values[n] != (void *) 0xdeadbeef)
 	    error++;
 	}
@@ -341,35 +345,35 @@ main (int argc, char **argv)
 
   /* delete each value, found by index() and check it via contains() */
   n = REPEAT;
-  while (alist_size (list))
+  while (svz_alist_size (list))
     {
-      if (alist_delete (list, alist_index (list, (void *) 0xdeadbeef)) !=
-	  (void *) 0xdeadbeef)
+      if (svz_alist_delete (list, svz_alist_index (list, (void *) 0xdeadbeef))
+	  != (void *) 0xdeadbeef)
 	error++;
-      if (alist_contains (list, (void *) 0xdeadbeef) != (unsigned) --n)
+      if (svz_alist_contains (list, (void *) 0xdeadbeef) != (unsigned) --n)
 	error++;
     }
 
   /* check "post" size */
-  if (alist_size (list) || alist_length (list))
+  if (svz_alist_size (list) || svz_alist_length (list))
     error++;
   test_print (error ? "?" : ".");
 
   for (i = SIZE; i < SIZE + 10; i++)
     { 
       /* build array list */
-      while (alist_size (list) != (unsigned) i)
+      while (svz_alist_size (list) != (unsigned) i)
 	{
 	  n = test_value (10 * i) + 1;
-	  alist_insert (list, n, (void *) n);
-	  if (alist_get (list, n) != (void *) n)
+	  svz_alist_insert (list, n, (void *) n);
+	  if (svz_alist_get (list, n) != (void *) n)
 	    error++;
 	}
 
       /* delete all values by chance */
-      while (alist_size (list))
+      while (svz_alist_size (list))
 	{
-	  alist_delete_range (list, test_value (i), 
+	  svz_alist_delete_range (list, test_value (i), 
 			      test_value (10 * i * 5 + 1));
 	}
       test_print (error ? "?" : ".");
@@ -379,9 +383,9 @@ main (int argc, char **argv)
   for (i = 0; i < REPEAT; i++)
     {
       n = test_value (i * 20 + test_value (20));
-      if (alist_set (list, n, (void *) n) != NULL)
+      if (svz_alist_set (list, n, (void *) n) != NULL)
 	error++;
-      if ((void *) n != alist_unset (list, n))
+      if ((void *) n != svz_alist_unset (list, n))
 	error++;
     }
   test_print (error ? "?" : ".");
@@ -391,7 +395,7 @@ main (int argc, char **argv)
 
   /* array list destruction */
   test_print ("        destroy: ");
-  alist_destroy (list);
+  svz_alist_destroy (list);
   test_ok ();
 
 #if ENABLE_DEBUG

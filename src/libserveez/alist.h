@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.h,v 1.2 2001/01/29 22:41:32 ela Exp $
+ * $Id: alist.h,v 1.3 2001/02/06 17:24:20 ela Exp $
  *
  */
 
@@ -28,36 +28,36 @@
 #include "libserveez/defines.h"
 
 /* general array list defines */
-#define ARRAY_BITS 4                       /* values 1 .. 6 possible */
-#define ARRAY_SIZE (1 << ARRAY_BITS)       /* values 1 .. 64 possible */
-#define ARRAY_MASK ((1 << ARRAY_SIZE) - 1)
+#define SVZ_ARRAY_BITS 4                     /* values 1 .. 6 possible */
+#define SVZ_ARRAY_SIZE (1 << SVZ_ARRAY_BITS) /* values 1 .. 64 possible */
+#define SVZ_ARRAY_MASK ((1 << SVZ_ARRAY_SIZE) - 1)
 
 /* 
- * On 32 bit architectures ARRAY_SIZE is no larger than 32 and on 64 bit
- * architectures it is no larger than 64. It specifies the number of bits
- * the `alist->fill' (unsigned long) field can hold.
+ * On 32 bit architectures SVZ_ARRAY_SIZE is no larger than 32 and on 
+ * 64 bit architectures it is no larger than 64. It specifies the number 
+ * of bits the `alist->fill' (unsigned long) field can hold.
  */
 
 /* array chunk structure */
-typedef struct array_chunk array_t;
-struct array_chunk
+typedef struct svz_array_chunk svz_array_t;
+struct svz_array_chunk
 {
-  array_t *next;           /* pointer to next array chunk */
-  array_t *prev;           /* pointer to previous array chunk */
-  unsigned long offset;    /* first array index in this chunk */
-  unsigned long fill;      /* usage bit-field */
-  unsigned long size;      /* size of this chunk */
-  void *value[ARRAY_SIZE]; /* value storage */
+  svz_array_t *next;           /* pointer to next array chunk */
+  svz_array_t *prev;           /* pointer to previous array chunk */
+  unsigned long offset;        /* first array index in this chunk */
+  unsigned long fill;          /* usage bit-field */
+  unsigned long size;          /* size of this chunk */
+  void *value[SVZ_ARRAY_SIZE]; /* value storage */
 };
 
 /* top level array list structure */
-typedef struct array_list alist_t;
-struct array_list
+typedef struct svz_array_list svz_alist_t;
+struct svz_array_list
 {
   unsigned long length; /* size of the array (last index plus one) */
   unsigned long size;   /* element count */
-  array_t *first;       /* first array chunk */
-  array_t *last;        /* last array chunk */
+  svz_array_t *first;   /* first array chunk */
+  svz_array_t *last;    /* last array chunk */
 };
 
 __BEGIN_DECLS
@@ -70,23 +70,25 @@ __BEGIN_DECLS
  * the array elements.
  */
 
-SERVEEZ_API alist_t * alist_create __P ((void));
-SERVEEZ_API void alist_destroy __P ((alist_t *list));
-SERVEEZ_API void alist_add __P ((alist_t *list, void *value));
-SERVEEZ_API void alist_clear __P ((alist_t *list));
-SERVEEZ_API unsigned long alist_contains __P ((alist_t *list, void *value));
-SERVEEZ_API void * alist_get __P ((alist_t *list, unsigned long index));
-SERVEEZ_API unsigned long alist_index __P ((alist_t *list, void *value));
-SERVEEZ_API void * alist_delete __P ((alist_t *list, unsigned long index));
-SERVEEZ_API unsigned long alist_delete_range __P ((alist_t *, unsigned long, 
-						   unsigned long));
-SERVEEZ_API void * alist_set __P ((alist_t *, unsigned long, void *));
-SERVEEZ_API void * alist_unset __P ((alist_t *list, unsigned long index));
-SERVEEZ_API unsigned long alist_size __P ((alist_t *list));
-SERVEEZ_API unsigned long alist_length __P ((alist_t *list));
-SERVEEZ_API void alist_insert __P ((alist_t *, unsigned long, void *));
-SERVEEZ_API void ** alist_values __P ((alist_t *list));
-SERVEEZ_API void alist_pack __P ((alist_t *list));
+SERVEEZ_API svz_alist_t *svz_alist_create __P ((void));
+SERVEEZ_API void svz_alist_destroy __P ((svz_alist_t *));
+SERVEEZ_API void svz_alist_add __P ((svz_alist_t *, void *));
+SERVEEZ_API void svz_alist_clear __P ((svz_alist_t *));
+SERVEEZ_API unsigned long svz_alist_contains __P ((svz_alist_t *, void *));
+SERVEEZ_API void *svz_alist_get __P ((svz_alist_t *, unsigned long));
+SERVEEZ_API unsigned long svz_alist_index __P ((svz_alist_t *, void *));
+SERVEEZ_API void *svz_alist_delete __P ((svz_alist_t *, unsigned long));
+SERVEEZ_API unsigned long svz_alist_delete_range __P ((svz_alist_t *, 
+						       unsigned long, 
+						       unsigned long));
+SERVEEZ_API void *svz_alist_set __P ((svz_alist_t *, unsigned long, void *));
+SERVEEZ_API void *svz_alist_unset __P ((svz_alist_t *, unsigned long));
+SERVEEZ_API unsigned long svz_alist_size __P ((svz_alist_t *));
+SERVEEZ_API unsigned long svz_alist_length __P ((svz_alist_t *));
+SERVEEZ_API void svz_alist_insert __P ((svz_alist_t *, 
+					unsigned long, void *));
+SERVEEZ_API void **svz_alist_values __P ((svz_alist_t *));
+SERVEEZ_API void svz_alist_pack __P ((svz_alist_t *));
 
 __END_DECLS
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.1 2001/02/02 11:30:34 ela Exp $
+ * $Id: interface.h,v 1.2 2001/02/06 17:24:20 ela Exp $
  *
  */
 
@@ -41,8 +41,7 @@ ifc_entry_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern int svz_interfaces;
-SERVEEZ_API extern ifc_entry_t *svz_interface;
+SERVEEZ_API extern svz_vector_t *svz_interface;
 
 /* Export these functions. */
 SERVEEZ_API void svz_interface_list __P ((void));

@@ -1,3 +1,8 @@
+2001-02-06  [ Ela ]  <ela@lkcc.org>
+
+	* alist-test.c: Made necessary changes since the array list's
+	name space has been changed.
+
 2001-01-29  [ Ela ]  <ela@lkcc.org>
 
 	* alist-test.c (main): Added new stress test for alist_set()

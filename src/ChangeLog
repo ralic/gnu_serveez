@@ -1,3 +1,16 @@
+2001-02-06  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/Makefile.am (libserveez_la_SOURCES): Added
+	`vector.c' and `vector.h'.
+
+	* libserveez/interface.c: The list of available network
+	interfaces `svz_interface' is now a `svz_vector'.
+
+	* libserveez/vector.c: New file implementing vector lists.
+
+	* libserveez/alist.h: Changed the name space from `alist' to
+	`svz_alist'.
+
 2001-02-05  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/dynload.c (dyn_load_library): Added support for

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.6 2001/02/04 11:48:52 ela Exp $
+ * $Id: boot.c,v 1.7 2001/02/06 17:24:20 ela Exp $
  *
  */
 
@@ -35,6 +35,7 @@
 
 #include "version.h"
 #include "libserveez/util.h"
+#include "libserveez/vector.h"
 #include "libserveez/interface.h"
 #include "libserveez/socket.h"
 #include "libserveez/server.h"

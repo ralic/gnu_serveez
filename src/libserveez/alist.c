@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.2 2001/01/29 22:41:32 ela Exp $
+ * $Id: alist.c,v 1.3 2001/02/06 17:24:20 ela Exp $
  *
  */
 
@@ -37,11 +37,11 @@
 #include "libserveez/alist.h"
 
 /* check if a given array index can be in this array chunk */
-#define array_range_all(ARRAY, IDX) \
-  (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY_SIZE)
+#define svz_array_range_all(ARRAY, IDX) \
+  (IDX >= ARRAY->offset && IDX < ARRAY->offset + SVZ_ARRAY_SIZE)
 
 /* check if a given array index is in this array chunk */
-#define array_range(ARRAY, IDX) \
+#define svz_array_range(ARRAY, IDX) \
   (IDX >= ARRAY->offset && IDX < ARRAY->offset + ARRAY->size)
 
 /* define if development code should be included */
@@ -51,13 +51,13 @@
  * Create and initialize a new array chunk at a given array index OFFSET.
  * Return this array chunk.
  */
-static array_t *
-alist_create_array (unsigned long offset)
+static svz_array_t *
+svz_alist_create_array (unsigned long offset)
 {
-  array_t *array;
+  svz_array_t *array;
 
-  array = svz_malloc (sizeof (array_t));
-  memset (array, 0, sizeof (array_t));
+  array = svz_malloc (sizeof (svz_array_t));
+  memset (array, 0, sizeof (svz_array_t));
   array->offset = offset;
   return array;
 }
@@ -66,9 +66,9 @@ alist_create_array (unsigned long offset)
  * Put the given array chunk INSERT into the array list LIST.
  */
 static void
-alist_hook (alist_t *list, array_t *insert)
+svz_alist_hook (svz_alist_t *list, svz_array_t *insert)
 {
-  array_t *array, *next;
+  svz_array_t *array, *next;
 
   /* find the appropriate array chunk */
   for (array = list->first; array; array = array->next)
@@ -109,7 +109,7 @@ alist_hook (alist_t *list, array_t *insert)
  * Cut the given array chunk DELETE off the array list LIST chain.
  */
 static void
-alist_unhook (alist_t *list, array_t *delete)
+svz_alist_unhook (svz_alist_t *list, svz_array_t *delete)
 {
   if (list->first == delete)
     {
@@ -143,23 +143,23 @@ alist_unhook (alist_t *list, array_t *delete)
  * Try to find a given array list INDEX in the array list chunks as 
  * fast as possible and return it.
  */
-static array_t *
-alist_find_array (alist_t *list, unsigned long index)
+static svz_array_t *
+svz_alist_find_array (svz_alist_t *list, unsigned long index)
 {
-  array_t *array = NULL;
+  svz_array_t *array = NULL;
 
   /* index larger than list length ? */
   if (index >= list->length)
     {
       /* is index available in last chunk ? */
-      if (list->last && array_range_all (list->last, index))
+      if (list->last && svz_array_range_all (list->last, index))
 	array = list->last;
     }
   /* start seeking in second half */
   else if (index > list->length >> 1)
     {
       for (array = list->last; array; array = array->prev)
-	if (array_range_all (array, index))
+	if (svz_array_range_all (array, index))
 	  break;
     }
   /* start seeking at the start of the list (usual case) */ 
@@ -171,9 +171,9 @@ alist_find_array (alist_t *list, unsigned long index)
 	return NULL;
 
       for (; array; array = array->next)
-	if (array_range_all (array, index))
+	if (svz_array_range_all (array, index))
 	  {
-	    if (array->next && array_range_all (array->next, index))
+	    if (array->next && svz_array_range_all (array->next, index))
 	      continue;
 	    break;
 	  }
@@ -187,10 +187,10 @@ alist_find_array (alist_t *list, unsigned long index)
  * distribution.
  */
 void
-alist_analyse (alist_t *list)
+svz_alist_analyse (svz_alist_t *list)
 {
   unsigned long n;
-  array_t *array;
+  svz_array_t *array;
 
   for (n = 0, array = list->first; array; n++, array = array->next)
     {
@@ -210,9 +210,9 @@ alist_analyse (alist_t *list)
  * occurred. Return zero if there occurred an error otherwise non-zero.
  */
 static int
-alist_validate (alist_t *list, char *description)
+svz_alist_validate (svz_alist_t *list, char *description)
 {
-  array_t *array, *next, *prev;
+  svz_array_t *array, *next, *prev;
   unsigned long n, bits;
   int ok = 1;
 
@@ -228,13 +228,13 @@ alist_validate (alist_t *list, char *description)
       /* check chain first */
       if ((!next && array != list->last) || (!prev && array != list->first))
 	{
-	  fprintf (stdout, "alist_validate: invalid last or first\n");
+	  fprintf (stdout, "svz_alist_validate: invalid last or first\n");
 	  ok = 0;
 	  break;
 	}
       if ((next && next->prev != array) || (prev && prev->next != array))
 	{
-	  fprintf (stdout, "alist_validate: invalid next or prev\n");
+	  fprintf (stdout, "svz_alist_validate: invalid next or prev\n");
 	  ok = 0;
 	  break;
 	}
@@ -242,7 +242,7 @@ alist_validate (alist_t *list, char *description)
       /* check chunk size and offset */
       if (next && array->offset + array->size > next->offset)
 	{
-	  fprintf (stdout, "alist_validate: invalid size or offset\n");
+	  fprintf (stdout, "svz_alist_validate: invalid size or offset\n");
 	  ok = 0;
 	  break;
 	}
@@ -252,7 +252,7 @@ alist_validate (alist_t *list, char *description)
       if (array->fill & ~bits || !(array->fill & ((bits + 1) >> 1)) ||
 	  array->size == 0 || array->fill == 0)
 	{
-	  fprintf (stdout, "alist_validate: invalid chunk fill\n");
+	  fprintf (stdout, "svz_alist_validate: invalid chunk fill\n");
 	  ok = 0;
 	  break;
 	}
@@ -262,7 +262,7 @@ alist_validate (alist_t *list, char *description)
   array = list->last;
   if (array && array->offset + array->size != list->length)
     {
-      fprintf (stdout, "alist_validate: invalid array length\n");
+      fprintf (stdout, "svz_alist_validate: invalid array length\n");
       ok = 0;
     }
 
@@ -272,7 +272,7 @@ alist_validate (alist_t *list, char *description)
     {
       fprintf (stdout, "error in chunk %06lu (%s)\n", n + 1,
 	       description ? description : "unspecified");
-      alist_analyse (list);
+      svz_alist_analyse (list);
     }
   return ok;
 }
@@ -281,14 +281,14 @@ alist_validate (alist_t *list, char *description)
  * Construct an empty array list without initial capacity. Return the
  * newly created array list.
  */
-alist_t *
-alist_create (void)
+svz_alist_t *
+svz_alist_create (void)
 {
-  alist_t *list;
+  svz_alist_t *list;
 
-  assert (ARRAY_SIZE <= sizeof (unsigned long) * 8);
-  list = svz_malloc (sizeof (alist_t));
-  memset (list, 0, sizeof (alist_t));
+  assert (SVZ_ARRAY_SIZE <= sizeof (unsigned long) * 8);
+  list = svz_malloc (sizeof (svz_alist_t));
+  memset (list, 0, sizeof (svz_alist_t));
   return list;
 }
 
@@ -297,13 +297,13 @@ alist_create (void)
  * afterwards because it is invalid.
  */
 void
-alist_destroy (alist_t *list)
+svz_alist_destroy (svz_alist_t *list)
 {
 #if DEVEL
-  alist_validate (list, "destroy");
+  svz_alist_validate (list, "destroy");
 #endif /* DEVEL */
 
-  alist_clear (list);
+  svz_alist_clear (list);
   svz_free (list);
 }
 
@@ -311,18 +311,19 @@ alist_destroy (alist_t *list)
  * Appends the specified element VALUE at the end of the array list LIST.
  */
 void
-alist_add (alist_t *list, void *value)
+svz_alist_add (svz_alist_t *list, void *value)
 {
-  array_t *array, *last = list->last;
+  svz_array_t *array, *last = list->last;
 
 #if DEVEL
-  alist_validate (list, "add");
+  svz_alist_validate (list, "add");
 #endif /* DEVEL */
 
   /* append an array chunk if necessary */
-  if (!last || last->size == ARRAY_SIZE)
+  if (!last || last->size == SVZ_ARRAY_SIZE)
     {
-      array = alist_create_array (last ? last->offset + ARRAY_SIZE : 0);
+      array = 
+	svz_alist_create_array (last ? last->offset + SVZ_ARRAY_SIZE : 0);
       if (last)
 	{
 	  last->next = array;
@@ -345,16 +346,16 @@ alist_add (alist_t *list, void *value)
 
 /*
  * Removes all of the elements from the array list LIST. The array list
- * will be as clean as created with `alist_create ()' then.
+ * will be as clean as created with `svz_alist_create ()' then.
  */
 void
-alist_clear (alist_t *list)
+svz_alist_clear (svz_alist_t *list)
 {
-  array_t *next, *array = list->first;
+  svz_array_t *next, *array = list->first;
   unsigned long length = list->length;
 
 #if DEVEL
-  alist_validate (list, "clear");
+  svz_alist_validate (list, "clear");
 #endif /* DEVEL */
 
   /* return here if there is nothing to do */
@@ -385,13 +386,13 @@ alist_clear (alist_t *list)
  * VALUE.
  */
 unsigned long
-alist_contains (alist_t *list, void *value)
+svz_alist_contains (svz_alist_t *list, void *value)
 {
-  array_t *array = list->first;
+  svz_array_t *array = list->first;
   unsigned long n, fill, found = 0;
 
 #if DEVEL
-  alist_validate (list, "contains");
+  svz_alist_validate (list, "contains");
 #endif /* DEVEL */
 
   while (array)
@@ -412,12 +413,12 @@ alist_contains (alist_t *list, void *value)
  * list LIST or NULL if there is no such element.
  */
 void *
-alist_get (alist_t *list, unsigned long index)
+svz_alist_get (svz_alist_t *list, unsigned long index)
 {
-  array_t *array;
+  svz_array_t *array;
 
 #if DEVEL
-  alist_validate (list, "get");
+  svz_alist_validate (list, "get");
 #endif /* DEVEL */
 
   /* return here if there is no such index at all */
@@ -428,13 +429,13 @@ alist_get (alist_t *list, unsigned long index)
   if (index > list->length >> 1)
     {
       for (array = list->last; array; array = array->prev)
-	if (array_range (array, index))
+	if (svz_array_range (array, index))
 	  break;
     }
   else
     {
       for (array = list->first; array; array = array->next)
-	if (array_range (array, index))
+	if (svz_array_range (array, index))
 	  break;
     }
 
@@ -452,13 +453,13 @@ alist_get (alist_t *list, unsigned long index)
  * Return -1 if the value VALUE could not be found in the array list LIST.
  */
 unsigned long
-alist_index (alist_t *list, void *value)
+svz_alist_index (svz_alist_t *list, void *value)
 {
-  array_t *array = list->first;
+  svz_array_t *array = list->first;
   unsigned long n, fill;
 
 #if DEVEL
-  alist_validate (list, "index");
+  svz_alist_validate (list, "index");
 #endif /* DEVEL */
 
   while (array)
@@ -478,15 +479,15 @@ alist_index (alist_t *list, void *value)
  * list LIST and returns its previous value.
  */
 void *
-alist_delete (alist_t *list, unsigned long index)
+svz_alist_delete (svz_alist_t *list, unsigned long index)
 {
-  array_t *array, *next;
+  svz_array_t *array, *next;
   void *value = NULL;
   unsigned long bit, idx, fill;
 
 #if DEVEL
   char text[128];
-  alist_validate (list, "delete");
+  svz_alist_validate (list, "delete");
 #endif /* DEVEL */
 
   /* return if index is invalid */
@@ -497,13 +498,13 @@ alist_delete (alist_t *list, unsigned long index)
   if (index > list->length >> 1)
     {
       for (array = list->last; array; array = array->prev)
-	if (array_range (array, index))
+	if (svz_array_range (array, index))
 	  break;
     }
   else
     {
       for (array = list->first; array; array = array->next)
-	if (array_range (array, index))
+	if (svz_array_range (array, index))
 	  break;
     }
 
@@ -551,7 +552,7 @@ alist_delete (alist_t *list, unsigned long index)
 	}
 
       /* rearrange array list */
-      alist_unhook (list, array);
+      svz_alist_unhook (list, array);
       next = array->next;
       svz_free (array);
       array = next;
@@ -581,7 +582,7 @@ alist_delete (alist_t *list, unsigned long index)
 
 #if DEVEL
   sprintf (text, "post-delete (%lu) = %p", index, value);
-  alist_validate (list, "delete");
+  svz_alist_validate (list, "delete");
 #endif /* DEVEL */
 
   /* return deleted value */
@@ -594,12 +595,13 @@ alist_delete (alist_t *list, unsigned long index)
  * actually deleted elements.
  */
 unsigned long
-alist_delete_range (alist_t *list, unsigned long from, unsigned long to)
+svz_alist_delete_range (svz_alist_t *list, 
+			unsigned long from, unsigned long to)
 {
   unsigned long idx, n = 0;
 
 #if DEVEL
-  alist_validate (list, "delete range");
+  svz_alist_validate (list, "delete range");
 #endif /* DEVEL */
 
   /* swap the `to' and `from' indexes if necessary */
@@ -622,14 +624,14 @@ alist_delete_range (alist_t *list, unsigned long from, unsigned long to)
   if (from == 0 && to == list->length)
     {
       n = list->size;
-      alist_clear (list);
+      svz_alist_clear (list);
       return n;
     }
 
   /* go through the index range and delete each list item */
   for (idx = from; idx < to;)
     {
-      if (alist_delete (list, idx))
+      if (svz_alist_delete (list, idx))
 	{
 	  to--;
 	  n++;
@@ -645,18 +647,18 @@ alist_delete_range (alist_t *list, unsigned long from, unsigned long to)
  * list LIST by the specified element VALUE and return its previous value.
  */
 void *
-alist_set (alist_t *list, unsigned long index, void *value)
+svz_alist_set (svz_alist_t *list, unsigned long index, void *value)
 {
-  array_t *array, *next;
+  svz_array_t *array, *next;
   void *replace = NULL;
   unsigned long idx;
 
 #if DEVEL
-  alist_validate (list, "set");
+  svz_alist_validate (list, "set");
 #endif /* DEVEL */
 
   /* start at first or last array chunk ? */
-  array = alist_find_array (list, index);
+  array = svz_alist_find_array (list, index);
 
   /* found a valid array chunk ? */
   if (array)
@@ -685,11 +687,11 @@ alist_set (alist_t *list, unsigned long index, void *value)
     }
 
   /* no array chunk found, create one at the given offset */
-  next = alist_create_array (index);
+  next = svz_alist_create_array (index);
   next->value[0] = value;
   next->fill |= 1;
   next->size = 1;
-  alist_hook (list, next);
+  svz_alist_hook (list, next);
 
   /* adjust list properties */
   list->size++;
@@ -702,18 +704,18 @@ alist_set (alist_t *list, unsigned long index, void *value)
 
 /*
  * Delete the element at the given position INDEX from the array list LIST 
- * but leave all following elements untouched (unlike `alist_delete ()'). 
+ * but leave all following elements untouched (unlike `svz_alist_delete ()'). 
  * Return the its previous value if there is one otherwise return NULL.
  */
 void *
-alist_unset (alist_t *list, unsigned long index)
+svz_alist_unset (svz_alist_t *list, unsigned long index)
 {
-  array_t *array;
+  svz_array_t *array;
   void *unset = NULL;
   unsigned long idx, bit;
 
 #if DEVEL
-  alist_validate (list, "unset");
+  svz_alist_validate (list, "unset");
 #endif /* DEVEL */
 
   /* return if index is invalid */
@@ -721,7 +723,7 @@ alist_unset (alist_t *list, unsigned long index)
     return NULL;
 
   /* find an appropriate array chunk */
-  if ((array = alist_find_array (list, index)) == NULL)
+  if ((array = svz_alist_find_array (list, index)) == NULL)
     return NULL;
 
   idx = index - array->offset;
@@ -745,7 +747,7 @@ alist_unset (alist_t *list, unsigned long index)
       }
   if (array->size == 0)
     {
-      alist_unhook (list, array);
+      svz_alist_unhook (list, array);
       svz_free (array);
     }
 
@@ -757,10 +759,10 @@ alist_unset (alist_t *list, unsigned long index)
  * Returns the number of elements in the array list LIST.
  */
 unsigned long
-alist_size (alist_t *list)
+svz_alist_size (svz_alist_t *list)
 {
 #if DEVEL
-  alist_validate (list, "size");
+  svz_alist_validate (list, "size");
 #endif /* DEVEL */
 
   return list->size;
@@ -770,10 +772,10 @@ alist_size (alist_t *list)
  * Returns the index of the last element of the array list LIST plus one.
  */
 unsigned long
-alist_length (alist_t *list)
+svz_alist_length (svz_alist_t *list)
 {
 #if DEVEL
-  alist_validate (list, "length");
+  svz_alist_validate (list, "length");
 #endif /* DEVEL */
 
   return list->length;
@@ -784,17 +786,17 @@ alist_length (alist_t *list)
  * the array list LIST.
  */
 void
-alist_insert (alist_t *list, unsigned long index, void *value)
+svz_alist_insert (svz_alist_t *list, unsigned long index, void *value)
 {
-  array_t *array, *next;
+  svz_array_t *array, *next;
   unsigned long idx, fill, bit;
 
 #if DEVEL
-  alist_validate (list, "insert");
+  svz_alist_validate (list, "insert");
 #endif /* DEVEL */
 
   /* start at first or last array chunk ? */
-  array = alist_find_array (list, index);
+  array = svz_alist_find_array (list, index);
 
   /* found a valid array chunk ? */
   if (array)
@@ -802,7 +804,7 @@ alist_insert (alist_t *list, unsigned long index, void *value)
       idx = index - array->offset;
 
       /* can the value be inserted here ? */
-      if (array->size < ARRAY_SIZE)
+      if (array->size < SVZ_ARRAY_SIZE)
 	{
 	  /* adjust array chunk size */
 	  array->size++;
@@ -830,20 +832,20 @@ alist_insert (alist_t *list, unsigned long index, void *value)
       /* no, chunk is full, need to split the chunk */
       else
 	{
-	  next = alist_create_array (index + 1);
+	  next = svz_alist_create_array (index + 1);
 
 	  /* keep less indexes in old chunk and copy greater to next */
 	  memcpy (next->value, &array->value[idx], 
-		  (ARRAY_SIZE - idx) * sizeof (void *));
+		  (SVZ_ARRAY_SIZE - idx) * sizeof (void *));
 	  next->fill = (array->fill >> idx);
-	  next->size = ARRAY_SIZE - idx;
+	  next->size = SVZ_ARRAY_SIZE - idx;
 
 	  array->value[idx] = value;
 	  array->fill &= (1 << (idx + 1)) - 1;
 	  array->fill |= (1 << idx);
 	  array->size = idx + 1;
 
-	  alist_hook (list, next);
+	  svz_alist_hook (list, next);
 	  array = next->next;
 	}
     }
@@ -851,11 +853,11 @@ alist_insert (alist_t *list, unsigned long index, void *value)
   /* add another chunk */
   else
     {
-      next = alist_create_array (index);
+      next = svz_alist_create_array (index);
       next->fill = 1;
       next->size = 1;
       next->value[0] = value;
-      alist_hook (list, next);
+      svz_alist_hook (list, next);
       array = next->next;
     }
 
@@ -879,14 +881,14 @@ alist_insert (alist_t *list, unsigned long index, void *value)
  * by this operation.
  */
 void
-alist_pack (alist_t *list)
+svz_alist_pack (svz_alist_t *list)
 {
-  array_t *array, *next, *prev;
+  svz_array_t *array, *next, *prev;
   unsigned long need2pack, bits, n, size;
   void **value;
 
 #if DEVEL
-  alist_validate (list, "pack");
+  svz_alist_validate (list, "pack");
 #endif /* DEVEL */
 
   if (!list->size)
@@ -896,16 +898,16 @@ alist_pack (alist_t *list)
   for (need2pack = 0, array = list->first; array; array = array->next)
     {
       next = array->next;
-      if (next && array->size == ARRAY_SIZE)
+      if (next && array->size == SVZ_ARRAY_SIZE)
 	{
-	  if (array->fill != ARRAY_MASK ||
-	      array->offset + ARRAY_SIZE != next->offset)
+	  if (array->fill != SVZ_ARRAY_MASK ||
+	      array->offset + SVZ_ARRAY_SIZE != next->offset)
 	    {
 	      need2pack = 1;
 	      break;
 	    }
 	}
-      if (next && array->size < ARRAY_SIZE)
+      if (next && array->size < SVZ_ARRAY_SIZE)
 	{
 	  need2pack = 1;
 	  break;
@@ -926,17 +928,17 @@ alist_pack (alist_t *list)
     return;
 
   /* rebuild array list */
-  value = alist_values (list);
-  size = alist_size (list);
-  alist_clear (list);
+  value = svz_alist_values (list);
+  size = svz_alist_size (list);
+  svz_alist_clear (list);
   prev = list->first;
-  for (n = 0; n <= size - ARRAY_SIZE; n += ARRAY_SIZE)
+  for (n = 0; n <= size - SVZ_ARRAY_SIZE; n += SVZ_ARRAY_SIZE)
     {
-      array = alist_create_array (n);
-      array->fill = ARRAY_MASK;
-      array->size = ARRAY_SIZE;
-      list->size += ARRAY_SIZE;
-      memcpy (array->value, &value[n], ARRAY_SIZE * sizeof (void *));
+      array = svz_alist_create_array (n);
+      array->fill = SVZ_ARRAY_MASK;
+      array->size = SVZ_ARRAY_SIZE;
+      list->size += SVZ_ARRAY_SIZE;
+      memcpy (array->value, &value[n], SVZ_ARRAY_SIZE * sizeof (void *));
       if (!prev)
 	list->first = array;
       else
@@ -944,10 +946,10 @@ alist_pack (alist_t *list)
       array->prev = prev;
       prev = array;
     }
-  if (size % ARRAY_SIZE)
+  if (size % SVZ_ARRAY_SIZE)
     {
-      size %= ARRAY_SIZE;
-      array = alist_create_array (n);
+      size %= SVZ_ARRAY_SIZE;
+      array = svz_alist_create_array (n);
       array->fill = (1 << size) - 1;
       array->size = size;
       list->size += size;
@@ -968,14 +970,14 @@ alist_pack (alist_t *list)
  * chunk. You have to `svz_free ()' it after usage.
  */
 void **
-alist_values (alist_t *list)
+svz_alist_values (svz_alist_t *list)
 {
-  array_t *array;
+  svz_array_t *array;
   void **value;
   unsigned long index, bit, n;
 
 #if DEVEL
-  alist_validate (list, "values");
+  svz_alist_validate (list, "values");
 #endif /* DEVEL */
 
   if (!list->size) 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.1 2001/02/02 11:30:34 ela Exp $
+ * $Id: interface.c,v 1.2 2001/02/06 17:24:20 ela Exp $
  *
  */
 
@@ -39,12 +39,12 @@
 # include <sys/socket.h>
 # include <sys/ioctl.h>
 # include <net/if.h>
-# if HAVE_UNISTD_H
-#  include <unistd.h>
-# endif
-
 # include <netinet/in.h>
 # include <arpa/inet.h>
+#endif
+
+#if HAVE_UNISTD_H
+# include <unistd.h>
 #endif
 
 /* Solaris, IRIX */
@@ -62,13 +62,13 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
+#include "libserveez/vector.h"
 #include "libserveez/interface.h"
 
 /*
  * The available interface list.
  */
-int svz_interfaces = 0;
-ifc_entry_t *svz_interface = NULL;
+svz_vector_t *svz_interface = NULL;
 
 #if ENABLE_IFLIST
 
@@ -116,6 +116,7 @@ svz_interface_collect (void)
   PMIB_IFTABLE ifTable;
   PMIB_IPADDRTABLE ipTable;
   unsigned long addr;
+  ifc_entry_t *ifc;
 
   DWORD Method = NO_METHOD;
 
@@ -318,9 +319,11 @@ svz_interface_collect (void)
 		    {
 		      memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
 
-		      for (k = 0; k < svz_interfaces; k++)
-			if (svz_interface[k].index == ipAddrEntry[n].iae_index)
-			  svz_interface[k].ipaddr = addr;
+		      for (k = 0; k < svz_vector_length (svz_interface); k++)
+			{
+			  ifc = svz_vector_get (svz_interface, k);
+			  if (ifc->index == ipAddrEntry[n].iae_index)
+			    ifc->ipaddr = addr;
 		    }
 		}
 	    }
@@ -527,24 +530,26 @@ svz_interface_collect (void)
 void
 svz_interface_list (void)
 {
-  int n;
+  unsigned long n;
+  ifc_entry_t *ifc;
 
   printf ("--- list of local interfaces you can start ip services on ---\n");
 
-  for (n = 0; n < svz_interfaces; n++)
+  for (n = 0; n < svz_vector_length (svz_interface); n++)
     {
+      ifc = svz_vector_get (svz_interface, n);
+
       /* interface with description */
-      if (svz_interface[n].description)
+      if (ifc->description)
 	{
-	  printf ("%40s: %s\n", svz_interface[n].description, 
-		  util_inet_ntoa (svz_interface[n].ipaddr));
+	  printf ("%40s: %s\n", ifc->description, 
+		  util_inet_ntoa (ifc->ipaddr));
 	}
       else
 	{
 	  /* interface with interface # only */
 	  printf ("%31s%09lu: %s\n", "interface # ",
-		  svz_interface[n].index,
-		  util_inet_ntoa (svz_interface[n].ipaddr));
+		  ifc->index, util_inet_ntoa (ifc->ipaddr));
 	}
     }
 }
@@ -556,19 +561,31 @@ svz_interface_list (void)
 int
 svz_interface_add (int index, char *desc, unsigned long addr)
 {
-  int n;
+  unsigned long n;
+  ifc_entry_t *ifc;
 
   /* Check if there is such an interface already. */
-  for (n = 0; n < svz_interfaces; n++)
-    if (svz_interface[n].ipaddr == addr)
-      return -1;
+  if (svz_interface == NULL)
+    {
+      svz_interface = svz_vector_create (sizeof (ifc_entry_t));
+    }
+  else
+    {
+      for (n = 0; n < svz_vector_length (svz_interface); n++)
+	{
+	  ifc = svz_vector_get (svz_interface, n);
+	  if (ifc->ipaddr == addr)
+	    return -1;
+	}
+    }
 
   /* Actually add this interface. */
-  svz_interface = svz_realloc (svz_interface, sizeof (ifc_entry_t) * (n + 1));
-  svz_interface[n].index = index;
-  svz_interface[n].ipaddr = addr;
-  svz_interface[n].description = svz_strdup (desc);
-  svz_interfaces++;
+  ifc = svz_malloc (sizeof (ifc_entry_t));
+  ifc->index = index;
+  ifc->ipaddr = addr;
+  ifc->description = svz_strdup (desc);
+  svz_vector_add (svz_interface, ifc);
+  svz_free (ifc);
   return 0;
 }
 
@@ -578,17 +595,19 @@ svz_interface_add (int index, char *desc, unsigned long addr)
 int
 svz_interface_free (void)
 {
-  int n;
+  unsigned long n;
+  ifc_entry_t *ifc;
 
-  if (svz_interfaces)
+  if (svz_interface)
     {
-      for (n = 0; n < svz_interfaces; n++)
-	if (svz_interface[n].description)
-	  svz_free (svz_interface[n].description);
-
-      svz_free (svz_interface);
+      for (n = 0; n < svz_vector_length (svz_interface); n++)
+	{
+	  ifc = svz_vector_get (svz_interface, n);
+	  if (ifc->description)
+	    svz_free (ifc->description);
+	}
+      svz_vector_destroy(svz_interface);
       svz_interface = NULL;
-      svz_interfaces = 0;
       return 0;
     }
   return -1;
