@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.63 2002/05/07 17:11:58 ela Exp $
+ * $Id: guile.c,v 1.64 2002/07/15 07:45:04 ela Exp $
  *
  */
 
@@ -163,9 +163,11 @@ guile_error (char *format, ...)
     gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
   /* guile counts lines from 0, we have to add one */
-  fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined", 
-	   (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ? SCM_LINUM (lp) + 1 : 0, 
-	   (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ? SCM_COL (lp) : 0);
+  fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined",
+	   (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ?
+	   (int) SCM_LINUM (lp) + 1 : 0,
+	   (!SCM_UNBNDP (lp) && SCM_PORTP (lp)) ?
+	   (int) SCM_COL (lp) : 0);
   if (file)
     scm_c_free (file);
 
@@ -316,6 +318,7 @@ guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
  * Stores the integer value where @var{target} points to. Does not emit 
  * error messages.
  */
+#define FUNC_NAME "guile_to_integer"
 int
 guile_to_integer (SCM cell, int *target)
 {
@@ -343,6 +346,7 @@ guile_to_integer (SCM cell, int *target)
     }
   return err;
 }
+#undef FUNC_NAME
 
 /*
  * Parse a boolean value from a scheme cell. We consider integers and #t/#f
@@ -350,6 +354,7 @@ guile_to_integer (SCM cell, int *target)
  * zero when successful. Stores the boolean/integer where @var{target} points
  * to. Does not emit error messages.
  */
+#define FUNC_NAME "guile_to_boolean"
 int
 guile_to_boolean (SCM cell, int *target)
 {
@@ -389,6 +394,7 @@ guile_to_boolean (SCM cell, int *target)
     }
   return err;
 }
+#undef FUNC_NAME
 
 /*
  * Convert the given guile list @var{list} into a hash. Return NULL on
@@ -1763,7 +1769,7 @@ guile_eval_file (void *data)
     {
       SCM ret = SCM_BOOL_F, line;
       while (!SCM_EOF_OBJECT_P (line = scm_read (scm_def_inp)))
-	ret = scm_eval_x (line);
+	ret = scm_primitive_eval_x (line);
       return SCM_BOOL_T;
     }
 

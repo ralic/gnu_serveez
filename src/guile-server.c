@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.48 2002/06/06 20:04:51 ela Exp $
+ * $Id: guile-server.c,v 1.49 2002/07/15 07:45:04 ela Exp $
  *
  */
 
@@ -96,7 +96,7 @@ static int guile_use_exceptions = 1;
  * g) free    - Run if the SMOB gets destroyed.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
-static long GUILE_CONCAT3 (guile_,ctype,_tag) = 0;                           \
+static scm_t_bits GUILE_CONCAT3 (guile_,ctype,_tag) = 0;                     \
 static SCM GUILE_CONCAT3 (guile_,ctype,_create) (void *data) {               \
   SCM_RETURN_NEWSMOB (GUILE_CONCAT3 (guile_,ctype,_tag), data);              \
 }                                                                            \
@@ -460,6 +460,7 @@ guile_call (SCM code, int args, ...)
 }
 
 /* Wrapper function for the global initialization of a server type. */
+#define FUNC_NAME "guile_func_global_init"
 static int
 guile_func_global_init (svz_servertype_t *stype)
 {
@@ -473,8 +474,10 @@ guile_func_global_init (svz_servertype_t *stype)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper function for the initialization of a server instance. */
+#define FUNC_NAME "guile_func_init"
 static int
 guile_func_init (svz_server_t *server)
 {
@@ -489,8 +492,10 @@ guile_func_init (svz_server_t *server)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper routine for protocol detection of a server instance. */
+#define FUNC_NAME "guile_func_detect_proto"
 static int
 guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
@@ -506,6 +511,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Free the socket boundary if set by guile. */
 static void
@@ -522,6 +528,7 @@ guile_sock_clear_boundary (svz_socket_t *sock)
 /* Wrapper for the socket disconnected callback. Used here in order to
    delete the additional guile callbacks associated with the disconnected
    socket structure. */
+#define FUNC_NAME "guile_func_disconnected_socket"
 static int
 guile_func_disconnected_socket (svz_socket_t *sock)
 {
@@ -549,8 +556,10 @@ guile_func_disconnected_socket (svz_socket_t *sock)
 
   return retval;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the kicked socket callback. */
+#define FUNC_NAME "guile_func_kicked_socket"
 static int
 guile_func_kicked_socket (svz_socket_t *sock, int reason)
 {
@@ -564,8 +573,10 @@ guile_func_kicked_socket (svz_socket_t *sock, int reason)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper function for the socket connection after successful detection. */
+#define FUNC_NAME "guile_func_connect_socket"
 static int
 guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
@@ -584,8 +595,10 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the finalization of a server instance. */
+#define FUNC_NAME "guile_func_finalize"
 static int
 guile_func_finalize (svz_server_t *server)
 {
@@ -609,8 +622,10 @@ guile_func_finalize (svz_server_t *server)
 
   return retval;
 }
+#undef FUNC_NAME
 
 /* Wrapper routine for the global finalization of a server type. */
+#define FUNC_NAME "guile_func_global_finalize"
 static int
 guile_func_global_finalize (svz_servertype_t *stype)
 {
@@ -624,12 +639,14 @@ guile_func_global_finalize (svz_servertype_t *stype)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Min-Max definitions. */
 #define GUILE_MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define GUILE_MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 /* Wrapper for the client info callback. */
+#define FUNC_NAME "guile_func_info_client"
 static char *
 guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 {
@@ -653,8 +670,10 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
     }
   return NULL;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the server info callback. */
+#define FUNC_NAME "guile_func_info_server"
 static char *
 guile_func_info_server (svz_server_t *server)
 {
@@ -677,8 +696,10 @@ guile_func_info_server (svz_server_t *server)
     }
   return NULL;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the server notifier callback. */
+#define FUNC_NAME "guile_func_notify"
 static int
 guile_func_notify (svz_server_t *server)
 {
@@ -692,8 +713,10 @@ guile_func_notify (svz_server_t *server)
     }
   return -1;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the server reset callback. */
+#define FUNC_NAME "guile_func_reset"
 static int
 guile_func_reset (svz_server_t *server)
 {
@@ -707,8 +730,10 @@ guile_func_reset (svz_server_t *server)
     }
   return -1;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the socket check request callback. */
+#define FUNC_NAME "guile_func_check_request"
 static int
 guile_func_check_request (svz_socket_t *sock)
 {
@@ -722,9 +747,11 @@ guile_func_check_request (svz_socket_t *sock)
     }
   return -1;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the socket handle request callback. The function searches for
    both the servertype specific and socket specific procedure. */
+#define FUNC_NAME "guile_func_handle_request"
 static int
 guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 {
@@ -748,8 +775,10 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
     }
   return -1;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the socket idle func callback. */
+#define FUNC_NAME "guile_func_idle_func"
 static int
 guile_func_idle_func (svz_socket_t *sock)
 {
@@ -762,8 +791,10 @@ guile_func_idle_func (svz_socket_t *sock)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the socket trigger condition func callback. */
+#define FUNC_NAME "guile_func_trigger_cond"
 static int
 guile_func_trigger_cond (svz_socket_t *sock)
 {
@@ -776,8 +807,10 @@ guile_func_trigger_cond (svz_socket_t *sock)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the socket trigger func callback. */
+#define FUNC_NAME "guile_func_trigger_func"
 static int
 guile_func_trigger_func (svz_socket_t *sock)
 {
@@ -790,8 +823,10 @@ guile_func_trigger_func (svz_socket_t *sock)
     }
   return 0;
 }
+#undef FUNC_NAME
 
 /* Wrapper for the socket check oob request callback. */
+#define FUNC_NAME "guile_func_check_request_oob"
 static int
 guile_func_check_request_oob (svz_socket_t *sock)
 {
@@ -806,6 +841,7 @@ guile_func_check_request_oob (svz_socket_t *sock)
     }
   return -1;
 }
+#undef FUNC_NAME
 
 /* Set the @code{handle-request} member of the socket structure @var{sock} 
    to the Guile procedure @var{proc}. The procedure returns the previously

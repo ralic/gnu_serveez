@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.20 2002/05/07 17:11:58 ela Exp $
+ * $Id: util.h,v 1.21 2002/07/15 07:45:05 ela Exp $
  *
  */
 
@@ -94,6 +94,15 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
   ((unsigned char) *(p + 2) << 16) | ((signed char) *(p + 3) << 24))
 
 /*
+ * Convert the byte array pointed to by @var{p} to a signed 64 bit integer.
+ */
+#define SVZ_INT64(p) \
+  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
+  ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24) \
+  ((unsigned char) *(p + 2) << 32) | ((unsigned char) *(p + 3) << 40) \
+  ((unsigned char) *(p + 2) << 48) | ((signed char) *(p + 3) << 54))
+
+/*
  * Convert the byte array pointed to by @var{p} to a signed 16 bit integer.
  */
 #define SVZ_INT16(p) \
@@ -105,6 +114,15 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
 #define SVZ_UINT32(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
   ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24))
+
+/*
+ * Convert the byte array pointed to by @var{p} to an unsigned 64 bit integer.
+ */
+#define SVZ_UINT64(p) \
+  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
+  ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24) \
+  ((unsigned char) *(p + 2) << 32) | ((unsigned char) *(p + 3) << 40) \
+  ((unsigned char) *(p + 2) << 48) | ((unsigned char) *(p + 3) << 54))
 
 /*
  * Convert the byte array pointed to by @var{p} to an unsigned 16 bit integer.

@@ -18,12 +18,22 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.10 2002/05/24 12:51:13 ela Exp $
+ * $Id: guile-api.h,v 1.11 2002/07/15 07:45:04 ela Exp $
  *
  */
 
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
+
+/* Define this macro if Guile 1.5.x or better is in use. */
+#if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 5) && \
+    defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
+#define SCM_VERSION_15X 1
+#endif
+
+#ifndef SCM_VERSION_15X
+#define scm_t_bits long
+#endif
 
 /* Some definitions for backward compatibility with Guile 1.3.4 */
 #ifndef SCM_ASSERT_TYPE
@@ -91,7 +101,7 @@
 #ifndef SCM_MAKE_CHAR
 #define SCM_MAKE_CHAR(x) SCM_MAKICHR (x)
 #endif
-#ifndef scm_num2int
+#ifndef SCM_NUM2INT
 #define SCM_NUM2INT(pos, obj) gh_scm2int (obj)
 #endif
 #ifndef SCM_NUM2LONG
@@ -100,27 +110,30 @@
 #ifndef SCM_NUM2ULONG
 #define SCM_NUM2ULONG(pos, obj) scm_num2ulong (obj, (char *) (pos), FUNC_NAME)
 #endif
-#ifndef scm_int2num
+#ifndef SCM_VERSION_15X
 #define scm_int2num(x) scm_long2num ((long) (x))
 #endif
-#ifndef scm_mem2string
+#ifndef SCM_VERSION_15X
 #define scm_mem2string(str, len) gh_str2scm (str, len)
 #endif
-#ifndef scm_c_define
+#ifndef SCM_VERSION_15X
+#define scm_primitive_eval_x(expr) scm_eval_x (expr)
+#endif
+#ifndef SCM_VERSION_15X
 #define scm_c_define(name, val) gh_define (name, val)
 #endif
 #ifndef scm_c_free
 #define scm_c_free(p) scm_must_free (p)
 #endif
-#ifndef scm_c_define_gsubr
+#ifndef SCM_VERSION_15X
 #define scm_c_define_gsubr(name, req, opt, rst, fcn) \
     gh_new_procedure (name, fcn, req, opt, rst)
 #endif
-#ifndef scm_c_primitive_load
+#ifndef SCM_VERSION_15X
 #define scm_c_primitive_load(file) \
     scm_primitive_load (scm_makfrom0str (file))
 #endif
-#ifndef scm_current_module_lookup_closure
+#ifndef SCM_VERSION_15X
 #define guile_lookup(var, name) (var) = gh_lookup (name)
 #else
 #define guile_lookup(var, name) do {                                        \
@@ -128,13 +141,13 @@
 	  	         scm_current_module_lookup_closure (), SCM_BOOL_F); \
     if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED; } while (0)
 #endif
-#ifndef scm_gc_protect_object
+#ifndef SCM_VERSION_15X
 #define scm_gc_protect_object(obj) scm_protect_object (obj)
 #endif
-#ifndef scm_gc_unprotect_object
+#ifndef SCM_VERSION_15X
 #define scm_gc_unprotect_object(obj) scm_unprotect_object (obj)
 #endif
-#ifndef scm_c_make_vector
+#ifndef SCM_VERSION_15X
 #define scm_c_make_vector(k, fill) scm_make_vector (scm_int2num (k), fill)
 #endif
 #ifndef SCM_OUT_OF_RANGE

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.23 2002/06/06 20:04:51 ela Exp $
+ * $Id: guile-bin.c,v 1.24 2002/07/15 07:45:04 ela Exp $
  *
  */
 
@@ -55,7 +55,7 @@ typedef struct guile_bin
 guile_bin_t;
 
 /* The smob tag. */
-static long guile_bin_tag = 0;
+static scm_t_bits guile_bin_tag = 0;
 
 /* Useful defines for accessing the binary smob. */
 #define GET_BIN_SMOB(binary) \
@@ -418,7 +418,7 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
     to = bin->size - 1;
 
   /* Check the ranges of both indices. */
-  if (from < 0 || from >= bin->size || from >= end)
+  if (from < 0 || from >= bin->size || from >= to)
     SCM_OUT_OF_RANGE (SCM_ARG2, start);
   if (to < 0 || to >= bin->size || to <= from)
     SCM_OUT_OF_RANGE (SCM_ARG3, end);
@@ -481,7 +481,7 @@ guile_list_to_bin (SCM list)
     {
       if (!SCM_EXACTP (SCM_CAR (list)))
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
-      value = SCM_NUM2INT (SCM_ARGN, SCM_CAR (list));
+      value = SCM_NUM2INT (SCM_ARGn, SCM_CAR (list));
       if (value < 0 || value > 255)
 	scm_out_of_range (FUNC_NAME, SCM_CAR (list));
       *p++ = (unsigned char) value;
@@ -547,13 +547,15 @@ guile_bin_to_data (SCM binary, int *size)
    binary smob's data for reading depending on the given @var{ctype}. */
 #define MAKE_BIN_REF(ctype)                                                  \
 static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
-  guile_bin_t *bin; int idx;                                                 \
+  guile_bin_t *bin; int idx; long val = 0; void *data;                       \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
   idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
   if (idx < 0 || idx >= (int) (bin->size / sizeof (ctype)))                  \
     SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
-  return scm_long2num ((long) ((ctype *) bin->data)[idx]);                   \
+  data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));       \
+  memcpy (&val, data, sizeof (ctype));                                       \
+  return scm_long2num (val);                                                 \
 }
 
 /* Checks whether the scheme value @var{value} can be stored within a
@@ -578,7 +580,8 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
 #define MAKE_BIN_SET(ctype)                                                  \
 static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \
 						  SCM value) {               \
-  guile_bin_t *bin; int idx; unsigned long val; SCM old; ctype *data;        \
+  guile_bin_t *bin; int idx; unsigned long val; SCM old;                     \
+  unsigned long oldval = 0; void *data;                                      \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
   idx = SCM_NUM2INT (SCM_ARG2, index);                                       \
@@ -586,8 +589,9 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \
     SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
   SCM_ASSERT_TYPE (SCM_EXACTP (value), value, SCM_ARG3, FUNC_NAME, "exact"); \
   CTYPE_CHECK_RANGE (ctype, value, SCM_ARG3, val);                           \
-  data = (ctype *) bin->data;                                                \
-  old = scm_long2num ((long) data[idx]); data[idx] = (ctype) val;            \
+  data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));       \
+  memcpy (&oldval, data, sizeof (ctype));                                    \
+  old = scm_long2num (oldval); memcpy (data, &val, sizeof (ctype));          \
   return old;                                                                \
 }
 

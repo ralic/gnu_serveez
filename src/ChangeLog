@@ -1,3 +1,18 @@
+2002-07-15  [ Ela ]  <ela@lkcc.org>
+
+	* guile.c (guile_to_integer): Added FUNC_NAME macro.
+	(guile_error): Fixed argument type.
+	(guile_eval_file): Use `scm_primitive_eval_x()' instead of
+	`scm_eval_x()' for future versions of Guile.
+
+	* guile-server.c (guile_func_*): Added the FUNC_NAME macro 
+	to each	of the Guile procedure wrappers.
+
+	* guile-bin.c: Bug fixes.
+
+	* guile-api.h (SCM_VERSION_15X): Compatibility macros for
+	Guile 1.5.6 added and tested.
+
 2002-06-06  [ Ela ]  <ela@lkcc.org>
 
 	* guile-bin.c (guile_bin_set_x): Fixed a bug in argument 

@@ -1,3 +1,7 @@
+2002-07-15  [ Ela ]  <ela@lkcc.org>
+
+	* util.h (SVZ_INT64, SVZ_UINT64): Two new macros.
+
 2002-07-13  [ Ela ]  <ela@lkcc.org>
 
 	* dynload.c (DYNLOAD_SUFFIX): Added '.sl' shared library
