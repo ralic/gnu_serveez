@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.25 2000/10/15 11:46:41 ela Exp $
+ * $Id: socket.c,v 1.26 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -124,7 +124,7 @@ default_write (socket_t sock)
 	}
       sock->send_buffer_fill -= num_written;
     }
-  /* error occured while writing */
+  /* error occurred while writing */
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
@@ -136,7 +136,7 @@ default_write (socket_t sock)
     }
 
   /*
-   * Return a non-zero value if an error occured.
+   * Return a non-zero value if an error occurred.
    */
   return (num_written < 0) ? -1 : 0;
 }
@@ -184,7 +184,7 @@ default_read (socket_t sock)
 		   sock->recv_buffer + sock->recv_buffer_fill,
 		   do_read, 0);
 
-  /* error occured while reading */
+  /* error occurred while reading */
   if (num_read < 0)
     {
       /*
@@ -344,7 +344,7 @@ default_idle_func (socket_t sock)
 /*
  * This check_request () routine could be used by any protocol to 
  * detect and finally handle packets depending on a specific packet 
- * boundary. The appropiate handle_request () is called for each packet
+ * boundary. The appropriate handle_request () is called for each packet
  * explicitly with the packet length inclusive the packet boundary.
  */
 int

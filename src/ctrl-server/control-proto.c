@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.31 2000/10/15 11:46:41 ela Exp $
+ * $Id: control-proto.c,v 1.32 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -78,8 +78,8 @@
 portcfg_t ctrl_port =
 {
   PROTO_TCP,  /* TCP protocol definition */
-  42424,      /* prefered port */
-  "*",        /* prefered local ip address */
+  42424,      /* preferred port */
+  "*",        /* preferred local ip address */
   NULL,       /* calculated automatically later */
   NULL,       /* no receiving (listening) pipe */
   NULL        /* no sending pipe */
@@ -127,7 +127,7 @@ server_definition_t ctrl_server_definition =
 
 /*
  * Within the ctrl_idle() function this structure gets filled with
- * the appropiate data.
+ * the appropriate data.
  */
 cpu_state_t cpu_state;
 
@@ -293,7 +293,7 @@ ctrl_help (socket_t sock, int flag, char *arg)
     "   * stat SERVER         - SERVER's statistic\r\n"
     "   * stat coserver       - coserver statistics\r\n"
     "   * stat con            - connection statistics\r\n"
-    "   * stat id NUM         - NUM's connnection info\r\n"
+    "   * stat id NUM         - NUM's connection info\r\n"
     "   * stat all            - server and coserver state\r\n"
 #if ENABLE_HTTP_PROTO
     "   * stat cache          - http cache statistics\r\n"
@@ -317,7 +317,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   server_t *server;
   int_coserver_t *coserver;
 
-  /* Find the appropiate client or server connection. */
+  /* Find the appropriate client or server connection. */
   id = atoi (arg);
   if ((xsock = sock_find (id, -1)) == NULL)
     {
@@ -767,7 +767,7 @@ ctrl_restart (socket_t sock, int type, char *arg)
   int_coserver_t *coserver;
   int n;
 
-  /* find an appropiate coserver to kill */
+  /* find an appropriate coserver to kill */
   for (n = 0; n < int_coservers; n++)
     {
       coserver = int_coserver[n];
@@ -840,7 +840,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
   int ret = 0;
   int l;
 
-  /* serach through if there is an input line */
+  /* search through if there is an input line */
   while (request[len-1] == '\r' || request[len-1] == '\n')
     len--;
   
@@ -880,7 +880,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
 	  l = strlen (ctrl[n].command);
 	  if (!memcmp (request, ctrl[n].command, l))
 	    {
-	      /* save this command for repitition */
+	      /* save this command for repetition */
 	      memcpy (last_request, request, last_len = len);
 
 	      /* execute valid command and give the prompt */
@@ -905,7 +905,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
 
 /*
  * Depending on the systems this routine gets the cpu load. 
- * Returns -1 if an error occured.
+ * Returns -1 if an error occurred.
  * Linux   -- /proc/stat
  * HP-Unix -- pstat_getdynamic()
  * Solaris -- kstat_read()
@@ -982,7 +982,7 @@ ctrl_get_cpu_state (void)
       return -1;
     }
 
-  /* find the appropiate cpu statistics line */
+  /* find the appropriate cpu statistics line */
   while (fgets (stat, STAT_BUFFER_SIZE, f))
     {
       if (4 == sscanf (stat, cpu_state.cpuline, 

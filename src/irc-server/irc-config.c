@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.6 2000/09/27 14:31:27 ela Exp $
+ * $Id: irc-config.c,v 1.7 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -42,7 +42,7 @@
 
 /*
  * This routine will parse all of the x-lines of the IRC server
- * configuration and store the information within the appropiate
+ * configuration and store the information within the appropriate
  * lists.
  */
 
@@ -123,7 +123,7 @@ irc_parse_config_lines (irc_config_t *cfg)
 	}
     }
 
-  /* parse operator authorization lines (local and netwotk wide) */
+  /* parse operator authorization lines (local and network wide) */
   if (cfg->OLine)
     {
       for (n = 0, line = cfg->OLine[n]; line; line = cfg->OLine[++n])
@@ -259,7 +259,7 @@ irc_free_config_lines (irc_config_t *cfg)
 }
 
 /*
- * The following routine checks whether it is still possible to connnect
+ * The following routine checks whether it is still possible to connect
  * via a given connection class number. It returns zero on success or if
  * there no such connection class, otherwise non-zero.
  */

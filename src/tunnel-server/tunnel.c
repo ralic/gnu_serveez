@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.2 2000/10/12 15:32:03 ela Exp $
+ * $Id: tunnel.c,v 1.3 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -48,6 +48,7 @@
 #include "alloc.h"
 #include "socket.h"
 #include "connect.h"
+#include "udp-socket.h"
 #include "server-core.h"
 #include "server.h"
 #include "tunnel.h"
@@ -164,9 +165,13 @@ int
 tnl_connect_socket (void *config, socket_t sock)
 {
   tnl_config_t *cfg = config;
+  socket_t xsock;
+  unsigned long ip;
+  unsigned short port;
   
   sock->flags |= SOCK_FLAG_NOFLOOD;
   sock->check_request = tnl_check_request_tcp;
+  sock->disconnected_socket = tnl_disconnect;
 
   /* depending on the target configuration we assign different callbacks */
   switch (cfg->target->proto)
@@ -185,27 +190,53 @@ tnl_connect_socket (void *config, socket_t sock)
       return -1;
     }
 
+  /* target is a tcp connection */
   if (sock->userflags & TNL_FLAG_TGT_TCP)
     {
-      socket_t xsock;
-      unsigned long ip = cfg->target->localaddr->sin_addr.s_addr;
-      unsigned short port = cfg->target->localaddr->sin_port;
+      ip = cfg->target->localaddr->sin_addr.s_addr;
+      port = cfg->target->localaddr->sin_port;
 
       if ((xsock = sock_connect (ip, port)) == NULL)
 	{
-	  log_printf (LOG_ERROR, "tunnel: cannot connect to target %s:%u\n",
+	  log_printf (LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
 		      util_inet_ntoa (ip), ntohs (port));
 	  return -1;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: connecting to %s:%u\n",
+      log_printf (LOG_DEBUG, "tunnel: tcp: connecting to %s:%u\n",
 		  util_inet_ntoa (ip), ntohs (port));
 #endif
       xsock->cfg = cfg;
       xsock->flags |= SOCK_FLAG_NOFLOOD;
       xsock->userflags = sock->userflags | TNL_FLAG_SRC_TCP;
       xsock->check_request = tnl_check_request_tcp;
+      xsock->disconnected_socket = tnl_disconnect;
+      xsock->referer = sock;
+      sock->referer = xsock;
+    }
+
+  /* target is an udp connection */
+  else if (sock->userflags & TNL_FLAG_TGT_UDP)
+    {
+      ip = cfg->target->localaddr->sin_addr.s_addr;
+      port = cfg->target->localaddr->sin_port;
+
+      if ((xsock = udp_connect (ip, port)) == NULL)
+	{
+	  log_printf (LOG_ERROR, "tunnel: udp: cannot connect to %s:%u\n",
+		      util_inet_ntoa (ip), ntohs (port));
+	  return -1;
+	}
+
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "tunnel: udp: connecting to %s:%u\n",
+		  util_inet_ntoa (ip), ntohs (port));
+#endif
+      xsock->cfg = cfg;
+      xsock->flags |= SOCK_FLAG_NOFLOOD;
+      xsock->userflags = sock->userflags | TNL_FLAG_SRC_TCP;
+      xsock->handle_request = tnl_handle_request_udp;
       xsock->disconnected_socket = tnl_disconnect;
       xsock->referer = sock;
       sock->referer = xsock;
@@ -221,6 +252,9 @@ tnl_connect_socket (void *config, socket_t sock)
 int
 tnl_check_request_tcp (socket_t sock)
 {
+  tnl_config_t *cfg = sock->cfg;
+
+  /* target is TCP */
   if (sock->userflags & TNL_FLAG_TGT_TCP)
     {
       if (sock_write (sock->referer, sock->recv_buffer, 
@@ -228,9 +262,34 @@ tnl_check_request_tcp (socket_t sock)
 	{
 	  return -1;
 	}
-      sock->recv_buffer_fill = 0;
+    }
+  /* target is UDP */
+  else if (sock->userflags & TNL_FLAG_TGT_UDP)
+    {
+      if (udp_write (sock->referer, sock->recv_buffer, 
+		     sock->recv_buffer_fill) == -1)
+	{
+	  return -1;
+	}
     }
 
+  sock->recv_buffer_fill = 0;
+  return 0;
+}
+
+/*
+ * This function is the handle_request routine for UDP sockets.
+ */
+int
+tnl_handle_request_udp (socket_t sock, char *packet, int len)
+{
+  if (sock->userflags & TNL_FLAG_SRC_TCP)
+    {
+      if (sock_write (sock->referer, packet, len) == -1)
+	{
+	  return -1;
+	}
+    }
   return 0;
 }
 
@@ -240,8 +299,13 @@ tnl_check_request_tcp (socket_t sock)
 int
 tnl_disconnect (socket_t sock)
 {
-  if (sock->userflags & TNL_FLAG_TGT_TCP)
+  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_UDP |
+			 TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_UDP))
     {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
+		  sock->referer->id);
+#endif
       sock_schedule_for_shutdown (sock->referer);
     }
   return 0;
@@ -252,4 +316,3 @@ tnl_disconnect (socket_t sock)
 int tunnel_dummy; /* Shut compiler warnings up. */
 
 #endif /* not ENABLE_TUNNEL */
-

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.14 2000/09/28 21:12:54 ela Exp $
+ * $Id: http-dirlist.c,v 1.15 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -92,7 +92,7 @@
 int http_dirlist_size = 0;
 
 /*
- * Convert a given filename to an appropiate http request URI.
+ * Convert a given filename to an appropriate http request URI.
  * This is necessary because of special characters within
  * these.
  */
@@ -235,7 +235,7 @@ http_dirlist (char *dirname, char *docroot)
 	} 
       else 
 	{
-	  /* Get filetime and remove trailing newline */
+	  /* Get file time and remove trailing newline */
 	  if (localtime (&buf.st_mtime))
 	    timestr = asctime (localtime (&buf.st_mtime));
 	  else

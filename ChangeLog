@@ -53,7 +53,7 @@
 2000-08-19  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checking for the get-/setrlimit interface.
-	Also try finding the appropiate headers for that.
+	Also try finding the appropriate headers for that.
 	Check for netint/tcp.h (for TCP_CORK), sys/poll.h and poll()
 	itself for the alternative server loop and direct.h for Win32's
 	directory functions.

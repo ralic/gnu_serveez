@@ -1,3 +1,16 @@
+2000-10-24  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c (tnl_handle_request_udp): 
+	Implemented port forwarder for TCP->UDP. Quake3 authorization
+	via TCP possible.
+
+	* socket.h (SOCK_FLAG_FIXED): This flag indicates the 
+	udp read- and write-callbacks to handle dedicated udp
+	connections.
+
+	* udp-socket.c (udp_write): Added this routine for sending
+	whole buffers via UDP connection.
+
 2000-10-23  [ Ela ]  <ela@lkcc.org>
 
 	* alist.c (alist_delete): Optimized deletion and insertion

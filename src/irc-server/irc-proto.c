@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.17 2000/09/28 16:25:18 ela Exp $
+ * $Id: irc-proto.c,v 1.18 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -62,8 +62,8 @@
 portcfg_t irc_port =
 {
   PROTO_TCP,  /* tcp protocol only */
-  42424,      /* prefered tcp port */
-  "*",        /* prefered local ip address */
+  42424,      /* preferred tcp port */
+  "*",        /* preferred local ip address */
   NULL,       /* calculated automatically */
   NULL,       /* no receiving pipe */
   NULL        /* no sending (listening) pipe */
@@ -111,7 +111,7 @@ irc_config_t irc_config =
   NULL,                   /* client history list root */
   NULL,                   /* connection classes list */
   NULL,                   /* user authorizations */
-  NULL,                   /* operator autorizations */
+  NULL,                   /* operator authorizations */
   NULL,                   /* banned users */
   NULL                    /* name of the /INFO file */
 };
@@ -149,7 +149,7 @@ key_value_pair_t irc_config_prototype [] =
 server_definition_t irc_server_definition =
 {
   "irc server",        /* long description */
-  "irc",               /* short description for instanciating */
+  "irc",               /* short description for instantiating */
   irc_global_init,     /* global initializer */
   irc_init,            /* instance initializer */
   irc_detect_proto,    /* detection routine */
@@ -689,7 +689,7 @@ irc_handle_request (socket_t sock, char *request, int len)
 
 /*
  * Delete a channel from the channel list. Returns -1 if there was no
- * appropiate channel.
+ * appropriate channel.
  */
 static int
 irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
@@ -850,7 +850,7 @@ irc_delete_client_history (irc_config_t *cfg)
 
 /*
  * Delete a client from the client list. Returns -1 if there was no
- * appropiate client.
+ * appropriate client.
  */
 int
 irc_delete_client (irc_config_t *cfg, irc_client_t *client)

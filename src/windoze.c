@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.2 2000/09/27 14:31:26 ela Exp $
+ * $Id: windoze.c,v 1.3 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -61,7 +61,7 @@ windoze_thread (char *prog)
   ATOM atom;      /* window manager atom */
   int count = 0;  /* notify interval counter */
   
-  /* load appropiate icon */
+  /* load appropriate icon */
   windoze_icon = (HICON) LoadImage (NULL, SERVEEZ_ICON_FILE, IMAGE_ICON,
 				    0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
   if (windoze_icon == NULL)

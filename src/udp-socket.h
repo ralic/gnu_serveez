@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.h,v 1.2 2000/08/02 09:45:14 ela Exp $
+ * $Id: udp-socket.h,v 1.3 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -36,6 +36,7 @@ int udp_read_socket (socket_t sock);
 int udp_write_socket (socket_t sock);
 int udp_check_request (socket_t sock);
 socket_t udp_connect (unsigned long host, unsigned short port);
+int udp_write (socket_t sock, char *buf, int length);
 
 #ifndef __STDC__
 int udp_printf ();

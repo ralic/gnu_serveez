@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.31 2000/10/05 09:52:20 ela Exp $
+ * $Id: server-socket.c,v 1.32 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -126,7 +126,7 @@ server_create (portcfg_t *cfg)
   else
     {
 
-      /* Assign the appropiate socket type. */
+      /* Assign the appropriate socket type. */
       switch (cfg->proto)
 	{
 	case PROTO_TCP:
@@ -582,7 +582,7 @@ server_accept_pipe (socket_t server_sock)
 	}
       /* If we got here then a client pipe is successfully connected. */
     }
-  /* Because these pipes are non-blocking this is never occuring. */
+  /* Because these pipes are non-blocking this is never occurring. */
   else return 0;
 
   if (!ConnectNamedPipe (send_pipe, NULL))

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.6 2000/10/23 21:42:02 ela Exp $
+ * $Id: alist.c,v 1.7 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -66,7 +66,7 @@ alist_hook (alist_t *list, array_t *insert)
 {
   array_t *array, *next;
 
-  /* find the appropiate array chunk */
+  /* find the appropriate array chunk */
   for (array = list->first; array; array = array->next)
     {
       if (insert->offset > array->offset)
@@ -121,6 +121,48 @@ alist_unhook (alist_t *list, array_t *delete)
     }
   delete->prev->next = delete->next;
   delete->next->prev = delete->prev;
+}
+
+/*
+ * Try to find a given INDEX in the array list chunks as fast as
+ * possible.
+ */
+static array_t *
+alist_find_array (alist_t *list, unsigned index)
+{
+  array_t *array = NULL;
+
+  /* index larger than list length ? */
+  if (index >= list->length)
+    {
+      /* is index available in last chunk ? */
+      if (list->last && array_range_all (list->last, index))
+	array = list->last;
+    }
+  /* start seeking in second half */
+  else if (index > list->length >> 1)
+    {
+      for (array = list->last; array; array = array->prev)
+	if (array_range_all (array, index))
+	  break;
+    }
+  /* start seeking at the start of the list (usual case) */ 
+  else
+    {
+      /* index lesser than offset of first array chunk ? */
+      array = list->first;
+      if (array && index < array->offset)
+	return NULL;
+
+      for (; array; array = array->next)
+	if (array_range_all (array, index))
+	  {
+	    if (array->next && array_range_all (array->next, index))
+	      continue;
+	    break;
+	  }
+    }
+  return array;
 }
 
 /*
@@ -502,18 +544,7 @@ alist_set (alist_t *list, unsigned index, void *value)
 #endif /* DEVEL */
 
   /* start at first or last array chunk ? */
-  if (index > list->length >> 1)
-    {
-      for (array = list->last; array; array = array->prev)
-	if (array_range_all (array, index))
-	  break;
-    }
-  else
-    {
-      for (array = list->first; array; array = array->next)
-	if (array_range_all (array, index))
-	  break;
-    }
+  array = alist_find_array (list, index);
 
   /* found a valid array chunk ? */
   if (array)
@@ -587,23 +618,7 @@ alist_insert (alist_t *list, unsigned index, void *value)
 #endif /* DEVEL */
 
   /* start at first or last array chunk ? */
-  if (index > list->length >> 1)
-    {
-      for (array = list->last; array; array = array->prev)
-	if (array_range_all (array, index))
-	  break;
-    }
-  else
-    {
-      /* search through existing array chunks */
-      for (array = list->first; array; array = array->next)
-	if (array_range_all (array, index))
-	  {
-	    if (array->next && array_range_all (array->next, index))
-	      continue;
-	    break;
-	  }
-    }
+  array = alist_find_array (list, index);
 
   /* found a valid array chunk ? */
   if (array)

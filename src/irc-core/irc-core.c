@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.17 2000/10/23 21:42:03 ela Exp $
+ * $Id: irc-core.c,v 1.18 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -513,7 +513,7 @@ irc_string_regex (char *text, char *regex)
 	  /* next character in pattern found */
 	  if (*text)
 	    {
-	      /* find the last occurence of this character in the text */
+	      /* find the last occurrence of this character in the text */
 	      p = text + strlen (text);
 	      while (irc_lcset[(unsigned)*p] != irc_lcset[(unsigned)*text]) 
 		p--;

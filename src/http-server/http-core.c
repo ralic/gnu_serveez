@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.9 2000/09/09 16:33:43 ela Exp $
+ * $Id: http-core.c,v 1.10 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -64,7 +64,7 @@
 
 /*
  * Send an error message response body to the http client connection.
- * This is not actually necessary, because an appropiate response header
+ * This is not actually necessary, because an appropriate response header
  * should work out fine. But most browsers indicate "document contained
  * not data." if this occurs.
  */
@@ -140,7 +140,7 @@ http_keep_alive (socket_t sock)
 
 /*
  * This function is used to check if the connection in SOCK is a
- * Keep-Alive connection and sends the appropiate HTTP header property.
+ * Keep-Alive connection and sends the appropriate HTTP header property.
  */
 void
 http_check_keepalive (socket_t sock)
@@ -285,7 +285,7 @@ http_parse_property (socket_t sock, char *request, char *end)
       n++;
       request = p+2;
 
-      /* get property entitiy body */
+      /* get property entity body */
       while (INT16 (p) != CRLF && p < end) p++;
       if (p == end || p <= request) break;
       http->property[n] = xmalloc (p-request+1);
@@ -349,7 +349,7 @@ http_process_uri (char *uri)
   char *p;
   char h, l;
 
-  /* Test if there is any occurence of the special character encoding. */
+  /* Test if there is any occurrence of the special character encoding. */
   while ((p = strchr (uri, '%')) != NULL)
     {
       if ((h = *(p+1)) && (l = *(p+2)))
@@ -509,7 +509,7 @@ http_absolute_file (char *file)
   char *dir;
   int have_path = 0;
 
-  /* find any path seperator in the file */
+  /* find any path separator in the file */
   p = file + strlen (file) - 1;
   while (p > file && *p != '/' && *p != '\\') p--;
   if (*p == '/' || *p == '\\')
@@ -533,7 +533,7 @@ http_absolute_file (char *file)
     }
   
   /* 
-   * If there was no path seperator in the filename then just concate
+   * If there was no path separator in the filename then just concate
    * current work directory and filename.
    */
   if (!have_path)

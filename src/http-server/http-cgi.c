@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.23 2000/10/23 21:42:03 ela Exp $
+ * $Id: http-cgi.c,v 1.24 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -280,7 +280,7 @@ http_cgi_write (socket_t sock)
     }
 
   /*
-   * Return a non-zero value if an error occured.
+   * Return a non-zero value if an error occurred.
    */
   return (num_written < 0) ? -1 : 0;
 }
@@ -344,7 +344,7 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
   http_socket_t *http;
   http_config_t *cfg = sock->cfg;
 
-  /* request type indentifiers */
+  /* request type identifiers */
   static char request_type[2][5] = { "POST", "GET" };
 
   /* 
@@ -510,7 +510,7 @@ http_check_cgi (socket_t sock, char *request)
 
 /*
  * Prepare the invocation of a cgi script which means to change to 
- * the refered directory and the creation of a valid environment
+ * the referred directory and the creation of a valid environment
  * block. Return a NULL pointer on errors or a pointer to the full
  * cgi file (including the path). This MUST be freed afterwards.
  */
@@ -706,7 +706,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   /* not a valid file extension */
   else
     {
-      /* find an appropiate system association */
+      /* find an appropriate system association */
       cgiapp = xmalloc (MAX_PATH);
       if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
 	{
@@ -831,7 +831,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	  exit (0);
 	}
 
-      /* set the appropiate user permissions */
+      /* set the appropriate user permissions */
       if (setgid (buf.st_gid) == -1)
 	{
 	  log_printf (LOG_ERROR, "cgi: setgid: %s\n", SYS_ERROR);
@@ -965,7 +965,7 @@ http_post_response (socket_t sock, char *request, int flags)
   if (http_cgi_exec (sock, s2cgi[READ], cgi2s[WRITE], 
 		     file, request, POST_METHOD))
     {
-      /* some error occured here */
+      /* some error occurred here */
       sock->read_socket = default_read;
       sock->write_socket = http_default_write;
       xfree (file);

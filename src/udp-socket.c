@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.7 2000/10/05 09:52:20 ela Exp $
+ * $Id: udp-socket.c,v 1.8 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -47,6 +47,7 @@
 #endif
 
 #include "socket.h"
+#include "alloc.h"
 #include "util.h"
 #include "snprintf.h"
 #include "server.h"
@@ -89,12 +90,15 @@ udp_read_socket (socket_t sock)
 #endif
       sock->last_recv = time (NULL);
       sock->recv_buffer_fill += num_read;
-      sock->remote_port = sender.sin_port;
-      sock->remote_addr = sender.sin_addr.s_addr;
+      if (!(sock->flags & SOCK_FLAG_FIXED))
+	{
+	  sock->remote_port = sender.sin_port;
+	  sock->remote_addr = sender.sin_addr.s_addr;
+	}
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "udp: recvfrom: %s:%u\n",
+      log_printf (LOG_DEBUG, "udp: recvfrom: %s:%u (%d bytes)\n",
 		  util_inet_ntoa (sock->remote_addr),
-		  ntohs (sock->remote_port));
+		  ntohs (sock->remote_port), num_read);
 #endif
       if (sock->check_request)
         sock->check_request (sock);
@@ -194,6 +198,7 @@ udp_check_request (socket_t sock)
       if (sock->handle_request (sock, sock->recv_buffer,
 				sock->recv_buffer_fill))
 	return -1;
+      sock->recv_buffer_fill = 0;
       return 0;
     }
 
@@ -225,6 +230,45 @@ udp_check_request (socket_t sock)
 
   sock->cfg = NULL;
   return 0;
+}
+
+/*
+ * Write the given BUF into the send queue of the udp socket.
+ */
+int
+udp_write (socket_t sock, char *buf, int length)
+{
+  char *buffer;
+  unsigned len;
+  int ret;
+
+  if (sock->flags & SOCK_FLAG_KILLED)
+    return 0;
+
+  buffer = xmalloc (length + sizeof (len) + sizeof (sock->remote_addr) +
+		    sizeof (sock->remote_port));
+
+  /* 
+   * Put the data length, destination address and port in front
+   * of each packet data.
+   */
+  len = sizeof (len);
+  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
+  len += sizeof (sock->remote_addr);
+  memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
+  len += sizeof (sock->remote_port);
+
+  memcpy (&buffer[len], buf, length);
+  len += length;
+  memcpy (buffer, &len, sizeof (len));
+
+  sock->unavailable = 1;
+  if ((ret = sock_write (sock, buffer, len)) == -1)
+    sock->flags |= SOCK_FLAG_KILLED;
+  sock->unavailable = 0;
+
+  xfree (buffer);
+  return ret;
 }
 
 /*
@@ -334,7 +378,7 @@ udp_connect (unsigned long host, unsigned short port)
 
   sock_unique_id (sock);
   sock->sock_desc = sockfd;
-  sock->flags |= SOCK_FLAG_SOCK;
+  sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   sock_enqueue (sock);
   sock_intern_connection_info (sock);
 

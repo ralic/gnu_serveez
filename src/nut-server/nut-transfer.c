@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.19 2000/10/16 18:39:49 ela Exp $
+ * $Id: nut-transfer.c,v 1.20 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -96,7 +96,7 @@
 
 /*
  * Check if a given search pattern matches a filename. Return non-zero 
- * on succes and zero otherwise.
+ * on success and zero otherwise.
  */
 static int
 nut_string_regex (char *text, char *regex)
@@ -154,7 +154,7 @@ nut_string_regex (char *text, char *regex)
           /* next character in pattern found */
           if (*text)
             {
-              /* find the last occurence of this character in the text */
+              /* find the last occurrence of this character in the text */
               p = text + strlen (text);
               while (tolower (*p) != tolower (*text)) 
                 p--;
@@ -186,7 +186,7 @@ nut_save_transfer (socket_t sock)
       /* write as much data as possible */
       num_written = write (sock->file_desc, sock->recv_buffer, fill);
 
-      /* seems like an error occured */
+      /* seems like an error occurred */
       if (num_written < 0)
 	{
 	  log_printf (LOG_ERROR, "nut: write: %s\n", SYS_ERROR);
@@ -261,7 +261,7 @@ nut_check_transfer (socket_t sock)
 			  transfer->original_size, transfer->size);
 	    }
 
-	  /* assign the appropiate gnutella transfer callbacks */
+	  /* assign the appropriate gnutella transfer callbacks */
 	  sock->check_request = nut_save_transfer;
 	  sock->write_socket = NULL;
 	  sock->idle_func = NULL;
@@ -664,7 +664,7 @@ nut_find_database (nut_config_t *cfg, nut_file_t *entry, char *search)
 
 /*
  * This routine gets a gnutella database entry from a given FILE and
- * its appropiate INDEX. If no matching file has been found then return
+ * its appropriate INDEX. If no matching file has been found then return
  * NULL. If FILE is NULL we just search for the the given INDEX.
  */
 nut_file_t *
@@ -958,7 +958,7 @@ nut_file_read (socket_t sock)
                    sock->send_buffer + sock->send_buffer_fill,
                    do_read);
 
-  /* Read error occured. */
+  /* Read error occurred. */
   if (num_read < 0)
     {
       log_printf (LOG_ERROR, "nut: read: %s\n", SYS_ERROR);
@@ -971,7 +971,7 @@ nut_file_read (socket_t sock)
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the appropiate flags. */
+  /* Data has been read or EOF reached, set the appropriate flags. */
   sock->send_buffer_fill += num_read;
   transfer->size -= num_read;
 
@@ -982,7 +982,7 @@ nut_file_read (socket_t sock)
       log_printf (LOG_DEBUG, "nut: file successfully read\n");
 #endif
       /* 
-       * no further read()s from the file descriptor, signalling 
+       * no further read()s from the file descriptor, signaling 
        * the writers there will not be additional data from now on
        */
       sock->read_socket = default_read;
@@ -1035,7 +1035,7 @@ nut_file_write (socket_t sock)
       sock->send_buffer_fill -= num_written;
     }
 
-  /* write error occured */
+  /* write error occurred */
   else if (num_written < 0)
     {
       log_printf (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
@@ -1055,7 +1055,7 @@ nut_file_write (socket_t sock)
     }
 
   /*
-   * Return a non-zero value if an error occured.
+   * Return a non-zero value if an error occurred.
    */
   return (num_written < 0) ? -1 : 0;
 }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.31 2000/10/15 11:46:41 ela Exp $
+ * $Id: server.c,v 1.32 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -501,7 +501,7 @@ static int set_port (char *cfgfile, char *var, char *key,
   /* Second, fill the sockaddr struct from the values we just read. */
   if (newport->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) 
     {
-      /* prepate the local address structure */
+      /* prepare the local address structure */
       newaddr = (struct sockaddr_in*) xpmalloc (sizeof (struct sockaddr_in));
       newport->localaddr = newaddr;
       memset (newaddr, 0, sizeof (struct sockaddr_in));
@@ -714,7 +714,7 @@ server_load_cfg (char *cfgfile)
 }
 
 /*
- * Debug helper funtion to traverse server_definitions.
+ * Debug helper function to traverse server_definitions.
  */
 #if ENABLE_DEBUG
 void
@@ -854,7 +854,7 @@ server_global_init (void)
 }
 
 /*
- * Run the initialisers of all servers, return -1 if some server didn't
+ * Run the initializers of all servers, return -1 if some server didn't
  * think it's a good idea to run...
  */
 int
@@ -945,7 +945,7 @@ server_portcfg_equal (portcfg_t *a, portcfg_t *b)
 }
 
 /*
- * This functions binds a previouly instanciated server to a specified
+ * This functions binds a previously instantiated server to a specified
  * port configuration.
  */
 int
@@ -1020,10 +1020,10 @@ server_start (void)
 	    }
 	}
 
-      /* No appropiate socket structure for this port configuration found. */
+      /* No appropriate socket structure for this port configuration found. */
       if (!sock)
 	{
-	  /* Try creatng a server socket. */
+	  /* Try creating a server socket. */
 	  sock = server_create (server_binding[b].cfg);
 	  if (sock)
 	    {

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.19 2000/10/06 12:34:00 ela Exp $
+ * $Id: http-cache.c,v 1.20 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -54,7 +54,7 @@
 #include "http-core.h"
 #include "http-cache.h"
 
-hash_t *http_cache = NULL;   /* actual cache entriy hash */
+hash_t *http_cache = NULL;   /* actual cache entry hash */
 int http_cache_entries = 0;  /* maximum amount of cache entries */
 
 /*
@@ -106,7 +106,7 @@ http_free_cache (void)
 
 #if ENABLE_DEBUG
 /*
- * Check consitency of the http cache. Remove this function once the 
+ * Check consistency of the http cache. Remove this function once the 
  * server is stable.
  */
 static void
@@ -424,7 +424,7 @@ http_cache_write (socket_t sock)
     }
   
   /*
-   * Return a non-zero value if an error occured.
+   * Return a non-zero value if an error occurred.
    */
   return (num_written < 0) ? -1 : 0;
 }
@@ -463,7 +463,7 @@ http_cache_read (socket_t sock)
 		   sock->send_buffer + sock->send_buffer_fill,
 		   do_read);
   
-  /* Read error occured. */
+  /* Read error occurred. */
   if (num_read < 0)
     {
       log_printf (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
@@ -505,7 +505,7 @@ http_cache_read (socket_t sock)
       return -1;
     }
 
-  /* EOF reached and set the appropiate flags */
+  /* EOF reached and set the appropriate flags */
   if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG

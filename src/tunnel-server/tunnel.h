@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.2 2000/10/12 15:32:03 ela Exp $
+ * $Id: tunnel.h,v 1.3 2000/10/25 07:54:06 ela Exp $
  *
  */
 
@@ -46,6 +46,15 @@ typedef struct
 }
 tnl_config_t;
 
+/* the referrer connection structure */
+typedef struct
+{
+  unsigned long ip;    /* the ip address to send to */
+  unsigned short port; /* port to send to */
+  socket_t sock;       /* socket structure */
+}
+tnl_target_t;
+
 /* tunnel server specific protocol flags */
 #define TNL_FLAG_SRC_TCP  0x0001
 #define TNL_FLAG_SRC_UDP  0x0002
@@ -66,6 +75,7 @@ int tnl_global_finalize (void);
 int tnl_detect_proto (void *cfg, socket_t sock);
 int tnl_connect_socket (void *config, socket_t sock);
 int tnl_check_request_tcp (socket_t sock);
+int tnl_handle_request_udp (socket_t sock, char *packet, int len);
 int tnl_disconnect (socket_t sock);
 
 /*
@@ -74,6 +84,3 @@ int tnl_disconnect (socket_t sock);
 extern server_definition_t tnl_server_definition;
 
 #endif /* __TUNNEL_H__ */
-
-
-
