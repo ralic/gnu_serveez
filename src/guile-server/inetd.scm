@@ -1,6 +1,6 @@
 ;; -*-scheme-*-
 ;;
-;; inetd.scm - replacement for the inetd
+;; inetd.scm - replacement for the Internet ``super-server''
 ;;
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 ;;
@@ -19,25 +19,42 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.1 2001/11/25 23:08:27 raimi Exp $
+;; $Id: inetd.scm,v 1.2 2001/11/27 01:33:34 ela Exp $
 ;;
+
+;; the inetd configuration file
+(define config-file "/etc/inetd.conf")
+
+;; working directory
+(define directory "/tmp")
+
+;; should inetd use fork() and exec() ?
+(define do-fork #t)
+
+;; print some messages if #t
+(define verbose #f)
 
 ;; opens a configuration file, reads each line and uncomments them,
 ;; comments are marked with a leading '#', returns a list of non-empty
 ;; lines
 (define (read-config file)
-  (let* ((f (open-input-file file))
-	 (lines '()))
-    (let loop ((line (read-line f)))
-      (if (not (eof-object? line))
-	  (let ((n (string-index line #\#)))
-	    (if n
-		(set! line (substring line 0 n)))
-	    (if (> (string-length line) 0)
-		(set! lines (append lines `(,line))))
-	    (loop (read-line f)))))
-    (close-input-port f)
-    lines))
+  (catch #t
+	 (lambda ()
+	   (let* ((f (open-input-file file))
+		  (lines '()))
+	     (let loop ((line (read-line f)))
+	       (if (not (eof-object? line))
+		   (let ((n (string-index line #\#)))
+		     (if n (set! line (substring line 0 n)))
+		     (if (> (string-length line) 0)
+			 (set! lines (cons line lines)))
+		     (loop (read-line f)))))
+	     (close-input-port f)
+	     (reverse lines)))
+	 (lambda args
+	   (display (string-append "inetd: unable to parse `"
+				   file "'\n"))
+	   '())))
 
 ;; removes leading white spaces from the given string and returns it
 (define (crop-spaces string)
@@ -66,71 +83,112 @@
 ;; procedure parses this number of tokens and stores the remaining tokens as
 ;; a variable length vector in the last element of the returned vector, 
 ;; otherwise it returns a variable length vector
-(define (string-split string tokens)
-  (let* ((vector (if (number? tokens) (make-vector (1+ tokens)) '())))
+(define (string-split string . tokens)
+  (let* ((vector (if (pair? tokens) (make-vector (1+ (car tokens))) '())))
     (define (next-token string i)
       (if i (substring string 0 i) string))
     (let loop ((n 0))
       (set! string (crop-spaces string))
       (let* ((i (next-space-position string)))
-	(if (number? tokens)
+	(if (pair? tokens)
 	    (vector-set! vector n (next-token string i))
 	    (set! vector (append vector `(,(next-token string i)))))
 	(if i
 	    (set! string (substring string i))
 	    (set! string ""))
-	(if (and i (or (not (number? tokens)) (< n (1- tokens))))
+	(if (and i (or (not (pair? tokens)) (< n (1- (car tokens)))))
 	    (loop (1+ n)))))
-    (if (number? tokens)
-	(vector-set! vector tokens (string-split string #t))
-	(set! vector (list->vector vector)))
+    (if (pair? tokens)
+	(vector-set! vector (car tokens) (string-split string))
+	(set! vector (if (null? vector) #f (list->vector vector))))
     vector))
 
-;; creates a port configuration for Serveez
+;; returns a service with fully qualified port, protocol, service 
+;; name and its aliases if there is such a service, otherwise the 
+;; procedure returns #f
+(define (lookup-service service-line)
+  (catch #t
+	 (lambda ()
+	   (let ((service (getservbyname (vector-ref service-line 0) 
+					 (vector-ref service-line 2))))
+	     service))
+	 (lambda key
+	   (display (string-append "inetd: no such service `"
+				   (vector-ref service-line 0)
+				   "', protocol `"
+				   (vector-ref service-line 2)
+				   "'\n"))
+	   #f)))
+
+;; creates a "protocol-port" text representation from a service vector 
+;; returned by (lookup-service)
+(define (protocol-port-string service)
+  (string-append (vector-ref service 3)
+		 "-"
+		 (number->string (vector-ref service 2))))
+
+;; creates a port configuration for Serveez, returns the name of the new
+;; port or #f on failure
 (define (create-portcfg line)
-  (let* ((service (getservbyname (vector-ref line 0) (vector-ref line 2)))
-	 (port '()) (name ""))
-    (set! port (append port `(,(cons "proto" (vector-ref service 3)))))
-    (set! port (append port `(,(cons "port" (vector-ref service 2)))))
-    (set! name (string-append "prog-port-"
-			      (vector-ref service 3)
-			      "-"
-			      (number->string (vector-ref service 2))))
-    (define-port! name port)
-    name))
+  (let* ((service (lookup-service line))
+	 (port '()) (name "undefined"))
+    (if service
+	(begin
+	  (set! port (cons (cons "proto" (vector-ref service 3)) port))
+	  (set! port (cons (cons "port"  (vector-ref service 2)) port))
+	  (set! name (string-append "prog-port-"
+				    (protocol-port-string service)))
+	  (define-port! name port)
+	  name)
+	#f)))
 
-;; creates a program passthrough server for Serveez
+;; creates a program passthrough server for Serveez, returns the name of
+;; the new server or #f on failure
 (define (create-server line)
-  (let* ((service (getservbyname (vector-ref line 0) (vector-ref line 2)))
-	 (server '()) (name "") (argv '()))
-    (set! server (append server `(,(cons "binary" (vector-ref line 5)))))
-    (set! server (append server `(,(cons "directory" "/tmp"))))
-    (set! server (append server `(,(cons "user" (vector-ref line 4)))))
-    (set! argv (vector->list (vector-ref line 6)))
-    (if (and (> (length argv) 0)
-	     (not (equal? (vector-ref (vector-ref line 6) 0) "")))
-	(set! server (append server `(,(cons "argv" argv)))))
-    (set! server (append server `(,(cons "do-fork" #t))))
-    (set! server (append server `(,(cons "single-threaded"
-					 (equal? (vector-ref line 3)
-						 "wait")))))
-    (set! name (string-append "prog-server-"
-			      (vector-ref service 3)
-			      "-"
-			      (number->string (vector-ref service 2))))
-    (define-server! name server)
-    name))
+  (let* ((service (lookup-service line))
+	 (server '()) (name "undefined"))
+    (if service
+	(begin
+	  (set! server (cons (cons "binary"    (vector-ref line 5)) server))
+	  (set! server (cons (cons "directory" directory) server))
+	  (set! server (cons (cons "user"      (vector-ref line 4)) server))
+	  (set! server (cons (cons "do-fork"   do-fork) server))
+	  (set! server (cons (cons "single-threaded"
+				   (equal? (vector-ref line 3) "wait")) 
+			     server))
+	  (let ((argv (vector-ref line 6)))
+	    (if argv
+		(set! server (cons (cons "argv" (vector->list argv))
+				   server))))
+	  (set! name (string-append "prog-server-"
+				    (protocol-port-string service)))
+	  (define-server! name server)
+	  name)
+	#f)))
 
-;; glues the above port configurations and servers together
+;; glues the above port configurations and servers together:
+;;   this is achieved by splitting the lines of the configuration file
+;;   into tokens.  each inetd line looks like
+;;     (service name) (socket type) (protocol) (wait/nowait[.max]) \
+;;     (user[.group]) (server program) (server program arguments)
+;;   that is why we split this line into 6 tokens with an additional rest 
+;;   token, pass them to the port configuration and server builders and
+;;   finally bind the server to the port.
 (define (create-bindings lines)
-  (for-each (lambda (x)
-	      (let ((service (string-split x 6)))
-		(bind-server! (create-portcfg service)
-			      (create-server service))))
+  (for-each (lambda (line)
+	      (let* ((service (string-split line 6))
+		     (port (create-portcfg service))
+		     (server (create-server service)))
+		(if (and port server)
+		    (begin
+		      (if verbose
+			  (display (string-append "inetd: binding `"
+						  server
+						  "' to `"
+						  port
+						  "'\n")))
+		      (bind-server! port server)))))
 	    lines))
-
-;; the inetd configuration file
-(define config-file "/etc/inetd.conf")
 
 ;; main program entry point
 (define (inetd-main)

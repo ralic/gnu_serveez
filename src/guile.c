@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.50 2001/11/24 00:08:50 ela Exp $
+ * $Id: guile.c,v 1.51 2001/11/27 01:33:34 ela Exp $
  *
  */
 
@@ -1595,6 +1595,11 @@ MAKE_STRING_CHECKER (guile_check_port, svz_portcfg_get (str) != NULL)
 MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
 #undef FUNC_NAME
 
+/* Guile function checking for a valid server type. */
+#define FUNC_NAME "serveez-servertype?"
+MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
+#undef FUNC_NAME
+
 /*
  * Create an accessor function to read and write a C int variable.
  */
@@ -1673,6 +1678,7 @@ guile_init (void)
   /* export checker functions */
   scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
   scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
+  scm_c_define_gsubr ("serveez-servertype?", 1, 0, 0, guile_check_stype);
 
 #if ENABLE_GUILE_SERVER
   guile_server_init ();

@@ -1,3 +1,11 @@
+2001-11-27  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/inetd.scm: Better error checking.
+
+	* guile.c: New Guile procedure: `(serveez-servertype?)'.  
+	Checks whether the given string is a servertype's short 
+	name.
+
 2001-11-25  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/inetd.scm: Inetd replacement script.  Reads a
