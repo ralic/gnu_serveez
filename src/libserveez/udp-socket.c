@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: udp-socket.c,v 1.3 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -353,9 +353,6 @@ udp_connect (unsigned long host, unsigned short port)
   struct sockaddr_in client;
   SOCKET sockfd;
   socket_t sock;
-#ifdef __MINGW32__
-  unsigned long blockMode = 1;
-#endif
 
   /* create a socket for communication with the server */
   if ((sockfd = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET)
@@ -365,22 +362,19 @@ udp_connect (unsigned long host, unsigned short port)
     }
 
   /* make the socket non-blocking */
-#ifdef __MINGW32__
-  if (ioctlsocket (sockfd, FIONBIO, &blockMode) == SOCKET_ERROR)
+  if (svz_fd_nonblock (sockfd) != 0)
     {
-      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
       closesocket (sockfd);
       return NULL;
     }
-#else /* !__MINGW32__ */
-  if (fcntl (sockfd, F_SETFL, O_NONBLOCK) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      closesocket (sockfd);
-      return NULL;
-    }
-#endif /* !__MINGW32__ */
   
+  /* do not inherit this socket */
+  if (svz_fd_cloexec (sockfd) != 0)
+    {
+      closesocket (sockfd);
+      return NULL;
+    }
+
   /* try to connect to the server */
   client.sin_family = AF_INET;
   client.sin_addr.s_addr = host;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.3 2001/02/02 11:26:23 ela Exp $
+ * $Id: server-socket.c,v 1.4 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -313,30 +313,6 @@ server_accept_socket (socket_t server_sock)
       return 0;
     }
 
-#ifndef __MINGW32__
-  /* 
-   * ... SNIP : from the cygwin mail archives 1999/05 ...
-   * The problem is in socket() call on W95 - the socket returned 
-   * is non-inheritable handle (unlike NT and Unixes, where
-   * sockets are inheritable). To fix the problem DuplicateHandle 
-   * call is used to create inheritable handle, and original 
-   * handle is closed.
-   * ... SNAP ...
-   *
-   * Thus here is NO NEED to set the FD_CLOEXEC flag and no
-   * chance anyway.
-   */
-  if ((fcntl (client_socket, F_SETFD, FD_CLOEXEC)) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      if (closesocket (client_socket) < 0)
-	{
-	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
-	}
-      return 0;
-    }
-#endif /* !__MINGW32__ */
-	  
   log_printf (LOG_NOTICE, "TCP:%u: accepting client on socket %d\n", 
 	      ntohs (server_sock->local_port), client_socket);
 	  

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.4 2001/02/17 16:19:19 ela Exp $
+ * $Id: icmp-socket.c,v 1.5 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -741,9 +741,6 @@ icmp_connect (unsigned long host, unsigned short port)
   struct sockaddr_in client;
   SOCKET sockfd;
   socket_t sock;
-#ifdef __MINGW32__
-  unsigned long blockMode = 1;
-#endif
 
   /* create a socket for communication with the server */
   if ((sockfd = socket (AF_INET, SOCK_RAW, IPPROTO_ICMP)) == INVALID_SOCKET)
@@ -753,21 +750,18 @@ icmp_connect (unsigned long host, unsigned short port)
     }
 
   /* make the socket non-blocking */
-#ifdef __MINGW32__
-  if (ioctlsocket (sockfd, FIONBIO, &blockMode) == SOCKET_ERROR)
+  if (svz_fd_nonblock (sockfd) != 0)
     {
-      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
       closesocket (sockfd);
       return NULL;
     }
-#else
-  if (fcntl (sockfd, F_SETFL, O_NONBLOCK) < 0)
+  
+  /* do not inherit this client socket */
+  if (svz_fd_cloexec (sockfd) != 0)
     {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       closesocket (sockfd);
       return NULL;
     }
-#endif
 
   /* try to connect to the server */
   client.sin_family = AF_INET;

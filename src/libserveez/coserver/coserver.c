@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.3 2001/02/04 11:48:52 ela Exp $
+ * $Id: coserver.c,v 1.4 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -736,8 +736,8 @@ coserver_start (int type)
     }
   if (pipe (c2s) < 0)
     {
-      close (s2c[0]);
-      close (s2c[1]);
+      close (s2c[READ]);
+      close (s2c[WRITE]);
       log_printf (LOG_ERROR, "pipe coserver-server: %s\n", SYS_ERROR);
       return NULL;
     }
@@ -745,14 +745,24 @@ coserver_start (int type)
   /* fork() us here */
   if ((pid = fork ()) == 0)
     {
+      int in = s2c[READ], out = c2s[WRITE];
+
       /* close the servers pipe descriptors */
       if (close (s2c[WRITE]) < 0)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
       if (close (c2s[READ]) < 0)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
+      /* reassign the pipes */
+      if (dup2 (in, 0) != 0)
+	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+      if (dup2 (out, 1) != 1)
+	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+      close (in);
+      close (out);
+
       /* start the internal coserver */
-      coserver_loop (coserver, s2c[READ], c2s[WRITE]);
+      coserver_loop (coserver, 0, 1);
       exit (0);
     }
   else if (pid == -1)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.2 2001/02/02 11:26:23 ela Exp $
+ * $Id: socket.c,v 1.3 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -483,21 +483,10 @@ sock_create (int fd)
 {
   socket_t sock;
 
-#ifdef __MINGW32__
-  unsigned long blockMode = 1;
-
-  if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
-    {
-      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
-      return NULL;
-    }
-#else /* !__MINGW32__ */
-  if (fcntl (fd, F_SETFL, O_NONBLOCK) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
-      return NULL;
-    }
-#endif /* !__MINGW32__ */
+  if (svz_fd_nonblock (fd) != 0)
+    return NULL;
+  if (svz_fd_cloexec (fd) != 0)
+    return NULL;
 
   if ((sock = sock_alloc ()) != NULL)
     {

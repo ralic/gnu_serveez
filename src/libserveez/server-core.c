@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.3 2001/02/02 11:26:23 ela Exp $
+ * $Id: server-core.c,v 1.4 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -136,55 +136,56 @@ static int socket_version = 0;
 RETSIGTYPE 
 server_signal_handler (int sig)
 {
-
-#if HAVE_STRSIGNAL
-  log_printf (LOG_WARNING, "signal: %s\n", strsignal (sig));
-#endif
-
-  /* there is no SIGHUP, SIGCHLD and SIGPIPE in Win32 */
-#ifndef __MINGW32__ 
-  if (sig == SIGHUP)
+  switch (sig)
     {
+#ifdef SIGHUP
+    case SIGHUP:
       server_reset_happened = 1;
       signal (SIGHUP, server_signal_handler);
-    }
-  else if (sig == SIGPIPE)
-    {
+      break;
+#endif
+#ifdef SIGPIPE
+    case SIGPIPE:
       server_pipe_broke = 1;
       signal (SIGPIPE, server_signal_handler);
-    }
-  else if (sig == SIGCHLD)
-    {
+      break;
+#endif
+#ifdef SIGCHLD
+    case SIGCHLD:
       server_child_died = wait (NULL);
       signal (SIGCHLD, server_signal_handler);
-    }
-  else
-#endif /* not __MINGW32__ */
-
-#ifdef __MINGW32__
-  if (sig == SIGTERM || sig == SIGINT || sig == SIGBREAK)
-#else
-  if (sig == SIGTERM || sig == SIGINT)
+      break;
 #endif
-    {
+#ifdef SIGBREAK
+    case SIGBREAK:
       /*
        * reset signal handlers to the default, so the server
        * can get killed on second try
        */
       server_nuke_happened = 1;
-      signal (SIGTERM, SIG_DFL);
-      signal (SIGINT, SIG_DFL);
-
-#ifdef __MINGW32__
       signal (SIGBREAK, SIG_DFL);
+      break;
 #endif
-    }
-#if ENABLE_DEBUG
-  else
-    {
+#ifdef SIGTERM
+    case SIGTERM:
+      server_nuke_happened = 1;
+      signal (SIGTERM, SIG_DFL);
+      break;
+#endif
+#ifdef SIGINT
+    case SIGINT:
+      server_nuke_happened = 1;
+      signal (SIGINT, SIG_DFL);
+      break;
+#endif
+    default:
       log_printf (LOG_DEBUG, "uncaught signal %d\n", sig);
+      break;
     }
-#endif /* ENABLE_DEBUG */
+
+#if HAVE_STRSIGNAL
+  log_printf (LOG_WARNING, "signal: %s\n", strsignal (sig));
+#endif
 
 #ifdef NONVOID_SIGNAL
   return 0;
@@ -806,6 +807,71 @@ server_loop (void)
 
   /* Reset signaling. */
   server_signal_dn ();
+
+  return 0;
+}
+
+/*
+ * Set the given file descriptor to nonblocking I/O. This heavily differs
+ * in Win32 and Unix. The given file descriptor @var{fd} must be a socket
+ * descriptor under Win32, otherwise the function fails. Return zero on
+ * success, otherwise non-zero.
+ */
+int
+svz_fd_nonblock (int fd)
+{
+#ifdef __MINGW32__
+  unsigned long blockMode = 1;
+
+  if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
+    {
+      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      return -1;
+    }
+#else /* not __MINGW32__ */
+  int flag;
+
+  flag = fcntl (fd, F_GETFL);
+  if (fcntl (fd, F_SETFL, flag | O_NONBLOCK) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+#endif /* not __MINGW32__ */
+
+  return 0;
+}
+
+/*
+ * Set the close-on-exec flag of the given file descriptor @var{fd} and
+ * return zero on success. Otherwise return non-zero.
+ */
+int
+svz_fd_cloexec (int fd)
+{
+#ifndef __MINGW32__
+  /* 
+   * ... SNIP : from the cygwin mail archives 1999/05 ...
+   * The problem is in socket() call on W95 - the socket returned 
+   * is non-inheritable handle (unlike NT and Unixes, where
+   * sockets are inheritable). To fix the problem DuplicateHandle 
+   * call is used to create inheritable handle, and original 
+   * handle is closed.
+   * ... SNAP ...
+   *
+   * Thus here is NO NEED to set the FD_CLOEXEC flag and no
+   * chance anyway.
+   */
+
+  int flag;
+
+  flag = fcntl (fd, F_GETFD);
+  if ((fcntl (fd, F_SETFD, flag | FD_CLOEXEC)) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+#endif /* !__MINGW32__ */
 
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.33 2001/02/02 11:26:23 ela Exp $
+ * $Id: http-cgi.c,v 1.34 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -822,6 +822,9 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	  exit (0);
 	}
 
+      /* also output the standard error to the pipe */
+      /* dup2 (out, 2); */
+
       if (type == POST_METHOD)
 	{
 	  /* make the input blocking */
@@ -838,6 +841,16 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	      exit (0);
 	    }
 	}
+      else
+	{
+	  close (0);
+	}
+
+      /* close the old file descriptors */
+      if (close (in) < 0)
+	log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+      if (close (out) < 0)
+	log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 
       /* get the cgi scripts permissions */
       if (stat (cgifile, &buf) == -1)
@@ -981,6 +994,8 @@ http_post_response (socket_t sock, char *request, int flags)
   /* prepare everything for the cgi pipe handling */
   sock->pipe_desc[WRITE] = s2cgi[WRITE];
   sock->pipe_desc[READ] = cgi2s[READ];
+  svz_fd_cloexec (s2cgi[WRITE]);
+  svz_fd_cloexec (cgi2s[READ]);
 
   /* execute the cgi script in FILE */
   if (http_cgi_exec (sock, s2cgi[READ], cgi2s[WRITE], 

@@ -1,3 +1,12 @@
+2001-02-28  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+
+	* libserveez/server-core.c (svz_fd_cloexec): This and
+	the svz_fd_nonblock() function can be used to work on
+	file descriptors.
+
+	* http-server/http-proto.c (http_get_response): Closing
+	receiving end of a CGI pipe which got mistakenly inherited.
+
 2001-02-18  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/util.c (util_inet_aton): This function is a

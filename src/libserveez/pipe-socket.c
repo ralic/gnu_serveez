@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.3 2001/02/02 11:26:23 ela Exp $
+ * $Id: pipe-socket.c,v 1.4 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -377,28 +377,26 @@ pipe_write_socket (socket_t sock)
 }
 
 /*
- * Create a socket structure containing both the pipe descriptors RECV_FD 
- * and SEND_FD. Return NULL on errors.
+ * Create a socket structure containing both the pipe descriptors 
+ * @var{recv_fd} and @var{send_fd}. Return NULL on errors.
  */
 socket_t
 pipe_create (HANDLE recv_fd, HANDLE send_fd)
 {
   socket_t sock;
 
-#ifndef __MINGW32__
-  /* Try to set to non-blocking I/O. */
-  if (fcntl (recv_fd, F_SETFL, O_NONBLOCK) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
-      return NULL;
-    }
 
-  if (fcntl (send_fd, F_SETFL, O_NONBLOCK) < 0)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
-      return NULL;
-    }
-#endif /* not __MINGW32__ */
+  /* Try to set to non-blocking I/O. */
+  if (svz_fd_nonblock (recv_fd) != 0)
+    return NULL;
+  if (svz_fd_nonblock (send_fd) != 0)
+    return NULL;
+
+  /* Do not inherit these pipes */
+  if (svz_fd_cloexec (recv_fd) != 0)
+    return NULL;
+  if (svz_fd_cloexec (send_fd) != 0)
+    return NULL;
 
   if ((sock = sock_alloc ()) != NULL)
     {
@@ -419,6 +417,7 @@ int
 pipe_create_pair (HANDLE pipe_desc[2])
 {
 #ifdef __MINGW32__
+
   SECURITY_ATTRIBUTES sa = { sizeof (SECURITY_ATTRIBUTES), 
 			     NULL,    /* NULL security descriptor */
 			     TRUE };  /* Inherit handles */
@@ -428,6 +427,7 @@ pipe_create_pair (HANDLE pipe_desc[2])
       log_printf (LOG_ERROR, "CreatePipe: %s\n", SYS_ERROR);
       return -1;
     }
+
 #else /* not __MINGW32__ */
 
   if (pipe (pipe_desc) == -1)
@@ -436,23 +436,18 @@ pipe_create_pair (HANDLE pipe_desc[2])
       return -1;
     }
 
-  /* Make both ends of the pipe non blocking. */
-
   /* 
    * FIXME: Maybe cgi pipes MUST be blocking for *very* fast
    *        outputs because thay cannot handle the EAGAIN error.
    */
 
-  if (fcntl (pipe_desc[READ], F_SETFL, O_NONBLOCK) == -1)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
-      return -1;
-    }
-  if (fcntl (pipe_desc[WRITE], F_SETFL, O_NONBLOCK) == -1)
-    {
-      log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
-      return -1;
-    }
+  /* Make both ends of the pipe non-blocking. */
+  if (svz_fd_nonblock (pipe_desc[READ]) != 0)
+    return -1;
+
+  if (svz_fd_nonblock (pipe_desc[WRITE]) != 0)
+    return -1;
+
 #endif /* not __MINGW32__ */
 
   return 0;
@@ -524,9 +519,8 @@ pipe_connect (char *inpipe, char *outpipe)
     }
 
   /* set send pipe to non-blocking mode */
-  if (fcntl (send_pipe, F_SETFL, O_NONBLOCK) < 0)
+  if (svz_fd_nonblock (send_pipe) != 0)
     {
-      log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
       close (recv_pipe);
       close (send_pipe);
       sock_free (sock);
@@ -659,7 +653,8 @@ pipe_listener (socket_t server_sock)
   umask (mask);
 
   /* Try opening the server's read pipe. Should always be possible. */
-  if ((recv_pipe = open (server_sock->recv_pipe, O_NONBLOCK|O_RDONLY)) == -1)
+  if ((recv_pipe = open (server_sock->recv_pipe, 
+			 O_NONBLOCK | O_RDONLY)) == -1)
     {
       log_printf (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
       return -1;
@@ -672,6 +667,10 @@ pipe_listener (socket_t server_sock)
       close (recv_pipe);
       return -1;
     }
+
+  /* Do not inherit this pipe. */
+  svz_fd_cloexec (recv_pipe);
+
   server_sock->pipe_desc[READ] = recv_pipe;
   server_sock->flags |= SOCK_FLAG_RECV_PIPE;
 

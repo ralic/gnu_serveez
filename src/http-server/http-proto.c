@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.55 2001/02/02 11:26:23 ela Exp $
+ * $Id: http-proto.c,v 1.56 2001/02/28 21:51:19 raimi Exp $
  *
  */
 
@@ -252,6 +252,7 @@ http_init (server_t *server)
 	  log_printf (LOG_ERROR, "http: cannot open access logfile %s\n",
 		      cfg->logfile);
 	}
+      svz_fd_cloexec (fileno (cfg->log));
     }
   
   /* create content type hash */
@@ -1143,6 +1144,8 @@ http_get_response (socket_t sock, char *request, int flags)
       sock->flags |= SOCK_FLAG_RECV_PIPE;
       sock->read_socket = http_cgi_read;
       sock->pipe_desc[READ] = cgi2s[READ];
+      svz_fd_cloexec (cgi2s[READ]);
+
       if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE], 
 			 cgifile, request, GET_METHOD))
 	{
