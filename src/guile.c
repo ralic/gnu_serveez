@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.62 2002/05/06 20:36:38 ela Exp $
+ * $Id: guile.c,v 1.63 2002/05/07 17:11:58 ela Exp $
  *
  */
 
@@ -1754,7 +1754,7 @@ guile_eval_file (void *data)
 
   /* Parse configuration from standard input stream. */
 #ifdef __MINGW32__
-  error = svz_fstat (GetStdHandle (STD_INPUT_HANDLE), &buf);
+  error = svz_fstat ((int) GetStdHandle (STD_INPUT_HANDLE), &buf);
 #else
   error = svz_fstat (fileno (stdin), &buf);
 #endif

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.19 2001/12/13 18:00:01 ela Exp $
+ * $Id: util.h,v 1.20 2002/05/07 17:11:58 ela Exp $
  *
  */
 
@@ -185,9 +185,13 @@ __END_DECLS
  * but not within the native Win32 headers.
  */
 #ifndef S_ISDIR
-# define S_ISDIR(Mode) ((Mode) & S_IFDIR)
-# define S_ISCHR(Mode) ((Mode) & S_IFCHR)
-# define S_ISREG(Mode) ((Mode) & S_IFREG)
+# ifndef S_IFBLK
+#  define S_IFBLK 0x3000
+# endif
+# define S_ISDIR(Mode) (((Mode) & S_IFMT) == S_IFDIR)
+# define S_ISCHR(Mode) (((Mode) & S_IFMT) == S_IFCHR)
+# define S_ISREG(Mode) (((Mode) & S_IFMT) == S_IFREG)
+# define S_ISBLK(Mode) (((Mode) & S_IFMT) == S_IFBLK)
 #endif /* not S_ISDIR */
 
 #endif /* __MINGW32__ */
