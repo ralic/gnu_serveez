@@ -1,3 +1,8 @@
+2001-01-13  [ Ela ]  <ela@lkcc.org>
+
+	* alist.c (alist_unset): Implemented this function which
+	is the opposite of alist_set().
+
 2001-01-08  [ Ela ]  <ela@lkcc.org>
 
 	* server-socket.c (server_accept_pipe): Calling here the

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.3 2000/11/22 18:58:22 ela Exp $
+ * $Id: hash-test.c,v 1.4 2001/01/13 18:12:49 ela Exp $
  *
  */
 
@@ -130,7 +130,8 @@ main (int argc, char **argv)
       hash_xfree (keys);
       hash_xfree (values);
     }
-  else error++;
+  else
+    error++;
   if (hash_size (hash) != REPEAT)
     error++;
   test (error);
