@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.48 2001/11/19 21:13:01 ela Exp $
+ * $Id: guile.c,v 1.49 2001/11/23 13:18:38 ela Exp $
  *
  */
 
@@ -489,7 +489,8 @@ guile_to_strarray (SCM list, char *func)
     }
 
   /* Iterate over the list and build up the array of strings. */
-  array = svz_array_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)));
+  array = svz_array_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)), 
+			    svz_free);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
       if ((str = guile_to_string (SCM_CAR (list))) == NULL)
@@ -532,7 +533,7 @@ guile_to_intarray (SCM list, char *func)
     }
 
   /* Iterate over the list and build up the array of strings. */
-  array = svz_array_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)));
+  array = svz_array_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)), NULL);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
       if (guile_to_integer (SCM_CAR (list), &n) != 0)
@@ -733,7 +734,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
 	}
 
       /* Iterate over the list and build up the array of integers. */
-      array = svz_array_create (0);
+      array = svz_array_create (0, NULL);
       for (i = 0; SCM_PAIRP (hvalue); hvalue = SCM_CDR (hvalue), i++)
 	{
 	  if (guile_to_integer (SCM_CAR (hvalue), &val))
@@ -822,7 +823,7 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
 	}
 
       /* Iterate over the list and build up the array of strings. */
-      array = svz_array_create (0);
+      array = svz_array_create (0, svz_free);
       for (i = 0; SCM_PAIRP (hvalue); hvalue = SCM_CDR (hvalue), i++)
 	{
 	  if (NULL == (str = guile_to_string (SCM_CAR (hvalue))))
@@ -839,8 +840,6 @@ optionhash_cb_strarray (char *server, void *arg, char *key,
       /* Free the string array so far. */
       if (err)
 	{
-	  svz_array_foreach (array, str, i)
-	    svz_free (str);
 	  svz_array_destroy (array);
 	  return SVZ_ITEM_FAILED;
 	}
@@ -1507,16 +1506,11 @@ guile_access_interfaces (SCM args)
 
   /* First create a array of strings containing the ip addresses of each
      local network interface and put them into a guile list. */
-  array = svz_array_create (0);
+  array = svz_array_create (0, svz_free);
   svz_interface_foreach (ifc, n)
     svz_array_add (array, svz_strdup (svz_inet_ntoa (ifc->ipaddr)));
   list = guile_strarray_to_guile (array);
-  if (array)
-    {
-      svz_array_foreach (array, str, n)
-	svz_free (str);
-      svz_array_destroy (array);
-    }
+  svz_array_destroy (array);
 
   /* Is there an argument given to the guile function ? */
   if (!SCM_UNBNDP (args))
@@ -1536,8 +1530,6 @@ guile_access_interfaces (SCM args)
 	      sprintf (description, "guile interface %d", n);
 	      svz_interface_add (n, description, addr.sin_addr.s_addr);
 	    }
-	  svz_array_foreach (array, str, n)
-	    svz_free (str);
 	  svz_array_destroy (array);
 	}
     }
@@ -1565,12 +1557,7 @@ guile_access_loadpath (SCM args)
 
   /* Create a guile list containing each search path. */
   list = guile_strarray_to_guile (paths);
-  if (paths)
-    {
-      svz_array_foreach (paths, str, n)
-	svz_free (str);
-      svz_array_destroy (paths);
-    }
+  svz_array_destroy (paths);
   
   /* Set the load path if argument is given. */
   if (!SCM_UNBNDP (args))

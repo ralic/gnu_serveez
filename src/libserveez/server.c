@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.30 2001/11/16 13:06:06 ela Exp $
+ * $Id: server.c,v 1.31 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -94,7 +94,7 @@ svz_servertype_add (svz_servertype_t *server)
 
   /* Add this definition to the registered servers. */
   if (svz_servertypes == NULL)
-    if ((svz_servertypes = svz_array_create (1)) == NULL)
+    if ((svz_servertypes = svz_array_create (1, NULL)) == NULL)
       return;
   svz_array_add (svz_servertypes, server);
 }
@@ -506,12 +506,12 @@ svz_array_t *
 svz_config_intarray_create (int *intarray)
 {
   int i;
-  svz_array_t *array = svz_array_create (1);
+  svz_array_t *array = svz_array_create (1, NULL);
 
   if (intarray)
     {
       for (i = 0; i < intarray[0]; i++)
-	svz_array_add (array, (void *) ((long) intarray[i + 1]));
+	svz_array_add (array, SVZ_NUM2PTR (intarray[i + 1]));
     }
   return array;
 }
@@ -537,15 +537,11 @@ svz_config_intarray_destroy (svz_array_t *intarray)
 svz_array_t *
 svz_config_intarray_dup (svz_array_t *intarray)
 {
-  int i;
-  void *value;
   svz_array_t *array = NULL;
   
   if (intarray)
     {
-      array = svz_array_create (svz_array_size (intarray));
-      svz_array_foreach (intarray, value, i)
-	svz_array_add (array, value);
+      array = svz_array_dup (intarray);
     }
   return array;
 }
@@ -558,7 +554,7 @@ svz_array_t *
 svz_config_strarray_create (char **strarray)
 {
   int i;
-  svz_array_t *array = svz_array_create (1);
+  svz_array_t *array = svz_array_create (1, svz_free);
 
   if (strarray)
     {
@@ -574,13 +570,8 @@ svz_config_strarray_create (char **strarray)
 void
 svz_config_strarray_destroy (svz_array_t *strarray)
 {
-  int i;
-  char *string;
-
   if (strarray)
     {
-      svz_array_foreach (strarray, string, i)
-	svz_free (string);
       svz_array_destroy (strarray);
     }
 }
@@ -592,15 +583,11 @@ svz_config_strarray_destroy (svz_array_t *strarray)
 svz_array_t *
 svz_config_strarray_dup (svz_array_t *strarray)
 {
-  int i;
-  char *value;
   svz_array_t *array = NULL;
   
   if (strarray)
     {
-      array = svz_array_create (svz_array_size (strarray));
-      svz_array_foreach (strarray, value, i)
-	svz_array_add (array, svz_strdup (value));
+      array = svz_array_strdup (strarray);
     }
   return array;
 }

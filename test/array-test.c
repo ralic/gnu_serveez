@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array-test.c,v 1.7 2001/06/16 15:02:46 ela Exp $
+ * $Id: array-test.c,v 1.8 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -64,7 +64,7 @@ main (int argc, char **argv)
   /* array creation */
   error = 0;
   test_print ("    create: ");
-  if ((array = svz_array_create (0)) == NULL)
+  if ((array = svz_array_create (0, NULL)) == NULL)
     error++;
   if (svz_array_size (array) != 0)
     error++;
@@ -303,7 +303,6 @@ main (int argc, char **argv)
     {
       if (strcmp (value, svz_itoa (i)))
 	error++;
-      svz_free (value);
       svz_free (svz_array_get (array, i));
     }
   svz_array_destroy (dup);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.23 2001/09/27 15:47:36 ela Exp $
+ * $Id: portcfg.c,v 1.24 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -212,7 +212,7 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
 svz_array_t *
 svz_portcfg_expand (svz_portcfg_t *this)
 {
-  svz_array_t *ports = svz_array_create (1);
+  svz_array_t *ports = svz_array_create (1, NULL);
   svz_portcfg_t *port;
   struct sockaddr_in *addr;
   int n;
@@ -289,18 +289,8 @@ svz_portcfg_dup (svz_portcfg_t *port)
   copy->accepted = NULL;
 
   /* Make a copy of the "deny" and "allow" access lists. */
-  if (port->allow)
-    {
-      copy->allow = svz_array_create (svz_array_size (port->allow));
-      svz_array_foreach (port->allow, str, n)
-	svz_array_add (copy->allow, svz_strdup (str));
-    }
-  if (port->deny)
-    {
-      copy->deny = svz_array_create (svz_array_size (port->deny));
-      svz_array_foreach (port->deny, str, n)
-	svz_array_add (copy->deny, svz_strdup (str));
-    }
+  copy->allow = svz_array_strdup (port->allow);
+  copy->deny = svz_array_strdup (port->deny);
 
   return copy;
 }
@@ -367,20 +357,13 @@ svz_portcfg_destroy (svz_portcfg_t *port)
 void
 svz_portcfg_destroy_access (svz_portcfg_t *port)
 {
-  char *ip;
-  int n;
-
   if (port->deny)
     {
-      svz_array_foreach (port->deny, ip, n)
-	svz_free (ip);
       svz_array_destroy (port->deny);
       port->deny = NULL;
     }
   if (port->allow)
     {
-      svz_array_foreach (port->allow, ip, n)
-	svz_free (ip);
       svz_array_destroy (port->allow);
       port->allow = NULL;
     }  

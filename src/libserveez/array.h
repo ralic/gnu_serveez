@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.12 2001/11/21 14:15:45 raimi Exp $
+ * $Id: array.h,v 1.13 2001/11/23 13:18:38 ela Exp $
  *
  */
 
@@ -27,18 +27,21 @@
 #define __ARRAY_H__ 1
 
 #include "libserveez/defines.h"
+#include "libserveez/alloc.h"
 
 typedef struct svz_array
 {
   unsigned long size;
   unsigned long capacity;
+  svz_free_func_t clear;
   void **data;
 }
 svz_array_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_array_t * svz_array_create __P ((unsigned long));
+SERVEEZ_API svz_array_t * svz_array_create __P ((unsigned long, 
+						 svz_free_func_t));
 SERVEEZ_API void svz_array_clear __P ((svz_array_t *));
 SERVEEZ_API void svz_array_destroy __P ((svz_array_t *));
 SERVEEZ_API void *svz_array_get __P ((svz_array_t *, unsigned long));

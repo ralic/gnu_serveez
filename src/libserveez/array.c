@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.12 2001/11/21 21:37:42 ela Exp $
+ * $Id: array.c,v 1.13 2001/11/23 13:18:38 ela Exp $
  *
  */
 
@@ -39,10 +39,16 @@
 
 /*
  * Create a new array with the initial capacity @var{capacity} and return
- * a pointer to it. If @var{capacity} is zero it defaults to some value.
+ * a pointer to it. If @var{capacity} is zero it defaults to some value. The
+ * @var{clear} argument allows you to release dynamic allocated memory when
+ * calling @code{svz_array_clear()} and @code{svz_array_destroy()}. If the
+ * array contains data allocated by @code{svz_malloc()} you need to set
+ * @var{clear} to @code{svz_free()}. For structured data you can pass a user
+ * defined routine which recurses into the structure. If the array contains
+ * data which should not be released you must set @var{clear} to @code{NULL}.
  */
 svz_array_t *
-svz_array_create (unsigned long capacity)
+svz_array_create (unsigned long capacity, svz_free_func_t clear)
 {
   svz_array_t *array;
 
@@ -52,24 +58,33 @@ svz_array_create (unsigned long capacity)
   memset (array, 0, sizeof (svz_array_t));
   array->data = svz_malloc (sizeof (void *) * capacity);
   array->capacity = capacity;
+  array->clear = clear;
   return array;
 }
 
 /*
  * Delete all values within the array @var{array} and set its size to zero.
  * The array @var{array} itself keeps valid. Do not perform any operation
- * if @var{array} is @code{NULL}.
+ * if @var{array} is @code{NULL}. If you passed a @var{clear} function to
+ * @code{svz_array_create()} the routine calls this function passing each
+ * element of @var{array} to it.
  */
 void
 svz_array_clear (svz_array_t *array)
 {
-  if (array && array->data)
+  if (array == NULL || array->data == NULL)
+    return;
+
+  if (array->clear != NULL)
     {
-      svz_free (array->data);
-      array->data = NULL;
-      array->size = 0;
-      array->capacity = 0;
+      unsigned long n;
+      for (n = 0; n < array->size; n++)
+	array->clear (array->data[n]);
     }
+  svz_free (array->data);
+  array->data = NULL;
+  array->size = 0;
+  array->capacity = 0;
 }
 
 /*
@@ -79,8 +94,11 @@ svz_array_clear (svz_array_t *array)
 void
 svz_array_destroy (svz_array_t *array)
 {
-  svz_array_clear (array);
-  svz_free (array);
+  if (array)
+    {
+      svz_array_clear (array);
+      svz_free (array);
+    }
 }
 
 /*
@@ -253,7 +271,7 @@ svz_array_dup (svz_array_t *array)
 
   if (array == NULL)
     return NULL;
-  dup = svz_array_create (array->size);
+  dup = svz_array_create (array->size, array->clear);
   dup->size = array->size;
   if (array->size)
     memcpy (dup->data, array->data, array->size * sizeof (void *));
@@ -273,7 +291,7 @@ svz_array_strdup (svz_array_t *array)
 
   if (array == NULL)
     return NULL;
-  dup = svz_array_create (array->size);
+  dup = svz_array_create (array->size, svz_free);
   dup->size = array->size;
   for (n = 0; n < array->size; n++)
     dup->data[n] = svz_strdup (array->data[n]);

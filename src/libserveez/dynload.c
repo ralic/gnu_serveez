@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.18 2001/10/03 14:42:43 ela Exp $
+ * $Id: dynload.c,v 1.19 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -183,7 +183,6 @@ svz_dynload_path_set (svz_array_t *paths)
       strcat (env, str);
       env[len - 2] = DYNLOAD_PATH_SEPERATOR;
       env[len - 1] = '\0';
-      svz_free (str);
     }
   env[len - 2] = '\0';
   svz_array_destroy (paths);
@@ -204,7 +203,7 @@ svz_dynload_path_set (svz_array_t *paths)
 svz_array_t *
 svz_dynload_path_get (void)
 {
-  svz_array_t *paths = svz_array_create (1);
+  svz_array_t *paths = svz_array_create (1, svz_free);
   char *path, *p, *start, *val;
   int len, n;
 
@@ -270,8 +269,6 @@ dyn_load_library (char *file)
       svz_array_foreach (paths, path, n)
 	if ((handle = dyn_get_library (path, file)) != NULL)
 	  break;
-      svz_array_foreach (paths, path, n)
-	svz_free (path);
       svz_array_destroy (paths);
     }
 

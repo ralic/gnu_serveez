@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.4 2001/11/22 17:17:51 ela Exp $
+ * $Id: prog-server.c,v 1.5 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -176,7 +176,7 @@ prog_init (svz_server_t *server)
   /* Create default argument array. */
   if (cfg->argv == NULL)
     {
-      cfg->argv = svz_array_create (1);
+      cfg->argv = svz_array_create (1, svz_free);
       svz_array_add (cfg->argv, NULL);
     }
   return 0;

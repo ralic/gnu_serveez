@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.22 2001/10/07 17:10:28 ela Exp $
+ * $Id: coserver.c,v 1.23 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -744,7 +744,7 @@ svz_coserver_start (int type)
   coserver->busy = 0;
 
   if (svz_coservers == NULL)
-    svz_coservers = svz_array_create (MAX_COSERVER_TYPES);
+    svz_coservers = svz_array_create (MAX_COSERVER_TYPES, NULL);
   svz_array_add (svz_coservers, coserver);
 
   /* fill in the actual coserver callback */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.7 2001/10/18 07:53:06 ela Exp $
+ * $Id: codec.c,v 1.8 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -170,7 +170,7 @@ svz_codec_register (svz_codec_t *codec)
 
   /* Add this codec to the list of known codecs. */
   if (svz_codecs == NULL)
-    svz_codecs = svz_array_create (2);
+    svz_codecs = svz_array_create (2, NULL);
   svz_array_add (svz_codecs, codec);
   svz_log (LOG_NOTICE, "registered `%s' %s\n", codec->description,
 	   SVZ_CODEC_TYPE_TEXT (codec));

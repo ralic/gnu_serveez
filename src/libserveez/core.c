@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.24 2001/11/22 17:17:51 ela Exp $
+ * $Id: core.c,v 1.25 2001/11/23 13:18:38 ela Exp $
  *
  */
 
@@ -627,7 +627,7 @@ static void
 svz_file_add (int fd)
 {
   if (svz_files == NULL)
-    svz_files = svz_array_create (1);
+    svz_files = svz_array_create (1, NULL);
   svz_array_add (svz_files, SVZ_NUM2PTR (fd));
 }
 

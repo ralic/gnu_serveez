@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.12 2001/11/22 23:27:41 ela Exp $
+ * $Id: binding.c,v 1.13 2001/11/23 13:18:38 ela Exp $
  *
  */
 
@@ -109,7 +109,7 @@ svz_server_bindings (svz_server_t *server)
 svz_array_t *
 svz_server_portcfg (svz_server_t *server)
 {
-  svz_array_t *port = svz_array_create (1);
+  svz_array_t *port = svz_array_create (1, NULL);
   svz_socket_t *sock;
 
   svz_sock_foreach (sock)
@@ -137,7 +137,7 @@ svz_server_portcfg (svz_server_t *server)
 svz_array_t *
 svz_server_listener (svz_server_t *server)
 {
-  svz_array_t *listener = svz_array_create (1);
+  svz_array_t *listener = svz_array_create (1, NULL);
   svz_socket_t *sock;
 
   svz_sock_foreach (sock)
@@ -235,7 +235,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 	       */
 	      svz_sock_enqueue (sock);
 	      sock->port = copy;
-	      sock->data = svz_array_create (1);
+	      sock->data = svz_array_create (1, NULL);
 	      svz_array_add (sock->data, server);
 	    }
 	  /* Could not create this port configuration listener. */

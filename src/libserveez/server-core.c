@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.30 2001/09/29 01:05:02 ela Exp $
+ * $Id: server-core.c,v 1.31 2001/11/23 13:18:39 ela Exp $
  *
  */
 
@@ -296,7 +296,7 @@ svz_strsignal_init (void)
   if (svz_signal_strings != NULL)
     return;
 
-  svz_signal_strings = svz_array_create (SVZ_NUMBER_OF_SIGNALS);
+  svz_signal_strings = svz_array_create (SVZ_NUMBER_OF_SIGNALS, svz_free);
   for (i = 0; i < SVZ_NUMBER_OF_SIGNALS; i++)
     {
 #if HAVE_STRSIGNAL
@@ -327,11 +327,6 @@ svz_strsignal_init (void)
 void
 svz_strsignal_destroy (void)
 {
-  int i;
-  char *value;
-
-  svz_array_foreach (svz_signal_strings, value, i)
-    svz_free (value);
   svz_array_destroy (svz_signal_strings);
   svz_signal_strings = NULL;
 }
