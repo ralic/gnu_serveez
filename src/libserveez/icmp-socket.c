@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.16 2001/08/01 10:16:22 ela Exp $
+ * $Id: icmp-socket.c,v 1.17 2001/09/19 09:49:18 ela Exp $
  *
  */
 
@@ -464,6 +464,10 @@ svz_icmp_read_socket (svz_socket_t *sock)
 	  memcpy (sock->recv_buffer + sock->recv_buffer_fill,
 		  svz_icmp_buffer + trunc, num_read);
 	  sock->recv_buffer_fill += num_read;
+
+	  /* Check access lists. */
+	  if (svz_sock_check_access (sock, sock) < 0)
+	    return 0;
 
 	  if (sock->check_request)
 	    sock->check_request (sock);

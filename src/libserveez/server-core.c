@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.28 2001/09/11 15:05:48 ela Exp $
+ * $Id: server-core.c,v 1.29 2001/09/19 09:49:19 ela Exp $
  *
  */
 
@@ -668,10 +668,18 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
 int
 svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 {
-  svz_portcfg_t *port = parent->port;
+  svz_portcfg_t *port;
   char *ip;
   int n, ret;
-  char *remote = svz_inet_ntoa (child->remote_addr);
+  char *remote;
+
+  /* Check arguments and return if this function cannot work. */
+  if (parent == NULL || child == NULL || parent->port == NULL)
+    return 0;
+
+  /* Get port configuration and remote address. */
+  port = parent->port;
+  remote = svz_inet_ntoa (child->remote_addr);
 
   /* Check the deny IP addresses. */
   if (port->deny)

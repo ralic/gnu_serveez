@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.12 2001/07/06 22:49:07 ela Exp $
+ * $Id: udp-socket.c,v 1.13 2001/09/19 09:49:19 ela Exp $
  *
  */
 
@@ -115,6 +115,10 @@ svz_udp_read_socket (svz_socket_t *sock)
 	       svz_inet_ntoa (sock->remote_addr),
 	       ntohs (sock->remote_port), num_read);
 #endif /* ENABLE_DEBUG */
+
+      /* Check access lists. */
+      if (svz_sock_check_access (sock, sock) < 0)
+	return 0;
 
       /* Handle packet. */
       if (sock->check_request)
