@@ -1,3 +1,8 @@
+2000-06-17  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-dirlist.c (http_dirlist): Fixed the "Too many 
+	open files" bug for *many* http dirlists (missing closedir()).
+
 2000-06-16  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.c (http_get_response): POST and GET method
