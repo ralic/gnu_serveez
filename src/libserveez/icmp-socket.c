@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.13 2001/06/08 15:37:37 ela Exp $
+ * $Id: icmp-socket.c,v 1.14 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -597,7 +597,7 @@ svz_icmp_send_control (svz_socket_t *sock, byte type)
 /*
  * Send a given buffer @var{buf} with length @var{length} via this ICMP 
  * socket. If the length argument supersedes the maximum ICMP message
- * size the buffer is splitted into smaller packets.
+ * size the buffer is split into smaller packets.
  */
 int
 svz_icmp_write (svz_socket_t *sock, char *buf, int length)

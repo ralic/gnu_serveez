@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.12 2001/06/27 20:38:36 ela Exp $
+ * $Id: dynload.c,v 1.13 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -116,7 +116,7 @@ dyn_get_library (char *path, char *file)
   char *lib;
 
   lib = svz_malloc ((path ? strlen (path) + 1 : 0) + strlen (file) + 1);
-  sprintf (lib , "%s%s%s", path ? path : "", path ? "/" : "", file);
+  sprintf (lib, "%s%s%s", path ? path : "", path ? "/" : "", file);
 
 #if HAVE_DLOPEN
   handle = dlopen (lib, RTLD_NOW | RTLD_GLOBAL);
@@ -137,7 +137,7 @@ dyn_get_library (char *path, char *file)
 }
 
 /*
- * Set the addional search paths for the serveez library. The given array of
+ * Set the additional search paths for the serveez library. The given array of
  * strings gets @code{svz_free()}d.
  */
 void
@@ -308,8 +308,7 @@ dyn_unload_library (dyn_library_t *lib)
 #endif
 	if (err)
 	  {
-	    svz_log (LOG_ERROR, "unload: %s (%s)\n", dyn_error (), 
-		     lib->file);
+	    svz_log (LOG_ERROR, "unload: %s (%s)\n", dyn_error (), lib->file);
 	    return -1;
 	  }
 

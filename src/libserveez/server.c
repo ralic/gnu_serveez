@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.24 2001/06/27 20:38:36 ela Exp $
+ * $Id: server.c,v 1.25 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -194,7 +194,7 @@ svz_servertype_finalize (void)
 }
 
 /*
- * Find a given server instance's @var{server} server type. Return @code{NULL}
+ * Find a given server instances @var{server} server type. Return @code{NULL}
  * if there is no such server type (which should never occur since a server is
  * a child of an server type.
  */
@@ -278,7 +278,7 @@ svz_servertype_print (void)
 svz_hash_t *svz_servers = NULL;
 
 /*
- * Run all the server instances's notify routines. This should be regularily
+ * Run all the server instances's notify routines. This should be regularly
  * called within the @code{svz_server_periodic_tasks()} function.
  */
 void
@@ -314,7 +314,7 @@ svz_server_find (void *cfg)
 }
 
 /*
- * Add the server instance @var{server} to the list of instanciated 
+ * Add the server instance @var{server} to the list of instantiated 
  * servers. Returns the previous value of that server if any or @code{NULL}
  * otherwise.
  */
@@ -453,7 +453,7 @@ svz_config_clobber (svz_servertype_t *server, void *cfg)
 
 /*
  * Completely destroy the given server instance @var{server}. This 
- * especially means to go through each item of the server instance's 
+ * especially means to go through each item of the server instances 
  * configuration.
  */
 void
@@ -901,8 +901,7 @@ svz_server_init_all (void)
 	if (server[i]->init (server[i]) < 0) 
 	  {
 	    errneous = -1;
-	    svz_log (LOG_ERROR, "error initializing `%s'\n", 
-		     server[i]->name);
+	    svz_log (LOG_ERROR, "error initializing `%s'\n", server[i]->name);
 	  }
     }
   return errneous;

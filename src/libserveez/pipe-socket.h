@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.8 2001/06/21 11:25:47 ela Exp $
+ * $Id: pipe-socket.h,v 1.9 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -37,7 +37,7 @@
 typedef struct svz_pipe
 {
   char *name;        /* name of named pipe */
-  unsigned int perm; /* user and group permmissions */
+  unsigned int perm; /* user and group permissions */
   char *user;        /* user name */
   unsigned int uid;  /* user id (calculated from user name) */
   unsigned int pgid; /* primary group id */

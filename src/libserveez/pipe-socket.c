@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.12 2001/06/21 11:25:47 ela Exp $
+ * $Id: pipe-socket.c,v 1.13 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -447,7 +447,8 @@ svz_pipe_write_socket (svz_socket_t *sock)
 
 #ifdef __MINGW32__
   /* Named pipes in Win32 cannot transfer more than 64KB at once. */
-  if (do_write > 64 * 1024) do_write = 64 * 1024;
+  if (do_write > 64 * 1024)
+    do_write = 64 * 1024;
 
   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
 		  do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
@@ -477,8 +478,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
     }
 #else /* not __MINGW32__ */
   if ((num_written = write (sock->pipe_desc[WRITE], 
-			    sock->send_buffer, 
-			    do_write)) == -1)
+			    sock->send_buffer, do_write)) == -1)
     {
       svz_log (LOG_ERROR, "pipe: write: %s\n", SYS_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
@@ -854,7 +854,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 #endif
 
 /*
- * Prepare ther server socket structure @var{sock} for listening 
+ * Prepare the server socket structure @var{sock} for listening 
  * on the receiving pipe of @var{recv}. Open the reading end of such a 
  * connection. Return either zero or non-zero on errors.
  */

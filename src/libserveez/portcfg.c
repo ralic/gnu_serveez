@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.21 2001/06/21 11:25:47 ela Exp $
+ * $Id: portcfg.c,v 1.22 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -406,7 +406,7 @@ svz_portcfg_destroy_accepted (svz_portcfg_t *port)
 }
 
 /*
- * Return the port configuration assosciated with the given name @var{name}.
+ * Return the port configuration associated with the given name @var{name}.
  * This function returns @code{NULL} on errors.
  */
 svz_portcfg_t *

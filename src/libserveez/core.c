@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.13 2001/06/29 14:23:10 ela Exp $
+ * $Id: core.c,v 1.14 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -445,7 +445,7 @@ svz_file_del (int fd)
 }
 
 /*
- * Close all file descriptors colleted so far by the core API of serveez.
+ * Close all file descriptors collected so far by the core API of serveez.
  * This should be called if @code{fork()} has been called without a 
  * following @code{exec()}.
  */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sparsevec.c,v 1.2 2001/05/22 21:06:42 ela Exp $
+ * $Id: sparsevec.c,v 1.3 2001/07/01 15:56:49 ela Exp $
  *
  */
 
@@ -295,7 +295,7 @@ svz_spvec_create (void)
 }
 
 /*
- * Destroy the given sparse vector @var{vec} completely. The argument 
+ * Destroy the given sparse vector @var{spvec} completely. The argument 
  * cannot be used afterwards because it is invalid.
  */
 void

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.20 2001/06/16 15:02:46 ela Exp $
+ * $Id: server-core.c,v 1.21 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -87,13 +87,13 @@
 #include "libserveez/server-core.h"
 
 /* 
- * When @var{svz_nuke_happended} is set to a non-zero value, the server
+ * When @var{svz_nuke_happened} is set to a non-zero value, the server
  * will terminate its main loop.
  */
 int svz_nuke_happened;
 
 /*
- * When @var{svz_reset_happended} gets set to a non-zero value, the server
+ * When @var{svz_reset_happened} gets set to a non-zero value, the server
  * will try to re-initialize itself on the next execution of the main
  * loop.
  */
@@ -339,7 +339,7 @@ svz_strsignal (int sig)
   static char fallback[128];
 
   if (sig >= 0 && sig < SVZ_NUMBER_OF_SIGNALS)
-    return (char*) svz_array_get (svz_signal_strings, sig);
+    return (char *) svz_array_get (svz_signal_strings, sig);
   else
     {
       svz_snprintf (fallback, 128, "Impossible signal %d", sig);
@@ -436,8 +436,9 @@ svz_sock_validate_list (void)
 
 /*
  * Rechain the socket list to prevent sockets from starving at the end
- * of this list. We will call it every time when a `select ()' or `poll ()' 
- * has returned. Listeners are kept at the beginning of the chain anyway.
+ * of this list. We will call it every time when a @code{select()} or 
+ * @code{poll()} has returned. Listeners are kept at the beginning of the 
+ * chain anyway.
  */
 static void
 svz_sock_rechain_list (void)
@@ -492,7 +493,7 @@ svz_sock_rechain_list (void)
 }
 
 /*
- * Enqueue the socket SOCK into the list of sockets handled by
+ * Enqueue the socket @var{sock} into the list of sockets handled by
  * the server loop.
  */
 int
@@ -547,7 +548,7 @@ svz_sock_enqueue (svz_socket_t *sock)
 }
 
 /*
- * Remove the socket SOCK from the list of sockets handled by
+ * Remove the socket @var{sock} from the list of sockets handled by
  * the server loop.
  */
 int
@@ -802,7 +803,7 @@ svz_sock_find (int id, int version)
 
 /*
  * Calculate unique socket structure id and assign a version for a 
- * given SOCK. The version is for validating socket structures. It is 
+ * given @var{sock}. The version is for validating socket structures. It is 
  * currently used in the coserver callbacks.
  */
 int
@@ -833,10 +834,10 @@ svz_reset (void)
 }
 
 /*
- * Do everything to shut down the socket SOCK. The socket structure
+ * Do everything to shut down the socket @var{sock}. The socket structure
  * gets removed from the socket queue, the file descriptor is closed 
  * and all memory used by the socket gets freed. Note that this
- * function calls SOCK's disconnect handler if defined.
+ * function calls the @var{sock}'s disconnect handler if defined.
  */
 static int
 svz_sock_shutdown (svz_socket_t *sock)
@@ -879,7 +880,7 @@ svz_sock_shutdown_all (void)
 }
 
 /*
- * Mark socket SOCK as killed.  That means that no operations except
+ * Mark socket @var{sock} as killed.  That means that no operations except
  * disconnecting and freeing are allowed anymore.  All marked sockets
  * will be deleted once the server loop is through.  
  */
@@ -889,8 +890,7 @@ svz_sock_schedule_for_shutdown (svz_socket_t *sock)
   if (!(sock->flags & SOCK_FLAG_KILLED))
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "scheduling socket id %d for shutdown\n",
-	       sock->id);
+      svz_log (LOG_DEBUG, "scheduling socket id %d for shutdown\n", sock->id);
 #endif /* ENABLE_DEBUG */
 
       sock->flags |= SOCK_FLAG_KILLED;
@@ -984,7 +984,7 @@ svz_sock_check_bogus (void)
 	{
 	  if (fcntl (sock->pipe_desc[READ], F_GETFL) < 0)
 	    {
-	      svz_log (LOG_ERROR, "pipe %d has gone\n", 
+	      svz_log (LOG_ERROR, "pipe %d has gone\n",
 		       sock->pipe_desc[READ]);
 	      svz_sock_schedule_for_shutdown (sock);
 	    }
@@ -993,7 +993,7 @@ svz_sock_check_bogus (void)
 	{
 	  if (fcntl (sock->pipe_desc[WRITE], F_GETFL) < 0)
 	    {
-	      svz_log (LOG_ERROR, "pipe %d has gone\n", 
+	      svz_log (LOG_ERROR, "pipe %d has gone\n",
 		       sock->pipe_desc[WRITE]);
 	      svz_sock_schedule_for_shutdown (sock);
 	    }

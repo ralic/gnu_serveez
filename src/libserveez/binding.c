@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.10 2001/06/07 17:22:01 ela Exp $
+ * $Id: binding.c,v 1.11 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -103,7 +103,7 @@ svz_server_bindings (svz_server_t *server)
 
 /*
  * Return an array of port configuration to which the given server instance
- * @var{server} is currently bound to or @code{NULL} ff there is no such 
+ * @var{server} is currently bound to or @code{NULL} if there is no such 
  * binding.
  */
 svz_array_t *
@@ -177,7 +177,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
   ports = svz_portcfg_expand (port);
   svz_array_foreach (ports, copy, n)
     {
-      /* Prepare port configuartion. */
+      /* Prepare port configuration. */
       svz_portcfg_prepare (copy);
 
       /* Find appropriate socket structure for this port configuration. */
@@ -246,7 +246,7 @@ svz_server_unbind (svz_server_t *server)
 	{
 	  /* Delete all servers and shutdown the socket structure if
 	     there are no more servers left. */
-	  while ((n = svz_array_idx (sock->data, server)) != 
+	  while ((n = svz_array_idx (sock->data, server)) !=
 		 (unsigned long) -1)
 	    svz_array_del (sock->data, n);
 	  if (svz_array_size (sock->data) == 0)

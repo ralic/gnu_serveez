@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.7 2001/06/12 13:06:39 ela Exp $
+ * $Id: interface.c,v 1.8 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -419,7 +419,7 @@ svz_interface_collect (void)
  * Collect all available network interfaces and put them into the list
  * @var{svz_interfaces}. This is useful in order to @code{bind()} server
  * sockets to specific network interfaces. Thus you can make certain 
- * services accessable from "outside" or "inside" a network installation
+ * services accessible from "outside" or "inside" a network installation
  * only.
  */
 void

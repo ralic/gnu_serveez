@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.8 2001/06/13 20:29:25 ela Exp $
+ * $Id: array.c,v 1.9 2001/07/01 15:56:48 ela Exp $
  *
  */
 
@@ -145,7 +145,7 @@ svz_array_add (svz_array_t *array, void *value)
 /*
  * Remove the array element at the position @var{index} of the array
  * @var{array}. Return its previous value or @code{NULL} if the index
- * is out of the array's range.
+ * is out of the arrays range.
  */
 void *
 svz_array_del (svz_array_t *array, unsigned long index)
@@ -163,7 +163,7 @@ svz_array_del (svz_array_t *array, unsigned long index)
 }
 
 /*
- * Return the given array's @var{array} current capacity.
+ * Return the given arrays @var{array} current capacity.
  */
 unsigned long
 svz_array_capacity (svz_array_t *array)
@@ -174,7 +174,7 @@ svz_array_capacity (svz_array_t *array)
 }
 
 /*
- * Return the given array's @var{array} current size.
+ * Return the given arrays @var{array} current size.
  */
 unsigned long
 svz_array_size (svz_array_t *array)
@@ -240,7 +240,7 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
 }
 
 /*
- * This function replicates the given array @var{varray}. It returns
+ * This function replicates the given array @var{array}. It returns
  * @code{NULL} if there is nothing to do and an identical copy if the
  * array otherwise.
  */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.13 2001/06/27 20:38:37 ela Exp $
+ * $Id: socket.c,v 1.14 2001/07/01 15:56:49 ela Exp $
  *
  */
 
@@ -572,8 +572,7 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    svz_log (LOG_ERROR,
 		     "send buffer overflow on pipe (%d-%d) (id %d)\n",
-		     sock->pipe_desc[READ], sock->pipe_desc[WRITE],
-		     sock->id);
+		     sock->pipe_desc[READ], sock->pipe_desc[WRITE], sock->id);
 	  else
 	    svz_log (LOG_ERROR,
 		     "send buffer overflow on socket %d (id %d)\n",
