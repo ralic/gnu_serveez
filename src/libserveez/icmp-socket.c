@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.2 2001/01/30 11:49:57 ela Exp $
+ * $Id: icmp-socket.c,v 1.3 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -300,9 +300,13 @@ icmp_put_header (icmp_header_t *hdr)
   return buffer;
 }
 
+#define ICMP_ERROR      -1
+#define ICMP_DISCONNECT -2
+
 /*
  * Parse and check IP and ICMP header. Return the amount of leading bytes 
- * to be truncated. Otherwise -1.
+ * to be truncated. Return ICMP_ERROR on packet errors and return 
+ * ICMP_DISCONNECT when we received an disconnection signal.
  */
 static int
 icmp_check_packet (socket_t sock, byte *data, int len)
@@ -313,7 +317,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 
   /* First check the IP header. */
   if ((length = raw_check_ip_header (p, len)) == -1)
-    return -1;
+    return ICMP_ERROR;
 
   /* Get the actual ICMP header. */
   header = icmp_get_header (p + length);
@@ -329,7 +333,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "icmp: invalid data checksum\n");
 #endif
-	  return -1;
+	  return ICMP_ERROR;
 	}
 
       /* check the ICMP header identification */
@@ -338,7 +342,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "icmp: rejecting native packet\n");
 #endif
-	  return -1;
+	  return ICMP_ERROR;
 	}
 
       /* check ICMP remote port */
@@ -348,7 +352,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "icmp: rejecting filtered packet\n");
 #endif
-	  return -1;
+	  return ICMP_ERROR;
 	}
       sock->remote_port = header->port;
     }
@@ -363,7 +367,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
       else
 	log_printf (LOG_DEBUG, "unsupported protocol 0x%02X received\n", 
 		    header->type);
-      return -1;
+      return ICMP_ERROR;
     }
 #endif /* ENABLE_DEBUG */
 
@@ -377,7 +381,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
       else if (header->code == ICMP_SERVEEZ_CLOSE)
 	{
 	  log_printf (LOG_NOTICE, "icmp: closing connection\n");
-	  return -2;
+	  return ICMP_DISCONNECT;
 	}
       return (length + ICMP_HEADER_SIZE);
     }
@@ -389,12 +393,12 @@ icmp_check_packet (socket_t sock, byte *data, int len)
     }
 #endif /* ENABLE_DEBUG */
 
-  return -1;
+  return ICMP_ERROR;
 }
 
 /*
  * Default reader for ICMP sockets. The sender is stored within 
- * `sock->remote_addr' and `sock->remote_port'.
+ * `sock->remote_addr' and `sock->remote_port' afterwards.
  */
 int
 icmp_read_socket (socket_t sock)
@@ -435,7 +439,10 @@ icmp_read_socket (socket_t sock)
 		  util_inet_ntoa (sock->remote_addr), num_read);
 #endif /* ENABLE_DEBUG */
 
-      /* Check ICMP packet and put packet load only to receive buffer. */
+      /* 
+       * Check the ICMP packet and put the packet load only into the
+       * receive buffer of the socket structure.
+       */
       if ((trunc = 
 	   icmp_check_packet (sock, (byte *) icmp_buffer, num_read)) >= 0)
 	{
@@ -455,7 +462,7 @@ icmp_read_socket (socket_t sock)
 	  if (sock->check_request)
 	    sock->check_request (sock);
 	}
-      else if (trunc == -2)
+      else if (trunc == ICMP_DISCONNECT)
 	{
 	  return -1;
 	}
@@ -472,8 +479,9 @@ icmp_read_socket (socket_t sock)
 }
 
 /*
- * The default ICMP write callback is called whenever the socket fd has
- * been select()ed or poll()ed.
+ * The default ICMP write callback is called whenever the socket 
+ * descriptor has been `select ()'ed or `poll ()'ed to be ready for 
+ * sending.
  */
 int
 icmp_write_socket (socket_t sock)
@@ -484,14 +492,14 @@ icmp_write_socket (socket_t sock)
   socklen_t len;
   struct sockaddr_in receiver;
 
-  /* return here if there is nothing to do */
+  /* Return here if there is nothing to do. */
   if (sock->send_buffer_fill <= 0)
     return 0;
 
   len = sizeof (struct sockaddr_in);
   receiver.sin_family = AF_INET;
 
-  /* get destination address and data length from buffer */
+  /* Get destination address and data length from send buffer. */
   p = sock->send_buffer;
   memcpy (&do_write, p, sizeof (do_write));
   p += sizeof (do_write);
@@ -501,7 +509,7 @@ icmp_write_socket (socket_t sock)
   p += sizeof (sock->remote_port);
   assert ((int) do_write <= sock->send_buffer_fill);
 
-  /* if socket is connect()ed use send() instead of sendto() */
+  /* If socket is `connect ()'ed use `send ()' instead of `sendto ()'. */
   if (!(sock->flags & SOCK_FLAG_CONNECTED))
     {
       num_written = sendto (sock->sock_desc, p,
@@ -571,7 +579,6 @@ icmp_send_control (socket_t sock, byte type)
   hdr.port = sock->remote_port;
   memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
   len += ICMP_HEADER_SIZE;
-
   memcpy (buffer, &len, sizeof (len));
 
   if ((ret = sock_write (sock, buffer, len)) == -1)
@@ -582,9 +589,9 @@ icmp_send_control (socket_t sock, byte type)
 }
 
 /*
- * Send a given buffer via this ICMP socket. If the length argument 
- * supersedes the maximum ICMP message size the buffer is splitted into
- * smaller blocks.
+ * Send a given buffer BUF with length LENGTH via this ICMP socket. If 
+ * the length argument supersedes the maximum ICMP message size the buffer 
+ * is splitted into smaller packets.
  */
 int
 icmp_write (socket_t sock, char *buf, int length)
@@ -645,7 +652,7 @@ icmp_write (socket_t sock, char *buf, int length)
 /*
  * Put a formatted string to the icmp socket SOCK. Packet length and
  * destination address are additionally saved to the send buffer. The
- * destination is taken from sock->remote_addr. Furthermore a valid
+ * destination is taken from `sock->remote_addr'. Furthermore a valid
  * icmp header is stored in front of the actual packet data.
  */
 int
@@ -668,7 +675,7 @@ icmp_printf (socket_t sock, const char *fmt, ...)
 }
 
 /*
- * Default check_request callback for ICMP sockets.
+ * Default `check_request' callback for ICMP sockets.
  */
 int
 icmp_check_request (socket_t sock)
@@ -680,9 +687,10 @@ icmp_check_request (socket_t sock)
     return -1;
 
   /* 
-   * If there is a valid handle_request callback (dedicated icmp connection)
-   * call it. This kind of behavior is due to a socket creation via
-   * icmp_connect (s.b.) and setting up a static handle_request callback.
+   * If there is a valid `handle_request' callback (dedicated icmp 
+   * connection) call it. This kind of behaviour is due to a socket 
+   * creation via 'icmp_connect' (s.b.) and setting up a static 
+   * `handle_request' callback.
    */
   if (sock->handle_request)
     {
@@ -693,7 +701,7 @@ icmp_check_request (socket_t sock)
       return 0;
     }
 
-  /* go through all icmp servers on this server socket */
+  /* Go through all icmp servers on this server socket. */
   for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
     {
       sock->cfg = server->cfg;
@@ -709,7 +717,7 @@ icmp_check_request (socket_t sock)
         }
     }
 
-  /* check if any server processed this packet */
+  /* Check if any server processed this packet. */
   if (sock->recv_buffer_fill)
     {
 #if ENABLE_DEBUG
@@ -725,7 +733,7 @@ icmp_check_request (socket_t sock)
 
 /*
  * This function creates an ICMP socket for receiving and sending.
- * Return NULL on errors, otherwise an enqueued socket_t structure.
+ * Return NULL on errors, otherwise an enqueued socket structure.
  */
 socket_t
 icmp_connect (unsigned long host, unsigned short port)
@@ -766,6 +774,7 @@ icmp_connect (unsigned long host, unsigned short port)
   client.sin_addr.s_addr = host;
   client.sin_port = port;
   
+  /* not sure if it makes any sense to `connect ()' an ICMP socket */
   if (connect (sockfd, (struct sockaddr *) &client, sizeof (client)) == -1)
     {
       log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
@@ -792,7 +801,8 @@ icmp_connect (unsigned long host, unsigned short port)
   sock->check_request = icmp_check_request;
   sock->remote_port = (unsigned short) sock->id;
 
-  sock_connections++;
+  /* finally send a connection message */
   icmp_send_control (sock, ICMP_SERVEEZ_CONNECT);
+  sock_connections++;
   return sock;
 }

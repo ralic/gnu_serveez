@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server-core.c,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -68,7 +68,6 @@
 # endif
 #endif
 
-#include "libserveez/boot.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
@@ -84,20 +83,18 @@
  */
 int server_nuke_happened;
 
-#ifndef __MINGW32__
 /*
  * When SERVER_RESET_HAPPENED gets set to a non-zero value, the server
  * will try to re-initialize itself on the next execution of the main
  * loop.
  */
-int server_reset_happened;
+static int server_reset_happened;
 
 /*
  * SERVER_PIPE_BROKE is set to a non-zero value whenever the server
  * receives a SIGPIPE signal.
  */
-int server_pipe_broke;
-#endif
+static int server_pipe_broke;
 
 /*
  * SERVER_CHILD_DIED is set to a non-zero value whenever the server
@@ -105,23 +102,23 @@ int server_pipe_broke;
  */
 HANDLE server_child_died;
 
-/*
- * This is the pointer to the head of the list of sockets, which are
- * handled by the server loop.
- */
-socket_t socket_root;
-
-/*
- * SOCKET_LAST always points to the last structure in the socket queue
- * and is NULL when the queue is empty.
- */
-static socket_t socket_last;
-
 /* 
  * This holds the time on which the next call to server_periodic_tasks()
  * should occur.
  */
 time_t server_notify;
+
+/*
+ * SOCK_ROOT is the pointer to the head of the list of sockets, which are
+ * handled by the server loop.
+ */
+socket_t sock_root = NULL;
+
+/*
+ * SOCK_LAST always points to the last structure in the socket queue
+ * and is NULL when the queue is empty.
+ */
+socket_t sock_last = NULL;
 
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore
@@ -136,7 +133,7 @@ server_signal_handler (int sig)
   log_printf (LOG_WARNING, "signal: %s\n", strsignal (sig));
 #endif
 
-  /* we do not have SIGHUP, SIGCHLD and SIGPIPE in Win32 */
+  /* there is no SIGHUP, SIGCHLD and SIGPIPE in Win32 */
 #ifndef __MINGW32__ 
   if (sig == SIGHUP)
     {
@@ -179,7 +176,7 @@ server_signal_handler (int sig)
     {
       log_printf (LOG_DEBUG, "uncaught signal %d\n", sig);
     }
-#endif
+#endif /* ENABLE_DEBUG */
 
 #ifdef NONVOID_SIGNAL
   return 0;
@@ -190,7 +187,7 @@ server_signal_handler (int sig)
  * Abort the process, printing the error message MSG first.
  */
 static int
-server_abort (char * msg)
+server_abort (char *msg)
 {
   log_printf (LOG_FATAL, "list validation failed: %s\n", msg);
   abort ();
@@ -203,9 +200,9 @@ server_abort (char * msg)
  * representation of the current socket list.
  */
 static void
-server_print_list (void)
+sock_print_list (void)
 {
-  socket_t sock = socket_root;
+  socket_t sock = sock_root;
 
   while (sock)
     {
@@ -219,22 +216,20 @@ server_print_list (void)
 }
 
 /*
- * Go through the socket list and check if it still consistent.
- * Abort the prgram with an error message, if not.
- * FIXME:  Calls to this function should be removed once the
- * server is stable because this is a rather slow function.
+ * Go through the socket list and check if it is still consistent.
+ * Abort the program with an error message, if it is not.
  */
 static int
-server_validate_list (void)
+sock_validate_list (void)
 {
   socket_t sock, prev;
   
 #if 0
-  server_print_list ();
+  sock_print_list ();
 #endif
 
   prev = NULL;
-  sock = socket_root;
+  sock = sock_root;
   while (sock)
     {
       /* check if the descriptors are valid */
@@ -266,7 +261,7 @@ server_validate_list (void)
       sock = sock->next;
     }
 
-  if (prev != socket_last)
+  if (prev != sock_last)
     {
       server_abort ("list structure invalid (last socket)");
     }
@@ -276,22 +271,22 @@ server_validate_list (void)
 
 /*
  * Rechain the socket list to prevent sockets from starving at the end
- * of this list. We will call it everytime when a select() or poll() has
- * returned. Listeners are kept at the beginning of the chain anyway.
+ * of this list. We will call it every time when a `select ()' or `poll ()' 
+ * has returned. Listeners are kept at the beginning of the chain anyway.
  */
 static void
-server_rechain_list (void)
+sock_rechain_list (void)
 {
   socket_t sock;
   socket_t last_listen;
   socket_t end_socket;
 
-  sock = socket_last;
+  sock = sock_last;
   if (sock && sock->prev)
     {
       end_socket = sock->prev;
-      for (last_listen = socket_root; last_listen && last_listen != sock && 
-	     last_listen->flags & (SOCK_FLAG_LISTENING|SOCK_FLAG_PRIORITY) &&
+      for (last_listen = sock_root; last_listen && last_listen != sock && 
+	     last_listen->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_PRIORITY) &&
 	     !(sock->flags & SOCK_FLAG_LISTENING);
 	   last_listen = last_listen->next);
 
@@ -299,7 +294,7 @@ server_rechain_list (void)
       if (!last_listen)
 	return;
 
-      /* sock is the only non-listenening (connected) socket */
+      /* sock is the only non-listening (connected) socket */
       if (sock == last_listen)
 	return;
 
@@ -319,15 +314,15 @@ server_rechain_list (void)
       else 
 	{
 	  /* enqueue at root */
-	  sock->next = socket_root;
+	  sock->next = sock_root;
 	  sock->prev = NULL;
 	  sock->next->prev = sock;
-	  socket_root = sock;
+	  sock_root = sock;
 	}
       
       /* mark the new end of chain */
       end_socket->next = NULL;
-      socket_last = end_socket;
+      sock_last = end_socket;
     }
 }
 
@@ -369,17 +364,17 @@ sock_enqueue (socket_t sock)
   /* really enqueue socket */
   sock->next = NULL;
   sock->prev = NULL;
-  if (!socket_root)
+  if (!sock_root)
     {
-      socket_root = sock;
+      sock_root = sock;
     }
   else
     {
-      socket_last->next = sock;
-      sock->prev = socket_last;
+      sock_last->next = sock;
+      sock->prev = sock_last;
     }
 
-  socket_last = sock;
+  sock_last = sock;
   sock->flags |= SOCK_FLAG_ENQUEUED;
   sock_lookup_table[sock->id] = sock;
 
@@ -425,12 +420,12 @@ sock_dequeue (socket_t sock)
   if (sock->next)
     sock->next->prev = sock->prev;
   else
-    socket_last = sock->prev;
+    sock_last = sock->prev;
 
   if (sock->prev)
     sock->prev->next = sock->next;
   else
-    socket_root = sock->next;
+    sock_root = sock->next;
 
   sock->flags &= ~SOCK_FLAG_ENQUEUED;
   sock_lookup_table[sock->id] = NULL;
@@ -448,7 +443,7 @@ sock_find (int id, int version)
 {
   socket_t sock;
 
-  if (id & ~(SOCKET_MAX_IDS-1))
+  if (id & ~(SOCKET_MAX_IDS - 1))
     {
       log_printf (LOG_FATAL, "socket id %d is invalid\n", id);
       return NULL;
@@ -465,7 +460,6 @@ sock_find (int id, int version)
   return sock_lookup_table[id];
 }
 
-#ifndef __MINGW32__
 /*
  * This gets called when the server receives a SIGHUP, which means
  * that the server should be reset.
@@ -473,13 +467,12 @@ sock_find (int id, int version)
 static int
 server_reset (void)
 {
-  /* FIXME: Maybe server_t reset callback ? */
+  /* FIXME: Maybe `server_t' reset callback ? */
   return 0;
 }
-#endif
 
 /*
- * Do everything to shut down the socket SOCK.  The socket structure
+ * Do everything to shut down the socket SOCK. The socket structure
  * gets removed from the socket queue, the file descriptor is closed 
  * and all memory used by the socket gets freed. Note that this
  * function calls SOCK's disconnect handler if defined.
@@ -507,6 +500,24 @@ sock_shutdown (socket_t sock)
 }
 
 /*
+ * Shutdown all sockets within the socket list no matter if it was
+ * scheduled for shutdown or not.
+ */
+void
+sock_shutdown_all (void)
+{
+  socket_t sock;
+
+  sock = sock_root;
+  while (sock)
+    {
+      sock_shutdown (sock);
+      sock = sock_root;
+    }
+  sock_root = sock_last = NULL;
+}
+
+/*
  * Mark socket SOCK as killed.  That means that no operations except
  * disconnecting and freeing are allowed anymore.  All marked sockets
  * will be deleted once the server loop is through.  
@@ -517,8 +528,8 @@ sock_schedule_for_shutdown (socket_t sock)
   if (!(sock->flags & SOCK_FLAG_KILLED))
     {
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "scheduling socket id %d for shutdown\n",
-		 sock->id);
+      log_printf (LOG_DEBUG, "scheduling socket id %d for shutdown\n",
+		  sock->id);
 #endif /* ENABLE_DEBUG */
 
       sock->flags |= SOCK_FLAG_KILLED;
@@ -527,10 +538,9 @@ sock_schedule_for_shutdown (socket_t sock)
 }
 
 /*
- * This routine gets called once a second and is supposed to
- * perform any task that has to get scheduled periodically.
- * It checks all sockets' timers and calls their timer functions
- * when necessary.
+ * This routine gets called once a second and is supposed to perform any 
+ * task that has to get scheduled periodically. It checks all sockets' 
+ * timers and calls their timer functions when necessary.
  */
 int
 server_periodic_tasks (void)
@@ -539,7 +549,7 @@ server_periodic_tasks (void)
 
   server_notify += 1;
 
-  sock = socket_root; 
+  sock = sock_root; 
   while (sock)
     {
 #if ENABLE_FLOOD_PROTECTION
@@ -555,9 +565,9 @@ server_periodic_tasks (void)
 	    {
 	      if (sock->idle_func (sock))
 		{
-		  log_printf(LOG_ERROR, 
-			     "idle function for socket id %d "
-			     "returned error\n", sock->id);
+		  log_printf (LOG_ERROR, 
+			      "idle function for socket id %d "
+			      "returned error\n", sock->id);
 		  sock_schedule_for_shutdown (sock);
 		}
 	    }
@@ -591,7 +601,7 @@ server_check_bogus (void)
   log_printf (LOG_DEBUG, "checking for bogus sockets\n");
 #endif /* ENABLE_DEBUG */
 
-  for (sock = socket_root; sock; sock = sock->next)
+  for (sock = sock_root; sock; sock = sock->next)
     {
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
@@ -630,144 +640,143 @@ server_check_bogus (void)
 #endif /* not __MINGW32__ */
     }
 }
-
+  
 /*
- * Main server loop.  Handle all signals, incoming connections and
- * listening  server sockets.
+ * Setup signaling for the core library.
  */
-int
-server_loop (void)
+void
+server_signal_up (void)
 {
-  socket_t sock, next_sock;
-  int rechain = 0;
-
-  /*
-   * Setup signaling.
-   */
   signal (SIGTERM, server_signal_handler);
   signal (SIGINT, server_signal_handler);
 
 #ifdef __MINGW32__
   signal (SIGBREAK, server_signal_handler);
-#else
+#else /* !__MINGW32__ */
   signal (SIGCHLD, server_signal_handler);
   signal (SIGHUP, server_signal_handler);
   signal (SIGPIPE, server_signal_handler);
-#endif
+#endif /* !__MINGW32__ */
+}
 
-  log_printf (LOG_NOTICE, "starting server loop\n");
-  log_printf (LOG_NOTICE, "using %d socket descriptors\n",
-	      svz_config.max_sockets);
-
-  /* 
-   * These get set either in the signal handler or from a 
-   * command processing routine.
-   */
-  server_nuke_happened = 0;
-  server_child_died = 0;
-
-#ifndef __MINGW32__
-  server_reset_happened = 0;
-#endif /* not __MINGW32__ */
-
-  server_notify = time (NULL);
-
-  while (!server_nuke_happened)
-    {
-      /*
-       * FIXME: Remove this once the server is stable.  This wastes
-       * a lot of run time.
-       */
-#if ENABLE_DEBUG
-      server_validate_list ();
-#endif /* ENABLE_DEBUG */
-
-#ifndef __MINGW32__
-      if (server_reset_happened)
-	{
-	  /* 
-	   * SERVER_RESET_HAPPENED gets set in the signal handler
-	   * whenever a SIGHUP is received.
-	   */
-	  log_printf (LOG_NOTICE, "resetting server\n");
-	  server_reset ();
-	  server_reset_happened = 0;
-	}
-
-      if (server_pipe_broke)
-	{
-	  /* 
-	   * SERVER_PIPE_BROKE gets set in the signal handler
-	   * whenever a SIGPIPE is received.
-	   */
-	  log_printf (LOG_ERROR, "broken pipe, continuing\n");
-	  server_pipe_broke = 0;
-	}
-#endif /* not __MINGW32__ */
-
-      if (server_child_died)
-	{
-	  log_printf (LOG_ERROR, "child pid %d died\n", 
-		      (int) server_child_died);
-	  server_child_died = 0;
-	}
-
-      /*
-       * Check for new connections on server port, incoming data from
-       * clients and process queued output data.
-       */
-      server_check_sockets ();
-
-      /*
-       * Reorder the socket chain every 16 select loops. We dont do it
-       * every time for performance reasons.
-       */
-      if (rechain++ & 16)
-	{
-	  server_rechain_list ();
-	}
-
-      /*
-       * Shut down all sockets that have been scheduled for closing.
-       */
-      sock = socket_root; 
-      while (sock)
-	{
-	  next_sock = sock->next;
-	  if (sock->flags & SOCK_FLAG_KILLED)
-	    {
-	      sock_shutdown (sock);
-	    }
-	  sock = next_sock;
-	}
-    }
-
-  log_printf (LOG_NOTICE, "leaving server loop\n");
-
-  /*
-   * Shutdown all sockets within the socket list no matter if scheduled
-   * for shutdown or not.
-   */
-  sock = socket_root;
-  while (sock)
-    {
-      sock_shutdown (sock);
-      sock = socket_root;
-    }
-
-  /*
-   * Deinstall signaling.
-   */
+/*
+ * Deinstall signaling for the core library.
+ */
+void
+server_signal_dn (void)
+{
   signal (SIGTERM, SIG_DFL);
   signal (SIGINT, SIG_DFL);
 
 #ifdef __MINGW32__
   signal (SIGBREAK, SIG_DFL);
-#else
+#else /* !__MINGW32__ */
   signal (SIGHUP, SIG_DFL);
   signal (SIGPIPE, SIG_DFL);
   signal (SIGCHLD, SIG_DFL);
-#endif
+#endif /* !__MINGW32__ */
+}
+
+/*
+ * This routine handles all things once and is called regularly in the
+ * below `server_loop ()' routine.
+ */
+void
+server_loop_one (void)
+{
+  socket_t sock, next;
+  static int rechain = 0;
+
+  /*
+   * FIXME: Remove this once the server is stable.
+   */
+#if ENABLE_DEBUG
+  sock_validate_list ();
+#endif /* ENABLE_DEBUG */
+
+  if (server_reset_happened)
+    {
+      /* SIGHUP received. */
+      log_printf (LOG_NOTICE, "resetting server\n");
+      server_reset ();
+      server_reset_happened = 0;
+    }
+
+  if (server_pipe_broke)
+    {
+      /* SIGPIPE received. */ 
+      log_printf (LOG_ERROR, "broken pipe, continuing\n");
+      server_pipe_broke = 0;
+    }
+
+  if (server_child_died)
+    {
+      /* SIGCHLD received. */
+      log_printf (LOG_ERROR, "child pid %d died\n", (int) server_child_died);
+      server_child_died = 0;
+    }
+
+  /*
+   * Check for new connections on server port, incoming data from
+   * clients and process queued output data.
+   */
+  server_check_sockets ();
+
+  /*
+   * Reorder the socket chain every 16 select loops. We do not do it
+   * every time for performance reasons.
+   */
+  if (rechain++ & 16)
+    sock_rechain_list ();
+
+  /*
+   * Shut down all sockets that have been scheduled for closing.
+   */
+  sock = sock_root; 
+  while (sock)
+    {
+      next = sock->next;
+      if (sock->flags & SOCK_FLAG_KILLED)
+	sock_shutdown (sock);
+      sock = next;
+    }
+}
+
+/*
+ * Main server loop. Handle all signals, incoming and outgoing connections 
+ * and listening server sockets.
+ */
+int
+server_loop (void)
+{
+  socket_t sock;
+
+  /* Setting up signaling. */
+  server_signal_up ();
+
+  /* 
+   * Setting up control variables. These get set either in the signal 
+   * handler or from a command processing routine.
+   */
+  server_nuke_happened = 0;
+  server_reset_happened = 0;
+  server_child_died = 0;
+  server_pipe_broke = 0;
+  server_notify = time (NULL);
+
+  /* Run the server loop. */
+  log_printf (LOG_NOTICE, "entering server loop\n");
+  while (!server_nuke_happened)
+    {
+      server_loop_one ();
+    }
+  log_printf (LOG_NOTICE, "leaving server loop\n");
+
+  /* Shutdown all socket structures. */
+  sock_shutdown_all ();
+
+  /* Reset signaling. */
+  server_signal_dn ();
 
   return 0;
 }

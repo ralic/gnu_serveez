@@ -1,7 +1,7 @@
 /*
  * server-core.h - server management definition
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
@@ -20,85 +20,40 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server-core.h,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
 #ifndef __SERVER_CORE_H__
 #define __SERVER_CORE_H__ 1
 
+#include <time.h>
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
 
-#include <time.h>
+SERVEEZ_API extern int server_nuke_happened;
+SERVEEZ_API extern HANDLE server_child_died;
+SERVEEZ_API extern time_t server_notify;
 
-/* 
- * When SERVER_NUKE_HAPPENED is set to a non-zero value, the server
- * will terminate its main loop.
- */
-extern int server_nuke_happened;
+SERVEEZ_API extern socket_t sock_root;
+SERVEEZ_API extern socket_t sock_last;
 
-/*
- * SERVER_CHILD_DIED is set to a non-zero value whenever the server
- * receives a SIGCHLD signal.
- */
-extern HANDLE server_child_died;
+__BEGIN_DECLS
 
-/* 
- * This holds the time on which the next call to server_periodic_tasks()
- * should occur.
- */
-extern time_t server_notify;
+SERVEEZ_API socket_t sock_find __P ((int id, int version));
+SERVEEZ_API int sock_schedule_for_shutdown __P ((socket_t sock));
+SERVEEZ_API int sock_enqueue __P ((socket_t sock));
+SERVEEZ_API int sock_dequeue __P ((socket_t sock));
+SERVEEZ_API void sock_shutdown_all __P ((void));
 
-/*
- * This is the pointer to the head of the list of sockets, which are
- * handled by the server loop.
- */
-extern socket_t socket_root;
+SERVEEZ_API void server_check_bogus __P ((void));
+SERVEEZ_API int server_periodic_tasks __P ((void));
+SERVEEZ_API int server_loop __P ((void));
+SERVEEZ_API void server_loop_one __P ((void));
+SERVEEZ_API void server_signal_up __P ((void));
+SERVEEZ_API void server_signal_dn __P ((void));
+SERVEEZ_API RETSIGTYPE server_signal_handler __P ((int sig));
 
-/*
- * Return the socket structure for the socket ID or NULL
- * if no such socket exists.
- */
-socket_t sock_find (int id, int version);
-
-/*
- * Mark socket SOCK as killed.  That means that no operations except
- * disconnecting and freeing are allowed anymore.  All marked sockets
- * will be deleted once the server loop is through.  Note that this
- * function calls SOCK's disconnect handler if defined.
- */
-int sock_schedule_for_shutdown (socket_t sock);
-
-/*
- * Enqueue the socket SOCK into the list of sockets handled by
- * the server loop.
- */
-int sock_enqueue (socket_t sock);
-
-/*
- * Remove the socket SOCK from the list of sockets handled by
- * the server loop.
- */
-int sock_dequeue (socket_t sock);
-
-/*
- * Goes through all socket and shuts invalid ones down.
- */
-void server_check_bogus (void);
-
-/*
- * This routine gets called once a second and is supposed to
- * perform any task that has to get scheduled periodically.
- * It checks all sockets' timers and calls their timer functions
- * when necessary.
- */
-int server_periodic_tasks (void);
-
-/*
- * Main server loop. Handle all signals, incoming connections and
- * listening server sockets.
- */
-int server_loop (void);
+__END_DECLS
 
 #endif /* not __SERVER_CORE_H__ */

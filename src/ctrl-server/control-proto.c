@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.39 2001/01/28 03:26:55 ela Exp $
+ * $Id: control-proto.c,v 1.40 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -556,7 +556,7 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 	       "Local                Foreign\r\n");
 
   /* go through all the socket list */
-  for (xsock = socket_root; xsock; xsock = xsock->next)
+  for (xsock = sock_root; xsock; xsock = xsock->next)
     {
       /* get type of socket */
       id = "None";
@@ -738,7 +738,7 @@ ctrl_killall (socket_t sock, int flag, char *arg)
   socket_t xsock;
   int n = 0;
 
-  for (xsock = socket_root; xsock; xsock = xsock->next)
+  for (xsock = sock_root; xsock; xsock = xsock->next)
     {
       if (xsock != sock &&
 	  !(xsock->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_COSERVER | 

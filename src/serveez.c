@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.22 2001/01/28 03:26:54 ela Exp $
+ * $Id: serveez.c,v 1.23 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -312,7 +312,9 @@ main (int argc, char * argv[])
   
   log_printf (LOG_NOTICE, "%s\n", util_version ());
   util_openfiles (svz_config.max_sockets);
-  
+  log_printf (LOG_NOTICE, "using %d socket descriptors\n",
+	      svz_config.max_sockets);
+
   /* 
    * Startup the internal coservers here.
    */

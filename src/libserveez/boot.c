@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.3 2001/01/30 11:49:57 ela Exp $
+ * $Id: boot.c,v 1.4 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -70,6 +70,6 @@ svz_boot (void)
  * Finalization of the core library.
  */
 void
-svz_finalize (void)
+svz_halt (void)
 {
 }

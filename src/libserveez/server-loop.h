@@ -1,7 +1,7 @@
 /*
  * server-loop.h - server loop definition
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server-loop.h,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
 #ifndef __SERVER_LOOP_H__
-#define __SERVER_LOOP_H__
+#define __SERVER_LOOP_H__ 1
 
 #include "libserveez/defines.h"
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: pipe-socket.c,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -47,8 +47,8 @@
 #include "libserveez/pipe-socket.h"
 
 /*
- * This function is for checking if a given socket is a valid pipe
- * socket (checking both pipes). Return non-zero on errors.
+ * This function is for checking if a given socket structure contains 
+ * a valid pipe socket (checking both pipes). Return non-zero on errors.
  */
 int
 pipe_valid (socket_t sock)
@@ -79,6 +79,7 @@ pipe_disconnect (socket_t sock)
 {
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
+      /* has this socket created by a listener ? */
       if (sock->referrer)
 	{
 #ifdef __MINGW32__
@@ -97,10 +98,9 @@ pipe_disconnect (socket_t sock)
 	      sock->overlap[READ] = NULL;
 	      sock->overlap[WRITE] = NULL;
 	    }
-
 #else /* not __MINGW32__ */
 
-	  /* close sending pipe */
+	  /* close sending pipe only */
 	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
 	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
 	      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
@@ -113,6 +113,8 @@ pipe_disconnect (socket_t sock)
 	  sock->referrer->flags &= ~SOCK_FLAG_INITED;
 	  sock->referrer->referrer = NULL;
 	}
+
+      /* no, it is a connected pipe */
       else
 	{
 	  /* close both pipes */
@@ -185,7 +187,7 @@ pipe_disconnect (socket_t sock)
 }
 
 /*
- * The pipe_read() function reads as much data as available on a readable
+ * The `pipe_read ()' function reads as much data as available on a readable
  * pipe descriptor or handle on Win32. Return a non-zero value on errors.
  */
 int
@@ -210,7 +212,7 @@ pipe_read (socket_t sock)
     }
 
 #ifdef __MINGW32__
-  /* check how many bytes could be read from the cgi pipe */
+  /* check how many bytes could have been read from the pipe */
   if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
 		      NULL, (DWORD *) &num_read, NULL))
     {
@@ -223,7 +225,8 @@ pipe_read (socket_t sock)
     return 0;
 
   /* adjust number of bytes to read */
-  if (do_read > num_read) do_read = num_read;
+  if (do_read > num_read)
+    do_read = num_read;
 
   /* really read from pipe */
   if (!ReadFile (sock->pipe_desc[READ],
@@ -280,8 +283,8 @@ pipe_read (socket_t sock)
 }
 
 /*
- * This pipe_write() writes as much data as possible into a writeable
- * pipe descriptor. It returns a non-zero value on errors.
+ * This `pipe_write ()' function writes as much data as possible into 
+ * a writable pipe descriptor. It returns a non-zero value on errors.
  */
 int
 pipe_write (socket_t sock)
@@ -356,8 +359,8 @@ pipe_write (socket_t sock)
 }
 
 /*
- * Create a socket structure by the two file descriptors recv_fd and
- * send_fd. Return NULL on errors.
+ * Create a socket structure containing both the pipe descriptors RECV_FD 
+ * and SEND_FD. Return NULL on errors.
  */
 socket_t
 pipe_create (HANDLE recv_fd, HANDLE send_fd)
@@ -438,8 +441,8 @@ pipe_create_pair (HANDLE pipe_desc[2])
 }
 
 /*
- * This routine creates a pipe connection socket structure to a named
- * pipe. Return NULL on errors.
+ * This routine creates a pipe connection socket structure to a pair of
+ * named pipes. Return NULL on errors.
  */
 socket_t
 pipe_connect (char *inpipe, char *outpipe)

@@ -1,5 +1,5 @@
 /*
- * raw-socket.h - raw socket header definitions
+ * raw-socket.h - raw ip socket header definitions
  *
  * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: raw-socket.h,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -66,7 +66,7 @@ ip_header_t;
 
 __BEGIN_DECLS
 
-/* Exported RAW socket functions. */
+/* Exported RAW IP socket functions. */
 SERVEEZ_API ip_header_t * raw_get_ip_header __P ((byte *data));
 SERVEEZ_API byte * raw_put_ip_header __P ((ip_header_t *hdr));
 SERVEEZ_API unsigned short raw_ip_checksum __P ((byte *data, int len));
@@ -74,4 +74,4 @@ SERVEEZ_API int raw_check_ip_header __P ((byte *data, int len));
 
 __END_DECLS
 
-#endif /* !__RAW_SOCKET_H__ */
+#endif /* not __RAW_SOCKET_H__ */

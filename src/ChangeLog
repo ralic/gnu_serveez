@@ -1,3 +1,12 @@
+2001-01-31  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/server-core.c (server_loop_one): Took this piece
+	of code out of `server_loop'. Thus you should be able to run
+	the server loop yourself using the library only.
+
+	* interface.c (list_local_interfaces): Fixed list of local
+	network interfaces on FreeBSD version 3.2.
+
 2001-01-30  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/icmp-socket.c: Cleaned up the name space and made

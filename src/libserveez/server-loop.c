@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server-loop.c,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -77,8 +77,8 @@ server_check_sockets_select (void)
 {
   int nfds;			/* count of file descriptors to check */
   fd_set read_fds;		/* bitmasks for file descriptors to check */
-  fd_set write_fds;		/* dito */
-  fd_set except_fds;		/* dito */
+  fd_set write_fds;		/* ditto */
+  fd_set except_fds;		/* ditto */
   struct timeval wait;		/* used for timeout in select() */
   socket_t sock;
 
@@ -93,7 +93,7 @@ server_check_sockets_select (void)
   /*
    * Here we set the bitmaps for all clients we handle.
    */
-  for (sock = socket_root; sock; sock = sock->next)
+  for (sock = sock_root; sock; sock = sock->next)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files. */
       if (sock->flags & SOCK_FLAG_KILLED)
@@ -175,7 +175,8 @@ server_check_sockets_select (void)
    * Adjust timeout value, so we won't wait longer than we want.
    */
   wait.tv_sec = server_notify - time (NULL);
-  if (wait.tv_sec < 0) wait.tv_sec = 0;
+  if (wait.tv_sec < 0)
+    wait.tv_sec = 0;
   wait.tv_usec = 0;
 
   if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
@@ -200,7 +201,7 @@ server_check_sockets_select (void)
    * Go through all enqueued SOCKs and check if these have been 
    * select()ed or could be handle in any other way.
    */
-  for (sock = socket_root; sock; sock = sock->next)
+  for (sock = sock_root; sock; sock = sock->next)
     {
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
@@ -301,7 +302,7 @@ server_check_sockets_select (void)
 	      else 
 		{
 		  if (sock->write_socket)
-		    if (sock->write_socket(sock))
+		    if (sock->write_socket (sock))
 		      {
 			sock_schedule_for_shutdown (sock);
 			continue;
@@ -384,7 +385,7 @@ server_check_sockets_poll (void)
   FD_POLL_CLR (ufds, sfds);
 
   /* go through all sockets */
-  for (sock = socket_root; sock; sock = sock->next)
+  for (sock = sock_root; sock; sock = sock->next)
     {
       /* skip already killed sockets */
       if (sock->flags & SOCK_FLAG_KILLED)
@@ -458,7 +459,8 @@ server_check_sockets_poll (void)
   
   /* calculate timeout value */
   timeout = (server_notify - time (NULL)) * 1000;
-  if (timeout < 0) timeout = 0;
+  if (timeout < 0)
+    timeout = 0;
 
   /* now poll() everything */
   if ((polled = poll (ufds, nfds, timeout)) <= 0)
@@ -577,8 +579,8 @@ server_check_sockets_MinGW (void)
 {
   int nfds;			/* count of file descriptors to check */
   fd_set read_fds;		/* bitmasks for file descriptors to check */
-  fd_set write_fds;		/* dito */
-  fd_set except_fds;		/* dito */
+  fd_set write_fds;		/* ditto */
+  fd_set except_fds;		/* ditto */
   struct timeval wait;		/* used for timeout in select() */
   socket_t sock;
 
@@ -593,7 +595,7 @@ server_check_sockets_MinGW (void)
   /*
    * Here we set the bitmaps for all clients we handle.
    */
-  for (sock = socket_root; sock; sock = sock->next)
+  for (sock = sock_root; sock; sock = sock->next)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files. */
       if (sock->flags & SOCK_FLAG_KILLED)
@@ -662,7 +664,8 @@ server_check_sockets_MinGW (void)
    * Adjust timeout value, so we won't wait longer than we want.
    */
   wait.tv_sec = server_notify - time (NULL);
-  if (wait.tv_sec < 0) wait.tv_sec = 0;
+  if (wait.tv_sec < 0)
+    wait.tv_sec = 0;
   wait.tv_usec = 0;
 
   if ((nfds = select (nfds, &read_fds, &write_fds, &except_fds, &wait)) <= 0)
@@ -688,7 +691,7 @@ server_check_sockets_MinGW (void)
    * Go through all enqueued SOCKs and check if these have been 
    * select()ed or could be handle in any other way.
    */
-  for (sock = socket_root; sock; sock = sock->next)
+  for (sock = sock_root; sock; sock = sock->next)
     {
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
@@ -764,7 +767,7 @@ server_check_sockets_MinGW (void)
 	      else 
 		{
 		  if (sock->write_socket)
-		    if (sock->write_socket(sock))
+		    if (sock->write_socket (sock))
 		      {
 			sock_schedule_for_shutdown (sock);
 			continue;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.2 2001/01/30 11:49:57 ela Exp $
+ * $Id: icmp-socket.h,v 1.3 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -73,7 +73,7 @@ __BEGIN_DECLS
 
 #ifdef __MINGW32__
 
-/* Exported ICMP.DLL functions. */
+/* Exported `ICMP.DLL' functions. */
 SERVEEZ_API void icmp_startup __P ((void));
 SERVEEZ_API void icmp_cleanup __P ((void));
 

@@ -1,5 +1,5 @@
 /*
- * raw-socket.c - raw socket implementations
+ * raw-socket.c - raw ip socket implementations
  *
  * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: raw-socket.c,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -27,15 +27,8 @@
 #endif
 
 #define _GNU_SOURCE
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <fcntl.h>
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 
 #ifndef __MINGW32__
 # include <sys/types.h>
@@ -51,7 +44,7 @@
 #include "libserveez/raw-socket.h"
 
 /*
- * The raw sockets support on Windoze machines is quite doubtful and
+ * The raw socket support on Windoze machines is quite doubtful and
  * almostly unusable because:
  * 1. sent packets are not received on the same socket
  * 2. not all raw sockets get all ip packets in all processes
@@ -153,7 +146,8 @@ raw_ip_checksum (byte *data, int len)
     }
 
   /* Add left-over byte, if any */
-  if (len > 0) checksum += *data;
+  if (len > 0)
+    checksum += *data;
 
   /* Fold 32-bit checksum to 16 bits */
   while (checksum >> 16)

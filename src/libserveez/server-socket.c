@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server-socket.c,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -205,23 +205,6 @@ server_create (portcfg_t *cfg)
 	  return NULL;
 	}
 
-      /*
-       * Make this socket route around its table. Not a good
-       * idea for the real internet...
-       */
-
-      /*
-      optval = 1;
-      if (setsockopt (server_socket, SOL_SOCKET, SO_DONTROUTE,
-		      (void *) &optval, sizeof (optval)) < 0)
-	{
-	  log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
-	  if (closesocket (server_socket) < 0)
-	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
-	  return NULL;
-	}
-      */
-
       /* Second, bind the socket to a port. */
       if (bind (server_socket, (struct sockaddr *) cfg->addr, 
 		sizeof (struct sockaddr)) < 0)
@@ -321,7 +304,7 @@ server_create (portcfg_t *cfg)
 	}
       else if (cfg->proto & PROTO_ICMP)
 	{
-	  sock_resize_buffers (sock, ICMP_BUF_SIZE ,ICMP_BUF_SIZE);
+	  sock_resize_buffers (sock, ICMP_BUF_SIZE, ICMP_BUF_SIZE);
 	  sock->read_socket = icmp_read_socket;
 	  sock->write_socket = icmp_write_socket;
 	  sock->check_request = icmp_check_request;
@@ -404,13 +387,12 @@ server_accept_socket (socket_t server_sock)
    * Sanity check. Just to be sure that we always handle
    * correctly connects/disconnects.
    */
-  sock = socket_root;
+  sock = sock_root;
   while (sock && sock->sock_desc != client_socket)
     sock = sock->next;
   if (sock)
     {
-      log_printf (LOG_FATAL, "socket %d already in use\n",
-		  sock->sock_desc);
+      log_printf (LOG_FATAL, "socket %d already in use\n", sock->sock_desc);
       if (closesocket (client_socket) < 0)
 	{
 	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
@@ -468,7 +450,8 @@ server_accept_pipe (socket_t server_sock)
    * Try opening the server's send pipe. This will fail 
    * until the client has opened it for reading.
    */
-  if ((send_pipe = open (server_sock->send_pipe, O_NONBLOCK|O_WRONLY)) == -1)
+  send_pipe = open (server_sock->send_pipe, O_NONBLOCK | O_WRONLY);
+  if (send_pipe == -1)
     {
       if (errno != ENXIO)
 	{
@@ -509,7 +492,8 @@ server_accept_pipe (socket_t server_sock)
 	}
     }
   /* Overlapped ConnectNamedPipe should return zero. */
-  else return 0;
+  else
+    return 0;
 
   if (!ConnectNamedPipe (recv_pipe, server_sock->overlap[READ]))
     {
@@ -526,7 +510,8 @@ server_accept_pipe (socket_t server_sock)
       /* If we got here then a client pipe is successfully connected. */
     }
   /* Because these pipes are non-blocking this is never occurring. */
-  else return 0;
+  else
+    return 0;
 
   /* Create a socket structure for the client pipe. */
   if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)

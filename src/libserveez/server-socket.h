@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.h,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server-socket.h,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -29,31 +29,13 @@
 
 __BEGIN_DECLS
 
-/*
- * Create a listening server socket. PORTCFG is the port to bind the 
- * server socket to. Return a null pointer on errors.
- */
 SERVEEZ_API socket_t server_create __P ((portcfg_t *cfg));
-
-/*
- * Something happened on the a server socket, most probably a client 
- * connection which we will normally accept.
- */
 SERVEEZ_API int server_accept_socket __P ((socket_t sock));
 SERVEEZ_API int server_accept_pipe __P ((socket_t sock));
 
 #ifdef __MINGW32__
-/*
- * This routine has to be called once before you could use any of the
- * Winsock32 API functions under Win32.
- */
 SERVEEZ_API int net_startup __P ((void));
-
-/*
- * Shutdown the Winsock32 API.
- */
 SERVEEZ_API int net_cleanup __P ((void));
-
 #endif /* __MINGW32__ */
 
 __END_DECLS

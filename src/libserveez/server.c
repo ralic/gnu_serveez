@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.1 2001/01/28 03:26:55 ela Exp $
+ * $Id: server.c,v 1.2 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -367,7 +367,7 @@ server_start (void)
   for (b = 0; b < server_bindings; b++)
     {
       /* Look for duplicate port configurations. */
-      for (sock = socket_root; sock; sock = sock->next)
+      for (sock = sock_root; sock; sock = sock->next)
 	{
 	  /* Is this socket usable for this port configuration ? */
 	  if (sock->data && sock->cfg && 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.14 2001/01/28 03:26:54 ela Exp $
+ * $Id: interface.c,v 1.15 2001/01/31 12:30:14 ela Exp $
  *
  */
 
@@ -491,9 +491,13 @@ list_local_interfaces (void)
     {
       /*
        * On AIX (and perhaps others) you get interfaces that are not AF_INET
-       * from the first ioctl, so filter here again.
+       * from the first `ioctl ()', so filter here again.
        */
+#ifdef __FreeBSD__
+      if ((ifr->ifr_phys & 0xFFFF0000) == 0)
+#else
       if (ifr->ifr_addr.sa_family != AF_INET)
+#endif
 	continue;
 
       strcpy (ifr2.ifr_name, ifr->ifr_name);
@@ -513,7 +517,6 @@ list_local_interfaces (void)
       else 
 	{
 	  perror ("SIOCGIFADDR");
-	  break;
 	}
     }
   
