@@ -28,6 +28,7 @@ files.
 Version 0.1.3
 -------------
 
+ * HTTP partial content implemented
  * Guile version 1.3 backward compatibility
  * improved build-time behaviour (including cross compiling)
  * allow INADDR_ANY bindings by the keyword `any' in network port 

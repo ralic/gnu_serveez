@@ -62,7 +62,8 @@ unfixed) have a look at the file BUGS.
 	- Port forwarder for UDP and TCP.
 - Some solution for upcoming IPv6?
 	- Support for ICMP sockets.
-- Content-Range implementation for Gnutella and HTTP.
+- Content-Range implementation for Gnutella.
+	- Content-Range implementation for HTTP.
 	- Gnutella spider should share files.
 	- Make HTTP CGI file extension associations configurable in Win32.
 	- Add `--disable-poll' option.
