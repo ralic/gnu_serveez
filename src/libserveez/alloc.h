@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.3 2001/02/05 09:10:38 ela Exp $
+ * $Id: alloc.h,v 1.4 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -28,6 +28,8 @@
 #define __XALLOC_H__ 1
 
 #include "libserveez/defines.h"
+
+#define svz_free_and_zero(var) svz_free (var); (var) = NULL
 
 __BEGIN_DECLS
 
@@ -48,6 +50,7 @@ SERVEEZ_API extern svz_free_func_t svz_free_func;
 
 /* Internal allocator functions. */
 SERVEEZ_API void *svz_malloc __P ((size_t size));
+SERVEEZ_API void *svz_calloc __P ((size_t size));
 SERVEEZ_API void *svz_realloc __P ((void *ptr, size_t size));
 SERVEEZ_API void svz_free __P ((void *ptr));
 SERVEEZ_API char *svz_strdup __P ((char *src));

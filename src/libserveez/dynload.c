@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.4 2001/04/04 14:23:14 ela Exp $
+ * $Id: dynload.c,v 1.5 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -76,8 +76,9 @@ static dyn_library_t *dyn_library = NULL;
 #endif
 
 /*
- * Find a library handle for a given library's name FILE in the current
- * list of loaded shared libraries. Return NULL if there is no such thing.
+ * Find a library handle for a given library's name @var{file} in the current
+ * list of loaded shared libraries. Return @code{NULL} if there is no such 
+ * thing.
  */
 static dyn_library_t *
 dyn_find_library (char *file)
@@ -93,8 +94,8 @@ dyn_find_library (char *file)
 }
 
 /*
- * Open the given library FILE and put it into the currently load library
- * list. Return a valid library handle entry on success.
+ * Open the given library @var{file} and put it into the currently load 
+ * library list. Return a valid library handle entry on success.
  */
 static dyn_library_t *
 dyn_load_library (char *file)
@@ -151,9 +152,9 @@ dyn_load_library (char *file)
 }
 
 /*
- * Unload a given library LIB if possible. Return the reference counter or
- * zero if the library has been unloaded. Return -1 if there is no such
- * library at all or on other errors.
+ * Unload a given library @var{lib} if possible. Return the reference 
+ * counter or zero if the library has been unloaded. Return -1 if there is 
+ * no such library at all or on other errors.
  */
 static int
 dyn_unload_library (dyn_library_t *lib)
@@ -207,8 +208,8 @@ dyn_unload_library (dyn_library_t *lib)
 }
 
 /*
- * Get a function or data symbol SYMBOL from the given library LIB. 
- * Return NULL on errors.
+ * Get a function or data symbol @var{symbol} from the given library 
+ * @var{lib}. Return @code{NULL} on errors.
  */
 static void *
 dyn_load_symbol (dyn_library_t *lib, char *symbol)
@@ -272,7 +273,7 @@ svz_dynload_init (void)
 
 /* 
  * Create a file name of a shared library for a given servers 
- * descriptive name DESCRIPTION.
+ * descriptive name @var{description}.
  */
 static char *
 dyn_create_file (char *description)
@@ -287,7 +288,7 @@ dyn_create_file (char *description)
 
 /*
  * Create a symbol name of server definition for a given servers
- * descriptive name DESCRIPTION.
+ * descriptive name @var{description}.
  */
 static char *
 dyn_create_symbol (char *description)
@@ -302,10 +303,10 @@ dyn_create_symbol (char *description)
 
 /*
  * Load an additional server definition from a shared library. The given
- * descriptive name DESCRIPTION must be part of the library's name.
+ * descriptive name @var{description} must be part of the library's name.
  */
 svz_servertype_t *
-server_load (char *description)
+svz_server_load (char *description)
 {
   char *file, *def;
   dyn_library_t *lib;
@@ -335,11 +336,11 @@ server_load (char *description)
 
 /*
  * Unload a server definition from a shared library. The given
- * descriptive name DESCRIPTION must be part of the library's name.
+ * descriptive name @var{description} must be part of the library's name.
  * Return the remaining reference count or -1 on errors.
  */
 int
-server_unload (char *description)
+svz_server_unload (char *description)
 {
   dyn_library_t *lib;
   char *file;

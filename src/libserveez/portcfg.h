@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.1 2001/04/04 14:23:14 ela Exp $
+ * $Id: portcfg.h,v 1.2 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -56,8 +56,11 @@
  */
 typedef struct svz_portcfg
 {
+  /* the symbolic name of this port configuration */
+  char *name;
+
   /* one of the PROTO_ flags defined in <core.h> */
-  int type;
+  int proto;
 
   /* unified structure for each type of port */
   union protocol_t
@@ -65,7 +68,6 @@ typedef struct svz_portcfg
     /* tcp port */
     struct tcp_t
     {
-      
       unsigned short port;      /* TCP/IP port */
       char *ipaddr;             /* dotted decimal or "*" for any address */
       struct sockaddr_in *addr; /* converted from the above 2 values */
@@ -98,8 +100,8 @@ typedef struct svz_portcfg
     /* pipe port */
     struct pipe_t
     {
-      svz_pipe_t *recv;         /* pipe for sending data into serveez */
-      svz_pipe_t *send;         /* pipe serveez sends responses out on */
+      svz_pipe_t recv;         /* pipe for sending data into serveez */
+      svz_pipe_t send;         /* pipe serveez sends responses out on */
     } pipe;
   }
   protocol;
@@ -147,12 +149,16 @@ svz_portcfg_t;
 #define pipe_recv protocol.pipe.recv
 #define pipe_send protocol.pipe.send
 
+#define svz_portcfg_create() \
+  (svz_portcfg_t *) svz_calloc (sizeof (svz_portcfg_t))
+
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_portcfg_equal __P ((svz_portcfg_t *, svz_portcfg_t *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_add __P ((char *, svz_portcfg_t *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_del __P ((char *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_get __P ((char *));
+SERVEEZ_API void svz_portcfg_destroy __P ((svz_portcfg_t *port));
 SERVEEZ_API void svz_portcfg_finalize __P ((void));
 
 __END_DECLS

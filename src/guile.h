@@ -18,13 +18,13 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.2 2001/02/23 08:29:01 ela Exp $
+ * $Id: guile.h,v 1.3 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
 #ifndef __GUILE_H__
 #define __GUILE_H__ 1
 
-int guile_load_cfg (char *cfgfile);
+int guile_load_config (char *cfgfile);
 
 #endif /* not __GUILE_H__ */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.7 2001/04/04 22:20:02 ela Exp $
+ * $Id: server.c,v 1.8 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -153,15 +153,7 @@ svz_servertype_finalize (void)
 svz_servertype_t *
 svz_servertype_find (svz_server_t *server)
 {
-  int n;
-  svz_servertype_t *stype;
-
-  svz_array_foreach (svz_servertypes, stype, n)
-    {
-      if (stype == server->server)
-	return stype;
-    }
-  return NULL;
+  return server->type;
 }
 
 /*

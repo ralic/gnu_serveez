@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.8 2001/04/01 13:32:29 ela Exp $
+ * $Id: alloc.c,v 1.9 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -183,6 +183,18 @@ svz_malloc (size_t size)
 }
 
 /*
+ * Allocate @var{size} bytes of memory and return a pointer to this block.
+ * The memory is cleared (zeroed out).
+ */
+void * 
+svz_calloc (size_t size)
+{
+  void *ptr = svz_malloc (size);
+  memset (ptr, 0, size);
+  return ptr;
+}
+
+/*
  * Change the size of a @code{svz_malloc()}'ed block of memory. @var{size} 
  * is the new size of the block in bytes, @var{ptr} is the pointer returned 
  * by @code{svz_malloc()} or NULL.
@@ -267,7 +279,7 @@ svz_realloc (void *ptr, size_t size)
 
 /*
  * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory 
- * block.
+ * block. If @var{ptr} is a NULL pointer, no operation is performed.
  */
 void
 svz_free (void *ptr)
@@ -283,7 +295,6 @@ svz_free (void *ptr)
 #endif /* ENABLE_DEBUG */
 
   heap_caller ();
-  assert (ptr);
 
   if (ptr)
     {

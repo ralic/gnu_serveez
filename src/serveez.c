@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.30 2001/04/04 22:20:01 ela Exp $
+ * $Id: serveez.c,v 1.31 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -34,6 +34,7 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <guile/gh.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
@@ -46,6 +47,7 @@
 #include "serveez.h"
 #include "cfgfile.h"
 #include "option.h"
+#include "guile.h"
 
 /*
  * Print program version.
@@ -106,6 +108,115 @@ static struct option serveez_options[] = {
 #endif /* HAVE_GETOPT_LONG */
 
 #define SERVEEZ_OPTIONS "l:hViv:f:P:m:d"
+
+void
+guile_main (int argc, char **argv)
+{
+  int cli_verbosity = -1;
+  int cli_sockets = -1;
+  char *cli_pass = NULL;
+  char *cfg_file = NULL;
+  FILE *log_handle = NULL;
+
+  guile_load_config ("guile.cfg"); 
+  if (load_config (cfg_file, argc, argv) == -1)
+    {
+      /* 
+       * Something went wrong while configuration file loading, 
+       * Message output by function itself...
+       */
+      exit (3);
+    }
+
+  /*
+   * Make command line arguments overriding the configuration file settings.
+   */
+  if (cli_verbosity != -1)
+    svz_verbosity = cli_verbosity;
+
+  if (cli_sockets != -1)
+    svz_config.max_sockets = cli_sockets;
+
+  if (cli_pass)
+    {
+      free (svz_config.server_password);
+      svz_config.server_password = cli_pass;
+    }
+
+#if ENABLE_DEBUG
+  log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
+#endif /* ENABLE_DEBUG */
+  
+  log_printf (LOG_NOTICE, "%s\n", svz_sys_version ());
+  svz_openfiles (svz_config.max_sockets);
+  log_printf (LOG_NOTICE, "using %d socket descriptors\n",
+	      svz_config.max_sockets);
+
+  /* 
+   * Startup the internal coservers here.
+   */
+  if (coserver_init () == -1)
+    {
+      exit (4);
+    }
+
+  /*
+   * Initialise server instances.
+   */
+  if (svz_server_init_all () == -1)
+    {
+      /* 
+       * Something went wrong while the server initialised themselves.
+       * Abort silently.
+       */
+      exit (6);
+    }
+
+  /*
+   * Actually open the ports.
+   */
+  if (server_start () == -1)
+    {
+      exit (7);
+    }
+  
+  server_loop ();
+
+  /*
+   * Run the finalizers.
+   */
+  svz_server_finalize_all ();
+  svz_servertype_finalize ();
+
+  /*
+   * Disconnect the previously invoked internal coservers.
+   */
+  log_printf (LOG_NOTICE, "destroying internal coservers\n");
+  coserver_finalize ();
+
+  svz_halt ();
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
+	      svz_allocated_bytes, svz_allocated_blocks);
+
+#if DEBUG_MEMORY_LEAKS
+  svz_heap ();
+#endif
+#endif /* ENABLE_DEBUG */
+
+#ifdef __MINGW32__
+  if (cli_daemon)
+    {
+      windoze_stop_daemon ();
+    }
+#endif
+
+  log_printf (LOG_NOTICE, "serveez terminating\n");
+
+  if (log_handle != stderr)
+    svz_fclose (log_handle);
+}
 
 /*
  * Main entry point.
@@ -271,103 +382,7 @@ main (int argc, char *argv[])
    * Load configuration.
    */
   init_server_definitions ();
-  if (load_config (cfg_file, argc, argv) == -1)
-    {
-      /* 
-       * Something went wrong while configuration file loading, 
-       * Message output by function itself...
-       */
-      return 3;
-    }
 
-  /*
-   * Make command line arguments overriding the configuration file settings.
-   */
-  if (cli_verbosity != -1)
-    svz_verbosity = cli_verbosity;
-
-  if (cli_sockets != -1)
-    svz_config.max_sockets = cli_sockets;
-
-  if (cli_pass)
-    {
-      free (svz_config.server_password);
-      svz_config.server_password = cli_pass;
-    }
-
-#if ENABLE_DEBUG
-  log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
-#endif /* ENABLE_DEBUG */
-  
-  log_printf (LOG_NOTICE, "%s\n", svz_sys_version ());
-  svz_openfiles (svz_config.max_sockets);
-  log_printf (LOG_NOTICE, "using %d socket descriptors\n",
-	      svz_config.max_sockets);
-
-  /* 
-   * Startup the internal coservers here.
-   */
-  if (coserver_init () == -1)
-    {
-      return 4;
-    }
-
-  /*
-   * Initialise server instances.
-   */
-  if (svz_server_init_all () == -1)
-    {
-      /* 
-       * Something went wrong while the server initialised themselves.
-       * Abort silently.
-       */
-      return 6;
-    }
-
-  /*
-   * Actually open the ports.
-   */
-  if (server_start () == -1)
-    {
-      return 7;
-    }
-  
-  server_loop ();
-
-  /*
-   * Run the finalizers.
-   */
-  svz_server_finalize_all ();
-  svz_servertype_finalize ();
-
-  /*
-   * Disconnect the previously invoked internal coservers.
-   */
-  log_printf (LOG_NOTICE, "destroying internal coservers\n");
-  coserver_finalize ();
-
-  svz_halt ();
-
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
-	      svz_allocated_bytes, svz_allocated_blocks);
-
-#if DEBUG_MEMORY_LEAKS
-  svz_heap ();
-#endif
-#endif /* ENABLE_DEBUG */
-
-#ifdef __MINGW32__
-  if (cli_daemon)
-    {
-      windoze_stop_daemon ();
-    }
-#endif
-
-  log_printf (LOG_NOTICE, "serveez terminating\n");
-
-  if (log_handle != stderr)
-    svz_fclose (log_handle);
-  
+  gh_enter (argc, argv, guile_main);
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.2 2001/02/23 08:29:01 ela Exp $
+ * $Id: guile.c,v 1.3 2001/04/06 15:32:34 raimi Exp $
  *
  */
 
@@ -28,36 +28,216 @@
 
 #define _GNU_SOURCE
 #include <guile/gh.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "libserveez.h"
 
 /*
- * Set Serveez variables accessable in Guile.
+ * What is an 'optionhash' ?
+ * We build up that data structure from a scheme pairlist. The pairlist has to
+ * be an alist: a key => value mapping.
+ * We read that mapping and construct a svz_hash_t from it. The values of
+ * that hash are value_t struct*.
+ * The value_t struct contains a 'defined' field which counts the number of
+ * occurences of the key. Use validate_optionhash to make sure it is 1 for
+ * each key.
+ * The 'use' field is to make sure that each key was needed exactly once.
+ * Use validate_optionhash again to find out which ones were not needed.
  */
-int
-guile_export_variables (void)
+
+/*
+ * Used as value in option-hashes.
+ */
+typedef struct
 {
-  gh_define ("serveez-version", gh_str02scm (svz_version));
-  gh_define ("guile-version", scm_version ());
+  SCM value;     /* the scheme value itself, invalid when defined != 1 */
+  int defined;   /* the number of definitions. 1 to be valid */
+  int use;       /* how often was it looked up in the hash. 1 to be valid */
+} value_t;
 
-  gh_define ("have-debug", gh_bool2scm (have_debug));
-  gh_define ("have-win32", gh_bool2scm (have_win32));
 
-  gh_define ("serveez-verbosity", gh_int2scm (svz_verbosity));
-  gh_define ("serveez-sockets", gh_int2scm (svz_config.max_sockets));
-  gh_define ("serveez-pass", gh_str02scm (svz_config.server_password));
+/*
+ * create a new value_t with the given value. initializes use to 0.
+ * define-counter is set to 1.
+ */
+static value_t *
+new_value_t (SCM value)
+{
+  value_t *v = (value_t*) svz_malloc (sizeof (value_t));
+  v->value = value;
+  v->defined = 1;
+  v->use = 0;
+  return v;
+}
 
-  return 0;
+
+/*
+ * report some error at the current scheme position. prints to stderr
+ * but lets program continue. format does not need trailing newline.
+ */
+static void
+report_error (const char* format, ...)
+{
+  va_list args;
+  SCM lp = scm_current_load_port ();
+  SCM filescm = SCM_FILENAME (lp);
+  char *filename = gh_scm2newstr (filescm, NULL);
+
+  fprintf (stderr, "%s:%d:%d: ", filename, SCM_LINUM (lp), SCM_COL (lp));
+  free (filename);
+
+  va_start (args, format);
+  vfprintf (stderr, format, args);
+  va_end (args);
+
+  fprintf (stderr, "\n");
+}
+
+/* ********************************************************************** */
+
+/*
+ * converts SCM to char * no matter if it is String or Symbol. returns NULL
+ * when it was neither. new string must be explicitly freed.
+ */
+#define guile2str(scm) \
+  (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) : \
+  (gh_symbol_p (scm) ? gh_symbol2newstr (scm, NULL) : NULL))
+
+
+/* ********************************************************************** */
+
+/*
+ * validate the values of the optionhhash:
+ * what = 0: check if all 'use' fields are 1
+ * what = 1: check if all 'defined' fields are 1
+ * type    : what kind of thing the optionhash belongs to
+ * name    : current variable name
+ * returns number of errors
+ */
+static int
+validate_optionhash (svz_hash_t *hash, int what, char *type, char *name)
+{
+  int errors = 0;
+  char **keys; int i;
+  svz_hash_foreach_key (hash, keys, i)
+    {
+      char *key = keys[i];
+      value_t *value = (value_t*) svz_hash_get (hash, key);
+
+      if (what)
+	{
+	  if (value->defined != 1)
+	    {
+	      errors++;
+	      report_error("`%s' is defined multiple times in %s `%s'",
+			   key, type, name);
+	    }
+	}
+      else
+	{
+	  if (value->use == 0)
+	    {
+	      errors++;
+	      report_error("`%s' is never used in %s `%s'",
+			   key, type, name);
+	    }
+	}
+
+    }
+
+  return errors;
 }
 
 /*
- * Set Serveez functions accessable in Guile.
+ * get from an optionhash and increment the 'use' field.
+ * returns SCM_UNSPECIFIED when key was not found.
  */
-int
-guile_export_functions (void)
+static SCM
+optionhash_get (svz_hash_t *hash, char *key)
 {
-  return 0;
+  value_t *val = (value_t*) svz_hash_get (hash, key);
+  if (NULL != val)
+    {
+      val->use++;
+      return val->value;
+    }
+
+  return SCM_UNSPECIFIED;
 }
+
+
+/*
+ * traverse a scheme pairlist that is an associative list and build up
+ * a hash from it. emits error messages and returns NULL when it did so.
+ * hash keys are the key names. hash values are value_t struct *.
+ */
+static svz_hash_t *
+guile2optionhash (SCM pairlist)
+{
+  svz_hash_t *hash = svz_hash_create (10);
+  value_t *old_value;
+  value_t *new_value;
+  int err = 0;
+
+  /* have to unpack that list again... why ? */
+  pairlist = gh_car (pairlist);
+
+  for ( ; gh_pair_p (pairlist); pairlist = gh_cdr (pairlist))
+    {
+      SCM pair = gh_car (pairlist);
+      SCM key, val;
+      char *tmp = NULL;
+
+      /* the car must ne another pair which contains key and value */
+      if (!gh_pair_p (pair))
+	{
+	  report_error ("not a pair");
+	  err = 1;
+	  break;
+	}
+      key = gh_car (pair);
+      val = gh_cdr (pair);
+
+      if (NULL == (tmp = guile2str (key)))
+	{
+	  /* unknown key. must be string or symbol */
+	  report_error ("must be string or symbol");
+	  err = 1;
+	  break;
+	}
+
+      /* remember key and free it */
+      new_value = new_value_t (val);
+      old_value = svz_hash_get (hash, tmp);
+
+      if (NULL != old_value)
+	{
+	  /* multiple definition. let caller croak about that error. */
+	  new_value->defined += old_value->defined;
+	  svz_free_and_zero (old_value);
+	}
+      svz_hash_put (hash, tmp, (void*) new_value);
+      free (tmp);
+    }
+
+  /* pairlist must be gh_null_p() now or that was not a good pairlist... */
+  if (!err && !gh_null_p (pairlist))
+    {
+      report_error ("invalid pairlist");
+      err = 1;
+    }
+
+
+  if (err)
+    {
+      svz_hash_destroy (hash);
+      return NULL;
+    }
+
+  return hash;
+}
+
 
 /*
  * Generic server definition...
@@ -89,9 +269,94 @@ guile_define_server_x (SCM type, SCM name, SCM alist)
  * Generic port configuration definition...
  */
 #define FUNC_NAME "define-port!"
-SCM
-guile_define_port_x (SCM type, SCM name, SCM alist)
+static SCM
+define_port (SCM symname, SCM args)
 {
+  svz_portcfg_t* prev = NULL;
+  svz_portcfg_t* cfg = svz_portcfg_create ();
+  svz_hash_t* options = NULL;
+  char *portname = guile2str (symname);
+
+  if (portname == NULL)
+    {
+      report_error ("First argument to define-port! must be String or Symbol");
+      return SCM_UNSPECIFIED;
+    }
+
+  if (NULL == (options = guile2optionhash (args)))
+    {
+      /* FIXME: message ? */
+      return SCM_UNSPECIFIED;
+    }
+
+  if (0 != validate_optionhash (options, 1, "port", portname))
+    {
+      return SCM_UNSPECIFIED;
+    }
+
+  /* find out what protocol this portcfg will be about */
+  do {
+    char *proto = guile2str (optionhash_get (options, "proto"));
+
+    if (NULL == proto) {
+      report_error ("Port `%s' requires a \"proto\" field", portname);
+      return SCM_UNSPECIFIED;
+    }
+
+    if (!strcmp (proto, "tcp"))
+      {
+	cfg->proto = PROTO_TCP;
+
+      }
+    else if (!strcmp (proto, "udp"))
+      {
+	cfg->proto = PROTO_UDP;
+
+      }
+    else if (!strcmp (proto, "icmp"))
+      {
+	cfg->proto = PROTO_ICMP;
+
+      }
+    else if (!strcmp (proto, "raw"))
+      {
+	cfg->proto = PROTO_RAW;
+
+      }
+    else if (!strcmp (proto, "pipe"))
+      {
+	cfg->proto = PROTO_PIPE;
+
+      }
+    else
+      {
+	report_error ("Invalid \"proto\" field `%s' in `%s'.",
+		      proto, portname);
+	return SCM_UNSPECIFIED;
+      }
+
+    free (proto);
+  } while (0);
+
+
+  /* check if too much was defined */
+  if (0 != validate_optionhash (options, 0, "port", portname))
+    {
+      return SCM_UNSPECIFIED;
+    }
+
+  /* now rememver the name and add that config */
+  cfg->name = svz_strdup (portname);
+  prev = svz_portcfg_add (portname, cfg);
+  if (prev != cfg)
+    {
+      /* we've overwritten something. report and dispose */
+      report_error ("Overwriting previous defintion of port `%s'", portname);
+      svz_portcfg_destroy (prev);
+    }
+
+  free(portname);
+
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
@@ -115,11 +380,15 @@ guile_init (void)
 {
   SCM def_serv;
 
-  guile_export_variables ();
-  guile_export_functions ();
+  /* define some variables */
+  gh_define ("serveez-version", gh_str02scm (svz_version));
+  gh_define ("guile-version", scm_version ());
+  gh_define ("have-debug", gh_bool2scm (have_debug));
+  gh_define ("have-win32", gh_bool2scm (have_win32));
 
+  /* export some new procedures */
+  def_serv = gh_new_procedure ("define-port!", define_port, 1, 0, 2);
   def_serv = gh_new_procedure3_0 ("define-server!", guile_define_server_x);
-  def_serv = gh_new_procedure3_0 ("define-port!", guile_define_port_x);
   def_serv = gh_new_procedure3_0 ("bind-server!", guile_bind_server_x);
 }
 
@@ -128,8 +397,9 @@ guile_init (void)
  * as needed. Return non-zero on errors.
  */
 int
-guile_load_cfg (char *cfgfile)
+guile_load_config (char *cfgfile)
 {
+  guile_init ();
   gh_eval_file (cfgfile);
   return -1;
 }

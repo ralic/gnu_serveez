@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.1 2001/04/04 14:23:14 ela Exp $
+ * $Id: portcfg.c,v 1.2 2001/04/06 15:32:35 raimi Exp $
  *
  */
 
@@ -28,7 +28,9 @@
 
 #define _GNU_SOURCE
 #include <assert.h>
+#include <sys/types.h>
 
+#include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/core.h"
 #include "libserveez/portcfg.h"
@@ -47,14 +49,14 @@ static svz_hash_t *svz_portcfgs = NULL;
 int
 svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 {
-  if ((a->type & (PROTO_TCP | PROTO_UDP | PROTO_ICMP | PROTO_RAW)) &&
-      (a->type == b->type))
+  if ((a->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP | PROTO_RAW)) &&
+      (a->proto == b->proto))
     {
       /* 
        * Two network ports are equal if both local port and address 
        * are equal.
        */
-      switch (a->type)
+      switch (a->proto)
 	{
 	case PROTO_TCP:
 	  if (a->tcp_port == b->tcp_port &&
@@ -76,13 +78,13 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 	  break;
 	}
     } 
-  else if (a->type & PROTO_PIPE && a->type == b->type) 
+  else if (a->proto & PROTO_PIPE && a->proto == b->proto) 
     {
       /* 
        * Two pipe configs are equal if they use the same files.
        */
-      if (!strcmp (a->pipe_recv->name, b->pipe_recv->name) && 
-	  !strcmp (b->pipe_send->name, b->pipe_send->name))
+      if (!strcmp (a->pipe_recv.name, b->pipe_recv.name) && 
+	  !strcmp (b->pipe_send.name, b->pipe_send.name))
 	return 1;
     } 
 
@@ -93,11 +95,14 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 /*
  * Add the given port configuration @var{port} associated with the name
  * @var{name} to the list of known port configurations. Return @code{NULL}
- * on errors.
+ * on errors. If the return port configuration equals the given port
+ * configuration  the given one has been successfully added.
  */
 svz_portcfg_t *
 svz_portcfg_add (char *name, svz_portcfg_t *port)
 {
+  svz_portcfg_t *replace;
+
   /* Do not handle invalid arguments. */
   if (name == NULL || port == NULL)
     return NULL;
@@ -110,12 +115,13 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
     }
 
   /* Try adding a new port configuration. */
-  if (svz_hash_get (svz_portcfgs, name))
+  if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "portcfg `%s' already registered\n", name);
 #endif
-      return NULL;
+      svz_hash_put (svz_portcfgs, name, port);
+      return replace;
     }
   svz_hash_put (svz_portcfgs, name, port);
   return port;
@@ -137,6 +143,49 @@ svz_portcfg_del (char *name)
 
   /* Actually remove it from the list. */
   return svz_hash_delete (svz_portcfgs, name);
+}
+
+/*
+ * 
+ */
+void
+svz_portcfg_destroy (svz_portcfg_t *port)
+{
+  if (port == NULL)
+    return;
+
+  svz_free_and_zero (port->name);
+  switch (port->proto)
+    {
+    case PROTO_TCP:
+      svz_free_and_zero (port->tcp_addr);
+      svz_free_and_zero (port->tcp_ipaddr);
+      break;
+    case PROTO_UDP:
+      svz_free_and_zero (port->udp_addr);
+      svz_free_and_zero (port->udp_ipaddr);
+      break;
+    case PROTO_ICMP:
+      svz_free_and_zero (port->icmp_addr);
+      svz_free_and_zero (port->icmp_ipaddr);
+      break;
+    case PROTO_RAW:
+      svz_free_and_zero (port->raw_addr);
+      svz_free_and_zero (port->raw_ipaddr);
+      break;
+    case PROTO_PIPE:
+      svz_free_and_zero (port->pipe_recv.user);
+      svz_free_and_zero (port->pipe_recv.name);
+      svz_free_and_zero (port->pipe_recv.group);
+      svz_free_and_zero (port->pipe_send.user);
+      svz_free_and_zero (port->pipe_send.name);
+      svz_free_and_zero (port->pipe_send.group);
+      break;
+    }
+  /* FIXME: What about the values ? */
+  svz_array_destroy (port->deny);
+  svz_array_destroy (port->allow);
+  svz_hash_destroy (port->accepted);
 }
 
 /*
