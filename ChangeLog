@@ -1,3 +1,9 @@
+2000-08-29  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (EXTRA_DIST): Added files for building the
+	serveez project with M$ Visual C++ compiler including
+	the README-Win32 file.
+
 2000-08-26  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (define_enable_nut): With the new option

@@ -1,5 +1,13 @@
 2000-08-29  [ Ela ]  <ela@lkcc.org>
 
+	* nut-server/gnutella.c: Including <direct.h>.
+
+	* nut-server/gnutella.h: record->file and reply->record
+	are arrays of unknown size. Thus they get 1 as initial 
+	size.
+
+	* nut-server/gnutella.c: Redefine mkdir() id necessary.
+
 	* nut-server/nut-transfer.c (nut_init_transfer): Checking
 	for certain file extensions.
 	(nut_check_transfer): Comparing original file size and

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.3 2000/08/29 10:44:03 ela Exp $
+ * $Id: gnutella.h,v 1.4 2000/08/29 13:37:31 ela Exp $
  *
  */
 
@@ -109,7 +109,7 @@ typedef struct
 {
   unsigned int index; /* file index */
   unsigned int size;  /* file size */
-  char *file;         /* file name (double-NULL terminated) */
+  char file[1];       /* file name (double-NULL terminated) */
 }
 nut_record_t;
 
@@ -121,7 +121,7 @@ typedef struct
   unsigned long ip;       /* ip address of the host, network byte order */
   unsigned short speed;   /* speed of the host which found the results */
   unsigned short pad;     /* dunno */
-  nut_record_t *record;   /* array of records */
+  nut_record_t record[1]; /* array of records */
   byte id[NUT_GUID_SIZE]; /* clientID128 of the host */
 }
 nut_reply_t;

@@ -871,7 +871,7 @@ AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h sys/resource.h)
 AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h)
-AC_CHECK_HEADERS(dirent.h sys/dirent.h)
+AC_CHECK_HEADERS(dirent.h sys/dirent.h direct.h)
 AC_HEADER_DIRENT
 
 have_getopt="no"

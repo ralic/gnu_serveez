@@ -24,7 +24,9 @@
 
 SUBDIRS = src doc
 
-EXTRA_DIST = BUGS autogen.sh README-alpha THANKS
+EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
+	serveez.dsw serveez.dsp config.h.serveez \
+	libsizzle.dsp config.h.sizzle
 
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in
 

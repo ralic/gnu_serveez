@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.3 2000/08/29 10:44:03 ela Exp $
+ * $Id: gnutella.c,v 1.4 2000/08/29 13:37:31 ela Exp $
  *
  */
 
@@ -50,6 +50,11 @@
 #ifdef __MINGW32__
 # include <winsock.h>
 # include <io.h>
+#endif
+
+#if HAVE_DIRECT_H
+# include <direct.h>
+# define mkdir(path, mode) mkdir (path)
 #endif
 
 #include "alloc.h"
@@ -214,7 +219,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (p);
-  *port = htons (util_atoi (colon));
+  *port = htons ((unsigned short) util_atoi (colon));
   return 0;
 }
 
@@ -591,7 +596,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, nut_reply_t *reply)
       if (reply->speed >= cfg->min_speed && 
 	  cfg->dnloads < cfg->max_dnloads)
 	{
-	  p = (char *) &reply->record;
+	  p = (char *) reply->record;
 	  for (n = 0; n < reply->records; n++)
 	    {
 	      record = (nut_record_t *) p;
@@ -778,7 +783,7 @@ nut_idle_searching (socket_t sock)
   nut_config_t *cfg = sock->cfg;
   nut_header_t hdr;
   nut_query_t query;
-  int n, len;
+  int len;
 
   if (cfg->search)
     {

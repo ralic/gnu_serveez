@@ -1,0 +1,266 @@
+/* config.h.  Generated automatically by configure.  */
+/* config.h.in.  Generated automatically from configure.in by autoheader.  */
+
+/* Define to empty if the keyword does not work.  */
+/* #undef const */
+
+/* Define if you have <sys/wait.h> that is POSIX.1 compatible.  */
+/* #undef HAVE_SYS_WAIT_H */
+
+/* Define as __inline if that's what the C compiler calls it.  */
+#define inline __inline
+
+/* Define to `long' if <sys/types.h> doesn't define.  */
+/* #undef off_t */
+
+/* Define as the return type of signal handlers (int or void).  */
+#define RETSIGTYPE void
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+/* #undef size_t */
+
+/* Define if you have the ANSI C header files.  */
+#define STDC_HEADERS 1
+
+/* The number of bytes in a unsigned.  */
+#define SIZEOF_UNSIGNED 4
+
+/* The number of bytes in a void *.  */
+#define SIZEOF_VOID_P 4
+
+/* Define if you have the _snprintf function.  */
+#define HAVE__SNPRINTF 1
+
+/* Define if you have the _vsnprintf function.  */
+#define HAVE__VSNPRINTF 1
+
+/* Define if you have the alphasort function.  */
+/* #undef HAVE_ALPHASORT */
+
+/* Define if you have the getrlimit function.  */
+/* #undef HAVE_GETRLIMIT */
+
+/* Define if you have the hstrerror function.  */
+/* #undef HAVE_HSTRERROR */
+
+/* Define if you have the memcpy function.  */
+#define HAVE_MEMCPY 1
+
+/* Define if you have the mkfifo function.  */
+/* #undef HAVE_MKFIFO */
+
+/* Define if you have the poll function.  */
+/* #undef HAVE_POLL */
+
+/* Define if you have the scandir function.  */
+/* #undef HAVE_SCANDIR */
+
+/* Define if you have the sendfile function.  */
+/* #undef HAVE_SENDFILE */
+
+/* Define if you have the snprintf function.  */
+#define HAVE_SNPRINTF 1
+
+/* Define if you have the strcasecmp function.  */
+/* #undef HAVE_STRCASECMP */
+
+/* Define if you have the strchr function.  */
+#define HAVE_STRCHR 1
+
+/* Define if you have the stricmp function.  */
+#define HAVE_STRICMP 1
+
+/* Define if you have the strncasecmp function.  */
+/* #undef HAVE_STRNCASECMP */
+
+/* Define if you have the strnicmp function.  */
+#define HAVE_STRNICMP 1
+
+/* Define if you have the strsignal function.  */
+/* #undef HAVE_STRSIGNAL */
+
+/* Define if you have the times function.  */
+/* #undef HAVE_TIMES */
+
+/* Define if you have the uname function.  */
+/* #undef HAVE_UNAME */
+
+/* Define if you have the vsnprintf function.  */
+#define HAVE_VSNPRINTF 1
+
+/* Define if you have the vsprintf function.  */
+#define HAVE_VSPRINTF 1
+
+/* Define if you have the <dirent.h> header file.  */
+/* #undef HAVE_DIRENT_H */
+
+/* Define if you have the <getopt.h> header file.  */
+/* #undef HAVE_GETOPT_H */
+
+/* Define if you have the <ndir.h> header file.  */
+/* #undef HAVE_NDIR_H */
+
+/* Define if you have the <netinet/tcp.h> header file.  */
+/* #undef HAVE_NETINET_TCP_H */
+
+/* Define if you have the <stdio.h> header file.  */
+#define HAVE_STDIO_H 1
+
+/* Define if you have the <sys/dir.h> header file.  */
+/* #undef HAVE_SYS_DIR_H */
+
+/* Define if you have the <sys/dirent.h> header file.  */
+/* #undef HAVE_SYS_DIRENT_H */
+
+/* Define if you have the <sys/ndir.h> header file.  */
+/* #undef HAVE_SYS_NDIR_H */
+
+/* Define if you have the <sys/poll.h> header file.  */
+/* #undef HAVE_SYS_POLL_H */
+
+/* Define if you have the <sys/resource.h> header file.  */
+/* #undef HAVE_SYS_RESOURCE_H */
+
+/* Define if you have the <sys/sendfile.h> header file.  */
+/* #undef HAVE_SYS_SENDFILE_H */
+
+/* Define if you have the <sys/sockio.h> header file.  */
+/* #undef HAVE_SYS_SOCKIO_H */
+
+/* Define if you have the <sys/time.h> header file.  */
+/* #undef HAVE_SYS_TIME_H */
+
+/* Define if you have the <sys/utsname.h> header file.  */
+/* #undef HAVE_SYS_UTSNAME_H */
+
+/* Define if you have the <unistd.h> header file.  */
+/* #undef HAVE_UNISTD_H */
+
+/* Define if you have the <varargs.h> header file.  */
+#define HAVE_VARARGS_H 1
+
+/* Define if you have the descrypt library (-ldescrypt).  */
+/* #undef HAVE_LIBDESCRYPT */
+
+/* Define if debug output should be supported. */
+#define ENABLE_DEBUG 1
+
+/* Define if debug code should be suppressed. */
+/* #undef NDEBUG */
+
+/* Define if we are able to list local network interfaces. */
+#define ENABLE_IFLIST 1
+
+/* Define if poll() should be supported if possible. */
+#define ENABLE_POLL 1
+
+/* Define if Quake3 license key server should be included. */
+#define ENABLE_Q3KEY_PROTO 1
+
+/* Define if Gnutella spider should be included. */
+#define ENABLE_GNUTELLA 1
+
+/* Define if the control protocol should be supported. */
+#define ENABLE_CONTROL_PROTO 1
+
+/* Define if the IRC protocol should be supported. */
+#define ENABLE_IRC_PROTO 1
+
+/* Define if the IRC protocol TimeStamp extension should be supported. */
+#define ENABLE_TIMESTAMP 1
+
+/* Define if the IRC password encryption should be supported. */
+/* #undef ENABLE_CRYPT */
+
+/* Define if the aWCS protocol should be supported. */
+#define ENABLE_AWCS_PROTO 1
+
+/* Define if the HTTP protocol should be supported. */
+#define ENABLE_HTTP_PROTO 1
+
+/* Define if ident authentication should be supported. */
+#define ENABLE_IDENT 1
+
+/* Define if reverse DNS lookup should be supported. */
+#define ENABLE_REVERSE_LOOKUP 1
+
+/* Define if DNS lookup should be supported. */
+#define ENABLE_DNS_LOOKUP 1
+
+/* Define if flood protection should be supported. */
+#define ENABLE_FLOOD_PROTECTION 1
+
+/* Make CygWin / MingW32 use large FD sets. */
+/* #undef FD_SETSIZE */
+
+/* Define if heap counters should be enabled. */
+#define ENABLE_HEAP_COUNT 1
+
+/* Define if you have the <wait.h>. */
+/* #undef HAVE_WAIT_H */
+
+/* Define if you have the <strings.h>. */
+/* #undef HAVE_STRINGS_H */
+
+/* Define if you have the getopt function. */
+/* #undef HAVE_GETOPT */
+
+/* Define if the getopt_long function is declared in getopt.h. */
+/* #undef DECLARED_GETOPT_LONG */
+
+/* Define if you have the getopt_long function. */
+/* #undef HAVE_GETOPT_LONG */
+
+/* Define if Solaris provides the kstat library. */
+/* #undef HAVE_LIBKSTAT */
+
+/* Define if HP-Unix provides the pstat interface. */
+/* #undef HAVE_PSTAT */
+
+/* Define if IRIX provides the sysget interface. */
+/* #undef HAVE_SYSGET */
+
+/* Define if Linux supports the /proc/stat file. */
+/* #undef HAVE_PROC_STAT */
+
+/* Define if you have the vsprintf function. */
+#define HAVE_VSPRINTF 1
+
+/* Define if you have the (_)snprintf function. */
+#define HAVE_SNPRINTF 1
+
+/* Define if you have the (_)vsnprintf function. */
+#define HAVE_VSNPRINTF 1
+
+/* Define if you have the inet_aton function. */
+/* #undef HAVE_INET_ATON */
+
+/* Define to `int' if <sys/socket.h> doesn't define. */
+#define socklen_t int
+
+/* Define if you are using Windows Socket-API (not CYGWIN). */
+#define Win32_Winsock 1
+
+/* Define if you have the <winsock.h> */
+#define HAVE_WINSOCK_H 1
+
+/* Define to 'int' if <winsock.h> doesn't define. */
+/* #undef SOCKET */
+
+/* Define to 'int' if <winsock.h> doesn't define. */
+/* #undef HANDLE */
+
+/* Define to -1 if <winsock.h> doesn't define. */
+/* #undef INVALID_SOCKET */
+
+/* Define if 'winsock.h' defines some more constants. */
+/* #undef HAVE_WSOCK_EXT */
+
+/* Define if signal()s are non-void. */
+/* #undef NONVOID_SIGNAL */
+
+/* Define if h_errno is supported. */
+/* #undef HAVE_H_ERRNO */
+
+/* Define if you have the <direct.h> header file.  */
+#define HAVE_DIRECT_H 1
