@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.48 2001/12/10 22:01:13 ela Exp $
+ * $Id: serveez.c,v 1.49 2002/02/14 03:17:43 raimi Exp $
  *
  */
 
@@ -152,6 +152,7 @@ guile_entry (int argc, char **argv)
 
   svz_log (LOG_NOTICE, "serveez terminating\n");
 
+  /* FIXME: Serveez leaks because of a open logfile handle. */
   if (options->loghandle != stderr)
     svz_fclose (options->loghandle);
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.24 2001/12/07 20:37:15 ela Exp $
+ * $Id: coserver.c,v 1.25 2002/02/14 03:17:43 raimi Exp $
  *
  */
 
@@ -617,10 +617,13 @@ svz_coserver_close_pipes (svz_coserver_t *self)
 
 /* 
  * Iterate each socket object and close its file/socket/pipe 
- * descriptors.
+ * descriptors. Also frees the (cloned) queues.
+ * Note: Duplicate memory for everything else, including server private data.
+ *       We cannot take care of all that because the servers do not know
+ *       that they may get cloned. We therefore waste memory in the coservers.
  */
 static void
-svz_coserver_closeall (void)
+svz_coserver_closeall (svz_socket_t *self)
 {
   svz_socket_t *sock;
 
@@ -636,6 +639,11 @@ svz_coserver_closeall (void)
 	    close (sock->pipe_desc[READ]);
 	  if (sock->pipe_desc[WRITE] >= 2)
 	    close (sock->pipe_desc[WRITE]);
+	}
+      if (sock != self)
+	{
+	  svz_sock_resize_buffers (sock, 0, 0);
+	  svz_free (sock);
 	}
     }
   svz_file_closeall ();
@@ -846,7 +854,7 @@ svz_coserver_start (int type)
 
       /* close all other coserver pipes except its own */
       svz_coserver_close_pipes (coserver);
-      svz_coserver_closeall ();
+      svz_coserver_closeall (coserver->sock);
       svz_coserver_signals ();
 
       /* start the internal coserver */
@@ -957,7 +965,8 @@ svz_coserver_check (void)
       ctype = &svz_coservertypes[coserver->type];
       sock = coserver->sock;
       if (sock->send_buffer_fill * 100 / sock->send_buffer_size >= 75 &&
-	  ((long) time (NULL)) - ctype->last_start >= 3)
+	  ((long) time (NULL)) - ctype->last_start >= 3 &&
+	  svz_coserver_count (ctype->type) <= ctype->instances)
 	svz_coserver_start (coserver->type);
     }
 }

@@ -1,3 +1,8 @@
+2002-02-14  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+
+	* coserver/coserver.c (svz_coserver_check): Do not start too
+	many coservers if buffer is going to be full.
+
 2002-01-24  [ Ela ]  <ela@lkcc.org>
 
 	* binding.c (svz_binding_find_server, 
