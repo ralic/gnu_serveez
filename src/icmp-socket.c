@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.16 2000/11/26 12:22:10 ela Exp $
+ * $Id: icmp-socket.c,v 1.17 2000/12/23 12:16:02 ela Exp $
  *
  */
 
@@ -249,14 +249,12 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "icmp: echo reply received\n");
 #endif
-      return -1;
       break;
 
     case ICMP_ECHO:
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "icmp: echo request received\n");
 #endif
-      return -1;
       break;
 
     case ICMP_SERVEEZ:
@@ -271,14 +269,12 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 	  return -2;
 	}
       return (length + ICMP_HEADER_SIZE);
-      break;
 
     default:
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "icmp: unsupported protocol 0x%02X\n",
 		  header->type);
 #endif
-      return -1;
       break;
     }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.9 2000/11/10 19:55:48 ela Exp $
+ * $Id: nut-route.c,v 1.10 2000/12/23 12:16:02 ela Exp $
  *
  */
 
@@ -175,7 +175,6 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       if (client->invalid++ > NUT_INVALID_PACKETS)
 	sock_schedule_for_shutdown (sock);
       return -1;
-      break;
     }
 
   /* Hops and TTLs */
