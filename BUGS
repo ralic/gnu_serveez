@@ -21,16 +21,16 @@
 -- Boston, MA 02111-1307, USA.  
 --
 
-This file is intended to collect all known (fixed and unfixed) bugs in
-this package. We will consider these to be fixed sooner or later. Please
+This file is intended to collect all known bugs (fixed or unfixed) in
+this package.  We will consider fixing these sooner or later.  Please
 send Serveez bug reports to <bug-serveez@gnu.org>.
 
 Bug:	     B0018
 From:	     ela <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-07-01
-Description: Cannot recompute the Linux kernels checksums of larger (larger
-	     than a single MTU, fragmented) ICMP packets. It seems like the
+Description: Cannot recompute the Linux kernel's checksums of larger (larger
+	     than a single MTU, fragmented) ICMP packets.  It seems like the
 	     defragmented user level packet (IP header) contains the 
 	     checksum of the first fragment with its length and the 
 	     More-Fragments-Flag set.
@@ -40,19 +40,19 @@ From:	     ela <stefan@lkcc.org>
 State:       fixed (2001-05-04/ela)
 Date:	     2000-11-11
 Description: There is no standard raw socket support in the Winsock API.
-	     Maybe we should use the ICMP.DLL API instead ? 
+	     Maybe we should use the ICMP.DLL API instead? 
 Fix:	     Noticed that the above DLL is unusable for our purposes.
-	     Windows 2000 is said to support raw sockets like any other Unix
-	     but it is *not* well known to work properly.
+	     M$-Windows 2000 is said to support raw sockets as Unix systems
+	     do, but it is *not* well known to work properly.
 
 Bug:	     B0016
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-11-11/ela)
 Date:	     2000-11-04
 Description: The Winsock API cannot sendto() or recvfrom() "connected"
-	     UDP and ICMP sockets. The calls return with "Socket is already
-	     connected". Thus the tunnel server will not work properly.
-Fix:	     Use of send() and recv() instead of their -to() and -from()
+	     UDP and ICMP sockets.  The calls return with "Socket is already
+	     connected".  Thus the tunnel server will not work properly.
+Fix:	     Use send() and recv() instead of their -to() and -from()
 	     versions.
 
 Bug:	     B0015
@@ -61,7 +61,7 @@ State:       fixed (2001-09-15/ela)
 Date:	     2000-09-20
 Description: The named pipes on Win32 do not work properly yet.
 Fix:	     Due to the bad documentation and the lack of open source
-	     example code I needed a lot of try and error to get them 
+	     example code I needed a lot of trial and error to get them 
 	     finally working.
 
 Bug:	     B0014
@@ -76,8 +76,8 @@ Bug:	     B0013
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-10-03/ela)
 Date:	     2000-09-12
-Description: Bigger CGI scripts under Win95 will lock the server. Bigger
-	     means more content production here. This happened with batch
+Description: Bigger CGI scripts under Win95 will lock the server.  (Bigger
+	     means more content production here.)  This happened with batch
 	     files (.bat) which `type file.txt'.
 Fix:	     Pipes have been done non-blocking via PeekNamedPipe() in the
 	     Win32 port.
@@ -86,27 +86,27 @@ Bug:	     B0012
 From:	     ela <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-09-12
-Description: If the server has many open connections and much traffic on
-	     these Linux starts deadlocking for some reason. This 
-	     collaborates with the occurrence of EWOULDBLOCK or EAGAIN on
-	     network sockets. Seems like if one socket starts with this
-	     all want to do the same: nothing, but wasting time in kernel
-	     space. Errors happen to be on outgoing connections only.
+Description: If the server has many open connections with much traffic
+	     Linux starts deadlocking for some reason.  This corresponds
+	     with the occurrence of EWOULDBLOCK or EAGAIN on network
+	     sockets.  Seems that if one socket starts this, all want to
+	     do the same: nothing but wasting time in kernel space.
+	     Errors happen to be on outgoing connections only.
 
 Bug:	     B0011
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-09-22/ela)
 Date:	     2000-09-12
-Description: On some Linux's the named pipe behavior is not as it is
-	     documented. See `man 4 fifo' for more information.
+Description: On some Linuxs the named pipe behaviour is not as it is
+	     documented.  See `man 4 fifo' for more information.
 Fix:	     Checking for the file flags (S_ISFIFO) of a previously created
-	     named pipe. This has been a problem on NFS mounts.
+	     named pipe.  This has been a problem on NFS mounts.
 
 Bug:	     B0010
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-08-20/ela)
 Date:	     2000-08-19
-Description: Ident coserver dies because of queue overrun. Thus the
+Description: Ident coserver dies because of queue overrun.  Thus the
 	     socket references cannot get decreased.
 Fix:	     Using a general coserver request hash instead of socket
 	     structure references.
@@ -115,7 +115,7 @@ Bug:	     B0009
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-07-06/raimi)
 Date:	     2000-06-21
-Description: Filesize 0 (zero) for http files is not handled specifically.
+Description: Filesize 0 (zero) for HTTP files is not handled specifically.
              HTTP directory listing does not show the actual directory.
 Fix:	     Added some extra code for this.
 
@@ -123,7 +123,7 @@ Bug:         B0008
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-11-11/ela)
 Date:	     2000-04-24
-Description: Http cache inconsistency.
+Description: HTTP cache inconsistency.
 Fix:         With help of a special paranoid checking function all bugs
 	     have been caught. 
 
@@ -132,7 +132,7 @@ From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-11-18/ela)
 Date:	     1999-10-27
 Description: accept() fails under Cygwin with a "bad address" error.
-Fix:	     Set accept()'s third argument (addrlen) before.
+Fix:	     Set accept()'s third argument (addrlen) beforehand.
 
 Bug:         B0006
 From:	     ela <stefan@lkcc.org>
@@ -169,9 +169,9 @@ Bug:         B0002
 From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
 State:       fixed (1999-10-25/mgrabmue)
 Date:	     1999-10-21
-Description: Serveez goes into endless loop or something when many
+Description: Serveez goes into an endless loop or something when many
 	     massclients are connected.  Process uses 100% CPU and
-	     does no accept connections anymore.
+	     does not accept connections anymore.
 
 Bug:         B0001
 From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>

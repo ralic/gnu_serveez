@@ -21,24 +21,29 @@
 -- Boston, MA 02111-1307, USA.  
 --
 
+
 Description
 ===========
 
-Serveez is a server framework. It provides routines and help for
-implementing IP based servers (currently TCP, UDP and ICMP). It is also
+Serveez is a server framework.  It provides routines and help for
+implementing IP based servers (currently TCP, UDP and ICMP).  It is also
 possible to use named pipes for all connection oriented protocols.
+
 We think it is worth the effort because many people need server functionality 
-within their applications. However, many people experience problems 
-with select()- or poll()-loops and non-blocking operations.
+within their applications.  However, many people experience problems 
+with select()- or poll()-loops, and with non-blocking operations.
+
 This application demonstrates various aspects of advanced network
-programming in a portable manner. It is known to compile and run on 
-GNU/Linux systems, as well as other 32-bit and 64-bit flavours of Unix, 
+programming in a portable manner.  It is known to compile and run on 
+GNU/Linux systems, as well as on other 32-bit and 64-bit flavours of Unix 
 and on Microsoft Windows (9x/ME/NT/2000/XP).
+
 You can use it for implementing your own servers or for understanding how
 certain network services and operations work.
-The package includes a number of servers that work already: a HTTP server,
-an IRC server, a Gnutella spider and some others. One of the highlights is
-that you can run all protocols on the same port. The application itself is
+
+The package includes a number of servers that work already: an HTTP server,
+an IRC server, a Gnutella spider and some others.  One of the highlights is
+that you can run all protocols on the same port.  The application itself is
 single threaded but it uses helper processes for concurrent name resolution
 and ident lookups.
 
@@ -46,7 +51,7 @@ and ident lookups.
 Requirements
 ============
 
-Serveez needs GNU guile (Ubiquitous Intelligent Language for Extensions). 
+Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions). 
 This current version is known to work with Guile 1.3.4 and later.
 
 
@@ -55,50 +60,50 @@ Installation
 
 Unpack the distribution tarball:
 
-$ tar xvzf serveez-<version>.tar.gz               (using GNU tar)
-$ gzip -cd serveez-<version>.tar.gz | tar xvf -   (using another tar)
+    $ tar xvzf serveez-<version>.tar.gz               (using GNU tar)
+    $ gzip -cd serveez-<version>.tar.gz | tar xvf -   (using another tar)
   
 Change into the source directory:
 
-$ cd serveez-<version>
+    $ cd serveez-<version>
   
 Configure the source package for your system:
 We recommend to use --enable-opt unless you have a good reason not to do so.
 
-$ ./configure --enable-opt
+    $ ./configure --enable-opt
 
 Now compile the package:
 
-$ make
+    $ make
   
-Install serveez:
+Install Serveez:
 
-$ make install
+    $ make install
 
 You must have root privileges if you want to install the package in the
-standard location /usr/local or in any location that is only writable 
+standard location (/usr/local) or in any location that is only writable 
 by root.
 
-If you have problems building the package out of the box this is due to
-GNU libtool's inability to handle dynamic linking in most cases. That is
-why we recommend to try to configure the package with `--disable-shared'
-and/or the native compiler (if any). When the build process is not able to 
+If you have problems building the package out of the box, this is due to
+GNU libtool's inability to handle dynamic linking in most cases.  That is
+why we recommend to try and configure the package with `--disable-shared'
+and/or the native compiler (if any).  When the build process is not able to 
 link against an existing Guile installation you can try to use the
 `--with-guile-source=DIR' configure option.
 
 For further information on installing the package, please consult the
-file INSTALL, included in this distribution.
+file INSTALL included in this distribution.
 
 
 Getting the latest CVS snapshot
 ===============================
 
-You can always get the latest serveez version from our cvs repository.
-Please use an official release if you want to work with serveez. The cvs
+You can always get the latest Serveez version from our CVS repository.
+Please use an official release if you want to work with Serveez.  The CVS
 version might not even compile.
 
-cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
+    cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
 
-The password is 'anoncvs'. Run `sh autogen.sh' and `configure' with 
-appropriate options. Maintainance currently requires 
-Autoconf version 2.13, GNU libtool 1.4.2 and GNU automake 1.4-p5.
+The password is 'anoncvs'.  Run `sh autogen.sh' and `configure' with the
+appropriate options.  Maintainance currently requires Autoconf version 2.13,
+GNU libtool 1.4.2 and GNU automake 1.4-p5.

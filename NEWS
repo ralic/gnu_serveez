@@ -21,7 +21,7 @@
 -- Boston, MA 02111-1307, USA.  
 --
 
-This file lists user visible changes that were made between releases. For
+This file lists user visible changes that were made between releases.  For
 more verbose descriptions of these and internal changes see the ChangeLog
 files.
 
@@ -36,11 +36,11 @@ Version 0.1.1
 
  * zlib codec implemented
  * specification of a transparent codec interface
- * working named pipe interface under Windows
- * package available as relocatable RPM
+ * working named pipe interface under M$-Windows
+ * package made available as relocatable RPM
  * modified chat server master protocol (use textSure v1.3)
  * virtually unlimited number of socket structures allowed
- * faster http file cache
+ * faster HTTP file cache
  * automatic coserver restart on buffer overrun or death
  * Guile server examples and documentation
  * Guile servers can be enabled via --enable-guile-server
@@ -49,7 +49,7 @@ Version 0.1.1
 Version 0.1.0
 -------------
 
- * semi-automatically created core API documentation added
+ * semi-automatic creation of core API documentation added
  * using Guile as configuration language, dropped Sizzle
  * coservers are now integral part of the core library
  * embeddable library created
@@ -61,17 +61,17 @@ Version 0.0.20
  * HTTP server is able to produce the Common Log Format (CLF)
  * enable the SNTP server via --enable-sntp-proto
  * dropped the Quake III license key server for legal reasons
- * serveez becomes a GNU software package
+ * Serveez becomes a GNU software package
 
 Version 0.0.19
 --------------
 
- * allowing `~user' syntax for http requests
- * the http server got a configurable access logfile
+ * allowing `~user' syntax for HTTP requests
+ * the HTTP server got a configurable access logfile
  * port forwarder (Tunnel Server) can be enabled via --enable-tunnel
  * basic support for ICMP servers
  * package is available at www.freshmeat.net and www.sourceforge.net
- * cgi application associations possible in the http server
+ * CGI application associations possible in the HTTP server
  * daemon support via command line option
 
 Version 0.0.18
@@ -92,7 +92,7 @@ Version 0.0.17
  * TexInfo documentation
  * multiple servers on a single port and servers on multiple ports
  * server instantiating possible
- * documentation on how to write servers and coservers for serveez
+ * documentation on how to write servers and coservers for Serveez
  * opened CVS repository
 
 Version 0.0.16
@@ -110,14 +110,14 @@ Version 0.0.16
 Version 0.0.15
 --------------
 
- * integration of sizzle as the configuration file language, new
-   configure option --with-sizzle[=DIR], the serveez package now depends
-   on the GNU sizzle package
+ * integration of Sizzle as the configuration file language, new
+   configure option --with-sizzle[=DIR], the Serveez package now depends
+   on the GNU Sizzle package
 
 Version 0.0.14
 --------------
 
- * speeding up the http protocol server
- * http file cache
+ * speeding up the HTTP protocol server
+ * HTTP file cache
  * HTTP/0.9 simple GET implemented
- * Keep-Alive connections in http protocol
+ * Keep-Alive connections in HTTP

@@ -26,19 +26,19 @@ Distribution process:
 
 * Ensure the release is complete.
   - Check the TODO, NEWS and BUGS files for pending or completed tasks.
-  - Are the Windows files up to date (*.dsp, *.dsw) ?
-  - Compile, run and test it on Windows (MinGW32, Cygwin and MSVC). 
-  - Make sure INSTALL, THANKS and README-* is up to date.
+  - Are the M$-Windows files up to date (*.dsp, *.dsw)?
+  - Compile, run and test it on M$-Windows (MinGW32, Cygwin and MSVC). 
+  - Make sure INSTALL, THANKS and README-* are up to date.
 
 * Test build and packaging.
   - Run `make distclean', `sh autogen.sh' and `make all'.
-  - Check if the binaries properly work.
+  - Check if the binaries work properly.
   - Run `make distcheck'.
   - Check this status into CVS and tag it.
   - Run `make dist'.
   - Run `make site' in the `doc/' directory and check this status into
     the savannah.gnu.org CVS.
-  - Create a binary package for Windows.
+  - Create a binary package for M$-Windows.
 
 * Bump up version.
   - Add a ChangeLog entry in toplevel directory.

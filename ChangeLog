@@ -1,3 +1,8 @@
+2001-10-27  [ Ela ]  <ela@lkcc.org>
+
+	* Applied John Fitzgerald's patches for the top level 
+	directory.
+
 2001-10-26  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: New option `--enable-passthrough' enables 
