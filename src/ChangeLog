@@ -1,3 +1,18 @@
+2001-07-20  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (guile_sock_check_request): Setter for
+	the check_request callback.
+	(guile_server_config_get): Returns a scheme cell for a
+	configuration item of a server.
+	(guile_sock_receive_buffer): Getter for the receive buffer
+	of a socket.
+
+	* guile.c (guile_hash_to_guile): New function. Converts a
+	string hash into a scheme alist.
+
+	* guile-server.c (guile_sock_handle_request): New function for
+	setting up the check_request member of a socket structure.
+
 2001-07-18  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_servertype_config): Manages the

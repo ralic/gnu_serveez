@@ -46,10 +46,65 @@ BINARY-SUBSET_DEFUN
 
 @subsubsection Server definition
 
+In order to setup a new server type you use the procedure 
+@code{(define-servertype!)}. This procedure takes one argument which must be
+a associative list specifying the server type in detail. There are 
+optional and mandatory elements you can setup in this alist. The following
+example shows the overall syntax of this procedure:
+
+@lisp
+(define-servertype! '(
+
+  ;; Mandatory: server type prefix for later use in (define-server!)
+  (prefix          . "foo")
+
+  ;; Mandatory: server type description
+  (description     . "guile foo server")
+
+  ;; Mandatory for TCP and PIPE servers: protocol detection
+  (detect-proto    . foo-detect-proto)
+
+  ;; Optional: global server type initialization
+  (global-init     . foo-global-init)
+
+  ;; Optional: server instance initialization
+  (init            . foo-init)
+
+  ;; Optional: server instance finalization
+  (finalize        . foo-finalize)
+
+  ;; Optional: global server type finalization
+  (global-finalize . foo-global-finalize)
+
+  ;; Mandatory for TCP and PIPE servers: socket connnection
+  (connect-socket  . foo-connect-socket)
+
+  ;; Optional: server instance info
+  (info-server     . foo-info-server)
+
+  ;; Mandatory: server type configuration
+  (configuration   . (
+
+    ;; The server configuration is an alist (associative list) again. Each
+    ;; item consist of an item name and a list describing the item itself.
+    ;; Syntax: (key . (type defaultable default))
+    (foo-integer       . (integer  #t 0))
+    (foo-integer-array . (intarray #t (1 2 3 4 5)))
+    (foo-string        . (string   #t "default-foo-string"))
+    (foo-string-array  . (strarray #t ("guile" "foo" "server")))
+    (foo-hash          . (hash     #t (("foo" . "bar"))))
+    (foo-port          . (portcfg  #t foo-port))
+    (foo-boolean       . (boolean  #t #t))
+  ))))
+@end lisp
+
 DEFINE-SERVERTYPE!_DEFUN
 
 @subsubsection Predefined procedures
 
+SVZ:SOCK:CHECK-REQUEST_DEFUN
 SVZ:SOCK:HANDLE-REQUEST_DEFUN
 SVZ:SOCK:BOUNDARY_DEFUN
 SVZ:SOCK:PRINT_DEFUN
+SVZ:SOCK:RECEIVE-BUFFER_DEFUN
+SVZ:SERVER:CONFIG-GET_DEFUN

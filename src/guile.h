@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.7 2001/07/19 13:50:42 ela Exp $
+ * $Id: guile.h,v 1.8 2001/07/20 11:07:13 ela Exp $
  *
  */
 
@@ -45,6 +45,9 @@ svz_array_t *guile_to_intarray (SCM, char *);
 svz_array_t *guile_to_strarray (SCM, char *);
 svz_hash_t *guile_to_hash (SCM, char *);
 svz_hash_t *guile_to_optionhash (SCM, char *, int);
+SCM guile_strarray_to_guile (svz_array_t *);
+SCM guile_intarray_to_guile (svz_array_t *);
+SCM guile_hash_to_guile (svz_hash_t *);
 void guile_error (char *, ...);
 int guile_load_config (char *);
 

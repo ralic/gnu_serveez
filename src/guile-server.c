@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.9 2001/07/19 13:50:42 ela Exp $
+ * $Id: guile-server.c,v 1.10 2001/07/20 11:07:12 ela Exp $
  *
  */
 
@@ -275,7 +275,7 @@ guile_ptr (void *ptr)
  * integer the routine return the default value @var{def}.
  */
 static int
-guile_int (SCM value, int def)
+guile_integer (SCM value, int def)
 {
   if (gh_number_p (value))
     return gh_scm2int (value);
@@ -292,7 +292,7 @@ guile_func_global_init (svz_servertype_t *stype)
   if (global_init != SCM_UNDEFINED)
     {
       ret = gh_call1 (global_init, MAKE_SMOB (svz_servertype, stype));
-      return guile_int (ret, -1);
+      return guile_integer (ret, -1);
     }
   return 0;
 }
@@ -308,7 +308,7 @@ guile_func_init (svz_server_t *server)
   if (init != SCM_UNDEFINED)
     {
       ret = gh_call1 (init, MAKE_SMOB (svz_server, server));
-      return guile_int (ret, -1);
+      return guile_integer (ret, -1);
     }
   return 0;
 }
@@ -325,7 +325,7 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
     {
       ret = gh_call2 (detect_proto, MAKE_SMOB (svz_server, server), 
 		      MAKE_SMOB (svz_socket, sock));
-      return guile_int (ret, 0);
+      return guile_integer (ret, 0);
     }
   return 0;
 }
@@ -345,7 +345,7 @@ guile_func_disconnected (svz_socket_t *sock)
   if (disconnected != SCM_UNDEFINED)
     {
       ret = gh_call1 (disconnected, MAKE_SMOB (svz_socket, sock));
-      retval = guile_int (ret, -1);
+      retval = guile_integer (ret, -1);
     }
 
   /* Delete all the associated guile callbacks. */
@@ -372,7 +372,7 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
     {
       ret = gh_call2 (connect_socket, MAKE_SMOB (svz_server, server), 
 		      MAKE_SMOB (svz_socket, sock));
-      return guile_int (ret, 0);
+      return guile_integer (ret, 0);
     }
   return 0;
 }
@@ -388,7 +388,7 @@ guile_func_finalize (svz_server_t *server)
   if (finalize != SCM_UNDEFINED)
     {
       ret = gh_call1 (finalize, MAKE_SMOB (svz_server, server));
-      return guile_int (ret, -1);
+      return guile_integer (ret, -1);
     }
   return 0;
 }
@@ -403,7 +403,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
   if (global_finalize != SCM_UNDEFINED)
     {
       ret = gh_call1 (global_finalize, MAKE_SMOB (svz_servertype, stype));
-      return guile_int (ret, -1);
+      return guile_integer (ret, -1);
     }
   return 0;
 }
@@ -445,23 +445,55 @@ guile_func_info_server (svz_server_t *server)
 static int
 guile_func_notify (svz_server_t *server)
 {
+  svz_servertype_t *stype = svz_servertype_find (server);
+  SCM ret, notify = guile_servertype_getfunction (stype, "notify");
+
+  if (notify != SCM_UNDEFINED)
+    {
+      ret = gh_call1 (notify, MAKE_SMOB (svz_server, server));
+      return guile_integer (ret, -1);
+    }
   return -1;
 }
 
-/* Wrapper for the socket handle request callback. */
+/* Wrapper for the socket check request callback. */
+static int
+guile_func_check_request (svz_socket_t *sock)
+{
+  SCM ret, check_request;
+  check_request = guile_sock_getfunction (sock, "check-request");
+
+  if (check_request != SCM_UNDEFINED)
+    {
+      ret = gh_call1 (check_request, MAKE_SMOB (svz_socket, sock));
+      return guile_integer (ret, -1);
+    }
+  return -1;
+}
+
+/* Wrapper for the socket handle request callback. The function searches for
+   both the servertype specific and socket specific procedure. */
 static int
 guile_func_handle_request (svz_socket_t *sock, char *request, int len)
 {
+  svz_server_t *server;
+  svz_servertype_t *stype;
   SCM ret, handle_request;
   handle_request = guile_sock_getfunction (sock, "handle-request");
+
+  if (handle_request == SCM_UNDEFINED)
+    {
+      server = svz_server_find (sock->cfg);
+      stype = svz_servertype_find (server);
+      handle_request = guile_servertype_getfunction (stype, "handle-request");
+    }
 
   if (handle_request != SCM_UNDEFINED)
     {
       ret = gh_call3 (handle_request, MAKE_SMOB (svz_socket, sock), 
 		      guile_data_to_bin (request, len), gh_int2scm (len));
-      return guile_int (ret, -1);
+      return guile_integer (ret, -1);
     }
-
   return -1;
 }
 
@@ -480,6 +512,24 @@ guile_sock_handle_request (SCM sock, SCM proc)
 
   xsock->handle_request = guile_func_handle_request;
   return guile_sock_setfunction (xsock, "handle-request", proc);
+}
+#undef FUNC_NAME
+
+/* Set the @code{check_request} member of the socket structure @var{sock} 
+   to the guile procedure @var{proc}. Returns the previously handler if 
+   there is any. */
+#define FUNC_NAME "svz:sock:check-request"
+static SCM
+guile_sock_check_request (SCM sock, SCM proc)
+{
+  svz_socket_t *xsock;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  SCM_ASSERT_TYPE (gh_procedure_p (proc), proc, SCM_ARG2, 
+		   FUNC_NAME, "procedure");
+
+  xsock->check_request = guile_func_check_request;
+  return guile_sock_setfunction (xsock, "check-request", proc);
 }
 #undef FUNC_NAME
 
@@ -537,6 +587,106 @@ guile_sock_print (SCM sock, SCM buffer)
       return SCM_BOOL_F;
     }
   return SCM_BOOL_T;
+}
+#undef FUNC_NAME
+
+/* Return the receive buffer of the socket @var{sock} as binary smob. */
+#define FUNC_NAME "svz:sock:receive-buffer"
+SCM
+guile_sock_receive_buffer (SCM sock)
+{
+  svz_socket_t *xsock;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  return guile_data_to_bin (xsock->recv_buffer, xsock->recv_buffer_fill);
+}
+#undef FUNC_NAME
+
+/*
+ * Convert the given value at @var{address} of the the type @var{type} into
+ * a scheme cell.
+ */
+static SCM
+guile_config_convert (void *address, int type)
+{
+  svz_portcfg_t *port;
+  SCM ret = SCM_EOL;
+
+  switch (type)
+    {
+    case SVZ_ITEM_INT:
+      ret = gh_int2scm (*(int *) address);
+      break;
+    case SVZ_ITEM_INTARRAY:
+      ret = guile_intarray_to_guile (*(svz_array_t **) address);
+      break;
+    case SVZ_ITEM_STR:
+      ret = gh_str02scm (*(char **) address);
+      break;
+    case SVZ_ITEM_STRARRAY:
+      ret = guile_strarray_to_guile (*(svz_array_t **) address);
+      break;
+    case SVZ_ITEM_HASH:
+      ret = guile_hash_to_guile (*(svz_hash_t **) address);
+      break;
+    case SVZ_ITEM_PORTCFG:
+      if ((port = *(svz_portcfg_t **) address) != NULL)
+	ret = gh_str02scm (port->name);
+      break;
+    case SVZ_ITEM_BOOL:
+      ret = gh_bool2scm (*(int *) address);
+      break;
+    }
+  return ret;
+}
+
+/* This procedure returns the configuration item specified by @var{key} of
+   the given server instance @var{server}. You can pass this function a
+   socket too. In this case the procedure will lookup the appropiate server
+   instance itself. If the given string @var{key} is invalid (not defined 
+   in the configuration alist in @code{(define-servertype!)} then it returns
+   an empty list. */
+#define FUNC_NAME "svz:server:config-get"
+SCM
+guile_server_config_get (SCM server, SCM key)
+{
+  SCM ret = SCM_EOL;
+  svz_servertype_t *stype;
+  svz_server_t *xserver;
+  svz_socket_t *xsock;
+  int i;
+  void *cfg, *address;
+  char *str;
+
+  SCM_ASSERT_TYPE (CHECK_SMOB (svz_server, server) || 
+		   CHECK_SMOB (svz_socket, server), server, SCM_ARG1, 
+		   FUNC_NAME, "svz-server or svz-socket");
+  SCM_ASSERT_TYPE (gh_string_p (key), key, SCM_ARG2, FUNC_NAME, "string");
+
+  if (CHECK_SMOB (svz_socket, server))
+    {
+      xsock = GET_SMOB (svz_socket, server);
+      xserver = svz_server_find (xsock);
+    }
+  else
+    xserver = GET_SMOB (svz_server, server);
+  str = guile_to_string (key);
+  stype = svz_servertype_find (xserver);
+  cfg = xserver->cfg;
+
+  for (i = 0; stype->items[i].type != SVZ_ITEM_END; i++)
+    {
+      if (strcmp (stype->items[i].name, str) == 0)
+	{
+	  address = (void *) ((unsigned long) cfg + 
+			      (unsigned long) stype->items[i].address - 
+			      (unsigned long) stype->prototype_start);
+	  ret = guile_config_convert (address, stype->items[i].type);
+	  break;
+	}
+    }
+  scm_must_free (str);
+  return ret;
 }
 #undef FUNC_NAME
 
@@ -990,11 +1140,20 @@ guile_server_init (void)
 
   guile_server = svz_hash_create (4);
   guile_sock = svz_hash_create (4);
-  gh_new_procedure ("define-servertype!", guile_define_servertype, 1, 0, 0);
+  gh_new_procedure ("define-servertype!", 
+		    guile_define_servertype, 1, 0, 0);
   gh_new_procedure ("svz:sock:handle-request", 
 		    guile_sock_handle_request, 2, 0, 0);
-  gh_new_procedure ("svz:sock:boundary", guile_sock_boundary, 2, 0, 0);
-  gh_new_procedure ("svz:sock:print", guile_sock_print, 2, 0, 0);
+  gh_new_procedure ("svz:sock:check-request", 
+		    guile_sock_check_request, 2, 0, 0);
+  gh_new_procedure ("svz:sock:boundary", 
+		    guile_sock_boundary, 2, 0, 0);
+  gh_new_procedure ("svz:sock:print", 
+		    guile_sock_print, 2, 0, 0);
+  gh_new_procedure ("svz:sock:receive-buffer", 
+		    guile_sock_receive_buffer, 1, 0, 0);
+  gh_new_procedure ("svz:server:config-get", 
+		    guile_server_config_get, 2, 0, 0);
 
   /* Initialize the guile SMOB things. Previously defined via 
      MAKE_SMOB_DEFINITION (). */

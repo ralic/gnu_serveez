@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.7 2001/07/19 13:50:42 ela Exp $
+;; $Id: echo-server.scm,v 1.8 2001/07/20 11:07:12 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -48,6 +48,20 @@
   (define ret '())
   (println "Running echo server info " server ".")
   (set! ret " This is the echo server.")
+  (println " echo-integer: " 
+	   (svz:server:config-get server "echo-integer"))
+  (println " echo-integer-array: " 
+	   (svz:server:config-get server "echo-integer-array"))
+  (println " echo-string: " 
+	   (svz:server:config-get server "echo-string"))
+  (println " echo-string-array: " 
+	   (svz:server:config-get server "echo-string-array"))
+  (println " echo-hash: " 
+	   (svz:server:config-get server "echo-hash"))
+  (println " echo-port: " 
+	   (svz:server:config-get server "echo-port"))
+  (println " echo-boolean: " 
+	   (svz:server:config-get server "echo-boolean"))
   ret)
 
 (define (echo-handle-request sock request len)
@@ -94,7 +108,21 @@
   ))))
 
 ;; Server instantiation.
-(define-server! 'echo-server)
+(define-server! 'echo-server '(
+			       (echo-integer       . 42)
+			       (echo-integer-array . (5 4 3 2 1))
+			       ))
 
 ;; Bind server to port.
 (bind-server! 'echo-port 'echo-server)
+
+;; Control protocol server for remote control.
+(define-port! 'control-port `(
+			      (proto . tcp)
+			      (port . 42420)
+			      (ipaddr . *)
+			      ))
+
+(define-server! 'control-server)
+
+(bind-server! 'control-port 'control-server)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.38 2001/07/19 13:50:42 ela Exp $
+ * $Id: guile.c,v 1.39 2001/07/20 11:07:12 ela Exp $
  *
  */
 
@@ -1423,7 +1423,7 @@ guile_bind_server (SCM port, SCM server)
 /*
  * Converts the given array of strings @var{array} into a guile list.
  */
-static SCM
+SCM
 guile_strarray_to_guile (svz_array_t *array)
 {
   SCM list;
@@ -1437,6 +1437,44 @@ guile_strarray_to_guile (svz_array_t *array)
   for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
     list = gh_cons (gh_str02scm ((char *) svz_array_get (array, i)), list);
   return gh_reverse (list);
+}
+
+/*
+ * Converts the given array of integers @var{array} into a guile list.
+ */
+SCM
+guile_intarray_to_guile (svz_array_t *array)
+{
+  SCM list;
+  unsigned long i;
+  
+  /* Check validity of the give string array. */
+  if (array == NULL)
+    return SCM_UNDEFINED;
+
+  /* Go through all the strings and add these to a guile list. */
+  for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
+    list = gh_cons (gh_long2scm ((long) svz_array_get (array, i)), list);
+  return gh_reverse (list);
+}
+
+/*
+ * Converts the given string hash @var{hash} into a guile alist.
+ */
+SCM
+guile_hash_to_guile (svz_hash_t *hash)
+{
+  SCM alist = SCM_EOL, pair;
+  char **key;
+  int n;
+  
+  svz_hash_foreach_key (hash, key, n)
+    {
+      pair = gh_cons (gh_str02scm (key[n]),
+		      gh_str02scm ((char *) svz_hash_get (hash, key[n])));
+      alist = gh_cons (pair, alist);
+    }
+  return alist;
 }
 
 /*
