@@ -1,7 +1,7 @@
 /*
  * option.h - getopt function interface
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: option.h,v 1.3 2000/07/15 11:44:16 ela Exp $
+ * $Id: option.h,v 1.4 2001/04/09 13:46:05 ela Exp $
  *
  */
 
@@ -38,6 +38,22 @@
    in this specific file */
 # include <unistd.h>
 #endif
+
+/*
+ * The following structure contains all command line options which might
+ * override the settings from the configuration file.
+ */
+typedef struct
+{
+  char *logfile;   /* logging file */
+  FILE *loghandle; /* logging file handle */
+  char *cfgfile;   /* configuration file */
+  int verbosity;   /* verbosity level */
+  int sockets;     /* maximum amount of open files (sockets) */
+  char *pass;      /* password */
+  int daemon;      /* start as daemon or not */
+}
+option_t;
 
 /*
  * Defining here the struct and #define's for getopt_long() if it
@@ -71,7 +87,12 @@ extern int getopt_long (int argc,
 
 int getopt (int argc, char * const argv[], const char *optstring);
 extern char *optarg;
+extern int optind;
+extern int opterr;
+extern int optopt;
 
 #endif /* not HAVE_GETOPT */
+
+option_t *handle_options (int argc, char **argv);
 
 #endif /* __OPTION_H__ */

@@ -929,6 +929,8 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h)
 AC_HEADER_DIRENT
 
+SERVEEZLIBS=""
+
 dnl
 dnl Checking for shared library loading interface. 
 dnl
@@ -937,20 +939,21 @@ have_dlopen="no"
 AC_CHECK_FUNC(dlopen, have_dlopen="yes",
     AC_CHECK_LIB(dl, dlopen,
 	have_dlopen="yes"
-	EXTRALIBS="$EXTRALIBS -ldl"),
+	EXTRALIBS="$SERVEEZLIBS -ldl"),
     AC_CHECK_LIB(svld, dlopen,
 	have_dlopen="yes"
-	EXTRALIBS="$EXTRALIBS -lsvdl"))
+	EXTRALIBS="$SERVEEZLIBS -lsvdl"))
 
 if test $have_dlopen = "yes"; then
     AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
 else
     AC_CHECK_LIB(dld, dld_link,
     AC_DEFINE(HAVE_DLD_LINK, 1, [Define if you have the dld_link function.])
-    EXTRALIBS="$EXTRALIBS -ldld")
+    EXTRALIBS="$SERVEEZLIBS -ldld")
 fi
 
 unset have_dlopen
+AC_SUBST(SERVEEZLIBS)
 
 dnl ----------------------------------------------------------------------
 
@@ -1240,4 +1243,21 @@ if test "$sizzle_src" != "no"; then
      --without-catgets \
      --with-mingw=$MINGDIR \
      --cache-file=$cache_file])
+fi
+
+dnl
+dnl Configure local guile repository.
+dnl
+
+guile_src="no"
+if test "$guile_src" != "no"; then
+  cache_file="`pwd`/$cache_file"
+  export CPPFLAGS
+
+  ([cd $guile_dir && sh ./configure \
+    --enable-static --disable-shared \
+    --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
+    --disable-arrays --disable-posix --disable-networking --disable-regex \
+    --without-threads \
+    --cache-file=$cache_file])
 fi

@@ -1,7 +1,7 @@
 /*
  * option.c - getopt function implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.6 2000/09/27 14:31:25 ela Exp $
+ * $Id: option.c,v 1.7 2001/04/09 13:46:04 ela Exp $
  *
  */
 
@@ -30,59 +30,255 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 
+#include "libserveez.h"
 #include "option.h"
 
 #ifndef HAVE_GETOPT
 /*
- * Lousy implementation of getopt().
- * Does not understand neither optind, opterr nor optopt
- * Only good for parsing simple small-option command lines on
+ * Lousy implementation of @code{getopt()}.
+ * Only good for parsing simple short option command lines on
  * stupid systems like Win32. No error checking !
  */
-char *optarg;
-int optind;
-int opterr;
-int optopt;
+char *optarg = NULL;
+int optind = 1;
+int opterr = 1;
+int optopt = 0;
 
 int 
 getopt (int argc, char * const argv[], const char *optstring) 
 {
-  static int i = 1;
+  static int current_arg = 1, current_opt = 0;
   int n;
+  char *prog = argv[0] + strlen (argv[0]);
 
-  while (i < argc) 
+  /* parse the programs name */
+  while (prog > argv[0] && (*prog != '/' || *prog != '\\'))
+    prog--;
+  if (*prog == '/' || *prog == '\\')
+    prog++;
+
+  while (current_arg < argc) 
     {
-      if (argv[i][0] == '-') 
-	{
-	  n = 0;
-	  /* go through all option characters */
-	  while (optstring[n]) 
+      if (current_arg != 0 || argv[current_arg][0] == '-') 
+        {
+          if (current_opt == 0)
+            current_opt = 1;
+          while (argv[current_arg][current_opt] != '\0')
 	    {
-	      if (optstring[n] == argv[i][1])
+	      n = 0;
+	      /* go through all option characters */
+	      while (optstring[n]) 
 		{
-		  i++;
-		  if (optstring[n+1] == ':')
+		  if (optstring[n] == argv[current_arg][current_opt])
 		    {
-		      optarg = argv[i];
-		      i++;
+		      current_opt++;
+		      if (optstring[n + 1] == ':') 
+			{
+			  optarg = argv[current_arg + 1];
+			  if (opterr && optarg == NULL)
+			    fprintf (stderr, 
+				     "%s: option requires an argument -- %c\n",
+				     prog, optstring[n]);
+			}
+		      else
+			optarg = NULL;
+		      if (argv[current_arg][current_opt] == '\0')
+			{ 
+			  current_arg++;
+			  current_opt = 0;
+			} 
+		      optind = current_arg;
+		      return optstring[n];
 		    }
-		  else
-		    {
-		      optarg = NULL;
-		    }
-		  return optstring[n];
+		  n++;
 		}
-	      n++;
-	    }
+	      optopt = argv[current_arg][current_opt];
+	      if (opterr)
+		fprintf (stderr, "%s: invalid option -- %c\n", prog, optopt);
+	      return '?';
+            }
+	  current_opt++;
 	}
-      i++;
+      current_arg++;
     }
-  i = 1;
+
+  current_arg = 1;
+  current_opt = 0;
   return EOF;
 }
+#endif /* not HAVE_GETOPT */
 
-#else /* not HAVE_GETOPT */
+/*
+ * Print program version.
+ */
+static void 
+version (void)
+{
+  fprintf (stdout, "%s %s\n", svz_library, svz_version);
+}
 
-int option_dummy; /* Shut up compiler. */
+/*
+ * Display program command line options.
+ */
+static void 
+usage (void)
+{
+  fprintf (stdout, "Usage: serveez [OPTION]...\n\n"
+#if HAVE_GETOPT_LONG
+ "  -h, --help               display this help and exit\n"
+ "  -V, --version            display version information and exit\n"
+ "  -i, --iflist             list local network interfaces and exit\n"
+ "  -f, --cfg-file=FILENAME  file to use as configuration file (serveez.cfg)\n"
+ "  -v, --verbose=LEVEL      set level of verbosity\n"
+ "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
+ "  -P, --password=STRING    set the password for control connections\n"
+ "  -m, --max-sockets=COUNT  set the max. number of socket descriptors\n"
+ "  -d, --daemon             start as daemon in background\n"
+#else /* not HAVE_GETOPT_LONG */
+ "  -h           display this help and exit\n"
+ "  -V           display version information and exit\n"
+ "  -i           list local network interfaces and exit\n"
+ "  -f FILENAME  file to use as configuration file (serveez.cfg)\n"
+ "  -v LEVEL     set level of verbosity\n"
+ "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
+ "  -P STRING    set the password for control connections\n"
+ "  -m COUNT     set the max. number of socket descriptors\n"
+ "  -d           start as daemon in background\n"
+#endif /* not HAVE_GETOPT_LONG */
+ "\nReport bugs to <bug-serveez@gnu.org>.\n");
+}
 
-#endif /* HAVE_GETOPT */
+#if HAVE_GETOPT_LONG
+/*
+ * Argument array for `getopt_long()' system call.
+ */
+static struct option serveez_options[] = {
+  {"help", no_argument, NULL, 'h'},
+  {"version", no_argument, NULL, 'V'},
+  {"iflist", no_argument, NULL, 'i'},
+  {"daemon", no_argument, NULL, 'd'},
+  {"verbose", required_argument, NULL, 'v'},
+  {"cfg-file", required_argument, NULL, 'f'},
+  {"log-file", required_argument, NULL, 'l'},
+  {"password", required_argument, NULL, 'P'},
+  {"max-sockets", required_argument, NULL, 'm'},
+  {NULL, 0, NULL, 0}
+};
+#endif /* HAVE_GETOPT_LONG */
+
+#define SERVEEZ_OPTIONS "l:hViv:f:P:m:d"
+
+/*
+ * Parse the command line options. If these have been correct the function
+ * either terminates the program with exit code 0 or returns an option
+ * structure containing information about the command line arguments or it
+ * leaves the program with exit code 1 if the command line has been wrong.
+ */
+option_t *
+handle_options (int argc, char **argv)
+{
+  static option_t options;
+  int arg;
+#if HAVE_GETOPT_LONG
+  int index;
+#endif
+
+  /* initialize command line options */
+  options.logfile = NULL;
+  options.cfgfile = "serveez.cfg";
+  options.verbosity = -1;
+  options.sockets = -1;
+  options.pass = NULL;
+  options.daemon = 0;
+  options.loghandle = NULL;
+
+  /* go through the command line itself */
+#if HAVE_GETOPT_LONG
+  while ((arg = getopt_long (argc, argv, SERVEEZ_OPTIONS, serveez_options,
+			     &index)) != EOF)
+#else
+  while ((arg = getopt (argc, argv, SERVEEZ_OPTIONS)) != EOF)
+#endif
+    {
+      switch (arg)
+	{
+	case 'h':
+	  usage ();
+	  exit (0);
+	  break;
+
+	case 'V':
+	  version ();
+	  exit (0);
+	  break;
+
+	case 'i':
+	  svz_interface_list ();
+	  exit (0);
+	  break;
+
+	case 'f':
+	  if (!optarg)
+	    {
+	      usage ();
+	      exit (1);
+	    }
+	  options.cfgfile = optarg;
+	  break;
+
+	case 'v':
+	  if (optarg)
+	    {
+	      options.verbosity = atoi (optarg);
+	      if (options.verbosity < LOG_FATAL)
+		options.verbosity = LOG_FATAL;
+	      else if (options.verbosity > LOG_DEBUG)
+		options.verbosity = LOG_DEBUG;
+	    }
+	  else
+	    options.verbosity = LOG_DEBUG;
+	  break;
+
+	case 'l':
+	  if (!optarg)
+	    {
+	      usage ();
+	      exit (1);
+	    }
+	  options.logfile = optarg;
+	  break;
+
+	case 'P':
+	  if (!optarg || strlen (optarg) < 2)
+	    {
+	      usage ();
+	      exit (1);
+	    }
+#if ENABLE_CRYPT && HAVE_CRYPT
+	  options.pass = svz_pstrdup (crypt (optarg, optarg));
+#else
+	  options.pass = svz_pstrdup (optarg);
+#endif
+	  break;
+
+	case 'm':
+	  if (!optarg)
+	    {
+	      usage ();
+	      exit (1);
+	    }
+	  options.sockets = atoi (optarg);
+	  break;
+
+	case 'd':
+	  options.daemon = 1;
+	  break;
+
+	default:
+	  usage ();
+	  exit (1);
+	}
+    }
+
+  return &options;
+}

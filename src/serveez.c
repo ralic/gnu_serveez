@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.31 2001/04/06 15:32:35 raimi Exp $
+ * $Id: serveez.c,v 1.32 2001/04/09 13:46:05 ela Exp $
  *
  */
 
@@ -49,77 +49,24 @@
 #include "option.h"
 #include "guile.h"
 
-/*
- * Print program version.
- */
-static void 
-version (void)
-{
-  fprintf (stdout, "%s %s\n", svz_library, svz_version);
-}
+/* Command line option structure. */
+option_t *options = NULL;
 
 /*
- * Display program command line options.
+ * This is the entry point for the guile interface.
  */
-static void 
-usage (void)
+static void
+guile_entry (int argc, char **argv)
 {
-  fprintf (stdout, "Usage: serveez [OPTION]...\n\n"
-#if HAVE_GETOPT_LONG
- "  -h, --help               display this help and exit\n"
- "  -V, --version            display version information and exit\n"
- "  -i, --iflist             list local network interfaces and exit\n"
- "  -f, --cfg-file=FILENAME  file to use as configuration file (serveez.cfg)\n"
- "  -v, --verbose=LEVEL      set level of verbosity\n"
- "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
- "  -P, --password=STRING    set the password for control connections\n"
- "  -m, --max-sockets=COUNT  set the max. number of socket descriptors\n"
- "  -d, --daemon             start as daemon in background\n"
-#else /* not HAVE_GETOPT_LONG */
- "  -h           display this help and exit\n"
- "  -V           display version information and exit\n"
- "  -i           list local network interfaces and exit\n"
- "  -f FILENAME  file to use as configuration file (serveez.cfg)\n"
- "  -v LEVEL     set level of verbosity\n"
- "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
- "  -P STRING    set the password for control connections\n"
- "  -m COUNT     set the max. number of socket descriptors\n"
- "  -d           start as daemon in background\n"
-#endif /* not HAVE_GETOPT_LONG */
- "\nReport bugs to <bug-serveez@gnu.org>.\n");
-}
+#if 0
+  /* Start loading the configuration file. */
+  if (guile_load_config (options->cfgfile) == -1)
+    {
+      log_printf (LOG_ERROR, "error loading config file\n");
+    }
+#endif
 
-#if HAVE_GETOPT_LONG
-/*
- * Argument array for `getopt_long ()' system call.
- */
-static struct option serveez_options[] = {
-  {"help", no_argument, NULL, 'h'},
-  {"version", no_argument, NULL, 'V'},
-  {"iflist", no_argument, NULL, 'i'},
-  {"daemon", no_argument, NULL, 'd'},
-  {"verbose", required_argument, NULL, 'v'},
-  {"cfg-file", required_argument, NULL, 'f'},
-  {"log-file", required_argument, NULL, 'l'},
-  {"password", required_argument, NULL, 'P'},
-  {"max-sockets", required_argument, NULL, 'm'},
-  {NULL, 0, NULL, 0}
-};
-#endif /* HAVE_GETOPT_LONG */
-
-#define SERVEEZ_OPTIONS "l:hViv:f:P:m:d"
-
-void
-guile_main (int argc, char **argv)
-{
-  int cli_verbosity = -1;
-  int cli_sockets = -1;
-  char *cli_pass = NULL;
-  char *cfg_file = NULL;
-  FILE *log_handle = NULL;
-
-  guile_load_config ("guile.cfg"); 
-  if (load_config (cfg_file, argc, argv) == -1)
+  if (sizzle_load_config (options->cfgfile, argc, argv) == -1)
     {
       /* 
        * Something went wrong while configuration file loading, 
@@ -129,18 +76,19 @@ guile_main (int argc, char **argv)
     }
 
   /*
-   * Make command line arguments overriding the configuration file settings.
+   * Make command line arguments overriding the configuration 
+   * file settings.
    */
-  if (cli_verbosity != -1)
-    svz_verbosity = cli_verbosity;
+  if (options->verbosity != -1)
+    svz_verbosity = options->verbosity;
 
-  if (cli_sockets != -1)
-    svz_config.max_sockets = cli_sockets;
+  if (options->sockets != -1)
+    svz_config.max_sockets = options->sockets;
 
-  if (cli_pass)
+  if (options->pass)
     {
       free (svz_config.server_password);
-      svz_config.server_password = cli_pass;
+      svz_config.server_password = options->pass;
     }
 
 #if ENABLE_DEBUG
@@ -152,29 +100,19 @@ guile_main (int argc, char **argv)
   log_printf (LOG_NOTICE, "using %d socket descriptors\n",
 	      svz_config.max_sockets);
 
-  /* 
-   * Startup the internal coservers here.
-   */
+  /* Startup the internal coservers here. */
   if (coserver_init () == -1)
     {
       exit (4);
     }
 
-  /*
-   * Initialise server instances.
-   */
+  /* Initialize server instances. */
   if (svz_server_init_all () == -1)
     {
-      /* 
-       * Something went wrong while the server initialised themselves.
-       * Abort silently.
-       */
       exit (6);
     }
 
-  /*
-   * Actually open the ports.
-   */
+  /* Actually open the ports. */
   if (server_start () == -1)
     {
       exit (7);
@@ -182,15 +120,11 @@ guile_main (int argc, char **argv)
   
   server_loop ();
 
-  /*
-   * Run the finalizers.
-   */
+  /* Run the finalizers. */
   svz_server_finalize_all ();
   svz_servertype_finalize ();
 
-  /*
-   * Disconnect the previously invoked internal coservers.
-   */
+  /* Disconnect the previously invoked internal coservers. */
   log_printf (LOG_NOTICE, "destroying internal coservers\n");
   coserver_finalize ();
 
@@ -206,7 +140,7 @@ guile_main (int argc, char **argv)
 #endif /* ENABLE_DEBUG */
 
 #ifdef __MINGW32__
-  if (cli_daemon)
+  if (options->daemon)
     {
       windoze_stop_daemon ();
     }
@@ -214,8 +148,8 @@ guile_main (int argc, char **argv)
 
   log_printf (LOG_NOTICE, "serveez terminating\n");
 
-  if (log_handle != stderr)
-    svz_fclose (log_handle);
+  if (options->loghandle != stderr)
+    svz_fclose (options->loghandle);
 }
 
 /*
@@ -224,121 +158,23 @@ guile_main (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
-  char *log_file = NULL;
-  char *cfg_file = "serveez.cfg";
-
-  int cli_verbosity = -1;
-  int cli_sockets = -1;
-  char *cli_pass = NULL;
-  int cli_daemon = 0;
-
-  FILE *log_handle = NULL;
-
-  int arg;
-#if HAVE_GETOPT_LONG
-  int index;
-#endif
-
-  /* initialize the configuration structure */
+  /* Initialize the the core library. */
   svz_boot ();
 
-#if HAVE_GETOPT_LONG
-  while ((arg = getopt_long (argc, argv, SERVEEZ_OPTIONS, serveez_options,
-			     &index)) != EOF)
-#else
-  while ((arg = getopt (argc, argv, SERVEEZ_OPTIONS)) != EOF)
-#endif
-    {
-      switch (arg)
-	{
-	case 'h':
-	  usage ();
-	  exit (0);
-	  break;
+  /* Handle command line arguments. */
+  options = handle_options (argc, argv);
 
-	case 'V':
-	  version ();
-	  exit (0);
-	  break;
+  /* Send all logging messages to the log handle. */
+  if (options->logfile && options->logfile[0])
+    options->loghandle = svz_fopen (options->logfile, "w");
+  if (!options->loghandle)
+    options->loghandle = stderr;
+  log_set_file (options->loghandle);
 
-	case 'i':
-	  svz_interface_list ();
-	  exit (0);
-	  break;
-
-	case 'f':
-	  cfg_file = optarg;
-	  break;
-
-	case 'v':
-	  if (optarg)
-	    cli_verbosity = atoi (optarg);
-	  else
-	    cli_verbosity = LOG_DEBUG;
-	  if (cli_verbosity < 0)
-	    cli_verbosity = 0;
-	  else if (cli_verbosity > LOG_DEBUG)
-	    cli_verbosity = LOG_DEBUG;
-	  break;
-
-	case 'l':
-	  log_file = optarg;
-	  break;
-
-	case 'P':
-	  if (optarg && strlen (optarg) >= 2)
-	    {
-#if ENABLE_CRYPT && HAVE_CRYPT
-	      cli_pass = svz_pstrdup (crypt (optarg, optarg));
-#else
-	      cli_pass = svz_pstrdup (optarg);
-#endif
-	    }
-	  break;
-
-	case 'm':
-	  if (optarg)
-	    cli_sockets = atoi (optarg);
-	  else
-	    {
-	      usage ();
-	      exit (1);
-	    }
-	  if (svz_verbosity <= 0)
-	    {
-	      usage ();
-	      exit (1);
-	    }
-	  break;
-
-	case 'd':
-	  cli_daemon = 1;
-	  break;
-
-	default:
-	  usage ();
-	  exit (1);
-	}
-    }
-
-  /*
-   * Send all log messages to LOG_HANDLE.
-   */
-  if (log_file && log_file[0])
-    log_handle = svz_fopen (log_file, "w");
-  
-  if (!log_handle)
-    log_handle = stderr;
-
-  log_set_file (log_handle);
-
-  /*
-   * Start as daemon, not as foreground application.
-   */
-  if (cli_daemon)
+  /* Start as daemon, not as foreground application. */
+  if (options->daemon)
     {
 #ifndef __MINGW32__
-
       int pid;
 
       if ((pid = fork ()) == -1)
@@ -351,38 +187,30 @@ main (int argc, char *argv[])
 	  exit (0);
 	}
       /* Close the log file if necessary. */
-      if (log_handle == stderr)
+      if (options->loghandle == stderr)
 	log_set_file (NULL);
       /* Close stdin, stdout and stderr. */
       close (0);
       close (1);
       close (2);
-
 #else /* __MINGW32__ */
-
       if (windoze_start_daemon (argv[0]) == -1)
 	exit (1);
-      if (log_handle == stderr)
+      if (options->loghandle == stderr)
 	log_set_file (NULL);
       closehandle (GetStdHandle (STD_INPUT_HANDLE));
       closehandle (GetStdHandle (STD_OUTPUT_HANDLE));
       closehandle (GetStdHandle (STD_ERROR_HANDLE));
-
 #endif /* __MINGW32__ */
     }
 
+  /* Initialize the static server types. */
+  init_server_definitions ();
 #if 0
-  /*
-   * DEBUG: Show what servers we are able to run.
-   */
   svz_servertype_print ();
 #endif
 
-  /*
-   * Load configuration.
-   */
-  init_server_definitions ();
-
-  gh_enter (argc, argv, guile_main);
+  /* Enter the main guile function. */
+  gh_enter (argc, argv, guile_entry);
   return 0;
 }

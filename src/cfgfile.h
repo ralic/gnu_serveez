@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.h,v 1.4 2001/01/28 03:26:54 ela Exp $
+ * $Id: cfgfile.h,v 1.5 2001/04/09 13:46:04 ela Exp $
  *
  */
 
@@ -32,6 +32,6 @@
 #define STRINGVARSIZE 1024
 
 void init_server_definitions (void);
-int load_config (char * cfgfilename, int argc, char **argv);
+int sizzle_load_config (char * cfgfilename, int argc, char **argv);
 
 #endif /* not __CFGFILE_H__ */

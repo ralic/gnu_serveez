@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.17 2001/04/04 14:23:13 ela Exp $
+ * $Id: cfgfile.c,v 1.18 2001/04/09 13:46:04 ela Exp $
  *
  */
 
@@ -163,7 +163,7 @@ init_server_definitions (void)
  * terminate program then...
  */
 int
-load_config (char *cfgfile, int argc, char **argv)
+sizzle_load_config (char *cfgfile, int argc, char **argv)
 {
   int retval = 0;
   int i;
