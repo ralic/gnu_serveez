@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.h,v 1.2 2000/10/16 22:58:36 ela Exp $
+ * $Id: alist.h,v 1.3 2000/10/19 15:08:33 ela Exp $
  *
  */
 
@@ -32,23 +32,25 @@
 /* general defines */
 #define ARRAY_BITS 4
 #define ARRAY_SIZE (1 << ARRAY_BITS)
-#define ARRAY_MASK (ARRAY_SIZE - 1)
+#define ARRAY_MASK ((1 << ARRAY_SIZE) - 1)
 
 /* array chunk structure */
 typedef struct
 {
-  void *next;
-  unsigned offset;
-  unsigned fill;
-  void *value[ARRAY_SIZE];
+  void *next;              /* pointer to next array chunk */
+  unsigned offset;         /* first array index in this chunk */
+  unsigned fill;           /* usage bit-field */
+  unsigned size;           /* size of this chunk */
+  void *value[ARRAY_SIZE]; /* value storage */
 }
 array_t;
 
 /* top level array list structure */
 typedef struct
 {
-  unsigned size;
-  array_t *array;
+  unsigned length; /* size of the array (last index plus one) */
+  unsigned size;   /* element count */
+  array_t *array;  /* first array chunk */
 }
 alist_t;
 
@@ -63,17 +65,7 @@ int alist_index (alist_t *list, void *value);
 void * alist_del (alist_t *list, unsigned index);
 void alist_del_range (alist_t *list, unsigned from, unsigned to);
 void * alist_set (alist_t *list, unsigned index, void *value);
-int alist_size (alist_t *list);
-void alist_insert (alist_t *list, int index, void *value);
+unsigned alist_size (alist_t *list);
+void alist_insert (alist_t *list, unsigned index, void *value);
 
 #endif /* not __ALIST_H__ */
-
-
-
-
-
-
-
-
-
-
