@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.9 2000/09/08 07:45:16 ela Exp $
+ * $Id: cfgfile.c,v 1.10 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -122,13 +122,6 @@ load_config (char *cfgfilename, int argc, char **argv)
    * register read-only boolean variables for the features in this system
    */
   REG_HAVEFLAG ("have-debug", &have_debug);
-  REG_HAVEFLAG ("have-awcs", &have_awcs);
-  REG_HAVEFLAG ("have-irc", &have_irc);
-  REG_HAVEFLAG ("have-http", &have_http);
-  REG_HAVEFLAG ("have-gnutella", &have_gnutella);
-  REG_HAVEFLAG ("have-ident", &have_ident);
-  REG_HAVEFLAG ("have-nslookup", &have_nslookup);
-  REG_HAVEFLAG ("have-floodprotection", &have_floodprotect);
   REG_HAVEFLAG ("have-win32", &have_win32);
 
   for (i = 0; configs[i].type != LISTEND; i++)

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.20 2000/09/09 16:33:42 ela Exp $
+ * $Id: server-core.c,v 1.21 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -220,6 +220,8 @@ list_socket_list (void)
 	       sock->prev, sock->next);
       sock = sock->next;
     }
+
+  fprintf (stdout, "\n");
 }
 
 /*
@@ -277,16 +279,51 @@ static void
 rechain_socket_list (void)
 {
   socket_t sock;
-  
+  socket_t last_listener;
+  socket_t new_end;
+
   sock = socket_last;
   if (sock->prev)
     {
-      socket_last = sock->prev;
-      socket_last->next = NULL;
-      sock->next = socket_root;
-      sock->prev = NULL;
-      socket_root->prev = sock;
-      socket_root = sock;
+      new_end = sock->prev;
+      for (last_listener = socket_root;
+	   last_listener &&
+	     last_listener != sock &&
+	     last_listener->flags & SOCK_FLAG_LISTENING;
+	   last_listener = last_listener->next) ;
+
+      /* just listeners in the list, return */
+      if (!last_listener)
+	return;
+
+      /* sock is the only non-listener connected socket */
+      if (sock == last_listener)
+	return;
+
+      /* one step back unless we are at the root */
+      if (last_listener->prev) {
+	last_listener = last_listener->prev;
+
+	/* put sock in front of chain behind listeners */
+	sock->next = last_listener->next;
+	sock->next->prev = sock;
+
+	/* put sock behind last listener */
+	last_listener->next = sock;
+	sock->prev = last_listener;
+
+      } else {
+	/* enque at root */
+	sock->next = socket_root;
+	sock->prev = NULL;
+	sock->next->prev = sock;
+	socket_root = sock;
+
+      }
+      
+      /* mark new end of chain */
+      new_end->next = NULL;
+      socket_last = new_end;
     }
 }
 
@@ -587,6 +624,7 @@ int
 sock_server_loop (void)
 {
   socket_t sock, next_sock;
+  int rechain = 0;
 
   /*
    * Setup signaling.
@@ -664,7 +702,15 @@ sock_server_loop (void)
        * clients and process queued output data.
        */
       check_sockets ();
-      rechain_socket_list ();
+
+      /*
+       * Reorder the socket chain every 16 select loops. We dont do it
+       * every time for performance reasons.
+       */
+      if (rechain++ & 16) {
+	rechain_socket_list ();
+	rechain = 0;
+      }
 
       /*
        * Shut down all sockets that have been scheduled for closing.

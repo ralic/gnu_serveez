@@ -1014,6 +1014,30 @@ fi
 unset have_inet_aton
 
 dnl
+dnl Check for broken inet_ntoa ()
+dnl
+dnl  It's not really that inet_ntoa() is broken. Some (old) gcc versions
+dnl  on IRIX handle small structs wrong. As of gcc 2.95 this should be
+dnl  fixed but we don't really know. To work around we implement inet_ntoa()
+dnl  on our own if it does not work.
+dnl
+AC_MSG_CHECKING([whether inet_ntoa is broken])
+AC_TRY_RUN([#include <stdio.h>
+    #include <sys/types.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    main () {
+	struct ind_addr ip;
+	ip.s_addr = htonl (0x12345678);
+	if (strcmp (inet_ntoa (ip), "18.52.86.120"))
+	    exit (1);
+	exit (0);}],
+   AC_MSG_RESULT(yes)
+   AC_DEFINE(BORKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.]),
+   AC_MSG_RESULT(no))
+
+
+dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.
 dnl
 AC_MSG_CHECKING([for socklen_t])

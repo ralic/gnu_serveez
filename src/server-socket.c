@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.22 2000/08/18 14:14:47 ela Exp $
+ * $Id: server-socket.c,v 1.23 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -507,7 +507,9 @@ server_accept_pipe (socket_t server_sock)
     {
       if (GetLastError () != ERROR_PIPE_CONNECTED)
 	{
+#if 0
 	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+#endif
 	  return 0;
 	}
     }
@@ -517,7 +519,9 @@ server_accept_pipe (socket_t server_sock)
     {
       if (GetLastError () != ERROR_PIPE_CONNECTED)
 	{
+#if 0
 	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+#endif
 	  return 0;
 	}
     }

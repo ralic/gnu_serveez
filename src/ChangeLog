@@ -1,3 +1,13 @@
+2000-09-11  [ RAIMI ]  <raimi@lkcc.org>
+
+	* nut-server/gnutella.c (nut_connect_socket): `max-connections'
+	describes now how many overall connections we have (incoming
+	and outgoing).
+
+	* server-core.c (rechain_socket_list): listeners are kept at
+	the beginning of the socket chain. hopefully fixes problem
+	with very fast connects (backlog too small).
+
 2000-09-10  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_push_request): When receiving

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.20 2000/08/26 18:05:18 ela Exp $
+ * $Id: server.c,v 1.21 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -666,7 +666,12 @@ server_load_cfg (char *cfgfile)
 	  for (j = 0; NULL != (sd = all_server_definitions[j]); j++)
 	    {
 	      symname = xpstrdup (string_val (symbol_name (sym)));
-	      if (strncmp (symname, sd->varname, strlen (sd->varname)) == 0)
+
+	      /* a varname is meant for us if it begins like one of our
+	       * server definitions and ends with a '-'. e.g.: foo => foo-
+	       */
+	      if (!strncmp (symname, sd->varname, strlen (sd->varname)) &&
+		  symname[strlen(sd->varname)] == '-' )
 		{
 		  zzz_get_symbol_value (zzz_interaction_environment, 
 					sym, &symval);
@@ -694,8 +699,6 @@ server_load_cfg (char *cfgfile)
 		    } 
 		  else 
 		    {
-		      /* FIXME: remove message */
-		      fprintf (stderr, " no cfg for %s\n", symname);
 		      erroneous = -1;
 		    }
 		}

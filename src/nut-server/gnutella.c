@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.16 2000/09/10 10:51:17 ela Exp $
+ * $Id: gnutella.c,v 1.17 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -342,43 +342,28 @@ nut_init (server_t *server)
   if (*p == '/' || *p == '\\') *p = '\0';
 
   /* check for existence and create them if necessary */
-  if (stat (cfg->save_path, &buf) == -1)
+  if (cfg->save_path[0])
     {
-      /* create the download directory */
-      if (mkdir (cfg->save_path, S_IRWXU) == -1)
+      if (stat (cfg->save_path, &buf) == -1)
 	{
-	  log_printf (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
-	  return -1;
-	}
-    }
-  /* check if the given path is a directory already */
-  else if (!S_ISDIR (buf.st_mode))
-    {
-      log_printf (LOG_ERROR, "nut: %s is not a directory\n", cfg->save_path);
-      return -1;
-    }
-
-  /* checking for the share path only if the paths differ */
-  if (strcmp (cfg->save_path, cfg->share_path))
-    {
-      if (stat (cfg->share_path, &buf) == -1)
-	{
-	  if (mkdir (cfg->share_path, S_IRWXU) == -1)
+	  /* create the download directory */
+	  if (mkdir (cfg->save_path, S_IRWXU) == -1)
 	    {
 	      log_printf (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
 	      return -1;
 	    }
 	}
+      /* check if the given path is a directory already */
       else if (!S_ISDIR (buf.st_mode))
 	{
 	  log_printf (LOG_ERROR, "nut: %s is not a directory\n", 
-		      cfg->share_path);
+		      cfg->save_path);
 	  return -1;
 	}
     }
 
   /* read shared files */
-  nut_read_database (cfg, cfg->share_path);
+  nut_read_database (cfg, cfg->share_path[0] ? cfg->share_path : "/");
   log_printf (LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
 
   /* calculate forced local ip if necessary */
@@ -1498,6 +1483,10 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
 	}
       return -1;
     }
+
+  /* check if we got enough clients already */
+  if (hash_size (cfg->conn) > cfg->connections)
+    return -1;
 
   /* send the first reply */
   if (sock_printf (sock, NUT_OK) == -1)

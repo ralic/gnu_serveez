@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.8 2000/08/21 20:06:40 ela Exp $
+ * $Id: pipe-socket.c,v 1.9 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -150,7 +150,7 @@ pipe_read (socket_t sock)
 	GetOverlappedResult (sock->pipe_desc[READ], overlap, 
 			     (DWORD *) &num_read, FALSE);
       else
-	num_read = -1;
+	return -1;
     }
 #else /* not __MINGW32__ */
   if ((num_read = read (sock->pipe_desc[READ],

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.11 2000/08/25 13:51:23 ela Exp $
+ * $Id: http-dirlist.c,v 1.12 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -224,9 +224,6 @@ http_dirlist (char *dirname, char *docroot)
       /* Create fully qualified filename */
       snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
 		dirname, FILENAME);
-#ifndef HAVE_SORTED_LIST
-      files++;
-#endif
 
       /* Stat the given file */
       if (-1 == stat (filename, &buf)) 
@@ -275,6 +272,11 @@ http_dirlist (char *dirname, char *docroot)
 			FILENAME, (int) buf.st_size, timestr);
 	    }
 	}
+
+      /* increase file counter unless this list is sorted */
+#if !HAVE_SORTED_LIST
+      files++;
+#endif
 
       /* Append this entry's data to output buffer */
       while (datasize - strlen (dirdata) < strlen (entrystr) + 1)

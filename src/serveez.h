@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: serveez.h,v 1.4 2000/09/08 07:45:16 ela Exp $
+ * $Id: serveez.h,v 1.5 2000/09/11 00:07:35 raimi Exp $
  *
  */
 
@@ -55,22 +55,7 @@ serveez_config_t;
 
 extern serveez_config_t serveez_config;
 
-/*
- * Each module - compiled in or not - defines an int variable. This is done
- * because ANSI C forbids empty .c files. So we use this int as a flag.
- * These ints can be used as read-only variables for sizzle bindings and for
- * other runtime checks.
- */
-
-extern int have_awcs;
-extern int have_floodprotect;
-extern int have_http;
-extern int have_gnutella;
-extern int have_irc;
-extern int have_ctrl;
-extern int have_ident;
-extern int have_nslookup;
-
+/* exported from util.c because it is a central point */
 extern int have_debug;
 extern int have_win32;
 
