@@ -2,7 +2,7 @@
 ;;
 ;; test-suite.scm - test suite library
 ;;
-;; Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
+;; Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 ;;
 ;; This is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: test-suite.scm,v 1.2 2002/07/27 13:32:14 ela Exp $
+;; $Id: test-suite.scm,v 1.3 2003/05/31 12:12:09 ela Exp $
 ;;
 
 ;; Module definition.
@@ -74,10 +74,20 @@
     (display result)
     (display "\r\n")))
 
+;; FIXME: Does this code import the public symbols of the guile-user 
+;; module into the current module?
+(define (resolve-serveez-api)
+  (module-for-each
+   (lambda (symbol variable)
+     (module-add! %module-public-interface symbol variable))
+   (resolve-module '(guile-user))))
+
 ;; Main entry point for a test suite using this library.  Display the test
 ;; suite description 'title' and runs any given 'test' expression which is
 ;; usually a number of 'pass-if' statements.
 (define (run-test-suite title test)
+  (if (defined? 'micro-version)
+      (resolve-serveez-api))
   (serveez-verbosity 0)
   (serveez-exceptions #f)
   (display title)

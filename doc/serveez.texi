@@ -40,7 +40,8 @@ Free Documentation License".
 @node Top, Introduction, (dir), (dir)
 
 @ifinfo
-This file documents the Serveez server framework.
+This reference manual documents the Serveez server framework corresponding
+to the Serveez @value{VERSION} version.
 @end ifinfo
 
 @menu
@@ -82,10 +83,10 @@ and ident lookups.
 @node Using Serveez, Concept, Introduction, Top
 @chapter Using Serveez
 
-We know, you usually don't read the documentation. Who does. But please,
-read at the very least this chapter. It contains information on the basic
-concepts. Larger parts of the manual can be used as a reference manual
-for the various servers.
+We know, you usually don't read the documentation.  Who does.  But
+please, read at the very least this chapter.  It contains information on
+the basic concepts.  Larger parts of the manual can be used as a
+reference manual for the various servers.
 
 @section Building and installing
 
@@ -94,10 +95,11 @@ You can skip this section if you are familiar with the GNU'ish way of
 configuring, compiling and installing a GNU package.
 
 @subsubsection Getting the source
-Serveez can be found on @uref{http://ftp.gnu.org/gnu/serveez/}, on one of 
-the mirrors (@uref{http://www.gnu.org/prep/ftp.html}) or at its original 
-location @uref{http://www.textsure.net/~ela/download/}. At this location
-you will also find the RPM package mentioned in the next section.
+Serveez can be found on @uref{http://ftp.gnu.org/gnu/serveez/}, on one
+of the mirrors (@uref{http://www.gnu.org/prep/ftp.html}) or at its
+original location @uref{http://www.textsure.net/~ela/download/}.  At
+this location you will also find the RPM package mentioned in the next
+section.
 
 @subsubsection Requirements
 Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions).
@@ -117,9 +119,10 @@ sleepless ~> cd serveez-@value{VERSION}
 @end example
 
 @item Configure the source package for your system: 
-We recommend to use @samp{--enable-opt} unless you have a good reason not 
-to do so. It follows a complete list of the @file{configure} script options.
-The list of known options can the obtained via @samp{./configure --help}.
+We recommend to use @samp{--enable-opt} unless you have a good reason
+not to do so.  It follows a complete list of the @file{configure} script
+options.  The list of known options can the obtained via
+@samp{./configure --help}.
 
 @table @samp
 @item --enable-warn
@@ -172,10 +175,10 @@ If the user wants to link Serveez against a static Guile core
 library you can pass the @var{DIR} argument to specify the location of a
 Guile source distribution which will then be configured and built.
 @item --with-mingw=DIR
-When compiling under M$-Windows the @var{DIR} argument specifies the path
-to the extra MinGW32 library and header files.  If you want the
-final executable to use the Cygwin project's cygwin1.dll instead,
-you have to disable this option by passing configure script
+When compiling under M$-Windows the @var{DIR} argument specifies the
+path to the extra MinGW32 library and header files.  If you want the
+final executable to use the Cygwin project's @file{cygwin1.dll} instead,
+you have to disable this option by passing the configure script
 @samp{--without-mingw} or @samp{--with-mingw=no}.
 @item --enable-sntp-proto
 This option enables support for a simple network time protocol
@@ -240,18 +243,18 @@ sleepless ~/serveez-@value{VERSION}> make install
 @end table
 
 If you have problems building the package out of the box this is due to
-GNU libtool's inability to handle dynamic linking in most cases. That is
-why we recommend to try to configure the package with @samp{--disable-shared}
-and/or the native compiler (if any). When the build process is not able to 
-link against an existing Guile installation you can try to use the
-@samp{--with-guile-source=DIR} configure option.
+GNU libtool's inability to handle dynamic linking in most cases.  That
+is why we recommend to try to configure the package with
+@samp{--disable-shared} and/or the native compiler (if any).  When the
+build process is not able to link against an existing Guile installation
+you can try to use the @samp{--with-guile-source=DIR} configure option.
 
 @subsection Installing the RPM package
 The binary RPM distribution @file{serveez-@value{VERSION}-1.i386.rpm} of
-Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine. It is a 
-relocatable package with its default installation directory in 
-@file{/opt/serveez}. You need to ensure root privileges in order to install 
-or remove rpm packages.
+Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine.  It is a
+relocatable package with its default installation directory in
+@file{/opt/serveez}.  You need to ensure root privileges in order to
+install or remove rpm packages.
 
 @table @asis
 @item Query information:
@@ -260,7 +263,8 @@ sleepless ~> rpm -qiRl -p serveez-@value{VERSION}-1.i386.rpm
 @end example
 @item Install the package:
 @example
-sleepless ~> rpm -Uvh serveez-@value{VERSION}-1.i386.rpm [ --nodeps ] [ --prefix=/opt/serveez ]
+sleepless ~> rpm -Uvh serveez-@value{VERSION}-1.i386.rpm \
+                 [ --nodeps ] [ --prefix=/opt/serveez ]
 serveez                     ####################
 @end example
 @item Uninstall the package:
@@ -556,14 +560,15 @@ interface description which you can obtain by running @samp{serveez -i}.
 @end example
 
 @subsubsection Pipe port definition
-Definition of a pipe port configuration with the name "foo-pipe-port". When
-bound to a server it creates the receiving end and listens on that. If some
-client accesses this named pipe the server opens the sending end which the
-client has to open for reading previously.
+Definition of a pipe port configuration with the name "foo-pipe-port".
+When bound to a server it creates the receiving end and listens on that.
+If some client accesses this named pipe the server opens the sending end
+which the client has to open for reading previously.
 
-The only mandatory item is the file name of each pipe. If you want to 
-specify a user creating the named pipe (file ownership) use either the "user"
-or the "uid" setting. Same goes for "group" and "gid".
+The only mandatory item is the file name of each pipe.  If you want to
+specify a user creating the named pipe (file ownership) use either the
+@var{user} or the @var{uid} setting.  Same goes for the items
+@var{group} and @var{gid}.
 
 @example
 (define-port! 'foo-pipe-port `(
@@ -589,11 +594,11 @@ or the "uid" setting. Same goes for "group" and "gid".
 
 @subsubsection ICMP port definition
 Define an ICMP port configuration which will accept connections from the
-network interface "127.0.0.1" only and communicates via the message type 8
-as described in the @ref{Tunnel Server} chapter. The name of this port
-configuration is "foo-icmp-port". When you are going to bind some server to
-this kind of port you have to ensure root (or Administrator under Windows) 
-privileges.
+network interface @samp{127.0.0.1} only and communicates via the message
+type 8 as described in the @ref{Tunnel Server} chapter.  The name of
+this port configuration is "foo-icmp-port".  When you are going to bind
+some server to this kind of port you have to ensure root (or
+Administrator under Windows) privileges.
 
 @example
 (define-port! 'foo-icmp-port '((proto  . icmp)
@@ -675,7 +680,7 @@ you can write this statement.
 @end example
 
 One of the main features of Serveez is that you can bind multiple
-servers to the same port. This for example useful to pass braindead
+servers to the same port. This for example is useful to pass braindead
 firewall configurations or proxy servers. It is also possible to bind
 servers to ports they are actually not designed for. This might be used
 for debugging servers or other funny things (again, think about the
@@ -789,7 +794,7 @@ conditionally, from the main configuration file.
 @item easy server implementation@*
 Serveez is a server framework.  When implementing a new server the
 programmer need pay little or no attention to the networking code but is
-free direct his attention to the protocol the server is meant to
+free to direct his attention to the protocol the server is meant to
 support.  That protocol may be an established one such as HTTP, or may
 be a custom protocol fitting the specific application's requirements.
 The @ref{Writing servers} section describes this process in detail.
@@ -2331,7 +2336,7 @@ sockets [ or two pairs of anonymous pipes ].
 This parameter applies to servers bound to UDP and ICMP port configurations
 only.  For programs which process all incoming packets and eventually time 
 out, the program is said to be @samp{single-threaded} and should use a true
-value here.  If a program gets a packets and can receive further packets, it 
+value here.  If a program gets a packet and can receive further packets, it 
 is said to be a @samp{multi-threaded} program, and should use a false value.
 
 @item thread-frequency (integer, default: 40)
@@ -2442,11 +2447,12 @@ Serveez these buffers must not contain @samp{\n} (0x0d).
 
 @subsection Make your coserver available in Serveez
 
-For this you have to edit @file{coserver.h} and @file{coserver.c} in the
-@file{src/libserveez/coserver/} directory. In the header file you have to 
-define a further @code{COSERVER_*} id (macro) and set the 
-@code{MAX_COSERVER_TYPES} define to the appropriate value. Then you should 
-define a further @code{svz_coserver_*} macro in the same file.
+For this you have to edit @file{coserver.h} and @file{coserver.c} files
+which are located in the @file{src/libserveez/coserver/} directory.  In
+the header file you have to define a further @code{COSERVER_*} id
+(macro) and set the @code{MAX_COSERVER_TYPES} define to the appropriate
+value.  Then you should define a further @code{svz_coserver_*} macro in
+the same file.
 
 In @file{coserver.c} you have to implement the @code{svz_coserver_*} macro. 
 This macro takes three arguments. The first is always specific to your 

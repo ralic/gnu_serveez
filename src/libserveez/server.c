@@ -1,7 +1,7 @@
 /*
  * server.c - server object functions
  *
- * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.35 2002/12/05 16:57:56 ela Exp $
+ * $Id: server.c,v 1.36 2003/05/31 12:12:09 ela Exp $
  *
  */
 
@@ -284,6 +284,29 @@ svz_server_find (void *cfg)
 	server = servers[n];
     }
   return server;
+}
+
+/*
+ * Returns a list of clients (socket structures) which are associated
+ * with the given server instance @var{server}.  If there is no such
+ * socket @code{NULL} is returned.  The calling routine is responsible
+ * to @code{svz_array_destroy()} the returned array.
+ */
+svz_array_t *
+svz_server_clients (svz_server_t *server)
+{
+  svz_array_t *clients = svz_array_create (1, NULL);
+  svz_socket_t *sock;
+
+  /* go through all the socket list */
+  svz_sock_foreach (sock)
+    {
+      /* and find clients of the server */
+      if (!(sock->flags & SOCK_FLAG_LISTENING))
+	if (server->cfg == sock->cfg)
+	  svz_array_add (clients, sock);
+    }
+  return svz_array_destroy_zero (clients);
 }
 
 /*

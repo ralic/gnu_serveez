@@ -1,3 +1,10 @@
+2003-05-31  Stefan Jahn  <stefan@lkcc.org>
+
+	* test-suite.scm (resolve-serveez-api): In Guile 1.6.x a post
+	versions the serveez API seems to be outside the scope of extra
+	Guile modules.  That is why we need some importing code.  Needs
+	to be fixed yet...
+
 2002-10-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* prog-test.c: Include <io.h> for MinGW32.

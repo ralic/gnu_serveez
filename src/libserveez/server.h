@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.27 2002/12/05 16:57:56 ela Exp $
+ * $Id: server.h,v 1.28 2003/05/31 12:12:09 ela Exp $
  *
  */
 
@@ -121,6 +121,7 @@ SERVEEZ_API svz_server_t *svz_server_get __PARAMS ((char *));
 SERVEEZ_API void svz_server_del __PARAMS ((char *));
 SERVEEZ_API void svz_server_free __PARAMS ((svz_server_t *));
 SERVEEZ_API svz_server_t *svz_server_find __PARAMS ((void *));
+SERVEEZ_API svz_array_t *svz_server_clients __PARAMS ((svz_server_t *));
 SERVEEZ_API void svz_server_notifiers __PARAMS ((void));
 SERVEEZ_API void svz_server_reset __PARAMS ((void));
 SERVEEZ_API svz_server_t *svz_server_instantiate __PARAMS ((svz_servertype_t *,

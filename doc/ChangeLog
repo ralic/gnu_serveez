@@ -1,3 +1,7 @@
+2003-05-31  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez.texi: Fixed some typos and updated it.
+
 2003-05-26  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-api.texi.in:  Modified to conform with automake 1.7.5.

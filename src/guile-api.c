@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.30 2003/03/22 18:39:22 ela Exp $
+ * $Id: guile-api.c,v 1.31 2003/05/31 12:12:08 ela Exp $
  *
  */
 
@@ -693,6 +693,44 @@ guile_server_listeners (SCM server)
 }
 #undef FUNC_NAME
 
+/* Returns a list of @code{#<svz-socket>} client smobs associated with
+   the given server instance @var{server} in arbitrary order, or an
+   empty list if there is no such client. */
+#define FUNC_NAME "svz:server:clients"
+static SCM
+guile_server_clients (SCM server)
+{
+  svz_server_t *xserver = NULL;
+  svz_array_t *clients;
+  svz_socket_t *sock;
+  char *str;
+  unsigned long i;
+  SCM list = SCM_EOL;
+
+  /* If the server instance name is given, try to translate it. */
+  if ((str = guile_to_string (server)) != NULL)
+    {
+      xserver = svz_server_get (str);
+      scm_c_free (str);
+    }
+  /* If the above failed it is possibly a real server smob. */
+  if (xserver == NULL)
+    {
+      CHECK_SMOB_ARG (svz_server, server, SCM_ARG1, "svz-server or string", 
+		      xserver);
+    }
+
+  /* Create a list of socket smobs for the server. */
+  if ((clients = svz_server_clients (xserver)) != NULL)
+    {
+      svz_array_foreach (clients, sock, i)
+	list = scm_cons (MAKE_SMOB (svz_socket, sock), list);
+      svz_array_destroy (clients);
+    }
+  return scm_reverse (list);
+}
+#undef FUNC_NAME
+
 #if HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER
 static SCM
 scm_return_rpcentry (struct rpcent *entry)
@@ -1167,6 +1205,7 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock?", 1, 0, 0, guile_sock_p);
   scm_c_define_gsubr ("svz:server?", 1, 0, 0, guile_server_p);
   scm_c_define_gsubr ("svz:server:listeners", 1, 0, 0, guile_server_listeners);
+  scm_c_define_gsubr ("svz:server:clients", 1, 0, 0, guile_server_clients);
   scm_c_define_gsubr ("svz:sock:send-buffer", 1, 0, 0, guile_sock_send_buffer);
   scm_c_define_gsubr ("svz:sock:send-buffer-size",
 		      1, 1, 0, guile_sock_send_buffer_size);
