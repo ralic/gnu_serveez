@@ -331,8 +331,9 @@ associations described above.
 @subsection Server callbacks
 
 There are several callback routines, which get called in order to 
-instantiate the server and for describing the actual behaviour of your server.
-Here is the description of all of these.
+instantiate the server and for describing the actual behaviour of your 
+server. Here is the description of all of these callback which are near 
+the C++ concept of virtual functions.
 
 @table @code
 @item global initializer (optional)
@@ -372,7 +373,7 @@ to this port. The foo servers checks if the first five bytes the client
 was sending is identifying it as a foo client. This routine is getting
 two arguments where the first one is a pointer to this servers instance
 configuration and the second is the client socket object containing all
-information of the client connection. This structure is describe a bit
+information of the client connection. This structure is described a bit
 later. Be patient. For successful client detection return non-zero 
 otherwise zero.
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.1 2000/12/15 14:13:18 ela Exp $
+ * $Id: sntp-proto.c,v 1.2 2000/12/19 19:15:23 ela Exp $
  *
  */
 
@@ -147,8 +147,9 @@ sntp_handle_request (socket_t sock, char *packet, int len)
   memcpy (reply, &date, 4);
   date = htonl (t.tv_usec);
   memcpy (&reply[4], &date, 4);
-  udp_printf (sock, "%c%c%c%c%c%c%c%c", 
-	      reply[0], reply[1], reply[2], reply[3],
+  udp_printf (sock, "%c%c%c%c", 
+	      reply[0], reply[1], reply[2], reply[3]);
+  udp_printf (sock, "%c%c%c%c", 
 	      reply[4], reply[5], reply[6], reply[7]);
 #else /* not HAVE_GETTIMEOFDAY */
   t = time (NULL);
