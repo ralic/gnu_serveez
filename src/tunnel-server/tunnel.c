@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.23 2001/06/08 15:37:37 ela Exp $
+ * $Id: tunnel.c,v 1.24 2001/06/21 11:25:47 ela Exp $
  *
  */
 
@@ -324,8 +324,8 @@ tnl_create_socket (svz_socket_t *sock, int source)
   /* target is a pipe connection */
   else if (sock->userflags & TNL_FLAG_TGT_PIPE)
     {
-      if ((xsock = svz_pipe_connect (cfg->target->pipe_recv.name, 
-				     cfg->target->pipe_send.name)) == NULL)
+      if ((xsock = svz_pipe_connect (&cfg->target->pipe_recv, 
+				     &cfg->target->pipe_send)) == NULL)
 	{
 	  svz_log (LOG_ERROR, "tunnel: pipe: cannot connect to %s\n",
 		   cfg->target->pipe_send.name);

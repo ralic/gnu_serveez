@@ -1,3 +1,8 @@
+2001-06-21  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.scm (create-tcp-port!, bind-tcp-port-range!): 
+	New functions. (by 'mgrabmue)
+
 2001-06-19  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm (bind-servers!): New function. Thanks 'mgrabmue.

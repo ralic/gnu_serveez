@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.15 2001/06/13 20:29:25 ela Exp $
+ * $Id: coserver.c,v 1.16 2001/06/21 11:25:47 ela Exp $
  *
  */
 
@@ -810,6 +810,7 @@ svz_coserver_start (int type)
   if (pipe (s2c) < 0)
     {
       svz_log (LOG_ERROR, "pipe server-coserver: %s\n", SYS_ERROR);
+      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
   if (pipe (c2s) < 0)
@@ -817,6 +818,7 @@ svz_coserver_start (int type)
       close (s2c[READ]);
       close (s2c[WRITE]);
       svz_log (LOG_ERROR, "pipe coserver-server: %s\n", SYS_ERROR);
+      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
 
@@ -876,6 +878,7 @@ svz_coserver_start (int type)
       close (s2c[WRITE]);
       close (c2s[READ]);
       close (c2s[WRITE]);
+      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
 
@@ -897,6 +900,7 @@ svz_coserver_start (int type)
 	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       if (close (s2c[WRITE]) < 0)
 	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+      svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.20 2001/06/19 21:40:55 ela Exp $
+ * $Id: portcfg.c,v 1.21 2001/06/21 11:25:47 ela Exp $
  *
  */
 
@@ -55,6 +55,16 @@
  * file.
  */
 static svz_hash_t *svz_portcfgs = NULL;
+
+/*
+ * Create a new blank port configuration.
+ */
+svz_portcfg_t *
+svz_portcfg_create (void)
+{
+  svz_portcfg_t *port = svz_calloc (sizeof (svz_portcfg_t));
+  return port;
+}
 
 /*
  * Check if two given port configurations structures are equal i.e. 

@@ -857,7 +857,7 @@ AC_CHECK_FUNC(strncasecmp,
 	    [Define if you have the strnicmp function.])))
 
 AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
-  getpwnam gettimeofday shl_load)
+  getpwnam seteuid setegid geteuid getegid gettimeofday shl_load)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \

@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: serveez.scm,v 1.2 2001/06/19 21:40:55 ela Exp $
+;; $Id: serveez.scm,v 1.3 2001/06/21 11:25:47 ela Exp $
 ;;
 
 ;;
@@ -69,3 +69,26 @@
 	  (bind-server! port server))
 	port-list))
      server-list)))
+
+;;
+;; === Create a simple tcp port
+;;
+(define (create-tcp-port! basename port)
+  (define portname '())
+  (set! portname (string-append basename (number->string port)))
+  (if (not (serveez-port? portname))
+      (define-port! portname 
+	`((proto . tcp) 
+	  (port . ,port))))
+  portname)
+
+;;
+;; === Bind some servers to a range of tcp network ports
+;;
+(define (bind-tcp-port-range! from to . args)
+  (do ((no from (+ no 1)))
+      ((> no to))
+    (for-each
+     (lambda (server)
+       (bind-server! (create-tcp-port! "guile-tcp-port-" no) server))
+     args)))

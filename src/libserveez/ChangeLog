@@ -1,3 +1,18 @@
+2001-06-21  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.c (svz_coserver_start): Fixed memory leak
+	and segmentation fault due to the failure of that function 
+	(Too many open files).
+
+	* portcfg.c (svz_portcfg_create): This is a real function now.
+
+	* pipe-socket.c (svz_pipe_listener): Create fifo files with the
+	permissions and user/group as requested by the port configuration.
+	(svz_pipe_alloc, svz_pipe_destroy): New functions.
+
+	* pipe-socket.c (svz_pipe_connect): Using the given permissions
+	in order to connect to named pipes.
+
 2001-06-19  [ Ela ]  <ela@lkcc.org>
 
 	* pipe-socket.c (svz_pipe_check_group): Consistency check

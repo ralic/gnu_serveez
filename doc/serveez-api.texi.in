@@ -397,6 +397,8 @@ it for reading or writing, in the same way as an ordinary file. However,
 it has to be open at both ends simultaneously before you can proceed to do
 any input or output operations on it.
 
+SVZ_PIPE_ALLOC_DEFUN
+SVZ_PIPE_DESTROY_DEFUN
 SVZ_PIPE_VALID_DEFUN
 SVZ_PIPE_READ_SOCKET_DEFUN
 SVZ_PIPE_WRITE_SOCKET_DEFUN
@@ -665,6 +667,7 @@ does not get bound to a certain name but to its content. If there are two
 or more port configuration specifying the same network or file system 
 configuration just a single one gets actually used.
 
+SVZ_PORTCFG_CREATE_DEFUN
 SVZ_PORTCFG_EQUAL_DEFUN
 SVZ_PORTCFG_ADD_DEFUN
 SVZ_PORTCFG_DEL_DEFUN
@@ -678,7 +681,6 @@ SVZ_PORTCFG_DUP_DEFUN
 SVZ_PORTCFG_EXPAND_DEFUN
 SVZ_PORTCFG_ADDR_DEFMAC
 SVZ_PORTCFG_PORT_DEFMAC
-SVZ_PORTCFG_CREATE_DEFMAC
 SVZ_PORTCFG_IPADDR_DEFMAC
 SVZ_PORTCFG_SET_IPADDR_DEFUN
 SVZ_PORTCFG_DESTROY_ACCEPTED_DEFUN

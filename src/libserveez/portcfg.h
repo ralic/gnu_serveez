@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.14 2001/06/08 15:37:37 ela Exp $
+ * $Id: portcfg.h,v 1.15 2001/06/21 11:25:47 ela Exp $
  *
  */
 
@@ -202,28 +202,23 @@ svz_portcfg_t;
   (((port)->proto & PROTO_TCP) ? (port)->tcp_port :    \
    ((port)->proto & PROTO_UDP) ? (port)->udp_port : 0) \
 
-/*
- * Create a new blank port configuration.
- */
-#define svz_portcfg_create() \
-  (svz_portcfg_t *) svz_calloc (sizeof (svz_portcfg_t))
-
 __BEGIN_DECLS
 
+SERVEEZ_API svz_portcfg_t *svz_portcfg_create __P ((void));
 SERVEEZ_API int svz_portcfg_equal __P ((svz_portcfg_t *, svz_portcfg_t *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_add __P ((char *, svz_portcfg_t *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_del __P ((char *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_get __P ((char *));
-SERVEEZ_API void svz_portcfg_destroy __P ((svz_portcfg_t *port));
+SERVEEZ_API void svz_portcfg_destroy __P ((svz_portcfg_t *));
 SERVEEZ_API void svz_portcfg_finalize __P ((void));
-SERVEEZ_API int svz_portcfg_mkaddr __P ((svz_portcfg_t *this));
-SERVEEZ_API void svz_portcfg_prepare __P ((svz_portcfg_t *port));
-SERVEEZ_API void svz_portcfg_print __P ((svz_portcfg_t *this, FILE *stream));
-SERVEEZ_API svz_portcfg_t *svz_portcfg_dup __P ((svz_portcfg_t *port));
-SERVEEZ_API svz_array_t *svz_portcfg_expand __P ((svz_portcfg_t *this));
+SERVEEZ_API int svz_portcfg_mkaddr __P ((svz_portcfg_t *));
+SERVEEZ_API void svz_portcfg_prepare __P ((svz_portcfg_t *));
+SERVEEZ_API void svz_portcfg_print __P ((svz_portcfg_t *, FILE *));
+SERVEEZ_API svz_portcfg_t *svz_portcfg_dup __P ((svz_portcfg_t *));
+SERVEEZ_API svz_array_t *svz_portcfg_expand __P ((svz_portcfg_t *));
 SERVEEZ_API int svz_portcfg_set_ipaddr __P ((svz_portcfg_t *, char *));
-SERVEEZ_API void svz_portcfg_destroy_access __P ((svz_portcfg_t *port));
-SERVEEZ_API void svz_portcfg_destroy_accepted __P ((svz_portcfg_t *port));
+SERVEEZ_API void svz_portcfg_destroy_access __P ((svz_portcfg_t *));
+SERVEEZ_API void svz_portcfg_destroy_accepted __P ((svz_portcfg_t *));
 
 __END_DECLS
 

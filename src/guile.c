@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.31 2001/06/18 20:12:14 ela Exp $
+ * $Id: guile.c,v 1.32 2001/06/21 11:25:46 ela Exp $
  *
  */
 
@@ -902,11 +902,11 @@ optionhash_extract_pipe (svz_hash_t *hash,
 				    &(pipe->user), txt);
   err |= optionhash_extract_string (hash, PORTCFG_GROUP, 1, NULL,
 				    &(pipe->group), txt);
-  err |= optionhash_extract_int (hash, PORTCFG_UID, 1, 0,
+  err |= optionhash_extract_int (hash, PORTCFG_UID, 1, -1,
 				 (int *) &(pipe->uid), txt);
-  err |= optionhash_extract_int (hash, PORTCFG_GID, 1, 0,
+  err |= optionhash_extract_int (hash, PORTCFG_GID, 1, -1,
 				 (int *) &(pipe->gid), txt);
-  err |= optionhash_extract_int (hash, PORTCFG_PERMS, 1, 0,
+  err |= optionhash_extract_int (hash, PORTCFG_PERMS, 1, -1,
 				 (int *) &(pipe->perm), txt);
   err |= optionhash_validate (hash, 0, "pipe", key);
   return err;
@@ -1128,6 +1128,9 @@ guile_define_port (SCM name, SCM args)
       if ((str = guile2str (p)) != NULL)
 	{
 	  cfg->pipe_recv.name = svz_strdup (str);
+	  cfg->pipe_recv.gid = (unsigned int) -1;
+	  cfg->pipe_recv.uid = (unsigned int) -1;
+	  cfg->pipe_recv.perm = (unsigned int) -1;
 	  free (str);
 	}
       /* Create local optionhash for receiving pipe direction. */
@@ -1156,6 +1159,9 @@ guile_define_port (SCM name, SCM args)
       if ((str = guile2str (p)) != NULL)
 	{
 	  cfg->pipe_send.name = svz_strdup (str);
+	  cfg->pipe_send.gid = (unsigned int) -1;
+	  cfg->pipe_send.uid = (unsigned int) -1;
+	  cfg->pipe_send.perm = (unsigned int) -1;
 	  free (str);
 	}
       else if (p == SCM_UNSPECIFIED)
