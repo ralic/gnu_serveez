@@ -878,7 +878,12 @@ if test x$GCC = xyes -a x$enable_shared = xyes ; then
   solaris*)
     ADDLIBS="`gcc --print-file-name=libiberty.a`"
     ADDLIBS="-L`dirname $ADDLIBS 2>/dev/null`"
-    ADDLIBS="$ADDLIBS `gcc --print-libgcc-file-name`"
+    GCCDIR="`gcc --print-libgcc-file-name`"
+    GCCDIR="-L`dirname $GCCDIR 2>/dev/null`"
+    GCCFILE="`gcc --print-libgcc-file-name`"
+    GCCFILE="`basename $GCCFILE 2>/dev/null`"
+    GCCFILE="-l`echo "$GCCFILE" | sed -e 's/lib\(.*\)\.a/\1/'`"
+    ADDLIBS="$ADDLIBS $GCCDIR $GCCFILE"
     LIBS="$LIBS $ADDLIBS"
     AC_MSG_WARN([
   The configure script added
@@ -887,6 +892,8 @@ if test x$GCC = xyes -a x$enable_shared = xyes ; then
   to <bug-serveez@gnu.org> if we failed to build shared libraries 
   on '$host_os'.])
     unset ADDLIBS
+    unset GCCDIR
+    unset GCCFILE
     ;;
   esac
 fi

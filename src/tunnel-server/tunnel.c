@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.26 2001/07/03 10:43:31 ela Exp $
+ * $Id: tunnel.c,v 1.27 2001/12/06 01:08:15 ela Exp $
  *
  */
 
@@ -126,7 +126,7 @@ tnl_init (svz_server_t *server)
     }
 
   /* check identity of source and target port configurations */
-  if (svz_portcfg_equal (cfg->source, cfg->target))
+  if (svz_portcfg_equal (cfg->source, cfg->target) == 0)
     {
       svz_log (LOG_ERROR, "tunnel: source and target identical\n");
       return -1;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.14 2001/11/25 15:51:16 ela Exp $
+ * $Id: binding.c,v 1.15 2001/12/06 01:08:15 ela Exp $
  *
  */
 
@@ -172,13 +172,12 @@ svz_server_single_listener (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * Return a @code{socket_t} representing a server socket with the port
- * configuration @var{port} and add the given server instance @var{server}
- * to this structure. If there is no such port configuration yet return
- * @code{NULL}.
+ * Returns a socket structure representing a listening server socket with 
+ * the port configuration @var{port}. If there is no such port configuration 
+ * yet then @code{NULL} is returned.
  */
-static svz_socket_t *
-svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
+svz_socket_t *
+svz_sock_find_portcfg (svz_portcfg_t *port)
 {
   svz_socket_t *sock;
   
@@ -186,19 +185,11 @@ svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
   svz_sock_foreach (sock)
     {
       /* Is this socket usable for this port configuration ? */
-      if (sock->data && sock->port && sock->flags & SOCK_FLAG_LISTENING &&
-	  svz_portcfg_equal (sock->port, port))
-	{
-	  /* Do not bind a server to a single port twice. */
-	  if (!svz_array_contains (sock->data, server))
-	    {
-	      /* Extend the server array in sock->data. */
-	      svz_array_add (sock->data, server);
-	    }
-	  break;
-	}
+      if (sock->data && sock->port && sock->flags & SOCK_FLAG_LISTENING)
+	if (svz_portcfg_equal (sock->port, port) >= 0)
+	  return sock;
     }
-  return sock;
+  return NULL;
 }
 
 /*
@@ -224,7 +215,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
       svz_portcfg_prepare (copy);
 
       /* Find appropriate socket structure for this port configuration. */
-      if ((sock = svz_server_find_portcfg (server, copy)) == NULL)
+      if ((sock = svz_sock_find_portcfg (copy)) == NULL)
 	{
 	  /* Try creating a server socket. */
 	  if ((sock = svz_server_create (copy)) != NULL)
@@ -235,8 +226,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 	       */
 	      svz_sock_enqueue (sock);
 	      sock->port = copy;
-	      sock->data = svz_array_create (1, NULL);
-	      svz_array_add (sock->data, server);
+	      svz_sock_add_server (sock, server);
 	    }
 	  /* Could not create this port configuration listener. */
 	  else
@@ -247,6 +237,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
       /* Port configuration already exists. */
       else
 	{
+	  svz_sock_add_server (sock, server);
 	  svz_portcfg_destroy (copy);
 	}
     }
@@ -287,13 +278,49 @@ svz_server_unbind (svz_server_t *server)
       /* A server socket structure ? */
       if (sock->flags & SOCK_FLAG_LISTENING && sock->port && sock->data)
 	{
-	  /* Delete all servers and shutdown the socket structure if
+	  /* Delete the server and shutdown the socket structure if
 	     there are no more servers left. */
-	  while ((n = svz_array_idx (sock->data, server)) !=
-		 (unsigned long) -1)
-	    svz_array_del (sock->data, n);
-	  if (svz_array_size (sock->data) == 0)
+	  if (svz_sock_del_server (sock, server) == 0)
 	    svz_sock_schedule_for_shutdown (sock);
 	}
     }
+}
+
+/*
+ * This function attaches the given server instance @var{server} to the
+ * listening socket structure @var{sock}.  It returns zero on success and
+ * non-zero if the server is already bound to the socket.
+ */
+int
+svz_sock_add_server (svz_socket_t *sock, svz_server_t *server)
+{
+  /* Create server array if necessary. */
+  if (sock->data == NULL)
+    {
+      sock->data = svz_array_create (1, NULL);
+      svz_array_add (sock->data, server);
+    }
+  /* Attach a server to a single listener only once. */
+  else if (!svz_array_contains (sock->data, server))
+    {
+      /* Extend the server array. */
+      svz_array_add (sock->data, server);
+      return 0;
+    }
+  return -1;
+}
+
+/*
+ * Removes the server instance @var{server} from the listening socket 
+ * structure @var{sock} and returns the remaining number of servers bound
+ * to the socket structure.
+ */
+int
+svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
+{
+  unsigned long i;
+
+  if ((i = svz_array_idx (sock->data, server)) != (unsigned long) -1)
+    svz_array_del (sock->data, i);
+  return svz_array_size (sock->data);
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.25 2001/11/24 00:08:50 ela Exp $
+ * $Id: portcfg.c,v 1.26 2001/12/06 01:08:15 ela Exp $
  *
  */
 
@@ -68,42 +68,56 @@ svz_portcfg_create (void)
 
 /*
  * Check if two given port configurations structures are equal i.e. 
- * specifying the same network port or files. Returns non-zero if @var{a} 
- * and @var{b} are equal.
+ * specifying the same network port or pipe files. Returns zero (0) if 
+ * @var{a} and @var{b} are identical, one (1) if the network address of
+ * either port configuration contains the other (INADDR_ANY match) and 
+ * otherwise -1.
  */
 int
 svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 {
+  struct sockaddr_in *a_addr, *b_addr;
+
   if ((a->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP | PROTO_RAW)) &&
       (a->proto == b->proto))
     {
-      /* 
-       * Two network ports are equal if both local port and address 
-       * are equal.
-       */
+      /* Two network ports are equal if both local port and IP address 
+	 are equal or one of them is INADDR_ANY. */
+      a_addr = svz_portcfg_addr (a);
+      b_addr = svz_portcfg_addr (b);
+
       switch (a->proto)
 	{
-	case PROTO_TCP:
-	  if (a->tcp_port == b->tcp_port &&
-	      !strcmp (a->tcp_ipaddr, b->tcp_ipaddr))
-	    return 1;
-	  break;
 	case PROTO_UDP:
-	  if (a->udp_port == b->udp_port &&
-	      !strcmp (a->udp_ipaddr, b->udp_ipaddr))
-	    return 1;
+	case PROTO_TCP:
+	  if (a_addr->sin_port == b_addr->sin_port)
+	    {
+	      if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
+		return 0;
+	      else if (a_addr->sin_addr.s_addr == INADDR_ANY ||
+		       b_addr->sin_addr.s_addr == INADDR_ANY)
+		return 1;
+	    }
 	  break;
 	case PROTO_ICMP:
-	  if (!strcmp (a->icmp_ipaddr, b->icmp_ipaddr) &&
-	      a->icmp_type == b->icmp_type)
-	    return 1;
+	  if (a->icmp_type == b->icmp_type)
+	    {
+	      if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
+		return 0;
+	      else if (a_addr->sin_addr.s_addr == INADDR_ANY ||
+		       b_addr->sin_addr.s_addr == INADDR_ANY)
+		return 1;
+	    }
 	  break;
 	case PROTO_RAW:
-	  if (!strcmp (a->raw_ipaddr, b->raw_ipaddr))
+	  if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
+	    return 0;
+	  else if (a_addr->sin_addr.s_addr == INADDR_ANY ||
+		   b_addr->sin_addr.s_addr == INADDR_ANY)
 	    return 1;
 	  break;
 	}
-    } 
+    }
   else if (a->proto & PROTO_PIPE && a->proto == b->proto) 
     {
       /* 
@@ -115,7 +129,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
     } 
 
   /* Do not even the same proto flag -> cannot be equal. */
-  return 0;
+  return -1;
 }
 
 /*

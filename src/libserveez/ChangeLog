@@ -1,3 +1,8 @@
+2001-12-06  [ Ela ]  <ela@lkcc.org>
+
+	* binding.c: Code cleanups.  Better structured server bindings.
+	Also exported some more functions.
+
 2001-12-05  [ Ela ]  <ela@lkcc.org>
 
 	* server-socket.c (svz_server_create): Use of SO_BINDTODEVICE.
