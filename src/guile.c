@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.57 2001/12/27 18:27:51 ela Exp $
+ * $Id: guile.c,v 1.58 2001/12/28 17:11:07 ela Exp $
  *
  */
 
@@ -1764,9 +1764,8 @@ guile_load_config (char *cfgfile)
   if (SCM_FALSEP (ret))
     guile_global_error = -1; 
 
-  /* Kick the gc now since no guile is involved anymore unless a guile
-   * server is implemented.
-   */
+  /* Kick the garbage collection now since no Guile is involved anymore 
+     unless a Guile server is implemented. */
   scm_gc ();
 
   return guile_global_error ? -1 : 0;

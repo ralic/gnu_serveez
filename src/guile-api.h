@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.5 2001/12/27 18:27:51 ela Exp $
+ * $Id: guile-api.h,v 1.6 2001/12/28 17:11:07 ela Exp $
  *
  */
 
@@ -137,6 +137,8 @@
 # define GUILE_CONCAT3(a, b, c) a/* */b/* */c
 #endif
 
+/* Compatibility macros for Guile 1.3 version. Also defines the macro
+   HAVE_OLD_SMOBS which indicates a different smob implementation. */
 #ifndef SCM_NEWSMOB
 #define SCM_NEWSMOB(value, tag, data) do {                         \
     SCM_NEWCELL (value);                                           \
@@ -151,7 +153,7 @@
 #ifndef SCM_SMOB_DATA
 #define SCM_SMOB_DATA(data) SCM_CDR (data)
 #define gh_scm2chars(obj, lenp) guile_to_string (obj)
-#define GUILE_OLD_SMOBS 1
+#define HAVE_OLD_SMOBS 1
 #endif
 
 #endif /* not __GUILE_API_H__ */

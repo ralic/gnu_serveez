@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-server.scm,v 1.4 2001/11/12 10:27:19 ela Exp $
+;; $Id: mandel-server.scm,v 1.5 2001/12/28 17:11:07 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -104,7 +104,7 @@
 	    (write-line (string-append "\""
 				       (vector-ref (car rgb) i)
 				       "\tc #"
-				       (string-upcase (vector-ref (cdr rgb) i))
+				       (vector-ref (cdr rgb) i)
 				       "\",")
 			outfile)
 	    (loop (1+ i)))))))
