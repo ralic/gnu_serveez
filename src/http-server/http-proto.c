@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.11 2000/06/22 16:01:08 raimi Exp $
+ * $Id: http-proto.c,v 1.12 2000/06/22 17:59:41 ela Exp $
  *
  */
 
@@ -198,6 +198,7 @@ int
 http_init (server_t *server)
 {
   int types = 0;
+  char *p;
   http_config_t *cfg = server->cfg;
   
   if (cfg->types)
@@ -211,7 +212,17 @@ http_init (server_t *server)
 
   log_printf (LOG_NOTICE, "http: %d+%d content types (%s)\n",
 	      types, hash_size (cfg->types) - types, cfg->type_file);
-  log_printf (LOG_NOTICE, "http: files in %s\n", cfg->docs);
+
+  /* Checking whether http doc root path ends in '/' or '\'. */
+  if (!strlen (cfg->docs))
+    {
+      log_printf (LOG_ERROR, "http: no valid directory given\n");
+      return -1;
+    }
+  p = cfg->docs + strlen (cfg->docs) - 1;
+  if (*p == '/' || *p == '\\') *p = '\0';
+  log_printf (LOG_NOTICE, "http: files in %s/\n", cfg->docs);
+
   log_printf (LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
 	      cfg->cgidir, cfg->cgiurl);
 
@@ -524,12 +535,12 @@ http_send_file (socket_t sock)
       sock->send_buffer_fill = 0;
       sock->write_socket = http_default_write;
       sock->userflags &= ~HTTP_FLAG_SENDFILE;
-      num_written = http_keep_alive(sock);
+      num_written = http_keep_alive (sock);
     }
 
   return (num_written < 0) ? -1 : 0;
 }
-#endif
+#endif /* HAVE_SENDFILE */
 
 /*
  * HTTP_DEFAULT_WRITE will shutdown the connection immediately when 
@@ -1429,7 +1440,8 @@ http_get_response (socket_t sock, char *request, int flags)
       sock_printf (sock, HTTP_OK);
       sock_printf (sock, "Content-Type: %s\r\n", 
 		   http_find_content_type (sock, file));
-      sock_printf (sock, "Content-Length: %d\r\n", buf.st_size);
+      if (buf.st_size > 0)
+	sock_printf (sock, "Content-Length: %d\r\n", buf.st_size);
       sock_printf (sock, "Server: %s/%s\r\n", 
 		   serveez_config.program_name,
 		   serveez_config.version_string);
@@ -1498,7 +1510,7 @@ http_get_response (socket_t sock, char *request, int flags)
        * find a free slot for the new file if it is not larger
        * than a certain size
        */
-      if (buf.st_size < cfg->cachesize &&
+      if (buf.st_size > 0 && buf.st_size < cfg->cachesize &&
 	  http_init_cache (file, cache) != -1)
 	{
 	  sock->read_socket = http_cache_read;

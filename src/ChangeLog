@@ -1,8 +1,13 @@
+2000-06-22  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_get_response): Do not send
+	"Content-Length:" header for zero sized files. Keep cache 
+	untouched for those kind of files.
+
 2000-06-22  [ RAIMI ]  <raimi@lkcc.org>
 
-	* http-server/http-proto.c (http_send_file): made it work with
-	ela on the phone. i typed what he said
-	
+	* http-server/http-proto.c (http_send_file): Made it work with
+	ela on the phone. I typed what he said.
 
 2000-06-22  [ Ela ]  <ela@lkcc.org>
 
