@@ -2595,10 +2595,11 @@ Serveez has been build and tested successfully.
 
 @itemize @bullet
 
-@item FreeBSD 3.3, 4.0, 4.3, 4.4, 4.5 on Intel
-@item FreeBSD 4.0 on Alpha
+@item FreeBSD 3.3, 4.0, 4.3, 4.4, 4.5, 4.6 on Intel
+@item FreeBSD 4.0, 4.6 on Alpha
 @item NetBSD 1.5 on Alpha
-@item OpenBSD 3.0 on Alpha
+@item OpenBSD 3.0, 3.1 on Alpha
+@item OpenBSD 3.1 on Intel
 @item GNU/Linux 2.x.x on Intel
 @item GNU/Linux 2.x.x on Alpha
 @item GNU/Linux 2.2.x on Sparc64 (UltraSparcII + MachV)
@@ -2619,6 +2620,7 @@ Serveez has been build and tested successfully.
 @item IRIX 6.x on MIPS
 @item Tru64/OSF1 UNIX V4.0 (former Digital UNIX) on Alpha
 @item Tru64/OSF1 UNIX V5.x (former Digital UNIX) on Alpha
+@item HP-UX B.11.11 on HP PA-RISC (PA-8700/PA-8600)
 
 @end itemize
 

@@ -102,7 +102,9 @@ You can always get the latest Serveez version from our CVS repository.
 Please use an official release if you want to work with Serveez.  The CVS
 version might not even compile.
 
-    cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
+    $ export CVS_RSH=ssh
+    $ cvs -d :pserver:anoncvs@lkcc.org:/home/cvs/cvsroot login
+    $ cvs -z9 -d :pserver:anoncvs@lkcc.org:/home/cvs/cvsroot co serveez
 
 The password is 'anoncvs'.  Run `sh autogen.sh' and `configure' with the
 appropriate options.  Maintainance currently requires Autoconf version 2.13,

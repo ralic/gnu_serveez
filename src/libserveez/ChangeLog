@@ -1,3 +1,11 @@
+2002-07-13  [ Ela ]  <ela@lkcc.org>
+
+	* dynload.c (DYNLOAD_SUFFIX): Added '.sl' shared library
+	suffix for HP-UX.
+	(dyn_get_library): Corrected call to shl_load().
+
+	* core.c (svz_sendfile): Support for HP-UX sendfile() added.
+
 2002-06-09  [ Ela ]  <ela@lkcc.org>
 
 	* server-loop.c (svz_check_sockets_poll): Fixed the POLLPRI +

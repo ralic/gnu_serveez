@@ -22,8 +22,19 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.9 2002/05/15 14:00:46 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.10 2002/07/13 15:45:53 ela Exp $
 #
+
+# start sentences with two space beforehand
+function replace_sentence(line)
+{
+    pos = match(line, /\. [A-Z]+/)
+    while (pos != 0) {
+      line = (substr (line, 1, pos + 1) substr (line, pos + 1))
+      pos = match(line, /\. [A-Z]+/)
+    }
+    return line
+}
 
 # read lines until end of C comment has been reached
 function extract_doc(line)
@@ -37,7 +48,7 @@ function extract_doc(line)
     }
     gsub(/ [ ]+/, " ", doc)
     gsub(/\t/, " ", doc)
-    doc = gensub(/\. ([A-Z]+)/, ".  \\1", "g", doc)
+    doc = replace_sentence(doc)
     if (doc ~ / $/) { doc = substr(doc, 1, length(doc) - 1) }
     if (doc ~ /^ /) { doc = substr(doc, 2) }
     while (end == 0) {
@@ -64,7 +75,7 @@ function extract_doc(line)
 	gsub(/\*\//, "", line)
 	gsub(/ [ ]+/, " ", line)
 	gsub(/\t/, " ", line)
-	line = gensub(/\. ([A-Z]+)/, ".  \\1", "g", line)
+        line = replace_sentence(line)
 	if (line ~ / $/) { line = substr(line, 1, length(line) - 1) }
         if (line ~ /^ /) { line = substr(line, 2) }
       }
@@ -94,15 +105,15 @@ function handle_variable(line)
 {
     def = ""
     if (line ~ /^ / || line ~ /^\t/) { return }
-    if (line ~ /[ ]+[a-zA-Z0-9_\*\"\[\]{},= ]+[ ]*[;=]$/) {
+    if (line ~ /[ ]+[a-zA-Z0-9_\*\"\[\]\{\},= ]+[ ]*[;=]$/) {
 	gsub(/ [ ]+/, " ", line)
 	gsub(/\t/, " ", line)
 	gsub(/\;/, "", line)
 	if (index(line, "{")) {
 	  def = substr(line, index(line, "{"), index(line, "}"))
-	  gsub(/[ ]*{.+}[ ]*/, "", line)
-	  gsub(/{/, "@{", def)
-	  gsub(/}/, "@}", def)
+	  gsub(/[ ]*\{.+\}[ ]*/, "", line)
+	  gsub(/\{/, "@{", def)
+	  gsub(/\}/, "@}", def)
 	}
 	gsub(/[ ]*=$/, "", line)
 	gsub(/\[[A-Za-z0-9_]*\]/, "", line)
@@ -225,7 +236,7 @@ function handle_macro(line)
     while (found == 0) {
 
         # handle variable definitions
-	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"\[\]{},= ]+[ ]*[;=]$/) {
+	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"\[\]\{\},= ]+[ ]*[;=]$/) {
 	    create_loc(0)
 	    handle_variable(ret)
 	    next

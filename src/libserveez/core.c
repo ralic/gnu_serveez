@@ -1,7 +1,7 @@
 /*
  * core.c - socket and file descriptor core implementations
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.26 2002/01/20 17:12:29 ela Exp $
+ * $Id: core.c,v 1.27 2002/07/13 15:45:54 ela Exp $
  *
  */
 
@@ -602,6 +602,12 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
       *offset += count;
       ret = count;
     }
+
+#elif defined (__hpux)
+  
+  /* HP-UX 11i */
+  ret = sendfile (out_fd, in_fd, *offset, (bsize_t) count, NULL, 0);
+  *offset += ((ret >= 0) ? ret : 0);
 
 #else 
 

@@ -1,7 +1,7 @@
 /*
  * dynload.c - dynamic server loading implementation
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.20 2001/12/22 10:32:52 ela Exp $
+ * $Id: dynload.c,v 1.21 2002/07/13 15:45:54 ela Exp $
  *
  */
 
@@ -99,6 +99,11 @@ dyn_error (void)
 # define DYNLOAD_SUFFIX "dylib"
 # define DYNLOAD_PATH_SEPERATOR ':'
 # define DYNLOAD_SYMBOL_PREFIX "_"
+#elif defined (__hpux)
+# define DYNLOAD_PREFIX "lib"
+# define DYNLOAD_SUFFIX "sl"
+# define DYNLOAD_PATH_SEPERATOR ':'
+# define DYNLOAD_SYMBOL_PREFIX ""
 #else
 # define DYNLOAD_PREFIX "lib"
 # define DYNLOAD_SUFFIX "so"
@@ -152,7 +157,7 @@ dyn_get_library (char *path, char *file)
 #elif defined (__MINGW32__)
   handle = LoadLibrary (lib);
 #elif HAVE_SHL_LOAD
-  handle = shl_load (lib, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH);
+  handle = shl_load (lib, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH, 0L);
 #elif HAVE_NSADDIMAGE
   handle = (void *) NSAddImage (lib, NSADDIMAGE_OPTION_RETURN_ON_ERROR |
 				NSADDIMAGE_OPTION_WITH_SEARCHING);

@@ -1299,9 +1299,14 @@ AC_CHECK_FUNCS(times poll waitpid)
 dnl
 dnl Checks for RPC services.
 dnl
+AC_CHECK_FUNC(getrpcent)
+if test $ac_cv_func_getrpcent = no; then
+    dnl On HP-UX these functions reside in -lnsl
+    AC_CHECK_LIB(nsl, getrpcent, EXTRALIBS="$EXTRALIBS -lnsl")
+fi
 save_LIBS="$LIBS"
 LIBS="$LIBS $EXTRALIBS"
-AC_CHECK_FUNCS(getrpcent getrpcbyname getrpcbynumber setrpcent endrpcent \
+AC_CHECK_FUNCS(getrpcbyname getrpcbynumber setrpcent endrpcent \
   pmap_set pmap_unset pmap_getmaps get_myaddress)
 LIBS="$save_LIBS"
 unset save_LIBS
@@ -1436,7 +1441,11 @@ AC_SUBST(RPM3)
 LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS
 
-TIMESTAMP=`date '+%a %b %_d %H:%M:%S %Y'`
+TIMESTAMP=`date '+%a %b %_d %H:%M:%S %Y' 2>/dev/null`
+if test -z "$TIMESTAMP" ; then
+    dnl On HP-UX each item is padded with spaces by default.
+    TIMESTAMP=`date '+%a %b %d %H:%M:%S %Y' 2>/dev/null`
+fi
 AC_SUBST(TIMESTAMP)
 
 dnl For GNU/Linux Debian packaging only

@@ -1,3 +1,14 @@
+2002-07-13  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.en.html: Updated anonymous CVS instructions.
+
+	* serveez.texi (Porting issues): Added some more supported
+	platforms.
+
+	* serveez-doc-snarf.awk: Deleted any reference to gensub()
+	which is a GNU extension of `gawk'.
+	Quoted any occurrence of `{' and `}' in regular expressions.
+
 2002-05-15  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.texi.in: Applied John Fitzgerald's modifications

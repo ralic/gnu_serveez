@@ -1,3 +1,10 @@
+2002-07-13  [ Ela ]  <ela@lkcc.org>
+
+	* README: Updated anonymous CVS instructions.
+
+	* configure.in: Better support for non GNU date	commands.
+	Checking for getrpcent() and alike systems calls in -lnsl.
+
 2002-06-07  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checking for <sys/ioctl.h>.
