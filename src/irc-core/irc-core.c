@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.15 2000/09/26 18:08:52 ela Exp $
+ * $Id: irc-core.c,v 1.16 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -573,6 +573,6 @@ irc_string_equal (char *str1, char *str2)
 
 #else /* ENABLE_IRC_PROTO */
 
-int irc_core_dummy; /* shut up compiler */
+int irc_core_dummy; /* Shut up compiler. */
 
 #endif /* ENABLE_IRC_PROTO */

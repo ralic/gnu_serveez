@@ -1,3 +1,25 @@
+2000-09-27  [ Ela ]  <ela@lkcc.org>
+
+	* server.c (set_port): Prepared everything to support ICMP
+	sockets in the port configuration.
+
+	* http-server/http-cgi.c (http_cgi_exec): Find out the
+	system's executable association. It is not used by default
+	but could be put into the appropiate configuration hash
+	"cgi-application".
+
+	* server.c (hashtable_p): Added some #define's for backward
+	compatibility with older versions of the sizzle core library.
+
+	* http-server/http-cgi.c (http_cgi_exec): Fixed cgi execution
+	bug previously described in BUGS. Even large cgi output can
+	be passed on Win32 now.
+	(http_cgi_exec): Respond with "Forbidden" if there is no
+	cgi application association with the requested file extension.
+
+	* http-server/http-proto.c (http_config_prototype): Added
+	support for configurable cgi application associations.
+
 2000-09-26  [ Ela ]  <ela@lkcc.org>
 
 	* windoze.c: Moved some functions to this file. That is

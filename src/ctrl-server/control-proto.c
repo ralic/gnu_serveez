@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.28 2000/09/26 18:08:52 ela Exp $
+ * $Id: control-proto.c,v 1.29 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -361,6 +361,8 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	strcat (proto, "tcp ");
       if (xsock->proto & PROTO_UDP)
 	strcat (proto, "udp ");
+      if (xsock->proto & PROTO_ICMP)
+	strcat (proto, "icmp ");
       if (xsock->proto & PROTO_PIPE)
 	strcat (proto, "pipe ");
 
@@ -899,8 +901,8 @@ ctrl_handle_request (socket_t sock, char *request, int len)
  * HP-Unix -- pstat_getdynamic()
  * Solaris -- kstat_read()
  */
-int
-get_cpu_state (void)
+static int
+ctrl_get_cpu_state (void)
 {
   int n;
 
@@ -1032,7 +1034,7 @@ ctrl_idle (socket_t sock)
   n = (c->index + 1) & 1;
 
   /* get status of the cpu and process */
-  if (get_cpu_state () != -1)
+  if (ctrl_get_cpu_state () != -1)
     {
       /* calculate process specific info */
       all = c->ptotal[n] - c->ptotal[old]; 

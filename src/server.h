@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.9 2000/09/20 08:29:14 ela Exp $
+ * $Id: server.h,v 1.10 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -42,6 +42,7 @@
 #define PROTO_TCP   0x00000001
 #define PROTO_UDP   0x00000002
 #define PROTO_PIPE  0x00000004
+#define PROTO_ICMP  0x00000008
 
 /*
  * Each server can have a an array of name-value-pairs specific for it.
@@ -178,12 +179,12 @@ void server_print_definitions (void);
 #endif
 
 /*
- * Helper cast to get n-th server_t from a void*
+ * Helper cast to get n-th server_t from a (void *).
  */
 #define SERVER(addr, no) (((server_t **) addr)[no])
 
 /*
- * Helper macros for filling the config prototypes
+ * Helper macros for filling the config prototypes.
  */
 #define DEFAULTABLE     1
 #define NOTDEFAULTABLE  0
@@ -197,44 +198,44 @@ void server_print_definitions (void);
 #define ITEM_PORTCFG  6
 
 /*
- * A simple int
+ * A simple int.
  */
 #define REGISTER_INT(name, address, defaultable) \
   { ITEM_INT, name, defaultable, &address }
 
 /*
  * An int array:
- * [0] is length, followed by ints
+ * [0] is length, followed by ints.
  */
 #define REGISTER_INTARRAY(name, address, defaultable)\
   { ITEM_INTARRAY, name, defaultable, &(address) }
 
 /*
- * A string, char *
+ * A string (char *).
  */
 #define REGISTER_STR(name, address, defaultable) \
   { ITEM_STR, name, defaultable, &(address) }
 
 /*
- * A string array, NULL terminated pointerlist
+ * A string array, NULL terminated list of pointers.
  */
 #define REGISTER_STRARRAY(name, address, defaultable) \
   { ITEM_STRARRAY, name, defaultable, &(address) }
 
 /*
- * A hashtable associating strings with strings
+ * A hashtable associating strings with strings.
  */
 #define REGISTER_HASH(name, address, defaultable) \
   { ITEM_HASH, name, defaultable, &(address) }
 
 /*
- * A Port configuration
+ * A port configuration.
  */
 #define REGISTER_PORTCFG(name, address, defaultable) \
   { ITEM_PORTCFG, name, defaultable, &(address) }
 
 /*
- * Dummy for ending the list
+ * Dummy for terminating the list.
  */
 #define REGISTER_END() \
   { ITEM_END, NULL, 0, NULL }

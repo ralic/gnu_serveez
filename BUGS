@@ -38,7 +38,7 @@ Description: Serveez does not run on i64 Linux.
 
 Bug:	     B0013
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed
 Date:	     2000-09-12
 Description: Bigger CGI scripts under Win95 will lock the server. Bigger
 	     means more content production here. This happened with batch
@@ -102,7 +102,7 @@ From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-10-27/mgrabmue)
 Date:	     1999-10-27
 Description: disabling floodprotection on port <vielzuhohezahl> ...war
-	     vermutl. der selbe fehler, in der 4er ist das blos nicht
+	     vermutl. der selbe fehler, in der 4er ist das bloss nicht
 	     gestorben.
 
 

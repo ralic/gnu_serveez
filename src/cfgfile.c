@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.10 2000/09/11 00:07:35 raimi Exp $
+ * $Id: cfgfile.c,v 1.11 2000/09/27 14:31:25 ela Exp $
  *
  */
 
@@ -40,6 +40,14 @@
 #include "serveez.h"
 #include "server.h"
 #include "libsizzle/libsizzle.h"
+
+/* for backward compatibility with older versions of sizzle core */
+#ifndef hashtable_p
+# define hashtable_p(c) vector_p(c)
+#endif
+#ifndef zzz_interaction_environment
+# define zzz_interaction_environment zzz_toplevel_env
+#endif
 
 #define LISTEND       0
 #define TYPEINT       1

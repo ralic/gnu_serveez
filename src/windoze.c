@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.1 2000/09/26 18:08:52 ela Exp $
+ * $Id: windoze.c,v 1.2 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -37,8 +37,9 @@
 #include <shellapi.h>
 #include <windowsx.h>
 
-#include <serveez.h>
 #include <util.h>
+#include <socket.h>
+#include <serveez.h>
 #include <server-core.h>
 #include <windoze.h>
 
@@ -46,6 +47,7 @@ static DWORD windoze_daemon_id = 0;
 static HANDLE windoze_daemon_handle = NULL;
 static BOOL windoze_run = FALSE;
 static HICON windoze_icon = NULL;
+static char windoze_tooltip[128];
 
 /*
  * Main windows thread where the window manager can pass message to.
@@ -53,14 +55,16 @@ static HICON windoze_icon = NULL;
 DWORD WINAPI 
 windoze_thread (char *prog)
 {
-  HWND hwnd;
-  MSG msg;
-  WNDCLASS class;
-  ATOM atom;
-
+  HWND hwnd;      /* window handle */
+  MSG msg;        /* message structure */
+  WNDCLASS class; /* window class */
+  ATOM atom;      /* window manager atom */
+  int count = 0;  /* notify interval counter */
+  
+  /* load appropiate icon */
   windoze_icon = (HICON) LoadImage (NULL, SERVEEZ_ICON_FILE, IMAGE_ICON,
-				    0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE)
-  if (windoze_ico == NULL)
+				    0, 0, LR_LOADFROMFILE | LR_DEFAULTSIZE);
+  if (windoze_icon == NULL)
     {
       log_printf (LOG_ERROR, "LoadImage: %s\n", SYS_ERROR);
       windoze_icon = LoadIcon (NULL, IDI_WINLOGO);
@@ -101,6 +105,13 @@ windoze_thread (char *prog)
 	  windoze_dialog (msg.hwnd, msg.message, msg.wParam, msg.lParam);
 	}
       Sleep (50);
+
+      /* modify tooltip regularly */
+      if ((count += 50) >= 1000)
+	{
+	  windoze_notify_set (hwnd, SERVEEZ_ICON_ID);
+	  count = 0;
+	}
     }
   windoze_run = FALSE;
 
@@ -175,13 +186,25 @@ windoze_notify_del (HWND hwnd, UINT id)
 void 
 windoze_notify_add (HWND hwnd, UINT id)
 {
-  static char tip[128];
-
-  sprintf (tip, "%s %s", 
+  sprintf (windoze_tooltip, "%s %s", 
 	   serveez_config.program_name,
 	   serveez_config.version_string);
 
-  windoze_set_taskbar (hwnd, NIM_ADD, id, windoze_icon, tip);
+  windoze_set_taskbar (hwnd, NIM_ADD, id, windoze_icon, windoze_tooltip);
+}
+
+/*
+ * Modify what's within the taskbar.
+ */
+void 
+windoze_notify_set (HWND hwnd, UINT id)
+{
+  sprintf (windoze_tooltip, "%s %s (%d connections)", 
+	   serveez_config.program_name,
+	   serveez_config.version_string,
+	   connected_sockets);
+
+  windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
 }
 
 /*

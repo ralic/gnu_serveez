@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.12 2000/08/02 09:45:15 ela Exp $
+ * $Id: http-proto.h,v 1.13 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 
 #define _GNU_SOURCE
 #include <sys/types.h>
+
 #include "socket.h"
 #include "hash.h"
 #include "server.h"
@@ -53,6 +54,7 @@ typedef struct
   char *default_type; /* the default content type */
   char *type_file;    /* content type file (e.g "/etc/mime.types") */
   hash_t **types;     /* content type hash */
+  hash_t **cgiapps;   /* cgi application associations */
 } 
 http_config_t;
 

@@ -761,15 +761,21 @@ server when the user does not specify a file but a document node
 The @code{docs} parameter is the document root where the server finds its
 web documents.
 
-@item cgiurl
+@item cgi-url
 This parameter is the first part of the URL the HTTP server identifies a
 CGI request. For instance if you specify here @file{/cgi-bin} and the
 user requests @uref{http://www.textsure.net/cgi-bin/test.pl} then the
 HTTP server tries to execute the program @file{test.pl} within the
-@code{cgidir} (see below) and pipes its output to the user.
+@code{cgi-dir} (see below) and pipes its output to the user.
 
-@item cgidir
-The @code{cgidir} is the CGI document root.
+@item cgi-dir
+The @code{cgi-dir} is the CGI document root.
+
+@item cgi-application
+Within the MinGW32 and native port you can use this hash to associate
+certain file suffixes with applications on your computer (e.g. "pl" with
+"perl"). This is necessary because there is no possibility to check whether
+a file is executable or not in Win32.
 
 @item cache-size
 Here you might specify a maximum file size for documents which could be

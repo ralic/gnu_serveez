@@ -18,7 +18,7 @@
  * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, Ma 02111-1307, Usa.  
  *
- * $Id: irc-crypt.c,v 1.3 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-crypt.c,v 1.4 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -123,6 +123,6 @@ irc_decrypt_text (char *crypt, byte key)
 
 #else /* ENABLE_IRC_PROTO */
 
-int irc_crypt_dummy;
+int irc_crypt_dummy; /* Shut up compiler. */
 
 #endif /* ENABLE_IRC_PROTO */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.37 2000/09/26 18:08:52 ela Exp $
+ * $Id: http-proto.c,v 1.38 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -109,7 +109,8 @@ http_config_t http_config =
   HTTP_MAXKEEPALIVE,  /* how many files when using keep-alive */
   "text/plain",       /* standard content type */
   "/etc/mime.types",  /* standard content type file */
-  NULL                /* current content type hash */
+  NULL,               /* current content type hash */
+  NULL                /* cgi application associations */
 };
 
 /*
@@ -121,8 +122,8 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_PORTCFG ("netport", http_config.port, DEFAULTABLE),
   REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
   REGISTER_STR ("docs", http_config.docs, DEFAULTABLE),
-  REGISTER_STR ("cgiurl", http_config.cgiurl, DEFAULTABLE),
-  REGISTER_STR ("cgidir", http_config.cgidir, DEFAULTABLE),
+  REGISTER_STR ("cgi-url", http_config.cgiurl, DEFAULTABLE),
+  REGISTER_STR ("cgi-dir", http_config.cgidir, DEFAULTABLE),
   REGISTER_INT ("cache-size", http_config.cachesize, DEFAULTABLE),
   REGISTER_INT ("cache-entries", http_config.cacheentries, DEFAULTABLE),
   REGISTER_INT ("timeout", http_config.timeout, DEFAULTABLE),
@@ -130,6 +131,7 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_STR ("default-type", http_config.default_type, DEFAULTABLE),
   REGISTER_STR ("type-file", http_config.type_file, DEFAULTABLE),
   REGISTER_HASH ("types", http_config.types, DEFAULTABLE),
+  REGISTER_HASH ("cgi-application", http_config.cgiapps, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -232,6 +234,9 @@ http_init (server_t *server)
 
   if (cfg->cacheentries > 0)
     http_alloc_cache (cfg->cacheentries);
+
+  /* generate cgi associations */
+  http_gen_cgi_apps (cfg);
   
   server_bind (server, cfg->port);
   return 0;
@@ -246,6 +251,7 @@ http_finalize (server_t *server)
   http_config_t *cfg = server->cfg;
 
   http_free_types (cfg);
+  http_free_cgi_apps (cfg);
   
   return 0;
 }

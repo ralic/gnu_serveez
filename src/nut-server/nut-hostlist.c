@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.1 2000/09/15 08:22:51 ela Exp $
+ * $Id: nut-hostlist.c,v 1.2 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -223,6 +223,6 @@ nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_hostlist_dummy;	/* Shut compiler warnings up */
+int nut_hostlist_dummy;	/* Shut compiler warnings up. */
 
 #endif /* not ENABLE_GNUTELLA */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.12 2000/09/11 00:07:35 raimi Exp $
+ * $Id: http-dirlist.c,v 1.13 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -318,6 +318,6 @@ http_dirlist (char *dirname, char *docroot)
 
 #else /* ENABLE_HTTP_PROTO */
  
-int http_dirlist_dummy_variable; /* Silence compiler */
+int http_dirlist_dummy; /* Silence compiler. */
 
 #endif /* not ENABLE_HTTP_PROTO */

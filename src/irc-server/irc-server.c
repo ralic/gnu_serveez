@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.13 2000/09/09 16:33:43 ela Exp $
+ * $Id: irc-server.c,v 1.14 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -373,6 +373,6 @@ irc_find_server (void)
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_server_dummy;
+int irc_server_dummy; /* Shut up compiler. */
 
 #endif /* ENABLE_IRC_PROTO */

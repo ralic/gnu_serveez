@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.5 2000/09/22 18:39:52 ela Exp $
+ * $Id: option.c,v 1.6 2000/09/27 14:31:25 ela Exp $
  *
  */
 
@@ -83,6 +83,6 @@ getopt (int argc, char * const argv[], const char *optstring)
 
 #else /* not HAVE_GETOPT */
 
-int option_dummy_variable;
+int option_dummy; /* Shut up compiler. */
 
 #endif /* HAVE_GETOPT */

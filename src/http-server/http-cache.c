@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.16 2000/09/21 15:27:11 ela Exp $
+ * $Id: http-cache.c,v 1.17 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -466,6 +466,6 @@ http_cache_read (socket_t sock)
 
 #else /* ENABLE_HTTP_PROTO */
  
-int http_cache_dummy_variable; /* Silence compiler */
+int http_cache_dummy; /* Silence compiler. */
 
 #endif /* not ENABLE_HTTP_PROTO */

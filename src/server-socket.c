@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.28 2000/09/22 18:39:52 ela Exp $
+ * $Id: server-socket.c,v 1.29 2000/09/27 14:31:25 ela Exp $
  *
  */
 
@@ -136,6 +136,9 @@ server_create (portcfg_t *cfg)
 	  stype = SOCK_DGRAM;
 	  ptype = IPPROTO_UDP;
 	  break;
+	case PROTO_ICMP:
+	  stype = SOCK_RAW;
+	  ptype = IPPROTO_ICMP;
 	default:
 	  stype = SOCK_STREAM;
 	  ptype = IPPROTO_IP;
@@ -262,11 +265,15 @@ server_create (portcfg_t *cfg)
 	{
 	  sock->read_socket = server_accept_socket;
 	}
-      else
+      else if (cfg->proto & PROTO_UDP)
 	{
 	  sock->read_socket = udp_read_socket;
 	  sock->write_socket = udp_write_socket;
 	  sock->check_request = udp_check_request;
+	}
+      else if (cfg->proto & PROTO_ICMP)
+	{
+	  /* FIXME: */
 	}
 
       log_printf (LOG_NOTICE, "listening on %s port %s:%u\n",

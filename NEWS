@@ -26,6 +26,7 @@ This file lists user visible changes that were made between releases.
 Version 0.0.19
 --------------
 
+ * cgi application associations possible in the http server
  * daemon support via command line option
 
 Version 0.0.18

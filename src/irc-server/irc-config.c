@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.5 2000/09/26 18:08:52 ela Exp $
+ * $Id: irc-config.c,v 1.6 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -419,6 +419,6 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
 
 #else /* ENABLE_IRC_PROTO */
 
-int irc_config_dummy;
+int irc_config_dummy; /* Shut up compiler. */
 
 #endif /* ENABLE_IRC_PROTO */

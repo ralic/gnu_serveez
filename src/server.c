@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.24 2000/09/26 18:08:52 ela Exp $
+ * $Id: server.c,v 1.25 2000/09/27 14:31:25 ela Exp $
  *
  */
 
@@ -31,6 +31,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <libsizzle/libsizzle.h>
+
+/* for backward compatibility with older versions of sizzle core */
+#ifndef hashtable_p
+# define hashtable_p(c) vector_p(c)
+#endif
+#ifndef zzz_interaction_environment
+# define zzz_interaction_environment zzz_toplevel_env
+#endif
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -144,7 +152,7 @@ set_int (char *cfgfile,
   if (!integer_p (val))
     {
       fprintf (stderr,
-	       "%s: property `%s' of %s should be an integer but is not\n",
+	       "%s: property `%s' of `%s' should be an integer but is not\n",
 	       cfgfile, key, var);
       return -1;
     }
@@ -207,7 +215,7 @@ set_string (char *cfgfile, char *var, char *key, char **location,
   if (!string_p (val))
     {
       fprintf (stderr,
-	       "%s: property `%s' of %s should be a string but is not\n",
+	       "%s: property `%s' of `%s' should be a string but is not\n",
 	       cfgfile, key, var);
       return -1;
     }
@@ -233,7 +241,7 @@ set_stringarray (char *cfgfile, char *var, char *key, char*** location,
   if (!list_p (val))
     {
       fprintf (stderr,
-	       "%s: property `%s' of %s should be a list but is not\n",
+	       "%s: property `%s' of `%s' should be a list but is not\n",
 	       cfgfile, key, var);
       return -1;
     }
@@ -245,7 +253,7 @@ set_stringarray (char *cfgfile, char *var, char *key, char*** location,
       if (!string_p (car (val))) 
 	{
 	  fprintf (stderr,
-		   "%s: element %d of list `%s' is not a string in `%s'\n",
+		   "%s: element `%d' of list `%s' is not a string in `%s'\n",
 		   cfgfile, i, key, var);
 	  erroneous = -1;
 	} 
@@ -284,7 +292,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
       return 0;
     }
 
-  if (!vector_p (val)) 
+  if (!hashtable_p (val)) 
     {
       fprintf (stderr, 
 	       "%s: element `%s' of `%s' should be a hash but is not\n",
@@ -339,6 +347,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
 #define PORTCFG_OUTPIPE "outpipe"
 #define PORTCFG_TCP     "tcp"
 #define PORTCFG_UDP     "udp"
+#define PORTCFG_ICMP    "icmp"
 #define PORTCFG_PIPE    "pipe"
 #define PORTCFG_IP      "local-ip"
 #define PORTCFG_NOIP    "*"
@@ -375,7 +384,7 @@ static int set_port (char *cfgfile, char *var, char *key,
     {
       newport = (struct portcfg *) xpmalloc (sizeof (struct portcfg));
     
-      if (!vector_p (val)) 
+      if (!hashtable_p (val)) 
 	{
 	  fprintf (stderr,
 		   "%s: portcfg `%s' of `%s' does not specify a protocol\n",
@@ -397,13 +406,16 @@ static int set_port (char *cfgfile, char *var, char *key,
 
       tstr = string_val (hash_val);
 
-      if (!strcmp (tstr, PORTCFG_TCP) || !strcmp (tstr, PORTCFG_UDP)) 
+      if (!strcmp (tstr, PORTCFG_TCP) || !strcmp (tstr, PORTCFG_UDP) ||
+	  !strcmp (tstr, PORTCFG_ICMP)) 
 	{
 	  /* This is tcp or udp, both share the local address. */
 	  if (!strcmp (tstr, PORTCFG_TCP))
 	    newport->proto = PROTO_TCP;
-	  else
+	  else if (!strcmp (tstr, PORTCFG_UDP))
 	    newport->proto = PROTO_UDP;
+	  else if (!strcmp (tstr, PORTCFG_ICMP))
+	    newport->proto = PROTO_ICMP;
 
 	  /* Figure out the port value and set it. */
 	  hash_key = zzz_make_string (PORTCFG_PORT, -1);
@@ -471,9 +483,9 @@ static int set_port (char *cfgfile, char *var, char *key,
 	{
 	  fprintf (stderr,
 		   "%s: `%s' of portcfg `%s' of `%s' does not specify a "
-		   "valid protocol (%s, %s, %s)\n",
+		   "valid protocol (%s, %s, %s, %s)\n",
 		   cfgfile, PORTCFG_PROTO, key, var, 
-		   PORTCFG_TCP, PORTCFG_UDP, PORTCFG_PIPE);
+		   PORTCFG_TCP, PORTCFG_UDP, PORTCFG_PIPE, PORTCFG_ICMP);
 	  return -1;
 	}
     
@@ -481,7 +493,7 @@ static int set_port (char *cfgfile, char *var, char *key,
     }
 
   /* Second, fill the sockaddr struct from the values we just read. */
-  if (newport->proto == PROTO_TCP || newport->proto == PROTO_UDP) 
+  if (newport->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) 
     {
       /* prepate the local address structure */
       newaddr = (struct sockaddr_in*) xpmalloc (sizeof (struct sockaddr_in));
@@ -533,11 +545,11 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
   long offset;
 
   /* 
-   * FIXME: better checking if that is really a hash.
+   * Checking if that is really a hash.
    */
-  if (!vector_p (hash) || error_p (hash)) 
+  if (!hashtable_p (hash) || error_p (hash)) 
     {
-      fprintf (stderr, "%s: %s is not a hash\n", cfgfile, var);
+      fprintf (stderr, "%s: `%s' is not a hash\n", cfgfile, var);
       return NULL;
     }
 
@@ -921,10 +933,10 @@ server_global_finalize (void)
  * the same port. Returns nonzero if a and b are equal.
  */
 static int
-portcfg_equal (struct portcfg *a, struct portcfg *b)
+server_portcfg_equal (struct portcfg *a, struct portcfg *b)
 {
-  if ((a->proto == PROTO_TCP || a->proto == PROTO_UDP) &&
-      (a->proto == b->proto)) 
+  if ((a->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) &&
+      (a->proto == b->proto))
     {
       /* 2 inet ports are equal if both local port and address are equal */
       if (a->port == b->port && !strcmp (a->localip, b->localip))
@@ -952,7 +964,7 @@ server_bind (server_t *server, portcfg_t *cfg)
 
   for (n = 0; n < server_bindings; n++)
     {
-      if (portcfg_equal (server_binding[n].cfg, cfg))
+      if (server_portcfg_equal (server_binding[n].cfg, cfg))
 	{
 	  if (server_binding[n].server == server)
 	    {
@@ -966,7 +978,7 @@ server_bind (server_t *server, portcfg_t *cfg)
 	      log_printf (LOG_DEBUG, "binding pipe server to existing "
 			  "file %s\n", cfg->outpipe);
 	    }
-	  else if (cfg->proto & (PROTO_TCP | PROTO_UDP))
+	  else if (cfg->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP))
 	    {
 	      log_printf (LOG_DEBUG, "binding %s server to existing "
 			  "port %s:%d\n", 
@@ -1005,7 +1017,7 @@ server_start (void)
 	  /* Is this socket usable for this port configuration ? */
 	  if (sock->data && sock->cfg && 
 	      sock->flags & SOCK_FLAG_LISTENING &&
-	      portcfg_equal (sock->cfg, server_binding[b].cfg))
+	      server_portcfg_equal (sock->cfg, server_binding[b].cfg))
 	    {
 	      /* Extend the server array in sock->data. */
 	      for (n = 0; SERVER (sock->data, n) != NULL; n++);

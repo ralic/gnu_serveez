@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.7 2000/09/15 08:22:51 ela Exp $
+ * $Id: nut-core.c,v 1.8 2000/09/27 14:31:27 ela Exp $
  *
  */
 
@@ -456,6 +456,6 @@ nut_parse_property (char *header, int len, char *property)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_core_dummy; /* Shut compiler warnings up */
+int nut_core_dummy; /* Shut compiler warnings up. */
 
 #endif /* not ENABLE_GNUTELLA */

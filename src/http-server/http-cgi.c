@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.19 2000/09/22 18:39:52 ela Exp $
+ * $Id: http-cgi.c,v 1.20 2000/09/27 14:31:26 ela Exp $
  *
  */
 
@@ -48,6 +48,7 @@
 #ifdef __MINGW32__
 # include <winsock.h>
 # include <io.h>
+# include <shellapi.h>
 #endif
 
 #ifndef __MINGW32__
@@ -100,6 +101,8 @@ http_cgi_disconnect (socket_t sock)
    */
   if (http->pid != INVALID_HANDLE)
     {
+      if (!TerminateProcess (http->pid, 0))
+	log_printf (LOG_ERROR, "TerminateProcess: %s\n", SYS_ERROR);
       if (closehandle (http->pid) == -1)
 	log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       http->pid = INVALID_HANDLE;
@@ -275,11 +278,11 @@ http_cgi_write (socket_t sock)
  * Insert a further variable into the environment block. How
  * we really do it depends on the system we compile with.
  */
-void
-insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
-	    int *length,        /* pointer to the current length of it */
-	    char *fmt,          /* format string */
-	    ...)                /* arguments for the format string */
+static void
+http_insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
+		 int *length,        /* pointer to the current length of it */
+		 char *fmt,          /* format string */
+		 ...)                /* arguments for the format string */
 {
   va_list args;
 
@@ -321,11 +324,11 @@ insert_env (ENV_BLOCK_TYPE env, /* the block to add the variable to */
  * by a further zero. It returns either the amount of defined variables
  * or the size of the block in bytes.
  */
-int
-create_cgi_envp (socket_t sock,      /* socket structure for this request */
-		 ENV_BLOCK_TYPE env, /* env block */
-		 char *script,       /* the cgi script's filename */
-		 int type)           /* the cgi type */
+static int
+http_create_cgi_envp (socket_t sock,      /* socket for this request */
+		      ENV_BLOCK_TYPE env, /* env block */
+		      char *script,       /* the cgi script's filename */
+		      int type)           /* the cgi type */
 {
   http_socket_t *http;
   http_config_t *cfg = sock->cfg;
@@ -370,8 +373,8 @@ create_cgi_envp (socket_t sock,      /* socket structure for this request */
       for (n = 0; http->property[n]; n+=2)
 	if (!util_strcasecmp (http->property[n], env_var[c].property))
 	  {
-	    insert_env (env, &size, "%s=%s", 
-			env_var[c].env, http->property[n+1]);
+	    http_insert_env (env, &size, "%s=%s", 
+			     env_var[c].env, http->property[n+1]);
 	    break;
 	  }
 
@@ -379,24 +382,24 @@ create_cgi_envp (socket_t sock,      /* socket structure for this request */
    * set up some more environment variables which might be 
    * necessary for the cgi script
    */
-  insert_env (env, &size, "SERVER_NAME=%s", 
-	      util_inet_ntoa (sock->local_addr));
-  insert_env (env, &size, "SERVER_PORT=%u", ntohs (sock->local_port));
-  insert_env (env, &size, "REMOTE_ADDR=%s", 
-	      util_inet_ntoa (sock->remote_addr));
-  insert_env (env, &size, "REMOTE_PORT=%u", ntohs (sock->remote_port));
-  insert_env (env, &size, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
-  insert_env (env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
-  insert_env (env, &size, "SERVER_PROTOCOL=%s", HTTP_VERSION);
-  insert_env (env, &size, "SERVER_SOFTWARE=%s/%s", 
-	      serveez_config.program_name, 
-	      serveez_config.version_string);
-  insert_env (env, &size, "REQUEST_METHOD=%s", request_type[type]);
+  http_insert_env (env, &size, "SERVER_NAME=%s", 
+		   util_inet_ntoa (sock->local_addr));
+  http_insert_env (env, &size, "SERVER_PORT=%u", ntohs (sock->local_port));
+  http_insert_env (env, &size, "REMOTE_ADDR=%s", 
+		   util_inet_ntoa (sock->remote_addr));
+  http_insert_env (env, &size, "REMOTE_PORT=%u", ntohs (sock->remote_port));
+  http_insert_env (env, &size, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
+  http_insert_env (env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
+  http_insert_env (env, &size, "SERVER_PROTOCOL=%s", HTTP_VERSION);
+  http_insert_env (env, &size, "SERVER_SOFTWARE=%s/%s", 
+		   serveez_config.program_name, 
+		   serveez_config.version_string);
+  http_insert_env (env, &size, "REQUEST_METHOD=%s", request_type[type]);
 
 #ifdef __MINGW32__
   /* now copy the original environment block */
   for (n = 0; environ[n]; n++)
-    insert_env (env, &size, "%s", environ[n]);
+    http_insert_env (env, &size, "%s", environ[n]);
 
   env[size] = 0;
 #else
@@ -518,7 +521,7 @@ http_pre_exec (socket_t sock,       /* socket structure */
     {
       log_printf (LOG_ERROR, "cgi: chdir: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cannot change dir: %s\n", cfg->cgidir);
+      log_printf (LOG_DEBUG, "cgi: cannot change dir: %s\n", cfg->cgidir);
 #endif
       return NULL;
     }
@@ -540,14 +543,14 @@ http_pre_exec (socket_t sock,       /* socket structure */
   xfree (cgidir);
 
   /* create the environment block for the CGI script */
-  size = create_cgi_envp (sock, envp, file, type);
+  size = http_create_cgi_envp (sock, envp, file, type);
 
   /* put the QUERY_STRING into the env variables if necessary */
   if (type == GET_METHOD)
     {
       p = request;
       while (*p != '?' && *p != 0) p++;
-      insert_env (envp, &size, "QUERY_STRING=%s", *p ? p+1 : "");
+      http_insert_env (envp, &size, "QUERY_STRING=%s", *p ? p+1 : "");
 #ifdef __MINGW32__
       envp[size] = 0;
 #else
@@ -569,6 +572,50 @@ http_cgi_accepted (socket_t sock)
 }
 
 /*
+ * The following function will free all the cgi application 
+ * associations.
+ */
+void
+http_free_cgi_apps (http_config_t *cfg)
+{
+  char **app;
+  int n;
+
+  if (*(cfg->cgiapps))
+    {
+      if ((app = (char **) hash_values (*(cfg->cgiapps))) != NULL)
+	{
+	  for (n = 0; n < hash_size (*(cfg->cgiapps)); n++)
+	    {
+	      xfree (app[n]);
+	    }
+	  hash_xfree (app);
+	}
+      hash_destroy (*(cfg->cgiapps));
+      *(cfg->cgiapps) = NULL;
+    }
+}
+
+/*
+ * This routine generates some standard cgi associations.
+ */
+#define DEFAULT_CGIAPP "default"
+void
+http_gen_cgi_apps (http_config_t *cfg)
+{
+  /* create the cgi association hash table if necessary */
+  if (*(cfg->cgiapps) == NULL)
+    {
+      *(cfg->cgiapps) = hash_create (4);
+    }
+
+  /* the associations need to be in the hash to be executed at all */
+  hash_put (*(cfg->cgiapps), "exe", xstrdup (DEFAULT_CGIAPP));
+  hash_put (*(cfg->cgiapps), "com", xstrdup (DEFAULT_CGIAPP));
+  hash_put (*(cfg->cgiapps), "bat", xstrdup (DEFAULT_CGIAPP));
+}
+
+/*
  * Invoke a cgi script. In Unices we fork() us and in Win32 we
  * CreateProcess().
  */
@@ -583,29 +630,14 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   HANDLE pid;    /* the pid from fork() or the process handle in Win32 */
   char *cgifile; /* path including the name of the cgi script */
   http_socket_t *http;
+  http_config_t *cfg = sock->cfg;
 
 #ifdef __MINGW32__
   STARTUPINFO StartupInfo;         /* store here the inherited handles */
   PROCESS_INFORMATION ProcessInfo; /* where we get the process handle from */
   char *savedir;                   /* save the original directory */
   char *envp;
-
-  /* this is necessary for accosiating programs with file suffixes */
-  struct interpreter
-  {
-    char *suffix;
-    char *execute;
-  }
-  cgiexe[] =
-  {
-    { ".exe", NULL   }, /* normal binaries */
-    { ".com", NULL   }, /* small binaries */
-    { ".bat", NULL   }, /* batch files */
-    { ".pl",  "perl" }, /* perl scripts */
-    { NULL,   NULL   }
-  };
-  int n;
-  char *p;
+  char *suffix, *p;
   char *cgiapp;
 #else
   char *envp[ENV_ENTRIES];
@@ -645,6 +677,50 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       return -1;
     }
 
+  /* find a cgi interpreter if possible */
+  p = cgifile + strlen (cgifile) - 1;
+  while (p != cgifile && *p != '.') p--;
+  suffix = p + 1;
+
+  if ((p = hash_get (*(cfg->cgiapps), util_tolower (suffix))) != NULL)
+    {
+      if (strcmp (p, DEFAULT_CGIAPP))
+	{
+	  cgiapp = xmalloc (strlen (cgifile) + strlen (p) + 2);
+	  sprintf (cgiapp, "%s %s", p, cgifile);
+	  xfree (cgifile);
+	  cgifile = cgiapp;
+	}
+    }
+  /* not a valid file extension */
+  else
+    {
+      /* find an appropiate system association */
+      cgiapp = xmalloc (MAX_PATH);
+      if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
+	{
+	  log_printf (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
+	}
+#if ENABLE_DEBUG
+      /* if this is enabled you could learn about the system */
+      else
+	{
+	  log_printf (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
+	}
+#endif
+      xfree (cgiapp);
+
+      /* print some error message */
+      sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
+      http_error_response (sock, 403);
+      sock->userflags |= HTTP_FLAG_DONE;
+      chdir (savedir);
+      xfree (cgifile);
+      xfree (envp);
+      xfree (savedir);
+      return -1;
+    }
+
   /* send http header response */
   if (http_cgi_accepted (sock) == -1)
     {
@@ -656,34 +732,13 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       return -1;
     }
 
-  /* find cgi interpreter if necessary */
-  p = cgifile + strlen (cgifile) - 1;
-  while (p != cgifile && *p != '.') p--;
-  n = 0;
-  while (cgiexe[n].suffix)
-    {
-      if (!util_strcasecmp (cgiexe[n].suffix, p))
-	{
-	  if (cgiexe[n].execute)
-	    {
-	      cgiapp = xmalloc (strlen (cgifile) + 
-				strlen (cgiexe[n].execute) + 2);
-	      sprintf (cgiapp, "%s %s", cgiexe[n].execute, cgifile);
-	      xfree (cgifile);
-	      cgifile = cgiapp;
-	    }
-	  break;
-	}
-      n++;
-    }
-
   /* create the process here */
   if (!CreateProcess (NULL,                /* ApplicationName */
 		      cgifile,             /* CommandLine */
 		      NULL,                /* ProcessAttributes */
 		      NULL,                /* ThreadAttributes */
 		      TRUE,                /* InheritHandles */
-		      IDLE_PRIORITY_CLASS, /* CreationFlags */
+		      DETACHED_PROCESS,    /* CreationFlags */
 		      envp,                /* Environment */
 		      NULL,                /* CurrentDirectory */
 		      &StartupInfo,
@@ -691,7 +746,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     {
       log_printf (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cannot execute: %s\n", cgifile);
+      log_printf (LOG_DEBUG, "cgi: cannot execute: %s\n", cgifile);
 #endif
       sock_printf (sock, "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
@@ -916,6 +971,6 @@ http_post_response (socket_t sock, char *request, int flags)
 
 #else /* ENABLE_HTTP_PROTO */
 
-int cgi_dummy_variable;	/* Shutup compiler warnings. */
+int http_cgi_dummy; /* Shut up compiler warnings. */
 
 #endif /* not ENABLE_HTTP_PROTO */

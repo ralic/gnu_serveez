@@ -31,7 +31,7 @@ unfixed) have a look at the file BUGS.
 - Support for ICMP sockets.
 - Content-Range implementation for Gnutella and HTTP.
 	- Gnutella spider should share files.
-- Make http cgi file extension associations configurable in Win32.
+	- Make http cgi file extension associations configurable in Win32.
 	- Add --disable-poll option.
 	- For directory list: scandir, alphasort, qsort.
 	- Make serveez automatically compile sizzle again.
@@ -39,7 +39,7 @@ unfixed) have a look at the file BUGS.
 	- What to do if coserver delivers argument not anymore valid ?
 	- Default file reader to avoid http using its own callback.
 	- Socket/protocol specific flags within socket structure.
-- Find out how the list of local interfaces works on different Unices.
+	- Find out how the list of local interfaces works on different Unices.
 	- Do something sensible when a coserver fails its job.
 	- IP address representation must be unsigned long everywhere.
 	- Rechain socket list to avoid starving of chain end.
@@ -47,17 +47,16 @@ unfixed) have a look at the file BUGS.
 	- support local sizzle installations (sizzle-config)
 	- local ip addresses for portcfg
 	- List of local ip addresses on supported systems.
-- HTTP: .htaccess, DefaultType, TypesConfig, SERVER_NAME 
-  all configurable.
+	- HTTP: Make DefaultType and TypesConfig configurable.
 	- Support for UDP sockets.
-- HTTP access log.
+- HTTP access log and ".htaccess".
 	- Implement a real nslookup coserver or integrate it in the 
 	  reverse lookup coserver.
 	- How to exec cgi scripts on Win32 that are not exe/com/bat ?
 	- HTTP cache reinit via control protocol.
 	- Configuration file handling.
 	- Wrapper for snprintf (not on Compaq Tru64 Dec)
-- Implement Internet Relay Chat (IRC) protocol.
+	- Implement Internet Relay Chat (IRC) protocol.
 - Implement Internet Relay Chat (IRC) bouncer.
 	- Set user and group id when executing cgi scripts.
 	- HTTP directory listing when file is missing.
