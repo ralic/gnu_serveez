@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.7 2001/12/13 18:00:00 ela Exp $
+;; $Id: inetd.scm,v 1.8 2001/12/13 20:09:09 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -135,6 +135,8 @@
 		       (cons "1" "1")))
 	 (version-begin (car versions))
 	 (version-end (if (cdr versions) (cdr versions) version-begin)))
+    (if (not (cdr entry))
+	(display (string-append "inetd: " name ": no rpc version\n")))
     (cons (lookup-rpc-service name) 
 	  (cons (string->number version-begin) 
 		(string->number version-end)))))
