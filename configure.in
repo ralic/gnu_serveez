@@ -868,7 +868,7 @@ if test $have_getopt_long != "no"; then
       svz_cv_decl_getopt_long=no))
   if test $svz_cv_decl_getopt_long = yes ; then
     AC_DEFINE(DECLARED_GETOPT_LONG, 1, 
-      [Define if the getopt_long function is declared in getopt.h.])
+      [Define if the getopt_long function is declared in <getopt.h>.])
   fi
 fi
 
@@ -931,10 +931,23 @@ AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
   getpwnam seteuid setegid geteuid getegid gettimeofday shl_load NSAddImage)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
-  netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \
-  mswsock.h grp.h mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h \
-  rpc/pmap_clnt.h)
+  mswsock.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
+  mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h)
 AC_HEADER_DIRENT
+
+dnl
+dnl Some installations need <sys/types.h> before <netinet/tcp.h>.
+dnl
+AC_CACHE_CHECK([for netinet/tcp.h], svz_cv_header_netinet_tcp_h,
+AC_TRY_CPP([
+    #include <sys/types.h>
+    #include <netinet/tcp.h> ],
+  svz_cv_header_netinet_tcp_h=yes,
+  svz_cv_header_netinet_tcp_h=no))
+if test $svz_cv_header_netinet_tcp_h = yes ; then
+  AC_DEFINE(HAVE_NETINET_TCP_H, 1, 
+    [Define if you have the <netinet/tcp.h> header file.])
+fi
 
 dnl
 dnl Check if alphasort() is declared.
@@ -949,7 +962,7 @@ else
 fi
 if test $svz_cv_decl_alphasort = yes ; then
   AC_DEFINE(DECLARED_ALPHASORT, 1,
-    [Define if the alphasort function is declared in dirent.h.])
+    [Define if the alphasort function is declared in <dirent.h>.])
 fi
 
 LIBSERVEEZLIBS=""
@@ -1252,7 +1265,7 @@ AC_EGREP_CPP(strsignal, [
   svz_cv_decl_strsignal=no))
 if test $svz_cv_decl_strsignal = yes ; then
   AC_DEFINE(DECLARED_STRSIGNAL, 1, 
-    [Define if the strsignal function is declared in string.h.])
+    [Define if the strsignal function is declared in <string.h>.])
 fi
 
 AC_CHECK_FUNC(hstrerror, have_hstrerror=yes,
@@ -1266,7 +1279,7 @@ AC_EGREP_HEADER(hstrerror, netdb.h,
   svz_cv_decl_hstrerror=no))
 if test $svz_cv_decl_hstrerror = yes ; then
   AC_DEFINE(DECLARED_HSTRERROR, 1, 
-    [Define if the hstrerror function is declared in netdb.h.])
+    [Define if the hstrerror function is declared in <netdb.h>.])
 fi
 
 AC_CACHE_CHECK([for h_errno], svz_cv_var_h_errno,
@@ -1294,7 +1307,7 @@ AC_EGREP_HEADER(setrpcent, netdb.h, svz_cv_decl_setrpcent=yes)
 AC_EGREP_HEADER(setrpcent, rpc/rpcent.h, svz_cv_decl_setrpcent=yes))
 if test $svz_cv_decl_setrpcent = yes ; then
   AC_DEFINE(DECLARED_SETRPCENT, 1, 
-    [Define if the setrpcent function is declared in netdb.h.])
+    [Define if the setrpcent function is declared in <netdb.h>.])
 fi
 AC_CACHE_CHECK([whether endrpcent is declared], svz_cv_decl_endrpcent,
 svz_cv_decl_endrpcent=no
@@ -1302,7 +1315,7 @@ AC_EGREP_HEADER(endrpcent, netdb.h, svz_cv_decl_endrpcent=yes)
 AC_EGREP_HEADER(endrpcent, rpc/rpcent.h, svz_cv_decl_endrpcent=yes))
 if test $svz_cv_decl_endrpcent = yes ; then
   AC_DEFINE(DECLARED_ENDRPCENT, 1, 
-    [Define if the endrpcent function is declared in netdb.h.])
+    [Define if the endrpcent function is declared in <netdb.h>.])
 fi
 
 dnl
