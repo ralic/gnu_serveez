@@ -100,6 +100,9 @@
 /* Define if you have the waitpid function.  */
 /* #undef HAVE_WAITPID */
 
+/* Define if you have the <bzlib.h> header file.  */
+#define HAVE_BZLIB_H 1
+
 /* Define if you have the <direct.h> header file.  */
 #define HAVE_DIRECT_H 1
 
@@ -283,6 +286,12 @@
 
 /* Define if you have the zlib library. */
 #define HAVE_ZLIB 1
+
+/* Define if you have the bz2 library. */
+#define HAVE_BZ2LIB 1
+
+/* Define if you have a prefixed bz2 library (>= v1.0) */
+#define HAVE_BZ2LIB_PREFIX 1
 
 /* Define if Solaris provides the kstat library. */
 /* #undef HAVE_LIBKSTAT */

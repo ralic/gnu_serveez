@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: bzip2.c,v 1.1 2001/10/17 11:12:20 ela Exp $
+ * $Id: bzip2.c,v 1.2 2001/10/17 20:38:07 ela Exp $
  *
  */
 
@@ -49,7 +49,8 @@
 # define bzCompress       BZ2_bzCompress
 # define bzCompressEnd    BZ2_bzCompressEnd
 # define bzDecompressInit BZ2_bzDecompressInit
-# define bzDecompress     BZ2_bzDecompressEnd
+# define bzDecompress     BZ2_bzDecompress
+# define bzDecompressEnd  BZ2_bzDecompressEnd
 # define bzlibVersion     BZ2_bzlibVersion
 # define bzerror          BZ2_bzerror
 #endif /* HAVE_BZ2LIB_PREFIX */

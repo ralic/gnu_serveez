@@ -59,7 +59,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /machine:I386
-# ADD LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib libz.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386
+# ADD LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib libz.lib libbz2.lib /nologo /subsystem:windows /dll /pdb:none /machine:I386
 
 !ELSEIF  "$(CFG)" == "libserveez - Win32 Debug"
 
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib libz.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
+# ADD LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib libz.lib libbz2.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
 
 !ELSEIF  "$(CFG)" == "libserveez - Win32 Debug Memory Leaks"
 
@@ -115,7 +115,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
-# ADD LINK32 imagehlp.lib kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib libz.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
+# ADD LINK32 imagehlp.lib kernel32.lib ws2_32.lib mswsock.lib advapi32.lib user32.lib shell32.lib libz.lib libbz2.lib /nologo /subsystem:windows /dll /pdb:none /debug /machine:I386
 
 !ENDIF 
 
@@ -139,6 +139,10 @@ SOURCE=.\binding.c
 # Begin Source File
 
 SOURCE=.\boot.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\codec\bzip2.c
 # End Source File
 # Begin Source File
 
