@@ -28,7 +28,7 @@ install-init: init.serveez
 	@instdir="/sbin/init.d" ; \
 	test -d $$instdir || instdir="/etc/init.d" ; \
 	$(INSTALL_SCRIPT) init.serveez $$instdir ; \
-	$(INSTALL_DATA) serveez.cfg /etc ; \
+	$(INSTALL_DATA) serveez.cfg /etc/serveez.conf ; \
 	echo "Init script \`init.serveez' has been installed in \`$$instdir'." ; \
 	echo "  Please note that you need to set symbolic links in one of" ; \
 	echo "  the \`$$instdir/rc{runlevel}.d' directories to start and stop" ; \
