@@ -1,5 +1,7 @@
 2001-09-10  [ Ela ]  <ela@lkcc.org>
 
+	* svzconfig.h.in: Added `size_t'.
+
 	* serveez-config.in: New file. Utility for compiling and linking
 	a program with Serveez.
 

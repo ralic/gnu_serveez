@@ -1,3 +1,8 @@
+2001-09-11  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Checking for strsignal() declaration.
+	Checking for hstrerror() declaration.
+
 2001-09-06  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Updated to `libtool 1.4.1'.

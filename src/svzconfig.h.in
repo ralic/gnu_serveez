@@ -72,4 +72,7 @@
 /* Define to empty if the keyword does not work.  */
 #undef const
 
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
 #endif /* !__SVZCONFIG_H__ */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.27 2001/09/06 21:12:26 ela Exp $
+ * $Id: server-core.c,v 1.28 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -266,11 +266,16 @@ svz_signal_handler (int sig)
 #endif
 }
 
-/* 64 is hopefully a safe bet, kill(1) accepts 0..64, *sigh* */
+/* 65 is hopefully a safe bet, kill(1) accepts 0..64, *sigh* */
 #define SVZ_NUMBER_OF_SIGNALS 65
 
 /* Cached results of strsignal calls. */
 static svz_array_t *svz_signal_strings = NULL;
+
+/* On some platforms strsignal() can be resolved but is nowhere declared. */
+#if defined (HAVE_STRSIGNAL) && !defined (DECLARED_STRSIGNAL)
+extern char * strsignal (int);
+#endif
 
 /*
  * Prepare library so that @code{svz_strsignal()} works. Called

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.8 2001/07/01 15:56:48 ela Exp $
+ * $Id: interface.c,v 1.9 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -577,6 +577,7 @@ svz_interface_list (void)
 int
 svz_interface_add (int index, char *desc, unsigned long addr)
 {
+  char *p;
   unsigned long n;
   svz_interface_t *ifc;
 
@@ -600,6 +601,13 @@ svz_interface_add (int index, char *desc, unsigned long addr)
   ifc->index = index;
   ifc->ipaddr = addr;
   ifc->description = svz_strdup (desc);
+
+  /* Delete trailing white space characters. */
+  p = ifc->description + strlen (ifc->description) - 1;
+  while (p > ifc->description && 
+	 (*p == '\n' || *p == '\r' || *p == '\t' || *p == ' '))
+    *p-- = '\0';
+
   svz_vector_add (svz_interfaces, ifc);
   svz_free (ifc);
   return 0;

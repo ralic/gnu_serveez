@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.15 2001/09/07 10:34:50 ela Exp $
+ * $Id: guile-server.c,v 1.16 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -1018,7 +1018,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 	}
       
       /* Assign address offset. */
-      item.address = (void *) size;
+      item.address = (void *) ((unsigned long) size);
 
       /* First appears the type of item. */
       value = gh_car (list);

@@ -106,8 +106,8 @@ AC_DEFUN([AC_GUILE_SOURCE], [
       GUILE_LDFLAGS="$GUILESRC/libguile/libguile.la"
       GUILE_DEPENDENCY="$GUILESRC/libguile/libguile.la"
       GUILE_RULE="$GUILESRC/libguile/libguile.la"
-      GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) $(MAKEFLAGS) libltdlc.la)'
-      GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) $(MAKEFLAGS) libguile.la)'
+      GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) libltdlc.la)'
+      GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) libguile.la)'
       AC_SUBST(GUILE_SOURCE)
       AC_SUBST(GUILE_CFLAGS)
       AC_SUBST(GUILE_LDFLAGS)

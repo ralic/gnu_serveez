@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.18 2001/09/07 15:37:46 ela Exp $
+ * $Id: util.c,v 1.19 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -188,6 +188,12 @@ svz_hexdump (FILE *out,    /* output FILE stream */
   fflush (out);
   return 0;
 }
+
+/* On some platforms @code{hstrerror()} can be resolved but is not declared
+   anywhere. That is why we do it here by hand. */
+#if defined (HAVE_HSTRERROR) && !defined (DECLARED_HSTRERROR)
+extern const char * hstrerror (int);
+#endif
 
 /*
  * This is the @code{hstrerror()} wrapper function, depending on the 

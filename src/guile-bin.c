@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.3 2001/09/07 10:34:50 ela Exp $
+ * $Id: guile-bin.c,v 1.4 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -30,6 +30,7 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <string.h>
 
 #if GUILE_SOURCE
 # include <libguile/gh.h>

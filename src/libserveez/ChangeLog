@@ -1,3 +1,17 @@
+2001-09-11  [ Ela ]  <ela@lkcc.org>
+
+	* server-core.c: Declare strsignal() here if it can be resolved
+	but is nowhere declared.
+
+	* alloc.h: Use `size_t' instead of `unsigned int' for allocator
+	functions.
+
+	* util.c: Put an extern declaration of hstrerror() here if it
+	can be resolved but is nowhere declared.
+
+	* interface.c (svz_interface_add): Deleting trailing white 
+	spaces from interface descriptions.
+
 2001-09-08  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.h: Added missing `__END_DECLS'.

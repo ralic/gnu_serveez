@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.16 2001/09/04 12:03:01 ela Exp $
+ * $Id: alloc.c,v 1.17 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -91,9 +91,9 @@ heap_hash_code (char *id)
 /* structure for heap management */
 typedef struct
 {
-  void *ptr;         /* memory pointer */
-  unsigned int size; /* memory block's size */
-  void *caller;      /* the caller */
+  void *ptr;    /* memory pointer */
+  size_t size;  /* memory block's size */
+  void *caller; /* the caller */
 }
 heap_block_t;
 
@@ -134,7 +134,7 @@ heap_add (heap_block_t *block)
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  */
 void * 
-svz_malloc (unsigned int size)
+svz_malloc (size_t size)
 {
   void *ptr;
 #if ENABLE_DEBUG
@@ -187,7 +187,7 @@ svz_malloc (unsigned int size)
  * The memory is cleared (filled with zeros).
  */
 void * 
-svz_calloc (unsigned int size)
+svz_calloc (size_t size)
 {
   void *ptr = svz_malloc (size);
   memset (ptr, 0, size);
@@ -201,7 +201,7 @@ svz_calloc (unsigned int size)
  * you just want to allocate a new block.
  */
 void *
-svz_realloc (void *ptr, unsigned int size)
+svz_realloc (void *ptr, size_t size)
 {
 #if ENABLE_DEBUG
   size_t old_size;
@@ -337,12 +337,12 @@ void
 svz_heap (void)
 {
   heap_block_t **block;
-  unsigned n;
+  unsigned long n;
   size_t *up;
 
   if ((block = (heap_block_t **) svz_hash_values (heap)) != NULL)
     {
-      for (n = 0; n < (unsigned) svz_hash_size (heap); n++)
+      for (n = 0; n < (unsigned long) svz_hash_size (heap); n++)
 	{
 	  up = (size_t *) block[n]->ptr;
 	  up -= 2;
@@ -388,7 +388,7 @@ svz_strdup (char *src)
  * tracking.
  */
 void *
-svz_pmalloc (unsigned int size)
+svz_pmalloc (size_t size)
 {
   void *ptr = svz_malloc_func (size);
   if (ptr == NULL) 
@@ -404,7 +404,7 @@ svz_pmalloc (unsigned int size)
  * The memory block is cleared (filled with zeros) and considered permanently.
  */
 void * 
-svz_pcalloc (unsigned int size)
+svz_pcalloc (size_t size)
 {
   void *ptr = svz_malloc (size);
   memset (ptr, 0, size);
@@ -416,7 +416,7 @@ svz_pcalloc (unsigned int size)
  * routine also allocates memory permanently.
  */
 void *
-svz_prealloc (void *ptr, unsigned int size)
+svz_prealloc (void *ptr, size_t size)
 {
   void *dst = svz_realloc_func (ptr, size);
   if (dst == NULL) 

@@ -1182,11 +1182,28 @@ dnl Check for hstrerror(), h_errno and strsignal() functions.
 dnl
 
 AC_CHECK_FUNCS(strsignal hstrerror)
+AC_CACHE_CHECK([whether strsignal is declared], svz_cv_decl_strsignal,
+AC_EGREP_CPP(strsignal, [
+    #define _GNU_SOURCE
+    #include <string.h> ],
+  svz_cv_decl_strsignal=yes,
+  svz_cv_decl_strsignal=no))
+if test $svz_cv_decl_strsignal = yes ; then
+  AC_DEFINE(DECLARED_STRSIGNAL, 1, 
+    [Define if the strsignal function is declared in string.h.])
+fi
+AC_CACHE_CHECK([whether hstrerror is declared], svz_cv_decl_hstrerror,
+AC_EGREP_HEADER(hstrerror, netdb.h,
+  svz_cv_decl_hstrerror=yes,
+  svz_cv_decl_hstrerror=no))
+if test $svz_cv_decl_hstrerror = yes ; then
+  AC_DEFINE(DECLARED_HSTRERROR, 1, 
+    [Define if the hstrerror function is declared in netdb.h.])
+fi
 AC_CACHE_CHECK([for h_errno], svz_cv_var_h_errno,
 AC_EGREP_HEADER(h_errno, netdb.h,
   svz_cv_var_h_errno=yes,
   svz_cv_var_h_errno=no))
-
 if test $svz_cv_var_h_errno = yes ; then
   AC_DEFINE(HAVE_H_ERRNO, 1, [Define if h_errno is supported.])
 fi
@@ -1246,7 +1263,7 @@ dnl
 AC_MSG_CHECKING([for working makeinfo])
 MAKEINFO="$missing_dir/missing makeinfo"
 [info=`eval makeinfo --version 2>/dev/null | head -1 | sed -e 's/[^\(]\+(\([^\)]\+\))[^\)]\+/\1/g' -e 's/[^0-9\.]//g'`]
-[if test -z $info ; then
+[if test -z "$info" ; then
   info=`eval makeinfo --version 2>/dev/null | head -1 | sed 's/[^0-9\.]//g'`
 fi]
 if test -n "$info"; then

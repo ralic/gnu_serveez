@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: sparsevec.c,v 1.3 2001/07/01 15:56:49 ela Exp $
+ * $Id: sparsevec.c,v 1.4 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -215,7 +215,7 @@ static int
 svz_spvec_validate (svz_spvec_t *spvec, char *description)
 {
   svz_spvec_chunk_t *chunk, *next, *prev;
-  unsigned long n, bits;
+  unsigned long n = 0, bits;
   int ok = 1;
 
   /* any valid list ? */

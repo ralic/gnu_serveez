@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.18 2001/09/06 21:12:26 ela Exp $
+ * $Id: server-socket.c,v 1.19 2001/09/11 15:05:48 ela Exp $
  *
  */
 
@@ -450,7 +450,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       else if (connect == ERROR_IO_PENDING)
 	server_sock->flags |= SOCK_FLAG_CONNECTING;
       /* Pipe finally connected ? */
-      if (connect != ERROR_PIPE_CONNECTED)
+      else if (connect != ERROR_PIPE_CONNECTED)
 	{
 	  svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
 	  return -1;

@@ -55,8 +55,8 @@ Installation
 
 Unpack the distribution tarball:
 
-$ tar xzf serveez-<version>.tar.gz               (using GNU tar)
-$ gzip -cd serveez-<version>.tar.gz | tar xf -   (using another tar)
+$ tar xvzf serveez-<version>.tar.gz               (using GNU tar)
+$ gzip -cd serveez-<version>.tar.gz | tar xvf -   (using another tar)
   
 Change into the source directory:
 
