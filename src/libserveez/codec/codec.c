@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.2 2001/10/08 13:02:54 ela Exp $
+ * $Id: codec.c,v 1.3 2001/10/09 20:45:10 ela Exp $
  *
  */
 
@@ -37,6 +37,11 @@
 #include "libserveez/array.h"
 #include "libserveez/socket.h"
 #include "libserveez/codec/codec.h"
+
+/* Return text representation for codec type. */
+#define SVZ_CODEC_TYPE_TEXT(codec)                          \
+  (((codec)->type == SVZ_CODEC_DECODER) ? "decoder" :       \
+   ((codec)->type == SVZ_CODEC_ENCODER) ? "encoder" : NULL)
 
 /* Include codec headers if any. */
 #if HAVE_ZLIB
@@ -161,7 +166,7 @@ svz_codec_register (svz_codec_t *codec)
     svz_codecs = svz_array_create (2);
   svz_array_add (svz_codecs, codec);
   svz_log (LOG_NOTICE, "registered `%s' %s\n", codec->description,
-	   codec->type == SVZ_CODEC_ENCODER ? "encoder" : "decoder");
+	   SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
 
@@ -188,7 +193,7 @@ svz_codec_unregister (svz_codec_t *codec)
 	{
 	  svz_array_del (svz_codecs, i);
 	  svz_log (LOG_NOTICE, "unregistered `%s' %s\n", codec->description,
-		   codec->type == SVZ_CODEC_ENCODER ? "encoder" : "decoder");
+		   SVZ_CODEC_TYPE_TEXT (codec));
 	  return 0;
 	}
     }
@@ -257,7 +262,7 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
     return 0;
 
   /* Setup internal codec data. */
-  data = svz_malloc (sizeof (svz_codec_data_t));
+  data = svz_calloc (sizeof (svz_codec_data_t));
   data->codec = codec;
   data->flag = SVZ_CODEC_INIT;
   data->config = data->data = NULL;
@@ -287,6 +292,8 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
       svz_codec_sock_recv_revert (sock);
       return -1;
     }
+  svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
+	   SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
 
@@ -331,6 +338,11 @@ svz_codec_sock_receive (svz_socket_t *sock)
 	{
 	  svz_log (LOG_ERROR, "%s: finalize: %s\n", 
 		   codec->description, codec->error (data));
+	}
+      else
+	{
+	  svz_log (LOG_NOTICE, "%s: %s finalized\n", 
+		   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
 	}
       break;
 
@@ -421,7 +433,7 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
     return 0;
 
   /* Setup internal codec data. */
-  data = svz_malloc (sizeof (svz_codec_data_t));
+  data = svz_calloc (sizeof (svz_codec_data_t));
   data->codec = codec;
   data->flag = SVZ_CODEC_INIT;
   data->config = data->data = NULL;
@@ -451,6 +463,8 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
       svz_codec_sock_send_revert (sock);
       return -1;
     }
+  svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
+	   SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
 
@@ -494,6 +508,11 @@ svz_codec_sock_send (svz_socket_t *sock)
 	{
 	  svz_log (LOG_ERROR, "%s: finalize: %s\n", 
 		   codec->description, codec->error (data));
+	}
+      else
+	{
+	  svz_log (LOG_NOTICE, "%s: %s finalized\n", 
+		   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
 	}
       break;
 

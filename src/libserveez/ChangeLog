@@ -1,3 +1,10 @@
+2001-10-09  [ Ela ]  <ela@lkcc.org>
+
+	* codec/codec.c (svz_codec_sock_disconnect): Fixed fatal bug
+	on disconnection.
+	(SVZ_CODEC_TYPE_TEXT): New macro. Returning a text 
+	representation for the type of a codec.
+
 2001-10-08  [ Ela ]  <ela@lkcc.org>
 
 	* codec/codec.c (svz_codec_list): New function. Lists all 
