@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.13 2000/11/12 01:48:54 ela Exp $
+ * $Id: icmp-socket.c,v 1.14 2000/11/23 19:41:57 ela Exp $
  *
  */
 
@@ -55,6 +55,82 @@
 #include "server.h"
 #include "server-core.h"
 #include "icmp-socket.h"
+
+#ifdef __MINGW32__
+
+/* Functions and handles for the ICMP.DLL API. */
+IcmpCreateFileProc IcmpCreateFile = NULL;
+IcmpCloseHandleProc IcmpCloseHandle = NULL;
+IcmpSendEchoProc IcmpSendEcho = NULL;
+HANDLE IcmpHandle = NULL;
+HANDLE hIcmp = INVALID_HANDLE_VALUE;
+
+/*
+ * Load the ICMP.DLL library into process address space and get all
+ * necessary function pointers.
+ */
+void
+icmp_startup (void)
+{
+  /* load library */
+  if ((IcmpHandle = LoadLibrary ("ICMP.DLL")) == NULL)
+    {
+      log_printf (LOG_ERROR, "icmp: LoadLibrary: %s\n", SYS_ERROR);
+      return;
+    }
+
+  /* obtain functions */
+  IcmpCreateFile = (IcmpCreateFileProc) 
+    GetProcAddress (IcmpHandle, "IcmpCreateFile");
+  IcmpCloseHandle = (IcmpCloseHandleProc)
+    GetProcAddress (IcmpHandle, "IcmpCloseHandle");
+  IcmpSendEcho = (IcmpSendEchoProc)
+    GetProcAddress (IcmpHandle, "IcmpSendEcho");
+  if (IcmpSendEcho == NULL || 
+      IcmpCloseHandle == NULL || 
+      IcmpCreateFile == NULL)
+    {
+      log_printf (LOG_ERROR, "icmp: GetProcAddress: %s\n", SYS_ERROR);
+      FreeLibrary (IcmpHandle);
+      IcmpHandle = NULL;
+      return;
+    }
+
+  /* open ping service */
+  if ((hIcmp = IcmpCreateFile ()) == INVALID_HANDLE_VALUE)
+    {
+      log_printf (LOG_ERROR, "IcmpCreateFile: %s\n", SYS_ERROR);
+      FreeLibrary (IcmpHandle);
+      IcmpHandle = NULL;
+      return;
+    }
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "icmp services successfully initialized\n");
+#endif
+}
+
+/*
+ * Shutdown the ping service.
+ */
+void
+icmp_cleanup (void)
+{
+  /* close ip service */
+  if (hIcmp != INVALID_HANDLE_VALUE)
+    {
+      if (!IcmpCloseHandle (hIcmp))
+       log_printf (LOG_ERROR, "IcmpCloseHandle: %s\n", SYS_ERROR);
+    }
+
+  /* release ICMP.DLL */
+  if (IcmpHandle)
+    {
+      FreeLibrary (IcmpHandle);
+      IcmpHandle = NULL;
+    }
+}
+#endif /* __MINGW32__ */
 
 /* Static buffer for ip packets. */
 static char icmp_buffer[IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_MSG_SIZE];

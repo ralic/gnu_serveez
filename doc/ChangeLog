@@ -1,3 +1,9 @@
+2000-11-23  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi: Including `version.texi' which gets
+	automatically generated when enabling maintainer mode. The
+	support for this file requires the `mdate-sh' script.
+
 2000-10-31  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi: All occurrences of serveez, sizzle and 

@@ -4,7 +4,8 @@
 @settitle Serveez Documentation
 @c %** end of header
 
-@set VERSION 0.0.19
+@include version.texi
+
 @set PACKAGE Serveez
 @set s_PACKAGE serveez
 @set SIZZLE Sizzle
@@ -12,11 +13,12 @@
 @set b_SIZZLE SIZZLE
 
 @titlepage
-@title @value{PACKAGE}
-@subtitle Documentation
-@subtitle Version @value{VERSION}
+@title @value{PACKAGE}, version @value{VERSION}
+@subtitle A server framework
+@subtitle Edition @value{EDITION},  @value{UPDATED}
 @author Stefan Jahn
 @author Raimund Jacob
+
 @page
 @vskip 0pt plus 1filll
 
@@ -1253,7 +1255,8 @@ The Tunnel server is for mapping one port configuration to another.
 Generally this means that you can setup @value{PACKAGE} to accept network
 connections in order to pass all network data traffic on this line to
 another address. This can be useful to workaround gateways and 
-firewalls.
+firewalls. When instantiating an ICMP source or destination you must
+ensure root privileges for the application.
 
 @subsubsection Configuration
 This might be the most easiest configuration to setup. You essentially

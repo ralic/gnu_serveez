@@ -1,3 +1,10 @@
+2000-11-23  [ Ela ]  <ela@lkcc.org>
+
+	* icmp-socket.c (icmp_startup): This routine starts the ip
+	services on Win32 systems. It loads the ICMP.DLL, obtains
+	the appropriate functions and retrieves a single handle from
+	this DLL.
+
 2000-11-11  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-core.c (http_start_netapi): Here we load

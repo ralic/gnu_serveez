@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.17 2000/11/22 18:58:22 ela Exp $
+ * $Id: http-core.c,v 1.18 2000/11/23 19:41:57 ela Exp $
  *
  */
 
@@ -88,7 +88,10 @@ void
 http_stop_netapi (void)
 {
   if (netapiHandle)
-    FreeLibrary (netapiHandle);
+    {
+      FreeLibrary (netapiHandle);
+      netapiHandle = NULL;
+    }
 }
 
 /* 
@@ -106,7 +109,7 @@ http_start_netapi (void)
 	GetProcAddress (netapiHandle, "NetUserGetInfo");
       if (GetUserInfo == NULL)
 	{
-	  log_printf (LOG_ERROR, "GetProcAddress: %s\n", SYS_ERROR);
+	  log_printf (LOG_ERROR, "http: GetProcAddress: %s\n", SYS_ERROR);
 	  FreeLibrary (netapiHandle);
 	  netapiHandle = NULL;
 	}

@@ -27,7 +27,7 @@ AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html
-CLEANFILES = *.info serveez*.html *.tgz *~ *.info-*
+CLEANFILES = *.info serveez*.html *.tgz *~ *.info-[0-9] stamp-vti
 MAINTAINERCLEANFILES = Makefile.in
 PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
 	../TODO ../BUGS ../NEWS
@@ -41,7 +41,7 @@ distclean-local:
 all-local: serveez.html serveez.dvi
 
 dist-hook:
-	rm -f $(distdir)/*.info $(distdir)/*.info-*
+	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] $(distdir)/stamp-vti
 
 pack: serveez.html
 	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
@@ -57,3 +57,6 @@ SUFFIXES = .html
 
 %.html: %.texi
 	$(TEXI2HTML) -split_chapter $<
+
+%.info: %.texi
+	$(MAKEINFO) -I . --no-split $<

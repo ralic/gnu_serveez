@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.36 2000/11/12 01:48:54 ela Exp $
+ * $Id: server-socket.c,v 1.37 2000/11/23 19:41:57 ela Exp $
  *
  */
 
@@ -75,6 +75,10 @@ net_startup (void)
       WSACleanup ();
       return 0;
     }
+  
+  /* startup ip services */
+  icmp_startup ();
+
   return 1;
 }
 
@@ -84,7 +88,10 @@ net_startup (void)
 int
 net_cleanup (void)
 {
-  if (WSACleanup() == SOCKET_ERROR)
+  /* shutdown ip services */
+  icmp_cleanup ();
+
+  if (WSACleanup () == SOCKET_ERROR)
     {
       log_printf (LOG_ERROR, "WSACleanup: %s\n", NET_ERROR);
       return 0;
