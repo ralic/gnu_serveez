@@ -120,7 +120,9 @@ by passing the -f command line argument. We are using the Scheme
 dialect called @value{SIZZLE} for this configuration file. @value{SIZZLE} is
 maintained by Martin Grabmueller (@email{mgrabmue@@cs.tu-berlin.de}).
 We provide an example configuration file in the @file{data/} directory. You
-should be able to configure Serveez without learning Scheme.
+should be able to configure Serveez without learning Scheme, because
+only a small subset of this language is necessary for the configuration
+file.
 
 The configuration file is used to set special variables and to instantiate
 servers. The following example shows how to set up a "foo" server.
@@ -1219,7 +1221,7 @@ to 1 (DWORD). One of the given examples in @file{serveez.cfg} shows
 how you can setup a tunnel server for forwarding a pipe connection. Please 
 keep in mind when forwarding a TCP or pipe connection over ICMP or UDP 
 you loose reliability since the latter are packet oriented rather than 
-connection oriented. We are not willing to implement or own TCP stack to 
+connection oriented. We are not willing to implement our own TCP stack to 
 work on ICMP/UDP directly.
 
 Forwarding between the same types of connection is always possible. When
@@ -1533,7 +1535,7 @@ The Ident coserver is a client to this kind of service. For
 every established network connection you can use this service by calling
 the appropriate macro from @file{coserver.h}. But you could also use the
 Ident coserver as is without this macro.
-The messages from Serveez to the this coserver are formated this way:
+The messages from Serveez to this coserver are formatted this way:
 
 @example
 Format:
