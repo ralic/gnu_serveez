@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.12 2001/06/16 15:02:46 ela Exp $
+ * $Id: core.c,v 1.13 2001/06/29 14:23:10 ela Exp $
  *
  */
 
@@ -87,6 +87,35 @@ svz_fd_nonblock (int fd)
 
   flag = fcntl (fd, F_GETFL);
   if (fcntl (fd, F_SETFL, flag | O_NONBLOCK) < 0)
+    {
+      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return -1;
+    }
+#endif /* not __MINGW32__ */
+
+  return 0;
+}
+
+/*
+ * Set the given file descriptor to blocking I/O. This routine is the
+ * counter part to @code{svz_fd_nonblock()}.
+ */
+int
+svz_fd_block (int fd)
+{
+#ifdef __MINGW32__
+  unsigned long blockMode = 0;
+
+  if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
+    {
+      svz_log (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      return -1;
+    }
+#else /* not __MINGW32__ */
+  int flag;
+
+  flag = fcntl (fd, F_GETFL);
+  if (fcntl (fd, F_SETFL, flag & ~O_NONBLOCK) < 0)
     {
       svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return -1;

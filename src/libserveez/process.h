@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: process.h,v 1.1 2001/06/28 19:02:45 ela Exp $
+ * $Id: process.h,v 1.2 2001/06/29 14:23:10 ela Exp $
  *
  */
 
@@ -33,6 +33,8 @@ __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_process __P ((svz_socket_t *, 
 				       char *, char **, char **));
+SERVEEZ_API int svz_process_check_executable __P ((char *, char **));
+SERVEEZ_API int svz_process_check_access __P ((char *));
 
 __END_DECLS
 
