@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.45 2000/11/14 07:35:43 ela Exp $
+ * $Id: http-proto.c,v 1.46 2000/12/01 13:46:56 ela Exp $
  *
  */
 
@@ -1077,7 +1077,7 @@ int
 http_get_response (socket_t sock, char *request, int flags)
 {
   int fd;
-  int size, status;
+  int size, status, partial = 0;
   struct stat buf;
   char *cgifile, *dir, *host, *p, *file;
   time_t date;
@@ -1272,6 +1272,10 @@ http_get_response (socket_t sock, char *request, int flags)
 #endif
 	  http->response = 304;
 	  sock_printf (sock, HTTP_NOT_MODIFIED);
+	  sock_printf (sock, "Date: %s\r\n", http_asc_date (time (NULL)));
+	  sock_printf (sock, "Server: %s/%s\r\n", 
+		       serveez_config.program_name,
+		       serveez_config.version_string);
 	  http_check_keepalive (sock);
 	  sock_printf (sock, "\r\n");
 
@@ -1282,9 +1286,32 @@ http_get_response (socket_t sock, char *request, int flags)
 	}
     }
 
-  if ((p = http_find_property (http, "If-Range")) != NULL)
+  /* check content range requests */
+  if ((p = http_find_property (http, "Range")) != NULL)
     {
-      printf ("!!! Range !!! : '%s'\n", p);
+      if (http_get_range (p, &http->range) != -1)
+	partial = 1;
+    }
+  else if ((p = http_find_property (http, "Request-Range")) != NULL)
+    {
+      if (http_get_range (p, &http->range) != -1)
+	partial = 1;
+    }
+
+  /* check if partial content can be delivered or not */
+  if (partial)
+    {
+      if (http->range.first <= 0 || 
+	  (http->range.last && http->range.last <= http->range.first) ||
+	  http->range.last >= buf.st_size ||
+	  http->range.length > buf.st_size)
+	partial = 0;
+
+      http->range.length = buf.st_size;
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "http: partial content: %ld-%ld/%ld\n",
+		  http->range.first, http->range.last, http->range.length);
+#endif
     }
 
   /* send a http header to the client */
@@ -1301,7 +1328,8 @@ http_get_response (socket_t sock, char *request, int flags)
 		   serveez_config.version_string);
       sock_printf (sock, "Date: %s\r\n", http_asc_date (time (NULL)));
       sock_printf (sock, "Last-Modified: %s\r\n", 
-		   http_asc_date (buf.st_size));
+		   http_asc_date (buf.st_mtime));
+      sock_printf (sock, "Accept-Ranges: bytes\r\n");
 
       http_check_keepalive (sock);
 

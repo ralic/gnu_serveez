@@ -1,3 +1,12 @@
+2000-12-01  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_get_response): Checking for
+	content range request. Not yet fulfilled...
+
+	* http-server/http-core.c (http_get_range): New routine which
+	parses a content range header line and saves its results in
+	a given http socket structure.
+
 2000-11-30  [ Ela ]  <ela@lkcc.org>
 
 	* pipe-socket.c (pipe_listener): Added a routine for creating

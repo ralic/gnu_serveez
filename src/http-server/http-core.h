@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.6 2000/11/12 01:48:54 ela Exp $
+ * $Id: http-core.h,v 1.7 2000/12/01 13:46:56 ela Exp $
  *
  */
 
@@ -34,6 +34,18 @@
 
 #include "socket.h"
 #include "http-cache.h"
+
+/*
+ * The content range structure defines a http content range for partial
+ * entity content.
+ */
+typedef struct
+{
+  off_t first;  /* first byte in range */
+  off_t last;   /* last byte (inclusive) */
+  off_t length; /* total length of entity (can be zero "*") */ 
+}
+http_range_t;
 
 /*
  * This structure is used to process a http connection. It will be stored
@@ -55,6 +67,7 @@ struct http_socket
   char *host;            /* resolved host name of client */
   int response;          /* the server's response code */
   int length;            /* content length sent so far */
+  http_range_t range;    /* partial content range */
 };
 
 /* Some definitions. */
@@ -73,6 +86,7 @@ struct http_socket
 /* HTTP resonse header definitions */
 #define HTTP_OK              HTTP_VERSION " 200 OK\r\n"
 #define HTTP_ACCEPTED        HTTP_VERSION " 202 Accepted\r\n"
+#define HTTP_PARTIAL         HTTP_VERSION " 206 Partial Content\r\n"
 #define HTTP_RELOCATE        HTTP_VERSION " 302 Temporary Relocation\r\n"
 #define HTTP_NOT_MODIFIED    HTTP_VERSION " 304 Not Modified\r\n"
 #define HTTP_BAD_REQUEST     HTTP_VERSION " 400 Bad Request\r\n"
@@ -109,6 +123,7 @@ char *http_find_content_type (socket_t sock, char *file);
 int http_parse_property (socket_t sock, char *request, char *end);
 char *http_find_property (http_socket_t *sock, char *key);
 
+int http_get_range (char *line, http_range_t *range);
 char *http_userdir (socket_t sock, char *uri);
 int http_remotehost (char *host, int id, int version);
 int http_localhost (char *host, http_config_t *cfg);

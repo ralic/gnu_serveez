@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.19 2000/11/25 20:36:34 ela Exp $
+ * $Id: http-core.c,v 1.20 2000/12/01 13:46:56 ela Exp $
  *
  */
 
@@ -256,11 +256,11 @@ http_log (socket_t sock)
   http_config_t *cfg = sock->cfg;
   http_socket_t *http = sock->data;
   static char line[1024];
-  char *referer, *agent, *p, *start;
+  char *referrer, *agent, *p, *start;
 
   if (cfg->log && http->request)
     {
-      referer = http_find_property (http, "Referer");
+      referrer = http_find_property (http, "Referer");
       agent = http_find_property (http, "User-Agent");
 
       /* access logging format given ? */
@@ -307,9 +307,9 @@ http_log (socket_t sock)
 		  strcat (line, http->request ? http->request : "-");
 		  p++;
 		  break;
-		  /* %r - referer document */
+		  /* %r - referrer document */
 		case 'r':
-		  strcat (line, referer ? referer : "-");
+		  strcat (line, referrer ? referrer : "-");
 		  p++;
 		  break;
 		  /* %a - user agent */
@@ -334,12 +334,56 @@ http_log (socket_t sock)
 		   http->request,
 		   http->response,
 		   http->length,
-		   referer ? referer : "-",
+		   referrer ? referrer : "-",
 		   agent ? agent : "-");
 	}
       fprintf (cfg->log, line);
       fflush (cfg->log);
     }
+}
+
+/*
+ * Create a http content range if the given line specifies a valid one.
+ * Return zero on succes and -1 on errors.
+ */
+int
+http_get_range (char *line, http_range_t *range)
+{
+  char *p = line;
+  off_t n;
+
+  /* parse until byte-range specifier */ 
+  if (!line || !range) return -1;
+  while (*p && *p != ':') p++;
+  if (!*p || *(p + 1) != ' ') return -1;
+  p += 2;
+
+  /* check identifier */
+  if (memcmp (p, "bytes", 5))
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
+#endif
+      return -1;
+    }
+  p += 5;
+
+  /* parse content range itself */
+  range->first = range->last = range->length = 0;
+
+  if (*p != '=') return 0; p++;
+  n = 0; while (*p >= '0' && *p <= '9') { n *= 10; n += (*p - '0'); p++; }
+  range->first = n;
+
+  if (*p != '-') return 0; p++;
+  n = 0; while (*p >= '0' && *p <= '9') { n *= 10; n += (*p - '0'); p++; }
+  range->last = n;
+
+  if (*p != '/') return 0; p++;
+  n = 0; while (*p >= '0' && *p <= '9') { n *= 10; n += (*p - '0'); p++; }
+  range->length = n;
+
+  return 0;
 }
 
 /*
