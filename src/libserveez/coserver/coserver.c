@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.4 2001/02/28 21:51:19 raimi Exp $
+ * $Id: coserver.c,v 1.5 2001/03/02 21:12:53 ela Exp $
  *
  */
 
@@ -606,6 +606,35 @@ coserver_handle_request (socket_t sock, char *request, int len)
   return ret;
 }
 
+#ifndef __MINGW32__
+/*
+ * This function closes the pipes (incoming and outgoing) of all coservers
+ * inherited to a newly instantiated coserver. These pipe descriptors are 
+ * part of server process and are inherited when we call @code{fork()} in 
+ * order to create another coserver sub process. Since this coserver process
+ * should not access these pipes we are closing them.
+ */
+static void
+coserver_close_pipes (coserver_t *self)
+{
+  int n;
+  coserver_t *coserver;
+
+  /* go through all coservers except itself */
+  for (n = 0; n < coserver_instances ; n++)
+    {
+      coserver = coserver_instance[n];
+      if (coserver != self)
+	{
+	  if (close (coserver->sock->pipe_desc[READ]) < 0)
+	    log_printf (LOG_ERROR, "coserver: close: %d\n", SYS_ERROR);
+	  if (close (coserver->sock->pipe_desc[WRITE]) < 0)
+	    log_printf (LOG_ERROR, "coserver: close: %d\n", SYS_ERROR);
+	}
+    }
+}
+#endif /* not __MINGW32__ */
+
 /*
  * Destroy specific coservers. This works for Win32 and Unices.
  */
@@ -753,13 +782,18 @@ coserver_start (int type)
       if (close (c2s[READ]) < 0)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-      /* reassign the pipes */
+      /* reassign the pipes to stdout and stdin */
       if (dup2 (in, 0) != 0)
 	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
       if (dup2 (out, 1) != 1)
 	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+
+      /* close the old pipe descriptors */
       close (in);
       close (out);
+
+      /* close all other coserver pipes except its own */
+      coserver_close_pipes (coserver);
 
       /* start the internal coserver */
       coserver_loop (coserver, 0, 1);

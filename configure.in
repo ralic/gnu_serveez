@@ -186,7 +186,7 @@ if test x$GCC = xyes ; then
     for flag in "-fomit-frame-pointer" "-fstrength-reduce" "-funroll-loops" \
                 "-finline-functions" "-fexpensive-optimizations" \
 	        "-fcaller-saves" "-fschedule-insns2" "-frerun-loop-opt" \
-	        "-fdelayed-branch" "-foptimize-register-move" \
+	        "-foptimize-register-move" \
 		"-ffunction-cse" "-fpeephole" "-momit-leaf-frame-pointer"; do
 	CFLAGS="$flag"
 	AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
@@ -734,11 +734,7 @@ if test ! -d $sizzle_dir; then
         sizzle_src="no"
     fi
 else
-    old_dir="`pwd`"
-    cd $sizzle_dir
-    SIZZLEDIR="`pwd`"
-    cd $old_dir
-    unset old_dir
+    SIZZLEDIR=`cd $sizzle_dir && pwd`
     AC_MSG_RESULT([located in $SIZZLEDIR])
     sizzle_cflags="-I$SIZZLEDIR"
     sizzle_ldflag=""

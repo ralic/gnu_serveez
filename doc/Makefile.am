@@ -26,9 +26,9 @@
 AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
 man_MANS = serveez.1
-EXTRA_DIST = $(man_MANS) index.html gnu-serveez.html \
+EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 	logo.jpg logosmall.jpg serveez-api.texi.in
-CLEANFILES = *.info serveez*.html *.tgz *~ *.info-[0-9] stamp-vti \
+CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* \
 	serveez-api.texi $(SED_FILE)
 MAINTAINERCLEANFILES = Makefile.in
 PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
@@ -38,8 +38,9 @@ DOC_DIRS = $(top_srcdir)/src/libserveez
 DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
   tcp-socket.c alloc.c alist.c hash.c util.c vector.c socket.c server-core.c \
   server-loop.c server-socket.c boot.c interface.c dynload.c windoze.c \
-  snprintf.c server.c
+  snprintf.c server.c core.c
 SED_FILE = serveez-api.sed
+HTML_DIR = html_chapter
 
 # local dependencies
 
@@ -49,7 +50,7 @@ distclean-local:
 all-local: serveez.html serveez-api.html
 
 dist-hook:
-	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] $(distdir)/stamp-vti
+	rm -f $(distdir)/*.info $(distdir)/*.info-[0-9] $(distdir)/stamp-vti*
 
 pack: serveez.html serveez-api.html
 	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
@@ -62,7 +63,6 @@ pack: serveez.html serveez-api.html
 
 TEXI2HTML = texi2html
 SED = sed
-SUFFIXES = .html
 
 serveez-api.texi: serveez-api.texi.in
 	rm -f $(SED_FILE)
@@ -75,7 +75,9 @@ serveez-api.texi: serveez-api.texi.in
 	$(SED) -f $(SED_FILE) < $< > $@
 
 %.html: %.texi
-	$(TEXI2HTML) -split_chapter $<
+	$(TEXI2HTML) -subdir $(HTML_DIR) -split_chapter $<
 
 %.info: %.texi
 	$(MAKEINFO) -o $(srcdir)/$@ -I $(srcdir) --no-split $<
+
+SUFFIXES = .html .info

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.56 2001/02/28 21:51:19 raimi Exp $
+ * $Id: http-proto.c,v 1.57 2001/03/02 21:12:53 ela Exp $
  *
  */
 
@@ -422,7 +422,7 @@ http_cgi_died (socket_t sock)
 	}
 #if HAVE_WAITPID
       /* Test if the cgi is still running. */
-      if (waitpid (http->pid, NULL, WNOHANG | WUNTRACED) == http->pid)
+      if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
 	{
 	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
 		      (int) http->pid);

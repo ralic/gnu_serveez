@@ -1,7 +1,7 @@
 /*
  * http-cgi.c - http cgi implementation
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.34 2001/02/28 21:51:19 raimi Exp $
+ * $Id: http-cgi.c,v 1.35 2001/03/02 21:12:53 ela Exp $
  *
  */
 
@@ -119,8 +119,9 @@ http_cgi_disconnect (socket_t sock)
 	log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
 #if HAVE_WAITPID
       /* Test if the cgi is still running and cleanup. */
-      waitpid (http->pid, NULL, 0);
-#endif
+      else if (waitpid (http->pid, NULL, 0) == -1)
+	log_printf (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
+#endif /* not HAVE_WAITPID */
       http->pid = INVALID_HANDLE;
     }
 #endif /* not __MINGW32__ */
@@ -679,6 +680,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   StartupInfo.cb = sizeof (StartupInfo);
   StartupInfo.dwFlags = STARTF_USESTDHANDLES;
   StartupInfo.hStdOutput = out;
+  /* StartupInfo.hStdError = out; */
   if (type == POST_METHOD)
     StartupInfo.hStdInput = in;
 
@@ -722,15 +724,11 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       /* find an appropriate system association */
       cgiapp = svz_malloc (MAX_PATH);
       if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
-	{
-	  log_printf (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
-	}
+	log_printf (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
       /* if this is enabled you could learn about the system */
       else
-	{
-	  log_printf (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
-	}
+	log_printf (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
 #endif
       svz_free (cgiapp);
 
@@ -815,16 +813,14 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	  exit (0);
 	}
 
-      /* duplicate the receiving pipe descriptor to stdout */
-      if (dup2 (out, 1) != 1)
+      /* duplicate the receiving pipe descriptor to stdout and stderr */
+      if (dup2 (out, 1) != 1 /* || dup2 (out, 2) != 2 */)
 	{
 	  log_printf (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
 	  exit (0);
 	}
 
-      /* also output the standard error to the pipe */
-      /* dup2 (out, 2); */
-
+      /* handle post method */
       if (type == POST_METHOD)
 	{
 	  /* make the input blocking */
@@ -840,15 +836,18 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	      log_printf (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
 	      exit (0);
 	    }
+
+	  /* close the old file descriptors */
+	  if (close (in) < 0)
+	    log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 	}
+      /* close remaining stdin in get method */
       else
 	{
 	  close (0);
 	}
 
       /* close the old file descriptors */
-      if (close (in) < 0)
-	log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
       if (close (out) < 0)
 	log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 
@@ -914,7 +913,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
       return -1;
     }
 
-#endif
+#endif /* not __MINGW32__ */
 
   /* save the process id */
   http = sock->data;

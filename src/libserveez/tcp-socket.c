@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.3 2001/02/28 21:51:19 raimi Exp $
+ * $Id: tcp-socket.c,v 1.4 2001/03/02 21:12:53 ela Exp $
  *
  */
 
@@ -55,6 +55,7 @@
 
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
+#include "libserveez/core.h"
 #include "libserveez/server-core.h"
 #include "libserveez/tcp-socket.h"
 

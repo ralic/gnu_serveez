@@ -1,4 +1,15 @@
-2001-02-28  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
+2001-03-01  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/server-core.c (server_signal_handler): Fixed
+	the problem with detaching and attaching the server on the
+	console via ^Z and job control.
+
+	* libserveez/coserver/coserver.c (coserver_close_pipes): Close
+	all pipes of existing coservers within a new coserver process.
+
+	* libserveez/core.c: Created this file.
+
+2001-02-28  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/server-core.c (svz_fd_cloexec): This and
 	the svz_fd_nonblock() function can be used to work on

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.3 2001/01/31 19:28:31 ela Exp $
+ * $Id: server.c,v 1.4 2001/03/02 21:12:53 ela Exp $
  *
  */
 
@@ -83,10 +83,6 @@ server_add_definition (server_definition_t *definition)
     svz_prealloc (server_definition, (server_definitions + 1) * 
 		  sizeof (server_definition_t *));
   server_definition[server_definitions++] = definition;
-
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "`%s' registered\n", definition->name);
-#endif
 }
 
 /*
