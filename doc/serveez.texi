@@ -2595,21 +2595,21 @@ Serveez has been build and tested successfully.
 
 @itemize @bullet
 
-@item FreeBSD 3.3, 4.0, 4.3 on Intel
+@item FreeBSD 3.3, 4.0, 4.3, 4.4, 4.5 on Intel
 @item FreeBSD 4.0 on Alpha
 @item NetBSD 1.5 on Alpha
 @item OpenBSD 3.0 on Alpha
 @item GNU/Linux 2.x.x on Intel
 @item GNU/Linux 2.x.x on Alpha
 @item GNU/Linux 2.2.x on Sparc64 (UltraSparcII + MachV)
-@item GNU/Linux 2.2.x on PowerPC (RS/6000)
+@item GNU/Linux 2.x.x on PowerPC (RS/6000)
 @item GNU/Linux 2.4.x on ia64 (Itanium)
 @item GNU/Linux 2.4.x on StrongARM (iPAQ)
 @item Solaris 2.6, 2.7 on Sparc32, Sparc64
 @item SunOS 5.8 on Sparc32 
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS/6000
-@item MacOS X10.1/Darwin 1.4 on PowerPC (Macintosh)
+@item MacOS X10.1/Darwin 1.4, 5.4 on PowerPC (Macintosh)
 @item Windows 95 on Intel
 @item Windows 98 on Intel
 @item Windows Millennium Edition on Intel
