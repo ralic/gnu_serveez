@@ -68,9 +68,9 @@ serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la serveez.cfg $(GUILE_DEPENDENCY)
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
-	libserveez/libserveez.la $(SERVEEZLIBS)
+	libserveez/libserveez.la $(SERVEEZ_LIBS)
 
-serveez_LDFLAGS = $(GUILE_LDFLAGS)
+serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.23 2003/06/14 14:57:59 ela Exp $
+ * $Id: dynload.c,v 1.24 2003/08/26 04:59:33 ela Exp $
  *
  */
 
@@ -344,7 +344,8 @@ dyn_unload_library (dyn_library_t *lib)
 #elif HAVE_SHL_LOAD
 	err = shl_unload ((shl_t) handle);
 #elif HAVE_NSADDIMAGE
-	/* TODO: Find out. */
+	/* TODO: Find out.  This isn't correct... */
+	/* err = (NSUnLinkModule ((void *) handle, 0) == 0); */
 #endif
 	if (err)
 	  {

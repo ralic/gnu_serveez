@@ -1,3 +1,8 @@
+2003-08-26  Stefan Jahn  <stefan@lkcc.org>
+
+	* guile-bin.c (CTYPE_CHECK_RANGE): Correct usage of the
+	svz_c_signed keyword.
+
 2003-06-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* ctrl-server/control-proto.c: Minor bug fix.

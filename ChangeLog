@@ -1,3 +1,8 @@
+2003-08-26  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in: Improvement and bug fixes in the build 
+	system.
+
 2003-07-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Partly reverted previous patch.  Use target,

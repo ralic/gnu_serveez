@@ -193,12 +193,13 @@ AC_DEFUN([AC_LIBTOOL_SOLARIS], [
     solaris*)
       LIBERTY="`gcc --print-file-name=libiberty.a`"
       LIBERTY="-L`dirname $LIBERTY 2>/dev/null`"
-      LIBS="`echo "$LIBS" | sed -e 's%-liberty%'$LIBERTY' -liberty%g'`"
+      SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $LIBERTY"
       GCCLIB="`gcc --print-libgcc-file-name`"
       GCCDIR="-L`dirname $GCCLIB 2>/dev/null`"
       GCCFILE="`basename $GCCLIB 2>/dev/null`"
       GCCFILE="-l`echo "$GCCFILE" | sed -e 's/lib\(.*\)\.a/\1/'`"
-      LIBS="$LIBS $GCCDIR $GCCFILE"
+      SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $GCCDIR"
+      SERVEEZ_LIBS="$SERVEEZ_LIBS $GCCFILE"
       AC_MSG_WARN([
   The configure script added
   '$LIBERTY $GCCDIR $GCCFILE'

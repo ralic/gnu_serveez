@@ -28,6 +28,7 @@ files.
 Version 0.1.6
 -------------
 
+ * improvement and bug fixes in the build system
  * prefixed the #define's in 'svzconfig.h' by 'SVZ_' or 'svz_' to avoid 
    name space clashes with other applications
 
@@ -35,7 +36,7 @@ Version 0.1.5
 -------------
 
  * configurable types available through (instantiate-config-type!)
- * bugfixes in core API and Guile interface
+ * bug fixes in core API and Guile interface
  * minor enhancements of the core API and the Guile interface
  * updated configure and build system to autoconf 2.57, automake 1.7.5 
    and libtool 1.5

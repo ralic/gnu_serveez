@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.29 2003/03/22 18:39:22 ela Exp $
+ * $Id: guile-bin.c,v 1.30 2003/08/26 04:59:33 ela Exp $
  *
  */
 
@@ -597,18 +597,18 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
 /* Checks whether the scheme value @var{value} can be stored within a
    @var{ctype}. The macro stores valid values in @var{val} and throws an
    exception if it is out of range. */
-#define CTYPE_CHECK_RANGE(ctype, value, pos, val) do {                 \
-    if (SCM_POSITIVEP (value)) {                                       \
-      unsigned long uval = SCM_NUM2ULONG (pos, value);                 \
-      unsigned ctype cval = (unsigned ctype) uval;                     \
-      if (uval != (unsigned long) cval) SCM_OUT_OF_RANGE (pos, value); \
-      val = (unsigned long) uval;                                      \
-    } else {                                                           \
-      signed long ival = SCM_NUM2LONG (pos, value);                    \
-      signed ctype cval = (signed ctype) ival;                         \
-      if (ival != (signed long) cval) SCM_OUT_OF_RANGE (pos, value);   \
-      val = (unsigned long) ival;                                      \
-    }                                                                  \
+#define CTYPE_CHECK_RANGE(ctype, value, pos, val) do {                     \
+    if (SCM_POSITIVEP (value)) {                                           \
+      unsigned long uval = SCM_NUM2ULONG (pos, value);                     \
+      unsigned ctype cval = (unsigned ctype) uval;                         \
+      if (uval != (unsigned long) cval) SCM_OUT_OF_RANGE (pos, value);     \
+      val = (unsigned long) uval;                                          \
+    } else {                                                               \
+      svz_c_signed long ival = SCM_NUM2LONG (pos, value);                  \
+      svz_c_signed ctype cval = (svz_c_signed ctype) ival;                 \
+      if (ival != (svz_c_signed long) cval) SCM_OUT_OF_RANGE (pos, value); \
+      val = (unsigned long) ival;                                          \
+    }                                                                      \
   } while (0)
 
 /* The following macro expands to a function definition which accesses a

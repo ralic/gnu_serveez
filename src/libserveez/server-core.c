@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.42 2003/06/14 14:57:59 ela Exp $
+ * $Id: server-core.c,v 1.43 2003/08/26 04:59:33 ela Exp $
  *
  */
 
@@ -710,7 +710,7 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 	}
     }
 
-  /* Check allow IP addresses. */
+  /* Check allowed IP addresses. */
   if (port->allow)
     {
       ret = -1;

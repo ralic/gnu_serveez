@@ -117,13 +117,15 @@ EXTRALIBS=""
 CPPEXTRAFLAGS=""
 SERVERLIBS=""
 SERVERDIRS=""
-SERVEEZLIBS=""
+SERVEEZ_LIBS=""
+SERVEEZ_LDFLAGS=""
 
 AC_SUBST(CPPEXTRAFLAGS)
 AC_SUBST(CPPFLAGS)
 AC_SUBST(SERVERLIBS)
 AC_SUBST(SERVERDIRS)
-AC_SUBST(SERVEEZLIBS)
+AC_SUBST(SERVEEZ_LIBS)
+AC_SUBST(SERVEEZ_LDFLAGS)
 
 dnl ----------------------------------------------------------------------
 
@@ -909,7 +911,10 @@ if test $have_getopt_long != "no"; then
 fi
 
 if test $have_getopt = "yeslib" -o $have_getopt_long = "yeslib"; then
-    LIBS="$LIBS -liberty"
+    case $host_os in
+    mingw*) LIBS="$LIBS -liberty" ;;
+    *)      SERVEEZ_LIBS="$SERVEEZ_LIBS -liberty" ;;
+    esac
 fi
 unset have_getopt
 unset have_getopt_long
@@ -958,8 +963,8 @@ AC_CHECK_FUNC(strncasecmp,
   [AC_CHECK_FUNC(strnicmp,
     AC_DEFINE(HAVE_STRNICMP, 1, [Define if you have the strnicmp function.]))])
 
-AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
-  getpwnam seteuid setegid geteuid getegid gettimeofday shl_load NSAddImage)
+AC_CHECK_FUNCS(getrlimit getdtablesize getpwnam seteuid setegid geteuid \
+  getegid gettimeofday shl_load NSAddImage)
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
@@ -994,8 +999,15 @@ if test $svz_cv_header_netinet_tcp_h = yes ; then
 fi
 
 dnl
-dnl Check if alphasort() is declared.
+dnl Check if alphasort() is declared.  Also check for alphasort(),
+dnl strsignal() and scandir() in -liberty.
 dnl
+save_LIBS="$LIBS"
+LIBS="$LIBS $SERVEEZ_LIBS $EXTRALIBS"
+AC_CHECK_FUNCS(alphasort scandir strsignal)
+LIBS="$save_LIBS"
+unset save_LIBS
+
 if test $ac_cv_header_dirent_h = yes ; then
 AC_CACHE_CHECK([whether alphasort is declared], svz_cv_decl_alphasort,
 AC_EGREP_HEADER(alphasort, dirent.h,
@@ -1347,7 +1359,6 @@ dnl
 dnl Check for hstrerror(), h_errno and strsignal() functions.
 dnl
 
-AC_CHECK_FUNCS(strsignal)
 AC_CACHE_CHECK([whether strsignal is declared], svz_cv_decl_strsignal,
 AC_EGREP_CPP(strsignal, [
     #define _GNU_SOURCE
@@ -1391,7 +1402,7 @@ dnl
 dnl Checks for RPC services.
 dnl
 AC_CHECK_FUNCS(getrpcent)
-if test $ac_cv_func_getrpcent = no; then
+if test $ac_cv_func_getrpcent = no ; then
     dnl On HP-UX these functions reside in -lnsl
     AC_CHECK_LIB(nsl, getrpcent, EXTRALIBS="$EXTRALIBS -lnsl")
 fi
