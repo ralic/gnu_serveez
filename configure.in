@@ -113,44 +113,34 @@ AC_ARG_ENABLE(warn,
    define_enable_warn="yes"
  fi])
 
-if test $define_enable_warn = yes; then
-    save_cflags="$CFLAGS"
-    warn_cflags=""
+if test $define_enable_warn = yes ; then
+  save_cflags="$CFLAGS"
+  warn_cflags=""
+  warnflags="-W -fullwarn -pedantic"
 
-    for flag in "-W" "-fullwarn" "-pedantic"; do
-	CFLAGS="$flag"
-	AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-	AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS"
-	    AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
-    done
+  dnl Only make these tests if we are using GNU C
+  if test x$GCC = xyes ; then
+    warnflags="$warnflags -Wall -Wcast-align -Wstrict-prototypes \
+                          -Wformat -Wno-unused -Wno-long-long"
+  fi
 
-dnl
-dnl Only make these tests if we are using GNU C
-dnl
-if test x$GCC = xyes ; then
-    for flag in "-Wall" "-Wcast-align" "-Wstrict-prototypes" \
-                "-Wformat" "-Wno-unused" "-Wno-long-long"; do
-	CFLAGS="$flag"
-	AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-	AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
-	    AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
-    done
-fi
+  dnl Test this compiler flag under Linux only.
+  if test "`uname -s`" = "Linux" ; then
+    warnflags="$warnflags -ansi"
+  fi
 
-dnl
-dnl Test this compiler flag under Linux only.
-dnl
-if test "`uname -s`" = "Linux"; then
-    CFLAGS="-ansi"
+  for flag in $warnflags; do
+    CFLAGS="$flag"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS" 
-	AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
-fi
+    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS"
+      AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+  done
+  unset warnflags
 
-    CFLAGS="$save_cflags"
-    CPPEXTRAFLAGS="$warn_cflags"
-    unset warn_cflags
-    unset save_cflags
+  CFLAGS="$save_cflags"
+  CPPEXTRAFLAGS="$warn_cflags"
+  unset warn_cflags
+  unset save_cflags
 fi
 
 unset define_enable_warn
@@ -176,19 +166,15 @@ AC_ARG_ENABLE(opt,
 )
 
 if test $define_enable_opt = yes ; then
-    save_cflags="$CFLAGS"
-    opt_cflags=""
-    opt_ldflags=""
-    CFLAGS="-O2"
-    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
-	AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+  save_cflags="$CFLAGS"
+  opt_cflags=""
+  opt_ldflags=""
 
-dnl
-dnl Only make these tests if we are using GNU C
-dnl
-if test x$GCC = xyes ; then
-    optflags="-fomit-frame-pointer -fstrength-reduce -funroll-loops \
+  dnl
+  dnl Only make these tests if we are using GNU C
+  dnl
+  if test x$GCC = xyes ; then
+    optflags="-O2 -fomit-frame-pointer -fstrength-reduce -funroll-loops \
               -finline-functions -fexpensive-optimizations \
 	      -fcaller-saves -frerun-loop-opt -foptimize-register-move \
 	      -ffunction-cse -fpeephole -momit-leaf-frame-pointer"
@@ -197,37 +183,62 @@ if test x$GCC = xyes ; then
     if test `expr $arch` -gt 4; then
       optflags="$optflags -fschedule-insns2"
     fi]
-    for flag in $optflags; do
-	CFLAGS="$flag"
-	AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-	AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
-	    AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
-    done
     unset arch
+    for flag in $optflags; do
+      CFLAGS="$flag"
+      AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+      AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+        AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+    done
     unset optflags
     CFLAGS="-m486"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,
-	opt_is486="yes" 
-	AC_MSG_RESULT([yes]), 
-	opt_is486="no" 
-	AC_MSG_RESULT([no]))
+    AC_TRY_COMPILE(,,opt_is486="yes" AC_MSG_RESULT([yes]), 
+	             opt_is486="no"  AC_MSG_RESULT([no]))
     CFLAGS="-march=pentiumpro"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,
-	opt_isPPro="yes" 
-	AC_MSG_RESULT([yes]), 
-	opt_isPPro="no"	
-	AC_MSG_RESULT([no]))
-fi
+    AC_TRY_COMPILE(,,opt_isPPro="yes" AC_MSG_RESULT([yes]), 
+		     opt_isPPro="no"  AC_MSG_RESULT([no]))
 
-    LDFLAGS="-s"
-    AC_MSG_CHECKING([whether $CC accepts $LDFLAGS])
-    AC_TRY_LINK(,,opt_ldflags="$opt_ldflags -s" 
-	AC_MSG_RESULT([yes]), 
-	AC_MSG_RESULT([no]))
+  dnl
+  dnl Other compiler than GNU C
+  dnl
+  else
+    optflags="-O3"
+    for flag in $optflags; do
+      CFLAGS="$flag"
+      AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+      AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+        AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+    done
+    unset optflags
+  fi
 
-if test x$opt_isPPro = "xyes" ; then
+  dnl
+  dnl Check for additional optimization compiler flags.
+  dnl
+  AC_ARG_WITH(opt,
+  [  --with-opt=FLAGS        Additional optimization flags [comma separated]],
+    [case "$withval" in
+     no)  optflags="" ;;
+     yes) optflags="" ;;
+     *)   optflags=`echo "$withval" | sed 's/,/ /g'` ;;
+    esac],
+    optflags="")
+  for flag in $optflags; do
+    CFLAGS="$flag"
+    AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
+    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS" 
+      AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+  done
+  unset optflags
+
+  LDFLAGS="-s"
+  AC_MSG_CHECKING([whether $CC accepts $LDFLAGS])
+  AC_TRY_LINK(,,opt_ldflags="$opt_ldflags $LDFLAGS" 
+    AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+
+  if test x$opt_isPPro = "xyes" ; then
     AC_MSG_CHECKING([whether to enable i686 optimizations])
     AC_ARG_ENABLE(
 	ppro,
@@ -240,9 +251,9 @@ if test x$opt_isPPro = "xyes" ; then
 	    AC_MSG_RESULT([no])
 	fi,
 	AC_MSG_RESULT([no]))
-fi
+  fi
 
-if test x$opt_is486 = "xyes" -a ! x$opt_isPPro = "xdone"; then
+  if test x$opt_is486 = "xyes" -a ! x$opt_isPPro = "xdone" ; then
     AC_MSG_CHECKING([whether to enable i486 optimizations])
     AC_ARG_ENABLE(
 	486,
@@ -255,14 +266,14 @@ if test x$opt_is486 = "xyes" -a ! x$opt_isPPro = "xdone"; then
 	fi,
 	opt_cflags="$opt_cflags -m486"
 	AC_MSG_RESULT([yes]))
-fi
+  fi
 
-    LDFLAGS="$opt_ldflags"
-    CPPEXTRAFLAGS="$CPPEXTRAFLAGS $opt_cflags"
-    CFLAGS=""
-    unset save_cflags
-    unset opt_cflags
-    unset opt_ldflags
+  LDFLAGS="$opt_ldflags"
+  CPPEXTRAFLAGS="$CPPEXTRAFLAGS $opt_cflags"
+  CFLAGS=""
+  unset save_cflags
+  unset opt_cflags
+  unset opt_ldflags
 fi
 
 AC_SUBST(CFLAGS)
@@ -292,8 +303,7 @@ AC_ARG_ENABLE(
 
 if test $define_enable_debug = yes ; then
   AC_DEFINE(ENABLE_DEBUG,
-    1,
-    [Define if debug output should be supported.])
+    1, [Define if debug output should be supported.])
 else
   AC_DEFINE(NDEBUG, 1, [Define if debug code should be suppressed.])
 fi
@@ -685,8 +695,7 @@ AC_ARG_ENABLE(
 
 if test $define_enable_flood = yes; then
   AC_DEFINE(ENABLE_FLOOD_PROTECTION,
-    1,
-    [Define if flood protection should be supported.])
+    1, [Define if flood protection should be supported.])
 fi
 unset define_enable_flood
 

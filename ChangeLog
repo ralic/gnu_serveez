@@ -1,3 +1,9 @@
+2001-09-06  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Updated to `libtool 1.4.1'.
+	New configure option `--with-opt=FLAGS' introduced. Thus the 
+	user can pass additional compiler flags.
+
 2001-09-05  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (RPM): Checking for RPM builder version in

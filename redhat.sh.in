@@ -89,7 +89,7 @@ EOF
 
 # Step 4 - Rebuild the package and install it
 
-(cd $specdir && rpm --rcfile $topdir/$rcfile -bi $specfile)
+(cd $specdir && @RPM@ --rcfile $topdir/$rcfile -bi $specfile)
 
 # Step 5 - Create the installed file list and append it to the spec file
 
@@ -99,7 +99,7 @@ find $installdir -type l >> $specdir/$specfile
 
 # Step 6 - Rerun RPM to the full build
 
-(cd $specdir && rpm --rcfile $topdir/$rcfile -ba $specfile)
+(cd $specdir && @RPM@ --rcfile $topdir/$rcfile -ba $specfile)
 
 # Step 7 - Save the RPM packages
 

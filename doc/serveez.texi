@@ -124,6 +124,10 @@ switches. Most guessed options come from GCC.
 @item --enable-opt
 When enabling this feature the configure script tries some of the commonly 
 known compiler optimization switches.
+@item --with-opt=FLAGS
+You can pass here a comma separated list of additional compiler	flags 
+which will be tested. This feature is only active if you specified the 
+above @samp{--enable-opt} switch.
 @item --enable-ppro
 If you want to compile for the i686 target try this option.
 @item --enable-486
