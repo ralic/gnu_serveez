@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.11 2001/05/22 21:06:42 ela Exp $
+ * $Id: socket.c,v 1.12 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -382,8 +382,8 @@ svz_sock_free (svz_socket_t *sock)
     {
       if (sock->data)
 	svz_array_destroy (sock->data);
-      if (sock->cfg)
-	svz_portcfg_destroy (sock->cfg);
+      if (sock->port)
+	svz_portcfg_destroy (sock->port);
     }
   if (sock->recv_pipe)
     svz_free (sock->recv_pipe);

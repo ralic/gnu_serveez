@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.14 2001/05/22 21:06:42 ela Exp $
+ * $Id: server-core.c,v 1.15 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -468,7 +468,7 @@ svz_sock_dequeue (svz_socket_t *sock)
 int
 svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
 {
-  svz_portcfg_t *port = parent->cfg;
+  svz_portcfg_t *port = parent->port;
   char *ip = svz_inet_ntoa (child->remote_addr);
   time_t *t, current;
   int nr, n, ret = 0;
@@ -522,7 +522,7 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
 int
 svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 {
-  svz_portcfg_t *port = parent->cfg;
+  svz_portcfg_t *port = parent->port;
   char *ip;
   int n, ret;
   char *remote = svz_inet_ntoa (child->remote_addr);
@@ -573,7 +573,7 @@ svz_sock_portcfg (svz_socket_t *sock)
   svz_socket_t *parent;
 
   if ((parent = svz_sock_getparent (sock)) != NULL)
-    port = parent->cfg;
+    port = parent->port;
   return port;
 }
 
@@ -600,6 +600,38 @@ svz_sock_getparent (svz_socket_t *child)
   if (!child)
     return NULL;
   return svz_sock_find (child->parent_id, child->parent_version);
+}
+
+/*
+ * Set the referring socket structure of @var{sock} to the given socket
+ * @var{referrer}. This can be used to create some relationship between
+ * two socket structures. If @var{referrer} is @code{NULL} the reference
+ * will be invalidated.
+ */
+void
+svz_sock_setreferrer (svz_socket_t *sock, svz_socket_t *referrer)
+{
+  if (referrer == NULL)
+    {
+      sock->referrer_version = sock->referrer_id = -1;
+    }
+  else
+    {
+      sock->referrer_id = referrer->id;
+      sock->referrer_version = referrer->version;
+    }
+}
+
+/*
+ * Get the referrer of the socket structure @var{sock}. Return @code{NULL}
+ * if there is no such socket.
+ */
+svz_socket_t *
+svz_sock_getreferrer (svz_socket_t *sock)
+{
+  if (!sock)
+    return NULL;
+  return svz_sock_find (sock->referrer_id, sock->referrer_version);
 }
 
 /*

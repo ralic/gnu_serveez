@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.21 2001/05/19 23:04:58 ela Exp $
+ * $Id: tunnel.c,v 1.22 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -63,8 +63,8 @@ tnl_config_t tnl_config =
  */
 svz_key_value_pair_t tnl_config_prototype [] = 
 {
-  SVZ_REGISTER_PORTCFG ("source", tnl_config.source, NOTDEFAULTABLE),
-  SVZ_REGISTER_PORTCFG ("target", tnl_config.target, NOTDEFAULTABLE),
+  SVZ_REGISTER_PORTCFG ("source", tnl_config.source, SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_PORTCFG ("target", tnl_config.target, SVZ_ITEM_NOTDEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 

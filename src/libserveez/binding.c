@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.8 2001/05/22 21:06:41 ela Exp $
+ * $Id: binding.c,v 1.9 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -64,12 +64,12 @@ svz_server_bindings (svz_server_t *server)
   text[0] = '\0'; 
   svz_sock_foreach (sock)
     {
-      if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg)
+      if (sock->flags & SOCK_FLAG_LISTENING && sock->port)
 	{
 	  /* The server in the array of servers and port configuration
 	     valid ? */
 	  if (svz_array_contains (sock->data, server) && 
-	      (port = sock->cfg) != NULL)
+	      (port = sock->port) != NULL)
 	    {
 	      /* TCP and UDP */ 
 	      if (port->proto & (PROTO_TCP | PROTO_UDP))
@@ -114,10 +114,10 @@ svz_server_portcfg (svz_server_t *server)
 
   svz_sock_foreach (sock)
     {
-      if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg)
+      if (sock->flags & SOCK_FLAG_LISTENING && sock->port)
 	{
 	  if (svz_array_contains (sock->data, server))
-	    svz_array_add (port, sock->cfg);
+	    svz_array_add (port, sock->port);
 	}
     }
   if (svz_array_size (port) == 0)
@@ -143,8 +143,8 @@ svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
   svz_sock_foreach (sock)
     {
       /* Is this socket usable for this port configuration ? */
-      if (sock->data && sock->cfg && sock->flags & SOCK_FLAG_LISTENING &&
-	  svz_portcfg_equal (sock->cfg, port))
+      if (sock->data && sock->port && sock->flags & SOCK_FLAG_LISTENING &&
+	  svz_portcfg_equal (sock->port, port))
 	{
 	  /* Extend the server array in sock->data. */
 	  svz_array_add (sock->data, server);
@@ -184,10 +184,10 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 	    {
 	      /* 
 	       * Enqueue the server socket, put the port config into
-	       * sock->cfg and initialize the server array (sock->data).
+	       * sock->port and initialize the server array (sock->data).
 	       */
 	      svz_sock_enqueue (sock);
-	      sock->cfg = copy;
+	      sock->port = copy;
 	      sock->data = svz_array_create (1);
 	      svz_array_add (sock->data, server);
 	    }
@@ -228,7 +228,7 @@ svz_server_unbind (svz_server_t *server)
 	{
 	  /* If the parent of a client is the given servers child
 	     then also shutdown this client. */
-	  if (parent->flags & SOCK_FLAG_LISTENING && parent->cfg && 
+	  if (parent->flags & SOCK_FLAG_LISTENING && parent->port && 
 	      parent->data && svz_array_contains (parent->data, server))
 	    svz_sock_schedule_for_shutdown (sock);
 	}
@@ -238,7 +238,7 @@ svz_server_unbind (svz_server_t *server)
   svz_sock_foreach (sock)
     {
       /* A server socket structure ? */
-      if (sock->flags & SOCK_FLAG_LISTENING && sock->cfg && sock->data)
+      if (sock->flags & SOCK_FLAG_LISTENING && sock->port && sock->data)
 	{
 	  /* Delete all servers and shutdown the socket structure if
 	     there are no more servers left. */

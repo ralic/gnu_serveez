@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.5 2001/05/22 21:06:41 ela Exp $
+ * $Id: interface.c,v 1.6 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -117,7 +117,7 @@ svz_interface_collect (void)
   PMIB_IFTABLE ifTable;
   PMIB_IPADDRTABLE ipTable;
   unsigned long addr;
-  ifc_entry_t *ifc;
+  svz_interface_t *ifc;
 
   DWORD Method = NO_METHOD;
 
@@ -541,7 +541,7 @@ void
 svz_interface_list (void)
 {
   unsigned long n;
-  ifc_entry_t *ifc;
+  svz_interface_t *ifc;
 
   printf ("--- list of local interfaces you can start ip services on ---\n");
 
@@ -576,12 +576,12 @@ int
 svz_interface_add (int index, char *desc, unsigned long addr)
 {
   unsigned long n;
-  ifc_entry_t *ifc;
+  svz_interface_t *ifc;
 
   /* Check if there is such an interface already. */
   if (svz_interfaces == NULL)
     {
-      svz_interfaces = svz_vector_create (sizeof (ifc_entry_t));
+      svz_interfaces = svz_vector_create (sizeof (svz_interface_t));
     }
   else
     {
@@ -594,7 +594,7 @@ svz_interface_add (int index, char *desc, unsigned long addr)
     }
 
   /* Actually add this interface. */
-  ifc = svz_malloc (sizeof (ifc_entry_t));
+  ifc = svz_malloc (sizeof (svz_interface_t));
   ifc->index = index;
   ifc->ipaddr = addr;
   ifc->description = svz_strdup (desc);
@@ -604,23 +604,41 @@ svz_interface_add (int index, char *desc, unsigned long addr)
 }
 
 /*
+ * This function returns the interface structure for the given IP address
+ * @var{addr} if any. Returns @code{NULL} otherwise.
+ */
+svz_interface_t *
+svz_interface_get (unsigned long addr)
+{
+  svz_interface_t *ifc;
+  int n;
+
+  svz_vector_foreach (svz_interfaces, ifc, n)
+    {
+      if (ifc->ipaddr == addr)
+	return ifc;
+    }
+  return NULL;
+}
+
+/*
  * Free the network interface list.
  */
 int
 svz_interface_free (void)
 {
   unsigned long n;
-  ifc_entry_t *ifc;
+  svz_interface_t *ifc;
 
   if (svz_interfaces)
     {
-      for (n = 0; n < svz_vector_length (svz_interfaces); n++)
+      svz_vector_foreach (svz_interfaces, ifc, n)
 	{
 	  ifc = svz_vector_get (svz_interfaces, n);
 	  if (ifc->description)
 	    svz_free (ifc->description);
 	}
-      svz_vector_destroy(svz_interfaces);
+      svz_vector_destroy (svz_interfaces);
       svz_interfaces = NULL;
       return 0;
     }

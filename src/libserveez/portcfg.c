@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.14 2001/05/22 21:06:42 ela Exp $
+ * $Id: portcfg.c,v 1.15 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -202,13 +202,13 @@ svz_portcfg_expand (svz_portcfg_t *this)
   svz_portcfg_t *port;
   struct sockaddr_in *addr;
   int n;
-  ifc_entry_t *ifc;
+  svz_interface_t *ifc;
 
   /* Is this a network port configuration and should it be expanded ? */
   if ((addr = svz_portcfg_addr (this)) != NULL && 
       addr->sin_addr.s_addr == INADDR_ANY)
     {
-      svz_vector_foreach (svz_interfaces, ifc, n)
+      svz_interface_foreach (ifc, n)
 	{
 	  port = svz_portcfg_dup (this);
 	  addr = svz_portcfg_addr (port);

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.9 2001/05/21 21:20:42 ela Exp $
+ * $Id: server-core.h,v 1.10 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -53,6 +53,8 @@ SERVEEZ_API int svz_sock_dequeue __P ((svz_socket_t *));
 SERVEEZ_API void svz_sock_shutdown_all __P ((void));
 SERVEEZ_API void svz_sock_setparent __P ((svz_socket_t *, svz_socket_t *));
 SERVEEZ_API svz_socket_t *svz_sock_getparent __P ((svz_socket_t *));
+SERVEEZ_API void svz_sock_setreferrer __P ((svz_socket_t *, svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_sock_getreferrer __P ((svz_socket_t *));
 SERVEEZ_API svz_portcfg_t *svz_sock_portcfg __P ((svz_socket_t *));
 SERVEEZ_API int svz_sock_check_access __P ((svz_socket_t *, svz_socket_t *));
 SERVEEZ_API int svz_sock_check_frequency __P ((svz_socket_t *, 

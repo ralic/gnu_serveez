@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.37 2001/05/19 23:04:58 ela Exp $
+ * $Id: gnutella.c,v 1.38 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -128,23 +128,29 @@ nut_config_t nut_config =
  */
 svz_key_value_pair_t nut_config_prototype[] = 
 {
-  SVZ_REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
-  SVZ_REGISTER_INT ("search-limit", nut_config.search_limit, DEFAULTABLE),
-  SVZ_REGISTER_INT ("max-ttl", nut_config.max_ttl, DEFAULTABLE),
-  SVZ_REGISTER_INT ("ttl", nut_config.ttl, DEFAULTABLE),
-  SVZ_REGISTER_STR ("download-path", nut_config.save_path, DEFAULTABLE),
-  SVZ_REGISTER_STR ("share-path", nut_config.share_path, DEFAULTABLE),
-  SVZ_REGISTER_INT ("max-downloads", nut_config.max_dnloads, DEFAULTABLE),
-  SVZ_REGISTER_INT ("connection-speed", nut_config.speed, DEFAULTABLE),
-  SVZ_REGISTER_INT ("min-speed", nut_config.min_speed, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("hosts", nut_config.hosts, SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("search", nut_config.search, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("search-limit", nut_config.search_limit, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-ttl", nut_config.max_ttl, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("ttl", nut_config.ttl, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("download-path", nut_config.save_path, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("share-path", nut_config.share_path, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-downloads", nut_config.max_dnloads, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("connection-speed", nut_config.speed, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("min-speed", nut_config.min_speed, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STRARRAY ("file-extensions", nut_config.extensions, 
-			 DEFAULTABLE),
-  SVZ_REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
-  SVZ_REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
-  SVZ_REGISTER_INT ("force-port", nut_config.force_port, DEFAULTABLE),
-  SVZ_REGISTER_INT ("max-uploads", nut_config.max_uploads, DEFAULTABLE),
-  SVZ_REGISTER_STR ("net-url", nut_config.net_url, DEFAULTABLE),
+			 SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("connections", nut_config.connections, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("force-ip", nut_config.force_ip, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("force-port", nut_config.force_port, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-uploads", nut_config.max_uploads, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("net-url", nut_config.net_url, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 

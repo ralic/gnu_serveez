@@ -1,3 +1,28 @@
+2001-06-01  [ Ela ]  <ela@lkcc.org>
+
+	* interface.h (svz_interface_foreach): New macro.
+	(struct svz_interface): Renamed this structure.
+
+	* interface.c (svz_interface_get): New function.
+
+	* server-core.c (svz_sock_setreferrer, svz_sock_setreferrer): 
+	Two new functions replacing the `referrer' pointer in the
+	socket structure. Used by pipe server to identify child and
+	parent.
+	
+	* server.h (struct svz_servertype): Renamed `varname' to
+	`prefix' and `name' into `description' which describes the
+	usage a bit better.
+
+	* socket.h (struct svz_socket): New field: `port' specifies
+	the port configuration of a listener socket. This change was 
+	necessary because non-connection oriented protocols were using
+	the `sock->cfg' field for both server configuration and port
+	configuration.
+
+	* server.h: Renamed all `ITEM_' macros into `SVZ_ITEM_'. 
+	Changed all callers.
+
 2001-05-21  [ Ela ]  <ela@lkcc.org>
 
 	* pipe-socket.h, core.h, util.h, snprintf.h, alloc.h: 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.32 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-proto.c,v 1.33 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -105,21 +105,22 @@ irc_config_t irc_config =
  */
 svz_key_value_pair_t irc_config_prototype[] =
 {
-  SVZ_REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
-  SVZ_REGISTER_STR ("INFO-file", irc_config.info_file, DEFAULTABLE),
+  SVZ_REGISTER_STR ("MOTD-file", irc_config.MOTD_file, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("INFO-file", irc_config.info_file, SVZ_ITEM_DEFAULTABLE),
 #if ENABLE_TIMESTAMP
-  SVZ_REGISTER_INT ("tsdelta", irc_config.tsdelta, DEFAULTABLE),
+  SVZ_REGISTER_INT ("tsdelta", irc_config.tsdelta, SVZ_ITEM_DEFAULTABLE),
 #endif
-  SVZ_REGISTER_STR ("admininfo", irc_config.admininfo, NOTDEFAULTABLE),
-  SVZ_REGISTER_STR ("M-line", irc_config.MLine, NOTDEFAULTABLE),
-  SVZ_REGISTER_STR ("A-line", irc_config.ALine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("Y-lines", irc_config.YLine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("I-lines", irc_config.ILine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("O-lines", irc_config.OLine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("o-lines", irc_config.oLine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("C-lines", irc_config.CLine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("N-lines", irc_config.NLine, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("K-lines", irc_config.KLine, DEFAULTABLE),
+  SVZ_REGISTER_STR ("admininfo", irc_config.admininfo, 
+		    SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("M-line", irc_config.MLine, SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("A-line", irc_config.ALine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("Y-lines", irc_config.YLine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("I-lines", irc_config.ILine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("O-lines", irc_config.OLine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("o-lines", irc_config.oLine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("C-lines", irc_config.CLine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("N-lines", irc_config.NLine, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("K-lines", irc_config.KLine, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.3 2001/04/01 13:32:29 ela Exp $
+ * $Id: interface.h,v 1.4 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -31,13 +31,13 @@
 /*
  * Structure for collecting IP interfaces.
  */
-typedef struct
+typedef struct svz_interface
 {
   unsigned long index;  /* interface index */
   char *description;    /* interface description */
   unsigned long ipaddr; /* its IP address */
 }
-ifc_entry_t;
+svz_interface_t;
 
 __BEGIN_DECLS
 
@@ -48,7 +48,16 @@ SERVEEZ_API void svz_interface_list __P ((void));
 SERVEEZ_API void svz_interface_collect __P ((void));
 SERVEEZ_API int svz_interface_free __P ((void));
 SERVEEZ_API int svz_interface_add __P ((int, char *, unsigned long));
+SERVEEZ_API svz_interface_t *svz_interface_get __P ((unsigned long));
 
 __END_DECLS
+
+/*
+ * Iteration macro for the list of known network interfaces. If any
+ * each interface gets assigned to @var{ifc}. The variable @var{i} is the
+ * iteration variable.
+ */
+#define svz_interface_foreach(ifc, i) \
+  svz_vector_foreach (svz_interfaces, (ifc), (i))
 
 #endif /* not __INTERFACE_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.66 2001/05/19 23:04:57 ela Exp $
+ * $Id: http-proto.c,v 1.67 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -96,25 +96,28 @@ http_config_t http_config =
  */
 svz_key_value_pair_t http_config_prototype[] =
 {
-  SVZ_REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
-  SVZ_REGISTER_STR ("docs", http_config.docs, DEFAULTABLE),
-  SVZ_REGISTER_STR ("cgi-url", http_config.cgiurl, DEFAULTABLE),
-  SVZ_REGISTER_STR ("cgi-dir", http_config.cgidir, DEFAULTABLE),
-  SVZ_REGISTER_INT ("cache-size", http_config.cachesize, DEFAULTABLE),
-  SVZ_REGISTER_INT ("cache-entries", http_config.cacheentries, DEFAULTABLE),
-  SVZ_REGISTER_INT ("timeout", http_config.timeout, DEFAULTABLE),
-  SVZ_REGISTER_INT ("keepalive", http_config.keepalive, DEFAULTABLE),
-  SVZ_REGISTER_STR ("default-type", http_config.default_type, DEFAULTABLE),
-  SVZ_REGISTER_STR ("type-file", http_config.type_file, DEFAULTABLE),
-  SVZ_REGISTER_HASH ("types", http_config.types, DEFAULTABLE),
-  SVZ_REGISTER_HASH ("cgi-application", http_config.cgiapps, DEFAULTABLE),
-  SVZ_REGISTER_STR ("admin", http_config.admin, DEFAULTABLE),
-  SVZ_REGISTER_STR ("host", http_config.host, DEFAULTABLE),
-  SVZ_REGISTER_STR ("logfile", http_config.logfile, DEFAULTABLE),
-  SVZ_REGISTER_STR ("logformat", http_config.logformat, DEFAULTABLE),
-  SVZ_REGISTER_STR ("userdir", http_config.userdir, DEFAULTABLE),
-  SVZ_REGISTER_INT ("nslookup", http_config.nslookup, DEFAULTABLE),
-  SVZ_REGISTER_INT ("ident", http_config.ident, DEFAULTABLE),
+  SVZ_REGISTER_STR ("indexfile", http_config.indexfile, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("docs", http_config.docs, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("cgi-url", http_config.cgiurl, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("cgi-dir", http_config.cgidir, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("cache-size", http_config.cachesize, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("cache-entries", http_config.cacheentries, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("timeout", http_config.timeout, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("keepalive", http_config.keepalive, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("default-type", http_config.default_type, 
+		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("type-file", http_config.type_file, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_HASH ("types", http_config.types, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_HASH ("cgi-application", http_config.cgiapps, 
+		     SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("admin", http_config.admin, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("host", http_config.host, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("logfile", http_config.logfile, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("logformat", http_config.logformat, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("userdir", http_config.userdir, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("nslookup", http_config.nslookup, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("ident", http_config.ident, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 

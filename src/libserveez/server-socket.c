@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.12 2001/05/22 21:06:42 ela Exp $
+ * $Id: server-socket.c,v 1.13 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -450,7 +450,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
   sock->read_socket = svz_pipe_read_socket;
   sock->write_socket = svz_pipe_write_socket;
-  sock->referrer = server_sock;
+  svz_sock_setreferrer (sock, server_sock);
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
@@ -464,7 +464,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 	   sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 
   server_sock->flags |= SOCK_FLAG_INITED;
-  server_sock->referrer = sock;
+  svz_sock_setreferrer (server_sock, sock);
 
   /* Call the check_request() routine once for greedy protocols. */
   if (sock->check_request)

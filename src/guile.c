@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.18 2001/05/29 18:59:03 raimi Exp $
+ * $Id: guile.c,v 1.19 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -529,7 +529,7 @@ guile_define_server (SCM name, SCM args)
   /* find the definition by lookup with dynamic loading */
   if (NULL == (stype = svz_servertype_get (servertype, 1)))
     {
-      report_error ("No such server type `%s'", servertype);
+      report_error ("no such server type `%s'", servertype);
       FAIL();
     }
 
@@ -542,17 +542,16 @@ guile_define_server (SCM name, SCM args)
 				      (void *) options,
 				      &configure);
   if (NULL == server->cfg)
-    FAIL(); /* messages emitted from callbacks */
+    {
+      svz_server_free (server);
+      FAIL(); /* messages emitted from callbacks */
+    }
 
   /* add server if config is ok, no error yet */
   if (!err)
-    {
-      svz_server_add (server);
-    }
+    svz_server_add (server);
   else
-    {
-      svz_server_free (server);
-    }
+    svz_server_free (server);
 
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "defining server `%s' (%s)\n", servername, 
@@ -689,24 +688,26 @@ guile_define_port (SCM symname, SCM args)
 
   if (err)
     {
-      svz_portcfg_destroy (cfg);
       FAIL();
     }
-  else {
-    /* FIXME: remove when it works */
-    svz_portcfg_print (cfg, stdout);
-    prev = svz_portcfg_add (portname, cfg);
-
-    if (prev != cfg)
-      {
-	/* we've overwritten something. report and dispose */
-	report_error ("overwriting previous definition of port `%s'",
-		      portname);
-	svz_portcfg_destroy (prev);
-      }
-  }
+  else
+    {
+      /* FIXME: remove when it works */
+      svz_portcfg_print (cfg, stdout);
+      prev = svz_portcfg_add (portname, cfg);
+      
+      if (prev != cfg)
+	{
+	  /* we've overwritten something. report and dispose */
+	  report_error ("overwriting previous definition of port `%s'",
+			portname);
+	  svz_portcfg_destroy (prev);
+	}
+    }
 
  out:
+  if (err)
+    svz_portcfg_destroy (cfg);
   free (portname);
   optionhash_destroy (options);
   return err ? SCM_BOOL_F : SCM_BOOL_T;

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.13 2001/05/21 21:20:41 ela Exp $
+ * $Id: alloc.c,v 1.14 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -83,7 +83,7 @@ heap_hash_equals (char *id1, char *id2)
 static unsigned long 
 heap_hash_code (char *id)
 {
-  unsigned long code = UINT32 (id);
+  unsigned long code = SVZ_UINT32 (id);
   code >>= 3;
   return code;
 }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.5 2001/05/21 21:20:42 ela Exp $
+ * $Id: socket.h,v 1.6 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -75,10 +75,13 @@ struct svz_socket
 {
   svz_socket_t *next;		/* Next socket in chain. */
   svz_socket_t *prev;		/* Previous socket in chain. */
+
   int id;		        /* Unique ID for this socket. */
   int version;                  /* Socket version */
   int parent_id;                /* A sockets parent ID. */
   int parent_version;           /* A sockets parent version. */
+  int referrer_id;              /* Referring socket ID. */
+  int referrer_version;         /* Referring socket version. */
 
   int proto;                    /* Server/Protocol flag. */
   int flags;			/* One of the SOCK_FLAG_* flags above. */
@@ -93,7 +96,6 @@ struct svz_socket
 
   char *recv_pipe;              /* File of the receive pipe. */
   char *send_pipe;              /* File of the send pipe. */
-  svz_socket_t *referrer;       /* Referring socket structure. */
 
   char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
@@ -180,23 +182,20 @@ struct svz_socket
   int flood_limit;		/* Limit of the above before kicking. */
 #endif
 
-  /* 
-   * Set to non-zero `time ()' value if the the socket is temporarily
-   * unavailable (EAGAIN). This is why we use O_NONBLOCK socket descriptors.
-   */
+  /* Set to non-zero `time ()' value if the the socket is temporarily
+     unavailable (EAGAIN). This is why we use O_NONBLOCK socket descriptors. */
   int unavailable;              
 
-  /*
-   * Miscellaneous field. Listener keeps array of server instances here.
-   * This array is NULL terminated.
-   */
+  /* Miscellaneous field. Listener keeps array of server instances here.
+     This array is NULL terminated. */
   void *data;
 
-  /*
-   * When the final protocol detection in SOCK_DETECT_PROTO
-   * has been done CFG should get the actual configuration hash.
-   */
+  /* When the final protocol detection has been done this should get the 
+     actual configuration hash. */
   void *cfg;
+
+  /* Port configuration of a parent (listener). */
+  void *port;
 };
 
 __BEGIN_DECLS

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.9 2001/05/21 21:20:42 ela Exp $
+ * $Id: pipe-socket.c,v 1.10 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -79,10 +79,12 @@ svz_pipe_valid (svz_socket_t *sock)
 int
 svz_pipe_disconnect (svz_socket_t *sock)
 {
+  svz_socket_t *rsock;
+
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
       /* has this socket created by a listener ? */
-      if (sock->referrer)
+      if ((rsock = svz_sock_getreferrer (sock)) != NULL)
 	{
 #ifdef __MINGW32__
 
@@ -112,8 +114,8 @@ svz_pipe_disconnect (svz_socket_t *sock)
 #endif /* not __MINGW32__ */
 
 	  /* restart listening pipe server socket */
-	  sock->referrer->flags &= ~SOCK_FLAG_INITED;
-	  sock->referrer->referrer = NULL;
+	  rsock->flags &= ~SOCK_FLAG_INITED;
+	  svz_sock_setreferrer (rsock, NULL);
 	}
 
       /* no, it is a connected pipe */
@@ -140,8 +142,8 @@ svz_pipe_disconnect (svz_socket_t *sock)
   /* prevent a pipe server's child to reinit the pipe server */
   if (sock->flags & SOCK_FLAG_LISTENING)
     {
-      if (sock->referrer)
-	sock->referrer->referrer = NULL;
+      if ((rsock = svz_sock_getreferrer (sock)) != NULL)
+	svz_sock_setreferrer (rsock, NULL);
 
 #ifndef __MINGW32__
 

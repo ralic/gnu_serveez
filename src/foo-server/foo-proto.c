@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.28 2001/05/19 23:04:56 ela Exp $
+ * $Id: foo-proto.c,v 1.29 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -67,12 +67,13 @@ foo_config_t foo_config =
  */
 svz_key_value_pair_t foo_config_prototype [] = 
 {
-  SVZ_REGISTER_INT ("bar", foo_config.bar, NOTDEFAULTABLE),
-  SVZ_REGISTER_STR ("reply", foo_config.reply, DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("messages", foo_config.messages, DEFAULTABLE),
-  SVZ_REGISTER_INTARRAY ("ports", foo_config.ports, DEFAULTABLE),
-  SVZ_REGISTER_HASH ("assoc", foo_config.assoc, DEFAULTABLE),
-  SVZ_REGISTER_PORTCFG ("port", foo_config.port, DEFAULTABLE),
+  SVZ_REGISTER_INT ("bar", foo_config.bar, SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("reply", foo_config.reply, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("messages", foo_config.messages, 
+			 SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INTARRAY ("ports", foo_config.ports, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_HASH ("assoc", foo_config.assoc, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_PORTCFG ("port", foo_config.port, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 

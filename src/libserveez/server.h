@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.15 2001/05/29 18:59:03 raimi Exp $
+ * $Id: server.h,v 1.16 2001/06/01 21:24:09 ela Exp $
  *
  */
 
@@ -88,9 +88,9 @@ struct svz_server
 struct svz_servertype
 {
   /* full descriptive name */
-  char *name;
-  /* varprefix (short name) as used in configuration */
-  char *varname;
+  char *description;
+  /* variable prefix (short name) as used in configuration */
+  char *prefix;
 
   /* run once per server definition */
   int (* global_init) (void);
@@ -126,7 +126,7 @@ struct svz_servertype
  * function. Each of these have the following arguments:
  * server: might be the name of the server instance to configure
  * arg:    an optional argument (e.g. scheme cell), supplied by user
- * name:   the name of the configuration item
+ * name:   the symbolic name of the configuration item
  * target: target address of the configuration item
  * hasdef: is there a default value
  * def:    the default value for this configuration item
@@ -134,19 +134,20 @@ struct svz_servertype
  * The 'before' and 'after' callbacks are called just before and after
  * other options are set. The user is supposed to emit error messages since
  * the library cannot guess what went wrong.
- * Both callbacks have to return SVZ_ITEM_OK for allowing the configure
+ * Both callbacks have to return @code{SVZ_ITEM_OK} to allow the configure
  * function to complete successfully. No other callback is invoked when
  * the 'before' callback fails.
  *
- * Default values and flag are passed to callbacks for no sane reason. You do
- * not need to care about them if you set appropriete return values. If you
- * use them, however, everything that is a pointer needs to be copied.
+ * Default values and the @var{hasdef} flag are passed to callbacks for 
+ * no sane reason. You do not need to care about them if you set 
+ * appropriate return values. If you use them, however, everything that 
+ * is a pointer needs to be copied.
  */
 
 #define SVZ_ITEM_OK             0 /* okay, value set */
 #define SVZ_ITEM_DEFAULT        1 /* use default, be silent if missing */
 #define SVZ_ITEM_DEFAULT_ERRMSG 2 /* use default, croak if missing */
-#define SVZ_ITEM_FAILED         3 /* error, errors already emitted */
+#define SVZ_ITEM_FAILED         3 /* error, error messages already emitted */
 #define SVZ_ITEM_FAILED_ERRMSG  4 /* error, please report error */
 
 typedef struct
@@ -171,18 +172,18 @@ typedef struct
 svz_server_config_t;
 
 /* Constants for the @var{defaultable} argument. */
-#define DEFAULTABLE     1
-#define NOTDEFAULTABLE  0
+#define SVZ_ITEM_DEFAULTABLE     1
+#define SVZ_ITEM_NOTDEFAULTABLE  0
 
 /* Configuration item identifier. */
-#define ITEM_END      0
-#define ITEM_INT      1
-#define ITEM_INTARRAY 2
-#define ITEM_STR      3
-#define ITEM_STRARRAY 4
-#define ITEM_HASH     5
-#define ITEM_PORTCFG  6
-#define ITEM_BOOL     7
+#define SVZ_ITEM_END      0
+#define SVZ_ITEM_INT      1
+#define SVZ_ITEM_INTARRAY 2
+#define SVZ_ITEM_STR      3
+#define SVZ_ITEM_STRARRAY 4
+#define SVZ_ITEM_HASH     5
+#define SVZ_ITEM_PORTCFG  6
+#define SVZ_ITEM_BOOL     7
 
 /*
  * Macro for defining the example server configuration @var{config} and its
@@ -191,61 +192,64 @@ svz_server_config_t;
 #define SVZ_DEFINE_CONFIG(config, prototypes) \
   &(config), sizeof (config), (prototypes)
 
-/* Return a text representation of an item. */
-#define ITEM_TEXT(i)                                  \
-  ((i) == ITEM_INT) ? "integer" :                     \
-  ((i) == ITEM_INTARRAY) ? "integer array" :          \
-  ((i) == ITEM_STR) ? "string" :                      \
-  ((i) == ITEM_STRARRAY) ? "string array" :           \
-  ((i) == ITEM_HASH) ? "hash table" :                 \
-  ((i) == ITEM_BOOL) ? "boolean" :                    \
-  ((i) == ITEM_PORTCFG) ? "port configuration" : NULL
+/* 
+ * Returns a text representation of the given configuration item 
+ * identifier @var{item}.
+ */
+#define SVZ_ITEM_TEXT(item)                                  \
+  ((item) == SVZ_ITEM_INT) ? "integer" :                     \
+  ((item) == SVZ_ITEM_INTARRAY) ? "integer array" :          \
+  ((item) == SVZ_ITEM_STR) ? "string" :                      \
+  ((item) == SVZ_ITEM_STRARRAY) ? "string array" :           \
+  ((item) == SVZ_ITEM_HASH) ? "hash table" :                 \
+  ((item) == SVZ_ITEM_BOOL) ? "boolean" :                    \
+  ((item) == SVZ_ITEM_PORTCFG) ? "port configuration" : NULL
 
 /*
  * Register a simple integer. C-type: @code{int}. The given @var{name} 
  * specifies the symbolic name of the integer and @var{item} the integer 
  * itself (not its address). The @var{defaultable} argument can be either 
- * @code{DEFAULTABLE} or @code{NOTDEFAULTABLE}.
+ * @code{SVZ_ITEM_DEFAULTABLE} or @code{SVZ_ITEM_NOTDEFAULTABLE}.
  */
 #define SVZ_REGISTER_INT(name, item, defaultable) \
-  { ITEM_INT, (name), (defaultable), &(item) }
+  { SVZ_ITEM_INT, (name), (defaultable), &(item) }
 
 /*
  * Register an array of integers. C-type: @code{svz_array_t *}.
  */
 #define SVZ_REGISTER_INTARRAY(name, item, defaultable) \
-  { ITEM_INTARRAY, (name), (defaultable), &(item) }
+  { SVZ_ITEM_INTARRAY, (name), (defaultable), &(item) }
 
 /*
  * Register a boolean value. C-type: @code{int}.
  */
 #define SVZ_REGISTER_BOOL(name, item, defaultable) \
-  { ITEM_BOOL, (name), (defaultable), &(item) }
+  { SVZ_ITEM_BOOL, (name), (defaultable), &(item) }
 
 /*
  * Register a simple character string. C-type: @code{char *}.
  */
 #define SVZ_REGISTER_STR(name, item, defaultable) \
-  { ITEM_STR, (name), (defaultable), &(item) }
+  { SVZ_ITEM_STR, (name), (defaultable), &(item) }
 
 /*
  * Register a string array. C-type: @code{svz_array_t *}.
  */
 #define SVZ_REGISTER_STRARRAY(name, item, defaultable) \
-  { ITEM_STRARRAY, (name), (defaultable), &(item) }
+  { SVZ_ITEM_STRARRAY, (name), (defaultable), &(item) }
 
 /*
  * Register a hash table associating strings with strings only. C-type:
  * @code{svz_hash_t *}.
  */
 #define SVZ_REGISTER_HASH(name, item, defaultable) \
-  { ITEM_HASH, (name), (defaultable), &(item) }
+  { SVZ_ITEM_HASH, (name), (defaultable), &(item) }
 
 /*
  * Register a port configuration. C-type: @code{svz_portcfg_t *}.
  */
 #define SVZ_REGISTER_PORTCFG(name, item, defaultable) \
-  { ITEM_PORTCFG, (name), (defaultable), &(item) }
+  { SVZ_ITEM_PORTCFG, (name), (defaultable), &(item) }
 
 /*
  * This macro indicates the end of the list of configuration items. It is
@@ -253,7 +257,7 @@ svz_server_config_t;
  * configuration.
  */
 #define SVZ_REGISTER_END() \
-  { ITEM_END, NULL, DEFAULTABLE, NULL }
+  { SVZ_ITEM_END, NULL, SVZ_ITEM_DEFAULTABLE, NULL }
 
 __BEGIN_DECLS
 
