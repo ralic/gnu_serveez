@@ -1,5 +1,13 @@
 2000-08-29  [ Ela ]  <ela@lkcc.org>
 
+	* nut-server/gnutella.c (nut_calc_guid): Using original
+	"CoCreateGuid" routine from ole32.dll if available in Win32.
+	(nut_connect_socket): Disabling flood protection for
+	gnutella clients.
+
+	* nut-server/nut-transfer.c (nut_init_transfer): In the
+	MinGW32 port we *NEED* O_BINARY when creating files.
+
 	* nut-server/gnutella.c: Including <direct.h>.
 
 	* nut-server/gnutella.h: record->file and reply->record

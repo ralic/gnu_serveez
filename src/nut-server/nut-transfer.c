@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.1 2000/08/29 10:44:03 ela Exp $
+ * $Id: nut-transfer.c,v 1.2 2000/08/29 19:15:39 ela Exp $
  *
  */
 
@@ -113,18 +113,20 @@ nut_check_transfer (socket_t sock)
 	{
 	  if (!memcmp (p, NUT_LENGTH, strlen (NUT_LENGTH)))
 	    {
-	      p += 16;
+	      p += strlen (NUT_LENGTH);
+	      while (*p < '0' || *p > '9') p++;
 	      while (*p >= '0' && *p <= '9')
 		{
 		  len *= 10;
 		  len += *p - '0';
 		  p++;
 		}
+              p--;
 	    }
 	  p++;
 	}
       if (p < sock->recv_buffer + (fill - 3) && 
-	  memcmp (p, NUT_SEPERATOR, 4))
+	  !memcmp (p, NUT_SEPERATOR, 4))
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: header received, length %d\n", len);
@@ -157,7 +159,10 @@ nut_disconnect_transfer (socket_t sock)
   nut_config_t *cfg = sock->cfg;
 
   if (sock->data)
-    xfree (sock->data);
+    {
+      xfree (sock->data);
+      sock->data = NULL;
+    }
 
   cfg->dnloads--;
 
@@ -216,7 +221,11 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
     }
 
   /* try creating local file */
-  if ((fd = open (file, O_WRONLY | O_CREAT)) == -1)
+#ifdef __MINGW32__
+  if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY)) == -1)
+#else
+  if ((fd = open (file, O_RDWR | O_CREAT)) == -1)
+#endif
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
       xfree (file);
@@ -231,6 +240,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
 
       cfg->dnloads++;
       xsock->cfg = cfg;
+      xsock->flags |= SOCK_FLAG_NOFLOOD;
       xsock->disconnected_socket = nut_disconnect_transfer;
       xsock->check_request = nut_check_transfer;
       xsock->userflags = NUT_FLAG_INIT;
@@ -242,7 +252,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply, nut_record_t *record)
       sock_printf (xsock, NUT_GET "%d/%s " NUT_HTTP "\r\n",
 		   record->index, record->file);
       sock_printf (xsock, NUT_AGENT);
-      sock_printf (xsock, NUT_RANGE "bytes=0-\r\n");
+      sock_printf (xsock, NUT_RANGE " bytes=0-\r\n");
       sock_printf (xsock, "\r\n");
       xfree (file);
       return 0;

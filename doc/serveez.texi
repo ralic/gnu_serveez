@@ -491,6 +491,7 @@ identify the host name of the remote client.
 * Control Protocol Server::     Serveez control center
 * Foo Server::                  Example server implementation
 * Quake III Key Server::        Quake 3 License Key Server description
+* Gnutella Spider::             Gnutella Client description
 @end menu
 
 @node Chat Server, HTTP Server, Existing Servers, Existing Servers
@@ -1014,7 +1015,7 @@ want people using this protocol from outsides.
 The Foo Server is a simple example on how to write internet protocol
 servers with Serveez. @xref{Writing Servers}.
 
-@node Quake III Key Server,  , Foo Server, Existing Servers
+@node Quake III Key Server, Gnutella Spider, Foo Server, Existing Servers
 @subsection Quake III Key Server
 
 @subsubsection Motivation
@@ -1059,6 +1060,63 @@ The key servers echo reply when authorizing.
 All keys the clients send will be logged within this file.
 @end table
 
+@node Gnutella Spider, , Quake III Key Server, Existing Servers
+@subsection Gnutella Spider
+
+@subsubsection What is it ?
+The Gnutella net is some kind of peer-to-peer network which is based on
+client programs only. There are no servers. The network itself is formed
+by client connections only. Generally the Gnutella network is for sharing
+files of any kind.
+This Gnutella spider is for seeking the needly in the haystack. Once 
+connected to the network it regulary tries to find certain files in there.
+It keeps track of all connected clients and tries to reconnect them if
+the current connections are lost.
+
+@subsubsection Configuration
+The Gnutella spider knows the following configurations items.
+
+@table @asis
+@item port
+This entry should contain @samp{tcp} for @samp{proto} and some port and
+network interface. The default port is 6346.
+
+@item hosts
+This is the initial host list of the clients the spider tries connect.
+Each list item should be of the format @code{ip:port} (e.g. 
+@samp{146.145.85.34:6346}).
+
+@item search
+This is the so called needle.
+
+@item max-ttl
+Every Gnutella packet has got a TTL. This is the maximum TTL allowed for
+outgoing packets.
+
+@item ttl
+When creating a new Gnutella packet we use this as TTL.
+
+@item download-path
+This is where the spider saves needles in.
+
+@item share-path
+Here are all the files we share with others.
+
+@item max-downloads
+Maximum amount of concurrent downloads from the network.
+
+@item connection-speed
+This is what we send as our connection speed in KBit/s.
+
+@item min-speed
+Search for needles on hosts with a minimum speed. Set it to 0 if you do
+not care about. This value is in KBit/s, too.
+
+@item file-extensions
+If we get replies on search queries we check if the file extension of this
+reply matches one of these extensions. Useful extensions are @samp{mp3} and
+@samp{mpg}.
+@end table
 
 @node Co-Server, Porting issues, Server, Top
 @chapter Co-Server

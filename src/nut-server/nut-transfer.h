@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.1 2000/08/29 10:44:03 ela Exp $
+ * $Id: nut-transfer.h,v 1.2 2000/08/29 19:15:39 ela Exp $
  *
  */
 
@@ -38,8 +38,8 @@
 #define NUT_GET       "GET /get/"
 #define NUT_AGENT     "User-Agent: Gnutella\r\n"
 #define NUT_HTTP      "HTTP/1.0"
-#define NUT_RANGE     "Content-range: "
-#define NUT_LENGTH    "Content-length: "
+#define NUT_RANGE     "Content-range:"
+#define NUT_LENGTH    "Content-length:"
 #define NUT_GET_OK    "HTTP 200 OK\r\n"
 #define NUT_SEPERATOR "\r\n\r\n"
 

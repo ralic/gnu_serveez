@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.4 2000/08/29 13:37:31 ela Exp $
+ * $Id: gnutella.c,v 1.5 2000/08/29 19:15:39 ela Exp $
  *
  */
 
@@ -148,6 +148,13 @@ server_definition_t nut_server_definition =
   nut_config_prototype                    /* configuration items */
 };
 
+/* these definitions are for the GUID creating functions in Win32 */
+#ifdef __MINGW32__
+typedef int (__stdcall *CreateGuidProc) (byte *);
+static CreateGuidProc CreateGuid = NULL;
+static HMODULE oleHandle = NULL;
+#endif /* __MINGW32__ */
+
 /*
  * This routine randomly calculates a Globally Unique Identifier (GUID)
  * and stores it in the given argument.
@@ -156,6 +163,15 @@ static void
 nut_calc_guid (byte *guid)
 {
   int n;
+
+#ifdef __MINGW32__
+  if (CreateGuid != NULL)
+    {
+      CreateGuid (guid);
+      return;
+    }
+  else
+#endif /* __MINGW32__ */
 
   for (n = 0; n < NUT_GUID_SIZE; n++)
     {
@@ -249,6 +265,14 @@ nut_init_ping (socket_t sock)
 int
 nut_global_init (void)
 {
+#ifdef __MINGW32__
+  if ((oleHandle = LoadLibrary ("ole32.dll")) != NULL)
+    {
+      CreateGuid = (CreateGuidProc) 
+	GetProcAddress (oleHandle, "CoCreateGuid");
+    }
+#endif /* __MINGW32__ */
+
   srand (time (NULL));
   return 0;
 }
@@ -354,6 +378,7 @@ nut_init (server_t *server)
 			  util_inet_ntoa (ip), ntohs (port));
 
 	      sock->cfg = cfg;
+	      sock->flags |= SOCK_FLAG_NOFLOOD;
 	      sock->disconnected_socket = nut_disconnect;
 	      sock->check_request = nut_check_request;
 	      sock->idle_func = nut_idle_searching;
@@ -403,6 +428,11 @@ nut_finalize (server_t *server)
 int
 nut_global_finalize (void)
 {
+#ifdef __MINGW32__
+  if (oleHandle) 
+    FreeLibrary (oleHandle);
+#endif /* __MINGW32__ */
+
   return 0;
 }
 
@@ -593,8 +623,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, nut_reply_t *reply)
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
       printf ("speed   : %d kbit/s\n", reply->speed);
 #endif
-      if (reply->speed >= cfg->min_speed && 
-	  cfg->dnloads < cfg->max_dnloads)
+      if (reply->speed >= cfg->min_speed)
 	{
 	  p = (char *) reply->record;
 	  for (n = 0; n < reply->records; n++)
@@ -607,7 +636,10 @@ nut_reply (socket_t sock, nut_header_t *hdr, nut_reply_t *reply)
 	      printf ("file       : %s\n", record->file);
 #endif
 	      p = record->file + strlen (record->file) + 2;
-	      nut_init_transfer (sock, reply, record);
+	      if (cfg->dnloads < cfg->max_dnloads)
+		{
+		  nut_init_transfer (sock, reply, record);
+		}
 	    }
 	  id = (byte *) p;
 	}
@@ -685,6 +717,7 @@ int
 nut_disconnect (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
+  nut_client_t *client;
   byte *id;
 
   /* delete all routing information for this connection */
@@ -699,8 +732,10 @@ nut_disconnect (socket_t sock)
   hash_delete (cfg->conn, util_itoa (sock->id));
 
   /* remove the connection from the host catcher */
-  hash_delete (cfg->net, nut_client_key (sock->remote_addr, 
-					 ntohs (sock->remote_port)));
+  client = hash_delete (cfg->net, nut_client_key (sock->remote_addr, 
+						  ntohs (sock->remote_port)));
+  if (client) xfree (client);
+
   return 0;
 }
 
@@ -957,6 +992,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
     return -1;
 
   /* assign gnutella specific callbacks */
+  sock->flags |= SOCK_FLAG_NOFLOOD;
   sock->disconnected_socket = nut_disconnect;
   sock->check_request = nut_check_request;
   sock->idle_func = nut_idle_searching;
