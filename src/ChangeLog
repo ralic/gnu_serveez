@@ -1,3 +1,9 @@
+2001-09-22  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (guile_svz_servertype_gc): Setup marker
+	functions for the guile garbage collection. This is necessary
+	if you are defining (lambda) expressions for callback functions.
+
 2001-09-21  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_call): Wrapper function for `scm_apply()'

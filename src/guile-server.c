@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.20 2001/09/21 13:12:40 ela Exp $
+ * $Id: guile-server.c,v 1.21 2001/09/22 09:39:06 ela Exp $
  *
  */
 
@@ -123,13 +123,74 @@ MAKE_SMOB_DEFINITION (svz_socket, "svz-socket")
 MAKE_SMOB_DEFINITION (svz_server, "svz-server")
 MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
 
-/* Garbage collector function for the @code{data} member of the socket
-   structure. */
-static SCM guile_svz_socket_gc (SCM socket)
+/* Internal garbage collector function for servertype definitions. Return
+   the number of marked objects. */
+static int
+guile_svz_servertype_internal_gc (svz_servertype_t *stype)
+{
+  svz_hash_t *gserver;
+  SCM *proc;
+  int i, n = 0;
+
+  /* Walk over the hash containing all references to guile procedures
+     associated with this servertype smob. */
+  if (stype != NULL)
+    {
+      gserver = svz_hash_get (guile_server, stype->prefix);
+      svz_hash_foreach_value (gserver, proc, i)
+	if (proc[i] != (SCM) stype && !gh_eq_p (proc[i], SCM_UNDEFINED))
+	  {
+	    scm_gc_mark (proc[i]);
+	    n++;
+	  }
+    }
+  return n;
+}
+
+/* Garbage collector function for servertype definitions. */
+static SCM
+guile_svz_servertype_gc (SCM server)
+{
+  svz_servertype_t *stype = GET_SMOB (svz_servertype, server);
+  guile_svz_servertype_internal_gc (stype);
+  return SCM_BOOL_F;
+}
+
+/* Garbage collector function for the @code{data} member and the associated
+   procedures of the socket structure. */
+static SCM
+guile_svz_socket_gc (SCM socket)
 {
   svz_socket_t *sock = GET_SMOB (svz_socket, socket);
+  svz_hash_t *gsock;
+  SCM *proc;
+  int i;
+
+  /* Walk over the callback hash containing all references to guile
+     procedures associated with this socket smob. */
+  gsock = svz_hash_get (guile_sock, svz_itoa (sock->id));
+  svz_hash_foreach_value (gsock, proc, i)
+    scm_gc_mark (proc[i]);
+
+  /* Mark the reference stored in the data field if necessary. */
   if (sock->data)
     scm_gc_mark ((SCM) sock->data);
+
+  /* Recurse into the servertype definition of the socket. */
+  guile_svz_servertype_internal_gc 
+    (svz_servertype_find (svz_server_find (sock->cfg)));
+
+  return SCM_BOOL_F;
+}
+
+/* Garbage collector function for server definitions. */
+static SCM
+guile_svz_server_gc (SCM server)
+{
+  svz_server_t *s = GET_SMOB (svz_server, server);
+
+  /* Recurse into the servertype definition of the server. */
+  guile_svz_servertype_internal_gc (svz_servertype_find (s));
   return SCM_BOOL_F;
 }
 
@@ -454,9 +515,7 @@ guile_func_disconnected (svz_socket_t *sock)
 
   /* Delete all the associated guile callbacks. */
   if ((gsock = svz_hash_delete (guile_sock, svz_itoa (sock->id))) != NULL)
-    {
-      svz_hash_destroy (gsock);
-    }
+    svz_hash_destroy (gsock);
 
   return retval;
 }
@@ -1329,6 +1388,8 @@ guile_server_init (void)
   
   /* Setup garbage collector marking functions. */
   INIT_SMOB_MARKER (svz_socket);
+  INIT_SMOB_MARKER (svz_server);
+  INIT_SMOB_MARKER (svz_servertype);
 
   guile_bin_init ();
 }
