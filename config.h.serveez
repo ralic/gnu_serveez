@@ -31,6 +31,9 @@
 /* The number of bytes in a void *.  */
 #define SIZEOF_VOID_P 4
 
+/* Define if you have the NSAddImage function.  */
+/* #undef HAVE_NSADDIMAGE */
+
 /* Define if you have the alphasort function.  */
 /* #undef HAVE_ALPHASORT */
 
@@ -51,9 +54,6 @@
 
 /* Define if you have the gettimeofday function.  */
 /* #undef HAVE_GETTIMEOFDAY */
-
-/* Define if you have the hstrerror function.  */
-/* #undef HAVE_HSTRERROR */
 
 /* Define if you have the memcpy function.  */
 #define HAVE_MEMCPY 1
@@ -120,6 +120,9 @@
 
 /* Define if you have the <grp.h> header file.  */
 /* #undef HAVE_GRP_H */
+
+/* Define if you have the <mach-o/dyld.h> header file.  */
+/* #undef HAVE_MACH_O_DYLD_H */
 
 /* Define if you have the <mswsock.h> header file.  */
 #define HAVE_MSWSOCK_H 1
@@ -203,7 +206,7 @@
 /* Define if the SNTP server should be included. */
 #define ENABLE_SNTP_PROTO 1
 
-/* Define if Gnutella spider should be included. */
+/* Define if the Gnutella spider should be included. */
 #define ENABLE_GNUTELLA 1
 
 /* Define if the port forwarder should be included. */
@@ -328,6 +331,9 @@
 
 /* Define if the strsignal function is declared in string.h. */
 /* #undef DECLARED_STRSIGNAL */
+
+/* Define if you have the hstrerror function. */
+/* #undef HAVE_HSTRERROR */
 
 /* Define if the hstrerror function is declared in netdb.h. */
 /* #undef DECLARED_HSTRERROR */
