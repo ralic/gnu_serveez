@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.72 2001/07/09 23:09:55 ela Exp $
+ * $Id: http-proto.c,v 1.73 2001/07/11 18:02:59 ela Exp $
  *
  */
 
@@ -1267,7 +1267,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
        */
       else
 	{
-#if ENABLE_SEDNFILE && (HAVE_SENDFILE || defined (__MINGW32__))
+#if ENABLE_SENDFILE && (HAVE_SENDFILE || defined (__MINGW32__))
 # ifdef __MINGW32__
 	  if (svz_os_version >= WinNT4x)
 	    {

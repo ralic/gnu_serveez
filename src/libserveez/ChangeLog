@@ -1,3 +1,8 @@
+2001-07-11  [ Ela ]  <ela@lkcc.org>
+
+	* core.c (svz_sendfile): Added quite a lot comments for weird
+	TransmitFile() on Win32.
+
 2001-07-10  [ Ela ]  <ela@lkcc.org>
 
 	* core.c (svz_sendfile): Using overlapped I/O when calling 

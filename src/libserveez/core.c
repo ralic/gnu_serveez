@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.17 2001/07/09 23:09:55 ela Exp $
+ * $Id: core.c,v 1.18 2001/07/11 18:02:59 ela Exp $
  *
  */
 
@@ -397,17 +397,36 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
 #elif defined (__MINGW32__)
+
+  /* TransmitFile().
+     This system call provides something likely the Unix sendfile(). It
+     is a M$ specific entension to Winsock. The function comes from the
+     MSWSOCK.DLL and should be prototyped in MSWSOCK.H. It operates on
+     file handles gained from kernel32.CreateFile() only. We experienced
+     quite low performance on small (less than 4096 byte) file chunks. 
+     Performance is better with about 32 KB per chunk. The function is 
+     available on Windows NT and Windows 2000 only (not W95, W98 or ME). */
+
   OVERLAPPED overlap = { 0, 0, *offset, 0, NULL };
   DWORD result;
 
-  /* Data transmission via overlapped I/O. */
+  /* Data transmission via overlapped I/O. 
+     The MSDN documentation tells nothing odd about passing NULL as 
+     overlapped structure argument, but we experienced that this does not
+     work. Thus we pass the overlapped structure with the Offset member
+     set to the current file position. */
   if (!TransmitFile ((SOCKET) out_fd, (HANDLE) in_fd, count, 0, 
                      &overlap, NULL, 0))
     {
       /* Operation is pending. */
       if (GetLastError () == ERROR_IO_PENDING)
         {
-          /* Wait for the operation to complete (blocking). */
+          /* Wait for the operation to complete (blocking). We could either
+	     wait here for the socket handle itself or for the hEvent member
+	     of the overlapped structure which must be created previously.
+	     If waiting for the socket handle we need to ensure that no other
+	     thread is operating on the socket. This is given since serveez 
+	     is single threaded. */
           if ((result = WaitForSingleObject ((HANDLE) out_fd, INFINITE)) != 
               WAIT_OBJECT_0)
             {
@@ -434,6 +453,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
       *offset += count;
       ret = count;
     }
+
 #else /* Linux here. */
   ret = sendfile (out_fd, in_fd, (off_t *) offset, count);
 #endif
