@@ -1,5 +1,10 @@
 2001-11-25  [ Ela ]  <ela@lkcc.org>
 
+	* guile-server/inetd.scm: Inetd replacement script.  Reads a
+	configuration file and instantiates `prog-server's.
+
+2001-11-25  [ Ela ]  <ela@lkcc.org>
+
 	* prog-server/prog-server.c: Also UDP and ICMP bindings
 	supported.  Added `single-threaded' option.
 

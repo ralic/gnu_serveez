@@ -21,7 +21,7 @@
 #
 
 EXTRA_DIST = mandel-server.scm mandel-client.scm mandel-shared.scm \
-	echo-server.scm eval-server.scm
+	echo-server.scm eval-server.scm inetd.scm
 
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

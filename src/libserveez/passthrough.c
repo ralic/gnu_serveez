@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.14 2001/11/25 15:51:16 ela Exp $
+ * $Id: passthrough.c,v 1.15 2001/11/25 23:08:27 raimi Exp $
  *
  */
 
@@ -58,6 +58,9 @@ extern char ** environ;
 # include <winsock2.h>
 # include <io.h>
 # include <shellapi.h>
+#else
+# include <sys/types.h>
+# include <sys/socket.h>
 #endif
 
 #include "libserveez/alloc.h"
