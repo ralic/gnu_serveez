@@ -345,7 +345,16 @@ identify the host name of the remote client.
 @node Existing Servers, ,Writing Servers, Server
 @section Existing Servers
 
-@subsection Chat Server (aWCS, textSure)
+@menu
+* Chat Server::                 Chat Server (aWCS, textSure) description
+* HTTP Server::                 Integrated Web Server description
+* IRC Server::                  EFNet IRC Server
+* Control Protocol Server::     Serveez control center
+* Foo Server::                  Example server implementation
+@end menu
+
+@node Chat Server, HTTP Server, , Existing Servers
+@subsection Chat Server
 
 @subsubsection General description
 
@@ -507,12 +516,93 @@ and Serveez.
 
 @end table
 
+@node HTTP Server, IRC Server, Chat Server, Existing Servers
 @subsection HTTP Server
 
+@subsubsection General description
+
+The actual reason for writing this server was the need of an additional
+web server when using the chat system because the chat client is a web
+applet which can only connect to servers where the original html document
+with the applet tag came from. Thus you would have need for a standalone
+web server on the same machine where Serveez is running... except Serveez
+would serve these documents too.
+
+The integrated HTTP server was originally thought to be a simple but fast
+document server. But now it can even execute CGI scripts. Both the methods
+GET and POST are full featured. Additionally it produces directory listings
+when no standard document file (e.g. @file{index.html}) has been found
+at the requested document node. Furthermore it implements a file cache for
+speeding up repetitive HTTP request.
+
+@subsubsection Configuration
+
+The following options can be set within the configuration file.
+
+@table @asis
+
+@item netport
+This is the TCP port configuration hash wherein you can set the IP address
+this server should be bind to and the port the server is listening.
+
+@item indexfile
+The @code{indexfile} parameter is the default file served by the HTTP 
+server when the user does not specify a file but a document node
+(e.g. @uref{http://www.textsure.net/}).
+
+@item docs
+The @code{docs} parameter is the document root where the server finds its
+web documents.
+
+@item cgiurl
+This parameter is the first part of the URL the HTTP server identifies a
+CGI request. For instance if you specify here @file{/cgi-bin} and the
+user requests @uref{http://www.textsure.net/cgi-bin/test.pl} then the
+HTTP server tries to execute the program @file{test.pl} within the
+@code{cgidir} (see below) and pipe its output to the user.
+
+@item cgidir
+The @code{cgidir} is the CGI document root.
+
+@item cache-size
+Here you might specify a maximum file size for documents which could be
+stored within the HTTP file cache.
+
+@item cache-entries
+This parameter specifies the maximum amount of HTTP file cache entries
+(files). When you instanciate more than one HTTP server the biggest value
+wins. This is why the HTTP file cache is shared by all HTTP servers.
+
+@item timeout
+The @code{timeout} value is the amount of time in seconds after which 
+a kept alive connection (this is a HTTP/1.1 feature) will be closed when
+this connection has been idle.
+
+@item keepalive
+On one KeepAlive-connection can be served @code{keepalive} documents 
+at all. Then the connection will be closed.
+
+@item default-type
+The @code{default-type} is the default content type the HTTP server
+assumes if it can not identify a served file by the @code{types} hash
+and the @code{type-file} (see below).
+
+@item type-file
+This should be a file like the @file{/etc/mime.types} on Linux systems.
+
+@item types
+If you want to specify special content types do it here. This parameter
+is a has associating file suffixes with HTTP content types.
+
+@end table
+
+@node IRC Server, Control Protocol Server, HTTP Server, Existing Servers
 @subsection IRC Server
 
+@node Control Protocol Server, Foo Server, IRC Server, Existing Servers
 @subsection Control Protocol Server
 
+@node Foo Server, , Control Protocol Server, Existing Servers
 @subsection Foo Server
 
 @node Co-Server, Porting issues, Server, Top
