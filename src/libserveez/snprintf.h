@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: snprintf.h,v 1.7 2003/06/14 14:57:59 ela Exp $
+ * $Id: snprintf.h,v 1.8 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -43,10 +43,10 @@
  * B20.1 release of Cygwin, but in the latest. So we define them here
  * ourselves.
  */
-# if !defined (HAVE__SNPRINTF) && !defined (SVZ_HAVE_SNPRINTF)
+# if !defined (SVZ_HAVE_SNPRINTF)
 int _snprintf (char *, unsigned int, svz_c_const char *, ...);
 # endif
-# if !defined (HAVE__VSNPRINTF) && !defined (SVZ_HAVE_VSNPRINTF)
+# if !defined (SVZ_HAVE_VSNPRINTF)
 int _vsnprintf (char *, unsigned int, svz_c_const char *, va_list);
 # endif
 # define svz_vsnprintf _vsnprintf

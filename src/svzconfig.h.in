@@ -63,9 +63,6 @@
 /* Define if flood protection should be supported. */
 #undef SVZ_ENABLE_FLOOD_PROTECTION
 
-/* Define if the password encryption should be supported. */
-#undef SVZ_ENABLE_CRYPT
-
 /* Define if you have the <varargs.h> header file.  */
 #undef SVZ_HAVE_VARARGS_H
 

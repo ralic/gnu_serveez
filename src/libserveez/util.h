@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.23 2003/06/14 14:58:00 ela Exp $
+ * $Id: util.h,v 1.24 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -39,7 +39,7 @@
 #endif
 
 /* declare crypt interface if necessary */
-#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT
 #if __CRYPT_IMPORT__
 #include <crypt.h>
 #else

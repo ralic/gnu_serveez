@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.64 2003/06/14 14:57:59 ela Exp $
+ * $Id: control-proto.c,v 1.65 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -818,7 +818,7 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
        * check here the control protocol password
        */
       if (len <= 2) return -1;
-#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT
       request[len] = '\0';
       if (svz_config.password == NULL ||
 	  !strcmp (crypt (request, svz_config.password), svz_config.password))

@@ -1,3 +1,8 @@
+2003-06-15  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in: Removed the SVZ_ENABLE_CRYPT #define.
+	Simplified to SVZ_HAVE_CRYPT only.  Changed all callers/users.
+
 2003-06-14  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Corrected the AC_INIT() call.  Definition of

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: mkpassword.c,v 1.5 2003/06/14 14:57:59 ela Exp $
+ * $Id: mkpassword.c,v 1.6 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 #include <string.h>
 #include <time.h>
 
-#if SVZ_HAVE_CRYPT && SVZ_ENABLE_CRYPT
+#if SVZ_HAVE_CRYPT
 #if __CRYPT_IMPORT__
 #include <crypt.h>
 #else
@@ -53,7 +53,7 @@ main (int argc, char **argv)
     "0123456789./";
 
   char salt[3];
-#if SVZ_HAVE_CRYPT && SVZ_ENABLE_CRYPT
+#if SVZ_HAVE_CRYPT
   char *plaintext;
 #endif
 
@@ -77,7 +77,7 @@ main (int argc, char **argv)
 	}
     }
 
-#if SVZ_HAVE_CRYPT && SVZ_ENABLE_CRYPT
+#if SVZ_HAVE_CRYPT
   plaintext = getpass ("Password: ");
   fprintf (stdout, "%s\n", crypt (plaintext, salt));
 #else

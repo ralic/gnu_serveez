@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.15 2003/06/14 14:57:59 ela Exp $
+ * $Id: irc-config.c,v 1.16 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -345,7 +345,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
 	  /* test the given password for that I line */
 	  if (user->password)
 	    {
-#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT
 	      if (strcmp (crypt (client->pass, user->password), 
 			  user->password))
 #else
@@ -391,7 +391,7 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
       if (irc_string_regex (client->user, oper->user) &&
 	  irc_string_regex (client->host, oper->host) &&
 	  irc_string_regex (client->nick, oper->nick) &&
-#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT
 	  !strcmp (crypt (client->pass, oper->password), oper->password))
 #else
 	  !strcmp (client->pass, oper->password))

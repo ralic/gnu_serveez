@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.20 2003/06/14 14:57:59 ela Exp $
+ * $Id: irc-event-1.c,v 1.21 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -86,7 +86,7 @@ irc_pass_callback (svz_socket_t *sock,
   /* check it ! */
   if (cfg->pass)
     {
-#if SVZ_ENABLE_CRYPT && HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT
       if (strcmp (crypt (request->para[0], cfg->pass), cfg->pass))
 #else
       if (strcmp (request->para[0], cfg->pass))

@@ -28,6 +28,9 @@ files.
 Version 0.1.6
 -------------
 
+ * prefixed the #define's in 'svzconfig.h' by 'SVZ_' or 'svz_' to avoid 
+   name space clashes with other applications
+
 Version 0.1.5
 -------------
 

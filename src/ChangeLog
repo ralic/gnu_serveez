@@ -1,3 +1,8 @@
+2003-06-15  Stefan Jahn  <stefan@lkcc.org>
+
+	* mkpassword.ap (DEFS): Changed the SVZ_HAVE_CRYPT #define
+	appropriately.
+
 2003-06-14  Stefan Jahn  <stefan@lkcc.org>
 
 	* svzconfig.h.in: Updated to the new macro definitions

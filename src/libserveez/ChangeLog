@@ -1,3 +1,8 @@
+2003-06-15  Stefan Jahn  <stefan@lkcc.org>
+
+	* snprintf.h: Removed the unnecessary check for HAVE__SNPRINTF 
+	and HAVE__VSNPRINTF.
+
 2003-06-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* portcfg.c (svz_portcfg_mkaddr): Bug fixes due to 

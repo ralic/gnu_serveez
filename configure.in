@@ -596,11 +596,6 @@ AC_ARG_ENABLE([crypt],
   define_enable_crypt=no
   AC_MSG_RESULT([no]))
 
-if test $define_enable_crypt = yes; then
-  AC_DEFINE(SVZ_ENABLE_CRYPT,
-    1, [Define if the password encryption should be supported.])
-fi
-
 dnl ----------------------------------------------------------------------
 
 dnl

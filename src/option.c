@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.11 2003/06/14 14:57:59 ela Exp $
+ * $Id: option.c,v 1.12 2003/06/15 17:30:00 ela Exp $
  *
  */
 
@@ -272,7 +272,7 @@ handle_options (int argc, char **argv)
 	      usage ();
 	      exit (1);
 	    }
-#if SVZ_ENABLE_CRYPT && SVZ_HAVE_CRYPT
+#if SVZ_ENABLE_CRYPT
 	  options.pass = svz_pstrdup (crypt (optarg, optarg));
 #else
 	  options.pass = svz_pstrdup (optarg);
