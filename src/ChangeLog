@@ -1,3 +1,8 @@
+2003-03-24  Stefan Jahn  <stefan@lkcc.org>
+
+	* guile-server/icecast-server.scm: Added compatibility stuff
+	for Guile 1.6.x versions and later.
+
 2003-03-22  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-api.c, guile-bin.c: Replaced scm_must_*() functions by

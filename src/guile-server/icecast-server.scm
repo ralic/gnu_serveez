@@ -2,7 +2,7 @@
 ;;
 ;; icecast-server.scm - very simplified icecast server
 ;;
-;; Copyright (C) 2002 Stefan Jahn <stefan@lkcc.org>
+;; Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 ;;
 ;; This is free software; you can redistribute it and/or modify it
 ;; under the terms of the GNU General Public License as published by
@@ -19,11 +19,16 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.7 2002/07/30 22:39:08 ela Exp $
+;; $Id: icecast-server.scm,v 1.8 2003/03/24 16:54:49 ela Exp $
 ;;
 
 ;; load convenience file
 (serveez-load "serveez.scm")
+
+;; compatibility stuff to make this server run with Guile 1.6 and later
+(if (not (defined? 'fseek))
+    (define (fseek obj offset whence)
+      (seek obj offset whence)))
 
 ;; server reset callback
 (define (icecast-reset server)

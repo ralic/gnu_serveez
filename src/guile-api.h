@@ -18,17 +18,17 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.13 2003/03/22 18:39:22 ela Exp $
+ * $Id: guile-api.h,v 1.14 2003/03/24 16:54:49 ela Exp $
  *
  */
 
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
 
-/* Define this macro if Guile 1.6.x or better is in use. */
-#if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 6) && \
+/* Define this macro if Guile 1.7.x or better is in use. */
+#if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 7) && \
     defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
-#define SCM_VERSION_16X 1
+#define SCM_VERSION_17X 1
 #endif
 
 /* Define this macro if Guile 1.5.x or better is in use. */
@@ -163,7 +163,7 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_VERSION_15X
 #define scm_c_make_vector(k, fill) scm_make_vector (scm_int2num (k), fill)
 #endif
-#ifndef SCM_VERSION_16X
+#ifndef SCM_VERSION_17X
 #define scm_gc_malloc(len, name) scm_must_malloc (len, name)
 #define scm_gc_free(mem, len, name) scm_must_free (mem)
 #define scm_gc_realloc(mem, olen, nlen, name) \
