@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.16 2000/07/27 15:19:57 ela Exp $
+ * $Id: server.c,v 1.17 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -52,10 +52,21 @@
  * Include headers of servers.
  */
 #include "foo-server/foo-proto.h"
-#include "awcs-server/awcs-proto.h"
-#include "http-server/http-proto.h"
-#include "irc-server/irc-proto.h"
-#include "ctrl-server/control-proto.h"
+#if ENABLE_AWCS_PROTO
+# include "awcs-server/awcs-proto.h"
+#endif
+#if ENABLE_HTTP_PROTO
+# include "http-server/http-proto.h"
+#endif
+#if ENABLE_IRC_PROTO
+# include "irc-server/irc-proto.h"
+#endif
+#if ENABLE_CONTROL_PROTO
+# include "ctrl-server/control-proto.h"
+#endif
+#if ENABLE_Q3KEY_PROTO
+# include "q3key-server/q3key-proto.h"
+#endif
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -63,10 +74,21 @@
 struct server_definition * all_server_definitions [] = 
 {
   &foo_server_definition,
+#if ENABLE_AWCS_PROTO
   &awcs_server_definition,
+#endif
+#if ENABLE_HTTP_PROTO
   &http_server_definition,
+#endif
+#if ENABLE_IRC_PROTO
   &irc_server_definition,
+#endif
+#if ENABLE_CONTROL_PROTO
   &ctrl_server_definition,
+#endif
+#if ENABLE_Q3KEY_PROTO
+  &q3key_server_definition,
+#endif
   NULL
 };
 
@@ -89,7 +111,7 @@ static int set_int (char *, char *, char *, int *, zzz_scm_t, int);
 static int set_intarray (char*, char*, char*, int **, zzz_scm_t, int*);
 static int set_string (char*, char*, char*, char**, zzz_scm_t, char*);
 static int set_stringarray (char*, char*, char*, char***, zzz_scm_t, char**);
-static int set_hash (char*, char*, char*, hash_t ***, zzz_scm_t,hash_t**);
+static int set_hash (char*, char*, char*, hash_t***, zzz_scm_t, hash_t**);
 static int set_port (char*, char*, char*, struct portcfg **, zzz_scm_t,
 		     struct portcfg *);
 static void * server_instantiate (char*, zzz_scm_t, 
@@ -233,25 +255,28 @@ set_stringarray (char *cfgfile, char *var, char *key, char*** location,
 }
 
 static int
-set_hash (char *cfgfile, char *var, char *key, hash_t *** location,
-	  zzz_scm_t val, hash_t ** def)
+set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
+	  zzz_scm_t val, hash_t **def)
 {
   int erroneous = 0;
   unsigned int i;
   zzz_scm_t foo;
   hash_t *h;
-  hash_t ** href = (hash_t**) xpmalloc (sizeof (hash_t**));
+  hash_t **href = xpmalloc (sizeof (hash_t **));
 
   if (val == zzz_undefined) 
     {
-      (*location) = def;
+      if (def == NULL)
+	{
+	  (*href) = NULL;
+	  (*location) = href;
+	}
+	else
+	{
+	  (*location) = def;
+	}
       return 0;
     }
-
-  /*
-   * Don't forget to free in instance finalizer.
-   */
-  h = hash_create (17);
 
   if (!vector_p (val)) 
     {
@@ -260,6 +285,11 @@ set_hash (char *cfgfile, char *var, char *key, hash_t *** location,
 	       cfgfile, key, var);
       return -1;
     }
+
+  /*
+   * Don't forget to free in instance finalizer.
+   */
+  h = hash_create (4);
 
   for (i = 0; i < vector_len (val); i++)
     {
@@ -286,8 +316,8 @@ set_hash (char *cfgfile, char *var, char *key, hash_t *** location,
 	  /*
 	   * The hash keeps a copy of the key itself.
 	   */
-	  hash_put (h, string_val( car (car (foo))),
-		    xpstrdup (string_val (cdr (car (foo)))));
+	  hash_put (h, string_val (car (car (foo))),
+		    xstrdup (string_val (cdr (car (foo)))));
 	}
     }
 
@@ -296,6 +326,16 @@ set_hash (char *cfgfile, char *var, char *key, hash_t *** location,
   
   return erroneous;
 }
+
+#define PORTCFG_PORT    "port"
+#define PORTCFG_PROTO   "proto"
+#define PORTCFG_INPIPE  "inpipe"
+#define PORTCFG_OUTPIPE "outpipe"
+#define PORTCFG_TCP     "tcp"
+#define PORTCFG_UDP     "udp"
+#define PORTCFG_PIPE    "pipe"
+#define PORTCFG_IP      "local-ip"
+#define PORTCFG_NOIP    "*"
 
 /*
  * Set a portcfg from a scheme variable. The default value is copied.
@@ -338,46 +378,46 @@ static int set_port (char *cfgfile, char *var, char *key,
 	}
 
       /* First, find out what kind of port is about to be recognized. */
-      hash_key = zzz_make_string ("proto", -1);
+      hash_key = zzz_make_string (PORTCFG_PROTO, -1);
       hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
       if (!string_p (hash_val)) 
 	{
 	  fprintf (stderr,
-		   "%s: `proto' of portcfg `%s' of `%s' should be a string\n",
-		   cfgfile, key, var);
+		   "%s: `%s' of portcfg `%s' of `%s' should be a string\n",
+		   cfgfile, PORTCFG_PROTO, key, var);
 	  return -1;
 	}
 
       tstr = string_val (hash_val);
 
-      if (!strcmp (tstr, "tcp") || !strcmp (tstr, "udp")) 
+      if (!strcmp (tstr, PORTCFG_TCP) || !strcmp (tstr, PORTCFG_UDP)) 
 	{
 	  /* This is tcp or udp, both share the local address. */
-	  if (!strcmp (tstr, "tcp"))
+	  if (!strcmp (tstr, PORTCFG_TCP))
 	    newport->proto = PROTO_TCP;
 	  else
 	    newport->proto = PROTO_UDP;
 
 	  /* Figure out the port value and set it. */
-	  hash_key = zzz_make_string ("port", -1);
+	  hash_key = zzz_make_string (PORTCFG_PORT, -1);
 	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
       
 	  if (!integer_p (hash_val)) 
 	    {
-	      fprintf (stderr, "%s: `%s': port is not numerical in `%s'\n",
-		       cfgfile, var, key);
+	      fprintf (stderr, "%s: `%s': %s is not numerical in `%s'\n",
+		       cfgfile, var, PORTCFG_PORT, key);
 	      return -1;
 	    }
 	  newport->port = (unsigned short int) integer_val (hash_val);
 
 	  /* Figure out the local ip address, "*" means any. */
-	  hash_key = zzz_make_string ("local-ip", -1);
+	  hash_key = zzz_make_string (PORTCFG_IP, -1);
 	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
 	  if (hash_val == zzz_undefined) 
 	    {
-	      newport->localip = "*";
+	      newport->localip = PORTCFG_NOIP;
 	    } 
 	  else if (string_p (hash_val)) 
 	    {
@@ -386,35 +426,35 @@ static int set_port (char *cfgfile, char *var, char *key,
 	  else 
 	    {
 	      fprintf (stderr, 
-		       "%s: `%s': local-ip should be a string in `%s'\n",
-		       cfgfile, var, key);
+		       "%s: `%s': %s should be a string in `%s'\n",
+		       cfgfile, var, PORTCFG_IP, key);
 	      return -1;
 	    }
 	} 
-      else if (!strcmp (tstr, "pipe")) 
+      else if (!strcmp (tstr, PORTCFG_PIPE)) 
 	{
 	  newport->proto = PROTO_PIPE;
 
-	  hash_key = zzz_make_string ("inpipe", -1);
+	  hash_key = zzz_make_string (PORTCFG_INPIPE, -1);
 	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
 	  if (!string_p (hash_val)) 
 	    {
 	      fprintf (stderr, 
-		       "%s: `%s': inpipe should be a string in `%s'\n",
-		       cfgfile, var, key);
+		       "%s: `%s': %s should be a string in `%s'\n",
+		       cfgfile, var, PORTCFG_INPIPE, key);
 	      return -1;
 	    }
 	  newport->inpipe = xpstrdup (string_val (hash_val));
 
-	  hash_key = zzz_make_string ("outpipe", -1);
+	  hash_key = zzz_make_string (PORTCFG_OUTPIPE, -1);
 	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
 
 	  if (!string_p (hash_val)) 
 	    {
 	      fprintf (stderr, 
-		       "%s: `%s': outpipe should be a string in `%s'\n",
-		       cfgfile, var, key);
+		       "%s: `%s': %s should be a string in `%s'\n",
+		       cfgfile, var, PORTCFG_OUTPIPE, key);
 	      return -1;
 	    }
 
@@ -424,9 +464,10 @@ static int set_port (char *cfgfile, char *var, char *key,
       else 
 	{
 	  fprintf (stderr,
-		   "%s: `proto' of portcfg `%s' of `%s' does not specify a "
-		   "valid protocol (tcp, udp, pipe)\n",
-		   cfgfile, key, var);
+		   "%s: `%s' of portcfg `%s' of `%s' does not specify a "
+		   "valid protocol (%s, %s, %s)\n",
+		   cfgfile, PORTCFG_PROTO, key, var, 
+		   PORTCFG_TCP, PORTCFG_UDP, PORTCFG_PIPE);
 	  return -1;
 	}
     
@@ -451,9 +492,9 @@ static int set_port (char *cfgfile, char *var, char *key,
 #if HAVE_INET_ATON
 	  if (inet_aton (string_val (hash_val), &newaddr->sin_addr) == 0) 
 	    {
-	      fprintf (stderr, "%s: `%s': local-ip should be an ip address "
+	      fprintf (stderr, "%s: `%s': %s should be an ip address "
 		       "in dotted decimal form in `%s'\n",
-		       cfgfile, var, key);
+		       cfgfile, var, PORTCFG_IP, key);
 	      return -1;
 	    }
 #else /* not HAVE_INET_ATON */
@@ -635,6 +676,7 @@ server_load_cfg (char *cfgfile)
 		      newserver->name = symname;
 		      newserver->detect_proto = sd->detect_proto;
 		      newserver->connect_socket = sd->connect_socket;
+		      newserver->handle_request = sd->handle_request;
 		      newserver->init = sd->init;
 		      newserver->finalize = sd->finalize;
 		      newserver->info_client = sd->info_client;
@@ -864,29 +906,24 @@ server_global_finalize (void)
 }
 
 /*
- * Helper: compare if two given portcfg structures are equal
- * i.e. specifying the same port. Returns nonzero if a and b are equal.
+ * Compare if two given portcfg structures are equal i.e. specifying 
+ * the same port. Returns nonzero if a and b are equal.
  */
 static int
-equal_portcfg (struct portcfg *a, struct portcfg *b)
+portcfg_equal (struct portcfg *a, struct portcfg *b)
 {
   if ((a->proto == PROTO_TCP || a->proto == PROTO_UDP) &&
       (a->proto == b->proto)) 
     {
-      /* two inet ports are equal if both local port and address are equal */
+      /* 2 inet ports are equal if both local port and address are equal */
       if (a->port == b->port && !strcmp (a->localip, b->localip))
 	return 1;
-      else
-	return 0;
     } 
   else if (a->proto == PROTO_PIPE && a->proto == b->proto) 
     {
-      /* two pipe configs are equal when they use the same filenames */
-      if (!strcmp (a->inpipe, b->inpipe) &&
-	  !strcmp (b->outpipe, b->outpipe))
+      /* 2 pipe configs are equal if they use the same files */
+      if (!strcmp (a->inpipe, b->inpipe) && !strcmp (b->outpipe, b->outpipe))
 	return 1;
-      else
-	return 0;
     } 
 
   /* do not even the same proto flag -> cannot be equal */
@@ -901,6 +938,33 @@ int
 server_bind (server_t *server, portcfg_t *cfg)
 {
   int n;
+
+  for (n = 0; n < server_bindings; n++)
+    {
+      if (portcfg_equal (server_binding[n].cfg, cfg))
+	{
+	  if (server_binding[n].server == server)
+	    {
+	      log_printf (LOG_ERROR, "duplicate server (%s) "
+			  "on single port\n", server->name);
+	      return -1;
+	    }
+#if ENABLE_DEBUG
+	  if (cfg->proto & PROTO_PIPE)
+	    {
+	      log_printf (LOG_DEBUG, "binding pipe server to existing "
+			  "file %s\n", cfg->outpipe);
+	    }
+	  else if (cfg->proto & (PROTO_TCP | PROTO_UDP))
+	    {
+	      log_printf (LOG_DEBUG, "binding %s server to existing "
+			  "port %s:%d\n", 
+			  cfg->proto & PROTO_TCP ? "tcp" : "udp",
+			  cfg->localip, cfg->port);
+	    }
+#endif /* ENABLE_DEBUG */
+	}
+    }
 
   n = server_bindings++;
   server_binding = xrealloc (server_binding, 
@@ -920,107 +984,41 @@ server_start (void)
 {
   int n, b;
   socket_t sock;
-  server_t *server;
 
-  /*
-   * Go through all port bindings.
-   */
+  /* Go through all port bindings. */
   for (b = 0; b < server_bindings; b++)
     {
-      /*
-       * Look for duplicate port configurations.
-       */
+      /* Look for duplicate port configurations. */
       for (sock = socket_root; sock; sock = sock->next)
 	{
-	  /*
-	   * Check for duplicate server configurations.
-	   */
-	  server = NULL;
-	  n = 0;
-	  if (sock->data && sock->flags & SOCK_FLAG_LISTENING)
+	  /* Is this socket usable for this port configuration ? */
+	  if (sock->data && sock->cfg && 
+	      sock->flags & SOCK_FLAG_LISTENING &&
+	      portcfg_equal (sock->cfg, server_binding[b].cfg))
 	    {
-	      for (; (server = SERVER (sock->data, n)) != NULL; n++)
-		{
-		  if (server->cfg == server_binding[b].server->cfg &&
-		      sock->proto == server_binding[b].server->proto)
-		    {
-		      fprintf (stderr, "Cannot bind duplicate server (%s) "
-			       "to a single port.\n",
-			       server->name);
-		      break;
-		    }
-		}
-	    }
-	  /*
-	   * No server configuration found so far.
-	   */
-	  if (server == NULL)
-	    {
-	      /*
-	       * Is this socket usable for this port configuration ?
-	       */
-	      if (sock->proto & PROTO_TCP &&
-		  server_binding[b].cfg->proto & PROTO_TCP &&
-		  server_binding[b].cfg->port == sock->local_port)
-		{
-		  sock->data = xrealloc (sock->data, 
-					 sizeof (void *) * (n + 2));
-		  SERVER (sock->data, n) = server_binding[b].server;
-		  SERVER (sock->data, n + 1) = NULL;
-		  log_printf (LOG_DEBUG, "binding tcp server to existing "
-			      "port %d\n", sock->local_port);
-		  break;
-		}
-
-	      if (sock->proto & PROTO_PIPE &&
-		  server_binding[b].cfg->proto & PROTO_PIPE &&
-		  !strcmp (server_binding[b].cfg->outpipe, sock->send_pipe))
-		{
-		  sock->data = xrealloc (sock->data, 
-					 sizeof (void *) * (n + 2));
-		  SERVER (sock->data, n) = server_binding[b].server;
-		  SERVER (sock->data, n + 1) = NULL;
-		  log_printf (LOG_DEBUG, "binding pipe server to existing "
-			      "file %s\n", sock->send_pipe);
-		  break;
-		}
+	      /* Extend the server array in sock->data. */
+	      for (n = 0; SERVER (sock->data, n) != NULL; n++);
+	      sock->data = xrealloc (sock->data, 
+				     sizeof (void *) * (n + 2));
+	      SERVER (sock->data, n) = server_binding[b].server;
+	      SERVER (sock->data, n + 1) = NULL;
+	      break;
 	    }
 	}
-      /*
-       * No apropiate socket structure for this port configuration found.
-       */
-      if (sock == NULL)
-	{
-	  /*
-	   * TCP network port creation.
-	   */
-	  if (server_binding[b].cfg->proto & PROTO_TCP)
-	    {
-	      sock = server_create (server_binding[b].cfg);
-	      if (sock)
-		sock_enqueue (sock);
-	    }
-	  /*
-	   * UDP network port creation.
-	   */
-	  else if (server_binding[b].cfg->proto & PROTO_UDP)
-	    {
-	      sock = server_create (server_binding[b].cfg);
-	      if (sock)
-		sock_enqueue (sock);
-	    }
-	  /*
-	   * Pipe port creation.
-	   */
-	  else if (server_binding[b].cfg->proto & PROTO_PIPE)
-	    {
-	      sock = server_create (server_binding[b].cfg);
-	      if (sock)
-		sock_enqueue (sock);
-	    }
 
+      /* No apropiate socket structure for this port configuration found. */
+      if (!sock)
+	{
+	  /* Try creatng a server socket. */
+	  sock = server_create (server_binding[b].cfg);
 	  if (sock)
 	    {
+	      /* 
+	       * Enqueue the server socket, put the port config into
+	       * sock->cfg and initialize the server array (sock->data).
+	       */
+	      sock_enqueue (sock);
+	      sock->cfg = server_binding[b].cfg;
 	      sock->data = xmalloc (sizeof (void *) * 2);
 	      SERVER (sock->data, 0) = server_binding[b].server;
 	      SERVER (sock->data, 1) = NULL;

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.h,v 1.3 2000/07/09 20:03:06 ela Exp $
+ * $Id: connect.h,v 1.4 2000/08/02 09:45:13 ela Exp $
  *
  */
 
@@ -33,7 +33,7 @@
 
 #include "socket.h"
 
-socket_t sock_connect (unsigned host, int port);
+socket_t sock_connect (unsigned long host, unsigned short port);
 int default_connect (socket_t sock);
 
 #endif /* not __CONNECT_H__ */

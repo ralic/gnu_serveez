@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.19 2000/07/28 17:05:20 ela Exp $
+ * $Id: socket.h,v 1.20 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -51,19 +51,19 @@
 #define SOCK_FLAG_OUTBUF      0x0002 /* Inbuf is allocated. */
 #define SOCK_FLAG_CONNECTED   0x0004 /* Socket is connected. */
 #define SOCK_FLAG_LISTENING   0x0008 /* Socket is listening. */
-#define SOCK_FLAG_KILLED      0x0020 /* Socket will be shut down soon. */
-#define SOCK_FLAG_NOFLOOD     0x0040 /* Flood protection off. */
-#define SOCK_FLAG_INITED      0x0080 /* Socket was initialized. */
-#define SOCK_FLAG_ENQUEUED    0x0100 /* Socket is on socket queue. */
-#define SOCK_FLAG_RECV_PIPE   0x0200 /* Receiving pipe is active. */
-#define SOCK_FLAG_SEND_PIPE   0x0400 /* Sending pipe is active. */
-#define SOCK_FLAG_FILE        0x0800 /* Socket is no socket, but file. */
-#define SOCK_FLAG_THREAD      0x1000 /* Win32 thread. */
-#define SOCK_FLAG_SOCK        0x2000 /* Socket is a plain socket. */
+#define SOCK_FLAG_KILLED      0x0010 /* Socket will be shut down soon. */
+#define SOCK_FLAG_NOFLOOD     0x0020 /* Flood protection off. */
+#define SOCK_FLAG_INITED      0x0040 /* Socket was initialized. */
+#define SOCK_FLAG_ENQUEUED    0x0080 /* Socket is on socket queue. */
+#define SOCK_FLAG_RECV_PIPE   0x0100 /* Receiving pipe is active. */
+#define SOCK_FLAG_SEND_PIPE   0x0200 /* Sending pipe is active. */
+#define SOCK_FLAG_FILE        0x0400 /* Socket is no socket, but file. */
+#define SOCK_FLAG_COSERVER    0x0800 /* Socket is a Co-Server */
+#define SOCK_FLAG_SOCK        0x1000 /* Socket is a plain socket. */
 #define SOCK_FLAG_PIPE               /* Socket is no socket, but pipe. */ \
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
-#define SOCK_FLAG_CONNECTING  0x4000 /* Socket is still connecting */
+#define SOCK_FLAG_CONNECTING  0x2000 /* Socket is still connecting */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
@@ -94,10 +94,11 @@ struct socket
   char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
 
+  /* The following items always MUST be in network byte order. */
   unsigned short remote_port;	/* Port number of remote end. */
-  unsigned remote_addr;		/* IP address of remote end. */
+  unsigned long remote_addr;	/* IP address of remote end. */
   unsigned short local_port;	/* Port number of local end. */
-  unsigned local_addr;		/* IP address of local end. */
+  unsigned long local_addr;	/* IP address of local end. */
 
   char * send_buffer;		/* Buffer for outbound data. */
   char * recv_buffer;		/* Buffer for inbound data. */

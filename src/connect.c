@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.9 2000/07/27 15:19:57 ela Exp $
+ * $Id: connect.c,v 1.10 2000/08/02 09:45:13 ela Exp $
  *
  */
 
@@ -62,7 +62,7 @@
  * structure SOCK to the resulting socket. Return a zero value on error.
  */
 socket_t
-sock_connect (unsigned host, int port)
+sock_connect (unsigned long host, unsigned short port)
 {
   struct sockaddr_in server;
   SOCKET client_socket;
@@ -74,7 +74,8 @@ sock_connect (unsigned host, int port)
   /*
    * first, create a socket for communication with the server
    */
-  if ((client_socket = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+  if ((client_socket = socket (AF_INET, SOCK_STREAM, IPPROTO_IP)) 
+      == INVALID_SOCKET)
     {
       log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
       return NULL;
@@ -87,12 +88,14 @@ sock_connect (unsigned host, int port)
   if (ioctlsocket (client_socket, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
       log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      CLOSE_SOCKET (client_socket);
       return NULL;
     }
 #else
   if (fcntl (client_socket, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      CLOSE_SOCKET (client_socket);
       return NULL;
     }
 #endif
@@ -101,7 +104,10 @@ sock_connect (unsigned host, int port)
    * create socket structure and enqueue it
    */
   if ((sock = sock_alloc ()) == NULL)
-    return NULL;
+    {
+      CLOSE_SOCKET (client_socket);
+      return NULL;
+    }
 
   sock_unique_id (sock);
   sock->sock_desc = client_socket;
@@ -113,7 +119,7 @@ sock_connect (unsigned host, int port)
    */
   server.sin_family = AF_INET;
   server.sin_addr.s_addr = host;
-  server.sin_port = (unsigned short) port;
+  server.sin_port = port;
   
   if (connect (client_socket, (struct sockaddr *) &server,
 	       sizeof (server)) == -1)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.23 2000/07/28 12:26:24 ela Exp $
+ * $Id: http-proto.c,v 1.24 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -141,8 +141,9 @@ server_definition_t http_server_definition =
   http_finalize,         /* instance finalization routine */
   http_global_finalize,  /* global finalizer */
   http_info_client,      /* client info */
-  NULL,                  /* server info */
+  http_info_server,      /* server info */
   NULL,                  /* server timer */
+  NULL,                  /* handle request callback */
   &http_config,          /* default configuration */
   sizeof (http_config),  /* size of the configuration */
   http_config_prototype  /* configuration prototypes (libsizzle) */
@@ -203,16 +204,13 @@ http_init (server_t *server)
   char *p;
   http_config_t *cfg = server->cfg;
   
-  if (cfg->types)
-    types = hash_size (cfg->types);
+  if (*(cfg->types))
+    types = hash_size (*(cfg->types));
   
   if (http_read_types (cfg))
     {
       log_printf (LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
     }
-
-  log_printf (LOG_NOTICE, "http: %d+%d content types (%s)\n",
-	      types, hash_size (cfg->types) - types, cfg->type_file);
 
   /* checking whether http doc root path ends in '/' or '\'. */
   if (!strlen (cfg->docs))
@@ -222,11 +220,7 @@ http_init (server_t *server)
     }
   p = cfg->docs + strlen (cfg->docs) - 1;
   if (*p == '/' || *p == '\\') *p = '\0';
-  log_printf (LOG_NOTICE, "http: files in %s/\n", cfg->docs);
 
-  log_printf (LOG_NOTICE, "http: %s is cgi root, accessed via %s\n",
-	      cfg->cgidir, cfg->cgiurl);
-  
   if (cfg->cacheentries > 0)
     http_alloc_cache (cfg->cacheentries);
   
@@ -837,6 +831,45 @@ http_check_request (socket_t sock)
     }
 
   return 0;
+}
+
+/*
+ * Server info callback for the http protocol. We are currently using 
+ * it for displaying the server configuration within the control protocol.
+ */
+char *
+http_info_server (server_t *server)
+{
+  http_config_t *cfg = server->cfg;
+  static char info[80*12];
+  
+  sprintf (info,
+	   " tcp port        : %d\r\n"
+	   " index file      : %s\r\n"
+	   " document root   : %s/\r\n"
+	   " cgi url         : %s/\r\n"
+	   " cgi directory   : %s/\r\n"
+	   " cache file size : %d byte\r\n"
+	   " cache entries   : %d files\r\n"
+	   " timeout         : after %d secs\r\n"
+	   " keep alive      : for %d requests\r\n"
+	   " default type    : %s\r\n"
+	   " type file       : %s\r\n"
+	   " content types   : %d",
+	   cfg->port->port,
+	   cfg->indexfile,
+	   cfg->docs,
+	   cfg->cgiurl,
+	   cfg->cgidir,
+	   cfg->cachesize,
+	   cfg->cacheentries,
+	   cfg->timeout,
+	   cfg->keepalive,
+	   cfg->default_type,
+	   cfg->type_file,
+	   hash_size (*(cfg->types)));
+
+  return info;
 }
 
 /*

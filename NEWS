@@ -23,10 +23,15 @@
 
 This file lists user visible changes that were made between releases.
 
+Version 0.0.18
+--------------
+
+ * Quake III license key server, enable via --enable-q3key-proto
+ * support for UDP servers
+
 Version 0.0.17
 --------------
 
- * work in progress
  * server protocols via named pipes on Linux and Win32 systems
  * TexInfo documentation
  * multiple servers on a single port and servers on multiple ports

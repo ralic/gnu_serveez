@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.9 2000/07/26 14:56:08 ela Exp $
+ * $Id: alloc.c,v 1.10 2000/08/02 09:45:13 ela Exp $
  *
  */
 
@@ -28,6 +28,8 @@
 # include <config.h>
 #endif 
 
+#define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

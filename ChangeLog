@@ -1,6 +1,10 @@
+2000-07-30  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Added check for Quake license key server.
+
 2000-07-14  [ Ela ]  <ela@lkcc.org>
 
-	* configure.in (host_sys): Added check for unistd.h,
+	* configure.in: Added check for unistd.h,
 	sys/time.h and the AC_HEADER_DIRENT macro.
 
 	* configure.in: Checking for inet_aton in the
@@ -18,7 +22,7 @@
 
 2000-06-16  [ Ela ]  <ela@lkcc.org>
 
-	* configure.in (enable_procstat): Added detection of _vsprintf,
+	* configure.in: Added detection of _vsprintf,
 	_vsnprintf and _snprintf.
 
 2000-06-16  [ RAIMI ]  <raimi@lkcc.org>

@@ -148,5 +148,7 @@ or '--enable-<?>=no'.
 	 If you enable this feature serveez creates a dns lookup coserver
 	 which is able to make non-blocking dns lookups. This might be 
 	 necessary to resolve IRC server from C or N lines.
+ 16.   --enable-q3key-proto
+         Thereby you enable the support for a Quake III license key server.
 
 Please read the README file also.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.11 2000/07/25 16:24:27 ela Exp $
+ * $Id: http-proto.h,v 1.12 2000/08/02 09:45:15 ela Exp $
  *
  */
 
@@ -52,7 +52,7 @@ typedef struct
   int keepalive;      /* maximum amount of requests on a connection */
   char *default_type; /* the default content type */
   char *type_file;    /* content type file (e.g "/etc/mime.types") */
-  hash_t *types;      /* content type hash */
+  hash_t **types;     /* content type hash */
 } 
 http_config_t;
 
@@ -69,6 +69,7 @@ int http_global_finalize (void);
 int http_detect_proto (void *cfg, socket_t sock);
 int http_connect_socket (void *cfg, socket_t sock);
 char *http_info_client (void *cfg, socket_t sock);
+char *http_info_server (server_t *server);
 
 /* internal protocol functions */
 int http_check_request (socket_t sock);

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.15 2000/07/28 12:26:23 ela Exp $
+ * $Id: util.c,v 1.16 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -38,6 +38,9 @@
 
 #ifndef __MINGW32__
 # include <netdb.h>
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <arpa/inet.h>
 #endif
 
 #ifdef __MINGW32__
@@ -126,9 +129,9 @@ util_hexdump (FILE *out,    /* output FILE stream */
   if (!max) max = len;
   if (max > len) max = len;
   max_col = max / MAX_DUMP_LINE;
-  if ((max_col % MAX_DUMP_LINE) != 0) max_col++;
+  if ((max % MAX_DUMP_LINE) != 0) max_col++;
     
-  fprintf (out, "%s [ FROM:%d SIZE:%d ]\n", action, from, len);
+  fprintf (out, "%s [ FROM:0x%08X SIZE:%d ]\n", action, (unsigned)from, len);
 
   for (x = row = 0; row < max_col && x < max; row++)
     {
@@ -531,15 +534,15 @@ util_itoa (unsigned int i)
 /*
  * Converts the given ip address to the dotted decimal representation.
  * The string is a statically allocated buffer, please copy result.
+ * The given ip address MUST be in network byte order.
  */
 char *
 util_inet_ntoa (unsigned long ip)
 {
-  static char buffer[16];
-  snprintf (buffer, 16, "%lu.%lu.%lu.%lu",
-	    (ip >> 24) & 0xff, (ip >> 16) & 0xff,
-	    (ip >> 8) & 0xff, ip & 0xff);
-  return buffer;
+  struct in_addr addr;
+
+  addr.s_addr = ip;
+  return inet_ntoa (addr);
 }
 
 /*

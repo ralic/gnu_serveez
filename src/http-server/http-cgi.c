@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.9 2000/07/25 16:24:27 ela Exp $
+ * $Id: http-cgi.c,v 1.10 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -48,6 +48,10 @@
 #ifdef __MINGW32__
 # include <winsock.h>
 # include <io.h>
+#endif
+
+#ifndef __MINGW32__
+# include <netinet/in.h>
 #endif
 
 #include "snprintf.h"
@@ -276,10 +280,10 @@ insert_env(ENV_BLOCK_TYPE env, /* the block to add the variable to */
  * or the size of the block in bytes.
  */
 int
-create_cgi_envp(socket_t sock,      /* socket structure for this request */
-		ENV_BLOCK_TYPE env, /* env block */
-		char *script,       /* the cgi script's filename */
-		int type)           /* the cgi type */
+create_cgi_envp (socket_t sock,      /* socket structure for this request */
+		 ENV_BLOCK_TYPE env, /* env block */
+		 char *script,       /* the cgi script's filename */
+		 int type)           /* the cgi type */
 {
   http_socket_t *http;
   http_config_t *cfg = sock->cfg;
@@ -332,26 +336,24 @@ create_cgi_envp(socket_t sock,      /* socket structure for this request */
    * set up some more environment variables which might be 
    * necessary for the cgi script
    */
-  n = sock->local_addr;
-  insert_env(env, &size, "SERVER_NAME=%u.%u.%u.%u", 
-	     n >> 24, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff);
-  insert_env(env, &size, "SERVER_PORT=%u", sock->local_port);
-  n = sock->remote_addr;
-  insert_env(env, &size, "REMOTE_ADDR=%u.%u.%u.%u", 
-	     n >> 24, (n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff);
-  insert_env(env, &size, "REMOTE_PORT=%u", sock->remote_port);
-  insert_env(env, &size, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
-  insert_env(env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
-  insert_env(env, &size, "SERVER_PROTOCOL=%s", HTTP_VERSION);
-  insert_env(env, &size, "SERVER_SOFTWARE=%s/%s", 
-	     serveez_config.program_name, 
-	     serveez_config.version_string);
-  insert_env(env, &size, "REQUEST_METHOD=%s", request_type[type]);
+  insert_env (env, &size, "SERVER_NAME=%s", 
+	      util_inet_ntoa (sock->local_addr));
+  insert_env (env, &size, "SERVER_PORT=%u", ntohs (sock->local_port));
+  insert_env (env, &size, "REMOTE_ADDR=%s", 
+	      util_inet_ntoa (sock->remote_addr));
+  insert_env (env, &size, "REMOTE_PORT=%u", ntohs (sock->remote_port));
+  insert_env (env, &size, "SCRIPT_NAME=%s%s", cfg->cgiurl, script);
+  insert_env (env, &size, "GATEWAY_INTERFACE=%s", CGI_VERSION);
+  insert_env (env, &size, "SERVER_PROTOCOL=%s", HTTP_VERSION);
+  insert_env (env, &size, "SERVER_SOFTWARE=%s/%s", 
+	      serveez_config.program_name, 
+	      serveez_config.version_string);
+  insert_env (env, &size, "REQUEST_METHOD=%s", request_type[type]);
 
 #ifdef __MINGW32__
   /* now copy the original environment block */
-  for(n=0; environ[n]; n++)
-    insert_env(env, &size, "%s", environ[n]);
+  for (n = 0; environ[n]; n++)
+    insert_env (env, &size, "%s", environ[n]);
 
   env[size] = 0;
 #else

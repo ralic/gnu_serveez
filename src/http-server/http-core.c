@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.2 2000/07/27 15:19:58 ela Exp $
+ * $Id: http-core.c,v 1.3 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -317,18 +317,18 @@ http_free_types (http_config_t *cfg)
   char **type;
   int n;
 
-  if (cfg->types != NULL)
+  if (*(cfg->types))
     {
-      if ((type = (char **)hash_values (cfg->types)) != NULL)
+      if ((type = (char **)hash_values (*(cfg->types))) != NULL)
 	{
-	  for (n = 0; n < hash_size (cfg->types); n++)
+	  for (n = 0; n < hash_size (*(cfg->types)); n++)
 	    {
 	      xfree (type[n]);
 	    }
 	  hash_xfree (type);
 	}
-      hash_destroy (cfg->types);
-      cfg->types = NULL;
+      hash_destroy (*(cfg->types));
+      *(cfg->types) = NULL;
     }
 }
 
@@ -349,9 +349,9 @@ http_read_types (http_config_t *cfg)
   char *content_type;
 
   /* create the content type hash table if neccessary */
-  if (cfg->types == NULL)
+  if (*(cfg->types) == NULL)
     {
-      cfg->types = hash_create (4);
+      *(cfg->types) = hash_create (4);
     }
 
   /* try open the file */
@@ -394,11 +394,11 @@ http_read_types (http_config_t *cfg)
 	       * add the given content type to the hash if it does not
 	       * contain it already
 	       */
-	      if (!hash_get (cfg->types, suffix))
+	      if (!hash_get (*(cfg->types), suffix))
 		{
 		  content_type = xmalloc (strlen (content) + 1);
 		  strcpy (content_type, content);
-		  hash_put (cfg->types, suffix, content_type);
+		  hash_put (*(cfg->types), suffix, content_type);
 		}
 	    }
 	}
@@ -425,7 +425,7 @@ http_find_content_type (socket_t sock, char *file)
   if (suffix != file) suffix++;
 
   /* find this file suffix in the content type hash */
-  if ((type = hash_get (cfg->types, suffix)) != NULL)
+  if ((type = hash_get (*(cfg->types), suffix)) != NULL)
     {
       return type;
     }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.7 2000/07/21 21:19:30 ela Exp $
+ * $Id: server.h,v 1.8 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -64,14 +64,15 @@ typedef struct server
   int  proto;           /* one of the PROTO_ flags */
   char *name;           /* variable name in sizzle, used to identify it */
   char *description;    /* server description */
-  void *cfg;                                 /* configuration structure */
-  int (* init)(struct server *);             /* init of instance */
-  int (* detect_proto) (void *, socket_t);   /* protocol detection */
-  int (* connect_socket) (void *, socket_t); /* what to do if detected */ 
-  int (* finalize)(struct server *);         /* finalize this instance */
-  char * (* info_client)(void *, socket_t);  /* return client info */
-  char * (* info_server)(struct server *);   /* return server info */
-  int (* timer)(struct server *);            /* server timer */
+  void *cfg;                                    /* configuration structure */
+  int (* init)(struct server *);                /* init of instance */
+  int (* detect_proto) (void *, socket_t);      /* protocol detection */
+  int (* connect_socket) (void *, socket_t);    /* what to do if detected */ 
+  int (* finalize)(struct server *);            /* finalize this instance */
+  char * (* info_client)(void *, socket_t);     /* return client info */
+  char * (* info_server)(struct server *);      /* return server info */
+  int (* timer)(struct server *);               /* server timer */
+  int (* handle_request)(socket_t, char*, int); /* packet processing */
 }
 server_t;
 
@@ -88,7 +89,7 @@ server_t;
 typedef struct portcfg
 {
   int proto;                      /* one of the PROTO_ flags */
-  unsigned short int port;        /* ip port (TCP and UDP) */
+  unsigned short port;            /* ip port (TCP and UDP) */
   char *localip;                  /* dotted decimal or "*" */
   struct sockaddr_in *localaddr;  /* converted from the above 2 values */
 
@@ -103,24 +104,25 @@ portcfg_t;
  */
 typedef struct server_definition 
 {
-  char *name;                                /* Descriptive name of server */
-  char *varname;                             /* varprefix as used in cfg   */
+  char *name;                                   /* escriptive name of server */
+  char *varname;                                /* varprefix as used in cfg */
 
-  int (* global_init)(void);                 /* Run once per serverdef.    */
-  int (* init)(struct server*);              /* per instance callback      */
-  int (* detect_proto)(void *, socket_t);    /* Protocol detector          */
-  int (* connect_socket)(void *, socket_t);  /* For accepting a client     */
-  int (* finalize)(struct server*);          /* per instance               */
-  int (* global_finalize)(void);             /* per serverdef              */
-  char * (* info_client)(void *, socket_t);  /* return client info         */
-  char * (* info_server)(struct server *);   /* return server info         */
-  int (* timer)(struct server *);            /* server timer               */
+  int (* global_init)(void);                    /* run once per server def */
+  int (* init)(struct server*);                 /* per instance callback */
+  int (* detect_proto)(void *, socket_t);       /* protocol detector */
+  int (* connect_socket)(void *, socket_t);     /* for accepting a client */
+  int (* finalize)(struct server*);             /* per instance */
+  int (* global_finalize)(void);                /* per server def */
+  char * (* info_client)(void *, socket_t);     /* return client info */
+  char * (* info_server)(struct server *);      /* return server info */
+  int (* timer)(struct server *);               /* server timer */
+  int (* handle_request)(socket_t, char*, int); /* packet processing */
 
-  void *prototype_start;                     /* Start of example struct    */
-  int  prototype_size;                       /* sizeof() the above         */
+  void *prototype_start;                        /* start of example struct */
+  int  prototype_size;                          /* sizeof() the above */
 
-  struct key_value_pair *items;              /* Array of name-value-pairs  */
-                                             /* of config items            */
+  struct key_value_pair *items;                 /* array of key-value-pairs */
+                                                /* of config items */
 }
 server_definition_t;
 

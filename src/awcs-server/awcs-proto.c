@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.15 2000/07/28 12:26:23 ela Exp $
+ * $Id: awcs-proto.c,v 1.16 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -40,6 +40,10 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+#endif
+
+#ifndef __MINGW32__
+# include <netinet/in.h>
 #endif
 
 #include "util.h"
@@ -113,6 +117,7 @@ server_definition_t awcs_server_definition =
   NULL,                  /* client info */
   NULL,                  /* server info */
   NULL,                  /* server timer */
+  NULL,                  /* handle request callback */
   &awcs_config,          /* the instance configuration */
   sizeof (awcs_config),  /* sizeof the instance configuration */
   awcs_config_prototype  /* configuration defintion for libsizzle */
@@ -246,7 +251,7 @@ static int
 status_connected (socket_t sock)
 {
   unsigned short port;
-  unsigned addr;
+  unsigned long addr;
   awcs_config_t *cfg = sock->cfg;
 
   if (!cfg->server)
@@ -264,12 +269,12 @@ status_connected (socket_t sock)
   log_printf (LOG_DEBUG, "sending connect on socket id %d to master\n",
 	      sock->socket_id);
 #endif
-  if (sock_printf (cfg->server, "%04d %d %04d %d.%d.%d.%d:%u%c",
+  if (sock_printf (cfg->server, "%04d %d %04d %s:%u%c",
 		   cfg->server->socket_id,
 		   STATUS_CONNECT,
 		   sock->socket_id,
-		   (addr >> 24) & 0xff, (addr >> 16) & 0xff, 
-		   (addr >> 8) & 0xff, (addr) & 0xff, port, '\0'))
+		   util_inet_ntoa (addr),
+		   htons (port), '\0'))
     {
       log_printf (LOG_FATAL, "master write error\n");
       sock_schedule_for_shutdown (cfg->server);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.8 2000/07/14 00:42:06 ela Exp $
+ * $Id: interface.c,v 1.9 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -27,12 +27,12 @@
 # include <config.h>
 #endif
 
-#if ENABLE_IFLIST
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#if ENABLE_IFLIST
 
 #ifndef __MINGW32__
 # include <sys/types.h>
@@ -106,7 +106,7 @@ list_local_interfaces (void)
   ULONG ifTableSize, ipTableSize;
   PMIB_IFTABLE ifTable;
   PMIB_IPADDRTABLE ipTable;
-  unsigned char *addr;
+  unsigned long addr;
 
   DWORD ifEntries = 0;
   ifList_t *ifList = NULL;
@@ -318,7 +318,7 @@ list_local_interfaces (void)
 		  /* print ip address list and interface description */
 		  for (n = 0; n < ifCount; n++) 
 		    {
-		      addr = (unsigned char *) &ipAddrEntry[n].iae_addr;
+		      memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
 
 		      for (k = 0; k < ifEntries; k++)
 			if (ifList[k].index == ipAddrEntry[n].iae_index)
@@ -327,18 +327,18 @@ list_local_interfaces (void)
 		      if (k != ifEntries)
 			{
 			  /* interface with description */
-			  fprintf (stdout, "%40s: %u.%u.%u.%u\n",
+			  fprintf (stdout, "%40s: %s\n",
 				   ifList[k].description,
-				   addr[0], addr[1], addr[2], addr[3]);
+				   util_inet_ntoa (addr));
 			}
 		      else
 			{
 			  /* interface with interface # only */
 			  fprintf (stdout,
-				   "%31s%09lu: %u.%u.%u.%u\n",
+				   "%31s%09lu: %s\n",
 				   "interface # ",
 				   ipAddrEntry[n].iae_index,
-				   addr[0], addr[1], addr[2], addr[3]);
+				   util_inet_ntoa (addr));
 			}
 		    }
 		}
@@ -403,24 +403,18 @@ list_local_interfaces (void)
 		{
 		  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
 		  
-		  fprintf (stdout, "%40s: %u.%u.%u.%u\n", 
-			  ifTable->table[i].bDescr,
-			  ipTable->table[n].dwAddr & 0xFF,
-			  (ipTable->table[n].dwAddr >> 8) & 0xFF,
-			  (ipTable->table[n].dwAddr >> 16) & 0xFF,
-			  (ipTable->table[n].dwAddr >> 24) & 0xFF);
+		  fprintf (stdout, "%40s: %s\n",
+			   ifTable->table[i].bDescr,
+			   util_inet_ntoa (ipTable->table[n].dwAddr));
 		  break;
 		}
 	    }
 	  if (i == ipTable->dwNumEntries)
 	    {
-	      fprintf (stdout, "%31s%09u: %u.%u.%u.%u\n", 
-		      "interface # ",
-		      ipTable->table[n].dwIndex,
-		      ipTable->table[n].dwAddr & 0xFF,
-		      (ipTable->table[n].dwAddr >> 8) & 0xFF,
-		      (ipTable->table[n].dwAddr >> 16) & 0xFF,
-		      (ipTable->table[n].dwAddr >> 24) & 0xFF);
+	      fprintf (stdout, "%31s%09u: %s\n",
+		       "interface # ",
+		       ipTable->table[n].dwIndex,
+		       util_inet_ntoa (ipTable->table[n].dwAddr));
 	    }
 	}
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.10 2000/07/25 16:24:27 ela Exp $
+ * $Id: irc-server.c,v 1.11 2000/08/02 09:45:15 ela Exp $
  *
  */
 
@@ -154,7 +154,7 @@ irc_connect_server (irc_server_t *server, char *ip)
   
   /* try connecting */
   server->addr = inet_addr (ip);
-  if (!(sock = sock_connect (server->addr, htons (server->port))))
+  if (!(sock = sock_connect (server->addr, server->port)))
     {
       return -1;
     }
@@ -281,7 +281,7 @@ irc_connect_servers (irc_config_t *cfg)
       
       /* create new IRC server structure */
       ircserver = xmalloc (sizeof (irc_server_t));
-      ircserver->port = port;
+      ircserver->port = htons ((unsigned short)port);
       ircserver->class = class;
       ircserver->id = -1;
       ircserver->realhost = xmalloc (strlen (realhost) + 1);

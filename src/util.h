@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.13 2000/07/27 22:32:59 raimi Exp $
+ * $Id: util.h,v 1.14 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -36,10 +36,6 @@
 
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
-#endif
-
-#ifndef NDEBUG
-# include <assert.h>
 #endif
 
 /* 
@@ -92,8 +88,12 @@ int util_strcasecmp (const char *str1, const char *str2);
 int util_strncasecmp (const char *str1, const char *str2, size_t n);
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
-#define INT32(p) (*p + (*(p+1)<<8) + (*(p+2)<<16) + (*(p+3)<<24))
-#define INT16(p) (*p + (*(p+1)<<8))
+#define INT32(p) ((unsigned char)*p + \
+                 ((unsigned char)*(p+1)<<8) + \
+                 ((unsigned char)*(p+2)<<16) + \
+                 ((signed char)*(p+3)<<24))
+#define INT16(p) ((unsigned char)*p + \
+                 ((signed char)*(p+1)<<8))
 
 #define UINT32(p) ((unsigned char)*p + \
                   ((unsigned char)*(p+1)<<8) + \

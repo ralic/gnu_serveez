@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.17 2000/07/28 17:05:20 ela Exp $
+ * $Id: socket.c,v 1.18 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -28,6 +28,7 @@
 #endif
 
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -547,16 +548,16 @@ sock_intern_connection_info (socket_t sock)
   struct sockaddr_in s;
   socklen_t size = sizeof(s);
   unsigned short port;
-  unsigned addr;
+  unsigned long addr;
 
   if (!getpeername (sock->sock_desc, (struct sockaddr *) &s, &size))
     {
-      addr = ntohl (s.sin_addr.s_addr);
-      port = ntohs (s.sin_port);
+      addr = s.sin_addr.s_addr;
+      port = s.sin_port;
     }
   else
     {
-      addr = INADDR_LOOPBACK;
+      addr = INADDR_ANY;
       port = 0;
     }
   sock->remote_port = port;
@@ -565,12 +566,12 @@ sock_intern_connection_info (socket_t sock)
   size = sizeof (s);
   if (!getsockname (sock->sock_desc, (struct sockaddr *) &s, &size))
     {
-      addr = ntohl (s.sin_addr.s_addr);
-      port = ntohs (s.sin_port);
+      addr = s.sin_addr.s_addr;
+      port = s.sin_port;
     }
   else
     {
-      addr = INADDR_LOOPBACK;
+      addr = INADDR_ANY;
       port = 0;
     }
   sock->local_port = port;

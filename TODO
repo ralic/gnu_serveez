@@ -38,10 +38,10 @@ unfixed) have a look at the file BUGS.
 	- List of local ip addresses on supported systems.
 - HTTP: .htaccess, DefaultType, TypesConfig, SERVER_NAME 
   all configurable.
-- Support for UDP sockets.
+	- Support for UDP sockets.
 - HTTP access log.
 	- Implement a real nslookup coserver or integrate it in the 
-	  reverser lookup coserver.
+	  reverse lookup coserver.
 	- How to exec cgi scripts on Win32 that are not exe/com/bat ?
 	- HTTP cache reinit via control protocol.
 	- Configuration file handling.

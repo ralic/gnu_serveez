@@ -4,7 +4,7 @@
 @settitle Serveez Documention
 @c %** end of header
 
-@set VERSION 0.0.17pre
+@set VERSION 0.0.18pre
 
 @titlepage
 @title Serveez
@@ -30,21 +30,22 @@ Free Documentation License".
 @node Top, Introduction, (dir), (dir)
 
 @menu
-* Introduction::        Introduction to Serveez
-* Using Serveez::       Startup and command line options
-* Concept::             Conceptional thoughts
-* Server::              Server implementation
-* Co-Server::           Co-Server implementation
-* Porting issues::      Support of different platforms and operating systems
+* Introduction::                Introduction to Serveez
+* Using Serveez::               Startup and command line options
+* Concept::                     Conceptional thoughts
+* Server::                      Server implementation
+* Co-Server::                   Co-Server implementation
+* Porting issues::              Support of different platforms and operating systems
 @end menu
 
 @node Introduction, Using Serveez, Top, Top
 @chapter Introduction
 
-Serveez is a server listening on a multiple tcp ports and handling all
-client connections within a single process (non forking behaviour). The
-overall concept is as loose as neccessary and possible. The server is able
-to handle various internet protocols and can be run on different platforms
+Serveez is a server listening on multiple tcp and udp ports and interfaces
+and handling all client connections within a single process 
+(non forking behaviour). The overall concept is as loose as neccessary 
+and possible. The server is able to handle various internet protocols 
+and can be run on different platforms
 and operating systems. Until now we implemented our own chat protocol, 
 the IRC protocol, HTTP and an internal control protocol.
 
@@ -107,7 +108,7 @@ hash contains key value pairs which set up this specific server.
 @end example
 
 When we are refer to @samp{port configuration}s this is a special hash
-determining a network of filesystem configuration. This structure got
+determining a network or filesystem configuration. This structure got
 the following layout:
 
 @example
@@ -115,7 +116,7 @@ the following layout:
 "NameOfPortCfg" => #@{
                        ;; one of those possibilities
                        "proto"    => "tcp" || "udp" || "pipe"
-                       ;; tcp port number
+                       ;; tcp or udp port number
                        "port"     => 42420
                        ;; ip address to bind the server to
                        "local-ip" => "*" || xxx.xxx.xxx.xxx
@@ -164,8 +165,9 @@ most Unices and Win32 this method is implemented.
 @section Introduction to Servers
 
 This package includes a kind of server server. It allows different 
-protocol servers to listen on various TCP/IP ports and server instanciating.
-Thus it is possible to to have different servers on the same TCP/IP port.
+protocol servers to listen on various TCP/IP or UDP ports and server 
+instanciating. Thus it is possible to to have different servers on the 
+same port.
 
 This chapter covers all questions about how to write your own internet
 protocol server with little help of this package. Most of the usual tasks of
@@ -201,8 +203,11 @@ which you are going to create.
 Now create the sub directory and change into it.
 
 @item
-You need to create a new @file{Makefile.am} therein. You have to put at least
-the following into it:
+You need to create a new @file{Makefile.am} therein. If you want to have
+this file @file{configure}d you need to add a further line to the 
+@code{AC_OUTPUT()} statement in @file{configure.in}.
+You have to put at least the following into the newly created
+@file{Makefile.am}:
 
 @example
 @group
@@ -332,6 +337,12 @@ Usually you will return all the server configuration information.
 If this callback is non-NULL it is called whenever there is some time 
 left. It gets the server instance itself as argument. Actually it gets
 called every second.
+
+@item handle request (mandatory for udp servers)
+The arguments to this callback specify a whole packet, its address and the
+length. When implementing a udp server you need to return non-zero if your
+server could process the packet and zero otherwise. Thus it is possible that
+there are multiple udp servers on a single port.
 @end table
 
 @subsection Make your server available
@@ -408,7 +419,7 @@ idle_counter to some value and thus can re-schedule itself for a
 later task.
  
 @item idle_counter
-Counter for calls to idle_func.
+Counter for calls to @code{idle_func}.
 
 @item data
 Miscellaneous field. Listener keeps array of server instances here.
@@ -443,6 +454,7 @@ identify the host name of the remote client.
 * IRC Server::                  EFNet IRC Server
 * Control Protocol Server::     Serveez control center
 * Foo Server::                  Example server implementation
+* Quake III Key Server::        Quake 3 License Key Server description
 @end menu
 
 @node Chat Server, HTTP Server, Existing Servers, Existing Servers
@@ -638,8 +650,9 @@ The following options can be set within the configuration file.
 
 @table @asis
 @item netport
-This is the TCP port configuration hash wherein you can set the IP address
-this server should be bind to and the port the server is listening.
+This is the TCP or UDP port configuration hash wherein you can set the 
+IP address this server should be bind to and the port the server is 
+listening.
 
 @item indexfile
 The @code{indexfile} parameter is the default file served by the HTTP 
@@ -725,8 +738,8 @@ items are similiar to those of an Hybrid IRC server.
 @table @samp
 @item port
 The @samp{port} parameter is, as in all the server configurations, the
-port configuration for this server, specifying TCP and the TCP/IP port
-the server should listen on.
+port configuration for this server, specifying IP address and the TCP/IP 
+port the server should listen on.
 
 @item MOTD-file
 When a user initially joins it will get this file's content as the
@@ -955,11 +968,14 @@ useful to declare a @samp{local-ip} within this hash when you do not
 want people using this protocol from outsides.
 @end table
 
-@node Foo Server,  , Control Protocol Server, Existing Servers
+@node Foo Server, Quake III Key Server, Control Protocol Server, Existing Servers
 @subsection Foo Server
 
 The Foo Server is a simple example on how to write internet protocol
 servers with Serveez. @xref{Writing Servers}.
+
+@node Quake III Key Server,  , Foo Server, Existing Servers
+@subsection Quake III Key Server
 
 @node Co-Server, Porting issues, Server, Top
 @chapter Co-Server
@@ -1031,7 +1047,7 @@ created and an optional initialization routine.
 
 The Identification Protocol is briefly documented in RFC1413. It
 provides a means to determine the identity of a user of a particular 
-TCP connection.  Given a TCP port number pair, it returns a character 
+TCP connection. Given a TCP port number pair, it returns a character 
 string which identifies the owner of that connection on the server's system.
 
 This is a connection based application on TCP. A server listens for

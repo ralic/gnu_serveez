@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.11 2000/07/21 21:19:31 ela Exp $
+ * $Id: irc-proto.h,v 1.12 2000/08/02 09:45:15 ela Exp $
  *
  */
 
@@ -71,6 +71,7 @@ typedef struct irc_connection_class irc_class_t;
 typedef struct irc_user_authorization irc_user_t;
 typedef struct irc_oper_authorization irc_oper_t;
 typedef struct irc_kill_user irc_kill_t;
+typedef struct irc_configuration irc_config_t;
 
 /*
  * This structure contains all the information for an IRC connection
@@ -214,7 +215,7 @@ struct irc_channel
 struct irc_server
 {
   char *realhost;                 /* real host */
-  unsigned addr;                  /* the actual network address */
+  unsigned long addr;             /* the actual network address */
   unsigned short port;            /* tcp port */
   char *host;                     /* server name (virtual host) */
   char *pass;                     /* password */
@@ -222,14 +223,14 @@ struct irc_server
   int connected;                  /* is that server really connected ? */
   int class;                      /* connection class number */
   int connect;                    /* connect = 1 (C line), = 0 (N line) */
-  void *cfg;                      /* irc server configuration hash */
+  irc_config_t *cfg;              /* irc server configuration hash */
   irc_server_t *next;             /* next server in the list */
 };
 
 /*
  * IRC server configuration hash.
  */
-typedef struct
+struct irc_configuration
 {
   portcfg_t *netport;             /* port configuration */
   int operators;                  /* amount of logged in server operators */
@@ -360,8 +361,7 @@ typedef struct
   irc_oper_t *operator_auth;      /* operator autorizations */
   irc_kill_t *banned;             /* banned users */
   char *info_file;                /* name of the /INFO file */
-}
-irc_config_t;
+};
 
 /*
  * This structure contains all an IRC command needs to exist.

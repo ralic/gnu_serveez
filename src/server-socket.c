@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.20 2000/07/28 17:05:20 ela Exp $
+ * $Id: server-socket.c,v 1.21 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -164,8 +164,11 @@ server_create (portcfg_t *cfg)
 	}
 
       /*
-       * Make this socket route around its table.
+       * Make this socket route around its table. Not a good
+       * idea for the real internet...
        */
+
+      /*
       optval = 1;
       if (setsockopt (server_socket, SOL_SOCKET, SO_DONTROUTE,
 		      (void *) &optval, sizeof (optval)) < 0)
@@ -175,6 +178,7 @@ server_create (portcfg_t *cfg)
 	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
+      */
 
       /* Second, bind the socket to a port. */
       if (bind (server_socket, (struct sockaddr *) cfg->localaddr, 
@@ -189,14 +193,17 @@ server_create (portcfg_t *cfg)
 	}
 
       /* Prepare for listening on that port. */
-      if (listen (server_socket, SOMAXCONN) < 0)
+      if (cfg->proto & PROTO_TCP)
 	{
-	  log_printf (LOG_ERROR, "listen: %s\n", NET_ERROR);
-	  if (CLOSE_SOCKET (server_socket) < 0)
+	  if (listen (server_socket, SOMAXCONN) < 0)
 	    {
-	      log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	      log_printf (LOG_ERROR, "listen: %s\n", NET_ERROR);
+	      if (CLOSE_SOCKET (server_socket) < 0)
+		{
+		  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+		}
+	      return NULL;
 	    }
-	  return NULL;
 	}
 
       /*
@@ -230,7 +237,6 @@ server_create (portcfg_t *cfg)
   /* Setup the socket structure. */
   sock->flags |= SOCK_FLAG_LISTENING;
   sock->flags &= ~SOCK_FLAG_CONNECTED;
-  sock->local_addr = INADDR_ANY;
   sock->proto |= cfg->proto;
 
   if (cfg->proto & PROTO_PIPE)
@@ -254,19 +260,21 @@ server_create (portcfg_t *cfg)
   else
     {
       if (cfg->proto & PROTO_TCP)
-	sock->read_socket = server_accept_socket;
+	{
+	  sock->read_socket = server_accept_socket;
+	}
       else
 	{
 	  sock->read_socket = udp_read_socket;
 	  sock->write_socket = udp_write_socket;
-	  sock->check_request = NULL;
+	  sock->check_request = udp_check_request;
 	}
 
-      log_printf (LOG_NOTICE, "listening on %s port %s:%d\n",
+      log_printf (LOG_NOTICE, "listening on %s port %s:%u\n",
 		  cfg->proto & PROTO_TCP ? "tcp" : "udp",
 		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-		  util_inet_ntoa (htonl (cfg->localaddr->sin_addr.s_addr)),
-		  sock->local_port);
+		  util_inet_ntoa (cfg->localaddr->sin_addr.s_addr),
+		  ntohs (sock->local_port));
     }
 
   return sock;
@@ -332,8 +340,8 @@ server_accept_socket (socket_t server_sock)
     }
 #endif
 	  
-  log_printf (LOG_NOTICE, "TCP:%d: accepting client on socket %d\n", 
-	      server_sock->local_port, client_socket);
+  log_printf (LOG_NOTICE, "TCP:%u: accepting client on socket %d\n", 
+	      ntohs (server_sock->local_port), client_socket);
 	  
   /* 
    * Sanity check. Just to be sure that we always handle

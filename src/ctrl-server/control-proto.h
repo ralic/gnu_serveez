@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.4 2000/07/21 21:19:30 ela Exp $
+ * $Id: control-proto.h,v 1.5 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -113,7 +113,7 @@ int ctrl_handle_request (socket_t sock, char *request, int len);
 #endif
 
 #if HAVE_PROC_STAT
-# define CPU_FILE_NAME "/proc/stat"
+# define CPU_FILE_NAME   "/proc/stat"
 # define CPU_LINE_FORMAT "cpu  %lu %lu %lu %lu"
 #endif /* HAVE_PROC_STAT */
 

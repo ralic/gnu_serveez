@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.10 2000/07/25 16:24:26 ela Exp $
+ * $Id: foo-proto.c,v 1.11 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -50,7 +50,7 @@ char *foo_packet_delim = "\r\n";
 int foo_packet_delim_len = 2;
 
 /*
- * Default value defintions for the server configuration.
+ * Default value definitions for the server configuration.
  */
 struct portcfg some_default_port = 
 {
@@ -73,8 +73,8 @@ int some_default_intarray[] =
 char *some_default_strarray[] = 
 {
   "Hello",
-  "I",
-  "am",
+  "This",
+  "is",
   "a",
   "default",
   "string",
@@ -118,7 +118,7 @@ struct key_value_pair foo_config_prototype [] =
  */
 struct server_definition foo_server_definition =
 {
-  "Foo example server",
+  "foo example server",
   "foo",
   foo_global_init,
   foo_init,
@@ -127,10 +127,11 @@ struct server_definition foo_server_definition =
   foo_finalize,
   foo_global_finalize,
   NULL,
+  foo_info_server,
   NULL,
   NULL,
   &mycfg,
-  sizeof(mycfg),
+  sizeof (mycfg),
   foo_config_prototype
 };
 
@@ -259,7 +260,9 @@ foo_global_finalize (void)
 int
 foo_finalize (struct server *server)
 {
-  struct foo_config *c = (struct foo_config *) server->cfg;
+  struct foo_config *c = server->cfg;
+  char **values;
+  int n;
 
   log_printf (LOG_NOTICE, "destroying %s\n", server->name);
 
@@ -268,74 +271,33 @@ foo_finalize (struct server *server)
    * default value.
    */
   if (*(c->assoc) != some_default_hash)
-    hash_destroy (*(c->assoc));
+    {
+      if ((values = (char **) hash_values (*(c->assoc))) != NULL)
+	{
+	  for (n = 0; n < hash_size (*(c->assoc)); n++)
+	    xfree (values[n]);
+	  hash_xfree (values);
+	}
+      hash_destroy (*(c->assoc));
+    }
   
   return 0;
 }
 
 /*
- * Initialize a foo server instance. We use it here to print the
- * whole configuration once.
+ * Initialize a foo server instance.
  */
 int
 foo_init (struct server *server)
 {
-  struct foo_config *c = (struct foo_config *) server->cfg;
-  char **s = c->messages;
-  int *j = c->ports;
-  int i;
-  char **keys;
-  hash_t *h;
+  struct foo_config *c = server->cfg;
 
-  printf ("Config %s:\n reply = %s\n bar = %d\n", 
-	  server->name, c->reply, c->bar);
-
-  if (s != NULL) 
-    {
-      for (i = 0; s[i] != NULL; i++)
-	{
-	  printf (" messages[%d] = %s\n", i, s[i]);
-	}
-    } 
-  else 
-    {
-      printf (" messages = NULL\n");
-    }
-
-  if (j != NULL) 
-    {
-      for (i = 1; i < j[0]; i++)
-	{
-	  printf (" ports[%d] = %d\n", i, j[i]);
-	}
-    } 
-  else 
-    {
-      printf (" ports = NULL\n");
-    }
+  fprintf (stderr, "foo: binding on port %s:%d\n", 
+	   c->port->localip, c->port->port);
   
-  h = *(c->assoc);
-  if (h != NULL) 
-    {
-      keys = hash_keys (h);
-
-      for (i = 0; i < h->keys; i++)
-	{
-	  printf (" assoc[%d]: `%s' => `%s'\n",
-		  i, keys[i], (char *)hash_get (h, keys[i]));
-	}
-      hash_xfree (keys);
-    } 
-  else 
-    {
-      printf (" *assoc = NULL\n");
-    }
-
-  printf (" Binding on port %s:%d\n", c->port->localip, c->port->port);
-
   if (c->port->proto != PROTO_TCP) 
     {
-      fprintf (stderr, "Foo server can handle TCP only!\n");
+      fprintf (stderr, "foo: server can handle TCP only !\n");
       return -1;
     }
 
@@ -345,4 +307,75 @@ foo_init (struct server *server)
   server_bind (server, c->port);
 
   return 0;
+}
+
+/*
+ * Server info callback. We use it here to print the
+ * whole configuration once.
+ */
+char *
+foo_info_server (struct server *server)
+{
+  struct foo_config *cfg = server->cfg;
+  static char info[80*16], text[80];
+  char **s = cfg->messages;
+  int *j = cfg->ports;
+  int i;
+  char **keys;
+  hash_t *h;
+
+  sprintf (text, 
+	   " reply : %s\r\n"
+	   " bar   : %d\r\n",
+	   cfg->reply, cfg->bar);
+  strcpy (info, text);
+
+  if (s != NULL) 
+    {
+      for (i = 0; s[i] != NULL; i++)
+	{
+	  sprintf (text, " messages[%d] : %s\r\n", i, s[i]);
+	  strcat (info, text);
+	}
+    } 
+  else 
+    {
+      sprintf (text, " messages : NULL\r\n");
+      strcat (info, text);
+    }
+
+  if (j != NULL) 
+    {
+      for (i = 1; i < j[0]; i++)
+	{
+	  sprintf (text, " ports[%d] : %d\r\n", i, j[i]);
+	  strcat (info, text);
+	}
+    } 
+  else 
+    {
+      printf (text, " ports : NULL\r\n");
+      strcat (info, text);
+    }
+  
+  h = *(cfg->assoc);
+  if (h != NULL) 
+    {
+      keys = hash_keys (h);
+
+      for (i = 0; i < h->keys; i++)
+	{
+	  sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
+		   i, keys[i], (char *)hash_get (h, keys[i]));
+	  strcat (info, text);
+	}
+      hash_xfree (keys);
+    } 
+  else 
+    {
+      sprintf (text, " assoc : NULL\r\n");
+      strcat (info, text);
+    }
+
+  return info;
 }

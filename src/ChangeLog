@@ -1,3 +1,61 @@
+2000-07-31  [ Ela ]  <ela@lkcc.org>
+
+	* udp-socket.c (udp_connect): This routine creates a new socket
+	structure with a udp connection to some remote server.
+
+	* q3key-server/q3key-proto.c (q3key_server_definition): Partly
+	implemented the first udp server.
+
+	* coserver/dns.c (handle_dns_lookup): `memcpy' the delivered
+	inet address to the address field.
+
+	* udp-socket.c (udp_check_request): The default `check_request'
+	for udp servers calls all the `handle_request' callbacks of
+	each server.
+	(udp_printf): This function stores whole udp packets into the
+	send_buffer of the server socket structure.
+
+	* server-socket.c (server_create): Do listen only on TCP
+	sockets, not on UDP sockets.
+
+	* socket.h (struct socket): Tried to make all ip address
+	representations `unsigned long'. Thus we might be able to
+	switch to IPv6 somewhen easily.
+	(struct socket): Finally determined that ip addresses and ports
+	must be in network byte order everywhere.
+
+	* server.h (server_t): Added `handle_request' callback to
+	both the server definition and the server instance structures.
+	Thus we can handle udp servers.
+
+	* http-server/http-proto.c (http_info_server): Implemented
+	the info callback for the http server. This is currently
+	used to show the configuration representation. Dropped
+	inititial messages when instanciating.
+
+	* ctrl-server/control-proto.c (ctrl_stat_id): Fixed 
+	differentiating between Co-Servers and unidentified pipe
+	connections.
+
+	* http-server/http-core.c (http_read_types): The content type
+	hash is now extendable by the configuration file.
+
+	* server.c (set_hash): Storing hash values of a newly created
+	hash as normal xmalloc()ed. Thus you MUST xfree() both the
+	values and the hash itself.
+	(set_hash): Handle default hash value `NULL'.
+
+	* foo-server/foo-proto.c (foo_info_server): Server info
+	callback implemented. This shows the server configuration.
+	(foo_finalize): Freeing hash values if necessary.
+
+	* server.c (all_server_definitions): Placed 
+	"#if ENABLE_xxx_PROTO" around server definitions.
+	(server_start): Using portcfg_equal to compare port 
+	configurations when binding server ports.
+
+	* util.h: Included <assert.h> where necessary.
+
 2000-07-28  [ Ela ]  <ela@lkcc.org>
 
 	* socket.c (sock_disconnect): Added solid behaviour if

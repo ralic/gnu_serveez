@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.13 2000/07/26 14:56:08 ela Exp $
+ * $Id: irc-proto.c,v 1.14 2000/08/02 09:45:15 ela Exp $
  *
  */
 
@@ -159,6 +159,7 @@ server_definition_t irc_server_definition =
   NULL,                /* client info */
   NULL,                /* server info */
   NULL,                /* server timer */
+  NULL,                /* handle request callback */
   &irc_config,         /* default configuration */
   sizeof (irc_config), /* size of configuration */
   irc_config_prototype /* configuration prototypes */

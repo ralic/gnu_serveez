@@ -19,12 +19,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.4 2000/07/01 15:43:40 ela Exp $
+ * $Id: foo-proto.h,v 1.5 2000/08/02 09:45:14 ela Exp $
  *
  */
 
-#ifndef __FOO_SERVER_H__
-#define __FOO_SERVER_H__
+#ifndef __FOO_PROTO_H__
+#define __FOO_PROTO_H__
 
 #if HAVE_CONFIG_H
 # include <config.h>
@@ -58,10 +58,11 @@ int foo_init (struct server *server);
 int foo_global_init (void);
 int foo_finalize (struct server *server);
 int foo_global_finalize (void);
+char *foo_info_server (struct server *server);
 
 /*
  * This server's definition.
  */
 extern struct server_definition foo_server_definition;
 
-#endif /* __FOO_SERVER_H__ */
+#endif /* __FOO_PROTO_H__ */

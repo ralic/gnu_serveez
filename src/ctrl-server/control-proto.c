@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.16 2000/07/28 12:26:24 ela Exp $
+ * $Id: control-proto.c,v 1.17 2000/08/02 09:45:14 ela Exp $
  *
  */
 
@@ -35,6 +35,10 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+#endif
+
+#ifndef __MINGW32__
+# include <netinet/in.h>
 #endif
 
 #if HAVE_LIBKSTAT
@@ -73,7 +77,7 @@
  */
 portcfg_t ctrl_port =
 {
-  PROTO_TCP,  /* TCP protocol defintion */
+  PROTO_TCP,  /* TCP protocol definition */
   42424,      /* prefered port */
   "*",        /* prefered local ip address */
   NULL,       /* calculated automatically later */
@@ -82,7 +86,7 @@ portcfg_t ctrl_port =
 };
 
 /*
- * The contrl server instance configuration.
+ * The control server instance configuration.
  */
 ctrl_config_t ctrl_config =
 {
@@ -90,8 +94,8 @@ ctrl_config_t ctrl_config =
 };
 
 /*
- * Defintion of the configuration items processed by libsizzle (taken
- * from the config file).
+ * Definition of the configuration items processed by libsizzle (taken
+ * from the configuration file).
  */
 key_value_pair_t ctrl_config_prototype [] =
 {
@@ -100,7 +104,7 @@ key_value_pair_t ctrl_config_prototype [] =
 };
 
 /*
- * Defintion of the control protocol server.
+ * Definition of the control protocol server.
  */
 server_definition_t ctrl_server_definition =
 {
@@ -115,19 +119,21 @@ server_definition_t ctrl_server_definition =
   ctrl_info_client,          /* client info */
   ctrl_info_server,          /* server info */
   NULL,                      /* server timer */
+  NULL,                      /* handle request callback */
   &ctrl_config,              /* default configuration */
   sizeof (ctrl_config),      /* size of the configuration */
   ctrl_config_prototype      /* configuration prototypes (libsizzle) */
 };
 
 /*
- * Within the CTRL_IDLE function this structure gets filled with
+ * Within the ctrl_idle() function this structure gets filled with
  * the apropiate data.
  */
 cpu_state_t cpu_state;
 
 /*
- * Server instance initializer.
+ * Server instance initializer. This is currently used for binding the
+ * server to a given port configuration.
  */
 int
 ctrl_init (server_t *server)
@@ -175,7 +181,7 @@ ctrl_info_client (void *ctrl_cfg, socket_t sock)
 
 /*
  * This function gets called for new sockets which are not yet
- * identified.  It returns a non-zero value when the content in
+ * identified. It returns a non-zero value when the content in
  * the receive buffer looks like the control protocol.
  */
 int
@@ -207,7 +213,7 @@ ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
 	}
       sock->recv_buffer_fill -= ret;
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "control protocol detected\n");
+      log_printf(LOG_DEBUG, "control protocol client detected\n");
 #endif
       return -1;
     }
@@ -251,8 +257,8 @@ ctrl_connect_socket (void *ctrlcfg, socket_t sock)
 }
 
 /*
- * Quit command. If you give this command the control protocol
- * connection will be immediately closed.
+ * Quit command. If the client sends this command the control protocol
+ * connection will be closed immediately.
  */
 int
 ctrl_quit (socket_t sock, int flag, char *arg)
@@ -262,14 +268,13 @@ ctrl_quit (socket_t sock, int flag, char *arg)
 
 /*
  * Help screen. Here you will get all the available commands of the
- * control protocol. These depend on the features the current serveez
- * implements.
+ * control protocol. These depend on the features the current version 
+ * of Serveez implements.
  */
 int
 ctrl_help (socket_t sock, int flag, char *arg)
 {
-  sock_printf (
-    sock, 
+  sock_printf (sock, 
     "\r\n%s",
     " available commands:\r\n"
     "   * help                - this help screen\r\n"
@@ -288,7 +293,7 @@ ctrl_help (socket_t sock, int flag, char *arg)
     "   * stat                - general statistics\r\n"
     "   * stat con            - connection statistics\r\n"
     "   * stat id NUM         - NUM's connnection info\r\n"
-    "   * stat all            - all statistics\r\n"
+    "   * stat all            - server and coserver state\r\n"
 #if ENABLE_HTTP_PROTO
     "   * stat cache          - http cache statistics\r\n"
     "   * kill cache          - free all http cache entries\r\n"
@@ -300,7 +305,7 @@ ctrl_help (socket_t sock, int flag, char *arg)
 
 /*
  * Snip unprintable characters from a given string. It chops leading and
- * trailing whitespaces.
+ * trailing whitespaces from ARG.
  */
 char *
 ctrl_chop (char *arg)
@@ -318,7 +323,8 @@ ctrl_chop (char *arg)
 }
 
 /*
- * ID's connection info.
+ * ID's connection info. This function displays a given socket id's
+ * socket structure.
  */
 int
 ctrl_stat_id (socket_t sock, int flag, char *arg)
@@ -329,7 +335,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   server_t *server;
   int_coserver_t *coserver;
 
-  /* find the apropiate client or server connection */
+  /* Find the apropiate client or server connection. */
   id = atoi (arg);
   if ((xsock = find_sock_by_id (id)) == NULL)
     {
@@ -353,7 +359,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       xsock->flags & SOCK_FLAG_KILLED ?    "KILLED" : "killed",
 	       xsock->flags & SOCK_FLAG_NOFLOOD ?   "flood" : "FLOOD",
 	       xsock->flags & SOCK_FLAG_INITED ?    "INITED" : "inited",
-	       xsock->flags & SOCK_FLAG_THREAD ?    "THREAD" : "thread",
+	       xsock->flags & SOCK_FLAG_COSERVER ?  "COSERVER" : "coserver",
 	       xsock->flags & SOCK_FLAG_PIPE ?      "PIPE" : "pipe",
 	       xsock->flags & SOCK_FLAG_FILE ?      "FILE" : "file",
 	       xsock->flags & SOCK_FLAG_SOCK ?      "SOCK" : "sock",
@@ -364,6 +370,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   /* process connection type server flags */
   if (xsock->flags & SOCK_FLAG_LISTENING)
     {
+      /* a listening server */
       strcpy (proto, "server: ");
       if (xsock->proto & PROTO_TCP)
 	strcat (proto, "tcp ");
@@ -374,12 +381,15 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 
       sock_printf (sock, "%s\r\n", proto);
       for (n = 0; (server = SERVER (xsock->data, n)) != NULL; n++)
-	sock_printf (sock, "            %d. %s (%s)\r\n", 
-		     n + 1, server->name, server->description);
+	{
+	  sock_printf (sock, "            %d. %s (%s)\r\n", 
+		       n + 1, server->name, server->description);
+	}
     }
   /* process client info */
   else
     {
+      /* usual client */
       if ((server = server_find (xsock->cfg)) != NULL)
 	{
 	  sock_printf (sock, "%s client\r\n", server->name);
@@ -389,11 +399,17 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 			   server->info_client (server->cfg, xsock));
 	    }
 	}
-      else
+      /* coserver */
+      else if (xsock->flags & SOCK_FLAG_COSERVER)
 	{
 	  coserver = xsock->data;
 	  sock_printf (sock, "internal %s coserver\r\n",
 		       int_coserver_type[coserver->type].name);
+	}
+      /* unidentified */
+      else
+	{
+	  sock_printf (sock, "not yet identified\r\n");
 	}
     }
 
@@ -402,8 +418,8 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       " sock fd  : %d\r\n"
 	       " file fd  : %d\r\n"
 	       " pipe fd  : %d (recv), %d (send)\r\n"
-	       " foreign  : %d.%d.%d.%d:%d\r\n"
-	       " local    : %d.%d.%d.%d:%d\r\n"
+	       " foreign  : %s:%u\r\n"
+	       " local    : %s:%u\r\n"
 	       " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
 	       " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
 	       " idle     : %d\r\n"
@@ -415,16 +431,10 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       xsock->file_desc,
 	       xsock->pipe_desc[READ],
 	       xsock->pipe_desc[WRITE],
-	       (xsock->remote_addr >> 24) & 0xff,
-	       (xsock->remote_addr >> 16) & 0xff,
-	       (xsock->remote_addr >> 8) & 0xff,
-	       xsock->remote_addr & 0xff,
-	       xsock->remote_port,
-	       (xsock->local_addr >> 24) & 0xff,
-	       (xsock->local_addr >> 16) & 0xff,
-	       (xsock->local_addr >> 8) & 0xff,
-	       xsock->local_addr & 0xff,
-	       xsock->local_port,
+	       util_inet_ntoa (xsock->remote_addr),
+	       ntohs (xsock->remote_port),
+	       util_inet_ntoa (xsock->local_addr),
+	       ntohs (xsock->local_port),
 	       xsock->send_buffer_size,
 	       xsock->send_buffer_fill,
 	       ctrl_chop (ctime (&xsock->last_send)),
@@ -442,8 +452,9 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 }
 
 /*
- * General statistics.
- */	  
+ * General statistics about Serveez. Here we display all the information
+ * we could get from the system and the process itself.
+ */
 int
 ctrl_stat (socket_t sock, int flag, char *arg)
 {
@@ -456,6 +467,8 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	       serveez_config.program_name, 
 	       serveez_config.version_string,
 	       starttime);
+
+  /* display compile time feature list */
   sock_printf (sock, "Features  :"
 #ifdef ENABLE_AWCS_PROTO
 	       " AWCS"
@@ -487,11 +500,17 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 #if defined(__MINGW32__) || defined(__CYGWIN__)
 	       " WIN32"
 #endif
+#if ENABLE_Q3KEY_PROTO
+	       " Q3KEY"
+#endif
 	       "\r\n");
 
+  /* display system and process information */
   sock_printf (sock, "Os        : %s\r\n", get_version ());
   sock_printf (sock, "Sys-Load  : %s\r\n", cpu_state.info);
   sock_printf (sock, "Proc-Load : %s\r\n", cpu_state.pinfo);
+
+  /* show general state */
   sock_printf (sock, "%d connected sockets (hard limit is %d)\r\n",
 	       connected_sockets, serveez_config.max_sockets);
   sock_printf (sock, "\r\n");
@@ -500,52 +519,48 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 }
 
 /*
- * Connection statistics.
+ * Connection statistics. This function displays basic information about
+ * each socket structure currently within the socket list.
  */
 int
 ctrl_stat_con (socket_t sock, int flag, char *arg)
 {
   socket_t xsock;
-  char *id = "None";
+  char *id;
   char linet[64];  
   char rinet[64];
-  int n;
   server_t *server;
 
-  sock_printf(sock, "\r\n%s", 
-	      "Proto              Id  RecvQ  SendQ "
-	      "Local                Foreign\r\n");
+  sock_printf (sock, "\r\n%s", 
+	       "Proto              Id  RecvQ  SendQ "
+	       "Local                Foreign\r\n");
 
+  /* go through all the socket list */
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
+      /* get type of socket */
+      id = "None";
       if (xsock->flags & SOCK_FLAG_LISTENING)
-	{
-	  id = "Listener";
-	}
+	id = "Listener";
       else if ((server = server_find (xsock->cfg)) != NULL)
-	{
-	  id = server->name;
-	}
-      else if (xsock->flags & SOCK_FLAG_PIPE)
-	{
-	  id = "Co-Server";
-	}
+	id = server->name;
+      else if (xsock->flags & SOCK_FLAG_COSERVER)
+	id = "Co-Server";
 
-      n = xsock->local_addr;
-      sprintf (linet, "%d.%d.%d.%d:%d", (n>>24)&0xff, 
-	       (n>>16)&0xff, (n>>8)&0xff, n&0xff,
-	       xsock->local_port);		  
+      /* print local and remote end of the connection */
+      sprintf (linet, "%s:%u",
+	       util_inet_ntoa (xsock->local_addr),
+	       ntohs (xsock->local_port));
 
-      n = xsock->remote_addr;
-      sprintf (rinet, "%d.%d.%d.%d:%d", (n>>24)&0xff,
-	       (n>>16)&0xff, (n>>8)&0xff, n&0xff,
-	       xsock->remote_port);
+      sprintf (rinet, "%s:%u",
+	       util_inet_ntoa (xsock->remote_addr),
+	       ntohs (xsock->remote_port));
       
+      /* gather all information from above */
       sock_printf (sock, 
 		   "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
 		   xsock->socket_id, xsock->recv_buffer_fill,
-		   xsock->send_buffer_fill, 
-		   linet, rinet);
+		   xsock->send_buffer_fill, linet, rinet);
     }
   sock_printf (sock, "\r\n");
 
@@ -554,7 +569,8 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 
 #if ENABLE_HTTP_PROTO
 /*
- * HTTP cache statistics.
+ * HTTP cache statistics. The following displayed information is a
+ * visual representation of the http cache structures.
  */
 int
 ctrl_stat_cache (socket_t sock, int flag, char *arg)
@@ -570,6 +586,7 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
   files = total = 0;
   if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
     {
+      /* go through each cache entry */
       for (n = 0; n < hash_size (http_cache); n++)
 	{
 	  files++;
@@ -587,6 +604,8 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 	}
       hash_xfree (cache);
     }
+
+  /* print cache summary */
   sock_printf (sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
 	       total, files);
 
@@ -628,8 +647,8 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
 	  sock_printf (sock, "%s\r\n", server->info_server (server));
 	}
     }
-  
   sock_printf (sock, "\r\n");
+
   /* go through all internal coserver instances */
   for (n = 0; n < int_coservers; n++)
     {
@@ -640,16 +659,16 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
 		   " socket id  : %d\r\n"
 #ifndef __MINGW32__
 		   " process id : %d\r\n"
-#else
+#else /* __MINGW32__ */
 		   " thread id  : %d\r\n"
-#endif
+#endif /* __MINGW32__ */
 		   " requests   : %d\r\n\r\n",
 		   coserver->sock->socket_id,
 #ifndef __MINGW32__
 		   coserver->pid,
-#else
+#else /* __MINGW32__ */
 		   coserver->tid,
-#endif
+#endif /* __MINGW32__ */
 		   coserver->busy);
     }
 
@@ -657,7 +676,9 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
 }
 
 /*
- * Shutdown a specified network connection.
+ * Shutdown a specified network connection. This might even be used to
+ * kill your own (the control client's) connection, coservers and servers.
+ * So you want to be *very* careful with this command.
  */
 int
 ctrl_kill_id (socket_t sock, int flag, char *arg)
@@ -678,8 +699,8 @@ ctrl_kill_id (socket_t sock, int flag, char *arg)
 }
 
 /*
- * Shutdown all network connections except listening and CTRL
- * connections.
+ * Shutdown all network connections except listening, control connections
+ * and coservers.
  */
 int
 ctrl_killall (socket_t sock, int flag, char *arg)
@@ -689,28 +710,29 @@ ctrl_killall (socket_t sock, int flag, char *arg)
 
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
-      if(xsock != sock &&
-	 !(xsock->flags & SOCK_FLAG_LISTENING))
-	if(!(xsock->flags & SOCK_FLAG_PIPE))
-	  {
-	    sock_schedule_for_shutdown(xsock);
-	    n++;
-	  }
+      if (xsock != sock &&
+	  !(xsock->flags & SOCK_FLAG_LISTENING) &&
+	  !(xsock->flags & SOCK_FLAG_COSERVER))
+	{
+	  sock_schedule_for_shutdown (xsock);
+	  n++;
+	}
     }
-  sock_printf(sock, "killed %d network connections\r\n", n);
+  sock_printf (sock, "killed %d network connections\r\n", n);
 
   return flag;
 }
 
 /*
  * Restart coservers.
- */	  
+ */
 int
 ctrl_restart (socket_t sock, int type, char *arg)
 {
   int_coserver_t *coserver;
   int n;
 
+  /* find an apropiate coserver to kill */
   for (n = 0; n < int_coservers; n++)
     {
       coserver = int_coserver[n];
@@ -720,16 +742,14 @@ ctrl_restart (socket_t sock, int type, char *arg)
 	  create_internal_coserver (type);
 	  sock_printf (sock, "internal %s coserver restarted\r\n",
 		       int_coserver_type[type].name);
-	  break;
+	  return 0;
 	}
     }
-  /* start a new internal coserver */
-  if (n == int_coservers)
-    {
-      create_internal_coserver (type);
-      sock_printf (sock, "internal %s coserver invoked\r\n",
-		   int_coserver_type[type].name);
-    }
+
+  /* start a new internal coserver if there has none found */
+  create_internal_coserver (type);
+  sock_printf (sock, "internal %s coserver invoked\r\n",
+	       int_coserver_type[type].name);
   return 0;
 }
 
@@ -745,56 +765,28 @@ struct
 }
 ctrl[] =
 {
-  { CTRL_CMD_HELP,
-    ctrl_help,
-    0 },
-  { CTRL_CMD_QUIT, 
-    ctrl_quit,
-    -1 },
-  { CTRL_CMD_STAT_CON,
-    ctrl_stat_con,
-    0 },
-  { CTRL_CMD_STAT_ID,
-    ctrl_stat_id,
-    0 },
-  { CTRL_CMD_STAT_ALL,
-    ctrl_stat_all,
-    0 },
+  { CTRL_CMD_HELP,     ctrl_help, 0 },
+  { CTRL_CMD_QUIT,     ctrl_quit, -1 },
+  { CTRL_CMD_STAT_CON, ctrl_stat_con, 0 },
+  { CTRL_CMD_STAT_ID,  ctrl_stat_id, 0 },
+  { CTRL_CMD_STAT_ALL, ctrl_stat_all, 0 },
 #if ENABLE_HTTP_PROTO
-  { CTRL_CMD_STAT_CACHE,
-    ctrl_stat_cache, 
-    0 },
-  { CTRL_CMD_KILL_CACHE,
-    ctrl_kill_cache, 
-    0 },
+  { CTRL_CMD_STAT_CACHE, ctrl_stat_cache, 0 },
+  { CTRL_CMD_KILL_CACHE, ctrl_kill_cache, 0 },
 #endif
-  { CTRL_CMD_STAT,
-    ctrl_stat,
-    0 },
-  { CTRL_CMD_KILLALL,
-    ctrl_killall,
-    0 },
-  { CTRL_CMD_KILL_ID,
-    ctrl_kill_id,
-    0 },
+  { CTRL_CMD_STAT,    ctrl_stat, 0 },
+  { CTRL_CMD_KILLALL, ctrl_killall, 0 },
+  { CTRL_CMD_KILL_ID, ctrl_kill_id, 0 },
 #if ENABLE_REVERSE_LOOKUP
-  { CTRL_CMD_RESTART_REVERSE_DNS,
-    ctrl_restart,
-    COSERVER_REVERSE_DNS },
+  { CTRL_CMD_RESTART_REVERSE_DNS, ctrl_restart, COSERVER_REVERSE_DNS },
 #endif
 #if ENABLE_IDENT
-  { CTRL_CMD_RESTART_IDENT,
-    ctrl_restart,
-    COSERVER_IDENT },
+  { CTRL_CMD_RESTART_IDENT,       ctrl_restart, COSERVER_IDENT },
 #endif
 #if ENABLE_REVERSE_LOOKUP
-  { CTRL_CMD_RESTART_DNS,
-    ctrl_restart,
-    COSERVER_DNS },
+  { CTRL_CMD_RESTART_DNS,         ctrl_restart, COSERVER_DNS },
 #endif
-  { NULL,
-    NULL,
-    0 }
+  { NULL, NULL, 0 }
 };
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.7 2000/07/25 16:24:26 ela Exp $
+ * $Id: hash.c,v 1.8 2000/08/02 09:45:13 ela Exp $
  *
  */
 
@@ -27,6 +27,7 @@
 #endif
 
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
