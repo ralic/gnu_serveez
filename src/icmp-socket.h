@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.4 2000/10/28 13:03:11 ela Exp $
+ * $Id: icmp-socket.h,v 1.5 2000/10/30 10:49:51 ela Exp $
  *
  */
 
@@ -37,9 +37,9 @@
 #define ICMP_PROTOCOL    1
 #define IP_CHECKSUM_OFS  10
 #define IP_HEADER_SIZE   20
-#define ICMP_HEADER_SIZE 8
-#define ICMP_MSG_SIZE    (64 * 1024)
-#define ICMP_BUF_SIZE    (4 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
+#define ICMP_HEADER_SIZE 10
+#define ICMP_MSG_SIZE    (1 * 1024)
+#define ICMP_BUF_SIZE    (256 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
 #define SIZEOF_UINT16    2
 #define SIZEOF_UINT32    4
 
@@ -78,7 +78,7 @@ typedef struct
   unsigned short frag_offset; /* fragment offset */
   byte ttl;                   /* time to live */
   byte protocol;              /* ip protocol */
-  unsigned short checksum;    /* ip header check sum */
+  unsigned short checksum;    /* ip header checksum */
   unsigned long src;          /* source address */
   unsigned long dst;          /* destination address */
 }
@@ -92,6 +92,7 @@ typedef struct
   unsigned short checksum; /* check sum */
   unsigned short ident;    /* identifier */
   unsigned short sequence; /* sequence number */
+  unsigned short port;     /* remote port address */
 }
 icmp_header_t;
 

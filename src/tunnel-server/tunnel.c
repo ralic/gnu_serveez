@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.5 2000/10/28 13:03:11 ela Exp $
+ * $Id: tunnel.c,v 1.6 2000/10/30 10:49:51 ela Exp $
  *
  */
 
@@ -233,7 +233,7 @@ tnl_create_socket (socket_t sock, int source)
 		  util_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_tcp_target;
-      sock_resize_buffers (xsock, UDP_BUF_SIZE ,UDP_BUF_SIZE);
+      sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
     }
 
   /* target is an UDP connection */
@@ -260,14 +260,14 @@ tnl_create_socket (socket_t sock, int source)
     {
       if ((xsock = icmp_connect (ip, port)) == NULL)
 	{
-	  log_printf (LOG_ERROR, "tunnel: icmp: cannot connect to %s:%u\n",
-		      util_inet_ntoa (ip), ntohs (port));
+	  log_printf (LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
+		      util_inet_ntoa (ip));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: icmp: connecting to %s:%u\n",
-		  util_inet_ntoa (ip), ntohs (port));
+      log_printf (LOG_DEBUG, "tunnel: icmp: connecting to %s\n",
+		  util_inet_ntoa (ip));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_icmp_target;
       xsock->idle_func = tnl_idle;
@@ -611,13 +611,15 @@ tnl_disconnect (socket_t sock)
   tnl_config_t *cfg = sock->cfg;
   char *key;
 
-  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_SRC_TCP))
+  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_SRC_TCP) &&
+      sock->referrer)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
 		  sock->referrer->id);
 #endif
       sock_schedule_for_shutdown (sock->referrer);
+      sock->referrer->referrer = NULL;
       sock->referrer = NULL;
     }
   else
