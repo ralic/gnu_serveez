@@ -25,6 +25,7 @@
 
 AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
+serveez_TEXINFOS = guile-api.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 	logo.jpg logosmall.jpg serveez-api.texi.in serveez-api.awk
@@ -63,9 +64,10 @@ all-local: $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
 
 dist-hook:
 	$(RM) -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
-		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi
+		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi \
+		$(distdir)/guile-api.texi
 
-serveez-api.texi: $(top_srcdir)/doc/serveez-api.texi.in
+$(srcdir)/serveez-api.texi: $(srcdir)/serveez-api.texi.in
 	$(RM) -f $(SED_FILE)
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
@@ -74,9 +76,9 @@ serveez-api.texi: $(top_srcdir)/doc/serveez-api.texi.in
 	      $(SED_FILE); fi \
 	  done \
 	done
-	$(SED) -f $(SED_FILE) < $(top_srcdir)/doc/serveez-api.texi.in > $@
+	$(SED) -f $(SED_FILE) < $(srcdir)/serveez-api.texi.in > $@
 
-guile-api.texi: $(top_srcdir)/doc/guile-api.texi.in
+$(srcdir)/guile-api.texi: $(srcdir)/guile-api.texi.in
 	$(RM) -f $(GUILE_SED_FILE)
 	for dir in $(GUILE_DOC_DIRS); do \
 	  for file in $(GUILE_DOC_FILES); do \
@@ -85,11 +87,9 @@ guile-api.texi: $(top_srcdir)/doc/guile-api.texi.in
 	      $(GUILE_SED_FILE); fi \
 	  done \
 	done
-	$(SED) -f $(GUILE_SED_FILE) < $(top_srcdir)/doc/guile-api.texi.in > $@
+	$(SED) -f $(GUILE_SED_FILE) < $(srcdir)/guile-api.texi.in > $@
 
-serveez.info: guile-api.texi
-
-site: all-local serveez.info serveez-api.info
+site: all-local info
 	test ! -d $(SITE_DIR) || $(RM) -rf $(SITE_DIR)
 	@$(MKDIR) $(SITE_DIR)
 	$(CP) -p serveez.en.html logo.jpg $(SITE_DIR)
@@ -97,10 +97,10 @@ site: all-local serveez.info serveez-api.info
 	$(CP) -p index.html logosmall.jpg $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
-$(HTML_DIR)/serveez.html: guile-api.texi
+$(HTML_DIR)/serveez.html: $(srcdir)/guile-api.texi
 
 $(HTML_DIR)/%.html: %.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -split_chapter $<
+	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -split_chapter $<
 
 %.info: %.texi
 	$(MAKEINFO) -o $(srcdir)/$@ -I $(srcdir) --no-split $<

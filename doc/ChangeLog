@@ -1,3 +1,8 @@
+2001-10-02  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am: Reorganized rules to get `make distcheck'
+	working again.
+
 2001-09-27  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Define ports): Added a note about the 

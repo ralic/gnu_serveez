@@ -8,7 +8,7 @@ dnl the overall linker and compiler flags produced by the ./configure script.
 dnl
 
 AC_DEFUN([AC_SERVEEZ], [
-  AC_ARG_WITH(serveez,
+  AC_ARG_WITH([serveez],
     [  --with-serveez=DIR      serveez installation in DIR [/usr/local]],
     [case "$withval" in
      no)  SVZDIR="no" ;;
@@ -18,30 +18,39 @@ AC_DEFUN([AC_SERVEEZ], [
     SVZDIR="/usr/local")
 
   AC_MSG_CHECKING([for serveez installation])
-  if test "x$SVZDIR" != "xno"; then
+  if test "x$SVZDIR" != "xno" ; then
     SVZDIR=`eval cd "$SVZDIR" 2>/dev/null && pwd`
     case $host_os in
     mingw*) SVZDIR=`eval cygpath -w -i "$SVZDIR"` ;;
     esac
     if test -f "$SVZDIR/lib/libserveez.so" -o \
-	    -f "$SVZDIR/bin/libserveez.dll"; then
-      if test "x$1" = "x"; then 
+	    -f "$SVZDIR/bin/libserveez.dll" ; then
+      if test "x$1" = "x" ; then 
         CFLAGS="$CFLAGS -I$SVZDIR/include"
         LDFLAGS="$LDFLAGS -L$SVZDIR/lib"
         LIBS="$LIBS -lserveez"
+        if test "x$CYGWIN" = "xyes" -o "x$MINGW32" = "xyes" ; then
+          if test "x$enable_shared" = "xyes" ; then
+	    CFLAGS="$CFLAGS -D__SERVEEZ_IMPORT__"
+    	  fi
+	fi
       else
         SERVEEZ_CFLAGS="-I$SVZDIR/include"
         SERVEEZ_LDFLAGS="-L$SVZDIR/lib -lserveez"
+        if test "x$CYGWIN" = "xyes" -o "x$MINGW32" = "xyes" ; then
+          if test "x$enable_shared" = "xyes" ; then
+	    SERVEEZ_CFLAGS="$SERVEEZ_CFLAGS -D__SERVEEZ_IMPORT__"
+    	  fi
+	fi
         AC_SUBST(SERVEEZ_CFLAGS)
         AC_SUBST(SERVEEZ_LDFLAGS)
       fi
       AC_MSG_RESULT([yes])
     else
-      AC_MSG_RESULT([none])
+      AC_MSG_RESULT([missing])
     fi
   else
     AC_MSG_RESULT([disabled])
   fi
-
   unset SVZDIR
 ])
