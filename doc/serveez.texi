@@ -563,15 +563,15 @@ or the "uid" setting. Same goes for "group" and "gid".
 
 @example
 (define-port! 'foo-pipe-port `(
-    (proto . pipe)                     ;; protocol is named pipe
+    (proto . pipe)                   ;; protocol is named pipe
 
     ;; specify the receiving endpoint    
-    (recv . ((name . ".foo-recv")      ;; name of the pipe
-             (permissions . #o0666)    ;; create it with these permissions
-             (user . "calvin")         ;; as user "calvin"
-             (uid . 50)                ;; with the user id 50
-             (group . "heros")         ;; which is in the group "heros"
-             (gid . 100)))             ;; with the group id 100
+    (recv . ((name . ".foo-recv")    ;; name of the pipe
+             (permissions . #o0666)  ;; create it with these permissions
+             (user . "calvin")       ;; as user "calvin"
+             (uid . 50)              ;; with the user id 50
+             (group . "heros")       ;; which is in the group "heros"
+             (gid . 100)))           ;; with the group id 100
 
     ;; specify the sending endpoint
     (send . ((name . ".foo-send")
@@ -633,15 +633,16 @@ description of each type of value.
 
 @example
 (define-server! 'foo-server '(
-    (bar . 100)                                     ;; number
-    (reply . "Booo")                                ;; character string
-    (messages . ("Welcome to the foo test server."  ;; list of strings
-                 "This one echos your lines."))
-    (ports . (5 6 7 8 9))                           ;; list of numbers
-    (port . foo-tcp-port)                           ;; a port configuration
-    (assoc . (( "GNU" . "great" )                   ;; associative list
+    (bar . 100)                             ;; number
+    (reply . "Booo")                        ;; character string
+    (messages .                             ;; list of strings
+      ("Welcome to the foo test server."
+       "This one echos your lines."))
+    (ports . (5 6 7 8 9))                   ;; list of numbers
+    (port . foo-tcp-port)                   ;; a port configuration
+    (assoc . (( "GNU" . "great" )           ;; associative list
               ( "Tree" . "tall" )))
-    (truth . #f)                                    ;; boolean value
+    (truth . #f)                            ;; boolean value
   ))
 @end example
 
@@ -2314,9 +2315,9 @@ On Win32 Serveez uses threads and shared memory.
 
 @subsection Making and configuring preparations
 
-First you have to change into the @file{src/libserveez/coserver/} directory 
-of the Serveez package. Then edit the @file{Makefile.am} and add your 
-header and implementation file to the @code{libcoserver_la_SOURCES}
+First you have to change into the @file{src/libserveez/coserver/} 
+directory of the Serveez package. Then edit the @file{Makefile.am} and 
+add your header and implementation file to the @code{libcoserver_la_SOURCES}
 variable.
 
 @subsection Coserver header file

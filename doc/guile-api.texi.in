@@ -105,8 +105,9 @@ The following example shows the overall syntax of this procedure:
   ;; Mandatory: server type configuration (may be an empty list)
   (configuration   . (
 
-    ;; The server configuration is an alist (associative list) again.  Each
-    ;; item consists of an item name and a list describing the item itself.
+    ;; The server configuration is an alist (associative list) again.
+    ;; Each item consists of an item name and a list describing the 
+    ;; item itself.
     ;; Syntax: (key . (type defaultable default))
     (foo-integer       . (integer  #t 0))
     (foo-integer-array . (intarray #t (1 2 3 4 5)))
