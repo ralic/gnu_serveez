@@ -1,3 +1,13 @@
+2002-07-25  [ Ela ]  <ela@lkcc.org>
+
+	* binary-test.scm: Binary smob function test suite using the
+	test suite library.  This is a draft, to be continued...
+
+	* test-suite.scm: Test suite library.
+
+	* Makefile.am: New files: 'test-suite.scm' and 'binary-test.scm'
+	added.
+
 2002-07-23  [ Ela ]  <ela@lkcc.org>
 
 	* test.c (test_value): Fixed 'division by zero' bug.

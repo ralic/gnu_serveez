@@ -5,7 +5,7 @@
 # Automake input file.
 #
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
-# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
 	serveez.dsw config.h.serveez version.h.serveez \
-	RELEASE vcgen.bat autodsp serveez.ap
+	RELEASE vcgen.bat autodsp serveez.ap depcomp
 
 redhat: @MAINTAINER_MODE_TRUE@ dist redhat.sh
 	@MAINTAINER_MODE_TRUE@ @sh redhat.sh && echo "Redhat packages done."

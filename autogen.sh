@@ -5,7 +5,7 @@
 # Run this script to re-generate all maintainer-generated files.
 #
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
-# Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -57,7 +57,14 @@ if test x"$info_touched" = xyes ; then rm -f doc/serveez-api.texi; fi
 # run configure, maybe with parameters recorded in config.status
 #
 if [ -r config.status ]; then
+  # Autoconf 2.13
   CMD=`awk '/^#.*\/?configure .*/ { $1 = ""; print; exit }' < config.status`
+  if test "x$CMD" = "x" ; then
+    # Autoconf 2.5x
+    CMD=`grep "with options" < config.status | \
+         sed 's/[^"]*["]\([^"]*\)["]/\1/' | sed 's/\\\//g' | sed "s/'//g"`
+    CMD="./configure $CMD"
+  fi
 else
   CMD="./configure --enable-maintainer-mode --enable-warn"
 fi

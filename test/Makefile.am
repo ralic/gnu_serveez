@@ -4,7 +4,7 @@
 #
 # Automake input file for the test directory.
 #
-# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ TESTS = vector-test array-test hash-test spvec-test
 
 EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp \
 	hash.ap vector.ap array.ap spvec.ap codec.ap \
-	prog-test.cfg
+	prog-test.cfg test-suite.scm binary-test.scm
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test \
 	prog-test

@@ -92,8 +92,10 @@ dnl ----------------------------------------------------------------------
 
 AC_MSG_CHECKING([target system type])
 [
-test x$target = "xNONE" && target="$host"
-target="`${CONFIG_SHELL-/bin/sh} $ac_config_sub $target`"
+if test x$target = "xNONE" || test x$target = "x" ; then 
+  target="$host"
+fi
+target="`$ac_config_sub $target`"
 target_os="`echo $target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`"
 target_cpu=`echo $target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
 ]

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.39 2002/06/07 16:53:44 ela Exp $
+ * $Id: server-core.c,v 1.40 2002/07/25 13:45:37 ela Exp $
  *
  */
 
@@ -98,7 +98,7 @@
  * When @var{svz_nuke_happened} is set to a non-zero value, the server
  * will terminate its main loop.
  */
-int svz_nuke_happened;
+int svz_nuke_happened = 0;
 
 /*
  * When @var{svz_reset_happened} gets set to a non-zero value, the server
@@ -1281,7 +1281,6 @@ svz_loop_pre (void)
    * Setting up control variables. These get set either in the signal 
    * handler or from a command processing routine.
    */
-  svz_nuke_happened = 0;
   svz_reset_happened = 0;
   svz_child_died = 0;
   svz_pipe_broke = 0;
