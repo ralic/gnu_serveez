@@ -1,5 +1,5 @@
 /*
- * irc-server.h - "Internet Relay Chat" server header definitions
+ * irc-server.h - IRC server header definitions
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.h,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-server.h,v 1.4 2000/07/07 16:26:21 ela Exp $
  *
  */
 
@@ -31,11 +31,11 @@
 
 #define _GNU_SOURCE
 
+/*
+ * These functions are exported from this IRC server module.
+ */
 int irc_parse_line (char *line, char *fmt, ...);
-void irc_del_server (irc_config_t *cfg, irc_server_t *server);
 void irc_delete_servers (irc_config_t *cfg);
 void irc_connect_servers (irc_config_t *cfg);
-void irc_resolve_cline (irc_config_t *cfg);
-irc_server_t *irc_add_server (irc_config_t *cfg, irc_server_t *server);
 
 #endif /* __IRC_SERVER_H__ */

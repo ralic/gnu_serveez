@@ -18,7 +18,7 @@
  * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, Ma 02111-1307, Usa.  
  *
- * $Id: irc-crypt.c,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-crypt.c,v 1.3 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -43,7 +43,7 @@
  * Generate a key for the de- and encryption routine.
  */
 byte
-irc_gen_key(char *pass)
+irc_gen_key (char *pass)
 {
   byte *p;
   int n;
@@ -51,8 +51,8 @@ irc_gen_key(char *pass)
 
   key = 0;
   n = 0;
-  p = (byte *)pass;
-  while(*p)
+  p = (byte *) pass;
+  while (*p)
     {
       key += (*p + n) ^ IRC_CRYPT_BYTE;
       n++;
@@ -65,20 +65,20 @@ irc_gen_key(char *pass)
  * Encrypt a string by a given key.
  */
 void
-irc_encrypt_text(char *text, byte key)
+irc_encrypt_text (char *text, byte key)
 {
   char crypt[MAX_MSG_LEN];
   char *t, *c;
   byte code;
 
-  memset(crypt, 0, MAX_MSG_LEN);
+  memset (crypt, 0, MAX_MSG_LEN);
   t = text;
   c = crypt;
 
-  while(*t)
+  while (*t)
     {
       code = *t ^ key;
-      if(code < (byte)0x20 || code == IRC_CRYPT_PREFIX)
+      if (code < (byte)0x20 || code == IRC_CRYPT_PREFIX)
 	{
 	  *c++ = IRC_CRYPT_PREFIX;
 	  *c++ = code + IRC_CRYPT_PREFIX;
@@ -89,25 +89,25 @@ irc_encrypt_text(char *text, byte key)
 	}
       t++;
     }
-  strcpy(text, crypt);
+  strcpy (text, crypt);
 }
 
 /*
  * Decrypt a string by a given key.
  */
 char *
-irc_decrypt_text(char *crypt, byte key)
+irc_decrypt_text (char *crypt, byte key)
 {
   static char text[MAX_MSG_LEN];
   char *t, *c;
 
-  memset(text, 0, MAX_MSG_LEN);
+  memset (text, 0, MAX_MSG_LEN);
   t = text;
   c = crypt;
 
-  while(*c)
+  while (*c)
     {
-      if(*c == IRC_CRYPT_PREFIX)
+      if (*c == IRC_CRYPT_PREFIX)
 	{
 	  c++;
 	  *t++ = (*c - IRC_CRYPT_PREFIX) ^ key;
@@ -121,7 +121,7 @@ irc_decrypt_text(char *crypt, byte key)
   return text;
 }
 
-#else
+#else /* ENABLE_IRC_PROTO */
 
 int irc_crypt_dummy;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.7 2000/06/25 17:31:42 ela Exp $
+ * $Id: irc-core.c,v 1.8 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -51,10 +51,11 @@ char irc_lcset[256];       /* lower case character set */
  * Gets called when a nslookup coserver has resolved a IP address
  * for socket SOCK.
  */
-int
+static int
 irc_nslookup_done (socket_t sock, char *host)
 {
   irc_client_t *client = sock->data;
+  sock->ref--;
 
   if (host)
     {
@@ -72,10 +73,11 @@ irc_nslookup_done (socket_t sock, char *host)
  * Gets called when an ident coserver has got a reply
  * for socket SOCK.
  */
-int
+static int
 irc_ident_done (socket_t sock, char *user)
 {
   irc_client_t *client = sock->data;
+  sock->ref--;
 
   if (user)
     {
@@ -92,7 +94,7 @@ irc_ident_done (socket_t sock, char *user)
  * Initialization of the authentification (DNS and IDENT) for an
  * IRC client.
  */
-void
+static void
 irc_start_auth (socket_t sock)
 {
   irc_config_t *cfg = sock->cfg;
@@ -119,6 +121,7 @@ irc_start_auth (socket_t sock)
       
   coserver_ident (sock, (coserver_handle_result_t) irc_ident_done, sock);
   irc_printf (sock, "NOTICE AUTH :" IRC_IDENT_INIT "\n");
+  sock->ref += 2;
 }
 
 /*
@@ -458,11 +461,12 @@ irc_parse_target (irc_request_t *request, int para)
 }
 
 /*
- * This routine just tries to Match 2 strings. It returns non zero
- * if it does.
+ * This routine just tries to match two strings. It returns non zero
+ * if it does. Because IRC is case insensitive we use the lower case
+ * character set for comparisons.
  */
 int
-string_regex (char *text, char *regex)
+irc_string_regex (char *text, char *regex)
 {
   char *p;
 
@@ -532,11 +536,11 @@ irc_create_lcset (void)
 }
 
 /*
- * Make a case insensitive string compare. Return 0 if both
+ * Make a case insensitive string compare. Return zero if both
  * strings are equal.
  */
 int
-string_equal (char *str1, char *str2)
+irc_string_equal (char *str1, char *str2)
 {
   char *p1, *p2;
 
@@ -557,7 +561,7 @@ string_equal (char *str1, char *str2)
   return -1;
 }
 
-#else
+#else /* ENABLE_IRC_PROTO */
 
 int irc_core_dummy; /* shut up compiler */
 

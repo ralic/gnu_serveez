@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.4 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-event-7.c,v 1.5 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -59,20 +59,20 @@ irc_ison_callback (socket_t sock,
   int n;
 
   /* do you have enough para's ? */
-  if (irc_check_paras (sock, client, cfg, request, 1))
+  if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
-  for(n=0; n<request->paras; n++)
+  for (n = 0; n < request->paras; n++)
     {
       if (irc_find_nick (cfg, request->para[n]))
 	{
-	  strcat(nicklist, request->para[n]);
-	  strcat(nicklist, " ");
+	  strcat (nicklist, request->para[n]);
+	  strcat (nicklist, " ");
 	}
     }
 
-  irc_printf(sock, ":%s %03d %s :%s\n", cfg->host, RPL_ISON, 
-	     client->nick, nicklist);
+  irc_printf (sock, ":%s %03d %s :%s\n", cfg->host, RPL_ISON, 
+	      client->nick, nicklist);
   return 0;
 }
 
@@ -93,27 +93,27 @@ irc_userhost_callback (socket_t sock,
   char text[MAX_MSG_LEN];
 
   /* complete parameter list ? */
-  if (irc_check_paras (sock, client, cfg, request, 1))
+  if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
   /* go through all paras */
-  for(n=0; n<request->paras; n++)
+  for (n = 0; n < request->paras; n++)
     {
       if ((cl = irc_find_nick (cfg, request->para[n])))
 	{
-	  sprintf(text, "%s%s=%c%s@%s ",
-		  cl->nick, 
-		  cl->flag & UMODE_OPERATOR ? "*" : "",
-		  cl->flag & UMODE_AWAY ? '-' : '+',
-		  cl->user,
-		  cl->host);
-	  strcat(list, text);
+	  sprintf (text, "%s%s=%c%s@%s ",
+		   cl->nick, 
+		   cl->flag & UMODE_OPERATOR ? "*" : "",
+		   cl->flag & UMODE_AWAY ? '-' : '+',
+		   cl->user,
+		   cl->host);
+	  strcat (list, text);
 	}
     }
 
   /* send the USERHOST reply */
-  irc_printf(sock, ":%s %03d %s %s\n",
-	     cfg->host, RPL_USERHOST, client->nick, list);
+  irc_printf (sock, ":%s %03d %s %s\n",
+	      cfg->host, RPL_USERHOST, client->nick, list);
 
   return 0;
 }
@@ -131,19 +131,19 @@ irc_away_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* this is UNAWAY */
-  if(!request->paras)
+  if (!request->paras)
     {
-      irc_printf(sock, ":%s %03d %s " RPL_UNAWAY_TEXT "\n",
-		 cfg->host, RPL_UNAWAY, client->nick);
+      irc_printf (sock, ":%s %03d %s " RPL_UNAWAY_TEXT "\n",
+		  cfg->host, RPL_UNAWAY, client->nick);
       client->flag &= ~UMODE_AWAY;
     }
   /* set AWAY Message */
   else
     {
-      irc_printf(sock, ":%s %03d %s " RPL_NOWAWAY_TEXT "\n",
-		 cfg->host, RPL_NOWAWAY, client->nick);
+      irc_printf (sock, ":%s %03d %s " RPL_NOWAWAY_TEXT "\n",
+		  cfg->host, RPL_NOWAWAY, client->nick);
       client->flag |= UMODE_AWAY;
-      strcpy(client->away, request->para[0]);
+      strcpy (client->away, request->para[0]);
     }
   return 0;
 }

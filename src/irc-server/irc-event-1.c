@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.4 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-event-1.c,v 1.5 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ irc_pass_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* enough paras ? reject the client if not given */
-  if (irc_check_paras (sock, client, cfg, request, 1))
+  if (irc_check_args (sock, client, cfg, request, 1))
     return -1;
 
   strcpy (client->pass, request->para[0]);
@@ -98,35 +98,35 @@ irc_pass_callback (socket_t sock,
 }
 
 /*
- * Send the inital Messages.
+ * Send the initial messages to a new IRC client.
  */
-void
-send_init_block (socket_t sock, 
-		 irc_client_t *client)
+static void
+irc_send_init_block (socket_t sock, 
+		     irc_client_t *client)
 {
   irc_config_t *cfg = sock->cfg;
 
-  /* send initial Messages */
-  irc_printf(sock, ":%s %03d %s :" RPL_WELCOME_TEXT "\n",
-	     cfg->host, RPL_WELCOME, client->nick, client->nick);
+  /* send initial messages */
+  irc_printf (sock, ":%s %03d %s :" RPL_WELCOME_TEXT "\n",
+	      cfg->host, RPL_WELCOME, client->nick, client->nick);
 
-  irc_printf(sock, ":%s %03d %s :" RPL_YOURHOST_TEXT "\n",
-	     cfg->host, RPL_YOURHOST, client->nick,
-	     cfg->host, serveez_config.program_name,
-	     serveez_config.version_string);
+  irc_printf (sock, ":%s %03d %s :" RPL_YOURHOST_TEXT "\n",
+	      cfg->host, RPL_YOURHOST, client->nick,
+	      cfg->host, serveez_config.program_name,
+	      serveez_config.version_string);
 
-  irc_printf(sock, "NOTICE %s :*** " RPL_YOURHOST_TEXT "\n",
-	     client->nick, cfg->host, serveez_config.program_name,
-	     serveez_config.version_string);
+  irc_printf (sock, "NOTICE %s :*** " RPL_YOURHOST_TEXT "\n",
+	      client->nick, cfg->host, serveez_config.program_name,
+	      serveez_config.version_string);
   
-  irc_printf(sock, ":%s %03d %s :" RPL_CREATED_TEXT "\n",
-	     cfg->host, RPL_CREATED, client->nick, 
-	     serveez_config.build_string);
+  irc_printf (sock, ":%s %03d %s :" RPL_CREATED_TEXT "\n",
+	      cfg->host, RPL_CREATED, client->nick, 
+	      serveez_config.build_string);
 
-  irc_printf(sock, ":%s %03d %s " RPL_MYINFO_TEXT "\n",
-	     cfg->host, RPL_MYINFO, client->nick,
-	     cfg->host, serveez_config.program_name,
-	     serveez_config.version_string, USER_MODES, CHANNEL_MODES);
+  irc_printf (sock, ":%s %03d %s " RPL_MYINFO_TEXT "\n",
+	      cfg->host, RPL_MYINFO, client->nick,
+	      cfg->host, serveez_config.program_name,
+	      serveez_config.version_string, USER_MODES, CHANNEL_MODES);
 
   /* send LUSER* replies */
   irc_lusers_callback (sock, client, NULL);
@@ -139,7 +139,7 @@ send_init_block (socket_t sock,
  * This function extracts a valid nick of a given text. It returns
  * the length of it, otherwise zero.
  */
-int
+static int
 irc_get_nick (char *nick)
 {
   char *p;
@@ -147,10 +147,10 @@ irc_get_nick (char *nick)
 
   p = nick;
 
-  if((*p >= '0' && *p <= '9') || *p == '-')
+  if ((*p >= '0' && *p <= '9') || *p == '-')
     return 0;
   
-  for(n=0; *p && n<MAX_NICK_LEN; n++, p++)
+  for (n = 0; *p && n < MAX_NICK_LEN; n++, p++)
     if(!((*p >= 'A' && *p <= '~') ||  (*p >= '0' && *p <= '9') || 
 	 (*p == '_') || (*p == '-')))
       break;
@@ -178,32 +178,32 @@ irc_nick_callback (socket_t sock,
   int n, i;
 
   /* enough para's ? */
-  if(request->paras < 1)
+  if (request->paras < 1)
     {
-      irc_printf(sock, ":%s %03d " ERR_NONICKNAMEGIVEN_TEXT "\n", 
-		 cfg->host, ERR_NONICKNAMEGIVEN);
+      irc_printf (sock, ":%s %03d " ERR_NONICKNAMEGIVEN_TEXT "\n", 
+		  cfg->host, ERR_NONICKNAMEGIVEN);
       return 0;
     }
 
   /* is the given nick valid ? */
   nick = request->para[0];
-  if(!irc_get_nick(nick))
+  if (!irc_get_nick (nick))
     {
-      irc_printf(sock, ":%s %03d * " ERR_ERRONEUSNICKNAME_TEXT "\n", 
-		 cfg->host, ERR_ERRONEUSNICKNAME, nick);
+      irc_printf (sock, ":%s %03d * " ERR_ERRONEUSNICKNAME_TEXT "\n", 
+		  cfg->host, ERR_ERRONEUSNICKNAME, nick);
       return 0;
     }
 
   /* nick already in use ? */
-  if((cl = irc_find_nick(cfg, nick)))
+  if ((cl = irc_find_nick (cfg, nick)))
     {
       /* did the client tried to change to equal nicks ? then ignore */
       if (cl == client) return 0;
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
+      log_printf (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
-      irc_printf(sock, ":%s %03d * " ERR_NICKNAMEINUSE_TEXT "\n", 
-		 cfg->host, ERR_NICKNAMEINUSE, cl->nick);
+      irc_printf (sock, ":%s %03d * " ERR_NICKNAMEINUSE_TEXT "\n", 
+		  cfg->host, ERR_NICKNAMEINUSE, cl->nick);
       return 0;
     }
 
@@ -229,14 +229,14 @@ irc_nick_callback (socket_t sock,
 			  client->nick, client->user, client->host, nick);
 	    }
 	}
-      strcpy(client->nick, nick);
+      strcpy (client->nick, nick);
     }
   /* this is the first nick you specified ! send init block */
   else
     {
       strcpy (client->nick, nick);
       irc_add_client (cfg, client);
-      send_init_block (sock, client);
+      irc_send_init_block (sock, client);
       client->flag |= UMODE_NICK;
     }
 
@@ -256,22 +256,22 @@ irc_user_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* complete parameter list ? */
-  if (irc_check_paras(sock, client, cfg, request, 4))
+  if (irc_check_args (sock, client, cfg, request, 4))
     return 0;
   
   /* is this client already fully registered ? */
-  if((client->flag & UMODE_REGISTERED) == UMODE_REGISTERED)
+  if ((client->flag & UMODE_REGISTERED) == UMODE_REGISTERED)
     {
-      irc_printf(sock, ":%s %03d %s " ERR_ALREADYREGISTRED_TEXT "\n", 
-		 cfg->host, ERR_ALREADYREGISTRED, client->nick);
+      irc_printf (sock, ":%s %03d %s " ERR_ALREADYREGISTRED_TEXT "\n", 
+		  cfg->host, ERR_ALREADYREGISTRED, client->nick);
       return 0;
     }
 
   /* store paras in client structure if not done by AUTH-callbacks */
-  if(client->user[0] == 0) sprintf(client->user, "~%s", request->para[0]);
-  if(client->host[0] == 0) sprintf(client->host, "%s", request->para[1]);
-  if(client->server[0] == 0) sprintf(client->server, "%s", request->para[2]);
-  strcpy(client->real, request->para[3]);
+  if (!client->user[0]) sprintf (client->user, "~%s", request->para[0]);
+  if (!client->host[0]) sprintf (client->host, "%s", request->para[1]);
+  if (!client->server[0]) sprintf (client->server, "%s", request->para[2]);
+  strcpy (client->real, request->para[3]);
   client->flag |= UMODE_USER;
 
   return 0;
@@ -294,63 +294,63 @@ irc_motd_callback (socket_t sock,
   int n;
 
   /* try requesting the file */
-  if(stat(cfg->MOTD_file, &buf) == -1)
+  if (stat (cfg->MOTD_file, &buf) == -1)
     {
-      log_printf(LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
-      irc_printf(sock, ":%s %03d %s " ERR_NOMOTD_TEXT "\n",
-		 cfg->host, ERR_NOMOTD, client->nick);
+      log_printf (LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
+      irc_printf (sock, ":%s %03d %s " ERR_NOMOTD_TEXT "\n",
+		  cfg->host, ERR_NOMOTD, client->nick);
       return 0;
     }
 
   /* has the file been changed ? then read it */
-  if(cfg->MOTD_lastModified <  buf.st_mtime)
+  if (cfg->MOTD_lastModified <  buf.st_mtime)
     {
       cfg->MOTD_lastModified =  buf.st_mtime;
-      if((f = fopen(cfg->MOTD_file, "r")) == NULL)
+      if ((f = fopen (cfg->MOTD_file, "r")) == NULL)
 	{
-	  log_printf(LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
+	  log_printf (LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
 	  return 0;
 	}
 
       /* free the previous MOTD content */
-      for(n=0; n<cfg->MOTDs; n++)
-	xfree(cfg->MOTD[n]);
+      for (n = 0; n < cfg->MOTDs; n++)
+	xfree (cfg->MOTD[n]);
 
       /* read every line (restrict line length) */
       n = 0;
-      cfg->MOTD[n] = xmalloc(MOTD_LINE_LEN);
-      while(fgets(cfg->MOTD[n], MOTD_LINE_LEN, f) && n < MAX_MOTD_LINES)
+      cfg->MOTD[n] = xmalloc (MOTD_LINE_LEN);
+      while (fgets (cfg->MOTD[n], MOTD_LINE_LEN, f) && n < MAX_MOTD_LINES)
 	{
-	  cfg->MOTD[n][strlen(cfg->MOTD[n]) - 1] = '\0';
+	  cfg->MOTD[n][strlen (cfg->MOTD[n]) - 1] = '\0';
 	  n++;
-	  cfg->MOTD[n] = xmalloc(MOTD_LINE_LEN);
+	  cfg->MOTD[n] = xmalloc (MOTD_LINE_LEN);
 	}
-      xfree(cfg->MOTD[n]);
+      xfree (cfg->MOTD[n]);
       cfg->MOTDs = n;
-      fclose(f);
+      fclose (f);
     }
   
   /* send the "Message of the Day" if neccessary */
-  if(cfg->MOTDs)
+  if (cfg->MOTDs)
     {
       /* start */
-      irc_printf(sock, 
-		 "NOTICE %s :*** The MOTD file was last modified at %s",
-		 client->nick, ctime(&cfg->MOTD_lastModified));
+      irc_printf (sock, 
+		  "NOTICE %s :*** The MOTD file was last modified at %s",
+		  client->nick, ctime (&cfg->MOTD_lastModified));
 
-      irc_printf(sock, ":%s %03d %s " RPL_MOTDSTART_TEXT "\n",
-		 cfg->host, RPL_MOTDSTART, client->nick, cfg->host);
+      irc_printf (sock, ":%s %03d %s " RPL_MOTDSTART_TEXT "\n",
+		  cfg->host, RPL_MOTDSTART, client->nick, cfg->host);
 
       /* go through all lines */
-      for(n=0; n<cfg->MOTDs; n++)
+      for (n = 0; n < cfg->MOTDs; n++)
 	{
-	  irc_printf(sock, ":%s %03d %s " RPL_MOTD_TEXT "\n",
-		     cfg->host, RPL_MOTD, client->nick, cfg->MOTD[n]);
+	  irc_printf (sock, ":%s %03d %s " RPL_MOTD_TEXT "\n",
+		      cfg->host, RPL_MOTD, client->nick, cfg->MOTD[n]);
 	}
 
       /* end */
-      irc_printf(sock, ":%s %03d %s " RPL_ENDOFMOTD_TEXT "\n",
-		 cfg->host, RPL_ENDOFMOTD, client->nick, cfg->host);
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFMOTD_TEXT "\n",
+		  cfg->host, RPL_ENDOFMOTD, client->nick, cfg->host);
     }
 
   return 0;

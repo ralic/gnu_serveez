@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.4 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-core.h,v 1.5 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -87,20 +87,13 @@ extern irc_request_t irc_request;  /* single IRC request */
 #define IRC_IDENT_INIT "*** Checking Ident ..."
 #define IRC_IDENT_DONE "*** Successful Identification."
 
-#if ENABLE_REVERSE_LOOKUP
-int irc_nslookup_done (socket_t sock, char *host);
-#endif
-#if ENABLE_IDENT
-int irc_ident_done (socket_t sock, char *user);
-#endif
-
 /* Some useful function for parsing masks. */
-int string_equal (char *str1, char *str2);
-int string_regex (char *text, char *regex);
+int irc_string_equal (char *str1, char *str2);
+int irc_string_regex (char *text, char *regex);
 
 /* 
  * We need this for a lower case character set, because 
- * nick and channel names in IRC are case insensitive.
+ * nick names and channel names in IRC are case insensitive.
  */
 void irc_create_lcset (void);
 

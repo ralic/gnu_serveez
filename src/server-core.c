@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.9 2000/06/22 00:37:44 ela Exp $
+ * $Id: server-core.c,v 1.10 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -138,17 +138,17 @@ server_signal_handler (int sig)
   if (sig == SIGHUP)
     {
       server_reset_happened = 1;
-      signal(SIGHUP, server_signal_handler);
+      signal (SIGHUP, server_signal_handler);
     }
   else if (sig == SIGPIPE)
     {
       server_pipe_broke = 1;
-      signal(SIGPIPE, server_signal_handler);
+      signal (SIGPIPE, server_signal_handler);
     }
   else if (sig == SIGCHLD)
     {
       server_child_died = wait(NULL);
-      signal(SIGCHLD, server_signal_handler);
+      signal (SIGCHLD, server_signal_handler);
     }
   else
 #endif
@@ -164,17 +164,17 @@ server_signal_handler (int sig)
        * can get killed on second try
        */
       server_nuke_happened = 1;
-      signal(SIGTERM, SIG_DFL);
-      signal(SIGINT, SIG_DFL);
+      signal (SIGTERM, SIG_DFL);
+      signal (SIGINT, SIG_DFL);
 
 #ifdef __MINGW32__
-      signal(SIGBREAK, SIG_DFL);
+      signal (SIGBREAK, SIG_DFL);
 #endif
     }
 #if ENABLE_DEBUG
   else
     {
-      log_printf(LOG_DEBUG, "uncaught signal %d\n", sig);
+      log_printf (LOG_DEBUG, "uncaught signal %d\n", sig);
     }
 #endif
 
@@ -383,16 +383,25 @@ server_reset (void)
 static int
 shutdown_socket (socket_t sock)
 {
+  if (sock->ref)
+    {
 #if ENABLE_DEBUG
-  log_printf(LOG_DEBUG, "shutting down socket id %d\n", sock->socket_id);
+      log_printf (LOG_DEBUG, "shutdown: %d reference(s) on socket id %d\n", 
+		  sock->ref, sock->socket_id);
+#endif
+      return -1;
+    }
+
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "shutting down socket id %d\n", sock->socket_id);
 #endif
 
-  if(sock->disconnected_socket)
+  if (sock->disconnected_socket)
     sock->disconnected_socket(sock);
 
-  sock_dequeue(sock);
-  sock_disconnect(sock);
-  sock_free(sock);
+  sock_dequeue (sock);
+  sock_disconnect (sock);
+  sock_free (sock);
 
   return 0;
 }
@@ -474,7 +483,7 @@ handle_periodic_tasks (void)
  * Goes through all socket and shuts invalid ones down.
  */
 void
-check_bogus_sockets(void)
+check_bogus_sockets (void)
 {
 #ifdef __MINGW32__
   unsigned long readBytes;
@@ -488,30 +497,36 @@ check_bogus_sockets(void)
   for (sock = socket_root; sock; sock = sock->next)
     {
 #ifdef __MINGW32__
-      if (ioctlsocket (sock->sock_desc, FIONREAD, &readBytes) == SOCKET_ERROR)
+      if (sock->flags & SOCK_FLAG_SOCK)
 	{
+	  if (ioctlsocket (sock->sock_desc, FIONREAD, &readBytes) == 
+	      SOCKET_ERROR)
+	    {
 #else /* not __MINGW32__ */
-      if (fcntl (sock->sock_desc, F_GETFL) < 0)
-	{
+	  if (fcntl (sock->sock_desc, F_GETFL) < 0)
+	    {
 #endif /* not __MINGW32__ */
-	  log_printf (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
-	  sock_schedule_for_shutdown (sock);
+	      log_printf (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
+	      sock_schedule_for_shutdown (sock);
 	}
 
 #ifndef __MINGW32__
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	{
-	  if (fcntl(sock->pipe_desc[READ], F_GETFL) < 0)
+	  if (fcntl (sock->pipe_desc[READ], F_GETFL) < 0)
 	    {
-	      log_printf(LOG_ERROR, "pipe %d has gone\n", 
-			 sock->pipe_desc[READ]);
-	      sock_schedule_for_shutdown(sock);
+	      log_printf (LOG_ERROR, "pipe %d has gone\n", 
+			  sock->pipe_desc[READ]);
+	      sock_schedule_for_shutdown (sock);
 	    }
-	  if (fcntl(sock->pipe_desc[WRITE], F_GETFL) < 0)
+	}
+      if (sock->flags & SOCK_FLAG_SEND_PIPE)
+	{
+	  if (fcntl (sock->pipe_desc[WRITE], F_GETFL) < 0)
 	    {
-	      log_printf(LOG_ERROR, "pipe %d has gone\n", 
-			 sock->pipe_desc[WRITE]);
-	      sock_schedule_for_shutdown(sock);
+	      log_printf (LOG_ERROR, "pipe %d has gone\n", 
+			  sock->pipe_desc[WRITE]);
+	      sock_schedule_for_shutdown (sock);
 	    }
 	}
 #endif /* not __MINGW32__ */
@@ -782,9 +797,9 @@ sock_server_loop (void)
   signal(SIGPIPE, server_signal_handler);
 #endif
 
-  log_printf(LOG_NOTICE, "starting server loop\n");
-  log_printf(LOG_NOTICE, "using %d socket descriptors\n",
-	     serveez_config.max_sockets);
+  log_printf (LOG_NOTICE, "starting server loop\n");
+  log_printf (LOG_NOTICE, "using %d socket descriptors\n",
+	      serveez_config.max_sockets);
 
   /* 
    * These get set either in the signal handler or from a 
@@ -797,7 +812,7 @@ sock_server_loop (void)
   server_reset_happened = 0;
 #endif /* not __MINGW32__ */
 
-  next_notify_time = time(NULL);
+  next_notify_time = time (NULL);
 
   while (!server_nuke_happened)
     {
@@ -806,7 +821,7 @@ sock_server_loop (void)
        * a lot of run time.
        */
 #if ENABLE_DEBUG
-      validate_socket_list();
+      validate_socket_list ();
 #endif /* ENABLE_DEBUG */
 
 #ifndef __MINGW32__
@@ -816,8 +831,8 @@ sock_server_loop (void)
 	   * SERVER_RESET_HAPPENED gets set in the signal handler
 	   * whenever a SIGHUP is received.
 	   */
-	  log_printf(LOG_NOTICE, "resetting server\n");
-	  server_reset();
+	  log_printf (LOG_NOTICE, "resetting server\n");
+	  server_reset ();
 	  server_reset_happened = 0;
 	}
 
@@ -827,7 +842,7 @@ sock_server_loop (void)
 	   * SERVER_PIPE_BROKE gets set in the signal handler
 	   * whenever a SIGPIPE is received.
 	   */
-	  log_printf(LOG_ERROR, "broken pipe, continuing\n");
+	  log_printf (LOG_ERROR, "broken pipe, continuing\n");
 	  server_pipe_broke = 0;
 	}
 #endif /* not __MINGW32__ */
@@ -854,13 +869,13 @@ sock_server_loop (void)
 	  next_sock = sock->next;
 	  if (sock->flags & SOCK_FLAG_KILLED)
 	    {
-	      shutdown_socket(sock);
+	      shutdown_socket (sock);
 	    }
 	  sock = next_sock;
 	}
     }
 
-  log_printf(LOG_NOTICE, "leaving server loop\n");
+  log_printf (LOG_NOTICE, "leaving server loop\n");
 
   /*
    * Shutdown all sockets within the socket list no matter if scheduled
@@ -869,6 +884,7 @@ sock_server_loop (void)
   sock = socket_root;
   while (sock)
     {
+      sock->ref = 0;
       shutdown_socket (sock);
       sock = socket_root;
     }
@@ -876,15 +892,15 @@ sock_server_loop (void)
   /*
    * Deinstall signaling.
    */
-  signal(SIGTERM, SIG_DFL);
-  signal(SIGINT, SIG_DFL);
+  signal (SIGTERM, SIG_DFL);
+  signal (SIGINT, SIG_DFL);
 
 #ifdef __MINGW32__
-  signal(SIGBREAK, SIG_DFL);
+  signal (SIGBREAK, SIG_DFL);
 #else
-  signal(SIGHUP, SIG_DFL);
-  signal(SIGPIPE, SIG_DFL);
-  signal(SIGCHLD, SIG_DFL);
+  signal (SIGHUP, SIG_DFL);
+  signal (SIGPIPE, SIG_DFL);
+  signal (SIGCHLD, SIG_DFL);
 #endif
 
   return 0;

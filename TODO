@@ -25,7 +25,7 @@ unfixed) have a look at the file BUGS.
 
 	- Make serveez automatically compile sizzle again.
 	- Hack until WsControl tells the interface list on Windows.
-- What to do if coserver delivers argument not anymore valid ?
+	- What to do if coserver delivers argument not anymore valid ?
 	- Default file reader to avoid http using its own callback.
 	- Socket/protocol specific flags within socket structure.
 - Find out how the list of local interfaces work on different Unices.

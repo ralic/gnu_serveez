@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.8 2000/06/28 18:45:51 ela Exp $
+ * $Id: awcs-proto.c,v 1.9 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -154,6 +154,7 @@ int
 awcs_nslookup_done (socket_t sock, char *host)
 {
   awcs_config_t *cfg = sock->cfg;
+  sock->ref--;
 
   if (!cfg->server)
     {
@@ -196,6 +197,7 @@ int
 awcs_ident_done (socket_t sock, char *user)
 {
   awcs_config_t *cfg = sock->cfg;
+  sock->ref--;
 
   if (!cfg->server)
     {
@@ -279,6 +281,7 @@ status_connected (socket_t sock)
 			sock);
       coserver_ident (sock, (coserver_handle_result_t) awcs_ident_done,
 		      sock);
+      sock->ref += 2;
     }
 
   return 0;

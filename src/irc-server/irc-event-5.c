@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.4 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-event-5.c,v 1.5 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -61,17 +61,17 @@ irc_whowas_callback (socket_t sock,
   int n, i, found;
 
   /* check if there is a nick given */
-  if(request->paras < 1)
+  if (request->paras < 1)
     {
-      irc_printf(sock, ":%s %03d %s " ERR_NONICKNAMEGIVEN_TEXT "\n",
-		 cfg->host, ERR_NONICKNAMEGIVEN, client->nick);
+      irc_printf (sock, ":%s %03d %s " ERR_NONICKNAMEGIVEN_TEXT "\n",
+		  cfg->host, ERR_NONICKNAMEGIVEN, client->nick);
     }
 
   nick = request->para[0];
-  n = atoi(request->para[1]);
+  n = atoi (request->para[1]);
 
   /* is there a server para given ? */
-  if(request->paras > 2)
+  if (request->paras > 2)
     {
       server = request->para[2];
     }
@@ -83,21 +83,21 @@ irc_whowas_callback (socket_t sock,
   while ((cl = irc_find_nick_history (cfg, cl, nick)) && (i < n || n <= 0))
     {
       found = 1;
-      irc_printf(sock, ":%s %03d %s " RPL_WHOWASUSER_TEXT "\n",
-		 cfg->host, RPL_WHOWASUSER, client->nick,
-		 cl->nick, cl->user, cl->host, cl->real);
+      irc_printf (sock, ":%s %03d %s " RPL_WHOWASUSER_TEXT "\n",
+		  cfg->host, RPL_WHOWASUSER, client->nick,
+		  cl->nick, cl->user, cl->host, cl->real);
       i++;
     }
   /* did you found a nick in the history ? */
-  if(found)
+  if (found)
     {
-      irc_printf(sock, ":%s %03d %s " RPL_ENDOFWHOWAS_TEXT "\n",
-		 cfg->host, RPL_ENDOFWHOWAS, client->nick, nick);
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHOWAS_TEXT "\n",
+		  cfg->host, RPL_ENDOFWHOWAS, client->nick, nick);
     }
   else
     {
-      irc_printf(sock, ":%s %03d %s " ERR_WASNOSUCHNICK_TEXT "\n",
-		 cfg->host, ERR_WASNOSUCHNICK, client->nick, nick);
+      irc_printf (sock, ":%s %03d %s " ERR_WASNOSUCHNICK_TEXT "\n",
+		  cfg->host, ERR_WASNOSUCHNICK, client->nick, nick);
     }
 
   return 0;
@@ -106,10 +106,10 @@ irc_whowas_callback (socket_t sock,
 /*
  * Check if a certain client is visible to another.
  */
-int
-is_client_visible (irc_config_t *cfg,     /* current server config */
-		   irc_client_t *client,  /* who wants to know about */
-		   irc_client_t *rclient) /* this client */
+static int
+irc_client_visible (irc_config_t *cfg,     /* current server config */
+		    irc_client_t *client,  /* who wants to know about */
+		    irc_client_t *rclient) /* this client */
 {
   irc_channel_t *channel;
   int n;
@@ -132,7 +132,7 @@ is_client_visible (irc_config_t *cfg,     /* current server config */
       else
 	{
 	  /* no, but do they share it ? */
-	  if (irc_is_client_in_channel (NULL, client, channel) != -1)
+	  if (irc_client_in_channel (NULL, client, channel) != -1)
 	    return -1;
 	}
     }
@@ -142,10 +142,10 @@ is_client_visible (irc_config_t *cfg,     /* current server config */
 /*
  * Send a user WHOIS reply.
  */
-void
-send_user_infos (socket_t sock,        /* the socket for the client to send */
-		 irc_client_t *client, /* reply client */
-		 irc_client_t *cl)     /* infos about this client */
+static void
+irc_user_info (socket_t sock,        /* the socket for the client to send */
+	       irc_client_t *client, /* reply client */
+	       irc_client_t *cl)     /* infos about this client */
 {
   irc_config_t *cfg = sock->cfg;
   irc_channel_t *channel;
@@ -153,21 +153,22 @@ send_user_infos (socket_t sock,        /* the socket for the client to send */
   char text[MAX_MSG_LEN];
   int n, i;
 
-  if(!is_client_visible(cfg, client, cl)) return;
+  if (!irc_client_visible (cfg, client, cl)) 
+    return;
 
-  irc_printf(sock, ":%s %03d %s " RPL_WHOISUSER_TEXT "\n",
-	     cfg->host, RPL_WHOISUSER, client->nick,
-	     cl->nick, cl->user, cl->host, cl->real);
+  irc_printf (sock, ":%s %03d %s " RPL_WHOISUSER_TEXT "\n",
+	      cfg->host, RPL_WHOISUSER, client->nick,
+	      cl->nick, cl->user, cl->host, cl->real);
 	  
-  irc_printf(sock, ":%s %03d %s " RPL_WHOISSERVER_TEXT "\n",
-	     cfg->host, RPL_WHOISSERVER, client->nick,
-	     cl->nick, cl->server, "place server info here");
+  irc_printf (sock, ":%s %03d %s " RPL_WHOISSERVER_TEXT "\n",
+	      cfg->host, RPL_WHOISSERVER, client->nick,
+	      cl->nick, cl->server, cfg->info);
 	  
   /* operator ? */
-  if(cl->flag & UMODE_OPERATOR)
-    irc_printf(sock, ":%s %03d %s " RPL_WHOISOPERATOR_TEXT "\n",
-	       cfg->host, RPL_WHOISOPERATOR, client->nick,
-	       cl->nick);
+  if (cl->flag & UMODE_OPERATOR)
+    irc_printf (sock, ":%s %03d %s " RPL_WHOISOPERATOR_TEXT "\n",
+		cfg->host, RPL_WHOISOPERATOR, client->nick,
+		cl->nick);
 	  
   /* idle seconds */
   xsock = cl->sock;
@@ -179,19 +180,19 @@ send_user_infos (socket_t sock,        /* the socket for the client to send */
   for (text[0] = 0, i = 0; i < cl->channels; i++)
     {
       channel = cl->channel[i];
-      n = irc_is_client_in_channel (NULL, cl, channel);
-      if(channel->cflag[n] & MODE_OPERATOR)
-	strcat(text, "@");
-      else if(channel->cflag[n] & MODE_VOICE)
-	strcat(text, "+");
-      strcat(text, cl->channel[i]->name);
-      strcat(text, " ");
+      n = irc_client_in_channel (NULL, cl, channel);
+      if (channel->cflag[n] & MODE_OPERATOR)
+	strcat (text, "@");
+      else if (channel->cflag[n] & MODE_VOICE)
+	strcat (text, "+");
+      strcat (text, cl->channel[i]->name);
+      strcat (text, " ");
     }
 
   /* send channel list */
-  irc_printf(sock, ":%s %03d %s " RPL_WHOISCHANNELS_TEXT "\n",
-	     cfg->host, RPL_WHOISCHANNELS, client->nick,
-	     cl->nick, text);
+  irc_printf (sock, ":%s %03d %s " RPL_WHOISCHANNELS_TEXT "\n",
+	      cfg->host, RPL_WHOISCHANNELS, client->nick,
+	      cl->nick, text);
 }
 
 /*
@@ -215,30 +216,30 @@ irc_whois_callback (socket_t sock,
   int n;
 
   /* enough paras ? */
-  if (irc_check_paras (sock, client, cfg, request, 1))
+  if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
   /* server Mask ? */
-  if(string_regex(cfg->host, request->para[0]))
-    irc_parse_target(request, 1);
+  if (irc_string_regex (cfg->host, request->para[0]))
+    irc_parse_target (request, 1);
 
   /* go through all targets */
-  for(n=0; n<request->targets; n++)
+  for (n = 0; n < request->targets; n++)
     {
       nick = request->target[n].nick;
       chan = request->target[n].channel;
 
       /* nick Mask ? */
-      if(strstr(nick, "*") || strstr(nick, "?"))
+      if (strstr (nick, "*") || strstr (nick, "?"))
 	{
 	  if ((cl = irc_regex_nick (cfg, nick)) != NULL)
 	    {
 	      for (n = 0; cl[n]; n++)
 		{
 		  /* is this client away ? */
-		  if (irc_is_client_absent (cl[n], client))
+		  if (irc_client_absent (cl[n], client))
 		    continue;
-		  send_user_infos (sock, client, cl[n]);
+		  irc_user_info (sock, client, cl[n]);
 		}
 	      xfree (cl);
 	    }
@@ -247,9 +248,9 @@ irc_whois_callback (socket_t sock,
       else if ((rclient = irc_find_nick (cfg, nick)))
 	{
 	  /* is this client away ? */
-	  if (irc_is_client_absent (rclient, client)) 
+	  if (irc_client_absent (rclient, client)) 
 	    continue;
-	  send_user_infos (sock, client, rclient);
+	  irc_user_info (sock, client, rclient);
 	}
 
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHOIS_TEXT "\n",
@@ -262,32 +263,31 @@ irc_whois_callback (socket_t sock,
 /*
  * Send a single WHO reply.
  */
-void
-send_client_infos (socket_t sock,          /* this client's socket */
-		   irc_client_t *client,   /* this client */
-		   irc_client_t *cl,       /* reply this client's info */
-		   irc_channel_t *channel) /* channel 'cl' is in */
+static void
+irc_client_info (socket_t sock,          /* this client's socket */
+		 irc_client_t *client,   /* this client */
+		 irc_client_t *cl,       /* reply this client's info */
+		 irc_channel_t *channel) /* channel 'cl' is in */
 {
   irc_config_t *cfg = sock->cfg;
   char text[MAX_MSG_LEN];
   char *flag = "";
   int n;
 
-  n = irc_is_client_in_channel (NULL, cl, channel);
-  if(channel->cflag[n] & MODE_OPERATOR)
+  n = irc_client_in_channel (NULL, cl, channel);
+  if (channel->cflag[n] & MODE_OPERATOR)
     flag = "@";
-  else if(channel->cflag[n] & MODE_VOICE)
+  else if (channel->cflag[n] & MODE_VOICE)
     flag = "+";
 
-  sprintf(text, "%s %s %s %s %s %c %s%s :%d %s",
-	  channel->name, cl->user, cl->host, cl->server, cl->nick, 
-	  cl->flag & UMODE_AWAY ? 'G' : 'H',
-	  cl->flag & UMODE_OPERATOR ? "*" : "",
-	  flag, 0, cl->real);
+  sprintf (text, "%s %s %s %s %s %c %s%s :%d %s",
+	   channel->name, cl->user, cl->host, cl->server, cl->nick, 
+	   cl->flag & UMODE_AWAY ? 'G' : 'H',
+	   cl->flag & UMODE_OPERATOR ? "*" : "",
+	   flag, 0, cl->real);
   
-  irc_printf(sock, ":%s %03d %s %s\n",
-	     cfg->host, RPL_WHOREPLY, client->nick, text);
-
+  irc_printf (sock, ":%s %03d %s %s\n",
+	      cfg->host, RPL_WHOREPLY, client->nick, text);
 }
 
 /* 
@@ -307,18 +307,18 @@ irc_who_callback (socket_t sock,
   char *name;
   int n, i;
 
-  if(!request->paras) name = "*";
-  else                name = request->para[0];
+  if (!request->paras) name = "*";
+  else                 name = request->para[0];
 
   /* find all Matching channels */
   if ((channel = irc_regex_channel (cfg, name)) != NULL)
     {
       for (i = 0; channel[i]; i++)
 	{
-	  for(n = 0; n < channel[i]->clients; n++)
+	  for (n = 0; n < channel[i]->clients; n++)
 	    {
 	      xcl = channel[i]->client[n];
-	      send_client_infos (sock, client, xcl, channel[i]);
+	      irc_client_info (sock, client, xcl, channel[i]);
 	    }
 	}
       irc_printf (sock, ":%s %03d %s %s :%s\n",
@@ -339,7 +339,7 @@ irc_who_callback (socket_t sock,
 	  for (n = 0; n < cl[i]->channels; n++)
 	    {
 	      xch = cl[i]->channel[n];
-	      send_client_infos (sock, client, cl[i], xch);
+	      irc_client_info (sock, client, cl[i], xch);
 	    }
 	}
       irc_printf (sock, ":%s %03d %s %s :%s\n",
@@ -348,7 +348,6 @@ irc_who_callback (socket_t sock,
       xfree (cl);
     }
 
-  
   return 0;
 }
 

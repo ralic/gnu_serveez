@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event.h,v 1.2 2000/06/12 23:06:06 raimi Exp $
+ * $Id: irc-event.h,v 1.3 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -74,7 +74,7 @@
  *    4.5.2 Whois query                * Yes  * Ok
  *    4.5.3 Whowas message             * Yes  *
  * 4.6 Miscellaneous messages
- *    4.6.1 Kill message               * No   *
+ *    4.6.1 Kill message               * No   * Partly ???
  *    4.6.2 Ping message               * Yes  *
  *    4.6.3 Pong message               * Yes  *
  *    4.6.4 Error message              * Yes  * Much ToDo
@@ -97,51 +97,53 @@
 #define _GNU_SOURCE
 
 /* Miscellaneous functions */
-char *get_client_flags(irc_client_t *client);
-char *get_channel_flags(irc_channel_t *channel);
+char *irc_client_flag_string (irc_client_t *client);
+char *irc_channel_flag_string (irc_channel_t *channel);
+
+#define CALLBACK_ARGS socket_t, irc_client_t *, irc_request_t *
 
 /* Connection Registration */
-int irc_pass_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_user_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_nick_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_quit_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_motd_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_pass_callback (CALLBACK_ARGS);
+int irc_user_callback (CALLBACK_ARGS);
+int irc_nick_callback (CALLBACK_ARGS);
+int irc_quit_callback (CALLBACK_ARGS);
+int irc_motd_callback (CALLBACK_ARGS);
 
 /* Channel operations */
-int irc_part_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_join_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_mode_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_topic_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_names_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_list_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_invite_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_kick_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_part_callback   (CALLBACK_ARGS);
+int irc_join_callback   (CALLBACK_ARGS);
+int irc_mode_callback   (CALLBACK_ARGS);
+int irc_topic_callback  (CALLBACK_ARGS);
+int irc_names_callback  (CALLBACK_ARGS);
+int irc_list_callback   (CALLBACK_ARGS);
+int irc_invite_callback (CALLBACK_ARGS);
+int irc_kick_callback   (CALLBACK_ARGS);
 
 /* Server queries and commands */
-int irc_stats_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_version_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_lusers_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_time_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_admin_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_stats_callback   (CALLBACK_ARGS);
+int irc_version_callback (CALLBACK_ARGS);
+int irc_lusers_callback  (CALLBACK_ARGS);
+int irc_time_callback    (CALLBACK_ARGS);
+int irc_admin_callback   (CALLBACK_ARGS);
 
 /* Sending messages */
-int irc_note_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_priv_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_note_callback (CALLBACK_ARGS);
+int irc_priv_callback (CALLBACK_ARGS);
 
 /* User-based queries */
-int irc_who_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_whois_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_whowas_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_who_callback    (CALLBACK_ARGS);
+int irc_whois_callback  (CALLBACK_ARGS);
+int irc_whowas_callback (CALLBACK_ARGS);
 
 /* Miscellaneous messages */
-int irc_ping_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_pong_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_error_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_kill_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_ping_callback  (CALLBACK_ARGS);
+int irc_pong_callback  (CALLBACK_ARGS);
+int irc_error_callback (CALLBACK_ARGS);
+int irc_kill_callback  (CALLBACK_ARGS);
 
 /* Optional messages */
-int irc_away_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_userhost_callback(socket_t, irc_client_t*, irc_request_t*);
-int irc_ison_callback(socket_t, irc_client_t*, irc_request_t*);
+int irc_away_callback     (CALLBACK_ARGS);
+int irc_userhost_callback (CALLBACK_ARGS);
+int irc_ison_callback     (CALLBACK_ARGS);
 
 #endif /* __IRC_EVENT_H__ */

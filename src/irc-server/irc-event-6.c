@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-6.c,v 1.4 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-event-6.c,v 1.5 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -58,17 +58,17 @@ irc_ping_callback (socket_t sock,
   int n;
 
   /* ping origin given ? */
-  if(request->paras < 1)
+  if (request->paras < 1)
     {
-      irc_printf(sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
-		 cfg->host, ERR_NOORIGIN, client->nick);
+      irc_printf (sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
+		  cfg->host, ERR_NOORIGIN, client->nick);
       return 0;
     }
 
   /* go through all paras and respond to the ping */
-  for(n=0; n<request->paras; n++)
+  for (n = 0; n < request->paras; n++)
     {
-      irc_printf(sock, "PONG %s\n", request->para[n]);
+      irc_printf (sock, "PONG %s\n", request->para[n]);
     }
 
   return 0;
@@ -88,22 +88,22 @@ irc_pong_callback (socket_t sock,
   int n;
 
   /* pong origin given ? */
-  if(request->paras < 1)
+  if (request->paras < 1)
     {
-      irc_printf(sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
-		 cfg->host, ERR_NOORIGIN, client->nick);
+      irc_printf (sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
+		  cfg->host, ERR_NOORIGIN, client->nick);
       return 0;
     }
 
   /* go through all targets */
-  for(n=0; n<request->paras; n++)
+  for (n = 0; n < request->paras; n++)
     {
       /* is the server origin valid ? */
-      if(strcmp(request->para[n], cfg->host))
+      if (strcmp (request->para[n], cfg->host))
 	{
-	  irc_printf(sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
-		     cfg->host, ERR_NOSUCHSERVER, client->nick,
-		     request->para[n]);
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
+		      cfg->host, ERR_NOSUCHSERVER, client->nick,
+		      request->para[n]);
 	  return 0;
 	}
       /* yes, count the ping reply */
@@ -122,7 +122,7 @@ irc_error_callback (socket_t sock,
 		    irc_client_t *client,
 		    irc_request_t *request)
 {
-  log_printf(LOG_ERROR, "irc: %s\n", request->para[0]);
+  log_printf (LOG_ERROR, "irc: %s\n", request->para[0]);
   return 0;
 }
 
@@ -141,27 +141,28 @@ irc_kill_callback (socket_t sock,
   irc_client_t *cl;
 
   /* do you have enough paras ? */
-  if (irc_check_paras (sock, client, cfg, request, 2))
+  if (irc_check_args (sock, client, cfg, request, 2))
     return 0;
 
   /* are you an IRC operator ? */
-  if(client && !(client->flag & UMODE_OPERATOR))
+  if (client && !(client->flag & UMODE_OPERATOR))
     {
-      irc_printf(sock, ":%s %03d %s " ERR_NOPRIVILEGES_TEXT "\n",
-		 cfg->host, ERR_NOPRIVILEGES, client->nick);
+      irc_printf (sock, ":%s %03d %s " ERR_NOPRIVILEGES_TEXT "\n",
+		  cfg->host, ERR_NOPRIVILEGES, client->nick);
       return 0;
     }
 
   /* find the IRC client */
   if (!(cl = irc_find_nick (cfg, request->para[0])))
     {
-      irc_printf(sock, ":%s %03d " ERR_NOSUCHNICK_TEXT "\n",
-		 cfg->host, ERR_NOSUCHNICK, request->para[0]);
+      irc_printf (sock, ":%s %03d " ERR_NOSUCHNICK_TEXT "\n",
+		  cfg->host, ERR_NOSUCHNICK, request->para[0]);
       return 0;
     }
 
   /* delete this client */
-
+  /* TODO: read the RFC for what is happening if a nick collision occurs */
+  
   return 0;
 }
 

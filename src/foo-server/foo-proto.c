@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.7 2000/07/01 15:43:40 ela Exp $
+ * $Id: foo-proto.c,v 1.8 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -140,6 +140,7 @@ struct server_definition foo_server_definition =
 int
 foo_handle_coserver_result (socket_t sock, char *hostent)
 {
+  sock->ref--;
   sock_printf (sock, "You are `%s'\r\n", hostent);
   return 0;
 }
@@ -215,6 +216,7 @@ foo_connect_socket (void *acfg, socket_t sock)
   coserver_reverse (sock->remote_addr,
 		    (coserver_handle_result_t)foo_handle_coserver_result,
 		    sock);
+  sock->ref++;
   sock_printf (sock, "...waiting...\r\n");
   return 0;
 }

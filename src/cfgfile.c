@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.6 2000/07/04 09:50:34 raimi Exp $
+ * $Id: cfgfile.c,v 1.7 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -89,21 +89,20 @@ zzz_bind_bool_variable(name, location, 1)
  * terminate program then...
  */
 int
-load_config(char *cfgfilename, int argc, char **argv)
+load_config (char *cfgfilename, int argc, char **argv)
 {
   int retval = 0;
   int i;
   
   /*
-   * Register all configuration items here
+   * Register all configuration items here.
    */
   struct config_t configs[] =
   {
-    /* Global settings */
-    REG_INT("serveez-port", &serveez_config.port, 42420, 1),
-    REG_INT("serveez-sockets", &serveez_config.max_sockets, 200, 1),
-    REG_INT("serveez-verbosity", &verbosity, 3, 1),
-    REG_STRING("serveez-pass", &serveez_config.server_password, "!", 0),
+    /* global settings */
+    REG_INT ("serveez-sockets", &serveez_config.max_sockets, 200, 1),
+    REG_INT ("serveez-verbosity", &verbosity, 3, 1),
+    REG_STRING ("serveez-pass", &serveez_config.server_password, "!", 0),
     
     { LISTEND,      NULL, NULL,  0, NULL,  0, NULL, NULL }
   };
@@ -116,20 +115,20 @@ load_config(char *cfgfilename, int argc, char **argv)
   /*
    * set some information for sizzle (read-only)
    */
-  zzz_bind_string_variable("serveez-version", serveez_config.version_string,
-			   0, 1);
+  zzz_bind_string_variable ("serveez-version", serveez_config.version_string,
+			    0, 1);
 
   /*
    * register read-only boolean variables for the features in this system
    */
-  REG_HAVEFLAG("have-debug", &have_debug);
-  REG_HAVEFLAG("have-awcs", &have_awcs);
-  REG_HAVEFLAG("have-irc", &have_irc);
-  REG_HAVEFLAG("have-http", &have_http);
-  REG_HAVEFLAG("have-ident", &have_ident);
-  REG_HAVEFLAG("have-nslookup", &have_nslookup);
-  REG_HAVEFLAG("have-floodprotection", &have_floodprotect);
-  REG_HAVEFLAG("have-win32", &have_win32);
+  REG_HAVEFLAG ("have-debug", &have_debug);
+  REG_HAVEFLAG ("have-awcs", &have_awcs);
+  REG_HAVEFLAG ("have-irc", &have_irc);
+  REG_HAVEFLAG ("have-http", &have_http);
+  REG_HAVEFLAG ("have-ident", &have_ident);
+  REG_HAVEFLAG ("have-nslookup", &have_nslookup);
+  REG_HAVEFLAG ("have-floodprotection", &have_floodprotect);
+  REG_HAVEFLAG ("have-win32", &have_win32);
 
   for (i = 0; configs[i].type != LISTEND; i++)
     {

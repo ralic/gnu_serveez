@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.5 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-server.c,v 1.6 2000/07/07 16:26:21 ela Exp $
  *
  */
 
@@ -57,7 +57,7 @@
 
 #define DEFAULT_PORT 6667
 
-irc_server_t  *irc_server_list;  /* server list root */
+irc_server_t *irc_server_list;  /* server list root */
 
 #define MAX_HOST_LEN 256
 #define MAX_PASS_LEN 256
@@ -70,7 +70,7 @@ irc_server_t  *irc_server_list;  /* server list root */
  * will be parsed until the next character in the format string.
  */
 int
-irc_parse_line(char *line, char *fmt, ...)
+irc_parse_line (char *line, char *fmt, ...)
 {
   va_list args;
   int *i;
@@ -80,20 +80,20 @@ irc_parse_line(char *line, char *fmt, ...)
   va_start(args, fmt);
   ret = 0;
 
-  while(*fmt && *line)
+  while (*fmt && *line)
     {
       /* next arg */
-      if(*fmt == '%')
+      if (*fmt == '%')
 	{
 	  fmt++;
 
 	  /* a decimal */
-	  if(*fmt == 'd')
+	  if (*fmt == 'd')
 	    {
-	      i = va_arg(args, int *);
+	      i = va_arg (args, int *);
 	      *i = 0;
 	      fmt++;
-	      while(*line && *line >= '0' && *line <= '9')
+	      while (*line && *line >= '0' && *line <= '9')
 		{
 		  *i *= 10;
 		  *i += *line - '0';
@@ -101,11 +101,11 @@ irc_parse_line(char *line, char *fmt, ...)
 		}
 	    }
 	  /* a string */
-	  else if(*fmt == 's')
+	  else if (*fmt == 's')
 	    {
-	      s = va_arg(args, char *);
+	      s = va_arg (args, char *);
 	      fmt++;
-	      while(*line && *line != *fmt)
+	      while (*line && *line != *fmt)
 		{
 		  *s = *line;
 		  s++;
@@ -116,7 +116,7 @@ irc_parse_line(char *line, char *fmt, ...)
 	  ret++;
 	}
       /* not an arg */
-      else if(*fmt != *line)
+      else if (*fmt != *line)
 	{
 	  break;
 	}
@@ -124,7 +124,7 @@ irc_parse_line(char *line, char *fmt, ...)
       line++;
     }
 
-  va_end(args);
+  va_end (args);
   return ret;
 }
 
@@ -167,15 +167,15 @@ irc_connect_server (irc_server_t *server, char *ip)
   /* send initial requests introducing this server */
 #ifndef ENABLE_TIMESTAMP
   irc_printf (sock, "PASS %s\n", server->pass);
-#else
+#else /* ENABLE_TIMESTAMP */
   irc_printf (sock, "PASS %s %s\n", server->pass, TS_PASS);
-#endif
+#endif /* ENABLE_TIMESTAMP */
   irc_printf (sock, "SERVER %s 1 :%s\n", cfg->host, cfg->info);
 
 #if ENABLE_TIMESTAMP
   irc_printf (sock, "SVINFO %d %d %d :%d\n",
 	      TS_CURRENT, TS_MIN, 0, time(NULL) + cfg->tsdelta);
-#endif
+#endif /* ENABLE_TIMESTAMP */
 
   /* now propagate user information to this server */
   if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
@@ -185,17 +185,17 @@ irc_connect_server (irc_server_t *server, char *ip)
 #if ENABLE_TIMESTAMP
 	  irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
 		      cl[n]->nick, cl[n]->hopcount, cl[n]->since, 
-		      get_client_flags (cl[n]), 
+		      irc_client_flag_string (cl[n]), 
 		      cl[n]->user, cl[n]->host,
 		      cl[n]->server, "EFNet?");
-#else
+#else /* not ENABLE_TIMESTAMP */
 	  irc_printf (sock, "NICK %s\n", cl[n]->nick);
 	  irc_printf (sock, "USER %s %s %s %s\n", 
 		      cl[n]->user, cl[n]->host, 
 		      cl[n]->server, cl[n]->real);
 	  irc_printf (sock, "MODE %s %s\n", 
-		      cl[n]->nick, get_client_flags(cl[n]));
-#endif
+		      cl[n]->nick, irc_client_flag_string (cl[n]));
+#endif /* not ENABLE_TIMESTAMP */
 	}
       xfree (cl);
     }
@@ -209,7 +209,7 @@ irc_connect_server (irc_server_t *server, char *ip)
 	  /* create nick list */
 	  for (nicklist[0] = 0, n = 0; n < ch[n]->clients; n++)
 	    {
-	      if(ch[i]->cflag[n] & MODE_OPERATOR)
+	      if (ch[i]->cflag[n] & MODE_OPERATOR)
 		strcat (nicklist, "@");
 	      else if (ch[i]->cflag[n] & MODE_VOICE)
 		strcat (nicklist, "+");
@@ -219,23 +219,36 @@ irc_connect_server (irc_server_t *server, char *ip)
 	}
       /* propagate one channel in one request */
       irc_printf (sock, "SJOIN %d %s %s :%s\n",
-		  ch[i]->since, ch[i]->name, get_channel_flags(ch[i]),
+		  ch[i]->since, ch[i]->name, irc_channel_flag_string (ch[i]),
 		  nicklist);
-#else
+#else /* not ENABLE_TIMESTAMP */
       for (n = 0; n < ch[i]->clients; n++)
 	{
 	  irc_printf (sock, ":%s JOIN %s\n", 
 		      ch[i]->client[n], ch[i]->name);
 	}
       irc_printf (sock, "MODE %s %s\n", 
-		  ch[i]->name, get_channel_flags(ch[i]));
-#endif
+		  ch[i]->name, irc_channel_flag_string (ch[i]));
+#endif /* not ENABLE_TIMESTAMP */
+
+      xfree (ch);
     }
-  xfree (ch);
   
   return 0;
 }
 #endif /* ENABLE_DNS_LOOKUP */
+
+/*
+ * Add an IRC server to the server list.
+ */
+static irc_server_t *
+irc_add_server (irc_config_t *cfg, irc_server_t *server)
+{
+  server->next = cfg->servers;
+  cfg->servers = server;
+    
+  return cfg->servers;
+}
 
 /*
  * Go through all C lines in the IRC server configuration
@@ -287,33 +300,9 @@ irc_connect_servers (irc_config_t *cfg)
 }
 
 /*
- * Add an IRC server to the server list.
- */
-irc_server_t *
-irc_add_server (irc_config_t *cfg, irc_server_t *server)
-{
-  server->next = cfg->servers;
-  cfg->servers = server;
-    
-  return cfg->servers;
-}
-
-/*
- * Delete all IRC servers.
- */
-void
-irc_delete_servers (irc_config_t *cfg)
-{
-  while (cfg->servers)
-    {
-      irc_del_server (cfg, cfg->servers);
-    }
-}
-
-/*
  * Delete an IRC server of the current list.
  */
-void
+static void
 irc_del_server (irc_config_t *cfg, irc_server_t *server)
 {
   irc_server_t *srv;
@@ -340,10 +329,22 @@ irc_del_server (irc_config_t *cfg, irc_server_t *server)
 }
 
 /*
+ * Delete all IRC servers.
+ */
+void
+irc_delete_servers (irc_config_t *cfg)
+{
+  while (cfg->servers)
+    {
+      irc_del_server (cfg, cfg->servers);
+    }
+}
+
+/*
  * Find an IRC server in the current list.
  */
 irc_server_t *
-irc_find_server(void)
+irc_find_server (void)
 {
   return NULL;
 }

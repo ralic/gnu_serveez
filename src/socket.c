@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.10 2000/07/01 15:43:40 ela Exp $
+ * $Id: socket.c,v 1.11 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -54,6 +54,7 @@
 #include "socket.h"
 #include "pipe-socket.h"
 #include "server-socket.h"
+#include "server-core.h"
 #include "server.h"
 
 /*
@@ -69,7 +70,7 @@ socket_t sock_lookup_table[SOCKET_MAX_IDS];
 int socket_id = 0;
 
 /*
- * Default function for writing to socket SOCK.  Simply flushes
+ * Default function for writing to socket SOCK. Simply flushes
  * the output buffer to the network.
  * Write as much as possible into the socket SOCK.  Writing
  * is performed non-blocking, so only as much as fits into
@@ -129,6 +130,41 @@ default_write (socket_t sock)
    * Return a non-zero value if an error occured.
    */
   return (num_written < 0) ? -1 : 0;
+}
+
+/*
+ * The default routine for connecting a socket SOCK.
+ * When we get select()ed via the WRITE_SET we simply check for 
+ * network errors and assign the default_write callback then or
+ * shutdown the socket otherwise.
+ */
+int
+default_connect (socket_t sock)
+{
+  int error;
+  socklen_t optlen;
+
+  if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
+		  (void *) &error, &optlen) < 0)
+    {
+      log_printf (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      return -1;
+    }
+  if (error)
+    {
+      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+      if (error != EINPROGRESS)
+	return -1;
+      else
+	return 0;
+    }
+  sock->flags |= SOCK_FLAG_CONNECTED;
+  sock->flags &= ~SOCK_FLAG_CONNECTING;
+  sock_intern_connection_info (sock);
+  sock->write_socket = default_write;
+  connected_sockets++;
+
+  return 0;
 }
 
 /*
@@ -580,6 +616,29 @@ sock_unique_id (socket_t sock)
 }
 
 /*
+ * Check if a given socket is still valid. Return zero (false) if it is
+ * not.
+ */
+int
+sock_valid (socket_t check_sock)
+{
+  socket_t sock;
+
+  for (sock = socket_root; sock; sock = sock->next)
+    {
+      if (sock == check_sock)
+	{
+	  if (sock->flags & SOCK_FLAG_SOCK &&
+	      sock->flags & SOCK_FLAG_CONNECTED &&
+	      sock->sock_desc != INVALID_SOCKET)
+	    return -1;
+	  return 0;
+	}
+    }
+  return 0;
+}
+
+/*
  * Create a socket structure from the file descriptor FD.  Return NULL
  * on error.
  */
@@ -683,7 +742,8 @@ sock_write (socket_t sock, char * buf, int len)
   while (len > 0)
     {
       /* Try to flush the queue of this socket */
-      if (sock->write_socket && !sock->unavailable)
+      if (sock->write_socket && !sock->unavailable && 
+	  sock->flags & SOCK_FLAG_CONNECTED)
 	{
 	  if ((ret = sock->write_socket (sock)) != 0)
 	    return ret;

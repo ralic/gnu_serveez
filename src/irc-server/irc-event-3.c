@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.3 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-event-3.c,v 1.4 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -59,30 +59,30 @@ irc_admin_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* server para is given */
-  if(request->paras > 1)
+  if (request->paras > 1)
     {
       /* check if the server para is valid */
-      if(strcmp(request->para[1], cfg->host))
+      if (strcmp (request->para[1], cfg->host))
 	{
-	  irc_printf(sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
-		     cfg->host, ERR_NOSUCHSERVER, client->nick,
-		     request->para[1]);
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
+		      cfg->host, ERR_NOSUCHSERVER, client->nick,
+		      request->para[1]);
 	  return 0;
 	}
     }
   
-  irc_printf(sock, ":%s %03d %s " RPL_ADMINME_TEXT "\n",
-	     cfg->host, RPL_ADMINME, client->nick, 
-	     cfg->host, cfg->admininfo);
-  irc_printf(sock, ":%s %03d %s " RPL_ADMINLOC1_TEXT "\n",
-	     cfg->host, RPL_ADMINLOC1, client->nick, 
-	     cfg->location1);
-  irc_printf(sock, ":%s %03d %s " RPL_ADMINLOC2_TEXT "\n",
-	     cfg->host, RPL_ADMINLOC2, client->nick, 
-	     cfg->location2);
-  irc_printf(sock, ":%s %03d %s " RPL_ADMINEMAIL_TEXT "\n",
-	     cfg->host, RPL_ADMINEMAIL, client->nick, 
-	     cfg->email);
+  irc_printf (sock, ":%s %03d %s " RPL_ADMINME_TEXT "\n",
+	      cfg->host, RPL_ADMINME, client->nick, 
+	      cfg->host, cfg->admininfo);
+  irc_printf (sock, ":%s %03d %s " RPL_ADMINLOC1_TEXT "\n",
+	      cfg->host, RPL_ADMINLOC1, client->nick, 
+	      cfg->location1);
+  irc_printf (sock, ":%s %03d %s " RPL_ADMINLOC2_TEXT "\n",
+	      cfg->host, RPL_ADMINLOC2, client->nick, 
+	      cfg->location2);
+  irc_printf (sock, ":%s %03d %s " RPL_ADMINEMAIL_TEXT "\n",
+	      cfg->host, RPL_ADMINEMAIL, client->nick, 
+	      cfg->email);
   
   return 0;
 }
@@ -100,23 +100,23 @@ irc_time_callback (socket_t sock,
   time_t t;
 
   /* server para is given */
-  if(request->paras > 1)
+  if (request->paras > 1)
     {
       /* check if the server para is valid */
-      if(strcmp(request->para[1], cfg->host))
+      if (strcmp (request->para[1], cfg->host))
 	{
-	  irc_printf(sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
-		     cfg->host, ERR_NOSUCHSERVER, client->nick,
-		     request->para[1]);
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
+		      cfg->host, ERR_NOSUCHSERVER, client->nick,
+		      request->para[1]);
 	  return 0;
 	}
     }
   
   /* reply the local time */
-  t = time(NULL);
-  irc_printf(sock, ":%s %03d %s " RPL_TIME_TEXT,
-	     cfg->host, RPL_TIME, client->nick, 
-	     cfg->host, ctime(&t));
+  t = time (NULL);
+  irc_printf (sock, ":%s %03d %s " RPL_TIME_TEXT,
+	      cfg->host, RPL_TIME, client->nick, 
+	      cfg->host, ctime (&t));
 
   return 0;
 }
@@ -136,16 +136,16 @@ irc_lusers_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* send LUSER* replies */
-  irc_printf(sock, ":%s %03d %s " RPL_LUSERCLIENT_TEXT "\n",
-	     cfg->host, RPL_LUSERCLIENT, client->nick,
-	     cfg->users, cfg->invisibles, cfg->servers);
+  irc_printf (sock, ":%s %03d %s " RPL_LUSERCLIENT_TEXT "\n",
+	      cfg->host, RPL_LUSERCLIENT, client->nick,
+	      cfg->users, cfg->invisibles, cfg->servers);
 
-  irc_printf(sock, ":%s %03d %s " RPL_LUSEROP_TEXT "\n",
-	     cfg->host, RPL_LUSEROP, client->nick,
-	     cfg->operators);
+  irc_printf (sock, ":%s %03d %s " RPL_LUSEROP_TEXT "\n",
+	      cfg->host, RPL_LUSEROP, client->nick,
+	      cfg->operators);
 
   /* This will end up in a non standard welcome message !
-  irc_printf(sock, ":%s %03d %s " RPL_LUSERUNKNOWN_TEXT "\n",
+  irc_printf (sock, ":%s %03d %s " RPL_LUSERUNKNOWN_TEXT "\n",
   cfg->host, RPL_LUSERUNKNOWN, client->nick,
   cfg->unknowns);
   */
@@ -182,28 +182,28 @@ irc_stats_callback (socket_t sock,
   time_t t, sec, hour, min, day;
 
   /* no paras given */
-  if(!request->paras)
+  if (!request->paras)
     {
-      irc_printf(sock, ":%s %03d %s " RPL_ENDOFSTATS_TEXT "\n",
-		 cfg->host, RPL_ENDOFSTATS, client->nick, ' ');
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFSTATS_TEXT "\n",
+		  cfg->host, RPL_ENDOFSTATS, client->nick, ' ');
       return 0;
     }
   
   /* server para is given */
-  if(request->paras > 1)
+  if (request->paras > 1)
     {
       /* check if the server para is valid */
-      if(strcmp(request->para[1], cfg->host))
+      if (strcmp (request->para[1], cfg->host))
 	{
-	  irc_printf(sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
-		     cfg->host, ERR_NOSUCHSERVER, client->nick,
-		     request->para[1]);
+	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
+		      cfg->host, ERR_NOSUCHSERVER, client->nick,
+		      request->para[1]);
 	  return 0;
 	}
     }
   
   stat = request->para[0][0];
-  switch(stat)
+  switch (stat)
     { 
       /* 
        * c - servers which the server may connect to or allow 
@@ -258,7 +258,7 @@ irc_stats_callback (socket_t sock,
        * u - returns a string showing how long the server has been up
        */
     case 'u':
-      t = time(NULL) - serveez_config.start_time;
+      t = time (NULL) - serveez_config.start_time;
       sec = t % 60;
       t -= sec;
       min = t % 60;
@@ -266,16 +266,16 @@ irc_stats_callback (socket_t sock,
       hour = t % 3600;
       t -= hour * 3600;
       day = t / (3600 * 24);
-      irc_printf(sock, ":%s %03d %s " RPL_STATSUPTIME_TEXT "\n",
-		 cfg->host, RPL_STATSUPTIME, client->nick, 
-		 day, hour, min, sec);
+      irc_printf (sock, ":%s %03d %s " RPL_STATSUPTIME_TEXT "\n",
+		  cfg->host, RPL_STATSUPTIME, client->nick, 
+		  day, hour, min, sec);
       break;
     default:
       break;
     }
 
-  irc_printf(sock, ":%s %03d %s " RPL_ENDOFSTATS_TEXT "\n",
-	     cfg->host, RPL_ENDOFSTATS, client->nick, stat);
+  irc_printf (sock, ":%s %03d %s " RPL_ENDOFSTATS_TEXT "\n",
+	      cfg->host, RPL_ENDOFSTATS, client->nick, stat);
   return 0;
 }
 
@@ -292,12 +292,12 @@ irc_version_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* no paras */
-  if(!request->paras)
+  if (!request->paras)
     {
-      irc_printf(sock, ":%s %03d %s " RPL_VERSION_TEXT "\n",
-		 cfg->host, RPL_VERSION, client->nick,
-		 serveez_config.version_string, 
-		 serveez_config.program_name);
+      irc_printf (sock, ":%s %03d %s " RPL_VERSION_TEXT "\n",
+		  cfg->host, RPL_VERSION, client->nick,
+		  serveez_config.version_string, 
+		  serveez_config.program_name);
     }
   return 0;
 }

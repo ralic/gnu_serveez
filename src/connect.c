@@ -2,8 +2,6 @@
  * connect.c - socket connection implementation
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
- * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
- * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: connect.c,v 1.4 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -63,6 +61,9 @@ sock_connect (unsigned host, int port)
   struct sockaddr_in server;
   SOCKET client_socket;
   socket_t sock;
+#ifdef __MINGW32__
+  unsigned long blockMode = 1;
+#endif
 
   /*
    * first, create a socket for communication with the server
@@ -74,7 +75,35 @@ sock_connect (unsigned host, int port)
     }
 
   /*
-   * second, connect to the server
+   * second, make the socket non-blocking
+   */
+#ifdef __MINGW32__
+  if (ioctlsocket (client_socket, FIONBIO, &blockMode) == SOCKET_ERROR)
+    {
+      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      return NULL;
+    }
+#else
+  if (fcntl (client_socket, F_SETFL, O_NONBLOCK) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      return NULL;
+    }
+#endif
+  
+  /*
+   * create socket structure and enqueue it
+   */
+  if (!(sock = sock_alloc ()))
+    return NULL;
+
+  sock_unique_id (sock);
+  sock->sock_desc = client_socket;
+  sock->flags |= SOCK_FLAG_SOCK;
+  sock_enqueue (sock);
+
+  /*
+   * third, try to connect to the server
    */
   server.sin_family = AF_INET;
   server.sin_addr.s_addr = host;
@@ -83,23 +112,10 @@ sock_connect (unsigned host, int port)
   if (connect (client_socket, (struct sockaddr *) &server,
 	       sizeof (server)) == -1)
     {
-      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
-      if (CLOSE_SOCKET (client_socket) < 0)
-	{
-	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
-	}
-      return NULL;
+      log_printf (LOG_NOTICE, "irc: connect: %s\n", NET_ERROR);
     }
-
-  /*
-   * third, create socket structure and enqueue it
-   */
-  if ((sock = sock_create (client_socket)))
-    {
-      sock_enqueue (sock);
-      connected_sockets++;
-      sock->flags |= SOCK_FLAG_CONNECTED;
-    }
+  sock->flags |= SOCK_FLAG_CONNECTING;
+  sock->write_socket = default_connect;
 
   return sock;
 }

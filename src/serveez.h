@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: serveez.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: serveez.h,v 1.3 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -38,16 +38,17 @@
  */
 typedef struct
 {
+  /* program name */
   char *program_name;
+  /* version string of program */
   char *version_string;
+  /* biuld string of program */
   char *build_string;
+  /* programs password */
   char *server_password;
-  int port;
-  /*
-   * This value defines how many clients are allowed to connect.
-   * This is by default 200.
-   */
+  /* defines how many clients are allowed to connect */
   SOCKET max_sockets;
+  /* when was the program started */
   time_t start_time;
 }  
 serveez_config_t;

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.14 2000/07/01 15:43:40 ela Exp $
+ * $Id: socket.h,v 1.15 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -64,6 +64,7 @@
 #define SOCK_FLAG_PIPE               /* Socket is no socket, but pipe. */ \
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
+#define SOCK_FLAG_CONNECTING  0x4000 /* Socket is still connecting */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
@@ -185,6 +186,13 @@ struct socket
    * has been done CFG should get the actual configuration hash.
    */
   void *cfg;
+
+  /*
+   * REF is the reference counter. If this counter is zero no other
+   * process or data structure has anymore references to this socket
+   * object and we can reject it.
+   */
+  int ref;
 };
 
 extern socket_t sock_lookup_table[SOCKET_MAX_IDS];
@@ -247,6 +255,7 @@ int sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size);
  */
 int sock_intern_connection_info (socket_t sock);
 
+int default_connect (socket_t sock);
 int default_read (socket_t sock);
 int default_detect_proto (socket_t sock);
 int default_check_request (socket_t sock);

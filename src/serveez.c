@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.8 2000/06/25 17:31:41 ela Exp $
+ * $Id: serveez.c,v 1.9 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -85,7 +85,6 @@ usage (void)
  "  -V, --version            display version information and exit\n"
  "  -i, --iflist             list local network interfaces and exit\n"
  "  -f, --file               file to use as configuration file [serveez.cfg]\n"
- "  -p, --port=PORT          port number the server should listen on\n"
  "  -v, --verbose=LEVEL      set level of verbosity\n"
  "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
  "  -P, --password=STRING    set the password for control connections\n"
@@ -95,7 +94,6 @@ usage (void)
  "  -V           display version information and exit\n"
  "  -i           list local network interfaces and exit\n"
  "  -f           file to use as configuration file [serveez.cfg\n"
- "  -p PORT      port number the server should listen on\n"
  "  -v LEVEL     set level of verbosity\n"
  "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
  "  -P STRING    set the password for control connections\n"
@@ -113,7 +111,6 @@ static struct option server_options[] =
   {"iflist", no_argument, NULL, 'i'},
   {"verbose", required_argument, NULL, 'v'},
   {"file", required_argument, NULL, 'f'},
-  {"port", required_argument, NULL, 'p'},
   {"log-file", required_argument, NULL, 'l'},
   {"password", required_argument, NULL, 'P'},
   {"max-sockets", required_argument, NULL, 'm'},
@@ -124,15 +121,14 @@ static struct option server_options[] =
 int
 main (int argc, char * argv[])
 {
-  char * log_file_name = NULL;
-  char * cfg_file_name = "serveez.cfg";
+  char *log_file_name = NULL;
+  char *cfg_file_name = "serveez.cfg";
 
-  int cli_port = -1;
   int cli_verbosity = -1;
   int cli_max_sockets = -1;
-  char * cli_pass = NULL;
+  char *cli_pass = NULL;
 
-  FILE * log_file = NULL;
+  FILE *log_file = NULL;
 
   int arg;
 #if HAVE_GETOPT_LONG
@@ -140,7 +136,7 @@ main (int argc, char * argv[])
 #endif
 
   /* initialize the configuration structure */
-  init_config();
+  init_config ();
 
 #if HAVE_GETOPT_LONG
   while ((arg = getopt_long (argc, argv, "p:hViv:f:P:m:", server_options,
@@ -168,10 +164,6 @@ main (int argc, char * argv[])
 
 	case 'f':
 	  cfg_file_name = optarg;
-	  break;
-
-	case 'p':
-	  cli_port = atoi (optarg);
 	  break;
 
 	case 'v':
@@ -233,20 +225,19 @@ main (int argc, char * argv[])
   /*
    * Send all log messages to LOG_FILE.
    */
-  set_log_file(log_file);
+  set_log_file (log_file);
 
-
+#if 0
   /*
    * DEBUG: show what servers we are able to run
    */
-#if 0
-  server_show_definitions();
+  server_print_definitions ();
 #endif
 
   /*
    * Load configuration
    */
-  if ( load_config(cfg_file_name, argc, argv) == -1 )
+  if (load_config (cfg_file_name, argc, argv) == -1)
     {
       /* 
        * Something went wrong while configuration file loading, 
@@ -255,13 +246,9 @@ main (int argc, char * argv[])
       return 1;
     }
 
-
   /*
    * Make command line arguments overriding the configuration file settings.
    */
-  if (cli_port != -1)
-    serveez_config.port = cli_port;
-
   if (cli_verbosity != -1)
     verbosity = cli_verbosity;
 
@@ -270,7 +257,7 @@ main (int argc, char * argv[])
 
   if (cli_pass)
     {
-      free(serveez_config.server_password);
+      free (serveez_config.server_password);
       serveez_config.server_password = cli_pass;
     }
 
@@ -285,7 +272,7 @@ main (int argc, char * argv[])
   log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
   
-  log_printf (LOG_NOTICE, "%s\n", get_version());
+  log_printf (LOG_NOTICE, "%s\n", get_version ());
   
   /* 
    * Startup the internal coservers here.
@@ -298,7 +285,7 @@ main (int argc, char * argv[])
   /*
    * Initialise servers globally.
    */
-  if (server_global_init() == -1) 
+  if (server_global_init () == -1) 
     {
       return 2;
     }
@@ -306,7 +293,7 @@ main (int argc, char * argv[])
   /*
    * Initialise server instances.
    */
-  if (server_init_all() == -1)
+  if (server_init_all () == -1)
     {
       /* 
        * Something went wrong while the server initialised themselfes.
@@ -336,7 +323,7 @@ main (int argc, char * argv[])
   coserver_finalize ();
 
 #ifdef __MINGW32__
-  net_cleanup();
+  net_cleanup ();
 #endif /* __MINGW32__ */
 
 #if ENABLE_DEBUG

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.4 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-proto.h,v 1.5 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -294,10 +294,10 @@ irc_config_t;
 extern server_definition_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
-int irc_is_client_in_channel (socket_t, irc_client_t *, irc_channel_t *);
-int irc_check_paras (socket_t, irc_client_t *, irc_config_t *,
-		     irc_request_t *, int);
-int irc_is_client_absent (irc_client_t *, irc_client_t *);
+int irc_client_in_channel (socket_t, irc_client_t *, irc_channel_t *);
+int irc_check_args (socket_t, irc_client_t *, irc_config_t *, 
+		    irc_request_t *, int);
+int irc_client_absent (irc_client_t *, irc_client_t *);
 int irc_printf (socket_t, const char *, ...);
 
 /* serveez callbacks */
@@ -306,8 +306,8 @@ int irc_disconnect (socket_t sock);
 int irc_idle (socket_t sock);
 
 /* channel operations */
-int irc_delete_channel (irc_config_t *cfg, irc_channel_t *);
-irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
+static int irc_delete_channel (irc_config_t *cfg, irc_channel_t *);
+static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
 irc_channel_t *irc_find_channel (irc_config_t *cfg, char *channel);
 irc_channel_t **irc_regex_channel (irc_config_t *cfg, char *regex);
 int irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan);

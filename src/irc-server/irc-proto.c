@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.5 2000/06/19 15:24:50 ela Exp $
+ * $Id: irc-proto.c,v 1.6 2000/07/07 16:26:20 ela Exp $
  *
  */
 
@@ -250,9 +250,9 @@ irc_finalize (server_t *server)
  * ERR_NOTONCHANNEL reply is sent to the socket.
  */
 int
-irc_is_client_in_channel (socket_t sock,          /* client's socket */
-			  irc_client_t *client,   /* the client structure */
-			  irc_channel_t *channel) /* the channel to search */
+irc_client_in_channel (socket_t sock,          /* client's socket */
+		       irc_client_t *client,   /* the client structure */
+		       irc_channel_t *channel) /* the channel to search */
 {
   irc_config_t *cfg;
   int n;
@@ -376,15 +376,15 @@ irc_leave_channel (irc_config_t *cfg,
 }
 
 /*
- * Send an error Message if not enough paras. Return non zero if
- * there are too less.
+ * Send an error message if there are not enough arguments given. 
+ * Return non zero if there are less than necessary.
  */
 int
-irc_check_paras (socket_t sock,           /* the client's socket */
-		 irc_client_t *client,    /* the irc client itself */
-		 irc_config_t *conf,      /* config hash */
-		 irc_request_t *request,  /* the request */
-		 int n)                   /* para # */
+irc_check_args (socket_t sock,           /* the client's socket */
+		irc_client_t *client,    /* the irc client itself */
+		irc_config_t *conf,      /* config hash */
+		irc_request_t *request,  /* the request */
+		int n)                   /* necessary arguments */
 {
   if (request->paras < n)
     {
@@ -398,12 +398,12 @@ irc_check_paras (socket_t sock,           /* the client's socket */
 
 /*
  * This routine checks if a given client is away or not, then
- * sends this clients away message to the sender back. Return
- * non-zero if away.
+ * sends this clients away message back to the client which requested
+ * this. Return non-zero if away.
  */
 int
-irc_is_client_absent (irc_client_t *client,  /* requested client */
-		      irc_client_t *rclient) /* who want to know about */
+irc_client_absent (irc_client_t *client,  /* requested client */
+		   irc_client_t *rclient) /* who want to know about */
 {
   irc_config_t *cfg;
   socket_t sock;
@@ -421,7 +421,7 @@ irc_is_client_absent (irc_client_t *client,  /* requested client */
 }
 
 /*
- * This routine erases a client of all channels by a quit reason,
+ * This routine erases a client from all channels by a quit reason,
  * then the client is deleted itself.
  */
 int
@@ -588,7 +588,7 @@ irc_handle_request (socket_t sock, char *request, int len)
  * Delete a channel from the channel list. Returns -1 if there was no
  * apropiate channel.
  */
-int
+static int
 irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 {
   int n;
@@ -634,7 +634,7 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
       fchannel = xmalloc (sizeof (irc_channel_t *) * (size + 1));
       for (found = n = 0; n < size; n++)
 	{
-	  if (string_regex (channel[n]->name, regex))
+	  if (irc_string_regex (channel[n]->name, regex))
 	    {
 	      fchannel[found++] = channel[n];
 	    }
@@ -650,7 +650,7 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
 /*
  * Add a new channel to the channel list.
  */
-irc_channel_t *
+static irc_channel_t *
 irc_add_channel (irc_config_t *cfg, char *name)
 {
   irc_channel_t *channel;
@@ -698,7 +698,7 @@ irc_find_nick_history (irc_config_t *cfg,
   client = cl ? cl->next : cfg->history;
   for(; client; client = client->next)
     {
-      if(!string_equal(client->nick, nick))
+      if(!irc_string_equal(client->nick, nick))
 	{
 	  return client;
 	}
@@ -803,7 +803,7 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
       fclient = xmalloc (sizeof (irc_client_t *) * (size + 1));
       for (found = n = 0; n < size; n++)
 	{
-	  if (string_regex (client[n]->nick, regex))
+	  if (irc_string_regex (client[n]->nick, regex))
 	    {
 	      fclient[found++] = client[n];
 	    }
@@ -874,7 +874,7 @@ irc_printf (socket_t sock, const char *fmt, ...)
 
 int have_irc = 1;
 
-#else
+#else /* ENABLE_IRC_PROTO */
 
 int have_irc = 0;            /* Shut up compiler, remember for runtime */
 

@@ -1,3 +1,26 @@
+2000-07-07  [ Ela ]  <ela@lkcc.org>
+
+	* socket.c (default_connect): This function determines if
+	a connection process is still in progress and sets up the
+	socket structure if this has been completed.
+
+	* connect.c (sock_connect): Made connection routine to other
+	server non-blocking.
+
+	* serveez.c (usage): Dropped -p (--port) option.
+
+	* serveez.h (struct serveez_config): Droppped useless field
+	"port". This is now defined by the integrated servers.
+
+	* irc-server/irc-event.h: Went through all
+	the IRC server and cleared up naming conventions.
+
+	* socket.h (struct socket): Reference counter introduced.
+
+	* server-core.c (shutdown_socket): Reference counter postpones
+	socket shutdown. This is useful if a coserver is still having
+	a socket structure in its callback hash.
+
 2000-07-04  [ Ela ]  <ela@lkcc.org>
 
 	* server.c (server_bind): Moved some of the server_* functions
@@ -18,10 +41,10 @@
 	instanciating all coservers now. Thus you do not need to create
 	the coservers yourself.
 
-	* coserver/coserver.h (struct ): Added two more fields to this
-	structure. These are the amount of coserver instances you want to
-	create and an optional initializer routine which will be invoked
-	on coserver startup.
+	* coserver/coserver.h (struct int_coserver_type): Added two more 
+	fields to this structure. These are the amount of coserver 
+	instances you want to create and an optional initializer 
+	routine which will be invoked on coserver startup.
 
 2000-06-30  [ Ela ]  <ela@lkcc.org>
 
