@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.44 2002/03/02 13:45:20 ela Exp $
+ * $Id: guile-server.c,v 1.45 2002/03/22 08:05:59 ela Exp $
  *
  */
 
@@ -763,7 +763,7 @@ MAKE_SOCK_CALLBACK (check_request, "check-request")
 #undef FUNC_NAME
 
 /* Setup the packet boundary of the socket @var{sock}. The given string value
-   @var{boundary} can contain any kind of data. If you pass a exact number 
+   @var{boundary} can contain any kind of data. If you pass an exact number 
    value the socket is setup to parse fixed sized packets. In fact this 
    procedure sets the @code{check-request} callback of the given socket 
    structure @var{sock} to a predefined routine which runs the 
@@ -1451,7 +1451,8 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 /*
  * Guile server definition: This procedure takes one argument containing
  * the information about a new server type. If everything works fine you
- * have a freshly registered server type afterwards. Return #t on success.
+ * have a freshly registered server type afterwards. Return @code{#t} on 
+ * success.
  */
 #define FUNC_NAME "define-servertype!"
 SCM

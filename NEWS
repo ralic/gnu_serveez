@@ -28,6 +28,7 @@ files.
 Version 0.1.4
 -------------
 
+ * bug fixes in Guile server implementation
 
 Version 0.1.3
 -------------

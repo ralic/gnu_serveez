@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.19 2002/02/15 12:16:07 ela Exp $
+ * $Id: guile-bin.c,v 1.20 2002/03/22 08:05:59 ela Exp $
  *
  */
 
@@ -169,7 +169,7 @@ guile_bin_to_string (SCM binary)
 #undef FUNC_NAME
 
 /* This routine searches through the binary smob @var{binary} for the cell
-   @var{needle}. The latter argument can be either a exact number, character,
+   @var{needle}. The latter argument can be either an exact number, character,
    string or another binary smob. It returns @code{#f} if the needle could 
    not be found and a positive number indicates the position of the first 
    occurrence of @var{needle} in the binary smob @var{binary}. */
@@ -236,8 +236,64 @@ guile_bin_search (SCM binary, SCM needle)
 }
 #undef FUNC_NAME
 
+/* Performs an in place reversal of the given binary smob @var{binary}
+   and returns it. */
+#define FUNC_NAME "binary-reverse!"
+SCM
+guile_bin_reverse_x (SCM binary)
+{
+  guile_bin_t *bin;
+  int first, last;
+  unsigned char b;
+
+  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
+
+  for (first = 0, last = bin->size - 1; first < last; first++, last--)
+    {
+      b = bin->data[first];
+      bin->data[first] = bin->data[last];
+      bin->data[last] = b;
+    }
+  return binary;
+}
+#undef FUNC_NAME
+
+/* Returns a new binary smob with the reverse byte order of the given
+   binary smob @var{binary}. */
+#define FUNC_NAME "binary-reverse"
+SCM
+guile_bin_reverse (SCM binary)
+{
+  guile_bin_t *bin, *reverse;
+  int first, last;
+
+  CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
+  reverse = MAKE_BIN_SMOB ();
+  reverse->size = bin->size;
+
+  /* Return empty smob if necessary. */
+  if (reverse->size == 0)
+    {
+      reverse->garbage = 0;
+      reverse->data = NULL;
+      SCM_RETURN_NEWSMOB (guile_bin_tag, reverse);
+    }
+
+  /* Reserve some memory for the new smob. */
+  reverse->data = (unsigned char *) 
+    scm_must_malloc (reverse->size, "svz-binary-data");
+  reverse->garbage = 1;
+
+  /* Apply reverse byte order to the new smob. */
+  for (first = 0, last = reverse->size - 1; first < reverse->size; )
+    reverse->data[first++] = bin->data[last--];
+
+  SCM_RETURN_NEWSMOB (guile_bin_tag, reverse);
+}
+#undef FUNC_NAME
+
 /* Set the byte at position @var{index} of the binary smob @var{binary} to
-   the value given in @var{value} which can be either a character or a 
+   the value given in @var{value} which can be either a character or an
    exact number. */
 #define FUNC_NAME "binary-set!"
 SCM
@@ -282,7 +338,7 @@ guile_bin_ref (SCM binary, SCM index)
 }
 #undef FUNC_NAME
 
-/* Return the size of the binary smob @var{binary}. */
+/* Return the size in bytes of the binary smob @var{binary}. */
 #define FUNC_NAME "binary-length"
 SCM
 guile_bin_length (SCM binary)
@@ -599,6 +655,8 @@ guile_bin_init (void)
   scm_c_define_gsubr ("binary-length", 1, 0, 0, guile_bin_length);
   scm_c_define_gsubr ("binary-concat!", 2, 0, 0, guile_bin_concat_x);
   scm_c_define_gsubr ("binary-subset", 2, 1, 0, guile_bin_subset);
+  scm_c_define_gsubr ("binary-reverse", 1, 0, 0, guile_bin_reverse);
+  scm_c_define_gsubr ("binary-reverse!", 1, 0, 0, guile_bin_reverse_x);
 
   scm_c_define_gsubr ("binary-long-ref", 2, 0, 0, guile_bin_long_ref);
   scm_c_define_gsubr ("binary-int-ref", 2, 0, 0, guile_bin_int_ref);

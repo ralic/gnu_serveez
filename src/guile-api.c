@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.22 2002/02/15 12:16:07 ela Exp $
+ * $Id: guile-api.c,v 1.23 2002/03/22 08:05:59 ela Exp $
  *
  */
 
@@ -91,9 +91,9 @@ guile_resolve (char *host, unsigned long *addr)
    If @var{proto} equals @code{PROTO_ICMP} the @var{port} argument is
    ignored. Valid identifiers for @var{proto} are @code{PROTO_TCP},
    @code{PROTO_UDP} and @code{PROTO_ICMP}. The @var{host} argument must be 
-   either a string in dotted decimal form, a valid hostname or a exact number
+   either a string in dotted decimal form, a valid hostname or an exact number
    in host byte order. When giving a hostname this operation might be
-   blocking. The @var{port} argument must be a exact number in the range from 
+   blocking. The @var{port} argument must be an exact number in the range from 
    0 to 65535, also in host byte order. Returns a valid @code{#<svz-socket>} 
    or @code{#f} on failure. */
 #define FUNC_NAME "svz:sock:connect"
@@ -433,8 +433,23 @@ guile_sock_server (SCM sock, SCM server)
 }
 #undef FUNC_NAME
 
+/* Returns one of the @code{PROTO_TCP}, @code{PROTO_UDP}, @code{PROTO_ICMP}, 
+   @code{PROTO_RAW} or @code{PROTO_PIPE} constants indicating the type of 
+   the socket structure @var{sock}. If there is no protocol information 
+   available the procedure returns @code{#f}. */
+#define FUNC_NAME "svz:sock:protocol"
+static SCM
+guile_sock_protocol (SCM sock)
+{
+  svz_socket_t *xsock;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  return scm_int2num (xsock->proto);
+}
+#undef FUNC_NAME
+
 /* This procedure schedules the socket @var{sock} for shutdown after all data
-   within the send buffer queue has been send. The user should issue this
+   within the send buffer queue has been sent. The user should issue this
    procedure call right *before* the last call to @code{(svz:sock:print)}. */
 #define FUNC_NAME "svz:sock:final-print"
 static SCM
@@ -957,6 +972,8 @@ guile_api_init (void)
   scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));
   scm_c_define ("PROTO_UDP", scm_int2num (PROTO_UDP));
   scm_c_define ("PROTO_ICMP", scm_int2num (PROTO_ICMP));
+  scm_c_define ("PROTO_RAW", scm_int2num (PROTO_RAW));
+  scm_c_define ("PROTO_PIPE", scm_int2num (PROTO_PIPE));
   scm_c_define ("KICK_FLOOD", scm_int2num (0));
   scm_c_define ("KICK_QUEUE", scm_int2num (1));
   scm_c_define_gsubr ("svz:sock:connect", 2, 1, 0, guile_sock_connect);
@@ -969,6 +986,7 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock:parent", 1, 1, 0, guile_sock_parent);
   scm_c_define_gsubr ("svz:sock:referrer", 1, 1, 0, guile_sock_referrer);
   scm_c_define_gsubr ("svz:sock:server", 1, 1, 0, guile_sock_server);
+  scm_c_define_gsubr ("svz:sock:protocol", 1, 0, 0, guile_sock_protocol);
   scm_c_define_gsubr ("svz:sock:final-print", 1, 0, 0, guile_sock_final_print);
   scm_c_define_gsubr ("svz:sock:no-delay", 1, 1, 0, guile_sock_no_delay);
   scm_c_define_gsubr ("svz:sock:ident", 1, 0, 0, guile_sock_ident);

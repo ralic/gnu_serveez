@@ -1,3 +1,11 @@
+2002-03-22  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (guile_sock_protocol): Returns the type of socket
+	structure.
+
+	* guile-bin.c (guile_bin_reverse_x, guile_bin_reverse): Two
+	new convenience functions for Guile servers.
+
 2002-03-01  [ Ela ]  <ela@lkcc.org>
 
 	* guile.h (guile_to_string): This macro segfaulted when passing

@@ -43,6 +43,8 @@ BINARY-REF_DEFUN
 BINARY-LENGTH_DEFUN
 BINARY-CONCAT!_DEFUN
 BINARY-SUBSET_DEFUN
+BINARY-REVERSE_DEFUN
+BINARY-REVERSE!_DEFUN
 
 BINARY-LONG-REF_DEFUN
 BINARY-LONG-SET!_DEFUN
@@ -91,7 +93,16 @@ example shows the overall syntax of this procedure:
   ;; Optional: server instance info
   (info-server     . foo-info-server)
 
-  ;; Mandatory: server type configuration
+  ;; Optional: client info
+  (info-client     . foo-info-client)
+
+  ;; Optional: server instance notifier
+  (notify          . foo-notify)
+  
+  ;; Mandatory for UDP and ICMP servers: packet handler
+  (handle-request  . foo-handle-request)
+
+  ;; Mandatory: server type configuration (can be an empty list)
   (configuration   . (
 
     ;; The server configuration is an alist (associative list) again.  Each
@@ -140,6 +151,7 @@ SVZ:SOCK:LOCAL-ADDRESS_DEFUN
 SVZ:SOCK:REMOTE-ADDRESS_DEFUN
 SVZ:SOCK:FIND_DEFUN
 SVZ:SOCK:IDENT_DEFUN
+SVZ:SOCK:PROTOCOL_DEFUN
 
 SVZ:HTONS_DEFUN
 SVZ:NTOHS_DEFUN
