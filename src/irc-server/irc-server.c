@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.14 2000/09/27 14:31:27 ela Exp $
+ * $Id: irc-server.c,v 1.15 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -155,7 +155,7 @@ irc_connect_server (char *ip, irc_server_t *server)
   
   /* try connecting */
   server->addr = inet_addr (ip);
-  if (!(sock = sock_connect (server->addr, server->port)))
+  if ((sock = sock_connect (server->addr, server->port)) == NULL)
     {
       return -1;
     }

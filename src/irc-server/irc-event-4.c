@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-4.c,v 1.5 2000/07/07 16:26:20 ela Exp $
+ * $Id: irc-event-4.c,v 1.6 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -85,7 +85,7 @@ irc_priv_callback (socket_t sock,
   for (n = 0; n < request->targets; n++)
     {
       /* is receiver nick ? */
-      if ((cl = irc_find_nick (cfg, request->target[n].nick)))
+      if ((cl = irc_find_nick (cfg, request->target[n].nick)) != NULL)
 	{
 	  /* is this client away ? */
 	  if (irc_client_absent (cl, client)) 
@@ -103,7 +103,8 @@ irc_priv_callback (socket_t sock,
 	}
 
       /* is receiver a channel ? */
-      else if ((channel = irc_find_channel (cfg, request->target[n].channel)))
+      else if ((channel = irc_find_channel (cfg, request->target[n].channel))
+	       != NULL)
 	{
 	  i = irc_client_in_channel (sock, client, channel);
 	  
@@ -203,7 +204,7 @@ irc_note_callback (socket_t sock,
     }
 
   /* is target a nick ? */
-  if ((cl = irc_find_nick (cfg, request->target[0].nick)))
+  if ((cl = irc_find_nick (cfg, request->target[0].nick)) != NULL)
      {
        /* is this client away ? */
        if (irc_client_absent (cl, client)) 
@@ -227,6 +228,6 @@ irc_note_callback (socket_t sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_4_dummy; /* Shutup compiler warnings. */
+int irc_event_4_dummy; /* Shut up compiler warnings. */
 
 #endif /* not ENABLE_IRC_PROTO */

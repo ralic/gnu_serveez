@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.11 2000/11/04 15:01:08 ela Exp $
+ * $Id: udp-socket.c,v 1.12 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -103,7 +103,7 @@ udp_read_socket (socket_t sock)
       if (sock->check_request)
         sock->check_request (sock);
     }
-  /* Some error occured. */
+  /* Some error occurred. */
   else
     {
       log_printf (LOG_ERROR, "udp: recvfrom: %s\n", NET_ERROR);
@@ -144,11 +144,20 @@ udp_write_socket (socket_t sock)
   memcpy (&receiver.sin_port, p, sizeof (sock->remote_port));
   p += sizeof (sock->remote_port);
 
-  num_written = sendto (sock->sock_desc, p, 
-			do_write - (p - sock->send_buffer),
-			0, (struct sockaddr *) &receiver, len);
+  /* if socket is connect()ed use send() instead of sendto() */
+  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+    {
+      num_written = sendto (sock->sock_desc, p,
+			    do_write - (p - sock->send_buffer),
+			    0, (struct sockaddr *) &receiver, len);
+    }
+  else
+    {
+      num_written = send (sock->sock_desc, p,
+			  do_write - (p - sock->send_buffer), 0);
+    }
 
-  /* Some error occured while sending. */
+  /* Some error occurred while sending. */
   if (num_written < 0)
     {
       log_printf (LOG_ERROR, "udp: sendto: %s\n", NET_ERROR);
@@ -196,7 +205,7 @@ udp_check_request (socket_t sock)
 
   /* 
    * If there is a valid handle_request callback (dedicated udp connection)
-   * call it. This kind of behaviour is due to a socket creation via
+   * call it. This kind of behavior is due to a socket creation via
    * udp_connect (s.b.) and setting up a static handle_request callback.
    */
   if (sock->handle_request)
@@ -209,7 +218,7 @@ udp_check_request (socket_t sock)
     }
 
   /* go through all udp servers on this server socket */
-  for (n = 0; (server = SERVER (sock->data, n)); n++)
+  for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
     {
       sock->cfg = server->cfg;
       

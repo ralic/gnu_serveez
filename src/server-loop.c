@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.13 2000/10/15 16:50:17 ela Exp $
+ * $Id: server-loop.c,v 1.14 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -284,7 +284,7 @@ server_check_sockets_select (void)
 		  }
 	    }
 	  
-	  /* Is socket writeable ? */
+	  /* Is socket writable ? */
 	  if (FD_ISSET (sock->sock_desc, &write_fds))
 	    {
 	      /* Socket connecting ? */
@@ -297,7 +297,7 @@ server_check_sockets_select (void)
 			continue;
 		      }
 		}
-	      /* No. Just writeable. */
+	      /* No. Just writable. */
 	      else 
 		{
 		  if (sock->write_socket)
@@ -325,7 +325,7 @@ server_check_sockets_select (void)
 
 #endif /* not __MINGW32__ */
 
-#if HAVE_POLL && ENABLE_POLL /* configure'd */
+#if HAVE_POLL && ENABLE_POLL /* configured */
 
 /* re-allocate static buffers if necessary */
 #define FD_EXPAND()                                             \
@@ -747,7 +747,7 @@ server_check_sockets_MinGW (void)
 		  }
 	    }
 	  
-	  /* Is socket writeable ? */
+	  /* Is socket writable ? */
 	  if (FD_ISSET (sock->sock_desc, &write_fds))
 	    {
 	      /* Finally connected * */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.7 2000/09/26 18:08:52 ela Exp $
+ * $Id: irc-event-5.c,v 1.8 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -80,7 +80,8 @@ irc_whowas_callback (socket_t sock,
   cl = NULL;
   i = 0;
   found = 0;
-  while ((cl = irc_find_nick_history (cfg, cl, nick)) && (i < n || n <= 0))
+  while ((cl = irc_find_nick_history (cfg, cl, nick)) != NULL && 
+	 (i < n || n <= 0))
     {
       found = 1;
       irc_printf (sock, ":%s %03d %s " RPL_WHOWASUSER_TEXT "\n",
@@ -145,7 +146,7 @@ irc_client_visible (irc_config_t *cfg,     /* current server config */
 static void
 irc_user_info (socket_t sock,        /* the socket for the client to send */
 	       irc_client_t *client, /* reply client */
-	       irc_client_t *cl)     /* infos about this client */
+	       irc_client_t *cl)     /* info about this client */
 {
   irc_config_t *cfg = sock->cfg;
   irc_channel_t *channel;
@@ -245,7 +246,7 @@ irc_whois_callback (socket_t sock,
 	    }
 	}
       /* is target a plain nick ? */
-      else if ((rclient = irc_find_nick (cfg, nick)))
+      else if ((rclient = irc_find_nick (cfg, nick)) != NULL)
 	{
 	  /* is this client away ? */
 	  if (irc_client_absent (rclient, client)) 
@@ -348,6 +349,6 @@ irc_who_callback (socket_t sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_5_dummy; /* Shutup compiler warnings. */
+int irc_event_5_dummy; /* Shut up compiler warnings. */
 
 #endif /* not ENABLE_IRC_PROTO */

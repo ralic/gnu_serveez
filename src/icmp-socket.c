@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.11 2000/11/10 11:24:05 ela Exp $
+ * $Id: icmp-socket.c,v 1.12 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -237,7 +237,7 @@ icmp_check_ip_header (byte *data, int len)
 	  "type of service : %d\n"
 	  "total length    : %d byte\n"
 	  "ident           : 0x%04X\n"
-	  "frag/offset     : %d\n"
+	  "frag. offset    : %d\n"
 	  "ttl             : %d\n"
 	  "protocol        : 0x%02X\n"
 	  "checksum        : 0x%04X\n"
@@ -455,7 +455,7 @@ icmp_read_socket (socket_t sock)
 	  return -1;
 	}
     }
-  /* Some error occured. */
+  /* Some error occurred. */
   else
     {
       log_printf (LOG_ERROR, "icmp: recvfrom: %s\n", NET_ERROR);
@@ -495,11 +495,20 @@ icmp_write_socket (socket_t sock)
   p += sizeof (sock->remote_port);
   assert ((int) do_write <= sock->send_buffer_fill);
 
-  num_written = sendto (sock->sock_desc, p, 
-                        do_write - (p - sock->send_buffer),
-                        0, (struct sockaddr *) &receiver, len);
+  /* if socket is connect()ed use send() instead of sendto() */
+  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+    {
+      num_written = sendto (sock->sock_desc, p,
+			    do_write - (p - sock->send_buffer),
+			    0, (struct sockaddr *) &receiver, len);
+    }
+  else
+    {
+      num_written = send (sock->sock_desc, p,
+			  do_write - (p - sock->send_buffer), 0);
+    }
 
-  /* Some error occured while sending. */
+  /* Some error occurred while sending. */
   if (num_written < 0)
     {
       log_printf (LOG_ERROR, "icmp: sendto: %s\n", NET_ERROR);
@@ -558,7 +567,7 @@ icmp_write (socket_t sock, char *buf, int length)
       hdr.type = ICMP_SERVEEZ;
       hdr.code = ICMP_SERVEEZ_CLOSE;
       hdr.checksum = icmp_ip_checksum ((byte *) buf, size);
-      hdr.ident = getpid () + sock->id;
+      hdr.ident = (unsigned short) (getpid () + sock->id);
       hdr.sequence = sock->send_seq;
       hdr.port = sock->remote_port;
       memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
@@ -588,9 +597,10 @@ icmp_write (socket_t sock, char *buf, int length)
 
       /* Create ICMP header and put it in front of packet load. */
       hdr.type = ICMP_SERVEEZ;
-      hdr.code = sock->send_seq++ ? ICMP_SERVEEZ_DATA : ICMP_SERVEEZ_CONNECT;
+      hdr.code = (byte) (sock->send_seq++ ? 
+			 ICMP_SERVEEZ_DATA : ICMP_SERVEEZ_CONNECT);
       hdr.checksum = icmp_ip_checksum ((byte *) buf, size);
-      hdr.ident = getpid () + sock->id;
+      hdr.ident = (unsigned short) (getpid () + sock->id);
       hdr.sequence = sock->send_seq;
       hdr.port = sock->remote_port;
       memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
@@ -656,7 +666,7 @@ icmp_check_request (socket_t sock)
 
   /* 
    * If there is a valid handle_request callback (dedicated icmp connection)
-   * call it. This kind of behaviour is due to a socket creation via
+   * call it. This kind of behavior is due to a socket creation via
    * icmp_connect (s.b.) and setting up a static handle_request callback.
    */
   if (sock->handle_request)
@@ -669,7 +679,7 @@ icmp_check_request (socket_t sock)
     }
 
   /* go through all icmp servers on this server socket */
-  for (n = 0; (server = SERVER (sock->data, n)); n++)
+  for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
     {
       sock->cfg = server->cfg;
       

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.13 2000/11/10 11:24:05 ela Exp $
+ * $Id: http-core.c,v 1.14 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -105,10 +105,10 @@ http_userdir (socket_t sock, char *uri)
 	  return file;
 	}
 #elif defined (__MINGW32__) && 0
-      status = NetUserGetInfo ("\\\\.",         /* server name */
-			       user,            /* user name */
-			       1,               /* type of info */
-			       (LPBYTE) entry); /* info buffer */
+      status = NetUserGetInfo ("\\\\.",            /* server name */
+			       user,               /* user name */
+			       1,                  /* type of info */
+			       (LPBYTE *) &entry); /* info buffer */
       if (status != NERR_Success)
 	{
 	  char *error;
@@ -135,6 +135,7 @@ http_userdir (socket_t sock, char *uri)
 	  file = xmalloc (strlen (entry->usri1_home_dir) + 
 			  strlen (cfg->userdir) + strlen (p) + 1);
 	  sprintf (file, "%s/%s%s", entry->usri1_home_dir, cfg->userdir, p);
+	  NetApiBufferFree (entry);
 	  xfree (user);
 	  return file;
 	}
@@ -598,12 +599,12 @@ http_process_uri (char *uri)
   /* Test if there is any occurrence of the special character encoding. */
   while ((p = strchr (uri, '%')) != NULL)
     {
-      if ((h = *(p+1)) && (l = *(p+2)))
+      if ((h = *(p+1)) != 0 && (l = *(p+2)) != 0)
 	{
 	  /* Convert to byte. */
 	  ASC_TO_HEX (h);
 	  ASC_TO_HEX (l);
-	  *p = (h << 4) | l;
+	  *p = (char) ((h << 4) | l);
 
 	  /* Copy rest of URI. */
 	  uri = ++p;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.10 2000/09/08 07:45:17 ela Exp $
+ * $Id: irc-event-2.c,v 1.11 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -69,7 +69,8 @@ irc_part_callback (socket_t sock,
   for (n = 0; n < request->targets; n++)
     {
       /* does the channel exist ? */
-      if (!(channel = irc_find_channel (cfg, request->target[n].channel)))
+      if ((channel = irc_find_channel (cfg, request->target[n].channel)) == 
+	  NULL)
 	{
 	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
 		      cfg->host, ERR_NOSUCHCHANNEL, client->nick,
@@ -214,7 +215,7 @@ irc_join_callback (socket_t sock,
       chan = request->target[n].channel;
 
       /* does the channel already exists ? */
-      if ((channel = irc_find_channel (cfg, chan)))
+      if ((channel = irc_find_channel (cfg, chan)) != NULL)
 	{
 	  /* is a key set for this channel and is the given one ok ? */
 	  if (channel->flag & MODE_KEY &&
@@ -229,7 +230,7 @@ irc_join_callback (socket_t sock,
 	  /* invite only ? */
 	  if (channel->flag & MODE_INVITE)
 	    {
-	      /* find the nick in the ivite list of the channel */
+	      /* find the nick in the invite list of the channel */
 	      for (i = 0; i < channel->invites; i++)
 		if (channel->invite[i] == client)
 		  break;
@@ -246,7 +247,7 @@ irc_join_callback (socket_t sock,
 	      /* clear this invite entry */
 	      else
 		{
-		  if (--channel->invites)
+		  if (--channel->invites != 0)
 		    {
 		      channel->invite[i] = channel->invite[channel->invites];
 		      channel->invite = xrealloc (channel->invite,
@@ -317,7 +318,7 @@ irc_join_callback (socket_t sock,
 }
 
 /*
- * Create a ban mask string by a channel's ban entry.
+ * Create a ban mask string by a channels ban entry.
  */
 static char *
 irc_ban_string (irc_ban_t *ban)
@@ -698,7 +699,7 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 	      if (!strcmp (arg, irc_ban_string (channel->ban[n])))
 		{
 		  irc_destroy_ban (channel->ban[n]);
-		  if (--channel->bans)
+		  if (--channel->bans != 0)
 		    {
 		      channel->ban[n] = channel->ban[channel->bans];
 		      channel->ban = xrealloc (channel->ban,
@@ -759,7 +760,7 @@ irc_client_flag_string (irc_client_t *client)
 }
 
 /*
- * Get a flag string by a channel's modes.
+ * Get a flag string by a channels modes.
  */
 char *
 irc_channel_flag_string (irc_channel_t *channel)
@@ -828,7 +829,7 @@ irc_mode_callback (socket_t sock,
   chan = nick = request->para[0];
 
   /* is target channel ? */
-  if ((channel = irc_find_channel (cfg, chan)))
+  if ((channel = irc_find_channel (cfg, chan)) != NULL)
     {
       /* this is a request only ? */
       if (request->paras < 2)
@@ -940,7 +941,7 @@ irc_mode_callback (socket_t sock,
 			       request->para[para], flag);
 	      if (flag) para++;
 	      break;
-	      /* unknow Mode flag */
+	      /* unknown Mode flag */
 	    default:
 	      irc_printf (sock, ":%s %03d %s " ERR_UNKNOWNMODE_TEXT "\n",
 			  cfg->host, ERR_UNKNOWNMODE, client->nick, *req);
@@ -951,7 +952,7 @@ irc_mode_callback (socket_t sock,
     }
   
   /* is target nick ? */
-  else if ((cl = irc_find_nick (cfg, nick)))
+  else if ((cl = irc_find_nick (cfg, nick)) != NULL)
     {
       /* get and set user flag only by itself ! */
       if (cl != client)
@@ -999,7 +1000,7 @@ irc_mode_callback (socket_t sock,
 	    case 'o':
 	      irc_user_flag (client, sock, UMODE_OPERATOR, flag);
 	      break;
-	      /* unknow Mode flag */
+	      /* unknown Mode flag */
 	    default:
 	      irc_printf (sock, ":%s %03d %s " ERR_UNKNOWNMODE_TEXT "\n",
 			  cfg->host, ERR_UNKNOWNMODE, client->nick, *req);
@@ -1035,7 +1036,7 @@ irc_topic_callback (socket_t sock,
     return 0;
 
   /* get the channel target */
-  if ((channel = irc_find_channel (cfg, request->target[0].channel)))
+  if ((channel = irc_find_channel (cfg, request->target[0].channel)) != NULL)
     {
       if ((n = irc_client_in_channel (sock, client, channel)) != -1)
 	{
@@ -1153,7 +1154,7 @@ irc_names_callback (socket_t sock,
 		  cfg->host, RPL_NAMREPLY, client->nick, 
 		  '*', "*", text);
 
-      /* send endo of list */
+      /* send end of list */
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
 		  cfg->host, RPL_ENDOFNAMES, client->nick, "");
     }
@@ -1162,7 +1163,8 @@ irc_names_callback (socket_t sock,
     {
       for (n = 0; n < request->targets; n++)
 	{
-	  if ((channel = irc_find_channel (cfg, request->target[n].channel)))
+	  if ((channel = irc_find_channel (cfg, request->target[n].channel))
+	      != NULL)
 	    {
 	      if (irc_client_in_channel (NULL, client, channel) == -1 &&
 		  (channel->flag & (MODE_SECRET | MODE_PRIVATE)))
@@ -1251,7 +1253,8 @@ irc_list_callback (socket_t sock,
     {
       for (n = 0; n < request->targets; n++)
 	{
-	  if ((channel = irc_find_channel (cfg, request->target[n].channel)))
+	  if ((channel = irc_find_channel (cfg, request->target[n].channel))
+	      != NULL)
 	    {
 	      irc_channel_list (sock, client, channel);
 	    }
@@ -1292,14 +1295,14 @@ irc_invite_callback (socket_t sock,
   channel = request->para[1];
 
   /* does the nick exist ? */
-  if (!(cl = irc_find_nick (cfg, nick)))
+  if ((cl = irc_find_nick (cfg, nick)) == NULL)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOSUCHNICK_TEXT "\n",
 		  cfg->host, ERR_NOSUCHNICK, client->nick, nick);
       return 0;
     }
   /* does the channel exist ? */
-  if (!(ch = irc_find_channel (cfg, channel)))
+  if ((ch = irc_find_channel (cfg, channel)) == NULL)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOSUCHNICK_TEXT "\n",
 		  cfg->host, ERR_NOSUCHNICK, client->nick, channel);
@@ -1368,7 +1371,8 @@ irc_kick_callback (socket_t sock,
   for (n = 0; n < request->targets; n++)
     {
       /* does the requested channel exist ? */
-      if (!(channel = irc_find_channel (cfg, request->target[n].channel)))
+      if ((channel = irc_find_channel (cfg, request->target[n].channel)) 
+	  == NULL)
 	{
 	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHCHANNEL_TEXT "\n",
 		      cfg->host, ERR_NOSUCHCHANNEL, client->nick,
@@ -1385,8 +1389,8 @@ irc_kick_callback (socket_t sock,
 	continue;
       
       /* kick the requested user */
-      if (!(victim = irc_find_nick (cfg, 
-				    irc_get_target (request->para[1], n))))
+      if ((victim = 
+	   irc_find_nick (cfg, irc_get_target (request->para[1], n))) == NULL)
 	continue;
       
       /* is the victim in this channel ? */
@@ -1412,6 +1416,6 @@ irc_kick_callback (socket_t sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_2_dummy; /* Shutup compiler warnings. */
+int irc_event_2_dummy; /* Shut up compiler warnings. */
 
 #endif /* not ENABLE_IRC_PROTO */

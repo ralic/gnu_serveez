@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.19 2000/10/26 13:43:31 ela Exp $
+ * $Id: irc-proto.c,v 1.20 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -172,17 +172,17 @@ int
 irc_global_init (void)
 {
 #if 0
-  printf ("sizeof (socket_t) = %d\n", sizeof (socket_data_t));
-  printf ("sizeof (irc_ban_t) = %d\n", sizeof (irc_ban_t));
-  printf ("sizeof (irc_channel_t) = %d\n", sizeof (irc_channel_t));
-  printf ("sizeof (irc_client_t) = %d\n", sizeof (irc_client_t));
+  printf ("sizeof (socket_t)             = %d\n", sizeof (socket_data_t));
+  printf ("sizeof (irc_ban_t)            = %d\n", sizeof (irc_ban_t));
+  printf ("sizeof (irc_channel_t)        = %d\n", sizeof (irc_channel_t));
+  printf ("sizeof (irc_client_t)         = %d\n", sizeof (irc_client_t));
   printf ("sizeof (irc_client_history_t) = %d\n", 
 	  sizeof (irc_client_history_t));
-  printf ("sizeof (irc_server_t) = %d\n", sizeof (irc_server_t));
-  printf ("sizeof (irc_user_t) = %d\n", sizeof (irc_user_t));
-  printf ("sizeof (irc_kill_t) = %d\n", sizeof (irc_kill_t));
-  printf ("sizeof (irc_oper_t) = %d\n", sizeof (irc_oper_t));
-  printf ("sizeof (irc_class_t) = %d\n", sizeof (irc_class_t));
+  printf ("sizeof (irc_server_t)         = %d\n", sizeof (irc_server_t));
+  printf ("sizeof (irc_user_t)           = %d\n", sizeof (irc_user_t));
+  printf ("sizeof (irc_kill_t)           = %d\n", sizeof (irc_kill_t));
+  printf ("sizeof (irc_oper_t)           = %d\n", sizeof (irc_oper_t));
+  printf ("sizeof (irc_class_t)          = %d\n", sizeof (irc_class_t));
 #endif
 
   irc_create_lcset ();
@@ -308,7 +308,7 @@ irc_join_channel (irc_config_t *cfg,
   int n;
 
   /* does the channel exist locally ? */
-  if ((channel = irc_find_channel (cfg, chan)))
+  if ((channel = irc_find_channel (cfg, chan)) != NULL)
     {
       /* is the nick already in the channel ? */
       for (n = 0; n < channel->clients; n++)
@@ -426,7 +426,7 @@ irc_leave_channel (irc_config_t *cfg,
 	for (i = 0; i < client->channels; i++)
 	  if (client->channel[i] == channel)
 	    {
-	      if (--client->channels)
+	      if (--client->channels != 0)
 		{
 		  client->channel[i] = client->channel[last];
 		  client->channel = xrealloc (client->channel, 
@@ -608,7 +608,7 @@ irc_idle (socket_t sock)
 }
 
 /*
- * This structure's field contains all the callback routines necessary
+ * This structures field contains all the callback routines necessary
  * to react like an IRC server. The actual routines are defined in the
  * irc-event.h and implemented in the irc-event-?.c files.
  */
@@ -1011,7 +1011,7 @@ irc_printf (socket_t sock, const char *fmt, ...)
   if (len > sizeof (buffer))
     len = sizeof (buffer);
 
-  if ((len = sock_write (sock, buffer, len)))
+  if ((len = sock_write (sock, buffer, len)) != 0)
     {
       sock->flags |= SOCK_FLAG_KILLED;
     }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.20 2000/10/25 07:54:06 ela Exp $
+ * $Id: nut-transfer.c,v 1.21 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -547,7 +547,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       /* create new gnutella header */
       nut_calc_guid (hdr.id);
       hdr.function = NUT_PUSH_REQ;
-      hdr.ttl = cfg->ttl;
+      hdr.ttl = (byte) cfg->ttl;
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_PUSH;
 
@@ -555,7 +555,8 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       memcpy (push.id, transfer->guid, NUT_GUID_SIZE);
       push.index = transfer->index;
       push.ip = cfg->ip ? cfg->ip : sock->local_addr;
-      push.port = cfg->port ? cfg->port : htons (cfg->netport->port);
+      push.port = (unsigned short) (cfg->port ? cfg->port : 
+				    htons (cfg->netport->port));
       
       /* create push request key and check if it was already sent */
       pushkey = xmalloc (strlen (NUT_GIVE) + 16 + NUT_GUID_SIZE * 2);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.28 2000/10/28 13:03:11 ela Exp $
+ * $Id: socket.c,v 1.29 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -291,7 +291,7 @@ default_detect_proto (socket_t sock)
   if (sock->data == NULL)
     return -1;
 
-  for (n = 0; (server = SERVER (sock->data, n)); n++)
+  for (n = 0; (server = SERVER (sock->data, n)) != NULL; n++)
     {
       if (server->detect_proto (server->cfg, sock))
 	{
@@ -474,7 +474,7 @@ sock_alloc (void)
   sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
   sock->userflags = SOCK_FLAG_INIT;
   sock->file_desc = -1;
-  sock->sock_desc = -1;
+  sock->sock_desc = (SOCKET) -1;
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
 

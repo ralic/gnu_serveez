@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.10 2000/07/25 16:24:27 ela Exp $
+ * $Id: irc-event-7.c,v 1.11 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -99,7 +99,7 @@ irc_userhost_callback (socket_t sock,
   /* go through all paras */
   for (n = 0; n < request->paras; n++)
     {
-      if ((cl = irc_find_nick (cfg, request->para[n])))
+      if ((cl = irc_find_nick (cfg, request->para[n])) != NULL)
 	{
 	  sprintf (text, "%s%s=%c%s@%s ",
 		   cl->nick, 
@@ -214,6 +214,6 @@ irc_users_callback (socket_t sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_7_dummy; /* Shutup compiler warnings. */
+int irc_event_7_dummy; /* Shut up compiler warnings. */
 
 #endif /* not ENABLE_IRC_PROTO */

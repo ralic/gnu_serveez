@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.12 2000/11/02 12:51:57 ela Exp $
+ * $Id: nut-core.c,v 1.13 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -92,7 +92,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
       return -1;
     }
   
-  /* find seperating colon */
+  /* find separating colon */
   colon = p;
   while (*colon != ':' && *colon) colon++;
   if (*colon) 
@@ -104,8 +104,9 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (p);
-  *port = colon ? htons ((unsigned short) util_atoi (colon)) : 
-    htons (NUT_PORT);
+  *port = (unsigned short) (colon ? 
+			    htons ((unsigned short) util_atoi (colon)) : 
+			    htons (NUT_PORT));
   xfree (host);
 
   return 0;
@@ -151,8 +152,8 @@ nut_calc_guid (byte *guid)
 
   for (n = 0; n < NUT_GUID_SIZE; n++)
     {
-      /*guid[n] = 256 * rand () / RAND_MAX;*/
-      guid[n] = (rand () >> 1) & 0xff;
+      /* guid[n] = 256 * rand () / RAND_MAX; */
+      guid[n] = (byte) ((rand () >> 1) & 0xff);
     }
 }
 
@@ -428,7 +429,7 @@ nut_canonize_file (char *file)
 }
 
 /*
- * This routine parses a given gnutella (HTTP) header for certains 
+ * This routine parses a given gnutella (HTTP) header for certain 
  * properties and delivers either a property value which must be 
  * xfree()'d afterwards or NULL.
  */

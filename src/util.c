@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.30 2000/10/23 21:42:03 ela Exp $
+ * $Id: util.c,v 1.31 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -270,7 +270,7 @@ util_tolower (char *str)
 
   while (*p)
     {
-      *p = isupper ((byte) *p) ? tolower ((byte) *p) : *p;
+      *p = (char) (isupper ((byte) *p) ? tolower ((byte) *p) : *p);
       p++;
     }
   return str;
@@ -337,7 +337,7 @@ util_strncasecmp (const char *str1, const char *str2, size_t n)
 
 #ifdef __MINGW32__
 /*
- * This variable contains the last error occured if it was
+ * This variable contains the last error occurred if it was
  * detected and printed. Needed for the "Resource unavailable".
  */
 int last_errno = 0;
@@ -622,7 +622,7 @@ util_itoa (unsigned int i)
   do
     {
       p--;
-      *p = (i % 10) + '0';
+      *p = (char) ((i % 10) + '0');
     }
   while ((i /= 10) != 0);
   return p;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.8 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-route.c,v 1.9 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -66,7 +66,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   while (*p)
     {
       if (isalnum ((byte) *p)) 
-	*extract++ = isupper ((byte) *p) ? tolower ((byte) *p) : *p;
+	*extract++ = (char) (isupper ((byte) *p) ? tolower ((byte) *p) : *p);
       p++;
     }
   *extract = '\0';
@@ -214,7 +214,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       log_printf (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
 		  hdr->ttl, cfg->max_ttl);
 #endif
-      hdr->ttl = cfg->max_ttl;
+      hdr->ttl = (byte) cfg->max_ttl;
     }
 
   if (hdr->ttl + hdr->hop > cfg->max_ttl)
@@ -223,7 +223,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       log_printf (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
 		  hdr->ttl, cfg->max_ttl - hdr->hop);
 #endif
-      hdr->ttl = cfg->max_ttl - hdr->hop;
+      hdr->ttl = (byte) (cfg->max_ttl - hdr->hop);
     }
 
   return 1;

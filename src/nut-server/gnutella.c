@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.24 2000/10/05 18:01:45 ela Exp $
+ * $Id: gnutella.c,v 1.25 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -308,7 +308,7 @@ nut_init_ping (socket_t sock)
   /* create new gnutella header */
   nut_calc_guid (hdr.id);
   hdr.function = NUT_PING_REQ;
-  hdr.ttl = cfg->ttl;
+  hdr.ttl = (byte) cfg->ttl;
   hdr.hop = 0;
   hdr.length = 0;
   header = nut_put_header (&hdr);
@@ -609,7 +609,7 @@ nut_disconnect (socket_t sock)
 }
 
 /*
- * This callback is regularily called in the `server_periodic_tasks'
+ * This callback is regularly called in the `server_periodic_tasks'
  * routine. Here we try connecting to more gnutella hosts.
  */
 int
@@ -757,7 +757,7 @@ nut_check_request (socket_t sock)
 
 /*
  * This routine is the sock->idle_func callback for each gnutella
- * connection. We will regularily search for specific files.
+ * connection. We will regularly search for specific files.
  */
 int
 nut_idle_searching (socket_t sock)
@@ -784,10 +784,10 @@ nut_idle_searching (socket_t sock)
       /* create new gnutella packet */
       nut_calc_guid (hdr.id);
       hdr.function = NUT_SEARCH_REQ;
-      hdr.ttl = cfg->ttl;
+      hdr.ttl = (byte) cfg->ttl;
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_QUERY + strlen (text) + 1;
-      query.speed = cfg->min_speed;
+      query.speed = (unsigned short) cfg->min_speed;
       header = nut_put_header (&hdr);
       search = nut_put_query (&query);
 
@@ -914,7 +914,7 @@ nut_info_client (void *nut_cfg, socket_t sock)
   if (sock->userflags & NUT_FLAG_CLIENT)
     {
       sprintf (text, 
-	       "  * ususal gnutella host\r\n"
+	       "  * usual gnutella host\r\n"
 	       "  * dropped packets : %u/%u\r\n"
 	       "  * invalid packets : %u\r\n",
 	       client->dropped, client->packets, client->invalid);
@@ -1097,7 +1097,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
       sock->idle_counter = NUT_SEARCH_INTERVAL;
       sock->data = nut_create_client ();
 
-      /* send inital ping */
+      /* send initial ping */
       if (nut_init_ping (sock) == -1)
 	return -1;
 

@@ -3,22 +3,22 @@
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
- * This Is Free Software; You Can Redistribute It And/Or Modify
- * It Under The Terms Of The Gnu General Public License As Published By
- * The Free Software Foundation; Either Version 2, Or (At Your Option)
- * Any Later Version.
+ * This is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option)
+ * any later version.
  * 
- * This Software Is Distributed In The Hope That It Will Be Useful,
- * But Without Any Warranty; Without Even The Implied Warranty Of
- * Merchantability Or Fitness For A Particular Purpose.  See The
- * Gnu General Public License For More Details.
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  * 
- * You Should Have Received A Copy Of The Gnu General Public License
- * Along With This Package; See The File Copying.  If Not, Write To
- * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, Ma 02111-1307, Usa.  
+ * You should have received a copy of the GNU General Public License
+ * along with this package; see the file COPYING.  If not, write to
+ * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-crypt.c,v 1.4 2000/09/27 14:31:27 ela Exp $
+ * $Id: irc-crypt.c,v 1.5 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -54,7 +54,7 @@ irc_gen_key (char *pass)
   p = (byte *) pass;
   while (*p)
     {
-      key += (*p + n) ^ IRC_CRYPT_BYTE;
+      key += ((byte) ((*p + n) ^ IRC_CRYPT_BYTE));
       n++;
       p++;
     }
@@ -77,11 +77,11 @@ irc_encrypt_text (char *text, byte key)
 
   while (*t)
     {
-      code = *t ^ key;
-      if (code < (byte)0x20 || code == IRC_CRYPT_PREFIX)
+      code = (byte) (*t ^ key);
+      if (code < (byte) 0x20 || code == IRC_CRYPT_PREFIX)
 	{
 	  *c++ = IRC_CRYPT_PREFIX;
-	  *c++ = code + IRC_CRYPT_PREFIX;
+	  *c++ = (char) (code + IRC_CRYPT_PREFIX);
 	}
       else
 	{
@@ -110,11 +110,11 @@ irc_decrypt_text (char *crypt, byte key)
       if (*c == IRC_CRYPT_PREFIX)
 	{
 	  c++;
-	  *t++ = (*c - IRC_CRYPT_PREFIX) ^ key;
+	  *t++ = (char) ((*c - IRC_CRYPT_PREFIX) ^ key);
 	}
       else
 	{
-	  *t++ = *c ^ key;
+	  *t++ = (char) (*c ^ key);
 	}
       c++;
     }

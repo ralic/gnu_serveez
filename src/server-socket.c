@@ -1,5 +1,5 @@
 /*
- * server-socket.c - server sockets for TCP, UDP and pipes
+ * server-socket.c - server sockets for TCP, UDP, ICMP and pipes
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.34 2000/10/28 13:03:11 ela Exp $
+ * $Id: server-socket.c,v 1.35 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -103,9 +103,9 @@ server_create (portcfg_t *cfg)
 {
   SOCKET server_socket;      /* server socket descriptor */
   socket_t sock;             /* socket structure */
-  int stype;                 /* socket type (TCP or UDP) */
+  int stype;                 /* socket type (STREAM or DGRAM or RAW) */
   int optval;                /* value for setsockopt() */
-  int ptype;                 /* protocol type (IP/UDP ?) */
+  int ptype;                 /* protocol type (IP or UDP or ICMP) */
 
   /* create listening pipe server ? */
   if (cfg->proto & PROTO_PIPE)
@@ -381,7 +381,7 @@ server_accept_socket (socket_t server_sock)
    * Now enqueue the accepted client socket and assign the 
    * CHECK_REQUEST callback.
    */
-  if ((sock = sock_create (client_socket)))
+  if ((sock = sock_create (client_socket)) != NULL)
     {
       sock->flags |= SOCK_FLAG_CONNECTED;
       sock->data = server_sock->data;

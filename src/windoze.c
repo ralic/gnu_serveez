@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.4 2000/11/03 01:25:06 ela Exp $
+ * $Id: windoze.c,v 1.5 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ windoze_thread (char *prog)
   class.lpszClassName = SERVEEZ_CLASS;
 
   /* register window class */
-  if (!(atom = RegisterClass (&class)))
+  if ((atom = RegisterClass (&class)) == 0)
     {
       log_printf (LOG_ERROR, "RegisterClass: %s\n", SYS_ERROR);
       ExitThread (0);

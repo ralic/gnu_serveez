@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.2 2000/10/30 20:49:57 ela Exp $
+ * $Id: nut-request.c,v 1.3 2000/11/10 19:55:48 ela Exp $
  *
  */
 
@@ -294,10 +294,11 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   if (!n) return 0;
 
   /* create gnutella search reply packet */
-  reply.records = n;
+  reply.records = (byte) n;
   reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
-  reply.port = cfg->port ? cfg->port : htons (cfg->netport->port);
-  reply.speed = cfg->speed;
+  reply.port = (unsigned short) (cfg->port ? cfg->port : 
+				 htons (cfg->netport->port));
+  reply.speed = (unsigned short) cfg->speed;
   
   /* save packet length */
   hdr->length = SIZEOF_NUT_REPLY + size + NUT_GUID_SIZE;
@@ -379,7 +380,8 @@ nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
   hdr->hop = 0;
 
   reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
-  reply.port = cfg->port ? cfg->port : htons (cfg->netport->port);
+  reply.port = (unsigned short) (cfg->port ? cfg->port : 
+				 htons (cfg->netport->port));
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);
