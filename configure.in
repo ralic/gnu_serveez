@@ -191,7 +191,7 @@ if test $define_enable_opt = yes ; then
 	      -fcaller-saves -frerun-loop-opt -foptimize-register-move \
 	      -ffunction-cse -fpeephole -momit-leaf-frame-pointer"
     [arch=`eval echo "$target_cpu" | sed 's/i\([0-9]\)86/\1/g'`
-    if test `expr length "$arch"` -ne 1; then arch="5"; fi
+    if test "$arch" = "$target_cpu" ; then arch="5"; fi
     if test `expr $arch` -gt 4; then
       optflags="$optflags -fschedule-insns2"
     fi]
