@@ -155,10 +155,9 @@ Serveez. The structure of a port configuration is:
         "outpipe"  => "MySendPipe"
         @}
 @end example
-
 We now have a closer look at the internals of Serveez. If you
 are not interested in that have a look at the existing
-servers (@xref{Existing Servers}.).
+servers (@xref{Existing servers}.).
 
 @node Concept, Server, Using Serveez, Top
 @chapter Concept
@@ -237,13 +236,13 @@ available physical memory.
 @chapter Server
 
 @menu
-* Introduction to Servers::     Protocol servers in Serveez
-* Writing Servers::             How to write internet protocol servers
-* Existing Servers::            Which kind of servers do we have already ?
+* Introduction to servers::     Protocol servers in Serveez
+* Writing servers::             How to write internet protocol servers
+* Existing servers::            Which kind of servers do we have already ?
 @end menu
 
-@node Introduction to Servers, Writing Servers, Server, Server
-@section Introduction to Servers
+@node Introduction to servers, Writing servers, Server, Server
+@section Introduction to servers
 
 This package is a kind of server server. It allows different protocol
 servers to listen on various TCP/UDP ports, on ICMP sockets and on named
@@ -262,8 +261,43 @@ but could be a basis for a new protocol server. We are now going to describe
 how this specific server works. Eventually the reader might get an 
 impression of what is going on.
 
-@node Writing Servers, Existing Servers, Introduction to Servers, Server
-@section Writing Servers
+For better understanding the below text we will provided the following
+terminology:
+@table @asis
+
+@item server definition
+A server definition is represented by the @code{server_definition_t} 
+structure which contains server specific members like its name, different
+callbacks, a single default configuration and configuration items which
+determine what can be configured in the default configuration.
+
+@item server configuration
+A server configuration can be any kind of structure. The default server
+configuration must be specified within the server definition (see above).
+When instantiating a server (which is done via the configuration file) the
+configuration items specified in the server definition get processed and
+put into a copy of the default configuration. Thus we get an instance.
+
+@item server instance
+A server instance is a copy of the server definition including the modified
+server configuration. A server gets instantiated by the configuration file
+parser. The concept of server instances has been introduced because we 
+wanted Serveez being capable of: A single server can have multiple 
+instances with different behaviour due to different server configurations.
+A server instance can be bound to multiple port configurations. Different 
+server instances (of the same and/or different server) can share the same 
+port configuration.
+
+@item port configuration
+A port configuration can be a special configuration item within a server 
+configuration. It is represented by the @code{portcfg_t} structure and 
+contains a protocol type, a network port address, an ip address, an incoming
+pipe name and an outgoing pipe name. It has been introduced because this
+is something almostly every server needs to be configured.
+@end table
+
+@node Writing servers, Existing servers, Introduction to servers, Server
+@section Writing servers
 
 @subsection Making and configuring preparations
 
@@ -435,7 +469,8 @@ file and add the server definition to the @code{all_server_definition} array.
 
 The client connection information is stored within the @code{socket_t} 
 object. All of the client connection specific callbacks get this object as
-first argument. Following is a description of the elements of this object.
+first argument. Following is a description of the most important elements 
+of this object.
 
 @table @code
 @item int id
@@ -445,6 +480,11 @@ The socket id is a unique id for a client connection.
 This item validates this socket structure. If you pass the @code{id} and
 @code{version} to a coserver you can check if the delivered socket 
 structure is the original or not within the coserver callback.
+
+@item int proto
+The @code{proto} flag determines a server sockets protocol type which can
+be @code{PROTO_PIPE}, @code{PROTO_TCP}, @code{PROTO_UDP},
+@code{PROTO_ICMP} or @code{PROTO_RAW}.
 
 @item int flags
 The flag field of the client connection contains informations about the
@@ -537,8 +577,8 @@ you specified  yourself when issuing the request. To invoke a coserver
 you use one of the @code{coserver_*} macros. The @code{foo} server uses 
 the reverse dns coserver to identify the host name of the remote client.
 
-@node Existing Servers,  , Writing Servers, Server
-@section Existing Servers
+@node Existing servers,  , Writing servers, Server
+@section Existing servers
 
 @menu
 * HTTP Server::                 Integrated Web Server description
@@ -552,7 +592,7 @@ the reverse dns coserver to identify the host name of the remote client.
 @end menu
 
 
-@node HTTP Server, IRC Server,  , Existing Servers
+@node HTTP Server, IRC Server,  , Existing servers
 @subsection HTTP Server
 
 @subsubsection General description
@@ -737,7 +777,7 @@ any headers.
 @end table
 @end table
 
-@node IRC Server, Control Protocol Server, HTTP Server, Existing Servers
+@node IRC Server, Control Protocol Server, HTTP Server, Existing servers
 @subsection IRC Server
 
 @subsubsection General description
@@ -866,7 +906,7 @@ usually given in pairs.
 @end example
 
 @item N-lines (string array, no default, networked)
-Server which may connect.
+Servers which may connect.
 @example
 ":" host name
 ":" password
@@ -886,7 +926,7 @@ Kill user, wildcards allowed.
 @end example
 @end table
 
-@node Control Protocol Server, Foo Server, IRC Server, Existing Servers
+@node Control Protocol Server, Foo Server, IRC Server, Existing servers
 @subsection Control Protocol Server
 
 @subsubsection General description
@@ -939,25 +979,25 @@ state of Serveez in general.
 Statistics about all running coserver instances.
 
 @item stat SERVER
-This command is for selecting certain Server instances to be listed.
+This command is for selecting certain server instances to be listed.
 SERVER is one of server names you specified in the configuration file.
 
 @item stat id NUM
 Show statistics about a specific connection. This will give you all
 available information about every connection you specified.
-@xref{Writing Servers}, for more information about how to provide these
+@xref{Writing servers}, for more information about how to provide these
 information.
 
 @item stat con
 Connection statistics. This will give a list of all socket structures
 within Serveez. If you want more detailed information about specific
-connections, coservers or Servers you need to request these information
+connections, coservers or servers you need to request these information
 with @samp{stat id NUM} or @samp{stat all}.
 
 @item stat all
 Server and coserver instance statistics. This command lists all
 the information about instantiated servers and coservers.
-@xref{Writing Servers}, for more information about how to provide these
+@xref{Writing servers}, for more information about how to provide these
 information.
 
 @item stat cache
@@ -990,12 +1030,12 @@ Sets up the TCP port and local address. It can be useful to declare a
 protocol from outside.
 @end table
 
-@node Foo Server, SNTP Server, Control Protocol Server, Existing Servers
+@node Foo Server, SNTP Server, Control Protocol Server, Existing servers
 @subsection Foo Server
 
 @subsubsection General description
 The Foo Server is a simple example on how to write internet protocol
-servers with Serveez. @xref{Writing Servers}.
+servers with Serveez. @xref{Writing servers}.
 
 @subsubsection Configuration
 There are all kinds of configuration items. They are used to explain
@@ -1022,7 +1062,7 @@ Some array of integer numbers. Printed as server information.
 An hash map associating keys with values. Printed as server information.
 @end table
 
-@node SNTP Server, Gnutella Spider, Foo Server, Existing Servers
+@node SNTP Server, Gnutella Spider, Foo Server, Existing servers
 @subsection SNTP Server
 
 @subsubsection General
@@ -1054,7 +1094,7 @@ default 37) and the local ip address on which the server socket is bound
 to (default is any ip address).
 @end table
 
-@node Gnutella Spider, Tunnel Server, SNTP Server, Existing Servers
+@node Gnutella Spider, Tunnel Server, SNTP Server, Existing servers
 @subsection Gnutella Spider
 
 @subsubsection What is it ?
@@ -1161,7 +1201,7 @@ Force the Gnutella spider to send outgoing replies with this PORT as
 port information. See above for more information.
 @end table
 
-@node Tunnel Server, Chat Server, Gnutella Spider, Existing Servers
+@node Tunnel Server, Chat Server, Gnutella Spider, Existing servers
 @subsection Tunnel Server
 
 @subsubsection General description
@@ -1198,7 +1238,7 @@ The source port configuration.
 The target port configuration.
 @end table
 
-@node Chat Server, , Tunnel Server, Existing Servers
+@node Chat Server, , Tunnel Server, Existing servers
 @subsection Chat Server
 
 @subsubsection General description
@@ -1482,7 +1522,7 @@ The DNS coserver is using @code{gethostbyname()} to translate a given
 hostname to the associated IP address. The format of the coserver input
 line and the macro from @file{coserver.h} is shown below. The IRC server is
 currently using this coserver for resolving its @samp{?-Lines}.
-@xref{Existing Servers}, for more information. In the example below
+@xref{Existing servers}, for more information. In the example below
 @code{realhost} is something like @samp{www.textsure.net}.
 
 @example

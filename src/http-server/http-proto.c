@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.49 2000/12/31 00:03:10 ela Exp $
+ * $Id: http-proto.c,v 1.50 2000/12/31 13:23:36 ela Exp $
  *
  */
 
@@ -123,7 +123,7 @@ http_config_t http_config =
   0,                  /* enable reverse DNS lookups */
   0,                  /* enable identd requests */
   "http-access.log",  /* log file name */
-  "%h %i %u [%t] \"%R\" %c %l", /* custom log file format string */
+  HTTP_CLF,           /* custom log file format string */
   NULL                /* log file stream */
 };
 
@@ -131,7 +131,7 @@ http_config_t http_config =
  * Definition of the configuration items processed by libsizzle (taken
  * from the config file).
  */
-key_value_pair_t http_config_prototype [] =
+key_value_pair_t http_config_prototype[] =
 {
   REGISTER_PORTCFG ("netport", http_config.port, DEFAULTABLE),
   REGISTER_STR ("indexfile", http_config.indexfile, DEFAULTABLE),
@@ -244,7 +244,8 @@ http_init (server_t *server)
   if (!cfg->host)
     {
       host = cfg->port->localaddr->sin_addr.s_addr;
-      if (host == INADDR_ANY) host = htonl (INADDR_LOOPBACK);
+      if (host == INADDR_ANY)
+	host = htonl (INADDR_LOOPBACK);
       coserver_reverse (host, http_localhost, cfg, NULL);
     }
 
@@ -277,7 +278,8 @@ http_init (server_t *server)
       return -1;
     }
   p = cfg->userdir + strlen (cfg->userdir) - 1;
-  if (*p == '/' || *p == '\\') *p = '\0';
+  if (*p == '/' || *p == '\\')
+    *p = '\0';
 
   /* check document root path */
   if (!strlen (cfg->docs))
@@ -288,7 +290,8 @@ http_init (server_t *server)
 
   /* checking whether http doc root path ends in '/' or '\'. */
   p = cfg->docs + strlen (cfg->docs) - 1;
-  if (*p == '/' || *p == '\\') *p = '\0';
+  if (*p == '/' || *p == '\\')
+    *p = '\0';
 
   if (cfg->cacheentries > 0)
     http_alloc_cache (cfg->cacheentries);
@@ -310,7 +313,8 @@ http_finalize (server_t *server)
 
   http_free_types (cfg);
   http_free_cgi_apps (cfg);
-  if (cfg->log) fclose (cfg->log);
+  if (cfg->log)
+    fclose (cfg->log);
 
   return 0;
 }
@@ -499,8 +503,10 @@ http_tcp_cork (SOCKET sock, int set)
     }
 
   /* set / unset cork option */
-  if (set) flags |= TCP_CORK;
-  else     flags &= ~TCP_CORK;
+  if (set)
+    flags |= TCP_CORK;
+  else
+    flags &= ~TCP_CORK;
 
   /* set new socket option */
   if (fcntl (sock, F_SETFL, flags) < 0)
@@ -680,8 +686,7 @@ http_file_read (socket_t sock)
    * Try to read as much data as possible from the file.
    */
   num_read = read (sock->file_desc,
-		   sock->send_buffer + sock->send_buffer_fill,
-		   do_read);
+		   sock->send_buffer + sock->send_buffer_fill, do_read);
 
   /* Read error occurred. */
   if (num_read < 0)
@@ -814,8 +819,9 @@ http_handle_request (socket_t sock, int len)
   flag = 0;
 
   /* scan the request type */
-  while (*p != ' ' && p < end - 1) p++;
-  if (p == end || *(p+1) != '/')
+  while (*p != ' ' && p < end - 1)
+    p++;
+  if (p == end || *(p + 1) != '/')
     {
       return -1;
     }
@@ -825,7 +831,8 @@ http_handle_request (socket_t sock, int len)
   line = p + 1;
 
   /* scan the URI (file), `line' points to first character */
-  while (*p != '\r' && p < end) p++;
+  while (*p != '\r' && p < end)
+    p++;
   if (p == end)
     {
       xfree (request);
@@ -833,16 +840,18 @@ http_handle_request (socket_t sock, int len)
     }
 
   /* scan back until beginning of HTTP version */
-  while (*p != ' ' && *p) p--;
+  while (*p != ' ' && *p)
+    p--;
 
   /* is this a HTTP/0.9 request ? */
-  if (!memcmp (request, "GET", 3) && memcmp (p+1, "HTTP/", 5))
+  if (!memcmp (request, "GET", 3) && memcmp (p + 1, "HTTP/", 5))
     {
       flag |= HTTP_FLAG_SIMPLE;
-      while (*p != '\r') p++;
+      while (*p != '\r')
+	p++;
       uri = xmalloc (p - line + 1);
       strncpy (uri, line, p - line);
-      uri[p-line] = 0;
+      uri[p - line] = 0;
       line = p;
       version[MAJOR_VERSION] = 0;
       version[MINOR_VERSION] = 9;
@@ -856,7 +865,7 @@ http_handle_request (socket_t sock, int len)
 	  return -1;
 	}
       *p = 0;
-      uri = xmalloc(p - line + 1);
+      uri = xmalloc (p - line + 1);
       strcpy (uri, line);
       line = p + 1;
   
@@ -876,7 +885,7 @@ http_handle_request (socket_t sock, int len)
 
   /* check the remaining part of the first line the version */
   if (((version[MAJOR_VERSION] != HTTP_MAJOR_VERSION ||
-	version[MINOR_VERSION] > 1 ||*(line-2) != '.') && !flag) || 
+	version[MINOR_VERSION] > 1 || *(line - 2) != '.') && !flag) || 
       INT16 (line) != CRLF)
     {
       xfree (request);
@@ -934,7 +943,7 @@ http_check_request (socket_t sock)
   p = sock->recv_buffer;
 
   while (p < sock->recv_buffer + sock->recv_buffer_fill - 3 && 
-	 INT32(p) != CRLF2)
+	 INT32 (p) != CRLF2)
     p++;
   
   if (INT32 (p) == CRLF2 && 
@@ -963,7 +972,7 @@ char *
 http_info_server (server_t *server)
 {
   http_config_t *cfg = server->cfg;
-  static char info[80*12];
+  static char info[80 * 12];
   
   sprintf (info,
 	   " tcp port        : %d\r\n"
@@ -1003,7 +1012,7 @@ http_info_client (void *http_cfg, socket_t sock)
   http_config_t *cfg = http_cfg;
   http_socket_t *http = sock->data;
   http_cache_t *cache = http->cache;
-  static char info[80*32], text[80*8];
+  static char info[80 * 32], text[80 * 8];
   int n;
 
   sprintf (info, "This is a http client connection.\r\n\r\n");
@@ -1054,8 +1063,7 @@ http_info_client (void *http_cfg, socket_t sock)
 	       "  * receiving cgi input\r\n"
 	       "    pid            : %d\r\n"
 	       "    content-length : %d bytes left\r\n", 
-	       (int) http->pid, 
-	       http->contentlength);
+	       (int) http->pid, http->contentlength);
       strcat (info, text);
     }
   sprintf (text, "  * %d bytes left of original file size\r\n",
@@ -1070,7 +1078,7 @@ http_info_client (void *http_cfg, socket_t sock)
       while (http->property[n])
 	{
 	  sprintf (text, "    %s => %s\r\n",
-		   http->property[n], http->property[n+1]);
+		   http->property[n], http->property[n + 1]);
 	  n += 2;
 	  strcat (info, text);
 	}
@@ -1154,9 +1162,7 @@ http_get_response (socket_t sock, char *request, int flags)
   else
     {
       size = 
-	strlen (cfg->docs) + 
-	strlen (request) + 
-	strlen (cfg->indexfile) + 4;
+	strlen (cfg->docs) + strlen (request) + strlen (cfg->indexfile) + 4;
 
       file = xmalloc (size);
       strcpy (file, cfg->docs);
@@ -1225,7 +1231,7 @@ http_get_response (socket_t sock, char *request, int flags)
 #ifdef S_ISLNK
 	S_ISLNK (buf.st_mode) ||
 #endif /* S_ISLNK */
-	S_ISDIR (buf.st_mode)) )
+	S_ISDIR (buf.st_mode)))
     {
       log_printf (LOG_ERROR, "http: %s is not a regular file\n", file);
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
@@ -1306,8 +1312,7 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       if (http->range.first <= 0 || 
 	  (http->range.last && http->range.last <= http->range.first) ||
-	  http->range.last >= buf.st_size ||
-	  http->range.length > buf.st_size)
+	  http->range.last >= buf.st_size || http->range.length > buf.st_size)
 	partial = 0;
 
       http->range.length = buf.st_size;

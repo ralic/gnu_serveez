@@ -1,3 +1,8 @@
+2000-12-31  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Introduction to servers): Added some kind
+	of terminology clarification.
+
 2000-12-30  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Writing Servers): Documented data types of

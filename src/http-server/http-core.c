@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.22 2000/12/31 00:03:10 ela Exp $
+ * $Id: http-core.c,v 1.23 2000/12/31 13:23:36 ela Exp $
  *
  */
 
@@ -141,8 +141,10 @@ http_userdir (socket_t sock, char *uri)
   if (*uri && *p++ == '~' && cfg->userdir)
     {
       /* parse onto end of user name */
-      while (*p && *p != '/') p++;
-      if (p - uri <= 2) return NULL;
+      while (*p && *p != '/')
+	p++;
+      if (p - uri <= 2)
+	return NULL;
 
       user = xmalloc (p - uri - 1);
       memcpy (user, uri + 2, p - uri - 2);
@@ -191,15 +193,12 @@ http_userdir (socket_t sock, char *uri)
 	  log_printf (LOG_ERROR, "NetUserGetInfo: %s\n", error);
 	}
       /* successfully got the user information ? */
-      else if (entry && 
-	       entry->usri1_home_dir && 
-	       entry->usri1_home_dir[0])
+      else if (entry && entry->usri1_home_dir && entry->usri1_home_dir[0])
 	{
 	  file = xmalloc (strlen (windoze_uni2asc (entry->usri1_home_dir)) +
 			  strlen (cfg->userdir) + strlen (p) + 2);
 	  sprintf (file, "%s/%s%s", 
-		   windoze_uni2asc (entry->usri1_home_dir), 
-		   cfg->userdir, p);
+		   windoze_uni2asc (entry->usri1_home_dir), cfg->userdir, p);
 	  FreeUserInfo (entry);
 	  xfree (user);
 	  return file;
@@ -291,89 +290,79 @@ http_log (socket_t sock)
 
       /* access logging format given ? */
       if (cfg->logformat && *cfg->logformat)
-	{
-	  start = cfg->logformat;
-	  memset (line, 0, sizeof (line));
-	  while (*start)
-	    {
-	      /* parse until next format character */
-	      p = start;
-	      while (*p && *p != '%') p++;
-	      strncat (line, start, p - start);
-	      if (!*p) break;
-	      p++;
-	      switch (*p)
-		{
-		  /* %i - identity information */
-		case 'i':
-		  strcat (line, http->ident ? http->ident : "-");
-		  p++;
-		  break;
-		  /* %u - user authentication */
-		case 'u':
-		  strcat (line, http->auth ? http->auth : "-");
-		  p++;
-		  break;
-		  /* %l - delivered content length */
-		case 'l':
-		  strcat (line, util_itoa (http->length));
-		  p++;
-		  break;
-		  /* %c - http response code */
-		case 'c':
-		  strcat (line, util_itoa (http->response));
-		  p++;
-		  break;
-		  /* %h - host name */
-		case 'h':
-		  strcat (line, http->host ? http->host :
-			  util_inet_ntoa (sock->remote_addr));
-		  p++;
-		  break;
-		  /* %t - request time stamp */
-		case 't':
-		  strcat (line, http_clf_date (http->timestamp));
-		  p++;
-		  break;
-		  /* end of string */
-		case '\0':
-		  break;
-		  /* %R - original http request uri */
-		case 'R':
-		  strcat (line, http->request ? http->request : "-");
-		  p++;
-		  break;
-		  /* %r - referrer document */
-		case 'r':
-		  strcat (line, referrer ? referrer : "-");
-		  p++;
-		  break;
-		  /* %a - user agent */
-		case 'a':
-		  strcat (line, agent ? agent : "-");
-		  p++;
-		  break;
-		default:
-		  p++;
-		  break;
-		}
-	      start = p;
-	    }
-	  strcat (line, "\n");
-	}
-      /* no, use default logging format */
+	start = cfg->logformat;
       else
+	start = HTTP_CLF;
+
+      memset (line, 0, sizeof (line));
+      while (*start)
 	{
-	  sprintf (line, "%s - [%s] \"%s\" %d %d \"%s\" \"%s\"\n",
-		   http->host ? http->host : 
-		   util_inet_ntoa (sock->remote_addr),
-		   http_asc_date (http->timestamp),
-		   http->request,
-		   http->response,
-		   http->length,
-		   referrer ? referrer : "-",
-		   agent ? agent : "-");
+	  /* parse until next format character */
+	  p = start;
+	  while (*p && *p != '%')
+	    p++;
+	  strncat (line, start, p - start);
+	  if (!*p)
+	    break;
+	  p++;
+	  switch (*p)
+	    {
+	      /* %i - identity information */
+	    case 'i':
+	      strcat (line, http->ident ? http->ident : "-");
+	      p++;
+	      break;
+	      /* %u - user authentication */
+	    case 'u':
+	      strcat (line, http->auth ? http->auth : "-");
+	      p++;
+	      break;
+	      /* %l - delivered content length */
+	    case 'l':
+	      strcat (line, util_itoa (http->length));
+	      p++;
+	      break;
+	      /* %c - http response code */
+	    case 'c':
+	      strcat (line, util_itoa (http->response));
+	      p++;
+	      break;
+	      /* %h - host name */
+	    case 'h':
+	      strcat (line, http->host ? http->host :
+		      util_inet_ntoa (sock->remote_addr));
+	      p++;
+	      break;
+	      /* %t - request time stamp */
+	    case 't':
+	      strcat (line, http_clf_date (http->timestamp));
+	      p++;
+	      break;
+	      /* end of string */
+	    case '\0':
+	      break;
+	      /* %R - original http request uri */
+	    case 'R':
+	      strcat (line, http->request ? http->request : "-");
+	      p++;
+	      break;
+	      /* %r - referrer document */
+	    case 'r':
+	      strcat (line, referrer ? referrer : "-");
+	      p++;
+	      break;
+	      /* %a - user agent */
+	    case 'a':
+	      strcat (line, agent ? agent : "-");
+	      p++;
+	      break;
+	    default:
+	      p++;
+	      break;
+	    }
+	  start = p;
 	}
+      strcat (line, "\n");
       fprintf (cfg->log, line);
       fflush (cfg->log);
     }
@@ -400,7 +389,8 @@ http_add_header (const char *fmt, ...)
   int len = strlen (http_header.field);
   char *p = http_header.field + len;
   
-  if (len >= HTTP_HEADER_SIZE) return;
+  if (len >= HTTP_HEADER_SIZE)
+    return;
   va_start (args, fmt);
   vsnprintf (p, HTTP_HEADER_SIZE - len, fmt, args);
   va_end (args);
@@ -423,11 +413,13 @@ http_send_header (socket_t sock)
 		     http_asc_date (time (NULL)),
 		     serveez_config.program_name,
 		     serveez_config.version_string);
-  if (ret) return ret;
+  if (ret)
+    return ret;
 
   /* send header fields and trailing line break */
   ret = sock_printf (sock, "%s\r\n", http_header.field);
-  if (ret) return ret;
+  if (ret)
+    return ret;
   
   return 0;
 }
@@ -452,9 +444,12 @@ http_get_range (char *line, http_range_t *range)
   off_t n;
 
   /* parse until byte-range specifier */ 
-  if (!line || !range) return -1;
-  while (*p && *p != ':') p++;
-  if (!*p || *(p + 1) != ' ') return -1;
+  if (!line || !range)
+    return -1;
+  while (*p && *p != ':')
+    p++;
+  if (!*p || *(p + 1) != ' ')
+    return -1;
   p += 2;
 
   /* check identifier */
@@ -470,16 +465,40 @@ http_get_range (char *line, http_range_t *range)
   /* parse content range itself */
   range->first = range->last = range->length = 0;
 
-  if (*p != '=') return 0; p++;
-  n = 0; while (*p >= '0' && *p <= '9') { n *= 10; n += (*p - '0'); p++; }
+  if (*p != '=')
+    return 0;
+  p++;
+  n = 0; 
+  while (*p >= '0' && *p <= '9')
+    { 
+      n *= 10; 
+      n += (*p - '0'); 
+      p++; 
+    }
   range->first = n;
 
-  if (*p != '-') return 0; p++;
-  n = 0; while (*p >= '0' && *p <= '9') { n *= 10; n += (*p - '0'); p++; }
+  if (*p != '-')
+    return 0; 
+  p++;
+  n = 0; 
+  while (*p >= '0' && *p <= '9') 
+    { 
+      n *= 10; 
+      n += (*p - '0'); 
+      p++; 
+    }
   range->last = n;
 
-  if (*p != '/') return 0; p++;
-  n = 0; while (*p >= '0' && *p <= '9') { n *= 10; n += (*p - '0'); p++; }
+  if (*p != '/') 
+    return 0; 
+  p++;
+  n = 0; 
+  while (*p >= '0' && *p <= '9') 
+    { 
+      n *= 10; 
+      n += (*p - '0'); 
+      p++; 
+    }
   range->length = n;
 
   return 0;
@@ -502,53 +521,77 @@ http_error_response (socket_t sock, int response)
   switch (response)
     {
     case 400:
-      txt = "Bad Request"; break;
+      txt = "Bad Request";
+      break;
     case 401:
-      txt = "Unauthorized"; break;
+      txt = "Unauthorized";
+      break;
     case 402:
-      txt = "Payment Required"; break;
+      txt = "Payment Required";
+      break;
     case 403:
-      txt = "Forbidden"; break;
+      txt = "Forbidden";
+      break;
     case 404:
-      txt = "Not Found"; break;
+      txt = "Not Found";
+      break;
     case 405:
-      txt = "Method Not Allowed"; break;
+      txt = "Method Not Allowed";
+      break;
     case 406:
-      txt = "Not Acceptable"; break;
+      txt = "Not Acceptable";
+      break;
     case 407:
-      txt = "Proxy Authentication Required"; break;
+      txt = "Proxy Authentication Required";
+      break;
     case 408:
-      txt = "Request Timeout"; break;
+      txt = "Request Timeout";
+      break;
     case 409:
-      txt = "Conflict"; break;
+      txt = "Conflict";
+      break;
     case 410:
-      txt = "Gone"; break;
+      txt = "Gone";
+      break;
     case 411:
-      txt = "Length Required"; break;
+      txt = "Length Required";
+      break;
     case 412:
-      txt = "Precondition Failed"; break;
+      txt = "Precondition Failed";
+      break;
     case 413:
-      txt = "Request Entity Too Large"; break;
+      txt = "Request Entity Too Large";
+      break;
     case 414:
-      txt = "Request-URI Too Long"; break;
+      txt = "Request-URI Too Long";
+      break;
     case 415:
-      txt = "Unsupported Media Type"; break;
+      txt = "Unsupported Media Type";
+      break;
     case 416:
-      txt = "Requested Range Not Satisfiable"; break;
+      txt = "Requested Range Not Satisfiable";
+      break;
     case 417:
-      txt = "Expectation Failed"; break;
+      txt = "Expectation Failed";
+      break;
     case 500:
-      txt = "Internal Server Error"; break;
+      txt = "Internal Server Error";
+      break;
     case 501:
-      txt = "Not Implemented"; break;
+      txt = "Not Implemented";
+      break;
     case 502:
-      txt = "Bad Gateway"; break;
+      txt = "Bad Gateway";
+      break;
     case 503:
-      txt = "Service Unavailable"; break;
+      txt = "Service Unavailable";
+      break;
     case 504:
-      txt = "Gateway Timeout"; break;
+      txt = "Gateway Timeout";
+      break;
     case 505:
-      txt = "HTTP Version Not Supported"; break;
+      txt = "HTTP Version Not Supported";
+      break;
     default: 
       txt = "Bad Request"; 
     }
@@ -567,8 +610,7 @@ http_error_response (socket_t sock, int response)
 		      serveez_config.version_string,
 		      cfg->host ? cfg->host : 
 		      util_inet_ntoa (sock->local_addr),
-		      ntohs (sock->local_port),
-		      cfg->admin, cfg->admin);
+		      ntohs (sock->local_port), cfg->admin, cfg->admin);
 }
 
 /*
@@ -632,7 +674,8 @@ http_clf_date (time_t t)
   static char date[64];
   static char months[12][4] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  };
   struct tm *tm;
 
   tm = localtime (&t);
@@ -675,44 +718,30 @@ http_parse_date (char *date)
 
   static char month[12][4] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  };
 
   switch (date[3])
     {
       /* ASCTIME-Date */
     case ' ':
       sscanf (date, "%3s %3s %2d %02d:%02d:%02d %04d",
-	      _wkday,
-	      _month,
-	      &parse_time.tm_mday,
-	      &parse_time.tm_hour, 
-	      &parse_time.tm_min,
-	      &parse_time.tm_sec,
-	      &parse_time.tm_year);
+	      _wkday, _month, &parse_time.tm_mday, &parse_time.tm_hour, 
+	      &parse_time.tm_min, &parse_time.tm_sec, &parse_time.tm_year);
       
       break;
       /* RFC1123-Date */
     case ',':
       sscanf (date, "%3s, %02d %3s %04d %02d:%02d:%02d GMT", 
-	      _wkday,
-	      &parse_time.tm_mday,
-	      _month,
-	      &parse_time.tm_year,
-	      &parse_time.tm_hour, 
-	      &parse_time.tm_min,
-	      &parse_time.tm_sec);
+	      _wkday, &parse_time.tm_mday, _month, &parse_time.tm_year,
+	      &parse_time.tm_hour, &parse_time.tm_min, &parse_time.tm_sec);
 
       break;
       /* RFC850-Date */
     default:
       sscanf (date, "%s, %02d-%3s-%02d %02d:%02d:%02d GMT", 
-	      _wkday,
-	      &parse_time.tm_mday,
-	      _month,
-	      &parse_time.tm_year,
-	      &parse_time.tm_hour, 
-	      &parse_time.tm_min,
-	      &parse_time.tm_sec);
+	      _wkday, &parse_time.tm_mday, _month, &parse_time.tm_year,
+	      &parse_time.tm_hour, &parse_time.tm_min, &parse_time.tm_sec);
 
       parse_time.tm_mon += parse_time.tm_mon >= 70 ? 1900 : 2000;
 
@@ -728,7 +757,8 @@ http_parse_date (char *date)
   parse_time.tm_year -= 1900;
   ret = mktime (&parse_time);
   ret -= timezone;
-  if (daylight > 0) ret += 3600;
+  if (daylight > 0)
+    ret += 3600;
   return ret;
 }
 
@@ -753,32 +783,35 @@ http_parse_property (socket_t sock, char *request, char *end)
   n = 0;
 
   /* find out properties if necessary */
-  while (INT16 (request) != CRLF && 
-	 properties < MAX_HTTP_PROPERTIES - 1)
+  while (INT16 (request) != CRLF && properties < MAX_HTTP_PROPERTIES - 1)
     {
       /* get property entity identifier */
       p = request;
-      while (*p != ':' && p < end) p++;
-      if (p == end) break;
-      http->property[n] = xmalloc (p-request+1);
-      strncpy (http->property[n], request, p-request);
-      http->property[n][p-request] = 0;
+      while (*p != ':' && p < end)
+	p++;
+      if (p == end)
+	break;
+      http->property[n] = xmalloc (p - request + 1);
+      strncpy (http->property[n], request, p - request);
+      http->property[n][p - request] = 0;
       n++;
-      request = p+2;
+      request = p + 2;
 
       /* get property entity body */
-      while (INT16 (p) != CRLF && p < end) p++;
-      if (p == end || p <= request) break;
-      http->property[n] = xmalloc (p-request+1);
-      strncpy (http->property[n], request, p-request);
-      http->property[n][p-request] = 0;
+      while (INT16 (p) != CRLF && p < end)
+	p++;
+      if (p == end || p <= request)
+	break;
+      http->property[n] = xmalloc (p - request + 1);
+      strncpy (http->property[n], request, p - request);
+      http->property[n][p - request] = 0;
       n++;
       properties++;
-      request = p+2;
+      request = p + 2;
 
 #if 0
       printf ("http header: {%s} = {%s}\n", 
-	      http->property[n-2], http->property[n-1]);
+	      http->property[n - 2], http->property[n - 1]);
 #endif
     }
 
@@ -807,7 +840,7 @@ http_find_property (http_socket_t *http, char *key)
     {
       if (!util_strcasecmp (http->property[n], key))
 	{
-	  return http->property[n+1];
+	  return http->property[n + 1];
 	}
       n += 2;
     }
@@ -833,7 +866,7 @@ http_process_uri (char *uri)
   /* Test if there is any occurrence of the special character encoding. */
   while ((p = strchr (uri, '%')) != NULL)
     {
-      if ((h = *(p+1)) != 0 && (l = *(p+2)) != 0)
+      if ((h = *(p + 1)) != 0 && (l = *(p + 2)) != 0)
 	{
 	  /* Convert to byte. */
 	  ASC_TO_HEX (h);
@@ -842,10 +875,12 @@ http_process_uri (char *uri)
 
 	  /* Copy rest of URI. */
 	  uri = ++p;
-	  while (*(p+2)) *p++ = *(p+2);
+	  while (*(p + 2))
+	    *p++ = *(p + 2);
 	  *p = '\0';
 	}
-      else break;
+      else
+	break;
     }
 }
 
@@ -860,7 +895,7 @@ http_free_types (http_config_t *cfg)
 
   if (*(cfg->types))
     {
-      if ((type = (char **)hash_values (*(cfg->types))) != NULL)
+      if ((type = (char **) hash_values (*(cfg->types))) != NULL)
 	{
 	  for (n = 0; n < hash_size (*(cfg->types)); n++)
 	    {
@@ -909,25 +944,31 @@ http_read_types (http_config_t *cfg)
     {
       /* delete all trailing newline characters, skip empty lines */
       p = line + strlen (line) - 1;
-      while (p != line && (*p == '\r' || *p == '\n')) p--;
-      if (p == line) continue;
-      *(p+1) = 0;
+      while (p != line && (*p == '\r' || *p == '\n'))
+	p--;
+      if (p == line)
+	continue;
+      *(p + 1) = 0;
 
       p = line;
       end = line + strlen (line);
 
       /* parse content type */
       content = line;
-      while (p < end && (*p != ' ' && *p != '\t')) p++;
+      while (p < end && (*p != ' ' && *p != '\t'))
+	p++;
       *p++ = 0;
 
       /* parse all file suffixes associated with this content type */
       while (p < end)
 	{
-	  while (p < end && (*p == ' ' || *p == '\t')) p++;
-	  if (p == end) break;
+	  while (p < end && (*p == ' ' || *p == '\t'))
+	    p++;
+	  if (p == end)
+	    break;
 	  suffix = p;
-	  while (p < end && (*p != ' ' && *p != '\t')) p++;
+	  while (p < end && (*p != ' ' && *p != '\t'))
+	    p++;
 	  *p++ = 0;
 	  if (strlen (suffix))
 	    {
@@ -958,12 +999,14 @@ char *
 http_find_content_type (socket_t sock, char *file)
 {
   http_config_t *cfg = sock->cfg;
-  char *suffix = file + strlen(file) - 1;
+  char *suffix = file + strlen (file) - 1;
   char *type;
 
   /* parse file back until a trailing '.' */
-  while (suffix > file && *suffix != '.') suffix--;
-  if (suffix != file) suffix++;
+  while (suffix > file && *suffix != '.')
+    suffix--;
+  if (suffix != file)
+    suffix++;
 
   /* find this file suffix in the content type hash */
   if ((type = hash_get (*(cfg->types), suffix)) != NULL)
@@ -992,7 +1035,8 @@ http_absolute_file (char *file)
 
   /* find any path separator in the file */
   p = file + strlen (file) - 1;
-  while (p > file && *p != '/' && *p != '\\') p--;
+  while (p > file && *p != '/' && *p != '\\')
+    p--;
   if (*p == '/' || *p == '\\')
     {
       have_path = 1;

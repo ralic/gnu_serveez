@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.9 2000/12/31 00:03:10 ela Exp $
+ * $Id: http-core.h,v 1.10 2000/12/31 13:23:36 ela Exp $
  *
  */
 
@@ -98,6 +98,9 @@ struct http_socket
 
 /* the current HTTP protocol version */
 #define HTTP_VERSION "HTTP/1.0"
+
+/* Common Log Format string */
+#define HTTP_CLF "%h %i %u [%t] \"%R\" %c %l"
 
 /* HTTP resonse header definitions */
 #define HTTP_OK              HTTP_VERSION " 200 OK\r\n"

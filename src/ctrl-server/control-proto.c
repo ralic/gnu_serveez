@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.34 2000/12/16 10:57:23 ela Exp $
+ * $Id: control-proto.c,v 1.35 2000/12/31 13:23:36 ela Exp $
  *
  */
 
@@ -365,6 +365,8 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	strcat (proto, "icmp ");
       if (xsock->proto & PROTO_PIPE)
 	strcat (proto, "pipe ");
+      if (xsock->proto & PROTO_RAW)
+	strcat (proto, "raw ");
 
       sock_printf (sock, "%s\r\n", proto);
       for (n = 0; (server = SERVER (xsock->data, n)) != NULL; n++)
