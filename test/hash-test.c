@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.8 2001/03/08 22:15:14 raimi Exp $
+ * $Id: hash-test.c,v 1.9 2001/03/11 00:11:35 ela Exp $
  *
  */
 
@@ -171,7 +171,6 @@ main (int argc, char **argv)
   test_print ("          destroy: ");
   svz_hash_destroy (hash);
   test_ok ();
-
 
   /* hash iteration */
   hash = svz_hash_create (4);

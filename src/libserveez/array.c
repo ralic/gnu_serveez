@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.1 2001/03/08 22:15:13 raimi Exp $
+ * $Id: array.c,v 1.2 2001/03/11 00:11:34 ela Exp $
  *
  */
 
@@ -37,9 +37,11 @@
 #include "libserveez/util.h"
 #include "libserveez/array.h"
 
+#if ENABLE_DEBUG
+
 /*
  * Create a new array with the initial capacity @var{capacity} and return
- * the pointer to it.
+ * a pointer to it.
  */
 svz_array_t *
 svz_array_create (unsigned long capacity)
@@ -56,13 +58,14 @@ svz_array_create (unsigned long capacity)
 }
 
 /*
- * Delete all values within the array @var{arrray}. Set the size to zero.
+ * Delete all values within the array @var{arrray} and set its size to zero.
+ * The array itself keeps valid.
  */
 void
 svz_array_clear (svz_array_t *array)
 {
   assert (array);
-  if (array->size && array->data)
+  if (array->data)
     {
       svz_free (array->data);
       array->data = NULL;
@@ -71,7 +74,8 @@ svz_array_clear (svz_array_t *array)
 }
 
 /*
- * Completely destroy the array @var{arrray}.
+ * Completely destroy the array @var{arrray}. The @var{array} handle is
+ * invalid afterwards.
  */
 void
 svz_array_destroy (svz_array_t *array)
@@ -97,7 +101,8 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
 
 /*
  * Return the array element at the position @var{index} of the array 
- * @var{arrray} if the index is within the array range. Return NULL if not.
+ * @var{arrray} if the index is within the array range. Return @code{NULL}
+ * if not.
  */
 void *
 svz_array_get (svz_array_t *array, unsigned long index)
@@ -110,7 +115,8 @@ svz_array_get (svz_array_t *array, unsigned long index)
 
 /*
  * Replace the array element at the position @var{index} of the array
- * @var{arrray} with the value @var{value} and return its previous value.
+ * @var{arrray} with the value @var{value} and return the previous value
+ * at this index.
  */
 void *
 svz_array_set (svz_array_t *array, unsigned long index, void *value)
@@ -138,7 +144,8 @@ svz_array_add (svz_array_t *array, void *value)
 
 /*
  * Remove the array element at the position @var{index} of the array
- * @var{arrray}. Return its previous value.
+ * @var{arrray}. Return its previous value or @code{NULL} if the index
+ * is out of the arrays range.
  */
 void *
 svz_array_del (svz_array_t *array, unsigned long index)
@@ -157,7 +164,7 @@ svz_array_del (svz_array_t *array, unsigned long index)
 }
 
 /*
- * Return the array's @var{arrray} capacity.
+ * Return the given arrays @var{arrray} current capacity.
  */
 unsigned long
 svz_array_capacity (svz_array_t *array)
@@ -167,7 +174,7 @@ svz_array_capacity (svz_array_t *array)
 }
 
 /*
- * Return the array's @var{arrray} current size.
+ * Return the given arrays @var{arrray} current size.
  */
 unsigned long
 svz_array_size (svz_array_t *array)
@@ -175,3 +182,9 @@ svz_array_size (svz_array_t *array)
   assert (array);
   return array->size;
 }
+
+#else /* ENABLE_DEBUG */
+
+int array_dummy = 0; /* Shutup compiler. */
+
+#endif /* not ENABLE_DEBUG */

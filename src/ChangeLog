@@ -1,3 +1,9 @@
+2001-03-10  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/array.c: Added new data structure. Implemented
+	two version. One which is for debugging and another for
+	distribution which is a fully inlined thingie.
+
 2001-03-08  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/hash.h: Put the hash functions into the namespace

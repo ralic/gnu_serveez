@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.8 2001/03/08 22:15:14 raimi Exp $
+ * $Id: coserver.c,v 1.9 2001/03/11 00:11:34 ela Exp $
  *
  */
 
@@ -310,12 +310,16 @@ coserver_loop (coserver_t *coserver, int in_pipe, int out_pipe)
   char *result = NULL;
   unsigned id;
 
-  in = fdopen (in_pipe, "r");
-  out = fdopen (out_pipe, "w");
-  if (in == NULL || out == NULL)
+  if ((in = fdopen (in_pipe, "r")) == NULL)
     {
-      log_printf (LOG_ERROR, "cannot access pipes %d or %d\n",
-		  in_pipe, out_pipe);
+      log_printf (LOG_ERROR, "coserver: fdopen (%d): %s\n", in_pipe, 
+		  SYS_ERROR);
+      return;
+    }
+  if ((out = fdopen (out_pipe, "w")) == NULL)
+    {
+      log_printf (LOG_ERROR, "coserver: fdopen (%d): %s\n", out_pipe, 
+		  SYS_ERROR);
       return;
     }
 
@@ -628,9 +632,9 @@ coserver_close_pipes (coserver_t *self)
       if (coserver != self)
 	{
 	  if (close (coserver->sock->pipe_desc[READ]) < 0)
-	    log_printf (LOG_ERROR, "coserver: close: %d\n", SYS_ERROR);
+	    log_printf (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
 	  if (close (coserver->sock->pipe_desc[WRITE]) < 0)
-	    log_printf (LOG_ERROR, "coserver: close: %d\n", SYS_ERROR);
+	    log_printf (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
 	}
     }
 }
@@ -783,21 +787,40 @@ coserver_start (int type)
       if (close (c2s[READ]) < 0)
 	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-      /* reassign the pipes to stdout and stdin */
-      if (dup2 (in, 0) != 0)
-	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
-      if (dup2 (out, 1) != 1)
-	log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
-      
-      /* close the old pipe descriptors */
-      close (in);
-      close (out);
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "coserver pipes: %d-%d\n", in, out);
+#endif
+
+      /* check if the pipes are 0, 1 or 2 already */
+      if (in > 2 && out > 2)
+	{
+	  /* reassign the pipes to stdout and stdin */
+	  if (dup2 (in, 0) != 0)
+	    log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+	  if (dup2 (out, 1) != 1)
+	    log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+	  /* close the old pipe descriptors */
+	  close (in);
+	  close (out);
+	  close (2);
+	  in = 0;
+	  out = 1;
+	}
+      else
+	{
+	  if (in != 2 && out != 2)
+	    close (2);
+	  if (in != 1 && out != 1)
+	    close (1);
+	  if (in != 0 && out != 0)
+	    close (0);
+	}
 
       /* close all other coserver pipes except its own */
       coserver_close_pipes (coserver);
 
       /* start the internal coserver */
-      coserver_loop (coserver, 0, 1);
+      coserver_loop (coserver, in, out);
       exit (0);
     }
   else if (pid == -1)

@@ -22,33 +22,29 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-TESTS = hash-test spvec-test
+TESTS = array-test hash-test spvec-test
 
 EXTRA_DIST = hash.dsp spvec.dsp
 
-noinst_PROGRAMS = hash-test spvec-test
+noinst_PROGRAMS = hash-test spvec-test array-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
 spvec_test_SOURCES = spvec-test.c test.c test.h alloc.c sparsevec.c
+array_test_SOURCES = array-test.c test.c test.h alloc.c array.c
 
 AM_CFLAGS = -I$(top_srcdir)/src
 
-alloc.c: $(top_srcdir)/src/libserveez/alloc.c
-	ln -s $< $@
-
-hash.c: $(top_srcdir)/src/libserveez/hash.c
-	ln -s $< $@
-
-sparsevec.c: $(top_srcdir)/src/libserveez/sparsevec.c
-	ln -s $< $@
+%.c: $(top_srcdir)/src/libserveez/%.c
+	cp -p $< $(srcdir)/$@
 
 distclean-local:
 	rm -f *\~ *.orig *.rej
 
 dist-hook:
-	rm -f $(distdir)/alloc.c
-	rm -f $(distdir)/hash.c
-	rm -f $(distdir)/sparsevec.c
+	rm -f $(distdir)/alloc.c $(distdir)/hash.c $(distdir)/sparsevec.c \
+		$(distdir)/array.c
 
-CLEANFILES = alloc.c hash.c sparsevec.c
+CLEANFILES = alloc.c hash.c sparsevec.c array.c
 
 MAINTAINERCLEANFILES = Makefile.in
+
+SUFFIXES = .c
