@@ -48,7 +48,7 @@ BINARY-SUBSET_DEFUN
 
 In order to setup a new server type you use the procedure 
 @code{(define-servertype!)}.  This procedure takes one argument which must be
-a associative list specifying the server type in detail.  There are 
+an associative list specifying the server type in detail.  There are 
 optional and mandatory elements you can setup in this alist.  The following
 example shows the overall syntax of this procedure:
 
