@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.c,v 1.2 2001/10/11 11:13:15 ela Exp $
+ * $Id: gzlib.c,v 1.3 2001/10/13 02:39:39 ela Exp $
  *
  */
 
@@ -49,7 +49,8 @@ svz_codec_t zlib_encoder = {
   zlib_encoder_init,
   zlib_encoder_finalize,
   zlib_encode,
-  zlib_error
+  zlib_error,
+  zlib_ratio
 };
 
 /* Definition of the 'zlib' decoder. */
@@ -59,7 +60,8 @@ svz_codec_t zlib_decoder = {
   zlib_decoder_init,
   zlib_decoder_finalize,
   zlib_decode,
-  zlib_error
+  zlib_error,
+  zlib_ratio
 };
 
 /* Internal 'zlib' data structure. The arbitrary `data' field of the
@@ -107,6 +109,24 @@ zlib_error (svz_codec_data_t *data)
       sprintf (err, "%s", z ? z->stream.msg : "No error");
     }
   return err;
+}
+
+/* Codec `ratio' callback:
+   Returns the current ratio state of 'zlib' codec. This callback gets 
+   called if the `code' callback returned @code{SVZ_CODEC_FINISHED}. */
+int
+zlib_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
+{
+  zlib_data_t *z;
+
+  if (data)
+    {
+      z = data->data;
+      *in = (unsigned long) z->stream.total_in;
+      *out = (unsigned long) z->stream.total_out;
+      return SVZ_CODEC_OK;
+    }
+  return SVZ_CODEC_ERROR;
 }
 
 /* Codec `init' callback:

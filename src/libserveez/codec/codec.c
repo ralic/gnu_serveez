@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.4 2001/10/11 11:13:15 ela Exp $
+ * $Id: codec.c,v 1.5 2001/10/13 02:39:39 ela Exp $
  *
  */
 
@@ -203,6 +203,27 @@ svz_codec_unregister (svz_codec_t *codec)
   return -1;
 }
 
+/* Print a text representation of a codec's current ratio in percent
+   if possible. */
+void
+svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
+{
+  unsigned long in = 0, out = 0;
+
+  if (codec->ratio == NULL)
+    return;
+  if (codec->ratio (data, &in, &out) == SVZ_CODEC_OK)
+    {
+      if (in != 0)
+	svz_log (LOG_NOTICE, "%s: %s ratio is %lu.%02lu%%\n",
+		 codec->description, SVZ_CODEC_TYPE_TEXT (codec),
+		 out * 100UL / in, (out * 10000UL / in) % 100UL);
+      else
+	svz_log (LOG_NOTICE, "%s: %s ratio is infinite\n",
+		 codec->description, SVZ_CODEC_TYPE_TEXT (codec));
+    }
+}
+
 /* The following four (4) macros are receive buffer switcher used in order
    to apply the output buffer of the codec to the receive buffer of a socket
    structure and to revert these changes. */
@@ -342,6 +363,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
       return -1;
 
     case SVZ_CODEC_FINISHED: /* Codec finished. */
+      svz_codec_ratio (codec, data);
       if (codec->finalize (data) != SVZ_CODEC_OK)
 	{
 	  svz_log (LOG_ERROR, "%s: finalize: %s\n", 
@@ -521,6 +543,7 @@ svz_codec_sock_send (svz_socket_t *sock)
       return -1;
 
     case SVZ_CODEC_FINISHED: /* Codec finished. */
+      svz_codec_ratio (codec, data);
       if (codec->finalize (data) != SVZ_CODEC_OK)
 	{
 	  svz_log (LOG_ERROR, "%s: finalize: %s\n", 
