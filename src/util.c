@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.34 2001/01/25 10:57:57 ela Exp $
+ * $Id: util.c,v 1.35 2001/01/25 21:22:36 ela Exp $
  *
  */
 
@@ -45,11 +45,11 @@
 #include <time.h>
 #include <errno.h>
 
-#if HAVE_SYS_RESOURCE_H && !defined(__MINGW32__)
-# include <sys/resource.h>
-#endif
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>
+#endif
+#if HAVE_SYS_RESOURCE_H && !defined (__MINGW32__)
+# include <sys/resource.h>
 #endif
 #if HAVE_UNISTD_H
 # include <unistd.h>

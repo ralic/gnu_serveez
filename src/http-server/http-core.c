@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.24 2001/01/24 15:55:29 ela Exp $
+ * $Id: http-core.c,v 1.25 2001/01/25 21:22:36 ela Exp $
  *
  */
 
@@ -66,6 +66,14 @@ http_header_t http_header;
 #if defined (__CYGWIN__) || defined (__MINGW32__)
 # define timezone _timezone
 # define daylight _daylight
+#endif
+
+/*
+ * For some reason FreeBSD 3.2 does not provide `timezone' and `daylight'.
+ */
+#if 0
+# define timezone ((long int) 0)
+# define daylight ((int) 0)
 #endif
 
 #ifdef __MINGW32__
@@ -678,8 +686,8 @@ http_clf_date (time_t t)
 	   tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
 	   tm->tm_hour, tm->tm_min, tm->tm_sec,
 	   timezone > 0 ? '+' : '-',
-	   timezone > 0 ? timezone / 3600 : -timezone / 3600,
-	   timezone > 0 ? (timezone / 60) % 60 : -(timezone / 60) % 60);
+	   timezone > 0 ? timezone / 3600 : - timezone / 3600,
+	   timezone > 0 ? (timezone / 60) % 60 : - (timezone / 60) % 60);
   return date;
 }
 

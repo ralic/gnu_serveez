@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.23 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-proto.c,v 1.24 2001/01/25 21:22:36 ela Exp $
  *
  */
 
@@ -43,6 +43,7 @@
 #endif
 
 #ifndef __MINGW32__
+# include <sys/types.h>
 # include <netinet/in.h>
 #endif
 
