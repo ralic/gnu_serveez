@@ -1,3 +1,9 @@
+2001-07-29  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.c (svz_coserver_check): Coservers get 
+	automagically restarted if the number of instances decreases or
+	buffer overrun is in sight.
+
 2001-07-11  [ Ela ]  <ela@lkcc.org>
 
 	* core.c (svz_sendfile): Added quite a lot comments for weird

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.24 2001/07/05 21:35:26 ela Exp $
+ * $Id: server-core.c,v 1.25 2001/07/29 09:16:40 ela Exp $
  *
  */
 
@@ -947,10 +947,9 @@ svz_periodic_tasks (void)
       sock = sock->next;
     }
 
-#ifdef __MINGW32__
-  /* check regularly for internal coserver responses...  */
+  /* check regularly for internal coserver responses and keep coservers
+     alive */
   svz_coserver_check ();
-#endif /* not __MINGW32__ */
 
   /* run the server instance timer routines */
   svz_server_notifiers ();

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.19 2001/07/06 16:40:03 ela Exp $
+ * $Id: coserver.c,v 1.20 2001/07/29 09:16:41 ela Exp $
  *
  */
 
@@ -400,40 +400,22 @@ svz_coserver_activate (int type)
 #endif /* ENABLE_DEBUG */
 }
 
-/*
- * Call this routine whenever there is time, e.g. within the timeout of 
- * the @code{select()} statement. Indeed I built it in the 
- * @code{svz_periodic_tasks()} statement. The routine checks if there was 
- * any response from an active coserver.
- */
-void
-svz_coserver_check (void)
-{
-  svz_coserver_t *coserver;
-  svz_socket_t *sock;
-  int n;
-  
-  /* go through all coservers */
-  svz_array_foreach (svz_coservers, coserver, n)
-    {
-      sock = coserver->sock;
-      while (sock->recv_buffer_fill > 0)
-	{
-#if ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "%s: coserver response detected\n",
-		   svz_coservertypes[coserver->type].name);
-#endif
-	  /* find a full response within the receive buffer */
-	  if (sock->check_request)
-	    {
-	      EnterCriticalSection (&coserver->sync);
-	      sock->check_request (sock);
-	      LeaveCriticalSection (&coserver->sync);
-	    }
-	}
-    }
-}
 #endif /* __MINGW32__ */
+
+/*
+ * Return the number of currently running coservers with the type @var{type}.
+ */
+static int
+svz_coserver_count (int type)
+{
+  int n, count = 0;
+  svz_coserver_t *coserver;
+
+  svz_array_foreach (svz_coservers, coserver, n)
+    if (coserver->type == type)
+      count++;
+  return count;
+}
 
 /*
  * Delete the n'th internal coserver from coserver array.
@@ -918,6 +900,65 @@ svz_coserver_start (int type)
 }
 
 /*
+ * Call this routine whenever there is time, e.g. within the timeout of 
+ * the @code{select()} statement. Indeed I built it in the 
+ * @code{svz_periodic_tasks()} statement. Under Wind32 the routine checks 
+ * if there was any response from an active coserver. Moreover it keeps
+ * the coserver threads/processes alive. If one of the coservers dies due
+ * to buffer overrun or might be overloaded this function starts a new one.
+ */
+void
+svz_coserver_check (void)
+{
+  svz_coserver_t *coserver;
+  svz_coservertype_t *ctype;
+  svz_socket_t *sock;
+  int n;
+  
+#ifdef __MINGW32__
+  /* go through all coservers */
+  svz_array_foreach (svz_coservers, coserver, n)
+    {
+      sock = coserver->sock;
+      while (sock->recv_buffer_fill > 0)
+	{
+#if ENABLE_DEBUG
+	  svz_log (LOG_DEBUG, "%s: coserver response detected\n",
+		   svz_coservertypes[coserver->type].name);
+#endif
+	  /* find a full response within the receive buffer */
+	  if (sock->check_request)
+	    {
+	      EnterCriticalSection (&coserver->sync);
+	      sock->check_request (sock);
+	      LeaveCriticalSection (&coserver->sync);
+	    }
+	}
+    }
+#endif /* __MINGW32__ */
+
+  /* check the number of coserver instances of each coserver type */
+  for (n = 0; n < MAX_COSERVER_TYPES; n++)
+    {
+      ctype = &svz_coservertypes[n];
+      if (svz_coserver_count (ctype->type) < ctype->instances)
+	svz_coserver_start (ctype->type);
+    }
+
+  /* restart coserver instances if buffer overrun is in sight (send buffer
+     fill >= 90 percent) */
+  svz_array_foreach (svz_coservers, coserver, n)
+    {
+      sock = coserver->sock;
+      if (sock->send_buffer_fill * 100 / sock->send_buffer_size >= 90)
+	{
+	  svz_coserver_start (coserver->type);
+	  break;
+	}
+    }
+}
+
+/*
  * Create a single coserver with the given type @var{type}.
  */
 void 
@@ -947,9 +988,7 @@ svz_coserver_init (void)
       if (coserver->init)
 	coserver->init ();
       for (i = 0; i < coserver->instances; i++)
-	{
-	  svz_coserver_start (coserver->type);
-	}
+	svz_coserver_start (coserver->type);
     }
 
   return 0;

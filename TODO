@@ -26,16 +26,17 @@ unfixed) have a look at the file BUGS.
 - Resolve libcoserver problem (some linkers swallow syms because they
   are not needed in libserveez).
 	- Document compilation hints (--disable-shared, static guile, ...)
-- Runtime check for sendfile()(4 vs 7 args) in configure script.
+- Runtime check for sendfile() (4 vs 7 args) in configure script.
 - How can a self connected gnutella socket find out its port
   configuration for sending push requests and replies ?
 - Make http-cache faster (in fact, faster than the fs). Use other LRU
   detection.
 - Remove SOCK_MAX_ID limit.
 - Control proto 'stat id' should print socket-type specific info only.
-- Restartable (automatically) coservers (ident dies on aWSC mass test).
-- Allow implementing servers in guile.
-- Convince the guile people to accept patches for Windows compatibility.
+	- Restartable (automatically) coservers (ident dies on aWCS mass test).
+	- Allow implementing servers in guile.
+	- Convince the guile people to accept patches for Windows 
+	  compatibility.
 - Write a replacement for the inetd.
 	- Make protocol detection limits / timeouts configurable.
 	- Create a logo for Serveez.
