@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.9 2001/11/19 21:13:01 ela Exp $
+ * $Id: passthrough.c,v 1.10 2001/11/21 14:15:45 raimi Exp $
  *
  */
 
@@ -58,21 +58,26 @@ extern char ** environ;
 #include "libserveez/passthrough.h"
 
 /*
- * This routine start a new program specified by @var{bin} passing the
+ * This routine starts a new program specified by @var{bin} passing the
  * socket descriptor in the socket structure @var{sock} to stdin and stdout.
- * The arguments and the environment of the new process can be passed by
- * @var{argv} and @var{envp}. The argument @var{flag} specifies the method
+ * @var{bin} has to contain a fully qualified file name.
+ * The arguments and the environment of the new process can be passed in
+ * @var{argv} and @var{envp}. Please note that @var{argv[0]} has to be set to
+ * the program name. It defaults to @var{bin} when it contains NULL.
+ * The @var{dir} argument contains the working directory of the new process.
+ * The directory is not changed when it contains NULL.
+ * The argument @var{flag} specifies the method
  * used to passthrough the connection. It can be either 
  * @code{SVZ_PROCESS_FORK} (pass pipes or socket directly through 
  * @code{fork()} and @code{exec()}) or @code{SVZ_PROCESS_SHUFFLE} (pass
  * socket transactions via a pair of pipes).
  */
 int
-svz_sock_process (svz_socket_t *sock, char *bin, 
+svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
 		  char **argv, svz_envblock_t *envp, int flag)
 {
   HANDLE in, out;
-  char *dir = NULL, *p, *app, *file;
+  char *p, *app;
   int len, ret = -1;
 
   if (sock == NULL || bin == NULL)
@@ -90,32 +95,15 @@ svz_sock_process (svz_socket_t *sock, char *bin,
   if (svz_process_check_executable (bin, &app) < 0)
     return -1;
 
-  /* Extract the directory part of the binary. */
-  p = bin + strlen (bin) - 1;
-  while (p > bin && *p != '/' && *p != '\\')
-    p--;
-  if (p > bin)
-    {
-      file = svz_strdup (p + 1);
-      len = p - bin;
-      dir = svz_malloc (len + 1);
-      memcpy (dir, bin, len);
-      dir[len] = '\0';
-    }
-  else
-    {
-      file = svz_strdup (bin);
-    }
-
   /* Depending on the given flag use different methods to passthrough
      the connection. */
   switch (flag)
     {
     case SVZ_PROCESS_FORK:
-      ret = svz_process_fork (file, dir, in, out, argv, envp, app);
+      ret = svz_process_fork (bin, dir, in, out, argv, envp, app);
       break;
     case SVZ_PROCESS_SHUFFLE:
-      ret = svz_process_shuffle (sock, file, dir, (SOCKET) in, argv, 
+      ret = svz_process_shuffle (sock, bin, dir, (SOCKET) in, argv, 
 				 envp, app);
       break;
     default:
@@ -123,9 +111,7 @@ svz_sock_process (svz_socket_t *sock, char *bin,
       ret = -1;
       break;
     }
-
-  svz_free (file);
-  svz_free (dir);
+  
   return ret;
 }
 
@@ -343,10 +329,13 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
      program. */
 
 #ifndef __MINGW32__      
-  if (chdir (dir) < 0)
+  if (dir != NULL)
     {
-      svz_log (LOG_ERROR, "chdir (%s): %s\n", dir, SYS_ERROR);
-      return -1;
+      if (chdir (dir) < 0)
+	{
+	  svz_log (LOG_ERROR, "chdir (%s): %s\n", dir, SYS_ERROR);
+	  return -1;
+	}
     }
 
   if (svz_fd_block (out) < 0 || svz_fd_block (in) < 0)
@@ -369,7 +358,9 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
     }
 
   /* Execute the file itself here overwriting the current process. */
-  argv[0] = file;
+  if (argv[0] == NULL)
+    argv[0] = file;
+
   if (execve (file, argv, svz_envblock_get (envp)) == -1)
     {
       svz_log (LOG_ERROR, "execve: %s\n", SYS_ERROR);
@@ -394,11 +385,14 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
 
   /* Save current directory and change into application's. */
   savedir = svz_getcwd ();
-  if (chdir (dir) < 0)
+  if (dir != NULL)
     {
-      svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-      svz_free (savedir);
-      return -1;
+      if (chdir (dir) < 0)
+	{
+	  svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
+	  svz_free (savedir);
+	  return -1;
+	}
     }
 
   /* Check the access to the file. */
@@ -641,6 +635,7 @@ svz_process_check_access (char *file)
 
 #ifndef __MINGW32__
   /* set the appropriate user permissions */
+  /* FIXME: make parameter
   if (setgid (buf.st_gid) == -1)
     {
       svz_log (LOG_ERROR, "setgid: %s\n", SYS_ERROR);
@@ -651,6 +646,7 @@ svz_process_check_access (char *file)
       svz_log (LOG_ERROR, "setuid: %s\n", SYS_ERROR);
       return -1;
     }
+  */
 #endif /* not __MINGW32__ */
 
   return 0;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.h,v 1.1 2001/10/27 14:12:16 ela Exp $
+ * $Id: prog-server.h,v 1.2 2001/11/21 14:15:45 raimi Exp $
  *
  */
 
@@ -30,7 +30,11 @@
  */
 typedef struct
 {
-  char *path;
+  char *bin;         /* executable file */
+  char *dir;         /* working directory or NULL */
+  char *user;        /* "username[.group]" or NULL */
+  svz_array_t *argv; /* arguments for the executable, watch argv[0] */
+  int fork;          /* flag: fork or shuffle for passthrough method */
 }
 prog_config_t;
 

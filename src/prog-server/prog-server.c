@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.1 2001/10/27 14:12:16 ela Exp $
+ * $Id: prog-server.c,v 1.2 2001/11/21 14:15:45 raimi Exp $
  *
  */
 
@@ -41,7 +41,11 @@
  */
 prog_config_t prog_config = 
 {
-  NULL
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  1
 };
 
 /*
@@ -49,7 +53,11 @@ prog_config_t prog_config =
  */
 svz_key_value_pair_t prog_config_prototype [] = 
 {
-  SVZ_REGISTER_STR ("path", prog_config.path, SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("binary", prog_config.bin, SVZ_ITEM_NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("directory", prog_config.dir, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("user", prog_config.user, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("argv", prog_config.argv, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_BOOL ("do-fork", prog_config.fork, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -78,20 +86,57 @@ prog_handle_request (svz_socket_t *sock, char *request, int len)
 {
   prog_config_t *cfg = sock->cfg;
 
-  return -1;
+  return 0;
+}
+
+int
+prog_check_request (svz_socket_t *sock)
+{
+  return 0;
 }
 
 int
 prog_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
-  return 0;
+  /* prevent anything from being read from socket */
+  sock->read_socket = NULL;
+
+  return -1;
 }
 
 int
 prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   prog_config_t *cfg = server->cfg;
+  char **argv = (char**) svz_array_values (cfg->argv);
 
+  sock->check_request = prog_check_request;
+  if (svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
+			cfg->fork ? SVZ_PROCESS_FORK :
+			SVZ_PROCESS_SHUFFLE) < 0 )
+    {
+      svz_log (LOG_ERROR, "prog: Cannot execute %s\n", cfg->bin);
+      svz_free (argv);
+      return -1;
+    }
+
+  svz_free (argv);
+  if (cfg->fork)
+    {
+      /* Just close() this end of socket, not shutdown().
+       * fork() makes the socket available in the child process. When we
+       * shutdown() it here, it dies in the child, too. When we just close()
+       * it, it still works in the child.
+       */ 
+      sock->flags |= SOCK_FLAG_NOSHUTDOWN;
+      return -1;
+    }
+  else
+    {
+      /* re-enable reading of socket, FIXME: tcp? */
+      sock->read_socket = svz_tcp_read_socket;
+      /* FIXME: take care of failing child */
+    }
   return 0;
 }
 
@@ -119,6 +164,12 @@ int
 prog_init (svz_server_t *server)
 {
   prog_config_t *cfg = server->cfg;
+
+  if (cfg->argv == NULL)
+    {
+      cfg->argv = svz_array_create(1);
+      svz_array_add (cfg->argv, NULL);
+    }
 
   return 0;
 }

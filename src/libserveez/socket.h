@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.12 2001/10/27 14:12:16 ela Exp $
+ * $Id: socket.h,v 1.13 2001/11/21 14:15:45 raimi Exp $
  *
  */
 
@@ -67,6 +67,8 @@
 #define SOCK_FLAG_READING     0x00020000 /* Pending read operation. */
 #define SOCK_FLAG_WRITING     0x00040000 /* Pending write operation. */
 #define SOCK_FLAG_FLUSH       0x00080000 /* Flush receive and send queue. */
+#define SOCK_FLAG_NOSHUTDOWN  0x00100000 /* Disable shutdown(). */
+
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 

@@ -146,12 +146,12 @@ SERVEEZ-NUKE_DEFUN
 
 @subsubsection Callback prototypes
 
-The Guile interface of Serveez is completely callback driven.  Each of the
-procedures specified within the associative list passed to 
-@code{(define-servertype!)} and the callbacks setup with one of the 
-predefined procedures in the above section gets certain arguments passed and
-is meant to return specific values to indicate success or failure.  This 
-section describes each of of these callbacks.
+The Guile interface of Serveez is completely callback driven.  Callbacks
+can be set within the associative list passed to
+@code{(define-servertype!)} or by using the predefined procedures
+described in the above section.  Each of the callbacks gets certain
+arguments passed and is meant to return specific values to indicate
+success or failure.  This section describes each of of these callbacks.
 
 @table @code
 @item (global-init #<svz-servertype>)

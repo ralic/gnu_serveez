@@ -223,6 +223,7 @@ SVZ_ARRAY_CONTAINS_DEFUN
 SVZ_ARRAY_FOREACH_DEFMAC
 SVZ_ARRAY_STRDUP_DEFUN
 SVZ_ARRAY_DUP_DEFUN
+SVZ_ARRAY_VALUES_DEFUN
 
 @node Hashtable, Sparsevector, Array, Data structures
 @subsection Hashtable functions

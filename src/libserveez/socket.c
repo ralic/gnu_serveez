@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.16 2001/08/13 06:56:43 ela Exp $
+ * $Id: socket.c,v 1.17 2001/11/21 14:15:45 raimi Exp $
  *
  */
 
@@ -568,8 +568,11 @@ svz_sock_disconnect (svz_socket_t *sock)
   /* shutdown client connection */
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
-      if (shutdown (sock->sock_desc, 2) < 0)
-	svz_log (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
+      if (!(sock->flags & SOCK_FLAG_NOSHUTDOWN))
+	{
+	  if (shutdown (sock->sock_desc, 2) < 0)
+	    svz_log (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
+	}
       svz_sock_connections--;
     }
       
