@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.h,v 1.3 2001/05/19 23:04:57 ela Exp $
+ * $Id: raw-socket.h,v 1.4 2001/06/17 14:17:37 ela Exp $
  *
  */
 
@@ -47,6 +47,7 @@
 #define IP_HDR_FLAGS(hdr) ((hdr->frag_offset) & 0xE000)
 #define IP_FLAG_DF 0x4000 /* Don't Fragment This Datagram (DF). */
 #define IP_FLAG_MF 0x2000 /* More Fragments Flag (MF). */
+#define IP_HDR_FRAG(hdr) ((hdr->frag_offset) & 0x1FFF)
 
 /* IP header structure. */
 typedef struct

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.8 2001/04/19 18:16:06 ela Exp $
+ * $Id: hash.h,v 1.9 2001/06/17 14:17:37 ela Exp $
  *
  */
 
@@ -59,7 +59,7 @@ svz_hash_bucket_t;
 /*
  * This structure keeps information of a specific hash table.
  */
-typedef struct
+typedef struct svz_hash
 {
   int buckets;                     /* number of buckets in the table */
   int fill;                        /* number of filled buckets */
@@ -87,6 +87,7 @@ SERVEEZ_API char **svz_hash_keys __P ((svz_hash_t *hash));
 SERVEEZ_API int svz_hash_size __P ((svz_hash_t *hash));
 SERVEEZ_API int svz_hash_capacity __P ((svz_hash_t *hash));
 SERVEEZ_API char *svz_hash_contains __P ((svz_hash_t *hash, void *value));
+SERVEEZ_API void svz_hash_rehash __P ((svz_hash_t *hash, int type));
 
 __END_DECLS
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.5 2001/05/19 23:04:57 ela Exp $
+ * $Id: raw-socket.c,v 1.6 2001/06/17 14:17:37 ela Exp $
  *
  */
 
@@ -41,6 +41,7 @@
 #endif
 
 #include "libserveez/util.h"
+#include "libserveez/core.h"
 #include "libserveez/raw-socket.h"
 
 /*
@@ -177,14 +178,18 @@ svz_raw_check_ip_header (byte *data, int len)
 	  "type of service : %d\n"
 	  "total length    : %d byte\n"
 	  "ident           : 0x%04X\n"
+	  "flags           : 0x%04X %s %s\n"
 	  "frag. offset    : %d\n"
 	  "ttl             : %d\n"
 	  "protocol        : 0x%02X\n"
 	  "checksum        : 0x%04X\n"
 	  "source          : %s\n",
 	  IP_HDR_VERSION (ip_header), IP_HDR_LENGTH (ip_header),
-	  ip_header->tos, ip_header->length, ip_header->ident,
-	  ip_header->frag_offset, ip_header->ttl, ip_header->protocol,
+	  ip_header->tos, ip_header->length, ip_header->ident, 
+	  IP_HDR_FLAGS (ip_header),
+	  IP_HDR_FLAGS (ip_header) & IP_FLAG_DF ? "[Don't Fragment]" : "",
+	  IP_HDR_FLAGS (ip_header) & IP_FLAG_MF ? "[More Fragments]" : "",
+	  IP_HDR_FRAG (ip_header), ip_header->ttl, ip_header->protocol,
 	  ip_header->checksum, svz_inet_ntoa (ip_header->src));
   printf ("destination     : %s\n", svz_inet_ntoa (ip_header->dst));
 #endif

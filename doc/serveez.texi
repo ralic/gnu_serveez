@@ -100,7 +100,7 @@ File to use as configuration file (@value{s_PACKAGE}.cfg).
 @item -v, --verbose=LEVEL
 Set level of logging verbosity.
 @item -l, --log-file=FILENAME
-Use FILENAME for logging (default is stderr).
+Use @code{FILENAME} for logging (default is stderr).
 @item -P, --password=STRING
 Set the password for control connections.
 @item -m, --max-sockets=COUNT
@@ -114,7 +114,7 @@ Start as daemon in background.
 As noted above Serveez is configured via a configuration 
 file which is by default @file{@value{s_PACKAGE}.cfg} and can be set 
 by passing the -f command line argument. We are using the Scheme 
-dialect called GNU Guile (@uref{http://www.textsure.net/}) for this 
+dialect called GNU Guile (@uref{http://www.gnu.org/software/guile/}) for this 
 configuration file.
 We provide an example configuration file in the @file{data/} directory. You
 should be able to configure Serveez without learning Scheme, because

@@ -38,7 +38,7 @@ src/serveez.dsp               - the serveez project file
 src/libserveez/libserveez.dsp - the core library project file
 vcgen.bat	              - copies files to the final location
 config.h.serveez              - prebuild config.h for serveez
-scr/svzconfig.h.serveez       - prebuild svzconfig.h for serveez
+src/svzconfig.h.serveez       - prebuild svzconfig.h for serveez
 version.h.serveez             - prebuild version.h for serveez
 test/hash.dsp                 - hash test project file
 test/array.dsp                - array test project file

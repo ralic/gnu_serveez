@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.10 2001/06/16 15:02:46 ela Exp $
+ * $Id: hash-test.c,v 1.11 2001/06/17 14:17:37 ela Exp $
  *
  */
 
@@ -34,8 +34,6 @@
 #include "libserveez/alloc.h"
 #include "libserveez/hash.h"
 #include "test.h"
-
-extern void svz_hash_rehash (svz_hash_t *, int);
 
 #define REPEAT 10000
 #define test(error) \

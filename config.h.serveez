@@ -106,6 +106,9 @@
 /* Define if you have the <getopt.h> header file.  */
 /* #undef HAVE_GETOPT_H */
 
+/* Define if you have the <mswsock.h> header file.  */
+#define HAVE_MSWSOCK_H 1
+
 /* Define if you have the <ndir.h> header file.  */
 /* #undef HAVE_NDIR_H */
 
@@ -284,16 +287,16 @@
 /* Define if you are using Windows Socket-API (not CYGWIN). */
 #define Win32_Winsock 1
 
-/* Define if you have the <winsock.h> */
-#define HAVE_WINSOCK_H 1
+/* Define if you have the <winsock2.h> */
+#define HAVE_WINSOCK2_H 1
 
-/* Define to 'int' if <winsock.h> does not define. */
+/* Define to 'int' if <winsock2.h> does not define. */
 /* #undef SOCKET */
 
-/* Define to 'int' if <winsock.h> does not define. */
+/* Define to 'int' if <winsock2.h> does not define. */
 /* #undef HANDLE */
 
-/* Define to -1 if <winsock.h> does not define. */
+/* Define to -1 if <winsock2.h> does not define. */
 /* #undef INVALID_SOCKET */
 
 /* Define if signal()s are non-void. */
