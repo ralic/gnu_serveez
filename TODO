@@ -25,7 +25,7 @@ unfixed) have a look at the file BUGS.
 
 - Resolve libcoserver problem (some linkers swallow syms because they
   are not needed in libserveez).
-- Document compilation hints (--disable-shared, static guile, ...)
+	- Document compilation hints (--disable-shared, static guile, ...)
 - Runtime check for sendfile()(4 vs 7 args) in configure script.
 - How can a self connected gnutella socket find out its port
   configuration for sending push requests and replies ?

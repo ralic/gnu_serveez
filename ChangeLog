@@ -1,3 +1,8 @@
+2001-07-05  [ Ela ]  <ela@lkcc.org>
+
+	* README: Added a paragraph about build problems due to
+	dynamic linking.
+
 2001-06-27  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: New option: `--disable-guile-server' can suppress

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.14 2001/07/01 15:56:48 ela Exp $
+ * $Id: core.c,v 1.15 2001/07/05 17:29:17 ela Exp $
  *
  */
 
@@ -383,7 +383,11 @@ int
 svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 {
   int ret;
-#ifdef __FreeBSD__
+#if defined (__osf__)
+  /* FIXME: What are 3 last args for ??? */
+  ret = sendfile (out_fd, in_fd, (off_t) *offset, count, NULL, NULL, 0);
+  *offset += ((ret >= 0) ? ret : 0);
+#elif defined (__FreeBSD__)
   off_t sbytes;
   ret = sendfile (in_fd, out_fd, (off_t) *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
@@ -400,7 +404,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
       *offset += count;
       ret = 0;
     }
-#else
+#else /* Linux here. */
   ret = sendfile (out_fd, in_fd, (off_t *) offset, count);
 #endif
   return ret;

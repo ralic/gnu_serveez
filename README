@@ -79,6 +79,13 @@ You must have root privileges if you want to install the package in the
 standard location /usr/local or in any location that is only writable 
 by root.
 
+If you have problems building the package out of the box this is due to
+GNU libtool's inability to handle dynamic linking in most cases. That is
+why we recommend to try to configure the package with `--disable-static'
+and/or the native compiler (if any). When the build process is not able to 
+link against an existing Guile installation you can try to use the
+`--with-guile-source=DIR' configure option.
+
 For further information on installing the package, please consult the
 file INSTALL, included in this distribution.
 
