@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.14 2000/06/29 16:53:40 ela Exp $
+ * $Id: http-proto.c,v 1.15 2000/07/09 20:03:07 ela Exp $
  *
  */
 
@@ -73,7 +73,7 @@
 /*
  * In Win32 OS's both of these defines are necessary for portability.
  */
-#if defined(__CYGWIN__) || defined(__MINGW32__)
+#if defined (__CYGWIN__) || defined (__MINGW32__)
 # define timezone _timezone
 # define daylight _daylight
 #endif
@@ -209,14 +209,13 @@ http_init (server_t *server)
   
   if (http_read_types (cfg))
     {
-      log_printf (LOG_ERROR, "http: unable to load content type file %s\n",
-		  cfg->type_file);
+      log_printf (LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
     }
 
   log_printf (LOG_NOTICE, "http: %d+%d content types (%s)\n",
 	      types, hash_size (cfg->types) - types, cfg->type_file);
 
-  /* Checking whether http doc root path ends in '/' or '\'. */
+  /* checking whether http doc root path ends in '/' or '\'. */
   if (!strlen (cfg->docs))
     {
       log_printf (LOG_ERROR, "http: no valid directory given\n");
@@ -757,7 +756,7 @@ http_connect_socket (void *http_cfg, socket_t sock)
 /*
  * Produce a ASCTIME date without the trailing '\n' from a given time_t.
  */
-char *
+static char *
 http_asc_date (time_t t)
 {
   static char asc[64];
@@ -846,7 +845,7 @@ http_parse_date (char *date)
  * and store it in the socket structure SOCK. Return the amount of
  * properties found in the request.
  */
-int
+static int
 http_parse_property (socket_t sock, char *request, char *end)
 {
   int properties, n;
@@ -1477,15 +1476,15 @@ http_get_response (socket_t sock, char *request, int flags)
   /* is the requested file already in the cache ? */
   if (http_check_cache (file, cache) != -1)
     {
-      if (buf.st_mtime > cache->entry->modified ||
-	  buf.st_size != cache->entry->length)
+      if (buf.st_mtime > cache->entry->date ||
+	  buf.st_size != cache->entry->size)
 	{
 	  /* the file on disk has changed ? */
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "cache: %s has changed\n", file);
 #endif
 	  http_refresh_cache (cache);
-	  cache->entry->modified = buf.st_mtime;
+	  cache->entry->date = buf.st_mtime;
 	  sock->flags |= SOCK_FLAG_FILE;
 	  sock->file_desc = fd;
 	  http->filelength = buf.st_size;
@@ -1520,7 +1519,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  http_init_cache (file, cache) != -1)
 	{
 	  sock->read_socket = http_cache_read;
-	  cache->entry->modified = buf.st_mtime;
+	  cache->entry->date = buf.st_mtime;
 	}
       else
 	{

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.15 2000/07/07 16:26:20 ela Exp $
+ * $Id: socket.h,v 1.16 2000/07/09 20:03:06 ela Exp $
  *
  */
 
@@ -255,7 +255,7 @@ int sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size);
  */
 int sock_intern_connection_info (socket_t sock);
 
-int default_connect (socket_t sock);
+int default_write (socket_t sock);
 int default_read (socket_t sock);
 int default_detect_proto (socket_t sock);
 int default_check_request (socket_t sock);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.5 2000/06/30 15:05:39 ela Exp $
+ * $Id: hash.c,v 1.6 2000/07/09 20:03:06 ela Exp $
  *
  */
 
@@ -253,17 +253,21 @@ hash_rehash (hash_t *hash, int type)
       for (n = hash->nodes; n < hash->nodes << 1; n++)
 	{
 	  node = &hash->table[n];
-	  for (e = 0; e < node->size; e++)
+	  if (node->size)
 	    {
-	      next_node = &hash->table[HASH_NODE(node->entry[e].code, hash)];
-	      next_node->entry = xrealloc (next_node->entry,
-					   (next_node->size + 1) *
-					   sizeof (hash_entry_t));
-	      next_node->entry[next_node->size] = node->entry[e];
-	      next_node->size++;
-	      if (next_node->size == 1) hash->fill++;
+	      for (e = 0; e < node->size; e++)
+		{
+		  next_node = 
+		    &hash->table[HASH_NODE (node->entry[e].code, hash)];
+		  next_node->entry = xrealloc (next_node->entry,
+					       (next_node->size + 1) *
+					       sizeof (hash_entry_t));
+		  next_node->entry[next_node->size] = node->entry[e];
+		  next_node->size++;
+		  if (next_node->size == 1) hash->fill++;
+		}
+	      xfree (node->entry);
 	    }
-	  xfree (node->entry);
 	  hash->fill--;
 	}
       hash->table = xrealloc (hash->table, 

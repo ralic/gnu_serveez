@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.11 2000/07/07 16:26:20 ela Exp $
+ * $Id: socket.c,v 1.12 2000/07/09 20:03:06 ela Exp $
  *
  */
 
@@ -76,7 +76,7 @@ int socket_id = 0;
  * is performed non-blocking, so only as much as fits into
  * the network buffer will be written on each call.
  */
-static int
+int
 default_write (socket_t sock)
 {
   int num_written;
@@ -130,41 +130,6 @@ default_write (socket_t sock)
    * Return a non-zero value if an error occured.
    */
   return (num_written < 0) ? -1 : 0;
-}
-
-/*
- * The default routine for connecting a socket SOCK.
- * When we get select()ed via the WRITE_SET we simply check for 
- * network errors and assign the default_write callback then or
- * shutdown the socket otherwise.
- */
-int
-default_connect (socket_t sock)
-{
-  int error;
-  socklen_t optlen;
-
-  if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
-		  (void *) &error, &optlen) < 0)
-    {
-      log_printf (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
-      return -1;
-    }
-  if (error)
-    {
-      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
-      if (error != EINPROGRESS)
-	return -1;
-      else
-	return 0;
-    }
-  sock->flags |= SOCK_FLAG_CONNECTED;
-  sock->flags &= ~SOCK_FLAG_CONNECTING;
-  sock_intern_connection_info (sock);
-  sock->write_socket = default_write;
-  connected_sockets++;
-
-  return 0;
 }
 
 /*

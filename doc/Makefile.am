@@ -22,8 +22,14 @@
 # Boston, MA 02111-1307, USA.  
 #
 
+TEXINFO_TEX = no-texinfo.tex
+
+info_TEXINFOS = serveez.texi
+
 EXTRA_DIST = awcs-proto.txt mime.types port.lst irc-MOTD.txt \
-	serveez.cfg server.txt coserver.txt
+	serveez.cfg
+
+CLEANFILES = *.info
 
 MAINTAINERCLEANFILES = Makefile.in
 

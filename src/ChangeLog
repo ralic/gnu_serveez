@@ -1,3 +1,14 @@
+2000-07-09  [ Ela ]  <ela@lkcc.org>
+
+	* connect.c (default_connect): Moved this function to the
+	source file `connect.c'.
+
+	* http-server/http-cache.c (http_cache_create_entry): The 
+	http file cache is now a hash using the stored files's names
+	as key and the http_cache_entry_t structure as values. 
+	Maybe thus we speed up the cache lookup a bit.
+	
+
 2000-07-07  [ Ela ]  <ela@lkcc.org>
 
 	* socket.c (default_connect): This function determines if

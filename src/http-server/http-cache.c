@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.6 2000/06/30 15:05:39 ela Exp $
+ * $Id: http-cache.c,v 1.7 2000/07/09 20:03:07 ela Exp $
  *
  */
 
@@ -45,12 +45,12 @@
 
 #include "alloc.h"
 #include "util.h"
+#include "hash.h"
 #include "http-proto.h"
 #include "http-cache.h"
 
-http_cache_entry_t *http_cache = NULL; /* actual cache entries */
-int http_used_entries = 0;             /* currently used cache entries */
-int http_cache_entries = 0;            /* maximum amount of cache entries */
+hash_t *http_cache = NULL;   /* actual cache entriy hash */
+int http_cache_entries = 0;  /* maximum amount of cache entries */
 
 /*
  * This will initialize the http cache entries.
@@ -60,10 +60,7 @@ http_alloc_cache (int entries)
 {
   if (entries > http_cache_entries || http_cache == NULL)
     {
-      http_cache = xrealloc (http_cache, 
-			     sizeof (http_cache_entry_t) * entries);
-      memset (http_cache, 0, sizeof (http_cache_entry_t) * entries);
-      http_used_entries = 0;
+      http_cache = hash_create (entries);
       http_cache_entries = entries;
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "cache: created %d cache entries\n", entries);
@@ -78,21 +75,21 @@ void
 http_free_cache (void)
 {
   int n, total, files;
+  http_cache_entry_t **cache;
 
   files = 0;
   total = 0;
-  for (n = 0; n < http_cache_entries; n++)
+  if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
     {
-      if (http_cache[n].used)
+      for (n = 0; n < hash_size (http_cache); n++)
 	{
-	  xfree (http_cache[n].buffer);
-	  xfree (http_cache[n].file);
-	  total += http_cache[n].size;
+	  xfree (cache[n]->buffer);
+	  total += cache[n]->size;
 	  files++;
 	}
+      xfree (cache);
     }
-  http_used_entries = 0;
-  xfree (http_cache);
+  hash_destroy (http_cache);
   http_cache = NULL;
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", 
@@ -103,29 +100,33 @@ http_free_cache (void)
 /*
  * This function will make the given cache entry CACHE the most recent
  * within the whole HTTP file cache. All other used entries will be less
- * recent afterwards.
+ * urgent afterwards.
  */
 void
-http_recent_cache (http_cache_entry_t *cache)
+http_urgent_cache (http_cache_entry_t *cache)
 {
   int n;
+  http_cache_entry_t **caches;
 
   /* go through all cache entries */
-  for (n = 0; n < http_cache_entries; n++)
+  if ((caches = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
     {
-      /* 
-       * make all used cache entries currently being more recent 
-       * than the given entry one tick less recent
-       */
-      if (http_cache[n].used && cache != &http_cache[n] && 
-	  http_cache[n].recent > cache->recent)
+      for (n = 0; n < hash_size (http_cache); n++)
 	{
-	  http_cache[n].recent--;
+	  /* 
+	   * make all used cache entries currently being more recent 
+	   * than the given entry one tick less urgent
+	   */
+	  if (cache != caches[n] && caches[n]->urgent > cache->urgent)
+	    {
+	      caches[n]->urgent--;
+	    }
 	}
+      xfree (caches);
     }
 
   /* set the given cache entry to the most recent one */
-  cache->recent = http_used_entries;
+  cache->urgent = hash_size (http_cache);
 }
 
 /*
@@ -138,25 +139,37 @@ int
 http_check_cache (char *file, http_cache_t *cache)
 {
   int n;
+  http_cache_entry_t *cachefile;
 
-  /* go through all cache entries */
-  for (n = 0; n < http_cache_entries; n++)
+  if ((cachefile = hash_get (http_cache, file)) != NULL)
     {
-      /* is this entry used and fully read by the cache reader ? */
-      if (http_cache[n].used && http_cache[n].ready &&
-	  !strcmp (file, http_cache[n].file))
+      /* is this entry fully read by the cache reader ? */
+      if (cachefile->ready)
 	{
 	  /* fill in the cache entry for the cache writer */
-	  cache->entry = &http_cache[n];
-	  cache->buffer = http_cache[n].buffer;
-	  cache->length = http_cache[n].length;
+	  cache->entry = cachefile;
+	  cache->buffer = cachefile->buffer;
+	  cache->size = cachefile->size;
 
 	  /* set this entry to the most recent */
-	  http_recent_cache (&http_cache[n]);
+	  http_urgent_cache (cachefile);
 	  return 0;
 	}
     }
   return -1;
+}
+
+/*
+ * Create a new http cache entry and initialize it.
+ */
+static http_cache_entry_t *
+http_cache_create_entry (void)
+{
+  http_cache_entry_t *cache;
+
+  cache = xmalloc (sizeof (http_cache_entry_t));
+  memset (cache, 0, sizeof (http_cache_entry_t));
+  return cache;
 }
 
 /*
@@ -167,57 +180,52 @@ int
 http_init_cache (char *file, http_cache_t *cache)
 {
   int n;
-  int recent = http_used_entries;
+  int urgent;
   http_cache_entry_t *slot = NULL;
+  http_cache_entry_t **caches;
 
-  /* go through all cache entries and find a slot */
-  for (n = 0; n < http_cache_entries; n++)
+  urgent = hash_size (http_cache);
+
+  /* 
+   * If there are still empty cache entries then create a 
+   * new cache entry.
+   */
+  if (urgent < http_cache_entries)
     {
-      /* is the least recent entry currently in use ? */
-      if (!http_cache[n].used)
-	{
-	  slot = &http_cache[n];
-	  break;
-	}
-      /* 
-       * in order to reinit a cache entry it MUST NOT be in usage
-       * by the cache reader or writer
-       */
-      else if (http_cache[n].recent <= recent && http_cache[n].usage == 0)
-	{
-	  slot = &http_cache[n];
-	  recent = slot->recent;
-	}
+      slot = http_cache_create_entry ();
+      slot->urgent = hash_size (http_cache);
     }
 
-  /* no "reinitalable" cache entry found */
-  if (!slot) return -1;
-
-  /* cache entry is not yet currently used */
-  if (!slot->used)
-    {
-      http_used_entries++;
-      slot->used = 42;
-      slot->recent = http_used_entries;
-    }
-  /* is currently used, so free the entry previously */
+  /*
+   * Otherwise find the least recent which is not currently in
+   * use by the cache writer or reader.
+   */
   else
     {
-      if (slot->buffer)
+      caches = (http_cache_entry_t **) hash_values (http_cache);
+      for (n = 0; n < hash_size (http_cache); n++)
 	{
-	  xfree (slot->buffer);
-	  slot->buffer = NULL;
+	  if (caches[n]->urgent <= urgent && !caches[n]->usage)
+	    {
+	      slot = caches[n];
+	      urgent = slot->urgent;
+	    }
 	}
+      /* not a "reinitialable" cache entry found */
+      if (!slot) return -1;
+
+      /* is currently used, so free the entry previously */
+      xfree (slot->buffer);
+      hash_delete (http_cache, slot->file);
       xfree (slot->file);
-      slot->file = NULL;
-      http_recent_cache (slot);
+      slot = http_cache_create_entry ();
+      slot->urgent = urgent;
+      http_urgent_cache (slot);
     }
 
-  slot->usage = 0; /* not used by cache reader or writer */
-  slot->hits = 0;  /* no cache hits until now */
-  slot->ready = 0; /* is not ready yet (set by cache reader later) */
   slot->file = xmalloc (strlen (file) + 1);
   strcpy (slot->file, file);
+  hash_put (http_cache, file, slot);
 
   /*
    * initialize the cache entry for the cache file reader: cachebuffer 
@@ -225,7 +233,7 @@ http_init_cache (char *file, http_cache_t *cache)
    */
   cache->entry = slot;
   cache->buffer = NULL;
-  cache->length = 0;
+  cache->size = 0;
 
   return 0;
 }
@@ -242,7 +250,7 @@ http_refresh_cache (http_cache_t *cache)
   cache->entry->ready = 0;
   cache->entry->hits = 0;
   cache->entry->usage = 0;
-  cache->length = 0;
+  cache->size = 0;
   cache->buffer = NULL;
 }
 
@@ -261,7 +269,7 @@ http_cache_write (socket_t sock)
   http = sock->data;
   cache = http->cache;
 
-  do_write = cache->length;
+  do_write = cache->size;
   if (do_write > (SOCK_MAX_WRITE << 5)) do_write = (SOCK_MAX_WRITE << 5);
   num_written = send (sock->sock_desc, cache->buffer, do_write, 0);
 
@@ -269,7 +277,7 @@ http_cache_write (socket_t sock)
     {
       sock->last_send = time (NULL);
       cache->buffer += num_written;
-      cache->length -= num_written;
+      cache->size -= num_written;
     }
   else if (num_written < 0)
     {
@@ -290,7 +298,7 @@ http_cache_write (socket_t sock)
    * If yes then return non-zero in order to shutdown the
    * socket SOCK.
    */
-  if (cache->length <= 0)
+  if (cache->size <= 0)
     {
       cache->entry->usage--;
 #if ENABLE_DEBUG
@@ -345,16 +353,13 @@ http_cache_read (socket_t sock)
       log_printf (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
 
       /* release the actual cache entry previously reserved */
-      http_recent_cache (cache->entry);
-      cache->entry->used = 0;
-      http_used_entries--;
-      if (cache->length > 0) 
+      http_urgent_cache (cache->entry);
+      if (cache->size > 0) 
 	{
 	  xfree (cache->buffer);
 	  cache->buffer = NULL;
 	}
-      xfree (cache->entry->file);
-      cache->entry->file = NULL;
+      hash_delete (http_cache, cache->entry->file);
       return -1;
     }
 
@@ -366,11 +371,11 @@ http_cache_read (socket_t sock)
        * to the cache entry.
        */
       cache->buffer = xrealloc (cache->buffer, 
-				cache->length + num_read);
-      memcpy (cache->buffer + cache->length,
+				cache->size + num_read);
+      memcpy (cache->buffer + cache->size,
 	      sock->send_buffer + sock->send_buffer_fill,
 	      num_read);
-      cache->length += num_read;
+      cache->size += num_read;
 
       sock->send_buffer_fill += num_read;
       http->filelength -= num_read;
@@ -384,8 +389,7 @@ http_cache_read (socket_t sock)
 #endif
 
       /* fill in the actual cache entry */
-      cache->entry->size = cache->length;
-      cache->entry->length = cache->length;
+      cache->entry->size = cache->size;
       cache->entry->buffer = cache->buffer;
       cache->entry->ready = 42;
 

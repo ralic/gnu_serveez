@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.6 2000/07/04 20:58:41 ela Exp $
+ * $Id: interface.c,v 1.7 2000/07/09 20:03:06 ela Exp $
  *
  */
 
@@ -510,7 +510,7 @@ list_local_interfaces (void)
 	   * in C, I cast addresses just to get a (struct sockaddr_in) in the
 	   * end... phew
 	   */
-	  printf ("%8s: %s\n", ifr->ifr_name,
+	  printf ("%40s: %s\n", ifr->ifr_name,
 		  inet_ntoa ((*(struct sockaddr_in *)
 			      &ifr2.ifr_addr).sin_addr));
 	}
@@ -521,7 +521,6 @@ list_local_interfaces (void)
 	}
     }
   
-  printf ("\n");
   close (fd);
   xfree (ifc.ifc_buf);
 }

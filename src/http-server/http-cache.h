@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.3 2000/06/23 21:09:54 ela Exp $
+ * $Id: http-cache.h,v 1.4 2000/07/09 20:03:07 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #define _GNU_SOURCE
 #include <time.h>
 
+#include "hash.h"
 #include "socket.h"
 
 /*
@@ -46,27 +47,25 @@
  */
 typedef struct
 {
-  char *buffer;        /* pointer to cache buffer */
-  int length;          /* file length */
-  int size;            /* cache buffer size */
-  char *file;          /* actual filename */
-  time_t modified;     /* date of last modification */
-  int recent;          /* lesser values refer to older entries */
-  int used;            /* usage flag */
-  int usage;           /* how often this is currently used */
-  int hits;            /* cache hits */
-  int ready;           /* this flag indicates if the entry is ok */
+  char *buffer;    /* pointer to cache buffer */
+  int size;        /* cache buffer size (size of file) */
+  char *file;      /* actual filename */
+  time_t date;     /* date of last modification */
+  int urgent;      /* lesser values refer to older entries */
+  int usage;       /* how often this is currently used */
+  int hits;        /* cache hits */
+  int ready;       /* this flag indicates if the entry is ok */
 }
 http_cache_entry_t;
 
 /*
  * The http_cache_t type is a structure containing the info
- * a cache writer needs to know.
+ * a cache writer and reader needs to know.
  */
 typedef struct
 {
   char *buffer;              /* pointer to cache buffer */
-  int length;                /* bytes left within this buffer */
+  int size;                  /* bytes left within this buffer */
   http_cache_entry_t *entry; /* pointer to original cache file entry */
 }
 http_cache_t;
@@ -74,7 +73,7 @@ http_cache_t;
 /*
  * http cache structures.
  */
-extern http_cache_entry_t *http_cache;
+extern hash_t *http_cache;
 extern int http_cache_entries;
 
 /*

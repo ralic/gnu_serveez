@@ -1,3 +1,11 @@
+2000-07-09  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am: Added info_TEXINFOS for creating info and dvi
+	files.
+
+	* serveez.texi: Started documentation written in texinfo, the
+	GNU documentation format.
+
 2000-07-01  [ Ela ]  <ela@lkcc.org>
 
 	* coserver.txt: Documentation on how to write coservers for 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.8 2000/07/01 15:43:40 ela Exp $
+ * $Id: util.h,v 1.9 2000/07/09 20:03:07 ela Exp $
  *
  */
 
@@ -99,13 +99,15 @@ unsigned int util_atoi (char *);
 # define INVALID_HANDLE NULL
 # define LEAST_WAIT_OBJECT 1
 # define SOCK_UNAVAILABLE WSAEWOULDBLOCK
+# define SOCK_INPROGRESS WSAEINPROGRESS
 #else
 # define ENV_BLOCK_TYPE char **
 # define INVALID_HANDLE -1
 # define SOCK_UNAVAILABLE EAGAIN
+# define SOCK_INPROGRESS EINPROGRESS
 #endif
 
-char *get_version(void);
+char *get_version (void);
 
 #ifdef __MINGW32__
 /*

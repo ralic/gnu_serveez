@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.4 2000/07/07 16:26:20 ela Exp $
+ * $Id: connect.c,v 1.5 2000/07/09 20:03:06 ela Exp $
  *
  */
 
@@ -46,10 +46,10 @@
 # include <netdb.h>
 #endif
 
-#include "alloc.h"
 #include "util.h"
 #include "socket.h"
 #include "server-core.h"
+#include "connect.h"
 
 /*
  * Create a TCP connection to host HOST and set the socket descriptor in
@@ -112,10 +112,45 @@ sock_connect (unsigned host, int port)
   if (connect (client_socket, (struct sockaddr *) &server,
 	       sizeof (server)) == -1)
     {
-      log_printf (LOG_NOTICE, "irc: connect: %s\n", NET_ERROR);
+      log_printf (LOG_NOTICE, "connect: %s\n", NET_ERROR);
     }
   sock->flags |= SOCK_FLAG_CONNECTING;
   sock->write_socket = default_connect;
 
   return sock;
+}
+
+/*
+ * The default routine for connecting a socket SOCK.
+ * When we get select()ed via the WRITE_SET we simply check for 
+ * network errors and assign the default_write callback then or
+ * shutdown the socket otherwise.
+ */
+int
+default_connect (socket_t sock)
+{
+  int error;
+  socklen_t optlen;
+
+  if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
+		  (void *) &error, &optlen) < 0)
+    {
+      log_printf (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      return -1;
+    }
+  if (error)
+    {
+      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+      if (error != SOCK_INPROGRESS)
+	return -1;
+      else
+	return 0;
+    }
+  sock->flags |= SOCK_FLAG_CONNECTED;
+  sock->flags &= ~SOCK_FLAG_CONNECTING;
+  sock_intern_connection_info (sock);
+  sock->write_socket = default_write;
+  connected_sockets++;
+
+  return 0;
 }

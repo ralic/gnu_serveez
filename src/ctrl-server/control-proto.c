@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.10 2000/07/01 15:43:40 ela Exp $
+ * $Id: control-proto.c,v 1.11 2000/07/09 20:03:07 ela Exp $
  *
  */
 
@@ -52,6 +52,8 @@
 #endif
 
 #include "snprintf.h"
+#include "alloc.h"
+#include "hash.h"
 #include "util.h"
 #include "socket.h"
 #include "pipe-socket.h"
@@ -508,31 +510,34 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 {
   int n, total, files;
   char *p;
+  http_cache_entry_t **cache;
 
   sock_printf (sock, "\r\n%s", 
 	       "File                             "
 	       "Size  Usage  Hits Recent Ready\r\n");
 
-  for (files = 0, total = 0, n = 0; n < http_cache_entries; n++)
+  files = total = 0;
+  if ((cache = (http_cache_entry_t **) hash_values (http_cache)) != NULL)
     {
-      if (http_cache[n].used)
+      for (n = 0; n < hash_size (http_cache); n++)
 	{
 	  files++;
-	  total += http_cache[n].length;
-	  p = http_cache[n].file;
-	  p += strlen(http_cache[n].file);
-	  while(*p != '/' && *p != '\\' && p != http_cache[n].file) p--;
-	  if(p != http_cache[n].file) p++;
-	  sock_printf(sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
-		      http_cache[n].length,
-		      http_cache[n].usage,
-		      http_cache[n].hits,
-		      http_cache[n].recent,
-		      http_cache[n].ready ? "Yes" : "No");
+	  total += cache[n]->size;
+	  p = cache[n]->file;
+	  p += strlen (cache[n]->file);
+	  while (*p != '/' && *p != '\\' && p != cache[n]->file) p--;
+	  if (p != cache[n]->file) p++;
+	  sock_printf (sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
+		       cache[n]->size,
+		       cache[n]->usage,
+		       cache[n]->hits,
+		       cache[n]->urgent,
+		       cache[n]->ready ? "Yes" : "No");
 	}
+      xfree (cache);
     }
-  sock_printf(sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
-	      total, files);
+  sock_printf (sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
+	       total, files);
 
   return flag;
 }
