@@ -1,7 +1,7 @@
 /*
  * server.c - server object functions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.33 2001/12/15 02:47:38 ela Exp $
+ * $Id: server.c,v 1.34 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -292,10 +292,24 @@ svz_server_notifiers (void)
   svz_server_t **server;
 
   svz_hash_foreach_value (svz_servers, server, n)
-    {
-      if (server[n]->notify)
-	server[n]->notify (server[n]);
-    }
+    if (server[n]->notify)
+      server[n]->notify (server[n]);
+}
+
+/*
+ * Runs each server instance's reset callback.  The callbacks are run when
+ * a @code{SIGHUP} signal has been detected by the internal signal handler
+ * of the core library.
+ */
+void
+svz_server_reset (void)
+{
+  int n;
+  svz_server_t **server;
+
+  svz_hash_foreach_value (svz_servers, server, n)
+    if (server[n]->reset)
+      server[n]->reset (server[n]);
 }
 
 /*
@@ -492,6 +506,7 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
   server->info_client = stype->info_client;
   server->info_server = stype->info_server;
   server->notify = stype->notify;
+  server->reset = stype->reset;
   server->description = stype->description;
 
   return server;

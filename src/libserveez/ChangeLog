@@ -1,3 +1,10 @@
+2002-05-31  [ Ela ]  <ela@lkcc.org>
+
+	* server.h (struct svz_servertype): Introduced reset callback.
+
+	* server-core.c (svz_reset): Running server reset callbacks
+	when SIGHUP has been detected.
+
 2002-05-24  [ Ela ]  <ela@lkcc.org>
 
 	* socket.h (struct svz_socket): Added trigger function and

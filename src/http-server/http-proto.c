@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.78 2002/01/20 17:12:29 ela Exp $
+ * $Id: http-proto.c,v 1.79 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -138,6 +138,7 @@ svz_servertype_t http_server_definition =
   http_info_client,      /* client info */
   http_info_server,      /* server info */
   NULL,                  /* server timer */
+  NULL,                  /* server reset */
   NULL,                  /* handle request callback */
   &http_config,          /* default configuration */
   sizeof (http_config),  /* size of the configuration */

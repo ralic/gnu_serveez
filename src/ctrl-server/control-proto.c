@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.60 2001/12/15 02:47:38 ela Exp $
+ * $Id: control-proto.c,v 1.61 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -96,6 +96,7 @@ svz_servertype_t ctrl_server_definition =
   ctrl_info_client,          /* client info */
   ctrl_info_server,          /* server info */
   NULL,                      /* server timer */
+  NULL,                      /* server reset callback */
   NULL,                      /* handle request callback */
   &ctrl_config,              /* default configuration */
   sizeof (ctrl_config),      /* size of the configuration */

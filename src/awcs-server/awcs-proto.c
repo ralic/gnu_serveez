@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.35 2001/12/07 20:37:14 ela Exp $
+ * $Id: awcs-proto.c,v 1.36 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -84,6 +84,7 @@ svz_servertype_t awcs_server_definition =
   NULL,                  /* client info */
   NULL,                  /* server info */
   NULL,                  /* server timer */
+  NULL,                  /* server reset */
   NULL,                  /* handle request callback */
   &awcs_config,          /* the instance configuration */
   sizeof (awcs_config),  /* sizeof the instance configuration */

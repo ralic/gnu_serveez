@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.44 2002/02/03 09:34:05 ela Exp $
+ * $Id: gnutella.c,v 1.45 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -171,6 +171,7 @@ svz_servertype_t nut_server_definition =
   nut_info_client,                        /* server info callback */
   nut_info_server,                        /* client info callback */
   nut_server_notify,                      /* server timer routine */
+  NULL,                                   /* no reset callback */
   NULL,                                   /* no handle request callback */
   &nut_config,                            /* default configuration */
   sizeof (nut_config),                    /* size of this configuration */

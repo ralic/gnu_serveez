@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.15 2001/11/19 21:13:01 ela Exp $
+ * $Id: ident-proto.c,v 1.16 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -85,6 +85,7 @@ svz_servertype_t fakeident_server_definition =
   NULL,                       /* global finalize */
   NULL,
   fakeident_info_server,
+  NULL,
   NULL,
   NULL,
   &fakeident_config,

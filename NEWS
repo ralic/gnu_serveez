@@ -28,7 +28,9 @@ files.
 Version 0.1.4
 -------------
 
- * simplified icecast Guile server added
+ * introduced server reset and socket trigger callback
+ * simplified icecast Guile server added (also demonstrates coserver 
+   usage from Guile)
  * use of zlib version 1.1.4 in the Win32 binary release
  * command line switch for using standard input as configuration file
  * fatal bug fixes in the coservers

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.37 2002/02/15 12:16:07 ela Exp $
+ * $Id: server-core.c,v 1.38 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -887,7 +887,7 @@ svz_sock_unique_id (svz_socket_t *sock)
 static int
 svz_reset (void)
 {
-  /* FIXME: Maybe `server_t' reset callback ? */
+  svz_server_reset ();
   svz_interface_check ();
   return 0;
 }

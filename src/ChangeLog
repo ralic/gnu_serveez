@@ -1,3 +1,8 @@
+2002-05-31  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server/icecast-server.scm (icecast-dns): Demonstrating
+	usage of coservers from Guile.
+
 2002-05-29  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/icecast-server.scm: Recurses into sub

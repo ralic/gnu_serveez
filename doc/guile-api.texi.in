@@ -96,6 +96,9 @@ The following example shows the overall syntax of this procedure:
   ;; Optional: client info
   (info-client     . foo-info-client)
 
+  ;; Optional: server instance reset callback
+  (reset           . foo-reset)
+  
   ;; Optional: server instance notifier
   (notify          . foo-notify)
   
@@ -357,6 +360,14 @@ The server instance notifier callback will be run whenever there is idle
 time available.  In practice, it is run approximately once a second.
 A server instance can use it to perform periodic tasks.  The callback
 is optional and can be set up in @code{(define-servertype!)}.
+
+@item (reset #<svz-server>)
+This callback is run when the Serveez process receives a @code{SIGHUP} 
+signal which can be issued via @samp{killall -HUP serveez} from user
+land.  If the underlying operating system does not provide @code{SIGHUP}
+there is no use for this callback.  It provides the possibility to 
+perform asynchronous tasks scheduled from outside Serveez.  You can
+optionally set it up in the @code{(define-servertype!)} procedure.
 
 @item (handle-request #<svz-socket> #<svz-binary> size)
 Usually this callback gets executed by the @code{check-request}

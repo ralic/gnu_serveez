@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.46 2002/05/24 12:51:13 ela Exp $
+ * $Id: guile-server.c,v 1.47 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -54,7 +54,7 @@ static svz_hash_t *guile_sock = NULL;
 /* List of functions to configure for a server type. */
 static char *guile_functions[] = {
   "global-init", "init", "detect-proto", "connect-socket", "finalize",
-  "global-finalize", "info-client", "info-server", "notify", 
+  "global-finalize", "info-client", "info-server", "notify", "reset",
   "handle-request", NULL };
 
 /* If set to zero exception handling is disabled. */
@@ -688,6 +688,21 @@ guile_func_notify (svz_server_t *server)
   if (!SCM_UNBNDP (notify))
     {
       ret = guile_call (notify, 1, MAKE_SMOB (svz_server, server));
+      return guile_integer (SCM_ARGn, ret, -1);
+    }
+  return -1;
+}
+
+/* Wrapper for the server reset callback. */
+static int
+guile_func_reset (svz_server_t *server)
+{
+  svz_servertype_t *stype = svz_servertype_find (server);
+  SCM ret, reset = guile_servertype_getfunction (stype, "reset");
+
+  if (!SCM_UNBNDP (reset))
+    {
+      ret = guile_call (reset, 1, MAKE_SMOB (svz_server, server));
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
@@ -1539,6 +1554,7 @@ guile_define_servertype (SCM args)
       server->info_client = guile_func_info_client;
       server->info_server = guile_func_info_server;
       server->notify = guile_func_notify;
+      server->reset = guile_func_reset;
       server->handle_request = guile_func_handle_request;
       guile_servertype_add (server, functions);
     }

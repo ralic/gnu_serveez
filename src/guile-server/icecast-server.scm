@@ -19,11 +19,16 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: icecast-server.scm,v 1.2 2002/05/29 19:49:55 ela Exp $
+;; $Id: icecast-server.scm,v 1.3 2002/05/31 14:34:21 ela Exp $
 ;;
 
 ;; load convenience file
 (primitive-load "serveez.scm")
+
+;; server reset callback
+(define (icecast-reset server)
+  (println "icecast: resetting server")
+  0)
 
 ;; server initialisation
 (define (icecast-init server)
@@ -132,6 +137,11 @@
     (svz:sock:send-buffer-size sock
 			       (svz:server:config-ref server "buffer-size"))
 
+    ;; start coserver callbacks
+    (svz:coserver:reverse-dns (car (svz:sock:remote-address sock))
+			      icecast-dns (svz:sock:ident sock))
+    (svz:coserver:ident sock icecast-ident (svz:sock:ident sock))
+
     ;; get first file
     (icecast-next-file sock)
 
@@ -182,10 +192,15 @@
 	     (println "icecast: unable to open `" file "'")))
 
     (if (input-port? port)
-	(begin
+	(let* ((user (hash-ref data "user"))
+	       (host (hash-ref data "host")))
 	  (hash-set! data "file" file)
 	  (hash-set! data "port" port)
-	  (println "icecast: uploading `" file "'")))))
+	  (if (and host user)
+	      (set! host (string-append user "@" host)))
+	  (println "icecast: uploading `" file "'"
+		   (if host
+		       (string-append " to " host) ""))))))
 
 ;; ensure the send buffer is filled
 (define (icecast-trigger-condition sock)
@@ -209,12 +224,27 @@
 		(svz:sock:print sock buffer)))))
   0))
 
+;; reverse DNS callback
+(define (icecast-dns host ident)
+  (let ((sock (svz:sock:find ident)))
+    (if sock
+	(let ((data (svz:sock:data sock)))
+	  (hash-set! data "host" host)))))
+	  
+;; ident callback
+(define (icecast-ident user ident)
+  (let ((sock (svz:sock:find ident)))
+    (if sock
+	(let ((data (svz:sock:data sock)))
+	  (hash-set! data "user" user)))))
+
 ;; server type definitions
 (define-servertype! '(
   (prefix          . "icecast")
   (description     . "guile icecast server")
   (detect-proto    . icecast-detect-proto)
   (init            . icecast-init)
+  (reset           . icecast-reset)
   (connect-socket  . icecast-connect-socket)
   (configuration   . (
     (directory       . (string  #t "/"))

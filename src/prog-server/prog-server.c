@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.11 2001/12/21 15:13:30 ela Exp $
+ * $Id: prog-server.c,v 1.12 2002/05/31 14:34:22 ela Exp $
  *
  */
 
@@ -95,6 +95,7 @@ svz_servertype_t prog_server_definition =
   prog_info_client,
   prog_info_server,
   prog_notify,
+  NULL,
   prog_handle_request,
   SVZ_DEFINE_CONFIG (prog_config, prog_config_prototype)
 };

@@ -1,7 +1,7 @@
 /*
  * server.h - generic server definitions
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.25 2001/12/15 02:47:38 ela Exp $
+ * $Id: server.h,v 1.26 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -79,6 +79,8 @@ struct svz_server
   char * (* info_server) (svz_server_t *);
   /* server timer */
   int (* notify) (svz_server_t *);
+  /* server reset callback */
+  int (* reset) (svz_server_t *);
   /* packet processing */
   int (* handle_request) (svz_socket_t *, char *, int);
 };
@@ -112,6 +114,8 @@ struct svz_servertype
   char * (* info_server) (svz_server_t *);
   /* server timer */
   int (* notify) (svz_server_t *);
+  /* server reset */
+  int (* reset) (svz_server_t *);
   /* packet processing */
   int (* handle_request) (svz_socket_t *, char *, int);
 
@@ -272,6 +276,7 @@ SERVEEZ_API void svz_server_free __PARAMS ((svz_server_t *));
 SERVEEZ_API void svz_config_free __PARAMS ((svz_servertype_t *, void *));
 SERVEEZ_API svz_server_t *svz_server_find __PARAMS ((void *));
 SERVEEZ_API void svz_server_notifiers __PARAMS ((void));
+SERVEEZ_API void svz_server_reset __PARAMS ((void));
 SERVEEZ_API svz_server_t *svz_server_instantiate __PARAMS ((svz_servertype_t *,
 							    char *));
 SERVEEZ_API int svz_server_init __PARAMS ((svz_server_t *));

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.33 2001/11/19 21:13:01 ela Exp $
+ * $Id: foo-proto.c,v 1.34 2002/05/31 14:34:21 ela Exp $
  *
  */
 
@@ -94,6 +94,7 @@ svz_servertype_t foo_server_definition =
   foo_global_finalize,
   NULL,
   foo_info_server,
+  NULL,
   NULL,
   NULL,
   SVZ_DEFINE_CONFIG (foo_config, foo_config_prototype)
