@@ -1,3 +1,8 @@
+2002-01-31  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Define ports): Added a seperate section about 
+	each possible port configuration item.
+
 2002-01-28  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Define ports): Some explaining text for device

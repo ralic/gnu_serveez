@@ -346,7 +346,87 @@ configurations. You start to define such a port using the Guile function
 name of the port configuration. The remaining argument describes the
 port in detail.
 
-A note on device bindings: Device bindings are based on the 
+@subsubsection Port configuration items
+This table describes each configuration item for a port in Serveez.  Note 
+that not each item applies to every kind of port configuration.
+
+@table @code
+@item proto (string)
+This is the main configuration item for a port configuration setting up the
+type of port.  Valid values are @samp{tcp}, @samp{udp}, @samp{icmp}, 
+@samp{raw} or @samp{pipe}.  This configuration item decides which of the 
+remaining configuration items apply and which not.
+
+@item port (integer in the range 0..65535)
+The @code{port} item determines the network port number on which TCP and UDP
+servers will listen.  Thus it does not make sense for ICMP and named pipes.
+If you pass @samp{0} Serveez will determine a free port in the range 
+1 until 65535.
+
+@item recv (string or associative list)
+This item describes the receiving (listening) end of a named pipe 
+connection, i.e. the filename of a fifo node to which a client can connect
+by opening it for writing.  Both the @code{recv} and @code{send} item apply
+to named pipes only.  The value can be either an associative list or a
+simple filename leaving additional options which deal mainly with file
+permissions and default to Serveez's permission.
+
+@item send (string or associative list)
+This item is the sending end of a named pipe connection used to send data
+through if the receiving (listening) end detected a connection.  The 
+following table enumerates the additional options you can setup if you pass 
+an associative list and not a simple filename.
+
+@table @code
+@item name (string)
+The @code{name} item specifies the filename of the named pipe.  On Windows
+systems you can also specify the hostname on which the pipe should be
+created in the format @samp{\\hostname\pipe\name}.  By default (if you
+leave the leading @samp{\\hostname\pipe\} part) the pipe will be created
+on @samp{\\.\pipe\name} which refers to a pipe on the local machine.
+
+@item permission (octal integer)
+This specifies the file permissions how a named pipe should be created.
+The given number is interpreted in a Unix'ish style (e.g. @samp{#o0666} 
+is a permission mask for reading and writing for the creating user, all 
+users in the same group and all other users).
+
+@item user (string)
+The @code{user} item specifies the file owner user of the named pipe in
+textual form.
+
+@item group (string)
+The @code{group} item specifies the file owner user of the named pipe in 
+textual form.  If this item is left it defaults to the file owner user's
+primary group.
+
+@item uid (integer)
+The @code{uid} item specifies the file owner user of the named pipe as
+a user id.  You are meant to specify either the @code{uid} item or the
+@code{user} item.  Serveez will complain about conflicting values.
+
+@item gid (integer)
+The @code{gid} item specifies the file owner group of the named pipe as
+a group id.  If this item is left it defaults to the file owner user's
+primary group id.  You are meant to specify either the @code{gid} item 
+or the @code{group} item.  Serveez will croak about conflicting values.
+@end table
+
+@item ipaddr (string)
+This configuration item specifies the IP address (either in dotted decimal
+form e.g. @samp{192.168.2.1} or as a device description which can be
+obtained via @code{serveez -i}) to which a server is bound to.  The 
+@samp{*} keyword for all known IP addresses and the @samp{any} keyword for 
+any IP address are also valid values.  The default value is @samp{*}.  The
+configuration item applies to network ports (TCP, UDP and ICMP) only.
+
+@item device (string)
+The @code{device} configuration item also refers to the IP address a server
+can be bound to.  It overrides the @code{ipaddr} item.  Valid values are
+network device descriptions (no aliases and no @samp{lo}).  It applies to
+network ports (TCP, UDP and ICMP) only.
+
+A note on device bindings:  Device bindings are based on the 
 @code{SO_BINDTODEVICE} socket layer option.  This option is not available 
 on all systems.  We only tested it on GNU/Linux (2.2.18 and 2.4.17 as of 
 this writing).  Device bindings are very restrictive: only root can do it 
@@ -365,6 +445,46 @@ address) and to the corresponding device, connections are made with
 the device binding.  The order of the @code{(bind-server!)} statements 
 do not matter.  If you want to try device bindings: use the @var{device} 
 property of a port configuration. This feature is not thoroughly tested.
+
+@item backlog (integer)
+The @code{backlog} parameter defines the maximum length the queue of 
+pending connections may grow to.  If a connection request arrives with the 
+queue full the client may receive an error.  This parameter applies to
+TCP ports only.
+
+@item type (integer in the range 0..255)
+This item applies to ICMP ports only.  It defines the message type 
+identifier used to send ICMP packets (e.g. @samp{8} is an echo message 
+i.e. PING).
+
+@item send-buffer-size (integer)
+The @code{send-buffer-size} configuration item defines the maximum number 
+of bytes the send queue of a client is allowed to grow to.  The item 
+influences the "send buffer overrun error condition".  For packet oriented
+protocols (UDP and ICMP) you need to specify at least the maximum number
+of bytes a single packets can have.  For UDP and ICMP this is 64 KByte.
+
+@item recv-buffer-size (integer)
+The @code{recv-buffer-size} configuration item defines the maximum number 
+of bytes the receive queue of a client is allowed to grow to.  The item 
+influences the "receive buffer underrun error condition".
+
+@item connect-frequency (integer)
+This item determines the maximum number of connections per second a port 
+will accept.  It is a kind of "hammer protection".  The item is evaluated
+for each remote client machine seperately.  It applies to TCP ports.
+
+@item allow (list of strings)
+Both the @code{allow} and @code{deny} lists are lists of IP addresses in 
+dotted decimal form (e.g. @samp{192.168.2.1}). The @code{allow} list defines
+the remote machines which are allowed to connect to the port.  It applies
+to TCP ports.
+
+@item deny (list of strings)
+The @code{deny} list defines the remote machines which are not allowed to 
+connect to the port.  Each connection from one of these IP addresses will
+be refused and shutdown immediately.  It applies to TCP ports.
+@end table
 
 @subsubsection TCP port definition
 Definition of a TCP port configuration with the name "foo-tcp-port". The

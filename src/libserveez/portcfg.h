@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.20 2002/01/22 20:27:00 ela Exp $
+ * $Id: portcfg.h,v 1.21 2002/01/31 18:31:50 ela Exp $
  *
  */
 
@@ -43,8 +43,6 @@
 /* Port configuration items. */
 #define PORTCFG_PORT    "port"
 #define PORTCFG_PROTO   "proto"
-#define PORTCFG_INPIPE  "inpipe"
-#define PORTCFG_OUTPIPE "outpipe"
 #define PORTCFG_TCP     "tcp"
 #define PORTCFG_UDP     "udp"
 #define PORTCFG_ICMP    "icmp"
