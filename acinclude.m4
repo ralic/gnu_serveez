@@ -47,7 +47,7 @@ AC_DEFUN([AC_GUILE], [
   guile=""
   [if test "x`eval guile-config --version 2>&1 | grep version`" != "x"; then
     guile="`eval guile-config --version 2>&1 | grep version`"
-    guile=`echo $guile | sed -e 's/[^0-9\.]//g'`
+    guile="`echo $guile | sed -e 's/[^0-9\.]//g'`"
   fi]
   if test x"$guile" != "x" ; then
     case "$guile" in
@@ -66,9 +66,12 @@ AC_DEFUN([AC_GUILE], [
     GUILE_LDFLAGS="`eval guile-config link`"
   else
     if test "x$GUILEDIR" != "xno" ; then
-      GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`
+      GUILEDIR="`eval cd "$GUILEDIR" 2>/dev/null && pwd`"
       case $host_os in
-      mingw*) GUILEDIR=`eval cygpath -w -i "$GUILEDIR"` ;;
+      mingw*)
+	GUILEDIR="`eval cygpath -w -i "$GUILEDIR"`"
+	GUILEDIR="`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`"
+	;;
       esac
       if test -f "$GUILEDIR/lib/libguile.so" -o \
 	 -n "`find "$GUILEDIR/lib" -name "libguile.so.*" 2>/dev/null`" -o \
@@ -110,9 +113,12 @@ AC_DEFUN([AC_GUILE_SOURCE], [
 
   AC_MSG_CHECKING([for guile source tree])
   if test "x$GUILESRC" != "xno"; then
-    GUILESRC=`eval cd "$GUILESRC" 2>/dev/null && pwd`
+    GUILESRC="`eval cd "$GUILESRC" 2>/dev/null && pwd`"
     case $host_os in
-    mingw*) GUILESRC=`eval cygpath -w -i "$GUILESRC"` ;;
+    mingw*) 
+	GUILESRC="`eval cygpath -w -i "$GUILESRC"`"
+	GUILESRC="`echo "$GUILESRC" | sed -e 's%\\\\%/%g'`"
+	;;
     esac
     if test -f "$GUILESRC/configure"; then
       GUILE_SOURCE="$GUILESRC"
@@ -148,7 +154,10 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
       cache_file="`pwd`/$cache_file"
     fi
     case $host_os in
-    mingw*) cache_file=`eval cygpath -w -i "$cache_file"` ;;
+    mingw*)
+	cache_file="`eval cygpath -w -i "$cache_file"`"
+	cache_file="`echo "$cache_file" | sed -e 's%\\\\%/%g'`"
+	;;
     esac
     if test ! -f "$GUILE_SOURCE/libguile/scmconfig.h" ; then
       AC_MSG_RESULT([configuring Guile...])

@@ -37,6 +37,9 @@
 /* Define if you have the alphasort function.  */
 /* #undef HAVE_ALPHASORT */
 
+/* Define if you have the endrpcent function.  */
+/* #undef HAVE_ENDRPCENT */
+
 /* Define if you have the getdtablesize function.  */
 /* #undef HAVE_GETDTABLESIZE */
 
@@ -52,6 +55,15 @@
 /* Define if you have the getrlimit function.  */
 /* #undef HAVE_GETRLIMIT */
 
+/* Define if you have the getrpcbyname function.  */
+/* #undef HAVE_GETRPCBYNAME */
+
+/* Define if you have the getrpcbynumber function.  */
+/* #undef HAVE_GETRPCBYNUMBER */
+
+/* Define if you have the getrpcent function.  */
+/* #undef HAVE_GETRPCENT */
+
 /* Define if you have the gettimeofday function.  */
 /* #undef HAVE_GETTIMEOFDAY */
 
@@ -63,6 +75,12 @@
 
 /* Define if you have the mknod function.  */
 /* #undef HAVE_MKNOD */
+
+/* Define if you have the pmap_set function.  */
+/* #undef HAVE_PMAP_SET */
+
+/* Define if you have the pmap_unset function.  */
+/* #undef HAVE_PMAP_UNSET */
 
 /* Define if you have the poll function.  */
 /* #undef HAVE_POLL */
@@ -78,6 +96,9 @@
 
 /* Define if you have the seteuid function.  */
 /* #undef HAVE_SETEUID */
+
+/* Define if you have the setrpcent function.  */
+/* #undef HAVE_SETRPCENT */
 
 /* Define if you have the shl_load function.  */
 /* #undef HAVE_SHL_LOAD */
@@ -138,6 +159,15 @@
 
 /* Define if you have the <pwd.h> header file.  */
 /* #undef HAVE_PWD_H */
+
+/* Define if you have the <rpc/pmap_clnt.h> header file.  */
+/* #undef HAVE_RPC_PMAP_CLNT_H */
+
+/* Define if you have the <rpc/rpc.h> header file.  */
+/* #undef HAVE_RPC_RPC_H */
+
+/* Define if you have the <rpc/rpcent.h> header file.  */
+/* #undef HAVE_RPC_RPCENT_H */
 
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1
@@ -281,6 +311,9 @@
 /* Define if you have the strnicmp function. */
 #define HAVE_STRNICMP 1
 
+/* Define if the alphasort function is declared in dirent.h. */
+#define DECLARED_ALPHASORT 1
+
 /* Define if you have the dlopen function. */
 /* #undef HAVE_DLOPEN */
 
@@ -361,6 +394,12 @@
 
 /* Define if h_errno is supported. */
 /* #undef HAVE_H_ERRNO */
+
+/* Define if the setrpcent function is declared in netdb.h. */
+/* #undef DECLARED_SETRPCENT */
+
+/* Define if the endrpcent function is declared in netdb.h. */
+/* #undef DECLARED_ENDRPCENT */
 
 /* Define to empty if the keyword does not work. */
 /* #undef signed */
