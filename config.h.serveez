@@ -182,6 +182,9 @@
 /* Define if the HTTP protocol should be supported. */
 #define ENABLE_HTTP_PROTO 1
 
+/* Define if the Fake Ident Server should be included. */
+#define ENABLE_FAKEIDENT 1
+
 /* Define if ident authentication should be supported. */
 #define ENABLE_IDENT 1
 

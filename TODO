@@ -23,7 +23,7 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
-- Make proto detection limits / timouts configurable.
+- Make proto detection limits / timeouts configurable.
 	- Create a logo for Serveez.
 	- Write an identd.
 	- Define a CLF-compatible default http logfile format and make 

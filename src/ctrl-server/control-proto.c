@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.35 2000/12/31 13:23:36 ela Exp $
+ * $Id: control-proto.c,v 1.36 2001/01/05 01:52:45 ela Exp $
  *
  */
 
@@ -501,6 +501,9 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 #endif
 #if ENABLE_TUNNEL
 	       " TUNNEL"
+#endif
+#if ENABLE_FAKEIDENT
+	       " IDENTD"
 #endif
 	       "\r\n");
   

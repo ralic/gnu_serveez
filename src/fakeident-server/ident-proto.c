@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.1 2001/01/04 22:34:28 raimi Exp $
+ * $Id: ident-proto.c,v 1.2 2001/01/05 01:52:45 ela Exp $
  *
  */
 
@@ -56,7 +56,7 @@ struct portcfg fakeident_default_port =
 };
 
 /*
- * Configuration for this server containing the default values
+ * Configuration for this server containing the default values.
  */
 struct fakeident_config fakeident_config =
 {
@@ -73,11 +73,11 @@ struct key_value_pair fakeident_config_prototype [] =
   REGISTER_STR ("systemtype", fakeident_config.systemtype, DEFAULTABLE),
   REGISTER_STR ("username", fakeident_config.username, DEFAULTABLE),
   REGISTER_PORTCFG ("port", fakeident_config.port, DEFAULTABLE),
-  REGISTER_END()
+  REGISTER_END ()
 };
 
 /*
- * Function forward declaration
+ * Function forward declaration.
  */
 int fakeident_init (struct server *server);
 int fakeident_connect_socket (void *acfg, socket_t sock);
@@ -85,20 +85,19 @@ int fakeident_detect_proto (void *something, socket_t sock);
 int fakeident_handle_request (socket_t sock, char *request, int len);
 char *fakeident_info_server (struct server *server);
 
-
 /*
- * The actual server definition
+ * The actual server definition.
  */
 struct server_definition fakeident_server_definition = 
 {
-  "Simple fake ident server",
+  "simple fake ident server",
   "fakeident",
-  NULL, /* global init */
+  NULL,                       /* global init */
   fakeident_init,
   fakeident_detect_proto,
   fakeident_connect_socket,
-  NULL, /* local finalize */
-  NULL, /* global finalize */
+  NULL,                       /* local finalize */
+  NULL,                       /* global finalize */
   NULL,
   fakeident_info_server,
   NULL,
@@ -154,12 +153,12 @@ fakeident_detect_proto (void *something, socket_t sock)
   char *end = sock->recv_buffer + sock->recv_buffer_fill;
 
   /* first a number */
-  for (;p < end && isdigit(*p); p++);
+  for (; p < end && isdigit (*p); p++);
   if (p == end)
     goto out;
 
   /* spaces */
-  for (;p < end && *p == ' '; p++);
+  for (; p < end && *p == ' '; p++);
   if (p == end)
     goto out;
 
@@ -170,25 +169,25 @@ fakeident_detect_proto (void *something, socket_t sock)
     goto out;
 
   /* spaces */
-  for (;p < end && *p == ' '; p++);
+  for (; p < end && *p == ' '; p++);
   if (p == end)
     goto out;
 
   /* number */
-  for (;p < end && isdigit(*p); p++);
+  for (; p < end && isdigit (*p); p++);
   if (p == end)
     goto out;
   
   /* spaces */
-  for (;p < end && *p == ' '; p++);
+  for (; p < end && *p == ' '; p++);
   if (p == end)
     goto out;
   
-  /* optional \r */
+  /* optional '\r' */
   if (p < end && *p == '\r')
     p++;
 
-  /* now, if that's a \n we finally have it */
+  /* now, if that is a '\n' we finally have it */
   if (p < end && *p == '\n')
     retval = -1;
 
@@ -216,27 +215,25 @@ fakeident_handle_request (socket_t sock, char *request, int len)
    */
   sock->flags |= SOCK_FLAG_FINAL_WRITE;
 
-  /* if a username is set we reply "systemtype : username"
-   * or ERROR : NO-USER else
+  /* 
+   * If a username is set we reply "systemtype : username"
+   * or "ERROR : NO-USER" else.
    */
   if (cfg->username == NULL)
     {
-      err = sock_printf(sock,
-			"%s : ERROR : NO-USER\r\n", sock->recv_buffer);
+      err = sock_printf (sock, "%s : ERROR : NO-USER\r\n", sock->recv_buffer);
     }
   else
     {
-      err = sock_printf(sock,
-			"%s : USERID : %s : %s\r\n", sock->recv_buffer,
-			cfg->systemtype, cfg->username);
+      err = sock_printf (sock, "%s : USERID : %s : %s\r\n", sock->recv_buffer,
+			 cfg->systemtype, cfg->username);
     }
 
   return err;
 }
 
-
 /*
- * Info about server as seen in control protocol
+ * Info about server as seen in control protocol.
  */
 char *
 fakeident_info_server (struct server *server)
@@ -246,12 +243,12 @@ fakeident_info_server (struct server *server)
 
   if (cfg->username == NULL)
     {
-      sprintf(info, "Always signalling ERROR : NO-USER");
+      sprintf (info, " signalling ERROR : NO-USER");
     }
   else
     {
-      sprintf(info, "Always reporting user `%s' running system `%s'",
-	      cfg->username, cfg->systemtype);
+      sprintf (info, " reporting user `%s' running system type `%s'",
+	       cfg->username, cfg->systemtype);
     }
   
   return info;
@@ -259,7 +256,6 @@ fakeident_info_server (struct server *server)
 
 #else /* ENABLE_FAKEIDENT */
 
-int fakeident_dummy = 0;  /* Shut compiler warnings up */
+int fakeident_dummy = 0;  /* Shut compiler warnings up. */
 
 #endif /* ENABLE_FAKEIDENT */
-

@@ -2,10 +2,10 @@
 #
 # src/fakeident-server/Makefile.am
 #
-# Automake input file for a fake ident server (identd)
+# Automake input file for a fake ident server (identd).
 #
-# Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
-# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
+# Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
