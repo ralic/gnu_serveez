@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.3 2000/07/20 14:39:54 ela Exp $
+ * $Id: irc-config.c,v 1.4 2000/08/18 14:14:48 ela Exp $
  *
  */
 
@@ -42,7 +42,7 @@
 
 /*
  * This routine will parse all of the x-lines of the IRC server
- * configuration and store the information within the apropiate
+ * configuration and store the information within the appropiate
  * lists.
  */
 

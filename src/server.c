@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.17 2000/08/02 09:45:14 ela Exp $
+ * $Id: server.c,v 1.18 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -1006,7 +1006,7 @@ server_start (void)
 	    }
 	}
 
-      /* No apropiate socket structure for this port configuration found. */
+      /* No appropiate socket structure for this port configuration found. */
       if (!sock)
 	{
 	  /* Try creatng a server socket. */

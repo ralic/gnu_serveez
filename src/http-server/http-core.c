@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.4 2000/08/16 11:40:05 ela Exp $
+ * $Id: http-core.c,v 1.5 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -64,7 +64,7 @@
 
 /*
  * Send an error message response body to the http client connection.
- * This is not actually necessary, because an apropiate response header
+ * This is not actually necessary, because an appropiate response header
  * should work out fine. But most browsers indicate "document contained
  * not data." if this occurs.
  */
@@ -140,7 +140,7 @@ http_keep_alive (socket_t sock)
 
 /*
  * This function is used to check if the connection in SOCK is a
- * Keep-Alive connection and sends the apropiate HTTP header property.
+ * Keep-Alive connection and sends the appropiate HTTP header property.
  */
 void
 http_check_keepalive (socket_t sock)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.17 2000/08/02 09:45:14 ela Exp $
+ * $Id: control-proto.c,v 1.18 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -127,7 +127,7 @@ server_definition_t ctrl_server_definition =
 
 /*
  * Within the ctrl_idle() function this structure gets filled with
- * the apropiate data.
+ * the appropiate data.
  */
 cpu_state_t cpu_state;
 
@@ -335,7 +335,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
   server_t *server;
   int_coserver_t *coserver;
 
-  /* Find the apropiate client or server connection. */
+  /* Find the appropiate client or server connection. */
   id = atoi (arg);
   if ((xsock = find_sock_by_id (id)) == NULL)
     {
@@ -732,7 +732,7 @@ ctrl_restart (socket_t sock, int type, char *arg)
   int_coserver_t *coserver;
   int n;
 
-  /* find an apropiate coserver to kill */
+  /* find an appropiate coserver to kill */
   for (n = 0; n < int_coservers; n++)
     {
       coserver = int_coserver[n];
@@ -929,7 +929,7 @@ get_cpu_state (void)
       return -1;
     }
 
-  /* find the apropiate cpu statistics line */
+  /* find the appropiate cpu statistics line */
   while(fgets(stat, STAT_BUFFER_SIZE, f))
     {
       if(4 == sscanf(stat, cpu_state.cpuline, 

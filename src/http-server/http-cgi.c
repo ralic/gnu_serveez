@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.12 2000/08/18 01:01:02 ela Exp $
+ * $Id: http-cgi.c,v 1.13 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -779,22 +779,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 	  exit (0);
 	}
 
-#if HAVE_CHROOT && 0
-      /* 
-       * Set the current directory (cgi directory) to root directory.
-       */
-      if (seteuid (0) == -1)
-	{
-	  log_printf (LOG_ERROR, "seteuid: %s\n", SYS_ERROR);
-	}
-
-      if (chroot (".") == -1)
-	{
-	  log_printf (LOG_ERROR, "chroot: %s\n", SYS_ERROR);
-	}
-#endif /* HAVE_CHROOT */
-
-      /* set the apropiate user permissions */
+      /* set the appropiate user permissions */
       if (setgid (buf.st_gid) == -1)
 	{
 	  log_printf (LOG_ERROR, "cgi: setgid: %s\n", SYS_ERROR);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.9 2000/08/18 01:01:02 ela Exp $
+ * $Id: http-dirlist.c,v 1.10 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -91,7 +91,7 @@
 int http_dirlist_size = 0;
 
 /*
- * Convert a given filename to an apropiate http request URI.
+ * Convert a given filename to an appropiate http request URI.
  * This is necessary because of special characters within
  * these.
  */

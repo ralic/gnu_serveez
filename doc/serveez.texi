@@ -1101,7 +1101,7 @@ protocol with Serveez these buffers must not contain @samp{\n} (0x0d).
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
 @file{src/coserver/} directory. In the header file you have to define a 
 further COSERVER_* id and set the MAX_COSERVER_TYPES define to the 
-apropiate value. Then you should define a further coserver_* macro in the 
+appropiate value. Then you should define a further coserver_* macro in the 
 same file.
 
 In @file{coserver.c} you have to implement the coserver_* macro. This macro
@@ -1138,7 +1138,7 @@ read/respond to multiple queries.
 
 Actually the Ident Co-Server is a client to this kind of service. For
 every established network connection you can use this service by calling
-the apropiate macro from @file{coserver.h}. But you could also use the
+the appropiate macro from @file{coserver.h}. But you could also use the
 Ident Co-Server as is without this macro. The format of the input buffer
 is:
 
@@ -1179,7 +1179,7 @@ MyIdentCallback (socket_t sock, char *user)
 @subsection Domain Name Server (DNS) Co-Server
 
 The DNS Co-Server is using @code{gethostbyname()} to translate a given
-hostname to the apropiate IP address. The format of the Co-Server input
+hostname to the appropiate IP address. The format of the Co-Server input
 line and the macro from @file{coserver.h} is shown below. The IRC server is
 currently using this Co-Server for resolving its @samp{?-Lines}.
 @xref{Existing Servers}, for more information. In the below example 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.27 2000/08/16 23:49:36 raimi Exp $
+ * $Id: http-proto.c,v 1.28 2000/08/18 14:14:48 ela Exp $
  *
  */
 
@@ -156,7 +156,7 @@ server_definition_t http_server_definition =
 
 /*
  * HTTP request types, their identification string (including its length)
- * and the apropiate callback routine itself. This array is used in
+ * and the appropiate callback routine itself. This array is used in
  * the HTTP_HANDLE_REQUEST function.
  */
 struct
@@ -443,7 +443,7 @@ http_send_file (socket_t sock)
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the apropiate flags. */
+  /* Data has been read or EOF reached, set the appropiate flags. */
   http->filelength -= num_written;
 
   /* Read all file data ? */
@@ -596,7 +596,7 @@ http_file_read (socket_t sock)
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the apropiate flags. */
+  /* Data has been read or EOF reached, set the appropiate flags. */
   sock->send_buffer_fill += num_read;
   http->filelength -= num_read;
 
@@ -649,7 +649,7 @@ http_detect_proto (void *cfg, socket_t sock)
 
 /*
  * When the http_detect_proto returns successfully this function must
- * be called to set all the apropiate callbacks and socket flags.
+ * be called to set all the appropiate callbacks and socket flags.
  */
 int
 http_connect_socket (void *http_cfg, socket_t sock)
@@ -775,7 +775,7 @@ http_handle_request (socket_t sock, int len)
   /* convert URI if necessary */
   http_process_uri (uri);
 
-  /* find an apropiate request callback */
+  /* find an appropiate request callback */
   for (n = 0; n < HTTP_REQUESTS; n++)
     {
       if (!memcmp (request, http_request[n].ident, http_request[n].len))

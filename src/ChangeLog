@@ -329,7 +329,7 @@
 
 2000-06-28  [ Ela ]  <ela@lkcc.org>
 
-	* Makefile.am (EXTRA_DIST): Added the apropiate headers
+	* Makefile.am (EXTRA_DIST): Added the appropiate headers
 	for the network interface listing in the "include" directory.
 
 	* interface.c (list_local_interfaces): Included the the IP
@@ -876,7 +876,7 @@
 
 	* ident.c: Implemented ident requester as internal coserver.
 	(ident_handle_request): Get a request from the coserver and
-	call the apropiate ident_func.
+	call the appropiate ident_func.
 	(handle_ident): Connect to the ident server, send a request and
 	read out the response. Then return the user ident if successfully
 	done.

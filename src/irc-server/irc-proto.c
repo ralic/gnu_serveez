@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.14 2000/08/02 09:45:15 ela Exp $
+ * $Id: irc-proto.c,v 1.15 2000/08/18 14:14:48 ela Exp $
  *
  */
 
@@ -687,7 +687,7 @@ irc_handle_request (socket_t sock, char *request, int len)
 
 /*
  * Delete a channel from the channel list. Returns -1 if there was no
- * apropiate channel.
+ * appropiate channel.
  */
 static int
 irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
@@ -840,7 +840,7 @@ irc_delete_client_history (irc_config_t *cfg)
 
 /*
  * Delete a client from the client list. Returns -1 if there was no
- * apropiate client.
+ * appropiate client.
  */
 int
 irc_delete_client (irc_config_t *cfg, irc_client_t *client)

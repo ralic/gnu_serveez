@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.8 2000/08/02 09:45:13 ela Exp $
+ * $Id: hash.c,v 1.9 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -492,7 +492,7 @@ hash_capacity (hash_t *hash)
 
 /*
  * This function can be used to determine if some key maps to the value 
- * argument in this hash table. Returns the apropiate key or NULL.
+ * argument in this hash table. Returns the appropiate key or NULL.
  */
 char *
 hash_contains (hash_t *hash, void *value)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.21 2000/08/02 09:45:14 ela Exp $
+ * $Id: server-socket.c,v 1.22 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -125,7 +125,7 @@ server_create (portcfg_t *cfg)
   else
     {
 
-      /* Assign the apropiate socket type. */
+      /* Assign the appropiate socket type. */
       switch (cfg->proto)
 	{
 	case PROTO_TCP:

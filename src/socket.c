@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.18 2000/08/02 09:45:14 ela Exp $
+ * $Id: socket.c,v 1.19 2000/08/18 14:14:47 ela Exp $
  *
  */
 
@@ -343,7 +343,7 @@ default_idle_func (socket_t sock)
 /*
  * This check_request () routine could be used by any protocol to 
  * detect and finally handle packets depending on a specific packet 
- * boundary. The apropiate handle_request () is called for each packet
+ * boundary. The appropiate handle_request () is called for each packet
  * explicitly with the packet length inclusive the packet boundary.
  */
 int
