@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.9 2001/06/16 15:02:46 ela Exp $
+ * $Id: dynload.c,v 1.10 2001/06/16 19:48:36 ela Exp $
  *
  */
 
@@ -293,7 +293,7 @@ dyn_unload_library (dyn_library_t *lib)
 #elif HAVE_DLD_LINK
 	err = dld_unlink_by_file (lib->file);
 #elif defined (__MINGW32__)
-	err = FreeLibrary (handle);
+	err = (FreeLibrary (handle) == 0);
 #elif HAVE_SHL_LOAD
 	err = shl_unload ((shl_t) handle);
 #endif

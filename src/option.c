@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: option.c,v 1.8 2001/04/24 23:15:13 ela Exp $
+ * $Id: option.c,v 1.9 2001/06/16 19:48:36 ela Exp $
  *
  */
 
@@ -48,7 +48,7 @@ int optopt = 0;
 int 
 getopt (int argc, char * const argv[], const char *optstring) 
 {
-  static int current_arg = 1, current_opt = 0;
+  static int current_arg = 1, current_opt = 0, current_idx = 1;
   int n;
   char *prog = argv[0] + strlen (argv[0]);
 
@@ -60,7 +60,7 @@ getopt (int argc, char * const argv[], const char *optstring)
 
   while (current_arg < argc) 
     {
-      if (current_arg != 0 || argv[current_arg][0] == '-') 
+      if (argv[current_arg][0] == '-') 
         {
           if (current_opt == 0)
             current_opt = 1;
@@ -75,7 +75,8 @@ getopt (int argc, char * const argv[], const char *optstring)
 		      current_opt++;
 		      if (optstring[n + 1] == ':') 
 			{
-			  optarg = argv[current_arg + 1];
+			  optarg = argv[current_arg + current_idx];
+			  current_idx++;
 			  if (opterr && optarg == NULL)
 			    fprintf (stderr, 
 				     "%s: option requires an argument -- %c\n",
@@ -85,10 +86,11 @@ getopt (int argc, char * const argv[], const char *optstring)
 			optarg = NULL;
 		      if (argv[current_arg][current_opt] == '\0')
 			{ 
-			  current_arg++;
+			  current_arg += current_idx;
 			  current_opt = 0;
+			  current_idx = 1;
 			} 
-		      optind = current_arg;
+		      optind = current_arg + current_idx - 1;
 		      return optstring[n];
 		    }
 		  n++;
@@ -101,10 +103,12 @@ getopt (int argc, char * const argv[], const char *optstring)
 	  current_opt++;
 	}
       current_arg++;
+      current_idx = 1;
     }
 
   current_arg = 1;
   current_opt = 0;
+  current_idx = 1;
   return EOF;
 }
 #endif /* not HAVE_GETOPT */

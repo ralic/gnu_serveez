@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.7 2001/05/22 21:06:42 ela Exp $
+ * $Id: windoze.c,v 1.8 2001/06/16 19:48:36 ela Exp $
  *
  */
 
@@ -456,6 +456,6 @@ svz_windoze_uni2asc (WCHAR *unicode)
 
 #else /* __MINGW32__ */
 
-int windoze_dummy;      /* Shut compiler warnings up. */
+static int windoze_dummy;      /* Shut compiler warnings up. */
 
 #endif /* not __MINGW32__ */
