@@ -1,3 +1,9 @@
+2001-02-07  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Tunnel Server): Documented the extended ICMP
+	protocol used in Serveez which has been introduced in order
+	to help implementing the tunnel server.
+
 2001-01-24  [ Ela ]  <ela@lkcc.org>
 
 	* serveez-api.texi: Added this file for documentaion of

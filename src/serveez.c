@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.24 2001/02/02 11:26:22 ela Exp $
+ * $Id: serveez.c,v 1.25 2001/02/14 17:53:01 ela Exp $
  *
  */
 
@@ -62,8 +62,7 @@ version (void)
 static void 
 usage (void)
 {
-  fprintf (stdout, "Usage: serveez [OPTION]...\n"
-	   "\n"
+  fprintf (stdout, "Usage: serveez [OPTION]...\n\n"
 #if HAVE_GETOPT_LONG
  "  -h, --help               display this help and exit\n"
  "  -V, --version            display version information and exit\n"
@@ -85,13 +84,14 @@ usage (void)
  "  -m COUNT     set the max. number of socket descriptors\n"
  "  -d           start as daemon in background\n"
 #endif /* not HAVE_GETOPT_LONG */
- "\n"
- "Report bugs to <bug-serveez@gnu.org>.\n");
+ "\nReport bugs to <bug-serveez@gnu.org>.\n");
 }
 
 #if HAVE_GETOPT_LONG
-static struct option serveez_options[] =
-{
+/*
+ * Argument array for `getopt_long ()' system call.
+ */
+static struct option serveez_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'V'},
   {"iflist", no_argument, NULL, 'i'},
@@ -104,13 +104,14 @@ static struct option serveez_options[] =
   {NULL, 0, NULL, 0}
 };
 #endif /* HAVE_GETOPT_LONG */
+
 #define SERVEEZ_OPTIONS "l:hViv:f:P:m:d"
 
 /*
  * Main entry point.
  */
 int
-main (int argc, char * argv[])
+main (int argc, char *argv[])
 {
   char *log_file = NULL;
   char *cfg_file = "serveez.cfg";
@@ -259,20 +260,20 @@ main (int argc, char * argv[])
 
 #if 0
   /*
-   * DEBUG: show what servers we are able to run
+   * DEBUG: Show what servers we are able to run.
    */
   server_print_definitions ();
 #endif
 
   /*
-   * Load configuration
+   * Load configuration.
    */
   init_server_definitions ();
   if (load_config (cfg_file, argc, argv) == -1)
     {
       /* 
        * Something went wrong while configuration file loading, 
-       * message output by function itself...
+       * Message output by function itself...
        */
       return 3;
     }
@@ -324,7 +325,7 @@ main (int argc, char * argv[])
     {
       /* 
        * Something went wrong while the server initialised themselves.
-       * abort silently.
+       * Abort silently.
        */
       return 6;
     }
