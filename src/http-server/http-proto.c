@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.26 2000/08/16 11:40:05 ela Exp $
+ * $Id: http-proto.c,v 1.27 2000/08/16 23:49:36 raimi Exp $
  *
  */
 
@@ -57,6 +57,11 @@
 
 #ifndef __MINGW32__
 # include <sys/socket.h>
+# include <netinet/in.h>
+#endif
+
+#if HAVE_NETINET_TCP_H
+# include <netinet/tcp.h>
 #endif
 
 #include "util.h"
@@ -384,6 +389,9 @@ http_idle (socket_t sock)
 static int
 http_tcp_cork (SOCKET sock, int set)
 {
+#ifdef TCP_CORK
+  int flags;
+
   /* get current socket options */
   if ((flags = fcntl (sock, F_GETFL)) < 0)
     {
@@ -402,6 +410,7 @@ http_tcp_cork (SOCKET sock, int set)
       return -1;
     }
 
+#endif /* TCP_CORK */
   return 0;
 }
 

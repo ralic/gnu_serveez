@@ -814,7 +814,7 @@ AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h)
 AC_CHECK_HEADERS(varargs.h)
 AC_CHECK_HEADERS(getopt.h)
 AC_CHECK_HEADERS(sys/sockio.h)
-AC_CHECK_HEADERS(sys/sendfile.h)
+AC_CHECK_HEADERS(sys/sendfile.h netinet/tcp.h)
 AC_HEADER_DIRENT
 
 have_getopt="no"
