@@ -26,7 +26,7 @@ AUTOMAKE_OPTIONS = no-texinfo.tex
 
 info_TEXINFOS = serveez.texi
 man_MANS = serveez.1
-EXTRA_DIST = $(man_MANS) index.html
+EXTRA_DIST = $(man_MANS) index.html logo.jpg logosmall.jpg
 CLEANFILES = *.info serveez*.html *.tgz *~ *.info-[0-9] stamp-vti
 MAINTAINERCLEANFILES = Makefile.in
 PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
