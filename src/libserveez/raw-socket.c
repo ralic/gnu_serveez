@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.7 2001/08/01 10:16:22 ela Exp $
+ * $Id: raw-socket.c,v 1.8 2001/10/04 19:32:20 ela Exp $
  *
  */
 
@@ -238,7 +238,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   if (svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
       ip_header->checksum)
     {
-      /* FIXME: Why are header checksum invalid on big packets ? */
+      /* FIXME: Why are header checksums invalid on big packets ? */
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, 
 	       "raw: invalid ip header checksum (%04X != %04X)\n",

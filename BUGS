@@ -30,7 +30,10 @@ From:	     ela <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-07-01
 Description: Cannot recompute the Linux kernels checksums of larger (larger
-	     than a single MTU, fragmented) ICMP packets.
+	     than a single MTU, fragmented) ICMP packets. It seems like the
+	     defragmented user level packet (IP header) contains the 
+	     checksum of the first fragment with its length and the 
+	     More-Fragments-Flag set.
 
 Bug:	     B0017
 From:	     ela <stefan@lkcc.org>
