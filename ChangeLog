@@ -1,5 +1,7 @@
 2000-12-12  [ Ela ]  <ela@lkcc.org>
 
+	* configure.in: Bumped up version to 0.0.20
+
 	* Release of version 0.0.19: Last known to include the Quake III
 	license server which we are going to drop due to legacy reasons
 	and the support of commercial software which is not the aim
