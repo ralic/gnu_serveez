@@ -97,7 +97,7 @@ you will also find the RPM package mentioned in the next section.
 
 @subsubsection Requirements
 Serveez needs GNU guile (Ubiquitous Intelligent Language for Extensions).
-The current version of Serveez is known to work with Guile 1.4 and later.
+The current version of Serveez is known to work with Guile 1.3.4 and later.
 Guile can be downloaded at @uref{ftp://ftp.gnu.org/gnu/guile/}.
 
 @subsubsection Installation
