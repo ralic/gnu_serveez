@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.h,v 1.8 2001/12/13 18:00:00 ela Exp $
+ * $Id: binding.h,v 1.9 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -26,6 +26,18 @@
 #define __BINDING_H__ 1
 
 #include "libserveez/defines.h"
+
+/*
+ * A server can typically be bound to different port configurations.  This
+ * structure hold the binding for a single listening socket structure of a
+ * server.
+ */
+typedef struct svz_binding
+{
+  svz_server_t *server; /* The server structure. */
+  svz_portcfg_t *port;  /* The port configuration the server is bound to. */
+}
+svz_binding_t;
 
 __BEGIN_DECLS
 
@@ -36,11 +48,33 @@ SERVEEZ_API void svz_server_unbind __PARAMS ((svz_server_t *));
 SERVEEZ_API int svz_server_single_listener __PARAMS ((svz_server_t *, 
 						      svz_socket_t *));
 SERVEEZ_API svz_array_t *svz_server_listeners __PARAMS ((svz_server_t *));
+
 SERVEEZ_API int svz_sock_add_server __PARAMS ((svz_socket_t *, 
-					       svz_server_t *));
+					       svz_server_t *,
+					       svz_portcfg_t *));
 SERVEEZ_API int svz_sock_del_server __PARAMS ((svz_socket_t *, 
 					       svz_server_t *));
 SERVEEZ_API svz_socket_t *svz_sock_find_portcfg __PARAMS ((svz_portcfg_t *));
+SERVEEZ_API svz_array_t *svz_sock_find_portcfgs __PARAMS ((svz_portcfg_t *));
+SERVEEZ_API svz_array_t *svz_sock_bindings __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_array_t *svz_sock_servers __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_sock_bind_port __PARAMS ((svz_portcfg_t *));
+
+SERVEEZ_API svz_array_t *svz_binding_filter_net __PARAMS ((svz_socket_t *,
+							   unsigned long,
+							   unsigned short));
+SERVEEZ_API svz_array_t *svz_binding_filter_pipe __PARAMS ((svz_socket_t *)); 
+SERVEEZ_API svz_array_t *svz_binding_filter __PARAMS ((svz_socket_t *));
+SERVEEZ_API svz_binding_t *svz_binding_create __PARAMS ((svz_server_t *,
+							 svz_portcfg_t *));
+SERVEEZ_API void svz_binding_destroy __PARAMS ((svz_binding_t *));
+SERVEEZ_API int svz_binding_contains __PARAMS ((svz_array_t *, 
+						svz_server_t *));
+SERVEEZ_API svz_array_t *svz_binding_join __PARAMS ((svz_array_t *, 
+						     svz_socket_t *));
+SERVEEZ_API svz_binding_t *svz_binding_find __PARAMS ((svz_socket_t *,
+						       svz_server_t *,
+						       unsigned long *));
 
 __END_DECLS
 

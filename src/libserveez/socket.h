@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.16 2001/12/13 18:00:01 ela Exp $
+ * $Id: socket.h,v 1.17 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -226,6 +226,9 @@ SERVEEZ_API int svz_sock_write __PARAMS ((svz_socket_t *, char *, int));
 SERVEEZ_API int svz_sock_printf __PARAMS ((svz_socket_t *,
 					   const char *, ...));
 SERVEEZ_API int svz_sock_resize_buffers __PARAMS ((svz_socket_t *, int, int));
+SERVEEZ_API int svz_sock_local_info __PARAMS ((svz_socket_t *,
+					       unsigned long *,
+					       unsigned short *));
 SERVEEZ_API int svz_sock_intern_connection_info __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_error_info __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_unique_id __PARAMS ((svz_socket_t *));

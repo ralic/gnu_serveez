@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.59 2001/11/19 21:13:01 ela Exp $
+ * $Id: control-proto.c,v 1.60 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -319,6 +319,8 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
   /* process connection type server flags */
   if (xsock->flags & SOCK_FLAG_LISTENING)
     {
+      svz_array_t *servers;
+
       /* a listening server */
       strcpy (proto, "server: ");
       if (xsock->proto & PROTO_TCP)
@@ -333,11 +335,13 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 	strcat (proto, "raw ");
 
       svz_sock_printf (sock, "%s\r\n", proto);
-      svz_array_foreach (xsock->data, server, n)
+      servers = svz_sock_servers (xsock);
+      svz_array_foreach (servers, server, n)
 	{
 	  svz_sock_printf (sock, "            %d. %s (%s)\r\n", 
 			   n + 1, server->name, server->description);
 	}
+      svz_array_destroy (servers);
     }
   /* process client info */
   else

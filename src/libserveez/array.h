@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.15 2001/12/13 18:00:00 ela Exp $
+ * $Id: array.h,v 1.16 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -59,6 +59,7 @@ SERVEEZ_API unsigned long svz_array_contains __PARAMS ((svz_array_t *,
 SERVEEZ_API svz_array_t *svz_array_dup __PARAMS ((svz_array_t *));
 SERVEEZ_API svz_array_t *svz_array_strdup __PARAMS ((svz_array_t *));
 SERVEEZ_API void **svz_array_values __PARAMS ((svz_array_t *));
+SERVEEZ_API svz_array_t *svz_array_destroy_zero __PARAMS ((svz_array_t *));
 
 __END_DECLS
 

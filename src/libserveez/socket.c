@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.20 2001/11/29 23:41:43 raimi Exp $
+ * $Id: socket.c,v 1.21 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -66,6 +66,7 @@
 #include "libserveez/tcp-socket.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
+#include "libserveez/binding.h"
 
 /*
  * Count the number of currently connected sockets.
@@ -124,7 +125,9 @@ svz_sock_detect_proto (svz_socket_t *sock)
 {
   int n;
   svz_server_t *server;
+  svz_binding_t *binding;
   svz_portcfg_t *port;
+  svz_array_t *bindings;
 
   /* return if there are no servers bound to this socket */
   if (sock->data == NULL)
@@ -134,8 +137,11 @@ svz_sock_detect_proto (svz_socket_t *sock)
   port = svz_sock_portcfg (sock);
 
   /* go through each server stored in the data field of this socket */
-  svz_array_foreach (sock->data, server, n)
+  bindings = svz_binding_filter (sock);
+  svz_array_foreach (bindings, binding, n)
     {
+      server = binding->server;
+
       /* can occur if it is actually a packet oriented server */
       if (server->detect_proto == NULL)
 	{
@@ -145,9 +151,11 @@ svz_sock_detect_proto (svz_socket_t *sock)
       /* call protocol detection routine of the server */
       else if (server->detect_proto (server, sock))
 	{
+	  svz_array_destroy (bindings);
 	  sock->idle_func = NULL;
 	  sock->data = NULL;
 	  sock->cfg = server->cfg;
+	  sock->port = binding->port;
 	  if (!server->connect_socket)
 	    return -1;
 	  if (server->connect_socket (server, sock))
@@ -157,6 +165,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
 	  return 0;
 	}
     }
+  svz_array_destroy (bindings);
 
   /*
    * Discard this socket if there were not any valid protocol
@@ -441,8 +450,6 @@ svz_sock_free (svz_socket_t *sock)
     {
       if (sock->data)
 	svz_array_destroy (sock->data);
-      if (sock->port)
-	svz_portcfg_destroy (sock->port);
     }
   if (sock->recv_pipe)
     svz_free (sock->recv_pipe);
@@ -501,6 +508,29 @@ svz_sock_intern_connection_info (svz_socket_t *sock)
   sock->local_addr = addr;
 
   return 0;
+}
+
+/*
+ * This function returns the local network address and port for the given
+ * client socket structure @var{sock}.  It returns non-zero if there no 
+ * connection established.
+ */
+int
+svz_sock_local_info (svz_socket_t *sock, 
+		     unsigned long *addr, unsigned short *port)
+{
+  struct sockaddr_in s;
+  socklen_t size = sizeof (s);
+
+  if (!getsockname (sock->sock_desc, (struct sockaddr *) &s, &size))
+    {
+      if (addr)
+	*addr = s.sin_addr.s_addr;
+      if (port)
+	*port = s.sin_port;
+      return 0;
+    }
+  return -1;
 }
 
 /*

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.32 2001/12/07 20:37:15 ela Exp $
+ * $Id: server.c,v 1.33 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -881,6 +881,24 @@ svz_server_configure (svz_servertype_t *server,
 }
 
 /*
+ * This function runs the server initilizer of the given server instance
+ * @var{server} and returns zero on success. Otherwise it emits an error
+ * message and returns non-zero.
+ */
+int
+svz_server_init (svz_server_t *server)
+{
+  if (server)
+    if (server->init != NULL) 
+      if (server->init (server) < 0)
+	{
+	  svz_log (LOG_ERROR, "error initializing `%s'\n", server->name);
+	  return -1;
+	}
+  return 0;
+}
+
+/*
  * Run the initializers of all servers, return -1 if some server did not
  * think it is a good idea to run.
  */
@@ -892,14 +910,8 @@ svz_server_init_all (void)
 
   svz_log (LOG_NOTICE, "initializing all server instances\n");
   svz_hash_foreach_value (svz_servers, server, i)
-    {
-      if (server[i]->init != NULL) 
-	if (server[i]->init (server[i]) < 0) 
-	  {
-	    errneous = -1;
-	    svz_log (LOG_ERROR, "error initializing `%s'\n", server[i]->name);
-	  }
-    }
+    if (svz_server_init (server[i]) < 0)
+      errneous = -1;
   return errneous;
 }
 

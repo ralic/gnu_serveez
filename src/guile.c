@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.55 2001/12/07 22:25:49 ela Exp $
+ * $Id: guile.c,v 1.56 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -1140,6 +1140,12 @@ guile_define_server (SCM name, SCM args)
 }
 #undef FUNC_NAME
 
+/* Validate a network port value. */
+#define GUILE_VALIDATE_PORT(port, name, proto) do {                         \
+  if ((port) < 0 || (port) > 65535) {                                       \
+    guile_error ("%s: %s port requires a short (0..65535)\n", proto, name); \
+    err = -1; } } while (0)
+
 /*
  * Port configuration definition. Use two arguments:
  * First is a (unique) name for the port configuration. Second is an 
@@ -1191,7 +1197,8 @@ guile_define_port (SCM name, SCM args)
       int port;
       cfg->proto = PROTO_TCP;
       err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, txt);
-      cfg->tcp_port = (short) port;
+      GUILE_VALIDATE_PORT (port, "TCP", portname);
+      cfg->tcp_port = (unsigned short) port;
       err |= optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0, 
 				     &(cfg->tcp_backlog), txt);
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
@@ -1205,7 +1212,8 @@ guile_define_port (SCM name, SCM args)
       int port;
       cfg->proto = PROTO_UDP;
       err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, txt);
-      cfg->udp_port = (short) port;
+      GUILE_VALIDATE_PORT (port, "UDP", portname);
+      cfg->udp_port = (unsigned short) port;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
 					&(cfg->udp_ipaddr), txt);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,

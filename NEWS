@@ -28,6 +28,9 @@ files.
 Version 0.1.3
 -------------
 
+ * allow INADDR_ANY bindings by the keyword `any' in network port 
+   configurations and appropiate mixtures of this binding with explicit
+   network interface bindings
  * inetd runs RPC services
  * RPC (remote procedure call) capabilities exported to Guile
  * shared build on MacOS X10.1 possible (libtool patch)

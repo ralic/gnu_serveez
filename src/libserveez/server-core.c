@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.33 2001/12/07 20:37:15 ela Exp $
+ * $Id: server-core.c,v 1.34 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -894,7 +894,7 @@ svz_reset (void)
  * and all memory used by the socket gets freed. Note that this
  * function calls the @var{sock}'s disconnect handler if defined.
  */
-static int
+int
 svz_sock_shutdown (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG

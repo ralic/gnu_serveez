@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.29 2001/12/12 19:02:51 ela Exp $
+ * $Id: portcfg.c,v 1.30 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -94,8 +94,8 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 	    {
 	      if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
 		return 0;
-	      else if (a_addr->sin_addr.s_addr == INADDR_ANY ||
-		       b_addr->sin_addr.s_addr == INADDR_ANY)
+	      else if (a->flags & PORTCFG_FLAG_ANY ||
+		       b->flags & PORTCFG_FLAG_ANY)
 		return 1;
 	    }
 	  break;
@@ -104,16 +104,16 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 	    {
 	      if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
 		return 0;
-	      else if (a_addr->sin_addr.s_addr == INADDR_ANY ||
-		       b_addr->sin_addr.s_addr == INADDR_ANY)
+	      else if (a->flags & PORTCFG_FLAG_ANY ||
+		       b->flags & PORTCFG_FLAG_ANY)
 		return 1;
 	    }
 	  break;
 	case PROTO_RAW:
 	  if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
 	    return 0;
-	  else if (a_addr->sin_addr.s_addr == INADDR_ANY ||
-		   b_addr->sin_addr.s_addr == INADDR_ANY)
+	  else if (a->flags & PORTCFG_FLAG_ANY ||
+		   b->flags & PORTCFG_FLAG_ANY)
 	    return 1;
 	  break;
 	}
@@ -235,7 +235,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
 
   /* Is this a network port configuration and should it be expanded ? */
   if ((addr = svz_portcfg_addr (this)) != NULL && 
-      addr->sin_addr.s_addr == INADDR_ANY)
+      this->flags & PORTCFG_FLAG_ALL)
     {
       svz_interface_foreach (ifc, n)
 	{
@@ -476,16 +476,22 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       /* For all network protocols we assign AF_INET as protocol family,
 	 determine the network port (if necessary) and put the ip address. */
     case PROTO_TCP:
-      err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
       this->tcp_addr.sin_family = AF_INET;
-      if (!(this->tcp_port >= 0 && this->tcp_port < 65536))
+      if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
 	{
-	  svz_log (LOG_ERROR, "%s: TCP port requires a short (0..65535)\n",
-		   this->name);
-	  err = -1;
+	  this->flags |= PORTCFG_FLAG_ANY;
+	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+	}
+      else if (!strcmp (this->tcp_ipaddr, PORTCFG_NOIP))
+	{
+	  this->flags |= PORTCFG_FLAG_ALL;
+	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
       else
-	this->tcp_addr.sin_port = htons (this->tcp_port);
+	{
+	  err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
+	}
+      this->tcp_addr.sin_port = htons (this->tcp_port);
       if (this->tcp_backlog > SOMAXCONN)
 	{
 	  svz_log (LOG_ERROR, "%s: TCP backlog out of range (1..%d)\n",
@@ -494,16 +500,22 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 	}
       break;
     case PROTO_UDP:
-      err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
       this->udp_addr.sin_family = AF_INET;
-      if (!(this->udp_port >= 0 && this->udp_port < 65536))
+      if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
 	{
-	  svz_log (LOG_ERROR, "%s: UDP port requires a short (0..65535)\n",
-		   this->name);
-	  err = -1;
+	  this->flags |= PORTCFG_FLAG_ANY;
+	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+	}
+      else if (!strcmp (this->tcp_ipaddr, PORTCFG_NOIP))
+	{
+	  this->flags |= PORTCFG_FLAG_ALL;
+	  this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
 	}
       else
-	this->udp_addr.sin_port = htons (this->udp_port);
+	{
+	  err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
+	}
+      this->udp_addr.sin_port = htons (this->udp_port);
       break;
     case PROTO_ICMP:
       err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);

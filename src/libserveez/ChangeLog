@@ -1,3 +1,29 @@
+2001-12-15  [ Ela ]  <ela@lkcc.org>
+
+	* udp-socket.c (svz_udp_check_request): Using the binding
+	filter functionality.
+
+	* socket.c (svz_sock_detect_proto): Using the binding
+	filter functionality.
+	(svz_sock_local_info): New function. Returns the local
+	network address and port for a socket.
+
+	* server.c (svz_server_init): Initializes a server instance.
+	New function grabbed from `svz_server_init_all()' now using
+	it.
+
+	* server-core.h (svz_sock_foreach_listener): New macro.
+
+	* server-core.c (svz_sock_shutdown): Export this function.
+
+	* icmp-socket.c (svz_icmp_check_request): Using the binding
+	filter functionality.
+
+	* binding.c: Implemented the `svz_binding_*()' functionality
+	which should allow INADDR_ANY bindings and appropiate mixtures
+	of "all", "any" and explicit network interface bindings by
+	filtering servers depending on port configurations.
+
 2001-12-13  [ Ela ]  <ela@lkcc.org>
 
 	* tcp-socket.h, array.h, alloc.h, hash.h, icmp-socket.h, 

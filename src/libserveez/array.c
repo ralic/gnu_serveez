@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.14 2001/11/27 23:07:52 ela Exp $
+ * $Id: array.c,v 1.15 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -316,4 +316,20 @@ svz_array_values (svz_array_t *array)
     memcpy (carray, array->data, sizeof (void *) * length);
   carray[length] = NULL;
   return carray;
+}
+
+/*
+ * This function destroys the given array @var{array} if it holds no 
+ * elements and returns NULL in this case.  Otherwise the function returns
+ * the given array.
+ */
+svz_array_t *
+svz_array_destroy_zero (svz_array_t *array)
+{
+  if (array && array->size == 0)
+    {
+      svz_array_destroy (array);
+      return NULL;
+    }
+  return array;
 }

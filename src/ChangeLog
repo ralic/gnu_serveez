@@ -1,3 +1,8 @@
+2001-12-15  [ Ela ]  <ela@lkcc.org>
+
+	* guile.c (guile_define_port): Checking for network port 
+	range (0 .. 65535).
+
 2001-12-13  [ Ela ]  <ela@lkcc.org>
 
 	* irc-server/irc-server.h, http-server/http-core.h, 

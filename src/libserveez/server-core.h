@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.16 2001/12/13 18:00:00 ela Exp $
+ * $Id: server-core.h,v 1.17 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -44,12 +44,21 @@ SERVEEZ_API svz_socket_t *svz_sock_last;
 #define svz_sock_foreach(sock) \
   for ((sock) = svz_sock_root; (sock) != NULL; (sock) = (sock)->next)
 
+/*
+ * Goes through the chained list of socket structures and filters each
+ * listener.
+ */
+#define svz_sock_foreach_listener(sock)                                \
+  svz_sock_foreach (sock)                                              \
+    if (((sock)->flags & SOCK_FLAG_LISTENING) && (sock)->port != NULL)
+
 __BEGIN_DECLS
 
 SERVEEZ_API void svz_sock_table_create __PARAMS ((void));
 SERVEEZ_API void svz_sock_table_destroy __PARAMS ((void));
 SERVEEZ_API svz_socket_t *svz_sock_find __PARAMS ((int, int));
 SERVEEZ_API int svz_sock_schedule_for_shutdown __PARAMS ((svz_socket_t *));
+SERVEEZ_API int svz_sock_shutdown __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_enqueue __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_dequeue __PARAMS ((svz_socket_t *));
 SERVEEZ_API void svz_sock_shutdown_all __PARAMS ((void));

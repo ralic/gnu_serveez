@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.8 2001/12/13 20:09:09 ela Exp $
+;; $Id: inetd.scm,v 1.9 2001/12/15 02:47:38 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -33,6 +33,9 @@
 
 ;; print some messages if #t
 (define verbose #f)
+
+;; bind servers to this network address or device
+(define ip-address "*")
 
 ;; opens a configuration file, reads each line and uncomments them,
 ;; comments are marked with a leading '#', returns a list of non-empty
@@ -151,6 +154,7 @@
   (let* ((port '()) 
 	 (name "undefined"))
     (set! port (cons (cons "proto" proto) port))
+    (set! port (cons (cons "ipaddr" ip-address) port))
     (set! port (cons (cons "port" 0) port))
     (set! name (string-append "inetd-port-"
 			      (protocol-rpc-string rpc proto)))
@@ -291,6 +295,7 @@
     (if service
 	(begin
 	  (set! port (cons (cons "proto" (vector-ref service 3)) port))
+	  (set! port (cons (cons "ipaddr" ip-address) port))
 	  (set! port (cons (cons "port" (vector-ref service 2)) port))
 	  (set! name (string-append "inetd-port-"
 				    (protocol-port-string service)))

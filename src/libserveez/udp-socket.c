@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.17 2001/11/29 23:41:43 raimi Exp $
+ * $Id: udp-socket.c,v 1.18 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -56,6 +56,7 @@
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
 #include "libserveez/portcfg.h"
+#include "libserveez/binding.h"
 #include "libserveez/udp-socket.h"
 
 /*
@@ -235,6 +236,8 @@ svz_udp_check_request (svz_socket_t *sock)
 {
   int n;
   svz_server_t *server;
+  svz_array_t *bindings;
+  svz_binding_t *binding;
 
   if (sock->data == NULL && sock->handle_request == NULL)
     return -1;
@@ -255,8 +258,10 @@ svz_udp_check_request (svz_socket_t *sock)
     }
 
   /* go through all udp servers on this server socket */
-  svz_array_foreach (sock->data, server, n)
+  bindings = svz_binding_filter (sock);
+  svz_array_foreach (bindings, binding, n)
     {
+      server = binding->server;
       sock->cfg = server->cfg;
 
       if (server->handle_request)
@@ -269,6 +274,7 @@ svz_udp_check_request (svz_socket_t *sock)
 	    }
         }
     }
+  svz_array_destroy (bindings);
 
   /* check if any server processed this packet */
   if (sock->recv_buffer_fill)

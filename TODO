@@ -23,6 +23,7 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- Keep track of network interface changes.
 - Make some of the configure-time servers available dynamically at run-time.
 - Let the user create network device bindings.  This requires checking
   the system's network device configuration in some way.

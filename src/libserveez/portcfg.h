@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.18 2001/12/13 18:00:00 ela Exp $
+ * $Id: portcfg.h,v 1.19 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -74,6 +74,11 @@
 #define PORTCFG_ALLOW        "allow"
 #define PORTCFG_DENY         "deny"
 
+/* Port configuration flags. */
+#define PORTCFG_FLAG_ANY    0x0001
+#define PORTCFG_FLAG_ALL    0x0002
+#define PORTCFG_FLAG_DEVICE 0x0004
+
 /*
  * Definition of a single port configuration reflecting either a network
  * (TCP, UDP, ICMP or RAW) or filesystem configuration (PIPE).
@@ -85,6 +90,9 @@ typedef struct svz_portcfg
 
   /* one of the PROTO_ flags defined in <core.h> */
   int proto;
+
+  /* one of PORTCFG_FLAG_ flags */
+  int flags;
 
   /* unified structure for each type of port */
   union protocol_t

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.19 2001/11/29 23:41:43 raimi Exp $
+ * $Id: icmp-socket.c,v 1.20 2001/12/15 02:47:38 ela Exp $
  *
  */
 
@@ -58,6 +58,7 @@
 #include "libserveez/icmp-socket.h"
 #include "libserveez/raw-socket.h"
 #include "libserveez/server.h"
+#include "libserveez/binding.h"
 
 /* Text representation of ICMP type codes. */
 static char *svz_icmp_request[] = {
@@ -708,6 +709,8 @@ svz_icmp_check_request (svz_socket_t *sock)
 {
   int n;
   svz_server_t *server;
+  svz_array_t *bindings;
+  svz_binding_t *binding;
 
   if (sock->data == NULL && sock->handle_request == NULL)
     return -1;
@@ -728,8 +731,10 @@ svz_icmp_check_request (svz_socket_t *sock)
     }
 
   /* Go through all icmp servers on this server socket. */
-  svz_array_foreach (sock->data, server, n)
+  bindings = svz_binding_filter (sock);
+  svz_array_foreach (bindings, binding, n)
     {
+      server = binding->server;
       sock->cfg = server->cfg;
       
       if (server->handle_request)
@@ -742,6 +747,7 @@ svz_icmp_check_request (svz_socket_t *sock)
             }
         }
     }
+  svz_array_destroy (bindings);
 
   /* Check if any server processed this packet. */
   if (sock->recv_buffer_fill)
