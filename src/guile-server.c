@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.28 2001/11/09 12:33:10 ela Exp $
+ * $Id: guile-server.c,v 1.29 2001/11/09 17:13:03 ela Exp $
  *
  */
 
@@ -996,6 +996,30 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
 }
 #undef FUNC_NAME
 
+/* Converts the @var{server} instance's state into a Guile hash. 
+   Returns an empty list if there is no such state yet. */
+#define FUNC_NAME "svz:server:state->hash"
+SCM
+guile_server_state_to_hash (SCM server)
+{
+  SCM hash = SCM_EOL;
+  svz_hash_t *data;
+  svz_server_t *xserver;
+  int i;
+  char **key;
+
+  CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
+  if ((data = xserver->data) != NULL)
+    {
+      hash = gh_make_vector (gh_int2scm (svz_hash_size (data)), SCM_EOL);
+      svz_hash_foreach_key (data, key, i)
+	scm_hash_set_x (hash, gh_str02scm (key[i]),
+			(SCM) SVZ_PTR2NUM (svz_hash_get (data, key[i])));
+    }
+  return hash;
+}
+#undef FUNC_NAME
+
 /*
  * Returns the length of a configuration item type, updates the configuration
  * item structure @var{item} and increases the @var{size} value if the
@@ -1467,6 +1491,8 @@ guile_server_init (void)
 		    guile_server_state_ref, 2, 0, 0);
   gh_new_procedure ("svz:server:state-set!",
 		    guile_server_state_set_x, 3, 0, 0);
+  gh_new_procedure ("svz:server:state->hash",
+		    guile_server_state_to_hash, 1, 0, 0);
   gh_new_procedure ("serveez-exceptions",
 		    guile_access_exceptions, 0, 1, 0);
 
