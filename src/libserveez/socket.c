@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.15 2001/07/03 10:43:31 ela Exp $
+ * $Id: socket.c,v 1.16 2001/08/13 06:56:43 ela Exp $
  *
  */
 
@@ -205,9 +205,8 @@ svz_sock_check_request_array (svz_socket_t *sock)
   int len = 0;
   char *p, *packet, *end;
 
-  p = sock->recv_buffer;
+  packet = p = sock->recv_buffer;
   end = p + sock->recv_buffer_fill - sock->boundary_size + 1;
-  packet = p;
 
   do
     {
@@ -248,9 +247,8 @@ svz_sock_check_request_byte (svz_socket_t *sock)
   int len = 0;
   char *p, *packet, *end;
 
-  p = sock->recv_buffer;
+  packet = p = sock->recv_buffer;
   end = p + sock->recv_buffer_fill;
-  packet = p;
 
   do
     {
@@ -282,19 +280,59 @@ svz_sock_check_request_byte (svz_socket_t *sock)
 }
 
 /*
- * This function simply checks for the kind of packet delimiter within 
- * the given socket structure and and assigns one of the above
- * @code{check_request()} routines (one or more byte delimiters). Afterwards 
- * this routine will never ever be called again because the callback gets
- * overwritten here.
+ * The following routine checks for fixed size packets in the receive queue 
+ * of the socket structure @var{sock} and calls the @code{handle_request()} 
+ * callback if so. It is possible to change the fixed packet size in the
+ * @code{handle_request()} callback dynamically.
+ */
+static int
+svz_sock_check_request_size (svz_socket_t *sock)
+{
+  int len = 0;
+  char *p, *packet, *end;
+
+  packet = p = sock->recv_buffer;
+  end = p + sock->recv_buffer_fill;
+
+  while (p + sock->boundary_size < end)
+    {
+      len += sock->boundary_size;
+      p += sock->boundary_size;
+
+      /* Call the handle request callback. */
+      if (sock->handle_request)
+	{
+	  if (sock->handle_request (sock, packet, sock->boundary_size))
+	    return -1;
+	}
+      packet = p;
+    }
+
+  /* Shuffle data in the receive buffer around. */
+  svz_sock_reduce_recv (sock, len);
+  
+  return 0;
+}
+
+/*
+ * This function simply checks for the kind of packet delimiter within the 
+ * given socket structure and and assigns one of the default 
+ * @code{check_request()} routines (one or more byte delimiters or a fixed
+ * size). Afterwards this routine will never ever be called again because 
+ * the callback gets overwritten here.
  */
 int
 svz_sock_check_request (svz_socket_t *sock)
 {
-  assert (sock->boundary);
-  assert (sock->boundary_size);
+  if (sock->boundary_size <= 0)
+    {
+      svz_log (LOG_ERROR, "invalid boundary size: %d\n", sock->boundary_size);
+      return -1;
+    }
 
-  if (sock->boundary_size > 1)
+  if (sock->boundary == NULL)
+    sock->check_request = svz_sock_check_request_size;
+  else if (sock->boundary_size > 1)
     sock->check_request = svz_sock_check_request_array;
   else
     sock->check_request = svz_sock_check_request_byte;

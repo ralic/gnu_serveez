@@ -1,3 +1,9 @@
+2001-08-13  [ Ela ]  <ela@lkcc.org>
+
+	* socket.c (svz_sock_check_request_size): New function. Checks
+	for fixed size packets if the boundary itself is NULL, but the
+	boundary size is valid.
+
 2001-08-12  [ Ela ]  <ela@lkcc.org>
 
 	* server-core.c (svz_sock_table_create, 
