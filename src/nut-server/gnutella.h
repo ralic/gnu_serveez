@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.1 2000/08/26 18:05:18 ela Exp $
+ * $Id: gnutella.h,v 1.2 2000/08/27 17:29:51 ela Exp $
  *
  */
 
@@ -45,6 +45,9 @@
 #define NUT_GUID            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 #define NUT_GUID_SIZE       16
 #define NUT_SEARCH_INTERVAL 10
+#define NUT_TTL             5
+#define NUT_MAX_TTL         5
+
 /* function IDs */
 #define NUT_PING_REQ   0x00 /* ping */
 #define NUT_PING_ACK   0x01 /* ping response */
@@ -63,7 +66,8 @@
  * response and send it on it's way.
  */
 
-#pragma pack (1)
+/* that is for byte align */
+#pragma pack(1)
 
 /* gnutella header */
 typedef struct
@@ -76,7 +80,7 @@ typedef struct
 }
 nut_header_t;
 
-/* ping response */
+/* ping response structure */
 typedef struct
 {
   unsigned short port; /* port number of the listening host */
@@ -126,6 +130,9 @@ typedef struct
 }
 nut_push_t;
 
+/* that is for default align */
+#pragma pack()
+
 /* gnutella client structure */
 typedef struct
 {
@@ -139,13 +146,18 @@ nut_client_t;
  */
 typedef struct
 {
-  struct portcfg *port;
-  int servers;
-  char **hosts;
-  byte guid[NUT_GUID_SIZE];
-  hash_t *route;
-  hash_t *conn;
-  char *search;
+  portcfg_t *port;          /* port configuration */
+  int max_ttl;              /* maximum ttl for a gnutella packet */
+  int ttl;                  /* initial ttl for a gnutella packet */
+  char **hosts;             /* array of initial hosts */
+  byte guid[NUT_GUID_SIZE]; /* this servers GUID */
+  hash_t *route;            /* routing table */
+  hash_t *conn;             /* connected hosts hash */
+  char *search;             /* search pattern */
+  hash_t *packet;           /* this servers created packets */
+  int errors;               /* routing errors */
+  int files;                /* files within connected network */
+  int size;                 /* file size (in KB) */
 }
 nut_config_t;
 
