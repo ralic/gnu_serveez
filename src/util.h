@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.15 2000/08/16 01:06:11 ela Exp $
+ * $Id: util.h,v 1.16 2000/08/19 10:57:34 ela Exp $
  *
  */
 
@@ -86,6 +86,7 @@ char *util_itoa (unsigned int);
 unsigned int util_atoi (char *);
 int util_strcasecmp (const char *str1, const char *str2);
 int util_strncasecmp (const char *str1, const char *str2, size_t n);
+int util_openfiles (void);
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) ((unsigned char)*p + \

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.11 2000/07/25 16:24:26 ela Exp $
+ * $Id: serveez.c,v 1.12 2000/08/19 10:57:34 ela Exp $
  *
  */
 
@@ -273,6 +273,7 @@ main (int argc, char * argv[])
 #endif /* ENABLE_DEBUG */
   
   log_printf (LOG_NOTICE, "%s\n", get_version ());
+  util_openfiles ();
   
   /* 
    * Startup the internal coservers here.

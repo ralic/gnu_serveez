@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.17 2000/08/18 01:01:02 ela Exp $
+ * $Id: util.c,v 1.18 2000/08/19 10:57:34 ela Exp $
  *
  */
 
@@ -36,6 +36,16 @@
 #include <time.h>
 #include <errno.h>
 
+#if HAVE_SYS_RESOURCE_H
+# include <sys/resource.h>
+#endif
+#if HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
 #ifndef __MINGW32__
 # include <netdb.h>
 # include <sys/socket.h>
@@ -50,6 +60,7 @@
 #include "snprintf.h"
 #include "alloc.h"
 #include "util.h"
+#include "serveez.h"
 
 /* 
  * Level of server's verbosity:
@@ -567,6 +578,46 @@ util_atoi (char *str)
       str++;
     }
   return i;
+}
+
+/*
+ * This routine checks for the current and maximum limit of open files
+ * of the current process.
+ */
+int
+util_openfiles (void)
+{
+#if HAVE_GETRLIMIT
+# ifndef RLIMIT_NOFILE
+#  define RLIMIT_NOFILE RLIMIT_OFILE
+# endif
+  struct rlimit rlim;
+
+  if (getrlimit (RLIMIT_NOFILE, &rlim) == -1)
+    {
+      log_printf (LOG_ERROR, "getrlimit: %s\n", SYS_ERROR);
+      return -1;
+    }
+  log_printf (LOG_NOTICE, "current open file limit: %d/%d\n", 
+	      rlim.rlim_cur,  rlim.rlim_max);
+
+  if (rlim.rlim_max < serveez_config.max_sockets || 
+      rlim.rlim_cur < serveez_config.max_sockets)
+    {
+      rlim.rlim_max = serveez_config.max_sockets;
+      rlim.rlim_cur = serveez_config.max_sockets;
+
+      if (setrlimit (RLIMIT_NOFILE, &rlim) == -1)
+	{
+	  log_printf (LOG_ERROR, "setrlimit: %s\n", SYS_ERROR);
+	  return -1;
+	}
+      getrlimit (RLIMIT_NOFILE, &rlim);
+      log_printf (LOG_NOTICE, "open file limit set to: %d/%d\n",
+		  rlim.rlim_cur,  rlim.rlim_max);
+    }
+#endif /* HAVE_GETRLIMIT */
+  return 0;
 }
 
 /* Runtime checkable flags for sizzle and code */

@@ -1,3 +1,9 @@
+2000-08-19  [ Ela ]  <ela@lkcc.org>
+
+	* util.c (util_openfiles): Display the current and maximum 
+	open file limit via getrlimit() and try setting it via 
+	setrlimit() if necessary and possible.
+
 2000-08-18  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): Added ability
