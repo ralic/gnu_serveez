@@ -90,6 +90,17 @@ AC_CHECK_PROG(WINDRES, windres, windres, :)
 
 dnl ----------------------------------------------------------------------
 
+AC_MSG_CHECKING([target system type])
+[
+test x$target = "xNONE" && target="$host"
+target="`${CONFIG_SHELL-/bin/sh} $ac_config_sub $target`"
+target_os="`echo $target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\3/'`"
+target_cpu=`echo $target | sed 's/^\([^-]*\)-\([^-]*\)-\(.*\)$/\1/'`
+]
+AC_MSG_RESULT([$target])
+
+dnl ----------------------------------------------------------------------
+
 EXTRALIBS=""
 CPPEXTRAFLAGS=""
 SERVERLIBS=""
@@ -126,9 +137,11 @@ if test "x$define_enable_warn" = "xyes" ; then
   fi
 
   dnl Test this compiler flag under Linux only.
-  if test "`uname -s`" = "Linux" ; then
-    warnflags="$warnflags -ansi"
-  fi
+  case $target_os in
+    linux*)
+	warnflags="$warnflags -ansi"
+	;;
+  esac
 
   for flag in $warnflags; do
     CFLAGS="$flag"
@@ -175,7 +188,7 @@ if test $define_enable_opt = yes ; then
               -finline-functions -fexpensive-optimizations \
 	      -fcaller-saves -frerun-loop-opt -foptimize-register-move \
 	      -ffunction-cse -fpeephole -momit-leaf-frame-pointer"
-    [arch=`eval uname -m 2>/dev/null | sed 's/i\([0-9]\)86/\1/g'`
+    [arch=`eval echo "$target_cpu" | sed 's/i\([0-9]\)86/\1/g'`
     if test `expr length "$arch"` -ne 1; then arch="5"; fi
     if test `expr $arch` -gt 4; then
       optflags="$optflags -fschedule-insns2"
@@ -1037,16 +1050,14 @@ AC_CACHE_CHECK([whether /proc/stat exists], svz_cv_sys_proc_stat,
   fi])
 unset have_procstat
 
-test x$target = "xNONE" && target="$host"
-
 if test $svz_cv_sys_proc_stat = yes ; then
-  case "$target" in
-  *linux*)
+  case $target_os in
+  linux*)
     AC_DEFINE(HAVE_PROC_STAT, 
       1, [Define if Linux supports the /proc/stat file.])
     ;;
   *)
-    AC_MSG_WARN([disabled '/proc/stat' since '$target' is not linux])
+    AC_MSG_WARN([disabled '/proc/stat' since '$target_os' is not linux])
     ;;
   esac
 fi
