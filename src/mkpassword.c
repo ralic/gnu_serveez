@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: mkpassword.c,v 1.2 2000/09/20 08:29:14 ela Exp $
+ * $Id: mkpassword.c,v 1.3 2000/10/08 21:14:03 ela Exp $
  *
  */
 
@@ -33,8 +33,12 @@
 #include <time.h>
 
 #if HAVE_CRYPT && ENABLE_CRYPT
+#if __CRYPT_IMPORT__
+#include <crypt.h>
+#else
 extern char *crypt (const char *key, const char *salt);
 extern char *getpass (const char *prompt);
+#endif /* __CRYPT_IMPORT__ */
 #endif
 
 /*

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.22 2000/09/26 18:08:52 ela Exp $
+ * $Id: util.h,v 1.23 2000/10/08 21:14:03 ela Exp $
  *
  */
 
@@ -41,8 +41,12 @@
 
 /* declare crypt interface if necessary */
 #if ENABLE_CRYPT && HAVE_CRYPT
+#if __CRYPT_IMPORT__
+#include <crypt.h>
+#else
 extern char *crypt (const char *key, const char *salt);
 extern char *getpass (const char *prompt);
+#endif /* __CRYPT_IMPORT__ */
 #endif
 
 typedef unsigned char byte;

@@ -217,6 +217,10 @@ SOURCE=".\src\nut-server\nut-hostlist.c"
 # End Source File
 # Begin Source File
 
+SOURCE=".\src\nut-server\nut-request.c"
+# End Source File
+# Begin Source File
+
 SOURCE=".\src\nut-server\nut-route.c"
 # End Source File
 # Begin Source File

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.10 2000/10/05 09:52:20 ela Exp $
+ * $Id: server-loop.c,v 1.11 2000/10/08 21:14:03 ela Exp $
  *
  */
 
@@ -590,12 +590,23 @@ server_check_sockets_MinGW (void)
 	      sock_schedule_for_shutdown (sock);
 	}
 
-      /* Handle receiving pipes. Is non-blocking, but cannot be select()ed. */
-      if (sock->flags & SOCK_FLAG_RECV_PIPE)
+      /* Handle pipes. */
+      if (sock->flags & SOCK_FLAG_PIPE)
 	{
-	  if (sock->read_socket)
-	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
+	  /* Do not handle listening pipes here. */
+	  if (sock->flags & SOCK_FLAG_LISTENING)
+	    continue;
+
+	  /* 
+	   * Handle receiving pipes. Is non-blocking, but cannot 
+	   * be select()ed. 
+	   */
+	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
+	    {
+	      if (sock->read_socket)
+		if (sock->read_socket (sock))
+		  sock_schedule_for_shutdown (sock);
+	    }
 	}
 
       if (sock->flags & SOCK_FLAG_SOCK)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.14 2000/10/05 09:52:20 ela Exp $
+ * $Id: pipe-socket.c,v 1.15 2000/10/08 21:14:03 ela Exp $
  *
  */
 
@@ -190,6 +190,10 @@ pipe_read (socket_t sock)
       log_printf (LOG_ERROR, "pipe: PeekNamedPipe: %s\n", SYS_ERROR);
       return -1;
     }
+
+  /* leave this function if there is no data within the pipe */
+  if (num_read <= 0)
+    return 0;
 
   /* adjust number of bytes to read */
   if (do_read > num_read) do_read = num_read;
