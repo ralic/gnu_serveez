@@ -1,3 +1,18 @@
+2000-11-26  [ Ela ]  <ela@lkcc.org>
+
+	* server.h (PROTO_RAW): Added some definitions for latter support
+	of raw sockets which will be able to sent the ip header in front
+	of each packet. This is an extension to icmp sockets.
+
+	* server-socket.c: Including <ws2tcpip.h> for the IP_HDRINCL
+	on Win32 systems.
+	(server_create): When PROTO_RAW is set an additional ip header 
+	will be sent through raw sockets.
+
+	* raw-socket.c (raw_check_ip_header): Added the raw-socket.*
+	files to the CVS. There we find additional routines for raw
+	sockets.
+
 2000-11-25  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-cgi.c (http_cgi_exec): Enhanced the 

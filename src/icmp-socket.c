@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.15 2000/11/25 20:36:34 ela Exp $
+ * $Id: icmp-socket.c,v 1.16 2000/11/26 12:22:10 ela Exp $
  *
  */
 
@@ -55,6 +55,7 @@
 #include "server.h"
 #include "server-core.h"
 #include "icmp-socket.h"
+#include "raw-socket.h"
 
 #ifdef __MINGW32__
 
@@ -136,78 +137,6 @@ icmp_cleanup (void)
 static char icmp_buffer[IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_MSG_SIZE];
 
 /*
- * Get IP header from plain data.
- */
-ip_header_t *
-icmp_get_ip_header (byte *data)
-{
-  static ip_header_t hdr;
-  unsigned short uint16;
-  unsigned int uint32;
-
-  hdr.version_length = *data++;
-  hdr.tos = *data++;
-  memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.length = ntohs (uint16);
-  data += SIZEOF_UINT16;
-  memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.ident = ntohs (uint16);
-  data += SIZEOF_UINT16;
-  memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.frag_offset = ntohs (uint16);
-  data += SIZEOF_UINT16;
-  hdr.ttl = *data++;
-  hdr.protocol = *data++;
-  memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.checksum = ntohs (uint16);
-  data += SIZEOF_UINT16;
-  memcpy (&uint32, data, SIZEOF_UINT32);
-  hdr.src = uint32;
-  data += SIZEOF_UINT32;
-  memcpy (&uint32, data, SIZEOF_UINT32);
-  hdr.dst = uint32;
-
-  return &hdr;
-}
-
-/*
- * Put IP header to plain data. This is currently not in use but can be
- * used when creating raw sockets with setsockopt (SOL_IP, IP_HDRINCL).
- */
-byte *
-icmp_put_ip_header (ip_header_t *hdr)
-{
-  static byte buffer[IP_HEADER_SIZE];
-  byte *data = buffer;
-  unsigned short uint16;
-  unsigned int uint32;
-
-  *data++ = hdr->version_length;
-  *data++ = hdr->tos;
-  uint16 = htons (hdr->length);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  uint16 = htons (hdr->ident);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  uint16 = htons (hdr->frag_offset);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  *data++ = hdr->ttl;
-  *data++ = hdr->protocol;
-  uint16 = htons (hdr->checksum);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  uint32 = hdr->src;
-  memcpy (data, &uint32, SIZEOF_UINT32);
-  data += SIZEOF_UINT32;
-  uint32 = hdr->dst;
-  memcpy (data, &uint32, SIZEOF_UINT32);
-
-  return buffer;
-}
-
-/*
  * Get ICMP header from plain data.
  */
 static icmp_header_t *
@@ -261,127 +190,6 @@ icmp_put_header (icmp_header_t *hdr)
 }
 
 /*
- * Recalculate IP header checksum.
- */
-static unsigned short
-icmp_ip_checksum (byte *data, int len)
-{
-  register unsigned checksum = 0;
-
-  /* 
-   * Calculate the 16 bit one's complement of the one's complement sum 
-   * of all 16 bit words in the header. For computing the checksum, 
-   * the checksum field should be zero. This checksum may be replaced in 
-   * the future.
-   */
-  while (len > 1)
-    {
-      /* This is the inner loop */
-      checksum += *data | (*(data + 1) << 8);
-      len -= 2;
-      data += 2;
-    }
-
-  /* Add left-over byte, if any */
-  if (len > 0) checksum += *data;
-
-  /* Fold 32-bit checksum to 16 bits */
-  while (checksum >> 16)
-    checksum = (checksum & 0xffff) + (checksum >> 16);
-  checksum = ~checksum;
-
-  return htons ((unsigned short) checksum);
-}
-
-/*
- * Checking the IP header only. Return the length of the header if it 
- * is valid, otherwise -1.
- */
-static int
-icmp_check_ip_header (byte *data, int len)
-{
-  ip_header_t *ip_header;
-
-  /* get the IP header and reject the checksum within plain data */
-  ip_header = icmp_get_ip_header (data);
-  data[IP_CHECKSUM_OFS] = 0;
-  data[IP_CHECKSUM_OFS + 1] = 0;
-
-#if 0
-  printf ("ip version      : %d\n"
-	  "header length   : %d byte\n"
-	  "type of service : %d\n"
-	  "total length    : %d byte\n"
-	  "ident           : 0x%04X\n"
-	  "frag. offset    : %d\n"
-	  "ttl             : %d\n"
-	  "protocol        : 0x%02X\n"
-	  "checksum        : 0x%04X\n"
-	  "source          : %s\n",
-	  IP_HDR_VERSION (ip_header), IP_HDR_LENGTH (ip_header),
-	  ip_header->tos, ip_header->length, ip_header->ident,
-	  ip_header->frag_offset, ip_header->ttl, ip_header->protocol,
-	  ip_header->checksum, util_inet_ntoa (ip_header->src));
-  printf ("destination     : %s\n", util_inet_ntoa (ip_header->dst));
-#endif
-
-  /* Is this IPv4 version ? */
-  if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: cannot handle IPv%d\n", 
-		  IP_HDR_VERSION (ip_header));
-#endif
-      return -1;
-    }
-
-  /* Check Internet Header Length. */
-  if (IP_HDR_LENGTH (ip_header) > len)
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: invalid IHL (%d > %d)\n",
-		  IP_HDR_LENGTH (ip_header), len);
-#endif
-      return -1;
-    }
-
-  /* Check total length. */
-  if (ip_header->length < len)
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: invalid total length (%d < %d)\n",
-		  ip_header->length, len);
-#endif
-      return -1;
-    }
-
-  /* Check protocol type. */
-  if (ip_header->protocol != ICMP_PROTOCOL)
-    {
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: invalid protocol 0x%02X\n",
-		  ip_header->protocol);
-#endif
-      return -1;
-    }
-
-  /* Recalculate and check the header checksum. */
-  if (icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
-      ip_header->checksum)
-    {
-      /* FIXME: Why are header checksum invalid on big packets ? */
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, 
-		  "icmp: invalid ip header checksum (%04X != %04X)\n",
-		  icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
-		  ip_header->checksum);
-#endif
-    }
-
-  return IP_HDR_LENGTH (ip_header);
-}
-
-/*
  * Parse and check IP and ICMP header. Return the amount of leading bytes 
  * to be truncated. Otherwise -1.
  */
@@ -393,7 +201,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
   icmp_header_t *header;
 
   /* First check the IP header. */
-  if ((length = icmp_check_ip_header (p, len)) == -1)
+  if ((length = raw_check_ip_header (p, len)) == -1)
     return -1;
 
   /* Get the actual ICMP header. */
@@ -405,7 +213,7 @@ icmp_check_packet (socket_t sock, byte *data, int len)
   if (header->type == ICMP_SERVEEZ)
     {
       /* validate the ICMP data checksum */
-      if (header->checksum != icmp_ip_checksum (p, len))
+      if (header->checksum != raw_ip_checksum (p, len))
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "icmp: invalid data checksum\n");
@@ -655,7 +463,7 @@ icmp_write (socket_t sock, char *buf, int length)
 
       hdr.type = ICMP_SERVEEZ;
       hdr.code = ICMP_SERVEEZ_CLOSE;
-      hdr.checksum = icmp_ip_checksum ((byte *) buf, size);
+      hdr.checksum = raw_ip_checksum ((byte *) buf, size);
       hdr.ident = (unsigned short) (getpid () + sock->id);
       hdr.sequence = sock->send_seq;
       hdr.port = sock->remote_port;
@@ -688,7 +496,7 @@ icmp_write (socket_t sock, char *buf, int length)
       hdr.type = ICMP_SERVEEZ;
       hdr.code = (byte) (sock->send_seq++ ? 
 			 ICMP_SERVEEZ_DATA : ICMP_SERVEEZ_CONNECT);
-      hdr.checksum = icmp_ip_checksum ((byte *) buf, size);
+      hdr.checksum = raw_ip_checksum ((byte *) buf, size);
       hdr.ident = (unsigned short) (getpid () + sock->id);
       hdr.sequence = sock->send_seq;
       hdr.port = sock->remote_port;

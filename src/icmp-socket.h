@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.11 2000/11/25 20:36:34 ela Exp $
+ * $Id: icmp-socket.h,v 1.12 2000/11/26 12:22:10 ela Exp $
  *
  */
 
@@ -129,15 +129,9 @@ void icmp_cleanup (void);
 #endif /* __MINGW32__ */
 
 /* local definitions */
-#define IP_VERSION_4     4
-#define ICMP_PROTOCOL    1
-#define IP_CHECKSUM_OFS  10
-#define IP_HEADER_SIZE   20
 #define ICMP_HEADER_SIZE 10
 #define ICMP_MSG_SIZE    (64 * 1024)
 #define ICMP_BUF_SIZE    (4 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
-#define SIZEOF_UINT16    2
-#define SIZEOF_UINT32    4
 
 /* general definitions */
 #define ICMP_ECHOREPLY          0       /* Echo Reply                   */
@@ -161,31 +155,6 @@ void icmp_cleanup (void);
 #define ICMP_SERVEEZ_ACK     2
 #define ICMP_SERVEEZ_CLOSE   3
 #define ICMP_SERVEEZ_CONNECT 4
-
-/* version and length are 4 bit values in the ip header */
-#define IP_HDR_VERSION(hdr) ((hdr->version_length >> 4) & 0x0f)
-#define IP_HDR_LENGTH(hdr)  ((hdr->version_length & 0x0f) << 2)
-
-/* ip header flags (part of frag_offset) */
-#define IP_HDR_FLAGS(hdr) ((hdr->frag_offset) & 0xE000)
-#define IP_FLAG_DF 0x4000 /* Don't Fragment This Datagram (DF). */
-#define IP_FLAG_MF 0x2000 /* More Fragments Flag (MF). */
-
-/* IP header structure. */
-typedef struct
-{
-  byte version_length;        /* header length (in DWORDs) and ip version */
-  byte tos;                   /* type of service = 0 */
-  unsigned short length;      /* total ip packet length */
-  unsigned short ident;       /* ip identifier */
-  unsigned short frag_offset; /* fragment offset (in 8 bytes) and flags */
-  byte ttl;                   /* time to live */
-  byte protocol;              /* ip protocol */
-  unsigned short checksum;    /* ip header checksum */
-  unsigned long src;          /* source address */
-  unsigned long dst;          /* destination address */
-}
-ip_header_t;
 
 /* ICMP header structure. */
 typedef struct

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.37 2000/11/23 19:41:57 ela Exp $
+ * $Id: server-socket.c,v 1.38 2000/11/26 12:22:10 ela Exp $
  *
  */
 
@@ -37,7 +37,8 @@
 #include <sys/stat.h>
 
 #ifdef __MINGW32__
-# include <winsock.h>
+# include <winsock2.h>
+# include <ws2tcpip.h>
 #endif
 
 #ifndef __MINGW32__
@@ -148,6 +149,10 @@ server_create (portcfg_t *cfg)
 	  stype = SOCK_RAW;
 	  ptype = IPPROTO_ICMP;
 	  break;
+	case PROTO_RAW:
+	  stype = SOCK_RAW;
+	  ptype = IPPROTO_RAW;
+	  break;
 	default:
 	  stype = SOCK_STREAM;
 	  ptype = IPPROTO_IP;
@@ -159,6 +164,22 @@ server_create (portcfg_t *cfg)
 	{
 	  log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
 	  return NULL;
+	}
+
+      /*
+       * Set this ip option if we are using raw sockets.
+       */
+      if (cfg->proto & PROTO_RAW)
+	{
+	  optval = 1;
+	  if(setsockopt (server_socket, SOL_IP, IP_HDRINCL,
+			 (void *) &optval, sizeof (optval)) < 0)
+	    {
+	      log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	      if (closesocket (server_socket) < 0)
+		log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	      return NULL;
+	    }
 	}
 
       /* 

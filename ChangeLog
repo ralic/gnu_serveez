@@ -1,3 +1,9 @@
+2000-11-26  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.dsp: From now on we are using the ws2_32.dll as socket
+	implementation. This is windoze's version 2. Maybe the support of
+	raw sockets is better like this...
+
 2000-10-31  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Replaced the AC_C_BIGENDIAN macro to keep the

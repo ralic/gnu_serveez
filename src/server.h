@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.12 2000/11/03 01:25:06 ela Exp $
+ * $Id: server.h,v 1.13 2000/11/26 12:22:10 ela Exp $
  *
  */
 
@@ -39,10 +39,12 @@
 
 #include "socket.h"
 
-#define PROTO_TCP   0x00000001
-#define PROTO_UDP   0x00000002
-#define PROTO_PIPE  0x00000004
-#define PROTO_ICMP  0x00000008
+/* protocol definitions */
+#define PROTO_TCP   0x00000001 /* tcp  - bidirectional, reliable */
+#define PROTO_UDP   0x00000002 /* udp  - multidirectional, unreliable */
+#define PROTO_PIPE  0x00000004 /* pipe - unidirectional, reliable */
+#define PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
+#define PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
 
 /*
  * Each server can have a an array of name-value-pairs specific for it.

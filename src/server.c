@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.33 2000/10/28 13:03:11 ela Exp $
+ * $Id: server.c,v 1.34 2000/11/26 12:22:10 ela Exp $
  *
  */
 
@@ -354,6 +354,7 @@ set_hash (char *cfgfile, char *var, char *key, hash_t ***location,
 #define PORTCFG_TCP     "tcp"
 #define PORTCFG_UDP     "udp"
 #define PORTCFG_ICMP    "icmp"
+#define PORTCFG_RAW     "raw"
 #define PORTCFG_PIPE    "pipe"
 #define PORTCFG_IP      "local-ip"
 #define PORTCFG_NOIP    "*"
