@@ -1,7 +1,7 @@
 \input texinfo
 @c %**start of header
 @setfilename serveez.info
-@settitle Serveez Documention
+@settitle Serveez Documentation
 @c %** end of header
 
 @set VERSION 0.0.19
@@ -77,7 +77,7 @@ Display this help and exit.
 Display version information and exit.
 @item -i, --iflist
 List local network interfaces and exit.
-@item -f, --file=FILENAME
+@item -f, --cfg-file=FILENAME
 File to use as configuration file (serveez.cfg).
 @item -v, --verbose=LEVEL
 Set level of logging verbosity.
@@ -87,6 +87,8 @@ Use FILENAME for logging (default is stderr).
 Set the password for control connections.
 @item -m, --max-sockets=COUNT
 Set the maximum number of socket descriptors.
+@item  -d, --daemon
+Start as daemon in background.
 @end table
 
 @section Configuring Serveez
@@ -503,12 +505,12 @@ Co-Servers implemented. These are the dns, reverse dns and ident Co-Server.
 If you want to use these you have to @code{#include "coserver/coserver.h"}. 
 Secondly you need to implement the callback which gets called when a 
 Co-Server completed its task. This routine must be a 
-@code{coserver_handle_result_t}. The first
-argument is the argument you specified yourself invoking the request and the
-second argument is the actual Co-Server result. This might be NULL if the
-request could not be fulfilled. To invoke a Co-Server request you use one
-of the coserver_* macros. The foo server uses the reverse dns Co-Server to
-identify the host name of the remote client.
+@code{coserver_handle_result_t}. The first argument is the actual Co-Server 
+result which might be NULL if the request could not be fulfilled and the 
+later two arguments are the arguments you specified yourself invoking the 
+request. To invoke a Co-Server request you use one of the coserver_* macros. 
+The foo server uses the reverse dns Co-Server to identify the host name 
+of the remote client.
 
 @node Existing Servers,  , Writing Servers, Server
 @section Existing Servers
@@ -1423,6 +1425,60 @@ can do with these pipes. On Win32 systems this @samp{network device} is
 valid on remote machines. That is on Unices possible if the created 
 filesystem node is located on a NFS. Named pipes on Unices are 
 unidirectional, on Win32 these are bidirectional and instanciatable.
+
+@item Miscellaneous
+To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
+and #include "windows.h" at the top of your source file(s). You'll also
+want to add -lwsock32 to the compiler's command line so you link against 
+libwsock32.a. 
+
+How do I make the console window go away ?
+The default during compilation is to produce a console application. If you 
+are writing a GUI program, you should either compile with -mwindows as
+explained above, or add the string "-Wl,--subsystem,windows" to the GCC 
+commandline. 
+
+What preprocessor do I need to know about ?
+We use _WIN32 to signify access to the Win32 API and __CYGWIN__ for access 
+to the Cygwin environment provided by the dll. 
+We chose _WIN32 because this is what Microsoft defines in VC++ and we 
+thought it would be a good idea for compatibility with VC++ code to
+follow their example. We use _MFC_VER to indicate code that should be 
+compiled with VC++. 
+
+Why we do not use pipes for Co-Servers ?
+Windows differentiates between sockets and filedescriptors, that's why 
+you can not select() filedescriptors. Please close() the pipe's 
+descriptors via CloseHandle() and not closesocket(), because this will fail.
+
+The C run-time libraries have a preset limit for the number of files that
+can be open at any one time. The limit for applications that link with the
+single-thread static library (LIBC.LIB) is 64 file handles or 20 file
+streams. Applications that link with either the static or dynamic
+multithread library (LIBCMT.LIB or MSVCRT.LIB and MSVCRT.DLL), have a limit
+of 256 file handles or 40 file streams. Attempting to open more than the
+maximum number of file handles or file streams causes program failure.
+
+I know MinGW uses the msvcrt.dll and hence should have the above limitation
+but what about cygwin which uses glibc ? Just curious ... i dont think there
+is any operating system limitation may be some TLS issue from Microsoft or
+some other stuff like that...
+
+As far as I know, one of the big limitations of winsock is that
+the SOCKET type is *not* equivalent to file descriptor unlike that
+using BSD or POSIX sockets. That's one of the major reasons for using
+a separate data type, SOCKET, as opposed to int, typical type of a
+file descriptor. This implies that you cannot mix SOCKETs and stdio,
+sorry. This is the case when you use -mno-cygwin.
+
+Actually they are regular file handles, just like any other. There is a 
+bug in all 9x/kernel32 libc/msv/crtdll interface implementations 
+GetFileType() returns TYPE_UNKNOWN for handles to sockets. Since this 
+is AFAIK the only unknown type there is, you know you have a socket handle.
+There is a fix in the more recent perl distrib's that you can use as a 
+general solution. -loldnames -lperlcrt -lmsvcrt will get you TYPE_CHAR
+for socket handles. That are put into an fd with _open_osfhandle()
+also fixes several other nasty bugs in the MS libcXXX.
 @end table
 
 If if you want to compile Serveez with the native M$ Visual C++ compiler

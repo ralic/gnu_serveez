@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.11 2000/09/08 07:45:17 ela Exp $
+ * $Id: irc-event-1.c,v 1.12 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -91,7 +91,11 @@ irc_pass_callback (socket_t sock,
   /* check it ! */
   if (cfg->pass)
     {
+#if ENABLE_CRYPT && HAVE_CRYPT
+      if (strcmp (crypt (request->para[0], cfg->pass), cfg->pass))
+#else
       if (strcmp (request->para[0], cfg->pass))
+#endif
 	{
 	  irc_delete_client (cfg, client);
 	  return -1;
@@ -236,27 +240,34 @@ irc_nick_callback (socket_t sock,
       log_printf (LOG_DEBUG, "irc: %s changed nick to %s\n", 
 		  client->nick, nick);
 #endif
-      /* go through all channels this client is in */
-      for (n = 0; n < client->channels; n++)
+      /* is the client fully registered ? */
+      if (client->registered)
 	{
-	  /* propagate this to all clients in channel */
-	  channel = client->channel[n];
-	  for (i = 0; i < channel->clients; i++)
+	  /* go through all channels this client is in */
+	  for (n = 0; n < client->channels; n++)
 	    {
-	      cl = channel->client[i];
-	      xsock = cl->sock;
-	      irc_printf (xsock, ":%s!%s@%s NICK :%s\n",
-			  client->nick, client->user, client->host, nick);
+	      /* propagate this to all clients in channel */
+	      channel = client->channel[n];
+	      for (i = 0; i < channel->clients; i++)
+		{
+		  cl = channel->client[i];
+		  xsock = cl->sock;
+		  irc_printf (xsock, ":%s!%s@%s NICK :%s\n",
+			      client->nick, client->user, client->host, nick);
+		}
 	    }
+	  /* replace nick in client hash */
+	  if (hash_delete (cfg->clients, client->nick) != client)
+	    {
+	      log_printf (LOG_ERROR, "irc: client hash inconsistence\n");
+	    }
+	  hash_put (cfg->clients, nick, client);
 	}
-      irc_delete_client (cfg, client);
+
       xfree (client->nick);
-      client->nick = xstrdup (nick);
-      irc_add_client (cfg, client);
-      return 0;
     }
 
-  /* this is the first nick you specified ! send init block */
+  /* this is the first nick you specified ! */
   client->nick = xstrdup (nick);
   client->flag |= UMODE_NICK;
 

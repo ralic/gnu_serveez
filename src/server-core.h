@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.8 2000/09/20 08:29:14 ela Exp $
+ * $Id: server-core.h,v 1.9 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -33,6 +33,12 @@
 
 #include <time.h>
 #include "socket.h"
+
+/* 
+ * When SERVER_NUKE_HAPPENED is set to a non-zero value, the server
+ * will terminate its main loop.
+ */
+extern int server_nuke_happened;
 
 /*
  * SERVER_CHILD_DIED is set to a non-zero value whenever the server

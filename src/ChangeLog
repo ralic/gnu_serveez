@@ -1,3 +1,27 @@
+2000-09-26  [ Ela ]  <ela@lkcc.org>
+
+	* windoze.c: Moved some functions to this file. That is
+	because there is now a lot of them in different source files.
+	Here we want to place all kind of porting stuff for Win32.
+	(windoze_set_taskbar): When the application gets invoked as
+	daemon under Win32 it is put into the taskbar.
+
+2000-09-24  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.c (main): Added new command line option `--daemon'
+	which tells the program to fork() into background and close
+	stdin/stdout/stderr.
+
+	* irc-server/irc-event-5.c (irc_who_callback): Output of
+	/WHO hash been fixed. Both the `irc_regex_channel' and
+	`irc_regex_nick' were bogus.
+
+	* irc-server/irc-event-1.c (irc_nick_callback): Fixed client
+	hash inconsitency.
+
+	* irc-server/irc-proto.c (irc_init): Both the client and
+	channel hash are case insensitive now.
+
 2000-09-22  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.c (main): Fixed arguments for getopt() and

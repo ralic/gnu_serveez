@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.16 2000/09/22 18:39:52 ela Exp $
+ * $Id: serveez.c,v 1.17 2000/09/26 18:08:51 ela Exp $
  *
  */
 
@@ -28,10 +28,15 @@
 # include <config.h>
 #endif 
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <errno.h>
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -48,6 +53,7 @@
 #include "coserver/coserver.h"
 #include "server.h"
 #include "interface.h"
+#include "windoze.h"
 
 /*
  * The configurations structure of the Serveez. Defined
@@ -67,6 +73,9 @@ init_config (void)
   serveez_config.build_string = __serveez_timestamp;
 }
 
+/*
+ * Print program version.
+ */
 static void 
 version (void)
 {
@@ -75,6 +84,9 @@ version (void)
 	   serveez_config.version_string);
 }
 
+/*
+ * Display program command line options.
+ */
 static void 
 usage (void)
 {
@@ -84,20 +96,22 @@ usage (void)
  "  -h, --help               display this help and exit\n"
  "  -V, --version            display version information and exit\n"
  "  -i, --iflist             list local network interfaces and exit\n"
- "  -f, --file=FILENAME      file to use as configuration file (serveez.cfg)\n"
+ "  -f, --cfg-file=FILENAME  file to use as configuration file (serveez.cfg)\n"
  "  -v, --verbose=LEVEL      set level of verbosity\n"
  "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
  "  -P, --password=STRING    set the password for control connections\n"
  "  -m, --max-sockets=COUNT  set the max. number of socket descriptors\n"
+ "  -d, --daemon             start as daemon in background\n"
 #else /* not HAVE_GETOPT_LONG */
  "  -h           display this help and exit\n"
  "  -V           display version information and exit\n"
  "  -i           list local network interfaces and exit\n"
- "  -f FILENAME  file to use as configuration file [serveez.cfg\n"
+ "  -f FILENAME  file to use as configuration file (serveez.cfg)\n"
  "  -v LEVEL     set level of verbosity\n"
  "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
  "  -P STRING    set the password for control connections\n"
  "  -m COUNT     set the max. number of socket descriptors\n"
+ "  -d           start as daemon in background\n"
 #endif /* not HAVE_GETOPT_LONG */
  "\n"
  "See README for reporting bugs.\n");
@@ -109,27 +123,32 @@ static struct option serveez_options[] =
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'V'},
   {"iflist", no_argument, NULL, 'i'},
+  {"daemon", no_argument, NULL, 'd'},
   {"verbose", required_argument, NULL, 'v'},
-  {"file", required_argument, NULL, 'f'},
+  {"cfg-file", required_argument, NULL, 'f'},
   {"log-file", required_argument, NULL, 'l'},
   {"password", required_argument, NULL, 'P'},
   {"max-sockets", required_argument, NULL, 'm'},
   {NULL, 0, NULL, 0}
 };
 #endif /* HAVE_GETOPT_LONG */
-#define SERVEEZ_OPTIONS "l:hViv:f:P:m:"
+#define SERVEEZ_OPTIONS "l:hViv:f:P:m:d"
 
+/*
+ * Main entry point.
+ */
 int
 main (int argc, char * argv[])
 {
-  char *log_file_name = NULL;
-  char *cfg_file_name = "serveez.cfg";
+  char *log_file = NULL;
+  char *cfg_file = "serveez.cfg";
 
   int cli_verbosity = -1;
-  int cli_max_sockets = -1;
+  int cli_sockets = -1;
   char *cli_pass = NULL;
+  int cli_daemon = 0;
 
-  FILE *log_file = NULL;
+  FILE *log_handle = NULL;
 
   int arg;
 #if HAVE_GETOPT_LONG
@@ -164,7 +183,7 @@ main (int argc, char * argv[])
 	  break;
 
 	case 'f':
-	  cfg_file_name = optarg;
+	  cfg_file = optarg;
 	  break;
 
 	case 'v':
@@ -179,19 +198,23 @@ main (int argc, char * argv[])
 	  break;
 
 	case 'l':
-	  log_file_name = optarg;
+	  log_file = optarg;
 	  break;
 
 	case 'P':
-	  if (optarg)
+	  if (optarg && strlen (optarg) >= 2)
 	    {
-	      cli_pass = xstrdup (optarg);
+#if ENABLE_CRYPT && HAVE_CRYPT
+	      cli_pass = xpstrdup (crypt (optarg, optarg));
+#else
+	      cli_pass = xpstrdup (optarg);
+#endif
 	    }
 	  break;
 
 	case 'm':
 	  if (optarg)
-	    cli_max_sockets = atoi (optarg);
+	    cli_sockets = atoi (optarg);
 	  else
 	    {
 	      usage ();
@@ -204,6 +227,10 @@ main (int argc, char * argv[])
 	    }
 	  break;
 
+	case 'd':
+	  cli_daemon = 1;
+	  break;
+
 	default:
 	  usage ();
 	  exit (1);
@@ -211,15 +238,52 @@ main (int argc, char * argv[])
     }
 
   /*
-   * Send all log messages to LOG_FILE.
+   * Send all log messages to LOG_HANDLE.
    */
-  if (log_file_name && log_file_name[0])
-    log_file = fopen (log_file_name, "w");
+  if (log_file && log_file[0])
+    log_handle = fopen (log_file, "w");
   
-  if (!log_file)
-    log_file = stderr;
+  if (!log_handle)
+    log_handle = stderr;
 
-  set_log_file (log_file);
+  log_set_file (log_handle);
+
+  /*
+   * Start as daemon, not as foreground application.
+   */
+  if (cli_daemon)
+    {
+#ifndef __MINGW32__
+
+      int pid;
+
+      if ((pid = fork ()) == -1)
+	{
+	  log_printf (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+	  exit (0);
+	}
+      else if (pid != 0)
+	{
+	  exit (0);
+	}
+      if (log_handle == stderr)
+	log_set_file (NULL);
+      close (0);
+      close (1);
+      close (2);
+
+#else /* __MINGW32__ */
+
+      if (windoze_start_daemon (argv[0]) == -1)
+	exit (0);
+      if (log_handle == stderr)
+	log_set_file (NULL);
+      closehandle (GetStdHandle (STD_INPUT_HANDLE));
+      closehandle (GetStdHandle (STD_OUTPUT_HANDLE));
+      closehandle (GetStdHandle (STD_ERROR_HANDLE));
+
+#endif /* __MINGW32__ */
+    }
 
 #if 0
   /*
@@ -231,7 +295,7 @@ main (int argc, char * argv[])
   /*
    * Load configuration
    */
-  if (load_config (cfg_file_name, argc, argv) == -1)
+  if (load_config (cfg_file, argc, argv) == -1)
     {
       /* 
        * Something went wrong while configuration file loading, 
@@ -246,8 +310,8 @@ main (int argc, char * argv[])
   if (cli_verbosity != -1)
     verbosity = cli_verbosity;
 
-  if (cli_max_sockets != -1)
-    serveez_config.max_sockets = cli_max_sockets;
+  if (cli_sockets != -1)
+    serveez_config.max_sockets = cli_sockets;
 
   if (cli_pass)
     {
@@ -266,7 +330,7 @@ main (int argc, char * argv[])
   log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
   
-  log_printf (LOG_NOTICE, "%s\n", get_version ());
+  log_printf (LOG_NOTICE, "%s\n", util_version ());
   util_openfiles ();
   
   /* 
@@ -329,10 +393,17 @@ main (int argc, char * argv[])
 #endif
 #endif /* ENABLE_DEBUG */
 
+#ifdef __MINGW32__
+  if (cli_daemon)
+    {
+      windoze_stop_daemon ();
+    }
+#endif
+
   log_printf (LOG_NOTICE, "serveez terminating\n");
 
-  if (log_file != stderr)
-    fclose (log_file);
+  if (log_handle != stderr)
+    fclose (log_handle);
   
   return 0;
 }

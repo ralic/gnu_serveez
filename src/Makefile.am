@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.12 2000/09/17 17:00:57 ela Exp $
+# $Id: Makefile.am,v 1.13 2000/09/26 18:08:51 ela Exp $
 #
 
 #
@@ -80,7 +80,8 @@ serveez_SOURCES = \
 	server-loop.c server-loop.h \
 	pipe-socket.c pipe-socket.h \
 	interface.c interface.h \
-	udp-socket.c udp-socket.h
+	udp-socket.c udp-socket.h \
+	windoze.c windoze.h
 
 serveez_DEPENDENCIES = $(PROTOLIBS) $(SIZZLEDEP) \
 	serveez.cfg

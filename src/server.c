@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.23 2000/09/20 08:29:14 ela Exp $
+ * $Id: server.c,v 1.24 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -489,7 +489,7 @@ static int set_port (char *cfgfile, char *var, char *key,
       memset (newaddr, 0, sizeof (struct sockaddr_in));
 
       /* ...and the local ip address with "*" being any */
-      if (!strcmp (newport->localip, "*")) 
+      if (!strcmp (newport->localip, PORTCFG_NOIP)) 
 	{
 	  newaddr->sin_addr.s_addr = INADDR_ANY;
 	} 

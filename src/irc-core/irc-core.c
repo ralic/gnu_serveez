@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.14 2000/09/20 08:29:15 ela Exp $
+ * $Id: irc-core.c,v 1.15 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -59,13 +59,20 @@ irc_nslookup_done (char *host, int id, int version)
   irc_client_t *client;
   socket_t sock = sock_find (id, version);
 
-  if (host && sock)
+  if (sock)
     {
       client = sock->data;
       client->flag |= UMODE_DNS;
-      if (client->host) xfree (client->host);
-      client->host = xstrdup (host);
-      irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
+      if (host)
+	{
+	  if (client->host) xfree (client->host);
+	  client->host = xstrdup (host);
+	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
+	}
+      else
+	{
+	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_NOREPLY);
+	}
       return 0;
     }
   return -1;
@@ -83,13 +90,20 @@ irc_ident_done (char *user, int id, int version)
   irc_client_t *client;
   socket_t sock = sock_find (id, version);
 
-  if (user && sock)
+  if (sock)
     {
       client = sock->data;
       client->flag |= UMODE_IDENT;
-      if (client->user) xfree (client->user);
-      client->user = xstrdup (user);
-      irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
+      if (user)
+	{
+	  if (client->user) xfree (client->user);
+	  client->user = xstrdup (user);
+	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
+	}
+      else
+	{
+	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_NOREPLY);
+	}
       return 0;
     }
   return -1;

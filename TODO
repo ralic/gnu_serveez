@@ -41,7 +41,7 @@ unfixed) have a look at the file BUGS.
 	- Socket/protocol specific flags within socket structure.
 - Find out how the list of local interfaces works on different Unices.
 	- Do something sensible when a coserver fails its job.
-- IP address representation must be unsigned long everywhere.
+	- IP address representation must be unsigned long everywhere.
 	- Rechain socket list to avoid starving of chain end.
 	- Convert all protocols to new scheme.
 	- support local sizzle installations (sizzle-config)

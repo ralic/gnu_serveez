@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.4 2000/08/18 14:14:48 ela Exp $
+ * $Id: irc-config.c,v 1.5 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -349,7 +349,12 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
 	  /* test the given password for that I line */
 	  if (user->password)
 	    {
-	      if (strcmp (user->password, client->pass))
+#if ENABLE_CRYPT && HAVE_CRYPT
+	      if (strcmp (crypt (client->pass, user->password), 
+			  user->password))
+#else
+	      if (strcmp (client->pass, user->password))
+#endif
 		{
 		  irc_printf (client->sock, ":%s %03d %s " 
 			      ERR_PASSWDMISMATCH_TEXT "\n",
@@ -390,7 +395,11 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
       if (irc_string_regex (client->user, oper->user) &&
 	  irc_string_regex (client->host, oper->host) &&
 	  irc_string_regex (client->nick, oper->nick) &&
+#if ENABLE_CRYPT && HAVE_CRYPT
+	  !strcmp (crypt (client->pass, oper->password), oper->password))
+#else
 	  !strcmp (client->pass, oper->password))
+#endif
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "irc: valid operator: %s\n",

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.26 2000/09/17 17:00:58 ela Exp $
+ * $Id: util.c,v 1.27 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -62,6 +62,7 @@
 #include "alloc.h"
 #include "util.h"
 #include "serveez.h"
+#include "windoze.h"
 
 /* 
  * Level of server's verbosity:
@@ -84,8 +85,8 @@ char log_level[][16] =
 };
 
 /*
- * This is the file all log messages are written to.  Change it with a
- * call to set_log_file().  By default, all log messages are written
+ * This is the file all log messages are written to. Change it with a
+ * call to log_set_file().  By default, all log messages are written
  * to STDERR.
  */
 static FILE * log_file = NULL;
@@ -112,14 +113,15 @@ log_printf (int level, const char *format, ...)
   va_start (args, format);
   vfprintf (log_file, format, args);
   va_end (args);
+  fflush (log_file);
 }
 
 /*
  * Set the file stream FILE to the log file all messages are printed
- * to.
+ * to. Could also be stdout or stderr.
  */
 void 
-set_log_file (FILE * file)
+log_set_file (FILE * file)
 {
   log_file = file;
 }
@@ -230,9 +232,9 @@ util_tolower (char *str)
 int
 util_strcasecmp (const char *str1, const char *str2)
 {
-#if defined HAVE_STRCASECMP
+#if HAVE_STRCASECMP
   return strcasecmp (str1, str2);
-#elif defined HAVE_STRICMP
+#elif HAVE_STRICMP
   return stricmp (str1, str2);
 #else
   const char *p1 = str1;
@@ -258,9 +260,9 @@ util_strcasecmp (const char *str1, const char *str2)
 int
 util_strncasecmp (const char *str1, const char *str2, size_t n)
 {
-#if defined HAVE_STRNCASECMP
+#if HAVE_STRNCASECMP
   return strncasecmp (str1, str2, n);
-#elif defined HAVE_STRNICMP
+#elif HAVE_STRNICMP
   return strnicmp (str1, str2, n);
 #else
   const char *p1 = str1;
@@ -478,7 +480,7 @@ int os_version = 0;
  */
 
 char *
-get_version (void)
+util_version (void)
 {
   static char os[256] = ""; /* contains the os string */
 
@@ -627,131 +629,6 @@ util_atoi (char *str)
   return i;
 }
 
-#ifdef __MINGW32__
-
-/* definitions for Win95..WinME */
-#define MaxSocketKey       HKEY_LOCAL_MACHINE
-#define MaxSocketSubKey    "System\\CurrentControlSet\\Services\\VxD\\MSTCP"
-#define MaxSocketSubSubKey "MaxConnections"
-
-/*
- * Read and write an unsigned integer value from and to the 
- * Windows Registry Database.
- */
-unsigned
-get_registry_unsigned (HKEY key, char *subkey, char *subsubkey, unsigned def)
-{
-  unsigned value;
-  DWORD size, type;
-  HKEY reg;
-
-  if (RegOpenKeyEx (key, subkey, 0, KEY_QUERY_VALUE, &reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
-      return def;
-    }
-
-  size = sizeof (DWORD);
-  type = REG_DWORD;
-  if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
-		       (BYTE *) &value, &size) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
-      value = def;
-    }
-
-  if (RegCloseKey (reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
-    }
-  return value;
-}
-
-void
-set_registry_unsigned (HKEY key, char *subkey, char *subsubkey, unsigned value)
-{
-  DWORD size, type;
-  HKEY reg;
-
-  if (RegOpenKeyEx (key, subkey, 0, KEY_SET_VALUE, &reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
-      return;
-    }
-
-  size = sizeof (DWORD);
-  type = REG_DWORD;
-  if (RegSetValueEx (reg, subsubkey, 0, type, 
-		     (BYTE *) &value, size) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
-    }
-
-  if (RegCloseKey (reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
-    }
-}
-
-/*
- * Read and write a string value from and to the Windows Registry Database.
- */
-char *
-get_registry_string (HKEY key, char *subkey, char *subsubkey, char *def)
-{
-  static char value[128];
-  DWORD size, type;
-  HKEY reg;
-
-  if (RegOpenKeyEx (key, subkey, 0, KEY_QUERY_VALUE, &reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
-      return def;
-    }
-
-  size = sizeof (value);
-  type = REG_SZ;
-  if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
-		       (BYTE *) value, &size) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
-      strcpy (value, def);
-    }
-
-  if (RegCloseKey (reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
-    }
-  return value;
-}
-
-void
-set_registry_string (HKEY key, char *subkey, char *subsubkey, char *value)
-{
-  DWORD size, type;
-  HKEY reg;
-
-  if (RegOpenKeyEx (key, subkey, 0, KEY_SET_VALUE, &reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
-      return;
-    }
-
-  size = strlen (value);
-  type = REG_SZ;
-  if (RegSetValueEx (reg, subsubkey, 0, type, 
-		     (BYTE *) value, size) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
-    }
-
-  if (RegCloseKey (reg) != ERROR_SUCCESS)
-    {
-      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
-    }
-}
-#endif /* __MINGW32__ */
-
 /*
  * This routine checks for the current and maximum limit of open files
  * of the current process.
@@ -760,10 +637,25 @@ int
 util_openfiles (void)
 {
 #if HAVE_GETRLIMIT
+  struct rlimit rlim;
+#endif
+
+#if HAVE_GETDTABLESIZE
+  int openfiles;
+
+  if ((openfiles = getdtablesize ()) == -1)
+    {
+      log_printf (LOG_ERROR, "getdtablesize: %s\n", SYS_ERROR);
+      return -1;
+    }
+  log_printf (LOG_NOTICE, "file descriptor table size: %d\n", openfiles);
+#endif /* HAVE_GETDTABLESIZE */
+
+#if HAVE_GETRLIMIT
+
 # ifndef RLIMIT_NOFILE
 #  define RLIMIT_NOFILE RLIMIT_OFILE
 # endif
-  struct rlimit rlim;
 
   if (getrlimit (RLIMIT_NOFILE, &rlim) == -1)
     {
@@ -790,29 +682,21 @@ util_openfiles (void)
     }
 
 #elif defined (__MINGW32__) /* HAVE_GETRLIMIT */
-  /*
-   * Winsock-FAQ:
-   * On Win9x machines, there's quite-low limit imposed by the kernel: 
-   * 100 connections. You can increase this limit by editing the registry
-   * key HKLM\System\CurrentControlSet\Services\VxD\MSTCP\MaxConnections. 
-   * On Windows 95, the key is a DWORD; on Windows 98, it's a string. 
-   * I've seen some reports of instability when this value is increased 
-   * to more than a few times its default value.
-   */
+
   unsigned sockets = 100;
   
   if (os_version == Win95 || os_version == Win98 || os_version == WinME)
     {
       if (os_version == Win95)
-	sockets = get_registry_unsigned (MaxSocketKey, 
-					 MaxSocketSubKey, 
-					 MaxSocketSubSubKey, 
-					 sockets);
+	sockets = windoze_get_reg_unsigned (MaxSocketKey, 
+					    MaxSocketSubKey, 
+					    MaxSocketSubSubKey, 
+					    sockets);
       else
-	sockets = util_atoi (get_registry_string (MaxSocketKey, 
-						  MaxSocketSubKey, 
-						  MaxSocketSubSubKey, 
-						  util_itoa (sockets)));
+	sockets = util_atoi (windoze_get_reg_string (MaxSocketKey, 
+						     MaxSocketSubKey, 
+						     MaxSocketSubSubKey, 
+						     util_itoa (sockets)));
 	
       log_printf (LOG_NOTICE, "current open file limit: %u\n", 
 		  sockets);
@@ -822,15 +706,15 @@ util_openfiles (void)
 	  sockets = serveez_config.max_sockets;
 
 	  if (os_version == Win95)
-	    set_registry_unsigned (MaxSocketKey, 
-				   MaxSocketSubKey, 
-				   MaxSocketSubSubKey, 
-				   sockets);
+	    windoze_set_reg_unsigned (MaxSocketKey, 
+				      MaxSocketSubKey, 
+				      MaxSocketSubSubKey, 
+				      sockets);
 	  else
-	    set_registry_string (MaxSocketKey, 
-				 MaxSocketSubKey, 
-				 MaxSocketSubSubKey, 
-				 util_itoa (sockets));
+	    windoze_set_reg_string (MaxSocketKey, 
+				    MaxSocketSubKey, 
+				    MaxSocketSubSubKey, 
+				    util_itoa (sockets));
 
 	  log_printf (LOG_NOTICE, "open file limit set to: %u\n",
 		      sockets);

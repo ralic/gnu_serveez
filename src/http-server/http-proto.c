@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.36 2000/09/20 08:29:15 ela Exp $
+ * $Id: http-proto.c,v 1.37 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -338,6 +338,7 @@ http_cgi_died (socket_t sock)
 	  server_child_died = 0;
 	}
 #else /* __MINGW32__ */
+
       /*
        * Check if there died a process handle in Win32, this has to be
        * done regularly here because there is no SIGCHLD in Win32 !

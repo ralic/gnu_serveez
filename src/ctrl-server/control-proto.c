@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.27 2000/09/21 15:27:11 ela Exp $
+ * $Id: control-proto.c,v 1.28 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -516,7 +516,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	       "\r\n");
 
   /* display system and process information */
-  sock_printf (sock, "Os        : %s\r\n", get_version ());
+  sock_printf (sock, "Os        : %s\r\n", util_version ());
   sock_printf (sock, "Sys-Load  : %s\r\n", cpu_state.info);
   sock_printf (sock, "Proc-Load : %s\r\n", cpu_state.pinfo);
 

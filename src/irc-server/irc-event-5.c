@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.6 2000/07/21 21:19:31 ela Exp $
+ * $Id: irc-event-5.c,v 1.7 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -323,9 +323,6 @@ irc_who_callback (socket_t sock,
 	}
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHO_TEXT "\n",
 		  cfg->host, RPL_ENDOFWHO, client->nick, name);
-    }
-  if (channel)
-    {
       xfree (channel);
       return 0;
     }
@@ -341,9 +338,8 @@ irc_who_callback (socket_t sock,
 	      irc_client_info (sock, client, cl[i], xch);
 	    }
 	}
-      irc_printf (sock, ":%s %03d %s %s :%s\n",
-		  cfg->host, RPL_ENDOFWHO, client->nick,
-		  name, "End of /WHO list.");
+      irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHO_TEXT "\n",
+		  cfg->host, RPL_ENDOFWHO, client->nick, name);
       xfree (cl);
     }
 

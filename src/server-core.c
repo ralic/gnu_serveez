@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.24 2000/09/20 08:29:14 ela Exp $
+ * $Id: server-core.c,v 1.25 2000/09/26 18:08:51 ela Exp $
  *
  */
 
@@ -156,7 +156,7 @@ server_signal_handler (int sig)
     }
   else if (sig == SIGCHLD)
     {
-      server_child_died = wait(NULL);
+      server_child_died = wait (NULL);
       signal (SIGCHLD, server_signal_handler);
     }
   else

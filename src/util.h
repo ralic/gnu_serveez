@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.21 2000/09/20 08:29:14 ela Exp $
+ * $Id: util.h,v 1.22 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -87,8 +87,8 @@ void log_printf ();
 #else
 void log_printf (int level, const char *format, ...);
 #endif
+void log_set_file (FILE *file);
 
-void set_log_file (FILE *file);
 int util_hexdump (FILE *out, char *, int, char *, int, int);
 char *util_inet_ntoa (unsigned long ip);
 char *util_itoa (unsigned int);
@@ -98,6 +98,7 @@ int util_strncasecmp (const char *str1, const char *str2, size_t n);
 int util_openfiles (void);
 char *util_time (time_t t);
 char *util_tolower (char *str);
+char *util_version (void);
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) ((unsigned char)*p + \
@@ -127,80 +128,7 @@ char *util_tolower (char *str);
 # define SOCK_INPROGRESS EINPROGRESS
 #endif
 
-char *get_version (void);
-
 #ifdef __MINGW32__
-/*
- * Some words to Win32.
- *
- * To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
- * and #include "windows.h" at the top of your source file(s). You'll also
- * want to add -lwsock32 to the compiler's command line so you link against 
- * libwsock32.a. 
- *
- * How do I make the console window go away?
- * The default during compilation is to produce a console application. If you 
- * are writing a GUI program, you should either compile with -mwindows as
- * explained above, or add the string "-Wl,--subsystem,windows" to the GCC 
- * commandline. 
- *
- * How can I find out which dlls are needed by an executable?
- * objdump -p provides this information. 
- *
- * What preprocessor do I need to know about?
- * We use _WIN32 to signify access to the Win32 API and __CYGWIN__ for access 
- * to the Cygwin environment provided by the dll. 
- * We chose _WIN32 because this is what Microsoft defines in VC++ and we 
- * thought it would be a good idea for compatibility with VC++ code to
- * follow their example. We use _MFC_VER to indicate code that should be 
- * compiled with VC++. 
- */
-
-/*
- * Why we do not use pipes for coservers.
- *
- * Windows differentiates between sockets and filedescriptors,
- * that's why you can not select() filedescriptors.
- * Please close() the pipe's descriptors via _close() and not 
- * socketclose(), because this will fail.
- */
-
-/*
- * The C run-time libraries have a preset limit for the number of files that
- * can be open at any one time. The limit for applications that link with the
- * single-thread static library (LIBC.LIB) is 64 file handles or 20 file
- * streams. Applications that link with either the static or dynamic
- * multithread library (LIBCMT.LIB or MSVCRT.LIB and MSVCRT.DLL), have a limit
- * of 256 file handles or 40 file streams. Attempting to open more than the
- * maximum number of file handles or file streams causes program failure.
- *
- * i know mingw uses the msvcrt.dll and hence should have the above limitation
- * but what about cygwin which uses glibc? Just curious ... i dont think there
- * is any operating system limitation may be some TLS issue from Microsoft or
- * some other stuff like that..
- *
- * Ah, as far as I know, one of the big limitations of winsock is that
- * the SOCKET type is *not* equivalent to file descriptor unlike that
- * using BSD or POSIX sockets. That's one of the major reasons for using
- * a separate data type, SOCKET, as opposed to int, typical type of a
- * file descriptor. This implies that you cannot mix SOCKETs and stdio,
- * sorry. This is the case when you use -mno-cygwin.
- *
- * socket handles are NOT file handles only under win9x. Under WNT they ARE
- * file handles.
- *
- * Actually They are regular file handles, just like any other.
- * There is a bug in all 9x/kernel32 libc/msv/crtdll interface
- * implementations GetFileType() returns TYPE_UNKNOWN for handles to
- * sockets. Since this is AFAIK the only unknown type there is, you know you 
- * have a socket handle;-)
- * there is a fix in the more recent perl distrib's
- * that you can use as a general solution.
- * -loldnames -lperlcrt -lmsvcrt will get you TYPE_CHAR
- * for socket handles. that are put into an fd with _open_osfhandle()
- * also fixes several other nasty bugs in the MS libcXXX.
- *
- */
 
 char *GetErrorMessage (int);
 extern int last_errno;

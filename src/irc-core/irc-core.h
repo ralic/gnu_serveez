@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.6 2000/09/08 07:45:17 ela Exp $
+ * $Id: irc-core.h,v 1.7 2000/09/26 18:08:52 ela Exp $
  *
  */
 
@@ -82,10 +82,12 @@ irc_request_t;
 extern irc_request_t irc_request;  /* single IRC request */
 
 /* authentification strings */
-#define IRC_DNS_INIT   "*** Starting DNS lookup ..."
-#define IRC_DNS_DONE   "*** Successful DNS lookup (cached)."
-#define IRC_IDENT_INIT "*** Checking Ident ..."
-#define IRC_IDENT_DONE "*** Successful Identification."
+#define IRC_DNS_INIT      "*** Starting DNS lookup ..."
+#define IRC_DNS_DONE      "*** Successful DNS lookup (cached)."
+#define IRC_DNS_NOREPLY   "*** No DNS response."
+#define IRC_IDENT_INIT    "*** Checking Ident ..."
+#define IRC_IDENT_DONE    "*** Successful Identification."
+#define IRC_IDENT_NOREPLY "*** No Ident response."
 
 /* Some useful function for parsing masks. */
 int irc_string_equal (char *str1, char *str2);
