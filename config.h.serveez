@@ -160,6 +160,9 @@
 /* Define if you have the <ndir.h> header file.  */
 /* #undef HAVE_NDIR_H */
 
+/* Define if you have the <pthread.h> header file.  */
+/* #undef HAVE_PTHREAD_H */
+
 /* Define if you have the <pwd.h> header file.  */
 /* #undef HAVE_PWD_H */
 
@@ -343,6 +346,9 @@
 
 /* Define if you have a prefixed bz2 library (>= v1.0) */
 #define HAVE_BZ2LIB_PREFIX 1
+
+/* Define if you have a thread library. */
+#define HAVE_THREADS 1
 
 /* Define if Solaris provides the kstat library. */
 /* #undef HAVE_LIBKSTAT */

@@ -1,7 +1,7 @@
 -- 
 -- README-Win32
 -- 
--- Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+-- Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 -- 
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -81,7 +81,7 @@ is optional.  You just need to adjust the paths.
     $ set CC=cl -D__MINGW32__ -D_WIN32
     $ set LD=link
     $ sh configure --disable-debug --host=mingw32 --build=mingw32 \
-		   --with-guile=<directory>
+		   --with-thread-safety --with-guile=<directory>
 
 
 Requirements

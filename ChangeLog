@@ -1,3 +1,8 @@
+2003-01-09  Stefan Jahn  <stefan@lkcc.org>
+
+	* README-Win32, svzconfig.h.serveez, version.h.serveez,
+	config.h.serveez: Updated Windows files.
+
 2003-01-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: New option `--with-thread-safety'.  Enables
