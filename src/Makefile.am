@@ -25,7 +25,7 @@
 #
 
 EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
-	serveez.m4 serveez.scm serveez-config.in
+	serveez.m4 serveez.scm serveez-config.in serveez.ap
 
 #
 # Installation of the autoconf macro used to locate Serveez
@@ -74,7 +74,7 @@ INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)
 mkpassword_SOURCES = mkpassword.c
 
 CLEANFILES = *~ *.ro serveez.cfg
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = Makefile.in serveez.dsp
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h

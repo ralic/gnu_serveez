@@ -19,13 +19,13 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: autodsp,v 1.1 2001/11/24 00:08:50 ela Exp $
+# $Id: autodsp,v 1.2 2001/11/24 16:19:42 ela Exp $
 #
 
 use strict;
 
 my $VERSION = "1.0.0";
-my $PACKAGE = "Autodsp";
+my $PACKAGE = "autodsp";
 my $verbose = 0;
 my @input_files = `find . -name "*.ap" -type f`;
 
@@ -143,12 +143,13 @@ sub create_dsw {
 
     my ($infile, %variables) = @_;
     local (*OUT_FILE);
-    my ($f, $s, $orgfile, $p, $file);
-
+    my ($f, $s, $orgfile, $p, $file, $suffix);
+    
     # create output file
+    $suffix = ".dsw";
     $file = $infile;
     $orgfile = $file;
-    $file =~ s/^(.*)\.ap$/$1\.in/;
+    $file =~ s/^(.*)\.ap$/$1$suffix/;
     open (OUT_FILE, ">".$file) || 
 	die "autodsp: couldn't create \`$file': $!\n";
     print "autodsp: creating $file\n" if $verbose;
@@ -159,7 +160,7 @@ sub create_dsw {
 	"Microsoft Developer Studio Workspace File, " .
 	"Format Version 5.00\r\n";
 
-    # print Autodsp header
+    # print autodsp header
     $orgfile = `basename $orgfile`; chop $orgfile;
     $file = `basename $file`; chop $file;
     print OUT_FILE
@@ -211,7 +212,7 @@ sub create_dsp {
 
     my ($infile, %variables) = @_;
     local (*OUT_FILE);
-    my ($s, $type, %types, $orgfile, $file);
+    my ($s, $type, %types, $orgfile, $file, $suffix);
 
     # types of targets
     %types = (
@@ -220,25 +221,26 @@ sub create_dsp {
 	      );
 
     # create output file
+    $suffix = ".dsp";
     $file = $infile;
     $orgfile = $file;
-    $file =~ s/^(.*)\.ap$/$1\.in/;
+    $file =~ s/^(.*)\.ap$/$1$suffix/;
     open (OUT_FILE, ">".$file) || 
 	die "autodsp: couldn't create \`$file': $!\n";
     print "autodsp: creating $file\n" if $verbose;
 
-    # check OWNER and TARGET; then print file header
+    # check OWNER and NAME; then print file header
     die "autodsp: No OWNER specified\n" unless defined $variables{'OWNER'};
-    die "autodsp: No TARGET specified\n" unless defined $variables{'TARGET'};
+    die "autodsp: No NAME specified\n" unless defined $variables{'NAME'};
     print OUT_FILE 
 	"# Microsoft Developer Studio Project File - Name=\"" . 
-	$variables{'TARGET'} . 
+	$variables{'NAME'} . 
 	"\" - Package Owner=" . $variables{'OWNER'} . "\r\n";
     print OUT_FILE
 	"# Microsoft Developer Studio Generated Build File, " .
 	"Format Version 5.00\r\n";
 
-    # print Autodsp header
+    # print autodsp header
     $orgfile = `basename $orgfile`; chop $orgfile;
     $file = `basename $file`; chop $file;
     print OUT_FILE
@@ -260,10 +262,10 @@ sub create_dsp {
     # these !MESSAGE's are necessary
     print OUT_FILE "!MESSAGE There are 2 configurations:\r\n";
     print OUT_FILE
-	"!MESSAGE \"" . $variables{'TARGET'} . " - Win32 Release\" " .
+	"!MESSAGE \"" . $variables{'NAME'} . " - Win32 Release\" " .
 	"(based on " . $types{$type} . ")\r\n";
     print OUT_FILE
-	"!MESSAGE \"" . $variables{'TARGET'} . " - Win32 Debug\" " .
+	"!MESSAGE \"" . $variables{'NAME'} . " - Win32 Debug\" " .
 	"(based on " . $types{$type} . ")\r\n";
 
     # output project header
@@ -277,13 +279,13 @@ sub create_dsp {
 
     # generate release target
     print OUT_FILE 
-	"\r\n!IF \"\$(CFG)\" == \"" . $variables{'TARGET'} . 
+	"\r\n!IF \"\$(CFG)\" == \"" . $variables{'NAME'} . 
 	" - Win32 Release\"\r\n\r\n";
     print OUT_FILE create_opt ($type, %variables);
 
     # generate debug target
     print OUT_FILE 
-	"\r\n!ELSEIF \"\$(CFG)\" == \"" . $variables{'TARGET'} . 
+	"\r\n!ELSEIF \"\$(CFG)\" == \"" . $variables{'NAME'} . 
 	" - Win32 Debug\"\r\n\r\n";
     print OUT_FILE create_dbg ($type, %variables);
 
@@ -292,8 +294,8 @@ sub create_dsp {
     # print target header
     print OUT_FILE 
 	"# Begin Target\r\n" .
-	"# Name \"" . $variables{'TARGET'} . " - Win32 Release\"\r\n" .
-	"# Name \"" . $variables{'TARGET'} . " - Win32 Debug\"\r\n\r\n";
+	"# Name \"" . $variables{'NAME'} . " - Win32 Release\"\r\n" .
+	"# Name \"" . $variables{'NAME'} . " - Win32 Debug\"\r\n\r\n";
 
     # check SOURCES; then print all
     die "autodsp: No SOURCES specified\n" 
@@ -321,7 +323,7 @@ sub create_dsp {
 sub check_target_type {
 
     my ($type, $debug) = @_;
-    my ($submode, $mtl, $subsys);
+    my ($submode, $mtl, $subsys, $suffix);
 
     if ($type eq "0x0102") {
 	$type = "dll";
@@ -329,13 +331,15 @@ sub check_target_type {
 	$mtl = "# ADD MTL /nologo " . $debug . 
 	    " /mktyplib203 /o NUL /win32\r\n";
 	$subsys = "/subsystem:windows /dll";
+	$suffix = ".dll";
     } elsif ($type eq "0x0103") {
 	$type = "app";
 	$submode = $debug . " /D \"_CONSOLE\" /D \"_MBCS\"";
 	$mtl = "";
 	$subsys = "/subsystem:console";
+	$suffix = ".exe";
     }
-    return ($type, $submode, $mtl, $subsys);
+    return ($type, $submode, $mtl, $subsys, $suffix);
 }
 
 #
@@ -344,11 +348,11 @@ sub check_target_type {
 sub create_opt {
 
     my ($type, %variables) = @_;
-    my ($debug, $ret, $s, $submode, $mtl, $subsys, $t);
+    my ($debug, $ret, $s, $submode, $mtl, $subsys, $t, $suffix);
     
     $t = $type;
     $debug = "/D \"NDEBUG\"";
-    ($t, $submode, $mtl, $subsys) = check_target_type ($t, $debug);
+    ($t, $submode, $mtl, $subsys, $suffix) = check_target_type ($t, $debug);
 
     $ret = 
 	"# PROP Use_MFC 0\r\n" .
@@ -381,6 +385,9 @@ sub create_opt {
 	$ret .= replace_libs ($variables{'LIBS'});
     }
     $ret .= " /nologo " . $subsys . " /pdb:none /machine:I386";
+    if (defined $variables{'TARGET'}) {
+	$ret .= " /out:\"". $variables{'TARGET'} . $suffix . "\"";
+    }
     if (defined $variables{'LDFLAGS'}) {
 	$ret .= replace_ldflags ($variables{'LDFLAGS'}, "Opt");
     }
@@ -395,11 +402,11 @@ sub create_opt {
 sub create_dbg {
 
     my ($type, %variables) = @_;
-    my ($debug, $ret, $s, $submode, $mtl, $subsys, $t);
+    my ($debug, $ret, $s, $submode, $mtl, $subsys, $t, $suffix);
     
     $t = $type;
     $debug = "/D \"_DEBUG\"";
-    ($t, $submode, $mtl, $subsys) = check_target_type ($t, $debug);
+    ($t, $submode, $mtl, $subsys, $suffix) = check_target_type ($t, $debug);
     
     $ret = 
 	"# PROP Use_MFC 0\r\n" .
@@ -432,6 +439,9 @@ sub create_dbg {
 	$ret .= replace_libs ($variables{'LIBS'});
     }
     $ret .= " /nologo " . $subsys . " /pdb:none /debug /machine:I386";
+    if (defined $variables{'TARGET'}) {
+	$ret .= " /out:\"". $variables{'TARGET'} . $suffix . "\"";
+    }
     if (defined $variables{'LDFLAGS'}) {
 	$ret .= replace_ldflags ($variables{'LDFLAGS'}, "Dbg");
     }

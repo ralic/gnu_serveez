@@ -22,7 +22,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = libserveez.dsp ChangeLog
+EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog
 SUBDIRS = coserver codec
 
 # the serveez core library rules
@@ -56,4 +56,4 @@ INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
 
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = Makefile.in libserveez.dsp

@@ -46,6 +46,9 @@ echo "done."
 echo -n "Creating configure... "
 autoconf
 echo "done."
+echo -n "Creating Win32 projects... "
+autodsp
+echo "done."
 
 # reschedule this file for building
 if test x"$info_touched" = xyes ; then rm -f doc/serveez-api.texi; fi

@@ -24,7 +24,8 @@
 
 TESTS = vector-test array-test hash-test spvec-test
 
-EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp
+EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp \
+	hash.ap vector.ap array.ap spvec.ap codec.ap
 
 noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test
 
@@ -42,4 +43,5 @@ codec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = Makefile.in \
+	hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp

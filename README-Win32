@@ -47,6 +47,7 @@ test/array.dsp                - array test project file
 test/vector.dsp               - vector list project file
 test/spvec.dsp                - sparse vector test project file
 test/codec.dsp                - codec interface test project file
+autodsp                       - creates the workspace and project files
 
 
 Installation

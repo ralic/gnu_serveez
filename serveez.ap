@@ -1,11 +1,7 @@
-## Process this file with automake to produce Makefile.in
-# 
-# Makefile.am
 #
-# Automake input file.
+# serveez.ap - Autodsp input file.
 #
-# Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
-# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,15 +19,14 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-SUBDIRS = src data test doc
+OWNER = <4>
+TARGET_TYPE = Project
 
-EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
-	serveez.dsw config.h.serveez version.h.serveez \
-	RELEASE vcgen.bat autodsp serveez.ap
+# List all projects here.
+PROJECTS = \
+	test/array test/codec test/hash test/spvec test/vector \
+	src/libserveez/libserveez \
+	src/serveez
 
-redhat: @MAINTAINER_MODE_TRUE@ dist redhat.sh
-	@MAINTAINER_MODE_TRUE@ @sh redhat.sh && echo "Redhat packages done."
-
-CLEANFILES = *~ *.rpm
-MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
-	stamp-h.in serveez.dsw
+# Notify dependencies.
+serveez_DEPENDENCIES = libserveez
