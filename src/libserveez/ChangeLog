@@ -1,3 +1,18 @@
+2001-09-04  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez.dsp: Added "Debug Memory Leaks" target.
+
+	* alloc.c (heap_caller): Verified StackWalk() interface.
+
+	* pipe-socket.c (svz_pipe_read_socket): Tried to fix the
+	overlapped I/O scheme.
+
+	* socket.h (SOCK_FLAG_READING): Two new socket flags 
+	indicating pending read and write operations.
+
+	* pipe-socket.c (svz_pipe_create): Do not try to make pipe
+	descriptors non-blocking under Win32.
+
 2001-08-17  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (libserveez_la_LDFLAGS): Added release information

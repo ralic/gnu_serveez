@@ -1,3 +1,8 @@
+2001-09-04  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.c (guile_entry): Detect operating system before running
+	the configuration file.
+
 2001-08-12  [ Ela ]  <ela@lkcc.org>
 
 	* awcs-server/awcs-proto.c: Slightly modified the client id

@@ -75,6 +75,7 @@ fi
 %install
 if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@"; then
 make install
+su -c "chown -R root.root @REDHAT_TOPDIR@/@PACKAGE@"
 fi
 
 %files
@@ -92,12 +93,13 @@ EOF
 
 # Step 5 - Create the installed file list and append it to the spec file
 
+find $installdir -type d | sed 's/\(.*\)/\%dir \1/g' >> $specdir/$specfile
 find $installdir -type f >> $specdir/$specfile
 find $installdir -type l >> $specdir/$specfile
 
 # Step 6 - Rerun RPM to the full build
 
-(cd $specdir && rpm --sign --rcfile $topdir/$rcfile -ba $specfile)
+(cd $specdir && rpm --rcfile $topdir/$rcfile -ba $specfile)
 
 # Step 7 - Save the RPM packages
 
@@ -107,5 +109,5 @@ cp -p `find $topdir/SRPMS/ -type f` .
 # Step 8 - Delete all the crap
 
 (cd $topdir && rm -rf BUILD RPMS SOURCES SPECS SRPMS RPMS/i386)
-rm -rf $installdir
+su -c "rm -rf $installdir"
 rm -f $topdir/$rcfile

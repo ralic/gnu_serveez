@@ -1,3 +1,9 @@
+2001-09-03  [ Ela ]  <ela@lkcc.org>
+
+	* redhat.sh.in: Changed file owner of the package files to
+	root.root which is the default for RPMs.
+	Also included directories.
+
 2001-08-17  [ Ela ]  <ela@lkcc.org>
 
 	* autogen.sh: Let automake find "doc/serveez-api.texi".

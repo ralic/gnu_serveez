@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.44 2001/07/03 10:43:31 ela Exp $
+ * $Id: serveez.c,v 1.45 2001/09/04 12:03:01 ela Exp $
  *
  */
 
@@ -63,6 +63,9 @@ option_t *options = NULL;
 static void
 guile_entry (int argc, char **argv)
 {
+  /* Detect operating system. */
+  svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());
+
   /* Start loading the configuration file. */
   if (guile_load_config (options->cfgfile) == -1)
     {
@@ -90,7 +93,6 @@ guile_entry (int argc, char **argv)
   svz_log (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
 
-  svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());
   svz_openfiles (svz_config.max_sockets);
   svz_log (LOG_NOTICE, "using %d socket descriptors\n",
 	   svz_config.max_sockets);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.15 2001/07/05 21:35:26 ela Exp $
+ * $Id: pipe-socket.c,v 1.16 2001/09/04 12:03:01 ela Exp $
  *
  */
 
@@ -219,7 +219,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
 	    svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
 
-	  /* reinitialize the overlapped structure */
+	  /* reinitialize the overlapped structure of the listener */
 	  if (svz_os_version >= WinNT4x)
 	    {
 	      memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
@@ -358,29 +358,60 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 
 #ifdef __MINGW32__
-  /* check how many bytes could have been read from the pipe */
-  if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
-		      NULL, (DWORD *) &num_read, NULL))
+  /* use the PeekNamedPipe() call if there is no overlapped I/O in 
+     order to make the following ReadFile() non-blocking */
+  if (sock->overlap[READ] == NULL)
     {
-      svz_log (LOG_ERROR, "pipe: PeekNamedPipe: %s\n", SYS_ERROR);
-      return -1;
+      /* check how many bytes could have been read from the pipe */
+      if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
+			  NULL, (DWORD *) &num_read, NULL))
+	{
+	  svz_log (LOG_ERROR, "pipe: PeekNamedPipe: %s\n", SYS_ERROR);
+	  return -1;
+	}
+
+      /* leave this function if there is no data within the pipe */
+      if (num_read <= 0)
+	return 0;
+
+      /* adjust number of bytes to read */
+      if (do_read > num_read)
+	do_read = num_read;
     }
 
-  /* leave this function if there is no data within the pipe */
-  if (num_read <= 0)
-    return 0;
-
-  /* adjust number of bytes to read */
-  if (do_read > num_read)
-    do_read = num_read;
-
-  /* really read from pipe */
-  if (!ReadFile (sock->pipe_desc[READ],
-		 sock->recv_buffer + sock->recv_buffer_fill,
-		 do_read, (DWORD *) &num_read, NULL))
+  /* really read from pipe depending on its state */
+  if (sock->flags & SOCK_FLAG_READING)
     {
-      svz_log (LOG_ERROR, "pipe: ReadFile: %s\n", SYS_ERROR);
-      return -1;
+      /* try to get the result of the last ReadFile() */
+      if (!GetOverlappedResult (sock->pipe_desc[READ], sock->overlap[READ], 
+                                (DWORD *) &num_read, FALSE))
+        {
+          if (GetLastError () != ERROR_IO_INCOMPLETE)
+            {
+              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n", 
+		       SYS_ERROR);
+              return -1;
+            }
+	  return 0;
+        }
+      else
+	{
+	  /* schedule the pipe for the ReadFile() call again */
+	  sock->flags &= ~SOCK_FLAG_READING;
+	}
+    }
+  else if (!ReadFile (sock->pipe_desc[READ],
+		      sock->recv_buffer + sock->recv_buffer_fill,
+		      do_read, (DWORD *) &num_read, sock->overlap[READ]))
+    {
+      if (GetLastError () != ERROR_IO_PENDING)
+        {
+	  svz_log (LOG_ERROR, "pipe: ReadFile: %s\n", SYS_ERROR);
+	  return -1;
+        }
+      /* schedule the pipe for the GetOverlappedResult() call */
+      sock->flags |= SOCK_FLAG_READING;
+      return 0;
     }
 #else /* not __MINGW32__ */
   if ((num_read = read (sock->pipe_desc[READ],
@@ -395,7 +426,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
 #endif /* not __MINGW32__ */
 
   /* Some data has been read from the pipe. */
-  else if (num_read > 0)
+  if (num_read > 0)
     {
       sock->last_recv = time (NULL);
 
@@ -463,8 +494,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
        * Data bytes have been stored in system's cache. Now we are
        * checking if pending write operation has been completed.
        */
-      if (!GetOverlappedResult (sock->pipe_desc[WRITE], 
-				sock->overlap[WRITE], 
+      if (!GetOverlappedResult (sock->pipe_desc[WRITE], sock->overlap[WRITE], 
 				(DWORD *) &num_written, FALSE))
 	{
 	  if (GetLastError () != ERROR_IO_INCOMPLETE)
@@ -514,12 +544,13 @@ svz_pipe_create (HANDLE recv_fd, HANDLE send_fd)
 {
   svz_socket_t *sock;
 
-
+#ifndef __MINGW32__
   /* Try to set to non-blocking I/O. */
   if (svz_fd_nonblock ((int) recv_fd) != 0)
     return NULL;
   if (svz_fd_nonblock ((int) send_fd) != 0)
     return NULL;
+#endif /* __MINGW32__ */
 
   /* Do not inherit these pipes */
   if (svz_fd_cloexec ((int) recv_fd) != 0)

@@ -4,7 +4,7 @@
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=serveez - Win32 Debug
+CFG=serveez - Win32 Debug Memory Leaks
 !MESSAGE Dies ist kein gültiges Makefile. Zum Erstellen dieses Projekts mit\
  NMAKE
 !MESSAGE verwenden Sie den Befehl "Makefile exportieren" und führen Sie den\
@@ -15,13 +15,15 @@ CFG=serveez - Win32 Debug
 !MESSAGE Sie können beim Ausführen von NMAKE eine Konfiguration angeben
 !MESSAGE durch Definieren des Makros CFG in der Befehlszeile. Zum Beispiel:
 !MESSAGE 
-!MESSAGE NMAKE /f "serveez.mak" CFG="serveez - Win32 Debug"
+!MESSAGE NMAKE /f "serveez.mak" CFG="serveez - Win32 Debug Memory Leaks"
 !MESSAGE 
 !MESSAGE Für die Konfiguration stehen zur Auswahl:
 !MESSAGE 
 !MESSAGE "serveez - Win32 Release" (basierend auf\
   "Win32 (x86) Console Application")
 !MESSAGE "serveez - Win32 Debug" (basierend auf\
+  "Win32 (x86) Console Application")
+!MESSAGE "serveez - Win32 Debug Memory Leaks" (basierend auf\
   "Win32 (x86) Console Application")
 !MESSAGE 
 
@@ -81,12 +83,40 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 kernel32.lib libserveez.lib libguile.lib ws2_32.lib shell32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"libserveez/Dbg"
 
+!ELSEIF  "$(CFG)" == "serveez - Win32 Debug Memory Leaks"
+
+# PROP BASE Use_MFC 0
+# PROP BASE Use_Debug_Libraries 1
+# PROP BASE Output_Dir "serveez_"
+# PROP BASE Intermediate_Dir "serveez_"
+# PROP BASE Ignore_Export_Lib 0
+# PROP BASE Target_Dir ""
+# PROP Use_MFC 0
+# PROP Use_Debug_Libraries 1
+# PROP Output_Dir "Dbg"
+# PROP Intermediate_Dir "Dbg"
+# PROP Ignore_Export_Lib 0
+# PROP Target_Dir ""
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I ".." /I "." /D "_DEBUG" /D "ENABLE_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__GUILE_IMPORT__" /FD /c
+# SUBTRACT BASE CPP /YX
+# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I ".." /I "." /D "_CONSOLE" /D "_MBCS" /D "__SERVEEZ_IMPORT__" /D "__GUILE_IMPORT__" /D "_DEBUG" /D "ENABLE_DEBUG" /D "WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "DEBUG_MEMORY_LEAKS" /FD /c
+# SUBTRACT CPP /YX
+# ADD BASE RSC /l 0x409 /d "_DEBUG"
+# ADD RSC /l 0x409 /d "_DEBUG"
+BSC32=bscmake.exe
+# ADD BASE BSC32 /nologo
+# ADD BSC32 /nologo
+LINK32=link.exe
+# ADD BASE LINK32 kernel32.lib libserveez.lib libguile.lib ws2_32.lib shell32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"libserveez/Dbg"
+# ADD LINK32 kernel32.lib libserveez.lib libguile.lib ws2_32.lib shell32.lib /nologo /subsystem:console /pdb:none /debug /machine:I386 /libpath:"libserveez/Dbg"
+
 !ENDIF 
 
 # Begin Target
 
 # Name "serveez - Win32 Release"
 # Name "serveez - Win32 Debug"
+# Name "serveez - Win32 Debug Memory Leaks"
 # Begin Source File
 
 SOURCE=".\awcs-server\awcs-proto.c"
@@ -226,6 +256,8 @@ SOURCE=.\serveez.rc
 !IF  "$(CFG)" == "serveez - Win32 Release"
 
 !ELSEIF  "$(CFG)" == "serveez - Win32 Debug"
+
+!ELSEIF  "$(CFG)" == "serveez - Win32 Debug Memory Leaks"
 
 !ENDIF 
 

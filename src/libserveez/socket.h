@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.8 2001/08/12 10:59:04 ela Exp $
+ * $Id: socket.h,v 1.9 2001/09/04 12:03:02 ela Exp $
  *
  */
 
@@ -64,6 +64,8 @@
 
 #define SOCK_FLAG_FINAL_WRITE 0x00010000 /* Disconnect as soon as send 
 					    queue is empty. */
+#define SOCK_FLAG_READING     0x00020000 /* Pending read operation. */
+#define SOCK_FLAG_WRITING     0x00040000 /* Pending write operation. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 

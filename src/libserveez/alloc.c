@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.15 2001/07/30 10:15:25 ela Exp $
+ * $Id: alloc.c,v 1.16 2001/09/04 12:03:01 ela Exp $
  *
  */
 
@@ -111,10 +111,10 @@ heap_add (heap_block_t *block)
   svz_hash_put (heap, (char *) &block->ptr, block);
 }
 
-#ifdef MSC_VER
+#ifdef _MSC_VER
 # include <windows.h>
 # include <imagehlp.h>
-# define __builtin_return_address(stack) stack.AddrReturn
+# define __builtin_return_address(no) ((void *) (stack.AddrReturn.Offset))
 # define heap_caller()                                                     \
     STACKFRAME stack;                                                      \
     StackWalk (IMAGE_FILE_MACHINE_I386, GetCurrentProcess (),              \
