@@ -1,3 +1,7 @@
+2001-07-11  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Caching some more results.
+
 2001-07-09  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Conditionalized the use of sendfile().
