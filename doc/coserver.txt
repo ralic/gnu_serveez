@@ -1,0 +1,55 @@
+
+How to write coservers with serveez.
+************************************
+
+	If it is necessary to complete blocking tasks in serveez you have 
+to use coservers. The actual implementation in Unices is a process and in
+Win32 systems it is realized by a thread.
+
+Making / Configuring preperations
+=================================
+
+ * Change into the src/coserver/ directory of the serveez package.
+ * Edit the 'Makefile.am' and add there your header and implementation file
+   to the libcoserver_a_SOURCES.
+
+Coserver header file
+====================
+
+	You must define the coserver handle routine here. This callback
+gets the inbuffer argument and delivers the outbuffer result.
+
+Coserver implementation file
+============================
+
+	Here you need to #include "coserver.h" and implement the coserver 
+handle routine defined in the coserver header file. This could be any blocking
+system call. On successful completion you can return the result or NULL on
+errors. The input and output buffer are plain strings and could have any
+format with one exception. Because the coservers communicate via a line
+protocol with serveez these buffers must not contain '\n' (0x0d).
+
+Make your coserver available in serveez
+=======================================
+
+	Therefore you have to edit 'coserver.h' and 'coserver.c' in the
+src/coserver/ directory. In the header file you have to define a further
+COSERVER_* id and set the MAX_COSERVER_TYPES define to the apropiate value. 
+Then you should define a further coserver_* macro in the same file.
+
+	In 'coserver.c' you have to implement the coserver_* macro. This macro
+takes three arguments. The first is always specific to your coserver and is
+used to create the actual request string. Then follows the result callback
+routine, and an optional argument for this callback. The latter two are
+simply passed to the coserver_send_request routine. This routine takes four
+arguments at all where the first is the previously defined COSERVER_* id and
+the second the is the input buffer for the coserver handle routine without
+the trailing '\n'.
+
+	Then you need to add your coserver to the int_coserver_type array
+specifying the COSERVER_* id, the coserver description, the coserver
+handle routine discussed above, the amount of coserver instances to be
+created and an optional initialization routine.
+
+
+Ela.
