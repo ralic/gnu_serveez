@@ -5,13 +5,14 @@ Serveez \- A server framework.
 \fBserveez\fR [OPTION]...
 .SH DESCRIPTION
 \fBServeez\fR is a server framework. It provides routines and help for
-implementing IP based servers (currently TCP, UDP and ICMP). We think it is
-worth the effort because many people need server functionality within
-their applications. However, many people experience problems with select()-
-or poll()-loops and non-blocking operations.
+implementing IP based servers (currently TCP, UDP and ICMP). It is also
+possible to use named pipes for all connection oriented protocols.
+We think it is worth the effort because many people need server functionality 
+within their applications. However, many people experience problems 
+with select()- or poll()-loops and non-blocking operations.
 This application demonstrates various aspects of advanced network
 programming in a portable manner. It is known to compile and run on
-32 bit and 64 bit Un*x flavours as well as on M$ Windows (9x/NT/2000).
+32 bit and 64 bit Un*x flavours as well as on M$ Windows (9x/ME/NT/2000).
 You can use it for implementing your own servers or for understanding how
 certain network services and operations work.
 The package includes a number of servers that work already: a HTTP server,
@@ -52,8 +53,8 @@ The latest version of serveez can always be obtained from
 \fBwww.sourceforge.net\fR or \fBwww.freshmeat.net\fR.
 .SH BUGS
 .PP
-Known bugs are documented within the BUGS file. See README for reporting 
-bugs.
+Known bugs are documented within the BUGS file. See the README file for 
+reporting bugs.
 .SH "SEE ALSO"
 The full documentation for
 .B serveez
