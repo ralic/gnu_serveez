@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.15 2001/11/16 13:06:06 ela Exp $
+ * $Id: udp-socket.c,v 1.16 2001/11/21 21:37:42 ela Exp $
  *
  */
 
@@ -241,25 +241,6 @@ svz_udp_check_request (svz_socket_t *sock)
     {
       sock->cfg = server->cfg;
 
-#if 0
-      /* THINKME: Should we really allow this? Side-effects? Tunnel? */
-      if (server->detect_proto)
-	{
-	  if (server->detect_proto (server, sock))
-	    {
-	      svz_array_destroy (sock->data);
-	      sock->data = NULL;
-	      if (!server->connect_socket)
-		return -1;
-	      if (server->connect_socket (server, sock))
-		return -1;
-	      if (sock->recv_buffer_fill > 0)
-		return sock->check_request (sock);
-	      return 0;
-	    }
-	}
-      else 
-#endif
       if (server->handle_request)
 	{
 	  if (!server->handle_request (sock, sock->recv_buffer,

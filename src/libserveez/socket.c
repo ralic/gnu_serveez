@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.17 2001/11/21 14:15:45 raimi Exp $
+ * $Id: socket.c,v 1.18 2001/11/21 21:37:42 ela Exp $
  *
  */
 
@@ -363,6 +363,7 @@ svz_sock_alloc (void)
   sock->sock_desc = (SOCKET) -1;
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
+  sock->pid = INVALID_HANDLE;
 
   sock->read_socket = svz_tcp_read_socket;
   sock->write_socket = svz_tcp_write_socket;
@@ -575,7 +576,7 @@ svz_sock_disconnect (svz_socket_t *sock)
 	}
       svz_sock_connections--;
     }
-      
+
   /* close the server/client socket */
   if (closesocket (sock->sock_desc) < 0)
     svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);

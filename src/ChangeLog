@@ -1,3 +1,8 @@
+2001-11-21  [ Ela ]  <ela@lkcc.org>
+
+	* prog-server/prog-server.c (prog_connect_socket): Adapted
+	to new functions in `passthrough.c'.
+
 2001-11-20  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server.c (guile_func_kicked_socket): New kicked-

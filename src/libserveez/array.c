@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.11 2001/11/21 14:15:45 raimi Exp $
+ * $Id: array.c,v 1.12 2001/11/21 21:37:42 ela Exp $
  *
  */
 
@@ -281,16 +281,16 @@ svz_array_strdup (svz_array_t *array)
 }
 
 /*
- * Create a NULL-terminated C array containing the values of the given
- * @var{array}. If the given @var{array} is NULL then an empty C array
- * is returned. It is your responsibility to @code{svz_free()} the pointer
- * that is returned.
+ * Create a @code{NULL} terminated C array containing the values of the 
+ * given @var{array}. If the given @var{array} is @code{NULL} then an empty 
+ * C array is returned. It is your responsibility to @code{svz_free()} the 
+ * returned pointer.
  */
 void **
 svz_array_values (svz_array_t *array)
 {
-  int length = (array == NULL ? 0 : array->size);
-  void ** carray = (void **) svz_malloc (sizeof (void *) * (length + 1));
+  unsigned long length = array ? array->size : 0;
+  void **carray = (void **) svz_malloc (sizeof (void *) * (length + 1));
 
   if (array != NULL)
     memcpy (carray, array->data, sizeof (void *) * length);

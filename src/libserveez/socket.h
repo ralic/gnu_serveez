@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.13 2001/11/21 14:15:45 raimi Exp $
+ * $Id: socket.h,v 1.14 2001/11/21 21:37:42 ela Exp $
  *
  */
 
@@ -61,14 +61,12 @@
 #define SOCK_FLAG_CONNECTING  0x00002000 /* Socket is still connecting */
 #define SOCK_FLAG_PRIORITY    0x00004000 /* Enqueue socket preferred. */
 #define SOCK_FLAG_FIXED       0x00008000 /* Dedicated UDP connection. */
-
 #define SOCK_FLAG_FINAL_WRITE 0x00010000 /* Disconnect as soon as send 
 					    queue is empty. */
 #define SOCK_FLAG_READING     0x00020000 /* Pending read operation. */
 #define SOCK_FLAG_WRITING     0x00040000 /* Pending write operation. */
 #define SOCK_FLAG_FLUSH       0x00080000 /* Flush receive and send queue. */
-#define SOCK_FLAG_NOSHUTDOWN  0x00100000 /* Disable shutdown(). */
-
+#define SOCK_FLAG_NOSHUTDOWN  0x00100000 /* Disable shutdown. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
@@ -92,6 +90,7 @@ struct svz_socket
   SOCKET sock_desc;		/* Socket descriptor. */
   int file_desc;		/* Used for files descriptors. */
   HANDLE pipe_desc[2];          /* Used for the pipes and coservers. */
+  HANDLE pid;                   /* Process id. */
 
 #ifdef __MINGW32__
   LPOVERLAPPED overlap[2];      /* Overlap info for WinNT. */

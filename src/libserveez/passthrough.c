@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.10 2001/11/21 14:15:45 raimi Exp $
+ * $Id: passthrough.c,v 1.11 2001/11/21 21:37:42 ela Exp $
  *
  */
 
@@ -36,6 +36,18 @@
 
 #if HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#if HAVE_PWD_H
+# include <pwd.h>
+#endif
+#if HAVE_GRP_H
+# include <grp.h>
+#endif
+#if HAVE_WAIT_H
+# include <wait.h>
+#endif
+#if HAVE_SYS_WAIT_H
+# include <sys/wait.h>
 #endif
 
 #if !defined(__MINGW32__) && !defined(__CYGWIN__)
@@ -60,51 +72,64 @@ extern char ** environ;
 /*
  * This routine starts a new program specified by @var{bin} passing the
  * socket descriptor in the socket structure @var{sock} to stdin and stdout.
- * @var{bin} has to contain a fully qualified file name.
- * The arguments and the environment of the new process can be passed in
- * @var{argv} and @var{envp}. Please note that @var{argv[0]} has to be set to
- * the program name. It defaults to @var{bin} when it contains NULL.
+ * The @var{bin} argument has to contain a fully qualified file name. The 
+ * program arguments and the environment of the new process can be passed in
+ * @var{argv} and @var{envp}. Please note that @code{argv[0]} has to be set
+ * to the program name. It defaults to @var{bin} if it contains @code{NULL}.
  * The @var{dir} argument contains the working directory of the new process.
- * The directory is not changed when it contains NULL.
- * The argument @var{flag} specifies the method
- * used to passthrough the connection. It can be either 
- * @code{SVZ_PROCESS_FORK} (pass pipes or socket directly through 
+ * The directory is not changed when it contains @code{NULL}. The @var{flag}
+ * argument specifies the method used to passthrough the connection. It can 
+ * be either @code{SVZ_PROCESS_FORK} (pass pipes or socket directly through 
  * @code{fork()} and @code{exec()}) or @code{SVZ_PROCESS_SHUFFLE} (pass
- * socket transactions via a pair of pipes).
+ * socket transactions via a pair of pipes). You can pass the user and group
+ * identifications in the format @samp{user[.group]}, @code{SVZ_PROCESS_NONE}
+ * or @code{SVZ_PROCESS_OWNER} in the @var{user} argument which specify the 
+ * permissions of the child process. The function returns -1 on failure and
+ * otherwise the new process's pid.
  */
 int
 svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
-		  char **argv, svz_envblock_t *envp, int flag)
+		  char **argv, svz_envblock_t *envp, int flag, char *user)
 {
-  HANDLE in, out;
-  char *p, *app;
-  int len, ret = -1;
+  svz_process_t proc;
+  int ret = -1;
 
+  /* Check arguments. */
   if (sock == NULL || bin == NULL)
     return -1;
 
   /* Setup descriptors depending on the type of socket structure. */
-  in = out = (HANDLE) sock->sock_desc;
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      in = sock->pipe_desc[READ];
-      out = sock->pipe_desc[WRITE];
+      proc.in = sock->pipe_desc[READ];
+      proc.out = sock->pipe_desc[WRITE];
+    }
+  else
+    {
+      proc.in = proc.out = (HANDLE) sock->sock_desc;
     }
 
   /* Check executable. */
-  if (svz_process_check_executable (bin, &app) < 0)
+  if (svz_process_check_executable (bin, &proc.app) < 0)
     return -1;
+
+  /* Fill in rest of process structure. */
+  proc.sock = sock;
+  proc.bin = bin;
+  proc.dir = dir;
+  proc.argv = argv;
+  proc.envp = envp;
+  proc.user = user;
 
   /* Depending on the given flag use different methods to passthrough
      the connection. */
   switch (flag)
     {
     case SVZ_PROCESS_FORK:
-      ret = svz_process_fork (bin, dir, in, out, argv, envp, app);
+      ret = svz_process_fork (&proc);
       break;
     case SVZ_PROCESS_SHUFFLE:
-      ret = svz_process_shuffle (sock, bin, dir, (SOCKET) in, argv, 
-				 envp, app);
+      ret = svz_process_shuffle (&proc);
       break;
     default:
       svz_log (LOG_ERROR, "invalid flag (%d)\n", flag);
@@ -164,6 +189,67 @@ svz_process_pipe_disconnect (svz_socket_t *sock)
 }
 
 /*
+ * Check request routine for the original passthrough connections.  Sets
+ * the send buffer fill counter of the referring socket structure in order
+ * to schedule it for sending.
+ */
+static int
+svz_process_check_request (svz_socket_t *sock)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
+    return -1;
+  xsock->send_buffer_fill = sock->recv_buffer_fill;
+  return 0;
+}
+
+/*
+ * Idle function for passthrough shuffle connections. The routine checks if
+ * the spawned child process is still valid.  If not it schedules the
+ * connection down.
+ */
+static int
+svz_process_idle (svz_socket_t *sock)
+{
+#ifndef __MINGW32__
+
+#if HAVE_WAITPID
+  /* Test if the passthrough child is still running. */
+  if (waitpid (sock->pid, NULL, WNOHANG) == -1 && errno == ECHILD)
+    {
+      svz_log (LOG_NOTICE, "passthrough shuffle pid %d died\n", 
+	       (int) sock->pid);
+      sock->pid = INVALID_HANDLE;
+      return -1;
+    }
+#endif /* HAVE_WAITPID */
+
+#else /* __MINGW32__ */
+
+  DWORD result;
+
+  result = WaitForSingleObject (sock->pid, LEAST_WAIT_OBJECT);
+  if (result == WAIT_FAILED)
+    {
+      svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+    }
+  else if (result != WAIT_TIMEOUT)
+    {
+      if (closehandle (sock->pid) == -1)
+	svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      svz_child_died = sock->pid;
+      sock->pid = INVALID_HANDLE;
+      return -1;
+    }
+
+#endif /* __MINGW32__ */
+
+  sock->idle_counter = 1;
+  return 0;
+}
+
+/*
  * If the argument @var{set} is zero this routine makes the receive buffer
  * of the socket structure's referrer @var{sock} the send buffer of @var{sock}
  * itself, otherwise the other way around. Return non-zero if the routine
@@ -203,7 +289,7 @@ svz_process_send_pipe (svz_socket_t *sock)
   int num_written, do_write;
 
   /* update send buffer depending on receive buffer of referrer */
-  if (svz_process_send_update (sock, 0))
+  if (svz_process_send_update (sock, 1))
     return -1;
 
   /* return here if there is nothing to do */
@@ -216,7 +302,7 @@ svz_process_send_pipe (svz_socket_t *sock)
     {
       svz_log (LOG_ERROR, "write: %s\n", SYS_ERROR);
       if (svz_errno == EAGAIN)
-	return 0;
+	num_written = 0;
     }
 #else /* __MINGW32__ */
    if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
@@ -231,8 +317,8 @@ svz_process_send_pipe (svz_socket_t *sock)
     {
       sock->last_send = time (NULL);
       svz_sock_reduce_send (sock, num_written);
-      svz_process_send_update (sock, 1);
     }
+   svz_process_send_update (sock, 0);
 
   return (num_written >= 0) ? 0 : -1;
 }
@@ -320,52 +406,62 @@ svz_process_recv_pipe (svz_socket_t *sock)
   return (num_read > 0) ? 0 : -1;
 }
 
+/*
+ * Spawns a new child process. The @var{file} argument must be a valid
+ * executable file name. If @var{dir} is not @code{NULL} it will be the
+ * working directory of the child. The @var{in} and @var{out} descriptors
+ * are going to be @code{stdin} and @code{stdout}. You can specify the
+ * program arguments (including @code{argv[0]} which is the program's name)
+ * and the environment of the new child process with @var{argv} and 
+ * @var{envp}. The @var{app} argument specifies the program to execute
+ * with @var{file} as first argument if @var{file} is a script. The latter
+ * is important for M$-Windows only. The routine return -1 on failure,
+ * otherwise the new child's process id.
+ */
 int
-svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out, 
-			  char **argv, svz_envblock_t *envp, char *app)
+svz_process_create_child (svz_process_t *proc)
 {
   /* Change directory, make descriptors blocking, setup environment,
      set permissions, duplicate descriptors and finally execute the 
      program. */
 
 #ifndef __MINGW32__      
-  if (dir != NULL)
+  if (proc->dir && chdir (proc->dir) < 0)
     {
-      if (chdir (dir) < 0)
-	{
-	  svz_log (LOG_ERROR, "chdir (%s): %s\n", dir, SYS_ERROR);
-	  return -1;
-	}
+      svz_log (LOG_ERROR, "chdir (%s): %s\n", proc->dir, SYS_ERROR);
+      return -1;
     }
 
-  if (svz_fd_block (out) < 0 || svz_fd_block (in) < 0)
+  if (svz_fd_block (proc->out) < 0 || svz_fd_block (proc->in) < 0)
     return -1;
 
-  if (dup2 (out, 1) != 1 || dup2 (in, 0) != 0)
+  if (dup2 (proc->out, 1) != 1 || dup2 (proc->in, 0) != 0)
     {
       svz_log (LOG_ERROR, "unable to redirect: %s\n", SYS_ERROR);
       return -1;
     }
 
-  if (svz_process_check_access (file) < 0)
+  if (svz_process_check_access (proc->bin, proc->user) < 0)
     return -1;
 
-  /* Check the environment and create  a default one if necessary. */
-  if (envp == NULL)
+  /* Check the environment and create a default one if necessary. */
+  if (proc->envp == NULL)
     {
-      envp = svz_envblock_create ();
-      svz_envblock_default (envp);
+      proc->envp = svz_envblock_create ();
+      svz_envblock_default (proc->envp);
     }
 
-  /* Execute the file itself here overwriting the current process. */
-  if (argv[0] == NULL)
-    argv[0] = file;
+  if (proc->argv[0] == NULL)
+    proc->argv[0] = proc->bin;
 
-  if (execve (file, argv, svz_envblock_get (envp)) == -1)
+  /* Execute the file itself here overwriting the current process. */
+  if (execve (proc->bin, proc->argv, svz_envblock_get (proc->envp)) == -1)
     {
       svz_log (LOG_ERROR, "execve: %s\n", SYS_ERROR);
       return -1;
     }
+
+  /* Not reached. */
   return getpid ();
 
 #else /* __MINGW32__ */
@@ -380,23 +476,20 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
   memset (&startup_info, 0, sizeof (startup_info));
   startup_info.cb = sizeof (startup_info);
   startup_info.dwFlags = STARTF_USESTDHANDLES;
-  startup_info.hStdOutput = out;
-  startup_info.hStdInput = in;
+  startup_info.hStdOutput = proc->out;
+  startup_info.hStdInput = proc->in;
 
   /* Save current directory and change into application's. */
   savedir = svz_getcwd ();
-  if (dir != NULL)
+  if (proc->dir && chdir (proc->dir) < 0)
     {
-      if (chdir (dir) < 0)
-	{
-	  svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
-	  svz_free (savedir);
-	  return -1;
-	}
+      svz_log (LOG_ERROR, "chdir (%s): %s\n", proc->dir, SYS_ERROR);
+      svz_free (savedir);
+      return -1;
     }
 
   /* Check the access to the file. */
-  if (svz_process_check_access (file) < 0)
+  if (svz_process_check_access (proc->bin, proc->user) < 0)
     {
       chdir (savedir);
       svz_free (savedir);
@@ -404,38 +497,38 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
     }
 
   /* Create sane environment. */
-  if (envp == NULL)
+  if (proc->envp == NULL)
     {
-      envp = svz_envblock_create ();
-      svz_envblock_default (envp);
+      proc->envp = svz_envblock_create ();
+      svz_envblock_default (proc->envp);
     }
 
   /* Concatenate application name. */
-  if (app != NULL)
+  if (proc->app != NULL)
     {
-      application = svz_malloc (strlen (file) + strlen (app) + 2);
-      sprintf (application, "%s %s", app, file);
+      application = svz_malloc (strlen (proc->bin) + strlen (proc->app) + 2);
+      sprintf (application, "%s %s", proc->app, proc->bin);
     }
   else
-    application = svz_strdup (file);
+    application = svz_strdup (proc->bin);
 
   /* Append program arguments. */
-  for (n = 1; argv[n] != NULL; n++)
+  for (n = 1; proc->argv[n] != NULL; n++)
     {
       application = svz_realloc (application, strlen (application) + 
-				 strlen (argv[n]) + 2);
+				 strlen (proc->argv[n]) + 2);
       strcat (application, " ");
-      strcat (application, argv[n]);
+      strcat (application, proc->argv[n]);
     }
 
-  if (!CreateProcess (NULL,                    /* application name */
-                      application,             /* command line */
-                      NULL,                    /* process attributes */
-                      NULL,                    /* thread attributes */
-                      TRUE,                    /* inherit handles */
-                      DETACHED_PROCESS,        /* creation flags */
-                      svz_envblock_get (envp), /* environment */
-                      NULL,                    /* current directory */
+  if (!CreateProcess (NULL,                          /* application name */
+                      application,                   /* command line */
+                      NULL,                          /* process attributes */
+                      NULL,                          /* thread attributes */
+                      TRUE,                          /* inherit handles */
+                      DETACHED_PROCESS,              /* creation flags */
+                      svz_envblock_get (proc->envp), /* environment */
+                      NULL,                          /* current directory */
                       &startup_info, &process_info))
     {
       svz_log (LOG_ERROR, "CreateProcess (%s): %s\n", application, SYS_ERROR);
@@ -451,7 +544,7 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
   pid = (int) process_info.hProcess;
 
 #ifdef ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid 0x%08X\n", file, 
+  svz_log (LOG_DEBUG, "process `%s' got pid 0x%08X\n", proc->bin, 
 	   process_info.dwProcessId);
 #endif
   return pid;
@@ -460,15 +553,14 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
 
 /*
  * Create two pairs of pipes in order to passthrough the transactions of the 
- * given socket descriptor @var{socket}.
+ * given socket descriptor @var{socket}. Returns the process id of the new
+ * child process or -1 on failure.
  */
 int
-svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, SOCKET socket,
-		     char **argv, svz_envblock_t *envp, char *app)
+svz_process_shuffle (svz_process_t *proc)
 {
   HANDLE process_to_serveez[2];
   HANDLE serveez_to_process[2];
-  HANDLE in, out;
   svz_socket_t *xsock;
   int pid;
 
@@ -488,28 +580,30 @@ svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, SOCKET socket,
 
   /* prepare everything for the pipe handling */
   xsock->disconnected_socket = svz_process_pipe_disconnect;
-  sock->disconnected_socket = svz_process_sock_disconnect;
+  proc->sock->disconnected_socket = svz_process_sock_disconnect;
   xsock->write_socket = svz_process_send_pipe;
   xsock->read_socket = svz_process_recv_pipe;
   svz_free_and_zero (xsock->recv_buffer);
   xsock->recv_buffer_fill = xsock->recv_buffer_size = 0;
   svz_free_and_zero (xsock->send_buffer);
   xsock->send_buffer_fill = xsock->send_buffer_size = 0;
-  svz_sock_setreferrer (sock, xsock);
-  svz_sock_setreferrer (xsock, sock);
+  svz_sock_setreferrer (proc->sock, xsock);
+  svz_sock_setreferrer (xsock, proc->sock);
+  proc->sock->check_request = svz_process_check_request;
+  xsock->cfg = proc->sock->cfg;
 
   /* enqueue passthrough pipe socket */
   if (svz_sock_enqueue (xsock) < 0)
     return -1;
 
-  in = serveez_to_process[READ];
-  out = process_to_serveez[WRITE];
+  proc->in = serveez_to_process[READ];
+  proc->out = process_to_serveez[WRITE];
 
   /* create a process and pass the left-over pipe ends to it */
 #ifndef __MINGW32__
   if ((pid = fork ()) == 0)
     {
-      svz_process_create_child (file, dir, in, out, argv, envp, app);
+      svz_process_create_child (proc);
       exit (0);
     }
   else if (pid == -1)
@@ -518,10 +612,16 @@ svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, SOCKET socket,
       return -1;
     }
 #else /* __MINGW32__ */
-  pid = svz_process_create_child (file, dir, in, out, argv, envp, app);
-  return pid;
+  pid = svz_process_create_child (proc);
 #endif /*  __MINGW32__ */
-  return 0;
+
+  xsock->pid = (HANDLE) pid;
+  xsock->idle_func = svz_process_idle;
+  xsock->idle_counter = 1;
+#if ENABLE_DEBUG
+  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
+#endif
+  return pid;
 }
 
 /*
@@ -534,8 +634,7 @@ svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, SOCKET socket,
  * and the child's process id on success.
  */
 int
-svz_process_fork (char *file, char *dir, HANDLE in, HANDLE out, 
-		  char **argv, svz_envblock_t *envp, char *app)
+svz_process_fork (svz_process_t *proc)
 {
 #ifdef __MINGW32__
   svz_log (LOG_FATAL, "fork() and exec() not supported\n");
@@ -546,7 +645,8 @@ svz_process_fork (char *file, char *dir, HANDLE in, HANDLE out,
   /* The child process here. */
   if ((pid = fork ()) == 0)
     {
-      svz_process_create_child (file, dir, in, out, argv, envp, app);
+      svz_process_create_child (proc);
+      exit (0);
     }
   else if (pid == -1)
     {
@@ -556,7 +656,7 @@ svz_process_fork (char *file, char *dir, HANDLE in, HANDLE out,
 
   /* The parent process: Destroy the given socket object. */
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", file, pid);
+  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
 #endif /* __MINGW32__ */
@@ -622,7 +722,7 @@ svz_process_check_executable (char *file, char **app)
  * file @var{file}. Return zero on success.
  */
 int
-svz_process_check_access (char *file)
+svz_process_check_access (char *file, char *user)
 {
   struct stat buf;
 
@@ -634,19 +734,69 @@ svz_process_check_access (char *file)
     }
 
 #ifndef __MINGW32__
-  /* set the appropriate user permissions */
-  /* FIXME: make parameter
-  if (setgid (buf.st_gid) == -1)
+  /* set the appropriate user and group permissions for file owner */
+  if (user == SVZ_PROCESS_OWNER)
     {
-      svz_log (LOG_ERROR, "setgid: %s\n", SYS_ERROR);
-      return -1;
+      if (setgid (buf.st_gid) == -1)
+	{
+	  svz_log (LOG_ERROR, "setgid: %s\n", SYS_ERROR);
+	  return -1;
+	}
+      if (setuid (buf.st_uid) == -1)
+	{
+	  svz_log (LOG_ERROR, "setuid: %s\n", SYS_ERROR);
+	  return -1;
+	}
     }
-  if (setuid (buf.st_uid) == -1)
+  /* set given user and group */
+  else if (user != SVZ_PROCESS_NONE)
     {
-      svz_log (LOG_ERROR, "setuid: %s\n", SYS_ERROR);
-      return -1;
+      char str[128], *p;
+      struct passwd *u = NULL;
+      struct group *g = NULL;
+
+      strcpy (str, user);
+
+      /* Group name specified ? */
+      if ((p = strchr (str, '.')) != NULL)
+	{
+	  if ((g = getgrnam (p + 1)) == NULL)
+	    {
+	      svz_log (LOG_WARNING, "no such group `%s'\n", p + 1);
+	      return -1;
+	    }
+	  /* Set the group. */
+	  if (setgid (g->gr_gid) == -1)
+	    {
+	      svz_log (LOG_ERROR, "setgid: %s\n", SYS_ERROR);
+	      return -1;
+	    }
+	  /* Splice at `.'. */
+	  *p = '\0';
+	}
+
+      /* Check user name. */
+      if ((u = getpwnam (str)) == NULL)
+        {
+          svz_log (LOG_WARNING, "no such user `%s'\n", str);
+          return -1;
+        }
+      /* No group name specified.  Use the user's one. */
+      if (p == NULL)
+	{
+	  if (setgid (u->pw_gid) == -1)
+	    {
+	      svz_log (LOG_ERROR, "setgid: %s\n", SYS_ERROR);
+	      return -1;
+	    }
+	}
+      /* Set the user. */
+      if (setuid (u->pw_uid) == -1)
+	{
+	  svz_log (LOG_ERROR, "setuid: %s\n", SYS_ERROR);
+	  return -1;
+	}
     }
-  */
 #endif /* not __MINGW32__ */
 
   return 0;

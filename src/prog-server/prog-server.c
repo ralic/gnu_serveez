@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.2 2001/11/21 14:15:45 raimi Exp $
+ * $Id: prog-server.c,v 1.3 2001/11/21 21:37:42 ela Exp $
  *
  */
 
@@ -90,17 +90,8 @@ prog_handle_request (svz_socket_t *sock, char *request, int len)
 }
 
 int
-prog_check_request (svz_socket_t *sock)
-{
-  return 0;
-}
-
-int
 prog_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
-  /* prevent anything from being read from socket */
-  sock->read_socket = NULL;
-
   return -1;
 }
 
@@ -108,34 +99,34 @@ int
 prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   prog_config_t *cfg = server->cfg;
-  char **argv = (char**) svz_array_values (cfg->argv);
+  char **argv = (char **) svz_array_values (cfg->argv);
 
-  sock->check_request = prog_check_request;
   if (svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
 			cfg->fork ? SVZ_PROCESS_FORK :
-			SVZ_PROCESS_SHUFFLE) < 0 )
+			SVZ_PROCESS_SHUFFLE,
+			cfg->user ? cfg->user :	SVZ_PROCESS_NONE) < 0)
     {
-      svz_log (LOG_ERROR, "prog: Cannot execute %s\n", cfg->bin);
+      svz_log (LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);
       svz_free (argv);
       return -1;
     }
-
   svz_free (argv);
+
   if (cfg->fork)
     {
-      /* Just close() this end of socket, not shutdown().
-       * fork() makes the socket available in the child process. When we
-       * shutdown() it here, it dies in the child, too. When we just close()
-       * it, it still works in the child.
-       */ 
+      /* Prevent anything being read from the socket. */
+      sock->read_socket = NULL;
+
+      /* Just close() this end of socket, not shutdown(). fork() makes the 
+	 socket available in the child process. When we shutdown() it here, 
+	 it dies in the child, too. When we just close() it, it still works
+	 in the child. */ 
       sock->flags |= SOCK_FLAG_NOSHUTDOWN;
       return -1;
     }
   else
     {
-      /* re-enable reading of socket, FIXME: tcp? */
-      sock->read_socket = svz_tcp_read_socket;
-      /* FIXME: take care of failing child */
+      /* FIXME: take care of failing child. */
     }
   return 0;
 }
@@ -165,12 +156,12 @@ prog_init (svz_server_t *server)
 {
   prog_config_t *cfg = server->cfg;
 
+  /* Create default argument array. */
   if (cfg->argv == NULL)
     {
-      cfg->argv = svz_array_create(1);
+      cfg->argv = svz_array_create (1);
       svz_array_add (cfg->argv, NULL);
     }
-
   return 0;
 }
 

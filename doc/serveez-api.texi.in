@@ -366,11 +366,12 @@ a structure called @code{svz_socket_t} which is the abstraction of any kind
 of communication endpoint (can be client or server or both together).
 
 @menu
-* TCP sockets::           TCP socket functions
-* Pipe connections::      Named and anonymous pipe functions
-* UDP sockets::           UDP socket functions
-* ICMP sockets::          ICMP socket functions
-* Raw sockets::           Raw socket functions
+* TCP sockets::                   TCP socket functions
+* Pipe connections::              Named and anonymous pipe functions
+* UDP sockets::                   UDP socket functions
+* ICMP sockets::                  ICMP socket functions
+* Raw sockets::                   Raw socket functions
+* Passthrough connections::       Passthrough connections to child processes
 @end menu
 
 @node TCP sockets, Pipe connections, , Client connections
@@ -453,7 +454,7 @@ SVZ_ICMP_SEND_CONTROL_DEFUN
 SVZ_ICMP_WRITE_DEFUN
 SVZ_ICMP_PRINTF_DEFUN
 
-@node Raw sockets, , ICMP sockets, Client connections
+@node Raw sockets, Passthrough connections, ICMP sockets, Client connections
 @subsection Raw sockets
 
 A raw socket receives or sends the raw datagram not including link 
@@ -473,6 +474,34 @@ SVZ_RAW_GET_IP_HEADER_DEFUN
 SVZ_RAW_PUT_IP_HEADER_DEFUN
 SVZ_RAW_IP_CHECKSUM_DEFUN
 SVZ_RAW_CHECK_IP_HEADER_DEFUN
+
+@node Passthrough connections, , Raw sockets, Client connections
+@subsection Passthrough connections
+
+The function subset described in the following section allows the user to
+passthrough client connections to the standard input (stdin) and standard
+output (stdout) handles of external programs.  Some of the routines deal
+with the management of program environments.  Basically there are two 
+methods how to passthrough a duplex connection: the unix'ish @code{fork()}
+and @code{exec()} method and the shuffle method where the main process 
+keeps control over the communication on the original duplex connection and 
+passes this data through two pairs of pipes or yet another socket connection
+to the child process.
+
+SVZ_SOCK_PROCESS_DEFUN
+SVZ_PROCESS_FORK_DEFUN
+SVZ_PROCESS_SHUFFLE_DEFUN
+SVZ_PROCESS_CREATE_CHILD_DEFUN
+SVZ_PROCESS_SEND_PIPE_DEFUN
+SVZ_PROCESS_RECV_PIPE_DEFUN
+SVZ_PROCESS_CHECK_EXECUTABLE_DEFUN
+SVZ_PROCESS_CHECK_ACCESS_DEFUN
+SVZ_ENVBLOCK_ADD_DEFUN
+SVZ_ENVBLOCK_CREATE_DEFUN
+SVZ_ENVBLOCK_DEFAULT_DEFUN
+SVZ_ENVBLOCK_FREE_DEFUN
+SVZ_ENVBLOCK_DESTROY_DEFUN
+SVZ_ENVBLOCK_GET_DEFUN
 
 @node Socket, Coserver, Client connections, Embedding API
 @section Socket management

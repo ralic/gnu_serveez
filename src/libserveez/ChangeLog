@@ -1,3 +1,14 @@
+2001-11-21  [ Ela ]  <ela@lkcc.org>
+
+	* socket.h (struct svz_socket): New `pid' member.
+
+	* passthrough.h: Defined a bigger structure in order to reduce
+	the number of arguments passed down to underlying functions.
+
+	* passthrough.c (svz_process_check_access): Added functionality
+	for setting user and group depending on a given string or a 
+	executable file's owner.
+
 2001-11-12  [ Ela ]  <ela@lkcc.org>
 
 	* core.c (svz_socket_type): Returns the type (SOCK_STREAM, 
