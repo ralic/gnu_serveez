@@ -24,6 +24,8 @@
 
 TESTS = hash-test alist-test
 
+EXTRA_DIST = hash.dsp alist.dsp
+
 noinst_PROGRAMS = hash-test alist-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
 alist_test_SOURCES = alist-test.c test.c test.h alloc.c alist.c

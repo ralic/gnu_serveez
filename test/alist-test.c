@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist-test.c,v 1.4 2000/11/10 11:24:05 ela Exp $
+ * $Id: alist-test.c,v 1.5 2000/11/22 18:58:22 ela Exp $
  *
  */
 
@@ -54,7 +54,6 @@ main (int argc, char **argv)
   int result = 0;
   alist_t *list;
   long n, error, i;
-  char *text;
   void **values;
 
   test_init ();

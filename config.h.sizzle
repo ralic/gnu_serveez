@@ -117,9 +117,6 @@
 /* Define if you have the fcntl function.  */
 /* #undef HAVE_FCNTL */
 
-/* Define if you have the fnmatch function.  */
-/* #undef HAVE_FNMATCH */
-
 /* Define if you have the fork function.  */
 /* #undef HAVE_FORK */
 
@@ -363,6 +360,13 @@
 /* Define if dynamic linking should be compiled in. */
 /* #undef ENABLE_DL */
 
+/* Define if uniform vector support should be compiled in. */
+/* #undef ENABLE_UVECTOR */
+
+/* Define if your processor stores words with the most significant 
+   byte first (like Motorola and SPARC, unlike Intel and VAX). */
+/* #undef WORDS_BIGENDIAN */
+
 /* Make CygWin / MinGW32 use large FD sets. */
 #define FD_SETSIZE 4096
 
@@ -390,6 +394,9 @@
 /* Define this compilers large integer definition. */
 #define __INT64__ __int64
 
+/* Define if you have the fnmatch function. */
+/* #undef HAVE_FNMATCH */
+
 /* Define if compiler does NOT understand anonymous unions. */
 /* #undef SYSINFO_UNION */
 
@@ -410,3 +417,4 @@
 
 /* Define if inet_ntoa function is broken. */
 /* #undef BROKEN_INET_NTOA */
+

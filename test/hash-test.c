@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.2 2000/10/17 21:24:25 ela Exp $
+ * $Id: hash-test.c,v 1.3 2000/11/22 18:58:22 ela Exp $
  *
  */
 
@@ -29,6 +29,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "alloc.h"
 #include "hash.h"
@@ -54,7 +55,7 @@ main (int argc, char **argv)
   int result = 0;
   hash_t *hash;
   long n, error;
-  char *text, *key;
+  char *text;
   char **keys;
   void **values;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.16 2000/11/14 07:35:43 ela Exp $
+ * $Id: http-core.c,v 1.17 2000/11/22 18:58:22 ela Exp $
  *
  */
 
@@ -186,7 +186,7 @@ http_userdir (socket_t sock, char *uri)
       /* successfully got the user information ? */
       else if (entry && 
 	       entry->usri1_home_dir && 
-	       entry->entry->usri1_home_dir[0])
+	       entry->usri1_home_dir[0])
 	{
 	  file = xmalloc (strlen (windoze_uni2asc (entry->usri1_home_dir)) +
 			  strlen (cfg->userdir) + strlen (p) + 2);

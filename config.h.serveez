@@ -22,10 +22,6 @@
 /* Define if you have the ANSI C header files.  */
 #define STDC_HEADERS 1
 
-/* Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
-/* #undef WORDS_BIGENDIAN */
-
 /* The number of bytes in a unsigned.  */
 #define SIZEOF_UNSIGNED 4
 
@@ -37,6 +33,9 @@
 
 /* Define if you have the getdtablesize function.  */
 /* #undef HAVE_GETDTABLESIZE */
+
+/* Define if you have the getpwnam function.  */
+/* #undef HAVE_GETPWNAM */
 
 /* Define if you have the getrlimit function.  */
 /* #undef HAVE_GETRLIMIT */
@@ -74,6 +73,9 @@
 /* Define if you have the vsprintf function.  */
 #define HAVE_VSPRINTF 1
 
+/* Define if you have the waitpid function.  */
+/* #undef HAVE_WAITPID */
+
 /* Define if you have the <direct.h> header file.  */
 #define HAVE_DIRECT_H 1
 
@@ -88,6 +90,9 @@
 
 /* Define if you have the <netinet/tcp.h> header file.  */
 /* #undef HAVE_NETINET_TCP_H */
+
+/* Define if you have the <pwd.h> header file.  */
+/* #undef HAVE_PWD_H */
 
 /* Define if you have the <stdio.h> header file.  */
 #define HAVE_STDIO_H 1
@@ -124,6 +129,16 @@
 
 /* Define if you have the <varargs.h> header file.  */
 #define HAVE_VARARGS_H 1
+
+/* Define if your processor stores words with the most significant 
+   byte first (like Motorola and SPARC, unlike Intel and VAX). */
+/* #undef WORDS_BIGENDIAN */
+
+/* Define if debug output should be supported. */
+/* #undef ENABLE_DEBUG */
+
+/* Define if debug code should be suppressed. */
+#define NDEBUG 1
 
 /* Define if we are able to list local network interfaces. */
 #define ENABLE_IFLIST 1
@@ -179,6 +194,15 @@
 /* Define if heap counters should be enabled. */
 #define ENABLE_HEAP_COUNT 1
 
+/* Define if you have the getopt function. */
+/* #undef HAVE_GETOPT */
+
+/* Define if the getopt_long function is declared in getopt.h. */
+/* #undef DECLARED_GETOPT_LONG */
+
+/* Define if you have the getopt_long function. */
+/* #undef HAVE_GETOPT_LONG */
+
 /* Define if you have the <wait.h>. */
 /* #undef HAVE_WAIT_H */
 
@@ -196,15 +220,6 @@
 
 /* Define if you have the strnicmp function. */
 #define HAVE_STRNICMP 1
-
-/* Define if you have the getopt function. */
-/* #undef HAVE_GETOPT */
-
-/* Define if the getopt_long function is declared in getopt.h. */
-/* #undef DECLARED_GETOPT_LONG */
-
-/* Define if you have the getopt_long function. */
-/* #undef HAVE_GETOPT_LONG */
 
 /* Define if Solaris provides the kstat library. */
 /* #undef HAVE_LIBKSTAT */
@@ -233,7 +248,7 @@
 /* Define if inet_ntoa function is broken. */
 /* #undef BROKEN_INET_NTOA */
 
-/* Define to `int' if <sys/socket.h> doesn't define. */
+/* Define to 'int' if <sys/socket.h> does not define. */
 #define socklen_t int
 
 /* Define if you are using Windows Socket-API (not CYGWIN). */
@@ -242,13 +257,13 @@
 /* Define if you have the <winsock.h> */
 #define HAVE_WINSOCK_H 1
 
-/* Define to 'int' if <winsock.h> doesn't define. */
+/* Define to 'int' if <winsock.h> does not define. */
 /* #undef SOCKET */
 
-/* Define to 'int' if <winsock.h> doesn't define. */
+/* Define to 'int' if <winsock.h> does not define. */
 /* #undef HANDLE */
 
-/* Define to -1 if <winsock.h> doesn't define. */
+/* Define to -1 if <winsock.h> does not define. */
 /* #undef INVALID_SOCKET */
 
 /* Define if 'winsock.h' defines some more constants. */

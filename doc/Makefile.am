@@ -27,7 +27,7 @@ AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi
 man_MANS = serveez.1
 EXTRA_DIST = $(man_MANS) index.html
-CLEANFILES = *.info serveez*.html *.tgz *~
+CLEANFILES = *.info serveez*.html *.tgz *~ *.info-*
 MAINTAINERCLEANFILES = Makefile.in
 PACK_FILES = ./*.html ../src/ChangeLog ../README ../README-Win32 \
 	../TODO ../BUGS ../NEWS
@@ -41,7 +41,7 @@ distclean-local:
 all-local: serveez.html serveez.dvi
 
 dist-hook:
-	rm -f $(distdir)/*.info
+	rm -f $(distdir)/*.info $(distdir)/*.info-*
 
 pack: serveez.html
 	test ! -d $(PACK_DIR) || rm -rf  $(PACK_DIR)
