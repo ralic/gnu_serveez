@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.8 2001/11/09 12:33:10 ela Exp $
+ * $Id: guile-bin.c,v 1.9 2001/11/09 22:23:40 raimi Exp $
  *
  */
 
@@ -198,7 +198,7 @@ guile_bin_search (SCM binary, SCM needle)
       start = bin->data;
       end = start + bin->size - len;
 
-      while (start < end)
+      while (start <= end)
 	{
 	  if (*start == *p && memcmp (start, p, len) == 0)
 	    {
