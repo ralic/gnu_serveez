@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.21 2000/09/02 15:48:13 ela Exp $
+ * $Id: control-proto.c,v 1.22 2000/09/10 10:51:17 ela Exp $
  *
  */
 
@@ -493,8 +493,12 @@ ctrl_stat (socket_t sock, int flag, char *arg)
   sock_printf (sock, "Proc-Load : %s\r\n", cpu_state.pinfo);
 
   /* show general state */
-  sock_printf (sock, "%d connected sockets (hard limit is %d)\r\n",
+  sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
 	       connected_sockets, serveez_config.max_sockets);
+#if ENABLE_DEBUG
+  sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
+	       allocated_bytes, allocated_blocks);
+#endif
   sock_printf (sock, "\r\n");
 
   return flag;

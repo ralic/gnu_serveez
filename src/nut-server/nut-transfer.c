@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.10 2000/09/09 16:33:43 ela Exp $
+ * $Id: nut-transfer.c,v 1.11 2000/09/10 10:51:18 ela Exp $
  *
  */
 
@@ -85,10 +85,12 @@
 
 #include "alloc.h"
 #include "util.h"
+#include "snprintf.h"
 #include "socket.h"
 #include "connect.h"
 #include "server.h"
 #include "gnutella.h"
+#include "nut-core.h"
 #include "nut-transfer.h"
 
 /*
@@ -216,48 +218,41 @@ nut_check_transfer (socket_t sock)
   nut_config_t *cfg = sock->cfg;
   int fill = sock->recv_buffer_fill;
   int len = strlen (NUT_GET_OK);
-  char *p = sock->recv_buffer;
+  char *p = sock->recv_buffer, *length;
   nut_transfer_t *transfer = sock->data;
 
   /* check if got at least the first part of the HTTP header */
   if (fill >= len && !memcmp (sock->recv_buffer, NUT_GET_OK, len))
     {
-      len = 0;
-
       /* find the end of the HTTP header (twice a CR/LF) */
       while (p < sock->recv_buffer + (fill - 3) && 
 	     memcmp (p, NUT_SEPERATOR, 4))
-	{
-	  /* parse the content length field */
-	  if (!memcmp (p, NUT_LENGTH, strlen (NUT_LENGTH)))
-	    {
-	      /* get the actual content length stored within the header */
-	      p += strlen (NUT_LENGTH);
-	      while (*p < '0' || *p > '9') p++;
-	      while (*p >= '0' && *p <= '9')
-		{
-		  len *= 10;
-		  len += *p - '0';
-		  p++;
-		}
-              p--;
-	    }
-	  p++;
-	}
-
+	p++;
+      
       /* did we get all the header information ? */
       if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: header received, length %d\n", len);
+	  log_printf (LOG_DEBUG, "nut: download header received\n");
 #endif
-	  sock->userflags |= NUT_FLAG_HDR;
+
+	  len = p - sock->recv_buffer + 1;
+	  length = nut_parse_property (sock->recv_buffer, len, NUT_LENGTH);
+	  if (length == NULL)
+	    {
+#if ENABLE_DEBUG
+	      log_printf (LOG_DEBUG, "nut: no content length given\n");
+#endif
+	      return -1;
+	    }
 
 	  /* 
 	   * check if the announced file length in the search reply
 	   * corresponds to the content length of this HTTP header
 	   */
-	  transfer->size = len;
+	  sock->userflags |= NUT_FLAG_HDR;
+	  transfer->size = util_atoi (length);
+	  xfree (length);
 	  if (transfer->original_size != transfer->size)
 	    {
 	      log_printf (LOG_WARNING,
@@ -407,10 +402,10 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       xsock->data = transfer;
 
       /* send HTTP request to the listening gnutella host */
-      sock_printf (xsock, NUT_GET "%d/%s " NUT_HTTP "\r\n",
+      sock_printf (xsock, NUT_GET "%d/%s " NUT_HTTP "1.0\r\n",
 		   record->index, savefile);
       sock_printf (xsock, NUT_AGENT);
-      sock_printf (xsock, NUT_RANGE " bytes=0-\r\n");
+      sock_printf (xsock, NUT_RANGE ": bytes=0-\r\n");
       sock_printf (xsock, "\r\n");
       xfree (file);
       return 0;
@@ -433,6 +428,7 @@ nut_destroy_database (nut_config_t *cfg)
     {
       cfg->database = entry->next;
       xfree (entry->file);
+      xfree (entry->path);
       xfree (entry);
     }
   cfg->db_files = 0;
@@ -443,12 +439,13 @@ nut_destroy_database (nut_config_t *cfg)
  * Add a further file to our database.
  */
 void
-nut_add_database (nut_config_t *cfg, char *file, off_t size)
+nut_add_database (nut_config_t *cfg, char *path, char *file, off_t size)
 {
   nut_file_t *entry;
 
   entry = xmalloc (sizeof (nut_file_t));
   entry->file = xstrdup (file);
+  entry->path = xstrdup (path);
   entry->size = size;
   entry->index = cfg->db_files;
   entry->next = cfg->database;
@@ -481,78 +478,96 @@ nut_find_database (nut_config_t *cfg, nut_file_t *entry, char *search)
 /*
  * This routine gets a gnutella database entry from a given FILE and
  * its appropiate INDEX. If no matching file has been found then return
- * NULL.
+ * NULL. If FILE is NULL we just search for the the given INDEX.
  */
 nut_file_t *
 nut_get_database (nut_config_t *cfg, char *file, unsigned index)
 {
-  nut_file_t *entry;
+  nut_file_t *entry = NULL;
 
   for (entry = cfg->database; entry; entry = entry->next)
     {
-      if (entry->index == index && !strcmp (entry->file, file))
-	return entry;
+      if (entry->index == index)
+	if (file == NULL || !strcmp (entry->file, file))
+	  return entry;
     }
 
   return entry;
 }
 
 /*
- * This routine will re-read the share directory.
+ * This routine will re-read the share directory. The routine itself is
+ * recursive. Thus be careful ! It cannot check for recursion loops, yet.
  */
-int
-nut_read_database (nut_config_t *cfg, char *dirname)
+void
+nut_read_database_r (nut_config_t *cfg, char *dirname, int depth)
 {
-  int i = 0;
-  struct stat buf;
-  int files = 0;
-  char filename[1024];
+  char *path;
+  static struct stat buf;
+  static char filename[NUT_PATH_SIZE];
 #ifndef __MINGW32__
   DIR *dir;
-  struct dirent *de = NULL;
+  static struct dirent *de = NULL;
 #else
-  WIN32_FIND_DATA de;
   HANDLE dir;
+  static WIN32_FIND_DATA de;
 #endif
 
-  /* free previous database */
-  nut_destroy_database (cfg);
+  /* first call */
+  if (!depth) 
+    {
+      nut_destroy_database (cfg);
+    }
 
-  /* open the directory */
+  /* check recursion condition */
+  if (depth < NUT_PATH_DEPTH)
+    {
+      depth++;
+
+      /* open the directory */
 #ifdef __MINGW32__
-  sprintf (filename, "%s/*", dirname);
+      if (snprintf (filename, NUT_PATH_SIZE - 1, "%s/*", dirname) == -1)
+	return;
       
-  if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE_VALUE)
+      if ((dir = FindFirstFile (filename, &de)) != INVALID_HANDLE_VALUE)
 #else
-  if ((dir = opendir (dirname)) == NULL)
+      if ((dir = opendir (dirname)) != NULL)
 #endif
-    {
-      return files;
-    }
-
-  /* iterate directory */
+	{
+	  /* iterate directory */
 #ifndef __MINGW32__
-  while (NULL != (de = readdir (dir)))
+	  while (NULL != (de = readdir (dir)))
 #else
-  do
+	  do
 #endif
-    {
-      sprintf (filename, "%s/%s", dirname, FILENAME);
+	    {
+	      if (snprintf (filename, NUT_PATH_SIZE - 1,
+			    "%s/%s", dirname, FILENAME) == -1)
+		continue;
 
-      /* stat the given file */
-      if (stat (filename, &buf) != -1 && 
-	  S_ISREG (buf.st_mode) && buf.st_size > 0)
-        {
-	  nut_add_database (cfg, FILENAME, buf.st_size);
-	  files++;
-        } 
-    }
+	      /* stat the given file */
+	      if (stat (filename, &buf) != -1)
+		{
+		  /* add valid files to database */
+		  if (S_ISREG (buf.st_mode) && buf.st_size > 0)
+		    {
+		      nut_add_database (cfg, dirname, FILENAME, buf.st_size);
+		    }
+		  /* recurse into directories */
+		  else if (S_ISDIR (buf.st_mode) && FILENAME[0] != '.')
+		    {
+		      path = xstrdup (filename);
+		      nut_read_database_r (cfg, path, depth);
+		      xfree (path);
+		    }
+		}
+	    }
 #ifdef __MINGW32__
-  while (FindNextFile (dir, &de));
+	  while (FindNextFile (dir, &de));
 #endif
-
-  closedir (dir);
-  return files;
+	  closedir (dir);
+	}
+    }
 }
 
 /*
@@ -565,6 +580,8 @@ nut_check_upload (socket_t sock)
   char *p = sock->recv_buffer;
   int len, fill = strlen (NUT_GET);
   unsigned index = 0;
+  char *end, *file, *f, *hdr;
+  nut_file_t *entry;
 
   /* enough receive buffer fill ? */
   if (sock->recv_buffer_fill < fill)
@@ -585,8 +602,139 @@ nut_check_upload (socket_t sock)
       log_printf (LOG_DEBUG, "nut: upload header received\n");
 #endif
       /* parse first (GET) line */
+      len = p - sock->recv_buffer + 1;
+      p = sock->recv_buffer + strlen (NUT_GET);
+      end = sock->recv_buffer + len;
+      while (p < end && *p >= '0' && *p <= '9')
+	{
+	  index *= 10;
+	  index += *p - '0';
+	  p++;
+	}
+      /* parsed file index */
+      if (p >= end || *p != '/') return -1;
+      f = ++p;
+      while (p < end && *p != '\r' && *p != '\n') p++;
+
+      /* got actual header property field */
+      hdr = p + 2;
+      len -= hdr - sock->recv_buffer;
+
+      while (p > f && memcmp (p, " " NUT_HTTP, strlen (NUT_HTTP) + 1)) p--;
+      if (p <= f) return -1;
+      /* parsed file itself */
+      fill = p - f;
+      file = xmalloc (fill + 1);
+      memcpy (file, f, fill);
+      file[fill] = '\0';
 
       /* here we parse all the header properties */
+
+      /* find file in database */
+      if ((entry = nut_get_database (sock->cfg, file, index)) == NULL)
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "nut: no such file: %s, %u\n", file, index);
+#endif
+	  xfree (file);
+	  return -1;
+	}
+      len = end - sock->recv_buffer + 3;
+      sock_reduce_recv (sock, len);
+      xfree (file);
+
+      /* disable connection timeout */
+      sock->idle_func = NULL;
+      sock->userflags |= NUT_FLAG_HDR;
+
+      if (nut_init_upload (sock, entry) == -1)
+	return -1;
+    }
+
+  return 0;
+}
+
+/*
+ * If the gnutella header has been successfully parsed this routine
+ * initializes the file upload.
+ */
+int
+nut_init_upload (socket_t sock, nut_file_t *entry)
+{
+  char *file;
+  nut_config_t *cfg = sock->cfg;
+  struct stat buf;
+  int fd;
+  nut_transfer_t *transfer;
+
+  /* create filename */
+  file = xmalloc (strlen (entry->path) + strlen (entry->file) + 2);
+  sprintf (file, "%s/%s", entry->path, entry->file);
+  
+  /* check file */
+  if (stat (file, &buf) == -1 || !S_ISREG (buf.st_mode) || buf.st_size <= 0)
+    {
+      log_printf (LOG_ERROR, "nut: invalid file: %s %s\n", file);
+      xfree (file);
+      return -1;
+    }
+  
+  /* open the file for reading */
+#ifdef __MINGW32__
+  if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
+#else
+  if ((fd = open (file, O_RDONLY | O_NONBLOCK)) == -1)
+#endif
+    {
+      log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
+      xfree (file);
+      return -1;
+    }
+
+  sock_printf (sock, NUT_GET_OK  NUT_AGENT);
+  sock_printf (sock, NUT_CONTENT ": application/binary\r\n");
+  sock_printf (sock, NUT_LENGTH ": %d\r\n", buf.st_size);
+  sock_printf (sock, "\r\n");
+
+  sock->file_desc = fd;
+  sock->read_socket = nut_file_read;
+  sock->write_socket = nut_file_write;
+  sock->disconnected_socket = nut_disconnect_upload;
+  sock->flags |= SOCK_FLAG_FILE;
+  cfg->uploads++;
+
+  transfer = xmalloc (sizeof (nut_transfer_t));
+  memset (transfer, 0, sizeof (nut_transfer_t));
+  transfer->size = buf.st_size;
+  transfer->original_size = buf.st_size;
+  transfer->start = time (NULL);
+  sock->data = transfer;
+
+  xfree (file);
+  return 0;
+}
+
+/*
+ * Disconnection callback for gnutella uploads.
+ */
+int
+nut_disconnect_upload (socket_t sock)
+{
+  nut_config_t *cfg = sock->cfg;
+  nut_transfer_t *transfer = sock->data;
+
+  /* decrement amount of concurrent uploads */
+  cfg->uploads--;
+
+  /* finally close the received file */
+  if (close (sock->file_desc) == -1)
+    log_printf (LOG_ERROR, "nut: close: %s\n", SYS_ERROR);
+
+  /* free the transfer data */
+  if (transfer)
+    {
+      xfree (transfer);
+      sock->data = NULL;
     }
 
   return 0;
@@ -599,6 +747,59 @@ nut_check_upload (socket_t sock)
 int
 nut_file_read (socket_t sock)
 {
+  int num_read;
+  int do_read;
+  nut_transfer_t *transfer = sock->data;
+
+  do_read = sock->send_buffer_size - sock->send_buffer_fill;
+
+  /* 
+   * This means the send buffer is currently full, we have to 
+   * wait until some data has been send via the socket.
+   */
+  if (do_read <= 0)
+    {
+      return 0;
+    }
+
+  /*
+   * Try to read as much data as possible from the file.
+   */
+  num_read = read (sock->file_desc,
+                   sock->send_buffer + sock->send_buffer_fill,
+                   do_read);
+
+  /* Read error occured. */
+  if (num_read < 0)
+    {
+      log_printf (LOG_ERROR, "nut: read: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  /* Bogus file. File size from stat() was not true. */
+  if (num_read == 0 && transfer->size != 0)
+    {
+      return -1;
+    }
+
+  /* Data has been read or EOF reached, set the appropiate flags. */
+  sock->send_buffer_fill += num_read;
+  transfer->size -= num_read;
+
+  /* Read all file data ? */
+  if (transfer->size <= 0)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: file successfully read\n");
+#endif
+      /* 
+       * no further read()s from the file descriptor, signalling 
+       * the writers there will not be additional data from now on
+       */
+      sock->read_socket = default_read;
+      sock->flags &= ~SOCK_FLAG_FILE;
+    }
+
   return 0;
 }
 
@@ -609,7 +810,65 @@ nut_file_read (socket_t sock)
 int
 nut_file_write (socket_t sock)
 {
-  return 0;
+  int num_written, do_write;
+  nut_transfer_t *transfer = sock->data;
+  nut_config_t *cfg = sock->cfg;
+  time_t t = time (NULL);
+
+  /* throttle the network output */
+  num_written = transfer->original_size - transfer->size;
+  if (num_written / (t - transfer->start + 1) > cfg->speed * 1024 / 8)
+    {
+      sock->unavailable = t + RELAX_FD_TIME;
+      return 0;
+    }
+
+  /* 
+   * Write as many bytes as possible, remember how many
+   * were actually sent.
+   */
+  do_write = (sock->send_buffer_fill > SOCK_MAX_WRITE) 
+    ? SOCK_MAX_WRITE : sock->send_buffer_fill;
+    
+  num_written = send (sock->sock_desc, sock->send_buffer, do_write, 0);
+
+  /* some data has been written */
+  if (num_written > 0)
+    {
+      sock->last_send = t;
+
+      if (sock->send_buffer_fill > num_written)
+        {
+          memmove (sock->send_buffer, 
+                   sock->send_buffer + num_written,
+                   sock->send_buffer_fill - num_written);
+        }
+      sock->send_buffer_fill -= num_written;
+    }
+
+  /* write error occured */
+  else if (num_written < 0)
+    {
+      log_printf (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
+      if (last_errno == SOCK_UNAVAILABLE)
+        {
+          sock->unavailable = t + RELAX_FD_TIME;
+          num_written = 0;
+        }
+    }
+
+  if (sock->send_buffer_fill == 0 && transfer->size <= 0)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: file successfully sent\n");
+#endif
+      return -1;
+    }
+
+  /*
+   * Return a non-zero value if an error occured.
+   */
+  return (num_written < 0) ? -1 : 0;
 }
 
 #else /* ENABLE_GNUTELLA */

@@ -1,3 +1,24 @@
+2000-09-10  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_push_request): When receiving
+	a push request for ourselves we connect to the given host and
+	send the initial `GIV' line.
+	(nut_config_prototype): With the configuration item
+	`max-uploads' you define the maximum number of concurrent 
+	file uploads.
+
+	* nut-server/nut-transfer.c (nut_read_database_r): The share
+	directory will be recursed now.
+	(nut_file_write): The network transfer rate is throttled down
+	to a configurable value.
+
+	* nut-server/nut-core.c (nut_parse_property): Here we parse
+	a given gnutella (HTTP) header for certain properties case
+	insensitively.
+
+	* ctrl-server/control-proto.c (ctrl_stat): This function
+	show additionally the current heap allocator values.
+
 2000-09-09  [ Ela ]  <ela@lkcc.org>
 
 	* hash.c (hash_analyse): Changed name conventions. A 

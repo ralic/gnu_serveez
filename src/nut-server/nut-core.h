@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.3 2000/09/05 20:21:36 ela Exp $
+ * $Id: nut-core.h,v 1.4 2000/09/10 10:51:18 ela Exp $
  *
  */
 
@@ -41,8 +41,10 @@ extern HMODULE oleHandle;
 /* Gnutella core functions. */
 void nut_calc_guid (byte *guid);
 char *nut_print_guid (byte *guid);
+char *nut_text_guid (byte *guid);
 int nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port);
 char *nut_client_key (unsigned long ip, unsigned short port);
+char *nut_parse_property (char *header, int len, char *property);
 
 /*
  * Because the gnutella protocol is a binary protocol we need to convert

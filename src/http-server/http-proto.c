@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.33 2000/09/09 16:33:43 ela Exp $
+ * $Id: http-proto.c,v 1.34 2000/09/10 10:51:17 ela Exp $
  *
  */
 
@@ -458,7 +458,7 @@ http_send_file (socket_t sock)
 #endif
       /* 
        * no further read()s from the file descriptor, signalling 
-       * the writers there will notbe additional data from now on
+       * the writers there will not be additional data from now on
        */
       sock->read_socket = default_read;
       sock->recv_buffer_fill = 0;
@@ -508,10 +508,10 @@ http_default_write (socket_t sock)
   /* write error occured */
   else if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "http: write: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "http: send: %s\n", NET_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	{
-	  sock->unavailable = time(NULL) + RELAX_FD_TIME;
+	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
 	  num_written = 0;
 	}
     }
@@ -612,7 +612,7 @@ http_file_read (socket_t sock)
 #endif
       /* 
        * no further read()s from the file descriptor, signalling 
-       * the writers there will notbe additional data from now on
+       * the writers there will not be additional data from now on
        */
       sock->read_socket = default_read;
       sock->userflags |= HTTP_FLAG_DONE;

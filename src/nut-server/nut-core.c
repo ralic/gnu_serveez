@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.5 2000/09/09 16:33:43 ela Exp $
+ * $Id: nut-core.c,v 1.6 2000/09/10 10:51:18 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifndef __MINGW32__
 # include <sys/types.h>
@@ -159,6 +160,23 @@ nut_print_guid (byte *guid)
 
   return id;
 }
+
+char *
+nut_text_guid (byte *guid)
+{
+  static char id[NUT_GUID_SIZE * 2 + 1];
+  char idpart[3];
+  int n;
+
+  for (n = id[0] = 0; n < NUT_GUID_SIZE; n++)
+    {
+      sprintf (idpart, "%02X", guid[n]);
+      strcat (id, idpart);
+    }
+
+  return id;
+}
+
 /*
  * Convert gnutella header to binary data and back.
  */
@@ -375,6 +393,52 @@ nut_put_push (nut_push_t *push)
   uint16 = ntols (push->port);
   memcpy (data, &uint16, SIZEOF_UINT16);
   return buffer;
+}
+
+/*
+ * This routine parses a given gnutella (HTTP) header for certains 
+ * properties and delivers either a property value which must be 
+ * xfree()'d afterwards or NULL.
+ */
+char *
+nut_parse_property (char *header, int len, char *property)
+{
+  char *h = header, *p = property, *value, *end = header + len;
+
+  while (h < end)
+    {
+      /* find beginning of property */
+      while (h < end && tolower (*h) != tolower (*p)) h++;
+      if (h >= end) return NULL;
+
+      /* compare whole property name */
+      header = h;
+      while (h < end && *p && tolower (*h++) == tolower (*p++));
+      if (h >= end) return NULL;
+      if (*p)
+	{
+	  /* fallback to property's first character */
+	  h = header + 1;
+	  p = property;
+	  continue;
+	}
+      
+      /* parse property value */
+      while (h < end && *h++ == ' ');
+      if (h >= end || *(h-1) != ':') return NULL;
+      while (h < end && *h == ' ') h++;
+      header = h;
+      while (h < end && *h != '\r' && *h != '\n') h++;
+      if (h >= end || h == header) return NULL;
+
+      /* copy property value */
+      len = h - header;
+      value = xmalloc (len + 1);
+      memcpy (value, header, len);
+      value[len] = '\0';
+      return value;
+    }
+  return NULL;
 }
 
 #else /* ENABLE_GNUTELLA */

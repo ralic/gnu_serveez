@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.15 2000/09/09 16:33:43 ela Exp $
+ * $Id: gnutella.c,v 1.16 2000/09/10 10:51:17 ela Exp $
  *
  */
 
@@ -120,6 +120,8 @@ nut_config_t nut_config =
   NULL,        /* shared file array */
   0,           /* number of database files */
   0,           /* size of database in KB */
+  0,           /* current number of uploads */
+  4,           /* maximum number of uploads */
 };
 
 /*
@@ -140,6 +142,7 @@ key_value_pair_t nut_config_prototype [] =
   REGISTER_STRARRAY ("file-extensions", nut_config.extensions, DEFAULTABLE),
   REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
   REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
+  REGISTER_INT ("max-uploads", nut_config.max_uploads, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -374,8 +377,9 @@ nut_init (server_t *server)
 	}
     }
 
-  /* read sharing files */
+  /* read shared files */
   nut_read_database (cfg, cfg->share_path);
+  log_printf (LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
 
   /* calculate forced local ip if necessary */
   if (cfg->force_ip)
@@ -634,6 +638,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_client_t *client = sock->data;
   socket_t xsock;
   nut_push_t *push;
+  nut_file_t *entry;
   byte *header;
 
   push = nut_get_push (packet);
@@ -652,12 +657,40 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
   /* push request for ourselves ? */
   else if (!memcmp (cfg->guid, push->id, NUT_GUID_SIZE))
     {
-#if 1
+#if 0
       printf ("push request for us\n"
 	      "file index : %u\n", push->index);
       printf ("ip         : %s\n", util_inet_ntoa (push->ip));
       printf ("port       : %u\n", htons (push->port));
 #endif
+
+      /* find requested file in database */
+      if (cfg->uploads <= cfg->max_uploads &&
+	  (entry = nut_get_database (cfg, NULL, push->index)) != NULL)
+	{
+	  /* try to connect to given host */
+	  if ((xsock = sock_connect (push->ip, push->port)) != NULL)
+	    {
+	      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
+			  util_inet_ntoa (push->ip), ntohs (push->port));
+
+	      xsock->userflags |= NUT_FLAG_UPLOAD;
+	      xsock->cfg = cfg;
+
+	      /* not sure about the format of this line */
+	      if (sock_printf (xsock, "GIV %d:%s/%s\n\n",
+			       entry->index, nut_text_guid (cfg->guid),
+			       entry->file) == -1)
+		{
+		  sock_schedule_for_shutdown (xsock);
+		  return -1;
+		}
+	      xsock->disconnected_socket = nut_disconnect_upload;
+	      xsock->check_request = nut_check_upload;
+	      xsock->idle_func = nut_connect_timeout;
+	      xsock->idle_counter = NUT_CONNECT_TIMEOUT;
+	    }
+	}
     }
   /* drop this push request */
   else
@@ -1064,8 +1097,14 @@ nut_check_request (socket_t sock)
 		  break;
 		}
 	    }
-	  else
-	    client->dropped++;
+	  else if (!(sock->flags & SOCK_FLAG_KILLED))
+	    {
+	      client->dropped++;
+	    }
+
+	  /* return if this client connection has been killed */
+	  if (sock->flags & SOCK_FLAG_KILLED)
+	    return -1;
 
 	  /* cut this packet from the send buffer queue */
 	  sock_reduce_recv (sock, len);
@@ -1252,7 +1291,7 @@ char *
 nut_info_server (server_t *server)
 {
   nut_config_t *cfg = server->cfg;
-  static char info[80*17];
+  static char info[80*19];
   char *ext = NULL;
   int n;
 
@@ -1296,8 +1335,10 @@ nut_info_server (server_t *server)
 	   " routing errors  : %u\r\n"
 	   " hosts           : %u gnutella clients seen\r\n"
 	   " data pool       : %u MB in %u files on %u hosts\r\n"
+	   " database        : %u MB in %u files\r\n"
 	   " downloads       : %u/%u\r\n"
-	   " queries         : %u",
+	   " uploads         : %u/%u\r\n"
+	   " recent queries  : %u",
 	   cfg->port->port,
 	   cfg->ip != INADDR_NONE ? util_inet_ntoa (cfg->ip) : "no specified",
 	   cfg->max_ttl,
@@ -1314,7 +1355,9 @@ nut_info_server (server_t *server)
 	   cfg->errors,
 	   hash_size (cfg->net),
 	   cfg->size / 1024, cfg->files, cfg->nodes,
+	   cfg->db_size / 1024, cfg->db_files,
 	   cfg->dnloads, cfg->max_dnloads,
+	   cfg->uploads, cfg->max_uploads,
 	   hash_size (cfg->query));
 
   xfree (ext);
@@ -1356,6 +1399,17 @@ nut_info_client (void *nut_cfg, socket_t sock)
       all = transfer->original_size;
       sprintf (text, 
 	       "  * download progress : %u/%u (%u.%u%%)\r\n",
+	       current, all,
+	       current * 100 / all, (current * 1000 / all) % 10);
+      strcat (info, text);
+    }
+
+  if (sock->userflags & NUT_FLAG_UPLOAD)
+    {
+      current = transfer->original_size - transfer->size;
+      all = transfer->original_size;
+      sprintf (text, 
+	       "  * upload progress   : %u/%u (%u.%u%%)\r\n",
 	       current, all,
 	       current * 100 / all, (current * 1000 / all) % 10);
       strcat (info, text);
@@ -1437,8 +1491,12 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
   /* assign upload request routines */
   if (sock->userflags & NUT_FLAG_UPLOAD)
     {
-      sock->check_request = nut_check_upload;
-      return 0;
+      if (cfg->uploads <= cfg->max_uploads)
+	{
+	  sock->check_request = nut_check_upload;
+	  return 0;
+	}
+      return -1;
     }
 
   /* send the first reply */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.12 2000/09/08 07:45:18 ela Exp $
+ * $Id: gnutella.h,v 1.13 2000/09/10 10:51:18 ela Exp $
  *
  */
 
@@ -193,10 +193,11 @@ nut_push_reply_t;
 /* files in the sharing directory */
 typedef struct
 {
-  off_t size;
-  unsigned index;
-  char *file;
-  void *next;
+  off_t size;     /* file size */
+  unsigned index; /* database index */
+  char *file;     /* filename */
+  char *path;     /* path to file */
+  void *next;     /* pointer to next file entry */
 }
 nut_file_t;
 
@@ -234,6 +235,8 @@ typedef struct
   nut_file_t *database;     /* shared file array */
   unsigned db_files;        /* number of database files */
   unsigned db_size;         /* size of database in bytes */
+  int uploads;              /* current number of uploads */
+  int max_uploads;          /* maximum number of uploads */
 }
 nut_config_t;
 

@@ -1106,13 +1106,18 @@ When creating a new Gnutella packet we use this as TTL.
 This is where the spider saves needles in.
 
 @item share-path
-Here are all the files we share with others.
+Here are all the files we share with others. The Gnutella spider will 
+recurse into directories. Thus be careful with this option.
 
 @item max-downloads
 Maximum amount of concurrent downloads from the network.
 
+@item max-uploads
+Maximum amount of concurrent uploads to the network.
+
 @item connection-speed
-This is what we send as our connection speed in KBit/s.
+This is what we send as our connection speed in KBit/s. We also use this
+value to throttle down the network transfer rate for file uploads.
 
 @item min-speed
 Search for needles on hosts with a minimum speed. Set it to 0 if you do
