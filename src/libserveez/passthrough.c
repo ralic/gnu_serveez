@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.5 2001/08/03 18:09:04 ela Exp $
+ * $Id: passthrough.c,v 1.6 2001/08/05 06:14:49 ela Exp $
  *
  */
 
@@ -56,7 +56,11 @@
  * This routine start a new program specified by @var{bin} passing the
  * socket descriptor in the socket structure @var{sock} to stdin and stdout.
  * The arguments and the environment of the new process can be passed by
- * @var{argv} and @var{envp}.
+ * @var{argv} and @var{envp}. The argument @var{flag} specifies the method
+ * used to passthrough the connection. It can be either 
+ * @code{SVZ_PROCESS_FORK} (pass pipes or socket directly through 
+ * @code{fork()} and @code{exec()}) or @code{SVZ_PROCESS_SHUFFLE} (pass
+ * socket transactions via a pair of pipes).
  */
 int
 svz_sock_process (svz_socket_t *sock, char *bin, 
@@ -106,7 +110,8 @@ svz_sock_process (svz_socket_t *sock, char *bin,
       ret = svz_process_fork (file, dir, in, out, argv, envp, app);
       break;
     case SVZ_PROCESS_SHUFFLE:
-      ret = svz_process_shuffle (sock, file, dir, in, argv, envp, app);
+      ret = svz_process_shuffle (sock, file, dir, (SOCKET) in, argv, 
+				 envp, app);
       break;
     default:
       svz_log (LOG_ERROR, "invalid flag (%d)\n", flag);
@@ -231,14 +236,14 @@ svz_process_create_child (char *file, char *dir, HANDLE in, HANDLE out,
       strcat (application, argv[n]);
     }
 
-  if (!CreateProcess (NULL,                    /* ApplicationName */
-                      application,             /* CommandLine */
-                      NULL,                    /* ProcessAttributes */
-                      NULL,                    /* ThreadAttributes */
-                      TRUE,                    /* InheritHandles */
-                      DETACHED_PROCESS,        /* CreationFlags */
-                      svz_envblock_get (envp), /* Environment */
-                      NULL,                    /* CurrentDirectory */
+  if (!CreateProcess (NULL,                    /* application name */
+                      application,             /* command line */
+                      NULL,                    /* process attributes */
+                      NULL,                    /* thread attributes */
+                      TRUE,                    /* inherit handles */
+                      DETACHED_PROCESS,        /* creation flags */
+                      svz_envblock_get (envp), /* environment */
+                      NULL,                    /* current directory */
                       &startup_info, &process_info))
     {
       svz_log (LOG_ERROR, "CreateProcess (%s): %s\n", application, SYS_ERROR);
