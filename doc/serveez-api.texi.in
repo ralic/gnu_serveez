@@ -122,6 +122,7 @@ SVZ_ARRAY_SIZE_DEFUN
 SVZ_ARRAY_CONTAINS_DEFUN
 SVZ_ARRAY_IDX_DEFUN
 SVZ_ARRAY_INS_DEFUN
+SVZ_ARRAY_FOREACH_DEFMAC
 
 @node Hashtable, Sparsevector, Array, Data structures
 @subsection Hashtable functions

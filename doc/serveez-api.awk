@@ -157,8 +157,6 @@ function handle_macro(line)
       if (length(mac)) {
 	doc = docu
 	gsub(/\n/, "\\\n", doc)
-	gsub(/}/, "@}", doc)
-	gsub(/{/, "@{", doc)
         # finally create texinfo doc
 	replace = ("@defmac " macdef "\\\n" doc "\\\n" "@end defmac")
 	sedexp = ("/" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
