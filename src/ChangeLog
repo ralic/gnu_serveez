@@ -1,3 +1,10 @@
+2000-06-18  [ RAIMI ]  <raimi@lkcc.org>
+
+	* http-server/http-dirlist.c (http_dirlist): changed display format
+	of listing. looks a bit strange now due to the underlining of links.
+	but is lynx-safe and loads faster because there are no tables in it
+	anymore.
+
 2000-06-17  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-dirlist.c (http_dirlist): Fixed the "Too many 

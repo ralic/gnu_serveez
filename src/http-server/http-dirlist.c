@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.2 2000/06/17 09:30:18 ela Exp $
+ * $Id: http-dirlist.c,v 1.3 2000/06/17 23:29:59 raimi Exp $
  *
  */
 
@@ -100,7 +100,7 @@ http_dirlist (char *dirname, char *docroot)
 			 "<body bgcolor=white text=black link=blue>\n"
 			 "<h1>Directory listing of %s/</h1>\n"
 			 "<hr noshade>\n"
-			 "<table border=0 cellspacing=5 cellpadding=1>\n",
+			 "<pre>\n",
 			 HTTP_OK, relpath, relpath)) 
     {
       dirdata = xrealloc (dirdata, data_size + DIRLIST_SPACE_GROW);
@@ -119,10 +119,7 @@ http_dirlist (char *dirname, char *docroot)
 	{
 	  /* Something is wrong with this file... */
 	  snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-		    "<tr><td><pre>"
-		    "<font color=red><u>%s</u></font></pre></td>"
-		    "<td></td>"
-		    "<td><font color=red>%s</font></pre></td></tr>\n", 
+		    "<font color=red>%s -- %s</font>\n",
 		    de->d_name, SYS_ERROR);
 	} 
       else 
@@ -139,22 +136,20 @@ http_dirlist (char *dirname, char *docroot)
 	    {
 	      /* This is a directory... */
 	      snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-			"<tr><td><pre>"
 			"<img border=0 src=internal-gopher-menu> "
-			"<a href=\"%s/\">%s/</a></pre></td>"
-			"<td><pre> &lt;directory&gt; </pre></td>"
-			"<td><pre>%s</pre></td></tr>\n",
+			"<a href=\"%s/\">%-40s</a> "
+			"&lt;directory&gt; "
+			"%s\n",
 			de->d_name, de->d_name, timestr);
 	    } 
 	  else 
 	    {
 	      /* Let's treat this as a normal file */
 	      snprintf (entrystr, DIRLIST_SPACE_ENTRY,
-			"<tr><td><pre>"
 			"<img border=0 src=internal-gopher-text> "
-			"<a href=\"%s\">%s</a></pre></td>"
-			"<td align=right><pre>%10d</pre></td>"
-			"<td><pre>%s</pre></td></tr>\n",
+			"<a href=\"%s\">%-40s</a> "
+			"<b>%11d</b> "
+			"%s\n",
 			de->d_name, de->d_name, (int)statbuf.st_size, timestr);
 	    }
 	}
@@ -171,7 +166,7 @@ http_dirlist (char *dirname, char *docroot)
 
   /* Output postamble */
   snprintf (postamble, DIRLIST_SPACE_POST, 
-	    "</table>\n<hr noshade>\n"
+	    "\n</pre><hr noshade>\n"
 	    "%d entries\n</body>\n</html>",
 	    files);
 
