@@ -1,3 +1,11 @@
+2002-02-16  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Using Serveez): Small section about installing
+	the Debian package added.
+
+	* serveez-api.texi.in (Compiling and linking): Documented the
+	use of the `serveez-config' script.
+
 2002-02-03  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Gnutella Spider): Documented the hostname 

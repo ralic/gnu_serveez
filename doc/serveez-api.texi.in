@@ -97,6 +97,22 @@ libraries and the @samp{-l} argument the library itself to link against.
 $ cc svztest.c -I/usr/local/include -o svztest -L/usr/local/lib -lserveez
 @end example
 
+In order to obtain then correct compiler and linker flag you can also
+run the @samp{serveez-config} script which gets installed with the Serveez
+package.  The @samp{serveez-config} script can be invoked with the 
+following set of option.
+
+@table @code
+@item -h, --help
+Displays the usage information.
+@item -v, --version
+Displays installed Serveez version.
+@item -l, --ldflags
+Prints the linker flags (libraries to link with including path information).
+@item -c, --cflags
+Prints the compiler flags to compile with.
+@end table
+
 @node A simple example, , Compiling and linking, Embedding Serveez
 @section A simple example
 

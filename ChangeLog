@@ -1,5 +1,8 @@
 2002-02-15  [ Ela ]  <ela@lkcc.org>
 
+	* INSTALL: Added missing documentation for the `configure' 
+	options `--enable-iflist' and `--enable-heap-count'.
+
 	* Makefile.am (debian): Rule for running the Debian script.
 
 	* debian.sh.in: New file.  For automated Debian packaging.

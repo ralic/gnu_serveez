@@ -35,6 +35,6 @@ redhat: @MAINTAINER_MODE_TRUE@ dist redhat.sh
 debian: @MAINTAINER_MODE_TRUE@ dist debian.sh
 	@MAINTAINER_MODE_TRUE@ @sh debian.sh && echo "Debian packages done."
 
-CLEANFILES = *~ *.rpm *.deb *.changes
+CLEANFILES = *~ *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
-	stamp-h.in serveez.dsw
+	stamp-h.in stamp-h[0-9].in serveez.dsw

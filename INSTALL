@@ -180,5 +180,13 @@ or `--enable-<?>=no'.
 `--enable-passthrough'
 	This includes the program passthrough server in the Serveez 
 	binary.  The server provides basic inetd functionality.
+`--enable-iflist'
+	If Serveez is unable to detect the correct list of local network
+	interfaces (serveez -i) you can disable this option and setup
+	them manually in the configuration file.
+`--enable-heap-count'
+	This option depends on `--enable-debug'.  With the debugging option
+	disabled there is also no support for heap counters.  The heap
+	counters are used to detect memory leaks in Serveez.
 
 Please also read the README file.

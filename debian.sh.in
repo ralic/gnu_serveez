@@ -199,3 +199,4 @@ dpkg-buildpackage -rfakeroot -d -b -nc
 
 mv -f ../*.deb ../*.changes .
 rm -rf $topdir
+rm build-stamp

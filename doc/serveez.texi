@@ -207,6 +207,14 @@ using Guile.
 @item --enable-passthrough
 This includes the program passthrough server in the Serveez 
 binary.  The server provides basic inetd functionality.
+@item --enable-iflist
+If Serveez is unable to detect the correct list of local network
+interfaces (@samp{serveez -i}) you can disable this option and setup
+them manually in the configuration file.
+@item --enable-heap-count
+This option depends on @samp{--enable-debug}.  With the debugging option
+disabled there is also no support for heap counters.  The heap
+counters are used to detect memory leaks in Serveez.
 @end table
 
 @example
@@ -254,6 +262,27 @@ serveez                     ####################
 @item Uninstall the package:
 @example
 sleepless ~> rpm -ev serveez-@value{VERSION}
+@end example
+@end table
+
+@subsection Installing the Debian package
+The binary Debian distribution @file{serveez_@value{VERSION}_i386.deb} of
+Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine.  You need to 
+ensure root privileges in order to install or remove Debian packages.
+
+@table @asis
+@item Query information:
+@example
+sleepless ~> dpkg -I serveez_@value{VERSION}_i386.deb
+sleepless ~> dpkg -c serveez_@value{VERSION}_i386.deb
+@end example
+@item Install the package:
+@example
+sleepless ~> dpkg -i serveez_@value{VERSION}_i386.deb
+@end example
+@item Uninstall the package:
+@example
+sleepless ~> dpkg -r serveez
 @end example
 @end table
 
@@ -414,7 +443,7 @@ about conflicting values.
 @item ipaddr (string)
 This configuration item specifies the IP address (either in dotted decimal
 form e.g. @samp{192.168.2.1} or as a device description which can be
-obtained via @code{serveez -i}) to which a server is bound to.  The 
+obtained via @samp{serveez -i}) to which a server is bound to.  The 
 @samp{*} keyword for all known IP addresses and the @samp{any} keyword for 
 any IP address are also valid values.  The default value is @samp{*}.  The
 configuration item applies to network ports (TCP, UDP and ICMP) only.
