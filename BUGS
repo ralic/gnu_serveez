@@ -24,13 +24,22 @@
 This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
-Bug:	     B0016
+Bug:	     B0017
 From:	     ela <stefan@lkcc.org>
 State:       unfixed
+Date:	     2000-11-11
+Description: There is no standard raw socket support in the Winsock API.
+	     Maybe we should use the ICMP.DLL API instead ? 
+
+Bug:	     B0016
+From:	     ela <stefan@lkcc.org>
+State:       fixed (2000-11-11/ela)
 Date:	     2000-11-04
 Description: The Winsock API cannot sendto() or recvfrom() "connected"
 	     UDP and ICMP sockets. The calls return with "Socket is already
 	     connected". Thus the tunnel server will not work properly.
+Fix:	     Use of send() and recv() instead of their -to() and -from()
+	     versions.
 
 Bug:	     B0015
 From:	     ela <stefan@lkcc.org>
@@ -51,6 +60,8 @@ Date:	     2000-09-12
 Description: Bigger CGI scripts under Win95 will lock the server. Bigger
 	     means more content production here. This happened with batch
 	     files (.bat) which `type file.txt'.
+Fix:	     Pipes have been done non-blocking via PeekNamedPipe() in the
+	     Win32 port.
 
 Bug:	     B0012
 From:	     ela <stefan@lkcc.org>
@@ -58,7 +69,7 @@ State:       unfixed
 Date:	     2000-09-12
 Description: If the server has many open connections and much traffic on
 	     these Linux starts deadlocking for some reason. This 
-	     collaborates with the occurence of EWOULDBLOCK or EAGAIN on
+	     collaborates with the occurrence of EWOULDBLOCK or EAGAIN on
 	     network sockets. Seems like if one socket starts with this
 	     all want to do the same: nothing, but wasting time in kernel
 	     space. Errors happen to be on outgoing connections only.
@@ -67,36 +78,40 @@ Bug:	     B0011
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-09-22/ela)
 Date:	     2000-09-12
-Description: On some Linux's the named pipe behaviour is not as it is
+Description: On some Linux's the named pipe behavior is not as it is
 	     documented. See `man 4 fifo' for more information.
+Fix:	     Checking for the file flags (S_ISFIFO) of a previously created
+	     named pipe. This has been a problem on NFS mounts.
 
 Bug:	     B0010
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-08-20/ela)
 Date:	     2000-08-19
-Description: ident coserver dies because of queue overrun. thus the
+Description: Ident coserver dies because of queue overrun. Thus the
 	     socket references cannot get decreased.
+Fix:	     Using a general coserver request hash instead of socket
+	     structure references.
 
 Bug:	     B0009
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-07-06/raimi)
 Date:	     2000-06-21
-Description: filesize 0 for http files is not handled specifically.
+Description: Filesize 0 for http files is not handled specifically.
              http directory listing does not show the actual directory.
 
 Bug:         B0008
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed (2000-11-11/ela)
 Date:	     2000-04-24
-Description: http cache inconsistance.
-
+Description: Http cache inconsistency.
+Fix:         With help of a special paranoid checking function all bugs
+	     have been caught. 
 
 Bug:         B0007
 From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-11-18/ela)
 Date:	     1999-10-27
-Description: accept() fails under cygwin with a "bad address" error.
-
+Description: accept() fails under Cygwin with a "bad address" error.
 
 Bug:         B0006
 From:	     ela <stefan@lkcc.org>
@@ -109,10 +124,9 @@ Bug:         B0005
 From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-10-27/mgrabmue)
 Date:	     1999-10-27
-Description: disabling floodprotection on port <vielzuhohezahl> ...war
-	     vermutl. der selbe fehler, in der 4er ist das bloss nicht
+Description: Disabling floodprotection on port <vielzuhohezahl> ... War
+	     vermutlich derselbe Fehler, in der 4er ist das bloss nicht
 	     gestorben.
-
 
 Bug:         B0004
 From:	     raimi <raimi@cs.tu-berlin.de>
@@ -131,7 +145,6 @@ Date:	     1999-10-21
 Description: Serveez sometimes segfaults when the massclient
 	     disconnects.
 
-
 Bug:         B0002
 From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
 State:       fixed (1999-10-25/mgrabmue)
@@ -139,7 +152,6 @@ Date:	     1999-10-21
 Description: Serveez goes into endless loop or something when many
 	     massclients are connected.  Process uses 100% CPU and
 	     does no accept connections anymore.
-
 
 Bug:         B0001
 From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>

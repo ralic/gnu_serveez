@@ -1,3 +1,17 @@
+2000-11-11  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-core.c (http_start_netapi): Here we load
+	the netapi32.dll to get some functions for handling user 
+	account information on Windows NT systems. This is used within
+	the http_userdir() routine for obtaining a user's home
+	directory. Not yet tested...
+
+	* windoze.c (windoze_asc2uni): Added two routines which convert
+	unicode to ascii strings and the other way around.
+
+	* tunnel-server/tunnel.c (tnl_disconnect): Fixed some of the
+	segmentation fault candidates due to invalid socket referers.
+
 2000-11-09  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.c (http_init): The user directory

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.14 2000/11/10 19:55:48 ela Exp $
+ * $Id: http-core.c,v 1.15 2000/11/12 01:48:54 ela Exp $
  *
  */
 
@@ -38,7 +38,7 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-#if HAVE_PWD_H
+#if HAVE_PWD_H && !defined (__MINGW32__)
 # include <pwd.h>
 #endif
 
@@ -54,6 +54,7 @@
 
 #include "util.h"
 #include "alloc.h"
+#include "windoze.h"
 #include "hash.h"
 #include "serveez.h"
 #include "server-core.h"
@@ -68,6 +69,51 @@
 # define daylight _daylight
 #endif
 
+#ifdef __MINGW32__
+
+/* 
+ * Handle and function definitions for the NetApi interface. 
+ */
+typedef NET_API_STATUS (__stdcall *GetUserInfoProc) (WCHAR *, WCHAR *,
+						     DWORD, byte **);
+typedef NET_API_STATUS (__stdcall *FreeUserInfoProc) (void *);
+static FreeUserInfoProc FreeUserInfo = NULL;
+static GetUserInfoProc GetUserInfo = NULL;
+static HMODULE netapiHandle = NULL;
+
+/* 
+ * Unload the `netapi32.dll'.
+ */
+void
+http_stop_netapi (void)
+{
+  if (netapiHandle)
+    FreeLibrary (netapiHandle);
+}
+
+/* 
+ * Load `netapi32.dll' and get function pointers necessary to obtain
+ * a user's home directory.
+ */
+void
+http_start_netapi (void)
+{
+  if ((netapiHandle = LoadLibrary ("netapi32.dll")) != NULL)
+    {
+      FreeUserInfo = (FreeUserInfoProc) 
+	GetProcAddress (netapiHandle, "NetApiBufferFree");
+      GetUserInfo = (GetUserInfoProc) 
+	GetProcAddress (netapiHandle, "NetUserGetInfo");
+      if (GetUserInfo == NULL)
+	{
+	  log_printf (LOG_ERROR, "GetProcAddress: %s\n", SYS_ERROR);
+	  FreeLibrary (netapiHandle);
+	  netapiHandle = NULL;
+	}
+    }
+}
+#endif /* not __MINGW32__ */
+
 /*
  * If the given request has a leading `~' we try to get the appropriate
  * user's home directory and put it in front of the request.
@@ -81,7 +127,7 @@ http_userdir (socket_t sock, char *uri)
 #if HAVE_GETPWNAM
   struct passwd *entry;
 #elif defined (__MINGW32__)
-  USER_INFO_1 *entry;
+  USER_INFO_1 *entry = NULL;
   NET_API_STATUS status;
 #endif
 
@@ -91,7 +137,7 @@ http_userdir (socket_t sock, char *uri)
       while (*p && *p != '/') p++;
       if (p - uri <= 2) return NULL;
 
-      user = xmalloc (p - uri);
+      user = xmalloc (p - uri - 1);
       memcpy (user, uri + 2, p - uri - 2);
       user[p - uri - 2] = '\0';
       
@@ -104,11 +150,18 @@ http_userdir (socket_t sock, char *uri)
 	  xfree (user);
 	  return file;
 	}
-#elif defined (__MINGW32__) && 0
-      status = NetUserGetInfo ("\\\\.",            /* server name */
-			       user,               /* user name */
-			       1,                  /* type of info */
-			       (LPBYTE *) &entry); /* info buffer */
+#elif defined (__MINGW32__)
+      if (GetUserInfo == NULL)
+	{
+	  xfree (user);
+	  return NULL;
+	}
+
+      status = GetUserInfo (NULL,                   /* server name */
+			    windoze_asc2uni (user), /* user name */
+			    1,                      /* type of info */
+			    (LPBYTE *) &entry);     /* info buffer */
+
       if (status != NERR_Success)
 	{
 	  char *error;
@@ -130,12 +183,14 @@ http_userdir (socket_t sock, char *uri)
 	    }
 	  log_printf (LOG_ERROR, "NetUserGetInfo: %s\n", error);
 	}
-      else if (entry->usri1_home_dir != NULL)
+      else if (entry && entry->usri1_home_dir)
 	{
-	  file = xmalloc (strlen (entry->usri1_home_dir) + 
+	  file = xmalloc (strlen (windoze_uni2asc (entry->usri1_home_dir)) +
 			  strlen (cfg->userdir) + strlen (p) + 1);
-	  sprintf (file, "%s/%s%s", entry->usri1_home_dir, cfg->userdir, p);
-	  NetApiBufferFree (entry);
+	  sprintf (file, "%s/%s%s", 
+		   windoze_uni2asc (entry->usri1_home_dir), 
+		   cfg->userdir, p);
+	  FreeUserInfo (entry);
 	  xfree (user);
 	  return file;
 	}

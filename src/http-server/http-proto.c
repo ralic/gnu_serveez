@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.43 2000/11/10 11:24:05 ela Exp $
+ * $Id: http-proto.c,v 1.44 2000/11/12 01:48:54 ela Exp $
  *
  */
 
@@ -206,6 +206,9 @@ http_request [HTTP_REQUESTS] =
 int
 http_global_init (void)
 {
+#ifdef __MINGW32__
+  http_start_netapi ();
+#endif /* __MINGW32__ */
   http_alloc_cache (MAX_CACHE);
   return 0;
 }
@@ -217,6 +220,9 @@ int
 http_global_finalize (void)
 {
   http_free_cache ();
+#ifdef __MINGW32__
+  http_stop_netapi ();
+#endif /* __MINGW32__ */
   return 0;
 }
 

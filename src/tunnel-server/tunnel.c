@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.7 2000/11/10 11:24:05 ela Exp $
+ * $Id: tunnel.c,v 1.8 2000/11/12 01:48:54 ela Exp $
  *
  */
 
@@ -29,6 +29,7 @@
 #if ENABLE_TUNNEL
 
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -278,8 +279,8 @@ tnl_create_socket (socket_t sock, int source)
   xsock->flags |= SOCK_FLAG_NOFLOOD;
   xsock->userflags = (sock->userflags | source) & ~(TNL_FLAG_TGT);
   xsock->disconnected_socket = tnl_disconnect;
-  xsock->referrer = sock;
-  sock->referrer = xsock;
+  xsock->referer = sock;
+  sock->referer = xsock;
 
   return xsock;
 }
@@ -390,7 +391,7 @@ tnl_check_request_tcp_target (socket_t sock)
   /* source is a TCP connection */
   if (sock->userflags & TNL_FLAG_SRC_TCP)
     {
-      xsock = sock->referrer;
+      xsock = sock->referer;
     }
   /* source is an UDP connection */
   else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
@@ -425,7 +426,7 @@ tnl_check_request_tcp_source (socket_t sock)
   tnl_config_t *cfg = sock->cfg;
 
   /* forward data to target connection */
-  if (tnl_send_request_source (sock->referrer, sock->recv_buffer, 
+  if (tnl_send_request_source (sock->referer, sock->recv_buffer, 
 			       sock->recv_buffer_fill, 
 			       sock->userflags) == -1)
     {
@@ -449,7 +450,8 @@ tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
   /* the source connection is TCP */
   if (sock->userflags & TNL_FLAG_SRC_TCP)
     {
-      xsock = sock->referrer;
+      if ((xsock = sock->referer) == NULL)
+	return -1;
     }
   /* source connection is UDP or ICMP */
   else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
@@ -532,7 +534,8 @@ tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
   /* the source connection is TCP */
   if (sock->userflags & TNL_FLAG_SRC_TCP)
     {
-      xsock = sock->referrer;
+      if ((xsock = sock->referer) == NULL)
+	return -1;
     }
   /* source connection is UDP or ICMP */
   else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
@@ -611,24 +614,27 @@ tnl_disconnect (socket_t sock)
   tnl_config_t *cfg = sock->cfg;
   char *key;
 
-  if (sock->userflags & TNL_FLAG_SRC_ICMP && sock->referrer)
+  /* do not anything if we are shutting down */
+  if (server_nuke_happened)
+    return 0;
+
+  /* if the source connection is ICMP send a disconnection message */
+  if (sock->userflags & TNL_FLAG_SRC_ICMP && sock->referer)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: sending icmp disconnect\n");
 #endif
-      icmp_write (sock->referrer, NULL, 0);
+      icmp_write (sock->referer, NULL, 0);
     }
 
-  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_SRC_TCP) &&
-      sock->referrer)
+  /* if source is TCP shutdown referring connection */
+  if (sock->userflags & TNL_FLAG_SRC_TCP && sock->referer)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
-		  sock->referrer->id);
+		  sock->referer->id);
 #endif
-      sock_schedule_for_shutdown (sock->referrer);
-      sock->referrer->referrer = NULL;
-      sock->referrer = NULL;
+      sock_schedule_for_shutdown (sock->referer);
     }
   else
     {
@@ -638,6 +644,13 @@ tnl_disconnect (socket_t sock)
 	  xfree (sock->data);
 	  sock->data = NULL;
 	}
+    }
+
+  /* disable the referring socket structure */
+  if (sock->referer)
+    {
+      sock->referer->referer = NULL;
+      sock->referer = NULL;
     }
   return 0;
 }

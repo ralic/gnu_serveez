@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.12 2000/11/10 19:55:48 ela Exp $
+ * $Id: icmp-socket.c,v 1.13 2000/11/12 01:48:54 ela Exp $
  *
  */
 
@@ -410,8 +410,17 @@ icmp_read_socket (socket_t sock)
   int trunc;
 
   len = sizeof (struct sockaddr_in);
-  num_read = recvfrom (sock->sock_desc, icmp_buffer, sizeof (icmp_buffer), 
-		       0, (struct sockaddr *) &sender, &len);
+
+  /* Receive data. */
+  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+    {
+      num_read = recvfrom (sock->sock_desc, icmp_buffer, sizeof (icmp_buffer), 
+			   0, (struct sockaddr *) &sender, &len);
+    }
+  else
+    {
+      num_read = recv (sock->sock_desc, icmp_buffer, sizeof (icmp_buffer), 0);
+    }
 
   /* Valid packet data arrived. */
   if (num_read > 0)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.5 2000/11/10 19:55:48 ela Exp $
+ * $Id: windoze.c,v 1.6 2000/11/12 01:48:54 ela Exp $
  *
  */
 
@@ -430,6 +430,28 @@ windoze_set_reg_string (HKEY key, char *subkey, char *subsubkey, char *value)
     {
       log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
     }
+}
+
+/*
+ * Convert an ASCII string into a UNICODE string.
+ */
+WCHAR *
+windoze_asc2uni (CHAR *asc)
+{
+  static WCHAR unicode[256];
+  MultiByteToWideChar (CP_ACP, 0, asc, -1, unicode, 256);
+  return unicode;
+}
+
+/*
+ * Convert a UNICODE string into an ASCII string.
+ */
+CHAR *
+windoze_uni2asc (WCHAR *unicode)
+{
+  static CHAR asc[256];
+  WideCharToMultiByte (CP_ACP, 0, unicode, -1, asc, 256, NULL, NULL);
+  return asc;
 }
 
 #else /* __MINGW32__ */

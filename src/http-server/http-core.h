@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.5 2000/11/10 11:24:05 ela Exp $
+ * $Id: http-core.h,v 1.6 2000/11/12 01:48:54 ela Exp $
  *
  */
 
@@ -117,5 +117,10 @@ int http_error_response (socket_t sock, int response);
 void http_log (socket_t sock);
 time_t http_parse_date (char *date);
 char *http_asc_date (time_t t);
+
+#ifdef __MINGW32__
+void http_start_netapi (void);
+void http_stop_netapi (void);
+#endif
 
 #endif /* __HTTP_CORE_H__ */
