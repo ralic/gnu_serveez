@@ -795,15 +795,16 @@ unset have_getopt
 unset have_getopt_long
 
 dnl
-dnl Checking for timezone and daylight variables (FreeBSD does not privide).
+dnl Checking for timezone and daylight variables (FreeBSD and NetBSD
+dnl do not provide).
 dnl
 
 AC_MSG_CHECKING([for timezone and daylight variables])
 AC_TRY_LINK(
   [extern long int timezone; extern int daylight;],
-  [long int t = timezone; int d = daylight;],
-    AC_MSG_RESULT([yes])
-    AC_DEFINE(HAVE_TIMEZONE, 1, [Define if you have timezone and daylight.]),
+  [long int t = timezone; int d = daylight; return (d + t);],
+    AC_DEFINE(HAVE_TIMEZONE, 1, [Define if you have timezone and daylight.])
+    AC_MSG_RESULT([yes]),
     AC_MSG_RESULT([no]))
 
 dnl
@@ -1114,7 +1115,7 @@ dnl Check for working Tex.
 dnl
 AC_MSG_CHECKING([for working texi2dvi])
 TEXI2DVI="texi2dvi"
-if test "x`tex --version 2>/dev/null`" = "x"; then
+if test "x`eval tex --version 2>/dev/null`" = "x"; then
   TEXI2DVI=":"
 fi
 AC_MSG_RESULT($TEXI2DVI)
@@ -1125,7 +1126,7 @@ dnl Checking for working Texi2HTML.
 dnl
 AC_MSG_CHECKING([for working texi2html])
 TEXI2HTML=":"
-[tex=`texi2html --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
+[tex=`eval texi2html --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
 if test -n "$tex"; then
 case "$tex" in
   [1.6[4-9] | 1.[789]* | [2-9].*)]

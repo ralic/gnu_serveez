@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.12 2001/06/06 17:40:21 raimi Exp $
+ * $Id: util.c,v 1.13 2001/06/12 13:06:40 ela Exp $
  *
  */
 
@@ -219,7 +219,7 @@ svz_time (long t)
   static char *asc;
   char *p;
 
-  p = asc = ctime (&t);
+  p = asc = ctime ((time_t *) &t);
   while (*p)
     p++;
   while (*p < ' ')
@@ -236,7 +236,7 @@ char *
 svz_uptime (long diff)
 {
   static char text[64];
-  time_t sec, min, hour, day, old;
+  long sec, min, hour, day, old;
 
   old = diff;
   sec = diff % 60;

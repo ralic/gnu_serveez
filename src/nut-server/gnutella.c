@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.39 2001/06/07 17:22:01 ela Exp $
+ * $Id: gnutella.c,v 1.40 2001/06/12 13:06:40 ela Exp $
  *
  */
 
@@ -660,7 +660,7 @@ nut_server_notify (svz_server_t *server)
       size = svz_hash_size (cfg->query);
       for (n = 0; n < size; n++)
 	{
-	  received = (time_t) svz_hash_get (cfg->query, keys[n]);
+	  received = (time_t) (long) svz_hash_get (cfg->query, keys[n]);
 	  if (t - received > NUT_ENTRY_AGE)
 	    {
 	      svz_hash_delete (cfg->query, keys[n]);

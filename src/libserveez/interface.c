@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.6 2001/06/01 21:24:09 ela Exp $
+ * $Id: interface.c,v 1.7 2001/06/12 13:06:39 ela Exp $
  *
  */
 
@@ -484,8 +484,10 @@ svz_interface_collect (void)
        * On AIX (and perhaps others) you get interfaces that are not AF_INET
        * from the first `ioctl ()', so filter here again.
        */
-#ifdef __FreeBSD__
+#if defined (__FreeBSD__)
       if ((ifr->ifr_phys & 0xFFFF0000) == 0)
+#elif defined (__NetBSD__)
+      if (((long) ifr->ifr_data & 0xFFFF0000) != 0)
 #else
       if (ifr->ifr_addr.sa_family != AF_INET)
 #endif

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.16 2001/05/19 23:04:58 ela Exp $
+ * $Id: nut-route.c,v 1.17 2001/06/12 13:06:40 ela Exp $
  *
  */
 
@@ -69,7 +69,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   *extract = '\0';
 
   /* check if it is in the recent query hash */
-  if ((t = (time_t) svz_hash_get (cfg->query, key)) != 0)
+  if ((t = (time_t) (long) svz_hash_get (cfg->query, key)) != 0)
     {
       if (time (NULL) - t < NUT_QUERY_TOO_RECENT)
 	{
@@ -83,7 +83,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   else
     {
       t = time (NULL);
-      svz_hash_put (cfg->query, key, (void *) t);
+      svz_hash_put (cfg->query, key, (void *) ((long) t));
     }
 
   svz_free (key);
