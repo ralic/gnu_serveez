@@ -1,3 +1,9 @@
+2001-11-12  [ Ela ]  <ela@lkcc.org>
+
+	* core.c (svz_socket_type): Returns the type (SOCK_STREAM, 
+	SOCK_DGRAM, etc.) of a given socket.
+	(svz_tcp_nodelay): Switching TCP Nagle algorithm on or off.
+
 2001-10-31  [ Ela ]  <ela@lkcc.org>
 
 	* server-socket.c (svz_tcp_accept, svz_pipe_accept): 

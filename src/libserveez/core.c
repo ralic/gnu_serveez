@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.21 2001/09/15 16:10:58 ela Exp $
+ * $Id: core.c,v 1.22 2001/11/12 10:27:19 ela Exp $
  *
  */
 
@@ -226,6 +226,29 @@ svz_socket_create (int proto)
 }
 
 /*
+ * Saves the socket type (like @code{SOCK_STREAM}, @code{SOCK_DGRAM}, etc.) 
+ * of the socket @var{fd} in the buffer pointed to by @var{type}. Returns
+ * zero on success.
+ */
+int
+svz_socket_type (SOCKET fd, int *type)
+{
+  int optval;
+  socklen_t optlen = sizeof (optval);
+
+  if (type)
+    {
+      if (getsockopt (fd, SOL_SOCKET, SO_TYPE, &optval, &optlen) < 0)
+	{
+	  svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+	  return -1;
+	}
+      *type = optval;
+    }
+  return 0;
+}
+
+/*
  * Connect the given socket descriptor @var{sockfd} to the host @var{host}
  * at the network port @var{port}. Return non-zero on errors.
  */
@@ -365,6 +388,48 @@ svz_tcp_cork (SOCKET fd, int set)
     }
 
 #endif /* TCP_CORK */
+  return 0;
+}
+
+/*
+ * Enable or disable the @code{TCP_NODELAY} setting for the given socket
+ * descriptor @var{fd} depending on the flag @var{set}. In fact its turns 
+ * the Nagle algorithm on or off. This means that packets are always sent 
+ * as soon as possible and no unnecessary delays are introduced. The 
+ * function saves the old setting if @var{old} is not @code{NULL}. Returns 
+ * zero on success, otherwise non-zero.
+ */
+int
+svz_tcp_nodelay (SOCKET fd, int set, int *old)
+{
+#ifdef TCP_NODELAY
+  int optval;
+  socklen_t optlen = sizeof (optval);
+
+  /* Get old setting if required. */
+  if (old != NULL)
+    {  
+      if (getsockopt (fd, SOL_TCP, TCP_NODELAY, &optval, &optlen) < 0)
+	{
+	  svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+	  return -1;
+	}
+      *old = optval ? 1 : 0;
+    }
+
+  /* Set the setting. */
+  optval = set ? 1 : 0;
+  if (setsockopt (fd, SOL_TCP, TCP_NODELAY, &optval, sizeof (optval)) < 0)
+    {
+      svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+      return -1;
+    }
+#else /* not TCP_NODELAY */
+  if (old)
+    {
+      *old = 0;
+    }
+#endif /* not TCP_NODELAY */
   return 0;
 }
 

@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-shared.scm,v 1.1 2001/11/10 17:45:11 ela Exp $
+;; $Id: mandel-shared.scm,v 1.2 2001/11/12 10:27:19 ela Exp $
 ;;
 
 ;;
@@ -52,6 +52,7 @@
 
 ;; prepare the given Serveez socket for our protocol
 (define (mandel-prepare-sock sock)
+  (svz:sock:no-delay sock #t)
   (svz:sock:boundary sock "\r\n")
   (svz:sock:floodprotect sock #f))
 

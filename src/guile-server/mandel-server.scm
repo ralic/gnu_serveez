@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: mandel-server.scm,v 1.3 2001/11/11 20:32:15 ela Exp $
+;; $Id: mandel-server.scm,v 1.4 2001/11/12 10:27:19 ela Exp $
 ;;
 
 ;; load shared functionality
@@ -301,8 +301,8 @@
 			     (ipaddr . *)))
 
 (define-server! 'mandel-server '(
-				 (x-res . 20)
-				 (y-res . 20)
+				 (x-res . 100)
+				 (y-res . 100)
 				 ))
 
 (define-server! 'control-server '())

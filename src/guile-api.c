@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.6 2001/11/10 17:45:11 ela Exp $
+ * $Id: guile-api.c,v 1.7 2001/11/12 10:27:19 ela Exp $
  *
  */
 
@@ -49,10 +49,10 @@
    If @var{proto} equals @code{PROTO_ICMP} the @var{port} argument is
    ignored. Valid identifiers for @var{proto} are @code{PROTO_TCP},
    @code{PROTO_UDP} and @code{PROTO_ICMP}. The @var{host} argument must be 
-   either a string in dotted decimal form or a exact number in network byte 
+   either a string in dotted decimal form or a exact number in host byte 
    order. The @var{port} argument must be a exact number in the range from 
-   0 to 65535. Returns a valid @code{#<svz-socket>} or @code{#f} on 
-   failure. */
+   0 to 65535, also in host byte order. Returns a valid @code{#<svz-socket>} 
+   or @code{#f} on failure. */
 #define FUNC_NAME "svz:sock:connect"
 SCM
 guile_sock_connect (SCM host, SCM proto, SCM port)
@@ -73,7 +73,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 
   /* Extract host to connect to. */
   if (gh_exact_p (host))
-    xhost = gh_scm2int (host);
+    xhost = htonl ((unsigned long) gh_scm2int (host));
   else
     {
       str = guile_to_string (host);
@@ -401,6 +401,38 @@ guile_sock_final_print (SCM sock)
 }
 #undef FUNC_NAME
 
+/* Turns the Nagle algorithm for the TCP socket @var{sock} on or off depending
+   on the optional @var{enable} argument. Returns the previous state of this
+   flag (@code{#f} if Nagle is active, @code{#t} otherwise). By default this 
+   flag is switched off. This socket option is useful when dealing with small
+   packet transfer in order to disable unnecessary delays. */
+#define FUNC_NAME "svz:sock:no-delay"
+static SCM
+guile_sock_no_delay (SCM sock, SCM enable)
+{
+  svz_socket_t *xsock;
+  int old = 0, set = 0;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  if (xsock->proto & PROTO_TCP)
+    {
+      if (!gh_eq_p (enable, SCM_UNDEFINED))
+	{
+	  SCM_ASSERT_TYPE (gh_boolean_p (enable) || gh_exact_p (enable), 
+			   enable, SCM_ARG2, FUNC_NAME, "boolean or exact");
+	  if ((gh_boolean_p (enable) && gh_scm2bool (enable) != 0) ||
+	      (gh_exact_p (enable) && gh_scm2int (enable) != 0))
+	    set = 1;
+	}
+      if (svz_tcp_nodelay (xsock->sock_desc, set, &old) < 0)
+	old = 0;
+      else if (gh_eq_p (enable, SCM_UNDEFINED))
+	svz_tcp_nodelay (xsock->sock_desc, old, NULL);
+    }
+  return gh_bool2scm (old);
+}
+#undef FUNC_NAME
+
 /* Returns @code{#t} if the given cell @var{sock} is an instance of a valid
    @code{#<svz-socket>}, otherwise @code{#f}. */
 #define FUNC_NAME "svz:sock?"
@@ -447,6 +479,7 @@ guile_api_init (void)
   gh_new_procedure ("svz:sock:referrer", guile_sock_referrer, 1, 1, 0);
   gh_new_procedure ("svz:sock:server", guile_sock_server, 1, 1, 0);
   gh_new_procedure ("svz:sock:final-print", guile_sock_final_print, 1, 0, 0);
+  gh_new_procedure ("svz:sock:no-delay", guile_sock_no_delay, 1, 1, 0);
   gh_new_procedure ("svz:sock?", guile_sock_p, 1, 0, 0);
   gh_new_procedure ("svz:server?", guile_server_p, 1, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer", 

@@ -1,3 +1,8 @@
+2001-11-12  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c (guile_sock_no_delay): New Guile procedure switching
+	TCP Nagle algorithm on or off.
+
 2001-11-11  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/mandel-server.scm (mandel-palette): More
