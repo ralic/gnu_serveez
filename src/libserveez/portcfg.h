@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.2 2001/04/06 15:32:35 raimi Exp $
+ * $Id: portcfg.h,v 1.3 2001/04/10 17:49:41 ela Exp $
  *
  */
 
@@ -68,33 +68,33 @@ typedef struct svz_portcfg
     /* tcp port */
     struct tcp_t
     {
-      unsigned short port;      /* TCP/IP port */
-      char *ipaddr;             /* dotted decimal or "*" for any address */
-      struct sockaddr_in *addr; /* converted from the above 2 values */
-      int backlog;              /* backlog argument for listen() */
+      unsigned short port;     /* TCP/IP port */
+      char *ipaddr;            /* dotted decimal or "*" for any address */
+      struct sockaddr_in addr; /* converted from the above 2 values */
+      int backlog;             /* backlog argument for listen() */
     } tcp;
 
     /* udp port */
     struct udp_t
     {
-      unsigned short port;      /* UDP port */
-      char *ipaddr;             /* dotted decimal or "*" */
-      struct sockaddr_in *addr; /* converted from the above 2 values */
+      unsigned short port;     /* UDP port */
+      char *ipaddr;            /* dotted decimal or "*" */
+      struct sockaddr_in addr; /* converted from the above 2 values */
     } udp;
 
     /* icmp port */
     struct icmp_t
     {
-      char *ipaddr;             /* dotted decimal or "*" */
-      struct sockaddr_in *addr; /* converted from the above value */
-      unsigned char type;       /* message type */
+      char *ipaddr;            /* dotted decimal or "*" */
+      struct sockaddr_in addr; /* converted from the above value */
+      unsigned char type;      /* message type */
     } icmp;
 
     /* raw ip port */
     struct raw_t
     {
-      char *ipaddr;             /* dotted decimal or "*" */
-      struct sockaddr_in *addr; /* converted from the above value */
+      char *ipaddr;            /* dotted decimal or "*" */
+      struct sockaddr_in addr; /* converted from the above value */
     } raw;
 
     /* pipe port */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.9 2001/04/06 15:32:35 raimi Exp $
+ * $Id: alloc.c,v 1.10 2001/04/10 17:49:41 ela Exp $
  *
  */
 
@@ -392,6 +392,18 @@ svz_pmalloc (size_t size)
       log_printf (LOG_FATAL, "malloc: virtual memory exhausted\n");
       exit (1);
     }
+  return ptr;
+}
+
+/*
+ * Allocate @var{size} bytes of memory and return a pointer to this block.
+ * The memory block is cleared (zeroed out) and considered permanently.
+ */
+void * 
+svz_pcalloc (size_t size)
+{
+  void *ptr = svz_malloc (size);
+  memset (ptr, 0, size);
   return ptr;
 }
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.32 2001/04/09 13:46:05 ela Exp $
+ * $Id: serveez.c,v 1.33 2001/04/10 17:49:41 ela Exp $
  *
  */
 
@@ -58,7 +58,7 @@ option_t *options = NULL;
 static void
 guile_entry (int argc, char **argv)
 {
-#if 0
+#if 1
   /* Start loading the configuration file. */
   if (guile_load_config (options->cfgfile) == -1)
     {

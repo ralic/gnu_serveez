@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.2 2001/04/06 15:32:35 raimi Exp $
+ * $Id: portcfg.c,v 1.3 2001/04/10 17:49:41 ela Exp $
  *
  */
 
@@ -158,19 +158,15 @@ svz_portcfg_destroy (svz_portcfg_t *port)
   switch (port->proto)
     {
     case PROTO_TCP:
-      svz_free_and_zero (port->tcp_addr);
       svz_free_and_zero (port->tcp_ipaddr);
       break;
     case PROTO_UDP:
-      svz_free_and_zero (port->udp_addr);
       svz_free_and_zero (port->udp_ipaddr);
       break;
     case PROTO_ICMP:
-      svz_free_and_zero (port->icmp_addr);
       svz_free_and_zero (port->icmp_ipaddr);
       break;
     case PROTO_RAW:
-      svz_free_and_zero (port->raw_addr);
       svz_free_and_zero (port->raw_ipaddr);
       break;
     case PROTO_PIPE:

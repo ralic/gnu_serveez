@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.3 2001/04/06 15:32:34 raimi Exp $
+ * $Id: guile.c,v 1.4 2001/04/10 17:49:41 ela Exp $
  *
  */
 
@@ -71,21 +71,22 @@ new_value_t (SCM value)
   return v;
 }
 
-
 /*
- * report some error at the current scheme position. prints to stderr
- * but lets program continue. format does not need trailing newline.
+ * Report some error at the current scheme position. Prints to stderr
+ * but lets the program continue. Format does not need trailing newline.
  */
 static void
 report_error (const char* format, ...)
 {
   va_list args;
   SCM lp = scm_current_load_port ();
-  SCM filescm = SCM_FILENAME (lp);
-  char *filename = gh_scm2newstr (filescm, NULL);
+  char *file = SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
-  fprintf (stderr, "%s:%d:%d: ", filename, SCM_LINUM (lp), SCM_COL (lp));
-  free (filename);
+  fprintf (stderr, "%s:%d:%d: ", file ? file : "file", 
+	   SCM_PORTP (lp) ? SCM_LINUM (lp) : 0, 
+	   SCM_PORTP (lp) ? SCM_COL (lp) : 0);
+  if (file)
+    free (file);
 
   va_start (args, format);
   vfprintf (stderr, format, args);
@@ -393,6 +394,21 @@ guile_init (void)
 }
 
 /*
+ * Exception handler for guile. It is called if the evaluation of the given
+ * file failed.
+ */
+static SCM 
+guile_exception (void *data, SCM tag, SCM args)
+{
+  fprintf (stderr, "exception: ");
+  gh_display (tag);
+  fprintf (stderr, ": ");
+  gh_display (args);
+  gh_newline ();
+  return SCM_UNSPECIFIED;
+}
+
+/*
  * Get server settings from the file @var{cfgfile} and instantiate servers 
  * as needed. Return non-zero on errors.
  */
@@ -400,6 +416,7 @@ int
 guile_load_config (char *cfgfile)
 {
   guile_init ();
-  gh_eval_file (cfgfile);
-  return -1;
+  if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_UNSPECIFIED)
+    return -1;
+  return 0;
 }
