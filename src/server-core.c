@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.19 2000/08/25 13:51:22 ela Exp $
+ * $Id: server-core.c,v 1.20 2000/09/09 16:33:42 ela Exp $
  *
  */
 
@@ -53,6 +53,7 @@
 #ifdef __MINGW32__
 # include <process.h>
 #else
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <netdb.h>

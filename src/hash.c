@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.10 2000/08/26 18:05:18 ela Exp $
+ * $Id: hash.c,v 1.11 2000/09/09 16:33:42 ela Exp $
  *
  */
 
@@ -121,7 +121,7 @@ hash_create (int size)
 
   /* allocate space for the hash itself */
   hash = xmalloc (sizeof (hash_t));
-  hash->nodes = size;
+  hash->buckets = size;
   hash->fill = 0;
   hash->keys = 0;
   hash->code = hash_code;
@@ -148,18 +148,18 @@ void
 hash_destroy (hash_t *hash)
 {
   int n, e;
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
 
-  for (n = 0; n < hash->nodes; n++)
+  for (n = 0; n < hash->buckets; n++)
     {
-      node = &hash->table[n];
-      if (node->size)
+      bucket = &hash->table[n];
+      if (bucket->size)
 	{
-	  for (e = 0; e < node->size; e++)
+	  for (e = 0; e < bucket->size; e++)
 	    {
-	      xfree (node->entry[e].key);
+	      xfree (bucket->entry[e].key);
 	    }
-	  xfree (node->entry);
+	  xfree (bucket->entry);
 	}
     }
   xfree (hash->table);
@@ -174,30 +174,30 @@ hash_destroy (hash_t *hash)
 void
 hash_clear (hash_t *hash)
 {
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
   int n, e;
 
-  /* go through all nodes of the table and delete its entries */
-  for (n = 0; n < hash->nodes; n++)
+  /* go through all buckets of the table and delete its entries */
+  for (n = 0; n < hash->buckets; n++)
     {
-      node = &hash->table[n];
-      if (node->size)
+      bucket = &hash->table[n];
+      if (bucket->size)
 	{
-	  for (e = 0; e < node->size; e++)
+	  for (e = 0; e < bucket->size; e++)
 	    {
-	      xfree (node->entry[e].key);
+	      xfree (bucket->entry[e].key);
 	    }
-	  xfree (node->entry);
-	  node->entry = NULL;
-	  node->size = 0;
+	  xfree (bucket->entry);
+	  bucket->entry = NULL;
+	  bucket->size = 0;
 	}
     }
 
   /* reinitialize the hash table */
-  hash->nodes = HASH_MIN_SIZE;
+  hash->buckets = HASH_MIN_SIZE;
   hash->fill = 0;
   hash->keys = 0;
-  hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->nodes);
+  hash->table = xrealloc (hash->table, sizeof (hash_bucket_t) * hash->buckets);
 }
 
 /*
@@ -209,7 +209,7 @@ void
 hash_rehash (hash_t *hash, int type)
 {
   int n, e;
-  hash_bucket_t *node, *next_node;
+  hash_bucket_t *bucket, *next_bucket;
 
 #if 0
   hash_analyse (hash);
@@ -220,10 +220,10 @@ hash_rehash (hash_t *hash, int type)
       /*
        * Reallocate and initialize the hash table itself.
        */
-      hash->nodes <<= 1;
+      hash->buckets <<= 1;
       hash->table = xrealloc (hash->table, 
-			      sizeof (hash_bucket_t) * hash->nodes);
-      for (n = hash->nodes >> 1; n < hash->nodes; n++)
+			      sizeof (hash_bucket_t) * hash->buckets);
+      for (n = hash->buckets >> 1; n < hash->buckets; n++)
 	{
 	  hash->table[n].size = 0;
 	  hash->table[n].entry = NULL;
@@ -233,68 +233,69 @@ hash_rehash (hash_t *hash, int type)
        * Go through all hash table entries and check if it is necessary
        * to relocate them.
        */
-      for (n = 0; n < (hash->nodes >> 1); n++)
+      for (n = 0; n < (hash->buckets >> 1); n++)
 	{
-	  node = &hash->table[n];
-	  for (e = 0; e < node->size; e++)
+	  bucket = &hash->table[n];
+	  for (e = 0; e < bucket->size; e++)
 	    {
-	      if ((unsigned long)n != HASH_NODE(node->entry[e].code, hash))
+	      if ((unsigned long) n != 
+		  HASH_BUCKET (bucket->entry[e].code, hash))
 		{
 		  /* copy this entry to the far entry */
-		  next_node = 
-		    &hash->table[HASH_NODE(node->entry[e].code, hash)];
-		  next_node->entry = xrealloc (next_node->entry,
-					       (next_node->size + 1) *
-					       sizeof (hash_entry_t));
-		  next_node->entry[next_node->size] = node->entry[e];
-		  next_node->size++;
-		  if (next_node->size == 1) hash->fill++;
+		  next_bucket = 
+		    &hash->table[HASH_BUCKET (bucket->entry[e].code, hash)];
+		  next_bucket->entry = xrealloc (next_bucket->entry,
+						 (next_bucket->size + 1) *
+						 sizeof (hash_entry_t));
+		  next_bucket->entry[next_bucket->size] = bucket->entry[e];
+		  next_bucket->size++;
+		  if (next_bucket->size == 1) hash->fill++;
 	      
 		  /* delete this entry */
-		  node->size--;
-		  if (node->size == 0)
+		  bucket->size--;
+		  if (bucket->size == 0)
 		    {
-		      xfree (node->entry);
-		      node->entry = NULL;
+		      xfree (bucket->entry);
+		      bucket->entry = NULL;
 		      hash->fill--;
 		    }
 		  else
 		    {
-		      node->entry[e] = node->entry[node->size];
-		      node->entry = xrealloc (node->entry,
-					      node->size *
-					      sizeof (hash_entry_t));
+		      bucket->entry[e] = bucket->entry[bucket->size];
+		      bucket->entry = xrealloc (bucket->entry,
+						bucket->size *
+						sizeof (hash_entry_t));
 		    }
 		  e--;
 		}
 	    }
 	}
     }
-  else if (type == HASH_SHRINK && hash->nodes > HASH_MIN_SIZE)
+  else if (type == HASH_SHRINK && hash->buckets > HASH_MIN_SIZE)
     {
-      hash->nodes >>= 1;
-      for (n = hash->nodes; n < hash->nodes << 1; n++)
+      hash->buckets >>= 1;
+      for (n = hash->buckets; n < hash->buckets << 1; n++)
 	{
-	  node = &hash->table[n];
-	  if (node->size)
+	  bucket = &hash->table[n];
+	  if (bucket->size)
 	    {
-	      for (e = 0; e < node->size; e++)
+	      for (e = 0; e < bucket->size; e++)
 		{
-		  next_node = 
-		    &hash->table[HASH_NODE (node->entry[e].code, hash)];
-		  next_node->entry = xrealloc (next_node->entry,
-					       (next_node->size + 1) *
-					       sizeof (hash_entry_t));
-		  next_node->entry[next_node->size] = node->entry[e];
-		  next_node->size++;
-		  if (next_node->size == 1) hash->fill++;
+		  next_bucket = 
+		    &hash->table[HASH_BUCKET (bucket->entry[e].code, hash)];
+		  next_bucket->entry = xrealloc (next_bucket->entry,
+						 (next_bucket->size + 1) *
+						 sizeof (hash_entry_t));
+		  next_bucket->entry[next_bucket->size] = bucket->entry[e];
+		  next_bucket->size++;
+		  if (next_bucket->size == 1) hash->fill++;
 		}
-	      xfree (node->entry);
+	      xfree (bucket->entry);
 	    }
 	  hash->fill--;
 	}
       hash->table = xrealloc (hash->table, 
-			      sizeof (hash_bucket_t) * hash->nodes);
+			      sizeof (hash_bucket_t) * hash->buckets);
     }
 
 #if 0
@@ -314,38 +315,38 @@ hash_put (hash_t *hash, char *key, void *value)
   unsigned long code = 0;
   int e;
   hash_entry_t *entry;
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
 
   code = hash->code (key);
 
   /* Check if the key is already stored. If so replace the value. */
-  node = &hash->table[HASH_NODE(code, hash)];
-  for (e = 0; e < node->size; e++)
+  bucket = &hash->table[HASH_BUCKET (code, hash)];
+  for (e = 0; e < bucket->size; e++)
     {
-      if (node->entry[e].code == code &&
-	  hash->equals (node->entry[e].key, key) == 0)
+      if (bucket->entry[e].code == code &&
+	  hash->equals (bucket->entry[e].key, key) == 0)
 	{
-	  node->entry[e].value = value;
+	  bucket->entry[e].value = value;
 	  return;
 	}
     }
 
-  /* Reallocate this node. */
-  node = &hash->table[HASH_NODE(code, hash)];
-  node->entry = xrealloc (node->entry, 
-			  sizeof (hash_entry_t) * (node->size + 1));
+  /* Reallocate this bucket. */
+  bucket = &hash->table[HASH_BUCKET (code, hash)];
+  bucket->entry = xrealloc (bucket->entry, 
+			    sizeof (hash_entry_t) * (bucket->size + 1));
 
   /* Fill this entry. */
-  entry = &node->entry[node->size];
+  entry = &bucket->entry[bucket->size];
   entry->key = xmalloc (hash->keylen (key));
   memcpy (entry->key, key, hash->keylen (key));
   entry->value = value;
   entry->code = code;
-  node->size++;
+  bucket->size++;
   hash->keys++;
 
   /* 75% filled ? */
-  if (node->size == 1)
+  if (bucket->size == 1)
     {
       hash->fill++;
       if (hash->fill > HASH_EXPAND_LIMIT(hash))
@@ -364,30 +365,30 @@ hash_delete (hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
   void *value;
 
   code = hash->code (key);
-  node = &hash->table[HASH_NODE(code, hash)];
+  bucket = &hash->table[HASH_BUCKET (code, hash)];
   
-  for (n=0; n<node->size; n++)
+  for (n = 0; n < bucket->size; n++)
     {
-      if (node->entry[n].code == code && 
-	  hash->equals(node->entry[n].key, key) == 0)
+      if (bucket->entry[n].code == code && 
+	  hash->equals (bucket->entry[n].key, key) == 0)
 	{
-	  value = node->entry[n].value;
-	  node->size--;
-	  xfree (node->entry[n].key);
-	  if (node->size)
+	  value = bucket->entry[n].value;
+	  bucket->size--;
+	  xfree (bucket->entry[n].key);
+	  if (bucket->size)
 	    {
-	      node->entry[n] = node->entry[node->size];
-	      node->entry = xrealloc (node->entry, 
-				      sizeof (hash_entry_t) * node->size);
+	      bucket->entry[n] = bucket->entry[bucket->size];
+	      bucket->entry = xrealloc (bucket->entry, 
+					sizeof (hash_entry_t) * bucket->size);
 	    }
 	  else
 	    {
-	      xfree (node->entry);
-	      node->entry = NULL;
+	      xfree (bucket->entry);
+	      bucket->entry = NULL;
 	      hash->fill--;
 	      if (hash->fill < HASH_SHRINK_LIMIT(hash))
 		{
@@ -411,17 +412,17 @@ hash_get (hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
 
   code = hash->code (key);
-  node = &hash->table[HASH_NODE(code, hash)];
+  bucket = &hash->table[HASH_BUCKET (code, hash)];
   
-  for (n = 0; n < node->size; n++)
+  for (n = 0; n < bucket->size; n++)
     {
-      if (node->entry[n].code == code && 
-	  hash->equals (node->entry[n].key, key) == 0)
+      if (bucket->entry[n].code == code && 
+	  hash->equals (bucket->entry[n].key, key) == 0)
 	{
-	  return node->entry[n].value;
+	  return bucket->entry[n].value;
 	}
     }
 
@@ -437,7 +438,7 @@ void **
 hash_values (hash_t *hash)
 {
   void **values;
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
   int n, e, keys;
 
   if (hash->keys == 0)
@@ -445,12 +446,12 @@ hash_values (hash_t *hash)
 
   values = xmalloc (sizeof (void *) * hash->keys);
 
-  for (keys = 0, n = 0; n < hash->nodes; n++)
+  for (keys = 0, n = 0; n < hash->buckets; n++)
     {
-      node = &hash->table[n];
-      for (e = 0; e < node->size; e++)
+      bucket = &hash->table[n];
+      for (e = 0; e < bucket->size; e++)
 	{
-	  values[keys++] = node->entry[e].value;
+	  values[keys++] = bucket->entry[e].value;
 	  if (keys == hash->keys)
 	    return values;
 	}
@@ -467,7 +468,7 @@ char **
 hash_keys (hash_t *hash)
 {
   char **values;
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
   int n, e, keys;
 
   if (hash->keys == 0)
@@ -475,12 +476,12 @@ hash_keys (hash_t *hash)
 
   values = xmalloc (sizeof (void *) * hash->keys);
 
-  for (keys = 0, n = 0; n < hash->nodes; n++)
+  for (keys = 0, n = 0; n < hash->buckets; n++)
     {
-      node = &hash->table[n];
-      for (e = 0; e < node->size; e++)
+      bucket = &hash->table[n];
+      for (e = 0; e < bucket->size; e++)
 	{
-	  values[keys++] = node->entry[e].key;
+	  values[keys++] = bucket->entry[e].key;
 	  if (keys == hash->keys)
 	    return values;
 	}
@@ -503,7 +504,7 @@ hash_size (hash_t *hash)
 int
 hash_capacity (hash_t *hash)
 {
-  return hash->nodes;
+  return hash->buckets;
 }
 
 /*
@@ -513,16 +514,16 @@ hash_capacity (hash_t *hash)
 char *
 hash_contains (hash_t *hash, void *value)
 {
-  hash_bucket_t *node;
+  hash_bucket_t *bucket;
   int n, e;
 
-  for (n=0; n<hash->nodes; n++)
+  for (n = 0; n < hash->buckets; n++)
     {
-      node = &hash->table[n];
-      for (e=0; e<node->size; e++)
+      bucket = &hash->table[n];
+      for (e = 0; e < bucket->size; e++)
 	{
-	  if (node->entry[e].value == value)
-	    return node->entry[e].key;
+	  if (bucket->entry[e].value == value)
+	    return bucket->entry[e].key;
 	}
     }
   return NULL;
@@ -535,27 +536,29 @@ hash_contains (hash_t *hash, void *value)
 void
 hash_analyse (hash_t *hash)
 {
-  hash_bucket_t *node;
-  int n, e, nodes, depth, entries;
+  hash_bucket_t *bucket;
+  int n, e, buckets, depth, entries;
 
-  for (entries = 0, depth = 0, nodes = 0, n = 0; n < hash->nodes; n++)
+  for (entries = 0, depth = 0, buckets = 0, n = 0; n < hash->buckets; n++)
     {
-      node = &hash->table[n];
-      if (node->size > 0) nodes++;
-      for (e=0; e<node->size; e++)
+      bucket = &hash->table[n];
+      if (bucket->size > 0) buckets++;
+      for (e = 0; e < bucket->size; e++)
 	{
 	  entries++;
 #if 0
-	  printf ("node %04d: entry %02d: code: %08lu value: %p key: %-20s\n",
-		  n+1, e+1, node->entry[e].code, node->entry[e].value,
-		  node->entry[e].key);
+	  printf ("bucket %04d: entry %02d: code: %08lu "
+		  "value: %p key: %-20s\n",
+		  n + 1, e + 1, bucket->entry[e].code, bucket->entry[e].value,
+		  bucket->entry[e].key);
 #endif /* 0 */
 	  if (e > depth) depth = e;
 	}
     }
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, 
-	      "%d/%d nodes (%d), %d entries (%d), depth: %d\n",
-	      nodes, hash->nodes, hash->fill, entries, hash->keys, depth+1);
+	      "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
+	      buckets, hash->buckets, hash->fill, 
+	      entries, hash->keys, depth + 1);
 #endif /* ENABLE_DEBUG */
 }

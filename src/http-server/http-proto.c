@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.32 2000/09/08 07:45:17 ela Exp $
+ * $Id: http-proto.c,v 1.33 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -56,6 +56,7 @@
 #endif
 
 #ifndef __MINGW32__
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 #endif
@@ -942,14 +943,19 @@ http_info_client (void *http_cfg, socket_t sock)
   sprintf (text, "  * %d bytes left of original file size\r\n",
 	   http->filelength);
   strcat (info, text);
-  strcat (info, "  * request property list:\r\n");
-  n = 0;
-  while (http->property[n])
+
+  /* append http header properties is possible */
+  if (http->property)
     {
-      sprintf (text, "    %s => %s\r\n",
-	       http->property[n], http->property[n+1]);
-      n += 2;
-      strcat (info, text);
+      strcat (info, "  * request property list:\r\n");
+      n = 0;
+      while (http->property[n])
+	{
+	  sprintf (text, "    %s => %s\r\n",
+		   http->property[n], http->property[n+1]);
+	  n += 2;
+	  strcat (info, text);
+	}
     }
 
   return info;

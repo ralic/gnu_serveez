@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /Zi /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "." /I ".." /I "../sizzle" /I "./src" /I "../.." /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "_WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__USEDLL__" /FD /c
+# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "." /I ".." /I "../sizzle" /I "./src" /I "../.." /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /D "_WIN32" /D "__MINGW32__" /D "HAVE_CONFIG_H" /D __STDC__=0 /D "__USEDLL__" /D ENABLE_DEBUG=1 /FD /c
 # ADD BASE RSC /l 0x407 /d "_DEBUG"
 # ADD RSC /l 0x407 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -78,7 +78,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib wsock32.lib sizzle.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../sizzle/libsizzle/Dbg" /libpath:"/usr/local/mingw/lib"
+# ADD LINK32 kernel32.lib wsock32.lib sizzle.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../sizzle/libsizzle/Dbg"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -209,11 +209,11 @@ SOURCE=".\src\nut-server\nut-core.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\nut-server\nut-transfer.c"
+SOURCE=".\src\nut-server\nut-route.c"
 # End Source File
 # Begin Source File
 
-SOURCE=".\src\nut-server\nut-route.c"
+SOURCE=".\src\nut-server\nut-transfer.c"
 # End Source File
 # Begin Source File
 

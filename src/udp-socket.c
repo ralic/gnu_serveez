@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.3 2000/08/02 09:45:14 ela Exp $
+ * $Id: udp-socket.c,v 1.4 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -37,6 +37,7 @@
 #endif
 
 #ifndef __MINGW32__
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 #endif

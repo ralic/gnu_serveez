@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.14 2000/09/08 07:45:17 ela Exp $
+ * $Id: gnutella.c,v 1.15 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -42,6 +42,7 @@
 #include <errno.h>
 
 #ifndef __MINGW32__
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>

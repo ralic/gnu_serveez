@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.4 2000/08/26 18:05:18 ela Exp $
+ * $Id: hash.h,v 1.5 2000/09/09 16:33:42 ela Exp $
  *
  */
 
@@ -29,12 +29,13 @@
 # include <config.h>
 #endif
 
+/* useful define's */
 #define HASH_SHRINK 4
 #define HASH_EXPAND 8
-#define HASH_SHRINK_LIMIT(hash) (hash->nodes >> 2)
-#define HASH_EXPAND_LIMIT(hash) ((hash->nodes >> 1) + (hash->nodes >> 2))
+#define HASH_SHRINK_LIMIT(hash) (hash->buckets >> 2)
+#define HASH_EXPAND_LIMIT(hash) ((hash->buckets >> 1) + (hash->buckets >> 2))
 #define HASH_MIN_SIZE 4
-#define HASH_NODE(code, hash) (code & (hash->nodes - 1))
+#define HASH_BUCKET(code, hash) (code & (hash->buckets - 1))
 
 /*
  * This is the basic structure of a hash entry consisting of its
@@ -50,8 +51,8 @@ typedef struct
 hash_entry_t;
 
 /*
- * The hash table consists of different hash nodes. This contains the
- * node's size and the entry array.
+ * The hash table consists of different hash buckets. This contains the
+ * bucket's size and the entry array.
  */
 typedef struct
 {
@@ -65,8 +66,8 @@ hash_bucket_t;
  */
 typedef struct
 {
-  int nodes;                       /* number of nodes in the table */
-  int fill;                        /* number of filled nodes */
+  int buckets;                     /* number of buckets in the table */
+  int fill;                        /* number of filled buckets */
   int keys;                        /* number of stored keys */
   int (* equals) (char *, char *); /* key string equality callback */
   unsigned long (* code) (char *); /* hash code calculation callback */

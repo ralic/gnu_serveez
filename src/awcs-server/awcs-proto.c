@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.18 2000/09/08 07:45:17 ela Exp $
+ * $Id: awcs-proto.c,v 1.19 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -183,7 +183,7 @@ awcs_nslookup_done (char *host, int id, int version)
       log_printf (LOG_DEBUG, "sending resolved ip to master\n");
 #endif
 
-      if (sock_printf (cfg->server, "%04d %d %04d %s%c",
+      if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s%c",
 		       cfg->server->id,
 		       STATUS_NSLOOKUP,
 		       sock->id,
@@ -228,7 +228,7 @@ awcs_ident_done (char *user, int id, int version)
       log_printf (LOG_DEBUG, "sending identified client to master\n");
 #endif
 
-      if (sock_printf (cfg->server, "%04d %d %04d %s%c",
+      if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s%c",
 		       cfg->server->id,
 		       STATUS_IDENT,
 		       sock->id,
@@ -273,7 +273,7 @@ status_connected (socket_t sock)
   log_printf (LOG_DEBUG, "sending connect on socket id %d to master\n",
 	      sock->id);
 #endif
-  if (sock_printf (cfg->server, "%04d %d %04d %s:%u%c",
+  if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s:%u%c",
 		   cfg->server->id,
 		   STATUS_CONNECT,
 		   sock->id,
@@ -326,7 +326,7 @@ status_disconnected (socket_t sock, int reason)
 	      sock->sock_desc);
 #endif /* ENABLE_DEBUG */
 
-  if (sock_printf (cfg->server, "%04d %d %04d %d%c", 
+  if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %d%c", 
 		   cfg->server->id,
 		   STATUS_DISCONNECT,
 		   sock->id, 
@@ -360,7 +360,7 @@ status_kicked (socket_t sock, int reason)
       return -1;
     }
 
-  if (sock_printf (cfg->server, "%04d %d %04d %d%c",
+  if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %d%c",
 		   cfg->server->id,
 		   STATUS_KICK,
 		   sock->id, 
@@ -391,7 +391,7 @@ status_alive (awcs_config_t *cfg)
       return -1;
     }
 
-  if (sock_printf (cfg->server, "%04d %d 42%c",
+  if (sock_printf (cfg->server, AWCS_ID_FMT " %d 42%c",
 		   cfg->server->id,
 		   STATUS_ALIVE, '\0'))
     {
@@ -416,7 +416,7 @@ status_notify (awcs_config_t *cfg)
       return -1;
     }
 
-  if (sock_printf (cfg->server, "%04d %d 42%c",
+  if (sock_printf (cfg->server, AWCS_ID_FMT " %d 42%c",
 		   cfg->server->id,
 		   STATUS_NOTIFY, '\0'))
     {
@@ -490,7 +490,7 @@ process_multicast (char *cmd, int cmd_len)
 	    }
 	}
 
-      cmd += 4;
+      cmd += AWCS_ID_SIZE;
       if (!*cmd || *cmd == ' ')
 	break;
       cmd++;
@@ -542,7 +542,7 @@ process_kick (char *cmd, int cmd_len)
 	  sock_schedule_for_shutdown (sock);
 	}
 
-      cmd += 4;
+      cmd += AWCS_ID_SIZE;
       if (!*cmd || *cmd == ' ')
 	break;
       cmd++;
@@ -578,7 +578,7 @@ process_floodcmd (char *cmd, int cmd_len, int flag)
 	    sock->flags |= SOCK_FLAG_NOFLOOD;
 	}
       
-      cmd += 4;
+      cmd += AWCS_ID_SIZE;
       if (!*cmd || *cmd == ' ')
 	break;
       cmd++;
@@ -636,12 +636,8 @@ handle_master_request (awcs_config_t *cfg, char *request, int request_len)
       process_floodcmd (request, request_len, 1);
       break;
     case '6':
-      /*
-       * The following code should not be executed anymore,
-       * thus the call to abort() below.
-       */
-      log_printf (LOG_NOTICE, 
-		  "awcs: skipping '6' ...\n");
+      /* The following code should not be executed anymore. */
+      log_printf (LOG_NOTICE, "awcs: skipping '6' ...\n");
       break;
     default:
       log_printf (LOG_ERROR, "awcs: bad master server request\n");
@@ -700,7 +696,7 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
     }
   else
     {
-      ret = sock_printf (cfg->server, "%04d ", sock->id);
+      ret = sock_printf (cfg->server, AWCS_ID_FMT " ", sock->id);
       if (ret == 0)
 	{
 	  ret = sock_write (cfg->server, request, request_len);
@@ -838,8 +834,8 @@ awcs_connect_socket (void *config, socket_t sock)
     }
   else
     {
-      char key[5];
-      sprintf (key, "%04d", sock->id);
+      char key[AWCS_ID_SIZE + 1];
+      sprintf (key, AWCS_ID_FMT, sock->id);
       hash_put (cfg->clients, key, sock);
       sock->kicked_socket = awcs_kicked_socket;
     }
@@ -860,7 +856,7 @@ int
 awcs_disconnected_socket (socket_t sock)
 {
   awcs_config_t *cfg = sock->cfg;
-  char key[5];
+  char key[AWCS_ID_SIZE + 1];
   
   if (sock == cfg->server)
     {
@@ -871,7 +867,7 @@ awcs_disconnected_socket (socket_t sock)
   else
     {
       status_disconnected (sock, 1);
-      sprintf (key, "%04d", sock->id);
+      sprintf (key, AWCS_ID_FMT, sock->id);
       hash_delete (cfg->clients, key);
     }
 

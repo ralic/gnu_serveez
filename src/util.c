@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.21 2000/09/03 21:28:04 ela Exp $
+ * $Id: util.c,v 1.22 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -48,6 +48,7 @@
 
 #ifndef __MINGW32__
 # include <netdb.h>
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.8 2000/09/08 07:45:17 ela Exp $
+ * $Id: http-core.c,v 1.9 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -295,7 +295,7 @@ http_parse_property (socket_t sock, char *request, char *end)
       properties++;
       request = p+2;
 
-#if 1
+#if 0
       printf ("http header: {%s} = {%s}\n", 
 	      http->property[n-2], http->property[n-1]);
 #endif
@@ -315,6 +315,10 @@ char *
 http_find_property (http_socket_t *http, char *key)
 {
   int n;
+
+  /* check if there are any properties */
+  if (http->property == NULL)
+    return NULL;
 
   /* search through all the http properties */
   n = 0;

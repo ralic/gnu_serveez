@@ -1,3 +1,18 @@
+2000-09-09  [ Ela ]  <ela@lkcc.org>
+
+	* hash.c (hash_analyse): Changed name conventions. A 
+	`node' is now a `bucket'.
+
+	* awcs-server/awcs-proto.h (AWCS_ID_SIZE): The aWCS servers
+	id length and format string is variable by #define's.
+
+	* http-server/http-proto.c (http_info_client): Fixed the
+	usage of the http property fields in this callback. These
+	can be empty sometimes.
+
+	* nut-server/nut-core.c: When including <sys/socket.h> 
+	we also have to include <sys/types.h> previously.
+
 2000-09-08  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_query): Fixed byte order of

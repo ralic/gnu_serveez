@@ -142,12 +142,6 @@
 /* Define if you have the descrypt library (-ldescrypt).  */
 /* #undef HAVE_LIBDESCRYPT */
 
-/* Define if debug output should be supported. */
-#define ENABLE_DEBUG 1
-
-/* Define if debug code should be suppressed. */
-/* #undef NDEBUG */
-
 /* Define if we are able to list local network interfaces. */
 #define ENABLE_IFLIST 1
 

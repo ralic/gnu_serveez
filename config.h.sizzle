@@ -312,9 +312,6 @@
 /* Version number of package */
 #define VERSION "0.0.28"
 
-/* Define if debug code should be suppressed. */
-#define NDEBUG 1
-
 /* Define if posix functions should be supported. */
 /* #undef ENABLE_POSIX */
 

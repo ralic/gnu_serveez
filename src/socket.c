@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.20 2000/08/21 20:06:40 ela Exp $
+ * $Id: socket.c,v 1.21 2000/09/09 16:33:43 ela Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 #endif
 
 #ifndef __MINGW32__
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <netdb.h>

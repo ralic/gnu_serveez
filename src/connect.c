@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.10 2000/08/02 09:45:13 ela Exp $
+ * $Id: connect.c,v 1.11 2000/09/09 16:33:42 ela Exp $
  *
  */
 
@@ -47,6 +47,7 @@
 #endif
 
 #ifndef __MINGW32__
+# include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
 # include <netdb.h>
