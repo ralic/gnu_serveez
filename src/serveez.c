@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.46 2001/11/19 13:31:50 ela Exp $
+ * $Id: serveez.c,v 1.47 2001/11/29 12:56:27 ela Exp $
  *
  */
 
@@ -175,6 +175,10 @@ main (int argc, char *argv[])
   if (!options->loghandle)
     options->loghandle = stderr;
   svz_log_setfile (options->loghandle);
+
+  /* Setup verbosity once. */
+  if (options->verbosity != -1)
+    svz_config.verbosity = options->verbosity;
 
   /* Start as daemon, not as foreground application. */
   if (options->daemon)

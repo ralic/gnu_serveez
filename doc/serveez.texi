@@ -203,7 +203,7 @@ By enabling this you will get a fake ident server included in
 the binary executable.
 @item --enable-guile-server
 If you enable this feature the user is able to write servers
-using Guile.  This is still experimental.
+using Guile.
 @item --enable-passthrough
 This includes the program passthrough server in the Serveez 
 binary.  The server provides basic inetd daemon functionality.

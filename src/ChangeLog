@@ -1,3 +1,8 @@
+2001-11-29  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.c (main): Setup command line verbosity also before
+	evaluating the configuration file.
+
 2001-11-27  [ Ela ]  <ela@lkcc.org>
 
 	* sntp-server/sntp-proto.c: Made the server TCP/PIPE-able.
