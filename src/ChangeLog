@@ -227,7 +227,7 @@
 
 2001-11-01  [ Ela ]  <ela@lkcc.org>
 
-	* guile-api.c (svz:sock:disconncted): New callback setter/
+	* guile-api.c (svz:sock:disconnected): New callback setter/
 	getter for Guile.
 
 	* guile-server.c (MAKE_SOCK_CALLBACK): New macro defining a
