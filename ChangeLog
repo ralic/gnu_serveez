@@ -1,3 +1,8 @@
+2001-02-04  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Dropped configure options for the coservers. 
+	Always compiling them into the core library.
+
 2001-01-24  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in (SERVERLIBS): If you add some additional library

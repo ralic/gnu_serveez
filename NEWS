@@ -28,6 +28,9 @@ files.
 Version 0.0.21
 --------------
 
+ * coservers are now integral part of the core library
+ * embeddable library created
+
 Version 0.0.20
 --------------
 

@@ -121,14 +121,6 @@ or '--enable-<?>=no'.
          When using the serveez as part of the textSure (C) chat system you 
          will have need of an additional web server. This option makes 
          serveez support a simple HTTP protocol.
- 10.   --enable-ident
-         It is always useful to enable this option. For the IRC server you 
-         MUST enable this option. When enabling it the serveez will create an 
-         identification client which does non-blocking ident lookups.
- 11.   --enable-reverse-dns
-         When enabling this option the serveez creates an nslookup client able
-         to do non-blocking nameserver lookups. For the IRC server feature of
-         serveez you MUST enable this feature.
  12.   --enable-flood
          If you enable this feature the serveez will support a simple builtin 
          flood protection. It is always useful to protect the software from
@@ -141,10 +133,6 @@ or '--enable-<?>=no'.
          final executable depend on the Cygwin project's cygwin1.dll you have
          to disable this option by passing configure script '--without-mingw'
 	 or '--with-mingw=no'.
- 15.   --enable-dns
-	 If you enable this feature serveez creates a dns lookup coserver
-	 which is able to make non-blocking dns lookups. This might be 
-	 necessary to resolve IRC servers from C or N lines.
  16.   --enable-sntp-proto
          Thereby you enable the support for a simple network time protocol
          server.
