@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.15 2000/07/27 15:19:58 ela Exp $
+ * $Id: control-proto.c,v 1.16 2000/07/28 12:26:24 ela Exp $
  *
  */
 
@@ -506,7 +506,7 @@ int
 ctrl_stat_con (socket_t sock, int flag, char *arg)
 {
   socket_t xsock;
-  char *id;
+  char *id = "None";
   char linet[64];  
   char rinet[64];
   int n;
@@ -526,7 +526,7 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 	{
 	  id = server->name;
 	}
-      else
+      else if (xsock->flags & SOCK_FLAG_PIPE)
 	{
 	  id = "Co-Server";
 	}

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.14 2000/07/27 15:19:58 ela Exp $
+ * $Id: awcs-proto.c,v 1.15 2000/07/28 12:26:23 ela Exp $
  *
  */
 
@@ -591,6 +591,11 @@ handle_master_request (awcs_config_t *cfg, char *request, int request_len)
   if (request_len <= 0)
     return -1;
 
+#if 0
+  util_hexdump (stdout, "master request", cfg->server->sock_desc,
+		request, request_len, 0);
+#endif
+
   request_len--;
   switch (*request++)
     {
@@ -800,7 +805,6 @@ awcs_connect_socket (void *config, socket_t sock)
 
   sock->disconnected_socket = awcs_disconnected_socket;
   sock->check_request = awcs_check_request;
-  sock->kicked_socket = awcs_kicked_socket;
 
   if (cfg->master)
     {
@@ -831,6 +835,7 @@ awcs_connect_socket (void *config, socket_t sock)
       char key[5];
       sprintf (key, "%04d", sock->socket_id);
       hash_put (cfg->clients, key, sock);
+      sock->kicked_socket = awcs_kicked_socket;
     }
 
   /*

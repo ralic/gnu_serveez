@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.14 2000/07/27 15:19:58 ela Exp $
+ * $Id: util.c,v 1.15 2000/07/28 12:26:23 ela Exp $
  *
  */
 
@@ -516,8 +516,16 @@ char *
 util_itoa (unsigned int i)
 {
   static char buffer[32];
-  snprintf (buffer, 32, "%u", i);
-  return buffer;
+  char *p = buffer + sizeof (buffer) - 1;
+
+  *p = '\0';
+  do
+    {
+      p--;
+      *p = (i % 10) + '0';
+    }
+  while ((i /= 10) != 0);
+  return p;
 }
 
 /*

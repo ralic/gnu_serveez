@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.14 2000/07/26 14:56:08 ela Exp $
+ * $Id: server-core.c,v 1.15 2000/07/28 12:26:23 ela Exp $
  *
  */
 
@@ -329,7 +329,7 @@ sock_dequeue (socket_t sock)
 	}
     }
 
-  if(sock->flags & SOCK_FLAG_ENQUEUED)
+  if (sock->flags & SOCK_FLAG_ENQUEUED)
     {
       if (sock->next)
 	sock->next->prev = sock->prev;

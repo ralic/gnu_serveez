@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.12 2000/07/27 22:32:59 raimi Exp $
+ * $Id: http-cache.c,v 1.13 2000/07/28 12:26:24 ela Exp $
  *
  */
 
@@ -431,14 +431,12 @@ http_cache_read (socket_t sock)
       http->filelength -= num_read;
     }
 
-  /* bogus file. filesize from stat() wasnt true */
+  /* Bogus file. File size from stat() was not true. */
   if (num_read == 0 && http->filelength != 0)
     {
-      /* fill in the actual cache entry */
       cache->entry->size = cache->size;
       cache->entry->buffer = cache->buffer;
       cache->entry->ready = 42;
-
       return -1;
     }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.18 2000/07/26 14:56:08 ela Exp $
+ * $Id: server-socket.c,v 1.19 2000/07/28 12:26:23 ela Exp $
  *
  */
 
@@ -558,9 +558,9 @@ server_accept_pipe (socket_t server_sock)
 
 #else /* not __MINGW32__ */
 
-  return 0;
-
-#endif /* not HAVE_MKFIFO */
-  
   return -1;
+
+#endif /* neither HAVE_MKFIFO nor __MINGW32__ */
+
+  return 0;
 }

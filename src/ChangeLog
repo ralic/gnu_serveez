@@ -1,4 +1,20 @@
-2000-07-27  [ Ela ]  <ela@lkcc.org>
+2000-07-28  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_stat_con): Co-Server
+	identified by SOCK_FLAG_PIPE if there is no server for
+	socket structure, else we simply state "None".
+
+	* awcs-server/awcs-proto.c (awcs_connect_socket): Assign
+	awcs_kicked_socket callback only to clients.
+
+	* util.c (util_itoa): Optimized this function.
+
+	* http-server/http-proto.c (http_get_response): Do not
+	send irregular files like devices and pipes.
+
+	* http-server/http-cache.c (http_cache_read): Checking for
+	bogus files whose filesize could not been read. Thus 
+	preventing a memory leak.
 
 	* http-server/http-cache.c (http_cache_disconnect): First
 	check if there is a cache entry.
