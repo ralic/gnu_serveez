@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.23 2001/10/25 16:59:09 ela Exp $
+ * $Id: guile-server.c,v 1.24 2001/10/31 22:51:10 ela Exp $
  *
  */
 
@@ -777,7 +777,7 @@ guile_sock_print (SCM sock, SCM buffer)
 {
   svz_socket_t *xsock;
   char *buf;
-  int len;
+  int len, ret = -1;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   SCM_ASSERT_TYPE (gh_string_p (buffer) || guile_bin_check (buffer), 
@@ -793,7 +793,15 @@ guile_sock_print (SCM sock, SCM buffer)
       buf = guile_bin_to_data (buffer, &len);
     }
 
-  if (svz_sock_write (xsock, buf, len) == -1)
+  /* Depending on the protcol type use different kind of senders. */
+  if (xsock->proto & (PROTO_TCP | PROTO_PIPE))
+    ret = svz_sock_write (xsock, buf, len);
+  else if (xsock->proto & PROTO_UDP)
+    ret = svz_udp_write (xsock, buf, len);
+  else if (xsock->proto & PROTO_ICMP)
+    ret = svz_icmp_write (xsock, buf, len);
+  
+  if (ret == -1)
     {
       svz_sock_schedule_for_shutdown (xsock);
       return SCM_BOOL_F;
@@ -1369,6 +1377,9 @@ guile_define_servertype (SCM args)
   svz_free (txt);
   return err ? SCM_BOOL_F : SCM_BOOL_T;
 }
+#undef FUNC_NAME
+
+#include "guile-api.c"
 
 /*
  * Initialization of the guile server module. Should be run before calling
@@ -1417,6 +1428,7 @@ guile_server_init (void)
   INIT_SMOB_MARKER (svz_servertype);
 
   guile_bin_init ();
+  guile_api_init ();
 }
 
 /* Destroys the server type hash containing all callbacks associated with
@@ -1450,6 +1462,8 @@ guile_server_finalize (void)
   int i;
   svz_servertype_t *stype;
   svz_hash_t *functions;
+
+  guile_api_finalize ();
 
   if (guile_server)
     {

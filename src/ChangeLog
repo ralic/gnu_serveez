@@ -1,3 +1,11 @@
+2001-10-31  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.c: New file.  Provides additional Serveez API
+	functionality for Guile.
+
+	* guile-server.c (guile_sock_print): Check for protocol flag
+	to differentiate TCP/UDP/ICMP/PIPE.
+
 2001-10-26  [ Ela ]  <ela@lkcc.org>
 
 	* ctrl-server/control-proto.c (ctrl_stat): Appended the

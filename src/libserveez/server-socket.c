@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.19 2001/09/11 15:05:48 ela Exp $
+ * $Id: server-socket.c,v 1.20 2001/10/31 22:51:10 ela Exp $
  *
  */
 
@@ -249,7 +249,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
   struct sockaddr_in client;	/* address of connecting clients */
   socklen_t client_size;	/* size of the address above */
   svz_socket_t *sock;
-  svz_portcfg_t *port = server_sock->port;;
+  svz_portcfg_t *port = server_sock->port;
 
   memset (&client, 0, sizeof (client));
   client_size = sizeof (client);
@@ -310,6 +310,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
 			       port->recv_buffer_size);
       svz_sock_enqueue (sock);
       svz_sock_setparent (sock, server_sock);
+      sock->proto = server_sock->proto;
       svz_sock_connections++;
 
       /* Check access and connect frequency here. */
@@ -502,6 +503,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 			   port->recv_buffer_size);
   svz_sock_enqueue (sock);
   svz_sock_setparent (sock, server_sock);
+  sock->proto = server_sock->proto;
 
   svz_log (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
 	   server_sock->recv_pipe, 

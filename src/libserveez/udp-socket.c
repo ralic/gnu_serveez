@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.13 2001/09/19 09:49:19 ela Exp $
+ * $Id: udp-socket.c,v 1.14 2001/10/31 22:51:10 ela Exp $
  *
  */
 
@@ -362,11 +362,11 @@ svz_udp_connect (unsigned long host, unsigned short port)
 
   /* Create a client socket. */
   if ((sockfd = svz_socket_create (PROTO_UDP)) == (SOCKET) -1)
-      return NULL;
+    return NULL;
 
   /* Try to connect to the server. Does it make sense for ICMP ? */
   if (svz_socket_connect (sockfd, host, port) == -1)
-     return NULL;
+    return NULL;
 
   /* Create socket structure and enqueue it. */
   if ((sock = svz_sock_alloc ()) == NULL)
@@ -378,6 +378,7 @@ svz_udp_connect (unsigned long host, unsigned short port)
   svz_sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
+  sock->proto = PROTO_UDP;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   svz_sock_enqueue (sock);
   svz_sock_intern_connection_info (sock);

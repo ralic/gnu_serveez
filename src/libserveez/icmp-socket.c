@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.17 2001/09/19 09:49:18 ela Exp $
+ * $Id: icmp-socket.c,v 1.18 2001/10/31 22:51:10 ela Exp $
  *
  */
 
@@ -770,6 +770,7 @@ svz_icmp_connect (unsigned long host, unsigned short port,
   svz_sock_resize_buffers (sock, ICMP_BUF_SIZE, ICMP_BUF_SIZE);
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
+  sock->proto = PROTO_ICMP;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   sock->itype = type;
   svz_sock_enqueue (sock);

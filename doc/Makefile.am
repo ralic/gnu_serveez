@@ -42,7 +42,7 @@ DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c \
   socket.h alloc.h server.h util.h codec.c
 SED_FILE = serveez-api.sed
 GUILE_DOC_DIRS = $(top_srcdir)/src
-GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c
+GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c guile-api.c
 GUILE_SED_FILE = guile-api.sed
 HTML_DIR = manual
 SITE_DIR = $(top_srcdir)/../serveez-site

@@ -59,6 +59,8 @@ serveez_SOURCES = \
 	guile-server.c guile-server.h \
 	guile-bin.c guile-bin.h
 
+EXTRA_serveez_SOURCES = guile-api.c
+
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 
 serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
