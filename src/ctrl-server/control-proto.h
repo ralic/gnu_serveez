@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ * $Id: control-proto.h,v 1.3 2000/06/22 19:40:30 ela Exp $
  *
  */
 
@@ -31,6 +31,7 @@
 
 #define _GNU_SOURCE
 #include "socket.h"
+#include "server.h"
 
 #define STAT_BUFFER_SIZE 256
 
@@ -54,6 +55,36 @@ typedef struct
 }
 cpu_state_t;
 
+/*
+ * Control protocol server configuration.
+ */
+typedef struct
+{
+  portcfg_t *netport; /* port configuration only (yet) */
+}
+ctrl_config_t;
+
+/* Export the control server definition to `server.c'. */
+extern server_definition_t ctrl_server_definition;
+
+/* server functions */
+int ctrl_init (server_t *server);
+int ctrl_finalize (server_t *server);
+
+/* basic protocol functions */
+int ctrl_detect_proto (void *cfg, socket_t sock);
+int ctrl_connect_socket (void *cfg, socket_t sock);
+
+int ctrl_idle (socket_t sock);
+int ctrl_handle_request (socket_t sock, char *request, int len);
+
+#define CTRL_FLAG_PASSED          0x0001
+#define CTRL_PACKET_DELIMITER     "\n"
+#define CTRL_PACKET_DELIMITER_LEN 1
+
+/*
+ * Format string for system business output on different systems.
+ */
 #ifdef HAVE_LIBKSTAT
 # define CPU_FORMAT \
   "user %ld.%01ld%%, sys %ld.%01ld%%, wait %ld.%01ld%%, idle %ld.%01ld%%"
@@ -83,12 +114,6 @@ cpu_state_t;
 # define CPU_FILE_NAME "/proc/stat"
 # define CPU_LINE_FORMAT "cpu  %lu %lu %lu %lu"
 #endif /* HAVE_PROC_STAT */
-
-int ctrl_idle (socket_t sock);
-int ctrl_detect_proto (socket_t sock);
-int ctrl_connect_socket (socket_t sock);
-int ctrl_check_request (socket_t sock);
-int ctrl_handle_request (socket_t sock, char *request, int len);
 
 /* welcome message */
 #define CTRL_PASSWD "Welcome to serveez control center. " \

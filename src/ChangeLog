@@ -1,15 +1,17 @@
-2000-06-22  [ Ela ]  <ela@lkcc.org>
-
-	* http-server/http-proto.c (http_get_response): Do not send
-	"Content-Length:" header for zero sized files. Keep cache 
-	untouched for those kind of files.
-
 2000-06-22  [ RAIMI ]  <raimi@lkcc.org>
 
 	* http-server/http-proto.c (http_send_file): Made it work with
 	ela on the phone. I typed what he said.
 
 2000-06-22  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_server_definition): Ported
+	control protocol to new server concept. This has been the last
+	missing server so far... not yet working all right.
+
+	* http-server/http-proto.c (http_get_response): Do not send
+	"Content-Length:" header for zero sized files. Keep cache 
+	untouched for those kind of files.
 
 	* socket.c (sock_disconnect): Now able to disconnect pipes also.
 	This was not available under Win32 yet.

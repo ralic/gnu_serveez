@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.11 2000/06/22 00:37:44 ela Exp $
+ * $Id: server-socket.c,v 1.12 2000/06/22 19:40:30 ela Exp $
  *
  */
 
@@ -237,10 +237,8 @@ server_start (void)
 }
 
 /*
- * Create a listening server socket. TYPE is either UDP or TCP. 
- * PROTOCOL can be one of the apropiate SERV_FLAG_* flags and
- * PORT is the port to bind the server socket to.
- * Return a null pointer on errors.
+ * Create a listening server socket. PORTCFG is the port to bind the 
+ * server socket to. Return a null pointer on errors.
  */
 socket_t
 server_create (portcfg_t *cfg)

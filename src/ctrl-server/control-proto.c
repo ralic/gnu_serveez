@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.7 2000/06/18 16:25:19 ela Exp $
+ * $Id: control-proto.c,v 1.8 2000/06/22 19:40:30 ela Exp $
  *
  */
 
@@ -57,18 +57,63 @@
 #include "pipe-socket.h"
 #include "server-core.h"
 #include "server-socket.h"
+#include "server.h"
 #include "serveez.h"
 #include "coserver/coserver.h"
 #include "control-proto.h"
 
 #if ENABLE_HTTP_PROTO
 # include "http-server/http-cache.h"
-# include "http-server/http-proto.h"
 #endif
 
-#if ENABLE_AWCS_PROTO
-# include "awcs-server/awcs-proto.h"
-#endif
+/*
+ * The control port configuration.
+ */
+portcfg_t ctrl_port =
+{
+  PROTO_TCP,  /* TCP protocol defintion */
+  42424,      /* prefered port */
+  "*",        /* prefered local ip address */
+  NULL,       /* calculated automatically later */
+  NULL,       /* no receiving (listening) pipe */
+  NULL        /* no sending pipe */
+};
+
+/*
+ * The contrl server instance configuration.
+ */
+ctrl_config_t ctrl_config =
+{
+  &ctrl_port  /* port configuration only (yet) */
+};
+
+/*
+ * Defintion of the configuration items processed by libsizzle (taken
+ * from the config file).
+ */
+key_value_pair_t ctrl_config_prototype [] =
+{
+  REGISTER_PORTCFG ("netport", ctrl_config.netport, DEFAULTABLE),
+  REGISTER_END ()
+};
+
+/*
+ * Defintion of the control protocol server.
+ */
+server_definition_t ctrl_server_definition =
+{
+  "control protocol server", /* long server description */
+  "control",                 /* short server description (for libsizzle) */
+  NULL,                      /* global initializer */
+  ctrl_init,                 /* instance initializer */
+  ctrl_detect_proto,         /* protocol detection routine */
+  ctrl_connect_socket,       /* connection routine */
+  ctrl_finalize,             /* instance finalization routine */
+  NULL,                      /* global finalizer */
+  &ctrl_config,              /* default configuration */
+  sizeof (ctrl_config),      /* size of the configuration */
+  ctrl_config_prototype      /* configuration prototypes (libsizzle) */
+};
 
 /*
  * Within the CTRL_IDLE function this structure gets filled with
@@ -77,13 +122,35 @@
 cpu_state_t cpu_state;
 
 /*
+ * Server instance initializer.
+ */
+int
+ctrl_init (server_t *server)
+{
+  ctrl_config_t *cfg = server->cfg;
+
+  server_bind (server, cfg->netport);
+  return 0;
+}
+
+/*
+ * Server instance finalizer.
+ */
+int
+ctrl_finalize (server_t *server)
+{
+  return 0;
+}
+
+/*
  * This function gets called for new sockets which are not yet
  * identified.  It returns a non-zero value when the content in
  * the receive buffer looks like the control protocol.
  */
 int
-ctrl_detect_proto (socket_t sock)
+ctrl_detect_proto (void *ctrlcfg, socket_t sock)
 {
+  ctrl_config_t *cfg = ctrlcfg;
   int ret = 0;
 
   /* accept both CRLF and CR */
@@ -123,20 +190,24 @@ ctrl_detect_proto (socket_t sock)
  * routine.
  */
 int
-ctrl_connect_socket (socket_t sock)
+ctrl_connect_socket (void *ctrlcfg, socket_t sock)
 {
+  ctrl_config_t *cfg = ctrlcfg;
+
   sock_resize_buffers (sock, sock->send_buffer_size, CTRL_RECV_BUFSIZE);
-  sock->flags |= SOCK_FLAG_CTRL_CLIENT;
-  sock->check_request = ctrl_check_request;
+  sock->check_request = default_check_request;
+  sock->handle_request = ctrl_handle_request;
+  sock->boundary = CTRL_PACKET_DELIMITER;
+  sock->boundary_size = CTRL_PACKET_DELIMITER_LEN;
   sock->idle_func = ctrl_idle;
   sock->idle_counter = CTRL_LOAD_UPDATE;
 
 #if HAVE_PROC_STAT
   cpu_state.cpufile = CPU_FILE_NAME;
   cpu_state.cpuline = CPU_LINE_FORMAT;
-#elif HAVE_LIBKSTAT
+#elif HAVE_LIBKSTAT /* not HAVE_PROC_STAT */
 
-#else
+#else /* neither HAVE_PROC_STAT nor HAVE_LIBKSTAT */
   strcpy (cpu_state.info, CPU_FORMAT);
 #endif
 
@@ -145,48 +216,6 @@ ctrl_connect_socket (socket_t sock)
   /* send welcome message */
   sock_printf (sock, "%s", CTRL_PASSWD);
 
-  return 0;
-}
-
-/*
- * This routine is the request checks for control protocol connections.
- * The ctrl_handle_request routine gets called after every single line.
- */
-int
-ctrl_check_request (socket_t sock)
-{
-  char *p;
-  int len;
-  int ret;
-
-  p = sock->recv_buffer;
-
-  do 
-    {
-      while (p < sock->recv_buffer + sock->recv_buffer_fill  && *p != '\n')
-	p++;
-  
-      if (*p == '\n' && p < sock->recv_buffer + sock->recv_buffer_fill)
-	{
-	  len = p - sock->recv_buffer + 1;
-	  ret = ctrl_handle_request (sock, 
-				     sock->recv_buffer, 
-				     *(p-1) == '\r' ? len-2 : len-1);
-	  if (ret)
-	    return -1;
-	
-	  if (sock->recv_buffer_fill > len)
-	    {
-	      memmove (sock->recv_buffer, p, 
-		       sock->recv_buffer_fill - len);
-	    }
-	  sock->recv_buffer_fill -= len;
-	}
-      else
-	break;
-    }
-  while (sock->recv_buffer_fill);
-  
   return 0;
 }
 
@@ -282,40 +311,19 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
     strcat (sflags, "tcp ");
   if (xsock->proto & PROTO_UDP)
     strcat (sflags, "udp ");
+  if (xsock->proto & PROTO_PIPE)
+    strcat (sflags, "pipe ");
 
   
   /* process protocol type server flags */
-  if ((xsock->proto & SERV_FLAG_UNIVERSAL) == SERV_FLAG_UNIVERSAL)
-    {
-      strcat (sflags, "universal ");
-    }
-  else
-    {
-#if ENABLE_IRC_PROTO
-      if (xsock->proto & SERV_FLAG_IRC) 
-	strcat (sflags, "IRC ");
-#endif /* ENABLE_IRC_PROTO */
-#if ENABLE_AWCS_PROTO
-      if (xsock->proto & SERV_FLAG_AWCS_MASTER) 
-	strcat (sflags, "aWCS-Master ");
-      if (xsock->proto & SERV_FLAG_AWCS_CLIENT)
-	strcat (sflags, "aWCS-Client ");
-#endif /* ENABLE_AWCS_PROTO */
-#if ENABLE_CONTROL_PROTO
-      if (xsock->proto & SERV_FLAG_CTRL)
-	strcat (sflags, "ctrl ");
-#endif /* ENABLE_CONTROL_PROTO */
-#if ENABLE_HTTP_PROTO
-      if (xsock->proto & SERV_FLAG_HTTP)
-	strcat (sflags, "HTTP ");
-#endif /* ENABLE_DNS_PROTO */
-    }
+  /* FIXME: server depending string */
+  strcat (sflags, "unknown server ");
 
   /* 
    * Process general socket structure's flags. Uppercase words refer
    * to set bits and lowercase to unset bits.
    */
-  sprintf (flags, "%s %s %s %s %s %s %s %s %s %s",
+  sprintf (flags, "%s %s %s %s %s %s %s %s %s %s %s %s %s",
 	   xsock->flags & SOCK_FLAG_INBUF ?     "INBUF" : "inbuf",
 	   xsock->flags & SOCK_FLAG_OUTBUF ?    "OUTBUF" : "outbuf",
 	   xsock->flags & SOCK_FLAG_CONNECTED ? "CONNECT" : "connect",
@@ -324,66 +332,15 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	   xsock->flags & SOCK_FLAG_KILLED ?    "KILL" : "kill",
 	   xsock->flags & SOCK_FLAG_NOFLOOD ?   "flood" : "FLOOD",
 	   xsock->flags & SOCK_FLAG_INITED ?    "INIT" : "init",
-#ifdef __MINGW32__
 	   xsock->flags & SOCK_FLAG_THREAD ?    "THREAD" : "thread",
-#else /* not __MINGW32__ */
 	   xsock->flags & SOCK_FLAG_PIPE ?      "PIPE" : "pipe",
-#endif /* not __MINGW32__ */
+	   xsock->flags & SOCK_FLAG_FILE ?      "FILE" : "file",
+	   xsock->flags & SOCK_FLAG_SOCK ?      "SOCK" : "sock",
 	   xsock->flags & SOCK_FLAG_ENQUEUED ?  "ENQUEUED" : "enqueued");
 
   /* process protocol specific flags */
-#if ENABLE_AWCS_PROTO
-  /*
-  if (xsock == master_server)
-    {
-      strcat (proto, "aWCS-Master ");
-    }
-  if (xsock->flags & SOCK_FLAG_AWCS_CLIENT)
-    {
-      strcat (proto, "aWCS-Client ");
-    }
-  */
-#endif /* ENABLE_AWCS_PROTO */
-
-#ifdef __MINGW32__
-  if (xsock->flags & SOCK_FLAG_THREAD)
-#else /* not __MINGW32__ */
-  if (xsock->flags & SOCK_FLAG_PIPE)
-#endif /* not __MINGW32__ */
-    strcat (proto, "Pipe ");
-
-#if ENABLE_HTTP_PROTO
-  if (0/*xsock->flags & SOCK_FLAG_HTTP_CLIENT*/)
-    {
-      /* process HTTP procol specific flags */
-      strcat (proto, "HTTP [");
-      if (xsock->userflags &  HTTP_FLAG_DONE)  strcat (proto, " DONE");
-      else                                      strcat (proto, " done");
-      if (xsock->userflags &  HTTP_FLAG_POST)  strcat (proto, " POST");
-      else                                      strcat (proto, " post");
-      if (xsock->userflags &  HTTP_FLAG_CGI)   strcat (proto, " CGI");
-      else                                      strcat (proto, " cgi");
-      if (xsock->flags &  SOCK_FLAG_FILE)  strcat (proto, " FILE");
-      else                                      strcat (proto, " file");
-      if (xsock->userflags &  HTTP_FLAG_CACHE) strcat (proto, " CACHE");
-      else                                      strcat (proto, " cache");
-      if (xsock->userflags &  HTTP_FLAG_KEEP)  strcat (proto, " KEEP");
-      else                                      strcat (proto, " keep");
-      strcat (proto, " ]");
-    }
-#endif /* ENABLE_HTTP_PROTO */
-#if ENABLE_CONTROL_PROTO
-  if (xsock->flags & SOCK_FLAG_CTRL_CLIENT)
-    strcat (proto, "Control ");
-#endif /* ENABLE_CONTROL_PROTO */
-#if ENABLE_IRC_PROTO
-  /*
-  if (xsock->flags & SOCK_FLAG_IRC_CLIENT)
-    strcat (proto, "IRC-Client ");
-  if (xsock->flags & SOCK_FLAG_IRC_SERVER)
-    strcat (proto, "IRC-Server ");
-  */
-#endif /* ENABLE_IRC_PROTO */
+  /* FIXME: protocol depending output here ! */
+  strcat (proto, "unknown protocol ");
 
   /* print all previously collected statistics of this connection */
   sock_printf (sock, 
@@ -516,55 +473,28 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
       id = "None";
-      if(xsock->proto)
+      if (xsock->proto)
 	id = "Server";
-#if ENABLE_CONTROL_PROTO
-      if(xsock->flags & SOCK_FLAG_CTRL_CLIENT)
-	id = "Control";
-#endif
-#if ENABLE_HTTP_PROTO
-      /*
-      if(xsock->flags & SOCK_FLAG_HTTP_CLIENT)
-	id = "HTTP";
-      */
-#endif
-#ifndef __MINGW32__
-      if(xsock->flags & SOCK_FLAG_PIPE)
-	id = "Pipe";
-#endif
-#if ENABLE_AWCS_PROTO
-      /*
-      if(xsock->flags & SOCK_FLAG_AWCS_CLIENT)
-	id = "aWCS-Client";
-      if(xsock == master_server)
-	id = "aWCS-Master";
-      */
-#endif
-#ifdef ENABLE_IRC_PROTO
-      /*
-      if(xsock->flags & SOCK_FLAG_IRC_CLIENT)
-	id = "IRC";
-      */
-#endif
+      /* FIXME: protocol specific */
 
       n = xsock->local_addr;
-      sprintf(linet, "%d.%d.%d.%d:%d", (n>>24)&0xff, 
-	      (n>>16)&0xff, (n>>8)&0xff, n&0xff,
-	      xsock->local_port);		  
+      sprintf (linet, "%d.%d.%d.%d:%d", (n>>24)&0xff, 
+	       (n>>16)&0xff, (n>>8)&0xff, n&0xff,
+	       xsock->local_port);		  
 
       n = xsock->remote_addr;
-      sprintf(rinet, "%d.%d.%d.%d:%d", (n>>24)&0xff,
-	      (n>>16)&0xff, (n>>8)&0xff, n&0xff,
-	      xsock->remote_port);
+      sprintf (rinet, "%d.%d.%d.%d:%d", (n>>24)&0xff,
+	       (n>>16)&0xff, (n>>8)&0xff, n&0xff,
+	       xsock->remote_port);
       
-      sock_printf(sock, 
-		  "%-11s %4d %6d %6d %4d %-20s %-20s\r\n", id,
-		  xsock->socket_id, xsock->recv_buffer_fill,
-		  xsock->send_buffer_fill, 
-		  xsock->sock_desc,
-		  linet, rinet);
+      sock_printf (sock, 
+		   "%-11s %4d %6d %6d %4d %-20s %-20s\r\n", id,
+		   xsock->socket_id, xsock->recv_buffer_fill,
+		   xsock->send_buffer_fill, 
+		   xsock->sock_desc,
+		   linet, rinet);
     }
-  sock_printf(sock, "\r\n");
+  sock_printf (sock, "\r\n");
 
   return flag;
 }
@@ -579,9 +509,9 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
   int n, total, files;
   char *p;
 
-  sock_printf(sock, "\r\n%s", 
-	      "File                             "
-	      "Size  Usage  Hits Recent Ready\r\n");
+  sock_printf (sock, "\r\n%s", 
+	       "File                             "
+	       "Size  Usage  Hits Recent Ready\r\n");
 
   for(files=0, total=0, n=0; n<MAX_CACHE; n++)
     {
@@ -661,8 +591,10 @@ ctrl_stat_all(socket_t sock, int flag, char *arg)
   client = 0;
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
+      /*
       if(xsock->flags & SOCK_FLAG_CTRL_CLIENT)
 	client++;
+      */
     }
   sock_printf(sock, "Ctrl connections: %d clients\r\n", client);
 #endif
@@ -725,11 +657,9 @@ ctrl_killall (socket_t sock, int flag, char *arg)
 
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
-      if(!(xsock->flags & SOCK_FLAG_CTRL_CLIENT) &&
+      if(xsock != sock &&
 	 !(xsock->flags & SOCK_FLAG_LISTENING))
-#ifndef __MINGW32__
 	if(!(xsock->flags & SOCK_FLAG_PIPE))
-#endif
 	  {
 	    sock_schedule_for_shutdown(xsock);
 	    n++;
@@ -847,8 +777,11 @@ ctrl_handle_request (socket_t sock, char *request, int len)
   int n;
   int ret = 0;
   int l;
+
+  while (request[len-1] == '\r' || request[len-1] == '\n')
+    len--;
   
-  if (!(sock->flags & SOCK_FLAG_CTRL_PASSED))
+  if (!(sock->userflags & CTRL_FLAG_PASSED))
     {
       /*
        * check here the control protocol password
@@ -856,7 +789,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
       if (len <= 2) return -1;
       if (!memcmp (request, serveez_config.server_password, len - 1))
 	{
-	  sock->flags |= SOCK_FLAG_CTRL_PASSED;
+	  sock->userflags |= CTRL_FLAG_PASSED;
 	  sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);
 	}
       else return -1;
