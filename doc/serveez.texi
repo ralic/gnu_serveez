@@ -40,7 +40,7 @@ Copyright @copyright{} 1999 Martin Grabmueller @email{mgrabmue@@cs.tu-berlin.de}
 
 To start Serveez simply type @samp{serveez} at your command line prompt
 and press @key{RET}. This will invoke the @file{serveez.[exe]} which will
-read its configuration from a file called @file{servee.cfg} in the current
+read its configuration from a file called @file{serveez.cfg} in the current
 directory and run the server loop afterwards. Press @key{^C} to abort the
 execution of this program.
 
@@ -59,7 +59,7 @@ File to use as configuration file [serveez.cfg].
 @item -v, --verbose=LEVEL      
 Set level of logging verbosity.
 @item -l, --log-file=FILENAME  
-Use FILENAME for logging (default is stderr).
+Use FILENAME for logging [default is stderr].
 @item -P, --password=STRING    
 Set the password for control connections.
 @item -m, --max-sockets=COUNT  
@@ -74,7 +74,7 @@ Set the maximum number of socket descriptors.
 @chapter Server
 
 @menu
-* Introduction to Servers::     Protocol servers in serveez
+* Introduction to Servers::     Protocol servers in Serveez
 * Writing Servers::             How to write internet protocol servers
 * Existing Servers::            Which kind of servers do we have already ?
 @end menu
@@ -345,7 +345,167 @@ identify the host name of the remote client.
 @node Existing Servers, ,Writing Servers, Server
 @section Existing Servers
 
-@subsection Chat Server (aWCS, TextSure)
+@subsection Chat Server (aWCS, textSure)
+
+@subsubsection General description
+
+The whole Serveez package was originally written by Martin Grabmueller for
+a fast C backend for a chat system (now called textSure). This can be
+found at @uref{http://www.textsure.net/}. The server implements two kinds
+of protocols, one for the master server which should do all the 
+administrative stuff and the second for the chat clients. Basically the 
+chat server is a simple multicast unit.
+
+@subsubsection Specification of the Slave/Master server protocol of aWCS
+
+@table @asis
+
+@item Master server
+The first client that connects and sends an aWCS initialize message
+(see below) becomes the master server.
+When the master server disconnects, all clients get kicked.
+
+@item Other clients
+All other clients have to send the aWCS client initialize message,
+which is the string "aWCS\0" (note the final NUL character, which is
+part of the message). Messages received from those clients are simply
+sent to the master server with the client number of the sender
+prefixed (see `Messages from clients').
+
+@item Message format
+A request consists of a sequence of characters terminated with the
+NUL character '\0'.
+
+@item Messages from clients
+All messages from clients are routed to the master server, but
+modified in such a way that 4 digits and one space precede the
+original message. These 4 digits are the (decimal) client's id
+right-padded with zeroes.
+
+@item Messages from the master server
+Messages that come from the master server must have the following
+format:
+
+The first character is one of the following and has a special meaning:
+
+@multitable @columnfractions .15 .85
+@item character
+@tab meaning
+@item 0
+@tab Send message to all clients.
+@item 1
+@tab Send message to the clients denoted in the message.
+@item 2
+@tab Report status to the master server.
+@item 3
+@tab Kick the clients denoted in the message.
+@item 4
+@tab Turn off flood protection for the clients in the message.
+@item 5
+@tab Turn on flood protection for the clients in the message.
+@item 6
+@tab Initialization message.
+@end multitable
+
+Those special characters are followed by a single space.
+
+Messages which require additional parameters (multicast for example)
+carry these parameters after the space in a comma seperated list of
+client ids in the above format.  The client id list is terminated
+by the \0 character terminating the request (if no parameters follow)
+or by a single space (if parameters follow).  Note that in comma
+separated lists, no spaces are allowed.
+
+@example
+Example:
+
+0 Hallo Welt\0  
+  - Send "Hallo Welt\0" to all clients except the master server.
+
+1 0001,0004,0006 Gruezi!\0
+  - Send "Gruezi\0" to the clients 1, 4 and 6.
+
+2 \0
+  - Send status data back to the master server.
+
+3 0003,0004\0
+  - Kicks clients 3 and 4.
+
+4 0004,0016\0
+  - Turn off flood protection for clients 4 and 16.
+
+5 0001,005\0
+  - Turn on flood protection for clients 1 and 5.
+
+6 \0
+  - Initialize data structures and accept the connection as the 
+    master server.
+
+@end example
+
+@item Status messages for the master server
+The low level server posts messages to the master server on several
+occasions, for example when clients connect, disconnect etc.
+
+Status messages have the same format as other client messages for the
+master server.  The client number in the message is 0000, followed by a
+space, the status message type and additional parameters.
+
+@multitable @columnfractions .08 .4 .52
+@item Type
+@tab Description
+@tab Parameter
+@item 0
+@tab Client has connected.
+@tab Client id, client IP number:port
+@item 1
+@tab Client has disconnected.
+@tab Client id, error code
+@item 2
+@tab Client got kicked.
+@tab Client id, kick reason
+@item 3
+@tab Low level server is alive.
+@tab 42
+@item 4
+@tab Notify time elapsed.
+@tab 42
+@end multitable
+
+@multitable @columnfractions .2 .8
+@item Error code
+@tab Description
+@item 0
+@tab Success
+@item 1
+@tab Client closed connection
+@end multitable
+
+@multitable @columnfractions .2 .8
+@item Kick reason
+@tab Description
+@item 0
+@tab Flooding
+@item 1
+@tab Output buffer overflow
+@end multitable
+
+@end table
+
+@subsubsection Configuration
+
+@table @asis
+
+@item netport
+The @code{netport} parameter is the default network port configuration
+where you can specify the network port and IP address.
+
+@item fsport
+This parameter could be used to specify two named pipes as connection
+device. This is thought for a local installations of the master server
+and Serveez.
+
+@end table
 
 @subsection HTTP Server
 
@@ -359,15 +519,15 @@ identify the host name of the remote client.
 @chapter Co-Server
 
 @menu
-* What are Co-Servers::         The use of Co-Servers in serveez
-* Writing Co-Servers::          How to write Co-Servers with serveez
+* What are Co-Servers::         The use of Co-Servers in Serveez
+* Writing Co-Servers::          How to write Co-Servers with Serveez
 * Existing Co-Servers::         What kind of Co-Servers already exist ?
 @end menu
 
 @node What are Co-Servers, Writing Co-Servers, , Co-Server
 @section What are Co-Servers
 
-If it is necessary to complete blocking tasks in serveez you have 
+If it is necessary to complete blocking tasks in Serveez you have 
 to use Co-Servers. The actual implementation in Unices is a process and in
 Win32 systems it is realized by a thread.
 
@@ -377,7 +537,7 @@ Win32 systems it is realized by a thread.
 @subsection Making and configuring preperations
 
 First you have yo change into the @file{src/coserver/} directory of the 
-serveez package. Then edit the @file{Makefile.am} and add your 
+Serveez package. Then edit the @file{Makefile.am} and add your 
 header and implementation file to the @code{libcoserver_a_SOURCES}
 variable there.
 
@@ -394,9 +554,9 @@ handle routine defined in the Co-Server header file. This could be any blocking
 system call. On successful completion you can return the result or NULL on
 errors. The input and output buffers are plain strings and can have any
 format with one exception. Because the Co-Servers communicate via a line
-protocol with serveez these buffers must not contain @samp{\n} (0x0d).
+protocol with Serveez these buffers must not contain @samp{\n} (0x0d).
 
-@subsection Make your Co-Server available in serveez
+@subsection Make your Co-Server available in Serveez
 
 For this you have to edit @file{coserver.h} and @file{coserver.c} in the
 @file{src/coserver/} directory. In the header file you have to define a 
@@ -429,6 +589,41 @@ created and an optional initialization routine.
 
 @node Porting issues, , Co-Server, Top
 @chapter Porting issues
+
+Serveez was always designed with an eye on maximum portability. Autoconf 
+and Automake have done a great job at this. A lot of @code{#define}s help
+to work around some of the different unices oddities. Have a look at
+@file{config.h} for a complete list of all these conditionals.
+
+The most doubtful might be the Win32 port. There are two different targets.
+Where the @code{__MINGW32__} port refers to a native Win32 port. The home
+of the team is @uref{http://www.mingw.org/}. The port to the
+@code{__CYGWIN__} target always depends on the unix emulation layer DLL
+@file{cygwin1.dll}. Both ports are more or less advanced at this time, but
+for performance reasons it is always better to chose native Win32.
+
+Now follows the list on which operating systems and architectures
+Serveez has been build and tested successfully.
+
+@itemize @bullet
+
+@item FreeBSD 3.3 on Intel
+@item FreeBSD 4.0 on Intel
+@item FreeBSD 4.0 on Alpha
+@item Linux 2.x.x on Intel
+@item Linux 2.x.x on Alpha
+@item Solaris 2.6, 2.7 on Sparc 32, Sparc 64
+@item SunOS 5.6 on Intel
+@item AIX 4.3 on RS6000
+@item Windows 95 on Intel
+@item Windows 98 on Intel
+@item Windows Millenium Edition on Intel
+@item Windows NT 4.0 on Intel
+@item IRIX 6.x on MIPS
+@item Tru64/OSF1 UNIX V4.0 (former Digital UNIX) on Alpha
+@item Tru64/OSF1 UNIX V5.0 (former Digital UNIX) on Alpha
+
+@end itemize
 
 @contents
 @bye

@@ -26,8 +26,7 @@ TEXINFO_TEX = no-texinfo.tex
 
 info_TEXINFOS = serveez.texi
 
-EXTRA_DIST = awcs-proto.txt mime.types port.lst irc-MOTD.txt \
-	serveez.cfg
+EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg
 
 CLEANFILES = *.info
 
