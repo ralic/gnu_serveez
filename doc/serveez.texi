@@ -41,13 +41,21 @@ Free Documentation License".
 @node Introduction, Using Serveez, Top, Top
 @chapter Introduction
 
-Serveez is a server listening on multiple tcp and udp ports and interfaces
-and handling all client connections within a single process 
-(non forking behaviour). The overall concept is as loose as necessary 
-and possible. The server is able to handle various internet protocols 
-and can be run on different platforms
-and operating systems. Until now we implemented our own chat protocol, 
-the IRC protocol, HTTP and an internal control protocol.
+Serveez is a server framework. It provides routines and help for
+implementing IP based servers (currently TCP and UDP). We think it is
+worth the effort because many people need server functionality within
+their applications. However, many people experience problems with select()-
+or poll()-loops and non-blocking operations.
+This application demonstrates various aspects of advanced network
+programming in a portable manner. It is known to compile and run on
+32 bit and 64 bit Un*x flavours as well as on M$ Windows (9x/NT/2000).
+You can use it for implementing your own servers or for understanding how
+certain network services and operations work.
+The package includes a number of servers that work already: a HTTP server,
+an IRC server, a Gnutella spider and some others. One of the highlights is
+that you can run all protocols on the same port. The application itself is
+single threaded but it uses helper processes for concurrent name resolution
+and ident lookups.
 
 @node Using Serveez, Concept, Introduction, Top
 @chapter Using Serveez

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.10 2000/09/03 21:28:04 ela Exp $
+ * $Id: interface.c,v 1.11 2000/09/12 22:14:15 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@
   "--- list of local interfaces you " \
   "can start ip services on ---\n"
 
-#ifdef _WIN32
+#ifdef __MINGW32__
 
 /*
  * The local interface list is requested by some "unrevealed"
@@ -427,7 +427,7 @@ list_local_interfaces (void)
     }
 }
 
-#else /* not _WIN32 */
+#else /* not __MINGW32__ */
 
 void
 list_local_interfaces (void)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.h,v 1.2 2000/06/28 18:45:51 ela Exp $
+ * $Id: interface.h,v 1.3 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -30,7 +30,7 @@
 /* Export this function. */
 void list_local_interfaces (void);
 
-#ifdef _WIN32
+#ifdef __MINGW32__
 
 #include "include/ipdata.h" 
 #include "include/iphlpapi.h"
@@ -54,4 +54,4 @@ typedef struct
 }
 ifList_t;
 
-#endif /* not _WIN32 */
+#endif /* not __MINGW32__ */

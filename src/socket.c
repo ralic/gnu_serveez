@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.21 2000/09/09 16:33:43 ela Exp $
+ * $Id: socket.c,v 1.22 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -674,15 +674,29 @@ sock_disconnect (socket_t sock)
     {
       if (sock->flags & SOCK_FLAG_CONNECTED)
 	{
-	  if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) < 0)
-	    log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
-	  if (CLOSE_HANDLE (sock->pipe_desc[READ]) < 0)
-	    log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+#ifdef __MINGW32__
+	  if (sock->referer)
+	    {
+	      /* just disconnect client pipes */
+	      if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
+		log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	      if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
+		log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	    }
+	  else
+#endif /* not __MINGW32__ */
+	    {
+	      /* close both pipes */
+	      if (CLOSE_HANDLE (sock->pipe_desc[WRITE]) < 0)
+		log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	      if (CLOSE_HANDLE (sock->pipe_desc[READ]) < 0)
+		log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+	    }
 	  sock->pipe_desc[READ] = INVALID_HANDLE;
 	  sock->pipe_desc[WRITE] = INVALID_HANDLE;
 	}
   
-      /* prevent a pipe servers child to reinit the pipe server */
+      /* prevent a pipe server's child to reinit the pipe server */
       if (sock->flags & SOCK_FLAG_LISTENING)
 	{
 	  if (sock->referer)
@@ -694,13 +708,12 @@ sock_disconnect (socket_t sock)
 	  sock->referer->flags &= ~SOCK_FLAG_INITED;
 	  sock->referer->referer = NULL;
 	}
-	  
     }
   /* shutdown the network socket */
-  else if(sock->sock_desc != INVALID_SOCKET)
+  else if (sock->sock_desc != INVALID_SOCKET)
     {
       /* shutdown client connection */
-      if(sock->flags & SOCK_FLAG_CONNECTED)
+      if (sock->flags & SOCK_FLAG_CONNECTED)
 	{
 	  if (shutdown (sock->sock_desc, 2) < 0)
 	    log_printf (LOG_ERROR, "shutdown: %s\n", NET_ERROR);

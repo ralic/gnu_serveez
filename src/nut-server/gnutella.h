@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.13 2000/09/10 10:51:18 ela Exp $
+ * $Id: gnutella.h,v 1.14 2000/09/12 22:14:17 ela Exp $
  *
  */
 
@@ -213,7 +213,8 @@ typedef struct
   byte guid[NUT_GUID_SIZE]; /* this servers GUID */
   hash_t *route;            /* routing table */
   hash_t *conn;             /* connected hosts hash */
-  char *search;             /* search pattern */
+  char **search;            /* search pattern array */
+  int search_index;         /* current search pattern index */
   hash_t *packet;           /* this servers created packets */
   unsigned errors;          /* routing errors */
   unsigned files;           /* files within connected network */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.23 2000/09/11 00:07:35 raimi Exp $
+ * $Id: server-socket.c,v 1.24 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -390,17 +390,20 @@ server_accept_pipe (socket_t server_sock)
   struct stat buf;
 #endif
 
+#ifdef __MINGW32__
+  DWORD connect;
+#endif
+
 #if defined (HAVE_MKFIFO) || defined (__MINGW32__)
   HANDLE recv_pipe, send_pipe;
   socket_t sock;
-
   server_sock->idle_counter = 1;
 
   /*
    * Pipe requested via port configuration ?
    */
   if (!server_sock->recv_pipe || !server_sock->send_pipe)
-    return 0;
+    return -1;
 #endif
 
 #if HAVE_MKFIFO
@@ -413,7 +416,7 @@ server_accept_pipe (socket_t server_sock)
       if (mkfifo (server_sock->recv_pipe, 0666) == -1)
         {
           log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
-          return 0;
+          return -1;
         }
     }
 
@@ -422,7 +425,7 @@ server_accept_pipe (socket_t server_sock)
       if (mkfifo (server_sock->send_pipe, 0666) == -1)
         {
           log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
-          return 0;
+          return -1;
         }
     }
 
@@ -432,10 +435,15 @@ server_accept_pipe (socket_t server_sock)
    */
   if ((send_pipe = open (server_sock->send_pipe, O_NONBLOCK|O_WRONLY)) == -1)
     {
+      if (errno != ENXIO)
+	{
+	  log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
+	  return -1;
+	}
       return 0;
     }
 
-  /* Try opening the server's read pipe. */
+  /* Try opening the server's read pipe. Should always be possible. */
   if ((recv_pipe = open (server_sock->recv_pipe, O_NONBLOCK|O_RDONLY)) == -1)
     {
       close (send_pipe);
@@ -460,15 +468,15 @@ server_accept_pipe (socket_t server_sock)
   if (server_sock->pipe_desc[READ] == INVALID_HANDLE)
     {
       recv_pipe = CreateNamedPipe (
-        server_sock->recv_pipe,
-	PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,
-	PIPE_READMODE_BYTE | PIPE_NOWAIT,
-	1,
-	0, 0,
-	100,
-	NULL);
+	server_sock->recv_pipe,                   /* path */
+	PIPE_ACCESS_INBOUND | PIPE_READMODE_BYTE, /* reveive + binary */
+	FILE_FLAG_OVERLAPPED | PIPE_NOWAIT,       /* non-blocking */
+	1,                                        /* one instance */
+	0, 0,                                     /* default buffer sizes */
+	100,                                      /* timeout in ms */
+	NULL);                                    /* no security */
 
-      if (recv_pipe == INVALID_HANDLE_VALUE || recv_pipe == 0)
+      if (recv_pipe == INVALID_HANDLE_VALUE || !recv_pipe)
 	{
 	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
 	  return -1;
@@ -481,15 +489,15 @@ server_accept_pipe (socket_t server_sock)
   if (server_sock->pipe_desc[WRITE] == INVALID_HANDLE)
     {
       send_pipe = CreateNamedPipe (
-        server_sock->send_pipe,
-	PIPE_ACCESS_OUTBOUND | FILE_FLAG_OVERLAPPED,
-	PIPE_TYPE_BYTE | PIPE_NOWAIT,
-	1,
-	0, 0,
-	100,
-	NULL);
+	server_sock->send_pipe,                /* path */
+	PIPE_ACCESS_OUTBOUND | PIPE_TYPE_BYTE, /* send + binary */
+	FILE_FLAG_OVERLAPPED | PIPE_NOWAIT,    /* non-blocking */
+	1,                                     /* one instance */
+	0, 0,                                  /* default buffer sizes */
+	100,                                   /* timeout in ms */
+	NULL);                                 /* no security */
       
-      if (send_pipe == INVALID_HANDLE_VALUE || send_pipe == 0)
+      if (send_pipe == INVALID_HANDLE_VALUE || !send_pipe)
 	{
 	  log_printf (LOG_ERROR, "CreateNamedPipe: %s\n", SYS_ERROR);
 	  return -1;
@@ -505,35 +513,42 @@ server_accept_pipe (socket_t server_sock)
    */
   if (!ConnectNamedPipe (recv_pipe, &server_sock->overlap[READ]))
     {
-      if (GetLastError () != ERROR_PIPE_CONNECTED)
+      connect = GetLastError ();
+      if (connect != ERROR_PIPE_CONNECTED)
 	{
-#if 0
-	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-#endif
-	  return 0;
+	  /* Pipe is listening ? */
+	  if (connect != ERROR_PIPE_LISTENING)
+	    {
+	      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	      return 0;
+	    }
 	}
+      /* If we got here then a client pipe is successfully connected. */
     }
+  /* Because these pipes are non-blocking this is never occuring. */
   else return 0;
 
   if (!ConnectNamedPipe (send_pipe, &server_sock->overlap[WRITE]))
     {
-      if (GetLastError () != ERROR_PIPE_CONNECTED)
+      connect = GetLastError ();
+      if (connect != ERROR_PIPE_CONNECTED)
 	{
-#if 0
-	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
-#endif
-	  return 0;
+	  if (connect != ERROR_PIPE_LISTENING)
+	    {
+	      log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	      return 0;
+	    }
 	}
     }
+  /* Overlapped ConnectNamedPipe should return zero. */
   else return 0;
 
   /* Create a socket structure for the client pipe. */
   if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
     {
+      /* Just disconnect the client pipes. */
       DisconnectNamedPipe (send_pipe);
-      CloseHandle (send_pipe);
       DisconnectNamedPipe (recv_pipe);
-      CloseHandle (recv_pipe);
       return 0;
     }
 

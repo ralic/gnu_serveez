@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.12 2000/08/21 20:06:41 ela Exp $
+ * $Id: foo-proto.c,v 1.13 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -355,7 +355,7 @@ foo_info_server (struct server *server)
     } 
   else 
     {
-      printf (text, " ports : NULL\r\n");
+      sprintf (text, " ports : NULL\r\n");
       strcat (info, text);
     }
   

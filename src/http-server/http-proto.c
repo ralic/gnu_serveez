@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.34 2000/09/10 10:51:17 ela Exp $
+ * $Id: http-proto.c,v 1.35 2000/09/12 22:14:17 ela Exp $
  *
  */
 
@@ -998,7 +998,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	}
 
       /* create a pipe for the cgi script process */
-      if (create_pipe (cgi2s) == -1)
+      if (pipe_create_pair (cgi2s) == -1)
 	{
 	  sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
 	  http_error_response (sock, 500);

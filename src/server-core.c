@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.22 2000/09/11 17:29:47 ela Exp $
+ * $Id: server-core.c,v 1.23 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -287,7 +287,8 @@ rechain_socket_list (void)
     {
       end_socket = sock->prev;
       for (last_listen = socket_root; last_listen && last_listen != sock && 
-	     last_listen->flags & SOCK_FLAG_LISTENING;
+	     last_listen->flags & (SOCK_FLAG_LISTENING|SOCK_FLAG_PRIORITY) &&
+	     !(sock->flags & SOCK_FLAG_LISTENING);
 	   last_listen = last_listen->next);
 
       /* just listeners in the list, return */
@@ -706,10 +707,10 @@ sock_server_loop (void)
        * Reorder the socket chain every 16 select loops. We dont do it
        * every time for performance reasons.
        */
-      if (rechain++ & 16) {
-	rechain_socket_list ();
-	rechain = 0;
-      }
+      if (rechain++ & 16)
+	{
+	  rechain_socket_list ();
+	}
 
       /*
        * Shut down all sockets that have been scheduled for closing.

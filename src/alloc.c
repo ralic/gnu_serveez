@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.10 2000/08/02 09:45:13 ela Exp $
+ * $Id: alloc.c,v 1.11 2000/09/12 22:14:15 ela Exp $
  *
  */
 
@@ -110,9 +110,10 @@ xrealloc (void * ptr, unsigned size)
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
 #if DEBUG_MEMORY_LEAKS
-      if (hash_delete (heap, util_itoa ((int)ptr)) != ptr)
+      if (hash_delete (heap, util_itoa ((int) ptr)) != ptr)
 	{
 	  log_printf (LOG_DEBUG, "xrealloc: %p not found in heap\n", ptr);
+	  assert (0);
 	}
 #endif
       /* get previous blocksize */
@@ -175,10 +176,11 @@ xfree (void * ptr)
       up = (unsigned *)ptr;
 
 #if DEBUG_MEMORY_LEAKS
-      if (hash_delete (heap, util_itoa ((int)ptr)) != ptr)
+      if (hash_delete (heap, util_itoa ((int) ptr)) != ptr)
 	{
 	  log_printf (LOG_DEBUG, "xfree: %p not found in heap\n", ptr);
 	  allocated_blocks++;
+	  assert (0);
 	}
       else
 #endif

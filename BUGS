@@ -24,6 +24,32 @@
 This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
+Bug:	     B0013
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-09-12
+Description: Bigger CGI scripts under Win95 will lock the server. Bigger
+	     means more content production here. This happened with batch
+	     files (.bat) which `type file.txt'.
+
+Bug:	     B0012
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-09-12
+Description: If the server has many open connections and much traffic on
+	     these Linux starts deadlocking for some reason. This 
+	     collaborates with the occurence of EWOULDBLOCK or EAGAIN on
+	     network sockets. Seems like if one socket starts with this
+	     all want to do the same: nothing, but wasting time in kernel
+	     space. Errors happen to be on outgoing connections only.
+
+Bug:	     B0011
+From:	     ela <stefan@lkcc.org>
+State:       unfixed
+Date:	     2000-09-12
+Description: On some Linux's the named pipe behaviour is not as it is
+	     documented. See `man 4 fifo' for more information.
+
 Bug:	     B0010
 From:	     ela <stefan@lkcc.org>
 State:       fixed (2000-08-20/ela)
@@ -33,7 +59,7 @@ Description: ident coserver dies because of queue overrun. thus the
 
 Bug:	     B0009
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed (somewhen/raimi)
 Date:	     2000-06-21
 Description: filesize 0 for http files is not handled specifically.
              http directory listing does not show the actual directory.
@@ -76,7 +102,7 @@ Description: segmentation fault das passiert wenn ein bot oder
 	     operator connected und auf diesem port die
 	     floodprotection ausgemacht werden soll... (vermutl. denn
 	     das ist es was die connects gemeinsam haben). Normale
-	     connects scheienn zu gehen.
+	     connects scheinen zu gehen.
 
 Bug:         B0003
 From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
@@ -99,5 +125,5 @@ Bug:         B0001
 From:	     mgrabmue <mgrabmue@cs.tu-berlin.de>
 State:       fixed (1999-10-21/raimi)
 Date:	     1999-10-19
-Description: Perl master server dies after while when more than four
+Description: Perl master server dies after a while when more than four
 	     massclients connect.

@@ -730,14 +730,14 @@ dnl
 AC_CYGWIN
 AC_EXEEXT
 AC_OBJEXT
-if test "$CYGWIN" = "yes"; then
+if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
     AC_DEFINE(FD_SETSIZE, 1024, [Make CygWin / MingW32 use large FD sets.])
-    if test "$MINGDIR" != "no"; then
+    if test "$MINGDIR" != "no" -a "$MINGW32" != "yes"; then
 	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
 	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
 	AC_MSG_RESULT([using MingW32 headers and libraries in ${MINGDIR}])
+	AC_CHECK_LIB(wsock32, main, EXTRALIBS="$EXTRALIBS -lwsock32")
     fi
-    AC_CHECK_LIB(wsock32, main, EXTRALIBS="$EXTRALIBS -lwsock32")
 fi
 
 dnl ----------------------------------------------------------------------
@@ -774,7 +774,7 @@ if test ! -d $sizzle_dir; then
     if test "$sizzle_inst" = "no"; then
 	AC_MSG_ERROR([cannot compile without libsizzle])
 	AC_MSG_ERROR([install one or tell me where the source is])
-       exit 1
+        exit 1
     else
         sizzle_src="no"
     fi
@@ -1027,13 +1027,13 @@ AC_TRY_RUN([#include <stdio.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
     main () {
-	struct ind_addr ip;
+	struct in_addr ip;
 	ip.s_addr = htonl (0x12345678);
 	if (strcmp (inet_ntoa (ip), "18.52.86.120"))
-	    exit (1);
-	exit (0);}],
-   AC_MSG_RESULT([yes (Irix gcc)])
-   AC_DEFINE(BORKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.]),
+	    exit (0);
+	exit (1);}],
+   AC_MSG_RESULT([yes (gcc on IRIX)])
+   AC_DEFINE(BROKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.]),
    AC_MSG_RESULT(no))
 
 

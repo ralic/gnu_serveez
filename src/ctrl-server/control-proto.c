@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.22 2000/09/10 10:51:17 ela Exp $
+ * $Id: control-proto.c,v 1.23 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -333,7 +333,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
    */
   sock_printf (sock,
 	       " flags    : %s %s %s %s %s %s\r\n"
-	       "            %s %s %s %s %s %s\r\n",
+	       "            %s %s %s %s %s %s %s\r\n",
 	       xsock->flags & SOCK_FLAG_INBUF ?     "INBUF" : "inbuf",
 	       xsock->flags & SOCK_FLAG_OUTBUF ?    "OUTBUF" : "outbuf",
 	       xsock->flags & SOCK_FLAG_CONNECTED ? "CONNECTED" : "connected",
@@ -345,7 +345,8 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 	       xsock->flags & SOCK_FLAG_PIPE ?      "PIPE" : "pipe",
 	       xsock->flags & SOCK_FLAG_FILE ?      "FILE" : "file",
 	       xsock->flags & SOCK_FLAG_SOCK ?      "SOCK" : "sock",
-	       xsock->flags & SOCK_FLAG_ENQUEUED ?  "ENQUEUED" : "enqueued");
+	       xsock->flags & SOCK_FLAG_ENQUEUED ?  "ENQUEUED" : "enqueued",
+	       xsock->flags & SOCK_FLAG_PRIORITY ?  "PRIORITY" : "priority");
 
   sock_printf (sock, " protocol : ");
 
@@ -685,8 +686,8 @@ ctrl_kill_id (socket_t sock, int flag, char *arg)
 }
 
 /*
- * Shutdown all network connections except listening, control connections
- * and coservers.
+ * Shutdown all network connections except listening, control connections,
+ * coservers and sockets with the priority flag set.
  */
 int
 ctrl_killall (socket_t sock, int flag, char *arg)
@@ -697,8 +698,8 @@ ctrl_killall (socket_t sock, int flag, char *arg)
   for (xsock = socket_root; xsock; xsock = xsock->next)
     {
       if (xsock != sock &&
-	  !(xsock->flags & SOCK_FLAG_LISTENING) &&
-	  !(xsock->flags & SOCK_FLAG_COSERVER))
+	  !(xsock->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_COSERVER | 
+			    SOCK_FLAG_PRIORITY)))
 	{
 	  sock_schedule_for_shutdown (xsock);
 	  n++;

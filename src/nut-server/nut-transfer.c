@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.11 2000/09/10 10:51:18 ela Exp $
+ * $Id: nut-transfer.c,v 1.12 2000/09/12 22:14:17 ela Exp $
  *
  */
 
@@ -362,12 +362,20 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       return -1;
     }
 
-  /* second check if the file matches the original search pattern */
-  if (!nut_string_regex (savefile, cfg->search))
+  /* second check if the file matches the original search patterns */
+  if (cfg->search)
     {
-      log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
-      xfree (file);
-      return -1;
+      for (n = 0; cfg->search[n]; n++)
+	{
+	  if (nut_string_regex (savefile, cfg->search[n]))
+	    break;
+	}
+      if (!cfg->search[n])
+	{
+	  log_printf (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
+	  xfree (file);
+	  return -1;
+	}
     }
 
   /* try creating local file */

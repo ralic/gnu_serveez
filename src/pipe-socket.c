@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.9 2000/09/11 00:07:35 raimi Exp $
+ * $Id: pipe-socket.c,v 1.10 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -64,18 +64,19 @@ pipe_valid (socket_t sock)
 }
 
 /*
- * This function is the default disconnetion routine for pipe socket
+ * This function is the default disconnection routine for pipe socket
  * structures. This is called via sock->disconnected_socket(). Return
- * no-zero on errors.
+ * non-zero on errors.
  */
 int
 pipe_disconnected (socket_t sock)
 {
-#if ENABLE_DEBUG
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
+#if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "pipe (%d-%d) disconnected\n",
 		  sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+#endif
     }
   else if (sock->flags & SOCK_FLAG_LISTENING)
     {
@@ -93,15 +94,18 @@ pipe_disconnected (socket_t sock)
 	  log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
 #endif /* __MINGW32__ */
 
+#if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "pipe listener (%s) destroyed\n",
 		  sock->send_pipe);
+#endif
     }
   else
     {
+#if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "invalid pipe id %d disconnected\n",
 		  sock->id);
-    }
 #endif
+    }
 
   return 0;
 }
@@ -257,7 +261,7 @@ pipe_write (socket_t sock)
 
 /*
  * Create a socket structure by the two file descriptors recv_fd and
- * send_fd. This is used by coservers only, yet. Return NULL on errors.
+ * send_fd. Return NULL on errors.
  */
 socket_t
 pipe_create (HANDLE recv_fd, HANDLE send_fd)
@@ -265,6 +269,7 @@ pipe_create (HANDLE recv_fd, HANDLE send_fd)
   socket_t sock;
 
 #ifndef __MINGW32__
+  /* Try to set to non-blocking I/O. */
   if (fcntl (recv_fd, F_SETFL, O_NONBLOCK) < 0)
     {
       log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
@@ -291,11 +296,11 @@ pipe_create (HANDLE recv_fd, HANDLE send_fd)
 }
 
 /*
- * Create a (non blocking) pipe. Differs in Win32 and Unices.
- * Return a non-zero value on errors.
+ * Create a (non blocking) pair of pipes. This differs in Win32 and 
+ * Unices. Return a non-zero value on errors.
  */
 int
-create_pipe (HANDLE pipe_desc[2])
+pipe_create_pair (HANDLE pipe_desc[2])
 {
 #ifdef __MINGW32__
   SECURITY_ATTRIBUTES sa = { sizeof (SECURITY_ATTRIBUTES), 
@@ -307,7 +312,8 @@ create_pipe (HANDLE pipe_desc[2])
       log_printf (LOG_ERROR, "CreatePipe: %s\n", SYS_ERROR);
       return -1;
     }
-#else
+#else /* not __MINGW32__ */
+
   if (pipe (pipe_desc) == -1)
     {
       log_printf (LOG_ERROR, "pipe: %s\n", SYS_ERROR);
@@ -331,6 +337,7 @@ create_pipe (HANDLE pipe_desc[2])
       log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
       return -1;
     }
-#endif
+#endif /* not __MINGW32__ */
+
   return 0;
 }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.21 2000/08/21 20:06:40 ela Exp $
+ * $Id: socket.h,v 1.22 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -64,6 +64,7 @@
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
 #define SOCK_FLAG_CONNECTING  0x2000 /* Socket is still connecting */
+#define SOCK_FLAG_PRIORITY    0x4000 /* Enqueue socket prefered. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.15 2000/09/09 16:33:43 ela Exp $
+ * $Id: http-cgi.c,v 1.16 2000/09/12 22:14:17 ela Exp $
  *
  */
 
@@ -504,7 +504,7 @@ http_check_cgi (socket_t sock, char *request)
 
   /* return a pointer refering to the actual plain cgi file */
   strcpy (file, saverequest);
-  xrealloc (file, strlen(file) + 1);
+  file = xrealloc (file, strlen (file) + 1);
   xfree (saverequest);
   return file;
 }
@@ -677,7 +677,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   n = 0;
   while (cgiexe[n].suffix)
     {
-      if (!strcmp (cgiexe[n].suffix, p))
+      if (!util_strcasecmp (cgiexe[n].suffix, p))
 	{
 	  if (cgiexe[n].execute)
 	    {
@@ -878,7 +878,7 @@ http_post_response (socket_t sock, char *request, int flags)
     }
 
   /* create a pair of pipes for the cgi script process */
-  if (create_pipe (cgi2s) == -1)
+  if (pipe_create_pair (cgi2s) == -1)
     {
       sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
       http_error_response (sock, 500);
@@ -886,7 +886,7 @@ http_post_response (socket_t sock, char *request, int flags)
       xfree (file);
       return -1;
     }
-  if (create_pipe (s2cgi) == -1)
+  if (pipe_create_pair (s2cgi) == -1)
     {
       sock_printf (sock, HTTP_INTERNAL_ERROR "\r\n");
       http_error_response (sock, 500);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.17 2000/09/11 00:07:35 raimi Exp $
+ * $Id: gnutella.c,v 1.18 2000/09/12 22:14:17 ela Exp $
  *
  */
 
@@ -53,11 +53,9 @@
 # include <io.h>
 #endif
 
-#if HAVE_DIRECT_H
+#if HAVE_DIRECT_H && defined (__MINGW32__)
 # include <direct.h>
-# ifdef __MINGW32__
-#  define mkdir(path, mode) mkdir (path)
-# endif
+# define mkdir(path, mode) mkdir (path)
 #endif
 
 #include "alloc.h"
@@ -87,41 +85,52 @@ portcfg_t nut_port =
 };
 
 /*
+ * Default search patterns.
+ */
+char *nut_search_patterns[] =
+{
+  "Puppe3000",
+  "Meret Becker",
+  NULL
+};
+
+/*
  * Default configuration hash for the gnutella spider.
  */
 nut_config_t nut_config = 
 {
-  &nut_port,   /* port configuration */
-  NUT_MAX_TTL, /* maximum ttl for a gnutella packet */
-  NUT_TTL,     /* initial ttl for a gnutella packet */
-  NULL,        /* array of initial hosts */
-  NUT_GUID,    /* this servers GUID */
-  NULL,        /* routing table */
-  NULL,        /* connected hosts hash */
-  "Puppe3000", /* default search pattern */
-  NULL,        /* this servers created packets */
-  0,           /* routing errors */
-  0,           /* files within connected network */
-  0,           /* file size (in KB) */
-  0,           /* hosts within the connected network */
-  "/tmp",      /* where to store downloaded files */
-  "/tmp",      /* local search database path */
-  0,           /* concurrent downloads */
-  4,           /* maximum concurrent downloads */
-  28,          /* connection speed (KBit/s) */
-  28,          /* minimum connection speed for searching */
-  NULL,        /* file extensions */
-  NULL,        /* host catcher */
-  4,           /* number of connections to keep up */
-  NULL,        /* force the local ip to this value */
-  INADDR_NONE, /* calculated from `force_ip' */
-  NULL,        /* recent query hash */
-  NULL,        /* reply hash for routing push requests */
-  NULL,        /* shared file array */
-  0,           /* number of database files */
-  0,           /* size of database in KB */
-  0,           /* current number of uploads */
-  4,           /* maximum number of uploads */
+  &nut_port,           /* port configuration */
+  NUT_MAX_TTL,         /* maximum ttl for a gnutella packet */
+  NUT_TTL,             /* initial ttl for a gnutella packet */
+  NULL,                /* array of initial hosts */
+  NUT_GUID,            /* this servers GUID */
+  NULL,                /* routing table */
+  NULL,                /* connected hosts hash */
+  nut_search_patterns, /* default search pattern */
+  0,                   /* current search pattern index */
+  NULL,                /* this servers created packets */
+  0,                   /* routing errors */
+  0,                   /* files within connected network */
+  0,                   /* file size (in KB) */
+  0,                   /* hosts within the connected network */
+  "/tmp",              /* where to store downloaded files */
+  "/tmp",              /* local search database path */
+  0,                   /* concurrent downloads */
+  4,                   /* maximum concurrent downloads */
+  28,                  /* connection speed (KBit/s) */
+  28,                  /* minimum connection speed for searching */
+  NULL,                /* file extensions */
+  NULL,                /* host catcher */
+  4,                   /* number of connections to keep up */
+  NULL,                /* force the local ip to this value */
+  INADDR_NONE,         /* calculated from `force_ip' */
+  NULL,                /* recent query hash */
+  NULL,                /* reply hash for routing push requests */
+  NULL,                /* shared file array */
+  0,                   /* number of database files */
+  0,                   /* size of database in KB */
+  0,                   /* current number of uploads */
+  4,                   /* maximum number of uploads */
 };
 
 /*
@@ -131,7 +140,7 @@ key_value_pair_t nut_config_prototype [] =
 {
   REGISTER_PORTCFG ("port", nut_config.port, DEFAULTABLE),
   REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
-  REGISTER_STR ("search", nut_config.search, DEFAULTABLE),
+  REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
   REGISTER_INT ("max-ttl", nut_config.max_ttl, DEFAULTABLE),
   REGISTER_INT ("ttl", nut_config.ttl, DEFAULTABLE),
   REGISTER_STR ("download-path", nut_config.save_path, DEFAULTABLE),
@@ -1112,16 +1121,26 @@ nut_idle_searching (socket_t sock)
   nut_header_t hdr;
   nut_query_t query;
   byte *header, *search;
+  char *text;
 
-  /* search string given ? */
-  if (cfg->search)
+  /* search strings given ? */
+  if (cfg->search && cfg->search[0])
     {
+      /* get next search string */
+      if ((text = cfg->search[cfg->search_index]) != NULL)
+	cfg->search_index++;
+      else
+	{
+	  cfg->search_index = 0;
+	  text = cfg->search[0];
+	}
+
       /* create new gnutella packet */
       nut_calc_guid (hdr.id);
       hdr.function = NUT_SEARCH_REQ;
       hdr.ttl = cfg->ttl;
       hdr.hop = 0;
-      hdr.length = SIZEOF_NUT_QUERY + strlen (cfg->search) + 1;
+      hdr.length = SIZEOF_NUT_QUERY + strlen (text) + 1;
       query.speed = cfg->min_speed;
       header = nut_put_header (&hdr);
       search = nut_put_query (&query);
@@ -1129,7 +1148,7 @@ nut_idle_searching (socket_t sock)
       /* try sending this packet to this connection */
       if (sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
 	  sock_write (sock, (char *) search, SIZEOF_NUT_QUERY) == -1 ||
-	  sock_write (sock, cfg->search, strlen (cfg->search) + 1) == -1)
+	  sock_write (sock, text, strlen (text) + 1) == -1)
 	{
 	  return -1;
 	}
@@ -1213,7 +1232,7 @@ nut_hosts_check (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
   nut_host_t **host;
-  int n;
+  int n, t, day, hour, min, sec;
 
   /* do not enter this routine if you do not want to send something */
   if (!(sock->userflags & NUT_FLAG_HOSTS))
@@ -1242,9 +1261,17 @@ nut_hosts_check (socket_t sock)
 	  else
 	    {
 	      /* usual gnutella host output */
-	      if (sock_printf (sock, "%-32s %-20s\n",
+	      t = time (NULL) - host[n]->last_reply;
+	      day = t / (3600 * 24);
+	      t %= (3600 * 24);
+	      hour = t / 3600;
+	      t %= 3600;
+	      min = t / 60;
+	      t %= 60;
+	      sec = t;
+	      if (sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
 			       nut_client_key (host[n]->ip, host[n]->port),
-			       util_time (host[n]->last_reply)) == -1)
+			       day, hour, min, sec) == -1)
 		return -1;
 	    }
 	}
@@ -1332,7 +1359,9 @@ nut_info_server (server_t *server)
 	   nut_print_guid (cfg->guid),
 	   cfg->save_path,
 	   cfg->share_path,
-	   cfg->search,
+	   cfg->search && cfg->search[0] ? (cfg->search[cfg->search_index] ? 
+			  cfg->search[cfg->search_index] : cfg->search[0])
+	   : "none given",
 	   ext ? ext : "no extensions",
 	   hash_size (cfg->route),
 	   hash_size (cfg->conn), cfg->connections,
@@ -1470,6 +1499,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
     {
       sock->check_request = nut_hosts_check;
       sock->write_socket = nut_hosts_write;
+      sock_resize_buffers (sock, NUT_SEND_BUFSIZE, sock->recv_buffer_size);
       return 0;
     }
 

@@ -26,7 +26,8 @@ Introduction
 the original M$ Visual C++ compiler to create both the sizzle library 
 and the actual serveez binary. Of course, the Cygwin and MinGW port via 
 the gcc for Win32 is still supported, but it seems to be much better to
-do it this way.
+do it this way. You will need at least version 5.0 of this compiler. 
+Higher versions do convert the projects automatically.
 
 Files
 =====

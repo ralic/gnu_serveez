@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.19 2000/09/09 16:33:43 ela Exp $
+ * $Id: awcs-proto.c,v 1.20 2000/09/12 22:14:16 ela Exp $
  *
  */
 
@@ -124,6 +124,30 @@ server_definition_t awcs_server_definition =
 };
 
 /*
+ * These 3 (three) routines are for modifying the client hash key
+ * processing. Because we are using unique IDs for identifying aWCS 
+ * clients it is not necessary to have character strings here.
+ */
+static unsigned
+awcs_hash_keylen (char *id)
+{
+  return 4;
+}
+
+static int 
+awcs_hash_equals (char *id1, char *id2)
+{
+  return memcmp (id1, id2, 4);
+}
+ 
+static unsigned long 
+awcs_hash_code (char *id)
+{
+  unsigned long code = UINT32 (id);
+  return code;
+}
+
+/*
  * Local aWCS server instance initialization routine.
  */
 int
@@ -134,6 +158,9 @@ awcs_init (server_t *server)
   /* initialize server instance */
   cfg->master = 0;
   cfg->clients = hash_create (4);
+  cfg->clients->code = awcs_hash_code;
+  cfg->clients->keylen = awcs_hash_keylen;
+  cfg->clients->equals = awcs_hash_equals;
   cfg->server = NULL;
 
   /* bind the port configuration */
@@ -174,13 +201,13 @@ awcs_nslookup_done (char *host, int id, int version)
       if (!cfg->server)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "awcs_nslookup_done: no master server\n");
+	  log_printf (LOG_DEBUG, "awcs: no master server (nslookup_done)\n");
 #endif
 	  return -1;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "sending resolved ip to master\n");
+      log_printf (LOG_DEBUG, "awcs: sending resolved ip to master\n");
 #endif
 
       if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s%c",
@@ -189,7 +216,7 @@ awcs_nslookup_done (char *host, int id, int version)
 		       sock->id,
 		       host, '\0'))
 	{
-	  log_printf (LOG_FATAL, "master write error\n");
+	  log_printf (LOG_FATAL, "awcs: master write error\n");
 	  sock_schedule_for_shutdown (cfg->server);
 	  cfg->server = NULL;
 	  awcs_disconnect_clients (cfg);
@@ -219,13 +246,13 @@ awcs_ident_done (char *user, int id, int version)
       if (!cfg->server)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "awcs_ident_done: no master server\n");
+	  log_printf (LOG_DEBUG, "awcs: no master server (ident_done)\n");
 #endif
 	  return -1;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "sending identified client to master\n");
+      log_printf (LOG_DEBUG, "awcs: sending identified client to master\n");
 #endif
 
       if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s%c",
@@ -234,7 +261,7 @@ awcs_ident_done (char *user, int id, int version)
 		       sock->id,
 		       user, '\0'))
 	{
-	  log_printf (LOG_FATAL, "master write error\n");
+	  log_printf (LOG_FATAL, "awcs: master write error\n");
 	  sock_schedule_for_shutdown (cfg->server);
 	  cfg->server = NULL;
 	  awcs_disconnect_clients (cfg);
@@ -252,7 +279,7 @@ awcs_ident_done (char *user, int id, int version)
  * a reverse nslookup and a ident request.
  */
 static int
-status_connected (socket_t sock)
+awcs_status_connected (socket_t sock)
 {
   unsigned short port;
   unsigned long addr;
@@ -261,7 +288,7 @@ status_connected (socket_t sock)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "status_connected: no master server\n");
+      log_printf (LOG_DEBUG, "awcs: no master server (status_connected)\n");
 #endif
       return -1;
     }
@@ -270,9 +297,10 @@ status_connected (socket_t sock)
   port = sock->remote_port;
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "sending connect on socket id %d to master\n",
+  log_printf (LOG_DEBUG, "awcs: sending connect on socket id %d to master\n",
 	      sock->id);
 #endif
+
   if (sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s:%u%c",
 		   cfg->server->id,
 		   STATUS_CONNECT,
@@ -280,7 +308,7 @@ status_connected (socket_t sock)
 		   util_inet_ntoa (addr),
 		   htons (port), '\0'))
     {
-      log_printf (LOG_FATAL, "master write error\n");
+      log_printf (LOG_FATAL, "awcs: master write error\n");
       sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -301,28 +329,24 @@ status_connected (socket_t sock)
 
 /*
  * Send a status message to the master server
- * telling him that client `client' has disconnected. `reason'
+ * telling it that client `client' has disconnected. `reason'
  * is an error code telling how the client got disconnected.
  */
 static int
-status_disconnected (socket_t sock, int reason)
+awcs_status_disconnected (socket_t sock, int reason)
 {
   awcs_config_t *cfg = sock->cfg;
 
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "status_disconnected: no master server\n");
+      log_printf (LOG_DEBUG, "awcs: no master server (status_disconnected)\n");
 #endif
       return -1;
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "socket %d buffers: r[%d] s[%d]\n",
-	      sock->sock_desc, 
-	      sock->recv_buffer_fill, 
-	      sock->send_buffer_fill); 
-  log_printf (LOG_DEBUG, "sending disconnect on socket %d to master\n",
+  log_printf (LOG_DEBUG, "awcs: sending disconnect on socket %d to master\n",
 	      sock->sock_desc);
 #endif /* ENABLE_DEBUG */
 
@@ -332,7 +356,7 @@ status_disconnected (socket_t sock, int reason)
 		   sock->id, 
 		   reason, '\0'))
     {
-      log_printf (LOG_FATAL, "master write error\n");
+      log_printf (LOG_FATAL, "awcs: master write error\n");
       sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -344,18 +368,18 @@ status_disconnected (socket_t sock, int reason)
 
 /*
  * Send a status message to the master server
- * telling him that client `client' has been kicked. `reason'
+ * telling it that client `client' has been kicked. `reason'
  * is an error code telling why the client got kicked.
  */
 static int
-status_kicked (socket_t sock, int reason)
+awcs_status_kicked (socket_t sock, int reason)
 {
   awcs_config_t *cfg = sock->cfg;
   
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "status_kicked: no master server\n");
+      log_printf (LOG_DEBUG, "awcs: no master server (status_kicked)\n");
 #endif
       return -1;
     }
@@ -366,7 +390,7 @@ status_kicked (socket_t sock, int reason)
 		   sock->id, 
 		   reason, '\0'))
     {
-      log_printf (LOG_FATAL, "master write error\n");
+      log_printf (LOG_FATAL, "awcs: master write error\n");
       sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -381,12 +405,12 @@ status_kicked (socket_t sock, int reason)
  * is still alive.
  */
 static int
-status_alive (awcs_config_t *cfg)
+awcs_status_alive (awcs_config_t *cfg)
 {
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "status_alive: no master server\n");
+      log_printf (LOG_DEBUG, "awcs: no master server (status_alive)\n");
 #endif /* ENABLE_DEBUG */
       return -1;
     }
@@ -395,7 +419,7 @@ status_alive (awcs_config_t *cfg)
 		   cfg->server->id,
 		   STATUS_ALIVE, '\0'))
     {
-      log_printf (LOG_FATAL, "master write error\n");
+      log_printf (LOG_FATAL, "awcs: master write error\n");
       sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -406,12 +430,12 @@ status_alive (awcs_config_t *cfg)
 }
 
 static int
-status_notify (awcs_config_t *cfg) 
+awcs_status_notify (awcs_config_t *cfg) 
 {
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "status_notify: no master server\n");
+      log_printf (LOG_DEBUG, "awcs: no master server (status_notify)\n");
 #endif /* ENABLE_DEBUG */
       return -1;
     }
@@ -420,7 +444,7 @@ status_notify (awcs_config_t *cfg)
 		   cfg->server->id,
 		   STATUS_NOTIFY, '\0'))
     {
-      log_printf (LOG_FATAL, "master write error\n");
+      log_printf (LOG_FATAL, "awcs: master write error\n");
       sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -434,7 +458,7 @@ status_notify (awcs_config_t *cfg)
  * Broadcast message `cmd' to all connected aWCS clients.
  */
 static int
-process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
+awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
 {
   socket_t *sock;
   int n;
@@ -462,7 +486,7 @@ process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
  * in the client list at the start of `cmd'.
  */
 static int
-process_multicast (char *cmd, int cmd_len)
+awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
 {
   char *msg;
   int address;
@@ -481,14 +505,23 @@ process_multicast (char *cmd, int cmd_len)
   for (;;)
     {
       address = util_atoi (cmd);
+      sock = (socket_t) hash_get (cfg->clients, (char *) &address);
 
-      if ((sock = sock_find_id (address)) != NULL)
+      if (sock)
 	{
 	  if (sock_write (sock, msg, cmd_len))
 	    {
 	      sock_schedule_for_shutdown (sock);
 	    }
 	}
+#if ENABLE_DEBUG
+      else
+	{
+	  log_printf (LOG_DEBUG, 
+		      "awcs: master sent invalid id (multicast %d)\n", 
+		      address);
+	}
+#endif /* ENABLE_DEBUG */
 
       cmd += AWCS_ID_SIZE;
       if (!*cmd || *cmd == ' ')
@@ -502,12 +535,12 @@ process_multicast (char *cmd, int cmd_len)
  * Process a status request.
  */
 static int
-process_status (awcs_config_t *cfg, char *cmd, int cmd_len)
+awcs_process_status (awcs_config_t *cfg, char *cmd, int cmd_len)
 {
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "awcs: sending status message\n");
 #endif /* ENABLE_DEBUG */
-  status_alive (cfg);
+  awcs_status_alive (cfg);
 
   return 0;
 }
@@ -517,7 +550,7 @@ process_status (awcs_config_t *cfg, char *cmd, int cmd_len)
  * beginning of `cmd'. the rest of `cmd' is the kicking reason.
  */
 static int
-process_kick (char *cmd, int cmd_len)
+awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
 {
   socket_t sock;
   int address;
@@ -525,8 +558,8 @@ process_kick (char *cmd, int cmd_len)
   for (;;)
     {
       address = util_atoi (cmd);
+      sock = (socket_t) hash_get (cfg->clients, (char *) &address);
 
-      sock = sock_find_id (address);
       if (sock)
 	{
 #if ENABLE_DEBUG
@@ -541,6 +574,14 @@ process_kick (char *cmd, int cmd_len)
 	  sock->kicked_socket = NULL;
 	  sock_schedule_for_shutdown (sock);
 	}
+#if ENABLE_DEBUG
+      else
+	{
+	  log_printf (LOG_DEBUG, 
+		      "awcs: master sent invalid id (kick %d)\n",
+		      address);
+	}
+#endif /* ENABLE_DEBUG */
 
       cmd += AWCS_ID_SIZE;
       if (!*cmd || *cmd == ' ')
@@ -556,7 +597,7 @@ process_kick (char *cmd, int cmd_len)
  * in command if flag is false, turn it on otherwise.
  */
 static int
-process_floodcmd (char *cmd, int cmd_len, int flag)
+awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
 {
   socket_t sock;
   int address;
@@ -564,8 +605,9 @@ process_floodcmd (char *cmd, int cmd_len, int flag)
   for (;;)
     {
       address = util_atoi (cmd);
-      
-      if ((sock = sock_find_id (address)) != NULL)
+      sock = (socket_t) hash_get (cfg->clients, (char *) &address);
+
+      if (sock)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "awcs: switching flood "
@@ -577,6 +619,14 @@ process_floodcmd (char *cmd, int cmd_len, int flag)
 	  else
 	    sock->flags |= SOCK_FLAG_NOFLOOD;
 	}
+#if ENABLE_DEBUG
+      else
+	{
+	  log_printf (LOG_DEBUG, 
+		      "awcs: master sent invalid id (floodcmd %d)\n",
+		      address);
+	}
+#endif /* ENABLE_DEBUG */
       
       cmd += AWCS_ID_SIZE;
       if (!*cmd || *cmd == ' ')
@@ -592,7 +642,7 @@ process_floodcmd (char *cmd, int cmd_len, int flag)
  * on error.
  */
 static int
-handle_master_request (awcs_config_t *cfg, char *request, int request_len)
+awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
 {
   if (request_len <= 0)
     return -1;
@@ -608,32 +658,32 @@ handle_master_request (awcs_config_t *cfg, char *request, int request_len)
     case '0':
       request++;
       request_len--;
-      process_broadcast (cfg, request, request_len);
+      awcs_process_broadcast (cfg, request, request_len);
       break;
     case '1':
       request++;
       request_len--;
-      process_multicast (request, request_len);
+      awcs_process_multicast (cfg, request, request_len);
       break;
     case '2':
       request++;
       request_len--;
-      process_status (cfg, request, request_len);
+      awcs_process_status (cfg, request, request_len);
       break;
     case '3':
       request++;
       request_len--;
-      process_kick (request, request_len);
+      awcs_process_kick (cfg, request, request_len);
       break;
     case '4':
       request++;
       request_len--;
-      process_floodcmd (request, request_len, 0);
+      awcs_process_floodcmd (cfg, request, request_len, 0);
       break;
     case '5':
       request++;
       request_len--;
-      process_floodcmd (request, request_len, 1);
+      awcs_process_floodcmd (cfg, request, request_len, 1);
       break;
     case '6':
       /* The following code should not be executed anymore. */
@@ -656,7 +706,7 @@ awcs_disconnect_clients (awcs_config_t *cfg)
   socket_t *sock;
   int n;
 
-  if ((sock = (socket_t *)hash_values (cfg->clients)) != NULL)
+  if ((sock = (socket_t *) hash_values (cfg->clients)) != NULL)
     {
       for (n = 0; n < hash_size (cfg->clients); n++)
 	{
@@ -677,14 +727,14 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
   awcs_config_t *cfg = sock->cfg;
 
 #if 0
-  util_hexdump (stdout, "handling", sock->sock_desc, 
+  util_hexdump (stdout, "awcs request", sock->sock_desc, 
 		request, request_len, 1000);
 #endif
 
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "awcs_handle_request: no master server\n");
+      log_printf (LOG_DEBUG, "awcs: no master server (awcs_handle_request)\n");
 #endif
       awcs_disconnect_clients (cfg);
       return -1;
@@ -692,7 +742,7 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
 
   if (sock == cfg->server)
     {
-      handle_master_request (cfg, request, request_len);
+      awcs_handle_master_request (cfg, request, request_len);
     }
   else
     {
@@ -703,7 +753,7 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
 	}
       if (ret)
 	{
-	  log_printf (LOG_FATAL, "master write error\n");
+	  log_printf (LOG_FATAL, "awcs: master write error\n");
 	  sock_schedule_for_shutdown (cfg->server);
 	  cfg->server = NULL;
 	  awcs_disconnect_clients (cfg);
@@ -737,10 +787,6 @@ awcs_check_request (socket_t sock)
         {
           p++;
           request_len += (p - packet);
-#if 0
-	  log_printf(LOG_DEBUG, "socket = %d packetsize = %d\n%s", 
-		     sock->sock_desc, p-packet, packet);
-#endif
 	  retval = awcs_handle_request(sock, packet, p - packet);
           packet = p;
         }
@@ -776,7 +822,7 @@ awcs_connect_socket (void *config, socket_t sock)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG,
-		      "master not present, cannot connect socket %d\n",
+		      "awcs: master not present, cannot connect socket %d\n",
 		      sock->sock_desc);
 #endif
 	}
@@ -784,7 +830,7 @@ awcs_connect_socket (void *config, socket_t sock)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG,
-		      "master is present, cannot connect socket %d\n",
+		      "awcs: master is present, cannot connect socket %d\n",
 		      sock->sock_desc);
 #endif
 	}
@@ -813,37 +859,37 @@ awcs_connect_socket (void *config, socket_t sock)
 #if ENABLE_DEBUG
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
-	  log_printf (LOG_NOTICE, "master server connected on pipe (%d-%d)\n",
+	  log_printf (LOG_NOTICE, 
+		      "awcs: master server connected on pipe (%d-%d)\n",
 		      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 	}
       else
 	{
-	  log_printf (LOG_NOTICE, "master server connected on socket %d\n",
+	  log_printf (LOG_NOTICE, 
+		      "awcs: master server connected on socket %d\n",
 		      sock->sock_desc);
 	}
 #endif /* ENABLE_DEBUG */
       cfg->server = sock;
       sock->idle_func = awcs_idle_func;
       sock->idle_counter = 3;
-      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->flags |= (SOCK_FLAG_NOFLOOD | SOCK_FLAG_PRIORITY);
       log_printf (LOG_NOTICE,
-		  "resizing master server buffers: %d, %d\n",
+		  "awcs: resizing master buffers: %d, %d\n",
 		  MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
       sock_resize_buffers (sock, MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
       sock->flags |= SOCK_FLAG_INITED;
     }
   else
     {
-      char key[AWCS_ID_SIZE + 1];
-      sprintf (key, AWCS_ID_FMT, sock->id);
-      hash_put (cfg->clients, key, sock);
+      hash_put (cfg->clients, (char *) &sock->id, sock);
       sock->kicked_socket = awcs_kicked_socket;
     }
 
   /*
    * Tell the master server about the connection (even itself).
    */
-  status_connected (sock);
+  awcs_status_connected (sock);
   return 0;
 }
 
@@ -856,19 +902,17 @@ int
 awcs_disconnected_socket (socket_t sock)
 {
   awcs_config_t *cfg = sock->cfg;
-  char key[AWCS_ID_SIZE + 1];
   
   if (sock == cfg->server)
     {
-      log_printf (LOG_ERROR, "lost master server\n");
+      log_printf (LOG_ERROR, "awcs: lost master server\n");
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
     }
   else
     {
-      status_disconnected (sock, 1);
-      sprintf (key, AWCS_ID_FMT, sock->id);
-      hash_delete (cfg->clients, key);
+      awcs_status_disconnected (sock, 1);
+      hash_delete (cfg->clients, (char *) &sock->id);
     }
 
   return 0;
@@ -883,9 +927,9 @@ int
 awcs_kicked_socket (socket_t sock, int reason)
 {
   if (!reason)
-    status_kicked (sock, KICK_FLOODING);
+    awcs_status_kicked (sock, KICK_FLOODING);
   else
-    status_kicked (sock, KICK_CRAWLING);
+    awcs_status_kicked (sock, KICK_CRAWLING);
 
   return 0;
 }
@@ -903,7 +947,7 @@ awcs_idle_func (socket_t sock)
   if (sock == cfg->server)
     {
       sock->idle_counter = 3;
-      status_notify (cfg);
+      awcs_status_notify (cfg);
     }
   return 0;
 }
@@ -920,7 +964,7 @@ awcs_detect_proto (void *config, socket_t sock)
   int len = 0;
 
 #if 0
-  util_hexdump (stdout, "detecting", sock->sock_desc,
+  util_hexdump (stdout, "detecting awcs", sock->sock_desc,
 		sock->recv_buffer, sock->recv_buffer_fill, 0);
 #endif
 
@@ -928,14 +972,14 @@ awcs_detect_proto (void *config, socket_t sock)
       !memcmp (sock->recv_buffer, AWCS_MASTER, MASTER_DETECTION))
     {
       cfg->master = 1;
-      log_printf (LOG_NOTICE, "awcs master detected\n");
+      log_printf (LOG_NOTICE, "awcs: master detected\n");
       len = MASTER_DETECTION;
     }
   else if (sock->recv_buffer_fill >= CLIENT_DETECTION && 
 	   !memcmp (sock->recv_buffer, AWCS_CLIENT, CLIENT_DETECTION))
     {
       cfg->master = 0;
-      log_printf (LOG_NOTICE, "awcs client detected\n");
+      log_printf (LOG_NOTICE, "awcs: client detected\n");
       len = CLIENT_DETECTION;
     }
 

@@ -1,3 +1,36 @@
+2000-09-12  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_stat_id): Indicating
+	additional priority flag.
+
+	* awcs-server/awcs-proto.c (awcs_connect_socket): Marked
+	master server connection with priority flag.
+
+	* server-core.c (rechain_socket_list): Added a new socket
+	flag `SOCK_FLAG_PRIORITY'. Sockets marked with this flag
+	will be enqueued right after listeners.
+
+	* nut-server/gnutella.c (nut_hosts_check): Host list shows
+	the age of valid gnutella clients.
+	(nut_idle_searching): The `search property' is now a string
+	array. Each item will be searched for.
+
+	* awcs-server/awcs-proto.c (awcs_process_multicast): Modified
+	hash key creation and comparion. Now the server checks the
+	existence of aWCS clients everywhere.
+
+	* http-server/http-cgi.c (http_check_cgi): Fixed realloc ()
+	call. The result was ommitted. Thus it was invalid afterwards.
+
+	* pipe-socket.c (pipe_disconnected): All the routine was
+	#undef'ed without ENABLE_DEBUG. Fixed.
+
+	* socket.c (sock_disconnect): Pipe clients' descriptors are
+	disconnected but not closed in Win32.
+
+	* server-socket.c (server_accept_pipe): Tried to fix the pipe
+	client connection detection.
+
 2000-09-11  Stefan Jahn  <s.jahn@q-bus.de>
 
 	* coserver/coserver.c (coserver_send_request): Fixed memory
