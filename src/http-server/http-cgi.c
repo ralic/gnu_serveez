@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.27 2000/11/10 11:24:05 ela Exp $
+ * $Id: http-cgi.c,v 1.28 2000/11/25 15:07:33 ela Exp $
  *
  */
 
@@ -53,6 +53,12 @@
 
 #ifndef __MINGW32__
 # include <netinet/in.h>
+# if HAVE_WAIT_H
+#  include <wait.h>
+# endif
+# if HAVE_SYS_WAIT_H
+#  include <sys/wait.h>
+# endif
 #endif
 
 #include "snprintf.h"
@@ -115,6 +121,10 @@ http_cgi_disconnect (socket_t sock)
     {
       if (kill (http->pid, SIGKILL) == -1)
 	log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+#if HAVE_WAITPID
+      /* Test if the cgi is still running. */
+      waitpid (http->pid, NULL, 0);
+#endif
       http->pid = INVALID_HANDLE;
     }
 #endif /* not __MINGW32__ */
@@ -658,6 +668,7 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
   char *envp[ENV_ENTRIES];
   char *argv[2];
   struct stat buf;
+  int retries;
 #endif
 
   /* Assign local CGI disconnection routine. */
@@ -786,6 +797,9 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
 
 #else /* not __MINGW32__ */
 
+  retries = 3;
+ retry:
+
   /* fork us here */
   if ((pid = fork ()) == 0)
     {
@@ -863,6 +877,12 @@ http_cgi_exec (socket_t sock,  /* the socket structure */
     }
   else if (pid == -1)
     {
+      if (errno == EAGAIN && --retries)
+	{
+	  /* sleep (1); */
+	  goto retry;
+	}
+
       /* ------ error forking new process ------ */
       log_printf (LOG_ERROR, "cgi: fork: %s\n", SYS_ERROR);
       sock_printf (sock, HTTP_BAD_REQUEST "\r\n");

@@ -1,3 +1,11 @@
+2000-11-25  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-cgi.c (http_cgi_exec): Enhanced the 
+	behaviour of fork(). Under heavy load the http server retries
+	forking cgi scripts.
+	(http_cgi_disconnect): Cleanup zombie processes with waitpid()
+	if possible.
+
 2000-11-23  [ Ela ]  <ela@lkcc.org>
 
 	* icmp-socket.c (icmp_startup): This routine starts the ip
