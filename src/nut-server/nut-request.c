@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.12 2001/05/19 23:04:58 ela Exp $
+ * $Id: nut-request.c,v 1.13 2001/07/03 20:02:42 ela Exp $
  *
  */
 
@@ -195,6 +195,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 
 	      xsock->userflags |= NUT_FLAG_UPLOAD;
 	      xsock->cfg = cfg;
+	      svz_sock_setparent (xsock, svz_sock_getparent (sock));
 
 	      /* 
 	       * we are not sure about the format of this line, but two
@@ -240,7 +241,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
   nut_file_t *entry;
   byte *file, *p, *buffer = NULL;
   unsigned n, len = 0, size;
-  struct sockaddr_in *addr;
+  struct sockaddr_in *addr = NULL;
   svz_portcfg_t *port;
 
   /* shall we reply to this query ? */
@@ -296,10 +297,12 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 
   /* create gnutella search reply packet */
   reply.records = (byte) n;
-  port = svz_sock_portcfg (sock);
-  addr = svz_portcfg_addr (port);
-  reply.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
+  if ((port = svz_sock_portcfg (sock)) != NULL)
+    addr = svz_portcfg_addr (port);
+  reply.ip = cfg->ip ? cfg->ip : addr ? 
+    addr->sin_addr.s_addr : sock->local_addr;
+  reply.port = (unsigned short) (cfg->port ? cfg->port : addr ?
+				 addr->sin_port : sock->local_port);
   reply.speed = (unsigned short) cfg->speed;
   
   /* save packet length */
@@ -374,8 +377,8 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr, byte *null)
   nut_config_t *cfg = sock->cfg;
   nut_pong_t reply;
   byte *header, *pong;
-  struct sockaddr_in *addr;
-  svz_portcfg_t *port;
+  struct sockaddr_in *addr = NULL;
+  svz_portcfg_t *port = NULL;
 
   /* create new gnutella packets */
   hdr->function = NUT_PING_ACK;
@@ -383,10 +386,12 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr, byte *null)
   hdr->ttl = hdr->hop;
   hdr->hop = 0;
 
-  port = svz_sock_portcfg (sock);
-  addr = svz_portcfg_addr (port);
-  reply.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
+  if ((port = svz_sock_portcfg (sock)) != NULL)
+    addr = svz_portcfg_addr (port);
+  reply.ip = cfg->ip ? cfg->ip : addr ? 
+    addr->sin_addr.s_addr : sock->local_addr;
+  reply.port = (unsigned short) (cfg->port ? cfg->port : addr ? 
+				 addr->sin_port : sock->local_port);
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.22 2001/07/02 19:58:37 raimi Exp $
+ * $Id: server-core.c,v 1.23 2001/07/03 20:02:42 ela Exp $
  *
  */
 
@@ -725,8 +725,11 @@ svz_sock_portcfg (svz_socket_t *sock)
 void
 svz_sock_setparent (svz_socket_t *child, svz_socket_t *parent)
 {
-  child->parent_id = parent->id;
-  child->parent_version = parent->version;
+  if (parent != NULL && child != NULL)
+    {
+      child->parent_id = parent->id;
+      child->parent_version = parent->version;
+    }
 }
 
 /*

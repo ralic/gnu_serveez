@@ -1,3 +1,8 @@
+2001-07-03  Stefan Jahn  <s.jahn@bit-side.de>
+
+	* server-core.c (svz_sock_setparent): Set the parent only if
+	both parent and child are valid.
+
 2001-06-21  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (svz_coserver_start): Fixed memory leak

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.17 2001/06/12 13:06:40 ela Exp $
+ * $Id: nut-route.c,v 1.18 2001/07/03 20:02:42 ela Exp $
  *
  */
 
@@ -333,6 +333,7 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 				  SIZEOF_NUT_HEADER) == -1)
 		{
 		  svz_sock_schedule_for_shutdown (xsock);
+		  svz_hash_xfree (conn);
 		  return 0;
 		}
 	      if (hdr->length)
@@ -341,6 +342,7 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 				      hdr->length) == -1)
 		    {
 		      svz_sock_schedule_for_shutdown (xsock);
+		      svz_hash_xfree (conn);
 		      return 0;
 		    }
 		}

@@ -1,3 +1,10 @@
+2001-07-03  Stefan Jahn  <s.jahn@bit-side.de>
+
+	* nut-server/nut-route.c (nut_route): Fixed memory leak.
+
+	* nut-server/nut-transfer.c (nut_init_transfer): Bugfix: 
+	Corrected the test for valid file extensions.
+
 2001-06-27  [ Ela ]  <ela@lkcc.org>
 
 	* echo-server.scm: An example server in guile.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.36 2001/06/07 17:22:01 ela Exp $
+ * $Id: nut-transfer.c,v 1.37 2001/07/03 20:02:42 ela Exp $
  *
  */
 
@@ -351,7 +351,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
 	    }
 	}
       /* did the above code "break" ? */
-      if ((unsigned long) n > svz_array_size (cfg->extensions))
+      if ((unsigned long) n >= svz_array_size (cfg->extensions))
 	{
 	  svz_log (LOG_WARNING, "nut: not a valid extension: %s\n",
 		   savefile);
@@ -399,6 +399,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
       cfg->dnloads++;
       xsock->cfg = cfg;
       xsock->flags |= SOCK_FLAG_NOFLOOD;
+      svz_sock_setparent (xsock, svz_sock_getparent (sock));
       xsock->disconnected_socket = nut_disconnect_transfer;
       xsock->check_request = nut_check_transfer;
       xsock->userflags = NUT_FLAG_DNLOAD;
@@ -539,7 +540,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
   nut_packet_t *pkt;
   nut_transfer_t *trans;
   char *pushkey;
-  struct sockaddr_in *addr;
+  struct sockaddr_in *addr = NULL;
   svz_portcfg_t *port;
 
   /* find original socket connection */
@@ -555,10 +556,12 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       /* create push request */
       memcpy (push.id, transfer->guid, NUT_GUID_SIZE);
       push.index = transfer->index;
-      port = svz_sock_portcfg (sock);
-      addr = svz_portcfg_addr (port);
-      push.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
-      push.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
+      if ((port = svz_sock_portcfg (sock)) != NULL)
+	addr = svz_portcfg_addr (port);
+      push.ip = cfg->ip ? cfg->ip : addr ? 
+	addr->sin_addr.s_addr : sock->local_addr;
+      push.port = (unsigned short) (cfg->port ? cfg->port : addr ?
+				    addr->sin_port : sock->local_port);
       
       /* create push request key and check if it was already sent */
       pushkey = svz_malloc (16 + NUT_GUID_SIZE * 2);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: test.c,v 1.4 2001/05/19 23:04:58 ela Exp $
+ * $Id: test.c,v 1.5 2001/07/03 20:02:43 ela Exp $
  *
  */
 
@@ -83,18 +83,3 @@ test_failed (void)
   fprintf (stderr, "failed\n");
   fflush (stderr);
 }
-
-/* Wrappers for `util.h'. Do nothing. */
-void
-svz_log (int level, const char *format, ...)
-{
-  return;
-}
-
-#if DEBUG_MEMORY_LEAKS
-int
-svz_hexdump (FILE *out, char *action, int from, char *buf, int len, int max)
-{
-  return 0;
-}
-#endif /* DEBUG_MEMORY_LEAKS */

@@ -23,6 +23,8 @@ unfixed) have a look at the file BUGS.
 
 (completed tasks are indented one tab)
 
+- How can a self connected gnutella socket find out its port
+  configuration for sending push requests and replies ?
 - Make http-cache faster (in fact, faster than the fs). Use other LRU
   detection.
 - Remove SOCK_MAX_ID limit.

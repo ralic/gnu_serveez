@@ -1,3 +1,8 @@
+2001-07-03  Stefan Jahn  <s.jahn@bit-side.de>
+
+	* test.c: Removed unnecessary functions `svz_log()' and
+	`svz_hexdump()'.
+
 2001-06-10  [ Ela ]  <ela@lkcc.org>
 
 	* array-test.c (main): Two more checks for the replication
