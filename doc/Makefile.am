@@ -47,8 +47,7 @@ MKDIR = mkdir -p
 CP = cp
 RM = rm
 SITE_FILES = serveez.en.html index.html *.jpg
-MANUAL_FILES = $(top_srcdir)/src/ChangeLog \
-  $(top_srcdir)/src/libserveez/ChangeLog \
+MANUAL_FILES = \
   $(top_srcdir)/README $(top_srcdir)/README-Win32 $(top_srcdir)/TODO \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS
 
@@ -81,8 +80,6 @@ site: all-local serveez.info serveez-api.info
 	$(CP) -p serveez.en.html logo.jpg $(SITE_DIR)
 	$(CP) -rp $(HTML_DIR) $(SITE_DIR)
 	$(CP) -p index.html logosmall.jpg $(SITE_DIR)/$(HTML_DIR)
-	$(CP) -p serveez.info $(SITE_DIR)/$(HTML_DIR)
-	$(CP) -p serveez-api.info $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
 $(HTML_DIR)/%.html: %.texi

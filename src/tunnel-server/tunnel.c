@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.25 2001/06/27 20:38:37 ela Exp $
+ * $Id: tunnel.c,v 1.26 2001/07/03 10:43:31 ela Exp $
  *
  */
 
@@ -707,6 +707,9 @@ tnl_disconnect_target (svz_socket_t *sock)
       /* if source is TCP or PIPE then shutdown referring connection */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
 	{
+	  xsock = source ? source->source_sock : NULL;
+	  if (xsock)
+	    xsock->data = NULL;
 	  tnl_free_connect (sock);
 	}
       return 0;

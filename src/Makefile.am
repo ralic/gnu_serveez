@@ -34,7 +34,7 @@ aclocaldir = $(datadir)/aclocal
 aclocal_DATA = serveez.m4
 
 # Yet another script
-bin_SCRIPTS = serveez.scm
+bin_SCRIPTS = serveez.scm echo-server.scm
 
 #
 # Add your server subdirectory here
@@ -84,7 +84,7 @@ INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 
-CLEANFILES = *~ *.ro
+CLEANFILES = *~ *.ro serveez.cfg
 MAINTAINERCLEANFILES = Makefile.in
 
 dist-hook:

@@ -1,3 +1,10 @@
+2001-07-03  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am: Verified the build process of the web site at
+	www.gnu.org. The `dist' target creates part of the directory
+	you need to check into the 
+	ela@subversions.gnu.org:/webcvs/software/serveez CVS.
+
 2001-06-30  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
 
 	* serveez.texi (Define ports, Bind servers to ports),

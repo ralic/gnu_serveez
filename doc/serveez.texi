@@ -817,8 +817,9 @@ sensitive). @samp{Type} can be either @samp{integer}, @samp{integer array},
 @samp{port configuration}. The @samp{Comments} is an optional text.
 @end table
 
-@file{data/serveez.cfg} contains an example definition of each server already
-implemented. You can copy and modify the example for an easy start.
+The example configuration file @file{data/serveez.cfg} contains an example 
+definition of each server already implemented. You can copy and modify the 
+example for an easy start.
 
 @node Existing servers,  , Configuring servers, Server
 @section Existing servers

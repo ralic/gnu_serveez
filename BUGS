@@ -29,8 +29,8 @@ Bug:	     B0018
 From:	     ela <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-07-01
-Description: Cannot recompute the Linux kernels checksums of larger (> MTU, 
-	     fragmented) ICMP packets.
+Description: Cannot recompute the Linux kernels checksums of larger (larger
+	     than a single MTU, fragmented) ICMP packets.
 
 Bug:	     B0017
 From:	     ela <stefan@lkcc.org>

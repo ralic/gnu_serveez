@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.13 2001/07/01 15:56:48 ela Exp $
+ * $Id: pipe-socket.c,v 1.14 2001/07/03 10:43:31 ela Exp $
  *
  */
 
@@ -249,10 +249,10 @@ svz_pipe_disconnect (svz_socket_t *sock)
 	  /* close both pipes */
 	  if (sock->pipe_desc[READ] != INVALID_HANDLE)
 	    if (closehandle (sock->pipe_desc[READ]) < 0)
-	      svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	      svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
 	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
 	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
-	      svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	      svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
 	}
 
 #if ENABLE_DEBUG

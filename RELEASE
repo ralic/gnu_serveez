@@ -52,5 +52,5 @@ Distribution process:
   - Release at SourceForge.
   - Announce the release at Freshmeat.
   - Update <www.SoftSeek.com> entry.
-  - Send an announcement to <help-serveez@gnu.org>.
+  - Send an announcement to <help-serveez@gnu.org> and <info-gnu@gnu.org>.
   - Update documentation <www.gnu.org>.
