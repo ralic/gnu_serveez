@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.10 2001/09/27 15:47:36 ela Exp $
+ * $Id: interface.c,v 1.11 2001/12/22 10:32:52 ela Exp $
  *
  */
 
@@ -486,7 +486,7 @@ svz_interface_collect (void)
        */
 #if defined (__FreeBSD__)
       if ((ifr->ifr_phys & 0xFFFF0000) == 0)
-#elif defined (__NetBSD__)
+#elif defined (__NetBSD__) || defined (__OpenBSD__)
       if (((long) ifr->ifr_data & 0xFFFF0000) != 0)
 #else
       if (ifr->ifr_addr.sa_family != AF_INET)

@@ -1,3 +1,9 @@
+2001-12-22  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/nut-transfer.c, http-server/http-dirlist.c: Do 
+	not include <dirent.h> with <sys/dirent.h> together to inhibit 
+	redeclaration of `struct dirent'.
+
 2001-12-15  [ Ela ]  <ela@lkcc.org>
 
 	* prog-server/prog-server.c (prog_read_sock_drop): Dropping

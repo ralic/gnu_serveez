@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.19 2001/11/23 13:18:39 ela Exp $
+ * $Id: dynload.c,v 1.20 2001/12/22 10:32:52 ela Exp $
  *
  */
 
@@ -44,6 +44,9 @@
 # include <dlfcn.h>
 # ifndef RTLD_GLOBAL
 #  define RTLD_GLOBAL 0
+# endif
+# ifndef RTLD_NOW
+#  define RTLD_NOW 0
 # endif
 #endif
 #if HAVE_MACH_O_DYLD_H

@@ -2413,6 +2413,7 @@ Serveez has been build and tested successfully.
 @item FreeBSD 3.3, 4.0, 4.3 on Intel
 @item FreeBSD 4.0 on Alpha
 @item NetBSD 1.5 on Alpha
+@item OpenBSD 3.0 on Alpha
 @item GNU/Linux 2.x.x on Intel
 @item GNU/Linux 2.x.x on Alpha
 @item GNU/Linux 2.2.x on Sparc64 (UltraSparcII + MachV)

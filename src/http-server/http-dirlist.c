@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.21 2001/12/06 12:03:19 ela Exp $
+ * $Id: http-dirlist.c,v 1.22 2001/12/22 10:32:52 ela Exp $
  *
  */
 
@@ -57,7 +57,7 @@
 # endif
 #endif /* not __MINGW32__ */
 
-#if HAVE_SYS_DIRENT_H
+#if HAVE_SYS_DIRENT_H && !defined (HAVE_DIRENT_H)
 # include <sys/dirent.h>
 #endif
 

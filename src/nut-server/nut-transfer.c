@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.39 2001/12/07 20:37:15 ela Exp $
+ * $Id: nut-transfer.c,v 1.40 2001/12/22 10:32:52 ela Exp $
  *
  */
 
@@ -72,7 +72,7 @@
 # include <io.h>
 #endif
 
-#if HAVE_SYS_DIRENT_H
+#if HAVE_SYS_DIRENT_H && !defined (HAVE_DIRENT_H)
 # include <sys/dirent.h>
 #endif
 
