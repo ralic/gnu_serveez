@@ -1,3 +1,14 @@
+2002-07-26  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Overall concept): New section.  To be 
+	continued...
+
+	* serveez-doc-snarf.awk: Ability to produce Guile 
+	documentation files.
+
+	* Makefile.am (serveez-procedures.txt): Added Makefile target
+	for generating and installing this Guile documentation file.
+
 2002-07-13  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.en.html: Updated anonymous CVS instructions.

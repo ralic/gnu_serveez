@@ -5,7 +5,7 @@
 # Automake input file for the documentation directory.
 #
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
-# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,7 +31,8 @@ EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 	logo.jpg logosmall.jpg mandel.jpg serveez-api.texi.in \
 	serveez-doc-snarf.awk
 CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
-	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html
+	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html \
+	$(GUILE_TXT_FILE)
 MAINTAINERCLEANFILES = Makefile.in
 DOC_DIRS = $(top_srcdir)/src/libserveez $(top_srcdir)/src/libserveez/coserver \
   $(top_srcdir)/src/libserveez/codec
@@ -45,6 +46,8 @@ SED_FILE = serveez-api.sed
 GUILE_DOC_DIRS = $(top_srcdir)/src
 GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c guile-api.c
 GUILE_SED_FILE = guile-api.sed
+GUILE_TXT_FILE = serveez-procedures.txt
+SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
 HTML_DIR = manual
 SITE_DIR = $(top_srcdir)/../serveez-site
 SED = sed
@@ -55,14 +58,16 @@ SITE_FILES = serveez.en.html index.html *.jpg
 MANUAL_FILES = \
   $(top_srcdir)/README $(top_srcdir)/README-Win32 $(top_srcdir)/TODO \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
-
+LOCAL_TARGETS = $(GUILE_TXT_FILE) \
+  $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
+pkgdata_DATA = $(GUILE_TXT_FILE)
 
 # local dependencies
 
 distclean-local:
 	$(RM) -rf *\~ *.orig *.rej $(HTML_DIR)/
 
-all-local: $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
+all-local: $(LOCAL_TARGETS)
 
 dist-hook:
 	$(RM) -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
@@ -74,8 +79,7 @@ $(srcdir)/serveez-api.texi: $(srcdir)/serveez-api.texi.in
 	for dir in $(DOC_DIRS); do \
 	  for file in $(DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
-	      $(AWK) -f $(srcdir)/serveez-doc-snarf.awk $$dir/$$file >> \
-	      $(SED_FILE); fi \
+	      $(SNARFER) $$dir/$$file >> $(SED_FILE); fi \
 	  done \
 	done
 	$(SED) -f $(SED_FILE) < $(srcdir)/serveez-api.texi.in > $@
@@ -85,11 +89,19 @@ $(srcdir)/guile-api.texi: $(srcdir)/guile-api.texi.in
 	for dir in $(GUILE_DOC_DIRS); do \
 	  for file in $(GUILE_DOC_FILES); do \
 	    if test -r $$dir/$$file; then \
-	      $(AWK) -f $(srcdir)/serveez-doc-snarf.awk $$dir/$$file >> \
-	      $(GUILE_SED_FILE); fi \
+	      $(SNARFER) $$dir/$$file >> $(GUILE_SED_FILE); fi \
 	  done \
 	done
 	$(SED) -f $(GUILE_SED_FILE) < $(srcdir)/guile-api.texi.in > $@
+
+$(GUILE_TXT_FILE):
+	$(RM) -f $@
+	for dir in $(GUILE_DOC_DIRS); do \
+	  for file in $(GUILE_DOC_FILES); do \
+	    if test -r $$dir/$$file; then \
+	      $(SNARFER) $$dir/$$file -t >> $@; fi \
+	  done \
+	done
 
 site: all-local info
 	test ! -d $(SITE_DIR) || $(RM) -rf $(SITE_DIR)

@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: serveez.scm,v 1.5 2002/01/28 18:03:28 ela Exp $
+;; $Id: serveez.scm,v 1.6 2002/07/26 06:34:53 ela Exp $
 ;;
 
 ;;
@@ -125,3 +125,12 @@
       (setrpc (car stayopen))
       (setrpc #f)))
 (define (endrpcent) (setrpc))
+
+;;
+;; === Include documentation file into Guile help system
+;;
+(define (serveez-doc-add!)
+  (use-modules (ice-9 session))
+  (use-modules (ice-9 documentation))
+  (set! documentation-files 
+	(cons "serveez-procedures.txt" documentation-files)))

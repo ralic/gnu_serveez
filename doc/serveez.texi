@@ -735,6 +735,29 @@ servers (@xref{Existing servers}.).
 @node Concept, Server, Using Serveez, Top
 @chapter Concept
 
+@section Overall concept
+The primary functionality Serveez provides is a framework for Internet
+services.  It can act as a kind of server collection and may even
+replace super-servers like the inetd daemon.  Key features and its
+benefits are:
+
+@table @asis
+@item support for packet and connection oriented protocols
+FIXME:
+@item server and client functionality
+FIXME:
+@item platform portability
+FIXME:
+@item powerful configuration capabilities
+FIXME:
+@item easy server implementation
+FIXME:
+@item code reusability
+FIXME:
+@item server instantiation and network port sharing
+FIXME:
+@end table
+
 @section I/O Strategy
 Serveez's I/O strategy is the traditional @code{select()} method. It 
 is serving many clients in a single server thread. This is done by setting
@@ -763,7 +786,7 @@ An alternative method to multiplex client network connections is
 @code{poll()} to be available. This will work around the builtin (g)libc's 
 @code{select()} file descriptor limit.
 
-@section Limits on open filehandles
+@subsection Limits on open filehandles
 @table @code
 
 @item Any Unix
@@ -803,6 +826,10 @@ to more than a few times its default value.
 More than 2000 connections tested. Seems like the limit is due to
 available physical memory.
 @end table
+
+@section Alternatives to Serveez's I/O strategy
+FIXME: Something about load balancing using different processes, 
+       threaded servers and asynchronous I/O.
 
 @node Server, Coserver, Concept, Top
 @chapter Server

@@ -1,3 +1,8 @@
+2002-07-26  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.scm (serveez-doc-add!): New procedure.  Adds the
+	serveez documentation file to the help system of Guile.
+
 2002-07-15  [ Ela ]  <ela@lkcc.org>
 
 	* guile.c (guile_to_integer): Added FUNC_NAME macro.

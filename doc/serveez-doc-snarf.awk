@@ -2,8 +2,8 @@
 #
 # doc/serveez-doc-snarf.awk
 #
-# Extract documentation string from source files and produce a sed
-# script for further processing. 
+# Extract documentation strings from source files and produce a sed
+# script for further processing or a Guile documentation file.
 #
 # Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
@@ -22,8 +22,70 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.10 2002/07/13 15:45:53 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.11 2002/07/26 06:34:53 ela Exp $
 #
+
+# evaluate command line arguments
+BEGIN {
+    produce_sed = 0
+    produce_txt = 0
+    if (ARGC <= 2) {
+      # create sed file by default
+      produce_sed = 1
+    }
+    for (i = 2; i < ARGC; i++) {
+      if (ARGV[i] == "-s")
+	produce_sed = 1
+      else if (ARGV[i] == "-t")
+	produce_txt = 1
+      else if (ARGV[i] == "-h") {
+	err = sprintf("usage: %s file [-h] [-s] [-t]", ARGV[0])
+	print err > "/dev/stderr"
+	exit
+      }
+      else if (ARGV[i] ~ /^-?/) {
+	err = sprintf("%s: unrecognized option -- %c", ARGV[0], 
+		      substr(ARGV[i], 2, 1))
+	print err > "/dev/stderr"
+	exit
+      }
+      else break
+      delete ARGV[i]
+   }
+}
+
+# run `makeinfo' like substitutions
+function replace_info(text)
+{
+  do {
+    # expand @defunx
+    pos_x = match(text, /\@defunx /)
+    if (pos_x != 0) {
+      tail = substr(text, pos_x + 8)
+      pos = index(tail, "\n")
+      text = (substr(text, 1, pos_x - 1) "(" substr(tail, 1, pos - 1))
+      text = (text  ")\n" substr(tail, pos + 1))
+    }
+    # replace @var{*}
+    pos_var = match(text, /\@var\{.*\}/)
+    if (pos_var != 0) {
+      tail = substr(text, pos_var + 5)
+      pos = index(tail, "}")
+      text = (substr(text, 1, pos_var - 1) toupper(substr(tail, 1, pos - 1)))
+      text = (text substr(tail, pos + 1))
+    }
+    # replace @code{*} and @file{*}
+    pos_code = match(text, /\@code\{.*\}/)
+    if (pos_code == 0) { pos_code = match(text, /\@file\{.*\}/) }
+    if (pos_code != 0) {
+      tail = substr(text, pos_code + 6)
+      pos = index(tail, "}")
+      text = (substr(text, 1, pos_code - 1) "`" substr(tail, 1, pos - 1))
+      text = (text  "'" substr(tail, pos + 1))
+    }
+  } while (pos_var != 0 || pos_code != 0 || pos_x != 0)
+  return text
+}
 
 # start sentences with two space beforehand
 function replace_sentence(line)
@@ -159,7 +221,9 @@ function handle_variable(line)
 	replace = ("@deftypevar " vardef "\\\n" doc "\\\n" "@end deftypevar")
 	replace = (loc replace)
 	sedexp = ("/^" toupper(var) "_DEFVAR/" " c\\\n" replace "\\\n")
-	print sedexp
+	if (produce_sed == 1) {
+	  print sedexp
+	}
 	docu = ""
     }
 }
@@ -205,7 +269,9 @@ function handle_macro(line)
 	replace = ("@defmac " macdef "\\\n" doc "\\\n" "@end defmac")
 	replace = (loc replace)
 	sedexp = ("/^" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
-        print sedexp
+	if (produce_sed == 1) {
+          print sedexp
+	}
         docu = ""
       }
     }
@@ -281,6 +347,16 @@ function handle_macro(line)
 	    else if (line ~ /^MAKE_STRING_CHECKER/) {
 	      create_loc(0)
 	      args = "name"
+	    } 
+	    # special guile string accessor
+	    else if (line ~ /^MAKE_STRING_ACCESSOR/) {
+	      create_loc(0)
+	      args = "string"
+	    } 
+	    # special guile integer accessor
+	    else if (line ~ /^MAKE_INT_ACCESSOR/) {
+	      create_loc(0)
+	      args = "number"
 	    } 
 	    else {
 	      create_loc(0)
@@ -385,24 +461,36 @@ function handle_macro(line)
 
     # correct guile argument list
     if (guile_args == "void") { guile_args = "" }
+    if (guile_args != "") { guile_args = (" " guile_args) }
 
     # enclose the return value into braces if necessary
     if (index(ret, " ")) { ret = ("{" ret "}") }
 
     # finally the texinfo function definition and documentation
     gsub(/\n/, "\\\n", docu)
+    txtexp = ""
     if (length(guile_func) > 0) {
-      funcdef = (guile_func " " guile_args)
+      funcdef = (guile_func guile_args)
       replace = ("@defun " funcdef "\\\n" docu "\\\n" "@end defun")
       replace = (loc replace)
       sedexp = ("/^" toupper(guile_func) "_DEFUN/" " c\\\n" replace "\\\n")
+
+      if (guile_func !~ /guile_/) {
+	gsub(/\\\n/, "\n", docu)
+	funcdef = ("(" guile_func guile_args ")")
+	txtexp = ("\n" funcdef "\n" replace_info(docu))
+      }
     } else {
       funcdef = (ret " " c_func " (" c_args ")")
       replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
       replace = (loc replace)
       sedexp = ("/^" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
     }
-    print sedexp
+    if (produce_sed == 1) {
+      print sedexp
+    } else if (produce_txt == 1 && txtexp != "") {
+      print txtexp
+    }
     docu = ""
   }
 }
