@@ -1218,7 +1218,8 @@ AC_OUTPUT(
     src/nut-server/Makefile
     src/tunnel-server/Makefile
     doc/Makefile 
-    data/Makefile 
+    data/Makefile
+    test/Makefile
     version.h)
 
 dnl

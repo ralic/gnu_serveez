@@ -1,10 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 # 
-# Makefile.am
+# test/Makefile.am
 #
-# Automake input file.
+# Automake input file for the test directory.
 #
-# Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+# Copyright (C)  2000 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,14 +22,26 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-SUBDIRS = src doc data test
+TESTS = hash-test
 
-EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
-	serveez.dsw serveez.dsp config.h.serveez version.h.serveez \
-	libsizzle.dsp config.h.sizzle version.h.sizzle
+noinst_PROGRAMS = hash-test
+hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
 
-MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in
+AM_CFLAGS = -I../src
+
+alloc.c: ../src/alloc.c
+	ln -s $< $@
+
+hash.c: ../src/hash.c
+	ln -s $< $@
 
 distclean-local:
-	rm -f *\~
+	rm -f *\~ *.orig *.rej
 
+dist-hook:
+	rm -f $(distdir)/alloc.c
+	rm -f $(distdir)/hash.c
+
+CLEANFILES = alloc.c hash.c
+
+MAINTAINERCLEANFILES = Makefile.in
