@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.19 2001/05/22 21:06:42 ela Exp $
+ * $Id: server.c,v 1.20 2001/05/29 18:59:03 raimi Exp $
  *
  */
 
@@ -49,6 +49,7 @@
 #include "libserveez/server-core.h"
 #include "libserveez/server.h"
 #include "libserveez/binding.h"
+#include "libserveez/dynload.h"
 
 /*
  * The list of registered server. Feel free to add yours.
@@ -135,6 +136,37 @@ svz_servertype_del (unsigned long index)
 	stype->global_finalize ();
       svz_array_del (svz_servertypes, index);
     }
+}
+
+/*
+ * Find a servertype definition by its short/var name. If @var{dynmic} is set
+ * an attempt is made to load a shared library that provides that servertype.
+ * Returns NULL if no server of the given @var{name} is found.
+ */
+svz_servertype_t *
+svz_servertype_get (char *name, int dynamic)
+{
+  svz_servertype_t *stype;
+  int n;
+
+  /* first, try with already loaded ones */
+  svz_array_foreach (svz_servertypes, stype, n)
+    {
+      if (!strcmp (name, stype->varname))
+	return stype;
+    }
+
+  /* now, try dynamically */
+  if (dynamic)
+    {
+      if (NULL != (stype = svz_servertype_load (name)))
+	{
+	  svz_servertype_add (stype);
+	  return stype;
+	}
+    }
+
+  return NULL;
 }
 
 /*
@@ -651,6 +683,7 @@ svz_server_configure (svz_servertype_t *server,
 		      svz_server_config_t *configure)
 {
   int e, n, error = 0;
+  int hasdef;
   void *cfg, *def, *target = NULL;
   unsigned long offset;
 
@@ -663,15 +696,26 @@ svz_server_configure (svz_servertype_t *server,
      are able to reverse the changes below. */
   svz_config_clobber (server, cfg);
 
+  /* call the 'before' callback */
+  if (configure && configure->before)
+    {
+      if (SVZ_ITEM_OK != configure->before (name, arg))
+	{
+	  error = -1;
+	  goto out;
+	}
+    }
+
   /* Go through list of configuration items. */
   for (n = 0; server->items[n].type != ITEM_END; n++)
     {
       /* Calculate the target address. */
       offset = (char *) server->items[n].address - 
 	(char *) server->prototype_start;
+      hasdef = server->items[n].defaultable;
       def = server->items[n].address;
       target = (char *) cfg + offset;
-      e = 0;
+      e = SVZ_ITEM_OK;
 
       /* Depending on the type of configuration item we need at this
 	 point we call the given callbacks and check their return values. */
@@ -681,21 +725,21 @@ svz_server_configure (svz_servertype_t *server,
         case ITEM_INT:
 	  if (configure && configure->integer)
 	    e = configure->integer (name, arg, server->items[n].name,
-				    (int *) target, *(int *) def);
+				    (int *) target, hasdef, *(int *) def);
           break;
 
 	  /* Boolean value. */
         case ITEM_BOOL:
 	  if (configure && configure->boolean)
 	    e = configure->boolean (name, arg, server->items[n].name,
-				    (int *) target, *(int *) def);
+				    (int *) target, hasdef, *(int *) def);
           break;
 
           /* Integer array. */
         case ITEM_INTARRAY:
 	  if (configure && configure->intarray)
 	    e = configure->intarray (name, arg, server->items[n].name,
-				     (svz_array_t **) target,
+				     (svz_array_t **) target, hasdef,
 				     *(svz_array_t **) def);
           break;
 
@@ -703,14 +747,14 @@ svz_server_configure (svz_servertype_t *server,
         case ITEM_STR:
 	  if (configure && configure->string)
 	    e = configure->string (name, arg, server->items[n].name,
-				   (char **) target, *(char **) def);
+				   (char **) target, hasdef, *(char **) def);
           break;
           
 	  /* Array of strings. */
         case ITEM_STRARRAY:
 	  if (configure && configure->strarray)
 	    e = configure->strarray (name, arg, server->items[n].name,
-				     (svz_array_t **) target, 
+				     (svz_array_t **) target, hasdef, 
 				     *(svz_array_t **) def);
           break;
 
@@ -718,7 +762,7 @@ svz_server_configure (svz_servertype_t *server,
         case ITEM_HASH:
 	  if (configure && configure->hash)
 	    e = configure->hash (name, arg, server->items[n].name,
-				 (svz_hash_t **) target,
+				 (svz_hash_t **) target, hasdef,
 				 *(svz_hash_t **) def);
           break;
 
@@ -726,7 +770,7 @@ svz_server_configure (svz_servertype_t *server,
         case ITEM_PORTCFG:
 	  if (configure && configure->portcfg)
 	    e = configure->portcfg (name, arg, server->items[n].name,
-				    (svz_portcfg_t **) target,
+				    (svz_portcfg_t **) target, hasdef,
 				    *(svz_portcfg_t **) def);
           break;
 
@@ -735,76 +779,98 @@ svz_server_configure (svz_servertype_t *server,
           svz_log (LOG_FATAL, 
 		   "inconsistent ITEM_ data in server type `%s'\n",
 		   server->name);
-          e = -1;
+          error = -1;
+	  e = -1; /* special */
         }
 
-      /* Check the return value of the configure functions. If the value at
-	 `target' has been modified it should return something non-zero. */
-      if (e == 0)
+      /* Check the return value of the configure functions.
+       */
+      switch (e)
 	{
+	case -1:
+	  break;
+	case SVZ_ITEM_OK:
+	  break;
+	case SVZ_ITEM_DEFAULT:
+	case SVZ_ITEM_DEFAULT_ERRMSG:
 	  /* Target not configured. Defaultable ? */
 	  if (!server->items[n].defaultable)
 	    {
-	      svz_log (LOG_ERROR,
-		       "`%s' lacks a default %s for `%s' in `%s'\n",
-		       server->name, ITEM_TEXT (server->items[n].type),
-		       server->items[n].name, name);
+	      if (SVZ_ITEM_DEFAULT_ERRMSG == e) {
+		svz_log (LOG_ERROR,
+			 "`%s' lacks a default %s for `%s' in `%s'\n",
+			 server->name, ITEM_TEXT (server->items[n].type),
+			 server->items[n].name, name);
+	      }
 	      error = -1;
+	      break;
 	    }
-	  /* Assuming default value. */
-	  else
+	  /* go on, using default values */
+	  switch (server->items[n].type) 
 	    {
-	      switch (server->items[n].type) 
-		{
-		  /* Normal integer. */
-		case ITEM_INT:
-		  *(int *) target = *(int *) def;
-		  break;
+	    case ITEM_INT: /* Normal integer. */
+	      *(int *) target = *(int *) def;
+	      break;
 
-		  /* Boolean value. */
-		case ITEM_BOOL:
-		  *(int *) target = *(int *) def;
-		  break;
+	    case ITEM_BOOL: /* Boolean value. */
+	      *(int *) target = *(int *) def;
+	      break;
 
-		  /* Integer array. */
-		case ITEM_INTARRAY:
-		  *(svz_array_t **) target = 
-		    svz_config_intarray_dup (*(svz_array_t **) def);
-		  break;
+	    case ITEM_INTARRAY: /* Integer array. */
+	      *(svz_array_t **) target = 
+		svz_config_intarray_dup (*(svz_array_t **) def);
+	      break;
 
-		  /* Character string. */
-		case ITEM_STR:
-		  *(char **) target = (char *) svz_strdup (*(char **) def);
-		  break;
+	    case ITEM_STR: /* Character string. */
+	      *(char **) target = (char *) svz_strdup (*(char **) def);
+	      break;
 
-		  /* Array of strings. */
-		case ITEM_STRARRAY:
-		  *(svz_array_t **) target = 
-		    svz_config_strarray_dup (*(svz_array_t **) def);
-		  break;
+	    case ITEM_STRARRAY: /* Array of strings. */
+	      *(svz_array_t **) target = 
+		svz_config_strarray_dup (*(svz_array_t **) def);
+	      break;
 
-		  /* Hash table. */
-		case ITEM_HASH:
-		  *(svz_hash_t **) target = 
-		    svz_config_hash_dup (*(svz_hash_t **) def);
-		  break;
+	    case ITEM_HASH:  /* Hash table. */
+	      *(svz_hash_t **) target = 
+		svz_config_hash_dup (*(svz_hash_t **) def);
+	      break;
 
-		  /* Port configuration. */
-		case ITEM_PORTCFG:
-		  *(svz_portcfg_t **) target =
-		    svz_portcfg_dup (*(svz_portcfg_t **) def);
-		  break;
-		}
+	    case ITEM_PORTCFG: /* Port configuration. */
+	      *(svz_portcfg_t **) target =
+		svz_portcfg_dup (*(svz_portcfg_t **) def);
+	      break;
 	    }
-	  continue;
-        }
-      /* Negative return values indicate an error. */
-      else if (e < 0)
-	{
+	  break;
+
+	case SVZ_ITEM_FAILED:
+	  error = -1;
+	  break;
+
+	case SVZ_ITEM_FAILED_ERRMSG:
+	  svz_log (LOG_ERROR,
+		   "Invalid %s value for `%s' in `%s'\n",
+		   ITEM_TEXT (server->items[n].type),
+		   server->items[n].name, name);
+	  error = -1;
+	  break;
+	default:
+	  svz_log (LOG_FATAL,
+		   "invalid SVZ_ITEM_ value from callback\n");
 	  error = -1;
 	}
     }
 
+  /* call the 'after' callback */
+  if (configure && configure->after)
+    {
+      if (SVZ_ITEM_OK != configure->after (name, arg))
+	{
+	  error = -1;
+	  goto out;
+	}
+    }
+
+ out:
   /* Release memory reserved for configuration on errors. This means
      to reverse the above changes. */
   if (error)

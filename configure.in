@@ -1137,7 +1137,7 @@ dnl Check for working Tex.
 dnl
 AC_MSG_CHECKING([for working texi2dvi])
 TEXI2DVI="texi2dvi"
-if test "x`tex 2>/dev/null`" = "x"; then
+if test "x`tex --version 2>/dev/null`" = "x"; then
   TEXI2DVI=":"
 fi
 AC_MSG_RESULT($TEXI2DVI)

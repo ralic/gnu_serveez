@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.17 2001/05/22 21:06:41 ela Exp $
+ * $Id: guile.c,v 1.18 2001/05/29 18:59:03 raimi Exp $
  *
  */
 
@@ -38,6 +38,7 @@
 #include "libserveez.h"
 
 #define valid_port(port) ((port) > 0 && (port) < 65536)
+#define FAIL() do { err = -1; goto out; } while(0)
 
 /*
  * What is an 'optionhash' ?
@@ -75,6 +76,23 @@ new_value_t (SCM value)
   v->defined = 1;
   v->use = 0;
   return v;
+}
+
+/*
+ * Destroy the given option-hash @var{options}.
+ */
+static void
+optionhash_destroy (svz_hash_t *options)
+{
+  value_t **value;
+  int n;
+
+  if (options)
+    {
+      svz_hash_foreach_value (options, value, n)
+	svz_free (value[n]);
+      svz_hash_destroy (options);
+    }
 }
 
 /*
@@ -179,7 +197,7 @@ optionhash_get (svz_hash_t *hash, char *key)
  * Hash keys are the key names. Hash values are pointers to value_t structs.
  */
 static svz_hash_t *
-guile2optionhash (SCM pairlist)
+guile2optionhash (SCM pairlist, char *msg)
 {
   svz_hash_t *hash = svz_hash_create (10);
   value_t *old_value;
@@ -208,7 +226,7 @@ guile2optionhash (SCM pairlist)
       if (NULL == (tmp = guile2str (key)))
 	{
 	  /* unknown key type, must be string or symbol */
-	  report_error ("must be string or symbol");
+	  report_error ("Key must be string or symbol %s", msg);
 	  err = 1;
 	  break;
 	}
@@ -367,284 +385,331 @@ optionhash_extract_string (svz_hash_t *hash,
   return err;
 }
 
-/*
- * Go through all configurable items for the given server type @var{stype}.
- * Return the instance configuration.
- */
-static void *
-guile_create_config (svz_servertype_t *stype, char *name, SCM list)
+static int
+optionhash_cb_before (char *servername, void *arg)
 {
-  void *cfg;
-  svz_server_config_t configure = {
-    NULL, /* integers */
-    NULL, /* boolean */
-    NULL, /* integer arrays */
-    NULL, /* strings */
-    NULL, /* string arrays */
-    NULL, /* hashes */
-    NULL  /* port configurations */
-  };
-    
-
-  /* FIXME: Parse configuration items via 4th argument. */
-  cfg = svz_server_configure (stype, name, (void *) list, &configure);
-
-  return cfg;
+  svz_hash_t *options = (svz_hash_t *) arg;
+  if (0 == validate_optionhash (options, 1, "server", servername))
+    return SVZ_ITEM_OK;
+  return SVZ_ITEM_FAILED;
 }
 
+static int
+optionhash_cb_integer (char *servername, void *arg, char *key, int *target,
+		       int hasdef, int def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_boolean (char *servername, void *arg, char *key, int *target,
+		       int hasdef, int def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_intarray (char *servername, void *arg, char *key,
+			svz_array_t **target, int hasdef,
+			svz_array_t *def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_string (char *servername, void *arg, char *key, 
+		      char **target, int hasdef, char *def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_strarray (char *servername, void *arg, char *key,
+			svz_array_t **target, int hasdef,
+			svz_array_t *def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_hash (char *servername, void *arg, char *key,
+		    svz_hash_t **target, int hasdef,
+		    svz_hash_t *def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_portcfg (char *servername, void *arg, char *key,
+		       svz_portcfg_t **target, int hasdef,
+		       svz_portcfg_t *def)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  return SVZ_ITEM_DEFAULT_ERRMSG;
+}
+
+static int
+optionhash_cb_after (char *servername, void *arg)
+{
+  svz_hash_t *options = (svz_hash_t *) arg;
+  if (0 == validate_optionhash (options, 0, "server", servername))
+    return SVZ_ITEM_OK;
+  return SVZ_ITEM_FAILED;
+}
+
+
 /*
- * Generic server definition ...
+ * Generic server definition. Use two arguments:
+ * First is a (unique) server name of the form "type-something" where
+ * "type" is the shortname of a servertype. Second is the optionhash that
+ * is special for the server. Uses library to configure the individual options.
+ * Emits error messags (to stderr). Returns #t when server got defined, #f
+ * in case of any error.
  */
 #define FUNC_NAME "define-server!"
 SCM
 guile_define_server (SCM name, SCM args)
 {
+  int err = 0;
   char *servername = guile2str (name);
-  char *server_description, *p;
+  char *servertype = NULL, *p = NULL;
+  svz_hash_t *options = NULL;
   svz_servertype_t *stype;
   svz_server_t *server = NULL;
-  int n;
+  char *msg = svz_malloc (256);
 
-  /* Check guile arguments. */
-  SCM_ASSERT (gh_string_p (name) || gh_symbol_p (name),
-	      name, SCM_ARG1, FUNC_NAME);
-  SCM_VALIDATE_LIST (SCM_ARG2, args);
+  svz_server_config_t configure = {
+    optionhash_cb_before,    /* before */
+    optionhash_cb_integer,   /* integers */
+    optionhash_cb_boolean,   /* boolean */
+    optionhash_cb_intarray,  /* integer arrays */
+    optionhash_cb_string,    /* strings */
+    optionhash_cb_strarray,  /* string arrays */
+    optionhash_cb_hash,      /* hashes */
+    optionhash_cb_portcfg,   /* port configurations */
+    optionhash_cb_after      /* after */
+  };
 
-  /* Seperate server description. */
-  p = server_description = svz_strdup (servername);
-  while (*p && *p != '-')
-    p++;
-  *p = '\0';
 
-  /* Go through all server types and check if there is such a server. */
-  svz_array_foreach (svz_servertypes, stype, n)
+  /* check if the given name is valid */
+  if (NULL == servername)
     {
-      if (!strncmp (servername, stype->varname, strlen (stype->varname)) &&
-	  servername[strlen (stype->varname)] == '-')
-	{
-	  server = svz_server_instantiate (stype, servername);
-	  server->cfg = guile_create_config (stype, servername, args);
-	  if (server->cfg)
-	    {
-	      svz_server_add (server);
-	    }
-	  else
-	    {
-	      svz_server_free (server);
-	      svz_free (server_description);
-	      return SCM_BOOL_F;
-	    }
-	  break;
-	}
+      report_error ("Invalid servername");
+      FAIL();
     }
 
-  /* At this point we check if there was such a server type and try 
-     loading it if not. */
-  if (server == NULL)
+  svz_snprintf (msg, 256, "while defining server `%s'", servername);
+    
+  /* extract options */
+  if (NULL == (options = guile2optionhash (args, msg)))
+    FAIL(); /* message already emitted */
+
+  /* Seperate server description. */
+  p = servertype = svz_strdup (servername);
+  while (*p && *p != '-')
+    p++;
+
+  /* extract server type and sanity check */
+  if (*p == '-' && *(p+1) != '\0')
     {
-      if ((stype = svz_servertype_load (server_description)) != NULL)
-	{
-	  svz_servertype_add (stype);
-	  server = svz_server_instantiate (stype, servername);
-	  server->cfg = guile_create_config (stype, servername, args);
-	  if (server->cfg)
-	    {
-	      svz_server_add (server);
-	    }
-	  else
-	    {
-	      svz_server_free (server);
-	      svz_free (server_description);
-	      return SCM_BOOL_F;
-	    }
-	}
+      *p = '\0';
+    }
+  else
+    {
+      report_error ("`%s' is not a valid server name");
+      FAIL();
+    }
+
+  /* find the definition by lookup with dynamic loading */
+  if (NULL == (stype = svz_servertype_get (servertype, 1)))
+    {
+      report_error ("No such server type `%s'", servertype);
+      FAIL();
+    }
+
+  /* FIXME: dupecheck ? */
+  server = svz_server_instantiate (stype, servername);
+
+  /* config anlegen server->cfg */
+  server->cfg = svz_server_configure (stype,
+				      servername,
+				      (void *) options,
+				      &configure);
+  if (NULL == server->cfg)
+    FAIL(); /* messages emitted from callbacks */
+
+  /* add server if config is ok, no error yet */
+  if (!err)
+    {
+      svz_server_add (server);
+    }
+  else
+    {
+      svz_server_free (server);
     }
 
 #if ENABLE_DEBUG
-  /* Print debug output. */
   svz_log (LOG_DEBUG, "defining server `%s' (%s)\n", servername, 
-	   server_description);
+	   servertype);
 #endif
 
-  /* Print error if necessary. */
-  if (server == NULL)
-    {
-      svz_log (LOG_ERROR, "no such server type: %s\n",
-	       server_description);
-    }
-
-  svz_free (server_description);
+ out:
+  svz_free (msg);
+  svz_free (servertype);
   free (servername);
-  return server ? SCM_BOOL_T : SCM_BOOL_F;
+  optionhash_destroy (options);
+  return err ? SCM_BOOL_T : SCM_BOOL_F;
 }
 #undef FUNC_NAME
 
-/*
- * Destroy the given option-hash @var{options}.
- */
-void
-optionhash_destroy (svz_hash_t *options)
-{
-  value_t **value;
-  int n;
-
-  if (options)
-    {
-      svz_hash_foreach_value (options, value, n)
-	svz_free (value[n]);
-      svz_hash_destroy (options);
-    }
-}
 
 /*
- * Generic port configuration definition ...
+ * Generic port configuration definition. Use two arguments:
+ * First is a (unique) name for the prot. Second is an optionhash for various
+ * settings. Returns #t when definition worked, #f when it did not. Emits
+ * error messages (to stderr).
  */
 #define FUNC_NAME "define-port!"
 static SCM
 guile_define_port (SCM symname, SCM args)
 {
+  int err = 0;
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
   svz_hash_t *options = NULL;
-  SCM retval_ok = SCM_BOOL_T;
-  SCM retval_fail = SCM_BOOL_F;
-  SCM retval = retval_ok;
   char *portname = guile2str (symname);
+  char *proto = NULL; 
+  char *msg = svz_malloc (256);
 
   if (portname == NULL)
     {
       report_error ("first argument to " FUNC_NAME 
 		    " must be string or symbol");
-      retval = retval_fail;
-      goto out;
+      FAIL();
     }
 
-  if (NULL == (options = guile2optionhash (args)))
-    {
-      /* FIXME: message ? */
-      retval = retval_fail;
-      goto out;
-    }
+  svz_snprintf (msg, 256, "when defining port `%s'", portname);
 
+  if (NULL == (options = guile2optionhash (args, msg)))
+    FAIL();       /* message already emitted */
+
+  /* every key defined only once ? */
   if (0 != validate_optionhash (options, 1, "port", portname))
-    {
-      retval = retval_fail;
-    }
+    err = -1;
 
   /* find out what protocol this portcfg will be about */
-  do 
+  if (NULL == (proto = guile2str (optionhash_get (options, PORTCFG_PROTO))))
     {
-      char *proto = guile2str (optionhash_get (options, PORTCFG_PROTO));
-      char *msg = svz_malloc (256);
-      svz_snprintf (msg, 256, "when defining port `%s'", portname);
-
-      if (NULL == proto)
-	{
-	  report_error ("port `%s' requires a \"proto\" field", portname);
-	  retval = retval_fail;
-	  goto out;
-	}
-
-      if (!strcmp (proto, PORTCFG_TCP))
-	{
-	  int port;
-	  cfg->proto = PROTO_TCP;
-	  optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, msg);
-	  cfg->tcp_port = (short) port;
-	  if (!valid_port (port))
-	    {
-	      report_error ("invalid port number %s", msg);
-	      retval = retval_fail;
-	    }
-	  optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0, 
-				  &(cfg->tcp_backlog), msg);
-	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-				     &(cfg->tcp_ipaddr), msg);
-	  svz_portcfg_mkaddr (cfg);
-	}
-      else if (!strcmp (proto, PORTCFG_UDP))
-	{
-	  int port;
-	  cfg->proto = PROTO_UDP;
-	  optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, msg);
-	  cfg->udp_port = (short) port;
-	  if (!valid_port (port))
-	    {
-	      report_error ("invalid port number %s", msg);
-	      retval = retval_fail;
-	    }
-	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-				     &(cfg->udp_ipaddr), msg);
-	  svz_portcfg_mkaddr (cfg);
-	}
-      else if (!strcmp (proto, PORTCFG_ICMP))
-	{
-	  int type;
-	  cfg->proto = PROTO_ICMP;
-	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-				     &(cfg->icmp_ipaddr), msg);
-	  optionhash_extract_int (options, PORTCFG_TYPE, 1, ICMP_SERVEEZ, 
-				  &type, msg);
-	  if ((type & ~0xFF) != 0)
-	    {
-	      report_error ("key '" PORTCFG_TYPE "' must be a byte %s", msg);
-	      retval = retval_fail;
-	    }
-	  cfg->icmp_type = (char) (type & 0xFF);
-	  svz_portcfg_mkaddr (cfg);
-	}
-      else if (!strcmp (proto, PORTCFG_RAW))
-	{
-	  cfg->proto = PROTO_RAW;
-	  optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-				     &(cfg->raw_ipaddr), msg);
-	  svz_portcfg_mkaddr (cfg);
-	}
-      else if (!strcmp (proto, PORTCFG_PIPE))
-	{
-	  cfg->proto = PROTO_PIPE;
-	  /* FIXME: implement me */
-	}
-      else
-	{
-	  report_error ("invalid \"proto\" field `%s' in `%s'.",
-			proto, portname);
-	  return SCM_UNSPECIFIED;
-	}
-
-      svz_free (msg);
-      free (proto);
+      report_error ("port `%s' requires a \"proto\" field", portname);
+      FAIL();
     }
-  while (0);
 
-  /* check if too much was defined */
+
+  if (!strcmp (proto, PORTCFG_TCP))
+    {
+      int port;
+      cfg->proto = PROTO_TCP;
+      err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, msg);
+      cfg->tcp_port = (short) port;
+      if (!valid_port (port))
+	{
+	  report_error ("invalid port number %s", msg);
+	  err = -1;
+	}
+      err |= optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0, 
+				     &(cfg->tcp_backlog), msg);
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+					&(cfg->tcp_ipaddr), msg);
+      err |= svz_portcfg_mkaddr (cfg);
+    }
+  else if (!strcmp (proto, PORTCFG_UDP))
+    {
+      int port;
+      cfg->proto = PROTO_UDP;
+      err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, msg);
+      cfg->udp_port = (short) port;
+      if (!valid_port (port))
+	{
+	  report_error ("invalid port number %s", msg);
+	  err = -1;
+	}
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+				 &(cfg->udp_ipaddr), msg);
+      err |= svz_portcfg_mkaddr (cfg);
+    }
+  else if (!strcmp (proto, PORTCFG_ICMP))
+    {
+      int type;
+      cfg->proto = PROTO_ICMP;
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+					&(cfg->icmp_ipaddr), msg);
+      err |= optionhash_extract_int (options, PORTCFG_TYPE, 1, ICMP_SERVEEZ, 
+				     &type, msg);
+      if ((type & ~0xFF) != 0)
+	{
+	  report_error ("key '" PORTCFG_TYPE "' must be a byte %s", msg);
+	  err = -1;
+	}
+      cfg->icmp_type = (char) (type & 0xFF);
+      err |= svz_portcfg_mkaddr (cfg);
+    }
+  else if (!strcmp (proto, PORTCFG_RAW))
+    {
+      cfg->proto = PROTO_RAW;
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+					&(cfg->raw_ipaddr), msg);
+      err |= svz_portcfg_mkaddr (cfg);
+    }
+  else if (!strcmp (proto, PORTCFG_PIPE))
+    {
+      cfg->proto = PROTO_PIPE;
+      /* FIXME: implement me */
+    }
+  else
+    {
+      report_error ("invalid \"proto\" field `%s' in `%s'.",
+		    proto, portname);
+      FAIL();
+    }
+  svz_free (msg);
+  free (proto);
+  
+  /* check for unused keys in input */
   if (0 != validate_optionhash (options, 0, "port", portname))
-    {
-      retval = retval_fail;
-      goto out;
-    }
+    FAIL(); /* message already emitted */
 
   /* now remember the name and add that config */
   cfg->name = svz_strdup (portname);
 
-  /* FIXME: remove when it works */
-  svz_portcfg_print (cfg, stdout);
-  prev = svz_portcfg_add (portname, cfg);
-
-  if (prev != cfg)
+  if (err)
     {
-      /* we've overwritten something. report and dispose */
-      report_error ("overwriting previous definition of port `%s'", portname);
-      svz_portcfg_destroy (prev);
+      svz_portcfg_destroy (cfg);
+      FAIL();
     }
+  else {
+    /* FIXME: remove when it works */
+    svz_portcfg_print (cfg, stdout);
+    prev = svz_portcfg_add (portname, cfg);
 
-  free (portname);
+    if (prev != cfg)
+      {
+	/* we've overwritten something. report and dispose */
+	report_error ("overwriting previous definition of port `%s'",
+		      portname);
+	svz_portcfg_destroy (prev);
+      }
+  }
 
  out:
+  free (portname);
   optionhash_destroy (options);
-  if (retval == retval_fail)
-    svz_portcfg_destroy (cfg);
-  return retval;
+  return err ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
 

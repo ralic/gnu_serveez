@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.14 2001/05/20 20:30:43 ela Exp $
+ * $Id: server.h,v 1.15 2001/05/29 18:59:03 raimi Exp $
  *
  */
 
@@ -125,27 +125,48 @@ struct svz_servertype
  * This structure defines the callbacks for the @code{svz_server_configure}
  * function. Each of these have the following arguments:
  * server: might be the name of the server instance to configure
- * arg:    an optional argument (e.g. scheme cell)
+ * arg:    an optional argument (e.g. scheme cell), supplied by user
  * name:   the name of the configuration item
  * target: target address of the configuration item
+ * hasdef: is there a default value
  * def:    the default value for this configuration item
+ *
+ * The 'before' and 'after' callbacks are called just before and after
+ * other options are set. The user is supposed to emit error messages since
+ * the library cannot guess what went wrong.
+ * Both callbacks have to return SVZ_ITEM_OK for allowing the configure
+ * function to complete successfully. No other callback is invoked when
+ * the 'before' callback fails.
+ *
+ * Default values and flag are passed to callbacks for no sane reason. You do
+ * not need to care about them if you set appropriete return values. If you
+ * use them, however, everything that is a pointer needs to be copied.
  */
+
+#define SVZ_ITEM_OK             0 /* okay, value set */
+#define SVZ_ITEM_DEFAULT        1 /* use default, be silent if missing */
+#define SVZ_ITEM_DEFAULT_ERRMSG 2 /* use default, croak if missing */
+#define SVZ_ITEM_FAILED         3 /* error, errors already emitted */
+#define SVZ_ITEM_FAILED_ERRMSG  4 /* error, please report error */
+
 typedef struct
 {
+  int (* before)   (char *server, void *arg);
   int (* integer)  (char *server, void *arg, char *name,
-		    int *target, int def);
+		    int *target, int hasdef, int def);
   int (* boolean)  (char *server, void *arg, char *name,
-		    int *target, int def);
+		    int *target, int hasdef, int def);
   int (* intarray) (char *server, void *arg, char *name,
-		    svz_array_t **target, svz_array_t *def);
+		    svz_array_t **target, int hasdef, svz_array_t *def);
   int (* string)   (char *server, void *arg, char *name, 
-		    char **target, char *def);
+		    char **target, int hasdef, char *def);
   int (* strarray) (char *server, void *arg, char *name,
-		    svz_array_t **target, svz_array_t *def);
+		    svz_array_t **target, int hasdef, svz_array_t *def);
   int (* hash)     (char *server, void *arg, char *name, 
-		    svz_hash_t **target, svz_hash_t *def);
+		    svz_hash_t **target, int hasdef, svz_hash_t *def);
   int (* portcfg)  (char *server, void *arg, char *name, 
-		    svz_portcfg_t **target, svz_portcfg_t *def);
+		    svz_portcfg_t **target, int hasdef, svz_portcfg_t *def);
+  int (* after)    (char *server, void *arg);
 }
 svz_server_config_t;
 
@@ -266,6 +287,7 @@ SERVEEZ_API int svz_server_finalize_all __P ((void));
 SERVEEZ_API extern svz_array_t *svz_servertypes;
 SERVEEZ_API void svz_servertype_add __P ((svz_servertype_t *));
 SERVEEZ_API void svz_servertype_del __P ((unsigned long));
+SERVEEZ_API svz_servertype_t *svz_servertype_get __P ((char *, int));
 SERVEEZ_API void svz_servertype_finalize __P ((void));
 SERVEEZ_API svz_servertype_t *svz_servertype_find __P ((svz_server_t *));
 
