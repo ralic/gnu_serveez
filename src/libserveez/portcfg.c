@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.3 2001/04/10 17:49:41 ela Exp $
+ * $Id: portcfg.c,v 1.4 2001/04/13 22:17:42 raimi Exp $
  *
  */
 
@@ -208,4 +208,81 @@ svz_portcfg_finalize (void)
   if (svz_portcfgs != NULL)
     svz_hash_destroy (svz_portcfgs);
   svz_portcfgs = NULL;
+}
+
+/*
+ * Construct the @code{sockaddr_in} fields from the @code{ipaddr} field.
+ * Returns zero if it worked. If it does not work the @code{ipaddr} field
+ * did not consist of an ip address in dotted decimal form.
+ */
+int
+svz_portcfg_mkaddr (svz_portcfg_t *this)
+{
+  switch (this->proto)
+    {
+    case PROTO_TCP:
+      return svz_inet_aton (this->tcp_ipaddr, &this->tcp_addr);
+      break;
+    case PROTO_UDP:
+      return svz_inet_aton (this->udp_ipaddr, &this->udp_addr);
+      break;
+    case PROTO_ICMP:
+      return svz_inet_aton (this->icmp_ipaddr, &this->icmp_addr);
+      break;
+    case PROTO_RAW:
+      return svz_inet_aton (this->raw_ipaddr, &this->raw_addr);
+      break;
+    case PROTO_PIPE:
+    default:
+      return -1;
+    }
+
+  return -1;
+}
+
+/*
+ * Debug helper: Emit a printable representation of the the given
+ * port configuration to the given FILE stream.
+ */
+void
+svz_portcfg_print (svz_portcfg_t *this, FILE *stream)
+{
+  if (NULL == this)
+    {
+      fprintf (stream, "Portcfg NULL!\n");
+      return;
+    }
+
+  switch (this->proto)
+    {
+    case PROTO_TCP:
+      fprintf (stream, "Portcfg `%s': TCP (%s|%s):%d\n", this->name,
+	       this->tcp_ipaddr,
+	       svz_inet_ntoa (this->tcp_addr.sin_addr.s_addr),
+	       this->tcp_port);
+      break;
+    case PROTO_UDP:
+      fprintf (stream, "Portcfg `%s': UDP (%s|%s):%d\n", this->name,
+	       this->udp_ipaddr,
+	       svz_inet_ntoa (this->udp_addr.sin_addr.s_addr),
+	       this->udp_port);
+      break;
+    case PROTO_ICMP:
+      fprintf (stream, "Portcfg `%s': ICMP (%s|%s)\n", this->name,
+	       this->icmp_ipaddr,
+	       svz_inet_ntoa (this->icmp_addr.sin_addr.s_addr));
+      break;
+    case PROTO_RAW:
+      fprintf (stream, "Portcfg `%s': RAW (%s|%s)\n", this->name,
+	       this->raw_ipaddr,
+	       svz_inet_ntoa (this->raw_addr.sin_addr.s_addr));
+      break;
+    case PROTO_PIPE:
+      /* FIXME: implement me */
+      fprintf (stream, "Portcfg `%s': PIPE but unimplemented\n", this->name);
+      break;
+    default:
+      fprintf (stream, "Portcfg with invalid proto field %d\n", this->proto);
+    }
+
 }

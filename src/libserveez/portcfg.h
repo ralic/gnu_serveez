@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.3 2001/04/10 17:49:41 ela Exp $
+ * $Id: portcfg.h,v 1.4 2001/04/13 22:17:42 raimi Exp $
  *
  */
 
@@ -134,6 +134,7 @@ svz_portcfg_t;
 #define tcp_port protocol.tcp.port
 #define tcp_addr protocol.tcp.addr
 #define tcp_ipaddr protocol.tcp.ipaddr
+#define tcp_backlog protocol.tcp.backlog
 
 #define udp_port protocol.udp.port
 #define udp_addr protocol.udp.addr
@@ -160,6 +161,8 @@ SERVEEZ_API svz_portcfg_t *svz_portcfg_del __P ((char *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_get __P ((char *));
 SERVEEZ_API void svz_portcfg_destroy __P ((svz_portcfg_t *port));
 SERVEEZ_API void svz_portcfg_finalize __P ((void));
+SERVEEZ_API int svz_portcfg_mkaddr __P ((svz_portcfg_t *this));
+SERVEEZ_API void svz_portcfg_print __P ((svz_portcfg_t *this, FILE *stream));
 
 __END_DECLS
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.4 2001/04/01 13:32:29 ela Exp $
+ * $Id: core.c,v 1.5 2001/04/13 22:17:42 raimi Exp $
  *
  */
 
@@ -259,7 +259,6 @@ svz_inet_ntoa (unsigned long ip)
 	   ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
 #endif
   return addr;
-
 #endif /* BROKEN_INET_NTOA */
 }
 
@@ -268,10 +267,22 @@ svz_inet_ntoa (unsigned long ip)
  * numbers-and-dots notation into binary data and stores it in the 
  * structure that @var{addr} points to. @code{svz_inet_aton()} returns 
  * zero if the address is valid, nonzero if not.
+ * This function handles an ip address of "*" special and sets INADDR_ANY
+ * for it.
  */
 int
 svz_inet_aton (char *str, struct sockaddr_in *addr)
 {
+
+/* handle "*" special: use INADDR_ANY for it
+ */
+if (0 == strcmp (str, "*"))
+{
+  /* FIXME: does that work ? */
+  addr->sin_addr.s_addr = INADDR_ANY;
+  return 0;
+}
+
 #if HAVE_INET_ATON
   if (inet_aton (str, &addr->sin_addr) == 0)
     {
