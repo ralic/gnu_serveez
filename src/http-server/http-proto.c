@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.21 2000/07/27 15:19:58 ela Exp $
+ * $Id: http-proto.c,v 1.22 2000/07/27 22:32:59 raimi Exp $
  *
  */
 
@@ -444,6 +444,12 @@ http_send_file (socket_t sock)
       return -1;
     }
 
+  /* bogus file. filesize from stat() wasnt true */
+  if (num_written == 0 && http->filelength != 0)
+    {
+      return -1;
+    }
+
   /* Data has been read or EOF reached, set the apropiate flags. */
   http->filelength -= num_written;
 
@@ -587,6 +593,12 @@ http_file_read (socket_t sock)
   if (num_read < 0)
     {
       log_printf (LOG_ERROR, "http: read: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  /* bogus file. filesize from stat() wasnt true */
+  if (num_read == 0 && http->filelength != 0)
+    {
       return -1;
     }
 
@@ -1020,6 +1032,18 @@ http_get_response (socket_t sock, char *request, int flags)
     {
       log_printf (LOG_ERROR, "stat: %s (%s)\n", SYS_ERROR, file);
       sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
+      sock->userflags |= HTTP_FLAG_DONE;
+      xfree (file);
+      return -1;
+    }
+
+  /* make sure we dont send any devices or strange files */
+  if (!(S_ISREG (buf.st_mode) ||
+	S_ISLNK (buf.st_mode) ||
+	S_ISDIR (buf.st_mode)) )
+    {
+      log_printf (LOG_ERROR, "%s: not a file, link or directory:\n", file);
+      sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return -1;

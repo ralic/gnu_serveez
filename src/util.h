@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.12 2000/07/26 14:56:08 ela Exp $
+ * $Id: util.h,v 1.13 2000/07/27 22:32:59 raimi Exp $
  *
  */
 
@@ -226,6 +226,7 @@ const char * util_hstrerror (void);
 #define S_ISDIR(Mode) ((Mode) & S_IFDIR)
 #define S_ISCHR(Mode) ((Mode) & S_IFCHR)
 #define S_ISREG(Mode) ((Mode) & S_IFREG)
+#define S_ISLNK(Mode) S_ISREG (Mode)
 #endif /* not S_ISDIR */
 
 #else /* Unices here. */
