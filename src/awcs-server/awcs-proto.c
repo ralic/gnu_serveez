@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.13 2000/07/26 14:56:08 ela Exp $
+ * $Id: awcs-proto.c,v 1.14 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -689,7 +689,8 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
     }
   else
     {
-      if (!(ret = sock_printf (cfg->server, "%04d ", sock->socket_id)))
+      ret = sock_printf (cfg->server, "%04d ", sock->socket_id);
+      if (ret == 0)
 	{
 	  ret = sock_write (cfg->server, request, request_len);
 	}

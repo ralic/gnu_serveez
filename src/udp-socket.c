@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.1 2000/07/26 14:56:08 ela Exp $
+ * $Id: udp-socket.c,v 1.2 2000/07/27 15:19:57 ela Exp $
  *
  */
 
@@ -69,7 +69,7 @@ udp_read_socket (socket_t sock)
   
   num_read = recvfrom (sock->sock_desc,
 		       sock->recv_buffer + sock->recv_buffer_fill,
-		       do_read, 0, &sender, &len);
+		       do_read, 0, (struct sockaddr *) &sender, &len);
 
   /* Valid packet data arrived. */
   if (num_read > 0)
@@ -124,7 +124,7 @@ udp_write_socket (socket_t sock)
 
   num_written = sendto (sock->sock_desc, sock->send_buffer,
 			sock->send_buffer_fill,
-			0, &receiver, len);
+			0, (struct sockaddr *) &receiver, len);
   
   /* Some error occured while sending. */
   if (num_written < 0)

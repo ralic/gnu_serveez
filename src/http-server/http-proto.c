@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.20 2000/07/25 16:24:27 ela Exp $
+ * $Id: http-proto.c,v 1.21 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -876,7 +876,7 @@ http_info_client (void *http_cfg, socket_t sock)
     }
   if (sock->userflags & HTTP_FLAG_CGI)
     {
-      sprintf (text, "  * sending cgi output (pid: %d)\r\n", http->pid);
+      sprintf (text, "  * sending cgi output (pid: %d)\r\n", (int) http->pid);
       strcat (info, text);
     }
   if (sock->userflags & HTTP_FLAG_POST)
@@ -885,7 +885,7 @@ http_info_client (void *http_cfg, socket_t sock)
 	       "  * receiving cgi input\r\n"
 	       "    pid            : %d\r\n"
 	       "    content-length : %d bytes left\r\n", 
-	       http->pid, 
+	       (int) http->pid, 
 	       http->contentlength);
       strcat (info, text);
     }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.14 2000/07/25 16:24:26 ela Exp $
+ * $Id: control-proto.c,v 1.15 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -325,9 +325,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 {
   int id, n;
   socket_t xsock;
-  char flags[128];
   char proto[128];
-  char info[128];
   server_t *server;
   int_coserver_t *coserver;
 
@@ -615,9 +613,8 @@ ctrl_kill_cache (socket_t sock, int flag, char *arg)
 int
 ctrl_stat_all (socket_t sock, int flag, char *arg)
 {
-  int client, n;
+  int n;
   int_coserver_t *coserver;
-  socket_t xsock;
   server_t *server;
 
   /* go through all server instances */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.13 2000/07/26 14:56:08 ela Exp $
+ * $Id: util.c,v 1.14 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -187,8 +187,8 @@ util_strcasecmp (const char *str1, const char *str2)
 #elif defined HAVE_STRICMP
   return stricmp (str1, str2);
 #else
-  char *p1 = str1;
-  char *p2 = str2;
+  const char *p1 = str1;
+  const char *p2 = str2;
   unsigned char c1, c2;
 
   if (p1 == p2) return 0;
@@ -215,8 +215,8 @@ util_strncasecmp (const char *str1, const char *str2, size_t n)
 #elif defined HAVE_STRNICMP
   return strnicmp (str1, str2, n);
 #else
-  char *p1 = str1;
-  char *p2 = str2;
+  const char *p1 = str1;
+  const char *p2 = str2;
   unsigned char c1, c2;
 
   if (p1 == p2) return 0;

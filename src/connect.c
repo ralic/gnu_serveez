@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: connect.c,v 1.8 2000/07/25 16:24:26 ela Exp $
+ * $Id: connect.c,v 1.9 2000/07/27 15:19:57 ela Exp $
  *
  */
 
@@ -100,7 +100,7 @@ sock_connect (unsigned host, int port)
   /*
    * create socket structure and enqueue it
    */
-  if (!(sock = sock_alloc ()))
+  if ((sock = sock_alloc ()) == NULL)
     return NULL;
 
   sock_unique_id (sock);
@@ -113,7 +113,7 @@ sock_connect (unsigned host, int port)
    */
   server.sin_family = AF_INET;
   server.sin_addr.s_addr = host;
-  server.sin_port = port;
+  server.sin_port = (unsigned short) port;
   
   if (connect (client_socket, (struct sockaddr *) &server,
 	       sizeof (server)) == -1)

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.15 2000/07/25 16:24:26 ela Exp $
+ * $Id: server.c,v 1.16 2000/07/27 15:19:57 ela Exp $
  *
  */
 
@@ -488,17 +488,18 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
   /* 
    * FIXME: better checking if that is really a hash.
    */
-  if (!vector_p (hash) || error_p(hash)) 
+  if (!vector_p (hash) || error_p (hash)) 
     {
       fprintf (stderr, "%s: %s is not a hash\n", cfgfile, var);
       return NULL;
     }
 
-  newserver = (char *) xpmalloc (sd->prototype_size);
   /*
-   * FIXME: use again
-   * memcpy (newserver, sd->prototype_start, sd->prototype_size);
+   * Make a simple copy of the example configuration structure 
+   * definition for that server instance.
    */
+  newserver = (char *) xpmalloc (sd->prototype_size);
+  memcpy (newserver, sd->prototype_start, sd->prototype_size);
 
   for (i = 0; sd->items[i].type != ITEM_END; i++)
     {

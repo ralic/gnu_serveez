@@ -1,3 +1,11 @@
+2000-07-27  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-cache.c (http_cache_disconnect): First
+	check if there is a cache entry.
+
+	* server.c (server_instantiate): Copy example configuration
+	definition to server instance config.
+
 2000-07-26  [ Ela ]  <ela@lkcc.org>
 
 	* udp-socket.c (udp_read_socket): Default reader for
@@ -755,7 +763,7 @@
 	* server.c (check_sockets): Do not put a socket into the
 	write FD_SET if it was unavailable.
 
-2000-01-29    <Ela@LAPTOP>
+2000-01-29  [ Ela ]  <ela@lkcc.org>
 
 	* ident.c: Implemented ident requester as internal coserver.
 	(ident_handle_request): Get a request from the coserver and

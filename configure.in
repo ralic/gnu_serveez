@@ -51,7 +51,6 @@ dnl Check for a proper C compiler.
 dnl
 AC_PROG_CC
 AC_C_CONST
-AC_C_INLINE
 AC_CHECK_SIZEOF(unsigned, 8)
 AC_CHECK_SIZEOF(void *, 8)
 
@@ -1021,10 +1020,17 @@ dnl Check for times().
 dnl
 AC_CHECK_FUNCS(times)
 
-[LIBS="$LIBS $EXTRALIBS"]
+dnl Find a working inline.
+save_cflags="$CFLAGS"
+CFLAGS="$CFLAGS $CPPEXTRAFLAGS"
+AC_C_INLINE
+CFLAGS="$save_cflags"
+unset save_cflags
+
+LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS
 
-[TIMESTAMP=`date`]
+TIMESTAMP=`date`
 AC_SUBST(TIMESTAMP)
 
 dnl

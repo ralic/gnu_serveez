@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.1 2000/07/26 21:09:43 ela Exp $
+ * $Id: http-core.c,v 1.2 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -39,6 +39,7 @@
 #endif
 
 #ifdef __MINGW32__
+# include <winsock.h>
 # include <io.h>
 #endif
 

@@ -4,7 +4,8 @@
 #
 # Automake input file.
 #
-# Copyright (C) 2000 Ela & Raimi
+# Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
+# Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,7 +23,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-noinst_LIBRARIES=libfoo.a
+noinst_LIBRARIES = libfoo.a
 
 AM_CPPFLAGS = -I..
 

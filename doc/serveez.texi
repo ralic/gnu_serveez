@@ -1181,6 +1181,62 @@ filesystem node is located on a NFS. Named pipes on Unices are
 unidirectional, on Win32 these are bidirectional and instanciatable.
 @end table
 
+If if you want to compile Serveez with the native M$ Visual C++ compiler
+you have to go quite a long way. But it is possible anyway. We assume you
+got a Cygwin development environment somewhere, the Developer Studio
+installation and @samp{serveez} and @samp{sizzle} in separate directories.
+
+@table @asis
+@item Step 1. Create development environment for VC.
+In order to create both of the @file{config.h} files we need to execute
+the @file{configure} script.
+@example
+@group
+$ c:\Programme\DevStudio\VC\bin\VCVARS32.BAT
+$ set PATH=%PATH%;c:\Programme\cygnus\cygwin-b20\H-i586-cygwin32\bin
+$ set CC=cl -D__MINGW32__ -D_WIN32
+$ set LD=link
+@end group
+@end example
+@item Step 2. Configure.
+@example
+@group
+$ sh configure --with-sizzle=../sizzle/
+@end group
+@end example
+@item Step 3. Create project and workspace for both Serveez and Sizzle.
+Start your Developer Studio and create a new project. For Serveez you need
+to create a @samp{Win32 console application} and for Sizzle a
+@samp{Win32 static library} then. For both projects you need to add all
+the @file{.c} files form @file{src/} (Serveez) and @file{libsizzle/}
+(Sizzle).
+
+@item Step 4. Define options.
+For configuring your projects you press @key{Alt-F7}. Make the following
+definitions:
+
+@table @asis
+@item Preprocessor.
+@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__MAKEDLL__=1} for 
+Sizzle and
+@code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__USDLL__=1} for Serveez.
+
+@item Include directories.
+Add the following paths: @file{.,..,../sizzle,./src,../..}.
+
+@item Object-Modules.
+Simply add @file{wsock32.lib} and @file{sizzle.lib} (for Serveez only).
+
+@item Library paths.
+In order to link against the previously created Sizzle library you have
+to specify the additional library path @file{../sizzle/libsizzle} in the
+Serveez project.
+@end table
+@end table
+
+Compiling now via @key{F7} you got a completely native Win32 application
+which is linked agains the @file{KERNEL32.DLL} and @file{WINSOCK32.DLL}.
+
 Now follows the list on which operating systems and architectures
 Serveez has been build and tested successfully.
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.10 2000/07/20 14:39:54 ela Exp $
+ * $Id: irc-core.c,v 1.11 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -187,7 +187,6 @@ irc_check_request (socket_t sock)
   int retval = 0;
   int request_len = 0;
   char *p, *packet;
-  unsigned char *a;
 
   p = sock->recv_buffer;
   packet = p;
@@ -201,19 +200,10 @@ irc_check_request (socket_t sock)
         {
           p++;
           request_len += (p - packet);
-	  
-#if ENABLE_DEBUG > 1
-	  printf ("irc packet (%03d): '", p - packet - 1);
-	  for (a = (unsigned char *)packet; (char *) a < p; a++)
-	    {
-	      if (*a >= ' ' && *a < 128) 
-		printf ("%c", *a);
-	      else 
-		printf ("{0x%02x}", *a);
-	    }
-	  printf ("'\n");
+#if 0
+	  util_hexdump (stdout, "irc packet", sock->sock_desc,
+			packet, p - packet, 0);
 #endif
-
           retval = irc_handle_request (sock, packet, 
 				       p - packet - ((*(p-2) == '\r')?2:1));
           packet = p;

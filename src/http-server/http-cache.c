@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.10 2000/07/25 16:24:26 ela Exp $
+ * $Id: http-cache.c,v 1.11 2000/07/27 15:19:58 ela Exp $
  *
  */
 
@@ -208,7 +208,7 @@ http_cache_disconnect (socket_t sock)
 {
   http_socket_t *http = sock->data;
 
-  if (http->cache->entry)
+  if (http->cache && http->cache->entry)
     {
       /* if the cache entry has not been fully read then free it */
       if (!http->cache->entry->ready)
