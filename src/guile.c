@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.4 2001/04/10 17:49:41 ela Exp $
+ * $Id: guile.c,v 1.5 2001/04/12 09:12:35 ela Exp $
  *
  */
 
@@ -405,7 +405,7 @@ guile_exception (void *data, SCM tag, SCM args)
   fprintf (stderr, ": ");
   gh_display (args);
   gh_newline ();
-  return SCM_UNSPECIFIED;
+  return SCM_UNDEFINED;
 }
 
 /*
@@ -416,7 +416,7 @@ int
 guile_load_config (char *cfgfile)
 {
   guile_init ();
-  if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_UNSPECIFIED)
+  if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_UNDEFINED)
     return -1;
   return 0;
 }
