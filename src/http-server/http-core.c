@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.20 2000/12/01 13:46:56 ela Exp $
+ * $Id: http-core.c,v 1.21 2000/12/03 14:37:32 ela Exp $
  *
  */
 
@@ -56,10 +56,14 @@
 #include "alloc.h"
 #include "windoze.h"
 #include "hash.h"
+#include "snprintf.h"
 #include "serveez.h"
 #include "server-core.h"
 #include "http-proto.h"
 #include "http-core.h"
+
+/* the current http header structure */
+http_header_t http_header;
 
 /*
  * In Win32 OS's both of these defines are necessary for portability.
@@ -343,6 +347,68 @@ http_log (socket_t sock)
 }
 
 /*
+ * Reset the current http header structure.
+ */
+void
+http_reset_header (void)
+{
+  http_header.code = 0;
+  http_header.field[0] = '\0';
+  http_header.response = NULL;
+}
+
+/*
+ * Add a response header field to the current header.
+ */
+void
+http_add_header (const char *fmt, ...)
+{
+  va_list args;
+  int len = strlen (http_header.field);
+  char *p = http_header.field + len;
+  
+  if (len >= HTTP_HEADER_SIZE) return;
+  va_start (args, fmt);
+  vsnprintf (p, HTTP_HEADER_SIZE - len, fmt, args);
+  va_end (args);
+}
+
+/*
+ * Send the http header.
+ */
+int
+http_send_header (socket_t sock)
+{
+  int ret = 0;
+
+  /* send first part of header including response field and static texts */
+  ret = sock_printf (sock, 
+		     "%s"
+		     "Date: %s\r\n"
+		     "Server: %s/%s\r\n",
+		     http_header.response,
+		     http_asc_date (time (NULL)),
+		     serveez_config.program_name,
+		     serveez_config.version_string);
+  if (ret) return ret;
+
+  /* send header fields and trailing line break */
+  ret = sock_printf (sock, "%s\r\n", http_header.field);
+  if (ret) return ret;
+  
+  return 0;
+}
+
+/*
+ * Set the current http header response.
+ */
+void
+http_set_header (char *response)
+{
+  http_header.response = response;
+}
+
+/*
  * Create a http content range if the given line specifies a valid one.
  * Return zero on succes and -1 on errors.
  */
@@ -510,16 +576,16 @@ http_check_keepalive (socket_t sock)
   if ((sock->userflags & HTTP_FLAG_KEEP) && http->keepalive > 0)
     {
       sock->idle_counter = cfg->timeout;
-      sock_printf (sock, "Connection: Keep-Alive\r\n");
-      sock_printf (sock, "Keep-Alive: timeout=%d, max=%d\r\n", 
-		   sock->idle_counter, cfg->keepalive);
+      http_add_header ("Connection: Keep-Alive\r\n");
+      http_add_header ("Keep-Alive: timeout=%d, max=%d\r\n", 
+		       sock->idle_counter, cfg->keepalive);
       http->keepalive--;
     }
   /* tell HTTP/1.1 clients that the connection is closed after delivery */
   else
     {
       sock->userflags &= ~HTTP_FLAG_KEEP;
-      sock_printf (sock, "Connection: close\r\n");
+      http_add_header ("Connection: close\r\n");
     }
 }
 

@@ -1,3 +1,10 @@
+2000-12-02  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-core.c: Added http_add_header, http_set_header,
+	http_send_header and http_reset_header for building a valid
+	http header. These are currently used within the GET response
+	rouines.
+
 2000-12-01  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-proto.c (http_get_response): Checking for

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.7 2000/12/01 13:46:56 ela Exp $
+ * $Id: http-core.h,v 1.8 2000/12/03 14:37:32 ela Exp $
  *
  */
 
@@ -34,6 +34,30 @@
 
 #include "socket.h"
 #include "http-cache.h"
+
+/* Some definitions. */
+#define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */
+#define MAJOR_VERSION       0          /* MajorVersion index */
+#define MINOR_VERSION       1          /* MinorVersion index */
+#define MAX_HTTP_PROPERTIES 32         /* all http properties */
+#define CRLF                0x0A0D     /* \r\n */
+#define CRLF2               0x0A0D0A0D /* \r\n\r\n */
+#define HTTP_REQUESTS       8          /* number of known request types */
+#define HTTP_TIMEOUT        15         /* default timeout value */
+#define HTTP_MAXKEEPALIVE   10         /* number of requests per connection */
+#define HTTP_HEADER_SIZE    (1 * 1024) /* maximum header size */
+
+/*
+ * The following structure is meant to hold a http response headers
+ * data.
+ */
+typedef struct
+{
+  char *response;               /* text representation of response */
+  int code;                     /* response code */
+  char field[HTTP_HEADER_SIZE]; /* holds header fields */
+}
+http_header_t;
 
 /*
  * The content range structure defines a http content range for partial
@@ -70,18 +94,8 @@ struct http_socket
   http_range_t range;    /* partial content range */
 };
 
-/* Some definitions. */
-#define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */
-#define MAJOR_VERSION       0          /* MajorVersion index */
-#define MINOR_VERSION       1          /* MinorVersion index */
-#define MAX_HTTP_PROPERTIES 32         /* all http properties */
-#define CRLF                0x0A0D     /* \r\n */
-#define CRLF2               0x0A0D0A0D /* \r\n\r\n */
-#define HTTP_REQUESTS       8          /* number of known request types */
-#define HTTP_TIMEOUT        15         /* default timeout value */
-#define HTTP_MAXKEEPALIVE   10         /* number of requests per connection */
-
-#define HTTP_VERSION "HTTP/1.0"        /* the current HTTP protocol version */
+/* the current HTTP protocol version */
+#define HTTP_VERSION "HTTP/1.0"
 
 /* HTTP resonse header definitions */
 #define HTTP_OK              HTTP_VERSION " 200 OK\r\n"
@@ -132,6 +146,15 @@ int http_error_response (socket_t sock, int response);
 void http_log (socket_t sock);
 time_t http_parse_date (char *date);
 char *http_asc_date (time_t t);
+
+void http_set_header (char *response);
+int http_send_header (socket_t sock);
+void http_reset_header (void);
+#ifndef __STDC__
+int http_add_header ();
+#else
+void http_add_header (const char *fmt, ...);
+#endif
 
 #ifdef __MINGW32__
 void http_start_netapi (void);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.46 2000/12/01 13:46:56 ela Exp $
+ * $Id: http-proto.c,v 1.47 2000/12/03 14:37:32 ela Exp $
  *
  */
 
@@ -1086,6 +1086,9 @@ http_get_response (socket_t sock, char *request, int flags)
   http_socket_t *http;
   http_config_t *cfg = sock->cfg;
 
+  /* reset current http header */
+  http_reset_header ();
+
   /* get the http socket structure */
   http = sock->data;
 
@@ -1225,13 +1228,12 @@ http_get_response (socket_t sock, char *request, int flags)
   /* if directory then relocate to it */
   if (S_ISDIR (buf.st_mode))
     {
-      http->response = 302;
       host = http_find_property (http, "Host");
-      sock_printf (sock, "%sLocation: %s%s%s/\r\n\r\n", 
-		   HTTP_RELOCATE, 
-		   host ? "http://" : "", 
-		   host ? host : "", 
-		   request);
+      http->response = 302;
+      http_set_header (HTTP_RELOCATE);
+      http_add_header ("Location: %s%s%s/\r\n", 
+		       host ? "http://" : "", host ? host : "", request);
+      http_send_header (sock);
       sock->userflags |= HTTP_FLAG_DONE;
       xfree (file);
       return 0;
@@ -1271,14 +1273,9 @@ http_get_response (socket_t sock, char *request, int flags)
 	  log_printf (LOG_DEBUG, "http: %s not changed\n", file);
 #endif
 	  http->response = 304;
-	  sock_printf (sock, HTTP_NOT_MODIFIED);
-	  sock_printf (sock, "Date: %s\r\n", http_asc_date (time (NULL)));
-	  sock_printf (sock, "Server: %s/%s\r\n", 
-		       serveez_config.program_name,
-		       serveez_config.version_string);
+	  http_set_header (HTTP_NOT_MODIFIED);
 	  http_check_keepalive (sock);
-	  sock_printf (sock, "\r\n");
-
+	  http_send_header (sock);
 	  close (fd);
 	  sock->userflags |= HTTP_FLAG_DONE;
 	  xfree (file);
@@ -1318,23 +1315,15 @@ http_get_response (socket_t sock, char *request, int flags)
   if (!(flags & HTTP_FLAG_SIMPLE))
     {
       http->response = 200;
-      sock_printf (sock, HTTP_OK);
-      sock_printf (sock, "Content-Type: %s\r\n", 
-		   http_find_content_type (sock, file));
+      http_set_header (HTTP_OK);
+      http_add_header ("Content-Type: %s\r\n",
+		       http_find_content_type (sock, file));
       if (buf.st_size > 0)
-	sock_printf (sock, "Content-Length: %d\r\n", buf.st_size);
-      sock_printf (sock, "Server: %s/%s\r\n", 
-		   serveez_config.program_name,
-		   serveez_config.version_string);
-      sock_printf (sock, "Date: %s\r\n", http_asc_date (time (NULL)));
-      sock_printf (sock, "Last-Modified: %s\r\n", 
-		   http_asc_date (buf.st_mtime));
-      sock_printf (sock, "Accept-Ranges: bytes\r\n");
-
+	http_add_header ("Content-Length: %d\r\n", buf.st_size);
+      http_add_header ("Last-Modified: %s\r\n", http_asc_date (buf.st_mtime));
+      http_add_header ("Accept-Ranges: bytes\r\n");
       http_check_keepalive (sock);
-
-      /* request footer */
-      sock_printf (sock, "\r\n");
+      http_send_header (sock);
     }
 
   /* just a HEAD response handled by this GET handler */
