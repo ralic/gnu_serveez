@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.15 2001/07/02 11:46:34 ela Exp $
+ * $Id: util.c,v 1.16 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -278,7 +278,8 @@ svz_tolower (char *str)
 
   while (*p)
     {
-      *p = (char) (isupper ((byte) * p) ? tolower ((byte) * p) : *p);
+      *p = (char) (isupper ((svz_uint8_t) * p) ? 
+		   tolower ((svz_uint8_t) * p) : *p);
       p++;
     }
   return str;

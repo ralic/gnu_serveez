@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.37 2001/07/03 20:02:42 ela Exp $
+ * $Id: nut-transfer.c,v 1.38 2001/08/01 10:16:23 ela Exp $
  *
  */
 
@@ -549,7 +549,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       /* create new gnutella header */
       nut_calc_guid (hdr.id);
       hdr.function = NUT_PUSH_REQ;
-      hdr.ttl = (byte) cfg->ttl;
+      hdr.ttl = (svz_uint8_t) cfg->ttl;
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_PUSH;
 

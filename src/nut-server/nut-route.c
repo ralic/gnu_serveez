@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.18 2001/07/03 20:02:42 ela Exp $
+ * $Id: nut-route.c,v 1.19 2001/08/01 10:16:23 ela Exp $
  *
  */
 
@@ -62,8 +62,9 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   key = extract = p = svz_strdup (query);
   while (*p)
     {
-      if (isalnum ((byte) *p)) 
-	*extract++ = (char) (isupper ((byte) *p) ? tolower ((byte) *p) : *p);
+      if (isalnum ((svz_uint8_t) *p)) 
+	*extract++ = (char) (isupper ((svz_uint8_t) *p) ? 
+			     tolower ((svz_uint8_t) *p) : *p);
       p++;
     }
   *extract = '\0';
@@ -99,7 +100,8 @@ nut_canonize_query (nut_config_t *cfg, char *query)
  * -1 = invalid packet, do not process at all
  */
 int
-nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
+nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr, 
+		     svz_uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
@@ -209,7 +211,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
       svz_log (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
 	       hdr->ttl, cfg->max_ttl);
 #endif
-      hdr->ttl = (byte) cfg->max_ttl;
+      hdr->ttl = (svz_uint8_t) cfg->max_ttl;
     }
 
   if (hdr->ttl + hdr->hop > cfg->max_ttl)
@@ -218,7 +220,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
       svz_log (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
 	       hdr->ttl, cfg->max_ttl - hdr->hop);
 #endif
-      hdr->ttl = (byte) (cfg->max_ttl - hdr->hop);
+      hdr->ttl = (svz_uint8_t) (cfg->max_ttl - hdr->hop);
     }
 
   return 1;
@@ -230,13 +232,13 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
  * zero.
  */
 int
-nut_route (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
+nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_packet_t *pkt;
   svz_socket_t *xsock;
   svz_socket_t **conn;
-  byte *header;
+  svz_uint8_t *header;
   int n;
 
   /* packet validation */

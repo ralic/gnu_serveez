@@ -18,7 +18,7 @@
  * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, Ma 02111-1307, Usa.  
  *
- * $Id: irc-crypt.h,v 1.4 2001/01/28 03:26:55 ela Exp $
+ * $Id: irc-crypt.h,v 1.5 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -32,8 +32,8 @@
 #define IRC_CRYPT_BYTE   42
 #define IRC_CRYPT_PREFIX '#'
 
-byte irc_gen_key (char *pass);
-void irc_encrypt_text (char *text, byte key);
-char *irc_decrypt_text (char *crypt, byte key);
+svz_uint8_t irc_gen_key (char *pass);
+void irc_encrypt_text (char *text, svz_uint8_t key);
+char *irc_decrypt_text (char *crypt, svz_uint8_t key);
 
 #endif /* not __IRC_CRYPT_H__ */

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.12 2001/07/30 10:15:25 ela Exp $
+ * $Id: util.h,v 1.13 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -48,7 +48,7 @@ extern char *getpass __P ((const char *prompt));
 #endif /* __CRYPT_IMPORT__ */
 #endif
 
-typedef unsigned char byte;
+typedef unsigned char svz_uint8_t;
 
 /* 
  * level of server's verbosity:

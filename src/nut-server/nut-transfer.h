@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.10 2001/05/19 23:04:58 ela Exp $
+ * $Id: nut-transfer.h,v 1.11 2001/08/01 10:16:23 ela Exp $
  *
  */
 
@@ -58,7 +58,7 @@ typedef struct
   int id;            /* original socket id */
   int version;       /* original socket version */
   int index;         /* file index */
-  byte guid[NUT_GUID_SIZE]; /* guid of host providing the file */
+  svz_uint8_t guid[NUT_GUID_SIZE]; /* guid of host providing the file */
 }
 nut_transfer_t;
 

@@ -1,3 +1,9 @@
+2001-08-01  [ Ela ]  <ela@lkcc.org>
+
+	* util.h: Replaced definition of "byte" by "svz_uint8_t". 
+	Previous definition collided with Win32 headers. Changed all
+	callers.
+
 2001-07-31  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (svz_coserver_check): Do not restart 

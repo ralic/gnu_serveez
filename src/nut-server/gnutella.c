@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.41 2001/06/27 20:38:37 ela Exp $
+ * $Id: gnutella.c,v 1.42 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -288,12 +288,12 @@ nut_init_ping (svz_socket_t *sock)
   nut_client_t *client = sock->data;
   nut_packet_t *pkt;
   nut_header_t hdr;
-  byte *header;
+  svz_uint8_t *header;
 
   /* create new gnutella header */
   nut_calc_guid (hdr.id);
   hdr.function = NUT_PING_REQ;
-  hdr.ttl = (byte) cfg->ttl;
+  hdr.ttl = (svz_uint8_t) cfg->ttl;
   hdr.hop = 0;
   hdr.length = 0;
   header = nut_put_header (&hdr);
@@ -546,18 +546,18 @@ nut_disconnect (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   nut_host_t *host;
-  byte *id;
+  svz_uint8_t *id;
   char *key, **keys;
   int size, n;
   nut_packet_t *pkt;
   nut_client_t *client = sock->data;
 
   /* delete all push request routing information for this connection */
-  while ((id = (byte *) svz_hash_contains (cfg->reply, sock)) != NULL)
+  while ((id = (svz_uint8_t *) svz_hash_contains (cfg->reply, sock)) != NULL)
     svz_hash_delete (cfg->reply, (char *) id);
 
   /* delete all routing information for this connection */
-  while ((id = (byte *) svz_hash_contains (cfg->route, sock)) != NULL)
+  while ((id = (svz_uint8_t *) svz_hash_contains (cfg->route, sock)) != NULL)
     svz_hash_delete (cfg->route, (char *) id);
 
   /* drop all packet information for this connection */
@@ -683,20 +683,20 @@ nut_check_request (svz_socket_t *sock)
 {
   nut_client_t *client = sock->data;
   nut_header_t *hdr;
-  byte *packet;
+  svz_uint8_t *packet;
   int len = strlen (NUT_OK);
   unsigned fill = sock->recv_buffer_fill;
 
   /* go through all packets in the receive queue */
   while ((fill = sock->recv_buffer_fill) >= SIZEOF_NUT_HEADER)
     {
-      hdr = nut_get_header ((byte *) sock->recv_buffer);
+      hdr = nut_get_header ((svz_uint8_t *) sock->recv_buffer);
 
       /* is there enough data to fulfill a complete packet ? */
       if (fill >= SIZEOF_NUT_HEADER + hdr->length)
 	{
 	  len = SIZEOF_NUT_HEADER + hdr->length;
-	  packet = (byte *) sock->recv_buffer + SIZEOF_NUT_HEADER;
+	  packet = (svz_uint8_t *) sock->recv_buffer + SIZEOF_NUT_HEADER;
 	  client->packets++;
 #if 0
 	  svz_hexdump (stdout, "gnutella packet", sock->sock_desc,
@@ -755,7 +755,7 @@ nut_idle_searching (svz_socket_t *sock)
   nut_packet_t *pkt;
   nut_header_t hdr;
   nut_query_t query;
-  byte *header, *search;
+  svz_uint8_t *header, *search;
   char *text;
 
   /* search strings given ? */
@@ -776,7 +776,7 @@ nut_idle_searching (svz_socket_t *sock)
       /* create new gnutella packet */
       nut_calc_guid (hdr.id);
       hdr.function = NUT_SEARCH_REQ;
-      hdr.ttl = (byte) cfg->ttl;
+      hdr.ttl = (svz_uint8_t) cfg->ttl;
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_QUERY + strlen (text) + 1;
       query.speed = (unsigned short) cfg->min_speed;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.26 2001/06/27 20:38:37 ela Exp $
+ * $Id: gnutella.h,v 1.27 2001/08/01 10:16:23 ela Exp $
  *
  */
 
@@ -87,11 +87,11 @@
 /* gnutella header */
 typedef struct
 {
-  byte id[NUT_GUID_SIZE]; /* message ID */
-  byte function;          /* function ID */
-  byte ttl;               /* remaining TTL */
-  byte hop;               /* hop count */
-  unsigned int length;    /* data length */
+  svz_uint8_t id[NUT_GUID_SIZE]; /* message ID */
+  svz_uint8_t function;          /* function ID */
+  svz_uint8_t ttl;               /* remaining TTL */
+  svz_uint8_t hop;               /* hop count */
+  unsigned int length;           /* data length */
 }
 nut_header_t;
 #define SIZEOF_NUT_HEADER (NUT_GUID_SIZE + 7)
@@ -129,13 +129,13 @@ nut_record_t;
 /* search reply header */
 typedef struct
 {
-  byte records;           /* number of records which follow this header */
+  svz_uint8_t records;    /* number of records which follow this header */
   unsigned short port;    /* listening port number of the host */
   unsigned long ip;       /* ip address of the host, network byte order */
   unsigned short speed;   /* speed of the host which found the results */
   unsigned short pad;     /* dunno */
   nut_record_t record[1]; /* array of records */
-  byte id[NUT_GUID_SIZE]; /* clientID128 of the host which send the reply */
+  svz_uint8_t id[NUT_GUID_SIZE]; /* clientID128 sending the reply */
 }
 nut_reply_t;
 #define SIZEOF_NUT_REPLY (11)
@@ -143,7 +143,8 @@ nut_reply_t;
 /* client push request structure */
 typedef struct
 {
-  byte id[NUT_GUID_SIZE]; /* servers GUID the client wishes the push from */
+  /* servers GUID the client wishes the push from */
+  svz_uint8_t id[NUT_GUID_SIZE];
   unsigned int index;     /* index of file requested */
   unsigned long ip;       /* ip address of the host requesting the push */
   unsigned short port;    /* port number of the host requesting the push */
@@ -154,10 +155,10 @@ nut_push_t;
 /* gnutella host structure */
 typedef struct
 {
-  byte id[NUT_GUID_SIZE]; /* clientID128 GUID */
-  unsigned long ip;       /* IP address */
-  unsigned short port;    /* TCP port */
-  time_t last_reply;      /* last packet received */
+  svz_uint8_t id[NUT_GUID_SIZE]; /* clientID128 GUID */
+  unsigned long ip;              /* IP address */
+  unsigned short port;           /* TCP port */
+  time_t last_reply;             /* last packet received */
 }
 nut_host_t;
 
@@ -210,7 +211,7 @@ typedef struct
   int max_ttl;              /* maximum ttl for a gnutella packet */
   int ttl;                  /* initial ttl for a gnutella packet */
   svz_array_t *hosts;       /* array of initial hosts */
-  byte guid[NUT_GUID_SIZE]; /* this servers GUID */
+  svz_uint8_t guid[NUT_GUID_SIZE]; /* this servers GUID */
   svz_hash_t *route;        /* routing table */
   svz_hash_t *conn;         /* connected hosts hash */
   svz_array_t *search;      /* search pattern array */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.5 2001/06/08 15:37:37 ela Exp $
+ * $Id: icmp-socket.h,v 1.6 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -60,8 +60,8 @@
 /* ICMP header structure. */
 typedef struct
 {
-  byte type;               /* message type */
-  byte code;               /* type sub-code */
+  svz_uint8_t type;        /* message type */
+  svz_uint8_t code;        /* type sub-code */
   unsigned short checksum; /* check sum */
   unsigned short ident;    /* identifier */
   unsigned short sequence; /* sequence number */
@@ -86,7 +86,7 @@ SERVEEZ_API int svz_icmp_check_request __P ((svz_socket_t *));
 SERVEEZ_API svz_socket_t *svz_icmp_connect __P ((unsigned long,
 						 unsigned short,
 						 unsigned char));
-SERVEEZ_API int svz_icmp_send_control __P ((svz_socket_t *, byte));
+SERVEEZ_API int svz_icmp_send_control __P ((svz_socket_t *, svz_uint8_t));
 SERVEEZ_API int svz_icmp_write __P ((svz_socket_t *, char *, int));
 SERVEEZ_API int svz_icmp_printf __P ((svz_socket_t *, const char *, ...));
 

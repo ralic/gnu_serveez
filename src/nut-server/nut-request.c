@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.13 2001/07/03 20:02:42 ela Exp $
+ * $Id: nut-request.c,v 1.14 2001/08/01 10:16:23 ela Exp $
  *
  */
 
@@ -56,7 +56,7 @@
  * can check if the reply was created by a packet we sent ourselves.
  */
 int
-nut_reply (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
+nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
   svz_socket_t *xsock;
@@ -65,7 +65,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
   nut_client_t *client = sock->data;
   char *p, *end, *file;
   int n;
-  byte *id;
+  svz_uint8_t *id;
   nut_reply_t *reply;
 
   reply = nut_get_reply (packet);
@@ -106,7 +106,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
       /* go through all query hit records */
       for (n = 0; n < reply->records && p < end; n++)
 	{
-	  record = nut_get_record ((byte *) p);
+	  record = nut_get_record ((svz_uint8_t *) p);
 	  p += SIZEOF_NUT_RECORD;
 	  file = p;
 
@@ -150,14 +150,14 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
  * This is the callback for push requests.
  */
 int
-nut_push_request (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
+nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
   svz_socket_t *xsock;
   nut_push_t *push;
   nut_file_t *entry;
-  byte *header;
+  svz_uint8_t *header;
 
   push = nut_get_push (packet);
 
@@ -232,14 +232,14 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
  * This is called whenever there was a search query received.
  */
 int
-nut_query (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
+nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_reply_t reply;
   nut_record_t record;
   nut_query_t *query;
   nut_file_t *entry;
-  byte *file, *p, *buffer = NULL;
+  svz_uint8_t *file, *p, *buffer = NULL;
   unsigned n, len = 0, size;
   struct sockaddr_in *addr = NULL;
   svz_portcfg_t *port;
@@ -296,7 +296,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
     return 0;
 
   /* create gnutella search reply packet */
-  reply.records = (byte) n;
+  reply.records = (svz_uint8_t) n;
   if ((port = svz_sock_portcfg (sock)) != NULL)
     addr = svz_portcfg_addr (port);
   reply.ip = cfg->ip ? cfg->ip : addr ? 
@@ -329,7 +329,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
  * ping reply.
  */
 int
-nut_pong (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
+nut_pong (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 {
   nut_config_t *cfg = sock->cfg;
   svz_socket_t *xsock;
@@ -372,11 +372,11 @@ nut_pong (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
  * reply with our own configuration.
  */
 int
-nut_ping (svz_socket_t *sock, nut_header_t *hdr, byte *null)
+nut_ping (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *null)
 {
   nut_config_t *cfg = sock->cfg;
   nut_pong_t reply;
-  byte *header, *pong;
+  svz_uint8_t *header, *pong;
   struct sockaddr_in *addr = NULL;
   svz_portcfg_t *port = NULL;
 

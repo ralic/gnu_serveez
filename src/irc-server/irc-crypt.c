@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-crypt.c,v 1.7 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-crypt.c,v 1.8 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -42,19 +42,19 @@
 /*
  * Generate a key for the de- and encryption routine.
  */
-byte
+svz_uint8_t
 irc_gen_key (char *pass)
 {
-  byte *p;
+  svz_uint8_t *p;
   int n;
-  byte key;
+  svz_uint8_t key;
 
   key = 0;
   n = 0;
-  p = (byte *) pass;
+  p = (svz_uint8_t *) pass;
   while (*p)
     {
-      key += (byte) ((*p + n) ^ IRC_CRYPT_BYTE);
+      key += (svz_uint8_t) ((*p + n) ^ IRC_CRYPT_BYTE);
       n++;
       p++;
     }
@@ -65,11 +65,11 @@ irc_gen_key (char *pass)
  * Encrypt a string by a given key.
  */
 void
-irc_encrypt_text (char *text, byte key)
+irc_encrypt_text (char *text, svz_uint8_t key)
 {
   char crypt[MAX_MSG_LEN];
   char *t, *c;
-  byte code;
+  svz_uint8_t code;
 
   memset (crypt, 0, MAX_MSG_LEN);
   t = text;
@@ -77,8 +77,8 @@ irc_encrypt_text (char *text, byte key)
 
   while (*t)
     {
-      code = (byte) (*t ^ key);
-      if (code < (byte) 0x20 || code == IRC_CRYPT_PREFIX)
+      code = (svz_uint8_t) (*t ^ key);
+      if (code < (svz_uint8_t) 0x20 || code == IRC_CRYPT_PREFIX)
 	{
 	  *c++ = IRC_CRYPT_PREFIX;
 	  *c++ = (char) (code + IRC_CRYPT_PREFIX);
@@ -96,7 +96,7 @@ irc_encrypt_text (char *text, byte key)
  * Decrypt a string by a given key.
  */
 char *
-irc_decrypt_text (char *crypt, byte key)
+irc_decrypt_text (char *crypt, svz_uint8_t key)
 {
   static char text[MAX_MSG_LEN];
   char *t, *c;

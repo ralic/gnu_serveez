@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.20 2001/06/27 20:38:36 ela Exp $
+ * $Id: irc-proto.h,v 1.21 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -146,7 +146,7 @@ struct irc_client
   int channels;            /* amount of channels the client joined */
   svz_socket_t *sock;      /* this clients socket structure */
   int flag;                /* this client's user flags */
-  byte key;                /* the key */
+  svz_uint8_t key;         /* the key */
   char *pass;              /* the given password */
   char *away;              /* the away message if UMODE_AWAY is set */
   int hopcount;            /* the client's hopcount (server distance) */

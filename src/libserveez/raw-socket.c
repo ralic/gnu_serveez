@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.6 2001/06/17 14:17:37 ela Exp $
+ * $Id: raw-socket.c,v 1.7 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -56,7 +56,7 @@
  * Get IP header from plain data.
  */
 svz_ip_header_t *
-svz_raw_get_ip_header (byte *data)
+svz_raw_get_ip_header (svz_uint8_t *data)
 {
   static svz_ip_header_t hdr;
   unsigned short uint16;
@@ -91,11 +91,11 @@ svz_raw_get_ip_header (byte *data)
  * Put IP header to plain data. This is currently not in use but can be
  * used when creating raw sockets with setsockopt (SOL_IP, IP_HDRINCL).
  */
-byte *
+svz_uint8_t *
 svz_raw_put_ip_header (svz_ip_header_t *hdr)
 {
-  static byte buffer[IP_HEADER_SIZE];
-  byte *data = buffer;
+  static svz_uint8_t buffer[IP_HEADER_SIZE];
+  svz_uint8_t *data = buffer;
   unsigned short uint16;
   unsigned int uint32;
 
@@ -128,7 +128,7 @@ svz_raw_put_ip_header (svz_ip_header_t *hdr)
  * Recalculate any IP checksum.
  */
 unsigned short
-svz_raw_ip_checksum (byte *data, int len)
+svz_raw_ip_checksum (svz_uint8_t *data, int len)
 {
   register unsigned checksum = 0;
 
@@ -163,7 +163,7 @@ svz_raw_ip_checksum (byte *data, int len)
  * is valid, otherwise -1.
  */
 int
-svz_raw_check_ip_header (byte *data, int len)
+svz_raw_check_ip_header (svz_uint8_t *data, int len)
 {
   svz_ip_header_t *ip_header;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.3 2001/07/31 10:15:01 ela Exp $
+ * $Id: passthrough.c,v 1.4 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -60,11 +60,11 @@
  */
 int
 svz_sock_process (svz_socket_t *sock, char *bin, 
-		  char **argv, svz_envblock_t *envp)
+		  char **argv, svz_envblock_t *envp, int flag)
 {
-  HANDLE pid, in, out;
+  HANDLE in, out;
   char *dir = NULL, *p, *app, *file;
-  int len;
+  int len, ret = -1;
 
   if (sock == NULL || bin == NULL)
     return -1;
@@ -98,7 +98,57 @@ svz_sock_process (svz_socket_t *sock, char *bin,
       file = svz_strdup (bin);
     }
 
-#ifndef __MINGW32__
+  /* Depending on the given flag use different methods to passthrough
+     the connection. */
+  switch (flag)
+    {
+    case SVZ_PROCESS_FORK:
+      ret = svz_process_fork (file, dir, in, out, argv, envp);
+      break;
+    case SVZ_PROCESS_SHUFFLE:
+      break;
+    default:
+      svz_log (LOG_ERROR, "invalid flag (%d)\n", flag);
+      ret = -1;
+      break;
+    }
+
+  svz_free (file);
+  svz_free (dir);
+  return ret;
+}
+
+/*
+ * Create two more socket structure in order to passthrough the transactions
+ * of the given descriptors @var{in} and @var{out}.
+ */
+int
+svz_process_shuffle (svz_socket_t *sock, char *file, char *dir, 
+		     HANDLE in, HANDLE out, 
+		     char **argv, svz_envblock_t *envp)
+{
+  return -1;
+}
+
+/*
+ * Fork the current process and execute the program @var{file} in the
+ * working directory @var{dir}. Pass the descriptors @var{in} and @var{out}
+ * to stdin and stdout of the child process. Additional arguments to 
+ * @var{file} can be passed via the NULL terminated array of strings 
+ * @var{argv}. The environment is setup by @var{envp} which can be NULL to
+ * enforce the environment of the parent process. Returns -1 on errors
+ * and the child's process id on success.
+ */
+int
+svz_process_fork (char *file, char *dir, HANDLE in, HANDLE out, 
+		  char **argv, svz_envblock_t *envp)
+{
+#ifdef __MINGW32__
+  svz_log (LOG_FATAL, "fork() and exec() not supported\n");
+  return -1;
+#else /* __MINGW32__ */
+  int pid;
+
   /* The child process here. */
   if ((pid = fork ()) == 0)
     {
@@ -142,22 +192,15 @@ svz_sock_process (svz_socket_t *sock, char *bin,
   else if (pid == -1)
     {
       svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
-      svz_free (file);
-      svz_free (dir);
       return -1;
     }
 
   /* The parent process: Destroy the given socket object. */
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", bin, pid);
+  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", file, pid);
 #endif
-  svz_free (file);
-  svz_free (dir);
-  return 0;
-
-#else /* __MINGW32__ */
-  return -1;
-#endif /* not __MINGW32__ */
+  return pid;
+#endif /* __MINGW32__ */
 }
 
 /*

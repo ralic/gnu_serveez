@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.40 2001/07/31 10:15:00 ela Exp $
+ * $Id: http-core.c,v 1.41 2001/08/01 10:16:22 ela Exp $
  *
  */
 
@@ -83,7 +83,7 @@ http_header_t http_header;
  * Handle and function definitions for the NetApi interface. 
  */
 typedef NET_API_STATUS (__stdcall *GetUserInfoProc) (WCHAR *, WCHAR *,
-						     DWORD, byte **);
+						     DWORD, LPBYTE *);
 typedef NET_API_STATUS (__stdcall *FreeUserInfoProc) (void *);
 static FreeUserInfoProc FreeUserInfo = NULL;
 static GetUserInfoProc GetUserInfo = NULL;
