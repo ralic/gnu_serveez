@@ -2,7 +2,7 @@
  * ident-proto.c - fake ident server implementation
  *
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.16 2002/05/31 14:34:21 ela Exp $
+ * $Id: ident-proto.c,v 1.17 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -88,9 +88,7 @@ svz_servertype_t fakeident_server_definition =
   NULL,
   NULL,
   NULL,
-  &fakeident_config,
-  sizeof (fakeident_config),
-  fakeident_config_prototype
+  SVZ_CONFIG_DEFINE ("fakeident", fakeident_config, fakeident_config_prototype)
 };
 
 /*
@@ -219,7 +217,7 @@ fakeident_info_server (svz_server_t *server)
 
   if (cfg->username == NULL)
     {
-      sprintf (info, " signalling ERROR : NO-USER");
+      sprintf (info, " signaling ERROR : NO-USER");
     }
   else
     {

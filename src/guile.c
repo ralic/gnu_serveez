@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
  * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2002 Andreas Rottmann <a.rottmann@gmx.at>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -19,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.68 2002/09/28 10:33:48 ela Exp $
+ * $Id: guile.c,v 1.69 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -72,7 +73,7 @@ static SCM guile_load_port = SCM_UNDEFINED;
  * construct a @code{svz_hash_t} from it. The values of this hash are 
  * pointers to @code{guile_value_t} structures. The @code{guile_value_t} 
  * structure contains a @code{defined} field which counts the number of 
- * occurences of the key. Use @code{optionhash_validate} to make sure it 
+ * occurrences of the key. Use @code{optionhash_validate} to make sure it 
  * is 1 for each key. The @code{use} field is to make sure that each key 
  * was needed exactly once. Use @code{optionhash_validate} again to find 
  * out which ones were not needed.
@@ -605,7 +606,7 @@ optionhash_extract_int (svz_hash_t *hash,
 }
 
 /*
- * Exctract a string value from an option hash. Returns zero if it worked.
+ * Extract a string value from an option hash. Returns zero if it worked.
  * The memory for the string is newly allocated, no matter where it came
  * from.
  */
@@ -1046,6 +1047,83 @@ optionhash_extract_pipe (svz_hash_t *hash,
 }
 
 /*
+ * Instantiate a configurable type.  Takes four arguments: the name of
+ * the configurable @var{type}, the second is the type @var{name} in
+ * the configurable type's domain, the third is the @var{instance}
+ * name the newly instantiated type should get and the last is the
+ * configuration alist for the new instance.  Emits error messages (to
+ * stderr).  Returns @code{#t} when the instance was successfully
+ * created, @code{#f} in case of any error.
+ */
+#define FUNC_NAME "instantiate-config-type!"
+SCM
+guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
+{
+  int err = 0;
+  char *c_type = NULL, *c_name = NULL, *c_instance = NULL;
+  svz_hash_t *options = NULL;
+  char *error = NULL;
+  char *txt = NULL;
+  
+  /* Configure callbacks for the `svz_config_type_instantiate()' thing. */
+  svz_config_accessor_t accessor = {
+    optionhash_cb_before,   /* before */
+    optionhash_cb_integer,  /* integers */
+    optionhash_cb_boolean,  /* boolean */
+    optionhash_cb_intarray, /* integer arrays */
+    optionhash_cb_string,   /* strings */
+    optionhash_cb_strarray, /* string arrays */
+    optionhash_cb_hash,     /* hashes */
+    optionhash_cb_portcfg,  /* port configurations */
+    optionhash_cb_after     /* after */
+  };
+  
+  if (NULL == (c_type = guile_to_string (type)))
+    {
+      guile_error ("Invalid configurable type (string expected)");
+      FAIL ();
+    }
+  if (NULL == (c_name = guile_to_string (name)))
+    {
+      guile_error ("Invalid type identifier (string expected)");
+      FAIL ();
+    }
+  if (NULL == (c_instance = guile_to_string (instance)))
+    {
+      guile_error ("Invalid instance identifier (string expected)");
+      FAIL ();
+    }
+  
+  svz_asprintf (&txt, "defining %s `%s'", c_type, c_instance);
+
+  /* Extract options if any. */
+  if (SCM_UNBNDP (opts))
+    options = optionhash_create ();
+  else if (NULL == (options = guile_to_optionhash (opts, txt, 0)))
+    FAIL (); /* Message already emitted. */
+
+  err = svz_config_type_instantiate (c_type, c_name, c_instance,
+				     options, &accessor, &error);
+  if (err)
+    {
+      guile_error ("%s", error);
+      FAIL ();
+    }
+  
+ out:
+  svz_free (txt);
+  svz_free (error);
+  scm_c_free (c_type);
+  scm_c_free (c_name);
+  scm_c_free (c_instance);
+  optionhash_destroy (options);
+
+  guile_global_error |= err;
+  return err ? SCM_BOOL_T : SCM_BOOL_F;
+}
+#undef FUNC_NAME
+
+/*
  * Guile server definition. Use two arguments:
  * First is a (unique) server name of the form "type-something" where
  * "type" is the shortname of a servertype. Second is the optionhash that
@@ -1057,27 +1135,13 @@ optionhash_extract_pipe (svz_hash_t *hash,
 SCM
 guile_define_server (SCM name, SCM args)
 {
+  /* Note: this function could now as well be implemented in scheme
+     [rotty] */
   int err = 0;
   char *servername;
   char *servertype = NULL, *p = NULL;
-  svz_hash_t *options = NULL;
-  svz_servertype_t *stype;
-  svz_server_t *server = NULL;
-  char *txt = NULL;
-
-  /* Configure callbacks for the `svz_server_configure()' thing. */
-  svz_server_config_t configure = {
-    optionhash_cb_before,   /* before */
-    optionhash_cb_integer,  /* integers */
-    optionhash_cb_boolean,  /* boolean */
-    optionhash_cb_intarray, /* integer arrays */
-    optionhash_cb_string,   /* strings */
-    optionhash_cb_strarray, /* string arrays */
-    optionhash_cb_hash,     /* hashes */
-    optionhash_cb_portcfg,  /* port configurations */
-    optionhash_cb_after     /* after */
-  };
-
+  SCM retval = SCM_BOOL_F;
+  
   GUILE_PRECALL ();
 
   /* Check if the given server name is valid. */
@@ -1086,15 +1150,6 @@ guile_define_server (SCM name, SCM args)
       guile_error ("Invalid server name");
       FAIL ();
     }
-
-  txt = svz_malloc (256);
-  svz_snprintf (txt, 256, "defining server `%s'", servername);
-
-  /* Extract options if any. */
-  if (SCM_UNBNDP (args))
-    options = optionhash_create ();
-  else if (NULL == (options = guile_to_optionhash (args, txt, 0)))
-    FAIL (); /* Message already emitted. */
 
   /* Separate server description. */
   p = servertype = svz_strdup (servername);
@@ -1110,49 +1165,15 @@ guile_define_server (SCM name, SCM args)
       FAIL ();
     }
 
-  /* Find the definition by lookup with dynamic loading. */
-  if (NULL == (stype = svz_servertype_get (servertype, 1)))
-    {
-      guile_error ("No such server type: `%s'", servertype);
-      FAIL ();
-    }
-
   /* Instantiate and configure this server. */
-  server = svz_server_instantiate (stype, servername);
-  server->cfg = svz_server_configure (stype,
-				      servername,
-				      (void *) options,
-				      &configure);
-  if (NULL == server->cfg && stype->prototype_size)
-    {
-      svz_server_free (server);
-      FAIL (); /* Messages emitted by callbacks. */
-    }
-
-  /* Add server if configuration is ok, no error yet. */
-  if (!err)
-    {
-      if (svz_server_get (servername) != NULL)
-	{
-	  guile_error ("Duplicate server definition: `%s'", servername);
-	  svz_server_free (server);
-	  FAIL ();
-	}
-      svz_server_add (server);
-    }
-  else
-    {
-      svz_server_free (server);
-      FAIL ();
-    }
-
+  retval = guile_config_instantiate (scm_makfrom0str ("server"),
+				     scm_makfrom0str (servertype),
+				     name, args);
  out:
-  svz_free (txt);
   svz_free (servertype);
   scm_c_free (servername);
-  optionhash_destroy (options);
-  guile_global_error |= err;
-  return err ? SCM_BOOL_T : SCM_BOOL_F;
+  
+  return retval;
 }
 #undef FUNC_NAME
 
@@ -1176,7 +1197,7 @@ guile_define_port (SCM name, SCM args)
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
   svz_hash_t *options = NULL;
-  char *portname, *proto = NULL, *txt;
+  char *portname, *proto = NULL, *txt = NULL;
 
   GUILE_PRECALL ();
 
@@ -1188,8 +1209,7 @@ guile_define_port (SCM name, SCM args)
       FAIL ();
     }
 
-  txt = svz_malloc (256);
-  svz_snprintf (txt, 256, "defining port `%s'", portname);
+  svz_asprintf (&txt, "defining port `%s'", portname);
 
   if (NULL == (options = guile_to_optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
@@ -1346,7 +1366,7 @@ guile_define_port (SCM name, SCM args)
   err |= optionhash_extract_int (options, PORTCFG_RECV_BUFSIZE, 1, 0,
 				 &(cfg->recv_buffer_size), txt);
   
-  /* Aquire the connect frequency. */
+  /* Acquire the connect frequency. */
   if (cfg->proto & PROTO_TCP)
     err |= optionhash_extract_int (options, PORTCFG_FREQ, 1, 0,
 				   &(cfg->connect_freq), txt);
@@ -1809,6 +1829,10 @@ guile_init (void)
   /* primitive load including the loadpath */
   scm_c_define_gsubr ("serveez-load", 1, 0, 0, guile_serveez_load);
 
+  /* configurable types */
+  scm_c_define_gsubr ("instantiate-config-type!", 3, 1, 0, 
+		      guile_config_instantiate);
+  
 #if ENABLE_GUILE_SERVER
   guile_server_init ();
 #endif /* ENABLE_GUILE_SERVER */

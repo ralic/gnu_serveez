@@ -1,7 +1,7 @@
 /*
  * boot.c - configuration and boot functions
  *
- * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.21 2001/11/29 12:56:27 ela Exp $
+ * $Id: boot.c,v 1.22 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -158,6 +158,7 @@ svz_boot (void)
   svz_pipe_startup ();
   svz_dynload_init ();
   svz_codec_init ();
+  svz_config_type_init ();
 }
 
 /*
@@ -168,6 +169,7 @@ svz_halt (void)
 {
   svz_free_and_zero (svz_config.password);
   svz_portcfg_finalize ();
+  svz_config_type_finalize ();
   svz_codec_finalize ();
   svz_dynload_finalize ();
   svz_pipe_cleanup ();

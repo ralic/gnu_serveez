@@ -1,3 +1,16 @@
+2002-11-28  Andreas Rottmann  <rottmann@users.sourceforge.net>
+
+	* fakeident-server/ident-proto.c (fakeident_server_definition):
+	Use SVZ_DEFINE_CONFIG.
+
+2002-11-27  Andreas Rottmann  <rottmann@users.sourceforge.net>
+
+	* guile.c (guile_config_instantiate): New guile API function 
+	"instantiate-config-type!".
+	(guile_define_server): Use guile_config_instantiate(). 
+
+	* guile-server.c: Make it work with changed svz_servertype_t.
+	
 2002-10-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added `mkpassword.dsp' and 

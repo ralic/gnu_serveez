@@ -1,3 +1,63 @@
+2002-12-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* server.h, server.c, asprintf.h, asprintf.c, cfg.h, cfg.c:
+	Added appropriate documentation.
+	
+	* cfg.h (SVZ_CONFIG_DEFINE): Renamed from `SVZ_DEFINE_CONFIG'.
+	Changed all callers (in all server types).
+
+2002-11-27  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* cfg.c (svz_config_type_init): Add server configurable type.
+	
+	* server.h, server.c (svz_servertype_definition): New.
+	* server.c (svz_servertype_instantiate): New static function
+	(server	configurable type instantiator).
+	
+	* boot.c (svz_boot): Call svz_config_type_init().
+	(svz_halt): Call svz_config_type_finalize().
+	
+	* cfg.c (svz_config_type_add, svz_config_type_init)
+	(svz_config_type_finalize): New library functions.
+	* cfg.h (svz_config_type_t): New type, containing function 
+	pointer to instantiate a configurable type.
+	
+	* Makefile.am (libserveez_la_SOURCES): Added cfg.c and asprintf.c.
+	(libserveez_HEADERS): Added cfg.h and asprintf.h.
+	
+	* asprintf.h, asprintf.c: New; implementation of (v)asprintf.
+	(svz_asprintf, svz_vasprintf): New library functions.
+
+	* server.c (svz_server_free): Adapted for new svz_config_free().
+	(svz_server_configure): Use svz_config_instantiate().
+	(svz_servertype_print): Use svz_config_prototype_print().
+
+	* server.h (svz_servertype_t): Converted config prototype members
+	to svz_config_prototype_t config_prototype.
+	* server.h (svz_server_config_t): Typedef'd  svz_config_accessor_t.
+	* cfg.h (svz_server_config_t): Renamed to svz_config_accessor_t.
+	* server.h, cfg.h: Moved SVZ_REGISTER_ stuff and svz_server_config_t 
+	to cfg.h.
+	
+	* cfg.h (svz_config_prototype_t): New type.
+	* cfg.h, cfg.c (svz_config_free): Use svz_config_prototype_t 
+	instead of svz_servertype_t.
+	(svz_config_instantiate): New function, extracted from 
+	svz_server_configure().
+
+	* server.c, cfg.c (svz_config_intarray_create)
+	(svz_config_intarray_destroy, svz_config_intarray_dup)
+	(svz_config_strarray_create, svz_config_strarray_destroy)
+	(svz_config_strarray_dup, svz_config_hash_create)
+	(svz_config_hash_destroy, svz_config_hash_dup)
+	(svz_config_free, svz_config_clobber): Moved from `server.c'
+	to `cfg.c'.
+
+	* cfg.c (svz_config_prototype_print): New, extracted from
+	svz_servertype_print().
+	
+	* cfg.h, cfg.c: New. Implementation of configuration handling.
+	
 2002-10-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* Makefile.am (EXTRA_DIST): Added `svzpath.h.serveez'.

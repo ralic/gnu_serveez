@@ -19,6 +19,9 @@
 
 Here are listed all the hackers who helped creating this package:
 
+Andreas Rottmann <a.rottmann@gmx.at> for contributing the "configurable
+	type" idea and appropriate patches.
+
 John Fitzgerald <webmaster@has.org.nz> for giving an idea about ASN.1
         (Abstract Syntax Notation One), PDUs (Protocol Data Units) and
         their representation as lists resulting in the "Binary Smob".

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.30 2002/05/31 14:34:22 ela Exp $
+ * $Id: tunnel.c,v 1.31 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -86,9 +86,7 @@ svz_servertype_t tnl_server_definition =
   NULL,
   NULL,
   tnl_handle_request_udp_source,
-  &tnl_config,
-  sizeof (tnl_config),
-  tnl_config_prototype
+  SVZ_CONFIG_DEFINE ("tunnel", tnl_config, tnl_config_prototype)
 };
 
 /*

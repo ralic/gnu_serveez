@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.39 2002/05/31 14:34:21 ela Exp $
+ * $Id: irc-proto.c,v 1.40 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -145,9 +145,7 @@ svz_servertype_t irc_server_definition =
   NULL,                /* server timer */
   NULL,                /* server reset callback */
   NULL,                /* handle request callback */
-  &irc_config,         /* default configuration */
-  sizeof (irc_config), /* size of configuration */
-  irc_config_prototype /* configuration prototypes */
+  SVZ_CONFIG_DEFINE ("irc", irc_config, irc_config_prototype)
 };
 
 /* Static forward declarations. */

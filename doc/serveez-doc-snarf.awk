@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.13 2002/10/01 15:07:01 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.14 2002/12/05 16:57:55 ela Exp $
 #
 
 # evaluate command line arguments
@@ -320,7 +320,14 @@ function handle_macro(line)
 	  next
 	}
 
-	getline line
+	# read next line and check end of file
+	if ((getline line) <= 0) {
+	    err = "unexpected EOF or error"
+	    err = (err ": " ERRNO)
+	    print err | "cat 1>&2"
+	    exit
+	}
+
 	# while trying to find a valid C function we found a new comment
 	if (line ~ /^\/\*/) { 
 	    $0 = line

@@ -1,7 +1,7 @@
 /*
  * foo-proto.c - example server implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.34 2002/05/31 14:34:21 ela Exp $
+ * $Id: foo-proto.c,v 1.35 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -97,7 +97,7 @@ svz_servertype_t foo_server_definition =
   NULL,
   NULL,
   NULL,
-  SVZ_DEFINE_CONFIG (foo_config, foo_config_prototype)
+  SVZ_CONFIG_DEFINE ("foo", foo_config, foo_config_prototype)
 };
 
 /* ************* Networking functions ************************* */

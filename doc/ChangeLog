@@ -1,3 +1,12 @@
+2002-12-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez-api.texi.in: Added new library functions.
+
+	* Makefile.am (DOC_FILES): Added the new library files
+	to the list of documentation files.
+
+	* serveez-doc-snarf.awk: Fixed an endless loop condition.
+
 2002-10-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Concept): Applied John's changes after 
@@ -19,7 +28,7 @@
 
 2002-07-27  Stefan Jahn  <stefan@lkcc.org>
 
-	* guile-api.texi.in: Aded documentation for `serveez-load',
+	* guile-api.texi.in: Added documentation for `serveez-load',
 	`serveez-interfaces' and `serveez-loadpath'.
 
 2002-07-26  Stefan Jahn  <stefan@lkcc.org>
@@ -173,7 +182,7 @@
 
 2001-07-19  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Writing servers): Splitted this section into
+	* serveez.texi (Writing servers): Split this section into
 	three subsection (Builtin servers, Embedded servers, 
 	Guile servers).
 
@@ -188,7 +197,7 @@
 	`serveez.texi'.
 
 	* Makefile.am (guile-api.texi): Added Makefile rules for
-	automatic rebuild of guile interface procedure ducumentation.
+	automatic rebuild of guile interface procedure documentation.
 
 2001-07-07  Stefan Jahn  <stefan@lkcc.org>
 
@@ -287,7 +296,7 @@
 
 2001-01-24  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez-api.texi: Added this file for documentaion of
+	* serveez-api.texi: Added this file for documentation of
 	the embedding manual. It should describe the whole API
 	of the Serveez core library.
 

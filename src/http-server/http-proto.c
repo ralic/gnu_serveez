@@ -1,7 +1,7 @@
 /*
  * http-proto.c - http protocol implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.79 2002/05/31 14:34:21 ela Exp $
+ * $Id: http-proto.c,v 1.80 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -140,9 +140,7 @@ svz_servertype_t http_server_definition =
   NULL,                  /* server timer */
   NULL,                  /* server reset */
   NULL,                  /* handle request callback */
-  &http_config,          /* default configuration */
-  sizeof (http_config),  /* size of the configuration */
-  http_config_prototype  /* configuration prototypes */
+  SVZ_CONFIG_DEFINE ("http", http_config, http_config_prototype)
 };
 
 /*

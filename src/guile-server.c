@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.51 2002/07/30 22:39:08 ela Exp $
+ * $Id: guile-server.c,v 1.52 2002/12/05 16:57:55 ela Exp $
  *
  */
 
@@ -124,7 +124,7 @@ static void GUILE_CONCAT3 (guile_,ctype,_init) (void) {                      \
 /* Initializer macro for a new smob type. */
 #define INIT_SMOB(ctype) GUILE_CONCAT3 (guile_,ctype,_init) ()
 
-/* Intanciating macro for a smob type. */
+/* Instantiating macro for a smob type. */
 #define MAKE_SMOB(ctype, data) GUILE_CONCAT3 (guile_,ctype,_create) (data)
 
 /* Checks if the given scheme cell is a smob or not. */
@@ -1065,22 +1065,24 @@ guile_server_config_ref (SCM server, SCM key)
   int i;
   void *cfg, *address;
   char *str;
-
+  svz_config_prototype_t *prototype;
+  
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   SCM_ASSERT_TYPE (SCM_STRINGP (key), key, SCM_ARG2, FUNC_NAME, "string");
 
   str = guile_to_string (key);
   stype = svz_servertype_find (xserver);
   cfg = xserver->cfg;
+  prototype = &stype->config_prototype;
 
-  for (i = 0; stype->items[i].type != SVZ_ITEM_END; i++)
+  for (i = 0; prototype->items[i].type != SVZ_ITEM_END; i++)
     {
-      if (strcmp (stype->items[i].name, str) == 0)
+      if (strcmp (prototype->items[i].name, str) == 0)
 	{
 	  address = (void *) ((unsigned long) cfg + 
-			      (unsigned long) stype->items[i].address - 
-			      (unsigned long) stype->prototype_start);
-	  ret = guile_config_convert (address, stype->items[i].type);
+			      (unsigned long) prototype->items[i].address - 
+			      (unsigned long) prototype->start);
+	  ret = guile_config_convert (address, prototype->items[i].type);
 	  break;
 	}
     }
@@ -1221,11 +1223,12 @@ static void
 guile_servertype_config_free (svz_servertype_t *server)
 {
   int n;
-
-  for (n = 0; server->items[n].type != SVZ_ITEM_END; n++)
-    svz_free (server->items[n].name);
-  svz_config_free (server, server->prototype_start);
-  svz_free (server->items);
+  svz_config_prototype_t *prototype = &server->config_prototype;
+  
+  for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
+    svz_free (prototype->items[n].name);
+  svz_config_free (prototype, prototype->start);
+  svz_free (prototype->items);
 }
 
 #if ENABLE_DEBUG
@@ -1241,41 +1244,42 @@ guile_servertype_config_print (svz_servertype_t *server)
   svz_hash_t *hash;
   svz_portcfg_t *port;
   char **key;
-
+  svz_config_prototype_t *prototype = &server->config_prototype;
+  
   fprintf (stderr, "Configuration of `%s':\n", server->prefix);
-  for (n = 0; server->items[n].type != SVZ_ITEM_END; n++)
+  for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
     {
       fprintf (stderr, " * %s `%s' is %sdefaultable\n", 
-	       SVZ_ITEM_TEXT (server->items[n].type),
-	       server->items[n].name, server->items[n].defaultable ?
+	       SVZ_ITEM_TEXT (prototype->items[n].type),
+	       prototype->items[n].name, prototype->items[n].defaultable ?
 	       "" : "not ");
-      if (server->items[n].defaultable)
+      if (prototype->items[n].defaultable)
 	{
 	  fprintf (stderr, "   Default value: ");
-	  switch (server->items[n].type)
+	  switch (prototype->items[n].type)
 	    {
 	    case SVZ_ITEM_INT:
-	      fprintf (stderr, "%d", *(int *) server->items[n].address);
+	      fprintf (stderr, "%d", *(int *) prototype->items[n].address);
 	      break; 
 	    case SVZ_ITEM_INTARRAY:
-	      array = *(svz_array_t **) server->items[n].address;
+	      array = *(svz_array_t **) prototype->items[n].address;
 	      fprintf (stderr, "( ");
 	      for (i = 0; i < (int) svz_array_size (array); i++)
 		fprintf (stderr, "%ld ", (long) svz_array_get (array, i));
 	      fprintf (stderr, ")");
 	      break;
 	    case SVZ_ITEM_STR:
-	      fprintf (stderr, "%s", *(char **) server->items[n].address);
+	      fprintf (stderr, "%s", *(char **) prototype->items[n].address);
 	      break;
 	    case SVZ_ITEM_STRARRAY:
-	      array = *(svz_array_t **) server->items[n].address;
+	      array = *(svz_array_t **) prototype->items[n].address;
 	      fprintf (stderr, "( ");
 	      for (i = 0; i < (int) svz_array_size (array); i++)
 		fprintf (stderr, "`%s' ", (char *) svz_array_get (array, i));
 	      fprintf (stderr, ")");
 	      break;
 	    case SVZ_ITEM_HASH:
-	      hash = *(svz_hash_t **) server->items[n].address;
+	      hash = *(svz_hash_t **) prototype->items[n].address;
 	      fprintf (stderr, "( ");
 	      svz_hash_foreach_key (hash, key, i)
 		fprintf (stderr, "(%s => %s) ", key[i], 
@@ -1283,14 +1287,14 @@ guile_servertype_config_print (svz_servertype_t *server)
 	      fprintf (stderr, ")");
 	      break;
 	    case SVZ_ITEM_PORTCFG:
-	      port = *(svz_portcfg_t **) server->items[n].address;
+	      port = *(svz_portcfg_t **) prototype->items[n].address;
 	      svz_portcfg_print (port, stderr);
 	      break;
 	    case SVZ_ITEM_BOOL:
-	      fprintf (stderr, "%d", *(int *) server->items[n].address);
+	      fprintf (stderr, "%d", *(int *) prototype->items[n].address);
 	      break;
 	  }
-	  fprintf (stderr, " at %p\n", server->items[n].address);
+	  fprintf (stderr, " at %p\n", prototype->items[n].address);
 	}
     }
 }
@@ -1528,9 +1532,9 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
   for (n = 0; n < svz_hash_size (options); n++)
     items[n].address = (void *) ((unsigned long) items[n].address + 
       (unsigned long) prototype);
-  server->prototype_start = prototype;
-  server->prototype_size = size;
-  server->items = items;
+  server->config_prototype.start = prototype;
+  server->config_prototype.size = size;
+  server->config_prototype.items = items;
 
 #if 0
   guile_servertype_config_print (server);

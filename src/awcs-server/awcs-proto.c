@@ -1,7 +1,7 @@
 /*
  * awcs-proto.c - aWCS protocol implementation
  *
- * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
  *
  * This is free software; you can redistribute it and/or modify
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.37 2002/10/13 08:11:59 ela Exp $
+ * $Id: awcs-proto.c,v 1.38 2002/12/05 16:57:56 ela Exp $
  *
  */
 
@@ -86,9 +86,7 @@ svz_servertype_t awcs_server_definition =
   NULL,                  /* server timer */
   NULL,                  /* server reset */
   NULL,                  /* handle request callback */
-  &awcs_config,          /* the instance configuration */
-  sizeof (awcs_config),  /* sizeof the instance configuration */
-  awcs_config_prototype  /* configuration definitions  */
+  SVZ_CONFIG_DEFINE ("aWCS", awcs_config, awcs_config_prototype)
 };
 
 /*
