@@ -1812,9 +1812,11 @@ Serveez has been build and tested successfully.
 @item FreeBSD 3.3 on Intel
 @item FreeBSD 4.0 on Intel
 @item FreeBSD 4.0 on Alpha
+@item NetBSD 1.5 on Alpha
 @item GNU/Linux 2.x.x on Intel
 @item GNU/Linux 2.x.x on Alpha
-@item GNU/Linux 2.4.0-xxx on i64 (Itanium prototype)
+@item GNU/Linux 2.4.x on i64 (Itanium)
+@item GNU/Linux 2.4.x on StrongARM (iPAQ)
 @item Solaris 2.6, 2.7 on Sparc 32, Sparc 64
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS6000
@@ -1825,7 +1827,7 @@ Serveez has been build and tested successfully.
 @item Windows 2000 on Intel
 @item IRIX 6.x on MIPS
 @item Tru64/OSF1 UNIX V4.0 (former Digital UNIX) on Alpha
-@item Tru64/OSF1 UNIX V5.0 (former Digital UNIX) on Alpha
+@item Tru64/OSF1 UNIX V5.x (former Digital UNIX) on Alpha
 
 @end itemize
 

@@ -75,13 +75,14 @@ serveez-api.texi: serveez-api.texi.in
 	done
 	$(SED) -f $(SED_FILE) < $< > $@
 
-site: all-local serveez.info
+site: all-local serveez.info serveez-api.info
 	test ! -d $(SITE_DIR) || $(RM) -rf $(SITE_DIR)
 	@$(MKDIR) $(SITE_DIR)
 	$(CP) -p serveez.en.html logo.jpg $(SITE_DIR)
 	$(CP) -rp $(HTML_DIR) $(SITE_DIR)
 	$(CP) -p index.html logosmall.jpg $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p serveez.info $(SITE_DIR)/$(HTML_DIR)
+	$(CP) -p serveez-api.info $(SITE_DIR)/$(HTML_DIR)
 	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
 
 $(HTML_DIR)/%.html: %.texi

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.16 2001/06/12 17:27:20 raimi Exp $
+ * $Id: boot.c,v 1.17 2001/06/14 17:04:28 ela Exp $
  *
  */
 
@@ -147,11 +147,12 @@ svz_init_config (void)
 void
 svz_boot (void)
 {
+  svz_strsignal_init ();
+  svz_signal_up ();
   svz_init_config ();
   svz_interface_collect ();
   svz_net_startup ();
   svz_dynload_init ();
-  svz_strsignal_init ();
 }
 
 /*
@@ -165,5 +166,6 @@ svz_halt (void)
   svz_dynload_finalize ();
   svz_net_cleanup ();
   svz_interface_free ();
+  svz_signal_dn ();
   svz_strsignal_destroy ();
 }

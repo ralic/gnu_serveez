@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.18 2001/06/08 15:37:37 ela Exp $
+ * $Id: portcfg.c,v 1.19 2001/06/14 17:04:28 ela Exp $
  *
  */
 
@@ -583,6 +583,12 @@ svz_portcfg_prepare (svz_portcfg_t *port)
 	port->recv_buffer_size = UDP_BUF_SIZE;
       else if (port->proto & (PROTO_ICMP | PROTO_RAW))
 	port->recv_buffer_size = ICMP_BUF_SIZE;
+    }
+  /* Check the connection frequency. */
+  if (port->connect_freq <= 0)
+    {
+      /* FIXME: sane value is ? */
+      port->connect_freq = 100;
     }
 }
 

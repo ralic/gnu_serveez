@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.11 2001/06/12 17:27:21 raimi Exp $
+ * $Id: server-core.h,v 1.12 2001/06/14 17:04:28 ela Exp $
  *
  */
 
@@ -60,9 +60,12 @@ SERVEEZ_API int svz_sock_check_access __P ((svz_socket_t *, svz_socket_t *));
 SERVEEZ_API int svz_sock_check_frequency __P ((svz_socket_t *, 
 					       svz_socket_t *));
 
+SERVEEZ_API void svz_executable __P ((char *));
 SERVEEZ_API void svz_sock_check_bogus __P ((void));
 SERVEEZ_API int svz_periodic_tasks __P ((void));
-SERVEEZ_API int svz_loop __P ((void));
+SERVEEZ_API void svz_loop_pre __P ((void));
+SERVEEZ_API void svz_loop_post __P ((void));
+SERVEEZ_API void svz_loop __P ((void));
 SERVEEZ_API void svz_loop_one __P ((void));
 SERVEEZ_API void svz_signal_up __P ((void));
 SERVEEZ_API void svz_signal_dn __P ((void));

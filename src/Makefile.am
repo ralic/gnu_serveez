@@ -25,7 +25,7 @@
 #
 
 EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
-	serveez.m4
+	serveez.m4 serveez.scm
 
 #
 # Installation of the autoconf macro used to locate Serveez

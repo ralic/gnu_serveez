@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.35 2001/06/07 17:22:01 ela Exp $
+ * $Id: http-core.c,v 1.36 2001/06/14 17:04:28 ela Exp $
  *
  */
 
@@ -369,8 +369,18 @@ http_log (svz_socket_t *sock)
 	  start = p;
 	}
       strcat (line, "\n");
-      fprintf (cfg->log, line);
-      fflush (cfg->log);
+
+      if (!ferror (cfg->log) && !feof (cfg->log))
+	{
+	  fprintf (cfg->log, line);
+	  fflush (cfg->log);
+	}
+      else
+	{
+	  svz_log (LOG_ERROR, "http: access logfile died\n");
+	  svz_fclose (cfg->log);
+	  cfg->log = NULL;
+	}
     }
 }
 

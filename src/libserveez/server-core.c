@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.18 2001/06/13 20:29:25 ela Exp $
+ * $Id: server-core.c,v 1.19 2001/06/14 17:04:28 ela Exp $
  *
  */
 
@@ -44,6 +44,10 @@
 
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>
+#endif
+
+#if HAVE_SYS_RESOURCE_H && !defined (__MINGW32__)
+# include <sys/resource.h>
 #endif
 
 #ifdef __MINGW32__
@@ -133,6 +137,53 @@ static svz_socket_t *svz_sock_lookup_table[SOCK_MAX_ID];
 static int svz_sock_id = 0;
 static int svz_sock_version = 0;
 
+/* Pointer to argv[0]. */
+static char *svz_executable_file = NULL;
+
+/*
+ * Set the name of the executable file which uses the core library. This
+ * is usually @code{argv[0]}.
+ */
+void
+svz_executable (char *file)
+{
+  svz_executable_file = file;
+}
+
+#ifdef SIGSEGV
+#define SIGSEGV_TEXT                                                          \
+  "\nFatal error (access violation)."                                         \
+  "\nPlease report this bug to <bug-serveez@gnu.org>."                        \
+  "\nIf possible, please try to obtain a C stack backtrace via\n"             \
+  "\n  $ gdb %s core"                                                         \
+  "\n  $ (gdb) where\n"                                                       \
+  "\nand include this info into your bug report. If you do not have gdb"      \
+  "\ninstalled you can also try dbx. Also tell us your architecture and"      \
+  "\noperating system you are currently working on.\n\n"
+#endif
+
+#if defined (SIGSEGV)
+/*
+ * Segmentation fault exception handler.
+ */
+RETSIGTYPE
+svz_segfault_exception (int sig)
+{
+#if HAVE_GETRLIMIT
+  struct rlimit rlim;
+
+  rlim.rlim_max = RLIM_INFINITY;
+  rlim.rlim_cur = RLIM_INFINITY;
+  setrlimit (RLIMIT_CORE, &rlim);
+#endif
+
+  signal (SIGSEGV, SIG_DFL);
+  fprintf (stderr, SIGSEGV_TEXT,
+	   svz_executable_file ? svz_executable_file : "MyProg");
+  raise (SIGSEGV);
+}
+#endif
+
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore
  * broken pipes (SIGPIPE) and to exit gracefully if requested by the
@@ -194,6 +245,12 @@ svz_signal_handler (int sig)
     case SIGINT:
       svz_nuke_happened = 1;
       signal (SIGINT, SIG_DFL);
+      break;
+#endif
+#ifdef SIGQUIT
+    case SIGQUIT:
+      svz_nuke_happened = 1;
+      signal (SIGQUIT, SIG_DFL);
       break;
 #endif
     default:
@@ -954,6 +1011,9 @@ svz_signal_up (void)
 #ifdef SIGTERM
   signal (SIGTERM, svz_signal_handler);
 #endif
+#ifdef SIGQUIT
+  signal (SIGQUIT, svz_signal_handler);
+#endif
 #ifdef SIGINT
   signal (SIGINT, svz_signal_handler);
 #endif
@@ -969,6 +1029,9 @@ svz_signal_up (void)
 #ifdef SIGPIPE
   signal (SIGPIPE, svz_signal_handler);
 #endif
+#ifdef SIGSEGV
+  signal (SIGSEGV, svz_segfault_exception);
+#endif
 }
 
 /*
@@ -980,11 +1043,17 @@ svz_signal_dn (void)
 #ifdef SIGTERM
   signal (SIGTERM, SIG_DFL);
 #endif
+#ifdef SIGQUIT
+  signal (SIGQUIT, SIG_DFL);
+#endif
 #ifdef SIGINT
   signal (SIGINT, SIG_DFL);
 #endif
 #ifdef SIGBREAK
   signal (SIGBREAK, SIG_DFL);
+#endif
+#ifdef SIGCHLD
+  signal (SIGCHLD, SIG_DFL);
 #endif
 #ifdef SIGHUP
   signal (SIGHUP, SIG_DFL);
@@ -992,8 +1061,8 @@ svz_signal_dn (void)
 #ifdef SIGPIPE
   signal (SIGPIPE, SIG_DFL);
 #endif
-#ifdef SIGCHLD
-  signal (SIGCHLD, SIG_DFL);
+#ifdef SIGSEGV
+  signal (SIGSEGV, SIG_DFL);
 #endif
 }
 
@@ -1063,15 +1132,11 @@ svz_loop_one (void)
 }
 
 /*
- * Main server loop. Handle all signals, incoming and outgoing connections 
- * and listening server sockets.
+ * Call this function once before using @code{svz_loop_one()}.
  */
-int
-svz_loop (void)
+void
+svz_loop_pre (void)
 {
-  /* Setting up signaling. */
-  svz_signal_up ();
-
   /* 
    * Setting up control variables. These get set either in the signal 
    * handler or from a command processing routine.
@@ -1084,17 +1149,31 @@ svz_loop (void)
 
   /* Run the server loop. */
   svz_log (LOG_NOTICE, "entering server loop\n");
-  while (!svz_nuke_happened)
-    {
-      svz_loop_one ();
-    }
+}
+
+/*
+ * Call this function once after using @code{svz_loop_one()}.
+ */
+void
+svz_loop_post (void)
+{
   svz_log (LOG_NOTICE, "leaving server loop\n");
 
   /* Shutdown all socket structures. */
   svz_sock_shutdown_all ();
+}
 
-  /* Reset signaling. */
-  svz_signal_dn ();
-
-  return 0;
+/*
+ * Main server loop. Handle all signals, incoming and outgoing connections 
+ * and listening server sockets.
+ */
+void
+svz_loop (void)
+{
+  svz_loop_pre ();
+  while (!svz_nuke_happened)
+    {
+      svz_loop_one ();
+    }
+  svz_loop_post ();
 }
