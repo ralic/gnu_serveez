@@ -2,6 +2,8 @@
 
 	* tunnel-server/tunnel.c (tnl_server_definition): Started to
 	setup a port forward server.
+	(tnl_check_request_tcp): TCP ports can be forwarded now. The
+	routine simply copies data from one connection to another.
 
 2000-10-06  [ Ela ]  <ela@lkcc.org>
 

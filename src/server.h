@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.10 2000/09/27 14:31:26 ela Exp $
+ * $Id: server.h,v 1.11 2000/10/12 15:32:03 ela Exp $
  *
  */
 
@@ -164,6 +164,12 @@ server_t *server_find (void *cfg);
  * the server_periodic_tasks() function in `server-core.c'.
  */
 void server_run_notify (void);
+
+/*
+ * Compare if two given portcfg structures are equal i.e. specifying 
+ * the same port. Returns non-zero if a and b are equal.
+ */
+int server_portcfg_equal (portcfg_t *a, portcfg_t *b);
 
 /*
  * Use these functions.

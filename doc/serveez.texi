@@ -516,6 +516,7 @@ of the remote client.
 * Foo Server::                  Example server implementation
 * Quake III Key Server::        Quake 3 License Key Server description
 * Gnutella Spider::             Gnutella Client description
+* Tunnel Server::               Description of the port forwarder
 @end menu
 
 @node Chat Server, HTTP Server, Existing Servers, Existing Servers
@@ -1095,7 +1096,7 @@ The key servers echo reply when authorizing.
 All keys the clients send will be logged within this file.
 @end table
 
-@node Gnutella Spider, , Quake III Key Server, Existing Servers
+@node Gnutella Spider, Tunnel Server, Quake III Key Server, Existing Servers
 @subsection Gnutella Spider
 
 @subsubsection What is it ?
@@ -1186,6 +1187,29 @@ some kind of port forwarder to let other people connect your host.
 @item force-port
 Force the Gnutella spider to send outgoing replies with this PORT as 
 port information. See above for more information.
+@end table
+
+@node Tunnel Server, , Gnutella Spider, Existing Servers
+@subsection Tunnel Server
+
+@subsubsection General description
+The Tunnel server is for mapping one port configuration to another. 
+Generally this means that you can setup Serveez to accept network
+connections in order to pass all network data traffic on this line to
+another address. This can be useful to workaround gateways and 
+firewalls.
+
+@subsubsection Configuration
+This might be the most easiest configuration to setup. You essentially
+need to define the source port configuration and the target port 
+configuration.
+
+@table @asis
+@item source
+The source port configuration.
+
+@item target
+The target port configuration.
 @end table
 
 @node Co-Server, Porting issues, Server, Top

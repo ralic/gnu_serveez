@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.29 2000/10/12 10:19:45 ela Exp $
+ * $Id: server.c,v 1.30 2000/10/12 15:32:03 ela Exp $
  *
  */
 
@@ -921,10 +921,10 @@ server_global_finalize (void)
 
 /*
  * Compare if two given portcfg structures are equal i.e. specifying 
- * the same port. Returns nonzero if a and b are equal.
+ * the same port. Returns non-zero if a and b are equal.
  */
-static int
-server_portcfg_equal (struct portcfg *a, struct portcfg *b)
+int
+server_portcfg_equal (portcfg_t *a, portcfg_t *b)
 {
   if ((a->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP)) &&
       (a->proto == b->proto))

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.1 2000/10/12 10:19:45 ela Exp $
+ * $Id: tunnel.h,v 1.2 2000/10/12 15:32:03 ela Exp $
  *
  */
 
@@ -46,6 +46,14 @@ typedef struct
 }
 tnl_config_t;
 
+/* tunnel server specific protocol flags */
+#define TNL_FLAG_SRC_TCP  0x0001
+#define TNL_FLAG_SRC_UDP  0x0002
+#define TNL_FLAG_SRC_ICMP 0x0004
+#define TNL_FLAG_TGT_TCP  0x0008
+#define TNL_FLAG_TGT_UDP  0x0010
+#define TNL_FLAG_TGT_ICMP 0x0020
+
 /*
  * Basic server callback definitions.
  */
@@ -53,6 +61,12 @@ int tnl_init (server_t *server);
 int tnl_global_init (void);
 int tnl_finalize (server_t *server);
 int tnl_global_finalize (void);
+
+/* Rest of all the callbacks. */
+int tnl_detect_proto (void *cfg, socket_t sock);
+int tnl_connect_socket (void *config, socket_t sock);
+int tnl_check_request_tcp (socket_t sock);
+int tnl_disconnect (socket_t sock);
 
 /*
  * This server's definition.

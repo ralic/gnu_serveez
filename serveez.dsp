@@ -273,6 +273,10 @@ SOURCE=.\src\socket.c
 # End Source File
 # Begin Source File
 
+SOURCE=".\src\tunnel-server\tunnel.c"
+# End Source File
+# Begin Source File
+
 SOURCE=".\src\udp-socket.c"
 # End Source File
 # Begin Source File
