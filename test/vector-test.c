@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: vector-test.c,v 1.2 2001/06/16 15:02:46 ela Exp $
+ * $Id: vector-test.c,v 1.3 2001/09/14 11:36:22 ela Exp $
  *
  */
 
@@ -180,7 +180,7 @@ main (int argc, char **argv)
       vector = svz_vector_create (v);
       for (n = 0; n < REPEAT / 5; n++)
 	{
-	  memset (value, n, v);
+	  memset (value, (int) (n & 0xff), v);
 	  if (svz_vector_ins (vector, n, value) != (unsigned long) n + 1)
 	    error++;
 	  if (svz_vector_idx (vector, value) != (unsigned long) (n & 0xff))
