@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.7 2001/07/13 14:54:51 ela Exp $
+ * $Id: guile-server.c,v 1.8 2001/07/13 19:07:42 ela Exp $
  *
  */
 
@@ -411,6 +411,16 @@ guile_func_global_finalize (svz_servertype_t *stype)
 static char *
 guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 {
+  svz_servertype_t *stype = svz_servertype_find (server);
+  SCM info_client = guile_servertype_getfunction (stype, "info-client");
+  SCM ret;
+
+  if (info_client != SCM_UNDEFINED)
+    {
+      ret = gh_call2 (info_client, MAKE_SMOB (svz_server, server),
+		      MAKE_SMOB (svz_socket, sock));
+      return guile2str (ret);
+    }
   return NULL;
 }
 
@@ -418,6 +428,15 @@ guile_func_info_client (svz_server_t *server, svz_socket_t *sock)
 static char *
 guile_func_info_server (svz_server_t *server)
 {
+  svz_servertype_t *stype = svz_servertype_find (server);
+  SCM info_server = guile_servertype_getfunction (stype, "info-server");
+  SCM ret;
+
+  if (info_server != SCM_UNDEFINED)
+    {
+      ret = gh_call1 (info_server, MAKE_SMOB (svz_server, server));
+      return guile2str (ret);
+    }
   return NULL;
 }
 

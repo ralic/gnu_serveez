@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.4 2001/07/13 14:54:51 ela Exp $
+;; $Id: echo-server.scm,v 1.5 2001/07/13 19:07:42 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
@@ -43,6 +43,12 @@
 (define (echo-detect-proto server sock)
   (println "Detecting echo protocol ...")
   1)
+
+(define (echo-info-server server)
+  (define ret '())
+  (println "Running echo server info " server ".")
+  (set! ret " This is the echo server.")
+  ret)
 
 (define (echo-handle-request sock request len)
   (define ret '())
@@ -71,6 +77,7 @@
 		      (finalize        . echo-finalize)
 		      (global-finalize . echo-global-finalize)
 		      (connect-socket  . echo-connect-socket)
+		      (info-server     . echo-info-server)
 		      ))
 
 ;; Port configuration.
@@ -82,3 +89,9 @@
 
 ;; Bind server to port.
 (bind-server! 'echo-port 'echo-server)
+
+(define-port! 'control-port `((proto . tcp)
+			      (port  . 42420)))
+
+(define-server! 'control-server)
+(bind-server! 'control-port 'control-server)
