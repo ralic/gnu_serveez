@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.30 2001/06/06 17:40:21 raimi Exp $
+ * $Id: foo-proto.c,v 1.31 2001/06/11 19:46:32 ela Exp $
  *
  */
 
@@ -290,7 +290,7 @@ foo_info_server (svz_server_t *server)
 
   svz_array_foreach (cfg->ports, j, i)
     {
-      sprintf (text, " ports[%d] : %d\r\n", i, (int) j);
+      sprintf (text, " ports[%d] : %d\r\n", i, (int) ((long) j));
       strcat (info, text);
     }
   

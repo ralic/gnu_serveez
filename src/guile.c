@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.26 2001/06/08 15:37:37 ela Exp $
+ * $Id: guile.c,v 1.27 2001/06/11 19:46:31 ela Exp $
  *
  */
 
@@ -590,7 +590,7 @@ optionhash_cb_intarray (char *server, void *arg, char *key,
 	      err = -1;
 	      continue;
 	    }
-	  svz_array_add (array, (void *) val);
+	  svz_array_add (array, (void *) ((long) val));
 	}
 
       if (err)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.10 2001/06/10 21:45:40 ela Exp $
+ * $Id: core.c,v 1.11 2001/06/11 19:46:32 ela Exp $
  *
  */
 
@@ -379,7 +379,7 @@ svz_sendfile (int out_fd, int in_fd, long int *offset, unsigned int count)
 #ifndef __MINGW32__
 
 /* List for file descriptors. */
-svz_array_t *svz_files = NULL;
+static svz_array_t *svz_files = NULL;
 
 /* Add a file descriptor to the list. */
 static void
@@ -387,7 +387,7 @@ svz_file_add (int fd)
 {
   if (svz_files == NULL)
     svz_files = svz_array_create (1);
-  svz_array_add (svz_files, (void *) fd);
+  svz_array_add (svz_files, (void *) ((long) fd));
 }
 
 /* Delete a file descriptor from the list. */
@@ -395,11 +395,11 @@ static void
 svz_file_del (int fd)
 {
   void *val;
-  int n;
+  unsigned long n;
 
   svz_array_foreach (svz_files, val, n)
     {
-      if (val == (void *) fd)
+      if (val == (void *) ((long) fd))
 	{
 	  svz_array_del (svz_files, n);
 	  break;
@@ -410,6 +410,21 @@ svz_file_del (int fd)
       svz_array_destroy (svz_files);
       svz_files = NULL;
     }
+}
+
+/*
+ * Close all file descriptors colleted so far by the core API of serveez.
+ * This should be called if @code{fork()} has been called without a 
+ * following @code{exec()}.
+ */
+void
+svz_file_closeall (void)
+{
+  void *fd;
+  unsigned long n;
+
+  svz_array_foreach (svz_files, fd, n)
+    close ((int) ((long) fd));
 }
 #endif /* not __MINGW32__ */
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.13 2001/06/10 21:45:40 ela Exp $
+ * $Id: coserver.c,v 1.14 2001/06/11 19:46:32 ela Exp $
  *
  */
 
@@ -656,10 +656,34 @@ svz_coserver_closeall (void)
 	  close (sock->pipe_desc[WRITE]);
 	}
     }
-
-  svz_array_foreach (svz_files, fd, n)
-    close ((int) fd);
+  svz_file_closeall ();
 }
+
+/*
+ * Setup signalling for a coserver process. This is necessary since 
+ * the original signal handlers get confused about signals raised by its
+ * children.
+ */
+static void
+svz_coserver_signals (void)
+{
+#ifdef SIGTERM
+  signal (SIGTERM, SIG_IGN);
+#endif
+#ifdef SIGINT
+  signal (SIGINT, SIG_IGN);
+#endif
+#ifdef SIGHUP
+  signal (SIGHUP, SIG_IGN);
+#endif
+#ifdef SIGPIPE
+  signal (SIGPIPE, SIG_IGN);
+#endif
+#ifdef SIGSTOP
+  signal (SIGSTOP, SIG_IGN);
+#endif
+}
+
 #endif /* not __MINGW32__ */
 
 /*
@@ -839,7 +863,8 @@ svz_coserver_start (int type)
       /* close all other coserver pipes except its own */
       svz_coserver_close_pipes (coserver);
       svz_coserver_closeall ();
-      
+      svz_coserver_signals ();
+
       /* start the internal coserver */
       svz_coserver_loop (coserver, in, out);
       exit (0);

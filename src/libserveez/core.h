@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.h,v 1.8 2001/06/10 21:45:40 ela Exp $
+ * $Id: core.h,v 1.9 2001/06/11 19:46:32 ela Exp $
  *
  */
 
@@ -36,10 +36,6 @@
 #endif
 #ifdef __MINGW32__
 # include <winsock2.h>
-#endif
-
-#ifndef __MINGW32__
-svz_array_t *svz_files;
 #endif
 
 /* protocol definitions */
@@ -65,6 +61,10 @@ SERVEEZ_API int svz_close __P ((int));
 SERVEEZ_API int svz_fstat __P ((int, struct stat *));
 SERVEEZ_API FILE *svz_fopen __P ((const char *, const char *));
 SERVEEZ_API int svz_fclose __P ((FILE *));
+
+#ifndef __MINGW32__
+SERVEEZ_API void svz_file_closeall __P ((void));
+#endif
 
 __END_DECLS
 
