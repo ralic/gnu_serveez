@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.12 2000/10/15 11:46:41 ela Exp $
+ * $Id: server-loop.c,v 1.13 2000/10/15 16:50:17 ela Exp $
  *
  */
 
@@ -149,13 +149,15 @@ server_check_sockets_select (void)
 		sock->unavailable = 0;
 	    }
 
-	  /* Put every client's socket into EXCEPT and READ. */
+	  /* Put every client's socket into EXCEPT. */
+	  FD_SET (sock->sock_desc, &except_fds);
+	  if (sock->sock_desc > (SOCKET) nfds)
+	    nfds = sock->sock_desc;
+
+	  /* Put socket into READ if necessary. */
 	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
 	    {
-	      FD_SET (sock->sock_desc, &except_fds);
 	      FD_SET (sock->sock_desc, &read_fds);
-	      if (sock->sock_desc > (SOCKET) nfds)
-		nfds = sock->sock_desc;
 	    }
 
 	  /* Put a socket into WRITE if necessary and possible. */
@@ -163,8 +165,6 @@ server_check_sockets_select (void)
 				     sock->flags & SOCK_FLAG_CONNECTING))
 	    {
 	      FD_SET (sock->sock_desc, &write_fds);
-	      if (sock->sock_desc > (SOCKET) nfds)
-		nfds = sock->sock_desc;
 	    }
 	}
     }
@@ -636,23 +636,22 @@ server_check_sockets_MinGW (void)
 		sock->unavailable = 0;
 	    }
 
-	  /* Put every client's socket into EXCEPT and READ. */
+	  /* Put every client's socket into EXCEPT. */
+	  FD_SET (sock->sock_desc, &except_fds);
+	  if (sock->sock_desc > (SOCKET) nfds)
+	    nfds = sock->sock_desc;
+
+	  /* Put a client's socket into READ if necessary. */
 	  if (!(sock->flags & SOCK_FLAG_CONNECTING))
 	    {
-	      FD_SET (sock->sock_desc, &except_fds);
 	      FD_SET (sock->sock_desc, &read_fds);
-	      if (sock->sock_desc > (SOCKET) nfds)
-		nfds = sock->sock_desc;
 	    }
 
 	  /* Put a socket into WRITE if necessary and possible. */
 	  if (!sock->unavailable && (sock->send_buffer_fill > 0 || 
 				     sock->flags & SOCK_FLAG_CONNECTING))
 	    {
-	      FD_SET (sock->sock_desc, &except_fds);
 	      FD_SET (sock->sock_desc, &write_fds);
-	      if (sock->sock_desc > (SOCKET) nfds)
-		nfds = sock->sock_desc;
 	    }
 	}
     }
