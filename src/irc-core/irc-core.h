@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.8 2000/10/23 21:42:03 ela Exp $
+ * $Id: irc-core.h,v 1.9 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -47,7 +47,7 @@ typedef struct
   char user[MAX_NAME_LEN];    /* user name */
   char host[MAX_NAME_LEN];    /* host name (user@host) */
   char nick[MAX_NICK_LEN];    /* nick name */
-  char mask[MAX_NAME_LEN];    /* mask (initiated by '#' or '$' )*/
+  char mask[MAX_NAME_LEN];    /* mask (initiated by '#' or '$' ) */
 }
 irc_target_t;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.7 2000/10/25 07:54:06 ela Exp $
+ * $Id: irc-config.c,v 1.8 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -99,7 +99,7 @@ irc_parse_config_lines (irc_config_t *cfg)
 	{
 	  user = xmalloc (sizeof (irc_user_t));
 	  if (5 != irc_parse_line (line, "I:%s:%s:%s:%s:%d",
-				   tmp[0], tmp[1], tmp[2], tmp[3],
+				   tmp[0], tmp[1], tmp[2], tmp[3], 
 				   &user->class))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid I line: %s\n", line);
@@ -130,8 +130,7 @@ irc_parse_config_lines (irc_config_t *cfg)
 	{
 	  oper = xmalloc (sizeof (irc_oper_t));
 	  if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-				   tmp[0], tmp[1], tmp[2],
-				   &oper->class))
+				   tmp[0], tmp[1], tmp[2], &oper->class))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid O line: %s\n", line);
 	      xfree (oper);
@@ -157,8 +156,7 @@ irc_parse_config_lines (irc_config_t *cfg)
 	{
 	  oper = xmalloc (sizeof (irc_oper_t));
 	  if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-				   tmp[0], tmp[1], tmp[2],
-				   &oper->class))
+				   tmp[0], tmp[1], tmp[2], &oper->class))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid o line: %s\n", line);
 	      xfree (oper);
@@ -185,8 +183,7 @@ irc_parse_config_lines (irc_config_t *cfg)
 	{
 	  kill = xmalloc (sizeof (irc_kill_t));
 	  if (4 != irc_parse_line (line, "O:%s:%d-%d:%s",
-				   tmp[0], &kill->start, &kill->end,
-				   tmp[1]))
+				   tmp[0], &kill->start, &kill->end, tmp[1]))
 	    {
 	      log_printf (LOG_ERROR, "irc: invalid K line: %s\n", line);
 	      xfree (kill);
@@ -229,11 +226,16 @@ irc_free_config_lines (irc_config_t *cfg)
   while ((user = cfg->user_auth) != NULL)
     {
       cfg->user_auth = user->next;
-      if (user->user_ip) xfree (user->user_ip);
-      if (user->ip) xfree (user->ip);
-      if (user->user_host) xfree (user->user_host);
-      if (user->host) xfree (user->host);
-      if (user->password) xfree (user->password);
+      if (user->user_ip)
+	xfree (user->user_ip);
+      if (user->ip)
+	xfree (user->ip);
+      if (user->user_host)
+	xfree (user->user_host);
+      if (user->host)
+	xfree (user->host);
+      if (user->password)
+	xfree (user->password);
       xfree (user);
     }
 
@@ -241,10 +243,14 @@ irc_free_config_lines (irc_config_t *cfg)
   while ((oper = cfg->operator_auth) != NULL)
     {
       cfg->operator_auth = oper->next;
-      if (oper->nick) xfree (oper->nick);
-      if (oper->user) xfree (oper->user);
-      if (oper->host) xfree (oper->host);
-      if (oper->password) xfree (oper->password);
+      if (oper->nick)
+	xfree (oper->nick);
+      if (oper->user)
+	xfree (oper->user);
+      if (oper->host)
+	xfree (oper->host);
+      if (oper->password)
+	xfree (oper->password);
       xfree (oper);
     }
 
@@ -252,8 +258,10 @@ irc_free_config_lines (irc_config_t *cfg)
   while ((kill = cfg->banned) != NULL)
     {
       cfg->banned = kill->next;
-      if (kill->user) xfree (kill->user);
-      if (kill->host) xfree (kill->host);
+      if (kill->user)
+	xfree (kill->user);
+      if (kill->host)
+	xfree (kill->host);
       xfree (kill);
     }
 }
@@ -402,8 +410,7 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
 #endif
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "irc: valid operator: %s\n",
-		      oper->line);
+	  log_printf (LOG_DEBUG, "irc: valid operator: %s\n", oper->line);
 #endif
 	  return -1;
 	}

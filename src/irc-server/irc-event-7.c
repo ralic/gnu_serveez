@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.11 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-event-7.c,v 1.12 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -51,8 +51,7 @@
  */
 int
 irc_ison_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   static char nicklist[MAX_MSG_LEN] = "";
@@ -83,8 +82,7 @@ irc_ison_callback (socket_t sock,
  */
 int
 irc_userhost_callback (socket_t sock, 
-		       irc_client_t *client,
-		       irc_request_t *request)
+		       irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   int n;
@@ -104,9 +102,7 @@ irc_userhost_callback (socket_t sock,
 	  sprintf (text, "%s%s=%c%s@%s ",
 		   cl->nick, 
 		   cl->flag & UMODE_OPERATOR ? "*" : "",
-		   cl->flag & UMODE_AWAY ? '-' : '+',
-		   cl->user,
-		   cl->host);
+		   cl->flag & UMODE_AWAY ? '-' : '+', cl->user, cl->host);
 	  strcat (list, text);
 	}
     }
@@ -125,8 +121,7 @@ irc_userhost_callback (socket_t sock,
  */
 int
 irc_away_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -143,7 +138,8 @@ irc_away_callback (socket_t sock,
       irc_printf (sock, ":%s %03d %s " RPL_NOWAWAY_TEXT "\n",
 		  cfg->host, RPL_NOWAWAY, client->nick);
       client->flag |= UMODE_AWAY;
-      if (client->away) xfree (client->away);
+      if (client->away)
+	xfree (client->away);
       client->away = xstrdup (request->para[0]);
     }
   return 0;
@@ -159,8 +155,7 @@ irc_away_callback (socket_t sock,
  */
 int
 irc_users_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t **cl;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-4.c,v 1.6 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-event-4.c,v 1.7 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -55,8 +55,7 @@
  */
 int
 irc_priv_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -178,8 +177,7 @@ irc_priv_callback (socket_t sock,
  */
 int
 irc_note_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -214,13 +212,12 @@ irc_note_callback (socket_t sock,
        if (client->flag & UMODE_PASS) 
 	 irc_encrypt_text (text, client->key);
 
-       if(cl->flag & UMODE_PASS) 
+       if (cl->flag & UMODE_PASS) 
 	 irc_decrypt_text (text, cl->key);
 
        xsock = cl->sock;
        irc_printf (xsock, ":%s!%s@%s NOTICE %s :%s\n",
-		   client->nick, client->user, client->host,
-		   cl->nick, text);
+		   client->nick, client->user, client->host, cl->nick, text);
      }
 
   return 0;

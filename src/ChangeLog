@@ -1,3 +1,11 @@
+2000-12-18  [ Ela ]  <ela@lkcc.org>
+
+	* irc-core/irc-core.c (irc_string_regex): Fixed spelling
+	errors in documentation.
+
+	* coserver/coserver.c: Made a lot of changes concerning the
+	readability of the coserver code. Cleaned up the namespace.
+
 2000-12-15  [ Ela ]  <ela@lkcc.org>
 
 	* sntp-server/Makefile.am: Created this file for building

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.18 2000/10/25 07:54:06 ela Exp $
+ * $Id: irc-core.c,v 1.19 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -65,7 +65,8 @@ irc_nslookup_done (char *host, int id, int version)
       client->flag |= UMODE_DNS;
       if (host)
 	{
-	  if (client->host) xfree (client->host);
+	  if (client->host)
+	    xfree (client->host);
 	  client->host = xstrdup (host);
 	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
 	}
@@ -96,7 +97,8 @@ irc_ident_done (char *user, int id, int version)
       client->flag |= UMODE_IDENT;
       if (user)
 	{
-	  if (client->user) xfree (client->user);
+	  if (client->user)
+	    xfree (client->user);
 	  client->user = xstrdup (user);
 	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
 	}
@@ -108,10 +110,10 @@ irc_ident_done (char *user, int id, int version)
     }
   return -1;
 }
-#endif
+#endif /* ENABLE_IDENT */
 
 /*
- * Initialization of the authentification (DNS and IDENT) for an
+ * Initialization of the authentication (DNS and IDENT) for an
  * IRC client.
  */
 static void
@@ -152,8 +154,7 @@ irc_detect_proto (void *cfg, socket_t sock)
 {
   int ret = 0;
 
-  if (sock->recv_buffer_fill >= 1 && 
-      sock->recv_buffer[0] == ':')
+  if (sock->recv_buffer_fill >= 1 && sock->recv_buffer[0] == ':')
     {
       ret = 1;
     }
@@ -220,8 +221,8 @@ irc_check_request (socket_t sock)
 	  util_hexdump (stdout, "irc packet", sock->sock_desc,
 			packet, p - packet, 0);
 #endif
-          retval = irc_handle_request (sock, packet, 
-				       p - packet - ((*(p-2) == '\r')?2:1));
+          retval = irc_handle_request (sock, packet, p - packet - 
+				       ((*(p - 2) == '\r') ? 2 : 1));
           packet = p;
         }
     }
@@ -252,18 +253,20 @@ irc_get_target (char *para, int nr)
   target[0] = '\0';
   p = para;
   for (n = 0; *p && n < nr; n++)
-    while (*p && *p != ',') p++;
+    while (*p && *p != ',')
+      p++;
   
   /* got a key (first or any ',' separated) */
   if (*p == ',' || p == para)
     {
       n = 0;
-      if (*p == ',') p++;
+      if (*p == ',')
+	p++;
       while (*p && *p != ',')
 	{
 	  target[n++] = *p++;
 	}
-      target[n+1] = 0;
+      target[n + 1] = 0;
     }
 
   return target;
@@ -344,7 +347,8 @@ irc_parse_request (char *request, int len)
 	  size++;
 	  p++;
 	}
-      if (size == len) break;
+      if (size == len)
+	break;
       
       /* get next parameter */
       n = 0;
@@ -373,7 +377,8 @@ irc_parse_request (char *request, int len)
       paras++;
     }
 
-  if (paras > 0 && irc_request.para[paras-1][0] == '\0') paras--;
+  if (paras > 0 && irc_request.para[paras - 1][0] == '\0')
+    paras--;
   irc_request.paras = paras;
   irc_parse_target (&irc_request, 0);
   
@@ -381,7 +386,7 @@ irc_parse_request (char *request, int len)
 }
 
 /*
- * This function parses a one of the give request's paras
+ * This function parses one of the given requests paras
  * and stores all targets in its targets.
  */
 void
@@ -483,19 +488,19 @@ irc_string_regex (char *text, char *regex)
   while (*regex && *text)
     {
       /* find end of strings or '?' or '*' */
-      while (*regex != '*' && *regex != '?' && 
-	     *regex && *text)
+      while (*regex != '*' && *regex != '?' && *regex && *text)
 	{
-	  /* return no Match if so */
-	  if (irc_lcset[(unsigned)*text] != irc_lcset[(unsigned)*regex])
+	  /* return no match if so */
+	  if (irc_lcset[(unsigned) *text] != irc_lcset[(unsigned) *regex])
 	    return 0;
 	  text++;
 	  regex++;
 	}
-      /* one free character */
+      /* single free character */
       if (*regex == '?')
 	{
-	  if (!(*text)) return 0;
+	  if (!(*text))
+	    return 0;
 	  text++;
 	  regex++;
 	}
@@ -504,18 +509,18 @@ irc_string_regex (char *text, char *regex)
 	{
 	  regex++;
 	  /* skip useless '?'s after '*'s */
-	  while (*regex == '?') regex++;
+	  while (*regex == '?')
+	    regex++;
 	  /* skip all characters until next character in pattern found */
 	  while (*text && 
-		 irc_lcset[(unsigned)*regex] != 
-		 irc_lcset[(unsigned)*text]) 
+		 irc_lcset[(unsigned) *regex] != irc_lcset[(unsigned) *text]) 
 	    text++;
 	  /* next character in pattern found */
 	  if (*text)
 	    {
 	      /* find the last occurrence of this character in the text */
 	      p = text + strlen (text);
-	      while (irc_lcset[(unsigned)*p] != irc_lcset[(unsigned)*text]) 
+	      while (irc_lcset[(unsigned) *p] != irc_lcset[(unsigned) *text]) 
 		p--;
 	      /* continue parsing at this character */
 	      text = p;
@@ -524,12 +529,13 @@ irc_string_regex (char *text, char *regex)
     }
 
   /* is the text longer than the regex ? */
-  if (!*text && !*regex) return -1;
+  if (!*text && !*regex)
+    return -1;
   return 0;
 }
 
 /*
- * Create the lowercase character set for string compares.
+ * Create the lowercase character set for string comparisons.
  */
 void
 irc_create_lcset (void)
@@ -554,20 +560,22 @@ irc_string_equal (char *str1, char *str2)
 {
   char *p1, *p2;
 
-  if (str1 == str2) return 0;
+  if (str1 == str2)
+    return 0;
   
   p1 = str1;
   p2 = str2;
 
   while (*p1 && *p2)
     {
-      if (irc_lcset[(unsigned)*p1] != irc_lcset[(unsigned)*p2]) 
+      if (irc_lcset[(unsigned) *p1] != irc_lcset[(unsigned) *p2]) 
 	return -1;
       p1++;
       p2++;
     }
 
-  if (!*p1 && !*p2) return 0;
+  if (!*p1 && !*p2)
+    return 0;
   return -1;
 }
 

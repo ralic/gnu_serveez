@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.8 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-event-5.c,v 1.9 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -52,8 +52,7 @@
  */
 int
 irc_whowas_callback (socket_t sock, 
-		     irc_client_t *client,
-		     irc_request_t *request)
+		     irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_history_t *cl;
@@ -168,8 +167,7 @@ irc_user_info (socket_t sock,        /* the socket for the client to send */
   /* operator ? */
   if (cl->flag & UMODE_OPERATOR)
     irc_printf (sock, ":%s %03d %s " RPL_WHOISOPERATOR_TEXT "\n",
-		cfg->host, RPL_WHOISOPERATOR, client->nick,
-		cl->nick);
+		cfg->host, RPL_WHOISOPERATOR, client->nick, cl->nick);
 	  
   /* idle seconds */
   xsock = cl->sock;
@@ -192,8 +190,7 @@ irc_user_info (socket_t sock,        /* the socket for the client to send */
 
   /* send channel list */
   irc_printf (sock, ":%s %03d %s " RPL_WHOISCHANNELS_TEXT "\n",
-	      cfg->host, RPL_WHOISCHANNELS, client->nick,
-	      cl->nick, text);
+	      cfg->host, RPL_WHOISCHANNELS, client->nick, cl->nick, text);
 }
 
 /*
@@ -208,8 +205,7 @@ irc_user_info (socket_t sock,        /* the socket for the client to send */
  */
 int
 irc_whois_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t **cl, *rclient;
@@ -255,8 +251,7 @@ irc_whois_callback (socket_t sock,
 	}
 
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHOIS_TEXT "\n",
-		  cfg->host, RPL_ENDOFWHOIS, client->nick,
-		  nick);
+		  cfg->host, RPL_ENDOFWHOIS, client->nick, nick);
     }
   return 0;
 }
@@ -284,8 +279,7 @@ irc_client_info (socket_t sock,          /* this client's socket */
   sprintf (text, RPL_WHOREPLY_TEXT,
 	   channel->name, cl->user, cl->host, cl->server, cl->nick, 
 	   cl->flag & UMODE_AWAY ? 'G' : 'H',
-	   cl->flag & UMODE_OPERATOR ? "*" : "",
-	   flag, 0, cl->real);
+	   cl->flag & UMODE_OPERATOR ? "*" : "", flag, 0, cl->real);
   
   irc_printf (sock, ":%s %03d %s %s\n",
 	      cfg->host, RPL_WHOREPLY, client->nick, text);
@@ -299,8 +293,7 @@ irc_client_info (socket_t sock,          /* this client's socket */
  */
 int
 irc_who_callback (socket_t sock, 
-		  irc_client_t *client,
-		  irc_request_t *request)
+		  irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t **cl, *xcl;
@@ -308,8 +301,10 @@ irc_who_callback (socket_t sock,
   char *name;
   int n, i;
 
-  if (!request->paras) name = "*";
-  else                 name = request->para[0];
+  if (!request->paras)
+    name = "*";
+  else
+    name = request->para[0];
 
   /* find all Matching channels */
   if ((channel = irc_regex_channel (cfg, name)) != NULL)

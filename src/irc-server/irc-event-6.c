@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-6.c,v 1.6 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-event-6.c,v 1.7 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -51,10 +51,9 @@
  */
 int
 irc_ping_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
-  irc_config_t *cfg= sock->cfg;
+  irc_config_t *cfg = sock->cfg;
   int n;
 
   /* ping origin given ? */
@@ -81,10 +80,9 @@ irc_ping_callback (socket_t sock,
  */
 int
 irc_pong_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
-  irc_config_t *cfg= sock->cfg;
+  irc_config_t *cfg = sock->cfg;
   int n;
 
   /* pong origin given ? */
@@ -119,8 +117,7 @@ irc_pong_callback (socket_t sock,
  */
 int
 irc_error_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   log_printf (LOG_ERROR, "irc: %s\n", request->para[0]);
   return 0;
@@ -134,10 +131,9 @@ irc_error_callback (socket_t sock,
  */
 int
 irc_kill_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
-  irc_config_t *cfg= sock->cfg;
+  irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
 
   /* do you have enough paras ? */

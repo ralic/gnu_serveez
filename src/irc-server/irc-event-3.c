@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.7 2000/09/02 15:48:13 ela Exp $
+ * $Id: irc-event-3.c,v 1.8 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -57,8 +57,7 @@
  */
 int
 irc_admin_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -79,14 +78,11 @@ irc_admin_callback (socket_t sock,
 	      cfg->host, RPL_ADMINME, client->nick, 
 	      cfg->host, cfg->admininfo);
   irc_printf (sock, ":%s %03d %s " RPL_ADMINLOC1_TEXT "\n",
-	      cfg->host, RPL_ADMINLOC1, client->nick, 
-	      cfg->location1);
+	      cfg->host, RPL_ADMINLOC1, client->nick, cfg->location1);
   irc_printf (sock, ":%s %03d %s " RPL_ADMINLOC2_TEXT "\n",
-	      cfg->host, RPL_ADMINLOC2, client->nick, 
-	      cfg->location2);
+	      cfg->host, RPL_ADMINLOC2, client->nick, cfg->location2);
   irc_printf (sock, ":%s %03d %s " RPL_ADMINEMAIL_TEXT "\n",
-	      cfg->host, RPL_ADMINEMAIL, client->nick, 
-	      cfg->email);
+	      cfg->host, RPL_ADMINEMAIL, client->nick, cfg->email);
   
   return 0;
 }
@@ -97,8 +93,7 @@ irc_admin_callback (socket_t sock,
  */
 int
 irc_time_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -140,12 +135,10 @@ irc_lusers_callback (socket_t sock,
   /* send LUSER* replies */
   irc_printf (sock, ":%s %03d %s " RPL_LUSERCLIENT_TEXT "\n",
 	      cfg->host, RPL_LUSERCLIENT, client->nick,
-	      cfg->users, cfg->invisibles, 
-	      irc_count_servers (cfg));
+	      cfg->users, cfg->invisibles, irc_count_servers (cfg));
 
   irc_printf (sock, ":%s %03d %s " RPL_LUSEROP_TEXT "\n",
-	      cfg->host, RPL_LUSEROP, client->nick,
-	      cfg->operators);
+	      cfg->host, RPL_LUSEROP, client->nick, cfg->operators);
 
   /* This will end up in a non standard welcome message !
   irc_printf (sock, ":%s %03d %s " RPL_LUSERUNKNOWN_TEXT "\n",
@@ -177,8 +170,7 @@ irc_lusers_callback (socket_t sock,
  */
 int
 irc_stats_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   char stat;
@@ -352,8 +344,7 @@ irc_stats_callback (socket_t sock,
  */
 int
 irc_version_callback (socket_t sock, 
-		      irc_client_t *client,
-		      irc_request_t *request)
+		      irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -362,8 +353,7 @@ irc_version_callback (socket_t sock,
     {
       irc_printf (sock, ":%s %03d %s " RPL_VERSION_TEXT "\n",
 		  cfg->host, RPL_VERSION, client->nick,
-		  serveez_config.version_string, 
-		  serveez_config.program_name);
+		  serveez_config.version_string, serveez_config.program_name);
     }
   return 0;
 }
@@ -376,8 +366,7 @@ irc_version_callback (socket_t sock,
  */
 int
 irc_info_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   char *text;

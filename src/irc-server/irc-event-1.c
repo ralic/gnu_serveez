@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.13 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-event-1.c,v 1.14 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -58,8 +58,7 @@
  */
 int
 irc_quit_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   /* delete the client */
   irc_leave_all_channels (sock->cfg, client, request->para[0]);
@@ -74,8 +73,7 @@ irc_quit_callback (socket_t sock,
  */
 int
 irc_pass_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -83,7 +81,8 @@ irc_pass_callback (socket_t sock,
   if (irc_check_args (sock, client, cfg, request, 1))
     return -1;
 
-  if (client->pass) xfree (client->pass);
+  if (client->pass)
+    xfree (client->pass);
   client->pass = xstrdup (request->para[0]);
   client->key = irc_gen_key (client->pass);
   client->flag |= UMODE_PASS;
@@ -109,8 +108,7 @@ irc_pass_callback (socket_t sock,
  * Send the initial messages to a new IRC client.
  */
 static void
-irc_send_init_block (socket_t sock, 
-		     irc_client_t *client)
+irc_send_init_block (socket_t sock, irc_client_t *client)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -177,8 +175,8 @@ irc_get_nick (char *nick)
     return 0;
   
   for (n = 0; *p && n < MAX_NICK_LEN; n++, p++)
-    if(!((*p >= 'A' && *p <= '~') ||  (*p >= '0' && *p <= '9') || 
-	 (*p == '_') || (*p == '-')))
+    if (!((*p >= 'A' && *p <= '~') ||  (*p >= '0' && *p <= '9') || 
+	  (*p == '_') || (*p == '-')))
       break;
   *p = 0;
 
@@ -193,8 +191,7 @@ irc_get_nick (char *nick)
  */
 int
 irc_nick_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -224,7 +221,8 @@ irc_nick_callback (socket_t sock,
   if ((cl = irc_find_nick (cfg, nick)) != NULL)
     {
       /* did the client tried to change to equal nicks ? then ignore */
-      if (cl == client) return 0;
+      if (cl == client)
+	return 0;
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
@@ -281,8 +279,7 @@ irc_nick_callback (socket_t sock,
  */
 int
 irc_user_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -304,9 +301,12 @@ irc_user_callback (socket_t sock,
       client->user = xmalloc (strlen (request->para[0]) + 2);
       sprintf (client->user, "~%s", request->para[0]);
     }
-  if (!client->host) client->host = xstrdup (request->para[1]);
-  if (!client->server) client->server = xstrdup (request->para[2]);
-  if (!client->real) client->real = xstrdup (request->para[3]);
+  if (!client->host)
+    client->host = xstrdup (request->para[1]);
+  if (!client->server)
+    client->server = xstrdup (request->para[2]);
+  if (!client->real)
+    client->real = xstrdup (request->para[3]);
   client->flag |= UMODE_USER;
 
   return 0;
@@ -320,8 +320,7 @@ irc_user_callback (socket_t sock,
  */
 int
 irc_motd_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   FILE *f;
@@ -400,8 +399,7 @@ irc_motd_callback (socket_t sock,
  */
 int
 irc_oper_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -411,7 +409,8 @@ irc_oper_callback (socket_t sock,
 
   /* copy both parameters into client structure */
   strcpy (client->pass, request->para[1]);
-  if (!client->user[0]) strcpy (client->user, request->para[0]);
+  if (!client->user[0])
+    strcpy (client->user, request->para[0]);
 
   /* check if this client may be an IRC operator */
   if (irc_oper_valid (client, cfg))

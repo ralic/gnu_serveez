@@ -1,5 +1,5 @@
 /*
- * irc-server.c - IRC server connection routine
+ * irc-server.c - IRC server connection routines
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.15 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-server.c,v 1.16 2000/12/18 18:28:36 ela Exp $
  *
  */
 
@@ -87,7 +87,8 @@ irc_parse_line (char *line, char *fmt, ...)
       if (*fmt == '%')
 	{
 	  /* check if this is a valid format identifier */
-	  if (!*++fmt) break;
+	  if (!*++fmt)
+	    break;
 
 	  /* a decimal */
 	  if (*fmt == 'd')
@@ -122,8 +123,10 @@ irc_parse_line (char *line, char *fmt, ...)
 	{
 	  break;
 	}
-      if (*fmt) fmt++;
-      if (*line) line++;
+      if (*fmt)
+	fmt++;
+      if (*line)
+	line++;
     }
 
   va_end (args);
@@ -178,7 +181,7 @@ irc_connect_server (char *ip, irc_server_t *server)
 
 #if ENABLE_TIMESTAMP
   irc_printf (sock, "SVINFO %d %d %d :%d\n",
-	      TS_CURRENT, TS_MIN, 0, time(NULL) + cfg->tsdelta);
+	      TS_CURRENT, TS_MIN, 0, time (NULL) + cfg->tsdelta);
 #endif /* ENABLE_TIMESTAMP */
 
   /* now propagate user information to this server */
@@ -190,13 +193,11 @@ irc_connect_server (char *ip, irc_server_t *server)
 	  irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
 		      cl[n]->nick, cl[n]->hopcount, cl[n]->since, 
 		      irc_client_flag_string (cl[n]), 
-		      cl[n]->user, cl[n]->host,
-		      cl[n]->server, "EFNet?");
+		      cl[n]->user, cl[n]->host, cl[n]->server, "EFNet?");
 #else /* not ENABLE_TIMESTAMP */
 	  irc_printf (sock, "NICK %s\n", cl[n]->nick);
 	  irc_printf (sock, "USER %s %s %s %s\n", 
-		      cl[n]->user, cl[n]->host, 
-		      cl[n]->server, cl[n]->real);
+		      cl[n]->user, cl[n]->host, cl[n]->server, cl[n]->real);
 	  irc_printf (sock, "MODE %s %s\n", 
 		      cl[n]->nick, irc_client_flag_string (cl[n]));
 #endif /* not ENABLE_TIMESTAMP */
@@ -270,7 +271,8 @@ irc_connect_servers (irc_config_t *cfg)
   int n;
 
   /* any C lines at all ? */
-  if (!cfg->CLine) return;
+  if (!cfg->CLine)
+    return;
 
   /* go through all C lines */
   n = 0;
@@ -282,7 +284,7 @@ irc_connect_servers (irc_config_t *cfg)
       
       /* create new IRC server structure */
       ircserver = xmalloc (sizeof (irc_server_t));
-      ircserver->port = htons ((unsigned short)port);
+      ircserver->port = htons ((unsigned short) port);
       ircserver->class = class;
       ircserver->id = -1;
       ircserver->realhost = xmalloc (strlen (realhost) + 1);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.20 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-proto.c,v 1.21 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -300,9 +300,7 @@ irc_client_in_channel (socket_t sock,          /* client's socket */
  * Add a nick to a certain channel.
  */
 int
-irc_join_channel (irc_config_t *cfg,
-		  irc_client_t *client, 
-		  char *chan)
+irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 {
   irc_channel_t *channel;
   int n;
@@ -356,8 +354,7 @@ irc_join_channel (irc_config_t *cfg,
 	{
 	  irc_printf (client->sock, 
 		      ":%s %03d %s " ERR_TOOMANYCHANNELS_TEXT "\n",
-		      cfg->host, ERR_TOOMANYCHANNELS, client->nick,
-		      chan);
+		      cfg->host, ERR_TOOMANYCHANNELS, client->nick, chan);
 	  return 0;
 	}
 
@@ -390,8 +387,7 @@ irc_join_channel (irc_config_t *cfg,
  */
 int
 irc_leave_channel (irc_config_t *cfg, 
-		   irc_client_t *client, 
-		   irc_channel_t *channel)
+		   irc_client_t *client, irc_channel_t *channel)
 {
   int n, i, last;
 
@@ -407,8 +403,7 @@ irc_leave_channel (irc_config_t *cfg,
 	    channel->cflag[n] = channel->cflag[last];
 	    channel->client = xrealloc (channel->client, 
 					sizeof (irc_client_t *) * last);
-	    channel->cflag = xrealloc (channel->cflag, 
-				       sizeof (int) * last);
+	    channel->cflag = xrealloc (channel->cflag, sizeof (int) * last);
 	  }
 	else
 	  {
@@ -505,8 +500,7 @@ irc_client_absent (irc_client_t *client,  /* requested client */
  */
 int
 irc_leave_all_channels (irc_config_t *cfg, 
-			irc_client_t *client, 
-			char *reason)
+			irc_client_t *client, char *reason)
 {
   irc_channel_t *channel;
   irc_client_t *cl;
@@ -674,15 +668,13 @@ irc_handle_request (socket_t sock, char *request, int len)
 	  irc_callback[n].count++;
 	  client->recv_bytes += len;
 	  client->recv_packets++;
-	  return 
-	    irc_callback[n].func (sock, client, &irc_request);
+	  return irc_callback[n].func (sock, client, &irc_request);
 	}
     }
 
   irc_printf (sock, ":%s %03d %s " ERR_UNKNOWNCOMMAND_TEXT "\n",
 	      cfg->host, ERR_UNKNOWNCOMMAND, 
-	      client->nick ? client->nick : "",
-	      irc_request.request);
+	      client->nick ? client->nick : "", irc_request.request);
 
   return 0;
 }
@@ -701,14 +693,19 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
       /* xfree() all the channel ban entries */
       for (n = 0; n < channel->bans; n++)
 	irc_destroy_ban (channel->ban[n]);
-      if (channel->ban) xfree (channel->ban);
+      if (channel->ban)
+	xfree (channel->ban);
 
       hash_delete (cfg->channels, channel->name);
       
-      if (channel->topic) xfree (channel->topic);
-      if (channel->topic_by) xfree (channel->topic_by);
-      if (channel->key) xfree (channel->key);
-      if (channel->invite) xfree (channel->invite);
+      if (channel->topic)
+	xfree (channel->topic);
+      if (channel->topic_by)
+	xfree (channel->topic_by);
+      if (channel->key)
+	xfree (channel->key);
+      if (channel->invite)
+	xfree (channel->invite);
 
       xfree (channel->by);
       xfree (channel->name);
@@ -742,7 +739,7 @@ irc_regex_channel (irc_config_t *cfg, char *regex)
   irc_channel_t **channel, **fchannel;
   int n, found, size;
 
-  if ((channel = (irc_channel_t **)hash_values (cfg->channels)) != NULL)
+  if ((channel = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
     {
       size = hash_size (cfg->channels);
       fchannel = xmalloc (sizeof (irc_channel_t *) * (size + 1));
@@ -811,8 +808,7 @@ irc_add_client_history (irc_config_t *cfg, irc_client_t *cl)
  */
 irc_client_history_t *
 irc_find_nick_history (irc_config_t *cfg, 
-		       irc_client_history_t *cl, 
-		       char *nick)
+		       irc_client_history_t *cl, char *nick)
 {
   irc_client_history_t *client;
 
@@ -867,13 +863,20 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
     }
 
   /* free all client properties */
-  if (client->real) xfree (client->real);
-  if (client->user) xfree (client->user);
-  if (client->host) xfree (client->host);
-  if (client->server) xfree (client->server);
-  if (client->channel) xfree (client->channel);
-  if (client->pass) xfree (client->pass);
-  if (client->away) xfree (client->away);
+  if (client->real)
+    xfree (client->real);
+  if (client->user)
+    xfree (client->user);
+  if (client->host)
+    xfree (client->host);
+  if (client->server)
+    xfree (client->server);
+  if (client->channel)
+    xfree (client->channel);
+  if (client->pass)
+    xfree (client->pass);
+  if (client->away)
+    xfree (client->away);
   xfree (client);
   cfg->users--;
 
@@ -891,7 +894,7 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
   irc_client_t *fclient;
   int n;
 
-  if ((client = (irc_client_t **)hash_values (cfg->clients)) != NULL)
+  if ((client = (irc_client_t **) hash_values (cfg->clients)) != NULL)
     {
       for (n = 0; n < hash_size (cfg->clients); n++)
 	{
@@ -935,7 +938,7 @@ irc_regex_nick (irc_config_t *cfg, char *regex)
   irc_client_t **client, **fclient;
   int n, found, size;
 
-  if ((client = (irc_client_t **)hash_values (cfg->clients)) != NULL)
+  if ((client = (irc_client_t **) hash_values (cfg->clients)) != NULL)
     {
       size = hash_size (cfg->clients);
       fclient = xmalloc (sizeof (irc_client_t *) * (size + 1));

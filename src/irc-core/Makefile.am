@@ -31,5 +31,3 @@ CLEANFILES = *~
 
 libirccore_a_SOURCES = \
 	irc-core.c irc-core.h
-
-

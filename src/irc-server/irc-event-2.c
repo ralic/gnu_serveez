@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.11 2000/11/10 19:55:48 ela Exp $
+ * $Id: irc-event-2.c,v 1.12 2000/12/18 18:28:35 ela Exp $
  *
  */
 
@@ -52,8 +52,7 @@
  */
 int
 irc_part_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -105,13 +104,16 @@ static int
 irc_client_banned (irc_client_t *client, irc_ban_t *ban)
 {
   /* does the nick Match ? */
-  if(!irc_string_regex (client->nick, ban->nick)) return 0;
+  if (!irc_string_regex (client->nick, ban->nick))
+    return 0;
 
   /* does the user Match ? */
-  if(!irc_string_regex (client->user, ban->user)) return 0;
+  if (!irc_string_regex (client->user, ban->user))
+    return 0;
 
   /* does the host Match ? */
-  if(!irc_string_regex (client->host, ban->host)) return 0;
+  if (!irc_string_regex (client->host, ban->host))
+    return 0;
 
   return -1;
 }
@@ -121,8 +123,7 @@ irc_client_banned (irc_client_t *client, irc_ban_t *ban)
  */
 static void
 irc_channel_topic (socket_t sock,
-		   irc_client_t *client,
-		   irc_channel_t *channel)
+		   irc_client_t *client, irc_channel_t *channel)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -195,8 +196,7 @@ irc_channel_users (socket_t sock,
  */
 int
 irc_join_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -310,8 +310,7 @@ irc_join_callback (socket_t sock,
       /* send nick list */
       irc_channel_users (sock, client, channel);
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
-		  cfg->host, RPL_ENDOFNAMES, client->nick,
-		  channel->name);
+		  cfg->host, RPL_ENDOFNAMES, client->nick, channel->name);
     }
   
   return 0;
@@ -347,9 +346,7 @@ irc_ban_string (irc_ban_t *ban)
  */
 static int
 irc_client_oper (socket_t sock, 
-		 irc_client_t *client,
-		 irc_channel_t *channel,
-		 int flag)
+		 irc_client_t *client, irc_channel_t *channel, int flag)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -398,8 +395,10 @@ irc_client_flag (irc_client_t *client,   /* client changing the flag */
   for (i = 0; i < channel->clients; i++)
     if (!strcmp (channel->client[i]->nick, nick))
       {
-	if (set) channel->cflag[i] |= flag;
-	else     channel->cflag[i] &= ~flag;
+	if (set)
+	  channel->cflag[i] |= flag;
+	else
+	  channel->cflag[i] &= ~flag;
 	break;
       }
 
@@ -504,8 +503,10 @@ irc_channel_flag (irc_client_t *client,   /* client changing the flag */
   if (!irc_client_oper (sock, client, channel, cflag))
     return 0;
 
-  if (set) channel->flag |= flag;
-  else     channel->flag &= ~flag;
+  if (set)
+    channel->flag |= flag;
+  else
+    channel->flag &= ~flag;
 
   /* propagate Mode change to channel users */
   for (n = 0; n < channel->clients; n++)
@@ -526,8 +527,10 @@ irc_channel_flag (irc_client_t *client,   /* client changing the flag */
 void
 irc_destroy_ban (irc_ban_t *ban)
 {
-  if (ban->nick) xfree (ban->nick);
-  if (ban->user) xfree (ban->user);
+  if (ban->nick)
+    xfree (ban->nick);
+  if (ban->user)
+    xfree (ban->user);
   xfree (ban->host);
   xfree (ban->by);
   xfree (ban);
@@ -641,8 +644,7 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
   if (set && arg[0] == 0)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NEEDMOREPARAMS_TEXT "\n",
-		  cfg->host, ERR_NEEDMOREPARAMS, 
-		  client->nick, "MODE");
+		  cfg->host, ERR_NEEDMOREPARAMS, client->nick, "MODE");
       return 0;
     }
 
@@ -667,11 +669,11 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 	  if (channel->flag & flag)
 	    {
 	      irc_printf (sock, ":%s %03d %s " ERR_KEYSET_TEXT "\n",
-			  cfg->host, ERR_KEYSET, client->nick,
-			  channel->name);
+			  cfg->host, ERR_KEYSET, client->nick, channel->name);
 	      return 0;
 	    }
-	  if (channel->key) xfree (channel->key);
+	  if (channel->key)
+	    xfree (channel->key);
 	  channel->key = xstrdup (arg);
 	  channel->flag |= flag;
 	  break;
@@ -729,8 +731,7 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
       irc_printf (xsock, ":%s!%s@%s MODE %s %c%c%s%s\n",
 		  client->nick, client->user, client->host,
 		  channel->name, 
-		  set ? '+' : '-', Mode, 
-		  set ? " " : "", set ? arg : "");
+		  set ? '+' : '-', Mode, set ? " " : "", set ? arg : "");
     }
 
   return 0;
@@ -811,8 +812,7 @@ irc_channel_flag_string (irc_channel_t *channel)
 
 int
 irc_mode_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -836,8 +836,7 @@ irc_mode_callback (socket_t sock,
 	{
 	  irc_printf (sock, ":%s %03d %s " RPL_CHANNELMODEIS_TEXT "\n", 
 		      cfg->host, RPL_CHANNELMODEIS, client->nick, 
-		      channel->name,
-		      irc_channel_flag_string (channel));
+		      channel->name, irc_channel_flag_string (channel));
 	  return 0;
 	}
 
@@ -933,13 +932,15 @@ irc_mode_callback (socket_t sock,
 	    case 'l':
 	      irc_channel_arg (client, sock, cflag, channel, MODE_ULIMIT, 
 			       request->para[para], flag);
-	      if (flag) para++;
+	      if (flag)
+		para++;
 	      break;
 	      /* set a key for this channel */
 	    case 'k':
 	      irc_channel_arg (client, sock, cflag, channel, MODE_KEY, 
 			       request->para[para], flag);
-	      if (flag) para++;
+	      if (flag)
+		para++;
 	      break;
 	      /* unknown Mode flag */
 	    default:
@@ -1022,8 +1023,7 @@ irc_mode_callback (socket_t sock,
  */
 int
 irc_topic_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -1053,9 +1053,11 @@ irc_topic_callback (socket_t sock,
 		return 0;
 
 	      /* change the topic */
-	      if (channel->topic) xfree (channel->topic);
+	      if (channel->topic)
+		xfree (channel->topic);
 	      channel->topic = xstrdup (request->para[1]);
-	      if (channel->topic_by) xfree (channel->topic_by);
+	      if (channel->topic_by)
+		xfree (channel->topic_by);
 	      channel->topic_by = xstrdup (client->nick);
 	      channel->topic_since = time (NULL);
 
@@ -1081,8 +1083,7 @@ irc_topic_callback (socket_t sock,
  */
 int
 irc_names_callback (socket_t sock, 
-		    irc_client_t *client,
-		    irc_request_t *request)
+		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t **cl;
@@ -1095,7 +1096,7 @@ irc_names_callback (socket_t sock,
   if (request->paras < 1)
     {
       /* go through all channels */
-      if ((ch = (irc_channel_t **)hash_values (cfg->channels)) != NULL)
+      if ((ch = (irc_channel_t **) hash_values (cfg->channels)) != NULL)
 	{
 	  for (n = 0; n < hash_size (cfg->channels); n++)
 	    {
@@ -1119,7 +1120,7 @@ irc_names_callback (socket_t sock,
        * Public channels are not secret or private or channels
        * clients share.
        */
-      if ((cl = (irc_client_t **)hash_values (cfg->clients)) != NULL)
+      if ((cl = (irc_client_t **) hash_values (cfg->clients)) != NULL)
 	{
 	  for (n = 0; n < hash_size (cfg->clients); n++)
 	    {
@@ -1151,8 +1152,7 @@ irc_names_callback (socket_t sock,
 	}
       /* send the (*) reply */
       irc_printf (sock, ":%s %03d %s " RPL_NAMREPLY_TEXT "\n",
-		  cfg->host, RPL_NAMREPLY, client->nick, 
-		  '*', "*", text);
+		  cfg->host, RPL_NAMREPLY, client->nick, '*', "*", text);
 
       /* send end of list */
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
@@ -1172,8 +1172,7 @@ irc_names_callback (socket_t sock,
 	      irc_channel_users (sock, client, channel);
 	    }
 	  irc_printf (sock, ":%s %03d %s " RPL_ENDOFNAMES_TEXT "\n",
-		      cfg->host, RPL_ENDOFNAMES, client->nick, 
-		      channel->name);
+		      cfg->host, RPL_ENDOFNAMES, client->nick, channel->name);
 	}
     }
 
@@ -1185,8 +1184,7 @@ irc_names_callback (socket_t sock,
  */
 static void
 irc_channel_list (socket_t sock, 
-		  irc_client_t *client,
-		  irc_channel_t *channel)
+		  irc_client_t *client, irc_channel_t *channel)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -1277,8 +1275,7 @@ irc_list_callback (socket_t sock,
  */
 int
 irc_invite_callback (socket_t sock, 
-		     irc_client_t *client, 
-		     irc_request_t *request)
+		     irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -1317,8 +1314,7 @@ irc_invite_callback (socket_t sock,
   if ((i = irc_client_in_channel (NULL, cl, ch)) != -1)
     {
       irc_printf (sock, ":%s %03d %s " ERR_USERONCHANNEL_TEXT "\n",
-		  cfg->host, ERR_USERONCHANNEL, client->nick,
-		  nick, channel);
+		  cfg->host, ERR_USERONCHANNEL, client->nick, nick, channel);
       return 0;
     }
   /* are you operator in this channel / can you invite ? */
@@ -1353,8 +1349,7 @@ irc_invite_callback (socket_t sock,
  */
 int
 irc_kick_callback (socket_t sock, 
-		   irc_client_t *client,
-		   irc_request_t *request)
+		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -1385,7 +1380,7 @@ irc_kick_callback (socket_t sock,
 	continue;
 
       /* are you a channel operator ? */
-      if(!irc_client_oper (sock, client, channel, channel->cflag[i]))
+      if (!irc_client_oper (sock, client, channel, channel->cflag[i]))
 	continue;
       
       /* kick the requested user */
