@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.4 2001/02/05 09:10:38 ela Exp $
+ * $Id: alloc.c,v 1.5 2001/02/05 09:40:09 ela Exp $
  *
  */
 
@@ -139,7 +139,7 @@ svz_malloc (size_t size)
   assert (size);
 
 #if ENABLE_DEBUG
-  if ((ptr = (void *) svz_malloc_func (size + 2 * SIZEOF_UNSIGNED)) != NULL)
+  if ((ptr = (void *) svz_malloc_func (size + 2 * sizeof (size_t))) != NULL)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
@@ -214,7 +214,7 @@ svz_realloc (void *ptr, size_t size)
       ptr = (void *) up;
 #endif /* ENABLE_HEAP_COUNT */
 
-      if ((ptr = (void *) svz_realloc_func (ptr, size + 2 * SIZEOF_UNSIGNED)) 
+      if ((ptr = (void *) svz_realloc_func (ptr, size + 2 * sizeof (size_t))) 
 	  != NULL)
 	{
 #if ENABLE_HEAP_COUNT
