@@ -1628,34 +1628,38 @@ This section contain some of the documents and resources we read and used
 to implement various parts of this package. They appear in no specific
 order.
 
-@table @asis
-@item [1] RFC 760
+@enumerate
+@item RFC 760
 The Internet Protocol
-@item [2] RFC 1071
+@item RFC 1071
 Computing the Internet Checksum
-@item [3] RFC 1413
+@item RFC 1413
 Identification Protocol
-@item [4] RFC 1459
+@item RFC 1459
 Internet Relay Chat Protocol
-@item [5] RFC 1945
+@item RFC 1945
 Hypertext Transfer Protocol -- HTTP/1.0
-@item [6] RFC 2068
+@item RFC 2068
 Hypertext Transfer Protocol -- HTTP/1.1
-@item [7] RFC 2616
+@item RFC 2616
 Hypertext Transfer Protocol -- HTTP/1.1
-@item [8] RFC 768
+@item RFC 768
 User Datagram Protocol
-@item [9] RFC 791
+@item RFC 791
 Internet Protocol
-@item [10] RFC 777
+@item RFC 777
 Internet Control Message Protocol
-@item [11] @uref{http://gnutelladev.wego.com}
+@item @uref{http://gnutelladev.wego.com/}
 The Gnutella Protocol
-@item [12] @uref{http://www.efnet.org}
+@item @uref{http://www.efnet.org/}
 The official EFNet site
-@item [13] @uref{http://www.gamers.org/dEngine/quake/}
+@item @uref{http://www.gamers.org/dEngine/quake/}
 Quake Developer's Page
-@end table
+@item @uref{http://www.sockets.com/}
+Winsock Development Information
+@item @uref{http://www.cyberport.com/~tangent/programming/winsock/}
+Winsock Programmer's FAQ
+@end enumerate
 
 @contents
 @bye
