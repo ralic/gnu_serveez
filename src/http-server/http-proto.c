@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.30 2000/08/26 18:05:18 ela Exp $
+ * $Id: http-proto.c,v 1.31 2000/08/29 10:44:03 ela Exp $
  *
  */
 
@@ -1082,7 +1082,9 @@ http_get_response (socket_t sock, char *request, int flags)
 
   /* make sure we do not send any devices or strange files */
   if (!(S_ISREG (buf.st_mode) ||
+#ifdef S_ISLNK
 	S_ISLNK (buf.st_mode) ||
+#endif /* S_ISLNK */
 	S_ISDIR (buf.st_mode)) )
     {
       log_printf (LOG_ERROR, "%s: not a regular file\n", file);

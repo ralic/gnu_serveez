@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.2 2000/08/27 17:29:51 ela Exp $
+ * $Id: gnutella.h,v 1.3 2000/08/29 10:44:03 ela Exp $
  *
  */
 
@@ -30,6 +30,8 @@
 #endif
 
 #define _GNU_SOURCE
+#include <time.h>
+
 #include "util.h"
 #include "hash.h"
 
@@ -37,10 +39,9 @@
 #define NUT_VERSION   "0.48"
 #define NUT_CONNECT   "GNUTELLA CONNECT/0.4\n\n"
 #define NUT_OK        "GNUTELLA OK\n\n"
-#define NUT_GET       "GET /get/"
-#define NUT_AGENT     "User-Agent: gnutella"
-#define NUT_HTTP      "HTTP/1.0"
-#define NUT_RANGE     "Content-range:"
+#define NUT_HOSTS     "GET /gnutella-net HTTP/1."
+
+/* default values */
 #define NUT_PORT            6346
 #define NUT_GUID            {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 #define NUT_GUID_SIZE       16
@@ -54,6 +55,11 @@
 #define NUT_PUSH_REQ   0x40 /* client push request */
 #define NUT_SEARCH_REQ 0x80 /* search request */
 #define NUT_SEARCH_ACK 0x81 /* search response */
+
+/* protocol flags */
+#define NUT_FLAG_INIT  0x00
+#define NUT_FLAG_HDR   0x01
+#define NUT_FLAG_HOSTS 0x02
 
 /* id:
  * The header contains a Microsoft GUID (Globally Unique Identifier for 
@@ -133,11 +139,13 @@ nut_push_t;
 /* that is for default align */
 #pragma pack()
 
-/* gnutella client structure */
+/* gnutella client host structure */
 typedef struct
 {
   byte id[NUT_GUID_SIZE]; /* clientID128 GUID */
-  int connected;          /* has the server / client been connected ? */
+  unsigned long ip;
+  unsigned short port;
+  time_t last_reply;
 }
 nut_client_t;
 
@@ -158,6 +166,14 @@ typedef struct
   int errors;               /* routing errors */
   int files;                /* files within connected network */
   int size;                 /* file size (in KB) */
+  char *save_path;          /* where to store downloaded files */
+  char *share_path;         /* local search database path */
+  int dnloads;              /* concurrent downloads */
+  int max_dnloads;          /* maximum concurrent downloads */
+  int speed;                /* connection speed (KBit/s) */
+  int min_speed;            /* minimum connection speed for searching */
+  char **extensions;        /* file extensions */
+  hash_t *net;              /* host catcher */
 }
 nut_config_t;
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.17 2000/08/26 18:05:18 ela Exp $
+ * $Id: util.h,v 1.18 2000/08/29 10:44:03 ela Exp $
  *
  */
 
@@ -212,11 +212,11 @@ const char * util_hstrerror (void);
 
 #ifdef __MINGW32__
 
-#define CLOSE_SOCKET(sock) closesocket(sock)
-#define CLOSE_HANDLE(handle) (CloseHandle(handle) ? 0 : -1)
-#define SYS_ERROR GetErrorMessage(GetLastError())
-#define NET_ERROR GetErrorMessage(WSAGetLastError())
-#define H_NET_ERROR GetErrorMessage(WSAGetLastError())
+#define CLOSE_SOCKET(sock) closesocket (sock)
+#define CLOSE_HANDLE(handle) (CloseHandle (handle) ? 0 : -1)
+#define SYS_ERROR GetErrorMessage (GetLastError ())
+#define NET_ERROR GetErrorMessage (WSAGetLastError ())
+#define H_NET_ERROR GetErrorMessage (WSAGetLastError ())
 #define getcwd(buf, size) (GetCurrentDirectory (size, buf) ? buf : NULL)
 #define chdir(path) (SetCurrentDirectory (path) ? 0 : -1)
 
@@ -229,16 +229,15 @@ const char * util_hstrerror (void);
 # define S_ISDIR(Mode) ((Mode) & S_IFDIR)
 # define S_ISCHR(Mode) ((Mode) & S_IFCHR)
 # define S_ISREG(Mode) ((Mode) & S_IFREG)
-# define S_ISLNK(Mode) S_ISREG (Mode)
 #endif /* not S_ISDIR */
 
 #else /* Unices here. */
 
-#define CLOSE_SOCKET(sock) close(sock)
-#define CLOSE_HANDLE(handle) close(handle)
-#define SYS_ERROR strerror(errno)
-#define NET_ERROR strerror(errno)
-#define H_NET_ERROR util_hstrerror()
+#define CLOSE_SOCKET(sock) close (sock)
+#define CLOSE_HANDLE(handle) close (handle)
+#define SYS_ERROR strerror (errno)
+#define NET_ERROR strerror (errno)
+#define H_NET_ERROR util_hstrerror ()
 #define last_errno errno
 
 #endif

@@ -1,3 +1,27 @@
+2000-08-29  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/nut-transfer.c (nut_init_transfer): Checking
+	for certain file extensions.
+	(nut_check_transfer): Comparing original file size and
+	content length.
+
+	* nut-server/gnutella.c (nut_host_list): Added this routine
+	for nice HTML output of the current host catcher list.
+
+2000-08-28  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_route): Prevent native 
+	packets from further routing.
+
+	* http-server/http-proto.c (http_get_response): S_ISLNK
+	is checked if defined only.
+
+	* util.c: <sys/resource.h> only included if it is not a
+	__MINGW32__ compiler.
+
+	* nut-server/gnutella.c (nut_init_transfer): This routine 
+	will be called when invoking a new gnutella file transfer.
+
 2000-08-27  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c: Sparely documented the gnutella

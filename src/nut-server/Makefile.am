@@ -29,5 +29,5 @@ AM_CPPFLAGS = -I..
 CLEANFILES = *~
 
 libnut_a_SOURCES = \
-	gnutella.c gnutella.h
-
+	gnutella.c gnutella.h \
+	nut-transfer.c nut-transfer.h
