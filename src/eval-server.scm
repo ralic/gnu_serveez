@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: eval-server.scm,v 1.3 2001/07/31 10:15:00 ela Exp $
+;; $Id: eval-server.scm,v 1.4 2001/09/15 17:04:57 mgrabmue Exp $
 ;;
 
 ;; Some awkward compatibility kluges for making this run with Guile
@@ -69,8 +69,8 @@
 	(let ((safe-module (make-safe-module)))
 	  (catch #t
 		 (lambda ()
-		   (let ((expr (read (open-input-string
-				      (binary->string request)))))
+		   (let ((expr (call-with-input-string
+				(binary->string request) read)))
 		     (let ((res (eval expr safe-module)))
 		       (svz:sock:print sock
 		         (string-append "=> "
