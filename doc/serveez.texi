@@ -2610,7 +2610,7 @@ Serveez has been build and tested successfully.
 @item SunOS 5.8 on Sparc32 
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS/6000
-@item MacOS X10.1/Darwin 1.4, 5.4 on PowerPC (Macintosh)
+@item MacOS X10.1/Darwin 1.4, 5.4, 5.5 on PowerPC (Macintosh)
 @item Windows 95 on Intel
 @item Windows 98 on Intel
 @item Windows Millennium Edition on Intel

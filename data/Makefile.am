@@ -2,7 +2,7 @@
 # 
 # data/Makefile.am
 #
-# Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,7 +21,8 @@
 #
 
 EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg guile-projects.txt \
-	serveez1.ico serveez2.ico init.serveez.in PLATFORMS
+	serveez1.ico serveez2.ico init.serveez.in PLATFORMS \
+	libtool-MacOS.diff
 SED = sed
 
 install-init: init.serveez

@@ -1,0 +1,21 @@
+--- libtool.orig        Tue Dec 11 04:48:44 2001
++++ libtool     Tue Dec 11 04:53:40 2001
+@@ -150,7 +150,7 @@
+ export_dynamic_flag_spec=""
+ 
+ # Compiler flag to generate shared objects directly from archives.
+-whole_archive_flag_spec="-all_load \$convenience"
++whole_archive_flag_spec="-all_load "
+ 
+ # Compiler flag to generate thread-safe objects.
+ thread_safe_flag_spec=""
+@@ -181,7 +181,7 @@
+ old_archive_from_expsyms_cmds=""
+ 
+ # Commands used to build and install a shared archive.
+-archive_cmds="\$nonopt \$(test \\"x\$module\\" = xyes && echo -bundle || echo -dynamiclib) \$allow_undefined_flag -o \$lib \$libobjs \$deplibs\$linker_flags -install_name \$rpath/\$soname \$verstring"
++archive_cmds="\$nonopt \$(test \"x\$module\" = xyes && echo -bundle || echo -dynamiclib) \$allow_undefined_flag -o \$lib \$libobjs \$deplibs\$linker_flags -install_name \$rpath/\$soname \$verstring"
+ archive_expsym_cmds=""
+ postinstall_cmds=""
+ postuninstall_cmds=""
+

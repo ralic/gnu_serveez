@@ -17,13 +17,17 @@ ia64-unknown-linux		gcc	0.1.2	  ok, buggy guile 1.4 gc
 ia64-unknown-linux-gnu		gcc	0.1.4	  ok, guile 1.5.6 required
 powerpc-apple-darwin1.4		cc	0.1.2	  libtool, _environ, static
 powerpc-apple-darwin5.4		cc	0.1.4	  ok, static
+powerpc-apple-darwin5.5		cc	0.1.4	  ok, libtool patch
 powerpc-unknown-linux-gnu	gcc	0.1.2	  ok
 sparc64-unknown-linux-gnu	gcc	0.1.2	  ok
-sparc-sun-solaris2.8		gcc	0.1.2	  ok
+sparc-sun-solaris2.8		gcc	0.1.4	  ok
 alphaev56-dec-osf4.0g		cc	0.1.2	  ok
+alphaev56-dec-osfp4.0		cc	0.1.4	  ok
 alphaev6-dec-osf5.1		cc	0.1.2	  ok
 alphaev67-dec-osf5.1		cc	0.1.2	  ok
+alphaev68-dec-osf5.1		cc	0.1.4	  ok
 alpha-dec-osf5.1		cc	0.1.4	  ok
+alphaev6-unknown-linux-gnu	gcc	0.1.4	  ok
 alphaev67-unknown-linux-gnu	gcc	0.1.2	  ok
 alpha-unknown-freebsd4.4	gcc	0.1.2	  ok
 alpha-unknown-freebsd4.6	gcc	0.1.4	  ok
