@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.15 2001/06/01 21:24:09 ela Exp $
+ * $Id: portcfg.c,v 1.16 2001/06/05 17:57:22 ela Exp $
  *
  */
 
@@ -30,6 +30,10 @@
 #include <assert.h>
 #include <string.h>
 #include <sys/types.h>
+
+#if HAVE_PWD_H
+# include <pwd.h>
+#endif
 
 #ifndef __MINGW32__
 # include <sys/socket.h>
@@ -410,6 +414,46 @@ svz_portcfg_finalize (void)
     }
 }
 
+/* Check the consitency of the user-uid pair. */
+static int
+svz_pipe_check_user (svz_pipe_t *pipe)
+{
+#if HAVE_PWD_H
+  struct passwd *p = NULL;
+
+  if (pipe->user)
+    {
+      if ((p = getpwnam (pipe->user)) == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no such user `%s'\n", 
+		   pipe->name, pipe->user);
+	  svz_free_and_zero (pipe->user);
+	  pipe->uid = 0;
+	  return -1;
+	}
+      pipe->uid = p->pw_uid;
+    }
+  else if (pipe->uid)
+    {
+      if ((p = getpwuid (pipe->uid)) == NULL)
+	{
+	  svz_log (LOG_ERROR, "%s: no such user id `%d'\n", 
+		   pipe->name, pipe->uid);
+	  return -1;
+	}
+      pipe->user = svz_strdup (p->pw_name);
+    }
+#endif /* not HAVE_PWD_H */
+  return 0;
+}
+
+/* Check the consitency of the user-uid pair. */
+static int
+svz_pipe_check_group (svz_pipe_t *pipe)
+{
+  return 0;
+}
+
 /*
  * Construct the @code{sockaddr_in} fields from the @code{ipaddr} field.
  * Returns zero if it worked. If it does not work the @code{ipaddr} field
@@ -422,18 +466,23 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 
   switch (this->proto)
     {
+      /* For all network protocols we assign AF_INET as protocol family,
+	 determine the network port (if necessary) and put the ip address. */
     case PROTO_TCP:
-      /* put ip address here */
       err = svz_inet_aton (this->tcp_ipaddr, &this->tcp_addr);
-      /* this surely is internet */
       this->tcp_addr.sin_family = AF_INET;
-      /* determine network port */
-      this->tcp_addr.sin_port = htons (this->tcp_port);
+      if (!(this->tcp_port > 0 && this->tcp_port < 65536))
+	err = -1;
+      else
+	this->tcp_addr.sin_port = htons (this->tcp_port);
       break;
     case PROTO_UDP:
       err = svz_inet_aton (this->udp_ipaddr, &this->udp_addr);
       this->udp_addr.sin_family = AF_INET;
-      this->udp_addr.sin_port = htons (this->tcp_port);
+      if (!(this->udp_port > 0 && this->udp_port < 65536))
+	err = -1;
+      else
+	this->udp_addr.sin_port = htons (this->udp_port);
       break;
     case PROTO_ICMP:
       err = svz_inet_aton (this->icmp_ipaddr, &this->icmp_addr);
@@ -443,8 +492,13 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       err = svz_inet_aton (this->raw_ipaddr, &this->raw_addr);
       this->raw_addr.sin_family = AF_INET;
       break;
+      /* The pipe protocol needs a check for the validity of the permissions,
+	 the group and user names and its id's. */
     case PROTO_PIPE:
-      err = 0;
+      err |= svz_pipe_check_user (&this->pipe_recv);
+      err |= svz_pipe_check_group (&this->pipe_recv);
+      err |= svz_pipe_check_user (&this->pipe_send);
+      err |= svz_pipe_check_group (&this->pipe_send);
       break;
     default:
       err = 0;
@@ -472,46 +526,55 @@ svz_portcfg_prepare (svz_portcfg_t *port)
 
 /*
  * Debug helper: Emit a printable representation of the the given
- * port configuration to the given FILE stream.
+ * port configuration to the given FILE stream @var{f}.
  */
 void
-svz_portcfg_print (svz_portcfg_t *this, FILE *stream)
+svz_portcfg_print (svz_portcfg_t *this, FILE *f)
 {
   if (NULL == this)
     {
-      fprintf (stream, "portcfg is NULL !\n");
+      fprintf (f, "portcfg is NULL\n");
       return;
     }
 
   switch (this->proto)
     {
     case PROTO_TCP:
-      fprintf (stream, "portcfg `%s': TCP (%s|%s):%d\n", this->name,
+      fprintf (f, "portcfg `%s': TCP (%s|%s):%d\n", this->name,
 	       this->tcp_ipaddr,
 	       svz_inet_ntoa (this->tcp_addr.sin_addr.s_addr),
 	       this->tcp_port);
       break;
     case PROTO_UDP:
-      fprintf (stream, "portcfg `%s': UDP (%s|%s):%d\n", this->name,
+      fprintf (f, "portcfg `%s': UDP (%s|%s):%d\n", this->name,
 	       this->udp_ipaddr,
 	       svz_inet_ntoa (this->udp_addr.sin_addr.s_addr),
 	       this->udp_port);
       break;
     case PROTO_ICMP:
-      fprintf (stream, "portcfg `%s': ICMP (%s|%s)\n", this->name,
+      fprintf (f, "portcfg `%s': ICMP (%s|%s)\n", this->name,
 	       this->icmp_ipaddr,
 	       svz_inet_ntoa (this->icmp_addr.sin_addr.s_addr));
       break;
     case PROTO_RAW:
-      fprintf (stream, "portcfg `%s': RAW (%s|%s)\n", this->name,
+      fprintf (f, "portcfg `%s': RAW (%s|%s)\n", this->name,
 	       this->raw_ipaddr,
 	       svz_inet_ntoa (this->raw_addr.sin_addr.s_addr));
       break;
     case PROTO_PIPE:
-      /* FIXME: implement me */
-      fprintf (stream, "portcfg `%s': PIPE but unimplemented\n", this->name);
+      fprintf (f, "portcfg `%s': PIPE "
+	       "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)<->"
+	       "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)\n", this->name,
+	       this->pipe_recv.name, 
+	       this->pipe_recv.user, this->pipe_recv.uid,
+	       this->pipe_recv.group, this->pipe_recv.gid,
+	       this->pipe_recv.perm,
+	       this->pipe_send.name, 
+	       this->pipe_send.user, this->pipe_send.uid,
+	       this->pipe_send.group, this->pipe_send.gid,
+	       this->pipe_send.perm);
       break;
     default:
-      fprintf (stream, "portcfg with invalid proto field %d\n", this->proto);
+      fprintf (f, "portcfg has invalid proto field %d\n", this->proto);
     }
 }

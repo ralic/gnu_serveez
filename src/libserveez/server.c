@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.21 2001/06/01 21:24:09 ela Exp $
+ * $Id: server.c,v 1.22 2001/06/05 17:57:22 ela Exp $
  *
  */
 
@@ -315,14 +315,15 @@ svz_server_find (void *cfg)
 
 /*
  * Add the server instance @var{server} to the list of instanciated 
- * servers.
+ * servers. Returns the previous value of that server if any or @code{NULL}
+ * otherwise.
  */
-void
+svz_server_t *
 svz_server_add (svz_server_t *server)
 {
   if (svz_servers == NULL)
     svz_servers = svz_hash_create (4);
-  svz_hash_put (svz_servers, server->name, server);
+  return svz_hash_put (svz_servers, server->name, server);
 }
 
 /*

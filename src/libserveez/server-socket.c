@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.13 2001/06/01 21:24:09 ela Exp $
+ * $Id: server-socket.c,v 1.14 2001/06/05 17:57:22 ela Exp $
  *
  */
 
@@ -187,10 +187,8 @@ svz_server_create (svz_portcfg_t *port)
   if (port->proto & PROTO_PIPE)
     {
 #ifndef __MINGW32__
-      sock->recv_pipe = svz_malloc (strlen (port->pipe_recv.name) + 1);
-      strcpy (sock->recv_pipe, port->pipe_recv.name);
-      sock->send_pipe = svz_malloc (strlen (port->pipe_send.name) + 1);
-      strcpy (sock->send_pipe, port->pipe_send.name);
+      sock->recv_pipe = svz_strdup (port->pipe_recv.name);
+      sock->send_pipe = svz_strdup (port->pipe_send.name);
 #else /* __MINGW32__ */
       sock->recv_pipe = svz_malloc (strlen (port->pipe_recv.name) + 10);
       sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", port->pipe_recv.name);
