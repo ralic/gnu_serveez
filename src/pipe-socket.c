@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.17 2000/11/12 01:48:54 ela Exp $
+ * $Id: pipe-socket.c,v 1.18 2000/11/29 20:25:08 ela Exp $
  *
  */
 
@@ -34,6 +34,7 @@
 # include <unistd.h>
 #endif
 #include <fcntl.h>
+#include <sys/stat.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -42,6 +43,7 @@
 #include "alloc.h"
 #include "socket.h"
 #include "util.h"
+#include "server-core.h"
 #include "pipe-socket.h"
 
 /*
@@ -77,7 +79,7 @@ pipe_disconnect (socket_t sock)
 {
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
-      if (sock->referer)
+      if (sock->referrer)
 	{
 #ifdef __MINGW32__
 	  /* just disconnect client pipes */
@@ -88,8 +90,8 @@ pipe_disconnect (socket_t sock)
 #endif /* not __MINGW32__ */
 
 	  /* restart listening pipe server socket */
-	  sock->referer->flags &= ~SOCK_FLAG_INITED;
-	  sock->referer->referer = NULL;
+	  sock->referrer->flags &= ~SOCK_FLAG_INITED;
+	  sock->referrer->referrer = NULL;
 	}
       else
 	{
@@ -114,8 +116,8 @@ pipe_disconnect (socket_t sock)
   /* prevent a pipe server's child to reinit the pipe server */
   if (sock->flags & SOCK_FLAG_LISTENING)
     {
-      if (sock->referer)
-	sock->referer->referer = NULL;
+      if (sock->referrer)
+	sock->referrer->referrer = NULL;
 
 #ifndef __MINGW32__
 
@@ -212,6 +214,8 @@ pipe_read (socket_t sock)
 			do_read)) == -1)
     {
       log_printf (LOG_ERROR, "pipe: read: %s\n", SYS_ERROR);
+      if (errno == EAGAIN)
+	return 0;
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -383,4 +387,119 @@ pipe_create_pair (HANDLE pipe_desc[2])
 #endif /* not __MINGW32__ */
 
   return 0;
+}
+
+/*
+ * This routine creates a pipe connection socket structure to a named
+ * pipe. Return NULL on errors.
+ */
+socket_t
+pipe_connect (char *inpipe, char *outpipe)
+{
+  socket_t sock;
+  HANDLE recv_pipe, send_pipe;
+#ifndef __MINGW32__
+  struct stat buf;
+#endif
+  
+  /* create socket structure */
+  if ((sock = sock_alloc ()) == NULL)
+    {
+      return NULL;
+    }
+
+#ifndef __MINGW32__
+  sock->recv_pipe = xmalloc (strlen (inpipe) + 1);
+  strcpy (sock->recv_pipe, inpipe);
+  sock->send_pipe = xmalloc (strlen (outpipe) + 1);
+  strcpy (sock->send_pipe, outpipe);
+#else /* __MINGW32__ */
+  sock->recv_pipe = xmalloc (strlen (inpipe) + 10);
+  sprintf (sock->recv_pipe, "\\\\.\\pipe\\%s", inpipe);
+  sock->send_pipe = xmalloc (strlen (outpipe) + 10);
+  sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", outpipe);
+#endif /* __MINGW32__ */
+
+#ifndef __MINGW32__
+  /* is receive pipe such a ? */
+  if (stat (sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+    {
+      log_printf (LOG_ERROR, "pipe: no such pipe: %s\n", sock->recv_pipe);
+      sock_free (sock);
+      return NULL;
+    }
+
+  /* is send pipe such a ? */
+  if (stat (sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
+    {
+      log_printf (LOG_ERROR, "pipe: no such pipe: %s\n", sock->send_pipe);
+      sock_free (sock);
+      return NULL;
+    }
+
+  /* try opening receiving pipe for reading */
+  if ((recv_pipe = open (sock->recv_pipe, O_RDONLY | O_NONBLOCK)) == -1)
+    {
+      log_printf (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
+      sock_free (sock);
+      return NULL;
+    }
+
+  /* try opening sending pipe for writing */
+  if ((send_pipe = open (sock->send_pipe, O_WRONLY /*| O_NONBLOCK*/)) == -1)
+    {
+      log_printf (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
+      close (recv_pipe);
+      sock_free (sock);
+      return NULL;
+    }
+
+  /* set send pipe to non-blocking mode */
+  if (fcntl (send_pipe, F_SETFL, O_NONBLOCK) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", SYS_ERROR);
+      close (recv_pipe);
+      close (send_pipe);
+      sock_free (sock);
+      return NULL;
+    }
+
+#else /* __MINGW32__ */
+
+  /* try opening receiving pipe */
+  if ((recv_pipe = CreateFile (sock->recv_pipe, GENERIC_READ, 0,
+			       NULL, OPEN_EXISTING, 0, NULL)) == 
+      INVALID_HANDLE_VALUE)
+    {
+      log_printf (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
+      sock_free (sock);
+      return NULL;
+    }
+
+  /* try opening sending pipe */
+  if ((send_pipe = CreateFile (sock->send_pipe, GENERIC_WRITE, 0,
+			       NULL, OPEN_EXISTING, 0, NULL)) == 
+      INVALID_HANDLE_VALUE)
+    {
+      log_printf (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
+      DisconnectNamedPipe (recv_pipe);
+      CloseHandle (recv_pipe);
+      sock_free (sock);
+      return NULL;
+    }
+
+#endif /* __MINGW32__ */
+
+  /* modify socket structure and assign some callbacks */
+  sock_unique_id (sock);
+  sock->pipe_desc[READ] = recv_pipe;
+  sock->pipe_desc[WRITE] = send_pipe;
+  sock->flags |= (SOCK_FLAG_PIPE | SOCK_FLAG_CONNECTED);
+  sock_enqueue (sock);
+
+  sock->read_socket = pipe_read;
+  sock->write_socket = pipe_write;
+
+  connected_sockets++;
+  return sock;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.5 2000/09/20 08:29:14 ela Exp $
+ * $Id: pipe-socket.h,v 1.6 2000/11/29 20:25:08 ela Exp $
  *
  */
 
@@ -89,5 +89,11 @@ socket_t pipe_create (HANDLE recv_fd, HANDLE send_fd);
  * Return a non-zero value on errors.
  */
 int pipe_create_pair (HANDLE pipe_desc[2]);
+
+/*
+ * This routine creates a pipe connection socket structure to a named
+ * pipe. Return NULL on errors.
+ */
+socket_t pipe_connect (char *inpipe, char *outpipe);
 
 #endif /* __PIPE_SOCKET_H__ */

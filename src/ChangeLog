@@ -1,3 +1,12 @@
+2000-11-28  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c (tnl_create_socket): Added routines and
+	definitions for the support of forwarding named pipes.
+
+	* pipe-socket.c (pipe_connect): This routine connects to a pair
+	of named pipes. It is the counterpart of the server_accept_pipe()
+	function.
+
 2000-11-26  [ Ela ]  <ela@lkcc.org>
 
 	* server.h (PROTO_RAW): Added some definitions for latter support

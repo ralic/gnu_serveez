@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.38 2000/11/26 12:22:10 ela Exp $
+ * $Id: server-socket.c,v 1.39 2000/11/29 20:25:08 ela Exp $
  *
  */
 
@@ -662,7 +662,7 @@ server_accept_pipe (socket_t server_sock)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
   sock->flags |= SOCK_FLAG_PIPE;
-  sock->referer = server_sock;
+  sock->referrer = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
@@ -675,7 +675,7 @@ server_accept_pipe (socket_t server_sock)
 	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 
   server_sock->flags |= SOCK_FLAG_INITED;
-  server_sock->referer = sock;
+  server_sock->referrer = sock;
   return 0;
 #endif /* HAVE_MKFIFO or __MINGW32__ */
 }
