@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.25 2000/09/15 08:22:50 ela Exp $
+ * $Id: util.c,v 1.26 2000/09/17 17:00:58 ela Exp $
  *
  */
 
@@ -627,6 +627,131 @@ util_atoi (char *str)
   return i;
 }
 
+#ifdef __MINGW32__
+
+/* definitions for Win95..WinME */
+#define MaxSocketKey       HKEY_LOCAL_MACHINE
+#define MaxSocketSubKey    "System\\CurrentControlSet\\Services\\VxD\\MSTCP"
+#define MaxSocketSubSubKey "MaxConnections"
+
+/*
+ * Read and write an unsigned integer value from and to the 
+ * Windows Registry Database.
+ */
+unsigned
+get_registry_unsigned (HKEY key, char *subkey, char *subsubkey, unsigned def)
+{
+  unsigned value;
+  DWORD size, type;
+  HKEY reg;
+
+  if (RegOpenKeyEx (key, subkey, 0, KEY_QUERY_VALUE, &reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      return def;
+    }
+
+  size = sizeof (DWORD);
+  type = REG_DWORD;
+  if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
+		       (BYTE *) &value, &size) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
+      value = def;
+    }
+
+  if (RegCloseKey (reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+    }
+  return value;
+}
+
+void
+set_registry_unsigned (HKEY key, char *subkey, char *subsubkey, unsigned value)
+{
+  DWORD size, type;
+  HKEY reg;
+
+  if (RegOpenKeyEx (key, subkey, 0, KEY_SET_VALUE, &reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      return;
+    }
+
+  size = sizeof (DWORD);
+  type = REG_DWORD;
+  if (RegSetValueEx (reg, subsubkey, 0, type, 
+		     (BYTE *) &value, size) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
+    }
+
+  if (RegCloseKey (reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+    }
+}
+
+/*
+ * Read and write a string value from and to the Windows Registry Database.
+ */
+char *
+get_registry_string (HKEY key, char *subkey, char *subsubkey, char *def)
+{
+  static char value[128];
+  DWORD size, type;
+  HKEY reg;
+
+  if (RegOpenKeyEx (key, subkey, 0, KEY_QUERY_VALUE, &reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      return def;
+    }
+
+  size = sizeof (value);
+  type = REG_SZ;
+  if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
+		       (BYTE *) value, &size) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
+      strcpy (value, def);
+    }
+
+  if (RegCloseKey (reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+    }
+  return value;
+}
+
+void
+set_registry_string (HKEY key, char *subkey, char *subsubkey, char *value)
+{
+  DWORD size, type;
+  HKEY reg;
+
+  if (RegOpenKeyEx (key, subkey, 0, KEY_SET_VALUE, &reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegOpenKeyEx: %s\n", SYS_ERROR);
+      return;
+    }
+
+  size = strlen (value);
+  type = REG_SZ;
+  if (RegSetValueEx (reg, subsubkey, 0, type, 
+		     (BYTE *) value, size) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
+    }
+
+  if (RegCloseKey (reg) != ERROR_SUCCESS)
+    {
+      log_printf (LOG_ERROR, "RegCloseKey: %s\n", SYS_ERROR);
+    }
+}
+#endif /* __MINGW32__ */
+
 /*
  * This routine checks for the current and maximum limit of open files
  * of the current process.
@@ -663,7 +788,56 @@ util_openfiles (void)
       log_printf (LOG_NOTICE, "open file limit set to: %d/%d\n",
 		  rlim.rlim_cur,  rlim.rlim_max);
     }
-#endif /* HAVE_GETRLIMIT */
+
+#elif defined (__MINGW32__) /* HAVE_GETRLIMIT */
+  /*
+   * Winsock-FAQ:
+   * On Win9x machines, there's quite-low limit imposed by the kernel: 
+   * 100 connections. You can increase this limit by editing the registry
+   * key HKLM\System\CurrentControlSet\Services\VxD\MSTCP\MaxConnections. 
+   * On Windows 95, the key is a DWORD; on Windows 98, it's a string. 
+   * I've seen some reports of instability when this value is increased 
+   * to more than a few times its default value.
+   */
+  unsigned sockets = 100;
+  
+  if (os_version == Win95 || os_version == Win98 || os_version == WinME)
+    {
+      if (os_version == Win95)
+	sockets = get_registry_unsigned (MaxSocketKey, 
+					 MaxSocketSubKey, 
+					 MaxSocketSubSubKey, 
+					 sockets);
+      else
+	sockets = util_atoi (get_registry_string (MaxSocketKey, 
+						  MaxSocketSubKey, 
+						  MaxSocketSubSubKey, 
+						  util_itoa (sockets)));
+	
+      log_printf (LOG_NOTICE, "current open file limit: %u\n", 
+		  sockets);
+
+      if (sockets < (unsigned) serveez_config.max_sockets)
+	{
+	  sockets = serveez_config.max_sockets;
+
+	  if (os_version == Win95)
+	    set_registry_unsigned (MaxSocketKey, 
+				   MaxSocketSubKey, 
+				   MaxSocketSubSubKey, 
+				   sockets);
+	  else
+	    set_registry_string (MaxSocketKey, 
+				 MaxSocketSubKey, 
+				 MaxSocketSubSubKey, 
+				 util_itoa (sockets));
+
+	  log_printf (LOG_NOTICE, "open file limit set to: %u\n",
+		      sockets);
+	}
+    }
+#endif /* MINGW32__ */
+
   return 0;
 }
 

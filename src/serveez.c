@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.12 2000/08/19 10:57:34 ela Exp $
+ * $Id: serveez.c,v 1.13 2000/09/17 17:00:58 ela Exp $
  *
  */
 
@@ -185,13 +185,13 @@ main (int argc, char * argv[])
 	  if (optarg)
 	    {
 	      /*
-	      strncpy(serveez_config.server_password, optarg, 
-		      sizeof(serveez_config.server_password));
+	      strncpy (serveez_config.server_password, optarg, 
+		      sizeof (serveez_config.server_password));
 	      serveez_config.server_password[
-	        sizeof(serveez_config.server_password) - 1] = '\0';
+	        sizeo f(serveez_config.server_password) - 1] = '\0';
 	      */
-	      cli_pass = xmalloc(strlen(optarg) + 1);
-	      strcpy(cli_pass, optarg);
+	      cli_pass = xmalloc (strlen (optarg) + 1);
+	      strcpy (cli_pass, optarg);
 	    }
 	  break;
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.19 2000/09/02 15:48:13 ela Exp $
+ * $Id: util.h,v 1.20 2000/09/17 17:00:58 ela Exp $
  *
  */
 
@@ -37,6 +37,12 @@
 
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
+#endif
+
+/* declare crypt interface if necessary */
+#if ENABLE_CRYPT && HAVE_CRYPT
+extern char *crypt (const char *key, const char *salt);
+extern char *getpass (const char *prompt);
 #endif
 
 typedef unsigned char byte;

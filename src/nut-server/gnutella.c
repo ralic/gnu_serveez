@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.19 2000/09/15 08:22:51 ela Exp $
+ * $Id: gnutella.c,v 1.20 2000/09/17 17:00:58 ela Exp $
  *
  */
 
@@ -135,6 +135,8 @@ nut_config_t nut_config =
   0,                   /* size of database in KB */
   0,                   /* current number of uploads */
   4,                   /* maximum number of uploads */
+  "gnutella-net",      /* configurable gnutella net url */
+  NULL,                /* detection string for the above value */
 };
 
 /*
@@ -157,6 +159,7 @@ key_value_pair_t nut_config_prototype [] =
   REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
   REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
   REGISTER_INT ("max-uploads", nut_config.max_uploads, DEFAULTABLE),
+  REGISTER_STR ("net-url", nut_config.net_url, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -255,8 +258,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
       
       sock->cfg = cfg;
       sock->flags |= SOCK_FLAG_NOFLOOD;
-      sock->disconnected_socket = nut_disconnect;
-      sock->check_request = nut_check_request;
+      sock->check_request = nut_detect_connect;
       sock->idle_func = nut_connect_timeout;
       sock->idle_counter = NUT_CONNECT_TIMEOUT;
       sock_printf (sock, NUT_CONNECT);
@@ -330,6 +332,23 @@ nut_global_init (void)
 
   /* initialize random seed */
   srand (time (NULL));
+
+#if 0
+  /* Print structure sizes. */
+  printf ("header     : %d\n", sizeof (nut_header_t));
+  printf ("ping reply : %d\n", sizeof (nut_ping_reply_t));
+  printf ("query      : %d\n", sizeof (nut_query_t));
+  printf ("record     : %d\n", sizeof (nut_record_t));
+  printf ("reply      : %d\n", sizeof (nut_reply_t));
+  printf ("push       : %d\n", sizeof (nut_push_t));
+  printf ("host       : %d\n", sizeof (nut_host_t));
+  printf ("client     : %d\n", sizeof (nut_client_t));
+  printf ("packet     : %d\n", sizeof (nut_packet_t));
+  printf ("push reply : %d\n", sizeof (nut_push_reply_t));
+  printf ("file       : %d\n", sizeof (nut_file_t));
+  printf ("config     : %d\n", sizeof (nut_config_t));
+  printf ("transfer   : %d\n", sizeof (nut_transfer_t));
+#endif
   return 0;
 }
 
@@ -361,7 +380,7 @@ nut_init (server_t *server)
       if (stat (cfg->save_path, &buf) == -1)
 	{
 	  /* create the download directory */
-	  if (mkdir (cfg->save_path, S_IRWXU) == -1)
+	  if (mkdir (cfg->save_path, 0755) == -1)
 	    {
 	      log_printf (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
 	      return -1;
@@ -415,6 +434,10 @@ nut_init (server_t *server)
 
   /* calculate this server instance's GUID */
   nut_calc_guid (cfg->guid);
+
+  /* create detection string for gnutella host list */
+  cfg->net_detect = xmalloc (strlen (NUT_HOSTS) + strlen (cfg->net_url) + 1);
+  sprintf (cfg->net_detect, NUT_HOSTS, cfg->net_url);
 
   /* go through all given hosts and try to connect to them */
   if (cfg->hosts)
@@ -472,6 +495,9 @@ nut_finalize (server_t *server)
       hash_xfree (client);
     }
   hash_destroy (cfg->net);
+
+  /* free detection string */
+  xfree (cfg->net_detect);
 
   return 0;
 }
@@ -633,14 +659,13 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 	      xsock->cfg = cfg;
 
 	      /* not sure about the format of this line */
-	      if (sock_printf (xsock, "GIV %d:%s/%s\n\n",
+	      if (sock_printf (xsock, NUT_GIVE "%d:%s/%s\n\n",
 			       entry->index, nut_text_guid (cfg->guid),
 			       entry->file) == -1)
 		{
 		  sock_schedule_for_shutdown (xsock);
 		  return -1;
 		}
-	      xsock->disconnected_socket = nut_disconnect_upload;
 	      xsock->check_request = nut_check_upload;
 	      xsock->idle_func = nut_connect_timeout;
 	      xsock->idle_counter = NUT_CONNECT_TIMEOUT;
@@ -971,38 +996,15 @@ int
 nut_check_request (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_client_t *client;
+  nut_client_t *client = sock->data;
   nut_header_t *hdr;
   byte *packet;
   int len = strlen (NUT_OK);
   unsigned fill = sock->recv_buffer_fill;
 
-  /* check for self connected response */
-  if (fill >= (unsigned) len && !memcmp (sock->recv_buffer, NUT_OK, len))
-    {
-      /* add this client to the current connection hash */
-      hash_put (cfg->conn, 
-		nut_client_key (sock->remote_addr, sock->remote_port), 
-		sock);
-
-      sock->userflags |= NUT_FLAG_CLIENT;
-      log_printf (LOG_NOTICE, "nut: host %s:%u connected\n",
-		  util_inet_ntoa (sock->remote_addr),
-		  ntohs (sock->remote_port));
-      sock_reduce_recv (sock, len);
-
-      sock->data = nut_create_client ();
-      sock->idle_func = nut_idle_searching;
-      sock->idle_counter = NUT_SEARCH_INTERVAL;
-
-      if (nut_init_ping (sock) == -1) 
-	return -1;
-    }
-
   /* go through all packets in the receive queue */
   while ((fill = sock->recv_buffer_fill) >= SIZEOF_NUT_HEADER)
     {
-      client = sock->data;
       hdr = nut_get_header ((byte *) sock->recv_buffer);
 
       /* is there enough data to fulfill a complete packet ? */
@@ -1267,11 +1269,49 @@ nut_info_client (void *nut_cfg, socket_t sock)
 }
 
 /*
+ * This is the protocol detection routine for self connected gnutella
+ * hosts. It is used for normal gnutella network connections and
+ * push requests (download).
+ */
+int
+nut_detect_connect (socket_t sock)
+{
+  nut_config_t *cfg = sock->cfg;
+  int len = strlen (NUT_OK);
+
+  /* check for self connected response of normal gnutella host */
+  if (sock->recv_buffer_fill >= len && 
+      !memcmp (sock->recv_buffer, NUT_OK, len))
+    {
+      sock->userflags |= (NUT_FLAG_CLIENT | NUT_FLAG_SELF);
+      log_printf (LOG_NOTICE, "nut: host %s:%u connected\n",
+		  util_inet_ntoa (sock->remote_addr),
+		  ntohs (sock->remote_port));
+      sock_reduce_recv (sock, len);
+
+      if (nut_connect_socket (cfg, sock) == -1) 
+	return -1;
+      return sock->check_request (sock);
+    }
+
+  /* check for push request reply */
+  len = strlen (NUT_GIVE);
+  if (sock->recv_buffer_fill >= len && 
+      !memcmp (sock->recv_buffer, NUT_GIVE, len))
+    {
+      /* TODO: push requests are not sent by ourselves yet ! */
+    }
+
+  return 0;
+}
+
+/*
  * Incoming connections will be protocol checked.
  */
 int 
 nut_detect_proto (void *nut_cfg, socket_t sock)
 {
+  nut_config_t *cfg = nut_cfg;
   int len = strlen (NUT_CONNECT);
 
   /* detect normal connect */
@@ -1285,17 +1325,6 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       return -1;
     }
 
-  /* detect host catcher request */
-  len = strlen (NUT_HOSTS);
-  if (sock->recv_buffer_fill >= len &&
-      !memcmp (sock->recv_buffer, NUT_HOSTS, len))
-    {
-      sock->userflags |= NUT_FLAG_HOSTS;
-      log_printf (LOG_NOTICE, "gnutella protocol detected (host list)\n");
-      sock_reduce_recv (sock, len);
-      return -1;
-    }
-
   /* detect upload request */
   len = strlen (NUT_GET);
   if (sock->recv_buffer_fill >= len &&
@@ -1303,6 +1332,17 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
     {
       sock->userflags |= NUT_FLAG_UPLOAD;
       log_printf (LOG_NOTICE, "gnutella protocol detected (upload)\n");
+      return -1;
+    }
+
+  /* detect host catcher request */
+  len = strlen (cfg->net_detect);
+  if (sock->recv_buffer_fill >= len &&
+      !memcmp (sock->recv_buffer, cfg->net_detect, len))
+    {
+      sock->userflags |= NUT_FLAG_HOSTS;
+      log_printf (LOG_NOTICE, "gnutella protocol detected (host list)\n");
+      sock_reduce_recv (sock, len);
       return -1;
     }
 
@@ -1338,32 +1378,39 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
       return -1;
     }
 
-  /* check if we got enough clients already */
-  if (hash_size (cfg->conn) > cfg->connections)
-    return -1;
+  /* assign normal gnutella request routines */
+  if (sock->userflags & NUT_FLAG_CLIENT)
+    {
+      /* check if we got enough clients already */
+      if (hash_size (cfg->conn) > cfg->connections)
+	return -1;
 
-  /* send the first reply */
-  if (sock_printf (sock, NUT_OK) == -1)
-    return -1;
+      /* send the first reply if necessary */
+      if (!(sock->userflags & NUT_FLAG_SELF))
+	if (sock_printf (sock, NUT_OK) == -1)
+	  return -1;
 
-  /* assign gnutella specific callbacks */
-  sock->flags |= SOCK_FLAG_NOFLOOD;
-  sock->disconnected_socket = nut_disconnect;
-  sock->check_request = nut_check_request;
-  sock->idle_func = nut_idle_searching;
-  sock->idle_counter = NUT_SEARCH_INTERVAL;
-  sock->data = nut_create_client ();
+      /* assign gnutella specific callbacks */
+      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->disconnected_socket = nut_disconnect;
+      sock->check_request = nut_check_request;
+      sock->idle_func = nut_idle_searching;
+      sock->idle_counter = NUT_SEARCH_INTERVAL;
+      sock->data = nut_create_client ();
 
-  /* send inital ping */
-  if (nut_init_ping (sock) == -1)
-    return -1;
+      /* send inital ping */
+      if (nut_init_ping (sock) == -1)
+	return -1;
 
-  /* put this client to the current connection hash */
-  hash_put (cfg->conn, 
-	    nut_client_key (sock->remote_addr, sock->remote_port), 
-	    sock);
+      /* put this client to the current connection hash */
+      hash_put (cfg->conn, 
+		nut_client_key (sock->remote_addr, sock->remote_port), 
+		sock);
 
-  return 0;
+      return 0;
+    }
+
+  return -1;
 }
 
 int have_gnutella = 1;

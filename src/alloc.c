@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.11 2000/09/12 22:14:15 ela Exp $
+ * $Id: alloc.c,v 1.12 2000/09/17 17:00:57 ela Exp $
  *
  */
 
@@ -47,22 +47,76 @@ unsigned allocated_blocks = 0;
 #endif
 
 #if DEBUG_MEMORY_LEAKS
+
+/* heap hash */
 hash_t *heap = NULL;
+
+/* These 3 (three) routines are for modifying the heap hash key processing. */
+static unsigned
+heap_hash_keylen (char *id)
+{
+  return SIZEOF_VOID_P;
+}
+
+static int 
+heap_hash_equals (char *id1, char *id2)
+{
+  return memcmp (id1, id2, SIZEOF_VOID_P);
+}
+ 
+static unsigned long 
+heap_hash_code (char *id)
+{
+  unsigned long code = UINT32 (id);
+  code >>= 3;
+  return code;
+}
+
+typedef struct
+{
+  void *ptr;     /* memory pointer */
+  unsigned size; /* block size */
+  void *caller;  /* the caller */
+}
+heap_block_t;
+
+#ifndef __GNUC__
+# define __builtin_return_address(nr) 0
 #endif
 
+void
+heap_add (heap_block_t *block)
+{
+  if (heap == NULL)
+    {
+      heap = hash_create (4);
+      heap->keylen = heap_hash_keylen;
+      heap->code = heap_hash_code;
+      heap->equals = heap_hash_equals;
+    }
+  hash_put (heap, (char *) &block->ptr, block);
+}
+
+#endif /* DEBUG_MEMORY_LEAKS */
+
+/*
+ * xmalloc() - allocate `size' of memory and return a pointer to it
+ */
 void * 
 xmalloc (unsigned size)
 {
   void *ptr;
-
 #if ENABLE_DEBUG
   unsigned *up;
+#if DEBUG_MEMORY_LEAKS
+  heap_block_t *block;
+#endif
 #endif
 
   assert (size);
 
 #if ENABLE_DEBUG
-  if ((ptr = (void *) malloc (size + 2*SIZEOF_UNSIGNED)) != NULL)
+  if ((ptr = (void *) malloc (size + 2 * SIZEOF_UNSIGNED)) != NULL)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
@@ -70,11 +124,14 @@ xmalloc (unsigned size)
       *up = size;
       up += 2;
       ptr = (void *)up;
-#if  DEBUG_MEMORY_LEAKS      
+#if DEBUG_MEMORY_LEAKS
       /* put heap pointer into special heap hash */
-      if (heap == NULL)	heap = hash_create (4);
-      hash_put (heap, util_itoa ((int)ptr), ptr);
-#endif
+      block = malloc (sizeof (heap_block_t));
+      block->ptr = ptr;
+      block->size = size;
+      block->caller = __builtin_return_address (0);
+      heap_add (block);
+#endif /* DEBUG_MEMORY_LEAKS */
 
       allocated_bytes += size;
 #endif /* ENABLE_HEAP_COUNT */
@@ -95,12 +152,21 @@ xmalloc (unsigned size)
     }
 }
 
+/*
+ * xrealloc() - change the size of a xmalloc()'ed block of memory.
+ *	`size' is the new size of the block, `old_size' is the
+ *	current size. `ptr' is the pointer returned by xmalloc() or
+ *	NULL.
+ */
 void *
 xrealloc (void * ptr, unsigned size)
 {
 #if ENABLE_DEBUG
   unsigned old_size;
   unsigned *up;
+#endif
+#if DEBUG_MEMORY_LEAKS
+  heap_block_t *block;
 #endif
 
   assert (size);
@@ -109,13 +175,19 @@ xrealloc (void * ptr, unsigned size)
     {
 #if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
+
 #if DEBUG_MEMORY_LEAKS
-      if (hash_delete (heap, util_itoa ((int) ptr)) != ptr)
+      if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
+	  block->ptr != ptr)
 	{
-	  log_printf (LOG_DEBUG, "xrealloc: %p not found in heap\n", ptr);
+	  log_printf (LOG_DEBUG, 
+		      "xrealloc: %p not found in heap (caller: %p)\n", 
+		      ptr, __builtin_return_address (0));
 	  assert (0);
 	}
-#endif
+      free (block);
+#endif /* DEBUG_MEMORY_LEAKS */
+
       /* get previous blocksize */
       up = (unsigned *)ptr;
       up -= 2;
@@ -124,7 +196,7 @@ xrealloc (void * ptr, unsigned size)
 
 #endif /* ENABLE_HEAP_COUNT */
 
-      if ((ptr = (void *) realloc (ptr, size + 2*SIZEOF_UNSIGNED)) != NULL)
+      if ((ptr = (void *) realloc (ptr, size + 2 * SIZEOF_UNSIGNED)) != NULL)
 	{
 #if ENABLE_HEAP_COUNT
 	  /* save block size */
@@ -132,9 +204,15 @@ xrealloc (void * ptr, unsigned size)
 	  *up = size;
 	  up += 2;
 	  ptr = (void *)up;
+
 #if DEBUG_MEMORY_LEAKS
-	  hash_put (heap, util_itoa ((int)ptr), ptr);
-#endif
+	  block = malloc (sizeof (heap_block_t));
+	  block->ptr = ptr;
+	  block->size = size;
+	  block->caller = __builtin_return_address (0);
+	  heap_add (block);
+#endif /* DEBUG_MEMORY_LEAKS */
+
 	  allocated_bytes += size - old_size;
 #endif /* ENABLE_HEAP_COUNT */
 
@@ -159,14 +237,24 @@ xrealloc (void * ptr, unsigned size)
     }
 }
 
+/*
+ * xfree() - free a block of xmalloc()'ed or xrealloc()'ed
+ *	memory. `size' is only used to calculate the amount of
+ *	memory which got x{m,re}alloc()'ed but not xfree()'ed
+ */
 void
 xfree (void * ptr)
 {
 #if ENABLE_DEBUG
+#if ENABLE_HEAP_COUNT
   unsigned size;
   unsigned *up;
+#if DEBUG_MEMORY_LEAKS
+  heap_block_t *block;
 #endif
-  
+#endif
+#endif
+
   assert (ptr);
 
   if (ptr)
@@ -176,23 +264,25 @@ xfree (void * ptr)
       up = (unsigned *)ptr;
 
 #if DEBUG_MEMORY_LEAKS
-      if (hash_delete (heap, util_itoa ((int) ptr)) != ptr)
+      if ((block = hash_delete (heap, (char *) &ptr)) == NULL ||
+	  block->ptr != ptr)
 	{
-	  log_printf (LOG_DEBUG, "xfree: %p not found in heap\n", ptr);
-	  allocated_blocks++;
+	  log_printf (LOG_DEBUG, 
+		      "xfree: %p not found in heap (caller: %p)\n", 
+		      ptr, __builtin_return_address (0));
 	  assert (0);
 	}
-      else
-#endif
-	{
-	  /* get blocksize */
-	  up -= 2;
-	  size = *up;
-	  assert (size);
-	  allocated_bytes -= size;
-	  ptr = (void *)up;
-	}
+      free (block);
+#endif /* DEBUG_MEMORY_LEAKS */
+
+      /* get blocksize */
+      up -= 2;
+      size = *up;
+      assert (size);
+      allocated_bytes -= size;
+      ptr = (void *)up;
 #endif /* ENABLE_HEAP_COUNT */
+
       allocated_blocks--;
 #endif /* ENABLE_DEBUG */
       free (ptr);
@@ -207,20 +297,23 @@ xfree (void * ptr)
 void
 xheap (void)
 {
-  char **ptr;
+  heap_block_t **block;
   unsigned n;
   unsigned *up;
 
-  if ((ptr = (char **)hash_values (heap)) != NULL)
+  if ((block = (heap_block_t **) hash_values (heap)) != NULL)
     {
-      for (n = 0; n < (unsigned)hash_size (heap); n++)
+      for (n = 0; n < (unsigned) hash_size (heap); n++)
 	{
-	  up = (unsigned *)ptr[n];
+	  up = (unsigned *) block[n]->ptr;
 	  up -= 2;
-	  util_hexdump (stdout, "unreleased heap", (int) ptr[n],
-			ptr[n], *up, 256);
+	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
+		   block[n]->caller, block[n]->ptr, block[n]->size);
+	  util_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
+			block[n]->ptr, *up, 256);
+	  free (block[n]);
 	}
-      hash_xfree (ptr);
+      hash_xfree (block);
     }
   hash_destroy (heap);
   heap = NULL;

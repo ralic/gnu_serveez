@@ -1,3 +1,25 @@
+2000-09-17  [ Ela ]  <ela@lkcc.org>
+
+	* util.c (util_openfiles): Because Win9x and ME do have 
+	their maximum open connections (socket) system limit
+	within the registry we try redefining them.
+
+	* alloc.c (heap_add): If you defined `DEBUG_MEMORY_LEAKS'
+	you will additionally get the caller address of unreleased
+	heap blocks.
+
+	* mkpassword.c (main): Made simple password generation
+	program.
+
+	* server-socket.c (server_accept_pipe): Setting unlimited
+	umask permissions to allow any users to connect to named
+	pipes.
+
+	* nut-server/gnutella.c (nut_detect_connect): This routine
+	detects the gnutella protocol for self connected sockets.
+	(nut_config_prototype): The configuartion item `net-url'
+	is for the gnutella host list.
+
 2000-09-14  [ Ela ]  <ela@lkcc.org>
 
 	* server-socket.c (server_accept_pipe): Extra check if

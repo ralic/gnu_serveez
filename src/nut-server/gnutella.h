@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.15 2000/09/15 08:22:51 ela Exp $
+ * $Id: gnutella.h,v 1.16 2000/09/17 17:00:59 ela Exp $
  *
  */
 
@@ -39,7 +39,8 @@
 #define NUT_VERSION   "0.48"
 #define NUT_CONNECT   "GNUTELLA CONNECT/0.4\n\n"
 #define NUT_OK        "GNUTELLA OK\n\n"
-#define NUT_HOSTS     "GET /gnutella-net HTTP/1."
+#define NUT_HOSTS     "GET /%s HTTP/1."
+#define NUT_GIVE      "GIV "
 
 /* default values */
 #define NUT_PORT             6346         /* gnutella default tcp port */
@@ -66,6 +67,7 @@
 #define NUT_FLAG_HOSTS  0x0004
 #define NUT_FLAG_CLIENT 0x0008
 #define NUT_FLAG_UPLOAD 0x0010
+#define NUT_FLAG_SELF   0x0020
 
 /* guid:
  * The header contains a Microsoft GUID (Globally Unique Identifier for 
@@ -240,6 +242,8 @@ typedef struct
   unsigned db_size;         /* size of database in bytes */
   int uploads;              /* current number of uploads */
   int max_uploads;          /* maximum number of uploads */
+  char *net_url;            /* configurable gnutella net url */
+  char *net_detect;         /* detection string for the above value */
 }
 nut_config_t;
 
@@ -247,6 +251,7 @@ nut_config_t;
  * Basic server callback definitions.
  */
 int nut_detect_proto (void *cfg, socket_t sock);
+int nut_detect_connect (socket_t sock);
 int nut_connect_socket (void *cfg, socket_t sock);
 int nut_check_request (socket_t sock);
 int nut_disconnect (socket_t sock);

@@ -114,9 +114,6 @@ or '--enable-<?>=no'.
          If you enabled both of them the serveez will support the so called
          TimeStamp protocol which is is a EF-Net extension of the original IRC
          protocol. In order to connect to EF-Net you MUST use this option.
- 07.2. --enable-irc-crypt
-         This option tells the serveez to process any passwords (for operators
-         and servers) as crypt()ed.
  08.   --enable-awcs-proto
          In order to use the serveez software for the textSure (C) chat system
          you MUST enable this option.
@@ -158,5 +155,7 @@ or '--enable-<?>=no'.
  18.   --enable-gnutella
 	 If you do not want the gnutella spider client compiled in you need
 	 to disable this option.
+ 19.   --enable-crypt
+         This option tells serveez to process any passwords as crypt()ed.
 
 Please read the README file also.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.13 2000/09/15 08:22:51 ela Exp $
+ * $Id: nut-transfer.c,v 1.14 2000/09/17 17:00:59 ela Exp $
  *
  */
 
@@ -380,9 +380,9 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 
   /* try creating local file */
 #ifdef __MINGW32__
-  if ((fd = open (file, O_RDWR|O_CREAT|O_BINARY, S_IREAD|S_IWRITE)) == -1)
+  if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
 #else
-  if ((fd = open (file, O_RDWR|O_CREAT, S_IREAD|S_IWRITE)) == -1)
+  if ((fd = open (file, O_RDWR | O_CREAT, 0644)) == -1)
 #endif
     {
       log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);

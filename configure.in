@@ -524,28 +524,28 @@ unset define_enable_irc_ts
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Check whether the IRC password encryption should be included.
+dnl Check whether the password encryption should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable IRC password encryption])
+AC_MSG_CHECKING([whether to enable password encryption])
 AC_ARG_ENABLE(
-  irc-crypt,
-  [  --enable-irc-crypt      Include IRC password encryption [default=no]],
+  crypt,
+  [  --enable-crypt          Include password encryption [default=no]],
   if test x$enableval = "xyes"; then
-    define_enable_irc_crypt=yes
+    define_enable_crypt=yes
     AC_MSG_RESULT([yes])
   else
-    define_enable_irc_crypt=no
+    define_enable_crypt=no
     AC_MSG_RESULT([no])
   fi,
-  define_enable_irc_crypt=no
+  define_enable_crypt=no
   AC_MSG_RESULT([no])
 )
 
-if test $define_enable_irc_crypt = yes; then
+if test $define_enable_crypt = yes; then
   AC_DEFINE(ENABLE_CRYPT,
     1,
-    [Define if the IRC password encryption should be supported.])
+    [Define if the password encryption should be supported.])
 fi
 
 dnl ----------------------------------------------------------------------
@@ -731,7 +731,9 @@ AC_CYGWIN
 AC_EXEEXT
 AC_OBJEXT
 if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
-    AC_DEFINE(FD_SETSIZE, 1024, [Make CygWin / MingW32 use large FD sets.])
+    AC_DEFINE(FD_SETSIZE, 4096, [Make CygWin / MinGW32 use large FD sets.])
+    AC_DEFINE(WIN32_LEAN_AND_MEAN, 1, [Define for faster code generation.])
+    AC_CHECK_LIB(advapi32, main, EXTRALIBS="$EXTRALIBS -ladvapi32")
     if test "$MINGDIR" != "no" -a "$MINGW32" != "yes"; then
 	CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
 	LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
@@ -1107,12 +1109,25 @@ dnl
 dnl Checking for crypt() function.
 dnl
 
-if test $define_enable_irc_crypt = yes ; then
-    AC_CHECK_FUNC(crypt,,
-	AC_CHECK_LIB(descrypt,crypt,,
-	    AC_CHECK_LIB(crypt,crypt)))
+MKPASSWORD=""
+if test $define_enable_crypt = yes ; then
+    have_crypt=no
+    AC_CHECK_FUNC(crypt, have_crypt=yes,
+	AC_CHECK_LIB(descrypt, crypt, 
+	    have_crypt=yes
+	    EXTRALIBS="$EXTRALIBS -ldescrypt",
+	    AC_CHECK_LIB(crypt, crypt, 
+		have_crypt=yes
+		EXTRALIBS="$EXTRALIBS -lcrypt")))
+
+    if test $have_crypt = yes ; then
+	AC_DEFINE(HAVE_CRYPT, 1, [Define if you have the crypt function.])
+	MKPASSWORD="mkpassword"
+    fi
+    unset have_crypt
 fi
-unset define_enable_irc_crypt
+unset define_enable_crypt
+AC_SUBST(MKPASSWORD)
 
 dnl
 dnl Check for hstrerror(), h_errno and strsignal() functions.

@@ -23,7 +23,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.11 2000/08/26 18:05:17 ela Exp $
+# $Id: Makefile.am,v 1.12 2000/09/17 17:00:57 ela Exp $
 #
 
 #
@@ -62,7 +62,7 @@ PROTOLIBS = 	\
 	q3key-server/libq3key.a \
 	nut-server/libnut.a
 
-bin_PROGRAMS = serveez
+bin_PROGRAMS = serveez mkpassword
 
 serveez_SOURCES = \
 	serveez.c serveez.h \
@@ -86,6 +86,8 @@ serveez_DEPENDENCIES = $(PROTOLIBS) $(SIZZLEDEP) \
 	serveez.cfg
 
 serveez_LDADD = $(PROTOLIBS) $(SIZZLESTATIC)
+
+mkpassword_SOURCES = mkpassword.c
 
 MAINTAINERCLEANFILES = Makefile.in
 

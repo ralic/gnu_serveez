@@ -24,6 +24,8 @@ unfixed) have a look at the file BUGS.
 (completed tasks are indented one tab)
 
 
+- Using encryption for passwords (libcrypt).
+- Port forwarder for UDP and TCP.
 - Some solution for upcoming IPv6 ?
 - Support for ICMP sockets.
 - Content-Range implementation for Gnutella and HTTP.

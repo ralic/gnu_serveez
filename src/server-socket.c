@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.25 2000/09/15 08:22:50 ela Exp $
+ * $Id: server-socket.c,v 1.26 2000/09/17 17:00:58 ela Exp $
  *
  */
 
@@ -388,6 +388,7 @@ server_accept_pipe (socket_t server_sock)
 {
 #if HAVE_MKFIFO
   struct stat buf;
+  mode_t mask;
 #endif
 
 #ifdef __MINGW32__
@@ -407,6 +408,9 @@ server_accept_pipe (socket_t server_sock)
 #endif
 
 #if HAVE_MKFIFO
+  /* Save old permissions and set new. */
+  mask = umask (0);
+
   /* 
    * Test if both of the named pipes have been created yet. 
    * If not then create them locally.
@@ -416,11 +420,13 @@ server_accept_pipe (socket_t server_sock)
       if (mkfifo (server_sock->recv_pipe, 0666) != 0)
         {
           log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
+	  umask (mask);
           return -1;
         }
       if (stat (server_sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
 	{
           log_printf (LOG_ERROR, "stat: mkfifo() did not create a fifo\n");
+	  umask (mask);
           return -1;
 	}
     }
@@ -430,14 +436,19 @@ server_accept_pipe (socket_t server_sock)
       if (mkfifo (server_sock->send_pipe, 0666) != 0)
         {
           log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
+	  umask (mask);
           return -1;
         }
       if (stat (server_sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
 	{
           log_printf (LOG_ERROR, "stat: mkfifo() did not create a fifo\n");
+	  umask (mask);
           return -1;
 	}
     }
+
+  /* reassign old umask permissions */
+  umask (mask);
 
   /* 
    * Try opening the server's send pipe. This will fail 

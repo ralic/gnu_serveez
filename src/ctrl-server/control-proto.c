@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.24 2000/09/15 08:22:50 ela Exp $
+ * $Id: control-proto.c,v 1.25 2000/09/17 17:00:58 ela Exp $
  *
  */
 
@@ -839,8 +839,14 @@ ctrl_handle_request (socket_t sock, char *request, int len)
        * check here the control protocol password
        */
       if (len <= 2) return -1;
+#if ENABLE_CRYPT && HAVE_CRYPT
+      request[len] = '\0';
+      if (!strcmp (crypt (request, serveez_config.server_password), 
+		   serveez_config.server_password))
+#else
       if (!memcmp (request, serveez_config.server_password, len) &&
 	  (unsigned) len >= strlen (serveez_config.server_password))
+#endif
 	{
 	  sock->userflags |= CTRL_FLAG_PASSED;
 	  sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);

@@ -185,7 +185,10 @@
 #define ENABLE_FLOOD_PROTECTION 1
 
 /* Make CygWin / MingW32 use large FD sets. */
-/* #undef FD_SETSIZE */
+#define FD_SETSIZE 4096
+
+/* Define for faster code generation. */
+#define WIN32_LEAN_AND_MEAN 1
 
 /* Define if heap counters should be enabled. */
 #define ENABLE_HEAP_COUNT 1
