@@ -1,3 +1,8 @@
+2001-11-28  [ Ela ]  <ela@lkcc.org>
+
+	* codec/gzlib.c (zlib_encoder_init): Added warning 
+	inhibitors (reported on Solaris native ucbcc).
+
 2001-11-24  [ Ela ]  <ela@lkcc.org>
 
 	* server-core.c (svz_sock_check_children): New function. 

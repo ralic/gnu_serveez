@@ -1,3 +1,14 @@
+2001-11-28  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Checking for working `signed' keyword for
+	pre-ANSI compilers.
+
+	* autodsp: Code cleanups.
+
+	* acinclude.m4: Some more magic, *sigh*, to detect a valid
+	Guile version (broken sed).
+	Enabling networking API in Guile source build.
+
 2001-11-24  [ Ela ]  <ela@lkcc.org>
 
 	* autodsp: First draft of a perl script generating Workspace 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.c,v 1.5 2001/10/18 07:53:06 ela Exp $
+ * $Id: gzlib.c,v 1.6 2001/11/28 18:04:42 ela Exp $
  *
  */
 
@@ -142,7 +142,7 @@ zlib_encoder_init (svz_codec_data_t *data)
 {
   zlib_data_t *z;
 
-  z = zlib_alloc (NULL, 1, sizeof (zlib_data_t));
+  z = (zlib_data_t *) zlib_alloc (NULL, 1, sizeof (zlib_data_t));
   memset (z, 0, sizeof (zlib_data_t));
   data->data = (void *) z;
   z->stream.zalloc = zlib_alloc;
@@ -168,7 +168,7 @@ zlib_encoder_finalize (svz_codec_data_t *data)
     {
       if (deflateEnd (&z->stream) != Z_OK)
 	ret = SVZ_CODEC_ERROR;
-      zlib_free (NULL, z);
+      zlib_free (NULL, (voidpf) z);
       data->data = NULL;
     }
   return ret;
@@ -222,7 +222,7 @@ zlib_decoder_init (svz_codec_data_t *data)
 {
   zlib_data_t *z;
 
-  z = zlib_alloc (NULL, 1, sizeof (zlib_data_t));
+  z = (zlib_data_t *) zlib_alloc (NULL, 1, sizeof (zlib_data_t));
   memset (z, 0, sizeof (zlib_data_t));
   data->data = (void *) z;
   z->stream.zalloc = zlib_alloc;
@@ -245,7 +245,7 @@ zlib_decoder_finalize (svz_codec_data_t *data)
     {
       if (inflateEnd (&z->stream) != Z_OK)
 	ret = SVZ_CODEC_ERROR;
-      zlib_free (NULL, z);
+      zlib_free (NULL, (voidpf) z);
       data->data = NULL;
     }
   return ret;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.13 2001/11/19 21:13:01 ela Exp $
+ * $Id: guile-bin.c,v 1.14 2001/11/28 18:04:41 ela Exp $
  *
  */
 
@@ -217,7 +217,7 @@ guile_bin_search (SCM binary, SCM needle)
       unsigned char *p, *end;
 
       c = SCM_CHARP (needle) ? 
-	SCM_CHAR (needle) : SCM_NUM2INT (SCM_ARG2, needle);
+	SCM_CHAR (needle) : (unsigned char) SCM_NUM2INT (SCM_ARG2, needle);
       p = bin->data;
       end = p + bin->size;
 

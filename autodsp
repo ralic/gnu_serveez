@@ -19,15 +19,21 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: autodsp,v 1.3 2001/11/26 15:39:39 ela Exp $
+# $Id: autodsp,v 1.4 2001/11/28 18:04:41 ela Exp $
 #
 
 use strict;
 
+# package constants
 my $VERSION = "1.0.0";
 my $PACKAGE = "autodsp";
+
+# options
 my $verbose = 0;
 my $version = "5.00";
+my $codepage = "0x409";
+my $extradefs = " /D \"__MINGW32__\" /D \"HAVE_CONFIG_H\" /D __STDC__=0";
+
 my @input_files = find_input_files ();
 
 check_arguments (@ARGV);
@@ -337,29 +343,54 @@ sub create_dsp {
 }
 
 #
-# returns linker and cflags depending on the $debug variable and the 
+# returns linker and cflags depending on the $debugdef variable and the 
 # target type (DLL or Application)
 #
 sub check_target_type {
 
-    my ($type, $debug) = @_;
-    my ($submode, $mtl, $subsys, $suffix);
+    my ($type, $debugdef) = @_;
+    my ($submode, $mktyplib, $subsys, $suffix);
 
     if ($type eq "0x0102") {
-	$type = "dll";
-	$submode = $debug . " /D \"_WINDOWS\"";
-	$mtl = "# ADD MTL /nologo " . $debug . 
+	$submode = "/D " . $debugdef . " /D \"_WINDOWS\"";
+	$mktyplib = "# ADD MTL /nologo /D " . $debugdef . 
 	    " /mktyplib203 /o NUL /win32\r\n";
 	$subsys = "/subsystem:windows /dll";
 	$suffix = ".dll";
     } elsif ($type eq "0x0103") {
-	$type = "app";
-	$submode = $debug . " /D \"_CONSOLE\" /D \"_MBCS\"";
-	$mtl = "";
+	$submode = "/D " . $debugdef . " /D \"_CONSOLE\" /D \"_MBCS\"";
+	$mktyplib = "";
 	$subsys = "/subsystem:console";
 	$suffix = ".exe";
     }
-    return ($type, $submode, $mtl, $subsys, $suffix);
+    return ($submode, $mktyplib, $subsys, $suffix);
+}
+
+#
+# generates `General' dialog
+#
+sub create_general {
+
+    my ($builddir, $debuglib) = @_;
+    return
+	"# PROP Use_MFC 0\r\n" .
+	"# PROP Use_Debug_Libraries " . $debuglib . "\r\n" .
+	"# PROP Output_Dir \"" . $builddir . "\"\r\n" .
+	"# PROP Intermediate_Dir \"" . $builddir . "\"\r\n" .
+	"# PROP Ignore_Export_Lib 0\r\n" .
+	"# PROP Target_Dir \"\"\r\n";
+}
+
+#
+# generates `Other' dialogs
+#
+sub create_others {
+
+    my ($mktyplib, $debugdef) = @_;
+    return
+	$mktyplib .
+	"# ADD RSC /l " . $codepage . " /d " . $debugdef . "\r\n" .
+	"# ADD BSC32 /nologo\r\n";
 }
 
 #
@@ -368,26 +399,26 @@ sub check_target_type {
 sub create_opt {
 
     my ($type, %variables) = @_;
-    my ($debug, $ret, $s, $submode, $mtl, $subsys, $t, $suffix);
-    
-    $t = $type;
-    $debug = "/D \"NDEBUG\"";
-    ($t, $submode, $mtl, $subsys, $suffix) = check_target_type ($t, $debug);
+    my ($debugdef, $debugldflag, $ret, $s, $submode, $mktyplib, $subsys,
+	$suffix, $builddir, $debuglib, $cflags);
 
-    $ret = 
-	"# PROP Use_MFC 0\r\n" .
-	"# PROP Use_Debug_Libraries 0\r\n" .
-	"# PROP Output_Dir \"Opt\"\r\n" .
-	"# PROP Intermediate_Dir \"Opt\"\r\n" .
-	"# PROP Ignore_Export_Lib 0\r\n" .
-	"# PROP Target_Dir \"\"\r\n";
+    $debugdef = "\"NDEBUG\"";
+    $debugldflag = " ";
+    $builddir = "Opt";
+    $debuglib = "0";
+    $cflags = "/MD /W3 /GX /O2 /Ob2";
 
-    $ret .= "# ADD CPP /nologo /MD /W3 /GX /O2 /Ob2";
+    ($submode, $mktyplib, $subsys, $suffix) = 
+	check_target_type ($type, $debugdef);
+
+    $ret = create_general ($builddir, $debuglib);
+
+    $ret .= "# ADD CPP /nologo " . $cflags;
     if (defined $variables{'INCLUDES'}) {
 	$ret .= replace_includes ($variables{'INCLUDES'});
     }
     $ret .= " /D \"WIN32\" " . $submode;
-    $ret .= " /D \"__MINGW32__\" /D \"HAVE_CONFIG_H\" /D __STDC__=0"; 
+    $ret .= $extradefs;
     if (defined $variables{'DEFS'}) {
 	$ret .= replace_defs ($variables{'DEFS'});
     }
@@ -396,20 +427,19 @@ sub create_opt {
     }
     $ret .= " /FD /c\r\n";
 
-    $ret .= $mtl;
-    $ret .= "# ADD RSC /l 0x409 /d \"NDEBUG\"\r\n";
-    $ret .= "# ADD BSC32 /nologo\r\n";
+    $ret .= create_others ($mktyplib, $debugdef);
     
     $ret .= "# ADD LINK32 kernel32.lib";
     if (defined $variables{'LIBS'}) {
 	$ret .= replace_libs ($variables{'LIBS'});
     }
-    $ret .= " /nologo " . $subsys . " /pdb:none /machine:I386";
+    $ret .= " /nologo " . $subsys . " /pdb:none" . 
+	$debugldflag . "/machine:I386";
     if (defined $variables{'TARGET'}) {
 	$ret .= " /out:\"". $variables{'TARGET'} . $suffix . "\"";
     }
     if (defined $variables{'LDFLAGS'}) {
-	$ret .= replace_ldflags ($variables{'LDFLAGS'}, "Opt");
+	$ret .= replace_ldflags ($variables{'LDFLAGS'}, $builddir);
     }
     $ret .= "\r\n";
     
@@ -422,26 +452,26 @@ sub create_opt {
 sub create_dbg {
 
     my ($type, %variables) = @_;
-    my ($debug, $ret, $s, $submode, $mtl, $subsys, $t, $suffix);
-    
-    $t = $type;
-    $debug = "/D \"_DEBUG\"";
-    ($t, $submode, $mtl, $subsys, $suffix) = check_target_type ($t, $debug);
-    
-    $ret = 
-	"# PROP Use_MFC 0\r\n" .
-	"# PROP Use_Debug_Libraries 1\r\n" .
-	"# PROP Output_Dir \"Dbg\"\r\n" .
-	"# PROP Intermediate_Dir \"Dbg\"\r\n" .
-	"# PROP Ignore_Export_Lib 0\r\n" .
-	"# PROP Target_Dir \"\"\r\n";
+    my ($debugdef, $ret, $s, $submode, $mktyplib, $subsys, $suffix, 
+	$debugldflag, $builddir, $debuglib, $cflags);
 
-    $ret .= "# ADD CPP /nologo /MDd /W3 /Gm /GX /Zi /Od";
+    $debugdef = "\"_DEBUG\"";
+    $debugldflag = " /debug ";
+    $builddir = "Dbg";
+    $debuglib = "1";
+    $cflags = "/MDd /W3 /Gm /GX /Zi /Od";
+
+    ($submode, $mktyplib, $subsys, $suffix) = 
+	check_target_type ($type, $debugdef);
+    
+    $ret = create_general ($builddir, $debuglib);
+
+    $ret .= "# ADD CPP /nologo " . $cflags;
     if (defined $variables{'INCLUDES'}) {
 	$ret .= replace_includes ($variables{'INCLUDES'});
     }
     $ret .= " /D \"WIN32\" " . $submode;
-    $ret .= " /D \"__MINGW32__\" /D \"HAVE_CONFIG_H\" /D __STDC__=0"; 
+    $ret .= $extradefs;
     if (defined $variables{'DEFS'}) {
 	$ret .= replace_defs ($variables{'DEFS'});
     }
@@ -450,20 +480,19 @@ sub create_dbg {
     }
     $ret .= " /FD /c\r\n";
 
-    $ret .= $mtl;
-    $ret .= "# ADD RSC /l 0x409 /d \"_DEBUG\"\r\n";
-    $ret .= "# ADD BSC32 /nologo\r\n";
+    $ret .= create_others ($mktyplib, $debugdef);
     
     $ret .= "# ADD LINK32 kernel32.lib";
     if (defined $variables{'LIBS'}) {
 	$ret .= replace_libs ($variables{'LIBS'});
     }
-    $ret .= " /nologo " . $subsys . " /pdb:none /debug /machine:I386";
+    $ret .= " /nologo " . $subsys . " /pdb:none" . 
+	$debugldflag . "/machine:I386";
     if (defined $variables{'TARGET'}) {
 	$ret .= " /out:\"". $variables{'TARGET'} . $suffix . "\"";
     }
     if (defined $variables{'LDFLAGS'}) {
-	$ret .= replace_ldflags ($variables{'LDFLAGS'}, "Dbg");
+	$ret .= replace_ldflags ($variables{'LDFLAGS'}, $builddir);
     }
     $ret .= "\r\n";
     

@@ -42,8 +42,8 @@ AC_DEFUN([AC_GUILE], [
   AC_MSG_CHECKING([for guile installation])
   guile=""
   [if test "x`eval guile-config --version 2>&1 | grep version`" != "x"; then
-    guile=`eval guile-config --version 2>&1 | \
-   	        sed -e '/^$/ d' -e 's/[^0-9\.]//g'`
+    guile="`eval guile-config --version 2>&1 | grep version`"
+    guile=`echo $guile | sed -e 's/[^0-9\.]//g'`
   fi]
   if test x"$guile" != "x" ; then
     case "$guile" in
@@ -144,7 +144,7 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
       ([cd $GUILE_SOURCE && $SHELL configure \
         --enable-static --disable-shared \
         --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
-        --disable-arrays --disable-posix --disable-networking --disable-regex \
+        --disable-arrays --disable-posix --enable-networking --disable-regex \
         --without-threads \
         --cache-file=$cache_file])
     else

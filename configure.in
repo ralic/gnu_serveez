@@ -1225,11 +1225,23 @@ dnl
 AC_CHECK_FUNCS(times poll socketpair waitpid)
 
 dnl
-dnl Find a working inline.
+dnl Find a working inline and signed.
 dnl
 save_cflags="$CFLAGS"
 CFLAGS="$CFLAGS $CPPEXTRAFLAGS"
+
 AC_C_INLINE
+
+AC_CACHE_CHECK([for working signed], svz_cv_c_signed,
+[AC_TRY_COMPILE([#include <stdio.h>],
+  [signed char have_signed = (signed char) 0;],
+  svz_cv_c_signed=yes,
+  svz_cv_c_signed=no)])
+
+if test $svz_cv_c_signed = no ; then
+  AC_DEFINE(signed, , [Define to empty if the keyword does not work.])
+fi
+
 CFLAGS="$save_cflags"
 unset save_cflags
 

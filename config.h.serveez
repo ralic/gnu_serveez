@@ -82,6 +82,9 @@
 /* Define if you have the shl_load function.  */
 /* #undef HAVE_SHL_LOAD */
 
+/* Define if you have the socketpair function.  */
+/* #undef HAVE_SOCKETPAIR */
+
 /* Define if you have the strchr function.  */
 #define HAVE_STRCHR 1
 
