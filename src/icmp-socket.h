@@ -1,7 +1,7 @@
 /*
  * icmp-socket.h - Internet Control Message Protocol socket definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,18 +18,15 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.15 2001/01/07 13:58:33 ela Exp $
+ * $Id: icmp-socket.h,v 1.16 2001/01/25 10:57:57 ela Exp $
  *
  */
 
 #ifndef __ICMP_SOCKET_H__
-#define __ICMP_SOCKET_H__
-
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#define __ICMP_SOCKET_H__ 1
 
 #define _GNU_SOURCE
+#include <internal.h>
 #include "socket.h"
 
 #ifdef __MINGW32__
@@ -170,18 +167,17 @@ typedef struct
 }
 icmp_header_t;
 
-/* Exported functions. */
-int icmp_read_socket (socket_t sock);
-int icmp_write_socket (socket_t sock);
-int icmp_check_request (socket_t sock);
-socket_t icmp_connect (unsigned long host, unsigned short port);
-int icmp_send_control (socket_t sock, byte type);
-int icmp_write (socket_t sock, char *buf, int length);
+__BEGIN_DECLS
 
-#ifndef __STDC__
-int icmp_printf ();
-#else
-int icmp_printf (socket_t sock, const char * fmt, ...);
-#endif
+/* Exported ICMP socket functions. */
+SERVEEZ_API int icmp_read_socket __P ((socket_t sock));
+SERVEEZ_API int icmp_write_socket __P ((socket_t sock));
+SERVEEZ_API int icmp_check_request __P ((socket_t sock));
+SERVEEZ_API socket_t icmp_connect __P ((unsigned long, unsigned short));
+SERVEEZ_API int icmp_send_control __P ((socket_t sock, byte type));
+SERVEEZ_API int icmp_write __P ((socket_t sock, char *buf, int length));
+SERVEEZ_API int icmp_printf __P ((socket_t sock, const char * fmt, ...));
 
-#endif /* __ICMP_SOCKET_H__ */
+__END_DECLS
+
+#endif /* !__ICMP_SOCKET_H__ */

@@ -1,7 +1,7 @@
 /*
  * raw-socket.h - raw socket header definitions
  *
- * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,16 +18,14 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.h,v 1.1 2000/11/26 12:22:10 ela Exp $
+ * $Id: raw-socket.h,v 1.2 2001/01/25 10:57:57 ela Exp $
  *
  */
 
 #ifndef __RAW_SOCKET_H__
-#define __RAW_SOCKET_H__
+#define __RAW_SOCKET_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
+#include <internal.h>
 
 /* local definitions */
 #define IP_VERSION_4     4
@@ -66,10 +64,14 @@ typedef struct
 }
 ip_header_t;
 
-/* Exported functions. */
-ip_header_t * raw_get_ip_header (byte *data);
-byte * raw_put_ip_header (ip_header_t *hdr);
-unsigned short raw_ip_checksum (byte *data, int len);
-int raw_check_ip_header (byte *data, int len);
+__BEGIN_DECLS
 
-#endif /* __RAW_SOCKET_H__ */
+/* Exported RAW socket functions. */
+SERVEEZ_API ip_header_t * raw_get_ip_header __P ((byte *data));
+SERVEEZ_API byte * raw_put_ip_header __P ((ip_header_t *hdr));
+SERVEEZ_API unsigned short raw_ip_checksum __P ((byte *data, int len));
+SERVEEZ_API int raw_check_ip_header __P ((byte *data, int len));
+
+__END_DECLS
+
+#endif /* !__RAW_SOCKET_H__ */

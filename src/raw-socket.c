@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.2 2001/01/24 15:55:28 ela Exp $
+ * $Id: raw-socket.c,v 1.3 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -47,7 +47,6 @@
 # include <winsock.h>
 #endif
 
-#include "alloc.h"
 #include "util.h"
 #include "raw-socket.h"
 

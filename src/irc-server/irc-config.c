@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-config.c,v 1.9 2001/01/24 15:55:29 ela Exp $
+ * $Id: irc-config.c,v 1.10 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -33,6 +33,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#ifdef __MINGW32__
+# include <winsock.h>
+#endif
 
 #include <libserveez.h>
 #include "irc-proto.h"

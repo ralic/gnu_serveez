@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.15 2001/01/24 15:55:28 ela Exp $
+ * $Id: udp-socket.c,v 1.16 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -46,10 +46,10 @@
 # include <winsock.h>
 #endif
 
-#include "socket.h"
 #include "alloc.h"
 #include "util.h"
 #include "snprintf.h"
+#include "socket.h"
 #include "server.h"
 #include "server-core.h"
 #include "udp-socket.h"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.16 2001/01/24 15:55:28 ela Exp $
+ * $Id: server-loop.c,v 1.17 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -671,7 +671,7 @@ server_check_sockets_MinGW (void)
 	{
 	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
 	  /* FIXME: What value do we choose here ? */
-	  if (last_errno != 0)
+	  if (svz_errno != 0)
 	    server_check_bogus ();
 	  return -1;
 	}

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.21 2001/01/24 15:55:28 ela Exp $
+ * $Id: icmp-socket.c,v 1.22 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -48,9 +48,9 @@
 # include <process.h>
 #endif
 
-#include "socket.h"
-#include "util.h"
 #include "snprintf.h"
+#include "util.h"
+#include "socket.h"
 #include "server.h"
 #include "server-core.h"
 #include "icmp-socket.h"

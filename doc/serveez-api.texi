@@ -64,6 +64,10 @@ all parts of the API it provides.
 * Arraylist::             Arraylist implementation
 * Utility functions::     Miscellaneous helper functions
 * TCP sockets::           TCP socket functions
+* Pipe connections::      Named and anonymous pipe functions
+* UDP sockets::           UDP socket functions
+* ICMP sockets::          ICMP socket functions
+* Raw sockets::           Raw socket functions
 @end menu
 
 @node Memory management, Hashtable, , Embedding API
@@ -78,8 +82,20 @@ all parts of the API it provides.
 @node Utility functions, TCP sockets, Arraylist, Embedding API
 @section Utility functions
 
-@node TCP sockets, , Utility functions, Embedding API
-@section Utility functions
+@node TCP sockets, Pipe connections, Utility functions, Embedding API
+@section TCP sockets
+
+@node Pipe connections, UDP sockets, TCP sockets, Embedding API
+@section Pipe connections
+
+@node UDP sockets, ICMP sockets, Pipe connections, Embedding API
+@section UDP sockets
+
+@node ICMP sockets, Raw sockets, UDP sockets, Embedding API
+@section ICMP sockets
+
+@node Raw sockets, , ICMP sockets, Embedding API
+@section Raw sockets
 
 @contents
 @bye

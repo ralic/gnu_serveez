@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.24 2001/01/24 15:55:28 ela Exp $
+ * $Id: pipe-socket.c,v 1.25 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -41,8 +41,8 @@
 #endif
 
 #include "alloc.h"
-#include "socket.h"
 #include "util.h"
+#include "socket.h"
 #include "server-core.h"
 #include "pipe-socket.h"
 

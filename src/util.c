@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.33 2001/01/24 15:55:28 ela Exp $
+ * $Id: util.c,v 1.34 2001/01/25 10:57:57 ela Exp $
  *
  */
 
@@ -348,7 +348,7 @@ util_strncasecmp (const char *str1, const char *str2, size_t n)
  * This variable contains the last error occurred if it was
  * detected and printed. Needed for the "Resource unavailable".
  */
-int last_errno = 0;
+int svz_errno = 0;
 
 /*
  * There is no ErrorMessage-System for Sockets in Win32. That
@@ -486,7 +486,7 @@ GetErrorMessage (int nr)
   LPTSTR error;
 
   /* save the last error */
-  last_errno = nr;
+  svz_errno = nr;
 
   /* return a net error if necessary */
   if (nr >= WSABASEERR)
