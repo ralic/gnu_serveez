@@ -1,3 +1,10 @@
+2001-12-08  [ Ela ]  <ela@lkcc.org>
+
+	* acinclude.m4: New macro AC_LIBTOOL_SOLARIS.  Helps libtool
+	to cope with SunOS/Solaris when building shared libraries.
+	Also added a macro which checks the Guile configuration and
+	exits if necessary.
+
 2001-12-06  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checks now also for declaration of 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.12 2001/12/07 20:37:15 ela Exp $
+ * $Id: hash.h,v 1.13 2001/12/08 13:55:11 ela Exp $
  *
  */
 
@@ -112,7 +112,7 @@ __END_DECLS
  */
 #define svz_hash_foreach_value(hash, iterarray, i)                           \
  for (                                                                       \
-  ((i) = (((*((void***)&(iterarray))) = svz_hash_values (hash)) == NULL ?    \
+  ((i) = (((*((void***)(&(iterarray)))) = svz_hash_values (hash)) == NULL ?  \
                                   -1 : 0));                                  \
   ( (i) != -1 );                                                             \
   ( (++(i)) < svz_hash_size (hash)) ? 42 :                                   \
@@ -134,7 +134,7 @@ __END_DECLS
  */
 #define svz_hash_foreach_key(hash, iterarray, i)                             \
  for (                                                                       \
-  ((i) = (((*((char***)&(iterarray))) = svz_hash_keys (hash)) == NULL ?      \
+  ((i) = (((*((char***)(&(iterarray)))) = svz_hash_keys (hash)) == NULL ?    \
                                   -1 : 0));                                  \
   ( (i) != -1 );                                                             \
   ( (++(i)) < svz_hash_size (hash)) ? 42 :                                   \

@@ -28,6 +28,10 @@ dnl in the AC_GUILE_SOURCE directory. Use the local cache file for speeding up
 dnl this process. Most optional modules of guile will be disabled. Tell the
 dnl ./configure script of guile to build a static library only.
 dnl
+dnl AC_GUILE_CHECK -- Checks for Guile results and exits if necessary.
+dnl
+dnl AC_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
+dnl
 
 AC_DEFUN([AC_GUILE], [
   AC_ARG_WITH(guile,
@@ -49,6 +53,7 @@ AC_DEFUN([AC_GUILE], [
     case "$guile" in
     [1.3.[4-9] | 1.[4-9]* | [2-9].*)]
       AC_MSG_RESULT($guile >= 1.3.4)
+      GUILE_BUILD="yes"
       ;;
     [*)]
       AC_MSG_RESULT($guile < 1.3.4)
@@ -60,7 +65,7 @@ AC_DEFUN([AC_GUILE], [
     GUILE_CFLAGS="`eval guile-config compile`"
     GUILE_LDFLAGS="`eval guile-config link`"
   else
-    if test "x$GUILEDIR" != "xno"; then
+    if test "x$GUILEDIR" != "xno" ; then
       GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`
       case $host_os in
       mingw*) GUILEDIR=`eval cygpath -w -i "$GUILEDIR"` ;;
@@ -72,6 +77,7 @@ AC_DEFUN([AC_GUILE], [
 	  GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"
 	fi
         GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
+	GUILE_BUILD="yes"
         AC_MSG_RESULT([yes])
       else
         AC_MSG_RESULT([missing])
@@ -122,6 +128,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
       AC_SUBST(GUILE_MAKE_LTDL)
       AC_SUBST(GUILE_MAKE_LIB)
       AC_MSG_RESULT([yes])
+      GUILE_BUILD="yes"
     else
       AC_MSG_RESULT([missing])
       GUILE_SOURCE="no"
@@ -134,13 +141,15 @@ AC_DEFUN([AC_GUILE_SOURCE], [
 ])
 
 AC_DEFUN([AC_GUILE_CONFIGURE], [
-  if test "x$GUILE_SOURCE" != "xno"; then
-    cache_file="`pwd`/$cache_file"
+  if test "x$GUILE_SOURCE" != "xno" ; then
+    if test "`echo "$cache_file" | cut -b 1`" != "/" ; then
+      cache_file="`pwd`/$cache_file"
+    fi
     case $host_os in
     mingw*) cache_file=`eval cygpath -w -i "$cache_file"` ;;
     esac
-    if test ! -f "$GUILE_SOURCE/libguile/scmconfig.h"; then
-      AC_MSG_RESULT([configuring guile...])
+    if test ! -f "$GUILE_SOURCE/libguile/scmconfig.h" ; then
+      AC_MSG_RESULT([configuring Guile...])
       ([cd $GUILE_SOURCE && $SHELL configure \
         --enable-static --disable-shared \
         --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
@@ -148,7 +157,45 @@ AC_DEFUN([AC_GUILE_CONFIGURE], [
         --without-threads \
         --cache-file=$cache_file])
     else
-      AC_MSG_RESULT([guile already configured... skipped])
+      AC_MSG_RESULT([Guile already configured... skipped])
     fi
+  fi
+])
+
+AC_DEFUN([AC_GUILE_CHECK], [
+  if test "x$GUILE_BUILD" != "xyes" ; then
+    AC_MSG_ERROR([
+  The $PACKAGE $VERSION package requires either an installed Guile
+  version or an unpacked source tarball at hand.  You can specify the
+  install location by passing \`--with-guile=<directory>' or the source
+  location by passing \`--with-guile-source=<directory>'.  Guile 
+  version 1.4 is preferred.])
+  fi
+])
+
+AC_DEFUN([AC_LIBTOOL_SOLARIS], [
+  if test "x$GCC" = "xyes" -a "x$enable_shared" = "xyes" ; then
+    case $host_os in
+    solaris*)
+      LIBERTY="`gcc --print-file-name=libiberty.a`"
+      LIBERTY="-L`dirname LIBERTY 2>/dev/null`"
+      LIBS="`echo "$LIBS" | sed -e 's/-liberty/$LIBERTY -liberty/g'`"
+      GCCLIB="`gcc --print-libgcc-file-name`"
+      GCCDIR="-L`dirname $GCCLIB 2>/dev/null`"
+      GCCFILE="`basename $GCCLIB 2>/dev/null`"
+      GCCFILE="-l`echo "$GCCFILE" | sed -e 's/lib\(.*\)\.a/\1/'`"
+      LIBS="$LIBS $GCCDIR $GCCFILE"
+      AC_MSG_WARN([
+  The configure script added
+  '$LIBERTY $GCCDIR $GCCFILE'
+  to your linker line.  This may not be what you want.  Please report
+  to <bug-serveez@gnu.org> if we failed to build shared libraries 
+  on '$host_os'.])
+      unset LIBERTY
+      unset GCCLIB
+      unset GCCDIR
+      unset GCCFILE
+      ;;
+    esac
   fi
 ])

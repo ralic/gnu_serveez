@@ -744,6 +744,7 @@ dnl
 
 AC_GUILE
 AC_GUILE_SOURCE
+AC_GUILE_CHECK
 
 dnl ----------------------------------------------------------------------
 
@@ -871,32 +872,13 @@ unset have_getopt
 unset have_getopt_long
 
 dnl
-dnl Check if libtool copes with SunOS/Solaris.
+dnl Check if libtool copes with SunOS/Solaris.  GNU libtool 1.4.2 and less
+dnl fail to create self-contained shared libraries.  This is due to the gcc
+dnl - native linker combination.  The below macro adds the -liberty path 
+dnl and -lgcc to the linker line if necessary.
 dnl
-if test x$GCC = xyes -a x$enable_shared = xyes ; then
-  case $host_os in
-  solaris*)
-    ADDLIBS="`gcc --print-file-name=libiberty.a`"
-    ADDLIBS="-L`dirname $ADDLIBS 2>/dev/null`"
-    GCCDIR="`gcc --print-libgcc-file-name`"
-    GCCDIR="-L`dirname $GCCDIR 2>/dev/null`"
-    GCCFILE="`gcc --print-libgcc-file-name`"
-    GCCFILE="`basename $GCCFILE 2>/dev/null`"
-    GCCFILE="-l`echo "$GCCFILE" | sed -e 's/lib\(.*\)\.a/\1/'`"
-    ADDLIBS="$ADDLIBS $GCCDIR $GCCFILE"
-    LIBS="$LIBS $ADDLIBS"
-    AC_MSG_WARN([
-  The configure script added
-  '$ADDLIBS'
-  to your linker line.  This may not be what you want.  Please report
-  to <bug-serveez@gnu.org> if we failed to build shared libraries 
-  on '$host_os'.])
-    unset ADDLIBS
-    unset GCCDIR
-    unset GCCFILE
-    ;;
-  esac
-fi
+
+AC_LIBTOOL_SOLARIS
 
 dnl
 dnl Checking for timezone and daylight variables (FreeBSD and NetBSD
