@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.7 2000/09/21 15:27:11 ela Exp $
+ * $Id: server-loop.c,v 1.8 2000/09/28 21:12:53 ela Exp $
  *
  */
 
@@ -352,7 +352,7 @@ server_check_sockets_poll (void)
   static unsigned int max_nfds = 0;   /* maximum number of file descriptors */
   unsigned int nfds, fd;              /* number of fds */
   static struct pollfd *ufds = NULL;  /* poll fd array */
-  static socket_t *sfds = NULL;       /* refering socket structures */
+  static socket_t *sfds = NULL;       /* referring socket structures */
   int timeout;                        /* timeout in milliseconds */
   int polled;                         /* amount of polled fds */
   socket_t sock;                      /* socket structure */

@@ -99,7 +99,7 @@ line argument. We are using the Scheme dialect called Sizzle for this
 configuration file. This package is maintained by Martin Grabmueller
 (@email{mgrabmue@@cs.tu-berlin.de}). Because we do not want you to learn
 too much about that computer language we delivered an example 
-configuration file in the @file{doc/} directory.
+configuration file in the @file{data/} directory.
 
 Generally you can determine special variables in this file and you have
 to instanciated the servers you actually want to run. The following
@@ -110,22 +110,19 @@ hash contains key value pairs which set up this specific server.
 @xref{Existing Servers}, for more information about these pairs.
 
 @example
-@group
 (define xxx-server? '#@{
                         "key" => value
                       @})
-@end group
 @end example
 
-When we are refer to @samp{port configuration}s this is a special hash
+When we are referring to @samp{port configuration}s this is a special hash
 determining a network or filesystem configuration. This structure got
 the following layout:
 
 @example
-@group
 "NameOfPortCfg" => #@{
                        ;; one of those possibilities
-                       "proto"    => "tcp" || "udp" || "pipe"
+                       "proto"    => "tcp" || "udp" || "pipe" || "icmp"
                        ;; tcp or udp port number
                        "port"     => 42420
                        ;; ip address to bind the server to
@@ -135,7 +132,6 @@ the following layout:
                        ;; sending pipe
                        "outpipe"  => "MySendPipe"
                     @}
-@end group
 @end example
 
 @node Concept, Server, Using Serveez, Top
@@ -143,13 +139,13 @@ the following layout:
 
 @section I/O Strategy
 Serveez's I/O strategy is the traditional @code{select()} method. It 
-is serving many clients in one server thread. This is done by setting to 
-nonblocking mode on all network handles, and use @code{select()} to tell 
+is serving many clients in a single server thread. This is done by setting to 
+non-blocking mode on all network handles, and use @code{select()} to tell 
 which network handle has data waiting. This is the traditional favorite. 
 
 An important bottleneck in this method is that @code{read()} or 
 @code{sendfile()} from disk blocks if the page is not in core at the 
-moment, setting nonblocking mode on a disk file handle has no effect. 
+moment, setting non-blocking mode on a disk file handle has no effect. 
 Same thing goes for memory-mapped disk files. The first time a server
 needs disk I/O, its process blocks, all clients must wait, and that 
 raw nonthreaded performance goes to waste. 
@@ -157,8 +153,7 @@ raw nonthreaded performance goes to waste.
 Unfortunately, @code{select()} is limited to @code{FD_SETSIZE} handles. 
 This limit is compiled in to the standard library and user programs. 
 Nevertheless Serveez is able to serve about one thousand and more 
-clients on Linux, a hundred on Win95 and about five hundred on 
-WinNT systems.
+clients on Linux, a hundred on Win95 and some more on later Windows systems.
 
 We chose this method anyway because it seems the most portable. Either in
 most Unices and Win32 this method is implemented.
@@ -267,12 +262,10 @@ You have to put at least the following into the newly created
 @file{Makefile.am}:
 
 @example
-@group
 noinst_LIBRARIES = libfoo.a
 AM_CPPFLAGS = -I..
 CLEANFILES = *~
 libfoo_a_SOURCES = foo-proto.h foo-proto.c
-@end group
 @end example
 
 @item
@@ -597,7 +590,6 @@ or by a single space (if parameters follow).  Note that in comma
 separated lists, no spaces are allowed.
 
 @example
-@group
 Example:
 
 0 Hallo Welt\0
@@ -622,7 +614,6 @@ Example:
 6 \0
   - Initialize data structures and accept the 
     connection as the master server.
-@end group
 @end example
 
 @item Status messages for the master server
@@ -863,66 +854,52 @@ Some administrative information delivered on the /ADMIN command.
 @item M-line (Mandatory)
 This IRC server's configuration. The format of this line is:
 @example
-@group
 ":" VirtualHostName
 ":" OptionalBindAddress (real hostname)
 ":" TextName
 ":" Port
-@end group
 @end example
 
 @item A-line (Mandatory)
 The administrative info, printed by the /ADMIN command.
 @example
-@group
 ":" administrative info (department, university)
 ":" the server's geographical location
 ":" email address for a person responsible for the irc server
-@end group
 @end example
 
 @item Y-lines (Suggested)
 The connection classes.
 @example
-@group
 ":" class number (higher numbers refer to a higher priority)
 ":" ping frequency (in seconds)
 ":" connect frequency in seconds for servers, 0 for client class
 ":" maximum number of links in this class 
 ":" send queue size
-@end group
 @end example
 
 @item I-lines (Mandatory)
 Authorization of clients, wildcards permitted, a valid client is matched
 @email{user@@ip} OR @email{user@@host}.
 @example
-@group
 ":" user@@ip, you can specify @samp{NOMATCH} here to 
     force matching user@@host
 ":" password (optional)
 ":" user@@host
 ":" password (optional)
 ":" connection class number (YLine)
-@end group
 @end example
 
 @item O-lines (Optional)
 Authorize operator, wildcards allowed.
 @example
-@group
 ":" user@@host, user@@ forces checking ident
 ":" password
 ":" nick
-@end group
 @end example
 
 @item o-lines (Optional)
 Authorize local operator, see above at the O lines for a description.
-@example
-@group
-@end group
-@end example
 
 @item C-lines (Networked)
 List of servers to connect to.
@@ -930,19 +907,16 @@ Note: C and N lines can also use the user@@ combination in order to
 check specific users (ident) starting servers. C and N lines are 
 usually given in pairs.
 @example
-@group
 ":" host name
 ":" password
 ":" server name (virtual)
 ":" port (if not given we will not connect)
 ":" connection class number (YLine)
-@end group
 @end example
 
 @item N-lines (Networked)
 Server which may connect.
 @example
-@group
 ":" host name
 ":" password
 ":" server name (virtual host name)
@@ -950,17 +924,14 @@ Server which may connect.
 ":" how many components of your own server's name to 
     strip off the front and be replaced with a *.
 ":" connection class number (YLine)
-@end group
 @end example
 
 @item K-lines (Optional)
 Kill user, wildcards allowed.
 @example
-@group
 ":" host
 ":" time of day
 ":" user
-@end group
 @end example
 
 @end table
@@ -1013,7 +984,6 @@ information about the computer Serveez is running on and about the
 state of Serveez in general.
 
 @example
-@group
 @exdent This is serveez version 0.0.17pre running since Sat Jul 15 18:45:58 2000.
 @exdent Features  : AWCS HTTP IDENT REVERSE-DNS DNS FLOOD DEBUG IRC CTRL
 @exdent Os        : Linux 2.2.10 on i586
@@ -1022,7 +992,6 @@ state of Serveez in general.
 
 @exdent * 1 connected sockets (hard limit is 200)
 @exdent * 178813 bytes of memory in 515 blocks allocated
-@end group
 @end example
 
 @item stat coserver
@@ -1060,15 +1029,14 @@ currently using this entry, @samp{Hits} the amount of cache hits,
 and @samp{Ready} is the current state of the cache entry.
 
 @example
-@group
 @exdent File                      Size  Usage  Hits Recent Ready
 @exdent zlib-1.1.3-20000531.zip  45393      0     0      1 Yes
 @exdent texinfo.tex             200531      0     0      2 Yes
 @exdent shayne.txt                2534      0     1      1 Yes
 
 @exdent Total : 248458 byte in 3 cache entries
-@end group
 @end example
+
 @item kill cache
 Reinitialize the HTTP file cache.
 @end table
@@ -1310,13 +1278,11 @@ Ident Co-Server as is without this macro. The format of the input buffer
 is:
 
 @example
-@group
 Format:
 RemoteAddressInDottedDecimals ":" RemotePort ":" LocalPort
 
 Macro:
 coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
-@end group
 @end example
 
 In this context @code{sock} is of type @code{socket_t} and 
@@ -1328,7 +1294,6 @@ last two arguments in the below callback. Thus you will know what kind of
 data the invocation of the callback is related to.
 
 @example
-@group
 Callback:
 int
 MyIdentCallback (char *user, int id, int version)
@@ -1336,7 +1301,6 @@ MyIdentCallback (char *user, int id, int version)
   printf ("Identified user: %s\n", user);
   return 0;
 @}
-@end group
 @end example
 
 @subsection Domain Name Server (DNS) Co-Server
@@ -1349,7 +1313,6 @@ currently using this Co-Server for resolving its @samp{?-Lines}.
 @code{realhost} is something like @samp{www.textsure.net}.
 
 @example
-@group
 Format:
 RemoteHostname
 
@@ -1363,7 +1326,6 @@ irc_connect_server (char *ip, irc_server_t *server)
   printf ("The ip address is: %s\n", ip);
   return 0;
 @}
-@end group
 @end example
 
 @subsection Reverse Domain Name Server (reverse DNS) Co-Server
@@ -1375,7 +1337,6 @@ as an @code{unsigned long} in host byte order and the Reverse DNS
 Co-Server itself takes something like @samp{192.168.2.1}.
 
 @example
-@group
 Format:
 RemoteAddressInDottedDecimals
 
@@ -1389,7 +1350,6 @@ MyReverseCallback (char *host, int id, int version)
   printf ("Hostname is: %s\n", host);
   return 0;
 @}
-@end group
 @end example
 
 @node Porting issues,  , Co-Server, Top
@@ -1497,19 +1457,17 @@ installation and @samp{serveez} and @samp{sizzle} in separate directories.
 In order to create both of the @file{config.h} files we need to execute
 the @file{configure} script.
 @example
-@group
 $ c:\Programme\DevStudio\VC\bin\VCVARS32.BAT
-$ set PATH=%PATH%;c:\Programme\cygnus\cygwin-b20\H-i586-cygwin32\bin
+$ set PATH=%PATH%;c:\Programme\cygwin\bin
 $ set CC=cl -D__MINGW32__ -D_WIN32
 $ set LD=link
-@end group
 @end example
+
 @item Step 2. Configure.
 @example
-@group
 $ sh configure --with-sizzle=../sizzle/
-@end group
 @end example
+
 @item Step 3. Create project and workspace for both Serveez and Sizzle.
 Start your Developer Studio and create a new project. For Serveez you need
 to create a @samp{Win32 console application} and for Sizzle a
@@ -1560,6 +1518,7 @@ Serveez has been build and tested successfully.
 @item Windows 98 on Intel
 @item Windows Millenium Edition on Intel
 @item Windows NT 4.0 on Intel
+@item Windows 2000 on Intel
 @item IRIX 6.x on MIPS
 @item Tru64/OSF1 UNIX V4.0 (former Digital UNIX) on Alpha
 @item Tru64/OSF1 UNIX V5.0 (former Digital UNIX) on Alpha

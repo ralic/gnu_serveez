@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.13 2000/08/26 18:05:18 ela Exp $
+ * $Id: irc-proto.h,v 1.14 2000/09/28 21:12:54 ela Exp $
  *
  */
 
@@ -85,7 +85,7 @@ struct irc_connection_class
   int max_links;     /* maximum number of links */
   int links;         /* current number of links */
   int sendq_size;    /* send queue size */
-  char *line;        /* refering Y line */
+  char *line;        /* referring Y line */
   irc_class_t *next; /* pointer to next connection class */
 };
 
@@ -101,7 +101,7 @@ struct irc_user_authorization
   char *host;       /* host name mask */
   char *password;   /* optional password */
   int class;        /* connection class number */
-  char *line;       /* refering I line */
+  char *line;       /* referring I line */
   irc_user_t *next; /* pointer to next user authorization */
 };
 
@@ -117,7 +117,7 @@ struct irc_oper_authorization
   char *host;       /* host name mask */
   char *password;   /* password */
   int class;        /* connection class */
-  char *line;       /* refering O or o line */
+  char *line;       /* referring O or o line */
   irc_oper_t *next; /* pointer to next structure in list */
 };
 
@@ -131,7 +131,7 @@ struct irc_kill_user
   char *host;       /* host name mask */
   int start;        /* start time, defining a time span */
   int end;          /* end time */
-  char *line;       /* refering K line */
+  char *line;       /* referring K line */
   irc_kill_t *next; /* next structure */
 };
 

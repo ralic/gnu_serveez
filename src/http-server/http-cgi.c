@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.20 2000/09/27 14:31:26 ela Exp $
+ * $Id: http-cgi.c,v 1.21 2000/09/28 21:12:53 ela Exp $
  *
  */
 
@@ -490,7 +490,7 @@ http_check_cgi (socket_t sock, char *request)
   if (close (fd) == -1)
     log_printf (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
 
-  /* return a pointer refering to the actual plain cgi file */
+  /* return a pointer referring to the actual plain cgi file */
   strcpy (file, saverequest);
   file = xrealloc (file, strlen (file) + 1);
   xfree (saverequest);

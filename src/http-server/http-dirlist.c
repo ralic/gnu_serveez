@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-dirlist.c,v 1.13 2000/09/27 14:31:26 ela Exp $
+ * $Id: http-dirlist.c,v 1.14 2000/09/28 21:12:54 ela Exp $
  *
  */
 
@@ -124,7 +124,7 @@ http_create_uri (char *file)
 }
 
 /*
- * Return a buffer to a http directory listing refering to DIRNAME
+ * Return a buffer to a http directory listing referring to DIRNAME
  * and being part of the document root DOCROOT. Do not to forget to
  * xfree() the return buffer. Return NULL on errors.
  */

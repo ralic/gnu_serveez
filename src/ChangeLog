@@ -580,7 +580,7 @@
 
 	* http-server/http-proto.c (http_info_client): Made up
 	the http client info callback. Here we show all the
-	information refering to a http client connection within
+	information referring to a http client connection within
 	the control protocol.
 
 	* irc-server/irc-proto.c (irc_delete_client): Fixed irc
@@ -648,7 +648,7 @@
 2000-07-19  [ Ela ]  <ela@lkcc.org>
 
 	* irc-server/irc-event-3.c (irc_stats_callback): Added all
-	the statistics refering ? lines.
+	the statistics referring ? lines.
 	(irc_info_callback): Added the /INFO command replies.
 
 	* irc-server/irc-config.c (irc_parse_config_lines): Added this

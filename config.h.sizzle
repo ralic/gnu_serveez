@@ -225,12 +225,6 @@
 /* Define if you have the strdup function.  */
 #define HAVE_STRDUP 1
 
-/* Make CygWin / MinGW32 use large FD sets. */
-#define FD_SETSIZE 4096
-
-/* Define for faster code generation. */
-#define WIN32_LEAN_AND_MEAN 1
-
 /* Define if you have the strerror function.  */
 #define HAVE_STRERROR 1
 
@@ -368,6 +362,15 @@
 
 /* Define if dynamic linking should be compiled in. */
 /* #undef ENABLE_DL */
+
+/* Make CygWin / MinGW32 use large FD sets. */
+#define FD_SETSIZE 4096
+
+/* Define for faster code generation. */
+#define WIN32_LEAN_AND_MEAN 1
+
+/* Define if you are using Windows Socket-API (not CYGWIN). */
+#define Win32_Winsock 1
 
 /* Define if you have the getopt function. */
 /* #undef HAVE_GETOPT */
