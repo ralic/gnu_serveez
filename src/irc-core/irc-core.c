@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.5 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-core.c,v 1.6 2000/06/19 15:24:49 ela Exp $
  *
  */
 
@@ -105,8 +105,8 @@ irc_start_auth (socket_t sock)
   client = irc_create_client (cfg);
   strcpy (client->server, cfg->host);
   client->since = time (NULL);
+  client->sock = sock;
   sock->data = client;
-  client->id = sock->socket_id;
 
   /* Set password flag, if there is not server password defined. */
   if (!cfg->pass) 
@@ -226,19 +226,21 @@ irc_check_request (socket_t sock)
 }
 
 /*
- * Parse the 'no'th string by a given para. 
- * These should be all seperated by ','.
+ * Parse the 'nr'th string (IRC targets could be channels, nicks, etc.) 
+ * by a given IRC parameter string. All these strings should be seperated 
+ * by colons (',').
  */
 char *
-get_para_target (char *para, int no)
+irc_get_target (char *para, int nr)
 {
   static char target[MAX_NAME_LEN];
   char *p;
   int n;
 
+  target[0] = '\0';
   p = para;
-  for (n = 0; *p && n < no; n++)
-    while(*p && *p != ',') p++;
+  for (n = 0; *p && n < nr; n++)
+    while (*p && *p != ',') p++;
   
   /* got a key (first or any ',' seperated) */
   if (*p == ',' || p == para)
@@ -247,14 +249,10 @@ get_para_target (char *para, int no)
       if (*p == ',') p++;
       while (*p && *p != ',')
 	{
-	  target[n] = *p;
-	  n++;
-	  p++;
+	  target[n++] = *p++;
 	}
       target[n+1] = 0;
     }
-  else
-    target[0] = 0;
 
   return target;
 }
@@ -267,7 +265,7 @@ int
 irc_parse_request (char *request, int len)
 {
   char *p;
-  int n, i;
+  int n, paras;
   int size = 0;
 
   memset (&irc_request, 0, sizeof (irc_request_t));
@@ -282,10 +280,8 @@ irc_parse_request (char *request, int len)
       while (*p != '!' && *p != '@' && *p != ' ' && size < len) 
 	{
 	  irc_request.server[n] = *p;
-	  irc_request.nick[n] = *p;
+	  irc_request.nick[n++] = *p++;
 	  size++;
-	  n++;
-	  p++;
 	}
       /* user follows */
       if (*p == '!')
@@ -295,10 +291,8 @@ irc_parse_request (char *request, int len)
 	  size++;
 	  while (*p != '@' && *p != ' ' && size < len) 
 	    {
-	      irc_request.user[n] = *p;
+	      irc_request.user[n++] = *p++;
 	      size++;
-	      n++;
-	      p++;
 	    }
 	}
       /* host follows */
@@ -309,10 +303,8 @@ irc_parse_request (char *request, int len)
 	  size++;
 	  while (*p != ' ' && size < len) 
 	    {
-	      irc_request.host[n] = *p;
+	      irc_request.host[n++] = *p++;
 	      size++;
-	      n++;
-	      p++;
 	    }
 	}
       /* skip whitespace(s) */
@@ -327,13 +319,11 @@ irc_parse_request (char *request, int len)
   n = 0;
   while (*p != ' ' && size < len)
     {
-      irc_request.request[n] = *p;
+      irc_request.request[n++] = *p++;
       size++;
-      n++;
-      p++;
     }
   /* get parameter(s) */
-  i = 0;
+  paras = 0;
   while (size < len)
     {
       /* skip whitespace(s) */
@@ -354,10 +344,8 @@ irc_parse_request (char *request, int len)
 	  size++;
 	  while (size < len)
 	    {
-	      irc_request.para[i][n] = *p;
+	      irc_request.para[paras][n++] = *p++;
 	      size++;
-	      n++;
-	      p++;
 	    }
 	}
       
@@ -366,17 +354,15 @@ irc_parse_request (char *request, int len)
 	{
 	  while (*p != ' ' && size < len)
 	    {
-	      irc_request.para[i][n] = *p;
+	      irc_request.para[paras][n++] = *p++;
 	      size++;
-	      n++;
-	      p++;
 	    }
 	}
-      i++;
+      paras++;
     }
 
-  if (i > 0 && irc_request.para[i-1][0] == 0) i--;
-  irc_request.paras = i;
+  if (paras > 0 && irc_request.para[paras-1][0] == '\0') paras--;
+  irc_request.paras = paras;
   irc_parse_target (&irc_request, 0);
   
   return 0;
@@ -402,7 +388,7 @@ irc_parse_target (irc_request_t *request, int para)
   i = 0;
   size = 0;
   p = request->para[para];
-  len = strlen(request->para[para]);
+  len = strlen (request->para[para]);
 
   while (size < len)
     {
@@ -412,10 +398,8 @@ irc_parse_target (irc_request_t *request, int para)
 	  n = 0;
 	  while (*p != ',' && size < len)
 	    {
-	      request->target[i].channel[n] = *p;
-	      p++;
+	      request->target[i].channel[n++] = *p++;
 	      size++;
-	      n++;
 	    }
 	}
       /* mask */
@@ -424,10 +408,8 @@ irc_parse_target (irc_request_t *request, int para)
 	  n = 0;
 	  while (*p != ',' && size < len)
 	    {
-	      request->target[i].mask[n] = *p;
-	      p++;
+	      request->target[i].mask[n++] = *p++;
 	      size++;
-	      n++;
 	    }
 	}
       /* channel or mask */
@@ -437,10 +419,8 @@ irc_parse_target (irc_request_t *request, int para)
 	  while (*p != ',' && size < len)
 	    {
 	      request->target[i].mask[n] = *p;
-	      request->target[i].channel[n] = *p;
-	      p++;
+	      request->target[i].channel[n++] = *p++;
 	      size++;
-	      n++;
 	    }
 	}
       /* nick or user@host */
@@ -450,10 +430,8 @@ irc_parse_target (irc_request_t *request, int para)
 	  while (*p != ',' && *p != '@' && size < len)
 	    {
 	      request->target[i].user[n] = *p;
-	      request->target[i].nick[n] = *p;
-	      p++;
+	      request->target[i].nick[n++] = *p++;
 	      size++;
-	      n++;
 	    }
 	  /* host */
 	  if (*p == '@')
@@ -464,10 +442,8 @@ irc_parse_target (irc_request_t *request, int para)
 	      memset (request->target[i].nick, 0, MAX_NICK_LEN);
 	      while (*p != ',' && size < len)
 		{
-		  request->target[i].host[n] = *p;
-		  p++;
+		  request->target[i].host[n++] = *p++;
 		  size++;
-		  n++;
 		}
 	    }
 	}

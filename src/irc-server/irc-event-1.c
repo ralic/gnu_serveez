@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-event-1.c,v 1.4 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -59,7 +59,7 @@ irc_quit_callback (socket_t sock,
 		   irc_request_t *request)
 {
   /* delete the client */
-  del_client_of_channels(sock->cfg, client, request->para[0]);
+  irc_leave_all_channels (sock->cfg, client, request->para[0]);
 
   return -1;
 }
@@ -77,7 +77,7 @@ irc_pass_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* enough paras ? reject the client if not given */
-  if (check_paras (sock, client, cfg, request, 1))
+  if (irc_check_paras (sock, client, cfg, request, 1))
     return -1;
 
   strcpy (client->pass, request->para[0]);
@@ -198,7 +198,7 @@ irc_nick_callback (socket_t sock,
   if((cl = irc_find_nick(cfg, nick)))
     {
       /* did the client tried to change to equal nicks ? then ignore */
-      if(cl->id == client->id) return 0;
+      if (cl == client) return 0;
 #if ENABLE_DEBUG
       log_printf(LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
@@ -208,25 +208,25 @@ irc_nick_callback (socket_t sock,
     }
 
   /* do you have already specified a valid nick ? */
-  if(client->flag & UMODE_NICK)
+  if (client->flag & UMODE_NICK)
     {
       irc_add_client_history (cfg, client);
 
 #if ENABLE_DEBUG
-      log_printf(LOG_DEBUG, "irc: %s changed nick to %s\n", 
-		 client->nick, nick);
+      log_printf (LOG_DEBUG, "irc: %s changed nick to %s\n", 
+		  client->nick, nick);
 #endif
       /* go through all channels this client is in */
-      for(n=0; n<client->channels; n++)
+      for (n = 0; n < client->channels; n++)
 	{
 	  /* propagate this to all clients in channel */
-	  channel = irc_find_channel (cfg, client->channel[n]);
-	  for(i=0; i<channel->clients; i++)
+	  channel = client->channel[n];
+	  for (i = 0; i < channel->clients; i++)
 	    {
-	      cl = irc_find_nick (cfg, channel->client[i]);
-	      xsock = find_sock_by_id(cl->id);
-	      irc_printf(xsock, ":%s!%s@%s NICK :%s\n",
-			 client->nick, client->user, client->host, nick);
+	      cl = channel->client[i];
+	      xsock = cl->sock;
+	      irc_printf (xsock, ":%s!%s@%s NICK :%s\n",
+			  client->nick, client->user, client->host, nick);
 	    }
 	}
       strcpy(client->nick, nick);
@@ -256,7 +256,7 @@ irc_user_callback (socket_t sock,
   irc_config_t *cfg = sock->cfg;
 
   /* complete parameter list ? */
-  if(check_paras(sock, client, cfg, request, 4))
+  if (irc_check_paras(sock, client, cfg, request, 4))
     return 0;
   
   /* is this client already fully registered ? */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-6.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-event-6.c,v 1.4 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -141,7 +141,7 @@ irc_kill_callback (socket_t sock,
   irc_client_t *cl;
 
   /* do you have enough paras ? */
-  if(check_paras(sock, client, cfg, request, 2))
+  if (irc_check_paras (sock, client, cfg, request, 2))
     return 0;
 
   /* are you an IRC operator ? */

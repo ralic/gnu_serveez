@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.6 2000/06/18 22:13:02 raimi Exp $
+ * $Id: server.c,v 1.7 2000/06/19 15:24:49 ela Exp $
  *
  */
 
@@ -416,31 +416,36 @@ static int set_port (char *cfgfile,
   }
 
   /* Second, fill the sockaddr struct from the values we just read */
-  if (newport->proto == PROTO_TCP || newport->proto == PROTO_UDP) {
-    /* prepate the local address structure */
-    newaddr = (struct sockaddr_in*) xpmalloc (sizeof (struct sockaddr_in));
-    newport->localaddr = newaddr;
-    memset (newaddr, 0, sizeof (struct sockaddr_in));
+  if (newport->proto == PROTO_TCP || newport->proto == PROTO_UDP) 
+    {
+      /* prepate the local address structure */
+      newaddr = (struct sockaddr_in*) xpmalloc (sizeof (struct sockaddr_in));
+      newport->localaddr = newaddr;
+      memset (newaddr, 0, sizeof (struct sockaddr_in));
 
-    /* this surely is internet */
-    newaddr->sin_family = AF_INET;
+      /* ...and the local ip address with "*" being any */
+      if (strcmp (newport->localip, "*") == 0) 
+	{
+	  newaddr->sin_addr.s_addr = INADDR_ANY;
+	} 
+      else 
+	{
+	  if (inet_aton (string_val (tmp), &newaddr->sin_addr) == 0) 
+	    {
+	      fprintf (stderr, "%s: `%s': local-ip should be an ip address "
+		       "in dotted decimal form in `%s'\n",
+		       cfgfile, varname, keyname);
+	      return -1;
+	    }
+	}
 
-    /* determine port... */
-    newaddr->sin_port = htons (newport->port);
+      /* this surely is internet */
+      newaddr->sin_family = AF_INET;
 
-    /* ...and the local ip address with "*" being any */
-    if (strcmp (newport->localip, "*") == 0 ) {
-      newaddr->sin_addr.s_addr = INADDR_ANY;
-    } else {
-      if (inet_aton (string_val (tmp), &(newaddr->sin_addr)) == 0) {
-	fprintf(stderr, "%s: `%s': local-ip should be an ip address in "
-		"dotted decimal form in `%s'\n",
-		cfgfile, varname, keyname);
-	return -1;
-      }
+      /* determine port... */
+      newaddr->sin_port = htons (newport->port);
     }
-  }
-
+  
   return 0;
 }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-event-7.c,v 1.4 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -59,7 +59,7 @@ irc_ison_callback (socket_t sock,
   int n;
 
   /* do you have enough para's ? */
-  if(check_paras(sock, client, cfg, request, 1))
+  if (irc_check_paras (sock, client, cfg, request, 1))
     return 0;
 
   for(n=0; n<request->paras; n++)
@@ -93,7 +93,7 @@ irc_userhost_callback (socket_t sock,
   char text[MAX_MSG_LEN];
 
   /* complete parameter list ? */
-  if(check_paras(sock, client, cfg, request, 1))
+  if (irc_check_paras (sock, client, cfg, request, 1))
     return 0;
 
   /* go through all paras */

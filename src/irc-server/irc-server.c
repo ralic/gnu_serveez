@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.4 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-server.c,v 1.5 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -213,7 +213,7 @@ irc_connect_server (irc_server_t *server, char *ip)
 		strcat (nicklist, "@");
 	      else if (ch[i]->cflag[n] & MODE_VOICE)
 		strcat (nicklist, "+");
-	      strcat (nicklist, ch[i]->client[n]);
+	      strcat (nicklist, ch[i]->client[n]->nick);
 	      strcat (nicklist, " ");
 	    }
 	}

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-4.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-event-4.c,v 1.4 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -66,7 +66,7 @@ irc_priv_callback (socket_t sock,
   int n, i;
 
   /* enough paras ? */
-  if(check_paras(sock, client, cfg, request, 2))
+  if (irc_check_paras (sock, client, cfg, request, 2))
     return 0;
 
   /* concate the text itself */
@@ -88,31 +88,32 @@ irc_priv_callback (socket_t sock,
       if ((cl = irc_find_nick (cfg, request->target[n].nick)))
 	{
 	  /* is this client away ? */
-	  if(is_client_absent(cl, client)) continue;
+	  if (irc_is_client_absent (cl, client)) 
+	    continue;
 
 	  /* crypted ? */
 	  if(client->flag & UMODE_PASS)
 	    irc_encrypt_text(text, client->key);
 
-	  xsock = find_sock_by_id(cl->id);
-	  irc_printf(xsock, ":%s!%s@%s PRIVMSG %s :%s\n",
-		     client->nick, client->user, client->host,
-		     cl->nick, (cl->flag & UMODE_PASS) ?
-		     irc_decrypt_text(text, cl->key) : text);
+	  xsock = cl->sock;
+	  irc_printf (xsock, ":%s!%s@%s PRIVMSG %s :%s\n",
+		      client->nick, client->user, client->host,
+		      cl->nick, (cl->flag & UMODE_PASS) ?
+		      irc_decrypt_text (text, cl->key) : text);
 	}
 
       /* is receiver a channel ? */
       else if ((channel = irc_find_channel (cfg, request->target[n].channel)))
 	{
-	  i = is_client_in_channel(sock, client, channel);
+	  i = irc_is_client_in_channel (sock, client, channel);
 	  
 	  /* no Messages of outside at these channels ! */
-	  if(channel->flag & MODE_MESSAGE && i == -1)
+	  if (channel->flag & MODE_MESSAGE && i == -1)
 	    {
-	      irc_printf(sock, 
-			 ":%s %03d %s " ERR_CANNOTSENDTOCHAN_TEXT "\n",
-			 cfg->host, ERR_CANNOTSENDTOCHAN, client->nick,
-			 channel->name);
+	      irc_printf (sock, 
+			  ":%s %03d %s " ERR_CANNOTSENDTOCHAN_TEXT "\n",
+			  cfg->host, ERR_CANNOTSENDTOCHAN, client->nick,
+			  channel->name);
 	      continue;
 	    }
 
@@ -132,16 +133,16 @@ irc_priv_callback (socket_t sock,
 	    irc_encrypt_text(text, client->key);
 
 	  /* tell all clients in this channel about */
-	  for(i=0; i<channel->clients; i++)
+	  for (i = 0; i < channel->clients; i++)
 	    {
-	      cl = irc_find_nick (cfg, channel->client[i]);
-	      if(cl->nick != client->nick)
+	      cl = channel->client[i];
+	      if (cl != client)
 		{
-		  xsock = find_sock_by_id(cl->id);
-		  irc_printf(xsock, ":%s!%s@%s PRIVMSG %s :%s\n",
-			     client->nick, client->user, client->host,
-			     channel->name, (cl->flag & UMODE_PASS) ?
-			     irc_decrypt_text(text, cl->key) : text);
+		  xsock = cl->sock;
+		  irc_printf (xsock, ":%s!%s@%s PRIVMSG %s :%s\n",
+			      client->nick, client->user, client->host,
+			      channel->name, (cl->flag & UMODE_PASS) ?
+			      irc_decrypt_text (text, cl->key) : text);
 		}
 	    }
 	}
@@ -186,7 +187,7 @@ irc_note_callback (socket_t sock,
   int n;
 
   /* enough paras ? */
-  if(check_paras(sock, client, cfg, request, 2))
+  if (irc_check_paras (sock, client, cfg, request, 2))
     return 0;
   
   /* concate the text */
@@ -205,17 +206,18 @@ irc_note_callback (socket_t sock,
   if ((cl = irc_find_nick (cfg, request->target[0].nick)))
      {
        /* is this client away ? */
-       if(is_client_absent(cl, client)) return 0;
+       if (irc_is_client_absent (cl, client)) 
+	 return 0;
 
        /* crypted ? */
        if(client->flag & UMODE_PASS) irc_encrypt_text(text, client->key);
 
        if(cl->flag & UMODE_PASS) irc_decrypt_text(text, cl->key);
 
-       xsock = find_sock_by_id(cl->id);
-       irc_printf(xsock, ":%s!%s@%s NOTICE %s :%s\n",
-		  client->nick, client->user, client->host,
-		  cl->nick, text);
+       xsock = cl->sock;
+       irc_printf (xsock, ":%s!%s@%s NOTICE %s :%s\n",
+		   client->nick, client->user, client->host,
+		   cl->nick, text);
      }
 
   return 0;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-proto.h,v 1.4 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -40,7 +40,7 @@
 #define MAX_CHANNEL_LEN       200 /* maximum channel name length */
 #define INVALID_CHANNEL_CHARS "\007, "
 
-#define IRC_PING_INTERVAL 3*60 /* three (3) minutes intervals */
+#define IRC_PING_INTERVAL (3*60)  /* three (3) minutes intervals */
 
 #define MAX_MODE_LEN   32   /* length of mode string (user or channel) */
 #define MAX_NICK_LEN   16   /* nick name length */
@@ -61,21 +61,30 @@
 # define TS_PASS    "TS"    /* passed as second arg in PASS */
 #endif
 
+/*
+ * Useful typedefs.
+ */
 typedef unsigned char byte;
+typedef struct irc_client irc_client_t;
+typedef struct irc_client_history irc_client_history_t;
+typedef struct irc_ban irc_ban_t;
+typedef struct irc_channel irc_channel_t;
+typedef struct irc_server irc_server_t;
 
 /*
  * Client structure.
  */
-typedef struct
+struct irc_client
 {
   char nick[MAX_NICK_LEN];     /* nick name */
   char real[MAX_NAME_LEN];     /* real name */
   char user[MAX_NAME_LEN];     /* user name (ident) */
   char host[MAX_NAME_LEN];     /* host name (nslookup) */
   char server[MAX_NAME_LEN];   /* the server the client is connected to */
-  char *channel[MAX_CHANNELS]; /* pointer to channels's names */
-  int channels;                /* amount of channels the client is in */
-  int id;                      /* socket id */
+  /* array of channels this client joined */
+  irc_channel_t *channel[MAX_CHANNELS]; 
+  int channels;                /* amount of channels the client joined */
+  socket_t sock;               /* this clients socket structure */
   int flag;                    /* this client's user flags */
   byte key;                    /* the key */
   char pass[MAX_NAME_LEN];     /* the given password */
@@ -83,46 +92,43 @@ typedef struct
   int hopcount;                /* the client's hopcount (server distance) */
   time_t since;                /* signon time */
   int ping;                    /* ping <-> pong counter */
-  void *next;                  /* next client in the list */
-}
-irc_client_t;
+};
 
 /*
  * Client history structure.
  */
-typedef struct
+struct irc_client_history
 {
   char nick[MAX_NICK_LEN];     /* nick name */
   char real[MAX_NAME_LEN];     /* real name */
   char user[MAX_NAME_LEN];     /* user name (ident) */
   char host[MAX_NAME_LEN];     /* host name (nslookup) */
-  void *next;                  /* next client in the list */
-}
-irc_client_history_t;
+  void *next;                  /* next client in the history list */
+};
 
 /*
  * Ban Mask structure.
  */
-typedef struct
+struct irc_ban
 {
   char nick[MAX_NAME_LEN]; /* nick name */
   char user[MAX_NAME_LEN]; /* user name */
   char host[MAX_NAME_LEN]; /* host name */
   char by[MAX_NAME_LEN];   /* created by  */
   time_t since;            /* banned since */
-}
-irc_ban_t;
+};
 
 /*
  * Channel structure.
  */
-typedef struct
+struct irc_channel
 {
   char name[MAX_NAME_LEN];        /* channel name (max. 200 characters) */
   char topic[MAX_NAME_LEN];       /* current topic */
   char topic_by[MAX_NAME_LEN];    /* topic set by */
   time_t topic_since;             /* topic set at */
-  char *client[MAX_CLIENTS];      /* pointer to client nicks */
+  /* array of clients in this channel */
+  irc_client_t *client[MAX_CLIENTS]; 
   int cflag[MAX_CLIENTS];         /* these clients's channel flags */
   int clients;                    /* clients in this channel */
   int flag;                       /* channel flags */
@@ -134,14 +140,12 @@ typedef struct
   time_t since;                   /* channel exists since */
   char *invite[MAX_CLIENTS];      /* invited clients's nick names */
   int invites;                    /* number of invited clients */
-  void *next;                     /* next channel in the list */
-}
-irc_channel_t;
+};
 
 /*
  * Server structure.
  */
-typedef struct
+struct irc_server
 {
   char *realhost;                 /* real host */
   unsigned addr;                  /* the actual network address */
@@ -151,8 +155,7 @@ typedef struct
   int id;                         /* socket id */
   void *cfg;                      /* irc server configuration hash */
   void *next;                     /* next server in the list */
-}
-irc_server_t;
+};
 
 /*
  * IRC server configuration hash.
@@ -291,32 +294,25 @@ irc_config_t;
 extern server_definition_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
-int is_client_in_channel(socket_t sock, 
-			 irc_client_t *client, 
-			 irc_channel_t *channel);
-
-int check_paras(socket_t sock, 
-		irc_client_t *client, 
-		irc_config_t *conf, 
-		irc_request_t *request, 
-		int no);
-
-int is_client_absent(irc_client_t *client, irc_client_t *cl);
-int irc_printf(socket_t sock, const char *fmt, ...);
+int irc_is_client_in_channel (socket_t, irc_client_t *, irc_channel_t *);
+int irc_check_paras (socket_t, irc_client_t *, irc_config_t *,
+		     irc_request_t *, int);
+int irc_is_client_absent (irc_client_t *, irc_client_t *);
+int irc_printf (socket_t, const char *, ...);
 
 /* serveez callbacks */
-int irc_handle_request(socket_t sock, char *request, int len);
-int irc_disconnect(socket_t sock);
-int irc_idle(socket_t sock);
+int irc_handle_request (socket_t sock, char *request, int len);
+int irc_disconnect (socket_t sock);
+int irc_idle (socket_t sock);
 
 /* channel operations */
-int irc_delete_channel (irc_config_t *cfg, char *channel);
+int irc_delete_channel (irc_config_t *cfg, irc_channel_t *);
 irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
 irc_channel_t *irc_find_channel (irc_config_t *cfg, char *channel);
 irc_channel_t **irc_regex_channel (irc_config_t *cfg, char *regex);
-int add_client_to_channel(irc_config_t *cfg, irc_client_t *client, char *chan);
-int del_client_of_channel(irc_config_t *cfg, irc_client_t *client, char *chan);
-int del_client_of_channels(irc_config_t *, irc_client_t *, char *reason);
+int irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan);
+int irc_leave_channel (irc_config_t *, irc_client_t *, irc_channel_t *);
+int irc_leave_all_channels (irc_config_t *, irc_client_t *, char *reason);
 
 /* client operations */
 void irc_delete_client_history (irc_config_t *cfg);

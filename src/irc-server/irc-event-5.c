@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.3 2000/06/18 16:25:19 ela Exp $
+ * $Id: irc-event-5.c,v 1.4 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -115,24 +115,24 @@ is_client_visible (irc_config_t *cfg,     /* current server config */
   int n;
 
   /* invisible ? */
-  if(rclient->flag & UMODE_INVISIBLE)
+  if (rclient->flag & UMODE_INVISIBLE)
     return 0;
 
   /* 
    * Visible, but not in a public (no secret or private) channel ? 
    * The client is also visible if they share a channel.
    */
-  for(n=0; n<rclient->channels; n++)
+  for (n = 0; n < rclient->channels; n++)
     {
-      channel = irc_find_channel (cfg, rclient->channel[n]);
+      channel = rclient->channel[n];
 
       /* public channel ? */
-      if(!(channel->flag & (MODE_SECRET | MODE_PRIVATE)))
+      if (!(channel->flag & (MODE_SECRET | MODE_PRIVATE)))
 	return -1;
       else
 	{
 	  /* no, but do they share it ? */
-	  if(is_client_in_channel(NULL, client, channel) != -1)
+	  if (irc_is_client_in_channel (NULL, client, channel) != -1)
 	    return -1;
 	}
     }
@@ -170,21 +170,21 @@ send_user_infos (socket_t sock,        /* the socket for the client to send */
 	       cl->nick);
 	  
   /* idle seconds */
-  xsock = find_sock_by_id(cl->id);
-  irc_printf(sock, ":%s %03d %s " RPL_WHOISIDLE_TEXT "\n",
-	     cfg->host, RPL_WHOISIDLE, client->nick,
-	     cl->nick, time(NULL) - xsock->last_send, cl->since);
+  xsock = cl->sock;
+  irc_printf (sock, ":%s %03d %s " RPL_WHOISIDLE_TEXT "\n",
+	      cfg->host, RPL_WHOISIDLE, client->nick,
+	      cl->nick, time (NULL) - xsock->last_send, cl->since);
 
   /* build channel list */
-  for(text[0]=0, i=0; i<cl->channels; i++)
+  for (text[0] = 0, i = 0; i < cl->channels; i++)
     {
-      channel = irc_find_channel (cfg, cl->channel[i]);
-      n = is_client_in_channel(NULL, cl, channel);
+      channel = cl->channel[i];
+      n = irc_is_client_in_channel (NULL, cl, channel);
       if(channel->cflag[n] & MODE_OPERATOR)
 	strcat(text, "@");
       else if(channel->cflag[n] & MODE_VOICE)
 	strcat(text, "+");
-      strcat(text, cl->channel[i]);
+      strcat(text, cl->channel[i]->name);
       strcat(text, " ");
     }
 
@@ -215,7 +215,7 @@ irc_whois_callback (socket_t sock,
   int n;
 
   /* enough paras ? */
-  if(check_paras(sock, client, cfg, request, 1))
+  if (irc_check_paras (sock, client, cfg, request, 1))
     return 0;
 
   /* server Mask ? */
@@ -236,7 +236,7 @@ irc_whois_callback (socket_t sock,
 	      for (n = 0; cl[n]; n++)
 		{
 		  /* is this client away ? */
-		  if (is_client_absent (cl[n], client))
+		  if (irc_is_client_absent (cl[n], client))
 		    continue;
 		  send_user_infos (sock, client, cl[n]);
 		}
@@ -247,7 +247,8 @@ irc_whois_callback (socket_t sock,
       else if ((rclient = irc_find_nick (cfg, nick)))
 	{
 	  /* is this client away ? */
-	  if (is_client_absent (rclient, client)) continue;
+	  if (irc_is_client_absent (rclient, client)) 
+	    continue;
 	  send_user_infos (sock, client, rclient);
 	}
 
@@ -272,7 +273,7 @@ send_client_infos (socket_t sock,          /* this client's socket */
   char *flag = "";
   int n;
 
-  n = is_client_in_channel(NULL, cl, channel);
+  n = irc_is_client_in_channel (NULL, cl, channel);
   if(channel->cflag[n] & MODE_OPERATOR)
     flag = "@";
   else if(channel->cflag[n] & MODE_VOICE)
@@ -316,7 +317,7 @@ irc_who_callback (socket_t sock,
 	{
 	  for(n = 0; n < channel[i]->clients; n++)
 	    {
-	      xcl = irc_find_nick (cfg, channel[i]->client[n]);
+	      xcl = channel[i]->client[n];
 	      send_client_infos (sock, client, xcl, channel[i]);
 	    }
 	}
@@ -335,9 +336,9 @@ irc_who_callback (socket_t sock,
     {
       for (i = 0; cl[i]; i++)
 	{
-	  for(n = 0; n < cl[i]->channels; n++)
+	  for (n = 0; n < cl[i]->channels; n++)
 	    {
-	      xch = irc_find_channel (cfg, cl[i]->channel[n]);
+	      xch = cl[i]->channel[n];
 	      send_client_infos (sock, client, cl[i], xch);
 	    }
 	}

@@ -1,3 +1,21 @@
+2000-06-19  [ Ela ]  <ela@lkcc.org>
+
+	* server.c (set_port): When creating a inet address via
+	inet_ntoa the whole structure seems to be destroyed except
+	the address. That is why we put in all other information 
+	afterwards (port and address family).
+
+	* server-socket.c (server_create): Made network server sockets
+	do not route and bind to specific ip addresses via portcfg.
+
+	* irc-server/irc-proto.c (irc_create_client): The miscelleanous
+	field sock->data is now used for a irc client structure. Thus
+	every socket knows about its associated irc client.
+	Various changes within the irc server. Everything untested...
+
+	* irc-server/irc-proto.h (struct irc_client): Channel and 
+	client lookup simplified.
+
 2000-06-19  [ RAIMI ]  <raimi@lkcc.org>
 
 	* server.c (set_port): it's now possible to bind ip servers to

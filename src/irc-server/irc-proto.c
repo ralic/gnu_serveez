@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.4 2000/06/18 22:13:03 raimi Exp $
+ * $Id: irc-proto.c,v 1.5 2000/06/19 15:24:50 ela Exp $
  *
  */
 
@@ -63,7 +63,7 @@ portcfg_t irc_port =
   PROTO_TCP,  /* tcp protocol only */
   42424,      /* prefered tcp port */
   "*",        /* prefered local ip address */
-  NULL,       /* calucalted automatically */
+  NULL,       /* calculated automatically */
   NULL,       /* no receiving pipe */
   NULL        /* no sending (listening) pipe */
 };
@@ -250,24 +250,24 @@ irc_finalize (server_t *server)
  * ERR_NOTONCHANNEL reply is sent to the socket.
  */
 int
-is_client_in_channel (socket_t sock,          /* client's socket */
-		      irc_client_t *client,   /* the client structure */
-		      irc_channel_t *channel) /* the channel to search */
+irc_is_client_in_channel (socket_t sock,          /* client's socket */
+			  irc_client_t *client,   /* the client structure */
+			  irc_channel_t *channel) /* the channel to search */
 {
   irc_config_t *cfg;
   int n;
 
   /* find client in the channel, return position if found */
-  for(n=0; n<channel->clients; n++)
-    if(channel->client[n] == client->nick)
+  for (n = 0; n < channel->clients; n++)
+    if (channel->client[n] == client)
       return n;
   
   /* not in channel ! */
-  if(sock)
+  if (sock)
     {
       cfg = sock->cfg;
-      irc_printf(sock, ":%s %03d %s " ERR_NOTONCHANNEL_TEXT "\n",
-		 cfg->host, ERR_NOTONCHANNEL, client->nick, channel->name);
+      irc_printf (sock, ":%s %03d %s " ERR_NOTONCHANNEL_TEXT "\n",
+		  cfg->host, ERR_NOTONCHANNEL, client->nick, channel->name);
     }
   return -1;
 }
@@ -276,9 +276,9 @@ is_client_in_channel (socket_t sock,          /* client's socket */
  * Add a nick to a certain channel.
  */
 int
-add_client_to_channel (irc_config_t *cfg,
-		       irc_client_t *client, 
-		       char *chan)
+irc_join_channel (irc_config_t *cfg,
+		  irc_client_t *client, 
+		  char *chan)
 {
   irc_channel_t *channel;
   int n;
@@ -288,13 +288,13 @@ add_client_to_channel (irc_config_t *cfg,
     {
       /* is the nick already in the channel ? */
       for (n = 0; n < channel->clients; n++)
-	if (channel->client[n] == client->nick)
+	if (channel->client[n] == client)
 	  break;
 
       /* no, add nick to channel */
       if (n == channel->clients)
 	{
-	  channel->client[n] = client->nick;
+	  channel->client[n] = client;
 	  channel->cflag[n] = 0;
 	  channel->clients++;
 #if ENABLE_DEBUG
@@ -302,7 +302,7 @@ add_client_to_channel (irc_config_t *cfg,
 		      client->nick, channel->name);
 #endif
 	  n = client->channels;
-	  client->channel[n] = channel->name;
+	  client->channel[n] = channel;
 	  client->channels++;
 	}
     }
@@ -312,7 +312,7 @@ add_client_to_channel (irc_config_t *cfg,
     {
       /* create one and set the first client as operator */
       channel = irc_add_channel (cfg, chan);
-      channel->client[0] = client->nick;
+      channel->client[0] = client;
       channel->cflag[0] = MODE_OPERATOR;
       channel->clients++;
       strcpy (channel->by, client->nick);
@@ -323,7 +323,7 @@ add_client_to_channel (irc_config_t *cfg,
 		  client->nick, channel->name);
 #endif
       n = client->channels;
-      client->channel[n] = channel->name;
+      client->channel[n] = channel;
       client->channels++;
     }
 
@@ -334,47 +334,42 @@ add_client_to_channel (irc_config_t *cfg,
  * Delete a client of a given channel.
  */
 int
-del_client_of_channel (irc_config_t *cfg, 
-		       irc_client_t *client, 
-		       char *chan)
+irc_leave_channel (irc_config_t *cfg, 
+		   irc_client_t *client, 
+		   irc_channel_t *channel)
 {
-  irc_channel_t *channel;
   int n, i, last;
 
-  /* does the channel exist ? */
-  if ((channel = irc_find_channel (cfg, chan)))
+  /* delete the client of this channel */
+  last = channel->clients - 1;
+  for (n = 0; n < channel->clients; n++)
+    if (channel->client[n] == client)
+      {
+	channel->client[n] = channel->client[last];
+	channel->cflag[n] = channel->cflag[last];
+	channel->clients--;
+#if ENABLE_DEBUG
+	log_printf (LOG_DEBUG, "irc: %s left channel %s\n",
+		    client->nick, channel->name);
+#endif
+	/* clear this channel of client's list */
+	last = client->channels - 1;
+	for (i = 0; i < client->channels; i++)
+	  if (client->channel[i] == channel)
+	    {
+	      client->channel[i] = client->channel[last];
+	      client->channels--;
+	      break;
+	    }
+	break;
+      }
+  /* no client in channel ? */
+  if (channel->clients == 0)
     {
-      /* delete the client of this channel */
-      last = channel->clients - 1;
-      for (n = 0; n < channel->clients; n++)
-	if (channel->client[n] == client->nick)
-	  {
-	    channel->client[n] = channel->client[last];
-	    channel->cflag[n] = channel->cflag[last];
-	    channel->clients--;
 #if ENABLE_DEBUG
-	    log_printf (LOG_DEBUG, "irc: %s left channel %s\n",
-			client->nick, chan);
+      log_printf (LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
 #endif
-	    /* clear this channel of client's list */
-	    last = client->channels - 1;
-	    for (i = 0; i < client->channels; i++)
-	      if (client->channel[i] == channel->name)
-		{
-		  client->channel[i] = client->channel[last];
-		  client->channels--;
-		  break;
-		}
-	    break;
-	  }
-      /* no client in channel ? */
-      if (channel->clients == 0)
-	{
-#if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "irc: channel %s destroyed\n", chan);
-#endif
-	  irc_delete_channel (cfg, chan);
-	}
+      irc_delete_channel (cfg, channel);
     }
 
   return 0;
@@ -385,41 +380,41 @@ del_client_of_channel (irc_config_t *cfg,
  * there are too less.
  */
 int
-check_paras(socket_t sock,           /* the client's socket */
-	    irc_client_t *client,    /* the irc client itself */
-	    irc_config_t *conf,      /* config hash */
-	    irc_request_t *request,  /* the request */
-	    int n)                   /* para # */
+irc_check_paras (socket_t sock,           /* the client's socket */
+		 irc_client_t *client,    /* the irc client itself */
+		 irc_config_t *conf,      /* config hash */
+		 irc_request_t *request,  /* the request */
+		 int n)                   /* para # */
 {
-  if(request->paras < n)
+  if (request->paras < n)
     {
-      irc_printf(sock, ":%s %03d %s " ERR_NEEDMOREPARAMS_TEXT "\n",
-		 conf->host, ERR_NEEDMOREPARAMS, client->nick,
-		 request->request);
+      irc_printf (sock, ":%s %03d %s " ERR_NEEDMOREPARAMS_TEXT "\n",
+		  conf->host, ERR_NEEDMOREPARAMS, client->nick,
+		  request->request);
       return -1;
     }
   return 0;
 }
 
 /*
- * This routine checks if a given client is away or not then
+ * This routine checks if a given client is away or not, then
  * sends this clients away message to the sender back. Return
  * non-zero if away.
  */
 int
-is_client_absent (irc_client_t *client, /* requested client */
-		  irc_client_t *cl)     /* the one who want to know about */
+irc_is_client_absent (irc_client_t *client,  /* requested client */
+		      irc_client_t *rclient) /* who want to know about */
 {
   irc_config_t *cfg;
   socket_t sock;
 
-  if(client->flag & UMODE_AWAY)
+  if (client->flag & UMODE_AWAY)
     {
-      sock = find_sock_by_id(cl->id);
+      sock = rclient->sock;
       cfg = sock->cfg;
-      irc_printf(sock, ":%s %03d %s " RPL_AWAY_TEXT "\n",
-		 cfg->host, RPL_AWAY, cl->nick, client->nick,
-		 client->away);
+      irc_printf (sock, ":%s %03d %s " RPL_AWAY_TEXT "\n",
+		  cfg->host, RPL_AWAY, rclient->nick, client->nick,
+		  client->away);
       return -1;
     }
   return 0;
@@ -430,7 +425,7 @@ is_client_absent (irc_client_t *client, /* requested client */
  * then the client is deleted itself.
  */
 int
-del_client_of_channels (irc_config_t *cfg, 
+irc_leave_all_channels (irc_config_t *cfg, 
 			irc_client_t *client, 
 			char *reason)
 {
@@ -440,27 +435,27 @@ del_client_of_channels (irc_config_t *cfg,
   socket_t xsock;
   int i;
 
-  sock = find_sock_by_id (client->id);
+  sock = client->sock;
 
   /* go through all channels */
   while (client->channels)
     {
-      channel = irc_find_channel (cfg, client->channel[0]);
+      channel = client->channel[0];
 
       /* tell all clients in the channel about disconnecting */
       for (i = 0; i < channel->clients; i++)
 	{
-	  if (channel->client[i] == client->nick)
+	  if (channel->client[i] == client)
 	    continue;
 	  
-	  cl = irc_find_nick (cfg, channel->client[i]);
-	  xsock = find_sock_by_id (cl->id);
+	  cl = channel->client[i];
+	  xsock = cl->sock;
 	  irc_printf (xsock, ":%s!%s@%s QUIT :%s\n",
 		      client->nick, client->user, client->host, reason);
 	}
 	  
       /* delete this client of channel */
-      del_client_of_channel (cfg, client, client->channel[0]);
+      irc_leave_channel (cfg, client, client->channel[0]);
     }
 
   /* send last error Message */
@@ -483,7 +478,7 @@ irc_disconnect (socket_t sock)
   irc_client_t *client = sock->data;
   
   /* is it a valid IRC connection ? */
-  del_client_of_channels (cfg, client, IRC_CONNECTION_LOST);
+  irc_leave_all_channels (cfg, client, IRC_CONNECTION_LOST);
   return 0;
 }
 
@@ -594,17 +589,16 @@ irc_handle_request (socket_t sock, char *request, int len)
  * apropiate channel.
  */
 int
-irc_delete_channel (irc_config_t *cfg, char *channel)
+irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 {
-  irc_channel_t *chan;
   int n;
 
-  if ((chan = hash_get (cfg->channels, channel)) != NULL)
+  if (hash_contains (cfg->channels, channel))
     {
-      for (n = 0; n < chan->bans; n++)
-	xfree (chan->ban[n]);
-      xfree (chan);
-      hash_delete (cfg->channels, channel);
+      for (n = 0; n < channel->bans; n++)
+	xfree (channel->ban[n]);
+      hash_delete (cfg->channels, channel->name);
+      xfree (channel);
       return 0;
     }
   return -1;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.7 2000/06/18 22:13:02 raimi Exp $
+ * $Id: server-socket.c,v 1.8 2000/06/19 15:24:49 ela Exp $
  *
  */
 
@@ -305,20 +305,29 @@ server_create (portcfg_t *cfg)
 	  return NULL;
 	}
 
-      /* Second, bind the socket to a port. */
-      /* Should work like this but doesnt: */
       /*
-       *      if (bind (server_socket, cfg->localaddr,
-       *		sizeof (struct sockaddr_in) < 0))
+       * Make this socket route around its table.
+       */
+      optval = 1;
+      if (setsockopt (server_socket, SOL_SOCKET, SO_DONTROUTE,
+		      (void *) &optval, sizeof (optval)) < 0)
+	{
+	  log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	  if (CLOSE_SOCKET (server_socket) < 0)
+	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  return NULL;
+	}
+
+      /*
+	memset (&server, 0, sizeof (server));
+	server.sin_family = AF_INET;
+	server.sin_addr.s_addr = INADDR_ANY;
+	server.sin_port = htons (cfg->port);
       */
-      memset (&server, 0, sizeof (server));
-      server.sin_family = AF_INET;
-      server.sin_addr.s_addr = INADDR_ANY;
-      server.sin_port = htons (cfg->port);
-  
-      if (bind (server_socket, 
-		(struct sockaddr *) &server, 
-		sizeof (server)) < 0)
+
+      /* Second, bind the socket to a port. */
+      if (bind (server_socket, (struct sockaddr *) cfg->localaddr, 
+		sizeof (struct sockaddr)) < 0)
 	{
 	  log_printf (LOG_ERROR, "bind: %s\n", NET_ERROR);
 	  if (CLOSE_SOCKET (server_socket) < 0)
@@ -388,9 +397,11 @@ server_create (portcfg_t *cfg)
   else
     {
       sock->read_socket = server_accept_socket;
-      log_printf (LOG_NOTICE, "listening on %s port %d\n",
+      log_printf (LOG_NOTICE, "listening on %s port %d (%s)\n",
 		  cfg->proto & PROTO_TCP ? "tcp" : "udp",
-		  sock->local_port);
+		  sock->local_port, 
+		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "all IPs" : 
+		  util_inet_ntoa (htonl (cfg->localaddr->sin_addr.s_addr)));
     }
 
   return sock;
