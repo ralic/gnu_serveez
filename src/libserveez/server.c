@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.17 2001/05/19 23:04:58 ela Exp $
+ * $Id: server.c,v 1.18 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -204,6 +204,9 @@ svz_servertype_print (void)
 
 	      switch (stype->items[i].type) 
 		{
+		case ITEM_BOOL:
+		  printf ("bool\n");
+		  break;
 		case ITEM_INT:
 		  printf ("int\n");
 		  break;
@@ -681,6 +684,13 @@ svz_server_configure (svz_servertype_t *server,
 				    (int *) target, *(int *) def);
           break;
 
+	  /* Boolean value. */
+        case ITEM_BOOL:
+	  if (configure && configure->boolean)
+	    e = configure->boolean (name, arg, server->items[n].name,
+				    (int *) target, *(int *) def);
+          break;
+
           /* Integer array. */
         case ITEM_INTARRAY:
 	  if (configure && configure->intarray)
@@ -748,6 +758,11 @@ svz_server_configure (svz_servertype_t *server,
 		{
 		  /* Normal integer. */
 		case ITEM_INT:
+		  *(int *) target = *(int *) def;
+		  break;
+
+		  /* Boolean value. */
+		case ITEM_BOOL:
 		  *(int *) target = *(int *) def;
 		  break;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.4 2001/02/02 11:26:23 ela Exp $
+ * $Id: boot.h,v 1.5 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -59,9 +59,10 @@ SERVEEZ_API extern char *svz_library;
 SERVEEZ_API extern char *svz_version;
 SERVEEZ_API extern char *svz_build;
 
-/* Exported from `util.c' because it is a central point. */
-SERVEEZ_API extern int have_debug;
-SERVEEZ_API extern int have_win32;
+/* Exported from `boot.c' because it is a central point. */
+SERVEEZ_API extern int svz_have_debug;
+SERVEEZ_API extern int svz_have_Win32;
+SERVEEZ_API extern int svz_have_floodprotect;
 
 __END_DECLS
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.14 2001/05/19 23:04:56 ela Exp $
+ * $Id: guile.c,v 1.15 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -696,8 +696,9 @@ guile_init (void)
   /* define some variables */
   gh_define ("serveez-version", gh_str02scm (svz_version));
   gh_define ("guile-version", scm_version ());
-  gh_define ("have-debug", gh_bool2scm (have_debug));
-  gh_define ("have-win32", gh_bool2scm (have_win32));
+  gh_define ("have-debug", gh_bool2scm (svz_have_debug));
+  gh_define ("have-Win32", gh_bool2scm (svz_have_Win32));
+  gh_define ("have-floodprotect", gh_bool2scm (svz_have_floodprotect));
 
   gh_define ("serveez-verbosity", gh_int2scm (svz_verbosity));
   gh_define ("serveez-sockets", gh_int2scm (svz_config.max_sockets));

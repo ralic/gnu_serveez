@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.13 2001/05/19 23:04:58 ela Exp $
+ * $Id: server.h,v 1.14 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -134,6 +134,8 @@ typedef struct
 {
   int (* integer)  (char *server, void *arg, char *name,
 		    int *target, int def);
+  int (* boolean)  (char *server, void *arg, char *name,
+		    int *target, int def);
   int (* intarray) (char *server, void *arg, char *name,
 		    svz_array_t **target, svz_array_t *def);
   int (* string)   (char *server, void *arg, char *name, 
@@ -159,6 +161,7 @@ svz_server_config_t;
 #define ITEM_STRARRAY 4
 #define ITEM_HASH     5
 #define ITEM_PORTCFG  6
+#define ITEM_BOOL     7
 
 /*
  * Macro for defining the example server configuration @var{config} and its
@@ -174,6 +177,7 @@ svz_server_config_t;
   ((i) == ITEM_STR) ? "string" :                      \
   ((i) == ITEM_STRARRAY) ? "string array" :           \
   ((i) == ITEM_HASH) ? "hash table" :                 \
+  ((i) == ITEM_BOOL) ? "boolean" :                    \
   ((i) == ITEM_PORTCFG) ? "port configuration" : NULL
 
 /*
@@ -192,7 +196,13 @@ svz_server_config_t;
   { ITEM_INTARRAY, (name), (defaultable), &(item) }
 
 /*
- * Register a simple charachter string. C-type: @code{char *}.
+ * Register a boolean value. C-type: @code{int}.
+ */
+#define SVZ_REGISTER_BOOL(name, item, defaultable) \
+  { ITEM_BOOL, (name), (defaultable), &(item) }
+
+/*
+ * Register a simple character string. C-type: @code{char *}.
  */
 #define SVZ_REGISTER_STR(name, item, defaultable) \
   { ITEM_STR, (name), (defaultable), &(item) }
@@ -211,14 +221,15 @@ svz_server_config_t;
   { ITEM_HASH, (name), (defaultable), &(item) }
 
 /*
- * Register a port configuration. C-type: @code{svz_portcgf_t *}.
+ * Register a port configuration. C-type: @code{svz_portcfg_t *}.
  */
 #define SVZ_REGISTER_PORTCFG(name, item, defaultable) \
   { ITEM_PORTCFG, (name), (defaultable), &(item) }
 
 /*
  * This macro indicates the end of the list of configuration items. It is
- * the only mandatory item you need to specify in an example configuration.
+ * the only mandatory item you need to specify in an example server type
+ * configuration.
  */
 #define SVZ_REGISTER_END() \
   { ITEM_END, NULL, DEFAULTABLE, NULL }

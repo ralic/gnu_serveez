@@ -507,6 +507,7 @@ for it. These items refer to addresses in the example configuration of the
 server type. The following macro can be used to determine these items.
 
 SVZ_REGISTER_INT_DEFMAC
+SVZ_REGISTER_BOOL_DEFMAC
 SVZ_REGISTER_INTARRAY_DEFMAC
 SVZ_REGISTER_STR_DEFMAC
 SVZ_REGISTER_STRARRAY_DEFMAC
@@ -663,8 +664,9 @@ SVZ_CONFIG_DEFVAR
 SVZ_LIBRARY_DEFVAR
 SVZ_VERSION_DEFVAR
 SVZ_BUILD_DEFVAR
-HAVE_DEBUG_DEFVAR
-HAVE_WIN32_DEFVAR
+SVZ_HAVE_DEBUG_DEFVAR
+SVZ_HAVE_WIN32_DEFVAR
+SVZ_HAVE_FLOODPROTECT_DEFVAR
 
 SVZ_NET_STARTUP_DEFUN
 SVZ_NET_CLEANUP_DEFUN
@@ -694,10 +696,23 @@ SVZ_WINDOZE_SET_REG_UNSIGNED_DEFUN
 SVZ_WINDOZE_GET_REG_STRING_DEFUN
 SVZ_WINDOZE_SET_REG_STRING_DEFUN
 
-@node Index,  , Embedding API, Top
+@node Index, , Embedding API, Top
 @chapter Index
-     
+
+@menu
+* Function index::            All functions of the C API
+* Variable index::            All variables in the C API
+@end menu
+
+@node Function index, Variable index, , Index
+@section Function index
+
 @printindex fn
+
+@node Variable index, , Function index, Index
+@section Variable index
+
+@printindex vr
 
 @contents
 @bye

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.11 2001/05/09 21:04:09 ela Exp $
+ * $Id: portcfg.h,v 1.12 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -28,9 +28,7 @@
 #define _GNU_SOURCE
 #include <sys/types.h>
 #include <sys/stat.h>
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
+
 #ifndef __MINGW32__
 # include <netinet/in.h>
 #else

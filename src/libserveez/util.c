@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.8 2001/05/19 23:04:58 ela Exp $
+ * $Id: util.c,v 1.9 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -64,6 +64,10 @@
 
 #ifdef __MINGW32__
 # include <winsock2.h>
+#endif
+
+#if HAVE_SYS_UTSNAME_H
+# include <sys/utsname.h>
 #endif
 
 #include "libserveez/snprintf.h"
@@ -723,10 +727,3 @@ svz_openfiles (int max_sockets)
 
   return 0;
 }
-
-/* Runtime checkable flags for configuration language and code. */
-#ifdef ENABLE_FLOOD_PROTECTION
-int have_floodprotect = 1;
-#else
-int have_floodprotect = 0;
-#endif

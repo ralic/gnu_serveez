@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.12 2001/05/19 23:04:57 ela Exp $
+ * $Id: boot.c,v 1.13 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -59,16 +59,24 @@ char *svz_build = __serveez_timestamp;
 
 /* Runtime flag if this is Win32 or not. */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
-int have_win32 = 1;
+int svz_have_Win32 = 1;
 #else
-int have_win32 = 0;
+int svz_have_Win32 = 0;
 #endif
 
 /* Runtime flag if this is the debug version or not. */
 #ifdef ENABLE_DEBUG
-int have_debug = 1;
+int svz_have_debug = 1;
 #else
-int have_debug = 0;
+int svz_have_debug = 0;
+#endif
+
+/* Runtime checkable flags for configuration language and code if flood
+   protection has been enabled or not. */
+#ifdef ENABLE_FLOOD_PROTECTION
+int svz_have_floodprotect = 1;
+#else
+int svz_have_floodprotect = 0;
 #endif
 
 /*

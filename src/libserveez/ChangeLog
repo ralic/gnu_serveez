@@ -1,3 +1,14 @@
+2001-05-20  [ Ela ]  <ela@lkcc.org>
+
+	* server.c (svz_server_configure): Added code for 
+	configuring a boolean value.
+
+	* boot.c: Moved runtime checkable flags from `util.c' here
+	and prefixed them with `svz_'.
+
+	* server.h (SVZ_REGISTER_BOOL): New macro for registering a
+	boolean value within a server type configuration.
+
 2001-05-19  [ Ela ]  <ela@lkcc.org>
 
 	* Renamed a very lot functions in order to get the core library

@@ -36,6 +36,24 @@
 /* Define as __inline if that's what the C compiler calls it.  */
 #undef inline
 
+/* Define to `int' if <sys/types.h> doesn't define.  */
+#undef mode_t
+
+/* Define to `long' if <sys/types.h> doesn't define.  */
+#undef off_t
+
+/* Define to `unsigned' if <sys/types.h> doesn't define.  */
+#undef size_t
+
+/* Make CygWin / MinGW32 use large FD sets. */
+#undef FD_SETSIZE
+
+/* Define if you are using Windows Socket-API (not CYGWIN). */
+#undef Win32_Winsock
+
+/* Define for faster code generation. */
+#undef WIN32_LEAN_AND_MEAN
+
 /* Define if debug output should be supported. */
 #undef ENABLE_DEBUG
 
@@ -54,17 +72,11 @@
 /* Define if flood protection should be supported. */
 #undef ENABLE_FLOOD_PROTECTION
 
-/* Define if you have the <sys/utsname.h> header file.  */
-#undef HAVE_SYS_UTSNAME_H
-
 /* Define if the password encryption should be supported. */
 #undef ENABLE_CRYPT
 
 /* Define if you have the crypt function. */
 #undef HAVE_CRYPT
-
-/* Define if you have the <unistd.h> header file.  */
-#undef HAVE_UNISTD_H
 
 /* Define to empty if the keyword does not work.  */
 #undef const

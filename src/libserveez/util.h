@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.7 2001/05/19 23:04:58 ela Exp $
+ * $Id: util.h,v 1.8 2001/05/20 20:30:43 ela Exp $
  *
  */
 
@@ -33,9 +33,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#if HAVE_SYS_UTSNAME_H
-# include <sys/utsname.h>
-#endif
 
 /* `open ()' files with this additional flag */
 #ifndef O_BINARY
