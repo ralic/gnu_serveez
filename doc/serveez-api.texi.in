@@ -53,11 +53,77 @@ all parts of the API it provides.
 @node Introduction, Embedding Serveez, Top, Top
 @chapter Introduction
 
+The Serveez core library provides all of the functionality necessary in
+order to write Internet protocol servers (currently TCP, UDP, ICMP and RAW
+sockets), pipe servers (connection oriented via a pair of named pipes) and 
+coservers in a portable way. It encapsulates the native network and 
+filesystem programming interface of different Unices and Windows systems.
+
+The Serveez embedding manual and the API documentation will give the reader
+an overview about how to use its core library.
+
 @node Embedding Serveez, Embedding API, Introduction, Top
 @chapter Embedding Serveez
 
+@menu
+* Compiling and linking::        Compiling and linking
+* A simple example::             A simple example
+@end menu
+
+@node Compiling and linking, A simple example, , Embedding Serveez
+@section Compiling and linking
+
+When you have installed a version of Serveez passing the @file{configure}
+script the @code{$prefix} argument e.g. @samp{./configure --prefix=/usr/local}
+you will find the @file{libserveez} library in @file{/usr/local/lib} and the
+include headers in @file{/usr/local/include}. If you want to compile a C 
+program using the Serveez API and link against the Serveez core library 
+@code{libserveez}, which is @file{libserveez.so} at Unices and 
+@file{libserveez.dll} at Windows systems, you need to tell the compiler and
+linker where to find the headers and libraries.
+
+Most C compilers you can use will understand the following command line for
+this purpose. The @code{-I} argument specifies the path to additional 
+include headers, the @code{-L} argument the path to additional libraries and
+the @code{-l} argument the library iteself to link against.
+
+@example
+$ cc -I/usr/local/include -c program.c -o program -L/usr/local/lib -lserveez
+@end example
+
+@node A simple example, , Compiling and linking, Embedding Serveez
+@section A simple example
+
+The following small example shows how to use the Serveez core library to
+print the list of known network interface. As you will notice there are three
+major steps to do: Include the library header @code{#include <libserveez.h>},
+library initialization @code{svz_boot()} and finalization @code{svz_halt()}.
+
+@example
+#include <libserveez.h>
+
+int
+main (int argc, char **argv)
+@{
+  svz_boot ();
+  svz_interface_list ();
+  svz_halt ();
+  return 0;
+@}
+@end example
+
 @node Embedding API, Index, Embedding Serveez, Top
 @chapter Embedding API
+
+In this chapter the reader will find a short description of each function,
+global variable and macro the core library of Serveez provides. The API can
+either be used to implement a new server or coserver module for use with
+Serveez or for supporting network and server functionality within your own
+applications without caring about the details and system programming.
+
+Most of the Serveez core library interface functionality should be
+prefixed with @code{svz_}. Small symbols will refer to functions and
+variables in most cases and big letter symbols refer to macros.
 
 @menu
 * Memory management::     Memory management functions
@@ -67,10 +133,8 @@ all parts of the API it provides.
 * Client connections::    Client connection functions
 * Socket::                Socket management functions
 * Coserver::              Coserver interface
+* ServerType::            Server type implementations
 * Server::                Server object functions
-* ServerCore::            Server core implementation
-* ServerLoop::            Server loop implementation
-* ServerSocket::          Server sockets for TCP, UDP, ICMP and pipes
 * PortConfig::            Port configuration functions
 * Booting::               Configuration and boot functions
 * Interface::             Network interface function implementation
@@ -331,7 +395,7 @@ SOCK_FLOOD_PROTECT_DEFUN
 SOCK_REDUCE_RECV_DEFMAC
 SOCK_REDUCE_SEND_DEFMAC
 
-@node Coserver, Server, Socket, Embedding API
+@node Coserver, ServerType, Socket, Embedding API
 @section Coserver functions
 
 SVZ_COSERVERTYPES_DEFVAR
@@ -351,8 +415,16 @@ SVZ_COSERVER_DNS_DEFMAC
 SVZ_COSERVER_IDENT_INVOKE_DEFUN
 SVZ_COSERVER_IDENT_DEFMAC
 
-@node Server, ServerCore, Coserver, Embedding API
-@section Server functions
+@node ServerType, Server, Coserver, Embedding API
+@section Server type functions
+
+@menu
+* General ServerType::        Server type implementation
+* Dynamic server::            Dynamic server type loading
+@end menu
+
+@node General ServerType, Dynamic server, , ServerType
+@subsection General server type functionality
 
 When specifying a server type you also need to define configuration items
 for it. These items refer to addresses in the example configuration of the
@@ -375,23 +447,44 @@ SVZ_SERVERTYPE_FIND_DEFUN
 SVZ_SERVERTYPE_FINALIZE_DEFUN
 SVZ_SERVERTYPE_PRINT_DEFUN
 
+@node Dynamic server, , General ServerType, ServerType
+@subsection Dynamic server loading
+
+SVZ_DYNLOAD_INIT_DEFUN
+SVZ_DYNLOAD_FINALIZE_DEFUN
+SVZ_SERVER_LOAD_DEFUN
+SVZ_SERVER_UNLOAD_DEFUN
+
+@node Server, PortConfig, ServerType, Embedding API
+@section Server functions
+
+@menu
+* ServerGeneral::         General server instance implementations
+* ServerConfig::          Server instance configuration
+* ServerBind::            Server instance bindings
+* ServerCore::            Core functionality for servers
+* ServerLoop::            Server loop implementation
+* ServerSocket::          Using and creating server sockets
+@end menu
+
+@node ServerGeneral, ServerConfig, , Server
+@subsection General functionality
+
 SVZ_SERVERS_DEFVAR
 SVZ_SERVER_FIND_DEFUN
 SVZ_SERVER_ADD_DEFUN
 SVZ_SERVER_GET_DEFUN
 SVZ_SERVER_DEL_DEFUN
 SVZ_SERVER_INSTANTIATE_DEFUN
-SVZ_SERVER_CONFIGURE_DEFUN
 SVZ_SERVER_NOTIFIERS_DEFUN
 SVZ_SERVER_INIT_ALL_DEFUN
 SVZ_SERVER_FINALIZE_ALL_DEFUN
-
-SVZ_SERVER_BIND_DEFUN
-SVZ_SERVER_UNBIND_DEFUN
-SVZ_SERVER_PORTCFG_DEFUN
-SVZ_SERVER_BINDINGS_DEFUN
-
 SVZ_SERVER_FREE_DEFUN
+
+@node ServerConfig, ServerBind, ServerGeneral, Server
+@subsection Configuration
+
+SVZ_SERVER_CONFIGURE_DEFUN
 SVZ_CONFIG_FREE_DEFUN
 SVZ_CONFIG_INTARRAY_CREATE_DEFUN
 SVZ_CONFIG_INTARRAY_DESTROY_DEFUN
@@ -403,8 +496,16 @@ SVZ_CONFIG_HASH_CREATE_DEFUN
 SVZ_CONFIG_HASH_DESTROY_DEFUN
 SVZ_CONFIG_HASH_DUP_DEFUN
 
-@node ServerCore, ServerLoop, Server, Embedding API
-@section Server core
+@node ServerBind, ServerCore, ServerConfig, Server
+@subsection Bindings
+
+SVZ_SERVER_BIND_DEFUN
+SVZ_SERVER_UNBIND_DEFUN
+SVZ_SERVER_PORTCFG_DEFUN
+SVZ_SERVER_BINDINGS_DEFUN
+
+@node ServerCore, ServerLoop, ServerBind, Server
+@subsection Server core
 
 SERVER_NUKE_HAPPENED_DEFVAR
 SERVER_CHILD_DIED_DEFVAR
@@ -430,19 +531,19 @@ SERVER_SIGNAL_UP_DEFUN
 SERVER_SIGNAL_DN_DEFUN
 SERVER_SIGNAL_HANDLER_DEFUN
 
-@node ServerLoop, ServerSocket, ServerCore, Embedding API
-@section Server loop
+@node ServerLoop, ServerSocket, ServerCore, Server
+@subsection Server loop
 
 SERVER_CHECK_SOCKETS_DEFUN
 
-@node ServerSocket, PortConfig, ServerLoop, Embedding API
-@section Server sockets
+@node ServerSocket, , ServerLoop, Server
+@subsection Server sockets
 
 SVZ_SERVER_CREATE_DEFUN
 SERVER_ACCEPT_SOCKET_DEFUN
 SERVER_ACCEPT_PIPE_DEFUN
 
-@node PortConfig, Booting, ServerSocket, Embedding API
+@node PortConfig, Booting, Server, Embedding API
 @section Port configurations
 
 A port configuration is a structure defining a network or filesystem
@@ -491,7 +592,7 @@ SVZ_INIT_CONFIG_DEFUN
 SVZ_BOOT_DEFUN
 SVZ_HALT_DEFUN
 
-@node Interface, Dynamic server, Booting, Embedding API
+@node Interface, Windoze, Booting, Embedding API
 @section Network interface functions
 
 SVZ_INTERFACES_DEFVAR
@@ -501,15 +602,7 @@ SVZ_INTERFACE_COLLECT_DEFUN
 SVZ_INTERFACE_FREE_DEFUN
 SVZ_INTERFACE_ADD_DEFUN
 
-@node Dynamic server, Windoze, Interface, Embedding API
-@section Dynamic server loading
-
-SVZ_DYNLOAD_INIT_DEFUN
-SVZ_DYNLOAD_FINALIZE_DEFUN
-SVZ_SERVER_LOAD_DEFUN
-SVZ_SERVER_UNLOAD_DEFUN
-
-@node Windoze, , Dynamic server, Embedding API
+@node Windoze, , Interface, Embedding API
 @section Useful Windows functions
 
 WINDOZE_START_DAEMON_DEFUN
