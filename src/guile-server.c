@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.6 2001/07/12 20:23:52 ela Exp $
+ * $Id: guile-server.c,v 1.7 2001/07/13 14:54:51 ela Exp $
  *
  */
 
@@ -100,9 +100,13 @@ void guile_##cfunc##_init (void) {                                           \
 #define CHECK_SMOB(cfunc, smob) \
   guile_##cfunc##_p (smob)
 
-#define CHECK_SMOB_ARG(cfunc, smob, arg, description)                    \
-  if (!CHECK_SMOB (svz_socket, gsock))                                   \
-    scm_wrong_type_arg_msg (FUNC_NAME, arg, smob, "#<" description ">")
+#define CHECK_SMOB_ARG(cfunc, smob, arg, description, var)        \
+  do {                                                            \
+    if (!CHECK_SMOB (cfunc, smob))                                \
+      scm_wrong_type_arg_msg (FUNC_NAME, arg, smob, description); \
+    else                                                          \
+      var = GET_SMOB (cfunc, smob);                               \
+  } while (0)
 
 #define GET_SMOB(cfunc, smob) \
   guile_##cfunc##_get (smob)
@@ -234,6 +238,7 @@ static SCM
 guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 {
   svz_hash_t *gsock;
+  SCM oldproc;
 
   if (sock == NULL || func == NULL)
     return SCM_UNDEFINED;
@@ -244,8 +249,12 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
       svz_hash_put (guile_sock, svz_itoa (sock->id), gsock);
     }
 
-  return (SCM) (unsigned long) 
-    svz_hash_put (gsock, func, (void *) ((unsigned long) proc));
+  if ((oldproc = 
+       ((SCM) (unsigned long) 
+	svz_hash_put (gsock, func, (void *) ((unsigned long) proc)))) == 0)
+    return SCM_UNDEFINED;
+
+  return oldproc;
 }
 
 /*
@@ -320,6 +329,33 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
   return 0;
 }
 
+/* Wrapper for the socket disconnected callback. Used here in order to
+   delete the additional guile callbacks associated with the disconnected
+   socket structure. */
+static int
+guile_func_disconnected (svz_socket_t *sock)
+{
+  SCM ret, disconnected;
+  int retval = -1;
+  svz_hash_t *gsock;
+  disconnected = guile_sock_getfunction (sock, "disconnected");
+
+  /* First call the guile callback if necessary. */
+  if (disconnected != SCM_UNDEFINED)
+    {
+      ret = gh_call1 (disconnected, MAKE_SMOB (svz_socket, sock));
+      retval = guile_int (ret, -1);
+    }
+
+  /* Delete all the associated guile callbacks. */
+  if ((gsock = svz_hash_delete (guile_sock, svz_itoa (sock->id))) != NULL)
+    {
+      svz_hash_destroy (gsock);
+    }
+
+  return retval;
+}
+
 /* Wrapper function for the socket connection after successful detection. */
 static int
 guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
@@ -327,6 +363,9 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM connect_socket = guile_servertype_getfunction (stype, "connect-socket");
   SCM ret;
+
+  /* Setup this function for later use. */
+  sock->disconnected_socket = guile_func_disconnected;
 
   if (connect_socket != SCM_UNDEFINED)
     {
@@ -406,72 +445,68 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
   return -1;
 }
 
-/* Set the @code{handle_request} member of the socket @var{gsock} to the
-   guile procedure @var{proc}. */
+/* Set the @code{handle_request} member of the socket structure @var{sock} 
+   to the guile procedure @var{proc}. The procedure returns the previously
+   set handler if there is any. */
 #define FUNC_NAME "svz:sock:handle-request"
 static SCM
-guile_sock_handle_request (SCM gsock, SCM proc)
+guile_sock_handle_request (SCM sock, SCM proc)
 {
-  svz_socket_t *sock;
+  svz_socket_t *xsock;
 
-  CHECK_SMOB_ARG (svz_socket, gsock, 1, "svz-socket");
-  if (!gh_procedure_p (proc))
-    scm_wrong_type_arg_msg (FUNC_NAME, 2, proc, "procedure");
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  SCM_ASSERT_TYPE (gh_procedure_p (proc), proc, SCM_ARG2, 
+		   FUNC_NAME, "procedure");
 
-  sock = GET_SMOB (svz_socket, gsock);
-  sock->handle_request = guile_func_handle_request;
-  guile_sock_setfunction (sock, "handle-request", proc);
-
-  return SCM_BOOL_T;
+  xsock->handle_request = guile_func_handle_request;
+  return guile_sock_setfunction (xsock, "handle-request", proc);
 }
 #undef FUNC_NAME
 
-/* Setup the packet boundary of the socket @var{gsock}. */
+/* Setup the packet boundary of the socket @var{sock}. The given value
+   @var{boundary} can contain any kind of data. */
 #define FUNC_NAME "svz:sock:boundary"
 static SCM
-guile_sock_boundary (SCM gsock, SCM boundary)
+guile_sock_boundary (SCM sock, SCM boundary)
 {
-  char *str;
-  svz_socket_t *sock;
+  svz_socket_t *xsock;
 
-  CHECK_SMOB_ARG (svz_socket, gsock, 1, "svz-socket");
-  if ((str = guile2str (boundary)) == NULL)
-    scm_wrong_type_arg_msg (FUNC_NAME, 2, boundary, "string");
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  SCM_ASSERT_TYPE (gh_string_p (boundary), boundary, SCM_ARG2, 
+		   FUNC_NAME, "string");
 
-  sock = GET_SMOB (svz_socket, gsock);
-  sock->boundary = str;
-  sock->boundary_size = strlen (str);
-  sock->check_request = svz_sock_check_request;
+  /* FIXME: leaking here ... */
+  xsock->boundary = gh_scm2chars (boundary, NULL);
+  xsock->boundary_size = gh_scm2int (scm_string_length (boundary));
+  xsock->check_request = svz_sock_check_request;
 
   return SCM_BOOL_T;
 }
 #undef FUNC_NAME
 
-/* Write @var{glen} byte from the buffer @var{gbuf} to the socket @var{gsock}.
-   Return #t on success and #f on failure. */
+/* Write @var{len} byte from the string buffer @var{buf} to the socket 
+   @var{sock}. Return #t on success and #f on failure. */
 #define FUNC_NAME "svz:sock:write"
 static SCM
-guile_sock_write (SCM gsock, SCM gbuf, SCM glen)
+guile_sock_write (SCM sock, SCM buf, SCM len)
 {
-  char *str;
-  int len;
-  svz_socket_t *sock;
+  svz_socket_t *xsock;
   SCM ret = SCM_BOOL_T;
+  char *buffer;
 
-  CHECK_SMOB_ARG (svz_socket, gsock, 1, "svz-socket");
-  if ((str = guile2str (gbuf)) == NULL)
-    scm_wrong_type_arg_msg (FUNC_NAME, 2, gbuf, "string");
-  if (guile2int (glen, &len))
-    scm_wrong_type_arg_msg (FUNC_NAME, 3, len, "integer");
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  SCM_ASSERT_TYPE (gh_string_p (buf), buf, SCM_ARG2,
+		   FUNC_NAME, "string");
+  SCM_ASSERT_TYPE (gh_number_p (len), len, SCM_ARG3,
+		   FUNC_NAME, "number");
 
-  sock = GET_SMOB (svz_socket, gsock);
-  if (svz_sock_write (sock, str, len) == -1)
+  buffer = gh_scm2chars (buf, NULL);
+  if (svz_sock_write (xsock, buffer, gh_scm2int (len)) == -1)
     {
-      svz_sock_schedule_for_shutdown (sock);
+      svz_sock_schedule_for_shutdown (xsock);
       ret = SCM_BOOL_F;
     }
-
-  scm_must_free (str);
+  scm_must_free (buffer);
   return ret;
 }
 #undef FUNC_NAME
