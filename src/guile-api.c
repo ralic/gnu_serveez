@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.11 2001/11/22 23:27:41 ela Exp $
+ * $Id: guile-api.c,v 1.12 2001/12/04 17:26:00 ela Exp $
  *
  */
 
@@ -532,10 +532,103 @@ guile_sock_idle_counter (SCM sock, SCM counter)
 }
 #undef FUNC_NAME
 
+#if HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER
+static SCM
+scm_return_rpcentry (struct rpcent *entry)
+{
+  SCM ans;
+  SCM *ve;
+
+  ans = scm_c_make_vector (3, SCM_UNSPECIFIED);
+  ve = SCM_VELTS (ans);
+  ve[0] = scm_mem2string (entry->r_name, strlen (entry->r_name));
+  ve[1] = scm_makfromstrs (-1, entry->r_aliases);
+  ve[2] = scm_ulong2num ((unsigned long) entry->r_number);
+  return ans;
+}
+
+/* @defunx getrpcent
+   @defunx getrpcbyname name
+   @defunx getrpcbynumber number
+   Lookup a network rpc service by name or by service number, and 
+   return a network rpc service object.  The @code{(getrpc)} procedure 
+   will take either a rpc service name or number as its first argument; 
+   if given no arguments, it behaves like @code{(getrpcent)}. */
+#define FUNC_NAME "getrpc"
+static SCM
+scm_getrpc (SCM arg)
+{
+  struct rpcent *entry = NULL;
+
+#if HAVE_GETRPCENT
+  if (SCM_UNBNDP (arg))
+    {
+      if ((entry = getrpcent ()) == NULL)
+	return SCM_BOOL_F;
+      return scm_return_rpcentry (entry);
+    }
+#endif /* HAVE_GETRPCENT */
+#if HAVE_GETRPCBYNAME
+  if (SCM_STRINGP (arg))
+    {
+      entry = getrpcbyname (SCM_STRING_CHARS (arg));
+    }
+  else
+#endif /* HAVE_GETRPCBYNAME */
+#if HAVE_GETRPCBYNUMBER
+    {
+      SCM_ASSERT_TYPE (SCM_INUMP (arg), arg, SCM_ARG1, FUNC_NAME, "INUMP");
+      entry = getrpcbynumber (SCM_INUM (arg));
+    }
+#endif /* #if HAVE_GETRPCBYNUMBER */
+
+  if (!entry)
+    scm_syserror_msg (FUNC_NAME, "no such rpc service ~A", 
+		      scm_listify (arg, SCM_UNDEFINED), errno);
+  return scm_return_rpcentry (entry);
+}
+#undef FUNC_NAME
+#endif /* HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER */
+
+#ifndef DECLARED_SETRPCENT
+extern void setrpcent (int);
+#endif /* DECLARED_SETRPCENT */
+#ifndef DECLARED_ENDRPCENT
+extern void endrpcent (void);
+#endif /* DECLARED_ENDRPCENT */
+
+#if HAVE_SETRPCENT && HAVE_ENDRPCENT
+/* @defunx setrpcent stayopen
+   @defunx endrpcent
+   The @code{(setrpc)} procedure opens and rewinds the file @file{/etc/rpc}.
+   If the @var{stayopen} flag is non-zero, the net data base will not be 
+   closed after each call to @code{(getrpc)}.  If @var{stayopen} is omitted, 
+   this is equivalent to @code{(endrpcent)}.  Otherwise it is equivalent to 
+   @code{(setrpcent stayopen)}. */
+#define FUNC_NAME "setrpc"
+static SCM
+scm_setrpc (SCM stayopen)
+{
+  if (SCM_UNBNDP (stayopen))
+    endrpcent ();
+  else
+    setrpcent (!SCM_FALSEP (stayopen));
+  return SCM_UNSPECIFIED;
+}
+#undef FUNC_NAME
+#endif /* HAVE_SETRPCENT && HAVE_ENDRPCENT */
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
 {
+#if HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER
+  scm_c_define_gsubr ("getrpc", 0, 1, 0, scm_getrpc);
+#endif
+#if HAVE_SETRPCENT && HAVE_ENDRPCENT
+  scm_c_define_gsubr ("setrpc", 0, 1, 0, scm_setrpc);
+#endif
+  
   scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));
   scm_c_define ("PROTO_UDP", scm_int2num (PROTO_UDP));
   scm_c_define ("PROTO_ICMP", scm_int2num (PROTO_ICMP));

@@ -149,6 +149,9 @@ SERVEEZ-SERVERTYPE?_DEFUN
 SERVEEZ-EXCEPTIONS_DEFUN
 SERVEEZ-NUKE_DEFUN
 
+GETRPC_DEFUN
+SETRPC_DEFUN
+
 @subsubsection Callback prototypes
 
 The Guile interface of Serveez is completely callback driven.  Callbacks

@@ -1,3 +1,10 @@
+2001-12-04  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Solaris libtool/gcc/ld fix.  Adds the location
+	of libiberty.a and libgcc.a itself to the linker line.
+	Checks for the getrpc*() functions added to the Guile interface
+	of Serveez. 
+
 2001-12-01  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Released version `0.1.2' and bumped up to 

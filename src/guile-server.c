@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.38 2001/11/27 14:21:33 ela Exp $
+ * $Id: guile-server.c,v 1.39 2001/12/04 17:26:00 ela Exp $
  *
  */
 
@@ -1074,7 +1074,7 @@ guile_server_state_to_hash (SCM server)
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   if ((data = xserver->data) != NULL)
     {
-      hash = scm_make_vector (scm_int2num (svz_hash_size (data)), SCM_EOL);
+      hash = scm_c_make_vector (svz_hash_size (data), SCM_EOL);
       svz_hash_foreach_key (data, key, i)
 	scm_hash_set_x (hash, scm_makfrom0str (key[i]),
 			(SCM) SVZ_PTR2NUM (svz_hash_get (data, key[i])));

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.3 2001/11/27 14:21:33 ela Exp $
+ * $Id: guile-api.h,v 1.4 2001/12/04 17:26:00 ela Exp $
  *
  */
 
@@ -116,6 +116,9 @@
 #endif
 #ifndef scm_gc_unprotect_object
 #define scm_gc_unprotect_object(obj) scm_unprotect_object (obj)
+#endif
+#ifndef scm_c_make_vector
+#define scm_c_make_vector(k, fill) scm_make_vector (scm_int2num (k), fill)
 #endif
 
 /* Return an integer. If the given Guile cell @var{obj} is not such an 

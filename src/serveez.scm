@@ -20,7 +20,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: serveez.scm,v 1.3 2001/06/21 11:25:47 ela Exp $
+;; $Id: serveez.scm,v 1.4 2001/12/04 17:26:00 ela Exp $
 ;;
 
 ;;
@@ -92,3 +92,15 @@
      (lambda (server)
        (bind-server! (create-tcp-port! "guile-tcp-port-" no) server))
      args)))
+
+;;
+;; === Additional Guile networking API
+;;
+(define (getrpcent) (getrpc))
+(define (getrpcbyname name) (getrpc name))
+(define (getrpcbynumber number) (getrpc number))
+(define (setrpcent . stayopen)
+  (if (pair? stayopen)
+      (setrpc (car stayopen))
+      (setrpc #f)))
+(define (endrpcent) (setrpc))

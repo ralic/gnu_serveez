@@ -1,3 +1,11 @@
+2001-12-04  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.scm: Added Scheme procedures using the below new
+	Guile primitives.
+
+	* guile-api.c (scm_getrpc, scm_setrpc): New Guile 
+	primitives.
+
 2001-12-01  [ Ela ]  <ela@lkcc.org>
 
 	* guile-server/inetd.scm (lookup-service): Detect rpc services
