@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.34 2001/04/11 13:31:04 ela Exp $
+ * $Id: serveez.c,v 1.35 2001/04/18 19:26:57 ela Exp $
  *
  */
 
@@ -58,14 +58,13 @@ option_t *options = NULL;
 static void
 guile_entry (int argc, char **argv)
 {
-#if 1
   /* Start loading the configuration file. */
   if (guile_load_config (options->cfgfile) == -1)
     {
       log_printf (LOG_ERROR, "error loading config file\n");
     }
-#endif
 
+#if 0
   if (sizzle_load_config (options->cfgfile, argc, argv) == -1)
     {
       /* 
@@ -74,6 +73,7 @@ guile_entry (int argc, char **argv)
        */
       exit (3);
     }
+#endif
 
   /*
    * Make command line arguments overriding the configuration 

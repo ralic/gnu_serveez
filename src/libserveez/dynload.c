@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.5 2001/04/06 15:32:35 raimi Exp $
+ * $Id: dynload.c,v 1.6 2001/04/18 19:26:57 ela Exp $
  *
  */
 
@@ -128,7 +128,7 @@ dyn_load_library (char *file)
   
   if (handle == NULL)
     {
-      log_printf (LOG_ERROR, "load: %s (%s)", dyn_error (), file);
+      log_printf (LOG_ERROR, "load: %s (%s)\n", dyn_error (), file);
       return NULL;
     }
 
@@ -185,7 +185,7 @@ dyn_unload_library (dyn_library_t *lib)
 #endif
 	if (err)
 	  {
-	    log_printf (LOG_ERROR, "unload: %s (%s)", dyn_error (), 
+	    log_printf (LOG_ERROR, "unload: %s (%s)\n", dyn_error (), 
 			lib->file);
 	    return -1;
 	  }
@@ -238,7 +238,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 #endif
 	if (address == NULL)
 	  {
-	    log_printf (LOG_ERROR, "symbol: %s (%s)", dyn_error (), symbol);
+	    log_printf (LOG_ERROR, "symbol: %s (%s)\n", dyn_error (), symbol);
 	  }
 	return address;
       }

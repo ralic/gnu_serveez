@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.7 2001/04/18 13:58:05 ela Exp $
+ * $Id: guile.c,v 1.8 2001/04/18 19:26:57 ela Exp $
  *
  */
 
@@ -28,10 +28,11 @@
 #endif
 
 #define _GNU_SOURCE
-#include <guile/gh.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
+#include <guile/gh.h>
 
 #include "libserveez.h"
 
@@ -363,33 +364,112 @@ optionhash_extract_string (svz_hash_t *hash,
   return err;
 }
 
+/*
+ * Go through all configurable items for the given server type @var{stype}.
+ * Return the instance configuration.
+ */
+static void *
+guile_create_config (svz_servertype_t *stype)
+{
+  void *cfg;
 
-/* ********************************************************************** */
+  /* Just copy the default values. */
+  cfg = svz_malloc (stype->prototype_size);
+  memcpy (cfg, stype->prototype_start, stype->prototype_size);
 
+  /* FIXME: Parse configuration items (further SCM argument needed). */
+  return cfg;
+}
 
 /*
- * Generic server definition...
+ * Create a new server instance of the server type @var{stype} with the
+ * instance name @var{name}.
+ */
+static svz_server_t *
+guile_instantiate_server (svz_servertype_t *stype, char *name)
+{
+  svz_server_t *server;
+  
+  /* Create server instance. */
+  server = (svz_server_t *) svz_malloc (sizeof (svz_server_t));
+  server->name = svz_strdup (name);
+  server->type = stype;
+
+  /* Make server configuration. */
+  server->cfg = guile_create_config (stype);
+
+  /* Transfer callbacks. */
+  server->detect_proto = stype->detect_proto;
+  server->connect_socket = stype->connect_socket;
+  server->handle_request = stype->handle_request;
+  server->init = stype->init;
+  server->finalize = stype->finalize;
+  server->info_client = stype->info_client;
+  server->info_server = stype->info_server;
+  server->notify = stype->notify;
+  server->description = stype->name;
+  svz_server_add (server);
+
+  return server;
+}
+
+/*
+ * Generic server definition ...
  */
 #define FUNC_NAME "define-server!"
 SCM
-guile_define_server_x (SCM type, SCM name, SCM alist)
+guile_define_server (SCM name, SCM args)
 {
-  char * ctype;
-  char * cname;
-  SCM cpair;
+  char *servername = guile2str (name);
+  char *server_description, *p;
+  svz_servertype_t *stype;
+  svz_server_t *server = NULL;
+  int n;
 
-  SCM_VALIDATE_STRING_COPY (1, type, ctype);
-  SCM_VALIDATE_STRING_COPY (2, name, cname);
-  SCM_VALIDATE_LIST (3, alist);
+  /* Seperate server description. */
+  p = server_description = svz_strdup (servername);
+  while (*p && *p != '-')
+    p++;
+  *p = '\0';
 
-  while (gh_pair_p (alist))
+  /* Go through all server types and check if there is such a server. */
+  svz_array_foreach (svz_servertypes, stype, n)
     {
-      SCM_VALIDATE_ALISTCELL_COPYSCM (3, alist, cpair);
-      alist = gh_cdr (alist);
+      if (!strncmp (servername, stype->varname, strlen (stype->varname)) &&
+	  servername[strlen (stype->varname)] == '-')
+	{
+	  server = guile_instantiate_server (stype, servername);
+	  break;
+	}
     }
-  log_printf (LOG_DEBUG, "defining server `%s' of type `%s'\n",
-	      cname, ctype);
-  return SCM_UNSPECIFIED;
+
+  /* At this point we check if there was such a server type and try 
+     loading it if not. */
+  if (server == NULL)
+    {
+      if ((stype = svz_server_load (server_description)) != NULL)
+	{
+	  svz_servertype_add (stype);
+	  server = guile_instantiate_server (stype, servername);
+	}
+    }
+
+#if ENABLE_DEBUG
+  /* Print debug output. */
+  log_printf (LOG_DEBUG, "defining server `%s' (%s)\n", servername, 
+	      server_description);
+#endif
+
+  /* Print error if necessary. */
+  if (server == NULL)
+    {
+      log_printf (LOG_ERROR, "no such server type: %s\n",
+		  server_description);
+    }
+
+  svz_free (server_description);
+  free (servername);
+  return server ? SCM_BOOL_T : SCM_BOOL_F;
 }
 #undef FUNC_NAME
 
@@ -398,7 +478,7 @@ guile_define_server_x (SCM type, SCM name, SCM alist)
  */
 #define FUNC_NAME "define-port!"
 static SCM
-define_port (SCM symname, SCM args)
+guile_define_port (SCM symname, SCM args)
 {
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
@@ -548,7 +628,7 @@ define_port (SCM symname, SCM args)
  */
 #define FUNC_NAME "bind-server!"
 SCM
-guile_bind_server_x (SCM type, SCM name, SCM alist)
+guile_bind_server (SCM type, SCM name, SCM alist)
 {
   return SCM_UNSPECIFIED;
 }
@@ -569,9 +649,9 @@ guile_init (void)
   gh_define ("have-win32", gh_bool2scm (have_win32));
 
   /* export some new procedures */
-  def_serv = gh_new_procedure ("define-port!", define_port, 1, 0, 2);
-  def_serv = gh_new_procedure3_0 ("define-server!", guile_define_server_x);
-  def_serv = gh_new_procedure3_0 ("bind-server!", guile_bind_server_x);
+  def_serv = gh_new_procedure ("define-port!", guile_define_port, 1, 0, 2);
+  def_serv = gh_new_procedure ("define-server!", guile_define_server, 1, 0, 2);
+  def_serv = gh_new_procedure3_0 ("bind-server!", guile_bind_server);
 }
 
 /*

@@ -2,6 +2,9 @@
 
 	* guile.c (define_port): Default for ICMP_TYPE is ICMP_SERVEEZ.
 	Using string constants from `portcfg.h'.
+	(guile_define_server): Basic server instantiating implemented.
+	Try dynamically load the server type if there is no such static
+	server type.
 
 	* libserveez/portcfg.h (PORTCFG_TYPE): Added some more string
 	constants for port configurations.
