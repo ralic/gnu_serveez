@@ -1,7 +1,7 @@
 /*
  * guile-api.h - compatibility and miscellaneous guile functionality
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.11 2002/07/15 07:45:04 ela Exp $
+ * $Id: guile-api.h,v 1.12 2003/02/05 17:04:25 ela Exp $
  *
  */
 
@@ -33,6 +33,9 @@
 
 #ifndef SCM_VERSION_15X
 #define scm_t_bits long
+#define scm_list_n scm_listify
+typedef scm_catch_body_t scm_t_catch_body;
+typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 
 /* Some definitions for backward compatibility with Guile 1.3.4 */
@@ -109,6 +112,9 @@
 #endif
 #ifndef SCM_NUM2ULONG
 #define SCM_NUM2ULONG(pos, obj) scm_num2ulong (obj, (char *) (pos), FUNC_NAME)
+#endif
+#ifndef SCM_WRITABLE_VELTS
+#define SCM_WRITABLE_VELTS(x) SCM_VELTS(x)
 #endif
 #ifndef SCM_VERSION_15X
 #define scm_int2num(x) scm_long2num ((long) (x))

@@ -1,3 +1,9 @@
+2003-01-05  Andreas Rottmann  <a.rottmann@gmx.at>
+
+	* guile.c, guile-api.h, guile-api.c, guile-server.c: Modified 
+	to work with Guile 1.7, too.
+	* guile-server.c: Fixed invalid GUILE_CONCAT2 invocation.
+
 2002-11-28  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* fakeident-server/ident-proto.c (fakeident_server_definition):

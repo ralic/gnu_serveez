@@ -1,7 +1,7 @@
 /*
  * guile-server.c - guile server modules
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.52 2002/12/05 16:57:55 ela Exp $
+ * $Id: guile-server.c,v 1.53 2003/02/05 17:04:25 ela Exp $
  *
  */
 
@@ -114,7 +114,7 @@ static int GUILE_CONCAT3 (guile_,ctype,_print) (SCM smob, SCM port,          \
   scm_puts (txt, port);                                                      \
   return 1;                                                                  \
 }                                                                            \
-static scm_sizet GUILE_CONCAT3 (guile_,ctype,_free) (SCM smob) {             \
+static size_t GUILE_CONCAT3 (guile_,ctype,_free) (SCM smob) {                \
   return 0;                                                                  \
 }                                                                            \
 static void GUILE_CONCAT3 (guile_,ctype,_init) (void) {                      \
@@ -152,14 +152,14 @@ MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
    The procedure returns any previously set callback or an undefined value. */
 #define MAKE_SOCK_CALLBACK(func, assoc)                                \
 static SCM GUILE_CONCAT2 (guile_sock_,func) (SCM sock, SCM proc) {     \
-  svz_socket_t *xsock;                                                 \
+  svz_socket_t *xsock;						       \
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);    \
-  if (!SCM_UNBNDP (proc)) {                                            \
+  if (!SCM_UNBNDP (proc)) {					       \
     SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2, FUNC_NAME, \
-		     "procedure");                                     \
-    GUILE_CONCAT2 (xsock->,func) = GUILE_CONCAT2 (guile_func_,func);   \
-    return guile_sock_setfunction (xsock, assoc, proc); }              \
-  return guile_sock_getfunction (xsock, assoc);                        \
+		     "procedure");				       \
+    xsock->func = GUILE_CONCAT2 (guile_func_,func);		       \
+    return guile_sock_setfunction (xsock, assoc, proc); }	       \
+  return guile_sock_getfunction (xsock, assoc);			       \
 }
 
 /* Provides a socket callback setter/getter. */
@@ -446,9 +446,9 @@ guile_call (SCM code, int args, ...)
   if (guile_use_exceptions)
     {
       ret = scm_internal_catch (SCM_BOOL_T,
-				(scm_catch_body_t) guile_call_body, 
+				(scm_t_catch_body) guile_call_body, 
 				(void *) body_data, 
-				(scm_catch_handler_t) guile_call_handler, 
+				(scm_t_catch_handler) guile_call_handler, 
 				(void *) handler_data);
     }
   else

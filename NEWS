@@ -28,6 +28,7 @@ files.
 Version 0.1.5
 -------------
 
+ * support for Guile 1.7.x versions
  * some thread safety functionality enabled via --with-thread-safety
  * added `serveez-config' man page
 

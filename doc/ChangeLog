@@ -1,3 +1,8 @@
+2003-02-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez.texi (Porting issues): Added some more platforms
+	where Serveez has been tested.
+
 2003-01-05  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-doc-snarf.awk: Widened patterns for documentation

@@ -1,7 +1,7 @@
 /*
  * guile-bin.c - binary data exchange layer for Guile servers
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.27 2002/07/27 13:32:14 ela Exp $
+ * $Id: guile-bin.c,v 1.28 2003/02/05 17:04:25 ela Exp $
  *
  */
 
@@ -96,11 +96,11 @@ guile_bin_print (SCM binary, SCM port, scm_print_state *state)
 /* Smob free function: Releases any allocated resources used the given
    cell @var{binary}. No need to mark any referring scheme cell. Returns
    the number of bytes actually free()'d. */
-static scm_sizet
+static size_t
 guile_bin_free (SCM binary)
 {
   guile_bin_t *bin = GET_BIN_SMOB (binary);
-  scm_sizet size = sizeof (guile_bin_t);
+  size_t size = sizeof (guile_bin_t);
 
   /* Free the data pointer if it has been allocated by ourselves and
      is not just a reference. */

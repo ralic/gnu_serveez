@@ -2,7 +2,7 @@
  * guile.c - interface to Guile core library
  *
  * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2002 Andreas Rottmann <a.rottmann@gmx.at>
  *
  * This is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.69 2002/12/05 16:57:56 ela Exp $
+ * $Id: guile.c,v 1.70 2003/02/05 17:04:25 ela Exp $
  *
  */
 
@@ -1786,9 +1786,9 @@ guile_serveez_load (SCM file)
 
   /* Evaluate (load) file and catch exception. */
   ret = scm_internal_catch (SCM_BOOL_T,
-			    (scm_catch_body_t) guile_serveez_load_file,
+			    (scm_t_catch_body) guile_serveez_load_file,
 			    (void *) f,
-			    (scm_catch_handler_t) guile_exception,
+			    (scm_t_catch_handler) guile_exception,
 			    (void *) f);
   svz_free (f);
   return ret;
@@ -1856,7 +1856,7 @@ guile_eval_file (void *data)
 		       !S_ISCHR (buf.st_mode) && !S_ISBLK (buf.st_mode)))
     {
       SCM ret = SCM_BOOL_F, line;
-      while (!SCM_EOF_OBJECT_P (line = scm_read (scm_def_inp)))
+      while (!SCM_EOF_OBJECT_P (line = scm_read (scm_cur_inp)))
 	ret = scm_primitive_eval_x (line);
       return SCM_BOOL_T;
     }
@@ -1877,9 +1877,9 @@ guile_load_config (char *cfgfile)
   guile_init ();
 
   ret = scm_internal_catch (SCM_BOOL_T,
-			    (scm_catch_body_t) guile_eval_file, 
+			    (scm_t_catch_body) guile_eval_file, 
 			    (void *) cfgfile, 
-			    (scm_catch_handler_t) guile_exception,
+			    (scm_t_catch_handler) guile_exception,
 			    (void *) cfgfile);
 
   if (SCM_FALSEP (ret))

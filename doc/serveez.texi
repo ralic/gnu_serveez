@@ -2699,9 +2699,9 @@ Serveez has been build and tested successfully.
 
 @itemize @bullet
 
-@item FreeBSD 3.3, 4.0, 4.3, 4.4, 4.5, 4.6 on Intel
-@item FreeBSD 4.0, 4.6 on Alpha
-@item NetBSD 1.5 on Alpha
+@item FreeBSD 3.3, 4.0, 4.3, 4.4, 4.5, 4.6, 4.7 on Intel
+@item FreeBSD 4.0, 4.4, 4.6 on Alpha
+@item NetBSD 1.5, 1.6 on Alpha
 @item OpenBSD 3.0, 3.1 on Alpha
 @item OpenBSD 3.1 on Intel
 @item GNU/Linux 2.x.x on Intel
@@ -2710,6 +2710,10 @@ Serveez has been build and tested successfully.
 @item GNU/Linux 2.x.x on PowerPC (RS/6000)
 @item GNU/Linux 2.4.x on ia64 (Itanium)
 @item GNU/Linux 2.4.x on StrongARM (iPAQ)
+@item GNU/Linux 2.4.x on Motorola 680x0
+@item GNU/Linux 2.4.x on IBM S/390
+@item GNU/Linux 2.4.x on HP PA-RISC
+@item GNU/Linux 2.4.x on MIPS
 @item Solaris 2.6, 2.7 on Sparc32, Sparc64
 @item SunOS 5.8 on Sparc32 
 @item SunOS 5.6 on Intel
@@ -2725,6 +2729,7 @@ Serveez has been build and tested successfully.
 @item Tru64/OSF1 UNIX V4.0 (former Digital UNIX) on Alpha
 @item Tru64/OSF1 UNIX V5.x (former Digital UNIX) on Alpha
 @item HP-UX B.11.11 on HP PA-RISC (PA-8700/PA-8600)
+@item HP-UX B.11.22 on ia64 (Itanium)
 
 @end itemize
 
@@ -2805,7 +2810,7 @@ Boston, MA 02111-1307, USA.
 @*
 Copyright @copyright{} 1999, 2000, 2001, 2002 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
 Copyright @copyright{} 2000, 2001, 2002 Raimund Jacob <raimi@@lkcc.org>@*
-Copyright @copyright{} 2000, 2001, 2002 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000, 2001, 2002, 2003 Stefan Jahn <stefan@@lkcc.org>@*
 
 Verbatim copying and distribution of this entire document is
 permitted in any medium, provided this notice is preserved.

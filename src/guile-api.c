@@ -1,7 +1,7 @@
 /*
  * guile-api.c - export additional Serveez functionality to Guile
  *
- * Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.28 2002/07/17 18:34:18 ela Exp $
+ * $Id: guile-api.c,v 1.29 2003/02/05 17:04:25 ela Exp $
  *
  */
 
@@ -701,7 +701,7 @@ scm_return_rpcentry (struct rpcent *entry)
   SCM *ve;
 
   ans = scm_c_make_vector (3, SCM_UNSPECIFIED);
-  ve = SCM_VELTS (ans);
+  ve = SCM_WRITABLE_VELTS (ans);
   ve[0] = scm_makfrom0str (entry->r_name);
   ve[1] = scm_makfromstrs (-1, entry->r_aliases);
   ve[2] = scm_ulong2num ((unsigned long) entry->r_number);
@@ -745,7 +745,7 @@ scm_getrpc (SCM arg)
 
   if (!entry)
     scm_syserror_msg (FUNC_NAME, "no such rpc service ~A", 
-		      scm_listify (arg, SCM_UNDEFINED), errno);
+		      scm_list_n (arg, SCM_UNDEFINED), errno);
   return scm_return_rpcentry (entry);
 }
 #undef FUNC_NAME
@@ -822,7 +822,7 @@ scm_portmap_list (SCM address)
   do
     {
       mapping = scm_c_make_vector (4, SCM_UNSPECIFIED);
-      ve = SCM_VELTS (mapping);
+      ve = SCM_WRITABLE_VELTS (mapping);
       ve[0] = scm_ulong2num ((unsigned long) map->pml_map.pm_prog);
       ve[1] = scm_ulong2num ((unsigned long) map->pml_map.pm_vers);
       ve[2] = scm_ulong2num ((unsigned long) map->pml_map.pm_prot);
@@ -856,8 +856,8 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
     {
       if (!pmap_unset (SCM_INUM (prognum), SCM_INUM (versnum)))
 	scm_syserror_msg (FUNC_NAME, "~A: pmap_unset ~A ~A",
-			  scm_listify (scm_makfrom0str (strerror (errno)),
-				       prognum, versnum, SCM_UNDEFINED), 
+			  scm_list_n (scm_makfrom0str (strerror (errno)),
+				      prognum, versnum, SCM_UNDEFINED), 
 			  errno);
     }
   else
@@ -870,9 +870,9 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
       if (!pmap_set (SCM_INUM (prognum), SCM_INUM (versnum), 
 		     SCM_INUM (protocol), (unsigned short) SCM_INUM (port)))
 	scm_syserror_msg (FUNC_NAME, "~A: pmap_set ~A ~A ~A ~A",
-			  scm_listify (scm_makfrom0str (strerror (errno)),
-				       prognum, versnum, protocol, port, 
-				       SCM_UNDEFINED), errno);
+			  scm_list_n (scm_makfrom0str (strerror (errno)),
+				      prognum, versnum, protocol, port, 
+				      SCM_UNDEFINED), errno);
     }
   return SCM_UNSPECIFIED;
 }
@@ -1073,8 +1073,8 @@ guile_read_file (SCM port, SCM size)
     {
       scm_must_free (data);
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
-			scm_listify (scm_makfrom0str (strerror (errno)),
-				     scm_int2num (fdes), size, SCM_UNDEFINED),
+			scm_list_n (scm_makfrom0str (strerror (errno)),
+				    scm_int2num (fdes), size, SCM_UNDEFINED),
 			errno);
     }
   else if (ret == 0)
