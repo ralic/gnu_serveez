@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.12 2000/09/05 20:21:36 ela Exp $
+ * $Id: gnutella.c,v 1.13 2000/09/05 21:00:41 ela Exp $
  *
  */
 
@@ -830,7 +830,7 @@ nut_server_timer (server_t *server)
   if (count-- > 0) return 0;
     
   /* do we have enough connections ? */
-  connect =  hash_size (cfg->conn) - cfg->connections;
+  connect = cfg->connections - hash_size (cfg->conn);
   if (connect > 0)
     {
       /* are there hosts in the host catcher hash ? */
