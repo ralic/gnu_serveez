@@ -7,7 +7,7 @@
 	for Serveez.
 
 	* windoze.c (windoze_thread): Loading tiny taskbar icon from
-	a buildin resource now.
+	a builtin resource now.
 
 2001-01-13  [ Ela ]  <ela@lkcc.org>
 
