@@ -19,9 +19,9 @@
 
 Here are listed all the hackers who helped creating this package:
 
-John Fitzgerald <jcf@wave.co.nz> for giving an idea about ASN.1 (Abstract
-	Syntax Notation One), PDU (Protocol Data Unit) and LER (List 
-	Encoding Rule) resulting in the "Binary Smob".
+John Fitzgerald <webmaster@has.org.nz> for giving an idea about ASN.1
+        (Abstract Syntax Notation One), PDUs (Protocol Data Units) and
+        their representation as lists resulting in the "Binary Smob".
 
 Martin Grabmueller <mgrabmue@cs.tu-berlin.de> for writing the initial
 	version and keep accepting bug report and patches for Sizzle
