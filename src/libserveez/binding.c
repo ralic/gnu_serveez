@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.11 2001/07/01 15:56:48 ela Exp $
+ * $Id: binding.c,v 1.12 2001/11/22 23:27:41 ela Exp $
  *
  */
 
@@ -102,7 +102,7 @@ svz_server_bindings (svz_server_t *server)
 }
 
 /*
- * Return an array of port configuration to which the given server instance
+ * Return an array of port configurations to which the given server instance
  * @var{server} is currently bound to or @code{NULL} if there is no such 
  * binding.
  */
@@ -126,6 +126,49 @@ svz_server_portcfg (svz_server_t *server)
       port = NULL;
     }
   return port;
+}
+
+/*
+ * Return an array of listening socket structures to which the given server
+ * instance @var{server} is currently bound to or @code{NULL} if there is 
+ * no such binding. The calling function is reponsible for destroying the
+ * returned array via @code{svz_array_destroy()}.
+ */
+svz_array_t *
+svz_server_listener (svz_server_t *server)
+{
+  svz_array_t *listener = svz_array_create (1);
+  svz_socket_t *sock;
+
+  svz_sock_foreach (sock)
+    if (sock->flags & SOCK_FLAG_LISTENING && sock->port)
+      if (svz_array_contains (sock->data, server))
+	svz_array_add (listener, sock);
+
+  if (svz_array_size (listener) == 0)
+    {
+      svz_array_destroy (listener);
+      listener = NULL;
+    }
+  return listener;
+}
+
+/*
+ * This function checks if the given server instance @var{server} is
+ * bound to the listening socket structure @var{sock} and returns non-zero 
+ * if it is the only server instance bound to the this socket. Otherwise
+ * the routine returns zero.
+ */
+int
+svz_server_single_listener (svz_server_t *server, svz_socket_t *sock)
+{
+  if (server != NULL && sock != NULL &&          /* validate arguments */
+      sock->flags & SOCK_FLAG_LISTENING &&       /* is a listener ? */
+      sock->port != NULL &&                      /* has port configuration ? */
+      svz_array_contains (sock->data, server) && /* bound to ? */
+      svz_array_size (sock->data) == 1)          /* the only one ? */
+    return 1;
+  return 0;
 }
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.10 2001/11/20 22:57:58 ela Exp $
+ * $Id: guile-api.c,v 1.11 2001/11/22 23:27:41 ela Exp $
  *
  */
 
@@ -498,6 +498,40 @@ MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
 MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
 #undef FUNC_NAME
 
+/* This procedure sets the @code{idle} callback of the socket structure
+   @var{sock} to the Guile procedure @var{proc}. It returns any previously
+   set procedure. The callback is run by the periodic task scheduler when the
+   @code{idle-counter} of the socket struture drops to zero. If this counter
+   is not zero it gets decremented once a second. The @code{idle}
+   callback can reset @code{idle-counter} to some value and thus can 
+   re-schedule itself for a later task. */
+#define FUNC_NAME "svz:sock:idle"
+MAKE_SOCK_CALLBACK (idle_func, "idle")
+#undef FUNC_NAME
+
+/* This functions returns the socket structure's @var{sock} current value 
+   of the @code{idle-counter}. If the optional argument @var{counter} is
+   given the function sets the @code{idle-counter}. Please have a look at the
+   @code{(svz:sock:idle)} procedure for the exact meaning of this value. */
+#define FUNC_NAME "svz:sock:idle-counter"
+static SCM
+guile_sock_idle_counter (SCM sock, SCM counter)
+{
+  svz_socket_t *xsock;
+  int ocounter;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  ocounter = xsock->idle_counter;
+  if (!SCM_UNBNDP (counter))
+    {
+      SCM_ASSERT_TYPE (SCM_EXACTP (counter), 
+		       counter, SCM_ARG2, FUNC_NAME, "exact");
+      xsock->idle_counter = SCM_NUM2INT (SCM_ARG2, counter);
+    }
+  return scm_int2num (ocounter);
+}
+#undef FUNC_NAME
+
 /* Initialize the API function calls supported by Guile. */
 void
 guile_api_init (void)
@@ -529,9 +563,12 @@ guile_api_init (void)
 		      1, 1, 0, guile_sock_remote_address);
   scm_c_define_gsubr ("svz:sock:local-address",
 		      1, 1, 0, guile_sock_local_address);
+  scm_c_define_gsubr ("svz:sock:idle-counter",
+		      1, 1, 0, guile_sock_idle_counter);
 
   DEFINE_SOCK_CALLBACK ("svz:sock:disconnected", disconnected_socket);
   DEFINE_SOCK_CALLBACK ("svz:sock:kicked", kicked_socket);
+  DEFINE_SOCK_CALLBACK ("svz:sock:idle", idle_func);
 }
 
 /* Finalize the API functions. */

@@ -121,6 +121,8 @@ SVZ:SOCK:RECEIVE-BUFFER-REDUCE_DEFUN
 SVZ:SOCK:CONNECT_DEFUN
 SVZ:SOCK:DISCONNECTED_DEFUN
 SVZ:SOCK:KICKED_DEFUN
+SVZ:SOCK:IDLE_DEFUN
+SVZ:SOCK:IDLE-COUNTER_DEFUN
 SVZ:SOCK:DATA_DEFUN
 SVZ:SOCK:PARENT_DEFUN
 SVZ:SOCK:REFERRER_DEFUN
@@ -269,4 +271,12 @@ intentionally.  It can be setup via @code{(svz:sock:kicked)}.  The
 @var{reason} argument can be either @code{KICK_FLOOD} indicating the socket
 is a victim of the builtin flood protection or @code{KICK_QUEUE} which 
 indicates a send buffer overflow.
+
+@item (idle #<svz-socket>)
+The @code{idle} callback gets called from the periodic task scheduler.  
+Whenever the @code{idle-counter} is non-zero, it is decremented and
+the callback itself gets called when the counter drops to zero.  The
+@code{idle} callback can reset the @code{idle-counter} with the procedure
+@code{(svz:sock:idle-counter)} to some value and thus can re-schedule itself 
+for a later task.  You can setup this callback with @code{(svz:sock:idle)}.
 @end table

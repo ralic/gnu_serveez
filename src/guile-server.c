@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.36 2001/11/20 22:57:58 ela Exp $
+ * $Id: guile-server.c,v 1.37 2001/11/22 23:27:41 ela Exp $
  *
  */
 
@@ -736,6 +736,20 @@ guile_func_handle_request (svz_socket_t *sock, char *request, int len)
       return guile_integer (SCM_ARGn, ret, -1);
     }
   return -1;
+}
+
+/* Wrapper for the socket idle func callback. */
+static int
+guile_func_idle_func (svz_socket_t *sock)
+{
+  SCM ret, idle_func = guile_sock_getfunction (sock, "idle");
+
+  if (!SCM_UNBNDP (idle_func))
+    {
+      ret = guile_call (idle_func, 1, MAKE_SMOB (svz_socket, sock));
+      return guile_integer (SCM_ARGn, ret, -1);
+    }
+  return 0;
 }
 
 /* Set the @code{handle-request} member of the socket structure @var{sock} 
