@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.5 2000/08/02 09:45:14 ela Exp $
+ * $Id: control-proto.h,v 1.6 2000/08/21 20:06:41 ela Exp $
  *
  */
 
@@ -125,8 +125,9 @@ int ctrl_handle_request (socket_t sock, char *request, int len);
 /* the control protocol client prompt */
 #define CTRL_PROMPT "ctrl-sh $ "
 
-/* the receive buffer size of an control protocol client */
-#define CTRL_RECV_BUFSIZE 512 
+/* the receive and send buffer size of an control protocol client */
+#define CTRL_RECV_BUFSIZE 512
+#define CTRL_SEND_BUFSIZE 1024 * 100
 
 /* how often we update the CPU information (in seconds) */
 #define CTRL_LOAD_UPDATE 1

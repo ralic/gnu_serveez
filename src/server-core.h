@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.6 2000/08/16 01:06:11 ela Exp $
+ * $Id: server-core.h,v 1.7 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -62,7 +62,7 @@ int sock_server_loop (void);
  * Return the socket structure for the socket ID or NULL
  * if no such socket exists.
  */
-socket_t find_sock_by_id (int id);
+socket_t sock_find_id (int id);
 
 /*
  * Mark socket SOCK as killed.  That means that no operations except

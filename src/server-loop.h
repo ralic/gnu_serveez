@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.h,v 1.1 2000/08/16 01:06:11 ela Exp $
+ * $Id: server-loop.h,v 1.2 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -34,11 +34,11 @@
  * and data, and process outgoing data.
  */
 int check_sockets_select (void);
-#if HAVE_POLL
+#if HAVE_POLL && ENABLE_POLL
 int check_sockets_poll (void);
 #endif
 
-#if HAVE_POLL
+#if HAVE_POLL && ENABLE_POLL
 # define check_sockets() check_sockets_poll ()
 #else
 # define check_sockets() check_sockets_select ()

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.20 2000/08/02 09:45:14 ela Exp $
+ * $Id: socket.h,v 1.21 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -74,7 +74,8 @@ struct socket
 {
   socket_t next;		/* Next socket in chain. */
   socket_t prev;		/* Previous socket in chain. */
-  int socket_id;		/* Unique ID for this socket. */
+  int id;		        /* Unique ID for this socket. */
+  int version;                  /* Socket version */
 
   int proto;                    /* Server/Protocol flag. */
   int flags;			/* One of the SOCK_FLAG_* flags above. */
@@ -185,12 +186,6 @@ struct socket
    */
   void *cfg;
 
-  /*
-   * REF is the reference counter. If this counter is zero no other
-   * process or data structure has anymore references to this socket
-   * object and we can reject it.
-   */
-  int ref;
 };
 
 extern socket_t sock_lookup_table[SOCKET_MAX_IDS];

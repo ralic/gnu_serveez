@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.16 2000/08/02 09:45:14 ela Exp $
+ * $Id: awcs-proto.c,v 1.17 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -162,29 +162,31 @@ awcs_finalize (server_t *server)
  * for socket SOCK to name and has been identified as an aWCS client.
  */
 int
-awcs_nslookup_done (socket_t sock, char *host)
+awcs_nslookup_done (char *host, int id, int version)
 {
-  awcs_config_t *cfg = sock->cfg;
-  sock->ref--;
+  awcs_config_t *cfg;
+  socket_t sock = sock_find_id (id);
 
-  if (!cfg->server)
+  if (host && sock && sock->version == version)
     {
+      cfg = sock->cfg;
+
+      if (!cfg->server)
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "awcs_nslookup_done: no master server\n");
+	  log_printf (LOG_DEBUG, "awcs_nslookup_done: no master server\n");
 #endif
-      return -1;
-    }
+	  return -1;
+	}
 
-  if (host)
-    {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "sending resolved ip to master\n");
 #endif
 
       if (sock_printf (cfg->server, "%04d %d %04d %s%c",
-		       cfg->server->socket_id,
+		       cfg->server->id,
 		       STATUS_NSLOOKUP,
-		       sock->socket_id,
+		       sock->id,
 		       host, '\0'))
 	{
 	  log_printf (LOG_FATAL, "master write error\n");
@@ -205,29 +207,31 @@ awcs_nslookup_done (socket_t sock, char *host)
  * for socket SOCK to name and has been identified as an aWCS client.
  */
 int
-awcs_ident_done (socket_t sock, char *user)
+awcs_ident_done (char *user, int id, int version)
 {
-  awcs_config_t *cfg = sock->cfg;
-  sock->ref--;
+  socket_t sock = sock_find_id (id);
+  awcs_config_t *cfg;
 
-  if (!cfg->server)
+  if (user && sock && sock->version == version)
     {
+      cfg = sock->cfg;
+
+      if (!cfg->server)
+	{
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "awcs_ident_done: no master server\n");
+	  log_printf (LOG_DEBUG, "awcs_ident_done: no master server\n");
 #endif
-      return -1;
-    }
+	  return -1;
+	}
 
-  if (user)
-    {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "sending identified client to master\n");
 #endif
 
       if (sock_printf (cfg->server, "%04d %d %04d %s%c",
-		       cfg->server->socket_id,
+		       cfg->server->id,
 		       STATUS_IDENT,
-		       sock->socket_id,
+		       sock->id,
 		       user, '\0'))
 	{
 	  log_printf (LOG_FATAL, "master write error\n");
@@ -267,12 +271,12 @@ status_connected (socket_t sock)
 
 #if ENABLE_DEBUG
   log_printf (LOG_DEBUG, "sending connect on socket id %d to master\n",
-	      sock->socket_id);
+	      sock->id);
 #endif
   if (sock_printf (cfg->server, "%04d %d %04d %s:%u%c",
-		   cfg->server->socket_id,
+		   cfg->server->id,
 		   STATUS_CONNECT,
-		   sock->socket_id,
+		   sock->id,
 		   util_inet_ntoa (addr),
 		   htons (port), '\0'))
     {
@@ -288,11 +292,8 @@ status_connected (socket_t sock)
    */
   if (sock != cfg->server)
     {
-      coserver_reverse (addr, (coserver_handle_result_t) awcs_nslookup_done,
-			sock);
-      coserver_ident (sock, (coserver_handle_result_t) awcs_ident_done,
-		      sock);
-      sock->ref += 2;
+      coserver_reverse (addr, awcs_nslookup_done, sock->id, sock->version);
+      coserver_ident (sock, awcs_ident_done, sock->id, sock->version);
     }
 
   return 0;
@@ -326,9 +327,9 @@ status_disconnected (socket_t sock, int reason)
 #endif /* ENABLE_DEBUG */
 
   if (sock_printf (cfg->server, "%04d %d %04d %d%c", 
-		   cfg->server->socket_id,
+		   cfg->server->id,
 		   STATUS_DISCONNECT,
-		   sock->socket_id, 
+		   sock->id, 
 		   reason, '\0'))
     {
       log_printf (LOG_FATAL, "master write error\n");
@@ -360,9 +361,9 @@ status_kicked (socket_t sock, int reason)
     }
 
   if (sock_printf (cfg->server, "%04d %d %04d %d%c",
-		   cfg->server->socket_id,
+		   cfg->server->id,
 		   STATUS_KICK,
-		   sock->socket_id, 
+		   sock->id, 
 		   reason, '\0'))
     {
       log_printf (LOG_FATAL, "master write error\n");
@@ -391,7 +392,7 @@ status_alive (awcs_config_t *cfg)
     }
 
   if (sock_printf (cfg->server, "%04d %d 42%c",
-		   cfg->server->socket_id,
+		   cfg->server->id,
 		   STATUS_ALIVE, '\0'))
     {
       log_printf (LOG_FATAL, "master write error\n");
@@ -416,7 +417,7 @@ status_notify (awcs_config_t *cfg)
     }
 
   if (sock_printf (cfg->server, "%04d %d 42%c",
-		   cfg->server->socket_id,
+		   cfg->server->id,
 		   STATUS_NOTIFY, '\0'))
     {
       log_printf (LOG_FATAL, "master write error\n");
@@ -481,7 +482,7 @@ process_multicast (char *cmd, int cmd_len)
     {
       address = util_atoi (cmd);
 
-      if ((sock = find_sock_by_id (address)) != NULL)
+      if ((sock = sock_find_id (address)) != NULL)
 	{
 	  if (sock_write (sock, msg, cmd_len))
 	    {
@@ -525,7 +526,7 @@ process_kick (char *cmd, int cmd_len)
     {
       address = util_atoi (cmd);
 
-      sock = find_sock_by_id (address);
+      sock = sock_find_id (address);
       if (sock)
 	{
 #if ENABLE_DEBUG
@@ -564,7 +565,7 @@ process_floodcmd (char *cmd, int cmd_len, int flag)
     {
       address = util_atoi (cmd);
       
-      if ((sock = find_sock_by_id (address)) != NULL)
+      if ((sock = sock_find_id (address)) != NULL)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "awcs: switching flood "
@@ -699,7 +700,7 @@ awcs_handle_request (socket_t sock, char *request, int request_len)
     }
   else
     {
-      ret = sock_printf (cfg->server, "%04d ", sock->socket_id);
+      ret = sock_printf (cfg->server, "%04d ", sock->id);
       if (ret == 0)
 	{
 	  ret = sock_write (cfg->server, request, request_len);
@@ -838,7 +839,7 @@ awcs_connect_socket (void *config, socket_t sock)
   else
     {
       char key[5];
-      sprintf (key, "%04d", sock->socket_id);
+      sprintf (key, "%04d", sock->id);
       hash_put (cfg->clients, key, sock);
       sock->kicked_socket = awcs_kicked_socket;
     }
@@ -870,7 +871,7 @@ awcs_disconnected_socket (socket_t sock)
   else
     {
       status_disconnected (sock, 1);
-      sprintf (key, "%04d", sock->socket_id);
+      sprintf (key, "%04d", sock->id);
       hash_delete (cfg->clients, key);
     }
 

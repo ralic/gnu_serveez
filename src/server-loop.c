@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.1 2000/08/16 01:06:11 ela Exp $
+ * $Id: server-loop.c,v 1.2 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -294,7 +294,7 @@ check_sockets_select (void)
   return 0;
 }
 
-#if HAVE_POLL /* configure'd */
+#if HAVE_POLL && ENABLE_POLL /* configure'd */
 
 /* re-allocate static buffers if neccessary */
 #define FD_EXPAND()                                             \

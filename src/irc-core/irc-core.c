@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.11 2000/07/27 15:19:58 ela Exp $
+ * $Id: irc-core.c,v 1.12 2000/08/21 20:06:41 ela Exp $
  *
  */
 
@@ -40,6 +40,7 @@
 #include "alloc.h"
 #include "util.h"
 #include "socket.h"
+#include "server-core.h"
 #include "coserver/coserver.h"
 #include "irc-core.h"
 #include "irc-server/irc-proto.h"
@@ -53,13 +54,14 @@ char irc_lcset[256];       /* lower case character set */
  * for socket SOCK.
  */
 static int
-irc_nslookup_done (socket_t sock, char *host)
+irc_nslookup_done (char *host, int id, int version)
 {
-  irc_client_t *client = sock->data;
-  sock->ref--;
+  irc_client_t *client;
+  socket_t sock = sock_find_id (id);
 
-  if (host)
+  if (host && sock && sock->version == version)
     {
+      client = sock->data;
       client->flag |= UMODE_DNS;
       if (client->host) xfree (client->host);
       client->host = xstrdup (host);
@@ -76,13 +78,14 @@ irc_nslookup_done (socket_t sock, char *host)
  * for socket SOCK.
  */
 static int
-irc_ident_done (socket_t sock, char *user)
+irc_ident_done (char *user, int id, int version)
 {
-  irc_client_t *client = sock->data;
-  sock->ref--;
+  irc_client_t *client;
+  socket_t sock = sock_find_id (id);
 
-  if (user)
+  if (user && sock && sock->version == version)
     {
+      client = sock->data;
       client->flag |= UMODE_IDENT;
       if (client->user) xfree (client->user);
       client->user = xstrdup (user);
@@ -118,13 +121,12 @@ irc_start_auth (socket_t sock)
     client->flag |= UMODE_PASS;
 
   /* Start here the nslookup and ident lookup. */
-  coserver_reverse (sock->remote_addr, 
-		    (coserver_handle_result_t) irc_nslookup_done, sock);
+  coserver_reverse (sock->remote_addr, irc_nslookup_done, 
+		    sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
       
-  coserver_ident (sock, (coserver_handle_result_t) irc_ident_done, sock);
+  coserver_ident (sock, irc_ident_done, sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_IDENT_INIT "\n");
-  sock->ref += 2;
 }
 
 /*

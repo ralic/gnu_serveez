@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.11 2000/08/02 09:45:15 ela Exp $
+ * $Id: irc-server.c,v 1.12 2000/08/21 20:06:41 ela Exp $
  *
  */
 
@@ -136,7 +136,7 @@ irc_parse_line (char *line, char *fmt, ...)
  * errors.
  */
 int
-irc_connect_server (irc_server_t *server, char *ip)
+irc_connect_server (char *ip, irc_server_t *server)
 {
   irc_config_t *cfg = server->cfg;
   socket_t sock;
@@ -162,7 +162,7 @@ irc_connect_server (irc_server_t *server, char *ip)
   log_printf (LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
   sock->data = server;
   sock->cfg = cfg;
-  server->id = sock->socket_id;
+  server->id = sock->id;
   server->connected = 1;
   sock->userflags |= IRC_FLAG_SERVER;
   sock->check_request = irc_check_request;
@@ -298,9 +298,7 @@ irc_connect_servers (irc_config_t *cfg)
       /* add this server to the server list */
       log_printf (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
       irc_add_server (cfg, ircserver);
-      coserver_dns (realhost, (coserver_handle_result_t) irc_connect_server,
-		    ircserver);
-
+      coserver_dns (realhost, irc_connect_server, ircserver, NULL);
     }
 }
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.11 2000/08/02 09:45:14 ela Exp $
+ * $Id: foo-proto.c,v 1.12 2000/08/21 20:06:41 ela Exp $
  *
  */
 
@@ -40,6 +40,7 @@
 #include "alloc.h"
 #include "foo-proto.h"
 #include "server.h"
+#include "server-core.h"
 #include "server-socket.h"
 #include "coserver/coserver.h"
 
@@ -142,10 +143,12 @@ struct server_definition foo_server_definition =
  * client's ip to a name.
  */
 int
-foo_handle_coserver_result (socket_t sock, char *hostent)
+foo_handle_coserver_result (char *host, int id, int version)
 {
-  sock->ref--;
-  sock_printf (sock, "You are `%s'\r\n", hostent);
+  socket_t sock = sock_find_id (id);
+
+  if (host && sock && sock->version == version)
+    sock_printf (sock, "You are `%s'\r\n", host);
   return 0;
 }
 
@@ -217,10 +220,8 @@ foo_connect_socket (void *acfg, socket_t sock)
    * Ask a coserver to resolve the client's ip
    */
   sock_printf (sock, "starting reverse lookup...\r\n");
-  coserver_reverse (sock->remote_addr,
-		    (coserver_handle_result_t)foo_handle_coserver_result,
-		    sock);
-  sock->ref++;
+  coserver_reverse (sock->remote_addr, foo_handle_coserver_result,
+		    sock->id, sock->version);
   sock_printf (sock, "...waiting...\r\n");
   return 0;
 }

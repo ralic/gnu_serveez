@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.17 2000/08/16 11:40:05 ela Exp $
+ * $Id: server-core.c,v 1.18 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -225,7 +225,7 @@ validate_socket_list (void)
 	      abort_me ("invalid file descriptor");
 	    }
 	}
-      if (sock_lookup_table[sock->socket_id] != sock)
+      if (sock_lookup_table[sock->id] != sock)
 	{
 	  abort_me ("lookup table corrupted");
 	}
@@ -272,11 +272,11 @@ sock_enqueue (socket_t sock)
 	}
     }
 
-  if (sock_lookup_table[sock->socket_id])
+  if (sock_lookup_table[sock->id])
     {
       log_printf(LOG_FATAL, 
 		 "socket has been already enqueued (%d)\n",
-		 sock->socket_id);
+		 sock->id);
       return -1;
     }
 
@@ -294,7 +294,7 @@ sock_enqueue (socket_t sock)
 
   socket_last = sock;
   sock->flags |= SOCK_FLAG_ENQUEUED;
-  sock_lookup_table[sock->socket_id] = sock;
+  sock_lookup_table[sock->id] = sock;
 
   return 0;
 }
@@ -343,12 +343,12 @@ sock_dequeue (socket_t sock)
 	socket_root = sock->next;
 
       sock->flags &= ~SOCK_FLAG_ENQUEUED;
-      sock_lookup_table[sock->socket_id] = NULL;
+      sock_lookup_table[sock->id] = NULL;
     }
   else
     {
-      log_printf(LOG_ERROR, "dequeueing unqueued socket %d\n",
-		 sock->sock_desc);
+      log_printf (LOG_ERROR, "dequeueing unqueued socket %d\n",
+		  sock->sock_desc);
     }
   return 0;
 }
@@ -358,11 +358,11 @@ sock_dequeue (socket_t sock)
  * if no such socket exists.
  */
 socket_t
-find_sock_by_id (int id)
+sock_find_id (int id)
 {
   if (id & ~(SOCKET_MAX_IDS-1))
     {
-      log_printf(LOG_FATAL, "socket id %d is invalid\n", id);
+      log_printf (LOG_FATAL, "socket id %d is invalid\n", id);
       return NULL;
     }
 
@@ -391,17 +391,8 @@ server_reset (void)
 static int
 shutdown_socket (socket_t sock)
 {
-  if (sock->ref)
-    {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "shutdown: %d reference(s) on socket id %d\n", 
-		  sock->ref, sock->socket_id);
-#endif
-      return -1;
-    }
-
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "shutting down socket id %d\n", sock->socket_id);
+  log_printf (LOG_DEBUG, "shutting down socket id %d\n", sock->id);
 #endif
 
   if (sock->disconnected_socket)
@@ -426,7 +417,7 @@ sock_schedule_for_shutdown (socket_t sock)
     {
 #if ENABLE_DEBUG
       log_printf(LOG_DEBUG, "scheduling socket id %d for shutdown\n",
-		 sock->socket_id);
+		 sock->id);
 #endif /* ENABLE_DEBUG */
 
       sock->flags |= SOCK_FLAG_KILLED;
@@ -469,7 +460,7 @@ handle_periodic_tasks (void)
 		{
 		  log_printf(LOG_ERROR, 
 			     "idle function for socket id %d "
-			     "returned error\n", sock->socket_id);
+			     "returned error\n", sock->id);
 		  sock_schedule_for_shutdown (sock);
 		}
 	    }
@@ -653,7 +644,6 @@ sock_server_loop (void)
   sock = socket_root;
   while (sock)
     {
-      sock->ref = 0;
       shutdown_socket (sock);
       sock = socket_root;
     }

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.19 2000/08/18 14:14:47 ela Exp $
+ * $Id: socket.c,v 1.20 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -75,6 +75,7 @@ SOCKET connected_sockets = 0;
  */
 socket_t sock_lookup_table[SOCKET_MAX_IDS];
 int socket_id = 0;
+int socket_version = 0;
 
 /*
  * Default function for writing to socket SOCK. Simply flushes
@@ -311,7 +312,7 @@ default_detect_proto (socket_t sock)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "socket id %d detection failed\n",
-		  sock->socket_id);
+		  sock->id);
 #endif
       return -1;
     }
@@ -331,7 +332,7 @@ default_idle_func (socket_t sock)
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "socket id %d detection failed\n",
-		  sock->socket_id);
+		  sock->id);
 #endif
       return -1;
     }
@@ -581,7 +582,9 @@ sock_intern_connection_info (socket_t sock)
 }
 
 /*
- * Calculate unique socket structure id for a given SOCK.
+ * Calculate unique socket structure id and assign a version 
+ * for a given SOCK. The version is for validating socket structures.
+ * It is currently used in the coserver callbacks.
  */
 int
 sock_unique_id (socket_t sock)
@@ -593,7 +596,8 @@ sock_unique_id (socket_t sock)
     }
   while (sock_lookup_table[socket_id]);
 
-  sock->socket_id = socket_id;
+  sock->id = socket_id;
+  sock->version = socket_version++;
   
   return socket_id;
 }

@@ -4,7 +4,7 @@
 @settitle Serveez Documention
 @c %** end of header
 
-@set VERSION 0.0.18pre
+@set VERSION 0.0.18
 
 @titlepage
 @title Serveez
@@ -389,8 +389,13 @@ object. All of the client connection specific callbacks get this object as
 first argument. Here follows a decription of the elements of this object.
 
 @table @code
-@item socket_id
+@item id
 The socket id is a unique id for a client connection.
+
+@item version
+This item validates this socket structure. If you pass the @code{id} and
+@code{version} to a Co-Server you can check if the delivered socket 
+structure is the original or not within the Co-Server callback.
 
 @item flags
 The flag field of the client connection contains informations about the
@@ -1148,28 +1153,24 @@ Format:
 RemoteAddressInDottedDecimals ":" RemotePort ":" LocalPort
 
 Macro:
-sock->ref++;
-coserver_ident (sock, (coserver_handle_result_t) MyIdentCallback, 
-                sock);
+coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
 @end group
 @end example
 
 In this context @code{sock} is of type @code{socket_t} and 
-@code{MyIdentCallback} is something like the following example. You need
-to decrease the socket reference counter (this is necessary for
-callbacks which get a @code{socket_t} as first (optional) argument only)
+@code{MyIdentCallback} is something like the following example. Both
+of the last two (optional) arguments identify a valid socket structure
 and @code{user} can be NULL if there is no ident deamon running on the 
-foreign machine. The last argument within the above macro will be the 
-first argument in the below callback. Thus you will know what kind of 
+foreign machine. The last two argument within the above macro will be the 
+last two arguments in the below callback. Thus you will know what kind of 
 data the invocation of the callback is related to.
 
 @example
 @group
 Callback:
 int
-MyIdentCallback (socket_t sock, char *user)
+MyIdentCallback (char *user, int id, int version)
 @{
-  sock->ref--;
   printf ("Identified user: %s\n", user);
   return 0;
 @}
@@ -1191,12 +1192,11 @@ Format:
 RemoteHostname
 
 Macro:
-coserver_dns (realhost, (coserver_handle_result_t) irc_connect_server, 
-              ircserver);
+coserver_dns (realhost, irc_connect_server, ircserver, NULL);
 
 Callback:
 int
-irc_connect_server (irc_server_t *server, char *ip)
+irc_connect_server (char *ip, irc_server_t *server)
 @{
   printf ("The ip address is: %s\n", ip);
   return 0;
@@ -1218,15 +1218,12 @@ Format:
 RemoteAddressInDottedDecimals
 
 Macro:
-sock->ref++;
-coserver_reverse (addr, (coserver_handle_result_t) MyReverseCallback, 
-                  sock);
+coserver_reverse (addr, MyReverseCallback, sock->id, sock->version);
 
 Callback:
 int
-MyReverseCallback (socket_t sock, char *host)
+MyReverseCallback (char *host, int id, int version)
 @{
-  sock->ref--;
   printf ("Hostname is: %s\n", host);
   return 0;
 @}

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.18 2000/08/18 14:14:47 ela Exp $
+ * $Id: control-proto.c,v 1.19 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -231,7 +231,7 @@ ctrl_connect_socket (void *ctrlcfg, socket_t sock)
 {
   ctrl_config_t *cfg = ctrlcfg;
 
-  sock_resize_buffers (sock, sock->send_buffer_size, CTRL_RECV_BUFSIZE);
+  sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
   sock->check_request = default_check_request;
   sock->handle_request = ctrl_handle_request;
   sock->boundary = CTRL_PACKET_DELIMITER;
@@ -337,13 +337,14 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
 
   /* Find the appropiate client or server connection. */
   id = atoi (arg);
-  if ((xsock = find_sock_by_id (id)) == NULL)
+  if ((xsock = sock_find_id (id)) == NULL)
     {
       sock_printf (sock, "no such connection: %d\r\n", id);
       return flag;
     }
 
-  sock_printf (sock, "\r\nconnection id %d statistics\r\n\r\n", id);
+  sock_printf (sock, "\r\nconnection id %d (version %d) statistics\r\n\r\n", 
+	       id, xsock->version);
 
   /* 
    * Process general socket structure's flags. Uppercase words refer
@@ -559,7 +560,7 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
       /* gather all information from above */
       sock_printf (sock, 
 		   "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
-		   xsock->socket_id, xsock->recv_buffer_fill,
+		   xsock->id, xsock->recv_buffer_fill,
 		   xsock->send_buffer_fill, linet, rinet);
     }
   sock_printf (sock, "\r\n");
@@ -663,7 +664,7 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
 		   " thread id  : %d\r\n"
 #endif /* __MINGW32__ */
 		   " requests   : %d\r\n\r\n",
-		   coserver->sock->socket_id,
+		   coserver->sock->id,
 #ifndef __MINGW32__
 		   coserver->pid,
 #else /* __MINGW32__ */
@@ -687,7 +688,7 @@ ctrl_kill_id (socket_t sock, int flag, char *arg)
   socket_t xsock;
 
   id = atoi (arg);
-  if ((xsock = find_sock_by_id (id)) == NULL)
+  if ((xsock = sock_find_id (id)) == NULL)
     {
       sock_printf (sock, "no such connection: %d\r\n", id);
       return flag;

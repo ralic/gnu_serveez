@@ -1,3 +1,11 @@
+2000-08-20  [ Ela ]  <ela@lkcc.org>
+
+	* INSTALL: Added documentation for --enable-poll.
+
+	* configure.in (define_enable_poll): If you do not want to
+	use poll() instead of select() you might now --disable-poll.
+	Now always using full version numbers (no more pre's).
+
 2000-08-19  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Checking for the get-/setrlimit interface.

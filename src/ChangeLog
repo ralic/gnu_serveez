@@ -1,3 +1,23 @@
+2000-08-20  [ Ela ]  <ela@lkcc.org>
+
+	* ctrl-server/control-proto.c (ctrl_connect_socket): 
+	Resizing send and receive buffer. Was a problem for
+	the long list od `stat con'.
+
+	* socket.c: `socket_version' is the version counter for
+	socket structures. Thus we can validate socket structures
+	if these have been reintialized.
+
+	* coserver/coserver.c (coserver_handle_request): The 
+	callback for coserver requests gets three arguments.
+	First the actual result and then two optional arguments.
+
+	* coserver/coserver.h: The coserver callbacks get one more
+	argument. These are stored in the callback hash as an array.
+
+	* socket.h (struct socket): Added `version', renamed 
+	`socket_id' to `id' and removed `ref'.
+
 2000-08-19  [ Ela ]  <ela@lkcc.org>
 
 	* util.c (util_openfiles): Display the current and maximum 

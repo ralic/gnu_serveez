@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.7 2000/07/21 21:19:30 ela Exp $
+ * $Id: pipe-socket.c,v 1.8 2000/08/21 20:06:40 ela Exp $
  *
  */
 
@@ -99,7 +99,7 @@ pipe_disconnected (socket_t sock)
   else
     {
       log_printf (LOG_DEBUG, "invalid pipe id %d disconnected\n",
-		  sock->socket_id);
+		  sock->id);
     }
 #endif
 

@@ -55,7 +55,8 @@ Install serveez:
 $ make install
 
 You must have root privileges if you want to install the package in the
-standard location /usr/local or in any location that is only writable by root.
+standard location /usr/local or in any location that is only writable 
+by root.
 
 For further information on installing the package, please consult the
 file INSTALL, included in this distribution.

@@ -25,42 +25,42 @@ This file is intended to collect all known (fixed and unfixed) bugs in
 this package.
 
 Bug:	     B0010
-From:	     ela <stefan@linux.f1.fhtw-berlin.de>
-State:       unfixed
+From:	     ela <stefan@lkcc.org>
+State:       fixed (2000-08-20/ela)
 Date:	     2000-08-19
 Description: ident coserver dies because of queue overrun. thus the
 	     socket references cannot get decreased.
 
 Bug:	     B0009
-From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+From:	     ela <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-06-21
-Description: filesize 0 for http files is not handle specifically.
+Description: filesize 0 for http files is not handled specifically.
              http directory listing does not show the actual directory.
 
 Bug:         B0008
-From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+From:	     ela <stefan@lkcc.org>
 State:       unfixed
 Date:	     2000-04-24
 Description: http cache inconsistance.
 
 
 Bug:         B0007
-From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-11-18/ela)
 Date:	     1999-10-27
 Description: accept() fails under cygwin with a "bad address" error.
 
 
 Bug:         B0006
-From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-11-18/ela)
 Date:	     1999-10-27
 Description: accept() fails under SunOS 5.6 with a "bad address" error.
 
 
 Bug:         B0005
-From:	     ela <stefan@linux.f1.fhtw-berlin.de>
+From:	     ela <stefan@lkcc.org>
 State:       fixed (1999-10-27/mgrabmue)
 Date:	     1999-10-27
 Description: disabling floodprotection on port <vielzuhohezahl> ...war
