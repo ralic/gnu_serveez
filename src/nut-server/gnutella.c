@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.36 2001/05/02 22:18:48 ela Exp $
+ * $Id: gnutella.c,v 1.37 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -128,23 +128,24 @@ nut_config_t nut_config =
  */
 svz_key_value_pair_t nut_config_prototype[] = 
 {
-  REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
-  REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
-  REGISTER_INT ("search-limit", nut_config.search_limit, DEFAULTABLE),
-  REGISTER_INT ("max-ttl", nut_config.max_ttl, DEFAULTABLE),
-  REGISTER_INT ("ttl", nut_config.ttl, DEFAULTABLE),
-  REGISTER_STR ("download-path", nut_config.save_path, DEFAULTABLE),
-  REGISTER_STR ("share-path", nut_config.share_path, DEFAULTABLE),
-  REGISTER_INT ("max-downloads", nut_config.max_dnloads, DEFAULTABLE),
-  REGISTER_INT ("connection-speed", nut_config.speed, DEFAULTABLE),
-  REGISTER_INT ("min-speed", nut_config.min_speed, DEFAULTABLE),
-  REGISTER_STRARRAY ("file-extensions", nut_config.extensions, DEFAULTABLE),
-  REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
-  REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
-  REGISTER_INT ("force-port", nut_config.force_port, DEFAULTABLE),
-  REGISTER_INT ("max-uploads", nut_config.max_uploads, DEFAULTABLE),
-  REGISTER_STR ("net-url", nut_config.net_url, DEFAULTABLE),
-  REGISTER_END ()
+  SVZ_REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
+  SVZ_REGISTER_INT ("search-limit", nut_config.search_limit, DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-ttl", nut_config.max_ttl, DEFAULTABLE),
+  SVZ_REGISTER_INT ("ttl", nut_config.ttl, DEFAULTABLE),
+  SVZ_REGISTER_STR ("download-path", nut_config.save_path, DEFAULTABLE),
+  SVZ_REGISTER_STR ("share-path", nut_config.share_path, DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-downloads", nut_config.max_dnloads, DEFAULTABLE),
+  SVZ_REGISTER_INT ("connection-speed", nut_config.speed, DEFAULTABLE),
+  SVZ_REGISTER_INT ("min-speed", nut_config.min_speed, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("file-extensions", nut_config.extensions, 
+			 DEFAULTABLE),
+  SVZ_REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
+  SVZ_REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
+  SVZ_REGISTER_INT ("force-port", nut_config.force_port, DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-uploads", nut_config.max_uploads, DEFAULTABLE),
+  SVZ_REGISTER_STR ("net-url", nut_config.net_url, DEFAULTABLE),
+  SVZ_REGISTER_END ()
 };
 
 /*
@@ -206,7 +207,7 @@ nut_hash_code (char *id)
  * certain time.
  */
 int
-nut_connect_timeout (socket_t sock)
+nut_connect_timeout (svz_socket_t *sock)
 {
   /* 
    * Did we try to connect to another host in order to download something,
@@ -228,7 +229,7 @@ static int
 nut_connect_host (nut_config_t *cfg, char *host)
 {
   nut_host_t *client;
-  socket_t sock;
+  svz_socket_t *sock;
   unsigned long ip;
   unsigned short port;
   int ret = -1;
@@ -236,7 +237,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
   /* try getting ip address and port */
   if (nut_parse_addr (host, &ip, &port) == -1)
     {
-      log_printf (LOG_WARNING, "nut: invalid host `%s'\n", host);
+      svz_log (LOG_WARNING, "nut: invalid host `%s'\n", host);
       return ret;
     }
 
@@ -244,17 +245,17 @@ nut_connect_host (nut_config_t *cfg, char *host)
   client = (nut_host_t *) svz_hash_get (cfg->net, host);
 
   /* try to connect to this host */
-  if ((sock = tcp_connect (ip, port)) != NULL)
+  if ((sock = svz_tcp_connect (ip, port)) != NULL)
     {
-      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-		  svz_inet_ntoa (ip), ntohs (port));
+      svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
+	       svz_inet_ntoa (ip), ntohs (port));
       
       sock->cfg = cfg;
       sock->flags |= SOCK_FLAG_NOFLOOD;
       sock->check_request = nut_detect_connect;
       sock->idle_func = nut_connect_timeout;
       sock->idle_counter = NUT_CONNECT_TIMEOUT;
-      sock_printf (sock, NUT_CONNECT);
+      svz_sock_printf (sock, NUT_CONNECT);
       ret = 0;
     }
 
@@ -275,7 +276,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
  * functions pings it to get all further servers behind this server.
  */
 int
-nut_init_ping (socket_t sock)
+nut_init_ping (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
@@ -305,7 +306,7 @@ nut_init_ping (socket_t sock)
   client->files = 0;
   client->size = 0;
 
-  return sock_write (sock, (char *) header, SIZEOF_NUT_HEADER);
+  return svz_sock_write (sock, (char *) header, SIZEOF_NUT_HEADER);
 }
 
 /*
@@ -359,7 +360,7 @@ nut_init (svz_server_t *server)
   /* check the download and share path first */
   if (strlen (cfg->save_path) == 0 || strlen (cfg->share_path) == 0)
     {
-      log_printf (LOG_ERROR, "nut: no download/share path given\n");
+      svz_log (LOG_ERROR, "nut: no download/share path given\n");
       return -1;
     }
   p = cfg->save_path + strlen (cfg->save_path) - 1;
@@ -377,22 +378,22 @@ nut_init (svz_server_t *server)
 	  /* create the download directory */
 	  if (mkdir (cfg->save_path, 0755) == -1)
 	    {
-	      log_printf (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
+	      svz_log (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
 	      return -1;
 	    }
 	}
       /* check if the given path is a directory already */
       else if (!S_ISDIR (buf.st_mode))
 	{
-	  log_printf (LOG_ERROR, "nut: %s is not a directory\n", 
-		      cfg->save_path);
+	  svz_log (LOG_ERROR, "nut: %s is not a directory\n", 
+		   cfg->save_path);
 	  return -1;
 	}
     }
 
   /* read shared files */
   nut_read_database (cfg, cfg->share_path[0] ? cfg->share_path : "/");
-  log_printf (LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
+  svz_log (LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
 
   /* calculate forced local ip and port if necessary */
   if (cfg->force_ip)
@@ -535,7 +536,7 @@ nut_global_finalize (void)
  * connections.
  */
 int
-nut_disconnect (socket_t sock)
+nut_disconnect (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   nut_host_t *host;
@@ -672,7 +673,7 @@ nut_server_notify (svz_server_t *server)
  * routine.
  */
 int
-nut_check_request (socket_t sock)
+nut_check_request (svz_socket_t *sock)
 {
   nut_client_t *client = sock->data;
   nut_header_t *hdr;
@@ -729,7 +730,7 @@ nut_check_request (socket_t sock)
 	    return -1;
 
 	  /* cut this packet from the send buffer queue */
-	  sock_reduce_recv (sock, len);
+	  svz_sock_reduce_recv (sock, len);
 	}
       else
 	break;
@@ -742,7 +743,7 @@ nut_check_request (socket_t sock)
  * connection. We will regularly search for specific files.
  */
 int
-nut_idle_searching (socket_t sock)
+nut_idle_searching (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   nut_packet_t *pkt;
@@ -774,9 +775,9 @@ nut_idle_searching (socket_t sock)
       search = nut_put_query (&query);
 
       /* try sending this packet to this connection */
-      if (sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
-	  sock_write (sock, (char *) search, SIZEOF_NUT_QUERY) == -1 ||
-	  sock_write (sock, text, strlen (text) + 1) == -1)
+      if (svz_sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
+	  svz_sock_write (sock, (char *) search, SIZEOF_NUT_QUERY) == -1 ||
+	  svz_sock_write (sock, text, strlen (text) + 1) == -1)
 	{
 	  return -1;
 	}
@@ -881,7 +882,7 @@ nut_info_server (svz_server_t *server)
  * Gnutella client info callback.
  */
 char *
-nut_info_client (void *nut_cfg, socket_t sock)
+nut_info_client (void *nut_cfg, svz_socket_t *sock)
 {
   static char info[80 * 3];
   static char text[128];
@@ -948,7 +949,7 @@ nut_info_client (void *nut_cfg, socket_t sock)
  * push requests (download).
  */
 int
-nut_detect_connect (socket_t sock)
+nut_detect_connect (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   int len = strlen (NUT_OK);
@@ -958,10 +959,10 @@ nut_detect_connect (socket_t sock)
       !memcmp (sock->recv_buffer, NUT_OK, len))
     {
       sock->userflags |= (NUT_FLAG_CLIENT | NUT_FLAG_SELF);
-      log_printf (LOG_NOTICE, "nut: host %s:%u connected\n",
-		  svz_inet_ntoa (sock->remote_addr),
-		  ntohs (sock->remote_port));
-      sock_reduce_recv (sock, len);
+      svz_log (LOG_NOTICE, "nut: host %s:%u connected\n",
+	       svz_inet_ntoa (sock->remote_addr),
+	       ntohs (sock->remote_port));
+      svz_sock_reduce_recv (sock, len);
 
       if (nut_connect_socket (cfg, sock) == -1) 
 	return -1;
@@ -975,7 +976,7 @@ nut_detect_connect (socket_t sock)
  * Incoming connections will be protocol checked.
  */
 int 
-nut_detect_proto (void *nut_cfg, socket_t sock)
+nut_detect_proto (void *nut_cfg, svz_socket_t *sock)
 {
   nut_config_t *cfg = nut_cfg;
   int len = strlen (NUT_CONNECT);
@@ -986,8 +987,8 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       !memcmp (sock->recv_buffer, NUT_CONNECT, len))
     {
       sock->userflags |= NUT_FLAG_CLIENT;
-      log_printf (LOG_NOTICE, "gnutella protocol detected (client)\n");
-      sock_reduce_recv (sock, len);
+      svz_log (LOG_NOTICE, "gnutella protocol detected (client)\n");
+      svz_sock_reduce_recv (sock, len);
       return -1;
     }
 
@@ -997,7 +998,7 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       !memcmp (sock->recv_buffer, NUT_GET, len))
     {
       sock->userflags |= NUT_FLAG_UPLOAD;
-      log_printf (LOG_NOTICE, "gnutella protocol detected (upload)\n");
+      svz_log (LOG_NOTICE, "gnutella protocol detected (upload)\n");
       return -1;
     }
 
@@ -1007,8 +1008,8 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       !memcmp (sock->recv_buffer, cfg->net_detect, len))
     {
       sock->userflags |= NUT_FLAG_HOSTS;
-      log_printf (LOG_NOTICE, "gnutella protocol detected (host list)\n");
-      sock_reduce_recv (sock, len);
+      svz_log (LOG_NOTICE, "gnutella protocol detected (host list)\n");
+      svz_sock_reduce_recv (sock, len);
       return -1;
     }
 
@@ -1018,7 +1019,7 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
       !memcmp (sock->recv_buffer, NUT_GIVE, len))
     {
       sock->userflags |= NUT_FLAG_GIVEN;
-      log_printf (LOG_NOTICE, "gnutella protocol detected (giving)\n");
+      svz_log (LOG_NOTICE, "gnutella protocol detected (giving)\n");
       return -1;
     }
 
@@ -1030,7 +1031,7 @@ nut_detect_proto (void *nut_cfg, socket_t sock)
  * success.
  */
 int 
-nut_connect_socket (void *nut_cfg, socket_t sock)
+nut_connect_socket (void *nut_cfg, svz_socket_t *sock)
 {
   nut_config_t *cfg = nut_cfg;
 
@@ -1046,7 +1047,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
     {
       sock->check_request = nut_hosts_check;
       sock->write_socket = nut_hosts_write;
-      sock_resize_buffers (sock, NUT_SEND_BUFSIZE, sock->recv_buffer_size);
+      svz_sock_resize_buffers (sock, NUT_SEND_BUFSIZE, sock->recv_buffer_size);
       return 0;
     }
 
@@ -1070,7 +1071,7 @@ nut_connect_socket (void *nut_cfg, socket_t sock)
 
       /* send the first reply if necessary */
       if (!(sock->userflags & NUT_FLAG_SELF))
-	if (sock_printf (sock, NUT_OK) == -1)
+	if (svz_sock_printf (sock, NUT_OK) == -1)
 	  return -1;
 
       /* assign gnutella specific callbacks */

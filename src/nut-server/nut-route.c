@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.15 2001/04/01 13:32:30 ela Exp $
+ * $Id: nut-route.c,v 1.16 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -74,7 +74,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
       if (time (NULL) - t < NUT_QUERY_TOO_RECENT)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: dropping too recent query\n");
+	  svz_log (LOG_DEBUG, "nut: dropping too recent query\n");
 #endif
 	  ret = -1;
 	}
@@ -99,7 +99,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
  * -1 = invalid packet, do not process at all
  */
 int
-nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
+nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
@@ -117,7 +117,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       if (hdr->length != 0)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: invalid ping payload\n");
+	  svz_log (LOG_DEBUG, "nut: invalid ping payload\n");
 #endif
 	  return -1;
 	}
@@ -127,7 +127,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       if (hdr->length != SIZEOF_NUT_PONG)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: invalid pong payload\n");
+	  svz_log (LOG_DEBUG, "nut: invalid pong payload\n");
 #endif
 	  return -1;
 	}
@@ -137,7 +137,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       if (hdr->length != SIZEOF_NUT_PUSH)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: invalid push request payload\n");
+	  svz_log (LOG_DEBUG, "nut: invalid push request payload\n");
 #endif
 	  return -1;
 	}
@@ -147,7 +147,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       if (hdr->length > 257)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: payload of query too big\n");
+	  svz_log (LOG_DEBUG, "nut: payload of query too big\n");
 #endif
 	  return -1;
 	}
@@ -159,7 +159,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       if (hdr->length > (SIZEOF_NUT_RECORD + 256) * 256)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: payload of query hits too big\n");
+	  svz_log (LOG_DEBUG, "nut: payload of query hits too big\n");
 #endif
 	  return -1;
 	}
@@ -167,10 +167,10 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       /* Invalid */
     default:
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: invalid request 0x%02X\n", hdr->function);
+      svz_log (LOG_DEBUG, "nut: invalid request 0x%02X\n", hdr->function);
 #endif
       if (client->invalid++ > NUT_INVALID_PACKETS)
-	sock_schedule_for_shutdown (sock);
+	svz_sock_schedule_for_shutdown (sock);
       return -1;
     }
 
@@ -178,7 +178,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->ttl <= 1)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: packet died (zero TTL)\n", hdr->function);
+      svz_log (LOG_DEBUG, "nut: packet died (zero TTL)\n", hdr->function);
 #endif
       return 0;
     }
@@ -189,8 +189,8 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->hop > cfg->max_ttl)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: packet died (HOP > MaxTTL)\n",
-		  hdr->function); 
+      svz_log (LOG_DEBUG, "nut: packet died (HOP > MaxTTL)\n",
+	       hdr->function); 
 #endif
       return 0;
     }
@@ -198,7 +198,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->ttl > 50)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: packet dropped (TTL > 50)\n");
+      svz_log (LOG_DEBUG, "nut: packet dropped (TTL > 50)\n");
 #endif
       return 0;
     }
@@ -206,8 +206,8 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->ttl > cfg->max_ttl)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
-		  hdr->ttl, cfg->max_ttl);
+      svz_log (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
+	       hdr->ttl, cfg->max_ttl);
 #endif
       hdr->ttl = (byte) cfg->max_ttl;
     }
@@ -215,8 +215,8 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->ttl + hdr->hop > cfg->max_ttl)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
-		  hdr->ttl, cfg->max_ttl - hdr->hop);
+      svz_log (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
+	       hdr->ttl, cfg->max_ttl - hdr->hop);
 #endif
       hdr->ttl = (byte) (cfg->max_ttl - hdr->hop);
     }
@@ -230,12 +230,12 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
  * zero.
  */
 int
-nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
+nut_route (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_packet_t *pkt;
-  socket_t xsock;
-  socket_t *conn;
+  svz_socket_t *xsock;
+  svz_socket_t **conn;
   byte *header;
   int n;
 
@@ -249,20 +249,20 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
   if (hdr->function & 0x01)
     {
       /* is the GUID in the routing hash ? */
-      xsock = (socket_t) svz_hash_get (cfg->route, (char *) hdr->id);
+      xsock = (svz_socket_t *) svz_hash_get (cfg->route, (char *) hdr->id);
       if (xsock == NULL)
 	{
 	  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
 	  if (pkt == NULL)
 	    {
-	      log_printf (LOG_ERROR, "nut: error routing packet 0x%02X\n",
-			  hdr->function);
+	      svz_log (LOG_ERROR, "nut: error routing packet 0x%02X\n",
+		       hdr->function);
 	      cfg->errors++;
 	      return -1;
 	    }
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: packet 0x%02X reply received\n",
-		      hdr->function);
+	  svz_log (LOG_DEBUG, "nut: packet 0x%02X reply received\n",
+		   hdr->function);
 #endif
 	}
       /* yes, send it to the connection the original query came from */
@@ -270,17 +270,17 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	{
 	  /* try sending the header */
 	  header = nut_put_header (hdr);
-	  if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1)
+	  if (svz_sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1)
 	    {
-	      sock_schedule_for_shutdown (xsock);
+	      svz_sock_schedule_for_shutdown (xsock);
 	      return 0;
 	    }
 	  /* send the packet body if necessary */
 	  if (hdr->length)
 	    {
-	      if (sock_write (xsock, (char *) packet, hdr->length) == -1)
+	      if (svz_sock_write (xsock, (char *) packet, hdr->length) == -1)
 		{
-		  sock_schedule_for_shutdown (xsock);
+		  svz_sock_schedule_for_shutdown (xsock);
 		  return 0;
 		}
 	    }
@@ -293,12 +293,12 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
   else if (hdr->function != NUT_PUSH_REQ)
     {
       /* check if this query has been seen already */
-      xsock = (socket_t) svz_hash_get (cfg->route, (char *) hdr->id);
+      xsock = (svz_socket_t *) svz_hash_get (cfg->route, (char *) hdr->id);
       if (xsock != NULL)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: dropping duplicate packet 0x%02X\n",
-		      hdr->function);
+	  svz_log (LOG_DEBUG, "nut: dropping duplicate packet 0x%02X\n",
+		   hdr->function);
 #endif
 	  return -1;
 	}
@@ -308,8 +308,8 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
       if (pkt != NULL)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: dropping native packet 0x%02X\n",
-		      hdr->function);
+	  svz_log (LOG_DEBUG, "nut: dropping native packet 0x%02X\n",
+		   hdr->function);
 #endif
 	  return -1;
 	}
@@ -321,7 +321,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
        * Forward this query to all connections except the connection
        * the server got it from.
        */
-      if ((conn = (socket_t *) svz_hash_values (cfg->conn)) != NULL)
+      if ((conn = (svz_socket_t **) svz_hash_values (cfg->conn)) != NULL)
 	{
 	  header = nut_put_header (hdr);
 	  for (n = 0; n < svz_hash_size (cfg->conn); n++)
@@ -329,17 +329,18 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
 	      xsock = conn[n];
 	      if (xsock == sock)
 		continue;
-	      if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == 
-		  -1)
+	      if (svz_sock_write (xsock, (char *) header, 
+				  SIZEOF_NUT_HEADER) == -1)
 		{
-		  sock_schedule_for_shutdown (xsock);
+		  svz_sock_schedule_for_shutdown (xsock);
 		  return 0;
 		}
 	      if (hdr->length)
 		{
-		  if (sock_write (xsock, (char *) packet, hdr->length) == -1)
+		  if (svz_sock_write (xsock, (char *) packet, 
+				      hdr->length) == -1)
 		    {
-		      sock_schedule_for_shutdown (xsock);
+		      svz_sock_schedule_for_shutdown (xsock);
 		      return 0;
 		    }
 		}

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.4 2001/03/12 21:45:04 ela Exp $
+ * $Id: array.c,v 1.5 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -58,7 +58,7 @@ svz_array_create (unsigned long capacity)
 }
 
 /*
- * Delete all values within the array @var{arrray} and set its size to zero.
+ * Delete all values within the array @var{array} and set its size to zero.
  * The array itself keeps valid.
  */
 void
@@ -75,7 +75,7 @@ svz_array_clear (svz_array_t *array)
 }
 
 /*
- * Completely destroy the array @var{arrray}. The @var{array} handle is
+ * Completely destroy the array @var{array}. The @var{array} handle is
  * invalid afterwards.
  */
 void
@@ -87,7 +87,7 @@ svz_array_destroy (svz_array_t *array)
 
 /*
  * Check if the given @var{size} argument supersedes the capacity of the
- * array @var{arrray} and reallocate the array if necessary.
+ * array @var{array} and reallocate the array if necessary.
  */
 static void
 svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
@@ -102,7 +102,7 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
 
 /*
  * Return the array element at the position @var{index} of the array 
- * @var{arrray} if the index is within the array range. Return @code{NULL}
+ * @var{array} if the index is within the array range. Return @code{NULL}
  * if not.
  */
 void *
@@ -116,7 +116,7 @@ svz_array_get (svz_array_t *array, unsigned long index)
 
 /*
  * Replace the array element at the position @var{index} of the array
- * @var{arrray} with the value @var{value} and return the previous value
+ * @var{array} with the value @var{value} and return the previous value
  * at this index.
  */
 void *
@@ -133,7 +133,7 @@ svz_array_set (svz_array_t *array, unsigned long index, void *value)
 }
 
 /*
- * Append the value @var{value} at the end of the array @var{arrray}.
+ * Append the value @var{value} at the end of the array @var{array}.
  */
 void
 svz_array_add (svz_array_t *array, void *value)
@@ -145,8 +145,8 @@ svz_array_add (svz_array_t *array, void *value)
 
 /*
  * Remove the array element at the position @var{index} of the array
- * @var{arrray}. Return its previous value or @code{NULL} if the index
- * is out of the arrays range.
+ * @var{array}. Return its previous value or @code{NULL} if the index
+ * is out of the array's range.
  */
 void *
 svz_array_del (svz_array_t *array, unsigned long index)
@@ -165,7 +165,7 @@ svz_array_del (svz_array_t *array, unsigned long index)
 }
 
 /*
- * Return the given arrays @var{arrray} current capacity.
+ * Return the given array's @var{array} current capacity.
  */
 unsigned long
 svz_array_capacity (svz_array_t *array)
@@ -175,7 +175,7 @@ svz_array_capacity (svz_array_t *array)
 }
 
 /*
- * Return the given arrays @var{arrray} current size.
+ * Return the given array's @var{array} current size.
  */
 unsigned long
 svz_array_size (svz_array_t *array)
@@ -203,7 +203,7 @@ svz_array_contains (svz_array_t *array, void *value)
 }
 
 /*
- * This function returns the index of the first occurence of the value 
+ * This function returns the index of the first occurrence of the value 
  * @var{value} in the array @var{array}. It returns (-1) if there is no
  * such value stored within the array.
  */
@@ -221,7 +221,7 @@ svz_array_idx (svz_array_t *array, void *value)
 
 /*
  * This routine inserts the given value @var{value} at the position 
- * @var{index}. The indexes of all following values in the array @var{array}
+ * @var{index}. The indices of all following values in the array @var{array}
  * and the size of the array get automatically incremented. Return the
  * values index or (-1) if the the index is out of array bounds.
  */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.h,v 1.1 2000/09/15 08:22:51 ela Exp $
+ * $Id: nut-hostlist.h,v 1.2 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -42,8 +42,8 @@
 	                 "</body></html>"
 
 /* exported functions */
-int nut_hosts_write (socket_t sock);
-int nut_hosts_check (socket_t sock);
-int nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port);
+int nut_hosts_write (svz_socket_t *sock);
+int nut_hosts_check (svz_socket_t *sock);
+int nut_host_catcher (svz_socket_t *, unsigned long ip, unsigned short port);
 
 #endif /* __NUT_HOSTLIST_H__ */

@@ -1,5 +1,5 @@
 /*
- * socket.h - socket management definition
+ * socket.h - socket management definitions
  *
  * Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.3 2001/05/02 22:18:48 ela Exp $
+ * $Id: socket.h,v 1.4 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -30,15 +30,15 @@
 #include "libserveez/defines.h"
 
 /* This is how many Id's can exist. It MUST be a 2^X and less than 10000. */
-#define SOCKET_MAX_IDS       8192 
+#define SOCK_MAX_ID           8192 
 /* How much data is accepted before valid detection. */
-#define MAX_DETECTION_FILL     16
+#define SOCK_MAX_DETECTION_FILL 16
 /* How much time is accepted before valid detection. */
-#define MAX_DETECTION_WAIT     30 
+#define SOCK_MAX_DETECTION_WAIT 30 
 /* If a socket resource is unavailable, relax for this time in seconds. */
-#define RELAX_FD_TIME           1 
+#define RELAX_FD_TIME            1 
 /* Do not write more than SOCK_MAX_WRITE bytes to a socket at once. */
-#define SOCK_MAX_WRITE       1024
+#define SOCK_MAX_WRITE        1024
 
 #define RECV_BUF_SIZE  (1024 * 8) /* Normal receive buffer size. */
 #define SEND_BUF_SIZE  (1024 * 8) /* Normal send buffer size. */
@@ -70,13 +70,12 @@
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
 
-typedef struct socket *socket_t;
-typedef struct socket socket_data_t;
+typedef struct svz_socket svz_socket_t;
 
-struct socket
+struct svz_socket
 {
-  socket_t next;		/* Next socket in chain. */
-  socket_t prev;		/* Previous socket in chain. */
+  svz_socket_t *next;		/* Next socket in chain. */
+  svz_socket_t *prev;		/* Previous socket in chain. */
   int id;		        /* Unique ID for this socket. */
   int version;                  /* Socket version */
   int parent_id;                /* A sockets parent ID. */
@@ -95,7 +94,7 @@ struct socket
 
   char *recv_pipe;              /* File of the receive pipe. */
   char *send_pipe;              /* File of the send pipe. */
-  socket_t referrer;            /* Referring socket structure. */
+  svz_socket_t *referrer;       /* Referring socket structure. */
 
   char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
@@ -123,7 +122,7 @@ struct socket
    * data from the socket and feeds it to CHECK_REQUEST, but specific
    * sockets may need another policy.
    */
-  int (* read_socket) (socket_t sock);
+  int (* read_socket) (svz_socket_t *sock);
 
   /*
    * WRITE_SOCKET is called when data is is valid in the output buffer
@@ -131,37 +130,37 @@ struct socket
    * writes as much data as possible to the socket and removes it from
    * the buffer.
    */
-  int (* write_socket) (socket_t sock);
+  int (* write_socket) (svz_socket_t *sock);
 
   /*
    * DISCONNECTED_SOCKET gets called whenever the socket is lost for
    * some external reason.
    */
-  int (* disconnected_socket) (socket_t sock);
+  int (* disconnected_socket) (svz_socket_t *sock);
 
   /*
    * CONNECTED_SOCKET gets called whenever the socket is finally 
    * connected.
    */
-  int (* connected_socket) (socket_t sock);
+  int (* connected_socket) (svz_socket_t *sock);
 
   /*
    * KICKED_SOCKET gets called whenever the socket gets closed by us.
    */
-  int (* kicked_socket) (socket_t sock, int reason);
+  int (* kicked_socket) (svz_socket_t *sock, int reason);
 
   /*
    * CHECK_REQUEST gets called whenever data was read from the socket.
    * Its purpose is to check whether a complete request was read, and
    * if it was, it should be handled and removed from the input buffer.
    */
-  int (* check_request) (socket_t sock);
+  int (* check_request) (svz_socket_t *sock);
 
   /*
    * HANDLE_REQUEST gets called when the CHECK_REQUEST got
    * a valid packet.
    */
-  int (* handle_request) (socket_t sock, char *request, int len);
+  int (* handle_request) (svz_socket_t *sock, char *request, int len);
 
   /*
    * IDLE_FUNC gets called from the periodic task scheduler.  Whenever
@@ -170,7 +169,7 @@ struct socket
    * IDLE_COUNTER to some value and thus can re-schedule itself for a
    * later task.
    */
-  int (* idle_func) (socket_t sock);
+  int (* idle_func) (svz_socket_t * sock);
 
   int idle_counter;		/* Counter for calls to IDLE_FUNC. */
 
@@ -203,33 +202,34 @@ struct socket
 
 __BEGIN_DECLS
 
-SERVEEZ_API extern SOCKET sock_connections;
+SERVEEZ_API extern int svz_sock_connections;
 
-SERVEEZ_API int sock_valid __P ((socket_t sock));
-SERVEEZ_API socket_t sock_alloc __P ((void));
-SERVEEZ_API int sock_free __P ((socket_t sock));
-SERVEEZ_API socket_t sock_create __P ((int fd));
-SERVEEZ_API int sock_disconnect __P ((socket_t sock));
-SERVEEZ_API int sock_write __P ((socket_t sock, char *buf, int len));
-SERVEEZ_API int sock_printf __P ((socket_t sock, const char *fmt, ...));
-SERVEEZ_API int sock_resize_buffers __P ((socket_t sock, int, int));
-SERVEEZ_API int sock_intern_connection_info __P ((socket_t sock));
-SERVEEZ_API int sock_error_info __P ((socket_t sock));
-SERVEEZ_API int sock_unique_id __P ((socket_t sock));
-SERVEEZ_API int sock_detect_proto __P ((socket_t sock));
-SERVEEZ_API int sock_check_request __P ((socket_t sock));
-SERVEEZ_API int sock_idle_protect __P ((socket_t sock));
+SERVEEZ_API int svz_sock_valid __P ((svz_socket_t *sock));
+SERVEEZ_API svz_socket_t *svz_sock_alloc __P ((void));
+SERVEEZ_API int svz_sock_free __P ((svz_socket_t *sock));
+SERVEEZ_API svz_socket_t *svz_sock_create __P ((int fd));
+SERVEEZ_API int svz_sock_disconnect __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_write __P ((svz_socket_t *sock, char *buf, int len));
+SERVEEZ_API int svz_sock_printf __P ((svz_socket_t *sock, 
+				      const char *fmt, ...));
+SERVEEZ_API int svz_sock_resize_buffers __P ((svz_socket_t * sock, int, int));
+SERVEEZ_API int svz_sock_intern_connection_info __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_error_info __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_unique_id __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_detect_proto __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_check_request __P ((svz_socket_t *sock));
+SERVEEZ_API int svz_sock_idle_protect __P ((svz_socket_t *sock));
 
 #if ENABLE_FLOOD_PROTECTION
-SERVEEZ_API int sock_flood_protect __P ((socket_t sock, int));
+SERVEEZ_API int svz_sock_flood_protect __P ((svz_socket_t *sock, int));
 #endif
 
 __END_DECLS
 
 /*
- * Shorten the receive buffer of SOCK by LEN bytes.
+ * Shorten the receive buffer of @var{sock} by @var{len} bytes.
  */
-#define sock_reduce_recv(sock, len)                      \
+#define svz_sock_reduce_recv(sock, len)                  \
   if (len && sock->recv_buffer_fill > len) {             \
     memmove (sock->recv_buffer, sock->recv_buffer + len, \
              sock->recv_buffer_fill - len);              \
@@ -237,9 +237,9 @@ __END_DECLS
   sock->recv_buffer_fill -= len;
 
 /*
- * Reduce the send buffer of SOCK by LEN bytes.
+ * Reduce the send buffer of @var{sock} by @var{len} bytes.
  */
-#define sock_reduce_send(sock, len)                      \
+#define svz_sock_reduce_send(sock, len)                  \
   if (len && sock->send_buffer_fill > len) {             \
     memmove (sock->send_buffer, sock->send_buffer + len, \
 	     sock->send_buffer_fill - len);              \

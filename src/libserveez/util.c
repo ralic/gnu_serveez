@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.7 2001/05/05 15:45:51 ela Exp $
+ * $Id: util.c,v 1.8 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -91,33 +91,33 @@ static char log_level[][16] = {
 
 /*
  * This is the file all log messages are written to. Change it with a
- * call to @code{log_set_file()}. By default, all log messages are written
+ * call to @code{svz_log_setfile()}. By default, all log messages are written
  * to @code{stderr}.
  */
-static FILE *log_file = NULL;
+static FILE *svz_logfile = NULL;
 
 /*
  * Print a message to the log system. @var{level} specifies the prefix.
  */
 void
-log_printf (int level, const char *format, ...)
+svz_log (int level, const char *format, ...)
 {
   va_list args;
   time_t tm;
   struct tm *t;
 
-  if (level > svz_verbosity || log_file == NULL)
+  if (level > svz_verbosity || svz_logfile == NULL)
     return;
 
   tm = time (NULL);
   t = localtime (&tm);
-  fprintf (log_file, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
+  fprintf (svz_logfile, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
 	   t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
 	   t->tm_hour, t->tm_min, t->tm_sec, log_level[level]);
   va_start (args, format);
-  vfprintf (log_file, format, args);
+  vfprintf (svz_logfile, format, args);
   va_end (args);
-  fflush (log_file);
+  fflush (svz_logfile);
 }
 
 /*
@@ -125,9 +125,9 @@ log_printf (int level, const char *format, ...)
  * to. Could also be @code{stdout} or @code{stderr}.
  */
 void
-log_set_file (FILE * file)
+svz_log_setfile (FILE * file)
 {
-  log_file = file;
+  svz_logfile = file;
 }
 
 #define MAX_DUMP_LINE 16   /* bytes per line */
@@ -544,7 +544,7 @@ svz_sys_version (void)
   osver.dwOSVersionInfoSize = sizeof (osver);
   if (!GetVersionEx (&osver))
     {
-      log_printf (LOG_ERROR, "GetVersionEx: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "GetVersionEx: %s\n", SYS_ERROR);
       sprintf (os, "unknown Windows");
     }
   else
@@ -648,10 +648,10 @@ svz_openfiles (int max_sockets)
 
   if ((openfiles = getdtablesize ()) == -1)
     {
-      log_printf (LOG_ERROR, "getdtablesize: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "getdtablesize: %s\n", SYS_ERROR);
       return -1;
     }
-  log_printf (LOG_NOTICE, "file descriptor table size: %d\n", openfiles);
+  svz_log (LOG_NOTICE, "file descriptor table size: %d\n", openfiles);
 #endif /* HAVE_GETDTABLESIZE */
 
 #if HAVE_GETRLIMIT
@@ -662,11 +662,11 @@ svz_openfiles (int max_sockets)
 
   if (getrlimit (RLIMIT_NOFILE, &rlim) == -1)
     {
-      log_printf (LOG_ERROR, "getrlimit: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "getrlimit: %s\n", SYS_ERROR);
       return -1;
     }
-  log_printf (LOG_NOTICE, "current open file limit: %d/%d\n",
-	      rlim.rlim_cur, rlim.rlim_max);
+  svz_log (LOG_NOTICE, "current open file limit: %d/%d\n",
+	   rlim.rlim_cur, rlim.rlim_max);
 
   if ((int) rlim.rlim_max < (int) max_sockets || 
       (int) rlim.rlim_cur < (int) max_sockets)
@@ -676,12 +676,12 @@ svz_openfiles (int max_sockets)
 
       if (setrlimit (RLIMIT_NOFILE, &rlim) == -1)
 	{
-	  log_printf (LOG_ERROR, "setrlimit: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "setrlimit: %s\n", SYS_ERROR);
 	  return -1;
 	}
       getrlimit (RLIMIT_NOFILE, &rlim);
-      log_printf (LOG_NOTICE, "open file limit set to: %d/%d\n",
-		  rlim.rlim_cur, rlim.rlim_max);
+      svz_log (LOG_NOTICE, "open file limit set to: %d/%d\n",
+	       rlim.rlim_cur, rlim.rlim_max);
     }
 
 #elif defined (__MINGW32__)	/* HAVE_GETRLIMIT */
@@ -701,7 +701,7 @@ svz_openfiles (int max_sockets)
 						    MaxSocketSubSubKey,
 						    svz_itoa (sockets)));
 
-      log_printf (LOG_NOTICE, "current open file limit: %u\n", sockets);
+      svz_log (LOG_NOTICE, "current open file limit: %u\n", sockets);
 
       if (sockets < (unsigned) max_sockets)
 	{
@@ -716,7 +716,7 @@ svz_openfiles (int max_sockets)
 				    MaxSocketSubKey,
 				    MaxSocketSubSubKey, svz_itoa (sockets));
 
-	  log_printf (LOG_NOTICE, "open file limit set to: %u\n", sockets);
+	  svz_log (LOG_NOTICE, "open file limit set to: %u\n", sockets);
 	}
     }
 #endif /* MINGW32__ */

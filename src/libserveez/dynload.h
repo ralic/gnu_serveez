@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.h,v 1.3 2001/04/06 15:32:35 raimi Exp $
+ * $Id: dynload.h,v 1.4 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -40,8 +40,8 @@ __BEGIN_DECLS
 
 SERVEEZ_API void svz_dynload_init __P ((void));
 SERVEEZ_API void svz_dynload_finalize __P ((void));
-SERVEEZ_API svz_servertype_t *svz_server_load __P ((char *description));
-SERVEEZ_API int svz_server_unload __P ((char *description));
+SERVEEZ_API svz_servertype_t *svz_servertype_load __P ((char *description));
+SERVEEZ_API int svz_servertype_unload __P ((char *description));
 
 __END_DECLS
 

@@ -1,3 +1,29 @@
+2001-05-19  [ Ela ]  <ela@lkcc.org>
+
+	* Renamed a very lot functions in order to get the core library
+	into a defined namespace. Therefore also changed all the callers.
+
+	* raw-socket.c: Prefixed the functions. Changed callers.
+
+	* icmp-socket.c: Prefixed symbols.
+
+	* udp-socket.c: Prefixed all symbols. Changed callers.
+
+	* pipe-socket.c: Prefixed functions with `svz_'. Changed 
+	callers.
+
+	* tcp-socket.c: Added `svz_' prefix to each function. Changed
+	callers.
+
+	* util.h: Changed ?INT?? macros into SVZ_?INT?? macros.
+	Changed all callers, too.
+
+	* defines.h: Depending on the cpp flag __BUILD_SVZ_LIBRARY__
+	either `config.h' or `svzconfig.h' gets included here.
+
+	* Makefile.am (AM_CFLAGS): Added a flag indicating if the
+	library gets actually built or is used.
+
 2001-05-09  [ Ela ]  <ela@lkcc.org>
 
 	* portcfg.c (svz_portcfg_destroy_access,

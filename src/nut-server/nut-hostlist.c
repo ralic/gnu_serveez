@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-hostlist.c,v 1.7 2001/04/01 13:32:30 ela Exp $
+ * $Id: nut-hostlist.c,v 1.8 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -55,7 +55,7 @@
  * successfully sent and closes the connection afterwards.
  */
 int
-nut_hosts_write (socket_t sock)
+nut_hosts_write (svz_socket_t *sock)
 {
   int num_written;
 
@@ -80,7 +80,7 @@ nut_hosts_write (socket_t sock)
   /* seems like an error */
   else if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -101,7 +101,7 @@ nut_hosts_write (socket_t sock)
  * This is the check_request callback for the HTML host list output.
  */
 int
-nut_hosts_check (socket_t sock)
+nut_hosts_check (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
   nut_host_t **host;
@@ -112,11 +112,11 @@ nut_hosts_check (socket_t sock)
     return 0;
 
   /* send normal HTTP header */
-  if (sock_printf (sock, NUT_HTTP_HEADER) == -1)
+  if (svz_sock_printf (sock, NUT_HTTP_HEADER) == -1)
     return -1;
 
   /* send HTML header */
-  if (sock_printf (sock, NUT_HTML_HEADER, svz_hash_size (cfg->net)) == -1)
+  if (svz_sock_printf (sock, NUT_HTML_HEADER, svz_hash_size (cfg->net)) == -1)
     return -1;
 
   /* go through all caught gnutella hosts and print their info */
@@ -128,7 +128,7 @@ nut_hosts_check (socket_t sock)
 	  if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
 	    {
 	      /* send buffer queue overrun ... */
-	      if (sock_printf (sock, ".\n.\n.\n") == -1)
+	      if (svz_sock_printf (sock, ".\n.\n.\n") == -1)
 		return -1;
 	      break;
 	    }
@@ -143,9 +143,9 @@ nut_hosts_check (socket_t sock)
 	      min = t / 60;
 	      t %= 60;
 	      sec = t;
-	      if (sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
-			       nut_client_key (host[n]->ip, host[n]->port),
-			       day, hour, min, sec) == -1)
+	      if (svz_sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
+				   nut_client_key (host[n]->ip, host[n]->port),
+				   day, hour, min, sec) == -1)
 		return -1;
 	    }
 	}
@@ -153,10 +153,10 @@ nut_hosts_check (socket_t sock)
     }
 
   /* send HTML footer */
-  if (sock_printf (sock, NUT_HTML_FOOTER,
-		   svz_library, svz_version,
-		   svz_inet_ntoa (sock->local_addr), 
-		   ntohs (sock->local_port)) == -1)
+  if (svz_sock_printf (sock, NUT_HTML_FOOTER,
+		       svz_library, svz_version,
+		       svz_inet_ntoa (sock->local_addr), 
+		       ntohs (sock->local_port)) == -1)
     return -1;
 
   /* state that we have sent all available data */
@@ -175,7 +175,7 @@ nut_hosts_check (socket_t sock)
  * must be both in network byte order.
  */
 int
-nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
+nut_host_catcher (svz_socket_t *sock, unsigned long ip, unsigned short port)
 {
   nut_host_t *client;
   nut_config_t *cfg = sock->cfg;
@@ -194,8 +194,8 @@ nut_host_catcher (socket_t sock, unsigned long ip, unsigned short port)
 	  port == 0)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: invalid host: %s:%u\n", 
-		      svz_inet_ntoa (ip), ntohs (port));
+	  svz_log (LOG_DEBUG, "nut: invalid host: %s:%u\n", 
+		   svz_inet_ntoa (ip), ntohs (port));
 #endif
 	  return -1;
 	}

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.3 2001/04/01 13:32:30 ela Exp $
+ * $Id: server-loop.c,v 1.4 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -73,14 +73,14 @@
  * and data, and process outgoing data.
  */
 static int
-server_check_sockets_select (void)
+svz_check_sockets_select (void)
 {
   int nfds;			/* count of file descriptors to check */
   fd_set read_fds;		/* bitmasks for file descriptors to check */
   fd_set write_fds;		/* ditto */
   fd_set except_fds;		/* ditto */
   struct timeval wait;		/* used for timeout in select() */
-  socket_t sock;
+  svz_socket_t *sock;
 
   /*
    * Prepare the file handle sets for the select() call below.
@@ -93,7 +93,7 @@ server_check_sockets_select (void)
   /*
    * Here we set the bitmaps for all clients we handle.
    */
-  for (sock = sock_root; sock; sock = sock->next)
+  svz_sock_foreach (sock)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files. */
       if (sock->flags & SOCK_FLAG_KILLED)
@@ -105,7 +105,7 @@ server_check_sockets_select (void)
 	{
 	  if (sock->read_socket)
 	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
+	      svz_sock_schedule_for_shutdown (sock);
 	}
 
       /* Handle pipes. */
@@ -174,7 +174,7 @@ server_check_sockets_select (void)
   /*
    * Adjust timeout value, so we won't wait longer than we want.
    */
-  wait.tv_sec = server_notify - time (NULL);
+  wait.tv_sec = svz_notify - time (NULL);
   if (wait.tv_sec < 0)
     wait.tv_sec = 0;
   wait.tv_usec = 0;
@@ -183,9 +183,9 @@ server_check_sockets_select (void)
     {
       if (nfds < 0)
 	{
-	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "select: %s\n", NET_ERROR);
 	  if (errno == EBADF)
-	    server_check_bogus ();
+	    svz_sock_check_bogus ();
 	  return -1;
 	}
       else 
@@ -193,7 +193,7 @@ server_check_sockets_select (void)
 	  /*
 	   * select() timed out, so we can do some administrative stuff.
 	   */
-	  server_periodic_tasks ();
+	  svz_periodic_tasks ();
 	}
     }
 
@@ -201,7 +201,7 @@ server_check_sockets_select (void)
    * Go through all enqueued SOCKs and check if these have been 
    * select()ed or could be handle in any other way.
    */
-  for (sock = sock_root; sock; sock = sock->next)
+  svz_sock_foreach (sock)
     {
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
@@ -215,7 +215,7 @@ server_check_sockets_select (void)
 	      if (!(sock->flags & SOCK_FLAG_INITED))
 		if (sock->read_socket)
 		  if (sock->read_socket (sock))
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
 
@@ -224,15 +224,15 @@ server_check_sockets_select (void)
 	    {
 	      if (FD_ISSET (sock->pipe_desc[READ], &except_fds))
 		{
-		  log_printf (LOG_ERROR, "exception on receiving pipe %d \n",
-			      sock->pipe_desc[READ]);
-		  sock_schedule_for_shutdown (sock);
+		  svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
+			   sock->pipe_desc[READ]);
+		  svz_sock_schedule_for_shutdown (sock);
 		}
 	      if (FD_ISSET (sock->pipe_desc[READ], &read_fds))
 		{
 		  if (sock->read_socket)
 		    if (sock->read_socket (sock))
-		      sock_schedule_for_shutdown (sock);
+		      svz_sock_schedule_for_shutdown (sock);
 		}
 	    }
 
@@ -241,15 +241,15 @@ server_check_sockets_select (void)
 	    {
 	      if (FD_ISSET (sock->pipe_desc[WRITE], &except_fds))
 		{
-		  log_printf (LOG_ERROR, "exception on sending pipe %d \n",
-			      sock->pipe_desc[WRITE]);
-		  sock_schedule_for_shutdown (sock);
+		  svz_log (LOG_ERROR, "exception on sending pipe %d \n",
+			   sock->pipe_desc[WRITE]);
+		  svz_sock_schedule_for_shutdown (sock);
 		}
 	      if (FD_ISSET (sock->pipe_desc[WRITE], &write_fds))
 		{
 		  if (sock->write_socket)
 		    if (sock->write_socket (sock))
-		      sock_schedule_for_shutdown (sock);
+		      svz_sock_schedule_for_shutdown (sock);
 		}
 	    }
 	}
@@ -261,16 +261,16 @@ server_check_sockets_select (void)
 	    {
 	      if (sock->flags & SOCK_FLAG_CONNECTING)
 		{
-		  log_printf (LOG_ERROR, "exception connecting socket %d\n",
-			      sock->sock_desc);
+		  svz_log (LOG_ERROR, "exception connecting socket %d\n",
+			   sock->sock_desc);
 		}
 	      else
 		{
-		  log_printf (LOG_ERROR, "exception on socket %d\n",
-			      sock->sock_desc);
+		  svz_log (LOG_ERROR, "exception on socket %d\n",
+			   sock->sock_desc);
 		}
-	      sock_error_info (sock);
-	      sock_schedule_for_shutdown (sock);
+	      svz_sock_error_info (sock);
+	      svz_sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
 	  
@@ -280,7 +280,7 @@ server_check_sockets_select (void)
 	      if (sock->read_socket)
 		if (sock->read_socket (sock))
 		  {
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 		    continue;
 		  }
 	    }
@@ -294,7 +294,7 @@ server_check_sockets_select (void)
 		  if (sock->connected_socket)
 		    if (sock->connected_socket (sock))
 		      {
-			sock_schedule_for_shutdown (sock);
+			svz_sock_schedule_for_shutdown (sock);
 			continue;
 		      }
 		}
@@ -304,7 +304,7 @@ server_check_sockets_select (void)
 		  if (sock->write_socket)
 		    if (sock->write_socket (sock))
 		      {
-			sock_schedule_for_shutdown (sock);
+			svz_sock_schedule_for_shutdown (sock);
 			continue;
 		      }
 		}
@@ -316,9 +316,9 @@ server_check_sockets_select (void)
    * We had no chance to time out so we have to explicitly call the
    * timeout handler.
    */
-  if (time (NULL) > server_notify)
+  if (time (NULL) > svz_notify)
     {
-      server_periodic_tasks ();
+      svz_periodic_tasks ();
     }
   
   return 0;
@@ -329,14 +329,14 @@ server_check_sockets_select (void)
 #if HAVE_POLL && ENABLE_POLL /* configured */
 
 /* re-allocate static buffers if necessary */
-#define FD_EXPAND()                                                \
-  if (nfds >= max_nfds) {                                          \
-    max_nfds++;                                                    \
-    ufds = svz_prealloc (ufds, sizeof (struct pollfd) * max_nfds); \
-    memset (&ufds[max_nfds-1], 0, sizeof (struct pollfd));         \
-    sfds = svz_prealloc (sfds, sizeof (socket_t) * max_nfds);      \
-    memset (&sfds[max_nfds-1], 0, sizeof (socket_t));              \
-  }                                                                \
+#define FD_EXPAND()                                                 \
+  if (nfds >= max_nfds) {                                           \
+    max_nfds++;                                                     \
+    ufds = svz_prealloc (ufds, sizeof (struct pollfd) * max_nfds);  \
+    memset (&ufds[max_nfds-1], 0, sizeof (struct pollfd));          \
+    sfds = svz_prealloc (sfds, sizeof (svz_socket_t *) * max_nfds); \
+    memset (&sfds[max_nfds-1], 0, sizeof (svz_socket_t *));         \
+  }                                                                 \
 
 /* check for incoming data */
 #define FD_POLL_IN(fd, sock)                 \
@@ -357,11 +357,11 @@ server_check_sockets_select (void)
   }                               \
 
 /* clear polling buffers */
-#define FD_POLL_CLR(ufds, sfds)                          \
-  if (ufds) {                                            \
-    memset (ufds, 0, sizeof (struct pollfd) * max_nfds); \
-    memset (sfds, 0, sizeof (socket_t) * max_nfds);      \
-  }                                                      \
+#define FD_POLL_CLR(ufds, sfds)                           \
+  if (ufds) {                                             \
+    memset (ufds, 0, sizeof (struct pollfd) * max_nfds);  \
+    memset (sfds, 0, sizeof (svz_socket_t *) * max_nfds); \
+  }                                                       \
 
 /*
  * Same routine as the above check_sockets_select() routine. Here we are 
@@ -370,22 +370,22 @@ server_check_sockets_select (void)
  * available under Win32.
  */
 static int
-server_check_sockets_poll (void)
+svz_check_sockets_poll (void)
 {
   static unsigned int max_nfds = 0;   /* maximum number of file descriptors */
   unsigned int nfds, fd;              /* number of fds */
   static struct pollfd *ufds = NULL;  /* poll fd array */
-  static socket_t *sfds = NULL;       /* referring socket structures */
+  static svz_socket_t **sfds = NULL;  /* referring socket structures */
   int timeout;                        /* timeout in milliseconds */
   int polled;                         /* amount of polled fds */
-  socket_t sock;                      /* socket structure */
+  svz_socket_t *sock;                 /* socket structure */
 
   /* clear polling structures */
   nfds = 0;
   FD_POLL_CLR (ufds, sfds);
 
   /* go through all sockets */
-  for (sock = sock_root; sock; sock = sock->next)
+  svz_sock_foreach (sock)
     {
       /* skip already killed sockets */
       if (sock->flags & SOCK_FLAG_KILLED)
@@ -396,7 +396,7 @@ server_check_sockets_poll (void)
 	{
 	  if (sock->read_socket)
 	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
+	      svz_sock_schedule_for_shutdown (sock);
 	}
 
       /* process pipes */
@@ -408,7 +408,7 @@ server_check_sockets_poll (void)
 	      if (!(sock->flags & SOCK_FLAG_INITED))
 		if (sock->read_socket)
 		  if (sock->read_socket (sock))
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
 
@@ -458,7 +458,7 @@ server_check_sockets_poll (void)
     }
   
   /* calculate timeout value */
-  timeout = (server_notify - time (NULL)) * 1000;
+  timeout = (svz_notify - time (NULL)) * 1000;
   if (timeout < 0)
     timeout = 0;
 
@@ -467,14 +467,14 @@ server_check_sockets_poll (void)
     {
       if (polled < 0)
 	{
-	  log_printf (LOG_ERROR, "poll: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "poll: %s\n", NET_ERROR);
 	  if (errno == EBADF)
-	    server_check_bogus ();
+	    svz_sock_check_bogus ();
 	  return -1;
 	}
       else 
 	{
-	  server_periodic_tasks ();
+	  svz_periodic_tasks ();
 	}
     }
 
@@ -493,7 +493,7 @@ server_check_sockets_poll (void)
 	  if (sock->read_socket)
 	    if (sock->read_socket (sock))
 	      {
-		sock_schedule_for_shutdown (sock);
+		svz_sock_schedule_for_shutdown (sock);
 		continue;
 	      }
 	}
@@ -508,7 +508,7 @@ server_check_sockets_poll (void)
 	      if (sock->connected_socket)
 		if (sock->connected_socket (sock))
 		  {
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 		    continue;
 		  }
 	    }
@@ -518,7 +518,7 @@ server_check_sockets_poll (void)
 	      if (sock->write_socket)
 		if (sock->write_socket (sock))
 		  {
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 		    continue;
 		  }
 	    }
@@ -532,36 +532,36 @@ server_check_sockets_poll (void)
 	    {
 	      if (sock->flags & SOCK_FLAG_CONNECTING)
 		{
-		  log_printf (LOG_ERROR, "exception connecting socket %d\n",
-			      sock->sock_desc);
+		  svz_log (LOG_ERROR, "exception connecting socket %d\n",
+			   sock->sock_desc);
 		}
 	      else
 		{
-		  log_printf (LOG_ERROR, "exception on socket %d\n",
-			      sock->sock_desc);
+		  svz_log (LOG_ERROR, "exception on socket %d\n",
+			   sock->sock_desc);
 		}
-	      sock_error_info (sock);
-	      sock_schedule_for_shutdown (sock);
+	      svz_sock_error_info (sock);
+	      svz_sock_schedule_for_shutdown (sock);
 	    }
 	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
 	    {
-	      log_printf (LOG_ERROR, "exception on receiving pipe %d \n",
-			  sock->pipe_desc[READ]);
-	      sock_schedule_for_shutdown (sock);
+	      svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
+		       sock->pipe_desc[READ]);
+	      svz_sock_schedule_for_shutdown (sock);
 	    }
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
-	      log_printf (LOG_ERROR, "exception on sending pipe %d \n",
-			  sock->pipe_desc[WRITE]);
-	      sock_schedule_for_shutdown (sock);
+	      svz_log (LOG_ERROR, "exception on sending pipe %d \n",
+		       sock->pipe_desc[WRITE]);
+	      svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
     }
   
   /* handle regular tasks ... */
-  if (time (NULL) > server_notify)
+  if (time (NULL) > svz_notify)
     {
-      server_periodic_tasks ();
+      svz_periodic_tasks ();
     }
   
   return 0;
@@ -575,14 +575,14 @@ server_check_sockets_poll (void)
  * This is the specialized routine for this Win32 port.
  */
 static int
-server_check_sockets_MinGW (void)
+svz_check_sockets_MinGW (void)
 {
   int nfds;			/* count of file descriptors to check */
   fd_set read_fds;		/* bitmasks for file descriptors to check */
   fd_set write_fds;		/* ditto */
   fd_set except_fds;		/* ditto */
   struct timeval wait;		/* used for timeout in select() */
-  socket_t sock;
+  svz_socket_t *sock;
 
   /*
    * Prepare the file handle sets for the select() call below.
@@ -595,7 +595,7 @@ server_check_sockets_MinGW (void)
   /*
    * Here we set the bitmaps for all clients we handle.
    */
-  for (sock = sock_root; sock; sock = sock->next)
+  svz_sock_foreach (sock)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files. */
       if (sock->flags & SOCK_FLAG_KILLED)
@@ -607,7 +607,7 @@ server_check_sockets_MinGW (void)
 	{
 	  if (sock->read_socket)
 	    if (sock->read_socket (sock))
-	      sock_schedule_for_shutdown (sock);
+	      svz_sock_schedule_for_shutdown (sock);
 	}
 
       /* Handle pipes. */
@@ -625,7 +625,7 @@ server_check_sockets_MinGW (void)
 	    {
 	      if (sock->read_socket)
 		if (sock->read_socket (sock))
-		  sock_schedule_for_shutdown (sock);
+		  svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
 
@@ -663,7 +663,7 @@ server_check_sockets_MinGW (void)
   /*
    * Adjust timeout value, so we won't wait longer than we want.
    */
-  wait.tv_sec = server_notify - time (NULL);
+  wait.tv_sec = svz_notify - time (NULL);
   if (wait.tv_sec < 0)
     wait.tv_sec = 0;
   wait.tv_usec = 0;
@@ -677,10 +677,10 @@ server_check_sockets_MinGW (void)
     {
       if (nfds < 0)
 	{
-	  log_printf (LOG_ERROR, "select: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "select: %s\n", NET_ERROR);
 	  /* FIXME: What value do we choose here ? */
 	  if (svz_errno != 0)
-	    server_check_bogus ();
+	    svz_sock_check_bogus ();
 	  return -1;
 	}
       else 
@@ -688,7 +688,7 @@ server_check_sockets_MinGW (void)
 	  /*
 	   * select() timed out, so we can do some administrative stuff.
 	   */
-	  server_periodic_tasks ();
+	  svz_periodic_tasks ();
 	}
     }
 
@@ -696,7 +696,7 @@ server_check_sockets_MinGW (void)
    * Go through all enqueued SOCKs and check if these have been 
    * select()ed or could be handle in any other way.
    */
-  for (sock = sock_root; sock; sock = sock->next)
+  svz_sock_foreach (sock)
     {
       if (sock->flags & SOCK_FLAG_KILLED)
 	continue;
@@ -710,7 +710,7 @@ server_check_sockets_MinGW (void)
 	      if (!(sock->flags & SOCK_FLAG_INITED))
 		if (sock->read_socket)
 		  if (sock->read_socket (sock))
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
 
@@ -720,7 +720,7 @@ server_check_sockets_MinGW (void)
 	      if (sock->send_buffer_fill > 0)
 		if (sock->write_socket)
 		  if (sock->write_socket (sock))
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
 
@@ -731,16 +731,16 @@ server_check_sockets_MinGW (void)
 	    {
 	      if (sock->flags & SOCK_FLAG_CONNECTING)
 		{
-		  log_printf (LOG_ERROR, "exception connecting socket %d\n",
-			      sock->sock_desc);
+		  svz_log (LOG_ERROR, "exception connecting socket %d\n",
+			   sock->sock_desc);
 		}
 	      else
 		{
-		  log_printf (LOG_ERROR, "exception on socket %d\n",
-			      sock->sock_desc);
+		  svz_log (LOG_ERROR, "exception on socket %d\n",
+			   sock->sock_desc);
 		}
-	      sock_error_info (sock);
-	      sock_schedule_for_shutdown (sock);
+	      svz_sock_error_info (sock);
+	      svz_sock_schedule_for_shutdown (sock);
 	      continue;
 	    }
 	  
@@ -750,7 +750,7 @@ server_check_sockets_MinGW (void)
 	      if (sock->read_socket)
 		if (sock->read_socket (sock))
 		  {
-		    sock_schedule_for_shutdown (sock);
+		    svz_sock_schedule_for_shutdown (sock);
 		    continue;
 		  }
 	    }
@@ -764,7 +764,7 @@ server_check_sockets_MinGW (void)
 		  if (sock->connected_socket)
 		    if (sock->connected_socket (sock))
 		      {
-			sock_schedule_for_shutdown (sock);
+			svz_sock_schedule_for_shutdown (sock);
 			continue;
 		      }
 		}
@@ -774,7 +774,7 @@ server_check_sockets_MinGW (void)
 		  if (sock->write_socket)
 		    if (sock->write_socket (sock))
 		      {
-			sock_schedule_for_shutdown (sock);
+			svz_sock_schedule_for_shutdown (sock);
 			continue;
 		      }
 		}
@@ -786,9 +786,9 @@ server_check_sockets_MinGW (void)
    * We had no chance to time out so we have to explicitly call the
    * timeout handler.
    */
-  if (time (NULL) > server_notify)
+  if (time (NULL) > svz_notify)
     {
-      server_periodic_tasks ();
+      svz_periodic_tasks ();
     }
   
   return 0;
@@ -801,13 +801,13 @@ server_check_sockets_MinGW (void)
  * and data, and process outgoing data.
  */
 int
-server_check_sockets (void)
+svz_check_sockets (void)
 {
 #if HAVE_POLL && ENABLE_POLL
-  return server_check_sockets_poll ();
+  return svz_check_sockets_poll ();
 #elif defined (__MINGW32__)
-  return server_check_sockets_MinGW ();
+  return svz_check_sockets_MinGW ();
 #else
-  return server_check_sockets_select ();
+  return svz_check_sockets_select ();
 #endif
 }

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.7 2001/05/09 21:04:09 ela Exp $
+ * $Id: server-core.h,v 1.8 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -32,39 +32,40 @@
 #include "libserveez/socket.h"
 #include "libserveez/portcfg.h"
 
-SERVEEZ_API extern int server_nuke_happened;
-SERVEEZ_API extern HANDLE server_child_died;
-SERVEEZ_API extern time_t server_notify;
+SERVEEZ_API extern int svz_nuke_happened;
+SERVEEZ_API extern HANDLE svz_child_died;
+SERVEEZ_API extern time_t svz_notify;
 
-SERVEEZ_API extern socket_t sock_root;
-SERVEEZ_API extern socket_t sock_last;
+SERVEEZ_API extern svz_socket_t *svz_sock_root;
+SERVEEZ_API extern svz_socket_t *svz_sock_last;
 
 /*
  * Go through each socket structure in the chained list.
  */
 #define svz_sock_foreach(sock) \
-  for ((sock) = sock_root; (sock) != NULL; (sock) = (sock)->next)
+  for ((sock) = svz_sock_root; (sock) != NULL; (sock) = (sock)->next)
 
 __BEGIN_DECLS
 
-SERVEEZ_API socket_t sock_find __P ((int id, int version));
-SERVEEZ_API int sock_schedule_for_shutdown __P ((socket_t sock));
-SERVEEZ_API int sock_enqueue __P ((socket_t sock));
-SERVEEZ_API int sock_dequeue __P ((socket_t sock));
-SERVEEZ_API void sock_shutdown_all __P ((void));
-SERVEEZ_API void sock_setparent __P ((socket_t child, socket_t parent));
-SERVEEZ_API socket_t sock_getparent __P ((socket_t child));
-SERVEEZ_API svz_portcfg_t *sock_portcfg __P ((socket_t sock));
-SERVEEZ_API int sock_check_access __P ((socket_t parent, socket_t child));
-SERVEEZ_API int sock_check_frequency __P ((socket_t parent, socket_t child));
+SERVEEZ_API svz_socket_t *svz_sock_find __P ((int, int));
+SERVEEZ_API int svz_sock_schedule_for_shutdown __P ((svz_socket_t *));
+SERVEEZ_API int svz_sock_enqueue __P ((svz_socket_t *));
+SERVEEZ_API int svz_sock_dequeue __P ((svz_socket_t *));
+SERVEEZ_API void svz_sock_shutdown_all __P ((void));
+SERVEEZ_API void svz_sock_setparent __P ((svz_socket_t *, svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_sock_getparent __P ((svz_socket_t *));
+SERVEEZ_API svz_portcfg_t *svz_sock_portcfg __P ((svz_socket_t *));
+SERVEEZ_API int svz_sock_check_access __P ((svz_socket_t *, svz_socket_t *));
+SERVEEZ_API int svz_sock_check_frequency __P ((svz_socket_t *, 
+					       svz_socket_t *));
 
-SERVEEZ_API void server_check_bogus __P ((void));
-SERVEEZ_API int server_periodic_tasks __P ((void));
-SERVEEZ_API int server_loop __P ((void));
-SERVEEZ_API void server_loop_one __P ((void));
-SERVEEZ_API void server_signal_up __P ((void));
-SERVEEZ_API void server_signal_dn __P ((void));
-SERVEEZ_API RETSIGTYPE server_signal_handler __P ((int sig));
+SERVEEZ_API void svz_sock_check_bogus __P ((void));
+SERVEEZ_API int svz_periodic_tasks __P ((void));
+SERVEEZ_API int svz_loop __P ((void));
+SERVEEZ_API void svz_loop_one __P ((void));
+SERVEEZ_API void svz_signal_up __P ((void));
+SERVEEZ_API void svz_signal_dn __P ((void));
+SERVEEZ_API RETSIGTYPE svz_signal_handler __P ((int));
 
 __END_DECLS
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.6 2001/05/05 15:45:51 ela Exp $
+ * $Id: util.h,v 1.7 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -73,8 +73,8 @@ __BEGIN_DECLS
 
 SERVEEZ_API extern int svz_verbosity;
 
-SERVEEZ_API void log_printf __P ((int level, const char *format, ...));
-SERVEEZ_API void log_set_file __P ((FILE *));
+SERVEEZ_API void svz_log __P ((int level, const char *format, ...));
+SERVEEZ_API void svz_log_setfile __P ((FILE *));
 
 SERVEEZ_API int svz_hexdump __P ((FILE *, char *, int, char *, int, int));
 SERVEEZ_API char *svz_itoa __P ((unsigned int));
@@ -93,27 +93,27 @@ SERVEEZ_API const char *svz_hstrerror __P ((void));
  * This is needed on aligned architectures where a plain type cast ends up 
  * in a fatal bus error.
  */
-#define INT32(p) \
+#define SVZ_INT32(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
   ((unsigned char) *(p + 2) << 16) | ((signed char) *(p + 3) << 24))
 
 /*
  * Convert the byte array pointed to by @var{p} to a signed 16 bit integer.
  */
-#define INT16(p) \
+#define SVZ_INT16(p) \
   ((unsigned char) *p | ((signed char) *(p + 1) << 8))
 
 /*
  * Convert the byte array pointed to by @var{p} to an unsigned 32 bit integer.
  */
-#define UINT32(p) \
+#define SVZ_UINT32(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
   ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24))
 
 /*
  * Convert the byte array pointed to by @var{p} to an unsigned 16 bit integer.
  */
-#define UINT16(p) \
+#define SVZ_UINT16(p) \
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8))
 
 #ifdef __MINGW32__

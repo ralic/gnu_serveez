@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.18 2001/04/28 12:37:06 ela Exp $
+ * $Id: irc-proto.h,v 1.19 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -144,7 +144,7 @@ struct irc_client
   char *server;            /* the server the client is connected to */
   irc_channel_t **channel; /* array of channels this client joined */
   int channels;            /* amount of channels the client joined */
-  socket_t sock;           /* this clients socket structure */
+  svz_socket_t *sock;      /* this clients socket structure */
   int flag;                /* this client's user flags */
   byte key;                /* the key */
   char *pass;              /* the given password */
@@ -366,7 +366,7 @@ typedef struct
 {
   int count;     /* the command has been count times processed */
   char *request; /* name of the command */
-  int (* func)(socket_t, irc_client_t *, irc_request_t *);
+  int (* func)(svz_socket_t *, irc_client_t *, irc_request_t *);
 }
 irc_callback_t;
 
@@ -376,20 +376,20 @@ extern irc_callback_t irc_callback[];
 extern svz_servertype_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
-int irc_client_in_channel (socket_t, irc_client_t *, irc_channel_t *);
-int irc_check_args (socket_t, irc_client_t *, irc_config_t *, 
+int irc_client_in_channel (svz_socket_t *, irc_client_t *, irc_channel_t *);
+int irc_check_args (svz_socket_t *, irc_client_t *, irc_config_t *, 
 		    irc_request_t *, int);
 int irc_client_absent (irc_client_t *, irc_client_t *);
 #ifndef __STDC__
 int irc_printf ();
 #else
-int irc_printf (socket_t, const char *, ...);
+int irc_printf (svz_socket_t *, const char *, ...);
 #endif
 
 /* serveez callbacks */
-int irc_handle_request (socket_t sock, char *request, int len);
-int irc_disconnect (socket_t sock);
-int irc_idle (socket_t sock);
+int irc_handle_request (svz_socket_t *sock, char *request, int len);
+int irc_disconnect (svz_socket_t *sock);
+int irc_idle (svz_socket_t *sock);
 
 /* channel operations */
 irc_channel_t *irc_find_channel (irc_config_t *cfg, char *channel);

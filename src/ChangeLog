@@ -1,3 +1,9 @@
+2001-05-18  [ Ela ]  <ela@lkcc.org>
+
+	* svzconfig.h.in: New file.
+
+	* Makefile.am (EXTRA_DIST): Added `svzconfig.h.in'.
+
 2001-05-05  [ Ela ]  <ela@lkcc.org>
 
 	* foo-server/foo-proto.c (foo_server_definition): Using new

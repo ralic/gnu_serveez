@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.6 2001/05/07 21:02:58 ela Exp $
+ * $Id: binding.c,v 1.7 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -50,7 +50,7 @@ char *
 svz_server_bindings (svz_server_t *server)
 {
   static char text[256];
-  socket_t sock;
+  svz_socket_t *sock;
   struct sockaddr_in *addr;
   svz_portcfg_t *port;
 
@@ -103,7 +103,7 @@ svz_array_t *
 svz_server_portcfg (svz_server_t *server)
 {
   svz_array_t *port = svz_array_create (1);
-  socket_t sock;
+  svz_socket_t *sock;
 
   svz_sock_foreach (sock)
     {
@@ -127,10 +127,10 @@ svz_server_portcfg (svz_server_t *server)
  * to this structure. If there is no such port configuration yet return
  * @code{NULL}.
  */
-static socket_t
+static svz_socket_t *
 svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
 {
-  socket_t sock;
+  svz_socket_t *sock;
   
   /* Look for duplicate port configurations. */
   svz_sock_foreach (sock)
@@ -158,7 +158,7 @@ int
 svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 {
   svz_array_t *ports;
-  socket_t sock;
+  svz_socket_t *sock;
   svz_portcfg_t *copy;
   int n;
 
@@ -179,7 +179,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 	       * Enqueue the server socket, put the port config into
 	       * sock->cfg and initialize the server array (sock->data).
 	       */
-	      sock_enqueue (sock);
+	      svz_sock_enqueue (sock);
 	      sock->cfg = copy;
 	      sock->data = svz_array_create (1);
 	      svz_array_add (sock->data, server);
@@ -209,7 +209,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 void
 svz_server_unbind (svz_server_t *server)
 {
-  socket_t sock, parent;
+  svz_socket_t *sock, *parent;
   unsigned long n;
 
   /* Go through all enqueued sockets. */
@@ -217,13 +217,13 @@ svz_server_unbind (svz_server_t *server)
     {
       /* Client structures. */
       if (!(sock->flags & SOCK_FLAG_LISTENING) && 
-	  (parent = sock_getparent (sock)) != NULL)
+	  (parent = svz_sock_getparent (sock)) != NULL)
 	{
 	  /* If the parent of a client is the given servers child
 	     then also shutdown this client. */
 	  if (parent->flags & SOCK_FLAG_LISTENING && parent->cfg && 
 	      parent->data && svz_array_contains (parent->data, server))
-	    sock_schedule_for_shutdown (sock);
+	    svz_sock_schedule_for_shutdown (sock);
 	}
     }
 
@@ -239,7 +239,7 @@ svz_server_unbind (svz_server_t *server)
 		 (unsigned long) -1)
 	    svz_array_del (sock->data, n);
 	  if (svz_array_size (sock->data) == 0)
-	    sock_schedule_for_shutdown (sock);
+	    svz_sock_schedule_for_shutdown (sock);
 	}
     }
 }

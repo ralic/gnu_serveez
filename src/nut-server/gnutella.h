@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.23 2001/04/28 12:37:06 ela Exp $
+ * $Id: gnutella.h,v 1.24 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -177,15 +177,15 @@ nut_client_t;
 /* sent packet structure */
 typedef struct
 {
-  time_t sent;   /* when was this packet sent */
-  socket_t sock; /* sent to this socket */
+  time_t sent;        /* when was this packet sent */
+  svz_socket_t *sock; /* sent to this socket */
 }
 nut_packet_t;
 
 /* reply structure */
 typedef struct
 {
-  socket_t sock;      /* routing information */
+  svz_socket_t *sock; /* routing information */
   unsigned int index; /* file index to push */
 }
 nut_push_reply_t;
@@ -252,21 +252,21 @@ nut_config_t;
  */
 
 /* detection routines */
-int nut_detect_proto (void *cfg, socket_t sock);
-int nut_detect_connect (socket_t sock);
+int nut_detect_proto (void *cfg, svz_socket_t *sock);
+int nut_detect_connect (svz_socket_t *sock);
 
 /* connection routine */
-int nut_connect_socket (void *cfg, socket_t sock);
+int nut_connect_socket (void *cfg, svz_socket_t *sock);
 
 /* check request routine */
-int nut_check_request (socket_t sock);
+int nut_check_request (svz_socket_t *sock);
 
 /* disconnection routine */
-int nut_disconnect (socket_t sock);
+int nut_disconnect (svz_socket_t *sock);
 
 /* idle routines */
-int nut_idle_searching (socket_t sock);
-int nut_connect_timeout (socket_t sock);
+int nut_idle_searching (svz_socket_t *sock);
+int nut_connect_timeout (svz_socket_t *sock);
 
 /* server functions */
 int nut_init (svz_server_t *server);
@@ -275,7 +275,7 @@ int nut_finalize (svz_server_t *server);
 int nut_global_finalize (void);
 int nut_server_notify (svz_server_t *server);
 char *nut_info_server (svz_server_t *server);
-char *nut_info_client (void *nut_cfg, socket_t sock);
+char *nut_info_client (void *nut_cfg, svz_socket_t *sock);
 
 /*
  * This server's definition.

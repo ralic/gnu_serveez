@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.6 2001/04/01 13:32:30 ela Exp $
+ * $Id: tcp-socket.c,v 1.7 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -60,13 +60,13 @@
 #include "libserveez/tcp-socket.h"
 
 /*
- * Default function for writing to socket SOCK. Simply flushes the output 
- * buffer to the network. Write as much as possible into the socket SOCK.
- * Writing is performed non-blocking, so only as much as fits into the 
- * network buffer will be written on each call.
+ * Default function for writing to the socket @var{sock}. Simply flushes 
+ * the output buffer to the network. Write as much as possible into the 
+ * socket @var{sock}. Writing is performed non-blocking, so only as much 
+ * as fits into the network buffer will be written on each call.
  */
 int
-tcp_write_socket (socket_t sock)
+svz_tcp_write_socket (svz_socket_t *sock)
 {
   int num_written;
   int do_write;
@@ -92,12 +92,12 @@ tcp_write_socket (socket_t sock)
        * Shuffle the data in the output buffer around, so that
        * new data can get stuffed into it.
        */
-      sock_reduce_send (sock, num_written);
+      svz_sock_reduce_send (sock, num_written);
     }
   /* Error occurred while sending. */
   else if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -114,13 +114,13 @@ tcp_write_socket (socket_t sock)
 }
 
 /*
- * Default function for reading from the socket SOCK. This function only 
- * reads all data from the socket and calls the CHECK_REQUEST function for 
- * the socket, if set. Returns -1 if the socket has died, returns zero 
- * otherwise.
+ * Default function for reading from the socket @var{sock}. This function 
+ * only reads all data from the socket and calls the @code{check_request()}
+ * function for the socket, if set. Returns -1 if the socket has died, 
+ * returns zero otherwise.
  */
 int
-tcp_read_socket (socket_t sock)
+svz_tcp_read_socket (svz_socket_t *sock)
 {
   int num_read;
   int ret;
@@ -141,7 +141,7 @@ tcp_read_socket (socket_t sock)
    */
   if (do_read <= 0)
     {
-      log_printf (LOG_ERROR, "receive buffer overflow on socket %d\n", desc);
+      svz_log (LOG_ERROR, "receive buffer overflow on socket %d\n", desc);
       if (sock->kicked_socket)
 	sock->kicked_socket (sock, 0);
       return -1;
@@ -161,7 +161,7 @@ tcp_read_socket (socket_t sock)
        * case, which the main loop will do for us if we return a non-zero 
        * value.
        */
-      log_printf (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
 	num_read = 0;
       else
@@ -173,9 +173,9 @@ tcp_read_socket (socket_t sock)
       sock->last_recv = time (NULL);
 
 #if ENABLE_FLOOD_PROTECTION
-      if (sock_flood_protect (sock, num_read))
+      if (svz_sock_flood_protect (sock, num_read))
 	{
-	  log_printf (LOG_ERROR, "kicked socket %d (flood)\n", desc);
+	  svz_log (LOG_ERROR, "kicked socket %d (flood)\n", desc);
 	  return -1;
 	}
 #endif /* ENABLE_FLOOD_PROTECTION */
@@ -191,7 +191,7 @@ tcp_read_socket (socket_t sock)
   /* The socket was `select ()'ed but there is no data. */
   else
     {
-      log_printf (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
+      svz_log (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
       return -1;
     }
   
@@ -203,11 +203,11 @@ tcp_read_socket (socket_t sock)
  * in structure @var{sock} to the resulting socket. Return a zero value on 
  * errors.
  */
-socket_t
-tcp_connect (unsigned long host, unsigned short port)
+svz_socket_t *
+svz_tcp_connect (unsigned long host, unsigned short port)
 {
   SOCKET sockfd;
-  socket_t sock;
+  svz_socket_t *sock;
 
   /* Create a socket. */
   if ((sockfd = svz_socket_create (PROTO_TCP)) == -1)
@@ -218,17 +218,17 @@ tcp_connect (unsigned long host, unsigned short port)
     return NULL;
 
   /* Create socket structure and enqueue it. */
-  if ((sock = sock_alloc ()) == NULL)
+  if ((sock = svz_sock_alloc ()) == NULL)
     {
       closesocket (sockfd);
       return NULL;
     }
 
-  sock_unique_id (sock);
+  svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTING);
-  sock->connected_socket = tcp_default_connect;
-  sock_enqueue (sock);
+  sock->connected_socket = svz_tcp_default_connect;
+  svz_sock_enqueue (sock);
 
   return sock;
 }
@@ -239,7 +239,7 @@ tcp_connect (unsigned long host, unsigned short port)
  * check for network errors,
  */
 int
-tcp_default_connect (socket_t sock)
+svz_tcp_default_connect (svz_socket_t *sock)
 {
   int error;
   socklen_t optlen = sizeof (int);
@@ -248,7 +248,7 @@ tcp_default_connect (socket_t sock)
   if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
 		  (void *) &error, &optlen) < 0)
     {
-      log_printf (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
       return -1;
     }
 
@@ -262,11 +262,11 @@ tcp_default_connect (socket_t sock)
 #endif
       if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
 	{
-	  log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
 	  return -1;
 	}
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+      svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
 #endif
       return 0;
     }
@@ -274,8 +274,8 @@ tcp_default_connect (socket_t sock)
   /* successfully connected */
   sock->flags |= SOCK_FLAG_CONNECTED;
   sock->flags &= ~SOCK_FLAG_CONNECTING;
-  sock_intern_connection_info (sock);
-  sock_connections++;
+  svz_sock_intern_connection_info (sock);
+  svz_sock_connections++;
 
   return 0;
 }

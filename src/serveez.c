@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.36 2001/04/28 12:37:05 ela Exp $
+ * $Id: serveez.c,v 1.37 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -61,7 +61,7 @@ guile_entry (int argc, char **argv)
   /* Start loading the configuration file. */
   if (guile_load_config (options->cfgfile) == -1)
     {
-      log_printf (LOG_ERROR, "error loading config file\n");
+      svz_log (LOG_ERROR, "error loading config file\n");
     }
 
   /*
@@ -81,17 +81,17 @@ guile_entry (int argc, char **argv)
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_NOTICE, "serveez starting, debugging enabled\n");
+  svz_log (LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
 
   /* FIXME: cannot set from guile, yet */
   if (svz_config.max_sockets < 100)
     svz_config.max_sockets = 100;
 
-  log_printf (LOG_NOTICE, "%s\n", svz_sys_version ());
+  svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());
   svz_openfiles (svz_config.max_sockets);
-  log_printf (LOG_NOTICE, "using %d socket descriptors\n",
-	      svz_config.max_sockets);
+  svz_log (LOG_NOTICE, "using %d socket descriptors\n",
+	   svz_config.max_sockets);
 
   /* Startup the internal coservers here. */
   if (svz_coserver_init () == -1)
@@ -105,21 +105,21 @@ guile_entry (int argc, char **argv)
       exit (6);
     }
 
-  server_loop ();
+  svz_loop ();
 
   /* Run the finalizers. */
   svz_server_finalize_all ();
   svz_servertype_finalize ();
 
   /* Disconnect the previously invoked internal coservers. */
-  log_printf (LOG_NOTICE, "destroying internal coservers\n");
+  svz_log (LOG_NOTICE, "destroying internal coservers\n");
   svz_coserver_finalize ();
 
   svz_halt ();
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
-	      svz_allocated_bytes, svz_allocated_blocks);
+  svz_log (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
+	   svz_allocated_bytes, svz_allocated_blocks);
 
 #if DEBUG_MEMORY_LEAKS
   svz_heap ();
@@ -129,11 +129,11 @@ guile_entry (int argc, char **argv)
 #ifdef __MINGW32__
   if (options->daemon)
     {
-      windoze_stop_daemon ();
+      svz_windoze_stop_daemon ();
     }
 #endif
 
-  log_printf (LOG_NOTICE, "serveez terminating\n");
+  svz_log (LOG_NOTICE, "serveez terminating\n");
 
   if (options->loghandle != stderr)
     svz_fclose (options->loghandle);
@@ -156,7 +156,7 @@ main (int argc, char *argv[])
     options->loghandle = svz_fopen (options->logfile, "w");
   if (!options->loghandle)
     options->loghandle = stderr;
-  log_set_file (options->loghandle);
+  svz_log_setfile (options->loghandle);
 
   /* Start as daemon, not as foreground application. */
   if (options->daemon)
@@ -166,7 +166,7 @@ main (int argc, char *argv[])
 
       if ((pid = fork ()) == -1)
 	{
-	  log_printf (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
 	  exit (1);
 	}
       else if (pid != 0)
@@ -175,16 +175,16 @@ main (int argc, char *argv[])
 	}
       /* Close the log file if necessary. */
       if (options->loghandle == stderr)
-	log_set_file (NULL);
+	svz_log_setfile (NULL);
       /* Close stdin, stdout and stderr. */
       close (0);
       close (1);
       close (2);
 #else /* __MINGW32__ */
-      if (windoze_start_daemon (argv[0]) == -1)
+      if (svz_windoze_start_daemon (argv[0]) == -1)
 	exit (1);
       if (options->loghandle == stderr)
-	log_set_file (NULL);
+	svz_log_setfile (NULL);
       closehandle (GetStdHandle (STD_INPUT_HANDLE));
       closehandle (GetStdHandle (STD_OUTPUT_HANDLE));
       closehandle (GetStdHandle (STD_ERROR_HANDLE));

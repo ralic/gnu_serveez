@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-6.c,v 1.9 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-6.c,v 1.10 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -47,7 +47,7 @@
  * Numeric Replies: ERR_NOORIGIN  ERR_NOSUCHSERVER
  */
 int
-irc_ping_callback (socket_t sock, 
+irc_ping_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -76,7 +76,7 @@ irc_ping_callback (socket_t sock,
  * Numeric Replies: ERR_NOORIGIN ERR_NOSUCHSERVER
  */
 int
-irc_pong_callback (socket_t sock, 
+irc_pong_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -113,10 +113,10 @@ irc_pong_callback (socket_t sock,
  * Parameters: <error message>
  */
 int
-irc_error_callback (socket_t sock, 
+irc_error_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
-  log_printf (LOG_ERROR, "irc: %s\n", request->para[0]);
+  svz_log (LOG_ERROR, "irc: %s\n", request->para[0]);
   return 0;
 }
 
@@ -127,7 +127,7 @@ irc_error_callback (socket_t sock,
  *                  ERR_NOSUCHNICK    ERR_CANTKILLSERVER
  */
 int
-irc_kill_callback (socket_t sock, 
+irc_kill_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;

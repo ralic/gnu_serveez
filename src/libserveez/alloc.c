@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.11 2001/04/28 12:37:06 ela Exp $
+ * $Id: alloc.c,v 1.12 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -177,14 +177,14 @@ svz_malloc (size_t size)
 #endif /* not ENABLE_DEBUG */
   else
     {
-      log_printf (LOG_FATAL, "malloc: virtual memory exhausted\n");
+      svz_log (LOG_FATAL, "malloc: virtual memory exhausted\n");
       exit (1);
     }
 }
 
 /*
  * Allocate @var{size} bytes of memory and return a pointer to this block.
- * The memory is cleared (zeroed out).
+ * The memory is cleared (filled with zeros).
  */
 void * 
 svz_calloc (size_t size)
@@ -196,8 +196,9 @@ svz_calloc (size_t size)
 
 /*
  * Change the size of a @code{svz_malloc()}'ed block of memory. @var{size} 
- * is the new size of the block in bytes, @var{ptr} is the pointer returned 
- * by @code{svz_malloc()} or NULL.
+ * is the new size of the block in bytes, The given variable @var{ptr} should 
+ * be a pointer previously returned by @code{svz_malloc()} or @code{NULL} if
+ * you just want to allocate a new block.
  */
 void *
 svz_realloc (void *ptr, size_t size)
@@ -266,7 +267,7 @@ svz_realloc (void *ptr, size_t size)
 #endif /* not ENABLE_DEBUG */
       else
 	{
-	  log_printf (LOG_FATAL, "realloc: virtual memory exhausted\n");
+	  svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
 	  exit (1);
 	}
     }
@@ -279,7 +280,7 @@ svz_realloc (void *ptr, size_t size)
 
 /*
  * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory 
- * block. If @var{ptr} is a NULL pointer, no operation is performed.
+ * block. If @var{ptr} is a @code{NULL} pointer, no operation is performed.
  */
 void
 svz_free (void *ptr)
@@ -363,8 +364,9 @@ svz_heap (void)
 #endif /* DEBUG_MEMORY_LEAKS */
 
 /*
- * Duplicate the given string @var{src} if it is not NULL and has got a 
- * valid length. Return the pointer to the copied string.
+ * Duplicate the given string @var{src} if it is not @code{NULL} and has 
+ * got a valid length (greater than zero). Return the pointer to the 
+ * copied character string.
  */
 char *
 svz_strdup (char *src)
@@ -381,7 +383,9 @@ svz_strdup (char *src)
 }
 
 /*
- * Allocate a block of memory with the size @var{size} permanently.
+ * Allocate a block of memory with the size @var{size} permanently. Memory
+ * allocated this way does not get into account of the libraries memory
+ * tracking.
  */
 void *
 svz_pmalloc (size_t size)
@@ -389,7 +393,7 @@ svz_pmalloc (size_t size)
   void *ptr = svz_malloc_func (size);
   if (ptr == NULL) 
     {
-      log_printf (LOG_FATAL, "malloc: virtual memory exhausted\n");
+      svz_log (LOG_FATAL, "malloc: virtual memory exhausted\n");
       exit (1);
     }
   return ptr;
@@ -397,7 +401,7 @@ svz_pmalloc (size_t size)
 
 /*
  * Allocate @var{size} bytes of memory and return a pointer to this block.
- * The memory block is cleared (zeroed out) and considered permanently.
+ * The memory block is cleared (filled with zeros) and considered permanently.
  */
 void * 
 svz_pcalloc (size_t size)
@@ -417,14 +421,14 @@ svz_prealloc (void *ptr, size_t size)
   void *dst = svz_realloc_func (ptr, size);
   if (dst == NULL) 
     {
-      log_printf (LOG_FATAL, "realloc: virtual memory exhausted\n");
+      svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
       exit (1);
     }
   return dst;
 }
 
 /*
- * Duplicate the given string @var{src} permanently.
+ * Duplicate the given character string @var{src} permanently.
  */
 char *
 svz_pstrdup (char *src)

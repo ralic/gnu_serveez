@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: dns.c,v 1.5 2001/04/01 13:32:30 ela Exp $
+ * $Id: dns.c,v 1.6 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -67,8 +67,8 @@ dns_handle_request (char *inbuf)
       /* find the host by its name */
       if ((host = gethostbyname (resolved)) == NULL)
         {
-          log_printf (LOG_ERROR, "dns: gethostbyname: %s (%s)\n", 
-		      H_NET_ERROR, resolved);
+          svz_log (LOG_ERROR, "dns: gethostbyname: %s (%s)\n", 
+		   H_NET_ERROR, resolved);
 	  return NULL;
         }
 
@@ -78,8 +78,8 @@ dns_handle_request (char *inbuf)
           memcpy (&addr, host->h_addr_list[0], host->h_length);
 
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "dns: %s is %s\n",
-		      host->h_name, svz_inet_ntoa (addr));
+	  svz_log (LOG_DEBUG, "dns: %s is %s\n",
+		   host->h_name, svz_inet_ntoa (addr));
 #endif /* ENABLE_DEBUG */
 	  sprintf (resolved, "%s", svz_inet_ntoa (addr));
 	  return resolved;
@@ -87,7 +87,7 @@ dns_handle_request (char *inbuf)
     } 
   else 
     {
-      log_printf (LOG_ERROR, "dns: protocol error\n");
+      svz_log (LOG_ERROR, "dns: protocol error\n");
       return NULL;
     }
   

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.11 2001/04/28 12:37:05 ela Exp $
+ * $Id: awcs-proto.h,v 1.12 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -52,9 +52,9 @@
  */
 typedef struct
 {
-  socket_t server;     /* the current master server */
-  int master;          /* Was Master server detected ? */
-  svz_hash_t *clients; /* this aWCS servers user base */
+  svz_socket_t *server; /* the current master server */
+  int master;           /* Was Master server detected ? */
+  svz_hash_t *clients;  /* this aWCS servers user base */
 }
 awcs_config_t;
 
@@ -72,16 +72,16 @@ int awcs_finalize (svz_server_t *server);
 /*
  * Exported aWCS server callbacks.
  */
-int awcs_detect_proto (void *cfg, socket_t sock);
-int awcs_connect_socket (void *cfg, socket_t sock);
+int awcs_detect_proto (void *cfg, svz_socket_t *sock);
+int awcs_connect_socket (void *cfg, svz_socket_t *sock);
 
 /*
  * Local aWCS server callbacks.
  */
 void awcs_disconnect_clients (awcs_config_t *cfg);
-int awcs_check_request (socket_t sock);
-int awcs_disconnected_socket (socket_t sock);
-int awcs_kicked_socket (socket_t sock, int reason);
-int awcs_idle_func (socket_t sock);
+int awcs_check_request (svz_socket_t *sock);
+int awcs_disconnected_socket (svz_socket_t *sock);
+int awcs_kicked_socket (svz_socket_t *sock, int reason);
+int awcs_idle_func (svz_socket_t *sock);
 
 #endif /* not __AWCS_PROTO_H__ */

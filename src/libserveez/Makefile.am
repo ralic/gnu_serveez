@@ -32,6 +32,7 @@ lib_LTLIBRARIES = libserveez.la
 libserveez_la_LDFLAGS = -export-dynamic -no-undefined
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la
 libserveez_la_LIBADD = coserver/libcoserver.la $(SERVEEZLIBS)
+AM_CFLAGS = -D__BUILD_SVZ_LIBRARY__
 
 libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c sparsevec.c      \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \

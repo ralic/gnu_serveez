@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.9 2001/05/07 21:02:58 ela Exp $
+ * $Id: socket.c,v 1.10 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -69,7 +69,7 @@
 /*
  * Count the number of currently connected sockets.
  */
-SOCKET sock_connections = 0;
+int svz_sock_connections = 0;
 
 #if ENABLE_FLOOD_PROTECTION
 /*
@@ -78,7 +78,7 @@ SOCKET sock_connections = 0;
  * because of flood.
  */
 int
-sock_flood_protect (socket_t sock, int num_read)
+svz_sock_flood_protect (svz_socket_t *sock, int num_read)
 {
   if (!(sock->flags & SOCK_FLAG_NOFLOOD))
     {
@@ -101,13 +101,13 @@ sock_flood_protect (socket_t sock, int num_read)
 
 /*
  * The default function which gets called when a client shuts down
- * its socket. SOCK is the socket which was closed.
+ * its socket. @var{sock} is the socket which was closed.
  */
 static int
-sock_default_disconnect (socket_t sock)
+svz_sock_default_disconnect (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
+  svz_log (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
 #endif
 
   return 0;
@@ -119,7 +119,7 @@ sock_default_disconnect (socket_t sock)
  * try to detect the data streams protocol here.
  */
 int
-sock_detect_proto (socket_t sock)
+svz_sock_detect_proto (svz_socket_t *sock)
 {
   int n;
   svz_server_t *server;
@@ -130,7 +130,7 @@ sock_detect_proto (socket_t sock)
     return -1;
 
   /* get port configuration of parent */
-  port = sock_portcfg (sock);
+  port = svz_sock_portcfg (sock);
 
   /* go through each server stored in the data field of this socket */
   svz_array_foreach (sock->data, server, n)
@@ -156,7 +156,7 @@ sock_detect_proto (socket_t sock)
   if (sock->recv_buffer_fill > port->detection_fill)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
+      svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
     }
@@ -170,14 +170,14 @@ sock_detect_proto (socket_t sock)
  * them by return a non-zero value.
  */
 int
-sock_idle_protect (socket_t sock)
+svz_sock_idle_protect (svz_socket_t *sock)
 {
-  svz_portcfg_t *port = sock_portcfg (sock);
+  svz_portcfg_t *port = svz_sock_portcfg (sock);
 
   if (time (NULL) - sock->last_recv > port->detection_wait)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
+      svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
     }
@@ -187,13 +187,13 @@ sock_idle_protect (socket_t sock)
 }
 
 /*
- * This `check_request ()' routine could be used by any protocol to 
+ * This @code{check_request()} routine could be used by any protocol to 
  * detect and finally handle packets depending on a specific packet 
- * boundary. The appropriate `handle_request ()' is called for each packet
+ * boundary. The appropriate @code{handle_request()} is called for each packet
  * explicitly with the packet length inclusive the packet boundary.
  */
 static int
-sock_check_request_array (socket_t sock)
+svz_sock_check_request_array (svz_socket_t *sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -226,7 +226,7 @@ sock_check_request_array (socket_t sock)
   while (p < end);
   
   /* Shuffle data in the receive buffer around. */
-  sock_reduce_recv (sock, len);
+  svz_sock_reduce_recv (sock, len);
   
   return 0;
 }
@@ -236,7 +236,7 @@ sock_check_request_array (socket_t sock)
  * packet delimiters.
  */
 static int
-sock_check_request_byte (socket_t sock)
+svz_sock_check_request_byte (svz_socket_t *sock)
 {
   int len = 0;
   char *p, *packet, *end;
@@ -269,45 +269,45 @@ sock_check_request_byte (socket_t sock)
   while (p < end);
   
   /* Shuffle data in the receive buffer around. */
-  sock_reduce_recv (sock, len);
+  svz_sock_reduce_recv (sock, len);
   
   return 0;
 }
 
 /*
- * this function simply checks for the kind of packet delimiter within 
+ * This function simply checks for the kind of packet delimiter within 
  * the given socket structure and and assigns one of the above
- * `check_request ()' routines (one or more byte delimiters). Afterwards 
+ * @code{check_request()} routines (one or more byte delimiters). Afterwards 
  * this routine will never ever be called again because the callback gets
  * overwritten here.
  */
 int
-sock_check_request (socket_t sock)
+svz_sock_check_request (svz_socket_t *sock)
 {
   assert (sock->boundary);
   assert (sock->boundary_size);
 
   if (sock->boundary_size > 1)
-    sock->check_request = sock_check_request_array;
+    sock->check_request = svz_sock_check_request_array;
   else
-    sock->check_request = sock_check_request_byte;
+    sock->check_request = svz_sock_check_request_byte;
 
   return sock->check_request (sock);
 }
 
 /*
- * Allocate a structure of type `socket_t' and initialize its data
+ * Allocate a structure of type @code{svz_socket_t} and initialize its data
  * fields. Assign some of the default callbacks for TCP connections.
  */
-socket_t
-sock_alloc (void)
+svz_socket_t *
+svz_sock_alloc (void)
 {
-  socket_t sock;
+  svz_socket_t *sock;
   char *in;
   char *out;
 
-  sock = svz_malloc (sizeof (socket_data_t));
-  memset (sock, 0, sizeof (socket_data_t));
+  sock = svz_malloc (sizeof (svz_socket_t));
+  memset (sock, 0, sizeof (svz_socket_t));
   in = svz_malloc (RECV_BUF_SIZE);
   out = svz_malloc (SEND_BUF_SIZE);
 
@@ -319,10 +319,10 @@ sock_alloc (void)
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
 
-  sock->read_socket = tcp_read_socket;
-  sock->write_socket = tcp_write_socket;
-  sock->check_request = sock_detect_proto;
-  sock->disconnected_socket = sock_default_disconnect;
+  sock->read_socket = svz_tcp_read_socket;
+  sock->write_socket = svz_tcp_write_socket;
+  sock->check_request = svz_sock_detect_proto;
+  sock->disconnected_socket = svz_sock_default_disconnect;
 
   sock->recv_buffer = in;
   sock->recv_buffer_size = RECV_BUF_SIZE;
@@ -339,12 +339,14 @@ sock_alloc (void)
 }
 
 /*
- * Resize the send and receive buffers for the socket SOCK. SEND_BUF_SIZE
- * is the new size for the send buffer, RECV_BUF_SIZE for the receive
- * buffer. Note that data may be lost when the buffers shrink.
+ * Resize the send and receive buffers for the socket @var{sock}. 
+ * @var{send_buf_size} is the new size for the send buffer, 
+ * @var{recv_buf_size} for the receive buffer. Note that data may be lost 
+ * when the buffers shrink.
  */
 int 
-sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
+svz_sock_resize_buffers (svz_socket_t *sock, 
+			 int send_buf_size, int recv_buf_size)
 {
   char *send, *recv;
 
@@ -366,10 +368,10 @@ sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
 }
 
 /*
- * Free the socket structure SOCK. Return a non-zero value on error.
+ * Free the socket structure @var{sock}. Return a non-zero value on error.
  */
 int
-sock_free (socket_t sock)
+svz_sock_free (svz_socket_t *sock)
 {
   if (sock->recv_buffer)
     svz_free (sock->recv_buffer);
@@ -400,11 +402,11 @@ sock_free (socket_t sock)
 }
 
 /*
- * Get local and remote addresses and ports of socket SOCK and save them
- * into the socket structure.
+ * Get local and remote addresses and ports of socket @var{sock} and save 
+ * them into the socket structure.
  */
 int
-sock_intern_connection_info (socket_t sock)
+svz_sock_intern_connection_info (svz_socket_t *sock)
 {
   struct sockaddr_in s;
   socklen_t size = sizeof (s);
@@ -446,7 +448,7 @@ sock_intern_connection_info (socket_t sock)
  * the result to the log file.
  */
 int
-sock_error_info (socket_t sock)
+svz_sock_error_info (svz_socket_t *sock)
 {
   int error;
   socklen_t optlen = sizeof (int);
@@ -454,7 +456,7 @@ sock_error_info (socket_t sock)
   if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
                   (void *) &error, &optlen) < 0)
     {
-      log_printf (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
       return -1;
     }
   if (error)
@@ -464,7 +466,7 @@ sock_error_info (socket_t sock)
 #else
       errno = error;
 #endif
-      log_printf (LOG_ERROR, "%s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "%s\n", NET_ERROR);
       return -1;
     }
   return 0;
@@ -475,7 +477,7 @@ sock_error_info (socket_t sock)
  * not.
  */
 int
-sock_valid (socket_t sock)
+svz_sock_valid (svz_socket_t *sock)
 {
   if (!(sock->flags & (SOCK_FLAG_LISTENING | 
 		       SOCK_FLAG_CONNECTED | SOCK_FLAG_CONNECTING)))
@@ -488,50 +490,50 @@ sock_valid (socket_t sock)
 }
 
 /*
- * Create a socket structure from the file descriptor FD. Set the socket
- * descriptor to non-blocking I/O. Return NULL on errors.
+ * Create a socket structure from the file descriptor @var{fd}. Set the 
+ * socket descriptor to non-blocking I/O. Return @code{NULL} on errors.
  */
-socket_t
-sock_create (int fd)
+svz_socket_t *
+svz_sock_create (int fd)
 {
-  socket_t sock;
+  svz_socket_t *sock;
 
   if (svz_fd_nonblock (fd) != 0)
     return NULL;
   if (svz_fd_cloexec (fd) != 0)
     return NULL;
 
-  if ((sock = sock_alloc ()) != NULL)
+  if ((sock = svz_sock_alloc ()) != NULL)
     {
-      sock_unique_id (sock);
+      svz_sock_unique_id (sock);
       sock->sock_desc = fd;
       sock->flags |= (SOCK_FLAG_CONNECTED | SOCK_FLAG_SOCK);
-      sock_intern_connection_info (sock);
+      svz_sock_intern_connection_info (sock);
     }
   return sock;
 }
 
 /*
- * Disconnect the socket SOCK from the network and calls the disconnect 
+ * Disconnect the socket @var{sock} from the network and calls the disconnect 
  * function for the socket if set. Return a non-zero value on errors.
  */
 int
-sock_disconnect (socket_t sock)
+svz_sock_disconnect (svz_socket_t *sock)
 {
   /* shutdown client connection */
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
       if (shutdown (sock->sock_desc, 2) < 0)
-	log_printf (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
-      sock_connections--;
+	svz_log (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
+      svz_sock_connections--;
     }
       
   /* close the server/client socket */
   if (closesocket (sock->sock_desc) < 0)
-    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
+  svz_log (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
 #endif
 
   sock->sock_desc = INVALID_SOCKET;
@@ -539,13 +541,13 @@ sock_disconnect (socket_t sock)
 }
 
 /*
- * Write LEN bytes from the memory location pointed to by BUF to the 
- * output buffer of the socket SOCK. Also try to flush the buffer to the 
- * socket of SOCK if possible.  Return a non-zero value on error, which 
- * normally means a buffer overflow.
+ * Write @var{len} bytes from the memory location pointed to by @var{buf}
+ * to the output buffer of the socket @var{sock}. Also try to flush the 
+ * buffer to the socket of @var{sock} if possible.  Return a non-zero value 
+ * on error, which normally means a buffer overflow.
  */
 int
-sock_write (socket_t sock, char *buf, int len)
+svz_sock_write (svz_socket_t *sock, char *buf, int len)
 {
   int ret;
   int space;
@@ -567,14 +569,14 @@ sock_write (socket_t sock, char *buf, int len)
 	{
 	  /* Queue is full, unlucky socket or pipe ... */
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
-	    log_printf (LOG_ERROR,
-			"send buffer overflow on pipe (%d-%d) (id %d)\n",
-			sock->pipe_desc[READ], sock->pipe_desc[WRITE],
-			sock->id);
+	    svz_log (LOG_ERROR,
+		     "send buffer overflow on pipe (%d-%d) (id %d)\n",
+		     sock->pipe_desc[READ], sock->pipe_desc[WRITE],
+		     sock->id);
 	  else
-	    log_printf (LOG_ERROR,
-			"send buffer overflow on socket %d (id %d)\n",
-			sock->sock_desc, sock->id);
+	    svz_log (LOG_ERROR,
+		     "send buffer overflow on socket %d (id %d)\n",
+		     sock->sock_desc, sock->id);
 	
 	  if (sock->kicked_socket)
 	    sock->kicked_socket (sock, 1);
@@ -603,12 +605,12 @@ sock_write (socket_t sock, char *buf, int len)
 }
 
 /*
- * Print a formatted string on the socket SOCK. FMT is the printf()-
- * style format string, which describes how to format the optional
+ * Print a formatted string on the socket @var{sock}. @var{fmt} is the 
+ * printf()-style format string, which describes how to format the optional
  * arguments. See the printf(3) manual page for details.
  */
 int
-sock_printf (socket_t sock, const char *fmt, ...)
+svz_sock_printf (svz_socket_t *sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -625,5 +627,5 @@ sock_printf (socket_t sock, const char *fmt, ...)
   if (len > sizeof (buffer))
     len = sizeof (buffer);
 
-  return sock_write (sock, buffer, len);
+  return svz_sock_write (sock, buffer, len);
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.27 2001/04/01 13:32:28 ela Exp $
+ * $Id: http-cache.c,v 1.28 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -66,7 +66,7 @@ http_alloc_cache (int entries)
       http_cache = svz_hash_create (entries);
       http_cache_entries = entries;
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cache: created %d cache entries\n", entries);
+      svz_log (LOG_DEBUG, "cache: created %d cache entries\n", entries);
 #endif
     }
 }
@@ -95,8 +95,8 @@ http_free_cache (void)
   svz_hash_destroy (http_cache);
   http_cache = NULL;
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", 
-	      total, files); 
+  svz_log (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", 
+	   total, files); 
 #endif
 }
 
@@ -240,7 +240,7 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
 
   if (svz_hash_delete (http_cache, cache->file) != cache)
     {
-      log_printf (LOG_ERROR, "cache: inconsistent http hash\n");
+      svz_log (LOG_ERROR, "cache: inconsistent http hash\n");
     }
   if (cache->ready)
     {
@@ -257,7 +257,7 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
  * cache entry.
  */
 int
-http_cache_disconnect (socket_t sock)
+http_cache_disconnect (svz_socket_t *sock)
 {
   http_socket_t *http = sock->data;
 
@@ -362,7 +362,7 @@ http_refresh_cache (http_cache_t *cache)
  * Send a complete cache entry to a http connection.
  */
 int
-http_cache_write (socket_t sock)
+http_cache_write (svz_socket_t *sock)
 {
   int num_written;
   int do_write;
@@ -388,7 +388,7 @@ http_cache_write (socket_t sock)
     }
   else if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "cache: send: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "cache: send: %s\n", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -404,7 +404,7 @@ http_cache_write (socket_t sock)
   if (cache->size <= 0)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cache: file successfully sent\n");
+      svz_log (LOG_DEBUG, "cache: file successfully sent\n");
 #endif
       num_written = http_keep_alive (sock);
     }
@@ -420,7 +420,7 @@ http_cache_write (socket_t sock)
  * the data into the cache entry.
  */
 int
-http_cache_read (socket_t sock)
+http_cache_read (svz_socket_t *sock)
 {
   int num_read;
   int do_read;
@@ -461,9 +461,9 @@ http_cache_read (socket_t sock)
   if (num_read < 0)
     {
 #ifndef __MINGW32__
-      log_printf (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
 #else
-      log_printf (LOG_ERROR, "cache: ReadFile: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "cache: ReadFile: %s\n", SYS_ERROR);
 #endif
 
       /* release the actual cache entry previously reserved */
@@ -506,7 +506,7 @@ http_cache_read (socket_t sock)
   if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cache: file successfully read\n");
+      svz_log (LOG_DEBUG, "cache: file successfully read\n");
 #endif
 
       /* fill in the actual cache entry */

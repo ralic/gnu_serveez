@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.10 2001/05/09 21:04:09 ela Exp $
+ * $Id: server-socket.c,v 1.11 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -68,24 +68,24 @@
  * port configuration to bind the server socket to. Return a @code{NULL}
  * pointer on errors.
  */
-socket_t
+svz_socket_t *
 svz_server_create (svz_portcfg_t *port)
 {
   SOCKET server_socket;      /* server socket descriptor */
-  socket_t sock;             /* socket structure */
+  svz_socket_t *sock;        /* socket structure */
   int optval;                /* value for setsockopt() */
   struct sockaddr_in *addr;  /* bind address */
 
   /* Create listening pipe server ? */
   if (port->proto & PROTO_PIPE)
     {
-      if ((sock = sock_alloc ()) != NULL)
+      if ((sock = svz_sock_alloc ()) != NULL)
 	{
-	  sock_unique_id (sock);
+	  svz_sock_unique_id (sock);
 	}
       else
 	{
-	  log_printf (LOG_ERROR, "unable to allocate socket structure\n");
+	  svz_log (LOG_ERROR, "unable to allocate socket structure\n");
 	  return NULL;
 	}
     }
@@ -105,14 +105,14 @@ svz_server_create (svz_portcfg_t *port)
 	  if (setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
 			  (void *) &optval, sizeof (optval)) < 0)
 	    {
-	      log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	      svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
 	      if (closesocket (server_socket) < 0)
-		log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+		svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	      return NULL;
 	    }
 #else /* not IP_HDRINCL */
 	  closesocket (server_socket);
-	  log_printf (LOG_ERROR, "setsockopt: IP_HDRINCL undefined\n");
+	  svz_log (LOG_ERROR, "setsockopt: IP_HDRINCL undefined\n");
 	  return NULL;
 #endif /* IP_HDRINCL */
 	}
@@ -125,9 +125,9 @@ svz_server_create (svz_portcfg_t *port)
       if (setsockopt (server_socket, SOL_SOCKET, SO_REUSEADDR,
 		      (void *) &optval, sizeof (optval)) < 0)
 	{
-	  log_printf (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
 	  if (closesocket (server_socket) < 0)
-	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
 
@@ -136,9 +136,9 @@ svz_server_create (svz_portcfg_t *port)
       if (bind (server_socket, (struct sockaddr *) addr,
 		sizeof (struct sockaddr)) < 0)
 	{
-	  log_printf (LOG_ERROR, "bind: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "bind: %s\n", NET_ERROR);
 	  if (closesocket (server_socket) < 0)
-	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
 
@@ -147,19 +147,19 @@ svz_server_create (svz_portcfg_t *port)
 	{
 	  if (listen (server_socket, port->tcp_backlog) < 0)
 	    {
-	      log_printf (LOG_ERROR, "listen: %s\n", NET_ERROR);
+	      svz_log (LOG_ERROR, "listen: %s\n", NET_ERROR);
 	      if (closesocket (server_socket) < 0)
-		log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+		svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	      return NULL;
 	    }
 	}
 
       /* Create a unique socket structure for the listening server socket. */
-      if ((sock = sock_create (server_socket)) == NULL)
+      if ((sock = svz_sock_create (server_socket)) == NULL)
 	{
 	  /* Close the server socket if this routine failed. */
 	  if (closesocket (server_socket) < 0)
-	    log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	  return NULL;
 	}
     }
@@ -176,7 +176,7 @@ svz_server_create (svz_portcfg_t *port)
       sock->send_buffer_size = 0;
       sock->recv_buffer = NULL;
       sock->send_buffer = NULL;
-      sock->check_request = sock_detect_proto; 
+      sock->check_request = svz_sock_detect_proto; 
     }
 
   /* Setup the socket structure. */
@@ -197,13 +197,13 @@ svz_server_create (svz_portcfg_t *port)
       sock->send_pipe = svz_malloc (strlen (port->pipe_send.name) + 10);
       sprintf (sock->send_pipe, "\\\\.\\pipe\\%s", port->pipe_send.name);
 #endif /* __MINGW32__ */
-      sock->read_socket = server_accept_pipe;
-      if (pipe_listener (sock) == -1)
+      sock->read_socket = svz_pipe_accept;
+      if (svz_pipe_listener (sock) == -1)
 	{
-	  sock_free (sock);
+	  svz_sock_free (sock);
 	  return NULL;
 	}
-      log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->recv_pipe);
+      svz_log (LOG_NOTICE, "listening on pipe %s\n", sock->recv_pipe);
     }
   else
     {
@@ -211,39 +211,39 @@ svz_server_create (svz_portcfg_t *port)
 
       if (port->proto & PROTO_TCP)
 	{
-	  sock->read_socket = server_accept_socket;
+	  sock->read_socket = svz_tcp_accept;
 	  proto = "tcp";
 	}
       else if (port->proto & PROTO_UDP)
 	{
-	  sock_resize_buffers (sock,
-			       port->send_buffer_size ? 
-			       port->send_buffer_size : UDP_BUF_SIZE, 
-			       port->recv_buffer_size ?
-			       port->recv_buffer_size : UDP_BUF_SIZE);
-	  sock->read_socket = udp_read_socket;
-	  sock->write_socket = udp_write_socket;
-	  sock->check_request = udp_check_request;
+	  svz_sock_resize_buffers (sock,
+				   port->send_buffer_size ? 
+				   port->send_buffer_size : UDP_BUF_SIZE, 
+				   port->recv_buffer_size ?
+				   port->recv_buffer_size : UDP_BUF_SIZE);
+	  sock->read_socket = svz_udp_read_socket;
+	  sock->write_socket = svz_udp_write_socket;
+	  sock->check_request = svz_udp_check_request;
 	  proto = "udp";
 	}
       else if (port->proto & PROTO_ICMP)
 	{
-	  sock_resize_buffers (sock,
-			       port->send_buffer_size ? 
-			       port->send_buffer_size : ICMP_BUF_SIZE, 
-			       port->recv_buffer_size ?
-			       port->recv_buffer_size : ICMP_BUF_SIZE);
-	  sock->read_socket = icmp_read_socket;
-	  sock->write_socket = icmp_write_socket;
-	  sock->check_request = icmp_check_request;
+	  svz_sock_resize_buffers (sock,
+				   port->send_buffer_size ? 
+				   port->send_buffer_size : ICMP_BUF_SIZE, 
+				   port->recv_buffer_size ?
+				   port->recv_buffer_size : ICMP_BUF_SIZE);
+	  sock->read_socket = svz_icmp_read_socket;
+	  sock->write_socket = svz_icmp_write_socket;
+	  sock->check_request = svz_icmp_check_request;
 	  proto = "icmp";
 	}
 
       addr = svz_portcfg_addr (port);
-      log_printf (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
-		  addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
-		  svz_inet_ntoa (addr->sin_addr.s_addr),
-		  ntohs (addr->sin_port));
+      svz_log (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
+	       addr->sin_addr.s_addr == INADDR_ANY ? "*" : 
+	       svz_inet_ntoa (addr->sin_addr.s_addr),
+	       ntohs (addr->sin_port));
     }
   return sock;
 }
@@ -254,12 +254,12 @@ svz_server_create (svz_portcfg_t *port)
  * for @code{read_socket} for listening tcp sockets.
  */
 int
-server_accept_socket (socket_t server_sock)
+svz_tcp_accept (svz_socket_t *server_sock)
 {
   SOCKET client_socket;		/* socket to accept clients on */
   struct sockaddr_in client;	/* address of connecting clients */
   socklen_t client_size;	/* size of the address above */
-  socket_t sock;
+  svz_socket_t *sock;
 
   memset (&client, 0, sizeof (client));
   client_size = sizeof (client);
@@ -269,37 +269,37 @@ server_accept_socket (socket_t server_sock)
 
   if (client_socket == INVALID_SOCKET)
     {
-      log_printf (LOG_WARNING, "accept: %s\n", NET_ERROR);
+      svz_log (LOG_WARNING, "accept: %s\n", NET_ERROR);
       return 0;
     }
 
-  if (sock_connections >= svz_config.max_sockets)
+  if (svz_sock_connections >= svz_config.max_sockets)
     {
-      log_printf (LOG_WARNING, "socket descriptor exceeds "
-		  "socket limit %d\n", svz_config.max_sockets);
+      svz_log (LOG_WARNING, "socket descriptor exceeds "
+	       "socket limit %d\n", svz_config.max_sockets);
       if (closesocket (client_socket) < 0)
 	{
-	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
       return 0;
     }
 
-  log_printf (LOG_NOTICE, "TCP:%u: accepting client on socket %d\n", 
-	      ntohs (server_sock->local_port), client_socket);
+  svz_log (LOG_NOTICE, "TCP:%u: accepting client on socket %d\n", 
+	   ntohs (server_sock->local_port), client_socket);
 	  
   /* 
    * Sanity check. Just to be sure that we always handle
    * correctly connects/disconnects.
    */
-  sock = sock_root;
+  sock = svz_sock_root;
   while (sock && sock->sock_desc != client_socket)
     sock = sock->next;
   if (sock)
     {
-      log_printf (LOG_FATAL, "socket %d already in use\n", sock->sock_desc);
+      svz_log (LOG_FATAL, "socket %d already in use\n", sock->sock_desc);
       if (closesocket (client_socket) < 0)
 	{
-	  log_printf (LOG_ERROR, "close: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 	}
       return -1;
     }
@@ -308,21 +308,21 @@ server_accept_socket (socket_t server_sock)
    * Now enqueue the accepted client socket and assign the 
    * CHECK_REQUEST callback.
    */
-  if ((sock = sock_create (client_socket)) != NULL)
+  if ((sock = svz_sock_create (client_socket)) != NULL)
     {
       sock->flags |= SOCK_FLAG_CONNECTED;
       sock->data = server_sock->data;
       sock->check_request = server_sock->check_request;
-      sock->idle_func = sock_idle_protect; 
+      sock->idle_func = svz_sock_idle_protect; 
       sock->idle_counter = 1;
-      sock_enqueue (sock);
-      sock_setparent (sock, server_sock);
-      sock_connections++;
+      svz_sock_enqueue (sock);
+      svz_sock_setparent (sock, server_sock);
+      svz_sock_connections++;
 
       /* Check access and connect frequency here. */
-      if (sock_check_access (server_sock, sock) < 0 ||
-	  sock_check_frequency (server_sock, sock) < 0)
-	sock_schedule_for_shutdown (sock);
+      if (svz_sock_check_access (server_sock, sock) < 0 ||
+	  svz_sock_check_frequency (server_sock, sock) < 0)
+	svz_sock_schedule_for_shutdown (sock);
 
       /* 
        * We call the check_request() routine here once in order to
@@ -332,7 +332,7 @@ server_accept_socket (socket_t server_sock)
        */
       if (sock->check_request)
 	if (sock->check_request (sock))
-	  sock_schedule_for_shutdown (sock);
+	  svz_sock_schedule_for_shutdown (sock);
     }
 
   return 0;
@@ -340,10 +340,10 @@ server_accept_socket (socket_t server_sock)
 
 /*
  * Check if client pipe is connected. This is the default callback for
- * IDLE_FUNC for listening pipe sockets.
+ * @code{idle_func} for listening pipe sockets.
  */
 int
-server_accept_pipe (socket_t server_sock)
+svz_pipe_accept (svz_socket_t *server_sock)
 {
 #ifdef __MINGW32__
   DWORD connect;
@@ -351,7 +351,7 @@ server_accept_pipe (socket_t server_sock)
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
   HANDLE recv_pipe, send_pipe;
-  socket_t sock;
+  svz_socket_t *sock;
   server_sock->idle_counter = 1;
 #endif
 
@@ -365,7 +365,7 @@ server_accept_pipe (socket_t server_sock)
     {
       if (errno != ENXIO)
 	{
-	  log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "open: %s\n", SYS_ERROR);
 	  return -1;
 	}
       return 0;
@@ -373,7 +373,7 @@ server_accept_pipe (socket_t server_sock)
   recv_pipe = server_sock->pipe_desc[READ];
 
   /* Create a socket structure for the client pipe. */
-  if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
+  if ((sock = svz_pipe_create (recv_pipe, send_pipe)) == NULL)
     {
       close (send_pipe);
       return 0;
@@ -397,7 +397,7 @@ server_accept_pipe (socket_t server_sock)
       /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)
 	{
-	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
 	  return -1;
 	}
     }
@@ -414,7 +414,7 @@ server_accept_pipe (socket_t server_sock)
       /* Pipe finally connected ? */
       if (connect != ERROR_PIPE_CONNECTED)
 	{
-	  log_printf (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
 	  return -1;
 	}
       /* If we got here then a client pipe is successfully connected. */
@@ -424,13 +424,13 @@ server_accept_pipe (socket_t server_sock)
     return 0;
 
   /* Create a socket structure for the client pipe. */
-  if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
+  if ((sock = svz_pipe_create (recv_pipe, send_pipe)) == NULL)
     {
       /* Just disconnect the client pipes. */
       if (!DisconnectNamedPipe (send_pipe))
-	log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
       if (!DisconnectNamedPipe (recv_pipe))
-	log_printf (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+	svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
       return 0;
     }
 
@@ -448,20 +448,20 @@ server_accept_pipe (socket_t server_sock)
 #endif /* neither HAVE_MKFIFO nor __MINGW32__ */
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)
-  sock->read_socket = pipe_read_socket;
-  sock->write_socket = pipe_write_socket;
+  sock->read_socket = svz_pipe_read_socket;
+  sock->write_socket = svz_pipe_write_socket;
   sock->referrer = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
-  sock->idle_func = sock_idle_protect;
+  sock->idle_func = svz_sock_idle_protect;
   sock->idle_counter = 1;
-  sock_enqueue (sock);
-  sock_setparent (sock, server_sock);
+  svz_sock_enqueue (sock);
+  svz_sock_setparent (sock, server_sock);
 
-  log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
-              server_sock->recv_pipe, 
-	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+  svz_log (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
+	   server_sock->recv_pipe, 
+	   sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 
   server_sock->flags |= SOCK_FLAG_INITED;
   server_sock->referrer = sock;
@@ -469,7 +469,7 @@ server_accept_pipe (socket_t server_sock)
   /* Call the check_request() routine once for greedy protocols. */
   if (sock->check_request)
     if (sock->check_request (sock))
-      sock_schedule_for_shutdown (sock);
+      svz_sock_schedule_for_shutdown (sock);
 
   return 0;
 #endif /* HAVE_MKFIFO or __MINGW32__ */

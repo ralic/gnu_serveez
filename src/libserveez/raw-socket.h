@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.h,v 1.2 2001/01/31 12:30:14 ela Exp $
+ * $Id: raw-socket.h,v 1.3 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -62,15 +62,15 @@ typedef struct
   unsigned long src;          /* source address */
   unsigned long dst;          /* destination address */
 }
-ip_header_t;
+svz_ip_header_t;
 
 __BEGIN_DECLS
 
 /* Exported RAW IP socket functions. */
-SERVEEZ_API ip_header_t * raw_get_ip_header __P ((byte *data));
-SERVEEZ_API byte * raw_put_ip_header __P ((ip_header_t *hdr));
-SERVEEZ_API unsigned short raw_ip_checksum __P ((byte *data, int len));
-SERVEEZ_API int raw_check_ip_header __P ((byte *data, int len));
+SERVEEZ_API svz_ip_header_t * svz_raw_get_ip_header __P ((byte *data));
+SERVEEZ_API byte * svz_raw_put_ip_header __P ((svz_ip_header_t *hdr));
+SERVEEZ_API unsigned short svz_raw_ip_checksum __P ((byte *data, int len));
+SERVEEZ_API int svz_raw_check_ip_header __P ((byte *data, int len));
 
 __END_DECLS
 

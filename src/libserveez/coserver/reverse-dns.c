@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: reverse-dns.c,v 1.4 2001/04/01 13:32:30 ela Exp $
+ * $Id: reverse-dns.c,v 1.5 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -107,8 +107,8 @@ reverse_dns_handle_request (char *inbuf)
       if ((host = gethostbyaddr ((char *) addr, sizeof (addr[0]), AF_INET))
 	  == NULL)
 	{
-	  log_printf (LOG_ERROR, "reverse dns: gethostbyaddr: %s (%s)\n", 
-		      H_NET_ERROR, ip);
+	  svz_log (LOG_ERROR, "reverse dns: gethostbyaddr: %s (%s)\n", 
+		   H_NET_ERROR, ip);
 	  return NULL;
 	} 
       else 
@@ -121,7 +121,7 @@ reverse_dns_handle_request (char *inbuf)
 	    }
 
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "reverse dns: %s is %s\n", ip, host->h_name);
+	  svz_log (LOG_DEBUG, "reverse dns: %s is %s\n", ip, host->h_name);
 #endif /* ENABLE_DEBUG */
 	  sprintf (resolved, "%s", host->h_name);
 	  return resolved;
@@ -129,7 +129,7 @@ reverse_dns_handle_request (char *inbuf)
     } 
   else 
     {
-      log_printf (LOG_ERROR, "reverse dns: protocol error\n");
+      svz_log (LOG_ERROR, "reverse dns: protocol error\n");
       return NULL;
     }
 }

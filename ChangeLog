@@ -1,3 +1,8 @@
+2001-05-18  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Let the `configure' script create a 
+	`svzconfig.h' file which gets installed.
+
 2001-04-28  [ Ela ]  <ela@lkcc.org>
 
 	* configure.in: Using `libtool 1.4'.

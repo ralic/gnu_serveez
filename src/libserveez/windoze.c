@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: windoze.c,v 1.5 2001/04/01 13:32:30 ela Exp $
+ * $Id: windoze.c,v 1.6 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -84,7 +84,7 @@ static void
 windoze_notify_set (HWND hwnd, UINT id)
 {
   sprintf (windoze_tooltip, "%s %s (%d connections)", 
-	   svz_library, svz_version, sock_connections);
+	   svz_library, svz_version, svz_sock_connections);
 
   windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
 }
@@ -135,7 +135,7 @@ windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WM_DESTROY:
       windoze_notify_del (hwnd, SERVEEZ_ICON_ID);
-      server_nuke_happened = 1;
+      svz_nuke_happened = 1;
       break;
 
     case WM_COMMAND:
@@ -148,7 +148,7 @@ windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 	  break;
 
 	case WM_RBUTTONDOWN:
-	  server_nuke_happened = 1;
+	  svz_nuke_happened = 1;
 	  break;
 	  
 	default:
@@ -247,7 +247,7 @@ windoze_thread (char *prog)
  * Start the windows daemon thread and detach from the current console.
  */
 int
-windoze_start_daemon (char *prog)
+svz_windoze_start_daemon (char *prog)
 {
   /* start message loop */
   if ((windoze_daemon_handle = CreateThread (
@@ -276,7 +276,7 @@ windoze_start_daemon (char *prog)
  * Stop the windows daemon thread.
  */
 int
-windoze_stop_daemon (void)
+svz_windoze_stop_daemon (void)
 {
   DWORD ret;
 
@@ -311,8 +311,8 @@ windoze_stop_daemon (void)
  * Read an unsigned integer value from the Windows Registry Database.
  */
 unsigned
-windoze_get_reg_unsigned (HKEY key, char *subkey, 
-			  char *subsubkey, unsigned def)
+svz_windoze_get_reg_unsigned (HKEY key, char *subkey, 
+			      char *subsubkey, unsigned def)
 {
   unsigned value;
   DWORD size, type;
@@ -344,8 +344,8 @@ windoze_get_reg_unsigned (HKEY key, char *subkey,
  * Write an unsigned integer value to the Windows Registry Database.
  */
 void
-windoze_set_reg_unsigned (HKEY key, char *subkey, 
-			  char *subsubkey, unsigned value)
+svz_windoze_set_reg_unsigned (HKEY key, char *subkey, 
+			      char *subsubkey, unsigned value)
 {
   DWORD size, type;
   HKEY reg;
@@ -374,7 +374,7 @@ windoze_set_reg_unsigned (HKEY key, char *subkey,
  * Read a string value from the Windows Registry Database.
  */
 char *
-windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
+svz_windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
 {
   static char value[128];
   DWORD size, type;
@@ -406,7 +406,8 @@ windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
  * Write a string value to the Windows Registry Database.
  */
 void
-windoze_set_reg_string (HKEY key, char *subkey, char *subsubkey, char *value)
+svz_windoze_set_reg_string (HKEY key, char *subkey, 
+			    char *subsubkey, char *value)
 {
   DWORD size, type;
   HKEY reg;
@@ -435,7 +436,7 @@ windoze_set_reg_string (HKEY key, char *subkey, char *subsubkey, char *value)
  * Convert an ASCII string into a UNICODE string.
  */
 WCHAR *
-windoze_asc2uni (CHAR *asc)
+svz_windoze_asc2uni (CHAR *asc)
 {
   static WCHAR unicode[256];
   MultiByteToWideChar (CP_ACP, 0, asc, -1, unicode, 256);
@@ -446,7 +447,7 @@ windoze_asc2uni (CHAR *asc)
  * Convert a UNICODE string into an ASCII string.
  */
 CHAR *
-windoze_uni2asc (WCHAR *unicode)
+svz_windoze_uni2asc (WCHAR *unicode)
 {
   static CHAR asc[256];
   WideCharToMultiByte (CP_ACP, 0, unicode, -1, asc, 256, NULL, NULL);

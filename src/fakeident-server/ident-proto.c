@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.9 2001/04/28 12:37:06 ela Exp $
+ * $Id: ident-proto.c,v 1.10 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -54,18 +54,18 @@ struct fakeident_config fakeident_config =
  */
 svz_key_value_pair_t fakeident_config_prototype [] =
 {
-  REGISTER_STR ("systemtype", fakeident_config.systemtype, DEFAULTABLE),
-  REGISTER_STR ("username", fakeident_config.username, DEFAULTABLE),
-  REGISTER_END ()
+  SVZ_REGISTER_STR ("systemtype", fakeident_config.systemtype, DEFAULTABLE),
+  SVZ_REGISTER_STR ("username", fakeident_config.username, DEFAULTABLE),
+  SVZ_REGISTER_END ()
 };
 
 /*
  * Function forward declaration.
  */
 int fakeident_init (svz_server_t *server);
-int fakeident_connect_socket (void *acfg, socket_t sock);
-int fakeident_detect_proto (void *something, socket_t sock);
-int fakeident_handle_request (socket_t sock, char *request, int len);
+int fakeident_connect_socket (void *acfg, svz_socket_t *sock);
+int fakeident_detect_proto (void *something, svz_socket_t *sock);
+int fakeident_handle_request (svz_socket_t *sock, char *request, int len);
 char *fakeident_info_server (svz_server_t *server);
 
 /*
@@ -105,11 +105,11 @@ fakeident_init (svz_server_t *server)
  * When we get a connection this callback is invoked. set up more callbacks.
  */
 int
-fakeident_connect_socket (void *acfg, socket_t sock)
+fakeident_connect_socket (void *acfg, svz_socket_t *sock)
 {
   sock->boundary = "\n";
   sock->boundary_size = 1;
-  sock->check_request = sock_check_request;
+  sock->check_request = svz_sock_check_request;
   sock->handle_request = fakeident_handle_request;
   return 0;
 }
@@ -119,7 +119,7 @@ fakeident_connect_socket (void *acfg, socket_t sock)
  * A valid request for us is: "number[space]*,[space]*number[space]*\r\n
  */
 int
-fakeident_detect_proto (void *something, socket_t sock)
+fakeident_detect_proto (void *something, svz_socket_t *sock)
 {
   int retval = 0;
   char *p = sock->recv_buffer;
@@ -172,7 +172,7 @@ fakeident_detect_proto (void *something, socket_t sock)
  * Handle a single request when an input line is recognized.
  */
 int
-fakeident_handle_request (socket_t sock, char *request, int len)
+fakeident_handle_request (svz_socket_t *sock, char *request, int len)
 {
   struct fakeident_config *cfg = (struct fakeident_config *) sock->cfg;
   int err = 0;
@@ -194,12 +194,14 @@ fakeident_handle_request (socket_t sock, char *request, int len)
    */
   if (cfg->username == NULL)
     {
-      err = sock_printf (sock, "%s : ERROR : NO-USER\r\n", sock->recv_buffer);
+      err = svz_sock_printf (sock, "%s : ERROR : NO-USER\r\n", 
+			     sock->recv_buffer);
     }
   else
     {
-      err = sock_printf (sock, "%s : USERID : %s : %s\r\n", sock->recv_buffer,
-			 cfg->systemtype, cfg->username);
+      err = svz_sock_printf (sock, "%s : USERID : %s : %s\r\n", 
+			     sock->recv_buffer,
+			     cfg->systemtype, cfg->username);
     }
 
   return err;

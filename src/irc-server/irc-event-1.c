@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-1.c,v 1.18 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-1.c,v 1.19 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -53,7 +53,7 @@
  * Parameters: [<Quit message>]
  */
 int
-irc_quit_callback (socket_t sock, 
+irc_quit_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   /* delete the client */
@@ -68,7 +68,7 @@ irc_quit_callback (socket_t sock,
  * Numeric Replies: ERR_NEEDMOREPARAMS ERR_ALREADYREGISTRED
  */
 int
-irc_pass_callback (socket_t sock, 
+irc_pass_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -104,7 +104,7 @@ irc_pass_callback (socket_t sock,
  * Send the initial messages to a new IRC client.
  */
 static void
-irc_send_init_block (socket_t sock, irc_client_t *client)
+irc_send_init_block (svz_socket_t *sock, irc_client_t *client)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -138,7 +138,8 @@ irc_send_init_block (socket_t sock, irc_client_t *client)
  * validated by the config lines.
  */
 int
-irc_register_client (socket_t sock, irc_client_t *client, irc_config_t *cfg)
+irc_register_client (svz_socket_t *sock, 
+		     irc_client_t *client, irc_config_t *cfg)
 {
   if ((client->flag & UMODE_REGISTERED) == UMODE_REGISTERED)
     {
@@ -182,13 +183,13 @@ irc_get_nick (char *nick)
  *                  ERR_NICKNAMEINUSE   ERR_NICKCOLLISION
  */
 int
-irc_nick_callback (socket_t sock, 
+irc_nick_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   char *nick;
   int n, i;
 
@@ -216,7 +217,7 @@ irc_nick_callback (socket_t sock,
       if (cl == client)
 	return 0;
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
+      svz_log (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
       irc_printf (sock, ":%s %03d * " ERR_NICKNAMEINUSE_TEXT "\n", 
 		  cfg->host, ERR_NICKNAMEINUSE, cl->nick);
@@ -227,8 +228,8 @@ irc_nick_callback (socket_t sock,
   if (client->flag & UMODE_NICK)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "irc: %s changed nick to %s\n", 
-		  client->nick, nick);
+      svz_log (LOG_DEBUG, "irc: %s changed nick to %s\n", 
+	       client->nick, nick);
 #endif
       /* is the client fully registered ? */
       if (client->registered)
@@ -249,7 +250,7 @@ irc_nick_callback (socket_t sock,
 	  /* replace nick in client hash */
 	  if (svz_hash_delete (cfg->clients, client->nick) != client)
 	    {
-	      log_printf (LOG_ERROR, "irc: client hash inconsistence\n");
+	      svz_log (LOG_ERROR, "irc: client hash inconsistence\n");
 	    }
 	  svz_hash_put (cfg->clients, nick, client);
 	}
@@ -270,7 +271,7 @@ irc_nick_callback (socket_t sock,
  * Numeric Replies: ERR_NEEDMOREPARAMS ERR_ALREADYREGISTRED
  */
 int
-irc_user_callback (socket_t sock, 
+irc_user_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -311,7 +312,7 @@ irc_user_callback (socket_t sock,
  *                  RPL_ENDOFMOTD RPL_MOTD
  */
 int
-irc_motd_callback (socket_t sock, 
+irc_motd_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -322,8 +323,8 @@ irc_motd_callback (socket_t sock,
   /* try requesting the file */
   if (stat (cfg->MOTD_file, &buf) == -1)
     {
-      log_printf (LOG_ERROR, "irc: /MOTD error: %s (%s)\n", 
-		  SYS_ERROR, cfg->MOTD_file);
+      svz_log (LOG_ERROR, "irc: /MOTD error: %s (%s)\n", 
+	       SYS_ERROR, cfg->MOTD_file);
       irc_printf (sock, ":%s %03d %s " ERR_NOMOTD_TEXT "\n",
 		  cfg->host, ERR_NOMOTD, client->nick);
       return 0;
@@ -335,7 +336,7 @@ irc_motd_callback (socket_t sock,
       cfg->MOTD_lastModified =  buf.st_mtime;
       if ((f = fopen (cfg->MOTD_file, "r")) == NULL)
 	{
-	  log_printf (LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
 	  return 0;
 	}
 
@@ -390,7 +391,7 @@ irc_motd_callback (socket_t sock,
  *                  ERR_NOOPERHOST     ERR_PASSWDMISMATCH
  */
 int
-irc_oper_callback (socket_t sock, 
+irc_oper_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;

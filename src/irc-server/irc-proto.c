@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.31 2001/05/05 15:45:51 ela Exp $
+ * $Id: irc-proto.c,v 1.32 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -105,22 +105,22 @@ irc_config_t irc_config =
  */
 svz_key_value_pair_t irc_config_prototype[] =
 {
-  REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
-  REGISTER_STR ("INFO-file", irc_config.info_file, DEFAULTABLE),
+  SVZ_REGISTER_STR ("MOTD-file", irc_config.MOTD_file, DEFAULTABLE),
+  SVZ_REGISTER_STR ("INFO-file", irc_config.info_file, DEFAULTABLE),
 #if ENABLE_TIMESTAMP
-  REGISTER_INT ("tsdelta", irc_config.tsdelta, DEFAULTABLE),
+  SVZ_REGISTER_INT ("tsdelta", irc_config.tsdelta, DEFAULTABLE),
 #endif
-  REGISTER_STR ("admininfo", irc_config.admininfo, NOTDEFAULTABLE),
-  REGISTER_STR ("M-line", irc_config.MLine, NOTDEFAULTABLE),
-  REGISTER_STR ("A-line", irc_config.ALine, DEFAULTABLE),
-  REGISTER_STRARRAY ("Y-lines", irc_config.YLine, DEFAULTABLE),
-  REGISTER_STRARRAY ("I-lines", irc_config.ILine, DEFAULTABLE),
-  REGISTER_STRARRAY ("O-lines", irc_config.OLine, DEFAULTABLE),
-  REGISTER_STRARRAY ("o-lines", irc_config.oLine, DEFAULTABLE),
-  REGISTER_STRARRAY ("C-lines", irc_config.CLine, DEFAULTABLE),
-  REGISTER_STRARRAY ("N-lines", irc_config.NLine, DEFAULTABLE),
-  REGISTER_STRARRAY ("K-lines", irc_config.KLine, DEFAULTABLE),
-  REGISTER_END ()
+  SVZ_REGISTER_STR ("admininfo", irc_config.admininfo, NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("M-line", irc_config.MLine, NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("A-line", irc_config.ALine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("Y-lines", irc_config.YLine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("I-lines", irc_config.ILine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("O-lines", irc_config.OLine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("o-lines", irc_config.oLine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("C-lines", irc_config.CLine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("N-lines", irc_config.NLine, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("K-lines", irc_config.KLine, DEFAULTABLE),
+  SVZ_REGISTER_END ()
 };
 
 /*
@@ -196,14 +196,14 @@ irc_init (svz_server_t *server)
       irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d", 
 		      tmp[0], tmp[1], tmp[2], &cfg->port) != 4)
     {
-      log_printf (LOG_ERROR, "irc: invalid M line: %s\n", 
-		  cfg->MLine ? cfg->MLine : "(nil)");
+      svz_log (LOG_ERROR, "irc: invalid M line: %s\n", 
+	       cfg->MLine ? cfg->MLine : "(nil)");
       return -1;
     }
-  /*
+  /* FIXME: ???
   if (cfg->port != cfg->netport->port)
     {
-      log_printf (LOG_WARNING, "irc: port in M line clashes\n");
+      svz_log (LOG_WARNING, "irc: port in M line clashes\n");
       cfg->netport->port = (short) cfg->port;
     }
   */
@@ -215,8 +215,8 @@ irc_init (svz_server_t *server)
   if (!cfg->ALine ||
       irc_parse_line (cfg->ALine, "A:%s:%s:%s", tmp[0], tmp[1], tmp[2]) != 3)
     {
-      log_printf (LOG_ERROR, "irc: invalid A line: %s\n", 
-		  cfg->ALine ? cfg->ALine : "(nil)");
+      svz_log (LOG_ERROR, "irc: invalid A line: %s\n", 
+	       cfg->ALine ? cfg->ALine : "(nil)");
       return -1;
     }
   cfg->location1 = svz_strdup (tmp[0]);
@@ -279,7 +279,7 @@ irc_finalize (svz_server_t *server)
  * ERR_NOTONCHANNEL reply is sent to the socket.
  */
 int
-irc_client_in_channel (socket_t sock,          /* client's socket */
+irc_client_in_channel (svz_socket_t *sock,     /* client's socket */
 		       irc_client_t *client,   /* the client structure */
 		       irc_channel_t *channel) /* the channel to search */
 {
@@ -340,8 +340,8 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
 	      channel->cflag[n] = 0;
 	      channel->clients++;
 #if ENABLE_DEBUG
-	      log_printf (LOG_DEBUG, "irc: %s joined channel %s\n", 
-			  client->nick, channel->name);
+	      svz_log (LOG_DEBUG, "irc: %s joined channel %s\n", 
+		       client->nick, channel->name);
 #endif
 	      n = client->channels;
 	      client->channel = svz_realloc (client->channel, 
@@ -375,9 +375,9 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
       channel->by = svz_strdup (client->nick);
       channel->since = time (NULL);
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "irc: channel %s created\n", channel->name);
-      log_printf (LOG_DEBUG, "irc: %s joined channel %s\n", 
-		  client->nick, channel->name);
+      svz_log (LOG_DEBUG, "irc: channel %s created\n", channel->name);
+      svz_log (LOG_DEBUG, "irc: %s joined channel %s\n", 
+	       client->nick, channel->name);
 #endif
       n = client->channels;
       client->channel = svz_realloc (client->channel, 
@@ -421,8 +421,8 @@ irc_leave_channel (irc_config_t *cfg,
 	    channel->cflag = NULL;
 	  }
 #if ENABLE_DEBUG
-	log_printf (LOG_DEBUG, "irc: %s left channel %s\n",
-		    client->nick, channel->name);
+	svz_log (LOG_DEBUG, "irc: %s left channel %s\n",
+		 client->nick, channel->name);
 #endif
 	/* clear this channel of client's list */
 	last = client->channels - 1;
@@ -449,7 +449,7 @@ irc_leave_channel (irc_config_t *cfg,
   if (channel->clients == 0)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
+      svz_log (LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
 #endif
       irc_delete_channel (cfg, channel);
     }
@@ -462,7 +462,7 @@ irc_leave_channel (irc_config_t *cfg,
  * Return non zero if there are less than necessary.
  */
 int
-irc_check_args (socket_t sock,           /* the client's socket */
+irc_check_args (svz_socket_t *sock,      /* the client's socket */
 		irc_client_t *client,    /* the irc client itself */
 		irc_config_t *conf,      /* config hash */
 		irc_request_t *request,  /* the request */
@@ -488,7 +488,7 @@ irc_client_absent (irc_client_t *client,  /* requested client */
 		   irc_client_t *rclient) /* who want to know about */
 {
   irc_config_t *cfg;
-  socket_t sock;
+  svz_socket_t *sock;
 
   if (client->flag & UMODE_AWAY)
     {
@@ -512,8 +512,7 @@ irc_leave_all_channels (irc_config_t *cfg,
 {
   irc_channel_t *channel;
   irc_client_t *cl;
-  socket_t sock;
-  socket_t xsock;
+  svz_socket_t *sock, *xsock;
   int i;
 
   sock = client->sock;
@@ -556,7 +555,7 @@ irc_leave_all_channels (irc_config_t *cfg,
  * an IRC client gets lost.
  */
 int
-irc_disconnect (socket_t sock)
+irc_disconnect (svz_socket_t *sock)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client = sock->data;
@@ -574,7 +573,7 @@ irc_disconnect (socket_t sock)
  * send a PING to a IRC client.
  */
 int
-irc_idle (socket_t sock)
+irc_idle (svz_socket_t *sock)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client = sock->data;
@@ -653,7 +652,7 @@ irc_callback_t irc_callback[] =
 };
 
 int
-irc_handle_request (socket_t sock, char *request, int len)
+irc_handle_request (svz_socket_t *sock, char *request, int len)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client = sock->data;
@@ -1005,7 +1004,7 @@ irc_create_client (irc_config_t *cfg)
  * Print a formatted string to the socket SOCK.
  */
 int
-irc_printf (socket_t sock, const char *fmt, ...)
+irc_printf (svz_socket_t *sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -1022,7 +1021,7 @@ irc_printf (socket_t sock, const char *fmt, ...)
   if (len > sizeof (buffer))
     len = sizeof (buffer);
 
-  if ((len = sock_write (sock, buffer, len)) != 0)
+  if ((len = svz_sock_write (sock, buffer, len)) != 0)
     {
       sock->flags |= SOCK_FLAG_KILLED;
     }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.11 2001/01/28 03:26:55 ela Exp $
+ * $Id: http-core.h,v 1.12 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -129,30 +129,30 @@ struct http_socket
                    HTTP_FLAG_SENDFILE)
 
 /* exported http core functions */
-int http_keep_alive (socket_t sock);
-void http_check_keepalive (socket_t sock);
+int http_keep_alive (svz_socket_t *sock);
+void http_check_keepalive (svz_socket_t *sock);
 
 int http_read_types (http_config_t *cfg);
 void http_free_types (http_config_t *cfg);
-char *http_find_content_type (socket_t sock, char *file);
+char *http_find_content_type (svz_socket_t *sock, char *file);
 
-int http_parse_property (socket_t sock, char *request, char *end);
+int http_parse_property (svz_socket_t *sock, char *request, char *end);
 char *http_find_property (http_socket_t *sock, char *key);
 
 int http_get_range (char *line, http_range_t *range);
-char *http_userdir (socket_t sock, char *uri);
+char *http_userdir (svz_socket_t *sock, char *uri);
 int http_remotehost (char *host, int id, int version);
 int http_localhost (char *host, http_config_t *cfg);
 int http_identification (char *ident, int id, int version);
 void http_process_uri (char *uri);
-int http_error_response (socket_t sock, int response);
-void http_log (socket_t sock);
+int http_error_response (svz_socket_t *sock, int response);
+void http_log (svz_socket_t *sock);
 time_t http_parse_date (char *date);
 char *http_asc_date (time_t t);
 char *http_clf_date (time_t t);
 
 void http_set_header (char *response);
-int http_send_header (socket_t sock);
+int http_send_header (svz_socket_t *sock);
 void http_reset_header (void);
 #ifndef __STDC__
 int http_add_header ();

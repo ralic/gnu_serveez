@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-4.c,v 1.9 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-4.c,v 1.10 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -52,13 +52,13 @@
  *                  RPL_AWAY
  */
 int
-irc_priv_callback (socket_t sock, 
+irc_priv_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   static char text[MAX_MSG_LEN];
   int n, i;
 
@@ -174,12 +174,12 @@ irc_priv_callback (socket_t sock,
  *                  RPL_AWAY
  */
 int
-irc_note_callback (socket_t sock, 
+irc_note_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
-  socket_t xsock;
+  svz_socket_t *xsock;
   static char text[MAX_MSG_LEN];
   int n;
 

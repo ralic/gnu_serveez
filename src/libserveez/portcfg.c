@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.12 2001/05/09 21:04:09 ela Exp $
+ * $Id: portcfg.c,v 1.13 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -122,7 +122,7 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
   if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "portcfg `%s' already registered\n", name);
+      svz_log (LOG_DEBUG, "portcfg `%s' already registered\n", name);
 #endif
       svz_hash_put (svz_portcfgs, name, port);
       return replace;
@@ -459,9 +459,9 @@ svz_portcfg_prepare (svz_portcfg_t *port)
 	port->tcp_backlog = SOMAXCONN;
     }
   if (!port->detection_fill)
-    port->detection_fill = MAX_DETECTION_FILL;
+    port->detection_fill = SOCK_MAX_DETECTION_FILL;
   if (!port->detection_wait)
-    port->detection_wait = MAX_DETECTION_WAIT;
+    port->detection_wait = SOCK_MAX_DETECTION_WAIT;
 }
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.11 2001/05/02 22:18:48 ela Exp $
+ * $Id: nut-request.c,v 1.12 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -56,10 +56,10 @@
  * can check if the reply was created by a packet we sent ourselves.
  */
 int
-nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
+nut_reply (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
-  socket_t xsock;
+  svz_socket_t *xsock;
   nut_packet_t *pkt;
   nut_record_t *record;
   nut_client_t *client = sock->data;
@@ -77,7 +77,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   if (id < packet + SIZEOF_NUT_REPLY)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: dropping invalid query hit\n");
+      svz_log (LOG_DEBUG, "nut: dropping invalid query hit\n");
 #endif
       client->dropped++;
       return -1;
@@ -116,7 +116,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 	  if (p == end || *(p + 1))
 	    {
 #if ENABLE_DEBUG
-	      log_printf (LOG_DEBUG, "nut: invalid query hit payload\n");
+	      svz_log (LOG_DEBUG, "nut: invalid query hit payload\n");
 #endif
 	      client->dropped++;
 	      return -1;
@@ -150,11 +150,11 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
  * This is the callback for push requests.
  */
 int
-nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
+nut_push_request (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_client_t *client = sock->data;
-  socket_t xsock;
+  svz_socket_t *xsock;
   nut_push_t *push;
   nut_file_t *entry;
   byte *header;
@@ -162,13 +162,14 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
   push = nut_get_push (packet);
 
   /* is the guid of this push request in the reply hash ? */
-  if ((xsock = (socket_t) svz_hash_get (cfg->reply, (char *) push->id)) != NULL)
+  if ((xsock = (svz_socket_t *) 
+       svz_hash_get (cfg->reply, (char *) push->id)) != NULL)
     {
       header = nut_put_header (hdr);
-      if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
-	  sock_write (xsock, (char *) packet, SIZEOF_NUT_PUSH) == -1)
+      if (svz_sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
+	  svz_sock_write (xsock, (char *) packet, SIZEOF_NUT_PUSH) == -1)
 	{
-	  sock_schedule_for_shutdown (xsock);
+	  svz_sock_schedule_for_shutdown (xsock);
 	  return -1;
 	}
     }
@@ -187,10 +188,10 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 	  (entry = nut_get_database (cfg, NULL, push->index)) != NULL)
 	{
 	  /* try to connect to given host */
-	  if ((xsock = tcp_connect (push->ip, push->port)) != NULL)
+	  if ((xsock = svz_tcp_connect (push->ip, push->port)) != NULL)
 	    {
-	      log_printf (LOG_NOTICE, "nut: connecting %s:%u\n",
-			  svz_inet_ntoa (push->ip), ntohs (push->port));
+	      svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
+		       svz_inet_ntoa (push->ip), ntohs (push->port));
 
 	      xsock->userflags |= NUT_FLAG_UPLOAD;
 	      xsock->cfg = cfg;
@@ -200,11 +201,11 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 	       * of the reviewed clients (gtk_gnutella and gnutella itself)
 	       * use it as is
 	       */
-	      if (sock_printf (xsock, NUT_GIVE "%d:%s/%s\n\n",
-			       entry->index, nut_text_guid (cfg->guid),
-			       entry->file) == -1)
+	      if (svz_sock_printf (xsock, NUT_GIVE "%d:%s/%s\n\n",
+				   entry->index, nut_text_guid (cfg->guid),
+				   entry->file) == -1)
 		{
-		  sock_schedule_for_shutdown (xsock);
+		  svz_sock_schedule_for_shutdown (xsock);
 		  return -1;
 		}
 	      xsock->check_request = nut_check_upload;
@@ -217,7 +218,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
   else
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: dropping push request\n");
+      svz_log (LOG_DEBUG, "nut: dropping push request\n");
 #endif
       client->dropped++;
       return -1;
@@ -230,7 +231,7 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
  * This is called whenever there was a search query received.
  */
 int
-nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
+nut_query (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
   nut_reply_t reply;
@@ -255,7 +256,7 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   if (len >= hdr->length && *file)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "nut: invalid query payload\n");
+      svz_log (LOG_DEBUG, "nut: invalid query payload\n");
 #endif
       return -1;
     }
@@ -295,7 +296,7 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 
   /* create gnutella search reply packet */
   reply.records = (byte) n;
-  port = sock_portcfg (sock);
+  port = svz_sock_portcfg (sock);
   addr = svz_portcfg_addr (port);
   reply.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
   reply.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
@@ -305,12 +306,12 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
   hdr->length = SIZEOF_NUT_REPLY + size + NUT_GUID_SIZE;
   
   /* send header, reply, array of records and guid */
-  if (sock_write (sock, (char *) nut_put_header (hdr), 
-		  SIZEOF_NUT_HEADER) == -1 ||
-      sock_write (sock, (char *) nut_put_reply (&reply), 
-		  SIZEOF_NUT_REPLY) == -1 ||
-      sock_write (sock, (char *) buffer, size) == -1 ||
-      sock_write (sock, (char *) cfg->guid, NUT_GUID_SIZE) == -1)
+  if (svz_sock_write (sock, (char *) nut_put_header (hdr), 
+		      SIZEOF_NUT_HEADER) == -1 ||
+      svz_sock_write (sock, (char *) nut_put_reply (&reply), 
+		      SIZEOF_NUT_REPLY) == -1 ||
+      svz_sock_write (sock, (char *) buffer, size) == -1 ||
+      svz_sock_write (sock, (char *) cfg->guid, NUT_GUID_SIZE) == -1)
     {
       svz_free (buffer);
       return -1;
@@ -325,10 +326,10 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
  * ping reply.
  */
 int
-nut_pong (socket_t sock, nut_header_t *hdr, byte *packet)
+nut_pong (svz_socket_t *sock, nut_header_t *hdr, byte *packet)
 {
   nut_config_t *cfg = sock->cfg;
-  socket_t xsock;
+  svz_socket_t *xsock;
   nut_packet_t *pkt;
   nut_pong_t *reply;
   nut_client_t *client = sock->data;
@@ -368,7 +369,7 @@ nut_pong (socket_t sock, nut_header_t *hdr, byte *packet)
  * reply with our own configuration.
  */
 int
-nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
+nut_ping (svz_socket_t *sock, nut_header_t *hdr, byte *null)
 {
   nut_config_t *cfg = sock->cfg;
   nut_pong_t reply;
@@ -382,7 +383,7 @@ nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
   hdr->ttl = hdr->hop;
   hdr->hop = 0;
 
-  port = sock_portcfg (sock);
+  port = svz_sock_portcfg (sock);
   addr = svz_portcfg_addr (port);
   reply.ip = cfg->ip ? cfg->ip : addr->sin_addr.s_addr;
   reply.port = (unsigned short) (cfg->port ? cfg->port : addr->sin_port);
@@ -392,10 +393,10 @@ nut_ping (socket_t sock, nut_header_t *hdr, byte *null)
   pong = nut_put_pong (&reply);
   
   /* try sending this packet */
-  if (sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
-      sock_write (sock, (char *) pong, SIZEOF_NUT_PONG) == -1)
+  if (svz_sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
+      svz_sock_write (sock, (char *) pong, SIZEOF_NUT_PONG) == -1)
     {
-      sock_schedule_for_shutdown (sock);
+      svz_sock_schedule_for_shutdown (sock);
       return -1;
     }
 

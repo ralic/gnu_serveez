@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.33 2001/04/01 13:32:29 ela Exp $
+ * $Id: http-core.c,v 1.34 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -117,7 +117,7 @@ http_start_netapi (void)
 	GetProcAddress (netapiHandle, "NetUserGetInfo");
       if (GetUserInfo == NULL)
 	{
-	  log_printf (LOG_ERROR, "http: GetProcAddress: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "http: GetProcAddress: %s\n", SYS_ERROR);
 	  FreeLibrary (netapiHandle);
 	  netapiHandle = NULL;
 	}
@@ -130,7 +130,7 @@ http_start_netapi (void)
  * user's home directory and put it in front of the request.
  */
 char *
-http_userdir (socket_t sock, char *uri)
+http_userdir (svz_socket_t *sock, char *uri)
 {
   http_config_t *cfg = sock->cfg;
   char *p = uri + 1;
@@ -170,10 +170,10 @@ http_userdir (socket_t sock, char *uri)
 	  return NULL;
 	}
 
-      status = GetUserInfo (NULL,                   /* server name */
-			    windoze_asc2uni (user), /* user name */
-			    1,                      /* type of info */
-			    (LPBYTE *) &entry);     /* info buffer */
+      status = GetUserInfo (NULL,                       /* server name */
+			    svz_windoze_asc2uni (user), /* user name */
+			    1,                          /* type of info */
+			    (LPBYTE *) &entry);         /* info buffer */
 
       if (status != NERR_Success)
 	{
@@ -194,15 +194,17 @@ http_userdir (socket_t sock, char *uri)
 	      error = "Unknown error.";
 	      break;
 	    }
-	  log_printf (LOG_ERROR, "NetUserGetInfo: %s\n", error);
+	  svz_log (LOG_ERROR, "NetUserGetInfo: %s\n", error);
 	}
       /* successfully got the user information ? */
       else if (entry && entry->usri1_home_dir && entry->usri1_home_dir[0])
 	{
-	  file = svz_malloc (strlen (windoze_uni2asc (entry->usri1_home_dir)) +
-			     strlen (cfg->userdir) + strlen (p) + 2);
+	  file = 
+	    svz_malloc (strlen (svz_windoze_uni2asc (entry->usri1_home_dir)) +
+			strlen (cfg->userdir) + strlen (p) + 2);
 	  sprintf (file, "%s/%s%s", 
-		   windoze_uni2asc (entry->usri1_home_dir), cfg->userdir, p);
+		   svz_windoze_uni2asc (entry->usri1_home_dir), 
+		   cfg->userdir, p);
 	  FreeUserInfo (entry);
 	  svz_free (user);
 	  return file;
@@ -210,8 +212,8 @@ http_userdir (socket_t sock, char *uri)
 #if ENABLE_DEBUG
       else if (entry)
 	{
-	  log_printf (LOG_DEBUG, "http: home directory for %s not set\n",
-		      windoze_uni2asc (entry->usri1_name));
+	  svz_log (LOG_DEBUG, "http: home directory for %s not set\n",
+		   svz_windoze_uni2asc (entry->usri1_name));
 	}
 #endif /* ENABLE_DEBUG */
 #endif /* not HAVE_GETPWNAM and not __MINGW32__ */
@@ -230,7 +232,7 @@ int
 http_identification (char *ident, int id, int version)
 {
   http_socket_t *http;
-  socket_t sock = sock_find (id, version);
+  svz_socket_t *sock = svz_sock_find (id, version);
 
   if (ident && sock)
     {
@@ -249,7 +251,7 @@ int
 http_remotehost (char *host, int id, int version)
 {
   http_socket_t *http;
-  socket_t sock = sock_find (id, version);
+  svz_socket_t *sock = svz_sock_find (id, version);
 
   if (host && sock)
     {
@@ -280,7 +282,7 @@ http_localhost (char *host, http_config_t *cfg)
  * and necessary.
  */
 void
-http_log (socket_t sock)
+http_log (svz_socket_t *sock)
 {
   http_config_t *cfg = sock->cfg;
   http_socket_t *http = sock->data;
@@ -404,23 +406,23 @@ http_add_header (const char *fmt, ...)
  * Send the http header.
  */
 int
-http_send_header (socket_t sock)
+http_send_header (svz_socket_t *sock)
 {
   int ret = 0;
 
   /* send first part of header including response field and static texts */
-  ret = sock_printf (sock, 
-		     "%s"
-		     "Date: %s\r\n"
-		     "Server: %s/%s\r\n",
-		     http_header.response,
-		     http_asc_date (time (NULL)),
-		     svz_library, svz_version);
+  ret = svz_sock_printf (sock, 
+			 "%s"
+			 "Date: %s\r\n"
+			 "Server: %s/%s\r\n",
+			 http_header.response,
+			 http_asc_date (time (NULL)),
+			 svz_library, svz_version);
   if (ret)
     return ret;
 
   /* send header fields and trailing line break */
-  ret = sock_printf (sock, "%s\r\n", http_header.field);
+  ret = svz_sock_printf (sock, "%s\r\n", http_header.field);
   if (ret)
     return ret;
   
@@ -459,7 +461,7 @@ http_get_range (char *line, http_range_t *range)
   if (memcmp (p, "bytes", 5))
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
+      svz_log (LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
 #endif
       return -1;
     }
@@ -514,7 +516,7 @@ http_get_range (char *line, http_range_t *range)
  * not data." if this occurs.
  */
 int
-http_error_response (socket_t sock, int response)
+http_error_response (svz_socket_t *sock, int response)
 {
   http_config_t *cfg = sock->cfg;
   http_socket_t *http = sock->data;
@@ -601,18 +603,18 @@ http_error_response (socket_t sock, int response)
   http->response = response;
 
   /* Send some standard error message. */
-  return sock_printf (sock, 
-		      "<html><body bgcolor=white text=black><br>"
-		      "<h1>%d %s</h1>"
-		      "<hr noshade><i>%s/%s server at %s port %d, "
-		      "please send email to <a href=\"mailto:%s\">%s</a> "
-		      "for reporting errors</i>"
-		      "</body></html>",
-		      response, txt, 
-		      svz_library, svz_version,
-		      cfg->host ? cfg->host : 
-		      svz_inet_ntoa (sock->local_addr),
-		      ntohs (sock->local_port), cfg->admin, cfg->admin);
+  return svz_sock_printf (sock, 
+			  "<html><body bgcolor=white text=black><br>"
+			  "<h1>%d %s</h1>"
+			  "<hr noshade><i>%s/%s server at %s port %d, "
+			  "please send email to <a href=\"mailto:%s\">%s</a> "
+			  "for reporting errors</i>"
+			  "</body></html>",
+			  response, txt, 
+			  svz_library, svz_version,
+			  cfg->host ? cfg->host : 
+			  svz_inet_ntoa (sock->local_addr),
+			  ntohs (sock->local_port), cfg->admin, cfg->admin);
 }
 
 /*
@@ -620,20 +622,20 @@ http_error_response (socket_t sock, int response)
  * Keep-Alive connections. Return -1 if it is not 'Keep'able.
  */
 int
-http_keep_alive (socket_t sock)
+http_keep_alive (svz_socket_t *sock)
 {
   if (sock->userflags & HTTP_FLAG_KEEP)
     {
       http_free_socket (sock);
 
       sock->userflags &= ~HTTP_FLAG; 
-      sock->read_socket = tcp_read_socket;
+      sock->read_socket = svz_tcp_read_socket;
       sock->check_request = http_check_request;
       sock->write_socket = http_default_write;
       sock->send_buffer_fill = 0;
       sock->idle_func = http_idle;
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "http: keeping connection alive\n");
+      svz_log (LOG_DEBUG, "http: keeping connection alive\n");
 #endif
       return 0;
     }
@@ -645,7 +647,7 @@ http_keep_alive (socket_t sock)
  * Keep-Alive connection and sends the appropriate HTTP header property.
  */
 void
-http_check_keepalive (socket_t sock)
+http_check_keepalive (svz_socket_t *sock)
 {
   http_socket_t *http = sock->data;
   http_config_t *cfg = sock->cfg;
@@ -770,7 +772,7 @@ http_parse_date (char *date)
  * properties found in the request.
  */
 int
-http_parse_property (socket_t sock, char *request, char *end)
+http_parse_property (svz_socket_t *sock, char *request, char *end)
 {
   int properties, n;
   char *p;
@@ -785,7 +787,7 @@ http_parse_property (socket_t sock, char *request, char *end)
   n = 0;
 
   /* find out properties if necessary */
-  while (INT16 (request) != CRLF && properties < MAX_HTTP_PROPERTIES - 1)
+  while (SVZ_INT16 (request) != CRLF && properties < MAX_HTTP_PROPERTIES - 1)
     {
       /* get property entity identifier */
       p = request;
@@ -800,7 +802,7 @@ http_parse_property (socket_t sock, char *request, char *end)
       request = p + 2;
 
       /* get property entity body */
-      while (INT16 (p) != CRLF && p < end)
+      while (SVZ_INT16 (p) != CRLF && p < end)
 	p++;
       if (p == end || p <= request)
 	break;
@@ -994,7 +996,7 @@ http_read_types (http_config_t *cfg)
  * type if the suffix could not be found.
  */
 char *
-http_find_content_type (socket_t sock, char *file)
+http_find_content_type (svz_socket_t *sock, char *file)
 {
   http_config_t *cfg = sock->cfg;
   char *suffix = file + strlen (file) - 1;
@@ -1049,7 +1051,7 @@ http_absolute_file (char *file)
   savedir = svz_malloc (MAX_DIR_LEN);
   if ((getcwd (savedir, MAX_DIR_LEN)) == NULL)
     {
-      log_printf (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
       svz_free (savefile);
       svz_free (savedir);
       return file;
@@ -1073,9 +1075,9 @@ http_absolute_file (char *file)
   if (chdir (file) == -1)
     {
       *p = '/';
-      log_printf (LOG_ERROR, "chdir: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "chdir: %s\n", SYS_ERROR);
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "cannot change dir: %s\n", file);
+      svz_log (LOG_DEBUG, "cannot change dir: %s\n", file);
 #endif
       svz_free (savefile);
       svz_free (savedir);
@@ -1087,7 +1089,7 @@ http_absolute_file (char *file)
   dir = svz_malloc (MAX_DIR_LEN);
   if ((getcwd (dir, MAX_DIR_LEN)) == NULL)
     {
-      log_printf (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "getcwd: %s\n", SYS_ERROR);
       svz_free (dir);
       svz_free (savefile);
       svz_free (savedir);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.19 2001/04/28 12:37:06 ela Exp $
+ * $Id: http-proto.h,v 1.20 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -73,21 +73,21 @@ int http_global_init (void);
 int http_global_finalize (void);
 
 /* basic protocol functions */
-int http_detect_proto (void *cfg, socket_t sock);
-int http_connect_socket (void *cfg, socket_t sock);
-char *http_info_client (void *cfg, socket_t sock);
+int http_detect_proto (void *cfg, svz_socket_t *sock);
+int http_connect_socket (void *cfg, svz_socket_t *sock);
+char *http_info_client (void *cfg, svz_socket_t *sock);
 char *http_info_server (svz_server_t *server);
 
 /* internal protocol functions */
-int http_check_request (socket_t sock);
-int http_default_write (socket_t sock);
-int http_disconnect (socket_t sock);
-void http_free_socket (socket_t sock);
-int http_idle (socket_t sock);
+int http_check_request (svz_socket_t *sock);
+int http_default_write (svz_socket_t *sock);
+int http_disconnect (svz_socket_t *sock);
+void http_free_socket (svz_socket_t *sock);
+int http_idle (svz_socket_t *sock);
 
 /* http response functions including their flags */
-int http_get_response (socket_t sock, char *request, int flags);
-int http_head_response (socket_t sock, char *request, int flags);
-int http_default_response (socket_t sock, char *request, int flags);
+int http_get_response (svz_socket_t *sock, char *request, int flags);
+int http_head_response (svz_socket_t *sock, char *request, int flags);
+int http_default_response (svz_socket_t *sock, char *request, int flags);
 
 #endif /* __HTTP_PROTO_H__ */

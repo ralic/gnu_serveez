@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.13 2001/05/07 21:02:58 ela Exp $
+ * $Id: guile.c,v 1.14 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -441,7 +441,7 @@ guile_define_server (SCM name, SCM args)
      loading it if not. */
   if (server == NULL)
     {
-      if ((stype = svz_server_load (server_description)) != NULL)
+      if ((stype = svz_servertype_load (server_description)) != NULL)
 	{
 	  svz_servertype_add (stype);
 	  server = svz_server_instantiate (stype, servername);
@@ -461,15 +461,15 @@ guile_define_server (SCM name, SCM args)
 
 #if ENABLE_DEBUG
   /* Print debug output. */
-  log_printf (LOG_DEBUG, "defining server `%s' (%s)\n", servername, 
-	      server_description);
+  svz_log (LOG_DEBUG, "defining server `%s' (%s)\n", servername, 
+	   server_description);
 #endif
 
   /* Print error if necessary. */
   if (server == NULL)
     {
-      log_printf (LOG_ERROR, "no such server type: %s\n",
-		  server_description);
+      svz_log (LOG_ERROR, "no such server type: %s\n",
+	       server_description);
     }
 
   svz_free (server_description);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.6 2001/04/04 22:20:02 ela Exp $
+ * $Id: array.h,v 1.7 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -65,6 +65,8 @@ __END_DECLS
 #else /* ENABLE_DEBUG */
 
 /* Everything via inline functions. */
+
+#include <string.h>
 
 typedef void * svz_array_t;
 

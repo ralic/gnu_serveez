@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.11 2001/04/11 13:31:04 ela Exp $
+ * $Id: coserver.c,v 1.12 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -112,7 +112,7 @@ svz_coserver_dns_invoke (char *host,
  * Wrapper for the ident coserver.
  */
 void
-svz_coserver_ident_invoke (socket_t sock, 
+svz_coserver_ident_invoke (svz_socket_t *sock, 
 			   svz_coserver_handle_result_t cb, 
 			   svz_coserver_args_t)
 {
@@ -165,8 +165,8 @@ svz_coserver_get_id (char *response)
     }
   if (*p != COSERVER_ID_BOUNDARY)
     {
-      log_printf (LOG_WARNING,
-		  "coserver: invalid protocol character (0x%02x)\n", *p);
+      svz_log (LOG_WARNING,
+	       "coserver: invalid protocol character (0x%02x)\n", *p);
       return 0;
     }
   p++;
@@ -215,8 +215,8 @@ svz_coserver_put_id (unsigned id, char *response)
 /* Debug info Macro. */
 #if ENABLE_DEBUG
 # define COSERVER_REQUEST_INFO() \
-  log_printf (LOG_DEBUG, "%s: coserver request occurred\n",   \
-	      svz_coservertypes[coserver->type].name);
+  svz_log (LOG_DEBUG, "%s: coserver request occurred\n",   \
+	   svz_coservertypes[coserver->type].name);
 #else
 # define COSERVER_REQUEST_INFO()
 #endif
@@ -224,8 +224,8 @@ svz_coserver_put_id (unsigned id, char *response)
 /* Post-Processing Macro. */
 #if ENABLE_DEBUG
 # define COSERVER_RESULT() \
-  log_printf (LOG_DEBUG, "%s: coserver request processed\n", \
-	      svz_coservertypes[coserver->type].name);
+  svz_log (LOG_DEBUG, "%s: coserver request processed\n", \
+	   svz_coservertypes[coserver->type].name);
 #else
 # define COSERVER_RESULT()
 #endif
@@ -247,7 +247,7 @@ svz_coserver_put_id (unsigned id, char *response)
 
 #ifdef __MINGW32__
 static void
-svz_coserver_loop (svz_coserver_t *coserver, socket_t sock)
+svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
 {
   char *p;
   int len;
@@ -300,7 +300,7 @@ svz_coserver_loop (svz_coserver_t *coserver, socket_t sock)
       /* suspend myself and wait for being resumed ... */
       if (SuspendThread (coserver->thread) == 0xFFFFFFFF)
 	{
-	  log_printf (LOG_ERROR, "SuspendThread: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "SuspendThread: %s\n", SYS_ERROR);
 	}
     }
 }
@@ -317,14 +317,12 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 
   if ((in = fdopen (in_pipe, "r")) == NULL)
     {
-      log_printf (LOG_ERROR, "coserver: fdopen (%d): %s\n", in_pipe, 
-		  SYS_ERROR);
+      svz_log (LOG_ERROR, "coserver: fdopen (%d): %s\n", in_pipe, SYS_ERROR);
       return;
     }
   if ((out = fdopen (out_pipe, "w")) == NULL)
     {
-      log_printf (LOG_ERROR, "coserver: fdopen (%d): %s\n", out_pipe, 
-		  SYS_ERROR);
+      svz_log (LOG_ERROR, "coserver: fdopen (%d): %s\n", out_pipe, SYS_ERROR);
       return;
     }
 
@@ -343,9 +341,9 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
   
   /* error in reading pipe */
   if (fclose (in))
-    log_printf (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+    svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
   if (fclose (out))
-    log_printf (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+    svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
 }
 
 #endif /* not __MINGW32__ */
@@ -397,8 +395,8 @@ svz_coserver_activate (int type)
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "%d internal %s coserver activated\n",
-	      count, svz_coservertypes[type].name);
+  svz_log (LOG_DEBUG, "%d internal %s coserver activated\n",
+	   count, svz_coservertypes[type].name);
 #endif /* ENABLE_DEBUG */
 }
 
@@ -412,7 +410,7 @@ void
 svz_coserver_check (void)
 {
   svz_coserver_t *coserver;
-  socket_t sock;
+  svz_socket_t *sock;
   int n;
   
   /* go through all coservers */
@@ -422,8 +420,8 @@ svz_coserver_check (void)
       while (sock->recv_buffer_fill > 0)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "%s: coserver response detected\n",
-		      svz_coservertypes[coserver->type].name);
+	  svz_log (LOG_DEBUG, "%s: coserver response detected\n",
+		   svz_coservertypes[coserver->type].name);
 #endif
 	  /* find a full response within the receive buffer */
 	  if (sock->check_request)
@@ -463,7 +461,7 @@ svz_coserver_delete (int n)
  * socket structure entry `disconnected_socket'.
  */
 static int
-svz_coserver_disconnect (socket_t sock)
+svz_coserver_disconnect (svz_socket_t *sock)
 {
   int n;
   svz_coserver_t *coserver;
@@ -473,16 +471,16 @@ svz_coserver_disconnect (socket_t sock)
       if (coserver->sock == sock)
 	{
 #if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, 
-		      "%s: killing coserver pid %d\n",
-		      svz_coservertypes[coserver->type].name, coserver->pid);
+	  svz_log (LOG_DEBUG, 
+		   "%s: killing coserver pid %d\n",
+		   svz_coservertypes[coserver->type].name, coserver->pid);
 #endif /* ENABLE_DEBUG */
 	  if (kill (coserver->pid, SIGKILL) == -1)
-	    log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
 #if HAVE_WAITPID
 	  /* cleanup coserver child process */
 	  else if (waitpid (coserver->pid, NULL, WNOHANG) == -1)
-	    log_printf (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
 #endif /* HAVE_WAITPID */
 	  /* re-arrange the internal coserver array */
 	  svz_coserver_delete (n);
@@ -499,7 +497,7 @@ svz_coserver_disconnect (socket_t sock)
  * lines (trailing '\n').
  */
 static int
-svz_coserver_check_request (socket_t sock)
+svz_coserver_check_request (svz_socket_t *sock)
 {
   char *packet = sock->recv_buffer;
   char *p = packet;
@@ -531,7 +529,7 @@ svz_coserver_check_request (socket_t sock)
   while (p < sock->recv_buffer + sock->recv_buffer_fill);
       
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "coserver: %d byte response\n", len);
+  svz_log (LOG_DEBUG, "coserver: %d byte response\n", len);
 #endif
 
   /* remove data from receive buffer if necessary */
@@ -549,7 +547,7 @@ svz_coserver_check_request (socket_t sock)
  * the standard @code{check_request()} detected a full packet by any coserver.
  */
 static int
-svz_coserver_handle_request (socket_t sock, char *request, int len)
+svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
 {
   int ret;
   unsigned id;
@@ -564,8 +562,8 @@ svz_coserver_handle_request (socket_t sock, char *request, int len)
     {
       if (*p < '0' || *p > '9')
 	{
-	  log_printf (LOG_WARNING, 
-		      "coserver: invalid character in id (0x%02X)\n", *p);
+	  svz_log (LOG_WARNING, 
+		   "coserver: invalid character in id (0x%02X)\n", *p);
 	  return -1;
 	}
       id *= 10;
@@ -574,8 +572,8 @@ svz_coserver_handle_request (socket_t sock, char *request, int len)
     }
   if (p == end)
     {
-      log_printf (LOG_WARNING, 
-		  "coserver: invalid coserver response (no id)\n");
+      svz_log (LOG_WARNING, 
+	       "coserver: invalid coserver response (no id)\n");
       return -1;
     }
   data = ++p;
@@ -585,8 +583,8 @@ svz_coserver_handle_request (socket_t sock, char *request, int len)
     p++;
   if (p == end)
     {
-      log_printf (LOG_WARNING, 
-		  "coserver: invalid coserver response (no data)\n");
+      svz_log (LOG_WARNING, 
+	       "coserver: invalid coserver response (no data)\n");
       return -1;
     }
   *p = '\0';
@@ -594,7 +592,7 @@ svz_coserver_handle_request (socket_t sock, char *request, int len)
   /* Have a look at the coserver callback hash. */
   if (NULL == (cb = svz_hash_get (svz_coserver_callbacks, svz_itoa (id))))
     {
-      log_printf (LOG_ERROR, "coserver: invalid callback for id %u\n", id);
+      svz_log (LOG_ERROR, "coserver: invalid callback for id %u\n", id);
       return -1;
     }
 
@@ -630,9 +628,9 @@ svz_coserver_close_pipes (svz_coserver_t *self)
       if (coserver != self)
 	{
 	  if (close (coserver->sock->pipe_desc[READ]) < 0)
-	    log_printf (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
 	  if (close (coserver->sock->pipe_desc[WRITE]) < 0)
-	    log_printf (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "coserver: close: %s\n", SYS_ERROR);
 	}
     }
 }
@@ -655,20 +653,20 @@ svz_coserver_destroy (int type)
 #ifdef __MINGW32__
 	  /* stop the thread and close its handle */
 	  if (!TerminateThread (coserver->thread, 0))
-	    log_printf (LOG_ERROR, "TerminateThread: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "TerminateThread: %s\n", SYS_ERROR);
 	  if (!CloseHandle (coserver->thread))
-	    log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
 	  DeleteCriticalSection (&coserver->sync);
 
 	  /* free all data reserved by the coserver */
-	  sock_free (coserver->sock);
+	  svz_sock_free (coserver->sock);
 #else /* not __MINGW32__ */
 	  if (kill (coserver->pid, SIGKILL) == -1)
-	    log_printf (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
 #if HAVE_WAITPID
 	  /* cleanup coserver child process */
 	  else if (waitpid (coserver->pid, NULL, WNOHANG) == -1)
-	    log_printf (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
 #endif /* HAVE_WAITPID */
 #endif /* not __MINGW32__ */
 	  svz_coserver_delete (n);
@@ -680,8 +678,8 @@ svz_coserver_destroy (int type)
 #ifdef ENABLE_DEBUG
   if (count > 0)
     {
-      log_printf (LOG_DEBUG, "%d internal %s coserver destroyed\n", 
-		  count, svz_coservertypes[type].name);
+      svz_log (LOG_DEBUG, "%d internal %s coserver destroyed\n", 
+	       count, svz_coservertypes[type].name);
     }
 #endif /* ENABLE_DEBUG */
 }
@@ -691,10 +689,10 @@ svz_coserver_destroy (int type)
  * Unices. Whereas in Unix a process is @code{fork()}ed and in Win32
  * a thread gets started.
  */
-static socket_t
+static svz_socket_t *
 svz_coserver_start (int type) 
 {
-  socket_t sock;
+  svz_socket_t *sock;
   svz_coserver_t *coserver;
   
 #ifndef __MINGW32__
@@ -706,8 +704,8 @@ svz_coserver_start (int type)
   DWORD tid;
 #endif /* not __MINGW32__ */
 
-  log_printf (LOG_NOTICE, "starting internal %s coserver\n", 
-	      svz_coservertypes[type].name);
+  svz_log (LOG_NOTICE, "starting internal %s coserver\n", 
+	   svz_coservertypes[type].name);
 
   coserver = svz_malloc (sizeof (svz_coserver_t));
   coserver->type = type;
@@ -721,7 +719,7 @@ svz_coserver_start (int type)
   coserver->callback = svz_coservertypes[type].callback;
 
 #ifdef __MINGW32__
-  if ((sock = sock_alloc ()) == NULL)
+  if ((sock = svz_sock_alloc ()) == NULL)
     return NULL;
 
   InitializeCriticalSection (&coserver->sync);
@@ -738,9 +736,9 @@ svz_coserver_start (int type)
       (DWORD) CREATE_SUSPENDED,     /* creation flags */
       (LPDWORD) &tid)) == INVALID_HANDLE_VALUE) /* thread id */
     {
-      log_printf (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
       DeleteCriticalSection (&coserver->sync);
-      sock_free (sock);
+      svz_sock_free (sock);
       return NULL;
     }
 
@@ -750,10 +748,10 @@ svz_coserver_start (int type)
 
   /* set thread priority */
   if (!SetThreadPriority (thread, COSERVER_THREAD_PRIORITY))
-    log_printf (LOG_ERROR, "SetThreadPriority: %s\n", SYS_ERROR);
+    svz_log (LOG_ERROR, "SetThreadPriority: %s\n", SYS_ERROR);
 
 #ifdef ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "coserver thread id is 0x%08X\n", tid);
+  svz_log (LOG_DEBUG, "coserver thread id is 0x%08X\n", tid);
 #endif
 
 #else /* not __MINGW32__ */
@@ -761,14 +759,14 @@ svz_coserver_start (int type)
   /* create pipes for process communication */
   if (pipe (s2c) < 0)
     {
-      log_printf (LOG_ERROR, "pipe server-coserver: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "pipe server-coserver: %s\n", SYS_ERROR);
       return NULL;
     }
   if (pipe (c2s) < 0)
     {
       close (s2c[READ]);
       close (s2c[WRITE]);
-      log_printf (LOG_ERROR, "pipe coserver-server: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "pipe coserver-server: %s\n", SYS_ERROR);
       return NULL;
     }
 
@@ -779,12 +777,12 @@ svz_coserver_start (int type)
 
       /* close the servers pipe descriptors */
       if (close (s2c[WRITE]) < 0)
-	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       if (close (c2s[READ]) < 0)
-	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "coserver pipes: %d-%d\n", in, out);
+      svz_log (LOG_DEBUG, "coserver pipes: %d-%d\n", in, out);
 #endif
 
       /* check if the pipes are 0, 1 or 2 already */
@@ -792,9 +790,9 @@ svz_coserver_start (int type)
 	{
 	  /* reassign the pipes to stdout and stdin */
 	  if (dup2 (in, 0) != 0)
-	    log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
 	  if (dup2 (out, 1) != 1)
-	    log_printf (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+	    svz_log (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
 	  /* close the old pipe descriptors */
 	  close (in);
 	  close (out);
@@ -821,7 +819,7 @@ svz_coserver_start (int type)
     }
   else if (pid == -1)
     {
-      log_printf (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
       close (s2c[READ]);
       close (s2c[WRITE]);
       close (c2s[READ]);
@@ -832,30 +830,30 @@ svz_coserver_start (int type)
   /* the old server process continues here */
   
 #ifdef ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "coserver process id is %d\n", pid);
+  svz_log (LOG_DEBUG, "coserver process id is %d\n", pid);
 #endif
 
   /* close the coservers pipe descriptors */
   if (close (s2c[READ]) < 0)
-    log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+    svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
   if (close (c2s[WRITE]) < 0)
-    log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+    svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-  if ((sock = pipe_create (c2s[READ], s2c[WRITE])) == NULL)
+  if ((sock = svz_pipe_create (c2s[READ], s2c[WRITE])) == NULL)
     {
       if (close (c2s[READ]) < 0)
-	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       if (close (s2c[WRITE]) < 0)
-	log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+	svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       return NULL;
     }
 
   coserver->pid = pid;
   coserver->sock = sock;
   sock->disconnected_socket = svz_coserver_disconnect;
-  sock->write_socket = pipe_write_socket;
-  sock->read_socket = pipe_read_socket;
-  sock_enqueue (sock);
+  sock->write_socket = svz_pipe_write_socket;
+  sock->read_socket = svz_pipe_read_socket;
+  svz_sock_enqueue (sock);
 
 #endif /* __MINGW32__ and Unices */
 
@@ -926,8 +924,8 @@ svz_coserver_finalize (void)
       svz_free (cb[n]);
     }
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "coserver: %d callback(s) left\n",
-	      svz_hash_size (svz_coserver_callbacks));
+  svz_log (LOG_DEBUG, "coserver: %d callback(s) left\n",
+	   svz_hash_size (svz_coserver_callbacks));
 #endif
   svz_hash_destroy (svz_coserver_callbacks);
   return 0;
@@ -987,10 +985,10 @@ svz_coserver_send_request (int type, char *request,
 #ifdef __MINGW32__
       EnterCriticalSection (&coserver->sync);
 #endif /* __MINGW32__ */
-      if (sock_printf (coserver->sock, "%u:%s\n", 
-		       svz_coserver_callback_id, request))
+      if (svz_sock_printf (coserver->sock, "%u:%s\n", 
+			   svz_coserver_callback_id, request))
 	{
-	  sock_schedule_for_shutdown (coserver->sock);
+	  svz_sock_schedule_for_shutdown (coserver->sock);
 	}
       svz_coserver_callback_id++;
 #ifdef __MINGW32__

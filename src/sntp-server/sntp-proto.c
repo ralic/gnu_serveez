@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.7 2001/04/28 12:37:06 ela Exp $
+ * $Id: sntp-proto.c,v 1.8 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -65,7 +65,7 @@ sntp_config_t sntp_config =
  */
 svz_key_value_pair_t sntp_config_prototype [] = 
 {
-  REGISTER_END ()
+  SVZ_REGISTER_END ()
 };
 
 /*
@@ -105,7 +105,7 @@ sntp_init (svz_server_t *server)
  * The packet processor for the SNTP server.
  */
 int
-sntp_handle_request (socket_t sock, char *packet, int len)
+sntp_handle_request (svz_socket_t *sock, char *packet, int len)
 {
   unsigned long date;
   unsigned char reply[8];
@@ -125,15 +125,15 @@ sntp_handle_request (socket_t sock, char *packet, int len)
   memcpy (reply, &date, 4);
   date = htonl (t.tv_usec);
   memcpy (&reply[4], &date, 4);
-  udp_printf (sock, "%c%c%c%c", 
-	      reply[0], reply[1], reply[2], reply[3]);
-  udp_printf (sock, "%c%c%c%c", 
-	      reply[4], reply[5], reply[6], reply[7]);
+  svz_udp_printf (sock, "%c%c%c%c", 
+		  reply[0], reply[1], reply[2], reply[3]);
+  svz_udp_printf (sock, "%c%c%c%c", 
+		  reply[4], reply[5], reply[6], reply[7]);
 #else /* not HAVE_GETTIMEOFDAY */
   t = time (NULL);
   date = htonl (2208988800u + t);
   memcpy (reply, &date, 4);
-  udp_printf (sock, "%c%c%c%c", reply[0], reply[1], reply[2], reply[3]);
+  svz_udp_printf (sock, "%c%c%c%c", reply[0], reply[1], reply[2], reply[3]);
 #endif /* not HAVE_GETTIMEOFDAY */
 
   return 0;

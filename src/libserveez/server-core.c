@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.11 2001/05/09 21:04:09 ela Exp $
+ * $Id: server-core.c,v 1.12 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -81,55 +81,55 @@
 #include "libserveez/server-core.h"
 
 /* 
- * When SERVER_NUKE_HAPPENED is set to a non-zero value, the server
+ * When @var{svz_nuke_happended} is set to a non-zero value, the server
  * will terminate its main loop.
  */
-int server_nuke_happened;
+int svz_nuke_happened;
 
 /*
- * When SERVER_RESET_HAPPENED gets set to a non-zero value, the server
+ * When @var{svz_reset_happended} gets set to a non-zero value, the server
  * will try to re-initialize itself on the next execution of the main
  * loop.
  */
-static int server_reset_happened;
+static int svz_reset_happened;
 
 /*
- * SERVER_PIPE_BROKE is set to a non-zero value whenever the server
- * receives a SIGPIPE signal.
+ * The variable @var{svz_pipe_broke} is set to a non-zero value whenever 
+ * the server receives a SIGPIPE signal.
  */
-static int server_pipe_broke;
+static int svz_pipe_broke;
 
 /*
- * SERVER_CHILD_DIED is set to a non-zero value whenever the server
+ * @var{svz_child_died} is set to a non-zero value whenever the server
  * receives a SIGCHLD signal.
  */
-HANDLE server_child_died;
+HANDLE svz_child_died;
 
 /* 
- * This holds the time on which the next call to server_periodic_tasks()
+ * This holds the time on which the next call to @code{svz_periodic_tasks()}
  * should occur.
  */
-time_t server_notify;
+time_t svz_notify;
 
 /*
- * SOCK_ROOT is the pointer to the head of the list of sockets, which are
- * handled by the server loop.
+ * @var{svz_sock_root} is the pointer to the head of the list of sockets, 
+ * which are handled by the server loop.
  */
-socket_t sock_root = NULL;
+svz_socket_t *svz_sock_root = NULL;
 
 /*
- * SOCK_LAST always points to the last structure in the socket queue
- * and is NULL when the queue is empty.
+ * @var{svz_sock_last} always points to the last structure in the socket queue
+ * and is @var{NULL} when the queue is empty.
  */
-socket_t sock_last = NULL;
+svz_socket_t *svz_sock_last = NULL;
 
 /*
- * SOCK_LOOKUP_TABLE is used to speed up references to socket
+ * @var{svz_sock_lookup_table} is used to speed up references to socket
  * structures by socket's id.
  */
-static socket_t sock_lookup_table[SOCKET_MAX_IDS];
-static int socket_id = 0;
-static int socket_version = 0;
+static svz_socket_t *svz_sock_lookup_table[SOCK_MAX_ID];
+static int svz_sock_id = 0;
+static int svz_sock_version = 0;
 
 /*
  * Handle some signals to handle server resets (SIGHUP), to ignore
@@ -137,20 +137,20 @@ static int socket_version = 0;
  * user (SIGINT, SIGTERM).
  */
 RETSIGTYPE 
-server_signal_handler (int sig)
+svz_signal_handler (int sig)
 {
   switch (sig)
     {
 #ifdef SIGHUP
     case SIGHUP:
-      server_reset_happened = 1;
-      signal (SIGHUP, server_signal_handler);
+      svz_reset_happened = 1;
+      signal (SIGHUP, svz_signal_handler);
       break;
 #endif
 #ifdef SIGPIPE
     case SIGPIPE:
-      server_pipe_broke = 1;
-      signal (SIGPIPE, server_signal_handler);
+      svz_pipe_broke = 1;
+      signal (SIGPIPE, svz_signal_handler);
       break;
 #endif
 #ifdef SIGCHLD
@@ -162,14 +162,14 @@ server_signal_handler (int sig)
 	if ((pid = waitpid (-1, &status, WNOHANG | WUNTRACED)) != -1)
 	  {
 	    if (!WIFSTOPPED (status))
-	      server_child_died = pid;
+	      svz_child_died = pid;
 	  }
       }
 #else /* HAVE_WAITPID */
-      if ((server_child_died = wait (NULL)) == -1)
-	server_child_died = 0;
+      if ((svz_child_died = wait (NULL)) == -1)
+	svz_child_died = 0;
 #endif /* not HAVE_WAITPID */
-      signal (SIGCHLD, server_signal_handler);
+      signal (SIGCHLD, svz_signal_handler);
       break;
 #endif
 #ifdef SIGBREAK
@@ -178,29 +178,29 @@ server_signal_handler (int sig)
        * reset signal handlers to the default, so the server
        * can get killed on second try
        */
-      server_nuke_happened = 1;
+      svz_nuke_happened = 1;
       signal (SIGBREAK, SIG_DFL);
       break;
 #endif
 #ifdef SIGTERM
     case SIGTERM:
-      server_nuke_happened = 1;
+      svz_nuke_happened = 1;
       signal (SIGTERM, SIG_DFL);
       break;
 #endif
 #ifdef SIGINT
     case SIGINT:
-      server_nuke_happened = 1;
+      svz_nuke_happened = 1;
       signal (SIGINT, SIG_DFL);
       break;
 #endif
     default:
-      log_printf (LOG_DEBUG, "uncaught signal %d\n", sig);
+      svz_log (LOG_DEBUG, "uncaught signal %d\n", sig);
       break;
     }
 
 #if HAVE_STRSIGNAL
-  log_printf (LOG_WARNING, "signal: %s\n", strsignal (sig));
+  svz_log (LOG_WARNING, "signal: %s\n", strsignal (sig));
 #endif
 
 #ifdef NONVOID_SIGNAL
@@ -212,9 +212,9 @@ server_signal_handler (int sig)
  * Abort the process, printing the error message MSG first.
  */
 static int
-server_abort (char *msg)
+svz_abort (char *msg)
 {
-  log_printf (LOG_FATAL, "list validation failed: %s\n", msg);
+  svz_log (LOG_FATAL, "list validation failed: %s\n", msg);
   abort ();
   return 0;
 }
@@ -225,14 +225,14 @@ server_abort (char *msg)
  * representation of the current socket list.
  */
 static void
-sock_print_list (void)
+svz_sock_print_list (void)
 {
-  socket_t sock = sock_root;
+  svz_socket_t *sock = svz_sock_root;
 
   while (sock)
     {
       fprintf (stdout, "id: %04d, sock: %p == %p, prev: %p, next: %p\n",
-	       sock->id, sock, sock_lookup_table[sock->id], 
+	       sock->id, sock, svz_sock_lookup_table[sock->id], 
 	       sock->prev, sock->next);
       sock = sock->next;
     }
@@ -245,50 +245,50 @@ sock_print_list (void)
  * Abort the program with an error message, if it is not.
  */
 static int
-sock_validate_list (void)
+svz_sock_validate_list (void)
 {
-  socket_t sock, prev;
+  svz_socket_t *sock, *prev;
   
 #if 0
-  sock_print_list ();
+  svz_sock_print_list ();
 #endif
 
   prev = NULL;
-  sock = sock_root;
+  sock = svz_sock_root;
   while (sock)
     {
       /* check if the descriptors are valid */
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
-	  if (sock_valid (sock) == -1)
+	  if (svz_sock_valid (sock) == -1)
 	    {
-	      server_abort ("invalid socket descriptor");
+	      svz_abort ("invalid socket descriptor");
 	    }
 	}
       if (sock->flags & SOCK_FLAG_PIPE)
 	{
-	  if (pipe_valid (sock) == -1)
+	  if (svz_pipe_valid (sock) == -1)
 	    {
-	      server_abort ("invalid pipe descriptor");
+	      svz_abort ("invalid pipe descriptor");
 	    }
 	}
       
       /* check socket list structure */
-      if (sock_lookup_table[sock->id] != sock)
+      if (svz_sock_lookup_table[sock->id] != sock)
 	{
-	  server_abort ("lookup table corrupted");
+	  svz_abort ("lookup table corrupted");
 	}
       if (prev != sock->prev)
 	{
-	  server_abort ("list structure invalid (sock->prev)");
+	  svz_abort ("list structure invalid (sock->prev)");
 	}
       prev = sock;
       sock = sock->next;
     }
 
-  if (prev != sock_last)
+  if (prev != svz_sock_last)
     {
-      server_abort ("list structure invalid (last socket)");
+      svz_abort ("list structure invalid (last socket)");
     }
   return 0;
 }
@@ -300,17 +300,17 @@ sock_validate_list (void)
  * has returned. Listeners are kept at the beginning of the chain anyway.
  */
 static void
-sock_rechain_list (void)
+svz_sock_rechain_list (void)
 {
-  socket_t sock;
-  socket_t last_listen;
-  socket_t end_socket;
+  svz_socket_t *sock;
+  svz_socket_t *last_listen;
+  svz_socket_t *end_socket;
 
-  sock = sock_last;
+  sock = svz_sock_last;
   if (sock && sock->prev)
     {
       end_socket = sock->prev;
-      for (last_listen = sock_root; last_listen && last_listen != sock && 
+      for (last_listen = svz_sock_root; last_listen && last_listen != sock && 
 	     last_listen->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_PRIORITY) &&
 	     !(sock->flags & SOCK_FLAG_LISTENING);
 	   last_listen = last_listen->next);
@@ -339,15 +339,15 @@ sock_rechain_list (void)
       else 
 	{
 	  /* enqueue at root */
-	  sock->next = sock_root;
+	  sock->next = svz_sock_root;
 	  sock->prev = NULL;
 	  sock->next->prev = sock;
-	  sock_root = sock;
+	  svz_sock_root = sock;
 	}
       
       /* mark the new end of chain */
       end_socket->next = NULL;
-      sock_last = end_socket;
+      svz_sock_last = end_socket;
     }
 }
 
@@ -356,14 +356,14 @@ sock_rechain_list (void)
  * the server loop.
  */
 int
-sock_enqueue (socket_t sock)
+svz_sock_enqueue (svz_socket_t *sock)
 {
   /* check for validity of pipe descriptors */
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      if (pipe_valid (sock) == -1)
+      if (svz_pipe_valid (sock) == -1)
 	{
-	  log_printf (LOG_FATAL, "cannot enqueue invalid pipe\n");
+	  svz_log (LOG_FATAL, "cannot enqueue invalid pipe\n");
 	  return -1;
 	}
     }
@@ -371,37 +371,37 @@ sock_enqueue (socket_t sock)
   /* check for validity of socket descriptors */
   if (sock->flags & SOCK_FLAG_SOCK)
     {
-      if (sock_valid (sock) == -1)
+      if (svz_sock_valid (sock) == -1)
 	{
-	  log_printf (LOG_FATAL, "cannot enqueue invalid socket\n");
+	  svz_log (LOG_FATAL, "cannot enqueue invalid socket\n");
 	  return -1;
 	}
     }
 
   /* check lookup table */
-  if (sock_lookup_table[sock->id] || sock->flags & SOCK_FLAG_ENQUEUED)
+  if (svz_sock_lookup_table[sock->id] || sock->flags & SOCK_FLAG_ENQUEUED)
     {
-      log_printf (LOG_FATAL, "socket id %d has been already enqueued\n", 
-		  sock->id);
+      svz_log (LOG_FATAL, "socket id %d has been already enqueued\n", 
+	       sock->id);
       return -1;
     }
 
   /* really enqueue socket */
   sock->next = NULL;
   sock->prev = NULL;
-  if (!sock_root)
+  if (!svz_sock_root)
     {
-      sock_root = sock;
+      svz_sock_root = sock;
     }
   else
     {
-      sock_last->next = sock;
-      sock->prev = sock_last;
+      svz_sock_last->next = sock;
+      sock->prev = svz_sock_last;
     }
 
-  sock_last = sock;
+  svz_sock_last = sock;
   sock->flags |= SOCK_FLAG_ENQUEUED;
-  sock_lookup_table[sock->id] = sock;
+  svz_sock_lookup_table[sock->id] = sock;
 
   return 0;
 }
@@ -411,14 +411,14 @@ sock_enqueue (socket_t sock)
  * the server loop.
  */
 int
-sock_dequeue (socket_t sock)
+svz_sock_dequeue (svz_socket_t *sock)
 {
   /* check for validity of pipe descriptors */
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      if (pipe_valid (sock) == -1)
+      if (svz_pipe_valid (sock) == -1)
 	{
-	  log_printf (LOG_FATAL, "cannot dequeue invalid pipe\n");
+	  svz_log (LOG_FATAL, "cannot dequeue invalid pipe\n");
 	  return -1;
 	}
     }
@@ -426,18 +426,18 @@ sock_dequeue (socket_t sock)
   /* check for validity of socket descriptors */
   if (sock->flags & SOCK_FLAG_SOCK)
     {
-      if (sock_valid (sock) == -1)
+      if (svz_sock_valid (sock) == -1)
 	{
-	  log_printf (LOG_FATAL, "cannot dequeue invalid socket\n");
+	  svz_log (LOG_FATAL, "cannot dequeue invalid socket\n");
 	  return -1;
 	}
     }
 
   /* check lookup table */
-  if (!sock_lookup_table[sock->id] || !(sock->flags & SOCK_FLAG_ENQUEUED))
+  if (!svz_sock_lookup_table[sock->id] || !(sock->flags & SOCK_FLAG_ENQUEUED))
     {
-      log_printf (LOG_FATAL, "socket id %d has been already dequeued\n", 
-		  sock->id);
+      svz_log (LOG_FATAL, "socket id %d has been already dequeued\n", 
+	       sock->id);
       return -1;
     }
 
@@ -445,15 +445,15 @@ sock_dequeue (socket_t sock)
   if (sock->next)
     sock->next->prev = sock->prev;
   else
-    sock_last = sock->prev;
+    svz_sock_last = sock->prev;
 
   if (sock->prev)
     sock->prev->next = sock->next;
   else
-    sock_root = sock->next;
+    svz_sock_root = sock->next;
 
   sock->flags &= ~SOCK_FLAG_ENQUEUED;
-  sock_lookup_table[sock->id] = NULL;
+  svz_sock_lookup_table[sock->id] = NULL;
 
   return 0;
 }
@@ -465,7 +465,7 @@ sock_dequeue (socket_t sock)
  * otherwise non-zero.
  */
 int
-sock_check_frequency (socket_t parent, socket_t child)
+svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
 {
   svz_portcfg_t *port = parent->cfg;
   char *ip = svz_inet_ntoa (child->remote_addr);
@@ -497,8 +497,8 @@ sock_check_frequency (socket_t parent, socket_t child)
       /* Check the connection frequency. */
       if ((nr /= 4) > port->connect_freq)
 	{
-	  log_printf (LOG_NOTICE, "connect frequency reached: %s: %d/%d\n", 
-		      ip, nr, port->connect_freq);
+	  svz_log (LOG_NOTICE, "connect frequency reached: %s: %d/%d\n", 
+		   ip, nr, port->connect_freq);
 	  ret = -1;
 	}
     }
@@ -519,7 +519,7 @@ sock_check_frequency (socket_t parent, socket_t child)
  * which needs to be a listener therefore.
  */
 int
-sock_check_access (socket_t parent, socket_t child)
+svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 {
   svz_portcfg_t *port = parent->cfg;
   char *ip;
@@ -533,7 +533,7 @@ sock_check_access (socket_t parent, socket_t child)
 	{
 	  if (!strcmp (ip, remote))
 	    {
-	      log_printf (LOG_NOTICE, "denying access from %s\n", ip);
+	      svz_log (LOG_NOTICE, "denying access from %s\n", ip);
 	      return -1;
 	    }
 	}
@@ -547,13 +547,13 @@ sock_check_access (socket_t parent, socket_t child)
 	{
 	  if (!strcmp (ip, remote))
 	    {
-	      log_printf (LOG_NOTICE, "allowing access from %s\n", ip);
+	      svz_log (LOG_NOTICE, "allowing access from %s\n", ip);
 	      ret = 0;
 	    }
 	}
       if (ret)
 	{
-	  log_printf (LOG_NOTICE, "denying unallowed access from %s\n", ip);
+	  svz_log (LOG_NOTICE, "denying unallowed access from %s\n", ip);
 	  return ret;
 	}
     }
@@ -566,12 +566,12 @@ sock_check_access (socket_t parent, socket_t child)
  * or @code{NULL} if the given socket has no parent, i.e. is a listener.
  */
 svz_portcfg_t *
-sock_portcfg (socket_t sock)
+svz_sock_portcfg (svz_socket_t *sock)
 {
   svz_portcfg_t *port = NULL;
-  socket_t parent;
+  svz_socket_t *parent;
 
-  if ((parent = sock_getparent (sock)) != NULL)
+  if ((parent = svz_sock_getparent (sock)) != NULL)
     port = parent->cfg;
   return port;
 }
@@ -582,7 +582,7 @@ sock_portcfg (socket_t sock)
  * connection and creates a new child socket.
  */
 void
-sock_setparent (socket_t child, socket_t parent)
+svz_sock_setparent (svz_socket_t *child, svz_socket_t *parent)
 {
   child->parent_id = parent->id;
   child->parent_version = parent->version;
@@ -593,12 +593,12 @@ sock_setparent (socket_t child, socket_t parent)
  * if this socket does not exist anymore. This might happen if a listener
  * dies for some reason.
  */
-socket_t
-sock_getparent (socket_t child)
+svz_socket_t *
+svz_sock_getparent (svz_socket_t *child)
 {
   if (!child)
     return NULL;
-  return sock_find (child->parent_id, child->parent_version);
+  return svz_sock_find (child->parent_id, child->parent_version);
 }
 
 /*
@@ -606,26 +606,26 @@ sock_getparent (socket_t child)
  * @var{version} or @code{NULL} if no such socket exists. If @var{version}
  * is -1 it is not checked.
  */
-socket_t
-sock_find (int id, int version)
+svz_socket_t *
+svz_sock_find (int id, int version)
 {
-  socket_t sock;
+  svz_socket_t *sock;
 
-  if (id & ~(SOCKET_MAX_IDS - 1))
+  if (id & ~(SOCK_MAX_ID - 1))
     {
-      log_printf (LOG_FATAL, "socket id %d is invalid\n", id);
+      svz_log (LOG_FATAL, "socket id %d is invalid\n", id);
       return NULL;
     }
 
-  sock = sock_lookup_table[id];
+  sock = svz_sock_lookup_table[id];
   if (version != -1 && sock && sock->version != version)
     {
-      log_printf (LOG_WARNING, "socket version %d (id %d) is invalid\n", 
-		  version, id);
+      svz_log (LOG_WARNING, "socket version %d (id %d) is invalid\n", 
+	       version, id);
       return NULL;
     }
 
-  return sock_lookup_table[id];
+  return svz_sock_lookup_table[id];
 }
 
 /*
@@ -634,19 +634,19 @@ sock_find (int id, int version)
  * currently used in the coserver callbacks.
  */
 int
-sock_unique_id (socket_t sock)
+svz_sock_unique_id (svz_socket_t *sock)
 {
   do
     {
-      socket_id++;
-      socket_id &= (SOCKET_MAX_IDS - 1);
+      svz_sock_id++;
+      svz_sock_id &= (SOCK_MAX_ID - 1);
     }
-  while (sock_lookup_table[socket_id]);
+  while (svz_sock_lookup_table[svz_sock_id]);
 
-  sock->id = socket_id;
-  sock->version = socket_version++;
+  sock->id = svz_sock_id;
+  sock->version = svz_sock_version++;
   
-  return socket_id;
+  return svz_sock_id;
 }
 
 /*
@@ -654,7 +654,7 @@ sock_unique_id (socket_t sock)
  * that the server should be reset.
  */
 static int
-server_reset (void)
+svz_reset (void)
 {
   /* FIXME: Maybe `server_t' reset callback ? */
   return 0;
@@ -667,23 +667,23 @@ server_reset (void)
  * function calls SOCK's disconnect handler if defined.
  */
 static int
-sock_shutdown (socket_t sock)
+svz_sock_shutdown (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "shutting down socket id %d\n", sock->id);
+  svz_log (LOG_DEBUG, "shutting down socket id %d\n", sock->id);
 #endif
 
   if (sock->disconnected_socket)
     sock->disconnected_socket (sock);
 
-  sock_dequeue (sock);
+  svz_sock_dequeue (sock);
 
   if (sock->flags & SOCK_FLAG_SOCK)
-    sock_disconnect (sock);
+    svz_sock_disconnect (sock);
   if (sock->flags & SOCK_FLAG_PIPE)
-    pipe_disconnect (sock);
+    svz_pipe_disconnect (sock);
 
-  sock_free (sock);
+  svz_sock_free (sock);
 
   return 0;
 }
@@ -693,17 +693,17 @@ sock_shutdown (socket_t sock)
  * scheduled for shutdown or not.
  */
 void
-sock_shutdown_all (void)
+svz_sock_shutdown_all (void)
 {
-  socket_t sock;
+  svz_socket_t *sock;
 
-  sock = sock_root;
+  sock = svz_sock_root;
   while (sock)
     {
-      sock_shutdown (sock);
-      sock = sock_root;
+      svz_sock_shutdown (sock);
+      sock = svz_sock_root;
     }
-  sock_root = sock_last = NULL;
+  svz_sock_root = svz_sock_last = NULL;
 }
 
 /*
@@ -712,13 +712,13 @@ sock_shutdown_all (void)
  * will be deleted once the server loop is through.  
  */
 int
-sock_schedule_for_shutdown (socket_t sock)
+svz_sock_schedule_for_shutdown (svz_socket_t *sock)
 {
   if (!(sock->flags & SOCK_FLAG_KILLED))
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "scheduling socket id %d for shutdown\n",
-		  sock->id);
+      svz_log (LOG_DEBUG, "scheduling socket id %d for shutdown\n",
+	       sock->id);
 #endif /* ENABLE_DEBUG */
 
       sock->flags |= SOCK_FLAG_KILLED;
@@ -732,13 +732,13 @@ sock_schedule_for_shutdown (socket_t sock)
  * timers and calls their timer functions when necessary.
  */
 int
-server_periodic_tasks (void)
+svz_periodic_tasks (void)
 {
-  socket_t sock;
+  svz_socket_t *sock;
 
-  server_notify += 1;
+  svz_notify += 1;
 
-  sock = sock_root; 
+  sock = svz_sock_root; 
   while (sock)
     {
 #if ENABLE_FLOOD_PROTECTION
@@ -754,10 +754,10 @@ server_periodic_tasks (void)
 	    {
 	      if (sock->idle_func (sock))
 		{
-		  log_printf (LOG_ERROR, 
-			      "idle function for socket id %d "
-			      "returned error\n", sock->id);
-		  sock_schedule_for_shutdown (sock);
+		  svz_log (LOG_ERROR, 
+			   "idle function for socket id %d "
+			   "returned error\n", sock->id);
+		  svz_sock_schedule_for_shutdown (sock);
 		}
 	    }
 	}
@@ -779,18 +779,18 @@ server_periodic_tasks (void)
  * Goes through all socket and shuts invalid ones down.
  */
 void
-server_check_bogus (void)
+svz_sock_check_bogus (void)
 {
 #ifdef __MINGW32__
   unsigned long readBytes;
 #endif
-  socket_t sock;
+  svz_socket_t *sock;
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "checking for bogus sockets\n");
+  svz_log (LOG_DEBUG, "checking for bogus sockets\n");
 #endif /* ENABLE_DEBUG */
 
-  for (sock = sock_root; sock; sock = sock->next)
+  svz_sock_foreach (sock)
     {
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
@@ -802,8 +802,8 @@ server_check_bogus (void)
 	  if (fcntl (sock->sock_desc, F_GETFL) < 0)
 	    {
 #endif /* not __MINGW32__ */
-	      log_printf (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
-	      sock_schedule_for_shutdown (sock);
+	      svz_log (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
+	      svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
 
@@ -812,18 +812,18 @@ server_check_bogus (void)
 	{
 	  if (fcntl (sock->pipe_desc[READ], F_GETFL) < 0)
 	    {
-	      log_printf (LOG_ERROR, "pipe %d has gone\n", 
-			  sock->pipe_desc[READ]);
-	      sock_schedule_for_shutdown (sock);
+	      svz_log (LOG_ERROR, "pipe %d has gone\n", 
+		       sock->pipe_desc[READ]);
+	      svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
       if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	{
 	  if (fcntl (sock->pipe_desc[WRITE], F_GETFL) < 0)
 	    {
-	      log_printf (LOG_ERROR, "pipe %d has gone\n", 
-			  sock->pipe_desc[WRITE]);
-	      sock_schedule_for_shutdown (sock);
+	      svz_log (LOG_ERROR, "pipe %d has gone\n", 
+		       sock->pipe_desc[WRITE]);
+	      svz_sock_schedule_for_shutdown (sock);
 	    }
 	}
 #endif /* not __MINGW32__ */
@@ -834,25 +834,25 @@ server_check_bogus (void)
  * Setup signaling for the core library.
  */
 void
-server_signal_up (void)
+svz_signal_up (void)
 {
 #ifdef SIGTERM
-  signal (SIGTERM, server_signal_handler);
+  signal (SIGTERM, svz_signal_handler);
 #endif
 #ifdef SIGINT
-  signal (SIGINT, server_signal_handler);
+  signal (SIGINT, svz_signal_handler);
 #endif
 #ifdef SIGBREAK
-  signal (SIGBREAK, server_signal_handler);
+  signal (SIGBREAK, svz_signal_handler);
 #endif
 #ifdef SIGCHLD
-  signal (SIGCHLD, server_signal_handler);
+  signal (SIGCHLD, svz_signal_handler);
 #endif
 #ifdef SIGHUP
-  signal (SIGHUP, server_signal_handler);
+  signal (SIGHUP, svz_signal_handler);
 #endif
 #ifdef SIGPIPE
-  signal (SIGPIPE, server_signal_handler);
+  signal (SIGPIPE, svz_signal_handler);
 #endif
 }
 
@@ -860,7 +860,7 @@ server_signal_up (void)
  * Deinstall signaling for the core library.
  */
 void
-server_signal_dn (void)
+svz_signal_dn (void)
 {
 #ifdef SIGTERM
   signal (SIGTERM, SIG_DFL);
@@ -884,65 +884,65 @@ server_signal_dn (void)
 
 /*
  * This routine handles all things once and is called regularly in the
- * below `server_loop ()' routine.
+ * below @code{svz_loop()} routine.
  */
 void
-server_loop_one (void)
+svz_loop_one (void)
 {
-  socket_t sock, next;
+  svz_socket_t *sock, *next;
   static int rechain = 0;
 
   /*
    * FIXME: Remove this once the server is stable.
    */
 #if ENABLE_DEBUG
-  sock_validate_list ();
+  svz_sock_validate_list ();
 #endif /* ENABLE_DEBUG */
 
-  if (server_reset_happened)
+  if (svz_reset_happened)
     {
       /* SIGHUP received. */
-      log_printf (LOG_NOTICE, "resetting server\n");
-      server_reset ();
-      server_reset_happened = 0;
+      svz_log (LOG_NOTICE, "resetting server\n");
+      svz_reset ();
+      svz_reset_happened = 0;
     }
 
-  if (server_pipe_broke)
+  if (svz_pipe_broke)
     {
       /* SIGPIPE received. */ 
-      log_printf (LOG_ERROR, "broken pipe, continuing\n");
-      server_pipe_broke = 0;
+      svz_log (LOG_ERROR, "broken pipe, continuing\n");
+      svz_pipe_broke = 0;
     }
 
-  if (server_child_died)
+  if (svz_child_died)
     {
       /* SIGCHLD received. */
-      log_printf (LOG_ERROR, "child pid %d died\n", (int) server_child_died);
-      server_child_died = 0;
+      svz_log (LOG_ERROR, "child pid %d died\n", (int) svz_child_died);
+      svz_child_died = 0;
     }
 
   /*
    * Check for new connections on server port, incoming data from
    * clients and process queued output data.
    */
-  server_check_sockets ();
+  svz_check_sockets ();
 
   /*
    * Reorder the socket chain every 16 select loops. We do not do it
    * every time for performance reasons.
    */
   if (rechain++ & 16)
-    sock_rechain_list ();
+    svz_sock_rechain_list ();
 
   /*
    * Shut down all sockets that have been scheduled for closing.
    */
-  sock = sock_root; 
+  sock = svz_sock_root; 
   while (sock)
     {
       next = sock->next;
       if (sock->flags & SOCK_FLAG_KILLED)
-	sock_shutdown (sock);
+	svz_sock_shutdown (sock);
       sock = next;
     }
 }
@@ -952,34 +952,34 @@ server_loop_one (void)
  * and listening server sockets.
  */
 int
-server_loop (void)
+svz_loop (void)
 {
   /* Setting up signaling. */
-  server_signal_up ();
+  svz_signal_up ();
 
   /* 
    * Setting up control variables. These get set either in the signal 
    * handler or from a command processing routine.
    */
-  server_nuke_happened = 0;
-  server_reset_happened = 0;
-  server_child_died = 0;
-  server_pipe_broke = 0;
-  server_notify = time (NULL);
+  svz_nuke_happened = 0;
+  svz_reset_happened = 0;
+  svz_child_died = 0;
+  svz_pipe_broke = 0;
+  svz_notify = time (NULL);
 
   /* Run the server loop. */
-  log_printf (LOG_NOTICE, "entering server loop\n");
-  while (!server_nuke_happened)
+  svz_log (LOG_NOTICE, "entering server loop\n");
+  while (!svz_nuke_happened)
     {
-      server_loop_one ();
+      svz_loop_one ();
     }
-  log_printf (LOG_NOTICE, "leaving server loop\n");
+  svz_log (LOG_NOTICE, "leaving server loop\n");
 
   /* Shutdown all socket structures. */
-  sock_shutdown_all ();
+  svz_sock_shutdown_all ();
 
   /* Reset signaling. */
-  server_signal_dn ();
+  svz_signal_dn ();
 
   return 0;
 }

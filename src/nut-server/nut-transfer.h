@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.9 2001/01/28 03:26:55 ela Exp $
+ * $Id: nut-transfer.h,v 1.10 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -63,8 +63,8 @@ typedef struct
 nut_transfer_t;
 
 /* gnutella transfer functions */
-int nut_init_transfer (socket_t, nut_reply_t *, nut_record_t *, char *);
-int nut_init_upload (socket_t sock, nut_file_t *entry);
+int nut_init_transfer (svz_socket_t *, nut_reply_t *, nut_record_t *, char *);
+int nut_init_upload (svz_socket_t *sock, nut_file_t *entry);
 int nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer);
 void nut_read_database_r (nut_config_t *cfg, char *dirname, int depth);
 void nut_add_database (nut_config_t *cfg, char *path, char *file, off_t size);
@@ -73,15 +73,15 @@ nut_file_t *nut_get_database (nut_config_t *, char *, unsigned);
 nut_file_t *nut_find_database (nut_config_t *, nut_file_t *, char *);
 
 /* check request routine */
-int nut_check_upload (socket_t sock);
-int nut_check_given (socket_t sock);
+int nut_check_upload (svz_socket_t *sock);
+int nut_check_given (svz_socket_t *sock);
 
 /* read and write callbacks */
-int nut_file_read (socket_t sock);
-int nut_file_write (socket_t sock);
+int nut_file_read (svz_socket_t *sock);
+int nut_file_write (svz_socket_t *sock);
 
 /* disconnection routine */
-int nut_disconnect_upload (socket_t sock);
+int nut_disconnect_upload (svz_socket_t *sock);
 
 /* recursion wrapper */
 #define nut_read_database(cfg, dir) nut_read_database_r (cfg, dir, 0)

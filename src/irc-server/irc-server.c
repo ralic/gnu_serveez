@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-server.c,v 1.24 2001/04/28 12:37:06 ela Exp $
+ * $Id: irc-server.c,v 1.25 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -135,7 +135,7 @@ int
 irc_connect_server (char *ip, irc_server_t *server)
 {
   irc_config_t *cfg = server->cfg;
-  socket_t sock;
+  svz_socket_t *sock;
   irc_client_t **cl;
   irc_channel_t **ch;
   char nicklist[MAX_MSG_LEN];
@@ -144,18 +144,18 @@ irc_connect_server (char *ip, irc_server_t *server)
   /* check if dns lookup was successful */
   if (!ip)
     {
-      log_printf (LOG_ERROR, "irc: cannot connect to %s\n", server->realhost);
+      svz_log (LOG_ERROR, "irc: cannot connect to %s\n", server->realhost);
       return -1;
     }
   
   /* try connecting */
   server->addr = inet_addr (ip);
-  if ((sock = tcp_connect (server->addr, server->port)) == NULL)
+  if ((sock = svz_tcp_connect (server->addr, server->port)) == NULL)
     {
       return -1;
     }
 
-  log_printf (LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
+  svz_log (LOG_NOTICE, "irc: connecting to %s\n", server->realhost);
   sock->data = server;
   sock->cfg = cfg;
   server->id = sock->id;
@@ -289,7 +289,7 @@ irc_connect_servers (irc_config_t *cfg)
       ircserver->connect = 1;
 
       /* add this server to the server list */
-      log_printf (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
+      svz_log (LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
       irc_add_server (cfg, ircserver);
       svz_coserver_dns (realhost, irc_connect_server, ircserver, NULL);
     }

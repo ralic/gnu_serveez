@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event.h,v 1.8 2000/07/21 21:19:31 ela Exp $
+ * $Id: irc-event.h,v 1.9 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -99,10 +99,10 @@
 /* Miscellaneous functions */
 char *irc_client_flag_string (irc_client_t *client);
 char *irc_channel_flag_string (irc_channel_t *channel);
-int irc_register_client (socket_t, irc_client_t *, irc_config_t *);
+int irc_register_client (svz_socket_t *, irc_client_t *, irc_config_t *);
 void irc_destroy_ban (irc_ban_t *ban);
 
-#define CALLBACK_ARGS socket_t, irc_client_t *, irc_request_t *
+#define CALLBACK_ARGS svz_socket_t *, irc_client_t *, irc_request_t *
 
 /* Connection Registration */
 int irc_pass_callback (CALLBACK_ARGS);

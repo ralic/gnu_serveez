@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.h,v 1.7 2001/03/08 11:53:56 ela Exp $
+ * $Id: http-cache.h,v 1.8 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -81,9 +81,9 @@ void http_free_cache (void);
 void http_refresh_cache (http_cache_t *cache);
 int http_init_cache (char *file, http_cache_t *cache);
 int http_check_cache (char *file, http_cache_t *cache);
-int http_cache_write (socket_t sock);
-int http_cache_read (socket_t sock);
-int http_cache_disconnect (socket_t sock);
+int http_cache_write (svz_socket_t *sock);
+int http_cache_read (svz_socket_t *sock);
+int http_cache_disconnect (svz_socket_t *sock);
 
 /*
  * Return values for http_check_cache().

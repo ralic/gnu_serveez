@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.3 2001/01/31 12:30:14 ela Exp $
+ * $Id: icmp-socket.h,v 1.4 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -67,26 +67,27 @@ typedef struct
   unsigned short sequence; /* sequence number */
   unsigned short port;     /* remote port address */
 }
-icmp_header_t;
+svz_icmp_header_t;
 
 __BEGIN_DECLS
 
 #ifdef __MINGW32__
 
 /* Exported `ICMP.DLL' functions. */
-SERVEEZ_API void icmp_startup __P ((void));
-SERVEEZ_API void icmp_cleanup __P ((void));
+SERVEEZ_API void svz_icmp_startup __P ((void));
+SERVEEZ_API void svz_icmp_cleanup __P ((void));
 
 #endif /* __MINGW32__ */
 
 /* Exported ICMP socket functions. */
-SERVEEZ_API int icmp_read_socket __P ((socket_t sock));
-SERVEEZ_API int icmp_write_socket __P ((socket_t sock));
-SERVEEZ_API int icmp_check_request __P ((socket_t sock));
-SERVEEZ_API socket_t icmp_connect __P ((unsigned long, unsigned short));
-SERVEEZ_API int icmp_send_control __P ((socket_t sock, byte type));
-SERVEEZ_API int icmp_write __P ((socket_t sock, char *buf, int length));
-SERVEEZ_API int icmp_printf __P ((socket_t sock, const char *fmt, ...));
+SERVEEZ_API int svz_icmp_read_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_icmp_write_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_icmp_check_request __P ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_icmp_connect __P ((unsigned long,
+						 unsigned short));
+SERVEEZ_API int svz_icmp_send_control __P ((svz_socket_t *, byte));
+SERVEEZ_API int svz_icmp_write __P ((svz_socket_t *, char *, int));
+SERVEEZ_API int svz_icmp_printf __P ((svz_socket_t *, const char *, ...));
 
 __END_DECLS
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.4 2001/04/19 18:16:06 ela Exp $
+ * $Id: hash.c,v 1.5 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -143,10 +143,10 @@ svz_hash_analyse (svz_hash_t *hash)
 	}
     }
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, 
-	      "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
-	      buckets, hash->buckets, hash->fill, 
-	      entries, hash->keys, depth + 1);
+  svz_log (LOG_DEBUG, 
+	   "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
+	   buckets, hash->buckets, hash->fill, 
+	   entries, hash->keys, depth + 1);
 #endif /* ENABLE_DEBUG */
 }
 

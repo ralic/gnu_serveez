@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: test.c,v 1.3 2001/05/03 20:07:41 ela Exp $
+ * $Id: test.c,v 1.4 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -86,7 +86,7 @@ test_failed (void)
 
 /* Wrappers for `util.h'. Do nothing. */
 void
-log_printf (int level, const char *format, ...)
+svz_log (int level, const char *format, ...)
 {
   return;
 }

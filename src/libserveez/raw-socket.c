@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: raw-socket.c,v 1.4 2001/04/01 13:32:30 ela Exp $
+ * $Id: raw-socket.c,v 1.5 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -54,10 +54,10 @@
 /*
  * Get IP header from plain data.
  */
-ip_header_t *
-raw_get_ip_header (byte *data)
+svz_ip_header_t *
+svz_raw_get_ip_header (byte *data)
 {
-  static ip_header_t hdr;
+  static svz_ip_header_t hdr;
   unsigned short uint16;
   unsigned int uint32;
 
@@ -91,7 +91,7 @@ raw_get_ip_header (byte *data)
  * used when creating raw sockets with setsockopt (SOL_IP, IP_HDRINCL).
  */
 byte *
-raw_put_ip_header (ip_header_t *hdr)
+svz_raw_put_ip_header (svz_ip_header_t *hdr)
 {
   static byte buffer[IP_HEADER_SIZE];
   byte *data = buffer;
@@ -127,7 +127,7 @@ raw_put_ip_header (ip_header_t *hdr)
  * Recalculate any IP checksum.
  */
 unsigned short
-raw_ip_checksum (byte *data, int len)
+svz_raw_ip_checksum (byte *data, int len)
 {
   register unsigned checksum = 0;
 
@@ -162,12 +162,12 @@ raw_ip_checksum (byte *data, int len)
  * is valid, otherwise -1.
  */
 int
-raw_check_ip_header (byte *data, int len)
+svz_raw_check_ip_header (byte *data, int len)
 {
-  ip_header_t *ip_header;
+  svz_ip_header_t *ip_header;
 
   /* get the IP header and reject the checksum within plain data */
-  ip_header = raw_get_ip_header (data);
+  ip_header = svz_raw_get_ip_header (data);
   data[IP_CHECKSUM_OFS] = 0;
   data[IP_CHECKSUM_OFS + 1] = 0;
 
@@ -193,8 +193,8 @@ raw_check_ip_header (byte *data, int len)
   if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "raw: cannot handle IPv%d\n", 
-		  IP_HDR_VERSION (ip_header));
+      svz_log (LOG_DEBUG, "raw: cannot handle IPv%d\n", 
+	       IP_HDR_VERSION (ip_header));
 #endif
       return -1;
     }
@@ -203,8 +203,8 @@ raw_check_ip_header (byte *data, int len)
   if (IP_HDR_LENGTH (ip_header) > len)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "raw: invalid IHL (%d > %d)\n",
-		  IP_HDR_LENGTH (ip_header), len);
+      svz_log (LOG_DEBUG, "raw: invalid IHL (%d > %d)\n",
+	       IP_HDR_LENGTH (ip_header), len);
 #endif
       return -1;
     }
@@ -213,8 +213,8 @@ raw_check_ip_header (byte *data, int len)
   if (ip_header->length < len)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "raw: invalid total length (%d < %d)\n",
-		  ip_header->length, len);
+      svz_log (LOG_DEBUG, "raw: invalid total length (%d < %d)\n",
+	       ip_header->length, len);
 #endif
       return -1;
     }
@@ -223,22 +223,22 @@ raw_check_ip_header (byte *data, int len)
   if (ip_header->protocol != ICMP_PROTOCOL)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "raw: invalid protocol 0x%02X\n",
-		  ip_header->protocol);
+      svz_log (LOG_DEBUG, "raw: invalid protocol 0x%02X\n",
+	       ip_header->protocol);
 #endif
       return -1;
     }
 
   /* Recalculate and check the header checksum. */
-  if (raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
+  if (svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
       ip_header->checksum)
     {
       /* FIXME: Why are header checksum invalid on big packets ? */
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, 
-		  "raw: invalid ip header checksum (%04X != %04X)\n",
-		  raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
-		  ip_header->checksum);
+      svz_log (LOG_DEBUG, 
+	       "raw: invalid ip header checksum (%04X != %04X)\n",
+	       svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
+	       ip_header->checksum);
 #endif
     }
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.h,v 1.4 2001/04/11 13:31:05 ela Exp $
+ * $Id: coserver.h,v 1.5 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -50,7 +50,7 @@ typedef struct
 #endif /* not __MINGW32__ */
 
   char * (* callback) (char *); /* callback routine, blocking... */
-  socket_t sock;                /* socket structure for this coserver */
+  svz_socket_t *sock;           /* socket structure for this coserver */
   int type;                     /* coserver type id */
   int busy;                     /* is this thread currently busy ? */
 }
@@ -157,7 +157,7 @@ SERVEEZ_API void svz_coserver_dns_invoke __P ((char *,
                            (svz_coserver_arg_t) ((unsigned long) arg0), \
 	 		   (svz_coserver_arg_t) ((unsigned long) arg1))
 
-SERVEEZ_API void svz_coserver_ident_invoke __P ((socket_t, 
+SERVEEZ_API void svz_coserver_ident_invoke __P ((svz_socket_t *, 
 						 svz_coserver_handle_result_t,
 						 svz_coserver_args_t));
 

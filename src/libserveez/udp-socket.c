@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.8 2001/04/28 12:37:06 ela Exp $
+ * $Id: udp-socket.c,v 1.9 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -57,13 +57,13 @@
 
 /*
  * This routine is the default reader for udp sockets. Whenever the socket
- * descriptor is `select ()' ed for reading it is called by default and 
+ * descriptor is @code{select()}'ed for reading it is called by default and 
  * reads as much data as possible (whole packets only) and saves the sender 
- * into the `sock->remote_addr' field. The packet load is written into 
- * `sock->recv_buffer'.
+ * into the @code{sock->remote_addr} field. The packet load is written into 
+ * @code{sock->recv_buffer}.
  */
 int
-udp_read_socket (socket_t sock)
+svz_udp_read_socket (svz_socket_t *sock)
 {
   int do_read, num_read;
   socklen_t len;
@@ -75,8 +75,8 @@ udp_read_socket (socket_t sock)
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
   if (do_read <= 0)
     {
-      log_printf (LOG_ERROR, "receive buffer overflow on udp socket %d\n",
-		  sock->sock_desc);
+      svz_log (LOG_ERROR, "receive buffer overflow on udp socket %d\n",
+	       sock->sock_desc);
       return -1;
     }
   
@@ -108,10 +108,10 @@ udp_read_socket (socket_t sock)
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
-		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
-		  svz_inet_ntoa (sock->remote_addr),
-		  ntohs (sock->remote_port), num_read);
+      svz_log (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
+	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
+	       svz_inet_ntoa (sock->remote_addr),
+	       ntohs (sock->remote_port), num_read);
 #endif /* ENABLE_DEBUG */
 
       /* Handle packet. */
@@ -122,8 +122,8 @@ udp_read_socket (socket_t sock)
   /* Some error occurred. */
   else
     {
-      log_printf (LOG_ERROR, "udp: recv%s: %s\n",
-		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
+      svz_log (LOG_ERROR, "udp: recv%s: %s\n",
+	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
       if (svz_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
@@ -131,13 +131,13 @@ udp_read_socket (socket_t sock)
 }
 
 /*
- * The `udp_write_socket ()' callback should be called whenever the udp 
- * socket descriptor is ready for sending. It sends a single packet within 
- * the `sock->send_buffer' to the destination address specified by 
- * `sock->remote_addr' and `sock->remote_port'.
+ * The @code{svz_udp_write_socket()} callback should be called whenever 
+ * the udp socket descriptor is ready for sending. It sends a single packet 
+ * within the @code{sock->send_buffer} to the destination address specified 
+ * by @code{sock->remote_addr} and @code{sock->remote_port}.
  */
 int
-udp_write_socket (socket_t sock)
+svz_udp_write_socket (svz_socket_t *sock)
 {
   int num_written;
   unsigned do_write;
@@ -177,8 +177,8 @@ udp_write_socket (socket_t sock)
   /* some error occurred while sending */
   if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "udp: send%s: %s\n", 
-		  sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
+      svz_log (LOG_ERROR, "udp: send%s: %s\n", 
+	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
 	num_written = 0;
     }
@@ -186,28 +186,28 @@ udp_write_socket (socket_t sock)
   else
     {
       sock->last_send = time (NULL);
-      sock_reduce_send (sock, (int) do_write);
+      svz_sock_reduce_send (sock, (int) do_write);
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
-	      sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", 
-	      svz_inet_ntoa (receiver.sin_addr.s_addr),
-	      ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
+  svz_log (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
+	   sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", 
+	   svz_inet_ntoa (receiver.sin_addr.s_addr),
+	   ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
 #endif /* ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
 }
 
 /*
- * This is the default `check_request ()' routine for udp servers. Whenever
- * new data arrived at an udp server socket we call this function to
- * process the packet data. Any given `handle_request ()' callback MUST 
+ * This is the default @code{check_request()} routine for udp servers. 
+ * Whenever new data arrived at an udp server socket we call this function to
+ * process the packet data. Any given @code{handle_request()} callback MUST 
  * return zero if it successfully processed the data and non-zero if it 
  * could not.
  */
 int
-udp_check_request (socket_t sock)
+svz_udp_check_request (svz_socket_t *sock)
 {
   int n;
   svz_server_t *server;
@@ -250,8 +250,8 @@ udp_check_request (socket_t sock)
   if (sock->recv_buffer_fill)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "rejecting udp packet on socket %d\n",
-		  sock->sock_desc);
+      svz_log (LOG_DEBUG, "rejecting udp packet on socket %d\n",
+	       sock->sock_desc);
 #endif
       sock->recv_buffer_fill = 0;
     }
@@ -261,12 +261,12 @@ udp_check_request (socket_t sock)
 }
 
 /*
- * Write the given BUF into the send queue of the UDP socket. If the
+ * Write the given @var{buf} into the send queue of the UDP socket. If the
  * length argument supersedes the maximum length for UDP messages it
  * is splitted into smaller packets.
  */
 int
-udp_write (socket_t sock, char *buf, int length)
+svz_udp_write (svz_socket_t *sock, char *buf, int length)
 {
   char *buffer;
   unsigned len, size;
@@ -303,7 +303,7 @@ udp_write (socket_t sock, char *buf, int length)
       length -= size;
 
       /* actually send the data or put it into the send buffer queue */
-      if ((ret = sock_write (sock, buffer, len)) == -1)
+      if ((ret = svz_sock_write (sock, buffer, len)) == -1)
 	{
 	  sock->flags |= SOCK_FLAG_KILLED;
 	  break;
@@ -316,14 +316,14 @@ udp_write (socket_t sock, char *buf, int length)
 }
 
 /*
- * Print a formatted string on the udp socket SOCK. FMT is the printf()-
- * style format string, which describes how to format the optional
- * arguments. See the printf(3) manual page for details. The destination
- * address and port is saved for sending. This you might specify them
- * in `sock->remote_addr' and `sock->remote_port'.
+ * Print a formatted string on the udp socket @var{sock}. @var{fmt} is 
+ * the printf()-style format string, which describes how to format the 
+ * optional arguments. See the printf(3) manual page for details. The 
+ * destination address and port is saved for sending. This you might 
+ * specify them in @code{sock->remote_addr} and @code{sock->remote_port}.
  */
 int
-udp_printf (socket_t sock, const char *fmt, ...)
+svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
@@ -336,23 +336,23 @@ udp_printf (socket_t sock, const char *fmt, ...)
   len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
 
-  return udp_write (sock, buffer, len);
+  return svz_udp_write (sock, buffer, len);
 }
 
 /*
  * Create a UDP connection to @var{host} and set the socket descriptor in
- * structure @var{sock} to the resulting socket. Return a NULL value on 
- * errors. This function can be used for port bouncing. If you assign the
+ * structure @var{sock} to the resulting socket. Return a @code{NULL} value 
+ * on errors. This function can be used for port bouncing. If you assign the
  * @code{handle_request} callback to something server specific and the 
  * @var{cfg} field to the server's configuration to the returned socket 
  * structure this socket is able to handle a dedicated udp connection to 
  * some other udp server.
  */
-socket_t
-udp_connect (unsigned long host, unsigned short port)
+svz_socket_t *
+svz_udp_connect (unsigned long host, unsigned short port)
 {
   SOCKET sockfd;
-  socket_t sock;
+  svz_socket_t *sock;
 
   /* Create a client socket. */
   if ((sockfd = svz_socket_create (PROTO_UDP)) == -1)
@@ -363,23 +363,23 @@ udp_connect (unsigned long host, unsigned short port)
      return NULL;
 
   /* Create socket structure and enqueue it. */
-  if ((sock = sock_alloc ()) == NULL)
+  if ((sock = svz_sock_alloc ()) == NULL)
     {
       closesocket (sockfd);
       return NULL;
     }
 
-  sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
-  sock_unique_id (sock);
+  svz_sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+  svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
-  sock_enqueue (sock);
-  sock_intern_connection_info (sock);
+  svz_sock_enqueue (sock);
+  svz_sock_intern_connection_info (sock);
 
-  sock->read_socket = udp_read_socket;
-  sock->write_socket = udp_write_socket;
-  sock->check_request = udp_check_request;
+  sock->read_socket = svz_udp_read_socket;
+  sock->write_socket = svz_udp_write_socket;
+  sock->check_request = svz_udp_check_request;
 
-  sock_connections++;
+  svz_sock_connections++;
   return sock;
 }

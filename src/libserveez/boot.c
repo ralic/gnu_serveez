@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.11 2001/04/28 12:37:06 ela Exp $
+ * $Id: boot.c,v 1.12 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -84,13 +84,13 @@ svz_net_startup (void)
   /* Call this once before using Winsock API. */
   if (WSAStartup (WINSOCK_VERSION, &WSAData) == SOCKET_ERROR)
     {
-      log_printf (LOG_ERROR, "WSAStartup: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "WSAStartup: %s\n", NET_ERROR);
       WSACleanup ();
       return 0;
     }
   
   /* Startup IP services. */
-  icmp_startup ();
+  svz_icmp_startup ();
 
 #endif /* __MINGW32__ */
 
@@ -105,12 +105,12 @@ svz_net_cleanup (void)
 {
 #ifdef __MINGW32__
   /* Shutdown IP services. */
-  icmp_cleanup ();
+  svz_icmp_cleanup ();
 
   /* Call this when disconnecting from Winsock API. */
   if (WSACleanup () == SOCKET_ERROR)
     {
-      log_printf (LOG_ERROR, "WSACleanup: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "WSACleanup: %s\n", NET_ERROR);
       return 0;
     }
 

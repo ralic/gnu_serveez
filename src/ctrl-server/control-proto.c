@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.50 2001/05/04 17:43:39 ela Exp $
+ * $Id: control-proto.c,v 1.51 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ ctrl_config_t ctrl_config =
  */
 svz_key_value_pair_t ctrl_config_prototype [] =
 {
-  REGISTER_END ()
+  SVZ_REGISTER_END ()
 };
 
 /*
@@ -146,7 +146,7 @@ ctrl_info_server (svz_server_t *server)
  * Client info callback.
  */
 char *
-ctrl_info_client (void *ctrl_cfg, socket_t sock)
+ctrl_info_client (void *ctrl_cfg, svz_socket_t *sock)
 {
   static char info[128];
 
@@ -160,7 +160,7 @@ ctrl_info_client (void *ctrl_cfg, socket_t sock)
  * the receive buffer looks like the control protocol.
  */
 int
-ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
+ctrl_detect_proto (void *ctrl_cfg, svz_socket_t *sock)
 {
   int ret = 0;
 
@@ -187,7 +187,7 @@ ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
 	}
       sock->recv_buffer_fill -= ret;
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "control protocol client detected\n");
+      svz_log (LOG_DEBUG, "control protocol client detected\n");
 #endif
       return -1;
     }
@@ -201,10 +201,10 @@ ctrl_detect_proto (void *ctrl_cfg, socket_t sock)
  * routine.
  */
 int
-ctrl_connect_socket (void *ctrlcfg, socket_t sock)
+ctrl_connect_socket (void *ctrlcfg, svz_socket_t *sock)
 {
-  sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
-  sock->check_request = sock_check_request;
+  svz_sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
+  sock->check_request = svz_sock_check_request;
   sock->handle_request = ctrl_handle_request;
   sock->boundary = CTRL_PACKET_DELIMITER;
   sock->boundary_size = CTRL_PACKET_DELIMITER_LEN;
@@ -223,7 +223,7 @@ ctrl_connect_socket (void *ctrlcfg, socket_t sock)
   cpu_state.cpuinfoline = CPU_FORMAT;
 
   /* send welcome message */
-  sock_printf (sock, "%s", CTRL_PASSWD);
+  svz_sock_printf (sock, "%s", CTRL_PASSWD);
 
   return 0;
 }
@@ -233,7 +233,7 @@ ctrl_connect_socket (void *ctrlcfg, socket_t sock)
  * connection will be closed immediately.
  */
 int
-ctrl_quit (socket_t sock, int flag, char *arg)
+ctrl_quit (svz_socket_t *sock, int flag, char *arg)
 {
   return flag;
 }
@@ -244,9 +244,9 @@ ctrl_quit (socket_t sock, int flag, char *arg)
  * of Serveez implements.
  */
 int
-ctrl_help (socket_t sock, int flag, char *arg)
+ctrl_help (svz_socket_t *sock, int flag, char *arg)
 {
-  sock_printf (sock, 
+  svz_sock_printf (sock, 
     "\r\n available commands:\r\n"
     "   * help                - this help screen\r\n"
     "   * quit                - quit this control connection\r\n"
@@ -275,30 +275,31 @@ ctrl_help (socket_t sock, int flag, char *arg)
  * socket structure.
  */
 int
-ctrl_stat_id (socket_t sock, int flag, char *arg)
+ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 {
   int id, n;
-  socket_t xsock;
+  svz_socket_t *xsock;
   char proto[128];
   svz_server_t *server;
   svz_coserver_t *coserver;
 
   /* Find the appropriate client or server connection. */
   id = atoi (arg);
-  if ((xsock = sock_find (id, -1)) == NULL)
+  if ((xsock = svz_sock_find (id, -1)) == NULL)
     {
-      sock_printf (sock, "no such connection: %d\r\n", id);
+      svz_sock_printf (sock, "no such connection: %d\r\n", id);
       return flag;
     }
 
-  sock_printf (sock, "\r\nconnection id %d (version %d) statistics\r\n\r\n", 
-	       id, xsock->version);
+  svz_sock_printf (sock, "\r\nconnection id %d (version %d) "
+		   "statistics\r\n\r\n", 
+		   id, xsock->version);
 
   /* 
    * Process general socket structure's flags. Uppercase words refer
    * to set bits and lowercase to unset bits.
    */
-  sock_printf (sock,
+  svz_sock_printf (sock,
     " flags    : %s %s %s %s %s %s %s\r\n"
     "            %s %s %s %s %s %s %s\r\n",
     xsock->flags & SOCK_FLAG_INBUF ?      "INBUF" : "inbuf",
@@ -316,7 +317,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
     xsock->flags & SOCK_FLAG_ENQUEUED ?   "ENQUEUED" : "enqueued",
     xsock->flags & SOCK_FLAG_PRIORITY ?   "PRIORITY" : "priority");
 
-  sock_printf (sock, " protocol : ");
+  svz_sock_printf (sock, " protocol : ");
 
   /* process connection type server flags */
   if (xsock->flags & SOCK_FLAG_LISTENING)
@@ -334,11 +335,11 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
       if (xsock->proto & PROTO_RAW)
 	strcat (proto, "raw ");
 
-      sock_printf (sock, "%s\r\n", proto);
+      svz_sock_printf (sock, "%s\r\n", proto);
       svz_array_foreach (xsock->data, server, n)
 	{
-	  sock_printf (sock, "            %d. %s (%s)\r\n", 
-		       n + 1, server->name, server->description);
+	  svz_sock_printf (sock, "            %d. %s (%s)\r\n", 
+			   n + 1, server->name, server->description);
 	}
     }
   /* process client info */
@@ -347,42 +348,42 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
       /* usual client */
       if ((server = svz_server_find (xsock->cfg)) != NULL)
 	{
-	  sock_printf (sock, "%s client\r\n", server->name);
+	  svz_sock_printf (sock, "%s client\r\n", server->name);
 	  if (server->info_client)
 	    {
-	      sock_printf (sock, "            %s\r\n",
-			   server->info_client (server->cfg, xsock));
+	      svz_sock_printf (sock, "            %s\r\n",
+			       server->info_client (server->cfg, xsock));
 	    }
 	}
       /* coserver */
       else if (xsock->flags & SOCK_FLAG_COSERVER)
 	{
 	  coserver = xsock->data;
-	  sock_printf (sock, "internal %s coserver\r\n",
-		       svz_coservertypes[coserver->type].name);
+	  svz_sock_printf (sock, "internal %s coserver\r\n",
+			   svz_coservertypes[coserver->type].name);
 	}
       /* unidentified */
       else
 	{
-	  sock_printf (sock, "not yet identified\r\n");
+	  svz_sock_printf (sock, "not yet identified\r\n");
 	}
     }
 
   /* print all previously collected statistics of this connection */
-  sock_printf (sock, 
-	       " sock fd  : %d\r\n"
-	       " file fd  : %d\r\n"
-	       " pipe fd  : %d (recv), %d (send)\r\n"
-	       " foreign  : %s:%u\r\n",
-	       xsock->sock_desc,
-	       xsock->file_desc,
-	       xsock->pipe_desc[READ],
-	       xsock->pipe_desc[WRITE],
-	       svz_inet_ntoa (xsock->remote_addr),
-	       ntohs (xsock->remote_port));
+  svz_sock_printf (sock, 
+		   " sock fd  : %d\r\n"
+		   " file fd  : %d\r\n"
+		   " pipe fd  : %d (recv), %d (send)\r\n"
+		   " foreign  : %s:%u\r\n",
+		   xsock->sock_desc,
+		   xsock->file_desc,
+		   xsock->pipe_desc[READ],
+		   xsock->pipe_desc[WRITE],
+		   svz_inet_ntoa (xsock->remote_addr),
+		   ntohs (xsock->remote_port));
 
   /* that is why `svz_inet_ntoa' cannot be used in the same call */
-  sock_printf (sock, 
+  svz_sock_printf (sock, 
 	       " local    : %s:%u\r\n"
 	       " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
 	       " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
@@ -416,7 +417,7 @@ ctrl_stat_id (socket_t sock, int flag, char *arg)
  * server and give information about it if so.
  */
 int
-ctrl_stat (socket_t sock, int flag, char *arg)
+ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 {
   svz_server_t *server;
   int n;
@@ -430,24 +431,24 @@ ctrl_stat (socket_t sock, int flag, char *arg)
     *p = '\0';
   if ((server = svz_hash_get (svz_servers, arg)) != NULL)
     {
-      sock_printf (sock, "\r\n%s (%s):\r\n",
-		   server->description, server->name);
+      svz_sock_printf (sock, "\r\n%s (%s):\r\n",
+		       server->description, server->name);
       if (server->info_server)
 	{
-	  sock_printf (sock, "%s\r\n", server->info_server (server));
+	  svz_sock_printf (sock, "%s\r\n", server->info_server (server));
 	}
-      sock_printf (sock, "\r\n");
+      svz_sock_printf (sock, "\r\n");
       return flag;
     }
 
   /* print a standard output */
-  sock_printf (sock, 
-	       "\r\nThis is %s version %s running since %s.\r\n", 
-	       svz_library, svz_version,
-	       svz_time (svz_config.start_time));
+  svz_sock_printf (sock, 
+		   "\r\nThis is %s version %s running since %s.\r\n", 
+		   svz_library, svz_version,
+		   svz_time (svz_config.start_time));
 
   /* display compile time feature list */
-  sock_printf (sock, "Features  : FOO"
+  svz_sock_printf (sock, "Features  : FOO"
 #ifdef ENABLE_AWCS_PROTO
 	       " AWCS"
 #endif
@@ -475,7 +476,7 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	       "\r\n");
   
   /* second feature line */
-  sock_printf (sock, "           "
+  svz_sock_printf (sock, "           "
 	       " IDENT"
 	       " REVERSE-DNS"
 	       " DNS"
@@ -491,20 +492,20 @@ ctrl_stat (socket_t sock, int flag, char *arg)
 	       "\r\n");
 
   /* display system and process information */
-  sock_printf (sock, "Os        : %s\r\n", svz_sys_version ());
-  sock_printf (sock, "Sys-Load  : %s\r\n", cpu_state.info);
-  sock_printf (sock, "Proc-Load : %s\r\n", cpu_state.pinfo);
+  svz_sock_printf (sock, "Os        : %s\r\n", svz_sys_version ());
+  svz_sock_printf (sock, "Sys-Load  : %s\r\n", cpu_state.info);
+  svz_sock_printf (sock, "Proc-Load : %s\r\n", cpu_state.pinfo);
 
   /* show general state */
-  sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
-	       sock_connections, svz_config.max_sockets);
-  sock_printf (sock, " * uptime is %s\r\n", 
-	       svz_uptime (time (NULL) - svz_config.start_time));
+  svz_sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
+		   svz_sock_connections, svz_config.max_sockets);
+  svz_sock_printf (sock, " * uptime is %s\r\n", 
+		   svz_uptime (time (NULL) - svz_config.start_time));
 #if ENABLE_DEBUG
-  sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
-	       svz_allocated_bytes, svz_allocated_blocks);
+  svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
+		   svz_allocated_bytes, svz_allocated_blocks);
 #endif /* ENABLE_DEBUG */
-  sock_printf (sock, "\r\n");
+  svz_sock_printf (sock, "\r\n");
 
   return flag;
 }
@@ -514,20 +515,20 @@ ctrl_stat (socket_t sock, int flag, char *arg)
  * each socket structure currently within the socket list.
  */
 int
-ctrl_stat_con (socket_t sock, int flag, char *arg)
+ctrl_stat_con (svz_socket_t *sock, int flag, char *arg)
 {
-  socket_t xsock;
+  svz_socket_t *xsock;
   char *id;
   char linet[64];  
   char rinet[64];
   svz_server_t *server;
 
-  sock_printf (sock, "\r\n%s", 
-	       "Proto              Id  RecvQ  SendQ "
-	       "Local                Foreign\r\n");
+  svz_sock_printf (sock, "\r\n%s", 
+		   "Proto              Id  RecvQ  SendQ "
+		   "Local                Foreign\r\n");
 
   /* go through all the socket list */
-  for (xsock = sock_root; xsock; xsock = xsock->next)
+  svz_sock_foreach (xsock)
     {
       /* get type of socket */
       id = "None";
@@ -548,12 +549,12 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
 	       ntohs (xsock->remote_port));
       
       /* gather all information from above */
-      sock_printf (sock, 
-		   "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
-		   xsock->id, xsock->recv_buffer_fill,
-		   xsock->send_buffer_fill, linet, rinet);
+      svz_sock_printf (sock, 
+		       "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
+		       xsock->id, xsock->recv_buffer_fill,
+		       xsock->send_buffer_fill, linet, rinet);
     }
-  sock_printf (sock, "\r\n");
+  svz_sock_printf (sock, "\r\n");
 
   return flag;
 }
@@ -564,15 +565,15 @@ ctrl_stat_con (socket_t sock, int flag, char *arg)
  * visual representation of the http cache structures.
  */
 int
-ctrl_stat_cache (socket_t sock, int flag, char *arg)
+ctrl_stat_cache (svz_socket_t *sock, int flag, char *arg)
 {
   int n, total, files;
   char *p;
   http_cache_entry_t **cache;
 
-  sock_printf (sock, "\r\n%s", 
-	       "File                             "
-	       "Size  Usage  Hits Recent Ready\r\n");
+  svz_sock_printf (sock, "\r\n%s", 
+		   "File                             "
+		   "Size  Usage  Hits Recent Ready\r\n");
 
   files = total = 0;
   if ((cache = (http_cache_entry_t **) svz_hash_values (http_cache)) != NULL)
@@ -586,19 +587,19 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
 	  p += strlen (cache[n]->file);
 	  while (*p != '/' && *p != '\\' && p != cache[n]->file) p--;
 	  if (p != cache[n]->file) p++;
-	  sock_printf (sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
-		       cache[n]->size,
-		       cache[n]->usage,
-		       cache[n]->hits,
-		       cache[n]->urgent,
-		       cache[n]->ready ? "Yes" : "No");
+	  svz_sock_printf (sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
+			   cache[n]->size,
+			   cache[n]->usage,
+			   cache[n]->hits,
+			   cache[n]->urgent,
+			   cache[n]->ready ? "Yes" : "No");
 	}
       svz_hash_xfree (cache);
     }
 
   /* print cache summary */
-  sock_printf (sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
-	       total, files);
+  svz_sock_printf (sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
+		   total, files);
 
   return flag;
 }
@@ -607,10 +608,10 @@ ctrl_stat_cache (socket_t sock, int flag, char *arg)
  * Free all HTTP cache entries.
  */
 int
-ctrl_kill_cache (socket_t sock, int flag, char *arg)
+ctrl_kill_cache (svz_socket_t *sock, int flag, char *arg)
 {
-  sock_printf (sock, "%d HTTP cache entries reinitialized.\r\n",
-	       http_cache_entries);
+  svz_sock_printf (sock, "%d HTTP cache entries reinitialized.\r\n",
+		   http_cache_entries);
   http_free_cache ();
   http_alloc_cache (http_cache_entries);
   return flag;
@@ -621,7 +622,7 @@ ctrl_kill_cache (socket_t sock, int flag, char *arg)
  * Show all Co-Server instances statistics.
  */
 int
-ctrl_stat_coservers (socket_t sock, int flag, char *arg)
+ctrl_stat_coservers (svz_socket_t *sock, int flag, char *arg)
 {
   int n;
   svz_coserver_t *coserver;
@@ -629,22 +630,22 @@ ctrl_stat_coservers (socket_t sock, int flag, char *arg)
   /* go through all internal coserver instances */
   svz_array_foreach (svz_coservers, coserver, n)
     {
-      sock_printf (sock, "\r\ninternal %s coserver:\r\n",
-		   svz_coservertypes[coserver->type].name);
-      sock_printf (sock, 
-		   " socket id  : %d\r\n"
-		   " %s %d\r\n"
-		   " requests   : %d\r\n",
-		   coserver->sock->id,
+      svz_sock_printf (sock, "\r\ninternal %s coserver:\r\n",
+		       svz_coservertypes[coserver->type].name);
+      svz_sock_printf (sock, 
+		       " socket id  : %d\r\n"
+		       " %s %d\r\n"
+		       " requests   : %d\r\n",
+		       coserver->sock->id,
 #ifndef __MINGW32__
-		   "process id :", coserver->pid,
+		       "process id :", coserver->pid,
 #else /* __MINGW32__ */
-		   "thread id  :", coserver->tid,
+		       "thread id  :", coserver->tid,
 #endif /* __MINGW32__ */
-		   coserver->busy);
+		       coserver->busy);
     }
 
-  sock_printf (sock, "\r\n");
+  svz_sock_printf (sock, "\r\n");
   return flag;
 }
 
@@ -652,7 +653,7 @@ ctrl_stat_coservers (socket_t sock, int flag, char *arg)
  * Server and Co-Server instance statistics.
  */
 int
-ctrl_stat_all (socket_t sock, int flag, char *arg)
+ctrl_stat_all (svz_socket_t *sock, int flag, char *arg)
 {
   int n;
   svz_server_t **server;
@@ -660,11 +661,11 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
   /* go through all server instances */
   svz_hash_foreach_value (svz_servers, server, n)
     {
-      sock_printf (sock, "\r\n%s (%s):\r\n",
-		   server[n]->description, server[n]->name);
+      svz_sock_printf (sock, "\r\n%s (%s):\r\n",
+		       server[n]->description, server[n]->name);
       if (server[n]->info_server)
 	{
-	  sock_printf (sock, "%s\r\n", server[n]->info_server (server[n]));
+	  svz_sock_printf (sock, "%s\r\n", server[n]->info_server (server[n]));
 	}
     }
 
@@ -680,20 +681,20 @@ ctrl_stat_all (socket_t sock, int flag, char *arg)
  * So you want to be *very* careful with this command.
  */
 int
-ctrl_kill_id (socket_t sock, int flag, char *arg)
+ctrl_kill_id (svz_socket_t *sock, int flag, char *arg)
 {
   int id;
-  socket_t xsock;
+  svz_socket_t *xsock;
 
   id = atoi (arg);
-  if ((xsock = sock_find (id, -1)) == NULL)
+  if ((xsock = svz_sock_find (id, -1)) == NULL)
     {
-      sock_printf (sock, "no such connection: %d\r\n", id);
+      svz_sock_printf (sock, "no such connection: %d\r\n", id);
       return flag;
     }
 
-  sock_schedule_for_shutdown (xsock);
-  sock_printf (sock, "scheduled socket id %d for shutdown\r\n", id);
+  svz_sock_schedule_for_shutdown (xsock);
+  svz_sock_printf (sock, "scheduled socket id %d for shutdown\r\n", id);
   return flag;
 }
 
@@ -702,22 +703,22 @@ ctrl_kill_id (socket_t sock, int flag, char *arg)
  * coservers and sockets with the priority flag set.
  */
 int
-ctrl_killall (socket_t sock, int flag, char *arg)
+ctrl_killall (svz_socket_t *sock, int flag, char *arg)
 {
-  socket_t xsock;
+  svz_socket_t *xsock;
   int n = 0;
 
-  for (xsock = sock_root; xsock; xsock = xsock->next)
+  svz_sock_foreach (xsock)
     {
       if (xsock != sock &&
 	  !(xsock->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_COSERVER | 
 			    SOCK_FLAG_PRIORITY)))
 	{
-	  sock_schedule_for_shutdown (xsock);
+	  svz_sock_schedule_for_shutdown (xsock);
 	  n++;
 	}
     }
-  sock_printf (sock, "killed %d network connections\r\n", n);
+  svz_sock_printf (sock, "killed %d network connections\r\n", n);
 
   return flag;
 }
@@ -726,7 +727,7 @@ ctrl_killall (socket_t sock, int flag, char *arg)
  * Restart coservers.
  */
 int
-ctrl_restart (socket_t sock, int type, char *arg)
+ctrl_restart (svz_socket_t *sock, int type, char *arg)
 {
   svz_coserver_t *coserver;
   int n;
@@ -738,16 +739,16 @@ ctrl_restart (socket_t sock, int type, char *arg)
 	{
 	  svz_coserver_destroy (type);
 	  svz_coserver_create (type);
-	  sock_printf (sock, "internal %s coserver restarted\r\n",
-		       svz_coservertypes[type].name);
+	  svz_sock_printf (sock, "internal %s coserver restarted\r\n",
+			   svz_coservertypes[type].name);
 	  return 0;
 	}
     }
 
   /* start a new internal coserver if there has none found */
   svz_coserver_create (type);
-  sock_printf (sock, "internal %s coserver invoked\r\n",
-	       svz_coservertypes[type].name);
+  svz_sock_printf (sock, "internal %s coserver invoked\r\n",
+		   svz_coservertypes[type].name);
   return 0;
 }
 
@@ -757,9 +758,9 @@ ctrl_restart (socket_t sock, int type, char *arg)
  */
 struct
 {
-  char *command;                      /* the complete command string */
-  int (*func)(socket_t, int, char *); /* callback routine */
-  int flag;                           /* second argument */
+  char *command;                            /* the complete command string */
+  int (*func)(svz_socket_t *, int, char *); /* callback routine */
+  int flag;                                 /* second argument */
 }
 ctrl[] =
 {
@@ -789,7 +790,7 @@ ctrl[] =
  * routine of the control protocol.
  */
 int
-ctrl_handle_request (socket_t sock, char *request, int len)
+ctrl_handle_request (svz_socket_t *sock, char *request, int len)
 {
   static char last_request[CTRL_RECV_BUFSIZE];
   static int last_len;
@@ -820,7 +821,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
 #endif
 	{
 	  sock->userflags |= CTRL_FLAG_PASSED;
-	  sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);
+	  svz_sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);
 	}
       else return -1;
     }
@@ -844,7 +845,7 @@ ctrl_handle_request (socket_t sock, char *request, int len)
 
 	      /* execute valid command and give the prompt */
 	      ret = ctrl[n].func (sock, ctrl[n].flag, &request[l + 1]);
-	      sock_printf (sock, "%s", CTRL_PROMPT);
+	      svz_sock_printf (sock, "%s", CTRL_PROMPT);
 	      return ret;
 	    }
 	  n++;
@@ -852,12 +853,12 @@ ctrl_handle_request (socket_t sock, char *request, int len)
       l = 0;
       while (l < len && request[l] >= ' ') l++;
       request[l] = 0;
-      sock_printf (sock, "no such command: %s\r\n", request);
-      sock_printf (sock, "%s", CTRL_PROMPT);
+      svz_sock_printf (sock, "no such command: %s\r\n", request);
+      svz_sock_printf (sock, "%s", CTRL_PROMPT);
     }
   else
     {
-      sock_printf (sock, "%s", CTRL_PROMPT);
+      svz_sock_printf (sock, "%s", CTRL_PROMPT);
     }
   return ret;
 }
@@ -992,7 +993,7 @@ ctrl_get_cpu_state (void)
 #define CPU_DIFF(x) (c->cpu[n][x] - c->cpu[old][x])
 
 int
-ctrl_idle (socket_t sock)
+ctrl_idle (svz_socket_t *sock)
 {
   int n, old;
   unsigned long all;

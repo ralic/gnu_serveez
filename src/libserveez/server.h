@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.12 2001/05/05 15:45:51 ela Exp $
+ * $Id: server.h,v 1.13 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -66,19 +66,19 @@ struct svz_server
   /* init of instance */
   int (* init) (struct svz_server *);
   /* protocol detection */
-  int (* detect_proto) (void *, socket_t);
+  int (* detect_proto) (void *, svz_socket_t *);
   /* what to do if detected */ 
-  int (* connect_socket) (void *, socket_t);
+  int (* connect_socket) (void *, svz_socket_t *);
   /* finalize this instance */
   int (* finalize) (struct svz_server *);
   /* return client info */
-  char * (* info_client) (void *, socket_t);
+  char * (* info_client) (void *, svz_socket_t *);
   /* return server info */
   char * (* info_server) (struct svz_server *);
   /* server timer */
   int (* notify) (struct svz_server *);
   /* packet processing */
-  int (* handle_request) (socket_t, char *, int);
+  int (* handle_request) (svz_socket_t *, char *, int);
 };
 
 /*
@@ -97,21 +97,21 @@ struct svz_servertype
   /* per server instance callback */
   int (* init) (svz_server_t *);
   /* protocol detection routine */
-  int (* detect_proto) (void *, socket_t);
+  int (* detect_proto) (void *, svz_socket_t *);
   /* for accepting a client (tcp or pipe only) */
-  int (* connect_socket) (void *, socket_t);
+  int (* connect_socket) (void *, svz_socket_t *);
   /* per instance */
   int (* finalize) (svz_server_t *);
   /* per server definition */
   int (* global_finalize) (void);
   /* return client info */
-  char * (* info_client) (void *, socket_t);
+  char * (* info_client) (void *, svz_socket_t *);
   /* return server info */
   char * (* info_server) (svz_server_t *);
   /* server timer */
   int (* notify) (svz_server_t *);
   /* packet processing */
-  int (* handle_request) (socket_t, char *, int);
+  int (* handle_request) (svz_socket_t *, char *, int);
 
   /* start of example struct */
   void *prototype_start;
@@ -164,7 +164,7 @@ svz_server_config_t;
  * Macro for defining the example server configuration @var{config} and its
  * configuration items @var{prototypes} within a server type definition.
  */
-#define DEFINE_CONFIG(config, prototypes) \
+#define SVZ_DEFINE_CONFIG(config, prototypes) \
   &(config), sizeof (config), (prototypes)
 
 /* Return a text representation of an item. */
@@ -182,45 +182,45 @@ svz_server_config_t;
  * itself (not its address). The @var{defaultable} argument can be either 
  * @code{DEFAULTABLE} or @code{NOTDEFAULTABLE}.
  */
-#define REGISTER_INT(name, item, defaultable) \
+#define SVZ_REGISTER_INT(name, item, defaultable) \
   { ITEM_INT, (name), (defaultable), &(item) }
 
 /*
  * Register an array of integers. C-type: @code{svz_array_t *}.
  */
-#define REGISTER_INTARRAY(name, item, defaultable) \
+#define SVZ_REGISTER_INTARRAY(name, item, defaultable) \
   { ITEM_INTARRAY, (name), (defaultable), &(item) }
 
 /*
  * Register a simple charachter string. C-type: @code{char *}.
  */
-#define REGISTER_STR(name, item, defaultable) \
+#define SVZ_REGISTER_STR(name, item, defaultable) \
   { ITEM_STR, (name), (defaultable), &(item) }
 
 /*
  * Register a string array. C-type: @code{svz_array_t *}.
  */
-#define REGISTER_STRARRAY(name, item, defaultable) \
+#define SVZ_REGISTER_STRARRAY(name, item, defaultable) \
   { ITEM_STRARRAY, (name), (defaultable), &(item) }
 
 /*
  * Register a hash table associating strings with strings only. C-type:
  * @code{svz_hash_t *}.
  */
-#define REGISTER_HASH(name, item, defaultable) \
+#define SVZ_REGISTER_HASH(name, item, defaultable) \
   { ITEM_HASH, (name), (defaultable), &(item) }
 
 /*
  * Register a port configuration. C-type: @code{svz_portcgf_t *}.
  */
-#define REGISTER_PORTCFG(name, item, defaultable) \
+#define SVZ_REGISTER_PORTCFG(name, item, defaultable) \
   { ITEM_PORTCFG, (name), (defaultable), &(item) }
 
 /*
  * This macro indicates the end of the list of configuration items. It is
  * the only mandatory item you need to specify in an example configuration.
  */
-#define REGISTER_END() \
+#define SVZ_REGISTER_END() \
   { ITEM_END, NULL, DEFAULTABLE, NULL }
 
 __BEGIN_DECLS

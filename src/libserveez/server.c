@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.16 2001/05/07 21:02:58 ela Exp $
+ * $Id: server.c,v 1.17 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@ svz_servertype_add (svz_servertype_t *server)
   /* Check if the server definition is valid. */
   if (!server || !server->varname || !server->name)
     {
-      log_printf (LOG_ERROR, "invalid server type\n");
+      svz_log (LOG_ERROR, "invalid server type\n");
       return;
     }
 
@@ -76,8 +76,8 @@ svz_servertype_add (svz_servertype_t *server)
     {
       if (!strcmp (server->varname, stype->varname))
 	{
-	  log_printf (LOG_ERROR, "server type `%s' already registered\n", 
-		      server->name);
+	  svz_log (LOG_ERROR, "server type `%s' already registered\n", 
+		   server->name);
 	  return;
 	}
     }
@@ -86,8 +86,8 @@ svz_servertype_add (svz_servertype_t *server)
   if (server->global_init != NULL) 
     if (server->global_init () < 0) 
       {
-	log_printf (LOG_ERROR, "error running global init for `%s'\n",
-		    server->name);
+	svz_log (LOG_ERROR, "error running global init for `%s'\n",
+		 server->name);
 	return;
       }
 
@@ -147,7 +147,7 @@ svz_servertype_finalize (void)
   int i;
   svz_servertype_t *stype;
 
-  log_printf (LOG_NOTICE, "running global server type finalizers\n");
+  svz_log (LOG_NOTICE, "running global server type finalizers\n");
   svz_array_foreach (svz_servertypes, stype, i)
     {
       if (stype->global_finalize != NULL)
@@ -722,9 +722,9 @@ svz_server_configure (svz_servertype_t *server,
 
 	  /* Unknown configuration item. */
         default:
-          log_printf (LOG_FATAL, 
-		      "inconsistent ITEM_ data in server type `%s'\n",
-		      server->name);
+          svz_log (LOG_FATAL, 
+		   "inconsistent ITEM_ data in server type `%s'\n",
+		   server->name);
           e = -1;
         }
 
@@ -735,10 +735,10 @@ svz_server_configure (svz_servertype_t *server,
 	  /* Target not configured. Defaultable ? */
 	  if (!server->items[n].defaultable)
 	    {
-	      log_printf (LOG_ERROR,
-			  "`%s' lacks a default %s for `%s' in `%s'\n",
-			  server->name, ITEM_TEXT (server->items[n].type),
-			  server->items[n].name, name);
+	      svz_log (LOG_ERROR,
+		       "`%s' lacks a default %s for `%s' in `%s'\n",
+		       server->name, ITEM_TEXT (server->items[n].type),
+		       server->items[n].name, name);
 	      error = -1;
 	    }
 	  /* Assuming default value. */
@@ -810,15 +810,15 @@ svz_server_init_all (void)
   int errneous = 0, i;
   svz_server_t **server;
 
-  log_printf (LOG_NOTICE, "initializing all server instances\n");
+  svz_log (LOG_NOTICE, "initializing all server instances\n");
   svz_hash_foreach_value (svz_servers, server, i)
     {
       if (server[i]->init != NULL) 
 	if (server[i]->init (server[i]) < 0) 
 	  {
 	    errneous = -1;
-	    log_printf (LOG_ERROR, "error initializing `%s'\n", 
-			server[i]->name);
+	    svz_log (LOG_ERROR, "error initializing `%s'\n", 
+		     server[i]->name);
 	  }
     }
   return errneous;
@@ -833,7 +833,7 @@ svz_server_finalize_all (void)
   int i, n;
   svz_server_t **server;
 
-  log_printf (LOG_NOTICE, "running all server finalizers\n");
+  svz_log (LOG_NOTICE, "running all server finalizers\n");
   n = svz_hash_size (svz_servers) - 1;
   svz_hash_foreach_value (svz_servers, server, i)
     {

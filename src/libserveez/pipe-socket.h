@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.4 2001/04/04 14:23:14 ela Exp $
+ * $Id: pipe-socket.h,v 1.5 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -47,14 +47,14 @@ svz_pipe_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API int pipe_valid __P ((socket_t sock));
-SERVEEZ_API int pipe_read_socket __P ((socket_t sock));
-SERVEEZ_API int pipe_write_socket __P ((socket_t sock));
-SERVEEZ_API int pipe_disconnect __P ((socket_t sock));
-SERVEEZ_API socket_t pipe_create __P ((HANDLE recv_fd, HANDLE send_fd));
-SERVEEZ_API int pipe_create_pair __P ((HANDLE pipe_desc[2]));
-SERVEEZ_API socket_t pipe_connect __P ((char *inpipe, char *outpipe));
-SERVEEZ_API int pipe_listener __P ((socket_t server_sock));
+SERVEEZ_API int svz_pipe_valid __P ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_read_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_write_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_pipe_disconnect __P ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_pipe_create __P ((HANDLE, HANDLE));
+SERVEEZ_API int svz_pipe_create_pair __P ((HANDLE pipe_desc[2]));
+SERVEEZ_API svz_socket_t *svz_pipe_connect __P ((char *, char *));
+SERVEEZ_API int svz_pipe_listener __P ((svz_socket_t *));
 
 __END_DECLS
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-5.c,v 1.11 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-5.c,v 1.12 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -48,7 +48,7 @@
  *                  RPL_ENDOFWHOWAS
  */
 int
-irc_whowas_callback (socket_t sock, 
+irc_whowas_callback (svz_socket_t *sock, 
 		     irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -140,13 +140,13 @@ irc_client_visible (irc_config_t *cfg,     /* current server config */
  * Send a user WHOIS reply.
  */
 static void
-irc_user_info (socket_t sock,        /* the socket for the client to send */
+irc_user_info (svz_socket_t *sock,   /* the socket for the client to send */
 	       irc_client_t *client, /* reply client */
 	       irc_client_t *cl)     /* info about this client */
 {
   irc_config_t *cfg = sock->cfg;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   char text[MAX_MSG_LEN];
   int n, i;
 
@@ -201,7 +201,7 @@ irc_user_info (socket_t sock,        /* the socket for the client to send */
  *                  RPL_ENDOFWHOIS
  */
 int
-irc_whois_callback (socket_t sock, 
+irc_whois_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -257,7 +257,7 @@ irc_whois_callback (socket_t sock,
  * Send a single WHO reply.
  */
 static void
-irc_client_info (socket_t sock,          /* this client's socket */
+irc_client_info (svz_socket_t *sock,     /* this client's socket */
 		 irc_client_t *client,   /* this client */
 		 irc_client_t *cl,       /* reply this client's info */
 		 irc_channel_t *channel) /* channel 'cl' is in */
@@ -289,7 +289,7 @@ irc_client_info (socket_t sock,          /* this client's socket */
  *                  RPL_WHOREPLY     RPL_ENDOFWHO
  */
 int
-irc_who_callback (socket_t sock, 
+irc_who_callback (svz_socket_t *sock, 
 		  irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;

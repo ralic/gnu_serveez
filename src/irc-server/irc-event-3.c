@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.12 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-3.c,v 1.13 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -52,7 +52,7 @@
  *                  RPL_ADMINLOC2     RPL_ADMINEMAIL
  */
 int
-irc_admin_callback (socket_t sock, 
+irc_admin_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -88,7 +88,7 @@ irc_admin_callback (socket_t sock,
  * Numeric Replies: ERR_NOSUCHSERVER RPL_TIME
  */
 int
-irc_time_callback (socket_t sock, 
+irc_time_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -122,7 +122,7 @@ irc_time_callback (socket_t sock,
  *                  RPL_LUSERME
  */
 int
-irc_lusers_callback (socket_t sock, 
+irc_lusers_callback (svz_socket_t *sock, 
 		     irc_client_t *client,
 		     irc_request_t *request)
 {
@@ -165,7 +165,7 @@ irc_lusers_callback (socket_t sock,
  *                  RPL_STATSHLINE     RPL_ENDOFSTATS
  */
 int
-irc_stats_callback (socket_t sock, 
+irc_stats_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -339,7 +339,7 @@ irc_stats_callback (socket_t sock,
  * Numeric Replies: ERR_NOSUCHSERVER RPL_VERSION
  */
 int
-irc_version_callback (socket_t sock, 
+irc_version_callback (svz_socket_t *sock, 
 		      irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -361,7 +361,7 @@ irc_version_callback (socket_t sock,
  *                  RPL_INFO         RPL_ENDOFINFO
  */
 int
-irc_info_callback (socket_t sock, 
+irc_info_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -372,7 +372,7 @@ irc_info_callback (socket_t sock,
     {
       if ((f = fopen (cfg->info_file, "r")) == NULL)
 	{
-	  log_printf (LOG_ERROR, "irc: /INFO error: %s\n", SYS_ERROR);
+	  svz_log (LOG_ERROR, "irc: /INFO error: %s\n", SYS_ERROR);
 	  irc_printf (sock, ":%s %03d %s " ERR_FILEERROR_TEXT "\n",
 		      cfg->host, ERR_FILEERROR, client->nick,
 		      "open", cfg->info_file);

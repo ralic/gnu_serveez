@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-2.c,v 1.15 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-2.c,v 1.16 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -48,13 +48,13 @@
  *                  ERR_NOTONCHANNEL
  */
 int
-irc_part_callback (socket_t sock, 
+irc_part_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   int n;
 
   /* do you have enough paras ? */
@@ -119,7 +119,7 @@ irc_client_banned (irc_client_t *client, irc_ban_t *ban)
  * Send the channel topic to an IRC client.
  */
 static void
-irc_channel_topic (socket_t sock,
+irc_channel_topic (svz_socket_t *sock,
 		   irc_client_t *client, irc_channel_t *channel)
 {
   irc_config_t *cfg = sock->cfg;
@@ -148,7 +148,7 @@ irc_channel_topic (socket_t sock,
  * Send a channels users to a specified client.
  */
 static void
-irc_channel_users (socket_t sock,
+irc_channel_users (svz_socket_t *sock,
 		   irc_client_t *client, 
 		   irc_channel_t *channel)
 {
@@ -192,13 +192,13 @@ irc_channel_users (socket_t sock,
  *                  RPL_TOPIC
  */
 int
-irc_join_callback (socket_t sock, 
+irc_join_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   char *chan;
   int n, i;
 
@@ -342,7 +342,7 @@ irc_ban_string (irc_ban_t *ban)
  * zero value if the client is an operator otherwise zero.
  */
 static int
-irc_client_oper (socket_t sock, 
+irc_client_oper (svz_socket_t *sock, 
 		 irc_client_t *client, irc_channel_t *channel, int flag)
 {
   irc_config_t *cfg = sock->cfg;
@@ -362,7 +362,7 @@ irc_client_oper (socket_t sock,
  */
 static int
 irc_client_flag (irc_client_t *client,   /* client changing the flag */
-		 socket_t sock,          /* this clients connection */
+		 svz_socket_t *sock,     /* this clients connection */
 		 int cflag,              /* this clients flags */
 		 char *nick,             /* the nick the mode is for */
 		 irc_channel_t *channel, /* mode change for this channel */
@@ -370,7 +370,7 @@ irc_client_flag (irc_client_t *client,   /* client changing the flag */
 		 char set)               /* set / unset */
 {
   irc_client_t *cl;
-  socket_t xsock;
+  svz_socket_t *xsock;
   int i, n;
   unsigned l;
   static char *Modes = CHANNEL_MODES;
@@ -424,7 +424,7 @@ irc_client_flag (irc_client_t *client,   /* client changing the flag */
  */
 static int
 irc_user_flag (irc_client_t *client,   /* client changing the flag */
-	       socket_t sock,          /* this clients connection */
+	       svz_socket_t *sock,     /* this clients connection */
 	       int flag,               /* flag to be set / unset */
 	       char set)               /* set / unset */
 {
@@ -474,14 +474,14 @@ irc_user_flag (irc_client_t *client,   /* client changing the flag */
  */
 static int
 irc_channel_flag (irc_client_t *client,   /* client changing the flag */
-		  socket_t sock,          /* this clients connection */
+		  svz_socket_t *sock,     /* this clients connection */
 		  int cflag,              /* this clients flags */
 		  irc_channel_t *channel, /* mode change for this channel */
 		  int flag,               /* flag to be set / unset */
 		  char set)               /* set / unset */
 {
   irc_client_t *cl;
-  socket_t xsock;
+  svz_socket_t *xsock;
   int n;
   unsigned l;
   char *Modes = CHANNEL_MODES;
@@ -620,7 +620,7 @@ irc_create_ban (irc_client_t *client, char *request, int len)
  */
 static int
 irc_channel_arg (irc_client_t *client,   /* client changing the flag */
-		 socket_t sock,          /* this clients connection */
+		 svz_socket_t *sock,     /* this clients connection */
 		 int cflag,              /* this clients flags */
 		 irc_channel_t *channel, /* mode change for this channel */
 		 int flag,               /* flag to be set / unset */
@@ -629,7 +629,7 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
-  socket_t xsock;
+  svz_socket_t *xsock;
   int n;
   unsigned l;
   char *Modes = CHANNEL_MODES;
@@ -806,7 +806,7 @@ irc_channel_flag_string (irc_channel_t *channel)
 #define FLAG_UNSET 0
 
 int
-irc_mode_callback (socket_t sock, 
+irc_mode_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -1017,13 +1017,13 @@ irc_mode_callback (socket_t sock,
  *                  ERR_CHANOPRIVSNEEDED
  */
 int
-irc_topic_callback (socket_t sock, 
+irc_topic_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   int n, i;
 
   /* enough paras ? */
@@ -1077,7 +1077,7 @@ irc_topic_callback (socket_t sock,
  *   Numerics: RPL_NAMREPLY  RPL_ENDOFNAMES
  */
 int
-irc_names_callback (socket_t sock, 
+irc_names_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -1178,7 +1178,7 @@ irc_names_callback (socket_t sock,
  * Send a part of a channel list.
  */
 static void
-irc_channel_list (socket_t sock, 
+irc_channel_list (svz_socket_t *sock, 
 		  irc_client_t *client, irc_channel_t *channel)
 {
   irc_config_t *cfg = sock->cfg;
@@ -1217,7 +1217,7 @@ irc_channel_list (socket_t sock,
  *                  RPL_LIST         RPL_LISTEND
  */
 int
-irc_list_callback (socket_t sock, 
+irc_list_callback (svz_socket_t *sock, 
 		   irc_client_t *client,
 		   irc_request_t *request)
 {
@@ -1269,13 +1269,13 @@ irc_list_callback (socket_t sock,
  *                  RPL_INVITING         RPL_AWAY
  */
 int
-irc_invite_callback (socket_t sock, 
+irc_invite_callback (svz_socket_t *sock, 
 		     irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_channel_t *ch;
-  socket_t xsock;
+  svz_socket_t *xsock;
   char *nick, *channel;
   int n, i;
 
@@ -1343,14 +1343,14 @@ irc_invite_callback (socket_t sock,
  *                  ERR_NOTONCHANNEL
  */
 int
-irc_kick_callback (socket_t sock, 
+irc_kick_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
   irc_client_t *victim;
   irc_channel_t *channel;
-  socket_t xsock;
+  svz_socket_t *xsock;
   int i, n;
 
   /* enough paras ? */

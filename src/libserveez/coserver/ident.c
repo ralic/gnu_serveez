@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident.c,v 1.4 2001/04/01 13:32:30 ela Exp $
+ * $Id: ident.c,v 1.5 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ ident_handle_request (char *inbuf)
     p++;
   if (!*p)
     {
-      log_printf (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
+      svz_log (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
       return NULL;
     }
   *p = '\0';
@@ -87,14 +87,14 @@ ident_handle_request (char *inbuf)
   /* Parse remote and local port afterwards. */
   if (2 != sscanf (p, "%u:%u", &rport, &lport))
     {
-      log_printf (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
+      svz_log (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
       return NULL;
     }
 	 
    /* Create a socket for communication with the ident server. */
   if ((sock = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
-      log_printf (LOG_ERROR, "ident: socket: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "ident: socket: %s\n", NET_ERROR);
       return NULL;
     }
 
@@ -105,7 +105,7 @@ ident_handle_request (char *inbuf)
   server.sin_port = htons (IDENT_PORT);
   if (connect (sock, (struct sockaddr *) &server, sizeof (server)) == -1)
     {
-      log_printf (LOG_ERROR, "ident: connect: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "ident: connect: %s\n", NET_ERROR);
       closesocket (sock);
       return NULL;
     }
@@ -121,7 +121,7 @@ ident_handle_request (char *inbuf)
       if ((r = recv (sock, rp, 
 		     COSERVER_BUFSIZE - (rp - ident_response), 0)) < 0)
 	{
-	  log_printf (LOG_ERROR, "ident: recv: %s\n", NET_ERROR);
+	  svz_log (LOG_ERROR, "ident: recv: %s\n", NET_ERROR);
 	  closesocket (sock);
 	  return NULL;
 	}
@@ -130,11 +130,11 @@ ident_handle_request (char *inbuf)
 
   /* Now close the socket and notify the response. */
   if (shutdown (sock, 2) == -1)
-    log_printf (LOG_ERROR, "ident: shutdown: %s\n", NET_ERROR);
+    svz_log (LOG_ERROR, "ident: shutdown: %s\n", NET_ERROR);
   if (closesocket (sock) < 0)
-    log_printf (LOG_ERROR, "ident: close: %s\n", NET_ERROR);
+    svz_log (LOG_ERROR, "ident: close: %s\n", NET_ERROR);
 
-  log_printf (LOG_NOTICE, "ident: %s", ident_response);
+  svz_log (LOG_NOTICE, "ident: %s", ident_response);
 
   p = ident_response;
   p_end = p + strlen (p);
@@ -210,7 +210,7 @@ ident_handle_request (char *inbuf)
   *u = '\0';
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "ident: received identified user `%s'\n", user);
+  svz_log (LOG_DEBUG, "ident: received identified user `%s'\n", user);
 #endif
 
   sprintf (ident_response, "%s", user);

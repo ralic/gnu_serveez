@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.20 2001/04/28 12:37:06 ela Exp $
+ * $Id: tunnel.c,v 1.21 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -63,9 +63,9 @@ tnl_config_t tnl_config =
  */
 svz_key_value_pair_t tnl_config_prototype [] = 
 {
-  REGISTER_PORTCFG ("source", tnl_config.source, NOTDEFAULTABLE),
-  REGISTER_PORTCFG ("target", tnl_config.target, NOTDEFAULTABLE),
-  REGISTER_END ()
+  SVZ_REGISTER_PORTCFG ("source", tnl_config.source, NOTDEFAULTABLE),
+  SVZ_REGISTER_PORTCFG ("target", tnl_config.target, NOTDEFAULTABLE),
+  SVZ_REGISTER_END ()
 };
 
 /*
@@ -121,14 +121,14 @@ tnl_init (svz_server_t *server)
   if (!(cfg->source->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)) ||
       !(cfg->target->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)))
     {
-      log_printf (LOG_ERROR, "tunnel: protocol not supported\n");
+      svz_log (LOG_ERROR, "tunnel: protocol not supported\n");
       return -1;
     }
 
   /* check identity of source and target port configurations */
   if (svz_portcfg_equal (cfg->source, cfg->target))
     {
-      log_printf (LOG_ERROR, "tunnel: source and target identical\n");
+      svz_log (LOG_ERROR, "tunnel: source and target identical\n");
       return -1;
     }
 
@@ -138,7 +138,7 @@ tnl_init (svz_server_t *server)
       addr = svz_portcfg_addr (cfg->target);
       if (addr->sin_addr.s_addr == INADDR_ANY)
 	{
-	  log_printf (LOG_ERROR, "tunnel: broadcast target ip not allowed\n");
+	  svz_log (LOG_ERROR, "tunnel: broadcast target ip not allowed\n");
 	  return -1;
 	}
     }
@@ -184,7 +184,7 @@ tnl_finalize (svz_server_t *server)
  * are the remote ip address and port.
  */
 static char *
-tnl_addr (socket_t sock)
+tnl_addr (svz_socket_t *sock)
 {
   static char addr[24];
 
@@ -197,7 +197,7 @@ tnl_addr (socket_t sock)
  * Release referring tunnel structure.
  */
 static void
-tnl_free_connect (socket_t sock)
+tnl_free_connect (svz_socket_t *sock)
 {
   if (sock->data)
     {
@@ -224,13 +224,13 @@ tnl_create_connect (void)
  * tries to connect to the servers target configuration and delivers a
  * new socket structure or NULL if it failed.
  */ 
-static socket_t
-tnl_create_socket (socket_t sock, int source)
+static svz_socket_t *
+tnl_create_socket (svz_socket_t *sock, int source)
 {
   tnl_config_t *cfg = sock->cfg;
   unsigned long ip = 0;
   unsigned short port = 0;
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
   struct sockaddr_in *addr;
 
   /* get host and target ip if necessary */
@@ -260,41 +260,41 @@ tnl_create_socket (socket_t sock, int source)
       sock->userflags |= TNL_FLAG_TGT_PIPE;
       break;
     default:
-      log_printf (LOG_ERROR, "tunnel: invalid target configuration\n");
+      svz_log (LOG_ERROR, "tunnel: invalid target configuration\n");
       return NULL;
     }
 
   /* target is a TCP connection */
   if (sock->userflags & TNL_FLAG_TGT_TCP)
     {
-      if ((xsock = tcp_connect (ip, port)) == NULL)
+      if ((xsock = svz_tcp_connect (ip, port)) == NULL)
 	{
-	  log_printf (LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
-		      svz_inet_ntoa (ip), ntohs (port));
+	  svz_log (LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
+		   svz_inet_ntoa (ip), ntohs (port));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: tcp: connecting to %s:%u\n",
-		  svz_inet_ntoa (ip), ntohs (port));
+      svz_log (LOG_DEBUG, "tunnel: tcp: connecting to %s:%u\n",
+	       svz_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_tcp_target;
-      sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+      svz_sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
     }
 
   /* target is an UDP connection */
   else if (sock->userflags & TNL_FLAG_TGT_UDP)
     {
-      if ((xsock = udp_connect (ip, port)) == NULL)
+      if ((xsock = svz_udp_connect (ip, port)) == NULL)
 	{
-	  log_printf (LOG_ERROR, "tunnel: udp: cannot connect to %s:%u\n",
-		      svz_inet_ntoa (ip), ntohs (port));
+	  svz_log (LOG_ERROR, "tunnel: udp: cannot connect to %s:%u\n",
+		   svz_inet_ntoa (ip), ntohs (port));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: udp: connecting to %s:%u\n",
-		  svz_inet_ntoa (ip), ntohs (port));
+      svz_log (LOG_DEBUG, "tunnel: udp: connecting to %s:%u\n",
+	       svz_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_udp_target;
       xsock->idle_func = tnl_idle;
@@ -304,16 +304,16 @@ tnl_create_socket (socket_t sock, int source)
   /* target is an ICMP connection */
   else if (sock->userflags & TNL_FLAG_TGT_ICMP)
     {
-      if ((xsock = icmp_connect (ip, port)) == NULL)
+      if ((xsock = svz_icmp_connect (ip, port)) == NULL)
 	{
-	  log_printf (LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
-		      svz_inet_ntoa (ip));
+	  svz_log (LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
+		   svz_inet_ntoa (ip));
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: icmp: connecting to %s\n",
-		  svz_inet_ntoa (ip));
+      svz_log (LOG_DEBUG, "tunnel: icmp: connecting to %s\n",
+	       svz_inet_ntoa (ip));
 #endif /* ENABLE_DEBUG */
       xsock->handle_request = tnl_handle_request_icmp_target;
       xsock->idle_func = tnl_idle;
@@ -323,20 +323,20 @@ tnl_create_socket (socket_t sock, int source)
   /* target is a pipe connection */
   else if (sock->userflags & TNL_FLAG_TGT_PIPE)
     {
-      if ((xsock = pipe_connect (cfg->target->pipe_recv.name, 
-				 cfg->target->pipe_send.name)) == NULL)
+      if ((xsock = svz_pipe_connect (cfg->target->pipe_recv.name, 
+				     cfg->target->pipe_send.name)) == NULL)
 	{
-	  log_printf (LOG_ERROR, "tunnel: pipe: cannot connect to %s\n",
-		      cfg->target->pipe_send.name);
+	  svz_log (LOG_ERROR, "tunnel: pipe: cannot connect to %s\n",
+		   cfg->target->pipe_send.name);
 	  return NULL;
 	}
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: pipe: connecting to %s\n",
-		  cfg->target->pipe_send.name);
+      svz_log (LOG_DEBUG, "tunnel: pipe: connecting to %s\n",
+	       cfg->target->pipe_send.name);
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_pipe_target;
-      sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+      svz_sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
     }
 
   xsock->cfg = cfg;
@@ -353,24 +353,24 @@ tnl_create_socket (socket_t sock, int source)
  * the targets socket and its own userflags.
  */
 static int
-tnl_send_request_source (socket_t sock, char *packet, int len, int flag)
+tnl_send_request_source (svz_socket_t *sock, char *packet, int len, int flag)
 {
   /* target is TCP or PIPE */
   if (flag & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_PIPE))
     {
-      if (sock_write (sock, packet, len) == -1)
+      if (svz_sock_write (sock, packet, len) == -1)
 	return -1;
     }
   /* target is UDP */
   else if (flag & TNL_FLAG_TGT_UDP)
     {
-      if (udp_write (sock, packet, len) == -1)
+      if (svz_udp_write (sock, packet, len) == -1)
 	return -1;
     }
   /* target is ICMP */
   else if (flag & TNL_FLAG_TGT_ICMP)
     {
-      if (icmp_write (sock, packet, len) == -1)
+      if (svz_icmp_write (sock, packet, len) == -1)
 	return -1;
     }
 
@@ -383,24 +383,24 @@ tnl_send_request_source (socket_t sock, char *packet, int len, int flag)
  * the sources socket and its own userflags.
  */
 static int
-tnl_send_request_target (socket_t sock, char *packet, int len, int flag)
+tnl_send_request_target (svz_socket_t *sock, char *packet, int len, int flag)
 {
   /* source is TCP or PIPE */
   if (flag & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
     {
-      if (sock_write (sock, packet, len) == -1)
+      if (svz_sock_write (sock, packet, len) == -1)
 	return -1;
     }
   /* source is UDP */
   else if (flag & TNL_FLAG_SRC_UDP)
     {
-      if (udp_write (sock, packet, len) == -1)
+      if (svz_udp_write (sock, packet, len) == -1)
 	return -1;
     }
   /* source is ICMP */
   else if (flag & TNL_FLAG_SRC_ICMP)
     {
-      if (icmp_write (sock, packet, len) == -1)
+      if (svz_icmp_write (sock, packet, len) == -1)
 	return -1;
     }
 
@@ -412,10 +412,10 @@ tnl_send_request_target (socket_t sock, char *packet, int len, int flag)
  * share the port configuration with other TCP or pipe servers.
  */
 int
-tnl_detect_proto (void *cfg, socket_t sock)
+tnl_detect_proto (void *cfg, svz_socket_t *sock)
 {
-  log_printf (LOG_NOTICE, "tunnel: %s connection accepted\n",
-	      sock->flags & SOCK_FLAG_PIPE ? "pipe" : "tcp");
+  svz_log (LOG_NOTICE, "tunnel: %s connection accepted\n",
+	   sock->flags & SOCK_FLAG_PIPE ? "pipe" : "tcp");
   return -1;
 }
 
@@ -424,16 +424,16 @@ tnl_detect_proto (void *cfg, socket_t sock)
  * to setup the tunnel server specific callbacks.
  */
 int
-tnl_connect_socket (void *config, socket_t sock)
+tnl_connect_socket (void *config, svz_socket_t *sock)
 {
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
   tnl_connect_t *source;
   
   sock->flags |= SOCK_FLAG_NOFLOOD;
   sock->check_request = sock->flags & SOCK_FLAG_PIPE ?
     tnl_check_request_pipe_source : tnl_check_request_tcp_source;
   sock->disconnected_socket = tnl_disconnect_source;
-  sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+  svz_sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
 
   /* try connecting to target */
   xsock = tnl_create_socket (sock, sock->flags & SOCK_FLAG_PIPE ?
@@ -459,15 +459,15 @@ tnl_connect_socket (void *config, socket_t sock)
  * send data back to its source connection.
  */
 int
-tnl_check_request_tcp_target (socket_t sock)
+tnl_check_request_tcp_target (svz_socket_t *sock)
 {
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
   tnl_connect_t *source = sock->data;
 
 #if ENABLE_DEBUG
   if (source == NULL || source->source_sock == NULL)
     {
-      log_printf (LOG_FATAL, "tunnel: tcp target has no source connection\n");
+      svz_log (LOG_FATAL, "tunnel: tcp target has no source connection\n");
       return -1;
     }
 #endif /* ENABLE_DEBUG */
@@ -481,7 +481,7 @@ tnl_check_request_tcp_target (socket_t sock)
   if (tnl_send_request_target (xsock, sock->recv_buffer, 
 			       sock->recv_buffer_fill, sock->userflags) == -1)
     {
-      sock_schedule_for_shutdown (xsock);
+      svz_sock_schedule_for_shutdown (xsock);
       return -1;
     }
 
@@ -496,15 +496,15 @@ tnl_check_request_tcp_target (socket_t sock)
  * connection.
  */
 int
-tnl_check_request_tcp_source (socket_t sock)
+tnl_check_request_tcp_source (svz_socket_t *sock)
 {
   tnl_connect_t *target = sock->data;
-  socket_t xsock;
+  svz_socket_t *xsock;
 
 #if ENABLE_DEBUG
   if (target == NULL || target->target_sock == NULL)
     {
-      log_printf (LOG_FATAL, "tunnel: tcp source has no target connection\n");
+      svz_log (LOG_FATAL, "tunnel: tcp source has no target connection\n");
       return -1;
     }
 #endif /* ENABLE_DEBUG */
@@ -527,15 +527,15 @@ tnl_check_request_tcp_source (socket_t sock)
  * This function is the handle_request() routine for target UDP sockets.
  */
 int
-tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
+tnl_handle_request_udp_target (svz_socket_t *sock, char *packet, int len)
 {
   tnl_connect_t *source = sock->data;
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
 
 #if ENABLE_DEBUG
   if (source == NULL || source->source_sock == NULL)
     {
-      log_printf (LOG_FATAL, "tunnel: udp target has no source connection\n");
+      svz_log (LOG_FATAL, "tunnel: udp target has no source connection\n");
       return -1;
     }
 #endif /* ENABLE_DEBUG */
@@ -550,7 +550,7 @@ tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
     {
       /* shutdown the source connection if it is TCP or pipe */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
-	sock_schedule_for_shutdown (xsock);
+	svz_sock_schedule_for_shutdown (xsock);
       return -1;
     }
 
@@ -564,11 +564,11 @@ tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
  * to existing target sockets.
  */
 int
-tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
+tnl_handle_request_udp_source (svz_socket_t *sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *source;
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
 
   /* check if there is such a connection in the source hash already */
   source = svz_hash_get (cfg->client, tnl_addr (sock));
@@ -598,7 +598,7 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
   /* forward packet data to target connection */
   if (tnl_send_request_source (xsock, packet, len, sock->userflags) == -1)
     {
-      sock_schedule_for_shutdown (xsock);
+      svz_sock_schedule_for_shutdown (xsock);
       return 0;
     }
 
@@ -609,16 +609,16 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
  * This function is the handle_request routine for target ICMP sockets.
  */
 int
-tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
+tnl_handle_request_icmp_target (svz_socket_t *sock, char *packet, int len)
 {
   tnl_connect_t *source = sock->data;
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
 
 #if ENABLE_DEBUG
   if (source == NULL || source->source_sock == NULL)
     {
-      log_printf (LOG_FATAL,
-		  "tunnel: icmp target has no source connection\n");
+      svz_log (LOG_FATAL,
+	       "tunnel: icmp target has no source connection\n");
       return -1;
     }
 #endif /* ENABLE_DEBUG */
@@ -633,7 +633,7 @@ tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
     {
       /* shutdown source connection if it is TCP or pipe */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
-	sock_schedule_for_shutdown (xsock);
+	svz_sock_schedule_for_shutdown (xsock);
       return -1;
     }
 
@@ -647,11 +647,11 @@ tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
  * to existing target sockets.
  */
 int
-tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
+tnl_handle_request_icmp_source (svz_socket_t *sock, char *packet, int len)
 {
   tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *source;
-  socket_t xsock = NULL;
+  svz_socket_t *xsock = NULL;
 
   /* check if there is such a connection in the source hash already */
   source = svz_hash_get (cfg->client, tnl_addr (sock));
@@ -681,7 +681,7 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
   /* forward packet data to target connection */
   if (tnl_send_request_source (xsock, packet, len, sock->userflags) == -1)
     {
-      sock_schedule_for_shutdown (xsock);
+      svz_sock_schedule_for_shutdown (xsock);
       return 0;
     }
 
@@ -693,15 +693,15 @@ tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
  * ICMP and UDP).
  */
 int
-tnl_disconnect_target (socket_t sock)
+tnl_disconnect_target (svz_socket_t *sock)
 {
   tnl_config_t *cfg = sock->cfg;
   tnl_connect_t *source = sock->data;
-  socket_t xsock;
+  svz_socket_t *xsock;
   char *key;
 
   /* do not do anything if we are shutting down */
-  if (server_nuke_happened)
+  if (svz_nuke_happened)
     {
       /* if source is TCP or PIPE then shutdown referring connection */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
@@ -714,7 +714,7 @@ tnl_disconnect_target (socket_t sock)
 #if ENABLE_DEBUG
   if (source == NULL || source->source_sock == NULL)
     {
-      log_printf (LOG_FATAL, "tunnel: target has no source connection\n");
+      svz_log (LOG_FATAL, "tunnel: target has no source connection\n");
       return -1;
     }
 #endif /* ENABLE_DEBUG */
@@ -726,20 +726,20 @@ tnl_disconnect_target (socket_t sock)
   if (sock->userflags & TNL_FLAG_SRC_ICMP)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG,
-		  "tunnel: sending icmp disconnect on socket id %d\n",
-		  xsock->id);
+      svz_log (LOG_DEBUG,
+	       "tunnel: sending icmp disconnect on socket id %d\n",
+	       xsock->id);
 #endif /* ENABLE_DEBUG */
-      icmp_send_control (xsock, ICMP_SERVEEZ_CLOSE);
+      svz_icmp_send_control (xsock, ICMP_SERVEEZ_CLOSE);
     }
 
   /* if source is TCP or PIPE then shutdown referring connection */
   if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n", xsock->id);
+      svz_log (LOG_DEBUG, "tunnel: shutdown referrer id %d\n", xsock->id);
 #endif /* ENABLE_DEBUG */
-      sock_schedule_for_shutdown (xsock);
+      svz_sock_schedule_for_shutdown (xsock);
       xsock->data = NULL;
       tnl_free_connect (sock);
     }
@@ -757,10 +757,10 @@ tnl_disconnect_target (socket_t sock)
  * What happens if a source connection gets lost.
  */
 int
-tnl_disconnect_source (socket_t sock)
+tnl_disconnect_source (svz_socket_t *sock)
 {
   tnl_connect_t *target = sock->data;
-  socket_t xsock;
+  svz_socket_t *xsock;
 
   /* if target is TCP or PIPE shutdown referring connection */
   if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_PIPE))
@@ -768,8 +768,8 @@ tnl_disconnect_source (socket_t sock)
 #if ENABLE_DEBUG
       if (target == NULL || target->target_sock == NULL)
 	{
-	  log_printf (LOG_DEBUG, "tunnel: tcp/pipe source has no "
-		      "target connection\n");
+	  svz_log (LOG_DEBUG, "tunnel: tcp/pipe source has no "
+		   "target connection\n");
 	  return -1;
 	}
 #endif /* ENABLE_DEBUG */
@@ -778,9 +778,9 @@ tnl_disconnect_source (socket_t sock)
       xsock = target->target_sock;
 
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n", xsock->id);
+      svz_log (LOG_DEBUG, "tunnel: shutdown referrer id %d\n", xsock->id);
 #endif /* ENABLE_DEBUG */
-      sock_schedule_for_shutdown (xsock);
+      svz_sock_schedule_for_shutdown (xsock);
       xsock->data = NULL;
       tnl_free_connect (sock);
     }
@@ -793,7 +793,7 @@ tnl_disconnect_source (socket_t sock)
  * we need to shutdown target sockets ourselves.
  */
 int
-tnl_idle (socket_t sock)
+tnl_idle (svz_socket_t *sock)
 {
   time_t t = time (NULL);
 

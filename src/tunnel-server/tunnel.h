@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.11 2001/04/28 12:37:06 ela Exp $
+ * $Id: tunnel.h,v 1.12 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -43,10 +43,10 @@ tnl_config_t;
 /* the referrer connection structure */
 typedef struct
 {
-  unsigned long ip;     /* the ip address to send to */
-  unsigned short port;  /* port to send to */
-  socket_t source_sock; /* source socket structure */
-  socket_t target_sock; /* target socket */
+  unsigned long ip;          /* the ip address to send to */
+  unsigned short port;       /* port to send to */
+  svz_socket_t *source_sock; /* source socket structure */
+  svz_socket_t *target_sock; /* target socket */
 }
 tnl_connect_t;
 
@@ -78,17 +78,17 @@ int tnl_finalize (svz_server_t *server);
 int tnl_global_finalize (void);
 
 /* Rest of all the callbacks. */
-int tnl_detect_proto (void *cfg, socket_t sock);
-int tnl_connect_socket (void *config, socket_t sock);
-int tnl_check_request_tcp_source (socket_t sock);
-int tnl_check_request_tcp_target (socket_t sock);
-int tnl_handle_request_udp_source (socket_t sock, char *packet, int len);
-int tnl_handle_request_udp_target (socket_t sock, char *packet, int len);
-int tnl_handle_request_icmp_source (socket_t sock, char *packet, int len);
-int tnl_handle_request_icmp_target (socket_t sock, char *packet, int len);
-int tnl_disconnect_source (socket_t sock);
-int tnl_disconnect_target (socket_t sock);
-int tnl_idle (socket_t sock);
+int tnl_detect_proto (void *cfg, svz_socket_t *sock);
+int tnl_connect_socket (void *config, svz_socket_t *sock);
+int tnl_check_request_tcp_source (svz_socket_t *sock);
+int tnl_check_request_tcp_target (svz_socket_t *sock);
+int tnl_handle_request_udp_source (svz_socket_t *sock, char *packet, int len);
+int tnl_handle_request_udp_target (svz_socket_t *sock, char *packet, int len);
+int tnl_handle_request_icmp_source (svz_socket_t *sock, char *packet, int len);
+int tnl_handle_request_icmp_target (svz_socket_t *sock, char *packet, int len);
+int tnl_disconnect_source (svz_socket_t *sock);
+int tnl_disconnect_target (svz_socket_t *sock);
+int tnl_idle (svz_socket_t *sock);
 
 #define tnl_check_request_pipe_source tnl_check_request_tcp_source
 #define tnl_check_request_pipe_target tnl_check_request_tcp_target

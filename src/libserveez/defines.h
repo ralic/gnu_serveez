@@ -18,16 +18,18 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: defines.h,v 1.2 2001/04/09 13:46:05 ela Exp $
+ * $Id: defines.h,v 1.3 2001/05/19 23:04:57 ela Exp $
  *
  */
 
 #ifndef __DEFINES_H__
 #define __DEFINES_H__ 1
 
-#if HAVE_CONFIG_H
+#if defined (HAVE_CONFIG_H) && defined (__BUILD_SVZ_LIBRARY__)
 # include <config.h>
-#endif 
+#else
+# include <svzconfig.h>
+#endif
 
 /* __BEGIN_DECLS should be used at the beginning of your declarations,
    so that C++ compilers don't mangle their names.  Use __END_DECLS at

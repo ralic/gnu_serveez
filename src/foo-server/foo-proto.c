@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.27 2001/05/05 15:45:51 ela Exp $
+ * $Id: foo-proto.c,v 1.28 2001/05/19 23:04:56 ela Exp $
  *
  */
 
@@ -67,13 +67,13 @@ foo_config_t foo_config =
  */
 svz_key_value_pair_t foo_config_prototype [] = 
 {
-  REGISTER_INT ("bar", foo_config.bar, NOTDEFAULTABLE),
-  REGISTER_STR ("reply", foo_config.reply, DEFAULTABLE),
-  REGISTER_STRARRAY ("messages", foo_config.messages, DEFAULTABLE),
-  REGISTER_INTARRAY ("ports", foo_config.ports, DEFAULTABLE),
-  REGISTER_HASH ("assoc", foo_config.assoc, DEFAULTABLE),
-  REGISTER_PORTCFG ("port", foo_config.port, DEFAULTABLE),
-  REGISTER_END ()
+  SVZ_REGISTER_INT ("bar", foo_config.bar, NOTDEFAULTABLE),
+  SVZ_REGISTER_STR ("reply", foo_config.reply, DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("messages", foo_config.messages, DEFAULTABLE),
+  SVZ_REGISTER_INTARRAY ("ports", foo_config.ports, DEFAULTABLE),
+  SVZ_REGISTER_HASH ("assoc", foo_config.assoc, DEFAULTABLE),
+  SVZ_REGISTER_PORTCFG ("port", foo_config.port, DEFAULTABLE),
+  SVZ_REGISTER_END ()
 };
 
 /*
@@ -93,7 +93,7 @@ svz_servertype_t foo_server_definition =
   foo_info_server,
   NULL,
   NULL,
-  DEFINE_CONFIG (foo_config, foo_config_prototype)
+  SVZ_DEFINE_CONFIG (foo_config, foo_config_prototype)
 };
 
 /* ************* Networking functions ************************* */
@@ -105,10 +105,10 @@ svz_servertype_t foo_server_definition =
 int
 foo_handle_coserver_result (char *host, int id, int version)
 {
-  socket_t sock = sock_find (id, version);
+  svz_socket_t *sock = svz_sock_find (id, version);
 
   if (host && sock)
-    sock_printf (sock, "You are `%s'\r\n", host);
+    svz_sock_printf (sock, "You are `%s'\r\n", host);
   return 0;
 }
 
@@ -116,11 +116,11 @@ foo_handle_coserver_result (char *host, int id, int version)
  * Handle a single request as found by the `sock_check_request ()'.
  */
 int 
-foo_handle_request (socket_t sock, char *request, int len)
+foo_handle_request (svz_socket_t *sock, char *request, int len)
 {
   foo_config_t *cfg = sock->cfg;
 
-  return sock_printf (sock, "%s: %d\r\n", cfg->reply, len);
+  return svz_sock_printf (sock, "%s: %d\r\n", cfg->reply, len);
 }
 
 /*
@@ -129,7 +129,7 @@ foo_handle_request (socket_t sock, char *request, int len)
  * protocol.
  */
 int
-foo_detect_proto (void *cfg, socket_t sock)
+foo_detect_proto (void *cfg, svz_socket_t *sock)
 {
   /* see if the stream starts with our identification string */
   if (sock->recv_buffer_fill >= 5 &&
@@ -137,7 +137,7 @@ foo_detect_proto (void *cfg, socket_t sock)
     {
 
       /* it's us: forget the id string and signal success */
-      sock_reduce_recv (sock, 5);
+      svz_sock_reduce_recv (sock, 5);
       return -1;
     }
 
@@ -150,7 +150,7 @@ foo_detect_proto (void *cfg, socket_t sock)
  * the callbacks we need.
  */
 int
-foo_connect_socket (void *acfg, socket_t sock)
+foo_connect_socket (void *acfg, svz_socket_t *sock)
 {
   foo_config_t *cfg = acfg;
   int i, ret;
@@ -162,14 +162,14 @@ foo_connect_socket (void *acfg, socket_t sock)
    */
   sock->boundary = foo_packet_delim;
   sock->boundary_size = foo_packet_delim_len;
-  sock->check_request = sock_check_request;
+  sock->check_request = svz_sock_check_request;
   sock->handle_request = foo_handle_request;
 
-  log_printf (LOG_NOTICE, "foo client detected\n");
+  svz_log (LOG_NOTICE, "foo client detected\n");
   
   svz_array_foreach (cfg->messages, msg, i)
     {
-      ret = sock_printf (sock, "%s\r\n", msg);
+      ret = svz_sock_printf (sock, "%s\r\n", msg);
       if (ret)
 	return ret;
     }
@@ -177,10 +177,10 @@ foo_connect_socket (void *acfg, socket_t sock)
   /*
    * Ask a coserver to resolve the client's ip
    */
-  sock_printf (sock, "Starting reverse lookup...\r\n");
+  svz_sock_printf (sock, "Starting reverse lookup...\r\n");
   svz_coserver_rdns (sock->remote_addr, foo_handle_coserver_result,
 		     sock->id, sock->version);
-  sock_printf (sock, "Waiting...\r\n");
+  svz_sock_printf (sock, "Waiting...\r\n");
   return 0;
 }
 
@@ -242,7 +242,7 @@ foo_finalize (svz_server_t *server)
 {
   foo_config_t *c = server->cfg;
 
-  log_printf (LOG_NOTICE, "destroying %s\n", server->name);
+  svz_log (LOG_NOTICE, "destroying %s\n", server->name);
   return 0;
 }
 

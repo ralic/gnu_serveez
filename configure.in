@@ -31,7 +31,7 @@ dnl Initialize autoconf and automake
 dnl
 AC_INIT(src/serveez.c)
 AM_INIT_AUTOMAKE(serveez,0.1.0,no-define)
-AM_CONFIG_HEADER(config.h)
+AM_CONFIG_HEADER(config.h src/svzconfig.h)
 
 dnl
 dnl Determine if maintainer portions of the Makefiles should be included.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-7.c,v 1.15 2001/04/01 13:32:29 ela Exp $
+ * $Id: irc-event-7.c,v 1.16 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -47,7 +47,7 @@
  * Numeric Replies: RPL_ISON ERR_NEEDMOREPARAMS
  */
 int
-irc_ison_callback (socket_t sock, 
+irc_ison_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -78,7 +78,7 @@ irc_ison_callback (socket_t sock,
  * Numeric Replies: RPL_USERHOST ERR_NEEDMOREPARAMS
  */
 int
-irc_userhost_callback (socket_t sock, 
+irc_userhost_callback (svz_socket_t *sock, 
 		       irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -117,7 +117,7 @@ irc_userhost_callback (socket_t sock,
  * Numeric Replies: RPL_UNAWAY RPL_NOWAWAY
  */
 int
-irc_away_callback (socket_t sock, 
+irc_away_callback (svz_socket_t *sock, 
 		   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
@@ -151,7 +151,7 @@ irc_away_callback (socket_t sock,
  *                  ERR_USERSDISABLED
  */
 int
-irc_users_callback (socket_t sock, 
+irc_users_callback (svz_socket_t *sock, 
 		    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: core.c,v 1.6 2001/04/18 13:58:05 ela Exp $
+ * $Id: core.c,v 1.7 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -76,7 +76,7 @@ svz_fd_nonblock (int fd)
 
   if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
-      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
       return -1;
     }
 #else /* not __MINGW32__ */
@@ -85,7 +85,7 @@ svz_fd_nonblock (int fd)
   flag = fcntl (fd, F_GETFL);
   if (fcntl (fd, F_SETFL, flag | O_NONBLOCK) < 0)
     {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -120,7 +120,7 @@ svz_fd_cloexec (int fd)
   flag = fcntl (fd, F_GETFD);
   if ((fcntl (fd, F_SETFD, flag | FD_CLOEXEC)) < 0)
     {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return -1;
     }
 
@@ -172,7 +172,7 @@ svz_socket_create (int proto)
   /* Create a socket for communication with a server. */
   if ((sockfd = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
     {
-      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "socket: %s\n", NET_ERROR);
       return (SOCKET) -1;
     }
 
@@ -218,12 +218,12 @@ svz_socket_connect (SOCKET sockfd, unsigned long host, unsigned short port)
 #endif
       if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
         {
-          log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+          svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
           closesocket (sockfd);
           return -1;
         }
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+      svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
 #endif
     }
   return 0;
@@ -267,8 +267,8 @@ svz_inet_ntoa (unsigned long ip)
  * numbers-and-dots notation into binary data and stores it in the 
  * structure that @var{addr} points to. @code{svz_inet_aton()} returns 
  * zero if the address is valid, nonzero if not.
- * This function handles an ip address of "*" special and sets INADDR_ANY
- * for it.
+ * This function handles an ip address of "*" special and sets 
+ * @code{INADDR_ANY} for it.
  */
 int
 svz_inet_aton (char *str, struct sockaddr_in *addr)
@@ -314,7 +314,7 @@ svz_tcp_cork (SOCKET fd, int set)
   /* get current socket options */
   if ((flags = fcntl (fd, F_GETFL)) < 0)
     {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return -1;
     }
 
@@ -324,7 +324,7 @@ svz_tcp_cork (SOCKET fd, int set)
   /* apply new socket option */
   if (fcntl (fd, F_SETFL, flags) < 0)
     {
-      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
       return -1;
     }
 
@@ -356,7 +356,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, size_t count)
   if (!TransmitFile ((SOCKET) out_fd, (HANDLE) in_fd, count, 0, 
 		     NULL, NULL, 0))
     {
-      log_printf (LOG_ERROR, "TransmitFile: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "TransmitFile: %s\n", SYS_ERROR);
       ret = -1;
     }
   else
@@ -384,7 +384,7 @@ svz_open (const char *file, int flags, mode_t mode)
 
   if ((fd = open (file, flags, mode)) < 0)
     {
-      log_printf (LOG_ERROR, "open (%s): %s\n", file, SYS_ERROR);
+      svz_log (LOG_ERROR, "open (%s): %s\n", file, SYS_ERROR);
       return -1;
     }
   if (svz_fd_cloexec (fd) < 0)
@@ -426,7 +426,7 @@ svz_open (const char *file, int flags, mode_t mode)
   if ((fd = CreateFile (file, access, 0, NULL, creation, 0, NULL)) == 
       INVALID_HANDLE_VALUE)
     {
-      log_printf (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
+      svz_log (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
       return -1;
     }
 
@@ -446,13 +446,13 @@ svz_close (int fd)
 #ifndef __MINGW32__
   if (close (fd) < 0)
     {
-      log_printf (LOG_ERROR, "close: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       return -1;
     }
 #else /* __MINGW32__ */
   if (!CloseHandle ((HANDLE) fd))
     {
-      log_printf (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -482,7 +482,7 @@ svz_fstat (int fd, struct stat *buf)
 #ifndef __MINGW32__
   if (fstat (fd, buf) < 0)
     {
-      log_printf (LOG_ERROR, "fstat: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "fstat: %s\n", SYS_ERROR);
       return -1;
     }
 #else /* __MINGW32__ */
@@ -493,7 +493,7 @@ svz_fstat (int fd, struct stat *buf)
 
   if (!GetFileInformationByHandle ((HANDLE) fd, &info))
     {
-      log_printf (LOG_ERROR, "GetFileInformationByHandle: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "GetFileInformationByHandle: %s\n", SYS_ERROR);
       return -1;
     }
 
@@ -529,7 +529,7 @@ svz_fopen (const char *file, const char *mode)
 
   if ((f = fopen (file, mode)) == NULL)
     {
-      log_printf (LOG_ERROR, "fopen (%s): %s\n", file, SYS_ERROR);
+      svz_log (LOG_ERROR, "fopen (%s): %s\n", file, SYS_ERROR);
       return NULL;
     }
 #ifndef __MINGW32__
@@ -550,7 +550,7 @@ svz_fclose (FILE *f)
 {
   if (fclose (f) < 0)
     {
-      log_printf (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
       return -1;
     }
   return 0;

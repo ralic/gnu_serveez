@@ -7,6 +7,7 @@
 @exampleindent 2
 @c @include version.texi
 
+@set VERSION 0.1.0
 @set PACKAGE Serveez
 @set s_PACKAGE serveez
 
@@ -41,6 +42,8 @@ Free Documentation License".
 @ifinfo
 This file documents how to embed Serveez into C programs and describes
 all parts of the API it provides.
+
+It applies to version @value{VERSION} of the Serveez package.
 @end ifinfo
 
 @menu
@@ -56,7 +59,8 @@ all parts of the API it provides.
 The Serveez core library provides all of the functionality necessary in
 order to write Internet protocol servers (currently TCP, UDP, ICMP and RAW
 sockets), pipe servers (connection oriented via a pair of named pipes) and 
-coservers in a portable way. It encapsulates the native network and 
+coservers in a portable way. All of the included servers coming with this
+package are based upon this library. It encapsulates the native network and 
 filesystem programming interface of different Unices and Windows systems.
 
 The Serveez embedding manual and the API documentation will give the reader
@@ -66,8 +70,8 @@ an overview about how to use its core library.
 @chapter Embedding Serveez
 
 @menu
-* Compiling and linking::        Compiling and linking
-* A simple example::             A simple example
+* Compiling and linking::      How to compile and link against the library
+* A simple example::           A very small example showing the basics
 @end menu
 
 @node Compiling and linking, A simple example, , Embedding Serveez
@@ -82,13 +86,13 @@ program using the Serveez API and link against the Serveez core library
 @file{libserveez.dll} at Windows systems, you need to tell the compiler and
 linker where to find the headers and libraries.
 
-Most C compilers you can use will understand the following command line for
-this purpose. The @code{-I} argument specifies the path to additional 
-include headers, the @code{-L} argument the path to additional libraries and
-the @code{-l} argument the library iteself to link against.
+Most C compilers you can use will understand the following command line 
+options for this purpose. The @samp{-I} argument specifies the path to 
+additional include headers, the @samp{-L} argument the path to additional 
+libraries and the @samp{-l} argument the library itself to link against.
 
 @example
-$ cc -I/usr/local/include -c program.c -o program -L/usr/local/lib -lserveez
+$ cc svztest.c -I/usr/local/include -o svztest -L/usr/local/lib -lserveez
 @end example
 
 @node A simple example, , Compiling and linking, Embedding Serveez
@@ -96,18 +100,21 @@ $ cc -I/usr/local/include -c program.c -o program -L/usr/local/lib -lserveez
 
 The following small example shows how to use the Serveez core library to
 print the list of known network interface. As you will notice there are three
-major steps to do: Include the library header @code{#include <libserveez.h>},
-library initialization @code{svz_boot()} and finalization @code{svz_halt()}.
+major steps to do: Include the library header with 
+@code{#include <libserveez.h>}, initialize the library via @code{svz_boot()} 
+and finalize it via @code{svz_halt()}. It between these calls you can use
+all of the API functions, variables and macros described in 
+@ref{Embedding API}. 
 
 @example
-#include <libserveez.h>
+#include <libserveez.h> /* Include the library header. */
 
 int
 main (int argc, char **argv)
 @{
-  svz_boot ();
+  svz_boot ();          /* Library initialization. */
   svz_interface_list ();
-  svz_halt ();
+  svz_halt ();          /* Library finalization. */
   return 0;
 @}
 @end example
@@ -126,7 +133,7 @@ prefixed with @code{svz_}. Small symbols will refer to functions and
 variables in most cases and big letter symbols refer to macros.
 
 @menu
-* Memory management::     Memory management functions
+* Memory management::     How memory is managed in Serveez
 * Data structures::       Data structure helpers
 * Utility functions::     Miscellaneous helper functions
 * Core functions::        Network core implementations
@@ -145,8 +152,17 @@ variables in most cases and big letter symbols refer to macros.
 @node Memory management, Data structures, , Embedding API
 @section Memory management
 
-SVZ_ALLOCATED_BYTES_DEFVAR
-SVZ_ALLOCATED_BLOCKS_DEFVAR
+The core library of Serveez is able to keep track of the memory an 
+application or part of a program consumes and also controls itself in the
+same manner. When you are using this memory allocator interface you can
+determine and afterwards remove memory leaks. This is a very important
+feature if you consider servers being long term programs.
+
+The three allocator function pointers for @code{malloc()}, @code{realloc()}
+and @code{free()} make it possible to instruct Serveez to use different
+kinds of memory, which might be necessary if you want the library to work
+with shared memory arenas.
+
 SVZ_MALLOC_FUNC_DEFVAR
 SVZ_REALLOC_FUNC_DEFVAR
 SVZ_FREE_FUNC_DEFVAR
@@ -162,13 +178,21 @@ SVZ_PMALLOC_DEFUN
 SVZ_PREALLOC_DEFUN
 SVZ_PSTRDUP_DEFUN
 
+SVZ_ALLOCATED_BYTES_DEFVAR
+SVZ_ALLOCATED_BLOCKS_DEFVAR
 SVZ_HEAP_DEFUN
 
 @node Data structures, Utility functions, Memory management, Embedding API
 @section Data structures
 
+Since most servers need to store information about its clients or want to
+keep track of data during runtime we implemented some of the most useful
+data pools. The actual aim was to provide higher level data structures which
+the programming language C does not support. Some of the included servers
+which come with Serveez make extensive use of them.
+
 @menu
-* Array::                 Array implementation
+* Array::                 A growable array implementation
 * Hashtable::             Hashtable implementation
 * Sparsevector::          Sparsevector implementation
 * Vectorlist::            Vectorlist implementation
@@ -179,7 +203,8 @@ SVZ_HEAP_DEFUN
 
 The array data structure is a simple array implementation. Each array has got
 a size and capacity. The array indices range from zero to the array's size 
-minus one.
+minus one. You can put any kind of data into this array which fits into the
+size of a pointer. The array automatically grows if necessary.
 
 SVZ_ARRAY_CREATE_DEFUN
 SVZ_ARRAY_CLEAR_DEFUN
@@ -198,9 +223,11 @@ SVZ_ARRAY_FOREACH_DEFMAC
 @node Hashtable, Sparsevector, Array, Data structures
 @subsection Hashtable functions
 
-A hashtable associates keys of arbitrary size and content with values. You
-cannot store two values associated with the same key. The values can have
-any simple C types like integers and pointers.
+A hashtable associates keys of arbitrary size and content with values. 
+This data structure is also called associative array sometimes because you 
+use keys in order to access values instead of numbers. You cannot store 
+two values associated with the same key. The values can have any simple 
+C types like integers or pointers.
 
 SVZ_HASH_CREATE_DEFUN
 SVZ_HASH_DESTROY_DEFUN
@@ -267,17 +294,22 @@ SVZ_VECTOR_FOREACH_DEFMAC
 @node Utility functions, Core functions, Data structures, Embedding API
 @section Utility functions
 
+Within this section you will find some miscellaneous functionality and
+left overs of the C API.
+
+SVZ_LOG_DEFUN
+SVZ_LOG_SETFILE_DEFUN
+
 SVZ_VERBOSITY_DEFVAR
 SVZ_OS_VERSION_DEFVAR
+@strong{Please note}:
+This variable is only available on Windows version of this API.
 SVZ_ERRNO_DEFVAR
 
-LOG_PRINTF_DEFUN
-LOG_SET_FILE_DEFUN
-
-INT16_DEFMAC
-INT32_DEFMAC
-UINT16_DEFMAC
-UINT32_DEFMAC
+SVZ_INT16_DEFMAC
+SVZ_INT32_DEFMAC
+SVZ_UINT16_DEFMAC
+SVZ_UINT32_DEFMAC
 
 SVZ_HEXDUMP_DEFUN
 SVZ_ITOA_DEFUN
@@ -324,76 +356,120 @@ SVZ_FCLOSE_DEFUN
 @node TCP sockets, Pipe connections, , Client connections
 @subsection TCP sockets
 
-TCP_CONNECT_DEFUN
-TCP_DEFAULT_CONNECT_DEFUN
-TCP_READ_SOCKET_DEFUN
-TCP_WRITE_SOCKET_DEFUN
+TCP sockets provide a reliable, stream oriented, full duplex connection 
+between two sockets on top of the Internet Protocol (IP). TCP guarantees 
+that the data arrives in order and retransmits lost packets. It generates 
+and checks a per packet checksum to catch transmission errors. TCP does 
+not preserve record boundaries.
+
+SVZ_TCP_CONNECT_DEFUN
+SVZ_TCP_DEFAULT_CONNECT_DEFUN
+SVZ_TCP_READ_SOCKET_DEFUN
+SVZ_TCP_WRITE_SOCKET_DEFUN
 
 @node Pipe connections, UDP sockets, TCP sockets, Client connections
 @subsection Pipe connections
 
-PIPE_VALID_DEFUN
-PIPE_READ_SOCKET_DEFUN
-PIPE_WRITE_SOCKET_DEFUN
-PIPE_DISCONNECT_DEFUN
-PIPE_CREATE_DEFUN
-PIPE_CREATE_PAIR_DEFUN
-PIPE_CONNECT_DEFUN
-PIPE_LISTENER_DEFUN
+The pipe implementations supports both named and anonymous pipes. Pipe
+servers are implemented as listeners on a file system FIFO on Unices or
+"Named Pipes" on Windows (can be shared over a Windows network).
+
+A FIFO special file is similar to a pipe, except that it is created in a 
+different way. Instead of being an anonymous communications channel,
+a FIFO special file is entered into the file system.
+
+Once you have created a FIFO special file in this way, any process can open 
+it for reading or writing, in the same way as an ordinary file. However, 
+it has to be open at both ends simultaneously before you can proceed to do
+any input or output operations on it.
+
+SVZ_PIPE_VALID_DEFUN
+SVZ_PIPE_READ_SOCKET_DEFUN
+SVZ_PIPE_WRITE_SOCKET_DEFUN
+SVZ_PIPE_DISCONNECT_DEFUN
+SVZ_PIPE_CREATE_DEFUN
+SVZ_PIPE_CREATE_PAIR_DEFUN
+SVZ_PIPE_CONNECT_DEFUN
+SVZ_PIPE_LISTENER_DEFUN
 
 @node UDP sockets, ICMP sockets, Pipe connections, Client connections
 @subsection UDP sockets
 
-UDP_READ_SOCKET_DEFUN
-UDP_WRITE_SOCKET_DEFUN
-UDP_CHECK_REQUEST_DEFUN
-UDP_CONNECT_DEFUN
-UDP_WRITE_DEFUN
-UDP_PRINTF_DEFUN
+The UDP sockets implement a connectionless, unreliable datagram packet 
+service. Packets may be reordered or duplicated before they arrive. UDP 
+generates and checks checksums to catch transmission errors.
+
+SVZ_UDP_READ_SOCKET_DEFUN
+SVZ_UDP_WRITE_SOCKET_DEFUN
+SVZ_UDP_CHECK_REQUEST_DEFUN
+SVZ_UDP_CONNECT_DEFUN
+SVZ_UDP_WRITE_DEFUN
+SVZ_UDP_PRINTF_DEFUN
 
 @node ICMP sockets, Raw sockets, UDP sockets, Client connections
 @subsection ICMP sockets
 
-ICMP_STARTUP_DEFUN
-ICMP_CLEANUP_DEFUN
-ICMP_READ_SOCKET_DEFUN
-ICMP_WRITE_SOCKET_DEFUN
-ICMP_CHECK_REQUEST_DEFUN
-ICMP_CONNECT_DEFUN
-ICMP_SEND_CONTROL_DEFUN
-ICMP_WRITE_DEFUN
-ICMP_PRINTF_DEFUN
+The ICMP socket implementation is currently used in the tunnel server which
+comes with the Serveez package. It implements a user protocol receiving and
+sending ICMP packets by opening a raw socket with the protocol IPPROTO_ICMP.
+
+The types of ICMP packets passed to the socket can be filtered using the 
+ICMP_FILTER socket option (or by software as done here). ICMP packets are 
+always processed by the kernel too, even when passed to a user socket.
+
+SVZ_ICMP_STARTUP_DEFUN
+SVZ_ICMP_CLEANUP_DEFUN
+SVZ_ICMP_READ_SOCKET_DEFUN
+SVZ_ICMP_WRITE_SOCKET_DEFUN
+SVZ_ICMP_CHECK_REQUEST_DEFUN
+SVZ_ICMP_CONNECT_DEFUN
+SVZ_ICMP_SEND_CONTROL_DEFUN
+SVZ_ICMP_WRITE_DEFUN
+SVZ_ICMP_PRINTF_DEFUN
 
 @node Raw sockets, , ICMP sockets, Client connections
 @subsection Raw sockets
 
-RAW_GET_IP_HEADER_DEFUN
-RAW_PUT_IP_HEADER_DEFUN
-RAW_IP_CHECKSUM_DEFUN
-RAW_CHECK_IP_HEADER_DEFUN
+A raw socket receives or sends the raw datagram not including link 
+level headers. It is currently used by the ICMP socket implementation of
+the core library. The IPv4 layer generates an IP header when sending a packet 
+unless the IP_HDRINCL socket option is enabled on the socket. When it is 
+enabled, the packet must contain an IP header. For receiving the IP header
+is always included in the packet.
+
+Only processes with an effective userid of 0 (Administrator or root) or the
+CAP_NET_RAW capability are allowed to open raw sockets. All packets or errors
+matching the protocol number specified for the raw socket are passed to 
+this socket. A protocol of IPPROTO_RAW implies enabled IP_HDRINCL and
+receives all IP protocols. Sending is not allowed.
+
+SVZ_RAW_GET_IP_HEADER_DEFUN
+SVZ_RAW_PUT_IP_HEADER_DEFUN
+SVZ_RAW_IP_CHECKSUM_DEFUN
+SVZ_RAW_CHECK_IP_HEADER_DEFUN
 
 @node Socket, Coserver, Client connections, Embedding API
 @section Socket management
 
-SOCK_CONNECTIONS_DEFVAR
+SVZ_SOCK_CONNECTIONS_DEFVAR
 
-SOCK_VALID_DEFUN
-SOCK_ALLOC_DEFUN
-SOCK_FREE_DEFUN
-SOCK_CREATE_DEFUN
-SOCK_DISCONNECT_DEFUN
-SOCK_WRITE_DEFUN
-SOCK_PRINTF_DEFUN
-SOCK_RESIZE_BUFFERS_DEFUN
-SOCK_INTERN_CONNECTION_INFO_DEFUN
-SOCK_ERROR_INFO_DEFUN
-SOCK_UNIQUE_ID_DEFUN
-SOCK_DETECT_PROTO_DEFUN
-SOCK_CHECK_REQUEST_DEFUN
-SOCK_IDLE_PROTECT_DEFUN
-SOCK_FLOOD_PROTECT_DEFUN
-SOCK_REDUCE_RECV_DEFMAC
-SOCK_REDUCE_SEND_DEFMAC
+SVZ_SOCK_VALID_DEFUN
+SVZ_SOCK_ALLOC_DEFUN
+SVZ_SOCK_FREE_DEFUN
+SVZ_SOCK_CREATE_DEFUN
+SVZ_SOCK_DISCONNECT_DEFUN
+SVZ_SOCK_WRITE_DEFUN
+SVZ_SOCK_PRINTF_DEFUN
+SVZ_SOCK_RESIZE_BUFFERS_DEFUN
+SVZ_SOCK_INTERN_CONNECTION_INFO_DEFUN
+SVZ_SOCK_ERROR_INFO_DEFUN
+SVZ_SOCK_UNIQUE_ID_DEFUN
+SVZ_SOCK_DETECT_PROTO_DEFUN
+SVZ_SOCK_CHECK_REQUEST_DEFUN
+SVZ_SOCK_IDLE_PROTECT_DEFUN
+SVZ_SOCK_FLOOD_PROTECT_DEFUN
+SVZ_SOCK_REDUCE_RECV_DEFMAC
+SVZ_SOCK_REDUCE_SEND_DEFMAC
 
 @node Coserver, ServerType, Socket, Embedding API
 @section Coserver functions
@@ -430,15 +506,15 @@ When specifying a server type you also need to define configuration items
 for it. These items refer to addresses in the example configuration of the
 server type. The following macro can be used to determine these items.
 
-REGISTER_INT_DEFMAC
-REGISTER_INTARRAY_DEFMAC
-REGISTER_STR_DEFMAC
-REGISTER_STRARRAY_DEFMAC
-REGISTER_HASH_DEFMAC
-REGISTER_PORTCFG_DEFMAC
-REGISTER_END_DEFMAC
+SVZ_REGISTER_INT_DEFMAC
+SVZ_REGISTER_INTARRAY_DEFMAC
+SVZ_REGISTER_STR_DEFMAC
+SVZ_REGISTER_STRARRAY_DEFMAC
+SVZ_REGISTER_HASH_DEFMAC
+SVZ_REGISTER_PORTCFG_DEFMAC
+SVZ_REGISTER_END_DEFMAC
 
-DEFINE_CONFIG_DEFMAC
+SVZ_DEFINE_CONFIG_DEFMAC
 
 SVZ_SERVERTYPES_DEFVAR
 SVZ_SERVERTYPE_ADD_DEFUN
@@ -452,8 +528,8 @@ SVZ_SERVERTYPE_PRINT_DEFUN
 
 SVZ_DYNLOAD_INIT_DEFUN
 SVZ_DYNLOAD_FINALIZE_DEFUN
-SVZ_SERVER_LOAD_DEFUN
-SVZ_SERVER_UNLOAD_DEFUN
+SVZ_SERVERTYPE_LOAD_DEFUN
+SVZ_SERVERTYPE_UNLOAD_DEFUN
 
 @node Server, PortConfig, ServerType, Embedding API
 @section Server functions
@@ -507,43 +583,43 @@ SVZ_SERVER_BINDINGS_DEFUN
 @node ServerCore, ServerLoop, ServerBind, Server
 @subsection Server core
 
-SERVER_NUKE_HAPPENED_DEFVAR
-SERVER_CHILD_DIED_DEFVAR
-SERVER_NOTIFY_DEFVAR
-SOCK_ROOT_DEFVAR
-SOCK_LAST_DEFVAR
+SVZ_NUKE_HAPPENED_DEFVAR
+SVZ_CHILD_DIED_DEFVAR
+SVZ_NOTIFY_DEFVAR
+SVZ_SOCK_ROOT_DEFVAR
+SVZ_SOCK_LAST_DEFVAR
 
-SOCK_FIND_DEFUN
-SOCK_SCHEDULE_FOR_SHUTDOWN_DEFUN
-SOCK_ENQUEUE_DEFUN
-SOCK_DEQUEUE_DEFUN
-SOCK_SHUTDOWN_ALL_DEFUN
-SOCK_SETPARENT_DEFUN
-SOCK_GETPARENT_DEFUN
-SOCK_PORTCFG_DEFUN
+SVZ_SOCK_FIND_DEFUN
+SVZ_SOCK_SCHEDULE_FOR_SHUTDOWN_DEFUN
+SVZ_SOCK_ENQUEUE_DEFUN
+SVZ_SOCK_DEQUEUE_DEFUN
+SVZ_SOCK_SHUTDOWN_ALL_DEFUN
+SVZ_SOCK_SETPARENT_DEFUN
+SVZ_SOCK_GETPARENT_DEFUN
+SVZ_SOCK_PORTCFG_DEFUN
 SVZ_SOCK_FOREACH_DEFMAC
-SOCK_CHECK_FREQUENCY_DEFUN
-SOCK_CHECK_ACCESS_DEFUN
+SVZ_SOCK_CHECK_FREQUENCY_DEFUN
+SVZ_SOCK_CHECK_ACCESS_DEFUN
 
-SERVER_CHECK_BOGUS_DEFUN
-SERVER_PERIODIC_TASKS_DEFUN
-SERVER_LOOP_DEFUN
-SERVER_LOOP_ONE_DEFUN
-SERVER_SIGNAL_UP_DEFUN
-SERVER_SIGNAL_DN_DEFUN
-SERVER_SIGNAL_HANDLER_DEFUN
+SVZ_SOCK_CHECK_BOGUS_DEFUN
+SVZ_PERIODIC_TASKS_DEFUN
+SVZ_LOOP_DEFUN
+SVZ_LOOP_ONE_DEFUN
+SVZ_SIGNAL_UP_DEFUN
+SVZ_SIGNAL_DN_DEFUN
+SVZ_SIGNAL_HANDLER_DEFUN
 
 @node ServerLoop, ServerSocket, ServerCore, Server
 @subsection Server loop
 
-SERVER_CHECK_SOCKETS_DEFUN
+SVZ_CHECK_SOCKETS_DEFUN
 
 @node ServerSocket, , ServerLoop, Server
 @subsection Server sockets
 
 SVZ_SERVER_CREATE_DEFUN
-SERVER_ACCEPT_SOCKET_DEFUN
-SERVER_ACCEPT_PIPE_DEFUN
+SVZ_TCP_ACCEPT_DEFUN
+SVZ_PIPE_ACCEPT_DEFUN
 
 @node PortConfig, Booting, Server, Embedding API
 @section Port configurations
@@ -609,14 +685,14 @@ SVZ_INTERFACE_ADD_DEFUN
 @node Windoze, , Interface, Embedding API
 @section Useful Windows functions
 
-WINDOZE_START_DAEMON_DEFUN
-WINDOZE_STOP_DAEMON_DEFUN
-WINDOZE_ASC2UNI_DEFUN
-WINDOZE_UNI2ASC_DEFUN
-WINDOZE_GET_REG_UNSIGNED_DEFUN
-WINDOZE_SET_REG_UNSIGNED_DEFUN
-WINDOZE_GET_REG_STRING_DEFUN
-WINDOZE_SET_REG_STRING_DEFUN
+SVZ_WINDOZE_START_DAEMON_DEFUN
+SVZ_WINDOZE_STOP_DAEMON_DEFUN
+SVZ_WINDOZE_ASC2UNI_DEFUN
+SVZ_WINDOZE_UNI2ASC_DEFUN
+SVZ_WINDOZE_GET_REG_UNSIGNED_DEFUN
+SVZ_WINDOZE_SET_REG_UNSIGNED_DEFUN
+SVZ_WINDOZE_GET_REG_STRING_DEFUN
+SVZ_WINDOZE_SET_REG_STRING_DEFUN
 
 @node Index,  , Embedding API, Top
 @chapter Index

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.24 2001/04/11 13:31:04 ela Exp $
+ * $Id: irc-core.c,v 1.25 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -52,7 +52,7 @@ static int
 irc_nslookup_done (char *host, int id, int version)
 {
   irc_client_t *client;
-  socket_t sock = sock_find (id, version);
+  svz_socket_t *sock = svz_sock_find (id, version);
 
   if (sock)
     {
@@ -82,7 +82,7 @@ static int
 irc_ident_done (char *user, int id, int version)
 {
   irc_client_t *client;
-  socket_t sock = sock_find (id, version);
+  svz_socket_t *sock = svz_sock_find (id, version);
 
   if (sock)
     {
@@ -109,7 +109,7 @@ irc_ident_done (char *user, int id, int version)
  * IRC client.
  */
 static void
-irc_start_auth (socket_t sock)
+irc_start_auth (svz_socket_t *sock)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client;
@@ -142,7 +142,7 @@ irc_start_auth (socket_t sock)
  * IRC connection has been detected. Otherwise zero.
  */
 int
-irc_detect_proto (void *cfg, socket_t sock)
+irc_detect_proto (void *cfg, svz_socket_t *sock)
 {
   int ret = 0;
 
@@ -161,7 +161,7 @@ irc_detect_proto (void *cfg, socket_t sock)
   if (ret)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "irc protocol detected\n");
+      svz_log (LOG_DEBUG, "irc protocol detected\n");
 #endif
       return -1;
     }
@@ -174,7 +174,7 @@ irc_detect_proto (void *cfg, socket_t sock)
  * this routine is called to setup this socket for an IRC connection.
  */
 int
-irc_connect_socket (void *cfg, socket_t sock)
+irc_connect_socket (void *cfg, svz_socket_t *sock)
 {
   sock->check_request = irc_check_request;
   sock->disconnected_socket = irc_disconnect;
@@ -191,7 +191,7 @@ irc_connect_socket (void *cfg, socket_t sock)
  * HANDLE_REQUEST function.
  */
 int
-irc_check_request (socket_t sock)
+irc_check_request (svz_socket_t *sock)
 {
   int retval = 0;
   int request_len = 0;

@@ -24,7 +24,7 @@
 # Boston, MA 02111-1307, USA.  
 #
 
-EXTRA_DIST = serveez.rc serveez.dsp
+EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in
 
 #
 # Add your server subdirectory here
@@ -52,7 +52,7 @@ PROTOLIBS = $(SERVERLIBS) \
 
 bin_PROGRAMS = serveez mkpassword
 
-include_HEADERS = libserveez.h
+include_HEADERS = libserveez.h svzconfig.h
 
 serveez_SOURCES = \
 	serveez.c serveez.h \

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.h,v 1.8 2001/03/04 13:13:40 ela Exp $
+ * $Id: http-cgi.h,v 1.9 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -48,14 +48,14 @@
 
 #define CGI_VERSION "CGI/1.0"
 
-char *http_check_cgi (socket_t sock, char *request);
-int http_cgi_exec (socket_t, HANDLE, HANDLE, char *, char *, int);
-int http_post_response (socket_t sock, char *request, int flags);
-int http_cgi_get_response (socket_t sock, char *request, int flags);
-int http_cgi_write (socket_t sock);
-int http_cgi_read (socket_t sock);
-int http_cgi_disconnect (socket_t sock);
-int http_cgi_died (socket_t sock);
+char *http_check_cgi (svz_socket_t *sock, char *request);
+int http_cgi_exec (svz_socket_t *, HANDLE, HANDLE, char *, char *, int);
+int http_post_response (svz_socket_t *sock, char *request, int flags);
+int http_cgi_get_response (svz_socket_t *sock, char *request, int flags);
+int http_cgi_write (svz_socket_t *sock);
+int http_cgi_read (svz_socket_t *sock);
+int http_cgi_disconnect (svz_socket_t *sock);
+int http_cgi_died (svz_socket_t *sock);
 void http_gen_cgi_apps (http_config_t *cfg);
 void http_free_cgi_apps (http_config_t *cfg);
 

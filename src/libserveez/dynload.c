@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.6 2001/04/18 19:26:57 ela Exp $
+ * $Id: dynload.c,v 1.7 2001/05/19 23:04:57 ela Exp $
  *
  */
 
@@ -128,7 +128,7 @@ dyn_load_library (char *file)
   
   if (handle == NULL)
     {
-      log_printf (LOG_ERROR, "load: %s (%s)\n", dyn_error (), file);
+      svz_log (LOG_ERROR, "load: %s (%s)\n", dyn_error (), file);
       return NULL;
     }
 
@@ -185,8 +185,8 @@ dyn_unload_library (dyn_library_t *lib)
 #endif
 	if (err)
 	  {
-	    log_printf (LOG_ERROR, "unload: %s (%s)\n", dyn_error (), 
-			lib->file);
+	    svz_log (LOG_ERROR, "unload: %s (%s)\n", dyn_error (), 
+		     lib->file);
 	    return -1;
 	  }
 
@@ -238,7 +238,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 #endif
 	if (address == NULL)
 	  {
-	    log_printf (LOG_ERROR, "symbol: %s (%s)\n", dyn_error (), symbol);
+	    svz_log (LOG_ERROR, "symbol: %s (%s)\n", dyn_error (), symbol);
 	  }
 	return address;
       }
@@ -306,7 +306,7 @@ dyn_create_symbol (char *description)
  * descriptive name @var{description} must be part of the library's name.
  */
 svz_servertype_t *
-svz_server_load (char *description)
+svz_servertype_load (char *description)
 {
   char *file, *def;
   dyn_library_t *lib;
@@ -340,7 +340,7 @@ svz_server_load (char *description)
  * Return the remaining reference count or -1 on errors.
  */
 int
-svz_server_unload (char *description)
+svz_servertype_unload (char *description)
 {
   dyn_library_t *lib;
   char *file;

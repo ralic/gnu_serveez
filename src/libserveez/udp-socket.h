@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.h,v 1.2 2001/02/02 11:26:24 ela Exp $
+ * $Id: udp-socket.h,v 1.3 2001/05/19 23:04:58 ela Exp $
  *
  */
 
@@ -35,12 +35,13 @@
 __BEGIN_DECLS
 
 /* exported UDP socket functions */
-SERVEEZ_API int udp_read_socket __P ((socket_t sock));
-SERVEEZ_API int udp_write_socket __P ((socket_t sock));
-SERVEEZ_API int udp_check_request __P ((socket_t sock));
-SERVEEZ_API socket_t udp_connect __P ((unsigned long, unsigned short));
-SERVEEZ_API int udp_write __P ((socket_t sock, char *buf, int length));
-SERVEEZ_API int udp_printf __P ((socket_t sock, const char *fmt, ...));
+SERVEEZ_API int svz_udp_read_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_udp_write_socket __P ((svz_socket_t *));
+SERVEEZ_API int svz_udp_check_request __P ((svz_socket_t *));
+SERVEEZ_API svz_socket_t *svz_udp_connect __P ((unsigned long, 
+						unsigned short));
+SERVEEZ_API int svz_udp_write __P ((svz_socket_t *, char *, int));
+SERVEEZ_API int svz_udp_printf __P ((svz_socket_t *, const char *, ...));
 
 __END_DECLS
 
