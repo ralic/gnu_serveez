@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.15 2002/06/08 20:36:41 ela Exp $
+ * $Id: tcp-socket.c,v 1.16 2002/06/09 10:13:09 ela Exp $
  *
  */
 
@@ -218,6 +218,7 @@ svz_tcp_recv_oob (svz_socket_t *sock)
   SOCKET desc = sock->sock_desc;
   int num_read, ret;
 
+#if 0
 #if HAVE_POLL && ENABLE_POLL && defined (__linux__)
 #ifdef SIOCATMARK
   /* FIXME: fails for poll() on GNU/Linux ???  This is a hack !!! 
@@ -233,6 +234,7 @@ svz_tcp_recv_oob (svz_socket_t *sock)
   else
 #endif /* SIOCATMARK */
 #endif /* HAVE_POLL && ENABLE_POLL && linux */
+#endif
 
   num_read = recv (desc, (void *) &sock->oob, 1, MSG_OOB);
   if (num_read < 0)

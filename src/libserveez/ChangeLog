@@ -1,3 +1,12 @@
+2002-06-09  [ Ela ]  <ela@lkcc.org>
+
+	* server-loop.c (svz_check_sockets_poll): Fixed the POLLPRI +
+	recv(..., MSG_OOB) bug by handling the POLLPRI event immediately
+	before POLLIN/POLLOUT.
+
+	* tcp-socket.c (svz_tcp_recv_oob): Disabled ioctl(SIOCATMARK)
+	work-around.
+
 2002-06-06  [ Ela ]  <ela@lkcc.org>
 
 	* server-loop.c (svz_check_sockets_MinGW, 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.12 2002/01/06 13:18:52 ela Exp $
+ * $Id: interface.c,v 1.13 2002/06/09 10:13:09 ela Exp $
  *
  */
 
@@ -37,10 +37,13 @@
 #ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <sys/ioctl.h>
 # include <net/if.h>
 # include <netinet/in.h>
 # include <arpa/inet.h>
+#endif
+
+#if HAVE_SYS_IOCTL_H
+# include <sys/ioctl.h>
 #endif
 
 #if HAVE_UNISTD_H

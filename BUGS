@@ -27,7 +27,7 @@ send Serveez bug reports to <bug-serveez@gnu.org>.
 
 Bug:	     B0019
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed
 Date:	     2002-06-07
 Description: On a GNU/Linux system on x86 out-of-band data can be detected
 	     by select() and poll().  When trying to `recv(..., MSG_OOB)'
@@ -35,6 +35,10 @@ Description: On a GNU/Linux system on x86 out-of-band data can be detected
 	     and detected by poll().  In case of select() this does not 
 	     occur.  Currently we are using `ioctl(SIOCATMARK)' to detect
 	     if recv() would fail.  This is a work-around, not a real fix.
+Fix:	     When POLLPRI has been detected you are meant to 
+	     `recv(..., MSG_OOB)' immediately.  The EINVAL error occurred when
+	     both POLLOUT/POLLIN *and* POLLPRI was detected and `send(..., 0)'
+	     or `recv(..., 0)' has been called before `recv(..., MSG_OOB)'.
 
 Bug:	     B0018
 From:	     ela <stefan@lkcc.org>
