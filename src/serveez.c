@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.7 2000/06/18 16:25:19 ela Exp $
+ * $Id: serveez.c,v 1.8 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -47,6 +47,7 @@
 #include "server-socket.h"
 #include "coserver/coserver.h"
 #include "server.h"
+#include "interface.h"
 
 /*
  * The configurations structure of the Serveez. Defined
@@ -132,7 +133,6 @@ main (int argc, char * argv[])
   char * cli_pass = NULL;
 
   FILE * log_file = NULL;
-  socket_t server;
 
   int arg;
 #if HAVE_GETOPT_LONG

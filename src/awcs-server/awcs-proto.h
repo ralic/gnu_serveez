@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.4 2000/06/13 16:50:47 ela Exp $
+ * $Id: awcs-proto.h,v 1.5 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -86,7 +86,7 @@ int awcs_connect_socket (void *cfg, socket_t sock);
 /*
  * Local aWCS server callbacks.
  */
-static void awcs_disconnect_clients (awcs_config_t *cfg);
+void awcs_disconnect_clients (awcs_config_t *cfg);
 int awcs_check_request (socket_t sock);
 int awcs_disconnected_socket (socket_t sock);
 int awcs_kicked_socket (socket_t sock, int reason);

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.8 2000/06/16 21:02:28 ela Exp $
+ * $Id: util.c,v 1.9 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -37,16 +37,6 @@
 
 #ifndef __MINGW32__
 # include <netdb.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <sys/ioctl.h>
-# include <net/if.h>
-# include <unistd.h>
-#endif
-
-/* Solaris, IRIX */
-#if HAVE_SYS_SOCKIO_H
-# include <sys/sockio.h>
 #endif
 
 #ifdef __MINGW32__
@@ -354,7 +344,7 @@ int os_version = 0;
 #endif /* __MINGW32__ */
 
 char *
-get_version(void)
+get_version (void)
 {
   static char os[256] = ""; /* contains the os string */
 
@@ -365,32 +355,32 @@ get_version(void)
   struct utsname buf;
 #endif
 
-  if(os[0]) return os;
+  if (os[0]) return os;
   
 #ifdef __MINGW32__ /* Windows */
 
-  osver.dwOSVersionInfoSize = sizeof(osver);
-  if(!GetVersionEx(&osver))
+  osver.dwOSVersionInfoSize = sizeof (osver);
+  if (!GetVersionEx (&osver))
     {
-      log_printf(LOG_ERROR, "GetVersionEx: %s\n", SYS_ERROR);
-      sprintf(os, "unknown Windows");
+      log_printf (LOG_ERROR, "GetVersionEx: %s\n", SYS_ERROR);
+      sprintf (os, "unknown Windows");
     }
   else
     {
-      switch(osver.dwPlatformId)
+      switch (osver.dwPlatformId)
 	{
 	case VER_PLATFORM_WIN32_NT: /* NT od Windows 2000 */
-	  if(osver.dwMajorVersion == 4)
+	  if (osver.dwMajorVersion == 4)
 	    os_version = WinNT4x;
-	  else if(osver.dwMajorVersion <= 3)
+	  else if (osver.dwMajorVersion <= 3)
 	    os_version = WinNT3x;
-	  else if(osver.dwMajorVersion == 5)
+	  else if (osver.dwMajorVersion == 5)
 	    os_version = Win2k;
 	  break;
 
 	case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
-	  if((osver.dwMajorVersion > 4) || 
-	     ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
+	  if ((osver.dwMajorVersion > 4) || 
+	      ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
 	    os_version = Win98;
 	  else
 	    os_version = Win95;
@@ -401,24 +391,24 @@ get_version(void)
 	  break;
 	}
 
-      sprintf(os, "Windows%s %d.%02d %s%s(Build %d)",
-	      ver[os_version], 
-	      osver.dwMajorVersion, 
-	      osver.dwMinorVersion,
-	      osver.szCSDVersion,
-	      osver.szCSDVersion[0] ? " " : "",
-	      osver.dwBuildNumber & 0xFFFF);
+      sprintf (os, "Windows%s %d.%02d %s%s(Build %d)",
+	       ver[os_version], 
+	       osver.dwMajorVersion, 
+	       osver.dwMinorVersion,
+	       osver.szCSDVersion,
+	       osver.szCSDVersion[0] ? " " : "",
+	       osver.dwBuildNumber & 0xFFFF);
     }
 #else /* Unices */
 
 #if HAVE_UNAME
-  if(uname(&buf) == -1)
+  if (uname (&buf) == -1)
     {
-      sprintf(os, "uname: %s", SYS_ERROR);
+      sprintf (os, "uname: %s", SYS_ERROR);
     }
   else
     {
-      sprintf(os, "%s %s on %s", buf.sysname, buf.release, buf.machine);
+      sprintf (os, "%s %s on %s", buf.sysname, buf.release, buf.machine);
     }
 #endif
 
@@ -451,91 +441,6 @@ util_inet_ntoa (unsigned long ip)
 	    (ip >> 8) & 0xff, ip & 0xff);
   return buffer;
 }
-
-/*
- * Print a list of all local interfaces if we are able to do so.
- */
-#if ENABLE_IFLIST && ! defined(__MINGW32__)
-
-void
-list_local_interfaces (void)
-{
-  int numreqs = 16;
-  struct ifconf ifc;
-  struct ifreq *ifr;
-  struct ifreq ifr2;
-  int n;
-  int fd;
-
-  /* Get a socket out of the Internet Address Family. */
-  if ((fd = socket (AF_INET, SOCK_STREAM,0)) < 0) 
-    {
-      perror ("socket");
-      return;
-    }
-
-  /* Collect information. */
-  ifc.ifc_buf = NULL;
-  for (;;) 
-    {
-      ifc.ifc_len = sizeof (struct ifreq) * numreqs;
-      ifc.ifc_buf = xrealloc (ifc.ifc_buf, ifc.ifc_len);
-      
-      if (ioctl (fd, SIOCGIFCONF, &ifc) < 0) 
-	{
-	  perror ("SIOCGIFCONF");
-	  close (fd);
-	  free (ifc.ifc_buf);
-	  return;
-	}
-
-      if ((unsigned) ifc.ifc_len == sizeof (struct ifreq) * numreqs) 
-	{
-	  /* Assume it overflowed and try again. */
-	  numreqs += 10;
-	  continue;
-	}
-      break;
-    }
-
-  printf ("--- list of local interfaces you can start ip services on ---\n");
-
-  ifr = ifc.ifc_req;
-  for (n = 0; n < ifc.ifc_len; n += sizeof (struct ifreq), ifr++)
-    {
-      strcpy (ifr2.ifr_name, ifr->ifr_name);
-      ifr2.ifr_addr.sa_family = AF_INET;
-      if (ioctl (fd, SIOCGIFADDR, &ifr2) == 0)
-	{
-	  printf ("%8s: %u.%u.%u.%u\n", ifr->ifr_name,
-		  (unsigned char) ifr2.ifr_addr.sa_data[2],
-		  (unsigned char) ifr2.ifr_addr.sa_data[3],
-		  (unsigned char) ifr2.ifr_addr.sa_data[4],
-		  (unsigned char) ifr2.ifr_addr.sa_data[5]);
-	}
-      else 
-	{
-	  perror ("SIOCGIFADDR");
-	  break;
-	}
-    }
-  
-  printf ("\n");
-  close (fd);
-  xfree (ifc.ifc_buf);
-}
-
-#else /* not ENABLE_IFLIST */
-
-void
-list_local_interfaces (void)
-{
-  printf("\n"
-	 "Sorry, the list of local interfaces is not available. If you\n"
-	 "know how to get such a list on your OS, please contact\n"
-	 "Raimund Jacob <raimi@lkcc.org>. Thanks.\n\n");
-}
-#endif /* not ENABLE_IFLIST */
 
 /*
  * Converts a given string to an unsigned integer.

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.4 2000/06/18 22:13:03 raimi Exp $
+ * $Id: server.h,v 1.5 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -134,7 +134,7 @@ int server_finalize_all (void);
 int server_global_finalize (void);
 int equal_portcfg (struct portcfg *a, struct portcfg *b);
 #if ENABLE_DEBUG
-void server_show_definitions (void);
+void server_print_definitions (void);
 #endif
 
 /*

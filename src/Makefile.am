@@ -23,8 +23,16 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: Makefile.am,v 1.5 2000/06/20 21:57:38 raimi Exp $
+# $Id: Makefile.am,v 1.6 2000/06/25 17:31:41 ela Exp $
 #
+
+#
+# *NEEDED* extra header files
+#
+
+EXTRA_DIST = \
+	include/smpletcp.h \
+	include/tdiinfo.h
 
 #
 # Add your subdirectory here
@@ -65,7 +73,8 @@ serveez_SOURCES = \
 	server-socket.c server-socket.h \
 	hash.c hash.h \
 	server-core.c server-core.h \
-	pipe-socket.c pipe-socket.h
+	pipe-socket.c pipe-socket.h \
+	interface.c interface.h
 
 serveez_DEPENDENCIES = $(PROTOLIBS) $(SIZZLEDEP) \
 	serveez.cfg

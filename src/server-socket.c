@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.12 2000/06/22 19:40:30 ela Exp $
+ * $Id: server-socket.c,v 1.13 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -71,7 +71,6 @@ int server_bindings = 0;
 int
 net_startup (void)
 {
-  unsigned long blockMode = 1;
   WSADATA WSAData;
  
   if (WSAStartup (WINSOCK_VERSION, &WSAData) == SOCKET_ERROR)
@@ -244,7 +243,6 @@ socket_t
 server_create (portcfg_t *cfg)
 {
   SOCKET server_socket;      /* server socket descriptor */
-  struct sockaddr_in server; /* this sockets inet structure */
   socket_t sock;             /* socket structure */
   int stype;                 /* socket type (TCP or UDP) */
   int optval;                /* value for setsockopt() */

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.9 2000/06/22 19:40:30 ela Exp $
+ * $Id: server.c,v 1.10 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -469,7 +469,6 @@ server_instantiate(char *cfgfile,
   int erroneous = 0;
   zzz_scm_t hashkey;
   zzz_scm_t hashval;
-  result_t r;
   long offset;
 
   /* FIXME: better checking if that is really a hash
@@ -644,11 +643,9 @@ server_load_cfg(char *cfgfile)
  */
 #if ENABLE_DEBUG
 void
-server_show_definitions (void)
+server_print_definitions (void)
 {
-  int s, i, j;
-  char *str = NULL;
-  char **strarray = NULL;
+  int s, i;
   struct server_definition *sd;
 
 

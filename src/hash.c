@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: hash.c,v 1.3 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -277,7 +277,6 @@ void
 hash_put (hash_t *hash, char *key, void *value)
 {
   unsigned long code = 0;
-  char *p = key;
   int e;
   hash_entry_t *entry;
   hash_bucket_t *node;

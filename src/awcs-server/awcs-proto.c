@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.6 2000/06/18 22:13:03 raimi Exp $
+ * $Id: awcs-proto.c,v 1.7 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -639,7 +639,7 @@ handle_master_request (awcs_config_t *cfg, char *request, int request_len)
  * Schedule all aWCS clients for shutdown. Call this if the
  * connection to the master server has been lost.
  */
-static void
+void
 awcs_disconnect_clients (awcs_config_t *cfg)
 {
   socket_t *sock;

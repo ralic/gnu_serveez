@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.6 2000/06/19 22:56:14 ela Exp $
+ * $Id: util.h,v 1.7 2000/06/25 17:31:41 ela Exp $
  *
  */
 
@@ -81,7 +81,6 @@ int dump_request (FILE *out, char * action, int from, char * req, int len);
 char *util_inet_ntoa(unsigned long ip);
 char *util_itoa (unsigned int);
 unsigned int util_atoi (char *);
-void list_local_interfaces(void);
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */
 #define INT32(p) (*p + (*(p+1)<<8) + (*(p+2)<<16) + (*(p+3)<<24))

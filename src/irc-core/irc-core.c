@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.6 2000/06/19 15:24:49 ela Exp $
+ * $Id: irc-core.c,v 1.7 2000/06/25 17:31:42 ela Exp $
  *
  */
 
@@ -198,7 +198,7 @@ irc_check_request (socket_t sock)
 	  
 #if ENABLE_DEBUG > 1
 	  printf ("irc packet (%03d): '", p - packet - 1);
-	  for(a = (unsigned char *)packet; (char *)a < p; a++)
+	  for (a = (unsigned char *)packet; (char *) a < p; a++)
 	    {
 	      if (*a >= ' ' && *a < 128) 
 		printf ("%c", *a);
