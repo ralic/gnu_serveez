@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array-test.c,v 1.4 2001/04/01 13:32:31 ela Exp $
+ * $Id: array-test.c,v 1.5 2001/04/05 22:08:44 ela Exp $
  *
  */
 
@@ -83,7 +83,17 @@ main (int argc, char **argv)
   if (svz_array_get (array, n) != NULL || svz_array_get (array, -1) != NULL)
     error++;
   test (error);
-  
+
+  /* array iteration */
+  error = 0;
+  test_print ("   iterate: ");
+  svz_array_foreach (array, value, n)
+    if (value != (void *) (n + 1))
+      error++;
+  if (n != REPEAT)
+    error++;
+  test (error);
+
   /* set function */
   test_print ("       set: ");
   for (error = n = 0; n < REPEAT; n++)
