@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.15 2000/10/08 21:14:03 ela Exp $
+ * $Id: pipe-socket.c,v 1.16 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -77,7 +77,7 @@ pipe_disconnect (socket_t sock)
 {
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
-      if (sock->referer)
+      if (sock->referrer)
 	{
 #ifdef __MINGW32__
 	  /* just disconnect client pipes */
@@ -88,8 +88,8 @@ pipe_disconnect (socket_t sock)
 #endif /* not __MINGW32__ */
 
 	  /* restart listening pipe server socket */
-	  sock->referer->flags &= ~SOCK_FLAG_INITED;
-	  sock->referer->referer = NULL;
+	  sock->referrer->flags &= ~SOCK_FLAG_INITED;
+	  sock->referrer->referrer = NULL;
 	}
       else
 	{
@@ -114,8 +114,8 @@ pipe_disconnect (socket_t sock)
   /* prevent a pipe server's child to reinit the pipe server */
   if (sock->flags & SOCK_FLAG_LISTENING)
     {
-      if (sock->referer)
-	sock->referer->referer = NULL;
+      if (sock->referrer)
+	sock->referrer->referrer = NULL;
 
 #ifndef __MINGW32__
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.26 2000/10/25 07:54:06 ela Exp $
+ * $Id: socket.h,v 1.27 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -32,7 +32,7 @@
 
 #include <time.h>
 
-/* This is how many ID's can exist. It MUST be a 2^X and less than 10000. */
+/* This is how many Id's can exist. It MUST be a 2^X and less than 10000. */
 #define SOCKET_MAX_IDS       8192 
 /* How much data is accepted before valid detection. */
 #define MAX_DETECTION_FILL     16
@@ -64,7 +64,7 @@
   ( SOCK_FLAG_RECV_PIPE | \
     SOCK_FLAG_SEND_PIPE )
 #define SOCK_FLAG_CONNECTING  0x2000 /* Socket is still connecting */
-#define SOCK_FLAG_PRIORITY    0x4000 /* Enqueue socket prefered. */
+#define SOCK_FLAG_PRIORITY    0x4000 /* Enqueue socket preferred. */
 #define SOCK_FLAG_FIXED       0x8000 /* Dedicated UDP connection. */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
@@ -92,7 +92,7 @@ struct socket
 
   char *recv_pipe;              /* File of the receive pipe. */
   char *send_pipe;              /* File of the send pipe. */
-  socket_t referer;             /* Pipe server <-> pipe client. */
+  socket_t referrer;            /* Referring socket structure. */
 
   char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
@@ -171,7 +171,7 @@ struct socket
   time_t last_recv;		/* Timestamp of last receive from socket */
 
 #if ENABLE_FLOOD_PROTECTION
-  int flood_points;		/* Accumulated floodpoints. */
+  int flood_points;		/* Accumulated flood points. */
   int flood_limit;		/* Limit of the above before kicking. */
 #endif
 

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.26 2000/10/25 07:54:06 ela Exp $
+ * $Id: socket.c,v 1.27 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -741,8 +741,8 @@ sock_write (socket_t sock, char * buf, int len)
 	{
 	  /* Queue is full, unlucky socket ... */
 	  log_printf (LOG_ERROR,
-		      "send buffer overflow on socket %d\n",
-		      sock->sock_desc);
+		      "send buffer overflow on socket %d (id %d)\n",
+		      sock->sock_desc, sock->id);
 	
 	  if (sock->kicked_socket)
 	    sock->kicked_socket (sock, 1);

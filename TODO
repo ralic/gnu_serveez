@@ -24,11 +24,11 @@ unfixed) have a look at the file BUGS.
 (completed tasks are indented one tab)
 
 
-- Usage of Pipe-Threads in the native Win32 port.
+	- Usage of Pipe-Threads in the native Win32 port. (topic dropped)
 	- Using encryption for passwords (libcrypt).
-- Port forwarder for UDP and TCP.
+	- Port forwarder for UDP and TCP.
 - Some solution for upcoming IPv6 ?
-- Support for ICMP sockets.
+	- Support for ICMP sockets.
 - Content-Range implementation for Gnutella and HTTP.
 	- Gnutella spider should share files.
 	- Make http cgi file extension associations configurable in Win32.

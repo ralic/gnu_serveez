@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.h,v 1.3 2000/10/25 07:54:06 ela Exp $
+ * $Id: udp-socket.h,v 1.4 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -32,6 +32,10 @@
 #define _GNU_SOURCE
 #include "socket.h"
 
+/* general defines */
+#define UDP_BUFFER_SIZE (4 * 1024 * 64)
+
+/* exported functions */
 int udp_read_socket (socket_t sock);
 int udp_write_socket (socket_t sock);
 int udp_check_request (socket_t sock);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.8 2000/10/25 07:54:06 ela Exp $
+ * $Id: udp-socket.c,v 1.9 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -376,6 +376,7 @@ udp_connect (unsigned long host, unsigned short port)
       return NULL;
     }
 
+  sock_resize_buffers (sock, UDP_BUFFER_SIZE, UDP_BUFFER_SIZE);
   sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.32 2000/10/25 07:54:06 ela Exp $
+ * $Id: server-socket.c,v 1.33 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -271,6 +271,7 @@ server_create (portcfg_t *cfg)
 	}
       else if (cfg->proto & PROTO_UDP)
 	{
+	  sock_resize_buffers (sock, UDP_BUFFER_SIZE, UDP_BUFFER_SIZE);
 	  sock->read_socket = udp_read_socket;
 	  sock->write_socket = udp_write_socket;
 	  sock->check_request = udp_check_request;
@@ -631,7 +632,7 @@ server_accept_pipe (socket_t server_sock)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
   sock->flags |= SOCK_FLAG_PIPE;
-  sock->referer = server_sock;
+  sock->referrer = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
@@ -644,7 +645,7 @@ server_accept_pipe (socket_t server_sock)
 	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 
   server_sock->flags |= SOCK_FLAG_INITED;
-  server_sock->referer = sock;
+  server_sock->referrer = sock;
   return 0;
 #endif /* HAVE_MKFIFO or __MINGW32__ */
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.3 2000/10/25 07:54:06 ela Exp $
+ * $Id: tunnel.c,v 1.4 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <time.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -57,8 +58,7 @@ tnl_config_t tnl_config =
 {
   NULL, /* the source port to forward from */
   NULL, /* target port to forward to */
-  NULL, /* the source client socket hash */
-  NULL  /* target client hash */
+  NULL  /* the source client socket hash */
 };
 
 /*
@@ -87,7 +87,7 @@ server_definition_t tnl_server_definition =
   NULL,
   NULL,
   NULL,
-  NULL,
+  tnl_handle_request_udp_source,
   &tnl_config,
   sizeof (tnl_config),
   tnl_config_prototype
@@ -135,6 +135,9 @@ tnl_init (server_t *server)
       return -1;
     }
 
+  /* create source client hash (for UDP and ICMP only) */
+  cfg->client = hash_create (4);
+  
   /* bind the source port */
   server_bind (server, cfg->source);
   return 0;
@@ -143,37 +146,55 @@ tnl_init (server_t *server)
 int
 tnl_finalize (server_t *server)
 {
+  tnl_config_t *cfg = server->cfg;
+  tnl_source_t **source;
+  int n;
+
+  /* release source connection hash if necessary */
+  if ((source = (tnl_source_t **) hash_values (cfg->client)) != NULL)
+    {
+      for (n = 0; n < hash_size (cfg->client); n++)
+	{
+	  xfree (source[n]);
+	}
+      hash_xfree (source);
+    }
+  hash_destroy (cfg->client);
+
   return 0;
 }
 
 /*
- * Tunnel server TCP detection routine. It is greedy. Thus it cannot share
- * the port with other servers.
+ * Create a hash string (key) for the source client hash. Identifiers
+ * are the remote ip address and port.
  */
-int
-tnl_detect_proto (void *cfg, socket_t sock)
+static char *
+tnl_addr (socket_t sock)
 {
-  log_printf (LOG_NOTICE, "tunnel: TCP connection accepted\n");
-  return -1;
+  static char addr[24];
+
+  sprintf (addr, "%s:%u", util_inet_ntoa (sock->remote_addr), 
+	   ntohs (sock->remote_port));
+  return addr;
 }
 
 /*
- * If any TCP connection has been accepted this routine is called to setup
- * the tunnel server specific callbacks.
- */
-int
-tnl_connect_socket (void *config, socket_t sock)
+ * Depending on the given sockets structure target flag this routine
+ * tries to connect to the servers target configuration and delivers a
+ * new socket structure or NULL if it failed.
+ */ 
+static socket_t
+tnl_create_socket (socket_t sock, int source)
 {
-  tnl_config_t *cfg = config;
-  socket_t xsock;
-  unsigned long ip;
-  unsigned short port;
-  
-  sock->flags |= SOCK_FLAG_NOFLOOD;
-  sock->check_request = tnl_check_request_tcp;
-  sock->disconnected_socket = tnl_disconnect;
+  tnl_config_t *cfg = sock->cfg;
+  unsigned long ip = cfg->target->localaddr->sin_addr.s_addr;
+  unsigned short port = cfg->target->localaddr->sin_port;
+  socket_t xsock = NULL;
 
-  /* depending on the target configuration we assign different callbacks */
+  /*
+   * Depending on the target configuration we assign different
+   * callbacks, set other flags and use various connection routines.
+   */
   switch (cfg->target->proto)
     {
     case PROTO_TCP:
@@ -187,90 +208,183 @@ tnl_connect_socket (void *config, socket_t sock)
       break;
     default:
       log_printf (LOG_ERROR, "tunnel: invalid target configuration\n");
-      return -1;
+      return NULL;
     }
 
-  /* target is a tcp connection */
+  /* target is a TCP connection */
   if (sock->userflags & TNL_FLAG_TGT_TCP)
     {
-      ip = cfg->target->localaddr->sin_addr.s_addr;
-      port = cfg->target->localaddr->sin_port;
-
       if ((xsock = sock_connect (ip, port)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: tcp: cannot connect to %s:%u\n",
 		      util_inet_ntoa (ip), ntohs (port));
-	  return -1;
+	  return NULL;
 	}
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: tcp: connecting to %s:%u\n",
 		  util_inet_ntoa (ip), ntohs (port));
-#endif
-      xsock->cfg = cfg;
-      xsock->flags |= SOCK_FLAG_NOFLOOD;
-      xsock->userflags = sock->userflags | TNL_FLAG_SRC_TCP;
-      xsock->check_request = tnl_check_request_tcp;
-      xsock->disconnected_socket = tnl_disconnect;
-      xsock->referer = sock;
-      sock->referer = xsock;
+#endif /* ENABLE_DEBUG */
+      xsock->check_request = tnl_check_request_tcp_target;
     }
 
-  /* target is an udp connection */
+  /* target is an UDP connection */
   else if (sock->userflags & TNL_FLAG_TGT_UDP)
     {
-      ip = cfg->target->localaddr->sin_addr.s_addr;
-      port = cfg->target->localaddr->sin_port;
-
       if ((xsock = udp_connect (ip, port)) == NULL)
 	{
 	  log_printf (LOG_ERROR, "tunnel: udp: cannot connect to %s:%u\n",
 		      util_inet_ntoa (ip), ntohs (port));
-	  return -1;
+	  return NULL;
 	}
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: udp: connecting to %s:%u\n",
 		  util_inet_ntoa (ip), ntohs (port));
-#endif
-      xsock->cfg = cfg;
-      xsock->flags |= SOCK_FLAG_NOFLOOD;
-      xsock->userflags = sock->userflags | TNL_FLAG_SRC_TCP;
-      xsock->handle_request = tnl_handle_request_udp;
-      xsock->disconnected_socket = tnl_disconnect;
-      xsock->referer = sock;
-      sock->referer = xsock;
+#endif /* ENABLE_DEBUG */
+      xsock->handle_request = tnl_handle_request_udp_target;
+      xsock->idle_func = tnl_idle;
+      xsock->idle_counter = TNL_TIMEOUT;
+    }
+
+  /* target is an ICMP connection */
+  else if (sock->userflags & TNL_FLAG_TGT_ICMP)
+    {
+    }
+
+  xsock->cfg = cfg;
+  xsock->flags |= SOCK_FLAG_NOFLOOD;
+  xsock->userflags = (sock->userflags | source) & ~(TNL_FLAG_TGT);
+  xsock->disconnected_socket = tnl_disconnect;
+  xsock->referrer = sock;
+  sock->referrer = xsock;
+
+  return xsock;
+}
+
+/*
+ * Forward a given packet with a certain length to a target connection.
+ * This routine can be used by all source connection handler passing
+ * the targets socket and its own userflags.
+ */
+static int
+tnl_send_request_source (socket_t sock, char *packet, int len, int flag)
+{
+  /* target is TCP */
+  if (flag & TNL_FLAG_TGT_TCP)
+    {
+      if (sock_write (sock, packet, len) == -1)
+	return -1;
+    }
+  /* target is UDP */
+  else if (flag & TNL_FLAG_TGT_UDP)
+    {
+      if (udp_write (sock, packet, len) == -1)
+	return -1;
+    }
+  /* target is ICMP */
+  else if (flag & TNL_FLAG_TGT_ICMP)
+    {
     }
 
   return 0;
 }
 
 /*
- * The tunnel servers TCP check_request routine. It simply copies the 
- * received data to the send buffer.
+ * Forward a given packet with a certain length to a source connection.
+ * This routine can be used by all target connection handler passing
+ * the sources socket and its own userflags.
+ */
+static int
+tnl_send_request_target (socket_t sock, char *packet, int len, int flag)
+{
+  /* source is TCP */
+  if (flag & TNL_FLAG_SRC_TCP)
+    {
+      if (sock_write (sock, packet, len) == -1)
+	return -1;
+    }
+  /* source is UDP */
+  else if (flag & TNL_FLAG_SRC_UDP)
+    {
+      if (udp_write (sock, packet, len) == -1)
+	return -1;
+    }
+  /* source is ICMP */
+  else if (flag & TNL_FLAG_SRC_ICMP)
+    {
+    }
+
+  return 0;
+}
+
+/*
+ * Tunnel server TCP detection routine. It is greedy. Thus it cannot share
+ * the port with other TCP servers.
  */
 int
-tnl_check_request_tcp (socket_t sock)
+tnl_detect_proto (void *cfg, socket_t sock)
 {
-  tnl_config_t *cfg = sock->cfg;
+  log_printf (LOG_NOTICE, "tunnel: tcp connection accepted\n");
+  return -1;
+}
 
-  /* target is TCP */
-  if (sock->userflags & TNL_FLAG_TGT_TCP)
+/*
+ * If any TCP connection has been accepted this routine is called to setup
+ * the tunnel server specific callbacks.
+ */
+int
+tnl_connect_socket (void *config, socket_t sock)
+{
+  tnl_config_t *cfg = config;
+  
+  sock->flags |= SOCK_FLAG_NOFLOOD;
+  sock->check_request = tnl_check_request_tcp_source;
+  sock->disconnected_socket = tnl_disconnect;
+
+  /* try connecting to target */
+  if (tnl_create_socket (sock, TNL_FLAG_SRC_TCP) == NULL)
+    return -1;
+
+  return 0;
+}
+
+/*
+ * The tunnel servers TCP check_request routine for target connections.
+ * Each TCP target connection gets assigned this function in order to
+ * send data back to its source connection.
+ */
+int
+tnl_check_request_tcp_target (socket_t sock)
+{
+  socket_t xsock = NULL;
+  tnl_source_t *source;
+
+  /* source is a TCP connection */
+  if (sock->userflags & TNL_FLAG_SRC_TCP)
     {
-      if (sock_write (sock->referer, sock->recv_buffer, 
-		      sock->recv_buffer_fill) == -1)
-	{
-	  return -1;
-	}
+      xsock = sock->referrer;
     }
-  /* target is UDP */
-  else if (sock->userflags & TNL_FLAG_TGT_UDP)
+  /* source is an UDP connection */
+  else if (sock->userflags & TNL_FLAG_SRC_UDP)
     {
-      if (udp_write (sock->referer, sock->recv_buffer, 
-		     sock->recv_buffer_fill) == -1)
-	{
-	  return -1;
-	}
+      source = sock->data;
+      xsock = source->source_sock;
+      xsock->remote_addr = source->ip;
+      xsock->remote_port = source->port;
+    }
+  /* source is an ICMP connection */
+  else if (sock->userflags & TNL_FLAG_SRC_ICMP)
+    {
+    }
+
+  /* forward data to source connection */
+  if (tnl_send_request_target (xsock, sock->recv_buffer, 
+			       sock->recv_buffer_fill, 
+			       sock->userflags) == -1)
+    {
+      sock_schedule_for_shutdown (xsock);
+      return -1;
     }
 
   sock->recv_buffer_fill = 0;
@@ -278,18 +392,111 @@ tnl_check_request_tcp (socket_t sock)
 }
 
 /*
- * This function is the handle_request routine for UDP sockets.
+ * The tunnel servers TCP check_request routine for the source connections.
+ * It simply copies the received data to the send buffer of the target
+ * connection.
  */
 int
-tnl_handle_request_udp (socket_t sock, char *packet, int len)
+tnl_check_request_tcp_source (socket_t sock)
 {
+  tnl_config_t *cfg = sock->cfg;
+
+  /* forward data to target connection */
+  if (tnl_send_request_source (sock->referrer, sock->recv_buffer, 
+			       sock->recv_buffer_fill, 
+			       sock->userflags) == -1)
+    {
+      return -1;
+    }
+
+  sock->recv_buffer_fill = 0;
+  return 0;
+}
+
+/*
+ * This function is the handle_request routine for target UDP sockets.
+ */
+int
+tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
+{
+  tnl_config_t *cfg = sock->cfg;
+  tnl_source_t *source;
+  socket_t xsock = NULL;
+
+  /* the source connection is TCP */
   if (sock->userflags & TNL_FLAG_SRC_TCP)
     {
-      if (sock_write (sock->referer, packet, len) == -1)
-	{
-	  return -1;
-	}
+      xsock = sock->referrer;
     }
+  /* source connection is UDP */
+  else if (sock->userflags & TNL_FLAG_SRC_UDP)
+    {
+      /* get source connection from data field */
+      source = sock->data;
+      xsock = source->source_sock;
+      xsock->remote_addr = source->ip;
+      xsock->remote_port = source->port;
+    } 
+  /* source connection is ICMP */
+  else if (sock->userflags & TNL_FLAG_SRC_ICMP)
+    {
+    }
+
+  /* forward packet data to source connection */
+  if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
+    {
+      if (sock->userflags & TNL_FLAG_SRC_TCP)
+	sock_schedule_for_shutdown (xsock);
+      return -1;
+    }
+
+  return 0;
+}
+
+/*
+ * This function is the handle_request routine for source UDP sockets.
+ * It accepts UDP connections (listening connection) or forwards data
+ * to existing target sockets.
+ */
+int
+tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
+{
+  tnl_config_t *cfg = sock->cfg;
+  tnl_source_t *source;
+  socket_t xsock = NULL;
+
+  /* check if there is such a connection in the source hash already */
+  source = hash_get (cfg->client, tnl_addr (sock));
+  if (source)
+    {
+      /* get existing target socket */
+      xsock = source->target_sock;
+    }
+  else
+    {
+      /* start connecting */
+      if ((xsock = tnl_create_socket (sock, TNL_FLAG_SRC_UDP)) == NULL)
+	return 0;
+
+      /* foreign address not in hash, create new target connection */
+      source = xmalloc (sizeof (tnl_source_t));
+      source->source_sock = sock;
+      source->ip = sock->remote_addr;
+      source->port = sock->remote_port;
+      hash_put (cfg->client, tnl_addr (sock), source);
+
+      /* put the source connection into data field */
+      xsock->data = source;
+      source->target_sock = xsock;
+    }
+
+  /* forward packet data to target connection */
+  if (tnl_send_request_source (xsock, packet, len, sock->userflags) == -1)
+    {
+      sock_schedule_for_shutdown (xsock);
+      return 0;
+    }
+
   return 0;
 }
 
@@ -299,16 +506,44 @@ tnl_handle_request_udp (socket_t sock, char *packet, int len)
 int
 tnl_disconnect (socket_t sock)
 {
-  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_UDP |
-			 TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_UDP))
+  tnl_config_t *cfg = sock->cfg;
+  char *key;
+
+  if (sock->userflags & (TNL_FLAG_TGT_TCP | TNL_FLAG_SRC_TCP))
     {
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "tunnel: shutdown referrer id %d\n",
-		  sock->referer->id);
+		  sock->referrer->id);
 #endif
-      sock_schedule_for_shutdown (sock->referer);
+      sock_schedule_for_shutdown (sock->referrer);
+    }
+  else
+    {
+      if ((key = hash_contains (cfg->client, sock->data)) != NULL)
+	{
+	  hash_delete (cfg->client, key);
+	  xfree (sock->data);
+	}
     }
   return 0;
+}
+
+/*
+ * Because UDP and ICMP sockets cannot not be detectied as being closed
+ * we need to shutdown target sockets ourselves.
+ */
+int
+tnl_idle (socket_t sock)
+{
+  time_t t = time (NULL);
+
+  if (t - sock->last_recv < TNL_TIMEOUT ||
+      t - sock->last_send < TNL_TIMEOUT)
+    {
+      sock->idle_counter = TNL_TIMEOUT;
+      return 0;
+    }
+  return -1;
 }
 
 #else /* not ENABLE_TUNNEL */

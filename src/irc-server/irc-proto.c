@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.18 2000/10/25 07:54:06 ela Exp $
+ * $Id: irc-proto.c,v 1.19 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -977,7 +977,7 @@ irc_add_client (irc_config_t *cfg, irc_client_t *client)
 
 /*
  * Create a new IRC client structure. This will be stored within the
- * miscelleanous data field in the socket structure (sock->data).
+ * miscellaneous data field in the socket structure (sock->data).
  */
 irc_client_t *
 irc_create_client (irc_config_t *cfg)

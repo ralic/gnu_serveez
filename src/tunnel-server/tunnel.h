@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.3 2000/10/25 07:54:06 ela Exp $
+ * $Id: tunnel.h,v 1.4 2000/10/26 13:43:31 ela Exp $
  *
  */
 
@@ -41,27 +41,30 @@ typedef struct
 {
   portcfg_t *source;  /* the source port to forward from */
   portcfg_t *target;  /* target port to forward to */
-  hash_t *src_client; /* the source client socket hash */
-  hash_t *tgt_client; /* target client hash */
+  hash_t *client;     /* source client hash */
 }
 tnl_config_t;
 
 /* the referrer connection structure */
 typedef struct
 {
-  unsigned long ip;    /* the ip address to send to */
-  unsigned short port; /* port to send to */
-  socket_t sock;       /* socket structure */
+  unsigned long ip;     /* the ip address to send to */
+  unsigned short port;  /* port to send to */
+  socket_t source_sock; /* source socket structure */
+  socket_t target_sock; /* target socket */
 }
-tnl_target_t;
+tnl_source_t;
 
 /* tunnel server specific protocol flags */
+#define TNL_TIMEOUT       30
 #define TNL_FLAG_SRC_TCP  0x0001
 #define TNL_FLAG_SRC_UDP  0x0002
 #define TNL_FLAG_SRC_ICMP 0x0004
 #define TNL_FLAG_TGT_TCP  0x0008
 #define TNL_FLAG_TGT_UDP  0x0010
 #define TNL_FLAG_TGT_ICMP 0x0020
+#define TNL_FLAG_SRC (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP)
+#define TNL_FLAG_TGT (TNL_FLAG_TGT_TCP | TNL_FLAG_TGT_UDP | TNL_FLAG_TGT_ICMP)
 
 /*
  * Basic server callback definitions.
@@ -74,9 +77,12 @@ int tnl_global_finalize (void);
 /* Rest of all the callbacks. */
 int tnl_detect_proto (void *cfg, socket_t sock);
 int tnl_connect_socket (void *config, socket_t sock);
-int tnl_check_request_tcp (socket_t sock);
-int tnl_handle_request_udp (socket_t sock, char *packet, int len);
+int tnl_check_request_tcp_source (socket_t sock);
+int tnl_check_request_tcp_target (socket_t sock);
+int tnl_handle_request_udp_source (socket_t sock, char *packet, int len);
+int tnl_handle_request_udp_target (socket_t sock, char *packet, int len);
 int tnl_disconnect (socket_t sock);
+int tnl_idle (socket_t sock);
 
 /*
  * This server's definition.

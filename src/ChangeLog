@@ -1,4 +1,7 @@
-2000-10-24  [ Ela ]  <ela@lkcc.org>
+2000-10-26  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c: The port forwarder for UDP and TCP
+	is fully implemented but must be tested yet.
 
 	* tunnel-server/tunnel.c (tnl_handle_request_udp): 
 	Implemented port forwarder for TCP->UDP. Quake3 authorization
@@ -989,7 +992,7 @@
 	* server-socket.c (server_create): Made network server sockets
 	do not route and bind to specific ip addresses via portcfg.
 
-	* irc-server/irc-proto.c (irc_create_client): The miscelleanous
+	* irc-server/irc-proto.c (irc_create_client): The miscellaneous
 	field sock->data is now used for a irc client structure. Thus
 	every socket knows about its associated irc client.
 	Various changes within the irc server. Everything untested...
@@ -1047,7 +1050,7 @@
 	ENABLE_HTTP_PROTO and put all http flags into sock->userflags.
 
 	* socket.h (struct socket): Dropped sock->http, now using 
-	miscelleanous field `data' for http connections.
+	miscellaneous field `data' for http connections.
 
 	* http-server/http-proto.c (http_server_definition): Started to
 	rewrite http server to new concept. Not yet working...
