@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.4 2000/09/04 14:11:54 ela Exp $
+ * $Id: nut-route.c,v 1.5 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -73,7 +73,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   /* check if it is in the recent query hash */
   if ((t = (time_t) hash_get (cfg->query, key)) != 0)
     {
-      if (time (NULL) - t < 10)
+      if (time (NULL) - t < NUT_QUERY_TOO_RECENT)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: dropping too recent query\n");
@@ -81,12 +81,14 @@ nut_canonize_query (nut_config_t *cfg, char *query)
 	  ret = -1;
 	}
     }
-
   /* put the query extraction to the recent query hash */
-  t = time (NULL);
-  hash_put (cfg->query, key, (void *) t);
-  xfree (key);
+  else
+    {
+      t = time (NULL);
+      hash_put (cfg->query, key, (void *) t);
+    }
 
+  xfree (key);
   return ret;
 }
 
@@ -169,7 +171,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "nut: invalid request 0x%02X\n", hdr->function);
 #endif
-      if (client->invalid++ > 20)
+      if (client->invalid++ > NUT_INVALID_PACKETS)
 	sock_schedule_for_shutdown (sock);
       return -1;
       break;
@@ -238,7 +240,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_packet_t *pkt;
   socket_t xsock;
   socket_t *conn;
-  byte header[SIZEOF_NUT_HEADER];
+  byte *header;
   int n;
 
   /* packet validation */
@@ -271,7 +273,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
       else
 	{
 	  /* try sending the header */
-	  nut_put_header (hdr, header);
+	  header = nut_put_header (hdr);
 	  if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1)
 	    {
 	      sock_schedule_for_shutdown (xsock);
@@ -325,7 +327,7 @@ nut_route (socket_t sock, nut_header_t *hdr, byte *packet)
        */
       if ((conn = (socket_t *) hash_values (cfg->conn)) != NULL)
 	{
-	  nut_put_header (hdr, header);
+	  header = nut_put_header (hdr);
 	  for (n = 0; n < hash_size (cfg->conn); n++)
 	    {
 	      xsock = conn[n];

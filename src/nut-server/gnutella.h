@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.10 2000/09/04 14:11:54 ela Exp $
+ * $Id: gnutella.h,v 1.11 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -168,6 +168,7 @@ typedef struct
   unsigned queries; /* number of queries */
   unsigned files;   /* file at this connection */
   unsigned size;    /* file size (in KB) here */
+  unsigned nodes;   /* number of hosts at this connection */
 }
 nut_client_t;
 
@@ -204,6 +205,7 @@ typedef struct
   unsigned errors;          /* routing errors */
   unsigned files;           /* files within connected network */
   unsigned size;            /* file size (in KB) */
+  unsigned nodes;           /* hosts within the connected network */
   char *save_path;          /* where to store downloaded files */
   char *share_path;         /* local search database path */
   int dnloads;              /* concurrent downloads */

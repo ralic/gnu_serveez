@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.7 2000/09/04 14:11:54 ela Exp $
+ * $Id: nut-transfer.c,v 1.8 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -231,7 +231,7 @@ nut_check_transfer (socket_t sock)
 	  if (transfer->original_size != transfer->size)
 	    {
 	      log_printf (LOG_WARNING,
-			  "nut: transfer sizes differ (%d!=%d)\n",
+			  "nut: transfer sizes differ (%u!=%u)\n",
 			  transfer->original_size, transfer->size);
 	    }
 
@@ -270,7 +270,7 @@ nut_disconnect_transfer (socket_t sock)
   if (transfer)
     {
       /* if the transfer was really aborted we remove the downloaded file */
-      if (transfer->size > 0)
+      if (transfer->size > 0 || !(sock->userflags & NUT_FLAG_HDR))
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: downloading `%s' aborted\n",

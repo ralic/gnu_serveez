@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.2 2000/09/04 14:11:54 ela Exp $
+ * $Id: nut-core.c,v 1.3 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -105,11 +105,10 @@ nut_client_key (unsigned long ip, unsigned short port)
   return key;
 }
 
-/* these definitions are for the GUID creating functions in Win32 */
+/* These definitions are for the GUID creating functions in Win32. */
 #ifdef __MINGW32__
-typedef int (__stdcall *CreateGuidProc) (byte *);
-static CreateGuidProc CreateGuid = NULL;
-static HMODULE oleHandle = NULL;
+CreateGuidProc CreateGuid = NULL;
+HMODULE oleHandle = NULL;
 #endif /* __MINGW32__ */
 
 /*
@@ -151,11 +150,11 @@ nut_print_guid (byte *guid)
 	   "%02X%02X-"
 	   "%02X%02X-"
 	   "%02X%02X%02X%02X%02X%02X%02X%02X",
-	   guid[0],guid[1],guid[2],guid[3],
-	   guid[4],guid[5],
-	   guid[6],guid[7],
-	   guid[8],guid[9],guid[10],guid[11],
-	   guid[12],guid[13],guid[14],guid[15]);
+	   guid[0], guid[1], guid[2], guid[3],
+	   guid[4], guid[5],
+	   guid[6], guid[7],
+	   guid[8], guid[9], guid[10], guid[11],
+	   guid[12], guid[13], guid[14], guid[15]);
 
   return id;
 }
@@ -178,9 +177,11 @@ nut_get_header (byte *data)
   return (&hdr);
 }
 
-void
-nut_put_header (nut_header_t *hdr, byte *data)
+byte *
+nut_put_header (nut_header_t *hdr)
 {
+  static byte buffer[SIZEOF_NUT_HEADER];
+  byte *data = buffer;
   unsigned int uint32;
 
   memcpy (data, hdr->id, NUT_GUID_SIZE);
@@ -190,6 +191,7 @@ nut_put_header (nut_header_t *hdr, byte *data)
   *data++ = hdr->hop;
   uint32 = htoll (hdr->length);
   memcpy (data, &uint32, SIZEOF_UINT32);
+  return buffer;
 }
 
 /*
@@ -205,8 +207,7 @@ nut_get_ping_reply (byte *data)
   memcpy (&uint16, data, SIZEOF_UINT16);
   reply.port = ltons (uint16);
   data += SIZEOF_UINT16;
-  memcpy (&uint32, data, SIZEOF_UINT32);
-  reply.ip = uint32;
+  memcpy (&reply.ip, data, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   memcpy (&uint32, data, SIZEOF_UINT32);
   reply.files = ltohl (uint32);
@@ -216,23 +217,25 @@ nut_get_ping_reply (byte *data)
   return (&reply);
 }
 
-void
-nut_put_ping_reply (nut_ping_reply_t *reply, byte *data)
+byte *
+nut_put_ping_reply (nut_ping_reply_t *reply)
 {
+  static byte buffer[SIZEOF_NUT_PING_REPLY];
+  byte *data = buffer;
   unsigned short uint16;
   unsigned int uint32;
   
   uint16 = ntols (reply->port);
   memcpy (data, &uint16, SIZEOF_UINT16);
   data += SIZEOF_UINT16;
-  uint32 = reply->ip;
-  memcpy (data, &uint32, SIZEOF_UINT32);
+  memcpy (data, &reply->ip, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   uint32 = htoll (reply->files);
   memcpy (data, &uint32, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   uint32 = htoll (reply->size);
   memcpy (data, &uint32, SIZEOF_UINT32);
+  return buffer;
 }
 
 /*
@@ -249,13 +252,16 @@ nut_get_query (byte *data)
   return (&query);
 }
 
-void
-nut_put_query (nut_query_t *query, byte *data)
+byte *
+nut_put_query (nut_query_t *query)
 {
+  static byte buffer[SIZEOF_NUT_QUERY];
+  byte *data = buffer;
   unsigned short uint16;
 
   uint16 = htols (query->speed);
   memcpy (data, &uint16, SIZEOF_UINT16);
+  return buffer;
 }
 
 /*
@@ -275,9 +281,11 @@ nut_get_record (byte *data)
   return (&record);
 }
 
-void
-nut_put_record (nut_record_t *record, byte *data)
+byte *
+nut_put_record (nut_record_t *record)
 {
+  static byte buffer[SIZEOF_NUT_RECORD];
+  byte *data = buffer;
   unsigned int uint32;
 
   uint32 = htoll (record->index);
@@ -285,6 +293,7 @@ nut_put_record (nut_record_t *record, byte *data)
   data += SIZEOF_UINT32;
   uint32 = htoll (record->size);
   memcpy (data, &uint32, SIZEOF_UINT32);
+  return buffer;
 }
 
 /*
@@ -301,17 +310,18 @@ nut_get_reply (byte *data)
   memcpy (&uint16, data, SIZEOF_UINT16);
   reply.port = ltons (uint16);
   data += SIZEOF_UINT16;
-  memcpy (&uint32, data, SIZEOF_UINT32);
-  reply.ip = uint32;
+  memcpy (&reply.ip, data, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   memcpy (&uint16, data, SIZEOF_UINT16);
   reply.speed = ltohs (uint16);
   return (&reply);
 }
 
-void
-nut_put_reply (nut_reply_t *reply, byte *data)
+byte *
+nut_put_reply (nut_reply_t *reply)
 {
+  static byte buffer[SIZEOF_NUT_REPLY];
+  byte *data = buffer;
   unsigned int uint32;
   unsigned short uint16;
 
@@ -319,11 +329,11 @@ nut_put_reply (nut_reply_t *reply, byte *data)
   uint16 = ntols (reply->port);
   memcpy (data, &uint16, SIZEOF_UINT16);
   data += SIZEOF_UINT16;
-  uint32 = reply->ip;
-  memcpy (data, &uint32, SIZEOF_UINT32);
+  memcpy (data, &reply->ip, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   uint16 = htols (reply->speed);
   memcpy (data, &uint16, SIZEOF_UINT16);
+  return buffer;
 }
 
 /*
@@ -341,17 +351,18 @@ nut_get_push (byte *data)
   memcpy (&uint32, data, SIZEOF_UINT32);
   push.index = ltohl (uint32);
   data += SIZEOF_UINT32;
-  memcpy (&uint32, data, SIZEOF_UINT32);
-  push.ip = uint32;
+  memcpy (&push.ip, data, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   memcpy (&uint16, data, SIZEOF_UINT16);
   push.port = ltons (uint16);
   return (&push);
 }
 
-void
-nut_put_push (nut_push_t *push, byte *data)
+byte *
+nut_put_push (nut_push_t *push)
 {
+  static byte buffer[SIZEOF_NUT_PUSH];
+  byte *data = buffer;
   unsigned int uint32;
   unsigned short uint16;
 
@@ -360,11 +371,11 @@ nut_put_push (nut_push_t *push, byte *data)
   uint32 = htoll (push->index);
   memcpy (data, &uint32, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
-  uint32 = push->ip;
-  memcpy (data, &uint32, SIZEOF_UINT32);
+  memcpy (data, &push->ip, SIZEOF_UINT32);
   data += SIZEOF_UINT32;
   uint16 = ntols (push->port);
   memcpy (data, &uint16, SIZEOF_UINT16);
+  return buffer;
 }
 
 #else /* ENABLE_GNUTELLA */

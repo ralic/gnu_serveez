@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.3 2000/08/26 18:05:18 ela Exp $
+ * $Id: server-loop.c,v 1.4 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -477,7 +477,13 @@ check_sockets_poll (void)
       /* file descriptor caused some error */
       if (ufds[fd].revents & (POLLERR | POLLHUP | POLLNVAL))
 	{
+#if 0
+	  /* 
+	   * Seems like we cannot get an error message if a descriptor
+	   * is in the exception set.
+	   */
 	  log_printf (LOG_ERROR, "poll: %s\n", NET_ERROR);
+#endif
 
 	  polled--;
 	  if (sock->flags & SOCK_FLAG_SOCK)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.2 2000/09/04 14:11:54 ela Exp $
+ * $Id: nut-core.h,v 1.3 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -31,6 +31,13 @@
 
 #define _GNU_SOURCE
 
+/* These definitions are for the GUID creating functions in Win32. */
+#ifdef __MINGW32__
+typedef int (__stdcall *CreateGuidProc) (byte *);
+extern CreateGuidProc CreateGuid;
+extern HMODULE oleHandle;
+#endif /* __MINGW32__ */
+
 /* Gnutella core functions. */
 void nut_calc_guid (byte *guid);
 char *nut_print_guid (byte *guid);
@@ -42,17 +49,22 @@ char *nut_client_key (unsigned long ip, unsigned short port);
  * packets to structures and backwards.
  */
 nut_header_t * nut_get_header (byte *data);
-void nut_put_header (nut_header_t *hdr, byte *data);
+byte * nut_put_header (nut_header_t *hdr);
+
 nut_ping_reply_t * nut_get_ping_reply (byte *data);
-void nut_put_ping_reply (nut_ping_reply_t *reply, byte *data);
+byte * nut_put_ping_reply (nut_ping_reply_t *reply);
+
 nut_query_t * nut_get_query (byte *data);
-void nut_put_query (nut_query_t *query, byte *data);
+byte * nut_put_query (nut_query_t *query);
+
 nut_record_t * nut_get_record (byte *data);
-void nut_put_record (nut_record_t *record, byte *data);
+byte * nut_put_record (nut_record_t *record);
+
 nut_reply_t * nut_get_reply (byte *data);
-void nut_put_reply (nut_reply_t *reply, byte *data);
+byte * nut_put_reply (nut_reply_t *reply);
+
 nut_push_t * nut_get_push (byte *data);
-void nut_put_push (nut_push_t *push, byte *data);
+byte * nut_put_push (nut_push_t *push);
 
 /*
  * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)

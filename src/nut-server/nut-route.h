@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.h,v 1.2 2000/09/03 21:28:05 ela Exp $
+ * $Id: nut-route.h,v 1.3 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -29,7 +29,9 @@
 # include <config.h>
 #endif
 
-int nut_route (socket_t sock, nut_header_t *hdr, byte *packet);
+#define NUT_QUERY_TOO_RECENT 10 /* drop "unpatient" queries in seconds */
+#define NUT_INVALID_PACKETS  20 /* close connection after x invalid packets */
 
+int nut_route (socket_t sock, nut_header_t *hdr, byte *packet);
 
 #endif /* __NUT_ROUTE_H__ */

@@ -1,3 +1,14 @@
+2000-09-05  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/gnutella.c (nut_server_timer): Try to connect 
+	to as many gnutella hosts as necessary.
+
+	* nut-server/nut-route.c (nut_canonize_query): Unpatient
+	queries will be routed after a certain time only.
+
+	* nut-server/gnutella.h (nut_client_t): Included statistics
+	about each connections nodes, number and size of files.
+
 2000-09-04  [ Ela ]  <ela@lkcc.org>
 
 	* nut-server/gnutella.c (nut_disconnect): Every 
@@ -12,7 +23,7 @@
 	delivers a text representation of a GUID.
 
 	* nut-server/gnutella.c (nut_push_request): Routing push
-	request correctly. Was: broadcast. Is: Sent to where thee
+	request correctly. Was: broadcast. Is: Sent to where the
 	original query reply came from.
 	(nut_reply): Saving replies for later push request routing.
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.11 2000/09/04 14:11:54 ela Exp $
+ * $Id: gnutella.c,v 1.12 2000/09/05 20:21:36 ela Exp $
  *
  */
 
@@ -102,6 +102,7 @@ nut_config_t nut_config =
   0,           /* routing errors */
   0,           /* files within connected network */
   0,           /* file size (in KB) */
+  0,           /* hosts within the connected network */
   "/tmp",      /* where to store downloaded files */
   "/tmp",      /* local search database path */
   0,           /* concurrent downloads */
@@ -261,9 +262,10 @@ int
 nut_init_ping (socket_t sock)
 {
   nut_config_t *cfg = sock->cfg;
+  nut_client_t *client = sock->data;
   nut_packet_t *pkt;
   nut_header_t hdr;
-  byte header[SIZEOF_NUT_HEADER];
+  byte *header;
 
   /* create new gnutella header */
   nut_calc_guid (hdr.id);
@@ -271,13 +273,21 @@ nut_init_ping (socket_t sock)
   hdr.ttl = cfg->ttl;
   hdr.hop = 0;
   hdr.length = 0;
-  nut_put_header (&hdr, header);
+  header = nut_put_header (&hdr);
 
   /* put into sent packet hash */
   pkt = xmalloc (sizeof (nut_packet_t));
   pkt->sock = sock;
   pkt->sent = time (NULL);
   hash_put (cfg->packet, (char *) hdr.id, pkt);
+
+  /* update client and server statistics */
+  cfg->nodes -= client->nodes;
+  cfg->files -= client->files;
+  cfg->size -= client->size;
+  client->nodes = 0;
+  client->files = 0;
+  client->size = 0;
 
   return sock_write (sock, (char *) header, SIZEOF_NUT_HEADER);
 }
@@ -614,14 +624,14 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_client_t *client = sock->data;
   socket_t xsock;
   nut_push_t *push;
-  byte header[SIZEOF_NUT_HEADER];
+  byte *header;
 
   push = nut_get_push (packet);
 
   /* is the guid of this push request in the reply hash ? */
   if ((xsock = (socket_t) hash_get (cfg->reply, (char *) push->id)) != NULL)
     {
-      nut_put_header (hdr, header);
+      header = nut_put_header (hdr);
       if (sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
 	  sock_write (xsock, (char *) packet, SIZEOF_NUT_PUSH) == -1)
 	{
@@ -692,6 +702,9 @@ nut_ping_reply (socket_t sock, nut_header_t *hdr, byte *packet)
       printf ("files   : %u\n", reply->files);
       printf ("size    : %u kb\n", reply->size);
 #endif
+      /* update statistics */
+      cfg->nodes++;
+      client->nodes++;
       if (reply->files && reply->size)
 	{
 	  cfg->files += reply->files;
@@ -713,9 +726,9 @@ nut_ping_request (socket_t sock, nut_header_t *hdr, byte *null)
 {
   nut_config_t *cfg = sock->cfg;
   nut_ping_reply_t reply;
-  byte buffer[SIZEOF_NUT_HEADER + SIZEOF_NUT_PING_REPLY];
+  byte *header, *pong;
 
-  /* create new gnutella packet */
+  /* create new gnutella packets */
   hdr->function = NUT_PING_ACK;
   hdr->length = SIZEOF_NUT_PING_REPLY;
   hdr->ttl = hdr->hop;
@@ -725,12 +738,12 @@ nut_ping_request (socket_t sock, nut_header_t *hdr, byte *null)
   else                        reply.ip = sock->local_addr;
   reply.files = 0;
   reply.size = 0;
-  nut_put_header (hdr, buffer);
-  nut_put_ping_reply (&reply, buffer + SIZEOF_NUT_HEADER);
+  header = nut_put_header (hdr);
+  pong = nut_put_ping_reply (&reply);
   
   /* try sending this packet */
-  if (sock_write (sock, (char *) buffer, 
-		  SIZEOF_NUT_HEADER + SIZEOF_NUT_PING_REPLY) == -1)
+  if (sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
+      sock_write (sock, (char *) pong, SIZEOF_NUT_PING_REPLY) == -1)
     {
       sock_schedule_for_shutdown (sock);
       return -1;
@@ -789,6 +802,7 @@ nut_disconnect (socket_t sock)
   /* free client structure */
   if (client)
     {
+      cfg->nodes -= client->nodes;
       cfg->files -= client->files;
       cfg->size -= client->size;
       xfree (client);
@@ -809,26 +823,27 @@ nut_server_timer (server_t *server)
   static int count = NUT_CONNECT_INTERVAL;
   char **keys;
   nut_packet_t *pkt;
-  int n, size;
+  int n, size, connect;
   time_t t, recv;
 
   /* go sleep if we still do not want to do something */
   if (count-- > 0) return 0;
     
   /* do we have enough connections ? */
-  if (cfg->connections > hash_size (cfg->conn))
+  connect =  hash_size (cfg->conn) - cfg->connections;
+  if (connect > 0)
     {
       /* are there hosts in the host catcher hash ? */
       if ((keys = (char **) hash_keys (cfg->net)) != NULL)
 	{
 	  /* go through all caught hosts */
-	  for (n = 0; n < hash_size (cfg->net); n++)
+	  for (n = 0; n < hash_size (cfg->net) && connect; n++)
 	    {
 	      /* check if we are not already connected */
 	      if (hash_get (cfg->conn, keys[n]) == NULL)
 		{
-		  nut_connect_host (cfg, keys[n]);
-		  break;
+		  if (nut_connect_host (cfg, keys[n]) != -1)
+		    connect--;
 		}
 	    }
 	  hash_xfree (keys);
@@ -934,7 +949,7 @@ nut_check_request (socket_t sock)
 	  len = SIZEOF_NUT_HEADER + hdr->length;
 	  packet = (byte *) sock->recv_buffer + SIZEOF_NUT_HEADER;
 	  client->packets++;
-#if 1
+#if 0
 	  util_hexdump (stdout, "gnutella packet", sock->sock_desc,
 			sock->recv_buffer, len, 0);
 #endif
@@ -985,8 +1000,7 @@ nut_idle_searching (socket_t sock)
   nut_packet_t *pkt;
   nut_header_t hdr;
   nut_query_t query;
-  byte header[SIZEOF_NUT_HEADER];
-  byte buffer[SIZEOF_NUT_QUERY];
+  byte *header, *search;
 
   /* search string given ? */
   if (cfg->search)
@@ -998,12 +1012,12 @@ nut_idle_searching (socket_t sock)
       hdr.hop = 0;
       hdr.length = SIZEOF_NUT_QUERY + strlen (cfg->search) + 1;
       query.speed = cfg->min_speed;
-      nut_put_header (&hdr, header);
-      nut_put_query (&query, buffer);
+      header = nut_put_header (&hdr);
+      search = nut_put_query (&query);
 
       /* try sending this packet to this connection */
       if (sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
-	  sock_write (sock, (char *) buffer, SIZEOF_NUT_QUERY) == -1 ||
+	  sock_write (sock, (char *) search, SIZEOF_NUT_QUERY) == -1 ||
 	  sock_write (sock, cfg->search, strlen (cfg->search) + 1) == -1)
 	{
 	  return -1;
@@ -1152,16 +1166,8 @@ nut_info_server (server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static char info[80*17];
-  char id[64], idpart[3];
   char *ext = NULL;
   int n;
-
-  /* create client id string */
-  for (id[0] = '\0', n = 0; n < NUT_GUID_SIZE; n++)
-    {
-      sprintf (idpart, "%02X", cfg->guid[n]);
-      strcat (id, idpart);
-    }
 
   /* create file extension list */
   n = 0;
@@ -1202,7 +1208,7 @@ nut_info_server (server_t *server)
 	   " sent packets    : %u\r\n"
 	   " routing errors  : %u\r\n"
 	   " hosts           : %u gnutella clients seen\r\n"
-	   " data pool       : %u MB in %u files\r\n"
+	   " data pool       : %u MB in %u files on %u hosts\r\n"
 	   " downloads       : %u/%u\r\n"
 	   " queries         : %u",
 	   cfg->port->port,
@@ -1210,7 +1216,7 @@ nut_info_server (server_t *server)
 	   cfg->max_ttl,
 	   cfg->ttl,
 	   cfg->speed,
-	   id,
+	   nut_print_guid (cfg->guid),
 	   cfg->save_path,
 	   cfg->share_path,
 	   cfg->search,
@@ -1220,7 +1226,7 @@ nut_info_server (server_t *server)
 	   hash_size (cfg->packet),
 	   cfg->errors,
 	   hash_size (cfg->net),
-	   cfg->size / 1024, cfg->files,
+	   cfg->size / 1024, cfg->files, cfg->nodes,
 	   cfg->dnloads, cfg->max_dnloads,
 	   hash_size (cfg->query));
 
@@ -1250,6 +1256,10 @@ nut_info_client (void *nut_cfg, socket_t sock)
 	       "  * dropped packets : %u/%u\r\n"
 	       "  * invalid packets : %u\r\n",
 	       client->dropped, client->packets, client->invalid);
+      strcat (info, text);
+      sprintf (text, 
+	       "  * data pool       : %u MB in %u files on %u hosts\r\n",
+	       client->size / 1024, client->files, client->nodes);
       strcat (info, text);
     }
 
