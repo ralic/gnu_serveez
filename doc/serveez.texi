@@ -4,16 +4,26 @@
 @settitle Serveez Documention
 @c %** end of header
 
-@node Top, (dir), (dir), (dir)
+@set VERSION 0.0.17pre
 
-@ifinfo
-This document covers all questions about the GNU package serveez and 
-refers to the current version 0.0.17pre.
-@end ifinfo
+@titlepage
+@title Serveez
+@subtitle Documentation
+@subtitle Version @value{VERSION}
+@author Stefan Jahn
+@author Raimund Jacob
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2000 Stefan Jahn @email{stefan@@lkcc.org}
+Copyright @copyright{} 2000 Raimund Jacob @email{raimi@@lkcc.org}
+Copyright @copyright{} 1999 Martin Grabmueller @email{mgrabmue@@cs.tu-berlin.de}
+@end titlepage
+
+@node Top, (dir), (dir), (dir)
 
 @menu
 * Introduction::        Introduction to Serveez
-* Using Serveez::       Command line options
+* Using Serveez::       Startup and command line options
 * Concept::             Conceptional thoughts
 * Server::              Server implementation
 * Co-Server::           Co-Server implementation
@@ -169,7 +179,7 @@ There are several callback routines, which get called in order to
 instanciate the server and for describing the actual behaviour of your server.
 Here is the description of all of these.
 
-@itemize @bullet
+@table @asis
 
 @item global initializer (optional)
 
@@ -229,7 +239,7 @@ find whole packets. When a client sent such a packet the handle_request
 callback is executed. That is why the foo server assigns the handle_request
 method.
 
-@end itemize
+@end table
 
 @subsection Make your server available
 
@@ -243,7 +253,7 @@ The client connection information is stored within the socket_t
 object. All of the client connection specific callbacks get this object as
 first argument. Here follows a decription of the elements of this object.
 
-@itemize @bullet
+@table @code
 
 @item socket_id
 The socket id is a unique id for a client connection.
@@ -316,7 +326,7 @@ This array is NULL terminated.
 When the final protocol detection in default_detect_proto
 has been done cfg should get the actual configuration hash.
 
-@end itemize
+@end table
 
 @subsection Using Co-Servers
 
@@ -420,4 +430,5 @@ created and an optional initialization routine.
 @node Porting issues, , Co-Server, Top
 @chapter Porting issues
 
+@contents
 @bye
