@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.18 2001/09/06 21:12:26 ela Exp $
+ * $Id: pipe-socket.c,v 1.19 2001/09/07 10:34:51 ela Exp $
  *
  */
 
@@ -56,6 +56,59 @@
 #include "libserveez/core.h"
 #include "libserveez/server-core.h"
 #include "libserveez/pipe-socket.h"
+
+#ifdef __MINGW32__
+/* Some static data for the CancelIo() call. We need to load the symbol
+   dynamically because it is not available on all versions of Windows. */
+typedef BOOL (__stdcall * CancelIoProc) (HANDLE);
+static CancelIoProc CancelIoFunc = NULL;
+static HANDLE Kernel32Handle = NULL;
+#endif /* __MINGW32__ */
+
+/*
+ * Startup the pipe interface of the core API of serveez. Returns zero on
+ * success. Gets called from @code{svz_boot()} once. Do not use.
+ */
+int
+svz_pipe_startup (void)
+{
+#ifdef __MINGW32__
+  if ((Kernel32Handle = LoadLibrary ("KERNEL32.DLL")) == NULL)
+    {
+      svz_log (LOG_ERROR, "pipe: LoadLibrary: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  /* obtain CancelIo() function */
+  CancelIoFunc = (CancelIoProc) GetProcAddress (Kernel32Handle, "CancelIo");
+  if (CancelIoFunc == NULL)
+    {
+      svz_log (LOG_ERROR, "pipe: GetProcAddress: %s\n", SYS_ERROR);
+      FreeLibrary (Kernel32Handle);
+      Kernel32Handle = NULL;
+      return -1;
+    }
+#endif /* __MINGW32__ */
+  return 0;
+}
+
+/*
+ * Cleanup the pipe interface of the core API of serveez. Returns zero on
+ * success. Gets called from @code{svz_halt()} once. Do not use.
+ */
+int
+svz_pipe_cleanup (void)
+{
+#ifdef __MINGW32__
+  if (Kernel32Handle != NULL)
+    {
+      FreeLibrary (Kernel32Handle);
+      Kernel32Handle = NULL;
+      CancelIoFunc = NULL;
+    }
+#endif /* __MINGW32__ */
+  return 0;
+}
 
 /*
  * Return a newly allocated and setup to some defaults pipe structure.
@@ -212,15 +265,16 @@ svz_pipe_disconnect (svz_socket_t *sock)
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
 	{
 #ifdef __MINGW32__
-#if 0
-	  /* cancel any pending I/O if necessary */
-	  if (sock->flags & (SOCK_FLAG_READING | SOCK_FLAG_CONNECTING))
-	    if (!CancelIo (sock->pipe_desc[READ]))
-	      svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
-	  if (sock->flags & (SOCK_FLAG_WRITING | SOCK_FLAG_CONNECTING))
-	    if (!CancelIo (sock->pipe_desc[WRITE]))
-	      svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
-#endif /* 0 */
+	  /* cancel any pending I/O if necessary and possible */
+	  if (CancelIoFunc)
+	    {
+	      if (sock->flags & (SOCK_FLAG_READING | SOCK_FLAG_CONNECTING))
+		if (!CancelIoFunc (sock->pipe_desc[READ]))
+		  svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
+	      if (sock->flags & (SOCK_FLAG_WRITING | SOCK_FLAG_CONNECTING))
+		if (!CancelIoFunc (sock->pipe_desc[WRITE]))
+		  svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
+	    }
 
 	  /* just disconnect client pipes */
 	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))

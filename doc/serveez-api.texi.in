@@ -398,6 +398,8 @@ it for reading or writing, in the same way as an ordinary file. However,
 it has to be open at both ends simultaneously before you can proceed to do
 any input or output operations on it.
 
+SVZ_PIPE_STARTUP_DEFUN
+SVZ_PIPE_CLEANUP_DEFUN
 SVZ_PIPE_ALLOC_DEFUN
 SVZ_PIPE_DESTROY_DEFUN
 SVZ_PIPE_VALID_DEFUN

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.18 2001/08/12 10:59:04 ela Exp $
+ * $Id: boot.c,v 1.19 2001/09/07 10:34:51 ela Exp $
  *
  */
 
@@ -42,6 +42,7 @@
 #include "libserveez/interface.h"
 #include "libserveez/socket.h"
 #include "libserveez/icmp-socket.h"
+#include "libserveez/pipe-socket.h"
 #include "libserveez/server.h"
 #include "libserveez/dynload.h"
 #include "libserveez/boot.h"
@@ -153,6 +154,7 @@ svz_boot (void)
   svz_init_config ();
   svz_interface_collect ();
   svz_net_startup ();
+  svz_pipe_startup ();
   svz_dynload_init ();
 }
 
@@ -165,6 +167,7 @@ svz_halt (void)
   svz_free_and_zero (svz_config.password);
   svz_portcfg_finalize ();
   svz_dynload_finalize ();
+  svz_pipe_cleanup ();
   svz_net_cleanup ();
   svz_interface_free ();
   svz_signal_dn ();

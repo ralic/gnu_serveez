@@ -1,3 +1,12 @@
+2001-09-07  [ Ela ]  <ela@lkcc.org>
+
+	* pipe-socket.c (svz_pipe_startup): New function. Tries
+	to load the CancelIo() symbol from `Kernel32.dll' under
+	Windows. This is necessary since it is available in Windows
+	NT 4.x and above only. Called from svz_boot().
+	(svz_pipe_disconnect): Call CancelIo() if there is any pending
+	operation in progress.
+
 2001-09-04  [ Ela ]  <ela@lkcc.org>
 
 	* pipe-socket.c (svz_pipe_read_socket): Set a limit for

@@ -102,9 +102,16 @@ DEFINE-SERVERTYPE!_DEFUN
 
 @subsubsection Predefined procedures
 
+The following subset of procedures can be used to implement a guile server.
+They should be used within the callbacks defined in the 
+@code{(define-servertype!)} procedure. Each of these callbacks gets passed
+the appropriate arguments needed to stuff into the below procedures. Please
+have a look at the example guile servers for the very details.
+
 SVZ:SOCK:CHECK-REQUEST_DEFUN
 SVZ:SOCK:HANDLE-REQUEST_DEFUN
 SVZ:SOCK:BOUNDARY_DEFUN
+SVZ:SOCK:FLOODPROTECT_DEFUN
 SVZ:SOCK:PRINT_DEFUN
 SVZ:SOCK:RECEIVE-BUFFER_DEFUN
 SVZ:SOCK:DATA_DEFUN

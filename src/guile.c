@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.40 2001/08/17 13:54:15 ela Exp $
+ * $Id: guile.c,v 1.41 2001/09/07 10:34:51 ela Exp $
  *
  */
 
@@ -312,8 +312,8 @@ guile_to_integer (SCM scm, int *target)
   int err = 0;
   char *str = NULL, *endp;
 
-  /* Usual guile number. */
-  if (gh_number_p (scm))
+  /* Usual guile exact number. */
+  if (gh_exact_p (scm))
     {
       *target = gh_scm2int (scm);
     }

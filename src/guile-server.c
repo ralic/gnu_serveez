@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.14 2001/08/17 13:54:15 ela Exp $
+ * $Id: guile-server.c,v 1.15 2001/09/07 10:34:50 ela Exp $
  *
  */
 
@@ -265,7 +265,7 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 static int
 guile_integer (SCM value, int def)
 {
-  if (gh_number_p (value))
+  if (gh_exact_p (value))
     return gh_scm2int (value);
   return def;
 }
@@ -522,10 +522,10 @@ guile_sock_check_request (SCM sock, SCM proc)
 #undef FUNC_NAME
 
 /* Setup the packet boundary of the socket @var{sock}. The given string value
-   @var{boundary} can contain any kind of data. If you pass a number value 
-   the socket is setup to parse fixed sized packets. For instance you can 
-   setup serveez to pass your @code{handle_request} procedure text lines by 
-   calling @code{(svz:sock:boundary sock "\\n")}. */
+   @var{boundary} can contain any kind of data. If you pass a exact number 
+   value the socket is setup to parse fixed sized packets. For instance you 
+   can setup serveez to pass your @code{handle_request} procedure text lines 
+   by calling @code{(svz:sock:boundary sock "\\n")}. */
 #define FUNC_NAME "svz:sock:boundary"
 static SCM
 guile_sock_boundary (SCM sock, SCM boundary)
@@ -533,11 +533,11 @@ guile_sock_boundary (SCM sock, SCM boundary)
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (gh_number_p (boundary) || gh_string_p (boundary), 
-		   boundary, SCM_ARG2, FUNC_NAME, "string or number");
+  SCM_ASSERT_TYPE (gh_exact_p (boundary) || gh_string_p (boundary), 
+		   boundary, SCM_ARG2, FUNC_NAME, "string or exact");
 
   /* Setup for fixed sized packets. */
-  if (gh_number_p (boundary))
+  if (gh_exact_p (boundary))
     {
       xsock->boundary = NULL;
       xsock->boundary_size = gh_scm2int (boundary);
@@ -552,6 +552,32 @@ guile_sock_boundary (SCM sock, SCM boundary)
   xsock->check_request = svz_sock_check_request;
 
   return SCM_BOOL_T;
+}
+#undef FUNC_NAME
+
+/* Set or unset the flood protection bit of the given socket @var{sock}.
+   Returns the previous value of this bit (#t or #f). The @var{flag}
+   argument must be either boolean or an exact number and is optional. */
+#define FUNC_NAME "svz:sock:floodprotect"
+static SCM
+guile_sock_floodprotect (SCM sock, SCM flag)
+{
+  svz_socket_t *xsock;
+  int flags;
+
+  CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
+  flags = xsock->flags;
+  if (flag != SCM_UNDEFINED)
+    {
+      SCM_ASSERT_TYPE (gh_boolean_p (flag) || gh_exact_p (flag), 
+		       flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
+      if ((gh_boolean_p (flag) && gh_scm2bool (flag) != 0) ||
+	  (gh_exact_p (flag) && gh_scm2int (flag) != 0))
+	xsock->flags &= ~SOCK_FLAG_NOFLOOD;
+      else
+	xsock->flags |= SOCK_FLAG_NOFLOOD;
+    }
+  return (flags & SOCK_FLAG_NOFLOOD) ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
 
@@ -664,7 +690,7 @@ guile_config_convert (void *address, int type)
    the given server instance @var{server}. You can pass this function a
    socket too. In this case the procedure will lookup the appropiate server
    instance itself. If the given string @var{key} is invalid (not defined 
-   in the configuration alist in @code{(define-servertype!)} then it returns
+   in the configuration alist in @code{(define-servertype!)}) then it returns
    an empty list. */
 #define FUNC_NAME "svz:server:config-get"
 SCM
@@ -1169,6 +1195,8 @@ guile_server_init (void)
 		    guile_sock_check_request, 2, 0, 0);
   gh_new_procedure ("svz:sock:boundary", 
 		    guile_sock_boundary, 2, 0, 0);
+  gh_new_procedure ("svz:sock:floodprotect", 
+		    guile_sock_floodprotect, 1, 1, 0);
   gh_new_procedure ("svz:sock:print", 
 		    guile_sock_print, 2, 0, 0);
   gh_new_procedure ("svz:sock:receive-buffer", 

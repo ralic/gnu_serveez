@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.2 2001/07/28 15:25:26 ela Exp $
+ * $Id: guile-bin.c,v 1.3 2001/09/07 10:34:50 ela Exp $
  *
  */
 
@@ -166,7 +166,7 @@ guile_bin_to_string (SCM binary)
 #undef FUNC_NAME
 
 /* This routine searches through the binary smob @var{binary} for the cell
-   @var{needle}. The latter argument can be either a number, character,
+   @var{needle}. The latter argument can be either a exact number, character,
    string or another binary smob. It returns @code{#f} if the needle could 
    not be found and a positive number indicates the position of the first 
    occurrence of @var{needle} in the binary smob @var{binary}. */
@@ -179,7 +179,7 @@ guile_bin_search (SCM binary, SCM needle)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   SCM_ASSERT (gh_string_p (needle) || gh_char_p (needle) || 
-	      gh_number_p (needle) || CHECK_BIN_SMOB (needle),
+	      gh_exact_p (needle) || CHECK_BIN_SMOB (needle),
 	      needle, SCM_ARG2, FUNC_NAME);
 
   /* Search for a pattern. */
@@ -208,7 +208,7 @@ guile_bin_search (SCM binary, SCM needle)
     }
 
   /* Search for a single byte. */
-  else if (gh_char_p (needle) || gh_number_p (needle))
+  else if (gh_char_p (needle) || gh_exact_p (needle))
     {
       unsigned char c;
       unsigned char *p, *end;
@@ -233,7 +233,7 @@ guile_bin_search (SCM binary, SCM needle)
 
 /* Set the byte at position @var{index} of the binary smob @var{binary} to
    the value given in @var{value} which can be either a character or a 
-   number. */
+   exact number. */
 #define FUNC_NAME "binary-set!"
 SCM
 guile_bin_set_x (SCM binary, SCM index, SCM value)
@@ -242,9 +242,9 @@ guile_bin_set_x (SCM binary, SCM index, SCM value)
   int idx;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_number_p (index), index, SCM_ARG2, FUNC_NAME, "number");
-  SCM_ASSERT_TYPE (gh_number_p (value) || gh_char_p (value), 
-		   value, SCM_ARG3, FUNC_NAME, "char or number");
+  SCM_ASSERT_TYPE (gh_exact_p (index), index, SCM_ARG2, FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (gh_exact_p (value) || gh_char_p (value), 
+		   value, SCM_ARG3, FUNC_NAME, "char or exact");
 
   /* Check the range of the index argument. */
   idx = gh_scm2int (index);
@@ -266,7 +266,7 @@ guile_bin_ref (SCM binary, SCM index)
   int idx;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_number_p (index), index, SCM_ARG1, FUNC_NAME, "number");
+  SCM_ASSERT_TYPE (gh_exact_p (index), index, SCM_ARG1, FUNC_NAME, "exact");
 
   /* Check the range of the index argument. */
   idx = gh_scm2int (index);
@@ -344,9 +344,9 @@ guile_bin_subset (SCM binary, SCM start, SCM end)
   int from, to;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  SCM_ASSERT_TYPE (gh_number_p (start), start, SCM_ARG2, FUNC_NAME, "number");
-  SCM_ASSERT_TYPE (gh_number_p (end) || SCM_UNDEFINED, end, SCM_ARG3, 
-		   FUNC_NAME, "number");
+  SCM_ASSERT_TYPE (gh_exact_p (start), start, SCM_ARG2, FUNC_NAME, "exact");
+  SCM_ASSERT_TYPE (gh_exact_p (end) || SCM_UNDEFINED, end, SCM_ARG3, 
+		   FUNC_NAME, "exact");
 
   from = gh_scm2int (start);
   to = end == SCM_UNDEFINED ? -1 : gh_scm2int (end);
@@ -414,7 +414,7 @@ guile_list_to_bin (SCM list)
   /* Iterate over the list and build up binary smob. */
   while (gh_pair_p (list))
     {
-      if (!gh_number_p (gh_car (list)))
+      if (!gh_exact_p (gh_car (list)))
 	scm_out_of_range (FUNC_NAME, gh_car (list));
       *p++ = gh_scm2int (gh_car (list));
       list = gh_cdr (list);

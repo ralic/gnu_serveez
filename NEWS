@@ -28,11 +28,12 @@ files.
 Version 0.1.1
 -------------
 
+ * package available as relocatable RPM
  * modified chat server master protocol (use textSure v1.3)
  * virtually unlimited number of socket structures allowed
  * faster http file cache
  * automatic coserver restart on buffer overrun or death
- * Guile server examples
+ * Guile server examples and documentation
  * Guile servers can be enabled via --enable-guile-server
  * loadable server modules
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.h,v 1.10 2001/09/04 18:22:01 ela Exp $
+ * $Id: pipe-socket.h,v 1.11 2001/09/07 10:34:51 ela Exp $
  *
  */
 
@@ -50,6 +50,8 @@ svz_pipe_t;
 
 __BEGIN_DECLS
 
+SERVEEZ_API int svz_pipe_startup __P ((void));
+SERVEEZ_API int svz_pipe_cleanup __P ((void));
 SERVEEZ_API int svz_pipe_valid __P ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_read_socket __P ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_write_socket __P ((svz_socket_t *));
