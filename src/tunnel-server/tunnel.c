@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.4 2000/10/26 13:43:31 ela Exp $
+ * $Id: tunnel.c,v 1.5 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -50,6 +50,7 @@
 #include "socket.h"
 #include "connect.h"
 #include "udp-socket.h"
+#include "icmp-socket.h"
 #include "server-core.h"
 #include "server.h"
 #include "tunnel.h"
@@ -138,6 +139,12 @@ tnl_init (server_t *server)
   /* create source client hash (for UDP and ICMP only) */
   cfg->client = hash_create (4);
   
+  /* assign the appropriate handle request routine of the server */
+  if (cfg->source->proto & PROTO_UDP)
+    server->handle_request = tnl_handle_request_udp_source;
+  if (cfg->source->proto & PROTO_ICMP)
+    server->handle_request = tnl_handle_request_icmp_source;
+
   /* bind the source port */
   server_bind (server, cfg->source);
   return 0;
@@ -226,6 +233,7 @@ tnl_create_socket (socket_t sock, int source)
 		  util_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_tcp_target;
+      sock_resize_buffers (xsock, UDP_BUF_SIZE ,UDP_BUF_SIZE);
     }
 
   /* target is an UDP connection */
@@ -250,6 +258,20 @@ tnl_create_socket (socket_t sock, int source)
   /* target is an ICMP connection */
   else if (sock->userflags & TNL_FLAG_TGT_ICMP)
     {
+      if ((xsock = icmp_connect (ip, port)) == NULL)
+	{
+	  log_printf (LOG_ERROR, "tunnel: icmp: cannot connect to %s:%u\n",
+		      util_inet_ntoa (ip), ntohs (port));
+	  return NULL;
+	}
+
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "tunnel: icmp: connecting to %s:%u\n",
+		  util_inet_ntoa (ip), ntohs (port));
+#endif /* ENABLE_DEBUG */
+      xsock->handle_request = tnl_handle_request_icmp_target;
+      xsock->idle_func = tnl_idle;
+      xsock->idle_counter = TNL_TIMEOUT;
     }
 
   xsock->cfg = cfg;
@@ -285,6 +307,8 @@ tnl_send_request_source (socket_t sock, char *packet, int len, int flag)
   /* target is ICMP */
   else if (flag & TNL_FLAG_TGT_ICMP)
     {
+      if (icmp_write (sock, packet, len) == -1)
+	return -1;
     }
 
   return 0;
@@ -313,6 +337,8 @@ tnl_send_request_target (socket_t sock, char *packet, int len, int flag)
   /* source is ICMP */
   else if (flag & TNL_FLAG_SRC_ICMP)
     {
+      if (icmp_write (sock, packet, len) == -1)
+	return -1;
     }
 
   return 0;
@@ -341,6 +367,7 @@ tnl_connect_socket (void *config, socket_t sock)
   sock->flags |= SOCK_FLAG_NOFLOOD;
   sock->check_request = tnl_check_request_tcp_source;
   sock->disconnected_socket = tnl_disconnect;
+  sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
 
   /* try connecting to target */
   if (tnl_create_socket (sock, TNL_FLAG_SRC_TCP) == NULL)
@@ -366,16 +393,12 @@ tnl_check_request_tcp_target (socket_t sock)
       xsock = sock->referrer;
     }
   /* source is an UDP connection */
-  else if (sock->userflags & TNL_FLAG_SRC_UDP)
+  else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
     {
       source = sock->data;
       xsock = source->source_sock;
       xsock->remote_addr = source->ip;
       xsock->remote_port = source->port;
-    }
-  /* source is an ICMP connection */
-  else if (sock->userflags & TNL_FLAG_SRC_ICMP)
-    {
     }
 
   /* forward data to source connection */
@@ -428,8 +451,8 @@ tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
     {
       xsock = sock->referrer;
     }
-  /* source connection is UDP */
-  else if (sock->userflags & TNL_FLAG_SRC_UDP)
+  /* source connection is UDP or ICMP */
+  else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
     {
       /* get source connection from data field */
       source = sock->data;
@@ -437,10 +460,6 @@ tnl_handle_request_udp_target (socket_t sock, char *packet, int len)
       xsock->remote_addr = source->ip;
       xsock->remote_port = source->port;
     } 
-  /* source connection is ICMP */
-  else if (sock->userflags & TNL_FLAG_SRC_ICMP)
-    {
-    }
 
   /* forward packet data to source connection */
   if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
@@ -501,6 +520,89 @@ tnl_handle_request_udp_source (socket_t sock, char *packet, int len)
 }
 
 /*
+ * This function is the handle_request routine for target ICMP sockets.
+ */
+int
+tnl_handle_request_icmp_target (socket_t sock, char *packet, int len)
+{
+  tnl_config_t *cfg = sock->cfg;
+  tnl_source_t *source;
+  socket_t xsock = NULL;
+
+  /* the source connection is TCP */
+  if (sock->userflags & TNL_FLAG_SRC_TCP)
+    {
+      xsock = sock->referrer;
+    }
+  /* source connection is UDP or ICMP */
+  else if (sock->userflags & (TNL_FLAG_SRC_UDP | TNL_FLAG_SRC_ICMP))
+    {
+      /* get source connection from data field */
+      source = sock->data;
+      xsock = source->source_sock;
+      xsock->remote_addr = source->ip;
+      xsock->remote_port = source->port;
+    } 
+
+  /* forward packet data to source connection */
+  if (tnl_send_request_target (xsock, packet, len, sock->userflags) == -1)
+    {
+      if (sock->userflags & TNL_FLAG_SRC_TCP)
+	sock_schedule_for_shutdown (xsock);
+      return -1;
+    }
+
+  return 0;
+}
+
+/*
+ * This function is the handle_request routine for source ICMP sockets.
+ * It accepts ICMP connections (listening connection) or forwards data
+ * to existing target sockets.
+ */
+int
+tnl_handle_request_icmp_source (socket_t sock, char *packet, int len)
+{
+  tnl_config_t *cfg = sock->cfg;
+  tnl_source_t *source;
+  socket_t xsock = NULL;
+
+  /* check if there is such a connection in the source hash already */
+  source = hash_get (cfg->client, tnl_addr (sock));
+  if (source)
+    {
+      /* get existing target socket */
+      xsock = source->target_sock;
+    }
+  else
+    {
+      /* start connecting */
+      if ((xsock = tnl_create_socket (sock, TNL_FLAG_SRC_ICMP)) == NULL)
+	return 0;
+
+      /* foreign address not in hash, create new target connection */
+      source = xmalloc (sizeof (tnl_source_t));
+      source->source_sock = sock;
+      source->ip = sock->remote_addr;
+      source->port = sock->remote_port;
+      hash_put (cfg->client, tnl_addr (sock), source);
+
+      /* put the source connection into data field */
+      xsock->data = source;
+      source->target_sock = xsock;
+    }
+
+  /* forward packet data to target connection */
+  if (tnl_send_request_source (xsock, packet, len, sock->userflags) == -1)
+    {
+      sock_schedule_for_shutdown (xsock);
+      return 0;
+    }
+
+  return 0;
+}
+
+/*
  * What happens if a connection gets lost.
  */
 int
@@ -516,6 +618,7 @@ tnl_disconnect (socket_t sock)
 		  sock->referrer->id);
 #endif
       sock_schedule_for_shutdown (sock->referrer);
+      sock->referrer = NULL;
     }
   else
     {
@@ -523,13 +626,14 @@ tnl_disconnect (socket_t sock)
 	{
 	  hash_delete (cfg->client, key);
 	  xfree (sock->data);
+	  sock->data = NULL;
 	}
     }
   return 0;
 }
 
 /*
- * Because UDP and ICMP sockets cannot not be detectied as being closed
+ * Because UDP and ICMP sockets cannot not be detected as being closed
  * we need to shutdown target sockets ourselves.
  */
 int

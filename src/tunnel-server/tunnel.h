@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.4 2000/10/26 13:43:31 ela Exp $
+ * $Id: tunnel.h,v 1.5 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -81,6 +81,8 @@ int tnl_check_request_tcp_source (socket_t sock);
 int tnl_check_request_tcp_target (socket_t sock);
 int tnl_handle_request_udp_source (socket_t sock, char *packet, int len);
 int tnl_handle_request_udp_target (socket_t sock, char *packet, int len);
+int tnl_handle_request_icmp_source (socket_t sock, char *packet, int len);
+int tnl_handle_request_icmp_target (socket_t sock, char *packet, int len);
 int tnl_disconnect (socket_t sock);
 int tnl_idle (socket_t sock);
 

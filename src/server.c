@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.32 2000/10/25 07:54:06 ela Exp $
+ * $Id: server.c,v 1.33 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -423,17 +423,24 @@ static int set_port (char *cfgfile, char *var, char *key,
 	  else if (!strcmp (tstr, PORTCFG_ICMP))
 	    newport->proto = PROTO_ICMP;
 
-	  /* Figure out the port value and set it. */
-	  hash_key = zzz_make_string (PORTCFG_PORT, -1);
-	  hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
-      
-	  if (!integer_p (hash_val)) 
+	  if (newport->proto == PROTO_ICMP)
 	    {
-	      fprintf (stderr, "%s: `%s': %s is not numerical in `%s'\n",
-		       cfgfile, var, PORTCFG_PORT, key);
-	      return -1;
+	      newport->port = 0;
 	    }
-	  newport->port = (unsigned short int) integer_val (hash_val);
+	  else
+	    {
+	      /* Figure out the port value and set it. */
+	      hash_key = zzz_make_string (PORTCFG_PORT, -1);
+	      hash_val = zzz_hash_ref (val, hash_key, zzz_undefined);
+      
+	      if (!integer_p (hash_val)) 
+		{
+		  fprintf (stderr, "%s: `%s': %s is not numerical in `%s'\n",
+			   cfgfile, var, PORTCFG_PORT, key);
+		  return -1;
+		}
+	      newport->port = (unsigned short int) integer_val (hash_val);
+	    }
 
 	  /* Figure out the local ip address, "*" means any. */
 	  hash_key = zzz_make_string (PORTCFG_IP, -1);

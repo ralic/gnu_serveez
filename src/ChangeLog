@@ -1,3 +1,11 @@
+2000-10-28  [ Ela ]  <ela@lkcc.org>
+
+	* tunnel-server/tunnel.c (tnl_init): Assigning either UDP or
+	ICMP handle request routine to the server instance.
+
+	* udp-socket.c (udp_write): Splitting large UDP messages if
+	necessary.
+
 2000-10-26  [ Ela ]  <ela@lkcc.org>
 
 	* tunnel-server/tunnel.c: The port forwarder for UDP and TCP

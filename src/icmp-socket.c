@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.3 2000/10/05 09:52:19 ela Exp $
+ * $Id: icmp-socket.c,v 1.4 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -27,6 +27,7 @@
 #endif
 
 #define _GNU_SOURCE
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
@@ -48,6 +49,7 @@
 #endif
 
 #include "socket.h"
+#include "alloc.h"
 #include "util.h"
 #include "snprintf.h"
 #include "server.h"
@@ -55,7 +57,7 @@
 #include "icmp-socket.h"
 
 /* Static buffer for ip packets. */
-static char icmp_buffer[ICMP_BUFFER_SIZE];
+static char icmp_buffer[IP_HEADER_SIZE + ICMP_HEADER_SIZE + ICMP_MSG_SIZE];
 
 /*
  * Get IP header from plain data.
@@ -75,7 +77,6 @@ icmp_get_ip_header (byte *data)
   memcpy (&uint16, data, SIZEOF_UINT16);
   hdr.ident = ntohs (uint16);
   data += SIZEOF_UINT16;
-  hdr.flags = *data++;
   memcpy (&uint16, data, SIZEOF_UINT16);
   hdr.frag_offset = ntohs (uint16);
   data += SIZEOF_UINT16;
@@ -146,23 +147,45 @@ icmp_put_header (icmp_header_t *hdr)
 static unsigned short
 icmp_ip_checksum (byte *data, int len)
 {
-  unsigned short checksum = 0, save, n, val;
+  unsigned long checksum = 0;
+  unsigned short n, val;
+  byte hbyte, lbyte;
 
-  save = data[IP_CHECKSUM_OFS] | (data[IP_CHECKSUM_OFS + 1] << 8);
+  /* save current ip checksum and set it to zero */
+  lbyte = data[IP_CHECKSUM_OFS];
+  hbyte = data[IP_CHECKSUM_OFS + 1];
   data[IP_CHECKSUM_OFS] = 0;
   data[IP_CHECKSUM_OFS + 1] = 0;
 
-  for (n = 0; n < len; n += 2)
+  /* 
+   * Calculate the 16 bit one's complement of the one's complement sum 
+   * of all 16 bit words in the header. For computing the checksum, 
+   * the checksum field should be zero. This checksum may be replaced in 
+   * the future.
+   */
+  for (n = 0; n < (len & ~0x01) ; n += 2)
     {
       val = data[n] | (data[n + 1] << 8);
       val = ~val;
       checksum += val;
     }
-  
-  data[IP_CHECKSUM_OFS] = save & 0xff;
-  data[IP_CHECKSUM_OFS + 1] = (save >> 8) & 0xff;
+  if (len & 0x01)
+    {
+      val = data[n];
+      val = ~val;
+      checksum += val;
+    } 
+  printf ("1.checksum: 0x%08X\n", checksum);
+  checksum = (checksum & 0xffff) + ((checksum >> 16) & 0xffff);
+  printf ("2.checksum: 0x%08X\n", checksum);
+  checksum = checksum & 0xffff;
+  printf ("3.checksum: 0x%08X\n", checksum);
 
-  return ~checksum;
+  /* restore save checksum */
+  data[IP_CHECKSUM_OFS] = lbyte;
+  data[IP_CHECKSUM_OFS + 1] = hbyte;
+
+  return htons ((unsigned short) checksum);
 }
 
 /*
@@ -176,6 +199,24 @@ icmp_check_ip_header (byte *data, int len)
 
   ip_header = icmp_get_ip_header (data);
 
+#if 0
+  printf ("ip version      : %d\n"
+	  "header length   : %d byte\n"
+	  "type of service : %d\n"
+	  "total length    : %d byte\n"
+	  "ident           : 0x%04X\n"
+	  "frag/offset     : %d\n"
+	  "ttl             : %d\n"
+	  "protocol        : 0x%02X\n"
+	  "checksum        : 0x%04X\n"
+	  "source          : %s\n",
+	  IP_HDR_VERSION (ip_header), IP_HDR_LENGTH (ip_header),
+	  ip_header->tos, ip_header->length, ip_header->ident,
+	  ip_header->frag_offset, ip_header->ttl, ip_header->protocol,
+	  ip_header->checksum, util_inet_ntoa (ip_header->src));
+  printf ("destination     : %s\n", util_inet_ntoa (ip_header->dst));
+#endif
+
   /* Is this IPv4 version ? */
   if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
     {
@@ -187,10 +228,10 @@ icmp_check_ip_header (byte *data, int len)
     }
 
   /* Check Internet Header Length. */
-  if (IP_HDR_LENGTH (ip_header) < len)
+  if (IP_HDR_LENGTH (ip_header) > len)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: invalid IHL (%d < %d)\n",
+      log_printf (LOG_DEBUG, "icmp: invalid IHL (%d > %d)\n",
 		  IP_HDR_LENGTH (ip_header), len);
 #endif
       return -1;
@@ -210,7 +251,7 @@ icmp_check_ip_header (byte *data, int len)
   if (ip_header->protocol != ICMP_PROTOCOL)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: invalid protocol %d\n",
+      log_printf (LOG_DEBUG, "icmp: invalid protocol 0x%02X\n",
 		  ip_header->protocol);
 #endif
       return -1;
@@ -237,7 +278,7 @@ icmp_check_ip_header (byte *data, int len)
  * to be truncated. Otherwise -1.
  */
 static int
-icmp_check_packet (byte *data, int len)
+icmp_check_packet (socket_t sock, byte *data, int len)
 {
   int length;
   byte *p = data;
@@ -252,13 +293,27 @@ icmp_check_packet (byte *data, int len)
   p += length + ICMP_HEADER_SIZE;
   len -= length + ICMP_HEADER_SIZE;
 
+  if (header->ident == getpid () + sock->version)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: received native packet\n");
+#endif
+      return -1;
+    }
+
   switch (header->type)
     {
     case ICMP_ECHOREPLY:
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: echo reply received\n");
+#endif
       return -1;
       break;
 
     case ICMP_ECHO:
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: echo request received\n");
+#endif
       return -1;
       break;
 
@@ -267,6 +322,10 @@ icmp_check_packet (byte *data, int len)
       break;
 
     default:
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: unsupported protocol 0x%02X\n",
+		  header->type);
+#endif
       return -1;
       break;
     }
@@ -281,46 +340,50 @@ icmp_check_packet (byte *data, int len)
 int
 icmp_read_socket (socket_t sock)
 {
-  int do_read, num_read;
+  int num_read;
   socklen_t len;
   struct sockaddr_in sender;
   int trunc;
 
   len = sizeof (struct sockaddr_in);
-  do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
-  if (do_read <= 0)
-    {
-      log_printf (LOG_ERROR, "receive buffer overflow on icmp socket %d\n",
-		  sock->sock_desc);
-      return -1;
-    }
-  
-  num_read = recvfrom (sock->sock_desc, icmp_buffer, ICMP_BUFFER_SIZE, 
+  num_read = recvfrom (sock->sock_desc, icmp_buffer, sizeof (icmp_buffer), 
 		       0, (struct sockaddr *) &sender, &len);
 
   /* Valid packet data arrived. */
   if (num_read > 0)
     {
-#if 1
+#if 0
       util_hexdump (stdout, "icmp packet received", sock->sock_desc,
 		    icmp_buffer, num_read, 0);
 #endif
       sock->last_recv = time (NULL);
-      sock->remote_port = sender.sin_port;
-      sock->remote_addr = sender.sin_addr.s_addr;
+      if (!(sock->flags & SOCK_FLAG_FIXED))
+        {
+	  sock->remote_port = sender.sin_port;
+	  sock->remote_addr = sender.sin_addr.s_addr;
+	}
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: recvfrom: %s:%u\n",
+      log_printf (LOG_DEBUG, "icmp: recvfrom: %s:%u (%u bytes)\n",
 		  util_inet_ntoa (sock->remote_addr),
-		  ntohs (sock->remote_port));
+		  ntohs (sock->remote_port), num_read);
 #endif
 
       /* Check ICMP packet and put packet load only to receive buffer. */
-      if ((trunc = icmp_check_packet ((byte *) icmp_buffer, num_read)) != -1)
+      if ((trunc = 
+	   icmp_check_packet (sock, (byte *) icmp_buffer, num_read)) != -1)
 	{
-	  memcpy (icmp_buffer + trunc,
-		  sock->recv_buffer + sock->recv_buffer_fill,
-		  num_read - trunc);
-	  sock->recv_buffer_fill += num_read - trunc;
+	  num_read -= trunc;
+	  if (num_read > sock->recv_buffer_size - sock->recv_buffer_fill)
+	    {
+	      log_printf (LOG_ERROR, 
+			  "receive buffer overflow on icmp socket %d\n",
+			  sock->sock_desc);
+	      return -1;
+	    }
+  
+	  memcpy (sock->recv_buffer + sock->recv_buffer_fill,
+		  icmp_buffer + trunc, num_read);
+	  sock->recv_buffer_fill += num_read;
 
 	  if (sock->check_request)
 	    sock->check_request (sock);
@@ -349,9 +412,12 @@ icmp_write_socket (socket_t sock)
   socklen_t len;
   struct sockaddr_in receiver;
 
+  /* return here if there is nothing to do */
+  if (sock->send_buffer_fill <= 0)
+    return 0;
+
   len = sizeof (struct sockaddr_in);
   receiver.sin_family = AF_INET;
-  receiver.sin_port = 0;
 
   /* get destination address and data length from buffer */
   p = sock->send_buffer;
@@ -359,13 +425,17 @@ icmp_write_socket (socket_t sock)
   p += sizeof (do_write);
   memcpy (&receiver.sin_addr.s_addr, p, sizeof (sock->remote_addr));
   p += sizeof (sock->remote_addr);
+  memcpy (&receiver.sin_port, p, sizeof (sock->remote_port));
+  p += sizeof (sock->remote_port);
+  assert ((int) do_write <= sock->send_buffer_fill);
 
   num_written = sendto (sock->sock_desc, p, 
                         do_write - (p - sock->send_buffer),
                         0, (struct sockaddr *) &receiver, len);
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "icmp: sendto: %s (%u bytes)\n",
+  log_printf (LOG_DEBUG, "icmp: sendto: %s:%u (%u bytes)\n",
               util_inet_ntoa (receiver.sin_addr.s_addr),
+              ntohs (receiver.sin_port),
               do_write - (p - sock->send_buffer));
 #endif  
 
@@ -380,7 +450,7 @@ icmp_write_socket (socket_t sock)
   else
     {
       sock->last_send = time (NULL);
-      if ((unsigned)sock->send_buffer_fill > do_write)
+      if ((unsigned) sock->send_buffer_fill > do_write)
         {
           memmove (sock->send_buffer, 
                    sock->send_buffer + do_write,
@@ -390,6 +460,73 @@ icmp_write_socket (socket_t sock)
     }
   return 0;
 }
+
+/*
+ * Send a given buffer via this ICMP socket. If the length argument 
+ * supersedes the maximum ICMP message size the buffer is splitted into
+ * smaller blocks.
+ */
+int
+icmp_write (socket_t sock, char *buf, int length)
+{
+  char *buffer;
+  icmp_header_t hdr;
+  unsigned len, size;
+  int ret = 0;
+
+  /* Return if the socket has already been killed. */
+  if (sock->flags & SOCK_FLAG_KILLED)
+    return 0;
+
+  /* Allocate memory block. */
+  buffer = xmalloc (((length > ICMP_MSG_SIZE) ? ICMP_MSG_SIZE : length) + 
+                    sizeof (len) + sizeof (sock->remote_addr) +
+		    sizeof (sock->remote_port) + ICMP_HEADER_SIZE);
+
+  while (length)
+    {
+      /* 
+       * Put the data length and destination address in front 
+       * of each packet. 
+       */
+      len = sizeof (len);
+      memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
+      len += sizeof (sock->remote_addr);
+      memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
+      len += sizeof (sock->remote_port);
+
+      /* Create ICMP header and put it in front of packet load. */
+      hdr.type = ICMP_SERVEEZ;
+      hdr.code = ICMP_SERVEEZ_DATA;
+      hdr.checksum = 0;
+      hdr.ident = getpid () + sock->version;
+      hdr.sequence = 0;
+      memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
+      len += ICMP_HEADER_SIZE;
+
+      /* Copy the given buffer. */
+      if ((size = length) > ICMP_MSG_SIZE) size = ICMP_MSG_SIZE;
+      memcpy (&buffer[len], buf, size);
+      len += size;
+
+      /* Put chunk length to buffer. */
+      memcpy (buffer, &len, sizeof (len));
+      buf += size;
+      length -= size;
+
+      /* Actually send the data or put it into the send buffer queue. */
+      if ((ret = sock_write (sock, buffer, len)) == -1)
+        {
+          sock->flags |= SOCK_FLAG_KILLED;
+          break;
+        }
+    }
+
+  /* Release memory block. */
+  xfree (buffer);
+  return ret;
+}
+
 
 /*
  * Put a formatted string to the icmp socket SOCK. Packet length and
@@ -402,40 +539,18 @@ icmp_printf (socket_t sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
-  icmp_header_t hdr;
   unsigned len;
-  int ret;
 
+  /* return if there is nothing to do */
   if (sock->flags & SOCK_FLAG_KILLED)
     return 0;
 
-  /* Put the data length and destination address in front of each packet. */
-  len = sizeof (len);
-  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
-  len += sizeof (sock->remote_addr);
-
-  /* Create ICMP header and put it in front of packet load. */
-  hdr.type = ICMP_SERVEEZ;
-  hdr.code = ICMP_SERVEEZ_DATA;
-  hdr.checksum = 0;
-  hdr.ident = getpid ();
-  hdr.sequence = 0;
-  memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
-  len += ICMP_HEADER_SIZE;
-
-  /* Save actual packet load. */
+  /* save actual packet load */
   va_start (args, fmt);
-  ret = vsnprintf (&buffer[len], VSNPRINTF_BUF_SIZE - len, fmt, args);
+  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
-
-  /* Put chunk length to buffer. */
-  len += ret;
-  memcpy (buffer, &len, sizeof (len));
-
-  if ((ret = sock_write (sock, buffer, len)) == -1)
-    sock->flags |= SOCK_FLAG_KILLED;
   
-  return ret;
+  return icmp_write (sock, buffer, len);
 }
 
 /*
@@ -460,6 +575,7 @@ icmp_check_request (socket_t sock)
       if (sock->handle_request (sock, sock->recv_buffer,
                                 sock->recv_buffer_fill))
         return -1;
+      sock->recv_buffer_fill = 0;
       return 0;
     }
 
@@ -498,7 +614,7 @@ icmp_check_request (socket_t sock)
  * Return NULL on errors, otherwise an enqueued socket_t structure.
  */
 socket_t
-icmp_connect (unsigned long host)
+icmp_connect (unsigned long host, unsigned short port)
 {
   struct sockaddr_in client;
   SOCKET sockfd;
@@ -508,7 +624,7 @@ icmp_connect (unsigned long host)
 #endif
 
   /* create a socket for communication with the server */
-  if ((sockfd = socket (AF_INET, SOCK_RAW, IPPROTO_IP)) == INVALID_SOCKET)
+  if ((sockfd = socket (AF_INET, SOCK_RAW, IPPROTO_ICMP)) == INVALID_SOCKET)
     {
       log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
       return NULL;
@@ -533,7 +649,7 @@ icmp_connect (unsigned long host)
   /* try to connect to the server */
   client.sin_family = AF_INET;
   client.sin_addr.s_addr = host;
-  client.sin_port = 0;
+  client.sin_port = port;
   
   if (connect (sockfd, (struct sockaddr *) &client,
                sizeof (client)) == -1)
@@ -550,9 +666,10 @@ icmp_connect (unsigned long host)
       return NULL;
     }
 
+  sock_resize_buffers (sock, ICMP_BUF_SIZE ,ICMP_BUF_SIZE);
   sock_unique_id (sock);
   sock->sock_desc = sockfd;
-  sock->flags |= SOCK_FLAG_SOCK;
+  sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   sock_enqueue (sock);
   sock_intern_connection_info (sock);
 

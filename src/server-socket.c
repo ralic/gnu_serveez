@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.33 2000/10/26 13:43:31 ela Exp $
+ * $Id: server-socket.c,v 1.34 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -140,6 +140,7 @@ server_create (portcfg_t *cfg)
 	case PROTO_ICMP:
 	  stype = SOCK_RAW;
 	  ptype = IPPROTO_ICMP;
+	  break;
 	default:
 	  stype = SOCK_STREAM;
 	  ptype = IPPROTO_IP;
@@ -271,7 +272,7 @@ server_create (portcfg_t *cfg)
 	}
       else if (cfg->proto & PROTO_UDP)
 	{
-	  sock_resize_buffers (sock, UDP_BUFFER_SIZE, UDP_BUFFER_SIZE);
+	  sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
 	  sock->read_socket = udp_read_socket;
 	  sock->write_socket = udp_write_socket;
 	  sock->check_request = udp_check_request;
@@ -279,6 +280,7 @@ server_create (portcfg_t *cfg)
 	}
       else if (cfg->proto & PROTO_ICMP)
 	{
+	  sock_resize_buffers (sock, ICMP_BUF_SIZE ,ICMP_BUF_SIZE);
 	  sock->read_socket = icmp_read_socket;
 	  sock->write_socket = icmp_write_socket;
 	  sock->check_request = icmp_check_request;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.h,v 1.4 2000/10/26 13:43:31 ela Exp $
+ * $Id: udp-socket.h,v 1.5 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -33,7 +33,8 @@
 #include "socket.h"
 
 /* general defines */
-#define UDP_BUFFER_SIZE (4 * 1024 * 64)
+#define UDP_MSG_SIZE (64 * 1024)               /* maximum size of udp packet */
+#define UDP_BUF_SIZE (4 * (UDP_MSG_SIZE + 24)) /* space for 4 messages */
 
 /* exported functions */
 int udp_read_socket (socket_t sock);

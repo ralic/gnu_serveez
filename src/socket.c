@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.27 2000/10/26 13:43:31 ela Exp $
+ * $Id: socket.c,v 1.28 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -507,8 +507,14 @@ sock_resize_buffers (socket_t sock, int send_buf_size, int recv_buf_size)
 {
   char * send, * recv;
 
-  send = xrealloc (sock->send_buffer, send_buf_size);
-  recv = xrealloc (sock->recv_buffer, recv_buf_size);
+  if (sock->send_buffer_size != send_buf_size)
+    send = xrealloc (sock->send_buffer, send_buf_size);
+  else
+    send = sock->send_buffer;
+  if (sock->recv_buffer_size != recv_buf_size)
+    recv = xrealloc (sock->recv_buffer, recv_buf_size);
+  else
+    recv = sock->recv_buffer;
 
   sock->send_buffer = send;
   sock->recv_buffer = recv;
@@ -525,9 +531,9 @@ int
 sock_free (socket_t sock)
 {
   if (sock->recv_buffer)
-    xfree(sock->recv_buffer);
+    xfree (sock->recv_buffer);
   if (sock->send_buffer)
-    xfree(sock->send_buffer);
+    xfree (sock->send_buffer);
   if (sock->flags & SOCK_FLAG_LISTENING && sock->data)
     xfree (sock->data);
   if (sock->recv_pipe)

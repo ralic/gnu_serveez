@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.9 2000/10/26 13:43:31 ela Exp $
+ * $Id: udp-socket.c,v 1.10 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -128,6 +128,10 @@ udp_write_socket (socket_t sock)
   socklen_t len;
   struct sockaddr_in receiver;
 
+  /* return here if there is nothing to send */
+  if (sock->send_buffer_fill <= 0)
+    return 0;
+
   len = sizeof (struct sockaddr_in);
   receiver.sin_family = AF_INET;
 
@@ -161,7 +165,7 @@ udp_write_socket (socket_t sock)
   else
     {
       sock->last_send = time (NULL);
-      if ((unsigned)sock->send_buffer_fill > do_write)
+      if ((unsigned) sock->send_buffer_fill > do_write)
         {
           memmove (sock->send_buffer, 
                    sock->send_buffer + do_write,
@@ -233,40 +237,55 @@ udp_check_request (socket_t sock)
 }
 
 /*
- * Write the given BUF into the send queue of the udp socket.
+ * Write the given BUF into the send queue of the UDP socket. If the
+ * length argument supersedes the maximum length for UDP messages it
+ * is splitted into smaller blocks.
  */
 int
 udp_write (socket_t sock, char *buf, int length)
 {
   char *buffer;
-  unsigned len;
-  int ret;
+  unsigned len, size;
+  int ret = 0;
 
+  /* return if the socket has already been killed */
   if (sock->flags & SOCK_FLAG_KILLED)
     return 0;
 
-  buffer = xmalloc (length + sizeof (len) + sizeof (sock->remote_addr) +
+  /* allocate memory block */
+  buffer = xmalloc ((length > UDP_MSG_SIZE ? UDP_MSG_SIZE : length) + 
+		    sizeof (len) + sizeof (sock->remote_addr) +
 		    sizeof (sock->remote_port));
 
-  /* 
-   * Put the data length, destination address and port in front
-   * of each packet data.
-   */
-  len = sizeof (len);
-  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
-  len += sizeof (sock->remote_addr);
-  memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
-  len += sizeof (sock->remote_port);
+  while (length)
+    {
+      /* 
+       * Put the data length, destination address and port in front
+       * of each data packet.
+       */
+      len = sizeof (len);
+      memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
+      len += sizeof (sock->remote_addr);
+      memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
+      len += sizeof (sock->remote_port);
 
-  memcpy (&buffer[len], buf, length);
-  len += length;
-  memcpy (buffer, &len, sizeof (len));
+      /* copy the given buffer */
+      if ((size = length) > UDP_MSG_SIZE) size = UDP_MSG_SIZE;
+      memcpy (&buffer[len], buf, size);
+      len += size;
+      memcpy (buffer, &len, sizeof (len));
+      buf += size;
+      length -= size;
 
-  sock->unavailable = 1;
-  if ((ret = sock_write (sock, buffer, len)) == -1)
-    sock->flags |= SOCK_FLAG_KILLED;
-  sock->unavailable = 0;
+      /* actually send the data or put it into the send buffer queue */
+      if ((ret = sock_write (sock, buffer, len)) == -1)
+	{
+	  sock->flags |= SOCK_FLAG_KILLED;
+	  break;
+	}
+    }
 
+  /* release memory block */
   xfree (buffer);
   return ret;
 }
@@ -283,33 +302,16 @@ udp_printf (socket_t sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];
-  unsigned len;
-  int ret;
+  int len;
 
   if (sock->flags & SOCK_FLAG_KILLED)
     return 0;
 
-  /* 
-   * Put the data length, destination address and port in front
-   * of each packet data.
-   */
-  len = sizeof (len);
-  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
-  len += sizeof (sock->remote_addr);
-  memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
-  len += sizeof (sock->remote_port);
-
   va_start (args, fmt);
-  ret = vsnprintf (&buffer[len], VSNPRINTF_BUF_SIZE - len, fmt, args);
+  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
 
-  len += ret;
-  memcpy (buffer, &len, sizeof (len));
-
-  if ((ret = sock_write (sock, buffer, len)) == -1)
-    sock->flags |= SOCK_FLAG_KILLED;
-  
-  return ret;
+  return udp_write (sock, buffer, len);
 }
 
 /*
@@ -376,7 +378,7 @@ udp_connect (unsigned long host, unsigned short port)
       return NULL;
     }
 
-  sock_resize_buffers (sock, UDP_BUFFER_SIZE, UDP_BUFFER_SIZE);
+  sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
   sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);

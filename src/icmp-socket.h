@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.3 2000/10/05 09:52:20 ela Exp $
+ * $Id: icmp-socket.h,v 1.4 2000/10/28 13:03:11 ela Exp $
  *
  */
 
@@ -35,11 +35,13 @@
 /* local definitions */
 #define IP_VERSION_4     4
 #define ICMP_PROTOCOL    1
-#define IP_CHECKSUM_OFS  11
-#define ICMP_BUFFER_SIZE (64 * 1024)
+#define IP_CHECKSUM_OFS  10
+#define IP_HEADER_SIZE   20
+#define ICMP_HEADER_SIZE 8
+#define ICMP_MSG_SIZE    (64 * 1024)
+#define ICMP_BUF_SIZE    (4 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
 #define SIZEOF_UINT16    2
 #define SIZEOF_UINT32    4
-#define ICMP_HEADER_SIZE 8
 
 /* general definitions */
 #define ICMP_ECHOREPLY          0       /* Echo Reply                   */
@@ -73,7 +75,6 @@ typedef struct
   byte tos;                   /* type of service = 0 */
   unsigned short length;      /* total ip packet length */
   unsigned short ident;       /* ip identifier */
-  byte flags;                 /* ip flags */
   unsigned short frag_offset; /* fragment offset */
   byte ttl;                   /* time to live */
   byte protocol;              /* ip protocol */
@@ -98,7 +99,8 @@ icmp_header_t;
 int icmp_read_socket (socket_t sock);
 int icmp_write_socket (socket_t sock);
 int icmp_check_request (socket_t sock);
-socket_t icmp_connect (unsigned long host);
+socket_t icmp_connect (unsigned long host, unsigned short port);
+int icmp_write (socket_t sock, char *buf, int length);
 
 #ifndef __STDC__
 int udp_printf ();
