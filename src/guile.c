@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.30 2001/06/17 20:15:04 raimi Exp $
+ * $Id: guile.c,v 1.31 2001/06/18 20:12:14 ela Exp $
  *
  */
 
@@ -53,7 +53,8 @@ static int guile_global_error = 0;
  * Global variable containing the current load port in exceptions. 
  * FIXME: Where should I aquire it ? In each function ?
  */
-static SCM guile_load_port = 0;
+static SCM guile_load_port = SCM_UNDEFINED;
+#define GUILE_PRECALL() guile_set_current_load_port()
 
 /*
  * What is an 'option-hash' ?
@@ -111,6 +112,34 @@ optionhash_destroy (svz_hash_t *options)
 }
 
 /*
+ * Save the current load port for later usage in the @code{report_error()}
+ * function.
+ */
+static void
+guile_set_current_load_port (void)
+{
+  SCM p = scm_current_load_port ();
+  if (SCM_PORTP (p))
+    guile_load_port = p;
+}
+
+/*
+ * Returns the current load port. This is either the "real" one or the one
+ * saved by the function @code{guile_set_current_load_port()}. If neither
+ * is possible return @code{SCM_UNDEFINED}.
+ */
+static SCM
+guile_get_current_load_port (void)
+{
+  SCM p = scm_current_load_port ();
+  if (SCM_PORTP (p))
+    return p;
+  if (SCM_PORTP (guile_load_port))
+    return guile_load_port;
+  return SCM_UNDEFINED;
+}
+
+/*
  * Report some error at the current scheme position. Prints to stderr
  * but lets the program continue. The format string @var{format} does not 
  * need a trailing newline.
@@ -120,7 +149,7 @@ report_error (const char *format, ...)
 {
   va_list args;
   /* FIXME: Why is this port undefined in guile exceptions ? */
-  SCM lp = scm_current_load_port ();
+  SCM lp = guile_get_current_load_port ();
   char *file = SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
   /* guile counts lines from 0, we have to add one */
@@ -916,6 +945,8 @@ guile_define_server (SCM name, SCM args)
     optionhash_cb_after     /* after */
   };
 
+  GUILE_PRECALL ();
+
   /* Check if the given server name is valid. */
   if (NULL == (servername = guile2str (name)))
     {
@@ -1006,6 +1037,8 @@ guile_define_port (SCM name, SCM args)
   svz_portcfg_t *cfg = svz_portcfg_create ();
   svz_hash_t *options = NULL;
   char *portname, *proto = NULL, *txt;
+
+  GUILE_PRECALL ();
 
   /* Check validity of first argument. */
   if ((portname  = guile2str (name)) == NULL)
@@ -1215,6 +1248,8 @@ guile_bind_server (SCM port, SCM server)
   svz_portcfg_t *p;
   int err = 0;
 
+  GUILE_PRECALL ();
+
   /* Check arguments. */
   if (portname == NULL)
     {
@@ -1294,6 +1329,8 @@ guile_access_interfaces (SCM args)
   struct sockaddr_in addr;
   svz_array_t *array;
 
+  GUILE_PRECALL ();
+
   /* First create a array of strings containing the ip addresses of each
      local network interface and put them into a guile list. */
   array = svz_array_create (0);
@@ -1350,6 +1387,8 @@ guile_access_loadpath (SCM args)
   int n;
   char *str;
 
+  GUILE_PRECALL ();
+
   /* Create a guile list containing each search path. */
   list = strarray2guile (paths);
   if (paths)
@@ -1377,6 +1416,7 @@ guile_access_loadpath (SCM args)
 #define MAKE_STRING_CHECKER(cfunc, expression) \
 SCM cfunc (SCM arg) {                          \
   char *str;                                   \
+  GUILE_PRECALL ();                            \
   if ((str = guile2str (arg)) == NULL)         \
     return SCM_BOOL_F;                         \
   if (!(expression)) {                         \
@@ -1402,6 +1442,7 @@ MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
 #define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_int2scm (cvar); int n;                      \
+  GUILE_PRECALL ();                                          \
   if (args != SCM_UNDEFINED) {                               \
     if (guile2int (args, &n)) {                              \
       report_error ("%s: Invalid integer value", FUNC_NAME); \
@@ -1416,6 +1457,7 @@ static SCM cfunc (SCM args) {                                \
 #define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_str02scm (cvar); char *str;                 \
+  GUILE_PRECALL ();                                          \
   if (args != SCM_UNDEFINED) {                               \
     if (NULL == (str = guile2str (args))) {                  \
       report_error ("%s: Invalid string value", FUNC_NAME);  \
@@ -1482,7 +1524,10 @@ static SCM
 guile_exception (void *data, SCM tag, SCM args)
 {
   /* FIXME: current-load-port is not defined in this state. Why ? */
-  
+  char *str = guile2str (tag);
+  report_error ("Exception due to `%s'", str);
+  free (str);
+
   /* tag contains internal exception name
    * scm_display (tag, scm_current_error_port ());
    */
