@@ -17,7 +17,7 @@ data structures of Serveez's core API.
 
 @itemize @bullet
 @item @code{#<svz-servertype>}
-represent a server type.
+represents a server type.
 @item @code{#<svz-server>}
 represents a server (an instance of a server type).
 @item @code{#<svz-socket>}
@@ -154,22 +154,59 @@ section describes each of of these callbacks.
 
 @table @code
 @item (global-init #<svz-servertype>)
-FIXME: WriteMe
+This callback is executed once for every type of server right after the
+@code{(define-servertype!)} statement.  Here you can initialize data or 
+whatever is shared between all instances of your server type.  The callback 
+is optional and can be set within @code{(define-servertype!)}.  It should
+return zero to indicate success and non-zero to indicate failure.  If the
+global initializer fails Serveez refuses to register the server type.
 
 @item (global-finalize #<svz-servertype>)
-FIXME: WriteMe
+If you want to free shared resources which were possibly allocated within
+the global initializer you can do so here.  The callback is run when Serveez
+shuts down (issued by @code{(serveez-nuke)}) or the server type gets 
+unregistered for some reason.  It is meant to return zero to signal success.
+The callback can be setup in @code{(define-servertype!)} and is optional.
 
 @item (init #<svz-server>)
-FIXME: WriteMe
+Within this routine you can initialize everything you might need for a single
+instance of your server.  The callback is executed for each server instance
+which has been created by @code{(define-server!)} and should return zero to
+indicate success, otherwise Serveez rejects the server instance.  The callback
+can be setup in @code{(define-servertype!)} and is optional.
 
 @item (finalize #<svz-server>)
-FIXME: WriteMe
+The server instance finalizer gets its instance representation as argument
+passed.  You need to free all resources used by this server instance which
+might have been allocated within the server instance initializer or consumed
+during runtime.  You can set this callback in the @code{(define-servertype!)}
+statement.  The callback is optional and should return zero to indicate
+success.
 
 @item (detect-proto #<svz-server> #<svz-socket>)
-FIXME: WriteMe
+Because it is possible to have more than one server instance listening on 
+one network port (for connection oriented protocols like TCP and PIPE only)
+we need to detect the type of client which is connecting to this port.  This 
+routine is getting two arguments where the first one is the server instance
+and the second is the client socket object containing all information of the 
+client connection.  For successful client detection you need to return a 
+non-zero value.  You can set up this callback in the 
+@code{(define-servertype!)} statement.  This is mandatory for servers which 
+get bound to connection oriented protocol (TCP and PIPE) port configurations
+by @code{(bind-server!)}.
 
 @item (connect-socket #<svz-server> #<svz-socket>)
-FIXME: WriteMe
+If the client detection signaled success this routine is called to assign
+the client connection to the server instance.  The arguments are just
+the same as in the detection routine.  In this callback you can assign
+all the connection specific callbacks for your server and do some initial
+things.  Basically you should specify the @code{handle-request} and/or
+@code{check-request} callback.  This can be achieved by calling 
+@code{(svz:sock:handle-request)} and @code{(svz:sock:check-request)}.  The
+@code{connect-socket} callback is also mandatory for connection oriented
+protocols and must by defined inside @code{(define-servertype!)}.  On 
+success you should return zero.  Otherwise the connection will be shutdown 
+by Serveez.
 
 @item (info-server #<svz-server>)
 FIXME: WriteMe

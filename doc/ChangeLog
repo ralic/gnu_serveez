@@ -1,5 +1,9 @@
 2001-11-16  [ Ela ]  <ela@lkcc.org>
 
+	* serveez-doc-snarf.awk: Place a doc-snarfer comment in front
+	of each replaced item which informs about the file and line the
+	item was found.
+
 	* guile-api.texi.in: New `Callback prototypes' section.
 
 2001-11-10  [ Ela ]  <ela@lkcc.org>

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.29 2001/11/09 12:33:11 ela Exp $
+ * $Id: server.c,v 1.30 2001/11/16 13:06:06 ela Exp $
  *
  */
 
@@ -133,7 +133,9 @@ svz_servertype_del (unsigned long index)
 	}
 
       if (stype->global_finalize != NULL)
-	stype->global_finalize (stype);
+	if (stype->global_finalize (stype) < 0)
+	  svz_log (LOG_ERROR, "error running global finalizer for `%s'\n",
+		   stype->description);
       svz_array_del (svz_servertypes, index);
     }
 }
@@ -184,7 +186,9 @@ svz_servertype_finalize (void)
   svz_array_foreach (svz_servertypes, stype, i)
     {
       if (stype->global_finalize != NULL)
-	stype->global_finalize (stype);
+	if (stype->global_finalize (stype) < 0)
+	  svz_log (LOG_ERROR, "error running global finalizer for `%s'\n",
+		   stype->description);
     }
   if (svz_servertypes != NULL)
     {
@@ -934,7 +938,8 @@ svz_server_finalize_all (void)
   svz_hash_foreach_value (svz_servers, server, i)
     {
       if (server[n]->finalize != NULL)
-	server[n]->finalize (server[n]);
+	if (server[n]->finalize (server[n]) < 0)
+	  svz_log (LOG_ERROR, "error finalizing `%s'\n", server[n]->name);
       svz_server_del (server[n]->name);
       i--;
       n--;

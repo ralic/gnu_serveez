@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.32 2001/11/16 09:08:22 ela Exp $
+ * $Id: guile-server.c,v 1.33 2001/11/16 13:06:06 ela Exp $
  *
  */
 
@@ -760,7 +760,10 @@ guile_sock_boundary (SCM sock, SCM boundary)
       xsock->boundary = gh_scm2chars (boundary, NULL);
       xsock->boundary_size = gh_scm2int (scm_string_length (boundary));
     }
-  xsock->check_request = svz_sock_check_request;
+
+  /* Only assign this callback for connection oriented protocols. */
+  if (xsock->proto & (PROTO_TCP | PROTO_PIPE))
+    xsock->check_request = svz_sock_check_request;
 
   return SCM_BOOL_T;
 }

@@ -846,25 +846,23 @@ definition also contains the callbacks your server (mandatorily) provides.
 
 There are several callback routines, which get called in order to 
 instantiate the server and for describing the actual behaviour of your 
-server. Here are the description of all of these callbacks. Some of them
-have to be implemented. Others have reasonable default values.
+server.  Here are the description of all of these callbacks.  Some of them
+have to be implemented.  Others have reasonable default values.
 
 @table @code
 @item global initializer (optional)
-This callback is executed once for every type of server. Here you can
+This callback is executed once for every type of server.  Here you can
 initialize data or whatever is shared between all instances of your server. 
-For instance the HTTP server would load the mime type file here. The 
-foo server creates its default hash properties because a hash cannot 
-be statically initialized.
+For instance the HTTP server initializes its file cache here.
 
 @item global finalizer (optional)
 If you want to free shared resources which were possibly allocated within
-the global initializer you can do so here. The foo server frees its
+the global initializer you can do so here.  The foo server frees its
 default hash previously allocated in the global initializer.
 
 @item instance initializer (mandatory)
 Within this routine you can initialize everything you might need for one 
-instance of your server. The foo server does not do anything in this 
+instance of your server.  The foo server does not do anything in this 
 callback.
 
 @item instance finalizer (optional)
@@ -874,22 +872,22 @@ You have to free all resources used by this server instance.
 @item protocol detection (mandatory)
 Because it is possible to have more than one server listening on one 
 network port we need to detect the type of client which is connecting
-to this port. The foo server checks if the first five bytes the client
-was sending is identifying it as a foo client. This routine is getting
+to this port.  The foo server checks if the first five bytes the client
+was sending is identifying it as a foo client.  This routine is getting
 two arguments where the first one is a pointer to this servers instance
 and the second is the client socket object containing all
-information of the client connection. This structure is described a bit
-later. Be patient. For successful client detection return non-zero value. 
+information of the client connection.  This structure is described a bit
+later.  Be patient.  For successful client detection return non-zero value. 
 
 @item socket connection (mandatory)
 If the client detection signaled success this routine is called to assign
-the client connection to this servers instance. The arguments are just
-the same as in the detection routine. In this callback you can assign
+the client connection to the server instance.  The arguments are just
+the same as in the detection routine.  In this callback you can assign
 all the connection specific callbacks for your server and do some initial
-things. The foo server sets the @code{check_request} callback to the default
+things.  The foo server sets the @code{check_request} callback to the default
 @code{svz_sock_check_request} which is using the packet delimiter 
-information to find whole packets. When a client sent such a packet the 
-@code{handle_request} callback is executed. That is why the foo
+information to find whole packets.  When a client sent such a packet the 
+@code{handle_request} callback is executed.  That is why the foo
 server assigns the @code{handle_request} method.
 
 @item client info (optional)

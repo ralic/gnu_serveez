@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.2 2001/11/10 17:45:11 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.3 2001/11/16 13:06:06 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -73,6 +73,16 @@ function extract_doc(line)
     }
 
     return doc
+}
+
+# create location comment with a given line offset
+function create_loc(offset)
+{
+    nr = FNR + offset
+    file = FILENAME
+    while (index(file, "/")) {
+	file = substr(file, index(file, "/") + 1) }
+    loc = ("@c doc-snarfer [" file ":" nr "]\\\n")
 }
 
 # process variable definitions
@@ -126,6 +136,7 @@ function handle_variable(line)
 	    doc = ("Initial value: " def "@*\\\n" doc)
 	}
 	replace = ("@deftypevar " vardef "\\\n" doc "\\\n" "@end deftypevar")
+	replace = (loc replace)
 	sedexp = ("/^" toupper(var) "_DEFVAR/" " c\\\n" replace "\\\n")
 	print sedexp
 	docu = ""
@@ -171,6 +182,7 @@ function handle_macro(line)
 	gsub(/\n/, "\\\n", doc)
         # finally create texinfo doc
 	replace = ("@defmac " macdef "\\\n" doc "\\\n" "@end defmac")
+	replace = (loc replace)
 	sedexp = ("/^" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
         print sedexp
         docu = ""
@@ -197,28 +209,31 @@ function handle_macro(line)
     found = 0
     dist = 0
     guile_func = ""
+    loc = "@c [file:line]\\\n"
     getline ret
 
     while (found == 0) {
 
         # handle variable definitions
 	if (ret ~ /[ ]+[a-zA-Z0-9_\*\"\[\]]+[ ]*[;=]$/) {
+	    create_loc(0)
 	    handle_variable(ret)
 	    next
 	}
 	# is this a guile function ?
 	else if (ret ~ /^\#define FUNC_NAME /) {
+	  create_loc(2)
 	  gsub(/\#define FUNC_NAME \"/, "", ret)
 	  guile_func = substr(ret, 1, index(ret, "\"") - 1)
 	}
         # handle macro definitions
 	else if (ret ~ /^\#define /) {
+	  create_loc(0)
 	  handle_macro(ret)
 	  next
 	}
 
 	getline line
-	nr = FNR
 	# while trying to find a valid C function we found a new comment
 	if (line ~ /^\/\*/) { 
 	    $0 = line
@@ -229,9 +244,11 @@ function handle_macro(line)
 
             # special guile socket callback setter/getter
 	    if (line ~ /^MAKE_SOCK_CALLBACK/) {
+	      create_loc(0)
 	      args = "sock, proc"
 	    } 
 	    else {
+	      create_loc(0)
 	      c_func = substr(line, 1, index(line, "(") - 1)
 	      gsub(/[ \t]/, "", c_func)
 	      line = substr(line, index(line, "(") + 1)
@@ -335,10 +352,12 @@ function handle_macro(line)
     if (length(guile_func) > 0) {
       funcdef = (guile_func " " guile_args)
       replace = ("@defun " funcdef "\\\n" docu "\\\n" "@end defun")
+      replace = (loc replace)
       sedexp = ("/^" toupper(guile_func) "_DEFUN/" " c\\\n" replace "\\\n")
     } else {
       funcdef = (ret " " c_func " (" c_args ")")
       replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
+      replace = (loc replace)
       sedexp = ("/^" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
     }
     print sedexp

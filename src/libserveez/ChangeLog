@@ -377,7 +377,7 @@
 
 2001-05-07  [ Ela ]  <ela@lkcc.org>
 
-	* server.c (svz_servertype_del): Undbind, remove and finalize 
+	* server.c (svz_servertype_del): Unbind, remove and finalize 
 	each server instance of the server type.
 
 	* binding.c (svz_server_unbind): New function.
