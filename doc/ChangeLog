@@ -1,3 +1,8 @@
+2001-09-05  [ Ela ]  <ela@lkcc.org>
+
+	* serveez.texi (Using Serveez): Added a section about building
+	and installing the package.
+
 2001-08-12  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Chat Server): Adjusted documentation about

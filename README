@@ -47,7 +47,7 @@ Requirements
 ============
 
 Serveez needs GNU guile (Ubiquitous Intelligent Language for Extensions). 
-This current version is known to work Guile 1.4 and later.
+This current version is known to work with Guile 1.4 and later.
 
 
 Installation

@@ -1,3 +1,8 @@
+2001-09-05  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in (RPM): Checking for RPM builder version in
+	maintainer mode only.
+
 2001-09-03  [ Ela ]  <ela@lkcc.org>
 
 	* redhat.sh.in: Changed file owner of the package files to

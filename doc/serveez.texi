@@ -83,6 +83,180 @@ read at the very least this chapter. It contains information on the basic
 concepts. Larger parts of the manual can be used as a reference manual
 for the various servers.
 
+@section Building and installing
+
+@subsection Rebuild the package from the sources
+You can skip this section if you are familiar with the GNU'ish way of 
+configuring, compiling and installing a GNU package.
+
+@subsubsection Getting the source
+Serveez can be found on @uref{ftp://ftp.gnu.org/gnu/serveez/}, on one of 
+the mirrors (@uref{http://www.gnu.org/prep/ftp.html}) or at its original 
+location @uref{http://www.textsure.net/~ela/download/}. At this location
+you will also find the RPM package mentioned in the next section.
+
+@subsubsection Requirements
+Serveez needs GNU guile (Ubiquitous Intelligent Language for Extensions).
+The current version of Serveez is known to work with Guile 1.4 and later.
+Guile can be downloaded at @uref{ftp://ftp.gnu.org/gnu/guile/}.
+
+@subsubsection Installation
+@table @asis
+@item Unpack the distribution tarball:
+@example
+sleepless ~> gzip -cd serveez-@value{VERSION}.tar.gz | tar xvf -
+@end example
+
+@item Change into the source directory:
+@example
+sleepless ~> cd serveez-@value{VERSION}
+@end example
+
+@item Configure the source package for your system: 
+We recommend to use @samp{--enable-opt} unless you have a good reason not 
+to do so. It follows a complete list of the @file{configure} script options.
+The list of known options can the obtained via @samp{./configure --help}.
+
+@table @samp
+@item --enable-warn
+With this option you enable the detection of various compiler warning 
+switches. Most guessed options come from GCC.
+@item --enable-opt
+When enabling this feature the configure script tries some of the commonly 
+known compiler optimization switches.
+@item --enable-ppro
+If you want to compile for the i686 target try this option.
+@item --enable-486
+Compiler optimizations for the i486 target of GCC. If you passed
+@samp{--enable-ppro} and this options could be used, then the i486 option
+will be silently dropped.
+@item --enable-debug
+All of the debug messages (debug: some annoying crap text) can be suppressed 
+by setting the debug level (-v). If you do not want these messages build in 
+at all then disable this feature.
+@item --enable-control-proto
+If you enable this feature the control protocol will be supported by serveez. 
+This protocol is for remote control the server.
+@item --enable-irc-proto
+When enabling this command switch you tell the software package to support 
+the IRC (Internet Relay Chat) protocol.
+@item --enable-irc-ts
+This option is only available if you enabled the IRC protocol at all. If you 
+enabled both of them the serveez will support the so called TimeStamp protocol
+which is is a EFNet extension of the original IRC protocol. In order to 
+connect to EFNet you MUST use this option.
+@item --enable-awcs-proto
+In order to use the serveez software for the textSure (C) chat system you 
+MUST enable this option.
+@item --enable-http-proto
+When using the serveez as part of the textSure (C) chat system you will have 
+need of an additional web server. This option makes serveez support a simple 
+HTTP protocol.
+@item --enable-flood
+If you enable this feature the serveez will support a simple builtin flood 
+protection. It is always useful to protect the software from flood clients.
+@item --with-guile=DIR
+The @var{DIR} argument specifies a guile installation directory.
+@item --with-guile-source=DIR
+If the user wants to link serveez against a static guile core library you 
+can pass the @var{DIR} argument to specify the location of a guile source 
+distribution which will be configured and built then.
+@item --with-mingw=DIR
+When compiling under Windows the @var{DIR} argument specifies the path to the 
+extra MinGW32 library and header files. If you want the final executable 
+depend on the Cygwin project's cygwin1.dll you have to disable this option 
+by passing configure script @samp{--without-mingw} or @samp{--with-mingw=no}.
+@item --enable-sntp-proto
+Thereby you enable the support for a simple network time protocol server.
+@item --enable-poll
+If the target system supports poll() and this option is enabled the main 
+file descriptor loop is done via poll(). This helps to work around the 
+(g)libc's file descriptor limit. Otherwise we always fall back to the 
+select() system call.
+@item --enable-sendfile
+Enables the usage of the sendfile() system call. The option helps to work 
+around bogus implementations of this feature if you disable it via 
+@samp{--disable-sendfile}.
+@item --enable-gnutella
+If you do not want the gnutella spider client compiled in you need to 
+disable this option.
+@item --enable-crypt
+This option tells serveez to process any passwords as crypt()ed.
+@item --enable-tunnel
+If you enable this feature the port forwarder will be included. This is 
+useful if you plan to use serveez as a gateway or firewall workaround.
+@item --enable-fakeident
+By enabling this you will get a fake ident server included into the binary 
+executable.
+@item --enable-guile-server
+If you enable this feature the user is able to write servers with guile. 
+This is yet experimental.
+@end table
+
+@example
+sleepless ~/serveez-@value{VERSION}> sh configure --enable-opt
+@end example
+
+@item Now compile the package:
+@example
+sleepless ~/serveez-@value{VERSION}> make
+@end example
+
+@item Install serveez:
+You must have root privileges if you want to install the package in the
+standard location @file{/usr/local} or in any location that is only writable 
+by root.
+@example
+sleepless ~/serveez-@value{VERSION}> make install
+@end example
+@end table
+
+If you have problems building the package out of the box this is due to
+GNU libtool's inability to handle dynamic linking in most cases. That is
+why we recommend to try to configure the package with @samp{--disable-static}
+and/or the native compiler (if any). When the build process is not able to 
+link against an existing Guile installation you can try to use the
+@samp{--with-guile-source=DIR} configure option.
+
+@subsection Installing the RPM package
+The binary RPM distribution @file{serveez-@value{VERSION}-1.i386.rpm} of
+serveez has been prebuild on a x86 / GNU/Linux 2.4 machine. It is a 
+relocatable package with its default installation directory in 
+@file{/opt/serveez}. You need to ensure root privileges in order to install 
+or remove rpm packages.
+
+@table @asis
+@item Query information:
+@example
+sleepless ~> rpm -qiRl -p serveez-@value{VERSION}-1.i386.rpm
+@end example
+@item Install the package:
+@example
+sleepless ~> rpm -Uvh serveez-@value{VERSION}-1.i386.rpm [ --nodeps ] [ --prefix=/opt/serveez ]
+serveez                     ####################
+@end example
+@item Uninstall the package:
+@example
+sleepless ~> rpm -ev serveez-@value{VERSION}
+@end example
+@end table
+
+@section Environment variables
+
+When using the serveezopt package or playing around with the dynamic server 
+module loader of serveez you can tell the core API of serveez (which is the
+@file{libserveez.[so|dll]} library) to use an additional load path to find
+these server modules. The environment variable @samp{SERVEEZ_LOAD_PATH} holds
+this information. You can set it up via:
+
+@example
+  on Unices
+sleepless ~> export SERVEEZ_LOAD_PATH=/home/lib:/usr/local/lib
+
+  or on Windows
+C:\HOME> set SERVEEZ_LOAD_PATH=C:\HOME\LIB;C:\USR\LOCAL\LIB
+@end example
+
 @section Starting Serveez
 
 When Serveez is started it reads its configuration from a file called

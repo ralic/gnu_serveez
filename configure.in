@@ -1256,6 +1256,31 @@ fi
 AC_SUBST(MAKEINFO)
 unset info
 
+dnl
+dnl Checking for RPM builder version
+dnl
+RPM=":"
+if test $USE_MAINTAINER_MODE = yes; then
+AC_MSG_CHECKING([for working rpm])
+[version=`eval rpm --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
+if test -n "$version"; then
+case "$version" in
+  [3.* | [4-9].*)]
+    AC_MSG_RESULT($version >= 3.0.0)
+    RPM="rpm"
+  ;;
+  [*)]
+    AC_MSG_RESULT($version < 3.0.0)
+    RPM="rpm"
+  ;;
+esac
+else
+    AC_MSG_RESULT(missing)
+fi
+unset version
+fi
+AC_SUBST(RPM)
+
 LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS
 

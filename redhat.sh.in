@@ -62,18 +62,18 @@ application itself is single threaded but it uses helper processes
 for concurrent name resolution and ident lookups.
 
 %prep
-if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@"; then
+if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@" ; then
 %setup
 fi
 
 %build
-if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@"; then
+if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@" ; then
 configure --enable-opt --prefix=@REDHAT_TOPDIR@/@PACKAGE@
 make
 fi
 
 %install
-if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@"; then
+if ! test -d "@REDHAT_TOPDIR@/@PACKAGE@" ; then
 make install
 su -c "chown -R root.root @REDHAT_TOPDIR@/@PACKAGE@"
 fi

@@ -29,8 +29,8 @@ EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 \
 	serveez.dsw config.h.serveez version.h.serveez \
 	RELEASE vcgen.bat
 
-redhat: dist redhat.sh
-	(sh redhat.sh && echo "Redhat packages done.")
+redhat: @MAINTAINER_MODE_TRUE@ dist redhat.sh
+	@MAINTAINER_MODE_TRUE@ @sh redhat.sh && echo "Redhat packages done."
 
 CLEANFILES = *~ *.rpm
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in stamp-h.in
