@@ -1,3 +1,9 @@
+2000-06-22  [ RAIMI ]  <raimi@lkcc.org>
+
+	* http-server/http-proto.c (http_send_file): made it work with
+	ela on the phone. i typed what he said
+	
+
 2000-06-22  [ Ela ]  <ela@lkcc.org>
 
 	* socket.c (sock_disconnect): Now able to disconnect pipes also.

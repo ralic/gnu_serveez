@@ -696,7 +696,7 @@ else
     AC_MSG_RESULT([located in $SIZZLEDIR])
     sizzle_cflags="-I$SIZZLEDIR"
     sizzle_ldflag=""
-    SIZZLESTATIC="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm"
+    SIZZLESTATIC="$SIZZLEDIR/libsizzle/.libs/libsizzle.a -lm -ldl"
     SIZZLEDEP="$SIZZLEDIR/libsizzle/.libs/libsizzle.a"
     SIZZLERULE="$SIZZLEDEP"
     sizzle_src="yes"
