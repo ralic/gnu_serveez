@@ -25,20 +25,20 @@ Distribution process:
 ---------------------
 
 * Ensure the release is complete.
-  - Check if TODO, NEWS and BUGS files for pending or completed tasks.
+  - Check the TODO, NEWS and BUGS files for pending or completed tasks.
   - Check the documentation for spelling mistakes and completion.
-  - Are the Windows files up to date ?
+  - Are the Windows files up to date (*.dsp, *.dsw) ?
   - Compile, run and test it on Windows (MinGW32, CygWin and MSVC). 
-  - Make sure INSTALL, THANKS and README is up to date.
+  - Make sure INSTALL, THANKS and README-* is up to date.
 
 * Test build and packaging.
   - Run `make distclean', `sh autogen' and `make all'.
   - Check if the binaries properly work.
-  - Run `make check' and `make distcheck'.
+  - Run `make dist-check'.
   - Check this status into CVS and tag it.
   - Run `make dist'.
   - Run `make pack' in the `doc/' directory and save the tarball.
-  - Make a binary package for Windows.
+  - Create a binary package for Windows.
 
 * Bump up version.
   - Add a ChangeLog entry in toplevel directory.
@@ -46,8 +46,9 @@ Distribution process:
   - Check into CVS.
 
 * Distribute the package. 
-  - Upload the package to <www.texture.net>.
+  - Upload the package to <www.textsure.net>.
   - Release at SourceForge (incl. documentation tarball).
-  - Announce at Freshmeat.
+  - Announce the release at Freshmeat.
   - Update <www.SoftSeek.com> entry.
-  - Send the announcement to <serveez-discuss@lists.sourceforge.net>.
+  - Send an announcement to <help-serveez@gnu.org>.
+  - Update documentation <www.gnu.org>.

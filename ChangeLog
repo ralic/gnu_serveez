@@ -1,3 +1,10 @@
+2001-01-02  [ Ela ]  <ela@lkcc.org>
+
+	* Makefile.am (dist-check): This target is derived from the
+	automatically created target `distcheck' and checks the
+	distribution. Changed `AM_CPPFLAGS = -I..' into 
+	`AM_CPPFLAGS = -I$(top_srcdir)/src'.
+
 2000-12-15  [ Ela ]  <ela@lkcc.org>
 
 	* INSTALL: Documented newly avaiable option 

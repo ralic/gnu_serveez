@@ -25,7 +25,7 @@
 
 noinst_LIBRARIES = libctrl.a
 
-AM_CPPFLAGS = -I..
+AM_CPPFLAGS = -I$(top_srcdir)/src
 
 CLEANFILES = *~
 

@@ -30,15 +30,15 @@ noinst_PROGRAMS = hash-test alist-test
 hash_test_SOURCES = hash-test.c test.c test.h alloc.c hash.c
 alist_test_SOURCES = alist-test.c test.c test.h alloc.c alist.c
 
-AM_CFLAGS = -I../src
+AM_CFLAGS = -I$(top_srcdir)/src
 
-alloc.c: ../src/alloc.c
+alloc.c: $(top_srcdir)/src/alloc.c
 	ln -s $< $@
 
-hash.c: ../src/hash.c
+hash.c: $(top_srcdir)/src/hash.c
 	ln -s $< $@
 
-alist.c: ../src/alist.c
+alist.c: $(top_srcdir)/src/alist.c
 	ln -s $< $@
 
 distclean-local:

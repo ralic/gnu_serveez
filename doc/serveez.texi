@@ -49,7 +49,7 @@ This file documents the Serveez server framework.
 @menu
 * Introduction::          Introduction to Serveez
 * Using Serveez::         Startup and command line options
-* Concept::               Conceptional thoughts
+* Concept::               Conceptual thoughts
 * Server::                Server implementation
 * Coserver::              Coserver implementation
 * Porting issues::        Support of different platforms and operating systems
@@ -327,7 +327,7 @@ created @file{Makefile.am}:
 
 @example
 noinst_LIBRARIES = libfoo.a
-AM_CPPFLAGS = -I..
+AM_CPPFLAGS = -I$(top_srcdir)/src
 CLEANFILES = *~
 libfoo_a_SOURCES = foo-proto.h foo-proto.c
 @end example
@@ -372,7 +372,7 @@ template for newly instantiated servers. The structure contains a long and a
 short description of your server. The short name is used as the prefix of
 all hash maps which define servers of this type. The long description is
 used in the control protocol (@xref{Control Protocol Server}.). The server
-defintion also contains the callbacks your server (mandatorily) provides.
+definition also contains the callbacks your server (mandatorily) provides.
 
 @subsection Server callbacks
 
@@ -442,7 +442,7 @@ structure. You have to return a static single line character string.
 @item server info (optional)
 This function is called when listing the server instances via 
 @samp{stat all} from the control protocol (@xref{Control Protocol Server}.). 
-The returned character string might be multiline separated by 
+The returned character string might be multilined separated by 
 @code{\r\n} (no trailing separator). Usually you will return all the 
 server configuration information.
 
@@ -713,7 +713,7 @@ This address appears on some server-generated pages, such as error
 documents.
 
 @item host (string, default: localhost)
-This is the native host name of your webserver. Sometimes the server has
+This is the native host name of your web server. Sometimes the server has
 to send back its own name to the client. It will use this value.
 Be aware that you cannot invent such a name.
 
@@ -852,7 +852,7 @@ The administrative info, printed by the /ADMIN command.
 @end example
 
 @item Y-lines (string array, no default, suggested)
-The connection classes. They are used in other paramters (e.g. I-lines).
+The connection classes. They are used in other parameters (e.g. I-lines).
 A Y-line describes a group of connections. You usually have at least
 two Y-lines: One for server connections and one for client connections.
 Format of each line is:
@@ -1066,7 +1066,7 @@ An hash map associating keys with values. Printed as server information.
 @subsection SNTP Server
 
 @subsubsection General
-The SNTP server can be querried with the @samp{netdate} command. It is used
+The SNTP server can be queried with the @samp{netdate} command. It is used
 to synchronize time and dates between internet hosts. The protocol is
 described in the ARPA Internet RFC 868. Thus it is not really an SNTP server
 as described by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for
@@ -1150,7 +1150,7 @@ Every Gnutella packet has got a TTL. This is the maximum TTL allowed for
 outgoing packets. When a packet comes in it gets its TTL value decremented
 and is forwarded to it destination. If however an incoming packet has a TTL
 larger than @code{max-ttl} the ttl value is set to @code{max-ttl}. This is
-neccessary since most people use far too large TTL values.
+necessary since most people use far too large TTL values.
 
 @item ttl (integer, default: 5)
 When creating a new Gnutella packet we use this as TTL. Please use a
@@ -1397,7 +1397,7 @@ where you can specify the network port and IP address.
 @item fsport (port configuration, default: pipe, .aWCSrecv, .aWCSsend)
 This parameter can be used to specify two named pipes as connection
 possibility. It is meant for local installations of master server and
-serveez.
+Serveez.
 @end table
 
 @node Coserver, Porting issues, Server, Top
@@ -1668,7 +1668,7 @@ As far as I know, one of the big limitations of Winsock is that
 the SOCKET type is *not* equivalent to file descriptor. It is
 however with BSD and POSIX sockets. That is one of the major reasons for
 using a separate data type, SOCKET, not an int, a typical type for a
-file desciptor. This implies that you cannot mix SOCKETs and stdio,
+file descriptor. This implies that you cannot mix SOCKETs and stdio,
 sorry. This is the case when you use -mno-cygwin.
 
 Actually they are regular file handles, just like any other. There is a 
@@ -1757,7 +1757,7 @@ Serveez has been build and tested successfully.
 @item AIX 4.3 on RS6000
 @item Windows 95 on Intel
 @item Windows 98 on Intel
-@item Windows Millenium Edition on Intel
+@item Windows Millennium Edition on Intel
 @item Windows NT 4.0 on Intel
 @item Windows 2000 on Intel
 @item IRIX 6.x on MIPS

@@ -26,7 +26,7 @@ This file lists user visible changes that were made between releases.
 Version 0.0.20
 --------------
 
- * HTTP server is able to create Common Log Format (CLF)
+ * HTTP server is able to produce the Common Log Format (CLF)
  * enable the SNTP server via --enable-sntp-proto
  * dropped the Quake III license key server for legacy reasons
  * serveez becomes a GNU software package

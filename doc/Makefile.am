@@ -59,4 +59,4 @@ SUFFIXES = .html
 	$(TEXI2HTML) -split_chapter $<
 
 %.info: %.texi
-	$(MAKEINFO) -I . --no-split $<
+	$(MAKEINFO) -o $(srcdir)/$@ -I $(srcdir) --no-split $<
