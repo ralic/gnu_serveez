@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.h,v 1.4 2001/10/13 02:39:39 ela Exp $
+ * $Id: codec.h,v 1.5 2001/10/18 07:53:06 ela Exp $
  *
  */
 
@@ -119,6 +119,12 @@ struct svz_codec
 
   /* Overall ratio request. */
   int (* ratio) (svz_codec_data_t *, unsigned long *, unsigned long *);
+
+  /* Magic detection sequence. */
+  char *detection;
+
+  /* Length of the above detection sequence. */
+  int detection_size;
 };
 
 __BEGIN_DECLS
@@ -138,6 +144,7 @@ SERVEEZ_API int svz_codec_sock_send_setup __P ((svz_socket_t *,
 SERVEEZ_API int svz_codec_sock_send __P ((svz_socket_t *));
 SERVEEZ_API int svz_codec_sock_disconnect __P ((svz_socket_t *));
 SERVEEZ_API void svz_codec_ratio __P ((svz_codec_t *, svz_codec_data_t *));
+SERVEEZ_API svz_codec_t * svz_codec_sock_detect __P ((svz_socket_t *));
 
 __END_DECLS
 

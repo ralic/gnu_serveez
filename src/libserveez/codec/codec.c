@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: codec.c,v 1.6 2001/10/17 11:12:20 ela Exp $
+ * $Id: codec.c,v 1.7 2001/10/18 07:53:06 ela Exp $
  *
  */
 
@@ -626,4 +626,30 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
   if (disconnected != NULL)
     return disconnected (sock);
   return 0;
+}
+
+/* This routine can be used to detect a codec on the receive buffer of the
+   given socket structure @var{sock}. It returns a valid codec or @code{NULL}
+   if no codec could be detected. */
+svz_codec_t *
+svz_codec_sock_detect (svz_socket_t *sock)
+{
+  svz_codec_t *codec;
+  int i;
+
+  svz_array_foreach (svz_codecs, codec, i)
+    {
+      if (codec->detection_size > 0 && 
+	  sock->recv_buffer_fill >= codec->detection_size)
+	{
+	  if (memcmp (sock->recv_buffer,
+		      codec->detection, codec->detection_size) == 0)
+	    {
+	      svz_log (LOG_NOTICE, "%s: %s detected\n", codec->description,
+		       SVZ_CODEC_TYPE_TEXT (codec));
+	      return codec;
+	    }
+	}
+    }
+  return NULL;
 }

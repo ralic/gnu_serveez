@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gzlib.c,v 1.4 2001/10/17 11:12:20 ela Exp $
+ * $Id: gzlib.c,v 1.5 2001/10/18 07:53:06 ela Exp $
  *
  */
 
@@ -50,7 +50,9 @@ svz_codec_t zlib_encoder = {
   zlib_encoder_finalize,
   zlib_encode,
   zlib_error,
-  zlib_ratio
+  zlib_ratio,
+  NULL,
+  0
 };
 
 /* Definition of the 'zlib' decoder. */
@@ -61,7 +63,9 @@ svz_codec_t zlib_decoder = {
   zlib_decoder_finalize,
   zlib_decode,
   zlib_error,
-  zlib_ratio
+  zlib_ratio,
+  "\x78\x9c",
+  2
 };
 
 /* Internal 'zlib' data structure. The arbitrary `data' field of the

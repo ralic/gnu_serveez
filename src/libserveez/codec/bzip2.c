@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: bzip2.c,v 1.2 2001/10/17 20:38:07 ela Exp $
+ * $Id: bzip2.c,v 1.3 2001/10/18 07:53:06 ela Exp $
  *
  */
 
@@ -63,7 +63,9 @@ svz_codec_t bzip2_encoder = {
   bzip2_encoder_finalize,
   bzip2_encode,
   bzip2_error,
-  bzip2_ratio
+  bzip2_ratio,
+  NULL,
+  0
 };
 
 /* Definition of the 'bzip2' decoder. */
@@ -74,7 +76,9 @@ svz_codec_t bzip2_decoder = {
   bzip2_decoder_finalize,
   bzip2_decode,
   bzip2_error,
-  bzip2_ratio
+  bzip2_ratio,
+  "BZh",
+  3
 };
 
 /* Default configuration. */
