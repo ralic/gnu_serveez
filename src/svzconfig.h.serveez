@@ -76,4 +76,7 @@
 /* Define to `unsigned' if <sys/types.h> doesn't define.  */
 /* #undef size_t */
 
+/* Define to `long' if <sys/types.h> doesn't define.  */
+/* #undef off_t */
+
 #endif /* !__SVZCONFIG_H__ */

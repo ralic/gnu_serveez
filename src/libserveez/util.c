@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.20 2001/09/12 13:42:15 ela Exp $
+ * $Id: util.c,v 1.21 2001/09/14 17:33:42 ela Exp $
  *
  */
 
@@ -565,8 +565,10 @@ svz_sys_version (void)
 	    svz_os_version = WinNT4x;
 	  else if (osver.dwMajorVersion <= 3)
 	    svz_os_version = WinNT3x;
-	  else if (osver.dwMajorVersion == 5)
+	  else if (osver.dwMajorVersion == 5 && osver.dwMinorVersion < 1)
 	    svz_os_version = Win2k;
+	  else if (osver.dwMajorVersion >= 5)
+	    svz_os_version = WinXP;
 	  break;
 
 	case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
