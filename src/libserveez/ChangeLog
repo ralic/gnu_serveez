@@ -1,3 +1,11 @@
+2001-12-05  [ Ela ]  <ela@lkcc.org>
+
+	* server-socket.c (svz_server_create): Use of SO_BINDTODEVICE.
+	Add a FIXME here.
+
+	* portcfg.h (svz_portcfg_device): New macro returning a device
+	name for a given port configuration.
+
 2001-11-30  [ Ela ]  <ela@lkcc.org>
 
 	* passthrough.c (svz_process_create_child): Memory leak fixes.

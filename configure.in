@@ -881,10 +881,11 @@ if test x$GCC = xyes -a x$enable_shared = xyes ; then
     ADDLIBS="$ADDLIBS `gcc --print-libgcc-file-name`"
     LIBS="$LIBS $ADDLIBS"
     AC_MSG_WARN([
-  Added $ADDLIBS 
+  The configure script added
+  '$ADDLIBS'
   to your linker line.  This may not be what you want.  Please report
   to <bug-serveez@gnu.org> if we failed to build shared libraries 
-  on $host_os.])
+  on '$host_os'.])
     unset ADDLIBS
     ;;
   esac
@@ -930,7 +931,7 @@ AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
 AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   netinet/tcp.h ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h \
-  mswsock.h grp.h mach-o/dyld.h zlib.h bzlib.h)
+  mswsock.h grp.h mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h)
 AC_HEADER_DIRENT
 
 LIBSERVEEZLIBS=""
@@ -1253,19 +1254,26 @@ fi
 dnl
 dnl Check for more functionality used in Serveez.
 dnl
-AC_CHECK_FUNCS(times poll waitpid getrpcent getrpcbyname getrpcbynumber setrpcent endrpcent)
+AC_CHECK_FUNCS(times poll waitpid)
+
+save_LIBS="$LIBS"
+LIBS="$LIBS $EXTRALIBS"
+AC_CHECK_FUNCS(getrpcent getrpcbyname getrpcbynumber setrpcent endrpcent)
+LIBS="$save_LIBS"
+unset save_LIBS
+
 AC_CACHE_CHECK([whether setrpcent is declared], svz_cv_decl_setrpcent,
-AC_EGREP_HEADER(setrpcent, netdb.h,
-  svz_cv_decl_setrpcent=yes,
-  svz_cv_decl_setrpcent=no))
+svz_cv_decl_setrpcent=no
+AC_EGREP_HEADER(setrpcent, netdb.h, svz_cv_decl_setrpcent=yes)
+AC_EGREP_HEADER(setrpcent, rpc/rpcent.h, svz_cv_decl_setrpcent=yes))
 if test $svz_cv_decl_setrpcent = yes ; then
   AC_DEFINE(DECLARED_SETRPCENT, 1, 
     [Define if the setrpcent function is declared in netdb.h.])
 fi
 AC_CACHE_CHECK([whether endrpcent is declared], svz_cv_decl_endrpcent,
-AC_EGREP_HEADER(endrpcent, netdb.h,
-  svz_cv_decl_endrpcent=yes,
-  svz_cv_decl_endrpcent=no))
+svz_cv_decl_endrpcent=no
+AC_EGREP_HEADER(endrpcent, netdb.h, svz_cv_decl_endrpcent=yes)
+AC_EGREP_HEADER(endrpcent, rpc/rpcent.h, svz_cv_decl_endrpcent=yes))
 if test $svz_cv_decl_endrpcent = yes ; then
   AC_DEFINE(DECLARED_ENDRPCENT, 1, 
     [Define if the endrpcent function is declared in netdb.h.])

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.21 2001/11/29 23:41:43 raimi Exp $
+ * $Id: server-socket.c,v 1.22 2001/12/05 12:02:20 ela Exp $
  *
  */
 
@@ -131,15 +131,37 @@ svz_server_create (svz_portcfg_t *port)
 	  return NULL;
 	}
 
-      /* Second, bind the socket to a port. */
-      addr = svz_portcfg_addr (port);
-      if (bind (server_socket, (struct sockaddr *) addr,
-		sizeof (struct sockaddr)) < 0)
+#ifdef SO_BINDTODEVICE
+      /* FIXME:  On a Linux 2.4.0 you can bind to `eth0' by this control
+	 setting if root priviledges are ensured.  But actually you cannot
+	 connect to the listener.  We still need to investigate if this
+	 feature replaces a bind() and in which order it is meant to be 
+	 called. */
+      if (svz_portcfg_device (port))
 	{
-	  svz_log (LOG_ERROR, "bind: %s\n", NET_ERROR);
-	  if (closesocket (server_socket) < 0)
-	    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
-	  return NULL;
+	  char *device = svz_portcfg_device (port);
+	  if (setsockopt (server_socket, SOL_SOCKET, SO_BINDTODEVICE,
+			  (void *) device, strlen (device) + 1) < 0)
+	    {
+	      svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+	      if (closesocket (server_socket) < 0)
+		svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+	      return NULL;
+	    }
+	}
+      else
+#endif /* SO_BINDTODEVICE */
+	{
+	  /* Second, bind the socket to a port. */
+	  addr = svz_portcfg_addr (port);
+	  if (bind (server_socket, (struct sockaddr *) addr,
+		    sizeof (struct sockaddr)) < 0)
+	    {
+	      svz_log (LOG_ERROR, "bind: %s\n", NET_ERROR);
+	      if (closesocket (server_socket) < 0)
+		svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+	      return NULL;
+	    }
 	}
 
       /* Prepare for listening on that port (if TCP). */

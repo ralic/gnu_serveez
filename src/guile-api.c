@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.12 2001/12/04 17:26:00 ela Exp $
+ * $Id: guile-api.c,v 1.13 2001/12/05 12:02:20 ela Exp $
  *
  */
 
@@ -33,6 +33,10 @@
 #ifndef __MINGW32__
 # include <sys/socket.h>
 # include <netdb.h>
+#endif
+
+#if HAVE_RPC_RPCENT_H
+# include <rpc/rpcent.h>
 #endif
 
 #if GUILE_SOURCE

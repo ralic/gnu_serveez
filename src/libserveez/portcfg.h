@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.15 2001/06/21 11:25:47 ela Exp $
+ * $Id: portcfg.h,v 1.16 2001/12/05 12:02:20 ela Exp $
  *
  */
 
@@ -51,6 +51,8 @@
 #define PORTCFG_RAW     "raw"
 #define PORTCFG_PIPE    "pipe"
 #define PORTCFG_IP      "ipaddr"
+#define PORTCFG_DEVICE  "device"
+#define PORTCFG_ANY     "any"
 #define PORTCFG_NOIP    "*"
 #define PORTCFG_BACKLOG "backlog"
 #define PORTCFG_TYPE    "type"
@@ -93,6 +95,7 @@ typedef struct svz_portcfg
       unsigned short port;     /* TCP/IP port */
       char *ipaddr;            /* dotted decimal or "*" for any address */
       struct sockaddr_in addr; /* converted from the above 2 values */
+      char *device;            /* network device */
       int backlog;             /* backlog argument for listen() */
     } tcp;
 
@@ -102,6 +105,7 @@ typedef struct svz_portcfg
       unsigned short port;     /* UDP port */
       char *ipaddr;            /* dotted decimal or "*" */
       struct sockaddr_in addr; /* converted from the above 2 values */
+      char *device;            /* network device */
     } udp;
 
     /* icmp port */
@@ -109,6 +113,7 @@ typedef struct svz_portcfg
     {
       char *ipaddr;            /* dotted decimal or "*" */
       struct sockaddr_in addr; /* converted from the above value */
+      char *device;            /* network device */
       unsigned char type;      /* message type */
     } icmp;
 
@@ -117,6 +122,7 @@ typedef struct svz_portcfg
     {
       char *ipaddr;            /* dotted decimal or "*" */
       struct sockaddr_in addr; /* converted from the above value */
+      char *device;            /* network device */
     } raw;
 
     /* pipe port */
@@ -156,18 +162,22 @@ svz_portcfg_t;
 #define tcp_port protocol.tcp.port
 #define tcp_addr protocol.tcp.addr
 #define tcp_ipaddr protocol.tcp.ipaddr
+#define tcp_device protocol.tcp.device
 #define tcp_backlog protocol.tcp.backlog
 
 #define udp_port protocol.udp.port
 #define udp_addr protocol.udp.addr
 #define udp_ipaddr protocol.udp.ipaddr
+#define udp_device protocol.udp.device
 
 #define icmp_addr protocol.icmp.addr
 #define icmp_ipaddr protocol.icmp.ipaddr
+#define icmp_device protocol.icmp.device
 #define icmp_type protocol.icmp.type
 
 #define raw_addr protocol.raw.addr
 #define raw_ipaddr protocol.raw.ipaddr
+#define raw_device protocol.raw.device
 
 #define pipe_recv protocol.pipe.recv
 #define pipe_send protocol.pipe.send
@@ -193,6 +203,18 @@ svz_portcfg_t;
    ((port)->proto & PROTO_UDP) ? (port)->udp_ipaddr :       \
    ((port)->proto & PROTO_ICMP) ? (port)->icmp_ipaddr :     \
    ((port)->proto & PROTO_RAW) ? (port)->raw_ipaddr : NULL) \
+
+/*
+ * This macro returns the network device name stored in the given port
+ * configuration @var{port} if it is a network port configuration. The
+ * returned pointer can be @code{NULL} if there is no such device set
+ * or if the port configuration is not a network port configuration.
+ */
+#define svz_portcfg_device(port)                            \
+  (((port)->proto & PROTO_TCP) ? (port)->tcp_device :       \
+   ((port)->proto & PROTO_UDP) ? (port)->udp_device :       \
+   ((port)->proto & PROTO_ICMP) ? (port)->icmp_device :     \
+   ((port)->proto & PROTO_RAW) ? (port)->raw_device : NULL) \
 
 /*
  * Return the UDP or TCP port of the given port configuration or zero
