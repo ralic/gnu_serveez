@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.h,v 1.3 2000/06/22 19:40:30 ela Exp $
+ * $Id: server-socket.h,v 1.4 2000/07/04 20:58:41 ela Exp $
  *
  */
 
@@ -33,28 +33,6 @@
 #include "server.h"
 
 /*
- * This structure is used by server_bind () to collect various server
- * instances and their port configurations.
- */
-typedef struct
-{
-  server_t *server; /* server instance */
-  portcfg_t *cfg;   /* port configuration */
-}
-server_binding_t;
-
-/*
- * Start all server bindings (instances of servers).
- */
-int server_start (void);
-
-/*
- * This functions binds a previouly instanciated server to a specified
- * port configuration.
- */
-int server_bind (server_t *server, portcfg_t *cfg);
-
-/*
  * Create a listening server socket. PORTCFG is the port to bind the 
  * server socket to. Return a null pointer on errors.
  */
@@ -67,6 +45,7 @@ socket_t server_create (portcfg_t *cfg);
 int server_accept_socket (socket_t sock);
 int server_accept_pipe (socket_t sock);
 
+#ifdef __MINGW32__
 /*
  * This routine has to be called once before you could use any of the
  * Winsock32 API functions under Win32.
@@ -77,5 +56,7 @@ int net_startup (void);
  * Shutdown the Winsock32 API.
  */
 int net_cleanup (void);
+
+#endif /* __MINGW32__ */
 
 #endif /* not __SERVER_SOCKET_H__ */

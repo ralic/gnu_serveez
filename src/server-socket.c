@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.13 2000/06/25 17:31:41 ela Exp $
+ * $Id: server-socket.c,v 1.14 2000/07/04 20:58:41 ela Exp $
  *
  */
 
@@ -55,13 +55,6 @@
 #include "server-socket.h"
 #include "server.h"
 
-#if ENABLE_IRC_PROTO
-# include "irc-server/irc-proto.h"
-#endif
-
-server_binding_t *server_binding = NULL;
-int server_bindings = 0;
-
 #ifdef __MINGW32__
 
 /*
@@ -97,143 +90,6 @@ net_cleanup (void)
 }
 
 #endif /* not __MINGW32__ */
-
-/*
- * This functions binds a previouly instanciated server to a specified
- * port configuration.
- */
-int
-server_bind (server_t *server, portcfg_t *cfg)
-{
-  int n;
-
-  n = server_bindings++;
-  server_binding = xrealloc (server_binding, 
-			     sizeof (server_binding_t) * server_bindings);
-  server_binding[n].server = server;
-  server_binding[n].cfg = cfg;
-
-  return 0;
-}
-
-/*
- * Start all server bindings (instances of servers). Go through all port
- * configurations, skip duplicate port configurations, etc.
- */
-int
-server_start (void)
-{
-  int n, b;
-  socket_t sock;
-  server_t *server;
-
-  /*
-   * Go through all port bindings.
-   */
-  for (b = 0; b < server_bindings; b++)
-    {
-      /*
-       * Look for duplicate port configurations.
-       */
-      for (sock = socket_root; sock; sock = sock->next)
-	{
-	  /*
-	   * Check for duplicate server configurations.
-	   */
-	  server = NULL;
-	  for (n = 0; sock->data && (server = SERVER (sock->data, n)); n++)
-	    {
-	      if (server->cfg == server_binding[b].server->cfg &&
-		  sock->proto == server_binding[b].server->proto)
-		{
-		  fprintf (stderr, "Cannot bind duplicate server (%s) "
-			   "to a single port.\n",
-			   server->name);
-		  break;
-		}
-	    }
-	  /*
-	   * No server configuration found so far.
-	   */
-	  if (server == NULL)
-	    {
-	      /*
-	       * Is this socket usable for this port configuration ?
-	       */
-	      if (sock->proto & PROTO_TCP &&
-		  server_binding[b].cfg->proto & PROTO_TCP &&
-		  server_binding[b].cfg->port == sock->local_port)
-		{
-		  sock->data = xrealloc (sock->data, 
-					 sizeof (void *) * (n + 2));
-		  SERVER (sock->data, n) = server_binding[b].server;
-		  SERVER (sock->data, n + 1) = NULL;
-		  log_printf (LOG_DEBUG, "binding tcp server to existing "
-			      "port %d\n", sock->local_port);
-		  break;
-		}
-
-	      if (sock->proto & PROTO_PIPE &&
-		  server_binding[b].cfg->proto & PROTO_PIPE &&
-		  !strcmp (server_binding[b].cfg->outpipe, sock->send_pipe))
-		{
-		  sock->data = xrealloc (sock->data, 
-					 sizeof (void *) * (n + 2));
-		  SERVER (sock->data, n) = server_binding[b].server;
-		  SERVER (sock->data, n + 1) = NULL;
-		  log_printf (LOG_DEBUG, "binding pipe server to existing "
-			      "file %s\n", sock->send_pipe);
-		  break;
-		}
-	    }
-	}
-      /*
-       * No apropiate socket structure for this port configuration found.
-       */
-      if (sock == NULL)
-	{
-	  /*
-	   * TCP network port creation.
-	   */
-	  if (server_binding[b].cfg->proto & PROTO_TCP)
-	    {
-	      sock = server_create (server_binding[b].cfg);
-	      if (sock)
-		sock_enqueue (sock);
-	    }
-	  /*
-	   * UDP network port creation.
-	   */
-	  else if (server_binding[b].cfg->proto & PROTO_UDP)
-	    {
-	      sock = server_create (server_binding[b].cfg);
-	      if (sock)
-		sock_enqueue (sock);
-	    }
-	  /*
-	   * Pipe port creation.
-	   */
-	  else if (server_binding[b].cfg->proto & PROTO_PIPE)
-	    {
-	      sock = server_create (server_binding[b].cfg);
-	      if (sock)
-		sock_enqueue (sock);
-	    }
-
-	  if (sock)
-	    {
-	      sock->data = xmalloc (sizeof (void *) * 2);
-	      SERVER (sock->data, 0) = server_binding[b].server;
-	      SERVER (sock->data, 1) = NULL;
-	    }
-	}
-    }
-  
-  xfree (server_binding);
-  server_binding = NULL;
-  server_bindings = 0;
-  return 0;
-}
 
 /*
  * Create a listening server socket. PORTCFG is the port to bind the 

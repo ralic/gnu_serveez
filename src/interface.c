@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: interface.c,v 1.5 2000/07/04 19:33:55 raimi Exp $
+ * $Id: interface.c,v 1.6 2000/07/04 20:58:41 ela Exp $
  *
  */
 
@@ -457,8 +457,7 @@ list_local_interfaces (void)
       ifc.ifc_len = sizeof (struct ifreq) * numreqs;
       ifc.ifc_buf = xrealloc (ifc.ifc_buf, ifc.ifc_len);
 
-
-      /**
+      /*
        * On newer AIXes we cannot use SIOCGICONF anymore, although it is
        * present. The data structure returned is bogus. Using OSIOCGIFCONF.
        */
@@ -494,10 +493,9 @@ list_local_interfaces (void)
   ifr = ifc.ifc_req;
   for (n = 0; n < ifc.ifc_len; n += sizeof (struct ifreq), ifr++)
     {
-
       /*
        * On AIX (and perhaps others) you get interfaces that are not AF_INET
-       * from the first ioctl, so filter here again
+       * from the first ioctl, so filter here again.
        */
       if (ifr->ifr_addr.sa_family != AF_INET)
 	continue;
@@ -508,14 +506,13 @@ list_local_interfaces (void)
 	{
 	  /* The following cast looks bogus. ifr2.ifr_addr is a
 	   * (struct sockaddr), but we know that we deal with a 
-	   * (struct sockaddr_in) here. since you cannot cast structures
+	   * (struct sockaddr_in) here. Since you cannot cast structures
 	   * in C, I cast addresses just to get a (struct sockaddr_in) in the
 	   * end... phew
 	   */
 	  printf ("%8s: %s\n", ifr->ifr_name,
-		  inet_ntoa ( (*((struct sockaddr_in*)
-				 &ifr2.ifr_addr)).sin_addr) );
-
+		  inet_ntoa ((*(struct sockaddr_in *)
+			      &ifr2.ifr_addr).sin_addr));
 	}
       else 
 	{

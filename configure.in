@@ -901,11 +901,15 @@ if test $ac_cv_func_connect = no; then
 fi
 
 dnl
-dnl Check for Solaris nsl library.
+dnl Check for Solaris nsl and resolv library.
 dnl
 AC_CHECK_FUNC(gethostbyaddr)
 if test $ac_cv_func_gethostbyaddr = no; then
     AC_CHECK_LIB(nsl, gethostbyaddr, EXTRALIBS="$EXTRALIBS -lnsl")
+fi
+AC_CHECK_FUNC(inet_aton)
+if test $ac_cv_func_inet_aton = no; then
+    AC_CHECK_LIB(resolv, inet_aton, EXTRALIBS="$EXTRALIBS -lresolv")
 fi
 
 dnl

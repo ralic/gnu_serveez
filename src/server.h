@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.5 2000/06/25 17:31:41 ela Exp $
+ * $Id: server.h,v 1.6 2000/07/04 20:58:41 ela Exp $
  *
  */
 
@@ -56,7 +56,6 @@ typedef struct key_value_pair
 }
 key_value_pair_t;
 
-
 /*
  * Each server instance gets such a struct
  */
@@ -74,7 +73,7 @@ server_t;
 
 /*
  * Used when binding ports
- *  this is available from sizzle and set as a hash:
+ * this is available from sizzle and set as a hash:
  *  "proto" => String: "tcp", "udp", "pipe"
  *  "port" => int: for tcp/udp ports
  *  "local-ip" => String: (dotted decimal) for local address or "*" (default)
@@ -97,11 +96,11 @@ typedef struct portcfg
 }
 portcfg_t;
 
-
 /*
  * Every server needs such a thing
  */
-typedef struct server_definition {
+typedef struct server_definition 
+{
   char *name;                                /* Descriptive name of server */
   char *varname;                             /* varprefix as used in cfg   */
 
@@ -120,9 +119,31 @@ typedef struct server_definition {
 }
 server_definition_t;
 
+/*
+ * This structure is used by server_bind () to collect various server
+ * instances and their port configurations.
+ */
+typedef struct
+{
+  server_t *server; /* server instance */
+  portcfg_t *cfg;   /* port configuration */
+}
+server_binding_t;
+
 extern struct server_definition *all_server_definitions[];
 extern int server_instances;
 extern struct server **servers;
+
+/*
+ * Start all server bindings (instances of servers).
+ */
+int server_start (void);
+
+/*
+ * This functions binds a previouly instanciated server to a specified
+ * port configuration.
+ */
+int server_bind (server_t *server, portcfg_t *cfg);
 
 /*
  * Use my functions:
@@ -132,7 +153,7 @@ int server_global_init (void);
 int server_init_all (void);
 int server_finalize_all (void);
 int server_global_finalize (void);
-int equal_portcfg (struct portcfg *a, struct portcfg *b);
+
 #if ENABLE_DEBUG
 void server_print_definitions (void);
 #endif
@@ -199,4 +220,4 @@ void server_print_definitions (void);
 #define REGISTER_END() \
   { ITEM_END, NULL, 0, NULL }
 
-#endif
+#endif /* __SERVER_H__ */
