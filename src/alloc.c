@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.13 2000/09/21 15:27:11 ela Exp $
+ * $Id: alloc.c,v 1.14 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -312,6 +312,10 @@ xheap (void)
 	  free (block[n]);
 	}
       hash_xfree (block);
+    }
+  else
+    {
+      fprintf (stdout, "xheap: no unreleased heap blocks\n");
     }
   hash_destroy (heap);
   heap = NULL;

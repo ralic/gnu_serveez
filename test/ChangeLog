@@ -1,0 +1,13 @@
+2000-11-01  [ Ela ]  <ela@lkcc.org>
+
+	* alist-test.c (main): Added `delete range' checking.
+
+	* ChangeLog: File created and committed into CVS.
+
+2000-10-22  [ Ela ]  <ela@lkcc.org>
+
+	* test.c: Helper functions for the test suites.
+
+	* hash-test.c: Hash function test suite.
+
+	* alist-test.c: Array list function test suite.

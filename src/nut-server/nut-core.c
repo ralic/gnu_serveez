@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.11 2000/10/30 20:49:57 ela Exp $
+ * $Id: nut-core.c,v 1.12 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -68,7 +68,8 @@ nut_create_client (void)
 /*
  * This routine parses a `a.b.c.d:port' combination from the given 
  * character string ADDR and stores both of the values in IP and PORT 
- * in network byte order.
+ * in network byte order. If `:port' is not given, a default port is
+ * delivered.
  */
 int
 nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
@@ -94,18 +95,17 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
   /* find seperating colon */
   colon = p;
   while (*colon != ':' && *colon) colon++;
-  if (!*colon) 
+  if (*colon) 
     {
-      xfree (host);
-      return -1;
+      *colon = '\0';
+      colon++;
     }
-
-  *colon = '\0';
-  colon++;
+  else colon = NULL;
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (p);
-  *port = htons ((unsigned short) util_atoi (colon));
+  *port = colon ? htons ((unsigned short) util_atoi (colon)) : 
+    htons (NUT_PORT);
   xfree (host);
 
   return 0;

@@ -171,7 +171,7 @@ using it. This will work around the builtin (g)libs's @code{select()}
 file descriptor limit.
 
 @section Limits on open filehandles
-@table @asis
+@table @code
 
 @item Any Unix
 The limits set by @code{ulimit ()} or @code{setrlimit ()}.
@@ -324,7 +324,7 @@ There are several callback routines, which get called in order to
 instantiate the server and for describing the actual behaviour of your server.
 Here is the description of all of these.
 
-@table @asis
+@table @code
 @item global initializer (optional)
 This callback is executed once for initializing the server. Here you can
 initialize data or whatever shared by all instances of your server. For
@@ -675,7 +675,7 @@ space, the status message type and additional parameters.
 
 @subsubsection Configuration
 
-@table @asis
+@table @code
 @item netport
 The @code{netport} parameter is the default network port configuration
 where you can specify the network port and IP address.
@@ -712,7 +712,7 @@ The benchmark system is a 233 MHz Mobile Pentium MMX. Both the server and
 the client (http_load - multiprocessing http test client) ran on the same
 computer.
 
-@table @asis
+@table @code
 @item Small files
 The small-file test load consists of 1000 files, each 1KB long, requested 
 randomly.
@@ -739,7 +739,7 @@ get 1000+ concurrent fetches.
 
 The following options can be set within the configuration file.
 
-@table @asis
+@table @code
 @item netport
 This is the TCP or UDP port configuration hash wherein you can set the 
 IP address this server should be bind to and the port the server is 
@@ -799,6 +799,37 @@ This should be a file like the @file{/etc/mime.types} on Linux systems.
 @item types
 If you want to specify special content types do it here. This parameter
 is a has associating file suffixes with HTTP content types.
+
+@item admin
+Your address, where problems with the server should be e-mailed.
+This address appears on some server-generated pages, such as error
+documents.
+
+@item host
+This item allows you to set a host name which is sent back to clients for
+your server if it's different than the one the program would get. Be
+aware that you cannot invent such a name.
+
+@item logfile
+The location of the access logfile. Each HTTP request gets a line within
+this file.
+
+@item logformat
+The format of the access logfile. There are special placeholders for
+different kinds of logging information.
+
+@table @code
+@item %h
+the remote host name the request came from
+@item %t
+when was the entity accessed
+@item %u
+what kind of entity was requested
+@item %r
+which document referred to this document
+@item %a
+what kind of web browser did the remote client use
+@end table
 @end table
 
 @node IRC Server, Control Protocol Server, HTTP Server, Existing Servers
@@ -832,9 +863,9 @@ instantiated and configured in the configuration file. The following
 table shows the provided configuration keys. Most of the configuration
 items are similar to those of an Hybrid IRC server.
 
-@table @samp
+@table @code
 @item port
-The @samp{port} parameter is, as in all the server configurations, the
+The @code{port} parameter is, as in all the server configurations, the
 port configuration for this server, specifying IP address and the TCP/IP 
 port the server should listen on.
 
@@ -844,7 +875,7 @@ message of the day comment. When changing on disk the server will notice
 that and reload the file automatically.
 
 @item INFO-file
-The @samp{INFO-file}s content gets displayed when the user commits the
+The @code{INFO-file}s content gets displayed when the user commits the
 /INFO command.
 
 @item tsdelta
@@ -1046,10 +1077,10 @@ Reinitialize the HTTP file cache.
 
 @subsubsection Configuration
 
-@table @asis
+@table @code
 @item netport
 This option is used to define the port configuration. Here it could be
-useful to declare a @samp{local-ip} within this hash when you do not
+useful to declare a @code{local-ip} within this hash when you do not
 want people using this protocol from outsides.
 @end table
 
@@ -1092,7 +1123,7 @@ master.quake3arena.com
 master3.idsoftware.com
 @end example
 The configuration of the server knows the following items.
-@table @asis
+@table @code
 @item netport
 This entry should contain @samp{udp} for @samp{proto} and some udp port.
 The default port is 27952.
@@ -1121,7 +1152,7 @@ the current connections are lost.
 @subsubsection Configuration
 The Gnutella spider knows the following configurations items.
 
-@table @asis
+@table @code
 @item port
 This entry should contain @samp{tcp} for @samp{proto} and some port and
 network interface. The default port is 6346. If you want to see the host
@@ -1132,11 +1163,12 @@ any WWW browser at @uref{http://localhost:6346/@code{net-url}}.
 The above url is configurable via this item.
 
 @item hosts
-This is the initial host list of the clients the spider tries to connect.
-Each list item should be of the format @code{ip:port} (e.g. 
-@samp{146.145.85.34:6346}). If you need some entry point for the gnutella
-network have a look at @uref{http://www.gnutellahosts.com/} or
-@uref{http://www.gnutellanet.com/}.
+This is the initial host list of the clients the spider tries to 
+connect to. Each list item should be of the format @code{ip:port} 
+(e.g. @samp{146.145.85.34:6346}). If the port information is left
+blank it defaults to 6346. If you need some entry point for 
+the gnutella network have a look at @uref{http://www.gnutellahosts.com/} 
+or @uref{http://www.gnutellanet.com/}.
 
 @item search
 This is the so called needle. Each search line is either a set of 
@@ -1215,7 +1247,7 @@ directory shows two example configurations how to tunnel TCP
 connections over UDP and ICMP. The UDP tunnel accesses the standard 
 HTTP port 80 and the UDP tunnel accesses the standard Telnet port 23.
 
-@table @asis
+@table @code
 @item source
 The source port configuration.
 
@@ -1488,7 +1520,7 @@ possible anyway. We assume you got a Cygwin development environment
 somewhere, the Developer Studio installation and @samp{@value{s_PACKAGE}} 
 and @samp{@value{s_SIZZLE}} in separate directories.
 
-@table @asis
+@table @code
 @item Step 1. Create development environment for VC.
 In order to create both of the @file{config.h} files we need to execute
 the @file{configure} script.
@@ -1515,7 +1547,7 @@ projects you need to add all the @file{.c} files form @file{src/}
 For configuring your projects you press @key{Alt-F7}. Make the following
 definitions:
 
-@table @asis
+@table @code
 @item Preprocessor.
 @code{_WIN32,__MINGW32__,__STDC__=0,HAVE_CONFIG_H,__@value{b_SIZZLE}_EXPORT__=1} 
 for @value{SIZZLE} and

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.c,v 1.7 2000/10/25 07:54:06 ela Exp $
+ * $Id: alist.c,v 1.8 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -391,7 +391,7 @@ alist_get (alist_t *list, unsigned index)
 	  break;
     }
 
-  /* evaluate seeked array chunk */
+  /* evaluate peeked array chunk */
   if (!array) return NULL;
   index -= array->offset;
   if (array->fill & (1 << index))
@@ -457,7 +457,7 @@ alist_delete (alist_t *list, unsigned index)
 	  break;
     }
 
-  /* evaluate seeked array chunk */
+  /* evaluate peeked array chunk */
   if (!array) return NULL;
   idx = index - array->offset;
 
@@ -517,15 +517,50 @@ alist_delete (alist_t *list, unsigned index)
 
 /*
  * Removes from this list all of the elements whose index is between 
- * from, inclusive and to, exclusive.
+ * from, inclusive and to, exclusive. Return the amount of really 
+ * deleted items.
  */
-void
+unsigned
 alist_delete_range (alist_t *list, unsigned from, unsigned to)
 {
+  unsigned idx, n = 0;
+
 #if DEVEL
   alist_validate (list);
 #endif /* DEVEL */
 
+  /* swap the `to' and `from' indexes if necessary */
+  if (to < from)
+    {
+      idx = to;
+      to = from + 1;
+      from = idx + 1;
+    }
+
+  /* return here if there is nothing to do */
+  if (to > list->length) to = list->length;
+  if (from > list->length) from = list->length;
+  if (to == from) return 0;
+
+  /* special case: delete all list elements */
+  if (from == 0 && to == list->length)
+    {
+      n = list->size;
+      alist_clear (list);
+      return n;
+    }
+
+  /* go through the index range and delete each list item */
+  for (idx = from; idx < to; )
+    {
+      if (alist_delete (list, idx))
+	{
+	  to--;
+	  n++;
+	}
+      else idx++;
+    }
+  return n;
 }
 
 /*

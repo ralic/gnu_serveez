@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.40 2000/10/06 12:34:00 ela Exp $
+ * $Id: http-proto.c,v 1.41 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -115,7 +115,14 @@ http_config_t http_config =
   "text/plain",       /* standard content type */
   "/etc/mime.types",  /* standard content type file */
   NULL,               /* current content type hash */
-  NULL                /* cgi application associations */
+  NULL,               /* cgi application associations */
+  "root@localhost",   /* email address of server administrator */
+  NULL,               /* host name of which is sent back to clients */
+  "public_html",      /* appended onto a user's home (~user request) */
+  0,                  /* enable reverse DNS lookups */
+  "access.log",       /* log file name */
+  NULL,               /* custom log file format string */
+  NULL                /* log file stream */
 };
 
 /*
@@ -137,6 +144,10 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_STR ("type-file", http_config.type_file, DEFAULTABLE),
   REGISTER_HASH ("types", http_config.types, DEFAULTABLE),
   REGISTER_HASH ("cgi-application", http_config.cgiapps, DEFAULTABLE),
+  REGISTER_STR ("admin", http_config.admin, DEFAULTABLE),
+  REGISTER_STR ("host", http_config.host, DEFAULTABLE),
+  REGISTER_STR ("logfile", http_config.logfile, DEFAULTABLE),
+  REGISTER_STR ("logformat", http_config.logformat, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -216,7 +227,19 @@ http_init (server_t *server)
   int types = 0;
   char *p;
   http_config_t *cfg = server->cfg;
+
+  /* start http logging system */
+  if (cfg->logfile)
+    {
+      if ((cfg->log = fopen (cfg->logfile, "at")) == NULL)
+	{
+	  log_printf (LOG_ERROR, "http: fopen: %s\n", SYS_ERROR);
+	  log_printf (LOG_ERROR, "http: cannot open access logfile %s\n",
+		      cfg->logfile);
+	}
+    }
   
+  /* create content type hash */
   if (*(cfg->types))
     types = hash_size (*(cfg->types));
   
@@ -227,6 +250,7 @@ http_init (server_t *server)
   log_printf (LOG_NOTICE, "http: %d+%d known content types\n",
 	      types, hash_size (*(cfg->types)) - types);
 
+  /* check document root path */
   if (!strlen (cfg->docs))
     {
       log_printf (LOG_ERROR, "http: not a valid document root\n");
@@ -257,7 +281,8 @@ http_finalize (server_t *server)
 
   http_free_types (cfg);
   http_free_cgi_apps (cfg);
-  
+  if (cfg->log) fclose (cfg->log);
+
   return 0;
 }
 
@@ -269,11 +294,17 @@ http_finalize (server_t *server)
 void
 http_free_socket (socket_t sock)
 {
+  http_socket_t *http = sock->data;
   int n;
-  http_socket_t *http;
 
-  /* first get the http socket structure */
-  http = sock->data;
+  /* log this entry and free the request string */
+  http_log (sock);
+  if (http->request)
+    {
+      xfree (http->request);
+      http->request = NULL;
+    }
+  http->timestamp = 0;
 
   /* any property at all ? */
   if (http->property)
@@ -720,6 +751,7 @@ http_connect_socket (void *http_cfg, socket_t sock)
 int
 http_handle_request (socket_t sock, int len)
 {
+  http_socket_t *http = sock->data;
   int n;
   char *p, *line, *end;
   char *request;
@@ -763,6 +795,8 @@ http_handle_request (socket_t sock, int len)
       strncpy (uri, line, p - line);
       uri[p-line] = 0;
       line = p;
+      version[MAJOR_VERSION] = 0;
+      version[MINOR_VERSION] = 9;
     }
   /* no, it is a real HTTP/1.x request */
   else
@@ -807,6 +841,12 @@ http_handle_request (socket_t sock, int len)
 
   /* convert URI if necessary */
   http_process_uri (uri);
+
+  /* assign request properties to http structure */
+  http->timestamp = time (NULL);
+  http->request = xmalloc (strlen (request) + strlen (uri) + 11);
+  sprintf (http->request, "%s %s HTTP/%d.%d",
+	   request, uri, version[MAJOR_VERSION], version[MINOR_VERSION]);
 
   /* find an appropiate request callback */
   for (n = 0; n < HTTP_REQUESTS; n++)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: alist.h,v 1.6 2000/10/23 21:42:03 ela Exp $
+ * $Id: alist.h,v 1.7 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -65,7 +65,7 @@ unsigned alist_contains (alist_t *list, void *value);
 void * alist_get (alist_t *list, unsigned index);
 int alist_index (alist_t *list, void *value);
 void * alist_delete (alist_t *list, unsigned index);
-void alist_delete_range (alist_t *list, unsigned from, unsigned to);
+unsigned alist_delete_range (alist_t *list, unsigned from, unsigned to);
 void * alist_set (alist_t *list, unsigned index, void *value);
 unsigned alist_size (alist_t *list);
 unsigned alist_length (alist_t *list);

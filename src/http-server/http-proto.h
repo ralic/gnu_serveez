@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.13 2000/09/27 14:31:27 ela Exp $
+ * $Id: http-proto.h,v 1.14 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -30,6 +30,7 @@
 #endif
 
 #define _GNU_SOURCE
+#include <stdio.h>
 #include <sys/types.h>
 
 #include "socket.h"
@@ -55,6 +56,13 @@ typedef struct
   char *type_file;    /* content type file (e.g "/etc/mime.types") */
   hash_t **types;     /* content type hash */
   hash_t **cgiapps;   /* cgi application associations */
+  char *admin;        /* email address of server administrator */
+  char *host;         /* host name of which is sent back to clients */
+  char *userdir;      /* appended onto a user's home (~user request) */
+  int nslookup;       /* enable reverse DNS lookups */
+  char *logfile;      /* log file name */
+  char *logformat;    /* custom log file format string */
+  FILE *log;          /* log file stream */
 } 
 http_config_t;
 

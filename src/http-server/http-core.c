@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.10 2000/10/25 07:54:06 ela Exp $
+ * $Id: http-core.c,v 1.11 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -63,6 +63,88 @@
 #endif
 
 /*
+ * Write a logging notification to the access logfile if possible
+ * and necessary.
+ */
+void
+http_log (socket_t sock)
+{
+  http_config_t *cfg = sock->cfg;
+  http_socket_t *http = sock->data;
+  static char line[1024];
+  char *referer, *agent, *p, *start;
+
+  if (cfg->log && http->request)
+    {
+      referer = http_find_property (http, "Referer");
+      agent = http_find_property (http, "User-Agent");
+
+      /* access logging format given ? */
+      if (cfg->logformat && *cfg->logformat)
+	{
+	  start = cfg->logformat;
+	  memset (line, 0, sizeof (line));
+	  while (*start)
+	    {
+	      /* parse until next format character */
+	      p = start;
+	      while (*p && *p != '%') p++;
+	      strncat (line, start, p - start);
+	      if (!*p) break;
+	      p++;
+	      switch (*p)
+		{
+		  /* %h - host name */
+		case 'h':
+		  strcat (line, util_inet_ntoa (sock->remote_addr));
+		  p++;
+		  break;
+		  /* %t - request time stamp */
+		case 't':
+		  strcat (line, http_asc_date (http->timestamp));
+		  p++;
+		  break;
+		  /* end of string */
+		case '\0':
+		  break;
+		  /* %u - original http request uri */
+		case 'u':
+		  strcat (line, http->request ? http->request : "-");
+		  p++;
+		  break;
+		  /* %r - referer document */
+		case 'r':
+		  strcat (line, referer ? referer : "-");
+		  p++;
+		  break;
+		  /* %a - user agent */
+		case 'a':
+		  strcat (line, agent ? agent : "-");
+		  p++;
+		  break;
+		default:
+		  line[strlen (line)] = '%';
+		}
+	      start = p;
+	    }
+	  strcat (line, "\n");
+	}
+      /* no, use default logging format */
+      else
+	{
+	  sprintf (line, "%s - [%s] \"%s\" \"%s\" \"%s\"\n",
+		   util_inet_ntoa (sock->remote_addr),
+		   http_asc_date (http->timestamp),
+		   http->request,
+		   referer ? referer : "-",
+		   agent ? agent : "-");
+	}
+      fprintf (cfg->log, line);
+      fflush (cfg->log);
+    }
+}
+
+/*
  * Send an error message response body to the http client connection.
  * This is not actually necessary, because an appropriate response header
  * should work out fine. But most browsers indicate "document contained
@@ -71,6 +153,7 @@
 int
 http_error_response (socket_t sock, int response)
 {
+  http_config_t *cfg = sock->cfg;
   char *txt;
 
   switch (response)
@@ -104,13 +187,17 @@ http_error_response (socket_t sock, int response)
   return sock_printf (sock, 
 		      "<html><body bgcolor=white text=black><br>"
 		      "<h1>%d %s</h1>"
-		      "<hr noshade><i>%s/%s server at %s port %d</i>"
+		      "<hr noshade><i>%s/%s server at %s port %d, "
+		      "please send email to <a href=\"mailto:%s\">%s</a> "
+		      "for reporting errors</i>"
 		      "</body></html>",
 		      response, txt, 
 		      serveez_config.program_name, 
 		      serveez_config.version_string,
+		      cfg->host ? cfg->host : 
 		      util_inet_ntoa (sock->local_addr),
-		      ntohs (sock->local_port));
+		      ntohs (sock->local_port),
+		      cfg->admin, cfg->admin);
 }
 
 /*

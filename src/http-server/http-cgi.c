@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.24 2000/10/25 07:54:06 ela Exp $
+ * $Id: http-cgi.c,v 1.25 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -394,7 +394,7 @@ http_create_cgi_envp (socket_t sock,      /* socket for this request */
    * necessary for the cgi script
    */
   http_insert_env (env, &size, "SERVER_NAME=%s", 
-		   util_inet_ntoa (sock->local_addr));
+		   cfg->host ? cfg->host : util_inet_ntoa (sock->local_addr));
   http_insert_env (env, &size, "SERVER_PORT=%u", ntohs (sock->local_port));
   http_insert_env (env, &size, "REMOTE_ADDR=%s", 
 		   util_inet_ntoa (sock->remote_addr));

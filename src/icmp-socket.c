@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.7 2000/10/31 10:08:11 ela Exp $
+ * $Id: icmp-socket.c,v 1.8 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -190,8 +190,7 @@ icmp_put_header (icmp_header_t *hdr)
 static unsigned short
 icmp_ip_checksum (byte *data, int len)
 {
-  unsigned long checksum = 0;
-  unsigned short n, val;
+  register unsigned checksum = 0;
 
   /* 
    * Calculate the 16 bit one's complement of the one's complement sum 
@@ -199,20 +198,21 @@ icmp_ip_checksum (byte *data, int len)
    * the checksum field should be zero. This checksum may be replaced in 
    * the future.
    */
-  for (n = 0; n < (len & ~0x01) ; n += 2)
+  while (len > 1)
     {
-      val = data[n] | (data[n + 1] << 8);
-      val = ~val;
-      checksum += val;
+      /* This is the inner loop */
+      checksum += *data | (*(data + 1) << 8);
+      len -= 2;
+      data += 2;
     }
-  if (len & 0x01)
-    {
-      val = data[n];
-      val = ~val;
-      checksum += val;
-    } 
-  checksum = (checksum & 0xffff) + ((checksum >> 16) & 0xffff);
-  checksum = checksum & 0xffff;
+
+  /* Add left-over byte, if any */
+  if (len > 0) checksum += *data;
+
+  /* Fold 32-bit checksum to 16 bits */
+  while (checksum >> 16)
+    checksum = (checksum & 0xffff) + (checksum >> 16);
+  checksum = ~checksum;
 
   return htons ((unsigned short) checksum);
 }
@@ -290,9 +290,8 @@ icmp_check_ip_header (byte *data, int len)
     }
 
   /* Recalculate and check the header checksum. */
-  if (0/*!ip_header->frag_offset &&
-	 icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
-	 ip_header->checksum*/)
+  if (/*icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
+	ip_header->checksum*/0)
     {
       /* FIXME: Why are header checksum invalid on big packets ? */
 #if ENABLE_DEBUG

@@ -1,3 +1,31 @@
+2000-11-02  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.h: The following configuration items
+	have been added to the HTTP configuration:
+	`admin'     - the administrators email address
+	`host'      - the servers host name
+	`logfile'   - location of access logfile
+	`logformat' - format string for the access logfile lines
+
+	* http-server/http-core.c (http_log): Added simple logging
+	system. Each http request gets a line within a configurable
+	access logfile.
+
+2000-11-01  [ Ela ]  <ela@lkcc.org>
+
+	* icmp-socket.c (icmp_ip_checksum): Fixed ip checksum 
+	generation algorithm due to RFC 1071 (Computing the Internet 
+	Checksum). Checking the IP header checksum still fails if
+	the packet was fragmented and reassembled by the kernel.
+
+	* alist.c (alist_delete_range): The implementation of this
+	function is based on alist_delete with some additional 
+	previous checks. Now the array list functions are completed.
+
+	* nut-server/nut-core.c (nut_parse_addr): If there is no
+	port given in the form `ip:port' it defaults to NUT_PORT
+	which is 6346.
+
 2000-10-31  [ Ela ]  <ela@lkcc.org>
 
 	* icmp-socket.c (icmp_put_ip_header): Put a given IP header
@@ -50,12 +78,6 @@
 	a bit.
 
 2000-10-22  [ Ela ]  <ela@lkcc.org>
-
-	* test.c: Helper functions for the test suites.
-
-	* hash-test.c: Hash function test suite.
-
-	* alist-test.c: Array list function test suite.
 
 	* alist.c: Most of the array list functions have been 
 	implemented and tested. This implementation can be used for
@@ -1620,4 +1642,3 @@
 1999-10-03  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
 
 	* serveez.c: File created.
-

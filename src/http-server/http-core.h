@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.2 2000/08/16 11:40:05 ela Exp $
+ * $Id: http-core.h,v 1.3 2000/11/02 12:51:57 ela Exp $
  *
  */
 
@@ -50,6 +50,8 @@ struct http_socket
   int keepalive;         /* how many requests left for a connection */
   off_t fileoffset;      /* file offset used by sendfile */
   HANDLE pid;            /* the pid of the cgi (process handle) */
+  time_t timestamp;      /* connection access time */
+  char *request;         /* the original request */
 };
 
 /* Some definitions. */
@@ -105,11 +107,9 @@ int http_parse_property (socket_t sock, char *request, char *end);
 char *http_find_property (http_socket_t *sock, char *key);
 
 void http_process_uri (char *uri);
-
 int http_error_response (socket_t sock, int response);
-
+void http_log (socket_t sock);
 time_t http_parse_date (char *date);
 char *http_asc_date (time_t t);
-
 
 #endif /* __HTTP_CORE_H__ */
