@@ -1,3 +1,10 @@
+2003-03-22  Stefan Jahn  <stefan@lkcc.org>
+
+	* guile-api.c, guile-bin.c: Replaced scm_must_*() functions by
+	scm_gc_*() where appropriate.
+
+	* guile-api.h (guile_lookup): Bug fix.
+
 2003-01-05  Andreas Rottmann  <a.rottmann@gmx.at>
 
 	* guile.c, guile-api.h, guile-api.c, guile-server.c: Modified 

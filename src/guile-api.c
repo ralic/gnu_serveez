@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.29 2003/02/05 17:04:25 ela Exp $
+ * $Id: guile-api.c,v 1.30 2003/03/22 18:39:22 ela Exp $
  *
  */
 
@@ -1066,12 +1066,12 @@ guile_read_file (SCM port, SCM size)
     SCM_OUT_OF_RANGE (SCM_ARG2, size);
 
   /* Allocate necessary data. */
-  data = (unsigned char *) scm_must_malloc (len, "svz-binary-data");
+  data = (unsigned char *) scm_gc_malloc (len, "svz-binary-data");
 
   /* Read from file descriptor and evaluate return value. */
   if ((ret = read (fdes, data, len)) < 0)
     {
-      scm_must_free (data);
+      scm_gc_free (data, len, "svz-binary-data");
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
 			scm_list_n (scm_makfrom0str (strerror (errno)),
 				    scm_int2num (fdes), size, SCM_UNDEFINED),
@@ -1079,13 +1079,13 @@ guile_read_file (SCM port, SCM size)
     }
   else if (ret == 0)
     {
-      scm_must_free (data);
+      scm_gc_free (data, len, "svz-binary-data");
       return SCM_EOF_VAL;
     }
   else if (ret != len)
     {
       data = (unsigned char *) 
-	scm_must_realloc (data, len, ret, "svz-binary-data");
+	scm_gc_realloc (data, len, ret, "svz-binary-data");
     }
 
   /* Finally return binary smob. */

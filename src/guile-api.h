@@ -18,12 +18,18 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.12 2003/02/05 17:04:25 ela Exp $
+ * $Id: guile-api.h,v 1.13 2003/03/22 18:39:22 ela Exp $
  *
  */
 
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
+
+/* Define this macro if Guile 1.6.x or better is in use. */
+#if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 6) && \
+    defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
+#define SCM_VERSION_16X 1
+#endif
 
 /* Define this macro if Guile 1.5.x or better is in use. */
 #if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 5) && \
@@ -142,10 +148,11 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_VERSION_15X
 #define guile_lookup(var, name) (var) = gh_lookup (name)
 #else
-#define guile_lookup(var, name) do {                                        \
-    (var) = scm_sym2var (scm_str2symbol (name),                             \
-	  	         scm_current_module_lookup_closure (), SCM_BOOL_F); \
-    if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED; } while (0)
+#define guile_lookup(var, name) do {					    \
+    (var) = scm_sym2var (scm_str2symbol (name),				    \
+			 scm_current_module_lookup_closure (), SCM_BOOL_F); \
+    if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED;			    \
+    else (var) = scm_variable_ref (var); } while (0)
 #endif
 #ifndef SCM_VERSION_15X
 #define scm_gc_protect_object(obj) scm_protect_object (obj)
@@ -155,6 +162,12 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 #ifndef SCM_VERSION_15X
 #define scm_c_make_vector(k, fill) scm_make_vector (scm_int2num (k), fill)
+#endif
+#ifndef SCM_VERSION_16X
+#define scm_gc_malloc(len, name) scm_must_malloc (len, name)
+#define scm_gc_free(mem, len, name) scm_must_free (mem)
+#define scm_gc_realloc(mem, olen, nlen, name) \
+    scm_must_realloc (mem, olen, nlen, name)
 #endif
 #ifndef SCM_OUT_OF_RANGE
 #define SCM_OUT_OF_RANGE(pos, arg) \

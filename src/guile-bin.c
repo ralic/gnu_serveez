@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-bin.c,v 1.28 2003/02/05 17:04:25 ela Exp $
+ * $Id: guile-bin.c,v 1.29 2003/03/22 18:39:22 ela Exp $
  *
  */
 
@@ -68,7 +68,7 @@ static scm_t_bits guile_bin_tag = 0;
   var = GET_BIN_SMOB (binary)
 #define MAKE_BIN_SMOB()                                    \
   ((guile_bin_t *) ((void *)                               \
-    scm_must_malloc (sizeof (guile_bin_t), "svz-binary")))
+    scm_gc_malloc (sizeof (guile_bin_t), "svz-binary")))
 
 /* Smob test function: Returns @code{#t} if the given cell @var{binary} is 
    an instance of the binary smob type. */
@@ -107,9 +107,9 @@ guile_bin_free (SCM binary)
   if (bin->garbage)
     {
       size += bin->size;
-      scm_must_free ((void *) bin->data);
+      scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
     }
-  scm_must_free ((void *) bin);
+  scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
   return size;
 }
 
@@ -150,7 +150,7 @@ guile_string_to_bin (SCM string)
   if (bin->size > 0)
     {
       bin->data = (unsigned char *) 
-	scm_must_malloc (bin->size, "svz-binary-data");
+	scm_gc_malloc (bin->size, "svz-binary-data");
       memcpy (bin->data, SCM_STRING_CHARS (string), bin->size);
       bin->garbage = 1;
     }
@@ -296,7 +296,7 @@ guile_bin_reverse (SCM binary)
 
   /* Reserve some memory for the new smob. */
   reverse->data = (unsigned char *) 
-    scm_must_malloc (reverse->size, "svz-binary-data");
+    scm_gc_malloc (reverse->size, "svz-binary-data");
   reverse->garbage = 1;
 
   /* Apply reverse byte order to the new smob. */
@@ -398,14 +398,14 @@ guile_bin_concat_x (SCM binary, SCM append)
   if (bin->garbage)
     {
       bin->data = (unsigned char *) 
-	scm_must_realloc ((void *) bin->data, bin->size, bin->size + len, 
-			  "svz-binary-data");
+	scm_gc_realloc ((void *) bin->data, bin->size, bin->size + len, 
+			"svz-binary-data");
     }
   else
     {
       unsigned char *odata = bin->data;
       bin->data = (unsigned char *) 
-	scm_must_malloc (bin->size + len, "svz-binary-data");
+	scm_gc_malloc (bin->size + len, "svz-binary-data");
       memcpy (bin->data, odata, bin->size);
     }
 
@@ -492,7 +492,7 @@ guile_list_to_bin (SCM list)
   if (bin->size > 0)
     {
       p = bin->data = (unsigned char *) 
-	scm_must_malloc (bin->size, "svz-binary-data");
+	scm_gc_malloc (bin->size, "svz-binary-data");
       bin->garbage = 1;
     }
   else
@@ -508,16 +508,16 @@ guile_list_to_bin (SCM list)
       val = SCM_CAR (list);
       if (!SCM_EXACTP (val) && !SCM_CHARP (val))
 	{
-	  scm_must_free ((void *) bin->data);
-	  scm_must_free ((void *) bin);
+	  scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
+	  scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
 	  scm_wrong_type_arg_msg (FUNC_NAME, SCM_ARGn, val, "char or exact");
 	}
       value = SCM_CHARP (val) ? 
 	((int) SCM_CHAR (val)) : SCM_NUM2INT (SCM_ARGn, val);
       if (value < -128 || value > 255)
 	{
-	  scm_must_free ((void *) bin->data);
-	  scm_must_free ((void *) bin);
+	  scm_gc_free ((void *) bin->data, bin->size, "svz-binary-data");
+	  scm_gc_free ((void *) bin, sizeof (guile_bin_t), "svz-binary");
 	  SCM_OUT_OF_RANGE (SCM_ARGn, val);
 	}
       *p++ = (unsigned char) value;
@@ -553,8 +553,8 @@ guile_data_to_bin (void *data, int size)
 
 /* Converts the data pointer @var{data} with a size of @var{size} bytes
    into a binary smob which is marked as garbage.  This means the data 
-   pointer must be allocated by @code{scm_must_malloc()} or 
-   @code{scm_must_realloc()}. */
+   pointer must be allocated by @code{scm_gc_malloc()} or 
+   @code{scm_gc_realloc()}. */
 SCM
 guile_garbage_to_bin (void *data, int size)
 {
