@@ -120,13 +120,13 @@ configuration file in the @file{data/} directory.
 Generally you can determine special variables in this file and you have
 to instantiate the servers you actually want to run. The following
 example shows how do you setup a server whose short name is @samp{xxx}.
-The @samp{?} is the instance number of that server. You can define
-more than one @samp{xxx-server}, of course. The body of such a server
-hash contains key value pairs which set up this specific server.
+The @samp{trailer} is the instance description of that server. You can 
+define more than one @samp{xxx-trailer}, of course. The body of such a 
+server hash contains key value pairs which set up this specific server.
 @xref{Existing Servers}, for more information about these pairs.
 
 @example
-(define xxx-server? '#@{
+(define xxx-trailer '#@{
                         "key" => value
                       @})
 @end example
@@ -531,7 +531,7 @@ of the remote client.
 * IRC Server::                  EFNet IRC Server
 * Control Protocol Server::     @value{PACKAGE} control center
 * Foo Server::                  Example server implementation
-* Quake III Key Server::        Quake 3 License Key Server description
+* SNTP Server::                 Simple network time protocol server
 * Gnutella Spider::             Gnutella Client description
 * Tunnel Server::               Description of the port forwarder
 @end menu
@@ -1043,7 +1043,7 @@ state of @value{PACKAGE} in general.
 
 @example
 This is @value{s_PACKAGE} version @value{VERSION} running since Sat Jul 15 18:45:58 2000.
-Features  : AWCS HTTP IRC CTRL Q3KEY NUT TUNNEL
+Features  : AWCS HTTP IRC CTRL SNTP NUT TUNNEL
             IDENT REVERSE-DNS DNS FLOOD DEBUG
 Os        : Linux 2.2.17 on i586
 Sys-Load  : user 0.9%, nice 0.0%, sys 0.0%, idle 99.0%
@@ -1110,58 +1110,44 @@ useful to declare a @code{local-ip} within this hash when you do not
 want people using this protocol from outsides.
 @end table
 
-@node Foo Server, Quake III Key Server, Control Protocol Server, Existing Servers
+@node Foo Server, SNTP Server, Control Protocol Server, Existing Servers
 @subsection Foo Server
 
 The Foo Server is a simple example on how to write internet protocol
 servers with @value{PACKAGE}. @xref{Writing Servers}.
 
-@node Quake III Key Server, Gnutella Spider, Foo Server, Existing Servers
-@subsection Quake III Key Server
+@node SNTP Server, Gnutella Spider, Foo Server, Existing Servers
+@subsection SNTP Server
 
-@subsubsection Motivation
+@subsubsection General
+The SNTP server can be requested by @samp{netdate} to set date and time 
+by ARPA Internet RFC 868. Thus it is not really an SNTP server as referred
+by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for IPv4, IPv6 
+and OSI). It is rather an excellent example how to start implementing an
+UDP server in @value{PACKAGE}. 
 
-First of all, this software is probably illegal. Period.
+This protocol provides a site-independent, machine readable date and
+time. The Time service sends back to the originating source the time in
+seconds since midnight on January first 1900.
 
-Please buy the game. But you may need this software anyway, because
-commercial software developers are narrow minded sometimes.
-
-You just have the choice between LAN and Internet connection when running
-the game. But the real choice you have is: LAN in one broadcast domain 
-vs. permanent internet connection. This leaves the whole area of 
-subnet'ed LANs or inhouse networks, subnet'ed LAN parties or LANs 
-interconnected with phonelines. This pissed me off.
+One motivation arises from the fact that not all systems have a
+date/time clock, and all are subject to occasional human or machine
+error. The use of time-servers makes it possible to quickly confirm or
+correct a system's idea of the time, by making a brief poll of several
+independent sites on the network.
 
 @subsubsection Configuration
+The configuration of this server knows just a single item which is the
+port configuration.
 
-Run this program on some computer and make the clients think this
-computer is a key server. Add following lines to @file{/etc/hosts}
-or @file{c:\windows\hosts} :
-@example
-127.0.0.1       authorize.quake3arena.com
-@end example
-Replace 127.0.0.1 by the IP address of your server machine. Perhaps 
-you want to add some entry for @uref{update.quake3arena.com}, too.
-If you have got a complete master server add entries for:
-@example
-master.quake3world.com
-master.quake3arena.com
-master3.idsoftware.com
-@end example
-The configuration of the server knows the following items.
 @table @code
 @item netport
-This entry should contain @samp{udp} for @samp{proto} and some udp port.
-The default port is 27952.
-
-@item echo
-The key servers echo reply when authorizing.
-
-@item logfile
-All keys the clients send will be logged within this file.
+This item specifies the protocol (which is "udp"), the network port (by
+default 37) and the local ip address on which the server socket is bound
+to (default is any ip address).
 @end table
 
-@node Gnutella Spider, Tunnel Server, Quake III Key Server, Existing Servers
+@node Gnutella Spider, Tunnel Server, SNTP Server, Existing Servers
 @subsection Gnutella Spider
 
 @subsubsection What is it ?
@@ -1709,9 +1695,6 @@ The Gnutella Protocol
 @item 
 @uref{http://www.efnet.org/}
 The official EFNet site
-@item 
-@uref{http://www.gamers.org/dEngine/quake/}
-Quake Developer's Page
 @item 
 @uref{http://www.sockets.com/}
 Winsock Development Information
