@@ -1,3 +1,32 @@
+2000-10-05  [ Ela ]  <ela@lkcc.org>
+
+	* nut-server/nut-transfer.c (nut_send_push): This routine sends
+	a push request to a given transfer connection. It is used when
+	the download connection could not be established.
+
+	* nut-server/nut-transfer.c (nut_init_transfer): Saving
+	the push request data. This could be used if the connection
+	failed.
+
+	* http-server/http-proto.c (http_cgi_died): Additional check
+	for cgi's been died via `waitpid'.
+
+	* icmp-socket.c (icmp_printf): This function can be used to
+	send a formatted string via icmp connection. Header creation
+	inclusive.
+
+	* http-server/http-cgi.c (http_cgi_read): Prevent receiving
+	cgi pipes from shutting down the http connection if there
+	is currently no data to receive (MinGW32 port).
+
+	* server-loop.c (server_check_sockets_MinGW): Put read 
+	callback for pipes in front of any selection for writing.
+	This is why pipes cannot be select()ed, but are non-blocking
+	anyway (reading only).
+
+	* nut-server/nut-core.c (nut_parse_addr): Prevent serveez from
+	segfaulting if a given host string is empty.
+
 2000-10-01  [ Ela ]  <ela@lkcc.org>
 
 	* util.c: Modifications for compiling on AIX without unwanted

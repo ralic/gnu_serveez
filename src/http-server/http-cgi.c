@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.21 2000/09/28 21:12:53 ela Exp $
+ * $Id: http-cgi.c,v 1.22 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -178,6 +178,17 @@ http_cgi_read (socket_t sock)
       sock->send_buffer_fill += num_read;
       return 0;
     }
+
+#ifdef __MINGW32__
+  /*
+   * because pipes cannot be select()ed it can happen that there is no
+   * data within the receiving pipe, but the cgi has not yet terminated
+   */
+  if (num_read == 0 && http->pid != INVALID_HANDLE)
+    {
+      return 0;
+    }
+#endif /* __MINGW32__ */
 
   /* no data has been received */
   sock->userflags |= HTTP_FLAG_DONE;

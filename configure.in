@@ -1051,8 +1051,8 @@ AC_TRY_RUN([#include <stdio.h>
 	exit (1);}],
    AC_MSG_RESULT([yes (gcc on IRIX)])
    AC_DEFINE(BROKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.]),
+   AC_MSG_RESULT(no),
    AC_MSG_RESULT(no))
-
 
 dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.
@@ -1156,9 +1156,9 @@ AC_EGREP_HEADER(h_errno, netdb.h,
     AC_MSG_RESULT(no))
 
 dnl
-dnl Check for times().
+dnl Check for times, poll and waitpid.
 dnl
-AC_CHECK_FUNCS(times poll)
+AC_CHECK_FUNCS(times poll waitpid)
 
 dnl Find a working inline.
 save_cflags="$CFLAGS"

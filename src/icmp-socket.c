@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.2 2000/10/01 11:11:20 ela Exp $
+ * $Id: icmp-socket.c,v 1.3 2000/10/05 09:52:19 ela Exp $
  *
  */
 
@@ -44,6 +44,7 @@
 
 #ifdef __MINGW32__
 # include <winsock.h>
+# include <process.h>
 #endif
 
 #include "socket.h"
@@ -67,21 +68,21 @@ icmp_get_ip_header (byte *data)
   unsigned int uint32;
 
   hdr.version_length = *data++;
-  hdr.unused = *data++;
+  hdr.tos = *data++;
   memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.length = uint16;
+  hdr.length = ntohs (uint16);
   data += SIZEOF_UINT16;
   memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.id = uint16;
+  hdr.ident = ntohs (uint16);
   data += SIZEOF_UINT16;
   hdr.flags = *data++;
   memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.frag_offset = uint16;
+  hdr.frag_offset = ntohs (uint16);
   data += SIZEOF_UINT16;
   hdr.ttl = *data++;
   hdr.protocol = *data++;
   memcpy (&uint16, data, SIZEOF_UINT16);
-  hdr.checksum = uint16;
+  hdr.checksum = ntohs (uint16);
   data += SIZEOF_UINT16;
   memcpy (&uint32, data, SIZEOF_UINT32);
   hdr.src = uint32;
@@ -93,19 +94,189 @@ icmp_get_ip_header (byte *data)
 }
 
 /*
- * Parse and check IP and ICMP header.
+ * Get ICMP header from plain data.
+ */
+static icmp_header_t *
+icmp_get_header (byte *data)
+{
+  static icmp_header_t hdr;
+  unsigned short uint16;
+
+  hdr.type = *data++;
+  hdr.code = *data++;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.checksum = ntohs (uint16);
+  data += SIZEOF_UINT16;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.ident = ntohs (uint16);
+  data += SIZEOF_UINT16;
+  memcpy (&uint16, data, SIZEOF_UINT16);
+  hdr.sequence = ntohs (uint16);
+
+  return &hdr;
+}
+
+/*
+ * Create ICMP header (data block) from given structure.
+ */
+byte *
+icmp_put_header (icmp_header_t *hdr)
+{
+  static byte buffer[ICMP_HEADER_SIZE];
+  byte *data = buffer;
+  unsigned short uint16;
+
+  *data++ = hdr->type;
+  *data++ = hdr->code;
+  uint16 = htons (hdr->checksum);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+  data += SIZEOF_UINT16;
+  uint16 = htons (hdr->ident);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+  data += SIZEOF_UINT16;
+  uint16 = htons (hdr->sequence);
+  memcpy (data, &uint16, SIZEOF_UINT16);
+
+  return buffer;
+}
+
+/*
+ * Recalculate IP header checksum.
+ */
+static unsigned short
+icmp_ip_checksum (byte *data, int len)
+{
+  unsigned short checksum = 0, save, n, val;
+
+  save = data[IP_CHECKSUM_OFS] | (data[IP_CHECKSUM_OFS + 1] << 8);
+  data[IP_CHECKSUM_OFS] = 0;
+  data[IP_CHECKSUM_OFS + 1] = 0;
+
+  for (n = 0; n < len; n += 2)
+    {
+      val = data[n] | (data[n + 1] << 8);
+      val = ~val;
+      checksum += val;
+    }
+  
+  data[IP_CHECKSUM_OFS] = save & 0xff;
+  data[IP_CHECKSUM_OFS + 1] = (save >> 8) & 0xff;
+
+  return ~checksum;
+}
+
+/*
+ * Checking the IP header only. Return the length of the header if it 
+ * is valid, otherwise -1.
  */
 static int
-icmp_check_packet (byte *data)
+icmp_check_ip_header (byte *data, int len)
 {
   ip_header_t *ip_header;
 
   ip_header = icmp_get_ip_header (data);
-  return 0;
+
+  /* Is this IPv4 version ? */
+  if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: cannot handle IPv%d\n", 
+		  IP_HDR_VERSION (ip_header));
+#endif
+      return -1;
+    }
+
+  /* Check Internet Header Length. */
+  if (IP_HDR_LENGTH (ip_header) < len)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: invalid IHL (%d < %d)\n",
+		  IP_HDR_LENGTH (ip_header), len);
+#endif
+      return -1;
+    }
+
+  /* Check total length. */
+  if (ip_header->length < len)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: invalid total length (%d < %d)\n",
+		  ip_header->length, len);
+#endif
+      return -1;
+    }
+
+  /* Check protocol type. */
+  if (ip_header->protocol != ICMP_PROTOCOL)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "icmp: invalid protocol %d\n",
+		  ip_header->protocol);
+#endif
+      return -1;
+    }
+
+  /* Recalculate and check the header checksum. */
+  if (icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
+      ip_header->checksum)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, 
+		  "icmp: invalid ip header checksum (%04X != %04X)\n",
+		  icmp_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
+		  ip_header->checksum);
+#endif
+      return -1;
+    }
+
+  return IP_HDR_LENGTH (ip_header);
 }
 
 /*
- * Default reader for icmp sockets.
+ * Parse and check IP and ICMP header. Return the amount of leading bytes 
+ * to be truncated. Otherwise -1.
+ */
+static int
+icmp_check_packet (byte *data, int len)
+{
+  int length;
+  byte *p = data;
+  icmp_header_t *header;
+
+  /* First check the IP header. */
+  if ((length = icmp_check_ip_header (p, len)) == -1)
+    return -1;
+
+  /* Get the actual ICMP header. */
+  header = icmp_get_header (p + length);
+  p += length + ICMP_HEADER_SIZE;
+  len -= length + ICMP_HEADER_SIZE;
+
+  switch (header->type)
+    {
+    case ICMP_ECHOREPLY:
+      return -1;
+      break;
+
+    case ICMP_ECHO:
+      return -1;
+      break;
+
+    case ICMP_SERVEEZ:
+      return (length + ICMP_HEADER_SIZE);
+      break;
+
+    default:
+      return -1;
+      break;
+    }
+
+  return -1;
+}
+
+/*
+ * Default reader for ICMP sockets. The sender is stored within 
+ * `sock->remote_addr' and `sock->remote_port'.
  */
 int
 icmp_read_socket (socket_t sock)
@@ -113,6 +284,7 @@ icmp_read_socket (socket_t sock)
   int do_read, num_read;
   socklen_t len;
   struct sockaddr_in sender;
+  int trunc;
 
   len = sizeof (struct sockaddr_in);
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
@@ -130,30 +302,264 @@ icmp_read_socket (socket_t sock)
   if (num_read > 0)
     {
 #if 1
-      util_hexdump (stdout, "icmp received", sock->sock_desc,
+      util_hexdump (stdout, "icmp packet received", sock->sock_desc,
 		    icmp_buffer, num_read, 0);
 #endif
       sock->last_recv = time (NULL);
       sock->remote_port = sender.sin_port;
       sock->remote_addr = sender.sin_addr.s_addr;
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp packet received from %s:%u\n",
+      log_printf (LOG_DEBUG, "icmp: recvfrom: %s:%u\n",
 		  util_inet_ntoa (sock->remote_addr),
 		  ntohs (sock->remote_port));
 #endif
 
       /* Check ICMP packet and put packet load only to receive buffer. */
-      icmp_check_packet ((byte *) icmp_buffer);
+      if ((trunc = icmp_check_packet ((byte *) icmp_buffer, num_read)) != -1)
+	{
+	  memcpy (icmp_buffer + trunc,
+		  sock->recv_buffer + sock->recv_buffer_fill,
+		  num_read - trunc);
+	  sock->recv_buffer_fill += num_read - trunc;
 
-      if (sock->check_request)
-        sock->check_request (sock);
+	  if (sock->check_request)
+	    sock->check_request (sock);
+	}
     }
   /* Some error occured. */
   else
     {
-      log_printf (LOG_ERROR, "icmp read: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "icmp: recvfrom: %s\n", NET_ERROR);
       if (last_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
   return 0;
+}
+
+/*
+ * The default ICMP write callback is called whenever the socket fd has
+ * been select()ed or poll()ed.
+ */
+int
+icmp_write_socket (socket_t sock)
+{
+  int num_written;
+  unsigned do_write;
+  char *p;
+  socklen_t len;
+  struct sockaddr_in receiver;
+
+  len = sizeof (struct sockaddr_in);
+  receiver.sin_family = AF_INET;
+  receiver.sin_port = 0;
+
+  /* get destination address and data length from buffer */
+  p = sock->send_buffer;
+  memcpy (&do_write, p, sizeof (do_write));
+  p += sizeof (do_write);
+  memcpy (&receiver.sin_addr.s_addr, p, sizeof (sock->remote_addr));
+  p += sizeof (sock->remote_addr);
+
+  num_written = sendto (sock->sock_desc, p, 
+                        do_write - (p - sock->send_buffer),
+                        0, (struct sockaddr *) &receiver, len);
+#if ENABLE_DEBUG
+  log_printf (LOG_DEBUG, "icmp: sendto: %s (%u bytes)\n",
+              util_inet_ntoa (receiver.sin_addr.s_addr),
+              do_write - (p - sock->send_buffer));
+#endif  
+
+  /* Some error occured while sending. */
+  if (num_written < 0)
+    {
+      log_printf (LOG_ERROR, "icmp: sendto: %s\n", NET_ERROR);
+      if (last_errno != SOCK_UNAVAILABLE)
+        return -1;
+    }
+  /* Packet data could be transmitted. */
+  else
+    {
+      sock->last_send = time (NULL);
+      if ((unsigned)sock->send_buffer_fill > do_write)
+        {
+          memmove (sock->send_buffer, 
+                   sock->send_buffer + do_write,
+                   sock->send_buffer_fill - do_write);
+        }
+      sock->send_buffer_fill -= do_write;
+    }
+  return 0;
+}
+
+/*
+ * Put a formatted string to the icmp socket SOCK. Packet length and
+ * destination address are additionally saved to the send buffer. The
+ * destination is taken from sock->remote_addr. Furthermore a valid
+ * icmp header is stored in front of the actual packet data.
+ */
+int
+icmp_printf (socket_t sock, const char *fmt, ...)
+{
+  va_list args;
+  static char buffer[VSNPRINTF_BUF_SIZE];
+  icmp_header_t hdr;
+  unsigned len;
+  int ret;
+
+  if (sock->flags & SOCK_FLAG_KILLED)
+    return 0;
+
+  /* Put the data length and destination address in front of each packet. */
+  len = sizeof (len);
+  memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
+  len += sizeof (sock->remote_addr);
+
+  /* Create ICMP header and put it in front of packet load. */
+  hdr.type = ICMP_SERVEEZ;
+  hdr.code = ICMP_SERVEEZ_DATA;
+  hdr.checksum = 0;
+  hdr.ident = getpid ();
+  hdr.sequence = 0;
+  memcpy (&buffer[len], icmp_put_header (&hdr), ICMP_HEADER_SIZE);
+  len += ICMP_HEADER_SIZE;
+
+  /* Save actual packet load. */
+  va_start (args, fmt);
+  ret = vsnprintf (&buffer[len], VSNPRINTF_BUF_SIZE - len, fmt, args);
+  va_end (args);
+
+  /* Put chunk length to buffer. */
+  len += ret;
+  memcpy (buffer, &len, sizeof (len));
+
+  if ((ret = sock_write (sock, buffer, len)) == -1)
+    sock->flags |= SOCK_FLAG_KILLED;
+  
+  return ret;
+}
+
+/*
+ * Default check_request callback for ICMP sockets.
+ */
+int
+icmp_check_request (socket_t sock)
+{
+  int n;
+  server_t *server;
+
+  if (sock->data == NULL && sock->handle_request == NULL)
+    return -1;
+
+  /* 
+   * If there is a valid handle_request callback (dedicated icmp connection)
+   * call it. This kind of behaviour is due to a socket creation via
+   * icmp_connect (s.b.) and setting up a static handle_request callback.
+   */
+  if (sock->handle_request)
+    {
+      if (sock->handle_request (sock, sock->recv_buffer,
+                                sock->recv_buffer_fill))
+        return -1;
+      return 0;
+    }
+
+  /* go through all icmp servers on this server socket */
+  for (n = 0; (server = SERVER (sock->data, n)); n++)
+    {
+      sock->cfg = server->cfg;
+      
+      if (server->handle_request)
+        {
+          if (!server->handle_request (sock, sock->recv_buffer,
+                                       sock->recv_buffer_fill))
+            {
+              sock->recv_buffer_fill = 0;
+              break;
+            }
+        }
+    }
+
+  /* check if any server processed this packet */
+  if (sock->recv_buffer_fill)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "rejecting icmp packet on socket %d\n",
+                  sock->sock_desc);
+#endif
+      sock->recv_buffer_fill = 0;
+    }
+
+  sock->cfg = NULL;
+  return 0;
+}
+
+/*
+ * This function creates an ICMP socket for receiving and sending.
+ * Return NULL on errors, otherwise an enqueued socket_t structure.
+ */
+socket_t
+icmp_connect (unsigned long host)
+{
+  struct sockaddr_in client;
+  SOCKET sockfd;
+  socket_t sock;
+#ifdef __MINGW32__
+  unsigned long blockMode = 1;
+#endif
+
+  /* create a socket for communication with the server */
+  if ((sockfd = socket (AF_INET, SOCK_RAW, IPPROTO_IP)) == INVALID_SOCKET)
+    {
+      log_printf (LOG_ERROR, "socket: %s\n", NET_ERROR);
+      return NULL;
+    }
+
+  /* make the socket non-blocking */
+#ifdef __MINGW32__
+  if (ioctlsocket (sockfd, FIONBIO, &blockMode) == SOCKET_ERROR)
+    {
+      log_printf (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      closesocket (sockfd);
+      return NULL;
+    }
+#else
+  if (fcntl (sockfd, F_SETFL, O_NONBLOCK) < 0)
+    {
+      log_printf (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      closesocket (sockfd);
+      return NULL;
+    }
+#endif
+  /* try to connect to the server */
+  client.sin_family = AF_INET;
+  client.sin_addr.s_addr = host;
+  client.sin_port = 0;
+  
+  if (connect (sockfd, (struct sockaddr *) &client,
+               sizeof (client)) == -1)
+    {
+      log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
+      closesocket (sockfd);
+      return NULL;
+    }
+
+  /* create socket structure and enqueue it */
+  if ((sock = sock_alloc ()) == NULL)
+    {
+      closesocket (sockfd);
+      return NULL;
+    }
+
+  sock_unique_id (sock);
+  sock->sock_desc = sockfd;
+  sock->flags |= SOCK_FLAG_SOCK;
+  sock_enqueue (sock);
+  sock_intern_connection_info (sock);
+
+  sock->read_socket = icmp_read_socket;
+  sock->write_socket = icmp_write_socket;
+  sock->check_request = icmp_check_request;
+
+  connected_sockets++;
+  return sock;
 }

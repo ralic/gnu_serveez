@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.30 2000/10/01 11:11:20 ela Exp $
+ * $Id: server-socket.c,v 1.31 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -262,23 +262,29 @@ server_create (portcfg_t *cfg)
     }
   else
     {
+      char *proto = "unknown";
+
       if (cfg->proto & PROTO_TCP)
 	{
 	  sock->read_socket = server_accept_socket;
+	  proto = "tcp";
 	}
       else if (cfg->proto & PROTO_UDP)
 	{
 	  sock->read_socket = udp_read_socket;
 	  sock->write_socket = udp_write_socket;
 	  sock->check_request = udp_check_request;
+	  proto = "udp";
 	}
       else if (cfg->proto & PROTO_ICMP)
 	{
 	  sock->read_socket = icmp_read_socket;
+	  sock->write_socket = icmp_write_socket;
+	  sock->check_request = icmp_check_request;
+	  proto = "icmp";
 	}
 
-      log_printf (LOG_NOTICE, "listening on %s port %s:%u\n",
-		  cfg->proto & PROTO_TCP ? "tcp" : "udp",
+      log_printf (LOG_NOTICE, "listening on %s port %s:%u\n", proto,
 		  cfg->localaddr->sin_addr.s_addr == INADDR_ANY ? "*" : 
 		  util_inet_ntoa (cfg->localaddr->sin_addr.s_addr),
 		  ntohs (sock->local_port));

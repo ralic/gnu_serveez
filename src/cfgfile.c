@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: cfgfile.c,v 1.11 2000/09/27 14:31:25 ela Exp $
+ * $Id: cfgfile.c,v 1.12 2000/10/05 09:52:19 ela Exp $
  *
  */
 
@@ -28,8 +28,8 @@
 #endif
 
 #define _GNU_SOURCE
-
 #include <string.h>
+
 #ifdef __MINGW32__
 # include <winsock.h>
 #endif
@@ -82,10 +82,12 @@ struct config_t
 #define REG_STRING(name, location, default, defaultable) \
 { TYPESTRING, name, location, defaultable, NULL, 0, default, NULL }
 
+/* String arrays cannot have default values */
 #define REG_STRARRAY(name, location, defaultable) \
 { TYPESTRARRAY, name, location, defaultable, NULL, 0, NULL, NULL }
-/* String arrays cannot have default values */
 
+#define REG_END \
+{ LISTEND, NULL, NULL,  0, NULL,  0, NULL, NULL }
 
 /* Macro for 'compiled-in' flags */
 #define REG_HAVEFLAG(name, location) \
@@ -97,52 +99,46 @@ zzz_bind_bool_variable (name, location, 1)
  * terminate program then...
  */
 int
-load_config (char *cfgfilename, int argc, char **argv)
+load_config (char *cfgfile, int argc, char **argv)
 {
   int retval = 0;
   int i;
   
-  /*
-   * Register all configuration items here.
-   */
+  /* register all configuration items here */
   struct config_t configs[] =
   {
     /* global settings */
     REG_INT ("serveez-sockets", &serveez_config.max_sockets, 200, 1),
     REG_INT ("serveez-verbosity", &verbosity, 3, 1),
     REG_STRING ("serveez-pass", &serveez_config.server_password, "!", 0),
-    
-    { LISTEND,      NULL, NULL,  0, NULL,  0, NULL, NULL }
+    REG_END
   };
 
-
-  zzz_set_top_of_stack ((zzz_scm_t *) &cfgfilename);
+  /* initialize sizzle */
+  zzz_set_top_of_stack ((zzz_scm_t *) &cfgfile);
   zzz_initialize ();
   zzz_set_arguments (argc - 1, argv[0], argv + 1);
 
-  /*
-   * set some information for sizzle (read-only)
-   */
+  /* set some information for sizzle (read-only) */
   zzz_bind_string_variable ("serveez-version", serveez_config.version_string,
 			    0, 1);
 
-  /*
-   * register read-only boolean variables for the features in this system
-   */
+  /* register read-only boolean variables for the features in this system */
   REG_HAVEFLAG ("have-debug", &have_debug);
   REG_HAVEFLAG ("have-win32", &have_win32);
 
+  /* go through list of configuration items */
   for (i = 0; configs[i].type != LISTEND; i++)
     {
       switch (configs[i].type)
 	{
 	case TYPEINT:
-	  *(int *)configs[i].location = configs[i].default_int;
+	  *(int *) configs[i].location = configs[i].default_int;
 	  zzz_bind_int_variable (configs[i].name, configs[i].location, 0);
 	  break;
 
 	case TYPEBOOL:
-	  *(int *)configs[i].location = configs[i].default_int;
+	  *(int *) configs[i].location = configs[i].default_int;
 	  zzz_bind_bool_variable (configs[i].name, configs[i].location, 0);
 	  break;
 
@@ -153,32 +149,32 @@ load_config (char *cfgfilename, int argc, char **argv)
 	  zzz_bind_string_variable (configs[i].name, configs[i].string_buffer,
 				    STRINGVARSIZE, 0);
 	  break;
-
+	  
 	case TYPESTRARRAY:
 	  zzz_bind_scm_variable (configs[i].name, &configs[i].scm, 0);
 	  break;
 
 	default:
-	  fprintf (stderr, "Inconsistent data in cfgfile.c, aborting.\n");
+	  fprintf (stderr, "inconsistent data in " __FILE__ ", aborting\n");
 	  return -1;
 	}
     }
 
-  /* Evaluate the configfile, doing nothing when file was not found */
-  if (zzz_evaluate_file (zzz_interaction_environment, cfgfilename) == -2) 
+  /* evaluate the configfile, doing nothing when file was not found */
+  if (zzz_evaluate_file (zzz_interaction_environment, cfgfile) == -2) 
     return -1;
 
+  /* go through list of configuration items once again */
   for (i = 0; configs[i].type != LISTEND; i++)
     {
       switch (configs[i].type)
 	{
 	case TYPEINT:
 	  if (!configs[i].defaultable &&
-	      *(int*) configs[i].location == configs[i].default_int )
+	      *(int*) configs[i].location == configs[i].default_int)
 	    {
-	      fprintf (stderr, "Integer variable %s was not set in %s "
-		       "but has no default value !\n",
-		       configs[i].name, cfgfilename);
+	      fprintf (stderr, "%s: integer `%s' has no default value\n",
+		       cfgfile, configs[i].name);
 	      retval = -1;
 	    }
 	  break;
@@ -187,38 +183,34 @@ load_config (char *cfgfilename, int argc, char **argv)
 	  if (!configs[i].defaultable &&
 	      *(int*) configs[i].location == configs[i].default_int)
 	    {
-	      fprintf (stderr, "Boolean variable %s was not set in %s "
-		       "but has no default value !\n",
-		       configs[i].name, cfgfilename);
+	      fprintf (stderr, "%s: boolean `%s' has no default value\n",
+		       cfgfile, configs[i].name);
 	      retval = -1;
 	    }
 	  break;
 
-    case TYPESTRING:
-      if (!configs[i].defaultable &&
-	  strcmp (configs[i].string_buffer, configs[i].default_string) == 0)
-	{
-	  fprintf (stderr, "String variable %s was not set in %s "
-		   "but has no default value !\n",
-		   configs[i].name, cfgfilename);
-	  retval = -1;
-	}
-      else
-	{
-	  *(char**) configs[i].location =
-	    xpmalloc (strlen (configs[i].string_buffer) + 1);
-
-	  strcpy (*(char**) configs[i].location, configs[i].string_buffer);
-	  xfree (configs[i].string_buffer);
-	}
-      break;
+	case TYPESTRING:
+	  if (!configs[i].defaultable &&
+	      !strcmp (configs[i].string_buffer, configs[i].default_string))
+	    {
+	      fprintf (stderr, "%s: string `%s' has no default value\n",
+		       cfgfile, configs[i].name);
+	      retval = -1;
+	    }
+	  else
+	    {
+	      *(char**) configs[i].location =
+		xpmalloc (strlen (configs[i].string_buffer) + 1);
+	      strcpy (*(char**) configs[i].location, configs[i].string_buffer);
+	      xfree (configs[i].string_buffer);
+	    }
+	  break;
       
 	case TYPESTRARRAY:
 	  if (!configs[i].defaultable &&  configs[i].scm == NULL)
 	    {
-	      fprintf (stderr, "String array %s was not set in %s "
-		       "but has no default value !\n",
-		       configs[i].name, cfgfilename);
+	      fprintf (stderr, "%s: string array `%s' has no default value\n",
+		       cfgfile, configs[i].name);
 	      return retval = -1;
 	    }
 	  else 
@@ -228,18 +220,18 @@ load_config (char *cfgfilename, int argc, char **argv)
 	      int length;
 	      char **array;
 
-	      /* Determine list length */
+	      /* determine list length */
 	      length = zzz_list_length (s);
 
 	      if (length <= 0)
 		{
-		  fprintf (stderr, "Something wrong with string array "
-			   "%s in %s.\n", configs[i].name, cfgfilename);
+		  fprintf (stderr, "%s: invalid string array `%s'\n",
+			   cfgfile, configs[i].name);
 		  retval = -1;
 		  break;
 		}
 
-	      /* Allocate mem for this array */
+	      /* allocate memory for this array */
 	      *(char***) configs[i].location = xmalloc ((length + 1) *
 							sizeof (char *));
 	      array = *(char***) configs[i].location;
@@ -258,29 +250,30 @@ load_config (char *cfgfilename, int argc, char **argv)
 		    } 
 		  else 
 		    {
-		      fprintf (stderr, "Element %d of %s is not a string in "
-			       "%s.\n", m, configs[i].name, cfgfilename);
+		      fprintf (stderr, 
+			       "%s: element %d of `%s' is not a string\n",
+			       cfgfile, m, configs[i].name);
 		      retval = -1;
 		    }
 		  s = cdr (s);
 		  m++;
 		}
 
-	      /* Terminate the array of char* */
+	      /* terminate the array of (char *) */
 	      array[m] = NULL;
 	    }
 	  break;
 	  
 	default:
-	  fprintf (stderr, "Inconsistent data in cfgfile.c, panik !\n");
+	  fprintf (stderr, "inconsistent data in " __FILE__", panik\n");
 	  return -1;
 	}
     }
 
-
-  /* Instantiate servers from symbol table
+  /* 
+   * Instantiate servers from symbol table.
    */
-  if (server_load_cfg (cfgfilename) < 0)
+  if (server_load_cfg (cfgfile) < 0)
     retval = -1;
 
   zzz_finalize ();

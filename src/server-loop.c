@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-loop.c,v 1.9 2000/10/01 22:40:10 ela Exp $
+ * $Id: server-loop.c,v 1.10 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -590,6 +590,14 @@ server_check_sockets_MinGW (void)
 	      sock_schedule_for_shutdown (sock);
 	}
 
+      /* Handle receiving pipes. Is non-blocking, but cannot be select()ed. */
+      if (sock->flags & SOCK_FLAG_RECV_PIPE)
+	{
+	  if (sock->read_socket)
+	    if (sock->read_socket (sock))
+	      sock_schedule_for_shutdown (sock);
+	}
+
       if (sock->flags & SOCK_FLAG_SOCK)
 	{
 	  /* Is the socket descriptor currently unavailable ? */
@@ -669,20 +677,13 @@ server_check_sockets_MinGW (void)
 	      continue;
 	    }
 
-	  /* Handle receiving pipes. Is blocking ! */
-	  if (sock->flags & SOCK_FLAG_RECV_PIPE)
-	    {
-	      if (sock->read_socket)
-		if (sock->read_socket (sock))
-		  sock_schedule_for_shutdown (sock);
-	    }
-
 	  /* Handle sending pipes. Is blocking ! */
 	  if (sock->flags & SOCK_FLAG_SEND_PIPE)
 	    {
-	      if (sock->write_socket)
-		if (sock->write_socket (sock))
-		  sock_schedule_for_shutdown (sock);
+	      if (sock->send_buffer_fill > 0)
+		if (sock->write_socket)
+		  if (sock->write_socket (sock))
+		    sock_schedule_for_shutdown (sock);
 	    }
 	}
 

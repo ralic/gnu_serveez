@@ -1182,6 +1182,10 @@ You can force the Gnutella spider to send outgoing replies with this
 IP as host information. Must be in dotted decimals notation. This is 
 useful if you are behind a masquerading gateway. You need to install
 some kind of port forwarder to let other people connect your host.
+
+@item force-port
+Force the Gnutella spider to send outgoing replies with this PORT as 
+port information. See above for more information.
 @end table
 
 @node Co-Server, Porting issues, Server, Top

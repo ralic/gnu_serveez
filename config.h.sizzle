@@ -405,3 +405,8 @@
 /* Define if h_errno is supported. */
 /* #undef HAVE_H_ERRNO */
 
+/* Define if you have the inet_aton function. */
+/* #undef HAVE_INET_ATON */
+
+/* Define if inet_ntoa function is broken. */
+/* #undef BROKEN_INET_NTOA */

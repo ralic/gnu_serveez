@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.17 2000/09/27 14:31:26 ela Exp $
+ * $Id: http-cache.c,v 1.18 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -336,7 +336,7 @@ http_cache_write (socket_t sock)
     }
   else if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "cache: write: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "cache: send: %s\n", NET_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;

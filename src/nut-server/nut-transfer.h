@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.6 2000/09/10 10:51:18 ela Exp $
+ * $Id: nut-transfer.h,v 1.7 2000/10/05 09:52:21 ela Exp $
  *
  */
 
@@ -56,6 +56,10 @@ typedef struct
   int size;          /* content length */
   char *file;        /* filename */
   time_t start;      /* when the upload started */
+  int id;            /* original socket id */
+  int version;       /* original socket version */
+  int index;         /* file index */
+  byte guid[NUT_GUID_SIZE]; /* guid of host providing the file */
 }
 nut_transfer_t;
 
@@ -71,6 +75,7 @@ int nut_init_upload (socket_t sock, nut_file_t *entry);
 int nut_disconnect_upload (socket_t sock);
 int nut_file_read (socket_t sock);
 int nut_file_write (socket_t sock);
+int nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer);
 
 /* recursion wrapper */
 #define nut_read_database(cfg, dir) nut_read_database_r (cfg, dir, 0)

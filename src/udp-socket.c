@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.6 2000/10/01 22:40:10 ela Exp $
+ * $Id: udp-socket.c,v 1.7 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -83,7 +83,7 @@ udp_read_socket (socket_t sock)
   if (num_read > 0)
     {
 #if 0
-      util_hexdump (stdout, "udp received", sock->sock_desc,
+      util_hexdump (stdout, "udp packet received", sock->sock_desc,
 		    sock->recv_buffer + sock->recv_buffer_fill,
 		    num_read, 0);
 #endif
@@ -92,7 +92,7 @@ udp_read_socket (socket_t sock)
       sock->remote_port = sender.sin_port;
       sock->remote_addr = sender.sin_addr.s_addr;
 #if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "udp packet received from %s:%u\n",
+      log_printf (LOG_DEBUG, "udp: recvfrom: %s:%u\n",
 		  util_inet_ntoa (sock->remote_addr),
 		  ntohs (sock->remote_port));
 #endif
@@ -102,7 +102,7 @@ udp_read_socket (socket_t sock)
   /* Some error occured. */
   else
     {
-      log_printf (LOG_ERROR, "udp read: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "udp: recvfrom: %s\n", NET_ERROR);
       if (last_errno != SOCK_UNAVAILABLE)
 	return -1;
     }
@@ -140,16 +140,16 @@ udp_write_socket (socket_t sock)
 			do_write - (p - sock->send_buffer),
 			0, (struct sockaddr *) &receiver, len);
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "udp packet sent (len: %d) to %s:%u\n",
-	      do_write - (p - sock->send_buffer),
+  log_printf (LOG_DEBUG, "udp: sendto: %s:%u (%u bytes)\n",
 	      util_inet_ntoa (receiver.sin_addr.s_addr),
-	      ntohs (receiver.sin_port));
+	      ntohs (receiver.sin_port),
+	      do_write - (p - sock->send_buffer));
 #endif  
 
   /* Some error occured while sending. */
   if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "udp write: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "udp: sendto: %s\n", NET_ERROR);
       if (last_errno != SOCK_UNAVAILABLE)
 	return -1;
     }

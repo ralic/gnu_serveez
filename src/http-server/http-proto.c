@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.38 2000/09/27 14:31:26 ela Exp $
+ * $Id: http-proto.c,v 1.39 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -32,9 +32,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -45,7 +42,9 @@
 #if HAVE_STRINGS_H
 # include <strings.h>
 #endif
-
+#if HAVE_UNISTD_H
+# include <unistd.h>
+#endif
 #if HAVE_SYS_SENDFILE_H
 # include <sys/sendfile.h>
 #endif
@@ -59,6 +58,12 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netinet/in.h>
+# if HAVE_WAIT_H
+#  include <wait.h>
+# endif
+# if HAVE_SYS_WAIT_H
+#  include <sys/wait.h>
+# endif
 #endif
 
 #if HAVE_NETINET_TCP_H
@@ -337,12 +342,23 @@ http_cgi_died (socket_t sock)
   if (sock->flags & SOCK_FLAG_PIPE)
     {
 #ifndef __MINGW32__
+      /* Check if a died child is this cgi. */
       if (server_child_died && http->pid == server_child_died)
 	{
 	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
 		      (int) server_child_died);
 	  server_child_died = 0;
 	}
+#if HAVE_WAITPID
+      /* Test if the cgi is still running. */
+      if (waitpid (http->pid, NULL, WNOHANG | WUNTRACED) == http->pid)
+	{
+	  log_printf (LOG_NOTICE, "cgi script pid %d died\n", 
+		      (int) http->pid);
+	  http->pid = INVALID_HANDLE;
+	}
+#endif /* HAVE_WAITPID */
+
 #else /* __MINGW32__ */
 
       /*
@@ -1052,7 +1068,7 @@ http_get_response (socket_t sock, char *request, int flags)
 	  strcat (file, request);
 	  if ((dir = http_dirlist (file, cfg->docs)) == NULL)
 	    {
-	      log_printf (LOG_ERROR, "http dirlist: %s: %s\n", 
+	      log_printf (LOG_ERROR, "http: dirlist: %s: %s\n", 
 			  file, SYS_ERROR);
 	      sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
 	      http_error_response (sock, 404);
@@ -1100,7 +1116,7 @@ http_get_response (socket_t sock, char *request, int flags)
 #endif /* S_ISLNK */
 	S_ISDIR (buf.st_mode)) )
     {
-      log_printf (LOG_ERROR, "%s: not a regular file\n", file);
+      log_printf (LOG_ERROR, "http: %s is not a regular file\n", file);
       sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;

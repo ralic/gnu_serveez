@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.27 2000/10/01 11:11:21 ela Exp $
+ * $Id: server.c,v 1.28 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -535,14 +535,15 @@ static int set_port (char *cfgfile, char *var, char *key,
  */
 static void *
 server_instantiate (char *cfgfile, zzz_scm_t hash,
-		    struct server_definition *sd, char *var)
+		    server_definition_t *sd, char *var)
 {
-  char * newserver = NULL;
+  void *cfg = NULL;
+  void *target = NULL;
+  unsigned long offset;
   int i, e = 0;
   int erroneous = 0;
   zzz_scm_t hashkey;
   zzz_scm_t hashval;
-  long offset;
 
   /* 
    * Checking if that is really a hash.
@@ -557,13 +558,12 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
    * Make a simple copy of the example configuration structure 
    * definition for that server instance.
    */
-  newserver = (char *) xpmalloc (sd->prototype_size);
-  memcpy (newserver, sd->prototype_start, sd->prototype_size);
+  cfg = xpmalloc (sd->prototype_size);
+  memcpy (cfg, sd->prototype_start, sd->prototype_size);
 
+  /* Go through list of configuration items. */
   for (i = 0; sd->items[i].type != ITEM_END; i++)
     {
-      offset = (char *) sd->items[i].address - (char *) sd->prototype_start;
-
       hashkey = zzz_make_string (sd->items[i].name, -1);
       hashval = zzz_hash_ref (hash, hashkey, zzz_undefined);
 
@@ -576,60 +576,46 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
 	  continue;
 	}
 
+      /* Calculate target address. */
+      offset = (char *) sd->items[i].address - (char *) sd->prototype_start;
+      target = (char *) cfg + offset;
+
       switch (sd->items[i].type) 
 	{
 	case ITEM_INT:
-	  e = set_int (cfgfile,
-		       var,
-		       sd->items[i].name,
-		       (int *)(newserver + offset),
-		       hashval,
-		       *(int *)sd->items[i].address);
+	  e = set_int (cfgfile, var, sd->items[i].name,
+		       (int *) target, hashval, 
+		       *(int *) sd->items[i].address);
 	  break;
 	  
 	case ITEM_INTARRAY:
-	  e = set_intarray (cfgfile,
-			    var,
-			    sd->items[i].name,
-			    (int **)(newserver + offset),
-			    hashval,
-			    *(int **)sd->items[i].address);
+	  e = set_intarray (cfgfile, var, sd->items[i].name,
+			    (int **) target, hashval,
+			    *(int **) sd->items[i].address);
 	  break;
 
 	case ITEM_STR:
-	  e = set_string (cfgfile,
-			  var,
-			  sd->items[i].name,
-			  (char **)(newserver + offset),
-			  hashval,
-			  *(char **)sd->items[i].address) ;
+	  e = set_string (cfgfile, var, sd->items[i].name,
+			  (char **) target, hashval,
+			  *(char **) sd->items[i].address);
 	  break;
 	  
 	case ITEM_STRARRAY:
-	  e = set_stringarray (cfgfile,
-			       var,
-			       sd->items[i].name,
-			       (char ***)(newserver + offset),
-			       hashval,
+	  e = set_stringarray (cfgfile, var, sd->items[i].name,
+			       (char ***) target, hashval,
 			       *(char ***)sd->items[i].address);
 	  break;
 
 	case ITEM_HASH:
-	  e = set_hash (cfgfile,
-			var,
-			sd->items[i].name,
-			(hash_t ***)(newserver + offset),
-			hashval,
-			*(hash_t ***)sd->items[i].address);
+	  e = set_hash (cfgfile, var, sd->items[i].name,
+			(hash_t ***) target, hashval,
+			*(hash_t ***) sd->items[i].address);
 	  break;
 
 	case ITEM_PORTCFG:
-	  e = set_port (cfgfile,
-			var,
-			sd->items[i].name,
-			(struct portcfg **)(newserver + offset),
-			hashval,
-			*(struct portcfg **)sd->items[i].address);
+	  e = set_port (cfgfile, var, sd->items[i].name,
+			(portcfg_t **) target, hashval,
+			*(portcfg_t **) sd->items[i].address);
 	  break;
 
 	default:
@@ -642,7 +628,7 @@ server_instantiate (char *cfgfile, zzz_scm_t hash,
 	erroneous = -1;
     }
 
-  return (erroneous ? NULL : newserver);
+  return (erroneous ? NULL : cfg);
 }
 
 /*
@@ -656,17 +642,17 @@ server_load_cfg (char *cfgfile)
   zzz_scm_t sym = NULL;
   zzz_scm_t symval = NULL;
   unsigned int i, j;
-  struct server_definition *sd;
-  void *newserver_cfg;
-  struct server *newserver;
   int erroneous = 0;
+  server_definition_t *sd;
+  server_t *server;
+  void *cfg;
 
   /*
-   * If the file was not found, the environment should be ok, anyway
+   * If the file was not found, the environment should be ok anyway.
    * Trying to use defaults...
    */
 
-  /* Scan for variables that could be meant for us */
+  /* Scan for variables that could be meant for us. */
   for (i = 0; i < vector_len (zzz_symbol_table); i++)
     {
       for (symlist = zzz_vector_get (zzz_symbol_table, i);
@@ -689,27 +675,24 @@ server_load_cfg (char *cfgfile)
 					    sym, &symval) != RESULT_SUCCESS)
 		    continue;
 
-		  newserver_cfg = server_instantiate (cfgfile,
-						      symval,
-						      sd,
-						      symname);
+		  cfg = server_instantiate (cfgfile, symval,
+					    sd, symname);
 
-		  if (newserver_cfg != NULL)
+		  if (cfg != NULL)
 		    {
-		      newserver =
-			(struct server*) xpmalloc (sizeof (struct server));
-		      newserver->cfg = newserver_cfg;
-		      newserver->name = xpstrdup (symname);
-		      newserver->detect_proto = sd->detect_proto;
-		      newserver->connect_socket = sd->connect_socket;
-		      newserver->handle_request = sd->handle_request;
-		      newserver->init = sd->init;
-		      newserver->finalize = sd->finalize;
-		      newserver->info_client = sd->info_client;
-		      newserver->info_server = sd->info_server;
-		      newserver->notify = sd->notify;
-		      newserver->description = sd->name;
-		      server_add (newserver);
+		      server = (server_t *) xpmalloc (sizeof (server_t));
+		      server->cfg = cfg;
+		      server->name = xpstrdup (symname);
+		      server->detect_proto = sd->detect_proto;
+		      server->connect_socket = sd->connect_socket;
+		      server->handle_request = sd->handle_request;
+		      server->init = sd->init;
+		      server->finalize = sd->finalize;
+		      server->info_client = sd->info_client;
+		      server->info_server = sd->info_server;
+		      server->notify = sd->notify;
+		      server->description = sd->name;
+		      server_add (server);
 		    } 
 		  else 
 		    {

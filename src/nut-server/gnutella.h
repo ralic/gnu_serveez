@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.17 2000/09/20 08:29:15 ela Exp $
+ * $Id: gnutella.h,v 1.18 2000/10/05 09:52:21 ela Exp $
  *
  */
 
@@ -62,7 +62,7 @@
 #define NUT_SEARCH_ACK 0x81 /* search response */
 
 /* protocol flags */
-#define NUT_FLAG_HTTP   0x0001
+#define NUT_FLAG_DNLOAD 0x0001
 #define NUT_FLAG_HDR    0x0002
 #define NUT_FLAG_HOSTS  0x0004
 #define NUT_FLAG_CLIENT 0x0008
@@ -137,7 +137,7 @@ typedef struct
   unsigned short speed;   /* speed of the host which found the results */
   unsigned short pad;     /* dunno */
   nut_record_t record[1]; /* array of records */
-  byte id[NUT_GUID_SIZE]; /* clientID128 of the host */
+  byte id[NUT_GUID_SIZE]; /* clientID128 of the host which send the reply */
 }
 nut_reply_t;
 #define SIZEOF_NUT_REPLY (11)
@@ -208,7 +208,7 @@ nut_file_t;
  */
 typedef struct
 {
-  portcfg_t *port;          /* port configuration */
+  portcfg_t *netport;       /* network port configuration */
   int disable;              /* if set we do not listen on the above port cfg */
   int max_ttl;              /* maximum ttl for a gnutella packet */
   int ttl;                  /* initial ttl for a gnutella packet */
@@ -235,6 +235,8 @@ typedef struct
   int connections;          /* number of connections to keep up */
   char *force_ip;           /* force the local ip to this value */
   unsigned long ip;         /* calculated from `force_ip' */
+  int force_port;           /* force the local port to this value */
+  unsigned short port;      /* calculated from `force_port' */
   hash_t *query;            /* recent query hash */
   hash_t *reply;            /* reply hash for routing push requests */
   nut_file_t *database;     /* shared file array */

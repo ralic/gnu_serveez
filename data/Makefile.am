@@ -23,7 +23,7 @@
 EXTRA_DIST = mime.types \
 	irc-MOTD.txt \
 	serveez.cfg \
-	hello_cgi.scm
+	hello-cgi.scm
 
 MAINTAINERCLEANFILES = Makefile.in
 

@@ -48,11 +48,11 @@ Installation
 directories `serveez/' and `sizzle/'. Then you need to copy some files to
 their native location.
 
-$ copy config.h.serveez config.h
-$ copy version.h.serveez version.h
-$ copy config.h.sizzle ..\sizzle\config.h
-$ copy version.h.sizzle ..\sizzle\version.h
-$ copy libsizzle.dsp ..\sizzle\libsizzle
+$ copy /y config.h.serveez config.h
+$ copy /y version.h.serveez version.h
+$ copy /y config.h.sizzle ..\sizzle\config.h
+$ copy /y version.h.sizzle ..\sizzle\version.h
+$ copy /y libsizzle.dsp ..\sizzle\libsizzle
 
    If you have done these preperations you can open the serveez workspace
 file `serveez.dsw' which contains both of the project files with the right

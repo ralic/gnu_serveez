@@ -38,7 +38,7 @@ Description: Serveez does not run on i64 Linux.
 
 Bug:	     B0013
 From:	     ela <stefan@lkcc.org>
-State:       unfixed
+State:       fixed (2000-10-03/ela)
 Date:	     2000-09-12
 Description: Bigger CGI scripts under Win95 will lock the server. Bigger
 	     means more content production here. This happened with batch

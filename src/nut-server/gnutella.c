@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.22 2000/10/01 22:40:10 ela Exp $
+ * $Id: gnutella.c,v 1.23 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -58,10 +58,6 @@
 #endif
 #ifdef __MINGW32__
 # define mkdir(path, mode) mkdir (path)
-#endif
-
-#ifndef INADDR_NONE
-# define INADDR_NONE 0xffffffff
 #endif
 
 #include "alloc.h"
@@ -131,7 +127,9 @@ nut_config_t nut_config =
   NULL,                /* host catcher */
   4,                   /* number of connections to keep up */
   NULL,                /* force the local ip to this value */
-  INADDR_NONE,         /* calculated from `force_ip' */
+  0,                   /* calculated from `force_ip' */
+  0,                   /* force the local port to this value */
+  0,                   /* calculated from `force_port' */
   NULL,                /* recent query hash */
   NULL,                /* reply hash for routing push requests */
   NULL,                /* shared file array */
@@ -148,7 +146,7 @@ nut_config_t nut_config =
  */
 key_value_pair_t nut_config_prototype [] = 
 {
-  REGISTER_PORTCFG ("port", nut_config.port, DEFAULTABLE),
+  REGISTER_PORTCFG ("port", nut_config.netport, DEFAULTABLE),
   REGISTER_STRARRAY ("hosts", nut_config.hosts, NOTDEFAULTABLE),
   REGISTER_STRARRAY ("search", nut_config.search, DEFAULTABLE),
   REGISTER_INT ("search-limit", nut_config.search_limit, DEFAULTABLE),
@@ -162,6 +160,7 @@ key_value_pair_t nut_config_prototype [] =
   REGISTER_STRARRAY ("file-extensions", nut_config.extensions, DEFAULTABLE),
   REGISTER_INT ("connections", nut_config.connections, DEFAULTABLE),
   REGISTER_STR ("force-ip", nut_config.force_ip, DEFAULTABLE),
+  REGISTER_INT ("force-port", nut_config.force_port, DEFAULTABLE),
   REGISTER_INT ("max-uploads", nut_config.max_uploads, DEFAULTABLE),
   REGISTER_STR ("net-url", nut_config.net_url, DEFAULTABLE),
   REGISTER_END ()
@@ -221,13 +220,23 @@ nut_hash_code (char *id)
 }
 
 /*
- * This is the default idle function for self conncted gnutella hosts.
+ * This is the default idle function for self connected gnutella hosts.
  * It simply returns an error if the socket was not connected in a
  * certain time.
  */
 int
 nut_connect_timeout (socket_t sock)
 {
+  /* 
+   * Did we try to connect to another host in order to download something,
+   * but failed within a certain time ? Then we need to send a push request
+   * to the host providing the original data.
+   */
+  if (sock->userflags & NUT_FLAG_DNLOAD)
+    {
+      /* FIXME: Send a push request ! */
+      nut_send_push (sock->cfg, sock->data);
+    }
   return -1;
 }
 
@@ -403,11 +412,12 @@ nut_init (server_t *server)
   nut_read_database (cfg, cfg->share_path[0] ? cfg->share_path : "/");
   log_printf (LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
 
-  /* calculate forced local ip if necessary */
+  /* calculate forced local ip and port if necessary */
   if (cfg->force_ip)
     {
       cfg->ip = inet_addr (cfg->force_ip);
     }
+  cfg->port = htons ((unsigned short) cfg->force_port);
 
   /* create and modify packet hash */
   cfg->packet = hash_create (4);
@@ -455,7 +465,7 @@ nut_init (server_t *server)
 
   /* bind listening server to configurable port address */
   if (!cfg->disable)
-    server_bind (server, cfg->port);
+    server_bind (server, cfg->netport);
   return 0;
 }
 
@@ -541,72 +551,72 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
   nut_host_catcher (sock, reply->ip, reply->port);
   pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
 
+  /* check client guid at the end of the packet */
+  id = packet + hdr->length - NUT_GUID_SIZE;
+  if (id < packet + SIZEOF_NUT_REPLY)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: dropping invalid query hit\n");
+#endif
+      client->dropped++;
+      return -1;
+    }
+
   /* is that query hit (reply) an answer to my own request ? */
   if (pkt != NULL)
     {
       xsock = pkt->sock;
+      p = (char *) packet + SIZEOF_NUT_REPLY;
+      end = (char *) packet + hdr->length - NUT_GUID_SIZE;
+      memcpy (reply->id, id, NUT_GUID_SIZE);
+
 #if 0
       printf ("records : %d\n", reply->records);
       printf ("port    : %u\n", ntohs (reply->port));
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
       printf ("speed   : %u kbit/s\n", reply->speed);
-#endif
+      printf ("guid    : %s\n", nut_print_guid (reply->id));
+#endif /* 0 */
 
       /* process only if the connection has a minimum speed */
-      if (reply->speed >= cfg->min_speed)
+      if (reply->speed < cfg->min_speed)
+	return 0;
+
+      /* go through all query hit records */
+      for (n = 0; n < reply->records && p < end; n++)
 	{
-	  p = (char *) packet + SIZEOF_NUT_REPLY;
-	  end = p + hdr->length;
+	  record = nut_get_record ((byte *) p);
+	  p += SIZEOF_NUT_RECORD;
+	  file = p;
 
-	  /* go through all query hit records */
-	  for (n = 0; n < reply->records && p < end; n++)
+	  /* check if the reply is valid */
+	  while (p < end && *p) p++;
+	  if (p == end || *(p+1))
 	    {
-	      record = nut_get_record ((byte *) p);
-	      p += SIZEOF_NUT_RECORD;
-	      file = p;
-
-	      /* check if the reply is valid */
-	      while (p < end && *p) p++;
-	      if (p == end || *(p+1))
-		{
 #if ENABLE_DEBUG
-		  log_printf (LOG_DEBUG, "nut: invalid query hit payload\n");
+	      log_printf (LOG_DEBUG, "nut: invalid query hit payload\n");
 #endif
-		  client->dropped++;
-		  return -1;
-		}
-	      p += 2;
+	      client->dropped++;
+	      return -1;
+	    }
+	  p += 2;
 #if 0
-	      printf ("record %d\n", n + 1);
-	      printf ("file index : %u\n", record->index);
-	      printf ("file size  : %u\n", record->size);
-	      printf ("file       : %s\n", file);
+	  printf ("record %d\n", n + 1);
+	  printf ("file index : %u\n", record->index);
+	  printf ("file size  : %u\n", record->size);
+	  printf ("file       : %s\n", file);
 #endif
 
-	      /* startup transfer if possible */
-	      if (cfg->dnloads < cfg->max_dnloads)
-		{
-		  nut_init_transfer (sock, reply, record, file);
-		}
+	  /* startup transfer if possible */
+	  if (cfg->dnloads < cfg->max_dnloads)
+	    {
+	      nut_init_transfer (sock, reply, record, file);
 	    }
-	  id = (byte *) p;
-#if 0
-	  printf ("guid    : %s\n", nut_print_guid (id));
-#endif
 	}
     }
   /* save the reply id to the reply hash for routing push requests */
   else
     {
-      id = packet + hdr->length - NUT_GUID_SIZE;
-      if (id < packet + SIZEOF_NUT_REPLY)
-	{
-#if ENABLE_DEBUG
-	  log_printf (LOG_DEBUG, "nut: dropping invalid query hit\n");
-#endif
-	  client->dropped++;
-	  return -1;
-	}
       hash_put (cfg->reply, (char *) id, sock);
     }
 
@@ -662,7 +672,11 @@ nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet)
 	      xsock->userflags |= NUT_FLAG_UPLOAD;
 	      xsock->cfg = cfg;
 
-	      /* not sure about the format of this line */
+	      /* 
+	       * we are not sure about the format of this line, but two
+	       * of the reviewed clients (gtk_gnutella and gnutella itself)
+	       * use it as is
+	       */
 	      if (sock_printf (xsock, NUT_GIVE "%d:%s/%s\n\n",
 			       entry->index, nut_text_guid (cfg->guid),
 			       entry->file) == -1)
@@ -754,8 +768,8 @@ nut_query (socket_t sock, nut_header_t *hdr, byte *packet)
 
   /* create gnutella search reply packet */
   reply.records = n;
-  reply.port = htons (cfg->port->port);
-  reply.ip = cfg->ip != INADDR_NONE ? cfg->ip : sock->local_addr;
+  reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
+  reply.port = cfg->port ? cfg->port : htons (cfg->netport->port);
   reply.speed = cfg->speed;
   
   /* save packet length */
@@ -837,9 +851,8 @@ nut_ping_request (socket_t sock, nut_header_t *hdr, byte *null)
   hdr->ttl = hdr->hop;
   hdr->hop = 0;
 
-  reply.port = htons (cfg->port->port);
-  if (cfg->ip != INADDR_NONE) reply.ip = cfg->ip;
-  else                        reply.ip = sock->local_addr;
+  reply.ip = cfg->ip ? cfg->ip : sock->local_addr;
+  reply.port = cfg->port ? cfg->port : htons (cfg->netport->port);
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);
@@ -1155,7 +1168,8 @@ nut_info_server (server_t *server)
 
   sprintf (info,
 	   " tcp port        : %u\r\n"
-	   " ip              : %s\r\n"
+	   " force ip        : %s\r\n"
+	   " force port      : %s\r\n"
 	   " maximum ttl     : %u\r\n"
 	   " default ttl     : %u\r\n"
 	   " speed           : %u KBit/s\r\n"
@@ -1174,8 +1188,9 @@ nut_info_server (server_t *server)
 	   " downloads       : %u/%u\r\n"
 	   " uploads         : %u/%u\r\n"
 	   " recent queries  : %u",
-	   cfg->port->port,
-	   cfg->ip != INADDR_NONE ? util_inet_ntoa (cfg->ip) : "no specified",
+	   cfg->netport->port,
+	   cfg->ip ? util_inet_ntoa (cfg->ip) : "no specified",
+	   cfg->port ? util_itoa (ntohs (cfg->port)) : "no specified",
 	   cfg->max_ttl,
 	   cfg->ttl,
 	   cfg->speed,
@@ -1232,7 +1247,7 @@ nut_info_client (void *nut_cfg, socket_t sock)
     }
 
   /* file upload and download */
-  if (sock->userflags & (NUT_FLAG_UPLOAD | NUT_FLAG_HTTP))
+  if (sock->userflags & (NUT_FLAG_UPLOAD | NUT_FLAG_DNLOAD))
     {
       current = transfer->original_size - transfer->size;
       all = transfer->original_size;
@@ -1242,7 +1257,7 @@ nut_info_client (void *nut_cfg, socket_t sock)
       sprintf (text, "  * file : %s\r\n", transfer->file);
       strcat (info, text);
       sprintf (text, "  * %s progress : %u/%u - %u.%u%% - %u.%u kb/sec\r\n",
-	       sock->userflags & NUT_FLAG_HTTP ? "download" : "upload",
+	       sock->userflags & NUT_FLAG_DNLOAD ? "download" : "upload",
 	       current, all,
 	       current * 100 / all, (current * 1000 / all) % 10,
 	       current / 1024 / elapsed, (current * 10 / 1024 / elapsed) % 10);

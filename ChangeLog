@@ -1,3 +1,7 @@
+2000-10-04  [ Ela ]  <ela@lkcc.org>
+
+	* configure.in: Check for `waitpid'.
+
 2000-09-28  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am (SUBDIRS): Added the `data' directory and put

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: pipe-socket.c,v 1.13 2000/09/22 18:39:52 ela Exp $
+ * $Id: pipe-socket.c,v 1.14 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -187,7 +187,7 @@ pipe_read (socket_t sock)
   if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
 		      NULL, (DWORD *) &num_read, NULL))
     {
-      log_printf (LOG_ERROR, "pipe PeekNamedPipe: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "pipe: PeekNamedPipe: %s\n", SYS_ERROR);
       return -1;
     }
 
@@ -199,7 +199,7 @@ pipe_read (socket_t sock)
 		 sock->recv_buffer + sock->recv_buffer_fill,
 		 do_read, (DWORD *) &num_read, NULL))
     {
-      log_printf (LOG_ERROR, "pipe ReadFile: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "pipe: ReadFile: %s\n", SYS_ERROR);
       return -1;
     }
 #else /* not __MINGW32__ */
@@ -207,7 +207,7 @@ pipe_read (socket_t sock)
 			sock->recv_buffer + sock->recv_buffer_fill,
 			do_read)) == -1)
     {
-      log_printf (LOG_ERROR, "pipe read: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "pipe: read: %s\n", SYS_ERROR);
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -232,13 +232,16 @@ pipe_read (socket_t sock)
 	if (sock->check_request (sock))
 	  return -1;
     }
+
+#ifndef __MINGW32__
   /* the socket was selected but there is no data */
   else
     {
-      log_printf (LOG_ERROR, "pipe read: no data on pipe %d\n", 
+      log_printf (LOG_ERROR, "pipe: read: no data on pipe %d\n", 
 		  sock->pipe_desc[READ]);
       return -1;
     }
+#endif /* !__MINGW32__ */
   
   return 0;
 }
@@ -263,7 +266,7 @@ pipe_write (socket_t sock)
   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
 		  do_write, (DWORD *) &num_written, NULL))
     {
-      log_printf (LOG_ERROR, "pipe WriteFile: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
       num_written = -1;
     }
 #else /* not __MINGW32__ */
@@ -271,7 +274,7 @@ pipe_write (socket_t sock)
 			    sock->send_buffer, 
 			    do_write)) == -1)
     {
-      log_printf (LOG_ERROR, "pipe write: %s\n", SYS_ERROR);
+      log_printf (LOG_ERROR, "pipe: write: %s\n", SYS_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;

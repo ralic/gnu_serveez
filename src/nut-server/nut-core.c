@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.8 2000/09/27 14:31:27 ela Exp $
+ * $Id: nut-core.c,v 1.9 2000/10/05 09:52:21 ela Exp $
  *
  */
 
@@ -77,6 +77,11 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
 
   /* create a local copy of the given address string */
   p = host = xstrdup (addr);
+  if (!host)
+    {
+      /* address string was NULL or empty */
+      return -1;
+    }
 
   /* skip leading invalid characters */
   while (*p < '0' && *p > '9' && *p) p++;

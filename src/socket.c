@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.23 2000/09/20 08:29:14 ela Exp $
+ * $Id: socket.c,v 1.24 2000/10/05 09:52:20 ela Exp $
  *
  */
 
@@ -127,7 +127,7 @@ default_write (socket_t sock)
   /* error occured while writing */
   else if (num_written < 0)
     {
-      log_printf (LOG_ERROR, "sock write: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	{
 	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -192,7 +192,7 @@ default_read (socket_t sock)
        * in this case, which the main loop will do for us if we
        * return a non-zero value.
        */
-      log_printf (LOG_ERROR, "sock read: %s\n", NET_ERROR);
+      log_printf (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
       if (last_errno == SOCK_UNAVAILABLE)
 	{
 	  num_read = 0;
@@ -233,7 +233,7 @@ default_read (socket_t sock)
   /* the socket was selected but there is no data */
   else
     {
-      log_printf (LOG_ERROR, "read: no data on socket %d\n", desc);
+      log_printf (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
       return -1;
     }
   

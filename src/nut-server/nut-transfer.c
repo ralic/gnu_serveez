@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.15 2000/09/20 08:29:15 ela Exp $
+ * $Id: nut-transfer.c,v 1.16 2000/10/05 09:52:21 ela Exp $
  *
  */
 
@@ -89,6 +89,7 @@
 #include "socket.h"
 #include "connect.h"
 #include "server.h"
+#include "server-core.h"
 #include "gnutella.h"
 #include "nut-core.h"
 #include "nut-transfer.h"
@@ -321,6 +322,7 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 		   nut_record_t *record, char *savefile)
 {
   nut_config_t *cfg = sock->cfg;
+  nut_client_t *client = sock->data;
   socket_t xsock;
   char *file;
   struct stat buf;
@@ -400,15 +402,23 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
       xsock->flags |= SOCK_FLAG_NOFLOOD;
       xsock->disconnected_socket = nut_disconnect_transfer;
       xsock->check_request = nut_check_transfer;
-      xsock->userflags = NUT_FLAG_HTTP;
+      xsock->userflags = NUT_FLAG_DNLOAD;
       xsock->file_desc = fd;
       xsock->idle_func = nut_connect_timeout;
       xsock->idle_counter = NUT_CONNECT_TIMEOUT;
+
+      /* initialize transfer data */
       transfer = xmalloc (sizeof (nut_transfer_t));
       transfer->original_size = record->size;
       transfer->file = xstrdup (file);
       transfer->start = time (NULL);
       xsock->data = transfer;
+
+      /* save all data for sending a push request some time later */
+      memcpy (transfer->guid, reply->id, NUT_GUID_SIZE);
+      transfer->index = record->index;
+      transfer->id = sock->id;
+      transfer->version = sock->version;
 
       /* send HTTP request to the listening gnutella host */
       sock_printf (xsock, NUT_GET "%d/%s " NUT_HTTP "1.0\r\n",
@@ -425,6 +435,62 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
   return 0;
 }
 
+/*
+ * The routine is called when a connection to another host timed out.
+ * When trying to get a remote file from a host behind a masquerading
+ * gateway or firewall you are able to request this host to connect to
+ * ourselves and thus "push" the download connection. There is NO way
+ * if both of the hosts are behind such a gateway.
+ */
+int
+nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
+{
+  socket_t sock;
+  nut_header_t hdr;
+  nut_push_t push;
+  nut_packet_t *pkt;
+
+  /* find original socket connection */
+  if ((sock = sock_find (transfer->id, transfer->version)) != NULL)
+    {
+      /* create new gnutella header */
+      nut_calc_guid (hdr.id);
+      hdr.function = NUT_PUSH_REQ;
+      hdr.ttl = cfg->ttl;
+      hdr.hop = 0;
+      hdr.length = SIZEOF_NUT_PUSH;
+
+      /* create push request */
+      memcpy (push.id, transfer->guid, NUT_GUID_SIZE);
+      push.index = transfer->index;
+      push.ip = cfg->ip ? cfg->ip : sock->local_addr;
+      push.port = cfg->port ? cfg->port : htons (cfg->netport->port);
+      
+      /* try sending header and push request */
+      if (sock_write (sock, (char *) nut_put_header (&hdr), 
+		      SIZEOF_NUT_HEADER) == -1 ||
+	  sock_write (sock, (char *) nut_put_push (&push), 
+		      SIZEOF_NUT_PUSH) == -1)
+	{
+	  sock_schedule_for_shutdown (sock);
+	  return -1;
+	}
+
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "nut: sent push request to %s:%u\n",
+		  util_inet_ntoa (sock->remote_addr), 
+		  ntohs (sock->remote_port));
+#endif
+
+      /* put into sent packet hash */
+      pkt = xmalloc (sizeof (nut_packet_t));
+      pkt->sock = sock;
+      pkt->sent = time (NULL);
+      hash_put (cfg->packet, (char *) hdr.id, pkt);
+    }
+  return 0;
+}
+	  
 /*
  * Destroy database.
  */
