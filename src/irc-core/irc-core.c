@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.c,v 1.25 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-core.c,v 1.26 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -142,7 +142,7 @@ irc_start_auth (svz_socket_t *sock)
  * IRC connection has been detected. Otherwise zero.
  */
 int
-irc_detect_proto (void *cfg, svz_socket_t *sock)
+irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   int ret = 0;
 
@@ -174,7 +174,7 @@ irc_detect_proto (void *cfg, svz_socket_t *sock)
  * this routine is called to setup this socket for an IRC connection.
  */
 int
-irc_connect_socket (void *cfg, svz_socket_t *sock)
+irc_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   sock->check_request = irc_check_request;
   sock->disconnected_socket = irc_disconnect;

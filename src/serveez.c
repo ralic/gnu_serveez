@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.42 2001/06/14 17:04:28 ela Exp $
+ * $Id: serveez.c,v 1.43 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -52,6 +52,7 @@
 #include "cfgfile.h"
 #include "option.h"
 #include "guile.h"
+#include "guile-server.h"
 
 /* Command line option structure. */
 option_t *options = NULL;
@@ -115,6 +116,10 @@ guile_entry (int argc, char **argv)
   /* Disconnect the previously invoked internal coservers. */
   svz_log (LOG_NOTICE, "destroying internal coservers\n");
   svz_coserver_finalize ();
+
+#if ENABLE_GUILE_SERVER
+  guile_server_finalize ();
+#endif /* ENABLE_GUILE_SERVER */
 
   svz_halt ();
 

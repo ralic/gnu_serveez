@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.12 2001/05/19 23:04:56 ela Exp $
+ * $Id: awcs-proto.h,v 1.13 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -72,8 +72,8 @@ int awcs_finalize (svz_server_t *server);
 /*
  * Exported aWCS server callbacks.
  */
-int awcs_detect_proto (void *cfg, svz_socket_t *sock);
-int awcs_connect_socket (void *cfg, svz_socket_t *sock);
+int awcs_detect_proto (svz_server_t *server, svz_socket_t *sock);
+int awcs_connect_socket (svz_server_t *server, svz_socket_t *sock);
 
 /*
  * Local aWCS server callbacks.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.68 2001/06/07 17:22:01 ela Exp $
+ * $Id: http-proto.c,v 1.69 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -172,7 +172,7 @@ http_request [HTTP_REQUESTS] =
  * Global http server initializer.
  */
 int
-http_global_init (void)
+http_global_init (svz_servertype_t *server)
 {
 #ifdef __MINGW32__
   http_start_netapi ();
@@ -185,7 +185,7 @@ http_global_init (void)
  * Global http server finalizer.
  */
 int
-http_global_finalize (void)
+http_global_finalize (svz_servertype_t *server)
 {
   http_free_cache ();
 #ifdef __MINGW32__
@@ -620,7 +620,7 @@ http_file_read (svz_socket_t *sock)
  * the receive buffer looks like an HTTP request.
  */
 int
-http_detect_proto (void *cfg, svz_socket_t *sock)
+http_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   int n;
 
@@ -648,10 +648,10 @@ http_detect_proto (void *cfg, svz_socket_t *sock)
  * be called to set all the appropriate callbacks and socket flags.
  */
 int
-http_connect_socket (void *http_cfg, svz_socket_t *sock)
+http_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   http_socket_t *http;
-  http_config_t *cfg = http_cfg;
+  http_config_t *cfg = server->cfg;
 
   /*
    * initialize the http socket structure
@@ -897,7 +897,7 @@ http_info_server (svz_server_t *server)
  * Client info callback for the http protocol.
  */
 char *
-http_info_client (void *http_cfg, svz_socket_t *sock)
+http_info_client (svz_server_t *server, svz_socket_t *sock)
 {
   http_socket_t *http = sock->data;
   http_cache_t *cache = http->cache;

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.43 2001/06/18 20:12:14 ela Exp $
+ * $Id: http-cgi.c,v 1.44 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -652,7 +652,7 @@ http_cgi_accepted (svz_socket_t *sock)
   http_socket_t *http = sock->data;
 
   http->response = 202;
-  return svz_sock_printf (sock, HTTP_ACCEPTED
+  return svz_sock_printf (sock, HTTP_OK
 			  "Date: %s\r\n"
 			  "Server: %s/%s\r\n"
 			  "Connection: close\r\n",

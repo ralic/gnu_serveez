@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.h,v 1.12 2001/06/06 17:40:21 raimi Exp $
+ * $Id: foo-proto.h,v 1.13 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -49,12 +49,12 @@ foo_config_t;
 /*
  * Basic server callback definitions.
  */
-int foo_detect_proto (void *cfg, svz_socket_t *sock);
-int foo_connect_socket (void *cfg, svz_socket_t *sock);
+int foo_detect_proto (svz_server_t *server, svz_socket_t *sock);
+int foo_connect_socket (svz_server_t *server, svz_socket_t *sock);
 int foo_init (svz_server_t *server);
-int foo_global_init (void);
+int foo_global_init (svz_servertype_t *server);
 int foo_finalize (svz_server_t *server);
-int foo_global_finalize (void);
+int foo_global_finalize (svz_servertype_t *server);
 char *foo_info_server (svz_server_t *server);
 
 /*

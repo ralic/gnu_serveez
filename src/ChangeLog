@@ -1,3 +1,10 @@
+2001-06-27  [ Ela ]  <ela@lkcc.org>
+
+	* echo-server.scm: An example server in guile.
+
+	* guile-server.c: New file containing some code for the full
+	implementation of servers with guile. Yet very experimental.
+
 2001-06-21  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.scm (create-tcp-port!, bind-tcp-port-range!): 

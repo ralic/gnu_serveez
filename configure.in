@@ -709,6 +709,33 @@ AC_GUILE_SOURCE
 dnl ----------------------------------------------------------------------
 
 dnl
+dnl Check if guile servers should be included.
+dnl
+
+AC_MSG_CHECKING([whether to include guile server support])
+AC_ARG_ENABLE(
+  guile-server,
+  [  --enable-guile-server   Include guile servers [default=yes]],
+  if test x$enableval = "xyes"; then
+    define_enable_guile=yes
+    AC_MSG_RESULT([yes])
+  else
+    define_enable_guile=no
+    AC_MSG_RESULT([no])
+  fi,
+  define_enable_guile=yes
+  AC_MSG_RESULT([yes])
+)
+
+if test $define_enable_guile = yes ; then
+  AC_DEFINE(ENABLE_GUILE_SERVER, 1, 
+    [Define if guile servers should be supported.])
+fi
+unset define_enable_guile
+
+dnl ----------------------------------------------------------------------
+
+dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
 
@@ -838,23 +865,19 @@ dnl
 
 AC_MSG_CHECKING([for strings.h])
 AC_TRY_CPP([#include <strings.h>],
-    AC_DEFINE(HAVE_STRINGS_H, 1, [Define if you have the <strings.h>.])
-    AC_MSG_RESULT(yes), AC_MSG_RESULT(no)
-)
+  AC_DEFINE(HAVE_STRINGS_H, 1, [Define if you have the <strings.h>.])
+  AC_MSG_RESULT(yes), AC_MSG_RESULT(no))
 
 AC_CHECK_FUNC(strcasecmp,
-    AC_DEFINE(HAVE_STRCASECMP, 1, 
-	[Define if you have the strcasecmp function.]),
-    AC_CHECK_FUNC(stricmp,
-	AC_DEFINE(HAVE_STRICMP, 1, 
-	    [Define if you have the stricmp function.])))
+  AC_DEFINE(HAVE_STRCASECMP, 1, [Define if you have the strcasecmp function.]),
+  AC_CHECK_FUNC(stricmp,
+    AC_DEFINE(HAVE_STRICMP, 1, [Define if you have the stricmp function.])))
 
 AC_CHECK_FUNC(strncasecmp,
-    AC_DEFINE(HAVE_STRNCASECMP, 1, 
-	[Define if you have the strncasecmp function.]),
-    AC_CHECK_FUNC(strnicmp,
-	AC_DEFINE(HAVE_STRNICMP, 1, 
-	    [Define if you have the strnicmp function.])))
+  AC_DEFINE(HAVE_STRNCASECMP, 1, 
+    [Define if you have the strncasecmp function.]),
+  AC_CHECK_FUNC(strnicmp,
+    AC_DEFINE(HAVE_STRNICMP, 1, [Define if you have the strnicmp function.])))
 
 AC_CHECK_FUNCS(strchr memcpy scandir alphasort getrlimit getdtablesize \
   getpwnam seteuid setegid geteuid getegid gettimeofday shl_load)

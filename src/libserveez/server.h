@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.17 2001/06/05 17:57:22 ela Exp $
+ * $Id: server.h,v 1.18 2001/06/27 20:38:37 ela Exp $
  *
  */
 
@@ -64,19 +64,19 @@ struct svz_server
   svz_servertype_t *type;
 
   /* init of instance */
-  int (* init) (struct svz_server *);
+  int (* init) (svz_server_t *);
   /* protocol detection */
-  int (* detect_proto) (void *, svz_socket_t *);
+  int (* detect_proto) (svz_server_t *, svz_socket_t *);
   /* what to do if detected */ 
-  int (* connect_socket) (void *, svz_socket_t *);
+  int (* connect_socket) (svz_server_t *, svz_socket_t *);
   /* finalize this instance */
-  int (* finalize) (struct svz_server *);
+  int (* finalize) (svz_server_t *);
   /* return client info */
-  char * (* info_client) (void *, svz_socket_t *);
+  char * (* info_client) (svz_server_t *, svz_socket_t *);
   /* return server info */
-  char * (* info_server) (struct svz_server *);
+  char * (* info_server) (svz_server_t *);
   /* server timer */
-  int (* notify) (struct svz_server *);
+  int (* notify) (svz_server_t *);
   /* packet processing */
   int (* handle_request) (svz_socket_t *, char *, int);
 };
@@ -93,19 +93,19 @@ struct svz_servertype
   char *prefix;
 
   /* run once per server definition */
-  int (* global_init) (void);
+  int (* global_init) (svz_servertype_t *);
   /* per server instance callback */
   int (* init) (svz_server_t *);
   /* protocol detection routine */
-  int (* detect_proto) (void *, svz_socket_t *);
+  int (* detect_proto) (svz_server_t *, svz_socket_t *);
   /* for accepting a client (tcp or pipe only) */
-  int (* connect_socket) (void *, svz_socket_t *);
+  int (* connect_socket) (svz_server_t *, svz_socket_t *);
   /* per instance */
   int (* finalize) (svz_server_t *);
   /* per server definition */
-  int (* global_finalize) (void);
+  int (* global_finalize) (svz_servertype_t *);
   /* return client info */
-  char * (* info_client) (void *, svz_socket_t *);
+  char * (* info_client) (svz_server_t *, svz_socket_t *);
   /* return server info */
   char * (* info_server) (svz_server_t *);
   /* server timer */

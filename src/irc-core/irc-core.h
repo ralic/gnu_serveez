@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-core.h,v 1.11 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-core.h,v 1.12 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -103,8 +103,8 @@ void irc_parse_target (irc_request_t *request, int para);
 char *irc_get_target (char *para, int nr);
 
 /* The standard routine for IRC detection. */
-int irc_detect_proto (void *cfg, svz_socket_t *sock);
-int irc_connect_socket (void *cfg, svz_socket_t *sock);
+int irc_detect_proto (svz_server_t *server, svz_socket_t *sock);
+int irc_connect_socket (svz_server_t *server, svz_socket_t *sock);
 int irc_check_request (svz_socket_t *sock);
 
 #endif /* __IRC_CORE_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.h,v 1.19 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-proto.h,v 1.20 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -412,9 +412,9 @@ irc_client_history_t *irc_find_nick_history (irc_config_t *,
 
 /* irc server functions */
 int irc_init (svz_server_t *server);
-int irc_global_init (void);
+int irc_global_init (svz_servertype_t *server);
 int irc_finalize (svz_server_t *server);
-int irc_global_finalize (void);
+int irc_global_finalize (svz_servertype_t *server);
 
 #define IRC_CLOSING_LINK    "Closing Link: %s (%s)"
 #define IRC_CONNECTION_LOST "Connection reset by peer"

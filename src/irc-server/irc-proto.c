@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.33 2001/06/01 21:24:09 ela Exp $
+ * $Id: irc-proto.c,v 1.34 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -154,7 +154,7 @@ static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
  * Global IRC server initializer.
  */
 int
-irc_global_init (void)
+irc_global_init (svz_servertype_t *server)
 {
 #if 0
   printf ("sizeof (socket_t)             = %d\n", sizeof (socket_data_t));
@@ -178,7 +178,7 @@ irc_global_init (void)
  * Global IRC server finalizer.
  */
 int
-irc_global_finalize (void)
+irc_global_finalize (svz_servertype_t *server)
 {
   return 0;
 }

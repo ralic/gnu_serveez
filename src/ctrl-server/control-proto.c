@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.53 2001/06/07 17:22:00 ela Exp $
+ * $Id: control-proto.c,v 1.54 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -146,7 +146,7 @@ ctrl_info_server (svz_server_t *server)
  * Client info callback.
  */
 char *
-ctrl_info_client (void *ctrl_cfg, svz_socket_t *sock)
+ctrl_info_client (svz_server_t *server, svz_socket_t *sock)
 {
   static char info[128];
 
@@ -160,7 +160,7 @@ ctrl_info_client (void *ctrl_cfg, svz_socket_t *sock)
  * the receive buffer looks like the control protocol.
  */
 int
-ctrl_detect_proto (void *ctrl_cfg, svz_socket_t *sock)
+ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   int ret = 0;
 
@@ -201,7 +201,7 @@ ctrl_detect_proto (void *ctrl_cfg, svz_socket_t *sock)
  * routine.
  */
 int
-ctrl_connect_socket (void *ctrlcfg, svz_socket_t *sock)
+ctrl_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   svz_sock_resize_buffers (sock, CTRL_SEND_BUFSIZE, CTRL_RECV_BUFSIZE);
   sock->check_request = svz_sock_check_request;
@@ -352,7 +352,7 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 	  if (server->info_client)
 	    {
 	      svz_sock_printf (sock, "            %s\r\n",
-			       server->info_client (server->cfg, xsock));
+			       server->info_client (server, xsock));
 	    }
 	}
       /* coserver */

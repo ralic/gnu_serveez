@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.32 2001/05/19 23:04:56 ela Exp $
+ * $Id: awcs-proto.c,v 1.33 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -768,9 +768,9 @@ awcs_check_request (svz_socket_t *sock)
  * server detection.
  */
 int
-awcs_connect_socket (void *config, svz_socket_t *sock)
+awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
-  awcs_config_t *cfg = config;
+  awcs_config_t *cfg = server->cfg;
 
   /*
    * Don't allow clients without master server or multiple master servers.
@@ -917,9 +917,9 @@ awcs_idle_func (svz_socket_t *sock)
  * the receive buffer looks like an aWCS identification request.
  */
 int
-awcs_detect_proto (void *config, svz_socket_t *sock)
+awcs_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
-  awcs_config_t *cfg = config;
+  awcs_config_t *cfg = server->cfg;
   int len = 0;
 
 #if 0

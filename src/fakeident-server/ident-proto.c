@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: ident-proto.c,v 1.11 2001/06/01 21:24:09 ela Exp $
+ * $Id: ident-proto.c,v 1.12 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -65,8 +65,8 @@ svz_key_value_pair_t fakeident_config_prototype [] =
  * Function forward declaration.
  */
 int fakeident_init (svz_server_t *server);
-int fakeident_connect_socket (void *acfg, svz_socket_t *sock);
-int fakeident_detect_proto (void *something, svz_socket_t *sock);
+int fakeident_connect_socket (svz_server_t *server, svz_socket_t *sock);
+int fakeident_detect_proto (svz_server_t *server, svz_socket_t *sock);
 int fakeident_handle_request (svz_socket_t *sock, char *request, int len);
 char *fakeident_info_server (svz_server_t *server);
 
@@ -107,7 +107,7 @@ fakeident_init (svz_server_t *server)
  * When we get a connection this callback is invoked. set up more callbacks.
  */
 int
-fakeident_connect_socket (void *acfg, svz_socket_t *sock)
+fakeident_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   sock->boundary = "\n";
   sock->boundary_size = 1;
@@ -121,7 +121,7 @@ fakeident_connect_socket (void *acfg, svz_socket_t *sock)
  * A valid request for us is: "number[space]*,[space]*number[space]*\r\n
  */
 int
-fakeident_detect_proto (void *something, svz_socket_t *sock)
+fakeident_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   int retval = 0;
   char *p = sock->recv_buffer;

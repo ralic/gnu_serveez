@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.h,v 1.12 2001/05/19 23:04:58 ela Exp $
+ * $Id: tunnel.h,v 1.13 2001/06/27 20:38:37 ela Exp $
  *
  */
 
@@ -73,13 +73,13 @@ tnl_connect_t;
  * Basic server callback definitions.
  */
 int tnl_init (svz_server_t *server);
-int tnl_global_init (void);
+int tnl_global_init (svz_servertype_t *server);
 int tnl_finalize (svz_server_t *server);
-int tnl_global_finalize (void);
+int tnl_global_finalize (svz_servertype_t *server);
 
 /* Rest of all the callbacks. */
-int tnl_detect_proto (void *cfg, svz_socket_t *sock);
-int tnl_connect_socket (void *config, svz_socket_t *sock);
+int tnl_detect_proto (svz_server_t *server, svz_socket_t *sock);
+int tnl_connect_socket (svz_server_t *server, svz_socket_t *sock);
 int tnl_check_request_tcp_source (svz_socket_t *sock);
 int tnl_check_request_tcp_target (svz_socket_t *sock);
 int tnl_handle_request_udp_source (svz_socket_t *sock, char *packet, int len);

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.31 2001/06/11 19:46:32 ela Exp $
+ * $Id: foo-proto.c,v 1.32 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -132,7 +132,7 @@ foo_handle_request (svz_socket_t *sock, char *request, int len)
  * protocol.
  */
 int
-foo_detect_proto (void *cfg, svz_socket_t *sock)
+foo_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   /* see if the stream starts with our identification string */
   if (sock->recv_buffer_fill >= 5 &&
@@ -153,9 +153,9 @@ foo_detect_proto (void *cfg, svz_socket_t *sock)
  * the callbacks we need.
  */
 int
-foo_connect_socket (void *acfg, svz_socket_t *sock)
+foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
-  foo_config_t *cfg = acfg;
+  foo_config_t *cfg = server->cfg;
   int i, ret;
   char *msg;
 
@@ -194,7 +194,7 @@ foo_connect_socket (void *acfg, svz_socket_t *sock)
  * values.
  */
 int
-foo_global_init (void)
+foo_global_init (svz_servertype_t *server)
 {
   char *strarray[] = { 
     "Hello !", "This", "is", "a", "default", "string", "array.", NULL };
@@ -228,7 +228,7 @@ foo_global_init (void)
  * Called once for foo servers, free our default values.
  */
 int
-foo_global_finalize (void)
+foo_global_finalize (svz_servertype_t *server)
 {
   svz_config_intarray_destroy (foo_config.ports);
   svz_config_strarray_destroy (foo_config.messages);

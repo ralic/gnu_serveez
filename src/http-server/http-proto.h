@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.21 2001/06/07 17:22:01 ela Exp $
+ * $Id: http-proto.h,v 1.22 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -69,13 +69,13 @@ extern svz_servertype_t http_server_definition;
 /* server functions */
 int http_init (svz_server_t *server);
 int http_finalize (svz_server_t *server);
-int http_global_init (void);
-int http_global_finalize (void);
+int http_global_init (svz_servertype_t *server);
+int http_global_finalize (svz_servertype_t *server);
 
 /* basic protocol functions */
-int http_detect_proto (void *cfg, svz_socket_t *sock);
-int http_connect_socket (void *cfg, svz_socket_t *sock);
-char *http_info_client (void *cfg, svz_socket_t *sock);
+int http_detect_proto (svz_server_t *server, svz_socket_t *sock);
+int http_connect_socket (svz_server_t *server, svz_socket_t *sock);
+char *http_info_client (svz_server_t *server, svz_socket_t *sock);
 char *http_info_server (svz_server_t *server);
 
 /* internal protocol functions */

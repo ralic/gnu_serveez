@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.40 2001/06/12 13:06:40 ela Exp $
+ * $Id: gnutella.c,v 1.41 2001/06/27 20:38:37 ela Exp $
  *
  */
 
@@ -319,7 +319,7 @@ nut_init_ping (svz_socket_t *sock)
  * The gnutella servers global initializer.
  */
 int
-nut_global_init (void)
+nut_global_init (svz_servertype_t *server)
 {
 #ifdef __MINGW32__
   /* try getting M$'s GUID creation routine */
@@ -524,7 +524,7 @@ nut_finalize (svz_server_t *server)
  * Global gnutella finalizer.
  */
 int
-nut_global_finalize (void)
+nut_global_finalize (svz_servertype_t *server)
 {
 #ifdef __MINGW32__
   if (oleHandle) 
@@ -890,7 +890,7 @@ nut_info_server (svz_server_t *server)
  * Gnutella client info callback.
  */
 char *
-nut_info_client (void *nut_cfg, svz_socket_t *sock)
+nut_info_client (svz_server_t *server, svz_socket_t *sock)
 {
   static char info[80 * 3];
   static char text[128];
@@ -972,7 +972,7 @@ nut_detect_connect (svz_socket_t *sock)
 	       ntohs (sock->remote_port));
       svz_sock_reduce_recv (sock, len);
 
-      if (nut_connect_socket (cfg, sock) == -1) 
+      if (nut_connect_socket (svz_server_find (cfg), sock) == -1) 
 	return -1;
       return sock->check_request (sock);
     }
@@ -984,9 +984,9 @@ nut_detect_connect (svz_socket_t *sock)
  * Incoming connections will be protocol checked.
  */
 int 
-nut_detect_proto (void *nut_cfg, svz_socket_t *sock)
+nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
-  nut_config_t *cfg = nut_cfg;
+  nut_config_t *cfg = server->cfg;
   int len = strlen (NUT_CONNECT);
 
   /* detect normal connect */
@@ -1039,9 +1039,9 @@ nut_detect_proto (void *nut_cfg, svz_socket_t *sock)
  * success.
  */
 int 
-nut_connect_socket (void *nut_cfg, svz_socket_t *sock)
+nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
-  nut_config_t *cfg = nut_cfg;
+  nut_config_t *cfg = server->cfg;
 
   /* assign download callbacks */
   if (sock->userflags & NUT_FLAG_GIVEN)

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.h,v 1.11 2001/05/19 23:04:56 ela Exp $
+ * $Id: control-proto.h,v 1.12 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -67,11 +67,11 @@ extern svz_servertype_t ctrl_server_definition;
 int ctrl_init (svz_server_t *server);
 int ctrl_finalize (svz_server_t *server);
 char *ctrl_info_server (svz_server_t *server);
-char *ctrl_info_client (void *ctrl_cfg, svz_socket_t *sock);
+char *ctrl_info_client (svz_server_t *server, svz_socket_t *sock);
 
 /* basic protocol functions */
-int ctrl_detect_proto (void *cfg, svz_socket_t *sock);
-int ctrl_connect_socket (void *cfg, svz_socket_t *sock);
+int ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock);
+int ctrl_connect_socket (svz_server_t *server, svz_socket_t *sock);
 
 int ctrl_idle (svz_socket_t *sock);
 int ctrl_handle_request (svz_socket_t *sock, char *request, int len);

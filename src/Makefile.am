@@ -25,7 +25,7 @@
 #
 
 EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
-	serveez.m4 serveez.scm
+	serveez.m4 serveez.scm echo-server.scm
 
 #
 # Installation of the autoconf macro used to locate Serveez
@@ -68,7 +68,8 @@ serveez_SOURCES = \
 	serveez.c serveez.h \
 	guile.c guile.h \
 	cfgfile.c cfgfile.h \
-	option.c option.h
+	option.c option.h \
+	guile-server.c guile-server.h
 
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 

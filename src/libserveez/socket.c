@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.12 2001/06/01 21:24:09 ela Exp $
+ * $Id: socket.c,v 1.13 2001/06/27 20:38:37 ela Exp $
  *
  */
 
@@ -137,14 +137,14 @@ svz_sock_detect_proto (svz_socket_t *sock)
   svz_array_foreach (sock->data, server, n)
     {
       /* call protocol detection routine of the server */
-      if (server->detect_proto (server->cfg, sock))
+      if (server->detect_proto (server, sock))
 	{
 	  sock->idle_func = NULL;
 	  sock->data = NULL;
 	  sock->cfg = server->cfg;
 	  if (!server->connect_socket)
 	    return -1;
-	  if (server->connect_socket (server->cfg, sock))
+	  if (server->connect_socket (server, sock))
 	    return -1;
 	  return sock->check_request (sock);
 	}

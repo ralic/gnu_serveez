@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.23 2001/06/07 17:22:01 ela Exp $
+ * $Id: server.c,v 1.24 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -85,7 +85,7 @@ svz_servertype_add (svz_servertype_t *server)
 
   /* Run the global server type initializer. */
   if (server->global_init != NULL) 
-    if (server->global_init () < 0) 
+    if (server->global_init (server) < 0) 
       {
 	svz_log (LOG_ERROR, "error running global init for `%s'\n",
 		 server->description);
@@ -133,7 +133,7 @@ svz_servertype_del (unsigned long index)
 	}
 
       if (stype->global_finalize != NULL)
-	stype->global_finalize ();
+	stype->global_finalize (stype);
       svz_array_del (svz_servertypes, index);
     }
 }
@@ -184,7 +184,7 @@ svz_servertype_finalize (void)
   svz_array_foreach (svz_servertypes, stype, i)
     {
       if (stype->global_finalize != NULL)
-	stype->global_finalize ();
+	stype->global_finalize (stype);
     }
   if (svz_servertypes != NULL)
     {
@@ -686,7 +686,7 @@ svz_server_configure (svz_servertype_t *server,
 {
   int e, n, error = 0;
   int hasdef;
-  void *cfg, *def, *target = NULL;
+  void *cfg = NULL, *def, *target = NULL;
   unsigned long offset;
 
   /* Run the 'before' callback first. */
@@ -696,6 +696,8 @@ svz_server_configure (svz_servertype_t *server,
 
   /* Make a simple copy of the example configuration structure definition 
      for that server instance. */
+  if (server->prototype_size == 0)
+    goto out;
   cfg = svz_malloc (server->prototype_size);
   memcpy (cfg, server->prototype_start, server->prototype_size);
 
@@ -866,6 +868,7 @@ svz_server_configure (svz_servertype_t *server,
 	}
     }
 
+ out:
   /* Run the 'after' callback last. */
   if (configure && configure->after)
     if (SVZ_ITEM_OK != configure->after (name, arg))

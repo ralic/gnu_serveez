@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.24 2001/06/21 11:25:47 ela Exp $
+ * $Id: tunnel.c,v 1.25 2001/06/27 20:38:37 ela Exp $
  *
  */
 
@@ -94,7 +94,7 @@ svz_servertype_t tnl_server_definition =
  * The tunnel server's global initializer.
  */
 int
-tnl_global_init (void)
+tnl_global_init (svz_servertype_t *server)
 {
   return 0;
 }
@@ -103,7 +103,7 @@ tnl_global_init (void)
  * The tunnel server's global finalizer.
  */
 int
-tnl_global_finalize (void)
+tnl_global_finalize (svz_servertype_t *server)
 {
   return 0;
 }
@@ -413,7 +413,7 @@ tnl_send_request_target (svz_socket_t *sock, char *packet, int len, int flag)
  * share the port configuration with other TCP or pipe servers.
  */
 int
-tnl_detect_proto (void *cfg, svz_socket_t *sock)
+tnl_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   svz_log (LOG_NOTICE, "tunnel: %s connection accepted\n",
 	   sock->flags & SOCK_FLAG_PIPE ? "pipe" : "tcp");
@@ -425,7 +425,7 @@ tnl_detect_proto (void *cfg, svz_socket_t *sock)
  * to setup the tunnel server specific callbacks.
  */
 int
-tnl_connect_socket (void *config, svz_socket_t *sock)
+tnl_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   svz_socket_t *xsock = NULL;
   tnl_connect_t *source;

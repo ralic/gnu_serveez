@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.33 2001/06/22 19:17:50 ela Exp $
+ * $Id: guile.c,v 1.34 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -39,9 +39,8 @@
 #endif
 
 #include "libserveez.h"
-
-/* FAIL breaks to the labe `out' and sets an error condition. */
-#define FAIL() do { err = -1; goto out; } while(0)
+#include "guile-server.h"
+#include "guile.h"
 
 /*
  * Global error flag that indicating failure of one of the parsing 
@@ -97,7 +96,7 @@ guile_value_create (SCM value)
 /*
  * Destroy the given option-hash @var{options}.
  */
-static void
+void
 optionhash_destroy (svz_hash_t *options)
 {
   guile_value_t **value;
@@ -144,7 +143,7 @@ guile_get_current_load_port (void)
  * but lets the program continue. The format string @var{format} does not 
  * need a trailing newline.
  */
-static void
+void
 report_error (const char *format, ...)
 {
   va_list args;
@@ -164,16 +163,6 @@ report_error (const char *format, ...)
   va_end (args);
   fprintf (stderr, "\n");
 }
-
-/*
- * Converts @code{SCM} into @code{char *} no matter if it is string or 
- * symbol. Returns @code{NULL} if it was neither. The new string must be 
- * explicitly @code{free()}d.
- */
-#define guile2str(scm)                                        \
-  (gh_null_p (scm) ? NULL :                                   \
-  (gh_string_p (scm) ? gh_scm2newstr (scm, NULL) :            \
-  (gh_symbol_p (scm) ? gh_symbol2newstr (scm, NULL) : NULL)))
 
 /*
  * Validate the values of an option-hash. Returns the number of errors.
@@ -226,7 +215,7 @@ optionhash_validate (svz_hash_t *hash, int what, char *type, char *name)
  * Get a scheme value from an option-hash and increment its 'use' field.
  * Returns SCM_UNSPECIFIED when @var{key} was not found.
  */
-static SCM
+SCM
 optionhash_get (svz_hash_t *hash, char *key)
 {
   guile_value_t *val = svz_hash_get (hash, key);
@@ -248,7 +237,7 @@ optionhash_get (svz_hash_t *hash, char *key)
  * the pairlist definitiion (in scheme code). Some please explain the "." to
  * Ela and Raimi...
  */
-static svz_hash_t *
+svz_hash_t *
 guile2optionhash (SCM pairlist, char *txt, int dounpack)
 {
   svz_hash_t *hash = svz_hash_create (10);
@@ -471,7 +460,7 @@ optionhash_extract_int (svz_hash_t *hash,
  * The memory for the string is newly allocated, no matter where it came
  * from.
  */
-static int
+int
 optionhash_extract_string (svz_hash_t *hash,
 			   char *key,        /* the key to find       */
 			   int hasdef,       /* if there is a default */
@@ -497,7 +486,7 @@ optionhash_extract_string (svz_hash_t *hash,
     }
   else
     {
-      /* Try geting the character string. */
+      /* Try getting the character string. */
       if (NULL == (str = guile2str (hvalue)))
 	{
 	  report_error ("Invalid string value for `%s' %s", key, txt);
@@ -913,7 +902,7 @@ optionhash_extract_pipe (svz_hash_t *hash,
 }
 
 /*
- * GUile server definition. Use two arguments:
+ * Guile server definition. Use two arguments:
  * First is a (unique) server name of the form "type-something" where
  * "type" is the shortname of a servertype. Second is the optionhash that
  * is special for the server. Uses library to configure the individual 
@@ -990,7 +979,7 @@ guile_define_server (SCM name, SCM args)
 				      servername,
 				      (void *) options,
 				      &configure);
-  if (NULL == server->cfg)
+  if (NULL == server->cfg && stype->prototype_size)
     {
       svz_server_free (server);
       FAIL (); /* Messages emitted by callbacks. */
@@ -1520,6 +1509,10 @@ guile_init (void)
   /* export checker functions */
   gh_new_procedure ("serveez-port?", guile_check_port, 1, 0, 0);
   gh_new_procedure ("serveez-server?", guile_check_server, 1, 0, 0);
+
+#if ENABLE_GUILE_SERVER
+  guile_server_init ();
+#endif /* ENABLE_GUILE_SERVER */
 }
 
 /*

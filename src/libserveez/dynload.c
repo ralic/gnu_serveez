@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.11 2001/06/19 21:40:55 ela Exp $
+ * $Id: dynload.c,v 1.12 2001/06/27 20:38:36 ela Exp $
  *
  */
 
@@ -166,7 +166,7 @@ svz_dynload_path_set (svz_array_t *paths)
   svz_array_destroy (paths);
 
   /* Set environment variable. */
-  if (putenv (env))
+  if (putenv (svz_pstrdup (env)) < 0)
     svz_log (LOG_ERROR, "putenv: %s\n", SYS_ERROR);
   svz_free (env);
 }
