@@ -63,8 +63,9 @@ We think it is worth the effort because many people need server functionality
 within their applications. However, many people experience problems 
 with select()- or poll()-loops and non-blocking operations.
 This application demonstrates various aspects of advanced network
-programming in a portable manner. It is known to compile and run on
-32 bit and 64 bit Un*x flavours as well as on M$ Windows (9x/ME/NT/2000).
+programming in a portable manner. It is known to compile and run on 
+GNU/Linux systems, as well as other 32-bit and 64-bit flavours of Unix, 
+and on Microsoft Windows (9x/ME/NT/2000).
 You can use it for implementing your own servers or for understanding how
 certain network services and operations work.
 The package includes a number of servers that work already: a HTTP server,
@@ -138,17 +139,17 @@ Serveez. The structure of a port configuration is:
 
 @example
 "NameOfPortCfg" => #@{
-                       ;; one of those possibilities
-                       "proto"    => "tcp" || "udp" || "pipe" || "icmp"
-                       ;; tcp or udp port number
-                       "port"     => 42420
-                       ;; ip address to bind the server to
-                       "local-ip" => "*" || xxx.xxx.xxx.xxx
-                       ;; receiving pipe
-                       "inpipe"   => "MyRecvPipe"
-                       ;; sending pipe
-                       "outpipe"  => "MySendPipe"
-                    @}
+        ;; one of those possibilities
+        "proto"    => "tcp" || "udp" || "pipe" || "icmp"
+        ;; tcp or udp port number
+        "port"     => 42420
+        ;; ip address to bind the server to
+        "local-ip" => "*" || xxx.xxx.xxx.xxx
+        ;; receiving pipe
+        "inpipe"   => "MyRecvPipe"
+        ;; sending pipe
+        "outpipe"  => "MySendPipe"
+        @}
 @end example
 
 We now have a closer look at the internals of Serveez. If you
@@ -320,10 +321,10 @@ In order to associate the configuration items in a server configuration
 to keywords within the configuration file you have to define an
 array of key-value-pairs. This is done in the @code{foo_config_prototype} 
 field. There are several macros which make different associations. These 
-are the REGISTER_* macros which take three arguments. The first argument is 
-the keyword which will occur in the configuration file, the second is the
-associated item in your default configuration structure and the last argument
-specifies if this item is defaultable or not.
+are the @code{REGISTER_*} macros which take three arguments. The first 
+argument is the keyword which will occur in the configuration file, the 
+second is the associated item in your default configuration structure 
+and the last argument specifies if this item is defaultable or not.
 
 @subsection Server definition
 
@@ -356,7 +357,7 @@ the global initializer you can do so here. The foo server frees its
 default hash previously allocated in the global initializer.
 
 @item instance initializer (mandatory)
-Within this routine you can initialize everzthing you might need for one 
+Within this routine you can initialize everything you might need for one 
 instance of your server. Secondly you have to bind this instance to some port
 configuration. In most cases you want to have this port configuration
 accessible via the configuration file. Therefore you have to 
@@ -390,8 +391,8 @@ all the connection specific callbacks for your server and do some initial
 things. The foo server sets the @code{check_request} callback to the 
 @code{default_check_request} which is using the packet delimiter 
 information to find whole packets. When a client sent such a packet the 
-@code{handle_request} callback is executed. That is why the foo server 
-assigns the @code{handle_request} method.
+@code{handle_request} callback is executed. That is why the @code{foo} 
+server assigns the @code{handle_request} method.
 
 @item client info (optional)
 If this callback is given the control protocol 
@@ -408,7 +409,7 @@ The returned character string might be multiline separated by
 server configuration information.
 
 @item timer (optional)
-If this callback is non-NULL it is called whenever there is some time 
+If this callback is not @code{NULL} it is called whenever there is some time 
 left. It gets the server instance itself as argument. Actually it gets
 called every second.
 
@@ -428,7 +429,7 @@ file and add the server definition to the @code{all_server_definition} array.
 
 @subsection More detailed description of the callback system and structures
 
-The client connection information is stored within the socket_t 
+The client connection information is stored within the @code{socket_t} 
 object. All of the client connection specific callbacks get this object as
 first argument. Following is a description of the elements of this object.
 
@@ -453,8 +454,8 @@ is for any information.
 
 @item boundary, boundary_size
 If you are going to write a packet oriented protocol server you can use
-the default_check_request method to parse packets. These two properties
-describe the packet delimiter.
+the @code{default_check_request} method to parse packets. These two 
+properties describe the packet delimiter.
 
 @item send_buffer, send_buffer_size, send_buffer_fill
 This is the outgoing data for a client connection object.
@@ -466,7 +467,7 @@ stored. This buffer is at least used for the client detection callback.
 @item read_socket()
 This callback gets called whenever data is available on the socket.
 Normally, this is set to a default function which reads all available
-data from the socket and feeds it to check_request, but specific
+data from the socket and feeds it to @code{check_request}, but specific
 sockets may need other policies.
 
 @item write_socket()
@@ -492,23 +493,23 @@ Its purpose is to check whether a complete request was read, and
 if it was, it should be handled and removed from the input buffer.
 
 @item handle_request()
-This gets called when the check_request got a valid packet. The request
-arguments contains the actual packet and the second argument is the
+This gets called when the @code{check_request} got a valid packet. The 
+request arguments contains the actual packet and the second argument is the
 length of this packet including the packet delimiter.
 
 @item idle_func()
 This callback gets called from the periodic task scheduler. Whenever
-idle_counter (see below) is non-zero, it is decremented and
-idle_func gets called when it drops to zero. idle_func can reset
-idle_counter to some value and thus can re-schedule itself for a
-later task.
- 
+@code{idle_counter} (see below) is non-zero, it is decremented and
+@code{idle_func} gets called when it drops to zero. @code{idle_func} can 
+reset @code{idle_counter} to some value and thus can re-schedule itself 
+for a later task.
+
 @item idle_counter
 Counter for calls to @code{idle_func}.
 
 @item data
 Miscellaneous field. Listener keeps array of server instances here.
-This array is NULL terminated. Some servers store server specific 
+This array is @code{NULL} terminated. Some servers store server specific 
 information here.
 
 @item cfg
@@ -525,11 +526,11 @@ reverse dns and ident Co-Server. If you want to use them you have to
 @code{#include "coserver/coserver.h"}. Secondly you need to implement the 
 callback which gets called when a Co-Server completed its task. This 
 routine must be a @code{coserver_handle_result_t}. The first argument is 
-the actual Co-Server result which might be NULL if the request could not 
-be fulfilled and the latter two arguments are the arguments you specified 
-yourself when issuing the request. To invoke a Co-Server you use one of 
-the coserver_* macros. The foo server uses the reverse dns Co-Server to 
-identify the host name of the remote client.
+the actual Co-Server result which might be @code{NULL} if the request 
+could not  be fulfilled and the latter two arguments are the arguments 
+you specified  yourself when issuing the request. To invoke a Co-Server 
+you use one of the @code{coserver_*} macros. The @code{foo} server uses 
+the reverse dns Co-Server to identify the host name of the remote client.
 
 @node Existing Servers,  , Writing Servers, Server
 @section Existing Servers

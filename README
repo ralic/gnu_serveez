@@ -31,8 +31,9 @@ We think it is worth the effort because many people need server functionality
 within their applications. However, many people experience problems 
 with select()- or poll()-loops and non-blocking operations.
 This application demonstrates various aspects of advanced network
-programming in a portable manner. It is known to compile and run on
-32 bit and 64 bit Un*x flavours as well as on M$ Windows (9x/ME/NT/2000).
+programming in a portable manner. It is known to compile and run on 
+GNU/Linux systems, as well as other 32-bit and 64-bit flavours of Unix, 
+and on Microsoft Windows (9x/ME/NT/2000).
 You can use it for implementing your own servers or for understanding how
 certain network services and operations work.
 The package includes a number of servers that work already: a HTTP server,

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.13 2000/11/10 19:55:48 ela Exp $
+ * $Id: nut-core.c,v 1.14 2000/12/22 10:11:11 ela Exp $
  *
  */
 
@@ -422,7 +422,7 @@ nut_canonize_file (char *file)
 {
   while (*file)
     {
-      if (!isalnum (*file) && !isprint (*file))
+      if (!isalnum ((byte) *file) && !isprint ((byte) *file))
 	*file = '_';
       file++;
     }
