@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.27 2002/06/06 20:04:51 ela Exp $
+ * $Id: guile-api.c,v 1.28 2002/07/17 18:34:18 ela Exp $
  *
  */
 
@@ -1114,8 +1114,9 @@ guile_sock_send_oob (SCM sock, SCM oob)
   /* Send the oob byte through TCP sockets only. */
   if (xsock->proto & PROTO_TCP)
     {
-      xsock->oob = (unsigned char) (SCM_CHARP (oob) ? SCM_CHAR (oob) :
-				    SCM_NUM2INT (SCM_ARG2, oob));
+      xsock->oob = (unsigned char)
+	(SCM_CHARP (oob) ? SCM_CHAR (oob) :
+	 (unsigned char) SCM_NUM2INT (SCM_ARG2, oob));
       ret = svz_tcp_send_oob (xsock);
     }
   return ((ret < 0) ? SCM_BOOL_F : SCM_BOOL_T);
