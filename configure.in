@@ -645,6 +645,7 @@ dnl Check if this is Win32 (CYGWIN/MINGW32).
 dnl
 AC_CYGWIN
 AC_EXEEXT
+AC_OBJEXT
 if test "$CYGWIN" = "yes"; then
     AC_DEFINE(FD_SETSIZE, 1024, [Make CygWin / MingW32 use large FD sets.])
     if test "$MINGDIR" != "no"; then
