@@ -55,3 +55,12 @@ only writable by root.
 
 For further information on installing the package, please consult the
 file INSTALL, included in this distribution.
+
+
+Getting the latest CVS snapshot
+===============================
+
+cvs -d :pserver:anoncvs@lkcc.pinuts.de:/home/cvs/cvsroot -z 9 co serveez
+
+you probably need to run
+$ sh autogen.sh
