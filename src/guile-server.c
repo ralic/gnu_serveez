@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.2 2001/06/28 13:06:28 ela Exp $
+ * $Id: guile-server.c,v 1.3 2001/06/30 13:26:49 ela Exp $
  *
  */
 
@@ -95,7 +95,7 @@ optionhash_extract_proc (svz_hash_t *hash,
 	  report_error ("No such procedure `%s' for `%s' %s", str, key, txt);
 	  err = 1;
 	}
-      free (str);
+      scm_must_free (str);
     }
   else
     {
