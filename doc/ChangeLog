@@ -1,3 +1,8 @@
+2001-07-07  [ Ela ]  <ela@lkcc.org>
+
+	* serveez-api.awk: Do not strip white spaces within @example
+	tags.
+
 2001-07-03  [ Ela ]  <ela@lkcc.org>
 
 	* Makefile.am: Verified the build process of the web site at

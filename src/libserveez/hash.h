@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.10 2001/07/04 20:14:56 raimi Exp $
+ * $Id: hash.h,v 1.11 2001/07/07 08:37:44 ela Exp $
  *
  */
 
@@ -107,7 +107,7 @@ __END_DECLS
  * Be sure you pass real variables and no expressions to this macro !
  * Warning: Relatively slow implementation, builds up temporary array.
  * Do not @code{break} or @code{return} from inside the loop or your program
- * starts leaking memory! Loop has to end normally.
+ * starts leaking memory ! Loop has to end normally.
  */
 #define svz_hash_foreach_value(hash, iterarray, i)                           \
  for (                                                                       \
@@ -129,7 +129,7 @@ __END_DECLS
  * Be sure you pass real variables and no expressions to this macro !
  * Warning: Relatively slow implementation, builds up temporary array.
  * Do not @code{break} or @code{return} from inside the loop or your program
- * starts leaking memory! Loop has to end normally.
+ * starts leaking memory ! Loop has to end normally.
  */
 #define svz_hash_foreach_key(hash, iterarray, i)                             \
  for (                                                                       \

@@ -1,3 +1,9 @@
+2001-07-07  [ Ela ]  <ela@lkcc.org>
+
+	* guile-server.c (MAKE_SMOB_DEFINITION): Started to encapsulate
+	some of the data structures of the core library into a guile
+	representation called `smob' (small object).
+
 2001-07-03  Stefan Jahn  <s.jahn@bit-side.de>
 
 	* nut-server/nut-route.c (nut_route): Fixed memory leak.

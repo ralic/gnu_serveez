@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.4 2001/07/02 11:46:34 ela Exp $
+ * $Id: guile-server.c,v 1.5 2001/07/07 08:37:44 ela Exp $
  *
  */
 
@@ -51,6 +51,58 @@ static char *guile_functions[] = {
   "global-init", "init", "detect-proto", "connect-socket", "finalize",
   "global-finalize", "info-client", "info-server", "notify", 
   "handle-request", NULL };
+
+/*
+ * Creates a Guile SMOB (small object). The @var{cfunc} specifies a base 
+ * name for all defined functions. The argument @var{description} is used
+ * in the printer function. The macro creates various function to operate
+ * on a SMOB:
+ * a) creator - Creates a new instance.
+ * b) getter  - Converts a scheme cell to the C structure.
+ * c) checker - Checks if the scheme cell represents this SMOB.
+ * d) printer - Used when applying (display . args) in Guile.
+ * e) init    - Initialization of the SMOB.
+ * f) tag     - The new scheme tag used to identify a SMOB.
+ */
+#define MAKE_SMOB_DEFINITION(cfunc, description)                             \
+long guile_##cfunc##_tag = 0;                                                \
+SCM guile_##cfunc##_create (void *data) {                                    \
+  SCM value;                                                                 \
+  SCM_NEWSMOB (value, guile_##cfunc##_tag, data);                            \
+  return value;                                                              \
+}                                                                            \
+void * guile_##cfunc##_get (SCM smob) {                                      \
+  return (void *) gh_cdr (smob);                                             \
+}                                                                            \
+int guile_##cfunc##_p (SCM smob) {                                           \
+  return (SCM_NIMP (smob) && gh_car (smob) == guile_##cfunc##_tag) ? 1 : 0;  \
+}                                                                            \
+int guile_##cfunc##_print (SCM smob, SCM port, scm_print_state *state) {     \
+  static char txt[256];                                                      \
+  sprintf (txt, "#<%s %p>", description, (void *) gh_cdr (smob));            \
+  scm_puts (txt, port);                                                      \
+  return 1;                                                                  \
+}                                                                            \
+void guile_##cfunc##_init (void) {                                           \
+  guile_##cfunc##_tag = scm_make_smob_type (description, 0);                 \
+  scm_set_smob_print (guile_##cfunc##_tag, guile_##cfunc##_print);           \
+}
+
+#define INIT_SMOB(cfunc) \
+  guile_##cfunc##_init ()
+
+#define MAKE_SMOB(cfunc, data) \
+  guile_##cfunc##_create (data)
+
+#define CHECK_SMOB(cfunc, smob) \
+  guile_##cfunc##_p (smob)
+
+#define GET_SMOB(cfunc, smob) \
+  guile_##cfunc##_get (smob)
+
+MAKE_SMOB_DEFINITION (svz_socket, "svz-socket")
+MAKE_SMOB_DEFINITION (svz_server, "svz-server")
+MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
 
 /*
  * Extract a guile procedure from an option hash. Return zero on success.
@@ -174,7 +226,7 @@ guile_func_global_init (svz_servertype_t *stype)
 
   if (global_init != SCM_UNDEFINED)
     {
-      ret = gh_call1 (global_init, guile_ptr (stype));
+      ret = gh_call1 (global_init, MAKE_SMOB (svz_servertype, stype));
       return guile_int (ret, -1);
     }
   return 0;
@@ -190,7 +242,7 @@ guile_func_init (svz_server_t *server)
 
   if (init != SCM_UNDEFINED)
     {
-      ret = gh_call1 (init, guile_ptr (server));
+      ret = gh_call1 (init, MAKE_SMOB (svz_server, server));
       return guile_int (ret, -1);
     }
   return 0;
@@ -206,7 +258,8 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
 
   if (detect_proto != SCM_UNDEFINED)
     {
-      ret = gh_call2 (detect_proto, guile_ptr (server), guile_ptr (sock));
+      ret = gh_call2 (detect_proto, MAKE_SMOB (svz_server, server), 
+		      MAKE_SMOB (svz_socket, sock));
       return guile_int (ret, 0);
     }
   return 0;
@@ -222,7 +275,8 @@ guile_func_connect_socket (svz_server_t *server, svz_socket_t *sock)
 
   if (connect_socket != SCM_UNDEFINED)
     {
-      ret = gh_call2 (connect_socket, guile_ptr (server), guile_ptr (sock));
+      ret = gh_call2 (connect_socket, MAKE_SMOB (svz_server, server), 
+		      MAKE_SMOB (svz_socket, sock));
       return guile_int (ret, 0);
     }
   return 0;
@@ -238,7 +292,7 @@ guile_func_finalize (svz_server_t *server)
 
   if (finalize != SCM_UNDEFINED)
     {
-      ret = gh_call1 (finalize, guile_ptr (server));
+      ret = gh_call1 (finalize, MAKE_SMOB (svz_server, server));
       return guile_int (ret, -1);
     }
   return 0;
@@ -253,7 +307,7 @@ guile_func_global_finalize (svz_servertype_t *stype)
 
   if (global_finalize != SCM_UNDEFINED)
     {
-      ret = gh_call1 (global_finalize, guile_ptr (stype));
+      ret = gh_call1 (global_finalize, MAKE_SMOB (svz_servertype, stype));
       return guile_int (ret, -1);
     }
   return 0;
@@ -372,6 +426,12 @@ guile_server_init (void)
 
   guile_server = svz_hash_create (4);
   gh_new_procedure ("define-servertype!", guile_define_servertype, 1, 0, 0);
+
+  /* Initialize the guile SMOB things. Previously defined via 
+     MAKE_SMOB_DEFINITION (). */
+  INIT_SMOB (svz_socket);
+  INIT_SMOB (svz_server);
+  INIT_SMOB (svz_servertype);
 }
 
 /*

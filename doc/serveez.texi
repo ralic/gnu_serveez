@@ -1346,7 +1346,7 @@ The Gnutella spider knows the following configurations items.
 @item net-url (string, default: gnutella-net)
 If you want to see the host catcher list of this Gnutella spider you can 
 connect to this port with any WWW browser at 
-@uref{http://host:port/@code{net-url}}. The @code{host:port} combinations
+@uref{http://host:port/net-url}. The @code{host:port} combinations
 depend on the bindings.
 
 @item hosts (string array, no default)

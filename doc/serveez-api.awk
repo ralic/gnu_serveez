@@ -26,12 +26,13 @@
 # read lines until end of C comment has been reached
 function extract_doc(line)
 {
+    example = 0
     end = index(substr(line, 3), "*/")
     if (!end) {
       doc = substr (line, 3)
     } else {
       doc = substr (line, 3, end - 1)
-	}
+    }
     gsub(/ [ ]+/, " ", doc)
     gsub(/\t/, " ", doc)
     if (doc ~ / $/) { doc = substr(doc, 1, length(doc) - 1) }
@@ -49,11 +50,18 @@ function extract_doc(line)
 	line = substr($0, 4)
       }
 
-      gsub(/\*\//, "", line)
-      gsub(/ [ ]+/, " ", line)
-      gsub(/\t/, " ", line)
-      if (line ~ / $/) { line = substr(line, 1, length(line) - 1) }
-      if (line ~ /^ /) { line = substr(line, 2) }
+      # detect beginned end and of example
+      if (line ~ /\@example/) { example = 1 }
+      else if (line ~ /\@end example/) { example = 0 }
+
+      # do not strip off spaces if there is an @example
+      if (example == 0) {
+	gsub(/\*\//, "", line)
+	gsub(/ [ ]+/, " ", line)
+	gsub(/\t/, " ", line)
+	if (line ~ / $/) { line = substr(line, 1, length(line) - 1) }
+        if (line ~ /^ /) { line = substr(line, 2) }
+      }
 
       # add a line to the documentation string
       if (length(line) > 0) { 

@@ -19,25 +19,25 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: echo-server.scm,v 1.1 2001/06/27 20:38:36 ela Exp $
+;; $Id: echo-server.scm,v 1.2 2001/07/07 08:37:44 ela Exp $
 ;;
 
 (primitive-load "serveez.scm")
 
 (define (echo-global-init servertype)
-  (println "Running echo global init.")
+  (println "Running echo global init " servertype ".")
   0)
 
 (define (echo-init server)
-  (println "Running echo init.")
+  (println "Running echo init " server ".")
   0)
 
 (define (echo-global-finalize servertype)
-  (println "Running echo global finalizer.")
+  (println "Running echo global finalizer " servertype ".")
   0)
 
 (define (echo-finalize server)
-  (println "Running echo finalizer.")
+  (println "Running echo finalizer " server ".")
   0)
 
 (define (echo-detect-proto server sock)
