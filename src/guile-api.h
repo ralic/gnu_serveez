@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.8 2002/03/03 08:57:52 ela Exp $
+ * $Id: guile-api.h,v 1.9 2002/05/15 14:00:46 ela Exp $
  *
  */
 
@@ -36,7 +36,7 @@
 #endif /* not SCM_ASSERT_TYPE */
 
 /* Redefinition of the string and symbol predicates because they segfault
-   for Guile 1.3.4 and pre version when passing immediate values. */
+   for Guile 1.3.4 and prior version when passing immediate values. */
 #ifdef SCM_STRINGP
 #undef SCM_STRINGP
 #endif
@@ -142,8 +142,8 @@
     scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
 #endif
 
-/* Return an integer. If the given Guile cell @var{obj} is not such an 
-   integer the routine return the default value @var{def}. */
+/* Return an integer. If the given Guile cell @var{obj} is not an 
+   integer, the routine returns the default value @var{def}. */
 #define guile_integer(pos, obj, def) \
     ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
 

@@ -4,13 +4,13 @@
 @c included by `serveez.texi'.
 @c
 
-This section describes the Guile interface of Serveez meant to provide
-the ability to exceptionally write servers with Guile.  Of course you could
-do this without any help of Serveez, but it makes it a lot easier.  The
-Guile interface of Serveez reduces the Guile implementation of an Internet
-server to a simple data processor.
+This section describes the Guile interface to Serveez which provides
+the ability to write servers with Guile.  Of course, you could do this
+without any help from Serveez, but it makes the task a lot easier.
+This interface reduces the Guile implementation of an Internet server
+to a simple data processor.
 
-@subsubsection Special data types
+@subsubsection Special Data Types
 
 Serveez extends Guile by various new data types which represent internal
 data structures of Serveez's core API.
@@ -24,13 +24,12 @@ represents a server (an instance of a server type).
 represents a socket structure.
 @end itemize
 
-@subsubsection Passing binary data
+@subsubsection Passing Binary Data
 
-The new binary data type (i.e. @code{#<svz-binary>}) provides access to any
-kind of unstructured data.  It manages data exchange between Guile and Serveez
-and the other way around.  There are some converter functions for strings 
-and lists which help to process this binary data in a more complex (guile'ish) 
-way.
+The new binary data type (@code{#<svz-binary>}) provides access to any
+kind of unstructured data.  It manages the data exchange between Guile
+and Serveez.  There are some conversion functions for strings and lists
+which help to process this binary data in a more complex (guile'ish) way.
 
 BINARY->STRING_DEFUN
 STRING->BINARY_DEFUN
@@ -55,13 +54,14 @@ BINARY-SHORT-SET!_DEFUN
 BINARY-CHAR-REF_DEFUN
 BINARY-CHAR-SET!_DEFUN
 
-@subsubsection Server definition
+@subsubsection Server Definition
 
-In order to setup a new server type you use the procedure 
-@code{(define-servertype!)}.  This procedure takes one argument which must be
-an associative list specifying the server type in detail.  There are 
-optional and mandatory elements you can setup in this alist.  The following
-example shows the overall syntax of this procedure:
+In order to set up a new server type, you use the procedure
+@code{(define-servertype!)}.  This procedure takes one argument which
+must be an associative list specifying the server type in detail.
+There are optional and mandatory elements you can set up in this alist.
+
+The following example shows the overall syntax of this procedure:
 
 @lisp
 (define-servertype! '(
@@ -75,16 +75,16 @@ example shows the overall syntax of this procedure:
   ;; Mandatory for TCP and PIPE servers: protocol detection
   (detect-proto    . foo-detect-proto)
 
-  ;; Optional: global server type initialization
+  ;; Optional: global server type initialisation
   (global-init     . foo-global-init)
 
-  ;; Optional: server instance initialization
+  ;; Optional: server instance initialisation
   (init            . foo-init)
 
-  ;; Optional: server instance finalization
+  ;; Optional: server instance finalisation
   (finalize        . foo-finalize)
 
-  ;; Optional: global server type finalization
+  ;; Optional: global server type finalisation
   (global-finalize . foo-global-finalize)
 
   ;; Mandatory for TCP and PIPE servers: socket connection
@@ -102,11 +102,11 @@ example shows the overall syntax of this procedure:
   ;; Mandatory for UDP and ICMP servers: packet handler
   (handle-request  . foo-handle-request)
 
-  ;; Mandatory: server type configuration (can be an empty list)
+  ;; Mandatory: server type configuration (may be an empty list)
   (configuration   . (
 
     ;; The server configuration is an alist (associative list) again.  Each
-    ;; item consist of an item name and a list describing the item itself.
+    ;; item consists of an item name and a list describing the item itself.
     ;; Syntax: (key . (type defaultable default))
     (foo-integer       . (integer  #t 0))
     (foo-integer-array . (intarray #t (1 2 3 4 5)))
@@ -120,13 +120,14 @@ example shows the overall syntax of this procedure:
 
 DEFINE-SERVERTYPE!_DEFUN
 
-@subsubsection Predefined procedures
+@subsubsection Predefined Procedures
 
-The following subset of procedures can be used to implement a Guile server.
-They should be used within the callbacks defined in the 
-@code{(define-servertype!)} procedure.  Each of these callbacks gets passed
-the appropriate arguments needed to stuff into the below procedures.  Please
-have a look at the example Guile servers for the very details.
+The following subset of procedures may be used to implement a Guile
+server.  They should be used within the callbacks defined in the
+@code{(define-servertype!)} procedure.  Each of these callbacks gets
+passed the appropriate arguments needed to stuff into the following
+procedures.  Please have a look at the example Guile servers for the
+details.
 
 SVZ:SOCK?_DEFUN
 SVZ:SOCK:CHECK-REQUEST_DEFUN
@@ -183,137 +184,261 @@ SVZ:COSERVER:DNS_DEFUN
 SVZ:COSERVER:REVERSE-DNS_DEFUN
 SVZ:COSERVER:IDENT_DEFUN
 
-@subsubsection Callback prototypes
+@subsubsection Callback Prototypes
 
-The Guile interface of Serveez is completely callback driven.  Callbacks
-can be set within the associative list passed to
-@code{(define-servertype!)} or by using the predefined procedures
-described in the above section.  Each of the callbacks gets certain
-arguments passed and is meant to return specific values to indicate
-success or failure.  This section describes each of of these callbacks.
+The Guile interface of Serveez is completely callback driven.
+Callbacks can be set up in the associative list passed to
+@code{(define-servertype!)}, or by using the predefined procedures
+described in the previous section.  Each of the callbacks is passed
+certain arguments and is meant to return specific values to indicate
+success or failure.  This section describes each of these callbacks.
 
 @table @code
 @item (global-init #<svz-servertype>)
-This callback is executed once for every type of server right after the
-@code{(define-servertype!)} statement.  Here you can initialize data or 
-whatever is shared between all instances of your server type.  The callback 
-is optional and can be set within @code{(define-servertype!)}.  It should
+This callback is executed once for every type of server right after
+the @code{(define-servertype!)} statement.  Here you can initialise
+resources shared between all instances of your server type.  The callback
+is optional and can be set up in @code{(define-servertype!)}.  It should
 return zero to indicate success and non-zero to indicate failure.  If the
-global initializer fails Serveez refuses to register the server type.
+global initialiser fails, Serveez will refuse to register the server type.
 
 @item (global-finalize #<svz-servertype>)
-If you want to free shared resources which were possibly allocated within
-the global initializer you can do so here.  The callback is run when Serveez
-shuts down (issued by @code{(serveez-nuke)}) or the server type gets 
-unregistered for some reason.  It is meant to return zero to signal success.
-The callback can be setup in @code{(define-servertype!)} and is optional.
+If you want to free shared resources, which were possibly allocated
+within the global initialiser, you can do so here.  The callback is
+run when Serveez shuts down (issued by @code{(serveez-nuke)}) or the
+server type gets unregistered for some reason.  It should return zero to
+signal success.  The callback can be set up in @code{(define-servertype!)}
+and is optional.
 
 @item (init #<svz-server>)
-Within this routine you can initialize everything you might need for a single
-instance of your server.  The callback is executed for each server instance
-which has been created by @code{(define-server!)} and should return zero to
-indicate success, otherwise Serveez rejects the server instance.  The callback
-can be setup in @code{(define-servertype!)} and is optional.
+Within this routine you can initialise everything you might need for
+a single instance of your server.  The callback is executed for each
+server instance which has been created by @code{(define-server!)} and
+should return zero to indicate success, otherwise Serveez rejects the
+server instance.  The callback can be set up in @code{(define-servertype!)}
+and is optional.
 
 @item (finalize #<svz-server>)
-The server instance finalizer gets its instance representation as argument
-passed.  You need to free all resources used by this server instance which
-might have been allocated within the server instance initializer or consumed
-during runtime.  You can set this callback in the @code{(define-servertype!)}
-statement.  The callback is optional and should return zero to indicate
-success.
+The server instance finaliser gets its instance representation passed
+as argument.  You need to free all resources used by this server
+instance which might have been allocated within the server instance
+initialiser or consumed while running.  You can set this callback in
+the @code{(define-servertype!)} statement.  The callback is optional
+and should return zero to indicate success.
 
 @item (detect-proto #<svz-server> #<svz-socket>)
-Because it is possible to have more than one server instance listening on 
-one network port (for connection oriented protocols like TCP and PIPE only)
-we need to detect the type of client which is connecting to this port.  This 
-routine is getting two arguments where the first one is the server instance
-and the second is the client socket object containing all information of the 
-client connection.  For successful client detection you need to return a 
-non-zero value.  You can set up this callback in the 
-@code{(define-servertype!)} statement.  This is mandatory for servers which 
-get bound to connection oriented protocol (TCP and PIPE) port configurations
-by @code{(bind-server!)}.
+Connection oriented protocols like TCP and PIPE allow more than one server
+to be listening on the same network port.  Therefore, it is necessary to
+be able to detect the type of client connecting to a port.
+
+This routine takes two arguments; the first is the server instance
+and the second is the client socket object containing the client
+connection information.  You can set up this callback in the
+@code{(define-servertype!)} statement.
+
+To indicate successful client detection, you need to return a non-zero
+value.  (Note that for historical reasons, this is inconsistant with
+other functions which return zero on successful completion.)
+
+@ignore
+       "If you return zero nothing happens until a certain limit of
+       incoming bytes on the connection has been reached.  Returning zero
+       means that Serveez can passed the data to the other server's
+       detection routines."
+
+       This is unclear to me, and appears to contradict itself.  I see
+       four alternatives (I would look at the code, but don't have time
+       tonight, sorry):
+
+       1.  Nothing happens until the limit (defined where?) is reached,
+       then the callback is executed again.
+
+       2.  Nothing happens until the limit is reached, then the data
+       is passed to other server's detection routines.
+
+       3.  The data is passed to other server's detection routines, but
+       when the limit is reached this callback is also executed again.
+
+       4.  The data is passed to other server's detection routines
+       regardless of the limit but never returned to this server's
+       callback.
+
+       What happens when non-zero is returned?  I would assume that
+       subsequent detection routines don't get called, but I can also
+       make a case that you may wish multiple servers to handle a single
+       connection (e.g., processing and logging servers).
+
+       What order do the server's callbacks get called in?
+
+       Answer:
+       The (detect-proto) callback is called when a simple connect() has been
+       detected and then every time when new incoming data arrives.  The
+       incoming data is available via (svz:sock:receive-buffer).
+
+       I think an example explains it best:
+       Imagine there are 2 servers bound to the same port.  Server1's 
+       detect-proto routine check whether a "SVZ1" is in the receive buffer
+       and Server2 checks for a "SVZ2".
+       1.) client connects
+       2.) detect-proto is called for Server1 and Server2, both see no data;
+           that is why they return 0
+       3.) client sends "SVZ"
+       4.) again like in step 2.) both (detect-proto)'s return 0
+       5.) client sends "2 blabla..."
+       6.) the (detect-proto) routine of Server1 sees now "SVZ2 blabla..."
+           in the receive buffer,  that is why it returns 0
+           but the detect-proto of Server2 now returns non-zero (e.g. -1)
+       7.) now Serveez runs the (connect-socket) callback of Server2 and
+           'assigns' the connection to Server2;  when new data arrives on
+           this connection Serveez passes it to the (check-request)
+           callback of Server2;  (detect-proto) of both Servers is never
+           again called for this connection
+       
+       You can imagine that a client is able to connect to the port; but
+       stops sending data after sending "SVZ".  In this case the connection
+       will be closed after 30 seconds (hardcoded at the time);  also if
+       the client sends "SVZ3 blabla...".  The connection also gets closed
+       when a client sends more than 16 bytes without any server able to 
+       detect something.
+
+       Note: Both of the values are hardcoded, but store in variables of 
+       the port at the time.  We may make them configurable through the 
+       port configuration in Guile (define-port!).
+
+       We do not allow servers to share a connection (except while 
+       detecting).
+       The order of running the (detect-proto) callbacks of the servers
+       bound to a port is arbitrary.  There are no priorities.  I can't
+       remember exactly, but I think its the order of (bind-server!) 
+       statements (or the other way around?).
+@end ignore
+
+This routine is mandatory for servers which get bound to
+connection oriented protocol (TCP and PIPE) port configurations by
+@code{(bind-server!)}.
 
 @item (connect-socket #<svz-server> #<svz-socket>)
-If the client detection signaled success this routine is called to assign
-the client connection to the server instance.  The arguments are just
-the same as in the detection routine.  In this callback you can assign
-all the connection specific callbacks for your server and do some initial
-things.  Basically you should specify the @code{handle-request} and/or
-@code{check-request} callback.  This can be achieved by calling 
-@code{(svz:sock:handle-request)} and @code{(svz:sock:check-request)}.  The
-@code{connect-socket} callback is also mandatory for connection oriented
-protocols and must by defined inside @code{(define-servertype!)}.  On 
-success you should return zero.  Otherwise the connection will be shutdown 
-by Serveez.
+If the client detection signalled success, this routine is called to
+assign the client connection to a server instance.  The arguments are
+the same as the detection routine.  In this callback you can assign
+all the connection specific callbacks for your server and perform some
+initial tasks.  Basically you should specify the @code{handle-request}
+and/or @code{check-request} callback.  This can be achieved by calling
+@code{(svz:sock:handle-request)} and @code{(svz:sock:check-request)}.
+The @code{connect-socket} callback is also mandatory for connection
+oriented protocols and must be defined in @code{(define-servertype!)}.
+On success you should return zero, otherwise the connection will be
+shutdown by Serveez.
 
 @item (info-server #<svz-server>)
 This callback gets executed when requested by the builtin
-@ref{Control Protocol Server}.  The callback is optional and can be setup
-inside @code{(define-servertype!)}.  The returned character string can be 
-multilined separated by @code{\r\n} (but without trailing separator).
-Usually you will return information about the server instance configuration
-and/or state.
+@ref{Control Protocol Server}.  The callback is optional and can be
+set up in @code{(define-servertype!)}.  The returned character string
+can be multiple lines separated by @code{\r\n} (but without a trailing
+separator).  Usually you will return information about the server instance
+configuration and/or state.
 
 @item (info-client #<svz-server> #<svz-socket>)
-This callback is optional.  You can setup it in the 
-@code{(define-servertype!)} procedure.  It is meant to provide socket 
-structure (which is a client/child of the given server instance) specific
-information.  You need to return a single line character string without
-trailing newlines.  The provided information can be requested by the 
-builtin @ref{Control Protocol Server}.
+This callback is optional.  You can set it up in the 
+@code{(define-servertype!)} procedure.  It is meant to provide socket
+structure specific information.  (The socket structure is a client/child
+of the given server instance.)  You need to return a single line
+character string without trailing newlines.  The information provided
+can be requested by the builtin @ref{Control Protocol Server}.
 
 @item (notify #<svz-server>)
-The server instance notifier callback will be run whenever there is some 
-time left.  In fact it is run approximately once a second.  A server 
-instance can use it to perform periodical tasks.  The callback is also 
-optional and can be setup within @code{(define-servertype!)}.
+The server instance notifier callback will be run whenever there is idle
+time available.  In practice, it is run approximately once a second.
+A server instance can use it to perform periodic tasks.  The callback
+is optional and can be set up in @code{(define-servertype!)}.
 
 @item (handle-request #<svz-socket> #<svz-binary> size)
-Usually this callback gets executed by the @code{check-request} callback 
-when it detected a complete packet in the receive buffer.  The callback gets
-the packet data passed as a @code{#<svz-binary>}.  The @var{size} argument
-is passed for convenience specifying the length of the packet in bytes.
+Usually this callback gets executed by the @code{check-request}
+callback when it detects a complete packet in the receive buffer.
+The packet data is passed to the callback as a @code{#<svz-binary>}.
+The @var{size} argument is passed for convenience and specifies the length
+of the packet in bytes.
+
 There are two different return value meanings.  For connection oriented
-protocols (TCP and PIPE) zero indicates success and non-zero failure.  On 
-failure Serveez will shutdown the connection.  For packet oriented protocols
-(UDP and ICMP) a non-zero return value indicates that your server was able
-to process the passed packet data, otherwise (zero return value) the packet
-can be passed to other servers listening on the same port configuration.  
-This callback must be specified within @code{(define-servertype!)} for 
-packet oriented protocols (UDP and ICMP) and is optional otherwise.  You can
-modify the callback by calling @code{(svz:sock:handle-request)}.
+protocols (TCP and PIPE), zero indicates success and non-zero failure;
+on failure, Serveez will shutdown the connection.  For packet oriented
+protocols (UDP and ICMP), a non-zero return value indicates that your
+server was able to process the passed packet data, otherwise (zero
+return value) the packet can be passed to other servers listening
+on the same port configuration.
+
+This callback must be specified in @code{(define-servertype!)} for
+packet oriented protocols (UDP and ICMP) but is optional otherwise.
+You can modify the callback by calling @code{(svz:sock:handle-request)}.
+
+@ignore
+       "Good point.  The handle-request is a bit tricky.  On the one
+       hand you can set it up using (svz:sock:boundary).  In this
+       case you do not have a check-request, but the check-request
+       is a C implementation.  Same for UDP/ICMP.  And on the other
+       hand you can set up the check-request callback yourself and
+       call handle-request from there.	How the check-request callback
+       evaluates the return value of the handle-request is in the hands
+       of the programmer then."
+
+       If (handle-request) is callable directly from (check-request)
+       is it really a callback?	 Also, (check-request) is not only
+       free to interpret the return code however it wishes, it is
+       also free to pass whatever arguments it wishes.	The only
+       way I can see (handle-request) qualifying as a callback under
+       these circumstances is if it is called indirectly through a
+       Serveez invocation mechanism (e.g., (invoke-request-handler)).
+       Telling Serveez about (handle-request) seems pointless in this
+       circumstance.
+
+       Under what conditions is (handle-request) called directly from
+       Serveez (via (svz:sock:boundry))?
+
+       Answer:
+       The (handle-request) callback is called directly through from Serveez
+       for UDP and ICMP sockets, in this case you are now allowed to set
+       (check-request), because a complete packet is defined by the type
+       of connection (which is already packet oriented).
+       The (handle-request) callback is also directly called when you setup
+         (svz:sock:boundary sock delimiter) or
+         (svz:sock:boundary sock size).
+       In this case Serveez parses the packet itself and passes the packets
+       directly through (handle-request).  Thus you do not need to setup
+       a (check-request) callback.  If you do this (set a check-request after
+       setting a boundary) despite,  this mechanism is destroyed and 
+       the check-request callback is run as usual.
+@end ignore
 
 @item (check-request #<svz-socket>)
-This callback is run whenever new data arrived in the receive buffer.  The
-receive buffer of the given @code{#<svz-socket>} can be obtained by 
-@code{(svz:sock:receive-buffer)}.  The callback is initially not set and can
-be setup by @code{(svz:sock:check-request)}.  Its purpose is to check whether
-a complete request was received, and if it was, it should be handled (by
-running the @code{handle-request} callback) and removed from the receive 
-buffer.  This can be achieved using @code{(svz:sock:receive-buffer-reduce)}.
-The callback is for connection oriented protocols (TCP and PIPE) only.  You
-should return zero to indicate success and non-zero to indicate failure.  On
-failure Serveez shuts the connection down.
+This callback is run whenever new data has arrived in the receive buffer.
+The receive buffer of the given @code{#<svz-socket>} can be obtained
+using @code{(svz:sock:receive-buffer)}.  The callback is initially not
+set and can be set up with @code{(svz:sock:check-request)}.  Its purpose
+is to check whether a complete request was received.  If so, it should
+be handled (by running the @code{handle-request} callback) and removed
+from the receive buffer (using @code{(svz:sock:receive-buffer-reduce)}).
+The callback is for connection oriented protocols (TCP and PIPE) only.
+You should return zero to indicate success and non-zero to indicate
+failure.  On failure Serveez shuts the connection down.
 
 @item (disconnected #<svz-socket>)
-The @code{disconnected} callback gets called whenever the socket is lost for
-some external reason and is going to be shutdown by Serveez.  It can be setup
-by @code{(svz:sock:disconnected)}.
+The @code{disconnected} callback gets called whenever the socket is
+lost for some external reason and is going to be shutdown by Serveez.
+It can be set up with @code{(svz:sock:disconnected)}.
 
 @item (kicked #<svz-socket> reason)
-This callback gets called whenever the socket gets closed by Serveez 
-intentionally.  It can be setup via @code{(svz:sock:kicked)}.  The 
-@var{reason} argument can be either @code{KICK_FLOOD} indicating the socket
-is a victim of the builtin flood protection or @code{KICK_QUEUE} which 
-indicates a send buffer overflow.
+This callback gets called whenever the socket gets closed by Serveez
+intentionally.  It can be set up with @code{(svz:sock:kicked)}.  The
+@var{reason} argument can be either @code{KICK_FLOOD}, indicating the
+socket is a victim of the builtin flood protection, or @code{KICK_QUEUE}
+which indicates a send buffer overflow.
 
 @item (idle #<svz-socket>)
-The @code{idle} callback gets called from the periodic task scheduler.  
-Whenever the @code{idle-counter} is non-zero, it is decremented and
-the callback itself gets called when the counter drops to zero.  The
-@code{idle} callback can reset the @code{idle-counter} with the procedure
-@code{(svz:sock:idle-counter)} to some value and thus can re-schedule itself 
-for a later task.  You can setup this callback with @code{(svz:sock:idle)}.
+The @code{idle} callback gets called from the periodic task scheduler,
+which maintains a @code{idle-counter} for each socket structure.
+This counter is decremented whenever Serveez becomes idle and the
+callback is executed when it drops to zero.  The @code{idle} callback can
+set its socket's @code{idle-counter} to some value with the procedure
+@code{(svz:sock:idle-counter)} and thus re-schedule itself for a later
+task.  You can set up this callback with @code{(svz:sock:idle)}.
 @end table

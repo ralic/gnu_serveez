@@ -1,3 +1,8 @@
+2002-05-15  [ Ela ]  <ela@lkcc.org>
+
+	* guile-api.texi.in: Applied John Fitzgerald's modifications
+	of the Guile server documentation.  Thanks a lot!
+
 2002-02-16  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.texi (Using Serveez): Small section about installing

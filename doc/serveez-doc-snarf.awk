@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.8 2002/02/12 20:50:17 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.9 2002/05/15 14:00:46 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -37,6 +37,7 @@ function extract_doc(line)
     }
     gsub(/ [ ]+/, " ", doc)
     gsub(/\t/, " ", doc)
+    doc = gensub(/\. ([A-Z]+)/, ".  \\1", "g", doc)
     if (doc ~ / $/) { doc = substr(doc, 1, length(doc) - 1) }
     if (doc ~ /^ /) { doc = substr(doc, 2) }
     while (end == 0) {
@@ -54,7 +55,7 @@ function extract_doc(line)
 	line = ""
       }
 
-      # detect beginned end and of example
+      # detect begin and end of example
       if (line ~ /\@example/) { example = 1 }
       else if (line ~ /\@end example/) { example = 0 }
 
@@ -63,6 +64,7 @@ function extract_doc(line)
 	gsub(/\*\//, "", line)
 	gsub(/ [ ]+/, " ", line)
 	gsub(/\t/, " ", line)
+	line = gensub(/\. ([A-Z]+)/, ".  \\1", "g", line)
 	if (line ~ / $/) { line = substr(line, 1, length(line) - 1) }
         if (line ~ /^ /) { line = substr(line, 2) }
       }

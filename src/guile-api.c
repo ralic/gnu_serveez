@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.c,v 1.24 2002/03/27 14:34:47 ela Exp $
+ * $Id: guile-api.c,v 1.25 2002/05/15 14:00:46 ela Exp $
  *
  */
 
@@ -288,7 +288,7 @@ guile_sock_send_buffer (SCM sock)
 
 /* Dequeue @var{length} bytes from the receive buffer of the socket 
    @var{sock} which must be a valid @code{#<svz-socket>}. If the user omits
-   the optional @var{length} argument all of the data in the receive buffer
+   the optional @var{length} argument, all of the data in the receive buffer
    gets dequeued. Returns the number of bytes actually shuffled away. */
 #define FUNC_NAME "svz:sock:receive-buffer-reduce"
 static SCM
@@ -319,7 +319,7 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
 
 /* This procedure returns the current remote address as a pair like 
    @code{(host . port)} with both entries in network byte order. If you pass
-   the optional argument @var{address} you can set the remote address of 
+   the optional argument @var{address}, you can set the remote address of 
    the socket @var{sock}. */
 #define FUNC_NAME "svz:sock:remote-address"
 static SCM
@@ -347,7 +347,7 @@ guile_sock_remote_address (SCM sock, SCM address)
 
 /* This procedure returns the current local address as a pair like 
    @code{(host . port)} with both entries in network byte order. If you pass
-   the optional argument @var{address} you can set the local address of 
+   the optional argument @var{address}, you can set the local address of 
    the socket @var{sock}. */
 #define FUNC_NAME "svz:sock:local-address"
 static SCM
@@ -373,7 +373,7 @@ guile_sock_local_address (SCM sock, SCM address)
 }
 #undef FUNC_NAME
 
-/* Return the given sockets @var{sock} parent and optionally set it to the
+/* Return the given socket's @var{sock} parent and optionally set it to the
    socket @var{parent}. The procedure returns either a valid 
    @code{#<svz-socket>} object or an empty list. */
 #define FUNC_NAME "svz:sock:parent"
@@ -395,7 +395,7 @@ guile_sock_parent (SCM sock, SCM parent)
 }
 #undef FUNC_NAME
 
-/* Return the given sockets @var{sock} referrer and optionally set it to the
+/* Return the given socket's @var{sock} referrer and optionally set it to the
    socket @var{referrer}. The procedure returns either a valid 
    @code{#<svz-socket>} or an empty list. */
 #define FUNC_NAME "svz:sock:referrer"
@@ -421,8 +421,8 @@ guile_sock_referrer (SCM sock, SCM referrer)
    given argument @var{sock}. The optional argument @var{server} can be used
    to redefine this association and must be a valid @code{#<svz-server>}
    object. For a usual socket callback like @code{connect-socket} or
-   @code{handle-request} the association is already in place. But for sockets
-   created by @code{(svz:sock:connect)} you can use it in order to make the
+   @code{handle-request}, the association is already in place. But for sockets
+   created by @code{(svz:sock:connect)}, you can use it in order to make the
    returned socket object part of a server. */
 #define FUNC_NAME "svz:sock:server"
 static SCM
@@ -529,7 +529,7 @@ guile_server_p (SCM server)
 /* Set the @code{disconnected-socket} member of the socket structure 
    @var{sock} to the Guile procedure @var{proc}. The given callback
    runs whenever the socket is lost for some external reason. The procedure 
-   returns the previously set handler if there is any. */
+   returns the previously set handler if there is one. */
 #define FUNC_NAME "svz:sock:disconnected"
 MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
 #undef FUNC_NAME
@@ -553,9 +553,9 @@ MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
 MAKE_SOCK_CALLBACK (idle_func, "idle")
 #undef FUNC_NAME
 
-/* This functions returns the socket structure's @var{sock} current value 
-   of the @code{idle-counter}. If the optional argument @var{counter} is
-   given the function sets the @code{idle-counter}. Please have a look at the
+/* This functions returns the socket structure @var{sock}'s current 
+   @code{idle-counter} value. If the optional argument @var{counter} is
+   given, the function sets the @code{idle-counter}. Please have a look at the
    @code{(svz:sock:idle)} procedure for the exact meaning of this value. */
 #define FUNC_NAME "svz:sock:idle-counter"
 static SCM
@@ -577,7 +577,7 @@ guile_sock_idle_counter (SCM sock, SCM counter)
 #undef FUNC_NAME
 
 /* Returns a list of listening @code{#<svz-socket>} smobs to which the 
-   given server instance @var{server} is currently bound to or an empty list
+   given server instance @var{server} is currently bound, or an empty list
    if there is no such binding yet. */
 #define FUNC_NAME "svz:server:listeners"
 static SCM
@@ -705,7 +705,7 @@ scm_setrpc (SCM stayopen)
 /* This procedure returns a list of the current RPC program-to-port mappings
    on the host located at IP address @var{address}. When you leave this 
    argument it defaults to the local machine's IP address. This routine 
-   can return an empty list either indicating there is no such list 
+   can return an empty list indicating either there is no such list 
    available or an error occurred while fetching the list. */
 #define FUNC_NAME "portmap-list"
 SCM
@@ -762,7 +762,7 @@ scm_portmap_list (SCM address)
    between the triple [@var{prognum},@var{versnum},@var{protocol}] and 
    @var{port} on the machine's portmap service. The value of @var{protocol}
    is most likely @code{IPPROTO_UDP} or @code{IPPROTO_TCP}.
-   If the user omits @var{protocol} and @var{port} the procedure destroys
+   If the user omits @var{protocol} and @var{port}, the procedure destroys
    all mapping between the triple [@var{prognum},@var{versnum},*] and ports
    on the machine's portmap service. */
 #define FUNC_NAME "portmap"
@@ -827,12 +827,12 @@ guile_coserver_callback (char *res, SCM callback, SCM arg)
 }
 
 /* This procedure enqueues the @var{host} string argument into the internal
-   dns coserver queue. When the coserver responds the Guile procedure
+   DNS coserver queue. When the coserver responds, the Guile procedure
    @var{callback} is run as @code{(callback addr arg)}. The @var{addr} 
    argument passed to the callback is a string representing the appropriate 
    IP address for the given hostname @var{host}. If you omit the optional 
    argument @var{arg} it is run as @code{(callback addr)} only. The @var{arg}
-   argument may  be necessary if you need to have the callback procedure 
+   argument may be necessary if you need to have the callback procedure 
    in a certain context. */ 
 #define FUNC_NAME "svz:coserver:dns"
 SCM
@@ -863,9 +863,9 @@ guile_coserver_dns (SCM host, SCM callback, SCM arg)
 #undef FUNC_NAME
 
 /* This Guile procedure enqueues the given @var{addr} argument which must be
-   an IP address in network byte order into the internal reverse dns coserver
-   queue. When the coserver responds the Guile procedure @var{callback} is
-   run as @code{(callback host arg)} whereas @var{host} is the hostname of the
+   an IP address in network byte order into the internal reverse DNS coserver
+   queue. When the coserver responds, the Guile procedure @var{callback} is
+   run as @code{(callback host arg)} where @var{host} is the hostname of the
    requested IP address @var{addr}. The last argument @var{arg} is 
    optional. */
 #define FUNC_NAME "svz:coserver:reverse-dns"
@@ -895,8 +895,8 @@ guile_coserver_rdns (SCM addr, SCM callback, SCM arg)
 #undef FUNC_NAME
 
 /* This procedure enqueues the given @code{#<svz-socket>} @var{sock} into the
-   internal ident coserver queue. When the coserver responds it runs the
-   Guile procedure @var{callback} as @code{(callback user arg)} whereas 
+   internal ident coserver queue. When the coserver responds, it runs the
+   Guile procedure @var{callback} as @code{(callback user arg)} where
    @var{user} is the corresponding username for the client connection 
    @var{sock}. The @var{arg} argument is optional. */
 #define FUNC_NAME "svz:coserver:ident"
@@ -922,7 +922,7 @@ guile_coserver_ident (SCM sock, SCM callback, SCM arg)
 }
 #undef FUNC_NAME
 
-/* The given argument @var{ident} must be a pair of numbers whereas the
+/* The given argument @var{ident} must be a pair of numbers where the
    car is a @code{#<svz-socket>}'s identification number and the cdr the 
    version number. The procedure returns either the identified 
    @code{#<svz-socket>} or @code{#f} if the given combination is not 
