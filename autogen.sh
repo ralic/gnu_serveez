@@ -44,7 +44,7 @@ echo "done."
 if [ -r config.status ]; then
   CMD=`awk '/^#.*\/?configure .*/ { $1 = ""; print; exit }' < config.status`
 else
-  CMD=`dirname $0`/configure
+  CMD=`dirname $0`/configure --enable-maintainer-mode
 fi
 echo "Running $CMD $@ ..."
 $CMD "$@"

@@ -1,3 +1,8 @@
+2000-12-06  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
+
+	* autogen.sh: Added `--enable-maintainer-mode' so that the
+	documentation builds after a CVS checkout without problems.
+
 2000-11-26  [ Ela ]  <ela@lkcc.org>
 
 	* serveez.dsp: From now on we are using the ws2_32.dll as socket
