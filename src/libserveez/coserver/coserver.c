@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.27 2002/05/05 08:36:41 ela Exp $
+ * $Id: coserver.c,v 1.28 2002/05/06 16:24:02 ela Exp $
  *
  */
 
@@ -625,9 +625,9 @@ svz_coserver_close_pipes (svz_coserver_t *self)
 static void
 svz_coserver_closeall (svz_socket_t *self)
 {
-  svz_socket_t *sock;
+  svz_socket_t *sock, *next;
 
-  svz_sock_foreach (sock)
+  for (sock = svz_sock_root; sock != NULL; sock = next)
     {
       if (sock->flags & SOCK_FLAG_SOCK)
 	if (sock->sock_desc >= 2)
@@ -642,6 +642,7 @@ svz_coserver_closeall (svz_socket_t *self)
 	  if (sock->pipe_desc[WRITE] >= 2)
 	    close (sock->pipe_desc[WRITE]);
 	}
+      next = sock;
       if (sock != self)
 	{
 	  svz_sock_resize_buffers (sock, 0, 0);

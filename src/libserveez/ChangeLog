@@ -1,3 +1,8 @@
+2002-05-06  [ Ela ]  <ela@lkcc.org>
+
+	* coserver/coserver.c (svz_coserver_closeall): Fixed a segfault
+	bug while freeing socket structures.
+
 2002-05-05  [ Ela ]  <ela@lkcc.org>
 
 	* coserver/coserver.c (svz_coserver_closeall): Close file,

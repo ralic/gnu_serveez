@@ -64,7 +64,7 @@ EXTRA_serveez_SOURCES = guile-api.c guile-api.h
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 
 serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
-	serveez.cfg $(GUILE_DEPENDENCY)
+	libserveez/libserveez.la serveez.cfg $(GUILE_DEPENDENCY)
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la $(SERVEEZLIBS)

@@ -28,6 +28,7 @@ files.
 Version 0.1.4
 -------------
 
+ * fatal bug fixes in the coservers
  * bug fixes in Guile server implementation
 
 Version 0.1.3
