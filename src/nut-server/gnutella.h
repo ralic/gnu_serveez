@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.7 2000/09/02 15:48:14 ela Exp $
+ * $Id: gnutella.h,v 1.8 2000/09/02 19:33:01 ela Exp $
  *
  */
 
@@ -159,6 +159,7 @@ typedef struct
   unsigned dropped; /* number of dropped packets */
   unsigned packets; /* number of received packets */
   unsigned invalid; /* number of invalid packet types */
+  unsigned queries; /* number of queries */
 }
 nut_client_t;
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.1 2000/09/02 15:48:14 ela Exp $
+ * $Id: nut-route.c,v 1.2 2000/09/02 19:33:01 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifdef __MINGW32__
 # include <winsock.h>
@@ -44,6 +45,45 @@
 #include "server-core.h"
 #include "gnutella.h"
 #include "nut-route.h"
+
+/*
+ * This function canonizes gnutella queries. Thus we prevent the network
+ * from unpatient users and often repeated queries.
+ */
+int
+nut_canonize_query (nut_config_t *cfg, char *query)
+{
+  char *buffer, *p, *save;
+  time_t t;
+  int ret = 0;
+
+  /* extract alphanumerics only and pack them together as lowercase */
+  save = p = buffer = xstrdup (query);
+  while (*p)
+    {
+      if (isalnum (*p)) *save++ = isupper (*p) ? tolower (*p) : *p;
+      p++;
+    }
+  *save = '\0';
+  /*
+  if ((t = (time_t) hash_get (cfg->query, save)) != 0)
+    {
+      if (time (NULL) - t < 10)
+	{
+#if ENABLE_DEBUG
+	  log_printf (LOG_DEBUG, "nut: dropping too recent query\n");
+#endif
+	  ret = -1;
+	}
+    }
+
+  t = time (NULL);
+  hash_put (cfg->query, save, t);
+  */
+  xfree (buffer);
+
+  return ret;
+}
 
 /*
  * Gnutella packet validation. This is absolutely necessary. It protects 

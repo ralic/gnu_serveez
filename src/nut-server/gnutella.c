@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.8 2000/09/02 15:48:13 ela Exp $
+ * $Id: gnutella.c,v 1.9 2000/09/02 19:33:01 ela Exp $
  *
  */
 
@@ -589,13 +589,15 @@ nut_reply (socket_t sock, nut_header_t *hdr, nut_reply_t *reply)
   socket_t xsock;
   nut_packet_t *pkt;
   nut_record_t *record;
-  char *p;
+  nut_client_t *client = sock->data;
+  char *p, *end;
   int n;
   byte *id;
 
   nut_host_catcher (cfg, reply->ip, little2net (reply->port));
   pkt = (nut_packet_t *) hash_get (cfg->packet, (char *) hdr->id);
 
+  /* is that query hit (reply) an answer to my own request ? */
   if (pkt != NULL)
     {
       xsock = pkt->sock;
@@ -605,10 +607,13 @@ nut_reply (socket_t sock, nut_header_t *hdr, nut_reply_t *reply)
       printf ("ip      : %s\n", util_inet_ntoa (reply->ip));
       printf ("speed   : %d kbit/s\n", reply->speed);
 #endif
+      /* process only if the connection has a minimum speed */
       if (reply->speed >= cfg->min_speed)
 	{
 	  p = (char *) reply->record;
-	  for (n = 0; n < reply->records; n++)
+	  end = p + hdr->length;
+	  /* go through all query hit records */
+	  for (n = 0; n < reply->records && p < end; n++)
 	    {
 	      record = (nut_record_t *) p;
 #if 1
@@ -617,7 +622,20 @@ nut_reply (socket_t sock, nut_header_t *hdr, nut_reply_t *reply)
 	      printf ("file size  : %d\n", record->size);
 	      printf ("file       : %s\n", record->file);
 #endif
-	      p = record->file + strlen (record->file) + 2;
+	      /* check if the reply is valid */
+	      p = record->file;
+	      while (p < end && *p) p++;
+	      if (p == end || *(p+1))
+		{
+#if ENABLE_DEBUG
+		  log_printf (LOG_DEBUG, "nut: invalid query hit payload\n");
+#endif
+		  client->dropped++;
+		  return -1;
+		}
+	      p += 2;
+
+	      /* startup transfer if possible */
 	      if (cfg->dnloads < cfg->max_dnloads)
 		{
 		  nut_init_transfer (sock, reply, record);
@@ -637,6 +655,7 @@ static int
 nut_query (socket_t sock, nut_header_t *hdr, nut_query_t *query)
 {
   nut_config_t *cfg = sock->cfg;
+  nut_client_t *client = sock->data;
 
   return 0;
 }
