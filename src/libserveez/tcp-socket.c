@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tcp-socket.c,v 1.14 2002/06/08 09:23:29 ela Exp $
+ * $Id: tcp-socket.c,v 1.15 2002/06/08 20:36:41 ela Exp $
  *
  */
 
@@ -234,7 +234,7 @@ svz_tcp_recv_oob (svz_socket_t *sock)
 #endif /* SIOCATMARK */
 #endif /* HAVE_POLL && ENABLE_POLL && linux */
 
-  num_read = recv (desc, &sock->oob, 1, MSG_OOB);
+  num_read = recv (desc, (void *) &sock->oob, 1, MSG_OOB);
   if (num_read < 0)
     {
       svz_log (LOG_ERROR, "tcp: recv-oob: %s\n", NET_ERROR);
@@ -266,7 +266,7 @@ svz_tcp_send_oob (svz_socket_t *sock)
   SOCKET desc = sock->sock_desc;
   int num_written;
 
-  num_written = send (desc, &sock->oob, 1, MSG_OOB);
+  num_written = send (desc, (void *) &sock->oob, 1, MSG_OOB);
   if (num_written < 0)
     {
       svz_log (LOG_ERROR, "tcp: send-oob: %s\n", NET_ERROR);
