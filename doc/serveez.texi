@@ -2044,6 +2044,11 @@ only.  For programs which process all incoming packets and eventually time
 out, the program is said to be @samp{single-threaded} and should use a true
 value here.  If a program gets a packets and can receive further packets, it 
 is said to be a @samp{multi-threaded} program, and should use a false value.
+
+@item thread-frequency (integer, default: 40)
+The optional @code{thread-frequency} parameter specifies the maximum number
+of program instances that may be spawned from the server within an interval
+of 60 seconds.
 @end table
 
 @node Mandel Server, , Passthrough Server, Existing servers

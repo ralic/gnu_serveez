@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.2 2001/11/27 01:33:34 ela Exp $
+;; $Id: inetd.scm,v 1.3 2001/11/27 14:21:33 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -55,6 +55,14 @@
 	   (display (string-append "inetd: unable to parse `"
 				   file "'\n"))
 	   '())))
+
+;; splits a string in the format "string1.string2" into a pair.  if 
+;; ".string2" is omitted the (cdr) defaults to #f.
+(define (split-tuple string)
+  (let ((i (string-index string #\.)))
+    (if i
+	(cons (substring string 0 i) (substring string (1+ i)))
+	(cons string #f))))
 
 ;; removes leading white spaces from the given string and returns it
 (define (crop-spaces string)
@@ -135,8 +143,8 @@
     (if service
 	(begin
 	  (set! port (cons (cons "proto" (vector-ref service 3)) port))
-	  (set! port (cons (cons "port"  (vector-ref service 2)) port))
-	  (set! name (string-append "prog-port-"
+	  (set! port (cons (cons "port" (vector-ref service 2)) port))
+	  (set! name (string-append "inetd-port-"
 				    (protocol-port-string service)))
 	  (define-port! name port)
 	  name)
@@ -146,25 +154,66 @@
 ;; the new server or #f on failure
 (define (create-server line)
   (let* ((service (lookup-service line))
-	 (server '()) (name "undefined"))
+	 (server '()) 
+	 (name "undefined")
+	 (threads (split-tuple (vector-ref line 3))))
     (if service
 	(begin
-	  (set! server (cons (cons "binary"    (vector-ref line 5)) server))
-	  (set! server (cons (cons "directory" directory) server))
-	  (set! server (cons (cons "user"      (vector-ref line 4)) server))
-	  (set! server (cons (cons "do-fork"   do-fork) server))
-	  (set! server (cons (cons "single-threaded"
-				   (equal? (vector-ref line 3) "wait")) 
-			     server))
-	  (let ((argv (vector-ref line 6)))
-	    (if argv
-		(set! server (cons (cons "argv" (vector->list argv))
-				   server))))
-	  (set! name (string-append "prog-server-"
-				    (protocol-port-string service)))
-	  (define-server! name server)
+	  (if (equal? (vector-ref line 5) "internal")
+	      (set! name (translate-internal-server line service))
+	      (begin
+		(set! server (cons (cons "binary" (vector-ref line 5)) server))
+		(set! server (cons (cons "directory" directory) server))
+		(set! server (cons (cons "user" (vector-ref line 4)) server))
+		(set! server (cons (cons "do-fork" do-fork) server))
+		(set! server (cons (cons "single-threaded"
+					 (equal? (car threads) "wait")) 
+				   server))
+		(if (cdr threads)
+		    (set! server (cons (cons "thread-frequency"
+					     (string->number (cdr threads)))
+				       server)))
+		(let ((argv (vector-ref line 6)))
+		  (if argv
+		      (set! server (cons (cons "argv" (vector->list argv))
+					 server))))
+		(set! name (string-append "prog-server-"
+					  (protocol-port-string service)))
+		(define-server! name server)))
 	  name)
 	#f)))
+
+;; translates the inetd servers marked with `internal' into Serveez 
+;; servers if possible
+(define (translate-internal-server line service)
+  (let* ((server '()) 
+	 (name (vector-ref service 0))
+	 (threads (split-tuple (vector-ref line 3))))
+    (if verbose
+	(display (string-append "inetd: translating internal `"
+				name "' server\n")))
+    (cond
+     ;; timeserver
+     ((equal? name "time")
+      (if (serveez-servertype? "sntp")
+	  (begin
+	    (set! name (string-append "sntp-server-"
+				      (protocol-port-string service)))
+	    (define-server! name server)
+	    name)))
+     ;; echo
+     ((equal? name "echo")
+      #f)
+     ;; sink
+     ((equal? name "discard")
+      #f)
+     ;; daytime
+     ((equal? name "daytime")
+      #f)
+     ;; ttytst source
+     ((equal? name "chargen")
+      #f)
+     (else #f))))
 
 ;; glues the above port configurations and servers together:
 ;;   this is achieved by splitting the lines of the configuration file

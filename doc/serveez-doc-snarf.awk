@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.4 2001/11/22 17:17:51 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.5 2001/11/27 14:21:33 ela Exp $
 #
 
 # read lines until end of C comment has been reached
@@ -248,6 +248,11 @@ function handle_macro(line)
 	    if (line ~ /^MAKE_SOCK_CALLBACK/) {
 	      create_loc(0)
 	      args = "sock, proc"
+	    } 
+	    # special guile string checker
+	    else if (line ~ /^MAKE_STRING_CHECKER/) {
+	      create_loc(0)
+	      args = "name"
 	    } 
 	    else {
 	      create_loc(0)

@@ -1,5 +1,16 @@
 2001-11-27  [ Ela ]  <ela@lkcc.org>
 
+	* sntp-server/sntp-proto.c: Made the server TCP/PIPE-able.
+
+	* guile-server/inetd.scm (create-server): Setup the new
+	`thread-frequency' option if possible.
+	(translate-internal-server): Translates `internal' inetd 
+	services into Serveez server.
+
+	* prog-server/prog-server.c: Added new configuration
+	option `thread-frequency' determining the maximum number
+	of programs to spawn within a minute.
+
 	* guile-server/inetd.scm: Better error checking.
 
 	* guile.c: New Guile procedure: `(serveez-servertype?)'.  

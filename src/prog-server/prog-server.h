@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.h,v 1.5 2001/11/25 15:51:16 ela Exp $
+ * $Id: prog-server.h,v 1.6 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -36,7 +36,9 @@ typedef struct
   svz_array_t *argv;   /* Arguments for the executable. Watch argv[0]. */
   int fork;            /* Flag: fork or shuffle for passthrough method. */
   int single_threaded; /* Flag: single- or multi-threaded packet server. */
+  int frequency;       /* Maximum number of threads per minute. */
   int (* check_request) (svz_socket_t *);
+  svz_array_t *accepted;
 }
 prog_config_t;
 

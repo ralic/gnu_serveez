@@ -76,7 +76,7 @@ example shows the overall syntax of this procedure:
   ;; Optional: global server type finalization
   (global-finalize . foo-global-finalize)
 
-  ;; Mandatory for TCP and PIPE servers: socket connnection
+  ;; Mandatory for TCP and PIPE servers: socket connection
   (connect-socket  . foo-connect-socket)
 
   ;; Optional: server instance info
@@ -143,6 +143,9 @@ SVZ:SERVER:STATE-SET!_DEFUN
 SVZ:SERVER:STATE-REF_DEFUN
 SVZ:SERVER:STATE->HASH_DEFUN
 
+SERVEEZ-PORT?_DEFUN
+SERVEEZ-SERVER?_DEFUN
+SERVEEZ-SERVERTYPE?_DEFUN
 SERVEEZ-EXCEPTIONS_DEFUN
 SERVEEZ-NUKE_DEFUN
 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.37 2001/11/22 23:27:41 ela Exp $
+ * $Id: guile-server.c,v 1.38 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -300,12 +300,12 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 
   /* Put guile procedure into socket hash and protect it. Removes old
      guile procedure and unprotects it. */
-  scm_protect_object (proc);
+  scm_gc_protect_object (proc);
   oldproc = (SCM) SVZ_PTR2NUM (svz_hash_put (gsock, func, SVZ_NUM2PTR (proc)));
   if (oldproc == 0)
     return SCM_UNDEFINED;
 
-  scm_unprotect_object (oldproc);
+  scm_gc_unprotect_object (oldproc);
   return oldproc;
 }
 
@@ -504,7 +504,7 @@ guile_sock_clear_callbacks (svz_hash_t *callbacks)
   SCM *proc;
 
   svz_hash_foreach_value (callbacks, proc, n)
-    scm_unprotect_object (proc[n]);
+    scm_gc_unprotect_object (proc[n]);
   svz_hash_destroy (callbacks);
 }
 
@@ -543,7 +543,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
 
   /* Release associated guile object is necessary. */
   if (sock->data != NULL)
-    scm_unprotect_object ((SCM) SVZ_PTR2NUM (sock->data));
+    scm_gc_unprotect_object ((SCM) SVZ_PTR2NUM (sock->data));
 
   /* Free the socket boundary if set by guile. */
   guile_sock_clear_boundary (sock);
@@ -606,7 +606,7 @@ guile_func_finalize (svz_server_t *server)
   if ((state = server->data) != NULL)
     {
       svz_hash_foreach_value (state, object, i)
-	scm_unprotect_object ((SCM) SVZ_PTR2NUM (object[i]));
+	scm_gc_unprotect_object ((SCM) SVZ_PTR2NUM (object[i]));
       svz_hash_destroy (state);
       server->data = NULL;
     }
@@ -900,9 +900,9 @@ guile_sock_data (SCM sock, SCM data)
   if (!SCM_UNBNDP (data))
     {
       if (xsock->data != NULL)
-	scm_unprotect_object (ret);
+	scm_gc_unprotect_object (ret);
       xsock->data = SVZ_NUM2PTR (data);
-      scm_protect_object (data);
+      scm_gc_protect_object (data);
     }
   return ret;
 }
@@ -1051,9 +1051,9 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
   if ((val = svz_hash_put (hash, str, SVZ_NUM2PTR (value))) != NULL)
     {
       ret = (SCM) SVZ_PTR2NUM (val);
-      scm_unprotect_object (ret);
+      scm_gc_unprotect_object (ret);
     }
-  scm_protect_object (value);
+  scm_gc_protect_object (value);
   scm_c_free (str);
   return ret;
 }
@@ -1496,7 +1496,7 @@ guile_define_servertype (SCM args)
 				      1, SCM_UNDEFINED, &proc, txt);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
       if (!SCM_UNBNDP (proc))
-	scm_protect_object (proc);
+	scm_gc_protect_object (proc);
     }
 
   /* Check the configuration items for this servertype. */
@@ -1599,7 +1599,7 @@ guile_servertype_clear_callbacks (svz_hash_t *callbacks)
   svz_hash_foreach_value (callbacks, proc, n)
     {
       if (proc[n] != (SCM) server && !SCM_UNBNDP (proc[n]))
-	scm_unprotect_object (proc[n]);
+	scm_gc_unprotect_object (proc[n]);
     }
   svz_hash_destroy (callbacks);
   return server;

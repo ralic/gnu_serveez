@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.51 2001/11/27 01:33:34 ela Exp $
+ * $Id: guile.c,v 1.52 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -1585,17 +1585,22 @@ SCM cfunc (SCM arg) {                          \
   return SCM_BOOL_T;                           \
 }
 
-/* Guile function checking for a valid port configuration. */
+/* Returns @code{#t} if the given string @var{name} corresponds with a 
+   registered port configuration, otherwise the procedure returns 
+   @code{#f}. */
 #define FUNC_NAME "serveez-port?"
 MAKE_STRING_CHECKER (guile_check_port, svz_portcfg_get (str) != NULL)
 #undef FUNC_NAME
 
-/* Guile function checking for a valid server. */
+/* Checks whether the given string @var{name} corresponds with an 
+   instantiated server name and returns @code{#t} if so. */
 #define FUNC_NAME "serveez-server?"
 MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
 #undef FUNC_NAME
 
-/* Guile function checking for a valid server type. */
+/* This procedure checks whether the given string @var{name} is a valid
+   server type prefix known in Serveez and returns @code{#t} if so. 
+   Otherwise it returns @code{#f}. */
 #define FUNC_NAME "serveez-servertype?"
 MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
 #undef FUNC_NAME

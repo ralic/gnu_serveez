@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-api.h,v 1.2 2001/11/19 21:13:01 ela Exp $
+ * $Id: guile-api.h,v 1.3 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -78,10 +78,10 @@
 #define SCM_NUM2INT(pos, obj) gh_scm2int (obj)
 #endif
 #ifndef SCM_NUM2LONG
-#define SCM_NUM2LONG(pos, obj) scm_num2long (obj, (char *) pos, FUNC_NAME)
+#define SCM_NUM2LONG(pos, obj) scm_num2long (obj, (char *) (pos), FUNC_NAME)
 #endif
 #ifndef SCM_NUM2ULONG
-#define SCM_NUM2ULONG(pos, obj) scm_num2ulong (obj, (char *) pos, FUNC_NAME)
+#define SCM_NUM2ULONG(pos, obj) scm_num2ulong (obj, (char *) (pos), FUNC_NAME)
 #endif
 #ifndef scm_int2num
 #define scm_int2num(x) scm_long2num ((long) (x))
@@ -110,6 +110,12 @@
     (var) = scm_sym2var (scm_str2symbol (name),                             \
 	  	         scm_current_module_lookup_closure (), SCM_BOOL_F); \
     if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED; } while (0)
+#endif
+#ifndef scm_gc_protect_object
+#define scm_gc_protect_object(obj) scm_protect_object (obj)
+#endif
+#ifndef scm_gc_unprotect_object
+#define scm_gc_unprotect_object(obj) scm_unprotect_object (obj)
 #endif
 
 /* Return an integer. If the given Guile cell @var{obj} is not such an 

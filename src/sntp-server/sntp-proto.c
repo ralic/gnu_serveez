@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: sntp-proto.c,v 1.9 2001/11/19 21:13:01 ela Exp $
+ * $Id: sntp-proto.c,v 1.10 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -77,8 +77,8 @@ svz_servertype_t sntp_server_definition =
   "sntp",
   NULL,
   sntp_init,
-  NULL,
-  NULL,
+  sntp_detect_proto,
+  sntp_connect_socket,
   NULL,
   NULL,
   NULL,
@@ -100,40 +100,93 @@ sntp_init (svz_server_t *server)
 }
 
 /*
+ * No protocol detection for TCP/PIPE needed.
+ */
+int
+sntp_detect_proto (svz_server_t *server, svz_socket_t *sock)
+{
+  return -1;
+}
+
+/* Time offset constant. */
+#define SNTP_TIME_CONSTANT 2208988800u
+
+/*
+ * Produces the SNTP reply and returns the actual size of it.
+ */
+static int
+sntp_create_reply (unsigned char *reply)
+{
+  unsigned long date;
+
+#if HAVE_GETTIMEOFDAY
+
+  struct timeval t;
+  gettimeofday (&t, NULL);
+  date = htonl (SNTP_TIME_CONSTANT + t.tv_sec);
+  memcpy (reply, &date, 4);
+  date = htonl (t.tv_usec);
+  memcpy (&reply[4], &date, 4);
+  return 8;
+
+#else /* not HAVE_GETTIMEOFDAY */
+
+  time_t t = time (NULL);
+  date = htonl (SNTP_TIME_CONSTANT + t);
+  memcpy (reply, &date, 4);
+  return 4;
+
+#endif /* not HAVE_GETTIMEOFDAY */
+}
+
+/*
+ * Send our reply immediately for TCP/PIPE bindings and schedule this
+ * connection for shutdown.
+ */
+int
+sntp_connect_socket (svz_server_t *server, svz_socket_t *sock)
+{
+  int ret;
+  unsigned char reply[8];
+
+  sock->check_request = NULL;
+
+  /* Simple SNTP. */
+  if ((ret = sntp_create_reply (reply)) == 4)
+    {
+      sock->flags |= SOCK_FLAG_FINAL_WRITE;
+      return svz_sock_printf (sock, "%c%c%c%c", 
+			      reply[0], reply[1], reply[2], reply[3]);
+    }
+
+  /* Extended SNTP. */
+  svz_sock_printf (sock, "%c%c%c%c", 
+		   reply[0], reply[1], reply[2], reply[3]);
+  sock->flags |= SOCK_FLAG_FINAL_WRITE;
+  return svz_sock_printf (sock, "%c%c%c%c", 
+			  reply[4], reply[5], reply[6], reply[7]);
+}
+
+/*
  * The packet processor for the SNTP server.
  */
 int
 sntp_handle_request (svz_socket_t *sock, char *packet, int len)
 {
-  unsigned long date;
+  int ret;
   unsigned char reply[8];
-#if HAVE_GETTIMEOFDAY
-  struct timeval t;
-#else
-  time_t t;
-#endif
 
-#if 0
-  svz_hexdump (stdout, "sntp packet", sock->sock_desc, packet, len, 0);
-#endif
+  if ((ret = sntp_create_reply (reply)) == 4)
+    {
+      svz_udp_printf (sock, "%c%c%c%c", 
+		      reply[0], reply[1], reply[2], reply[3]);
+      return 0;
+    }
 
-#if HAVE_GETTIMEOFDAY
-  gettimeofday (&t, NULL);
-  date = htonl (2208988800u + t.tv_sec);
-  memcpy (reply, &date, 4);
-  date = htonl (t.tv_usec);
-  memcpy (&reply[4], &date, 4);
   svz_udp_printf (sock, "%c%c%c%c", 
 		  reply[0], reply[1], reply[2], reply[3]);
   svz_udp_printf (sock, "%c%c%c%c", 
 		  reply[4], reply[5], reply[6], reply[7]);
-#else /* not HAVE_GETTIMEOFDAY */
-  t = time (NULL);
-  date = htonl (2208988800u + t);
-  memcpy (reply, &date, 4);
-  svz_udp_printf (sock, "%c%c%c%c", reply[0], reply[1], reply[2], reply[3]);
-#endif /* not HAVE_GETTIMEOFDAY */
-
   return 0;
 }
 

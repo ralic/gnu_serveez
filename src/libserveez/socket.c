@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.18 2001/11/21 21:37:42 ela Exp $
+ * $Id: socket.c,v 1.19 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -152,7 +152,9 @@ svz_sock_detect_proto (svz_socket_t *sock)
 	    return -1;
 	  if (server->connect_socket (server, sock))
 	    return -1;
-	  return sock->check_request (sock);
+	  if (sock->check_request)
+	    return sock->check_request (sock);
+	  return 0;
 	}
     }
 

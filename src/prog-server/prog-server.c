@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: prog-server.c,v 1.6 2001/11/25 15:51:16 ela Exp $
+ * $Id: prog-server.c,v 1.7 2001/11/27 14:21:33 ela Exp $
  *
  */
 
@@ -32,6 +32,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "libserveez.h"
 #include "prog-server.h"
@@ -47,6 +48,8 @@ prog_config_t prog_config =
   NULL,
   1,
   1,
+  40,
+  NULL,
   NULL
 };
 
@@ -62,6 +65,8 @@ svz_key_value_pair_t prog_config_prototype [] =
   SVZ_REGISTER_BOOL ("do-fork", prog_config.fork, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_BOOL ("single-threaded", 
 		     prog_config.single_threaded, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("thread-frequency", 
+		    prog_config.frequency, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -105,6 +110,40 @@ prog_detect_proto (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
+ * This functions checks whether the maximum thread spawn frequency
+ * has been reached and returns non-zero if so.
+ */
+static int
+prog_check_frequency (svz_array_t *accepted, int frequency)
+{
+  time_t current = time (NULL);
+  int i;
+  void *t;
+
+  /* Drop all older entries. */
+  svz_array_foreach (accepted, t, i)
+    {
+      if (SVZ_PTR2NUM (t) < (unsigned long) (current - 60))
+	{
+	  svz_array_del (accepted, i);
+	  i--;
+	}
+    }
+
+  /* Check if the maximum frequency has been reached. */
+  if (svz_array_size (accepted) >= (unsigned long) frequency)
+    {
+      svz_log (LOG_ERROR, "prog: thread frequency exceeded\n");
+      return -1;
+    }
+
+  /* Add yet another timestamp. */
+  svz_array_add (accepted, SVZ_NUM2PTR (current));
+
+  return 0;
+}
+
+/*
  * Wrapper function for Serveez's API passthrough call depending on the
  * server configuration.
  */
@@ -112,9 +151,14 @@ static int
 prog_passthrough (svz_socket_t *sock)
 {
   prog_config_t *cfg = sock->cfg;
-  char **argv = (char **) svz_array_values (cfg->argv);
+  char **argv;
   int pid;
 
+  /* Check frequency. */
+  if (prog_check_frequency (cfg->accepted, cfg->frequency))
+    return -1;
+
+  argv = (char **) svz_array_values (cfg->argv);
   if ((pid = svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
 			       cfg->fork ? SVZ_PROCESS_FORK :
 			       SVZ_PROCESS_SHUFFLE_SOCK,
@@ -183,6 +227,8 @@ prog_global_finalize (svz_servertype_t *server)
 int
 prog_finalize (svz_server_t *server)
 {
+  prog_config_t *cfg = server->cfg;
+  svz_array_destroy (cfg->accepted);
   return 0;
 }
 
@@ -300,6 +346,7 @@ prog_init (svz_server_t *server)
       svz_array_add (cfg->argv, NULL);
     }
 
+  cfg->accepted = svz_array_create (1, NULL);
   return ret;
 }
 
