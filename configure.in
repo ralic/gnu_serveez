@@ -1047,9 +1047,18 @@ dnl
 dnl Check whether extra net libraries are required.
 dnl
 AC_CHECK_FUNC(connect)
-if test $ac_cv_func_connect = no; then
-    AC_CHECK_LIB(socket, connect, EXTRALIBS="$EXTRALIBS -lsocket")
+AC_CHECK_FUNC(socketpair)
+if test $ac_cv_func_socketpair = no; then
+  AC_CHECK_LIB(socket, socketpair, 
+    EXTRALIBS="$EXTRALIBS -lsocket"
+    have_socketpair="lib")
+else
+  have_socketpair="yes"
 fi
+if test x$have_socketpair != x; then
+  AC_DEFINE(HAVE_SOCKETPAIR, 1, [Define if you have the socketpair function.])
+fi
+unset have_socketpair
 
 dnl
 dnl Check for Solaris nsl and resolv library.
@@ -1220,9 +1229,9 @@ if test $svz_cv_var_h_errno = yes ; then
 fi
 
 dnl
-dnl Check for times, poll, socketpair and waitpid.
+dnl Check for times, poll, and waitpid.
 dnl
-AC_CHECK_FUNCS(times poll socketpair waitpid)
+AC_CHECK_FUNCS(times poll waitpid)
 
 dnl
 dnl Find a working inline and signed.

@@ -19,7 +19,7 @@
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 ;;
-;; $Id: inetd.scm,v 1.3 2001/11/27 14:21:33 ela Exp $
+;; $Id: inetd.scm,v 1.4 2001/11/28 23:33:35 ela Exp $
 ;;
 
 ;; the inetd configuration file
@@ -72,7 +72,8 @@
 	  (if (<= (char->integer c) (char->integer #\space))
 	      (begin
 		(set! string (substring string 1))
-		(loop (string-ref string 0))))))
+		(if (> (string-length string) 0)
+		    (loop (string-ref string 0)))))))
     string))
 
 ;; returns the next position of a white space character in the given 
