@@ -1,3 +1,8 @@
+2001-11-30  [ Ela ]  <ela@lkcc.org>
+
+	* passthrough.c (svz_process_create_child): Memory leak fixes.
+	Also enabled `svz_process_fork()' for M$-Windows.
+
 2001-11-28  [ Ela ]  <ela@lkcc.org>
 
 	* codec/gzlib.c (zlib_encoder_init): Added warning 

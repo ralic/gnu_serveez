@@ -1,0 +1,9 @@
+-------------------------------------------------------
+canonical host name          compiler  serveez results
+  (tools versions)                     release
+-------------------------------------------------------
+
+i586-pc-linux-gnu		gcc	0.1.2	  ok
+i586-pc-cygwin			gcc	0.1.2	  ok
+i386-pc-mingw32			gcc	0.1.2	  ok
+i386-pc-mingw32			cl	0.1.2	  ok

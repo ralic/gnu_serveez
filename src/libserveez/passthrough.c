@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: passthrough.c,v 1.15 2001/11/25 23:08:27 raimi Exp $
+ * $Id: passthrough.c,v 1.16 2001/11/30 16:10:23 ela Exp $
  *
  */
 
@@ -153,7 +153,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
       ret = svz_process_shuffle (&proc);
       break;
     default:
-      svz_log (LOG_ERROR, "invalid flag (%d)\n", flag);
+      svz_log (LOG_ERROR, "passthrough: invalid flag (%d)\n", flag);
       ret = -1;
       break;
     }
@@ -512,6 +512,51 @@ svz_process_recv_socket (svz_socket_t *sock)
   return (num_read > 0) ? 0 : -1;
 }
 
+#ifdef __MINGW32__
+/*
+ * This function duplicates a given @var{handle} in the sense of @code{dup()}.
+ * The returned handle references the same underlying object. If 
+ * @code{INVALID_HANDLE} is returned something went wrong. The @var{proto} 
+ * argument specifies if it is a socket or pipe handle.
+ */
+static HANDLE
+svz_process_duplicate (HANDLE handle, int proto)
+{
+  HANDLE duphandle;
+  SOCKET dupsock;
+  WSAPROTOCOL_INFO info;
+
+  /* Duplicate a pipe handle. */
+  if (proto & PROTO_PIPE)
+    {
+      if (!DuplicateHandle (GetCurrentProcess (), handle,
+			    GetCurrentProcess (), &duphandle,
+			    DUPLICATE_SAME_ACCESS, TRUE, 0))
+	{
+	  svz_log (LOG_ERROR, "passthrough: DuplicateHandle: %s\n", SYS_ERROR);
+	  return INVALID_HANDLE;
+	}
+      return duphandle;
+    }
+
+  /* Duplicate a socket. */
+  if (WSADuplicateSocket ((SOCKET) handle, GetCurrentProcessId (),
+			  &info) == SOCKET_ERROR)
+    {
+      svz_log (LOG_ERROR, "passthrough: WSADuplicateSocket: %s\n", NET_ERROR);
+      return INVALID_HANDLE;
+    }
+  if ((dupsock = WSASocket (FROM_PROTOCOL_INFO, FROM_PROTOCOL_INFO,
+			    FROM_PROTOCOL_INFO, 
+			    &info, 0, 0)) == INVALID_SOCKET)
+    {
+      svz_log (LOG_ERROR, "passthrough: WSASocket: %s\n", NET_ERROR);
+      return INVALID_HANDLE;
+    }
+  return (HANDLE) dupsock;
+}
+#endif /* __MINGW32__ */
+
 /*
  * Spawns a new child process. The given @var{proc} argument contains all
  * information necessary to set a working directory, assign a new user 
@@ -582,8 +627,35 @@ svz_process_create_child (svz_process_t *proc)
   memset (&startup_info, 0, sizeof (startup_info));
   startup_info.cb = sizeof (startup_info);
   startup_info.dwFlags = STARTF_USESTDHANDLES;
-  startup_info.hStdOutput = proc->out;
+
+  /* For fork() and exec() emulation we need to duplicate the handles
+     and pass them to the child program. */
+  if (proc->flag == SVZ_PROCESS_FORK)
+    {
+      if (proc->in != proc->out)
+	{
+	  proc->in = svz_process_duplicate (proc->in, proc->sock->proto);
+	  if (proc->in == INVALID_HANDLE)
+	    return -1;
+	  proc->out = svz_process_duplicate (proc->out, proc->sock->proto);
+	  if (proc->out == INVALID_HANDLE)
+	    return -1;
+	}
+      else
+	{
+	  HANDLE fd;
+	  fd = svz_process_duplicate (proc->in, proc->sock->proto);
+	  if (fd == INVALID_HANDLE)
+	    return -1;
+	  proc->in = proc->out = fd;
+	}
+    }
+
+  /* Now assign the standard input and standard output handles. 
+     FIXME: This does not work correctly for socket handles. */
   startup_info.hStdInput = proc->in;
+  startup_info.hStdOutput = proc->out;
+  startup_info.hStdError = GetStdHandle (STD_ERROR_HANDLE);
 
   /* Save current directory and change into application's. */
   savedir = svz_getcwd ();
@@ -650,11 +722,6 @@ svz_process_create_child (svz_process_t *proc)
   svz_free (savedir);
   svz_free (application);
   pid = (int) process_info.hProcess;
-
-#ifdef ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid 0x%08X\n", proc->bin, 
-	   process_info.dwProcessId);
-#endif
   return pid;
 #endif /* __MINGW32__ */
 }
@@ -753,11 +820,13 @@ svz_process_shuffle (svz_process_t *proc)
     }
   else if (pid == -1)
     {
-      svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+      svz_log (LOG_ERROR, "passthrough: fork: %s\n", SYS_ERROR);
       return -1;
     }
 #else /* __MINGW32__ */
   pid = svz_process_create_child (proc);
+  if (proc->envp)
+    svz_envblock_destroy (proc->envp);
 #endif /*  __MINGW32__ */
 
   /* close the passed descriptors */
@@ -787,13 +856,13 @@ svz_process_shuffle (svz_process_t *proc)
 int
 svz_process_fork (svz_process_t *proc)
 {
-#ifdef __MINGW32__
-  svz_log (LOG_FATAL, "passthrough: fork() and exec() not supported\n");
-  return -1;
-#else /* __MINGW32__ */
   int pid;
 
-  /* The child process here. */
+#ifdef __MINGW32__
+  pid = svz_process_create_child (proc);
+  if (proc->envp)
+    svz_envblock_destroy (proc->envp);
+#else /* __MINGW32__ */
   if ((pid = fork ()) == 0)
     {
       svz_process_create_child (proc);
@@ -804,13 +873,13 @@ svz_process_fork (svz_process_t *proc)
       svz_log (LOG_ERROR, "passthrough: fork: %s\n", SYS_ERROR);
       return -1;
     }
+#endif /* __MINGW32__ */
 
   /* The parent process. */
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
-#endif /* __MINGW32__ */
 }
 
 /*
@@ -1108,13 +1177,13 @@ svz_envblock_get (svz_envblock_t *env)
   svz_free (dir);
 
 #ifdef __MINGW32__
-  if (env->block)
-    svz_free_and_zero (env->block);
   qsort ((void *) env->entry, env->size, sizeof (char *), svz_envblock_sort);
   for (size = 1, n = 0; n < env->size; n++)
     {
       len = strlen (env->entry[n]) + 1;
-      block = svz_realloc (block, size + len);
+      /* Use permanent allocator here.  You may not free() environment blocks
+	 passed to programs. */
+      block = svz_prealloc (block, size + len);
       memcpy (&block[size - 1], env->entry[n], len);
       size += len;
     }
@@ -1140,8 +1209,7 @@ svz_envblock_free (svz_envblock_t *env)
     return -1;
   for (n = 0; n < env->size; n++)
     svz_free (env->entry[n]);
-  if (env->block)
-    svz_free_and_zero (env->block);
+  env->block = NULL;
   svz_free_and_zero (env->entry);
   env->size = 0;
   return 0;
