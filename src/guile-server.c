@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.39 2001/12/04 17:26:00 ela Exp $
+ * $Id: guile-server.c,v 1.40 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -278,6 +278,15 @@ guile_sock_getfunction (svz_socket_t *sock, char *func)
   return proc;
 }
 
+/* This function is used as destruction callback for the socket and
+ * servertype hashes used in the Guile servers. */
+static void
+guile_unprotect (SCM proc)
+{
+  if (!SCM_UNBNDP (proc))
+    scm_gc_unprotect_object (proc);
+}
+
 /*
  * Associate the given guile procedure @var{proc} hereby named @var{func}
  * with the socket structure @var{sock}. The function returns the previously
@@ -294,7 +303,7 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 
   if ((gsock = svz_hash_get (guile_sock, svz_itoa (sock->id))) == NULL)
     {
-      gsock = svz_hash_create (4);
+      gsock = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
       svz_hash_put (guile_sock, svz_itoa (sock->id), gsock);
     }
 
@@ -495,19 +504,6 @@ guile_func_detect_proto (svz_server_t *server, svz_socket_t *sock)
   return 0;
 }
 
-/* Destroys the given hash containing the guile procedure callbacks
-   associated with a socket structure. */
-static void
-guile_sock_clear_callbacks (svz_hash_t *callbacks)
-{
-  int n;
-  SCM *proc;
-
-  svz_hash_foreach_value (callbacks, proc, n)
-    scm_gc_unprotect_object (proc[n]);
-  svz_hash_destroy (callbacks);
-}
-
 /* Free the socket boundary if set by guile. */
 static void
 guile_sock_clear_boundary (svz_socket_t *sock)
@@ -539,7 +535,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
 
   /* Delete all the associated guile callbacks and unprotect these. */
   if ((gsock = svz_hash_delete (guile_sock, svz_itoa (sock->id))) != NULL)
-    guile_sock_clear_callbacks (gsock);
+    svz_hash_destroy (gsock);
 
   /* Release associated guile object is necessary. */
   if (sock->data != NULL)
@@ -592,9 +588,8 @@ guile_func_finalize (svz_server_t *server)
 {
   svz_servertype_t *stype = svz_servertype_find (server);
   SCM ret, finalize = guile_servertype_getfunction (stype, "finalize");
-  int i, retval = 0;
+  int retval = 0;
   svz_hash_t *state;
-  void **object;
 
   if (!SCM_UNBNDP (finalize))
     {
@@ -605,8 +600,6 @@ guile_func_finalize (svz_server_t *server)
   /* Release associated guile server state objects is necessary. */
   if ((state = server->data) != NULL)
     {
-      svz_hash_foreach_value (state, object, i)
-	scm_gc_unprotect_object ((SCM) SVZ_PTR2NUM (object[i]));
       svz_hash_destroy (state);
       server->data = NULL;
     }
@@ -1045,7 +1038,7 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
 
   if ((hash = xserver->data) == NULL)
     {
-      hash = svz_hash_create (4);
+      hash = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
       xserver->data = hash;
     }
   if ((val = svz_hash_put (hash, str, SVZ_NUM2PTR (value))) != NULL)
@@ -1489,7 +1482,7 @@ guile_define_servertype (SCM args)
 				    &server->description, txt);
 
   /* Set the procedures. */
-  functions = svz_hash_create (4);
+  functions = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
   for (n = 0; guile_functions[n] != NULL; n++)
     {
       err |= optionhash_extract_proc (options, guile_functions[n],
@@ -1530,6 +1523,34 @@ guile_define_servertype (SCM args)
 }
 #undef FUNC_NAME
 
+/*
+ * Destroys the servertype represented by the hash @var{callbacks}. Removes
+ * the servertype pointer from the hash, destroys the remaining callback
+ * hash and finally frees alll resources allocated by the servertype.
+ */
+static void
+guile_servertype_destroy (svz_hash_t *callbacks)
+{
+  svz_servertype_t *stype;
+
+  stype = svz_hash_delete (callbacks, "server-type");
+  svz_hash_destroy (callbacks);
+  svz_free (stype->prefix);
+  svz_free (stype->description);
+  guile_servertype_config_free (stype);
+  svz_free (stype);
+}
+
+/*
+ * Destroys the given socket represented by the hash @var{callbacks} and
+ * destroy this hash recursively.
+ */
+static void
+guile_sock_destroy (svz_hash_t *callbacks)
+{
+  svz_hash_destroy (callbacks);
+}
+
 #include "guile-api.c"
 
 /*
@@ -1543,8 +1564,10 @@ guile_server_init (void)
   if (guile_server || guile_sock)
     return;
 
-  guile_server = svz_hash_create (4);
-  guile_sock = svz_hash_create (4);
+  guile_server = 
+    svz_hash_create (4, (svz_free_func_t) guile_servertype_destroy);
+  guile_sock = 
+    svz_hash_create (4, (svz_free_func_t) guile_sock_destroy);
 
   scm_c_define_gsubr ("define-servertype!", 
 		      1, 0, 0, guile_define_servertype);
@@ -1586,25 +1609,6 @@ guile_server_init (void)
   guile_api_init ();
 }
 
-/* Destroys the server type hash containing all callbacks associated with
-   the returned server type. */
-static svz_servertype_t *
-guile_servertype_clear_callbacks (svz_hash_t *callbacks)
-{
-  svz_servertype_t *server;
-  SCM *proc;
-  int n;
-
-  server = svz_hash_get (callbacks, "server-type");
-  svz_hash_foreach_value (callbacks, proc, n)
-    {
-      if (proc[n] != (SCM) server && !SCM_UNBNDP (proc[n]))
-	scm_gc_unprotect_object (proc[n]);
-    }
-  svz_hash_destroy (callbacks);
-  return server;
-}
-
 /*
  * This function should be called before shutting down the core library in
  * order to avoid memory leaks. It releases the server types defined with
@@ -1613,35 +1617,16 @@ guile_servertype_clear_callbacks (svz_hash_t *callbacks)
 void
 guile_server_finalize (void)
 {
-  char **prefix, **id;
-  int i;
-  svz_servertype_t *stype;
-  svz_hash_t *functions;
-
   guile_api_finalize ();
 
   if (guile_server)
     {
-      svz_hash_foreach_key (guile_server, prefix, i)
-	{
-	  functions = svz_hash_get (guile_server, prefix[i]);
-	  stype = guile_servertype_clear_callbacks (functions);
-	  svz_free (stype->prefix);
-	  svz_free (stype->description);
-	  guile_servertype_config_free (stype);
-	  svz_free (stype);
-	}
       svz_hash_destroy (guile_server);
       guile_server = NULL;
     }
 
   if (guile_sock)
     {
-      svz_hash_foreach_key (guile_sock, id, i)
-	{
-	  functions = svz_hash_get (guile_sock, id[i]);
-	  guile_sock_clear_callbacks (functions);
-	}
       svz_hash_destroy (guile_sock);
       guile_sock = NULL;
     }

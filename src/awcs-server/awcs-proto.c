@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.34 2001/08/12 10:59:04 ela Exp $
+ * $Id: awcs-proto.c,v 1.35 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -124,7 +124,7 @@ awcs_init (svz_server_t *server)
 
   /* initialize server instance */
   cfg->master = 0;
-  cfg->clients = svz_hash_create (4);
+  cfg->clients = svz_hash_create (4, NULL);
   cfg->clients->code = awcs_hash_code;
   cfg->clients->keylen = awcs_hash_keylen;
   cfg->clients->equals = awcs_hash_equals;

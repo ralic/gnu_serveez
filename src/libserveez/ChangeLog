@@ -1,3 +1,9 @@
+2001-12-07  [ Ela ]  <ela@lkcc.org>
+
+	* hash.c (svz_hash_create): Using an additional argument in 
+	order to pass a element destruction callback run for each
+	element on hash destruction.  Changed all callers.
+
 2001-12-06  [ Ela ]  <ela@lkcc.org>
 
 	* binding.c: Code cleanups.  Better structured server bindings.

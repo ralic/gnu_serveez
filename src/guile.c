@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.53 2001/11/29 23:41:43 raimi Exp $
+ * $Id: guile.c,v 1.54 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -95,20 +95,21 @@ guile_value_create (SCM value)
 }
 
 /*
+ * Create a fresh option-hash.
+ */
+svz_hash_t *
+optionhash_create (void)
+{
+  return svz_hash_create (4, svz_free);
+}
+
+/*
  * Destroy the given option-hash @var{options}.
  */
 void
 optionhash_destroy (svz_hash_t *options)
 {
-  guile_value_t **value;
-  int n;
-
-  if (options)
-    {
-      svz_hash_foreach_value (options, value, n)
-	svz_free (value[n]);
-      svz_hash_destroy (options);
-    }
+  svz_hash_destroy (options);
 }
 
 /*
@@ -241,7 +242,7 @@ optionhash_get (svz_hash_t *hash, char *key)
 svz_hash_t *
 guile_to_optionhash (SCM pairlist, char *txt, int dounpack)
 {
-  svz_hash_t *hash = svz_hash_create (10);
+  svz_hash_t *hash = optionhash_create ();
   guile_value_t *old_value;
   guile_value_t *new_value;
   int err = 0;
@@ -401,7 +402,8 @@ guile_to_hash (SCM list, char *prefix)
     }
 
   /* Iterate the alist. */
-  hash = svz_hash_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)));
+  hash = svz_hash_create (SCM_NUM2ULONG (SCM_ARG1, scm_length (list)), 
+			  svz_free);
   for (i = 0; SCM_PAIRP (list); list = SCM_CDR (list), i++)
     {
       SCM k, v, pair = SCM_CAR (list);
@@ -456,9 +458,6 @@ guile_to_hash (SCM list, char *prefix)
   /* Free the values, keys are freed be hash destructor. */
   if (err)
     {
-      char **values;
-      svz_hash_foreach_value (hash, values, i)
-	svz_free (values[i]);
       svz_hash_destroy (hash);
       return NULL;
     }
@@ -883,7 +882,7 @@ optionhash_cb_hash (char *server, void *arg, char *key,
 	}
 
       /* Iterate the alist. */
-      hash = svz_hash_create (7);
+      hash = svz_hash_create (7, svz_free);
       for (i = 0; SCM_PAIRP (hvalue); hvalue = SCM_CDR (hvalue), i++)
 	{
 	  SCM k, v, pair = SCM_CAR (hvalue);
@@ -940,9 +939,6 @@ optionhash_cb_hash (char *server, void *arg, char *key,
       /* Free the values, keys are freed be hash destructor. */
       if (err)
 	{
-	  char **values;
-	  svz_hash_foreach_value (hash, values, i)
-	    svz_free (values[i]);
 	  svz_hash_destroy (hash);
 	  return SVZ_ITEM_FAILED;
 	}
@@ -1081,7 +1077,7 @@ guile_define_server (SCM name, SCM args)
 
   /* Extract options if any. */
   if (SCM_UNBNDP (args))
-    options = svz_hash_create (4);
+    options = optionhash_create ();
   else if (NULL == (options = guile_to_optionhash (args, txt, 0)))
     FAIL (); /* Message already emitted. */
 

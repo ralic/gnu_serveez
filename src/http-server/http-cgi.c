@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.49 2001/08/03 18:09:04 ela Exp $
+ * $Id: http-cgi.c,v 1.50 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -605,7 +605,7 @@ http_gen_cgi_apps (http_config_t *cfg)
 
   /* create the cgi association hash table if necessary */
   if (cfg->cgiapps == NULL)
-    cfg->cgiapps = svz_hash_create (4);
+    cfg->cgiapps = svz_hash_create (4, svz_free);
 
   /* the associations need to be in the hash to be executed at all */
   if ((p = svz_hash_put (cfg->cgiapps, "exe", svz_strdup (DEFAULT_CGIAPP))) 

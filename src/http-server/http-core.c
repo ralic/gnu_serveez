@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.42 2001/08/03 18:09:04 ela Exp $
+ * $Id: http-core.c,v 1.43 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -915,11 +915,10 @@ http_read_types (http_config_t *cfg)
   char *p, *end;
   char *content;
   char *suffix;
-  char *content_type;
 
   /* create the content type hash table if necessary */
   if (cfg->types == NULL)
-    cfg->types = svz_hash_create (4);
+    cfg->types = svz_hash_create (4, svz_free);
 
   /* try open the file */
   if ((f = svz_fopen (cfg->type_file, "rt")) == NULL)
@@ -967,11 +966,7 @@ http_read_types (http_config_t *cfg)
 	       * contain it already
 	       */
 	      if (!svz_hash_get (cfg->types, suffix))
-		{
-		  content_type = svz_malloc (strlen (content) + 1);
-		  strcpy (content_type, content);
-		  svz_hash_put (cfg->types, suffix, content_type);
-		}
+		svz_hash_put (cfg->types, suffix, svz_strdup (content));
 	    }
 	}
     }

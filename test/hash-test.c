@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash-test.c,v 1.11 2001/06/17 14:17:37 ela Exp $
+ * $Id: hash-test.c,v 1.12 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -61,7 +61,7 @@ main (int argc, char **argv)
 
   /* hash creation */
   test_print ("           create: ");
-  test ((hash = svz_hash_create (4)) == NULL);
+  test ((hash = svz_hash_create (4, NULL)) == NULL);
 
   /* hash put and get */
   test_print ("      put and get: ");
@@ -170,7 +170,7 @@ main (int argc, char **argv)
   test_ok ();
 
   /* hash iteration */
-  hash = svz_hash_create (4);
+  hash = svz_hash_create (4, NULL);
 
   svz_hash_put (hash, "1234567890", (void *) 0xaaaaeabc);
   svz_hash_put (hash, "1234567891", (void *) 0xbbbbeabd);

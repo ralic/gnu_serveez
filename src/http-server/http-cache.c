@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cache.c,v 1.33 2001/09/12 13:42:15 ela Exp $
+ * $Id: http-cache.c,v 1.34 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -67,7 +67,7 @@ http_alloc_cache (int entries)
     {
       if (http_cache)
 	http_free_cache ();
-      http_cache = svz_hash_create (entries);
+      http_cache = svz_hash_create (entries, NULL);
       http_cache_entries = entries;
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: created %d cache entries\n", entries);

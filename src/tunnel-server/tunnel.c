@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: tunnel.c,v 1.27 2001/12/06 01:08:15 ela Exp $
+ * $Id: tunnel.c,v 1.28 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -144,7 +144,7 @@ tnl_init (svz_server_t *server)
     }
 
   /* create source client hash (for UDP and ICMP only) */
-  cfg->client = svz_hash_create (4);
+  cfg->client = svz_hash_create (4, svz_free);
   
   /* assign the appropriate handle request routine of the server */
   if (cfg->source->proto & PROTO_UDP)
@@ -162,18 +162,8 @@ int
 tnl_finalize (svz_server_t *server)
 {
   tnl_config_t *cfg = server->cfg;
-  tnl_connect_t **source;
-  int n;
 
   /* release source connection hash if necessary */
-  if ((source = (tnl_connect_t **) svz_hash_values (cfg->client)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->client); n++)
-	{
-	  svz_free (source[n]);
-	}
-      svz_hash_xfree (source);
-    }
   svz_hash_destroy (cfg->client);
 
   return 0;

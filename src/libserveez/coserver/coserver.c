@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: coserver.c,v 1.23 2001/11/23 13:18:39 ela Exp $
+ * $Id: coserver.c,v 1.24 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -983,7 +983,7 @@ svz_coserver_init (void)
   int i, n;
   svz_coservertype_t *coserver;
 
-  svz_coserver_callbacks = svz_hash_create (4);
+  svz_coserver_callbacks = svz_hash_create (4, svz_free);
   svz_coserver_callback_id = 1;
 
   for (n = 0; n < MAX_COSERVER_TYPES; n++)
@@ -1005,7 +1005,6 @@ int
 svz_coserver_finalize (void)
 {
   int n;
-  svz_coserver_callback_t **cb;
   svz_coservertype_t *coserver;
 
   for (n = 0; n < MAX_COSERVER_TYPES; n++)
@@ -1014,13 +1013,12 @@ svz_coserver_finalize (void)
       svz_coserver_destroy (coserver->type);
     }
 
-  /* @code{svz_free()} all callbacks left so far. */
-  svz_hash_foreach_value (svz_coserver_callbacks, cb, n)
-    svz_free (cb[n]);
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "coserver: %d callback(s) left\n",
 	   svz_hash_size (svz_coserver_callbacks));
 #endif
+
+  /* Destroy all callbacks left so far. */
   svz_hash_destroy (svz_coserver_callbacks);
   return 0;
 }

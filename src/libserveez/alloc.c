@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.c,v 1.18 2001/09/25 16:19:38 ela Exp $
+ * $Id: alloc.c,v 1.19 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -103,7 +103,7 @@ heap_add (heap_block_t *block)
 {
   if (heap == NULL)
     {
-      heap = svz_hash_create (4);
+      heap = svz_hash_create (4, NULL);
       heap->keylen = heap_hash_keylen;
       heap->code = heap_hash_code;
       heap->equals = heap_hash_equals;

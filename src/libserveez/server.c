@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.31 2001/11/23 13:18:39 ela Exp $
+ * $Id: server.c,v 1.32 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -326,7 +326,7 @@ svz_server_t *
 svz_server_add (svz_server_t *server)
 {
   if (svz_servers == NULL)
-    svz_servers = svz_hash_create (4);
+    svz_servers = svz_hash_create (4, (svz_free_func_t) svz_server_finalize);
   return svz_hash_put (svz_servers, server->name, server);
 }
 
@@ -603,7 +603,7 @@ svz_hash_t *
 svz_config_hash_create (char **strarray)
 {
   int i;
-  svz_hash_t *hash = svz_hash_create (4);
+  svz_hash_t *hash = svz_hash_create (4, svz_free);
 
   if (strarray)
     {
@@ -626,15 +626,7 @@ svz_config_hash_create (char **strarray)
 void
 svz_config_hash_destroy (svz_hash_t *strhash)
 {
-  char **strarray;
-  int i;
-
-  if (strhash)
-    {
-      svz_hash_foreach_value (strhash, strarray, i)
-	svz_free (strarray[i]);
-      svz_hash_destroy (strhash);
-    }
+  svz_hash_destroy (strhash);
 }
 
 /*
@@ -651,7 +643,7 @@ svz_config_hash_dup (svz_hash_t *strhash)
 
   if (strhash)
     {
-      hash = svz_hash_create (4);
+      hash = svz_hash_create (4, strhash->destroy);
       svz_hash_foreach_key (strhash, keys, i)
 	{
 	  svz_hash_put (hash, keys[i], 
@@ -912,27 +904,31 @@ svz_server_init_all (void)
 }
 
 /*
+ * This function runs the finalizer callback for the given server instance
+ * @var{server}, removes all bindings and frees all resources allocated by
+ * the server instance.
+ */
+void
+svz_server_finalize (svz_server_t *server)
+{
+  if (server)
+    {
+      if (server->finalize != NULL)
+	if (server->finalize (server) < 0)
+	  svz_log (LOG_ERROR, "error finalizing `%s'\n", server->name);
+      svz_server_unbind (server);
+      svz_server_free (server);
+    }
+}
+
+/*
  * Run the local finalizers for all server instances.
  */
 int
 svz_server_finalize_all (void)
 {
-  int i, n;
-  svz_server_t **server;
-
   svz_log (LOG_NOTICE, "running all server finalizers\n");
-  n = svz_hash_size (svz_servers) - 1;
-  svz_hash_foreach_value (svz_servers, server, i)
-    {
-      if (server[n]->finalize != NULL)
-	if (server[n]->finalize (server[n]) < 0)
-	  svz_log (LOG_ERROR, "error finalizing `%s'\n", server[n]->name);
-      svz_server_del (server[n]->name);
-      i--;
-      n--;
-    }
   svz_hash_destroy (svz_servers);
   svz_servers = NULL;
-
   return 0;
 }

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.42 2001/08/01 10:16:22 ela Exp $
+ * $Id: gnutella.c,v 1.43 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -412,31 +412,31 @@ nut_init (svz_server_t *server)
   cfg->port = htons ((unsigned short) cfg->force_port);
 
   /* create and modify packet hash */
-  cfg->packet = svz_hash_create (4);
+  cfg->packet = svz_hash_create (4, svz_free);
   cfg->packet->code = nut_hash_code;
   cfg->packet->equals = nut_hash_equals;
   cfg->packet->keylen = nut_hash_keylen;
 
   /* create and modify reply hash */
-  cfg->reply = svz_hash_create (4);
+  cfg->reply = svz_hash_create (4, NULL);
   cfg->reply->code = nut_hash_code;
   cfg->reply->equals = nut_hash_equals;
   cfg->reply->keylen = nut_hash_keylen;
 
   /* create current connection hash */
-  cfg->conn = svz_hash_create (4);
+  cfg->conn = svz_hash_create (4, NULL);
 
   /* create host catcher hash */
-  cfg->net = svz_hash_create (4);
+  cfg->net = svz_hash_create (4, svz_free);
 
   /* create recent query hash */
-  cfg->query = svz_hash_create (4);
+  cfg->query = svz_hash_create (4, NULL);
 
   /* create push request hash */
-  cfg->push = svz_hash_create (4);
+  cfg->push = svz_hash_create (4, (svz_free_func_t) nut_free_transfer);
 
   /* create and modify the routing table hash */
-  cfg->route = svz_hash_create (4);
+  cfg->route = svz_hash_create (4, NULL);
   cfg->route->code = nut_hash_code;
   cfg->route->equals = nut_hash_equals;
   cfg->route->keylen = nut_hash_keylen;
@@ -467,10 +467,6 @@ int
 nut_finalize (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
-  nut_host_t **client;
-  nut_packet_t **pkt;
-  nut_transfer_t **transfer;
-  int n;
 
   /* destroy sharing files */
   nut_destroy_database (cfg);
@@ -481,37 +477,12 @@ nut_finalize (svz_server_t *server)
   svz_hash_destroy (cfg->reply);
 
   /* destroy sent packet hash */
-  if ((pkt = (nut_packet_t **) svz_hash_values (cfg->packet)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->packet); n++)
-	{
-	  svz_free (pkt[n]);
-	}
-      svz_hash_xfree (pkt);
-    }
   svz_hash_destroy (cfg->packet);
 
   /* destroy host catcher hash */
-  if ((client = (nut_host_t **) svz_hash_values (cfg->net)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->net); n++)
-	{
-	  svz_free (client[n]);
-	}
-      svz_hash_xfree (client);
-    }
   svz_hash_destroy (cfg->net);
 
   /* destroy push request hash */
-  if ((transfer = (nut_transfer_t **) svz_hash_values (cfg->push)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->push); n++)
-	{
-	  svz_free (transfer[n]->file);
-	  svz_free (transfer[n]);
-	}
-      svz_hash_xfree (transfer);
-    }
   svz_hash_destroy (cfg->push);
 
   /* free detection string */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.38 2001/08/01 10:16:23 ela Exp $
+ * $Id: nut-transfer.c,v 1.39 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -273,6 +273,16 @@ nut_check_transfer (svz_socket_t *sock)
 }
 
 /*
+ * Frees the given transfer structure.
+ */
+void
+nut_free_transfer (nut_transfer_t *transfer)
+{
+  svz_free (transfer->file);
+  svz_free (transfer);
+}
+
+/*
  * This callback is executed whenever a gnutella file transfer aborted
  * or successfully exited.
  */
@@ -313,8 +323,7 @@ nut_disconnect_transfer (svz_socket_t *sock)
 	  nut_send_push (sock->cfg, sock->data);
 	}
 
-      svz_free (transfer->file);
-      svz_free (transfer);
+      nut_free_transfer (transfer);
       sock->data = NULL;
     }
 
@@ -377,8 +386,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
     }
   if ((unsigned long) n >= svz_array_size (cfg->search))
     {
-      svz_log (LOG_NOTICE, "nut: no search pattern for %s\n",
-	       savefile);
+      svz_log (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
       svz_free (file);
       return -1;
     }
@@ -926,8 +934,7 @@ nut_disconnect_upload (svz_socket_t *sock)
   /* free the transfer data */
   if (transfer)
     {
-      svz_free (transfer->file);
-      svz_free (transfer);
+      nut_free_transfer (transfer);
       sock->data = NULL;
     }
 

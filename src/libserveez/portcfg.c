@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.26 2001/12/06 01:08:15 ela Exp $
+ * $Id: portcfg.c,v 1.27 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -150,7 +150,8 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
   /* Check if the port configuration hash is inited. */
   if (svz_portcfgs == NULL)
     {
-      if ((svz_portcfgs = svz_hash_create (4)) == NULL)
+      if ((svz_portcfgs = svz_hash_create (4, (svz_free_func_t) 
+					   svz_portcfg_free)) == NULL)
 	return NULL;
     }
 
@@ -308,24 +309,12 @@ svz_portcfg_dup (svz_portcfg_t *port)
 }
 
 /*
- * This function makes the given port configuration @var{port} completely 
- * unusable. No operation is performed if @var{port} is @code{NULL}. If the
- * port configuration is part of the list of known port configurations it
- * it thrown out of them.
+ * This function frees all resources allocated by the given port 
+ * configuration @var{port}.
  */
 void
-svz_portcfg_destroy (svz_portcfg_t *port)
+svz_portcfg_free (svz_portcfg_t *port)
 {
-  char *name;
-
-  /* Return here if NULL pointer given. */
-  if (port == NULL)
-    return;
-
-  /* Delete from port configuration hash if necessary. */
-  if (svz_portcfgs && (name = svz_hash_contains (svz_portcfgs, port)) != NULL)
-    svz_hash_delete (svz_portcfgs, name);
-
   /* Free the name of the port configuration. */
   svz_free (port->name);
 
@@ -363,6 +352,29 @@ svz_portcfg_destroy (svz_portcfg_t *port)
 }
 
 /*
+ * This function makes the given port configuration @var{port} completely 
+ * unusable. No operation is performed if @var{port} is @code{NULL}. If the
+ * port configuration is part of the list of known port configurations it
+ * it thrown out of them.
+ */
+void
+svz_portcfg_destroy (svz_portcfg_t *port)
+{
+  char *name;
+
+  /* Return here if NULL pointer given. */
+  if (port == NULL)
+    return;
+
+  /* Delete from port configuration hash if necessary. */
+  if (svz_portcfgs && (name = svz_hash_contains (svz_portcfgs, port)) != NULL)
+    svz_hash_delete (svz_portcfgs, name);
+
+  /* Free the port configuration. */
+  svz_portcfg_free (port);
+}
+
+/*
  * Destroy the deny and allowed access list of the given port configuration 
  * @var{port}.
  */
@@ -388,13 +400,8 @@ svz_portcfg_destroy_access (svz_portcfg_t *port)
 void
 svz_portcfg_destroy_accepted (svz_portcfg_t *port)
 {
-  int n;
-  char **ip;
-
   if (port->accepted)
     {
-      svz_hash_foreach_key (port->accepted, ip, n)
-	svz_vector_destroy (svz_hash_get (port->accepted, ip[n]));
       svz_hash_destroy (port->accepted);
       port->accepted = NULL;
     }
@@ -421,18 +428,8 @@ svz_portcfg_get (char *name)
 void
 svz_portcfg_finalize (void)
 {
-  svz_portcfg_t **port;
-  int n, i;
-
   if (svz_portcfgs != NULL)
     {
-      n = svz_hash_size (svz_portcfgs) - 1;
-      svz_hash_foreach_value (svz_portcfgs, port, i)
-	{
-	  svz_portcfg_destroy (port[n]);
-	  n--;
-	  i--;
-	}
       svz_hash_destroy (svz_portcfgs);
       svz_portcfgs = NULL;
     }

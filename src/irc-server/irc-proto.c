@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-proto.c,v 1.36 2001/10/25 10:15:24 ela Exp $
+ * $Id: irc-proto.c,v 1.37 2001/12/07 20:37:14 ela Exp $
  *
  */
 
@@ -228,8 +228,8 @@ irc_init (svz_server_t *server)
   cfg->email = svz_strdup (tmp[2]);
 
   /* initialize hashes and lists */
-  cfg->clients = svz_hash_create (4);
-  cfg->channels = svz_hash_create (4);
+  cfg->clients = svz_hash_create (4, NULL);
+  cfg->channels = svz_hash_create (4, NULL);
   cfg->clients->equals = irc_string_equal;
   cfg->channels->equals = irc_string_equal;
   cfg->servers = NULL;

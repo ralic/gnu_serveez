@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.h,v 1.11 2001/07/07 08:37:44 ela Exp $
+ * $Id: hash.h,v 1.12 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -28,8 +28,8 @@
 #include "libserveez/defines.h"
 
 /* useful defines */
-#define HASH_SHRINK 4
-#define HASH_EXPAND 8
+#define HASH_SHRINK   4
+#define HASH_EXPAND   8
 #define HASH_MIN_SIZE 4
 
 /*
@@ -67,6 +67,7 @@ typedef struct svz_hash
   int (* equals) (char *, char *); /* key string equality callback */
   unsigned long (* code) (char *); /* hash code calculation callback */
   unsigned (* keylen) (char *);    /* how to get the hash key length */
+  svz_free_func_t destroy;         /* element destruction callback */
   svz_hash_bucket_t *table;        /* hash table */
 }
 svz_hash_t;
@@ -76,18 +77,18 @@ __BEGIN_DECLS
 /*
  * Basic hash table functions.
  */
-SERVEEZ_API svz_hash_t *svz_hash_create __P ((int size));
-SERVEEZ_API void svz_hash_destroy __P ((svz_hash_t *hash));
-SERVEEZ_API void svz_hash_clear __P ((svz_hash_t *hash));
-SERVEEZ_API void *svz_hash_delete __P ((svz_hash_t *hash, char *key));
-SERVEEZ_API void *svz_hash_put __P ((svz_hash_t *, char *key, void *value));
-SERVEEZ_API void *svz_hash_get __P ((svz_hash_t *hash, char *key));
-SERVEEZ_API void **svz_hash_values __P ((svz_hash_t *hash));
-SERVEEZ_API char **svz_hash_keys __P ((svz_hash_t *hash));
-SERVEEZ_API int svz_hash_size __P ((svz_hash_t *hash));
-SERVEEZ_API int svz_hash_capacity __P ((svz_hash_t *hash));
-SERVEEZ_API char *svz_hash_contains __P ((svz_hash_t *hash, void *value));
-SERVEEZ_API void svz_hash_rehash __P ((svz_hash_t *hash, int type));
+SERVEEZ_API svz_hash_t *svz_hash_create __P ((int, svz_free_func_t));
+SERVEEZ_API void svz_hash_destroy __P ((svz_hash_t *));
+SERVEEZ_API void svz_hash_clear __P ((svz_hash_t *));
+SERVEEZ_API void *svz_hash_delete __P ((svz_hash_t *, char *));
+SERVEEZ_API void *svz_hash_put __P ((svz_hash_t *, char *, void *));
+SERVEEZ_API void *svz_hash_get __P ((svz_hash_t *, char *));
+SERVEEZ_API void **svz_hash_values __P ((svz_hash_t *));
+SERVEEZ_API char **svz_hash_keys __P ((svz_hash_t *));
+SERVEEZ_API int svz_hash_size __P ((svz_hash_t *));
+SERVEEZ_API int svz_hash_capacity __P ((svz_hash_t *));
+SERVEEZ_API char *svz_hash_contains __P ((svz_hash_t *, void *));
+SERVEEZ_API void svz_hash_rehash __P ((svz_hash_t *, int));
 
 __END_DECLS
 

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.32 2001/11/25 03:38:23 ela Exp $
+ * $Id: server-core.c,v 1.33 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -624,7 +624,7 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
   if (port->accepted)
     accepted = (svz_vector_t *) svz_hash_get (port->accepted, ip);
   else
-    port->accepted = svz_hash_create (4);
+    port->accepted = svz_hash_create (4, (svz_free_func_t) svz_vector_destroy);
   current = time (NULL);
 
   if (accepted != NULL)

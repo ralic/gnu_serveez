@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.h,v 1.11 2001/08/01 10:16:23 ela Exp $
+ * $Id: nut-transfer.h,v 1.12 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -66,6 +66,7 @@ nut_transfer_t;
 int nut_init_transfer (svz_socket_t *, nut_reply_t *, nut_record_t *, char *);
 int nut_init_upload (svz_socket_t *sock, nut_file_t *entry);
 int nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer);
+void nut_free_transfer (nut_transfer_t *transfer);
 void nut_read_database_r (nut_config_t *cfg, char *dirname, int depth);
 void nut_add_database (nut_config_t *cfg, char *path, char *file, off_t size);
 void nut_destroy_database (nut_config_t *cfg);

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.15 2001/12/06 01:08:15 ela Exp $
+ * $Id: binding.c,v 1.16 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -255,7 +255,6 @@ void
 svz_server_unbind (svz_server_t *server)
 {
   svz_socket_t *sock, *parent;
-  unsigned long n;
 
   /* Go through all enqueued sockets. */
   svz_sock_foreach (sock)

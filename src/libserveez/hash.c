@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: hash.c,v 1.6 2001/05/22 21:06:41 ela Exp $
+ * $Id: hash.c,v 1.7 2001/12/07 20:37:15 ela Exp $
  *
  */
 
@@ -153,10 +153,13 @@ svz_hash_analyse (svz_hash_t *hash)
 /*
  * Create a new hash table with an initial capacity @var{size}. Return a 
  * non-zero pointer to the newly created hash. The size is calculated down
- * to a binary value.
+ * to a binary value. The @var{destroy} callback allows you to pass a
+ * element destruction callback called within @code{svz_hash_clear()} and
+ * @code{svz_hash_destroy()} for each value. If no such operation should be
+ * performed the argument must be @code{NULL}.
  */
 svz_hash_t *
-svz_hash_create (int size)
+svz_hash_create (int size, svz_free_func_t destroy)
 {
   int n;
   svz_hash_t *hash;
@@ -175,6 +178,7 @@ svz_hash_create (int size)
   hash->code = svz_hash_code;
   hash->equals = svz_hash_key_equals;
   hash->keylen = svz_hash_key_length;
+  hash->destroy = destroy;
 
   /* allocate space for the hash table and initialize it */
   hash->table = svz_malloc (sizeof (svz_hash_bucket_t) * size);
@@ -190,8 +194,9 @@ svz_hash_create (int size)
 /*
  * Destroy the existing hash table @var{hash}. Therefore we @code{svz_free()}
  * all keys within the hash, the hash table and the hash itself. The values 
- * keep untouched. So you might want to @code{svz_free()} them yourself. If
- * @var{hash} is @code{NULL} no operation is performed.
+ * in the hash keep untouched if the element destruction callback passed to
+ * @code{svz_hash_create()} was @code{NULL}, otherwise it is called for each
+ * value. If @var{hash} is @code{NULL} no operation is performed.
  */
 void
 svz_hash_destroy (svz_hash_t *hash)
@@ -210,6 +215,8 @@ svz_hash_destroy (svz_hash_t *hash)
 	  for (e = 0; e < bucket->size; e++)
 	    {
 	      svz_free (bucket->entry[e].key);
+	      if (hash->destroy)
+		hash->destroy (bucket->entry[e].value);
 	    }
 	  svz_free (bucket->entry);
 	}
@@ -239,6 +246,8 @@ svz_hash_clear (svz_hash_t *hash)
 	  for (e = 0; e < bucket->size; e++)
 	    {
 	      svz_free (bucket->entry[e].key);
+	      if (hash->destroy)
+		hash->destroy (bucket->entry[e].value);
 	    }
 	  svz_free (bucket->entry);
 	  bucket->entry = NULL;
