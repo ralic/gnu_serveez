@@ -13,4 +13,4 @@ Subject: Guile Project Submission
  (mailing-list (email "help-serveez" "help-serveez@gnu.org"))
  (license "GPL")
  (requires "GNU Guile version 1.3.4")
- (status "version 0.1.1 released 2001/xx/xx"))
+ (status "version 0.1.3 released 2001/xx/xx"))
