@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.c,v 1.7 2000/10/01 22:40:10 ela Exp $
+ * $Id: nut-route.c,v 1.8 2000/10/05 18:01:46 ela Exp $
  *
  */
 
@@ -127,7 +127,7 @@ nut_validate_packet (socket_t sock, nut_header_t *hdr, byte *packet)
       break;
       /* Pong */
     case NUT_PING_ACK:
-      if (hdr->length != SIZEOF_NUT_PING_REPLY)
+      if (hdr->length != SIZEOF_NUT_PONG)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "nut: invalid pong payload\n");

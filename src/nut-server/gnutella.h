@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.18 2000/10/05 09:52:21 ela Exp $
+ * $Id: gnutella.h,v 1.19 2000/10/05 18:01:46 ela Exp $
  *
  */
 
@@ -62,12 +62,13 @@
 #define NUT_SEARCH_ACK 0x81 /* search response */
 
 /* protocol flags */
-#define NUT_FLAG_DNLOAD 0x0001
-#define NUT_FLAG_HDR    0x0002
-#define NUT_FLAG_HOSTS  0x0004
-#define NUT_FLAG_CLIENT 0x0008
-#define NUT_FLAG_UPLOAD 0x0010
-#define NUT_FLAG_SELF   0x0020
+#define NUT_FLAG_DNLOAD 0x0001 /* downloading a file */
+#define NUT_FLAG_HDR    0x0002 /* http header received ? */
+#define NUT_FLAG_HOSTS  0x0004 /* sending host catcher list (http proto) */
+#define NUT_FLAG_CLIENT 0x0008 /* normal gnutella host */
+#define NUT_FLAG_UPLOAD 0x0010 /* uploading a file */
+#define NUT_FLAG_SELF   0x0020 /* connecting to a gnutella host */
+#define NUT_FLAG_GIVEN  0x0040 /* push request reply (GIV) */
 
 /* guid:
  * The header contains a Microsoft GUID (Globally Unique Identifier for 
@@ -106,8 +107,8 @@ typedef struct
   unsigned int files;  /* number of files shared by the host */
   unsigned int size;   /* total size of files shared by the host, in KB */
 }
-nut_ping_reply_t;
-#define SIZEOF_NUT_PING_REPLY (14)
+nut_pong_t;
+#define SIZEOF_NUT_PONG (14)
 
 /* search query header */
 typedef struct
@@ -239,6 +240,7 @@ typedef struct
   unsigned short port;      /* calculated from `force_port' */
   hash_t *query;            /* recent query hash */
   hash_t *reply;            /* reply hash for routing push requests */
+  hash_t *push;             /* push request hash */
   nut_file_t *database;     /* shared file array */
   unsigned db_files;        /* number of database files */
   unsigned db_size;         /* size of database in bytes */
@@ -252,12 +254,25 @@ nut_config_t;
 /*
  * Basic server callback definitions.
  */
+
+/* detection routines */
 int nut_detect_proto (void *cfg, socket_t sock);
 int nut_detect_connect (socket_t sock);
+
+/* connection routine */
 int nut_connect_socket (void *cfg, socket_t sock);
+
+/* check request routine */
 int nut_check_request (socket_t sock);
+
+/* disconnection routine */
 int nut_disconnect (socket_t sock);
+
+/* idle routines */
 int nut_idle_searching (socket_t sock);
+int nut_connect_timeout (socket_t sock);
+
+/* server functions */
 int nut_init (server_t *server);
 int nut_global_init (void);
 int nut_finalize (server_t *server);
@@ -265,7 +280,6 @@ int nut_global_finalize (void);
 int nut_server_notify (server_t *server);
 char *nut_info_server (server_t *server);
 char *nut_info_client (void *nut_cfg, socket_t sock);
-int nut_connect_timeout (socket_t sock);
 
 /*
  * This server's definition.

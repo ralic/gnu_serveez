@@ -1,5 +1,15 @@
 2000-10-05  [ Ela ]  <ela@lkcc.org>
 
+	* nut-server/nut-request.c: Moved all gnutella request handlers
+	to this file. `gnutella.c' was going too big.
+
+	* nut-server/nut-transfer.c (nut_check_given): This request
+	checker evaluates the "GIV " line and assigns the appropiate
+	download callbacks if possible. Everything untested, yet.
+
+	* nut-server/gnutella.c (nut_detect_proto): Added detection
+	of push request replies (GIV).
+
 	* nut-server/nut-transfer.c (nut_send_push): This routine sends
 	a push request to a given transfer connection. It is used when
 	the download connection could not be established.

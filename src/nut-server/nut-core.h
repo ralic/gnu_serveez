@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.5 2000/09/15 08:22:51 ela Exp $
+ * $Id: nut-core.h,v 1.6 2000/10/05 18:01:46 ela Exp $
  *
  */
 
@@ -54,8 +54,8 @@ char *nut_parse_property (char *header, int len, char *property);
 nut_header_t * nut_get_header (byte *data);
 byte * nut_put_header (nut_header_t *hdr);
 
-nut_ping_reply_t * nut_get_ping_reply (byte *data);
-byte * nut_put_ping_reply (nut_ping_reply_t *reply);
+nut_pong_t * nut_get_pong (byte *data);
+byte * nut_put_pong (nut_pong_t *reply);
 
 nut_query_t * nut_get_query (byte *data);
 byte * nut_put_query (nut_query_t *query);

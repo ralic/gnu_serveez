@@ -33,4 +33,5 @@ libnut_a_SOURCES = \
 	nut-transfer.c nut-transfer.h \
 	nut-route.c nut-route.h \
 	nut-core.c nut-core.h \
-	nut-hostlist.c nut-hostlist.h
+	nut-hostlist.c nut-hostlist.h \
+	nut-request.c nut-request.h

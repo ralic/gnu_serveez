@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.16 2000/10/05 09:52:21 ela Exp $
+ * $Id: nut-transfer.c,v 1.17 2000/10/05 18:01:46 ela Exp $
  *
  */
 
@@ -436,6 +436,94 @@ nut_init_transfer (socket_t sock, nut_reply_t *reply,
 }
 
 /*
+ * This is the check_request callback for given files.
+ */
+int
+nut_check_given (socket_t sock)
+{
+  nut_config_t *cfg = sock->cfg;
+  int fill = sock->recv_buffer_fill;
+  char *p = sock->recv_buffer;
+  nut_transfer_t *transfer;
+  char *pushkey, *file;
+  struct stat buf;
+  int len, fd;
+
+  /* check if we got the whole "GIV " line */
+  while (p < sock->recv_buffer + (fill - 1) && memcmp (p, "\n\n", 2))
+    p++;
+      
+  if (p < sock->recv_buffer + (fill - 1) && !memcmp (p, "\n\n", 2))
+    {
+      len = p + 2 - sock->recv_buffer;
+
+      /* find start of file name */
+      pushkey = p = sock->recv_buffer + strlen (NUT_GIVE);
+      while (p < sock->recv_buffer + fill && *p != '/') p++;
+      if (p >= sock->recv_buffer + fill || *p != '/')
+	{
+	  log_printf (LOG_ERROR, "nut: invalid GIV line\n");
+	  return -1;
+	}
+
+      /* get original push request */
+      *p = '\0';
+      transfer = (nut_transfer_t *) hash_get (cfg->push, pushkey);
+      if (transfer == NULL)
+	{
+	  log_printf (LOG_ERROR, "nut: no such push request sent\n");
+	  return -1;
+	}
+
+      /* delete key and data from push request hash */
+      hash_delete (cfg->push, pushkey);
+      sock_reduce_recv (sock, len);
+
+      /* assign all necessary callbacks for downloading the file */
+      sock->data = transfer;
+      cfg->dnloads++;
+      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->disconnected_socket = nut_disconnect_transfer;
+      sock->check_request = nut_check_transfer;
+      sock->userflags |= NUT_FLAG_DNLOAD;
+      sock->idle_func = NULL;
+      transfer->start = time (NULL);
+
+      /* test the file to download once again */
+      file = transfer->file;
+      if (stat (file, &buf) != -1)
+	{
+	  log_printf (LOG_NOTICE, "nut: %s already exists\n", file);
+	  return -1;
+	}
+      
+      /* try creating local file */
+#ifdef __MINGW32__
+      if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
+#else
+      if ((fd = open (file, O_RDWR | O_CREAT, 0644)) == -1)
+#endif
+	{
+	  log_printf (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
+	  return -1;
+	}
+
+      /* assign file descriptor and find original file name */
+      sock->file_desc = fd;
+      file = file + strlen (file);
+      while (*file != '/' && *file != '\\' && file > transfer->file) file--;
+
+      /* send HTTP request to the listening gnutella host */
+      sock_printf (sock, NUT_GET "%d/%s " NUT_HTTP "1.0\r\n",
+		   transfer->index, file);
+      sock_printf (sock, NUT_AGENT);
+      sock_printf (sock, NUT_RANGE ": bytes=0-\r\n");
+      sock_printf (sock, "\r\n");
+    }
+  return 0;
+}
+
+/*
  * The routine is called when a connection to another host timed out.
  * When trying to get a remote file from a host behind a masquerading
  * gateway or firewall you are able to request this host to connect to
@@ -449,6 +537,8 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
   nut_header_t hdr;
   nut_push_t push;
   nut_packet_t *pkt;
+  nut_transfer_t *trans;
+  char *pushkey;
 
   /* find original socket connection */
   if ((sock = sock_find (transfer->id, transfer->version)) != NULL)
@@ -475,6 +565,16 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
 	  sock_schedule_for_shutdown (sock);
 	  return -1;
 	}
+
+      /* put push request into hash for later reply detection */
+      trans = xmalloc (sizeof (nut_transfer_t));
+      memcpy (trans, transfer, sizeof (nut_transfer_t));
+      trans->file = xstrdup (transfer->file);
+      pushkey = xmalloc (strlen (NUT_GIVE) + 10 + NUT_GUID_SIZE * 2);
+      sprintf (pushkey, NUT_GIVE "%d:%s",
+	       push.index, nut_print_guid (push.id));
+      hash_put (cfg->push, pushkey, trans);
+      xfree (pushkey);
 
 #if ENABLE_DEBUG
       log_printf (LOG_DEBUG, "nut: sent push request to %s:%u\n",

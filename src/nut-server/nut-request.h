@@ -1,5 +1,5 @@
 /*
- * nut-route.h - gnutella routing definitions
+ * nut-request.h - gnutella requests header file
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,21 +18,25 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-route.h,v 1.4 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-request.h,v 1.1 2000/10/05 18:01:46 ela Exp $
  *
  */
 
-#ifndef __NUT_ROUTE_H__
-#define __NUT_ROUTE_H__
+#ifndef __NUT_REQUEST_H__
+#define __NUT_REQUEST_H__
 
 #if HAVE_CONFIG_H
 # include <config.h>
 #endif
 
-#define NUT_QUERY_TOO_RECENT 10 /* drop "unpatient" queries in seconds */
-#define NUT_INVALID_PACKETS  20 /* close connection after x invalid packets */
+#define _GNU_SOURCE
+#include "socket.h"
 
-/* routing function */
-int nut_route (socket_t sock, nut_header_t *hdr, byte *packet);
+/* Exported functions. */
+int nut_reply (socket_t sock, nut_header_t *hdr, byte *packet);
+int nut_push_request (socket_t sock, nut_header_t *hdr, byte *packet);
+int nut_query (socket_t sock, nut_header_t *hdr, byte *packet);
+int nut_pong (socket_t sock, nut_header_t *hdr, byte *packet);
+int nut_ping (socket_t sock, nut_header_t *hdr, byte *null);
 
-#endif /* __NUT_ROUTE_H__ */
+#endif /* __NUT_REQUEST_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.9 2000/10/05 09:52:21 ela Exp $
+ * $Id: nut-core.c,v 1.10 2000/10/05 18:01:46 ela Exp $
  *
  */
 
@@ -234,10 +234,10 @@ nut_put_header (nut_header_t *hdr)
 /*
  * Convert gnutella ping response to binary data and back.
  */
-nut_ping_reply_t *
-nut_get_ping_reply (byte *data)
+nut_pong_t *
+nut_get_pong (byte *data)
 {
-  static nut_ping_reply_t reply;
+  static nut_pong_t reply;
   unsigned short uint16;
   unsigned int uint32;
   
@@ -255,9 +255,9 @@ nut_get_ping_reply (byte *data)
 }
 
 byte *
-nut_put_ping_reply (nut_ping_reply_t *reply)
+nut_put_pong (nut_pong_t *reply)
 {
-  static byte buffer[SIZEOF_NUT_PING_REPLY];
+  static byte buffer[SIZEOF_NUT_PONG];
   byte *data = buffer;
   unsigned short uint16;
   unsigned int uint32;
