@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.21 2001/07/01 15:56:48 ela Exp $
+ * $Id: server-core.c,v 1.22 2001/07/02 19:58:37 raimi Exp $
  *
  */
 
@@ -809,12 +809,20 @@ svz_sock_find (int id, int version)
 int
 svz_sock_unique_id (svz_socket_t *sock)
 {
-  do
+  int i;
+
+  for (i = 0; i < SOCK_MAX_ID; i++) 
     {
       svz_sock_id++;
       svz_sock_id &= (SOCK_MAX_ID - 1);
+
+      if (NULL == svz_sock_lookup_table[svz_sock_id])
+	break;
     }
-  while (svz_sock_lookup_table[svz_sock_id]);
+
+  /* ensure global limit for now */
+  if (i == SOCK_MAX_ID)
+    abort ();
 
   sock->id = svz_sock_id;
   sock->version = svz_sock_version++;

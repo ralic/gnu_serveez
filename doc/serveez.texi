@@ -403,7 +403,6 @@ Use sysctl -w kern.maxfiles=nnnn to raise limit.
 See Bodo Bauer's /proc documentation. On current 2.2.x kernels, 
 @example
 echo 32768 > /proc/sys/fs/file-max
-echo 65536 > /proc/sys/fs/inode-max
 @end example
 increases the system limit on open files, and 
 @example
@@ -428,6 +427,9 @@ to more than a few times its default value.
 More than 2000 connections tested. Seems like the limit is due to
 available physical memory.
 @end table
+
+Serveez currently has a limit of 8192 open connections (our socket structure
+that is). This limit exists for legacy reasons and is going to be removed.
 
 @node Server, Coserver, Concept, Top
 @chapter Server
