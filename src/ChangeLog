@@ -1,3 +1,8 @@
+2001-01-05  [ Ela ]  <ela@lkcc.org>
+
+	* icmp-socket.c (icmp_request): Text definition of all known
+	ICMP type codes. Printed when received.
+
 2001-01-04  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
 
 	* socket.c (sock_write): Prevent serveez from sending empty
@@ -6,11 +11,11 @@
 	the final `sock_printf' or `sock_write' then the connection
 	gets closed as soon the send buffer queue is empty.
 
-	* fakeident-server/Makefile.am: new server
+	* fakeident-server/Makefile.am: New server.
 
 2001-01-02  Raimund 'Raimi' Jacob  <raimi@lkcc.org>
 
-	* server.h (portcfg): renamed 'local-ip' and friends to some
+	* server.h (portcfg): Renamed 'local-ip' and friends to some
 	generic name.
 
 2000-12-31  [ Ela ]  <ela@lkcc.org>

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.h,v 1.13 2000/12/10 12:26:38 ela Exp $
+ * $Id: icmp-socket.h,v 1.14 2001/01/06 01:14:55 ela Exp $
  *
  */
 
@@ -148,6 +148,7 @@ void icmp_cleanup (void);
 #define ICMP_INFO_REPLY         16      /* Information Reply            */
 #define ICMP_ADDRESS            17      /* Address Mask Request         */
 #define ICMP_ADDRESSREPLY       18      /* Address Mask Reply           */
+#define ICMP_MAX_TYPE           18
 
 /* serveez ICMP types and sub-codes */
 #define ICMP_SERVEEZ        42

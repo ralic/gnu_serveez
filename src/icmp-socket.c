@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.17 2000/12/23 12:16:02 ela Exp $
+ * $Id: icmp-socket.c,v 1.18 2001/01/06 01:14:55 ela Exp $
  *
  */
 
@@ -57,6 +57,30 @@
 #include "icmp-socket.h"
 #include "raw-socket.h"
 
+/* Text representation of ICMP type codes. */
+char *icmp_request[] =
+{
+  "echo reply",
+  NULL,
+  NULL,
+  "destination unreachable",
+  "source quench",
+  "redirect (change route)",
+  NULL,
+  NULL,
+  "echo request",
+  NULL,
+  NULL,
+  "time exceeded",
+  "parameter problem",
+  "timestamp request",
+  "timestamp reply",
+  "information request",
+  "information reply",
+  "address mask request",
+  "address mask reply"
+};
+
 #ifdef __MINGW32__
 
 /* Functions and handles for the ICMP.DLL API. */
@@ -88,8 +112,7 @@ icmp_startup (void)
   IcmpSendEcho = (IcmpSendEchoProc)
     GetProcAddress (IcmpHandle, "IcmpSendEcho");
   if (IcmpSendEcho == NULL || 
-      IcmpCloseHandle == NULL || 
-      IcmpCreateFile == NULL)
+      IcmpCloseHandle == NULL || IcmpCreateFile == NULL)
     {
       log_printf (LOG_ERROR, "icmp: GetProcAddress: %s\n", SYS_ERROR);
       FreeLibrary (IcmpHandle);
@@ -243,21 +266,21 @@ icmp_check_packet (socket_t sock, byte *data, int len)
     }
 
   /* What kind of packet is this ? */
-  switch (header->type)
+#if ENABLE_DEBUG
+  if (header->type <= ICMP_MAX_TYPE)
     {
-    case ICMP_ECHOREPLY:
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: echo reply received\n");
-#endif
-      break;
+      if (icmp_request[header->type])
+	log_printf (LOG_DEBUG, "icmp: %s received\n", 
+		    icmp_request[header->type]);
+      else
+	log_printf (LOG_DEBUG, "unsupported protocol 0x%02X received\n", 
+		    header->type);
+      return -1;
+    }
+#endif /* ENABLE_DEBUG */
 
-    case ICMP_ECHO:
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: echo request received\n");
-#endif
-      break;
-
-    case ICMP_SERVEEZ:
+  if (header->type == ICMP_SERVEEZ)
+    {
       if (header->code == ICMP_SERVEEZ_CONNECT && 
 	  sock->flags & SOCK_FLAG_LISTENING)
 	{
@@ -269,14 +292,14 @@ icmp_check_packet (socket_t sock, byte *data, int len)
 	  return -2;
 	}
       return (length + ICMP_HEADER_SIZE);
-
-    default:
-#if ENABLE_DEBUG
-      log_printf (LOG_DEBUG, "icmp: unsupported protocol 0x%02X\n",
-		  header->type);
-#endif
-      break;
     }
+#if ENABLE_DEBUG
+  else
+    {
+      log_printf (LOG_DEBUG, "unsupported protocol 0x%02X received\n", 
+		  header->type);
+    }
+#endif /* ENABLE_DEBUG */
 
   return -1;
 }
@@ -486,7 +509,8 @@ icmp_write (socket_t sock, char *buf, int length)
       len += sizeof (sock->remote_addr);
       memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
       len += sizeof (sock->remote_port);
-      if ((size = length) > ICMP_MSG_SIZE) size = ICMP_MSG_SIZE;
+      if ((size = length) > ICMP_MSG_SIZE)
+	size = ICMP_MSG_SIZE;
 
       /* Create ICMP header and put it in front of packet load. */
       hdr.type = ICMP_SERVEEZ;
@@ -643,8 +667,7 @@ icmp_connect (unsigned long host, unsigned short port)
   client.sin_addr.s_addr = host;
   client.sin_port = port;
   
-  if (connect (sockfd, (struct sockaddr *) &client,
-               sizeof (client)) == -1)
+  if (connect (sockfd, (struct sockaddr *) &client, sizeof (client)) == -1)
     {
       log_printf (LOG_ERROR, "connect: %s\n", NET_ERROR);
       closesocket (sockfd);

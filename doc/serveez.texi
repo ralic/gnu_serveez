@@ -1212,12 +1212,15 @@ tunnel. Generally this means that you can setup Serveez to accept
 network connections in order to pass all network data on this 
 line to another address. This can be useful to work around gateways and 
 firewalls. When instantiating an ICMP source or destination you must
-ensure root privileges for the application. One of the given examples
-in @file{serveez.cfg} shows how you can setup a tunnel server for 
-forwarding a pipe connection. Please keep in mind when forwarding
-a TCP or pipe connection over ICMP or UDP you loose reliability since
-the latter are packet oriented rather than connection oriented. We are
-not willing to implement or own TCP stack to work on ICMP/UDP directly.
+ensure root privileges for the application. On Windows NT and Windows 2000
+you need to be either logged in as Administrator or have set the registry
+key KLM\System\CurrentControlSet\Services\Afd\Parameters\DisableRawSecurity
+to 1 (DWORD). One of the given examples in @file{serveez.cfg} shows 
+how you can setup a tunnel server for forwarding a pipe connection. Please 
+keep in mind when forwarding a TCP or pipe connection over ICMP or UDP 
+you loose reliability since the latter are packet oriented rather than 
+connection oriented. We are not willing to implement or own TCP stack to 
+work on ICMP/UDP directly.
 
 Forwarding between the same types of connection is always possible. When
 forwarding to an ICMP tunnel we use a special protocol. This is still
@@ -1666,60 +1669,71 @@ and @file{wsock32.lib} and for version 2.2 it is @file{ws2_32.dll} and
 
 The Winsock API is still a bit buggy. Connected datagram behaviors are 
 not pertinent to any WinSock 2 features, but to generic WinSock. On Win95 
-it's possible to use recvfrom()/WSARecvFrom() on a "connected" UDP socket, 
-but on NT4 recvfrom()/WSARecvFrom fail with 10056 (WSAEISCONN). NOTE: 
-sendto()/WSASendTo() fail with WSAEISCONN on both (which I don't see 
-any reason for, but anyway...).
+it is possible to use @code{recvfrom()/WSARecvFrom()} on a "connected" 
+UDP socket, but on NT4 @code{recvfrom()/WSARecvFrom()} fail with 10056 
+(@code{WSAEISCONN}). NOTE: @code{sendto()/WSASendTo()} fail with 
+@code{WSAEISCONN} on both (which I do not see any reason for, but 
+anyway ...).
 
 @item Raw sockets on Windows systems
 Raw sockets require Winsock 2. To use them under Windows NT/2000, you must 
 be logged in as an Administrator. On any other Microsoft's we were trying
-to use the ICMP.DLL (an idiotic and almost useless API) without success. 
-Microsoft says  they will replace it as soon as something better comes 
-along. (Microsoft's been saying this since the Windows 95 days, however, 
-yet this functionality still exists in Windows 2000.)
+to use the @file{ICMP.DLL} (an idiotic and almost useless API) without 
+success. Microsoft says they will replace it as soon as something better 
+comes along. (Microsoft's been saying this since the Windows 95 days, 
+however, yet this functionality still exists in Windows 2000.)
+It seems like you cannot send ICMP or even raw packets from the userspace
+of Windows (except via the @file{ICMP.DLL} which is limited to echo 
+requests). We also noticed that you cannot receive any packets previously
+sent. The only thing wich works on all Windows systems (9x/ME/NT/2000) is
+receiving packets the "kernel" itself generated (like echo replies).
+One good thing we noticed about Windows 2000 is that the checksums of
+fragmented ICMP packets get correctly recalculated. That is not the case
+in the current Linux kernels.
 
 @item Miscellaneous
-To use the vanilla Win32 winsock, you just need to #define Win32_Winsock 
-and #include "windows.h" at the top of your source file(s). You will also
-want to add -lwsock32 to the compiler's command line so you link against 
-libwsock32.a. 
+To use the Win32 Winsock in the Cygwin port, you just need to 
+@code{#define Win32_Winsock} and @code{#include "windows.h"} at the top 
+of your source file(s). You will also want to add @code{-lwsock32} to 
+the compiler's command line so you link against @file{libwsock32.a}. 
 
 What preprocessor macros do I need to know about ?
-We use _WIN32 to signify access to the Win32 API and __CYGWIN__ for access 
-to the Cygwin environment provided by the dll. 
-We chose _WIN32 because this is what Microsoft defines in VC++ and we 
+We use @code{_WIN32} to signify access to the Win32 API and 
+@code{__CYGWIN__} for access to the Cygwin environment provided by the dll. 
+We chose @code{_WIN32} because this is what Microsoft defines in VC++ and we 
 thought it would be a good idea for compatibility with VC++ code to
-follow their example. We use _MFC_VER to indicate code that should be 
+follow their example. We use @code{_MFC_VER} to indicate code that should be 
 compiled with VC++. 
 
 Why we do not use pipes for coservers ?
-Windows differentiates between sockets and file descriptors, that's why 
-you can not select() file descriptors. Please close() the pipe's 
-descriptors via CloseHandle() and not closesocket(), because this will fail.
+Windows differentiates between sockets and file descriptors, that is why 
+you can not @code{select()} file descriptors. Please @code{close()} the 
+pipe's descriptors via @code{CloseHandle()} and not @code{closesocket()}, 
+because this will fail.
 
 The C run-time libraries have a preset limit for the number of files that
 can be open at any one time. The limit for applications that link with the
-single-thread static library (LIBC.LIB) is 64 file handles or 20 file
+single-thread static library (@file{LIBC.LIB}) is 64 file handles or 20 file
 streams. Applications that link with either the static or dynamic
-multithread library (LIBCMT.LIB or MSVCRT.LIB and MSVCRT.DLL), have a limit
-of 256 file handles or 40 file streams. Attempting to open more than the
-maximum number of file handles or file streams causes program failure.
+multithread library (@file{LIBCMT.LIB} or @file{MSVCRT.LIB} and 
+@file{MSVCRT.DLL}), have a limit of 256 file handles or 40 file streams. 
+Attempting to open more than the maximum number of file handles or file 
+streams causes program failure.
 
 As far as I know, one of the big limitations of Winsock is that
 the SOCKET type is *not* equivalent to file descriptor. It is
 however with BSD and POSIX sockets. That is one of the major reasons for
 using a separate data type, SOCKET, not an int, a typical type for a
 file descriptor. This implies that you cannot mix SOCKETs and stdio,
-sorry. This is the case when you use -mno-cygwin.
+sorry. This is the case when you use @code{-mno-cygwin}.
 
 Actually they are regular file handles, just like any other. There is a 
 bug in all 9x/kernel32 libc/msv/crtdll interface implementations 
-GetFileType() returns TYPE_UNKNOWN for socket handles. Since this 
-is AFAIK the only unknown type there is, you know you have a socket handle.
-There is a fix in the more recent perl distributions that you can use as a 
-general solution. -loldnames -lperlcrt -lmsvcrt will get you TYPE_CHAR
-for socket handles.
+@code{GetFileType()} returns @code{TYPE_UNKNOWN} for socket handles. Since 
+this is AFAIK the only unknown type there is, you know you have a socket 
+handle. There is a fix in the more recent perl distributions that you can 
+use as a general solution. @code{-loldnames -lperlcrt -lmsvcrt} will get 
+you @code{TYPE_CHAR} for socket handles.
 @end table
 
 If you want to compile Serveez with the native 
