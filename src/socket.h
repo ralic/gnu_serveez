@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.18 2000/07/21 21:19:30 ela Exp $
+ * $Id: socket.h,v 1.19 2000/07/28 17:05:20 ela Exp $
  *
  */
 
@@ -89,7 +89,7 @@ struct socket
 
   char *recv_pipe;              /* File of the receive pipe. */
   char *send_pipe;              /* File of the send pipe. */
-  socket_t parent;              /* Parent pipe server for pipe clients. */
+  socket_t referer;             /* Pipe server <-> pipe client. */
 
   char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */

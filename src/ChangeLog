@@ -1,5 +1,8 @@
 2000-07-28  [ Ela ]  <ela@lkcc.org>
 
+	* socket.c (sock_disconnect): Added solid behaviour if
+	a pipe server disconnects with having lingering children.
+
 	* ctrl-server/control-proto.c (ctrl_stat_con): Co-Server
 	identified by SOCK_FLAG_PIPE if there is no server for
 	socket structure, else we simply state "None".

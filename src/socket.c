@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.16 2000/07/26 14:56:08 ela Exp $
+ * $Id: socket.c,v 1.17 2000/07/28 17:05:20 ela Exp $
  *
  */
 
@@ -676,9 +676,19 @@ sock_disconnect (socket_t sock)
 	  sock->pipe_desc[WRITE] = INVALID_HANDLE;
 	}
   
+      /* prevent a pipe servers child to reinit the pipe server */
+      if (sock->flags & SOCK_FLAG_LISTENING)
+	{
+	  if (sock->referer)
+	    sock->referer->referer = NULL;
+	}
       /* restart listening pipe server socket */
-      if (sock->parent)
-	sock->parent->flags &= ~SOCK_FLAG_INITED;
+      else if (sock->referer)
+	{
+	  sock->referer->flags &= ~SOCK_FLAG_INITED;
+	  sock->referer->referer = NULL;
+	}
+	  
     }
   /* shutdown the network socket */
   else if(sock->sock_desc != INVALID_SOCKET)

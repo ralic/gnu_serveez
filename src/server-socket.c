@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.19 2000/07/28 12:26:23 ela Exp $
+ * $Id: server-socket.c,v 1.20 2000/07/28 17:05:20 ela Exp $
  *
  */
 
@@ -378,9 +378,11 @@ server_accept_socket (socket_t server_sock)
 int
 server_accept_pipe (socket_t server_sock)
 {
-#ifndef __MINGW32__
+#if HAVE_MKFIFO
   struct stat buf;
 #endif
+
+#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
   HANDLE recv_pipe, send_pipe;
   socket_t sock;
 
@@ -391,6 +393,7 @@ server_accept_pipe (socket_t server_sock)
    */
   if (!server_sock->recv_pipe || !server_sock->send_pipe)
     return 0;
+#endif
 
 #if HAVE_MKFIFO
   /* 
@@ -439,23 +442,6 @@ server_accept_pipe (socket_t server_sock)
       close (recv_pipe);
       return 0;
     }
-
-  log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
-              server_sock->send_pipe, 
-	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
-
-  sock->read_socket = pipe_read;
-  sock->write_socket = pipe_write;
-  sock->flags |= SOCK_FLAG_PIPE;
-  sock->parent = server_sock;
-  sock->data = server_sock->data;
-  sock->check_request = server_sock->check_request;
-  sock->disconnected_socket = server_sock->disconnected_socket;
-  sock->idle_func = default_idle_func; 
-  sock->idle_counter = 1;
-  sock_enqueue (sock);
-
-  server_sock->flags |= SOCK_FLAG_INITED;
 
 #elif defined (__MINGW32__) /* not HAVE_MKFIFO */
 
@@ -539,10 +525,17 @@ server_accept_pipe (socket_t server_sock)
       return 0;
     }
 
+#else /* not __MINGW32__ */
+
+  return -1;
+
+#endif /* neither HAVE_MKFIFO nor __MINGW32__ */
+
+#if defined (HAVE_MKFIFO) || defined (__MINGW32__)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
   sock->flags |= SOCK_FLAG_PIPE;
-  sock->parent = server_sock;
+  sock->referer = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
   sock->disconnected_socket = server_sock->disconnected_socket;
@@ -550,17 +543,12 @@ server_accept_pipe (socket_t server_sock)
   sock->idle_counter = 1;
   sock_enqueue (sock);
 
-  server_sock->flags |= SOCK_FLAG_INITED;
-
   log_printf (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
               server_sock->send_pipe, 
 	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 
-#else /* not __MINGW32__ */
-
-  return -1;
-
-#endif /* neither HAVE_MKFIFO nor __MINGW32__ */
-
+  server_sock->flags |= SOCK_FLAG_INITED;
+  server_sock->referer = sock;
   return 0;
+#endif /* HAVE_MKFIFO or __MINGW32__ */
 }
