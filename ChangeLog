@@ -1,3 +1,8 @@
+2003-07-05  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in: Partly reverted previous patch.  Use target,
+	build and host where appropriate.
+
 2003-06-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in, acinclude.m4: Proper use of the AC_CANONICAL_* 

@@ -92,12 +92,12 @@ AC_CHECK_PROG(WINDRES, windres, windres, :)
 
 dnl ----------------------------------------------------------------------
 
-osversion="`grep \"$host_alias\" $srcdir/data/PLATFORMS 2>/dev/null`"
+osversion="`grep \"$host\" $srcdir/data/PLATFORMS 2>/dev/null`"
 if test "x$osversion" = "x"; then
   AC_MSG_RESULT([
   The Serveez package has never been compiled or run on this platform.  
   Please send an email to <dev-serveez@gnu.org> including your compiler 
-  version and whether it worked correctly or not.  '$host_alias' 
+  version and whether it worked correctly or not.  '$host' 
   will then be added to the PLATFORMS file included in this package.
 ])
 fi
@@ -105,7 +105,7 @@ unset osversion
 
 dnl ----------------------------------------------------------------------
 
-case $host_alias in
+case $host in
   mipsel-unknown-linux-gnu | mips-unknown-linux-gnu) NOUNDEFINED="" ;;
   *) NOUNDEFINED="-no-undefined" ;;
 esac
