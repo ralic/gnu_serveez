@@ -1,5 +1,8 @@
 2000-06-20  [ Ela ]  <ela@lkcc.org>
 
+	* http-server/http-proto.c (http_send_file): Added support
+	for sendfile() for sending large http file requests.
+
 	* server.c (set_port): Using inet_addr() instead of 
 	inet_aton in Win32, because it is not implemented there.
 

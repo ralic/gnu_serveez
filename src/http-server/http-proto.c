@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.7 2000/06/18 22:13:03 raimi Exp $
+ * $Id: http-proto.c,v 1.8 2000/06/20 14:50:10 ela Exp $
  *
  */
 
@@ -538,10 +538,18 @@ http_default_write (socket_t sock)
    * If the requested file is within the cache then start now the 
    * cache writer. Set SEND_BUFFER_FILL to something greater than zero.
    */
-  if ((sock->userflags & HTTP_FLAG_CACHE) && sock->send_buffer_fill == 0)
+  if (sock->send_buffer_fill == 0)
     {
-      sock->send_buffer_fill = 42;
-      sock->write_socket = http_cache_write;
+      if (sock->userflags & HTTP_FLAG_CACHE)
+	{
+	  sock->send_buffer_fill = 42;
+	  sock->write_socket = http_cache_write;
+	}
+      else if (sock->userflags & HTTP_FLAG_SENDFILE)
+	{
+	  sock->send_buffer_fill = 42;
+	  sock->write_socket = http_cache_write;
+	}
     }
 
   /*
@@ -549,6 +557,54 @@ http_default_write (socket_t sock)
    */
   return (num_written < 0) ? -1 : 0;
 }
+
+#if HAVE_SENDFILE
+/*
+ * This routine is using sendfile() to transport large file's content
+ * to a network socket. It is replacing HTTP_DEFAULT_WRITE on systems where
+ * this function is implemented. Furthermore you do not need to set
+ * the READ_SOCKET callback HTTP_FILE_READ.
+ */
+int
+http_send_file (socket_t sock)
+{
+  http_socket_t *http = sock->data;
+  int num_written;
+
+  num_written = sendfile (sock->sock_desc, sock->file_desc,
+			  &http->contentlength,
+			  SOCK_MAX_WRITE)
+  
+  /* Some error occured. */
+  if (num_written < 0)
+    {
+      log_printf (LOG_ERROR, "http: sendfile: %s\n", SYS_ERROR);
+      return -1;
+    }
+
+  /* Data has been read or EOF reached, set the apropiate flags. */
+  http->filelength -= num_written;
+
+  /* Read all file data ? */
+  if (http->filelength <= 0)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "http: file successfully sent\n");
+#endif
+      /* 
+       * no further read()s from the file descriptor, signalling 
+       * the writers there will notbe additional data from now on
+       */
+      sock->read_socket = default_read;
+      sock->recv_buffer_fill = 0;
+      sock->send_buffer_fill = 0;
+      sock->write_socket = http_default_write;
+      sock->userflags &= ~HTTP_FLAG_SENDFILE;
+    }
+
+  return 0;
+}
+#endif
 
 /*
  * The HTTP_FILE_READ reads as much data from a file as possible directly
@@ -1442,7 +1498,13 @@ http_get_response (socket_t sock, char *request, int flags)
 	}
       else
 	{
+#if HAVE_SENDFILE
+	  sock->read_socket = NULL;
+	  sock->flags &= ~SOCK_FLAG_FILE;
+	  sock->flags |= SOCK_FLAG_SENDFILE;
+#else /* not HAVE_SENDFILE */
 	  sock->read_socket = http_file_read;
+#endif /* not HAVE_SENDFILE */
 	}
     }
 

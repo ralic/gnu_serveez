@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.6 2000/06/19 22:56:14 ela Exp $
+ * $Id: http-proto.h,v 1.7 2000/06/20 14:50:11 ela Exp $
  *
  */
 
@@ -124,19 +124,21 @@ int http_get_response (socket_t sock, char *request, int flags);
 int http_head_response (socket_t sock, char *request, int flags);
 int http_default_response (socket_t sock, char *request, int flags);
 
-#define HTTP_FLAG_CACHE  0x0001 /* use cache if possible */
-#define HTTP_FLAG_NOFILE 0x0002 /* do not send content, but header */
-#define HTTP_FLAG_SIMPLE 0x0004 /* HTTP/0.9 simple GET */     
-#define HTTP_FLAG_DONE   0x0008 /* http request done */
-#define HTTP_FLAG_POST   0x0010 /* http cgi pipe posting data */
-#define HTTP_FLAG_CGI    0x0020 /* http cgi pipe getting data */
-#define HTTP_FLAG_KEEP   0x0080 /* keep alive connection */
+#define HTTP_FLAG_CACHE    0x0001 /* use cache if possible */
+#define HTTP_FLAG_NOFILE   0x0002 /* do not send content, but header */
+#define HTTP_FLAG_SIMPLE   0x0004 /* HTTP/0.9 simple GET */     
+#define HTTP_FLAG_DONE     0x0008 /* http request done */
+#define HTTP_FLAG_POST     0x0010 /* http cgi pipe posting data */
+#define HTTP_FLAG_CGI      0x0020 /* http cgi pipe getting data */
+#define HTTP_FLAG_KEEP     0x0040 /* keep alive connection */
+#define HTTP_FLAG_SENDFILE 0x0080 /* use sendfile for HTTP requests */
 
 /* all of the additional http flags */
-#define HTTP_FLAG (HTTP_FLAG_DONE  | \
-                   HTTP_FLAG_POST  | \
-                   HTTP_FLAG_CGI   | \
-                   HTTP_FLAG_CACHE | \
-                   HTTP_FLAG_KEEP)
+#define HTTP_FLAG (HTTP_FLAG_DONE      | \
+                   HTTP_FLAG_POST      | \
+                   HTTP_FLAG_CGI       | \
+                   HTTP_FLAG_CACHE     | \
+                   HTTP_FLAG_KEEP      | \
+                   HTTP_FLAG_SENDFILE)
 
 #endif /* __HTTP_PROTO_H__ */

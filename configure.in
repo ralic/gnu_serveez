@@ -706,7 +706,7 @@ dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
 
-AC_CHECK_FUNCS(mkfifo)
+AC_CHECK_FUNCS(mkfifo sendfile)
 AC_MSG_CHECKING([for host system])
 host_sys="`uname -s`"
 if test x$host_sys = x; then
