@@ -28,7 +28,8 @@ files.
 Version 0.1.2
 -------------
 
- * program passthrough server can be enable via --enable-passthrough
+ * inetd replacement Guile script
+ * program passthrough server can be enabled via --enable-passthrough
  * Mandelbrot server and client as an example Guile server added
  * bzip2 codec implementation
  * included codecs in the Win32 binary release

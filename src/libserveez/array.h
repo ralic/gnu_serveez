@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.h,v 1.13 2001/11/23 13:18:38 ela Exp $
+ * $Id: array.h,v 1.14 2001/11/27 23:07:52 ela Exp $
  *
  */
 
@@ -31,10 +31,10 @@
 
 typedef struct svz_array
 {
-  unsigned long size;
-  unsigned long capacity;
-  svz_free_func_t clear;
-  void **data;
+  unsigned long size;      /* Real size of the array. */
+  unsigned long capacity;  /* Current capacity. */
+  svz_free_func_t destroy; /* The destroy callback. */
+  void **data;             /* Data pointer. */
 }
 svz_array_t;
 

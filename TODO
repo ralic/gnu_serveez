@@ -37,7 +37,7 @@ unfixed) have a look at the file BUGS.
 	- Allow implementing servers in Guile.
 	- Convince the Guile people to accept patches for Windows 
 	  compatibility.
-- Write a replacement for the inetd.
+	- Write a replacement for the inetd.
 	- Make protocol detection limits / timeouts configurable.
 	- Create a logo for Serveez.
 	- Write an identd.

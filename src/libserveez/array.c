@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: array.c,v 1.13 2001/11/23 13:18:38 ela Exp $
+ * $Id: array.c,v 1.14 2001/11/27 23:07:52 ela Exp $
  *
  */
 
@@ -40,15 +40,16 @@
 /*
  * Create a new array with the initial capacity @var{capacity} and return
  * a pointer to it. If @var{capacity} is zero it defaults to some value. The
- * @var{clear} argument allows you to release dynamic allocated memory when
+ * @var{destroy} argument allows you to release dynamic allocated memory when
  * calling @code{svz_array_clear()} and @code{svz_array_destroy()}. If the
  * array contains data allocated by @code{svz_malloc()} you need to set
- * @var{clear} to @code{svz_free()}. For structured data you can pass a user
- * defined routine which recurses into the structure. If the array contains
- * data which should not be released you must set @var{clear} to @code{NULL}.
+ * @var{destroy} to @code{svz_free()}. For structured data you can pass a 
+ * user defined routine which recurses into the structure. If the array 
+ * contains data which should not be released you must set @var{destroy} 
+ * to @code{NULL}.
  */
 svz_array_t *
-svz_array_create (unsigned long capacity, svz_free_func_t clear)
+svz_array_create (unsigned long capacity, svz_free_func_t destroy)
 {
   svz_array_t *array;
 
@@ -58,14 +59,14 @@ svz_array_create (unsigned long capacity, svz_free_func_t clear)
   memset (array, 0, sizeof (svz_array_t));
   array->data = svz_malloc (sizeof (void *) * capacity);
   array->capacity = capacity;
-  array->clear = clear;
+  array->destroy = destroy;
   return array;
 }
 
 /*
  * Delete all values within the array @var{array} and set its size to zero.
  * The array @var{array} itself keeps valid. Do not perform any operation
- * if @var{array} is @code{NULL}. If you passed a @var{clear} function to
+ * if @var{array} is @code{NULL}. If you passed a @var{destroy} function to
  * @code{svz_array_create()} the routine calls this function passing each
  * element of @var{array} to it.
  */
@@ -75,11 +76,11 @@ svz_array_clear (svz_array_t *array)
   if (array == NULL || array->data == NULL)
     return;
 
-  if (array->clear != NULL)
+  if (array->destroy != NULL)
     {
       unsigned long n;
       for (n = 0; n < array->size; n++)
-	array->clear (array->data[n]);
+	array->destroy (array->data[n]);
     }
   svz_free (array->data);
   array->data = NULL;
@@ -89,7 +90,8 @@ svz_array_clear (svz_array_t *array)
 
 /*
  * Completely destroy the array @var{array}. The @var{array} handle is
- * invalid afterwards.
+ * invalid afterwards. The routine runs the @var{destroy} callback for each
+ * element of the array.
  */
 void
 svz_array_destroy (svz_array_t *array)
@@ -271,7 +273,7 @@ svz_array_dup (svz_array_t *array)
 
   if (array == NULL)
     return NULL;
-  dup = svz_array_create (array->size, array->clear);
+  dup = svz_array_create (array->size, array->destroy);
   dup->size = array->size;
   if (array->size)
     memcpy (dup->data, array->data, array->size * sizeof (void *));
