@@ -1,5 +1,5 @@
 /*
- * process.c - pass through connections to processes
+ * passthrough.c - pass through connections to processes
  *
  * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: process.c,v 1.5 2001/07/05 21:35:26 ela Exp $
+ * $Id: passthrough.c,v 1.1 2001/07/06 22:49:06 ela Exp $
  *
  */
 
@@ -49,7 +49,7 @@
 #include "libserveez/core.h"
 #include "libserveez/server-core.h"
 #include "libserveez/pipe-socket.h"
-#include "libserveez/process.h"
+#include "libserveez/passthrough.h"
 
 /*
  * This routine start a new program specified by @var{bin} passing the

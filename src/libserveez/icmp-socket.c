@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: icmp-socket.c,v 1.14 2001/07/01 15:56:48 ela Exp $
+ * $Id: icmp-socket.c,v 1.15 2001/07/06 22:49:06 ela Exp $
  *
  */
 
@@ -749,7 +749,7 @@ svz_icmp_connect (unsigned long host, unsigned short port,
   svz_socket_t *sock;
 
   /* Create a client socket. */
-  if ((sockfd = svz_socket_create (PROTO_ICMP)) == -1)
+  if ((sockfd = svz_socket_create (PROTO_ICMP)) == (SOCKET) -1)
       return NULL;
 
   /* Try to connect to the server. Does it make sense for ICMP ? */

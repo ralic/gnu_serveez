@@ -1,5 +1,5 @@
 /*
- * process.h - pass through declarations
+ * passthrough.h - pass through declarations
  *
  * Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
  *
@@ -18,12 +18,12 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: process.h,v 1.2 2001/06/29 14:23:10 ela Exp $
+ * $Id: passthrough.h,v 1.1 2001/07/06 22:49:06 ela Exp $
  *
  */
 
-#ifndef __PROCESS_H__
-#define __PROCESS_H__ 1
+#ifndef __PASSTHROUGH_H__
+#define __PASSTHROUGH_H__ 1
 
 #define _GNU_SOURCE
 
@@ -38,4 +38,4 @@ SERVEEZ_API int svz_process_check_access __P ((char *));
 
 __END_DECLS
 
-#endif /* __PROCESS_H__ */
+#endif /* __PASSTHROUGH_H__ */

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.16 2001/06/21 11:25:47 ela Exp $
+ * $Id: server-socket.c,v 1.17 2001/07/06 22:49:06 ela Exp $
  *
  */
 
@@ -94,7 +94,7 @@ svz_server_create (svz_portcfg_t *port)
   else
     {
       /* First, create a server socket for listening. */
-      if ((server_socket = svz_socket_create (port->proto)) == -1)
+      if ((server_socket = svz_socket_create (port->proto)) == (SOCKET) -1)
 	return NULL;
 
       /* Set this ip option if we are using raw sockets. */

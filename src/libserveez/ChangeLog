@@ -1,3 +1,8 @@
+2001-07-07  [ Ela ]  <ela@lkcc.org>
+
+	* passthrough.c: Renamed process.* into passthrough.* because
+	collisions with Windoze's headers.
+
 2001-07-05  [ Ela ]  <ela@lkcc.org>
 
 	* dynload.c (svz_dynload_path_get): Added documentation about

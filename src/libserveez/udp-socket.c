@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: udp-socket.c,v 1.11 2001/07/02 11:46:34 ela Exp $
+ * $Id: udp-socket.c,v 1.12 2001/07/06 22:49:07 ela Exp $
  *
  */
 
@@ -357,7 +357,7 @@ svz_udp_connect (unsigned long host, unsigned short port)
   svz_socket_t *sock;
 
   /* Create a client socket. */
-  if ((sockfd = svz_socket_create (PROTO_UDP)) == -1)
+  if ((sockfd = svz_socket_create (PROTO_UDP)) == (SOCKET) -1)
       return NULL;
 
   /* Try to connect to the server. Does it make sense for ICMP ? */
