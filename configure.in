@@ -1255,6 +1255,9 @@ CPPFLAGS=$CPPEXTRAFLAGS
 TIMESTAMP=`date`
 AC_SUBST(TIMESTAMP)
 
+REDHAT_TOPDIR=/opt
+AC_SUBST(REDHAT_TOPDIR)
+
 dnl
 dnl Output files.
 dnl
@@ -1274,6 +1277,7 @@ AC_OUTPUT(
     doc/Makefile 
     data/Makefile
     test/Makefile
+    redhat.sh
     version.h)
 
 dnl

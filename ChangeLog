@@ -1,3 +1,10 @@
+2001-07-25  [ Ela ]  <ela@lkcc.org>
+
+	* redhat.sh.in: New file. Creates a source and binary RPM 
+	package. Make sure you can access REDHAT_TOPDIR defined in
+	`configure.in'. Type `make redhat' in the top level directory
+	in order to actually pack serveez.
+
 2001-07-16  [ Ela ]  <ela@lkcc.org>
 
 	* acinclude.m4: Checking for proper Guile version and state
