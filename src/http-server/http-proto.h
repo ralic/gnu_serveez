@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.14 2000/11/02 12:51:57 ela Exp $
+ * $Id: http-proto.h,v 1.15 2000/12/31 00:03:10 ela Exp $
  *
  */
 
@@ -60,6 +60,7 @@ typedef struct
   char *host;         /* host name of which is sent back to clients */
   char *userdir;      /* appended onto a user's home (~user request) */
   int nslookup;       /* enable reverse DNS lookups */
+  int ident;          /* enable identd requests */
   char *logfile;      /* log file name */
   char *logformat;    /* custom log file format string */
   FILE *log;          /* log file stream */

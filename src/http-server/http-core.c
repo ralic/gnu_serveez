@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.c,v 1.21 2000/12/03 14:37:32 ela Exp $
+ * $Id: http-core.c,v 1.22 2000/12/31 00:03:10 ela Exp $
  *
  */
 
@@ -219,6 +219,27 @@ http_userdir (socket_t sock, char *uri)
 }
 
 /*
+ * When the http server has been configured to invoke identd request
+ * this function is called for each client connection after successfull
+ * identification.
+ */
+int
+http_identification (char *ident, int id, int version)
+{
+  http_socket_t *http;
+  socket_t sock = sock_find (id, version);
+
+  if (ident && sock)
+    {
+      http = sock->data;
+      if (!http->ident)
+	http->ident = xstrdup (ident);
+    } 
+
+  return 0;
+}
+
+/*
  * Each http client gets resolved by this callback.
  */
 int
@@ -230,7 +251,8 @@ http_remotehost (char *host, int id, int version)
   if (host && sock)
     {
       http = sock->data;
-      if (!http->host) http->host = xstrdup (host);
+      if (!http->host)
+	http->host = xstrdup (host);
     } 
 
   return 0;
@@ -282,6 +304,16 @@ http_log (socket_t sock)
 	      p++;
 	      switch (*p)
 		{
+		  /* %i - identity information */
+		case 'i':
+		  strcat (line, http->ident ? http->ident : "-");
+		  p++;
+		  break;
+		  /* %u - user authentication */
+		case 'u':
+		  strcat (line, http->auth ? http->auth : "-");
+		  p++;
+		  break;
 		  /* %l - delivered content length */
 		case 'l':
 		  strcat (line, util_itoa (http->length));
@@ -300,14 +332,14 @@ http_log (socket_t sock)
 		  break;
 		  /* %t - request time stamp */
 		case 't':
-		  strcat (line, http_asc_date (http->timestamp));
+		  strcat (line, http_clf_date (http->timestamp));
 		  p++;
 		  break;
 		  /* end of string */
 		case '\0':
 		  break;
-		  /* %u - original http request uri */
-		case 'u':
+		  /* %R - original http request uri */
+		case 'R':
 		  strcat (line, http->request ? http->request : "-");
 		  p++;
 		  break;
@@ -322,7 +354,8 @@ http_log (socket_t sock)
 		  p++;
 		  break;
 		default:
-		  line[strlen (line)] = '%';
+		  p++;
+		  break;
 		}
 	      start = p;
 	    }
@@ -587,6 +620,29 @@ http_check_keepalive (socket_t sock)
       sock->userflags &= ~HTTP_FLAG_KEEP;
       http_add_header ("Connection: close\r\n");
     }
+}
+
+/*
+ * Create a date format used within the Common Log Format. That is as
+ * follows: [DD/MMM/YYYY:HH:MM:SS +ZZZZ]
+ */
+char *
+http_clf_date (time_t t)
+{
+  static char date[64];
+  static char months[12][4] = {
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+  struct tm *tm;
+
+  tm = localtime (&t);
+  sprintf (date, "%02d/%s/%04d:%02d:%02d:%02d %c%02ld%02ld",
+	   tm->tm_mday, months[tm->tm_mon], tm->tm_year + 1900,
+	   tm->tm_hour, tm->tm_min, tm->tm_sec,
+	   timezone > 0 ? '+' : '-',
+	   timezone > 0 ? timezone / 3600 : -timezone / 3600,
+	   timezone > 0 ? (timezone / 60) % 60 : -(timezone / 60) % 60);
+  return date;
 }
 
 /*

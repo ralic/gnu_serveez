@@ -682,32 +682,60 @@ If this number is non-zero the HTTP server invokes a reverse DNS lookup
 for each client connection in order to replace the remote ip address with
 the remote host name in the access logfile.
 
+@item ident (integer, default: 0)
+If this number is non-zero the HTTP server processes identd requests
+for each client connection for logging purposes.
+
 @item logfile (string, default: http-access.log)
 The location of the access logfile. For each HTTP request a line gets
 appended to this file.
 
-@item logformat (string, default: %h - [%t] "%u" %c %l "%r" "%a")
+@item logformat (string, default: CLF)
 The format of the access logfile. There are special placeholders for
-different kinds of logging information.
+different kinds of logging information. The default log format is the
+Common Log Format (CLF). It contains a separate line for each request. A 
+line is composed of several tokens separated by spaces.
+@example
+CLF = host ident authuser date request status bytes 
+@end example
+If a token does not have a value then it is represented by a hyphen (-). 
+The meanings and values of these tokens are as follows: 
 
 @table @code
-@item %h
-the remote host name the request came from
-@item %t
-when was the entity accessed
-@item %u
-what kind of entity was requested
-@item %r
-which document referred to this document
-@item %a
-what kind of web browser did the remote client use
-@item %c
-the http response return code for this request
-@item %l
-delivered content length in bytes
+@item %h (host)
+The fully-qualified domain name of the client, or its IP number if the name 
+is not available.
+@item %i (ident)
+This is the identity information reported by the client. Not active, so 
+we will see a hyphen (-).
+@item %u (authuser)
+If the request was for an password protected document, then this is the 
+userid used in the request. 
+@item %t (date)
+The date and time of the request, in the following format:
+@example
+date   = [day/month/year:hour:minute:second zone] 
+day    = 2*digit 
+month  = 3*letter 
+year   = 4*digit 
+hour   = 2*digit 
+minute = 2*digit 
+second = 2*digit 
+zone   = (`+' | `-') 4*digit 
+@end example
+@item %R (request)
+The request line from the client, enclosed in double quotes (").
+@item %r (referrer)
+Which document referred to this document.
+@item %a (agent)
+What kind of web browser did the remote client use.
+@item %c (status)
+The three digit status code returned to the client. 
+@item %l (bytes)
+The number of bytes in the object returned to the client, not including 
+any headers. 
 @end table
 @end table
-(FIXME: as soon as implemented: describe CLF)
 
 @node IRC Server, Control Protocol Server, HTTP Server, Existing Servers
 @subsection IRC Server

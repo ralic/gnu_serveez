@@ -25,7 +25,8 @@ unfixed) have a look at the file BUGS.
 
 - Create a logo for Serveez.
 - Write an identd.
-- Define a CLF-compatible default http logfile format and make it being used.
+	- Define a CLF-compatible default http logfile format and make 
+          it being used.
 - Rename the 'local-ip' part of port configurations to some sane name.
 - Implement a DNS server for home networks.
 - Make serveez embeddable (create libserveez.[so | dll]).

@@ -1,3 +1,15 @@
+2000-12-31  [ Ela ]  <ela@lkcc.org>
+
+	* http-server/http-proto.c (http_config_prototype): `ident'
+	is a new configuration item which enables the identfication
+	lookup for each http request.
+	(http_connect_socket): Here we invoke the identd request.
+	(http_config): The default log format is CLF now.
+
+	* http-server/http-core.c (http_identification): Added this
+	routine for identd result handling.
+	(http_clf_date): This routine produces a CLF date.
+
 2000-12-30  [ Ela ]  <ela@lkcc.org>
 
 	* irc-server/irc-proto.c (irc_init): Reviewed A-line and M-line

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.48 2000/12/10 12:26:38 ela Exp $
+ * $Id: http-proto.c,v 1.49 2000/12/31 00:03:10 ela Exp $
  *
  */
 
@@ -121,8 +121,9 @@ http_config_t http_config =
   NULL,               /* host name of which is sent back to clients */
   "public_html",      /* appended onto a user's home (~user request) */
   0,                  /* enable reverse DNS lookups */
+  0,                  /* enable identd requests */
   "http-access.log",  /* log file name */
-  NULL,               /* custom log file format string */
+  "%h %i %u [%t] \"%R\" %c %l", /* custom log file format string */
   NULL                /* log file stream */
 };
 
@@ -151,6 +152,7 @@ key_value_pair_t http_config_prototype [] =
   REGISTER_STR ("logformat", http_config.logformat, DEFAULTABLE),
   REGISTER_STR ("userdir", http_config.userdir, DEFAULTABLE),
   REGISTER_INT ("nslookup", http_config.nslookup, DEFAULTABLE),
+  REGISTER_INT ("ident", http_config.ident, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -386,7 +388,10 @@ http_disconnect (socket_t sock)
 
   if (http)
     {
-      if (http->host) xfree (http->host);
+      if (http->host)
+	xfree (http->host);
+      if (http->ident)
+	xfree (http->ident);
       xfree (http);
       sock->data = NULL;
     }
@@ -767,6 +772,11 @@ http_connect_socket (void *http_cfg, socket_t sock)
     {
       coserver_reverse (sock->remote_addr, http_remotehost, 
 			sock->id, sock->version);
+    }
+  /* start user identification if necessary */
+  if (cfg->ident)
+    {
+      coserver_ident (sock, http_identification, sock->id, sock->version);
     }
 
   /* 

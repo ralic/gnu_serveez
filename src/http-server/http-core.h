@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-core.h,v 1.8 2000/12/03 14:37:32 ela Exp $
+ * $Id: http-core.h,v 1.9 2000/12/31 00:03:10 ela Exp $
  *
  */
 
@@ -91,6 +91,8 @@ struct http_socket
   char *host;            /* resolved host name of client */
   int response;          /* the server's response code */
   int length;            /* content length sent so far */
+  char *ident;           /* identity information */
+  char *auth;            /* user authentication */
   http_range_t range;    /* partial content range */
 };
 
@@ -141,11 +143,13 @@ int http_get_range (char *line, http_range_t *range);
 char *http_userdir (socket_t sock, char *uri);
 int http_remotehost (char *host, int id, int version);
 int http_localhost (char *host, http_config_t *cfg);
+int http_identification (char *ident, int id, int version);
 void http_process_uri (char *uri);
 int http_error_response (socket_t sock, int response);
 void http_log (socket_t sock);
 time_t http_parse_date (char *date);
 char *http_asc_date (time_t t);
+char *http_clf_date (time_t t);
 
 void http_set_header (char *response);
 int http_send_header (socket_t sock);
