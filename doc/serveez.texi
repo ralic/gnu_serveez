@@ -738,93 +738,96 @@ servers (@xref{Existing servers}.).
 @section Overall concept
 The primary functionality Serveez provides is a framework for Internet
 services.  It can act as a kind of server collection and may even
-replace super-servers like the inetd daemon.  Key features and its
-benefits are:
+replace super-servers such as the inetd daemon.
+
+Its key features and benefits are:
 
 @itemize @bullet
 @item support for packet and connection oriented protocols@*
 Serveez currently supports two server types.  TCP and named pipe servers
-are connection oriented servers.  This kind of servers accepts a client
-connection and communicates using a dedicated connection.  The format of
-the incoming and outgoing data stream can be any kind of protocol.
-Packet oriented servers (like UDP and ICMP) do receive data packets and
-respond to the sender with data packets.  A server in Serveez can detect
-whether it is bound to a packet or connection oriented port
-configuration and thus can act as both types.
+are connection oriented servers.  This type of server accepts a client's
+connection request and communicates with it using a dedicated
+connection.  The format of the incoming and outgoing data streams are
+irrelevant to Serveez.  Packet oriented servers (like UDP and ICMP)
+receive data packets and respond to the sender with data packets.  A
+server in Serveez can detect whether it is bound to a packet or
+connection oriented port configuration and thus can act as the expected
+type.
 
 @item server and client functionality@*
-Beside a large variety of server capabilities Serveez also contains some
-client functionality.  This may be necessary when a server is meant to
-establish a connection to another server as response to an incoming
-request.  Just imagine a protocol where a client tells the server "Let
-me be the server.  Please connect to this @var{host} at this
-@var{port}.".  You are also able to implement plain clients.
+Besides a wide variety of server capabilities, Serveez also contains
+some client functionality.  This may be necessary when a server is meant
+to establish a connection to another server in response to an incoming
+request.  For example, imagine a protocol where a client tells the
+server "Let me be the server.  Please connect to this @var{host} at this
+@var{port}.".  You are also able to implement pure clients.
 
 @item platform portability@*
-When writing this software the authors always kept an eye on platform
-portability.  Thus it compiles and runs on various Unix platforms as
-well as on Windows systems. @xref{Porting issues}, for details.  Most of
-the routines in the core library can be used without caring about the
-platform you are programming on or the gory details of its underlying
+When writing this software the authors were always mindful of platform
+portability.  Serveez compiles and runs on various Unix platforms as
+well as on Windows systems.  @xref{Porting issues}, for details.  Most
+of the routines in the core library can be used without regard to the
+platform on which you are programming or the details of its underlying
 system calls.  Exceptions are noted in the documentation.  Platform
-portability also means that the code (server) you possibly want to
-implement will run on other systems too.
+portability also means that the server code you write will run on other
+systems, too.
 
 @item powerful configuration capabilities@*
 Server configuration has always been a complicated but very important
 issue.  When Serveez starts up it runs the configuration file using the
-programming language Guile.  Other applications just read it and
-remember the settings in it.  Thus Serveez's configuration files can
-also generate part of its settings dynamically.  Using the Guile
-interpreter also means that you can split your configuration into parts
-(in separate files) and load these in the main configuration file.
+programming language Guile.  In contradiction, other (server)
+applications just read their configuration files and remember the
+settings in it.  This makes them powerful enough to adapt the Serveez
+settings dynamically.  Using the Guile interpreter also means that you
+can split your configuration into separate files and load these, perhaps
+conditionally, from the main configuration file.
 
 @item easy server implementation@*
 Serveez is a server framework.  When implementing a new server the
-programmer does not (or at least very little) need to care about the
-networking code but about the protocol (e.g. FTP or HTTP are such
-protocols) the server is meant to support.  The @ref{Writing servers}
-section describes this process in detail.
+programmer need pay little or no attention to the networking code but is
+free direct his attention to the protocol the server is meant to
+support.  That protocol may be an established one such as HTTP, or may
+be a custom protocol fitting the specific application's requirements.
+The @ref{Writing servers} section describes this process in detail.
 
 @item code reusability@*
-The Serveez package comes along with a core API library (depending on
-system this is a static library, shared library or a DLL) which contains
-most of the functionality necessary to write an Internet server.  Most
-probably a programmer can also use the library for other (network
-programming related) purposes.
+The Serveez package comes along with a core library (depending on the
+system this is a static library, shared library or a DLL) and its API
+which contains most of the functionality necessary to write an Internet
+server.  Most probably, a programmer can also use the library for other
+(network programming related) purposes.
 
 @item server instantiation and network port sharing@*
 Once you have written a protocol server and integrated into Serveez's
 concept of servers the user can instantiate (multiply) the server.  At
 the first glimpse this sounds silly, but with different server
-configurations it does not.  If an administrator wants to run two or
-more HTTP servers with different document roots that is possibly without
-starting yet another process.  Serveez can handle them all in a single
-process.  Also if the same administrator wants to run a HTTP server and
-some other server on the same network port this is possible with
-Serveez.  You can run a single server on different network ports too.
+configurations it does not.  If, for example, an administrator wishes to
+run multiple HTTP servers with different document roots, Serveez will
+handle them all in a single process.  Also if the same administrator
+wants to run a HTTP server and some other server on the same network
+port this is possible with Serveez.  You can run a single server on
+different network ports, too.
 @end itemize
 
 @section I/O Strategy
-Serveez's I/O strategy is the traditional @code{select()} method. It 
-is serving many clients in a single server thread. This is done by setting
-all network handles to non-blocking mode. We then use @code{select()} to tell 
-which network handles have data waiting. This is the traditional Unix style
-multiplexing.
+Serveez's I/O strategy is the traditional @code{select()} method.  It is
+serving many clients in a single server thread.  This is done by setting
+all network handles to non-blocking mode.  We then use @code{select()}
+to tell which network handles have data waiting.  This is the
+traditional Unix style multiplexing.
 
-An important bottleneck in this method is that @code{read()} or 
-@code{sendfile()} from disk blocks if the page is not in core at the 
-moment. Setting non-blocking mode on a disk file handle has no effect. 
-Same thing goes for memory-mapped disk files. The first time a server
-needs disk I/O, its process blocks, all clients have to wait, and raw
-non-threaded performance may go to waste. 
+An important bottleneck in this method is that a @code{read()} or
+@code{sendfile()} from disk blocks if the data is not in core at the
+moment.  Setting non-blocking mode on a disk file handle has no effect.
+The same thing applies to memory-mapped disk files.  The first time a
+server needs disk I/O, its process blocks, all clients have to wait, and
+raw non-threaded performance may go to waste.
 
-Unfortunately, @code{select()} is limited to the number of 
-@code{FD_SETSIZE} handles. This limit is compiled into the standard 
-library and user programs (and sometimes the kernel). Nevertheless 
-Serveez is able to serve about one thousand and more 
-clients on GNU/Linux, a hundred on Win95 and some more on later Windows 
-systems.
+Unfortunately, @code{select()} is limited to the number of
+@code{FD_SETSIZE} handles.  This limit is compiled into the standard
+library, user programs and sometimes the kernel.  Nevertheless, Serveez
+is able to serve about one thousand and more clients on GNU/Linux, a
+hundred on Win95 and more on later Windows systems.
 
 We chose this method anyway because it seems to be the most portable. 
 
@@ -846,7 +849,7 @@ See the Solaris FAQ, question 3.45.
 Use sysctl -w kern.maxfiles=nnnn to raise limit.
 
 @item GNU/Linux
-See Bodo Bauer's /proc documentation. On current 2.2.x kernels, 
+See Bodo Bauer's /proc documentation.  On current 2.2.x kernels, 
 @example
 echo 32768 > /proc/sys/fs/file-max
 @end example
@@ -854,15 +857,15 @@ increases the system limit on open files, and
 @example
 ulimit -n 32768
 @end example
-increases the current process' limit. We verified that a process on 
-Linux kernel 2.2.5 (plus patches) can open at least 31000 file 
-descriptors this way. Another fellow has verified that a process on 
-2.2.12 can open at least 90000 file descriptors this way (with 
-appropriate limits). The upper bound seems to be available memory. 
+increases the current process' limit.  We verified that a process on
+Linux kernel 2.2.5 (plus patches) can open at least 31000 file
+descriptors this way.  It has also been verified that a process on
+2.2.12 can open at least 90000 file descriptors this way (with
+appropriate limits).  The upper bound seems to be available memory.
 
 @item Windows 9x/ME
 On Win9x machines, there is quite a low limit imposed by the kernel: 
-100 connections system wide (!). You can increase this limit by editing 
+100 connections system wide (!).  You can increase this limit by editing 
 the registry key 
 HKLM\System\CurrentControlSet\Services\VxD\MSTCP\MaxConnections. 
 On Windows 95, the key is a DWORD; on Windows 98, it's a string. 
@@ -870,35 +873,36 @@ We have seen some reports of instability when this value is increased
 to more than a few times its default value.
 
 @item Windows NT/2000
-More than 2000 connections tested. Seems like the limit is due to
+More than 2000 connections tested.  It seems like the limit is due to
 available physical memory.
 @end table
 
 @section Alternatives to Serveez's I/O strategy
 One of the problems with the traditional @code{select()} method with
-non-blocking file descriptors occurs when passing loads of descriptors
-to the @code{select()} system call.  The server loop then goes through
-all the descriptors, decides which has pending data, reads and handles
-this data.  For a very lot of connections (e.g. 90000) this results in
-temporary CPU load peaks even if there is no network traffic.
+non-blocking file descriptors occurs when passing a large number of
+descriptors to the @code{select()} system call.  The server loop then
+goes through all the descriptors, decides which has pending data, then
+reads and handles this data.  For a large number of connections (say,
+90000) this results in temporary CPU load peaks even if there is no
+network traffic.
 
 Along with this behaviour comes the problem of "starving" connections.
 Connections which reside at the beginning of the @code{select()} set are
-processed immediately and those at the end are processed significantly
-later and may possibly even die because of buffer overruns.  That is the
-reason why Serveez features priority connection, serves listening
-sockets first and rolls the order of the remaining connections.  Thereby
-each non-priority connection is handled equally.
+processed immediately while those at the end are processed significantly
+later and may possibly die because of buffer overruns.  This is the
+reason why Serveez features priority connection: it serves listening
+sockets first and rolls the order of the remaining connections.  In this
+way, non-priority connections are handled in a "round robin" fashion.
 
 Other server implementations solve these problems differently.  Some
-start a new process for each connection (full-threaded server) or split
+start a new process for each connection (fully-threaded server) or split
 the @code{select()} set into pieces and let different processes handle
 them (threaded server).  This method shifts the priority scheduling to
-the underlying operating system.  Another method is the usage of
-asynchronous I/O based upon signals whereas the server process receives
-signals when pending data is detected at a connection.  The signal
-handler queues these events in order of appearance and the main server
-loop continuously processes this queue.
+the underlying operating system.  Another method is the use of
+asynchronous I/O based upon signals where the server process receives a
+signal when data arrives for a connection.  The signal handler queues
+these events in order of arrival and the main server loop continuously
+processes this queue.
 
 @node Server, Coserver, Concept, Top
 @chapter Server

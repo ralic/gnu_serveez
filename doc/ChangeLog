@@ -1,3 +1,8 @@
+2002-10-10  Stefan Jahn  <stefan@lkcc.org>
+
+	* serveez.texi (Concept): Applied John's changes after 
+	proof-reading.  Thanks!
+
 2002-10-01  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez-doc-snarf.awk: Replaced `> "/dev/stderr"' by
