@@ -1,3 +1,14 @@
+2001-08-12  [ Ela ]  <ela@lkcc.org>
+
+	* awcs-server/awcs-proto.c: Slightly modified the client id
+	parsing everywhere in this file. The client id's are no more
+	limited to four byte numbers with leading '0'. Client id's
+	are by now simple numbers without specific size and without
+	leading characters.
+
+	* ctrl-server/control-proto.c (ctrl_idle): Print process state
+	also if cpu state should not be available.
+
 2001-08-03  [ Ela ]  <ela@lkcc.org>
 
 	* http-server/http-cgi.c (http_cgi_exec): Removed limit of

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.25 2001/07/29 09:16:40 ela Exp $
+ * $Id: server-core.c,v 1.26 2001/08/12 10:59:04 ela Exp $
  *
  */
 
@@ -130,12 +130,13 @@ svz_socket_t *svz_sock_root = NULL;
 svz_socket_t *svz_sock_last = NULL;
 
 /*
- * @var{svz_sock_lookup_table} is used to speed up references to socket
- * structures by socket's id.
+ * The @var{svz_sock_lookup_table} array is used to speed up references to 
+ * socket structures by socket's id.
  */
-static svz_socket_t *svz_sock_lookup_table[SOCK_MAX_ID];
+static svz_socket_t **svz_sock_lookup_table = NULL;
 static int svz_sock_id = 0;
 static int svz_sock_version = 0;
+static int svz_sock_limit = 1024; /* Must be binary size ! */
 
 /* Pointer to argv[0]. */
 static char *svz_executable_file = NULL;
@@ -787,7 +788,7 @@ svz_sock_find (int id, int version)
 {
   svz_socket_t *sock;
 
-  if (id & ~(SOCK_MAX_ID - 1))
+  if (id & ~(svz_sock_limit - 1))
     {
       svz_log (LOG_FATAL, "socket id %d is invalid\n", id);
       return NULL;
@@ -805,6 +806,27 @@ svz_sock_find (int id, int version)
 }
 
 /*
+ * Create the socket lookup table initially. Must be called from 
+ * @code{svz_boot()}.
+ */
+void
+svz_sock_table_create (void)
+{
+  svz_sock_lookup_table = svz_calloc (svz_sock_limit * 
+				      sizeof (svz_socket_t *));
+}
+
+/*
+ * Destroy the socket lookup table finally. Must be called from 
+ * @code{svz_halt()}.
+ */
+void
+svz_sock_table_destroy (void)
+{
+  svz_free_and_zero (svz_sock_lookup_table);
+}
+
+/*
  * Calculate unique socket structure id and assign a version for a 
  * given @var{sock}. The version is for validating socket structures. It is 
  * currently used in the coserver callbacks.
@@ -814,18 +836,27 @@ svz_sock_unique_id (svz_socket_t *sock)
 {
   int i;
 
-  for (i = 0; i < SOCK_MAX_ID; i++) 
+  for (i = 0; i < svz_sock_limit; i++) 
     {
       svz_sock_id++;
-      svz_sock_id &= (SOCK_MAX_ID - 1);
+      svz_sock_id &= (svz_sock_limit - 1);
 
       if (NULL == svz_sock_lookup_table[svz_sock_id])
 	break;
     }
 
-  /* ensure global limit for now */
-  if (i == SOCK_MAX_ID)
-    abort ();
+  /* ensure global limit, resize the lookup table if necessary */
+  if (i == svz_sock_limit)
+    {
+      svz_sock_lookup_table = svz_realloc (svz_sock_lookup_table,
+					   svz_sock_limit * 2 * 
+					   sizeof (svz_socket_t *));
+      memset (&svz_sock_lookup_table[svz_sock_limit], 0,
+	      svz_sock_limit * sizeof (svz_socket_t *));
+      svz_sock_id = svz_sock_limit;
+      svz_sock_limit *= 2;
+      svz_log (LOG_NOTICE, "lookup table enlarged to %d\n", svz_sock_limit);
+    }
 
   sock->id = svz_sock_id;
   sock->version = svz_sock_version++;

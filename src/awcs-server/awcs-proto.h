@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.h,v 1.13 2001/06/27 20:38:36 ela Exp $
+ * $Id: awcs-proto.h,v 1.14 2001/08/12 10:59:04 ela Exp $
  *
  */
 
@@ -44,8 +44,7 @@
 #define CLIENT_DETECTION 5
 #define AWCS_MASTER      "6 \0"
 #define AWCS_CLIENT      "aWCS\0"
-#define AWCS_ID_SIZE     4
-#define AWCS_ID_FMT      "%04d"
+#define AWCS_ID_FMT      "%d"
 
 /*
  * Local configuration of one instance of an aWCS server.

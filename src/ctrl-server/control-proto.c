@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.56 2001/07/31 10:15:00 ela Exp $
+ * $Id: control-proto.c,v 1.57 2001/08/12 10:59:04 ela Exp $
  *
  */
 
@@ -997,7 +997,7 @@ ctrl_get_cpu_state (void)
 int
 ctrl_idle (svz_socket_t *sock)
 {
-  int n, old;
+  int n, old, ret;
   unsigned long all;
   cpu_state_t *c = &cpu_state;
 
@@ -1005,23 +1005,25 @@ ctrl_idle (svz_socket_t *sock)
   n = (c->index + 1) & 1;
 
   /* get status of the cpu and process */
-  if (ctrl_get_cpu_state () != -1)
-    {
-      /* calculate process specific info */
-      all = c->ptotal[n] - c->ptotal[old]; 
-      if (all != 0)
-	{
-	  svz_snprintf (c->pinfo, STAT_BUFFER_SIZE, PROC_FORMAT,
-			PROC_DIFF (0) * 100 / all,
-			PROC_DIFF (0) * 1000 / all % 10,
-			PROC_DIFF (1) * 100 / all,
-			PROC_DIFF (1) * 1000 / all % 10,
-			PROC_DIFF (2) * 100 / all,
-			PROC_DIFF (2) * 1000 / all % 10,
-			PROC_DIFF (3) * 100 / all,
-			PROC_DIFF (3) * 1000 / all % 10);
-	}
+  ret = ctrl_get_cpu_state ();
 
+  /* calculate process specific info */
+  all = c->ptotal[n] - c->ptotal[old]; 
+  if (all != 0)
+    {
+      svz_snprintf (c->pinfo, STAT_BUFFER_SIZE, PROC_FORMAT,
+		    PROC_DIFF (0) * 100 / all,
+		    PROC_DIFF (0) * 1000 / all % 10,
+		    PROC_DIFF (1) * 100 / all,
+		    PROC_DIFF (1) * 1000 / all % 10,
+		    PROC_DIFF (2) * 100 / all,
+		    PROC_DIFF (2) * 1000 / all % 10,
+		    PROC_DIFF (3) * 100 / all,
+		    PROC_DIFF (3) * 1000 / all % 10);
+    }
+
+  if (ret != -1)
+    {
       /* calculate cpu specific info */
       c->total[n] = c->cpu[n][0] + c->cpu[n][1] + c->cpu[n][2] + c->cpu[n][3];
       all = c->total[n] - c->total[old];

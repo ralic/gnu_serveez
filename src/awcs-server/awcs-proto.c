@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.33 2001/06/27 20:38:36 ela Exp $
+ * $Id: awcs-proto.c,v 1.34 2001/08/12 10:59:04 ela Exp $
  *
  */
 
@@ -441,8 +441,21 @@ awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
 }
 
 /*
- * Send message `cmd' to all clients
- * in the client list at the start of `cmd'.
+ * This macro parse an aWCS id at the given memory location @var{ptr}. The
+ * result will be stored in @var{id} and @var{ptr} points to the following
+ * non numerical byte afterwards.
+ */
+#define awcs_process_id(id, ptr)           \
+  (id) = 0;                                \
+  while (*(ptr) >= '0' && *(ptr) <= '9') { \
+    (id) *= 10;                            \
+    (id) += *(ptr) - '0';                  \
+    (ptr)++; }                             \
+  if (*(ptr) == ',') (ptr)++
+
+/*
+ * Send message @var{cmd} to all clients in the client list at the start 
+ * of @var{cmd}.
  */
 static int
 awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
@@ -451,41 +464,28 @@ awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
   int address;
   svz_socket_t *sock;
 
+  /* Parse the actual message first. */
   msg = cmd;
+  while (*msg++ != ' ');
+  cmd_len -= (msg - cmd);
 
-  while (*msg != ' ')
+  /* Go through the client list. */
+  while (*cmd && *cmd != ' ')
     {
-      msg++;
-      cmd_len--;
-    }
-  msg++;
-  cmd_len--;
-
-  for (;;)
-    {
-      address = svz_atoi (cmd);
+      awcs_process_id (address, cmd);
       sock = (svz_socket_t *) svz_hash_get (cfg->clients, (char *) &address);
-
       if (sock)
 	{
 	  if (svz_sock_write (sock, msg, cmd_len))
-	    {
-	      svz_sock_schedule_for_shutdown (sock);
-	    }
+	    svz_sock_schedule_for_shutdown (sock);
 	}
 #if ENABLE_DEBUG
       else
 	{
-	  svz_log (LOG_DEBUG, 
-		   "awcs: master sent invalid id (multicast %d)\n", 
+	  svz_log (LOG_DEBUG, "awcs: master sent invalid id (multicast %d)\n", 
 		   address);
 	}
 #endif /* ENABLE_DEBUG */
-
-      cmd += AWCS_ID_SIZE;
-      if (!*cmd || *cmd == ' ')
-	break;
-      cmd++;
     }
   return 0;
 }
@@ -500,13 +500,12 @@ awcs_process_status (awcs_config_t *cfg, char *cmd, int cmd_len)
   svz_log (LOG_DEBUG, "awcs: sending status message\n");
 #endif /* ENABLE_DEBUG */
   awcs_status_alive (cfg);
-
   return 0;
 }
 
 /*
- * Kick all clients in the client list at the
- * beginning of `cmd'. the rest of `cmd' is the kicking reason.
+ * Kick all clients in the client list at the beginning of @var{cmd}. 
+ * The rest of @var{cmd} is the kicking reason.
  */
 static int
 awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
@@ -514,19 +513,17 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
   svz_socket_t *sock;
   int address;
 
-  for (;;)
+  while (*cmd && *cmd != ' ')
     {
-      address = svz_atoi (cmd);
+      awcs_process_id (address, cmd);
       sock = (svz_socket_t *) svz_hash_get (cfg->clients, (char *) &address);
-
       if (sock)
 	{
 #if ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "awcs: kicking socket %d\n",
-		   sock->sock_desc);
+	  svz_log (LOG_DEBUG, "awcs: kicking socket %d\n", sock->sock_desc);
 #endif /* ENABLE_DEBUG */
 	  /*
-	   * This is a hack.  We set the handler to NULL to be sure
+	   * This is a hack. We set the handler to NULL to be sure
 	   * that the master server will not get a KICKED status
 	   * message for a kick he initiated.
 	   */
@@ -536,24 +533,17 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
 #if ENABLE_DEBUG
       else
 	{
-	  svz_log (LOG_DEBUG, 
-		   "awcs: master sent invalid id (kick %d)\n",
+	  svz_log (LOG_DEBUG, "awcs: master sent invalid id (kick %d)\n",
 		   address);
 	}
 #endif /* ENABLE_DEBUG */
-
-      cmd += AWCS_ID_SIZE;
-      if (!*cmd || *cmd == ' ')
-	break;
-      cmd++;
     }
-
   return 0;
 }
 
 /*
- * Turn off flood protection for clients listed
- * in command if flag is false, turn it on otherwise.
+ * Turn off flood protection for clients listed in command if flag is 
+ * false, turn it on otherwise.
  */
 static int
 awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
@@ -561,17 +551,15 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
   svz_socket_t *sock;
   int address;
 
-  for (;;)
+  while (*cmd && *cmd != ' ')
     {
-      address = svz_atoi (cmd);
+      awcs_process_id (address, cmd);
       sock = (svz_socket_t *) svz_hash_get (cfg->clients, (char *) &address);
-
       if (sock)
 	{
 #if ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "awcs: switching flood "
-		   "control for socket %d %s\n",
-		   sock->sock_desc, flag ? "on" : "off");
+	  svz_log (LOG_DEBUG, "awcs: switching flood control for socket "
+		   "%d %s\n", sock->sock_desc, flag ? "on" : "off");
 #endif /* ENABLE_DEBUG */
 	  if (flag)
 	    sock->flags &= ~SOCK_FLAG_NOFLOOD;
@@ -581,18 +569,11 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
 #if ENABLE_DEBUG
       else
 	{
-	  svz_log (LOG_DEBUG, 
-		   "awcs: master sent invalid id (floodcmd %d)\n",
+	  svz_log (LOG_DEBUG, "awcs: master sent invalid id (floodcmd %d)\n",
 		   address);
 	}
 #endif /* ENABLE_DEBUG */
-      
-      cmd += AWCS_ID_SIZE;
-      if (!*cmd || *cmd == ' ')
-	break;
-      cmd++;
     }
-
   return 0;
 }
 
@@ -668,9 +649,7 @@ awcs_disconnect_clients (awcs_config_t *cfg)
   if ((sock = (svz_socket_t **) svz_hash_values (cfg->clients)) != NULL)
     {
       for (n = 0; n < svz_hash_size (cfg->clients); n++)
-	{
-	  svz_sock_schedule_for_shutdown (sock[n]);
-	}
+	svz_sock_schedule_for_shutdown (sock[n]);
       svz_hash_xfree (sock);
     }
 }
@@ -686,8 +665,8 @@ awcs_handle_request (svz_socket_t *sock, char *request, int request_len)
   awcs_config_t *cfg = sock->cfg;
 
 #if 0
-  svz_hexdump (stdout, "awcs request", sock->sock_desc, 
-	       request, request_len, 1000);
+  svz_hexdump (stdout, "awcs request", sock->sock_desc, request, 
+	       request_len, 1000);
 #endif
 
   if (!cfg->server)
@@ -724,8 +703,8 @@ awcs_handle_request (svz_socket_t *sock, char *request, int request_len)
 
 /*
  * Checks whether a complete request has been accumulated in socket
- * SOCK's receive queue.  If yes, then the
- * request gets handled and removed from the queue.
+ * @var{sock}'s receive queue.  If yes, then the request gets handled 
+ * and removed from the queue.
  */
 int
 awcs_check_request (svz_socket_t *sock)

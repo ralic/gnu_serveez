@@ -1668,9 +1668,8 @@ NUL character '\0'.
 
 @item Messages from clients
 All messages from clients are routed to the master server, but
-modified in such a way that 4 digits and one space precede the
-original message. These 4 digits are the (decimal) client's id
-right-padded with zeroes.
+modified in such a way that some digits and one space precede the
+original message. These digits are the (decimal) client's id.
 
 @item Messages from the master server
 Messages that come from the master server must have the following
@@ -1696,7 +1695,7 @@ carry these parameters after the space in a comma separated list of
 client ids in the format mentioned above.  The client id list is terminated
 by the \0 character terminating the request (if no parameters follow)
 or by a single space (if parameters follow).  Note that no spaces are allowed
-n comma separated lists.
+in comma separated lists.
 
 @example
 Examples:
@@ -1705,19 +1704,19 @@ Examples:
   - Send "Hallo Welt\0" to all clients except the 
     master server.
 
-1 0001,0004,0006 Gruezi!\0
+1 1,4,6 Gruezi!\0
   - Send "Gruezi\0" to the clients 1, 4 and 6.
 
 2 \0
   - Send status data back to the master server.
 
-3 0003,0004\0
+3 3,4\0
   - Kicks clients 3 and 4.
 
-4 0004,0016\0
+4 4,16\0
   - Turn off flood protection for clients 4 and 16.
 
-5 0001,005\0
+5 1,5\0
   - Turn on flood protection for clients 1 and 5.
 
 6 \0

@@ -28,6 +28,8 @@ files.
 Version 0.1.1
 -------------
 
+ * modified chat server master protocol (use textSure v1.3)
+ * virtually unlimited number of socket structures allowed
  * faster http file cache
  * automatic coserver restart on buffer overrun or death
  * Guile server examples
