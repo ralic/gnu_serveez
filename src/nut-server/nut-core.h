@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.h,v 1.6 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-core.h,v 1.7 2000/10/30 20:49:57 ela Exp $
  *
  */
 
@@ -46,6 +46,7 @@ char *nut_text_guid (byte *guid);
 int nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port);
 char *nut_client_key (unsigned long ip, unsigned short port);
 char *nut_parse_property (char *header, int len, char *property);
+void nut_canonize_file (char *file);
 
 /*
  * Because the gnutella protocol is a binary protocol we need to convert

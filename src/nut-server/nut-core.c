@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-core.c,v 1.10 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-core.c,v 1.11 2000/10/30 20:49:57 ela Exp $
  *
  */
 
@@ -411,6 +411,20 @@ nut_put_push (nut_push_t *push)
   uint16 = ntols (push->port);
   memcpy (data, &uint16, SIZEOF_UINT16);
   return buffer;
+}
+
+/*
+ * Canonizes a given filename and converts it to something printable.
+ */
+void
+nut_canonize_file (char *file)
+{
+  while (*file)
+    {
+      if (!isalnum (*file) && !isprint (*file))
+	*file = '_';
+      file++;
+    }
 }
 
 /*

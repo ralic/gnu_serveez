@@ -1,5 +1,8 @@
 2000-10-30  [ Ela ]  <ela@lkcc.org>
 
+	* nut-server/nut-core.c (nut_canonize_file): This routine
+	converts any filename to something printable.
+
 	* icmp-socket.c (icmp_connect): Each `connected' ICMP
 	sockets gets a unique remote port for identifying data
 	replies.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-request.c,v 1.1 2000/10/05 18:01:46 ela Exp $
+ * $Id: nut-request.c,v 1.2 2000/10/30 20:49:57 ela Exp $
  *
  */
 
@@ -126,6 +126,7 @@ nut_reply (socket_t sock, nut_header_t *hdr, byte *packet)
 	      return -1;
 	    }
 	  p += 2;
+	  nut_canonize_file (file);
 #if 0
 	  printf ("record %d\n", n + 1);
 	  printf ("file index : %u\n", record->index);
