@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.c,v 1.67 2001/06/01 21:24:09 ela Exp $
+ * $Id: http-proto.c,v 1.68 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -116,8 +116,8 @@ svz_key_value_pair_t http_config_prototype[] =
   SVZ_REGISTER_STR ("logfile", http_config.logfile, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("logformat", http_config.logformat, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("userdir", http_config.userdir, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("nslookup", http_config.nslookup, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("ident", http_config.ident, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_BOOL ("nslookup", http_config.nslookup, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_BOOL ("ident", http_config.ident, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -232,15 +232,15 @@ http_init (svz_server_t *server)
     }
   
   /* create content type hash */
-  if (*(cfg->types))
-    types = svz_hash_size (*(cfg->types));
+  if (cfg->types)
+    types = svz_hash_size (cfg->types);
   
   if (http_read_types (cfg))
     {
       svz_log (LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
     }
   svz_log (LOG_NOTICE, "http: %d+%d known content types\n",
-	   types, svz_hash_size (*(cfg->types)) - types);
+	   types, svz_hash_size (cfg->types) - types);
 
   /* check user directory path, snip trailing '/' or '\' */
   if (!cfg->userdir || !strlen (cfg->userdir))
@@ -888,7 +888,7 @@ http_info_server (svz_server_t *server)
 	   cfg->keepalive,
 	   cfg->default_type,
 	   cfg->type_file,
-	   svz_hash_size (*(cfg->types)));
+	   svz_hash_size (cfg->types));
 
   return info;
 }

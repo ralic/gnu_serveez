@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-proto.h,v 1.20 2001/05/19 23:04:57 ela Exp $
+ * $Id: http-proto.h,v 1.21 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -50,8 +50,8 @@ typedef struct
   int keepalive;        /* maximum amount of requests on a connection */
   char *default_type;   /* the default content type */
   char *type_file;      /* content type file (e.g "/etc/mime.types") */
-  svz_hash_t **types;   /* content type hash */
-  svz_hash_t **cgiapps; /* cgi application associations */
+  svz_hash_t *types;    /* content type hash */
+  svz_hash_t *cgiapps;  /* cgi application associations */
   char *admin;          /* email address of server administrator */
   char *host;           /* host name of which is sent back to clients */
   char *userdir;        /* appended onto a user's home (~user request) */

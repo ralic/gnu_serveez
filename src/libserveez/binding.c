@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: binding.c,v 1.9 2001/06/01 21:24:09 ela Exp $
+ * $Id: binding.c,v 1.10 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -146,8 +146,12 @@ svz_server_find_portcfg (svz_server_t *server, svz_portcfg_t *port)
       if (sock->data && sock->port && sock->flags & SOCK_FLAG_LISTENING &&
 	  svz_portcfg_equal (sock->port, port))
 	{
-	  /* Extend the server array in sock->data. */
-	  svz_array_add (sock->data, server);
+	  /* Do not bind a server to a single port twice. */
+	  if (!svz_array_contains (sock->data, server))
+	    {
+	      /* Extend the server array in sock->data. */
+	      svz_array_add (sock->data, server);
+	    }
 	  break;
 	}
     }

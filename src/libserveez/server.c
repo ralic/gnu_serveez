@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.22 2001/06/05 17:57:22 ela Exp $
+ * $Id: server.c,v 1.23 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -303,14 +303,14 @@ svz_server_t *
 svz_server_find (void *cfg)
 {
   int n;
-  svz_server_t **server;
+  svz_server_t **servers, *server = NULL;
 
-  svz_hash_foreach_value (svz_servers, server, n)
+  svz_hash_foreach_value (svz_servers, servers, n)
     {
-      if (server[n]->cfg == cfg)
-	return server[n];
+      if (servers[n]->cfg == cfg)
+	server = servers[n];
     }
-  return NULL;
+  return server;
 }
 
 /*

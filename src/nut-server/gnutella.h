@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.h,v 1.24 2001/05/19 23:04:58 ela Exp $
+ * $Id: gnutella.h,v 1.25 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -209,11 +209,11 @@ typedef struct
   int disable;              /* if set we do not listen on the above port cfg */
   int max_ttl;              /* maximum ttl for a gnutella packet */
   int ttl;                  /* initial ttl for a gnutella packet */
-  char **hosts;             /* array of initial hosts */
+  svz_array_t *hosts;       /* array of initial hosts */
   byte guid[NUT_GUID_SIZE]; /* this servers GUID */
   svz_hash_t *route;        /* routing table */
   svz_hash_t *conn;         /* connected hosts hash */
-  char **search;            /* search pattern array */
+  svz_array_t *search;      /* search pattern array */
   int search_index;         /* current search pattern index */
   int search_limit;         /* limit amount of search reply records */
   svz_hash_t *packet;       /* this servers created packets */
@@ -227,7 +227,7 @@ typedef struct
   int max_dnloads;          /* maximum concurrent downloads */
   int speed;                /* connection speed (KBit/s) */
   int min_speed;            /* minimum connection speed for searching */
-  char **extensions;        /* file extensions */
+  svz_array_t *extensions;  /* file extensions */
   svz_hash_t *net;          /* host catcher */
   int connections;          /* number of connections to keep up */
   char *force_ip;           /* force the local ip to this value */

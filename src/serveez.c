@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.40 2001/06/06 17:40:21 raimi Exp $
+ * $Id: serveez.c,v 1.41 2001/06/07 17:22:00 ela Exp $
  *
  */
 
@@ -81,8 +81,8 @@ guile_entry (int argc, char **argv)
 
   if (options->pass)
     {
-      free (svz_config.server_password);
-      svz_config.server_password = options->pass;
+      free (svz_config.password);
+      svz_config.password = options->pass;
     }
 
 #if ENABLE_DEBUG

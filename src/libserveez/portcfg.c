@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.c,v 1.16 2001/06/05 17:57:22 ela Exp $
+ * $Id: portcfg.c,v 1.17 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -292,7 +292,7 @@ svz_portcfg_destroy (svz_portcfg_t *port)
     return;
 
   /* Delete from port configuration hash if necessary. */
-  if ((name = svz_hash_contains (svz_portcfgs, port)) != NULL)
+  if (svz_portcfgs && (name = svz_hash_contains (svz_portcfgs, port)) != NULL)
     svz_hash_delete (svz_portcfgs, name);
 
   /* Free the name of the port configuration. */
@@ -425,11 +425,9 @@ svz_pipe_check_user (svz_pipe_t *pipe)
     {
       if ((p = getpwnam (pipe->user)) == NULL)
 	{
-	  svz_log (LOG_ERROR, "%s: no such user `%s'\n", 
+	  svz_log (LOG_WARNING, "%s: no such user `%s'\n", 
 		   pipe->name, pipe->user);
-	  svz_free_and_zero (pipe->user);
-	  pipe->uid = 0;
-	  return -1;
+	  return 0;
 	}
       pipe->uid = p->pw_uid;
     }
@@ -437,9 +435,9 @@ svz_pipe_check_user (svz_pipe_t *pipe)
     {
       if ((p = getpwuid (pipe->uid)) == NULL)
 	{
-	  svz_log (LOG_ERROR, "%s: no such user id `%d'\n", 
+	  svz_log (LOG_WARNING, "%s: no such user id `%d'\n", 
 		   pipe->name, pipe->uid);
-	  return -1;
+	  return 0;
 	}
       pipe->user = svz_strdup (p->pw_name);
     }
@@ -447,7 +445,7 @@ svz_pipe_check_user (svz_pipe_t *pipe)
   return 0;
 }
 
-/* Check the consitency of the user-uid pair. */
+/* Check the consitency of the group-gid pair. */
 static int
 svz_pipe_check_group (svz_pipe_t *pipe)
 {

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: dynload.c,v 1.7 2001/05/19 23:04:57 ela Exp $
+ * $Id: dynload.c,v 1.8 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -29,6 +29,8 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 #if HAVE_DL_H
 # include <dl.h>
 #endif
@@ -67,13 +69,18 @@ static dyn_library_t *dyn_library = NULL;
 #endif
 
 /* Define library prefix and suffix. */
-#ifdef __MINGW32__
+#if defined (__MINGW32__) || defined (__CYGWIN__)
 # define DYNLOAD_PREFIX "lib"
 # define DYNLOAD_SUFFIX "dll"
+# define DYNLOAD_PATH_SEPERATOR ';'
 #else
 # define DYNLOAD_PREFIX "lib"
 # define DYNLOAD_SUFFIX "so"
+# define DYNLOAD_PATH_SEPERATOR ':'
 #endif
+
+/* Name of the additional search path environment variable. */
+#define DYNLOAD_PATH "SERVEEZ_LOAD_PATH"
 
 /*
  * Find a library handle for a given library's name @var{file} in the current
@@ -94,6 +101,110 @@ dyn_find_library (char *file)
 }
 
 /*
+ * This functions tries to link a library called @var{file} and returns
+ * its handle or NULL if it failed. If the argument @var{path} is given
+ * it prepends this to the file name of the library.
+ */
+static void *
+dyn_get_library (char *path, char *file)
+{
+  void *handle = NULL;
+  char *lib;
+
+  lib = svz_malloc ((path ? strlen (path) + 1 : 0) + strlen (file) + 1);
+  sprintf (lib , "%s%s%s", path ? path : "", path ? "/" : "", file);
+
+#if HAVE_DLOPEN
+  handle = dlopen (lib, RTLD_NOW | RTLD_GLOBAL);
+#elif defined (__BEOS__)
+  handle = load_add_on (lib);
+  if ((image_id) handle <= 0)
+    handle = NULL;
+#elif HAVE_DLD_LINK
+  handle = dld_link (lib);
+#elif defined (__MINGW32__)
+  handle = LoadLibrary (lib);
+#elif HAVE_SHL_LOAD
+  handle = shl_load (lib, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH);
+#endif
+
+  svz_free (lib);
+  return handle;
+}
+
+/*
+ * Set the addional search paths for the serveez library. The given array of
+ * strings gets @code{svz_free()}d.
+ */
+void
+svz_dynload_path_set (svz_array_t *paths)
+{
+  char *str, *env;
+  int n, len;
+
+  /* Return here if necessary. */
+  if (paths == NULL)
+    return;
+
+  /* Create environment variable. */
+  env = svz_strdup (DYNLOAD_PATH "=");
+  len = strlen (env) + 3;
+  svz_array_foreach (paths, str, n)
+    {
+      len = strlen (env) + strlen (str) + 2;
+      env = svz_realloc (env, len);
+      strcat (env, str);
+      env[len - 2] = DYNLOAD_PATH_SEPERATOR;
+      env[len - 1] = '\0';
+      svz_free (str);
+    }
+  env[len - 2] = '\0';
+  svz_array_destroy (paths);
+
+  /* Set environment variable. */
+  if (putenv (env))
+    svz_log (LOG_ERROR, "putenv: %s\n", SYS_ERROR);
+  svz_free (env);
+}
+
+/*
+ * Create an array of strings containing each an additional search path.
+ * The returned array needs to be destroyed after usage.
+ */
+svz_array_t *
+svz_dynload_path_get (void)
+{
+  svz_array_t *paths = svz_array_create (1);
+  char *path, *p, *start;
+  int len;
+
+  svz_array_add (paths, svz_strdup ("."));
+  if ((p = getenv (DYNLOAD_PATH)) != NULL)
+    {
+      while (*p)
+	{
+	  start = p;
+	  while (*p && *p != DYNLOAD_PATH_SEPERATOR)
+	    p++;
+	  if (p > start)
+	    {
+	      len = p - start;
+	      path = svz_malloc (len + 1);
+	      memcpy (path, start, len);
+	      start = path + len;
+	      *start-- = 0;
+	      while ((*start == '/' || *start == '\\') && start > path) 
+		*start-- = 0;
+	      svz_array_add (paths, path);
+	    }
+	  if (*p)
+	    p++;
+	}
+    }
+  return paths;
+}
+
+/*
  * Open the given library @var{file} and put it into the currently load 
  * library list. Return a valid library handle entry on success.
  */
@@ -102,6 +213,8 @@ dyn_load_library (char *file)
 {
   int n;
   void *handle = NULL;
+  svz_array_t *paths;
+  char *path;
 
   /* go through all loaded libraries and check if there is such a */
   for (n = 0; n < dyn_libraries; n++)
@@ -112,23 +225,20 @@ dyn_load_library (char *file)
       }
 
   /* try open the library */
-#if HAVE_DLOPEN
-  handle = dlopen (file, RTLD_NOW | RTLD_GLOBAL);
-#elif defined (__BEOS__)
-  handle = load_add_on (file);
-  if ((image_id) handle <= 0)
-    handle = NULL;
-#elif HAVE_DLD_LINK
-  handle = dld_link (file);
-#elif defined (__MINGW32__)
-  handle = LoadLibrary (file);
-#elif HAVE_SHL_LOAD
-  handle = shl_load (file, BIND_IMMEDIATE | BIND_NONFATAL | DYNAMIC_PATH);
-#endif
-  
+  if ((handle = dyn_get_library (NULL, file)) == NULL)
+    {
+      paths = svz_dynload_path_get ();
+      svz_array_foreach (paths, path, n)
+	if ((handle = dyn_get_library (path, file)) != NULL)
+	  break;
+      svz_array_foreach (paths, path, n)
+	svz_free (path);
+      svz_array_destroy (paths);
+    }
+
   if (handle == NULL)
     {
-      svz_log (LOG_ERROR, "load: %s (%s)\n", dyn_error (), file);
+      svz_log (LOG_ERROR, "load: unable to locate %s\n", file);
       return NULL;
     }
 

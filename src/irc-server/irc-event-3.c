@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: irc-event-3.c,v 1.13 2001/05/19 23:04:57 ela Exp $
+ * $Id: irc-event-3.c,v 1.14 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -312,7 +312,7 @@ irc_stats_callback (svz_socket_t *sock,
        * u - returns a string showing how long the server has been up
        */
     case 'u':
-      t = time (NULL) - svz_config.start_time;
+      t = time (NULL) - svz_config.start;
       sec = t % 60;
       t /= sec;
       min = t % 60;

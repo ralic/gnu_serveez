@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.23 2001/06/06 17:40:21 raimi Exp $
+ * $Id: guile.c,v 1.24 2001/06/07 17:22:00 ela Exp $
  *
  */
 
@@ -220,7 +220,7 @@ guile2optionhash (SCM pairlist, char *txt, int dounpack)
   guile_value_t *new_value;
   int err = 0;
 
-  /* unpack when requested, ignore when null already (empty == not existent) */
+  /* Unpack if requested, ignore if null already (null == not existent). */
   if (dounpack && !gh_null_p (pairlist))
     pairlist = gh_car (pairlist);
 
@@ -931,11 +931,6 @@ guile_define_server (SCM name, SCM args)
       FAIL ();
     }
 
-#if ENABLE_DEBUG
-  /* Print successful result. */
-  report_error ("Server `%s' instantiated", servername);
-#endif
-
  out:
   svz_free (txt);
   svz_free (servertype);
@@ -966,7 +961,7 @@ guile_define_port (SCM name, SCM args)
   if ((portname  = guile2str (name)) == NULL)
     {
       report_error ("First argument to `" FUNC_NAME "' "
-		    "needs be string or symbol");
+		    "needs to be string or symbol");
       FAIL ();
     }
 
@@ -1099,7 +1094,7 @@ guile_define_port (SCM name, SCM args)
     }
   else
     {
-      report_error ("Invalid \"" PORTCFG_PROTO "\" field `%s' in `%s'",
+      report_error ("Invalid \"" PORTCFG_PROTO "\" field `%s' in port `%s'",
 		    proto, portname);
       FAIL ();
     }
@@ -1116,10 +1111,6 @@ guile_define_port (SCM name, SCM args)
 
   if (err)
     FAIL();
-
-#if ENABLE_DEBUG
-  svz_portcfg_print (cfg, stdout);
-#endif
 
   if ((prev = svz_portcfg_add (portname, cfg)) != cfg)
     {
@@ -1180,13 +1171,165 @@ guile_bind_server (SCM port, SCM server, SCM args /* FIXME: further servers */)
 #undef FUNC_NAME
 
 /*
- * Create an accessor function to read and write a C variable, int
+ * Convert the given scheme cell @var{list} which needs to be a valid guile
+ * list into an array of duplicated strings. Returns @code{NULL} if it is not
+ * a valid guile list. Print an error message if one of the list's elements
+ * is not a string. The additional argument @var{func} should be the name of 
+ * the calling function.
+ */
+static svz_array_t *
+guile2strarray (SCM list, char *func)
+{
+  svz_array_t *array;
+  int i;
+  char *str;
+
+  /* Check if the given scheme cell is a valid list. */
+  if (!gh_list_p (list))
+    return NULL;
+
+  /* Iterate over the list and build up the array of strings. */
+  array = svz_array_create (gh_length (list));
+  for (i = 0; gh_pair_p (list); list = gh_cdr (list), i++)
+    {
+      if ((str = guile2str (gh_car (list))) == NULL)
+	{
+	  report_error ("%s: String expected in position %d", func, i);
+	  guile_global_error = -1;
+	  continue;
+	}
+      svz_array_add (array, svz_strdup (str));
+      free (str);
+    }
+
+  /* Check the size of the resulting string array. */
+  if (svz_array_size (array) == 0)
+    {
+      svz_array_destroy (array);
+      array = NULL;
+    }
+  return array;
+}
+
+/*
+ * Converts the given array of strings @var{array} into a guile list.
+ */
+static SCM
+strarray2guile (svz_array_t *array)
+{
+  SCM list;
+  unsigned long i;
+  
+  /* Check validity of the give string array. */
+  if (array == NULL)
+    return SCM_UNDEFINED;
+
+  /* Go through all the strings and add these to a guile list. */
+  for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
+    list = gh_cons (gh_str02scm ((char *) svz_array_get (array, i)), list);
+  return gh_reverse (list);
+}
+
+/*
+ * Make the list of local interfaces accessable for guile. Returns the
+ * local interfaces as a list of ip addresses in dotted decimal form. If
+ * another list is given in @var{args} it should contain the new list of
+ * local interfaces.
+ */
+#define FUNC_NAME "serveez-interfaces"
+SCM
+guile_access_interfaces (SCM args)
+{
+  svz_interface_t *ifc;
+  int n;
+  SCM list;
+  char *str, description[64];
+  struct sockaddr_in addr;
+  svz_array_t *array;
+
+  /* First create a array of strings containing the ip addresses of each
+     local network interface and put them into a guile list. */
+  array = svz_array_create (0);
+  svz_interface_foreach (ifc, n)
+    svz_array_add (array, svz_strdup (svz_inet_ntoa (ifc->ipaddr)));
+  list = strarray2guile (array);
+  if (array)
+    {
+      svz_array_foreach (array, str, n)
+	svz_free (str);
+      svz_array_destroy (array);
+    }
+
+  /* Is there an argument given to the guile function ? */
+  if (args != SCM_UNDEFINED)
+    {
+      svz_interface_free ();
+      if ((array = guile2strarray (args, FUNC_NAME)) != NULL)
+	{
+	  svz_array_foreach (array, str, n)
+	    {
+	      if (svz_inet_aton (str, &addr) == -1)
+		{
+		  report_error ("%s: IP address in dotted decimals expected",
+				FUNC_NAME);
+		  guile_global_error = -1;
+		  continue;
+		}
+	      sprintf (description, "guile interface %d", n);
+	      svz_interface_add (n, description, addr.sin_addr.s_addr);
+	    }
+	  svz_array_foreach (array, str, n)
+	    svz_free (str);
+	  svz_array_destroy (array);
+	}
+    }
+
+  return list;
+}
+#undef FUNC_NAME
+
+/*
+ * Make the search path for the serveez core library accessable for guile.
+ * Returns a list a each path as previously defined. Can override the current
+ * definition of this load path. The load path is used to tell serveez where
+ * it can find additional server modules.
+ */
+#define FUNC_NAME "serveez-load-path"
+SCM
+guile_access_loadpath (SCM args)
+{
+  SCM list;
+  svz_array_t *paths = svz_dynload_path_get ();
+  int n;
+  char *str;
+
+  /* Create a guile list containing each search path. */
+  list = strarray2guile (paths);
+  if (paths)
+    {
+      svz_array_foreach (paths, str, n)
+	svz_free (str);
+      svz_array_destroy (paths);
+    }
+  
+  /* Set the load path if argument is given. */
+  if (args != SCM_UNDEFINED)
+    {
+      if ((paths = guile2strarray (args, FUNC_NAME)) != NULL)
+	svz_dynload_path_set (paths);
+    }
+  return list;
+}
+#undef FUNC_NAME
+
+/*
+ * Create an accessor function to read and write a C int variable.
  */
 #define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
 static SCM cfunc (SCM args) {                                \
   SCM value = gh_int2scm (cvar); int n;                      \
   if (args != SCM_UNDEFINED){                                \
-    if (guile2int(args, &n)) {                               \
+    if (guile2int (args, &n)) {                              \
       report_error ("%s: Invalid integer value", FUNC_NAME); \
       guile_global_error = -1;                               \
     } else { cvar = n; } }                                   \
@@ -1194,40 +1337,41 @@ static SCM cfunc (SCM args) {                                \
 }
 
 /*
- * Create an accessor function to read and write a C variable, string
+ * Create an accessor function to read and write a C string variable.
  */
 #define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
 static SCM cfunc (SCM args) {                                \
-  SCM value = gh_str02scm (cvar); char *tmp;                 \
+  SCM value = gh_str02scm (cvar); char *str;                 \
   if (args != SCM_UNDEFINED){                                \
-    if (NULL == (tmp = guile2str(args))) {                   \
+    if (NULL == (str = guile2str (args))) {                  \
       report_error ("%s: Invalid string value", FUNC_NAME);  \
       guile_global_error = -1;                               \
     } else {                                                 \
       svz_free (cvar);                                       \
-      cvar = svz_strdup (tmp);                               \
-      free (tmp);                                            \
+      cvar = svz_strdup (str);                               \
+      free (str);                                            \
     } }                                                      \
   return value;                                              \
 }
 
-/* Acessor for the 'verbosity' global setting. */
+/* Accessor for the 'verbosity' global setting. */
 #define FUNC_NAME "serveez-verbosity"
 MAKE_INT_ACCESSOR (guile_access_verbosity, svz_config.verbosity)
 #undef FUNC_NAME
 
-/* Acessor for the 'max sockets' global setting */
+/* Accessor for the 'max sockets' global setting. */
 #define FUNC_NAME "serveez-maxsockets"
 MAKE_INT_ACCESSOR (guile_access_maxsockets, svz_config.max_sockets)
 #undef FUNC_NAME
 
-/* Acessor for the 'password' global setting */
+/* Accessor for the 'password' global setting. */
 #define FUNC_NAME "serveez-passwd"
-MAKE_STRING_ACCESSOR (guile_access_passwd, svz_config.server_password)
+MAKE_STRING_ACCESSOR (guile_access_passwd, svz_config.password)
 #undef FUNC_NAME
 
 /*
- * Initialize Guile.
+ * Initialize Guile. Make certain variables and functions defined above
+ * available to Guile.
  */
 static void
 guile_init (void)
@@ -1244,6 +1388,8 @@ guile_init (void)
   gh_new_procedure ("serveez-verbosity", guile_access_verbosity, 0, 1, 1);
   gh_new_procedure ("serveez-maxsockets", guile_access_maxsockets, 0, 1, 1);
   gh_new_procedure ("serveez-passwd", guile_access_passwd, 0, 1, 1);
+  gh_new_procedure ("serveez-interfaces", guile_access_interfaces, 0, 1, 1);
+  gh_new_procedure ("serveez-load-path", guile_access_loadpath, 0, 1, 1);
 
   /* export some new procedures */
   gh_new_procedure ("define-port!", guile_define_port, 1, 0, 2);
@@ -1258,12 +1404,20 @@ guile_init (void)
 static SCM 
 guile_exception (void *data, SCM tag, SCM args)
 {
-  /* FIXME: current-load-port is not defined in this state. why ? */
-
+  /* FIXME: current-load-port is not defined in this state. Why ? */
+  
   /* tag contains internal exception name
    * scm_display (tag, scm_current_error_port ());
    */
   scm_display (gh_str02scm ("guile-error: ") , scm_current_error_port ());
+
+  /* on quit/exit */
+  if (gh_null_p (args))
+    {
+      scm_display (tag, scm_current_error_port ());
+      scm_display (gh_str02scm ("\n"), scm_current_error_port ());
+      return SCM_BOOL_F;
+    }
 
   if (SCM_BOOL_F != gh_car (args))
     {

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: gnutella.c,v 1.38 2001/06/01 21:24:09 ela Exp $
+ * $Id: gnutella.c,v 1.39 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -90,7 +90,7 @@ nut_config_t nut_config =
   NUT_GUID,            /* this servers GUID */
   NULL,                /* routing table */
   NULL,                /* connected hosts hash */
-  nut_search_patterns, /* default search pattern */
+  NULL,                /* default search pattern */
   0,                   /* current search pattern index */
   30,                  /* limit amount of search reply records */
   NULL,                /* this servers created packets */
@@ -333,6 +333,9 @@ nut_global_init (void)
   /* initialize random seed */
   srand (time (NULL));
 
+  /* initialize configuration default values */
+  nut_config.search = svz_config_strarray_create (nut_search_patterns);
+
 #if 0
   /* Print structure sizes. */
   printf ("header     : %d\n", sizeof (nut_header_t));
@@ -447,14 +450,8 @@ nut_init (svz_server_t *server)
   sprintf (cfg->net_detect, NUT_HOSTS, cfg->net_url);
 
   /* go through all given hosts and try to connect to them */
-  if (cfg->hosts)
-    {
-      while (cfg->hosts[n])
-	{
-	  nut_connect_host (cfg, cfg->hosts[n]);
-	  n++;
-	}
-    }
+  svz_array_foreach (cfg->hosts, p, n)
+    nut_connect_host (cfg, p);
 
   /* bind listening server to configurable port address 
      FIXME: how can we disable bindings ?
@@ -533,6 +530,9 @@ nut_global_finalize (void)
   if (oleHandle) 
     FreeLibrary (oleHandle);
 #endif /* __MINGW32__ */
+
+  /* destroy confguration defaults */
+  svz_config_strarray_destroy (nut_config.search);
 
   return 0;
 }
@@ -759,15 +759,18 @@ nut_idle_searching (svz_socket_t *sock)
   char *text;
 
   /* search strings given ? */
-  if (cfg->search && cfg->search[0])
+  if (cfg->search && svz_array_size (cfg->search) > 0)
     {
       /* get next search string */
-      if ((text = cfg->search[cfg->search_index]) != NULL)
-	cfg->search_index++;
+      if (svz_array_size (cfg->search) > (unsigned long) cfg->search_index)
+	{
+	  text = svz_array_get (cfg->search, cfg->search_index);
+	  cfg->search_index++;
+	}
       else
 	{
 	  cfg->search_index = 0;
-	  text = cfg->search[0];
+	  text = svz_array_get (cfg->search, 0);
 	}
 
       /* create new gnutella packet */
@@ -808,27 +811,24 @@ nut_info_server (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static char info[80 * 19];
-  char *ext = NULL;
+  char *e, *ext = NULL;
   int n;
 
   /* create file extension list */
-  n = 0;
   if (cfg->extensions)
     {
-      while (cfg->extensions[n])
+      svz_array_foreach (cfg->extensions, e, n)
 	{
 	  if (!ext)
 	    {
-	      ext = svz_malloc (strlen (cfg->extensions[n]) + 2);
-	      strcpy (ext, cfg->extensions[n]);
+	      ext = svz_malloc (strlen (e) + 2);
+	      strcpy (ext, e);
 	    }
 	  else
 	    {
-	      ext = svz_realloc (ext, strlen (ext) + 
-				 strlen (cfg->extensions[n]) + 2);
-	      strcat (ext, cfg->extensions[n]);
+	      ext = svz_realloc (ext, strlen (ext) + strlen (e) + 2);
+	      strcat (ext, e);
 	    }
-	  n++;
 	  strcat (ext, ";");
 	}
       ext[strlen (ext) - 1] = '\0';
@@ -865,9 +865,11 @@ nut_info_server (svz_server_t *server)
 	   nut_print_guid (cfg->guid),
 	   cfg->save_path,
 	   cfg->share_path,
-	   cfg->search && cfg->search[0] ? (cfg->search[cfg->search_index] ? 
-			  cfg->search[cfg->search_index] : cfg->search[0])
-	   : "none given",
+	   cfg->search && svz_array_size (cfg->search) > 0 ? 
+	   (unsigned long) cfg->search_index < svz_array_size (cfg->search) ? 
+	   (char *) svz_array_get (cfg->search, cfg->search_index) :
+	   (char *) svz_array_get (cfg->search, 0) :
+	   "none given",
 	   ext ? ext : "no extensions",
 	   svz_hash_size (cfg->route),
 	   svz_hash_size (cfg->conn), cfg->connections,

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.40 2001/05/19 23:04:56 ela Exp $
+ * $Id: http-cgi.c,v 1.41 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -665,16 +665,12 @@ http_free_cgi_apps (http_config_t *cfg)
   char **app;
   int n;
 
-  if (*(cfg->cgiapps))
-    {
-      svz_hash_foreach_value (*(cfg->cgiapps), app, n)
-	{
-	  svz_free (app[n]);
-	}
+  /* FIXME: Is hat necessary ?
+  svz_hash_foreach_value (cfg->cgiapps, app, n)
+    svz_free (app[n]);
       
-      svz_hash_destroy (*(cfg->cgiapps));
-      *(cfg->cgiapps) = NULL;
-    }
+  svz_hash_destroy (cfg->cgiapps);
+  cfg->cgiapps = NULL;*/
 }
 
 /*
@@ -684,16 +680,22 @@ http_free_cgi_apps (http_config_t *cfg)
 void
 http_gen_cgi_apps (http_config_t *cfg)
 {
+  char *p;
+
   /* create the cgi association hash table if necessary */
-  if (*(cfg->cgiapps) == NULL)
-    {
-      *(cfg->cgiapps) = svz_hash_create (4);
-    }
+  if (cfg->cgiapps == NULL)
+    cfg->cgiapps = svz_hash_create (4);
 
   /* the associations need to be in the hash to be executed at all */
-  svz_hash_put (*(cfg->cgiapps), "exe", svz_strdup (DEFAULT_CGIAPP));
-  svz_hash_put (*(cfg->cgiapps), "com", svz_strdup (DEFAULT_CGIAPP));
-  svz_hash_put (*(cfg->cgiapps), "bat", svz_strdup (DEFAULT_CGIAPP));
+  if ((p = svz_hash_put (cfg->cgiapps, "exe", svz_strdup (DEFAULT_CGIAPP))) 
+      != NULL)
+    svz_free (p);
+  if ((p = svz_hash_put (cfg->cgiapps, "com", svz_strdup (DEFAULT_CGIAPP)))
+      != NULL)
+    svz_free (p);
+  if ((p = svz_hash_put (cfg->cgiapps, "bat", svz_strdup (DEFAULT_CGIAPP)))
+      != NULL)
+    svz_free (p);
 }
 
 /*

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: nut-transfer.c,v 1.35 2001/05/19 23:04:58 ela Exp $
+ * $Id: nut-transfer.c,v 1.36 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -331,7 +331,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
 {
   nut_config_t *cfg = sock->cfg;
   svz_socket_t *xsock;
-  char *file;
+  char *ext, *file, *pattern;
   struct stat buf;
   int fd;
   nut_transfer_t *transfer;
@@ -341,19 +341,17 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
   if (cfg->extensions)
     {
       /* go through all file extensions */
-      while (cfg->extensions[n])
+      svz_array_foreach (cfg->extensions, ext, n)
 	{
-	  if (strlen (savefile) > strlen (cfg->extensions[n]))
+	  if (strlen (savefile) > strlen (ext))
 	    {
-	      pos = strlen (savefile) - strlen (cfg->extensions[n]);
-	      if (pos < 0 ||
-		  !svz_strcasecmp (&savefile[pos], cfg->extensions[n]))
+	      pos = strlen (savefile) - strlen (ext);
+	      if (pos < 0 || !svz_strcasecmp (&savefile[pos], ext))
 		break;
 	    }
-	  n++;
 	}
       /* did the above code "break" ? */
-      if (!cfg->extensions[n])
+      if ((unsigned long) n > svz_array_size (cfg->extensions))
 	{
 	  svz_log (LOG_WARNING, "nut: not a valid extension: %s\n",
 		   savefile);
@@ -372,20 +370,17 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
     }
 
   /* second check if the file matches the original search patterns */
-  if (cfg->search)
+  svz_array_foreach (cfg->search, pattern, n)
     {
-      for (n = 0; cfg->search[n]; n++)
-	{
-	  if (nut_string_regex (savefile, cfg->search[n]))
-	    break;
-	}
-      if (!cfg->search[n])
-	{
-	  svz_log (LOG_NOTICE, "nut: no search pattern for %s\n",
-		   savefile);
-	  svz_free (file);
-	  return -1;
-	}
+      if (nut_string_regex (savefile, pattern))
+	break;
+    }
+  if ((unsigned long) n >= svz_array_size (cfg->search))
+    {
+      svz_log (LOG_NOTICE, "nut: no search pattern for %s\n",
+	       savefile);
+      svz_free (file);
+      return -1;
     }
 
   /* try creating local file */

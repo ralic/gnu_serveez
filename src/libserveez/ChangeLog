@@ -1,3 +1,12 @@
+2001-06-07  [ Ela ]  <ela@lkcc.org>
+
+	* portcfg.c (svz_portcfg_destroy): Buf fix: Do not check
+	port configuration hash if not yet existing.
+
+	* dynload.c (dyn_load_library): Try to load a shared library
+	containing a server definition. Use the environment variable
+	SERVEEZ_LOAD_PATH with additional search paths.
+
 2001-06-01  [ Ela ]  <ela@lkcc.org>
 
 	* interface.h (svz_interface_foreach): New macro.

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.14 2001/06/06 17:40:21 raimi Exp $
+ * $Id: boot.c,v 1.15 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -134,10 +134,10 @@ svz_net_cleanup (void)
 void
 svz_init_config (void)
 {
-  svz_config.start_time = time (NULL);
+  svz_config.start = time (NULL);
   svz_config.verbosity = LOG_DEBUG;
   svz_config.max_sockets = 100;
-  svz_config.server_password = NULL;
+  svz_config.password = NULL;
 }
 
 /*
@@ -158,7 +158,7 @@ svz_boot (void)
 void
 svz_halt (void)
 {
-  svz_free_and_zero (svz_config.server_password);
+  svz_free_and_zero (svz_config.password);
   svz_portcfg_finalize ();
   svz_dynload_finalize ();
   svz_net_cleanup ();

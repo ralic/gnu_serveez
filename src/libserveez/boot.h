@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: boot.h,v 1.7 2001/06/06 17:40:21 raimi Exp $
+ * $Id: boot.h,v 1.8 2001/06/07 17:22:01 ela Exp $
  *
  */
 
@@ -33,11 +33,11 @@
 typedef struct
 {
   /* program's password */
-  char *server_password;
+  char *password;
   /* defines how many clients are allowed to connect */
   SOCKET max_sockets;
   /* when was the program started */
-  long start_time;
+  long start;
   /* log level verbosity */
   int verbosity;
 }  

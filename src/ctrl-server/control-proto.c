@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: control-proto.c,v 1.52 2001/05/22 21:06:41 ela Exp $
+ * $Id: control-proto.c,v 1.53 2001/06/07 17:22:00 ela Exp $
  *
  */
 
@@ -444,7 +444,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   svz_sock_printf (sock, 
 		   "\r\nThis is %s version %s running since %s.\r\n", 
 		   svz_library, svz_version,
-		   svz_time (svz_config.start_time));
+		   svz_time (svz_config.start));
 
   /* display compile time feature list */
   svz_sock_printf (sock, "Features  : FOO"
@@ -499,7 +499,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   svz_sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
 		   svz_sock_connections, svz_config.max_sockets);
   svz_sock_printf (sock, " * uptime is %s\r\n", 
-		   svz_uptime (time (NULL) - svz_config.start_time));
+		   svz_uptime (time (NULL) - svz_config.start));
 #if ENABLE_DEBUG
   svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
 		   svz_allocated_bytes, svz_allocated_blocks);
@@ -810,13 +810,12 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
       if (len <= 2) return -1;
 #if ENABLE_CRYPT && HAVE_CRYPT
       request[len] = '\0';
-      if (svz_config.server_password == NULL ||
-	  !strcmp (crypt (request, svz_config.server_password), 
-		   svz_config.server_password))
+      if (svz_config.password == NULL ||
+	  !strcmp (crypt (request, svz_config.password), svz_config.password))
 #else
-      if (svz_config.server_password == NULL ||
-	  (!memcmp (request, svz_config.server_password, len) &&
-	   (unsigned) len >= strlen (svz_config.server_password)))
+      if (svz_config.password == NULL ||
+	  (!memcmp (request, svz_config.password, len) &&
+	   (unsigned) len >= strlen (svz_config.password)))
 #endif
 	{
 	  sock->userflags |= CTRL_FLAG_PASSED;
