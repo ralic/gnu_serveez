@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: alloc.h,v 1.4 2001/04/06 15:32:35 raimi Exp $
+ * $Id: alloc.h,v 1.5 2001/04/21 16:24:24 ela Exp $
  *
  */
 
@@ -29,7 +29,8 @@
 
 #include "libserveez/defines.h"
 
-#define svz_free_and_zero(var) svz_free (var); (var) = NULL
+#define svz_free_and_zero(var) \
+  do { svz_free (var); (var) = NULL; } while (0)
 
 __BEGIN_DECLS
 

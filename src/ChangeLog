@@ -1,3 +1,9 @@
+2001-04-21  [ Ela ]  <ela@lkcc.org>
+
+	* libserveez/server.c (svz_server_configure): Function for
+	generic server configuration. Read <server.[ch]> for more 
+	information.
+
 2001-04-19  [ Ela ]  <ela@lkcc.org>
 
 	* libserveez/hash.c (svz_hash_put): Return the old value if any.

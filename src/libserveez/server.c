@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.c,v 1.10 2001/04/19 18:16:06 ela Exp $
+ * $Id: server.c,v 1.11 2001/04/21 16:24:24 ela Exp $
  *
  */
 
@@ -322,9 +322,132 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
   server->notify = stype->notify;
   server->description = stype->name;
 
-  /* Add this server to the instance hash. */
-  svz_server_add (server);
   return server;
+}
+
+/*
+ * This function configures a server instance by modifying its default
+ * configuration by the @var{configure} callbacks. Therefore you need to pass
+ * the type of server in @var{server}, the @var{name} of the server instance
+ * and the (optional) modifier callback structure @var{configure}. The
+ * @var{arg} argument is passed to each of the callbacks (e.g. specifying
+ * a scheme cell). The function returns either a valid server instance 
+ * configuration or @code{NULL} on errors.
+ */
+void *
+svz_server_configure (svz_servertype_t *server, 
+		      char *name, 
+		      void *arg,
+		      svz_server_config_t *configure)
+{
+  int e, n, error = 0;
+  void *cfg, *def, *target = NULL;
+  unsigned long offset, size;
+
+  /* Make a simple copy of the example configuration structure definition 
+     for that server instance. */
+  cfg = svz_malloc (server->prototype_size);
+  memcpy (cfg, server->prototype_start, server->prototype_size);
+
+  /* Go through list of configuration items. */
+  for (n = 0; server->items[n].type != ITEM_END; n++)
+    {
+      /* Calculate the target address. */
+      offset = (char *) server->items[n].address - 
+	(char *) server->prototype_start;
+      def = server->items[n].address;
+      target = (char *) cfg + offset;
+      size = e = 0;
+
+      /* Depending on the type of configuration item we need at this
+	 point we call the given callbacks and check their return values. */
+      switch (server->items[n].type) 
+        {
+	  /* Integer value. */
+        case ITEM_INT:
+	  size = sizeof (int);
+	  if (configure && configure->integer)
+	    e = configure->integer (name, arg, server->items[n].name,
+				    (int *) target, (int) def);
+          break;
+
+          /* Integer array. */
+        case ITEM_INTARRAY:
+	  size = sizeof (svz_array_t *);
+	  if (configure && configure->intarray)
+	    e = configure->intarray (name, arg, server->items[n].name,
+				     (svz_array_t **) target,
+				     (svz_array_t *) def);
+          break;
+
+	  /* Simple string. */
+        case ITEM_STR:
+	  size = sizeof (char *);
+	  if (configure && configure->string)
+	    e = configure->string (name, arg, server->items[n].name,
+				   (char **) target, (char *) def);
+          break;
+          
+	  /* Array of strings. */
+        case ITEM_STRARRAY:
+	  size = sizeof (svz_array_t *);
+	  if (configure && configure->strarray)
+	    e = configure->strarray (name, arg, server->items[n].name,
+				     (svz_array_t **) target, 
+				     (svz_array_t *) def);
+          break;
+
+	  /* Hash table. */
+        case ITEM_HASH:
+	  size = sizeof (svz_hash_t *);
+	  if (configure && configure->hash)
+	    e = configure->hash (name, arg, server->items[n].name,
+				 (svz_hash_t ***) target,
+				 (svz_hash_t **) def);
+          break;
+
+	  /* Port configuration. */
+        case ITEM_PORTCFG:
+	  size = sizeof (svz_portcfg_t *);
+	  if (configure && configure->portcfg)
+	    e = configure->portcfg (name, arg, server->items[n].name,
+				    (svz_portcfg_t **) target,
+				    (svz_portcfg_t *) def);
+          break;
+
+	  /* Unknown configuration item. */
+        default:
+          log_printf (LOG_FATAL, "inconsistent data in " __FILE__ "\n");
+          e = -1;
+        }
+
+      /* Check the return value of the configure functions. If the value at
+	 `target' has been modified it should return something non-zero. */
+      if (e == 0)
+	{
+	  if (!server->items[n].defaultable)
+	    {
+	      log_printf (LOG_ERROR,
+			  "`%s' does not define a default for `%s' in `%s'\n",
+			  server->name, server->items[n].name, name);
+	      error = -1;
+	    }
+	  /* Assuming default value. */
+	  else
+	    {
+	      memcpy (target, def, size);
+	    }
+	  continue;
+        }
+      else if (e < 0)
+	error = -1;
+    }
+
+  /* Release memory reserved for configuration on errors. */
+  if (error)
+    svz_free_and_zero (cfg);
+
+  return cfg;
 }
 
 /*

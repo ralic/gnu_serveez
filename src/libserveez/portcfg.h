@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: portcfg.h,v 1.7 2001/04/19 18:16:06 ela Exp $
+ * $Id: portcfg.h,v 1.8 2001/04/21 16:24:24 ela Exp $
  *
  */
 
@@ -30,6 +30,11 @@
 #include <sys/stat.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
+#endif
+#ifndef __MINGW32__
+# include <netinet/in.h>
+#else
+# include <winsock2.h>
 #endif
 
 #include "libserveez/defines.h"

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: boot.c,v 1.9 2001/04/01 13:32:29 ela Exp $
+ * $Id: boot.c,v 1.10 2001/04/21 16:24:24 ela Exp $
  *
  */
 
@@ -27,7 +27,9 @@
 #endif 
 
 #define _GNU_SOURCE
+#include <stdio.h>
 #include <time.h>
+#include <sys/types.h>
 
 #ifdef __MINGW32__
 # include <winsock2.h>

@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.c,v 1.9 2001/04/19 14:08:09 ela Exp $
+ * $Id: guile.c,v 1.10 2001/04/21 16:24:24 ela Exp $
  *
  */
 
@@ -33,6 +33,7 @@
 #include <string.h>
 #include <errno.h>
 #include <guile/gh.h>
+#include <libguile.h>
 
 #include "libserveez.h"
 
@@ -78,7 +79,8 @@ new_value_t (SCM value)
 
 /*
  * Report some error at the current scheme position. Prints to stderr
- * but lets the program continue. Format does not need trailing newline.
+ * but lets the program continue. The format string @var{format} does not 
+ * need a trailing newline.
  */
 static void
 report_error (const char* format, ...)
@@ -87,7 +89,7 @@ report_error (const char* format, ...)
   SCM lp = scm_current_load_port ();
   char *file = SCM_PORTP (lp) ? gh_scm2newstr (SCM_FILENAME (lp), NULL) : NULL;
 
-  fprintf (stderr, "%s:%d:%d: ", file ? file : "file", 
+  fprintf (stderr, "%s:%d:%d: ", file ? file : "undefined", 
 	   SCM_PORTP (lp) ? SCM_LINUM (lp) : 0, 
 	   SCM_PORTP (lp) ? SCM_COL (lp) : 0);
   if (file)
@@ -205,7 +207,7 @@ guile2optionhash (SCM pairlist)
 
       if (NULL == (tmp = guile2str (key)))
 	{
-	  /* unknown key type. must be string or symbol */
+	  /* unknown key type, must be string or symbol */
 	  report_error ("must be string or symbol");
 	  err = 1;
 	  break;
@@ -217,7 +219,7 @@ guile2optionhash (SCM pairlist)
 
       if (NULL != old_value)
 	{
-	  /* multiple definition. let caller croak about that error. */
+	  /* multiple definition, let caller croak about that error */
 	  new_value->defined += old_value->defined;
 	  svz_free_and_zero (old_value);
 	}
@@ -245,8 +247,9 @@ guile2optionhash (SCM pairlist)
 /* ********************************************************************** */
 
 /*
- * Parse an integer value from a scheme cell. Returns zero when succesful.
- * Does not emit error messages.
+ * Parse an integer value from a scheme cell. Returns zero when successful 
+ * and stores the integer value where @var{target} points to. Does not emit 
+ * error messages.
  */
 static int
 guile2int (SCM scm, int *target)
@@ -369,15 +372,22 @@ optionhash_extract_string (svz_hash_t *hash,
  * Return the instance configuration.
  */
 static void *
-guile_create_config (svz_servertype_t *stype)
+guile_create_config (svz_servertype_t *stype, char *name, SCM list)
 {
   void *cfg;
+  svz_server_config_t configure = {
+    NULL, /* integers */
+    NULL, /* integer arrays */
+    NULL, /* strings */
+    NULL, /* string arrays */
+    NULL, /* hashes */
+    NULL  /* port configurations */
+  };
+    
 
-  /* Just copy the default values. */
-  cfg = svz_malloc (stype->prototype_size);
-  memcpy (cfg, stype->prototype_start, stype->prototype_size);
+  /* FIXME: Parse configuration items via 4th argument. */
+  cfg = svz_server_configure (stype, name, (void *) list, &configure);
 
-  /* FIXME: Parse configuration items (further SCM argument needed). */
   return cfg;
 }
 
@@ -394,6 +404,11 @@ guile_define_server (SCM name, SCM args)
   svz_server_t *server = NULL;
   int n;
 
+  /* Check guile arguments. */
+  SCM_ASSERT (gh_string_p (name) || gh_symbol_p (name),
+	      name, SCM_ARG1, FUNC_NAME);
+  SCM_VALIDATE_LIST (SCM_ARG2, args);
+
   /* Seperate server description. */
   p = server_description = svz_strdup (servername);
   while (*p && *p != '-')
@@ -407,7 +422,9 @@ guile_define_server (SCM name, SCM args)
 	  servername[strlen (stype->varname)] == '-')
 	{
 	  server = svz_server_instantiate (stype, servername);
-	  server->cfg = guile_create_config (stype);
+	  server->cfg = guile_create_config (stype, servername, args);
+	  if (server->cfg)
+	    svz_server_add (server);
 	  break;
 	}
     }
@@ -420,7 +437,9 @@ guile_define_server (SCM name, SCM args)
 	{
 	  svz_servertype_add (stype);
 	  server = svz_server_instantiate (stype, servername);
-	  server->cfg = guile_create_config (stype);
+	  server->cfg = guile_create_config (stype, servername, args);
+	  if (server->cfg)
+	    svz_server_add (server);
 	}
     }
 
@@ -663,7 +682,7 @@ guile_exception (void *data, SCM tag, SCM args)
   fprintf (stderr, ": ");
   gh_display (args);
   gh_newline ();
-  return SCM_UNDEFINED;
+  return SCM_BOOL_F;
 }
 
 /*
@@ -674,7 +693,7 @@ int
 guile_load_config (char *cfgfile)
 {
   guile_init ();
-  if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_UNDEFINED)
+  if (gh_eval_file_with_catch (cfgfile, guile_exception) == SCM_BOOL_F)
     return -1;
   return 0;
 }

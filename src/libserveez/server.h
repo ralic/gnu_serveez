@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: server.h,v 1.8 2001/04/19 14:08:10 ela Exp $
+ * $Id: server.h,v 1.9 2001/04/21 16:24:24 ela Exp $
  *
  */
 
@@ -29,6 +29,7 @@
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
 #include "libserveez/hash.h"
+#include "libserveez/portcfg.h"
 
 /*
  * Each server can have a an array of key-value-pairs specific for it.
@@ -119,6 +120,32 @@ struct svz_servertype
   /* array of key-value-pairs of config items */
   svz_key_value_pair_t *items;
 };
+
+/*
+ * This structure defines the callbacks for the @code{svz_server_configure}
+ * function. Each of these have the following arguments:
+ * server: might be the name of the server instance to configure
+ * arg:    an optional argument (e.g. scheme cell)
+ * name:   the name of the configuration item
+ * target: target address of the configuration item
+ * def:    the default value for this configuration item
+ */
+typedef struct
+{
+  int (* integer)  (char *server, void *arg, char *name,
+		    int *target, int def);
+  int (* intarray) (char *server, void *arg, char *name,
+		    svz_array_t **target, svz_array_t *def);
+  int (* string)   (char *server, void *arg, char *name, 
+		    char **target, char *def);
+  int (* strarray) (char *server, void *arg, char *name,
+		    svz_array_t **target, svz_array_t *def);
+  int (* hash)     (char *server, void *arg, char *name, 
+		    svz_hash_t ***target, svz_hash_t **def);
+  int (* portcfg)  (char *server, void *arg, char *name, 
+		    svz_portcfg_t **target, svz_portcfg_t *def);
+}
+svz_server_config_t;
 
 /*
  * Used when binding ports this is available from sizzle 
@@ -216,6 +243,8 @@ SERVEEZ_API svz_server_t *svz_server_find __P ((void *));
 SERVEEZ_API void svz_server_notifiers __P ((void));
 SERVEEZ_API svz_server_t *svz_server_instantiate __P ((svz_servertype_t *, 
 						       char *));
+SERVEEZ_API void *svz_server_configure __P ((svz_servertype_t *, char *, 
+					     void *, svz_server_config_t *));
 SERVEEZ_API int svz_server_init_all __P ((void));
 SERVEEZ_API int svz_server_finalize_all __P ((void));
 SERVEEZ_API int server_portcfg_equal __P ((portcfg_t *, portcfg_t *));
