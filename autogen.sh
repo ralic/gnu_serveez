@@ -70,4 +70,3 @@ else
 fi
 echo "Running $CMD $@ ..."
 $CMD "$@"
-test -f src/libserveez/svzpath.h || (cd src/libserveez && make svzpath.h)

@@ -55,6 +55,7 @@ libserveez_HEADERS = alloc.h util.h snprintf.h hash.h sparsevec.h socket.h \
 
 SED = sed
 
+dynload.c: svzpath.h
 svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
 	@echo "Generating svzpath.h..."
 	@$(SED) < $(srcdir)/svzpath.h.in \
