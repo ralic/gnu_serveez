@@ -1,3 +1,12 @@
+2002-03-01  [ Ela ]  <ela@lkcc.org>
+
+	* guile.h (guile_to_string): This macro segfaulted when passing
+	immediate values in Guile 1.3.4! Thanks for reporting this bug
+	go to <bosnjak@iskratel.si>. Fixed.
+
+	* guile-server.c (guile_define_servertype): Fixed memory leak
+	occuring when servertype definition fails.
+
 2002-02-15  [ Ela ]  <ela@lkcc.org>
 
 	* guile-api.c (guile_sock_find, guile_sock_ident): New 

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.43 2002/02/10 11:38:28 ela Exp $
+ * $Id: guile-server.c,v 1.44 2002/03/02 13:45:20 ela Exp $
  *
  */
 
@@ -1515,6 +1515,9 @@ guile_define_servertype (SCM args)
     }
   else
     {
+      svz_free (server->prefix);
+      if (server->description)
+	svz_free (server->description);
       svz_free (server);
       svz_hash_destroy (functions);
     }

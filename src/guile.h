@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile.h,v 1.10 2001/11/19 13:31:50 ela Exp $
+ * $Id: guile.h,v 1.11 2002/03/02 13:45:20 ela Exp $
  *
  */
 
@@ -31,7 +31,7 @@
  * explicitly @code{free()}d.
  */
 #define guile_to_string(cell)                                   \
-  (SCM_NULLP (cell) ? NULL :                                    \
+  (SCM_IMP (cell) || SCM_NULLP (cell) ? NULL :                  \
   (SCM_STRINGP (cell) ? gh_scm2newstr (cell, NULL) :            \
   (SCM_SYMBOLP (cell) ? gh_symbol2newstr (cell, NULL) : NULL)))
 
