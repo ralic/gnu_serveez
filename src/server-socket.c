@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-socket.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: server-socket.c,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -151,7 +151,7 @@ server_start (void)
 		{
 		  fprintf (stderr, "cannot bind duplicate servers "
 			   "to a single port.\n");
-		  break;
+		  /* FIXME: break;*/
 		}
 	    }
 	  /*
@@ -385,6 +385,7 @@ server_create (portcfg_t *cfg)
       sock->send_pipe = xmalloc (strlen (cfg->outpipe) + 1);
       strcpy (sock->send_pipe, cfg->outpipe);
       sock->read_socket = server_accept_pipe;
+      sock->disconnected_socket = pipe_disconnected;
       log_printf (LOG_NOTICE, "listening on pipe %s\n", sock->send_pipe);
     }
   else
@@ -488,6 +489,8 @@ server_accept_socket (socket_t server_sock)
       sock->flags |= SOCK_FLAG_CONNECTED;
       sock->data = server_sock->data;
       sock->check_request = server_sock->check_request;
+      sock->idle_func = default_idle_func; 
+      sock->idle_counter = 1;
       sock_enqueue (sock);
       connected_sockets++;
     }
@@ -570,9 +573,12 @@ server_accept_pipe (socket_t server_sock)
   sock->read_socket = pipe_read;
   sock->write_socket = pipe_write;
   sock->flags |= SOCK_FLAG_PIPE;
+  sock->parent = server_sock;
   sock->data = server_sock->data;
   sock->check_request = server_sock->check_request;
-
+  sock->disconnected_socket = server_sock->disconnected_socket;
+  sock->idle_func = default_idle_func; 
+  sock->idle_counter = 1;
   sock_enqueue (sock);
 
   server_sock->flags |= SOCK_FLAG_INITED;

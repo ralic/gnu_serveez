@@ -1,5 +1,5 @@
 /*
- * foo-proto.c - Example server
+ * foo-proto.c - example server
  *
  * Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: foo-proto.c,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ * $Id: foo-proto.c,v 1.3 2000/06/12 13:59:38 ela Exp $
  *
  */
 
@@ -38,21 +38,24 @@
 char *foo_packet_delim = "\r\n";
 int foo_packet_delim_len = 2;
 
-struct portcfg some_default_port = {
+struct portcfg some_default_port = 
+{
   PROTO_TCP,
   42421,
   NULL,
   NULL
 };
 
-int some_default_intarray[] = {
+int some_default_intarray[] = 
+{
   4,
   1,
   2,
   3
 };
 
-char *some_default_strarray[] = {
+char *some_default_strarray[] = 
+{
   "Hello",
   "I",
   "am",
@@ -128,7 +131,7 @@ foo_handle_coserver_result (socket_t sock, char *hostent)
 /*
  * handle a single request as found by the default_check_request
  */
-int foo_handle_request(socket_t sock, char *request, int len)
+int foo_handle_request (socket_t sock, char *request, int len)
 {
   struct foo_config *cfg = sock->cfg;
 
@@ -141,16 +144,17 @@ int foo_handle_request(socket_t sock, char *request, int len)
  * protocol
  */
 int
-foo_detect_proto(void *cfg, socket_t sock)
+foo_detect_proto (void *cfg, socket_t sock)
 {
   /* see if the stream starts with our identification string */
-  if ( sock->recv_buffer_fill >= 5 &&
-       !memcmp(sock->recv_buffer, "foo\r\n", 5) ) {
+  if (sock->recv_buffer_fill >= 5 &&
+      !memcmp(sock->recv_buffer, "foo\r\n", 5))
+    {
 
-    /* it's us: forget the id string and signal success */
-    sock_reduce_recv (sock, 5);
-    return -1;
-  }
+      /* it's us: forget the id string and signal success */
+      sock_reduce_recv (sock, 5);
+      return -1;
+    }
 
   /* not us... */
   return 0;
@@ -161,7 +165,7 @@ foo_detect_proto(void *cfg, socket_t sock)
  * the callbacks we need...
  */
 int
-foo_connect_socket(void *acfg, socket_t sock)
+foo_connect_socket (void *acfg, socket_t sock)
 {
   struct foo_config *cfg = (struct foo_config *)acfg;
   int i;
@@ -177,25 +181,26 @@ foo_connect_socket(void *acfg, socket_t sock)
 
   sock->handle_request = foo_handle_request;
 
-  log_printf(LOG_NOTICE, "Foo client detected\n");
+  log_printf (LOG_NOTICE, "Foo client detected\n");
   
-  if (cfg->messages) {
-    for (i = 0; cfg->messages[i]; i++)
-      {
-	r = sock_printf(sock, "%s\r\n", cfg->messages[i]);
-	if (r)
-	  return r;
-      }
-  }
+  if (cfg->messages) 
+    {
+      for (i = 0; cfg->messages[i]; i++)
+	{
+	  r = sock_printf (sock, "%s\r\n", cfg->messages[i]);
+	  if (r)
+	    return r;
+	}
+    }
 
   /*
    * Ask a coserver to resolve the client's ip
    */
-  sock_printf(sock, "Starting reverse lookup...\r\n");
+  sock_printf (sock, "starting reverse lookup...\r\n");
   coserver_reverse (sock->remote_addr,
-		    (handle_coserver_result_t)foo_handle_coserver_result,
+		    (coserver_handle_result_t)foo_handle_coserver_result,
 		    sock);
-  sock_printf(sock, "...waiting...\r\n");
+  sock_printf (sock, "...waiting...\r\n");
   return 0;
 }
 
@@ -206,14 +211,14 @@ foo_connect_socket(void *acfg, socket_t sock)
  * hash.
  */
 int
-foo_global_init(void)
+foo_global_init (void)
 {
-  some_default_hash = hash_create(4);
-  hash_put(some_default_hash, "grass", "green");
-  hash_put(some_default_hash, "cow", "milk");
-  hash_put(some_default_hash, "sun", "light");
-  hash_put(some_default_hash, "moon", "tide");
-  hash_put(some_default_hash, "gnu", "good");
+  some_default_hash = hash_create (4);
+  hash_put (some_default_hash, "grass", "green");
+  hash_put (some_default_hash, "cow", "milk");
+  hash_put (some_default_hash, "sun", "light");
+  hash_put (some_default_hash, "moon", "tide");
+  hash_put (some_default_hash, "gnu", "good");
   return 0;
 }
 
@@ -221,9 +226,9 @@ foo_global_init(void)
  * Called once for foo servers, free our default hash
  */
 int
-foo_global_finalize(void)
+foo_global_finalize (void)
 {
-  hash_destroy(some_default_hash);
+  hash_destroy (some_default_hash);
   return 0;
 }
 
@@ -232,18 +237,18 @@ foo_global_finalize(void)
  * unless it is the default hash...
  */
 int
-foo_finalize(struct server *server)
+foo_finalize (struct server *server)
 {
   struct foo_config *c = (struct foo_config*)server->cfg;
 
-  log_printf(LOG_NOTICE, "Destroying %s\n", server->name);
+  log_printf (LOG_NOTICE, "destroying %s\n", server->name);
 
   /*
    * Free our hash but be careful not to free it if was the
    * default value...
    */
   if (*(c->assoc) != some_default_hash)
-    hash_destroy(*(c->assoc));
+    hash_destroy (*(c->assoc));
   
   return 0;
 }
@@ -254,7 +259,7 @@ foo_finalize(struct server *server)
  *
  */
 int
-foo_init(struct server *server)
+foo_init (struct server *server)
 {
   struct foo_config *c = (struct foo_config*)server->cfg;
   char **s = c->messages;

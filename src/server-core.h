@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: server-core.h,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -73,6 +73,7 @@ int sock_dequeue (socket_t sock);
 
 int pipe_read (socket_t sock);
 int pipe_write (socket_t sock);
+int pipe_disconnected (socket_t sock);
 
 #ifdef __MINGW32__
 

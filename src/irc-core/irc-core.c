@@ -87,10 +87,6 @@ irc_start_auth (socket_t sock)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client;
-#if defined(ENABLE_REVERSE_LOOKUP) || defined(ENABLE_IDENT)
-  char req[64];
-  int addr;
-#endif
       
   /* create and initialize a local IRC client ! */
   client = irc_add_client (cfg, sock->socket_id);
@@ -102,27 +98,12 @@ irc_start_auth (socket_t sock)
   client->since = time (NULL);
 
   /* start here the nslookup and ident */
-#if ENABLE_REVERSE_LOOKUP_1
-  addr = sock->remote_addr;
-  sprintf (req, "%d:%d.%d.%d.%d\n", 
-	   sock->socket_id,
-	   (addr >> 24) & 0xff, (addr >> 16) & 0xff,
-	   (addr >> 8) & 0xff, addr & 0xff);
-  send_coserver_request (COSERVER_REVERSE_DNS, req);
+  coserver_reverse (sock->remote_addr, 
+		    (coserver_handle_result_t)irc_nslookup_done, sock);
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
-#endif
       
-#if ENABLE_IDENT_1
-  addr = sock->remote_addr;
-  sprintf (req, "%d:%d.%d.%d.%d:%d:%d\n", 
-	   sock->socket_id,
-	   (addr >> 24) & 0xff, (addr >> 16) & 0xff,
-	   (addr >> 8) & 0xff, addr & 0xff,
-	   sock->remote_port,
-	   sock->local_port);
-  send_coserver_request (COSERVER_IDENT, req);
+  coserver_ident (sock, (coserver_handle_result_t)irc_ident_done, sock);
   irc_printf (sock, "NOTICE AUTH :" IRC_IDENT_INIT "\n");
-#endif
 }
 
 /*
@@ -170,15 +151,6 @@ irc_connect_socket (socket_t sock)
   sock->disconnected_socket = irc_disconnect;
   sock->idle_func = irc_idle;
   sock->idle_counter = IRC_PING_INTERVAL;
-
-#if ENABLE_IDENT
-  sock->ident_func = irc_ident_done;
-#endif
-
-#if ENABLE_REVERSE_LOOKUP
-  sock->nslookup_func = irc_nslookup_done;
-#endif
-
   irc_start_auth (sock);
 
   return 0;

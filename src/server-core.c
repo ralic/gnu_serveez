@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: server-core.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: server-core.c,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -71,10 +71,6 @@
 #if ENABLE_HTTP_PROTO
 # include "http-server/http-proto.h"
 # include "http-server/http-cache.h"
-#endif 
-
-#if ENABLE_REVERSE_LOOKUP
-# include "coserver/reverse-dns.h"
 #endif 
 
 /*
@@ -376,9 +372,6 @@ find_sock_by_id (int id)
 static int
 server_reset (void)
 {
-#if ENABLE_REVERSE_LOOKUP
-  init_nslookup_cache();
-#endif
 #if ENABLE_HTTP_PROTO
   http_free_cache();
 #endif
@@ -405,6 +398,28 @@ shutdown_socket (socket_t sock)
   sock_dequeue(sock);
   sock_disconnect(sock);
   sock_free(sock);
+
+  return 0;
+}
+
+/*
+ * PIPE_DISCONNECTED is the default disconnetion routine for pipes.
+ */
+int
+pipe_disconnected (socket_t sock)
+{
+#if ENABLE_DEBUG
+  if (!(sock->flags & SOCK_FLAG_LISTENING))
+    {
+      log_printf (LOG_DEBUG, "pipe (%d, %d) disconnected\n",
+		  sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+    }
+  else
+    {
+      log_printf (LOG_DEBUG, "pipe listener disconnected (%s)\n",
+		  sock->send_pipe);
+    }
+#endif
 
   return 0;
 }

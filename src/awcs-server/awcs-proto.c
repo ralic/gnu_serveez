@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: awcs-proto.c,v 1.2 2000/06/11 21:39:18 raimi Exp $
+ * $Id: awcs-proto.c,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -57,10 +57,18 @@
 /*
  * The aWCS port configuration.
  */
-portcfg_t awcs_port = 
+portcfg_t awcs_net_port = 
 {
   PROTO_TCP,   /* prefered protocol type */
   42424,       /* prefered port */
+  NULL,        /* inpipe */
+  NULL         /* outpipe */
+};
+
+portcfg_t awcs_fs_port = 
+{
+  PROTO_PIPE,  /* prefered protocol type */
+  0,           /* prefered port */
   ".aWCSrecv", /* inpipe */
   ".aWCSsend"  /* outpipe */
 };
@@ -70,10 +78,11 @@ portcfg_t awcs_port =
  */
 awcs_config_t awcs_config =
 {
-  &awcs_port, /* current port configuration */
-  NULL,       /* aWCS Master server */
-  0,          /* Was Master server detected ? */
-  NULL        /* aWCS clients user base hash */
+  &awcs_net_port, /* current network port configuration */
+  &awcs_fs_port,  /* current filesystem port configuration */
+  NULL,           /* aWCS Master server */
+  0,              /* Was Master server detected ? */
+  NULL            /* aWCS clients user base hash */
 };
 
 /*
@@ -81,7 +90,8 @@ awcs_config_t awcs_config =
  */
 key_value_pair_t awcs_config_prototype [] =
 {
-  REGISTER_PORTCFG ("port", awcs_config.port, DEFAULTABLE),
+  REGISTER_PORTCFG ("netport", awcs_config.netport, DEFAULTABLE),
+  REGISTER_PORTCFG ("fsport", awcs_config.fsport, DEFAULTABLE),
   REGISTER_END ()
 };
 
@@ -117,15 +127,9 @@ awcs_init (server_t *server)
   cfg->server = NULL;
 
   /* bind the port configuration */
-  server_bind (server, cfg->port);
+  server_bind (server, cfg->netport);
+  server_bind (server, cfg->fsport);
 
-#if ENABLE_MASTER_PIPE
-  /* start pipe configuration */
- 
-  /*
-   * FIXME: We need to pass the "sock->idle_func" for pipe servers !!!
-   */ 
-#endif
   return 0;
 }
 
@@ -136,6 +140,11 @@ int
 awcs_finalize (server_t *server)
 {
   awcs_config_t *cfg = server->cfg;
+  
+  if (unlink (cfg->fsport->inpipe) == -1)
+    log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
+  if (unlink (cfg->fsport->outpipe) == -1)
+    log_printf (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
 
   hash_destroy (cfg->clients);
   
@@ -160,21 +169,24 @@ awcs_nslookup_done (socket_t sock, char *name)
       return -1;
     }
 
+  if (name != NULL)
+    {
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "sending resolved ip to master\n");
+      log_printf (LOG_DEBUG, "sending resolved ip to master\n");
 #endif
 
-  if (sock_printf (cfg->server, "%04d %d %04d %s%c",
-		   cfg->server->socket_id,
-		   STATUS_NSLOOKUP,
-		   sock->socket_id,
-		   name, '\0'))
-    {
-      log_printf (LOG_FATAL, "master write error\n");
-      sock_schedule_for_shutdown (cfg->server);
-      cfg->server = NULL;
-      awcs_disconnect_clients (cfg);
-      return -1;
+      if (sock_printf (cfg->server, "%04d %d %04d %s%c",
+		       cfg->server->socket_id,
+		       STATUS_NSLOOKUP,
+		       sock->socket_id,
+		       name, '\0'))
+	{
+	  log_printf (LOG_FATAL, "master write error\n");
+	  sock_schedule_for_shutdown (cfg->server);
+	  cfg->server = NULL;
+	  awcs_disconnect_clients (cfg);
+	  return -1;
+	}
     }
 
   return 0;
@@ -199,21 +211,24 @@ awcs_ident_done (socket_t sock, char *name)
       return -1;
     }
 
+  if (name != NULL)
+    {
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "sending identified client to master\n");
+      log_printf (LOG_DEBUG, "sending identified client to master\n");
 #endif
 
-  if (sock_printf (cfg->server, "%04d %d %04d %s%c",
-		   cfg->server->socket_id,
-		   STATUS_IDENT,
-		   sock->socket_id,
-		   name, '\0'))
-    {
-      log_printf (LOG_FATAL, "master write error\n");
-      sock_schedule_for_shutdown (cfg->server);
-      cfg->server = NULL;
-      awcs_disconnect_clients (cfg);
-      return -1;
+      if (sock_printf (cfg->server, "%04d %d %04d %s%c",
+		       cfg->server->socket_id,
+		       STATUS_IDENT,
+		       sock->socket_id,
+		       name, '\0'))
+	{
+	  log_printf (LOG_FATAL, "master write error\n");
+	  sock_schedule_for_shutdown (cfg->server);
+	  cfg->server = NULL;
+	  awcs_disconnect_clients (cfg);
+	  return -1;
+	}
     }
 
   return 0;
@@ -266,14 +281,10 @@ status_connected (socket_t sock)
    */
   if (sock != cfg->server)
     {
-#if ENABLE_REVERSE_LOOKUP
-      coserver_reverse (addr, (handle_coserver_result_t) awcs_nslookup_done,
+      coserver_reverse (addr, (coserver_handle_result_t) awcs_nslookup_done,
 			sock);
-#endif
-#if ENABLE_IDENT
-      coserver_ident (sock, (handle_coserver_result_t) awcs_ident_done,
-			sock);
-#endif
+      coserver_ident (sock, (coserver_handle_result_t) awcs_ident_done,
+		      sock);
     }
 
   return 0;
@@ -460,7 +471,7 @@ process_multicast (char *cmd, int cmd_len)
 
   for (;;)
     {
-      address = atoi (cmd);
+      address = util_atoi (cmd);
 
       if ((sock = find_sock_by_id (address)) != NULL)
 	{
@@ -504,7 +515,7 @@ process_kick (char *cmd, int cmd_len)
 
   for (;;)
     {
-      address = atoi (cmd);
+      address = util_atoi (cmd);
 
       sock = find_sock_by_id (address);
       if (sock)
@@ -543,7 +554,7 @@ process_floodcmd (char *cmd, int cmd_len, int flag)
 
   for (;;)
     {
-      address = atoi (cmd);
+      address = util_atoi (cmd);
       
       if ((sock = find_sock_by_id (address)) != NULL)
 	{
@@ -641,6 +652,7 @@ awcs_disconnect_clients (awcs_config_t *cfg)
 	{
 	  sock_schedule_for_shutdown (sock[n]);
 	}
+      xfree (sock);
     }
 }
 
@@ -769,25 +781,35 @@ awcs_connect_socket (void *config, socket_t sock)
     }
 
 #if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "awcs: connection on socket %d\n",
-	      sock->sock_desc);
+  if (sock->flags & SOCK_FLAG_PIPE)
+    {
+      log_printf (LOG_DEBUG, "awcs: connection on pipe (%d, %d)\n",
+		  sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+    }
+  else 
+    {
+      log_printf (LOG_DEBUG, "awcs: connection on socket %d\n",
+		  sock->sock_desc);
+    }
 #endif /* ENABLE_DEBUG */
 
   sock->disconnected_socket = awcs_disconnected_socket;
   sock->check_request = awcs_check_request;
   sock->kicked_socket = awcs_kicked_socket;
-#if ENABLE_REVERSE_LOOKUP
-  sock->nslookup_func = awcs_nslookup_done;
-#endif
-#if ENABLE_IDENT
-  sock->ident_func = awcs_ident_done;
-#endif
 
   if (cfg->master)
     {
 #if ENABLE_DEBUG
-      log_printf (LOG_NOTICE, "master server connected on socket %d\n",
-		  sock->sock_desc);
+      if (sock->flags & SOCK_FLAG_PIPE)
+	{
+	  log_printf (LOG_NOTICE, "master server connected on pipe (%d, %d)\n",
+		      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+	}
+      else
+	{
+	  log_printf (LOG_NOTICE, "master server connected on socket %d\n",
+		      sock->sock_desc);
+	}
 #endif /* ENABLE_DEBUG */
       cfg->server = sock;
       sock->idle_func = awcs_idle_func;
@@ -918,111 +940,6 @@ awcs_detect_proto (void *config, socket_t sock)
   sock->recv_buffer_fill -= len;
   return len;
 }
-
-#if ENABLE_MASTER_PIPE
-
-int
-awcs_check_pipe (socket_t server_sock)
-{
-  awcs_config_t *cfg = server_sock->cfg;
-  struct stat buf;
-  int recv_pipe, send_pipe;
-  socket_t sock;
-
-  server_sock->idle_counter = 1;
-
-  if (cfg->server) 
-    return 0;
-
-  /*
-   * Pipe requested via port configuration ?
-   */
-  if (!cfg->port->inpipe || !cfg->port->outpipe)
-    return 0;
-
-  /* 
-   * Test if both of the named pipes have been created yet. 
-   * If not then create them locally.
-   */
-  if (stat (cfg->port->inpipe, &buf) == -1)
-    {
-      if (mkfifo (cfg->port->inpipe, 0666) == -1)
-	{
-	  log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
-	  return 0;
-	}
-    }
-
-  if (stat (cfg->port->outpipe, &buf) == -1)
-    {
-      if (mkfifo (cfg->port->outpipe, 0666) == -1)
-	{
-	  log_printf (LOG_ERROR, "mkfifo: %s\n", SYS_ERROR);
-	  return 0;
-	}
-    }
-
-  /* 
-   * Try opening the Master-Server's send pipe. This will fail 
-   * until the Master has opened it for reading.
-   */
-  if ((send_pipe = open (cfg->port->outpipe, O_NONBLOCK|O_WRONLY)) == -1)
-    {
-      return 0;
-    }
-
-  /* Try opening the Master-Server's read pipe. */
-  if ((recv_pipe = open (cfg->port->inpipe, O_NONBLOCK|O_RDONLY)) == -1)
-    {
-      close (send_pipe);
-      log_printf (LOG_ERROR, "open: %s\n", SYS_ERROR);
-      return 0;
-    }
-
-  /* Create a socket structure for the Master-Server pipe. */
-  if ((sock = pipe_create (recv_pipe, send_pipe)) == NULL)
-    {
-      close (send_pipe);
-      close (recv_pipe);
-      return 0;
-    }
-
-#if ENABLE_DEBUG
-  log_printf (LOG_DEBUG, "awcs: master pipe %d<->%d connected\n",
-	      sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
-#endif /* ENABLE_DEBUG */
-
-  sock->read_socket = pipe_read;
-  sock->write_socket = pipe_write;
-  sock->disconnected_socket = awcs_disconnected_socket;
-  sock->check_request = awcs_check_request;
-  sock->kicked_socket = awcs_kicked_socket;
-#if ENABLE_REVERSE_LOOKUP
-  sock->nslookup_func = awcs_nslookup_done;
-#endif
-#if ENABLE_IDENT
-  sock->ident_func = awcs_ident_done;
-#endif
-
-  cfg->server = sock;
-  sock->idle_func = awcs_idle_func;
-  sock->idle_counter = 3;
-  log_printf (LOG_NOTICE,
-	      "resizing master server buffers: %d, %d\n",
-	      MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
-  sock_resize_buffers (sock, MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
-  sock->flags |= SOCK_FLAG_NOFLOOD;
-  sock->flags |= SOCK_FLAG_INITED;
-  sock->flags |= SOCK_FLAG_PIPE;
-  sock->sflags = 0;
-  sock_enqueue (sock);
-
-  status_connected (sock);
-  
-  return 0;
-}
-
-#endif
 
 int have_awcs = 1;
 

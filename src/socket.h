@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: socket.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: socket.h,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -112,6 +112,7 @@ struct socket
   HANDLE pipe_desc[2];          /* Used for the pipes and coservers. */
   char *recv_pipe;              /* File of the receive pipe. */
   char *send_pipe;              /* File of the send pipe. */
+  socket_t parent;              /* Parent pipe server for pipe clients. */
 
   char *boundary;               /* Packet boundary. */
   int boundary_size;            /* Packet boundary length */
@@ -163,20 +164,6 @@ struct socket
    * if it was, it should be handled and removed from the input buffer.
    */
   int (* check_request) (socket_t sock);
-
-#if ENABLE_REVERSE_LOOKUP
-  /*
-   * NSLOOKUP_FUNC gets called when sock's host has been resolved.
-   */
-  int (* nslookup_func) (socket_t sock, char *host);
-#endif
-
-#if ENABLE_IDENT
-  /*
-   * IDENT_FUNC gets called when sock's user has been identified.
-   */
-  int (* ident_func) (socket_t sock, char *user);
-#endif
 
 #if ENABLE_HTTP_PROTO
   void * http;            /* http_socket_t entry for HTTP connections */
@@ -296,7 +283,7 @@ socket_t pipe_create (int read_fd, int write_fd);
 int default_read (socket_t sock);
 int default_detect_proto (socket_t sock);
 int default_check_request (socket_t sock);
-
+int default_idle_func (socket_t sock);
 
 /*
  * Shorten the receive buffer of sock

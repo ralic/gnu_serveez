@@ -1,3 +1,41 @@
+2000-06-12  [ Ela ]  <ela@lkcc.org>
+
+	* socket.c (default_idle_func): Default idle function for not yet
+	identified connections (pipes and sockets). After a certain time
+	this socket structure gets discarded if not identifying.
+
+	* server-core.c (pipe_disconnected): Some default disconnection
+	routine for pipes.
+
+	* coserver/coserver.c (coserver_init): Global initializer for all
+	coservers.
+	(coserver_finalize): Global finalizer for all coservers.
+	(coserver_handle_request): Scanning coserver resonse ourselves 
+	without copying and using sscanf().
+	(coserver_handle_request): When a callback gets a NULL for the
+	second arg this indicates an error for the invoking coserver request.
+
+	* socket.h (struct socket): Dropped 'ident_func' and 
+	'nslookup_func'.
+
+	* coserver/dns.c (handle_dns_lookup): Dns coserver reviewed and
+	adapted to new concept. Writing a new coserver is now extremely
+	easy.
+
+	* coserver/ident.c (handle_ident): Ident coserver reviewed and
+	adapted to new concept.
+
+	* coserver/reverse-dns.c (handle_nslookup): Reverse dns coserver
+	reviewed and adpated to new concept.
+
+	* coserver/coserver.c (coserver_send_request): This function got
+	some wrappers for each coserver (coserver_???). You will not need
+	to '#ifdef' them. Now you're able to call any function with one
+	optional argument after getting any result from a coserver result.
+	(coserver_handle_request): Get some callback plus an argument from
+	some callback hash and call this when a coserver delivered some
+	result.
+
 2000-06-09  [ Ela ]  <ela@lkcc.org>
 
 	* socket.c (default_check_packets): This routine is a helper for

@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.h,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: util.h,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -78,8 +78,9 @@ extern int os_version;
 void log_printf (int level, const char *format, ...);
 void set_log_file (FILE *file);
 int dump_request (FILE *out, char * action, int from, char * req, int len);
-char *utoa(unsigned int);
-char *util_inet_ntoa(unsigned long ip);
+char *util_itoa (unsigned int);
+unsigned int util_atoi (char *);
+char *util_inet_ntoa (unsigned long ip);
 
 
 /* char pointer to integer cast, needed for aligned Machines (IRIX, Solaris) */

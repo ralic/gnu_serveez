@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: util.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: util.c,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -418,10 +418,10 @@ get_version(void)
 
 /*
  * Converts an unsigned integer to its string representation returning
- * a pointer to an internal buffer, so copy the result
+ * a pointer to an internal buffer, so copy the result.
  */
 char *
-utoa(unsigned int i)
+util_itoa (unsigned int i)
 {
   static char buffer[32];
   snprintf (buffer, 32, "%u", i);
@@ -433,17 +433,31 @@ utoa(unsigned int i)
  * The string is a statically allocated buffer, please copy result.
  */
 char *
-util_inet_ntoa(unsigned long ip)
+util_inet_ntoa (unsigned long ip)
 {
   static char buffer[16];
   snprintf (buffer, 16, "%lu.%lu.%lu.%lu",
-	    (ip >> 24) & 0xff,
-	    (ip >> 16) & 0xff,
-	    (ip >> 8) & 0xff,
-	    ip & 0xff);
+	    (ip >> 24) & 0xff, (ip >> 16) & 0xff,
+	    (ip >> 8) & 0xff, ip & 0xff);
   return buffer;
 }
 
+/*
+ * Converts a given string to an unsigned integer.
+ */
+unsigned int
+util_atoi (char *str)
+{
+  unsigned int i = 0;
+
+  while (*str >= '0' && *str <= '9')
+    {
+      i *= 10;
+      i += *str - '0';
+      str++;
+    }
+  return i;
+}
 
 /* Runtime checkable flags for sizzle and code */
 

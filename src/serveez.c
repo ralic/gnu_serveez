@@ -20,7 +20,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: serveez.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: serveez.c,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -311,34 +311,22 @@ main (int argc, char * argv[])
 
 
 #ifdef __MINGW32__
-  if (!net_startup())
+  if (!net_startup ())
     return 4;
 #endif /* __MINGW32__ */
   
   /* 
    * Startup the internal coservers here.
    */
-  if ( coserver_init () == -1 )
+  if (coserver_init () == -1)
     return 5;
 
-#if ENABLE_REVERSE_LOOKUP
-  create_internal_coserver (COSERVER_REVERSE_DNS);
-#endif
-#if ENABLE_IDENT
-  create_internal_coserver (COSERVER_IDENT);
-#endif
-#if ENABLE_DNS_LOOKUP
-  create_internal_coserver (COSERVER_DNS);
-#endif
-
-      
   /*
-   * Actually open the ports
+   * Actually open the ports.
    */
-  if ( server_start () == -1 )
+  if (server_start () == -1)
     return 6;
   
-
      
 #if ENABLE_IRC_PROTO
   irc_init_config(&irc_config);
@@ -353,16 +341,6 @@ main (int argc, char * argv[])
    */
   log_printf(LOG_NOTICE, "destroying internal coservers\n");
   
-#if ENABLE_REVERSE_LOOKUP
-  destroy_internal_coservers (COSERVER_REVERSE_DNS);
-#endif
-#if ENABLE_IDENT
-  destroy_internal_coservers (COSERVER_IDENT);
-#endif
-#if ENABLE_DNS_LOOKUP
-  destroy_internal_coservers (COSERVER_DNS);
-#endif
-
   /*
    * Run the finalizers
    */

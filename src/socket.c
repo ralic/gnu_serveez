@@ -19,7 +19,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: socket.c,v 1.2 2000/06/11 21:39:17 raimi Exp $
+ * $Id: socket.c,v 1.3 2000/06/12 13:59:37 ela Exp $
  *
  */
 
@@ -261,8 +261,8 @@ static int
 default_disconnect (socket_t sock)
 {
 #if ENABLE_DEBUG
-  log_printf(LOG_DEBUG, "socket %d disconnected\n",
-	     sock->sock_desc);
+  log_printf (LOG_DEBUG, "socket %d disconnected\n",
+	      sock->sock_desc);
 #endif
 
   return 0;
@@ -285,6 +285,7 @@ default_detect_proto (socket_t sock)
     {
       if (server->detect_proto (server->cfg, sock))
 	{
+	  sock->idle_func = NULL;
 	  sock->cfg = server->cfg;
 	  if (server->connect_socket (server->cfg, sock))
 	    return -1;
@@ -293,11 +294,9 @@ default_detect_proto (socket_t sock)
       
       /*
        * Discard this socket if there were not any valid protocol
-       * detected and it receive buffer fill exceeds a maximum value 
-       * or a certain time has passed.
+       * detected and its receive buffer fill exceeds a maximum value.
        */
-      if (sock->recv_buffer_fill > MAX_DETECTION_FILL ||
-	  time(NULL) - sock->last_recv > MAX_DETECTION_WAIT)
+      if (sock->recv_buffer_fill > MAX_DETECTION_FILL)
 	{
 #if ENABLE_DEBUG
 	  log_printf (LOG_DEBUG, "socket id %d detection failed\n",
@@ -306,6 +305,25 @@ default_detect_proto (socket_t sock)
 	  return -1;
 	}
     }
+  return 0;
+}
+
+/*
+ * Default idle function.
+ */
+int
+default_idle_func (socket_t sock)
+{
+  if (time(NULL) - sock->last_recv > MAX_DETECTION_WAIT)
+    {
+#if ENABLE_DEBUG
+      log_printf (LOG_DEBUG, "socket id %d detection failed\n",
+		  sock->socket_id);
+#endif
+      return -1;
+    }
+
+  sock->idle_counter = 1;
   return 0;
 }
 
@@ -386,6 +404,9 @@ sock_alloc (void)
   sock->sock_desc = -1;
   sock->pipe_desc[READ] = INVALID_HANDLE;
   sock->pipe_desc[WRITE] = INVALID_HANDLE;
+  sock->parent = NULL;
+  sock->recv_pipe = NULL;
+  sock->send_pipe = NULL;
 
   sock->boundary = NULL;
   sock->boundary_size = 0;
@@ -405,13 +426,6 @@ sock_alloc (void)
   sock->kicked_socket = NULL;
   sock->idle_func = NULL;
   sock->idle_counter = 0;
-
-#if ENABLE_REVERSE_LOOKUP
-  sock->nslookup_func = NULL;
-#endif
-#if ENABLE_IDENT
-  sock->ident_func = NULL;
-#endif
 
   sock->recv_buffer = in;
   sock->recv_buffer_size = RECV_BUF_SIZE;
@@ -473,6 +487,10 @@ sock_free (socket_t sock)
     xfree(sock->send_buffer);
   if (sock->flags & SOCK_FLAG_LISTENING && sock->data)
     xfree (sock->data);
+  if (sock->recv_pipe)
+    xfree (sock->recv_pipe);
+  if (sock->send_pipe)
+    xfree (sock->send_pipe);
   xfree(sock);
 
   return 0;
@@ -618,12 +636,19 @@ sock_disconnect (socket_t sock)
   /* shutdown the pipe */
   if(sock->flags & SOCK_FLAG_PIPE)
     {
-      if(close(sock->pipe_desc[WRITE]) < 0)
-	log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
-      if(close(sock->pipe_desc[READ]) < 0)
-	log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
-      sock->pipe_desc[READ] = INVALID_HANDLE;
-      sock->pipe_desc[WRITE] = INVALID_HANDLE;
+      if (!(sock->flags & SOCK_FLAG_LISTENING))
+	{
+	  if(close(sock->pipe_desc[WRITE]) < 0)
+	    log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+	  if(close(sock->pipe_desc[READ]) < 0)
+	    log_printf(LOG_ERROR, "close: %s\n", SYS_ERROR);
+	  sock->pipe_desc[READ] = INVALID_HANDLE;
+	  sock->pipe_desc[WRITE] = INVALID_HANDLE;
+	}
+
+      /* restart pipe server listening */
+      if (sock->parent)
+	sock->parent->flags &= ~SOCK_FLAG_INITED;
     }
   else
 #endif
