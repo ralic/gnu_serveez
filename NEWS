@@ -25,6 +25,11 @@ This file lists user visible changes that were made between releases.  For
 more verbose descriptions of these and internal changes see the ChangeLog
 files.
 
+Version 0.1.7
+-------------
+
+ * minor bugfixes for newer GNU/Linux kernels
+
 Version 0.1.6
 -------------
 

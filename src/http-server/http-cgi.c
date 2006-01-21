@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.52 2004/03/20 10:43:32 ela Exp $
+ * $Id: http-cgi.c,v 1.53 2006/01/21 17:07:04 ela Exp $
  *
  */
 
@@ -650,6 +650,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   char *argv[2];
   struct stat buf;
   int retries;
+  int oflags;
 #endif
 
   /* Assign local CGI disconnection routine. */
@@ -791,7 +792,12 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 	}
 
       /* make the output blocking */
-      if (fcntl (out, F_SETFL, ~O_NONBLOCK) == -1)
+      if ((oflags = fcntl (out, F_GETFL)) == -1)
+	{
+	  svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+	  exit (0);
+	}
+      if (fcntl (out, F_SETFL, oflags & ~O_NONBLOCK) == -1)
 	{
 	  svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
 	  exit (0);
