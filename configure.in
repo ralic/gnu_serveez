@@ -217,12 +217,12 @@ if test $define_enable_opt = yes ; then
     unset optflags
     CFLAGS="-m486"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,opt_is486="yes" AC_MSG_RESULT([yes]), 
-		     opt_is486="no"  AC_MSG_RESULT([no]))
+    AC_TRY_COMPILE(,,opt_is486="yes"; AC_MSG_RESULT([yes]), 
+		     opt_is486="no";  AC_MSG_RESULT([no]))
     CFLAGS="-march=pentiumpro"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,opt_isPPro="yes" AC_MSG_RESULT([yes]), 
-		     opt_isPPro="no"  AC_MSG_RESULT([no]))
+    AC_TRY_COMPILE(,,opt_isPPro="yes"; AC_MSG_RESULT([yes]), 
+		     opt_isPPro="no";  AC_MSG_RESULT([no]))
 
   dnl Other compiler than GNU C
   else

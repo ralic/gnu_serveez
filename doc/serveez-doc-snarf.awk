@@ -22,7 +22,7 @@
 # the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.  
 #
-# $Id: serveez-doc-snarf.awk,v 1.16 2006/01/21 17:07:04 ela Exp $
+# $Id: serveez-doc-snarf.awk,v 1.17 2007/03/29 18:12:31 ela Exp $
 #
 
 # evaluate command line arguments
@@ -381,8 +381,8 @@ function handle_macro(line)
 		gsub(/\/\*[^\*]+\*\//, "", line)
 		args = (args line)
 	      }
-#	      args = substr(args, 0, index(args, ")") - 1)
-	      args = substr(args, 0, index(args, ")"))
+	      args = substr(args, 0, index(args, ")") - 1)
+#	      args = substr(args, 0, index(args, ")"))
 	    }
 
 	    found++

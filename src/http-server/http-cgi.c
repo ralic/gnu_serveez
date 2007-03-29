@@ -1,7 +1,7 @@
 /*
  * http-cgi.c - http cgi implementation
  *
- * Copyright (C) 2000, 2001, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
+ * Copyright (C) 2000, 2001, 2003, 2004, 2007 Stefan Jahn <stefan@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
  *
- * $Id: http-cgi.c,v 1.53 2006/01/21 17:07:04 ela Exp $
+ * $Id: http-cgi.c,v 1.54 2007/03/29 18:12:31 ela Exp $
  *
  */
 
@@ -822,7 +822,12 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       if (type == POST_METHOD)
 	{
 	  /* make the input blocking */
-	  if (fcntl (in, F_SETFL, ~O_NONBLOCK) == -1)
+	  if ((oflags = fcntl (in, F_GETFL)) == -1)
+	    {
+	      svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+	      exit (0);
+	    }
+	  if (fcntl (in, F_SETFL, oflags & ~O_NONBLOCK) == -1)
 	    {
 	      svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
 	      exit (0);

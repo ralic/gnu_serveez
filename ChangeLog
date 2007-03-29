@@ -1,3 +1,8 @@
+2007-03-29  Stefan Jahn  <stefan@lkcc.org>
+
+	* configure.in: Fixed a bug occurring due to updated automake
+	version.
+
 2004-03-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* configure.in: Checking for <floss.h> in order to support the
