@@ -1,0 +1,12 @@
+.deps
+.libs
+Makefile
+Makefile.in
+*.log
+mkpassword
+serveez
+*.dsp
+serveez-config
+serveez.cfg
+stamp-h*
+svzconfig.h
