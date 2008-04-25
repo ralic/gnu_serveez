@@ -7,6 +7,5 @@ mkpassword
 serveez
 *.dsp
 serveez-config
-serveez.cfg
 stamp-h*
 svzconfig.h
