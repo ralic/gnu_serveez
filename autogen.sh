@@ -41,8 +41,11 @@ echo "done."
 echo -n "Creating config.h.in... "
 autoheader
 echo "done."
+echo -n "Creating ltmain.sh... "
+libtoolize -f -c --automake
+echo "done."
 echo -n "Creating Makefile.in(s)... "
-automake
+automake -a -f -c
 echo "done."
 echo -n "Creating configure... "
 autoconf

@@ -18,7 +18,7 @@
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  *
- * $Id: guile-server.c,v 1.57 2004/03/20 10:43:32 ela Exp $
+ * $Id: guile-server.c,v 1.58 2008/04/25 19:11:46 ela Exp $
  *
  */
 
@@ -1589,6 +1589,7 @@ guile_define_servertype (SCM args)
   functions = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
   for (n = 0; guile_functions[n] != NULL; n++)
     {
+      proc = SCM_UNDEFINED;
       err |= optionhash_extract_proc (options, guile_functions[n],
 				      1, SCM_UNDEFINED, &proc, txt);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
