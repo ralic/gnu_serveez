@@ -14,3 +14,9 @@ redhat.sh
 *.dsw
 stamp-h*
 version.h
+config.sub
+config.guess
+missing
+install-sh
+depcomp
+ltmain.sh
