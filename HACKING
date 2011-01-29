@@ -1,0 +1,276 @@
+HACKING GNU Serveez					-*- org -*-
+
+This file is both a guide for newcomers and a todo list for oldstayers.
+It lives in the repo but is not included in the distribution.
+See the end for copying conditions.
+
+* next
+*** TODO Move to GPLv3+.
+*** TODO Modernize bootstrap.
+***** TODO mv configure.in configure.ac
+***** TODO use autoreconf in [[file:autogen.sh][autogen.sh]]
+*** TODO Update Guile support.
+***** TODO ‘scm_cur_inp’ deprecated => use ‘scm_current_input_port’
+
+* other stuff to do
+*** admin
+***** Offload [[file:BUGS][BUGS]] to savannah (can we preserve history?).
+***** Use ranges for copyright notices.
+*** build
+***** Use hydra for continuous integration.
+***** Investigate using gnulib.
+*** Minimize memory consumption of coservers.
+*** Find out how to unload a shared library on MacOS.
+*** Keep track of network interface changes.
+*** Make some of the configure-time servers available dynamically at run-time.
+*** Resolve libcoserver problem (some linkers swallow syms because they are not needed in libserveez).
+*** Runtime check for sendfile() (4 vs 7 args) in configure script.
+*** How can a self connected Gnutella socket find out its port configuration for sending push requests and replies?
+*** Implement a DNS server for home networks.
+*** Implement a DNS client.
+*** Some solution for upcoming IPv6?
+*** Content-Range implementation for Gnutella.
+*** Implement Internet Relay Chat (IRC) bouncer.
+*** Serveez on HURD.
+
+* stuff that is already done					    :ARCHIVE:
+*** Prefix the #define's in 'svzconfig.h' by 'SVZ_' to avoid clashes with other applications.
+*** Let the user create network device bindings.
+*** Allow INADDR_ANY bindings again with all consequences.
+*** Document compilation hints (--disable-shared, static guile, ...)
+*** Make http-cache faster (in fact, faster than the fs).  Use other LRU detection.
+*** Remove SOCK_MAX_ID limit.
+*** Control proto 'stat id' should print socket-type specific info only.
+*** Restartable (automatically) coservers (ident dies on aWCS mass test).
+*** Allow implementing servers in Guile.
+*** Convince the Guile people to accept patches for Windows compatibility.
+*** Write a replacement for the inetd.
+*** Make protocol detection limits / timeouts configurable.
+*** Create a logo for Serveez.
+*** Write an identd.
+*** Define a CLF-compatible default http logfile format and make it being used.
+*** Rename the 'local-ip' part of port configurations to some sane name.
+*** Make Serveez embeddable (create libserveez.{so,dll}).
+*** Implement dynamic server loading capabilities.
+*** Consider Guile as configuration file parser.
+*** Implement another example for an UDP server (drop q3key).
+*** Start a reverse nslookup for each HTTP client.
+*** Allow "/~user/*" HTTP requests.
+*** Using encryption for passwords (libcrypt).
+*** Port forwarder for UDP and TCP.
+*** Support for ICMP sockets.
+*** Content-Range implementation for HTTP.
+*** Gnutella spider should share files.
+*** Make HTTP CGI file extension associations configurable in Win32.
+*** Add ‘--disable-poll’ option.
+*** For directory list: scandir, alphasort, qsort.
+*** Make Serveez automatically compile Sizzle again.
+*** Hack until WsControl tells the interface list on M$-Windows.
+*** What to do if coserver delivers argument no longer valid?
+*** Default file reader to avoid HTTP using its own callback.
+*** Socket/protocol specific flags within socket structure.
+*** Find out how the list of local interfaces works on different Unices.
+*** Do something sensible when a coserver fails its job.
+*** IP address representation must be unsigned long everywhere.
+*** Rechain socket list to avoid starving of chain end.
+*** Convert all protocols to new scheme.
+*** Support local Sizzle installations (sizzle-config).
+*** Local ip addresses for portcfg.
+*** List of local ip addresses on supported systems.
+*** HTTP: Make DefaultType and TypesConfig configurable.
+*** Support for UDP sockets.
+*** HTTP access logfile.
+*** Implement a real nslookup coserver or integrate it in the reverse lookup coserver.
+*** How to exec CGI scripts on Win32 that are not exe/com/bat?
+*** HTTP cache reinit via control protocol.
+*** Configuration file handling.
+*** Wrapper for snprintf (not on Compaq Tru64 Dec).
+*** Implement Internet Relay Chat (IRC) protocol.
+*** Set user and group id when executing CGI scripts.
+*** HTTP directory listing when file is missing.
+*** HTTP file cache.
+*** Fix the problem with using Guile as a coserver.
+*** Don't kick coservers on master server death.
+*** Add configure switch ‘--enable-warning’. (1999-11-14/mgrabmue)
+*** Add configure option for detecting whether usleep() is defined.
+*** Add configure option for specifying max clients at configure time. (1999-11-14/mgrabmue)
+*** Check client ids which come from the master server for validity. (1999-10-26/mgrabmue)
+*** Implement a HTTP plugin for streaming sounds and pictures.
+*** Make the protocol for coservers (e.g., ident) clean and document it.
+*** Debug the aWCS protocol -- massclient with more than 4 threads kills the master server. (1999-10-20/raimi)
+*** Only accept master server if first message is "6 \0".
+*** Implement aWCS client detection.
+*** Implement ident lookup (do in a fork()ed server or do it unblocking).
+*** Implement reverse lookup for client IPs (use raimi's dns_reverse_lookup() after fork()ing).
+*** Implement protocol detection.
+*** Implement control protocol.
+*** Add autoconf support for C and CPP flags. (1999-10-19/mgrabmue)
+*** Add autoconf support for reverse host name lookup. (1999-10-19/mgrabmue)
+*** Check select() for EINV and reap socket structure if happening. (1999-10-21/mgrabmue)
+*** Catch and ignore SIGPIPE. (1999-10-21/mgrabmue)
+*** Make a --disable-debug switch to shut up all log printings beyond errors and wrap all calls to log_printf(). (1999-10-21/mgrabmue)
+*** Hold all socket structures in a hash table to speed up client lookup. (1999-10-21/mgrabmue)
+*** socket.o: In function ‘sock_printf’:
+  /chat/serveez-0.0.2/src/socket.c:565: undefined reference to
+  `vsnprintf'
+  under cygwin - make the configure checking for vsnprintf
+  working. (1999-10-21/mgrabmue)
+*** Check whether libnsl is needed (like on Solaris). (1999-10-21/mgrabmue)
+
+* bootstrap: see [[file:autogen.sh][autogen.sh]]
+
+* coding standards
+*** indent -gnu -nut (sounds enticing, no?)
+*** no trailing whitespace
+*** untabify
+*** ChangeLog / VCS log
+***** normally
+      ChangeLog entries should match VCS log entries in the body.
+      The canonical form for a VCS entry is:
+
+        TITLE
+
+        SHORT-PARAGRAPH
+
+        ENTRY-CONVENTIONS
+        * FILE (FUNC): DESCRIPTION.
+
+      There are two newlines between TITLE and SHORT-PARAGRAPH, and in
+      between SHORT-PARAGRAPH and ENTRY-CONVENTIONS, both of which are
+      optional (if both are omitted, omit also the two newlines between
+      them, leaving only two newlines between TITLE and the rest of the
+      entry).  TITLE is one line only.
+
+      This format is a superset of the GNU Coding Standards
+      (info "(standards) Change Logs"), which does not provide for
+      SHORT-PARAGRAPH or ENTRY-CONVENTIONS, and considers TITLE to
+      be optional.
+
+      Most information about the change should be placed in the source
+      code comments.  SHORT-PARAGRAPH is for referencing bug reports,
+      giving credit (i.e., "Reported by" and "Suggested by" blurbs),
+      and pointers to the origin of regressions (using conventional
+      format "Regression introduced YYYY-MM-DD [TITLE].")
+
+      ENTRY-CONVENTIONS describe entry-specific abbreviations or
+      implicitly shared descriptions.  For example, instead of this:
+
+        * foo.c: #include "header.h".
+        (foo): Use ‘func’.
+        * bar.c: #include "header.h".
+        (bar, baz): Use ‘func’.
+        (qux): Update call to ‘bar’.
+        * doc.texi (ref): Mention "header.h".
+
+      you can write this:
+
+        Here, all C files now #include "header.h";
+        "U" means "Use ‘func’".
+        * foo.c (foo): U.
+        * bar.c (bar, baz): U.
+        (qux): Update call to ‘bar’.
+        * doc.texi (ref): Mention "header.h".
+
+      In this particular example, you can also write:
+
+        Here, all C files now #include "header.h".
+        * foo.c (foo): Use ‘func’.
+        * bar.c (bar, baz): Likewise.
+        (qux): Update call to ‘bar’.
+        * doc.texi (ref): Mention "header.h".
+
+***** entries titled with suffix "; nfc."
+      Some changes don't merit an entry in ChangeLog; for those, simply
+      append "; nfc." (non-fruitful change) to the TITLE to mark that
+      its omission from the ChangeLog is intentional.  You can omit
+      other sections if you wish.  For example, here is a one line
+      (TITLE only) entry:
+
+      [maint] Add top-level file HACKING; nfc.
+
+***** conventions for TITLE
+******* tag
+	To help identify the area of the change, include one or more
+	tags in square braces at the beginning of the TITLE.  For
+	example, ‘maint’ for maintenance, ‘int’ for internal, ‘api’,
+	‘guile’, etc.  Because space in the TITLE is limited, tags
+	should be short and (if more than one) separated by a space.
+	For example:
+
+	[guile int] Avoid deprecated libguile elements.
+
+******* globbing ok
+	Unlike in the rest of the ChangeLog entry, you can use wildcards
+	(globbing) in the TITLE.  This saves space.
+
+******* normally, complete sentence; stylized, sometimes
+	Use a complete sentence, in the same style as the DESCRIPTION
+	part.  An exception to this is adding or deleting elements of
+	some group, for which you can use "New" or "Removed" followed
+	by "GROUP: ELEMENT,...".  Each ELEMENT should be left unquoted.
+	Some examples, in normal/stylized pairs:
+
+	[api] Add func ‘foo_bar_baz’.
+	[api] New func: foo_bar_baz
+	[int] Add bus commands ‘WAIT’, ‘PROBE’.
+	[int] New bus commands: WAIT, PROBE
+	[guile] Remove bindings ‘gh_car’, ‘gh_cdr’, ‘gh_list’.
+	[guile] Removed 3 bindings: gh_*
+
+	Note that the stylized example in the last pair uses globbing.
+
+*** public non-‘master’ branches in the repo
+***** ‘a’ -- "anchor", "asis", "already", "argh-just-leave-me-alone"
+This branch is for what was already released.  It will never be rebased.
+Its tip will always have a commit title starting with "Release".
+***** ‘next’ -- stuff for the next release
+This branch is work for the next release.  It will never be rebased.
+***** q/TOPIC -- "questionably", "querulously"
+These are experimental, exploring the particular TOPIC.  They are intended
+to be ephemeral, undergoing rebase, amendment, and ultimately removal.
+*** copyright policy
+***** update every year, unconditionally
+***** (if (< 2 (- END BEGIN)) RANGE INDIVIDUAL)
+
+* release process
+*** Ensure the release is complete.
+    - Check the [[next]] and [[other stuff to do]] lists and the
+      [[file:NEWS][NEWS]] and [[file:BUGS][BUGS]] files for pending or completed tasks.
+    - Are the M$-Windows files up to date (*.dsp, *.dsw)?
+    - Compile, run and test it on M$-Windows (MinGW32, Cygwin and MSVC).
+    - Make sure INSTALL, [[file:THANKS][THANKS]] and README-* are up to date.
+
+*** Test build and packaging.
+    - Run ‘make distclean’, ‘sh autogen.sh’ and ‘make all’.
+    - Check if the binaries work properly.
+    - Run ‘make distcheck’.
+    - Check this status into CVS and tag it.
+    - Run ‘make dist’.
+    - Run ‘make site’ in the ‘doc/’ directory and check this status into
+      the savannah.gnu.org CVS.
+    - Create a binary package for M$-Windows.
+
+*** Bump up version.
+    - Add a ChangeLog entry in toplevel directory.
+    - Add new section in NEWS.
+    - Bump up version number in ‘configure.in’.
+    - Check into CVS.
+
+*** Distribute the package.
+    - Upload the package to <www.lkcc.org>.
+    - Release at SourceForge.
+    - Announce the release at Freshmeat.
+    - Send an announcement to <help-serveez@gnu.org> and <info-gnu@gnu.org>.
+    - Update documentation on <www.gnu.org> and <serveez.sourceforge.net>.
+    - Update the Guile project entry <guile-projects@glug.org>.
+    - Update the GNU directory entry <bug-directory@gnu.org>.
+
+* etc
+#+STARTUP: odd
+
+
+Copyright (C) 2011 Thien-Thi Nguyen
+Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.
