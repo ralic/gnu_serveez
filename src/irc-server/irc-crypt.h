@@ -13,10 +13,8 @@
  * Merchantability Or Fitness For A Particular Purpose.  See The
  * Gnu General Public License For More Details.
  * 
- * You Should Have Received A Copy Of The Gnu General Public License
- * Along With This Package; See The File Copying.  If Not, Write To
- * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, Ma 02111-1307, Usa.  
+ * You should have received a copy of the GNU General Public License
+ * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef __IRC_CRYPT_H__
