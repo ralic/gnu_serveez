@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: nut-transfer.h,v 1.12 2001/12/07 20:37:15 ela Exp $
- *
  */
 
 #ifndef __NUT_TRANSFER_H__

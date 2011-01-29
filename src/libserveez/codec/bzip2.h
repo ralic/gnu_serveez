@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: bzip2.h,v 1.2 2001/12/13 18:00:01 ela Exp $
- *
  */
 
 #ifndef __BZIP2_H__

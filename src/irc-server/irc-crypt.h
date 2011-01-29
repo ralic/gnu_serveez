@@ -17,9 +17,6 @@
  * Along With This Package; See The File Copying.  If Not, Write To
  * The Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, Ma 02111-1307, Usa.  
- *
- * $Id: irc-crypt.h,v 1.5 2001/08/01 10:16:22 ela Exp $
- *
  */
 
 #ifndef __IRC_CRYPT_H__

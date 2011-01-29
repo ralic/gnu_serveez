@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: http-proto.h,v 1.22 2001/06/27 20:38:36 ela Exp $
- *
  */
 
 #ifndef __HTTP_PROTO_H__

@@ -18,9 +18,6 @@
 ;; along with this package; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
-;;
-;; $Id: guile-server-test.scm,v 1.1 2003/06/29 09:21:28 ela Exp $
-;;
 
 ;; Load the test suite module.
 (use-modules (test-suite))

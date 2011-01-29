@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: portcfg.h,v 1.21 2002/01/31 18:31:50 ela Exp $
- *
  */
 
 #ifndef __PORTCFG_H__

@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: iphlpapi.h,v 1.1 2001/02/02 11:30:34 ela Exp $
- *
  */
 
 #ifndef __IPHLPAPI_H__

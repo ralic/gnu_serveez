@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: tcp-socket.c,v 1.17 2003/06/14 14:57:59 ela Exp $
- *
  */
 
 #if HAVE_CONFIG_H

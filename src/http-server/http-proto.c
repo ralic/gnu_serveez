@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: http-proto.c,v 1.82 2004/03/20 10:43:32 ela Exp $
- *
  */
 
 #if HAVE_CONFIG_H

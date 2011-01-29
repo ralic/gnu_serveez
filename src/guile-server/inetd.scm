@@ -18,9 +18,6 @@
 ;; along with this package; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
-;;
-;; $Id: inetd.scm,v 1.14 2002/02/06 06:54:56 ela Exp $
-;;
 
 ;; the inetd configuration file
 (define config-file "/etc/inetd.conf")

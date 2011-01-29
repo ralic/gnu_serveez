@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: nut-core.h,v 1.9 2002/02/03 09:34:05 ela Exp $
- *
  */
 
 #ifndef __NUT_CORE_H__

@@ -19,9 +19,6 @@
 ;; along with this package; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
-;;
-;; $Id: mandel-shared.scm,v 1.3 2001/11/22 17:17:51 ela Exp $
-;;
 
 ;;
 ;; The distributed Mandelbrot server is an Internet server completely written

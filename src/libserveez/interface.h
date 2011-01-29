@@ -18,9 +18,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: interface.h,v 1.8 2002/01/06 13:18:52 ela Exp $
- *
  */
 
 #ifndef __INTERFACE_H__

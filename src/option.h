@@ -18,9 +18,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: option.h,v 1.4 2001/04/09 13:46:05 ela Exp $
- *
  */
 
 #ifndef __OPTION_H__

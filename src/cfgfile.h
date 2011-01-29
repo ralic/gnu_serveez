@@ -18,9 +18,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: cfgfile.h,v 1.6 2001/04/28 12:37:05 ela Exp $
- *
  */
 
 #ifndef __CFGFILE_H__

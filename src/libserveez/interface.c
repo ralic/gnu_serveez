@@ -18,9 +18,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: interface.c,v 1.14 2002/10/13 08:11:59 ela Exp $
- *
  */
 
 #if HAVE_CONFIG_H

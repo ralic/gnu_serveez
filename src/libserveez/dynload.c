@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: dynload.c,v 1.24 2003/08/26 04:59:33 ela Exp $
- *
  */
 
 #if HAVE_CONFIG_H

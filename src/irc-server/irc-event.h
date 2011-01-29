@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: irc-event.h,v 1.9 2001/05/19 23:04:57 ela Exp $
- *
  */
 
 #ifndef __IRC_EVENT_H__

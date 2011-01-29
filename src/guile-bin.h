@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: guile-bin.h,v 1.5 2002/05/24 12:51:13 ela Exp $
- *
  */
 
 #ifndef __GUILE_BIN_H__

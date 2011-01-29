@@ -18,9 +18,6 @@
 ;; along with this package; see the file COPYING.  If not, write to
 ;; the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
-;;
-;; $Id: icecast-server.scm,v 1.8 2003/03/24 16:54:49 ela Exp $
-;;
 
 ;; load convenience file
 (serveez-load "serveez.scm")

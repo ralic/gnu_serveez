@@ -19,9 +19,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: serveez.h,v 1.8 2001/04/01 13:32:28 ela Exp $
- *
  */
 
 #ifndef __SERVEEZ_H__

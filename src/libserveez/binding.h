@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
- * $Id: binding.h,v 1.11 2002/01/24 15:18:03 ela Exp $
- *
  */
 
 #ifndef __BINDING_H__

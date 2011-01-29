@@ -17,9 +17,6 @@
  * along with this package; see the file COPYING.  If not, write to
  * the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.  
- *
- * $Id: server-socket.h,v 1.7 2001/12/13 18:00:00 ela Exp $
- *
  */
 
 #ifndef __SERVER_SOCKET_H__
