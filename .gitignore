@@ -1,0 +1,60 @@
+# anywhere: patterns
+*.la
+*.lo
+
+# anywhere: specific filenames
+.deps
+.libs
+Makefile
+Makefile.in
+
+# The rest of the file contains entries grouped by directory,
+# mixing both patterns and specific filenames.
+
+/*.dsw
+/*.tar.gz
+/aclocal.m4
+/autom4te.cache
+/config.guess
+/config.h
+/config.h.in
+/config.log
+/config.status
+/config.sub
+/configure
+/debian.sh
+/depcomp
+/install-sh
+/libtool
+/ltmain.sh
+/missing
+/redhat.sh
+/stamp-h*
+/version.h
+
+/doc/*.info
+/doc/*.sed
+/doc/guile-api.texi
+/doc/manual
+/doc/serveez-api.texi
+/doc/serveez-procedures.txt
+/doc/stamp-*
+/doc/version*.texi
+
+/src/*.dsp
+/src/*.log
+/src/mkpassword
+/src/serveez
+/src/serveez-config
+/src/stamp-h*
+/src/svzconfig.h
+
+/src/libserveez/*.dsp
+/src/libserveez/svzpath.h
+
+/test/*-test
+/test/*.dsp
+
+# Local variables:
+# mode: shell-script
+# End:
