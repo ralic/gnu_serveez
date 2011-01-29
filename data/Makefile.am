@@ -18,7 +18,7 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg guile-projects.txt \
+EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg \
 	serveez1.ico serveez2.ico init.serveez.in PLATFORMS
 SED = sed
 
