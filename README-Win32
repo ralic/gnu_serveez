@@ -1,18 +1,18 @@
--- 
+--
 -- README-Win32
--- 
+--
 -- Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
--- 
+--
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 3, or (at your option)
 -- any later version.
--- 
+--
 -- This software is distributed in the hope that it will be useful,
 -- but WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 -- GNU General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this package.  If not, see <http://www.gnu.org/licenses/>.
 --
@@ -21,8 +21,8 @@
 Introduction
 ============
 
-   This is the README for the native Win32 port of this package.  It uses 
-the original M$ Visual C++ compiler to create both the Serveez library 
+   This is the README for the native Win32 port of this package.  It uses
+the original M$ Visual C++ compiler to create both the Serveez library
 and the actual Serveez binary.  You will need at least version 5.0 of this
 compiler (higher versions do convert the projects automatically).  Of course,
 the Cygwin and MinGW32 port via the gcc for Win32 is still supported, but it
@@ -54,7 +54,7 @@ autodsp                          - creates the workspace and project files
 Installation
 ============
 
-   First unpack the package archive of Serveez to the directory `serveez/'. 
+   First unpack the package archive of Serveez to the directory `serveez/'.
 Then you need to copy some files to their native location.  The `vcgen.bat'
 batch file does this for you.
 
@@ -85,9 +85,9 @@ is optional.  You just need to adjust the paths.
 Requirements
 ============
 
-  Serveez also depends on the GNU packages bzip2, zlib and Guile.  You 
+  Serveez also depends on the GNU packages bzip2, zlib and Guile.  You
 should install these packages somewhere the compiler can find the include
-headers and libraries.  Binary packages built with the M$ Visual C++ 
-compiler can be obtained at <http://www.lkcc.org/~ela/devel.html#gnu> 
-and the packages for the MinGW32 gcc toolchain can be obtained at 
+headers and libraries.  Binary packages built with the M$ Visual C++
+compiler can be obtained at <http://www.lkcc.org/~ela/devel.html#gnu>
+and the packages for the MinGW32 gcc toolchain can be obtained at
 <http://www.sourceforge.net/projects/mingwrep>.

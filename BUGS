@@ -1,20 +1,20 @@
--- 
+--
 -- BUGS
--- 
+--
 -- Copyright (C) 2000, 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
--- 
+--
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 3, or (at your option)
 -- any later version.
--- 
+--
 -- This software is distributed in the hope that it will be useful,
 -- but WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 -- GNU General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this package.  If not, see <http://www.gnu.org/licenses/>.
 --
@@ -29,15 +29,15 @@ State:       fixed
 Date:	     2002-06-07
 Description: On a GNU/Linux system on x86 out-of-band data can be detected
 	     by select() and poll().  When trying to `recv(..., MSG_OOB)'
-	     the byte the system call returns EINVAL when sent too 
+	     the byte the system call returns EINVAL when sent too
 	     frequently and detected by poll().  In case of select() this
 	     does not occur.  Currently we are using `ioctl(SIOCATMARK)'
 	     to detect if recv() would fail.  This is a work-around, not
 	     a real fix.
-Fix:	     When POLLPRI has been detected you are meant to 
+Fix:	     When POLLPRI has been detected you are meant to
 	     `recv(..., MSG_OOB)' immediately.  The EINVAL error occurred
-	     when both POLLOUT/POLLIN *and* POLLPRI was detected and 
-	     `send(..., 0)' or `recv(..., 0)' has been called before 
+	     when both POLLOUT/POLLIN *and* POLLPRI was detected and
+	     `send(..., 0)' or `recv(..., 0)' has been called before
 	     `recv(..., MSG_OOB)'.
 
 Bug:	     B0018
@@ -46,8 +46,8 @@ State:       unfixed
 Date:	     2000-07-01
 Description: Cannot recompute the Linux kernel's checksums of larger (larger
 	     than a single MTU, fragmented) ICMP packets.  It seems like the
-	     defragmented user level packet (IP header) contains the 
-	     checksum of the first fragment with its length and the 
+	     defragmented user level packet (IP header) contains the
+	     checksum of the first fragment with its length and the
 	     More-Fragments-Flag set.
 
 Bug:	     B0017
@@ -55,7 +55,7 @@ From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed (2001-05-04/stefan)
 Date:	     2000-11-11
 Description: There is no standard raw socket support in the Winsock API.
-	     Maybe we should use the ICMP.DLL API instead? 
+	     Maybe we should use the ICMP.DLL API instead?
 Fix:	     Noticed that the above DLL is unusable for our purposes.
 	     M$-Windows 2000 is said to support raw sockets as Unix systems
 	     do, but it is *not* well known to work properly.
@@ -76,7 +76,7 @@ State:       fixed (2001-09-15/stefan)
 Date:	     2000-09-20
 Description: The named pipes on Win32 do not work properly yet.
 Fix:	     Due to the bad documentation and the lack of open source
-	     example code I needed a lot of trial and error to get them 
+	     example code I needed a lot of trial and error to get them
 	     finally working.
 
 Bug:	     B0014
@@ -84,7 +84,7 @@ From:	     Stefan Jahn <stefan@lkcc.org>
 State:       fixed (2000-10-01/mgrabmue)
 Date:	     2000-09-20
 Description: Serveez does not run on i64 Linux.
-Fix:	     Made minor changes to the Sizzle core library (garbage 
+Fix:	     Made minor changes to the Sizzle core library (garbage
 	     collection).
 
 Bug:	     B0013
@@ -140,7 +140,7 @@ State:       fixed (2000-11-11/stefan)
 Date:	     2000-04-24
 Description: HTTP cache inconsistency.
 Fix:         With help of a special paranoid checking function all bugs
-	     have been caught. 
+	     have been caught.
 
 Bug:         B0007
 From:	     Stefan Jahn <stefan@lkcc.org>

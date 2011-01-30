@@ -1,20 +1,20 @@
--- 
+--
 -- README
--- 
+--
 -- Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
--- 
+--
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 3, or (at your option)
 -- any later version.
--- 
+--
 -- This software is distributed in the hope that it will be useful,
 -- but WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 -- GNU General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this package.  If not, see <http://www.gnu.org/licenses/>.
 --
@@ -27,13 +27,13 @@ Serveez is a server framework.  It provides routines and help for
 implementing IP based servers (currently TCP, UDP and ICMP).  It is also
 possible to use named pipes for all connection oriented protocols.
 
-We think it is worth the effort because many people need server functionality 
-within their applications.  However, many people experience problems 
+We think it is worth the effort because many people need server functionality
+within their applications.  However, many people experience problems
 with select()- or poll()-loops, and with non-blocking operations.
 
 This application demonstrates various aspects of advanced network
-programming in a portable manner.  It is known to compile and run on 
-GNU/Linux systems, as well as on other 32-bit and 64-bit flavours of Unix 
+programming in a portable manner.  It is known to compile and run on
+GNU/Linux systems, as well as on other 32-bit and 64-bit flavours of Unix
 and on Microsoft Windows (9x/ME/NT/2000/XP).
 
 You can use it for implementing your own servers or for understanding how
@@ -49,7 +49,7 @@ and ident lookups.
 Requirements
 ============
 
-Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions). 
+Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions).
 This current version is known to work with Guile 1.3 and later.
 
 
@@ -60,11 +60,11 @@ Unpack the distribution tarball:
 
     $ tar xvzf serveez-<version>.tar.gz               (using GNU tar)
     $ gzip -cd serveez-<version>.tar.gz | tar xvf -   (using another tar)
-  
+
 Change into the source directory:
 
     $ cd serveez-<version>
-  
+
 Configure the source package for your system:
 We recommend to use --enable-opt unless you have a good reason not to do so.
 
@@ -73,19 +73,19 @@ We recommend to use --enable-opt unless you have a good reason not to do so.
 Now compile the package:
 
     $ make
-  
+
 Install Serveez:
 
     $ make install
 
 You must have root privileges if you want to install the package in the
-standard location (/usr/local) or in any location that is only writable 
+standard location (/usr/local) or in any location that is only writable
 by root.
 
 If you have problems building the package out of the box, this is due to
 GNU libtool's inability to handle dynamic linking in most cases.  That is
 why we recommend to try and configure the package with `--disable-shared'
-and/or the native compiler (if any).  When the build process is not able to 
+and/or the native compiler (if any).  When the build process is not able to
 link against an existing Guile installation you can try to use the
 `--with-guile-source=DIR' configure option.
 

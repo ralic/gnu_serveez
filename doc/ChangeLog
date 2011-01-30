@@ -42,7 +42,7 @@
 
 2002-10-10  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Concept): Applied John's changes after 
+	* serveez.texi (Concept): Applied John's changes after
 	proof-reading.  Thanks!
 
 2002-10-01  Stefan Jahn  <stefan@lkcc.org>
@@ -66,10 +66,10 @@
 
 2002-07-26  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Overall concept): New section.  To be 
+	* serveez.texi (Overall concept): New section.  To be
 	continued...
 
-	* serveez-doc-snarf.awk: Ability to produce Guile 
+	* serveez-doc-snarf.awk: Ability to produce Guile
 	documentation files.
 
 	* Makefile.am (serveez-procedures.txt): Added Makefile target
@@ -101,13 +101,13 @@
 
 2002-02-03  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Gnutella Spider): Documented the hostname 
-	feature	of the `hosts' configuration item and added the 
+	* serveez.texi (Gnutella Spider): Documented the hostname
+	feature	of the `hosts' configuration item and added the
 	documentation about the new `disable' configuration item.
 
 2002-01-31  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Define ports): Added a separate section about 
+	* serveez.texi (Define ports): Added a separate section about
 	each possible port configuration item.
 
 2002-01-28  Stefan Jahn  <stefan@lkcc.org>
@@ -140,7 +140,7 @@
 
 2001-11-20  Stefan Jahn  <stefan@lkcc.org>
 
-	* guile-api.texi.in: Documented all implemented callbacks so 
+	* guile-api.texi.in: Documented all implemented callbacks so
 	far.  Removed all FIXME's.
 
 2001-11-16  Stefan Jahn  <stefan@lkcc.org>
@@ -180,7 +180,7 @@
 
 2001-09-27  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Define ports): Added a note about the 
+	* serveez.texi (Define ports): Added a note about the
 	possibility to bind servers to ports whose ip address is given
 	as an interface description string.
 
@@ -216,7 +216,7 @@
 2001-07-19  Stefan Jahn  <stefan@lkcc.org>
 
 	* serveez.texi (Writing servers): Split this section into
-	three subsection (Builtin servers, Embedded servers, 
+	three subsection (Builtin servers, Embedded servers,
 	Guile servers).
 
 	* serveez-api.awk: Detection of guile procedures implemented.
@@ -241,7 +241,7 @@
 
 	* Makefile.am: Verified the build process of the web site at
 	www.gnu.org. The `site' target creates part of the directory
-	you need to check into the 
+	you need to check into the
 	subversions.gnu.org:/webcvs/software/serveez CVS.
 
 2001-06-30  Martin Grabmueller  <mgrabmue@cs.tu-berlin.de>
@@ -258,7 +258,7 @@
 
 2001-05-18  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez-api.texi.in (Memory management): Added some 
+	* serveez-api.texi.in (Memory management): Added some
 	introductory words on this chapter.
 
 2001-05-08  Stefan Jahn  <stefan@lkcc.org>
@@ -282,7 +282,7 @@
 	* serveez.en.html: Added link to Guile home page (replaced with
 	Sizzle's link).
 
-	* serveez.texi (Porting issues): Removed most references to 
+	* serveez.texi (Porting issues): Removed most references to
 	Sizzle and added some comments about Guile.
 
 2001-04-27  Stefan Jahn  <stefan@lkcc.org>
@@ -316,8 +316,8 @@
 	* Makefile.am (serveez-api.texi): Added a rule for creating
 	this file via the below scripts.
 
-	* serveez-api.awk: This awk script produces a sed script 
-	which replaces simple placeholders for C function within a 
+	* serveez-api.awk: This awk script produces a sed script
+	which replaces simple placeholders for C function within a
 	texinfo file with its full documentation. The awk script
 	gets C source files as input.
 
@@ -366,7 +366,7 @@
 
 2000-10-31  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi: All occurrences of serveez, sizzle and 
+	* serveez.texi: All occurrences of serveez, sizzle and
 	versions replaced by meta variables.
 
 2000-10-07  Stefan Jahn  <stefan@lkcc.org>
@@ -387,7 +387,7 @@
 
 2000-08-17  Stefan Jahn  <stefan@lkcc.org>
 
-	* serveez.texi (Quake III Key Server): Documented the 
+	* serveez.texi (Quake III Key Server): Documented the
 	integrated Quake3 key server. Including reference to possibly
 	illegal topic.
 
@@ -411,7 +411,7 @@
 
 2000-07-01  Stefan Jahn  <stefan@lkcc.org>
 
-	* coserver.txt: Documentation on how to write coservers for 
+	* coserver.txt: Documentation on how to write coservers for
 	blocking tasks within serveez.
 
 	* server.txt: Started to write some documentation on how to write

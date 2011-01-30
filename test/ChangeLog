@@ -10,7 +10,7 @@
 	* server-test.scm: New test. Basically tests the error conditions
 	of (define-port!) (define-server!) and (bind-server!).
 
-	* test-suite.scm, binary-test.scm: Hopefully fixed the 
+	* test-suite.scm, binary-test.scm: Hopefully fixed the
 	Guile 1.6.x issue about	modules.
 
 2003-05-31  Stefan Jahn  <stefan@lkcc.org>
@@ -76,12 +76,12 @@
 2001-06-10  Stefan Jahn  <stefan@lkcc.org>
 
 	* array-test.c (main): Two more checks for the replication
-	functions `svz_array_dup()' and `svz_array_strdup()' 
+	functions `svz_array_dup()' and `svz_array_strdup()'
 	implemented.
 
 2001-05-03  Stefan Jahn  <stefan@lkcc.org>
 
-	* test.c (svz_hexdump): Added this as wrapper if 
+	* test.c (svz_hexdump): Added this as wrapper if
 	DEBUG_MEMORY_LEAKS is defined.
 
 2001-04-04  Stefan Jahn  <stefan@lkcc.org>
@@ -126,7 +126,7 @@
 
 2000-11-08  Stefan Jahn  <stefan@lkcc.org>
 
-	* alist-test.c (main): The stress test includes now a delete 
+	* alist-test.c (main): The stress test includes now a delete
 	range section, too. Thus it was possible to find another bug in
 	alist_delete().
 

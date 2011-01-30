@@ -1,20 +1,20 @@
--- 
+--
 -- NEWS
--- 
+--
 -- Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
 -- Copyright (C) 2000, 2002 Raimund Jacob <raimi@lkcc.org>
 -- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
--- 
+--
 -- This is free software; you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation; either version 3, or (at your option)
 -- any later version.
--- 
+--
 -- This software is distributed in the hope that it will be useful,
 -- but WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 -- GNU General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this package.  If not, see <http://www.gnu.org/licenses/>.
 --
@@ -33,7 +33,7 @@ Version 0.1.6
 
  * support for the nsr-tandem-nsk platform
  * improvement and bug fixes in the build system
- * prefixed the #define's in 'svzconfig.h' by 'SVZ_' or 'svz_' to avoid 
+ * prefixed the #define's in 'svzconfig.h' by 'SVZ_' or 'svz_' to avoid
    name space clashes with other applications
 
 Version 0.1.5
@@ -42,7 +42,7 @@ Version 0.1.5
  * configurable types available through (instantiate-config-type!)
  * bug fixes in core API and Guile interface
  * minor enhancements of the core API and the Guile interface
- * updated configure and build system to autoconf 2.57, automake 1.7.5 
+ * updated configure and build system to autoconf 2.57, automake 1.7.5
    and libtool 1.5
  * support for Guile 1.7.x versions
  * some thread safety functionality enabled via --with-thread-safety
@@ -53,10 +53,10 @@ Version 0.1.4
 
  * Guile server documentation partly rewritten and updated
  * support for HP-UX platforms
- * support for urgent (out-of-band) data on stream-like network 
+ * support for urgent (out-of-band) data on stream-like network
    connections (i.e. TCP connections)
  * introduced server reset and socket trigger callback
- * simplified icecast Guile server added (also demonstrates coserver 
+ * simplified icecast Guile server added (also demonstrates coserver
    usage from Guile)
  * use of zlib version 1.1.4 in the Win32 binary release
  * command line switch for using standard input as configuration file
@@ -71,7 +71,7 @@ Version 0.1.3
  * HTTP partial content implemented
  * Guile version 1.3 backward compatibility
  * improved build-time behaviour (including cross compiling)
- * allow INADDR_ANY bindings by the keyword `any' in network port 
+ * allow INADDR_ANY bindings by the keyword `any' in network port
    configurations and appropriate mixtures of this binding with explicit
    network interface bindings
  * allow SO_BINDTODEVICE bindings by the `device' property of the
@@ -162,7 +162,7 @@ Version 0.0.16
    enable debug outputs but without these counters, this was a problem
    with memory aligned architectures like IP32 or RS6000, they were
    throwing bus errors
- * possibility to connect aWCS-Master through two unidirectional named 
+ * possibility to connect aWCS-Master through two unidirectional named
    pipes within Linux's filesystem, configure it by --enable-awcs-pipe
  * DNS lookup coserver supported via --enable-dns
  * reverse DNS lookup supported via --enable-reverse-dns
