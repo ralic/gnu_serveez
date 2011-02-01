@@ -62,13 +62,13 @@ Serveez is a server framework.  It provides routines and help for
 implementing IP based servers (currently TCP, UDP and ICMP).  It is also
 possible to use named pipes for all connection oriented protocols.
 
-We think it is worth the effort because many people need server functionality 
-within their applications.  However, many people experience problems 
+We think it is worth the effort because many people need server functionality
+within their applications.  However, many people experience problems
 with select()- or poll()-loops, and with non-blocking operations.
 
 This application demonstrates various aspects of advanced network
-programming in a portable manner.  It is known to compile and run on 
-GNU/Linux systems, as well as on other 32-bit and 64-bit flavours of Unix 
+programming in a portable manner.  It is known to compile and run on
+GNU/Linux systems, as well as on other 32-bit and 64-bit flavours of Unix
 and on Microsoft Windows (9x/ME/NT/2000/XP).
 
 You can use it for implementing your own servers or for understanding how
@@ -91,7 +91,7 @@ reference manual for the various servers.
 @section Building and installing
 
 @subsection Rebuild the package from the sources
-You can skip this section if you are familiar with the GNU'ish way of 
+You can skip this section if you are familiar with the GNU'ish way of
 configuring, compiling and installing a GNU package.
 
 @subsubsection Getting the source
@@ -118,7 +118,7 @@ sleepless ~> gzip -cd serveez-@value{VERSION}.tar.gz | tar xvf -
 sleepless ~> cd serveez-@value{VERSION}
 @end example
 
-@item Configure the source package for your system: 
+@item Configure the source package for your system:
 We recommend to use @samp{--enable-opt} unless you have a good reason
 not to do so.  It follows a complete list of the @file{configure} script
 options.  The list of known options can the obtained via
@@ -208,7 +208,7 @@ the binary executable.
 If you enable this feature the user is able to write servers
 using Guile.
 @item --enable-passthrough
-This includes the program passthrough server in the Serveez 
+This includes the program passthrough server in the Serveez
 binary.  The server provides basic inetd functionality.
 @item --enable-iflist
 If Serveez is unable to detect the correct list of local network
@@ -235,7 +235,7 @@ sleepless ~/serveez-@value{VERSION}> make
 
 @item Install serveez:
 You must have root privileges if you want to install the package in the
-standard location @file{/usr/local} or in any location that is only writable 
+standard location @file{/usr/local} or in any location that is only writable
 by root.
 @example
 sleepless ~/serveez-@value{VERSION}> make install
@@ -275,7 +275,7 @@ sleepless ~> rpm -ev serveez-@value{VERSION}
 
 @subsection Installing the Debian package
 The binary Debian distribution @file{serveez_@value{VERSION}_i386.deb} of
-Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine.  You need to 
+Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine.  You need to
 ensure root privileges in order to install or remove Debian packages.
 
 @table @asis
@@ -296,7 +296,7 @@ sleepless ~> dpkg -r serveez
 
 @section Environment variables
 
-When using the serveezopt package or playing around with the dynamic server 
+When using the serveezopt package or playing around with the dynamic server
 module loader of Serveez you can tell the core API of Serveez (which is the
 @file{libserveez.[so|dll]} library) to use an additional load path to find
 these server modules. The environment variable @samp{SERVEEZ_LOAD_PATH} holds
@@ -345,23 +345,23 @@ Use standard input as configuration file.
 
 @section Configuring Serveez
 
-As noted above Serveez is configured via a configuration file which is by 
-default @file{serveez.cfg} and can be set by passing the @samp{-f} command 
-line argument.  When you pipe a file into Serveez or pass the @samp{-c} 
+As noted above Serveez is configured via a configuration file which is by
+default @file{serveez.cfg} and can be set by passing the @samp{-f} command
+line argument.  When you pipe a file into Serveez or pass the @samp{-c}
 argument on the command line the input stream will be used as configuration
 file no matter whether you passed a @samp{-f} command line switch or not.
 
-To make configuring more fun we did not invent yet another configuration 
-file format.  Instead we use a dialect of the Scheme programming language 
-called GNU Guile (@uref{http://www.gnu.org/software/guile/}).  There is no 
-need to be worried if you are not a programmer.  What you have to do is 
-really simple and this document shows you everything you need to know.  We 
-also provide many examples.  However there are some simple concepts you 
+To make configuring more fun we did not invent yet another configuration
+file format.  Instead we use a dialect of the Scheme programming language
+called GNU Guile (@uref{http://www.gnu.org/software/guile/}).  There is no
+need to be worried if you are not a programmer.  What you have to do is
+really simple and this document shows you everything you need to know.  We
+also provide many examples.  However there are some simple concepts you
 have to understand.  The following paragraphs will explain them.
 
-The idea of the configuration file is this: Serveez starts, runs the 
-configuration file (other applications usually just read them and remember 
-the settings) and finally enters its main loop doing the things you wanted 
+The idea of the configuration file is this: Serveez starts, runs the
+configuration file (other applications usually just read them and remember
+the settings) and finally enters its main loop doing the things you wanted
 it to.
 
 There are three things you have to do in the configuration file.
@@ -382,27 +382,27 @@ ports: we have UDP, ICMP and named pipes each with different options to
 set. Every port has a unique name you assign to it. The name of the port is
 later used to bind servers to it.
 
-The following examples show how you setup different types of port 
+The following examples show how you setup different types of port
 configurations. You start to define such a port using the Guile function
 @code{(define-port!)}. The first argument to this functions specifies the
 name of the port configuration. The remaining argument describes the
 port in detail.
 
 @subsubsection Port configuration items
-This table describes each configuration item for a port in Serveez.  Note 
+This table describes each configuration item for a port in Serveez.  Note
 that not each item applies to every kind of port configuration.
 
 @table @code
 @item proto (string)
 This is the main configuration item for a port configuration setting up the
-type of port.  Valid values are @samp{tcp}, @samp{udp}, @samp{icmp}, 
-@samp{raw} and @samp{pipe}.  This configuration item decides which of the 
+type of port.  Valid values are @samp{tcp}, @samp{udp}, @samp{icmp},
+@samp{raw} and @samp{pipe}.  This configuration item decides which of the
 remaining configuration items apply and which do not.
 
 @item port (integer in the range 0..65535)
 The @code{port} item determines the network port number on which TCP and UDP
 servers will listen.  Thus it does not make sense for ICMP and named pipes.
-If you pass @samp{0} Serveez will determine a free port in the range 
+If you pass @samp{0} Serveez will determine a free port in the range
 between 1 and 65535.
 
 @item recv (string or associative list)
@@ -456,8 +456,8 @@ about conflicting values.
 @item ipaddr (string)
 This configuration item specifies the IP address (either in dotted decimal
 form e.g. @samp{192.168.2.1} or as a device description which can be
-obtained via @samp{serveez -i}) to which a server is bound to.  The 
-@samp{*} keyword for all known IP addresses and the @samp{any} keyword for 
+obtained via @samp{serveez -i}) to which a server is bound to.  The
+@samp{*} keyword for all known IP addresses and the @samp{any} keyword for
 any IP address are also valid values.  The default value is @samp{*}.  The
 configuration item applies to network ports (TCP, UDP and ICMP) only.
 
@@ -467,39 +467,39 @@ can be bound to.  It overrides the @code{ipaddr} item.  Valid values are
 network device descriptions (probably no aliases and no loopback devices).
 It applies to network ports (TCP, UDP and ICMP) only.
 
-A note on device bindings:  Device bindings are based on the 
-@code{SO_BINDTODEVICE} socket layer option.  This option is not available 
-on all systems.  We only tested it on GNU/Linux (2.2.18 and 2.4.17 as of 
-this writing).  Device bindings are very restrictive: only root can do it 
-and only physical devices are possible.  The loopback device cannot be used 
-and no interface alias (i.e. @samp{eth0:0}).  A device binding can only 
-be reached from the physical outside but it includes all aliases for the 
+A note on device bindings:  Device bindings are based on the
+@code{SO_BINDTODEVICE} socket layer option.  This option is not available
+on all systems.  We only tested it on GNU/Linux (2.2.18 and 2.4.17 as of
+this writing).  Device bindings are very restrictive: only root can do it
+and only physical devices are possible.  The loopback device cannot be used
+and no interface alias (i.e. @samp{eth0:0}).  A device binding can only
+be reached from the physical outside but it includes all aliases for the
 device.  So if you bind to device @samp{eth0} even @samp{eth0:0} (and all
-other aliases) are used.  The connection has to be made from a remote 
-machine.  The advantage of this kind of binding is that it survives 
-changes of IP addresses.  This is tested for ethernet networks (i.e. eth*) 
-and isdn dialups (i.e. ippp*).  It does not work for modem dialups 
-(i.e. ppp*) (at least for Stefan's PCMCIA modem).  The problem seems to be 
+other aliases) are used.  The connection has to be made from a remote
+machine.  The advantage of this kind of binding is that it survives
+changes of IP addresses.  This is tested for ethernet networks (i.e. eth*)
+and isdn dialups (i.e. ippp*).  It does not work for modem dialups
+(i.e. ppp*) (at least for Stefan's PCMCIA modem).  The problem seems to be
 the dialup logic actually destroying ppp*.  Other opinions are welcome.
-Device bindings always win: If you bind to @samp{*} (or an individual IP 
-address) and to the corresponding device, connections are made with 
-the device binding.  The order of the @code{(bind-server!)} statements 
+Device bindings always win: If you bind to @samp{*} (or an individual IP
+address) and to the corresponding device, connections are made with
+the device binding.  The order of the @code{(bind-server!)} statements
 do not matter.  This feature is not thoroughly tested.
 
 @item backlog (integer)
-The @code{backlog} parameter defines the maximum length the queue of 
-pending connections may grow to.  If a connection request arrives with the 
+The @code{backlog} parameter defines the maximum length the queue of
+pending connections may grow to.  If a connection request arrives with the
 queue full the client may receive an error.  This parameter applies to
 TCP ports only.
 
 @item type (integer in the range 0..255)
-This item applies to ICMP ports only.  It defines the message type 
-identifier used to send ICMP packets (e.g. @samp{8} is an echo message 
+This item applies to ICMP ports only.  It defines the message type
+identifier used to send ICMP packets (e.g. @samp{8} is an echo message
 i.e. PING).
 
 @item send-buffer-size (integer)
-The @code{send-buffer-size} configuration item defines the maximum number 
-of bytes the send queue of a client is allowed to grow to.  The item 
+The @code{send-buffer-size} configuration item defines the maximum number
+of bytes the send queue of a client is allowed to grow to.  The item
 influences the "send buffer overrun error condition".  For packet oriented
 protocols (UDP and ICMP) you need to specify at least the maximum number
 of bytes a single packets can have.  For UDP and ICMP this is 64 KByte.
@@ -514,18 +514,18 @@ value specified here is an initial value. It is used unless the server
 bound to this port changes it.
 
 @item connect-frequency (integer)
-This item determines the maximum number of connections per second the port 
+This item determines the maximum number of connections per second the port
 will accept.  It is a kind of "hammer protection".  The item is evaluated
 for each remote client machine separately.  It applies to TCP ports.
 
 @item allow (list of strings)
-Both the @code{allow} and @code{deny} lists are lists of IP addresses in 
+Both the @code{allow} and @code{deny} lists are lists of IP addresses in
 dotted decimal form (e.g. @samp{192.168.2.1}). The @code{allow} list defines
 the remote machines which are allowed to connect to the port.  It applies
 to TCP ports.
 
 @item deny (list of strings)
-The @code{deny} list defines the remote machines which are not allowed to 
+The @code{deny} list defines the remote machines which are not allowed to
 connect to the port.  Each connection from one of these IP addresses will
 be refused and shut down immediately.  It applies to TCP ports.
 @end table
@@ -574,7 +574,7 @@ specify a user creating the named pipe (file ownership) use either the
 (define-port! 'foo-pipe-port `(
     (proto . pipe)                   ;; protocol is named pipe
 
-    ;; specify the receiving endpoint    
+    ;; specify the receiving endpoint
     (recv . ((name . ".foo-recv")    ;; name of the pipe
              (permissions . #o0666)  ;; create it with these permissions
              (user . "calvin")       ;; as user "calvin"
@@ -629,15 +629,15 @@ has a unique name you assign to it. The name of the server is later used
 to bind it to a port.
 
 The following example instantiates a server with the short name "foo". Each
-server in Serveez has got a short name. @xref{Existing servers}, for the 
+server in Serveez has got a short name. @xref{Existing servers}, for the
 details. This example demonstrates everything which is possible in server
-configurations. You start a definition of a server with the guile function 
+configurations. You start a definition of a server with the guile function
 @code{(define-server!)}. The following argument specifies the name of the
-server instance (in this case "foo-server") which starts with the short 
-name. The second argument describes the server in detail. Each 
+server instance (in this case "foo-server") which starts with the short
+name. The second argument describes the server in detail. Each
 configuration item is setup with a @code{(key . value)} pair where "key" is
 the name of the configuration item and "value" is the value which depends
-on the type of the item. @xref{Configuring servers}, for a detailed 
+on the type of the item. @xref{Configuring servers}, for a detailed
 description of each type of value.
 
 @example
@@ -657,7 +657,7 @@ description of each type of value.
 
 Serveez provides a number of server types. Each of them has a short name.
 The name of the server instance has to begin with this short name followed
-by a dash (-). You can append any suffix then. In the example above "foo" 
+by a dash (-). You can append any suffix then. In the example above "foo"
 is the short name and "foo-server" the name of the server instance.
 
 @node Bind servers to ports, , Define servers, Using Serveez
@@ -671,7 +671,7 @@ pressing @key{^C} in the terminal you started it in).
 
 This example binds the server "foo-server" (s.a.) to the port "foo-tcp-port"
 which was described above. Therefore you need to call the guile function
-@code{(bind-server!)} which takes two arguments specifying the name of a port 
+@code{(bind-server!)} which takes two arguments specifying the name of a port
 configuration and a server instance. Both need to be defined before
 you can write this statement.
 
@@ -691,11 +691,11 @@ that happens. The server just will not work then.
 
 @subsection Additional configuration possibilities
 
-The three functions @code{(define-port!)}, @code{(define-server!)} and 
+The three functions @code{(define-port!)}, @code{(define-server!)} and
 @code{(bind-server!)} return @code{#t} on success and @code{#f} on failure.
 For your convenience we provide some more Guile functions.  Some of these
 are based upon the above.  You will find the additional functions in the
-file @file{serveez.scm}.  In order to include this convenience 
+file @file{serveez.scm}.  In order to include this convenience
 functionality you can @code{(primitive-load "serveez.scm")} at the top
 of the configuration file.
 
@@ -728,7 +728,7 @@ values mean fewer logging messages. This settings gets overridden by command
 line.
 
 @item (serveez-maxsockets max)
-Set the number of maximum socket descriptors (number of concurrent 
+Set the number of maximum socket descriptors (number of concurrent
 connections). When passing Serveez the -m command line argument this setting
 gets overridden, too.
 
@@ -838,11 +838,11 @@ library, user programs and sometimes the kernel.  Nevertheless, Serveez
 is able to serve about one thousand and more clients on GNU/Linux, a
 hundred on Win95 and more on later Windows systems.
 
-We chose this method anyway because it seems to be the most portable. 
+We chose this method anyway because it seems to be the most portable.
 
-An alternative method to multiplex client network connections is 
+An alternative method to multiplex client network connections is
 @code{poll()}. It is automatically used when @samp{configure} finds
-@code{poll()} to be available. This will work around the builtin (g)libc's 
+@code{poll()} to be available. This will work around the builtin (g)libc's
 @code{select()} file descriptor limit.
 
 @subsection Limits on open filehandles
@@ -854,15 +854,15 @@ The limits set by @code{ulimit()} or @code{setrlimit()}.
 @item Solaris
 See the Solaris FAQ, question 3.45.
 
-@item FreeBSD 
+@item FreeBSD
 Use sysctl -w kern.maxfiles=nnnn to raise limit.
 
 @item GNU/Linux
-See Bodo Bauer's /proc documentation.  On current 2.2.x kernels, 
+See Bodo Bauer's /proc documentation.  On current 2.2.x kernels,
 @example
 echo 32768 > /proc/sys/fs/file-max
 @end example
-increases the system limit on open files, and 
+increases the system limit on open files, and
 @example
 ulimit -n 32768
 @end example
@@ -873,12 +873,12 @@ descriptors this way.  It has also been verified that a process on
 appropriate limits).  The upper bound seems to be available memory.
 
 @item Windows 9x/ME
-On Win9x machines, there is quite a low limit imposed by the kernel: 
-100 connections system wide (!).  You can increase this limit by editing 
-the registry key 
-HKLM\System\CurrentControlSet\Services\VxD\MSTCP\MaxConnections. 
-On Windows 95, the key is a DWORD; on Windows 98, it's a string. 
-We have seen some reports of instability when this value is increased 
+On Win9x machines, there is quite a low limit imposed by the kernel:
+100 connections system wide (!).  You can increase this limit by editing
+the registry key
+HKLM\System\CurrentControlSet\Services\VxD\MSTCP\MaxConnections.
+On Windows 95, the key is a DWORD; on Windows 98, it's a string.
+We have seen some reports of instability when this value is increased
 to more than a few times its default value.
 
 @item Windows NT/2000
@@ -933,14 +933,14 @@ possible to run multiple different servers on the same port.
 
 This chapter covers all questions about how to write your own Internet
 protocol server with this package. Most of the common tasks of
-such a server have got a generic solution (default routines) which could be 
-"overridden" by your own routines. There are some examples within this 
+such a server have got a generic solution (default routines) which could be
+"overridden" by your own routines. There are some examples within this
 package. They are showing the possibilities with this package and how to
 implement servers.
 
 The @samp{foo} server does not do anything at all and is of no actual use
 but could be a basis for a new protocol server. We are now going to describe
-how this specific server works. Eventually the reader might get an 
+how this specific server works. Eventually the reader might get an
 impression of what is going on.
 
 For better understanding the text below we will use the following
@@ -963,7 +963,7 @@ are put into a copy of the default configuration. Thus we get an instance.
 @item server instance
 A server instance is a copy of the server definition including the modified
 server configuration. A server gets instantiated by the configuration file
-parser. The concept of server instances has been introduced because we 
+parser. The concept of server instances has been introduced because we
 wanted Serveez to have the following features. A single server can have
 multiple instances with different behaviour due to different server
 configurations. A server instance can be bound to multiple port
@@ -971,12 +971,12 @@ configurations. Different server instances (of the same and/or different
 server type) can share the same port configuration.
 
 @item port configuration
-A port configuration in Serveez is represented by the @code{svz_portcfg_t} 
-structure. Depending on a shared flag it contains different type of 
+A port configuration in Serveez is represented by the @code{svz_portcfg_t}
+structure. Depending on a shared flag it contains different type of
 information specifying a transport endpoint. @xref{Define ports}, for more
-on this topic. It also can be a special configuration item within a server 
-configuration. This is necessary if a server needs for some reason a remote 
-transport endpoint. A server instance does not usually need to know about 
+on this topic. It also can be a special configuration item within a server
+configuration. This is necessary if a server needs for some reason a remote
+transport endpoint. A server instance does not usually need to know about
 the port configuration it is bound to.
 @end table
 
@@ -1007,7 +1007,7 @@ This section describes each of the above possibilities in detail.
 The core library of Serveez can be used to write standalone server modules.
 Serveez defines a certain interface for shared libraries which contain
 such server modules. If Serveez detects an unknown server type (server type
-which is not builtin) in its configuration file it tries to load a shared 
+which is not builtin) in its configuration file it tries to load a shared
 library containing this server type during startup.
 
 @subsubsection Prerequisites
@@ -1023,14 +1023,14 @@ $ make install
 
 After successful installation you are able to compile and link against the
 Serveez core API. The headers should be available in @file{/usr/local/include}
-and the library itself (@file{libserveez.so} or @file{libserveez.dll}) is 
+and the library itself (@file{libserveez.so} or @file{libserveez.dll}) is
 located in @file{/usr/local/lib} if you passed the configure script
 @samp{--prefix=/usr/local}.
 
 @subsubsection Server definition
 
-The interface mentioned in the introduction is defined via the extern 
-declaration of the server type in the shared library of the server module. 
+The interface mentioned in the introduction is defined via the extern
+declaration of the server type in the shared library of the server module.
 Imagine you want to implement a server type called @samp{foo}. This requires
 the external symbol @code{foo_server_definition} in the shared library.
 You can achieve this inserting the following lines into your header file:
@@ -1057,7 +1057,7 @@ the proper content (@xref{Builtin servers}.)
 All of the servers listed in @ref{Existing servers} are builtin servers.
 The following sections describe in detail how to setup a new builtin server
 type. This kind of server will be part of the Serveez executable. That is
-why you should make it configurable in the configure script via a 
+why you should make it configurable in the configure script via a
 @samp{--enable-xxxserver} argument.
 
 @subsubsection Making and configuring preparations
@@ -1065,7 +1065,7 @@ why you should make it configurable in the configure script via a
 Serveez is configured and built via automake and autoconf. That
 is why you are not supposed to write your own Makefiles but simplified
 @file{Makefile.am}s. Automake will automatically generate dependencies and
-compiler/linker command lines. Here are the steps you basically need 
+compiler/linker command lines. Here are the steps you basically need
 to follow:
 
 @itemize @bullet
@@ -1081,9 +1081,9 @@ Now create the sub directory and change into it.
 
 @item
 You need to create a new @file{Makefile.am} therein. If you want to have
-this file @file{configure}d you need to add a further line to the 
+this file @file{configure}d you need to add a further line to the
 @code{AC_OUTPUT()} statement in @file{configure.in} which is in the top
-level directory. You have to put at least the following into the newly 
+level directory. You have to put at least the following into the newly
 created @file{Makefile.am}:
 
 @example
@@ -1102,11 +1102,11 @@ about automake read the info pages.
 
 @subsubsection Server header file @file{foo-proto.h}
 
-This file contains at least your server's @code{extern} declaration of your 
-server definition which must be available from the outside. 
-The @code{foo} server implements all kinds of 
+This file contains at least your server's @code{extern} declaration of your
+server definition which must be available from the outside.
+The @code{foo} server implements all kinds of
 configuration items which can be integers, integer arrays, strings, string
-arrays, port configurations, booleans and hash maps. Every item of the server 
+arrays, port configurations, booleans and hash maps. Every item of the server
 configuration can later be manipulated from the configuration file.
 
 @subsubsection Server implementation file @file{foo-proto.c}
@@ -1116,13 +1116,13 @@ to define them somewhere and put them into the default configuration
 structure. This structure will be used to instantiate your server. For
 this example we simply called it simply @code{foo_config}.
 
-In order to associate the configuration items in a server configuration 
+In order to associate the configuration items in a server configuration
 to keywords within the configuration file you have to define an
-array of key-value-pairs. This is done in the @code{foo_config_prototype} 
-field. There are several macros which make different associations. These 
-are the @code{SVZ_REGISTER_*} macros which take three arguments. The first 
-argument is the keyword which will occur in the configuration file, the 
-second is the associated item in your default configuration structure 
+array of key-value-pairs. This is done in the @code{foo_config_prototype}
+field. There are several macros which make different associations. These
+are the @code{SVZ_REGISTER_*} macros which take three arguments. The first
+argument is the keyword which will occur in the configuration file, the
+second is the associated item in your default configuration structure
 and the last argument specifies if this item is defaultable or not.
 
 @subsubsection Server definition
@@ -1137,15 +1137,15 @@ definition also contains the callbacks your server (mandatorily) provides.
 
 @subsubsection Server callbacks
 
-There are several callback routines, which get called in order to 
-instantiate the server and for describing the actual behaviour of your 
+There are several callback routines, which get called in order to
+instantiate the server and for describing the actual behaviour of your
 server.  Here are the description of all of these callbacks.  Some of them
 have to be implemented.  Others have reasonable default values.
 
 @table @code
 @item global initializer (optional)
 This callback is executed once for every type of server.  Here you can
-initialize data or whatever is shared between all instances of your server. 
+initialize data or whatever is shared between all instances of your server.
 For instance the HTTP server initializes its file cache here.
 
 @item global finalizer (optional)
@@ -1154,8 +1154,8 @@ the global initializer you can do so here.  The foo server frees its
 default hash previously allocated in the global initializer.
 
 @item instance initializer (mandatory)
-Within this routine you can initialize everything you might need for one 
-instance of your server.  The foo server does not do anything in this 
+Within this routine you can initialize everything you might need for one
+instance of your server.  The foo server does not do anything in this
 callback.
 
 @item instance finalizer (optional)
@@ -1163,14 +1163,14 @@ The server instance finalizer gets its instance representation as argument.
 You have to free all resources used by this server instance.
 
 @item protocol detection (mandatory)
-Because it is possible to have more than one server listening on one 
+Because it is possible to have more than one server listening on one
 network port we need to detect the type of client which is connecting
 to this port.  The foo server checks if the first five bytes the client
 was sending is identifying it as a foo client.  This routine is getting
 two arguments where the first one is a pointer to this servers instance
 and the second is the client socket object containing all
 information of the client connection.  This structure is described a bit
-later.  Be patient.  For successful client detection return non-zero value. 
+later.  Be patient.  For successful client detection return non-zero value.
 
 @item socket connection (mandatory)
 If the client detection signaled success this routine is called to assign
@@ -1178,49 +1178,49 @@ the client connection to the server instance.  The arguments are just
 the same as in the detection routine.  In this callback you can assign
 all the connection specific callbacks for your server and do some initial
 things.  The foo server sets the @code{check_request} callback to the default
-@code{svz_sock_check_request} which is using the packet delimiter 
-information to find whole packets.  When a client sent such a packet the 
+@code{svz_sock_check_request} which is using the packet delimiter
+information to find whole packets.  When a client sent such a packet the
 @code{handle_request} callback is executed.  That is why the foo
 server assigns the @code{handle_request} method.
 
 @item client info (optional)
-If this callback is given the control protocol 
+If this callback is given the control protocol
 (@xref{Control Protocol Server}.) can give information about a specific
 client if requested with @samp{stat id NUM}.  The first argument given
 is the server instance and the second one the client's socket
 structure.  You have to return a static single line character string.
 
 @item server info (optional)
-This function is called when listing the server instances via 
-@samp{stat all} from the control protocol (@xref{Control Protocol Server}.). 
-The returned character string might be multilined separated by 
-@code{\r\n} (no trailing separator).  Usually you will return all the 
+This function is called when listing the server instances via
+@samp{stat all} from the control protocol (@xref{Control Protocol Server}.).
+The returned character string might be multilined separated by
+@code{\r\n} (no trailing separator).  Usually you will return all the
 server configuration information.
 
 @item notifier (optional)
-If this callback is not @code{NULL} it is called whenever there is some time 
+If this callback is not @code{NULL} it is called whenever there is some time
 left.  It gets the server instance itself as argument.  Actually it gets
 called every second.
 
 @item handle request (mandatory for UDP and ICMP servers)
-The arguments to this callback are the client's socket structure, the 
+The arguments to this callback are the client's socket structure, the
 address of the packet data and its length.  When implementing a UDP or
-ICMP server you need to return non-zero if your server could process the 
-packet.  Thus it is possible that there are multiple UDP servers on a 
+ICMP server you need to return non-zero if your server could process the
+packet.  Thus it is possible that there are multiple UDP servers on a
 single port.
 @end table
 
 @subsubsection Make your server available
 
 You distribute your server by editing the @file{cfgfile.c} file in the
-@file{src/} directory. There you have to include the servers header 
+@file{src/} directory. There you have to include the servers header
 file and add the server definition by calling @code{svz_servertype_add()}
 
 @subsubsection More detailed description of the callback system and structures
 
-The client connection information is stored within the @code{svz_socket_t} 
+The client connection information is stored within the @code{svz_socket_t}
 object. All of the client connection specific callbacks get this object as
-first argument. Following is a description of the most important elements 
+first argument. Following is a description of the most important elements
 of this object.
 
 @table @code
@@ -1229,7 +1229,7 @@ The socket id is a unique id for a client connection.
 
 @item int version
 This item validates this socket structure. If you pass the @code{id} and
-@code{version} to a coserver you can check if the delivered socket 
+@code{version} to a coserver you can check if the delivered socket
 structure is the original or not within the coserver callback.
 
 @item int proto
@@ -1239,8 +1239,8 @@ be @code{PROTO_PIPE}, @code{PROTO_TCP}, @code{PROTO_UDP},
 
 @item int flags
 The flag field of the client connection contains informations about the
-state of this connection. See @file{socket.h} in the @file{src/libserveez/} 
-directory for more information. Basically this bitfield specifies how this 
+state of this connection. See @file{socket.h} in the @file{src/libserveez/}
+directory for more information. Basically this bitfield specifies how this
 object is handled by the main server loop.
 
 @item int userflags
@@ -1249,14 +1249,14 @@ it for any information.
 
 @item char *boundary, int boundary_size
 If you are going to write a packet oriented protocol server you can use
-the @code{svz_sock_check_request} method to parse packets. These two 
+the @code{svz_sock_check_request} method to parse packets. These two
 properties describe the packet delimiter.
 
 @item char *send_buffer, int send_buffer_size, int send_buffer_fill
 This is the outgoing data for a client connection object.
 
 @item char *recv_buffer, int recv_buffer_size, int recv_buffer_fill
-Within the receive buffer all incoming data for a connection object is 
+Within the receive buffer all incoming data for a connection object is
 stored. This buffer is at least used for the client detection callback.
 
 @item int read_socket (svz_socket_t)
@@ -1268,14 +1268,14 @@ sockets may need other policies.
 @item int write_socket (svz_socket_t)
 This routine is called when data is is valid in the output buffer
 and the socket gets available for writing. You normally leave this
-callback untouched. It simply writes as much data as possible to the 
-socket and removes the data from the send buffer. 
+callback untouched. It simply writes as much data as possible to the
+socket and removes the data from the send buffer.
 
 @item int disconnected_socket (svz_socket_t)
 This gets called whenever the socket is lost for some external reason.
 
 @item int connected_socket (svz_socket_t)
-If some piece of code tries to connect to another host via 
+If some piece of code tries to connect to another host via
 @code{svz_tcp_connect} this connection might be established some time later.
 This callback gets called when the socket is finally connected.
 
@@ -1289,15 +1289,15 @@ Its purpose is to check whether a complete request was read, and
 if it was, it should be handled and removed from the input buffer.
 
 @item int handle_request (svz_socket_t, char *, int)
-This gets called when the @code{check_request} got a valid packet. The 
+This gets called when the @code{check_request} got a valid packet. The
 request arguments contains the actual packet and the second argument is the
 length of this packet including the packet delimiter.
 
 @item int idle_func (svz_socket_t)
 This callback gets called from the periodic task scheduler. Whenever
 @code{idle_counter} (see below) is non-zero, it is decremented and
-@code{idle_func} gets called when it drops to zero. @code{idle_func} can 
-reset @code{idle_counter} to some value and thus can re-schedule itself 
+@code{idle_func} gets called when it drops to zero. @code{idle_func} can
+reset @code{idle_counter} to some value and thus can re-schedule itself
 for a later task.
 
 @item int idle_counter
@@ -1305,26 +1305,26 @@ Counter for calls to @code{idle_func}.
 
 @item void *data
 Miscellaneous field. Listener keeps array of server instances here.
-This array is @code{NULL} terminated. Some servers store server specific 
+This array is @code{NULL} terminated. Some servers store server specific
 information here.
 
 @item void *cfg
 When the final protocol detection in @code{svz_sock_detect_proto}
-has been done @code{cfg} should contain a pointer to the actual 
+has been done @code{cfg} should contain a pointer to the actual
 configuration hash map taken from the server instance object.
 @end table
 
 @subsubsection Using coservers
 
 Coservers are designed to complete blocking tasks. Each coserver runs in
-its own thread/process. There are several coservers implemented: the dns, 
-reverse dns and ident coserver. You need to implement the 
-callback which gets called when a coserver completed its task. This 
-routine must be a @code{svz_coserver_handle_result_t}. The first argument is 
-the actual coserver result which might be @code{NULL} if the request 
-could not  be fulfilled and the latter two arguments are the arguments 
-you specified  yourself when issuing the request. To invoke a coserver 
-you use one of the @code{svz_coserver_*} macros. The foo server uses 
+its own thread/process. There are several coservers implemented: the dns,
+reverse dns and ident coserver. You need to implement the
+callback which gets called when a coserver completed its task. This
+routine must be a @code{svz_coserver_handle_result_t}. The first argument is
+the actual coserver result which might be @code{NULL} if the request
+could not  be fulfilled and the latter two arguments are the arguments
+you specified  yourself when issuing the request. To invoke a coserver
+you use one of the @code{svz_coserver_*} macros. The foo server uses
 the reverse dns coserver to identify the host name of the remote client.
 
 @node Configuring servers, Existing servers, Writing servers, Server
@@ -1336,7 +1336,7 @@ value. A value has a type. We provide several types: integers (numbers),
 integer arrays, strings, string arrays, booleans (yes/no-values), hashes
 (associations) and port configurations.
 
-The following table shows how each kind of value is set up in the 
+The following table shows how each kind of value is set up in the
 configuration file. @var{item} is the name of the item to be configured.
 
 @table @asis
@@ -1362,20 +1362,20 @@ put its symbolic name into the configuration.@*
 Example: (item . foo-tcp-port)
 @end table
 
-The next chapter describes the servers currently implemented using 
-Serveez. The configuration items used by each of them are described in the 
+The next chapter describes the servers currently implemented using
+Serveez. The configuration items used by each of them are described in the
 following format:
 
 @table @code
 @item NameOfTheItem (Type, default: DefaultValue, Comments)
-Description of the configuration item named @samp{NameOfTheItem} (case 
-sensitive). @samp{Type} can be either @samp{integer}, @samp{integer array}, 
-@samp{string}, @samp{string array}, @samp{boolean}, @samp{hash} or 
+Description of the configuration item named @samp{NameOfTheItem} (case
+sensitive). @samp{Type} can be either @samp{integer}, @samp{integer array},
+@samp{string}, @samp{string array}, @samp{boolean}, @samp{hash} or
 @samp{port configuration}. The @samp{Comments} is an optional text.
 @end table
 
-The example configuration file @file{data/serveez.cfg} contains an example 
-definition of each server already implemented. You can copy and modify the 
+The example configuration file @file{data/serveez.cfg} contains an example
+definition of each server already implemented. You can copy and modify the
 example for an easy start.
 
 @node Existing servers,  , Configuring servers, Server
@@ -1402,8 +1402,8 @@ example for an easy start.
 
 The integrated HTTP server was originally meant to be a simple but fast
 document server. But now it can even execute CGI scripts. The GET, HEAD and
-POST methods are fully functional. Additionally Serveez produces 
-directory listings when no standard document file 
+POST methods are fully functional. Additionally Serveez produces
+directory listings when no standard document file
 (e.g. @file{index.html}) has been found at the requested document node
 (directory).  Furthermore it implements a file cache for speeding up
 repetitive HTTP request.
@@ -1416,7 +1416,7 @@ computer.
 
 @table @code
 @item Small files
-The small-file test load consists of 1000 files, each 1KB long, requested 
+The small-file test load consists of 1000 files, each 1KB long, requested
 randomly.
 
 @example
@@ -1431,8 +1431,8 @@ GNU/Linux (2.2.17 in this case, probably others too) to throw
 limits the test to about 200 concurrent fetches on the test system.
 
 @item Large files
-The large-file test load consists of 100 files, each 1MB long, requested 
-randomly. Also, each connection is throttled to simulate a 33.6Kbps modem. 
+The large-file test load consists of 100 files, each 1MB long, requested
+randomly. Also, each connection is throttled to simulate a 33.6Kbps modem.
 Note that 1000 33.6Kbps connections is 3/4 of a T3. There was no problem to
 get 1000+ concurrent fetches.
 @end table
@@ -1443,7 +1443,7 @@ The following options can be set from the configuration file.
 
 @table @code
 @item indexfile (string, default: index.html)
-The @code{indexfile} parameter is the default file served by the HTTP 
+The @code{indexfile} parameter is the default file served by the HTTP
 server when the user does not specify a file but a document node
 (e.g. @uref{http://www.lkcc.org/}).
 
@@ -1480,19 +1480,19 @@ entry.
 This parameter specifies the maximum number of HTTP file cache entries
 (files). When you instantiate more than one HTTP server the biggest value
 wins. The HTTP file cache is shared by all HTTP servers.@*
-@strong{Please note}: If your harddrive/filesystem combination proves to 
+@strong{Please note}: If your harddrive/filesystem combination proves to
 be faster than the HTTP file cache you should disable it by setting both
 @code{cache-size} and @code{cache-entries} to zero.
 
 @item timeout (integer, default: 15)
-The @code{timeout} value is the amount of time in seconds after which 
+The @code{timeout} value is the amount of time in seconds after which
 a keep-alive connection (this is a HTTP/1.1 feature) will be closed when
 it has been idle.
 
 @item keepalive (integer, default: 10)
 On one keep-alive connection can be served the number of @code{keepalive}
 documents at all. Then the connection will be closed.
-Both this and the @code{timeout} value are just to be on the safe side. 
+Both this and the @code{timeout} value are just to be on the safe side.
 They protect against idle and high traffic connections.
 
 @item default-type (string, default: text/plain)
@@ -1534,35 +1534,35 @@ appended to this file.
 @item logformat (string, default: CLF)
 The format of the access logfile. There are special placeholders for
 different kinds of logging information. The default log format is the
-Common Log Format (CLF). It contains a separate line for each request. A 
+Common Log Format (CLF). It contains a separate line for each request. A
 line is composed of several tokens separated by spaces.
 @example
-CLF = host ident authuser date request status bytes 
+CLF = host ident authuser date request status bytes
 @end example
-If a token does not have a value then it is represented by a hyphen (-). 
-The meanings and values of these tokens are as follows: 
+If a token does not have a value then it is represented by a hyphen (-).
+The meanings and values of these tokens are as follows:
 
 @table @code
 @item %h (host)
-The fully-qualified domain name of the client, or its IP number if the name 
+The fully-qualified domain name of the client, or its IP number if the name
 is not available.
 @item %i (ident)
-This is the identity information reported by the client. Not active, so 
+This is the identity information reported by the client. Not active, so
 we will see a hyphen (-).
 @item %u (authuser)
-If the request was for an password protected document, then this is the 
-userid used in the request. 
+If the request was for an password protected document, then this is the
+userid used in the request.
 @item %t (date)
 The date and time of the request, in the following format:
 @example
-date   = [day/month/year:hour:minute:second zone] 
-day    = 2*digit 
-month  = 3*letter 
-year   = 4*digit 
-hour   = 2*digit 
-minute = 2*digit 
-second = 2*digit 
-zone   = (`+' | `-') 4*digit 
+date   = [day/month/year:hour:minute:second zone]
+day    = 2*digit
+month  = 3*letter
+year   = 4*digit
+hour   = 2*digit
+minute = 2*digit
+second = 2*digit
+zone   = (`+' | `-') 4*digit
 @end example
 @item %R (request)
 The request line from the client, enclosed in double quotes (").
@@ -1571,10 +1571,10 @@ Which document referred to this document.
 @item %a (agent)
 What kind of web browser did the remote client use.
 @item %c (status)
-The three digit status code returned to the client. 
+The three digit status code returned to the client.
 @item %l (bytes)
-The number of bytes in the object returned to the client, not including 
-any headers. 
+The number of bytes in the object returned to the client, not including
+any headers.
 @end table
 @end table
 
@@ -1657,7 +1657,7 @@ Format of each line is:
 @example
 ":" class number (higher numbers refer to a higher priority)
 ":" ping frequency (in seconds)
-":" connect frequency in seconds for servers, 0 for 
+":" connect frequency in seconds for servers, 0 for
     client classes
 ":" maximum number of links in this class
 ":" send queue size
@@ -1693,8 +1693,8 @@ Authorize local operator.
 
 @item C-lines (string array, no default, networked)
 List of servers to connect to.
-Note: C and N lines can also use the user@@ combination in order to 
-check specific users (ident) starting servers. C and N lines are 
+Note: C and N lines can also use the user@@ combination in order to
+check specific users (ident) starting servers. C and N lines are
 usually given in pairs.
 @example
 ":" host name
@@ -1730,13 +1730,13 @@ Kill user, wildcards allowed.
 
 @subsubsection General description
 
-Serveez implements something like a telnet protocol for 
+Serveez implements something like a telnet protocol for
 administrative purposes. You just need to start a telnet session like:
 @example
 $ telnet www.lkcc.org 42420
 @end example
 After pressing @key{RET} you will be asked for a password which you
-might setup passing Serveez the -P argument. 
+might setup passing Serveez the -P argument.
 @xref{Using Serveez}. The next section describes the interactive commands
 available.
 
@@ -1800,11 +1800,11 @@ the information about instantiated servers and coservers.
 information.
 
 @item stat cache
-HTTP cache statistics. This command produces an output something like the 
-following where @samp{File} is the short name of the cache entry, 
-@samp{Size} the cache size, @samp{Usage} the amount of connections 
-currently using this entry, @samp{Hits} the amount of cache hits, 
-@samp{Recent} the cache strategy flag (newer entries have larger numbers) 
+HTTP cache statistics. This command produces an output something like the
+following where @samp{File} is the short name of the cache entry,
+@samp{Size} the cache size, @samp{Usage} the amount of connections
+currently using this entry, @samp{Hits} the amount of cache hits,
+@samp{Recent} the cache strategy flag (newer entries have larger numbers)
 and @samp{Ready} is the current state of the cache entry.
 
 @example
@@ -1846,7 +1846,7 @@ Some integer value. Printed as server information.
 Some string. Printed as server information.
 
 @item messages (string array, default: ...)
-Some string array which is actually a list of strings. Also printed as 
+Some string array which is actually a list of strings. Also printed as
 server information.
 
 @item ports (integer array, default: 1, 2, 3, 4)
@@ -1868,7 +1868,7 @@ to synchronize time and dates between Internet hosts. The protocol is
 described in the ARPA Internet RFC 868. Thus it is not really an SNTP server
 as described by RFC 2030 (Simple Network Time Protocol (SNTP) Version 4 for
 IPv4, IPv6 and OSI). It is rather an excellent example on how to implement
-a UDP server in Serveez. 
+a UDP server in Serveez.
 
 This protocol provides a site-independent, machine readable date and
 time. The Time service sends back time in seconds since midnight on
@@ -1893,7 +1893,7 @@ client programs only. There are no servers. The network itself is formed
 by client connections only. Generally the Gnutella network is for sharing
 files of any kind.
 
-This Gnutella spider is for seeking the needle in the haystack. Once 
+This Gnutella spider is for seeking the needle in the haystack. Once
 connected to the network it regularly tries to find certain files in there.
 It keeps track of all connected clients and tries to reconnect them if
 the current connections are lost.
@@ -1908,27 +1908,27 @@ The Gnutella spider knows the following configurations items.
 
 @table @code
 @item net-url (string, default: gnutella-net)
-If you want to see the host catcher list of this Gnutella spider you can 
-connect to this port with any WWW browser at 
+If you want to see the host catcher list of this Gnutella spider you can
+connect to this port with any WWW browser at
 @uref{http://host:port/net-url}. The @code{host:port} combinations
 depend on the bindings.
 
 @item hosts (string array, no default)
-This is the start of the haystack, the initial host list of the clients 
-the spider tries to connect to.  Each list item should be of the format 
+This is the start of the haystack, the initial host list of the clients
+the spider tries to connect to.  Each list item should be of the format
 @code{ip:port} (e.g. @samp{146.145.85.34:6346}).  You can also pass Internet
-host names.  If the port information is left blank it defaults to 6346.  If 
-you need some entry point for the Gnutella network have a look at 
+host names.  If the port information is left blank it defaults to 6346.  If
+you need some entry point for the Gnutella network have a look at
 @uref{http://www.gnutellahosts.com/} or @uref{http://www.gnutellanet.com/}.
 
 @item search (string array, default: Puppe3000, Meret Becker)
-This is the needle. Each search line is either a set of 
+This is the needle. Each search line is either a set of
 space delimited tokens where every token must match. Or a kind of wildcard
 expression including @samp{?} and @samp{*}.
 Search lines are always matched case insensitive.
 
 @item search-limit (integer, default: 30)
-This limits how many results the Gnutella spider returns to other people 
+This limits how many results the Gnutella spider returns to other people
 searching your files. This is for protection against "*" search requests.
 
 @item max-ttl (integer, default: 5)
@@ -1948,7 +1948,7 @@ for a calculation of a 'sane value'.
 This is where the spider saves needles in.
 
 @item share-path (string, default: /tmp)
-Here are all the files we share with others. The Gnutella spider will 
+Here are all the files we share with others. The Gnutella spider will
 recurse into directories. So be careful with this option.
 
 @item max-downloads (integer, default: 4)
@@ -1977,13 +1977,13 @@ taken from the host catcher hash.
 
 @item force-ip (string, default: not set)
 You can force the Gnutella spider to send outgoing replies with this
-IP as host information. Must be in dotted decimals notation. This is 
+IP as host information. Must be in dotted decimals notation. This is
 useful if you are behind a masquerading gateway. You need to install
 some kind of port forwarder on the gateway so other people can reach you
 from the outside. Serveez is a good port forwarder.
 
 @item force-port (integer, default: not set)
-Force the Gnutella spider to send outgoing replies with the 
+Force the Gnutella spider to send outgoing replies with the
 @code{force-port} as port information. See above for more information.
 
 @item disable (boolean, default: false)
@@ -1997,20 +1997,20 @@ being told so (e.g. by push requests).
 
 @subsubsection General description
 The Tunnel server is for mapping one port configuration to another.
-So we should rather speak of a port forwarder. Two port forwarders can 
-form a tunnel. Generally this means that you can setup Serveez to accept 
-network or pipe connections in order to pass all transfer data on this 
-line to another port configuration. This can be useful to work around 
-gateways and firewalls. When instantiating an ICMP source or destination 
-you must ensure root privileges for the application. On Windows NT and 
-Windows 2000 you need to be either logged in as Administrator or have 
-set the registry key 
+So we should rather speak of a port forwarder. Two port forwarders can
+form a tunnel. Generally this means that you can setup Serveez to accept
+network or pipe connections in order to pass all transfer data on this
+line to another port configuration. This can be useful to work around
+gateways and firewalls. When instantiating an ICMP source or destination
+you must ensure root privileges for the application. On Windows NT and
+Windows 2000 you need to be either logged in as Administrator or have
+set the registry key
 HKLM\System\CurrentControlSet\Services\Afd\Parameters\DisableRawSecurity
-to 1 (DWORD). One of the given examples in @file{serveez.cfg} shows 
-how you can setup a tunnel server for forwarding a pipe connection. Please 
-keep in mind when forwarding a TCP or pipe connection over ICMP or UDP 
-you loose reliability since the latter two are packet oriented rather than 
-connection oriented. We are not willing to implement our own TCP stack to 
+to 1 (DWORD). One of the given examples in @file{serveez.cfg} shows
+how you can setup a tunnel server for forwarding a pipe connection. Please
+keep in mind when forwarding a TCP or pipe connection over ICMP or UDP
+you loose reliability since the latter two are packet oriented rather than
+connection oriented. We are not willing to implement our own TCP stack to
 work on ICMP/UDP directly.
 
 Forwarding between the same types of connection is always possible. When
@@ -2019,17 +2019,17 @@ in the following section.
 
 @subsubsection Extended ICMP protocol specification
 Since ICMP (Internet Control Message Protocol) does have a fixed packet
-format we had to extend it in order to use it for our own purposes. The 
+format we had to extend it in order to use it for our own purposes. The
 protocol field of the IP header contains a binary @samp{1} which is the
 identifier for ICMP (e.g. @samp{6} identifies TCP). When creating an ICMP
 socket the IP header is always generated by the kernel. This is the main
-difference to raw sockets where the IP header must be generated at 
+difference to raw sockets where the IP header must be generated at
 userspace level.
 
-When receiving an ICMP packet it also contains the IP header. When sending 
+When receiving an ICMP packet it also contains the IP header. When sending
 an ICMP packet you must not prepend this IP header. The kernel will do this
 itself. The IP header always follows the actual ICMP header followed by the
-ICMP packet data. Since this section does not cover raw sockets we leave 
+ICMP packet data. Since this section does not cover raw sockets we leave
 the IP header structure out here.
 
 The modified ICMP message format is as:
@@ -2045,22 +2045,22 @@ The modified ICMP message format is as:
 @end multitable
 
 Each of these fields can be modified and processed by Serveez and do not
-get touched by the kernel at all. The ICMP socket implementation of Serveez 
-differentiates two types of sockets: listening and connected ICMP sockets. 
-This is non-standard because it actually makes no sense since there is no 
-difference for the kernel. The introduction of these semantics allow 
-Serveez to forward data between connection-oriented (TCP and named pipes) 
+get touched by the kernel at all. The ICMP socket implementation of Serveez
+differentiates two types of sockets: listening and connected ICMP sockets.
+This is non-standard because it actually makes no sense since there is no
+difference for the kernel. The introduction of these semantics allow
+Serveez to forward data between connection-oriented (TCP and named pipes)
 and packet-oriented (UDP and ICMP) protocols.
 
 @table @asis
 @item Message type
 Valid message types are for instance @samp{8} for an echo message and
 @samp{0} for its echo reply. These two messages are used for the systems
-builtin ping services. Serveez uses its own message type identifier 
+builtin ping services. Serveez uses its own message type identifier
 which is @samp{42} (@code{ICMP_SERVEEZ}) by default.
 
 @item Message type sub code
-Serveez also defines its own message type sub codes described 
+Serveez also defines its own message type sub codes described
 in the following table.
 @multitable @columnfractions .2 .4 .4
 @item Sub code @tab Constant identifier @tab Description
@@ -2072,14 +2072,14 @@ in the following table.
 @end multitable
 
 @item Checksum
-The checksum field of the ICMP header is used to check the ICMP headers 
-and the payloads (packet data) validity. We are using the standard 
+The checksum field of the ICMP header is used to check the ICMP headers
+and the payloads (packet data) validity. We are using the standard
 Internet Checksum algorithm described in RFC 1071. If the check failed we
 drop the packet.
 
 @item Senders unique identifier
 The senders identifier field is used to determine if a received packet
-has been sent by the sender itself and should therefore be dropped. This 
+has been sent by the sender itself and should therefore be dropped. This
 happens because each ICMP socket setup for receiving gets all sent
 ICMP packets system wide. Thus Serveez will even be notified if the kernel
 creates some echo reply or destination unreachable message due to a
@@ -2088,7 +2088,7 @@ request completely outside the scope of Serveez.
 @item Sequence number
 Each connected ICMP socket increments its sequence number when sending
 a packet. Thus a connection message type packet of such a socket always
-has a zero sequence number. This field could (but is not yet) also be used 
+has a zero sequence number. This field could (but is not yet) also be used
 to reorder ICMP packets or to detect missing packets.
 
 @item Port number
@@ -2102,15 +2102,15 @@ socket.
 Except the data message type subcode all ICMP packets created and sent by
 Serveez have a zero payload. The connect message subcode identifies a
 new connection and the disconnection message subcode its shutdown without
-actually transmitting data. These two subcodes emulate a TCP connections 
+actually transmitting data. These two subcodes emulate a TCP connections
 @code{connect()}, @code{accept()} and @code{shutdown()} system call.
 
 @subsubsection Configuration
 This might be the most easiest configuration to setup. You essentially
-need to define the source port configuration and the target port 
-configuration. The @file{@value{s_PACKAGE}.cfg} in the @file{data/} 
-directory shows two example configurations how to tunnel TCP 
-connections over UDP and ICMP. The UDP tunnel accesses the standard 
+need to define the source port configuration and the target port
+configuration. The @file{@value{s_PACKAGE}.cfg} in the @file{data/}
+directory shows two example configurations how to tunnel TCP
+connections over UDP and ICMP. The UDP tunnel accesses the standard
 HTTP port 80 and the ICMP tunnel accesses the standard Telnet port 23.
 
 @table @code
@@ -2127,11 +2127,11 @@ The target port configuration.
 
 @subsubsection General description
 
-The whole Serveez package was originally written by Martin 
+The whole Serveez package was originally written by Martin
 Grabmueller as a fast C backend for a chat system (now called textSure).
-This can be found at @uref{http://www.lkcc.org/}. The server 
-implements two kinds of protocols. One is for the master server which 
-does all the administrative stuff. The second is for the chat 
+This can be found at @uref{http://www.lkcc.org/}. The server
+implements two kinds of protocols. One is for the master server which
+does all the administrative stuff. The second is for the chat
 clients (applets or bots). Basically the chat server is a simple multicast
 unit.
 
@@ -2189,7 +2189,7 @@ in comma separated lists.
 Examples:
 
 0 Hallo Welt\0
-  - Send "Hallo Welt\0" to all clients except the 
+  - Send "Hallo Welt\0" to all clients except the
     master server.
 
 1 1,4,6 Gruezi!\0
@@ -2208,7 +2208,7 @@ Examples:
   - Turn on flood protection for clients 1 and 5.
 
 6 \0
-  - Initialize data structures and accept the 
+  - Initialize data structures and accept the
     connection as the master server.
 @end example
 
@@ -2282,7 +2282,7 @@ meanings depending on this field, so do not make things up here. Read
 the RFC to learn more.
 
 @item username (string, default: <NULL>)
-If no username is set (which means this field does not appear in the 
+If no username is set (which means this field does not appear in the
 configuration file) the server runs in the flag-all-requests-as-error mode.
 Use your favourite nickname here.
 @end table
@@ -2310,12 +2310,12 @@ has been accepted.  The parameter is mandatory and must be a fully qualified
 file name (including path).
 
 @item directory (string, no default)
-This will be the working directory of the executed program.  If you omit 
-this parameter the server uses the current directory (the directory is not 
+This will be the working directory of the executed program.  If you omit
+this parameter the server uses the current directory (the directory is not
 changed).
 
 @item user (string, no default)
-If you omit this parameter no user or group will be set for the 
+If you omit this parameter no user or group will be set for the
 started program.  Otherwise you need to specify this information in the
 format @samp{user[.group]}.  If the group is omitted the user's primary
 group will be used.
@@ -2334,9 +2334,9 @@ sockets [ or two pairs of anonymous pipes ].
 
 @item single-threaded (boolean, default: true)
 This parameter applies to servers bound to UDP and ICMP port configurations
-only.  For programs which process all incoming packets and eventually time 
+only.  For programs which process all incoming packets and eventually time
 out, the program is said to be @samp{single-threaded} and should use a true
-value here.  If a program gets a packet and can receive further packets, it 
+value here.  If a program gets a packet and can receive further packets, it
 is said to be a @samp{multi-threaded} program, and should use a false value.
 
 @item thread-frequency (integer, default: 40)
@@ -2350,7 +2350,7 @@ of 60 seconds.
 
 @html
 <pre>[ Example Mandelbrot picture. ]</pre>
-<img src="mandel.jpg" border="0" width="320" height="240" 
+<img src="mandel.jpg" border="0" width="320" height="240"
      alt="Mandelbrot Set">
 @end html
 
@@ -2360,12 +2360,12 @@ in Guile with the help of the API provided by the underlying Serveez
 application.  The reader will not see any occurrence of the networking API
 of Guile.
 
-It implements a protocol called @samp{dnc}.  @samp{dnc} - short for 
-"Distributed Number Cruncher".  The Mandelbrot server manages the 
-computation of a graphic visualization of the Mandelbrot set fractal.  
-Each client can connect to the server and ask for something to calculate 
+It implements a protocol called @samp{dnc}.  @samp{dnc} - short for
+"Distributed Number Cruncher".  The Mandelbrot server manages the
+computation of a graphic visualization of the Mandelbrot set fractal.
+Each client can connect to the server and ask for something to calculate
 and is meant to send its result back to the server.  Finally the server
-produces a bitmap in the XPM format and uses a specified viewer 
+produces a bitmap in the XPM format and uses a specified viewer
 application to bring it onto your screen.
 
 @subsubsection Configuration
@@ -2414,7 +2414,7 @@ able to parse and display the XPM format.
 @node What are coservers, Writing coservers, Coserver, Coserver
 @section What are coservers
 
-If it is necessary to complete blocking tasks in Serveez you have 
+If it is necessary to complete blocking tasks in Serveez you have
 to use coservers. The actual implementation differs on platforms. On Unices
 they are implemented as processes communicating with Serveez over pipes.
 On Win32 Serveez uses threads and shared memory.
@@ -2424,8 +2424,8 @@ On Win32 Serveez uses threads and shared memory.
 
 @subsection Making and configuring preparations
 
-First you have to change into the @file{src/libserveez/coserver/} 
-directory of the Serveez package. Then edit the @file{Makefile.am} and 
+First you have to change into the @file{src/libserveez/coserver/}
+directory of the Serveez package. Then edit the @file{Makefile.am} and
 add your header and implementation file to the @code{libcoserver_la_SOURCES}
 variable.
 
@@ -2437,12 +2437,12 @@ Both of these buffers are supposed to be lines separated by a @samp{\n}.
 
 @subsection Coserver implementation file
 
-Here you need to @code{#include "libserveez/coserver/coserver.h"} and 
-implement the coserver handle routine declared in the coserver header file. 
-This can be any blocking system call. On successful completion you 
-can return the result or @code{NULL} on errors. The input and output 
-buffers are plain strings and can have any format with one exception. 
-Because the coservers communicate via a line protocol with 
+Here you need to @code{#include "libserveez/coserver/coserver.h"} and
+implement the coserver handle routine declared in the coserver header file.
+This can be any blocking system call. On successful completion you
+can return the result or @code{NULL} on errors. The input and output
+buffers are plain strings and can have any format with one exception.
+Because the coservers communicate via a line protocol with
 Serveez these buffers must not contain @samp{\n} (0x0d).
 
 @subsection Make your coserver available in Serveez
@@ -2454,12 +2454,12 @@ the header file you have to define a further @code{COSERVER_*} id
 value.  Then you should define a further @code{svz_coserver_*} macro in
 the same file.
 
-In @file{coserver.c} you have to implement the @code{svz_coserver_*} macro. 
-This macro takes three arguments. The first is always specific to your 
-coserver and is used to create the actual request string. Then follows the 
-result callback routine, and an optional argument for this callback. The 
-latter two are simply passed to the @code{svz_coserver_send_request()} 
-routine. This routine takes four arguments where the first is the 
+In @file{coserver.c} you have to implement the @code{svz_coserver_*} macro.
+This macro takes three arguments. The first is always specific to your
+coserver and is used to create the actual request string. Then follows the
+result callback routine, and an optional argument for this callback. The
+latter two are simply passed to the @code{svz_coserver_send_request()}
+routine. This routine takes four arguments where the first is the
 previously defined @code{COSERVER_*} id and the second is the input buffer
 for the coserver handle routine without the trailing @samp{\n}.
 
@@ -2474,8 +2474,8 @@ created and an optional initialization routine.
 @subsection Identification (Ident) coserver
 
 The Identification protocol is briefly documented in RFC1413. It
-provides a means to determine the identity of a user of a particular 
-TCP connection. Given a TCP port number pair, it returns a character 
+provides a means to determine the identity of a user of a particular
+TCP connection. Given a TCP port number pair, it returns a character
 string which identifies the owner of that connection on the server's
 (that is the client's) system.
 
@@ -2501,12 +2501,12 @@ Macro:
 svz_coserver_ident (sock, MyIdentCallback, sock->id, sock->version);
 @end example
 
-In this context @code{sock} is of type @code{svz_socket_t} and 
+In this context @code{sock} is of type @code{svz_socket_t} and
 @code{MyIdentCallback} is something like the following example. Both
 of the last two (optional) arguments identify a valid socket structure
-and @code{user} can be @code{NULL} if there is no ident daemon running on the 
-foreign machine. The last two argument within the above macro will be the 
-last two arguments in the callback below. Thus you will know what kind of 
+and @code{user} can be @code{NULL} if there is no ident daemon running on the
+foreign machine. The last two argument within the above macro will be the
+last two arguments in the callback below. Thus you will know what kind of
 data the invocation of the callback is related to.
 
 @example
@@ -2549,7 +2549,7 @@ irc_connect_server (char *ip, irc_server_t *server)
 As easily guessed from the name this coserver is just doing the reverse
 as the DNS coserver. It translates a given IP address into a hostname
 using @code{gethostbyaddr()}. In the macro the ip address is given
-as an @code{unsigned long} in host byte order. The Reverse DNS 
+as an @code{unsigned long} in host byte order. The Reverse DNS
 coserver itself takes something like @samp{192.168.2.1}.
 
 @example
@@ -2571,10 +2571,10 @@ MyReverseCallback (char *host, int id, int version)
 @node Porting issues, Bibliography, Coserver, Top
 @chapter Porting issues
 
-Serveez was always designed with an eye on maximum 
-portability. Autoconf and Automake have done a great job at this. 
-A lot of @code{#define}'s help to work around some of the different 
-Unix' oddities. Have a look at @file{config.h} for a complete list 
+Serveez was always designed with an eye on maximum
+portability. Autoconf and Automake have done a great job at this.
+A lot of @code{#define}'s help to work around some of the different
+Unix' oddities. Have a look at @file{config.h} for a complete list
 of all these conditionals.
 
 Most doubtful might be the Win32 port. There are three different ways of
@@ -2596,13 +2596,13 @@ The Win32 implementation are threads which are still part of the main
 process.
 
 @item Sockets and Handles
-On Win32 systems there is a difference in network sockets and file 
+On Win32 systems there is a difference in network sockets and file
 descriptors. Thus we had to implement quite a complex main socket loop.
 
 @item Named Pipes
 Both systems Unix and Win32 do provide this functionality (Windows NT 4.0
 and above). The main differences here are the completely different APIs.
-On a common Unix you create a named pipe within the filesystem via 
+On a common Unix you create a named pipe within the filesystem via
 @code{mkfifo()}. On Win32 you have to @code{CreateNamedPipe()} which
 will create some special network device. A further difference is what you
 can do with these pipes. On Win32 systems this @samp{network device} is
@@ -2612,36 +2612,36 @@ and instantiatable.
 
 @item Winsock Versions
 There are some difference between the original Winsock 1.1 API and the new
-version 2.2.x. In a nutshell, WinSock 2 is WinSock 1.1 on steroids, it's 
-a superset of 1.1's APIs and architecture. In addition to its new features, 
-it also clarifies existing ambiguities in the 1.1 WinSock specification 
-and adds new extensions that take advantage of operating system features 
-and enhance application performance and efficiency. Finally, WinSock 2 
+version 2.2.x. In a nutshell, WinSock 2 is WinSock 1.1 on steroids, it's
+a superset of 1.1's APIs and architecture. In addition to its new features,
+it also clarifies existing ambiguities in the 1.1 WinSock specification
+and adds new extensions that take advantage of operating system features
+and enhance application performance and efficiency. Finally, WinSock 2
 includes a number of new protocol-specific extensions. These extensions
---such as multicast socket options-- are relegated to a separate annex, 
-since the main WinSock 2 protocol specification is protocol-independent. 
+--such as multicast socket options-- are relegated to a separate annex,
+since the main WinSock 2 protocol specification is protocol-independent.
 
 The Winsock DLL and import library for version 1.1 are @file{wsock32.dll}
 and @file{wsock32.lib} and for version 2.2 it is @file{ws2_32.dll} and
 @file{ws2_32.lib}. Serveez is currently using version 2.2.
 
-The Winsock API is still a bit buggy. Connected datagram behaviors are 
-not pertinent to any WinSock 2 features, but to generic WinSock. On Win95 
-it is possible to use @code{recvfrom()/WSARecvFrom()} on a "connected" 
-UDP socket, but on NT4 @code{recvfrom()/WSARecvFrom()} fail with 10056 
-(@code{WSAEISCONN}). NOTE: @code{sendto()/WSASendTo()} fail with 
-@code{WSAEISCONN} on both (which I do not see any reason for, but 
+The Winsock API is still a bit buggy. Connected datagram behaviors are
+not pertinent to any WinSock 2 features, but to generic WinSock. On Win95
+it is possible to use @code{recvfrom()/WSARecvFrom()} on a "connected"
+UDP socket, but on NT4 @code{recvfrom()/WSARecvFrom()} fail with 10056
+(@code{WSAEISCONN}). NOTE: @code{sendto()/WSASendTo()} fail with
+@code{WSAEISCONN} on both (which I do not see any reason for, but
 anyway ...).
 
 @item Raw sockets on Windows systems
-Raw sockets require Winsock 2. To use them under Windows NT/2000, you must 
+Raw sockets require Winsock 2. To use them under Windows NT/2000, you must
 be logged in as an Administrator. On any other Microsoft's we were trying
-to use the @file{ICMP.DLL} (an idiotic and almost useless API) without 
-success. Microsoft says they will replace it as soon as something better 
-comes along. (Microsoft's been saying this since the Windows 95 days, 
+to use the @file{ICMP.DLL} (an idiotic and almost useless API) without
+success. Microsoft says they will replace it as soon as something better
+comes along. (Microsoft's been saying this since the Windows 95 days,
 however, yet this functionality still exists in Windows 2000.)
 It seems like you cannot send ICMP or even raw packets from the userspace
-of Windows (except via the @file{ICMP.DLL} which is limited to echo 
+of Windows (except via the @file{ICMP.DLL} which is limited to echo
 requests). We also noticed that you cannot receive any packets previously
 sent. The only thing which works on all Windows systems (9x/ME/NT/2000/XP)
 is receiving packets the "kernel" itself generated (like echo replies).
@@ -2650,32 +2650,32 @@ fragmented ICMP packets get correctly recalculated. That is not the case
 in the current Linux kernels.
 
 @item Miscellaneous
-To use the Win32 Winsock in the Cygwin port, you just need to 
-@code{#define Win32_Winsock} and @code{#include "windows.h"} at the top 
-of your source file(s). You will also want to add @code{-lwsock32} to 
-the compiler's command line so you link against @file{libwsock32.a}. 
+To use the Win32 Winsock in the Cygwin port, you just need to
+@code{#define Win32_Winsock} and @code{#include "windows.h"} at the top
+of your source file(s). You will also want to add @code{-lwsock32} to
+the compiler's command line so you link against @file{libwsock32.a}.
 
 What preprocessor macros do I need to know about ?
-We use @code{_WIN32} to signify access to the Win32 API and 
-@code{__CYGWIN__} for access to the Cygwin environment provided by the dll. 
-We chose @code{_WIN32} because this is what Microsoft defines in VC++ and we 
+We use @code{_WIN32} to signify access to the Win32 API and
+@code{__CYGWIN__} for access to the Cygwin environment provided by the dll.
+We chose @code{_WIN32} because this is what Microsoft defines in VC++ and we
 thought it would be a good idea for compatibility with VC++ code to
-follow their example. We use @code{_MFC_VER} to indicate code that should be 
-compiled with VC++. 
+follow their example. We use @code{_MFC_VER} to indicate code that should be
+compiled with VC++.
 
 Why we do not use pipes for coservers ?
-Windows differentiates between sockets and file descriptors, that is why 
-you can not @code{select()} file descriptors. Please @code{close()} the 
-pipe's descriptors via @code{CloseHandle()} and not @code{closesocket()}, 
+Windows differentiates between sockets and file descriptors, that is why
+you can not @code{select()} file descriptors. Please @code{close()} the
+pipe's descriptors via @code{CloseHandle()} and not @code{closesocket()},
 because this will fail.
 
 The C run-time libraries have a preset limit for the number of files that
 can be open at any one time. The limit for applications that link with the
 single-thread static library (@file{LIBC.LIB}) is 64 file handles or 20 file
 streams. Applications that link with either the static or dynamic
-multithread library (@file{LIBCMT.LIB} or @file{MSVCRT.LIB} and 
-@file{MSVCRT.DLL}), have a limit of 256 file handles or 40 file streams. 
-Attempting to open more than the maximum number of file handles or file 
+multithread library (@file{LIBCMT.LIB} or @file{MSVCRT.LIB} and
+@file{MSVCRT.DLL}), have a limit of 256 file handles or 40 file streams.
+Attempting to open more than the maximum number of file handles or file
 streams causes program failure.
 
 As far as I know, one of the big limitations of Winsock is that
@@ -2685,18 +2685,18 @@ using a separate data type, SOCKET, not an int, a typical type for a
 file descriptor. This implies that you cannot mix SOCKETs and stdio,
 sorry. This is the case when you use @code{-mno-cygwin}.
 
-Actually they are regular file handles, just like any other. There is a 
-bug in all 9x/kernel32 libc/msv/crtdll interface implementations 
-@code{GetFileType()} returns @code{TYPE_UNKNOWN} for socket handles. Since 
-this is AFAIK the only unknown type there is, you know you have a socket 
-handle. There is a fix in the more recent perl distributions that you can 
-use as a general solution. @code{-loldnames -lperlcrt -lmsvcrt} will get 
+Actually they are regular file handles, just like any other. There is a
+bug in all 9x/kernel32 libc/msv/crtdll interface implementations
+@code{GetFileType()} returns @code{TYPE_UNKNOWN} for socket handles. Since
+this is AFAIK the only unknown type there is, you know you have a socket
+handle. There is a fix in the more recent perl distributions that you can
+use as a general solution. @code{-loldnames -lperlcrt -lmsvcrt} will get
 you @code{TYPE_CHAR} for socket handles.
 @end table
 
-If you want to compile Serveez with the native M$ Visual C++ compiler you 
-have to go quite a long way. But it is possible anyway. We assume you got 
-a Cygwin development environment somewhere, the Developer Studio installation 
+If you want to compile Serveez with the native M$ Visual C++ compiler you
+have to go quite a long way. But it is possible anyway. We assume you got
+a Cygwin development environment somewhere, the Developer Studio installation
 and @samp{@value{s_PACKAGE}} and @samp{guile} in separate directories.
 Please have a look at the @file{README-Win32} file for more information.
 
@@ -2721,7 +2721,7 @@ Serveez has been build and tested successfully.
 @item GNU/Linux 2.4.x on HP PA-RISC
 @item GNU/Linux 2.4.x on MIPS
 @item Solaris 2.6, 2.7 on Sparc32, Sparc64
-@item SunOS 5.8 on Sparc32 
+@item SunOS 5.8 on Sparc32
 @item SunOS 5.6 on Intel
 @item AIX 4.3 on RS/6000
 @item MacOS X10.1/Darwin 1.4, 5.4, 5.5 on PowerPC (Macintosh)
@@ -2747,49 +2747,49 @@ to implement various parts of this package. They appear in no specific
 order.
 
 @enumerate
-@item 
+@item
 RFC 760@*
 The Internet Protocol
-@item 
+@item
 RFC 1071@*
 Computing the Internet Checksum
-@item 
+@item
 RFC 1413@*
 Identification Protocol
-@item 
+@item
 RFC 1459@*
 Internet Relay Chat Protocol
-@item 
+@item
 RFC 1945@*
 Hypertext Transfer Protocol -- HTTP/1.0
-@item 
+@item
 RFC 2068@*
 Hypertext Transfer Protocol -- HTTP/1.1
-@item 
+@item
 RFC 2616@*
 Hypertext Transfer Protocol -- HTTP/1.1
-@item 
+@item
 RFC 768@*
 User Datagram Protocol
-@item 
+@item
 RFC 791@*
 Internet Protocol
-@item 
+@item
 RFC 777@*
 Internet Control Message Protocol
 @item
 @uref{http://www.mingw.org/}@*
 Home of the MinGW (Minimal GNU for Windows) project
-@item 
+@item
 @uref{http://gnutelladev.wego.com/}@*
 The Gnutella Protocol
-@item 
+@item
 @uref{http://www.efnet.org/}@*
 The official EFNet site (includes Hybrid IRC server)
-@item 
+@item
 @uref{http://www.sockets.com/}@*
 Winsock Development Information
-@item 
+@item
 @uref{http://tangentsoft.net/wskfaq/}@*
 Winsock Programmer's FAQ
 @end enumerate

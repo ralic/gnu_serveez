@@ -98,10 +98,10 @@ The following example shows the overall syntax of this procedure:
 
   ;; Optional: server instance reset callback
   (reset           . foo-reset)
-  
+
   ;; Optional: server instance notifier
   (notify          . foo-notify)
-  
+
   ;; Mandatory for UDP and ICMP servers: packet handler
   (handle-request  . foo-handle-request)
 
@@ -109,7 +109,7 @@ The following example shows the overall syntax of this procedure:
   (configuration   . (
 
     ;; The server configuration is an alist (associative list) again.
-    ;; Each item consists of an item name and a list describing the 
+    ;; Each item consists of an item name and a list describing the
     ;; item itself.
     ;; Syntax: (key . (type defaultable default))
     (foo-integer       . (integer  #t 0))
@@ -297,7 +297,7 @@ separator).  Usually you will return information about the server instance
 configuration and/or state.
 
 @item (info-client #<svz-server> #<svz-socket>)
-This callback is optional.  You can set it up in the 
+This callback is optional.  You can set it up in the
 @code{(define-servertype!)} procedure.  It is meant to provide socket
 structure specific information.  (The socket structure is a client/child
 of the given server instance.)  You need to return a single line
@@ -311,10 +311,10 @@ A server instance can use it to perform periodic tasks.  The callback
 is optional and can be set up in @code{(define-servertype!)}.
 
 @item (reset #<svz-server>)
-This callback is invoked when the Serveez process receives a @code{SIGHUP} 
+This callback is invoked when the Serveez process receives a @code{SIGHUP}
 signal which can be issued via @samp{killall -HUP serveez} from user
 land.  If the underlying operating system does not provide @code{SIGHUP}
-there is no use for this callback.  It provides the possibility to 
+there is no use for this callback.  It provides the possibility to
 perform asynchronous tasks scheduled from outside Serveez.  You can
 optionally set it up in the @code{(define-servertype!)} procedure.
 
@@ -329,8 +329,8 @@ ways.  When Serveez can determine itself when a packet is complete, the
 callback will be invoked directly.  Serveez can make this determination
 for connections with packet oriented protocols such as UDP and ICMP, or
 if you tell Serveez how to parse the packet using
-@code{(svz:sock:boundary sock delimiter)} or 
-@code{(svz:sock:boundary sock size)} and do not specify a 
+@code{(svz:sock:boundary sock delimiter)} or
+@code{(svz:sock:boundary sock size)} and do not specify a
 @code{check-request} callback.
 
 Whenever you specify a @code{check-request} callback to determine when
@@ -384,22 +384,22 @@ task.  You can set up this callback with @code{(svz:sock:idle)}.
 
 @item (trigger-condition #<svz-socket>)
 This callback is invoked once every server loop for the socket structure.
-If you return @code{#f} nothing else is happening.  Otherwise the 
-@code{trigger} callback will be invoked immediately.  You can set up the 
+If you return @code{#f} nothing else is happening.  Otherwise the
+@code{trigger} callback will be invoked immediately.  You can set up the
 callback using the procedure @code{(svz:sock:trigger-condition)}.
 
 @item (trigger #<svz-socket>)
-The @code{trigger} callback is invoked when the @code{trigger-condition} 
-returns @code{#t}.  The callback can be set up with the procedure 
-@code{(svz:sock:trigger)}.  Returning a non-zero value shuts the 
+The @code{trigger} callback is invoked when the @code{trigger-condition}
+returns @code{#t}.  The callback can be set up with the procedure
+@code{(svz:sock:trigger)}.  Returning a non-zero value shuts the
 connection down.  A zero return value indicates success.  This callback
 can be used to perform connection related updates, e.g. you can ensure
 a certain send buffer fill.
 
 @item (check-oob-request #<svz-socket> oob-byte)
-This callback is invoked whenever urgent data (out-of-band) has been detected 
-on a socket.  Initially this event is ignored and the callback can be set 
-up with the procedure @code{(svz:sock:check-oob-request)}.  The 
+This callback is invoked whenever urgent data (out-of-band) has been detected
+on a socket.  Initially this event is ignored and the callback can be set
+up with the procedure @code{(svz:sock:check-oob-request)}.  The
 @var{oob-byte} argument is a number containing the received out-of-band
 data byte ranging from 0 to 255.  If the callback returns non-zero the
 connection will be shutdown.  A zero return value indicates success.  You
@@ -408,6 +408,6 @@ can use @code{(svz:sock:send-oob)} to send a single out-of-band data byte.
 @strong{Please note}:
 The urgent data is not supported by all operating systems.  Also it does
 not work for all types of network protocols.  We verified it to be working
-for TCP streams on GNU/Linux 2.x.x and Windows 95;  let us know if/how it 
+for TCP streams on GNU/Linux 2.x.x and Windows 95;  let us know if/how it
 works on other platforms.
 @end table
