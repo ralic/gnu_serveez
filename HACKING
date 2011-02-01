@@ -27,6 +27,7 @@ See the end for copying conditions.
 *** build
 ***** Use hydra for continuous integration.
 ***** Investigate using gnulib.
+*** Support IPv6.
 *** Minimize memory consumption of coservers.
 *** Find out how to unload a shared library on MacOS.
 *** Keep track of network interface changes.
@@ -36,7 +37,6 @@ See the end for copying conditions.
 *** How can a self connected Gnutella socket find out its port configuration for sending push requests and replies?
 *** Implement a DNS server for home networks.
 *** Implement a DNS client.
-*** Some solution for upcoming IPv6?
 *** Content-Range implementation for Gnutella.
 *** Implement Internet Relay Chat (IRC) bouncer.
 *** Serveez on HURD.
