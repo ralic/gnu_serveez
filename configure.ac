@@ -1,6 +1,6 @@
 dnl -*-autoconf-*-
 dnl
-dnl configure.in
+dnl configure.ac
 dnl
 dnl Autoconf input file.
 dnl

@@ -1082,7 +1082,7 @@ Now create the sub directory and change into it.
 @item
 You need to create a new @file{Makefile.am} therein. If you want to have
 this file @file{configure}d you need to add a further line to the
-@code{AC_OUTPUT()} statement in @file{configure.in} which is in the top
+@code{AC_OUTPUT()} statement in @file{configure.ac} which is in the top
 level directory. You have to put at least the following into the newly
 created @file{Makefile.am}:
 
