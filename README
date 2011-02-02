@@ -93,16 +93,14 @@ For further information on installing the package, please consult the
 file INSTALL included in this distribution.
 
 
-Getting the latest CVS snapshot
-===============================
+Getting the latest source
+=========================
 
-You can always get the latest Serveez version from our CVS repository.
-Please use an official release if you want to work with Serveez.  The CVS
-version might not even compile.
+You can always get the latest Serveez source from our public repository.
+Please use an official release if you want to work with Serveez.  The
+source from the repository might not even compile.
 
-    $ cvs -z3 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/serveez \
-      co serveez
+    $ git clone git://git.sv.gnu.org/serveez.git
 
-Press 'Enter' when asked for a password.  Run `sh autogen.sh' and
-`configure' with the appropriate options.  Maintainance currently
-requires Autoconf version 2.57, GNU libtool 1.5 and GNU automake 1.7.5.
+Run `sh autogen.sh' (see comments for prerequisite tools) to bootstrap.
+Also, you might need to configure with `--enable-maintainer-mode'.

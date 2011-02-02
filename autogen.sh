@@ -21,6 +21,12 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+# Prerequisite tools:
+# - GNU Autoconf 2.57
+# - GNU Libtool 1.5
+# - GNU Automake 1.7.5
+# These are minimum versions; later versions are probably ok.
+
 here=`pwd`
 cd `dirname $0`
 
