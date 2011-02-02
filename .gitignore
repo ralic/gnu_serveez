@@ -1,6 +1,8 @@
 # anywhere: patterns
+*.a
 *.la
 *.lo
+*.o
 
 # anywhere: specific filenames
 .deps
@@ -16,6 +18,7 @@ Makefile.in
 /INSTALL
 /aclocal.m4
 /autom4te.cache
+/config.cache
 /config.h
 /config.h.in
 /config.log
