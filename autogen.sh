@@ -49,10 +49,10 @@ echo -n "Creating config.h.in... "
 autoheader
 echo "done."
 echo -n "Creating ltmain.sh... "
-libtoolize -f -c --automake
+libtoolize -f --automake
 echo "done."
 echo -n "Creating Makefile.in(s)... "
-automake -a -f -c
+automake -a -f
 echo "done."
 echo -n "Creating configure... "
 autoconf

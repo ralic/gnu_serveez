@@ -1,5 +1,11 @@
 2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[maint] Use symlinks for autotools files.
+
+	* autogen.sh: Don't specify ‘--copy’ to libtoolize, automake.
+
+2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[maint] Move autodsp, {debian,redhat}.sh to build-aux/.
 
 	Here, "F" means "Move from here...";
