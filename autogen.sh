@@ -69,20 +69,6 @@ echo "done."
 # reschedule this file for building
 if test x"$info_touched" = xyes ; then rm -f doc/serveez-api.texi; fi
 
-#
-# run configure, maybe with parameters recorded in config.status
-#
-if [ -r config.status ]; then
-  # Autoconf 2.13
-  CMD=`awk '/^#.*\/?configure .*/ { $1 = ""; print; exit }' < config.status`
-  if test "x$CMD" = "x" ; then
-    # Autoconf 2.5x
-    CMD=`grep "with options" < config.status | \
-         sed 's/[^"]*["]\([^"]*\)["]/\1/' | sed 's/\\\//g' | sed "s/'//g"`
-    CMD="./configure $CMD"
-  fi
-else
-  CMD="./configure --enable-maintainer-mode --enable-warn"
-fi
-echo "Running $CMD $@ ..."
-$CMD "$@"
+# We used to run configure here, but that's not really part of
+# the bootstrap proper.  However, a nice reminder hurts no one.
+echo 'You can run ./configure now (use option --help for more info).'

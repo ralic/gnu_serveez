@@ -1,5 +1,12 @@
 2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Don't run configure as part of bootstrap.
+
+	* autogen.sh: Don't run configure at end;
+	instead, display an informative message.
+
+2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[maint] Don't mention CVS repo; update snapshot command.
 
 	* README (Getting the latest source): Rename from "Getting
