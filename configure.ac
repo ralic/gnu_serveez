@@ -28,6 +28,7 @@ dnl
 dnl Initialize autoconf and automake
 dnl
 AC_INIT(serveez,0.1.7,bug-serveez@gnu.org)
+AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET

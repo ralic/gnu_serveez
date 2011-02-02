@@ -66,7 +66,7 @@ pkgdata_DATA = $(GUILE_TXT_FILE)
 
 DIST_COMMON = $(serveez_TEXINFOS) $(srcdir)/Makefile.am \
         $(srcdir)/Makefile.in $(srcdir)/version.texi $(srcdir)/version1.texi \
-	ChangeLog mdate-sh
+	ChangeLog
 
  # local dependencies
 
