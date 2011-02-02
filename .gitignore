@@ -13,6 +13,7 @@ Makefile.in
 
 /*.dsw
 /*.tar.gz
+/INSTALL
 /aclocal.m4
 /autom4te.cache
 /config.guess
@@ -36,6 +37,7 @@ Makefile.in
 /doc/*.sed
 /doc/guile-api.texi
 /doc/manual
+/doc/mdate-sh
 /doc/serveez-api.texi
 /doc/serveez-procedures.txt
 /doc/stamp-*
