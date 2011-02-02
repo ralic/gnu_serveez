@@ -11,12 +11,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3, or (at your option)
 # any later version.
-# 
+#
 # This software is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -39,7 +39,7 @@ BEGIN {
 	exit
       }
       else if (ARGV[i] ~ /^-?/) {
-	err = sprintf("%s: unrecognized option -- %c", ARGV[0], 
+	err = sprintf("%s: unrecognized option -- %c", ARGV[0],
 		      substr(ARGV[i], 2, 1))
 	print err | "cat 1>&2"
 	exit
@@ -138,7 +138,7 @@ function extract_doc(line)
       }
 
       # add a line to the documentation string
-      if (length(line) > 0) { 
+      if (length(line) > 0) {
 	if (length(doc) > 0) { doc = (doc "\n") }
 	doc = (doc line)
       }
@@ -180,11 +180,11 @@ function handle_variable(line)
 	}
 	split(line, el, " ")
 	len = 1
-	for (i in el) { 
+	for (i in el) {
 	    len++
 	    if (el[i] == "static") { return }
 	}
-	if (el[len - 2] == "=") { 
+	if (el[len - 2] == "=") {
 	    if (def == "") { def = el[len - 1] }
 	    len -= 2
 	}
@@ -231,8 +231,8 @@ function handle_macro(line)
       end = index(line, "(")
 
       # expression macro
-      if (end > index(line, " ")) { 
-	end = index(line, " ") 
+      if (end > index(line, " ")) {
+	end = index(line, " ")
 	mac = substr(line, 1, end - 1)
 	macdef = mac
       # statement macro
@@ -248,13 +248,13 @@ function handle_macro(line)
 	  n++
 	}
 	macdef = (mac " (")
-	for(a = 1; a <= n; a++) { 
+	for(a = 1; a <= n; a++) {
           if (a == 1) {
-            macdef = (macdef arg[a]) 
+            macdef = (macdef arg[a])
 	  } else {
             macdef = (macdef ", " arg[a])
 	  }
-	} 
+	}
 	macdef = (macdef ")")
       }
       if (length(mac)) {
@@ -280,7 +280,7 @@ function handle_macro(line)
 
 # find start of C comment
 /^\/\*/ \
-{ 
+{
   retry = 1
   while(retry) {
 
@@ -324,7 +324,7 @@ function handle_macro(line)
 	}
 
 	# while trying to find a valid C function we found a new comment
-	if (line ~ /^\/\*/) { 
+	if (line ~ /^\/\*/) {
 	    $0 = line
 	    retry = 1
 	    break
@@ -335,31 +335,31 @@ function handle_macro(line)
 	    if (line ~ /^MAKE_SOCK_CALLBACK/) {
 	      create_loc(0)
 	      args = "sock, proc"
-	    } 
+	    }
             # special binary smob setter/getter
 	    else if (line ~ /^MAKE_BIN_SET/) {
 	      create_loc(0)
 	      args = "binary, index, value"
-	    } 
+	    }
 	    else if (line ~ /^MAKE_BIN_REF/) {
 	      create_loc(0)
 	      args = "binary, index"
-	    } 
+	    }
 	    # special guile string checker
 	    else if (line ~ /^MAKE_STRING_CHECKER/) {
 	      create_loc(0)
 	      args = "name"
-	    } 
+	    }
 	    # special guile string accessor
 	    else if (line ~ /^MAKE_STRING_ACCESSOR/) {
 	      create_loc(0)
 	      args = "string"
-	    } 
+	    }
 	    # special guile integer accessor
 	    else if (line ~ /^MAKE_INT_ACCESSOR/) {
 	      create_loc(0)
 	      args = "number"
-	    } 
+	    }
 	    else {
 	      create_loc(0)
 	      c_func = substr(line, 1, index(line, "(") - 1)
@@ -415,7 +415,7 @@ function handle_macro(line)
 	split(arg[x], type, " ")
 	# find last item
 	i = 0
-	for (v in type) { 
+	for (v in type) {
 	    var = type[v]
 	    i++
 	}
@@ -423,10 +423,10 @@ function handle_macro(line)
 	# check if last item has a '*' or '**' prefix
 	if (index(var, "*")) {
 	  n = index(var, "*")
-	  if (index(var, "**") == n) { 
+	  if (index(var, "**") == n) {
 	    n = 2
 	    type[i] = "**"
-	  } else { 
+	  } else {
 	    n = 1
 	    type[i] = "*"
 	  }
@@ -454,7 +454,7 @@ function handle_macro(line)
 		c_arg = (c_arg "@var{" var "}")
 	    }
 	}
-	
+
 	# rejoin the argument list
 	if (c_args != "") { c_args = (c_args ", ") }
 	c_args = (c_args c_arg)

@@ -3,7 +3,7 @@ dnl Autoconf macros for configuring the Serveez package.
 dnl
 dnl AC_GUILE -- Locate a Guile installation.
 dnl This macro sets both the variables GUILE_CFLAGS and GUILE_LDFLAGS to be
-dnl passed to the compiler and linker. In a first try it uses the 
+dnl passed to the compiler and linker. In a first try it uses the
 dnl `guile-config' script in order to obtain these settings. Then it proceeds
 dnl the `--with-guile=DIR' option of the ./configure script.
 dnl
@@ -114,7 +114,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
   if test "x$GUILESRC" != "xno"; then
     GUILESRC="`eval cd "$GUILESRC" 2>/dev/null && pwd`"
     case $build_os in
-    mingw*) 
+    mingw*)
 	GUILESRC="`eval cygpath -w -i "$GUILESRC"`"
 	GUILESRC="`echo "$GUILESRC" | sed -e 's%\\\\%/%g'`"
 	;;
@@ -126,7 +126,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
       GUILE_DEPENDENCY="$GUILESRC/libguile/libguile.la"
       GUILE_RULE="$GUILESRC/libguile/libguile.la"
       GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) libltdlc.la)'
-      if test ! -f "$GUILESRC/libltdl/configure" ; then 
+      if test ! -f "$GUILESRC/libltdl/configure" ; then
 	GUILE_MAKE_LTDL="# $GUILE_MAKE_LTDL"
       fi
       GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) libguile.la)'
@@ -182,7 +182,7 @@ AC_DEFUN([AC_GUILE_CHECK], [
   The $PACKAGE $VERSION package requires either an installed Guile
   version or an unpacked source tarball at hand.  You can specify the
   install location by passing \`--with-guile=<directory>' or the source
-  location by passing \`--with-guile-source=<directory>'.  Guile 
+  location by passing \`--with-guile-source=<directory>'.  Guile
   version 1.4 is preferred.])
   fi
 ])
@@ -204,7 +204,7 @@ AC_DEFUN([AC_LIBTOOL_SOLARIS], [
   The configure script added
   '$LIBERTY $GCCDIR $GCCFILE'
   to your linker line.  This may not be what you want.  Please report
-  to <bug-serveez@gnu.org> if we failed to build shared libraries 
+  to <bug-serveez@gnu.org> if we failed to build shared libraries
   for '$host_os'.])
       unset LIBERTY
       unset GCCLIB
