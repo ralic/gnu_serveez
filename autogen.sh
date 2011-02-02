@@ -26,6 +26,9 @@
 # - GNU Libtool 1.5
 # - GNU Automake 1.7.5
 # These are minimum versions; later versions are probably ok.
+for tool in autoconf libtool automake ; do
+    echo using: $($tool --version | sed 1q)
+done
 
 here=`pwd`
 cd `dirname $0`
