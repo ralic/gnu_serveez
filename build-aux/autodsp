@@ -1,6 +1,4 @@
-#! /usr/local/bin/perl
-#
-# autodsp -- Run this script to re-generate all Windows projects.
+# autodsp --- Run this script to re-generate all Windows projects.
 #
 # Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #

@@ -1,5 +1,3 @@
-#!/bin/sh
-#
 # debian.sh - Debian package builder
 # @configure_input@
 #

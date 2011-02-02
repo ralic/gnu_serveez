@@ -1,5 +1,3 @@
-#!/bin/sh
-#
 # redhat.sh - RPM package builder
 # @configure_input@
 #

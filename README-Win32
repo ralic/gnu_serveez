@@ -48,7 +48,7 @@ test/vector.dsp                  - vector list project file
 test/spvec.dsp                   - sparse vector test project file
 test/codec.dsp                   - codec interface test project file
 test/prog.dsp                    - passthrough test client project file
-autodsp                          - creates the workspace and project files
+build-aux/autodsp                - creates the workspace and project files
 
 
 Installation

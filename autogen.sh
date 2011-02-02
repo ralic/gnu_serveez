@@ -58,7 +58,7 @@ echo -n "Creating configure... "
 autoconf
 echo "done."
 echo -n "Creating Win32 projects... "
-perl autodsp
+perl build-aux/autodsp
 echo "done."
 
 # patching libtool 1.5 code for MinGW32 build

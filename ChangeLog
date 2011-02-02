@@ -1,5 +1,27 @@
 2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[maint] Move autodsp, {debian,redhat}.sh to build-aux/.
+
+	Here, "F" means "Move from here...";
+	"T" means "...to here; remove #! line; chmod -x";
+	"U (x)" means "Update location of x".
+	* autodsp: F
+	* build-aux/autodsp: T.
+	* autogen.sh: Update autodsp invocation.
+	* debian.sh.in: F
+	* build-aux/debian.sh.in: T.
+	* redhat.sh.in: F
+	* build-aux/redhat.sh.in: T.
+	* Makefile.am (EXTRA_DIST): U (autodsp).
+	(redhat, debian): Remove foo.sh, respectively, from
+	list of prerequisites; U (redhat.sh), U (debian.sh).
+	* configure.ac (AC_OUTPUT): U (redhat.sh), U (debian.sh);
+	don't apply executable permissions to those scripts.
+	* .gitignore: Update.
+	* README-Win32: Update.
+
+2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[maint] Display version numbers of prerequisite tools on bootstrap.
 
 	* autogen.sh: Display first line of ‘$tool --version’

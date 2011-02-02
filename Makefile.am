@@ -25,13 +25,13 @@ SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
 	serveez.dsw config.h.serveez version.h.serveez \
-	vcgen.bat autodsp serveez.ap
+	vcgen.bat build-aux/autodsp serveez.ap
 
-redhat: @MAINTAINER_MODE_TRUE@ dist redhat.sh
-	@MAINTAINER_MODE_TRUE@ @sh redhat.sh && echo "Redhat packages done."
+redhat: @MAINTAINER_MODE_TRUE@ dist
+	@MAINTAINER_MODE_TRUE@ @sh build-aux/redhat.sh && echo "Redhat packages done."
 
-debian: @MAINTAINER_MODE_TRUE@ dist debian.sh
-	@MAINTAINER_MODE_TRUE@ @sh debian.sh && echo "Debian packages done."
+debian: @MAINTAINER_MODE_TRUE@ dist
+	@MAINTAINER_MODE_TRUE@ @sh build-aux/debian.sh && echo "Debian packages done."
 
 CLEANFILES = *~ *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \

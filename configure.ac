@@ -1589,15 +1589,9 @@ AC_OUTPUT(
     doc/Makefile
     data/Makefile
     test/Makefile
-    redhat.sh
-    debian.sh
+    build-aux/redhat.sh
+    build-aux/debian.sh
     version.h)
-
-dnl
-dnl Apply executable permissions to scripts.
-dnl
-chmod +x redhat.sh
-chmod +x debian.sh
 
 dnl
 dnl Print results.
