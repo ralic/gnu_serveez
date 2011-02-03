@@ -14,6 +14,7 @@ See the end for copying conditions.
 ******* TODO don't invoke ./configure
 ******* TODO use symlinks
 ******* TODO use autoreconf
+******* TODO don't invoke build-aux/autodsp
 ***** TODO modernize [[file:configure.ac][configure.ac]]
 ******* TODO m4: update AC_*, use AS_*, quote properly, etc
 ******* TODO move AC_OUTPUT (and "print results") last
