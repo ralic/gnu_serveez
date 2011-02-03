@@ -1,5 +1,12 @@
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Use ‘AC_CONFIG_HEADERS’, not ‘AC_CONFIG_HEADER’.
+
+	* configure.ac (AC_CONFIG_HEADERS): New.
+	(AC_CONFIG_HEADER): Delete.
+
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Make configure not check for texi2dvi, makeinfo.
 
 	Setting these vars clobbers the standard Automake vars.
