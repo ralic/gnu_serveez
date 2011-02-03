@@ -1530,7 +1530,7 @@ AC_SUBST(SERVEEZ_CONFIG_LDFLAGS)
 dnl
 dnl Output files.
 dnl
-AC_OUTPUT(
+AC_CONFIG_FILES([
     Makefile src/Makefile src/libserveez/Makefile
     src/libserveez/coserver/Makefile
     src/libserveez/codec/Makefile
@@ -1552,7 +1552,8 @@ AC_OUTPUT(
     test/Makefile
     build-aux/redhat.sh
     build-aux/debian.sh
-    version.h)
+    version.h
+])
 
 dnl
 dnl Print results.
@@ -1566,3 +1567,7 @@ dnl Configure local guile source tree.
 dnl
 
 AC_GUILE_CONFIGURE
+
+AC_OUTPUT
+
+dnl configure.ac ends here
