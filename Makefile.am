@@ -25,7 +25,7 @@ SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
 	serveez.dsw config.h.serveez version.h.serveez \
-	vcgen.bat build-aux/autodsp serveez.ap
+	build-aux/vcgen.bat build-aux/autodsp serveez.ap
 
 redhat: @MAINTAINER_MODE_TRUE@ dist
 	@MAINTAINER_MODE_TRUE@ @sh build-aux/redhat.sh && echo "Redhat packages done."

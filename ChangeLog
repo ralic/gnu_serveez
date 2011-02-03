@@ -1,3 +1,12 @@
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[maint] Move vcgen.bat to build-aux/.
+
+	* vcgen.bat: Move from here...
+	* build-aux/vcgen.bat: ...to here.
+	* README-Win32: Update location of vcgen.bat.
+	* Makefile.am (EXTRA_DIST): Likewise.
+
 2011-02-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[maint] Use symlinks for autotools files.
