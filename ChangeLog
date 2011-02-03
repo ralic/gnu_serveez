@@ -1,5 +1,14 @@
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Make creation of .ds[wp] files optional in bootstrap.
+
+	* Makefile.am (woe32-project-files, no-woe32): New targets.
+	(serveez.dsw): Make this depend on ‘woe32-project-files’.
+	* autogen.sh: Don't invoke build-aux/autodsp; instead, if given
+	arg ‘--woe32’, do "make woe32-project-files" using Makefile.am.
+
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[maint] Move vcgen.bat to build-aux/.
 
 	* vcgen.bat: Move from here...

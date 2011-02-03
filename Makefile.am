@@ -37,3 +37,13 @@ CLEANFILES = *~ *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
 	stamp-h.in stamp-h[0-9].in serveez.dsw
 DISTCLEANFILES = config.cache config.log
+
+woe32-project-files:
+	@echo Creating woe32 project files...
+	cd $(srcdir) ; perl build-aux/autodsp
+
+# This rule triggers creation of .dsw and .dsp files on "make dist".
+serveez.dsw: woe32-project-files
+
+no-woe32:
+	cd $(srcdir) ; find . -name '*.ds[wp]' -delete

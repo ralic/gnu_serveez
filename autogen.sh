@@ -1,8 +1,5 @@
 #! /bin/sh
-#
 # autogen.sh
-#
-# Run this script to re-generate all maintainer-generated files.
 #
 # Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 # Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
@@ -19,8 +16,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
-#
 
+#-----------------------------------------------------------------------
+# Usage: ./autogen.sh [--woe32]
+#
+# Optional arg ‘--woe32’ means also create .dsw and .dsp files.
+# (Normally, they are created on "make dist" only.)
+#
 # Prerequisite tools:
 # - GNU Autoconf 2.57
 # - GNU Libtool 1.5
@@ -57,9 +59,6 @@ echo "done."
 echo -n "Creating configure... "
 autoconf
 echo "done."
-echo -n "Creating Win32 projects... "
-perl build-aux/autodsp
-echo "done."
 
 # patching libtool 1.5 code for MinGW32 build
 echo -n "Patching configure... "
@@ -71,6 +70,10 @@ echo "done."
 
 # reschedule this file for building
 if test x"$info_touched" = xyes ; then rm -f doc/serveez-api.texi; fi
+
+# Life is usually full enough of woe, but one can always opt for more.
+test x"$1" = x--woe32 \
+    && make -f Makefile.am woe32-project-files srcdir=.
 
 # We used to run configure here, but that's not really part of
 # the bootstrap proper.  However, a nice reminder hurts no one.
