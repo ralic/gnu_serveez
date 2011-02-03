@@ -1,5 +1,16 @@
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[maint] Don't backslash-escape backtick in AC_MSG_* text.
+
+	This change relies on Autoconf 2.55, which introduced
+	the ‘autoreconf -Wall’ check to diagnose the situation.
+
+	* acinclude.m4 (AC_GUILE_CONFIGURE, AC_GUILE_CHECK):
+	Don't backslash-escape backtick in ‘AC_MSG_RESULT’
+	and ‘AC_MSG_ERROR’, respectively, text.
+
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[maint] Use autoreconf in bootstrap; enable all warnings.
 
 	Bootstrap now displays a bunch of warnings, so this change is not
