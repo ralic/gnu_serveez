@@ -1,5 +1,6 @@
 # anywhere: patterns
 *.a
+*.dsp
 *.la
 *.lo
 *.o
@@ -48,19 +49,17 @@ Makefile.in
 /doc/stamp-*
 /doc/version*.texi
 
-/src/*.dsp
 /src/*.log
 /src/mkpassword
 /src/serveez
 /src/serveez-config
+/src/serveez.cfg
 /src/stamp-h*
 /src/svzconfig.h
 
-/src/libserveez/*.dsp
 /src/libserveez/svzpath.h
 
 /test/*-test
-/test/*.dsp
 
 # Local variables:
 # mode: shell-script
