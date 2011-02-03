@@ -1446,19 +1446,6 @@ AC_DEFINE_UNQUOTED(svz_c_signed, $signed_defined,
 unset signed_defined
 
 dnl
-dnl Check for working Tex.
-dnl
-AC_MSG_CHECKING([for working texi2dvi])
-TEXI2DVI="texi2dvi"
-if test "x`eval tex --version 2>/dev/null`" = "x"; then
-  AC_MSG_RESULT(missing)
-  TEXI2DVI=":"
-else
-  AC_MSG_RESULT($TEXI2DVI)
-fi
-AC_SUBST(TEXI2DVI)
-
-dnl
 dnl Checking for working Texi2HTML.
 dnl
 AC_MSG_CHECKING([for working texi2html])
@@ -1479,32 +1466,6 @@ else
 fi
 AC_SUBST(TEXI2HTML)
 unset tex
-
-dnl
-dnl Checking for working Makeinfo.
-dnl
-AC_MSG_CHECKING([for working makeinfo])
-MAKEINFO="$missing_dir/missing makeinfo"
-[info=`eval makeinfo --version 2>/dev/null | head -1 | \
-       sed -e 's/[^(][^(]*(\([^)][^)]*\))[^)][^)]*/\1/g' -e 's/[^0-9\.]//g'`]
-[if test -z "$info" ; then
-  info=`eval makeinfo --version 2>/dev/null | head -1 | sed 's/[^0-9\.]//g'`
-fi]
-if test -n "$info"; then
-case "$info" in
-  [4.* | [5-9].*)]
-    AC_MSG_RESULT($info >= 4.0)
-    MAKEINFO="makeinfo"
-  ;;
-  [*)]
-    AC_MSG_RESULT($info < 4.0)
-  ;;
-esac
-else
-    AC_MSG_RESULT(missing)
-fi
-AC_SUBST(MAKEINFO)
-unset info
 
 dnl
 dnl Checking for RPM builder version

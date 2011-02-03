@@ -27,8 +27,9 @@
 # - GNU Autoconf 2.57
 # - GNU Libtool 1.5
 # - GNU Automake 1.7.5
+# - GNU Texinfo 4.11
 # These are minimum versions; later versions are probably ok.
-for tool in autoconf libtool automake ; do
+for tool in autoconf libtool automake makeinfo ; do
     echo using: $($tool --version | sed 1q)
 done
 
