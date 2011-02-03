@@ -1,5 +1,17 @@
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[maint] Use autoreconf in bootstrap; enable all warnings.
+
+	Bootstrap now displays a bunch of warnings, so this change is not
+	completely "clean", although it is "standalone" (enough).  Before the
+	next release, we still need to modify configure.ac, and the various
+	.m4 and Makefile.am files to ensure no warnings.
+
+	* autogen.sh: Don't run aclocal, autoheader, libtoolize,
+	automake and autoconf individually; instead, run autoreconf.
+
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Make creation of .ds[wp] files optional in bootstrap.
 
 	* Makefile.am (woe32-project-files, no-woe32): New targets.

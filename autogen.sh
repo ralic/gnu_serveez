@@ -44,21 +44,8 @@ EOF
 info_touched="yes"
 fi
 
-echo -n "Creating aclocal.m4... "
-aclocal
-echo "done."
-echo -n "Creating config.h.in... "
-autoheader
-echo "done."
-echo -n "Creating ltmain.sh... "
-libtoolize -f --automake
-echo "done."
-echo -n "Creating Makefile.in(s)... "
-automake -a -f
-echo "done."
-echo -n "Creating configure... "
-autoconf
-echo "done."
+# Invoke all the auto* tools.
+autoreconf --verbose --force --install --symlink --warnings=all
 
 # patching libtool 1.5 code for MinGW32 build
 echo -n "Patching configure... "
