@@ -20,6 +20,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LIBRARIES = libnut.a
 
 libnut_a_SOURCES = \
@@ -30,6 +32,5 @@ libnut_a_SOURCES = \
 	nut-hostlist.c nut-hostlist.h \
 	nut-request.c nut-request.h
 
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

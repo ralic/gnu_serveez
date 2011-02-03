@@ -1,5 +1,12 @@
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Centralize ‘AM_CPPFLAGS’; zonk obsolete ‘INCLUDES’.
+
+	* build-aux/common.mk: New file.
+	* autogen.sh: Bump GNU Automake minimal version to "1.10"; nfc.
+
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Use ‘AC_CONFIG_HEADERS’, not ‘AC_CONFIG_HEADER’.
 
 	* configure.ac (AC_CONFIG_HEADERS): New.

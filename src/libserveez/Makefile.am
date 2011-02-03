@@ -20,6 +20,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog svzpath.h.in \
 	svzpath.h.serveez
 SUBDIRS = coserver codec
@@ -64,7 +66,7 @@ svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 
-INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
+AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
 CLEANFILES = *~ *.orig *.rej svzpath.h
 

@@ -20,6 +20,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 TESTS = vector-test array-test hash-test spvec-test
 
 EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp \
@@ -41,8 +43,6 @@ vector_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 codec_test_SOURCES = codec-test.c
 codec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 prog_test_SOURCES = prog-test.c
-
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 
 CLEANFILES = *~ *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in \

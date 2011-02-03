@@ -20,11 +20,12 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LIBRARIES = libsntp.a
 
 libsntp_a_SOURCES = \
 	sntp-proto.h sntp-proto.c
 
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

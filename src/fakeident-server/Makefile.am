@@ -21,11 +21,12 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LIBRARIES = libfakeident.a
 
 libfakeident_a_SOURCES = \
         ident-proto.h ident-proto.c
 
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

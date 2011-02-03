@@ -21,6 +21,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LIBRARIES = libircserver.a
 
 libircserver_a_SOURCES = \
@@ -37,6 +39,5 @@ libircserver_a_SOURCES = \
 	irc-server.h irc-server.c \
 	irc-config.h irc-config.c
 
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

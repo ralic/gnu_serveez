@@ -21,11 +21,12 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LIBRARIES = libfoo.a
 
 libfoo_a_SOURCES = \
 	foo-proto.h foo-proto.c
 
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -21,6 +21,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LIBRARIES = libhttp.a
 
 libhttp_a_SOURCES = \
@@ -30,6 +32,5 @@ libhttp_a_SOURCES = \
 	http-proto.c http-proto.h \
 	http-core.c http-core.h
 
-INCLUDES = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

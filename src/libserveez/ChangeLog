@@ -1,3 +1,13 @@
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Centralize ‘AM_CPPFLAGS’; zonk obsolete ‘INCLUDES’.
+
+	Here, every Makefile.am has implicit "include
+	common.mk", and "(INCLUDES): Delete var".
+	* Makefile.am (AM_CPPFLAGS): New augmenting (+=) var.
+	* codec/Makefile.am (AM_CPPFLAGS): Likewise.
+	* coserver/Makefile.am (AM_CPPFLAGS): Likewise.
+
 2004-03-20  Stefan Jahn  <stefan@lkcc.org>
 
 	* mutex.c: Fixed a major typo regarding SVZ_HAVE_THREADS.

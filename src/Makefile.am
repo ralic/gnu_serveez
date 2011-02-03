@@ -22,6 +22,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
 	serveez.m4 serveez.scm serveez-config.in serveez.ap mkpassword.ap \
 	mkpassword.dsp
@@ -69,7 +71,7 @@ serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la $(SERVEEZ_LIBS)
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
-INCLUDES = $(GUILE_CFLAGS) $(SERVEEZ_CFLAGS)
+AM_CPPFLAGS += $(GUILE_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 

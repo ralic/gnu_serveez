@@ -21,9 +21,11 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LTLIBRARIES = libcoserver.la
 
-INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
+AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
 libcoserver_la_LDFLAGS = @NOUNDEFINED@
 libcoserver_la_SOURCES = coserver.c dns.c ident.c reverse-dns.c

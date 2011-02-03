@@ -20,9 +20,11 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 noinst_LTLIBRARIES = libcodec.la
 
-INCLUDES = -D__BUILD_SVZ_LIBRARY__ -I$(top_srcdir)/src
+AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
 libcodec_la_LDFLAGS = @NOUNDEFINED@
 libcodec_la_SOURCES = codec.c gzlib.c bzip2.c

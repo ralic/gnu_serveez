@@ -1,3 +1,10 @@
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Centralize ‘AM_CPPFLAGS’; zonk obsolete ‘INCLUDES’.
+
+	* Makefile.am: Include common.mk.
+	(INCLUDES): Delete var.
+
 2003-06-29  Stefan Jahn  <stefan@lkcc.org>
 
 	* guile-server-test.scm: New test.  Tests the error conditions
