@@ -62,12 +62,6 @@ LOCAL_TARGETS = $(GUILE_TXT_FILE) \
   $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
 pkgdata_DATA = $(GUILE_TXT_FILE)
 
-# redefines DIST_COMMON?
-
-DIST_COMMON = $(serveez_TEXINFOS) $(srcdir)/Makefile.am \
-        $(srcdir)/Makefile.in $(srcdir)/version.texi $(srcdir)/version1.texi \
-	ChangeLog
-
  # local dependencies
 
 builddir = $(top_builddir)/doc
