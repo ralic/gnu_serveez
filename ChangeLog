@@ -1,5 +1,11 @@
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Use one-arg form of ‘AM_INIT_AUTOMAKE’.
+
+	* configure.ac (AM_INIT_AUTOMAKE): Use one-arg form.
+
+2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Use ‘AC_CONFIG_FILES’; do ‘AC_OUTPUT’ lastly.
 
 	* configure.ac (AC_CONFIG_FILES): New.

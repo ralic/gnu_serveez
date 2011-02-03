@@ -33,7 +33,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE(serveez,0.1.7,no-define)
+AM_INIT_AUTOMAKE([no-define])
 
 dnl
 dnl Determine if maintainer portions of the Makefiles should be included.
