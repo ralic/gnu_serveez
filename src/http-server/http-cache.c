@@ -103,7 +103,7 @@ http_free_cache (void)
 
 #if SVZ_ENABLE_DEBUG
 /*
- * Check consistency of the http cache. Remove this function once the
+ * Check consistency of the http cache.  Remove this function once the
  * server is stable.
  */
 static void
@@ -172,7 +172,7 @@ http_cache_urgency (http_cache_entry_t *cache)
 
 /*
  * This function will make the given cache entry CACHE the most recent
- * within the whole HTTP file cache. All other used entries will be less
+ * within the whole HTTP file cache.  All other used entries will be less
  * urgent afterwards.
  */
 void
@@ -194,9 +194,9 @@ http_urgent_cache (http_cache_entry_t *cache)
 
 /*
  * This routine checks if a certain FILE is already within the HTTP file
- * cache. It returns HTTP_CACHE_COMPLETE if it is already cached and fills
- * in the CACHE entry. This entry will be additionally the most recent
- * afterwards. If the given FILE is going to be in the cache then return
+ * cache.  It returns HTTP_CACHE_COMPLETE if it is already cached and fills
+ * in the CACHE entry.  This entry will be additionally the most recent
+ * afterwards.  If the given FILE is going to be in the cache then return
  * HTTP_CACHE_INCOMPLETE, return HTTP_CACHE_NO if it is not at all in the
  * cache.
  */
@@ -211,7 +211,7 @@ http_check_cache (char *file, http_cache_t *cache)
       http_urgent_cache (cachefile);
       http_cache_consistency ();
 
-      /* is this entry fully read by the cache reader ? */
+      /* is this entry fully read by the cache reader?  */
       if (cachefile->ready)
         {
           /* fill in the cache entry for the cache writer */
@@ -220,7 +220,7 @@ http_check_cache (char *file, http_cache_t *cache)
           cache->size = cachefile->size;
           return HTTP_CACHE_COMPLETE;
         }
-      /* not but is going to be ... */
+      /* not but is going to be ...  */
       return HTTP_CACHE_INCOMPLETE;
     }
   return HTTP_CACHE_NO;
@@ -247,11 +247,11 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
 {
   http_cache_consistency ();
 
-  /* Delete cache entry from hash. */
+  /* Delete cache entry from hash.  */
   if (svz_hash_delete (http_cache, cache->file) != cache)
     svz_log (LOG_FATAL, "cache: inconsistent http hash\n");
 
-  /* Update the double chained list of entries. */
+  /* Update the double chained list of entries.  */
   if (cache->prev)
     cache->prev->next = cache->next;
   else
@@ -280,7 +280,7 @@ http_cache_reset (http_cache_t *cache)
 
 /*
  * This is a extended callback for the sock->disconnected_socket entry
- * of a socket structure. You should assign it if the socket reads a
+ * of a socket structure.  You should assign it if the socket reads a
  * cache entry.
  */
 int
@@ -302,8 +302,8 @@ http_cache_disconnect (svz_socket_t *sock)
 }
 
 /*
- * Find a free slot in the http file cache entries. If necessary
- * delete the least recent. Return zero if there was a free slot.
+ * Find a free slot in the http file cache entries.  If necessary
+ * delete the least recent.  Return zero if there was a free slot.
  */
 int
 http_init_cache (char *file, http_cache_t *cache)
@@ -365,7 +365,7 @@ http_init_cache (char *file, http_cache_t *cache)
 }
 
 /*
- * Refresh a certain cache entry for reusing it afterwards. So we do not
+ * Refresh a certain cache entry for reusing it afterwards.  So we do not
  * destroy the entry, but the actual cache content.
  */
 void
@@ -478,7 +478,7 @@ http_cache_read (svz_socket_t *sock)
     }
 #endif
 
-  /* Read error occurred. */
+  /* Read error occurred.  */
   if (num_read < 0)
     {
 #ifndef __MINGW32__
@@ -496,7 +496,7 @@ http_cache_read (svz_socket_t *sock)
       return -1;
     }
 
-  /* Data has been read. */
+  /* Data has been read.  */
   else if (num_read > 0)
     {
       /*
@@ -513,7 +513,7 @@ http_cache_read (svz_socket_t *sock)
       http->length += num_read;
     }
 
-  /* Bogus file. File size from stat() was not true. */
+  /* Bogus file.  File size from stat() was not true.  */
   if (num_read == 0 && http->filelength != 0)
     {
       cache->entry->size = cache->size;
@@ -548,6 +548,6 @@ http_cache_read (svz_socket_t *sock)
 
 #else /* ENABLE_HTTP_PROTO */
 
-int http_cache_dummy; /* Silence compiler. */
+int http_cache_dummy;           /* Silence compiler.  */
 
 #endif /* not ENABLE_HTTP_PROTO */

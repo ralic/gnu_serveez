@@ -55,10 +55,10 @@
 #include "libserveez/udp-socket.h"
 
 /*
- * This routine is the default reader for UDP sockets. Whenever the socket
+ * This routine is the default reader for UDP sockets.  Whenever the socket
  * descriptor is @code{select()}'ed for reading it is called by default and
  * reads as much data as possible (whole packets only) and saves the sender
- * into the @code{sock->remote_addr} field. The packet load is written into
+ * into the @code{sock->remote_addr} field.  The packet load is written into
  * @code{sock->recv_buffer}.
  */
 int
@@ -70,7 +70,7 @@ svz_udp_read_socket (svz_socket_t *sock)
 
   len = sizeof (struct sockaddr_in);
 
-  /* Check if there is enough space to save the packet. */
+  /* Check if there is enough space to save the packet.  */
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
   if (do_read <= 0)
     {
@@ -79,7 +79,7 @@ svz_udp_read_socket (svz_socket_t *sock)
       return -1;
     }
 
-  /* Receive data. */
+  /* Receive data.  */
   if (!(sock->flags & SOCK_FLAG_CONNECTED))
     {
       num_read = recvfrom (sock->sock_desc,
@@ -93,13 +93,13 @@ svz_udp_read_socket (svz_socket_t *sock)
                        do_read, 0);
     }
 
-  /* Valid packet data arrived. */
+  /* Valid packet data arrived.  */
   if (num_read > 0)
     {
       sock->last_recv = time (NULL);
       sock->recv_buffer_fill += num_read;
 
-      /* Save sender in socket structure. */
+      /* Save sender in socket structure.  */
       if (!(sock->flags & SOCK_FLAG_FIXED))
         {
           sock->remote_port = sender.sin_port;
@@ -113,16 +113,16 @@ svz_udp_read_socket (svz_socket_t *sock)
                ntohs (sock->remote_port), num_read);
 #endif /* SVZ_ENABLE_DEBUG */
 
-      /* Check access lists. */
+      /* Check access lists.  */
       if (svz_sock_check_access (sock, sock) < 0)
         return 0;
 
-      /* Handle packet. */
+      /* Handle packet.  */
       if (sock->check_request)
         if (sock->check_request (sock))
           return -1;
     }
-  /* Some error occurred. */
+  /* Some error occurred.  */
   else
     {
       svz_log (LOG_ERROR, "udp: recv%s: %s\n",
@@ -134,7 +134,7 @@ svz_udp_read_socket (svz_socket_t *sock)
 }
 
 /*
- * This routine is the default reader for UDP server sockets. It allocates
+ * This routine is the default reader for UDP server sockets.  It allocates
  * necessary buffers (that's why it's called lazy) and reverts to the default
  * @code{svz_udp_read_socket()}.
  */
@@ -152,7 +152,7 @@ svz_udp_lazy_read_socket (svz_socket_t *sock)
 
 /*
  * The @code{svz_udp_write_socket()} callback should be called whenever
- * the UDP socket descriptor is ready for sending. It sends a single packet
+ * the UDP socket descriptor is ready for sending.  It sends a single packet
  * within the @code{sock->send_buffer} to the destination address specified
  * by @code{sock->remote_addr} and @code{sock->remote_port}.
  */
@@ -222,7 +222,7 @@ svz_udp_write_socket (svz_socket_t *sock)
 /*
  * This is the default @code{check_request()} routine for UDP servers.
  * Whenever new data arrived at an UDP server socket we call this function to
- * process the packet data. Any given @code{handle_request()} callback MUST
+ * process the packet data.  Any given @code{handle_request()} callback MUST
  * return zero if it successfully processed the data and non-zero if it
  * could not.
  */
@@ -239,7 +239,7 @@ svz_udp_check_request (svz_socket_t *sock)
 
   /*
    * If there is a valid `handle_request ()' callback (dedicated udp
-   * connection) call it. This kind of behaviour is due to a socket creation
+   * connection) call it.  This kind of behaviour is due to a socket creation
    * via `udp_connect ()' and setting up a static `handle_request ()'
    * callback.
    */
@@ -286,7 +286,7 @@ svz_udp_check_request (svz_socket_t *sock)
 }
 
 /*
- * Write the given @var{buf} into the send queue of the UDP socket. If the
+ * Write the given @var{buf} into the send queue of the UDP socket.  If the
  * length argument supersedes the maximum length for UDP messages it
  * is split into smaller packets.
  */
@@ -341,10 +341,10 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 }
 
 /*
- * Print a formatted string on the UDP socket @var{sock}. @var{fmt} is
+ * Print a formatted string on the UDP socket @var{sock}.  @var{fmt} is
  * the printf()-style format string, which describes how to format the
- * optional arguments. See the printf(3) manual page for details. The
- * destination address and port is saved for sending. This you might
+ * optional arguments.  See the printf(3) manual page for details.  The
+ * destination address and port is saved for sending.  This you might
  * specify them in @code{sock->remote_addr} and @code{sock->remote_port}.
  */
 int
@@ -366,8 +366,8 @@ svz_udp_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
 
 /*
  * Create a UDP connection to @var{host} and set the socket descriptor in
- * structure @var{sock} to the resulting socket. Return a @code{NULL} value
- * on errors. This function can be used for port bouncing. If you assign the
+ * structure @var{sock} to the resulting socket.  Return a @code{NULL} value
+ * on errors.  This function can be used for port bouncing.  If you assign the
  * @code{handle_request} callback to something server specific and the
  * @var{cfg} field to the server's configuration to the returned socket
  * structure this socket is able to handle a dedicated UDP connection to
@@ -379,15 +379,15 @@ svz_udp_connect (unsigned long host, unsigned short port)
   svz_t_socket sockfd;
   svz_socket_t *sock;
 
-  /* Create a client socket. */
+  /* Create a client socket.  */
   if ((sockfd = svz_socket_create (PROTO_UDP)) == (svz_t_socket) -1)
     return NULL;
 
-  /* Try to connect to the server. Does it make sense for ICMP ? */
+  /* Try to connect to the server.  Does it make sense for ICMP?  */
   if (svz_socket_connect (sockfd, host, port) == -1)
     return NULL;
 
-  /* Create socket structure and enqueue it. */
+  /* Create socket structure and enqueue it.  */
   if ((sock = svz_sock_alloc ()) == NULL)
     {
       closesocket (sockfd);

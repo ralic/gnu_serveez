@@ -143,10 +143,10 @@ svz_spvec_find_chunk (svz_spvec_t *spvec, unsigned long index)
 {
   svz_spvec_chunk_t *chunk = NULL;
 
-  /* index larger than list length ? */
+  /* index larger than list length?  */
   if (index >= spvec->length)
     {
-      /* is index available in last chunk ? */
+      /* is index available in last chunk?  */
       if (spvec->last && svz_spvec_range_all (spvec->last, index))
         chunk = spvec->last;
     }
@@ -160,7 +160,7 @@ svz_spvec_find_chunk (svz_spvec_t *spvec, unsigned long index)
   /* start seeking at the start of the list (usual case) */
   else
     {
-      /* index lesser than offset of first chunk ? */
+      /* index lesser than offset of first chunk?  */
       chunk = spvec->first;
       if (chunk && index < chunk->offset)
         return NULL;
@@ -177,7 +177,7 @@ svz_spvec_find_chunk (svz_spvec_t *spvec, unsigned long index)
 }
 
 /*
- * Print text representation of the sparse vector @var{spvec}. This
+ * Print text representation of the sparse vector @var{spvec}.  This
  * function is for testing and debugging purposes only and should not go
  * into any distribution.
  */
@@ -202,8 +202,8 @@ svz_spvec_analyse (svz_spvec_t *spvec)
 
 /*
  * Validate the given sparse vector @var{spvec} and print invalid sparse
- * vectors. Passing the @var{description} text you can figure out the stage
- * an error occurred. Return zero if there occurred an error otherwise
+ * vectors.  Passing the @var{description} text you can figure out the stage
+ * an error occurred.  Return zero if there occurred an error otherwise
  * non-zero.
  */
 static int
@@ -213,7 +213,7 @@ svz_spvec_validate (svz_spvec_t *spvec, char *description)
   unsigned long n = 0, bits;
   int ok = 1;
 
-  /* any valid list ? */
+  /* any valid list?  */
   assert (spvec);
 
   /* go through all the sparse vector chunks */
@@ -275,7 +275,7 @@ svz_spvec_validate (svz_spvec_t *spvec, char *description)
 }
 
 /*
- * Construct an empty sparse vector without initial capacity. Return the
+ * Construct an empty sparse vector without initial capacity.  Return the
  * newly created sparse vector.
  */
 svz_spvec_t *
@@ -290,7 +290,7 @@ svz_spvec_create (void)
 }
 
 /*
- * Destroy the given sparse vector @var{spvec} completely. The argument
+ * Destroy the given sparse vector @var{spvec} completely.  The argument
  * cannot be used afterwards because it is invalid.
  */
 void
@@ -343,7 +343,7 @@ svz_spvec_add (svz_spvec_t *spvec, void *value)
 }
 
 /*
- * Removes all of the elements from the sparse vector @var{spvec}. The
+ * Removes all of the elements from the sparse vector @var{spvec}.  The
  * sparse vector will be as clean as created with @code{svz_spvec_create()}
  * then.
  */
@@ -424,7 +424,7 @@ svz_spvec_get (svz_spvec_t *spvec, unsigned long index)
   if (index >= spvec->length)
     return NULL;
 
-  /* start searching at first or last chunk ? */
+  /* start searching at first or last chunk?  */
   if (index > spvec->length >> 1)
     {
       for (chunk = spvec->last; chunk; chunk = chunk->prev)
@@ -494,7 +494,7 @@ svz_spvec_delete (svz_spvec_t *spvec, unsigned long index)
   if (index >= spvec->length)
     return NULL;
 
-  /* start at first or last chunk ? */
+  /* start at first or last chunk?  */
   if (index > spvec->length >> 1)
     {
       for (chunk = spvec->last; chunk; chunk = chunk->prev)
@@ -513,7 +513,7 @@ svz_spvec_delete (svz_spvec_t *spvec, unsigned long index)
     return NULL;
   idx = index - chunk->offset;
 
-  /* is there any value at the given index ? */
+  /* is there any value at the given index?  */
   if (!(chunk->fill & (1 << idx)))
     return NULL;
 
@@ -591,7 +591,7 @@ svz_spvec_delete (svz_spvec_t *spvec, unsigned long index)
 
 /*
  * Removes all of the elements whose index is between @var{from} (inclusive)
- * and @var{to} (exclusive) from the sparse vector @var{spvec}. Returns the
+ * and @var{to} (exclusive) from the sparse vector @var{spvec}.  Returns the
  * amount of actually deleted elements.
  */
 unsigned long
@@ -658,15 +658,15 @@ svz_spvec_set (svz_spvec_t *spvec, unsigned long index, void *value)
   svz_spvec_validate (spvec, "set");
 #endif /* DEVEL */
 
-  /* start at first or last chunk ? */
+  /* start at first or last chunk?  */
   chunk = svz_spvec_find_chunk (spvec, index);
 
-  /* found a valid chunk ? */
+  /* found a valid chunk?  */
   if (chunk)
     {
       idx = index - chunk->offset;
 
-      /* already set ? */
+      /* already set?  */
       if (chunk->fill & (1 << idx))
         {
           replace = chunk->value[idx];
@@ -706,7 +706,7 @@ svz_spvec_set (svz_spvec_t *spvec, unsigned long index, void *value)
 /*
  * Delete the element at the given position @var{index} from the sparse
  * vector @var{spvec} but leave all following elements untouched
- * (unlike @code{svz_spvec_delete()}). Return its previous value if there
+ * (unlike @code{svz_spvec_delete()}).  Return its previous value if there
  * is one otherwise return @code{NULL}.
  */
 void *
@@ -730,7 +730,7 @@ svz_spvec_unset (svz_spvec_t *spvec, unsigned long index)
 
   idx = index - chunk->offset;
 
-  /* is there a value set ? */
+  /* is there a value set?  */
   if (!(chunk->fill & (1 << idx)))
     return NULL;
 
@@ -798,15 +798,15 @@ svz_spvec_insert (svz_spvec_t *spvec, unsigned long index, void *value)
   svz_spvec_validate (spvec, "insert");
 #endif /* DEVEL */
 
-  /* start at first or last chunk ? */
+  /* start at first or last chunk?  */
   chunk = svz_spvec_find_chunk (spvec, index);
 
-  /* found a valid chunk ? */
+  /* found a valid chunk?  */
   if (chunk)
     {
       idx = index - chunk->offset;
 
-      /* can the value be inserted here ? */
+      /* can the value be inserted here?  */
       if (chunk->size < SVZ_SPVEC_SIZE)
         {
           /* adjust chunk size */
@@ -879,8 +879,8 @@ svz_spvec_insert (svz_spvec_t *spvec, unsigned long index, void *value)
 }
 
 /*
- * Rearranges the given sparse vector @var{spvec}. After that there are no
- * more gaps within the sparse vector. The index - value relationship gets
+ * Rearranges the given sparse vector @var{spvec}.  After that there are no
+ * more gaps within the sparse vector.  The index - value relationship gets
  * totally lost by this operation.
  */
 void
@@ -970,7 +970,7 @@ svz_spvec_pack (svz_spvec_t *spvec)
 
 /*
  * Delivers all values within the given sparse vector @var{spvec} in a
- * single linear chunk. You have to @code{svz_free()} it after usage.
+ * single linear chunk.  You have to @code{svz_free()} it after usage.
  */
 void **
 svz_spvec_values (svz_spvec_t *spvec)

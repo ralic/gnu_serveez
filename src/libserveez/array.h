@@ -26,10 +26,10 @@
 
 typedef struct svz_array
 {
-  unsigned long size;      /* Real size of the array. */
-  unsigned long capacity;  /* Current capacity. */
-  svz_free_func_t destroy; /* The destroy callback. */
-  void **data;             /* Data pointer. */
+  unsigned long size;      /* Real size of the array.  */
+  unsigned long capacity;  /* Current capacity.  */
+  svz_free_func_t destroy; /* The destroy callback.  */
+  void **data;             /* Data pointer.  */
 }
 svz_array_t;
 
@@ -60,7 +60,7 @@ __END_DECLS
 
 /*
  * This is the iteration macro for the array implementation of the core
- * library. @var{array} specifies the array to iterate, @var{value} the
+ * library.  @var{array} specifies the array to iterate, @var{value} the
  * pointer each element of the array gets assigned and @var{i} is the
  * iteration variable.
  */

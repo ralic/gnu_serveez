@@ -41,7 +41,7 @@ typedef struct
 svz_hash_entry_t;
 
 /*
- * The hash table consists of different hash buckets. This contains the
+ * The hash table consists of different hash buckets.  This contains the
  * bucket's size and the entry array.
  */
 typedef struct
@@ -94,7 +94,7 @@ __END_DECLS
 
 
 /*
- * Iterator macro for walking over the values of a hash. Use like:
+ * Iterator macro for walking over the values of a hash.  Use like:
  * @example
  *   type_t **values; int i;
  *   svz_hash_foreach_value (hash, values, i) @{
@@ -104,7 +104,7 @@ __END_DECLS
  * Be sure you pass real variables and no expressions to this macro !
  * Warning: Relatively slow implementation, builds up temporary array.
  * Do not @code{break} or @code{return} from inside the loop or your program
- * starts leaking memory ! Loop has to end normally.
+ * starts leaking memory!  Loop has to end normally.
  */
 #define svz_hash_foreach_value(hash, iterarray, i)                           \
  for (                                                                       \
@@ -116,7 +116,7 @@ __END_DECLS
  )
 
 /*
- * Iterator macro for walking over the keys of a hash. Use like:
+ * Iterator macro for walking over the keys of a hash.  Use like:
  * @example
  *   char **allkeys; int i;
  *   svz_hash_foreach_key (hash, allkeys, i) @{
@@ -126,7 +126,7 @@ __END_DECLS
  * Be sure you pass real variables and no expressions to this macro !
  * Warning: Relatively slow implementation, builds up temporary array.
  * Do not @code{break} or @code{return} from inside the loop or your program
- * starts leaking memory ! Loop has to end normally.
+ * starts leaking memory!  Loop has to end normally.
  */
 #define svz_hash_foreach_key(hash, iterarray, i)                             \
  for (                                                                       \

@@ -143,7 +143,7 @@ svz_servertype_t http_server_definition =
 
 /*
  * HTTP request types, their identification string (including its length)
- * and the appropriate callback routine itself. This array is used in
+ * and the appropriate callback routine itself.  This array is used in
  * the HTTP_HANDLE_REQUEST function.
  */
 struct
@@ -257,7 +257,7 @@ http_init (svz_server_t *server)
       return -1;
     }
 
-  /* checking whether http doc root path ends in '/' or '\'. */
+  /* checking whether http doc root path ends in '/' or '\'.  */
   p = cfg->docs + strlen (cfg->docs) - 1;
   if (*p == '/' || *p == '\\')
     *p = '\0';
@@ -287,7 +287,7 @@ http_finalize (svz_server_t *server)
 
 /*
  * This function frees all HTTP request properties previously reserved
- * and frees the cache structure if necessary. Nevertheless the
+ * and frees the cache structure if necessary.  Nevertheless the
  * socket structure SOCK should still be usable for keep-alive connections.
  */
 void
@@ -307,7 +307,7 @@ http_free_socket (svz_socket_t *sock)
   http->response = 0;
   http->length = 0;
 
-  /* any property at all ? */
+  /* any property at all?  */
   if (http->property)
     {
       /* go through all properties */
@@ -327,7 +327,7 @@ http_free_socket (svz_socket_t *sock)
       http->cache->entry->usage--;
     }
 
-  /* is the cache entry used ? */
+  /* is the cache entry used?  */
   if (http->cache)
     svz_free_and_zero (http->cache);
 
@@ -341,7 +341,7 @@ http_free_socket (svz_socket_t *sock)
 }
 
 /*
- * Disconnects a HTTP connection. Callback routine for the
+ * Disconnects a HTTP connection.  Callback routine for the
  * socket structure entry "disconnected_socket".
  */
 int
@@ -367,7 +367,7 @@ http_disconnect (svz_socket_t *sock)
 }
 
 /*
- * Idle function for HTTP Keep-Alive connections. It simply returns -1
+ * Idle function for HTTP Keep-Alive connections.  It simply returns -1
  * if a certain time has elapsed and the main server loop will shutdown
  * the connection therefore.
  */
@@ -390,8 +390,8 @@ http_idle (svz_socket_t *sock)
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 /*
  * This routine is using sendfile() to transport large file's content
- * to a network socket. It is replacing HTTP_DEFAULT_WRITE on systems where
- * this function is implemented. Furthermore you do not need to set
+ * to a network socket.  It is replacing HTTP_DEFAULT_WRITE on systems where
+ * this function is implemented.  Furthermore you do not need to set
  * the READ_SOCKET callback HTTP_FILE_READ.
  */
 int
@@ -400,32 +400,32 @@ http_send_file (svz_socket_t *sock)
   http_socket_t *http = sock->data;
   int num_written, do_write;
 
-  /* Limitate the number of bytes to write at once. */
+  /* Limitate the number of bytes to write at once.  */
   do_write = http->filelength > SOCK_MAX_WRITE
     ? SOCK_MAX_WRITE : http->filelength;
 
-  /* Try sending throughout file descriptor to socket. */
+  /* Try sending throughout file descriptor to socket.  */
   num_written = svz_sendfile (sock->sock_desc, sock->file_desc,
                               &http->fileoffset, do_write);
 
-  /* Some error occurred. */
+  /* Some error occurred.  */
   if (num_written < 0)
     {
       svz_log (LOG_ERROR, "http: sendfile: %s\n", SYS_ERROR);
       return -1;
     }
 
-  /* Bogus file. File size from stat() was not true. */
+  /* Bogus file.  File size from stat() was not true.  */
   if (num_written == 0 && http->filelength != 0)
     {
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the appropriate flags. */
+  /* Data has been read or EOF reached, set the appropriate flags.  */
   http->filelength -= num_written;
   http->length += num_written;
 
-  /* Read all file data ? */
+  /* Read all file data?  */
   if (http->filelength <= 0)
     {
 #if SVZ_ENABLE_DEBUG
@@ -452,7 +452,7 @@ http_send_file (svz_socket_t *sock)
 /*
  * HTTP_DEFAULT_WRITE will shutdown the connection immediately when
  * the whole response has been sent (indicated by the HTTP_FLAG_DONE
- * flag) with two exceptions. It will keep the connection if the
+ * flag) with two exceptions.  It will keep the connection if the
  * actual file is within the cache and if this is a keep-alive connection.
  */
 int
@@ -507,7 +507,7 @@ http_default_write (svz_socket_t *sock)
 
   /*
    * If the requested file is within the cache then start now the
-   * cache writer. Set SEND_BUFFER_FILL to something greater than zero.
+   * cache writer.  Set SEND_BUFFER_FILL to something greater than zero.
    */
   if (sock->send_buffer_fill == 0)
     {
@@ -540,8 +540,8 @@ http_default_write (svz_socket_t *sock)
 
 /*
  * The HTTP_FILE_READ reads as much data from a file as possible directly
- * into the send buffer of the socket SOCK. It returns a non-zero value
- * on read errors. When all the file has been read then the socket flag
+ * into the send buffer of the socket SOCK.  It returns a non-zero value
+ * on read errors.  When all the file has been read then the socket flag
  * HTTP_FLAG_DONE is set.
  */
 int
@@ -570,7 +570,7 @@ http_file_read (svz_socket_t *sock)
   num_read = read (sock->file_desc,
                    sock->send_buffer + sock->send_buffer_fill, do_read);
 
-  /* Read error occurred. */
+  /* Read error occurred.  */
   if (num_read < 0)
     {
       svz_log (LOG_ERROR, "http: read: %s\n", SYS_ERROR);
@@ -586,18 +586,18 @@ http_file_read (svz_socket_t *sock)
     }
 #endif
 
-  /* Bogus file. File size from stat() was not true. */
+  /* Bogus file.  File size from stat() was not true.  */
   if (num_read == 0 && http->filelength != 0)
     {
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the appropriate flags. */
+  /* Data has been read or EOF reached, set the appropriate flags.  */
   sock->send_buffer_fill += num_read;
   http->filelength -= num_read;
   http->length += num_read;
 
-  /* Read all file data ? */
+  /* Read all file data?  */
   if (http->filelength <= 0)
     {
 #if SVZ_ENABLE_DEBUG
@@ -734,7 +734,7 @@ http_handle_request (svz_socket_t *sock, int len)
   while (*p != ' ' && *p)
     p--;
 
-  /* is this a HTTP/0.9 request ? */
+  /* is this a HTTP/0.9 request?  */
   if (!memcmp (request, "GET", 3) && memcmp (p + 1, "HTTP/", 5))
     {
       flag |= HTTP_FLAG_SIMPLE;
@@ -810,7 +810,7 @@ http_handle_request (svz_socket_t *sock, int len)
         }
     }
 
-  /* Return a "404 Bad Request" if the request type is unknown. */
+  /* Return a "404 Bad Request" if the request type is unknown.  */
   if (n == HTTP_REQUESTS)
     {
       http_default_response (sock, uri, 0);
@@ -856,7 +856,7 @@ http_check_request (svz_socket_t *sock)
 }
 
 /*
- * Server info callback for the http protocol. We are currently using
+ * Server info callback for the http protocol.  We are currently using
  * it for displaying the server configuration within the control protocol.
  */
 char *
@@ -980,7 +980,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * Respond to a http GET request. This could be either a usual file
+ * Respond to a http GET request.  This could be either a usual file
  * request or a CGI request.
  */
 int
@@ -1256,13 +1256,13 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
       status = http_check_cache (file, cache);
     }
 
-  /* is the requested file already fully in the cache ? */
+  /* is the requested file already fully in the cache?  */
   if (status == HTTP_CACHE_COMPLETE)
     {
       if (buf.st_mtime > cache->entry->date ||
           buf.st_size != cache->entry->size)
         {
-          /* the file on disk has changed ? */
+          /* the file on disk has changed?  */
 #if SVZ_ENABLE_DEBUG
           svz_log (LOG_DEBUG, "cache: %s has changed\n", file);
 #endif
@@ -1340,7 +1340,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 }
 
 /*
- * Respond to a http HEAD request. This is in particular the same as
+ * Respond to a http HEAD request.  This is in particular the same as
  * GET but you do not respond with the file but with the header and all
  * the file info.
  */

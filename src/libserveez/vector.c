@@ -32,7 +32,7 @@
 #include "libserveez/vector.h"
 
 /*
- * Create a new vector list without elements. Each element will have
+ * Create a new vector list without elements.  Each element will have
  * the given size @var{size} in bytes.
  */
 svz_vector_t *
@@ -49,7 +49,7 @@ svz_vector_create (unsigned long size)
 }
 
 /*
- * Destroy a given vector list @var{vec}. This pointer is invalid afterwards.
+ * Destroy a given vector list @var{vec}.  This pointer is invalid afterwards.
  * The routine @code{svz_free()}s all elements.
  */
 void
@@ -61,8 +61,8 @@ svz_vector_destroy (svz_vector_t *vec)
 }
 
 /*
- * Delete all elements of the given vector list @var{vec}. What you will
- * have then is an empty vector list. Returns the previous length.
+ * Delete all elements of the given vector list @var{vec}.  What you will
+ * have then is an empty vector list.  Returns the previous length.
  */
 unsigned long
 svz_vector_clear (svz_vector_t *vec)
@@ -77,8 +77,8 @@ svz_vector_clear (svz_vector_t *vec)
 }
 
 /*
- * Add an element to the end of the given vector list @var{vec}. Return the
- * position the element got. @var{value} is a pointer to a chunk of the
+ * Add an element to the end of the given vector list @var{vec}.  Return the
+ * position the element got.  @var{value} is a pointer to a chunk of the
  * vector lists chunk size.
  */
 unsigned long
@@ -95,7 +95,7 @@ svz_vector_add (svz_vector_t *vec, void *value)
 
 /*
  * Get an vector list element of the vector list @var{vec} at the given
- * position @var{index}. Return @code{NULL} if the index is out of range.
+ * position @var{index}.  Return @code{NULL} if the index is out of range.
  */
 void *
 svz_vector_get (svz_vector_t *vec, unsigned long index)
@@ -107,7 +107,7 @@ svz_vector_get (svz_vector_t *vec, unsigned long index)
 
 /*
  * Overwrite the element at index @var{index} in the vector list @var{vec}
- * with the given value @var{value}. Return @code{NULL} if the index is out
+ * with the given value @var{value}.  Return @code{NULL} if the index is out
  * of range or the pointer to the new element.
  */
 void *
@@ -161,7 +161,7 @@ svz_vector_del (svz_vector_t *vec, unsigned long index)
 
 /*
  * Insert the given element @var{value} into the vector list @var{vec} at
- * the position @var{index}. Return the new length of the vector list or
+ * the position @var{index}.  Return the new length of the vector list or
  * -1 if the index is out of range.
  */
 unsigned long
@@ -194,7 +194,7 @@ svz_vector_ins (svz_vector_t *vec, unsigned long index, void *value)
 }
 
 /*
- * Find the given value @var{value} in the vector list @var{vec}. Return -1
+ * Find the given value @var{value} in the vector list @var{vec}.  Return -1
  * if there is no such element or the index of the element.
  */
 unsigned long

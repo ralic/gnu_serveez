@@ -30,53 +30,53 @@ typedef char * svz_envp_t;
 typedef char ** svz_envp_t;
 #endif
 
-/* Structure containing a system independent environment. */
+/* Structure containing a system independent environment.  */
 typedef struct
 {
-  int size;     /* Number of environment entries. */
-  char **entry; /* Environment entries in the format "VAR=VALUE". */
-  char *block;  /* Temporary environment block. */
+  int size;     /* Number of environment entries.  */
+  char **entry; /* Environment entries in the format "VAR=VALUE".  */
+  char *block;  /* Temporary environment block.  */
 }
 svz_envblock_t;
 
-/* Internally used to pass lots of arguments. */
+/* Internally used to pass lots of arguments.  */
 typedef struct
 {
-  svz_socket_t *sock;   /* Socket structure to pass through. */
-  char *bin;            /* Fully qualified program name. */
-  char *dir;            /* Working directory. */
-  char **argv;          /* Program arguments including argv[0]. */
-  svz_envblock_t *envp; /* Environment block. */
-  char *user;           /* User and group. */
-  char *app;            /* Additional @var{bin} interpreter application. */
-  svz_t_handle in, out; /* New stdin and stdout of child process. */
-  int flag;             /* Passthrough method flag. */
+  svz_socket_t *sock;   /* Socket structure to pass through.  */
+  char *bin;            /* Fully qualified program name.  */
+  char *dir;            /* Working directory.  */
+  char **argv;          /* Program arguments including argv[0].  */
+  svz_envblock_t *envp; /* Environment block.  */
+  char *user;           /* User and group.  */
+  char *app;            /* Additional @var{bin} interpreter application.  */
+  svz_t_handle in, out; /* New stdin and stdout of child process.  */
+  int flag;             /* Passthrough method flag.  */
 }
 svz_process_t;
 
-/* Definition for the @var{flag} argument of @code{svz_sock_process()}. */
+/* Definition for the @var{flag} argument of @code{svz_sock_process()}.  */
 #define SVZ_PROCESS_FORK         1
 #define SVZ_PROCESS_SHUFFLE_SOCK 2
 #define SVZ_PROCESS_SHUFFLE_PIPE 3
 
-/* Definitions for the @var{user} argument of @code{svz_sock_process()}. */
+/* Definitions for the @var{user} argument of @code{svz_sock_process()}.  */
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)
 
 /* Envrionment variables used to pass the receive and send sockets to
-   the child process on Win32. */
+   the child process on Win32.  */
 #define SVZ_PROCESS_RECV_HANDLE "RECV_HANDLE"
 #define SVZ_PROCESS_SEND_HANDLE "SEND_HANDLE"
 
-/* Extern declaration of the process environment pointer. */
+/* Extern declaration of the process environment pointer.  */
 #if !defined(__MINGW32__) && !defined(__CYGWIN__)
 extern char **environ;
 #endif
 
 /*
  * This macro must be called once after @code{svz_boot()} for setting up the
- * @code{svz_environ} variable. It simply passes the @code{environ} variable
- * of the calling application to the underlying Serveez core API. This is
+ * @code{svz_environ} variable.  It simply passes the @code{environ} variable
+ * of the calling application to the underlying Serveez core API.  This is
  * necessary to make the @code{svz_envblock_default()} function working
  * correctly.
  */

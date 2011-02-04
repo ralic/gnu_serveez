@@ -50,21 +50,21 @@
  */
 svz_config_t svz_config = { NULL, 0, 0, 0 };
 
-/* The symbolic name of the core library. */
+/* The symbolic name of the core library.  */
 char *svz_library = "serveez";
-/* The version of the core library. */
+/* The version of the core library.  */
 char *svz_version = __serveez_version;
-/* Timestamp when core library has been build. */
+/* Timestamp when core library has been build.  */
 char *svz_build = __serveez_timestamp;
 
-/* Runtime flag if this is Win32 or not. */
+/* Runtime flag if this is Win32 or not.  */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
 int svz_have_Win32 = 1;
 #else
 int svz_have_Win32 = 0;
 #endif
 
-/* Runtime flag if this is the debug version or not. */
+/* Runtime flag if this is the debug version or not.  */
 #ifdef SVZ_ENABLE_DEBUG
 int svz_have_debug = 1;
 #else
@@ -72,14 +72,14 @@ int svz_have_debug = 0;
 #endif
 
 /* Runtime checkable flags for configuration language and code if flood
-   protection has been enabled or not. */
+   protection has been enabled or not.  */
 #ifdef SVZ_ENABLE_FLOOD_PROTECTION
 int svz_have_floodprotect = 1;
 #else
 int svz_have_floodprotect = 0;
 #endif
 
-/* Extern declaration of the logging mutex. */
+/* Extern declaration of the logging mutex.  */
 svz_mutex_declare (svz_log_mutex)
 
 /*
@@ -92,7 +92,7 @@ svz_net_startup (void)
 #ifdef __MINGW32__
   WSADATA WSAData;
 
-  /* Call this once before using Winsock API. */
+  /* Call this once before using Winsock API.  */
   if (WSAStartup (WINSOCK_VERSION, &WSAData) == SOCKET_ERROR)
     {
       svz_log (LOG_ERROR, "WSAStartup: %s\n", NET_ERROR);
@@ -100,7 +100,7 @@ svz_net_startup (void)
       return 0;
     }
 
-  /* Startup IP services. */
+  /* Startup IP services.  */
   svz_icmp_startup ();
 
 #endif /* __MINGW32__ */
@@ -115,10 +115,10 @@ int
 svz_net_cleanup (void)
 {
 #ifdef __MINGW32__
-  /* Shutdown IP services. */
+  /* Shutdown IP services.  */
   svz_icmp_cleanup ();
 
-  /* Call this when disconnecting from Winsock API. */
+  /* Call this when disconnecting from Winsock API.  */
   if (WSACleanup () == SOCKET_ERROR)
     {
       svz_log (LOG_ERROR, "WSACleanup: %s\n", NET_ERROR);

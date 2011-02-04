@@ -63,7 +63,7 @@ svz_portcfg_create (void)
 
 /*
  * Check if two given port configurations structures are equal i.e.
- * specifying the same network port or pipe files. Returns
+ * specifying the same network port or pipe files.  Returns
  * @code{PORTCFG_EQUAL} if @var{a} and @var{b} are identical,
  * @code{PORTCFG_MATCH} if the network address ofeither port
  * configurations contains the other (INADDR_ANY match) and otherwise
@@ -78,7 +78,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
       (a->proto == b->proto))
     {
       /* Two network ports are equal if both local port and IP address
-         are equal or one of them is INADDR_ANY. */
+         are equal or one of them is INADDR_ANY.  */
       a_addr = svz_portcfg_addr (a);
       b_addr = svz_portcfg_addr (b);
 
@@ -152,14 +152,14 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
         return PORTCFG_EQUAL;
     }
 
-  /* Do not even the same proto flag -> cannot be equal. */
+  /* Do not even the same proto flag -> cannot be equal.  */
   return PORTCFG_NOMATCH;
 }
 
 /*
  * Add the given port configuration @var{port} associated with the name
- * @var{name} to the list of known port configurations. Return @code{NULL}
- * on errors. If the return port configuration equals the given port
+ * @var{name} to the list of known port configurations.  Return @code{NULL}
+ * on errors.  If the return port configuration equals the given port
  * configuration  the given one has been successfully added.
  */
 svz_portcfg_t *
@@ -167,11 +167,11 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
 {
   svz_portcfg_t *replace;
 
-  /* Do not handle invalid arguments. */
+  /* Do not handle invalid arguments.  */
   if (name == NULL || port == NULL)
     return NULL;
 
-  /* Check if the port configuration hash is inited. */
+  /* Check if the port configuration hash is inited.  */
   if (svz_portcfgs == NULL)
     {
       if ((svz_portcfgs = svz_hash_create (4, (svz_free_func_t)
@@ -179,7 +179,7 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
         return NULL;
     }
 
-  /* Try adding a new port configuration. */
+  /* Try adding a new port configuration.  */
   if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
     {
 #if SVZ_ENABLE_DEBUG
@@ -194,24 +194,24 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
 
 /*
  * Remove the named port configuration identified by @var{name} from the
- * list of known port configurations. Return @code{NULL} on errors or
+ * list of known port configurations.  Return @code{NULL} on errors or
  * otherwise the port configuration associated with @var{name}.
  */
 svz_portcfg_t *
 svz_portcfg_del (char *name)
 {
-  /* List of port configurations is empty. */
+  /* List of port configurations is empty.  */
   if (svz_portcfgs == NULL || name == NULL)
     return NULL;
 
-  /* Actually remove it from the list. */
+  /* Actually remove it from the list.  */
   return svz_hash_delete (svz_portcfgs, name);
 }
 
 /*
  * This function can be used to set the character string representation
  * of a the port configuration @var{this} in dotted decimal form
- * (@var{ipaddr}). Returns zero on success, non-zero otherwise.
+ * (@var{ipaddr}).  Returns zero on success, non-zero otherwise.
  */
 int
 svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
@@ -245,7 +245,7 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
 
 /*
  * Expand the given port configuration @var{this} if it is a network port
- * configuration and if the network ip address is @code{INADDR_ANY}. Return
+ * configuration and if the network ip address is @code{INADDR_ANY}.  Return
  * an array of port configurations which are copies of the given.
  */
 svz_array_t *
@@ -257,7 +257,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
   int n;
   svz_interface_t *ifc;
 
-  /* Is this a network port configuration and should it be expanded ? */
+  /* Is this a network port configuration and should it be expanded?  */
   if ((addr = svz_portcfg_addr (this)) != NULL &&
       (this->flags & PORTCFG_FLAG_ALL) && !(this->flags & PORTCFG_FLAG_DEVICE))
     {
@@ -271,7 +271,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
           svz_array_add (ports, port);
         }
     }
-  /* No, just add the given port configuration. */
+  /* No, just add the given port configuration.  */
   else
     {
       port = svz_portcfg_dup (this);
@@ -281,7 +281,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
 }
 
 /*
- * Make a copy of the given port configuration @var{port}. This function
+ * Make a copy of the given port configuration @var{port}.  This function
  * is used in @code{svz_portcfg_expand()}.
  */
 svz_portcfg_t *
@@ -289,16 +289,16 @@ svz_portcfg_dup (svz_portcfg_t *port)
 {
   svz_portcfg_t *copy;
 
-  /* Return NULL if necessary. */
+  /* Return NULL if necessary.  */
   if (port == NULL)
     return NULL;
 
-  /* First plain copy. */
+  /* First plain copy.  */
   copy = svz_malloc (sizeof (svz_portcfg_t));
   memcpy (copy, port, sizeof (svz_portcfg_t));
   copy->name = svz_strdup (port->name);
 
-  /* Depending on the protocol, copy various strings. */
+  /* Depending on the protocol, copy various strings.  */
   switch (port->proto)
     {
     case PROTO_TCP:
@@ -329,7 +329,7 @@ svz_portcfg_dup (svz_portcfg_t *port)
 
   copy->accepted = NULL;
 
-  /* Make a copy of the "deny" and "allow" access lists. */
+  /* Make a copy of the "deny" and "allow" access lists.  */
   copy->allow = svz_array_strdup (port->allow);
   copy->deny = svz_array_strdup (port->deny);
 
@@ -343,10 +343,10 @@ svz_portcfg_dup (svz_portcfg_t *port)
 void
 svz_portcfg_free (svz_portcfg_t *port)
 {
-  /* Free the name of the port configuration. */
+  /* Free the name of the port configuration.  */
   svz_free (port->name);
 
-  /* Depending on the type of configuration perform various operations. */
+  /* Depending on the type of configuration perform various operations.  */
   switch (port->proto)
     {
     case PROTO_TCP:
@@ -375,17 +375,17 @@ svz_portcfg_free (svz_portcfg_t *port)
       break;
     }
 
-  /* Destroy access and connection list. */
+  /* Destroy access and connection list.  */
   svz_portcfg_destroy_access (port);
   svz_portcfg_destroy_accepted (port);
 
-  /* Free the port configuration itself. */
+  /* Free the port configuration itself.  */
   svz_free (port);
 }
 
 /*
  * This function makes the given port configuration @var{port} completely
- * unusable. No operation is performed if @var{port} is @code{NULL}. If the
+ * unusable.  No operation is performed if @var{port} is @code{NULL}.  If the
  * port configuration is part of the list of known port configurations it
  * it thrown out of them.
  */
@@ -394,15 +394,15 @@ svz_portcfg_destroy (svz_portcfg_t *port)
 {
   char *name;
 
-  /* Return here if NULL pointer given. */
+  /* Return here if NULL pointer given.  */
   if (port == NULL)
     return;
 
-  /* Delete from port configuration hash if necessary. */
+  /* Delete from port configuration hash if necessary.  */
   if (svz_portcfgs && (name = svz_hash_contains (svz_portcfgs, port)) != NULL)
     svz_hash_delete (svz_portcfgs, name);
 
-  /* Free the port configuration. */
+  /* Free the port configuration.  */
   svz_portcfg_free (port);
 }
 
@@ -446,7 +446,7 @@ svz_portcfg_destroy_accepted (svz_portcfg_t *port)
 svz_portcfg_t *
 svz_portcfg_get (char *name)
 {
-  /* Do not handle invalid arguments. */
+  /* Do not handle invalid arguments.  */
   if (name == NULL || svz_portcfgs == NULL)
     return NULL;
 
@@ -454,7 +454,7 @@ svz_portcfg_get (char *name)
 }
 
 /*
- * Delete the list of known port configurations. This routine should
+ * Delete the list of known port configurations.  This routine should
  * definitely called from the core library's finalizer.
  */
 void
@@ -470,7 +470,7 @@ svz_portcfg_finalize (void)
 /*
  * Converts the given network address @var{str} either given in dotted
  * decimal form or as network interface name and saves the result in the
- * @code{sockaddr_in.sin_addr.s_addr} field. Return zero on success.
+ * @code{sockaddr_in.sin_addr.s_addr} field.  Return zero on success.
  */
 static int
 svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
@@ -491,7 +491,7 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
 
 /*
  * Construct the @code{sockaddr_in} fields from the @code{ipaddr} field.
- * Returns zero if it worked. If it does not work the @code{ipaddr} field
+ * Returns zero if it worked.  If it does not work the @code{ipaddr} field
  * did not consist of an ip address in dotted decimal form.
  */
 int
@@ -502,7 +502,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
   switch (this->proto)
     {
       /* For all network protocols we assign AF_INET as protocol family,
-         determine the network port (if necessary) and put the ip address. */
+         determine the network port (if necessary) and put the ip address.  */
     case PROTO_TCP:
       this->tcp_addr.sin_family = AF_INET;
       if (svz_portcfg_device (this))
@@ -620,7 +620,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       this->raw_addr.sin_family = AF_INET;
       break;
       /* The pipe protocol needs a check for the validity of the permissions,
-         the group and user names and its id's. */
+         the group and user names and its id's.  */
     case PROTO_PIPE:
       if (this->pipe_recv.name == NULL)
         {
@@ -652,19 +652,19 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
 }
 
 /*
- * Prepare the given port configuration @var{port}. Fill in default values
+ * Prepare the given port configuration @var{port}.  Fill in default values
  * for yet undefined variables.
  */
 void
 svz_portcfg_prepare (svz_portcfg_t *port)
 {
-  /* Check the TCP backlog value. */
+  /* Check the TCP backlog value.  */
   if (port->proto & PROTO_TCP)
     {
       if (port->tcp_backlog <= 0 || port->tcp_backlog > SOMAXCONN)
         port->tcp_backlog = SOMAXCONN;
     }
-  /* Check the detection barriers for pipe and tcp sockets. */
+  /* Check the detection barriers for pipe and tcp sockets.  */
   if (port->proto & (PROTO_PIPE | PROTO_TCP))
     {
       if (port->detection_fill <= 0 ||
@@ -674,7 +674,7 @@ svz_portcfg_prepare (svz_portcfg_t *port)
           port->detection_wait > SOCK_MAX_DETECTION_WAIT)
         port->detection_wait = SOCK_MAX_DETECTION_WAIT;
     }
-  /* Check the initial send and receive buffer sizes. */
+  /* Check the initial send and receive buffer sizes.  */
   if (port->send_buffer_size <= 0 ||
       port->send_buffer_size >= MAX_BUF_SIZE)
     {
@@ -695,16 +695,16 @@ svz_portcfg_prepare (svz_portcfg_t *port)
       else if (port->proto & (PROTO_ICMP | PROTO_RAW))
         port->recv_buffer_size = ICMP_BUF_SIZE;
     }
-  /* Check the connection frequency. */
+  /* Check the connection frequency.  */
   if (port->connect_freq <= 0)
     {
-      /* Sane value is: 100 connections per second. */
+      /* Sane value is: 100 connections per second.  */
       port->connect_freq = 100;
     }
 }
 
 /*
- * Helper function for the below routine. Converts a Internet network
+ * Helper function for the below routine.  Converts a Internet network
  * address or the appropiate device into a text representation.
  */
 static char *
@@ -719,8 +719,8 @@ svz_portcfg_addr_text (svz_portcfg_t *port, struct sockaddr_in *addr)
 
 /*
  * This function returns a simple text representation of the given port
- * configuration @var{port}. The returned character string is statically
- * allocated. Thus you cannot use it twice in argument lists.
+ * configuration @var{port}.  The returned character string is statically
+ * allocated.  Thus you cannot use it twice in argument lists.
  */
 char *
 svz_portcfg_text (svz_portcfg_t *port)
@@ -728,7 +728,7 @@ svz_portcfg_text (svz_portcfg_t *port)
   static char text[128];
   struct sockaddr_in *addr;
 
-  /* Wipe the text. */
+  /* Wipe the text.  */
   text[0] = '\0';
 
   /* TCP and UDP */

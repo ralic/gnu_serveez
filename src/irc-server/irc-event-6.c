@@ -48,7 +48,7 @@ irc_ping_callback (svz_socket_t *sock,
   irc_config_t *cfg = sock->cfg;
   int n;
 
-  /* ping origin given ? */
+  /* ping origin given?  */
   if (request->paras < 1)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
@@ -77,7 +77,7 @@ irc_pong_callback (svz_socket_t *sock,
   irc_config_t *cfg = sock->cfg;
   int n;
 
-  /* pong origin given ? */
+  /* pong origin given?  */
   if (request->paras < 1)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
@@ -88,7 +88,7 @@ irc_pong_callback (svz_socket_t *sock,
   /* go through all targets */
   for (n = 0; n < request->paras; n++)
     {
-      /* is the server origin valid ? */
+      /* is the server origin valid?  */
       if (strcmp (request->para[n], cfg->host))
         {
           irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
@@ -128,11 +128,11 @@ irc_kill_callback (svz_socket_t *sock,
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
 
-  /* do you have enough paras ? */
+  /* do you have enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 2))
     return 0;
 
-  /* are you an IRC operator ? */
+  /* are you an IRC operator?  */
   if (client && !(client->flag & UMODE_OPERATOR))
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOPRIVILEGES_TEXT "\n",
@@ -156,6 +156,6 @@ irc_kill_callback (svz_socket_t *sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_6_dummy; /* Shut up compiler warnings. */
+int irc_event_6_dummy;          /* Shut up compiler warnings.  */
 
 #endif /* not ENABLE_IRC_PROTO */

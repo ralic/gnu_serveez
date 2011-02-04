@@ -40,11 +40,11 @@
 
 /* ip header flags (part of frag_offset) */
 #define IP_HDR_FLAGS(hdr) ((hdr->frag_offset) & 0xE000)
-#define IP_FLAG_DF 0x4000 /* Don't Fragment This Datagram (DF). */
-#define IP_FLAG_MF 0x2000 /* More Fragments Flag (MF). */
+#define IP_FLAG_DF 0x4000 /* Don't Fragment This Datagram (DF).  */
+#define IP_FLAG_MF 0x2000 /* More Fragments Flag (MF).  */
 #define IP_HDR_FRAG(hdr) ((hdr->frag_offset) & 0x1FFF)
 
-/* IP header structure. */
+/* IP header structure.  */
 typedef struct
 {
   svz_uint8_t version_length; /* header length (in DWORDs) and ip version */
@@ -62,7 +62,7 @@ svz_ip_header_t;
 
 __BEGIN_DECLS
 
-/* Exported RAW IP socket functions. */
+/* Exported RAW IP socket functions.  */
 SERVEEZ_API svz_ip_header_t * svz_raw_get_ip_header __PARAMS ((svz_uint8_t *));
 SERVEEZ_API svz_uint8_t * svz_raw_put_ip_header __PARAMS ((svz_ip_header_t *));
 SERVEEZ_API unsigned short svz_raw_ip_checksum __PARAMS ((svz_uint8_t *, int));

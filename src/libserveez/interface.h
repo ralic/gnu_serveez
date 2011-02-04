@@ -39,7 +39,7 @@ __BEGIN_DECLS
 
 SERVEEZ_API svz_vector_t *svz_interfaces;
 
-/* Export these functions. */
+/* Export these functions.  */
 SERVEEZ_API void svz_interface_list __PARAMS ((void));
 SERVEEZ_API void svz_interface_collect __PARAMS ((void));
 SERVEEZ_API int svz_interface_free __PARAMS ((void));
@@ -51,8 +51,8 @@ SERVEEZ_API void svz_interface_check __PARAMS ((void));
 __END_DECLS
 
 /*
- * Iteration macro for the list of known network interfaces. If any
- * each interface gets assigned to @var{ifc}. The variable @var{i} is the
+ * Iteration macro for the list of known network interfaces.  If any
+ * each interface gets assigned to @var{ifc}.  The variable @var{i} is the
  * iteration variable.
  */
 #define svz_interface_foreach(ifc, i) \

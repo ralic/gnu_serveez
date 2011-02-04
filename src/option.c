@@ -33,7 +33,7 @@
 /*
  * Lousy implementation of @code{getopt()}.
  * Only good for parsing simple short option command lines on
- * stupid systems like Win32. No error checking !
+ * stupid systems like Win32.  No error checking !
  */
 char *optarg = NULL;
 int optind = 1;
@@ -172,7 +172,7 @@ static struct option serveez_options[] = {
 #define SERVEEZ_OPTIONS "l:hViv:f:P:m:dc"
 
 /*
- * Parse the command line options. If these have been correct the function
+ * Parse the command line options.  If these have been correct the function
  * either terminates the program with exit code 0 or returns an option
  * structure containing information about the command line arguments or it
  * leaves the program with exit code 1 if the command line has been wrong.

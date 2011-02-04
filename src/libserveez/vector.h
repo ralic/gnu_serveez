@@ -22,7 +22,7 @@
 
 #include "libserveez/defines.h"
 
-/* Definition of an vector structure. */
+/* Definition of an vector structure.  */
 typedef struct
 {
   unsigned long length;     /* number of elements in this vector */
@@ -32,8 +32,8 @@ typedef struct
 svz_vector_t;
 
 /*
- * Iteration macro for the vector list @var{vector}. Each of its values
- * gets assigned to @var{value}. The iteration variable @var{i} runs from
+ * Iteration macro for the vector list @var{vector}.  Each of its values
+ * gets assigned to @var{value}.  The iteration variable @var{i} runs from
  * 0 to the size-1 of the vector list.
  */
 #define svz_vector_foreach(vector, value, i)                            \
@@ -44,8 +44,8 @@ svz_vector_t;
 __BEGIN_DECLS
 
 /*
- * A vector list is an array of memory chunks with a fixed size. It
- * holds copies of the values you added to the vector list. When deleting
+ * A vector list is an array of memory chunks with a fixed size.  It
+ * holds copies of the values you added to the vector list.  When deleting
  * or inserting an element the indexes of the following elements get
  * either decremented or incremented.
  */

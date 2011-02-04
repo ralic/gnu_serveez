@@ -106,7 +106,7 @@ svz_servertype_t ctrl_server_definition =
 cpu_state_t cpu_state;
 
 /*
- * Server instance initializer. This is currently used for binding the
+ * Server instance initializer.  This is currently used for binding the
  * server to a given port configuration.
  */
 int
@@ -150,7 +150,7 @@ ctrl_info_client (svz_server_t *server, svz_socket_t *sock)
 
 /*
  * This function gets called for new sockets which are not yet
- * identified. It returns a non-zero value when the content in
+ * identified.  It returns a non-zero value when the content in
  * the receive buffer looks like the control protocol.
  */
 int
@@ -223,7 +223,7 @@ ctrl_connect_socket (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * Quit command. If the client sends this command the control protocol
+ * Quit command.  If the client sends this command the control protocol
  * connection will be closed immediately.
  */
 int
@@ -233,8 +233,8 @@ ctrl_quit (svz_socket_t *sock, int flag, char *arg)
 }
 
 /*
- * Help screen. Here you will get all the available commands of the
- * control protocol. These depend on the features the current version
+ * Help screen.  Here you will get all the available commands of the
+ * control protocol.  These depend on the features the current version
  * of Serveez implements.
  */
 int
@@ -265,7 +265,7 @@ ctrl_help (svz_socket_t *sock, int flag, char *arg)
 }
 
 /*
- * ID's connection info. This function displays a given socket id's
+ * ID's connection info.  This function displays a given socket id's
  * socket structure.
  */
 int
@@ -277,7 +277,7 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
   svz_server_t *server;
   svz_coserver_t *coserver;
 
-  /* Find the appropriate client or server connection. */
+  /* Find the appropriate client or server connection.  */
   id = atoi (arg);
   if ((xsock = svz_sock_find (id, -1)) == NULL)
     {
@@ -290,7 +290,7 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
                    id, xsock->version);
 
   /*
-   * Process general socket structure's flags. Uppercase words refer
+   * Process general socket structure's flags.  Uppercase words refer
    * to set bits and lowercase to unset bits.
    */
   svz_sock_printf (sock,
@@ -420,7 +420,7 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 }
 
 /*
- * General statistics about Serveez. Here we display all the information
+ * General statistics about Serveez.  Here we display all the information
  * we could get from the system and the process itself.
  * Furthermore we check if the command is something about a certain
  * server and give information about it if so.
@@ -522,7 +522,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 }
 
 /*
- * Connection statistics. This function displays basic information about
+ * Connection statistics.  This function displays basic information about
  * each socket structure currently within the socket list.
  */
 int
@@ -572,7 +572,7 @@ ctrl_stat_con (svz_socket_t *sock, int flag, char *arg)
 
 #if ENABLE_HTTP_PROTO
 /*
- * HTTP cache statistics. The following displayed information is a
+ * HTTP cache statistics.  The following displayed information is a
  * visual representation of the http cache structures.
  */
 int
@@ -680,7 +680,7 @@ ctrl_stat_all (svz_socket_t *sock, int flag, char *arg)
 }
 
 /*
- * Shutdown a specified network connection. This might even be used to
+ * Shutdown a specified network connection.  This might even be used to
  * kill your own (the control client's) connection, coservers and servers.
  * So you want to be *very* careful with this command.
  */
@@ -806,7 +806,7 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
   while (request[len - 1] == '\r' || request[len - 1] == '\n')
     len--;
 
-  /* password given ? */
+  /* password given?  */
   if (!(sock->userflags & CTRL_FLAG_PASSED))
     {
       /*
@@ -1004,7 +1004,7 @@ ctrl_get_cpu_state (void)
 
 /*
  * Within the CTRL_IDLE function the server gets the CPU
- * load. This procedure differs on different platforms.
+ * load.  This procedure differs on different platforms.
  */
 
 #define PROC_DIFF(x) (c->proc[n][x] - c->proc[old][x])

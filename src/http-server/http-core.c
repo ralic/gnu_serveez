@@ -191,7 +191,7 @@ http_userdir (svz_socket_t *sock, char *uri)
             }
           svz_log (LOG_ERROR, "NetUserGetInfo: %s\n", error);
         }
-      /* successfully got the user information ? */
+      /* successfully got the user information?  */
       else if (entry && entry->usri1_home_dir && entry->usri1_home_dir[0])
         {
           file =
@@ -260,7 +260,7 @@ http_remotehost (char *host, int id, int version)
 
 /*
  * When the localhost has been resolved to a hostname this callback is
- * invoked by the main loop. Put the result into the http configuration.
+ * invoked by the main loop.  Put the result into the http configuration.
  */
 int
 http_localhost (char *host, http_config_t *cfg)
@@ -289,7 +289,7 @@ http_log (svz_socket_t *sock)
       referrer = http_find_property (http, "Referer");
       agent = http_find_property (http, "User-Agent");
 
-      /* access logging format given ? */
+      /* access logging format given?  */
       if (cfg->logformat && *cfg->logformat)
         start = cfg->logformat;
       else
@@ -537,7 +537,7 @@ http_get_range (char *line, http_range_t *range)
 /*
  * Send an error message response body to the http client connection.
  * This is not actually necessary, because an appropriate response header
- * should work out fine. But most browsers indicate "document contained
+ * should work out fine.  But most browsers indicate "document contained
  * not data." if this occurs.
  */
 int
@@ -547,7 +547,7 @@ http_error_response (svz_socket_t *sock, int response)
   http_socket_t *http = sock->data;
   char *txt;
 
-  /* Convert error code to text. */
+  /* Convert error code to text.  */
   switch (response)
     {
     case 400:
@@ -627,7 +627,7 @@ http_error_response (svz_socket_t *sock, int response)
     }
   http->response = response;
 
-  /* Send some standard error message. */
+  /* Send some standard error message.  */
   return svz_sock_printf (sock,
                           "<html><body bgcolor=white text=black><br>"
                           "<h1>%d %s</h1>"
@@ -644,7 +644,7 @@ http_error_response (svz_socket_t *sock, int response)
 
 /*
  * This function is used to re-initialize a HTTP connection for
- * Keep-Alive connections. Return -1 if it is not 'Keep'able.
+ * Keep-Alive connections.  Return -1 if it is not 'Keep'able.
  */
 int
 http_keep_alive (svz_socket_t *sock)
@@ -694,7 +694,7 @@ http_check_keepalive (svz_socket_t *sock)
 }
 
 /*
- * Create a date format used within the Common Log Format. That is as
+ * Create a date format used within the Common Log Format.  That is as
  * follows: [DD/MMM/YYYY:HH:MM:SS +ZZZZ]
  */
 char *
@@ -793,7 +793,7 @@ http_parse_date (char *date)
 
 /*
  * Parse part of the receive buffer for HTTP request properties
- * and store it in the socket structure SOCK. Return the amount of
+ * and store it in the socket structure SOCK.  Return the amount of
  * properties found in the request.
  */
 int
@@ -882,8 +882,8 @@ http_find_property (http_socket_t *http, char *key)
   else if (c >= 'A' && c <= 'F') c -= ('A' - 10);
 
 /*
- * Convert hexadecimal encoded characters within the URI. This is
- * necessary for some special characters. The URI is a Uniform Resource
+ * Convert hexadecimal encoded characters within the URI.  This is
+ * necessary for some special characters.  The URI is a Uniform Resource
  * Identifier meaning the requested file.
  */
 void
@@ -892,17 +892,17 @@ http_process_uri (char *uri)
   char *p;
   char h, l;
 
-  /* Test if there is any occurrence of the special character encoding. */
+  /* Test if there is any occurrence of the special character encoding.  */
   while ((p = strchr (uri, '%')) != NULL)
     {
       if ((h = *(p + 1)) != 0 && (l = *(p + 2)) != 0)
         {
-          /* Convert to byte. */
+          /* Convert to byte.  */
           ASC_TO_HEX (h);
           ASC_TO_HEX (l);
           *p = (char) ((h << 4) | l);
 
-          /* Copy rest of URI. */
+          /* Copy rest of URI.  */
           uri = ++p;
           while (*(p + 2))
             {
@@ -1019,7 +1019,7 @@ http_find_content_type (svz_socket_t *sock, char *file)
 
 /*
  * This routine converts a relative file/path name into an
- * absolute file/path name. The given argument will be reallocated
+ * absolute file/path name.  The given argument will be reallocated
  * if necessary.
  */
 char *
@@ -1093,6 +1093,6 @@ http_absolute_file (char *file)
 
 #else /* ENABLE_HTTP_PROTO */
 
-int http_core_dummy; /* Shut compiler warnings up. */
+int http_core_dummy;            /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_HTTP_PROTO */

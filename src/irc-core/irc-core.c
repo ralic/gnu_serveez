@@ -110,7 +110,7 @@ irc_start_auth (svz_socket_t *sock)
   irc_client_t *client;
 
   /*
-   * Create and initialize a local IRC client ! This is not yet within the
+   * Create and initialize a local IRC client!  This is not yet within the
    * actual client hash.
    */
   client = irc_create_client (cfg);
@@ -119,11 +119,11 @@ irc_start_auth (svz_socket_t *sock)
   client->sock = sock;
   sock->data = client;
 
-  /* Set password flag, if there is not server password defined. */
+  /* Set password flag, if there is not server password defined.  */
   if (!cfg->pass)
     client->flag |= UMODE_PASS;
 
-  /* Start here the nslookup and ident lookup. */
+  /* Start here the nslookup and ident lookup.  */
   svz_coserver_rdns (sock->remote_addr, irc_nslookup_done,
                      sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
@@ -133,8 +133,8 @@ irc_start_auth (svz_socket_t *sock)
 }
 
 /*
- * Detection routine for the IRC protocol. Returns no-zero if an
- * IRC connection has been detected. Otherwise zero.
+ * Detection routine for the IRC protocol.  Returns no-zero if an
+ * IRC connection has been detected.  Otherwise zero.
  */
 int
 irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
@@ -227,7 +227,7 @@ irc_check_request (svz_socket_t *sock)
 
 /*
  * Parse the 'nr'th string (IRC targets could be channels, nicks, etc.)
- * by a given IRC parameter string. All these strings should be separated
+ * by a given IRC parameter string.  All these strings should be separated
  * by colons (',').
  */
 char *
@@ -340,7 +340,7 @@ irc_parse_request (char *request, int len)
       /* get next parameter */
       n = 0;
 
-      /* trailing parameter ? */
+      /* trailing parameter?  */
       if (*p == ':')
         {
           p++;
@@ -384,7 +384,7 @@ irc_parse_target (irc_request_t *request, int para)
 
   request->targets = 0;
 
-  /* is there a para ? */
+  /* is there a para?  */
   if (request->paras <= para)
     return;
 
@@ -462,8 +462,8 @@ irc_parse_target (irc_request_t *request, int para)
 }
 
 /*
- * This routine just tries to match two strings. It returns non zero
- * if it does. Because IRC is case insensitive we use the lower case
+ * This routine just tries to match two strings.  It returns non zero
+ * if it does.  Because IRC is case insensitive we use the lower case
  * character set for comparisons.
  */
 int
@@ -515,7 +515,7 @@ irc_string_regex (char *text, char *regex)
         }
     }
 
-  /* is the text longer than the regex ? */
+  /* is the text longer than the regex?  */
   if (!*text && !*regex)
     return -1;
   return 0;
@@ -539,7 +539,7 @@ irc_create_lcset (void)
 }
 
 /*
- * Make a case insensitive string compare. Return zero if both
+ * Make a case insensitive string compare.  Return zero if both
  * strings are equal.
  */
 int
@@ -568,6 +568,6 @@ irc_string_equal (char *str1, char *str2)
 
 #else /* ENABLE_IRC_PROTO */
 
-int irc_core_dummy; /* Shut up compiler. */
+int irc_core_dummy;             /* Shut up compiler.  */
 
 #endif /* ENABLE_IRC_PROTO */

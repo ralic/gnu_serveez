@@ -59,8 +59,8 @@
 #include "libserveez/server-socket.h"
 
 /*
- * Create a listening server socket (network or pipe). @var{port} is the
- * port configuration to bind the server socket to. Return a @code{NULL}
+ * Create a listening server socket (network or pipe).  @var{port} is the
+ * port configuration to bind the server socket to.  Return a @code{NULL}
  * pointer on errors.
  */
 svz_socket_t *
@@ -71,7 +71,7 @@ svz_server_create (svz_portcfg_t *port)
   int optval;                 /* value for setsockopt() */
   struct sockaddr_in *addr;   /* bind address */
 
-  /* Create listening pipe server ? */
+  /* Create listening pipe server?  */
   if (port->proto & PROTO_PIPE)
     {
       if ((sock = svz_sock_alloc ()) != NULL)
@@ -85,15 +85,15 @@ svz_server_create (svz_portcfg_t *port)
         }
     }
 
-  /* Create listening TCP, UDP, ICMP or RAW server socket. */
+  /* Create listening TCP, UDP, ICMP or RAW server socket.  */
   else
     {
-      /* First, create a server socket for listening. */
+      /* First, create a server socket for listening.  */
       if ((server_socket = svz_socket_create (port->proto)) ==
           (svz_t_socket) -1)
         return NULL;
 
-      /* Set this ip option if we are using raw sockets. */
+      /* Set this ip option if we are using raw sockets.  */
       if (port->proto & PROTO_RAW)
         {
 #ifdef IP_HDRINCL
@@ -127,13 +127,13 @@ svz_server_create (svz_portcfg_t *port)
           return NULL;
         }
 
-      /* Fetch the bind() address. */
+      /* Fetch the bind() address.  */
       addr = svz_portcfg_addr (port);
 
 #ifdef SO_BINDTODEVICE
       /* On a Linux 2.x.x you can bind to `eth0' by this control setting
-         if root priviledges are ensured. Includes aliases. Connections can
-         be established from the physical outside only. */
+         if root priviledges are ensured.  Includes aliases.  Connections can
+         be established from the physical outside only.  */
       if (svz_portcfg_device (port))
         {
           char *device = svz_portcfg_device (port);
@@ -150,7 +150,7 @@ svz_server_create (svz_portcfg_t *port)
         }
 #endif /* SO_BINDTODEVICE */
 
-      /* Second, bind the socket to a port. */
+      /* Second, bind the socket to a port.  */
       if (bind (server_socket, (struct sockaddr *) addr,
                 sizeof (struct sockaddr)) < 0)
         {
@@ -160,7 +160,7 @@ svz_server_create (svz_portcfg_t *port)
           return NULL;
         }
 
-      /* Prepare for listening on that port (if TCP). */
+      /* Prepare for listening on that port (if TCP).  */
       if (port->proto & PROTO_TCP)
         {
           if (listen (server_socket, port->tcp_backlog) < 0)
@@ -172,17 +172,17 @@ svz_server_create (svz_portcfg_t *port)
             }
         }
 
-      /* Create a unique socket structure for the listening server socket. */
+      /* Create a unique socket structure for the listening server socket.  */
       if ((sock = svz_sock_create (server_socket)) == NULL)
         {
-          /* Close the server socket if this routine failed. */
+          /* Close the server socket if this routine failed.  */
           if (closesocket (server_socket) < 0)
             svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
           return NULL;
         }
 
       /* Modify the port configuration if there was no network port given.
-         In this case the systems selects a free one. */
+         In this case the systems selects a free one.  */
       if (port->proto & (PROTO_TCP | PROTO_UDP) && addr->sin_port == 0)
         {
           addr->sin_port = sock->local_port;
@@ -203,7 +203,7 @@ svz_server_create (svz_portcfg_t *port)
       sock->check_request = svz_sock_detect_proto;
     }
 
-  /* Setup the socket structure. */
+  /* Setup the socket structure.  */
   sock->flags |= SOCK_FLAG_LISTENING;
   sock->flags &= ~SOCK_FLAG_CONNECTED;
   sock->proto |= port->proto;
@@ -247,7 +247,7 @@ svz_server_create (svz_portcfg_t *port)
 
 /*
  * Something happened on the a server socket, most probably a client
- * connection which we will normally accept. This is the default callback
+ * connection which we will normally accept.  This is the default callback
  * for @code{read_socket} for listening tcp sockets.
  */
 int
@@ -286,7 +286,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
            ntohs (server_sock->local_port), client_socket);
 
   /*
-   * Sanity check. Just to be sure that we always handle
+   * Sanity check.  Just to be sure that we always handle
    * correctly connects/disconnects.
    */
   sock = svz_sock_root;
@@ -321,7 +321,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
       sock->proto = server_sock->proto;
       svz_sock_connections++;
 
-      /* Check access and connect frequency here. */
+      /* Check access and connect frequency here.  */
       if (svz_sock_check_access (server_sock, sock) < 0 ||
           svz_sock_check_frequency (server_sock, sock) < 0)
         svz_sock_schedule_for_shutdown (sock);
@@ -341,7 +341,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
 }
 
 /*
- * Check if client pipe is connected. This is the default callback for
+ * Check if client pipe is connected.  This is the default callback for
  * @code{idle_func} for listening pipe sockets.
  */
 int
@@ -360,7 +360,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 
 #if HAVE_MKFIFO || HAVE_MKNOD
   /*
-   * Try opening the server's send pipe. This will fail
+   * Try opening the server's send pipe.  This will fail
    * until the client has opened it for reading.
    */
   send_pipe = open (server_sock->send_pipe, O_NONBLOCK | O_WRONLY);
@@ -375,7 +375,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
     }
   recv_pipe = server_sock->pipe_desc[READ];
 
-  /* Create a socket structure for the client pipe. */
+  /* Create a socket structure for the client pipe.  */
   if ((sock = svz_pipe_create (recv_pipe, send_pipe)) == NULL)
     {
       close (send_pipe);
@@ -387,8 +387,8 @@ svz_pipe_accept (svz_socket_t *server_sock)
   recv_pipe = server_sock->pipe_desc[READ];
   send_pipe = server_sock->pipe_desc[WRITE];
 
-  /* Try connecting to one of these pipes. This will fail until a client
-     has been connected. */
+  /* Try connecting to one of these pipes.  This will fail until a client
+     has been connected.  */
   if (server_sock->flags & SOCK_FLAG_CONNECTING)
     {
       if (!GetOverlappedResult (send_pipe, server_sock->overlap[WRITE],
@@ -428,20 +428,20 @@ svz_pipe_accept (svz_socket_t *server_sock)
         }
     }
 
-  /* Try to schedule both of the named pipes for connection. */
+  /* Try to schedule both of the named pipes for connection.  */
   else
     {
       if (ConnectNamedPipe (send_pipe, server_sock->overlap[WRITE]))
         return 0;
       connect = GetLastError ();
 
-      /* Pipe is listening ? */
+      /* Pipe is listening?  */
       if (connect == ERROR_PIPE_LISTENING)
         return 0;
-      /* Connection in progress ? */
+      /* Connection in progress?  */
       else if (connect == ERROR_IO_PENDING)
         server_sock->flags |= SOCK_FLAG_CONNECTING;
-      /* Pipe finally connected ? */
+      /* Pipe finally connected?  */
       else if (connect != ERROR_PIPE_CONNECTED)
         {
           svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
@@ -452,20 +452,20 @@ svz_pipe_accept (svz_socket_t *server_sock)
         return 0;
       connect = GetLastError ();
 
-      /* Pipe is listening ? */
+      /* Pipe is listening?  */
       if (connect == ERROR_PIPE_LISTENING)
         return 0;
-      /* Connection in progress ? */
+      /* Connection in progress?  */
       else if (connect == ERROR_IO_PENDING)
         server_sock->flags |= SOCK_FLAG_CONNECTING;
-      /* Pipe finally connected ? */
+      /* Pipe finally connected?  */
       else if (connect != ERROR_PIPE_CONNECTED)
         {
           svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
           return -1;
         }
 
-      /* Both pipes scheduled for connection ? */
+      /* Both pipes scheduled for connection?  */
       if (server_sock->flags & SOCK_FLAG_CONNECTING)
         {
           svz_log (LOG_NOTICE, "connection scheduled for pipe (%d-%d)\n",
@@ -474,10 +474,10 @@ svz_pipe_accept (svz_socket_t *server_sock)
         }
     }
 
-  /* Create a socket structure for the client pipe. */
+  /* Create a socket structure for the client pipe.  */
   if ((sock = svz_pipe_create (recv_pipe, send_pipe)) == NULL)
     {
-      /* Just disconnect the client pipes. */
+      /* Just disconnect the client pipes.  */
       if (!DisconnectNamedPipe (send_pipe))
         svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
       if (!DisconnectNamedPipe (recv_pipe))
@@ -485,7 +485,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       return 0;
     }
 
-  /* Copy overlapped structures to client pipes. */
+  /* Copy overlapped structures to client pipes.  */
   if (svz_os_version >= WinNT4x)
     {
       sock->overlap[READ] = server_sock->overlap[READ];
@@ -520,7 +520,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
   server_sock->flags |= SOCK_FLAG_INITED;
   svz_sock_setreferrer (server_sock, sock);
 
-  /* Call the check_request() routine once for greedy protocols. */
+  /* Call the check_request() routine once for greedy protocols.  */
   if (sock->check_request)
     if (sock->check_request (sock))
       svz_sock_schedule_for_shutdown (sock);

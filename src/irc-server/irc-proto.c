@@ -61,7 +61,7 @@ irc_config_t irc_config =
   NULL,                   /* virtual host name */
   NULL,                   /* read server host name */
   42424,                  /* listening tcp port */
-  0,                      /* is USERS command disable ? */
+  0,                      /* is USERS command disable?  */
   MAX_CHANNELS,           /* maximum number of channels per user */
 #if ENABLE_TIMESTAMP
   0,                      /* delta value to UTC */
@@ -143,7 +143,7 @@ svz_servertype_t irc_server_definition =
   SVZ_CONFIG_DEFINE ("irc", irc_config, irc_config_prototype)
 };
 
-/* Static forward declarations. */
+/* Static forward declarations.  */
 static int irc_delete_channel (irc_config_t *cfg, irc_channel_t *);
 static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
 
@@ -181,7 +181,7 @@ irc_global_finalize (svz_servertype_t *server)
 }
 
 /*
- * Checks the TCP bindings of the given IRC server instance @var{server}. The
+ * Checks the TCP bindings of the given IRC server instance @var{server}.  The
  * routine is called from the initializer callback of the IRC server and
  * verifies that it is bound to TCP ports according to the `M-line' given in
  * its configuration.
@@ -194,24 +194,24 @@ irc_check_tcp_bindings (svz_server_t *server)
   svz_portcfg_t *port;
   int n, err = 0;
 
-  /* Is the server bound at all ? */
+  /* Is the server bound at all?  */
   if ((ports = svz_server_portcfgs (server)) == NULL)
     {
       svz_log (LOG_WARNING, "irc: `%s' is not bound yet\n", server->name);
       return -1;
     }
 
-  /* Go through each binding. */
+  /* Go through each binding.  */
   svz_array_foreach (ports, port, n)
     {
-      /* Is it a TCP port configuration ? */
+      /* Is it a TCP port configuration?  */
       if (!(port->proto & PROTO_TCP))
         {
           svz_log (LOG_WARNING, "irc: `%s' is bound to non-TCP port `%s'\n",
                    server->name, port->name);
           err = -1;
         }
-      /* Does the `M-line' entry clash with this port configuration ? */
+      /* Does the `M-line' entry clash with this port configuration?  */
       else if (port->tcp_port != cfg->port)
         {
           svz_log (LOG_WARNING, "irc: port TCP:%u in M line clashes `%s'\n",
@@ -312,9 +312,9 @@ irc_finalize (svz_server_t *server)
 }
 
 /*
- * Check if a certain client is in a channel. Return -1 if not and
- * return the client's position in the channel list. This is useful to
- * to detect its channel flags. If you passed a valid socket the
+ * Check if a certain client is in a channel.  Return -1 if not and
+ * return the client's position in the channel list.  This is useful to
+ * to detect its channel flags.  If you passed a valid socket the
  * ERR_NOTONCHANNEL reply is sent to the socket.
  */
 int
@@ -330,7 +330,7 @@ irc_client_in_channel (svz_socket_t *sock,     /* client's socket */
     if (channel->client[n] == client)
       return n;
 
-  /* not in channel ! */
+  /* not in channel!  */
   if (sock)
     {
       cfg = sock->cfg;
@@ -349,10 +349,10 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
   irc_channel_t *channel;
   int n;
 
-  /* does the channel exist locally ? */
+  /* does the channel exist locally?  */
   if ((channel = irc_find_channel (cfg, chan)) != NULL)
     {
-      /* is the nick already in the channel ? */
+      /* is the nick already in the channel?  */
       for (n = 0; n < channel->clients; n++)
         if (channel->client[n] == client)
           break;
@@ -360,7 +360,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
       /* no, add nick to channel */
       if (n == channel->clients)
         {
-          /* joined just too many channels ? */
+          /* joined just too many channels?  */
           if (client->channels >= cfg->channels_per_user)
             {
               irc_printf (client->sock,
@@ -484,7 +484,7 @@ irc_leave_channel (irc_config_t *cfg,
             }
         break;
       }
-  /* no client in channel ? */
+  /* no client in channel?  */
   if (channel->clients == 0)
     {
 #if SVZ_ENABLE_DEBUG
@@ -520,7 +520,7 @@ irc_check_args (svz_socket_t *sock,      /* the client's socket */
 /*
  * This routine checks if a given client is away or not, then
  * sends this clients away message back to the client which requested
- * this. Return non-zero if away.
+ * this.  Return non-zero if away.
  */
 int
 irc_client_absent (irc_client_t *client,  /* requested client */
@@ -599,7 +599,7 @@ irc_disconnect (svz_socket_t *sock)
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client = sock->data;
 
-  /* is it a valid IRC connection ? */
+  /* is it a valid IRC connection?  */
   if (client)
     {
       irc_leave_all_channels (cfg, client, IRC_CONNECTION_LOST);
@@ -608,7 +608,7 @@ irc_disconnect (svz_socket_t *sock)
 }
 
 /*
- * This is the idle callback for serveez. Here the IRC server could
+ * This is the idle callback for serveez.  Here the IRC server could
  * send a PING to a IRC client.
  */
 int
@@ -649,7 +649,7 @@ irc_idle (svz_socket_t *sock)
 
 /*
  * This structures field contains all the callback routines necessary
- * to react like an IRC server. The actual routines are defined in the
+ * to react like an IRC server.  The actual routines are defined in the
  * irc-event.h and implemented in the irc-event-?.c files.
  */
 irc_callback_t irc_callback[] =
@@ -726,7 +726,7 @@ irc_handle_request (svz_socket_t *sock, char *request, int len)
 }
 
 /*
- * Delete a channel from the channel list. Returns -1 if there was no
+ * Delete a channel from the channel list.  Returns -1 if there was no
  * appropriate channel.
  */
 static int
@@ -762,7 +762,7 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 }
 
 /*
- * Find a channel within the current channel list. Return NULL if
+ * Find a channel within the current channel list.  Return NULL if
  * the channel has not been found.
  */
 irc_channel_t *
@@ -775,8 +775,8 @@ irc_find_channel (irc_config_t *cfg, char *channel)
 }
 
 /*
- * Find all matching channels in the current channel list. Return NULL if
- * no channel has not been found. You MUST svz_free() this list if non-NULL.
+ * Find all matching channels in the current channel list.  Return NULL if
+ * no channel has not been found.  You MUST svz_free() this list if non-NULL.
  * The delivered array is NULL terminated.
  */
 irc_channel_t **
@@ -848,8 +848,8 @@ irc_add_client_history (irc_config_t *cfg, irc_client_t *cl)
 }
 
 /*
- * Find a nick in the history client list. Return NULL if
- * no nick has not been found. Otherwise the first client found within
+ * Find a nick in the history client list.  Return NULL if
+ * no nick has not been found.  Otherwise the first client found within
  * the history list.
  */
 irc_client_history_t *
@@ -891,7 +891,7 @@ irc_delete_client_history (irc_config_t *cfg)
 }
 
 /*
- * Delete a client from the client list. Returns -1 if there was no
+ * Delete a client from the client list.  Returns -1 if there was no
  * appropriate client.
  */
 int
@@ -930,7 +930,7 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
 }
 
 /*
- * Find a user@host within the current client list. Return NULL if
+ * Find a user@host within the current client list.  Return NULL if
  * no client has not been found.
  */
 irc_client_t *
@@ -958,7 +958,7 @@ irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 }
 
 /*
- * Find a nick within the current client list. Return NULL if
+ * Find a nick within the current client list.  Return NULL if
  * the nick has not been found.
  */
 irc_client_t *
@@ -974,9 +974,9 @@ irc_find_nick (irc_config_t *cfg, char *nick)
 }
 
 /*
- * Find all matching nicks in the current client list. Return NULL if
- * no nick has not been found. You MUST svz_free() this array if it is
- * non-NULL. The delivered clients are NULL terminated.
+ * Find all matching nicks in the current client list.  Return NULL if
+ * no nick has not been found.  You MUST svz_free() this array if it is
+ * non-NULL.  The delivered clients are NULL terminated.
  */
 irc_client_t **
 irc_regex_nick (irc_config_t *cfg, char *regex)
@@ -1025,7 +1025,7 @@ irc_add_client (irc_config_t *cfg, irc_client_t *client)
 }
 
 /*
- * Create a new IRC client structure. This will be stored within the
+ * Create a new IRC client structure.  This will be stored within the
  * miscellaneous data field in the socket structure (sock->data).
  */
 irc_client_t *
@@ -1056,7 +1056,7 @@ irc_printf (svz_socket_t *sock, const char *fmt, ...)
   len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
 
-  /* Just to be sure... */
+  /* Just to be sure...  */
   if (len > sizeof (buffer))
     len = sizeof (buffer);
 

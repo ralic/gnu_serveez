@@ -37,7 +37,7 @@
 #include "libserveez/codec/codec.h"
 #include "libserveez/codec/gzlib.h"
 
-/* Definition of the 'zlib' encoder. */
+/* Definition of the 'zlib' encoder.  */
 svz_codec_t zlib_encoder = {
   "zlib",
   SVZ_CODEC_ENCODER,
@@ -50,7 +50,7 @@ svz_codec_t zlib_encoder = {
   0
 };
 
-/* Definition of the 'zlib' decoder. */
+/* Definition of the 'zlib' decoder.  */
 svz_codec_t zlib_decoder = {
   "zlib",
   SVZ_CODEC_DECODER,
@@ -63,9 +63,9 @@ svz_codec_t zlib_decoder = {
   2
 };
 
-/* Internal 'zlib' data structure. The arbitrary `data' field of the
+/* Internal 'zlib' data structure.  The arbitrary `data' field of the
    @code{svz_codec_data_t} structure is used to hold this data structure
-   and is thus passed to each codec callback. */
+   and is thus passed to each codec callback.  */
 typedef struct zlib_data
 {
   z_stream stream; /* 'z_stream' is representation of a 'zlib' stream */
@@ -73,9 +73,9 @@ typedef struct zlib_data
 zlib_data_t;
 
 /* Allocator functions passed to the zlib in order to allocate and free
-   memory. This is useful when using a custom memory management. Because
+   memory.  This is useful when using a custom memory management.  Because
    we assign here the Serveez core library's allocators it is possible to
-   detect memory leaks within calls to the 'zlib' library. */
+   detect memory leaks within calls to the 'zlib' library.  */
 voidpf
 zlib_alloc (voidpf data, uInt n, uInt size)
 {
@@ -92,9 +92,9 @@ zlib_free (voidpf data, voidpf ptr)
 }
 
 /* Codec `error' callback:
-   Returns the last 'zlib' codec error. This callback gets invoked in order
+   Returns the last 'zlib' codec error.  This callback gets invoked in order
    to obtain a human readable error message if any of the codec callbacks
-   returns an error. */
+   returns an error.  */
 char *
 zlib_error (svz_codec_data_t *data)
 {
@@ -111,8 +111,8 @@ zlib_error (svz_codec_data_t *data)
 }
 
 /* Codec `ratio' callback:
-   Returns the current ratio state of 'zlib' codec. This callback gets
-   called if the `code' callback returned @code{SVZ_CODEC_FINISHED}. */
+   Returns the current ratio state of 'zlib' codec.  This callback gets
+   called if the `code' callback returned @code{SVZ_CODEC_FINISHED}.  */
 int
 zlib_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
 {
@@ -129,9 +129,9 @@ zlib_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
 }
 
 /* Codec `init' callback:
-   Initialization routine for the 'zlib' encoder. This callback is run when
-   the codec is setup for sending or receiving. It should return
-   @code{SVZ_CODEC_ERROR} on failure and @code{SVZ_CODEC_OK} otherwise. */
+   Initialization routine for the 'zlib' encoder.  This callback is run when
+   the codec is setup for sending or receiving.  It should return
+   @code{SVZ_CODEC_ERROR} on failure and @code{SVZ_CODEC_OK} otherwise.  */
 int
 zlib_encoder_init (svz_codec_data_t *data)
 {
@@ -150,9 +150,9 @@ zlib_encoder_init (svz_codec_data_t *data)
 }
 
 /* Codec `finalize' callback:
-   Finalizer routine for the 'zlib' encoder. This callback is called by
+   Finalizer routine for the 'zlib' encoder.  This callback is called by
    Serveez's codec interface if encoding has ended and should revert the
-   setup done in the `init' callback. */
+   setup done in the `init' callback.  */
 int
 zlib_encoder_finalize (svz_codec_data_t *data)
 {
@@ -170,13 +170,13 @@ zlib_encoder_finalize (svz_codec_data_t *data)
 }
 
 /* Codec `code' callback:
-   Encoding routine of 'zlib' codec. The callback is meant to do what is
-   described by the `flag' member of @code{svz_codec_data_t}. The coding
+   Encoding routine of 'zlib' codec.  The callback is meant to do what is
+   described by the `flag' member of @code{svz_codec_data_t}.  The coding
    routine must interpret the input buffer and output buffer description
    correctly and should remove the input bytes consumed by the codec.
    Possible return values are @code{SVZ_CODEC_ERROR}, @code{SVZ_CODEC_OK},
    @code{SVZ_CODEC_MORE_OUT} and @code{SVZ_CODEC_MORE_IN} each having its
-   special meaning. */
+   special meaning.  */
 int
 zlib_encode (svz_codec_data_t *data)
 {
@@ -199,7 +199,7 @@ zlib_encode (svz_codec_data_t *data)
   if (ret != Z_OK && ret != Z_STREAM_END)
     return SVZ_CODEC_ERROR;
 
-  /* Correct the values in the input and output buffer. */
+  /* Correct the values in the input and output buffer.  */
   if (s->avail_in > 0)
     memmove (data->in_buffer, s->next_in, s->avail_in);
   data->in_fill = s->avail_in;
@@ -211,7 +211,7 @@ zlib_encode (svz_codec_data_t *data)
   return ret == Z_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
 
-/* Initialization routine for the 'zlib' decoder. */
+/* Initialization routine for the 'zlib' decoder.  */
 int
 zlib_decoder_init (svz_codec_data_t *data)
 {
@@ -229,7 +229,7 @@ zlib_decoder_init (svz_codec_data_t *data)
   return SVZ_CODEC_OK;
 }
 
-/* Finalizer routine for the 'zlib' decoder. */
+/* Finalizer routine for the 'zlib' decoder.  */
 int
 zlib_decoder_finalize (svz_codec_data_t *data)
 {
@@ -246,7 +246,7 @@ zlib_decoder_finalize (svz_codec_data_t *data)
   return ret;
 }
 
-/* Decoding routine of the 'zlib' codec. */
+/* Decoding routine of the 'zlib' codec.  */
 int
 zlib_decode (svz_codec_data_t *data)
 {

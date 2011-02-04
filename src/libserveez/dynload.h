@@ -22,7 +22,7 @@
 
 #include "libserveez/defines.h"
 
-/* Structure holding a shared libraries info. */
+/* Structure holding a shared libraries info.  */
 typedef struct
 {
   void *handle; /* its handle */

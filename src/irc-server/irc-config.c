@@ -251,7 +251,7 @@ irc_free_config_lines (irc_config_t *cfg)
 
 /*
  * The following routine checks whether it is still possible to connect
- * via a given connection class number. It returns zero on success or if
+ * via a given connection class number.  It returns zero on success or if
  * there no such connection class, otherwise non-zero.
  */
 static int
@@ -280,7 +280,7 @@ irc_check_class (irc_config_t *cfg, int class_nr)
 
 /*
  * This functions goes through all the K lines to check whether a given
- * client is unwanted. Return non-zero if so.
+ * client is unwanted.  Return non-zero if so.
  */
 static int
 irc_client_killed (irc_client_t *client, irc_config_t *cfg)
@@ -374,7 +374,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
 
 /*
  * The following function performs a check for the given client
- * being able to get IRC operator. Return NULL on errors.
+ * being able to get IRC operator.  Return NULL on errors.
  */
 int
 irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
@@ -409,6 +409,6 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
 
 #else /* ENABLE_IRC_PROTO */
 
-int irc_config_dummy; /* Shut up compiler. */
+int irc_config_dummy;           /* Shut up compiler.  */
 
 #endif /* ENABLE_IRC_PROTO */

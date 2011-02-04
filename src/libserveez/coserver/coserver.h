@@ -32,22 +32,22 @@ typedef struct
 {
 #ifdef __MINGW32__
 
-  /* Win32 specific part. */
+  /* Win32 specific part.  */
   CRITICAL_SECTION sync;        /* critical section handle */
   HANDLE thread;                /* the thread handle for access */
   DWORD tid;                    /* internal thread id */
 
 #else /* not __MINGW32__ */
 
-  /* Unix specific part. */
+  /* Unix specific part.  */
   int pid;                      /* process id */
 
 #endif /* not __MINGW32__ */
 
-  char * (* callback) (char *); /* callback routine, blocking... */
+  char * (* callback) (char *); /* callback routine, blocking...  */
   svz_socket_t *sock;           /* socket structure for this coserver */
   int type;                     /* coserver type id */
-  int busy;                     /* is this thread currently busy ? */
+  int busy;                     /* is this thread currently busy?  */
 }
 svz_coserver_t;
 
@@ -67,13 +67,13 @@ typedef struct
 }
 svz_coservertype_t;
 
-/* Definitions for argument list of the coserver callbacks. */
+/* Definitions for argument list of the coserver callbacks.  */
 typedef void * svz_coserver_arg_t;
 #define COSERVER_ARGS 2
 #define svz_coserver_args_t \
   svz_coserver_arg_t arg0, svz_coserver_arg_t arg1
 
-/* Buffer size for the coservers. */
+/* Buffer size for the coservers.  */
 #define COSERVER_BUFSIZE 256
 
 /*
@@ -123,7 +123,7 @@ SERVEEZ_API void svz_coserver_rdns_invoke __PARAMS ((unsigned long,
 
 /*
  * This macro is considered to be the usual way to make a request to the
- * reverse DNS coserver. It calls @code{svz_coserver_rdns_invoke()} therefore.
+ * reverse DNS coserver.  It calls @code{svz_coserver_rdns_invoke()} therefore.
  * If the given @var{ip} has been resolved by the coserver to a valid computer
  * name the callback @var{cb} gets invoked with the additional arguments
  * passed to this macro.
@@ -154,9 +154,9 @@ SERVEEZ_API void svz_coserver_ident_invoke __PARAMS ((svz_socket_t *,
 
 /*
  * This macro uses the internal ident coserver in order to identify the
- * connection of the given socket structure @var{sock}. The function @var{cb}
+ * connection of the given socket structure @var{sock}.  The function @var{cb}
  * will be called when the coserver successfully delivers the identified
- * user on the other end of the connection. Both the arguments @var{arg0}
+ * user on the other end of the connection.  Both the arguments @var{arg0}
  * and @var{arg1} are passed to @var{cb}.
  */
 #define svz_coserver_ident(sock, cb, arg0, arg1)                          \

@@ -128,11 +128,11 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
 
 /* Converts the integer value @var{n} into a pointer platform independently.
    Both of the @code{SVZ_NUM2PTR()} and @code{SVZ_PTR2NUM()} macros rely on
-   the @code{(unsigned long)} having the same size as @code{(void *)}. */
+   the @code{(unsigned long)} having the same size as @code{(void *)}.  */
 #define SVZ_NUM2PTR(n) \
   ((void *) ((unsigned long) (n)))
 
-/* Convert the pointer @var{p} into a integer value platform independently. */
+/* Convert the pointer @var{p} into a integer value platform independently.  */
 #define SVZ_PTR2NUM(p) \
   ((unsigned long) ((void *) (p)))
 
@@ -170,7 +170,7 @@ SERVEEZ_API char *svz_syserror __PARAMS ((int));
 
 __END_DECLS
 
-/* Definition of very system dependent routines. */
+/* Definition of very system dependent routines.  */
 #ifdef __MINGW32__
 # define closehandle(handle) (CloseHandle (handle) ? 0 : -1)
 # define SYS_ERROR svz_syserror (GetLastError ())
@@ -189,7 +189,7 @@ __END_DECLS
 
 #ifdef __MINGW32__
 
-/* Sometimes this is not defined for some reason. */
+/* Sometimes this is not defined for some reason.  */
 #ifndef WINSOCK_VERSION
 # define WINSOCK_VERSION 0x0202 /* this is version 2.02 */
 #endif

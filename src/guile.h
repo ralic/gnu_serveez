@@ -22,7 +22,7 @@
 
 /*
  * Converts @code{SCM} into @code{char *} no matter if it is string or
- * symbol. Returns @code{NULL} if it was neither. The new string must be
+ * symbol.  Returns @code{NULL} if it was neither.  The new string must be
  * explicitly @code{free()}d.
  */
 #define guile_to_string(cell)                                         \
@@ -30,13 +30,13 @@
   (SCM_STRINGP (cell) ? scm_c_string2str (cell, NULL, NULL) :         \
   (SCM_SYMBOLP (cell) ? scm_c_symbol2str (cell, NULL, NULL) : NULL)))
 
-/* FAIL breaks to the label `out' and sets an error condition. */
+/* FAIL breaks to the label `out' and sets an error condition.  */
 #define FAIL() do { err = -1; goto out; } while(0)
 
-/* Global error flag. */
+/* Global error flag.  */
 int guile_global_error;
 
-/* Export these functions. */
+/* Export these functions.  */
 int guile_to_integer (SCM, int *);
 int guile_to_boolean (SCM, int *);
 svz_array_t *guile_to_intarray (SCM, char *);

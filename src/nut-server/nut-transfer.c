@@ -87,7 +87,7 @@
 #include "nut-transfer.h"
 
 /*
- * Check if a given search pattern matches a filename. Return non-zero
+ * Check if a given search pattern matches a filename.  Return non-zero
  * on success and zero otherwise.
  */
 static int
@@ -160,7 +160,7 @@ nut_string_regex (char *text, char *regex)
           }
       }
 
-  /* is the text longer than the regex ? */
+  /* is the text longer than the regex?  */
   if (!*text && !*regex)
     return -1;
   return 0;
@@ -176,7 +176,7 @@ nut_save_transfer (svz_socket_t *sock)
   nut_transfer_t *transfer = sock->data;
   int num_written;
 
-  /* do we have something to write in the receive buffer ? */
+  /* do we have something to write in the receive buffer?  */
   if (fill > 0)
     {
       /* write as much data as possible */
@@ -225,7 +225,7 @@ nut_check_transfer (svz_socket_t *sock)
              memcmp (p, NUT_SEPERATOR, 4))
         p++;
 
-      /* did we get all the header information ? */
+      /* did we get all the header information?  */
       if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
         {
 #if SVZ_ENABLE_DEBUG
@@ -344,7 +344,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
   nut_transfer_t *transfer;
   int n = 0, pos;
 
-  /* has the requested file the right file extension ? */
+  /* has the requested file the right file extension?  */
   if (cfg->extensions)
     {
       /* go through all file extensions */
@@ -357,7 +357,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
                 break;
             }
         }
-      /* did the above code "break" ? */
+      /* did the above code "break"?  */
       if ((unsigned long) n >= svz_array_size (cfg->extensions))
         {
           svz_log (LOG_WARNING, "nut: not a valid extension: %s\n",
@@ -534,7 +534,7 @@ nut_check_given (svz_socket_t *sock)
  * The routine is called when a connection to another host timed out.
  * When trying to get a remote file from a host behind a masquerading
  * gateway or firewall you are able to request this host to connect to
- * ourselves and thus "push" the download connection. There is NO way
+ * ourselves and thus "push" the download connection.  There is NO way
  * if both of the hosts are behind such a gateway.
  */
 int
@@ -653,8 +653,8 @@ nut_add_database (nut_config_t *cfg, char *path, char *file, off_t size)
 }
 
 /*
- * Find a given search pattern within the database. Start to find it
- * at the given ENTRY. If it is NULL we start at the very beginning.
+ * Find a given search pattern within the database.  Start to find it
+ * at the given ENTRY.  If it is NULL we start at the very beginning.
  */
 nut_file_t *
 nut_find_database (nut_config_t *cfg, nut_file_t *entry, char *search)
@@ -675,8 +675,8 @@ nut_find_database (nut_config_t *cfg, nut_file_t *entry, char *search)
 
 /*
  * This routine gets a gnutella database entry from a given FILE and
- * its appropriate INDEX. If no matching file has been found then return
- * NULL. If FILE is NULL we just search for the the given INDEX.
+ * its appropriate INDEX.  If no matching file has been found then return
+ * NULL.  If FILE is NULL we just search for the the given INDEX.
  */
 nut_file_t *
 nut_get_database (nut_config_t *cfg, char *file, unsigned index)
@@ -694,8 +694,8 @@ nut_get_database (nut_config_t *cfg, char *file, unsigned index)
 }
 
 /*
- * This routine will re-read the share directory. The routine itself is
- * recursive. Thus be careful ! It cannot check for recursion loops, yet.
+ * This routine will re-read the share directory.  The routine itself is
+ * recursive.  Thus be careful!  It cannot check for recursion loops, yet.
  */
 void
 nut_read_database_r (nut_config_t *cfg, char *dirname, int depth)
@@ -781,7 +781,7 @@ nut_check_upload (svz_socket_t *sock)
   char *end, *file, *f, *hdr;
   nut_file_t *entry;
 
-  /* enough receive buffer fill ? */
+  /* enough receive buffer fill?  */
   if (sock->recv_buffer_fill < fill)
     return 0;
 
@@ -940,7 +940,7 @@ nut_disconnect_upload (svz_socket_t *sock)
 }
 
 /*
- * Default gnutella file reader. It is the sock->read_socket callback for
+ * Default gnutella file reader.  It is the sock->read_socket callback for
  * file uploads.
  */
 int
@@ -967,24 +967,24 @@ nut_file_read (svz_socket_t *sock)
   num_read = read (sock->file_desc,
                    sock->send_buffer + sock->send_buffer_fill, do_read);
 
-  /* Read error occurred. */
+  /* Read error occurred.  */
   if (num_read < 0)
     {
       svz_log (LOG_ERROR, "nut: read: %s\n", SYS_ERROR);
       return -1;
     }
 
-  /* Bogus file. File size from stat() was not true. */
+  /* Bogus file.  File size from stat() was not true.  */
   if (num_read == 0 && transfer->size != 0)
     {
       return -1;
     }
 
-  /* Data has been read or EOF reached, set the appropriate flags. */
+  /* Data has been read or EOF reached, set the appropriate flags.  */
   sock->send_buffer_fill += num_read;
   transfer->size -= num_read;
 
-  /* Read all file data ? */
+  /* Read all file data?  */
   if (transfer->size <= 0)
     {
 #if SVZ_ENABLE_DEBUG
@@ -1002,7 +1002,7 @@ nut_file_read (svz_socket_t *sock)
 }
 
 /*
- * This function is the upload callback for the gnutella server. It
+ * This function is the upload callback for the gnutella server.  It
  * throttles its network output to a configured value.
  */
 int
@@ -1071,6 +1071,6 @@ nut_file_write (svz_socket_t *sock)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_transfer_dummy; /* Shut compiler warnings up. */
+int nut_transfer_dummy;         /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_GNUTELLA */

@@ -392,6 +392,6 @@ irc_info_callback (svz_socket_t *sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_3_dummy; /* Shutup compiler warnings. */
+int irc_event_3_dummy;          /* Shutup compiler warnings.  */
 
 #endif /* not ENABLE_IRC_PROTO */

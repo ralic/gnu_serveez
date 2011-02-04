@@ -37,7 +37,7 @@
    in an unlocked state.  The function must be called before using
    @code{svz_mutex_lock()} or @code{svz_mutex_unlock()}.  The user
    must call @code{svz_mutex_destroy()} for each mutex created by this
-   function. */
+   function.  */
 int
 svz_mutex_create (svz_mutex_t *mutex)
 {
@@ -58,7 +58,7 @@ svz_mutex_create (svz_mutex_t *mutex)
 }
 
 /* Destroys the given @var{mutex} object which has been created by
-   @code{svz_mutex_create()}. */
+   @code{svz_mutex_create()}.  */
 int
 svz_mutex_destroy (svz_mutex_t *mutex)
 {
@@ -86,7 +86,7 @@ svz_mutex_destroy (svz_mutex_t *mutex)
 
 /* Locks a @var{mutex} object and sets the current thread into an idle
    state if the @var{mutex} object has been currently locked by another
-   thread. */
+   thread.  */
 int
 svz_mutex_lock (svz_mutex_t *mutex)
 {
@@ -112,7 +112,7 @@ svz_mutex_lock (svz_mutex_t *mutex)
 }
 
 /* Releases the given @var{mutex} object and thereby possibly resumes
-   a waiting thread calling @code{svz_mutex_lock()}. */
+   a waiting thread calling @code{svz_mutex_lock()}.  */
 int
 svz_mutex_unlock (svz_mutex_t *mutex)
 {

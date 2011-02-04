@@ -21,7 +21,7 @@
 #define __IRC_EVENT_H__
 
 /*************************************************************************
- * This is a list of IRC Messages i need to reply on. Every section of
+ * This is a list of IRC Messages i need to reply on.  Every section of
  * this table is implemented in a file called "irc-event-?.c" where the
  * ? refers to the subsection's # seen here in the table.
  * All the callbacks get three (3) args passed these are in specific:
@@ -54,7 +54,7 @@
  *    4.2.8 Kick message               * Yes  * Ok
  * 4.3 Server queries and commands
  *    4.3.1 Version message            * Yes  * Ok
- *    4.3.2 Stats message              * Yes  * just started, Much ! todo
+ *    4.3.2 Stats message              * Yes  * just started, Much (!) todo
  *    4.3.3 Links message              * No   *
  *    4.3.4 Time message               * Yes  * Ok
  *    4.3.5 Connect message            * No   *

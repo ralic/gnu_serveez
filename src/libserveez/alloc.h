@@ -28,7 +28,7 @@
 
 /*
  * Free the memory block pointed to by @var{var} and set it to @code{NULL}
- * afterwards. The argument @var{var} is passed to @code{svz_free()}.
+ * afterwards.  The argument @var{var} is passed to @code{svz_free()}.
  */
 #define svz_free_and_zero(var) \
   do { svz_free (var); (var) = NULL; } while (0)
@@ -40,24 +40,24 @@ SERVEEZ_API unsigned int svz_allocated_bytes;
 SERVEEZ_API unsigned int svz_allocated_blocks;
 #endif /* SVZ_ENABLE_DEBUG */
 
-/* Function type definitions. */
+/* Function type definitions.  */
 typedef void * (* svz_malloc_func_t) __PARAMS ((svz_t_size));
 typedef void * (* svz_realloc_func_t) __PARAMS ((void *, svz_t_size));
 typedef void (* svz_free_func_t) __PARAMS ((void *));
 
-/* Global allocator functions. */
+/* Global allocator functions.  */
 SERVEEZ_API svz_malloc_func_t svz_malloc_func;
 SERVEEZ_API svz_realloc_func_t svz_realloc_func;
 SERVEEZ_API svz_free_func_t svz_free_func;
 
-/* Internal allocator functions. */
+/* Internal allocator functions.  */
 SERVEEZ_API void *svz_malloc __PARAMS ((svz_t_size));
 SERVEEZ_API void *svz_calloc __PARAMS ((svz_t_size));
 SERVEEZ_API void *svz_realloc __PARAMS ((void *, svz_t_size));
 SERVEEZ_API void svz_free __PARAMS ((void *));
 SERVEEZ_API char *svz_strdup __PARAMS ((char *));
 
-/* Internal permanent allocator functions. */
+/* Internal permanent allocator functions.  */
 SERVEEZ_API void *svz_pmalloc __PARAMS ((svz_t_size));
 SERVEEZ_API void *svz_prealloc __PARAMS ((void *, svz_t_size));
 SERVEEZ_API char *svz_pstrdup __PARAMS ((char *));

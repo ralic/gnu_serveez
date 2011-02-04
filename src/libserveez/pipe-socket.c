@@ -56,16 +56,16 @@
 #include "libserveez/pipe-socket.h"
 
 #ifdef __MINGW32__
-/* Some static data for the CancelIo() call. We need to load the symbol
-   dynamically because it is not available on all versions of Windows. */
+/* Some static data for the CancelIo() call.  We need to load the symbol
+   dynamically because it is not available on all versions of Windows.  */
 typedef BOOL (__stdcall * CancelIoProc) (HANDLE);
 static CancelIoProc CancelIoFunc = NULL;
 static HANDLE Kernel32Handle = NULL;
 #endif /* __MINGW32__ */
 
 /*
- * Startup the pipe interface of the core API of serveez. Returns zero on
- * success. Gets called from @code{svz_boot()} once. Do not use.
+ * Startup the pipe interface of the core API of serveez.  Returns zero on
+ * success.  Gets called from @code{svz_boot()} once.  Do not use.
  */
 int
 svz_pipe_startup (void)
@@ -91,8 +91,8 @@ svz_pipe_startup (void)
 }
 
 /*
- * Cleanup the pipe interface of the core API of serveez. Returns zero on
- * success. Gets called from @code{svz_halt()} once. Do not use.
+ * Cleanup the pipe interface of the core API of serveez.  Returns zero on
+ * success.  Gets called from @code{svz_halt()} once.  Do not use.
  */
 int
 svz_pipe_cleanup (void)
@@ -134,7 +134,7 @@ svz_pipe_destroy (svz_pipe_t *pipe)
 
 /*
  * Check the consistency of the "user" - "user id" pair in the given pipe
- * structure @var{pipe}. Return zero if it is ok.
+ * structure @var{pipe}.  Return zero if it is ok.
  */
 int
 svz_pipe_check_user (svz_pipe_t *pipe)
@@ -170,7 +170,7 @@ svz_pipe_check_user (svz_pipe_t *pipe)
 
 /*
  * Check the consistency of the "group" - "group id" pair in the structure
- * @var{pipe}. Return zero if it is valid.
+ * @var{pipe}.  Return zero if it is valid.
  */
 int
 svz_pipe_check_group (svz_pipe_t *pipe)
@@ -201,7 +201,7 @@ svz_pipe_check_group (svz_pipe_t *pipe)
     }
 
   /* Check if the user is in the selected group and croak about it
-     if not. This check is only done if all necessary info is given. */
+     if not.  This check is only done if all necessary info is given.  */
   if (g && g->gr_mem && pipe->user)
     {
       while (g->gr_mem[n])
@@ -226,7 +226,7 @@ svz_pipe_check_group (svz_pipe_t *pipe)
 
 /*
  * This function is for checking if a given socket structure contains
- * a valid pipe socket (checking both pipes). Return non-zero on errors.
+ * a valid pipe socket (checking both pipes).  Return non-zero on errors.
  */
 int
 svz_pipe_valid (svz_socket_t *sock)
@@ -250,7 +250,7 @@ svz_pipe_valid (svz_socket_t *sock)
 
 /*
  * This function is the default disconnection routine for pipe socket
- * structures. Return non-zero on errors.
+ * structures.  Return non-zero on errors.
  */
 int
 svz_pipe_disconnect (svz_socket_t *sock)
@@ -259,7 +259,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 
   if (sock->flags & SOCK_FLAG_CONNECTED)
     {
-      /* has this socket created by a listener ? */
+      /* has this socket created by a listener?  */
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
         {
 #ifdef __MINGW32__
@@ -295,7 +295,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
             if (closehandle (sock->pipe_desc[WRITE]) < 0)
               svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-          /* FIXME: reset receiving pipe ??? */
+          /* FIXME: reset receiving pipe???  */
 
 #endif /* not __MINGW32__ */
 
@@ -382,7 +382,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 }
 
 #ifdef __MINGW32__
-/* Print text representation of given overlapped I/O structure. */
+/* Print text representation of given overlapped I/O structure.  */
 static void
 svz_pipe_overlap (LPOVERLAPPED overlap)
 {
@@ -400,7 +400,7 @@ svz_pipe_overlap (LPOVERLAPPED overlap)
 
 /*
  * The @code{svz_pipe_read_socket()} function reads as much data as
- * available on a readable pipe descriptor or handle on Win32. Return
+ * available on a readable pipe descriptor or handle on Win32.  Return
  * a non-zero value on errors.
  */
 int
@@ -409,7 +409,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
   int num_read, do_read;
 
   /* Read as much space is left in the receive buffer and return
-   * zero if there is no more space. */
+   * zero if there is no more space.  */
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
   if (do_read <= 0)
     {
@@ -421,16 +421,16 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 
 #ifdef __MINGW32__
-  /* Named pipes in Win32 cannot transfer more than 64KB at once. */
+  /* Named pipes in Win32 cannot transfer more than 64KB at once.  */
   if (do_read > PIPE_MAX_READ)
     do_read = PIPE_MAX_READ;
 
   /* Use the PeekNamedPipe() call if there is no overlapped I/O in
-     order to make the following ReadFile() non-blocking. */
+     order to make the following ReadFile() non-blocking.  */
   if (sock->overlap[READ] == NULL)
     {
       /* Check how many bytes could have been read from the pipe without
-         really reading them. */
+         really reading them.  */
       if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0,
                           NULL, (DWORD *) &num_read, NULL))
         {
@@ -438,16 +438,16 @@ svz_pipe_read_socket (svz_socket_t *sock)
           return -1;
         }
 
-      /* Leave this function if there is no data within the pipe. */
+      /* Leave this function if there is no data within the pipe.  */
       if (num_read <= 0)
         return 0;
 
-      /* Adjust number of bytes to read. */
+      /* Adjust number of bytes to read.  */
       if (do_read > num_read)
         do_read = num_read;
     }
 
-  /* Try to get the result of the last ReadFile(). */
+  /* Try to get the result of the last ReadFile().  */
   if (sock->flags & SOCK_FLAG_READING)
     {
       if (!GetOverlappedResult (sock->pipe_desc[READ], sock->overlap[READ],
@@ -462,14 +462,14 @@ svz_pipe_read_socket (svz_socket_t *sock)
           return 0;
         }
 
-      /* Schedule the pipe for the ReadFile() call again. */
+      /* Schedule the pipe for the ReadFile() call again.  */
       else
         {
           sock->recv_pending = 0;
           sock->flags &= ~SOCK_FLAG_READING;
         }
     }
-  /* Really read from the pipe. */
+  /* Really read from the pipe.  */
   else if (!ReadFile (sock->pipe_desc[READ],
                       sock->recv_buffer + sock->recv_buffer_fill,
                       do_read, (DWORD *) &num_read, sock->overlap[READ]))
@@ -480,7 +480,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
           return -1;
         }
 
-      /* Schedule the pipe for the GetOverlappedResult() call. */
+      /* Schedule the pipe for the GetOverlappedResult() call.  */
       sock->recv_pending = do_read;
       sock->flags |= SOCK_FLAG_READING;
       return 0;
@@ -497,7 +497,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 #endif /* not __MINGW32__ */
 
-  /* Some data has been read from the pipe. */
+  /* Some data has been read from the pipe.  */
   if (num_read > 0)
     {
       sock->last_recv = time (NULL);
@@ -519,7 +519,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 
 #ifndef __MINGW32__
-  /* The pipe was selected but there is no data. */
+  /* The pipe was selected but there is no data.  */
   else
     {
       svz_log (LOG_ERROR, "pipe: read: no data on pipe %d\n",
@@ -533,7 +533,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
 
 /*
  * This @code{svz_pipe_write_socket()} function writes as much data as
- * possible into a writable pipe descriptor. It returns a non-zero value
+ * possible into a writable pipe descriptor.  It returns a non-zero value
  * on errors.
  */
 int
@@ -542,16 +542,16 @@ svz_pipe_write_socket (svz_socket_t *sock)
   int num_written, do_write;
 
   /* Write as many bytes as possible, remember how many were actually
-     sent. */
+     sent.  */
   do_write = sock->send_buffer_fill;
 
 #ifdef __MINGW32__
-  /* Named pipes in Win32 cannot transfer more than 64KB at once. */
+  /* Named pipes in Win32 cannot transfer more than 64KB at once.  */
   if (do_write > PIPE_MAX_WRITE)
     do_write = PIPE_MAX_WRITE;
 
-  /* Data bytes have been stored in system's cache. Now we are checking
-     if pending write operation has been completed. */
+  /* Data bytes have been stored in system's cache.  Now we are checking
+     if pending write operation has been completed.  */
   if (sock->flags & SOCK_FLAG_WRITING)
     {
       if (!GetOverlappedResult (sock->pipe_desc[WRITE], sock->overlap[WRITE],
@@ -566,7 +566,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
           return 0;
         }
 
-      /* Reschedule the pipe descriptor for yet another WriteFile(). */
+      /* Reschedule the pipe descriptor for yet another WriteFile().  */
       else
         {
           sock->send_pending -= num_written;
@@ -578,7 +578,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
             }
         }
     }
-  /* Really write to the pipe. */
+  /* Really write to the pipe.  */
   else if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer,
                        do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
     {
@@ -604,7 +604,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
     }
 #endif /* not __MINGW32__ */
 
-  /* Some data has been successfully written to the pipe. */
+  /* Some data has been successfully written to the pipe.  */
   if (num_written > 0)
     {
       sock->last_send = time (NULL);
@@ -622,7 +622,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
 
 /*
  * Create a socket structure containing both the pipe descriptors
- * @var{recv_fd} and @var{send_fd}. Return @code{NULL} on errors.
+ * @var{recv_fd} and @var{send_fd}.  Return @code{NULL} on errors.
  */
 svz_socket_t *
 svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
@@ -630,7 +630,7 @@ svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
   svz_socket_t *sock;
 
 #ifndef __MINGW32__
-  /* Try to set to non-blocking I/O. */
+  /* Try to set to non-blocking I/O.  */
   if (svz_fd_nonblock ((int) recv_fd) != 0)
     return NULL;
   if (svz_fd_nonblock ((int) send_fd) != 0)
@@ -655,8 +655,8 @@ svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
 }
 
 /*
- * Create a (non blocking) pair of pipes. This differs in Win32 and
- * Unices. Return a non-zero value on errors.
+ * Create a (non blocking) pair of pipes.  This differs in Win32 and
+ * Unices.  Return a non-zero value on errors.
  */
 int
 svz_pipe_create_pair (svz_t_handle pipe_desc[2])
@@ -686,7 +686,7 @@ svz_pipe_create_pair (svz_t_handle pipe_desc[2])
    *        outputs because thay cannot handle the EAGAIN error.
    */
 
-  /* Make both ends of the pipe non-blocking. */
+  /* Make both ends of the pipe non-blocking.  */
   if (svz_fd_nonblock (pipe_desc[READ]) != 0)
     return -1;
 
@@ -730,7 +730,7 @@ svz_pipe_create_pair (svz_t_handle pipe_desc[2])
 
 /*
  * The following function saves the user and group permissions of the current
- * process. It stores the values for the umask, user id and group id in
+ * process.  It stores the values for the umask, user id and group id in
  * @var{mask}, @var{uid} and @var{gid}.
  */
 static void
@@ -743,7 +743,7 @@ svz_pipe_save_state (unsigned int *mask, unsigned int *uid, unsigned int *gid)
 
 /*
  * This function sets the umask @var{mask}, the user id @var{uid} and the
- * group id @var{gid}. Returns zero on success, non-zero otherwise.
+ * group id @var{gid}.  Returns zero on success, non-zero otherwise.
  */
 static int
 svz_pipe_set_state (unsigned int mask, unsigned int uid, unsigned int gid)
@@ -763,7 +763,7 @@ svz_pipe_set_state (unsigned int mask, unsigned int uid, unsigned int gid)
 }
 
 /*
- * Modify the current permissions state as specified by @var{pipe}. Returns
+ * Modify the current permissions state as specified by @var{pipe}.  Returns
  * zero on success and non-zero on errors.
  */
 static int
@@ -829,7 +829,7 @@ svz_pipe_set_files (svz_socket_t *sock, char *recv, char *send)
 
 /*
  * This routine creates a pipe connection socket structure to a pair of
- * named pipes. Return @code{NULL} on errors.
+ * named pipes.  Return @code{NULL} on errors.
  */
 svz_socket_t *
 svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
@@ -849,7 +849,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   svz_pipe_set_files (sock, recv->name, send->name);
 
 #ifndef __MINGW32__
-  /* is receive pipe such a ? */
+  /* is receive pipe such a?  */
   if (stat (sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
       svz_log (LOG_ERROR, "pipe: no such pipe: %s\n", sock->recv_pipe);
@@ -857,7 +857,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
       return NULL;
     }
 
-  /* is send pipe such a ? */
+  /* is send pipe such a?  */
   if (stat (sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
       svz_log (LOG_ERROR, "pipe: no such pipe: %s\n", sock->send_pipe);
@@ -981,8 +981,8 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 
 /*
  * Prepare the server socket structure @var{sock} for listening
- * on the receiving pipe of @var{recv}. Open the reading end of such a
- * connection. Return either zero or non-zero on errors.
+ * on the receiving pipe of @var{recv}.  Open the reading end of such a
+ * connection.  Return either zero or non-zero on errors.
  */
 int
 svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
@@ -998,34 +998,34 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
 #endif
   svz_t_handle recv_pipe;
 
-  /* Setup the text representation of the fifo names. */
+  /* Setup the text representation of the fifo names.  */
   svz_pipe_set_files (sock, recv->name, send->name);
 
-  /* Pipe requested via port configuration ? */
+  /* Pipe requested via port configuration?  */
   if (!sock->recv_pipe || !sock->send_pipe)
     return -1;
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD)
-  /* Test if both of the named pipes have been created yet. If not then
-     create them locally. */
+  /* Test if both of the named pipes have been created yet.  If not then
+     create them locally.  */
   if (stat (sock->recv_pipe, &buf) == -1)
     {
-      /* Save old permissions and set new ones. */
+      /* Save old permissions and set new ones.  */
       svz_pipe_save_state (&mask, &uid, &gid);
       if (svz_pipe_try_state (recv) < 0)
         {
           svz_pipe_set_state (mask, uid, gid);
           return -1;
         }
-      /* Create fifo locally. */
+      /* Create fifo locally.  */
       if (MKFIFO (sock->recv_pipe, 0666) != 0)
         {
           svz_log (LOG_ERROR, "pipe: " MKFIFO_FUNC ": %s\n", SYS_ERROR);
           svz_pipe_set_state (mask, uid, gid);
           return -1;
         }
-      /* Check if that was successful. */
+      /* Check if that was successful.  */
       if (stat (sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
         {
           svz_log (LOG_ERROR,
@@ -1033,7 +1033,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
           svz_pipe_set_state (mask, uid, gid);
           return -1;
         }
-      /* Restore old permissions. */
+      /* Restore old permissions.  */
       svz_pipe_set_state (mask, uid, gid);
     }
 
@@ -1061,13 +1061,13 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
       svz_pipe_set_state (mask, uid, gid);
     }
 
-  /* Try opening the server's read pipe. Should always be possible. */
+  /* Try opening the server's read pipe.  Should always be possible.  */
   if ((recv_pipe = open (sock->recv_pipe, O_NONBLOCK | O_RDONLY)) == -1)
     {
       svz_log (LOG_ERROR, "pipe: open: %s\n", SYS_ERROR);
       return -1;
     }
-  /* Check if the file descriptor is a pipe. */
+  /* Check if the file descriptor is a pipe.  */
   if (fstat (recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
       svz_log (LOG_ERROR,
@@ -1076,7 +1076,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
       return -1;
     }
 
-  /* Do not inherit this pipe. */
+  /* Do not inherit this pipe.  */
   svz_fd_cloexec (recv_pipe);
 
   sock->pipe_desc[READ] = recv_pipe;
@@ -1123,7 +1123,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   sock->flags |= SOCK_FLAG_SEND_PIPE;
 
   /*
-   * Initialize the overlapped structures for this server socket. Each
+   * Initialize the overlapped structures for this server socket.  Each
    * client connected gets it passed.
    */
   if (svz_os_version >= WinNT4x)

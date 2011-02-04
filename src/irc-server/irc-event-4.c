@@ -57,7 +57,7 @@ irc_priv_callback (svz_socket_t *sock,
   static char text[MAX_MSG_LEN];
   int n, i;
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 2))
     return 0;
 
@@ -65,7 +65,7 @@ irc_priv_callback (svz_socket_t *sock,
   for (text[0] = 0, n = 1; n < request->paras; n++)
     strcat (text, request->para[n]);
 
-  /* no text ? */
+  /* no text?  */
   if (!text[0])
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOTEXTTOSEND_TEXT "\n",
@@ -76,14 +76,14 @@ irc_priv_callback (svz_socket_t *sock,
   /* go through all targets (receivers) */
   for (n = 0; n < request->targets; n++)
     {
-      /* is receiver nick ? */
+      /* is receiver nick?  */
       if ((cl = irc_find_nick (cfg, request->target[n].nick)) != NULL)
         {
-          /* is this client away ? */
+          /* is this client away?  */
           if (irc_client_absent (cl, client))
             continue;
 
-          /* crypted ? */
+          /* crypted?  */
           if (client->flag & UMODE_PASS)
             irc_encrypt_text (text, client->key);
 
@@ -94,13 +94,13 @@ irc_priv_callback (svz_socket_t *sock,
                       irc_decrypt_text (text, cl->key) : text);
         }
 
-      /* is receiver a channel ? */
+      /* is receiver a channel?  */
       else if ((channel = irc_find_channel (cfg, request->target[n].channel))
                != NULL)
         {
           i = irc_client_in_channel (sock, client, channel);
 
-          /* no Messages of outside at these channels ! */
+          /* no Messages of outside at these channels!  */
           if (channel->flag & MODE_MESSAGE && i == -1)
             {
               irc_printf (sock,
@@ -110,7 +110,7 @@ irc_priv_callback (svz_socket_t *sock,
               continue;
             }
 
-          /* do you have voice in a Moderated channel ? */
+          /* do you have voice in a Moderated channel?  */
           if (channel->flag & MODE_MODERATE &&
               !(channel->cflag[i] & (MODE_VOICE | MODE_OPERATOR)))
             {
@@ -121,7 +121,7 @@ irc_priv_callback (svz_socket_t *sock,
               continue;
             }
 
-          /* crypted ? */
+          /* crypted?  */
           if (client->flag & UMODE_PASS)
             irc_encrypt_text (text, client->key);
 
@@ -178,7 +178,7 @@ irc_note_callback (svz_socket_t *sock,
   static char text[MAX_MSG_LEN];
   int n;
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 2))
     return 0;
 
@@ -186,7 +186,7 @@ irc_note_callback (svz_socket_t *sock,
   for (text[0] = 0, n = 1; n < request->paras; n++)
     strcat (text, request->para[n]);
 
-  /* no text ? */
+  /* no text?  */
   if (!text[0])
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOTEXTTOSEND_TEXT "\n",
@@ -194,14 +194,14 @@ irc_note_callback (svz_socket_t *sock,
       return 0;
     }
 
-  /* is target a nick ? */
+  /* is target a nick?  */
   if ((cl = irc_find_nick (cfg, request->target[0].nick)) != NULL)
      {
-       /* is this client away ? */
+       /* is this client away?  */
        if (irc_client_absent (cl, client))
          return 0;
 
-       /* crypted ? */
+       /* crypted?  */
        if (client->flag & UMODE_PASS)
          irc_encrypt_text (text, client->key);
 
@@ -218,6 +218,6 @@ irc_note_callback (svz_socket_t *sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_4_dummy; /* Shut up compiler warnings. */
+int irc_event_4_dummy;          /* Shut up compiler warnings.  */
 
 #endif /* not ENABLE_IRC_PROTO */

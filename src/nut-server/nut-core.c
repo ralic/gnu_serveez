@@ -59,9 +59,9 @@ nut_create_client (void)
 
 /*
  * Parses a `host:port' combination from the given character string
- * @var{addr} and stores the @var{port} in network byte order. If the `:port'
- * part is not given, a default port is delivered. Returns NULL if the
- * string is invalid and otherwise the hostname. The caller is responsible
+ * @var{addr} and stores the @var{port} in network byte order.  If the `:port'
+ * part is not given, a default port is delivered.  Returns NULL if the
+ * string is invalid and otherwise the hostname.  The caller is responsible
  * for freeing the returned string.
  */
 char *
@@ -98,8 +98,8 @@ nut_parse_host (char *addr, unsigned short *port)
 /*
  * This routine parses a `a.b.c.d:port' combination from the given
  * character string @var{addr} and stores both of the values in @var{ip}
- * and @var{port} in network byte order. If `:port' is not given, a default
- * port is delivered. Returns -1 on errors and otherwise zero.
+ * and @var{port} in network byte order.  If `:port' is not given, a default
+ * port is delivered.  Returns -1 on errors and otherwise zero.
  */
 int
 nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
@@ -146,7 +146,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
 
 /*
  * This function creates a hash key for a given IP and PORT information
- * for the host catcher hash. Both values must be given in network byte
+ * for the host catcher hash.  Both values must be given in network byte
  * order.
  */
 char *
@@ -158,7 +158,7 @@ nut_client_key (unsigned long ip, unsigned short port)
   return key;
 }
 
-/* These definitions are for the GUID creating functions in Win32. */
+/* These definitions are for the GUID creating functions in Win32.  */
 #ifdef __MINGW32__
 CreateGuidProc CreateGuid = NULL;
 HMODULE oleHandle = NULL;
@@ -191,7 +191,7 @@ nut_calc_guid (svz_uint8_t *guid)
 
 /*
  * The following routine delivers a text representation of the given
- * GUID. The format is taken from he M$ headers.
+ * GUID.  The format is taken from he M$ headers.
  */
 char *
 nut_print_guid (svz_uint8_t *guid)
@@ -515,6 +515,6 @@ nut_parse_property (char *header, int len, char *property)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_core_dummy; /* Shut compiler warnings up. */
+int nut_core_dummy;             /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_GNUTELLA */

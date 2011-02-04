@@ -102,7 +102,7 @@ sntp_detect_proto (svz_server_t *server, svz_socket_t *sock)
   return -1;
 }
 
-/* Time offset constant. */
+/* Time offset constant.  */
 #define SNTP_TIME_CONSTANT 2208988800u
 
 /*
@@ -145,7 +145,7 @@ sntp_connect_socket (svz_server_t *server, svz_socket_t *sock)
 
   sock->check_request = NULL;
 
-  /* Simple SNTP. */
+  /* Simple SNTP.  */
   if ((ret = sntp_create_reply (reply)) == 4)
     {
       sock->flags |= SOCK_FLAG_FINAL_WRITE;
@@ -153,7 +153,7 @@ sntp_connect_socket (svz_server_t *server, svz_socket_t *sock)
                               reply[0], reply[1], reply[2], reply[3]);
     }
 
-  /* Extended SNTP. */
+  /* Extended SNTP.  */
   svz_sock_printf (sock, "%c%c%c%c",
                    reply[0], reply[1], reply[2], reply[3]);
   sock->flags |= SOCK_FLAG_FINAL_WRITE;
@@ -186,6 +186,6 @@ sntp_handle_request (svz_socket_t *sock, char *packet, int len)
 
 #else /* not ENABLE_SNTP_PROTO */
 
-int sntp_dummy; /* Shut up compiler. */
+int sntp_dummy;                 /* Shut up compiler.  */
 
 #endif /* not ENABLE_SNTP_PROTO */

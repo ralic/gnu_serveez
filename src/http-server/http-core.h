@@ -27,7 +27,7 @@
 #define _GNU_SOURCE
 #include <time.h>
 
-/* Some definitions. */
+/* Some definitions.  */
 #define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */
 #define MAJOR_VERSION       0          /* MajorVersion index */
 #define MINOR_VERSION       1          /* MinorVersion index */
@@ -64,7 +64,7 @@ typedef struct
 http_range_t;
 
 /*
- * This structure is used to process a http connection. It will be stored
+ * This structure is used to process a http connection.  It will be stored
  * within the original socket structure (sock->data).
  */
 typedef struct http_socket http_socket_t;

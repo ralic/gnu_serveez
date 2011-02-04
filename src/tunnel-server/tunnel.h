@@ -72,7 +72,7 @@ int tnl_global_init (svz_servertype_t *server);
 int tnl_finalize (svz_server_t *server);
 int tnl_global_finalize (svz_servertype_t *server);
 
-/* Rest of all the callbacks. */
+/* Rest of all the callbacks.  */
 int tnl_detect_proto (svz_server_t *server, svz_socket_t *sock);
 int tnl_connect_socket (svz_server_t *server, svz_socket_t *sock);
 int tnl_check_request_tcp_source (svz_socket_t *sock);

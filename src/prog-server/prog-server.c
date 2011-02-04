@@ -96,7 +96,7 @@ svz_servertype_t prog_server_definition =
 };
 
 /*
- * Handle request callback. Not yet used.
+ * Handle request callback.  Not yet used.
  */
 int
 prog_handle_request (svz_socket_t *sock, char *request, int len)
@@ -105,7 +105,7 @@ prog_handle_request (svz_socket_t *sock, char *request, int len)
 }
 
 /*
- * Protocol detection callback. Always returns success, because there is
+ * Protocol detection callback.  Always returns success, because there is
  * no use to detect a client.
  */
 int
@@ -125,7 +125,7 @@ prog_check_frequency (svz_array_t *accepted, int frequency)
   int i;
   void *t;
 
-  /* Drop all older entries. */
+  /* Drop all older entries.  */
   svz_array_foreach (accepted, t, i)
     {
       if (SVZ_PTR2NUM (t) < (unsigned long) (current - 60))
@@ -135,14 +135,14 @@ prog_check_frequency (svz_array_t *accepted, int frequency)
         }
     }
 
-  /* Check if the maximum frequency has been reached. */
+  /* Check if the maximum frequency has been reached.  */
   if (svz_array_size (accepted) >= (unsigned long) frequency)
     {
       svz_log (LOG_ERROR, "prog: thread frequency exceeded\n");
       return -1;
     }
 
-  /* Add yet another timestamp. */
+  /* Add yet another timestamp.  */
   svz_array_add (accepted, SVZ_NUM2PTR (current));
 
   return 0;
@@ -159,7 +159,7 @@ prog_passthrough (svz_socket_t *sock)
   char **argv;
   int pid;
 
-  /* Check frequency. */
+  /* Check frequency.  */
   if (prog_check_frequency (cfg->accepted, cfg->frequency))
     return -1;
 
@@ -184,7 +184,7 @@ prog_passthrough (svz_socket_t *sock)
 
 /*
  * The connect callback is invoked when the above detection routine returned
- * success. This means, the routine will be called immediately after the
+ * success.  This means, the routine will be called immediately after the
  * the connection has been accepted.
  */
 int
@@ -192,19 +192,19 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   prog_config_t *cfg = server->cfg;
 
-  /* Passthrough the connection. */
+  /* Passthrough the connection.  */
   if (prog_passthrough (sock))
     return -1;
 
   if (cfg->fork)
     {
-      /* Prevent anything being read from the socket. */
+      /* Prevent anything being read from the socket.  */
       sock->read_socket = NULL;
 
-      /* Just close() this end of socket, not shutdown(). fork() makes the
-         socket available in the child process. When we shutdown() it here,
-         it dies in the child, too. When we just close() it, it still works
-         in the child. */
+      /* Just close() this end of socket, not shutdown().  fork() makes the
+         socket available in the child process.  When we shutdown() it here,
+         it dies in the child, too.  When we just close() it, it still works
+         in the child.  */
       sock->flags |= SOCK_FLAG_NOSHUTDOWN;
       return -1;
     }
@@ -213,7 +213,7 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * Global initializer. Not used yet.
+ * Global initializer.  Not used yet.
  */
 int
 prog_global_init (svz_servertype_t *server)
@@ -222,7 +222,7 @@ prog_global_init (svz_servertype_t *server)
 }
 
 /*
- * Global finalizer. Not used yet.
+ * Global finalizer.  Not used yet.
  */
 int
 prog_global_finalize (svz_servertype_t *server)
@@ -231,7 +231,7 @@ prog_global_finalize (svz_servertype_t *server)
 }
 
 /*
- * Server finalizer. Not used yet.
+ * Server finalizer.  Not used yet.
  */
 int
 prog_finalize (svz_server_t *server)
@@ -243,7 +243,7 @@ prog_finalize (svz_server_t *server)
 
 /*
  * This is the @code{child_died} callback for UDP and ICMP versions of the
- * server. Reassigns the @code{read_socket} callback in order to accept new
+ * server.  Reassigns the @code{read_socket} callback in order to accept new
  * incoming packets.
  */
 int
@@ -256,7 +256,7 @@ prog_child_died (svz_socket_t *sock)
 
 /*
  * This function can be used to dropped any pending data on the socket
- * structure @var{sock}. It is a read callback applicable to UDP, ICMP and
+ * structure @var{sock}.  It is a read callback applicable to UDP, ICMP and
  * RAW sockets.
  */
 static int
@@ -276,7 +276,7 @@ prog_read_sock_drop (svz_socket_t *sock)
 
 /*
  * This is the @code{read_socket} callback for UDP and ICMP versions of the
- * server. It does not read anything from the underlying socket in order to
+ * server.  It does not read anything from the underlying socket in order to
  * pass the data directly to the child program.
  */
 int
@@ -284,7 +284,7 @@ prog_read_socket (svz_socket_t *sock)
 {
   prog_config_t *cfg = sock->cfg;
 
-  /* Passthrough the connection. */
+  /* Passthrough the connection.  */
   if (prog_passthrough (sock))
     {
       prog_read_sock_drop (sock);
@@ -293,7 +293,7 @@ prog_read_socket (svz_socket_t *sock)
 
   if (cfg->single_threaded)
     {
-      /* Disable the read callback and wait for the child process to die. */
+      /* Disable the read callback and wait for the child process to die.  */
       sock->child_died = prog_child_died;
       sock->read_socket = NULL;
     }
@@ -303,7 +303,7 @@ prog_read_socket (svz_socket_t *sock)
 
 /*
  * This is the @code{check_request} callback for the shuffling UDP and ICMP
- * versions of the server. It restores the old @code{check_request} callback
+ * versions of the server.  It restores the old @code{check_request} callback
  * and runs it.
  */
 int
@@ -311,17 +311,17 @@ prog_check_request (svz_socket_t *sock)
 {
   prog_config_t *cfg = sock->cfg;
 
-  /* Passthrough the connection. */
+  /* Passthrough the connection.  */
   if (prog_passthrough (sock))
     return -1;
 
-  /* Restore old handler and run it. */
+  /* Restore old handler and run it.  */
   sock->check_request = cfg->check_request;
   return sock->check_request (sock);
 }
 
 /*
- * Server initializer. Checks its configuration.
+ * Server initializer.  Checks its configuration.
  */
 int
 prog_init (svz_server_t *server)
@@ -331,16 +331,16 @@ prog_init (svz_server_t *server)
   svz_socket_t *sock;
   int i, ret = 0;
 
-  /* Check for listeners. */
+  /* Check for listeners.  */
   if ((listeners = svz_server_listeners (server)) != NULL)
     {
-      /* Check each listener. */
+      /* Check each listener.  */
       svz_array_foreach (listeners, sock, i)
         {
-          /* Is it a UPD or ICMP port (packet oriented) ? */
+          /* Is it a UPD or ICMP port (packet oriented)?  */
           if (sock->proto & (PROTO_UDP | PROTO_ICMP))
             {
-              /* Require non-shared listener. */
+              /* Require non-shared listener.  */
               if (!svz_server_single_listener (server, sock))
                 {
                   svz_log (LOG_ERROR,
@@ -349,19 +349,19 @@ prog_init (svz_server_t *server)
                            ((svz_portcfg_t *) (sock->port))->name);
                   ret = -1;
                 }
-              /* Prepare callbacks for packet oriented servers. */
+              /* Prepare callbacks for packet oriented servers.  */
               else
                 {
-                  /* Save the server configuration. */
+                  /* Save the server configuration.  */
                   sock->cfg = cfg;
                   if (cfg->fork)
                     {
-                      /* Direct fork()'s do not need to receive. */
+                      /* Direct fork()'s do not need to receive.  */
                       sock->read_socket = prog_read_socket;
                     }
                   else
                     {
-                      /* Save old handler and set one. */
+                      /* Save old handler and set one.  */
                       cfg->check_request = sock->check_request;
                       sock->check_request = prog_check_request;
                     }
@@ -371,7 +371,7 @@ prog_init (svz_server_t *server)
       svz_array_destroy (listeners);
     }
 
-  /* Create default argument array. */
+  /* Create default argument array.  */
   if (cfg->argv == NULL)
     {
       cfg->argv = svz_array_create (1, svz_free);
@@ -383,7 +383,7 @@ prog_init (svz_server_t *server)
 }
 
 /*
- * Notify callback. Not used yet.
+ * Notify callback.  Not used yet.
  */
 int
 prog_notify (svz_server_t *server)
@@ -392,7 +392,7 @@ prog_notify (svz_server_t *server)
 }
 
 /*
- * Info client callback. Not used yet.
+ * Info client callback.  Not used yet.
  */
 char *
 prog_info_client (svz_server_t *server, svz_socket_t *sock)
@@ -401,7 +401,7 @@ prog_info_client (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * Info server callback. Not used yet.
+ * Info server callback.  Not used yet.
  */
 char *
 prog_info_server (svz_server_t *server)

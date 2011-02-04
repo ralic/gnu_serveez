@@ -61,7 +61,7 @@ irc_whowas_callback (svz_socket_t *sock,
   nick = request->para[0];
   n = atoi (request->para[1]);
 
-  /* is there a server para given ? */
+  /* is there a server para given?  */
   if (request->paras > 2)
     {
       server = request->para[2];
@@ -80,7 +80,7 @@ irc_whowas_callback (svz_socket_t *sock,
                   cl->nick, cl->user, cl->host, cl->real);
       i++;
     }
-  /* did you found a nick in the history ? */
+  /* did you found a nick in the history?  */
   if (found)
     {
       irc_printf (sock, ":%s %03d %s " RPL_ENDOFWHOWAS_TEXT "\n",
@@ -106,7 +106,7 @@ irc_client_visible (irc_config_t *cfg,     /* current server config */
   irc_channel_t *channel;
   int n;
 
-  /* invisible ? */
+  /* invisible?  */
   if (rclient->flag & UMODE_INVISIBLE)
     return 0;
 
@@ -118,12 +118,12 @@ irc_client_visible (irc_config_t *cfg,     /* current server config */
     {
       channel = rclient->channel[n];
 
-      /* public channel ? */
+      /* public channel?  */
       if (!(channel->flag & (MODE_SECRET | MODE_PRIVATE)))
         return -1;
       else
         {
-          /* no, but do they share it ? */
+          /* no, but do they share it?  */
           if (irc_client_in_channel (NULL, client, channel) != -1)
             return -1;
         }
@@ -156,7 +156,7 @@ irc_user_info (svz_socket_t *sock,   /* the socket for the client to send */
               cfg->host, RPL_WHOISSERVER, client->nick,
               cl->nick, cl->server, cfg->info);
 
-  /* operator ? */
+  /* operator?  */
   if (cl->flag & UMODE_OPERATOR)
     irc_printf (sock, ":%s %03d %s " RPL_WHOISOPERATOR_TEXT "\n",
                 cfg->host, RPL_WHOISOPERATOR, client->nick, cl->nick);
@@ -204,11 +204,11 @@ irc_whois_callback (svz_socket_t *sock,
   char *nick, *chan;
   int n;
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
-  /* server Mask ? */
+  /* server Mask?  */
   if (irc_string_regex (cfg->host, request->para[0]))
     irc_parse_target (request, 1);
 
@@ -218,14 +218,14 @@ irc_whois_callback (svz_socket_t *sock,
       nick = request->target[n].nick;
       chan = request->target[n].channel;
 
-      /* nick Mask ? */
+      /* nick Mask?  */
       if (strstr (nick, "*") || strstr (nick, "?"))
         {
           if ((cl = irc_regex_nick (cfg, nick)) != NULL)
             {
               for (n = 0; cl[n]; n++)
                 {
-                  /* is this client away ? */
+                  /* is this client away?  */
                   if (irc_client_absent (cl[n], client))
                     continue;
                   irc_user_info (sock, client, cl[n]);
@@ -233,10 +233,10 @@ irc_whois_callback (svz_socket_t *sock,
               svz_free (cl);
             }
         }
-      /* is target a plain nick ? */
+      /* is target a plain nick?  */
       else if ((rclient = irc_find_nick (cfg, nick)) != NULL)
         {
-          /* is this client away ? */
+          /* is this client away?  */
           if (irc_client_absent (rclient, client))
             continue;
           irc_user_info (sock, client, rclient);
@@ -336,6 +336,6 @@ irc_who_callback (svz_socket_t *sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_5_dummy; /* Shut up compiler warnings. */
+int irc_event_5_dummy;          /* Shut up compiler warnings.  */
 
 #endif /* not ENABLE_IRC_PROTO */

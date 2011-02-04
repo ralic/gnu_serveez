@@ -34,12 +34,12 @@
 
 /*
  * Create a new array with the initial capacity @var{capacity} and return
- * a pointer to it. If @var{capacity} is zero it defaults to some value. The
+ * a pointer to it.  If @var{capacity} is zero it defaults to some value.  The
  * @var{destroy} argument allows you to release dynamic allocated memory when
- * calling @code{svz_array_clear()} and @code{svz_array_destroy()}. If the
+ * calling @code{svz_array_clear()} and @code{svz_array_destroy()}.  If the
  * array contains data allocated by @code{svz_malloc()} you need to set
- * @var{destroy} to @code{svz_free()}. For structured data you can pass a
- * user defined routine which recurses into the structure. If the array
+ * @var{destroy} to @code{svz_free()}.  For structured data you can pass a
+ * user defined routine which recurses into the structure.  If the array
  * contains data which should not be released you must set @var{destroy}
  * to @code{NULL}.
  */
@@ -60,8 +60,8 @@ svz_array_create (unsigned long capacity, svz_free_func_t destroy)
 
 /*
  * Delete all values within the array @var{array} and set its size to zero.
- * The array @var{array} itself keeps valid. Do not perform any operation
- * if @var{array} is @code{NULL}. If you passed a @var{destroy} function to
+ * The array @var{array} itself keeps valid.  Do not perform any operation
+ * if @var{array} is @code{NULL}.  If you passed a @var{destroy} function to
  * @code{svz_array_create()} the routine calls this function passing each
  * element of @var{array} to it.
  */
@@ -84,8 +84,8 @@ svz_array_clear (svz_array_t *array)
 }
 
 /*
- * Completely destroy the array @var{array}. The @var{array} handle is
- * invalid afterwards. The routine runs the @var{destroy} callback for each
+ * Completely destroy the array @var{array}.  The @var{array} handle is
+ * invalid afterwards.  The routine runs the @var{destroy} callback for each
  * element of the array.
  */
 void
@@ -115,7 +115,7 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
 
 /*
  * Return the array element at the position @var{index} of the array
- * @var{array} if the index is within the array range. Return @code{NULL}
+ * @var{array} if the index is within the array range.  Return @code{NULL}
  * if not.
  */
 void *
@@ -129,7 +129,7 @@ svz_array_get (svz_array_t *array, unsigned long index)
 /*
  * Replace the array element at the position @var{index} of the array
  * @var{array} with the value @var{value} and return the previous value
- * at this index. Returns @code{NULL} and does not perform any operation
+ * at this index.  Returns @code{NULL} and does not perform any operation
  * if @var{array} is @code{NULL} or the @var{index} is out of the array
  * range.
  */
@@ -146,7 +146,7 @@ svz_array_set (svz_array_t *array, unsigned long index, void *value)
 }
 
 /*
- * Append the value @var{value} at the end of the array @var{array}. Does
+ * Append the value @var{value} at the end of the array @var{array}.  Does
  * not perform any operation if @var{array} is @code{NULL}.
  */
 void
@@ -161,7 +161,7 @@ svz_array_add (svz_array_t *array, void *value)
 
 /*
  * Remove the array element at the position @var{index} of the array
- * @var{array}. Return its previous value or @code{NULL} if the index
+ * @var{array}.  Return its previous value or @code{NULL} if the index
  * is out of the arrays range.
  */
 void *
@@ -203,7 +203,7 @@ svz_array_size (svz_array_t *array)
 
 /*
  * Returns how often the given value @var{value} is stored in the array
- * @var{array}. Return zero if there is no such value.
+ * @var{array}.  Return zero if there is no such value.
  */
 unsigned long
 svz_array_contains (svz_array_t *array, void *value)
@@ -220,7 +220,7 @@ svz_array_contains (svz_array_t *array, void *value)
 
 /*
  * This function returns the index of the first occurrence of the value
- * @var{value} in the array @var{array}. It returns (-1) if there is no
+ * @var{value} in the array @var{array}.  It returns (-1) if there is no
  * such value stored within the array.
  */
 unsigned long
@@ -238,8 +238,8 @@ svz_array_idx (svz_array_t *array, void *value)
 
 /*
  * This routine inserts the given value @var{value} at the position
- * @var{index}. The indices of all following values in the array @var{array}
- * and the size of the array get automatically incremented. Return the
+ * @var{index}.  The indices of all following values in the array @var{array}
+ * and the size of the array get automatically incremented.  Return the
  * values index or (-1) if the index is out of array bounds.
  */
 unsigned long
@@ -257,7 +257,7 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
 }
 
 /*
- * This function replicates the given array @var{array}. It returns
+ * This function replicates the given array @var{array}.  It returns
  * @code{NULL} if there is nothing to do and an identical copy if the
  * array otherwise.
  */
@@ -297,8 +297,8 @@ svz_array_strdup (svz_array_t *array)
 
 /*
  * Create a @code{NULL} terminated C array containing the values of the
- * given @var{array}. If the given @var{array} is @code{NULL} then an empty
- * C array is returned. It is your responsibility to @code{svz_free()} the
+ * given @var{array}.  If the given @var{array} is @code{NULL} then an empty
+ * C array is returned.  It is your responsibility to @code{svz_free()} the
  * returned pointer.
  */
 void **

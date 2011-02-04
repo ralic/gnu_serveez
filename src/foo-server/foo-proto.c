@@ -39,7 +39,7 @@
 char *foo_packet_delim     = "\r\n";
 int   foo_packet_delim_len = 2;
 
-/* Default port configuration. */
+/* Default port configuration.  */
 svz_portcfg_t foo_default_port;
 
 /*
@@ -124,7 +124,7 @@ foo_handle_request (svz_socket_t *sock, char *request, int len)
 
 /*
  * This callback gets called whenever some unknown client connects and
- * sends some data. We check for some string that identifies the foo
+ * sends some data.  We check for some string that identifies the foo
  * protocol.
  */
 int
@@ -140,7 +140,7 @@ foo_detect_proto (svz_server_t *server, svz_socket_t *sock)
       return -1;
     }
 
-  /* not us... */
+  /* not us...  */
   return 0;
 }
 
@@ -186,7 +186,7 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
 /* ************************** Initialization ************************** */
 
 /*
- * Called once of the foo server type. We use it to create the default
+ * Called once of the foo server type.  We use it to create the default
  * values.
  */
 int
@@ -204,18 +204,18 @@ foo_global_init (svz_servertype_t *server)
     NULL
   };
 
-  /* Default port configuration. */
+  /* Default port configuration.  */
   foo_default_port.proto = PROTO_TCP;
   foo_default_port.tcp_port = 42421;
   foo_default_port.tcp_ipaddr = "*";
 
-  /* Default string array. */
+  /* Default string array.  */
   foo_config.messages = svz_config_strarray_create (strarray);
 
-  /* Default integer array. */
+  /* Default integer array.  */
   foo_config.ports = svz_config_intarray_create (intarray);
 
-  /* Default hash table. */
+  /* Default hash table.  */
   foo_config.assoc = svz_config_hash_create (strhash);
   return 0;
 }
@@ -233,7 +233,7 @@ foo_global_finalize (svz_servertype_t *server)
 }
 
 /*
- * A single foo server instance gets destroyed. Free the hash
+ * A single foo server instance gets destroyed.  Free the hash
  * unless it is the default hash.
  */
 int
@@ -253,7 +253,7 @@ foo_init (svz_server_t *server)
 }
 
 /*
- * Server info callback. We use it here to print the
+ * Server info callback.  We use it here to print the
  * whole configuration once.
  */
 char *

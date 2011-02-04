@@ -50,10 +50,10 @@
 #include "guile.h"
 #include "guile-server.h"
 
-/* Command line option structure. */
+/* Command line option structure.  */
 option_t *options = NULL;
 
-/* Our private launch pad. */
+/* Our private launch pad.  */
 void
 guile_launch_pad (void *closure, int argc, char **argv)
 {
@@ -68,10 +68,10 @@ guile_launch_pad (void *closure, int argc, char **argv)
 static void
 guile_entry (int argc, char **argv)
 {
-  /* Detect operating system. */
+  /* Detect operating system.  */
   svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());
 
-  /* Start loading the configuration file. */
+  /* Start loading the configuration file.  */
   if (guile_load_config (options->cfgfile) == -1)
     {
       svz_log (LOG_ERROR, "error loading config file\n");
@@ -102,13 +102,13 @@ guile_entry (int argc, char **argv)
   svz_log (LOG_NOTICE, "using %d socket descriptors\n",
            svz_config.max_sockets);
 
-  /* Startup the internal coservers here. */
+  /* Startup the internal coservers here.  */
   if (svz_coserver_init () == -1)
     {
       exit (4);
     }
 
-  /* Initialize server instances. */
+  /* Initialize server instances.  */
   if (svz_server_init_all () == -1)
     {
       exit (6);
@@ -116,11 +116,11 @@ guile_entry (int argc, char **argv)
 
   svz_loop ();
 
-  /* Run the finalizers. */
+  /* Run the finalizers.  */
   svz_server_finalize_all ();
   svz_servertype_finalize ();
 
-  /* Disconnect the previously invoked internal coservers. */
+  /* Disconnect the previously invoked internal coservers.  */
   svz_log (LOG_NOTICE, "destroying internal coservers\n");
   svz_coserver_finalize ();
 
@@ -148,7 +148,7 @@ guile_entry (int argc, char **argv)
 
   svz_log (LOG_NOTICE, "serveez terminating\n");
 
-  /* FIXME: Serveez leaks because of a open logfile handle. */
+  /* FIXME: Serveez leaks because of a open logfile handle.  */
   if (options->loghandle != stderr)
     svz_fclose (options->loghandle);
 }
@@ -159,26 +159,26 @@ guile_entry (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
-  /* Initialize the the core library. */
+  /* Initialize the the core library.  */
   svz_boot ();
   svz_executable (argv[0]);
   svz_envblock_setup ();
 
-  /* Handle command line arguments. */
+  /* Handle command line arguments.  */
   options = handle_options (argc, argv);
 
-  /* Send all logging messages to the log handle. */
+  /* Send all logging messages to the log handle.  */
   if (options->logfile && options->logfile[0])
     options->loghandle = svz_fopen (options->logfile, "w");
   if (!options->loghandle)
     options->loghandle = stderr;
   svz_log_setfile (options->loghandle);
 
-  /* Setup verbosity once. */
+  /* Setup verbosity once.  */
   if (options->verbosity != -1)
     svz_config.verbosity = options->verbosity;
 
-  /* Start as daemon, not as foreground application. */
+  /* Start as daemon, not as foreground application.  */
   if (options->daemon)
     {
 #ifndef __MINGW32__
@@ -193,10 +193,10 @@ main (int argc, char *argv[])
         {
           exit (0);
         }
-      /* Close the log file if necessary. */
+      /* Close the log file if necessary.  */
       if (options->loghandle == stderr)
         svz_log_setfile (NULL);
-      /* Close stdin, stdout and stderr. */
+      /* Close stdin, stdout and stderr.  */
       if (isatty (fileno (stdin)))
         close (fileno (stdin));
       if (isatty (fileno (stdout)))
@@ -214,14 +214,14 @@ main (int argc, char *argv[])
 #endif /* __MINGW32__ */
     }
 
-  /* Initialize the static server types. */
+  /* Initialize the static server types.  */
   init_server_definitions ();
 #if 0
   svz_servertype_print ();
 #endif
 
-  /* Enter the main guile function. */
+  /* Enter the main guile function.  */
   scm_boot_guile (argc, argv, guile_launch_pad, (void *) guile_entry);
-  /* Never reached. */
+  /* Never reached.  */
   return 0;
 }

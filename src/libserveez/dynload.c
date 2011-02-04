@@ -60,11 +60,11 @@
 #include "libserveez/core.h"
 #include "libserveez/dynload.h"
 
-/* Internal list of shared libraries. */
+/* Internal list of shared libraries.  */
 static int dyn_libraries = 0;
 static dyn_library_t *dyn_library = NULL;
 
-/* Print the current shared library error description. */
+/* Print the current shared library error description.  */
 #if HAVE_DLOPEN
 # define dyn_error() dlerror ()
 #elif HAVE_NSADDIMAGE
@@ -81,7 +81,7 @@ dyn_error (void)
 # define dyn_error() SYS_ERROR
 #endif
 
-/* Define library prefix and suffix. */
+/* Define library prefix and suffix.  */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
 # if defined (__CYGWIN__)
 #  define DYNLOAD_PREFIX "cyg"
@@ -108,12 +108,12 @@ dyn_error (void)
 # define DYNLOAD_SYMBOL_PREFIX ""
 #endif
 
-/* Name of the additional search path environment variable. */
+/* Name of the additional search path environment variable.  */
 #define DYNLOAD_PATH "SERVEEZ_LOAD_PATH"
 
 /*
  * Find a library handle for a given library's name @var{file} in the current
- * list of loaded shared libraries. Return @code{NULL} if there is no such
+ * list of loaded shared libraries.  Return @code{NULL} if there is no such
  * thing.
  */
 static dyn_library_t *
@@ -131,7 +131,7 @@ dyn_find_library (char *file)
 
 /*
  * This functions tries to link a library called @var{file} and returns
- * its handle or NULL if it failed. If the argument @var{path} is given
+ * its handle or NULL if it failed.  If the argument @var{path} is given
  * it prepends this to the file name of the library.
  */
 static void *
@@ -164,7 +164,7 @@ dyn_get_library (char *path, char *file)
 }
 
 /*
- * Set the additional search paths for the serveez library. The given array of
+ * Set the additional search paths for the serveez library.  The given array of
  * strings gets @code{svz_free()}d.
  */
 void
@@ -173,11 +173,11 @@ svz_dynload_path_set (svz_array_t *paths)
   char *str, *env;
   int n, len;
 
-  /* Return here if necessary. */
+  /* Return here if necessary.  */
   if (paths == NULL)
     return;
 
-  /* Create environment variable. */
+  /* Create environment variable.  */
   env = svz_strdup (DYNLOAD_PATH "=");
   len = strlen (env) + 3;
   svz_array_foreach (paths, str, n)
@@ -191,7 +191,7 @@ svz_dynload_path_set (svz_array_t *paths)
   env[len - 2] = '\0';
   svz_array_destroy (paths);
 
-  /* Set environment variable. */
+  /* Set environment variable.  */
   if (putenv (svz_pstrdup (env)) < 0)
     svz_log (LOG_ERROR, "putenv: %s\n", SYS_ERROR);
   svz_free (env);
@@ -201,7 +201,7 @@ svz_dynload_path_set (svz_array_t *paths)
  * Create an array of strings containing each an additional search path.
  * The loadpath is hold in the environment variable @samp{SERVEEZ_LOAD_PATH}
  * which can be set from outside the library or modified using
- * @code{svz_dynload_path_set()}. The returned array needs to be destroyed
+ * @code{svz_dynload_path_set()}.  The returned array needs to be destroyed
  * after usage.
  */
 svz_array_t *
@@ -211,13 +211,13 @@ svz_dynload_path_get (void)
   char *path, *p, *start, *val;
   int len, n;
 
-  /* Add some default paths. */
+  /* Add some default paths.  */
   svz_array_add (paths, svz_strdup ("."));
   svz_array_add (paths, svz_strdup (SVZ_LIBDIR));
   svz_array_add (paths, svz_strdup (SVZ_BINDIR));
   svz_array_add (paths, svz_strdup (SVZ_PKGDATADIR));
 
-  /* Add environment variable paths. */
+  /* Add environment variable paths.  */
   if ((p = getenv (DYNLOAD_PATH)) != NULL)
     {
       while (*p)
@@ -235,7 +235,7 @@ svz_dynload_path_get (void)
               while ((*start == '/' || *start == '\\') && start > path)
                 *start-- = 0;
 
-              /* Do not put duplicate paths here. */
+              /* Do not put duplicate paths here.  */
               svz_array_foreach (paths, val, n)
                 if (!strcmp (val, path))
                   {
@@ -254,7 +254,7 @@ svz_dynload_path_get (void)
 
 /*
  * Open the given library @var{file} and put it into the currently load
- * library list. Return a valid library handle entry on success.
+ * library list.  Return a valid library handle entry on success.
  */
 static dyn_library_t *
 dyn_load_library (char *file)
@@ -308,8 +308,8 @@ dyn_load_library (char *file)
 }
 
 /*
- * Unload a given library @var{lib} if possible. Return the reference
- * counter or zero if the library has been unloaded. Return -1 if there is
+ * Unload a given library @var{lib} if possible.  Return the reference
+ * counter or zero if the library has been unloaded.  Return -1 if there is
  * no such library at all or on other errors.
  */
 static int
@@ -339,7 +339,7 @@ dyn_unload_library (dyn_library_t *lib)
 #elif HAVE_SHL_LOAD
         err = shl_unload ((shl_t) handle);
 #elif HAVE_NSADDIMAGE
-        /* TODO: Find out.  This isn't correct... */
+        /* TODO: Find out.  This isn't correct...  */
         /* err = (NSUnLinkModule ((void *) handle, 0) == 0); */
 #endif
         if (err)
@@ -367,7 +367,7 @@ dyn_unload_library (dyn_library_t *lib)
 
 /*
  * Get a function or data symbol @var{symbol} from the given library
- * @var{lib}. Return @code{NULL} on errors.
+ * @var{lib}.  Return @code{NULL} on errors.
  */
 static void *
 dyn_load_symbol (dyn_library_t *lib, char *symbol)
@@ -411,7 +411,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 }
 
 /*
- * Finalize the shared library interface of the core library. Unload
+ * Finalize the shared library interface of the core library.  Unload
  * all libraries no matter if referenced or not.
  */
 void
@@ -467,7 +467,7 @@ dyn_create_symbol (char *description)
 }
 
 /*
- * Load an additional server definition from a shared library. The given
+ * Load an additional server definition from a shared library.  The given
  * descriptive name @var{description} must be part of the library's name.
  */
 svz_servertype_t *
@@ -500,7 +500,7 @@ svz_servertype_load (char *description)
 }
 
 /*
- * Unload a server definition from a shared library. The given
+ * Unload a server definition from a shared library.  The given
  * descriptive name @var{description} must be part of the library's name.
  * Return the remaining reference count or -1 on errors.
  */

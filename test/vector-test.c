@@ -208,7 +208,7 @@ main (int argc, char **argv)
   test_ok ();
 
 #if SVZ_ENABLE_DEBUG
-  /* is heap ok ? */
+  /* is heap ok?  */
   test_print ("      heap: ");
   test (svz_allocated_bytes || svz_allocated_blocks);
 #endif /* SVZ_ENABLE_DEBUG */

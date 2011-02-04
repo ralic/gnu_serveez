@@ -45,7 +45,7 @@ struct fakeident_config fakeident_config =
 };
 
 /*
- * The config prototype. Register items that can be configured.
+ * The config prototype.  Register items that can be configured.
  */
 svz_key_value_pair_t fakeident_config_prototype [] =
 {
@@ -96,7 +96,7 @@ fakeident_init (svz_server_t *server)
 }
 
 /*
- * When we get a connection this callback is invoked. set up more callbacks.
+ * When we get a connection this callback is invoked.  set up more callbacks.
  */
 int
 fakeident_connect_socket (svz_server_t *server, svz_socket_t *sock)
@@ -177,7 +177,7 @@ fakeident_handle_request (svz_socket_t *sock, char *request, int len)
   *p = '\0';
 
   /*
-   * This is the last line we send. Let the runtime close the connection
+   * This is the last line we send.  Let the runtime close the connection
    * when data is away.
    */
   sock->flags |= SOCK_FLAG_FINAL_WRITE;
@@ -225,6 +225,6 @@ fakeident_info_server (svz_server_t *server)
 
 #else /* ENABLE_FAKEIDENT */
 
-int fakeident_dummy = 0;  /* Shut compiler warnings up. */
+int fakeident_dummy = 0;        /* Shut compiler warnings up.  */
 
 #endif /* ENABLE_FAKEIDENT */

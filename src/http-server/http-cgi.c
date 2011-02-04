@@ -65,7 +65,7 @@
 #include "http-cgi.h"
 
 /*
- * Extended disconnect_socket callback for CGIs. Handling CGI related
+ * Extended disconnect_socket callback for CGIs.  Handling CGI related
  * topics and afterwards we process the normal http disconnection
  * functionality.
  */
@@ -116,7 +116,7 @@ http_cgi_disconnect (svz_socket_t *sock)
       if (kill (http->pid, SIGKILL) == -1)
         svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
 #if HAVE_WAITPID
-      /* Test if the cgi is still running and cleanup. */
+      /* Test if the cgi is still running and cleanup.  */
       else if (waitpid (http->pid, NULL, 0) == -1)
         svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
 #endif /* not HAVE_WAITPID */
@@ -128,7 +128,7 @@ http_cgi_disconnect (svz_socket_t *sock)
 }
 
 /*
- * This is the default idle function for http connections. It checks
+ * This is the default idle function for http connections.  It checks
  * whether any died child was a cgi script.
  */
 int
@@ -142,7 +142,7 @@ http_cgi_died (svz_socket_t *sock)
   if (sock->flags & SOCK_FLAG_PIPE)
     {
 #ifndef __MINGW32__
-      /* Check if a died child is this cgi. */
+      /* Check if a died child is this cgi.  */
       if (svz_child_died && http->pid == svz_child_died)
         {
           svz_log (LOG_NOTICE, "cgi script pid %d died\n",
@@ -150,7 +150,7 @@ http_cgi_died (svz_socket_t *sock)
           svz_child_died = 0;
         }
 #if HAVE_WAITPID
-      /* Test if the cgi is still running. */
+      /* Test if the cgi is still running.  */
       if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
         {
           svz_log (LOG_NOTICE, "cgi script pid %d died\n", (int) http->pid);
@@ -189,7 +189,7 @@ http_cgi_died (svz_socket_t *sock)
 /*
  * The http cgi reader gets data from the stdout of a cgi
  * program and stores the data into the send buffer of
- * the socket structure. We set the HTTP_FLAG_DONE flag
+ * the socket structure.  We set the HTTP_FLAG_DONE flag
  * to indicate there was no more data.
  */
 int
@@ -275,7 +275,7 @@ http_cgi_read (svz_socket_t *sock)
 
 /*
  * HTTP_CGI_WRITE pipes all read data from the http socket connection
- * into the cgi stdin. This is necessary for the so called post method.
+ * into the cgi stdin.  This is necessary for the so called post method.
  * It directly reads from the RECV_BUFFER of the socket structure.
  */
 int
@@ -287,7 +287,7 @@ http_cgi_write (svz_socket_t *sock)
 
   /*
    * Write as many bytes as possible, remember how many
-   * were actually sent. Do not write more than the content
+   * were actually sent.  Do not write more than the content
    * length of the post data.
    */
   do_write = sock->recv_buffer_fill;
@@ -353,11 +353,11 @@ http_cgi_write (svz_socket_t *sock)
 }
 
 /*
- * Create the environment block for a CGI script. Depending on the
+ * Create the environment block for a CGI script.  Depending on the
  * system the environment is a field of null terminated char pointers
  * (for Unices) followed by a null pointer or one char pointer where
  * the variables a separated by zeros and the block is terminated
- * by a further zero. It returns the amount of defined variables.
+ * by a further zero.  It returns the amount of defined variables.
  */
 static int
 http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
@@ -436,10 +436,10 @@ http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
 }
 
 /*
- * Check the http option (the URL) for a cgi request. This routine
+ * Check the http option (the URL) for a cgi request.  This routine
  * parses the text of the request and delivers the real file to be
- * invoked. This function makes sure that the cgi script file exists
- * and is executable. On success it delivers a pointer which must be
+ * invoked.  This function makes sure that the cgi script file exists
+ * and is executable.  On success it delivers a pointer which must be
  * svz_free()ed after use.
  */
 char *
@@ -526,15 +526,15 @@ http_check_cgi (svz_socket_t *sock, char *request)
 /*
  * Prepare the invocation of a cgi script which means to change to
  * the referred directory and the creation of a valid environment
- * block. Return a NULL pointer on errors or a pointer to the full
- * cgi file (including the path). This MUST be freed afterwards.
+ * block.  Return a NULL pointer on errors or a pointer to the full
+ * cgi file (including the path).  This MUST be freed afterwards.
  */
 char *
 http_pre_exec (svz_socket_t *sock,   /* socket structure */
                svz_envblock_t *envp, /* environment block to be filled */
                char *file,           /* plain executable name */
                char *request,        /* original http request */
-               int type)             /* POST or GET ? */
+               int type)             /* POST or GET?  */
 {
   char *cgidir;
   char *cgifile;
@@ -618,7 +618,7 @@ http_gen_cgi_apps (http_config_t *cfg)
 }
 
 /*
- * Invoke a cgi script. In Unices we fork() us and in Win32 we
+ * Invoke a cgi script.  In Unices we fork() us and in Win32 we
  * CreateProcess().
  */
 int
@@ -648,7 +648,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   int oflags;
 #endif
 
-  /* Assign local CGI disconnection routine. */
+  /* Assign local CGI disconnection routine.  */
   sock->disconnected_socket = http_cgi_disconnect;
 
 #ifdef __MINGW32__
@@ -873,7 +873,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       argv[1] = NULL;
 
       /*
-       * Execute the CGI script itself here. This will overwrite the
+       * Execute the CGI script itself here.  This will overwrite the
        * current process.
        */
       if (execve (cgifile, argv, svz_envblock_get (envp)) == -1)
@@ -999,7 +999,7 @@ http_post_response (svz_socket_t *sock, char *request, int flags)
   /* get http socket structure */
   http = sock->data;
 
-  /* is this a valid POST request ? */
+  /* is this a valid POST request?  */
   file = http_check_cgi (sock, request);
   if (file == NULL || file == HTTP_NO_CGI)
     {
@@ -1065,6 +1065,6 @@ http_post_response (svz_socket_t *sock, char *request, int flags)
 
 #else /* ENABLE_HTTP_PROTO */
 
-int http_cgi_dummy; /* Shut up compiler warnings. */
+int http_cgi_dummy;             /* Shut up compiler warnings.  */
 
 #endif /* not ENABLE_HTTP_PROTO */

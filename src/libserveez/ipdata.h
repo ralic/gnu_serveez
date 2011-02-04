@@ -110,9 +110,9 @@ TDIObjectID;
 #define CONTEXT_SIZE              16
 
 /*
- * The following are IDs supported by all entities. They are of class
+ * The following are IDs supported by all entities.  They are of class
  * GENERIC and type PROVIDER.
- * The ID to get the entity type. The return from this type is an
+ * The ID to get the entity type.  The return from this type is an
  * unsigned integer (see below).
  */
 #define ENTITY_TYPE_ID 1
@@ -120,20 +120,20 @@ TDIObjectID;
 /*
  * Valid values to get back from entity type ID query.
  */
-#define CL_NL_IP    0x303 /* Entity implements IP. */
-#define IF_GENERIC  0x200 /* Generic interface. */
-#define IF_MIB      0x202 /* Supports MIB-2 interface. */
+#define CL_NL_IP    0x303 /* Entity implements IP.  */
+#define IF_GENERIC  0x200 /* Generic interface.  */
+#define IF_MIB      0x202 /* Supports MIB-2 interface.  */
 
 /*
- * QueryInformationEx IOCTL. The return buffer is passed as the OutputBuffer
- * in the DeviceIoControl request. This structure is passed as the
+ * QueryInformationEx IOCTL.  The return buffer is passed as the OutputBuffer
+ * in the DeviceIoControl request.  This structure is passed as the
  * InputBuffer.
  */
 struct tcp_request_query_information_ex
 {
-  TDIObjectID ID;                      /* object ID to query. */
-  unsigned char Context[CONTEXT_SIZE]; /* multi-request context. Zeroed */
-                                       /* for the first request. */
+  TDIObjectID ID;                      /* object ID to query.  */
+  unsigned char Context[CONTEXT_SIZE]; /* multi-request context.  Zeroed */
+                                       /* for the first request.  */
 };
 
 typedef struct tcp_request_query_information_ex

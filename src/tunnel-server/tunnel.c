@@ -103,7 +103,7 @@ tnl_global_finalize (svz_servertype_t *server)
 }
 
 /*
- * Tunnel server instance initializer. Check the configuration.
+ * Tunnel server instance initializer.  Check the configuration.
  */
 int
 tnl_init (svz_server_t *server)
@@ -111,7 +111,7 @@ tnl_init (svz_server_t *server)
   tnl_config_t *cfg = server->cfg;
   struct sockaddr_in *addr;
 
-  /* protocol supported ? */
+  /* protocol supported?  */
   if (!(cfg->source->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)) ||
       !(cfg->target->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)))
     {
@@ -164,7 +164,7 @@ tnl_finalize (svz_server_t *server)
 }
 
 /*
- * Create a hash string (key) for the source client hash. Identifiers
+ * Create a hash string (key) for the source client hash.  Identifiers
  * are the remote ip address and port.
  */
 static char *
@@ -393,7 +393,7 @@ tnl_send_request_target (svz_socket_t *sock, char *packet, int len, int flag)
 }
 
 /*
- * Tunnel server TCP and pipe detection routine. It is greedy. Thus it cannot
+ * Tunnel server TCP and pipe detection routine.  It is greedy.  Thus it cannot
  * share the port configuration with other TCP or pipe servers.
  */
 int
@@ -795,6 +795,6 @@ tnl_idle (svz_socket_t *sock)
 
 #else /* not ENABLE_TUNNEL */
 
-int tunnel_dummy; /* Shut compiler warnings up. */
+int tunnel_dummy;               /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_TUNNEL */

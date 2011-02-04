@@ -46,7 +46,7 @@ typedef struct
 irc_target_t;
 
 /*
- * Here is a fully IRC request structure defined. This is very useful
+ * Here is a fully IRC request structure defined.  This is very useful
  * when parsing any request and propagating it afterwards.
  */
 typedef struct
@@ -83,7 +83,7 @@ extern irc_request_t irc_request;  /* single IRC request */
 #define IRC_IDENT_DONE    "*** Successful Identification."
 #define IRC_IDENT_NOREPLY "*** No Ident response."
 
-/* Some useful function for parsing masks. */
+/* Some useful function for parsing masks.  */
 int irc_string_equal (char *str1, char *str2);
 int irc_string_regex (char *text, char *regex);
 
@@ -93,12 +93,12 @@ int irc_string_regex (char *text, char *regex);
  */
 void irc_create_lcset (void);
 
-/* Parsing routines for an IRC request. */
+/* Parsing routines for an IRC request.  */
 int irc_parse_request (char *request, int len);
 void irc_parse_target (irc_request_t *request, int para);
 char *irc_get_target (char *para, int nr);
 
-/* The standard routine for IRC detection. */
+/* The standard routine for IRC detection.  */
 int irc_detect_proto (svz_server_t *server, svz_socket_t *sock);
 int irc_connect_socket (svz_server_t *server, svz_socket_t *sock);
 int irc_check_request (svz_socket_t *sock);

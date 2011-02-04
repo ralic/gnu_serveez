@@ -28,7 +28,7 @@
 #include <time.h>
 
 /*
- * Some #defines. These are just default values for configurable
+ * Some #defines.  These are just default values for configurable
  * variables.
  */
 #define MAX_CACHE          64       /* cache file entries */

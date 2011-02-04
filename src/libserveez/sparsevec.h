@@ -29,7 +29,7 @@
 
 /*
  * On 32 bit architectures SVZ_SPVEC_SIZE is no larger than 32 and on
- * 64 bit architectures it is no larger than 64. It specifies the number
+ * 64 bit architectures it is no larger than 64.  It specifies the number
  * of bits the `spvec->fill' (unsigned long) field can hold.
  */
 
@@ -58,10 +58,10 @@ struct svz_spvec_list
 __BEGIN_DECLS
 
 /*
- * Exported sparse vector functions. A sparse vector is a kind of data array
- * which grows and shrinks on demand. It unifies the advantages of chained
+ * Exported sparse vector functions.  A sparse vector is a kind of data array
+ * which grows and shrinks on demand.  It unifies the advantages of chained
  * lists (less memory usage than simple arrays) and arrays (faster access
- * to specific elements). This implementation can handle gaps in between
+ * to specific elements).  This implementation can handle gaps in between
  * the array elements.
  */
 

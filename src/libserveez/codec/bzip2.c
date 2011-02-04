@@ -38,7 +38,7 @@
 #include "libserveez/codec/bzip2.h"
 
 /* Version 1.0 and above use the `BZ2_' prefix to avoid namespace
-   pollution. */
+   pollution.  */
 #if HAVE_BZ2LIB_PREFIX
 # define bzCompressInit   BZ2_bzCompressInit
 # define bzCompress       BZ2_bzCompress
@@ -50,7 +50,7 @@
 # define bzerror          BZ2_bzerror
 #endif /* HAVE_BZ2LIB_PREFIX */
 
-/* Definition of the 'bzip2' encoder. */
+/* Definition of the 'bzip2' encoder.  */
 svz_codec_t bzip2_encoder = {
   "bzip2",
   SVZ_CODEC_ENCODER,
@@ -63,7 +63,7 @@ svz_codec_t bzip2_encoder = {
   0
 };
 
-/* Definition of the 'bzip2' decoder. */
+/* Definition of the 'bzip2' decoder.  */
 svz_codec_t bzip2_decoder = {
   "bzip2",
   SVZ_CODEC_DECODER,
@@ -76,7 +76,7 @@ svz_codec_t bzip2_decoder = {
   3
 };
 
-/* Default configuration. */
+/* Default configuration.  */
 bzip2_config_t bzip2_config = {
   9, /* block size in 100 KByte */
   0, /* verbosity */
@@ -84,8 +84,8 @@ bzip2_config_t bzip2_config = {
   0  /* use an alternative decompression algorithm */
 };
 
-/* Internal codec data. Passed to each call of the codec callbacks in the
-   `data' field of @code{svz_codec_data_t}. */
+/* Internal codec data.  Passed to each call of the codec callbacks in the
+   `data' field of @code{svz_codec_data_t}.  */
 typedef struct bzip2_data
 {
   bz_stream stream; /* 'bz_stream' is representation of a 'bzip2' stream */
@@ -93,7 +93,7 @@ typedef struct bzip2_data
 }
 bzip2_data_t;
 
-/* Customized allocator functions. */
+/* Customized allocator functions.  */
 void *
 bzip2_alloc (void *opaque, int n, int size)
 {
@@ -111,7 +111,7 @@ bzip2_free (void *opaque, void *ptr)
 }
 
 /* Returns the text representation of the last error associated with
-   the current 'bzip2' stream. */
+   the current 'bzip2' stream.  */
 char *
 bzip2_error (svz_codec_data_t *data)
 {
@@ -171,7 +171,7 @@ bzip2_error (svz_codec_data_t *data)
 }
 
 /* Saves the number of total input and output bytes within @var{in} and
-   @var{out}. */
+   @var{out}.  */
 int
 bzip2_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
 {
@@ -199,7 +199,7 @@ bzip2_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
   return SVZ_CODEC_ERROR;
 }
 
-/* Initialize the 'bzip2' codec for encoding (compression). */
+/* Initialize the 'bzip2' codec for encoding (compression).  */
 int
 bzip2_encoder_init (svz_codec_data_t *data)
 {
@@ -219,7 +219,7 @@ bzip2_encoder_init (svz_codec_data_t *data)
   return (bz->error != BZ_OK) ? SVZ_CODEC_ERROR : SVZ_CODEC_OK;
 }
 
-/* Finalizes the 'bzip2' compressor. */
+/* Finalizes the 'bzip2' compressor.  */
 int
 bzip2_encoder_finalize (svz_codec_data_t *data)
 {
@@ -236,10 +236,10 @@ bzip2_encoder_finalize (svz_codec_data_t *data)
   return ret;
 }
 
-/* Compression routine of the 'bzip2' codec. Depending on the `flag' of the
+/* Compression routine of the 'bzip2' codec.  Depending on the `flag' of the
    @code{svz_codec_data_t} structure @var{data} it just compresses more data,
-   flushs the output buffer or finishs the output stream. Returns special
-   values to indicate buffer overruns and end of streams. */
+   flushs the output buffer or finishs the output stream.  Returns special
+   values to indicate buffer overruns and end of streams.  */
 int
 bzip2_encode (svz_codec_data_t *data)
 {
@@ -247,13 +247,13 @@ bzip2_encode (svz_codec_data_t *data)
   bz_stream *s = &bz->stream;
   int action = BZ_RUN, ret;
 
-  /* Adjust input and output buffers. */
+  /* Adjust input and output buffers.  */
   s->next_in = (char *) data->in_buffer;
   s->avail_in = (unsigned int) data->in_fill;
   s->next_out = (char *) data->out_buffer + data->out_fill;
   s->avail_out = (unsigned int) data->out_size - data->out_fill;
 
-  /* Check for additional flags. */
+  /* Check for additional flags.  */
   if (data->flag & SVZ_CODEC_FLUSH)
     action = BZ_FLUSH;
 
@@ -265,7 +265,7 @@ bzip2_encode (svz_codec_data_t *data)
       ret != BZ_STREAM_END)
     return SVZ_CODEC_ERROR;
 
-  /* Correct the values in the input and output buffer. */
+  /* Correct the values in the input and output buffer.  */
   if (s->avail_in > 0)
     memmove (data->in_buffer, s->next_in, s->avail_in);
   data->in_fill = s->avail_in;
@@ -277,7 +277,7 @@ bzip2_encode (svz_codec_data_t *data)
   return ret == BZ_STREAM_END ? SVZ_CODEC_FINISHED : SVZ_CODEC_OK;
 }
 
-/* Initialize the 'bzip2' decompressor. */
+/* Initialize the 'bzip2' decompressor.  */
 int
 bzip2_decoder_init (svz_codec_data_t *data)
 {
@@ -296,7 +296,7 @@ bzip2_decoder_init (svz_codec_data_t *data)
   return (bz->error != BZ_OK) ? SVZ_CODEC_ERROR : SVZ_CODEC_OK;
 }
 
-/* Finalize the 'bzip2' decompressor. */
+/* Finalize the 'bzip2' decompressor.  */
 int
 bzip2_decoder_finalize (svz_codec_data_t *data)
 {
@@ -313,8 +313,8 @@ bzip2_decoder_finalize (svz_codec_data_t *data)
   return ret;
 }
 
-/* Decompresses data depending on the `flag' member of @var{data}. Returns
-   indicators about what happens next. */
+/* Decompresses data depending on the `flag' member of @var{data}.  Returns
+   indicators about what happens next.  */
 int
 bzip2_decode (svz_codec_data_t *data)
 {
@@ -322,7 +322,7 @@ bzip2_decode (svz_codec_data_t *data)
   bz_stream *s = &bz->stream;
   int ret;
 
-  /* Adjust input and output buffers. */
+  /* Adjust input and output buffers.  */
   s->next_in = (char *) data->in_buffer;
   s->avail_in = (unsigned int) data->in_fill;
   s->next_out = (char *) data->out_buffer + data->out_fill;

@@ -73,7 +73,7 @@ svz_vector_t *svz_interfaces = NULL;
 
 #ifdef __MINGW32__
 
-/* Function pointer definition for use with GetProcAddress. */
+/* Function pointer definition for use with GetProcAddress.  */
 typedef int (__stdcall *WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
                                         LPVOID, LPDWORD);
 #define WSCTL_TCP_QUERY_INFORMATION 0
@@ -81,7 +81,7 @@ typedef int (__stdcall *WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
 
 /*
  * The local interface list is requested by some "unrevealed" Winsock API
- * routine called "WsControl". Works with Win95 and Win98.
+ * routine called "WsControl".  Works with Win95 and Win98.
  * Otherwise try using the IP Helper API which works with WinNT4x and Win2k.
  */
 static WsControlProc WsControl = NULL;
@@ -121,7 +121,7 @@ svz_interface_collect (void)
 
   /*
    * Try getting WsControl () from "wsock32.dll" via LoadLibrary
-   * and GetProcAddress. Or try the IP Helper API.
+   * and GetProcAddress.  Or try the IP Helper API.
    */
   if ((WSockHandle = LoadLibrary ("iphlpapi.dll")) != NULL)
     {
@@ -226,7 +226,7 @@ svz_interface_collect (void)
 
               if (entityType == IF_MIB)
                 {
-                  /* Supports MIB-2 interface. Get snmp mib-2 info. */
+                  /* Supports MIB-2 interface.  Get snmp mib-2 info.  */
                   tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_PROTOCOL;
                   tcpRequestQueryInfoEx.ID.toi_id = IF_MIB_STATS_ID;
 
@@ -292,7 +292,7 @@ svz_interface_collect (void)
 
               if (entityType == CL_NL_IP)
                 {
-                  /* Entity implements IP. Get ip address list. */
+                  /* Entity implements IP.  Get ip address list.  */
                   tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_PROTOCOL;
                   tcpRequestQueryInfoEx.ID.toi_id = IP_MIB_ADDRTABLE_ENTRY_ID;
 
@@ -334,10 +334,10 @@ svz_interface_collect (void)
       FreeLibrary (WSockHandle);
     }
 
-  /* this is for WinNT... */
+  /* this is for WinNT...  */
   else if (Method == IPAPI_METHOD)
     {
-      /* Use of the IPHelper-API here. */
+      /* Use of the IPHelper-API here.  */
       GetIfTable = (GetIfTableProc)
         GetProcAddress (WSockHandle, "GetIfTable");
       if (!GetIfTable)
@@ -415,8 +415,8 @@ svz_interface_collect (void)
 
 /*
  * Collect all available network interfaces and put them into the list
- * @var{svz_interfaces}. This is useful in order to @code{bind()} server
- * sockets to specific network interfaces. Thus you can make certain
+ * @var{svz_interfaces}.  This is useful in order to @code{bind()} server
+ * sockets to specific network interfaces.  Thus you can make certain
  * services accessible from "outside" or "inside" a network installation
  * only.
  */
@@ -430,14 +430,14 @@ svz_interface_collect (void)
   int n;
   int fd;
 
-  /* Get a socket out of the Internet Address Family. */
+  /* Get a socket out of the Internet Address Family.  */
   if ((fd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
     {
       perror ("socket");
       return;
     }
 
-  /* Collect information. */
+  /* Collect information.  */
   ifc.ifc_buf = NULL;
   for (;;)
     {
@@ -446,7 +446,7 @@ svz_interface_collect (void)
 
       /*
        * On newer AIXes we cannot use SIOCGICONF anymore, although it is
-       * present. The data structure returned is bogus. Using OSIOCGIFCONF.
+       * present.  The data structure returned is bogus.  Using OSIOCGIFCONF.
        */
 #if defined (OSIOCGIFCONF)
       if (ioctl (fd, OSIOCGIFCONF, &ifc) < 0)
@@ -468,7 +468,7 @@ svz_interface_collect (void)
 
       if ((unsigned) ifc.ifc_len == sizeof (struct ifreq) * numreqs)
         {
-          /* Assume it overflowed and try again. */
+          /* Assume it overflowed and try again.  */
           numreqs += 10;
           continue;
         }
@@ -498,9 +498,9 @@ svz_interface_collect (void)
           static int index = 0;
 
           /*
-           * The following cast looks bogus. ifr2.ifr_addr is a
+           * The following cast looks bogus.  ifr2.ifr_addr is a
            * (struct sockaddr), but we know that we deal with a
-           * (struct sockaddr_in) here. Since you cannot cast structures
+           * (struct sockaddr_in) here.  Since you cannot cast structures
            * in C, I cast addresses just to get a (struct sockaddr_in) in
            * the end ...
            */
@@ -545,7 +545,7 @@ svz_interface_list (void)
 
   printf ("--- list of local interfaces you can start ip services on ---\n");
 
-  /* any interfaces at all ? */
+  /* any interfaces at all?  */
   if (!svz_interfaces)
     return;
 
@@ -569,8 +569,8 @@ svz_interface_list (void)
 }
 
 /*
- * Add a network interface to the current list of known interfaces. Drop
- * duplicate entries. The given arguments @var{index} specifies the network
+ * Add a network interface to the current list of known interfaces.  Drop
+ * duplicate entries.  The given arguments @var{index} specifies the network
  * interface index number, @var{desc} an interface desription, @var{addr}
  * the IP address in network byte order and the @var{detected} flag if
  * the given network interface has been detected by Serveez itself or not.
@@ -582,7 +582,7 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
   unsigned long n;
   svz_interface_t *ifc;
 
-  /* Check if there is such an interface already. */
+  /* Check if there is such an interface already.  */
   if (svz_interfaces == NULL)
     {
       svz_interfaces = svz_vector_create (sizeof (svz_interface_t));
@@ -597,14 +597,14 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
         }
     }
 
-  /* Actually add this interface. */
+  /* Actually add this interface.  */
   ifc = svz_malloc (sizeof (svz_interface_t));
   ifc->detected = detected ? 1 : 0;
   ifc->index = index;
   ifc->ipaddr = addr;
   ifc->description = svz_strdup (desc);
 
-  /* Delete trailing white space characters. */
+  /* Delete trailing white space characters.  */
   p = ifc->description + strlen (ifc->description) - 1;
   while (p > ifc->description &&
          (*p == '\n' || *p == '\r' || *p == '\t' || *p == ' '))
@@ -617,7 +617,7 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
 
 /*
  * This function returns the interface structure for the given IP address
- * @var{addr} if any. Returns @code{NULL} otherwise.
+ * @var{addr} if any.  Returns @code{NULL} otherwise.
  */
 svz_interface_t *
 svz_interface_get (unsigned long addr)
@@ -635,7 +635,7 @@ svz_interface_get (unsigned long addr)
 
 /*
  * The following function returns a network interface structure for a given
- * interface name (e.g. eth0). If no such interface exists it returns
+ * interface name (e.g. eth0).  If no such interface exists it returns
  * @code{NULL}.
  */
 svz_interface_t *
@@ -674,9 +674,9 @@ svz_interface_free (void)
 }
 
 /*
- * This function checks for network interface changes. It emits messages for
- * new and removed interfaces. Software interfaces which have not been
- * detected by Serveez stay untouched. If Serveez receives a @code{SIGHUP}
+ * This function checks for network interface changes.  It emits messages for
+ * new and removed interfaces.  Software interfaces which have not been
+ * detected by Serveez stay untouched.  If Serveez receives a @code{SIGHUP}
  * signal the signal handler runs it once.
  */
 void
@@ -688,19 +688,19 @@ svz_interface_check (void)
 
   if (svz_interfaces)
     {
-      /* Save old interface list. */
+      /* Save old interface list.  */
       interfaces = svz_interfaces;
       svz_interfaces = NULL;
       svz_interface_collect ();
 
-      /* Look for removed network interfaces. */
+      /* Look for removed network interfaces.  */
       svz_vector_foreach (interfaces, ifc, n)
         {
           if (svz_interface_get (ifc->ipaddr) == NULL)
             {
               if (!ifc->detected)
                 {
-                  /* Re-apply software network interfaces. */
+                  /* Re-apply software network interfaces.  */
                   svz_interface_add (ifc->index, ifc->description,
                                      ifc->ipaddr, ifc->detected);
                 }
@@ -713,7 +713,7 @@ svz_interface_check (void)
             }
         }
 
-      /* Look for new network interfaces. */
+      /* Look for new network interfaces.  */
       svz_vector_foreach (svz_interfaces, ifc, n)
         {
           found = 0;
@@ -730,14 +730,14 @@ svz_interface_check (void)
             }
         }
 
-      /* Destroy old interface list and apply new interface list. */
+      /* Destroy old interface list and apply new interface list.  */
       svz_vector_foreach (interfaces, ifc, n)
         if (ifc->description)
           svz_free (ifc->description);
       svz_vector_destroy (interfaces);
     }
 
-  /* Print a notification message if no changes occurred. */
+  /* Print a notification message if no changes occurred.  */
   if (!changes)
     {
       svz_log (LOG_NOTICE, "no network interface changes detected\n");

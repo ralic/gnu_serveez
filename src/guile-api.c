@@ -63,7 +63,7 @@
 
 #include "libserveez.h"
 
-/* Validate network port range. */
+/* Validate network port range.  */
 #define VALIDATE_NETPORT(port, cell, arg) do {                       \
     (port) = SCM_NUM2LONG (arg, cell);                               \
     if ((port) < 0 || (port) >= 65536) SCM_OUT_OF_RANGE (arg, cell); \
@@ -71,8 +71,8 @@
 
 
 /* Converts the given hostname @var{host} into a Internet address in host
-   byte order and stores it into @var{addr}. Returns zero on success. This
-   is a blocking operation. */
+   byte order and stores it into @var{addr}.  Returns zero on success.  This
+   is a blocking operation.  */
 static int
 guile_resolve (char *host, unsigned long *addr)
 {
@@ -90,13 +90,13 @@ guile_resolve (char *host, unsigned long *addr)
 
 /* Establishes a network connection to the given @var{host} [ :@var{port} ].
    If @var{proto} equals @code{PROTO_ICMP} the @var{port} argument is
-   ignored. Valid identifiers for @var{proto} are @code{PROTO_TCP},
-   @code{PROTO_UDP} and @code{PROTO_ICMP}. The @var{host} argument must be
+   ignored.  Valid identifiers for @var{proto} are @code{PROTO_TCP},
+   @code{PROTO_UDP} and @code{PROTO_ICMP}.  The @var{host} argument must be
    either a string in dotted decimal form, a valid hostname or an exact number
-   in host byte order. When giving a hostname this operation might be
-   blocking. The @var{port} argument must be an exact number in the range from
-   0 to 65535, also in host byte order. Returns a valid @code{#<svz-socket>}
-   or @code{#f} on failure. */
+   in host byte order.  When giving a hostname this operation might be
+   blocking.  The @var{port} argument must be an exact number in the range from
+   0 to 65535, also in host byte order.  Returns a valid @code{#<svz-socket>}
+   or @code{#f} on failure.  */
 #define FUNC_NAME "svz:sock:connect"
 SCM
 guile_sock_connect (SCM host, SCM proto, SCM port)
@@ -115,7 +115,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
   SCM_ASSERT_TYPE (SCM_EXACTP (proto),
                    proto, SCM_ARG2, FUNC_NAME, "exact");
 
-  /* Extract host to connect to. */
+  /* Extract host to connect to.  */
   if (SCM_EXACTP (host))
     xhost = htonl ((unsigned long) SCM_NUM2INT (SCM_ARG1, host));
   else
@@ -136,10 +136,10 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
       scm_c_free (str);
     }
 
-  /* Extract protocol to use. */
+  /* Extract protocol to use.  */
   xproto = SCM_NUM2INT (SCM_ARG2, proto);
 
-  /* Find out about given port. */
+  /* Find out about given port.  */
   if (!SCM_UNBNDP (port))
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (port),
@@ -149,7 +149,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
     }
 
   /* Depending on the requested protocol; create different kinds of
-     socket structures. */
+     socket structures.  */
   switch (xproto)
     {
     case PROTO_TCP:
@@ -175,7 +175,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 
 /* The @code{(svz:inet-ntoa)} function converts the Internet host address
    @var{address} given in network byte order to a string in standard
-   numbers-and-dots notation. */
+   numbers-and-dots notation.  */
 #define FUNC_NAME "svz:inet-ntoa"
 static SCM
 guile_svz_inet_ntoa (SCM address)
@@ -191,7 +191,7 @@ guile_svz_inet_ntoa (SCM address)
 /* Converts the Internet host address @var{address} from the standard
    numbers-and-dots notation into binary data in network byte order.
    The @code{(svz:inet-aton)} function returns @code{#f} if the address is
-   invalid. */
+   invalid.  */
 #define FUNC_NAME "svz:inet-aton"
 static SCM
 guile_svz_inet_aton (SCM address)
@@ -214,7 +214,7 @@ guile_svz_inet_aton (SCM address)
 #undef FUNC_NAME
 
 /* The @code{(svz:ntohl)} function converts the 32 bit long integer
-   @var{netlong} from network byte order to host byte order. */
+   @var{netlong} from network byte order to host byte order.  */
 #define FUNC_NAME "svz:ntohl"
 static SCM
 guile_svz_ntohl (SCM netlong)
@@ -226,7 +226,7 @@ guile_svz_ntohl (SCM netlong)
 #undef FUNC_NAME
 
 /* The @code{(svz:htonl)} function converts the 32 bit long integer
-   @var{hostlong} from host byte order to network byte order. */
+   @var{hostlong} from host byte order to network byte order.  */
 #define FUNC_NAME "svz:htonl"
 static SCM
 guile_svz_htonl (SCM hostlong)
@@ -238,7 +238,7 @@ guile_svz_htonl (SCM hostlong)
 #undef FUNC_NAME
 
 /* The @code{(svz:ntohs)} function converts the 16 bit short integer
-   @var{netshort} from network byte order to host byte order. */
+   @var{netshort} from network byte order to host byte order.  */
 #define FUNC_NAME "svz:ntohs"
 static SCM
 guile_svz_ntohs (SCM netshort)
@@ -252,7 +252,7 @@ guile_svz_ntohs (SCM netshort)
 #undef FUNC_NAME
 
 /* The @code{(svz:htons)} function converts the 16 bit short integer
-   @var{hostshort} from host byte order to network byte order. */
+   @var{hostshort} from host byte order to network byte order.  */
 #define FUNC_NAME "svz:htons"
 static SCM
 guile_svz_htons (SCM hostshort)
@@ -265,7 +265,7 @@ guile_svz_htons (SCM hostshort)
 }
 #undef FUNC_NAME
 
-/* Return the receive buffer of the socket @var{sock} as a binary smob. */
+/* Return the receive buffer of the socket @var{sock} as a binary smob.  */
 #define FUNC_NAME "svz:sock:receive-buffer"
 static SCM
 guile_sock_receive_buffer (SCM sock)
@@ -279,7 +279,7 @@ guile_sock_receive_buffer (SCM sock)
 /* Returns the current receive buffers size and fill status in bytes of
    the socket @var{sock} as a pair of exact numbers.  If the optional
    argument @var{size} is given the receive buffer will be set to the
-   specified size in bytes. */
+   specified size in bytes.  */
 #define FUNC_NAME "svz:sock:receive-buffer-size"
 static SCM
 guile_sock_receive_buffer_size (SCM sock, SCM size)
@@ -299,7 +299,7 @@ guile_sock_receive_buffer_size (SCM sock, SCM size)
 }
 #undef FUNC_NAME
 
-/* Return the send buffer of the socket @var{sock} as a binary smob. */
+/* Return the send buffer of the socket @var{sock} as a binary smob.  */
 #define FUNC_NAME "svz:sock:send-buffer"
 static SCM
 guile_sock_send_buffer (SCM sock)
@@ -313,7 +313,7 @@ guile_sock_send_buffer (SCM sock)
 /* This procedure returns the current send buffer size and fill status in
    bytes of the socket @var{sock} as a pair of exact numbers.  If the
    optional argument @var{size} is given the send buffer will be set to
-   the specified size in bytes. */
+   the specified size in bytes.  */
 #define FUNC_NAME "svz:sock:send-buffer-size"
 static SCM
 guile_sock_send_buffer_size (SCM sock, SCM size)
@@ -334,9 +334,9 @@ guile_sock_send_buffer_size (SCM sock, SCM size)
 #undef FUNC_NAME
 
 /* Dequeue @var{length} bytes from the receive buffer of the socket
-   @var{sock} which must be a valid @code{#<svz-socket>}. If the user omits
+   @var{sock} which must be a valid @code{#<svz-socket>}.  If the user omits
    the optional @var{length} argument, all of the data in the receive buffer
-   gets dequeued. Returns the number of bytes actually shuffled away. */
+   gets dequeued.  Returns the number of bytes actually shuffled away.  */
 #define FUNC_NAME "svz:sock:receive-buffer-reduce"
 static SCM
 guile_sock_receive_buffer_reduce (SCM sock, SCM length)
@@ -346,7 +346,7 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
 
-  /* Check if second length argument is given. */
+  /* Check if second length argument is given.  */
   if (!SCM_UNBNDP (length))
     {
       SCM_ASSERT_TYPE (SCM_EXACTP (length),
@@ -365,9 +365,9 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
 #undef FUNC_NAME
 
 /* This procedure returns the current remote address as a pair like
-   @code{(host . port)} with both entries in network byte order. If you pass
+   @code{(host . port)} with both entries in network byte order.  If you pass
    the optional argument @var{address}, you can set the remote address of
-   the socket @var{sock}. */
+   the socket @var{sock}.  */
 #define FUNC_NAME "svz:sock:remote-address"
 static SCM
 guile_sock_remote_address (SCM sock, SCM address)
@@ -393,9 +393,9 @@ guile_sock_remote_address (SCM sock, SCM address)
 #undef FUNC_NAME
 
 /* This procedure returns the current local address as a pair like
-   @code{(host . port)} with both entries in network byte order. If you pass
+   @code{(host . port)} with both entries in network byte order.  If you pass
    the optional argument @var{address}, you can set the local address of
-   the socket @var{sock}. */
+   the socket @var{sock}.  */
 #define FUNC_NAME "svz:sock:local-address"
 static SCM
 guile_sock_local_address (SCM sock, SCM address)
@@ -421,8 +421,8 @@ guile_sock_local_address (SCM sock, SCM address)
 #undef FUNC_NAME
 
 /* Return the given socket's @var{sock} parent and optionally set it to the
-   socket @var{parent}. The procedure returns either a valid
-   @code{#<svz-socket>} object or an empty list. */
+   socket @var{parent}.  The procedure returns either a valid
+   @code{#<svz-socket>} object or an empty list.  */
 #define FUNC_NAME "svz:sock:parent"
 static SCM
 guile_sock_parent (SCM sock, SCM parent)
@@ -443,8 +443,8 @@ guile_sock_parent (SCM sock, SCM parent)
 #undef FUNC_NAME
 
 /* Return the given socket's @var{sock} referrer and optionally set it to the
-   socket @var{referrer}. The procedure returns either a valid
-   @code{#<svz-socket>} or an empty list. */
+   socket @var{referrer}.  The procedure returns either a valid
+   @code{#<svz-socket>} or an empty list.  */
 #define FUNC_NAME "svz:sock:referrer"
 static SCM
 guile_sock_referrer (SCM sock, SCM referrer)
@@ -465,12 +465,12 @@ guile_sock_referrer (SCM sock, SCM referrer)
 #undef FUNC_NAME
 
 /* This procedure returns the @code{#<svz-server>} object associated with the
-   given argument @var{sock}. The optional argument @var{server} can be used
+   given argument @var{sock}.  The optional argument @var{server} can be used
    to redefine this association and must be a valid @code{#<svz-server>}
-   object. For a usual socket callback like @code{connect-socket} or
-   @code{handle-request}, the association is already in place. But for sockets
+   object.  For a usual socket callback like @code{connect-socket} or
+   @code{handle-request}, the association is already in place.  But for sockets
    created by @code{(svz:sock:connect)}, you can use it in order to make the
-   returned socket object part of a server. */
+   returned socket object part of a server.  */
 #define FUNC_NAME "svz:sock:server"
 static SCM
 guile_sock_server (SCM sock, SCM server)
@@ -493,8 +493,8 @@ guile_sock_server (SCM sock, SCM server)
 
 /* Returns one of the @code{PROTO_TCP}, @code{PROTO_UDP}, @code{PROTO_ICMP},
    @code{PROTO_RAW} or @code{PROTO_PIPE} constants indicating the type of
-   the socket structure @var{sock}. If there is no protocol information
-   available the procedure returns @code{#f}. */
+   the socket structure @var{sock}.  If there is no protocol information
+   available the procedure returns @code{#f}.  */
 #define FUNC_NAME "svz:sock:protocol"
 static SCM
 guile_sock_protocol (SCM sock)
@@ -507,8 +507,8 @@ guile_sock_protocol (SCM sock)
 #undef FUNC_NAME
 
 /* This procedure schedules the socket @var{sock} for shutdown after all data
-   within the send buffer queue has been sent. The user should issue this
-   procedure call right *before* the last call to @code{(svz:sock:print)}. */
+   within the send buffer queue has been sent.  The user should issue this
+   procedure call right *before* the last call to @code{(svz:sock:print)}.  */
 #define FUNC_NAME "svz:sock:final-print"
 static SCM
 guile_sock_final_print (SCM sock)
@@ -522,10 +522,10 @@ guile_sock_final_print (SCM sock)
 #undef FUNC_NAME
 
 /* Turns the Nagle algorithm for the TCP socket @var{sock} on or off depending
-   on the optional @var{enable} argument. Returns the previous state of this
-   flag (@code{#f} if Nagle is active, @code{#t} otherwise). By default this
-   flag is switched off. This socket option is useful when dealing with small
-   packet transfer in order to disable unnecessary delays. */
+   on the optional @var{enable} argument.  Returns the previous state of this
+   flag (@code{#f} if Nagle is active, @code{#t} otherwise).  By default this
+   flag is switched off.  This socket option is useful when dealing with small
+   packet transfer in order to disable unnecessary delays.  */
 #define FUNC_NAME "svz:sock:no-delay"
 static SCM
 guile_sock_no_delay (SCM sock, SCM enable)
@@ -554,7 +554,7 @@ guile_sock_no_delay (SCM sock, SCM enable)
 #undef FUNC_NAME
 
 /* Returns @code{#t} if the given cell @var{sock} is an instance of a valid
-   @code{#<svz-socket>}, otherwise @code{#f}. */
+   @code{#<svz-socket>}, otherwise @code{#f}.  */
 #define FUNC_NAME "svz:sock?"
 static SCM
 guile_sock_p (SCM sock)
@@ -564,7 +564,7 @@ guile_sock_p (SCM sock)
 #undef FUNC_NAME
 
 /* Returns @code{#t} if the given cell @var{server} is an instance of a valid
-   @code{#<svz-server>}, otherwise @code{#f}. */
+   @code{#<svz-server>}, otherwise @code{#f}.  */
 #define FUNC_NAME "svz:server?"
 static SCM
 guile_server_p (SCM server)
@@ -574,9 +574,9 @@ guile_server_p (SCM server)
 #undef FUNC_NAME
 
 /* Set the @code{disconnected-socket} member of the socket structure
-   @var{sock} to the Guile procedure @var{proc}. The given callback
-   runs whenever the socket is lost for some external reason. The procedure
-   returns the previously set handler if there is one. */
+   @var{sock} to the Guile procedure @var{proc}.  The given callback
+   runs whenever the socket is lost for some external reason.  The procedure
+   returns the previously set handler if there is one.  */
 #define FUNC_NAME "svz:sock:disconnected"
 MAKE_SOCK_CALLBACK (disconnected_socket, "disconnected")
 #undef FUNC_NAME
@@ -593,7 +593,7 @@ MAKE_SOCK_CALLBACK (kicked_socket, "kicked")
    structure @var{sock} to the Guile procedure @var{proc}.  It returns the
    previously set procedure if available.  The callback is run once every
    server loop indicating whether the @code{trigger} callback should be
-   run or not. */
+   run or not.  */
 #define FUNC_NAME "svz:sock:trigger-condition"
 MAKE_SOCK_CALLBACK (trigger_cond, "trigger-condition")
 #undef FUNC_NAME
@@ -601,18 +601,18 @@ MAKE_SOCK_CALLBACK (trigger_cond, "trigger-condition")
 /* Sets the @code{trigger} callback of the socket structure @var{sock} to
    the Guile procedure @var{proc} and returns any previously set procedure.
    The callback is run when the @code{trigger-condition} callback returned
-   @code{#t}. */
+   @code{#t}.  */
 #define FUNC_NAME "svz:sock:trigger"
 MAKE_SOCK_CALLBACK (trigger_func, "trigger")
 #undef FUNC_NAME
 
 /* This procedure sets the @code{idle} callback of the socket structure
-   @var{sock} to the Guile procedure @var{proc}. It returns any previously
-   set procedure. The callback is run by the periodic task scheduler when the
-   @code{idle-counter} of the socket structure drops to zero. If this counter
-   is not zero it gets decremented once a second. The @code{idle}
+   @var{sock} to the Guile procedure @var{proc}.  It returns any previously
+   set procedure.  The callback is run by the periodic task scheduler when the
+   @code{idle-counter} of the socket structure drops to zero.  If this counter
+   is not zero it gets decremented once a second.  The @code{idle}
    callback can reset @code{idle-counter} to some value and thus can
-   re-schedule itself for a later task. */
+   re-schedule itself for a later task.  */
 #define FUNC_NAME "svz:sock:idle"
 MAKE_SOCK_CALLBACK (idle_func, "idle")
 #undef FUNC_NAME
@@ -621,15 +621,15 @@ MAKE_SOCK_CALLBACK (idle_func, "idle")
    of the given socket structure @var{sock}.  The previous callback is
    replaced by the @var{proc} procedure and will be returned if there was
    set any before.  The callback is run whenever urgent data (out-of-band)
-   has been detected on the socket. */
+   has been detected on the socket.  */
 #define FUNC_NAME "svz:sock:check-oob-request"
 MAKE_SOCK_CALLBACK (check_request_oob, "check-oob-request")
 #undef FUNC_NAME
 
 /* This functions returns the socket structure @var{sock}'s current
-   @code{idle-counter} value. If the optional argument @var{counter} is
-   given, the function sets the @code{idle-counter}. Please have a look at the
-   @code{(svz:sock:idle)} procedure for the exact meaning of this value. */
+   @code{idle-counter} value.  If the optional argument @var{counter} is
+   given, the function sets the @code{idle-counter}.  Please have a look at the
+   @code{(svz:sock:idle)} procedure for the exact meaning of this value.  */
 #define FUNC_NAME "svz:sock:idle-counter"
 static SCM
 guile_sock_idle_counter (SCM sock, SCM counter)
@@ -651,7 +651,7 @@ guile_sock_idle_counter (SCM sock, SCM counter)
 
 /* Returns a list of listening @code{#<svz-socket>} smobs to which the
    given server instance @var{server} is currently bound, or an empty list
-   if there is no such binding yet. */
+   if there is no such binding yet.  */
 #define FUNC_NAME "svz:server:listeners"
 static SCM
 guile_server_listeners (SCM server)
@@ -662,20 +662,20 @@ guile_server_listeners (SCM server)
   unsigned long i;
   SCM list = SCM_EOL;
 
-  /* Server instance name given ? */
+  /* Server instance name given?  */
   if ((str = guile_to_string (server)) != NULL)
     {
       xserver = svz_server_get (str);
       scm_c_free (str);
     }
-  /* Maybe server smob given. */
+  /* Maybe server smob given.  */
   if (xserver == NULL)
     {
       CHECK_SMOB_ARG (svz_server, server, SCM_ARG1, "svz-server or string",
                       xserver);
     }
 
-  /* Create a list of socket smobs for the server. */
+  /* Create a list of socket smobs for the server.  */
   if ((listeners = svz_server_listeners (xserver)) != NULL)
     {
       for (i = 0; i < svz_array_size (listeners); i++)
@@ -690,7 +690,7 @@ guile_server_listeners (SCM server)
 
 /* Returns a list of @code{#<svz-socket>} client smobs associated with
    the given server instance @var{server} in arbitrary order, or an
-   empty list if there is no such client. */
+   empty list if there is no such client.  */
 #define FUNC_NAME "svz:server:clients"
 static SCM
 guile_server_clients (SCM server)
@@ -702,20 +702,20 @@ guile_server_clients (SCM server)
   unsigned long i;
   SCM list = SCM_EOL;
 
-  /* If the server instance name is given, try to translate it. */
+  /* If the server instance name is given, try to translate it.  */
   if ((str = guile_to_string (server)) != NULL)
     {
       xserver = svz_server_get (str);
       scm_c_free (str);
     }
-  /* If the above failed it is possibly a real server smob. */
+  /* If the above failed it is possibly a real server smob.  */
   if (xserver == NULL)
     {
       CHECK_SMOB_ARG (svz_server, server, SCM_ARG1, "svz-server or string",
                       xserver);
     }
 
-  /* Create a list of socket smobs for the server. */
+  /* Create a list of socket smobs for the server.  */
   if ((clients = svz_server_clients (xserver)) != NULL)
     {
       svz_array_foreach (clients, sock, i)
@@ -747,7 +747,7 @@ scm_return_rpcentry (struct rpcent *entry)
    Lookup a network rpc service by name or by service number, and
    return a network rpc service object.  The @code{(getrpc)} procedure
    will take either a rpc service name or number as its first argument;
-   if given no arguments, it behaves like @code{(getrpcent)}. */
+   if given no arguments, it behaves like @code{(getrpcent)}.  */
 #define FUNC_NAME "getrpc"
 static SCM
 scm_getrpc (SCM arg)
@@ -798,7 +798,7 @@ extern void endrpcent (void);
    If the @var{stayopen} flag is non-zero, the net data base will not be
    closed after each call to @code{(getrpc)}.  If @var{stayopen} is omitted,
    this is equivalent to @code{(endrpcent)}.  Otherwise it is equivalent to
-   @code{(setrpcent stayopen)}. */
+   @code{(setrpcent stayopen)}.  */
 #define FUNC_NAME "setrpc"
 static SCM
 scm_setrpc (SCM stayopen)
@@ -814,10 +814,10 @@ scm_setrpc (SCM stayopen)
 
 #if HAVE_PMAP_GETMAPS
 /* This procedure returns a list of the current RPC program-to-port mappings
-   on the host located at IP address @var{address}. When you leave this
-   argument it defaults to the local machine's IP address. This routine
+   on the host located at IP address @var{address}.  When you leave this
+   argument it defaults to the local machine's IP address.  This routine
    can return an empty list indicating either there is no such list
-   available or an error occurred while fetching the list. */
+   available or an error occurred while fetching the list.  */
 #define FUNC_NAME "portmap-list"
 SCM
 scm_portmap_list (SCM address)
@@ -871,11 +871,11 @@ scm_portmap_list (SCM address)
 #if HAVE_PMAP_SET && HAVE_PMAP_UNSET
 /* A user interface to the portmap service, which establishes a mapping
    between the triple [@var{prognum},@var{versnum},@var{protocol}] and
-   @var{port} on the machine's portmap service. The value of @var{protocol}
+   @var{port} on the machine's portmap service.  The value of @var{protocol}
    is most likely @code{IPPROTO_UDP} or @code{IPPROTO_TCP}.
    If the user omits @var{protocol} and @var{port}, the procedure destroys
    all mapping between the triple [@var{prognum},@var{versnum},*] and ports
-   on the machine's portmap service. */
+   on the machine's portmap service.  */
 #define FUNC_NAME "portmap"
 SCM
 scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
@@ -912,25 +912,25 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
 #undef FUNC_NAME
 #endif /* HAVE_PMAP_SET && HAVE_PMAP_UNSET */
 
-/* Callback wrapper for coserver responses. */
+/* Callback wrapper for coserver responses.  */
 static int
 guile_coserver_callback (char *res, SCM callback, SCM arg)
 {
   int ret = -1;
 
-  /* If successfully done, run the given Guile procedure. */
+  /* If successfully done, run the given Guile procedure.  */
   if (res != NULL)
     {
-      /* Run procedure with one argument only. */
+      /* Run procedure with one argument only.  */
       if (SCM_UNBNDP (arg))
         guile_call (callback, 1, scm_makfrom0str (res));
-      /* Run procedure with both arguments. */
+      /* Run procedure with both arguments.  */
       else
         guile_call (callback, 2, scm_makfrom0str (res), arg);
       ret = 0;
     }
 
-  /* Pass the values to garbage collection again. */
+  /* Pass the values to garbage collection again.  */
   if (!SCM_UNBNDP (arg))
     scm_gc_unprotect_object (arg);
   scm_gc_unprotect_object (callback);
@@ -938,35 +938,35 @@ guile_coserver_callback (char *res, SCM callback, SCM arg)
 }
 
 /* This procedure enqueues the @var{host} string argument into the internal
-   DNS coserver queue. When the coserver responds, the Guile procedure
-   @var{callback} is run as @code{(callback addr arg)}. The @var{addr}
+   DNS coserver queue.  When the coserver responds, the Guile procedure
+   @var{callback} is run as @code{(callback addr arg)}.  The @var{addr}
    argument passed to the callback is a string representing the appropriate
-   IP address for the given hostname @var{host}. If you omit the optional
-   argument @var{arg} it is run as @code{(callback addr)} only. The @var{arg}
+   IP address for the given hostname @var{host}.  If you omit the optional
+   argument @var{arg} it is run as @code{(callback addr)} only.  The @var{arg}
    argument may be necessary if you need to have the callback procedure
-   in a certain context. */
+   in a certain context.  */
 #define FUNC_NAME "svz:coserver:dns"
 SCM
 guile_coserver_dns (SCM host, SCM callback, SCM arg)
 {
   char *request;
 
-  /* Check argument list first. */
+  /* Check argument list first.  */
   SCM_ASSERT_TYPE (SCM_STRINGP (host), host, SCM_ARG1, FUNC_NAME,
                    "string");
   SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback, SCM_ARG2, FUNC_NAME,
                    "procedure");
 
-  /* Convert hostname into C string. */
+  /* Convert hostname into C string.  */
   request = guile_to_string (host);
 
   /* Protect callback (Guile procedure) and arg (any Guile cell) from
-     garbage collection meanwhile. */
+     garbage collection meanwhile.  */
   scm_gc_protect_object (callback);
   if (!SCM_UNBNDP (arg))
     scm_gc_protect_object (arg);
 
-  /* Enqueue coserver request. */
+  /* Enqueue coserver request.  */
   svz_coserver_dns (request, guile_coserver_callback, callback, arg);
   scm_c_free (request);
   return SCM_UNSPECIFIED;
@@ -975,59 +975,59 @@ guile_coserver_dns (SCM host, SCM callback, SCM arg)
 
 /* This Guile procedure enqueues the given @var{addr} argument which must be
    an IP address in network byte order into the internal reverse DNS coserver
-   queue. When the coserver responds, the Guile procedure @var{callback} is
+   queue.  When the coserver responds, the Guile procedure @var{callback} is
    run as @code{(callback host arg)} where @var{host} is the hostname of the
-   requested IP address @var{addr}. The last argument @var{arg} is
-   optional. */
+   requested IP address @var{addr}.  The last argument @var{arg} is
+   optional.  */
 #define FUNC_NAME "svz:coserver:reverse-dns"
 SCM
 guile_coserver_rdns (SCM addr, SCM callback, SCM arg)
 {
   unsigned long ip;
 
-  /* Check argument list first. */
+  /* Check argument list first.  */
   SCM_ASSERT_TYPE (SCM_INUMP (addr), addr, SCM_ARG1, FUNC_NAME, "INUMP");
   SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback, SCM_ARG2, FUNC_NAME,
                    "procedure");
 
-  /* Convert IP address into C long value. */
+  /* Convert IP address into C long value.  */
   ip = (unsigned long) SCM_NUM2ULONG (SCM_ARG1, addr);
 
   /* Protect callback (Guile procedure) and arg (any Guile cell) from
-     garbage collection meanwhile. */
+     garbage collection meanwhile.  */
   scm_gc_protect_object (callback);
   if (!SCM_UNBNDP (arg))
     scm_gc_protect_object (arg);
 
-  /* Enqueue coserver request. */
+  /* Enqueue coserver request.  */
   svz_coserver_rdns (ip, guile_coserver_callback, callback, arg);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
 
 /* This procedure enqueues the given @code{#<svz-socket>} @var{sock} into the
-   internal ident coserver queue. When the coserver responds, it runs the
+   internal ident coserver queue.  When the coserver responds, it runs the
    Guile procedure @var{callback} as @code{(callback user arg)} where
    @var{user} is the corresponding username for the client connection
-   @var{sock}. The @var{arg} argument is optional. */
+   @var{sock}.  The @var{arg} argument is optional.  */
 #define FUNC_NAME "svz:coserver:ident"
 SCM
 guile_coserver_ident (SCM sock, SCM callback, SCM arg)
 {
   svz_socket_t *xsock;
 
-  /* Check argument list first. */
+  /* Check argument list first.  */
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback, SCM_ARG2, FUNC_NAME,
                    "procedure");
 
   /* Protect callback (Guile procedure) and arg (any Guile cell) from
-     garbage collection meanwhile. */
+     garbage collection meanwhile.  */
   scm_gc_protect_object (callback);
   if (!SCM_UNBNDP (arg))
     scm_gc_protect_object (arg);
 
-  /* Enqueue coserver request. */
+  /* Enqueue coserver request.  */
   svz_coserver_ident (xsock, guile_coserver_callback, callback, arg);
   return SCM_UNSPECIFIED;
 }
@@ -1035,9 +1035,9 @@ guile_coserver_ident (SCM sock, SCM callback, SCM arg)
 
 /* The given argument @var{ident} must be a pair of numbers where the
    car is a @code{#<svz-socket>}'s identification number and the cdr the
-   version number. The procedure returns either the identified
+   version number.  The procedure returns either the identified
    @code{#<svz-socket>} or @code{#f} if the given combination is not
-   valid anymore. */
+   valid anymore.  */
 #define FUNC_NAME "svz:sock:find"
 SCM
 guile_sock_find (SCM ident)
@@ -1058,10 +1058,10 @@ guile_sock_find (SCM ident)
 
 /* This procedure returns a pair of numbers identifying the given
    @code{#<svz-socket>} @var{sock} which can be passed to
-   @code{(svz:sock:find)}. This may be necessary when you are passing
+   @code{(svz:sock:find)}.  This may be necessary when you are passing
    a @code{#<svz-socket>} through coserver callback arguments in order to
    verify that the passed @code{#<svz-socket>} is still valid when the
-   coserver callback runs. */
+   coserver callback runs.  */
 #define FUNC_NAME "svz:sock:ident"
 SCM
 guile_sock_ident (SCM sock)
@@ -1078,7 +1078,7 @@ guile_sock_ident (SCM sock)
    reached.  The size of the returned binary smob may be less than the
    requested size @var{size} if it exceed the current size of the given port
    @var{port}.  The procedure throws an exception if an error occurred while
-   reading from the port. */
+   reading from the port.  */
 #define FUNC_NAME "svz:read-file"
 static SCM
 guile_read_file (SCM port, SCM size)
@@ -1086,22 +1086,22 @@ guile_read_file (SCM port, SCM size)
   int fdes, len, ret;
   void *data;
 
-  /* Check argument list. */
+  /* Check argument list.  */
   SCM_ASSERT_TYPE (SCM_NIMP (port) && SCM_FPORTP (port) &&
                    SCM_OPINFPORTP (port),
                    port, SCM_ARG1, FUNC_NAME, "open input port");
   SCM_ASSERT_TYPE (SCM_EXACTP (size), size, SCM_ARG2, FUNC_NAME, "exact");
 
-  /* Get underlying file descriptor. */
+  /* Get underlying file descriptor.  */
   fdes = SCM_FPORT_FDES (port);
 
   if ((len = SCM_NUM2INT (SCM_ARG1, size)) <= 0)
     SCM_OUT_OF_RANGE (SCM_ARG2, size);
 
-  /* Allocate necessary data. */
+  /* Allocate necessary data.  */
   data = (unsigned char *) scm_gc_malloc (len, "svz-binary-data");
 
-  /* Read from file descriptor and evaluate return value. */
+  /* Read from file descriptor and evaluate return value.  */
   if ((ret = read (fdes, data, len)) < 0)
     {
       scm_gc_free (data, len, "svz-binary-data");
@@ -1121,7 +1121,7 @@ guile_read_file (SCM port, SCM size)
         scm_gc_realloc (data, len, ret, "svz-binary-data");
     }
 
-  /* Finally return binary smob. */
+  /* Finally return binary smob.  */
   return guile_garbage_to_bin (data, ret);
 }
 #undef FUNC_NAME
@@ -1131,7 +1131,7 @@ guile_read_file (SCM port, SCM size)
    is sent as urgent (out-of-band) data through the underlying TCP stream.
    The procedure returns @code{#t} on successful completion and otherwise
    (either it failed to send the byte or the passed socket is not a TCP
-   socket) @code{#f}. */
+   socket) @code{#f}.  */
 #define FUNC_NAME "svz:sock:send-oob"
 static SCM
 guile_sock_send_oob (SCM sock, SCM oob)
@@ -1139,12 +1139,12 @@ guile_sock_send_oob (SCM sock, SCM oob)
   svz_socket_t *xsock;
   int ret = -1;
 
-  /* Check the arguments. */
+  /* Check the arguments.  */
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   SCM_ASSERT_TYPE (SCM_EXACTP (oob) || SCM_CHARP (oob),
                    oob, SCM_ARG2, FUNC_NAME, "char or exact");
 
-  /* Send the oob byte through TCP sockets only. */
+  /* Send the oob byte through TCP sockets only.  */
   if (xsock->proto & PROTO_TCP)
     {
       xsock->oob = (unsigned char)
@@ -1156,7 +1156,7 @@ guile_sock_send_oob (SCM sock, SCM oob)
 }
 #undef FUNC_NAME
 
-/* Initialize the API function calls supported by Guile. */
+/* Initialize the API function calls supported by Guile.  */
 void
 guile_api_init (void)
 {
@@ -1233,7 +1233,7 @@ guile_api_init (void)
   DEFINE_SOCK_CALLBACK ("svz:sock:check-oob-request",check_request_oob);
 }
 
-/* Finalize the API functions. */
+/* Finalize the API functions.  */
 void
 guile_api_finalize (void)
 {

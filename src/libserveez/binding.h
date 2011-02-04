@@ -29,8 +29,8 @@
  */
 typedef struct svz_binding
 {
-  svz_server_t *server; /* The server structure. */
-  svz_portcfg_t *port;  /* The port configuration the server is bound to. */
+  svz_server_t *server; /* The server structure.  */
+  svz_portcfg_t *port;  /* The port configuration the server is bound to.  */
 }
 svz_binding_t;
 

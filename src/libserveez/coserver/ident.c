@@ -49,7 +49,7 @@
 /*
  * The following routine takes the input buffer in the format "%s:%u:%u"
  * which is the remote internet address and the remote and local network
- * port. Then it is processing an ident request and parses the respond to
+ * port.  Then it is processing an ident request and parses the respond to
  * gain the users name.
  */
 char *
@@ -66,7 +66,7 @@ ident_handle_request (char *inbuf)
   int r;
   char *rp;
 
-  /* Parse internet address first. */
+  /* Parse internet address first.  */
   p = inbuf;
   while (*p && *p != ':')
     p++;
@@ -79,21 +79,21 @@ ident_handle_request (char *inbuf)
   p++;
   addr = inet_addr (inbuf);
 
-  /* Parse remote and local port afterwards. */
+  /* Parse remote and local port afterwards.  */
   if (2 != sscanf (p, "%u:%u", &rport, &lport))
     {
       svz_log (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
       return NULL;
     }
 
-   /* Create a socket for communication with the ident server. */
+  /* Create a socket for communication with the ident server.  */
   if ((sock = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
       svz_log (LOG_ERROR, "ident: socket: %s\n", NET_ERROR);
       return NULL;
     }
 
-  /* Connect to the server. */
+  /* Connect to the server.  */
   memset (&server, 0, sizeof (server));
   server.sin_family = AF_INET;
   server.sin_addr.s_addr = addr;
@@ -105,7 +105,7 @@ ident_handle_request (char *inbuf)
       return NULL;
     }
 
-  /* Send the request to the server and receive response. */
+  /* Send the request to the server and receive response.  */
   sprintf (ident_response, "%d , %d\r\n", rport, lport);
   send (sock, ident_response, strlen (ident_response), 0);
 
@@ -123,7 +123,7 @@ ident_handle_request (char *inbuf)
       rp += r;
     }
 
-  /* Now close the socket and notify the response. */
+  /* Now close the socket and notify the response.  */
   if (shutdown (sock, 2) == -1)
     svz_log (LOG_ERROR, "ident: shutdown: %s\n", NET_ERROR);
   if (closesocket (sock) < 0)
@@ -134,13 +134,13 @@ ident_handle_request (char *inbuf)
   p = ident_response;
   p_end = p + strlen (p);
 
-  /* Parse client port. */
+  /* Parse client port.  */
   if (p >= p_end || !(*p >= '0' && *p <= '9'))
     return NULL;
   while (p < p_end && *p >= '0' && *p <= '9')
     p++;
 
-  /* Skip whitespace and separating comma. */
+  /* Skip whitespace and separating comma.  */
   while (p < p_end && *p == ' ')
     p++;
   if (p >= p_end || *p != ',')
@@ -149,13 +149,13 @@ ident_handle_request (char *inbuf)
   while (p < p_end && *p == ' ')
     p++;
 
-  /* Parse server port. */
+  /* Parse server port.  */
   if (p >= p_end || !(*p >= '0' && *p <= '9'))
     return NULL;
   while (p < p_end && *p >= '0' && *p <= '9')
     p++;
 
-  /* Skip whitespace and separating colon. */
+  /* Skip whitespace and separating colon.  */
   while (p < p_end && *p == ' ')
     p++;
   if (p >= p_end || *p != ':')
@@ -164,13 +164,13 @@ ident_handle_request (char *inbuf)
   while (p < p_end && *p == ' ')
     p++;
 
-  /* Parse response type. (USERID or ERROR possible) */
+  /* Parse response type.  (USERID or ERROR possible) */
   if (memcmp (p, "USERID", 6))
     return NULL;
   while (p < p_end && *p != ' ')
     p++;
 
-  /* Skip whitespace and separating colon. */
+  /* Skip whitespace and separating colon.  */
   while (p < p_end && *p == ' ')
     p++;
   if (p >= p_end || *p != ':')
@@ -181,11 +181,11 @@ ident_handle_request (char *inbuf)
   if (p >= p_end)
     return NULL;
 
-  /* Parse OS type. */
+  /* Parse OS type.  */
   while (p < p_end && *p != ' ')
     p++;
 
-  /* Skip whitespace and separating colon. */
+  /* Skip whitespace and separating colon.  */
   while (p < p_end && *p == ' ')
     p++;
   if (p >= p_end || *p != ':')
@@ -194,7 +194,7 @@ ident_handle_request (char *inbuf)
   while (p < p_end && *p == ' ')
     p++;
 
-  /* Finally parse the user name. */
+  /* Finally parse the user name.  */
   u = user;
   while (p < p_end && *p != '\0' && *p != '\n' && *p != '\r')
     {

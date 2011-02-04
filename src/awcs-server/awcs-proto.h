@@ -47,13 +47,13 @@
 typedef struct
 {
   svz_socket_t *server; /* the current master server */
-  int master;           /* Was Master server detected ? */
+  int master;           /* Was Master server detected?  */
   svz_hash_t *clients;  /* this aWCS servers user base */
 }
 awcs_config_t;
 
 /*
- * The aWCS server definition. Exported to "server.h".
+ * The aWCS server definition.  Exported to "server.h".
  */
 extern svz_servertype_t awcs_server_definition;
 

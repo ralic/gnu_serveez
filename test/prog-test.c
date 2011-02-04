@@ -64,7 +64,7 @@ main (int argc, char **argv)
 
   fprintf (stderr, "start...\r\n");
 
-  /* Obtain output descriptor. */
+  /* Obtain output descriptor.  */
 #ifdef __MINGW32__
   if (getenv ("SEND_HANDLE") != NULL)
     s = atoi (getenv ("SEND_HANDLE"));
@@ -74,7 +74,7 @@ main (int argc, char **argv)
   s = fileno (stdout);
 #endif
 
-  /* Determine remote connection. */
+  /* Determine remote connection.  */
   if (getpeername ((svz_t_socket) s, (struct sockaddr *) &addr, &len) < 0)
     {
       fprintf (stderr, "getpeername: %s\n", strerror (errno));
@@ -82,20 +82,20 @@ main (int argc, char **argv)
     }
   else
     {
-      /* Try using `fprintf()'. */
+      /* Try using `fprintf()'.  */
       fprintf (stdout, "fprintf(): %s:%d\r\n",
                inet_ntoa ((* ((struct in_addr *) &addr.sin_addr))),
                ntohs (addr.sin_port));
       fflush (stdout);
     }
 
-  /* Try using `write()'. */
+  /* Try using `write()'.  */
   if (write (s, buf1, strlen (buf1)) < 0)
     {
       fprintf (stderr, "write: %s\n", strerror (errno));
       fflush (stderr);
     }
-  /* Try using `send()'. */
+  /* Try using `send()'.  */
   if (send (s, buf2, strlen (buf2), 0) < 0)
     {
       fprintf (stderr, "send: %s\n", strerror (errno));

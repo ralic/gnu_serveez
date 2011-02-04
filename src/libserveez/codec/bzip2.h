@@ -22,7 +22,7 @@
 
 #include "libserveez/defines.h"
 
-/* Configuration structure for the bzip2 codec. */
+/* Configuration structure for the bzip2 codec.  */
 typedef struct
 {
   int blockSize100k; /* block size in 100 KByte */

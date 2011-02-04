@@ -58,7 +58,7 @@ typedef struct
 }
 http_config_t;
 
-/* Export the http server definition to `server.c'. */
+/* Export the http server definition to `server.c'.  */
 extern svz_servertype_t http_server_definition;
 
 /* server functions */

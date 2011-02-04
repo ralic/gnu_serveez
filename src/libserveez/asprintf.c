@@ -59,14 +59,14 @@ svz_vasprintf (char **str, svz_c_const char *fmt, va_list args)
 
   *str = (char *) svz_realloc (*str, size);
 
-  /* Try to print in the allocated space. */
+  /* Try to print in the allocated space.  */
   nchars = svz_vsnprintf (*str, size, fmt, args);
   while (nchars >= size || nchars <= -1)
     {
-      /* Reallocate buffer. */
+      /* Reallocate buffer.  */
       size = (nchars <= -1) ? (nchars + 1) : size * 2;
       *str = (char *) svz_realloc (*str, size);
-      /* Try again. */
+      /* Try again.  */
       nchars = svz_vsnprintf (*str, size, fmt, args);
     }
 

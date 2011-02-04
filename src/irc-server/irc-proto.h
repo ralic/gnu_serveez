@@ -96,7 +96,7 @@ struct irc_user_authorization
  */
 struct irc_oper_authorization
 {
-  int local;        /* is the operator local or network wide ? */
+  int local;        /* is the operator local or network wide?  */
   char *nick;       /* nick name */
   char *user;       /* user name, only matched if '@' is given */
   char *host;       /* host name mask */
@@ -140,7 +140,7 @@ struct irc_client
   int hopcount;            /* the client's hopcount (server distance) */
   time_t since;            /* signon time */
   int ping;                /* ping <-> pong counter */
-  int registered;          /* is client fully registered ? */
+  int registered;          /* is client fully registered?  */
   int recv_packets;        /* amount of received messages */
   int recv_bytes;          /* received bytes */
   int send_packets;        /* amount of sent messages */
@@ -205,7 +205,7 @@ struct irc_server
   char *host;                     /* server name (virtual host) */
   char *pass;                     /* password */
   int id;                         /* socket id */
-  int connected;                  /* is that server really connected ? */
+  int connected;                  /* is that server really connected?  */
   int class;                      /* connection class number */
   int connect;                    /* connect = 1 (C line), = 0 (N line) */
   irc_config_t *cfg;              /* irc server configuration hash */
@@ -225,7 +225,7 @@ struct irc_configuration
   char *host;                     /* local server virtual host */
   char *realhost;                 /* local server host */
   int port;
-  int users_disabled;             /* is USERS command disabled ? */
+  int users_disabled;             /* is USERS command disabled?  */
   int channels_per_user;          /* maximum number of channels per user */
 
 #if ENABLE_TIMESTAMP
@@ -361,7 +361,7 @@ irc_callback_t;
 
 extern irc_callback_t irc_callback[];
 
-/* Export the irc server definition to `server.c'. */
+/* Export the irc server definition to `server.c'.  */
 extern svz_servertype_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
@@ -404,7 +404,7 @@ int irc_global_finalize (svz_servertype_t *server);
 #define IRC_CLOSING_LINK    "Closing Link: %s (%s)"
 #define IRC_CONNECTION_LOST "Connection reset by peer"
 
-/* Channel Modes. */
+/* Channel Modes.  */
 #define MODE_OPERATOR 0x0001 /* give/take channel operator privileges */
 #define MODE_PRIVATE  0x0002 /* private channel flag */
 #define MODE_SECRET   0x0004 /* secret channel flag */
@@ -418,14 +418,14 @@ int irc_global_finalize (svz_servertype_t *server);
 #define MODE_KEY      0x0400 /* set a channel key (password) */
 #define CHANNEL_MODES "opsitnmlbvk"
 
-/* User Modes. */
+/* User Modes.  */
 #define UMODE_INVISIBLE 0x0001 /* marks a users as invisible */
 #define UMODE_SERVER    0x0002 /* marks a user for receipt of server notices */
 #define UMODE_WALLOP    0x0004 /* user receives wallops */
 #define UMODE_OPERATOR  0x0008 /* operator flag */
 #define USER_MODES      "iswo"
 
-/* Additional flags. */
+/* Additional flags.  */
 #define UMODE_AWAY      0x0010 /* away flag */
 #define UMODE_PASS      0x0020 /* password + crypt flag */
 #define UMODE_NICK      0x0040 /* nick flag */
@@ -440,7 +440,7 @@ int irc_global_finalize (svz_servertype_t *server);
    UMODE_IDENT | \
    UMODE_DNS)
 
-/* Error Replies. */
+/* Error Replies.  */
 #define ERR_NOSUCHNICK            401
 #define ERR_NOSUCHNICK_TEXT       "%s :No such nick/channel."
 
@@ -558,7 +558,7 @@ int irc_global_finalize (svz_servertype_t *server);
 #define ERR_USERSDONTMATCH        502
 #define ERR_USERSDONTMATCH_TEXT   ":Cant change mode for other users"
 
-/*  Command responses. */
+/*  Command responses.  */
 #define RPL_WELCOME               001
 #define RPL_WELCOME_TEXT          "Welcome to the Internet Relay Chat, %s !"
 

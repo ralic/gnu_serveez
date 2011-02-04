@@ -60,9 +60,9 @@
 #include "libserveez/tcp-socket.h"
 
 /*
- * Default function for writing to the socket @var{sock}. Simply flushes
- * the output buffer to the network. Write as much as possible into the
- * socket @var{sock}. Writing is performed non-blocking, so only as much
+ * Default function for writing to the socket @var{sock}.  Simply flushes
+ * the output buffer to the network.  Write as much as possible into the
+ * socket @var{sock}.  Writing is performed non-blocking, so only as much
  * as fits into the network buffer will be written on each call.
  */
 int
@@ -76,14 +76,14 @@ svz_tcp_write_socket (svz_socket_t *sock)
 
   /*
    * Write as many bytes as possible, remember how many were actually
-   * sent. Limit the maximum sent bytes to SOCK_MAX_WRITE.
+   * sent.  Limit the maximum sent bytes to SOCK_MAX_WRITE.
    */
   do_write = sock->send_buffer_fill;
   if (do_write > SOCK_MAX_WRITE)
     do_write = SOCK_MAX_WRITE;
   num_written = send (desc, sock->send_buffer, do_write, 0);
 
-  /* Some data has been written. */
+  /* Some data has been written.  */
   if (num_written > 0)
     {
       sock->last_send = time (NULL);
@@ -94,7 +94,7 @@ svz_tcp_write_socket (svz_socket_t *sock)
        */
       svz_sock_reduce_send (sock, num_written);
     }
-  /* Error occurred while sending. */
+  /* Error occurred while sending.  */
   else if (num_written < 0)
     {
       svz_log (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
@@ -105,18 +105,18 @@ svz_tcp_write_socket (svz_socket_t *sock)
         }
     }
 
-  /* If final write flag is set, then schedule for shutdown. */
+  /* If final write flag is set, then schedule for shutdown.  */
   if (sock->flags & SOCK_FLAG_FINAL_WRITE && sock->send_buffer_fill == 0)
     num_written = -1;
 
-  /* Return a non-zero value if an error occurred. */
+  /* Return a non-zero value if an error occurred.  */
   return (num_written < 0) ? -1 : 0;
 }
 
 /*
- * Default function for reading from the socket @var{sock}. This function
+ * Default function for reading from the socket @var{sock}.  This function
  * only reads all data from the socket and calls the @code{check_request()}
- * function for the socket, if set. Returns -1 if the socket has died,
+ * function for the socket, if set.  Returns -1 if the socket has died,
  * returns zero otherwise.
  */
 int
@@ -136,7 +136,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
 
   /*
    * Check if enough space is left in the buffer, kick the socket
-   * if not. The main loop will kill the socket if we return a non-zero
+   * if not.  The main loop will kill the socket if we return a non-zero
    * value.
    */
   if (do_read <= 0)
@@ -153,11 +153,11 @@ svz_tcp_read_socket (svz_socket_t *sock)
   num_read = recv (desc,
                    sock->recv_buffer + sock->recv_buffer_fill, do_read, 0);
 
-  /* Error occurred while reading. */
+  /* Error occurred while reading.  */
   if (num_read < 0)
     {
       /*
-       * This means that the socket was shut down. Close the socket in this
+       * This means that the socket was shut down.  Close the socket in this
        * case, which the main loop will do for us if we return a non-zero
        * value.
        */
@@ -167,7 +167,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
       else
         return -1;
     }
-  /* Some data has been read successfully. */
+  /* Some data has been read successfully.  */
   else if (num_read > 0)
     {
       sock->last_recv = time (NULL);
@@ -188,7 +188,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
             return ret;
         }
     }
-  /* The socket was `select()'ed but there is no data. */
+  /* The socket was `select()'ed but there is no data.  */
   else
     {
       svz_log (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
@@ -282,7 +282,7 @@ svz_tcp_send_oob (svz_socket_t *sock)
 
 /*
  * Create a TCP connection to host @var{host} and set the socket descriptor
- * in structure @var{sock} to the resulting socket. Return a zero value on
+ * in structure @var{sock} to the resulting socket.  Return a zero value on
  * errors.
  */
 svz_socket_t *
@@ -291,15 +291,15 @@ svz_tcp_connect (unsigned long host, unsigned short port)
   svz_t_socket sockfd;
   svz_socket_t *sock;
 
-  /* Create a socket. */
+  /* Create a socket.  */
   if ((sockfd = svz_socket_create (PROTO_TCP)) == (svz_t_socket) -1)
     return NULL;
 
-  /* Try connecting. */
+  /* Try connecting.  */
   if (svz_socket_connect (sockfd, host, port) == -1)
     return NULL;
 
-  /* Create socket structure and enqueue it. */
+  /* Create socket structure and enqueue it.  */
   if ((sock = svz_sock_alloc ()) == NULL)
     {
       closesocket (sockfd);
@@ -318,7 +318,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
 }
 
 /*
- * The default routine for connecting a socket @var{sock}. When we get
+ * The default routine for connecting a socket @var{sock}.  When we get
  * @code{select()}ed or @code{poll()}ed via the @var{WRITE_SET} we simply
  * check for network errors,
  */
@@ -336,7 +336,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
       return -1;
     }
 
-  /* any errors ? */
+  /* any errors?  */
   if (error)
     {
 #ifdef __MINGW32__

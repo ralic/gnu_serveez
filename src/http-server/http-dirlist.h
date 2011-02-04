@@ -25,14 +25,14 @@
 #endif
 
 /*
- * Create a directory listing of the directory given as dirname. If the
+ * Create a directory listing of the directory given as dirname.  If the
  * name contains a trailing slash it is removed (not if it is '/' though).
- * docroot is a document root. The output suppresses this part of
+ * docroot is a document root.  The output suppresses this part of
  * the directory name.
  * The return value is a string containing a directory listing in some
- * hard coded way. The global variable http_dirlist_size is set
+ * hard coded way.  The global variable http_dirlist_size is set
  * to the actual size of this buffer (for debugging/memory counting).
- * If NULL is returned, something was wrong with the directory. You may
+ * If NULL is returned, something was wrong with the directory.  You may
  * check errno for details.
  * ...and don't forget too free() the data somewhere somewhen...
  */

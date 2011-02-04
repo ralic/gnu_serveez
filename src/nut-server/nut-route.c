@@ -39,7 +39,7 @@
 #include "nut-core.h"
 
 /*
- * This function canonizes gnutella queries. Thus we prevent the network
+ * This function canonizes gnutella queries.  Thus we prevent the network
  * from unpatient users and often repeated queries.
  */
 static int
@@ -49,7 +49,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
   time_t t;
   int ret = 0;
 
-  /* not a valid query ? */
+  /* not a valid query?  */
   if (!*query)
     return -1;
 
@@ -87,9 +87,9 @@ nut_canonize_query (nut_config_t *cfg, char *query)
 }
 
 /*
- * Gnutella packet validation. This is absolutely necessary. It protects
+ * Gnutella packet validation.  This is absolutely necessary.  It protects
  * the local client as well as offer an additional line of defense against
- * broadcasting spam to other connections. Return values:
+ * broadcasting spam to other connections.  Return values:
  *  1 = packet ok
  *  0 = packet is dropped, but can be processed
  * -1 = invalid packet, do not process at all
@@ -223,7 +223,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
 
 /*
  * This is the routing routine for any incoming gnutella packet.
- * It return non-zero on routing errors and packet death. Otherwise
+ * It return non-zero on routing errors and packet death.  Otherwise
  * zero.
  */
 int
@@ -245,7 +245,7 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   /* route replies here */
   if (hdr->function & 0x01)
     {
-      /* is the GUID in the routing hash ? */
+      /* is the GUID in the routing hash?  */
       xsock = (svz_socket_t *) svz_hash_get (cfg->route, (char *) hdr->id);
       if (xsock == NULL)
         {
@@ -352,6 +352,6 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_route_dummy; /* Shut compiler warnings up. */
+int nut_route_dummy;            /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_GNUTELLA */

@@ -26,14 +26,14 @@
 #include <stdlib.h>
 #include <time.h>
 
-/* Initialize test suite. */
+/* Initialize test suite.  */
 void
 test_init (void)
 {
   srand (time (NULL));
 }
 
-/* Return a random string. */
+/* Return a random string.  */
 char *
 test_string (void)
 {
@@ -48,14 +48,14 @@ test_string (void)
   return text;
 }
 
-/* Return a random number between 0 and NR - 1. */
+/* Return a random number between 0 and NR - 1.  */
 unsigned long
 test_value (unsigned long nr)
 {
   return nr ? (rand () % nr) : 0;
 }
 
-/* Print any text. */
+/* Print any text.  */
 void
 test_print (char *text)
 {
@@ -63,7 +63,7 @@ test_print (char *text)
   fflush (stderr);
 }
 
-/* Print an Ok. */
+/* Print an Ok.  */
 void
 test_ok (void)
 {
@@ -71,7 +71,7 @@ test_ok (void)
   fflush (stderr);
 }
 
-/* Print a Failed. */
+/* Print a Failed.  */
 void
 test_failed (void)
 {

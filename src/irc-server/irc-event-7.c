@@ -49,7 +49,7 @@ irc_ison_callback (svz_socket_t *sock,
   static char nicklist[MAX_MSG_LEN] = "";
   int n;
 
-  /* do you have enough para's ? */
+  /* do you have enough para's?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
@@ -82,7 +82,7 @@ irc_userhost_callback (svz_socket_t *sock,
   char list[MAX_MSG_LEN] = ":";
   char text[MAX_MSG_LEN];
 
-  /* complete parameter list ? */
+  /* complete parameter list?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
@@ -153,7 +153,7 @@ irc_users_callback (svz_socket_t *sock,
   irc_client_t **cl;
   int n;
 
-  /* Return a messages saying this feature has been disabled. */
+  /* Return a messages saying this feature has been disabled.  */
   if (cfg->users_disabled)
     {
       irc_printf (sock, ":%s %03d %s " ERR_USERSDISABLED_TEXT "\n",
@@ -188,7 +188,7 @@ irc_users_callback (svz_socket_t *sock,
         }
 
     }
-  /* Return the list of remote servers if possible. */
+  /* Return the list of remote servers if possible.  */
   else
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
@@ -201,6 +201,6 @@ irc_users_callback (svz_socket_t *sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_7_dummy; /* Shut up compiler warnings. */
+int irc_event_7_dummy;          /* Shut up compiler warnings.  */
 
 #endif /* not ENABLE_IRC_PROTO */

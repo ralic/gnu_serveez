@@ -85,7 +85,7 @@
 extern int alphasort (const struct dirent **, const struct dirent **);
 #endif
 
-/* Size of last buffer allocated. */
+/* Size of last buffer allocated.  */
 int http_dirlist_size = 0;
 
 /*
@@ -123,8 +123,8 @@ http_create_uri (char *file)
 
 /*
  * Return a buffer to a http directory listing referring to DIRNAME
- * and being part of the document root DOCROOT. Do not to forget to
- * svz_free() the return buffer. Return NULL on errors.
+ * and being part of the document root DOCROOT.  Do not to forget to
+ * svz_free() the return buffer.  Return NULL on errors.
  */
 char *
 http_dirlist (char *dirname, char *docroot, char *userdir)
@@ -233,7 +233,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
       /* Stat the given file */
       if (-1 == stat (filename, &buf))
         {
-          /* Something is wrong with this file... */
+          /* Something is wrong with this file...  */
           svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
                         "<font color=red>%s -- %s</font>\n",
                         FILENAME, SYS_ERROR);
@@ -256,7 +256,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
           /* Emit beautiful description */
           if (S_ISDIR (buf.st_mode))
             {
-              /* This is a directory... */
+              /* This is a directory...  */
               svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
                             "<img border=0 src=internal-gopher-menu> "
                             "<a href=\"%s/\">%-40s</a> "
@@ -321,6 +321,6 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 
 #else /* ENABLE_HTTP_PROTO */
 
-int http_dirlist_dummy; /* Silence compiler. */
+int http_dirlist_dummy;         /* Silence compiler.  */
 
 #endif /* not ENABLE_HTTP_PROTO */

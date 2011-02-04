@@ -47,7 +47,7 @@
 #include "nut-request.h"
 
 /*
- * This routine will be called when a search reply occurs. Here we
+ * This routine will be called when a search reply occurs.  Here we
  * can check if the reply was created by a packet we sent ourselves.
  */
 int
@@ -78,7 +78,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
       return -1;
     }
 
-  /* is that query hit (reply) an answer to my own request ? */
+  /* is that query hit (reply) an answer to my own request?  */
   if (pkt != NULL)
     {
       xsock = pkt->sock;
@@ -156,7 +156,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 
   push = nut_get_push (packet);
 
-  /* is the guid of this push request in the reply hash ? */
+  /* is the guid of this push request in the reply hash?  */
   if ((xsock = (svz_socket_t *)
        svz_hash_get (cfg->reply, (char *) push->id)) != NULL)
     {
@@ -168,7 +168,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
           return -1;
         }
     }
-  /* push request for ourselves ? */
+  /* push request for ourselves?  */
   else if (!memcmp (cfg->guid, push->id, NUT_GUID_SIZE))
     {
 #if 0
@@ -239,7 +239,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   struct sockaddr_in *addr = NULL;
   svz_portcfg_t *port;
 
-  /* shall we reply to this query ? */
+  /* shall we reply to this query?  */
   query = nut_get_query (packet);
   if (query->speed > cfg->speed)
     return -1;
@@ -337,7 +337,7 @@ nut_pong (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   nut_host_catcher (sock, reply->ip, reply->port);
   pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
 
-  /* is this a reply to my own gnutella packet ? */
+  /* is this a reply to my own gnutella packet?  */
   if (pkt != NULL)
     {
       xsock = pkt->sock;
@@ -363,7 +363,7 @@ nut_pong (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 }
 
 /*
- * This callback is called if a ping request was received. We just
+ * This callback is called if a ping request was received.  We just
  * reply with our own configuration.
  */
 int
@@ -405,6 +405,6 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *null)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_request_dummy; /* Shut compiler warnings up. */
+int nut_request_dummy;          /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_GNUTELLA */

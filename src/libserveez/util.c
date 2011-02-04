@@ -91,17 +91,17 @@ static char log_level[][16] = {
 };
 
 /*
- * This is the file all log messages are written to. Change it with a
- * call to @code{svz_log_setfile()}. By default, all log messages are written
+ * This is the file all log messages are written to.  Change it with a
+ * call to @code{svz_log_setfile()}.  By default, all log messages are written
  * to @code{stderr}.
  */
 static FILE *svz_logfile = NULL;
 
-/* Global definition of the logging mutex. */
+/* Global definition of the logging mutex.  */
 svz_mutex_define (svz_log_mutex)
 
 /*
- * Print a message to the log system. @var{level} specifies the prefix.
+ * Print a message to the log system.  @var{level} specifies the prefix.
  */
 void
 svz_log (int level, svz_c_const char *format, ...)
@@ -129,7 +129,7 @@ svz_log (int level, svz_c_const char *format, ...)
 
 /*
  * Set the file stream @var{file} to the log file all messages are printed
- * to. Could also be @code{stdout} or @code{stderr}.
+ * to.  Could also be @code{stdout} or @code{stderr}.
  */
 void
 svz_log_setfile (FILE * file)
@@ -141,9 +141,9 @@ svz_log_setfile (FILE * file)
 
 /*
  * Dump a @var{buffer} with the length @var{len} to the file stream @var{out}.
- * You can specify a description in @var{action}. The hexadecimal text
+ * You can specify a description in @var{action}.  The hexadecimal text
  * representation of the given buffer will be either cut at @var{len} or
- * @var{max}. @var{from} is a numerical identifier of the buffers creator.
+ * @var{max}.  @var{from} is a numerical identifier of the buffers creator.
  */
 int
 svz_hexdump (FILE *out,    /* output FILE stream */
@@ -191,7 +191,7 @@ svz_hexdump (FILE *out,    /* output FILE stream */
 }
 
 /* On some platforms @code{hstrerror()} can be resolved but is not declared
-   anywhere. That is why we do it here by hand. */
+   anywhere.  That is why we do it here by hand.  */
 #if defined (HAVE_HSTRERROR) && !defined (DECLARED_HSTRERROR)
 extern char * hstrerror (int);
 #endif
@@ -238,7 +238,7 @@ svz_time (long t)
 }
 
 /*
- * Create some kind of uptime string. It tells how long the core library
+ * Create some kind of uptime string.  It tells how long the core library
  * has been running.
  */
 char *
@@ -294,7 +294,7 @@ svz_tolower (char *str)
 }
 
 /*
- * This is the system dependent case insensitive string compare. It
+ * This is the system dependent case insensitive string compare.  It
  * compares the strings @var{str1} and @var{str2} and returns zero if both
  * strings are equal.
  */
@@ -330,10 +330,10 @@ svz_strcasecmp (svz_c_const char *str1, svz_c_const char *str2)
 
 /*
  * The @code{svz_strncasecmp()} function compares the two strings @var{str1}
- * and @var{str2}, ignoring the case of the characters. It returns an
+ * and @var{str2}, ignoring the case of the characters.  It returns an
  * integer less than, equal to, or greater than zero if @var{str1} is
  * found, respectively, to be less than, to match, or be greater than
- * @var{str2}. It only compares the first @var{n} characters of @var{str1}.
+ * @var{str2}.  It only compares the first @var{n} characters of @var{str1}.
  */
 int
 svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2,
@@ -369,7 +369,7 @@ svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2,
 #ifdef __MINGW32__
 /*
  * This variable contains the last system or network error occurred if
- * it was detected and printed. Needed for the "Resource unavailable" error
+ * it was detected and printed.  Needed for the "Resource unavailable" error
  * condition.
  */
 int svz_errno = 0;
@@ -378,7 +378,7 @@ int svz_errno = 0;
 
 /*
  * There is no text representation of network (Winsock API) errors in
- * Win32. That is why we translate it by hand.
+ * Win32.  That is why we translate it by hand.
  */
 static char *
 svz_neterror (int error)
@@ -479,7 +479,7 @@ svz_neterror (int error)
 }
 
 /*
- * Routine which forms a valid error message under Win32. It might either
+ * Routine which forms a valid error message under Win32.  It might either
  * use the @code{GetLastError()} or @code{WSAGetLastError()} in order to
  * get a valid error code.
  */
@@ -518,7 +518,7 @@ svz_syserror (int nr)
 }
 
 /*
- * This variable contains the the runtime detected Win32 version. Its value
+ * This variable contains the the runtime detected Win32 version.  Its value
  * is setup in @code{svz_version()} and can be @code{Win32s} for Windows 3.x,
  * @code{Win95} for Windows 95, @code{Win98} for Windows 98, @code{WinNT3x}
  * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
@@ -530,7 +530,7 @@ int svz_os_version = 0;
 
 /*
  * This routine is for detecting the operating system version of Win32
- * and all Unices at runtime. You should call it at least once at startup.
+ * and all Unices at runtime.  You should call it at least once at startup.
  * It saves its result in the variable @code{svz_os_version} and prints an
  * appropriate message.
  */
@@ -644,7 +644,7 @@ svz_atoi (char *str)
 }
 
 /*
- * Returns the current working directory. The returned pointer needs to be
+ * Returns the current working directory.  The returned pointer needs to be
  * @code{svz_free()}'ed after usage.
  */
 char *
@@ -667,8 +667,8 @@ svz_getcwd (void)
 
 /*
  * This routine checks for the current and maximum limit of open files
- * of the current process. The function heavily depends on the underlying
- * platform. It tries to set the limit to the given @var{max_sockets}
+ * of the current process.  The function heavily depends on the underlying
+ * platform.  It tries to set the limit to the given @var{max_sockets}
  * amount.
  */
 int

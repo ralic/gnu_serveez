@@ -55,7 +55,7 @@
 
 /* protocol flags */
 #define NUT_FLAG_DNLOAD 0x0001 /* downloading a file */
-#define NUT_FLAG_HDR    0x0002 /* http header received ? */
+#define NUT_FLAG_HDR    0x0002 /* http header received?  */
 #define NUT_FLAG_HOSTS  0x0004 /* sending host catcher list (http proto) */
 #define NUT_FLAG_CLIENT 0x0008 /* normal gnutella host */
 #define NUT_FLAG_UPLOAD 0x0010 /* uploading a file */
@@ -64,18 +64,18 @@
 
 /* guid:
  * The header contains a Microsoft GUID (Globally Unique Identifier for
- * you nonWinblows people) which is the message identifer. My crystal ball
+ * you nonWinblows people) which is the message identifer.  My crystal ball
  * reports that "the GUIDs only have to be unique on the client", which
  * means that you can really put anything here, as long as you keep track
  * of it (a client won't respond to you if it sees the same message id
- * again). If you're responding to a message, be sure you haven't seen the
+ * again).  If you're responding to a message, be sure you haven't seen the
  * message id (from that host) before, copy their message ID into your
  * response and send it on it's way.
  */
 
 /*
  * The Gnutella packets are all in little endian byte order except
- * ip adresses which are in network byte order (big endian). So they
+ * ip adresses which are in network byte order (big endian).  So they
  * need to be converted to host byte order if necessary.
  */
 

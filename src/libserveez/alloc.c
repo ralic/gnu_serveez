@@ -38,21 +38,21 @@
 
 #if SVZ_ENABLE_DEBUG
 /* The variable @var{svz_allocated_bytes} holds the overall number of bytes
-   allocated by the core library. */
+   allocated by the core library.  */
 unsigned int svz_allocated_bytes = 0;
 /* This variable holds the number of memory blocks reserved by the core
-   library. */
+   library.  */
 unsigned int svz_allocated_blocks = 0;
 #endif /* SVZ_ENABLE_DEBUG */
 
 /* The @var{svz_malloc_func} variable is a function pointer for allocating
-   dynamic memory. */
+   dynamic memory.  */
 svz_malloc_func_t svz_malloc_func = malloc;
 /* This function pointer is called whenever the core library needs to
-   reallocate (resize) a memory block. */
+   reallocate (resize) a memory block.  */
 svz_realloc_func_t svz_realloc_func = realloc;
 /* In order to free a block of memory the core library calls this function
-   pointer. */
+   pointer.  */
 svz_free_func_t svz_free_func = free;
 
 #if DEBUG_MEMORY_LEAKS
@@ -191,7 +191,7 @@ svz_calloc (svz_t_size size)
 }
 
 /*
- * Change the size of a @code{svz_malloc()}'ed block of memory. The @var{size}
+ * Change the size of a @code{svz_malloc()}'ed block of memory.  The @var{size}
  * argument is the new size of the block in bytes, The given variable
  * @var{ptr} must be a pointer previously returned by @code{svz_malloc()} or
  * @code{NULL} if you want to allocate a new block.
@@ -275,7 +275,7 @@ svz_realloc (void *ptr, svz_t_size size)
 
 /*
  * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory
- * block. If @var{ptr} is a @code{NULL} pointer, no operation is performed.
+ * block.  If @var{ptr} is a @code{NULL} pointer, no operation is performed.
  */
 void
 svz_free (void *ptr)
@@ -323,8 +323,8 @@ svz_free (void *ptr)
 
 #if DEBUG_MEMORY_LEAKS
 /*
- * Print a list of non-released memory blocks. This is for debugging only
- * and should never occur in final software releases. The function goes
+ * Print a list of non-released memory blocks.  This is for debugging only
+ * and should never occur in final software releases.  The function goes
  * through the heap hash and states each blocks address, size and caller.
  */
 void
@@ -359,7 +359,7 @@ svz_heap (void)
 
 /*
  * Duplicate the given string @var{src} if it is not @code{NULL} and has
- * got a valid length (greater than zero). Return the pointer to the
+ * got a valid length (greater than zero).  Return the pointer to the
  * copied character string.
  */
 char *
@@ -377,7 +377,7 @@ svz_strdup (char *src)
 }
 
 /*
- * Allocate a block of memory with the size @var{size} permanently. Memory
+ * Allocate a block of memory with the size @var{size} permanently.  Memory
  * allocated this way does not get into account of the libraries memory
  * tracking.
  */
@@ -406,7 +406,7 @@ svz_pcalloc (svz_t_size size)
 }
 
 /*
- * Resize the memory block pointed to by @var{ptr} to @var{size} bytes. This
+ * Resize the memory block pointed to by @var{ptr} to @var{size} bytes.  This
  * routine also allocates memory permanently.
  */
 void *

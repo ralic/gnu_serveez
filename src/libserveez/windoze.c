@@ -275,7 +275,7 @@ svz_windoze_stop_daemon (void)
 {
   DWORD ret;
 
-  /* daemon thread still running ? */
+  /* daemon thread still running?  */
   if (!windoze_run)
     {
       return 0;
@@ -451,6 +451,6 @@ svz_windoze_uni2asc (WCHAR *unicode)
 
 #else /* __MINGW32__ */
 
-static int windoze_dummy;      /* Shut compiler warnings up. */
+static int windoze_dummy;       /* Shut compiler warnings up.  */
 
 #endif /* not __MINGW32__ */

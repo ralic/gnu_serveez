@@ -25,7 +25,7 @@
 
 #if (!defined (SVZ_HAVE_SNPRINTF)) && (!defined (__MINGW32__))
 /*
- * Implementation of the @code{snprintf()} if it is not defined. It uses
+ * Implementation of the @code{snprintf()} if it is not defined.  It uses
  * the @code{vsnprintf()} function therefore which will fall back to
  * @code{vsprintf()} if @code{vsnprintf()} does not exist.
  */

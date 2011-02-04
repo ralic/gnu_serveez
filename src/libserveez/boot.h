@@ -40,22 +40,22 @@ svz_config_t;
 
 __BEGIN_DECLS
 
-/* Core library configuration. */
+/* Core library configuration.  */
 SERVEEZ_API svz_config_t svz_config;
 
-/* Exported functions. */
+/* Exported functions.  */
 SERVEEZ_API int svz_net_startup __PARAMS ((void));
 SERVEEZ_API int svz_net_cleanup __PARAMS ((void));
 SERVEEZ_API void svz_init_config __PARAMS ((void));
 SERVEEZ_API void svz_boot __PARAMS ((void));
 SERVEEZ_API void svz_halt __PARAMS ((void));
 
-/* Some static strings. */
+/* Some static strings.  */
 SERVEEZ_API char *svz_library;
 SERVEEZ_API char *svz_version;
 SERVEEZ_API char *svz_build;
 
-/* Exported from `boot.c' because it is a central point. */
+/* Exported from `boot.c' because it is a central point.  */
 SERVEEZ_API int svz_have_debug;
 SERVEEZ_API int svz_have_Win32;
 SERVEEZ_API int svz_have_floodprotect;

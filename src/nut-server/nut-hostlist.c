@@ -46,7 +46,7 @@
 
 /*
  * This routine is the write_socket callback when delivering the
- * host catcher list. It just waits until the whole HTML has been
+ * host catcher list.  It just waits until the whole HTML has been
  * successfully sent and closes the connection afterwards.
  */
 int
@@ -83,7 +83,7 @@ nut_hosts_write (svz_socket_t *sock)
         }
     }
 
-  /* has all data been sent successfully ? */
+  /* has all data been sent successfully?  */
   if (sock->send_buffer_fill <= 0 && !(sock->userflags & NUT_FLAG_HOSTS))
     {
       num_written = -1;
@@ -122,7 +122,7 @@ nut_hosts_check (svz_socket_t *sock)
         {
           if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
             {
-              /* send buffer queue overrun ... */
+              /* send buffer queue overrun ...  */
               if (svz_sock_printf (sock, ".\n.\n.\n") == -1)
                 {
                   svz_hash_xfree (host);
@@ -170,8 +170,8 @@ nut_hosts_check (svz_socket_t *sock)
 }
 
 /*
- * Within this routine we collect all available gnutella hosts. Thus
- * we might never ever lack of gnutella net connections. IP and PORT
+ * Within this routine we collect all available gnutella hosts.  Thus
+ * we might never ever lack of gnutella net connections.  IP and PORT
  * must be both in network byte order.
  */
 int
@@ -218,6 +218,6 @@ nut_host_catcher (svz_socket_t *sock, unsigned long ip, unsigned short port)
 
 #else /* ENABLE_GNUTELLA */
 
-int nut_hostlist_dummy; /* Shut compiler warnings up. */
+int nut_hostlist_dummy;         /* Shut compiler warnings up.  */
 
 #endif /* not ENABLE_GNUTELLA */

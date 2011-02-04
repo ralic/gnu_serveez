@@ -35,7 +35,7 @@
 #include "libserveez/hash.h"
 #include "libserveez/pipe-socket.h"
 
-/* Port configuration items. */
+/* Port configuration items.  */
 #define PORTCFG_PORT    "port"
 #define PORTCFG_PROTO   "proto"
 #define PORTCFG_TCP     "tcp"
@@ -50,7 +50,7 @@
 #define PORTCFG_BACKLOG "backlog"
 #define PORTCFG_TYPE    "type"
 
-/* Pipe definitions. */
+/* Pipe definitions.  */
 #define PORTCFG_RECV  "recv"
 #define PORTCFG_SEND  "send"
 #define PORTCFG_NAME  "name"
@@ -60,19 +60,19 @@
 #define PORTCFG_UID   "uid"
 #define PORTCFG_GID   "gid"
 
-/* Miscellaneous definitions. */
+/* Miscellaneous definitions.  */
 #define PORTCFG_SEND_BUFSIZE "send-buffer-size"
 #define PORTCFG_RECV_BUFSIZE "recv-buffer-size"
 #define PORTCFG_FREQ         "connect-frequency"
 #define PORTCFG_ALLOW        "allow"
 #define PORTCFG_DENY         "deny"
 
-/* Port configuration flags. */
+/* Port configuration flags.  */
 #define PORTCFG_FLAG_ANY    0x0001
 #define PORTCFG_FLAG_ALL    0x0002
 #define PORTCFG_FLAG_DEVICE 0x0004
 
-/* Return values for port configuration comparisons. */
+/* Return values for port configuration comparisons.  */
 #define PORTCFG_NOMATCH  0x0001
 #define PORTCFG_EQUAL    0x0002
 #define PORTCFG_MATCH    0x0004
@@ -213,7 +213,7 @@ svz_portcfg_t;
 
 /*
  * This macro returns the network device name stored in the given port
- * configuration @var{port} if it is a network port configuration. The
+ * configuration @var{port} if it is a network port configuration.  The
  * returned pointer can be @code{NULL} if there is no such device set
  * or if the port configuration is not a network port configuration.
  */

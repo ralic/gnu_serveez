@@ -52,11 +52,11 @@ typedef void * svz_mutex_t;
 #endif
 
 /* Declares a @var{mutex} object externally.  This is useful when the
-   @var{mutex} object is defined in another file. */
+   @var{mutex} object is defined in another file.  */
 #define svz_mutex_declare(mutex) \
   extern svz_mutex_t mutex;
 
-/* Defines a @var{mutex} object globally. */
+/* Defines a @var{mutex} object globally.  */
 #define svz_mutex_define(mutex) \
   svz_mutex_t mutex = SVZ_MUTEX_INITIALIZER;
 

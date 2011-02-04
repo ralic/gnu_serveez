@@ -50,7 +50,7 @@
 awcs_config_t awcs_config =
 {
   NULL,           /* aWCS Master server */
-  0,              /* Was Master server detected ? */
+  0,              /* Was Master server detected?  */
   NULL            /* aWCS clients user base hash */
 };
 
@@ -86,7 +86,7 @@ svz_servertype_t awcs_server_definition =
 
 /*
  * These 3 (three) routines are for modifying the client hash key
- * processing. Because we are using unique IDs for identifying aWCS
+ * processing.  Because we are using unique IDs for identifying aWCS
  * clients it is not necessary to have character strings here.
  */
 static unsigned
@@ -282,7 +282,7 @@ awcs_status_connected (svz_socket_t *sock)
 
 /*
  * Send a status message to the master server
- * telling it that client `client' has disconnected. `reason'
+ * telling it that client `client' has disconnected.  `reason'
  * is an error code telling how the client got disconnected.
  */
 static int
@@ -321,7 +321,7 @@ awcs_status_disconnected (svz_socket_t *sock, int reason)
 
 /*
  * Send a status message to the master server
- * telling it that client `client' has been kicked. `reason'
+ * telling it that client `client' has been kicked.  `reason'
  * is an error code telling why the client got kicked.
  */
 static int
@@ -435,7 +435,7 @@ awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
 }
 
 /*
- * This macro parse an aWCS id at the given memory location @var{ptr}. The
+ * This macro parse an aWCS id at the given memory location @var{ptr}.  The
  * result will be stored in @var{id} and @var{ptr} points to the following
  * non numerical byte afterwards.
  */
@@ -458,12 +458,12 @@ awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
   int address;
   svz_socket_t *sock;
 
-  /* Parse the actual message first. */
+  /* Parse the actual message first.  */
   msg = cmd;
   while (*msg++ != ' ');
   cmd_len -= (msg - cmd);
 
-  /* Go through the client list. */
+  /* Go through the client list.  */
   while (*cmd && *cmd != ' ')
     {
       awcs_process_id (address, cmd);
@@ -517,7 +517,7 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
           svz_log (LOG_DEBUG, "awcs: kicking socket %d\n", sock->sock_desc);
 #endif /* SVZ_ENABLE_DEBUG */
           /*
-           * This is a hack. We set the handler to NULL to be sure
+           * This is a hack.  We set the handler to NULL to be sure
            * that the master server will not get a KICKED status
            * message for a kick he initiated.
            */
@@ -620,7 +620,7 @@ awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
       awcs_process_floodcmd (cfg, request, request_len, 1);
       break;
     case '6':
-      /* The following code should not be executed anymore. */
+      /* The following code should not be executed anymore.  */
       svz_log (LOG_NOTICE, "awcs: skipping '6' ...\n");
       break;
     default:
@@ -631,7 +631,7 @@ awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
 }
 
 /*
- * Schedule all aWCS clients for shutdown. Call this if the
+ * Schedule all aWCS clients for shutdown.  Call this if the
  * connection to the master server has been lost.
  */
 void
@@ -737,7 +737,7 @@ awcs_check_request (svz_socket_t *sock)
 
 /*
  * Gets called when a client has connected as socket SOCK and has been
- * identified as an aWCS client. MASTER ist set if it was a master
+ * identified as an aWCS client.  MASTER ist set if it was a master
  * server detection.
  */
 int

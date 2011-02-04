@@ -25,13 +25,13 @@
  */
 typedef struct
 {
-  char *bin;           /* Executable file. */
-  char *dir;           /* Working directory or NULL. */
-  char *user;          /* user[.group] or NULL. */
-  svz_array_t *argv;   /* Arguments for the executable. Watch argv[0]. */
-  int fork;            /* Flag: fork or shuffle for passthrough method. */
-  int single_threaded; /* Flag: single- or multi-threaded packet server. */
-  int frequency;       /* Maximum number of threads per minute. */
+  char *bin;           /* Executable file.  */
+  char *dir;           /* Working directory or NULL.  */
+  char *user;          /* user[.group] or NULL.  */
+  svz_array_t *argv;   /* Arguments for the executable.  Watch argv[0].  */
+  int fork;            /* Flag: fork or shuffle for passthrough method.  */
+  int single_threaded; /* Flag: single- or multi-threaded packet server.  */
+  int frequency;       /* Maximum number of threads per minute.  */
   int (* check_request) (svz_socket_t *);
   svz_array_t *accepted;
 }

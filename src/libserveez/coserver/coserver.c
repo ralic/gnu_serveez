@@ -201,14 +201,14 @@ svz_coserver_put_id (unsigned id, char *response)
  * server.
  *
  * Unices:
- * svz_coserver_loop() is a infinite loop in a separate process. It reads
+ * svz_coserver_loop() is a infinite loop in a separate process.  It reads
  * blocking from a receive pipe, processes the request and puts the
  * result to a sending pipe to the server.
  *
  * The coserver loop heavily differs in Win32 and Unices...
  */
 
-/* Debug info Macro. */
+/* Debug info Macro.  */
 #if SVZ_ENABLE_DEBUG
 # define COSERVER_REQUEST_INFO() \
   svz_log (LOG_DEBUG, "%s: coserver request occurred\n",   \
@@ -217,7 +217,7 @@ svz_coserver_put_id (unsigned id, char *response)
 # define COSERVER_REQUEST_INFO()
 #endif
 
-/* Post-Processing Macro. */
+/* Post-Processing Macro.  */
 #if SVZ_ENABLE_DEBUG
 # define COSERVER_RESULT() \
   svz_log (LOG_DEBUG, "%s: coserver request processed\n", \
@@ -226,10 +226,10 @@ svz_coserver_put_id (unsigned id, char *response)
 # define COSERVER_RESULT()
 #endif
 
-/* Pre-Processing Macro. */
+/* Pre-Processing Macro.  */
 #define COSERVER_REQUEST()                                   \
   COSERVER_REQUEST_INFO ();                                  \
-  /* Process the request here. Might be blocking indeed ! */ \
+  /* Process the request here.  Might be blocking indeed!  */ \
   if ((id = svz_coserver_get_id (request)) != 0)             \
     {                                                        \
       if ((result = coserver->callback (request)) == NULL)   \
@@ -266,11 +266,11 @@ svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
             p++;
           len = p - sock->send_buffer + 1;
 
-          /* Copy the coserver request to static buffer. */
+          /* Copy the coserver request to static buffer.  */
           assert (len <= COSERVER_BUFSIZE);
           memcpy (request, sock->send_buffer, len);
 
-          /* Enter a synchronized section (exclusive access to all data). */
+          /* Enter a synchronized section (exclusive access to all data).  */
           EnterCriticalSection (&coserver->sync);
           if (sock->send_buffer_fill > len)
             {
@@ -293,7 +293,7 @@ svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
             }
         }
 
-      /* suspend myself and wait for being resumed ... */
+      /* suspend myself and wait for being resumed ...  */
       if (SuspendThread (coserver->thread) == 0xFFFFFFFF)
         {
           svz_log (LOG_ERROR, "SuspendThread: %s\n", SYS_ERROR);
@@ -352,7 +352,7 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 
 /*
  * This routine is the actual threads callback, but calls the coservers
- * callback indeed. It is a wrapper routine for Win32, because you can pass
+ * callback indeed.  It is a wrapper routine for Win32, because you can pass
  * only a single argument to a thread routine.
  */
 static DWORD WINAPI
@@ -368,7 +368,7 @@ svz_coserver_thread (LPVOID thread)
 }
 
 /*
- * Reactivate all specific coservers with type @var{type}. In Win32
+ * Reactivate all specific coservers with type @var{type}.  In Win32
  * you have to call this if you want the coserver start working.
  */
 static void
@@ -380,7 +380,7 @@ svz_coserver_activate (int type)
   /* go through all internal coserver threads */
   svz_array_foreach (svz_coservers, coserver, n)
     {
-      /* is this structure of the requested type ? */
+      /* is this structure of the requested type?  */
       if (coserver->type == type)
         {
           /* activated the thread */
@@ -435,7 +435,7 @@ svz_coserver_delete (int n)
 
 #ifndef __MINGW32__
 /*
- * Disconnects a internal coserver. This is the callback routine for the
+ * Disconnects a internal coserver.  This is the callback routine for the
  * socket structure entry `disconnected_socket'.
  */
 static int
@@ -470,7 +470,7 @@ svz_coserver_disconnect (svz_socket_t *sock)
 #endif /* not __MINGW32__ */
 
 /*
- * This routine has to be called for coservers requests. It is the default
+ * This routine has to be called for coservers requests.  It is the default
  * @code{check_request()} routine for coservers detecting full responses as
  * lines (trailing '\n').
  */
@@ -532,7 +532,7 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
   char *p, *end, *data;
   svz_coserver_callback_t *cb;
 
-  /* Search for coserver hash id. */
+  /* Search for coserver hash id.  */
   id = 0;
   p = request;
   end = p + len;
@@ -555,7 +555,7 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
     }
   data = ++p;
 
-  /* Search for packet end. */
+  /* Search for packet end.  */
   while (*p != COSERVER_PACKET_BOUNDARY && p < end)
     p++;
   if (p == end)
@@ -566,7 +566,7 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
     }
   *p = '\0';
 
-  /* Have a look at the coserver callback hash. */
+  /* Have a look at the coserver callback hash.  */
   if (NULL == (cb = svz_hash_get (svz_coserver_callbacks, svz_itoa (id))))
     {
       svz_log (LOG_ERROR, "coserver: invalid callback for id %u\n", id);
@@ -574,8 +574,8 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
     }
 
   /*
-   * Run the callback inclusive its arg. Second arg is either NULL for
-   * error detection or the actual result string. Afterwards free the
+   * Run the callback inclusive its arg.  Second arg is either NULL for
+   * error detection or the actual result string.  Afterwards free the
    * callback structure and delete it from the coserver callback hash.
    */
   ret = cb->handle_result (*data ? data : NULL, cb->arg[0], cb->arg[1]);
@@ -588,9 +588,9 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
 #ifndef __MINGW32__
 /*
  * This function closes the pipes (incoming and outgoing) of all coservers
- * inherited to a newly instantiated coserver. These pipe descriptors are
+ * inherited to a newly instantiated coserver.  These pipe descriptors are
  * part of server process and are inherited when we call @code{fork()} in
- * order to create another coserver sub process. Since this coserver process
+ * order to create another coserver sub process.  Since this coserver process
  * should not access these pipes we are closing them.
  */
 static void
@@ -612,10 +612,10 @@ svz_coserver_close_pipes (svz_coserver_t *self)
 
 /*
  * Iterate each socket object and close its file/socket/pipe
- * descriptors. Also frees the (cloned) queues.
+ * descriptors.  Also frees the (cloned) queues.
  * Note: Duplicate memory for everything else, including server private data.
  *       We cannot take care of all that because the servers do not know
- *       that they may get cloned. We therefore waste memory in the coservers.
+ *       that they may get cloned.  We therefore waste memory in the coservers.
  */
 static void
 svz_coserver_closeall (svz_socket_t *self)
@@ -648,7 +648,7 @@ svz_coserver_closeall (svz_socket_t *self)
 }
 
 /*
- * Setup signaling for a coserver process. This is necessary since
+ * Setup signaling for a coserver process.  This is necessary since
  * the original signal handlers get confused about signals raised by its
  * children.
  */
@@ -675,8 +675,8 @@ svz_coserver_signals (void)
 #endif /* not __MINGW32__ */
 
 /*
- * Destroy specific coservers with the type @var{type}. This works for
- * Win32 and Unices. All instances of this coserver type will be stopped.
+ * Destroy specific coservers with the type @var{type}.  This works for
+ * Win32 and Unices.  All instances of this coserver type will be stopped.
  */
 void
 svz_coserver_destroy (int type)
@@ -723,8 +723,8 @@ svz_coserver_destroy (int type)
 }
 
 /*
- * Start a specific internal coserver. This works for Win32 and
- * Unices. Whereas in Unix a process is @code{fork()}ed and in Win32
+ * Start a specific internal coserver.  This works for Win32 and
+ * Unices.  Whereas in Unix a process is @code{fork()}ed and in Win32
  * a thread gets started.
  */
 static svz_socket_t *
@@ -912,10 +912,10 @@ svz_coserver_start (int type)
 
 /*
  * Call this routine whenever there is time, e.g. within the timeout of
- * the @code{select()} statement. Indeed I built it in the
- * @code{svz_periodic_tasks()} statement. Under Wind32 the routine checks
- * if there was any response from an active coserver. Moreover it keeps
- * the coserver threads/processes alive. If one of the coservers dies due
+ * the @code{select()} statement.  Indeed I built it in the
+ * @code{svz_periodic_tasks()} statement.  Under Wind32 the routine checks
+ * if there was any response from an active coserver.  Moreover it keeps
+ * the coserver threads/processes alive.  If one of the coservers dies due
  * to buffer overrun or might be overloaded this function starts a new one.
  */
 void
@@ -982,7 +982,7 @@ svz_coserver_create (int type)
 }
 
 /*
- * Global coserver initialization. Here you should start all the internal
+ * Global coserver initialization.  Here you should start all the internal
  * coservers you want to use later.
  */
 int
@@ -1026,14 +1026,14 @@ svz_coserver_finalize (void)
            svz_hash_size (svz_coserver_callbacks));
 #endif
 
-  /* Destroy all callbacks left so far. */
+  /* Destroy all callbacks left so far.  */
   svz_hash_destroy (svz_coserver_callbacks);
   return 0;
 }
 
 /*
  * Invoke a @var{request} for one of the running internal coservers
- * with type @var{type}. @var{handle_result} and @var{arg} specify what
+ * with type @var{type}.  @var{handle_result} and @var{arg} specify what
  * should happen if the coserver delivers a result.
  */
 void

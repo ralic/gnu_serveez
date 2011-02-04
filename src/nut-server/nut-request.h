@@ -24,7 +24,7 @@
 # include <config.h>
 #endif
 
-/* Exported functions. */
+/* Exported functions.  */
 int nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet);
 int nut_push_request (svz_socket_t *sock, nut_header_t *hdr,
                       svz_uint8_t *packet);

@@ -212,7 +212,7 @@ nut_connect_timeout (svz_socket_t *sock)
 {
   /*
    * Did we try to connect to another host in order to download something,
-   * but failed within a certain time ? Then we need to send a push request
+   * but failed within a certain time?  Then we need to send a push request
    * to the host providing the original data.
    */
   if (sock->userflags & NUT_FLAG_DNLOAD)
@@ -224,7 +224,7 @@ nut_connect_timeout (svz_socket_t *sock)
 
 /*
  * The following function tries to connect to a given gnutella host specified
- * by @var{ip:port} both in network byte order. It returns -1 on errors and
+ * by @var{ip:port} both in network byte order.  It returns -1 on errors and
  * zero otherwise.
  */
 static int
@@ -270,7 +270,7 @@ nut_nslookup_done (char *host, nut_config_t *cfg, unsigned short port)
 }
 
 /*
- * The following routine tries to connect to a given gnutella host. The
+ * The following routine tries to connect to a given gnutella host.  The
  * @var{host} argument can be either in dotted decimal form or a hostname.
  * It returns -1 on errors and zero otherwise.
  */
@@ -378,7 +378,7 @@ nut_global_init (svz_servertype_t *server)
   nut_config.search = svz_config_strarray_create (nut_search_patterns);
 
 #if 0
-  /* Print structure sizes. */
+  /* Print structure sizes.  */
   printf ("header     : %d\n", sizeof (nut_header_t));
   printf ("ping reply : %d\n", sizeof (nut_pong_t));
   printf ("query      : %d\n", sizeof (nut_query_t));
@@ -607,7 +607,7 @@ nut_disconnect (svz_socket_t *sock)
 
 /*
  * This callback is regularly called in the `server_periodic_tasks'
- * routine. Here we try connecting to more gnutella hosts.
+ * routine.  Here we try connecting to more gnutella hosts.
  */
 int
 nut_server_notify (svz_server_t *server)
@@ -623,11 +623,11 @@ nut_server_notify (svz_server_t *server)
   if (count-- > 0)
     return 0;
 
-  /* do we have enough connections ? */
+  /* do we have enough connections?  */
   connect = cfg->connections - svz_hash_size (cfg->conn);
   if (connect > 0)
     {
-      /* are there hosts in the host catcher hash ? */
+      /* are there hosts in the host catcher hash?  */
       if ((keys = (char **) svz_hash_keys (cfg->net)) != NULL)
         {
           /* go through all caught hosts */
@@ -700,7 +700,7 @@ nut_check_request (svz_socket_t *sock)
     {
       hdr = nut_get_header ((svz_uint8_t *) sock->recv_buffer);
 
-      /* is there enough data to fulfill a complete packet ? */
+      /* is there enough data to fulfill a complete packet?  */
       if (fill >= SIZEOF_NUT_HEADER + hdr->length)
         {
           len = SIZEOF_NUT_HEADER + hdr->length;
@@ -754,7 +754,7 @@ nut_check_request (svz_socket_t *sock)
 
 /*
  * This routine is the sock->idle_func callback for each gnutella
- * connection. We will regularly search for specific files.
+ * connection.  We will regularly search for specific files.
  */
 int
 nut_idle_searching (svz_socket_t *sock)
@@ -766,7 +766,7 @@ nut_idle_searching (svz_socket_t *sock)
   svz_uint8_t *header, *search;
   char *text;
 
-  /* search strings given ? */
+  /* search strings given?  */
   if (cfg->search && svz_array_size (cfg->search) > 0)
     {
       /* get next search string */
@@ -944,7 +944,7 @@ nut_info_client (svz_server_t *server, svz_socket_t *sock)
       strcat (info, text);
     }
 
-  /* http header received ? */
+  /* http header received?  */
   if (sock->userflags & NUT_FLAG_HDR)
     {
       strcat (info, "  * header received\r\n");
@@ -961,7 +961,7 @@ nut_info_client (svz_server_t *server, svz_socket_t *sock)
 
 /*
  * This is the protocol detection routine for self connected gnutella
- * hosts. It is used for normal gnutella network connections and
+ * hosts.  It is used for normal gnutella network connections and
  * push requests (download).
  */
 int

@@ -35,7 +35,7 @@
 #ifdef __MINGW32__
 /*
  * Both of these functions are actually implemented but not within the
- * B20.1 release of Cygwin, but in the latest. So we define them here
+ * B20.1 release of Cygwin, but in the latest.  So we define them here
  * ourselves.
  */
 # if !defined (SVZ_HAVE_SNPRINTF)

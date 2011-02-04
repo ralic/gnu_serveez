@@ -33,7 +33,7 @@
 #include "libserveez/server.h"
 
 /*
- * Create an array (@code{svz_array_t}) of integers. The given integer
+ * Create an array (@code{svz_array_t}) of integers.  The given integer
  * array @var{intarray} is a list of integers where its first element which
  * is @code{intarray[0]} contains the actual length of the given array.
  */
@@ -52,7 +52,7 @@ svz_config_intarray_create (int *intarray)
 }
 
 /*
- * Destroy the given integer array @var{intarray}. This function is the
+ * Destroy the given integer array @var{intarray}.  This function is the
  * counter part of @code{svz_config_intarray_create()}.
  */
 void
@@ -65,7 +65,7 @@ svz_config_intarray_destroy (svz_array_t *intarray)
 }
 
 /*
- * Make a plain copy of the given integer array @var{intarray}. If this
+ * Make a plain copy of the given integer array @var{intarray}.  If this
  * value is @code{NULL} no operation is performed and the return value
  * is @code{NULL} too.
  */
@@ -82,7 +82,7 @@ svz_config_intarray_dup (svz_array_t *intarray)
 }
 
 /*
- * Create an array of strings. The given list of strings @var{strarray}
+ * Create an array of strings.  The given list of strings @var{strarray}
  * must be @code{NULL} terminated in order to indicate its end.
  */
 svz_array_t *
@@ -112,7 +112,7 @@ svz_config_strarray_destroy (svz_array_t *strarray)
 }
 
 /*
- * Duplicate the given array of strings @var{strarray}. Return @code{NULL}
+ * Duplicate the given array of strings @var{strarray}.  Return @code{NULL}
  * if @var{strarray} equals @code{NULL}.
  */
 svz_array_t *
@@ -131,7 +131,7 @@ svz_config_strarray_dup (svz_array_t *strarray)
  * Create a hash table from the given array of strings @var{strarray} which
  * must be @code{NULL} terminated in order to indicate the end of the list.
  * The array consists of pairs of strings where the first one specifies a
- * key and the following the associated string value. This function is
+ * key and the following the associated string value.  This function is
  * useful when creating default values for server type configurations.
  */
 svz_hash_t *
@@ -154,7 +154,7 @@ svz_config_hash_create (char **strarray)
 }
 
 /*
- * This function is the counter part of @code{svz_config_hash_create()}. It
+ * This function is the counter part of @code{svz_config_hash_create()}.  It
  * destroys the given hash table @var{strhash} assuming it is a hash
  * associating strings with strings.
  */
@@ -166,7 +166,7 @@ svz_config_hash_destroy (svz_hash_t *strhash)
 
 /*
  * Duplicate the given hash table @var{strhash} assuming it is a hash
- * associating strings with strings. Return @code{NULL} if @var{strhash} is
+ * associating strings with strings.  Return @code{NULL} if @var{strhash} is
  * @code{NULL} too.
  */
 svz_hash_t *
@@ -199,47 +199,47 @@ svz_config_free (svz_config_prototype_t *prototype, void *cfg)
   int n;
   void **target;
 
-  /* Return here if there nothing to do. */
+  /* Return here if there nothing to do.  */
   if (prototype == NULL || cfg == NULL)
     return;
 
-  /* Go through the list of configuration items. */
+  /* Go through the list of configuration items.  */
   for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
     {
-      /* Calculate the target address. */
+      /* Calculate the target address.  */
       target = (void **) ((long) cfg +
                           (long) ((long) prototype->items[n].address -
                                   (long) prototype->start));
 
       /* Depending on the type of configuration item we need to free
-         different data structures. */
+         different data structures.  */
       switch (prototype->items[n].type)
         {
-          /* Integer array. */
+          /* Integer array.  */
         case SVZ_ITEM_INTARRAY:
           if (*target)
             svz_config_intarray_destroy (*target);
           break;
 
-          /* Simple character string. */
+          /* Simple character string.  */
         case SVZ_ITEM_STR:
           if (*target)
             svz_free (*target);
           break;
 
-          /* Array of strings. */
+          /* Array of strings.  */
         case SVZ_ITEM_STRARRAY:
           if (*target)
             svz_config_strarray_destroy (*target);
           break;
 
-          /* Hash table. */
+          /* Hash table.  */
         case SVZ_ITEM_HASH:
           if (*target)
             svz_config_hash_destroy (*target);
           break;
 
-          /* Port configuration. */
+          /* Port configuration.  */
         case SVZ_ITEM_PORTCFG:
           if (*target)
             svz_portcfg_destroy (*target);
@@ -261,19 +261,19 @@ svz_config_clobber (svz_config_prototype_t *prototype, void *cfg)
   int n;
   void **target;
 
-  /* Return here if there nothing to do. */
+  /* Return here if there nothing to do.  */
   if (prototype == NULL || cfg == NULL)
     return;
 
-  /* Go through the list of configuration items. */
+  /* Go through the list of configuration items.  */
   for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
     {
-      /* Calculate the target address. */
+      /* Calculate the target address.  */
       target = (void **) ((long) cfg +
                           (long) prototype->items[n].address -
                           (long) prototype->start);
 
-      /* Clobber only configuration items which are pointers. */
+      /* Clobber only configuration items which are pointers.  */
       if (prototype->items[n].type == SVZ_ITEM_INTARRAY ||
           prototype->items[n].type == SVZ_ITEM_STR ||
           prototype->items[n].type == SVZ_ITEM_STRARRAY ||
@@ -302,26 +302,26 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
   void *cfg = NULL, *def, *target = NULL;
   unsigned long offset;
 
-  /* Run the 'before' callback first. */
+  /* Run the 'before' callback first.  */
   if (accessor && accessor->before)
     if (SVZ_ITEM_OK != accessor->before (name, arg))
       return NULL;
 
   /* Make a simple copy of the example configuration structure definition
-     for that prototype instance. */
+     for that prototype instance.  */
   if (prototype->size == 0)
     goto out;
   cfg = svz_malloc (prototype->size);
   memcpy (cfg, prototype->start, prototype->size);
 
-  /* Clear all prototype configuration items which are pointers. Thus we
-     are able to reverse the changes below. */
+  /* Clear all prototype configuration items which are pointers.  Thus we
+     are able to reverse the changes below.  */
   svz_config_clobber (prototype, cfg);
 
-  /* Go through list of configuration items. */
+  /* Go through list of configuration items.  */
   for (n = 0; prototype->items[n].type != SVZ_ITEM_END; n++)
     {
-      /* Calculate the target address. */
+      /* Calculate the target address.  */
       offset = (char *) prototype->items[n].address -
         (char *) prototype->start;
       hasdef = prototype->items[n].defaultable;
@@ -329,7 +329,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
       target = (char *) cfg + offset;
       e = SVZ_ITEM_DEFAULT_ERRMSG;
 
-      /* Check the address of the target. */
+      /* Check the address of the target.  */
       if ((unsigned long) target < (unsigned long) cfg ||
           (unsigned long) target >= ((unsigned long) cfg +
                                      (unsigned long) prototype->size))
@@ -343,24 +343,24 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
         }
 
       /* Depending on the type of configuration item we need at this
-         point we call the given callbacks and check their return values. */
+         point we call the given callbacks and check their return values.  */
       switch (prototype->items[n].type)
         {
-          /* Integer value. */
+          /* Integer value.  */
         case SVZ_ITEM_INT:
           if (accessor && accessor->integer)
             e = accessor->integer (name, arg, prototype->items[n].name,
                                    (int *) target, hasdef, *(int *) def);
           break;
 
-          /* Boolean value. */
+          /* Boolean value.  */
         case SVZ_ITEM_BOOL:
           if (accessor && accessor->boolean)
             e = accessor->boolean (name, arg, prototype->items[n].name,
                                    (int *) target, hasdef, *(int *) def);
           break;
 
-          /* Integer array. */
+          /* Integer array.  */
         case SVZ_ITEM_INTARRAY:
           if (accessor && accessor->intarray)
             e = accessor->intarray (name, arg, prototype->items[n].name,
@@ -368,14 +368,14 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
                                     *(svz_array_t **) def);
           break;
 
-          /* Simple string. */
+          /* Simple string.  */
         case SVZ_ITEM_STR:
           if (accessor && accessor->string)
             e = accessor->string (name, arg, prototype->items[n].name,
                                   (char **) target, hasdef, *(char **) def);
           break;
 
-          /* Array of strings. */
+          /* Array of strings.  */
         case SVZ_ITEM_STRARRAY:
           if (accessor && accessor->strarray)
             e = accessor->strarray (name, arg, prototype->items[n].name,
@@ -383,7 +383,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
                                     *(svz_array_t **) def);
           break;
 
-          /* Hash table. */
+          /* Hash table.  */
         case SVZ_ITEM_HASH:
           if (accessor && accessor->hash)
             e = accessor->hash (name, arg, prototype->items[n].name,
@@ -391,7 +391,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
                                 *(svz_hash_t **) def);
           break;
 
-          /* Port configuration. */
+          /* Port configuration.  */
         case SVZ_ITEM_PORTCFG:
           if (accessor && accessor->portcfg)
             e = accessor->portcfg (name, arg, prototype->items[n].name,
@@ -399,7 +399,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
                                    *(svz_portcfg_t **) def);
           break;
 
-          /* Unknown configuration item. */
+          /* Unknown configuration item.  */
         default:
           svz_log (LOG_FATAL,
                    "inconsistent SVZ_ITEM_ data in prototype `%s'\n",
@@ -408,19 +408,19 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
           e = -1; /* special */
         }
 
-      /* Check the return value of the accessor functions. */
+      /* Check the return value of the accessor functions.  */
       switch (e)
         {
-          /* Special case: skip. */
+          /* Special case: skip.  */
         case -1:
           break;
-          /* Successfully accessed. */
+          /* Successfully accessed.  */
         case SVZ_ITEM_OK:
           break;
-          /* Use the default value, if any. */
+          /* Use the default value, if any.  */
         case SVZ_ITEM_DEFAULT:
         case SVZ_ITEM_DEFAULT_ERRMSG:
-          /* Target not accessed. Defaultable ? */
+          /* Target not accessed.  Defaultable?  */
           if (!prototype->items[n].defaultable)
             {
               if (SVZ_ITEM_DEFAULT_ERRMSG == e)
@@ -432,49 +432,49 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
               error = -1;
               break;
             }
-          /* Go on, using default values. */
+          /* Go on, using default values.  */
           switch (prototype->items[n].type)
             {
-            case SVZ_ITEM_INT: /* Normal integer. */
+            case SVZ_ITEM_INT: /* Normal integer.  */
               *(int *) target = *(int *) def;
               break;
 
-            case SVZ_ITEM_BOOL: /* Boolean value. */
+            case SVZ_ITEM_BOOL: /* Boolean value.  */
               *(int *) target = *(int *) def;
               break;
 
-            case SVZ_ITEM_INTARRAY: /* Integer array. */
+            case SVZ_ITEM_INTARRAY: /* Integer array.  */
               *(svz_array_t **) target =
                 svz_config_intarray_dup (*(svz_array_t **) def);
               break;
 
-            case SVZ_ITEM_STR: /* Character string. */
+            case SVZ_ITEM_STR: /* Character string.  */
               *(char **) target = (char *) svz_strdup (*(char **) def);
               break;
 
-            case SVZ_ITEM_STRARRAY: /* Array of strings. */
+            case SVZ_ITEM_STRARRAY: /* Array of strings.  */
               *(svz_array_t **) target =
                 svz_config_strarray_dup (*(svz_array_t **) def);
               break;
 
-            case SVZ_ITEM_HASH: /* Hash table. */
+            case SVZ_ITEM_HASH: /* Hash table.  */
               *(svz_hash_t **) target =
                 svz_config_hash_dup (*(svz_hash_t **) def);
               break;
 
-            case SVZ_ITEM_PORTCFG: /* Port configuration. */
+            case SVZ_ITEM_PORTCFG: /* Port configuration.  */
               *(svz_portcfg_t **) target =
                 svz_portcfg_dup (*(svz_portcfg_t **) def);
               break;
             }
           break;
 
-          /* Configuring failed. Skip error messages. */
+          /* Configuring failed.  Skip error messages.  */
         case SVZ_ITEM_FAILED:
           error = -1;
           break;
 
-          /* Configuring failed. Print error messages. */
+          /* Configuring failed.  Print error messages.  */
         case SVZ_ITEM_FAILED_ERRMSG:
           svz_log (LOG_ERROR,
                    "invalid %s value for `%s' in `%s'\n",
@@ -483,7 +483,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
           error = -1;
           break;
 
-          /* Special case: Accessor callback invalid. */
+          /* Special case: Accessor callback invalid.  */
         default:
           svz_log (LOG_FATAL,
                    "invalid SVZ_ITEM_ value (%d) returned by %s "
@@ -495,13 +495,13 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
     }
 
  out:
-  /* Run the 'after' callback last. */
+  /* Run the 'after' callback last.  */
   if (accessor && accessor->after)
     if (SVZ_ITEM_OK != accessor->after (name, arg))
       error = -1;
 
-  /* Release memory reserved for configuration on errors. This means
-     to reverse the above changes. */
+  /* Release memory reserved for configuration on errors.  This means
+     to reverse the above changes.  */
   if (error)
     {
       svz_config_free (prototype, cfg);
@@ -524,7 +524,7 @@ svz_config_type_add (svz_config_type_t *type)
 }
 
 /*
- * Instantiate a configurable type. The @var{type} argument specifies
+ * Instantiate a configurable type.  The @var{type} argument specifies
  * the configurable type name, @var{name} the name of the type (in the
  * domain of the configurable type) and @var{instance} the instance
  * name of the type.  Returns zero on success, otherwise -1.

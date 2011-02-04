@@ -55,7 +55,7 @@ typedef struct
 }
 ctrl_config_t;
 
-/* Export the control server definition. */
+/* Export the control server definition.  */
 extern svz_servertype_t ctrl_server_definition;
 
 /* server functions */

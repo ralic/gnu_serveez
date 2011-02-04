@@ -26,14 +26,14 @@
 
 #define _GNU_SOURCE
 
-/* These definitions are for the GUID creating functions in Win32. */
+/* These definitions are for the GUID creating functions in Win32.  */
 #ifdef __MINGW32__
 typedef int (__stdcall *CreateGuidProc) (svz_uint8_t *);
 extern CreateGuidProc CreateGuid;
 extern HMODULE oleHandle;
 #endif /* __MINGW32__ */
 
-/* Gnutella core functions. */
+/* Gnutella core functions.  */
 nut_client_t *nut_create_client (void);
 void nut_calc_guid (svz_uint8_t *guid);
 char *nut_print_guid (svz_uint8_t *guid);
@@ -68,7 +68,7 @@ svz_uint8_t * nut_put_push (nut_push_t *push);
 
 /*
  * Little / Big Endian conversions for 4 byte (long) and 2 byte (short)
- * values. BTW: Network byte order is big endian.
+ * values.  BTW: Network byte order is big endian.
  */
 
 #define SIZEOF_UINT16 2

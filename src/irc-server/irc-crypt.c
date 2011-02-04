@@ -118,6 +118,6 @@ irc_decrypt_text (char *crypt, svz_uint8_t key)
 
 #else /* ENABLE_IRC_PROTO */
 
-int irc_crypt_dummy; /* Shut up compiler. */
+int irc_crypt_dummy;            /* Shut up compiler.  */
 
 #endif /* ENABLE_IRC_PROTO */

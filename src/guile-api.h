@@ -20,13 +20,13 @@
 #ifndef __GUILE_API_H__
 #define __GUILE_API_H__ 1
 
-/* Define this macro if Guile 1.7.x or better is in use. */
+/* Define this macro if Guile 1.7.x or better is in use.  */
 #if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 7) && \
     defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
 #define SCM_VERSION_17X 1
 #endif
 
-/* Define this macro if Guile 1.5.x or better is in use. */
+/* Define this macro if Guile 1.5.x or better is in use.  */
 #if defined (SCM_MINOR_VERSION) && (SCM_MINOR_VERSION >= 5) && \
     defined (SCM_MAJOR_VERSION) && (SCM_MAJOR_VERSION >= 1)
 #define SCM_VERSION_15X 1
@@ -39,7 +39,7 @@ typedef scm_catch_body_t scm_t_catch_body;
 typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 
-/* Some definitions for backward compatibility with Guile 1.3.4 */
+/* Some definitions for backward compatibility with Guile 1.3.4.  */
 #ifndef SCM_ASSERT_TYPE
 #define SCM_ASSERT_TYPE(_cond, _arg, _pos, _subr, _msg) \
     SCM_ASSERT (_cond, _arg, _pos, _subr)
@@ -50,7 +50,7 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #endif /* not SCM_ASSERT_TYPE */
 
 /* Redefinition of the string and symbol predicates because they segfault
-   for Guile 1.3.4 and prior version when passing immediate values. */
+   for Guile 1.3.4 and prior version when passing immediate values.  */
 #ifdef SCM_STRINGP
 #undef SCM_STRINGP
 #endif
@@ -62,7 +62,7 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 
 /* Compatibility definitions for various Guile versions.  These definitions
    are mainly due to the fact that the gh interface is deprecated in newer
-   versions. */
+   versions.  */
 #ifndef SCM_STRING_UCHARS
 #define SCM_STRING_UCHARS(obj) ((unsigned char *) SCM_VELTS (obj))
 #endif
@@ -178,14 +178,14 @@ typedef scm_catch_handler_t scm_t_catch_handler;
     scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
 #endif
 
-/* Return an integer. If the given Guile cell @var{obj} is not an
-   integer, the routine returns the default value @var{def}. */
+/* Return an integer.  If the given Guile cell @var{obj} is not an
+   integer, the routine returns the default value @var{def}.  */
 #define guile_integer(pos, obj, def) \
     ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
 
 /* The GUILE_CONCAT macros create a new concatenated symbol for the
-   compiler in a portable way. It is essential to use these macros like
-   GUILE_CONCAT (a,b) and *not* like GUILE_CONCAT (a, b) or its variants. */
+   compiler in a portable way.  It is essential to use these macros like
+   GUILE_CONCAT (a,b) and *not* like GUILE_CONCAT (a, b) or its variants.  */
 #if defined (__STDC__) || defined (__cplusplus)
 # define GUILE_CONCAT2(a, b) a##b
 # define GUILE_CONCAT3(a, b, c) a##b##c
@@ -194,8 +194,8 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 # define GUILE_CONCAT3(a, b, c) a/* */b/* */c
 #endif
 
-/* Compatibility macros for Guile 1.3 version. Also defines the macro
-   HAVE_OLD_SMOBS which indicates a different smob implementation. */
+/* Compatibility macros for Guile 1.3 version.  Also defines the macro
+   HAVE_OLD_SMOBS which indicates a different smob implementation.  */
 #ifndef SCM_NEWSMOB
 #define SCM_NEWSMOB(value, tag, data) do {                         \
     SCM_NEWCELL (value);                                           \

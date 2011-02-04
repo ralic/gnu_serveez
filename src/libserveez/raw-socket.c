@@ -83,7 +83,7 @@ svz_raw_get_ip_header (svz_uint8_t *data)
 }
 
 /*
- * Put IP header to plain data. This is currently not in use but can be
+ * Put IP header to plain data.  This is currently not in use but can be
  * used when creating raw sockets with setsockopt (SOL_IP, IP_HDRINCL).
  */
 svz_uint8_t *
@@ -129,8 +129,8 @@ svz_raw_ip_checksum (svz_uint8_t *data, int len)
 
   /*
    * Calculate the 16 bit one's complement of the one's complement sum
-   * of all 16 bit words in the header. For computing the checksum,
-   * the checksum field should be zero. This checksum may be replaced in
+   * of all 16 bit words in the header.  For computing the checksum,
+   * the checksum field should be zero.  This checksum may be replaced in
    * the future.
    */
   while (len > 1)
@@ -154,7 +154,7 @@ svz_raw_ip_checksum (svz_uint8_t *data, int len)
 }
 
 /*
- * Checking the IP header only. Return the length of the header if it
+ * Checking the IP header only.  Return the length of the header if it
  * is valid, otherwise -1.
  */
 int
@@ -189,7 +189,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   printf ("destination     : %s\n", svz_inet_ntoa (ip_header->dst));
 #endif
 
-  /* Is this IPv4 version ? */
+  /* Is this IPv4 version?  */
   if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
     {
 #if SVZ_ENABLE_DEBUG
@@ -199,7 +199,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
       return -1;
     }
 
-  /* Check Internet Header Length. */
+  /* Check Internet Header Length.  */
   if (IP_HDR_LENGTH (ip_header) > len)
     {
 #if SVZ_ENABLE_DEBUG
@@ -209,7 +209,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
       return -1;
     }
 
-  /* Check total length. */
+  /* Check total length.  */
   if (ip_header->length < len)
     {
 #if SVZ_ENABLE_DEBUG
@@ -219,7 +219,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
       return -1;
     }
 
-  /* Check protocol type. */
+  /* Check protocol type.  */
   if (ip_header->protocol != ICMP_PROTOCOL)
     {
 #if SVZ_ENABLE_DEBUG
@@ -229,11 +229,11 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
       return -1;
     }
 
-  /* Recalculate and check the header checksum. */
+  /* Recalculate and check the header checksum.  */
   if (svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)) !=
       ip_header->checksum)
     {
-      /* FIXME: Why are header checksums invalid on big packets ? */
+      /* FIXME: Why are header checksums invalid on big packets?  */
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG,
                "raw: invalid ip header checksum (%04X != %04X)\n",

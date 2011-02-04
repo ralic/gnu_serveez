@@ -68,7 +68,7 @@
 
 /*
  * This variable is meant to hold the @code{environ} variable of the
- * application using the Serveez core API. It must be setup via the macro
+ * application using the Serveez core API.  It must be setup via the macro
  * @code{svz_envblock_setup()}.
  */
 char **svz_environ = NULL;
@@ -80,16 +80,16 @@ char **svz_environ = NULL;
  *
  * The @var{bin} argument has to contain a fully qualified executable file
  * name and the @var{dir} argument contains the working directory of the
- * new process. The directory is not changed when this argument is
+ * new process.  The directory is not changed when this argument is
  * @code{NULL}.
  *
  * The program arguments and the environment of the new process can be
- * passed in @var{argv} and @var{envp}. Please note that @code{argv[0]} has
+ * passed in @var{argv} and @var{envp}.  Please note that @code{argv[0]} has
  * to be set to the program's name, otherwise it defaults to @var{bin} if
  * it contains @code{NULL}.
  *
  * The @var{flag} argument specifies the method used to passthrough the
- * connection. It can be either @code{SVZ_PROCESS_FORK} (in order to pass
+ * connection.  It can be either @code{SVZ_PROCESS_FORK} (in order to pass
  * the pipe descriptors or the socket descriptor directly through
  * @code{fork()} and @code{exec()}) or @code{SVZ_PROCESS_SHUFFLE_PIPE} /
  * @code{SVZ_PROCESS_SHUFFLE_SOCK} (in order to pass the socket transactions
@@ -97,8 +97,8 @@ char **svz_environ = NULL;
  *
  * You can pass the user and group identifications in the format
  * @samp{user[.group]} (group is optional), as @code{SVZ_PROCESS_NONE}
- * or @code{SVZ_PROCESS_OWNER} in the @var{user} argument. This specifies the
- * permissions of the new child process. If @code{SVZ_PROCESS_OWNER} is
+ * or @code{SVZ_PROCESS_OWNER} in the @var{user} argument.  This specifies the
+ * permissions of the new child process.  If @code{SVZ_PROCESS_OWNER} is
  * passed the permissions are set to the executable file @var{bin} owner;
  * @code{SVZ_PROCESS_NONE} does not change user or group.
  *
@@ -111,14 +111,14 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
   svz_process_t proc;
   int ret = -1;
 
-  /* Check arguments. */
+  /* Check arguments.  */
   if (sock == NULL || bin == NULL || argv == NULL)
     {
       svz_log (LOG_ERROR, "passthrough: invalid argument\n");
       return -1;
     }
 
-  /* Setup descriptors depending on the type of socket structure. */
+  /* Setup descriptors depending on the type of socket structure.  */
   if (sock->flags & SOCK_FLAG_PIPE)
     {
       proc.in = sock->pipe_desc[READ];
@@ -129,11 +129,11 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
       proc.in = proc.out = (svz_t_handle) sock->sock_desc;
     }
 
-  /* Check executable. */
+  /* Check executable.  */
   if (svz_process_check_executable (bin, &proc.app) < 0)
     return -1;
 
-  /* Fill in rest of process structure. */
+  /* Fill in rest of process structure.  */
   proc.sock = sock;
   proc.bin = bin;
   proc.dir = dir;
@@ -143,7 +143,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
   proc.flag = flag;
 
   /* Depending on the given flag use different methods to passthrough
-     the connection. */
+     the connection.  */
   switch (flag)
     {
     case SVZ_PROCESS_FORK:
@@ -187,7 +187,7 @@ svz_process_disconnect (svz_socket_t *sock)
 
 /*
  * Disconnection routine for the passthrough socket structure @var{sock}
- * connected with a process's stdin/stdout. Schedules the referring socket
+ * connected with a process's stdin/stdout.  Schedules the referring socket
  * connection for shutdown if necessary and possible.
  */
 int
@@ -209,7 +209,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
         }
     }
 
-  /* Clean up receive and send buffer. */
+  /* Clean up receive and send buffer.  */
   sock->recv_buffer = sock->send_buffer = NULL;
   sock->recv_buffer_fill = sock->recv_buffer_size = 0;
   sock->send_buffer_fill = sock->send_buffer_size = 0;
@@ -233,9 +233,9 @@ svz_process_check_request (svz_socket_t *sock)
 }
 
 /*
- * Idle function for the passthrough shuffle connection @var{sock}. The
+ * Idle function for the passthrough shuffle connection @var{sock}.  The
  * routine checks whether the spawned child process is still valid.  If not
- * it schedules the connection for shutdown. The routine schedules itself
+ * it schedules the connection for shutdown.  The routine schedules itself
  * once a second.
  */
 int
@@ -244,7 +244,7 @@ svz_process_idle (svz_socket_t *sock)
 #ifndef __MINGW32__
 
 #if HAVE_WAITPID
-  /* Test if the passthrough child is still running. */
+  /* Test if the passthrough child is still running.  */
   if (waitpid (sock->pid, NULL, WNOHANG) == -1 && errno == ECHILD)
     {
       svz_log (LOG_NOTICE, "passthrough: shuffle pid %d died\n",
@@ -281,7 +281,7 @@ svz_process_idle (svz_socket_t *sock)
 /*
  * If the argument @var{set} is zero this routine makes the receive buffer
  * of the socket structure's referrer @var{sock} the send buffer of @var{sock}
- * itself, otherwise the other way around. Return non-zero if the routine
+ * itself, otherwise the other way around.  Return non-zero if the routine
  * failed to determine a referrer.
  */
 static int
@@ -308,9 +308,9 @@ svz_process_send_update (svz_socket_t *sock, int set)
 }
 
 /*
- * This is the shuffle pipe writer (reading end of a process's stdin). It
+ * This is the shuffle pipe writer (reading end of a process's stdin).  It
  * writes as much data as possible from the send buffer which is the receive
- * buffer of the referring socket structure. Returns non-zero on errors.
+ * buffer of the referring socket structure.  Returns non-zero on errors.
  */
 int
 svz_process_send_pipe (svz_socket_t *sock)
@@ -355,7 +355,7 @@ svz_process_send_pipe (svz_socket_t *sock)
 /*
  * Depending on the flag @var{set} this routine either makes the send buffer
  * of the referring socket structure of @var{sock} the receive buffer of
- * @var{sock} itself or the other way around. Returns non-zero if it failed
+ * @var{sock} itself or the other way around.  Returns non-zero if it failed
  * to find a referring socket.
  */
 static int
@@ -382,7 +382,7 @@ svz_process_recv_update (svz_socket_t *sock, int set)
 }
 
 /*
- * This is the shuffle pipe reader (writing end of a process's stdout). It
+ * This is the shuffle pipe reader (writing end of a process's stdout).  It
  * reads as much data as possible into its receive buffer which is the send
  * buffer of the connection this passthrough pipe socket structure stems
  * from.
@@ -439,7 +439,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
 
 /*
  * This is the shuffle socket pair writer which is directly connected with
- * the reading end of the child process. It writes as much data as possible
+ * the reading end of the child process.  It writes as much data as possible
  * from its send buffer which is the receive buffer of the original
  * passthrough connection.
  */
@@ -475,7 +475,7 @@ svz_process_send_socket (svz_socket_t *sock)
 
 /*
  * This is the shuffle socket pair reader which is directly connected
- * with the writing end of the child process. It reads as much data as
+ * with the writing end of the child process.  It reads as much data as
  * possible into its receive buffer which is the send buffer of the
  * original passthrough connection.
  */
@@ -516,8 +516,8 @@ svz_process_recv_socket (svz_socket_t *sock)
 #ifdef __MINGW32__
 /*
  * This function duplicates a given @var{handle} in the sense of @code{dup()}.
- * The returned handle references the same underlying object. If
- * @code{INVALID_HANDLE} is returned something went wrong. The @var{proto}
+ * The returned handle references the same underlying object.  If
+ * @code{INVALID_HANDLE} is returned something went wrong.  The @var{proto}
  * argument specifies if it is a socket or pipe handle.
  */
 static svz_t_handle
@@ -527,7 +527,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
   svz_t_socket dupsock;
   WSAPROTOCOL_INFO info;
 
-  /* Duplicate a pipe handle. */
+  /* Duplicate a pipe handle.  */
   if (proto & PROTO_PIPE)
     {
       if (!DuplicateHandle (GetCurrentProcess (), handle,
@@ -540,7 +540,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
       return duphandle;
     }
 
-  /* Duplicate a socket. */
+  /* Duplicate a socket.  */
   if (WSADuplicateSocket ((svz_t_socket) handle, GetCurrentProcessId (),
                           &info) == SOCKET_ERROR)
     {
@@ -559,11 +559,11 @@ svz_process_duplicate (svz_t_handle handle, int proto)
 #endif /* __MINGW32__ */
 
 /*
- * Spawns a new child process. The given @var{proc} argument contains all
+ * Spawns a new child process.  The given @var{proc} argument contains all
  * information necessary to set a working directory, assign a new user
  * defined stdin and stdout of the new process, to set up a process
  * environment, pass a command line to the new process and to specify a
- * user and group identification the child process should have. The routine
+ * user and group identification the child process should have.  The routine
  * returns -1 on failure, otherwise the new child program's process id.
  */
 int
@@ -572,7 +572,7 @@ svz_process_create_child (svz_process_t *proc)
 #ifndef __MINGW32__
   /* Change directory, make descriptors blocking, setup environment,
      set permissions, duplicate descriptors and finally execute the
-     program. */
+     program.  */
 
   if (proc->dir && chdir (proc->dir) < 0)
     {
@@ -593,7 +593,7 @@ svz_process_create_child (svz_process_t *proc)
   if (svz_process_check_access (proc->bin, proc->user) < 0)
     return -1;
 
-  /* Check the environment and create a default one if necessary. */
+  /* Check the environment and create a default one if necessary.  */
   if (proc->envp == NULL)
     {
       proc->envp = svz_envblock_create ();
@@ -603,17 +603,17 @@ svz_process_create_child (svz_process_t *proc)
   if (proc->argv[0] == NULL)
     proc->argv[0] = proc->bin;
 
-  /* Disconnect this process from our TTY. */
+  /* Disconnect this process from our TTY.  */
   close (fileno (stderr));
 
-  /* Execute the file itself here overwriting the current process. */
+  /* Execute the file itself here overwriting the current process.  */
   if (execve (proc->bin, proc->argv, svz_envblock_get (proc->envp)) == -1)
     {
       svz_log (LOG_ERROR, "passthrough: execve: %s\n", SYS_ERROR);
       return -1;
     }
 
-  /* Not reached. */
+  /* Not reached.  */
   return getpid ();
 
 #else /* __MINGW32__ */
@@ -624,27 +624,27 @@ svz_process_create_child (svz_process_t *proc)
   int pid, n;
 
   /* Clean the Startup-Info, use the stdio handles, and store the pipe
-     handles there if necessary. */
+     handles there if necessary.  */
   memset (&startup_info, 0, sizeof (startup_info));
   startup_info.cb = sizeof (startup_info);
   startup_info.dwFlags = STARTF_USESTDHANDLES;
 
   /* For fork() and exec() emulation we need to duplicate the handles
-     and pass them to the child program. */
+     and pass them to the child program.  */
   if (proc->flag == SVZ_PROCESS_FORK)
     {
       svz_t_handle fd;
 
       if (proc->in != proc->out)
         {
-          /* Create an inheritable receive pipe and replace it. */
+          /* Create an inheritable receive pipe and replace it.  */
           fd = svz_process_duplicate (proc->in, proc->sock->proto);
           if (fd == INVALID_HANDLE)
             return -1;
           closehandle (proc->sock->pipe_desc[READ]);
           proc->in = proc->sock->pipe_desc[READ] = fd;
 
-          /* Create an inheritable send pipe and replace it. */
+          /* Create an inheritable send pipe and replace it.  */
           fd = svz_process_duplicate (proc->out, proc->sock->proto);
           if (fd == INVALID_HANDLE)
             return -1;
@@ -653,7 +653,7 @@ svz_process_create_child (svz_process_t *proc)
         }
       else
         {
-          /* Create an inheritable socket and replace it. */
+          /* Create an inheritable socket and replace it.  */
           fd = svz_process_duplicate (proc->in, proc->sock->proto);
           if (fd == INVALID_HANDLE)
             return -1;
@@ -664,12 +664,12 @@ svz_process_create_child (svz_process_t *proc)
     }
 
   /* Now assign the standard input and standard output handles.
-     FIXME: This does not work correctly for socket handles. */
+     FIXME: This does not work correctly for socket handles.  */
   startup_info.hStdInput = proc->in;
   startup_info.hStdOutput = proc->out;
   startup_info.hStdError = GetStdHandle (STD_ERROR_HANDLE);
 
-  /* Save current directory and change into application's. */
+  /* Save current directory and change into application's.  */
   savedir = svz_getcwd ();
   if (proc->dir && chdir (proc->dir) < 0)
     {
@@ -679,7 +679,7 @@ svz_process_create_child (svz_process_t *proc)
       return -1;
     }
 
-  /* Check the access to the file. */
+  /* Check the access to the file.  */
   if (svz_process_check_access (proc->bin, proc->user) < 0)
     {
       chdir (savedir);
@@ -688,7 +688,7 @@ svz_process_create_child (svz_process_t *proc)
     }
 
   /* Create sane environment and pass the receive and send handle to
-     the child process via two environment variables. */
+     the child process via two environment variables.  */
   if (proc->envp == NULL)
     {
       proc->envp = svz_envblock_create ();
@@ -699,7 +699,7 @@ svz_process_create_child (svz_process_t *proc)
   svz_envblock_add (proc->envp, "%s=%ld",
                     SVZ_PROCESS_SEND_HANDLE, (long) proc->out);
 
-  /* Concatenate application name. */
+  /* Concatenate application name.  */
   if (proc->app != NULL)
     {
       application = svz_malloc (strlen (proc->bin) + strlen (proc->app) + 2);
@@ -708,7 +708,7 @@ svz_process_create_child (svz_process_t *proc)
   else
     application = svz_strdup (proc->bin);
 
-  /* Append program arguments. */
+  /* Append program arguments.  */
   for (n = 1; proc->argv[n] != NULL; n++)
     {
       application = svz_realloc (application, strlen (application) +
@@ -745,10 +745,10 @@ svz_process_create_child (svz_process_t *proc)
 
 /*
  * Creates two pairs of pipes in order to passthrough the transactions of
- * the a socket structure. The function create a new socket structure and
- * sets it up for handling the transactions automatically. The given
+ * the a socket structure.  The function create a new socket structure and
+ * sets it up for handling the transactions automatically.  The given
  * argument @var{proc} contains the information inherited from
- * @code{svz_sock_process()}. The function returns -1 on failure and the
+ * @code{svz_sock_process()}.  The function returns -1 on failure and the
  * new child's process id otherwise.
  */
 int
@@ -862,12 +862,12 @@ svz_process_shuffle (svz_process_t *proc)
 }
 
 /*
- * Fork the current process and execute a new child program. The given
+ * Fork the current process and execute a new child program.  The given
  * argument @var{proc} contains the information inherited from
- * @code{svz_sock_process()}. The routine passes the socket or pipe
+ * @code{svz_sock_process()}.  The routine passes the socket or pipe
  * descriptors of the original passthrough socket structure to stdin and
- * stdout of the child. The caller is responsible for shutting down the
- * original socket structure. Returns -1 on errors and the child's
+ * stdout of the child.  The caller is responsible for shutting down the
+ * original socket structure.  Returns -1 on errors and the child's
  * process id on success.
  */
 int
@@ -892,7 +892,7 @@ svz_process_fork (svz_process_t *proc)
     }
 #endif /* __MINGW32__ */
 
-  /* The parent process. */
+  /* The parent process.  */
 #if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
@@ -901,8 +901,8 @@ svz_process_fork (svz_process_t *proc)
 
 /*
  * Check if the given @var{file} is an executable (script or binary
- * program). If it is script the routine returns an application able to
- * execute the script in  @var{app}. Returns zero on success, non-zero
+ * program).  If it is script the routine returns an application able to
+ * execute the script in  @var{app}.  Returns zero on success, non-zero
  * otherwise.
  */
 int
@@ -910,7 +910,7 @@ svz_process_check_executable (char *file, char **app)
 {
   struct stat buf;
 
-  /* Check the existence of the file. */
+  /* Check the existence of the file.  */
   if (stat (file, &buf) < 0)
     {
       svz_log (LOG_ERROR, "passthrough: stat: %s\n", SYS_ERROR);
@@ -937,13 +937,13 @@ svz_process_check_executable (char *file, char **app)
       char *suffix = strrchr (file, '.');
       suffix = suffix ? suffix + 1 : file;
 
-      /* Does the file have a known suffix ? */
+      /* Does the file have a known suffix?  */
       if (!svz_strcasecmp (suffix, "com") ||
           !svz_strcasecmp (suffix, "exe") ||
           !svz_strcasecmp (suffix, "bat"))
         return 0;
 
-      /* No. Try finding an application able to execute the script. */
+      /* No.  Try finding an application able to execute the script.  */
       *app = svz_malloc (MAX_PATH);
       if (FindExecutable (file, NULL, *app) <= (HINSTANCE) 32)
         {
@@ -961,9 +961,9 @@ svz_process_check_executable (char *file, char **app)
 /*
  * Splits the given character string @var{str} in the format
  * @samp{user[.group]} into a user name and a group name and stores
- * pointers to it in @var{user} and @var{group}. If the group has been
+ * pointers to it in @var{user} and @var{group}.  If the group has been
  * omitted in the format string then @var{group} is @code{NULL}
- * afterwards. The function returns zero on success, or non-zero if the
+ * afterwards.  The function returns zero on success, or non-zero if the
  * given arguments have been invalid.
  */
 int
@@ -988,12 +988,12 @@ svz_process_split_usergroup (char *str, char **user, char **group)
 
 /*
  * Try setting the user and group for the current process specified by the
- * given executable file @var{file} and the @var{user} argument. If @var{user}
- * equals @code{SVZ_PROCESS_NONE} no user or group is set. When you pass
+ * given executable file @var{file} and the @var{user} argument.  If @var{user}
+ * equals @code{SVZ_PROCESS_NONE} no user or group is set.  When you pass
  * @code{SVZ_PROCESS_OWNER} in the @var{user} argument the @var{file}'s owner
- * will be set. Otherwise @var{user} specifies the user and group
- * identification in the format @samp{user[.group]}. If you omit the group
- * information the routine uses the primary group of the user. Returns zero
+ * will be set.  Otherwise @var{user} specifies the user and group
+ * identification in the format @samp{user[.group]}.  If you omit the group
+ * information the routine uses the primary group of the user.  Returns zero
  * on success, non-zero otherwise.
  */
 int
@@ -1032,7 +1032,7 @@ svz_process_check_access (char *file, char *user)
 
       svz_process_split_usergroup (user, &_user, &_group);
 
-      /* Group name specified ? */
+      /* Group name specified?  */
       if (_group != NULL)
         {
           if ((g = getgrnam (_group)) == NULL)
@@ -1040,7 +1040,7 @@ svz_process_check_access (char *file, char *user)
               svz_log (LOG_ERROR, "passthrough: no such group `%s'\n", _group);
               return -1;
             }
-          /* Set the group. */
+          /* Set the group.  */
           if (setgid (g->gr_gid) == -1)
             {
               svz_log (LOG_ERROR, "passthrough: setgid: %s\n", SYS_ERROR);
@@ -1048,13 +1048,13 @@ svz_process_check_access (char *file, char *user)
             }
         }
 
-      /* Check user name. */
+      /* Check user name.  */
       if ((u = getpwnam (_user)) == NULL)
         {
           svz_log (LOG_ERROR, "passthrough: no such user `%s'\n", _user);
           return -1;
         }
-      /* No group name specified.  Use the user's one. */
+      /* No group name specified.  Use the user's one.  */
       if (_group == NULL)
         {
           if (setgid (u->pw_gid) == -1)
@@ -1063,7 +1063,7 @@ svz_process_check_access (char *file, char *user)
               return -1;
             }
         }
-      /* Set the user. */
+      /* Set the user.  */
       if (setuid (u->pw_uid) == -1)
         {
           svz_log (LOG_ERROR, "setuid: %s\n", SYS_ERROR);
@@ -1076,8 +1076,8 @@ svz_process_check_access (char *file, char *user)
 }
 
 /*
- * Create a fresh environment block. The returned pointer can be used to pass
- * it to @code{svz_envblock_default()} and @code{svz_envblock_add()}. Its
+ * Create a fresh environment block.  The returned pointer can be used to pass
+ * it to @code{svz_envblock_default()} and @code{svz_envblock_add()}.  Its
  * size is initially set to zero.
  */
 svz_envblock_t *
@@ -1092,7 +1092,7 @@ svz_envblock_create (void)
 
 /*
  * Fill the given environment block @var{env} with the current process's
- * environment variables. If the environment @var{env} contained any
+ * environment variables.  If the environment @var{env} contained any
  * information before these will be overridden.
  */
 int
@@ -1119,8 +1119,8 @@ svz_envblock_default (svz_envblock_t *env)
 
 /*
  * Insert a new environment variable into the given environment block
- * @var{env}. The @var{format} argument is a printf()-style format string
- * describing how to format the optional arguments. You specify environment
+ * @var{env}.  The @var{format} argument is a printf()-style format string
+ * describing how to format the optional arguments.  You specify environment
  * variables in the @samp{VAR=VALUE} format.
  */
 int
@@ -1134,7 +1134,7 @@ svz_envblock_add (svz_envblock_t *env, char *format, ...)
   svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, format, args);
   va_end (args);
 
-  /* Check for duplicate entry. */
+  /* Check for duplicate entry.  */
   len = strchr (buffer, '=') - buffer;
   for (n = 0; n < env->size; n++)
     if (!memcmp (buffer, env->entry[n], len))
@@ -1153,8 +1153,8 @@ svz_envblock_add (svz_envblock_t *env, char *format, ...)
 
 #ifdef __MINGW32__
 /*
- * Win9x and WinNT systems use sorted environments. That is why we will sort
- * each environment block passed to @code{CreateProcess()}. The following
+ * Win9x and WinNT systems use sorted environments.  That is why we will sort
+ * each environment block passed to @code{CreateProcess()}.  The following
  * routine is the comparison routine for the @code{qsort()} call.
  */
 static int
@@ -1168,13 +1168,13 @@ svz_envblock_sort (svz_c_const void *data1, svz_c_const void *data2)
 
 /*
  * Unfortunately the layout of environment blocks in Unices and Windows
- * differ. On Unices you have a NULL terminated array of character strings
+ * differ.  On Unices you have a NULL terminated array of character strings
  * and on Windows systems you have a simple character string containing
  * the environment variables in the format VAR=VALUE each separated by a
- * zero byte. The end of the list is indicated by a further zero byte.
+ * zero byte.  The end of the list is indicated by a further zero byte.
  * The following routine converts the given environment block @var{env}
  * into something which can be passed to @code{exeve()} (Unix) or
- * @code{CreateProcess()} (Windows). The routine additionally sorts the
+ * @code{CreateProcess()} (Windows).  The routine additionally sorts the
  * environment block on Windows systems since it is using sorted
  * environments.
  */
@@ -1188,7 +1188,7 @@ svz_envblock_get (svz_envblock_t *env)
   int n, size;
 #endif
 
-  /* Setup the PWD environment variable correctly. */
+  /* Setup the PWD environment variable correctly.  */
   dir = svz_getcwd ();
   svz_envblock_add (env, "PWD=%s", dir);
   svz_free (dir);
@@ -1199,7 +1199,7 @@ svz_envblock_get (svz_envblock_t *env)
     {
       len = strlen (env->entry[n]) + 1;
       /* Use permanent allocator here.  You may not free() environment blocks
-         passed to programs. */
+         passed to programs.  */
       block = svz_prealloc (block, size + len);
       memcpy (&block[size - 1], env->entry[n], len);
       size += len;
@@ -1214,7 +1214,7 @@ svz_envblock_get (svz_envblock_t *env)
 
 /*
  * This function releases all environment variables currently stored in the
- * given environment block @var{env}. The block will be as clean as returned
+ * given environment block @var{env}.  The block will be as clean as returned
  * by @code{svz_envblock_create()} afterwards.
  */
 int
@@ -1233,7 +1233,7 @@ svz_envblock_free (svz_envblock_t *env)
 }
 
 /*
- * Destroys the given environment block @var{env} completely. The @var{env}
+ * Destroys the given environment block @var{env} completely.  The @var{env}
  * argument is invalid afterwards and should therefore not be referenced then.
  */
 void

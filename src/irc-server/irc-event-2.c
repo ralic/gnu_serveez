@@ -52,14 +52,14 @@ irc_part_callback (svz_socket_t *sock,
   svz_socket_t *xsock;
   int n;
 
-  /* do you have enough paras ? */
+  /* do you have enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
   /* go through all targets in the first para */
   for (n = 0; n < request->targets; n++)
     {
-      /* does the channel exist ? */
+      /* does the channel exist?  */
       if ((channel = irc_find_channel (cfg, request->target[n].channel)) ==
           NULL)
         {
@@ -95,15 +95,15 @@ irc_part_callback (svz_socket_t *sock,
 static int
 irc_client_banned (irc_client_t *client, irc_ban_t *ban)
 {
-  /* does the nick Match ? */
+  /* does the nick Match?  */
   if (!irc_string_regex (client->nick, ban->nick))
     return 0;
 
-  /* does the user Match ? */
+  /* does the user Match?  */
   if (!irc_string_regex (client->user, ban->user))
     return 0;
 
-  /* does the host Match ? */
+  /* does the host Match?  */
   if (!irc_string_regex (client->host, ban->host))
     return 0;
 
@@ -197,7 +197,7 @@ irc_join_callback (svz_socket_t *sock,
   char *chan;
   int n, i;
 
-  /* do you have enough paras ? */
+  /* do you have enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
@@ -213,10 +213,10 @@ irc_join_callback (svz_socket_t *sock,
           return 0;
         }
 
-      /* does the channel already exists ? */
+      /* does the channel already exists?  */
       if ((channel = irc_find_channel (cfg, chan)) != NULL)
         {
-          /* is a key set for this channel and is the given one ok ? */
+          /* is a key set for this channel and is the given one ok?  */
           if (channel->flag & MODE_KEY &&
               strcmp (irc_get_target (request->para[1], n), channel->key))
             {
@@ -226,7 +226,7 @@ irc_join_callback (svz_socket_t *sock,
                           channel->name);
               return 0;
             }
-          /* invite only ? */
+          /* invite only?  */
           if (channel->flag & MODE_INVITE)
             {
               /* find the nick in the invite list of the channel */
@@ -234,7 +234,7 @@ irc_join_callback (svz_socket_t *sock,
                 if (channel->invite[i] == client)
                   break;
 
-              /* not in this list ! */
+              /* not in this list!  */
               if (i == channel->invites)
                 {
                   irc_printf (sock,
@@ -260,7 +260,7 @@ irc_join_callback (svz_socket_t *sock,
                     }
                 }
             }
-          /* is channel full ? */
+          /* is channel full?  */
           if (channel->flag & MODE_ULIMIT &&
               channel->clients >= channel->users)
             {
@@ -270,7 +270,7 @@ irc_join_callback (svz_socket_t *sock,
                           channel->name);
               return 0;
             }
-          /* is this client banned ? */
+          /* is this client banned?  */
           for (i = 0; i < channel->bans; i++)
             {
               if (irc_client_banned (client, channel->ban[i]))
@@ -284,7 +284,7 @@ irc_join_callback (svz_socket_t *sock,
             }
         }
 
-      /* done, do not deny this channel ! */
+      /* done, do not deny this channel!  */
       irc_join_channel (cfg, client, chan);
       if ((channel = irc_find_channel (cfg, chan)) == NULL)
         continue;
@@ -340,7 +340,7 @@ irc_ban_string (irc_ban_t *ban)
 
 /*
  * Check if a given client is channel operator in its channel and
- * send an error about this if necessary. The function returns a non
+ * send an error about this if necessary.  The function returns a non
  * zero value if the client is an operator otherwise zero.
  */
 static int
@@ -400,7 +400,7 @@ irc_client_flag (irc_client_t *client,   /* client changing the flag */
         break;
       }
 
-  /* no such nick in channel ! */
+  /* no such nick in channel!  */
   if (i == channel->clients)
     {
       irc_printf (sock, "%03d " ERR_NOSUCHNICK_TEXT "\n",
@@ -449,7 +449,7 @@ irc_user_flag (irc_client_t *client,   /* client changing the flag */
       if (flag & UMODE_INVISIBLE && !(client->flag & UMODE_INVISIBLE))
         cfg->invisibles++;
 
-      /* this flag cannot be set by anyone ! */
+      /* this flag cannot be set by anyone!  */
       if (!(flag & UMODE_OPERATOR))
         client->flag |= flag;
       else
@@ -637,7 +637,7 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
   char *Modes = CHANNEL_MODES;
   char Mode = ' ';
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (set && arg[0] == 0)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NEEDMOREPARAMS_TEXT "\n",
@@ -662,7 +662,7 @@ irc_channel_arg (irc_client_t *client,   /* client changing the flag */
       switch (flag)
         {
         case MODE_KEY:
-          /* key is set before... */
+          /* key is set before...  */
           if (channel->flag & flag)
             {
               irc_printf (sock, ":%s %03d %s " ERR_KEYSET_TEXT "\n",
@@ -819,16 +819,16 @@ irc_mode_callback (svz_socket_t *sock,
   int cflag;
   int n, para;
 
-  /* enough paras, but at least one ? */
+  /* enough paras, but at least one?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
   chan = nick = request->para[0];
 
-  /* is target channel ? */
+  /* is target channel?  */
   if ((channel = irc_find_channel (cfg, chan)) != NULL)
     {
-      /* this is a request only ? */
+      /* this is a request only?  */
       if (request->paras < 2)
         {
           irc_printf (sock, ":%s %03d %s " RPL_CHANNELMODEIS_TEXT "\n",
@@ -949,17 +949,17 @@ irc_mode_callback (svz_socket_t *sock,
         }
     }
 
-  /* is target nick ? */
+  /* is target nick?  */
   else if ((cl = irc_find_nick (cfg, nick)) != NULL)
     {
-      /* get and set user flag only by itself ! */
+      /* get and set user flag only by itself!  */
       if (cl != client)
         {
           irc_printf (sock, ":%s %03d %s " ERR_USERSDONTMATCH_TEXT "\n",
                       cfg->host, ERR_USERSDONTMATCH, client->nick);
           return 0;
         }
-      /* this is a request only ? */
+      /* this is a request only?  */
       if (request->paras < 2)
         {
           irc_printf (sock, ":%s %03d %s %s %s\n", cfg->host,
@@ -994,7 +994,7 @@ irc_mode_callback (svz_socket_t *sock,
             case 'w':
               irc_user_flag (client, sock, UMODE_WALLOP, flag);
               break;
-              /* just deop yourself ! */
+              /* just deop yourself!  */
             case 'o':
               irc_user_flag (client, sock, UMODE_OPERATOR, flag);
               break;
@@ -1028,7 +1028,7 @@ irc_topic_callback (svz_socket_t *sock,
   svz_socket_t *xsock;
   int n, i;
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 1))
     return 0;
 
@@ -1089,7 +1089,7 @@ irc_names_callback (svz_socket_t *sock,
   static char text[MAX_MSG_LEN];
   int n, i;
 
-  /* list all channels and users ? */
+  /* list all channels and users?  */
   if (request->paras < 1)
     {
       /* go through all channels */
@@ -1123,19 +1123,19 @@ irc_names_callback (svz_socket_t *sock,
             {
               text[0] = 0;
 
-              /* visible ? */
+              /* visible?  */
               if (!(cl[n]->flag & UMODE_INVISIBLE))
                 {
                   /* go through all channels of the client */
                   for (i = 0; i < cl[n]->channels; i++)
                     {
                       channel = cl[n]->channel[i];
-                      /* is it public or a shared channel ? */
+                      /* is it public or a shared channel?  */
                       if (!(channel->flag & (MODE_SECRET | MODE_PRIVATE)) ||
                           irc_client_in_channel (NULL, client, channel) != -1)
                         break;
                     }
-                  /* is the client in no channel or in no shared or public ? */
+                  /* is the client in no channel or in no shared or public?  */
                   if (n == cl[n]->channels)
                     {
                       if (cl[n]->flag & UMODE_OPERATOR)
@@ -1281,21 +1281,21 @@ irc_invite_callback (svz_socket_t *sock,
   char *nick, *channel;
   int n, i;
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 2))
     return 0;
 
   nick = request->para[0];
   channel = request->para[1];
 
-  /* does the nick exist ? */
+  /* does the nick exist?  */
   if ((cl = irc_find_nick (cfg, nick)) == NULL)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOSUCHNICK_TEXT "\n",
                   cfg->host, ERR_NOSUCHNICK, client->nick, nick);
       return 0;
     }
-  /* does the channel exist ? */
+  /* does the channel exist?  */
   if ((ch = irc_find_channel (cfg, channel)) == NULL)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOSUCHNICK_TEXT "\n",
@@ -1303,22 +1303,22 @@ irc_invite_callback (svz_socket_t *sock,
       return 0;
     }
 
-  /* is the inviter in channel ? */
+  /* is the inviter in channel?  */
   if ((n = irc_client_in_channel (sock, client, ch)) == -1)
     return 0;
 
-  /* is the user already in channel ? */
+  /* is the user already in channel?  */
   if ((i = irc_client_in_channel (NULL, cl, ch)) != -1)
     {
       irc_printf (sock, ":%s %03d %s " ERR_USERONCHANNEL_TEXT "\n",
                   cfg->host, ERR_USERONCHANNEL, client->nick, nick, channel);
       return 0;
     }
-  /* are you operator in this channel / can you invite ? */
+  /* are you operator in this channel / can you invite?  */
   if (!irc_client_oper (sock, client, ch, ch->cflag[n]))
     return 0;
 
-  /* is this client away ? */
+  /* is this client away?  */
   if (irc_client_absent (cl, client))
     return 0;
 
@@ -1355,14 +1355,14 @@ irc_kick_callback (svz_socket_t *sock,
   svz_socket_t *xsock;
   int i, n;
 
-  /* enough paras ? */
+  /* enough paras?  */
   if (irc_check_args (sock, client, cfg, request, 2))
     return 0;
 
   /* go through all targets (channels) */
   for (n = 0; n < request->targets; n++)
     {
-      /* does the requested channel exist ? */
+      /* does the requested channel exist?  */
       if ((channel = irc_find_channel (cfg, request->target[n].channel))
           == NULL)
         {
@@ -1372,11 +1372,11 @@ irc_kick_callback (svz_socket_t *sock,
           continue;
         }
 
-      /* yes there is such a channel, are you in it ? */
+      /* yes there is such a channel, are you in it?  */
       if ((i = irc_client_in_channel (sock, client, channel)) == -1)
         continue;
 
-      /* are you a channel operator ? */
+      /* are you a channel operator?  */
       if (!irc_client_oper (sock, client, channel, channel->cflag[i]))
         continue;
 
@@ -1385,7 +1385,7 @@ irc_kick_callback (svz_socket_t *sock,
            irc_find_nick (cfg, irc_get_target (request->para[1], n))) == NULL)
         continue;
 
-      /* is the victim in this channel ? */
+      /* is the victim in this channel?  */
       if (irc_client_in_channel (NULL, victim, channel) == -1)
         continue;
 
@@ -1408,6 +1408,6 @@ irc_kick_callback (svz_socket_t *sock,
 
 #else /* not ENABLE_IRC_PROTO */
 
-int irc_event_2_dummy; /* Shut up compiler warnings. */
+int irc_event_2_dummy;          /* Shut up compiler warnings.  */
 
 #endif /* not ENABLE_IRC_PROTO */
