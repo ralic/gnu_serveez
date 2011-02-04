@@ -27,13 +27,14 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Initialize autoconf and automake
 dnl
+AC_PREREQ([2.62])
 AC_INIT(serveez,0.1.7,bug-serveez@gnu.org)
 AC_CONFIG_HEADERS([config.h src/svzconfig.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE([no-define])
+AM_INIT_AUTOMAKE([1.10 no-define])
 
 dnl
 dnl Determine if maintainer portions of the Makefiles should be included.

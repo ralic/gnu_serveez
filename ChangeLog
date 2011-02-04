@@ -1,5 +1,12 @@
 2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Specify Autoconf and Automake prereq in configure.ac.
+
+	* configure.ac (AC_PREREQ): New.
+	(AM_INIT_AUTOMAKE): Add "1.10".
+
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Centralize Makefile.am var ‘CLEANFILES’.
 
 	* build-aux/common.mk (CLEANFILES): New var.
