@@ -1,5 +1,12 @@
 2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[maint] Use ‘if MAINTAINER_MODE’ for "make {redhat, debian}".
+
+	* Makefile.am (redhat, debian): Surround with
+	‘if MAINTAINER_MODE’; don't use ‘@MAINTAINER_MODE_TRUE@’ directly.
+
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Specify Autoconf and Automake prereq in configure.ac.
 
 	* configure.ac (AC_PREREQ): New.

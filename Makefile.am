@@ -29,11 +29,15 @@ EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
 	serveez.dsw config.h.serveez version.h.serveez \
 	build-aux/vcgen.bat build-aux/autodsp serveez.ap
 
-redhat: @MAINTAINER_MODE_TRUE@ dist
-	@MAINTAINER_MODE_TRUE@ @sh build-aux/redhat.sh && echo "Redhat packages done."
+if MAINTAINER_MODE
 
-debian: @MAINTAINER_MODE_TRUE@ dist
-	@MAINTAINER_MODE_TRUE@ @sh build-aux/debian.sh && echo "Debian packages done."
+redhat: dist
+	@sh build-aux/redhat.sh && echo "Redhat packages done."
+
+debian: dist
+	@sh build-aux/debian.sh && echo "Debian packages done."
+
+endif
 
 CLEANFILES += *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
