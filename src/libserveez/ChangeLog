@@ -1,5 +1,14 @@
 2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Assume signal handlers return ‘void’.
+
+	Here, "V" means "Return ‘void’".
+	* server-core.c (svz_segfault_exception): V.
+	(svz_signal_handler): V; remove ‘#ifdef NONVOID_SIGNAL’ block.
+	* server-core.h (svz_signal_handler): V.
+
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make src/libserveez/server-core.c more Emacs-friendly.
 
 	* server-core.c (svz_sock_check_bogus): Factor
