@@ -16,3 +16,4 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
 AM_CPPFLAGS = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
+CLEANFILES = *~ *.orig *.rej

@@ -36,5 +36,4 @@ libcodec_HEADERS = codec.h
 
 noinst_HEADERS = gzlib.h bzip2.h
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

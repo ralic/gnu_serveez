@@ -1,5 +1,13 @@
 2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Centralize Makefile.am var ‘CLEANFILES’.
+
+	* build-aux/common.mk (CLEANFILES): New var.
+	* Makefile.am: Include common.mk.
+	(CLEANFILES): Use ‘+=’; update.
+
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Assume signal handlers return ‘void’.
 
 	See (info "(autoconf) Obsolete Macros")

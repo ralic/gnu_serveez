@@ -28,5 +28,4 @@ noinst_LIBRARIES = libfoo.a
 libfoo_a_SOURCES = \
 	foo-proto.h foo-proto.c
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

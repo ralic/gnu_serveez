@@ -32,5 +32,4 @@ libnut_a_SOURCES = \
 	nut-hostlist.c nut-hostlist.h \
 	nut-request.c nut-request.h
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

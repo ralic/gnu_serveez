@@ -1,5 +1,13 @@
 2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Centralize Makefile.am var ‘CLEANFILES’.
+
+	* Makefile.am (CLEANFILES): Use ‘+=’; update.
+	* codec/Makefile.am (CLEANFILES): Delete var.
+	* coserver/Makefile.am (CLEANFILES): Likewise.
+
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Assume signal handlers return ‘void’.
 
 	Here, "V" means "Return ‘void’".

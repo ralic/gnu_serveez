@@ -36,6 +36,4 @@ libcoserver_HEADERS = coserver.h
 
 noinst_HEADERS = dns.h ident.h reverse-dns.h
 
-CLEANFILES = *~
-
 MAINTAINERCLEANFILES = Makefile.in

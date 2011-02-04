@@ -18,6 +18,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 EXTRA_DIST = mandel-server.scm mandel-client.scm mandel-shared.scm \
 	echo-server.scm eval-server.scm inetd.scm icecast-server.scm
 
@@ -25,5 +27,4 @@ pkgdata_DATA = inetd.scm echo-server.scm eval-server.scm \
 	mandel-server.scm mandel-client.scm mandel-shared.scm \
 	icecast-server.scm
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

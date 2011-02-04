@@ -39,5 +39,4 @@ libircserver_a_SOURCES = \
 	irc-server.h irc-server.c \
 	irc-config.h irc-config.c
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

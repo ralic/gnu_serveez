@@ -28,5 +28,4 @@ noinst_LIBRARIES = libfakeident.a
 libfakeident_a_SOURCES = \
         ident-proto.h ident-proto.c
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

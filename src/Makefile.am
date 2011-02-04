@@ -75,7 +75,7 @@ AM_CPPFLAGS += $(GUILE_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 
-CLEANFILES = *~ *.ro serveez.cfg *.orig *.rej
+CLEANFILES += *.ro serveez.cfg
 MAINTAINERCLEANFILES = Makefile.in serveez.dsp mkpassword.dsp
 
 dist-hook:

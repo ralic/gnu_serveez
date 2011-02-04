@@ -21,6 +21,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
 serveez_TEXINFOS = guile-api.texi
@@ -28,7 +30,7 @@ man_MANS = serveez.1 serveez-config.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 	logo.jpg logosmall.jpg mandel.jpg serveez-api.texi.in \
 	serveez-doc-snarf.awk
-CLEANFILES = *.info *.tgz *~ *.info-[0-9] stamp-vti* serveez-api.texi \
+CLEANFILES += *.info *.tgz *.info-[0-9] stamp-vti* serveez-api.texi \
 	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html \
 	$(GUILE_TXT_FILE)
 MAINTAINERCLEANFILES = Makefile.in

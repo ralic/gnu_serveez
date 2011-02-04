@@ -1,3 +1,22 @@
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Centralize Makefile.am var ‘CLEANFILES’.
+
+	Here, "I" means "include common.mk";
+	"D" means "(CLEANFILES): Delete var".
+	* Makefile.am: U.
+	* awcs-server/Makefile.am: D.
+	* ctrl-server/Makefile.am: D.
+	* foo-server/Makefile.am: D.
+	* guile-server/Makefile.am: I; D.
+	* http-server/Makefile.am: D.
+	* irc-core/Makefile.am: D.
+	* irc-server/Makefile.am: D.
+	* nut-server/Makefile.am: D.
+	* prog-server/Makefile.am: D.
+	* sntp-server/Makefile.am: D.
+	* tunnel-server/Makefile.am: D.
+
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Centralize ‘AM_CPPFLAGS’; zonk obsolete ‘INCLUDES’.

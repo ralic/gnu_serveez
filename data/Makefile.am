@@ -18,6 +18,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg \
 	serveez1.ico serveez2.ico init.serveez.in PLATFORMS
 SED = sed
@@ -45,5 +47,5 @@ init.serveez: init.serveez.in
 	  > $(srcdir)/init.serveez
 	@chmod +x $(srcdir)/init.serveez
 
-CLEANFILES = *~ *.orig *.rej init.serveez
+CLEANFILES += init.serveez
 MAINTAINERCLEANFILES = Makefile.in

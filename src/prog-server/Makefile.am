@@ -26,5 +26,4 @@ noinst_LIBRARIES = libprog.a
 
 libprog_a_SOURCES = prog-server.h prog-server.c
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

@@ -21,6 +21,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+include $(top_srcdir)/build-aux/common.mk
+
 SUBDIRS = src data test doc
 
 EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
@@ -33,7 +35,7 @@ redhat: @MAINTAINER_MODE_TRUE@ dist
 debian: @MAINTAINER_MODE_TRUE@ dist
 	@MAINTAINER_MODE_TRUE@ @sh build-aux/debian.sh && echo "Debian packages done."
 
-CLEANFILES = *~ *.rpm *.deb *.changes build-stamp
+CLEANFILES += *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES = aclocal.m4 config.h.in configure Makefile.in \
 	stamp-h.in stamp-h[0-9].in serveez.dsw
 DISTCLEANFILES = config.cache config.log

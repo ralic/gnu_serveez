@@ -27,5 +27,4 @@ noinst_LIBRARIES = libtunnel.a
 libtunnel_a_SOURCES = \
 	tunnel.c tunnel.h
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

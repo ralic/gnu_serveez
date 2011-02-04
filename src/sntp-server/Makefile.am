@@ -27,5 +27,4 @@ noinst_LIBRARIES = libsntp.a
 libsntp_a_SOURCES = \
 	sntp-proto.h sntp-proto.c
 
-CLEANFILES = *~
 MAINTAINERCLEANFILES = Makefile.in

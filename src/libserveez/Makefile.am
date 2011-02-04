@@ -68,6 +68,6 @@ noinst_HEADERS = ipdata.h iphlpapi.h
 
 AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
-CLEANFILES = *~ *.orig *.rej svzpath.h
+CLEANFILES += svzpath.h
 
 MAINTAINERCLEANFILES = Makefile.in libserveez.dsp
