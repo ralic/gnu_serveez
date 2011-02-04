@@ -1,3 +1,10 @@
+2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Make src/libserveez/server-core.c more Emacs-friendly.
+
+	* server-core.c (svz_sock_check_bogus): Factor
+	left curly brace from two branches of ‘#ifdef __MINGW32__’.
+
 2011-02-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Centralize ‘AM_CPPFLAGS’; zonk obsolete ‘INCLUDES’.

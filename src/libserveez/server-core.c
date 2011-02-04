@@ -1044,11 +1044,10 @@ svz_sock_check_bogus (void)
 #ifdef __MINGW32__
           if (ioctlsocket (sock->sock_desc, FIONREAD, &readBytes) ==
               SOCKET_ERROR)
-            {
 #else /* not __MINGW32__ */
           if (fcntl (sock->sock_desc, F_GETFL) < 0)
-            {
 #endif /* not __MINGW32__ */
+            {
               svz_log (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
               svz_sock_schedule_for_shutdown (sock);
             }
