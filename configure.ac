@@ -783,8 +783,8 @@ dnl
 dnl Checking for libtool support.
 dnl
 
-AC_LIBTOOL_WIN32_DLL
-AC_PROG_LIBTOOL
+LT_PREREQ([1.9b])dnl (first libtool to have ‘LT_INIT’)
+LT_INIT([win32-dll])
 
 dnl ----------------------------------------------------------------------
 
