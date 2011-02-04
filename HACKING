@@ -136,9 +136,12 @@ See the end for copying conditions.
 * bootstrap: see [[file:autogen.sh][autogen.sh]]
 
 * coding standards
-*** indent -gnu -nut (sounds enticing, no?)
-*** no trailing whitespace
-*** untabify opportunistically
+*** no trailing whitespace, no leading tabs
+    ;; one time: (untabify (point-min) (point-max))
+    (add-hook 'before-save-hook 'delete-trailing-whitespace)
+    (setq indent-tabs-mode nil)
+*** GNU style, opportunistically
+    (setq c-file-style "gnu")
 *** ChangeLog / VCS log
 ***** normally
       ChangeLog entries should match VCS log entries in the body.
