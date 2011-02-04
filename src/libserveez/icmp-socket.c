@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -90,9 +90,9 @@ static char *svz_icmp_request[] = {
  * 4. you cannot set the ICMP header (type, code)
  */
 
-/* 
- * Note 2: For the most part, you can refer to RFC 791 for details 
- * on how to fill in values for the IP option information structure. 
+/*
+ * Note 2: For the most part, you can refer to RFC 791 for details
+ * on how to fill in values for the IP option information structure.
  */
 typedef struct ip_option_information
 {
@@ -104,11 +104,11 @@ typedef struct ip_option_information
 }
 IPINFO;
 
-/* 
+/*
  * Note 1: The Reply Buffer will have an array of ICMP_ECHO_REPLY
  * structures, followed by options and the data in ICMP echo reply
  * datagram received. You must have room for at least one ICMP
- * echo reply structure, plus 8 bytes for an ICMP header. 
+ * echo reply structure, plus 8 bytes for an ICMP header.
  */
 typedef struct icmp_echo_reply
 {
@@ -123,7 +123,7 @@ typedef struct icmp_echo_reply
 ICMPECHO;
 
 /*
- * DLL function definitions of IcmpCloseHandle, IcmpCreateFile, 
+ * DLL function definitions of IcmpCloseHandle, IcmpCreateFile,
  * IcmpParseReplies, IcmpSendEcho and IcmpSendEcho2.
  */
 typedef HANDLE (__stdcall * IcmpCreateFileProc) (void);
@@ -192,13 +192,13 @@ svz_icmp_startup (void)
     }
 
   /* obtain functions */
-  IcmpCreateFile = (IcmpCreateFileProc) 
+  IcmpCreateFile = (IcmpCreateFileProc)
     GetProcAddress (IcmpHandle, "IcmpCreateFile");
   IcmpCloseHandle = (IcmpCloseHandleProc)
     GetProcAddress (IcmpHandle, "IcmpCloseHandle");
   IcmpSendEcho = (IcmpSendEchoProc)
     GetProcAddress (IcmpHandle, "IcmpSendEcho");
-  if (IcmpSendEcho == NULL || 
+  if (IcmpSendEcho == NULL ||
       IcmpCloseHandle == NULL || IcmpCreateFile == NULL)
     {
       svz_log (LOG_ERROR, "icmp: GetProcAddress: %s\n", SYS_ERROR);
@@ -303,8 +303,8 @@ svz_icmp_put_header (svz_icmp_header_t *hdr)
 #define ICMP_DISCONNECT -2
 
 /*
- * Parse and check IP and ICMP header. Return the amount of leading bytes 
- * to be truncated. Return ICMP_ERROR on packet errors and return 
+ * Parse and check IP and ICMP header. Return the amount of leading bytes
+ * to be truncated. Return ICMP_ERROR on packet errors and return
  * ICMP_DISCONNECT when we received an disconnection signal.
  */
 static int
@@ -328,31 +328,31 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
     {
       /* validate the ICMP data checksum */
       if (header->checksum != svz_raw_ip_checksum (p, len))
-	{
+        {
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "icmp: invalid data checksum\n");
+          svz_log (LOG_DEBUG, "icmp: invalid data checksum\n");
 #endif
-	  return ICMP_ERROR;
-	}
+          return ICMP_ERROR;
+        }
 
       /* check the ICMP header identification */
       if (header->ident == getpid () + sock->id)
-	{
+        {
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "icmp: rejecting native packet\n");
+          svz_log (LOG_DEBUG, "icmp: rejecting native packet\n");
 #endif
-	  return ICMP_ERROR;
-	}
+          return ICMP_ERROR;
+        }
 
       /* check ICMP remote port */
-      if ((header->port != sock->remote_port) && 
-	  !(sock->flags & SOCK_FLAG_LISTENING))
-	{
+      if ((header->port != sock->remote_port) &&
+          !(sock->flags & SOCK_FLAG_LISTENING))
+        {
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "icmp: rejecting filtered packet\n");
+          svz_log (LOG_DEBUG, "icmp: rejecting filtered packet\n");
 #endif
-	  return ICMP_ERROR;
-	}
+          return ICMP_ERROR;
+        }
       sock->remote_port = header->port;
     }
 
@@ -361,34 +361,34 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
   else if (header->type <= ICMP_MAX_TYPE)
     {
       if (svz_icmp_request[header->type])
-	svz_log (LOG_DEBUG, "icmp: %s received\n", 
-		 svz_icmp_request[header->type]);
+        svz_log (LOG_DEBUG, "icmp: %s received\n",
+                 svz_icmp_request[header->type]);
       else
-	svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n", 
-		 header->type);
+        svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n",
+                 header->type);
       return ICMP_ERROR;
     }
 #endif /* SVZ_ENABLE_DEBUG */
 
   if (header->type == sock->itype)
     {
-      if (header->code == ICMP_SERVEEZ_CONNECT && 
-	  sock->flags & SOCK_FLAG_LISTENING)
-	{
-	  svz_log (LOG_NOTICE, "icmp: accepting connection\n");
-	}
+      if (header->code == ICMP_SERVEEZ_CONNECT &&
+          sock->flags & SOCK_FLAG_LISTENING)
+        {
+          svz_log (LOG_NOTICE, "icmp: accepting connection\n");
+        }
       else if (header->code == ICMP_SERVEEZ_CLOSE)
-	{
-	  svz_log (LOG_NOTICE, "icmp: closing connection\n");
-	  return ICMP_DISCONNECT;
-	}
+        {
+          svz_log (LOG_NOTICE, "icmp: closing connection\n");
+          return ICMP_DISCONNECT;
+        }
       return (length + ICMP_HEADER_SIZE);
     }
 #if SVZ_ENABLE_DEBUG
   else
     {
-      svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n", 
-	       header->type);
+      svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n",
+               header->type);
     }
 #endif /* SVZ_ENABLE_DEBUG */
 
@@ -396,7 +396,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
 }
 
 /*
- * Default reader for ICMP sockets. The sender is stored within 
+ * Default reader for ICMP sockets. The sender is stored within
  * @code{sock->remote_addr} and @code{sock->remote_port} afterwards.
  */
 int
@@ -412,14 +412,14 @@ svz_icmp_read_socket (svz_socket_t *sock)
   /* Receive data. */
   if (!(sock->flags & SOCK_FLAG_CONNECTED))
     {
-      num_read = recvfrom (sock->sock_desc, svz_icmp_buffer, 
-			   sizeof (svz_icmp_buffer), 0, 
-			   (struct sockaddr *) &sender, &len);
+      num_read = recvfrom (sock->sock_desc, svz_icmp_buffer,
+                           sizeof (svz_icmp_buffer), 0,
+                           (struct sockaddr *) &sender, &len);
     }
   else
     {
-      num_read = recv (sock->sock_desc, svz_icmp_buffer, 
-		       sizeof (svz_icmp_buffer), 0);
+      num_read = recv (sock->sock_desc, svz_icmp_buffer,
+                       sizeof (svz_icmp_buffer), 0);
     }
 
   /* Valid packet data arrived. */
@@ -427,59 +427,59 @@ svz_icmp_read_socket (svz_socket_t *sock)
     {
 #if 0
       svz_hexdump (stdout, "icmp packet received", sock->sock_desc,
-		   svz_icmp_buffer, num_read, 0);
+                   svz_icmp_buffer, num_read, 0);
 #endif
       sock->last_recv = time (NULL);
       if (!(sock->flags & SOCK_FLAG_FIXED))
         {
-	  sock->remote_addr = sender.sin_addr.s_addr;
-	}
+          sock->remote_addr = sender.sin_addr.s_addr;
+        }
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
-	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
-	       svz_inet_ntoa (sock->remote_addr), num_read);
+               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
+               svz_inet_ntoa (sock->remote_addr), num_read);
 #endif /* SVZ_ENABLE_DEBUG */
 
-      /* 
+      /*
        * Check the ICMP packet and put the packet load only into the
        * receive buffer of the socket structure.
        */
-      trunc = svz_icmp_check_packet (sock, (svz_uint8_t *) svz_icmp_buffer, 
-				     num_read);
+      trunc = svz_icmp_check_packet (sock, (svz_uint8_t *) svz_icmp_buffer,
+                                     num_read);
       if (trunc >= 0)
-	{
-	  num_read -= trunc;
-	  if (num_read > sock->recv_buffer_size - sock->recv_buffer_fill)
-	    {
-	      svz_log (LOG_ERROR, 
-		       "receive buffer overflow on icmp socket %d\n",
-		       sock->sock_desc);
-	      return -1;
-	    }
-  
-	  memcpy (sock->recv_buffer + sock->recv_buffer_fill,
-		  svz_icmp_buffer + trunc, num_read);
-	  sock->recv_buffer_fill += num_read;
+        {
+          num_read -= trunc;
+          if (num_read > sock->recv_buffer_size - sock->recv_buffer_fill)
+            {
+              svz_log (LOG_ERROR,
+                       "receive buffer overflow on icmp socket %d\n",
+                       sock->sock_desc);
+              return -1;
+            }
 
-	  /* Check access lists. */
-	  if (svz_sock_check_access (sock, sock) < 0)
-	    return 0;
+          memcpy (sock->recv_buffer + sock->recv_buffer_fill,
+                  svz_icmp_buffer + trunc, num_read);
+          sock->recv_buffer_fill += num_read;
 
-	  if (sock->check_request)
-	    sock->check_request (sock);
-	}
+          /* Check access lists. */
+          if (svz_sock_check_access (sock, sock) < 0)
+            return 0;
+
+          if (sock->check_request)
+            sock->check_request (sock);
+        }
       else if (trunc == ICMP_DISCONNECT)
-	{
-	  return -1;
-	}
+        {
+          return -1;
+        }
     }
   /* Some error occurred. */
   else
     {
-      svz_log (LOG_ERROR, "icmp: recv%s: %s\n", 
-	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
+      svz_log (LOG_ERROR, "icmp: recv%s: %s\n",
+               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
       if (svz_errno != SOCK_UNAVAILABLE)
-	return -1;
+        return -1;
     }
   return 0;
 }
@@ -494,15 +494,15 @@ svz_icmp_lazy_read_socket (svz_socket_t *sock)
   svz_portcfg_t *port = sock->port;
 
   svz_sock_resize_buffers (sock, port->send_buffer_size,
-			   port->recv_buffer_size);
+                           port->recv_buffer_size);
   sock->read_socket = svz_icmp_read_socket;
 
   return sock->read_socket (sock);
 }
 
 /*
- * The default ICMP write callback is called whenever the socket 
- * descriptor has been @code{select()}'ed or @code{poll()}'ed to be ready for 
+ * The default ICMP write callback is called whenever the socket
+ * descriptor has been @code{select()}'ed or @code{poll()}'ed to be ready for
  * sending.
  */
 int
@@ -535,20 +535,20 @@ svz_icmp_write_socket (svz_socket_t *sock)
   if (!(sock->flags & SOCK_FLAG_CONNECTED))
     {
       num_written = sendto (sock->sock_desc, p,
-			    do_write - (p - sock->send_buffer),
-			    0, (struct sockaddr *) &receiver, len);
+                            do_write - (p - sock->send_buffer),
+                            0, (struct sockaddr *) &receiver, len);
     }
   else
     {
       num_written = send (sock->sock_desc, p,
-			  do_write - (p - sock->send_buffer), 0);
+                          do_write - (p - sock->send_buffer), 0);
     }
 
   /* Some error occurred while sending. */
   if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "icmp: send%s: %s\n", 
-	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
+      svz_log (LOG_ERROR, "icmp: send%s: %s\n",
+               sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
         num_written = 0;
     }
@@ -558,7 +558,7 @@ svz_icmp_write_socket (svz_socket_t *sock)
       sock->last_send = time (NULL);
       if ((unsigned) sock->send_buffer_fill > do_write)
         {
-          memmove (sock->send_buffer, 
+          memmove (sock->send_buffer,
                    sock->send_buffer + do_write,
                    sock->send_buffer_fill - do_write);
         }
@@ -567,9 +567,9 @@ svz_icmp_write_socket (svz_socket_t *sock)
 
 #if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
-	   sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
-	   svz_inet_ntoa (receiver.sin_addr.s_addr),
-	   do_write - (p - sock->send_buffer));
+           sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
+           svz_inet_ntoa (receiver.sin_addr.s_addr),
+           do_write - (p - sock->send_buffer));
 #endif /* SVZ_ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
@@ -611,7 +611,7 @@ svz_icmp_send_control (svz_socket_t *sock, svz_uint8_t type)
 }
 
 /*
- * Send a given buffer @var{buf} with length @var{length} via this ICMP 
+ * Send a given buffer @var{buf} with length @var{length} via this ICMP
  * socket. If the length argument supersedes the maximum ICMP message
  * size the buffer is split into smaller packets.
  */
@@ -629,9 +629,9 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
 
   while (length)
     {
-      /* 
-       * Put the data length and destination address in front 
-       * of each packet. 
+      /*
+       * Put the data length and destination address in front
+       * of each packet.
        */
       len = sizeof (len);
       memcpy (&buffer[len], &sock->remote_addr, sizeof (sock->remote_addr));
@@ -639,7 +639,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
       memcpy (&buffer[len], &sock->remote_port, sizeof (sock->remote_port));
       len += sizeof (sock->remote_port);
       if ((size = length) > ICMP_MSG_SIZE)
-	size = ICMP_MSG_SIZE;
+        size = ICMP_MSG_SIZE;
 
       /* Create ICMP header and put it in front of packet load. */
       hdr.type = sock->itype;
@@ -692,7 +692,7 @@ svz_icmp_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
   va_start (args, fmt);
   len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
-  
+
   return svz_icmp_write (sock, buffer, len);
 }
 
@@ -710,10 +710,10 @@ svz_icmp_check_request (svz_socket_t *sock)
   if (sock->data == NULL && sock->handle_request == NULL)
     return -1;
 
-  /* 
-   * If there is a valid `handle_request' callback (dedicated icmp 
-   * connection) call it. This kind of behaviour is due to a socket 
-   * creation via 'icmp_connect' (s.b.) and setting up a static 
+  /*
+   * If there is a valid `handle_request' callback (dedicated icmp
+   * connection) call it. This kind of behaviour is due to a socket
+   * creation via 'icmp_connect' (s.b.) and setting up a static
    * `handle_request' callback.
    */
   if (sock->handle_request)
@@ -731,7 +731,7 @@ svz_icmp_check_request (svz_socket_t *sock)
     {
       server = binding->server;
       sock->cfg = server->cfg;
-      
+
       if (server->handle_request)
         {
           if (!server->handle_request (sock, sock->recv_buffer,
@@ -749,7 +749,7 @@ svz_icmp_check_request (svz_socket_t *sock)
     {
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "rejecting icmp packet on socket %d\n",
-	       sock->sock_desc);
+               sock->sock_desc);
 #endif
       sock->recv_buffer_fill = 0;
     }
@@ -764,7 +764,7 @@ svz_icmp_check_request (svz_socket_t *sock)
  */
 svz_socket_t *
 svz_icmp_connect (unsigned long host, unsigned short port,
-		  unsigned char type)
+                  unsigned char type)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;

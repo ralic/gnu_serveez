@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -73,20 +73,20 @@ svz_process_t;
 extern char **environ;
 #endif
 
-/* 
+/*
  * This macro must be called once after @code{svz_boot()} for setting up the
  * @code{svz_environ} variable. It simply passes the @code{environ} variable
  * of the calling application to the underlying Serveez core API. This is
- * necessary to make the @code{svz_envblock_default()} function working 
+ * necessary to make the @code{svz_envblock_default()} function working
  * correctly.
  */
 #define svz_envblock_setup() do { svz_environ = environ; } while (0)
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_sock_process __PARAMS ((svz_socket_t *, char *, char *, 
-					    char **, svz_envblock_t *, int, 
-					    char *));
+SERVEEZ_API int svz_sock_process __PARAMS ((svz_socket_t *, char *, char *,
+                                            char **, svz_envblock_t *, int,
+                                            char *));
 
 SERVEEZ_API int svz_process_disconnect __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_process_disconnect_passthrough __PARAMS ((svz_socket_t *));
@@ -102,8 +102,8 @@ SERVEEZ_API int svz_process_shuffle __PARAMS ((svz_process_t *));
 SERVEEZ_API int svz_process_fork __PARAMS ((svz_process_t *));
 
 SERVEEZ_API int svz_process_check_executable __PARAMS ((char *, char **));
-SERVEEZ_API int svz_process_split_usergroup __PARAMS ((char *, char **, 
-						       char **));
+SERVEEZ_API int svz_process_split_usergroup __PARAMS ((char *, char **,
+                                                       char **));
 SERVEEZ_API int svz_process_check_access __PARAMS ((char *, char *));
 
 SERVEEZ_API char **svz_environ;

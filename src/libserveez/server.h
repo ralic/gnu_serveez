@@ -8,12 +8,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -52,7 +52,7 @@ struct svz_server
   int (* init) (svz_server_t *);
   /* protocol detection */
   int (* detect_proto) (svz_server_t *, svz_socket_t *);
-  /* what to do if detected */ 
+  /* what to do if detected */
   int (* connect_socket) (svz_server_t *, svz_socket_t *);
   /* finalize this instance */
   int (* finalize) (svz_server_t *);
@@ -120,13 +120,13 @@ SERVEEZ_API svz_array_t *svz_server_clients __PARAMS ((svz_server_t *));
 SERVEEZ_API void svz_server_notifiers __PARAMS ((void));
 SERVEEZ_API void svz_server_reset __PARAMS ((void));
 SERVEEZ_API svz_server_t *svz_server_instantiate __PARAMS ((svz_servertype_t *,
-							    char *));
+                                                            char *));
 SERVEEZ_API int svz_server_init __PARAMS ((svz_server_t *));
 SERVEEZ_API void svz_server_finalize __PARAMS ((svz_server_t *));
 
-SERVEEZ_API void *svz_server_configure __PARAMS ((svz_servertype_t *, char *, 
-						  void *, 
-						  svz_config_accessor_t *));
+SERVEEZ_API void *svz_server_configure __PARAMS ((svz_servertype_t *, char *,
+                                                  void *,
+                                                  svz_config_accessor_t *));
 
 SERVEEZ_API int svz_server_init_all __PARAMS ((void));
 SERVEEZ_API int svz_server_finalize_all __PARAMS ((void));

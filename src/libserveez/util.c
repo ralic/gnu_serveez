@@ -9,12 +9,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -72,7 +72,7 @@
 #include "libserveez/mutex.h"
 #include "libserveez/util.h"
 
-/* 
+/*
  * Level of the logging interfaces verbosity:
  * 0 - only fatal error messages
  * 1 - error messages
@@ -118,8 +118,8 @@ svz_log (int level, svz_c_const char *format, ...)
   tm = time (NULL);
   t = localtime (&tm);
   fprintf (svz_logfile, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
-	   t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-	   t->tm_hour, t->tm_min, t->tm_sec, log_level[level]);
+           t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
+           t->tm_hour, t->tm_min, t->tm_sec, log_level[level]);
   va_start (args, format);
   vfprintf (svz_logfile, format, args);
   va_end (args);
@@ -141,17 +141,17 @@ svz_log_setfile (FILE * file)
 
 /*
  * Dump a @var{buffer} with the length @var{len} to the file stream @var{out}.
- * You can specify a description in @var{action}. The hexadecimal text 
- * representation of the given buffer will be either cut at @var{len} or 
+ * You can specify a description in @var{action}. The hexadecimal text
+ * representation of the given buffer will be either cut at @var{len} or
  * @var{max}. @var{from} is a numerical identifier of the buffers creator.
  */
 int
 svz_hexdump (FILE *out,    /* output FILE stream */
-	     char *action, /* hex dump description */
-	     int from,	   /* who created the dumped data */
-	     char *buffer, /* the buffer to dump */
-	     int len,	   /* length of that buffer */
-	     int max)	   /* maximum amount of bytes to dump (0 = all) */
+             char *action, /* hex dump description */
+             int from,     /* who created the dumped data */
+             char *buffer, /* the buffer to dump */
+             int len,      /* length of that buffer */
+             int max)      /* maximum amount of bytes to dump (0 = all) */
 {
   int row, col, x, max_col;
 
@@ -170,19 +170,19 @@ svz_hexdump (FILE *out,    /* output FILE stream */
       /* print hexdump */
       fprintf (out, "%04X   ", x);
       for (col = 0; col < MAX_DUMP_LINE; col++, x++)
-	{
-	  if (x < max)
-	    fprintf (out, "%02X ", (unsigned char) buffer[x]);
-	  else
-	    fprintf (out, "   ");
-	}
+        {
+          if (x < max)
+            fprintf (out, "%02X ", (unsigned char) buffer[x]);
+          else
+            fprintf (out, "   ");
+        }
       /* print character representation */
       x -= MAX_DUMP_LINE;
       fprintf (out, "  ");
       for (col = 0; col < MAX_DUMP_LINE && x < max; col++, x++)
-	{
-	  fprintf (out, "%c", buffer[x] >= ' ' ? buffer[x] : '.');
-	}
+        {
+          fprintf (out, "%c", buffer[x] >= ' ' ? buffer[x] : '.');
+        }
       fprintf (out, "\n");
     }
 
@@ -197,7 +197,7 @@ extern char * hstrerror (int);
 #endif
 
 /*
- * This is the @code{hstrerror()} wrapper function, depending on the 
+ * This is the @code{hstrerror()} wrapper function, depending on the
  * configuration file @file{config.h}.
  */
 char *
@@ -239,7 +239,7 @@ svz_time (long t)
 
 /*
  * Create some kind of uptime string. It tells how long the core library
- * has been running. 
+ * has been running.
  */
 char *
 svz_uptime (long diff)
@@ -286,8 +286,8 @@ svz_tolower (char *str)
 
   while (*p)
     {
-      *p = (char) (isupper ((svz_uint8_t) * p) ? 
-		   tolower ((svz_uint8_t) * p) : *p);
+      *p = (char) (isupper ((svz_uint8_t) * p) ?
+                   tolower ((svz_uint8_t) * p) : *p);
       p++;
     }
   return str;
@@ -295,7 +295,7 @@ svz_tolower (char *str)
 
 /*
  * This is the system dependent case insensitive string compare. It
- * compares the strings @var{str1} and @var{str2} and returns zero if both 
+ * compares the strings @var{str1} and @var{str2} and returns zero if both
  * strings are equal.
  */
 int
@@ -318,7 +318,7 @@ svz_strcasecmp (svz_c_const char *str1, svz_c_const char *str2)
       c1 = isupper (*p1) ? tolower (*p1) : *p1;
       c2 = isupper (*p2) ? tolower (*p2) : *p2;
       if (c1 == '\0')
-	break;
+        break;
       ++p1;
       ++p2;
     }
@@ -332,12 +332,12 @@ svz_strcasecmp (svz_c_const char *str1, svz_c_const char *str2)
  * The @code{svz_strncasecmp()} function compares the two strings @var{str1}
  * and @var{str2}, ignoring the case of the characters. It returns an
  * integer less than, equal to, or greater than zero if @var{str1} is
- * found, respectively, to be less than, to match, or be greater than 
+ * found, respectively, to be less than, to match, or be greater than
  * @var{str2}. It only compares the first @var{n} characters of @var{str1}.
  */
 int
-svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2, 
-		 unsigned int n)
+svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2,
+                 unsigned int n)
 {
 #if HAVE_STRNCASECMP
   return strncasecmp (str1, str2, n);
@@ -356,7 +356,7 @@ svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2,
       c1 = isupper (*p1) ? tolower (*p1) : *p1;
       c2 = isupper (*p2) ? tolower (*p2) : *p2;
       if (c1 == '\0')
-	break;
+        break;
       ++p1;
       ++p2;
     }
@@ -368,7 +368,7 @@ svz_strncasecmp (svz_c_const char *str1, svz_c_const char *str2,
 
 #ifdef __MINGW32__
 /*
- * This variable contains the last system or network error occurred if 
+ * This variable contains the last system or network error occurred if
  * it was detected and printed. Needed for the "Resource unavailable" error
  * condition.
  */
@@ -377,7 +377,7 @@ int svz_errno = 0;
 #define MESSAGE_BUF_SIZE 256
 
 /*
- * There is no text representation of network (Winsock API) errors in 
+ * There is no text representation of network (Winsock API) errors in
  * Win32. That is why we translate it by hand.
  */
 static char *
@@ -480,7 +480,7 @@ svz_neterror (int error)
 
 /*
  * Routine which forms a valid error message under Win32. It might either
- * use the @code{GetLastError()} or @code{WSAGetLastError()} in order to 
+ * use the @code{GetLastError()} or @code{WSAGetLastError()} in order to
  * get a valid error code.
  */
 char *
@@ -495,7 +495,7 @@ svz_syserror (int nr)
   if (nr >= WSABASEERR)
     return svz_neterror (nr);
 
-  /* 
+  /*
    * if the error is not valid (GetLastError returned zero)
    * fall back to the errno variable of the usual crtdll.
    */
@@ -504,12 +504,12 @@ svz_syserror (int nr)
 
   /* return a sys error */
   if (0 == FormatMessage (FORMAT_MESSAGE_FROM_SYSTEM |
-			  FORMAT_MESSAGE_ARGUMENT_ARRAY, NULL, nr,
-			  MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
-			  (char *) message, MESSAGE_BUF_SIZE, NULL))
+                          FORMAT_MESSAGE_ARGUMENT_ARRAY, NULL, nr,
+                          MAKELANGID (LANG_NEUTRAL, SUBLANG_DEFAULT),
+                          (char *) message, MESSAGE_BUF_SIZE, NULL))
     {
-      sprintf (message, "FormatMessage (%d): error code %ld", 
-	       nr, GetLastError ());
+      sprintf (message, "FormatMessage (%d): error code %ld",
+               nr, GetLastError ());
       return message;
     }
 
@@ -529,7 +529,7 @@ int svz_os_version = 0;
 #endif /* __MINGW32__ */
 
 /*
- * This routine is for detecting the operating system version of Win32 
+ * This routine is for detecting the operating system version of Win32
  * and all Unices at runtime. You should call it at least once at startup.
  * It saves its result in the variable @code{svz_os_version} and prints an
  * appropriate message.
@@ -561,41 +561,41 @@ svz_sys_version (void)
   else
     {
       switch (osver.dwPlatformId)
-	{
-	case VER_PLATFORM_WIN32_NT: /* NT, Windows 2000 or Windows XP */
-	  if (osver.dwMajorVersion == 4)
-	    svz_os_version = WinNT4x;
-	  else if (osver.dwMajorVersion <= 3)
-	    svz_os_version = WinNT3x;
-	  else if (osver.dwMajorVersion == 5 && osver.dwMinorVersion < 1)
-	    svz_os_version = Win2k;
-	  else if (osver.dwMajorVersion >= 5)
-	    svz_os_version = WinXP;
-	  break;
+        {
+        case VER_PLATFORM_WIN32_NT: /* NT, Windows 2000 or Windows XP */
+          if (osver.dwMajorVersion == 4)
+            svz_os_version = WinNT4x;
+          else if (osver.dwMajorVersion <= 3)
+            svz_os_version = WinNT3x;
+          else if (osver.dwMajorVersion == 5 && osver.dwMinorVersion < 1)
+            svz_os_version = Win2k;
+          else if (osver.dwMajorVersion >= 5)
+            svz_os_version = WinXP;
+          break;
 
-	case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
-	  if ((osver.dwMajorVersion > 4) ||
-	      ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
-	    {
-	      if (osver.dwMinorVersion >= 90)
-		svz_os_version = WinME;
-	      else
-		svz_os_version = Win98;
-	    }
-	  else
-	    svz_os_version = Win95;
-	  break;
+        case VER_PLATFORM_WIN32_WINDOWS: /* Win95 or Win98 */
+          if ((osver.dwMajorVersion > 4) ||
+              ((osver.dwMajorVersion == 4) && (osver.dwMinorVersion > 0)))
+            {
+              if (osver.dwMinorVersion >= 90)
+                svz_os_version = WinME;
+              else
+                svz_os_version = Win98;
+            }
+          else
+            svz_os_version = Win95;
+          break;
 
-	case VER_PLATFORM_WIN32s: /* Windows 3.x */
-	  svz_os_version = Win32s;
-	  break;
-	}
+        case VER_PLATFORM_WIN32s: /* Windows 3.x */
+          svz_os_version = Win32s;
+          break;
+        }
 
       sprintf (os, "Windows%s %ld.%02ld %s%s(Build %ld)",
-	       ver[svz_os_version], 
-	       osver.dwMajorVersion, osver.dwMinorVersion,
-	       osver.szCSDVersion, osver.szCSDVersion[0] ? " " : "",
-	       osver.dwBuildNumber & 0xFFFF);
+               ver[svz_os_version],
+               osver.dwMajorVersion, osver.dwMinorVersion,
+               osver.szCSDVersion, osver.szCSDVersion[0] ? " " : "",
+               osver.dwBuildNumber & 0xFFFF);
     }
 #elif HAVE_UNAME /* !__MINGW32__ */
   uname (&buf);
@@ -606,7 +606,7 @@ svz_sys_version (void)
 }
 
 /*
- * Converts an unsigned integer to its decimal string representation 
+ * Converts an unsigned integer to its decimal string representation
  * returning a pointer to an internal buffer, so copy the result.
  */
 char *
@@ -668,7 +668,7 @@ svz_getcwd (void)
 /*
  * This routine checks for the current and maximum limit of open files
  * of the current process. The function heavily depends on the underlying
- * platform. It tries to set the limit to the given @var{max_sockets} 
+ * platform. It tries to set the limit to the given @var{max_sockets}
  * amount.
  */
 int
@@ -701,59 +701,59 @@ svz_openfiles (int max_sockets)
       return -1;
     }
   svz_log (LOG_NOTICE, "current open file limit: %d/%d\n",
-	   rlim.rlim_cur, rlim.rlim_max);
+           rlim.rlim_cur, rlim.rlim_max);
 
-  if ((int) rlim.rlim_max < (int) max_sockets || 
+  if ((int) rlim.rlim_max < (int) max_sockets ||
       (int) rlim.rlim_cur < (int) max_sockets)
     {
       rlim.rlim_max = max_sockets;
       rlim.rlim_cur = max_sockets;
 
       if (setrlimit (RLIMIT_NOFILE, &rlim) == -1)
-	{
-	  svz_log (LOG_ERROR, "setrlimit: %s\n", SYS_ERROR);
-	  return -1;
-	}
+        {
+          svz_log (LOG_ERROR, "setrlimit: %s\n", SYS_ERROR);
+          return -1;
+        }
       getrlimit (RLIMIT_NOFILE, &rlim);
       svz_log (LOG_NOTICE, "open file limit set to: %d/%d\n",
-	       rlim.rlim_cur, rlim.rlim_max);
+               rlim.rlim_cur, rlim.rlim_max);
     }
 
-#elif defined (__MINGW32__)	/* HAVE_GETRLIMIT */
+#elif defined (__MINGW32__)     /* HAVE_GETRLIMIT */
 
   unsigned sockets = 100;
 
-  if (svz_os_version == Win95 || 
+  if (svz_os_version == Win95 ||
       svz_os_version == Win98 || svz_os_version == WinME)
     {
       if (svz_os_version == Win95)
-	sockets = svz_windoze_get_reg_unsigned (MaxSocketKey,
-						MaxSocketSubKey,
-						MaxSocketSubSubKey, sockets);
+        sockets = svz_windoze_get_reg_unsigned (MaxSocketKey,
+                                                MaxSocketSubKey,
+                                                MaxSocketSubSubKey, sockets);
       else
-	sockets = svz_atoi (svz_windoze_get_reg_string (MaxSocketKey,
-							MaxSocketSubKey,
-							MaxSocketSubSubKey,
-							svz_itoa (sockets)));
+        sockets = svz_atoi (svz_windoze_get_reg_string (MaxSocketKey,
+                                                        MaxSocketSubKey,
+                                                        MaxSocketSubSubKey,
+                                                        svz_itoa (sockets)));
 
       svz_log (LOG_NOTICE, "current open file limit: %u\n", sockets);
 
       if (sockets < (unsigned) max_sockets)
-	{
-	  sockets = max_sockets;
+        {
+          sockets = max_sockets;
 
-	  if (svz_os_version == Win95)
-	    svz_windoze_set_reg_unsigned (MaxSocketKey,
-					  MaxSocketSubKey,
-					  MaxSocketSubSubKey, sockets);
-	  else
-	    svz_windoze_set_reg_string (MaxSocketKey,
-					MaxSocketSubKey,
-					MaxSocketSubSubKey, 
-					svz_itoa (sockets));
+          if (svz_os_version == Win95)
+            svz_windoze_set_reg_unsigned (MaxSocketKey,
+                                          MaxSocketSubKey,
+                                          MaxSocketSubSubKey, sockets);
+          else
+            svz_windoze_set_reg_string (MaxSocketKey,
+                                        MaxSocketSubKey,
+                                        MaxSocketSubSubKey,
+                                        svz_itoa (sockets));
 
-	  svz_log (LOG_NOTICE, "open file limit set to: %u\n", sockets);
-	}
+          svz_log (LOG_NOTICE, "open file limit set to: %u\n", sockets);
+        }
     }
 #endif /* MINGW32__ */
 

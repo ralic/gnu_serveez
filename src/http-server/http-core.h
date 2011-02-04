@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,7 +59,7 @@ typedef struct
 {
   off_t first;  /* first byte in range */
   off_t last;   /* last byte (inclusive) */
-  off_t length; /* total length of entity (can be zero "*") */ 
+  off_t length; /* total length of entity (can be zero "*") */
 }
 http_range_t;
 
@@ -109,7 +109,7 @@ struct http_socket
 
 #define HTTP_FLAG_CACHE    0x0001 /* use cache if possible */
 #define HTTP_FLAG_NOFILE   0x0002 /* do not send content, but header */
-#define HTTP_FLAG_SIMPLE   0x0004 /* HTTP/0.9 simple GET */     
+#define HTTP_FLAG_SIMPLE   0x0004 /* HTTP/0.9 simple GET */
 #define HTTP_FLAG_DONE     0x0008 /* http request done */
 #define HTTP_FLAG_POST     0x0010 /* http cgi pipe posting data */
 #define HTTP_FLAG_CGI      0x0020 /* http cgi pipe getting data */

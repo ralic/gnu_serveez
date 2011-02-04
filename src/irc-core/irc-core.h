@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,10 +59,10 @@ typedef struct
 
   /* the irc command (letters or 3 digits) */
   char request[MAX_NAME_LEN];    /* request (numeric or word) */
-  
-  /* 
+
+  /*
    * parameter list, separated by space(s), initiated by ':' is last
-   * one also containing space(s) 
+   * one also containing space(s)
    */
   char para[MAX_PARAMS][MAX_MSG_LEN];
   int paras;
@@ -87,8 +87,8 @@ extern irc_request_t irc_request;  /* single IRC request */
 int irc_string_equal (char *str1, char *str2);
 int irc_string_regex (char *text, char *regex);
 
-/* 
- * We need this for a lower case character set, because 
+/*
+ * We need this for a lower case character set, because
  * nick names and channel names in IRC are case insensitive.
  */
 void irc_create_lcset (void);

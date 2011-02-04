@@ -9,19 +9,19 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
-#endif 
+#endif
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -79,7 +79,7 @@ guile_entry (int argc, char **argv)
     }
 
   /*
-   * Make command line arguments overriding the configuration 
+   * Make command line arguments overriding the configuration
    * file settings.
    */
   if (options->verbosity != -1)
@@ -100,7 +100,7 @@ guile_entry (int argc, char **argv)
 
   svz_openfiles (svz_config.max_sockets);
   svz_log (LOG_NOTICE, "using %d socket descriptors\n",
-	   svz_config.max_sockets);
+           svz_config.max_sockets);
 
   /* Startup the internal coservers here. */
   if (svz_coserver_init () == -1)
@@ -131,8 +131,8 @@ guile_entry (int argc, char **argv)
   svz_halt ();
 
 #if SVZ_ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n", 
-	   svz_allocated_bytes, svz_allocated_blocks);
+  svz_log (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n",
+           svz_allocated_bytes, svz_allocated_blocks);
 
 #if DEBUG_MEMORY_LEAKS
   svz_heap ();
@@ -185,29 +185,29 @@ main (int argc, char *argv[])
       int pid;
 
       if ((pid = fork ()) == -1)
-	{
-	  svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
-	  exit (1);
-	}
+        {
+          svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+          exit (1);
+        }
       else if (pid != 0)
-	{
-	  exit (0);
-	}
+        {
+          exit (0);
+        }
       /* Close the log file if necessary. */
       if (options->loghandle == stderr)
-	svz_log_setfile (NULL);
+        svz_log_setfile (NULL);
       /* Close stdin, stdout and stderr. */
       if (isatty (fileno (stdin)))
-	close (fileno (stdin));
+        close (fileno (stdin));
       if (isatty (fileno (stdout)))
-	close (fileno (stdout));
+        close (fileno (stdout));
       if (isatty (fileno (stderr)))
-	close (fileno (stderr));
+        close (fileno (stderr));
 #else /* __MINGW32__ */
       if (svz_windoze_start_daemon (argv[0]) == -1)
-	exit (1);
+        exit (1);
       if (options->loghandle == stderr)
-	svz_log_setfile (NULL);
+        svz_log_setfile (NULL);
       closehandle (GetStdHandle (STD_INPUT_HANDLE));
       closehandle (GetStdHandle (STD_OUTPUT_HANDLE));
       closehandle (GetStdHandle (STD_ERROR_HANDLE));

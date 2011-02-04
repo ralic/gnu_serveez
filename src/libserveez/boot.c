@@ -7,19 +7,19 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
-#endif 
+#endif
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -91,7 +91,7 @@ svz_net_startup (void)
 {
 #ifdef __MINGW32__
   WSADATA WSAData;
- 
+
   /* Call this once before using Winsock API. */
   if (WSAStartup (WINSOCK_VERSION, &WSAData) == SOCKET_ERROR)
     {
@@ -99,7 +99,7 @@ svz_net_startup (void)
       WSACleanup ();
       return 0;
     }
-  
+
   /* Startup IP services. */
   svz_icmp_startup ();
 

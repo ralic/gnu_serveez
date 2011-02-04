@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,8 +48,8 @@ SERVEEZ_API int svz_fd_cloexec __PARAMS ((int));
 SERVEEZ_API int svz_tcp_cork __PARAMS ((svz_t_socket, int));
 SERVEEZ_API int svz_tcp_nodelay __PARAMS ((svz_t_socket, int, int *));
 SERVEEZ_API int svz_socket_type __PARAMS ((svz_t_socket, int *));
-SERVEEZ_API int svz_socket_connect __PARAMS ((svz_t_socket, unsigned long, 
-					      unsigned short));
+SERVEEZ_API int svz_socket_connect __PARAMS ((svz_t_socket, unsigned long,
+                                              unsigned short));
 SERVEEZ_API svz_t_socket svz_socket_create __PARAMS ((int));
 SERVEEZ_API int svz_socket_create_pair __PARAMS ((int, svz_t_socket desc[2]));
 SERVEEZ_API char *svz_inet_ntoa __PARAMS ((unsigned long));
@@ -58,8 +58,8 @@ SERVEEZ_API int svz_sendfile __PARAMS ((int, int, svz_t_off *, unsigned int));
 SERVEEZ_API int svz_open __PARAMS ((svz_c_const char *, int, unsigned int));
 SERVEEZ_API int svz_close __PARAMS ((int));
 SERVEEZ_API int svz_fstat __PARAMS ((int, struct stat *));
-SERVEEZ_API FILE *svz_fopen __PARAMS ((svz_c_const char *, 
-				       svz_c_const char *));
+SERVEEZ_API FILE *svz_fopen __PARAMS ((svz_c_const char *,
+                                       svz_c_const char *));
 SERVEEZ_API int svz_fclose __PARAMS ((FILE *));
 SERVEEZ_API int svz_file_check __PARAMS ((char *));
 SERVEEZ_API char *svz_file_path __PARAMS ((char *, char *));

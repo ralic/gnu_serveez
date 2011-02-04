@@ -8,19 +8,19 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
-#endif 
+#endif
 
 #define _GNU_SOURCE
 #include <stdio.h>
@@ -40,8 +40,8 @@ int optind = 1;
 int opterr = 1;
 int optopt = 0;
 
-int 
-getopt (int argc, char * const argv[], const char *optstring) 
+int
+getopt (int argc, char * const argv[], const char *optstring)
 {
   static int current_arg = 1, current_opt = 0, current_idx = 1;
   int n;
@@ -53,50 +53,50 @@ getopt (int argc, char * const argv[], const char *optstring)
   if (*prog == '/' || *prog == '\\')
     prog++;
 
-  while (current_arg < argc) 
+  while (current_arg < argc)
     {
-      if (argv[current_arg][0] == '-') 
+      if (argv[current_arg][0] == '-')
         {
           if (current_opt == 0)
             current_opt = 1;
           while (argv[current_arg][current_opt] != '\0')
-	    {
-	      n = 0;
-	      /* go through all option characters */
-	      while (optstring[n]) 
-		{
-		  if (optstring[n] == argv[current_arg][current_opt])
-		    {
-		      current_opt++;
-		      if (optstring[n + 1] == ':') 
-			{
-			  optarg = argv[current_arg + current_idx];
-			  current_idx++;
-			  if (opterr && optarg == NULL)
-			    fprintf (stderr, 
-				     "%s: option requires an argument -- %c\n",
-				     prog, optstring[n]);
-			}
-		      else
-			optarg = NULL;
-		      if (argv[current_arg][current_opt] == '\0')
-			{ 
-			  current_arg += current_idx;
-			  current_opt = 0;
-			  current_idx = 1;
-			} 
-		      optind = current_arg + current_idx - 1;
-		      return optstring[n];
-		    }
-		  n++;
-		}
-	      optopt = argv[current_arg][current_opt];
-	      if (opterr)
-		fprintf (stderr, "%s: invalid option -- %c\n", prog, optopt);
-	      return '?';
+            {
+              n = 0;
+              /* go through all option characters */
+              while (optstring[n])
+                {
+                  if (optstring[n] == argv[current_arg][current_opt])
+                    {
+                      current_opt++;
+                      if (optstring[n + 1] == ':')
+                        {
+                          optarg = argv[current_arg + current_idx];
+                          current_idx++;
+                          if (opterr && optarg == NULL)
+                            fprintf (stderr,
+                                     "%s: option requires an argument -- %c\n",
+                                     prog, optstring[n]);
+                        }
+                      else
+                        optarg = NULL;
+                      if (argv[current_arg][current_opt] == '\0')
+                        {
+                          current_arg += current_idx;
+                          current_opt = 0;
+                          current_idx = 1;
+                        }
+                      optind = current_arg + current_idx - 1;
+                      return optstring[n];
+                    }
+                  n++;
+                }
+              optopt = argv[current_arg][current_opt];
+              if (opterr)
+                fprintf (stderr, "%s: invalid option -- %c\n", prog, optopt);
+              return '?';
             }
-	  current_opt++;
-	}
+          current_opt++;
+        }
       current_arg++;
       current_idx = 1;
     }
@@ -111,7 +111,7 @@ getopt (int argc, char * const argv[], const char *optstring)
 /*
  * Print program version.
  */
-static void 
+static void
 version (void)
 {
   fprintf (stdout, "%s %s\n", svz_library, svz_version);
@@ -120,7 +120,7 @@ version (void)
 /*
  * Display program command line options.
  */
-static void 
+static void
 usage (void)
 {
   fprintf (stdout, "Usage: serveez [OPTION]...\n\n"
@@ -199,98 +199,98 @@ handle_options (int argc, char **argv)
   /* go through the command line itself */
 #if HAVE_GETOPT_LONG
   while ((arg = getopt_long (argc, argv, SERVEEZ_OPTIONS, serveez_options,
-			     &index)) != EOF)
+                             &index)) != EOF)
 #else
   while ((arg = getopt (argc, argv, SERVEEZ_OPTIONS)) != EOF)
 #endif
     {
       switch (arg)
-	{
-	case 'h':
-	  usage ();
-	  exit (0);
-	  break;
+        {
+        case 'h':
+          usage ();
+          exit (0);
+          break;
 
-	case 'V':
-	  version ();
-	  exit (0);
-	  break;
+        case 'V':
+          version ();
+          exit (0);
+          break;
 
-	case 'i':
-	  svz_interface_list ();
-	  exit (0);
-	  break;
+        case 'i':
+          svz_interface_list ();
+          exit (0);
+          break;
 
-	case 'c':
-	  if (options.cfgfile != cfgfile)
-	    {
-	      usage ();
-	      exit (1);
-	    }
-	  options.cfgfile = NULL;
-	  break;
+        case 'c':
+          if (options.cfgfile != cfgfile)
+            {
+              usage ();
+              exit (1);
+            }
+          options.cfgfile = NULL;
+          break;
 
-	case 'f':
-	  if (!optarg || options.cfgfile == NULL)
-	    {
-	      usage ();
-	      exit (1);
-	    }
-	  options.cfgfile = optarg;
-	  break;
+        case 'f':
+          if (!optarg || options.cfgfile == NULL)
+            {
+              usage ();
+              exit (1);
+            }
+          options.cfgfile = optarg;
+          break;
 
-	case 'v':
-	  if (optarg)
-	    {
-	      options.verbosity = atoi (optarg);
-	      if (options.verbosity < LOG_FATAL)
-		options.verbosity = LOG_FATAL;
-	      else if (options.verbosity > LOG_DEBUG)
-		options.verbosity = LOG_DEBUG;
-	    }
-	  else
-	    options.verbosity = LOG_DEBUG;
-	  break;
+        case 'v':
+          if (optarg)
+            {
+              options.verbosity = atoi (optarg);
+              if (options.verbosity < LOG_FATAL)
+                options.verbosity = LOG_FATAL;
+              else if (options.verbosity > LOG_DEBUG)
+                options.verbosity = LOG_DEBUG;
+            }
+          else
+            options.verbosity = LOG_DEBUG;
+          break;
 
-	case 'l':
-	  if (!optarg)
-	    {
-	      usage ();
-	      exit (1);
-	    }
-	  options.logfile = optarg;
-	  break;
+        case 'l':
+          if (!optarg)
+            {
+              usage ();
+              exit (1);
+            }
+          options.logfile = optarg;
+          break;
 
-	case 'P':
-	  if (!optarg || strlen (optarg) < 2)
-	    {
-	      usage ();
-	      exit (1);
-	    }
+        case 'P':
+          if (!optarg || strlen (optarg) < 2)
+            {
+              usage ();
+              exit (1);
+            }
 #if SVZ_ENABLE_CRYPT
-	  options.pass = svz_pstrdup (crypt (optarg, optarg));
+          options.pass = svz_pstrdup (crypt (optarg, optarg));
 #else
-	  options.pass = svz_pstrdup (optarg);
+          options.pass = svz_pstrdup (optarg);
 #endif
-	  break;
+          break;
 
-	case 'm':
-	  if (!optarg)
-	    {
-	      usage ();
-	      exit (1);
-	    }
-	  options.sockets = atoi (optarg);
-	  break;
+        case 'm':
+          if (!optarg)
+            {
+              usage ();
+              exit (1);
+            }
+          options.sockets = atoi (optarg);
+          break;
 
-	case 'd':
-	  options.daemon = 1;
-	  break;
+        case 'd':
+          options.daemon = 1;
+          break;
 
-	default:
-	  usage ();
-	  exit (1);
-	}
+        default:
+          usage ();
+          exit (1);
+        }
     }
 
   return &options;

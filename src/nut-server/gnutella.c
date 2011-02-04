@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -76,7 +76,7 @@ char *nut_search_patterns[] =
 /*
  * Default configuration hash for the gnutella spider.
  */
-nut_config_t nut_config = 
+nut_config_t nut_config =
 {
   0,                   /* if set we do not listen on any port cfg */
   NUT_MAX_TTL,         /* maximum ttl for a gnutella packet */
@@ -121,30 +121,30 @@ nut_config_t nut_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-svz_key_value_pair_t nut_config_prototype[] = 
+svz_key_value_pair_t nut_config_prototype[] =
 {
   SVZ_REGISTER_STRARRAY ("hosts", nut_config.hosts, SVZ_ITEM_NOTDEFAULTABLE),
   SVZ_REGISTER_STRARRAY ("search", nut_config.search, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("search-limit", nut_config.search_limit, 
-		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("search-limit", nut_config.search_limit,
+                    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_INT ("max-ttl", nut_config.max_ttl, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_INT ("ttl", nut_config.ttl, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_STR ("download-path", nut_config.save_path, 
-		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("download-path", nut_config.save_path,
+                    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("share-path", nut_config.share_path, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("max-downloads", nut_config.max_dnloads, 
-		    SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("connection-speed", nut_config.speed, 
-		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-downloads", nut_config.max_dnloads,
+                    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("connection-speed", nut_config.speed,
+                    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_INT ("min-speed", nut_config.min_speed, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("file-extensions", nut_config.extensions, 
-			 SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("connections", nut_config.connections, 
-		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("file-extensions", nut_config.extensions,
+                         SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("connections", nut_config.connections,
+                    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("force-ip", nut_config.force_ip, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_INT ("force-port", nut_config.force_port, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("max-uploads", nut_config.max_uploads, 
-		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("max-uploads", nut_config.max_uploads,
+                    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("net-url", nut_config.net_url, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_BOOL ("disable", nut_config.disable, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
@@ -182,18 +182,18 @@ nut_hash_keylen (char *id)
   return NUT_GUID_SIZE;
 }
 
-static int 
+static int
 nut_hash_equals (char *id1, char *id2)
 {
   return memcmp (id1, id2, NUT_GUID_SIZE);
 }
- 
-static unsigned long 
+
+static unsigned long
 nut_hash_code (char *id)
 {
   int n;
   unsigned long code = 0;
-  
+
   for (n = 0; n < NUT_GUID_SIZE; n++)
     {
       code = (code << 2) ^ id[n];
@@ -210,7 +210,7 @@ nut_hash_code (char *id)
 int
 nut_connect_timeout (svz_socket_t *sock)
 {
-  /* 
+  /*
    * Did we try to connect to another host in order to download something,
    * but failed within a certain time ? Then we need to send a push request
    * to the host providing the original data.
@@ -224,7 +224,7 @@ nut_connect_timeout (svz_socket_t *sock)
 
 /*
  * The following function tries to connect to a given gnutella host specified
- * by @var{ip:port} both in network byte order. It returns -1 on errors and 
+ * by @var{ip:port} both in network byte order. It returns -1 on errors and
  * zero otherwise.
  */
 static int
@@ -236,7 +236,7 @@ nut_connect_ip (nut_config_t *cfg, unsigned long ip, unsigned short port)
   if ((sock = svz_tcp_connect (ip, port)) != NULL)
     {
       svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
-	       svz_inet_ntoa (ip), ntohs (port));
+               svz_inet_ntoa (ip), ntohs (port));
       sock->cfg = cfg;
       sock->flags |= SOCK_FLAG_NOFLOOD;
       sock->check_request = nut_detect_connect;
@@ -260,18 +260,18 @@ nut_nslookup_done (char *host, nut_config_t *cfg, unsigned short port)
   if (host != NULL)
     {
       if (svz_inet_aton (host, &addr) == -1)
-	{
-	  svz_log (LOG_WARNING, "nut: invalid IP address `%s'\n", host);
-	  return -1;
-	}
+        {
+          svz_log (LOG_WARNING, "nut: invalid IP address `%s'\n", host);
+          return -1;
+        }
       return nut_connect_ip (cfg, addr.sin_addr.s_addr, port);
     }
   return -1;
 }
 
 /*
- * The following routine tries to connect to a given gnutella host. The 
- * @var{host} argument can be either in dotted decimal form or a hostname. 
+ * The following routine tries to connect to a given gnutella host. The
+ * @var{host} argument can be either in dotted decimal form or a hostname.
  * It returns -1 on errors and zero otherwise.
  */
 static int
@@ -286,10 +286,10 @@ nut_connect_host (nut_config_t *cfg, char *host)
   if (nut_parse_addr (host, &ip, &port) == -1)
     {
       if ((dns = nut_parse_host (host, &port)) == NULL)
-	{
-	  svz_log (LOG_ERROR, "nut: invalid host `%s'\n", host);
-	  return -1;
-	}
+        {
+          svz_log (LOG_ERROR, "nut: invalid host `%s'\n", host);
+          return -1;
+        }
     }
 
   /* try to connect to this host */
@@ -304,16 +304,16 @@ nut_connect_host (nut_config_t *cfg, char *host)
     {
       /* try connecting immediately */
       if (nut_connect_ip (cfg, ip, port))
-	{
-	  /* if we could not connect then delete the client from host catcher 
-	     hash and free the client structure */
-	  if ((client = (nut_host_t *) svz_hash_get (cfg->net, host)) != NULL)
-	    {
-	      svz_hash_delete (cfg->net, host);
-	      svz_free (client);
-	    }
-	  return -1;
-	}
+        {
+          /* if we could not connect then delete the client from host catcher
+             hash and free the client structure */
+          if ((client = (nut_host_t *) svz_hash_get (cfg->net, host)) != NULL)
+            {
+              svz_hash_delete (cfg->net, host);
+              svz_free (client);
+            }
+          return -1;
+        }
     }
   return 0;
 }
@@ -366,8 +366,8 @@ nut_global_init (svz_servertype_t *server)
   /* try getting M$'s GUID creation routine */
   if ((oleHandle = LoadLibrary ("ole32.dll")) != NULL)
     {
-      CreateGuid = (CreateGuidProc) 
-	GetProcAddress (oleHandle, "CoCreateGuid");
+      CreateGuid = (CreateGuidProc)
+        GetProcAddress (oleHandle, "CoCreateGuid");
     }
 #endif /* __MINGW32__ */
 
@@ -424,21 +424,21 @@ nut_init (svz_server_t *server)
   if (cfg->save_path[0])
     {
       if (stat (cfg->save_path, &buf) == -1)
-	{
-	  /* create the download directory */
-	  if (mkdir (cfg->save_path, 0755) == -1)
-	    {
-	      svz_log (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
-	      return -1;
-	    }
-	}
+        {
+          /* create the download directory */
+          if (mkdir (cfg->save_path, 0755) == -1)
+            {
+              svz_log (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
+              return -1;
+            }
+        }
       /* check if the given path is a directory already */
       else if (!S_ISDIR (buf.st_mode))
-	{
-	  svz_log (LOG_ERROR, "nut: %s is not a directory\n", 
-		   cfg->save_path);
-	  return -1;
-	}
+        {
+          svz_log (LOG_ERROR, "nut: %s is not a directory\n",
+                   cfg->save_path);
+          return -1;
+        }
     }
 
   /* read shared files */
@@ -486,8 +486,8 @@ nut_init (svz_server_t *server)
   nut_calc_guid (cfg->guid);
 
   /* create detection string for gnutella host list */
-  cfg->net_detect = svz_malloc (strlen (NUT_HOSTS) + 
-				strlen (cfg->net_url) + 1);
+  cfg->net_detect = svz_malloc (strlen (NUT_HOSTS) +
+                                strlen (cfg->net_url) + 1);
   sprintf (cfg->net_detect, NUT_HOSTS, cfg->net_url);
 
   /* go through all given hosts and try to connect to them */
@@ -535,7 +535,7 @@ int
 nut_global_finalize (svz_servertype_t *server)
 {
 #ifdef __MINGW32__
-  if (oleHandle) 
+  if (oleHandle)
     FreeLibrary (oleHandle);
 #endif /* __MINGW32__ */
 
@@ -546,7 +546,7 @@ nut_global_finalize (svz_servertype_t *server)
 }
 
 /*
- * This is the sock->disconnected_socket callback for gnutella 
+ * This is the sock->disconnected_socket callback for gnutella
  * connections.
  */
 int
@@ -573,17 +573,17 @@ nut_disconnect (svz_socket_t *sock)
     {
       size = svz_hash_size (cfg->packet);
       for (n = 0; n < size; n++)
-	{
-	  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
-	  if (pkt->sock == sock)
-	    {
-	      svz_hash_delete (cfg->packet, keys[n]);
-	      svz_free (pkt);
-	    }
-	}
+        {
+          pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
+          if (pkt->sock == sock)
+            {
+              svz_hash_delete (cfg->packet, keys[n]);
+              svz_free (pkt);
+            }
+        }
       svz_hash_xfree (keys);
     }
-  
+
   /* remove this socket from the current connection hash */
   key = nut_client_key (sock->remote_addr, sock->remote_port);
   svz_hash_delete (cfg->conn, key);
@@ -622,26 +622,26 @@ nut_server_notify (svz_server_t *server)
   /* go sleep if we still do not want to do something */
   if (count-- > 0)
     return 0;
-    
+
   /* do we have enough connections ? */
   connect = cfg->connections - svz_hash_size (cfg->conn);
   if (connect > 0)
     {
       /* are there hosts in the host catcher hash ? */
       if ((keys = (char **) svz_hash_keys (cfg->net)) != NULL)
-	{
-	  /* go through all caught hosts */
-	  for (n = 0; n < svz_hash_size (cfg->net) && connect; n++)
-	    {
-	      /* check if we are not already connected */
-	      if (svz_hash_get (cfg->conn, keys[n]) == NULL)
-		{
-		  if (nut_connect_host (cfg, keys[n]) != -1)
-		    connect--;
-		}
-	    }
-	  svz_hash_xfree (keys);
-	}
+        {
+          /* go through all caught hosts */
+          for (n = 0; n < svz_hash_size (cfg->net) && connect; n++)
+            {
+              /* check if we are not already connected */
+              if (svz_hash_get (cfg->conn, keys[n]) == NULL)
+                {
+                  if (nut_connect_host (cfg, keys[n]) != -1)
+                    connect--;
+                }
+            }
+          svz_hash_xfree (keys);
+        }
     }
 
   /* go through the sent packet hash and drop old entries */
@@ -650,14 +650,14 @@ nut_server_notify (svz_server_t *server)
       t = time (NULL);
       size = svz_hash_size (cfg->packet);
       for (n = 0; n < size; n++)
-	{
-	  pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
-	  if (t - pkt->sent > NUT_ENTRY_AGE)
-	    {
-	      svz_hash_delete (cfg->packet, keys[n]);
-	      svz_free (pkt);
-	    }
-	}
+        {
+          pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
+          if (t - pkt->sent > NUT_ENTRY_AGE)
+            {
+              svz_hash_delete (cfg->packet, keys[n]);
+              svz_free (pkt);
+            }
+        }
       svz_hash_xfree (keys);
     }
 
@@ -667,13 +667,13 @@ nut_server_notify (svz_server_t *server)
       t = time (NULL);
       size = svz_hash_size (cfg->query);
       for (n = 0; n < size; n++)
-	{
-	  received = (time_t) (long) svz_hash_get (cfg->query, keys[n]);
-	  if (t - received > NUT_ENTRY_AGE)
-	    {
-	      svz_hash_delete (cfg->query, keys[n]);
-	    }
-	}
+        {
+          received = (time_t) (long) svz_hash_get (cfg->query, keys[n]);
+          if (t - received > NUT_ENTRY_AGE)
+            {
+              svz_hash_delete (cfg->query, keys[n]);
+            }
+        }
       svz_hash_xfree (keys);
     }
 
@@ -683,7 +683,7 @@ nut_server_notify (svz_server_t *server)
 }
 
 /*
- * Whenever there is data arriving for this socket we call this 
+ * Whenever there is data arriving for this socket we call this
  * routine.
  */
 int
@@ -702,52 +702,52 @@ nut_check_request (svz_socket_t *sock)
 
       /* is there enough data to fulfill a complete packet ? */
       if (fill >= SIZEOF_NUT_HEADER + hdr->length)
-	{
-	  len = SIZEOF_NUT_HEADER + hdr->length;
-	  packet = (svz_uint8_t *) sock->recv_buffer + SIZEOF_NUT_HEADER;
-	  client->packets++;
+        {
+          len = SIZEOF_NUT_HEADER + hdr->length;
+          packet = (svz_uint8_t *) sock->recv_buffer + SIZEOF_NUT_HEADER;
+          client->packets++;
 #if 0
-	  svz_hexdump (stdout, "gnutella packet", sock->sock_desc,
-		       sock->recv_buffer, len, 0);
+          svz_hexdump (stdout, "gnutella packet", sock->sock_desc,
+                       sock->recv_buffer, len, 0);
 #endif
-	  
-	  /* try to route the packet */
-	  if (nut_route (sock, hdr, packet) == 0)
-	    {
-	      /* handle the packet */
-	      switch (hdr->function)
-		{
-		case NUT_PING_REQ:
-		  nut_ping (sock, hdr, NULL);
-		  break;
-		case NUT_PING_ACK:
-		  nut_pong (sock, hdr, packet);
-		  break;
-		case NUT_PUSH_REQ:
-		  nut_push_request (sock, hdr, packet);
-		  break;
-		case NUT_SEARCH_REQ:
-		  nut_query (sock, hdr, packet);
-		  break;
-		case NUT_SEARCH_ACK:
-		  nut_reply (sock, hdr, packet);
-		  break;
-		}
-	    }
-	  else if (!(sock->flags & SOCK_FLAG_KILLED))
-	    {
-	      client->dropped++;
-	    }
 
-	  /* return if this client connection has been killed */
-	  if (sock->flags & SOCK_FLAG_KILLED)
-	    return -1;
+          /* try to route the packet */
+          if (nut_route (sock, hdr, packet) == 0)
+            {
+              /* handle the packet */
+              switch (hdr->function)
+                {
+                case NUT_PING_REQ:
+                  nut_ping (sock, hdr, NULL);
+                  break;
+                case NUT_PING_ACK:
+                  nut_pong (sock, hdr, packet);
+                  break;
+                case NUT_PUSH_REQ:
+                  nut_push_request (sock, hdr, packet);
+                  break;
+                case NUT_SEARCH_REQ:
+                  nut_query (sock, hdr, packet);
+                  break;
+                case NUT_SEARCH_ACK:
+                  nut_reply (sock, hdr, packet);
+                  break;
+                }
+            }
+          else if (!(sock->flags & SOCK_FLAG_KILLED))
+            {
+              client->dropped++;
+            }
 
-	  /* cut this packet from the send buffer queue */
-	  svz_sock_reduce_recv (sock, len);
-	}
+          /* return if this client connection has been killed */
+          if (sock->flags & SOCK_FLAG_KILLED)
+            return -1;
+
+          /* cut this packet from the send buffer queue */
+          svz_sock_reduce_recv (sock, len);
+        }
       else
-	break;
+        break;
     }
   return 0;
 }
@@ -771,15 +771,15 @@ nut_idle_searching (svz_socket_t *sock)
     {
       /* get next search string */
       if (svz_array_size (cfg->search) > (unsigned long) cfg->search_index)
-	{
-	  text = svz_array_get (cfg->search, cfg->search_index);
-	  cfg->search_index++;
-	}
+        {
+          text = svz_array_get (cfg->search, cfg->search_index);
+          cfg->search_index++;
+        }
       else
-	{
-	  cfg->search_index = 0;
-	  text = svz_array_get (cfg->search, 0);
-	}
+        {
+          cfg->search_index = 0;
+          text = svz_array_get (cfg->search, 0);
+        }
 
       /* create new gnutella packet */
       nut_calc_guid (hdr.id);
@@ -793,12 +793,12 @@ nut_idle_searching (svz_socket_t *sock)
 
       /* try sending this packet to this connection */
       if (svz_sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
-	  svz_sock_write (sock, (char *) search, SIZEOF_NUT_QUERY) == -1 ||
-	  svz_sock_write (sock, text, strlen (text) + 1) == -1)
-	{
-	  return -1;
-	}
-      
+          svz_sock_write (sock, (char *) search, SIZEOF_NUT_QUERY) == -1 ||
+          svz_sock_write (sock, text, strlen (text) + 1) == -1)
+        {
+          return -1;
+        }
+
       /* save this packet for later routing */
       pkt = svz_malloc (sizeof (nut_packet_t));
       pkt->sock = sock;
@@ -826,69 +826,69 @@ nut_info_server (svz_server_t *server)
   if (cfg->extensions)
     {
       svz_array_foreach (cfg->extensions, e, n)
-	{
-	  if (!ext)
-	    {
-	      ext = svz_malloc (strlen (e) + 2);
-	      strcpy (ext, e);
-	    }
-	  else
-	    {
-	      ext = svz_realloc (ext, strlen (ext) + strlen (e) + 2);
-	      strcat (ext, e);
-	    }
-	  strcat (ext, ";");
-	}
+        {
+          if (!ext)
+            {
+              ext = svz_malloc (strlen (e) + 2);
+              strcpy (ext, e);
+            }
+          else
+            {
+              ext = svz_realloc (ext, strlen (ext) + strlen (e) + 2);
+              strcat (ext, e);
+            }
+          strcat (ext, ";");
+        }
       ext[strlen (ext) - 1] = '\0';
     }
 
   sprintf (info,
-	   " tcp bindings    : %s\r\n"
-	   " force ip        : %s\r\n"
-	   " force port      : %s\r\n"
-	   " maximum ttl     : %u\r\n"
-	   " default ttl     : %u\r\n"
-	   " speed           : %u KBit/s\r\n"
-	   " clientID128     : %s\r\n"
-	   " download path   : %s\r\n"
-	   " share path      : %s\r\n"
-	   " search pattern  : %s\r\n"
-	   " file extensions : %s\r\n"
-	   " routing table   : %u entries\r\n"
-	   " connected hosts : %u/%u\r\n"
-	   " sent packets    : %u\r\n"
-	   " routing errors  : %u\r\n"
-	   " hosts           : %u gnutella clients seen\r\n"
-	   " data pool       : %u MB in %u files on %u hosts\r\n"
-	   " database        : %u MB in %u files\r\n"
-	   " downloads       : %u/%u\r\n"
-	   " uploads         : %u/%u\r\n"
-	   " recent queries  : %u",
-	   svz_server_bindings (server),
-	   cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
-	   cfg->port ? svz_itoa (ntohs (cfg->port)) : "no specified",
-	   cfg->max_ttl,
-	   cfg->ttl,
-	   cfg->speed,
-	   nut_print_guid (cfg->guid),
-	   cfg->save_path,
-	   cfg->share_path,
-	   cfg->search && svz_array_size (cfg->search) > 0 ? 
-	   (unsigned long) cfg->search_index < svz_array_size (cfg->search) ? 
-	   (char *) svz_array_get (cfg->search, cfg->search_index) :
-	   (char *) svz_array_get (cfg->search, 0) :
-	   "none given",
-	   ext ? ext : "no extensions",
-	   svz_hash_size (cfg->route),
-	   svz_hash_size (cfg->conn), cfg->connections,
-	   svz_hash_size (cfg->packet),
-	   cfg->errors,
-	   svz_hash_size (cfg->net),
-	   cfg->size / 1024, cfg->files, cfg->nodes,
-	   cfg->db_size / 1024 / 1024, cfg->db_files,
-	   cfg->dnloads, cfg->max_dnloads,
-	   cfg->uploads, cfg->max_uploads,
-	   svz_hash_size (cfg->query));
+           " tcp bindings    : %s\r\n"
+           " force ip        : %s\r\n"
+           " force port      : %s\r\n"
+           " maximum ttl     : %u\r\n"
+           " default ttl     : %u\r\n"
+           " speed           : %u KBit/s\r\n"
+           " clientID128     : %s\r\n"
+           " download path   : %s\r\n"
+           " share path      : %s\r\n"
+           " search pattern  : %s\r\n"
+           " file extensions : %s\r\n"
+           " routing table   : %u entries\r\n"
+           " connected hosts : %u/%u\r\n"
+           " sent packets    : %u\r\n"
+           " routing errors  : %u\r\n"
+           " hosts           : %u gnutella clients seen\r\n"
+           " data pool       : %u MB in %u files on %u hosts\r\n"
+           " database        : %u MB in %u files\r\n"
+           " downloads       : %u/%u\r\n"
+           " uploads         : %u/%u\r\n"
+           " recent queries  : %u",
+           svz_server_bindings (server),
+           cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
+           cfg->port ? svz_itoa (ntohs (cfg->port)) : "no specified",
+           cfg->max_ttl,
+           cfg->ttl,
+           cfg->speed,
+           nut_print_guid (cfg->guid),
+           cfg->save_path,
+           cfg->share_path,
+           cfg->search && svz_array_size (cfg->search) > 0 ?
+           (unsigned long) cfg->search_index < svz_array_size (cfg->search) ?
+           (char *) svz_array_get (cfg->search, cfg->search_index) :
+           (char *) svz_array_get (cfg->search, 0) :
+           "none given",
+           ext ? ext : "no extensions",
+           svz_hash_size (cfg->route),
+           svz_hash_size (cfg->conn), cfg->connections,
+           svz_hash_size (cfg->packet),
+           cfg->errors,
+           svz_hash_size (cfg->net),
+           cfg->size / 1024, cfg->files, cfg->nodes,
+           cfg->db_size / 1024 / 1024, cfg->db_files,
+           cfg->dnloads, cfg->max_dnloads,
+           cfg->uploads, cfg->max_uploads,
+           svz_hash_size (cfg->query));
 
   svz_free (ext);
   return info;
@@ -911,15 +911,15 @@ nut_info_client (svz_server_t *server, svz_socket_t *sock)
   /* normal gnutella host */
   if (sock->userflags & NUT_FLAG_CLIENT)
     {
-      sprintf (text, 
-	       "  * usual gnutella host\r\n"
-	       "  * dropped packets : %u/%u\r\n"
-	       "  * invalid packets : %u\r\n",
-	       client->dropped, client->packets, client->invalid);
+      sprintf (text,
+               "  * usual gnutella host\r\n"
+               "  * dropped packets : %u/%u\r\n"
+               "  * invalid packets : %u\r\n",
+               client->dropped, client->packets, client->invalid);
       strcat (info, text);
-      sprintf (text, 
-	       "  * data pool       : %u MB in %u files on %u hosts\r\n",
-	       client->size / 1024, client->files, client->nodes);
+      sprintf (text,
+               "  * data pool       : %u MB in %u files on %u hosts\r\n",
+               client->size / 1024, client->files, client->nodes);
       strcat (info, text);
     }
 
@@ -930,17 +930,17 @@ nut_info_client (svz_server_t *server, svz_socket_t *sock)
       all = transfer->original_size;
       elapsed = time (NULL) - transfer->start;
       if (!all)
-	all++;
+        all++;
       if (!elapsed)
-	elapsed++;
+        elapsed++;
       sprintf (text, "  * file : %s\r\n", transfer->file);
       strcat (info, text);
       sprintf (text, "  * %s progress : %u/%u - %u.%u%% - %u.%u kb/sec\r\n",
-	       sock->userflags & NUT_FLAG_DNLOAD ? "download" : "upload",
-	       current, all,
-	       current * 100 / all, (current * 1000 / all) % 10,
-	       current / 1024 / elapsed, 
-	       (current * 10 / 1024 / elapsed) % 10);
+               sock->userflags & NUT_FLAG_DNLOAD ? "download" : "upload",
+               current, all,
+               current * 100 / all, (current * 1000 / all) % 10,
+               current / 1024 / elapsed,
+               (current * 10 / 1024 / elapsed) % 10);
       strcat (info, text);
     }
 
@@ -971,17 +971,17 @@ nut_detect_connect (svz_socket_t *sock)
   int len = strlen (NUT_OK);
 
   /* check for self connected response of normal gnutella host */
-  if (sock->recv_buffer_fill >= len && 
+  if (sock->recv_buffer_fill >= len &&
       !memcmp (sock->recv_buffer, NUT_OK, len))
     {
       sock->userflags |= (NUT_FLAG_CLIENT | NUT_FLAG_SELF);
       svz_log (LOG_NOTICE, "nut: host %s:%u connected\n",
-	       svz_inet_ntoa (sock->remote_addr),
-	       ntohs (sock->remote_port));
+               svz_inet_ntoa (sock->remote_addr),
+               ntohs (sock->remote_port));
       svz_sock_reduce_recv (sock, len);
 
-      if (nut_connect_socket (svz_server_find (cfg), sock) == -1) 
-	return -1;
+      if (nut_connect_socket (svz_server_find (cfg), sock) == -1)
+        return -1;
       return sock->check_request (sock);
     }
 
@@ -991,7 +991,7 @@ nut_detect_connect (svz_socket_t *sock)
 /*
  * Incoming connections will be protocol checked.
  */
-int 
+int
 nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
 {
   nut_config_t *cfg = server->cfg;
@@ -1002,13 +1002,13 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
     {
       len = strlen (NUT_CONNECT);
       if (sock->recv_buffer_fill >= len &&
-	  !memcmp (sock->recv_buffer, NUT_CONNECT, len))
-	{
-	  sock->userflags |= NUT_FLAG_CLIENT;
-	  svz_log (LOG_NOTICE, "gnutella protocol detected (client)\n");
-	  svz_sock_reduce_recv (sock, len);
-	  return -1;
-	}
+          !memcmp (sock->recv_buffer, NUT_CONNECT, len))
+        {
+          sock->userflags |= NUT_FLAG_CLIENT;
+          svz_log (LOG_NOTICE, "gnutella protocol detected (client)\n");
+          svz_sock_reduce_recv (sock, len);
+          return -1;
+        }
     }
 
   /* detect upload request */
@@ -1034,7 +1034,7 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
 
   /* check for push request reply */
   len = strlen (NUT_GIVE);
-  if (sock->recv_buffer_fill >= len && 
+  if (sock->recv_buffer_fill >= len &&
       !memcmp (sock->recv_buffer, NUT_GIVE, len))
     {
       sock->userflags |= NUT_FLAG_GIVEN;
@@ -1046,10 +1046,10 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * This routine will be called when the detection routine return 
+ * This routine will be called when the detection routine return
  * success.
  */
-int 
+int
 nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   nut_config_t *cfg = server->cfg;
@@ -1074,10 +1074,10 @@ nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
   if (sock->userflags & NUT_FLAG_UPLOAD)
     {
       if (cfg->uploads <= cfg->max_uploads)
-	{
-	  sock->check_request = nut_check_upload;
-	  return 0;
-	}
+        {
+          sock->check_request = nut_check_upload;
+          return 0;
+        }
       return -1;
     }
 
@@ -1086,12 +1086,12 @@ nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
     {
       /* check if we got enough clients already */
       if (svz_hash_size (cfg->conn) > cfg->connections)
-	return -1;
+        return -1;
 
       /* send the first reply if necessary */
       if (!(sock->userflags & NUT_FLAG_SELF))
-	if (svz_sock_printf (sock, NUT_OK) == -1)
-	  return -1;
+        if (svz_sock_printf (sock, NUT_OK) == -1)
+          return -1;
 
       /* assign gnutella specific callbacks */
       sock->flags |= SOCK_FLAG_NOFLOOD;
@@ -1103,12 +1103,12 @@ nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
 
       /* send initial ping */
       if (nut_init_ping (sock) == -1)
-	return -1;
+        return -1;
 
       /* put this client to the current connection hash */
-      svz_hash_put (cfg->conn, 
-		    nut_client_key (sock->remote_addr, sock->remote_port), 
-		    sock);
+      svz_hash_put (cfg->conn,
+                    nut_client_key (sock->remote_addr, sock->remote_port),
+                    sock);
 
       return 0;
     }
@@ -1120,6 +1120,6 @@ int have_gnutella = 1;
 
 #else /* ENABLE_GNUTELLA */
 
-int have_gnutella = 0;	/* Shut compiler warnings up, remember for runtime */
+int have_gnutella = 0;  /* Shut compiler warnings up, remember for runtime */
 
 #endif /* not ENABLE_GNUTELLA */

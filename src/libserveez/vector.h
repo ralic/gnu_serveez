@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,17 +54,17 @@ SERVEEZ_API svz_vector_t *svz_vector_create __PARAMS ((unsigned long));
 SERVEEZ_API void svz_vector_destroy __PARAMS ((svz_vector_t *));
 SERVEEZ_API unsigned long int svz_vector_clear __PARAMS ((svz_vector_t *));
 SERVEEZ_API unsigned long svz_vector_add __PARAMS ((svz_vector_t *, void *));
-SERVEEZ_API void *svz_vector_get __PARAMS ((svz_vector_t *, 
-					    unsigned long));
-SERVEEZ_API void *svz_vector_set __PARAMS ((svz_vector_t *, 
-					    unsigned long, void *));
-SERVEEZ_API unsigned long svz_vector_del __PARAMS ((svz_vector_t *, 
-						    unsigned long));
-SERVEEZ_API unsigned long svz_vector_ins __PARAMS ((svz_vector_t *, 
-						    unsigned long, void *));
+SERVEEZ_API void *svz_vector_get __PARAMS ((svz_vector_t *,
+                                            unsigned long));
+SERVEEZ_API void *svz_vector_set __PARAMS ((svz_vector_t *,
+                                            unsigned long, void *));
+SERVEEZ_API unsigned long svz_vector_del __PARAMS ((svz_vector_t *,
+                                                    unsigned long));
+SERVEEZ_API unsigned long svz_vector_ins __PARAMS ((svz_vector_t *,
+                                                    unsigned long, void *));
 SERVEEZ_API unsigned long svz_vector_idx __PARAMS ((svz_vector_t *, void *));
-SERVEEZ_API unsigned long svz_vector_contains __PARAMS ((svz_vector_t *, 
-							 void *));
+SERVEEZ_API unsigned long svz_vector_contains __PARAMS ((svz_vector_t *,
+                                                         void *));
 SERVEEZ_API unsigned long svz_vector_length __PARAMS ((svz_vector_t *));
 
 __END_DECLS

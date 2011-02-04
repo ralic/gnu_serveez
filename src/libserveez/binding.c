@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -58,22 +58,22 @@ svz_server_bindings (svz_server_t *server)
   int i;
 
   /* Clear text. */
-  text[0] = '\0'; 
+  text[0] = '\0';
 
   /* Go through the list of socket structures. */
   svz_sock_foreach_listener (sock)
     {
       /* The server in the array of servers ? */
       if ((bindings = svz_binding_find_server (sock, server)) != NULL)
-	{
-	  /* Yes. Get port configurations. */
-	  svz_array_foreach (bindings, binding, i)
-	    strcat (text, svz_portcfg_text (binding->port));
-	  svz_array_destroy (bindings);
+        {
+          /* Yes. Get port configurations. */
+          svz_array_foreach (bindings, binding, i)
+            strcat (text, svz_portcfg_text (binding->port));
+          svz_array_destroy (bindings);
 
-	  /* Append a white space. */
-	  strcat (text, " ");
-	}
+          /* Append a white space. */
+          strcat (text, " ");
+        }
     }
 
   /* Remove trailing white space. */
@@ -84,8 +84,8 @@ svz_server_bindings (svz_server_t *server)
 
 /*
  * Return an array of port configurations to which the given server instance
- * @var{server} is currently bound to or @code{NULL} if there is no such 
- * binding. The caller is responsible for freeing the returned array by 
+ * @var{server} is currently bound to or @code{NULL} if there is no such
+ * binding. The caller is responsible for freeing the returned array by
  * running @code{svz_array_destroy()}.
  */
 svz_array_t *
@@ -100,16 +100,16 @@ svz_server_portcfgs (svz_server_t *server)
   svz_sock_foreach_listener (sock)
     if ((bindings = svz_binding_find_server (sock, server)) != NULL)
       {
-	svz_array_foreach (bindings, binding, i)
-	  svz_array_add (ports, binding->port);
-	svz_array_destroy (bindings);
+        svz_array_foreach (bindings, binding, i)
+          svz_array_add (ports, binding->port);
+        svz_array_destroy (bindings);
       }
   return svz_array_destroy_zero (ports);
 }
 
 /*
  * Return an array of listening socket structures to which the given server
- * instance @var{server} is currently bound to or @code{NULL} if there is 
+ * instance @var{server} is currently bound to or @code{NULL} if there is
  * no such binding. The calling function is reponsible for destroying the
  * returned array via @code{svz_array_destroy()}.
  */
@@ -127,7 +127,7 @@ svz_server_listeners (svz_server_t *server)
 
 /*
  * This function checks if the given server instance @var{server} is
- * bound to the listening socket structure @var{sock} and returns non-zero 
+ * bound to the listening socket structure @var{sock} and returns non-zero
  * if it is the only server instance bound to this socket. Otherwise
  * the routine returns zero.
  */
@@ -144,7 +144,7 @@ svz_server_single_listener (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * Returns a socket structure representing a listening server socket with 
+ * Returns a socket structure representing a listening server socket with
  * the port configuration @var{port}. If there is no such socket with this
  * kind of port configuration yet then @code{NULL} is returned.
  */
@@ -152,7 +152,7 @@ svz_socket_t *
 svz_sock_find_portcfg (svz_portcfg_t *port)
 {
   svz_socket_t *sock;
-  
+
   svz_sock_foreach_listener (sock)
     if (svz_portcfg_equal (sock->port, port) & (PORTCFG_EQUAL | PORTCFG_MATCH))
       return sock;
@@ -160,7 +160,7 @@ svz_sock_find_portcfg (svz_portcfg_t *port)
 }
 
 /*
- * This functions goes through the list of listening server socket 
+ * This functions goes through the list of listening server socket
  * structures and returns an array of matching socket structures for the
  * given port configuration @var{port}. The caller is responsible for
  * freeing the array by running @code{svz_array_destroy()}. If there are
@@ -171,7 +171,7 @@ svz_sock_find_portcfgs (svz_portcfg_t *port)
 {
   svz_array_t *listeners = svz_array_create (1, NULL);
   svz_socket_t *sock;
-  
+
   svz_sock_foreach_listener (sock)
     if (svz_portcfg_equal (sock->port, port) & (PORTCFG_EQUAL | PORTCFG_MATCH))
       svz_array_add (listeners, sock);
@@ -180,7 +180,7 @@ svz_sock_find_portcfgs (svz_portcfg_t *port)
 
 /*
  * Creates and returns a listening server socket structure. The kind of
- * listener which gets created depends on the given port configuration 
+ * listener which gets created depends on the given port configuration
  * @var{port} which must be a duplicated copy of one out of the list of
  * known port configurations. On success the function enqueues the
  * returned socket structure and assigns the port configuration. Initially
@@ -196,7 +196,7 @@ svz_sock_bind_port (svz_portcfg_t *port)
   if ((sock = svz_server_create (port)) != NULL)
     {
       /* Enqueue the server socket and put the port configuration into
-	 the socket structure. */
+         the socket structure. */
       svz_sock_enqueue (sock);
       sock->port = port;
       return sock;
@@ -208,9 +208,9 @@ svz_sock_bind_port (svz_portcfg_t *port)
 }
 
 /*
- * Bind the server instance @var{server} to the port configuration 
+ * Bind the server instance @var{server} to the port configuration
  * @var{port} if possible. Return non-zero on errors otherwise zero. It
- * might occur that a single server is bound to more than one network port 
+ * might occur that a single server is bound to more than one network port
  * if e.g. the TCP/IP address is specified by "*" since this gets expanded
  * to the known list of interfaces.
  */
@@ -231,49 +231,49 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 
       /* Find appropriate socket structure for this port configuration. */
       if ((sock = svz_sock_find_portcfg (copy)) == NULL)
-	{
-	  if ((sock = svz_sock_bind_port (copy)) != NULL)
-	    svz_sock_add_server (sock, server, copy);
-	}
+        {
+          if ((sock = svz_sock_bind_port (copy)) != NULL)
+            svz_sock_add_server (sock, server, copy);
+        }
       /* Port configuration already exists. */
       else
-	{
-	  /* Is this a more general network port? Is the new port an 
-	     INADDR_ANY binding and the picked one not? */
-	  portcfg = sock->port;
-	  if ((copy->flags & PORTCFG_FLAG_ANY) &&
-	      !(portcfg->flags & PORTCFG_FLAG_ANY))
-	    {
-	      svz_array_t *sockets = svz_sock_find_portcfgs (port);
-	      svz_array_t *bindings = NULL;
-	      svz_socket_t *xsock;
+        {
+          /* Is this a more general network port? Is the new port an
+             INADDR_ANY binding and the picked one not? */
+          portcfg = sock->port;
+          if ((copy->flags & PORTCFG_FLAG_ANY) &&
+              !(portcfg->flags & PORTCFG_FLAG_ANY))
+            {
+              svz_array_t *sockets = svz_sock_find_portcfgs (port);
+              svz_array_t *bindings = NULL;
+              svz_socket_t *xsock;
 
-	      /* Join the bindings of the previous listeners and destroy
-		 these at once. */
-	      svz_log (LOG_NOTICE, "destroying previous bindings\n");
-	      svz_array_foreach (sockets, xsock, i)
-		{
-		  bindings = svz_binding_join (bindings, xsock);
-		  svz_sock_shutdown (xsock);
-		}
-	      svz_array_destroy (sockets);
+              /* Join the bindings of the previous listeners and destroy
+                 these at once. */
+              svz_log (LOG_NOTICE, "destroying previous bindings\n");
+              svz_array_foreach (sockets, xsock, i)
+                {
+                  bindings = svz_binding_join (bindings, xsock);
+                  svz_sock_shutdown (xsock);
+                }
+              svz_array_destroy (sockets);
 
-	      /* Create a fresh listener. */
-	      if ((sock = svz_sock_bind_port (copy)) != NULL)
-		{
-		  sock->data = bindings;
-		  svz_sock_add_server (sock, server, copy);
-		}
-	      else
-		{
-		  svz_array_destroy (bindings);
-		}
-	    }
-	  /* No. This is either a specific network interface or both have
-	     an INADDR_ANY binding. */
-	  else
-	    svz_sock_add_server (sock, server, copy);
-	}
+              /* Create a fresh listener. */
+              if ((sock = svz_sock_bind_port (copy)) != NULL)
+                {
+                  sock->data = bindings;
+                  svz_sock_add_server (sock, server, copy);
+                }
+              else
+                {
+                  svz_array_destroy (bindings);
+                }
+            }
+          /* No. This is either a specific network interface or both have
+             an INADDR_ANY binding. */
+          else
+            svz_sock_add_server (sock, server, copy);
+        }
     }
 
   /* Now we can destroy the expanded port configuration array. */
@@ -296,30 +296,30 @@ svz_server_unbind (svz_server_t *server)
   svz_sock_foreach (sock)
     {
       /* Client structures. */
-      if (!(sock->flags & SOCK_FLAG_LISTENING) && 
-	  (parent = svz_sock_getparent (sock)) != NULL)
-	{
-	  /* If the parent of a client is the given servers child
-	     then also shutdown this client. */
-	  if (parent->flags & SOCK_FLAG_LISTENING && parent->port && 
-	      parent->data && svz_binding_contains_server (parent, server))
-	    svz_sock_schedule_for_shutdown (sock);
-	}
+      if (!(sock->flags & SOCK_FLAG_LISTENING) &&
+          (parent = svz_sock_getparent (sock)) != NULL)
+        {
+          /* If the parent of a client is the given servers child
+             then also shutdown this client. */
+          if (parent->flags & SOCK_FLAG_LISTENING && parent->port &&
+              parent->data && svz_binding_contains_server (parent, server))
+            svz_sock_schedule_for_shutdown (sock);
+        }
     }
 
   /* Go through all enqueued sockets once more. */
   svz_sock_foreach_listener (sock)
     {
       /* Delete the server and shutdown the socket structure if
-	 there are no more servers left. */
+         there are no more servers left. */
       if (svz_sock_del_server (sock, server) == 0)
-	svz_sock_schedule_for_shutdown (sock);
+        svz_sock_schedule_for_shutdown (sock);
     }
 }
 
 /*
  * Creates a bind structure. The binding contains the given server instance
- * @var{server} and the port configuration @var{port}. The caller is 
+ * @var{server} and the port configuration @var{port}. The caller is
  * responsible for freeing the returned pointer.
  */
 svz_binding_t *
@@ -332,7 +332,7 @@ svz_binding_create (svz_server_t *server, svz_portcfg_t *port)
 }
 
 /*
- * Destroys the given binding @var{binding}. This includes the explicit 
+ * Destroys the given binding @var{binding}. This includes the explicit
  * destruction of the port configuration.  If @var{binding} is @code{NULL}
  * no operation is performed.
  */
@@ -348,7 +348,7 @@ svz_binding_destroy (svz_binding_t *binding)
 
 /*
  * This function checks whether the server instance binding @var{binding}
- * is part of one of the bindings in the array @var{bindings} and returns 
+ * is part of one of the bindings in the array @var{bindings} and returns
  * non-zero if so. Otherwise zero is returned.
  */
 int
@@ -360,15 +360,15 @@ svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
   svz_array_foreach (bindings, search, i)
     if (search->server == binding->server)
       if (svz_portcfg_equal (search->port, binding->port) == PORTCFG_EQUAL)
-	return 1;
+        return 1;
   return 0;
 }
 
 /*
- * This function adds the bindings stored in the listening server socket 
+ * This function adds the bindings stored in the listening server socket
  * structure @var{sock} to the binding array @var{bindings} and returns the
  * resulting array. If @var{bindings} is @code{NULL} a new array is created.
- * If the socket structure @var{sock} is not a listening server socket 
+ * If the socket structure @var{sock} is not a listening server socket
  * structure no operation is performed.
  */
 svz_array_t *
@@ -390,9 +390,9 @@ svz_binding_join (svz_array_t *bindings, svz_socket_t *sock)
   svz_array_foreach (old, binding, i)
     if (!svz_binding_contains (bindings, binding))
       {
-	svz_server_t *server = binding->server;
-	svz_portcfg_t *port = svz_portcfg_dup (binding->port);
-	svz_array_add (bindings, svz_binding_create (server, port));
+        svz_server_t *server = binding->server;
+        svz_portcfg_t *port = svz_portcfg_dup (binding->port);
+        svz_array_add (bindings, svz_binding_create (server, port));
       }
 
   /* Destroy the old bindings. */
@@ -404,7 +404,7 @@ svz_binding_join (svz_array_t *bindings, svz_socket_t *sock)
 }
 
 /*
- * Searches through the bindings of the given listening server socket 
+ * Searches through the bindings of the given listening server socket
  * structure @var{sock} and checks whether the server instance @var{server}
  * is bound to this socket structure. The function returns these binding and
  * returns @code{NULL} otherwise. The caller is responsible for freeing
@@ -447,8 +447,8 @@ svz_binding_contains_server (svz_socket_t *sock, svz_server_t *server)
  * otherwise the appropriate binding.
  */
 svz_binding_t *
-svz_binding_find (svz_socket_t *sock, 
-		  svz_server_t *server, svz_portcfg_t *port)
+svz_binding_find (svz_socket_t *sock,
+                  svz_server_t *server, svz_portcfg_t *port)
 {
   svz_binding_t *binding;
   unsigned long i;
@@ -456,7 +456,7 @@ svz_binding_find (svz_socket_t *sock,
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
       if (svz_portcfg_equal (binding->port, port) == PORTCFG_EQUAL)
-	return binding;
+        return binding;
   return NULL;
 }
 
@@ -466,8 +466,8 @@ svz_binding_find (svz_socket_t *sock,
  * non-zero if the server is already bound to the socket.
  */
 int
-svz_sock_add_server (svz_socket_t *sock, 
-		     svz_server_t *server, svz_portcfg_t *port)
+svz_sock_add_server (svz_socket_t *sock,
+                     svz_server_t *server, svz_portcfg_t *port)
 {
   svz_binding_t *binding = svz_binding_create (server, port);
 
@@ -492,7 +492,7 @@ svz_sock_add_server (svz_socket_t *sock,
 }
 
 /*
- * Removes the server instance @var{server} from the listening socket 
+ * Removes the server instance @var{server} from the listening socket
  * structure @var{sock} and returns the remaining number of servers bound
  * to the socket structure.
  */
@@ -505,15 +505,15 @@ svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
       {
-	svz_binding_destroy (binding);
-	svz_array_del (sock->data, i);
-	i--;
+        svz_binding_destroy (binding);
+        svz_array_del (sock->data, i);
+        i--;
       }
   return svz_array_size (sock->data);
 }
 
 /*
- * Returns the binding array of the listening server socket structure 
+ * Returns the binding array of the listening server socket structure
  * @var{sock} or @code{NULL} if there are no such bindings.
  */
 svz_array_t *
@@ -525,9 +525,9 @@ svz_sock_bindings (svz_socket_t *sock)
 }
 
 /*
- * Returns the array of server instances bound to the listening socket 
+ * Returns the array of server instances bound to the listening socket
  * structure @var{sock} or @code{NULL} if there are no bindings. The caller
- * is responsible for freeing the returned array by running 
+ * is responsible for freeing the returned array by running
  * @code{svz_array_destroy()}.
  */
 svz_array_t *
@@ -544,13 +544,13 @@ svz_sock_servers (svz_socket_t *sock)
 }
 
 /*
- * This is the accept filter for the listening server socket structures 
- * @var{sock} with pipe port configurations. It returns all bindings. The 
- * caller is responsible for freeing the returned array by running 
+ * This is the accept filter for the listening server socket structures
+ * @var{sock} with pipe port configurations. It returns all bindings. The
+ * caller is responsible for freeing the returned array by running
  * @code{svz_array_destroy()}.
  */
 svz_array_t *
-svz_binding_filter_pipe (svz_socket_t *sock) 
+svz_binding_filter_pipe (svz_socket_t *sock)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
   svz_array_t *bindings = sock->data;
@@ -563,16 +563,16 @@ svz_binding_filter_pipe (svz_socket_t *sock)
 }
 
 /*
- * This is the accept filter for the listening server socket structures 
+ * This is the accept filter for the listening server socket structures
  * @var{sock} with network port configurations. It returns the bindings
- * allowed to be accepted. The caller is responsible for freeing the returned 
- * array by running @code{svz_array_destroy()}. Which of the bindings are 
- * allowed depends on the network interface address @var{addr} and the 
+ * allowed to be accepted. The caller is responsible for freeing the returned
+ * array by running @code{svz_array_destroy()}. Which of the bindings are
+ * allowed depends on the network interface address @var{addr} and the
  * network port @var{port}.
  */
 svz_array_t *
-svz_binding_filter_net (svz_socket_t *sock, 
-			unsigned long addr, unsigned short port)
+svz_binding_filter_net (svz_socket_t *sock,
+                        unsigned long addr, unsigned short port)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
   svz_array_t *bindings = sock->data;
@@ -590,27 +590,27 @@ svz_binding_filter_net (svz_socket_t *sock,
       printf ("port: %u == %u\n", ntohs (portaddr->sin_port), ntohs (port));
 #endif
       if (portaddr->sin_addr.s_addr == addr ||
-	  binding->port->flags & (PORTCFG_FLAG_ANY | PORTCFG_FLAG_DEVICE)) 
-	{
+          binding->port->flags & (PORTCFG_FLAG_ANY | PORTCFG_FLAG_DEVICE))
+        {
 #if DEVEL
-	  printf ("addr ok\n");
+          printf ("addr ok\n");
 #endif
-	  if (binding->port->proto & (PROTO_RAW | PROTO_ICMP) || 
-	      portaddr->sin_port == port) 
-	    {
+          if (binding->port->proto & (PROTO_RAW | PROTO_ICMP) ||
+              portaddr->sin_port == port)
+            {
 #if DEVEL
-	      printf ("port ok\n");
+              printf ("port ok\n");
 #endif
-	      svz_array_add (filter, binding);
-	    }
-	}
+              svz_array_add (filter, binding);
+            }
+        }
     }
   return svz_array_destroy_zero (filter);
 }
 
 /*
- * This is the main filter routine running either 
- * @code{svz_binding_filter_net()} or @code{svz_binding_filter_pipe()} 
+ * This is the main filter routine running either
+ * @code{svz_binding_filter_net()} or @code{svz_binding_filter_pipe()}
  * depending on the type of port configuration the given socket @var{sock}
  * contains.
  */

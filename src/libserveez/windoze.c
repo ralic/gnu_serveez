@@ -7,19 +7,19 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
-#endif 
+#endif
 
 #ifdef __MINGW32__
 
@@ -47,7 +47,7 @@ static char windoze_tooltip[128];
 /*
  * Modify the windows taskbar.
  */
-static BOOL 
+static BOOL
 windoze_set_taskbar (HWND hwnd, DWORD msg, UINT id, HICON icon, PSTR tip)
 {
   NOTIFYICONDATA tnd;
@@ -68,18 +68,18 @@ windoze_set_taskbar (HWND hwnd, DWORD msg, UINT id, HICON icon, PSTR tip)
     {
       tnd.szTip[0] = '\0';
     }
-  
+
   return Shell_NotifyIcon (msg, &tnd);;
 }
 
 /*
  * Modify what's within the taskbar.
  */
-static void 
+static void
 windoze_notify_set (HWND hwnd, UINT id)
 {
-  sprintf (windoze_tooltip, "%s %s (%d connections)", 
-	   svz_library, svz_version, svz_sock_connections);
+  sprintf (windoze_tooltip, "%s %s (%d connections)",
+           svz_library, svz_version, svz_sock_connections);
 
   windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
 }
@@ -87,7 +87,7 @@ windoze_notify_set (HWND hwnd, UINT id)
 /*
  * Delete something from the taskbar.
  */
-static void 
+static void
 windoze_notify_del (HWND hwnd, UINT id)
 {
   windoze_set_taskbar (hwnd, NIM_DELETE, id, NULL, NULL);
@@ -96,7 +96,7 @@ windoze_notify_del (HWND hwnd, UINT id)
 /*
  * Add something to the taskbar.
  */
-static void 
+static void
 windoze_notify_add (HWND hwnd, UINT id)
 {
   sprintf (windoze_tooltip, "%s %s", svz_library, svz_version);
@@ -107,11 +107,11 @@ windoze_notify_add (HWND hwnd, UINT id)
 /*
  * Draw the serveez icon within the taskbar.
  */
-static LRESULT 
+static LRESULT
 windoze_draw_icon (LPDRAWITEMSTRUCT lpdi)
 {
   DrawIconEx (lpdi->hDC, lpdi->rcItem.left, lpdi->rcItem.top, windoze_icon,
-	      16, 16, 0, NULL, DI_NORMAL);
+              16, 16, 0, NULL, DI_NORMAL);
 
   return TRUE;
 }
@@ -119,7 +119,7 @@ windoze_draw_icon (LPDRAWITEMSTRUCT lpdi)
 /*
  * Dialog callback procedure.
  */
-static LRESULT CALLBACK 
+static LRESULT CALLBACK
 windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
   switch (msg)
@@ -138,30 +138,30 @@ windoze_dialog (HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
     case WM_SERVEEZ_NOTIFYICON:
       switch (lparam)
-	{
-	case WM_LBUTTONDOWN:
-	  break;
+        {
+        case WM_LBUTTONDOWN:
+          break;
 
-	case WM_RBUTTONDOWN:
-	  svz_nuke_happened = 1;
-	  break;
-	  
-	default:
-	  break;
-	}
+        case WM_RBUTTONDOWN:
+          svz_nuke_happened = 1;
+          break;
+
+        default:
+          break;
+        }
       break;
-      
+
     default:
       break;
     }
-  
+
   return DefWindowProc (hwnd, msg, wparam, lparam);
 }
 
 /*
  * Main window thread where the window manager can pass messages to.
  */
-static DWORD WINAPI 
+static DWORD WINAPI
 windoze_thread (char *prog)
 {
   HWND hwnd;      /* window handle */
@@ -169,7 +169,7 @@ windoze_thread (char *prog)
   WNDCLASS class; /* window class */
   ATOM atom;      /* window manager atom */
   int count = 0;  /* notify interval counter */
-  
+
   /* load appropriate icon */
   windoze_icon = LoadIcon (GetModuleHandle (prog), "SERVEEZ_ICON_TINY");
   if (windoze_icon == NULL)
@@ -193,7 +193,7 @@ windoze_thread (char *prog)
 
   /* create new main window */
   hwnd = CreateWindow (SERVEEZ_CLASS, NULL, 0, 0, 0, 0, 0,
-		       NULL, NULL, GetModuleHandle (prog), NULL);
+                       NULL, NULL, GetModuleHandle (prog), NULL);
   if (hwnd == NULL)
     {
       svz_log (LOG_ERROR, "CreateWindow: %s\n", SYS_ERROR);
@@ -208,17 +208,17 @@ windoze_thread (char *prog)
   while (windoze_run)
     {
       if (PeekMessage (&msg, hwnd, 0, 0, PM_REMOVE))
-	{
-	  windoze_dialog (msg.hwnd, msg.message, msg.wParam, msg.lParam);
-	}
+        {
+          windoze_dialog (msg.hwnd, msg.message, msg.wParam, msg.lParam);
+        }
       Sleep (50);
 
       /* modify tooltip regularly */
       if ((count += 50) >= 1000)
-	{
-	  windoze_notify_set (hwnd, SERVEEZ_ICON_ID);
-	  count = 0;
-	}
+        {
+          windoze_notify_set (hwnd, SERVEEZ_ICON_ID);
+          count = 0;
+        }
     }
   windoze_run = FALSE;
 
@@ -246,12 +246,12 @@ svz_windoze_start_daemon (char *prog)
 {
   /* start message loop */
   if ((windoze_daemon_handle = CreateThread (
-        NULL, 
-	0, 
-	(LPTHREAD_START_ROUTINE) windoze_thread, 
-	prog, 
-	0, 
-	&windoze_daemon_id)) == NULL)
+        NULL,
+        0,
+        (LPTHREAD_START_ROUTINE) windoze_thread,
+        prog,
+        0,
+        &windoze_daemon_id)) == NULL)
     {
       svz_log (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
       return -1;
@@ -306,8 +306,8 @@ svz_windoze_stop_daemon (void)
  * Read an unsigned integer value from the Windows Registry Database.
  */
 unsigned
-svz_windoze_get_reg_unsigned (HKEY key, char *subkey, 
-			      char *subsubkey, unsigned def)
+svz_windoze_get_reg_unsigned (HKEY key, char *subkey,
+                              char *subsubkey, unsigned def)
 {
   unsigned value;
   DWORD size, type;
@@ -321,8 +321,8 @@ svz_windoze_get_reg_unsigned (HKEY key, char *subkey,
 
   size = sizeof (DWORD);
   type = REG_DWORD;
-  if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
-		       (BYTE *) &value, &size) != ERROR_SUCCESS)
+  if (RegQueryValueEx (reg, subsubkey, NULL, &type,
+                       (BYTE *) &value, &size) != ERROR_SUCCESS)
     {
       svz_log (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
       value = def;
@@ -339,8 +339,8 @@ svz_windoze_get_reg_unsigned (HKEY key, char *subkey,
  * Write an unsigned integer value to the Windows Registry Database.
  */
 void
-svz_windoze_set_reg_unsigned (HKEY key, char *subkey, 
-			      char *subsubkey, unsigned value)
+svz_windoze_set_reg_unsigned (HKEY key, char *subkey,
+                              char *subsubkey, unsigned value)
 {
   DWORD size, type;
   HKEY reg;
@@ -353,8 +353,8 @@ svz_windoze_set_reg_unsigned (HKEY key, char *subkey,
 
   size = sizeof (DWORD);
   type = REG_DWORD;
-  if (RegSetValueEx (reg, subsubkey, 0, type, 
-		     (BYTE *) &value, size) != ERROR_SUCCESS)
+  if (RegSetValueEx (reg, subsubkey, 0, type,
+                     (BYTE *) &value, size) != ERROR_SUCCESS)
     {
       svz_log (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
     }
@@ -383,8 +383,8 @@ svz_windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
 
   size = sizeof (value);
   type = REG_SZ;
-  if (RegQueryValueEx (reg, subsubkey, NULL, &type, 
-		       (BYTE *) value, &size) != ERROR_SUCCESS)
+  if (RegQueryValueEx (reg, subsubkey, NULL, &type,
+                       (BYTE *) value, &size) != ERROR_SUCCESS)
     {
       svz_log (LOG_ERROR, "RegQueryValueEx: %s\n", SYS_ERROR);
       strcpy (value, def);
@@ -401,8 +401,8 @@ svz_windoze_get_reg_string (HKEY key, char *subkey, char *subsubkey, char *def)
  * Write a string value to the Windows Registry Database.
  */
 void
-svz_windoze_set_reg_string (HKEY key, char *subkey, 
-			    char *subsubkey, char *value)
+svz_windoze_set_reg_string (HKEY key, char *subkey,
+                            char *subsubkey, char *value)
 {
   DWORD size, type;
   HKEY reg;
@@ -415,8 +415,8 @@ svz_windoze_set_reg_string (HKEY key, char *subkey,
 
   size = strlen (value);
   type = REG_SZ;
-  if (RegSetValueEx (reg, subsubkey, 0, type, 
-		     (BYTE *) value, size) != ERROR_SUCCESS)
+  if (RegSetValueEx (reg, subsubkey, 0, type,
+                     (BYTE *) value, size) != ERROR_SUCCESS)
     {
       svz_log (LOG_ERROR, "RegSetValueEx: %s\n", SYS_ERROR);
     }

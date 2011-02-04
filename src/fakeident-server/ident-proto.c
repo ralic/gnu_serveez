@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,10 +49,10 @@ struct fakeident_config fakeident_config =
  */
 svz_key_value_pair_t fakeident_config_prototype [] =
 {
-  SVZ_REGISTER_STR ("systemtype", fakeident_config.systemtype, 
-		    SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_STR ("username", fakeident_config.username, 
-		    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("systemtype", fakeident_config.systemtype,
+                    SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STR ("username", fakeident_config.username,
+                    SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -68,7 +68,7 @@ char *fakeident_info_server (svz_server_t *server);
 /*
  * The actual server definition.
  */
-svz_servertype_t fakeident_server_definition = 
+svz_servertype_t fakeident_server_definition =
 {
   "simple fake ident server",
   "fakeident",
@@ -144,12 +144,12 @@ fakeident_detect_proto (svz_server_t *server, svz_socket_t *sock)
   for (; p < end && isdigit ((int) *p); p++);
   if (p == end)
     goto out;
-  
+
   /* spaces */
   for (; p < end && *p == ' '; p++);
   if (p == end)
     goto out;
-  
+
   /* optional '\r' */
   if (p < end && *p == '\r')
     p++;
@@ -182,20 +182,20 @@ fakeident_handle_request (svz_socket_t *sock, char *request, int len)
    */
   sock->flags |= SOCK_FLAG_FINAL_WRITE;
 
-  /* 
+  /*
    * If a username is set we reply "systemtype : username"
    * or "ERROR : NO-USER" else.
    */
   if (cfg->username == NULL)
     {
-      err = svz_sock_printf (sock, "%s : ERROR : NO-USER\r\n", 
-			     sock->recv_buffer);
+      err = svz_sock_printf (sock, "%s : ERROR : NO-USER\r\n",
+                             sock->recv_buffer);
     }
   else
     {
-      err = svz_sock_printf (sock, "%s : USERID : %s : %s\r\n", 
-			     sock->recv_buffer,
-			     cfg->systemtype, cfg->username);
+      err = svz_sock_printf (sock, "%s : USERID : %s : %s\r\n",
+                             sock->recv_buffer,
+                             cfg->systemtype, cfg->username);
     }
 
   return err;
@@ -217,9 +217,9 @@ fakeident_info_server (svz_server_t *server)
   else
     {
       sprintf (info, " reporting user `%s' running system type `%s'",
-	       cfg->username, cfg->systemtype);
+               cfg->username, cfg->systemtype);
     }
-  
+
   return info;
 }
 

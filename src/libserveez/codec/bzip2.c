@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,7 @@
 #include "libserveez/codec/codec.h"
 #include "libserveez/codec/bzip2.h"
 
-/* Version 1.0 and above use the `BZ2_' prefix to avoid namespace 
+/* Version 1.0 and above use the `BZ2_' prefix to avoid namespace
    pollution. */
 #if HAVE_BZ2LIB_PREFIX
 # define bzCompressInit   BZ2_bzCompressInit
@@ -98,7 +98,7 @@ void *
 bzip2_alloc (void *opaque, int n, int size)
 {
   void *ptr;
-  
+
   if ((ptr = (void *) svz_malloc (n * size)) != NULL)
     return ptr;
   return NULL;
@@ -110,7 +110,7 @@ bzip2_free (void *opaque, void *ptr)
   svz_free (ptr);
 }
 
-/* Returns the text representation of the last error associated with 
+/* Returns the text representation of the last error associated with
    the current 'bzip2' stream. */
 char *
 bzip2_error (svz_codec_data_t *data)
@@ -214,8 +214,8 @@ bzip2_encoder_init (svz_codec_data_t *data)
   bz->stream.bzfree = bzip2_free;
   bz->stream.opaque = NULL;
 
-  bz->error = bzCompressInit (&bz->stream, cfg->blockSize100k, 
-			      cfg->verbosity, cfg->workFactor);
+  bz->error = bzCompressInit (&bz->stream, cfg->blockSize100k,
+                              cfg->verbosity, cfg->workFactor);
   return (bz->error != BZ_OK) ? SVZ_CODEC_ERROR : SVZ_CODEC_OK;
 }
 

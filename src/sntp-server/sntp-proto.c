@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -50,7 +50,7 @@
 /*
  * Simple network time server configuration.
  */
-sntp_config_t sntp_config = 
+sntp_config_t sntp_config =
 {
   0, /* default nothing */
 };
@@ -58,7 +58,7 @@ sntp_config_t sntp_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-svz_key_value_pair_t sntp_config_prototype [] = 
+svz_key_value_pair_t sntp_config_prototype [] =
 {
   SVZ_REGISTER_END ()
 };
@@ -149,16 +149,16 @@ sntp_connect_socket (svz_server_t *server, svz_socket_t *sock)
   if ((ret = sntp_create_reply (reply)) == 4)
     {
       sock->flags |= SOCK_FLAG_FINAL_WRITE;
-      return svz_sock_printf (sock, "%c%c%c%c", 
-			      reply[0], reply[1], reply[2], reply[3]);
+      return svz_sock_printf (sock, "%c%c%c%c",
+                              reply[0], reply[1], reply[2], reply[3]);
     }
 
   /* Extended SNTP. */
-  svz_sock_printf (sock, "%c%c%c%c", 
-		   reply[0], reply[1], reply[2], reply[3]);
+  svz_sock_printf (sock, "%c%c%c%c",
+                   reply[0], reply[1], reply[2], reply[3]);
   sock->flags |= SOCK_FLAG_FINAL_WRITE;
-  return svz_sock_printf (sock, "%c%c%c%c", 
-			  reply[4], reply[5], reply[6], reply[7]);
+  return svz_sock_printf (sock, "%c%c%c%c",
+                          reply[4], reply[5], reply[6], reply[7]);
 }
 
 /*
@@ -172,15 +172,15 @@ sntp_handle_request (svz_socket_t *sock, char *packet, int len)
 
   if ((ret = sntp_create_reply (reply)) == 4)
     {
-      svz_udp_printf (sock, "%c%c%c%c", 
-		      reply[0], reply[1], reply[2], reply[3]);
+      svz_udp_printf (sock, "%c%c%c%c",
+                      reply[0], reply[1], reply[2], reply[3]);
       return 0;
     }
 
-  svz_udp_printf (sock, "%c%c%c%c", 
-		  reply[0], reply[1], reply[2], reply[3]);
-  svz_udp_printf (sock, "%c%c%c%c", 
-		  reply[4], reply[5], reply[6], reply[7]);
+  svz_udp_printf (sock, "%c%c%c%c",
+                  reply[0], reply[1], reply[2], reply[3]);
+  svz_udp_printf (sock, "%c%c%c%c",
+                  reply[4], reply[5], reply[6], reply[7]);
   return 0;
 }
 

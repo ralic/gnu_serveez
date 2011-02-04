@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -76,7 +76,7 @@
 # else
 #  define FILENAME de->d_name
 # endif
-#else 
+#else
 # define FILENAME de.cFileName
 # define closedir(dir) FindClose (dir)
 #endif
@@ -101,18 +101,18 @@ http_create_uri (char *file)
 
   p = file;
   dst = uri;
-  
+
   /* go throughout the filename */
   while (*p)
     {
       /* check if the current character is valid */
-      while (*p && 
-	     ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
-	      (*p >= '0' && *p <= '9') || 
-	      *p == ' ' || *p == '/' || *p == '.' || *p == '_'))
-	*dst++ = *p++;
+      while (*p &&
+             ((*p >= 'a' && *p <= 'z') || (*p >= 'A' && *p <= 'Z') ||
+              (*p >= '0' && *p <= '9') ||
+              *p == ' ' || *p == '/' || *p == '.' || *p == '_'))
+        *dst++ = *p++;
       if (!*p)
-	break;
+        break;
       *dst++ = '%';
       sprintf (dst, "%02X", (unsigned char) *p++);
       dst += 2;
@@ -156,9 +156,9 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
   memset (postamble, 0, DIRLIST_SPACE_POST);
 
   /* Remove trailing slash of dirname */
-  if (strlen (dirname) != 1 && 
+  if (strlen (dirname) != 1 &&
       (dirname[strlen (dirname) - 1] == '/' ||
-       dirname[strlen (dirname) - 1] == '\\')) 
+       dirname[strlen (dirname) - 1] == '\\'))
     {
       dirname[strlen (dirname) - 1] = 0;
     }
@@ -173,7 +173,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
     strcat (filename, "*");
   else
     strcat (filename, "/*");
-      
+
   if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE)
 #else
   if ((dir = opendir (dirname)) == NULL)
@@ -190,28 +190,28 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
     {
       i = 0;
       while (dirname[i] == docroot[i] && docroot[i] != 0)
-	i++;
+        i++;
       relpath = &dirname[i];
       if (!strcmp (relpath, "/"))
-	{
-	  relpath++;
-	  dirname++;
-	}
+        {
+          relpath++;
+          dirname++;
+        }
     }
   else
     relpath = userdir + 1;
 
   /* Output preamble */
   while (-1 == svz_snprintf (dirdata, datasize,
-			     "%sContent-Type: text/html\r\n\r\n"
-			     "<html><head>\n"
-			     "<title>Directory listing of %s%s</title></head>"
-			     "\n<body bgcolor=white text=black link=blue>\n"
-			     "<h1>Directory listing of %s%s</h1>\n"
-			     "<hr noshade>\n"
-			     "<pre>\n",
-			     HTTP_OK, relpath, userdir ? "" : "/", 
-			     relpath, userdir ? "" : "/"))
+                             "%sContent-Type: text/html\r\n\r\n"
+                             "<html><head>\n"
+                             "<title>Directory listing of %s%s</title></head>"
+                             "\n<body bgcolor=white text=black link=blue>\n"
+                             "<h1>Directory listing of %s%s</h1>\n"
+                             "<hr noshade>\n"
+                             "<pre>\n",
+                             HTTP_OK, relpath, userdir ? "" : "/",
+                             relpath, userdir ? "" : "/"))
     {
       dirdata = svz_realloc (dirdata, datasize + DIRLIST_SPACE_GROW);
       datasize += DIRLIST_SPACE_GROW;
@@ -227,55 +227,55 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 #endif
     {
       /* Create fully qualified filename */
-      svz_snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s", 
-		    dirname, FILENAME);
+      svz_snprintf (filename, DIRLIST_SPACE_NAME - 1, "%s/%s",
+                    dirname, FILENAME);
 
       /* Stat the given file */
-      if (-1 == stat (filename, &buf)) 
-	{
-	  /* Something is wrong with this file... */
-	  svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-			"<font color=red>%s -- %s</font>\n", 
-			FILENAME, SYS_ERROR);
-	} 
-      else 
-	{
-	  /* Get file time and remove trailing newline */
-	  if (localtime (&buf.st_mtime))
-	    timestr = asctime (localtime (&buf.st_mtime));
-	  else
-	    {
-	      buf.st_mtime = 0;
-	      timestr = asctime (localtime (&buf.st_mtime));
-	    }
-	  if (timestr[strlen (timestr) - 1] == '\n') 
-	    {
-	      timestr[strlen (timestr) - 1] = 0;
-	    }
+      if (-1 == stat (filename, &buf))
+        {
+          /* Something is wrong with this file... */
+          svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+                        "<font color=red>%s -- %s</font>\n",
+                        FILENAME, SYS_ERROR);
+        }
+      else
+        {
+          /* Get file time and remove trailing newline */
+          if (localtime (&buf.st_mtime))
+            timestr = asctime (localtime (&buf.st_mtime));
+          else
+            {
+              buf.st_mtime = 0;
+              timestr = asctime (localtime (&buf.st_mtime));
+            }
+          if (timestr[strlen (timestr) - 1] == '\n')
+            {
+              timestr[strlen (timestr) - 1] = 0;
+            }
 
-	  /* Emit beautiful description */
-	  if (S_ISDIR (buf.st_mode)) 
-	    {
-	      /* This is a directory... */
-	      svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-			    "<img border=0 src=internal-gopher-menu> "
-			    "<a href=\"%s/\">%-40s</a> "
-			    "&lt;directory&gt; "
-			    "%s\n",
-			    http_create_uri (FILENAME), FILENAME, timestr);
-	    } 
-	  else 
-	    {
-	      /* Let's treat this as a normal file */
-	      svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
-			    "<img border=0 src=internal-gopher-text> "
-			    "<a href=\"%s\">%-40s</a> "
-			    "<b>%11d</b> "
-			    "%s\n",
-			    http_create_uri (FILENAME), 
-			    FILENAME, (int) buf.st_size, timestr);
-	    }
-	}
+          /* Emit beautiful description */
+          if (S_ISDIR (buf.st_mode))
+            {
+              /* This is a directory... */
+              svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+                            "<img border=0 src=internal-gopher-menu> "
+                            "<a href=\"%s/\">%-40s</a> "
+                            "&lt;directory&gt; "
+                            "%s\n",
+                            http_create_uri (FILENAME), FILENAME, timestr);
+            }
+          else
+            {
+              /* Let's treat this as a normal file */
+              svz_snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
+                            "<img border=0 src=internal-gopher-text> "
+                            "<a href=\"%s\">%-40s</a> "
+                            "<b>%11d</b> "
+                            "%s\n",
+                            http_create_uri (FILENAME),
+                            FILENAME, (int) buf.st_size, timestr);
+            }
+        }
 
       /* increase file counter unless this list is sorted */
 #if !HAVE_SORTED_LIST
@@ -284,10 +284,10 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 
       /* Append this entry's data to output buffer */
       while (datasize - strlen (dirdata) < strlen (entrystr) + 1)
-	{
-	  dirdata = svz_realloc (dirdata, datasize + DIRLIST_SPACE_GROW);
-	  datasize += DIRLIST_SPACE_GROW;
-	}
+        {
+          dirdata = svz_realloc (dirdata, datasize + DIRLIST_SPACE_GROW);
+          datasize += DIRLIST_SPACE_GROW;
+        }
       strcat (dirdata, entrystr);
     }
 #ifdef __MINGW32__
@@ -296,10 +296,10 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 
   /* Output postamble */
   svz_snprintf (postamble, DIRLIST_SPACE_POST - 1,
-		"\n</pre><hr noshade>\n"
-		"%d entries\n</body>\n</html>", files);
+                "\n</pre><hr noshade>\n"
+                "%d entries\n</body>\n</html>", files);
 
-  if (datasize - strlen (dirdata) < strlen (postamble) + 1) 
+  if (datasize - strlen (dirdata) < strlen (postamble) + 1)
     {
       dirdata = svz_realloc (dirdata, datasize + strlen (postamble) + 1);
       datasize += strlen (postamble) + 1;
@@ -315,12 +315,12 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
 #else
   closedir (dir);
 #endif
-  
+
   return dirdata;
 }
 
 #else /* ENABLE_HTTP_PROTO */
- 
+
 int http_dirlist_dummy; /* Silence compiler. */
 
 #endif /* not ENABLE_HTTP_PROTO */

@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -127,10 +127,10 @@ svz_raw_ip_checksum (svz_uint8_t *data, int len)
 {
   register unsigned checksum = 0;
 
-  /* 
-   * Calculate the 16 bit one's complement of the one's complement sum 
-   * of all 16 bit words in the header. For computing the checksum, 
-   * the checksum field should be zero. This checksum may be replaced in 
+  /*
+   * Calculate the 16 bit one's complement of the one's complement sum
+   * of all 16 bit words in the header. For computing the checksum,
+   * the checksum field should be zero. This checksum may be replaced in
    * the future.
    */
   while (len > 1)
@@ -154,7 +154,7 @@ svz_raw_ip_checksum (svz_uint8_t *data, int len)
 }
 
 /*
- * Checking the IP header only. Return the length of the header if it 
+ * Checking the IP header only. Return the length of the header if it
  * is valid, otherwise -1.
  */
 int
@@ -169,23 +169,23 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
 
 #if 0
   printf ("ip version      : %d\n"
-	  "header length   : %d byte\n"
-	  "type of service : %d\n"
-	  "total length    : %d byte\n"
-	  "ident           : 0x%04X\n"
-	  "flags           : 0x%04X %s %s\n"
-	  "frag. offset    : %d\n"
-	  "ttl             : %d\n"
-	  "protocol        : 0x%02X\n"
-	  "checksum        : 0x%04X\n"
-	  "source          : %s\n",
-	  IP_HDR_VERSION (ip_header), IP_HDR_LENGTH (ip_header),
-	  ip_header->tos, ip_header->length, ip_header->ident, 
-	  IP_HDR_FLAGS (ip_header),
-	  IP_HDR_FLAGS (ip_header) & IP_FLAG_DF ? "[Don't Fragment]" : "",
-	  IP_HDR_FLAGS (ip_header) & IP_FLAG_MF ? "[More Fragments]" : "",
-	  IP_HDR_FRAG (ip_header), ip_header->ttl, ip_header->protocol,
-	  ip_header->checksum, svz_inet_ntoa (ip_header->src));
+          "header length   : %d byte\n"
+          "type of service : %d\n"
+          "total length    : %d byte\n"
+          "ident           : 0x%04X\n"
+          "flags           : 0x%04X %s %s\n"
+          "frag. offset    : %d\n"
+          "ttl             : %d\n"
+          "protocol        : 0x%02X\n"
+          "checksum        : 0x%04X\n"
+          "source          : %s\n",
+          IP_HDR_VERSION (ip_header), IP_HDR_LENGTH (ip_header),
+          ip_header->tos, ip_header->length, ip_header->ident,
+          IP_HDR_FLAGS (ip_header),
+          IP_HDR_FLAGS (ip_header) & IP_FLAG_DF ? "[Don't Fragment]" : "",
+          IP_HDR_FLAGS (ip_header) & IP_FLAG_MF ? "[More Fragments]" : "",
+          IP_HDR_FRAG (ip_header), ip_header->ttl, ip_header->protocol,
+          ip_header->checksum, svz_inet_ntoa (ip_header->src));
   printf ("destination     : %s\n", svz_inet_ntoa (ip_header->dst));
 #endif
 
@@ -193,8 +193,8 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
     {
 #if SVZ_ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "raw: cannot handle IPv%d\n", 
-	       IP_HDR_VERSION (ip_header));
+      svz_log (LOG_DEBUG, "raw: cannot handle IPv%d\n",
+               IP_HDR_VERSION (ip_header));
 #endif
       return -1;
     }
@@ -204,7 +204,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
     {
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: invalid IHL (%d > %d)\n",
-	       IP_HDR_LENGTH (ip_header), len);
+               IP_HDR_LENGTH (ip_header), len);
 #endif
       return -1;
     }
@@ -214,7 +214,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
     {
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: invalid total length (%d < %d)\n",
-	       ip_header->length, len);
+               ip_header->length, len);
 #endif
       return -1;
     }
@@ -224,21 +224,21 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
     {
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "raw: invalid protocol 0x%02X\n",
-	       ip_header->protocol);
+               ip_header->protocol);
 #endif
       return -1;
     }
 
   /* Recalculate and check the header checksum. */
-  if (svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)) != 
+  if (svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)) !=
       ip_header->checksum)
     {
       /* FIXME: Why are header checksums invalid on big packets ? */
 #if SVZ_ENABLE_DEBUG
-      svz_log (LOG_DEBUG, 
-	       "raw: invalid ip header checksum (%04X != %04X)\n",
-	       svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
-	       ip_header->checksum);
+      svz_log (LOG_DEBUG,
+               "raw: invalid ip header checksum (%04X != %04X)\n",
+               svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
+               ip_header->checksum);
 #endif
     }
 

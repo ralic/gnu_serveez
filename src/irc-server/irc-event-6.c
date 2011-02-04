@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,8 +42,8 @@
  * Numeric Replies: ERR_NOORIGIN  ERR_NOSUCHSERVER
  */
 int
-irc_ping_callback (svz_socket_t *sock, 
-		   irc_client_t *client, irc_request_t *request)
+irc_ping_callback (svz_socket_t *sock,
+                   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   int n;
@@ -52,7 +52,7 @@ irc_ping_callback (svz_socket_t *sock,
   if (request->paras < 1)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
-		  cfg->host, ERR_NOORIGIN, client->nick);
+                  cfg->host, ERR_NOORIGIN, client->nick);
       return 0;
     }
 
@@ -71,8 +71,8 @@ irc_ping_callback (svz_socket_t *sock,
  * Numeric Replies: ERR_NOORIGIN ERR_NOSUCHSERVER
  */
 int
-irc_pong_callback (svz_socket_t *sock, 
-		   irc_client_t *client, irc_request_t *request)
+irc_pong_callback (svz_socket_t *sock,
+                   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   int n;
@@ -81,7 +81,7 @@ irc_pong_callback (svz_socket_t *sock,
   if (request->paras < 1)
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOORIGIN_TEXT "\n",
-		  cfg->host, ERR_NOORIGIN, client->nick);
+                  cfg->host, ERR_NOORIGIN, client->nick);
       return 0;
     }
 
@@ -90,12 +90,12 @@ irc_pong_callback (svz_socket_t *sock,
     {
       /* is the server origin valid ? */
       if (strcmp (request->para[n], cfg->host))
-	{
-	  irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
-		      cfg->host, ERR_NOSUCHSERVER, client->nick,
-		      request->para[n]);
-	  return 0;
-	}
+        {
+          irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
+                      cfg->host, ERR_NOSUCHSERVER, client->nick,
+                      request->para[n]);
+          return 0;
+        }
       /* yes, count the ping reply */
       client->ping = 0;
     }
@@ -103,13 +103,13 @@ irc_pong_callback (svz_socket_t *sock,
 }
 
 /*
- * 
+ *
  *    Command: ERROR
  * Parameters: <error message>
  */
 int
-irc_error_callback (svz_socket_t *sock, 
-		    irc_client_t *client, irc_request_t *request)
+irc_error_callback (svz_socket_t *sock,
+                    irc_client_t *client, irc_request_t *request)
 {
   svz_log (LOG_ERROR, "irc: %s\n", request->para[0]);
   return 0;
@@ -122,8 +122,8 @@ irc_error_callback (svz_socket_t *sock,
  *                  ERR_NOSUCHNICK    ERR_CANTKILLSERVER
  */
 int
-irc_kill_callback (svz_socket_t *sock, 
-		   irc_client_t *client, irc_request_t *request)
+irc_kill_callback (svz_socket_t *sock,
+                   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *cl;
@@ -136,7 +136,7 @@ irc_kill_callback (svz_socket_t *sock,
   if (client && !(client->flag & UMODE_OPERATOR))
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOPRIVILEGES_TEXT "\n",
-		  cfg->host, ERR_NOPRIVILEGES, client->nick);
+                  cfg->host, ERR_NOPRIVILEGES, client->nick);
       return 0;
     }
 
@@ -144,13 +144,13 @@ irc_kill_callback (svz_socket_t *sock,
   if ((cl = irc_find_nick (cfg, request->para[0])) == NULL)
     {
       irc_printf (sock, ":%s %03d " ERR_NOSUCHNICK_TEXT "\n",
-		  cfg->host, ERR_NOSUCHNICK, request->para[0]);
+                  cfg->host, ERR_NOSUCHNICK, request->para[0]);
       return 0;
     }
 
   /* delete this client */
   /* TODO: read the RFC for what is happening if a nick collision occurs */
-  
+
   return 0;
 }
 

@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -58,9 +58,9 @@ nut_create_client (void)
 }
 
 /*
- * Parses a `host:port' combination from the given character string 
- * @var{addr} and stores the @var{port} in network byte order. If the `:port' 
- * part is not given, a default port is delivered. Returns NULL if the 
+ * Parses a `host:port' combination from the given character string
+ * @var{addr} and stores the @var{port} in network byte order. If the `:port'
+ * part is not given, a default port is delivered. Returns NULL if the
  * string is invalid and otherwise the hostname. The caller is responsible
  * for freeing the returned string.
  */
@@ -80,7 +80,7 @@ nut_parse_host (char *addr, unsigned short *port)
   /* find separating colon */
   while (*p != ':' && *p)
     p++;
-  if (*p) 
+  if (*p)
     {
       *p = '\0';
       p++;
@@ -89,16 +89,16 @@ nut_parse_host (char *addr, unsigned short *port)
     p = NULL;
 
   /* convert and store both of the parsed values */
-  *port = (unsigned short) (p ? 
-			    htons ((unsigned short) svz_atoi (p)) :
-			    htons (NUT_PORT));
+  *port = (unsigned short) (p ?
+                            htons ((unsigned short) svz_atoi (p)) :
+                            htons (NUT_PORT));
   return host;
 }
 
 /*
- * This routine parses a `a.b.c.d:port' combination from the given 
- * character string @var{addr} and stores both of the values in @var{ip} 
- * and @var{port} in network byte order. If `:port' is not given, a default 
+ * This routine parses a `a.b.c.d:port' combination from the given
+ * character string @var{addr} and stores both of the values in @var{ip}
+ * and @var{port} in network byte order. If `:port' is not given, a default
  * port is delivered. Returns -1 on errors and otherwise zero.
  */
 int
@@ -122,12 +122,12 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
       svz_free (host);
       return -1;
     }
-  
+
   /* find separating colon */
   colon = p;
   while (*colon != ':' && *colon)
     colon++;
-  if (*colon) 
+  if (*colon)
     {
       *colon = '\0';
       colon++;
@@ -137,9 +137,9 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (host);
-  *port = (unsigned short) (colon ? 
-			    htons ((unsigned short) svz_atoi (colon)) : 
-			    htons (NUT_PORT));
+  *port = (unsigned short) (colon ?
+                            htons ((unsigned short) svz_atoi (colon)) :
+                            htons (NUT_PORT));
   svz_free (host);
   return 0;
 }
@@ -198,16 +198,16 @@ nut_print_guid (svz_uint8_t *guid)
 {
   static char id[NUT_GUID_SIZE * 2 + 4];
 
-  sprintf (id, 
-	   "%02X%02X%02X%02X-"
-	   "%02X%02X-"
-	   "%02X%02X-"
-	   "%02X%02X%02X%02X%02X%02X%02X%02X",
-	   guid[0], guid[1], guid[2], guid[3],
-	   guid[4], guid[5],
-	   guid[6], guid[7],
-	   guid[8], guid[9], guid[10], guid[11],
-	   guid[12], guid[13], guid[14], guid[15]);
+  sprintf (id,
+           "%02X%02X%02X%02X-"
+           "%02X%02X-"
+           "%02X%02X-"
+           "%02X%02X%02X%02X%02X%02X%02X%02X",
+           guid[0], guid[1], guid[2], guid[3],
+           guid[4], guid[5],
+           guid[6], guid[7],
+           guid[8], guid[9], guid[10], guid[11],
+           guid[12], guid[13], guid[14], guid[15]);
 
   return id;
 }
@@ -273,7 +273,7 @@ nut_get_pong (svz_uint8_t *data)
   static nut_pong_t reply;
   unsigned short uint16;
   unsigned int uint32;
-  
+
   memcpy (&uint16, data, SIZEOF_UINT16);
   reply.port = ltons (uint16);
   data += SIZEOF_UINT16;
@@ -294,7 +294,7 @@ nut_put_pong (nut_pong_t *reply)
   svz_uint8_t *data = buffer;
   unsigned short uint16;
   unsigned int uint32;
-  
+
   uint16 = ntols (reply->port);
   memcpy (data, &uint16, SIZEOF_UINT16);
   data += SIZEOF_UINT16;
@@ -455,14 +455,14 @@ nut_canonize_file (char *file)
   while (*file)
     {
       if (!isalnum ((svz_uint8_t) *file) && !isprint ((svz_uint8_t) *file))
-	*file = '_';
+        *file = '_';
       file++;
     }
 }
 
 /*
- * This routine parses a given gnutella (HTTP) header for certain 
- * properties and delivers either a property value which must be 
+ * This routine parses a given gnutella (HTTP) header for certain
+ * properties and delivers either a property value which must be
  * svz_free()'d afterwards or NULL.
  */
 char *
@@ -474,34 +474,34 @@ nut_parse_property (char *header, int len, char *property)
     {
       /* find beginning of property */
       while (h < end && tolower (*h) != tolower (*p))
-	h++;
+        h++;
       if (h >= end)
-	return NULL;
+        return NULL;
 
       /* compare whole property name */
       header = h;
       while (h < end && *p && tolower (*h++) == tolower (*p++));
       if (h >= end)
-	return NULL;
+        return NULL;
       if (*p)
-	{
-	  /* fallback to property's first character */
-	  h = header + 1;
-	  p = property;
-	  continue;
-	}
-      
+        {
+          /* fallback to property's first character */
+          h = header + 1;
+          p = property;
+          continue;
+        }
+
       /* parse property value */
       while (h < end && *h++ == ' ');
       if (h >= end || *(h - 1) != ':')
-	return NULL;
+        return NULL;
       while (h < end && *h == ' ')
-	h++;
+        h++;
       header = h;
       while (h < end && *h != '\r' && *h != '\n')
-	h++;
+        h++;
       if (h >= end || h == header)
-	return NULL;
+        return NULL;
 
       /* copy property value */
       len = h - header;

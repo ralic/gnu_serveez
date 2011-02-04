@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,11 +34,11 @@ SERVEEZ_API int svz_udp_read_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_udp_lazy_read_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_udp_write_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_udp_check_request __PARAMS ((svz_socket_t *));
-SERVEEZ_API svz_socket_t *svz_udp_connect __PARAMS ((unsigned long, 
-						     unsigned short));
+SERVEEZ_API svz_socket_t *svz_udp_connect __PARAMS ((unsigned long,
+                                                     unsigned short));
 SERVEEZ_API int svz_udp_write __PARAMS ((svz_socket_t *, char *, int));
-SERVEEZ_API int svz_udp_printf __PARAMS ((svz_socket_t *, 
-					  svz_c_const char *, ...));
+SERVEEZ_API int svz_udp_printf __PARAMS ((svz_socket_t *,
+                                          svz_c_const char *, ...));
 
 __END_DECLS
 

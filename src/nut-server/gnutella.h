@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -63,13 +63,13 @@
 #define NUT_FLAG_GIVEN  0x0040 /* push request reply (GIV) */
 
 /* guid:
- * The header contains a Microsoft GUID (Globally Unique Identifier for 
- * you nonWinblows people) which is the message identifer. My crystal ball 
- * reports that "the GUIDs only have to be unique on the client", which 
- * means that you can really put anything here, as long as you keep track 
- * of it (a client won't respond to you if it sees the same message id 
- * again). If you're responding to a message, be sure you haven't seen the 
- * message id (from that host) before, copy their message ID into your 
+ * The header contains a Microsoft GUID (Globally Unique Identifier for
+ * you nonWinblows people) which is the message identifer. My crystal ball
+ * reports that "the GUIDs only have to be unique on the client", which
+ * means that you can really put anything here, as long as you keep track
+ * of it (a client won't respond to you if it sees the same message id
+ * again). If you're responding to a message, be sure you haven't seen the
+ * message id (from that host) before, copy their message ID into your
  * response and send it on it's way.
  */
 

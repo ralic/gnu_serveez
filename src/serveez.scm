@@ -9,12 +9,12 @@
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
-;; 
+;;
 ;; This software is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -49,9 +49,9 @@
     (for-each
      (lambda (elem)
        (cond ((serveez-port? elem)
-	      (set! port-list (cons elem port-list)))
-	     ((serveez-server? elem)
-	      (set! server-list (cons elem server-list)))))
+              (set! port-list (cons elem port-list)))
+             ((serveez-server? elem)
+              (set! server-list (cons elem server-list)))))
      args)
 
     ;; Iterate over server list and ..
@@ -59,10 +59,10 @@
      (lambda (server)
        ;; ... for each server, iterate over port list and ...
        (for-each
-	(lambda (port)
-	  ;; ... bind each port to each server.
-	  (bind-server! port server))
-	port-list))
+        (lambda (port)
+          ;; ... bind each port to each server.
+          (bind-server! port server))
+        port-list))
      server-list)))
 
 ;;
@@ -71,9 +71,9 @@
 (define (create-tcp-port! basename port)
   (let ((portname (string-append basename (number->string port))))
     (if (not (serveez-port? portname))
-	(define-port! portname 
-	  `((proto . tcp) 
-	    (port . ,port))))
+        (define-port! portname
+          `((proto . tcp)
+            (port . ,port))))
     portname))
 
 ;;
@@ -93,9 +93,9 @@
 (define (create-udp-port! basename port)
   (let ((portname (string-append basename (number->string port))))
     (if (not (serveez-port? portname))
-	(define-port! portname 
-	  `((proto . udp) 
-	    (port . ,port))))
+        (define-port! portname
+          `((proto . udp)
+            (port . ,port))))
     portname))
 
 ;;
@@ -126,22 +126,22 @@
 ;;
 (define (serveez-doc-add!)
   (catch #t
-	 (lambda ()
-	   (use-modules (ice-9 session))
-	   (use-modules (ice-9 documentation))
-	   (for-each 
-	    (lambda (path)
-	      (let ((file (string-append path "/serveez-procedures.txt"))
-		    (found #f))
-		(for-each 
-		 (lambda (f) (if (equal? f file) (set! found #t)))
-		 documentation-files)
-		(if (not found)
-		    (set! documentation-files 
-			  (cons file documentation-files)))))
-	    (serveez-loadpath))
-	   (display "Serveez documentation file successfully added.\n")
-	   #t)
-	 (lambda args
-	   (display "Failed to add Serveez documentation file.\n")
-	   #f)))
+         (lambda ()
+           (use-modules (ice-9 session))
+           (use-modules (ice-9 documentation))
+           (for-each
+            (lambda (path)
+              (let ((file (string-append path "/serveez-procedures.txt"))
+                    (found #f))
+                (for-each
+                 (lambda (f) (if (equal? f file) (set! found #t)))
+                 documentation-files)
+                (if (not found)
+                    (set! documentation-files
+                          (cons file documentation-files)))))
+            (serveez-loadpath))
+           (display "Serveez documentation file successfully added.\n")
+           #t)
+         (lambda args
+           (display "Failed to add Serveez documentation file.\n")
+           #f)))

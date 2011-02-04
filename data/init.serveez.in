@@ -26,27 +26,27 @@ VERBOSITY=0
 
 case "$1" in
     start)
-	echo "Starting serveez"
-	${SERVEEZ} -f ${CFGFILE} -l ${LOGFILE} -v ${VERBOSITY} &
-	echo $? > ${PIDFILE}
+        echo "Starting serveez"
+        ${SERVEEZ} -f ${CFGFILE} -l ${LOGFILE} -v ${VERBOSITY} &
+        echo $? > ${PIDFILE}
     ;;
     stop)
-	echo "Stopping serveez"
-	PID=`/bin/cat ${PIDFILE} 2>/dev/null`
-	if [ "${PID}" = "" ]; then
-	    echo "$0: No pid file for ${SERVEEZ}"
-	    exit 1
-	fi
-	kill -TERM ${PID}
-	/bin/rm "${PIDFILE}"
+        echo "Stopping serveez"
+        PID=`/bin/cat ${PIDFILE} 2>/dev/null`
+        if [ "${PID}" = "" ]; then
+            echo "$0: No pid file for ${SERVEEZ}"
+            exit 1
+        fi
+        kill -TERM ${PID}
+        /bin/rm "${PIDFILE}"
     ;;
     restart|reload)
-	$0 stop
-	$0 start
+        $0 stop
+        $0 start
     ;;
     *)
-	echo "Usage: $0 {start|stop|restart|reload}"
-	exit 1
+        echo "Usage: $0 {start|stop|restart|reload}"
+        exit 1
     ;;
 esac
 exit 0

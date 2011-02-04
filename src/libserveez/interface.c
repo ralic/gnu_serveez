@@ -8,12 +8,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -52,7 +52,7 @@
 
 #ifdef __MINGW32__
 # include <winsock2.h>
-# include "libserveez/ipdata.h" 
+# include "libserveez/ipdata.h"
 # include "libserveez/iphlpapi.h"
 #endif
 
@@ -75,12 +75,12 @@ svz_vector_t *svz_interfaces = NULL;
 
 /* Function pointer definition for use with GetProcAddress. */
 typedef int (__stdcall *WsControlProc) (DWORD, DWORD, LPVOID, LPDWORD,
-					LPVOID, LPDWORD);
+                                        LPVOID, LPDWORD);
 #define WSCTL_TCP_QUERY_INFORMATION 0
-#define WSCTL_TCP_SET_INFORMATION   1   
+#define WSCTL_TCP_SET_INFORMATION   1
 
 /*
- * The local interface list is requested by some "unrevealed" Winsock API 
+ * The local interface list is requested by some "unrevealed" Winsock API
  * routine called "WsControl". Works with Win95 and Win98.
  * Otherwise try using the IP Helper API which works with WinNT4x and Win2k.
  */
@@ -130,33 +130,33 @@ svz_interface_collect (void)
   else
     {
       if ((WSockHandle = LoadLibrary ("wsock32.dll")) != NULL)
-	{
-	  WsControl = (WsControlProc) 
-	    GetProcAddress (WSockHandle, "WsControl");
-	  if (!WsControl)
-	    {
-	      printf ("GetProcAddress (WsControl): %s\n", SYS_ERROR);
-	      FreeLibrary (WSockHandle);
-	      return;
-	    }
-	  Method = WSCTL_METHOD;
-	}
+        {
+          WsControl = (WsControlProc)
+            GetProcAddress (WSockHandle, "WsControl");
+          if (!WsControl)
+            {
+              printf ("GetProcAddress (WsControl): %s\n", SYS_ERROR);
+              FreeLibrary (WSockHandle);
+              return;
+            }
+          Method = WSCTL_METHOD;
+        }
       else
-	{
-	  printf ("LoadLibrary (WSock32.dll): %s\n", SYS_ERROR);
-	  return;
-	}
+        {
+          printf ("LoadLibrary (WSock32.dll): %s\n", SYS_ERROR);
+          return;
+        }
     }
 
   if (Method == WSCTL_METHOD)
     {
       result = WSAStartup (MAKEWORD (1, 1), &WSAData);
-      if (result) 
-	{
-	  printf ("WSAStartup: %s\n", NET_ERROR);
-	  FreeLibrary (WSockHandle);
-	  return;
-	}
+      if (result)
+        {
+          printf ("WSAStartup: %s\n", NET_ERROR);
+          FreeLibrary (WSockHandle);
+          return;
+        }
 
       memset (&tcpRequestQueryInfoEx, 0, sizeof (tcpRequestQueryInfoEx));
       tcpRequestQueryInfoEx.ID.toi_entity.tei_entity = GENERIC_ENTITY;
@@ -173,162 +173,162 @@ svz_interface_collect (void)
        */
       entityIdsBufSize = MAX_TDI_ENTITIES * sizeof (TDIEntityID);
       entityIds = (TDIEntityID *) calloc (1, entityIdsBufSize);
-      
+
       result = WsControl (IPPROTO_TCP,
-			  WSCTL_TCP_QUERY_INFORMATION,
-			  &tcpRequestQueryInfoEx,
-			  &tcpRequestBufSize, entityIds, &entityIdsBufSize);
-      
-      if (result) 
-	{
-	  printf ("WsControl: %s\n", NET_ERROR);
-	  WSACleanup ();
-	  FreeLibrary (WSockHandle);
-	  free (entityIds);
-	  return;
-	}
+                          WSCTL_TCP_QUERY_INFORMATION,
+                          &tcpRequestQueryInfoEx,
+                          &tcpRequestBufSize, entityIds, &entityIdsBufSize);
+
+      if (result)
+        {
+          printf ("WsControl: %s\n", NET_ERROR);
+          WSACleanup ();
+          FreeLibrary (WSockHandle);
+          free (entityIds);
+          return;
+        }
 
       /* ... after the call we compute */
       entityCount = entityIdsBufSize / sizeof (TDIEntityID);
       ifCount = 0;
 
       /* find out the interface info for the generic interfaces */
-      for (i = 0; i < entityCount; i++) 
-	{
-	  if (entityIds[i].tei_entity == IF_ENTITY) 
-	    {
-	      ++ifCount;
+      for (i = 0; i < entityCount; i++)
+        {
+          if (entityIds[i].tei_entity == IF_ENTITY)
+            {
+              ++ifCount;
 
-	      /* see if the interface supports snmp mib-2 info */
-	      memset (&tcpRequestQueryInfoEx, 0,
-		      sizeof (tcpRequestQueryInfoEx));
-	      tcpRequestQueryInfoEx.ID.toi_entity = entityIds[i];
-	      tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_GENERIC;
-	      tcpRequestQueryInfoEx.ID.toi_type = INFO_TYPE_PROVIDER;
-	      tcpRequestQueryInfoEx.ID.toi_id = ENTITY_TYPE_ID;
+              /* see if the interface supports snmp mib-2 info */
+              memset (&tcpRequestQueryInfoEx, 0,
+                      sizeof (tcpRequestQueryInfoEx));
+              tcpRequestQueryInfoEx.ID.toi_entity = entityIds[i];
+              tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_GENERIC;
+              tcpRequestQueryInfoEx.ID.toi_type = INFO_TYPE_PROVIDER;
+              tcpRequestQueryInfoEx.ID.toi_id = ENTITY_TYPE_ID;
 
-	      entityTypeSize = sizeof (entityType);
-	      
-	      result = WsControl (IPPROTO_TCP,
-				  WSCTL_TCP_QUERY_INFORMATION,
-				  &tcpRequestQueryInfoEx,
-				  &tcpRequestBufSize,
-				  &entityType, &entityTypeSize);
-	      
-	      if (result) 
-		{
-		  printf ("WsControl: %s\n", NET_ERROR);
-		  WSACleanup ();
-		  FreeLibrary (WSockHandle);
-		  free (entityIds);
-		  return;
-		}
+              entityTypeSize = sizeof (entityType);
 
-	      if (entityType == IF_MIB) 
-		{ 
-		  /* Supports MIB-2 interface. Get snmp mib-2 info. */
-		  tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_PROTOCOL;
-		  tcpRequestQueryInfoEx.ID.toi_id = IF_MIB_STATS_ID;
+              result = WsControl (IPPROTO_TCP,
+                                  WSCTL_TCP_QUERY_INFORMATION,
+                                  &tcpRequestQueryInfoEx,
+                                  &tcpRequestBufSize,
+                                  &entityType, &entityTypeSize);
 
-		  /*
-		   * note: win95 winipcfg use 130 for MAX_IFDESCR_LEN while
-		   * ddk\src\network\wshsmple\SMPLETCP.H defines it as 256
-		   * we are trying to dup the winipcfg parameters for now
-		   */
-		  ifEntrySize = sizeof (IFEntry) + 128 + 1;
-		  ifEntry = (IFEntry *) calloc (ifEntrySize, 1);
-		  
-		  result = WsControl (IPPROTO_TCP,
-				      WSCTL_TCP_QUERY_INFORMATION,
-				      &tcpRequestQueryInfoEx,
-				      &tcpRequestBufSize,
-				      ifEntry, &ifEntrySize);
+              if (result)
+                {
+                  printf ("WsControl: %s\n", NET_ERROR);
+                  WSACleanup ();
+                  FreeLibrary (WSockHandle);
+                  free (entityIds);
+                  return;
+                }
 
-		  if (result) 
-		    {
-		      printf ("WsControl: %s\n", NET_ERROR);
-		      WSACleanup ();
-		      FreeLibrary (WSockHandle);
-		      return;
-		    }
+              if (entityType == IF_MIB)
+                {
+                  /* Supports MIB-2 interface. Get snmp mib-2 info. */
+                  tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_PROTOCOL;
+                  tcpRequestQueryInfoEx.ID.toi_id = IF_MIB_STATS_ID;
 
-		  /* store interface index and description */
-		  *(ifEntry->if_descr + ifEntry->if_descrlen) = '\0';
-		  svz_interface_add (ifEntry->if_index, 
-				     (char *) ifEntry->if_descr,
-				     ifEntry->if_index, 1);
-		}
-	    }
-	}
-  
+                  /*
+                   * note: win95 winipcfg use 130 for MAX_IFDESCR_LEN while
+                   * ddk\src\network\wshsmple\SMPLETCP.H defines it as 256
+                   * we are trying to dup the winipcfg parameters for now
+                   */
+                  ifEntrySize = sizeof (IFEntry) + 128 + 1;
+                  ifEntry = (IFEntry *) calloc (ifEntrySize, 1);
+
+                  result = WsControl (IPPROTO_TCP,
+                                      WSCTL_TCP_QUERY_INFORMATION,
+                                      &tcpRequestQueryInfoEx,
+                                      &tcpRequestBufSize,
+                                      ifEntry, &ifEntrySize);
+
+                  if (result)
+                    {
+                      printf ("WsControl: %s\n", NET_ERROR);
+                      WSACleanup ();
+                      FreeLibrary (WSockHandle);
+                      return;
+                    }
+
+                  /* store interface index and description */
+                  *(ifEntry->if_descr + ifEntry->if_descrlen) = '\0';
+                  svz_interface_add (ifEntry->if_index,
+                                     (char *) ifEntry->if_descr,
+                                     ifEntry->if_index, 1);
+                }
+            }
+        }
+
       /* find the ip interfaces */
-      for (i = 0; i < entityCount; i++) 
-	{
-	  if (entityIds[i].tei_entity == CL_NL_ENTITY) 
-	    {
-	      /* get ip interface info */
-	      memset (&tcpRequestQueryInfoEx, 0,
-		      sizeof (tcpRequestQueryInfoEx));
-	      tcpRequestQueryInfoEx.ID.toi_entity = entityIds[i];
-	      tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_GENERIC;
-	      tcpRequestQueryInfoEx.ID.toi_type = INFO_TYPE_PROVIDER;
-	      tcpRequestQueryInfoEx.ID.toi_id = ENTITY_TYPE_ID;
+      for (i = 0; i < entityCount; i++)
+        {
+          if (entityIds[i].tei_entity == CL_NL_ENTITY)
+            {
+              /* get ip interface info */
+              memset (&tcpRequestQueryInfoEx, 0,
+                      sizeof (tcpRequestQueryInfoEx));
+              tcpRequestQueryInfoEx.ID.toi_entity = entityIds[i];
+              tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_GENERIC;
+              tcpRequestQueryInfoEx.ID.toi_type = INFO_TYPE_PROVIDER;
+              tcpRequestQueryInfoEx.ID.toi_id = ENTITY_TYPE_ID;
 
-	      entityTypeSize = sizeof (entityType);
+              entityTypeSize = sizeof (entityType);
 
-	      result = WsControl (IPPROTO_TCP,
-				  WSCTL_TCP_QUERY_INFORMATION,
-				  &tcpRequestQueryInfoEx,
-				  &tcpRequestBufSize,
-				  &entityType, &entityTypeSize);
+              result = WsControl (IPPROTO_TCP,
+                                  WSCTL_TCP_QUERY_INFORMATION,
+                                  &tcpRequestQueryInfoEx,
+                                  &tcpRequestBufSize,
+                                  &entityType, &entityTypeSize);
 
-	      if (result) 
-		{
-		  printf ("WsControl: %s\n", NET_ERROR);
-		  WSACleanup ();
-		  FreeLibrary (WSockHandle);
-		  return;
-		}
+              if (result)
+                {
+                  printf ("WsControl: %s\n", NET_ERROR);
+                  WSACleanup ();
+                  FreeLibrary (WSockHandle);
+                  return;
+                }
 
-	      if (entityType == CL_NL_IP) 
-		{
-		  /* Entity implements IP. Get ip address list. */
-		  tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_PROTOCOL;
-		  tcpRequestQueryInfoEx.ID.toi_id = IP_MIB_ADDRTABLE_ENTRY_ID;
+              if (entityType == CL_NL_IP)
+                {
+                  /* Entity implements IP. Get ip address list. */
+                  tcpRequestQueryInfoEx.ID.toi_class = INFO_CLASS_PROTOCOL;
+                  tcpRequestQueryInfoEx.ID.toi_id = IP_MIB_ADDRTABLE_ENTRY_ID;
 
-		  ipAddrEntryBufSize = sizeof (IPAddrEntry) * ifCount;
-		  ipAddrEntry = 
-		    (IPAddrEntry *) calloc (ipAddrEntryBufSize, 1);
+                  ipAddrEntryBufSize = sizeof (IPAddrEntry) * ifCount;
+                  ipAddrEntry =
+                    (IPAddrEntry *) calloc (ipAddrEntryBufSize, 1);
 
-		  result = WsControl (IPPROTO_TCP,
-				      WSCTL_TCP_QUERY_INFORMATION,
-				      &tcpRequestQueryInfoEx,
-				      &tcpRequestBufSize,
-				      ipAddrEntry, &ipAddrEntryBufSize);
+                  result = WsControl (IPPROTO_TCP,
+                                      WSCTL_TCP_QUERY_INFORMATION,
+                                      &tcpRequestQueryInfoEx,
+                                      &tcpRequestBufSize,
+                                      ipAddrEntry, &ipAddrEntryBufSize);
 
-		  if (result) 
-		    {
-		      printf ("WsControl: %s\n", NET_ERROR);
-		      WSACleanup ();
-		      FreeLibrary (WSockHandle);
-		      return;
-		    }
-		
-		  /* find ip address list and interface description */
-		  for (n = 0; n < ifCount; n++) 
-		    {
-		      memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
+                  if (result)
+                    {
+                      printf ("WsControl: %s\n", NET_ERROR);
+                      WSACleanup ();
+                      FreeLibrary (WSockHandle);
+                      return;
+                    }
 
-		      for (k = 0; k < svz_vector_length (svz_interfaces); k++)
-			{
-			  ifc = svz_vector_get (svz_interfaces, k);
-			  if (ifc->index == ipAddrEntry[n].iae_index)
-			    ifc->ipaddr = addr;
-			}
-		    }
-		}
-	    }
-	}
+                  /* find ip address list and interface description */
+                  for (n = 0; n < ifCount; n++)
+                    {
+                      memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
+
+                      for (k = 0; k < svz_vector_length (svz_interfaces); k++)
+                        {
+                          ifc = svz_vector_get (svz_interfaces, k);
+                          if (ifc->index == ipAddrEntry[n].iae_index)
+                            ifc->ipaddr = addr;
+                        }
+                    }
+                }
+            }
+        }
 
       WSACleanup ();
       FreeLibrary (WSockHandle);
@@ -338,68 +338,68 @@ svz_interface_collect (void)
   else if (Method == IPAPI_METHOD)
     {
       /* Use of the IPHelper-API here. */
-      GetIfTable = (GetIfTableProc) 
-	GetProcAddress (WSockHandle, "GetIfTable");
+      GetIfTable = (GetIfTableProc)
+        GetProcAddress (WSockHandle, "GetIfTable");
       if (!GetIfTable)
-	{
-	  printf ("GetProcAddress (GetIfTable): %s\n", SYS_ERROR);
-	  FreeLibrary (WSockHandle);
-	  return;
-	}
+        {
+          printf ("GetProcAddress (GetIfTable): %s\n", SYS_ERROR);
+          FreeLibrary (WSockHandle);
+          return;
+        }
 
-      GetIpAddrTable = (GetIpAddrTableProc) 
-	GetProcAddress (WSockHandle, "GetIpAddrTable");
+      GetIpAddrTable = (GetIpAddrTableProc)
+        GetProcAddress (WSockHandle, "GetIpAddrTable");
       if (!GetIpAddrTable)
-	{
-	  printf ("GetProcAddress (GetIpAddrTable): %s\n", SYS_ERROR);
-	  FreeLibrary (WSockHandle);
-	  return;
-	}
+        {
+          printf ("GetProcAddress (GetIpAddrTable): %s\n", SYS_ERROR);
+          FreeLibrary (WSockHandle);
+          return;
+        }
 
       ifTableSize = sizeof (MIB_IFTABLE);
       ifTable = (PMIB_IFTABLE) svz_malloc (ifTableSize);
       GetIfTable (ifTable, &ifTableSize, FALSE);
       ifTable = (PMIB_IFTABLE) svz_realloc (ifTable, ifTableSize);
       if (GetIfTable (ifTable, &ifTableSize, FALSE) != NO_ERROR)
-	{
-	  printf ("GetIfTable: %s\n", SYS_ERROR);
-	  FreeLibrary (WSockHandle);
-	  svz_free (ifTable);
-	  return;
-	}
-  
+        {
+          printf ("GetIfTable: %s\n", SYS_ERROR);
+          FreeLibrary (WSockHandle);
+          svz_free (ifTable);
+          return;
+        }
+
       ipTableSize = sizeof (MIB_IPADDRTABLE);
       ipTable = (PMIB_IPADDRTABLE) svz_malloc (ipTableSize);
       GetIpAddrTable (ipTable, &ipTableSize, FALSE);
       ipTable = (PMIB_IPADDRTABLE) svz_realloc (ipTable, ipTableSize);
       if (GetIpAddrTable (ipTable, &ipTableSize, FALSE) != NO_ERROR)
-	{
-	  printf ("GetIpAddrTable: %s\n", SYS_ERROR);
-	  FreeLibrary (WSockHandle);
-	  svz_free (ipTable);
-	  svz_free (ifTable);
-	  return;
-	}
-      
+        {
+          printf ("GetIpAddrTable: %s\n", SYS_ERROR);
+          FreeLibrary (WSockHandle);
+          svz_free (ipTable);
+          svz_free (ifTable);
+          return;
+        }
+
       for (n = 0; n < ipTable->dwNumEntries; n++)
-	{
-	  for (i = 0; i < ifTable->dwNumEntries; i++)
-	    {
-	      if (ifTable->table[i].dwIndex == ipTable->table[n].dwIndex)
-		{
-		  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
-		  svz_interface_add (ipTable->table[n].dwIndex, 
-				     (char *) ifTable->table[i].bDescr,
-				     ipTable->table[n].dwAddr, 1);
-		  break;
-		}
-	    }
-	  if (i == ifTable->dwNumEntries)
-	    {
-	      svz_interface_add (ipTable->table[n].dwIndex, NULL,
-				 ipTable->table[n].dwAddr, 1);
-	    }
-	}
+        {
+          for (i = 0; i < ifTable->dwNumEntries; i++)
+            {
+              if (ifTable->table[i].dwIndex == ipTable->table[n].dwIndex)
+                {
+                  ifTable->table[i].bDescr[ifTable->table[i].dwDescrLen] = 0;
+                  svz_interface_add (ipTable->table[n].dwIndex,
+                                     (char *) ifTable->table[i].bDescr,
+                                     ipTable->table[n].dwAddr, 1);
+                  break;
+                }
+            }
+          if (i == ifTable->dwNumEntries)
+            {
+              svz_interface_add (ipTable->table[n].dwIndex, NULL,
+                                 ipTable->table[n].dwAddr, 1);
+            }
+        }
 
       svz_free (ipTable);
       svz_free (ifTable);
@@ -416,7 +416,7 @@ svz_interface_collect (void)
 /*
  * Collect all available network interfaces and put them into the list
  * @var{svz_interfaces}. This is useful in order to @code{bind()} server
- * sockets to specific network interfaces. Thus you can make certain 
+ * sockets to specific network interfaces. Thus you can make certain
  * services accessible from "outside" or "inside" a network installation
  * only.
  */
@@ -431,7 +431,7 @@ svz_interface_collect (void)
   int fd;
 
   /* Get a socket out of the Internet Address Family. */
-  if ((fd = socket (AF_INET, SOCK_STREAM, 0)) < 0) 
+  if ((fd = socket (AF_INET, SOCK_STREAM, 0)) < 0)
     {
       perror ("socket");
       return;
@@ -439,7 +439,7 @@ svz_interface_collect (void)
 
   /* Collect information. */
   ifc.ifc_buf = NULL;
-  for (;;) 
+  for (;;)
     {
       ifc.ifc_len = sizeof (struct ifreq) * numreqs;
       ifc.ifc_buf = svz_realloc (ifc.ifc_buf, ifc.ifc_len);
@@ -450,28 +450,28 @@ svz_interface_collect (void)
        */
 #if defined (OSIOCGIFCONF)
       if (ioctl (fd, OSIOCGIFCONF, &ifc) < 0)
-	{
-	  perror ("OSIOCGIFCONF");
-	  close (fd);
-	  svz_free (ifc.ifc_buf);
-	  return;	  
-	}
+        {
+          perror ("OSIOCGIFCONF");
+          close (fd);
+          svz_free (ifc.ifc_buf);
+          return;
+        }
 #else /* OSIOCGIFCONF */
-      if (ioctl (fd, SIOCGIFCONF, &ifc) < 0) 
-	{
-	  perror ("SIOCGIFCONF");
-	  close (fd);
-	  svz_free (ifc.ifc_buf);
-	  return;
-	}
+      if (ioctl (fd, SIOCGIFCONF, &ifc) < 0)
+        {
+          perror ("SIOCGIFCONF");
+          close (fd);
+          svz_free (ifc.ifc_buf);
+          return;
+        }
 #endif /* OSIOCGIFCONF */
 
-      if ((unsigned) ifc.ifc_len == sizeof (struct ifreq) * numreqs) 
-	{
-	  /* Assume it overflowed and try again. */
-	  numreqs += 10;
-	  continue;
-	}
+      if ((unsigned) ifc.ifc_len == sizeof (struct ifreq) * numreqs)
+        {
+          /* Assume it overflowed and try again. */
+          numreqs += 10;
+          continue;
+        }
       break;
     }
 
@@ -489,32 +489,32 @@ svz_interface_collect (void)
 #else
       if (ifr->ifr_addr.sa_family != AF_INET)
 #endif
-	continue;
+        continue;
 
       strcpy (ifr2.ifr_name, ifr->ifr_name);
       ifr2.ifr_addr.sa_family = AF_INET;
       if (ioctl (fd, SIOCGIFADDR, &ifr2) == 0)
-	{
-	  static int index = 0;
+        {
+          static int index = 0;
 
-	  /* 
-	   * The following cast looks bogus. ifr2.ifr_addr is a
-	   * (struct sockaddr), but we know that we deal with a 
-	   * (struct sockaddr_in) here. Since you cannot cast structures
-	   * in C, I cast addresses just to get a (struct sockaddr_in) in 
-	   * the end ...
-	   */
+          /*
+           * The following cast looks bogus. ifr2.ifr_addr is a
+           * (struct sockaddr), but we know that we deal with a
+           * (struct sockaddr_in) here. Since you cannot cast structures
+           * in C, I cast addresses just to get a (struct sockaddr_in) in
+           * the end ...
+           */
 #ifdef ifr_ifindex
-	  index = ifr->ifr_ifindex;
+          index = ifr->ifr_ifindex;
 #else
-	  index++;
+          index++;
 #endif
-	  svz_interface_add (index, ifr->ifr_name, 
-			     (*(struct sockaddr_in *) 
-			      (void *) &ifr2.ifr_addr).sin_addr.s_addr, 1);
-	}
+          svz_interface_add (index, ifr->ifr_name,
+                             (*(struct sockaddr_in *)
+                              (void *) &ifr2.ifr_addr).sin_addr.s_addr, 1);
+        }
     }
-  
+
   close (fd);
   svz_free (ifc.ifc_buf);
 }
@@ -527,9 +527,9 @@ void
 svz_interface_collect (void)
 {
   printf ("\n"
-	  "Sorry, the list of local interfaces is not available. If you\n"
-	  "know how to get such a list on your OS, please contact\n"
-	  "Raimund Jacob <raimi@lkcc.org>. Thanks.\n\n");
+          "Sorry, the list of local interfaces is not available. If you\n"
+          "know how to get such a list on your OS, please contact\n"
+          "Raimund Jacob <raimi@lkcc.org>. Thanks.\n\n");
 }
 
 #endif /* not ENABLE_IFLIST */
@@ -555,16 +555,16 @@ svz_interface_list (void)
 
       /* interface with description */
       if (ifc->description)
-	{
-	  printf ("%40s: %s\n", ifc->description, 
-		  svz_inet_ntoa (ifc->ipaddr));
-	}
+        {
+          printf ("%40s: %s\n", ifc->description,
+                  svz_inet_ntoa (ifc->ipaddr));
+        }
       else
-	{
-	  /* interface with interface # only */
-	  printf ("%31s%09lu: %s\n", "interface # ",
-		  ifc->index, svz_inet_ntoa (ifc->ipaddr));
-	}
+        {
+          /* interface with interface # only */
+          printf ("%31s%09lu: %s\n", "interface # ",
+                  ifc->index, svz_inet_ntoa (ifc->ipaddr));
+        }
     }
 }
 
@@ -590,11 +590,11 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
   else
     {
       for (n = 0; n < svz_vector_length (svz_interfaces); n++)
-	{
-	  ifc = svz_vector_get (svz_interfaces, n);
-	  if (ifc->ipaddr == addr)
-	    return -1;
-	}
+        {
+          ifc = svz_vector_get (svz_interfaces, n);
+          if (ifc->ipaddr == addr)
+            return -1;
+        }
     }
 
   /* Actually add this interface. */
@@ -606,8 +606,8 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
 
   /* Delete trailing white space characters. */
   p = ifc->description + strlen (ifc->description) - 1;
-  while (p > ifc->description && 
-	 (*p == '\n' || *p == '\r' || *p == '\t' || *p == ' '))
+  while (p > ifc->description &&
+         (*p == '\n' || *p == '\r' || *p == '\t' || *p == ' '))
     *p-- = '\0';
 
   svz_vector_add (svz_interfaces, ifc);
@@ -628,14 +628,14 @@ svz_interface_get (unsigned long addr)
   svz_vector_foreach (svz_interfaces, ifc, n)
     {
       if (ifc->ipaddr == addr)
-	return ifc;
+        return ifc;
     }
   return NULL;
 }
 
 /*
  * The following function returns a network interface structure for a given
- * interface name (e.g. eth0). If no such interface exists it returns 
+ * interface name (e.g. eth0). If no such interface exists it returns
  * @code{NULL}.
  */
 svz_interface_t *
@@ -662,10 +662,10 @@ svz_interface_free (void)
   if (svz_interfaces)
     {
       svz_vector_foreach (svz_interfaces, ifc, n)
-	{
-	  if (ifc->description)
-	    svz_free (ifc->description);
-	}
+        {
+          if (ifc->description)
+            svz_free (ifc->description);
+        }
       svz_vector_destroy (svz_interfaces);
       svz_interfaces = NULL;
       return 0;
@@ -675,8 +675,8 @@ svz_interface_free (void)
 
 /*
  * This function checks for network interface changes. It emits messages for
- * new and removed interfaces. Software interfaces which have not been 
- * detected by Serveez stay untouched. If Serveez receives a @code{SIGHUP} 
+ * new and removed interfaces. Software interfaces which have not been
+ * detected by Serveez stay untouched. If Serveez receives a @code{SIGHUP}
  * signal the signal handler runs it once.
  */
 void
@@ -695,45 +695,45 @@ svz_interface_check (void)
 
       /* Look for removed network interfaces. */
       svz_vector_foreach (interfaces, ifc, n)
-	{
-	  if (svz_interface_get (ifc->ipaddr) == NULL)
-	    {
-	      if (!ifc->detected)
-		{
-		  /* Re-apply software network interfaces. */
-		  svz_interface_add (ifc->index, ifc->description, 
-				     ifc->ipaddr, ifc->detected);
-		}
-	      else
-		{
-		  svz_log (LOG_NOTICE, "%s: %s has been removed\n",
-			   ifc->description, svz_inet_ntoa (ifc->ipaddr));
-		  changes++;
-		}
-	    }
-	}
+        {
+          if (svz_interface_get (ifc->ipaddr) == NULL)
+            {
+              if (!ifc->detected)
+                {
+                  /* Re-apply software network interfaces. */
+                  svz_interface_add (ifc->index, ifc->description,
+                                     ifc->ipaddr, ifc->detected);
+                }
+              else
+                {
+                  svz_log (LOG_NOTICE, "%s: %s has been removed\n",
+                           ifc->description, svz_inet_ntoa (ifc->ipaddr));
+                  changes++;
+                }
+            }
+        }
 
       /* Look for new network interfaces. */
       svz_vector_foreach (svz_interfaces, ifc, n)
-	{
-	  found = 0;
-	  svz_vector_foreach (interfaces, ofc, o)
-	    {
-	      if (ofc->ipaddr == ifc->ipaddr)
-		found++;
-	    }
-	  if (!found)
-	    {
-	      svz_log (LOG_NOTICE, "%s: %s has been added\n",
-		       ifc->description, svz_inet_ntoa (ifc->ipaddr));
-	      changes++;
-	    }
-	}
+        {
+          found = 0;
+          svz_vector_foreach (interfaces, ofc, o)
+            {
+              if (ofc->ipaddr == ifc->ipaddr)
+                found++;
+            }
+          if (!found)
+            {
+              svz_log (LOG_NOTICE, "%s: %s has been added\n",
+                       ifc->description, svz_inet_ntoa (ifc->ipaddr));
+              changes++;
+            }
+        }
 
       /* Destroy old interface list and apply new interface list. */
       svz_vector_foreach (interfaces, ifc, n)
-	if (ifc->description)
-	  svz_free (ifc->description);
+        if (ifc->description)
+          svz_free (ifc->description);
       svz_vector_destroy (interfaces);
     }
 

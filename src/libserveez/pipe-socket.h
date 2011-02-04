@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -51,13 +51,13 @@ SERVEEZ_API int svz_pipe_valid __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_read_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_write_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_pipe_disconnect __PARAMS ((svz_socket_t *));
-SERVEEZ_API svz_socket_t *svz_pipe_create __PARAMS ((svz_t_handle, 
-						     svz_t_handle));
+SERVEEZ_API svz_socket_t *svz_pipe_create __PARAMS ((svz_t_handle,
+                                                     svz_t_handle));
 SERVEEZ_API int svz_pipe_create_pair __PARAMS ((svz_t_handle pipe_desc[2]));
-SERVEEZ_API svz_socket_t *svz_pipe_connect __PARAMS ((svz_pipe_t *, 
-						      svz_pipe_t *));
-SERVEEZ_API int svz_pipe_listener __PARAMS ((svz_socket_t *, 
-					     svz_pipe_t *, svz_pipe_t *));
+SERVEEZ_API svz_socket_t *svz_pipe_connect __PARAMS ((svz_pipe_t *,
+                                                      svz_pipe_t *));
+SERVEEZ_API int svz_pipe_listener __PARAMS ((svz_socket_t *,
+                                             svz_pipe_t *, svz_pipe_t *));
 SERVEEZ_API int svz_pipe_check_user __PARAMS ((svz_pipe_t *));
 SERVEEZ_API int svz_pipe_check_group __PARAMS ((svz_pipe_t *));
 SERVEEZ_API svz_pipe_t *svz_pipe_alloc __PARAMS ((void));

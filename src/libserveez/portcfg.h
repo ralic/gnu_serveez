@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -163,8 +163,8 @@ typedef struct svz_portcfg
 }
 svz_portcfg_t;
 
-/* 
- * Accessor definitions for each type of protocol. 
+/*
+ * Accessor definitions for each type of protocol.
  */
 #define tcp_port protocol.tcp.port
 #define tcp_addr protocol.tcp.addr
@@ -191,7 +191,7 @@ svz_portcfg_t;
 
 /*
  * Return the pointer of the @code{sockaddr_in} structure of the given
- * port configuration @var{port} if it is a network port configuration. 
+ * port configuration @var{port} if it is a network port configuration.
  * Otherwise return @code{NULL}.
  */
 #define svz_portcfg_addr(port)                               \
@@ -202,7 +202,7 @@ svz_portcfg_t;
 
 /*
  * Return the pointer to the ip address @code{ipaddr} of the given
- * port configuration @var{port} if it is a network port configuration. 
+ * port configuration @var{port} if it is a network port configuration.
  * Otherwise return @code{NULL}.
  */
 #define svz_portcfg_ipaddr(port)                            \
@@ -234,10 +234,10 @@ svz_portcfg_t;
 __BEGIN_DECLS
 
 SERVEEZ_API svz_portcfg_t *svz_portcfg_create __PARAMS ((void));
-SERVEEZ_API int svz_portcfg_equal __PARAMS ((svz_portcfg_t *, 
-					     svz_portcfg_t *));
-SERVEEZ_API svz_portcfg_t *svz_portcfg_add __PARAMS ((char *, 
-						      svz_portcfg_t *));
+SERVEEZ_API int svz_portcfg_equal __PARAMS ((svz_portcfg_t *,
+                                             svz_portcfg_t *));
+SERVEEZ_API svz_portcfg_t *svz_portcfg_add __PARAMS ((char *,
+                                                      svz_portcfg_t *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_del __PARAMS ((char *));
 SERVEEZ_API svz_portcfg_t *svz_portcfg_get __PARAMS ((char *));
 SERVEEZ_API void svz_portcfg_destroy __PARAMS ((svz_portcfg_t *));

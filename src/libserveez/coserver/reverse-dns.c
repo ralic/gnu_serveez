@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -91,38 +91,38 @@ reverse_dns_handle_request (char *inbuf)
        * look up the ip->host cache first
        */
       for (n = 0; n < reverse_dns_cache.entries; n++)
-	{
-	  if (reverse_dns_cache.ip[n] == addr[0])
-	    {
-	      sprintf (resolved, "%s", reverse_dns_cache.resolved[n]);
-	      return resolved;
-	    }
-	}
+        {
+          if (reverse_dns_cache.ip[n] == addr[0])
+            {
+              sprintf (resolved, "%s", reverse_dns_cache.resolved[n]);
+              return resolved;
+            }
+        }
 
       if ((host = gethostbyaddr ((char *) addr, sizeof (addr[0]), AF_INET))
-	  == NULL)
-	{
-	  svz_log (LOG_ERROR, "reverse dns: gethostbyaddr: %s (%s)\n", 
-		   H_NET_ERROR, ip);
-	  return NULL;
-	} 
-      else 
-	{
-	  if (n < MAX_CACHE_ENTRIES)
-	    {
-	      strcpy (reverse_dns_cache.resolved[n], host->h_name);
-	      reverse_dns_cache.ip[n] = addr[0];
-	      reverse_dns_cache.entries++;
-	    }
+          == NULL)
+        {
+          svz_log (LOG_ERROR, "reverse dns: gethostbyaddr: %s (%s)\n",
+                   H_NET_ERROR, ip);
+          return NULL;
+        }
+      else
+        {
+          if (n < MAX_CACHE_ENTRIES)
+            {
+              strcpy (reverse_dns_cache.resolved[n], host->h_name);
+              reverse_dns_cache.ip[n] = addr[0];
+              reverse_dns_cache.entries++;
+            }
 
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "reverse dns: %s is %s\n", ip, host->h_name);
+          svz_log (LOG_DEBUG, "reverse dns: %s is %s\n", ip, host->h_name);
 #endif /* SVZ_ENABLE_DEBUG */
-	  sprintf (resolved, "%s", host->h_name);
-	  return resolved;
-	}
-    } 
-  else 
+          sprintf (resolved, "%s", host->h_name);
+          return resolved;
+        }
+    }
+  else
     {
       svz_log (LOG_ERROR, "reverse dns: protocol error\n");
       return NULL;

@@ -9,12 +9,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,8 +27,8 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_socket_t *svz_tcp_connect __PARAMS ((unsigned long, 
-						     unsigned short));
+SERVEEZ_API svz_socket_t *svz_tcp_connect __PARAMS ((unsigned long,
+                                                     unsigned short));
 SERVEEZ_API int svz_tcp_default_connect __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_tcp_read_socket __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_tcp_write_socket __PARAMS ((svz_socket_t *));

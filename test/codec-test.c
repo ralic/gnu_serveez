@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,7 +42,7 @@
 
 /*
  * Stdin reader for the codec test. Reads as much data as available and
- * sets the socket flags to `SOCK_FLAG_FLUSH' if ready. Invokes the 
+ * sets the socket flags to `SOCK_FLAG_FLUSH' if ready. Invokes the
  * `check_request' callback each time some data has been received. Very
  * likely any other `read_socket' callback.
  */
@@ -53,8 +53,8 @@ codec_recv (svz_socket_t *sock)
 
   if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
     return 0;
-  num_read = read ((int) sock->pipe_desc[READ], 
-		   sock->recv_buffer + sock->recv_buffer_fill, do_read);
+  num_read = read ((int) sock->pipe_desc[READ],
+                   sock->recv_buffer + sock->recv_buffer_fill, do_read);
 #ifndef __MINGW32__
   if (num_read < 0 && errno == EAGAIN)
     return 0;
@@ -82,7 +82,7 @@ codec_send (svz_socket_t *sock)
   if ((do_write = sock->send_buffer_fill) <= 0)
     return 0;
   num_written = write ((int) sock->pipe_desc[WRITE],
-		       sock->send_buffer, do_write);
+                       sock->send_buffer, do_write);
 #ifndef __MINGW32__
   if (num_written < 0 && errno == EAGAIN)
     return 0;
@@ -91,7 +91,7 @@ codec_send (svz_socket_t *sock)
     return -1;
   if (num_written < do_write)
     memmove (sock->send_buffer, sock->send_buffer + num_written,
-	     do_write - num_written);
+             do_write - num_written);
   sock->send_buffer_fill -= num_written;
   return 0;
 }
@@ -138,8 +138,8 @@ main (int argc, char **argv)
 #endif
 
   /* Create single pipe socket for stdin and stdout. */
-  if ((sock = svz_pipe_create ((svz_t_handle) fileno (stdin), 
-			       (svz_t_handle) fileno (stdout))) == NULL)
+  if ((sock = svz_pipe_create ((svz_t_handle) fileno (stdin),
+                               (svz_t_handle) fileno (stdout))) == NULL)
     return result;
   sock->read_socket = codec_recv;
   sock->write_socket = codec_send;
@@ -165,7 +165,7 @@ main (int argc, char **argv)
     }
   if (svz_codec_sock_send_setup (sock, codec))
     return result;
-  
+
   /* Run server loop. */
   svz_loop_pre ();
   do

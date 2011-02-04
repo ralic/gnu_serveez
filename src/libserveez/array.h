@@ -8,12 +8,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,22 +35,22 @@ svz_array_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_array_t * svz_array_create __PARAMS ((unsigned long, 
-						      svz_free_func_t));
+SERVEEZ_API svz_array_t * svz_array_create __PARAMS ((unsigned long,
+                                                      svz_free_func_t));
 SERVEEZ_API void svz_array_clear __PARAMS ((svz_array_t *));
 SERVEEZ_API void svz_array_destroy __PARAMS ((svz_array_t *));
 SERVEEZ_API void *svz_array_get __PARAMS ((svz_array_t *, unsigned long));
-SERVEEZ_API void *svz_array_set __PARAMS ((svz_array_t *, unsigned long, 
-					   void *));
+SERVEEZ_API void *svz_array_set __PARAMS ((svz_array_t *, unsigned long,
+                                           void *));
 SERVEEZ_API void svz_array_add __PARAMS ((svz_array_t *, void *));
 SERVEEZ_API void *svz_array_del __PARAMS ((svz_array_t *, unsigned long));
 SERVEEZ_API unsigned long svz_array_capacity __PARAMS ((svz_array_t *));
 SERVEEZ_API unsigned long svz_array_size __PARAMS ((svz_array_t *));
-SERVEEZ_API unsigned long svz_array_ins __PARAMS ((svz_array_t *, 
-						   unsigned long, void *));
+SERVEEZ_API unsigned long svz_array_ins __PARAMS ((svz_array_t *,
+                                                   unsigned long, void *));
 SERVEEZ_API unsigned long svz_array_idx __PARAMS ((svz_array_t *, void *));
-SERVEEZ_API unsigned long svz_array_contains __PARAMS ((svz_array_t *, 
-							void *));
+SERVEEZ_API unsigned long svz_array_contains __PARAMS ((svz_array_t *,
+                                                        void *));
 SERVEEZ_API svz_array_t *svz_array_dup __PARAMS ((svz_array_t *));
 SERVEEZ_API svz_array_t *svz_array_strdup __PARAMS ((svz_array_t *));
 SERVEEZ_API void **svz_array_values __PARAMS ((svz_array_t *));

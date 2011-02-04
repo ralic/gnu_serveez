@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -131,15 +131,15 @@ SERVEEZ_API int svz_codec_init __PARAMS ((void));
 SERVEEZ_API int svz_codec_finalize __PARAMS ((void));
 SERVEEZ_API int svz_codec_register __PARAMS ((svz_codec_t *));
 SERVEEZ_API int svz_codec_unregister __PARAMS ((svz_codec_t *));
-SERVEEZ_API int svz_codec_sock_receive_setup __PARAMS ((svz_socket_t *, 
-							svz_codec_t *));
+SERVEEZ_API int svz_codec_sock_receive_setup __PARAMS ((svz_socket_t *,
+                                                        svz_codec_t *));
 SERVEEZ_API int svz_codec_sock_receive __PARAMS ((svz_socket_t *));
-SERVEEZ_API int svz_codec_sock_send_setup __PARAMS ((svz_socket_t *, 
-						     svz_codec_t *));
+SERVEEZ_API int svz_codec_sock_send_setup __PARAMS ((svz_socket_t *,
+                                                     svz_codec_t *));
 SERVEEZ_API int svz_codec_sock_send __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_codec_sock_disconnect __PARAMS ((svz_socket_t *));
-SERVEEZ_API void svz_codec_ratio __PARAMS ((svz_codec_t *, 
-					    svz_codec_data_t *));
+SERVEEZ_API void svz_codec_ratio __PARAMS ((svz_codec_t *,
+                                            svz_codec_data_t *));
 SERVEEZ_API svz_codec_t * svz_codec_sock_detect __PARAMS ((svz_socket_t *));
 
 __END_DECLS

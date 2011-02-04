@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -65,9 +65,9 @@ main (int argc, char **argv)
       text = svz_strdup (test_string ());
       svz_hash_put (hash, text, (void *) 0xdeadbeef);
       if (((void *) 0xdeadbeef != svz_hash_get (hash, text)))
-	error++;
+        error++;
       if (svz_hash_exists (hash, text) == 0)
-	error++;
+        error++;
       svz_free (text);
     }
   test (error);
@@ -104,7 +104,7 @@ main (int argc, char **argv)
       sprintf (text, "%015lu", (unsigned long) n);
       svz_hash_put (hash, text, (void *) n);
       if (svz_hash_get (hash, text) != (void *) n)
-	error++;
+        error++;
     }
   svz_free (text);
   if (n != svz_hash_size (hash))
@@ -112,16 +112,16 @@ main (int argc, char **argv)
   values = svz_hash_values (hash);
   keys = svz_hash_keys (hash);
   if (keys && values)
-    { 
+    {
       for (n = 0; n < REPEAT; n++)
-	{
-	  if (atol (keys[n]) != (long) values[n])
-	    error++;
-	  if (svz_hash_get (hash, keys[n]) != values[n])
-	    error++;
-	  if (svz_hash_contains (hash, values[n]) != keys[n])
-	    error++;
-	}
+        {
+          if (atol (keys[n]) != (long) values[n])
+            error++;
+          if (svz_hash_get (hash, keys[n]) != values[n])
+            error++;
+          if (svz_hash_contains (hash, values[n]) != keys[n])
+            error++;
+        }
       svz_hash_xfree (keys);
       svz_hash_xfree (values);
     }
@@ -147,15 +147,15 @@ main (int argc, char **argv)
     {
       sprintf (text, "%015lu", (unsigned long) n);
       if (svz_hash_get (hash, text) != (void *) n)
-	error++;
+        error++;
       if (svz_hash_delete (hash, text) != (void *) n)
-	error++;
+        error++;
     }
   if (svz_hash_size (hash))
     error++;
   svz_free (text);
   test (error);
-  
+
   /* hash clear */
   test_print ("              clear: ");
   svz_hash_clear (hash);

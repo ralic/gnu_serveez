@@ -7,12 +7,12 @@
  * It Under The Terms Of The Gnu General Public License As Published By
  * The Free Software Foundation; Either Version 2, Or (At Your Option)
  * Any Later Version.
- * 
+ *
  * This Software Is Distributed In The Hope That It Will Be Useful,
  * But Without Any Warranty; Without Even The Implied Warranty Of
  * Merchantability Or Fitness For A Particular Purpose.  See The
  * Gnu General Public License For More Details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */

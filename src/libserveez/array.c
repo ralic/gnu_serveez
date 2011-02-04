@@ -8,12 +8,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,9 +38,9 @@
  * @var{destroy} argument allows you to release dynamic allocated memory when
  * calling @code{svz_array_clear()} and @code{svz_array_destroy()}. If the
  * array contains data allocated by @code{svz_malloc()} you need to set
- * @var{destroy} to @code{svz_free()}. For structured data you can pass a 
- * user defined routine which recurses into the structure. If the array 
- * contains data which should not be released you must set @var{destroy} 
+ * @var{destroy} to @code{svz_free()}. For structured data you can pass a
+ * user defined routine which recurses into the structure. If the array
+ * contains data which should not be released you must set @var{destroy}
  * to @code{NULL}.
  */
 svz_array_t *
@@ -75,7 +75,7 @@ svz_array_clear (svz_array_t *array)
     {
       unsigned long n;
       for (n = 0; n < array->size; n++)
-	array->destroy (array->data[n]);
+        array->destroy (array->data[n]);
     }
   svz_free (array->data);
   array->data = NULL;
@@ -108,13 +108,13 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
   if (size > array->capacity)
     {
       array->capacity = array->capacity * 3 / 2 + 1;
-      array->data = svz_realloc (array->data, sizeof (void *) * 
-				 array->capacity);
+      array->data = svz_realloc (array->data, sizeof (void *) *
+                                 array->capacity);
     }
 }
 
 /*
- * Return the array element at the position @var{index} of the array 
+ * Return the array element at the position @var{index} of the array
  * @var{array} if the index is within the array range. Return @code{NULL}
  * if not.
  */
@@ -173,8 +173,8 @@ svz_array_del (svz_array_t *array, unsigned long index)
     return NULL;
   value = array->data[index];
   if (index != array->size - 1)
-    memmove (&array->data[index], &array->data[index + 1], 
-	     (array->size - index - 1) * sizeof (void *));
+    memmove (&array->data[index], &array->data[index + 1],
+             (array->size - index - 1) * sizeof (void *));
   array->size--;
   return value;
 }
@@ -219,7 +219,7 @@ svz_array_contains (svz_array_t *array, void *value)
 }
 
 /*
- * This function returns the index of the first occurrence of the value 
+ * This function returns the index of the first occurrence of the value
  * @var{value} in the array @var{array}. It returns (-1) if there is no
  * such value stored within the array.
  */
@@ -237,7 +237,7 @@ svz_array_idx (svz_array_t *array, void *value)
 }
 
 /*
- * This routine inserts the given value @var{value} at the position 
+ * This routine inserts the given value @var{value} at the position
  * @var{index}. The indices of all following values in the array @var{array}
  * and the size of the array get automatically incremented. Return the
  * values index or (-1) if the index is out of array bounds.
@@ -249,8 +249,8 @@ svz_array_ins (svz_array_t *array, unsigned long index, void *value)
     return (unsigned long) -1;
   svz_array_ensure_capacity (array, array->size + 1);
   if (index < array->size)
-    memmove (&array->data[index + 1], &array->data[index], 
-	     (array->size - index) * sizeof (void *));
+    memmove (&array->data[index + 1], &array->data[index],
+             (array->size - index) * sizeof (void *));
   array->data[index] = value;
   array->size++;
   return index;
@@ -277,7 +277,7 @@ svz_array_dup (svz_array_t *array)
 
 /*
  * This function works something like @code{svz_array_dup()} but considers
- * the values within the array @var{array} to be zero-terminated character 
+ * the values within the array @var{array} to be zero-terminated character
  * strings and duplicates these via @code{svz_strdup()}.
  */
 svz_array_t *
@@ -296,9 +296,9 @@ svz_array_strdup (svz_array_t *array)
 }
 
 /*
- * Create a @code{NULL} terminated C array containing the values of the 
- * given @var{array}. If the given @var{array} is @code{NULL} then an empty 
- * C array is returned. It is your responsibility to @code{svz_free()} the 
+ * Create a @code{NULL} terminated C array containing the values of the
+ * given @var{array}. If the given @var{array} is @code{NULL} then an empty
+ * C array is returned. It is your responsibility to @code{svz_free()} the
  * returned pointer.
  */
 void **

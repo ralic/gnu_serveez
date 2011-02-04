@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -65,13 +65,13 @@ svz_codec_get (char *description, int type)
   svz_array_foreach (svz_codecs, codec, i)
     {
       if (strcmp (description, codec->description) == 0 &&
-	  type == codec->type)
-	return codec;
+          type == codec->type)
+        return codec;
     }
   return NULL;
 }
 
-/* Prints the text representation of the list of known codecs registered 
+/* Prints the text representation of the list of known codecs registered
    within the core library. This includes all encoder and decoder once ran
    through @code{svz_codec_register()}. */
 void
@@ -136,7 +136,7 @@ svz_codec_check (svz_codec_t *codec)
   return 0;
 }
 
-/* Register the given codec @var{codec}. Does not register invalid or 
+/* Register the given codec @var{codec}. Does not register invalid or
    duplicate codecs. Returns zero on success, non-zero otherwise. */
 int
 svz_codec_register (svz_codec_t *codec)
@@ -155,12 +155,12 @@ svz_codec_register (svz_codec_t *codec)
   svz_array_foreach (svz_codecs, c, i)
     {
       if (strcmp (c->description, codec->description) == 0 &&
-	  c->type == codec->type)
-	{
-	  svz_log (LOG_ERROR, "cannot register duplicate codec `%s'\n",
-		   codec->description);
-	  return -1;
-	}
+          c->type == codec->type)
+        {
+          svz_log (LOG_ERROR, "cannot register duplicate codec `%s'\n",
+                   codec->description);
+          return -1;
+        }
     }
 
   /* Add this codec to the list of known codecs. */
@@ -168,7 +168,7 @@ svz_codec_register (svz_codec_t *codec)
     svz_codecs = svz_array_create (2, NULL);
   svz_array_add (svz_codecs, codec);
   svz_log (LOG_NOTICE, "registered `%s' %s\n", codec->description,
-	   SVZ_CODEC_TYPE_TEXT (codec));
+           SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
 
@@ -191,17 +191,17 @@ svz_codec_unregister (svz_codec_t *codec)
   svz_array_foreach (svz_codecs, c, i)
     {
       if (strcmp (c->description, codec->description) == 0 &&
-	  c->type == codec->type)
-	{
-	  svz_array_del (svz_codecs, i);
-	  svz_log (LOG_NOTICE, "unregistered `%s' %s\n", codec->description,
-		   SVZ_CODEC_TYPE_TEXT (codec));
-	  return 0;
-	}
+          c->type == codec->type)
+        {
+          svz_array_del (svz_codecs, i);
+          svz_log (LOG_NOTICE, "unregistered `%s' %s\n", codec->description,
+                   SVZ_CODEC_TYPE_TEXT (codec));
+          return 0;
+        }
     }
 
   svz_log (LOG_ERROR, "cannot unregister codec `%s'\n",
-	   codec->description);
+           codec->description);
   return -1;
 }
 
@@ -217,12 +217,12 @@ svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
   if (codec->ratio (data, &in, &out) == SVZ_CODEC_OK)
     {
       if (in != 0)
-	svz_log (LOG_NOTICE, "%s: %s ratio is %lu.%02lu%%\n",
-		 codec->description, SVZ_CODEC_TYPE_TEXT (codec),
-		 out * 100UL / in, (out * 10000UL / in) % 100UL);
+        svz_log (LOG_NOTICE, "%s: %s ratio is %lu.%02lu%%\n",
+                 codec->description, SVZ_CODEC_TYPE_TEXT (codec),
+                 out * 100UL / in, (out * 10000UL / in) % 100UL);
       else
-	svz_log (LOG_NOTICE, "%s: %s ratio is infinite\n",
-		 codec->description, SVZ_CODEC_TYPE_TEXT (codec));
+        svz_log (LOG_NOTICE, "%s: %s ratio is infinite\n",
+                 codec->description, SVZ_CODEC_TYPE_TEXT (codec));
     }
 }
 
@@ -311,24 +311,24 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
   /* Initialize the codec. */
   if (codec->init (data) == SVZ_CODEC_ERROR)
     {
-      svz_log (LOG_ERROR, "%s: init: %s\n", 
-	       codec->description, codec->error (data));
+      svz_log (LOG_ERROR, "%s: init: %s\n",
+               codec->description, codec->error (data));
       svz_codec_sock_recv_revert (sock);
       return -1;
     }
   data->state |= SVZ_CODEC_READY;
   svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
-	   SVZ_CODEC_TYPE_TEXT (codec));
+           SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
 
 /* This routine is the new @code{check_request} callback for reading codecs.
-   It is applied in the above @code{svz_codec_sock_receive_setup()} function. 
-   Usually it gets called whenever there is data in the receive buffer. It 
-   lets the current receive buffer be the input of the codec. The output 
-   buffer of the codec gets the new receive buffer buffer of the socket 
+   It is applied in the above @code{svz_codec_sock_receive_setup()} function.
+   Usually it gets called whenever there is data in the receive buffer. It
+   lets the current receive buffer be the input of the codec. The output
+   buffer of the codec gets the new receive buffer buffer of the socket
    structure @var{sock}. The old @code{check_request} callback of @var{sock}
-   gets called afterwards. When leaving this functions the receive buffer 
+   gets called afterwards. When leaving this functions the receive buffer
    gets restored again with the bytes snipped consumed by the codec itself. */
 int
 svz_codec_sock_receive (svz_socket_t *sock)
@@ -360,23 +360,23 @@ svz_codec_sock_receive (svz_socket_t *sock)
   switch (ret)
     {
     case SVZ_CODEC_ERROR:    /* Error occurred. */
-      svz_log (LOG_ERROR, "%s: code: %s\n", 
-	       codec->description, codec->error (data));
+      svz_log (LOG_ERROR, "%s: code: %s\n",
+               codec->description, codec->error (data));
       return -1;
 
     case SVZ_CODEC_FINISHED: /* Codec finished. */
       svz_codec_ratio (codec, data);
       if (codec->finalize (data) != SVZ_CODEC_OK)
-	{
-	  svz_log (LOG_ERROR, "%s: finalize: %s\n", 
-		   codec->description, codec->error (data));
-	}
+        {
+          svz_log (LOG_ERROR, "%s: finalize: %s\n",
+                   codec->description, codec->error (data));
+        }
       else
-	{
-	  data->state &= ~SVZ_CODEC_READY;
-	  svz_log (LOG_NOTICE, "%s: %s finalized\n", 
-		   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
-	}
+        {
+          data->state &= ~SVZ_CODEC_READY;
+          svz_log (LOG_NOTICE, "%s: %s finalized\n",
+                   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
+        }
       break;
 
     case SVZ_CODEC_OK:       /* No error. */
@@ -387,11 +387,11 @@ svz_codec_sock_receive (svz_socket_t *sock)
 
     default:                 /* Unhandled. */
       svz_log (LOG_ERROR, "%s: code: invalid return value: %d\n",
-	       codec->description, ret);
+               codec->description, ret);
       break;
     }
 
-  /* Call the saved @code{check_request} callback with the new receive 
+  /* Call the saved @code{check_request} callback with the new receive
      buffer which is the output buffer of the codec. */
   svz_codec_set_recv_buffer (sock, data);
   if ((ret = data->check_request (sock)) != 0)
@@ -492,14 +492,14 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
   /* Initialize the codec. */
   if (codec->init (data) == SVZ_CODEC_ERROR)
     {
-      svz_log (LOG_ERROR, "%s: init: %s\n", 
-	       codec->description, codec->error (data));
+      svz_log (LOG_ERROR, "%s: init: %s\n",
+               codec->description, codec->error (data));
       svz_codec_sock_send_revert (sock);
       return -1;
     }
   data->state |= SVZ_CODEC_READY;
   svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
-	   SVZ_CODEC_TYPE_TEXT (codec));
+           SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
 
@@ -508,7 +508,7 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
    available and @var{sock} is scheduled for writing. It uses the current
    send buffer as input buffer for the codec. The output buffer of the codec
    is used to invoke the @code{write_socket} callback saved within
-   @code{svz_codec_sock_send_setup()}. After this the send buffer is 
+   @code{svz_codec_sock_send_setup()}. After this the send buffer is
    restored again without the bytes consumed by the codec. */
 int
 svz_codec_sock_send (svz_socket_t *sock)
@@ -540,23 +540,23 @@ svz_codec_sock_send (svz_socket_t *sock)
   switch (ret)
     {
     case SVZ_CODEC_ERROR:    /* Error occurred. */
-      svz_log (LOG_ERROR, "%s: code: %s\n", 
-	       codec->description, codec->error (data));
+      svz_log (LOG_ERROR, "%s: code: %s\n",
+               codec->description, codec->error (data));
       return -1;
 
     case SVZ_CODEC_FINISHED: /* Codec finished. */
       svz_codec_ratio (codec, data);
       if (codec->finalize (data) != SVZ_CODEC_OK)
-	{
-	  svz_log (LOG_ERROR, "%s: finalize: %s\n", 
-		   codec->description, codec->error (data));
-	}
+        {
+          svz_log (LOG_ERROR, "%s: finalize: %s\n",
+                   codec->description, codec->error (data));
+        }
       else
-	{
-	  data->state &= ~SVZ_CODEC_READY;
-	  svz_log (LOG_NOTICE, "%s: %s finalized\n", 
-		   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
-	}
+        {
+          data->state &= ~SVZ_CODEC_READY;
+          svz_log (LOG_NOTICE, "%s: %s finalized\n",
+                   codec->description, SVZ_CODEC_TYPE_TEXT (codec));
+        }
       break;
 
     case SVZ_CODEC_OK:       /* No error. */
@@ -567,11 +567,11 @@ svz_codec_sock_send (svz_socket_t *sock)
 
     default:                 /* Unhandled. */
       svz_log (LOG_ERROR, "%s: code: invalid return value: %d\n",
-	       codec->description, ret);
+               codec->description, ret);
       break;
     }
 
-  /* Call the saved @code{write_socket} callback with the new send 
+  /* Call the saved @code{write_socket} callback with the new send
      buffer which is the output buffer of the codec. */
   svz_codec_set_send_buffer (sock, data);
   if ((ret = data->write_socket (sock)) != 0)
@@ -590,7 +590,7 @@ svz_codec_sock_send (svz_socket_t *sock)
 /* This callback is used as the @code{disconnected_socket} callback of the
    socket structure @var{sock}. It tries to release the resources of both
    the receiving and sending codec of @var{sock}. The routine is called by
-   default if the codec socket structure @var{sock} gets disconnected for 
+   default if the codec socket structure @var{sock} gets disconnected for
    some external reason. */
 int
 svz_codec_sock_disconnect (svz_socket_t *sock)
@@ -605,7 +605,7 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
     {
       disconnected = data->disconnected_socket;
       if (data->state & SVZ_CODEC_READY)
-	data->codec->finalize (data);
+        data->codec->finalize (data);
       svz_codec_sock_recv_revert (sock);
     }
   /* Check and release sending codec. */
@@ -613,7 +613,7 @@ svz_codec_sock_disconnect (svz_socket_t *sock)
     {
       disconnected = data->disconnected_socket;
       if (data->state & SVZ_CODEC_READY)
-	data->codec->finalize (data);
+        data->codec->finalize (data);
       svz_codec_sock_send_revert (sock);
     }
 
@@ -634,17 +634,17 @@ svz_codec_sock_detect (svz_socket_t *sock)
 
   svz_array_foreach (svz_codecs, codec, i)
     {
-      if (codec->detection_size > 0 && 
-	  sock->recv_buffer_fill >= codec->detection_size)
-	{
-	  if (memcmp (sock->recv_buffer,
-		      codec->detection, codec->detection_size) == 0)
-	    {
-	      svz_log (LOG_NOTICE, "%s: %s detected\n", codec->description,
-		       SVZ_CODEC_TYPE_TEXT (codec));
-	      return codec;
-	    }
-	}
+      if (codec->detection_size > 0 &&
+          sock->recv_buffer_fill >= codec->detection_size)
+        {
+          if (memcmp (sock->recv_buffer,
+                      codec->detection, codec->detection_size) == 0)
+            {
+              svz_log (LOG_NOTICE, "%s: %s detected\n", codec->description,
+                       SVZ_CODEC_TYPE_TEXT (codec));
+              return codec;
+            }
+        }
     }
   return NULL;
 }

@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,7 +48,7 @@
 
 /*
  * The following routine takes the input buffer in the format "%s:%u:%u"
- * which is the remote internet address and the remote and local network 
+ * which is the remote internet address and the remote and local network
  * port. Then it is processing an ident request and parses the respond to
  * gain the users name.
  */
@@ -78,14 +78,14 @@ ident_handle_request (char *inbuf)
   *p = '\0';
   p++;
   addr = inet_addr (inbuf);
-  
+
   /* Parse remote and local port afterwards. */
   if (2 != sscanf (p, "%u:%u", &rport, &lport))
     {
       svz_log (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
       return NULL;
     }
-	 
+
    /* Create a socket for communication with the ident server. */
   if ((sock = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
@@ -113,13 +113,13 @@ ident_handle_request (char *inbuf)
   rp = ident_response;
   while (rp < ident_response + COSERVER_BUFSIZE && r != 0)
     {
-      if ((r = recv (sock, rp, 
-		     COSERVER_BUFSIZE - (rp - ident_response), 0)) < 0)
-	{
-	  svz_log (LOG_ERROR, "ident: recv: %s\n", NET_ERROR);
-	  closesocket (sock);
-	  return NULL;
-	}
+      if ((r = recv (sock, rp,
+                     COSERVER_BUFSIZE - (rp - ident_response), 0)) < 0)
+        {
+          svz_log (LOG_ERROR, "ident: recv: %s\n", NET_ERROR);
+          closesocket (sock);
+          return NULL;
+        }
       rp += r;
     }
 

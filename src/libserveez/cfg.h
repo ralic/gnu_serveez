@@ -8,12 +8,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,7 +29,7 @@
  * Each server can have a an array of key-value-pairs specific for it.
  * Use macros at end of this file for setting up these.
  */
-typedef struct svz_key_value_pair 
+typedef struct svz_key_value_pair
 {
   int type;        /* data type (string, integer, etc.) */
   char *name;      /* variable name (symbol) */
@@ -55,9 +55,9 @@ svz_key_value_pair_t;
  * function to complete successfully. No other callback is invoked when
  * the 'before' callback fails.
  *
- * Default values and the @var{hasdef} flag are passed to callbacks for 
- * no sane reason. You do not need to care about them if you set 
- * appropriate return values. If you use them, however, everything that 
+ * Default values and the @var{hasdef} flag are passed to callbacks for
+ * no sane reason. You do not need to care about them if you set
+ * appropriate return values. If you use them, however, everything that
  * is a pointer needs to be copied.
  */
 
@@ -71,19 +71,19 @@ typedef struct
 {
   int (* before)   (char *instance, void *arg);
   int (* integer)  (char *instance, void *arg, char *name,
-		    int *target, int hasdef, int def);
+                    int *target, int hasdef, int def);
   int (* boolean)  (char *instance, void *arg, char *name,
-		    int *target, int hasdef, int def);
+                    int *target, int hasdef, int def);
   int (* intarray) (char *instance, void *arg, char *name,
-		    svz_array_t **target, int hasdef, svz_array_t *def);
-  int (* string)   (char *instance, void *arg, char *name, 
-		    char **target, int hasdef, char *def);
+                    svz_array_t **target, int hasdef, svz_array_t *def);
+  int (* string)   (char *instance, void *arg, char *name,
+                    char **target, int hasdef, char *def);
   int (* strarray) (char *instance, void *arg, char *name,
-		    svz_array_t **target, int hasdef, svz_array_t *def);
-  int (* hash)     (char *instance, void *arg, char *name, 
-		    svz_hash_t **target, int hasdef, svz_hash_t *def);
-  int (* portcfg)  (char *instance, void *arg, char *name, 
-		    svz_portcfg_t **target, int hasdef, svz_portcfg_t *def);
+                    svz_array_t **target, int hasdef, svz_array_t *def);
+  int (* hash)     (char *instance, void *arg, char *name,
+                    svz_hash_t **target, int hasdef, svz_hash_t *def);
+  int (* portcfg)  (char *instance, void *arg, char *name,
+                    svz_portcfg_t **target, int hasdef, svz_portcfg_t *def);
   int (* after)    (char *instance, void *arg);
 }
 svz_config_accessor_t;
@@ -118,13 +118,13 @@ svz_config_prototype_t;
 /*
  * Macro for defining the example configuration @var{config} (with the
  * name @var{description} and its configuration items @var{prototypes}
- * within a server type definition. 
+ * within a server type definition.
  */
 #define SVZ_CONFIG_DEFINE(description, config, prototypes) \
   { description, &(config), sizeof (config), (prototypes) }
 
-/* 
- * Returns a text representation of the given configuration item 
+/*
+ * Returns a text representation of the given configuration item
  * identifier @var{item}.
  */
 #define SVZ_ITEM_TEXT(item)                                  \
@@ -137,9 +137,9 @@ svz_config_prototype_t;
   ((item) == SVZ_ITEM_PORTCFG) ? "port configuration" : NULL
 
 /*
- * Register a simple integer. C-type: @code{int}. The given @var{name} 
- * specifies the symbolic name of the integer and @var{item} the integer 
- * itself (not its address). The @var{defaultable} argument can be either 
+ * Register a simple integer. C-type: @code{int}. The given @var{name}
+ * specifies the symbolic name of the integer and @var{item} the integer
+ * itself (not its address). The @var{defaultable} argument can be either
  * @code{SVZ_ITEM_DEFAULTABLE} or @code{SVZ_ITEM_NOTDEFAULTABLE}.
  */
 #define SVZ_REGISTER_INT(name, item, defaultable) \
@@ -206,9 +206,9 @@ SERVEEZ_API void *svz_config_instantiate __PARAMS ((svz_config_prototype_t *,
 SERVEEZ_API void svz_config_free __PARAMS ((svz_config_prototype_t *, void *));
 SERVEEZ_API void svz_config_type_add __PARAMS ((svz_config_type_t *));
 SERVEEZ_API int svz_config_type_instantiate __PARAMS ((char *, char *,
-						       char *, void *,
-						       svz_config_accessor_t *,
-						       char **));
+                                                       char *, void *,
+                                                       svz_config_accessor_t *,
+                                                       char **));
 SERVEEZ_API void svz_config_type_init __PARAMS ((void));
 SERVEEZ_API void svz_config_type_finalize __PARAMS ((void));
 

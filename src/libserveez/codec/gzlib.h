@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,8 +33,8 @@ int zlib_encode __PARAMS ((svz_codec_data_t *));
 int zlib_decoder_init __PARAMS ((svz_codec_data_t *));
 int zlib_decoder_finalize __PARAMS ((svz_codec_data_t *));
 int zlib_decode __PARAMS ((svz_codec_data_t *));
-int zlib_ratio __PARAMS ((svz_codec_data_t *, unsigned long *, 
-			  unsigned long *));
+int zlib_ratio __PARAMS ((svz_codec_data_t *, unsigned long *,
+                          unsigned long *));
 
 __END_DECLS
 

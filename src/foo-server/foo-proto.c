@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,7 +33,7 @@
 #include "libserveez.h"
 #include "foo-proto.h"
 
-/* 
+/*
  * Packet specification for @code{check_request()}.
  */
 char *foo_packet_delim     = "\r\n";
@@ -46,7 +46,7 @@ svz_portcfg_t foo_default_port;
  * Demonstrate how our private configuration looks like and provide
  * default values.
  */
-foo_config_t foo_config = 
+foo_config_t foo_config =
 {
   -42,               /* dummy integer */
   NULL,              /* string messages */
@@ -61,12 +61,12 @@ foo_config_t foo_config =
 /*
  * Defining configuration file associations with key-value-pairs.
  */
-svz_key_value_pair_t foo_config_prototype [] = 
+svz_key_value_pair_t foo_config_prototype [] =
 {
   SVZ_REGISTER_INT ("bar", foo_config.bar, SVZ_ITEM_NOTDEFAULTABLE),
   SVZ_REGISTER_STR ("reply", foo_config.reply, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_STRARRAY ("messages", foo_config.messages, 
-			 SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_STRARRAY ("messages", foo_config.messages,
+                         SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_INTARRAY ("ports", foo_config.ports, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_HASH ("assoc", foo_config.assoc, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_PORTCFG ("port", foo_config.port, SVZ_ITEM_DEFAULTABLE),
@@ -114,7 +114,7 @@ foo_handle_coserver_result (char *host, int id, int version)
 /*
  * Handle a single request as found by the `sock_check_request ()'.
  */
-int 
+int
 foo_handle_request (svz_socket_t *sock, char *request, int len)
 {
   foo_config_t *cfg = sock->cfg;
@@ -165,12 +165,12 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
   sock->handle_request = foo_handle_request;
 
   svz_log (LOG_NOTICE, "foo client detected\n");
-  
+
   svz_array_foreach (cfg->messages, msg, i)
     {
       ret = svz_sock_printf (sock, "%s\r\n", msg);
       if (ret)
-	return ret;
+        return ret;
     }
 
   /*
@@ -178,7 +178,7 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
    */
   svz_sock_printf (sock, "Starting reverse lookup...\r\n");
   svz_coserver_rdns (sock->remote_addr, foo_handle_coserver_result,
-		     sock->id, sock->version);
+                     sock->id, sock->version);
   svz_sock_printf (sock, "Waiting...\r\n");
   return 0;
 }
@@ -192,7 +192,7 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
 int
 foo_global_init (svz_servertype_t *server)
 {
-  char *strarray[] = { 
+  char *strarray[] = {
     "Hello !", "This", "is", "a", "default", "string", "array.", NULL };
   int intarray[] = { 4, 1, 2, 3, 4 };
   char *strhash[] = {
@@ -267,11 +267,11 @@ foo_info_server (svz_server_t *server)
   char **keys;
   svz_hash_t *h;
 
-  sprintf (text, 
-	   " reply : %s\r\n"
-	   " bar   : %d\r\n"
-	   " truth : %d\r\n",
-	   cfg->reply, cfg->bar, cfg->truth);
+  sprintf (text,
+           " reply : %s\r\n"
+           " bar   : %d\r\n"
+           " truth : %d\r\n",
+           cfg->reply, cfg->bar, cfg->truth);
   strcpy (info, text);
 
   svz_array_foreach (cfg->messages, str, i)
@@ -285,20 +285,20 @@ foo_info_server (svz_server_t *server)
       sprintf (text, " ports[%d] : %d\r\n", i, (int) ((long) j));
       strcat (info, text);
     }
-  
-  if ((h = cfg->assoc) != NULL) 
+
+  if ((h = cfg->assoc) != NULL)
     {
       keys = svz_hash_keys (h);
 
       for (i = 0; i < svz_hash_size (h); i++)
-	{
-	  sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
-		   i, keys[i], (char *) svz_hash_get (h, keys[i]));
-	  strcat (info, text);
-	}
+        {
+          sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
+                   i, keys[i], (char *) svz_hash_get (h, keys[i]));
+          strcat (info, text);
+        }
       svz_hash_xfree (keys);
-    } 
-  else 
+    }
+  else
     {
       sprintf (text, " assoc : NULL\r\n");
       strcat (info, text);

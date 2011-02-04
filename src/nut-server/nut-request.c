@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -96,41 +96,41 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
 
       /* process only if the connection has a minimum speed */
       if (reply->speed < cfg->min_speed)
-	return 0;
+        return 0;
 
       /* go through all query hit records */
       for (n = 0; n < reply->records && p < end; n++)
-	{
-	  record = nut_get_record ((svz_uint8_t *) p);
-	  p += SIZEOF_NUT_RECORD;
-	  file = p;
+        {
+          record = nut_get_record ((svz_uint8_t *) p);
+          p += SIZEOF_NUT_RECORD;
+          file = p;
 
-	  /* check if the reply is valid */
-	  while (p < end && *p)
-	    p++;
-	  if (p == end || *(p + 1))
-	    {
+          /* check if the reply is valid */
+          while (p < end && *p)
+            p++;
+          if (p == end || *(p + 1))
+            {
 #if SVZ_ENABLE_DEBUG
-	      svz_log (LOG_DEBUG, "nut: invalid query hit payload\n");
+              svz_log (LOG_DEBUG, "nut: invalid query hit payload\n");
 #endif
-	      client->dropped++;
-	      return -1;
-	    }
-	  p += 2;
-	  nut_canonize_file (file);
+              client->dropped++;
+              return -1;
+            }
+          p += 2;
+          nut_canonize_file (file);
 #if 0
-	  printf ("record %d\n", n + 1);
-	  printf ("file index : %u\n", record->index);
-	  printf ("file size  : %u\n", record->size);
-	  printf ("file       : %s\n", file);
+          printf ("record %d\n", n + 1);
+          printf ("file index : %u\n", record->index);
+          printf ("file size  : %u\n", record->size);
+          printf ("file       : %s\n", file);
 #endif
 
-	  /* startup transfer if possible */
-	  if (cfg->dnloads < cfg->max_dnloads)
-	    {
-	      nut_init_transfer (sock, reply, record, file);
-	    }
-	}
+          /* startup transfer if possible */
+          if (cfg->dnloads < cfg->max_dnloads)
+            {
+              nut_init_transfer (sock, reply, record, file);
+            }
+        }
     }
   /* save the reply id to the reply hash for routing push requests */
   else
@@ -157,58 +157,58 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   push = nut_get_push (packet);
 
   /* is the guid of this push request in the reply hash ? */
-  if ((xsock = (svz_socket_t *) 
+  if ((xsock = (svz_socket_t *)
        svz_hash_get (cfg->reply, (char *) push->id)) != NULL)
     {
       header = nut_put_header (hdr);
       if (svz_sock_write (xsock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
-	  svz_sock_write (xsock, (char *) packet, SIZEOF_NUT_PUSH) == -1)
-	{
-	  svz_sock_schedule_for_shutdown (xsock);
-	  return -1;
-	}
+          svz_sock_write (xsock, (char *) packet, SIZEOF_NUT_PUSH) == -1)
+        {
+          svz_sock_schedule_for_shutdown (xsock);
+          return -1;
+        }
     }
   /* push request for ourselves ? */
   else if (!memcmp (cfg->guid, push->id, NUT_GUID_SIZE))
     {
 #if 0
       printf ("push request for us\n"
-	      "file index : %u\n", push->index);
+              "file index : %u\n", push->index);
       printf ("ip         : %s\n", svz_inet_ntoa (push->ip));
       printf ("port       : %u\n", htons (push->port));
 #endif
 
       /* find requested file in database */
       if (cfg->uploads <= cfg->max_uploads &&
-	  (entry = nut_get_database (cfg, NULL, push->index)) != NULL)
-	{
-	  /* try to connect to given host */
-	  if ((xsock = svz_tcp_connect (push->ip, push->port)) != NULL)
-	    {
-	      svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
-		       svz_inet_ntoa (push->ip), ntohs (push->port));
+          (entry = nut_get_database (cfg, NULL, push->index)) != NULL)
+        {
+          /* try to connect to given host */
+          if ((xsock = svz_tcp_connect (push->ip, push->port)) != NULL)
+            {
+              svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
+                       svz_inet_ntoa (push->ip), ntohs (push->port));
 
-	      xsock->userflags |= NUT_FLAG_UPLOAD;
-	      xsock->cfg = cfg;
-	      svz_sock_setparent (xsock, svz_sock_getparent (sock));
+              xsock->userflags |= NUT_FLAG_UPLOAD;
+              xsock->cfg = cfg;
+              svz_sock_setparent (xsock, svz_sock_getparent (sock));
 
-	      /* 
-	       * we are not sure about the format of this line, but two
-	       * of the reviewed clients (gtk_gnutella and gnutella itself)
-	       * use it as is
-	       */
-	      if (svz_sock_printf (xsock, NUT_GIVE "%d:%s/%s\n\n",
-				   entry->index, nut_text_guid (cfg->guid),
-				   entry->file) == -1)
-		{
-		  svz_sock_schedule_for_shutdown (xsock);
-		  return -1;
-		}
-	      xsock->check_request = nut_check_upload;
-	      xsock->idle_func = nut_connect_timeout;
-	      xsock->idle_counter = NUT_CONNECT_TIMEOUT;
-	    }
-	}
+              /*
+               * we are not sure about the format of this line, but two
+               * of the reviewed clients (gtk_gnutella and gnutella itself)
+               * use it as is
+               */
+              if (svz_sock_printf (xsock, NUT_GIVE "%d:%s/%s\n\n",
+                                   entry->index, nut_text_guid (cfg->guid),
+                                   entry->file) == -1)
+                {
+                  svz_sock_schedule_for_shutdown (xsock);
+                  return -1;
+                }
+              xsock->check_request = nut_check_upload;
+              xsock->idle_func = nut_connect_timeout;
+              xsock->idle_counter = NUT_CONNECT_TIMEOUT;
+            }
+        }
     }
   /* drop this push request */
   else
@@ -261,29 +261,29 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   hdr->function = NUT_SEARCH_ACK;
   hdr->ttl = hdr->hop;
   hdr->hop = 0;
-  
+
   /* go through database and build the record array */
   for (size = 0, n = 0, entry = NULL; n < 256 && (int) n < cfg->search_limit;)
     {
       if ((entry = nut_find_database (cfg, entry, (char *) file)) != NULL)
-	{
-	  len = strlen (entry->file) + 2;
-	  size += SIZEOF_NUT_RECORD + len;
-	  buffer = svz_realloc (buffer, size);
-	  p = buffer + size - len;
-	  memcpy (p, entry->file, len - 1);
-	  p += len - 1;
-	  *p = '\0';
+        {
+          len = strlen (entry->file) + 2;
+          size += SIZEOF_NUT_RECORD + len;
+          buffer = svz_realloc (buffer, size);
+          p = buffer + size - len;
+          memcpy (p, entry->file, len - 1);
+          p += len - 1;
+          *p = '\0';
 
-	  p = buffer + size - len - SIZEOF_NUT_RECORD;
-	  record.index = entry->index;
-	  record.size = entry->size;
-	  memcpy (p, nut_put_record (&record), SIZEOF_NUT_RECORD);
+          p = buffer + size - len - SIZEOF_NUT_RECORD;
+          record.index = entry->index;
+          record.size = entry->size;
+          memcpy (p, nut_put_record (&record), SIZEOF_NUT_RECORD);
 
-	  n++;
-	}
+          n++;
+        }
       else
-	break;
+        break;
     }
 
   /* no files found in database */
@@ -294,20 +294,20 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   reply.records = (svz_uint8_t) n;
   if ((port = svz_sock_portcfg (sock)) != NULL)
     addr = svz_portcfg_addr (port);
-  reply.ip = cfg->ip ? cfg->ip : addr ? 
+  reply.ip = cfg->ip ? cfg->ip : addr ?
     addr->sin_addr.s_addr : sock->local_addr;
   reply.port = (unsigned short) (cfg->port ? cfg->port : addr ?
-				 addr->sin_port : sock->local_port);
+                                 addr->sin_port : sock->local_port);
   reply.speed = (unsigned short) cfg->speed;
-  
+
   /* save packet length */
   hdr->length = SIZEOF_NUT_REPLY + size + NUT_GUID_SIZE;
-  
+
   /* send header, reply, array of records and guid */
-  if (svz_sock_write (sock, (char *) nut_put_header (hdr), 
-		      SIZEOF_NUT_HEADER) == -1 ||
-      svz_sock_write (sock, (char *) nut_put_reply (&reply), 
-		      SIZEOF_NUT_REPLY) == -1 ||
+  if (svz_sock_write (sock, (char *) nut_put_header (hdr),
+                      SIZEOF_NUT_HEADER) == -1 ||
+      svz_sock_write (sock, (char *) nut_put_reply (&reply),
+                      SIZEOF_NUT_REPLY) == -1 ||
       svz_sock_write (sock, (char *) buffer, size) == -1 ||
       svz_sock_write (sock, (char *) cfg->guid, NUT_GUID_SIZE) == -1)
     {
@@ -351,13 +351,13 @@ nut_pong (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
       cfg->nodes++;
       client->nodes++;
       if (reply->files && reply->size)
-	{
-	  cfg->files += reply->files;
-	  cfg->size += reply->size;
-	  client->files += reply->files;
-	  client->size += reply->size;
-	}
-    } 
+        {
+          cfg->files += reply->files;
+          cfg->size += reply->size;
+          client->files += reply->files;
+          client->size += reply->size;
+        }
+    }
 
   return 0;
 }
@@ -383,15 +383,15 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *null)
 
   if ((port = svz_sock_portcfg (sock)) != NULL)
     addr = svz_portcfg_addr (port);
-  reply.ip = cfg->ip ? cfg->ip : addr ? 
+  reply.ip = cfg->ip ? cfg->ip : addr ?
     addr->sin_addr.s_addr : sock->local_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : addr ? 
-				 addr->sin_port : sock->local_port);
+  reply.port = (unsigned short) (cfg->port ? cfg->port : addr ?
+                                 addr->sin_port : sock->local_port);
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);
   pong = nut_put_pong (&reply);
-  
+
   /* try sending this packet */
   if (svz_sock_write (sock, (char *) header, SIZEOF_NUT_HEADER) == -1 ||
       svz_sock_write (sock, (char *) pong, SIZEOF_NUT_PONG) == -1)

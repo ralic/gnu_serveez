@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,10 +26,10 @@
 #if (!defined (SVZ_HAVE_SNPRINTF)) && (!defined (__MINGW32__))
 /*
  * Implementation of the @code{snprintf()} if it is not defined. It uses
- * the @code{vsnprintf()} function therefore which will fall back to 
+ * the @code{vsnprintf()} function therefore which will fall back to
  * @code{vsprintf()} if @code{vsnprintf()} does not exist.
  */
-int 
+int
 svz_snprintf (char *str, unsigned int n, svz_c_const char *fmt, ...)
 {
   int ret;

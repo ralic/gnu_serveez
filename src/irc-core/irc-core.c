@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -54,16 +54,16 @@ irc_nslookup_done (char *host, int id, int version)
       client = sock->data;
       client->flag |= UMODE_DNS;
       if (host)
-	{
-	  if (client->host)
-	    svz_free (client->host);
-	  client->host = svz_strdup (host);
-	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
-	}
+        {
+          if (client->host)
+            svz_free (client->host);
+          client->host = svz_strdup (host);
+          irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_DONE);
+        }
       else
-	{
-	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_NOREPLY);
-	}
+        {
+          irc_printf (sock, "NOTICE AUTH :%s\n", IRC_DNS_NOREPLY);
+        }
       return 0;
     }
   return -1;
@@ -84,16 +84,16 @@ irc_ident_done (char *user, int id, int version)
       client = sock->data;
       client->flag |= UMODE_IDENT;
       if (user)
-	{
-	  if (client->user)
-	    svz_free (client->user);
-	  client->user = svz_strdup (user);
-	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
-	}
+        {
+          if (client->user)
+            svz_free (client->user);
+          client->user = svz_strdup (user);
+          irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_DONE);
+        }
       else
-	{
-	  irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_NOREPLY);
-	}
+        {
+          irc_printf (sock, "NOTICE AUTH :%s\n", IRC_IDENT_NOREPLY);
+        }
       return 0;
     }
   return -1;
@@ -108,10 +108,10 @@ irc_start_auth (svz_socket_t *sock)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client;
-      
-  /* 
+
+  /*
    * Create and initialize a local IRC client ! This is not yet within the
-   * actual client hash. 
+   * actual client hash.
    */
   client = irc_create_client (cfg);
   client->server = svz_strdup (cfg->host);
@@ -120,14 +120,14 @@ irc_start_auth (svz_socket_t *sock)
   sock->data = client;
 
   /* Set password flag, if there is not server password defined. */
-  if (!cfg->pass) 
+  if (!cfg->pass)
     client->flag |= UMODE_PASS;
 
   /* Start here the nslookup and ident lookup. */
-  svz_coserver_rdns (sock->remote_addr, irc_nslookup_done, 
-		     sock->id, sock->version);
+  svz_coserver_rdns (sock->remote_addr, irc_nslookup_done,
+                     sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
-      
+
   svz_coserver_ident (sock, irc_ident_done, sock->id, sock->version);
   irc_printf (sock, "NOTICE AUTH :" IRC_IDENT_INIT "\n");
 }
@@ -145,10 +145,10 @@ irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
     {
       ret = 1;
     }
-  else if (sock->recv_buffer_fill >= 4 && 
-	   (!memcmp (sock->recv_buffer, "PASS", 4) ||
-	    !memcmp (sock->recv_buffer, "NICK", 4) ||
-	    !memcmp (sock->recv_buffer, "USER", 4)))
+  else if (sock->recv_buffer_fill >= 4 &&
+           (!memcmp (sock->recv_buffer, "PASS", 4) ||
+            !memcmp (sock->recv_buffer, "NICK", 4) ||
+            !memcmp (sock->recv_buffer, "USER", 4)))
     {
       ret = 4;
     }
@@ -160,7 +160,7 @@ irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
 #endif
       return -1;
     }
-  
+
   return 0;
 }
 
@@ -181,7 +181,7 @@ irc_connect_socket (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
- * The CHECK_REQUEST looks through the receive buffer of the 
+ * The CHECK_REQUEST looks through the receive buffer of the
  * IRC connection for complete messages and calls then the
  * HANDLE_REQUEST function.
  */
@@ -205,20 +205,20 @@ irc_check_request (svz_socket_t *sock)
           p++;
           request_len += (p - packet);
 #if 0
-	  svz_hexdump (stdout, "irc packet", sock->sock_desc,
-		       packet, p - packet, 0);
+          svz_hexdump (stdout, "irc packet", sock->sock_desc,
+                       packet, p - packet, 0);
 #endif
-          retval = irc_handle_request (sock, packet, p - packet - 
-				       ((*(p - 2) == '\r') ? 2 : 1));
+          retval = irc_handle_request (sock, packet, p - packet -
+                                       ((*(p - 2) == '\r') ? 2 : 1));
           packet = p;
         }
     }
   while (p < sock->recv_buffer + sock->recv_buffer_fill && !retval);
-  
+
   if (request_len > 0 && request_len < sock->recv_buffer_fill)
     {
       memmove (sock->recv_buffer, packet,
-	       sock->recv_buffer_fill - request_len);
+               sock->recv_buffer_fill - request_len);
     }
   sock->recv_buffer_fill -= request_len;
 
@@ -226,8 +226,8 @@ irc_check_request (svz_socket_t *sock)
 }
 
 /*
- * Parse the 'nr'th string (IRC targets could be channels, nicks, etc.) 
- * by a given IRC parameter string. All these strings should be separated 
+ * Parse the 'nr'th string (IRC targets could be channels, nicks, etc.)
+ * by a given IRC parameter string. All these strings should be separated
  * by colons (',').
  */
 char *
@@ -242,17 +242,17 @@ irc_get_target (char *para, int nr)
   for (n = 0; *p && n < nr; n++)
     while (*p && *p != ',')
       p++;
-  
+
   /* got a key (first or any ',' separated) */
   if (*p == ',' || p == para)
     {
       n = 0;
       if (*p == ',')
-	p++;
+        p++;
       while (*p && *p != ',')
-	{
-	  target[n++] = *p++;
-	}
+        {
+          target[n++] = *p++;
+        }
       target[n + 1] = 0;
     }
 
@@ -271,7 +271,7 @@ irc_parse_request (char *request, int len)
   int size = 0;
 
   memset (&irc_request, 0, sizeof (irc_request_t));
-  
+
   p = request;
 
   /* parse message origin if necessary */
@@ -279,42 +279,42 @@ irc_parse_request (char *request, int len)
     {
       n = 0;
       /* get server or nick */
-      while (*p != '!' && *p != '@' && *p != ' ' && size < len) 
-	{
-	  irc_request.server[n] = *p;
-	  irc_request.nick[n++] = *p++;
-	  size++;
-	}
+      while (*p != '!' && *p != '@' && *p != ' ' && size < len)
+        {
+          irc_request.server[n] = *p;
+          irc_request.nick[n++] = *p++;
+          size++;
+        }
       /* user follows */
       if (*p == '!')
-	{
-	  n = 0;
-	  p++;
-	  size++;
-	  while (*p != '@' && *p != ' ' && size < len) 
-	    {
-	      irc_request.user[n++] = *p++;
-	      size++;
-	    }
-	}
+        {
+          n = 0;
+          p++;
+          size++;
+          while (*p != '@' && *p != ' ' && size < len)
+            {
+              irc_request.user[n++] = *p++;
+              size++;
+            }
+        }
       /* host follows */
       if (*p == '@')
-	{
-	  n = 0;
-	  p++;
-	  size++;
-	  while (*p != ' ' && size < len) 
-	    {
-	      irc_request.host[n++] = *p++;
-	      size++;
-	    }
-	}
+        {
+          n = 0;
+          p++;
+          size++;
+          while (*p != ' ' && size < len)
+            {
+              irc_request.host[n++] = *p++;
+              size++;
+            }
+        }
       /* skip whitespace(s) */
       while (*p == ' ' && size < len)
-	{
-	  size++;
-	  p++;
-	}
+        {
+          size++;
+          p++;
+        }
     }
 
   /* no message origin, command follow */
@@ -329,38 +329,38 @@ irc_parse_request (char *request, int len)
   while (size < len)
     {
       /* skip whitespace(s) */
-      while (*p == ' ' && size < len) 
-	{
-	  size++;
-	  p++;
-	}
+      while (*p == ' ' && size < len)
+        {
+          size++;
+          p++;
+        }
       if (size == len)
-	break;
-      
+        break;
+
       /* get next parameter */
       n = 0;
-      
+
       /* trailing parameter ? */
       if (*p == ':')
-	{
-	  p++;
-	  size++;
-	  while (size < len)
-	    {
-	      irc_request.para[paras][n++] = *p++;
-	      size++;
-	    }
-	}
-      
+        {
+          p++;
+          size++;
+          while (size < len)
+            {
+              irc_request.para[paras][n++] = *p++;
+              size++;
+            }
+        }
+
       /* normal parameter */
       else
-	{
-	  while (*p != ' ' && size < len)
-	    {
-	      irc_request.para[paras][n++] = *p++;
-	      size++;
-	    }
-	}
+        {
+          while (*p != ' ' && size < len)
+            {
+              irc_request.para[paras][n++] = *p++;
+              size++;
+            }
+        }
       paras++;
     }
 
@@ -368,7 +368,7 @@ irc_parse_request (char *request, int len)
     paras--;
   irc_request.paras = paras;
   irc_parse_target (&irc_request, 0);
-  
+
   return 0;
 }
 
@@ -381,7 +381,7 @@ irc_parse_target (irc_request_t *request, int para)
 {
   int i, size, n, len;
   char *p;
-  
+
   request->targets = 0;
 
   /* is there a para ? */
@@ -398,64 +398,64 @@ irc_parse_target (irc_request_t *request, int para)
     {
       /* local channel */
       if (*p == '&')
-	{
-	  n = 0;
-	  while (*p != ',' && size < len)
-	    {
-	      request->target[i].channel[n++] = *p++;
-	      size++;
-	    }
-	}
+        {
+          n = 0;
+          while (*p != ',' && size < len)
+            {
+              request->target[i].channel[n++] = *p++;
+              size++;
+            }
+        }
       /* mask */
       else if (*p == '$')
-	{
-	  n = 0;
-	  while (*p != ',' && size < len)
-	    {
-	      request->target[i].mask[n++] = *p++;
-	      size++;
-	    }
-	}
+        {
+          n = 0;
+          while (*p != ',' && size < len)
+            {
+              request->target[i].mask[n++] = *p++;
+              size++;
+            }
+        }
       /* channel or mask */
       else if (*p == '#')
-	{
-	  n = 0;
-	  while (*p != ',' && size < len)
-	    {
-	      request->target[i].mask[n] = *p;
-	      request->target[i].channel[n++] = *p++;
-	      size++;
-	    }
-	}
+        {
+          n = 0;
+          while (*p != ',' && size < len)
+            {
+              request->target[i].mask[n] = *p;
+              request->target[i].channel[n++] = *p++;
+              size++;
+            }
+        }
       /* nick or user@host */
       else
-	{
-	  n = 0;
-	  while (*p != ',' && *p != '@' && size < len)
-	    {
-	      request->target[i].user[n] = *p;
-	      request->target[i].nick[n++] = *p++;
-	      size++;
-	    }
-	  /* host */
-	  if (*p == '@')
-	    {
-	      p++;
-	      size++;
-	      n = 0;
-	      memset (request->target[i].nick, 0, MAX_NICK_LEN);
-	      while (*p != ',' && size < len)
-		{
-		  request->target[i].host[n++] = *p++;
-		  size++;
-		}
-	    }
-	}
+        {
+          n = 0;
+          while (*p != ',' && *p != '@' && size < len)
+            {
+              request->target[i].user[n] = *p;
+              request->target[i].nick[n++] = *p++;
+              size++;
+            }
+          /* host */
+          if (*p == '@')
+            {
+              p++;
+              size++;
+              n = 0;
+              memset (request->target[i].nick, 0, MAX_NICK_LEN);
+              while (*p != ',' && size < len)
+                {
+                  request->target[i].host[n++] = *p++;
+                  size++;
+                }
+            }
+        }
       if (*p == ',')
-	{
-	  size++;
-	  p++;
-	}
+        {
+          size++;
+          p++;
+        }
       i++;
     }
   request->targets = i;
@@ -476,43 +476,43 @@ irc_string_regex (char *text, char *regex)
     {
       /* find end of strings or '?' or '*' */
       while (*regex != '*' && *regex != '?' && *regex && *text)
-	{
-	  /* return no match if so */
-	  if (irc_lcset[(unsigned) *text] != irc_lcset[(unsigned) *regex])
-	    return 0;
-	  text++;
-	  regex++;
-	}
+        {
+          /* return no match if so */
+          if (irc_lcset[(unsigned) *text] != irc_lcset[(unsigned) *regex])
+            return 0;
+          text++;
+          regex++;
+        }
       /* single free character */
       if (*regex == '?')
-	{
-	  if (!(*text))
-	    return 0;
-	  text++;
-	  regex++;
-	}
+        {
+          if (!(*text))
+            return 0;
+          text++;
+          regex++;
+        }
       /* free characters */
       else if (*regex == '*')
-	{
-	  regex++;
-	  /* skip useless '?'s after '*'s */
-	  while (*regex == '?')
-	    regex++;
-	  /* skip all characters until next character in pattern found */
-	  while (*text && 
-		 irc_lcset[(unsigned) *regex] != irc_lcset[(unsigned) *text]) 
-	    text++;
-	  /* next character in pattern found */
-	  if (*text)
-	    {
-	      /* find the last occurrence of this character in the text */
-	      p = text + strlen (text);
-	      while (irc_lcset[(unsigned) *p] != irc_lcset[(unsigned) *text]) 
-		p--;
-	      /* continue parsing at this character */
-	      text = p;
-	    }
-	}
+        {
+          regex++;
+          /* skip useless '?'s after '*'s */
+          while (*regex == '?')
+            regex++;
+          /* skip all characters until next character in pattern found */
+          while (*text &&
+                 irc_lcset[(unsigned) *regex] != irc_lcset[(unsigned) *text])
+            text++;
+          /* next character in pattern found */
+          if (*text)
+            {
+              /* find the last occurrence of this character in the text */
+              p = text + strlen (text);
+              while (irc_lcset[(unsigned) *p] != irc_lcset[(unsigned) *text])
+                p--;
+              /* continue parsing at this character */
+              text = p;
+            }
+        }
     }
 
   /* is the text longer than the regex ? */
@@ -528,7 +528,7 @@ void
 irc_create_lcset (void)
 {
   int n;
-  
+
   for (n = 0; n < 256; n++)
     {
       irc_lcset[n] = (char) tolower (n);
@@ -549,14 +549,14 @@ irc_string_equal (char *str1, char *str2)
 
   if (str1 == str2)
     return 0;
-  
+
   p1 = str1;
   p2 = str2;
 
   while (*p1 && *p2)
     {
-      if (irc_lcset[(unsigned) *p1] != irc_lcset[(unsigned) *p2]) 
-	return -1;
+      if (irc_lcset[(unsigned) *p1] != irc_lcset[(unsigned) *p2])
+        return -1;
       p1++;
       p2++;
     }

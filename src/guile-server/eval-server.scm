@@ -9,12 +9,12 @@
 ;; under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 3, or (at your option)
 ;; any later version.
-;; 
+;;
 ;; This software is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 ;; General Public License for more details.
-;; 
+;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -60,34 +60,34 @@
 (define (eval-handle-request sock request len)
   (let ((idx (binary-search request (svz:server:config-ref sock "quit"))))
     (if (and idx (= idx 0))
-	-1
-	(let ((safe-module (make-safe-module)))
-	  (catch #t
-		 (lambda ()
-		   (let ((expr (call-with-input-string
-				(binary->string request) read)))
-		     (let ((res (eval expr safe-module)))
-		       (svz:sock:print sock
-		         (string-append "=> "
-			   (object->string res)
-			   "\r\n"
-			   (svz:server:config-ref sock "prompt"))))))
-		 (lambda args
-		   (svz:sock:print sock
-		     (string-append "Exception: "
-		       (apply simple-format #f (caddr args) (cadddr args))
-		       "\r\n"
-		       (svz:server:config-ref sock "prompt")))))
-	  0))))
+        -1
+        (let ((safe-module (make-safe-module)))
+          (catch #t
+                 (lambda ()
+                   (let ((expr (call-with-input-string
+                                (binary->string request) read)))
+                     (let ((res (eval expr safe-module)))
+                       (svz:sock:print sock
+                         (string-append "=> "
+                           (object->string res)
+                           "\r\n"
+                           (svz:server:config-ref sock "prompt"))))))
+                 (lambda args
+                   (svz:sock:print sock
+                     (string-append "Exception: "
+                       (apply simple-format #f (caddr args) (cadddr args))
+                       "\r\n"
+                       (svz:server:config-ref sock "prompt")))))
+          0))))
 
 (define (eval-connect-socket server sock)
   (println "Running connect socket.")
   (svz:sock:boundary sock "\n")
   (svz:sock:handle-request sock eval-handle-request)
-  (svz:sock:print sock (string-append 
-			(svz:server:config-ref server "greeting") 
-			"\r\n" 
-			(svz:server:config-ref server "prompt")))
+  (svz:sock:print sock (string-append
+                        (svz:server:config-ref server "greeting")
+                        "\r\n"
+                        (svz:server:config-ref server "prompt")))
   0)
 
 ;; Port configuration.
@@ -114,9 +114,9 @@ Type Scheme expression to see them evaluated (but only one-liners)." ))
 
 ;; Server instantiation.
 (define-server! 'eval-server '(
-			       (prompt . "guile> ")
-			       (quit   . "quit")
-			       ))
+                               (prompt . "guile> ")
+                               (quit   . "quit")
+                               ))
 
 ;; Bind server to port.
 (bind-server! 'eval-port 'eval-server)

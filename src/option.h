@@ -8,12 +8,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,7 +29,7 @@
 # include <getopt.h>
 #elif HAVE_UNISTD_H
 # define __EXTENSIONS__
-/* FreeBSD and probably all commercial Un*ces define getopt() 
+/* FreeBSD and probably all commercial Un*ces define getopt()
    in this specific file */
 # include <unistd.h>
 #endif
@@ -70,11 +70,11 @@ struct option
 #define required_argument 1
 #define optional_argument 2
 
-extern int getopt_long (int argc, 
-			char * const argv[], 
-			const char *optstring,
-			const struct option *longopts, 
-			int *longindex);
+extern int getopt_long (int argc,
+                        char * const argv[],
+                        const char *optstring,
+                        const struct option *longopts,
+                        int *longindex);
 
 #endif /* DECLARED_GETOPT_LONG */
 

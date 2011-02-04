@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -129,12 +129,12 @@ svz_fd_cloexec (int fd)
 {
 #ifndef __MINGW32__
 
-  /* 
+  /*
    * ... SNIP : from the cygwin mail archives 1999/05 ...
-   * The problem is in socket() call on W95 - the socket returned 
+   * The problem is in socket() call on W95 - the socket returned
    * is non-inheritable handle (unlike NT and Unixes, where
-   * sockets are inheritable). To fix the problem DuplicateHandle 
-   * call is used to create inheritable handle, and original 
+   * sockets are inheritable). To fix the problem DuplicateHandle
+   * call is used to create inheritable handle, and original
    * handle is closed.
    * ... SNAP ...
    *
@@ -157,10 +157,10 @@ svz_fd_cloexec (int fd)
 }
 
 /*
- * This function creates an unnamed pair of connected sockets with the 
- * specified protocol @var{proto}. The descriptors used in referencing the 
- * new sockets are returned in desc[0] and desc[1]. The two sockets are 
- * indistinguishable. Also make both of them non-blocking and 
+ * This function creates an unnamed pair of connected sockets with the
+ * specified protocol @var{proto}. The descriptors used in referencing the
+ * new sockets are returned in desc[0] and desc[1]. The two sockets are
+ * indistinguishable. Also make both of them non-blocking and
  * non-inheritable. Returns -1 on failure, otherwise zero.
  */
 int
@@ -219,7 +219,7 @@ svz_socket_create_pair (int proto, svz_t_socket desc[2])
 }
 
 /*
- * Create a new non-blocking socket which does not get inherited on 
+ * Create a new non-blocking socket which does not get inherited on
  * @code{exec()}. The protocol is specified by @var{proto}. Return the
  * socket descriptor or -1 on errors.
  */
@@ -246,8 +246,8 @@ svz_socket_create (int proto)
       ptype = IPPROTO_ICMP;
       break;
       /* This protocol is for sending packets only. The kernel filters
-	 any received packets by the socket protocol (here: IPPROTO_RAW
-	 which is unspecified). */
+         any received packets by the socket protocol (here: IPPROTO_RAW
+         which is unspecified). */
     case PROTO_RAW:
       stype = SOCK_RAW;
       ptype = IPPROTO_RAW;
@@ -271,7 +271,7 @@ svz_socket_create (int proto)
       closesocket (sockfd);
       return (svz_t_socket) -1;
     }
-  
+
   /* Do not inherit this socket. */
   if (svz_fd_cloexec (sockfd) != 0)
     {
@@ -283,7 +283,7 @@ svz_socket_create (int proto)
 }
 
 /*
- * Saves the socket type (like @code{SOCK_STREAM}, @code{SOCK_DGRAM}, etc.) 
+ * Saves the socket type (like @code{SOCK_STREAM}, @code{SOCK_DGRAM}, etc.)
  * of the socket @var{fd} in the buffer pointed to by @var{type}. Returns
  * zero on success.
  */
@@ -295,12 +295,12 @@ svz_socket_type (svz_t_socket fd, int *type)
 
   if (type)
     {
-      if (getsockopt (fd, SOL_SOCKET, SO_TYPE, 
-		      (void *) &optval, &optlen) < 0)
-	{
-	  svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
-	  return -1;
-	}
+      if (getsockopt (fd, SOL_SOCKET, SO_TYPE,
+                      (void *) &optval, &optlen) < 0)
+        {
+          svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+          return -1;
+        }
       *type = optval;
     }
   return 0;
@@ -311,8 +311,8 @@ svz_socket_type (svz_t_socket fd, int *type)
  * at the network port @var{port}. Return non-zero on errors.
  */
 int
-svz_socket_connect (svz_t_socket sockfd, 
-		    unsigned long host, unsigned short port)
+svz_socket_connect (svz_t_socket sockfd,
+                    unsigned long host, unsigned short port)
 {
   struct sockaddr_in server;
   int error;
@@ -321,7 +321,7 @@ svz_socket_connect (svz_t_socket sockfd,
   server.sin_family = AF_INET;
   server.sin_addr.s_addr = host;
   server.sin_port = port;
-  
+
   /* Try to connect to the server, */
   if (connect (sockfd, (struct sockaddr *) &server, sizeof (server)) == -1)
     {
@@ -344,8 +344,8 @@ svz_socket_connect (svz_t_socket sockfd,
 }
 
 /*
- * Converts the given ip address @var{ip} to the dotted decimal 
- * representation. The string is a statically allocated buffer, please 
+ * Converts the given ip address @var{ip} to the dotted decimal
+ * representation. The string is a statically allocated buffer, please
  * copy the result. The given ip address MUST be in network byte order.
  */
 char *
@@ -361,27 +361,27 @@ svz_inet_ntoa (unsigned long ip)
 
   static char addr[16];
 
-  /* 
+  /*
    * Now, this is strange: IP is given in host byte order. Nevertheless
    * conversion is endian-specific. To the binary AND and SHIFT operations
    * work differently on different architectures ?
    */
   sprintf (addr, "%lu.%lu.%lu.%lu",
 #if WORDS_BIGENDIAN
-	   (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
+           (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
 #else /* Little Endian */
-	   ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
+           ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
 #endif
   return addr;
 #endif /* BROKEN_INET_NTOA */
 }
 
 /*
- * Converts the Internet host address @var{str} from the standard 
- * numbers-and-dots notation into binary data and stores it in the 
- * structure that @var{addr} points to. @code{svz_inet_aton()} returns 
+ * Converts the Internet host address @var{str} from the standard
+ * numbers-and-dots notation into binary data and stores it in the
+ * structure that @var{addr} points to. @code{svz_inet_aton()} returns
  * zero if the address is valid, nonzero if not.
- * This function handles an ip address of "*" special and sets 
+ * This function handles an ip address of "*" special and sets
  * @code{INADDR_ANY} for it.
  */
 int
@@ -406,7 +406,7 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
     }
 #elif defined (__MINGW32__)
   len = sizeof (struct sockaddr_in);
-  if (WSAStringToAddress (str, AF_INET, NULL, 
+  if (WSAStringToAddress (str, AF_INET, NULL,
                           (struct sockaddr *) addr, &len) != 0)
     {
       return -1;
@@ -419,8 +419,8 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
 
 /*
  * Enable or disable the @code{TCP_CORK} socket option of the given socket
- * descriptor @var{fd}. This is useful for performance reasons when using 
- * @code{sendfile()} with any prepending or trailing data not inside the 
+ * descriptor @var{fd}. This is useful for performance reasons when using
+ * @code{sendfile()} with any prepending or trailing data not inside the
  * file to transmit. The function return zero on success, otherwise non-zero.
  */
 int
@@ -457,10 +457,10 @@ svz_tcp_cork (svz_t_socket fd, int set)
 
 /*
  * Enable or disable the @code{TCP_NODELAY} setting for the given socket
- * descriptor @var{fd} depending on the flag @var{set}. In fact its turns 
- * the Nagle algorithm on or off. This means that packets are always sent 
- * as soon as possible and no unnecessary delays are introduced. The 
- * function saves the old setting if @var{old} is not @code{NULL}. Returns 
+ * descriptor @var{fd} depending on the flag @var{set}. In fact its turns
+ * the Nagle algorithm on or off. This means that packets are always sent
+ * as soon as possible and no unnecessary delays are introduced. The
+ * function saves the old setting if @var{old} is not @code{NULL}. Returns
  * zero on success, otherwise non-zero.
  */
 int
@@ -472,20 +472,20 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
 
   /* Get old setting if required. */
   if (old != NULL)
-    {  
-      if (getsockopt (fd, SOL_TCP, TCP_NODELAY, 
-		      (void *) &optval, &optlen) < 0)
-	{
-	  svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
-	  return -1;
-	}
+    {
+      if (getsockopt (fd, SOL_TCP, TCP_NODELAY,
+                      (void *) &optval, &optlen) < 0)
+        {
+          svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+          return -1;
+        }
       *old = optval ? 1 : 0;
     }
 
   /* Set the setting. */
   optval = set ? 1 : 0;
-  if (setsockopt (fd, SOL_TCP, TCP_NODELAY, 
-		  (void *) &optval, sizeof (optval)) < 0)
+  if (setsockopt (fd, SOL_TCP, TCP_NODELAY,
+                  (void *) &optval, sizeof (optval)) < 0)
     {
       svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
       return -1;
@@ -500,13 +500,13 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
 }
 
 /*
- * This function transmits data between one file descriptor and another 
+ * This function transmits data between one file descriptor and another
  * where @var{in_fd} is the source and @var{out_fd} the destination. The
- * @var{offset} argument is a pointer to a variable holding the input file 
+ * @var{offset} argument is a pointer to a variable holding the input file
  * pointer position from which reading starts. When this routine returns,
- * the @var{offset} variable will be set to the offset of the byte following 
- * the last byte that was read. @var{count} is the number of bytes to copy 
- * between file descriptors. Returns the number of bytes actually 
+ * the @var{offset} variable will be set to the offset of the byte following
+ * the last byte that was read. @var{count} is the number of bytes to copy
+ * between file descriptors. Returns the number of bytes actually
  * read/written or -1 on errors.
  */
 int
@@ -544,36 +544,36 @@ svz_sendfile (int out_fd, int in_fd, svz_t_off *offset, unsigned int count)
      is a M$ specific extension to Winsock. The function comes from the
      MSWSOCK.DLL and should be prototyped in MSWSOCK.H. It operates on
      file handles gained from kernel32.CreateFile() only. We experienced
-     quite low performance on small (less than 4096 byte) file chunks. 
-     Performance is better with about 32 KB per chunk. The function is 
-     available on Windows NT, Windows 2000 and Windows XP only (not W95, 
+     quite low performance on small (less than 4096 byte) file chunks.
+     Performance is better with about 32 KB per chunk. The function is
+     available on Windows NT, Windows 2000 and Windows XP only (not W95,
      W98 or ME). */
 
   OVERLAPPED overlap = { 0, 0, 0, 0, NULL };
   DWORD result;
 
-  /* Data transmission via overlapped I/O. 
-     The MSDN documentation tells nothing odd about passing NULL as 
+  /* Data transmission via overlapped I/O.
+     The MSDN documentation tells nothing odd about passing NULL as
      overlapped structure argument, but we experienced that this does not
      work. Thus we pass the overlapped structure with the Offset member
      set to the current file position. */
 
   overlap.Offset = *offset;
-  if (!TransmitFile ((svz_t_socket) out_fd, (svz_t_handle) in_fd, count, 0, 
+  if (!TransmitFile ((svz_t_socket) out_fd, (svz_t_handle) in_fd, count, 0,
                      &overlap, NULL, 0))
     {
       /* Operation is pending. */
       if (GetLastError () == ERROR_IO_PENDING)
         {
           /* Wait for the operation to complete (blocking). We could either
-	     wait here for the socket handle itself or for the hEvent member
-	     of the overlapped structure which must be created previously.
-	     If waiting for the socket handle we need to ensure that no other
-	     thread is operating on the socket. This is given since serveez 
-	     is single threaded. */
+             wait here for the socket handle itself or for the hEvent member
+             of the overlapped structure which must be created previously.
+             If waiting for the socket handle we need to ensure that no other
+             thread is operating on the socket. This is given since serveez
+             is single threaded. */
 
-          if ((result = WaitForSingleObject ((svz_t_handle) out_fd, 
-					     INFINITE)) != WAIT_OBJECT_0)
+          if ((result = WaitForSingleObject ((svz_t_handle) out_fd,
+                                             INFINITE)) != WAIT_OBJECT_0)
             {
               svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
               ret = -1;
@@ -600,12 +600,12 @@ svz_sendfile (int out_fd, int in_fd, svz_t_off *offset, unsigned int count)
     }
 
 #elif defined (__hpux)
-  
+
   /* HP-UX 11i */
   ret = sendfile (out_fd, in_fd, *offset, (bsize_t) count, NULL, 0);
   *offset += ((ret >= 0) ? ret : 0);
 
-#else 
+#else
 
   /* Linux here. Works like charm... */
   ret = sendfile (out_fd, in_fd, offset, count);
@@ -643,10 +643,10 @@ svz_file_del (int fd)
   svz_array_foreach (svz_files, val, n)
     {
       if (val == SVZ_NUM2PTR (fd))
-	{
-	  svz_array_del (svz_files, n);
-	  break;
-	}
+        {
+          svz_array_del (svz_files, n);
+          break;
+        }
     }
   if (svz_array_size (svz_files) == 0)
     {
@@ -657,7 +657,7 @@ svz_file_del (int fd)
 
 /*
  * Close all file descriptors collected so far by the core API of serveez.
- * This should be called if @code{fork()} has been called without a 
+ * This should be called if @code{fork()} has been called without a
  * following @code{exec()}.
  */
 void
@@ -724,7 +724,7 @@ svz_open (svz_c_const char *file, int flags, unsigned int mode)
         creation |= TRUNCATE_EXISTING;
     }
 
-  if ((fd = CreateFile (file, access, 0, NULL, creation, 0, NULL)) == 
+  if ((fd = CreateFile (file, access, 0, NULL, creation, 0, NULL)) ==
       INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
@@ -811,8 +811,8 @@ svz_fstat (int fd, struct stat *buf)
   buf->st_uid = 0;
   buf->st_gid = 0;
   buf->st_rdev = 0;
-  buf->st_size = (svz_t_off) (((__int64) info.nFileSizeHigh << 32) | 
-			      info.nFileSizeLow);
+  buf->st_size = (svz_t_off) (((__int64) info.nFileSizeHigh << 32) |
+                              info.nFileSizeLow);
   buf->st_atime = ft2lt (info.ftLastAccessTime);
   buf->st_mtime = ft2lt (info.ftLastWriteTime);
   buf->st_ctime = ft2lt (info.ftCreationTime);
@@ -821,7 +821,7 @@ svz_fstat (int fd, struct stat *buf)
 }
 
 /*
- * Open the file whose name is the string pointed to by @var{file} and 
+ * Open the file whose name is the string pointed to by @var{file} and
  * associates a stream with it.
  */
 FILE *
@@ -863,7 +863,7 @@ svz_fclose (FILE *f)
 }
 
 /*
- * Checks for the existence of the given file system node @var{file} and 
+ * Checks for the existence of the given file system node @var{file} and
  * return zero on success.  Otherwise the function returns non-zero.
  */
 int

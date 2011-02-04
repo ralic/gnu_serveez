@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -143,10 +143,10 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #ifndef SCM_VERSION_15X
 #define guile_lookup(var, name) (var) = gh_lookup (name)
 #else
-#define guile_lookup(var, name) do {					    \
-    (var) = scm_sym2var (scm_str2symbol (name),				    \
-			 scm_current_module_lookup_closure (), SCM_BOOL_F); \
-    if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED;			    \
+#define guile_lookup(var, name) do {                                        \
+    (var) = scm_sym2var (scm_str2symbol (name),                             \
+                         scm_current_module_lookup_closure (), SCM_BOOL_F); \
+    if (SCM_FALSEP (var)) (var) = SCM_UNDEFINED;                            \
     else (var) = scm_variable_ref (var); } while (0)
 #endif
 #ifndef SCM_VERSION_15X
@@ -178,12 +178,12 @@ typedef scm_catch_handler_t scm_t_catch_handler;
     scm_out_of_range_pos (FUNC_NAME, arg, SCM_MAKINUM (pos))
 #endif
 
-/* Return an integer. If the given Guile cell @var{obj} is not an 
+/* Return an integer. If the given Guile cell @var{obj} is not an
    integer, the routine returns the default value @var{def}. */
 #define guile_integer(pos, obj, def) \
     ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
 
-/* The GUILE_CONCAT macros create a new concatenated symbol for the 
+/* The GUILE_CONCAT macros create a new concatenated symbol for the
    compiler in a portable way. It is essential to use these macros like
    GUILE_CONCAT (a,b) and *not* like GUILE_CONCAT (a, b) or its variants. */
 #if defined (__STDC__) || defined (__cplusplus)

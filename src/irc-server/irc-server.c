@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -74,46 +74,46 @@ irc_parse_line (char *line, char *fmt, ...)
     {
       /* next arg */
       if (*fmt == '%')
-	{
-	  /* check if this is a valid format identifier */
-	  if (!*++fmt)
-	    break;
+        {
+          /* check if this is a valid format identifier */
+          if (!*++fmt)
+            break;
 
-	  /* a decimal */
-	  if (*fmt == 'd')
-	    {
-	      i = va_arg (args, int *);
-	      *i = 0;
-	      fmt++;
-	      while (*line && *line >= '0' && *line <= '9')
-		{
-		  *i *= 10;
-		  *i += (*line - '0');
-		  line++;
-		}
-	    }
-	  /* a string */
-	  else if (*fmt == 's')
-	    {
-	      s = va_arg (args, char *);
-	      fmt++;
-	      while (*line && *line != *fmt)
-		{
-		  *s++ = *line++;
-		}
-	      *s = 0;
-	    }
-	  ret++;
-	}
+          /* a decimal */
+          if (*fmt == 'd')
+            {
+              i = va_arg (args, int *);
+              *i = 0;
+              fmt++;
+              while (*line && *line >= '0' && *line <= '9')
+                {
+                  *i *= 10;
+                  *i += (*line - '0');
+                  line++;
+                }
+            }
+          /* a string */
+          else if (*fmt == 's')
+            {
+              s = va_arg (args, char *);
+              fmt++;
+              while (*line && *line != *fmt)
+                {
+                  *s++ = *line++;
+                }
+              *s = 0;
+            }
+          ret++;
+        }
       /* not an arg */
       else if (*fmt != *line)
-	{
-	  break;
-	}
+        {
+          break;
+        }
       if (*fmt)
-	fmt++;
+        fmt++;
       if (*line)
-	line++;
+        line++;
     }
 
   va_end (args);
@@ -141,7 +141,7 @@ irc_connect_server (char *ip, irc_server_t *server)
       svz_log (LOG_ERROR, "irc: cannot connect to %s\n", server->realhost);
       return -1;
     }
-  
+
   /* try connecting */
   server->addr = inet_addr (ip);
   if ((sock = svz_tcp_connect (server->addr, server->port)) == NULL)
@@ -167,27 +167,27 @@ irc_connect_server (char *ip, irc_server_t *server)
 
 #if ENABLE_TIMESTAMP
   irc_printf (sock, "SVINFO %d %d %d :%d\n",
-	      TS_CURRENT, TS_MIN, 0, time (NULL) + cfg->tsdelta);
+              TS_CURRENT, TS_MIN, 0, time (NULL) + cfg->tsdelta);
 #endif /* ENABLE_TIMESTAMP */
 
   /* now propagate user information to this server */
   if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
     {
       for (n = 0; n < svz_hash_size (cfg->clients); n++)
-	{
+        {
 #if ENABLE_TIMESTAMP
-	  irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
-		      cl[n]->nick, cl[n]->hopcount, cl[n]->since, 
-		      irc_client_flag_string (cl[n]), 
-		      cl[n]->user, cl[n]->host, cl[n]->server, "EFNet?");
+          irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
+                      cl[n]->nick, cl[n]->hopcount, cl[n]->since,
+                      irc_client_flag_string (cl[n]),
+                      cl[n]->user, cl[n]->host, cl[n]->server, "EFNet?");
 #else /* not ENABLE_TIMESTAMP */
-	  irc_printf (sock, "NICK %s\n", cl[n]->nick);
-	  irc_printf (sock, "USER %s %s %s %s\n", 
-		      cl[n]->user, cl[n]->host, cl[n]->server, cl[n]->real);
-	  irc_printf (sock, "MODE %s %s\n", 
-		      cl[n]->nick, irc_client_flag_string (cl[n]));
+          irc_printf (sock, "NICK %s\n", cl[n]->nick);
+          irc_printf (sock, "USER %s %s %s %s\n",
+                      cl[n]->user, cl[n]->host, cl[n]->server, cl[n]->real);
+          irc_printf (sock, "MODE %s %s\n",
+                      cl[n]->nick, irc_client_flag_string (cl[n]));
 #endif /* not ENABLE_TIMESTAMP */
-	}
+        }
       svz_hash_xfree (cl);
     }
 
@@ -195,36 +195,36 @@ irc_connect_server (char *ip, irc_server_t *server)
   if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
     {
       for (i = 0; i < svz_hash_size (cfg->channels); i++)
-	{
+        {
 #if ENABLE_TIMESTAMP
-	  /* create nick list */
-	  for (nicklist[0] = 0, n = 0; n < ch[n]->clients; n++)
-	    {
-	      if (ch[i]->cflag[n] & MODE_OPERATOR)
-		strcat (nicklist, "@");
-	      else if (ch[i]->cflag[n] & MODE_VOICE)
-		strcat (nicklist, "+");
-	      strcat (nicklist, ch[i]->client[n]->nick);
-	      strcat (nicklist, " ");
-	    }
-	}
+          /* create nick list */
+          for (nicklist[0] = 0, n = 0; n < ch[n]->clients; n++)
+            {
+              if (ch[i]->cflag[n] & MODE_OPERATOR)
+                strcat (nicklist, "@");
+              else if (ch[i]->cflag[n] & MODE_VOICE)
+                strcat (nicklist, "+");
+              strcat (nicklist, ch[i]->client[n]->nick);
+              strcat (nicklist, " ");
+            }
+        }
       /* propagate one channel in one request */
       irc_printf (sock, "SJOIN %d %s %s :%s\n",
-		  ch[i]->since, ch[i]->name, irc_channel_flag_string (ch[i]),
-		  nicklist);
+                  ch[i]->since, ch[i]->name, irc_channel_flag_string (ch[i]),
+                  nicklist);
 #else /* not ENABLE_TIMESTAMP */
       for (n = 0; n < ch[i]->clients; n++)
-	{
-	  irc_printf (sock, ":%s JOIN %s\n", 
-		      ch[i]->client[n], ch[i]->name);
-	}
-      irc_printf (sock, "MODE %s %s\n", 
-		  ch[i]->name, irc_channel_flag_string (ch[i]));
+        {
+          irc_printf (sock, ":%s JOIN %s\n",
+                      ch[i]->client[n], ch[i]->name);
+        }
+      irc_printf (sock, "MODE %s %s\n",
+                  ch[i]->name, irc_channel_flag_string (ch[i]));
 #endif /* not ENABLE_TIMESTAMP */
 
       svz_hash_xfree (ch);
     }
-  
+
   return 0;
 }
 
@@ -236,7 +236,7 @@ irc_add_server (irc_config_t *cfg, irc_server_t *server)
 {
   server->next = cfg->servers;
   cfg->servers = server;
-    
+
   return cfg->servers;
 }
 
@@ -263,9 +263,9 @@ irc_connect_servers (irc_config_t *cfg)
   svz_array_foreach (cfg->CLine, cline, n)
     {
       /* scan the actual C line */
-      irc_parse_line (cline, "C:%s:%s:%s:%d:%d", 
-		      realhost, pass, host, &port, &class);
-      
+      irc_parse_line (cline, "C:%s:%s:%s:%d:%d",
+                      realhost, pass, host, &port, &class);
+
       /* create new IRC server structure */
       ircserver = svz_malloc (sizeof (irc_server_t));
       ircserver->port = htons ((unsigned short) port);
@@ -302,17 +302,17 @@ irc_del_server (irc_config_t *cfg, irc_server_t *server)
   while (srv)
     {
       if (srv == server)
-	{
-	  svz_free (server->realhost);
-	  svz_free (server->host);
-	  svz_free (server->pass);
-	  if (prev == srv)
-	    cfg->servers = server->next;
-	  else
-	    prev->next = server->next;
-	  svz_free (server);
-	  return;
-	}
+        {
+          svz_free (server->realhost);
+          svz_free (server->host);
+          svz_free (server->pass);
+          if (prev == srv)
+            cfg->servers = server->next;
+          else
+            prev->next = server->next;
+          svz_free (server);
+          return;
+        }
       prev = srv;
       srv = srv->next;
     }
@@ -338,11 +338,11 @@ irc_count_servers (irc_config_t *cfg)
 {
   irc_server_t *server;
   int n = 0;
-  
+
   for (server = cfg->servers; server; server = server->next)
     {
       if (server->connected)
-	n++;
+        n++;
     }
 
   return n;

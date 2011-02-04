@@ -9,19 +9,19 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #if HAVE_CONFIG_H
 # include <config.h>
-#endif 
+#endif
 
 #define _GNU_SOURCE
 #include <assert.h>
@@ -37,7 +37,7 @@
 #endif /* DEBUG_MEMORY_LEAKS */
 
 #if SVZ_ENABLE_DEBUG
-/* The variable @var{svz_allocated_bytes} holds the overall number of bytes 
+/* The variable @var{svz_allocated_bytes} holds the overall number of bytes
    allocated by the core library. */
 unsigned int svz_allocated_bytes = 0;
 /* This variable holds the number of memory blocks reserved by the core
@@ -45,7 +45,7 @@ unsigned int svz_allocated_bytes = 0;
 unsigned int svz_allocated_blocks = 0;
 #endif /* SVZ_ENABLE_DEBUG */
 
-/* The @var{svz_malloc_func} variable is a function pointer for allocating 
+/* The @var{svz_malloc_func} variable is a function pointer for allocating
    dynamic memory. */
 svz_malloc_func_t svz_malloc_func = malloc;
 /* This function pointer is called whenever the core library needs to
@@ -68,14 +68,14 @@ heap_hash_keylen (char *id)
 }
 
 /* compare two heap hash values */
-static int 
+static int
 heap_hash_equals (char *id1, char *id2)
 {
   return memcmp (id1, id2, SIZEOF_VOID_P);
 }
 
 /* calculate heap hash code */
-static unsigned long 
+static unsigned long
 heap_hash_code (char *id)
 {
   unsigned long code = SVZ_UINT32 (id);
@@ -113,7 +113,7 @@ heap_add (heap_block_t *block)
 # define heap_caller()                                                     \
     STACKFRAME stack;                                                      \
     StackWalk (IMAGE_FILE_MACHINE_I386, GetCurrentProcess (),              \
-	       GetCurrentThread (), &stack, NULL, NULL, NULL, NULL, NULL)
+               GetCurrentThread (), &stack, NULL, NULL, NULL, NULL, NULL)
 #else
 # ifndef __GNUC__
 #  define __builtin_return_address(no) 0
@@ -128,7 +128,7 @@ heap_add (heap_block_t *block)
 /*
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  */
-void * 
+void *
 svz_malloc (svz_t_size size)
 {
   void *ptr;
@@ -143,8 +143,8 @@ svz_malloc (svz_t_size size)
   assert (size);
 
 #if SVZ_ENABLE_DEBUG
-  if ((ptr = (void *) svz_malloc_func (size + 2 * 
-				       sizeof (svz_t_size))) != NULL)
+  if ((ptr = (void *) svz_malloc_func (size + 2 *
+                                       sizeof (svz_t_size))) != NULL)
     {
 #if ENABLE_HEAP_COUNT
       /* save size at the beginning of the block */
@@ -182,7 +182,7 @@ svz_malloc (svz_t_size size)
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  * The memory is cleared (filled with zeros).
  */
-void * 
+void *
 svz_calloc (svz_t_size size)
 {
   void *ptr = svz_malloc (size);
@@ -191,9 +191,9 @@ svz_calloc (svz_t_size size)
 }
 
 /*
- * Change the size of a @code{svz_malloc()}'ed block of memory. The @var{size} 
- * argument is the new size of the block in bytes, The given variable 
- * @var{ptr} must be a pointer previously returned by @code{svz_malloc()} or 
+ * Change the size of a @code{svz_malloc()}'ed block of memory. The @var{size}
+ * argument is the new size of the block in bytes, The given variable
+ * @var{ptr} must be a pointer previously returned by @code{svz_malloc()} or
  * @code{NULL} if you want to allocate a new block.
  */
 void *
@@ -215,12 +215,12 @@ svz_realloc (void *ptr, svz_t_size size)
 #if ENABLE_HEAP_COUNT
 #if DEBUG_MEMORY_LEAKS
       if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
-	  block->ptr != ptr)
-	{
-	  fprintf (stdout, "realloc: %p not found in heap (caller: %p)\n", 
-		   ptr, __builtin_return_address (0));
-	  assert (0);
-	}
+          block->ptr != ptr)
+        {
+          fprintf (stdout, "realloc: %p not found in heap (caller: %p)\n",
+                   ptr, __builtin_return_address (0));
+          assert (0);
+        }
       svz_free_func (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
@@ -231,40 +231,40 @@ svz_realloc (void *ptr, svz_t_size size)
       ptr = (void *) p;
 #endif /* ENABLE_HEAP_COUNT */
 
-      if ((ptr = (void *) svz_realloc_func (ptr, size + 2 * 
-					    sizeof (svz_t_size))) != NULL)
-	{
+      if ((ptr = (void *) svz_realloc_func (ptr, size + 2 *
+                                            sizeof (svz_t_size))) != NULL)
+        {
 #if ENABLE_HEAP_COUNT
-	  /* save block size */
-	  p = (svz_t_size *) ptr;
-	  *p = size;
-	  p += 2;
-	  ptr = (void *) p;
+          /* save block size */
+          p = (svz_t_size *) ptr;
+          *p = size;
+          p += 2;
+          ptr = (void *) p;
 
 #if DEBUG_MEMORY_LEAKS
-	  block = svz_malloc_func (sizeof (heap_block_t));
-	  block->ptr = ptr;
-	  block->size = size;
-	  block->caller = __builtin_return_address (0);
-	  heap_add (block);
+          block = svz_malloc_func (sizeof (heap_block_t));
+          block->ptr = ptr;
+          block->size = size;
+          block->caller = __builtin_return_address (0);
+          heap_add (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
-	  svz_allocated_bytes += size - old_size;
+          svz_allocated_bytes += size - old_size;
 #endif /* ENABLE_HEAP_COUNT */
 
-	  return ptr;
-	}
+          return ptr;
+        }
 #else /* not SVZ_ENABLE_DEBUG */
       if ((ptr = (void *) svz_realloc_func (ptr, size)) != NULL)
-	{
-	  return ptr;
-	}
+        {
+          return ptr;
+        }
 #endif /* not SVZ_ENABLE_DEBUG */
       else
-	{
-	  svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
-	  exit (1);
-	}
+        {
+          svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
+          exit (1);
+        }
     }
   else
     {
@@ -274,7 +274,7 @@ svz_realloc (void *ptr, svz_t_size size)
 }
 
 /*
- * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory 
+ * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory
  * block. If @var{ptr} is a @code{NULL} pointer, no operation is performed.
  */
 void
@@ -297,12 +297,12 @@ svz_free (void *ptr)
 #if ENABLE_HEAP_COUNT
 #if DEBUG_MEMORY_LEAKS
       if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
-	  block->ptr != ptr)
-	{
-	  fprintf (stdout, "free: %p not found in heap (caller: %p)\n", 
-		   ptr, __builtin_return_address (0));
-	  assert (0);
-	}
+          block->ptr != ptr)
+        {
+          fprintf (stdout, "free: %p not found in heap (caller: %p)\n",
+                   ptr, __builtin_return_address (0));
+          assert (0);
+        }
       svz_free_func (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
@@ -337,15 +337,15 @@ svz_heap (void)
   if ((block = (heap_block_t **) svz_hash_values (heap)) != NULL)
     {
       for (n = 0; n < (unsigned long) svz_hash_size (heap); n++)
-	{
-	  p = (svz_t_size *) block[n]->ptr;
-	  p -= 2;
-	  fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
-		   block[n]->caller, block[n]->ptr, block[n]->size);
-	  svz_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
-		       block[n]->ptr, *p, 256);
-	  svz_free_func (block[n]);
-	}
+        {
+          p = (svz_t_size *) block[n]->ptr;
+          p -= 2;
+          fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
+                   block[n]->caller, block[n]->ptr, block[n]->size);
+          svz_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
+                       block[n]->ptr, *p, 256);
+          svz_free_func (block[n]);
+        }
       svz_hash_xfree (block);
     }
   else
@@ -358,8 +358,8 @@ svz_heap (void)
 #endif /* DEBUG_MEMORY_LEAKS */
 
 /*
- * Duplicate the given string @var{src} if it is not @code{NULL} and has 
- * got a valid length (greater than zero). Return the pointer to the 
+ * Duplicate the given string @var{src} if it is not @code{NULL} and has
+ * got a valid length (greater than zero). Return the pointer to the
  * copied character string.
  */
 char *
@@ -385,7 +385,7 @@ void *
 svz_pmalloc (svz_t_size size)
 {
   void *ptr = svz_malloc_func (size);
-  if (ptr == NULL) 
+  if (ptr == NULL)
     {
       svz_log (LOG_FATAL, "malloc: virtual memory exhausted\n");
       exit (1);
@@ -397,7 +397,7 @@ svz_pmalloc (svz_t_size size)
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  * The memory block is cleared (filled with zeros) and considered permanently.
  */
-void * 
+void *
 svz_pcalloc (svz_t_size size)
 {
   void *ptr = svz_malloc (size);
@@ -413,7 +413,7 @@ void *
 svz_prealloc (void *ptr, svz_t_size size)
 {
   void *dst = svz_realloc_func (ptr, size);
-  if (dst == NULL) 
+  if (dst == NULL)
     {
       svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
       exit (1);

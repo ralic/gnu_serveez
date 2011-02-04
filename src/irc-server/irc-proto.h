@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,7 +38,7 @@
 #define MAX_MOTD_LINES 256  /* Message of the Day lines */
 #define MOTD_LINE_LEN  80   /* lenght of one MOTD line */
 
-#if ENABLE_TIMESTAMP  
+#if ENABLE_TIMESTAMP
 # define TS_CURRENT 1       /* current (highest) TS version */
 # define TS_MIN     1       /* the lowest TS version  */
 # define TS_PASS    "TS"    /* passed as second arg in PASS */
@@ -228,7 +228,7 @@ struct irc_configuration
   int users_disabled;             /* is USERS command disabled ? */
   int channels_per_user;          /* maximum number of channels per user */
 
-#if ENABLE_TIMESTAMP  
+#if ENABLE_TIMESTAMP
   time_t tsdelta;                 /* delta value to UTC */
 #endif
 
@@ -237,7 +237,7 @@ struct irc_configuration
   time_t MOTD_lastModified;       /* last modified date */
   char *MOTD_file;                /* the file name */
 
-  /* 
+  /*
    * M [Mandatory] -- this IRC server's configuration
    *
    * :virtual host name
@@ -247,7 +247,7 @@ struct irc_configuration
    */
   char *MLine;
 
-  /* 
+  /*
    * A [Mandatory] -- administrative info, printed by the /ADMIN command
    *
    * :administrative info (department, university)
@@ -256,13 +256,13 @@ struct irc_configuration
    */
   char *ALine;
 
-  /* 
+  /*
    * Y [Suggested] -- connection class
    *
    * :class number (higher numbers refer to a higher priority)
    * :ping frequency (in seconds)
    * :connect frequency in seconds for servers, 0 for client class
-   * :maximum number of links in this class 
+   * :maximum number of links in this class
    * :send queue size
    */
   svz_array_t *YLine;
@@ -366,8 +366,8 @@ extern svz_servertype_t irc_server_definition;
 
 /* these functions can be used by all of the IRC event subsections */
 int irc_client_in_channel (svz_socket_t *, irc_client_t *, irc_channel_t *);
-int irc_check_args (svz_socket_t *, irc_client_t *, irc_config_t *, 
-		    irc_request_t *, int);
+int irc_check_args (svz_socket_t *, irc_client_t *, irc_config_t *,
+                    irc_request_t *, int);
 int irc_client_absent (irc_client_t *, irc_client_t *);
 int irc_printf __PARAMS ((svz_socket_t *, const char *, ...));
 
@@ -392,8 +392,8 @@ irc_client_t *irc_create_client (irc_config_t *cfg);
 irc_client_t *irc_find_nick (irc_config_t *cfg, char *nick);
 irc_client_t *irc_find_userhost (irc_config_t *cfg, char *user, char *host);
 irc_client_t **irc_regex_nick (irc_config_t *cfg, char *regex);
-irc_client_history_t *irc_find_nick_history (irc_config_t *, 
-					     irc_client_history_t *, char *);
+irc_client_history_t *irc_find_nick_history (irc_config_t *,
+                                             irc_client_history_t *, char *);
 
 /* irc server functions */
 int irc_init (svz_server_t *server);

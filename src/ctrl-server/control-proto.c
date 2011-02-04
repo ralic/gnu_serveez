@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -70,7 +70,7 @@ ctrl_config_t ctrl_config =
 };
 
 /*
- * Definition of the configuration items processed by the configuration 
+ * Definition of the configuration items processed by the configuration
  * language.
  */
 svz_key_value_pair_t ctrl_config_prototype [] =
@@ -159,7 +159,7 @@ ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
   int ret = 0;
 
   /* accept both CRLF and CR */
-  if (sock->recv_buffer_fill >= 2 && 
+  if (sock->recv_buffer_fill >= 2 &&
       sock->recv_buffer[0] == '\r' &&
       sock->recv_buffer[1] == '\n')
     {
@@ -174,11 +174,11 @@ ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
   if (ret)
     {
       if (ret < sock->recv_buffer_fill)
-	{
-	  memmove (sock->recv_buffer, 
-		   sock->recv_buffer + ret, 
-		   sock->recv_buffer_fill - ret);
-	}
+        {
+          memmove (sock->recv_buffer,
+                   sock->recv_buffer + ret,
+                   sock->recv_buffer_fill - ret);
+        }
       sock->recv_buffer_fill -= ret;
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "control protocol client detected\n");
@@ -191,7 +191,7 @@ ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
 
 /*
  * When ctrl_detect_proto has identified a client connection being
- * a control protocol connection you have to call the following 
+ * a control protocol connection you have to call the following
  * routine.
  */
 int
@@ -234,13 +234,13 @@ ctrl_quit (svz_socket_t *sock, int flag, char *arg)
 
 /*
  * Help screen. Here you will get all the available commands of the
- * control protocol. These depend on the features the current version 
+ * control protocol. These depend on the features the current version
  * of Serveez implements.
  */
 int
 ctrl_help (svz_socket_t *sock, int flag, char *arg)
 {
-  svz_sock_printf (sock, 
+  svz_sock_printf (sock,
     "\r\n available commands:\r\n"
     "   * help                - this help screen\r\n"
     "   * quit                - quit this control connection\r\n"
@@ -286,10 +286,10 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     }
 
   svz_sock_printf (sock, "\r\nconnection id %d (version %d) "
-		   "statistics\r\n\r\n", 
-		   id, xsock->version);
+                   "statistics\r\n\r\n",
+                   id, xsock->version);
 
-  /* 
+  /*
    * Process general socket structure's flags. Uppercase words refer
    * to set bits and lowercase to unset bits.
    */
@@ -321,23 +321,23 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
       /* a listening server */
       strcpy (proto, "server: ");
       if (xsock->proto & PROTO_TCP)
-	strcat (proto, "tcp ");
+        strcat (proto, "tcp ");
       if (xsock->proto & PROTO_UDP)
-	strcat (proto, "udp ");
+        strcat (proto, "udp ");
       if (xsock->proto & PROTO_ICMP)
-	strcat (proto, "icmp ");
+        strcat (proto, "icmp ");
       if (xsock->proto & PROTO_PIPE)
-	strcat (proto, "pipe ");
+        strcat (proto, "pipe ");
       if (xsock->proto & PROTO_RAW)
-	strcat (proto, "raw ");
+        strcat (proto, "raw ");
 
       svz_sock_printf (sock, "%s\r\n", proto);
       servers = svz_sock_servers (xsock);
       svz_array_foreach (servers, server, n)
-	{
-	  svz_sock_printf (sock, "            %d. %s (%s)\r\n", 
-			   n + 1, server->name, server->description);
-	}
+        {
+          svz_sock_printf (sock, "            %d. %s (%s)\r\n",
+                           n + 1, server->name, server->description);
+        }
       svz_array_destroy (servers);
     }
   /* process client info */
@@ -345,27 +345,27 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     {
       /* usual client */
       if ((server = svz_server_find (xsock->cfg)) != NULL)
-	{
-	  char *info;
-	  svz_sock_printf (sock, "%s client\r\n", server->name);
-	  if (server->info_client && 
-	      (info = server->info_client (server, xsock)) != NULL)
-	    {
-	      svz_sock_printf (sock, "            %s\r\n", info);
-	    }
-	}
+        {
+          char *info;
+          svz_sock_printf (sock, "%s client\r\n", server->name);
+          if (server->info_client &&
+              (info = server->info_client (server, xsock)) != NULL)
+            {
+              svz_sock_printf (sock, "            %s\r\n", info);
+            }
+        }
       /* coserver */
       else if (xsock->flags & SOCK_FLAG_COSERVER)
-	{
-	  coserver = xsock->data;
-	  svz_sock_printf (sock, "internal %s coserver\r\n",
-			   svz_coservertypes[coserver->type].name);
-	}
+        {
+          coserver = xsock->data;
+          svz_sock_printf (sock, "internal %s coserver\r\n",
+                           svz_coservertypes[coserver->type].name);
+        }
       /* unidentified */
       else
-	{
-	  svz_sock_printf (sock, "not yet identified\r\n");
-	}
+        {
+          svz_sock_printf (sock, "not yet identified\r\n");
+        }
     }
 
   /* print all previously collected statistics of this connection */
@@ -375,46 +375,46 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     svz_sock_printf (sock, " file fd  : %d\r\n", xsock->file_desc);
   if (xsock->flags & SOCK_FLAG_PIPE)
     svz_sock_printf (sock, " pipe fd  : %d (recv), %d (send)\r\n",
-		     xsock->pipe_desc[READ], 
-		     xsock->pipe_desc[WRITE]);
+                     xsock->pipe_desc[READ],
+                     xsock->pipe_desc[WRITE]);
 
   if (xsock->flags & SOCK_FLAG_PIPE)
     {
       if (xsock->send_pipe)
-	svz_sock_printf (sock, " foreign  : %s\r\n", xsock->send_pipe);
+        svz_sock_printf (sock, " foreign  : %s\r\n", xsock->send_pipe);
       if (xsock->recv_pipe)
-	svz_sock_printf (sock, " local    : %s\r\n", xsock->recv_pipe);
+        svz_sock_printf (sock, " local    : %s\r\n", xsock->recv_pipe);
     }
   if (xsock->flags & SOCK_FLAG_SOCK)
     {
       svz_sock_printf (sock, " foreign  : %s:%u\r\n",
-		       svz_inet_ntoa (xsock->remote_addr),
-		       ntohs (xsock->remote_port));
+                       svz_inet_ntoa (xsock->remote_addr),
+                       ntohs (xsock->remote_port));
       svz_sock_printf (sock, " local    : %s:%u\r\n",
-		       svz_inet_ntoa (xsock->local_addr),
-		       ntohs (xsock->local_port));
+                       svz_inet_ntoa (xsock->local_addr),
+                       ntohs (xsock->local_port));
     }
 
-  svz_sock_printf (sock, 
-		   " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
-		   " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
-		   " idle     : %d\r\n"
+  svz_sock_printf (sock,
+                   " sendbuf  : %d (size), %d (fill), %s (last send)\r\n"
+                   " recvbuf  : %d (size), %d (fill), %s (last recv)\r\n"
+                   " idle     : %d\r\n"
 #if SVZ_ENABLE_FLOOD_PROTECTION
-		   " flood    : %d (points), %d (limit)\r\n"
+                   " flood    : %d (points), %d (limit)\r\n"
 #endif /* SVZ_ENABLE_FLOOD_PROTECTION */
-		   " avail    : %s\r\n\r\n",
-		   xsock->send_buffer_size,
-		   xsock->send_buffer_fill,
-		   svz_time (xsock->last_send),
-		   xsock->recv_buffer_size,
-		   xsock->recv_buffer_fill,
-		   svz_time (xsock->last_recv),
-		   xsock->idle_counter,
+                   " avail    : %s\r\n\r\n",
+                   xsock->send_buffer_size,
+                   xsock->send_buffer_fill,
+                   svz_time (xsock->last_send),
+                   xsock->recv_buffer_size,
+                   xsock->recv_buffer_fill,
+                   svz_time (xsock->last_recv),
+                   xsock->idle_counter,
 #if SVZ_ENABLE_FLOOD_PROTECTION
-		   xsock->flood_points,
-		   xsock->flood_limit,
+                   xsock->flood_points,
+                   xsock->flood_limit,
 #endif /* SVZ_ENABLE_FLOOD_PROTECTION */
-		   xsock->unavailable ? "no" : "yes");
+                   xsock->unavailable ? "no" : "yes");
 
   return flag;
 }
@@ -440,67 +440,67 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   if ((server = svz_hash_get (svz_servers, arg)) != NULL)
     {
       svz_sock_printf (sock, "\r\n%s (%s):\r\n",
-		       server->description, server->name);
+                       server->description, server->name);
       if (server->info_server && (p = server->info_server (server)) != NULL)
-	{
-	  svz_sock_printf (sock, "%s\r\n", p);
-	}
+        {
+          svz_sock_printf (sock, "%s\r\n", p);
+        }
       svz_sock_printf (sock, "\r\n");
       return flag;
     }
 
   /* print a standard output */
-  svz_sock_printf (sock, 
-		   "\r\nThis is %s version %s running since %s.\r\n", 
-		   svz_library, svz_version,
-		   svz_time (svz_config.start));
+  svz_sock_printf (sock,
+                   "\r\nThis is %s version %s running since %s.\r\n",
+                   svz_library, svz_version,
+                   svz_time (svz_config.start));
 
   /* display compile time feature list */
   svz_sock_printf (sock, "Features  : FOO"
 #ifdef ENABLE_AWCS_PROTO
-		   " AWCS"
+                   " AWCS"
 #endif /* ENABLE_AWCS_PROTO */
 #ifdef ENABLE_HTTP_PROTO
-		   " HTTP"
+                   " HTTP"
 #endif /* ENABLE_HTTP_PROTO */
 #ifdef ENABLE_IRC_PROTO
-		   " IRC"
+                   " IRC"
 #endif /* ENABLE_IRC_PROTO */
 #if ENABLE_CONTROL_PROTO
-		   " CTRL"
+                   " CTRL"
 #endif /* ENABLE_CONTROL_PROTO */
 #if ENABLE_SNTP_PROTO
-		   " SNTP"
+                   " SNTP"
 #endif /* ENABLE_SNTP_PROTO */
 #if ENABLE_GNUTELLA
-		   " NUT"
+                   " NUT"
 #endif /* ENABLE_GNUTELLA */
 #if ENABLE_TUNNEL
-		   " TUNNEL"
+                   " TUNNEL"
 #endif /* ENABLE_TUNNEL */
 #if ENABLE_FAKEIDENT
-		   " IDENTD"
+                   " IDENTD"
 #endif /* ENABLE_FAKEIDENT */
 #if ENABLE_PROG_SERVER
-		   " PROG"
+                   " PROG"
 #endif /* ENABLE_PROG_SERVER */
-		   "\r\n");
-  
+                   "\r\n");
+
   /* second feature line */
   svz_sock_printf (sock, "           "
-		   " IDENT"
-		   " REVERSE-DNS"
-		   " DNS"
+                   " IDENT"
+                   " REVERSE-DNS"
+                   " DNS"
 #ifdef SVZ_ENABLE_FLOOD_PROTECTION
-		   " FLOOD"
+                   " FLOOD"
 #endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 #ifdef SVZ_ENABLE_DEBUG
-		   " DEBUG"
+                   " DEBUG"
 #endif /* SVZ_ENABLE_DEBUG */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
-		   " WIN32"
+                   " WIN32"
 #endif /* __MINGW32__, __CYGWIN__ */
-		   "\r\n");
+                   "\r\n");
 
   /* display system and process information */
   svz_sock_printf (sock, "Os        : %s\r\n", svz_sys_version ());
@@ -509,12 +509,12 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 
   /* show general state */
   svz_sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
-		   svz_sock_connections, svz_config.max_sockets);
-  svz_sock_printf (sock, " * uptime is %s\r\n", 
-		   svz_uptime (time (NULL) - svz_config.start));
+                   svz_sock_connections, svz_config.max_sockets);
+  svz_sock_printf (sock, " * uptime is %s\r\n",
+                   svz_uptime (time (NULL) - svz_config.start));
 #if SVZ_ENABLE_DEBUG
-  svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n", 
-		   svz_allocated_bytes, svz_allocated_blocks);
+  svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n",
+                   svz_allocated_bytes, svz_allocated_blocks);
 #endif /* SVZ_ENABLE_DEBUG */
   svz_sock_printf (sock, "\r\n");
 
@@ -530,13 +530,13 @@ ctrl_stat_con (svz_socket_t *sock, int flag, char *arg)
 {
   svz_socket_t *xsock;
   char *id;
-  char linet[64];  
+  char linet[64];
   char rinet[64];
   svz_server_t *server;
 
-  svz_sock_printf (sock, "\r\n%s", 
-		   "Proto              Id  RecvQ  SendQ "
-		   "Local                Foreign\r\n");
+  svz_sock_printf (sock, "\r\n%s",
+                   "Proto              Id  RecvQ  SendQ "
+                   "Local                Foreign\r\n");
 
   /* go through all the socket list */
   svz_sock_foreach (xsock)
@@ -544,26 +544,26 @@ ctrl_stat_con (svz_socket_t *sock, int flag, char *arg)
       /* get type of socket */
       id = "None";
       if (xsock->flags & SOCK_FLAG_LISTENING)
-	id = "Listener";
+        id = "Listener";
       else if (xsock->flags & SOCK_FLAG_COSERVER)
-	id = "Co-Server";
+        id = "Co-Server";
       else if ((server = svz_server_find (xsock->cfg)) != NULL)
-	id = server->name;
+        id = server->name;
 
       /* print local and remote end of the connection */
       sprintf (linet, "%s:%u",
-	       svz_inet_ntoa (xsock->local_addr),
-	       ntohs (xsock->local_port));
+               svz_inet_ntoa (xsock->local_addr),
+               ntohs (xsock->local_port));
 
       sprintf (rinet, "%s:%u",
-	       svz_inet_ntoa (xsock->remote_addr),
-	       ntohs (xsock->remote_port));
-      
+               svz_inet_ntoa (xsock->remote_addr),
+               ntohs (xsock->remote_port));
+
       /* gather all information from above */
-      svz_sock_printf (sock, 
-		       "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
-		       xsock->id, xsock->recv_buffer_fill,
-		       xsock->send_buffer_fill, linet, rinet);
+      svz_sock_printf (sock,
+                       "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
+                       xsock->id, xsock->recv_buffer_fill,
+                       xsock->send_buffer_fill, linet, rinet);
     }
   svz_sock_printf (sock, "\r\n");
 
@@ -582,9 +582,9 @@ ctrl_stat_cache (svz_socket_t *sock, int flag, char *arg)
   char *p;
   http_cache_entry_t *cache;
 
-  svz_sock_printf (sock, "\r\n%s", 
-		   "File                             "
-		   "Size  Usage  Hits Recent Ready\r\n");
+  svz_sock_printf (sock, "\r\n%s",
+                   "File                             "
+                   "Size  Usage  Hits Recent Ready\r\n");
 
   files = total = n = 0;
   /* go through each cache entry */
@@ -597,13 +597,13 @@ ctrl_stat_cache (svz_socket_t *sock, int flag, char *arg)
       while (*p != '/' && *p != '\\' && p != cache->file) p--;
       if (p != cache->file) p++;
       svz_sock_printf (sock, "%-30s %6d %6d %5d %6d %-5s\r\n", p,
-		       cache->size, cache->usage, cache->hits, n,
-		       cache->ready ? "Yes" : "No");
+                       cache->size, cache->usage, cache->hits, n,
+                       cache->ready ? "Yes" : "No");
     }
 
   /* print cache summary */
   svz_sock_printf (sock, "\r\nTotal : %d byte in %d cache entries\r\n\r\n",
-		   total, files);
+                   total, files);
 
   return flag;
 }
@@ -615,7 +615,7 @@ int
 ctrl_kill_cache (svz_socket_t *sock, int flag, char *arg)
 {
   svz_sock_printf (sock, "%d HTTP cache entries reinitialized.\r\n",
-		   http_cache_entries);
+                   http_cache_entries);
   http_free_cache ();
   http_alloc_cache (http_cache_entries);
   return flag;
@@ -635,18 +635,18 @@ ctrl_stat_coservers (svz_socket_t *sock, int flag, char *arg)
   svz_array_foreach (svz_coservers, coserver, n)
     {
       svz_sock_printf (sock, "\r\ninternal %s coserver:\r\n",
-		       svz_coservertypes[coserver->type].name);
-      svz_sock_printf (sock, 
-		       " socket id  : %d\r\n"
-		       " %s %d\r\n"
-		       " requests   : %d\r\n",
-		       coserver->sock->id,
+                       svz_coservertypes[coserver->type].name);
+      svz_sock_printf (sock,
+                       " socket id  : %d\r\n"
+                       " %s %d\r\n"
+                       " requests   : %d\r\n",
+                       coserver->sock->id,
 #ifndef __MINGW32__
-		       "process id :", coserver->pid,
+                       "process id :", coserver->pid,
 #else /* __MINGW32__ */
-		       "thread id  :", coserver->tid,
+                       "thread id  :", coserver->tid,
 #endif /* __MINGW32__ */
-		       coserver->busy);
+                       coserver->busy);
     }
 
   svz_sock_printf (sock, "\r\n");
@@ -666,11 +666,11 @@ ctrl_stat_all (svz_socket_t *sock, int flag, char *arg)
   svz_hash_foreach_value (svz_servers, server, n)
     {
       svz_sock_printf (sock, "\r\n%s (%s):\r\n",
-		       server[n]->description, server[n]->name);
+                       server[n]->description, server[n]->name);
       if (server[n]->info_server)
-	{
-	  svz_sock_printf (sock, "%s\r\n", server[n]->info_server (server[n]));
-	}
+        {
+          svz_sock_printf (sock, "%s\r\n", server[n]->info_server (server[n]));
+        }
     }
 
   /* show coserver statistics */
@@ -715,12 +715,12 @@ ctrl_killall (svz_socket_t *sock, int flag, char *arg)
   svz_sock_foreach (xsock)
     {
       if (xsock != sock &&
-	  !(xsock->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_COSERVER | 
-			    SOCK_FLAG_PRIORITY)))
-	{
-	  svz_sock_schedule_for_shutdown (xsock);
-	  n++;
-	}
+          !(xsock->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_COSERVER |
+                            SOCK_FLAG_PRIORITY)))
+        {
+          svz_sock_schedule_for_shutdown (xsock);
+          n++;
+        }
     }
   svz_sock_printf (sock, "killed %d network connections\r\n", n);
 
@@ -740,19 +740,19 @@ ctrl_restart (svz_socket_t *sock, int type, char *arg)
   svz_array_foreach (svz_coservers, coserver, n)
     {
       if (coserver->type == type)
-	{
-	  svz_coserver_destroy (type);
-	  svz_coserver_create (type);
-	  svz_sock_printf (sock, "internal %s coserver restarted\r\n",
-			   svz_coservertypes[type].name);
-	  return 0;
-	}
+        {
+          svz_coserver_destroy (type);
+          svz_coserver_create (type);
+          svz_sock_printf (sock, "internal %s coserver restarted\r\n",
+                           svz_coservertypes[type].name);
+          return 0;
+        }
     }
 
   /* start a new internal coserver if there has none found */
   svz_coserver_create (type);
   svz_sock_printf (sock, "internal %s coserver invoked\r\n",
-		   svz_coservertypes[type].name);
+                   svz_coservertypes[type].name);
   return 0;
 }
 
@@ -805,7 +805,7 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
   /* search through if there is an input line */
   while (request[len - 1] == '\r' || request[len - 1] == '\n')
     len--;
-  
+
   /* password given ? */
   if (!(sock->userflags & CTRL_FLAG_PASSED))
     {
@@ -816,16 +816,16 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
 #if SVZ_ENABLE_CRYPT
       request[len] = '\0';
       if (svz_config.password == NULL ||
-	  !strcmp (crypt (request, svz_config.password), svz_config.password))
+          !strcmp (crypt (request, svz_config.password), svz_config.password))
 #else
       if (svz_config.password == NULL ||
-	  (!memcmp (request, svz_config.password, len) &&
-	   (unsigned) len >= strlen (svz_config.password)))
+          (!memcmp (request, svz_config.password, len) &&
+           (unsigned) len >= strlen (svz_config.password)))
 #endif
-	{
-	  sock->userflags |= CTRL_FLAG_PASSED;
-	  svz_sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);
-	}
+        {
+          sock->userflags |= CTRL_FLAG_PASSED;
+          svz_sock_printf (sock, "Login ok.\r\n%s", CTRL_PROMPT);
+        }
       else return -1;
     }
   /* yes, already logged in */
@@ -833,26 +833,26 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
     {
       /* repeat last command */
       if (!memcmp (request, "/\r\n", 3))
-	{
-	  memcpy (request, last_request, len = last_len);
-	}
+        {
+          memcpy (request, last_request, len = last_len);
+        }
       /* go through all commands */
       n = 0;
       while (ctrl[n].command != NULL)
-	{
-	  l = strlen (ctrl[n].command);
-	  if (!memcmp (request, ctrl[n].command, l))
-	    {
-	      /* save this command for repetition */
-	      memcpy (last_request, request, last_len = len);
+        {
+          l = strlen (ctrl[n].command);
+          if (!memcmp (request, ctrl[n].command, l))
+            {
+              /* save this command for repetition */
+              memcpy (last_request, request, last_len = len);
 
-	      /* execute valid command and give the prompt */
-	      ret = ctrl[n].func (sock, ctrl[n].flag, &request[l + 1]);
-	      svz_sock_printf (sock, "%s", CTRL_PROMPT);
-	      return ret;
-	    }
-	  n++;
-	}
+              /* execute valid command and give the prompt */
+              ret = ctrl[n].func (sock, ctrl[n].flag, &request[l + 1]);
+              svz_sock_printf (sock, "%s", CTRL_PROMPT);
+              return ret;
+            }
+          n++;
+        }
       l = 0;
       while (l < len && request[l] >= ' ') l++;
       request[l] = 0;
@@ -867,7 +867,7 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
 }
 
 /*
- * Depending on the systems this routine gets the cpu load. 
+ * Depending on the systems this routine gets the cpu load.
  * Returns -1 if an error occurred.
  * Linux   -- /proc/stat
  * HP-Unix -- pstat_getdynamic()
@@ -910,7 +910,7 @@ ctrl_get_cpu_state (void)
   cpu_state.proc[n][2] = proc_tms.tms_cutime;
   cpu_state.proc[n][3] = proc_tms.tms_cstime;
 #else /* not HAVE_TIMES */
-  cpu_state.ptotal[n] = cpu_state.ptotal[cpu_state.index] + 
+  cpu_state.ptotal[n] = cpu_state.ptotal[cpu_state.index] +
     (CLOCKS_PER_SEC * CTRL_LOAD_UPDATE);
   cpu_state.proc[n][0] = clock ();
 #endif /* not HAVE_TIMES */
@@ -921,18 +921,18 @@ ctrl_get_cpu_state (void)
     {
       kc = kstat_open ();
 
-      for (ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next) 
-	if (strncmp (ksp->ks_name, "cpu_stat", 8) == 0) 
-	  break;
+      for (ksp = kc->kc_chain; ksp != NULL; ksp = ksp->ks_next)
+        if (strncmp (ksp->ks_name, "cpu_stat", 8) == 0)
+          break;
     }
   else
     {
-      if (kstat_read (kc, ksp, &cs) == -1) 
-	{
-	  svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
-			"kstat_read() failed");
-	  return -1;
-	}
+      if (kstat_read (kc, ksp, &cs) == -1)
+        {
+          svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE,
+                        "kstat_read() failed");
+          return -1;
+        }
 
       cpu_state.cpu[n][0] = cs.cpu_sysinfo.cpu[CPU_USER];
       cpu_state.cpu[n][1] = cs.cpu_sysinfo.cpu[CPU_KERNEL];
@@ -945,28 +945,28 @@ ctrl_get_cpu_state (void)
   /* open the statistics file */
   if ((f = svz_fopen (cpu_state.cpufile, "r")) == NULL)
     {
-      svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
-		    "%s not available", cpu_state.cpufile);
+      svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE,
+                    "%s not available", cpu_state.cpufile);
       return -1;
     }
 
   /* find the appropriate cpu statistics line */
   while (fgets (stat, STAT_BUFFER_SIZE, f))
     {
-      if (4 == sscanf (stat, cpu_state.cpuline, 
-		       &cpu_state.cpu[n][0], 
-		       &cpu_state.cpu[n][1], 
-		       &cpu_state.cpu[n][2], 
-		       &cpu_state.cpu[n][3]))
-	{
-	  svz_fclose (f);
-	  return 0;
-	}
+      if (4 == sscanf (stat, cpu_state.cpuline,
+                       &cpu_state.cpu[n][0],
+                       &cpu_state.cpu[n][1],
+                       &cpu_state.cpu[n][2],
+                       &cpu_state.cpu[n][3]))
+        {
+          svz_fclose (f);
+          return 0;
+        }
     }
 
   /* cpu line not found */
-  svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE, 
-		"cpu line not found in %s", cpu_state.cpufile);
+  svz_snprintf (cpu_state.info, STAT_BUFFER_SIZE,
+                "cpu line not found in %s", cpu_state.cpufile);
   svz_fclose (f);
 
 #elif HAVE_PSTAT /* HP Unix */
@@ -990,8 +990,8 @@ ctrl_get_cpu_state (void)
 
 #elif HAVE_HOST_STATISTICS /* MacOS */
 
-  host_statistics (mach_host_self (), 
-		   HOST_CPU_LOAD_INFO, (host_info_t) &info, &count);
+  host_statistics (mach_host_self (),
+                   HOST_CPU_LOAD_INFO, (host_info_t) &info, &count);
 
   cpu_state.cpu[n][0] = info.cpu_ticks[CPU_STATE_USER];
   cpu_state.cpu[n][1] = info.cpu_ticks[CPU_STATE_SYSTEM];
@@ -1024,18 +1024,18 @@ ctrl_idle (svz_socket_t *sock)
   ret = ctrl_get_cpu_state ();
 
   /* calculate process specific info */
-  all = c->ptotal[n] - c->ptotal[old]; 
+  all = c->ptotal[n] - c->ptotal[old];
   if (all != 0)
     {
       svz_snprintf (c->pinfo, STAT_BUFFER_SIZE, PROC_FORMAT,
-		    PROC_DIFF (0) * 100 / all,
-		    PROC_DIFF (0) * 1000 / all % 10,
-		    PROC_DIFF (1) * 100 / all,
-		    PROC_DIFF (1) * 1000 / all % 10,
-		    PROC_DIFF (2) * 100 / all,
-		    PROC_DIFF (2) * 1000 / all % 10,
-		    PROC_DIFF (3) * 100 / all,
-		    PROC_DIFF (3) * 1000 / all % 10);
+                    PROC_DIFF (0) * 100 / all,
+                    PROC_DIFF (0) * 1000 / all % 10,
+                    PROC_DIFF (1) * 100 / all,
+                    PROC_DIFF (1) * 1000 / all % 10,
+                    PROC_DIFF (2) * 100 / all,
+                    PROC_DIFF (2) * 1000 / all % 10,
+                    PROC_DIFF (3) * 100 / all,
+                    PROC_DIFF (3) * 1000 / all % 10);
     }
 
   if (ret != -1)
@@ -1044,19 +1044,19 @@ ctrl_idle (svz_socket_t *sock)
       c->total[n] = c->cpu[n][0] + c->cpu[n][1] + c->cpu[n][2] + c->cpu[n][3];
       all = c->total[n] - c->total[old];
       if (all != 0)
-	{
-	  svz_snprintf (c->info, STAT_BUFFER_SIZE, c->cpuinfoline,
-			CPU_DIFF (0) * 100 / all,
-			CPU_DIFF (0) * 1000 / all % 10,
-			CPU_DIFF (1) * 100 / all,
-			CPU_DIFF (1) * 1000 / all % 10,
-			CPU_DIFF (2) * 100 / all,
-			CPU_DIFF (2) * 1000 / all % 10,
-			CPU_DIFF (3) * 100 / all,
-			CPU_DIFF (3) * 1000 / all % 10);
-	}
+        {
+          svz_snprintf (c->info, STAT_BUFFER_SIZE, c->cpuinfoline,
+                        CPU_DIFF (0) * 100 / all,
+                        CPU_DIFF (0) * 1000 / all % 10,
+                        CPU_DIFF (1) * 100 / all,
+                        CPU_DIFF (1) * 1000 / all % 10,
+                        CPU_DIFF (2) * 100 / all,
+                        CPU_DIFF (2) * 1000 / all % 10,
+                        CPU_DIFF (3) * 100 / all,
+                        CPU_DIFF (3) * 1000 / all % 10);
+        }
     }
-  
+
   c->index = n;
   sock->idle_counter = CTRL_LOAD_UPDATE;
   return 0;

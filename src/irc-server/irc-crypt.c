@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -74,14 +74,14 @@ irc_encrypt_text (char *text, svz_uint8_t key)
     {
       code = (svz_uint8_t) (*t ^ key);
       if (code < (svz_uint8_t) 0x20 || code == IRC_CRYPT_PREFIX)
-	{
-	  *c++ = IRC_CRYPT_PREFIX;
-	  *c++ = (char) (code + IRC_CRYPT_PREFIX);
-	}
+        {
+          *c++ = IRC_CRYPT_PREFIX;
+          *c++ = (char) (code + IRC_CRYPT_PREFIX);
+        }
       else
-	{
-	  *c++ = code;
-	}
+        {
+          *c++ = code;
+        }
       t++;
     }
   strcpy (text, crypt);
@@ -103,14 +103,14 @@ irc_decrypt_text (char *crypt, svz_uint8_t key)
   while (*c)
     {
       if (*c == IRC_CRYPT_PREFIX)
-	{
-	  c++;
-	  *t++ = (char) ((*c - IRC_CRYPT_PREFIX) ^ key);
-	}
+        {
+          c++;
+          *t++ = (char) ((*c - IRC_CRYPT_PREFIX) ^ key);
+        }
       else
-	{
-	  *t++ = (char) (*c ^ key);
-	}
+        {
+          *t++ = (char) (*c ^ key);
+        }
       c++;
     }
   return text;

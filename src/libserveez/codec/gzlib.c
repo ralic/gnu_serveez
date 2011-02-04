@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -92,8 +92,8 @@ zlib_free (voidpf data, voidpf ptr)
 }
 
 /* Codec `error' callback:
-   Returns the last 'zlib' codec error. This callback gets invoked in order 
-   to obtain a human readable error message if any of the codec callbacks 
+   Returns the last 'zlib' codec error. This callback gets invoked in order
+   to obtain a human readable error message if any of the codec callbacks
    returns an error. */
 char *
 zlib_error (svz_codec_data_t *data)
@@ -111,7 +111,7 @@ zlib_error (svz_codec_data_t *data)
 }
 
 /* Codec `ratio' callback:
-   Returns the current ratio state of 'zlib' codec. This callback gets 
+   Returns the current ratio state of 'zlib' codec. This callback gets
    called if the `code' callback returned @code{SVZ_CODEC_FINISHED}. */
 int
 zlib_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
@@ -130,7 +130,7 @@ zlib_ratio (svz_codec_data_t *data, unsigned long *in, unsigned long *out)
 
 /* Codec `init' callback:
    Initialization routine for the 'zlib' encoder. This callback is run when
-   the codec is setup for sending or receiving. It should return 
+   the codec is setup for sending or receiving. It should return
    @code{SVZ_CODEC_ERROR} on failure and @code{SVZ_CODEC_OK} otherwise. */
 int
 zlib_encoder_init (svz_codec_data_t *data)
@@ -162,7 +162,7 @@ zlib_encoder_finalize (svz_codec_data_t *data)
   if (z != NULL)
     {
       if (deflateEnd (&z->stream) != Z_OK)
-	ret = SVZ_CODEC_ERROR;
+        ret = SVZ_CODEC_ERROR;
       zlib_free (NULL, (voidpf) z);
       data->data = NULL;
     }
@@ -172,8 +172,8 @@ zlib_encoder_finalize (svz_codec_data_t *data)
 /* Codec `code' callback:
    Encoding routine of 'zlib' codec. The callback is meant to do what is
    described by the `flag' member of @code{svz_codec_data_t}. The coding
-   routine must interpret the input buffer and output buffer description 
-   correctly and should remove the input bytes consumed by the codec. 
+   routine must interpret the input buffer and output buffer description
+   correctly and should remove the input bytes consumed by the codec.
    Possible return values are @code{SVZ_CODEC_ERROR}, @code{SVZ_CODEC_OK},
    @code{SVZ_CODEC_MORE_OUT} and @code{SVZ_CODEC_MORE_IN} each having its
    special meaning. */
@@ -239,7 +239,7 @@ zlib_decoder_finalize (svz_codec_data_t *data)
   if (z != NULL)
     {
       if (inflateEnd (&z->stream) != Z_OK)
-	ret = SVZ_CODEC_ERROR;
+        ret = SVZ_CODEC_ERROR;
       zlib_free (NULL, (voidpf) z);
       data->data = NULL;
     }

@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -56,9 +56,9 @@
 
 /*
  * This routine is the default reader for UDP sockets. Whenever the socket
- * descriptor is @code{select()}'ed for reading it is called by default and 
- * reads as much data as possible (whole packets only) and saves the sender 
- * into the @code{sock->remote_addr} field. The packet load is written into 
+ * descriptor is @code{select()}'ed for reading it is called by default and
+ * reads as much data as possible (whole packets only) and saves the sender
+ * into the @code{sock->remote_addr} field. The packet load is written into
  * @code{sock->recv_buffer}.
  */
 int
@@ -75,22 +75,22 @@ svz_udp_read_socket (svz_socket_t *sock)
   if (do_read <= 0)
     {
       svz_log (LOG_ERROR, "receive buffer overflow on udp socket %d\n",
-	       sock->sock_desc);
+               sock->sock_desc);
       return -1;
     }
-  
+
   /* Receive data. */
   if (!(sock->flags & SOCK_FLAG_CONNECTED))
     {
       num_read = recvfrom (sock->sock_desc,
-			   sock->recv_buffer + sock->recv_buffer_fill,
-			   do_read, 0, (struct sockaddr *) &sender, &len);
+                           sock->recv_buffer + sock->recv_buffer_fill,
+                           do_read, 0, (struct sockaddr *) &sender, &len);
     }
   else
     {
       num_read = recv (sock->sock_desc,
-		       sock->recv_buffer + sock->recv_buffer_fill,
-		       do_read, 0);
+                       sock->recv_buffer + sock->recv_buffer_fill,
+                       do_read, 0);
     }
 
   /* Valid packet data arrived. */
@@ -101,34 +101,34 @@ svz_udp_read_socket (svz_socket_t *sock)
 
       /* Save sender in socket structure. */
       if (!(sock->flags & SOCK_FLAG_FIXED))
-	{
-	  sock->remote_port = sender.sin_port;
-	  sock->remote_addr = sender.sin_addr.s_addr;
-	}
+        {
+          sock->remote_port = sender.sin_port;
+          sock->remote_addr = sender.sin_addr.s_addr;
+        }
 
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
-	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
-	       svz_inet_ntoa (sock->remote_addr),
-	       ntohs (sock->remote_port), num_read);
+               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
+               svz_inet_ntoa (sock->remote_addr),
+               ntohs (sock->remote_port), num_read);
 #endif /* SVZ_ENABLE_DEBUG */
 
       /* Check access lists. */
       if (svz_sock_check_access (sock, sock) < 0)
-	return 0;
+        return 0;
 
       /* Handle packet. */
       if (sock->check_request)
         if (sock->check_request (sock))
-	  return -1;
+          return -1;
     }
   /* Some error occurred. */
   else
     {
       svz_log (LOG_ERROR, "udp: recv%s: %s\n",
-	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
+               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
       if (svz_errno != SOCK_UNAVAILABLE)
-	return -1;
+        return -1;
     }
   return 0;
 }
@@ -144,16 +144,16 @@ svz_udp_lazy_read_socket (svz_socket_t *sock)
   svz_portcfg_t *port = sock->port;
 
   svz_sock_resize_buffers (sock, port->send_buffer_size,
-			   port->recv_buffer_size);
+                           port->recv_buffer_size);
   sock->read_socket = svz_udp_read_socket;
 
   return sock->read_socket (sock);
 }
 
 /*
- * The @code{svz_udp_write_socket()} callback should be called whenever 
- * the UDP socket descriptor is ready for sending. It sends a single packet 
- * within the @code{sock->send_buffer} to the destination address specified 
+ * The @code{svz_udp_write_socket()} callback should be called whenever
+ * the UDP socket descriptor is ready for sending. It sends a single packet
+ * within the @code{sock->send_buffer} to the destination address specified
  * by @code{sock->remote_addr} and @code{sock->remote_port}.
  */
 int
@@ -185,22 +185,22 @@ svz_udp_write_socket (svz_socket_t *sock)
   if (!(sock->flags & SOCK_FLAG_CONNECTED))
     {
       num_written = sendto (sock->sock_desc, p,
-			    do_write - (p - sock->send_buffer),
-			    0, (struct sockaddr *) &receiver, len);
+                            do_write - (p - sock->send_buffer),
+                            0, (struct sockaddr *) &receiver, len);
     }
   else
     {
       num_written = send (sock->sock_desc, p,
-			  do_write - (p - sock->send_buffer), 0);
+                          do_write - (p - sock->send_buffer), 0);
     }
 
   /* some error occurred while sending */
   if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "udp: send%s: %s\n", 
-	       sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
+      svz_log (LOG_ERROR, "udp: send%s: %s\n",
+               sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
-	num_written = 0;
+        num_written = 0;
     }
   /* packet data could be transmitted */
   else
@@ -211,19 +211,19 @@ svz_udp_write_socket (svz_socket_t *sock)
 
 #if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
-	   sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", 
-	   svz_inet_ntoa (receiver.sin_addr.s_addr),
-	   ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
+           sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
+           svz_inet_ntoa (receiver.sin_addr.s_addr),
+           ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
 #endif /* SVZ_ENABLE_DEBUG */
 
   return num_written < 0 ? -1 : 0;
 }
 
 /*
- * This is the default @code{check_request()} routine for UDP servers. 
+ * This is the default @code{check_request()} routine for UDP servers.
  * Whenever new data arrived at an UDP server socket we call this function to
- * process the packet data. Any given @code{handle_request()} callback MUST 
- * return zero if it successfully processed the data and non-zero if it 
+ * process the packet data. Any given @code{handle_request()} callback MUST
+ * return zero if it successfully processed the data and non-zero if it
  * could not.
  */
 int
@@ -237,17 +237,17 @@ svz_udp_check_request (svz_socket_t *sock)
   if (sock->data == NULL && sock->handle_request == NULL)
     return -1;
 
-  /* 
-   * If there is a valid `handle_request ()' callback (dedicated udp 
-   * connection) call it. This kind of behaviour is due to a socket creation 
+  /*
+   * If there is a valid `handle_request ()' callback (dedicated udp
+   * connection) call it. This kind of behaviour is due to a socket creation
    * via `udp_connect ()' and setting up a static `handle_request ()'
    * callback.
    */
   if (sock->handle_request)
     {
       if (sock->handle_request (sock, sock->recv_buffer,
-				sock->recv_buffer_fill))
-	return -1;
+                                sock->recv_buffer_fill))
+        return -1;
       sock->recv_buffer_fill = 0;
       return 0;
     }
@@ -260,13 +260,13 @@ svz_udp_check_request (svz_socket_t *sock)
       sock->cfg = server->cfg;
 
       if (server->handle_request)
-	{
-	  if (!server->handle_request (sock, sock->recv_buffer,
-				       sock->recv_buffer_fill))
-	    {
-	      sock->recv_buffer_fill = 0;
-	      break;
-	    }
+        {
+          if (!server->handle_request (sock, sock->recv_buffer,
+                                       sock->recv_buffer_fill))
+            {
+              sock->recv_buffer_fill = 0;
+              break;
+            }
         }
     }
   svz_array_destroy (bindings);
@@ -276,7 +276,7 @@ svz_udp_check_request (svz_socket_t *sock)
     {
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "rejecting udp packet on socket %d\n",
-	       sock->sock_desc);
+               sock->sock_desc);
 #endif
       sock->recv_buffer_fill = 0;
     }
@@ -302,13 +302,13 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
     return 0;
 
   /* allocate memory block */
-  buffer = svz_malloc ((length > UDP_MSG_SIZE ? UDP_MSG_SIZE : length) + 
-		       sizeof (len) + sizeof (sock->remote_addr) +
-		       sizeof (sock->remote_port));
+  buffer = svz_malloc ((length > UDP_MSG_SIZE ? UDP_MSG_SIZE : length) +
+                       sizeof (len) + sizeof (sock->remote_addr) +
+                       sizeof (sock->remote_port));
 
   while (length)
     {
-      /* 
+      /*
        * Put the data length, destination address and port in front
        * of each data packet.
        */
@@ -320,7 +320,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 
       /* copy the given buffer */
       if ((size = length) > UDP_MSG_SIZE)
-	size = UDP_MSG_SIZE;
+        size = UDP_MSG_SIZE;
       memcpy (&buffer[len], buf, size);
       len += size;
       memcpy (buffer, &len, sizeof (len));
@@ -329,10 +329,10 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 
       /* actually send the data or put it into the send buffer queue */
       if ((ret = svz_sock_write (sock, buffer, len)) == -1)
-	{
-	  sock->flags |= SOCK_FLAG_KILLED;
-	  break;
-	}
+        {
+          sock->flags |= SOCK_FLAG_KILLED;
+          break;
+        }
     }
 
   /* release memory block */
@@ -341,10 +341,10 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 }
 
 /*
- * Print a formatted string on the UDP socket @var{sock}. @var{fmt} is 
- * the printf()-style format string, which describes how to format the 
- * optional arguments. See the printf(3) manual page for details. The 
- * destination address and port is saved for sending. This you might 
+ * Print a formatted string on the UDP socket @var{sock}. @var{fmt} is
+ * the printf()-style format string, which describes how to format the
+ * optional arguments. See the printf(3) manual page for details. The
+ * destination address and port is saved for sending. This you might
  * specify them in @code{sock->remote_addr} and @code{sock->remote_port}.
  */
 int
@@ -366,11 +366,11 @@ svz_udp_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
 
 /*
  * Create a UDP connection to @var{host} and set the socket descriptor in
- * structure @var{sock} to the resulting socket. Return a @code{NULL} value 
+ * structure @var{sock} to the resulting socket. Return a @code{NULL} value
  * on errors. This function can be used for port bouncing. If you assign the
- * @code{handle_request} callback to something server specific and the 
- * @var{cfg} field to the server's configuration to the returned socket 
- * structure this socket is able to handle a dedicated UDP connection to 
+ * @code{handle_request} callback to something server specific and the
+ * @var{cfg} field to the server's configuration to the returned socket
+ * structure this socket is able to handle a dedicated UDP connection to
  * some other UDP server.
  */
 svz_socket_t *

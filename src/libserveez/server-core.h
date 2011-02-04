@@ -9,12 +9,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -57,17 +57,17 @@ SERVEEZ_API int svz_sock_shutdown __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_enqueue __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_dequeue __PARAMS ((svz_socket_t *));
 SERVEEZ_API void svz_sock_shutdown_all __PARAMS ((void));
-SERVEEZ_API void svz_sock_setparent __PARAMS ((svz_socket_t *, 
-					       svz_socket_t *));
+SERVEEZ_API void svz_sock_setparent __PARAMS ((svz_socket_t *,
+                                               svz_socket_t *));
 SERVEEZ_API svz_socket_t *svz_sock_getparent __PARAMS ((svz_socket_t *));
-SERVEEZ_API void svz_sock_setreferrer __PARAMS ((svz_socket_t *, 
-						 svz_socket_t *));
+SERVEEZ_API void svz_sock_setreferrer __PARAMS ((svz_socket_t *,
+                                                 svz_socket_t *));
 SERVEEZ_API svz_socket_t *svz_sock_getreferrer __PARAMS ((svz_socket_t *));
 SERVEEZ_API svz_portcfg_t *svz_sock_portcfg __PARAMS ((svz_socket_t *));
-SERVEEZ_API int svz_sock_check_access __PARAMS ((svz_socket_t *, 
-						 svz_socket_t *));
-SERVEEZ_API int svz_sock_check_frequency __PARAMS ((svz_socket_t *, 
-					       svz_socket_t *));
+SERVEEZ_API int svz_sock_check_access __PARAMS ((svz_socket_t *,
+                                                 svz_socket_t *));
+SERVEEZ_API int svz_sock_check_frequency __PARAMS ((svz_socket_t *,
+                                               svz_socket_t *));
 SERVEEZ_API void svz_sock_check_children __PARAMS ((void));
 SERVEEZ_API int svz_sock_child_died __PARAMS ((svz_socket_t *));
 

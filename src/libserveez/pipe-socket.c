@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -132,7 +132,7 @@ svz_pipe_destroy (svz_pipe_t *pipe)
   svz_free (pipe);
 }
 
-/* 
+/*
  * Check the consistency of the "user" - "user id" pair in the given pipe
  * structure @var{pipe}. Return zero if it is ok.
  */
@@ -145,22 +145,22 @@ svz_pipe_check_user (svz_pipe_t *pipe)
   if (pipe->user)
     {
       if ((p = getpwnam (pipe->user)) == NULL)
-	{
-	  svz_log (LOG_WARNING, "%s: no such user `%s'\n", 
-		   pipe->name, pipe->user);
-	  return 0;
-	}
+        {
+          svz_log (LOG_WARNING, "%s: no such user `%s'\n",
+                   pipe->name, pipe->user);
+          return 0;
+        }
       pipe->uid = p->pw_uid;
       pipe->pgid = p->pw_gid;
     }
   else if (pipe->uid != (unsigned int) -1)
     {
       if ((p = getpwuid (pipe->uid)) == NULL)
-	{
-	  svz_log (LOG_WARNING, "%s: no such user id `%d'\n", 
-		   pipe->name, pipe->uid);
-	  return 0;
-	}
+        {
+          svz_log (LOG_WARNING, "%s: no such user id `%d'\n",
+                   pipe->name, pipe->uid);
+          return 0;
+        }
       pipe->user = svz_strdup (p->pw_name);
       pipe->pgid = p->pw_gid;
     }
@@ -182,21 +182,21 @@ svz_pipe_check_group (svz_pipe_t *pipe)
   if (pipe->group)
     {
       if ((g = getgrnam (pipe->group)) == NULL)
-	{
-	  svz_log (LOG_WARNING, "%s: no such group `%s'\n", 
-		   pipe->name, pipe->group);
-	  return 0;
-	}
+        {
+          svz_log (LOG_WARNING, "%s: no such group `%s'\n",
+                   pipe->name, pipe->group);
+          return 0;
+        }
       pipe->gid = g->gr_gid;
     }
   else if (pipe->gid != (unsigned int) -1)
     {
       if ((g = getgrgid (pipe->gid)) == NULL)
-	{
-	  svz_log (LOG_WARNING, "%s: no such group id `%d'\n", 
-		   pipe->name, pipe->gid);
-	  return 0;
-	}
+        {
+          svz_log (LOG_WARNING, "%s: no such group id `%d'\n",
+                   pipe->name, pipe->gid);
+          return 0;
+        }
       pipe->group = svz_strdup (g->gr_name);
     }
 
@@ -205,27 +205,27 @@ svz_pipe_check_group (svz_pipe_t *pipe)
   if (g && g->gr_mem && pipe->user)
     {
       while (g->gr_mem[n])
-	{
-	  if (!strcmp (g->gr_mem[n], pipe->user))
-	    {
-	      n = -1;
-	      break;
-	    }
-	  n++;
-	}
+        {
+          if (!strcmp (g->gr_mem[n], pipe->user))
+            {
+              n = -1;
+              break;
+            }
+          n++;
+        }
       if (n != -1 && pipe->gid != pipe->pgid)
-	{
-	  svz_log (LOG_WARNING, "%s: user `%s' is not in group `%s'\n",
-		   pipe->name, pipe->user, pipe->group);
-	  return 0;
-	}
+        {
+          svz_log (LOG_WARNING, "%s: user `%s' is not in group `%s'\n",
+                   pipe->name, pipe->user, pipe->group);
+          return 0;
+        }
     }
 #endif /* HAVE_GRP_H */
   return 0;
 }
 
 /*
- * This function is for checking if a given socket structure contains 
+ * This function is for checking if a given socket structure contains
  * a valid pipe socket (checking both pipes). Return non-zero on errors.
  */
 int
@@ -261,112 +261,112 @@ svz_pipe_disconnect (svz_socket_t *sock)
     {
       /* has this socket created by a listener ? */
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
-	{
+        {
 #ifdef __MINGW32__
-	  /* cancel any pending I/O if necessary and possible */
-	  if (CancelIoFunc)
-	    {
-	      if (sock->flags & (SOCK_FLAG_READING | SOCK_FLAG_CONNECTING))
-		if (!CancelIoFunc (sock->pipe_desc[READ]))
-		  svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
-	      if (sock->flags & (SOCK_FLAG_WRITING | SOCK_FLAG_CONNECTING))
-		if (!CancelIoFunc (sock->pipe_desc[WRITE]))
-		  svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
-	    }
+          /* cancel any pending I/O if necessary and possible */
+          if (CancelIoFunc)
+            {
+              if (sock->flags & (SOCK_FLAG_READING | SOCK_FLAG_CONNECTING))
+                if (!CancelIoFunc (sock->pipe_desc[READ]))
+                  svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
+              if (sock->flags & (SOCK_FLAG_WRITING | SOCK_FLAG_CONNECTING))
+                if (!CancelIoFunc (sock->pipe_desc[WRITE]))
+                  svz_log (LOG_ERROR, "CancelIo: %s\n", SYS_ERROR);
+            }
 
-	  /* just disconnect client pipes */
-	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
-	    svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
-	    svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+          /* just disconnect client pipes */
+          if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
+            svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+          if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
+            svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
 
-	  /* reinitialize the overlapped structure of the listener */
-	  if (svz_os_version >= WinNT4x)
-	    {
-	      memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
-	      memset (sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
-	      sock->overlap[READ] = NULL;
-	      sock->overlap[WRITE] = NULL;
-	    }
+          /* reinitialize the overlapped structure of the listener */
+          if (svz_os_version >= WinNT4x)
+            {
+              memset (sock->overlap[READ], 0, sizeof (OVERLAPPED));
+              memset (sock->overlap[WRITE], 0, sizeof (OVERLAPPED));
+              sock->overlap[READ] = NULL;
+              sock->overlap[WRITE] = NULL;
+            }
 #else /* not __MINGW32__ */
 
-	  /* close sending pipe only */
-	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
-	      svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+          /* close sending pipe only */
+          if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+            if (closehandle (sock->pipe_desc[WRITE]) < 0)
+              svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-	  /* FIXME: reset receiving pipe ??? */
+          /* FIXME: reset receiving pipe ??? */
 
 #endif /* not __MINGW32__ */
 
-	  /* restart listening pipe server socket */
-	  rsock->flags &= ~SOCK_FLAG_INITED;
-	  svz_sock_setreferrer (rsock, NULL);
-	}
+          /* restart listening pipe server socket */
+          rsock->flags &= ~SOCK_FLAG_INITED;
+          svz_sock_setreferrer (rsock, NULL);
+        }
 
       /* no, it is a connected pipe */
       else
-	{
-	  /* close both pipes */
-	  if (sock->pipe_desc[READ] != INVALID_HANDLE)
-	    if (closehandle (sock->pipe_desc[READ]) < 0)
-	      svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
-	  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-	    if (closehandle (sock->pipe_desc[WRITE]) < 0)
-	      svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
-	}
+        {
+          /* close both pipes */
+          if (sock->pipe_desc[READ] != INVALID_HANDLE)
+            if (closehandle (sock->pipe_desc[READ]) < 0)
+              svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
+          if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+            if (closehandle (sock->pipe_desc[WRITE]) < 0)
+              svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
+        }
 
 #if SVZ_ENABLE_DEBUG
       svz_log (LOG_DEBUG, "pipe (%d-%d) disconnected\n",
-	       sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+               sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 #endif
 
       sock->pipe_desc[READ] = INVALID_HANDLE;
       sock->pipe_desc[WRITE] = INVALID_HANDLE;
     }
-  
+
   /* prevent a pipe server's child to reinit the pipe server */
   if (sock->flags & SOCK_FLAG_LISTENING)
     {
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
-	{
+        {
 #ifdef __MINGW32__
-	  rsock->overlap[READ] = NULL;
-	  rsock->overlap[WRITE] = NULL;
+          rsock->overlap[READ] = NULL;
+          rsock->overlap[WRITE] = NULL;
 #endif /* __MINGW32__ */
-	  svz_sock_setreferrer (rsock, NULL);
-	}
+          svz_sock_setreferrer (rsock, NULL);
+        }
 
 #ifndef __MINGW32__
 
       /* close listening pipe */
       if (sock->pipe_desc[READ] != INVALID_HANDLE)
-	if (closehandle (sock->pipe_desc[READ]) < 0)
-	  svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        if (closehandle (sock->pipe_desc[READ]) < 0)
+          svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
       /* delete named pipes on file system */
       if (unlink (sock->recv_pipe) == -1)
-	svz_log (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
+        svz_log (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
       if (unlink (sock->send_pipe) == -1)
-	svz_log (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
+        svz_log (LOG_ERROR, "unlink: %s\n", SYS_ERROR);
 
 #else /* __MINGW32__ */
 
       /* disconnect and close named pipes */
       if (sock->pipe_desc[READ] != INVALID_HANDLE)
-	{
-	  if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
-	    svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-	  if (!CloseHandle (sock->pipe_desc[READ]))
-	    svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-	}
+        {
+          if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
+            svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+          if (!CloseHandle (sock->pipe_desc[READ]))
+            svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+        }
       if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-	{
-	  if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
-	    svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-	  if (!CloseHandle (sock->pipe_desc[WRITE]))
-	    svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-	}
+        {
+          if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
+            svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+          if (!CloseHandle (sock->pipe_desc[WRITE]))
+            svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+        }
 
 #endif /* __MINGW32__ */
 
@@ -389,18 +389,18 @@ svz_pipe_overlap (LPOVERLAPPED overlap)
   if (overlap)
     {
       printf ("Internal: %ld (0x%08lX), InternalHigh: %ld (0x%08lX)\n"
-	      "Offset: %ld (0x%08lX), OffsetHigh: %ld (0x%08lX)\n"
-	      "Event: %p\n",
-	      overlap->Internal, overlap->Internal, overlap->InternalHigh,
-	      overlap->InternalHigh, overlap->Offset, overlap->Offset,
-	      overlap->OffsetHigh, overlap->OffsetHigh, overlap->hEvent);
+              "Offset: %ld (0x%08lX), OffsetHigh: %ld (0x%08lX)\n"
+              "Event: %p\n",
+              overlap->Internal, overlap->Internal, overlap->InternalHigh,
+              overlap->InternalHigh, overlap->Offset, overlap->Offset,
+              overlap->OffsetHigh, overlap->OffsetHigh, overlap->hEvent);
     }
 }
 #endif /* __MINGW32__ */
 
 /*
- * The @code{svz_pipe_read_socket()} function reads as much data as 
- * available on a readable pipe descriptor or handle on Win32. Return 
+ * The @code{svz_pipe_read_socket()} function reads as much data as
+ * available on a readable pipe descriptor or handle on Win32. Return
  * a non-zero value on errors.
  */
 int
@@ -408,15 +408,15 @@ svz_pipe_read_socket (svz_socket_t *sock)
 {
   int num_read, do_read;
 
-  /* Read as much space is left in the receive buffer and return 
+  /* Read as much space is left in the receive buffer and return
    * zero if there is no more space. */
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
-  if (do_read <= 0) 
+  if (do_read <= 0)
     {
-      svz_log (LOG_ERROR, "receive buffer overflow on pipe %d\n", 
-	       sock->pipe_desc[READ]);
+      svz_log (LOG_ERROR, "receive buffer overflow on pipe %d\n",
+               sock->pipe_desc[READ]);
       if (sock->kicked_socket)
-	sock->kicked_socket (sock, 0);
+        sock->kicked_socket (sock, 0);
       return -1;
     }
 
@@ -425,59 +425,59 @@ svz_pipe_read_socket (svz_socket_t *sock)
   if (do_read > PIPE_MAX_READ)
     do_read = PIPE_MAX_READ;
 
-  /* Use the PeekNamedPipe() call if there is no overlapped I/O in 
+  /* Use the PeekNamedPipe() call if there is no overlapped I/O in
      order to make the following ReadFile() non-blocking. */
   if (sock->overlap[READ] == NULL)
     {
       /* Check how many bytes could have been read from the pipe without
-	 really reading them. */
-      if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0, 
-			  NULL, (DWORD *) &num_read, NULL))
-	{
-	  svz_log (LOG_ERROR, "pipe: PeekNamedPipe: %s\n", SYS_ERROR);
-	  return -1;
-	}
+         really reading them. */
+      if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0,
+                          NULL, (DWORD *) &num_read, NULL))
+        {
+          svz_log (LOG_ERROR, "pipe: PeekNamedPipe: %s\n", SYS_ERROR);
+          return -1;
+        }
 
       /* Leave this function if there is no data within the pipe. */
       if (num_read <= 0)
-	return 0;
+        return 0;
 
       /* Adjust number of bytes to read. */
       if (do_read > num_read)
-	do_read = num_read;
+        do_read = num_read;
     }
 
   /* Try to get the result of the last ReadFile(). */
   if (sock->flags & SOCK_FLAG_READING)
     {
-      if (!GetOverlappedResult (sock->pipe_desc[READ], sock->overlap[READ], 
+      if (!GetOverlappedResult (sock->pipe_desc[READ], sock->overlap[READ],
                                 (DWORD *) &num_read, FALSE))
         {
           if (GetLastError () != ERROR_IO_INCOMPLETE)
             {
-              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n", 
-		       SYS_ERROR);
+              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n",
+                       SYS_ERROR);
               return -1;
             }
-	  return 0;
+          return 0;
         }
 
       /* Schedule the pipe for the ReadFile() call again. */
       else
-	{
-	  sock->recv_pending = 0;
-	  sock->flags &= ~SOCK_FLAG_READING;
-	}
+        {
+          sock->recv_pending = 0;
+          sock->flags &= ~SOCK_FLAG_READING;
+        }
     }
   /* Really read from the pipe. */
   else if (!ReadFile (sock->pipe_desc[READ],
-		      sock->recv_buffer + sock->recv_buffer_fill,
-		      do_read, (DWORD *) &num_read, sock->overlap[READ]))
+                      sock->recv_buffer + sock->recv_buffer_fill,
+                      do_read, (DWORD *) &num_read, sock->overlap[READ]))
     {
       if (GetLastError () != ERROR_IO_PENDING)
         {
-	  svz_log (LOG_ERROR, "pipe: ReadFile: %s\n", SYS_ERROR);
-	  return -1;
+          svz_log (LOG_ERROR, "pipe: ReadFile: %s\n", SYS_ERROR);
+          return -1;
         }
 
       /* Schedule the pipe for the GetOverlappedResult() call. */
@@ -487,12 +487,12 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 #else /* not __MINGW32__ */
   if ((num_read = read (sock->pipe_desc[READ],
-			sock->recv_buffer + sock->recv_buffer_fill,
-			do_read)) == -1)
+                        sock->recv_buffer + sock->recv_buffer_fill,
+                        do_read)) == -1)
     {
       svz_log (LOG_ERROR, "pipe: read: %s\n", SYS_ERROR);
       if (errno == EAGAIN)
-	return 0;
+        return 0;
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -504,36 +504,36 @@ svz_pipe_read_socket (svz_socket_t *sock)
 
 #if SVZ_ENABLE_FLOOD_PROTECTION
       if (svz_sock_flood_protect (sock, num_read))
-	{
-	  svz_log (LOG_ERROR, "kicked pipe %d (flood)\n", 
-		   sock->pipe_desc[READ]);
-	  return -1;
-	}
+        {
+          svz_log (LOG_ERROR, "kicked pipe %d (flood)\n",
+                   sock->pipe_desc[READ]);
+          return -1;
+        }
 #endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 
       sock->recv_buffer_fill += num_read;
 
       if (sock->check_request)
-	if (sock->check_request (sock))
-	  return -1;
+        if (sock->check_request (sock))
+          return -1;
     }
 
 #ifndef __MINGW32__
   /* The pipe was selected but there is no data. */
   else
     {
-      svz_log (LOG_ERROR, "pipe: read: no data on pipe %d\n", 
-	       sock->pipe_desc[READ]);
+      svz_log (LOG_ERROR, "pipe: read: no data on pipe %d\n",
+               sock->pipe_desc[READ]);
       return -1;
     }
 #endif /* !__MINGW32__ */
-  
+
   return 0;
 }
 
 /*
- * This @code{svz_pipe_write_socket()} function writes as much data as 
- * possible into a writable pipe descriptor. It returns a non-zero value 
+ * This @code{svz_pipe_write_socket()} function writes as much data as
+ * possible into a writable pipe descriptor. It returns a non-zero value
  * on errors.
  */
 int
@@ -541,7 +541,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
 {
   int num_written, do_write;
 
-  /* Write as many bytes as possible, remember how many were actually 
+  /* Write as many bytes as possible, remember how many were actually
      sent. */
   do_write = sock->send_buffer_fill;
 
@@ -550,57 +550,57 @@ svz_pipe_write_socket (svz_socket_t *sock)
   if (do_write > PIPE_MAX_WRITE)
     do_write = PIPE_MAX_WRITE;
 
-  /* Data bytes have been stored in system's cache. Now we are checking 
+  /* Data bytes have been stored in system's cache. Now we are checking
      if pending write operation has been completed. */
   if (sock->flags & SOCK_FLAG_WRITING)
     {
-      if (!GetOverlappedResult (sock->pipe_desc[WRITE], sock->overlap[WRITE], 
-				(DWORD *) &num_written, FALSE))
-	{
-	  if (GetLastError () != ERROR_IO_INCOMPLETE)
-	    {
-	      svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n", 
-		       SYS_ERROR);
-	      return -1;
-	    }
-	  return 0;
-	}
+      if (!GetOverlappedResult (sock->pipe_desc[WRITE], sock->overlap[WRITE],
+                                (DWORD *) &num_written, FALSE))
+        {
+          if (GetLastError () != ERROR_IO_INCOMPLETE)
+            {
+              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n",
+                       SYS_ERROR);
+              return -1;
+            }
+          return 0;
+        }
 
       /* Reschedule the pipe descriptor for yet another WriteFile(). */
       else
-	{
-	  sock->send_pending -= num_written;
-	  sock->flags &= ~SOCK_FLAG_WRITING;
-	  if (sock->send_pending != 0)
-	    {
-	      svz_log (LOG_ERROR, "pipe: %d pending send bytes left\n",
-		       sock->send_pending);
-	    }
-	}
+        {
+          sock->send_pending -= num_written;
+          sock->flags &= ~SOCK_FLAG_WRITING;
+          if (sock->send_pending != 0)
+            {
+              svz_log (LOG_ERROR, "pipe: %d pending send bytes left\n",
+                       sock->send_pending);
+            }
+        }
     }
   /* Really write to the pipe. */
-  else if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer, 
-		       do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
+  else if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer,
+                       do_write, (DWORD *) &num_written, sock->overlap[WRITE]))
     {
       if (GetLastError () != ERROR_IO_PENDING)
-	{
-	  svz_log (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
-	  return -1;
-	}
+        {
+          svz_log (LOG_ERROR, "pipe: WriteFile: %s\n", SYS_ERROR);
+          return -1;
+        }
       sock->send_pending += do_write;
       sock->flags |= SOCK_FLAG_WRITING;
       return 0;
     }
 #else /* not __MINGW32__ */
-  if ((num_written = write (sock->pipe_desc[WRITE], 
-			    sock->send_buffer, do_write)) == -1)
+  if ((num_written = write (sock->pipe_desc[WRITE],
+                            sock->send_buffer, do_write)) == -1)
     {
       svz_log (LOG_ERROR, "pipe: write: %s\n", SYS_ERROR);
       if (svz_errno == SOCK_UNAVAILABLE)
-	{
-	  sock->unavailable = time (NULL) + RELAX_FD_TIME;
-	  num_written = 0;
-	}
+        {
+          sock->unavailable = time (NULL) + RELAX_FD_TIME;
+          num_written = 0;
+        }
     }
 #endif /* not __MINGW32__ */
 
@@ -609,11 +609,11 @@ svz_pipe_write_socket (svz_socket_t *sock)
     {
       sock->last_send = time (NULL);
       if (sock->send_buffer_fill > num_written)
-	{
-	  memmove (sock->send_buffer, 
-		   sock->send_buffer + num_written,
-		   sock->send_buffer_fill - num_written);
-	}
+        {
+          memmove (sock->send_buffer,
+                   sock->send_buffer + num_written,
+                   sock->send_buffer_fill - num_written);
+        }
       sock->send_buffer_fill -= num_written;
     }
 
@@ -621,7 +621,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
 }
 
 /*
- * Create a socket structure containing both the pipe descriptors 
+ * Create a socket structure containing both the pipe descriptors
  * @var{recv_fd} and @var{send_fd}. Return @code{NULL} on errors.
  */
 svz_socket_t *
@@ -655,7 +655,7 @@ svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
 }
 
 /*
- * Create a (non blocking) pair of pipes. This differs in Win32 and 
+ * Create a (non blocking) pair of pipes. This differs in Win32 and
  * Unices. Return a non-zero value on errors.
  */
 int
@@ -663,9 +663,9 @@ svz_pipe_create_pair (svz_t_handle pipe_desc[2])
 {
 #ifdef __MINGW32__
 
-  SECURITY_ATTRIBUTES sa = { sizeof (SECURITY_ATTRIBUTES), 
-			     NULL,    /* NULL security descriptor */
-			     TRUE };  /* Inherit handles */
+  SECURITY_ATTRIBUTES sa = { sizeof (SECURITY_ATTRIBUTES),
+                             NULL,    /* NULL security descriptor */
+                             TRUE };  /* Inherit handles */
 
   if (!CreatePipe (&pipe_desc[READ], &pipe_desc[WRITE], &sa, 0))
     {
@@ -681,7 +681,7 @@ svz_pipe_create_pair (svz_t_handle pipe_desc[2])
       return -1;
     }
 
-  /* 
+  /*
    * FIXME: Maybe cgi pipes MUST be blocking for *very* fast
    *        outputs because thay cannot handle the EAGAIN error.
    */
@@ -777,18 +777,18 @@ svz_pipe_try_state (svz_pipe_t *pipe)
   if (pipe->gid != (unsigned int) -1)
     if (SETGID (pipe->gid) < 0)
       {
-	svz_log (LOG_ERROR, "pipe: " SETGID_FUNC " (%d): %s\n", 
-		 pipe->gid, SYS_ERROR);
-	return -1;
+        svz_log (LOG_ERROR, "pipe: " SETGID_FUNC " (%d): %s\n",
+                 pipe->gid, SYS_ERROR);
+        return -1;
       }
 
   /* user id */
   if (pipe->uid != (unsigned int) -1)
     if (SETUID (pipe->uid) < 0)
       {
-	svz_log (LOG_ERROR, "pipe: " SETUID_FUNC " (%d): %s\n", 
-		 pipe->uid, SYS_ERROR);
-	return -1;
+        svz_log (LOG_ERROR, "pipe: " SETUID_FUNC " (%d): %s\n",
+                 pipe->uid, SYS_ERROR);
+        return -1;
       }
 
   return 0;
@@ -840,7 +840,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   unsigned int mask, uid, gid;
   struct stat buf;
 #endif
-  
+
   /* create socket structure */
   if ((sock = svz_sock_alloc ()) == NULL)
     return NULL;
@@ -913,7 +913,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 
   /* set send pipe to non-blocking mode and do not inherit the created
      pipe descriptors */
-  if (svz_fd_nonblock (send_pipe) != 0 || 
+  if (svz_fd_nonblock (send_pipe) != 0 ||
       svz_fd_cloexec (send_pipe) != 0 || svz_fd_cloexec (recv_pipe) != 0)
     {
       close (recv_pipe);
@@ -926,8 +926,8 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 
   /* try opening receiving pipe */
   if ((recv_pipe = CreateFile (sock->recv_pipe, GENERIC_READ, 0,
-			       NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 
-			       NULL)) == INVALID_HANDLE)
+                               NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED,
+                               NULL)) == INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       svz_sock_free (sock);
@@ -936,8 +936,8 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 
   /* try opening sending pipe */
   if ((send_pipe = CreateFile (sock->send_pipe, GENERIC_WRITE, 0,
-			       NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, 
-			       NULL)) == INVALID_HANDLE)
+                               NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED,
+                               NULL)) == INVALID_HANDLE)
     {
       svz_log (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       DisconnectNamedPipe (recv_pipe);
@@ -980,8 +980,8 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 #endif
 
 /*
- * Prepare the server socket structure @var{sock} for listening 
- * on the receiving pipe of @var{recv}. Open the reading end of such a 
+ * Prepare the server socket structure @var{sock} for listening
+ * on the receiving pipe of @var{recv}. Open the reading end of such a
  * connection. Return either zero or non-zero on errors.
  */
 int
@@ -1007,32 +1007,32 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD)
-  /* Test if both of the named pipes have been created yet. If not then 
+  /* Test if both of the named pipes have been created yet. If not then
      create them locally. */
   if (stat (sock->recv_pipe, &buf) == -1)
     {
       /* Save old permissions and set new ones. */
       svz_pipe_save_state (&mask, &uid, &gid);
       if (svz_pipe_try_state (recv) < 0)
-	{
-	  svz_pipe_set_state (mask, uid, gid);
-	  return -1;
-	}
+        {
+          svz_pipe_set_state (mask, uid, gid);
+          return -1;
+        }
       /* Create fifo locally. */
       if (MKFIFO (sock->recv_pipe, 0666) != 0)
         {
           svz_log (LOG_ERROR, "pipe: " MKFIFO_FUNC ": %s\n", SYS_ERROR);
-	  svz_pipe_set_state (mask, uid, gid);
+          svz_pipe_set_state (mask, uid, gid);
           return -1;
         }
       /* Check if that was successful. */
       if (stat (sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
-	{
-          svz_log (LOG_ERROR, 
-		   "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
-	  svz_pipe_set_state (mask, uid, gid);
+        {
+          svz_log (LOG_ERROR,
+                   "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
+          svz_pipe_set_state (mask, uid, gid);
           return -1;
-	}
+        }
       /* Restore old permissions. */
       svz_pipe_set_state (mask, uid, gid);
     }
@@ -1041,23 +1041,23 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
     {
       svz_pipe_save_state (&mask, &uid, &gid);
       if (svz_pipe_try_state (send) < 0)
-	{
-	  svz_pipe_set_state (mask, uid, gid);
-	  return -1;
-	}
+        {
+          svz_pipe_set_state (mask, uid, gid);
+          return -1;
+        }
       if (MKFIFO (sock->send_pipe, 0666) != 0)
         {
           svz_log (LOG_ERROR, "pipe: " MKFIFO_FUNC ": %s\n", SYS_ERROR);
-	  svz_pipe_set_state (mask, uid, gid);
+          svz_pipe_set_state (mask, uid, gid);
           return -1;
         }
       if (stat (sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
-	{
-          svz_log (LOG_ERROR, 
-		   "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
-	  svz_pipe_set_state (mask, uid, gid);
+        {
+          svz_log (LOG_ERROR,
+                   "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
+          svz_pipe_set_state (mask, uid, gid);
           return -1;
-	}
+        }
       svz_pipe_set_state (mask, uid, gid);
     }
 
@@ -1070,8 +1070,8 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   /* Check if the file descriptor is a pipe. */
   if (fstat (recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
-      svz_log (LOG_ERROR, 
-	       "pipe: fstat: " MKFIFO_FUNC "() did not create a fifo\n");
+      svz_log (LOG_ERROR,
+               "pipe: fstat: " MKFIFO_FUNC "() did not create a fifo\n");
       close (recv_pipe);
       return -1;
     }
@@ -1113,7 +1113,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
     0, 0,                                        /* default buffer sizes */
     100,                                         /* timeout in ms */
     NULL);                                       /* no security */
-      
+
   if (send_pipe == INVALID_HANDLE || !send_pipe)
     {
       svz_log (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);

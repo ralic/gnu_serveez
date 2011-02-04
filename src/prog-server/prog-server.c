@@ -8,12 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,7 +44,7 @@
 /*
  * Default configuration definition.
  */
-prog_config_t prog_config = 
+prog_config_t prog_config =
 {
   NULL,
   NULL,
@@ -60,17 +60,17 @@ prog_config_t prog_config =
 /*
  * Defining configuration file associations by key-value-pairs.
  */
-svz_key_value_pair_t prog_config_prototype [] = 
+svz_key_value_pair_t prog_config_prototype [] =
 {
   SVZ_REGISTER_STR ("binary", prog_config.bin, SVZ_ITEM_NOTDEFAULTABLE),
   SVZ_REGISTER_STR ("directory", prog_config.dir, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STR ("user", prog_config.user, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_STRARRAY ("argv", prog_config.argv, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_BOOL ("do-fork", prog_config.fork, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_BOOL ("single-threaded", 
-		     prog_config.single_threaded, SVZ_ITEM_DEFAULTABLE),
-  SVZ_REGISTER_INT ("thread-frequency", 
-		    prog_config.frequency, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_BOOL ("single-threaded",
+                     prog_config.single_threaded, SVZ_ITEM_DEFAULTABLE),
+  SVZ_REGISTER_INT ("thread-frequency",
+                    prog_config.frequency, SVZ_ITEM_DEFAULTABLE),
   SVZ_REGISTER_END ()
 };
 
@@ -95,10 +95,10 @@ svz_servertype_t prog_server_definition =
   SVZ_CONFIG_DEFINE ("prog", prog_config, prog_config_prototype)
 };
 
-/* 
+/*
  * Handle request callback. Not yet used.
  */
-int 
+int
 prog_handle_request (svz_socket_t *sock, char *request, int len)
 {
   return -1;
@@ -129,10 +129,10 @@ prog_check_frequency (svz_array_t *accepted, int frequency)
   svz_array_foreach (accepted, t, i)
     {
       if (SVZ_PTR2NUM (t) < (unsigned long) (current - 60))
-	{
-	  svz_array_del (accepted, i);
-	  i--;
-	}
+        {
+          svz_array_del (accepted, i);
+          i--;
+        }
     }
 
   /* Check if the maximum frequency has been reached. */
@@ -165,13 +165,13 @@ prog_passthrough (svz_socket_t *sock)
 
   argv = (char **) svz_array_values (cfg->argv);
   if ((pid = svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
-			       cfg->fork ? SVZ_PROCESS_FORK :
+                               cfg->fork ? SVZ_PROCESS_FORK :
 #if HAVE_SOCKETPAIR
-			       SVZ_PROCESS_SHUFFLE_SOCK,
+                               SVZ_PROCESS_SHUFFLE_SOCK,
 #else
-			       SVZ_PROCESS_SHUFFLE_PIPE,
+                               SVZ_PROCESS_SHUFFLE_PIPE,
 #endif
-			       cfg->user ? cfg->user :	SVZ_PROCESS_NONE)) < 0)
+                               cfg->user ? cfg->user :  SVZ_PROCESS_NONE)) < 0)
     {
       svz_log (LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);
       svz_free (argv);
@@ -185,7 +185,7 @@ prog_passthrough (svz_socket_t *sock)
 /*
  * The connect callback is invoked when the above detection routine returned
  * success. This means, the routine will be called immediately after the
- * the connection has been accepted. 
+ * the connection has been accepted.
  */
 int
 prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
@@ -201,10 +201,10 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
       /* Prevent anything being read from the socket. */
       sock->read_socket = NULL;
 
-      /* Just close() this end of socket, not shutdown(). fork() makes the 
-	 socket available in the child process. When we shutdown() it here, 
-	 it dies in the child, too. When we just close() it, it still works
-	 in the child. */ 
+      /* Just close() this end of socket, not shutdown(). fork() makes the
+         socket available in the child process. When we shutdown() it here,
+         it dies in the child, too. When we just close() it, it still works
+         in the child. */
       sock->flags |= SOCK_FLAG_NOSHUTDOWN;
       return -1;
     }
@@ -242,7 +242,7 @@ prog_finalize (svz_server_t *server)
 }
 
 /*
- * This is the @code{child_died} callback for UDP and ICMP versions of the 
+ * This is the @code{child_died} callback for UDP and ICMP versions of the
  * server. Reassigns the @code{read_socket} callback in order to accept new
  * incoming packets.
  */
@@ -256,7 +256,7 @@ prog_child_died (svz_socket_t *sock)
 
 /*
  * This function can be used to dropped any pending data on the socket
- * structure @var{sock}. It is a read callback applicable to UDP, ICMP and 
+ * structure @var{sock}. It is a read callback applicable to UDP, ICMP and
  * RAW sockets.
  */
 static int
@@ -268,14 +268,14 @@ prog_read_sock_drop (svz_socket_t *sock)
   if ((ret = recv (sock->sock_desc, buffer, UDP_MSG_SIZE, 0)) < 0)
     return -1;
 #if SVZ_ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret, 
-	   sock->proto & PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
+  svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret,
+           sock->proto & PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
 #endif
   return 0;
 }
 
 /*
- * This is the @code{read_socket} callback for UDP and ICMP versions of the 
+ * This is the @code{read_socket} callback for UDP and ICMP versions of the
  * server. It does not read anything from the underlying socket in order to
  * pass the data directly to the child program.
  */
@@ -336,38 +336,38 @@ prog_init (svz_server_t *server)
     {
       /* Check each listener. */
       svz_array_foreach (listeners, sock, i)
-	{
-	  /* Is it a UPD or ICMP port (packet oriented) ? */
-	  if (sock->proto & (PROTO_UDP | PROTO_ICMP))
-	    {
-	      /* Require non-shared listener. */
-	      if (!svz_server_single_listener (server, sock))
-		{
-		  svz_log (LOG_ERROR, 
-			   "prog: refusing to initialize shared listener "
-			   "on port `%s'\n", 
-			   ((svz_portcfg_t *) (sock->port))->name);
-		  ret = -1;
-		}
-	      /* Prepare callbacks for packet oriented servers. */
-	      else
-		{
-		  /* Save the server configuration. */
-		  sock->cfg = cfg;
-		  if (cfg->fork)
-		    {
-		      /* Direct fork()'s do not need to receive. */
-		      sock->read_socket = prog_read_socket;
-		    }
-		  else
-		    {
-		      /* Save old handler and set one. */
-		      cfg->check_request = sock->check_request;
-		      sock->check_request = prog_check_request;
-		    }
-		}
-	    }
-	}
+        {
+          /* Is it a UPD or ICMP port (packet oriented) ? */
+          if (sock->proto & (PROTO_UDP | PROTO_ICMP))
+            {
+              /* Require non-shared listener. */
+              if (!svz_server_single_listener (server, sock))
+                {
+                  svz_log (LOG_ERROR,
+                           "prog: refusing to initialize shared listener "
+                           "on port `%s'\n",
+                           ((svz_portcfg_t *) (sock->port))->name);
+                  ret = -1;
+                }
+              /* Prepare callbacks for packet oriented servers. */
+              else
+                {
+                  /* Save the server configuration. */
+                  sock->cfg = cfg;
+                  if (cfg->fork)
+                    {
+                      /* Direct fork()'s do not need to receive. */
+                      sock->read_socket = prog_read_socket;
+                    }
+                  else
+                    {
+                      /* Save old handler and set one. */
+                      cfg->check_request = sock->check_request;
+                      sock->check_request = prog_check_request;
+                    }
+                }
+            }
+        }
       svz_array_destroy (listeners);
     }
 

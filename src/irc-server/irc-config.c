@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -61,7 +61,7 @@ irc_parse_config_lines (irc_config_t *cfg)
   irc_kill_t *kill;
   char *line, *p;
   char *tmp[MAX_TMP_ARRAY];
-  
+
   /* reserve some buffer space */
   for (n = 0; n < MAX_TMP_ARRAY; n++)
     tmp[n] = svz_malloc (MAX_TMP_STRLEN);
@@ -71,20 +71,20 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       class = svz_malloc (sizeof (irc_class_t));
       if (5 != irc_parse_line (line, "Y:%d:%d:%d:%d:%d",
-			       &class->nr, &class->ping_freq, 
-			       &class->connect_freq, &class->max_links, 
-			       &class->sendq_size))
-	{
-	  svz_log (LOG_ERROR, "irc: invalid Y line: %s\n", line);
-	  svz_free (class);
-	}
+                               &class->nr, &class->ping_freq,
+                               &class->connect_freq, &class->max_links,
+                               &class->sendq_size))
+        {
+          svz_log (LOG_ERROR, "irc: invalid Y line: %s\n", line);
+          svz_free (class);
+        }
       else
-	{
-	  class->links = 0;
-	  class->line = line;
-	  class->next = cfg->classes;
-	  cfg->classes = class;
-	}
+        {
+          class->links = 0;
+          class->line = line;
+          class->next = cfg->classes;
+          cfg->classes = class;
+        }
     }
 
   /* parse user authorization lines */
@@ -92,27 +92,27 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       user = svz_malloc (sizeof (irc_user_t));
       if (5 != irc_parse_line (line, "I:%s:%s:%s:%s:%d",
-			       tmp[0], tmp[1], tmp[2], tmp[3], 
-			       &user->class))
-	{
-	  svz_log (LOG_ERROR, "irc: invalid I line: %s\n", line);
-	  svz_free (user);
-	}
+                               tmp[0], tmp[1], tmp[2], tmp[3],
+                               &user->class))
+        {
+          svz_log (LOG_ERROR, "irc: invalid I line: %s\n", line);
+          svz_free (user);
+        }
       else
-	{
-	  user->line = line;
-	  PARSE_TILL_AT (tmp[0]);
-	  user->user_ip = svz_strdup (tmp[0]);
-	  user->ip = svz_strdup (p);
-	  user->password = svz_strdup (tmp[1]);
-	  PARSE_TILL_AT (tmp[2]);
-	  user->user_host = svz_strdup (tmp[2]);
-	  user->host = svz_strdup (p);
-	  if (!user->password)
-	    user->password = svz_strdup (tmp[3]);
-	  user->next = cfg->user_auth;
-	  cfg->user_auth = user;
-	}
+        {
+          user->line = line;
+          PARSE_TILL_AT (tmp[0]);
+          user->user_ip = svz_strdup (tmp[0]);
+          user->ip = svz_strdup (p);
+          user->password = svz_strdup (tmp[1]);
+          PARSE_TILL_AT (tmp[2]);
+          user->user_host = svz_strdup (tmp[2]);
+          user->host = svz_strdup (p);
+          if (!user->password)
+            user->password = svz_strdup (tmp[3]);
+          user->next = cfg->user_auth;
+          cfg->user_auth = user;
+        }
     }
 
   /* parse operator authorization lines (local and network wide) */
@@ -120,46 +120,46 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       oper = svz_malloc (sizeof (irc_oper_t));
       if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-			       tmp[0], tmp[1], tmp[2], &oper->class))
-	{
-	  svz_log (LOG_ERROR, "irc: invalid O line: %s\n", line);
-	  svz_free (oper);
-	}
+                               tmp[0], tmp[1], tmp[2], &oper->class))
+        {
+          svz_log (LOG_ERROR, "irc: invalid O line: %s\n", line);
+          svz_free (oper);
+        }
       else
-	{
-	  oper->line = line;
-	  PARSE_TILL_AT (tmp[0]);
-	  oper->user = svz_strdup (tmp[0]);
-	  oper->host = svz_strdup (p);
-	  oper->password = svz_strdup (tmp[1]);
-	  oper->nick = svz_strdup (tmp[2]);
-	  oper->local = 0;
-	  oper->next = cfg->operator_auth;
-	  cfg->operator_auth = oper;
-	}
+        {
+          oper->line = line;
+          PARSE_TILL_AT (tmp[0]);
+          oper->user = svz_strdup (tmp[0]);
+          oper->host = svz_strdup (p);
+          oper->password = svz_strdup (tmp[1]);
+          oper->nick = svz_strdup (tmp[2]);
+          oper->local = 0;
+          oper->next = cfg->operator_auth;
+          cfg->operator_auth = oper;
+        }
     }
 
   svz_array_foreach (cfg->oLine, line, n)
     {
       oper = svz_malloc (sizeof (irc_oper_t));
       if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-			       tmp[0], tmp[1], tmp[2], &oper->class))
-	{
-	  svz_log (LOG_ERROR, "irc: invalid o line: %s\n", line);
-	  svz_free (oper);
-	}
+                               tmp[0], tmp[1], tmp[2], &oper->class))
+        {
+          svz_log (LOG_ERROR, "irc: invalid o line: %s\n", line);
+          svz_free (oper);
+        }
       else
-	{
-	  oper->line = line;
-	  PARSE_TILL_AT (tmp[0]);
-	  oper->user = svz_strdup (tmp[0]);
-	  oper->host = svz_strdup (p);
-	  oper->password = svz_strdup (tmp[1]);
-	  oper->nick = svz_strdup (tmp[2]);
-	  oper->local = 1;
-	  oper->next = cfg->operator_auth;
-	  cfg->operator_auth = oper;
-	}
+        {
+          oper->line = line;
+          PARSE_TILL_AT (tmp[0]);
+          oper->user = svz_strdup (tmp[0]);
+          oper->host = svz_strdup (p);
+          oper->password = svz_strdup (tmp[1]);
+          oper->nick = svz_strdup (tmp[2]);
+          oper->local = 1;
+          oper->next = cfg->operator_auth;
+          cfg->operator_auth = oper;
+        }
     }
 
   /* parse banned clients */
@@ -167,19 +167,19 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       kill = svz_malloc (sizeof (irc_kill_t));
       if (4 != irc_parse_line (line, "O:%s:%d-%d:%s",
-			       tmp[0], &kill->start, &kill->end, tmp[1]))
-	{
-	  svz_log (LOG_ERROR, "irc: invalid K line: %s\n", line);
-	  svz_free (kill);
-	}
+                               tmp[0], &kill->start, &kill->end, tmp[1]))
+        {
+          svz_log (LOG_ERROR, "irc: invalid K line: %s\n", line);
+          svz_free (kill);
+        }
       else
-	{
-	  kill->line = line;
-	  kill->host = svz_strdup (tmp[0]);
-	  kill->user = svz_strdup (tmp[1]);
-	  kill->next = cfg->banned;
-	  cfg->banned = kill;
-	}
+        {
+          kill->line = line;
+          kill->host = svz_strdup (tmp[0]);
+          kill->user = svz_strdup (tmp[1]);
+          kill->next = cfg->banned;
+          cfg->banned = kill;
+        }
     }
 
   /* free the previously allocated buffer space */
@@ -210,15 +210,15 @@ irc_free_config_lines (irc_config_t *cfg)
     {
       cfg->user_auth = user->next;
       if (user->user_ip)
-	svz_free (user->user_ip);
+        svz_free (user->user_ip);
       if (user->ip)
-	svz_free (user->ip);
+        svz_free (user->ip);
       if (user->user_host)
-	svz_free (user->user_host);
+        svz_free (user->user_host);
       if (user->host)
-	svz_free (user->host);
+        svz_free (user->host);
       if (user->password)
-	svz_free (user->password);
+        svz_free (user->password);
       svz_free (user);
     }
 
@@ -227,13 +227,13 @@ irc_free_config_lines (irc_config_t *cfg)
     {
       cfg->operator_auth = oper->next;
       if (oper->nick)
-	svz_free (oper->nick);
+        svz_free (oper->nick);
       if (oper->user)
-	svz_free (oper->user);
+        svz_free (oper->user);
       if (oper->host)
-	svz_free (oper->host);
+        svz_free (oper->host);
       if (oper->password)
-	svz_free (oper->password);
+        svz_free (oper->password);
       svz_free (oper);
     }
 
@@ -242,9 +242,9 @@ irc_free_config_lines (irc_config_t *cfg)
     {
       cfg->banned = kill->next;
       if (kill->user)
-	svz_free (kill->user);
+        svz_free (kill->user);
       if (kill->host)
-	svz_free (kill->host);
+        svz_free (kill->host);
       svz_free (kill);
     }
 }
@@ -258,22 +258,22 @@ static int
 irc_check_class (irc_config_t *cfg, int class_nr)
 {
   irc_class_t *class;
-  
+
   for (class = cfg->classes; class; class = class->next)
     {
       if (class->nr == class_nr)
-	{
-	  if (class->links++ < class->max_links)
-	    return 0;
-	  else
-	    {
+        {
+          if (class->links++ < class->max_links)
+            return 0;
+          else
+            {
 #if SVZ_ENABLE_DEBUG
-	      svz_log (LOG_DEBUG, "irc: %d/%d links reached in class %d\n",
-		       class->links, class->max_links, class->nr);
+              svz_log (LOG_DEBUG, "irc: %d/%d links reached in class %d\n",
+                       class->links, class->max_links, class->nr);
 #endif
-	      return -1;
-	    }
-	}
+              return -1;
+            }
+        }
     }
   return 0;
 }
@@ -293,20 +293,20 @@ irc_client_killed (irc_client_t *client, irc_config_t *cfg)
   for (kill = cfg->banned; kill; kill = kill->next)
     {
       if (irc_string_regex (client->user, kill->user) &&
-	  irc_string_regex (client->host, kill->host))
-	{
-	  t = time (NULL);
-	  tm = localtime (&t);
-	  ts = (tm->tm_hour + 1) * 100 + tm->tm_min;
-	  if (ts >= kill->start && ts <= kill->end)
-	    {
+          irc_string_regex (client->host, kill->host))
+        {
+          t = time (NULL);
+          tm = localtime (&t);
+          ts = (tm->tm_hour + 1) * 100 + tm->tm_min;
+          if (ts >= kill->start && ts <= kill->end)
+            {
 #if SVZ_ENABLE_DEBUG
-	      svz_log (LOG_DEBUG, "irc: %s@%s is K lined: %s\n",
-		       client->user, client->host, kill->line);
-	      return -1;
+              svz_log (LOG_DEBUG, "irc: %s@%s is K lined: %s\n",
+                       client->user, client->host, kill->line);
+              return -1;
 #endif
-	    }
-	}
+            }
+        }
     }
   return 0;
 }
@@ -324,7 +324,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
   if (irc_client_killed (client, cfg))
     {
       irc_printf (client->sock, "%s %03d %s " ERR_YOUREBANNEDCREEP_TEXT "\n",
-		  cfg->host, ERR_YOUREBANNEDCREEP, client->nick);
+                  cfg->host, ERR_YOUREBANNEDCREEP, client->nick);
       return 0;
     }
 
@@ -332,48 +332,48 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
   for (user = cfg->user_auth; user; user = user->next)
     {
       if ((irc_string_regex (client->user, user->user_ip) &&
-	   irc_string_regex (svz_inet_ntoa (client->sock->remote_addr), 
-			     user->ip)) ||
-	  (irc_string_regex (client->user, user->user_host) &&
-	   irc_string_regex (client->host, user->host)))
-	{
-	  /* test the given password for that I line */
-	  if (user->password)
-	    {
+           irc_string_regex (svz_inet_ntoa (client->sock->remote_addr),
+                             user->ip)) ||
+          (irc_string_regex (client->user, user->user_host) &&
+           irc_string_regex (client->host, user->host)))
+        {
+          /* test the given password for that I line */
+          if (user->password)
+            {
 #if SVZ_ENABLE_CRYPT
-	      if (strcmp (crypt (client->pass, user->password), 
-			  user->password))
+              if (strcmp (crypt (client->pass, user->password),
+                          user->password))
 #else
-	      if (strcmp (client->pass, user->password))
+              if (strcmp (client->pass, user->password))
 #endif
-		{
-		  irc_printf (client->sock, ":%s %03d %s " 
-			      ERR_PASSWDMISMATCH_TEXT "\n",
-			      cfg->host, ERR_PASSWDMISMATCH, client->nick);
-		  return 0;
-		}
-	    }
+                {
+                  irc_printf (client->sock, ":%s %03d %s "
+                              ERR_PASSWDMISMATCH_TEXT "\n",
+                              cfg->host, ERR_PASSWDMISMATCH, client->nick);
+                  return 0;
+                }
+            }
 
-	  /* now we have a look at the connection classes */
-	  if (irc_check_class (cfg, user->class))
-	    continue;
-	  
+          /* now we have a look at the connection classes */
+          if (irc_check_class (cfg, user->class))
+            continue;
+
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "irc: valid client: %s\n", user->line);
+          svz_log (LOG_DEBUG, "irc: valid client: %s\n", user->line);
 #endif
-	  return 1;
-	}
+          return 1;
+        }
     }
 #if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "irc: not a valid client (%s@%s)\n",
-	   client->user, client->host);
+           client->user, client->host);
 #endif
 
   return 0;
 }
 
 /*
- * The following function performs a check for the given client 
+ * The following function performs a check for the given client
  * being able to get IRC operator. Return NULL on errors.
  */
 int
@@ -384,24 +384,24 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
   for (oper = cfg->operator_auth; oper; oper = oper->next)
     {
       if (irc_string_regex (client->user, oper->user) &&
-	  irc_string_regex (client->host, oper->host) &&
-	  irc_string_regex (client->nick, oper->nick) &&
+          irc_string_regex (client->host, oper->host) &&
+          irc_string_regex (client->nick, oper->nick) &&
 #if SVZ_ENABLE_CRYPT
-	  !strcmp (crypt (client->pass, oper->password), oper->password))
+          !strcmp (crypt (client->pass, oper->password), oper->password))
 #else
-	  !strcmp (client->pass, oper->password))
+          !strcmp (client->pass, oper->password))
 #endif
-	{
+        {
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "irc: valid operator: %s\n", oper->line);
+          svz_log (LOG_DEBUG, "irc: valid operator: %s\n", oper->line);
 #endif
-	  return -1;
-	}
+          return -1;
+        }
     }
 
 #if SVZ_ENABLE_DEBUG
   svz_log (LOG_DEBUG, "irc: not a valid operator (%s@%s)\n",
-	   client->user, client->host);
+           client->user, client->host);
 #endif
 
   return 0;

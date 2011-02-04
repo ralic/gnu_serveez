@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,8 +42,8 @@
  * Numeric Replies: RPL_ISON ERR_NEEDMOREPARAMS
  */
 int
-irc_ison_callback (svz_socket_t *sock, 
-		   irc_client_t *client, irc_request_t *request)
+irc_ison_callback (svz_socket_t *sock,
+                   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   static char nicklist[MAX_MSG_LEN] = "";
@@ -56,14 +56,14 @@ irc_ison_callback (svz_socket_t *sock,
   for (n = 0; n < request->paras; n++)
     {
       if (irc_find_nick (cfg, request->para[n]))
-	{
-	  strcat (nicklist, request->para[n]);
-	  strcat (nicklist, " ");
-	}
+        {
+          strcat (nicklist, request->para[n]);
+          strcat (nicklist, " ");
+        }
     }
 
-  irc_printf (sock, ":%s %03d %s " RPL_ISON_TEXT "\n", 
-	      cfg->host, RPL_ISON, client->nick, nicklist);
+  irc_printf (sock, ":%s %03d %s " RPL_ISON_TEXT "\n",
+              cfg->host, RPL_ISON, client->nick, nicklist);
   return 0;
 }
 
@@ -73,8 +73,8 @@ irc_ison_callback (svz_socket_t *sock,
  * Numeric Replies: RPL_USERHOST ERR_NEEDMOREPARAMS
  */
 int
-irc_userhost_callback (svz_socket_t *sock, 
-		       irc_client_t *client, irc_request_t *request)
+irc_userhost_callback (svz_socket_t *sock,
+                       irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   int n;
@@ -90,30 +90,30 @@ irc_userhost_callback (svz_socket_t *sock,
   for (n = 0; n < request->paras; n++)
     {
       if ((cl = irc_find_nick (cfg, request->para[n])) != NULL)
-	{
-	  sprintf (text, "%s%s=%c%s@%s ",
-		   cl->nick, 
-		   cl->flag & UMODE_OPERATOR ? "*" : "",
-		   cl->flag & UMODE_AWAY ? '-' : '+', cl->user, cl->host);
-	  strcat (list, text);
-	}
+        {
+          sprintf (text, "%s%s=%c%s@%s ",
+                   cl->nick,
+                   cl->flag & UMODE_OPERATOR ? "*" : "",
+                   cl->flag & UMODE_AWAY ? '-' : '+', cl->user, cl->host);
+          strcat (list, text);
+        }
     }
 
   /* send the USERHOST reply */
   irc_printf (sock, ":%s %03d %s " RPL_USERHOST_TEXT "\n",
-	      cfg->host, RPL_USERHOST, client->nick, list);
+              cfg->host, RPL_USERHOST, client->nick, list);
 
   return 0;
 }
 
-/* 
+/*
  *         Command: AWAY
  *      Parameters: [message]
  * Numeric Replies: RPL_UNAWAY RPL_NOWAWAY
  */
 int
-irc_away_callback (svz_socket_t *sock, 
-		   irc_client_t *client, irc_request_t *request)
+irc_away_callback (svz_socket_t *sock,
+                   irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 
@@ -121,17 +121,17 @@ irc_away_callback (svz_socket_t *sock,
   if (!request->paras)
     {
       irc_printf (sock, ":%s %03d %s " RPL_UNAWAY_TEXT "\n",
-		  cfg->host, RPL_UNAWAY, client->nick);
+                  cfg->host, RPL_UNAWAY, client->nick);
       client->flag &= ~UMODE_AWAY;
     }
   /* set AWAY Message */
   else
     {
       irc_printf (sock, ":%s %03d %s " RPL_NOWAWAY_TEXT "\n",
-		  cfg->host, RPL_NOWAWAY, client->nick);
+                  cfg->host, RPL_NOWAWAY, client->nick);
       client->flag |= UMODE_AWAY;
       if (client->away)
-	svz_free (client->away);
+        svz_free (client->away);
       client->away = svz_strdup (request->para[0]);
     }
   return 0;
@@ -146,8 +146,8 @@ irc_away_callback (svz_socket_t *sock,
  *                  ERR_USERSDISABLED
  */
 int
-irc_users_callback (svz_socket_t *sock, 
-		    irc_client_t *client, irc_request_t *request)
+irc_users_callback (svz_socket_t *sock,
+                    irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
   irc_client_t **cl;
@@ -157,43 +157,43 @@ irc_users_callback (svz_socket_t *sock,
   if (cfg->users_disabled)
     {
       irc_printf (sock, ":%s %03d %s " ERR_USERSDISABLED_TEXT "\n",
-		  cfg->host, ERR_USERSDISABLED, client->nick);
+                  cfg->host, ERR_USERSDISABLED, client->nick);
       return 0;
     }
 
-  /* 
-   * If no parameter is given then return the local users 
+  /*
+   * If no parameter is given then return the local users
    * list of this server.
    */
   if (request->paras < 1)
     {
       if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
-	{
-	  irc_printf (sock, ":%s %03d %s " RPL_USERSSTART_TEXT "\n",
-		      cfg->host, RPL_USERSSTART, client->nick);
-	  for (n = 0; n < svz_hash_size (cfg->clients); n++)
-	    {
-	      irc_printf (sock, ":%s %03d %s " RPL_USERS_TEXT "\n",
-			  cfg->host, RPL_USERS, client->nick,
-			  cl[n]->nick, cl[n]->user, cl[n]->host);
-	    }
-	  irc_printf (sock, ":%s %03d %s " RPL_ENDOFUSERS_TEXT "\n",
-		      cfg->host, RPL_ENDOFUSERS, client->nick);
-	  svz_hash_xfree (cl);
-	}
+        {
+          irc_printf (sock, ":%s %03d %s " RPL_USERSSTART_TEXT "\n",
+                      cfg->host, RPL_USERSSTART, client->nick);
+          for (n = 0; n < svz_hash_size (cfg->clients); n++)
+            {
+              irc_printf (sock, ":%s %03d %s " RPL_USERS_TEXT "\n",
+                          cfg->host, RPL_USERS, client->nick,
+                          cl[n]->nick, cl[n]->user, cl[n]->host);
+            }
+          irc_printf (sock, ":%s %03d %s " RPL_ENDOFUSERS_TEXT "\n",
+                      cfg->host, RPL_ENDOFUSERS, client->nick);
+          svz_hash_xfree (cl);
+        }
       else
-	{
-	  irc_printf (sock, "%s %03d %s " RPL_NOUSERS_TEXT "\n",
-		      cfg->host, RPL_NOUSERS, client->nick);
-	}
-      
+        {
+          irc_printf (sock, "%s %03d %s " RPL_NOUSERS_TEXT "\n",
+                      cfg->host, RPL_NOUSERS, client->nick);
+        }
+
     }
   /* Return the list of remote servers if possible. */
   else
     {
       irc_printf (sock, ":%s %03d %s " ERR_NOSUCHSERVER_TEXT "\n",
-		  cfg->host, ERR_NOSUCHSERVER, client->nick,
-		  request->para[0]);
+                  cfg->host, ERR_NOSUCHSERVER, client->nick,
+                  request->para[0]);
     }
 
   return 0;

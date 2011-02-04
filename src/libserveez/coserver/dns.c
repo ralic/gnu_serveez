@@ -7,12 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,7 +48,7 @@
 #include "libserveez/coserver/dns.h"
 
 /*
- * Proceed a single DNS lookup. 
+ * Proceed a single DNS lookup.
  */
 char *
 dns_handle_request (char *inbuf)
@@ -62,9 +62,9 @@ dns_handle_request (char *inbuf)
       /* find the host by its name */
       if ((host = gethostbyname (resolved)) == NULL)
         {
-          svz_log (LOG_ERROR, "dns: gethostbyname: %s (%s)\n", 
-		   H_NET_ERROR, resolved);
-	  return NULL;
+          svz_log (LOG_ERROR, "dns: gethostbyname: %s (%s)\n",
+                   H_NET_ERROR, resolved);
+          return NULL;
         }
 
       /* get the inet address in network byte order */
@@ -73,18 +73,18 @@ dns_handle_request (char *inbuf)
           memcpy (&addr, host->h_addr_list[0], host->h_length);
 
 #if SVZ_ENABLE_DEBUG
-	  svz_log (LOG_DEBUG, "dns: %s is %s\n",
-		   host->h_name, svz_inet_ntoa (addr));
+          svz_log (LOG_DEBUG, "dns: %s is %s\n",
+                   host->h_name, svz_inet_ntoa (addr));
 #endif /* SVZ_ENABLE_DEBUG */
-	  sprintf (resolved, "%s", svz_inet_ntoa (addr));
-	  return resolved;
-	}
-    } 
-  else 
+          sprintf (resolved, "%s", svz_inet_ntoa (addr));
+          return resolved;
+        }
+    }
+  else
     {
       svz_log (LOG_ERROR, "dns: protocol error\n");
       return NULL;
     }
-  
+
   return NULL;
 }

@@ -7,12 +7,12 @@
  * under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this package.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,9 +27,9 @@
 #define SVZ_SPVEC_SIZE (1 << SVZ_SPVEC_BITS) /* values 1 .. 64 possible */
 #define SVZ_SPVEC_MASK ((1 << SVZ_SPVEC_SIZE) - 1)
 
-/* 
- * On 32 bit architectures SVZ_SPVEC_SIZE is no larger than 32 and on 
- * 64 bit architectures it is no larger than 64. It specifies the number 
+/*
+ * On 32 bit architectures SVZ_SPVEC_SIZE is no larger than 32 and on
+ * 64 bit architectures it is no larger than 64. It specifies the number
  * of bits the `spvec->fill' (unsigned long) field can hold.
  */
 
@@ -57,10 +57,10 @@ struct svz_spvec_list
 
 __BEGIN_DECLS
 
-/* 
- * Exported sparse vector functions. A sparse vector is a kind of data array 
+/*
+ * Exported sparse vector functions. A sparse vector is a kind of data array
  * which grows and shrinks on demand. It unifies the advantages of chained
- * lists (less memory usage than simple arrays) and arrays (faster access 
+ * lists (less memory usage than simple arrays) and arrays (faster access
  * to specific elements). This implementation can handle gaps in between
  * the array elements.
  */
@@ -69,21 +69,21 @@ SERVEEZ_API svz_spvec_t *svz_spvec_create __PARAMS ((void));
 SERVEEZ_API void svz_spvec_destroy __PARAMS ((svz_spvec_t *));
 SERVEEZ_API void svz_spvec_add __PARAMS ((svz_spvec_t *, void *));
 SERVEEZ_API void svz_spvec_clear __PARAMS ((svz_spvec_t *));
-SERVEEZ_API unsigned long svz_spvec_contains __PARAMS ((svz_spvec_t *, 
-							void *));
+SERVEEZ_API unsigned long svz_spvec_contains __PARAMS ((svz_spvec_t *,
+                                                        void *));
 SERVEEZ_API void *svz_spvec_get __PARAMS ((svz_spvec_t *, unsigned long));
 SERVEEZ_API unsigned long svz_spvec_index __PARAMS ((svz_spvec_t *, void *));
 SERVEEZ_API void *svz_spvec_delete __PARAMS ((svz_spvec_t *, unsigned long));
-SERVEEZ_API unsigned long svz_spvec_delete_range __PARAMS ((svz_spvec_t *, 
-							    unsigned long, 
-							    unsigned long));
-SERVEEZ_API void *svz_spvec_set __PARAMS ((svz_spvec_t *, unsigned long, 
-					   void *));
+SERVEEZ_API unsigned long svz_spvec_delete_range __PARAMS ((svz_spvec_t *,
+                                                            unsigned long,
+                                                            unsigned long));
+SERVEEZ_API void *svz_spvec_set __PARAMS ((svz_spvec_t *, unsigned long,
+                                           void *));
 SERVEEZ_API void *svz_spvec_unset __PARAMS ((svz_spvec_t *, unsigned long));
 SERVEEZ_API unsigned long svz_spvec_size __PARAMS ((svz_spvec_t *));
 SERVEEZ_API unsigned long svz_spvec_length __PARAMS ((svz_spvec_t *));
-SERVEEZ_API void svz_spvec_insert __PARAMS ((svz_spvec_t *, 
-					     unsigned long, void *));
+SERVEEZ_API void svz_spvec_insert __PARAMS ((svz_spvec_t *,
+                                             unsigned long, void *));
 SERVEEZ_API void **svz_spvec_values __PARAMS ((svz_spvec_t *));
 SERVEEZ_API void svz_spvec_pack __PARAMS ((svz_spvec_t *));
 
