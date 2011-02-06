@@ -85,9 +85,23 @@ by root.
 If you have problems building the package out of the box, this is due to
 GNU libtool's inability to handle dynamic linking in most cases.  That is
 why we recommend to try and configure the package with `--disable-shared'
-and/or the native compiler (if any).  When the build process is not able to
-link against an existing Guile installation you can try to use the
-`--with-guile-source=DIR' configure option.
+and/or the native compiler (if any).  When the build process is not able
+to link against an existing Guile installation you can try to use the
+`--with-guile-source=DIR' configure option.  DIR is the location of an
+already-configured source tree (as evidenced by the presence of file
+DIR/config.status).  NB: Previous Serveez releases would configure this
+tree for you, if necessary, using the following options:
+
+  --enable-static --disable-shared
+  --disable-debug-freelist --disable-debug-malloc --disable-guile-debug
+  --disable-arrays --disable-posix --enable-networking --disable-regex
+  --without-threads --enable-ltdl-convenience --prefix=$prefix
+  --host=$host --build=$build --target=$target --cache-file=$cache_file
+
+with $prefix, $host, $build, $target and $cache_file taken from the
+Serveez configuration.  This option set is tuned for Guile 1.4 and may
+or may not work for your particular installation; you may need to
+experiment a bit.
 
 For further information on installing the package, please consult the
 file INSTALL included in this distribution.

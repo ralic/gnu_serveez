@@ -1553,12 +1553,6 @@ AC_MSG_RESULT([])
 AC_MSG_RESULT([	$PACKAGE version $VERSION configured successfully.])
 AC_MSG_RESULT([])
 
-dnl
-dnl Configure local guile source tree.
-dnl
-
-AC_GUILE_CONFIGURE
-
 AC_OUTPUT
 
 dnl configure.ac ends here

@@ -38,12 +38,6 @@ dnl Please have a look at the `src/Makefile.am' file for more details how
 dnl these variables are actually used to build a static guile library linked
 dnl to the main binary.
 dnl
-dnl AC_GUILE_CONFIGURE -- Configure a Guile source tree.
-dnl Configure the guile source tree if necessary. The directory has been given
-dnl in the AC_GUILE_SOURCE directory. Use the local cache file for speeding up
-dnl this process. Most optional modules of guile will be disabled. Tell the
-dnl ./configure script of guile to build a static library only.
-dnl
 dnl AC_GUILE_CHECK -- Checks for Guile results and exits if necessary.
 dnl
 dnl AC_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
@@ -135,7 +129,8 @@ AC_DEFUN([AC_GUILE_SOURCE], [
 	GUILESRC="`echo "$GUILESRC" | sed -e 's%\\\\%/%g'`"
 	;;
     esac
-    if test -f "$GUILESRC/configure" ; then
+    if test -f "$GUILESRC/configure" &&
+       test -f "$GUILESRC/config.status" ; then
       GUILE_SOURCE="$GUILESRC"
       GUILE_CFLAGS="-I$GUILESRC -I$GUILESRC/libguile -DGUILE_SOURCE"
       GUILE_LDFLAGS="$GUILESRC/libguile/libguile.la"
@@ -164,32 +159,6 @@ AC_DEFUN([AC_GUILE_SOURCE], [
     GUILE_SOURCE="no"
   fi
   unset GUILESRC
-])
-
-AC_DEFUN([AC_GUILE_CONFIGURE], [
-  if test "x$GUILE_SOURCE" != "xno" ; then
-    if test "`echo "$cache_file" | cut -b 1`" != "/" ; then
-      cache_file="`pwd`/$cache_file"
-    fi
-    case $build_os in
-    mingw*)
-	cache_file="`eval cygpath -w -i "$cache_file"`"
-	cache_file="`echo "$cache_file" | sed -e 's%\\\\%/%g'`"
-	;;
-    esac
-    if test ! -f "$GUILE_SOURCE/libguile/scmconfig.h" ; then
-      AC_MSG_RESULT([configuring Guile...])
-      ([cd $GUILE_SOURCE && $SHELL configure \
-        --enable-static --disable-shared \
-        --disable-debug-freelist --disable-debug-malloc --disable-guile-debug \
-        --disable-arrays --disable-posix --enable-networking --disable-regex \
-        --without-threads --enable-ltdl-convenience --prefix=$prefix \
-        --host=$host --build=$build --target=$target --cache-file=$cache_file])
-    else
-      AC_MSG_RESULT([The file `$GUILE_SOURCE/libguile/scmconfig.h' exists.])
-      AC_MSG_RESULT([Guile already configured... skipped.])
-    fi
-  fi
 ])
 
 AC_DEFUN([AC_GUILE_CHECK], [

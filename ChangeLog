@@ -1,3 +1,13 @@
+2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Make ‘--with-guile-source’ expect an already-configured tree.
+
+	* configure.ac (AC_GUILE_CONFIGURE): Delete call.
+	* acinclude.m4 (AC_GUILE_SOURCE): Make success also
+	conditional on existence of ‘$GUILESRC/config.status’.
+	(AC_GUILE_CONFIGURE): Delete macro.
+	* README: Document former configure option set.
+
 2011-02-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[maint] Use ‘if MAINTAINER_MODE’ for "make {redhat, debian}".
