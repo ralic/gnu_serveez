@@ -71,3 +71,6 @@ AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 CLEANFILES += svzpath.h
 
 MAINTAINERCLEANFILES += libserveez.dsp
+
+svzpath.h.serveez: svzpath.h
+	cp $< $@

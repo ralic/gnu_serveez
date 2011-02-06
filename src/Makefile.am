@@ -92,3 +92,6 @@ SUFFIXES = .rc .ro
 $(GUILE_RULE):
 	@GUILE_MAKE_LTDL@
 	@GUILE_MAKE_LIB@
+
+svzconfig.h.serveez: svzconfig.h
+	cp $< $@

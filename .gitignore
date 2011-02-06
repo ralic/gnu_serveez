@@ -4,6 +4,7 @@
 *.la
 *.lo
 *.o
+*.serveez
 
 # anywhere: specific filenames
 .deps
