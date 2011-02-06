@@ -17,15 +17,15 @@ dnl along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
 dnl ----------------------------------------------------------------------
 dnl
-dnl AC_GUILE -- Locate a Guile installation.
+dnl SVZ_GUILE -- Locate a Guile installation.
 dnl This macro sets both the variables GUILE_CFLAGS and GUILE_LDFLAGS to be
 dnl passed to the compiler and linker. In a first try it uses the
 dnl `guile-config' script in order to obtain these settings. Then it proceeds
 dnl the `--with-guile=DIR' option of the ./configure script.
 dnl
-dnl AC_GUILE_SOURCE -- Check a source tree of Guile.
+dnl SVZ_GUILE_SOURCE -- Check a source tree of Guile.
 dnl Check if the user has given the `--with-guile-source=DIR' argument to
-dnl ./configure script. If so, it overrides the above AC_GUILE macro and
+dnl ./configure script. If so, it overrides the above SVZ_GUILE macro and
 dnl provides the following Makefile variables:
 dnl   GUILE_SOURCE - the source directory
 dnl   GUILE_CFLAGS - flags passed to the compiler
@@ -38,12 +38,12 @@ dnl Please have a look at the `src/Makefile.am' file for more details how
 dnl these variables are actually used to build a static guile library linked
 dnl to the main binary.
 dnl
-dnl AC_GUILE_CHECK -- Checks for Guile results and exits if necessary.
+dnl SVZ_GUILE_CHECK -- Checks for Guile results and exits if necessary.
 dnl
-dnl AC_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
+dnl SVZ_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
 dnl
 
-AC_DEFUN([AC_GUILE], [
+AC_DEFUN([SVZ_GUILE], [
   AC_ARG_WITH(guile,
     [  --with-guile=DIR        guile installation in DIR @<:@/usr/local@:>@],
     [case "$withval" in
@@ -110,7 +110,7 @@ AC_DEFUN([AC_GUILE], [
   AC_SUBST(GUILE_LDFLAGS)
 ])
 
-AC_DEFUN([AC_GUILE_SOURCE], [
+AC_DEFUN([SVZ_GUILE_SOURCE], [
   AC_ARG_WITH(guile-source,
     [  --with-guile-source     guile source tree in DIR @<:@/usr/src@:>@],
     [case "$withval" in
@@ -161,7 +161,7 @@ AC_DEFUN([AC_GUILE_SOURCE], [
   unset GUILESRC
 ])
 
-AC_DEFUN([AC_GUILE_CHECK], [
+AC_DEFUN([SVZ_GUILE_CHECK], [
   if test "x$GUILE_BUILD" != "xyes" ; then
     AC_MSG_ERROR([
   The $PACKAGE $VERSION package requires either an installed Guile
@@ -172,7 +172,7 @@ AC_DEFUN([AC_GUILE_CHECK], [
   fi
 ])
 
-AC_DEFUN([AC_LIBTOOL_SOLARIS], [
+AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
   if test "x$GCC" = "xyes" -a "x$enable_shared" = "xyes" ; then
     case $host_os in
     solaris*)

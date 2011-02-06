@@ -1,5 +1,17 @@
 2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use SVZ_ for Serveez-originated m4 macros.
+
+	The AC_ namespace is reserved for Autoconf.
+
+	* acinclude.m4 (SVZ_GUILE): Rename from ‘AC_GUILE’.
+	(SVZ_GUILE_SOURCE): Rename from ‘AC_GUILE_SOURCE’.
+	(SVZ_GUILE_CHECK): Rename from ‘AC_GUILE_CHECK’.
+	(SVZ_LIBTOOL_SOLARIS): Rename from ‘AC_LIBTOOL_SOLARIS’.
+	* configure.ac: Update macro call sites.
+
+2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Generate *.serveez files on "make dist".
 
 	* config.h.serveez: Delete file.

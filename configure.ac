@@ -793,9 +793,9 @@ dnl
 dnl Check Guile installation.
 dnl
 
-AC_GUILE
-AC_GUILE_SOURCE
-AC_GUILE_CHECK
+SVZ_GUILE
+SVZ_GUILE_SOURCE
+SVZ_GUILE_CHECK
 
 dnl ----------------------------------------------------------------------
 
@@ -926,7 +926,7 @@ dnl - native linker combination.  The below macro adds the -liberty path
 dnl and -lgcc to the linker line if necessary.
 dnl
 
-AC_LIBTOOL_SOLARIS
+SVZ_LIBTOOL_SOLARIS
 
 dnl
 dnl Checking for timezone and daylight variables (FreeBSD and NetBSD
