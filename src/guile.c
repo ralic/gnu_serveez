@@ -1744,8 +1744,10 @@ guile_eval_file (void *data)
   if (file == NULL || (error != -1 && !isatty (fileno (stdin)) &&
                        !S_ISCHR (buf.st_mode) && !S_ISBLK (buf.st_mode)))
     {
+      SCM inp = scm_current_input_port ();
       SCM ret = SCM_BOOL_F, line;
-      while (!SCM_EOF_OBJECT_P (line = scm_read (scm_cur_inp)))
+
+      while (!SCM_EOF_OBJECT_P (line = scm_read (inp)))
         ret = scm_primitive_eval_x (line);
       return SCM_BOOL_T;
     }
