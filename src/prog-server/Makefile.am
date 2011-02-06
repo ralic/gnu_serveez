@@ -25,5 +25,3 @@ include $(top_srcdir)/build-aux/common.mk
 noinst_LIBRARIES = libprog.a
 
 libprog_a_SOURCES = prog-server.h prog-server.c
-
-MAINTAINERCLEANFILES = Makefile.in

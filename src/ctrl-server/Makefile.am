@@ -27,5 +27,3 @@ noinst_LIBRARIES = libctrl.a
 
 libctrl_a_SOURCES = \
 	control-proto.c control-proto.h
-
-MAINTAINERCLEANFILES = Makefile.in

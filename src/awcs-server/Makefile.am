@@ -27,5 +27,3 @@ noinst_LIBRARIES = libawcs.a
 
 libawcs_a_SOURCES = \
 	awcs-proto.c awcs-proto.h
-
-MAINTAINERCLEANFILES = Makefile.in

@@ -48,4 +48,3 @@ init.serveez: init.serveez.in
 	@chmod +x $(srcdir)/init.serveez
 
 CLEANFILES += init.serveez
-MAINTAINERCLEANFILES = Makefile.in

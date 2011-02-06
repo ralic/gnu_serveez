@@ -27,5 +27,3 @@ noinst_LIBRARIES = libirccore.a
 
 libirccore_a_SOURCES = \
 	irc-core.c irc-core.h
-
-MAINTAINERCLEANFILES = Makefile.in

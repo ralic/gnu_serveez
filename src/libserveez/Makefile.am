@@ -70,4 +70,4 @@ AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
 CLEANFILES += svzpath.h
 
-MAINTAINERCLEANFILES = Makefile.in libserveez.dsp
+MAINTAINERCLEANFILES += libserveez.dsp

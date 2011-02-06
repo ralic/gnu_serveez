@@ -35,5 +35,3 @@ libcoserverdir = $(includedir)/libserveez/coserver
 libcoserver_HEADERS = coserver.h
 
 noinst_HEADERS = dns.h ident.h reverse-dns.h
-
-MAINTAINERCLEANFILES = Makefile.in

@@ -44,5 +44,5 @@ codec_test_SOURCES = codec-test.c
 codec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 prog_test_SOURCES = prog-test.c
 
-MAINTAINERCLEANFILES = Makefile.in \
+MAINTAINERCLEANFILES += \
 	hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp

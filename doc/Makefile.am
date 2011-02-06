@@ -33,7 +33,6 @@ EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
 CLEANFILES += *.info *.tgz *.info-[0-9] stamp-vti* serveez-api.texi \
 	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html \
 	$(GUILE_TXT_FILE)
-MAINTAINERCLEANFILES = Makefile.in
 DISTCLEANFILES = stamp-* version*.texi
 DOC_DIRS = $(top_srcdir)/src/libserveez \
   $(top_srcdir)/src/libserveez/coserver $(top_srcdir)/src/libserveez/codec

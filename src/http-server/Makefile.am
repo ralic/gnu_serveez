@@ -31,5 +31,3 @@ libhttp_a_SOURCES = \
 	http-dirlist.c http-dirlist.h \
 	http-proto.c http-proto.h \
 	http-core.c http-core.h
-
-MAINTAINERCLEANFILES = Makefile.in

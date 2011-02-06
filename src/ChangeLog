@@ -1,5 +1,23 @@
 2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Centralize Makefile.am var ‘MAINTAINERCLEANFILES’.
+
+	* Makefile.am (MAINTAINERCLEANFILES): Use ‘+=’; update.
+	* awcs-server/Makefile.am (MAINTAINERCLEANFILES): Delete var.
+	* ctrl-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* fakeident-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* foo-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* guile-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* http-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* irc-core/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* irc-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* nut-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* prog-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* sntp-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+	* tunnel-server/Makefile.am (MAINTAINERCLEANFILES): Likewise.
+
+2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile] Avoid deprecated var ‘scm_cur_inp’.
 
 	* guile.c (guile_eval_file): Use ‘scm_current_input_port’.

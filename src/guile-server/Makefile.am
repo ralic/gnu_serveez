@@ -26,5 +26,3 @@ EXTRA_DIST = mandel-server.scm mandel-client.scm mandel-shared.scm \
 pkgdata_DATA = inetd.scm echo-server.scm eval-server.scm \
 	mandel-server.scm mandel-client.scm mandel-shared.scm \
 	icecast-server.scm
-
-MAINTAINERCLEANFILES = Makefile.in
