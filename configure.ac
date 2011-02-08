@@ -133,13 +133,8 @@ dnl
 dnl Check whether compilation warnings are desired.
 dnl
 
-AC_ARG_ENABLE([warn],
-  [  --enable-warn           Turn on most compiler warnings @<:@default=no@:>@],
-  if test "$enableval" = "yes" ; then
-    define_enable_warn="yes"
-  fi)
-
-if test "x$define_enable_warn" = "xyes" ; then
+SVZ_FLAG([whether compiler warnings are enabled],
+         [no],[warn],[Turn on most compiler warnings],[
   save_cflags="$CFLAGS"
   warn_cflags=""
   warnflags="-W -fullwarn -pedantic"
@@ -169,8 +164,7 @@ if test "x$define_enable_warn" = "xyes" ; then
   CPPEXTRAFLAGS="$warn_cflags"
   unset warn_cflags
   unset save_cflags
-fi
-unset define_enable_warn
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -178,20 +172,8 @@ dnl
 dnl Check whether compilation optimizations are desired.
 dnl
 
-AC_MSG_CHECKING([whether to enable optimizations])
-AC_ARG_ENABLE([opt],
-  [  --enable-opt            Turn on compiler optimizations @<:@default=no@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_opt=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_opt=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_opt=no
-  AC_MSG_RESULT([no]))
-
-if test $define_enable_opt = yes ; then
+SVZ_FLAG([whether to enable optimizations],
+         [no],[opt],[Turn on compiler optimizations],[
   save_cflags="$CFLAGS"
   opt_cflags=""
   opt_ldflags=""
@@ -237,14 +219,9 @@ if test $define_enable_opt = yes ; then
   fi
 
   dnl Check for additional optimization compiler flags.
-  AC_ARG_WITH([opt],
-  [  --with-opt=FLAGS        Additional optimization flags @<:@comma separated@:>@],
-    [case "$withval" in
-     no)  optflags="" ;;
-     yes) optflags="" ;;
-     *)   optflags=`echo "$withval" | sed 's/,/ /g'` ;;
-    esac],
-    optflags="")
+  SVZ_WITH([""],[opt],[FLAGS],[Additional optimization (comma-separated) FLAGS],
+           [""],[""],[`echo "$withval" | sed 's/,/ /g'`])
+  optflags="$with_opt"
   for flag in $optflags; do
     CFLAGS="$flag"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
@@ -259,31 +236,18 @@ if test $define_enable_opt = yes ; then
     AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
 
   if test x$opt_isPPro = "xyes" ; then
-    AC_MSG_CHECKING([whether to enable i686 optimizations])
-    AC_ARG_ENABLE([ppro],
-      [  --enable-ppro           Turn on i686 optimizations @<:@default=no@:>@],
-      if test x$enableval = "xyes" ; then
-	opt_cflags="$opt_cflags -march=pentiumpro"
-	opt_isPPro="done"
-	AC_MSG_RESULT([yes])
-      else
-	AC_MSG_RESULT([no])
-      fi,
-      AC_MSG_RESULT([no]))
+    SVZ_FLAG([whether to enable i686 optimizations],
+             [no],[ppro],[Turn on i686 optimizations],[
+    opt_cflags="$opt_cflags -march=pentiumpro"
+    opt_isPPro=done
+    ])
   fi
 
   if test x$opt_is486 = "xyes" -a ! x$opt_isPPro = "xdone" ; then
-    AC_MSG_CHECKING([whether to enable i486 optimizations])
-    AC_ARG_ENABLE([486],
-      [  --disable-486           Turn on i486 optimizations @<:@default=yes@:>@],
-      if test x$enableval = "xyes" ; then
-	opt_cflags="$opt_cflags -m486"
-	AC_MSG_RESULT([yes])
-      else
-	AC_MSG_RESULT([no])
-      fi,
-      opt_cflags="$opt_cflags -m486"
-      AC_MSG_RESULT([yes]))
+    SVZ_FLAG([whether to enable i486 optimizations],
+             [yes],[486],[Turn on i486 optimizations],[
+    opt_cflags="$opt_cflags -m486"
+    ])
   fi
 
   LDFLAGS="$opt_ldflags"
@@ -292,11 +256,10 @@ if test $define_enable_opt = yes ; then
   unset save_cflags
   unset opt_cflags
   unset opt_ldflags
-fi
+])
 
 AC_SUBST(CFLAGS)
 AC_SUBST(LDFLAGS)
-unset define_enable_opt
 
 dnl ----------------------------------------------------------------------
 
@@ -304,25 +267,14 @@ dnl
 dnl Check whether debug output should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable debug output])
-AC_ARG_ENABLE([debug],
-  [  --disable-debug         Include debug output @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_debug=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_debug=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_debug=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_debug = yes ; then
-  AC_DEFINE(SVZ_ENABLE_DEBUG, 1, [Define if debug output should be supported.])
-else
-  AC_DEFINE(NDEBUG, 1, [Define if debug code should be suppressed.])
-fi
-unset define_enable_debug
+SVZ_FLAG([whether to enable debug output],
+         [yes],[debug],[Include debug output],[
+AC_DEFINE([SVZ_ENABLE_DEBUG], 1,
+  [Define if debug output should be supported.])
+],[
+AC_DEFINE([NDEBUG], 1,
+  [Define if debug code should be suppressed.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -330,24 +282,11 @@ dnl
 dnl Check whether we try to list local interfaces.
 dnl
 
-AC_MSG_CHECKING([whether to enable list of local interfaces])
-AC_ARG_ENABLE([iflist],
-  [  --disable-iflist        List local interfaces @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_iflist=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_iflist=no
-    AC_MSG_RESULT([no])
-    fi,
-  define_enable_iflist=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_iflist = yes ; then
-    AC_DEFINE(ENABLE_IFLIST,
-      1, [Define if we are able to list local network interfaces.])
-fi
-unset define_enable_iflist
+SVZ_FLAG([whether to enable list of local interfaces],
+         [yes],[iflist],[List local interfaces],[
+AC_DEFINE([ENABLE_IFLIST], 1,
+  [Define if we are able to list local network interfaces.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -355,24 +294,11 @@ dnl
 dnl Check whether poll loop should be supported.
 dnl
 
-AC_MSG_CHECKING([whether to enable poll loop])
-AC_ARG_ENABLE([poll],
-  [  --disable-poll          Include poll() server loop @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_poll=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_poll=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_poll=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_poll = yes ; then
-  AC_DEFINE(ENABLE_POLL,
-    1, [Define if poll() should be supported if possible.])
-fi
-unset define_enable_poll
+SVZ_FLAG([whether to enable poll loop],
+         [yes],[poll],[Include poll() server loop],[
+AC_DEFINE([ENABLE_POLL], 1,
+  [Define if poll() should be supported if possible.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -380,24 +306,11 @@ dnl
 dnl Check whether sendfile() should be supported.
 dnl
 
-AC_MSG_CHECKING([whether to use sendfile() if possible])
-AC_ARG_ENABLE([sendfile],
-  [  --disable-sendfile      Include sendfile() support @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_sendfile=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_sendfile=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_sendfile=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_sendfile = yes ; then
-  AC_DEFINE(ENABLE_SENDFILE,
-    1, [Define if sendfile() should be supported if possible.])
-fi
-unset define_enable_sendfile
+SVZ_FLAG([whether to use sendfile() if possible],
+         [yes],[sendfile],[Include sendfile() support],[
+AC_DEFINE([ENABLE_SENDFILE], 1,
+  [Define if sendfile() should be supported if possible.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -405,14 +318,10 @@ dnl
 dnl Check whether some thread safety functionality should be included.
 dnl
 
-AC_ARG_WITH([thread-safety],
-  [  --with-thread-safety    Enable some thread-safety functionality @<:@default=no@:>@],
-  [case "$withval" in
-   no)  enable_threads="no" ;;
-   yes) enable_threads="yes" ;;
-   *)   enable_threads="yes" ;;
-  esac],
-  enable_threads="no")
+dnl FIXME: Use ‘SVZ_FLAG’.
+SVZ_WITH([no],[thread-safety],,[Enable some thread-safety functionality],
+         [no],[yes],[yes])
+enable_threads="$with_thread_safety"
 
 dnl ----------------------------------------------------------------------
 
@@ -420,26 +329,13 @@ dnl
 dnl Check whether the SNTP server should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable the SNTP server])
-AC_ARG_ENABLE([sntp-proto],
-  [  --disable-sntp-proto    Include the SNTP server @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_sntp=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_sntp=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_sntp=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_sntp = yes ; then
-  AC_DEFINE(ENABLE_SNTP_PROTO,
-    1, [Define if the SNTP server should be included.])
-  SERVERLIBS="$SERVERLIBS sntp-server/libsntp.a"
-  SERVERDIRS="$SERVERDIRS sntp-server"
-fi
-unset define_enable_sntp
+SVZ_FLAG([whether to enable the SNTP server],
+         [yes],[sntp-proto],[Include the SNTP server],[
+AC_DEFINE([ENABLE_SNTP_PROTO], 1,
+  [Define if the SNTP server should be included.])
+SERVERLIBS="$SERVERLIBS sntp-server/libsntp.a"
+SERVERDIRS="$SERVERDIRS sntp-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -447,26 +343,13 @@ dnl
 dnl Check whether the Gnutella server should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable the Gnutella spider])
-AC_ARG_ENABLE([gnutella],
-  [  --disable-gnutella      Include the Gnutella spider @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_nut=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_nut=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_nut=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_nut = yes ; then
-  AC_DEFINE(ENABLE_GNUTELLA,
-    1, [Define if the Gnutella spider should be included.])
-  SERVERLIBS="$SERVERLIBS nut-server/libnut.a"
-  SERVERDIRS="$SERVERDIRS nut-server"
-fi
-unset define_enable_nut
+SVZ_FLAG([whether to enable the Gnutella spider],
+         [yes],[gnutella],[Include the Gnutella spider],[
+AC_DEFINE([ENABLE_GNUTELLA], 1,
+  [Define if the Gnutella spider should be included.])
+SERVERLIBS="$SERVERLIBS nut-server/libnut.a"
+SERVERDIRS="$SERVERDIRS nut-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -474,26 +357,13 @@ dnl
 dnl Check whether the Tunnel server should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable the port forwarder])
-AC_ARG_ENABLE([tunnel],
-  [  --disable-tunnel        Include port forwarder @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_tunnel=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_tunnel=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_tunnel=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_tunnel = yes ; then
-  AC_DEFINE(ENABLE_TUNNEL,
-    1, [Define if the port forwarder should be included.])
-  SERVERLIBS="$SERVERLIBS tunnel-server/libtunnel.a"
-  SERVERDIRS="$SERVERDIRS tunnel-server"
-fi
-unset define_enable_tunnel
+SVZ_FLAG([whether to enable the port forwarder],
+         [yes],[tunnel],[Include port forwarder],[
+AC_DEFINE([ENABLE_TUNNEL], 1,
+  [Define if the port forwarder should be included.])
+SERVERLIBS="$SERVERLIBS tunnel-server/libtunnel.a"
+SERVERDIRS="$SERVERDIRS tunnel-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -501,26 +371,13 @@ dnl
 dnl Check whether the control protocol should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable support for the control protocol])
-AC_ARG_ENABLE([control-proto],
-  [  --disable-control-proto Include the control protocol @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_control_proto=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_control_proto=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_control_proto=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_control_proto = yes ; then
-  AC_DEFINE(ENABLE_CONTROL_PROTO,
-    1, [Define if the control protocol should be supported.])
-  SERVERLIBS="$SERVERLIBS ctrl-server/libctrl.a"
-  SERVERDIRS="$SERVERDIRS ctrl-server"
-fi
-unset define_enable_control_proto
+SVZ_FLAG([whether to enable support for the control protocol],
+         [yes],[control-proto],[Include the control protocol],[
+AC_DEFINE([ENABLE_CONTROL_PROTO], 1,
+  [Define if the control protocol should be supported.])
+SERVERLIBS="$SERVERLIBS ctrl-server/libctrl.a"
+SERVERDIRS="$SERVERDIRS ctrl-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -528,26 +385,13 @@ dnl
 dnl Check whether the IRC protocol should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable support for the IRC protocol])
-AC_ARG_ENABLE([irc-proto],
-  [  --disable-irc-proto     Include the IRC protocol @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_irc_proto=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_irc_proto=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_irc_proto=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_irc_proto = yes ; then
-  AC_DEFINE(ENABLE_IRC_PROTO,
-    1, [Define if the IRC protocol should be supported.])
-  SERVERLIBS="$SERVERLIBS irc-server/libircserver.a irc-core/libirccore.a"
-  SERVERDIRS="$SERVERDIRS irc-server irc-core"
-fi
-unset define_enable_irc_proto
+SVZ_FLAG([whether to enable support for the IRC protocol],
+         [yes],[irc-proto],[Include the IRC protocol],[
+AC_DEFINE([ENABLE_IRC_PROTO], 1,
+  [Define if the IRC protocol should be supported.])
+SERVERLIBS="$SERVERLIBS irc-server/libircserver.a irc-core/libirccore.a"
+SERVERDIRS="$SERVERDIRS irc-server irc-core"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -555,24 +399,11 @@ dnl
 dnl Check whether the IRC protocol "TimeStamp" extension should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable TimeStamp for the IRC protocol])
-AC_ARG_ENABLE([irc-ts],
-  [  --disable-irc-ts        Include TimeStamp in IRC protocol @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_irc_ts=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_irc_ts=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_irc_ts=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_irc_ts = yes ; then
-  AC_DEFINE(ENABLE_TIMESTAMP,
-    1, [Define if the IRC protocol TimeStamp extension should be supported.])
-fi
-unset define_enable_irc_ts
+SVZ_FLAG([whether to enable TimeStamp for the IRC protocol],
+         [yes],[irc-ts],[Include TimeStamp in IRC protocol],[
+AC_DEFINE([ENABLE_TIMESTAMP], 1,
+  [Define if the IRC protocol TimeStamp extension should be supported.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -580,18 +411,8 @@ dnl
 dnl Check whether the password encryption should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable password encryption])
-AC_ARG_ENABLE([crypt],
-  [  --enable-crypt          Include password encryption @<:@default=no@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_crypt=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_crypt=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_crypt=no
-  AC_MSG_RESULT([no]))
+SVZ_FLAG([whether to enable password encryption],
+         [no],[crypt],[Include password encryption])
 
 dnl ----------------------------------------------------------------------
 
@@ -599,26 +420,13 @@ dnl
 dnl Check whether the aWCS protocol should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable support for the aWCS protocol])
-AC_ARG_ENABLE([awcs-proto],
-  [  --disable-awcs-proto    Include the aWCS protocol @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_awcs_proto=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_awcs_proto=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_awcs_proto=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_awcs_proto = yes ; then
-  AC_DEFINE(ENABLE_AWCS_PROTO,
-    1, [Define if the aWCS protocol should be supported.])
-  SERVERLIBS="$SERVERLIBS awcs-server/libawcs.a"
-  SERVERDIRS="$SERVERDIRS awcs-server"
-fi
-unset define_enable_awcs_proto
+SVZ_FLAG([whether to enable support for the aWCS protocol],
+         [yes],[awcs-proto],[Include the aWCS protocol],[
+AC_DEFINE([ENABLE_AWCS_PROTO], 1,
+  [Define if the aWCS protocol should be supported.])
+SERVERLIBS="$SERVERLIBS awcs-server/libawcs.a"
+SERVERDIRS="$SERVERDIRS awcs-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -626,26 +434,13 @@ dnl
 dnl Check whether the HTTP protocol should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable support for the HTTP protocol])
-AC_ARG_ENABLE([http-proto],
-  [  --disable-http-proto    Include the HTTP protocol @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_http_proto=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_http_proto=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_http_proto=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_http_proto = yes ; then
-  AC_DEFINE(ENABLE_HTTP_PROTO,
-    1, [Define if the HTTP protocol should be supported.])
-  SERVERLIBS="$SERVERLIBS http-server/libhttp.a"
-  SERVERDIRS="$SERVERDIRS http-server"
-fi
-unset define_enable_http_proto
+SVZ_FLAG([whether to enable support for the HTTP protocol],
+         [yes],[http-proto],[Include the HTTP protocol],[
+AC_DEFINE([ENABLE_HTTP_PROTO], 1,
+  [Define if the HTTP protocol should be supported.])
+SERVERLIBS="$SERVERLIBS http-server/libhttp.a"
+SERVERDIRS="$SERVERDIRS http-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -653,26 +448,13 @@ dnl
 dnl Check whether the Fake Ident Server should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable the fake ident server])
-AC_ARG_ENABLE([fakeident],
-  [  --disable-fakeident     Include the fake ident server @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_fakeident=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_fakeident=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_fakeident=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_fakeident = yes ; then
-  AC_DEFINE(ENABLE_FAKEIDENT,
-    1, [Define if the Fake Ident Server should be included.])
-  SERVERLIBS="$SERVERLIBS fakeident-server/libfakeident.a"
-  SERVERDIRS="$SERVERDIRS fakeident-server"
-fi
-unset define_enable_fakeident
+SVZ_FLAG([whether to enable the fake ident server],
+         [yes],[fakeident],[Include the fake ident server],[
+AC_DEFINE([ENABLE_FAKEIDENT], 1,
+  [Define if the Fake Ident Server should be included.])
+SERVERLIBS="$SERVERLIBS fakeident-server/libfakeident.a"
+SERVERDIRS="$SERVERDIRS fakeident-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -680,26 +462,13 @@ dnl
 dnl Check whether the passthrough server should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable the passthrough server])
-AC_ARG_ENABLE([passthrough],
-  [  --disable-passthrough   Include the passthrough server @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_prog=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_prog=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_prog=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_prog = yes ; then
-  AC_DEFINE(ENABLE_PROG_SERVER,
-    1, [Define if the program passthrough server should be included.])
-  SERVERLIBS="$SERVERLIBS prog-server/libprog.a"
-  SERVERDIRS="$SERVERDIRS prog-server"
-fi
-unset define_enable_prog
+SVZ_FLAG([whether to enable the passthrough server],
+         [yes],[passthrough],[Include the passthrough server],[
+AC_DEFINE([ENABLE_PROG_SERVER], 1,
+  [Define if the program passthrough server should be included.])
+SERVERLIBS="$SERVERLIBS prog-server/libprog.a"
+SERVERDIRS="$SERVERDIRS prog-server"
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -707,24 +476,11 @@ dnl
 dnl Check whether the flood protection should be included.
 dnl
 
-AC_MSG_CHECKING([whether to enable support for flood protection])
-AC_ARG_ENABLE([flood],
-  [  --disable-flood         Include flood protection @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_flood=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_flood=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_flood=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_flood = yes; then
-  AC_DEFINE(SVZ_ENABLE_FLOOD_PROTECTION,
-    1, [Define if flood protection should be supported.])
-fi
-unset define_enable_flood
+SVZ_FLAG([whether to enable support for flood protection],
+         [yes],[flood],[Include flood protection],[
+AC_DEFINE([SVZ_ENABLE_FLOOD_PROTECTION], 1,
+  [Define if flood protection should be supported.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -732,14 +488,9 @@ dnl
 dnl Check for additional searchpath for MinGW32 headers and libraries.
 dnl
 
-AC_ARG_WITH([mingw],
-  [  --with-mingw=DIR        MinGW32 files are in DIR @<:@/usr/local/mingw@:>@],
-  [case "$withval" in
-   no)  MINGDIR="no" ;;
-   yes) MINGDIR="/usr/local/mingw" ;;
-   *)   MINGDIR="$withval" ;;
-  esac],
-  MINGDIR="/usr/local/mingw")
+SVZ_WITH([/usr/local/mingw],[mingw],[DIR],[MinGW32 files are in DIR],
+         [no],[/usr/local/mingw],["$withval"])
+MINGDIR="$with_mingw"
 
 dnl
 dnl Check if this is Win32 (CYGWIN/MINGW32).
@@ -803,24 +554,11 @@ dnl
 dnl Check if guile servers should be included.
 dnl
 
-AC_MSG_CHECKING([whether to include guile server support])
-AC_ARG_ENABLE([guile-server],
-  [  --disable-guile-server  Include guile servers @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_guile=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_guile=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_guile=yes
-  AC_MSG_RESULT([yes]))
-
-if test $define_enable_guile = yes ; then
-  AC_DEFINE(ENABLE_GUILE_SERVER,
-    1, [Define if guile servers should be supported.])
-fi
-unset define_enable_guile
+SVZ_FLAG([whether to include guile server support],
+         [yes],[guile-server],[Include guile servers],[
+AC_DEFINE([ENABLE_GUILE_SERVER], 1,
+  [Define if guile servers should be supported.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -847,24 +585,12 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Check whether to include support for heap counters.
 dnl
-AC_MSG_CHECKING([whether to enable heap counters])
-AC_ARG_ENABLE([heap-count],
-  [  --disable-heap-count    Include support for heap counters @<:@default=yes@:>@],
-  if test x$enableval = "xyes" ; then
-    define_enable_heap=yes
-    AC_MSG_RESULT([yes])
-  else
-    define_enable_heap=no
-    AC_MSG_RESULT([no])
-  fi,
-  define_enable_heap=yes
-  AC_MSG_RESULT([yes]))
 
-if test x$define_enable_heap = "xyes" ; then
-  AC_DEFINE(ENABLE_HEAP_COUNT,
-    1, [Define if heap counters should be enabled.])
-fi
-unset define_enable_heap
+SVZ_FLAG([whether to enable heap counters],
+         [yes],[heap-count],[Include support for heap counters],[
+AC_DEFINE([ENABLE_HEAP_COUNT], 1,
+  [Define if heap counters should be enabled.])
+])
 
 dnl ----------------------------------------------------------------------
 
@@ -1326,7 +1052,7 @@ dnl Checking for crypt() function.
 dnl
 
 MKPASSWORD=""
-if test $define_enable_crypt = yes ; then
+if test $enable_crypt = yes ; then
     have_crypt=no
     AC_CHECK_FUNC(crypt, have_crypt=yes,
 	AC_CHECK_LIB(descrypt, crypt,
@@ -1342,7 +1068,6 @@ if test $define_enable_crypt = yes ; then
     fi
     unset have_crypt
 fi
-unset define_enable_crypt
 AC_SUBST(MKPASSWORD)
 
 dnl

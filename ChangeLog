@@ -1,3 +1,21 @@
+2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Add abstractions: SVZ_{HELP_STRING,FLAG,WITH}
+
+	* acinclude.m4 (SVZ_HELP_STRING, SVZ_FLAG, SVZ_WITH): New macros.
+	(SVZ_GUILE, SVZ_GUILE_SOURCE): Use ‘SVZ_WITH’.
+	* configure.ac (enable_warn, enable_opt): Use ‘SVZ_FLAG’.
+	(with_opt): Use ‘SVZ_WITH’.
+	(enable_ppro, enable_486, enable_debug, enable_iflist)
+	(enable_poll, enable_sendfile): Use ‘SVZ_FLAG’.
+	(with_thread_safety): Use ‘SVZ_WITH’.
+	(enable_sntp_proto, enable_gnutella, enable_tunnel)
+	(enable_control_proto, enable_irc_proto, enable_irc_ts, enable_crypt)
+	(enable_awcs_proto, enable_http_proto, enable_fakeident)
+	(enable_passthrough, enable_flood): Use ‘SVZ_FLAG’.
+	(with_mingw): Use ‘SVZ_WITH’.
+	(enable_guile_server, enable_heap_count): Use ‘SVZ_FLAG’.
+
 2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use SVZ_ for Serveez-originated m4 macros.

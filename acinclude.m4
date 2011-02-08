@@ -16,6 +16,58 @@ dnl You should have received a copy of the GNU General Public License
 dnl along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
 dnl ----------------------------------------------------------------------
+dnl Common bits.
+
+dnl SVZ_HELP_STRING(LHS,DEFAULT,BLURB)
+dnl
+dnl Wrap ‘AS_HELP_STRING’, expanding the right-hand-side as:
+dnl   BLURB [default=DEFAULT]
+dnl
+AC_DEFUN([SVZ_HELP_STRING],
+[AS_HELP_STRING([$1],[$3 @<:@default=$2@:>@])])dnl
+
+dnl SVZ_FLAG(MSG,DEFAULT,NICK,BLURB[,IF-YES[,IF-NO]])
+dnl
+dnl Say "checking MSG"; then check for --{en,dis}able-NICK;
+dnl assigning var enable_NICK the value ‘yes’ or ‘no’, or DEFAULT
+dnl if not specified on the configure script command-line.  BLURB
+dnl is for --help output (see ‘SVZ_HELP_STRING’).  Report the
+dnl result.  If specified, do IF-YES or IF-NO for values of ‘yes’
+dnl and ‘no’, respectively.
+dnl
+AC_DEFUN([SVZ_FLAG],[dnl
+AS_VAR_PUSHDEF([VAR],[enable_$3])dnl
+AC_MSG_CHECKING([$1])
+AC_ARG_ENABLE([$3],
+  [SVZ_HELP_STRING([--]m4_case([$2],[yes],[dis],[en])[able-$3],
+                   [$2],[$4])],
+  [test yes = "$VAR" || VAR=no],
+  [VAR=$2])
+AC_MSG_RESULT([$VAR])
+m4_ifnblank([$5$6],[AS_IF([test yes = "$VAR"],[$5],[$6])])
+AS_VAR_POPDEF([VAR])dnl
+])dnl
+
+dnl SVZ_WITH(DEFAULT,NICK,ARGS,BLURB,IF-NO,IF-YES,OTHERWISE)
+dnl
+dnl Wrap ‘AC_ARG_WITH’, setting the shell variable with_NICK to
+dnl IF-NO, IF-YES, or OTHERWISE (if specified on the configure
+dnl script command-line); or DEFAULT (if unspecified).  ARGS and
+dnl BLURB are for --help output (see ‘SVZ_HELP_STRING’).
+dnl
+AC_DEFUN([SVZ_WITH],[dnl
+AS_VAR_PUSHDEF([VAR],[with_$2])dnl
+AC_ARG_WITH([$2],[SVZ_HELP_STRING([--with-$2]m4_ifnblank([$3],[=$3]),
+                                  [$1],[$4])],
+  [AS_CASE(["$VAR"],
+           [no],[VAR=$5],
+           [yes],[VAR=$6],
+           [VAR=$7])],
+  [VAR=$1])
+AS_VAR_POPDEF([VAR])dnl
+])dnl
+
+dnl ----------------------------------------------------------------------
 dnl
 dnl SVZ_GUILE -- Locate a Guile installation.
 dnl This macro sets both the variables GUILE_CFLAGS and GUILE_LDFLAGS to be
@@ -44,14 +96,9 @@ dnl SVZ_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
 dnl
 
 AC_DEFUN([SVZ_GUILE], [
-  AC_ARG_WITH(guile,
-    [  --with-guile=DIR        guile installation in DIR @<:@/usr/local@:>@],
-    [case "$withval" in
-     no)  GUILEDIR="no" ;;
-     yes) GUILEDIR="/usr/local" ;;
-     *)   GUILEDIR="$withval" ;;
-    esac],
-    GUILEDIR="/usr/local")
+  SVZ_WITH([/usr/local],[guile],[DIR],[Guile installation in DIR],
+           [no],[/usr/local],["$withval"])
+  GUILEDIR="$with_guile"
 
   AC_MSG_CHECKING([for guile installation])
   if test "x$GUILEDIR" != "xno" ; then
@@ -111,14 +158,9 @@ AC_DEFUN([SVZ_GUILE], [
 ])
 
 AC_DEFUN([SVZ_GUILE_SOURCE], [
-  AC_ARG_WITH(guile-source,
-    [  --with-guile-source     guile source tree in DIR @<:@/usr/src@:>@],
-    [case "$withval" in
-     no)  GUILESRC="no" ;;
-     yes) GUILESRC="/usr/src" ;;
-     *)   GUILESRC="$withval" ;;
-    esac],
-    GUILESRC="/usr/src")
+  SVZ_WITH([/usr/src],[guile-source],[DIR],[Guile source tree in DIR],
+           [no],[/usr/src],["$withval"])
+  GUILESRC="$with_guile_source"
 
   AC_MSG_CHECKING([for guile source tree])
   if test "x$GUILESRC" != "xno"; then
