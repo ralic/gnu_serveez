@@ -55,7 +55,7 @@ if test $ac_cv_c_const = no; then
 fi
 AC_DEFINE_UNQUOTED([svz_c_const],[$const_defined],
   [Define to empty if the keyword does not work.])
-unset const_defined
+AS_UNSET([const_defined])
 
 AC_CACHE_CHECK([whether byte ordering is bigendian],[svz_cv_sys_bigendian],
 [AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
@@ -101,7 +101,7 @@ if test "x$osversion" = "x"; then
   will then be added to the PLATFORMS file included in this package.
 ])
 fi
-unset osversion
+AS_UNSET([osversion])
 
 dnl ----------------------------------------------------------------------
 
@@ -159,12 +159,12 @@ SVZ_FLAG([whether compiler warnings are enabled],
       [warn_cflags="$warn_cflags $CFLAGS"
       AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
   done
-  unset warnflags
+  AS_UNSET([warnflags])
 
   CFLAGS="$save_cflags"
   CPPEXTRAFLAGS="$warn_cflags"
-  unset warn_cflags
-  unset save_cflags
+  AS_UNSET([warn_cflags])
+  AS_UNSET([save_cflags])
 ])
 
 dnl ----------------------------------------------------------------------
@@ -190,7 +190,7 @@ SVZ_FLAG([whether to enable optimizations],
     if test `expr $arch` -gt 4; then
       optflags="$optflags -fschedule-insns2"
     fi]
-    unset arch
+    AS_UNSET([arch])
     for flag in $optflags; do
       CFLAGS="$flag"
       AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
@@ -198,7 +198,7 @@ SVZ_FLAG([whether to enable optimizations],
         [opt_cflags="$opt_cflags $CFLAGS"
         AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
     done
-    unset optflags
+    AS_UNSET([optflags])
     CFLAGS="-m486"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
@@ -220,7 +220,7 @@ SVZ_FLAG([whether to enable optimizations],
         [opt_cflags="$opt_cflags $CFLAGS"
         AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
     done
-    unset optflags
+    AS_UNSET([optflags])
   fi
 
   dnl Check for additional optimization compiler flags.
@@ -234,7 +234,7 @@ SVZ_FLAG([whether to enable optimizations],
       [opt_cflags="$opt_cflags $CFLAGS"
       AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
   done
-  unset optflags
+  AS_UNSET([optflags])
 
   LDFLAGS="-s"
   AC_MSG_CHECKING([whether $CC accepts $LDFLAGS])
@@ -259,9 +259,9 @@ SVZ_FLAG([whether to enable optimizations],
   LDFLAGS="$opt_ldflags"
   CPPEXTRAFLAGS="$CPPEXTRAFLAGS $opt_cflags"
   CFLAGS=""
-  unset save_cflags
-  unset opt_cflags
-  unset opt_ldflags
+  AS_UNSET([save_cflags])
+  AS_UNSET([opt_cflags])
+  AS_UNSET([opt_ldflags])
 ])
 
 AC_SUBST([CFLAGS])
@@ -648,8 +648,8 @@ if test $have_getopt = "yeslib" -o $have_getopt_long = "yeslib"; then
     *)      SERVEEZ_LIBS="$SERVEEZ_LIBS -liberty" ;;
     esac
 fi
-unset have_getopt
-unset have_getopt_long
+AS_UNSET([have_getopt])
+AS_UNSET([have_getopt_long])
 
 dnl
 dnl Check if libtool copes with SunOS/Solaris.  GNU libtool 1.4.2 and less
@@ -741,7 +741,7 @@ save_LIBS="$LIBS"
 LIBS="$LIBS $SERVEEZ_LIBS $EXTRALIBS"
 AC_CHECK_FUNCS([alphasort scandir strsignal])
 LIBS="$save_LIBS"
-unset save_LIBS
+AS_UNSET([save_LIBS])
 
 if test $ac_cv_header_dirent_h = yes ; then
 AC_CACHE_CHECK([whether alphasort is declared],[svz_cv_decl_alphasort],
@@ -779,7 +779,7 @@ else
                  [Define if you have the dld_link function.])
     LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])
 fi
-unset have_dlopen
+AS_UNSET([have_dlopen])
 
 CODECLIBS=""
 
@@ -826,8 +826,8 @@ fi
 if test $have_threads = yes ; then
   AC_DEFINE([SVZ_HAVE_THREADS], 1, [Define if you have a thread library.])
 fi
-unset enable_threads
-unset have_threads
+AS_UNSET([enable_threads])
+AS_UNSET([have_threads])
 
 AC_SUBST([LIBSERVEEZLIBS])
 AC_SUBST([CODECLIBS])
@@ -881,7 +881,7 @@ AC_CACHE_CHECK([whether /proc/stat exists],[svz_cv_sys_proc_stat],[
     svz_cv_sys_proc_stat=no
   fi
 ])
-unset have_procstat
+AS_UNSET([have_procstat])
 
 if test $svz_cv_sys_proc_stat = yes ; then
   case $host_os in
@@ -947,7 +947,7 @@ fi
 if test x$have_socketpair != x; then
   AC_DEFINE([HAVE_SOCKETPAIR], 1, [Define if you have the socketpair function.])
 fi
-unset have_socketpair
+AS_UNSET([have_socketpair])
 
 dnl
 dnl Check for Solaris nsl and resolv library.
@@ -966,7 +966,7 @@ fi
 if test $have_inet_aton = "yes"; then
     AC_DEFINE([HAVE_INET_ATON], 1, [Define if you have the inet_aton function.])
 fi
-unset have_inet_aton
+AS_UNSET([have_inet_aton])
 
 dnl
 dnl Check for broken inet_ntoa ()
@@ -1032,8 +1032,8 @@ AC_DEFINE_UNQUOTED([svz_t_socket],[$socket_defined],
 AC_DEFINE_UNQUOTED([svz_t_handle],[$handle_defined],
   [Define to 'int' if <winsock2.h> does not define 'HANDLE'.])
 
-unset socket_defined
-unset handle_defined
+AS_UNSET([socket_defined])
+AS_UNSET([handle_defined])
 
 AC_CHECK_HEADERS([mswsock.h], [], [],[
 #if HAVE_WINSOCK2_H
@@ -1048,7 +1048,7 @@ if test $ac_cv_type_size_t = no; then
 fi
 AC_DEFINE_UNQUOTED([svz_t_size],[$size_t_defined],
   [Define to `unsigned' if <sys/types.h> doesn't define 'size_t'.])
-unset size_t_defined
+AS_UNSET([size_t_defined])
 
 AC_TYPE_OFF_T
 off_t_defined="off_t"
@@ -1057,7 +1057,7 @@ if test $ac_cv_type_off_t = no; then
 fi
 AC_DEFINE_UNQUOTED([svz_t_off],[$off_t_defined],
   [Define to `long' if <sys/types.h> doesn't define 'off_t'.])
-unset off_t_defined
+AS_UNSET([off_t_defined])
 
 AC_TYPE_MODE_T
 
@@ -1080,7 +1080,7 @@ if test $enable_crypt = yes ; then
 	AC_DEFINE([SVZ_HAVE_CRYPT], 1, [Define if you have the crypt function.])
 	MKPASSWORD="mkpassword"
     fi
-    unset have_crypt
+    AS_UNSET([have_crypt])
 fi
 AC_SUBST([MKPASSWORD])
 
@@ -1141,7 +1141,7 @@ LIBS="$LIBS $EXTRALIBS"
 AC_CHECK_FUNCS([getrpcbyname getrpcbynumber setrpcent endrpcent \
   pmap_set pmap_unset pmap_getmaps get_myaddress])
 LIBS="$save_LIBS"
-unset save_LIBS
+AS_UNSET([save_LIBS])
 
 AC_CACHE_CHECK([whether setrpcent is declared],[svz_cv_decl_setrpcent],[
 svz_cv_decl_setrpcent=no
@@ -1177,7 +1177,7 @@ AC_CACHE_CHECK([for working signed],[svz_cv_c_signed],
 AC_DEFINE_UNQUOTED([svz_c_signed],[$signed_defined],
   [Define to empty if the keyword does not work.])
 
-unset signed_defined
+AS_UNSET([signed_defined])
 
 dnl
 dnl Checking for working Texi2HTML.
@@ -1199,7 +1199,7 @@ else
   AC_MSG_RESULT([missing])
 fi
 AC_SUBST([TEXI2HTML])
-unset tex
+AS_UNSET([tex])
 
 dnl
 dnl Checking for RPM builder version
@@ -1224,7 +1224,7 @@ esac
 else
     AC_MSG_RESULT([missing])
 fi
-unset version
+AS_UNSET([version])
 fi
 AC_SUBST([RPM])
 AC_SUBST([RPM3])

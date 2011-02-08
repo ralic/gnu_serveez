@@ -1,5 +1,12 @@
 2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Use ‘AS_UNSET’.
+
+	* acinclude.m4: Use ‘AS_UNSET’ instead of raw ‘unset’.
+	* configure.ac: Likewise.
+
+2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Dose acinclude.m4, configure.ac with m4 quotes.
 
 	* acinclude.m4: Add many left and right braces.

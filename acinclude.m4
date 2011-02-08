@@ -150,9 +150,9 @@ AC_DEFUN([SVZ_GUILE], [
       GUILE_CFLAGS=""
       GUILE_LDFLAGS=""
     fi
-    unset guile
+    AS_UNSET([guile])
   fi
-  unset GUILEDIR
+  AS_UNSET([GUILEDIR])
   AC_SUBST([GUILE_CFLAGS])
   AC_SUBST([GUILE_LDFLAGS])
 ])
@@ -200,7 +200,7 @@ AC_DEFUN([SVZ_GUILE_SOURCE], [
     AC_MSG_RESULT([disabled])
     GUILE_SOURCE="no"
   fi
-  unset GUILESRC
+  AS_UNSET([GUILESRC])
 ])
 
 AC_DEFUN([SVZ_GUILE_CHECK], [
@@ -233,10 +233,10 @@ AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
   to your linker line.  This may not be what you want.  Please report
   to <bug-serveez@gnu.org> if we failed to build shared libraries
   for '$host_os'.])
-      unset LIBERTY
-      unset GCCLIB
-      unset GCCDIR
-      unset GCCFILE
+      AS_UNSET([LIBERTY])
+      AS_UNSET([GCCLIB])
+      AS_UNSET([GCCDIR])
+      AS_UNSET([GCCFILE])
       ;;
     esac
   fi
