@@ -18,24 +18,46 @@ See the end for copying conditions.
 ******* DONE don't invoke build-aux/autodsp
 ******* TODO (if modern libtool ok) don't patch configure
 ***** TODO modernize [[file:configure.ac][configure.ac]] and [[file:acinclude.m4][acinclude.m4]]
-******* TODO use AC_PREREQ
+******* TODO drop redundant AC_DEFINE forms
+******* DONE use AC_PREREQ
 ******* TODO m4: update AC_*, use AS_*, quote properly, etc
-******* TODO move AC_OUTPUT (and "print results") last
-******* TODO use LT_PREREQ, LT_INIT
+******* DONE move AC_OUTPUT (and "print results") last
+******* DONE use LT_PREREQ, LT_INIT
 ******* TODO remove --with-guile-source; move info to README
 ***** TODO modernize [[elisp:(find-dired%20"."%20"-name%20Makefile.am")][Makefile.am files]]
-******* TODO don't use @MAINTAINER_MODE_TRUE@ directly
-******* TODO don't clobber Automake internal vars
-******* TODO collect common bits into build-aux/common.mk
+******* DONE don't use @MAINTAINER_MODE_TRUE@ directly
+******* DONE don't clobber Automake internal vars
+******* DONE collect common bits into build-aux/common.mk
 ********* DONE AM_CPPFLAGS (was ‘INCLUDES’)
-********* TODO CLEANFILES
-********* TODO MAINTAINERCLEANFILES
+********* DONE CLEANFILES
+********* DONE MAINTAINERCLEANFILES
 ******* TODO segregate woe32
 ***** TODO prune by-now standardized bits from [[file:doc/Makefile.am][doc/Makefile.am]]
-***** TODO move *.serveez file creation (woe32) to "make dist"
-*** TODO Assume signal handlers return ‘void’.
+***** DONE move *.serveez file creation (woe32) to "make dist"
+*** DONE Assume signal handlers return ‘void’.
 *** TODO Update Guile support.
-***** TODO ‘scm_cur_inp’ deprecated => use ‘scm_current_input_port’
+***** DONE ‘scm_cur_inp’ deprecated => use ‘scm_current_input_port’
+***** TODO SCM_INUM
+***** TODO SCM_INUMP
+***** TODO SCM_MAKINUM
+***** TODO SCM_VELTS
+***** TODO SCM_WRITABLE_VELTS
+***** TODO scm_c_string2str
+***** TODO scm_c_symbol2str
+***** TODO scm_int2num
+***** TODO scm_listify
+***** TODO scm_long2num
+***** TODO scm_makfrom0str
+***** TODO scm_mem2string
+***** TODO scm_must_free
+***** TODO scm_must_free
+***** TODO scm_must_malloc
+***** TODO scm_must_realloc
+***** TODO scm_num2long
+***** TODO scm_protect_object
+***** TODO scm_str2symbol
+***** TODO scm_ulong2num
+***** TODO scm_unprotect_object
 
 * other stuff to do
 *** admin
@@ -43,9 +65,11 @@ See the end for copying conditions.
 ***** Use ranges for copyright notices.
 *** build
 ***** Drop MSVC support.
+***** Remove homegrown warnings/optimizations machinery.
 ***** Use hydra for continuous integration.
 ***** Investigate using gnulib.
 *** Support IPv6.
+*** Assimilate Mike Gran's fork ([[shell:cd%20..%20&&%20git%20clone%20git://github.com/spk121/serveez-mg.git][clone]] [[file:~/build/GNU/serveez-mg][visit]]).
 *** Minimize memory consumption of coservers.
 *** Find out how to unload a shared library on MacOS.
 *** Keep track of network interface changes.
