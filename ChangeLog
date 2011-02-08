@@ -1,5 +1,15 @@
 2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Avoid AC_TRY_{RUN,COMPILE,LINK,CPP} in configure.ac.
+
+	Here, R (A, B, C) means "Replace ‘A’ with ‘B’ + ‘C’".
+	* configure.ac: R (AC_TRY_RUN, AC_RUN_IFELSE, AC_LANG_SOURCE);
+	R (AC_TRY_COMPILE, AC_COMPILE_IFELSE, AC_LANG_PROGRAM);
+	R (AC_TRY_LINK, AC_LINK_IFELSE, AC_LANG_PROGRAM);
+	R (AC_TRY_CPP, AC_PREPROC_IFELSE, AC_LANG_SOURCE).
+
+2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Add abstractions: SVZ_{HELP_STRING,FLAG,WITH}
 
 	* acinclude.m4 (SVZ_HELP_STRING, SVZ_FLAG, SVZ_WITH): New macros.

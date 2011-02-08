@@ -58,17 +58,17 @@ AC_DEFINE_UNQUOTED(svz_c_const, $const_defined,
 unset const_defined
 
 AC_CACHE_CHECK([whether byte ordering is bigendian], svz_cv_sys_bigendian,
-[AC_TRY_RUN([#include <stdio.h>
+[AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
   #include <string.h>
   main () {
     unsigned char c_big[] = {0x12, 0x34};
     unsigned short s_big = 0x1234;
     if (!memcmp (c_big, &s_big, sizeof (char) * 2))
       exit (0);
-    exit (1);}],
-  svz_cv_sys_bigendian=yes,
-  svz_cv_sys_bigendian=no,
-  svz_cv_sys_bigendian=no)])
+    exit (1);}]])],
+  [svz_cv_sys_bigendian=yes],
+  [svz_cv_sys_bigendian=no],
+  [svz_cv_sys_bigendian=no])])
 
 if test $svz_cv_sys_bigendian = yes ; then
   AC_DEFINE(WORDS_BIGENDIAN, 1,
@@ -155,8 +155,9 @@ SVZ_FLAG([whether compiler warnings are enabled],
   for flag in $warnflags; do
     CFLAGS="$flag"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,warn_cflags="$warn_cflags $CFLAGS"
-      AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+      [warn_cflags="$warn_cflags $CFLAGS"
+      AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
   done
   unset warnflags
 
@@ -193,18 +194,21 @@ SVZ_FLAG([whether to enable optimizations],
     for flag in $optflags; do
       CFLAGS="$flag"
       AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-      AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS"
-        AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+        [opt_cflags="$opt_cflags $CFLAGS"
+        AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     done
     unset optflags
     CFLAGS="-m486"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,opt_is486="yes"; AC_MSG_RESULT([yes]),
-		     opt_is486="no";  AC_MSG_RESULT([no]))
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+      [opt_is486="yes"; AC_MSG_RESULT(yes)],
+      [opt_is486="no";  AC_MSG_RESULT(no)])
     CFLAGS="-march=pentiumpro"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,opt_isPPro="yes"; AC_MSG_RESULT([yes]),
-		     opt_isPPro="no";  AC_MSG_RESULT([no]))
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+      [opt_isPPro="yes"; AC_MSG_RESULT(yes)],
+      [opt_isPPro="no";  AC_MSG_RESULT(no)])
 
   dnl Other compiler than GNU C
   else
@@ -212,8 +216,9 @@ SVZ_FLAG([whether to enable optimizations],
     for flag in $optflags; do
       CFLAGS="$flag"
       AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-      AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS"
-        AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+        [opt_cflags="$opt_cflags $CFLAGS"
+        AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
     done
     unset optflags
   fi
@@ -225,15 +230,16 @@ SVZ_FLAG([whether to enable optimizations],
   for flag in $optflags; do
     CFLAGS="$flag"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
-    AC_TRY_COMPILE(,,opt_cflags="$opt_cflags $CFLAGS"
-      AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
+      [opt_cflags="$opt_cflags $CFLAGS"
+      AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
   done
   unset optflags
 
   LDFLAGS="-s"
   AC_MSG_CHECKING([whether $CC accepts $LDFLAGS])
-  AC_TRY_LINK(,,opt_ldflags="$opt_ldflags $LDFLAGS"
-    AC_MSG_RESULT([yes]), AC_MSG_RESULT([no]))
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[opt_ldflags="$opt_ldflags $LDFLAGS"
+    AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
   if test x$opt_isPPro = "xyes" ; then
     SVZ_FLAG([whether to enable i686 optimizations],
@@ -660,11 +666,12 @@ dnl do not provide).
 dnl
 
 AC_CACHE_CHECK([for timezone and daylight variables], svz_cv_var_timezone,
-  AC_TRY_LINK(
-    [extern long int timezone; extern int daylight;],
-    [long int t = timezone; int d = daylight; return (d + t);],
-    svz_cv_var_timezone=yes,
-    svz_cv_var_timezone=no))
+  AC_LINK_IFELSE(
+   [AC_LANG_PROGRAM(
+     [[extern long int timezone; extern int daylight;]],
+     [[long int t = timezone; int d = daylight; return (d + t);]])],
+   [svz_cv_var_timezone=yes],
+   [svz_cv_var_timezone=no]))
 
 if test $svz_cv_var_timezone = yes ; then
   AC_DEFINE(HAVE_TIMEZONE, 1, [Define if you have timezone and daylight.])
@@ -714,11 +721,13 @@ dnl
 dnl Some installations need <sys/types.h> before <netinet/tcp.h>.
 dnl
 AC_CACHE_CHECK([for netinet/tcp.h], svz_cv_header_netinet_tcp_h,
-AC_TRY_CPP([
+[AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
     #include <sys/types.h>
-    #include <netinet/tcp.h> ],
-  svz_cv_header_netinet_tcp_h=yes,
-  svz_cv_header_netinet_tcp_h=no))
+    #include <netinet/tcp.h>
+]])],
+  [svz_cv_header_netinet_tcp_h=yes],
+  [svz_cv_header_netinet_tcp_h=no])])
+
 if test $svz_cv_header_netinet_tcp_h = yes ; then
   AC_DEFINE(HAVE_NETINET_TCP_H, 1,
     [Define if you have the <netinet/tcp.h> header file.])
@@ -964,7 +973,7 @@ dnl  fixed but we do not really know. To work around we implement inet_ntoa()
 dnl  on our own if it does not work.
 dnl
 AC_CACHE_CHECK([whether inet_ntoa is broken], svz_cv_func_inet_ntoa_broken,
-AC_TRY_RUN([#include <stdio.h>
+[AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
     #include <sys/types.h>
     #include <netinet/in.h>
     #include <arpa/inet.h>
@@ -973,10 +982,11 @@ AC_TRY_RUN([#include <stdio.h>
 	ip.s_addr = htonl (0x12345678);
 	if (strcmp (inet_ntoa (ip), "18.52.86.120"))
 	    exit (0);
-	exit (1);}],
-   svz_cv_func_inet_ntoa_broken=yes,
-   svz_cv_func_inet_ntoa_broken=no,
-   svz_cv_func_inet_ntoa_broken=no))
+	exit (1);}
+]])],
+  [svz_cv_func_inet_ntoa_broken=yes],
+  [svz_cv_func_inet_ntoa_broken=no],
+  [svz_cv_func_inet_ntoa_broken=no])])
 
 if test $svz_cv_func_inet_ntoa_broken = yes ; then
    AC_DEFINE(BROKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.])
@@ -1149,12 +1159,13 @@ dnl
 dnl Find a working signed keyword.
 dnl
 AC_CACHE_CHECK([for working signed], svz_cv_c_signed,
-[AC_TRY_COMPILE([#include <stdio.h>],
-  [signed char have_signed = (signed char) 0;],
-  svz_cv_c_signed=yes
-  signed_defined="signed",
-  svz_cv_c_signed=no
-  signed_defined="")])
+[AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+    [[#include <stdio.h>]],
+    [[signed char have_signed = (signed char) 0;]])],
+  [svz_cv_c_signed=yes
+   signed_defined="signed"],
+  [svz_cv_c_signed=no
+   signed_defined=""])])
 
 AC_DEFINE_UNQUOTED(svz_c_signed, $signed_defined,
   [Define to empty if the keyword does not work.])
