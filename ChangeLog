@@ -1,5 +1,12 @@
 2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Dose acinclude.m4, configure.ac with m4 quotes.
+
+	* acinclude.m4: Add many left and right braces.
+	* configure.ac: Likewise.
+
+2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Avoid AC_TRY_{RUN,COMPILE,LINK,CPP} in configure.ac.
 
 	Here, R (A, B, C) means "Replace ‘A’ with ‘B’ + ‘C’".

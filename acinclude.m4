@@ -133,11 +133,11 @@ AC_DEFUN([SVZ_GUILE], [
     if test "x$guile" != "x" ; then
       case "$guile" in
       [1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*)]
-	AC_MSG_RESULT($guile >= 1.3)
+	AC_MSG_RESULT([$guile >= 1.3])
 	GUILE_BUILD="yes"
 	;;
       [*)]
-	AC_MSG_RESULT($guile < 1.3)
+	AC_MSG_RESULT([$guile < 1.3])
 	AC_MSG_WARN([
   GNU Guile version 1.3 or above is needed, and you do not seem to have
   it handy on your system.])
@@ -153,8 +153,8 @@ AC_DEFUN([SVZ_GUILE], [
     unset guile
   fi
   unset GUILEDIR
-  AC_SUBST(GUILE_CFLAGS)
-  AC_SUBST(GUILE_LDFLAGS)
+  AC_SUBST([GUILE_CFLAGS])
+  AC_SUBST([GUILE_LDFLAGS])
 ])
 
 AC_DEFUN([SVZ_GUILE_SOURCE], [
@@ -183,13 +183,13 @@ AC_DEFUN([SVZ_GUILE_SOURCE], [
 	GUILE_MAKE_LTDL="# $GUILE_MAKE_LTDL"
       fi
       GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) libguile.la)'
-      AC_SUBST(GUILE_SOURCE)
-      AC_SUBST(GUILE_CFLAGS)
-      AC_SUBST(GUILE_LDFLAGS)
-      AC_SUBST(GUILE_DEPENDENCY)
-      AC_SUBST(GUILE_RULE)
-      AC_SUBST(GUILE_MAKE_LTDL)
-      AC_SUBST(GUILE_MAKE_LIB)
+      AC_SUBST([GUILE_SOURCE])
+      AC_SUBST([GUILE_CFLAGS])
+      AC_SUBST([GUILE_LDFLAGS])
+      AC_SUBST([GUILE_DEPENDENCY])
+      AC_SUBST([GUILE_RULE])
+      AC_SUBST([GUILE_MAKE_LTDL])
+      AC_SUBST([GUILE_MAKE_LIB])
       AC_MSG_RESULT([yes])
       GUILE_BUILD="yes"
     else

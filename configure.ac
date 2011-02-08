@@ -28,7 +28,7 @@ dnl
 dnl Initialize autoconf and automake
 dnl
 AC_PREREQ([2.62])
-AC_INIT(serveez,0.1.7,bug-serveez@gnu.org)
+AC_INIT([serveez],[0.1.7],[bug-serveez@gnu.org])dnl FIXME: Say "GNU Serveez".
 AC_CONFIG_HEADERS([config.h src/svzconfig.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CANONICAL_BUILD
@@ -53,11 +53,11 @@ const_defined="const"
 if test $ac_cv_c_const = no; then
   const_defined=""
 fi
-AC_DEFINE_UNQUOTED(svz_c_const, $const_defined,
+AC_DEFINE_UNQUOTED([svz_c_const],[$const_defined],
   [Define to empty if the keyword does not work.])
 unset const_defined
 
-AC_CACHE_CHECK([whether byte ordering is bigendian], svz_cv_sys_bigendian,
+AC_CACHE_CHECK([whether byte ordering is bigendian],[svz_cv_sys_bigendian],
 [AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
   #include <string.h>
   main () {
@@ -71,13 +71,13 @@ AC_CACHE_CHECK([whether byte ordering is bigendian], svz_cv_sys_bigendian,
   [svz_cv_sys_bigendian=no])])
 
 if test $svz_cv_sys_bigendian = yes ; then
-  AC_DEFINE(WORDS_BIGENDIAN, 1,
+  AC_DEFINE([WORDS_BIGENDIAN], 1,
   [Define if your processor stores words with the most significant
    byte first (like Motorola and SPARC, unlike Intel and VAX).])
 fi
 
-AC_CHECK_SIZEOF(long, 4)
-AC_CHECK_SIZEOF(void *, 4)
+AC_CHECK_SIZEOF([long], 4)
+AC_CHECK_SIZEOF([void *], 4)
 if test $ac_cv_sizeof_long -lt $ac_cv_sizeof_void_p ; then
   AC_MSG_ERROR([A 'void *' value does not fit into a 'long' value.])
 fi
@@ -87,8 +87,8 @@ dnl Locate required external software.
 dnl
 AC_PROG_INSTALL
 AC_PROG_AWK
-AC_CHECK_PROG(AR, ar, ar, :)
-AC_CHECK_PROG(WINDRES, windres, windres, :)
+AC_CHECK_PROG([AR],[ar],[ar],[:])
+AC_CHECK_PROG([WINDRES],[windres],[windres],[:])
 
 dnl ----------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ case $host in
   mipsel-unknown-linux-gnu | mips-unknown-linux-gnu) NOUNDEFINED="" ;;
   *) NOUNDEFINED="-no-undefined" ;;
 esac
-AC_SUBST(NOUNDEFINED)
+AC_SUBST([NOUNDEFINED])
 
 dnl ----------------------------------------------------------------------
 
@@ -120,12 +120,12 @@ SERVERDIRS=""
 SERVEEZ_LIBS=""
 SERVEEZ_LDFLAGS=""
 
-AC_SUBST(CPPEXTRAFLAGS)
-AC_SUBST(CPPFLAGS)
-AC_SUBST(SERVERLIBS)
-AC_SUBST(SERVERDIRS)
-AC_SUBST(SERVEEZ_LIBS)
-AC_SUBST(SERVEEZ_LDFLAGS)
+AC_SUBST([CPPEXTRAFLAGS])
+AC_SUBST([CPPFLAGS])
+AC_SUBST([SERVERLIBS])
+AC_SUBST([SERVERDIRS])
+AC_SUBST([SERVEEZ_LIBS])
+AC_SUBST([SERVEEZ_LDFLAGS])
 
 dnl ----------------------------------------------------------------------
 
@@ -157,7 +157,7 @@ SVZ_FLAG([whether compiler warnings are enabled],
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
       [warn_cflags="$warn_cflags $CFLAGS"
-      AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+      AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
   done
   unset warnflags
 
@@ -196,19 +196,19 @@ SVZ_FLAG([whether to enable optimizations],
       AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
         [opt_cflags="$opt_cflags $CFLAGS"
-        AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+        AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
     done
     unset optflags
     CFLAGS="-m486"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
-      [opt_is486="yes"; AC_MSG_RESULT(yes)],
-      [opt_is486="no";  AC_MSG_RESULT(no)])
+      [opt_is486="yes"; AC_MSG_RESULT([yes])],
+      [opt_is486="no";  AC_MSG_RESULT([no])])
     CFLAGS="-march=pentiumpro"
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
-      [opt_isPPro="yes"; AC_MSG_RESULT(yes)],
-      [opt_isPPro="no";  AC_MSG_RESULT(no)])
+      [opt_isPPro="yes"; AC_MSG_RESULT([yes])],
+      [opt_isPPro="no";  AC_MSG_RESULT([no])])
 
   dnl Other compiler than GNU C
   else
@@ -218,7 +218,7 @@ SVZ_FLAG([whether to enable optimizations],
       AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
       AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
         [opt_cflags="$opt_cflags $CFLAGS"
-        AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+        AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
     done
     unset optflags
   fi
@@ -232,14 +232,14 @@ SVZ_FLAG([whether to enable optimizations],
     AC_MSG_CHECKING([whether $CC accepts $CFLAGS])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],
       [opt_cflags="$opt_cflags $CFLAGS"
-      AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+      AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
   done
   unset optflags
 
   LDFLAGS="-s"
   AC_MSG_CHECKING([whether $CC accepts $LDFLAGS])
   AC_LINK_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[opt_ldflags="$opt_ldflags $LDFLAGS"
-    AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
+    AC_MSG_RESULT([yes])],[AC_MSG_RESULT([no])])
 
   if test x$opt_isPPro = "xyes" ; then
     SVZ_FLAG([whether to enable i686 optimizations],
@@ -264,8 +264,8 @@ SVZ_FLAG([whether to enable optimizations],
   unset opt_ldflags
 ])
 
-AC_SUBST(CFLAGS)
-AC_SUBST(LDFLAGS)
+AC_SUBST([CFLAGS])
+AC_SUBST([LDFLAGS])
 
 dnl ----------------------------------------------------------------------
 
@@ -515,25 +515,25 @@ AC_OBJEXT
 
 resource_FILES=""
 if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes" ; then
-  AC_DEFINE(FD_SETSIZE, 4096, [Make CygWin / MinGW32 use large FD sets.])
-  AC_DEFINE(WIN32_LEAN_AND_MEAN, 1, [Define for faster code generation.])
-  AC_CHECK_LIB(advapi32, main, EXTRALIBS="$EXTRALIBS -ladvapi32")
-  AC_CHECK_LIB(shell32, main, EXTRALIBS="$EXTRALIBS -lshell32")
-  AC_CHECK_LIB(user32, main, EXTRALIBS="$EXTRALIBS -luser32")
+  AC_DEFINE([FD_SETSIZE], 4096, [Make CygWin / MinGW32 use large FD sets.])
+  AC_DEFINE([WIN32_LEAN_AND_MEAN], 1, [Define for faster code generation.])
+  AC_CHECK_LIB([advapi32],[main],[EXTRALIBS="$EXTRALIBS -ladvapi32"])
+  AC_CHECK_LIB([shell32],[main],[EXTRALIBS="$EXTRALIBS -lshell32"])
+  AC_CHECK_LIB([user32],[main],[EXTRALIBS="$EXTRALIBS -luser32"])
   resource_FILES="serveez.rc"
   if test "$MINGDIR" != "no" -a "$MINGW32" != "yes" ; then
     CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
     LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
-    AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
-    AC_CHECK_LIB(mswsock, main, EXTRALIBS="$EXTRALIBS -lmswsock")
+    AC_CHECK_LIB([ws2_32],[main],[EXTRALIBS="$EXTRALIBS -lws2_32"])
+    AC_CHECK_LIB([mswsock],[main],[EXTRALIBS="$EXTRALIBS -lmswsock"])
     AC_MSG_RESULT([using MinGW32 headers and libraries in ${MINGDIR}])
   fi
   if test "$MINGW32" = "yes" ; then
-    AC_CHECK_LIB(ws2_32, main, EXTRALIBS="$EXTRALIBS -lws2_32")
-    AC_CHECK_LIB(mswsock, main, EXTRALIBS="$EXTRALIBS -lmswsock")
+    AC_CHECK_LIB([ws2_32],[main],[EXTRALIBS="$EXTRALIBS -lws2_32"])
+    AC_CHECK_LIB([mswsock],[main],[EXTRALIBS="$EXTRALIBS -lmswsock"])
   fi
 fi
-AC_SUBST(resource_FILES)
+AC_SUBST([resource_FILES])
 
 dnl ----------------------------------------------------------------------
 
@@ -572,7 +572,7 @@ dnl
 dnl Check whether to include support for named pipes under Linux.
 dnl
 
-AC_CHECK_FUNCS(mkfifo mknod sendfile)
+AC_CHECK_FUNCS([mkfifo mknod sendfile])
 
 dnl
 dnl Create additional CFLAGS for MinGW32 and CygWin.
@@ -584,7 +584,7 @@ if test "$CYGWIN" = "yes" -o "$MINGW32" = "yes"; then
 	SERVEEZ_CFLAGS="-D__SERVEEZ_IMPORT__"
     fi
 fi
-AC_SUBST(SERVEEZ_CFLAGS)
+AC_SUBST([SERVEEZ_CFLAGS])
 
 dnl ----------------------------------------------------------------------
 
@@ -612,33 +612,33 @@ dnl
 
 have_getopt="no"
 have_getopt_long="no"
-AC_CHECK_FUNC(getopt, have_getopt="yes",
-    AC_CHECK_LIB(iberty, getopt, have_getopt="yeslib"))
+AC_CHECK_FUNC([getopt],[have_getopt="yes"],
+[AC_CHECK_LIB([iberty],[getopt],[have_getopt="yeslib"])])
 if test $have_getopt != "no"; then
-    AC_DEFINE(HAVE_GETOPT,
+    AC_DEFINE([HAVE_GETOPT],
 	1, [Define if you have the getopt function.])
 fi
 
-AC_CHECK_FUNC(getopt_long, have_getopt_long="yes",
-    AC_CHECK_LIB(iberty, getopt_long, have_getopt_long="yeslib"))
+AC_CHECK_FUNC([getopt_long],[have_getopt_long="yes"],
+[AC_CHECK_LIB([iberty],[getopt_long],[have_getopt_long="yeslib"])])
 
 dnl
 dnl We might declare getopt_long ourselves if the headers do not.
 dnl
 
 if test $have_getopt_long != "no"; then
-  AC_CACHE_CHECK([whether getopt_long is declared], svz_cv_decl_getopt_long,
-    AC_EGREP_HEADER(getopt_long, getopt.h,
-      svz_cv_decl_getopt_long=yes,
-      svz_cv_decl_getopt_long=no))
+  AC_CACHE_CHECK([whether getopt_long is declared],[svz_cv_decl_getopt_long],
+  [AC_EGREP_HEADER([getopt_long],[getopt.h],
+    [svz_cv_decl_getopt_long=yes],
+    [svz_cv_decl_getopt_long=no])])
   if test $svz_cv_decl_getopt_long = yes ; then
-    AC_DEFINE(DECLARED_GETOPT_LONG, 1,
+    AC_DEFINE([DECLARED_GETOPT_LONG], 1,
       [Define if the getopt_long function is declared in <getopt.h>.])
   fi
 fi
 
 if test $have_getopt_long != "no"; then
-    AC_DEFINE(HAVE_GETOPT_LONG,
+    AC_DEFINE([HAVE_GETOPT_LONG],
 	1, [Define if you have the getopt_long function.])
 fi
 
@@ -665,16 +665,16 @@ dnl Checking for timezone and daylight variables (FreeBSD and NetBSD
 dnl do not provide).
 dnl
 
-AC_CACHE_CHECK([for timezone and daylight variables], svz_cv_var_timezone,
-  AC_LINK_IFELSE(
+AC_CACHE_CHECK([for timezone and daylight variables],[svz_cv_var_timezone],
+[AC_LINK_IFELSE(
    [AC_LANG_PROGRAM(
      [[extern long int timezone; extern int daylight;]],
      [[long int t = timezone; int d = daylight; return (d + t);]])],
    [svz_cv_var_timezone=yes],
-   [svz_cv_var_timezone=no]))
+   [svz_cv_var_timezone=no])])
 
 if test $svz_cv_var_timezone = yes ; then
-  AC_DEFINE(HAVE_TIMEZONE, 1, [Define if you have timezone and daylight.])
+  AC_DEFINE([HAVE_TIMEZONE], 1, [Define if you have timezone and daylight.])
 fi
 
 dnl
@@ -682,45 +682,45 @@ dnl bzero() is defined in <strings.h> on AIX, used by FD_ZERO()
 dnl There is no <wait.h> on AIX, but <sys/wait.h>.
 dnl
 
-AC_CHECK_HEADERS(wait.h strings.h)
+AC_CHECK_HEADERS([wait.h strings.h])
 AC_HEADER_SYS_WAIT
 
-AC_CHECK_FUNC(strcasecmp,
-  AC_DEFINE(HAVE_STRCASECMP, 1, [Define if you have the strcasecmp function.]),
-  [AC_CHECK_FUNC(stricmp,
-    AC_DEFINE(HAVE_STRICMP, 1, [Define if you have the stricmp function.]))])
+AC_CHECK_FUNC([strcasecmp],
+[AC_DEFINE([HAVE_STRCASECMP], 1, [Define if you have the strcasecmp function.])],
+[AC_CHECK_FUNC([stricmp],
+ [AC_DEFINE([HAVE_STRICMP], 1, [Define if you have the stricmp function.])])])
 
-AC_CHECK_FUNC(strncasecmp,
-  AC_DEFINE(HAVE_STRNCASECMP, 1,
-    [Define if you have the strncasecmp function.]),
-  [AC_CHECK_FUNC(strnicmp,
-    AC_DEFINE(HAVE_STRNICMP, 1, [Define if you have the strnicmp function.]))])
+AC_CHECK_FUNC([strncasecmp],
+[AC_DEFINE([HAVE_STRNCASECMP], 1,
+  [Define if you have the strncasecmp function.])],
+[AC_CHECK_FUNC([strnicmp],
+ [AC_DEFINE([HAVE_STRNICMP], 1, [Define if you have the strnicmp function.])])])
 
-AC_CHECK_FUNCS(getrlimit getdtablesize getpwnam seteuid setegid geteuid \
-  getegid gettimeofday shl_load NSAddImage)
-AC_CHECK_HEADERS(stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
+AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
+  getegid gettimeofday shl_load NSAddImage])
+AC_CHECK_HEADERS([stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
   getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
   ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
   mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h \
-  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h)
+  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h])
 AC_HEADER_DIRENT
 
 dnl
 dnl Serveez core library internals (svzconfig.h).
 dnl
 if test $ac_cv_header_varargs_h = yes; then
-  AC_DEFINE(SVZ_HAVE_VARARGS_H, 1,
+  AC_DEFINE([SVZ_HAVE_VARARGS_H], 1,
     [Define if you have the <varargs.h> header file.])
 fi
 if test $ac_cv_header_pthread_h = yes; then
-  AC_DEFINE(SVZ_HAVE_PTHREAD_H, 1,
+  AC_DEFINE([SVZ_HAVE_PTHREAD_H], 1,
     [Define if you have the <pthread.h> header file.])
 fi
 
 dnl
 dnl Some installations need <sys/types.h> before <netinet/tcp.h>.
 dnl
-AC_CACHE_CHECK([for netinet/tcp.h], svz_cv_header_netinet_tcp_h,
+AC_CACHE_CHECK([for netinet/tcp.h],[svz_cv_header_netinet_tcp_h],
 [AC_PREPROC_IFELSE([AC_LANG_SOURCE([[
     #include <sys/types.h>
     #include <netinet/tcp.h>
@@ -729,7 +729,7 @@ AC_CACHE_CHECK([for netinet/tcp.h], svz_cv_header_netinet_tcp_h,
   [svz_cv_header_netinet_tcp_h=no])])
 
 if test $svz_cv_header_netinet_tcp_h = yes ; then
-  AC_DEFINE(HAVE_NETINET_TCP_H, 1,
+  AC_DEFINE([HAVE_NETINET_TCP_H], 1,
     [Define if you have the <netinet/tcp.h> header file.])
 fi
 
@@ -739,20 +739,20 @@ dnl strsignal() and scandir() in -liberty.
 dnl
 save_LIBS="$LIBS"
 LIBS="$LIBS $SERVEEZ_LIBS $EXTRALIBS"
-AC_CHECK_FUNCS(alphasort scandir strsignal)
+AC_CHECK_FUNCS([alphasort scandir strsignal])
 LIBS="$save_LIBS"
 unset save_LIBS
 
 if test $ac_cv_header_dirent_h = yes ; then
-AC_CACHE_CHECK([whether alphasort is declared], svz_cv_decl_alphasort,
-AC_EGREP_HEADER(alphasort, dirent.h,
-  svz_cv_decl_alphasort=yes,
-  svz_cv_decl_alphasort=no))
+AC_CACHE_CHECK([whether alphasort is declared],[svz_cv_decl_alphasort],
+[AC_EGREP_HEADER([alphasort],[dirent.h],
+  [svz_cv_decl_alphasort=yes],
+  [svz_cv_decl_alphasort=no])])
 else
   svz_cv_decl_alphasort=yes
 fi
 if test $svz_cv_decl_alphasort = yes ; then
-  AC_DEFINE(DECLARED_ALPHASORT, 1,
+  AC_DEFINE([DECLARED_ALPHASORT], 1,
     [Define if the alphasort function is declared in <dirent.h>.])
 fi
 
@@ -763,20 +763,21 @@ dnl Checking for shared library loading interface.
 dnl
 
 have_dlopen="no"
-AC_CHECK_FUNC(dlopen, have_dlopen="yes",
-  AC_CHECK_LIB(dl, dlopen,
+AC_CHECK_FUNC([dlopen],[have_dlopen="yes"],
+[AC_CHECK_LIB([dl],[dlopen],[
     have_dlopen="yes"
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldl"),
-  AC_CHECK_LIB(svld, dlopen,
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldl"])],
+[AC_CHECK_LIB([svld],[dlopen],[
     have_dlopen="yes"
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lsvdl"))
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lsvdl"])])
 
 if test $have_dlopen = "yes" ; then
-  AC_DEFINE(HAVE_DLOPEN, 1, [Define if you have the dlopen function.])
+  AC_DEFINE([HAVE_DLOPEN], 1, [Define if you have the dlopen function.])
 else
-  AC_CHECK_LIB(dld, dld_link,
-    AC_DEFINE(HAVE_DLD_LINK, 1, [Define if you have the dld_link function.])
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld")
+  AC_CHECK_LIB([dld],[dld_link],
+    [AC_DEFINE([HAVE_DLD_LINK], 1,
+                 [Define if you have the dld_link function.])
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])
 fi
 unset have_dlopen
 
@@ -786,18 +787,19 @@ dnl
 dnl Checking for additional codec libraries.
 dnl
 
-AC_CHECK_LIB(z, zlibVersion,
-  AC_DEFINE(HAVE_ZLIB, 1, [Define if you have the zlib library.])
-  CODECLIBS="$CODECLIBS -lz")
+AC_CHECK_LIB([z],[zlibVersion],[
+  AC_DEFINE([HAVE_ZLIB], 1, [Define if you have the zlib library.])
+  CODECLIBS="$CODECLIBS -lz"
+])
 
 have_bz2=no
-AC_CHECK_LIB(bz2, bzCompress, have_bz2=yes,
-  [AC_CHECK_LIB(bz2, BZ2_bzCompress, have_bz2=bz2_prefix)])
+AC_CHECK_LIB([bz2],[bzCompress],[have_bz2=yes],
+[AC_CHECK_LIB([bz2],[BZ2_bzCompress],[have_bz2=bz2_prefix])])
 if test $have_bz2 != no ; then
-  AC_DEFINE(HAVE_BZ2LIB, 1, [Define if you have the bz2 library.])
+  AC_DEFINE([HAVE_BZ2LIB], 1, [Define if you have the bz2 library.])
   CODECLIBS="$CODECLIBS -lbz2"
   if test $have_bz2 = bz2_prefix ; then
-    AC_DEFINE(HAVE_BZ2LIB_PREFIX, 1,
+    AC_DEFINE([HAVE_BZ2LIB_PREFIX], 1,
       [Define if you have a prefixed bz2 library (>= v1.0)])
   fi
 fi
@@ -812,77 +814,79 @@ if test $enable_threads = yes ; then
     have_threads=yes
   else
     dnl POSIX
-    AC_CHECK_LIB(pthread, pthread_create,
+    AC_CHECK_LIB([pthread],[pthread_create],[
       have_threads=yes
-      LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lpthread",
+      LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lpthread"],
       dnl FreeBSD
-      [AC_CHECK_LIB(c_r, pthread_create,
+      [AC_CHECK_LIB([c_r],[pthread_create],[
         have_threads=yes
-        LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lc_r")])
+        LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lc_r"])])
   fi
 fi
 if test $have_threads = yes ; then
-  AC_DEFINE(SVZ_HAVE_THREADS, 1, [Define if you have a thread library.])
+  AC_DEFINE([SVZ_HAVE_THREADS], 1, [Define if you have a thread library.])
 fi
 unset enable_threads
 unset have_threads
 
-AC_SUBST(LIBSERVEEZLIBS)
-AC_SUBST(CODECLIBS)
+AC_SUBST([LIBSERVEEZLIBS])
+AC_SUBST([CODECLIBS])
 
 dnl ----------------------------------------------------------------------
 
 dnl Check for 'uname' interface.
 
-AC_CHECK_HEADERS(sys/utsname.h)
-AC_CHECK_FUNCS(uname)
+AC_CHECK_HEADERS([sys/utsname.h])
+AC_CHECK_FUNCS([uname])
 
 dnl ----------------------------------------------------------------------
 
 dnl Check for the 'kstat' interface on Solaris.
 
-AC_CHECK_LIB(kstat, kstat_open,
-    AC_DEFINE(HAVE_LIBKSTAT,
-	1, [Define if Solaris provides the kstat library.])
-    EXTRALIBS="$EXTRALIBS -lkstat")
+AC_CHECK_LIB([kstat],[kstat_open],[
+  AC_DEFINE([HAVE_LIBKSTAT], 1,
+    [Define if Solaris provides the kstat library.])
+  EXTRALIBS="$EXTRALIBS -lkstat"
+])
 
 dnl Check for the 'pstat' interface on HP-Unix.
 
-AC_CACHE_CHECK([for pstat_getdynamic], svz_cv_func_pstat,
-  AC_EGREP_HEADER(pstat_getdynamic, sys/pstat.h,
-    svz_cv_func_pstat=yes,
-    svz_cv_func_pstat=no))
+AC_CACHE_CHECK([for pstat_getdynamic],[svz_cv_func_pstat],
+[AC_EGREP_HEADER([pstat_getdynamic],[sys/pstat.h],
+  [svz_cv_func_pstat=yes],
+  [svz_cv_func_pstat=no])])
 
 if test $svz_cv_func_pstat = yes ; then
-  AC_DEFINE(HAVE_PSTAT, 1, [Define if HP-Unix provides the pstat interface.])
+  AC_DEFINE([HAVE_PSTAT], 1, [Define if HP-Unix provides the pstat interface.])
 fi
 
 dnl Check for the 'sysget' interface on IRIX.
 
-AC_CACHE_CHECK([for sysget], svz_cv_func_sysget,
-  AC_EGREP_HEADER(sysget, sys/sysget.h,
-    svz_cv_func_sysget=yes,
-    svz_cv_func_sysget=no))
+AC_CACHE_CHECK([for sysget],[svz_cv_func_sysget],
+[AC_EGREP_HEADER([sysget],[sys/sysget.h],
+  [svz_cv_func_sysget=yes],
+  [svz_cv_func_sysget=no])])
 
 if test $svz_cv_func_sysget = yes ; then
-  AC_DEFINE(HAVE_SYSGET, 1, [Define if IRIX provides the sysget interface.])
+  AC_DEFINE([HAVE_SYSGET], 1, [Define if IRIX provides the sysget interface.])
 fi
 
 dnl Check for the '/proc/stat' file under Linux.
 
-AC_CACHE_CHECK([whether /proc/stat exists], svz_cv_sys_proc_stat,
-  [have_procstat=`cat /proc/stat 2>&1 | grep "cpu  "`
+AC_CACHE_CHECK([whether /proc/stat exists],[svz_cv_sys_proc_stat],[
+  have_procstat=`cat /proc/stat 2>&1 | grep "cpu  "`
   if test "x$have_procstat" != "x" ; then
     svz_cv_sys_proc_stat=yes
   else
     svz_cv_sys_proc_stat=no
-  fi])
+  fi
+])
 unset have_procstat
 
 if test $svz_cv_sys_proc_stat = yes ; then
   case $host_os in
   linux*)
-    AC_DEFINE(HAVE_PROC_STAT,
+    AC_DEFINE([HAVE_PROC_STAT],
       1, [Define if Linux supports the /proc/stat file.])
     ;;
   *)
@@ -893,16 +897,16 @@ fi
 
 dnl Check for the 'host_statistics' interface on MacOS.
 
-AC_CHECK_FUNC(host_statistics,
-  AC_DEFINE(HAVE_HOST_STATISTICS,
-    1, [Define if MacOS provides the host_statistics interface.]))
+AC_CHECK_FUNC([host_statistics],
+[AC_DEFINE([HAVE_HOST_STATISTICS], 1,
+  [Define if MacOS provides the host_statistics interface.])])
 
 dnl ----------------------------------------------------------------------
 
 dnl
 dnl Check for existence of some useful functions.
 dnl
-AC_CHECK_FUNCS(vsprintf)
+AC_CHECK_FUNCS([vsprintf])
 if test $ac_cv_func_vsprintf = no ; then
   AC_MSG_ERROR([cannot compile without vsprintf])
   exit
@@ -911,18 +915,18 @@ fi
 dnl
 dnl Some Unices (e.g. Dec Unix) do not implement snprintf().
 dnl
-AC_CHECK_FUNC(snprintf, , [AC_CHECK_FUNC(_snprintf)])
+AC_CHECK_FUNC([snprintf],,[AC_CHECK_FUNC([_snprintf])])
 if test x$ac_cv_func_snprintf = xyes -o x$ac_cv_func__snprintf = xyes; then
-  AC_DEFINE(HAVE_SNPRINTF, 1, [Define if you have the snprintf function.])
-  AC_DEFINE(SVZ_HAVE_SNPRINTF, 1, [Define if you have the snprintf function.])
+  AC_DEFINE([HAVE_SNPRINTF], 1, [Define if you have the snprintf function.])
+  AC_DEFINE([SVZ_HAVE_SNPRINTF], 1, [Define if you have the snprintf function.])
 else
   AC_MSG_WARN([using function vsnprintf instead])
 fi
 
-AC_CHECK_FUNC(vsnprintf, , [AC_CHECK_FUNC(_vsnprintf)])
+AC_CHECK_FUNC([vsnprintf],,[AC_CHECK_FUNC([_vsnprintf])])
 if test x$ac_cv_func_vsnprintf = xyes -o x$ac_cv_func__vsnprintf = xyes; then
-  AC_DEFINE(HAVE_VSNPRINTF, 1, [Define if you have the vsnprintf function.])
-  AC_DEFINE(SVZ_HAVE_VSNPRINTF, 1,
+  AC_DEFINE([HAVE_VSNPRINTF], 1, [Define if you have the vsnprintf function.])
+  AC_DEFINE([SVZ_HAVE_VSNPRINTF], 1,
     [Define if you have the vsnprintf function.])
 else
   AC_MSG_WARN([using unsafe function vsprintf instead])
@@ -931,36 +935,36 @@ fi
 dnl
 dnl Check whether extra net libraries are required.
 dnl
-AC_CHECK_FUNC(connect)
-AC_CHECK_FUNC(socketpair)
+AC_CHECK_FUNC([connect])
+AC_CHECK_FUNC([socketpair])
 if test $ac_cv_func_socketpair = no; then
-  AC_CHECK_LIB(socket, socketpair,
+  AC_CHECK_LIB([socket],[socketpair],[
     EXTRALIBS="$EXTRALIBS -lsocket"
-    have_socketpair="lib")
+    have_socketpair="lib"])
 else
   have_socketpair="yes"
 fi
 if test x$have_socketpair != x; then
-  AC_DEFINE(HAVE_SOCKETPAIR, 1, [Define if you have the socketpair function.])
+  AC_DEFINE([HAVE_SOCKETPAIR], 1, [Define if you have the socketpair function.])
 fi
 unset have_socketpair
 
 dnl
 dnl Check for Solaris nsl and resolv library.
 dnl
-AC_CHECK_FUNC(gethostbyaddr)
+AC_CHECK_FUNC([gethostbyaddr])
 if test $ac_cv_func_gethostbyaddr = no; then
-    AC_CHECK_LIB(nsl, gethostbyaddr, EXTRALIBS="$EXTRALIBS -lnsl")
+    AC_CHECK_LIB([nsl],[gethostbyaddr],[EXTRALIBS="$EXTRALIBS -lnsl"])
 fi
 have_inet_aton="no"
-AC_CHECK_FUNC(inet_aton, have_inet_aton="yes")
+AC_CHECK_FUNC([inet_aton],[have_inet_aton="yes"])
 if test $ac_cv_func_inet_aton = no; then
-    AC_CHECK_LIB(resolv, inet_aton,
+    AC_CHECK_LIB([resolv],[inet_aton],[
 	have_inet_aton="yes"
-	EXTRALIBS="$EXTRALIBS -lresolv")
+	EXTRALIBS="$EXTRALIBS -lresolv"])
 fi
 if test $have_inet_aton = "yes"; then
-    AC_DEFINE(HAVE_INET_ATON, 1, [Define if you have the inet_aton function.])
+    AC_DEFINE([HAVE_INET_ATON], 1, [Define if you have the inet_aton function.])
 fi
 unset have_inet_aton
 
@@ -972,7 +976,7 @@ dnl  on IRIX handle small structs wrong. As of gcc 2.95 this should be
 dnl  fixed but we do not really know. To work around we implement inet_ntoa()
 dnl  on our own if it does not work.
 dnl
-AC_CACHE_CHECK([whether inet_ntoa is broken], svz_cv_func_inet_ntoa_broken,
+AC_CACHE_CHECK([whether inet_ntoa is broken],[svz_cv_func_inet_ntoa_broken],
 [AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
     #include <sys/types.h>
     #include <netinet/in.h>
@@ -989,20 +993,19 @@ AC_CACHE_CHECK([whether inet_ntoa is broken], svz_cv_func_inet_ntoa_broken,
   [svz_cv_func_inet_ntoa_broken=no])])
 
 if test $svz_cv_func_inet_ntoa_broken = yes ; then
-   AC_DEFINE(BROKEN_INET_NTOA, 1, [Define if inet_ntoa function is broken.])
+   AC_DEFINE([BROKEN_INET_NTOA], 1, [Define if inet_ntoa function is broken.])
 fi
 
 dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.
 dnl
-AC_CACHE_CHECK([for socklen_t], svz_cv_type_socklen_t,
-AC_EGREP_HEADER(socklen_t,
-  sys/socket.h,
-  svz_cv_type_socklen_t=yes,
-  svz_cv_type_socklen_t=no))
+AC_CACHE_CHECK([for socklen_t],[svz_cv_type_socklen_t],
+[AC_EGREP_HEADER([socklen_t],[sys/socket.h],
+  [svz_cv_type_socklen_t=yes],
+  [svz_cv_type_socklen_t=no])])
 
 if test $svz_cv_type_socklen_t = no ; then
-  AC_DEFINE(socklen_t, int,
+  AC_DEFINE([socklen_t], int,
     [Define to 'int' if <sys/socket.h> does not define.])
 fi
 
@@ -1013,26 +1016,27 @@ socket_defined="int"
 handle_defined="int"
 
 if test "$MINGDIR" != "no"; then
-    AC_CHECK_HEADER(winsock2.h,
-	socket_defined="SOCKET"
-	handle_defined="HANDLE"
-	AC_DEFINE(Win32_Winsock, 1,
-	    [Define if you are using Windows Socket-API (not CYGWIN).])
-	AC_DEFINE(HAVE_WINSOCK2_H, 1,
-	    [Define if you have the <winsock2.h>]))
+AC_CHECK_HEADER([winsock2.h],[
+  socket_defined="SOCKET"
+  handle_defined="HANDLE"
+  AC_DEFINE([Win32_Winsock], 1,
+   [Define if you are using Windows Socket-API (not CYGWIN).])
+  AC_DEFINE([HAVE_WINSOCK2_H], 1,
+   [Define if you have the <winsock2.h>])
+])
 fi
 
-AC_DEFINE_UNQUOTED(svz_t_socket, $socket_defined,
+AC_DEFINE_UNQUOTED([svz_t_socket],[$socket_defined],
   [Define to 'int' if <winsock2.h> does not define 'SOCKET'.])
 
-AC_DEFINE_UNQUOTED(svz_t_handle, $handle_defined,
+AC_DEFINE_UNQUOTED([svz_t_handle],[$handle_defined],
   [Define to 'int' if <winsock2.h> does not define 'HANDLE'.])
 
 unset socket_defined
 unset handle_defined
 
-AC_CHECK_HEADERS([mswsock.h], [], [],
-[#if HAVE_WINSOCK2_H
+AC_CHECK_HEADERS([mswsock.h], [], [],[
+#if HAVE_WINSOCK2_H
 # include <winsock2.h>
 #endif
 ])
@@ -1042,7 +1046,7 @@ size_t_defined="size_t"
 if test $ac_cv_type_size_t = no; then
   size_t_defined="unsigned"
 fi
-AC_DEFINE_UNQUOTED(svz_t_size, $size_t_defined,
+AC_DEFINE_UNQUOTED([svz_t_size],[$size_t_defined],
   [Define to `unsigned' if <sys/types.h> doesn't define 'size_t'.])
 unset size_t_defined
 
@@ -1051,7 +1055,7 @@ off_t_defined="off_t"
 if test $ac_cv_type_off_t = no; then
   off_t_defined="long"
 fi
-AC_DEFINE_UNQUOTED(svz_t_off, $off_t_defined,
+AC_DEFINE_UNQUOTED([svz_t_off],[$off_t_defined],
   [Define to `long' if <sys/types.h> doesn't define 'off_t'.])
 unset off_t_defined
 
@@ -1064,101 +1068,104 @@ dnl
 MKPASSWORD=""
 if test $enable_crypt = yes ; then
     have_crypt=no
-    AC_CHECK_FUNC(crypt, have_crypt=yes,
-	AC_CHECK_LIB(descrypt, crypt,
+    AC_CHECK_FUNC([crypt],[have_crypt=yes],
+      [AC_CHECK_LIB([descrypt],[crypt],[
 	    have_crypt=yes
-	    EXTRALIBS="$EXTRALIBS -ldescrypt",
-	    AC_CHECK_LIB(crypt, crypt,
+	    EXTRALIBS="$EXTRALIBS -ldescrypt"],
+	    [AC_CHECK_LIB([crypt],[crypt],[
 		have_crypt=yes
-		EXTRALIBS="$EXTRALIBS -lcrypt")))
+		EXTRALIBS="$EXTRALIBS -lcrypt"])])])
 
     if test $have_crypt = yes ; then
-	AC_DEFINE(SVZ_HAVE_CRYPT, 1, [Define if you have the crypt function.])
+	AC_DEFINE([SVZ_HAVE_CRYPT], 1, [Define if you have the crypt function.])
 	MKPASSWORD="mkpassword"
     fi
     unset have_crypt
 fi
-AC_SUBST(MKPASSWORD)
+AC_SUBST([MKPASSWORD])
 
 dnl
 dnl Check for hstrerror(), h_errno and strsignal() functions.
 dnl
 
-AC_CACHE_CHECK([whether strsignal is declared], svz_cv_decl_strsignal,
-AC_EGREP_CPP(strsignal, [
+AC_CACHE_CHECK([whether strsignal is declared],[svz_cv_decl_strsignal],
+[AC_EGREP_CPP([strsignal],[
     #define _GNU_SOURCE
     #define __EXTENSIONS__
-    #include <string.h> ],
-  svz_cv_decl_strsignal=yes,
-  svz_cv_decl_strsignal=no))
+    #include <string.h>
+],
+  [svz_cv_decl_strsignal=yes],
+  [svz_cv_decl_strsignal=no])])
 if test $svz_cv_decl_strsignal = yes ; then
-  AC_DEFINE(DECLARED_STRSIGNAL, 1,
+  AC_DEFINE([DECLARED_STRSIGNAL], 1,
     [Define if the strsignal function is declared in <string.h>.])
 fi
 
-AC_CHECK_FUNC(hstrerror, have_hstrerror=yes,
-  AC_CHECK_LIB(resolv, hstrerror, have_hstrerror=yes, have_hstrerror=no))
+AC_CHECK_FUNC([hstrerror],[have_hstrerror=yes],
+[AC_CHECK_LIB([resolv],[hstrerror],[have_hstrerror=yes],[have_hstrerror=no])])
 if test $have_hstrerror = yes ; then
-  AC_DEFINE(HAVE_HSTRERROR, 1, [Define if you have the hstrerror function.])
+  AC_DEFINE([HAVE_HSTRERROR], 1, [Define if you have the hstrerror function.])
 fi
-AC_CACHE_CHECK([whether hstrerror is declared], svz_cv_decl_hstrerror,
-AC_EGREP_HEADER(hstrerror, netdb.h,
-  svz_cv_decl_hstrerror=yes,
-  svz_cv_decl_hstrerror=no))
+AC_CACHE_CHECK([whether hstrerror is declared],[svz_cv_decl_hstrerror],
+[AC_EGREP_HEADER([hstrerror],[netdb.h],
+  [svz_cv_decl_hstrerror=yes],
+  [svz_cv_decl_hstrerror=no])])
 if test $svz_cv_decl_hstrerror = yes ; then
-  AC_DEFINE(DECLARED_HSTRERROR, 1,
+  AC_DEFINE([DECLARED_HSTRERROR], 1,
     [Define if the hstrerror function is declared in <netdb.h>.])
 fi
 
-AC_CACHE_CHECK([for h_errno], svz_cv_var_h_errno,
-AC_EGREP_HEADER(h_errno, netdb.h,
-  svz_cv_var_h_errno=yes,
-  svz_cv_var_h_errno=no))
+AC_CACHE_CHECK([for h_errno],[svz_cv_var_h_errno],
+[AC_EGREP_HEADER([h_errno],[netdb.h],
+  [svz_cv_var_h_errno=yes],
+  [svz_cv_var_h_errno=no])])
 if test $svz_cv_var_h_errno = yes ; then
-  AC_DEFINE(HAVE_H_ERRNO, 1, [Define if h_errno is supported.])
+  AC_DEFINE([HAVE_H_ERRNO], 1, [Define if h_errno is supported.])
 fi
 
 dnl
 dnl Check for more functionality used in Serveez.
 dnl
-AC_CHECK_FUNCS(times poll waitpid)
+AC_CHECK_FUNCS([times poll waitpid])
 
 dnl
 dnl Checks for RPC services.
 dnl
-AC_CHECK_FUNCS(getrpcent)
+AC_CHECK_FUNCS([getrpcent])
 if test $ac_cv_func_getrpcent = no ; then
     dnl On HP-UX these functions reside in -lnsl
-    AC_CHECK_LIB(nsl, getrpcent, EXTRALIBS="$EXTRALIBS -lnsl")
+    AC_CHECK_LIB([nsl],[getrpcent],[EXTRALIBS="$EXTRALIBS -lnsl"])
 fi
 save_LIBS="$LIBS"
 LIBS="$LIBS $EXTRALIBS"
-AC_CHECK_FUNCS(getrpcbyname getrpcbynumber setrpcent endrpcent \
-  pmap_set pmap_unset pmap_getmaps get_myaddress)
+AC_CHECK_FUNCS([getrpcbyname getrpcbynumber setrpcent endrpcent \
+  pmap_set pmap_unset pmap_getmaps get_myaddress])
 LIBS="$save_LIBS"
 unset save_LIBS
 
-AC_CACHE_CHECK([whether setrpcent is declared], svz_cv_decl_setrpcent,
+AC_CACHE_CHECK([whether setrpcent is declared],[svz_cv_decl_setrpcent],[
 svz_cv_decl_setrpcent=no
-AC_EGREP_HEADER(setrpcent, netdb.h, svz_cv_decl_setrpcent=yes)
-AC_EGREP_HEADER(setrpcent, rpc/rpcent.h, svz_cv_decl_setrpcent=yes))
+AC_EGREP_HEADER([setrpcent],[netdb.h],[svz_cv_decl_setrpcent=yes])
+AC_EGREP_HEADER([setrpcent],[rpc/rpcent.h],[svz_cv_decl_setrpcent=yes])
+])
 if test $svz_cv_decl_setrpcent = yes ; then
-  AC_DEFINE(DECLARED_SETRPCENT, 1,
+  AC_DEFINE([DECLARED_SETRPCENT], 1,
     [Define if the setrpcent function is declared in <netdb.h>.])
 fi
-AC_CACHE_CHECK([whether endrpcent is declared], svz_cv_decl_endrpcent,
+AC_CACHE_CHECK([whether endrpcent is declared],[svz_cv_decl_endrpcent],[
 svz_cv_decl_endrpcent=no
-AC_EGREP_HEADER(endrpcent, netdb.h, svz_cv_decl_endrpcent=yes)
-AC_EGREP_HEADER(endrpcent, rpc/rpcent.h, svz_cv_decl_endrpcent=yes))
+AC_EGREP_HEADER([endrpcent],[netdb.h],[svz_cv_decl_endrpcent=yes])
+AC_EGREP_HEADER([endrpcent],[rpc/rpcent.h],[svz_cv_decl_endrpcent=yes])
+])
 if test $svz_cv_decl_endrpcent = yes ; then
-  AC_DEFINE(DECLARED_ENDRPCENT, 1,
+  AC_DEFINE([DECLARED_ENDRPCENT], 1,
     [Define if the endrpcent function is declared in <netdb.h>.])
 fi
 
 dnl
 dnl Find a working signed keyword.
 dnl
-AC_CACHE_CHECK([for working signed], svz_cv_c_signed,
+AC_CACHE_CHECK([for working signed],[svz_cv_c_signed],
 [AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
     [[#include <stdio.h>]],
     [[signed char have_signed = (signed char) 0;]])],
@@ -1167,7 +1174,7 @@ AC_CACHE_CHECK([for working signed], svz_cv_c_signed,
   [svz_cv_c_signed=no
    signed_defined=""])])
 
-AC_DEFINE_UNQUOTED(svz_c_signed, $signed_defined,
+AC_DEFINE_UNQUOTED([svz_c_signed],[$signed_defined],
   [Define to empty if the keyword does not work.])
 
 unset signed_defined
@@ -1181,17 +1188,17 @@ TEXI2HTML=":"
 if test -n "$tex"; then
 case "$tex" in
   [1.6[4-9] | 1.[789]* | [2-9].*)]
-    AC_MSG_RESULT($tex >= 1.64)
+    AC_MSG_RESULT([$tex >= 1.64])
     TEXI2HTML="texi2html"
   ;;
   [*)]
-    AC_MSG_RESULT($tex < 1.64)
+    AC_MSG_RESULT([$tex < 1.64])
   ;;
 esac
 else
-  AC_MSG_RESULT(missing)
+  AC_MSG_RESULT([missing])
 fi
-AC_SUBST(TEXI2HTML)
+AC_SUBST([TEXI2HTML])
 unset tex
 
 dnl
@@ -1204,23 +1211,23 @@ AC_MSG_CHECKING([for working rpm])
 if test -n "$version"; then
 case "$version" in
   [3.* | [4-9].*)]
-    AC_MSG_RESULT($version >= 3.0.0)
+    AC_MSG_RESULT([$version >= 3.0.0])
     RPM="rpm"
     RPM3="yes"
   ;;
   [*)]
-    AC_MSG_RESULT($version < 3.0.0)
+    AC_MSG_RESULT([$version < 3.0.0])
     RPM="rpm"
     RPM3="no"
   ;;
 esac
 else
-    AC_MSG_RESULT(missing)
+    AC_MSG_RESULT([missing])
 fi
 unset version
 fi
-AC_SUBST(RPM)
-AC_SUBST(RPM3)
+AC_SUBST([RPM])
+AC_SUBST([RPM3])
 
 LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS
@@ -1230,14 +1237,14 @@ if test -z "$TIMESTAMP" ; then
     dnl On HP-UX each item is padded with spaces by default.
     TIMESTAMP=`date '+%a %b %d %H:%M:%S %Y' 2>/dev/null`
 fi
-AC_SUBST(TIMESTAMP)
+AC_SUBST([TIMESTAMP])
 
 dnl For GNU/Linux Debian packaging only
 TIMESTAMP_RFC822=`date -R 2>/dev/null`
-AC_SUBST(TIMESTAMP_RFC822)
+AC_SUBST([TIMESTAMP_RFC822])
 
 REDHAT_TOPDIR=/opt
-AC_SUBST(REDHAT_TOPDIR)
+AC_SUBST([REDHAT_TOPDIR])
 
 dnl
 dnl Setup configuration variables.
@@ -1251,8 +1258,8 @@ if test "x$enable_shared" = "xyes" ; then
 else
   SERVEEZ_CONFIG_LDFLAGS="$prefix/lib/libserveez.a"
 fi
-AC_SUBST(SERVEEZ_CONFIG_CFLAGS)
-AC_SUBST(SERVEEZ_CONFIG_LDFLAGS)
+AC_SUBST([SERVEEZ_CONFIG_CFLAGS])
+AC_SUBST([SERVEEZ_CONFIG_LDFLAGS])
 
 dnl
 dnl Output files.
