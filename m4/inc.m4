@@ -1,4 +1,4 @@
-dnl acinclude.m4 --- Autoconf macros for configuring the Serveez package.
+dnl inc.m4 --- some -*-autoconf-*- macros for configuring GNU Serveez
 dnl
 dnl Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 dnl
@@ -245,3 +245,5 @@ AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
     esac
   ])
 ])
+
+dnl inc.m4 ends here

@@ -21,6 +21,8 @@
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+ACLOCAL_AMFLAGS = -I m4
+
 include $(top_srcdir)/build-aux/common.mk
 
 SUBDIRS = src data test doc

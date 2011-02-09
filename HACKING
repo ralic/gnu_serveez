@@ -17,7 +17,7 @@ See the end for copying conditions.
 ******* DONE use autoreconf
 ******* DONE don't invoke build-aux/autodsp
 ******* TODO (if modern libtool ok) don't patch configure
-***** TODO modernize [[file:configure.ac][configure.ac]] and [[file:acinclude.m4][acinclude.m4]]
+***** TODO modernize [[file:configure.ac][configure.ac]] and [[file:m4/inc.m4][m4/inc.m4]]
 ******* TODO drop redundant AC_DEFINE forms
 ******* DONE use AC_PREREQ
 ******* TODO m4: update AC_*, use AS_*, quote properly, etc

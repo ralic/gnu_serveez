@@ -1,5 +1,16 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Move local m4 macros into m4/inc.m4.
+
+	* m4: New directory.
+	* acinclude.m4: Rename file from this...
+	* m4/inc.m4: ...to this.
+	* Makefile.am (ACLOCAL_AMFLAGS): New var.
+	* configure.ac (AC_CONFIG_MACRO_DIR): New macro call.
+	* HACKING, .gitignore: Update; nfc.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Add abstraction ‘SVZ_Y’; use ‘AS_IF’ more.
 
 	* acinclude.m4 (SVZ_Y): New macro; use it throughout.
