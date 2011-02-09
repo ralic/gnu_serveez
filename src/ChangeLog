@@ -1,5 +1,13 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Remove configure option ‘--with-guile-source’.
+
+	* Makefile.am (serveez_DEPENDENCIES):
+	Remove $(GUILE_DEPENDENCY).
+	($(GUILE_RULE)): Delete target.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build guile] If no <guile/gh.h>, #include <libguile.h>.
 
 	Here, "U" means "Replace ‘#if GUILE_SOURCE’ with

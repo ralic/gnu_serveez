@@ -1,5 +1,15 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Remove configure option ‘--with-guile-source’.
+
+	* m4/inc.m4 (SVZ_GUILE_SOURCE): Delete macro.
+	(SVZ_GUILE_CHECK): Don't mention ‘--with-guile-source’.
+	* configure.ac (SVZ_GUILE_SOURCE): Delete macro call.
+	* README (Installation): Remove suggested configure
+	script option set; don't mention ‘--with-guile-source’.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build guile] If no <guile/gh.h>, #include <libguile.h>.
 
 	* m4/inc.m4 (SVZ_GUILE): Make sure ‘GUILEDIR’ is

@@ -82,21 +82,6 @@ dnl passed to the compiler and linker. In a first try it uses the
 dnl `guile-config' script in order to obtain these settings. Then it proceeds
 dnl the `--with-guile=DIR' option of the ./configure script.
 dnl
-dnl SVZ_GUILE_SOURCE -- Check a source tree of Guile.
-dnl Check if the user has given the `--with-guile-source=DIR' argument to
-dnl ./configure script. If so, it overrides the above SVZ_GUILE macro and
-dnl provides the following Makefile variables:
-dnl   GUILE_SOURCE - the source directory
-dnl   GUILE_CFLAGS - flags passed to the compiler
-dnl   GUILE_LDFLAGS - flags passed to the linker
-dnl   GUILE_DEPENDENCY - a dependency for the guile library
-dnl   GUILE_RULE - name of the rule to make the guile library
-dnl   GUILE_MAKE_LTDL - make command line for the above rule
-dnl   GUILE_MAKE_LIB - yet another make line for that rule
-dnl Please have a look at the `src/Makefile.am' file for more details how
-dnl these variables are actually used to build a static guile library linked
-dnl to the main binary.
-dnl
 dnl SVZ_GUILE_CHECK -- Checks for Guile results and exits if necessary.
 dnl
 dnl SVZ_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
@@ -167,59 +152,12 @@ AC_DEFUN([SVZ_GUILE], [
   AC_SUBST([GUILE_LDFLAGS])
 ])
 
-AC_DEFUN([SVZ_GUILE_SOURCE], [
-  SVZ_WITH([/usr/src],[guile-source],[DIR],[Guile source tree in DIR],
-           [no],[/usr/src],["$withval"])
-  GUILESRC="$with_guile_source"
-
-  AC_MSG_CHECKING([for guile source tree])
-  if test "x$GUILESRC" != "xno"; then
-    GUILESRC="`eval cd "$GUILESRC" 2>/dev/null && pwd`"
-    case $build_os in
-    mingw*)
-	GUILESRC="`eval cygpath -w -i "$GUILESRC"`"
-	GUILESRC="`echo "$GUILESRC" | sed -e 's%\\\\%/%g'`"
-	;;
-    esac
-    if test -f "$GUILESRC/configure" &&
-       test -f "$GUILESRC/config.status" ; then
-      GUILE_SOURCE="$GUILESRC"
-      GUILE_CFLAGS="-I$GUILESRC -I$GUILESRC/libguile -DGUILE_SOURCE"
-      GUILE_LDFLAGS="$GUILESRC/libguile/libguile.la"
-      GUILE_DEPENDENCY="$GUILESRC/libguile/libguile.la"
-      GUILE_RULE="$GUILESRC/libguile/libguile.la"
-      GUILE_MAKE_LTDL='(cd $(GUILE_SOURCE)/libltdl && $(MAKE) libltdlc.la)'
-      if test ! -f "$GUILESRC/libltdl/configure" ; then
-	GUILE_MAKE_LTDL="# $GUILE_MAKE_LTDL"
-      fi
-      GUILE_MAKE_LIB='(cd $(GUILE_SOURCE)/libguile && $(MAKE) libguile.la)'
-      AC_SUBST([GUILE_SOURCE])
-      AC_SUBST([GUILE_CFLAGS])
-      AC_SUBST([GUILE_LDFLAGS])
-      AC_SUBST([GUILE_DEPENDENCY])
-      AC_SUBST([GUILE_RULE])
-      AC_SUBST([GUILE_MAKE_LTDL])
-      AC_SUBST([GUILE_MAKE_LIB])
-      AC_MSG_RESULT([yes])
-      GUILE_BUILD="yes"
-    else
-      AC_MSG_RESULT([missing])
-      GUILE_SOURCE="no"
-    fi
-  else
-    AC_MSG_RESULT([disabled])
-    GUILE_SOURCE="no"
-  fi
-  AS_UNSET([GUILESRC])
-])
-
 AC_DEFUN([SVZ_GUILE_CHECK], [
   AS_IF([! SVZ_Y([GUILE_BUILD])],[
     AC_MSG_ERROR([
   The $PACKAGE $VERSION package requires either an installed Guile
   version or an unpacked source tarball at hand.  You can specify the
-  install location by passing `--with-guile=<directory>' or the source
-  location by passing `--with-guile-source=<directory>'.  Guile
+  install location by passing `--with-guile=<directory>'.  Guile
   version 1.4 is preferred.])])])
 
 AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [

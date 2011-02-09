@@ -170,10 +170,28 @@ flood protection.  It is always useful to protect the software
 from flood clients.
 @item --with-guile=DIR
 The @var{DIR} argument specifies a Guile installation directory.
-@item --with-guile-source=DIR
-If the user wants to link Serveez against a static Guile core
-library you can pass the @var{DIR} argument to specify the location of a
-Guile source distribution which will then be configured and built.
+If you have trouble building Serveez against that Guile, probably
+it is best to try another Guile build with configure-script options
+along the lines of:
+
+@example
+--enable-static --disable-shared
+--disable-debug-freelist
+--disable-debug-malloc
+--disable-guile-debug
+--disable-arrays --disable-posix
+--enable-networking --disable-regex
+--without-threads --enable-ltdl-convenience
+--prefix=@var{prefix}
+--host=@var{host} --build=@var{build} --target=@var{target}
+--cache-file=@var{cache-file}
+@end example
+
+with @var{prefix}, @var{host}, @var{build}, @var{target} and
+@var{cache-file} taken from the Serveez configuration.  This option
+set is tuned for Guile 1.4 and may or may not work for your particular
+installation; you may need to experiment a bit.
+
 @item --with-mingw=DIR
 When compiling under M$-Windows the @var{DIR} argument specifies the
 path to the extra MinGW32 library and header files.  If you want the
@@ -245,9 +263,7 @@ sleepless ~/serveez-@value{VERSION}> make install
 If you have problems building the package out of the box this is due to
 GNU libtool's inability to handle dynamic linking in most cases.  That
 is why we recommend to try to configure the package with
-@samp{--disable-shared} and/or the native compiler (if any).  When the
-build process is not able to link against an existing Guile installation
-you can try to use the @samp{--with-guile-source=DIR} configure option.
+@samp{--disable-shared} and/or the native compiler (if any).
 
 @subsection Installing the RPM package
 The binary RPM distribution @file{serveez-@value{VERSION}-1.i386.rpm} of

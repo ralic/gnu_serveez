@@ -547,7 +547,6 @@ dnl Check Guile installation.
 dnl
 
 SVZ_GUILE
-SVZ_GUILE_SOURCE
 SVZ_GUILE_CHECK
 
 dnl ----------------------------------------------------------------------
