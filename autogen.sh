@@ -24,7 +24,7 @@
 # (Normally, they are created on "make dist" only.)
 #
 # Prerequisite tools:
-# - GNU Autoconf 2.62
+# - GNU Autoconf 2.64
 # - GNU Libtool 1.9b
 # - GNU Automake 1.10
 # - GNU Texinfo 4.11

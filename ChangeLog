@@ -1,5 +1,14 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot] Bump Autoconf prereq to 2.64.
+
+	This is for ‘m4_ifnblank’ et al.
+
+	* configure.ac (AC_PREREQ): Bump to "2.64".
+	* autogen.sh: Update comment; nfc.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Move local m4 macros into m4/inc.m4.
 
 	* m4: New directory.

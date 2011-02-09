@@ -27,7 +27,7 @@ dnl ----------------------------------------------------------------------
 dnl
 dnl Initialize autoconf and automake
 dnl
-AC_PREREQ([2.62])
+AC_PREREQ([2.64])
 AC_INIT([serveez],[0.1.7],[bug-serveez@gnu.org])dnl FIXME: Say "GNU Serveez".
 AC_CONFIG_HEADERS([config.h src/svzconfig.h])
 AC_CONFIG_AUX_DIR([build-aux])
