@@ -18,6 +18,13 @@ dnl along with this package.  If not, see <http://www.gnu.org/licenses/>.
 dnl ----------------------------------------------------------------------
 dnl Common bits.
 
+dnl SVZ_Y(VAR)
+dnl
+dnl Expand to:
+dnl  test xyes = x"$VAR"
+dnl
+AC_DEFUN([SVZ_Y],[test xyes = x"$]$1["])
+
 dnl SVZ_HELP_STRING(LHS,DEFAULT,BLURB)
 dnl
 dnl Wrap ‘AS_HELP_STRING’, expanding the right-hand-side as:
@@ -41,10 +48,10 @@ AC_MSG_CHECKING([$1])
 AC_ARG_ENABLE([$3],
   [SVZ_HELP_STRING([--]m4_case([$2],[yes],[dis],[en])[able-$3],
                    [$2],[$4])],
-  [test yes = "$VAR" || VAR=no],
+  [SVZ_Y(VAR) || VAR=no],
   [VAR=$2])
 AC_MSG_RESULT([$VAR])
-m4_ifnblank([$5$6],[AS_IF([test yes = "$VAR"],[$5],[$6])])
+m4_ifnblank([$5$6],[AS_IF([SVZ_Y(VAR)],[$5],[$6])])
 AS_VAR_POPDEF([VAR])dnl
 ])dnl
 
@@ -115,16 +122,15 @@ AC_DEFUN([SVZ_GUILE], [
       -f "$GUILEDIR/bin/libguile.dll" -o \
       -f "$GUILEDIR/bin/cygguile.dll" ; then
       GUILE_CFLAGS="-I$GUILEDIR/include"
-      if test x"$CYGWIN" = xyes -o x"$MINGW32" = xyes ; then
-	GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"
-      fi
+      AS_IF([SVZ_Y([CYGWIN]) || SVZ_Y([MINGW32])],
+            [GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"])
       GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
       GUILE_BUILD="yes"
       AC_MSG_RESULT([yes])
     fi
   fi
 
-  if test "x$GUILE_BUILD" != "xyes" ; then
+  AS_IF([! SVZ_Y([GUILE_BUILD])],[
     guile=""
     if test "x`eval guile-config --version 2>&1 | grep version`" != "x" ; then
       guile="`eval guile-config --version 2>&1 | grep version`"
@@ -151,7 +157,7 @@ AC_DEFUN([SVZ_GUILE], [
       GUILE_LDFLAGS=""
     fi
     AS_UNSET([guile])
-  fi
+  ])
   AS_UNSET([GUILEDIR])
   AC_SUBST([GUILE_CFLAGS])
   AC_SUBST([GUILE_LDFLAGS])
@@ -204,18 +210,16 @@ AC_DEFUN([SVZ_GUILE_SOURCE], [
 ])
 
 AC_DEFUN([SVZ_GUILE_CHECK], [
-  if test "x$GUILE_BUILD" != "xyes" ; then
+  AS_IF([! SVZ_Y([GUILE_BUILD])],[
     AC_MSG_ERROR([
   The $PACKAGE $VERSION package requires either an installed Guile
   version or an unpacked source tarball at hand.  You can specify the
   install location by passing `--with-guile=<directory>' or the source
   location by passing `--with-guile-source=<directory>'.  Guile
-  version 1.4 is preferred.])
-  fi
-])
+  version 1.4 is preferred.])])])
 
 AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
-  if test "x$GCC" = "xyes" -a "x$enable_shared" = "xyes" ; then
+  AS_IF([SVZ_Y([GCC]) && SVZ_Y([enable_shared])],[
     case $host_os in
     solaris*)
       LIBERTY="`gcc --print-file-name=libiberty.a`"
@@ -239,5 +243,5 @@ AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
       AS_UNSET([GCCFILE])
       ;;
     esac
-  fi
+  ])
 ])

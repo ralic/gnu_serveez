@@ -1,5 +1,12 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Add abstraction ‘SVZ_Y’; use ‘AS_IF’ more.
+
+	* acinclude.m4 (SVZ_Y): New macro; use it throughout.
+	* configure.ac: Use ‘SVZ_Y’ throughout.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Reduce ‘AC_DEFINE’ usage; use ‘AC_CHECK_FUNCS’.
 
 	Here, "F" means "Use ‘AC_CHECK_FUNCS’"; "L" means "only
