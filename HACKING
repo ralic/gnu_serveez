@@ -176,6 +176,10 @@ See the end for copying conditions.
     (setq indent-tabs-mode nil)
 *** GNU style, opportunistically
     (setq c-file-style "gnu")
+    (add-to-list 'font-lock-keywords-alist
+                 '(autoconf-mode
+                   ((("\\(SVZ_[A-Z_]+\\)("
+                      1 font-lock-function-name-face)))))
 *** ChangeLog / VCS log
 ***** normally
       ChangeLog entries should match VCS log entries in the body.
