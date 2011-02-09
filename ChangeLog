@@ -1,3 +1,20 @@
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Reduce ‘AC_DEFINE’ usage; use ‘AC_CHECK_FUNCS’.
+
+	Here, "F" means "Use ‘AC_CHECK_FUNCS’"; "L" means "only
+	‘AC_DEFINE’ the symbol(s) for lib; revamp lib check";
+	"S" means "use ‘AS_IF’ and/or ‘AS_CASE’".
+	Also, all items are C preprocessor symbols (#define:s).
+	* configure.ac (HAVE_GETOPT, HAVE_GETOPT_LONG): F; L; S.
+	(HAVE_STRCASECMP, HAVE_STRICMP, HAVE_STRNCASECMP, HAVE_STRNICMP): F.
+	(HAVE_DLOPEN): F; L; S;	spell "svld" correctly.
+	(HAVE_HOST_STATISTICS, HAVE_VSPRINTF, HAVE_SNPRINTF)
+	(HAVE__SNPRINTF, SVZ_HAVE_SNPRINTF, HAVE_CONNECT): F.
+	(HAVE_SOCKETPAIR, HAVE_GETHOSTBYADDR): F; L.
+	(SVZ_HAVE_CRYPT): F; L; S.
+	(HAVE_HSTRERROR): F; L.
+
 2011-02-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Use ‘AS_UNSET’.

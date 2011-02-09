@@ -610,23 +610,25 @@ dnl
 dnl Checking for getopt() and getopt_long() functions and headers.
 dnl
 
-have_getopt="no"
-have_getopt_long="no"
-AC_CHECK_FUNC([getopt],[have_getopt="yes"],
-[AC_CHECK_LIB([iberty],[getopt],[have_getopt="yeslib"])])
-if test $have_getopt != "no"; then
-    AC_DEFINE([HAVE_GETOPT],
-	1, [Define if you have the getopt function.])
-fi
+AC_CHECK_FUNCS([getopt],,
+dnl FIXME: Use ‘AC_SEARCH_LIBS’.
+[AC_CHECK_LIB([iberty],[getopt],[
+  AC_DEFINE([HAVE_GETOPT], 1,
+              [Define if you have the getopt function.])
+  getoptlib=iberty])])dnl
 
-AC_CHECK_FUNC([getopt_long],[have_getopt_long="yes"],
-[AC_CHECK_LIB([iberty],[getopt_long],[have_getopt_long="yeslib"])])
+AC_CHECK_FUNCS([getopt_long],,
+dnl FIXME: Use ‘AC_SEARCH_LIBS’.
+[AC_CHECK_LIB([iberty],[getopt_long],[
+  AC_DEFINE([HAVE_GETOPT_LONG], 1,
+              [Define if you have the getopt_long function.])
+  getopt_longlib=iberty])])dnl
 
 dnl
 dnl We might declare getopt_long ourselves if the headers do not.
 dnl
 
-if test $have_getopt_long != "no"; then
+AS_IF([test "$getopt_longlib" || test yes = $ac_cv_func_getopt_long],[
   AC_CACHE_CHECK([whether getopt_long is declared],[svz_cv_decl_getopt_long],
   [AC_EGREP_HEADER([getopt_long],[getopt.h],
     [svz_cv_decl_getopt_long=yes],
@@ -635,21 +637,14 @@ if test $have_getopt_long != "no"; then
     AC_DEFINE([DECLARED_GETOPT_LONG], 1,
       [Define if the getopt_long function is declared in <getopt.h>.])
   fi
-fi
+])
 
-if test $have_getopt_long != "no"; then
-    AC_DEFINE([HAVE_GETOPT_LONG],
-	1, [Define if you have the getopt_long function.])
-fi
-
-if test $have_getopt = "yeslib" -o $have_getopt_long = "yeslib"; then
-    case $host_os in
-    mingw*) LIBS="$LIBS -liberty" ;;
-    *)      SERVEEZ_LIBS="$SERVEEZ_LIBS -liberty" ;;
-    esac
-fi
-AS_UNSET([have_getopt])
-AS_UNSET([have_getopt_long])
+AS_IF([test "$getoptlib" || test "$getopt_longlib"],
+[AS_CASE([$host_os],
+         [mingw*],[LIBS="$LIBS -l$getoptlib"],
+         [SERVEEZ_LIBS="$SERVEEZ_LIBS -l$getoptlib"])])
+AS_UNSET([getoptlib])
+AS_UNSET([getopt_longlib])
 
 dnl
 dnl Check if libtool copes with SunOS/Solaris.  GNU libtool 1.4.2 and less
@@ -685,16 +680,8 @@ dnl
 AC_CHECK_HEADERS([wait.h strings.h])
 AC_HEADER_SYS_WAIT
 
-AC_CHECK_FUNC([strcasecmp],
-[AC_DEFINE([HAVE_STRCASECMP], 1, [Define if you have the strcasecmp function.])],
-[AC_CHECK_FUNC([stricmp],
- [AC_DEFINE([HAVE_STRICMP], 1, [Define if you have the stricmp function.])])])
-
-AC_CHECK_FUNC([strncasecmp],
-[AC_DEFINE([HAVE_STRNCASECMP], 1,
-  [Define if you have the strncasecmp function.])],
-[AC_CHECK_FUNC([strnicmp],
- [AC_DEFINE([HAVE_STRNICMP], 1, [Define if you have the strnicmp function.])])])
+AC_CHECK_FUNCS([strcasecmp],,[AC_CHECK_FUNCS([stricmp])])
+AC_CHECK_FUNCS([strncasecmp],,[AC_CHECK_FUNCS([strnicmp])])
 
 AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
   getegid gettimeofday shl_load NSAddImage])
@@ -762,24 +749,21 @@ dnl
 dnl Checking for shared library loading interface.
 dnl
 
-have_dlopen="no"
-AC_CHECK_FUNC([dlopen],[have_dlopen="yes"],
-[AC_CHECK_LIB([dl],[dlopen],[
-    have_dlopen="yes"
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldl"])],
-[AC_CHECK_LIB([svld],[dlopen],[
-    have_dlopen="yes"
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lsvdl"])])
+AC_CHECK_FUNCS([dlopen],,
+  dnl FIXME: Use ‘AC_SEARCH_LIBS’.
+  [AC_CHECK_LIB([dl],[dlopen],[dlopenlib=dl],
+    [AC_CHECK_LIB([svld],[dlopen],[dlopenlib=svld])])])
 
-if test $have_dlopen = "yes" ; then
-  AC_DEFINE([HAVE_DLOPEN], 1, [Define if you have the dlopen function.])
-else
-  AC_CHECK_LIB([dld],[dld_link],
+AS_IF([test yes = $ac_cv_func_dlopen],[:],
+      [test "$dlopenlib"],
+  [LIBSERVEEZLIBS="$LIBSERVEEZLIBS -l$dlopenlib"
+   AS_UNSET([dlopenlib])
+   AC_DEFINE([HAVE_DLOPEN], 1,
+     [Define if you have the dlopen function.])],
+  [AC_CHECK_LIB([dld],[dld_link],
     [AC_DEFINE([HAVE_DLD_LINK], 1,
                  [Define if you have the dld_link function.])
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])
-fi
-AS_UNSET([have_dlopen])
+    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])])
 
 CODECLIBS=""
 
@@ -897,76 +881,71 @@ fi
 
 dnl Check for the 'host_statistics' interface on MacOS.
 
-AC_CHECK_FUNC([host_statistics],
-[AC_DEFINE([HAVE_HOST_STATISTICS], 1,
-  [Define if MacOS provides the host_statistics interface.])])
+AC_CHECK_FUNCS([host_statistics])
 
 dnl ----------------------------------------------------------------------
 
 dnl
 dnl Check for existence of some useful functions.
 dnl
-AC_CHECK_FUNCS([vsprintf])
-if test $ac_cv_func_vsprintf = no ; then
-  AC_MSG_ERROR([cannot compile without vsprintf])
-  exit
-fi
+AC_CHECK_FUNCS([vsprintf],,
+[AC_MSG_ERROR([cannot compile without vsprintf])])
 
 dnl
 dnl Some Unices (e.g. Dec Unix) do not implement snprintf().
 dnl
-AC_CHECK_FUNC([snprintf],,[AC_CHECK_FUNC([_snprintf])])
-if test x$ac_cv_func_snprintf = xyes -o x$ac_cv_func__snprintf = xyes; then
-  AC_DEFINE([HAVE_SNPRINTF], 1, [Define if you have the snprintf function.])
-  AC_DEFINE([SVZ_HAVE_SNPRINTF], 1, [Define if you have the snprintf function.])
-else
-  AC_MSG_WARN([using function vsnprintf instead])
-fi
+AC_CHECK_FUNCS([snprintf],,
+[AC_CHECK_FUNCS([_snprintf],,
+ [AC_MSG_WARN([using function vsnprintf instead])])])
+dnl FIXME: Use ‘HAVE_SNPRINTF’, ‘HAVE__SNPRINTF’ directly.
+AS_IF([test yes = $ac_cv_func_snprintf || test yes = $ac_cv_func__snprintf],[
+  AS_IF([test yes = $ac_cv_func__snprintf],
+   [AC_DEFINE([HAVE_SNPRINTF], 1,
+     [Define to 1 if you have the `_snprintf' (sic) function.])])
+  AC_DEFINE([SVZ_HAVE_SNPRINTF], 1,
+    [If 1, we have either `snprintf' or `_snprintf'.])
+])
 
-AC_CHECK_FUNC([vsnprintf],,[AC_CHECK_FUNC([_vsnprintf])])
-if test x$ac_cv_func_vsnprintf = xyes -o x$ac_cv_func__vsnprintf = xyes; then
-  AC_DEFINE([HAVE_VSNPRINTF], 1, [Define if you have the vsnprintf function.])
+AC_CHECK_FUNCS([vsnprintf],,
+[AC_CHECK_FUNCS([_vsnprintf],,
+ [AC_MSG_WARN([using unsafe function vsprintf instead])])])
+dnl FIXME: Use ‘HAVE_VSNPRINTF’, ‘HAVE__VSNPRINTF’ directly.
+AS_IF([test yes = $ac_cv_func_vsnprintf || test yes = $ac_cv_func__vsnprintf],[
+  AS_IF([test yes = $ac_cv_func__vsnprintf],
+   [AC_DEFINE([HAVE_VSNPRINTF], 1,
+     [Define to 1 if you have the `_vsnprintf' (sic) function.])])
   AC_DEFINE([SVZ_HAVE_VSNPRINTF], 1,
-    [Define if you have the vsnprintf function.])
-else
-  AC_MSG_WARN([using unsafe function vsprintf instead])
-fi
+    [If 1, we have either `vsnprintf' or `_vsnprintf'.])
+])
 
 dnl
 dnl Check whether extra net libraries are required.
 dnl
-AC_CHECK_FUNC([connect])
-AC_CHECK_FUNC([socketpair])
-if test $ac_cv_func_socketpair = no; then
-  AC_CHECK_LIB([socket],[socketpair],[
-    EXTRALIBS="$EXTRALIBS -lsocket"
-    have_socketpair="lib"])
-else
-  have_socketpair="yes"
-fi
-if test x$have_socketpair != x; then
-  AC_DEFINE([HAVE_SOCKETPAIR], 1, [Define if you have the socketpair function.])
-fi
-AS_UNSET([have_socketpair])
+AC_CHECK_FUNCS([connect])dnl FIXME: Unused -- zonk.
+AC_CHECK_FUNCS([socketpair],,
+[AC_CHECK_LIB([socket],[socketpair],[
+  EXTRALIBS="$EXTRALIBS -lsocket"
+  AC_DEFINE([HAVE_SOCKETPAIR], 1,
+    [Define if you have the socketpair function.])
+])])
 
 dnl
 dnl Check for Solaris nsl and resolv library.
 dnl
-AC_CHECK_FUNC([gethostbyaddr])
-if test $ac_cv_func_gethostbyaddr = no; then
-    AC_CHECK_LIB([nsl],[gethostbyaddr],[EXTRALIBS="$EXTRALIBS -lnsl"])
-fi
-have_inet_aton="no"
-AC_CHECK_FUNC([inet_aton],[have_inet_aton="yes"])
-if test $ac_cv_func_inet_aton = no; then
-    AC_CHECK_LIB([resolv],[inet_aton],[
-	have_inet_aton="yes"
-	EXTRALIBS="$EXTRALIBS -lresolv"])
-fi
-if test $have_inet_aton = "yes"; then
-    AC_DEFINE([HAVE_INET_ATON], 1, [Define if you have the inet_aton function.])
-fi
-AS_UNSET([have_inet_aton])
+AC_CHECK_FUNCS([gethostbyaddr],,
+dnl FIXME: Use ‘AC_SEARCH_LIBS’.
+[AC_CHECK_LIB([nsl],[gethostbyaddr],[
+  EXTRALIBS="$EXTRALIBS -lnsl"
+  AC_DEFINE([HAVE_GETHOSTBYADDR], 1,
+              [Define if you have the gethostbyaddr function.])
+])])
+AC_CHECK_FUNCS([inet_aton],,
+dnl FIXME: Use ‘AC_SEARCH_LIBS’.
+[AC_CHECK_LIB([resolv],[inet_aton],[
+  EXTRALIBS="$EXTRALIBS -lresolv"
+  AC_DEFINE([HAVE_INET_ATON], 1,
+              [Define if you have the inet_aton function.])
+])])
 
 dnl
 dnl Check for broken inet_ntoa ()
@@ -1066,22 +1045,20 @@ dnl Checking for crypt() function.
 dnl
 
 MKPASSWORD=""
-if test $enable_crypt = yes ; then
-    have_crypt=no
-    AC_CHECK_FUNC([crypt],[have_crypt=yes],
-      [AC_CHECK_LIB([descrypt],[crypt],[
-	    have_crypt=yes
-	    EXTRALIBS="$EXTRALIBS -ldescrypt"],
-	    [AC_CHECK_LIB([crypt],[crypt],[
-		have_crypt=yes
-		EXTRALIBS="$EXTRALIBS -lcrypt"])])])
+AS_IF([test yes = $enable_crypt],[
+  AC_CHECK_FUNCS([crypt],,
+    dnl FIXME: Use ‘AC_SEARCH_LIBS’.
+    [AC_CHECK_LIB([descrypt],[crypt],[cryptlib=descrypt],
+      [AC_CHECK_LIB([crypt],[crypt],[cryptlib=crypt])])])
 
-    if test $have_crypt = yes ; then
-	AC_DEFINE([SVZ_HAVE_CRYPT], 1, [Define if you have the crypt function.])
-	MKPASSWORD="mkpassword"
-    fi
-    AS_UNSET([have_crypt])
-fi
+  test "$cryptlib" && EXTRALIBS="$EXTRALIBS -l$cryptlib"
+  AS_IF([test "$cryptlib" || test yes = $ac_cv_func_crypt],[
+    AC_DEFINE([SVZ_HAVE_CRYPT], 1,
+                [Define if you have the crypt function.])
+    MKPASSWORD="mkpassword"
+  ])
+  AS_UNSET([cryptlib])
+])
 AC_SUBST([MKPASSWORD])
 
 dnl
@@ -1101,11 +1078,11 @@ if test $svz_cv_decl_strsignal = yes ; then
     [Define if the strsignal function is declared in <string.h>.])
 fi
 
-AC_CHECK_FUNC([hstrerror],[have_hstrerror=yes],
-[AC_CHECK_LIB([resolv],[hstrerror],[have_hstrerror=yes],[have_hstrerror=no])])
-if test $have_hstrerror = yes ; then
-  AC_DEFINE([HAVE_HSTRERROR], 1, [Define if you have the hstrerror function.])
-fi
+AC_CHECK_FUNCS([hstrerror],,
+[AC_CHECK_LIB([resolv],[hstrerror],
+ [AC_DEFINE([HAVE_HSTRERROR], 1,
+   [Define if you have the hstrerror function.])])])
+
 AC_CACHE_CHECK([whether hstrerror is declared],[svz_cv_decl_hstrerror],
 [AC_EGREP_HEADER([hstrerror],[netdb.h],
   [svz_cv_decl_hstrerror=yes],
