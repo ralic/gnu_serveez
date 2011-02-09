@@ -1,5 +1,11 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Decruft: Don't bother checking for func ‘connect’.
+
+	* configure.ac (connect): Delete unused ‘AC_CHECK_FUNCS’.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Remove configure option ‘--with-guile-source’.
 
 	* m4/inc.m4 (SVZ_GUILE_SOURCE): Delete macro.

@@ -905,7 +905,6 @@ AS_IF([SVZ_Y([ac_cv_func_vsnprintf]) || SVZ_Y([ac_cv_func__vsnprintf])],[
 dnl
 dnl Check whether extra net libraries are required.
 dnl
-AC_CHECK_FUNCS([connect])dnl FIXME: Unused -- zonk.
 AC_CHECK_FUNCS([socketpair],,
 [AC_CHECK_LIB([socket],[socketpair],[
   EXTRALIBS="$EXTRALIBS -lsocket"
