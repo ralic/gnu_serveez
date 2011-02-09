@@ -29,8 +29,8 @@
 #include <string.h>
 #include <time.h>
 #include <errno.h>
-#if GUILE_SOURCE
-# include <libguile/gh.h>
+#if !defined HAVE_GUILE_GH_H
+# include <libguile.h>
 #else
 # include <guile/gh.h>
 #endif

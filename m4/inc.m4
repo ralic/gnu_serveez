@@ -151,6 +151,7 @@ AC_DEFUN([SVZ_GUILE], [
       esac
       GUILE_CFLAGS="`eval guile-config compile`"
       GUILE_LDFLAGS="`eval guile-config link`"
+      GUILEDIR=`guile-config info prefix`
     else
       AC_MSG_RESULT([missing])
       GUILE_CFLAGS=""
@@ -158,6 +159,9 @@ AC_DEFUN([SVZ_GUILE], [
     fi
     AS_UNSET([guile])
   ])
+  AS_IF([test -f "$GUILEDIR/include/guile/gh.h"],
+   [AC_DEFINE([HAVE_GUILE_GH_H], 1,
+     [Define to 1 if your Guile installation includes <guile/gh.h>.])])
   AS_UNSET([GUILEDIR])
   AC_SUBST([GUILE_CFLAGS])
   AC_SUBST([GUILE_LDFLAGS])

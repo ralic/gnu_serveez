@@ -37,8 +37,8 @@
 # include <io.h>
 #endif
 
-#if GUILE_SOURCE
-# include <libguile/gh.h>
+#if !defined HAVE_GUILE_GH_H
+# include <libguile.h>
 #else
 # include <guile/gh.h>
 #endif

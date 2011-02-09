@@ -1,5 +1,14 @@
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build guile] If no <guile/gh.h>, #include <libguile.h>.
+
+	* m4/inc.m4 (SVZ_GUILE): Make sure ‘GUILEDIR’ is
+	defined for all non-missing code paths; add check
+	for file $GUILEDIR/include/guile/gh.h and define C
+	preproc symbol ‘HAVE_GUILE_GH_H’ if it exists.
+
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot] Bump Autoconf prereq to 2.64.
 
 	This is for ‘m4_ifnblank’ et al.

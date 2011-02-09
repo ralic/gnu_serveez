@@ -1,3 +1,16 @@
+2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build guile] If no <guile/gh.h>, #include <libguile.h>.
+
+	Here, "U" means "Replace ‘#if GUILE_SOURCE’ with
+	‘#if !defined HAVE_GUILE_GH_H’; in that case, #include
+	<libguile.h>, not <libguile/gh.h>".
+	* guile-api.c: U.
+	* guile-bin.c: U.
+	* guile-server.c: U.
+	* guile.c: U.
+	* serveez.c: U.
+
 2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Generate *.serveez files on "make dist".
