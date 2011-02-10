@@ -22,7 +22,7 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
-EXTRA_DIST = libserveez.dsp libserveez.ap ChangeLog svzpath.h.in \
+EXTRA_DIST = libserveez.dsp libserveez.ap svzpath.h.in \
 	svzpath.h.serveez
 SUBDIRS = coserver codec
 
