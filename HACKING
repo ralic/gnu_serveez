@@ -23,9 +23,11 @@ See the end for copying conditions.
 ******* TODO m4: update AC_*, use AS_*, quote properly, etc
 ******* DONE move AC_OUTPUT (and "print results") last
 ******* DONE use LT_PREREQ, LT_INIT
-******* TODO remove --with-guile-source; move info to README
+******* DONE remove --with-guile-source; move info to manual
+******* TODO prefer more precise check over ‘AC_EGREP_HEADER’
 ***** TODO modernize [[elisp:(find-dired%20"."%20"-name%20Makefile.am")][Makefile.am files]]
 ******* DONE don't use @MAINTAINER_MODE_TRUE@ directly
+******* TODO use $(FOO) instead of @FOO@
 ******* DONE don't clobber Automake internal vars
 ******* DONE collect common bits into build-aux/common.mk
 ********* DONE AM_CPPFLAGS (was ‘INCLUDES’)
@@ -60,6 +62,7 @@ See the end for copying conditions.
 ***** TODO scm_unprotect_object
 
 * other stuff to do
+*** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
 *** admin
 ***** Offload [[file:BUGS][BUGS]] to savannah (can we preserve history?).
 ***** Use ranges for copyright notices.
