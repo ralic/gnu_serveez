@@ -42,7 +42,7 @@ init.serveez: init.serveez.in
 	test -d $$instdir || instdir="/etc/init.d" ; \
 	echo "Generating init.serveez..." ; \
 	$(SED) < $(srcdir)/init.serveez.in \
-	  -e 's,@BINDIR@,@bindir@,g' \
+	  -e 's,@BINDIR@,$(bindir),g' \
 	  -e 's,@INSTDIR@,'$$instdir',g' \
 	  > $(srcdir)/init.serveez
 	@chmod +x $(srcdir)/init.serveez

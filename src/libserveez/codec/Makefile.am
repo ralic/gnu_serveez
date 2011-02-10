@@ -26,7 +26,7 @@ noinst_LTLIBRARIES = libcodec.la
 
 AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
-libcodec_la_LDFLAGS = @NOUNDEFINED@
+libcodec_la_LDFLAGS = $(NOUNDEFINED)
 libcodec_la_SOURCES = codec.c gzlib.c bzip2.c
 libcodec_la_LIBADD = $(CODECLIBS)
 

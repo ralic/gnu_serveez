@@ -30,7 +30,7 @@ SUBDIRS = coserver codec
 
 lib_LTLIBRARIES = libserveez.la
 
-libserveez_la_LDFLAGS = -export-dynamic @NOUNDEFINED@ -release @VERSION@
+libserveez_la_LDFLAGS = -export-dynamic $(NOUNDEFINED) -release $(VERSION)
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la codec/libcodec.la
 libserveez_la_LIBADD = coserver/libcoserver.la codec/libcodec.la \
   $(LIBSERVEEZLIBS)
@@ -59,9 +59,9 @@ $(srcdir)/dynload.c: svzpath.h
 svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
 	@echo "Generating svzpath.h..."
 	@$(SED) < $(srcdir)/svzpath.h.in \
-	  -e 's,@BINDIR@,@bindir@,g' \
-	  -e 's,@PKGDATADIR@,@datadir@/serveez,g' \
-	  -e 's,@LIBDIR@,@libdir@,g' \
+	  -e 's,@BINDIR@,$(bindir),g' \
+	  -e 's,@PKGDATADIR@,$(datadir)/serveez,g' \
+	  -e 's,@LIBDIR@,$(libdir),g' \
 	  > svzpath.h
 
 noinst_HEADERS = ipdata.h iphlpapi.h
