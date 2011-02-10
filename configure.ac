@@ -87,6 +87,7 @@ dnl
 dnl Locate required external software.
 dnl
 AC_PROG_INSTALL
+AC_PROG_SED
 AC_PROG_AWK
 AC_CHECK_PROG([AR],[ar],[ar],[:])
 AC_CHECK_PROG([WINDRES],[windres],[windres],[:])

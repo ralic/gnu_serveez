@@ -1,5 +1,11 @@
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] Let configure define ‘SED’ in makefiles.
+
+	* Makefile.am (SED): Delete var.
+
+2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Use $(FOO) in Makefile.am files, not @FOO@.
 
 	* Makefile.am (libserveez_la_LDFLAGS): Use $(NOUNDEFINED).

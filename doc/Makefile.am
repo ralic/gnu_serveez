@@ -51,7 +51,6 @@ GUILE_TXT_FILE = serveez-procedures.txt
 SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
 HTML_DIR = manual
 SITE_DIR = $(top_srcdir)/../serveez-site
-SED = sed
 MKDIR = mkdir -p
 CP = cp
 RM = rm

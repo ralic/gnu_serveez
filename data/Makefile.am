@@ -22,7 +22,6 @@ include $(top_srcdir)/build-aux/common.mk
 
 EXTRA_DIST = mime.types irc-MOTD.txt serveez.cfg \
 	serveez1.ico serveez2.ico init.serveez.in PLATFORMS
-SED = sed
 
 install-init: init.serveez
 	@instdir="/sbin/init.d" ; \
