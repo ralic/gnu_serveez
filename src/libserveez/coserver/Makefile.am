@@ -22,10 +22,9 @@
 #
 
 include $(top_srcdir)/build-aux/common.mk
+include $(srcdir)/../common.mk
 
 noinst_LTLIBRARIES = libcoserver.la
-
-AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
 
 libcoserver_la_LDFLAGS = $(NOUNDEFINED)
 libcoserver_la_SOURCES = coserver.c dns.c ident.c reverse-dns.c

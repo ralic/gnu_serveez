@@ -1,5 +1,16 @@
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Clean up Makefile.am files; segregate woe32.
+
+	* Makefile.am (EXTRA_DIST): Remove THANKS; move
+	README-Win32, serveez.dsw, config.h.serveez,
+	version.h.serveez, build-aux/vcgen.bat,
+	build-aux/autodsp to a separate ‘EXTRA_DIST +=’.
+	(MAINTAINERCLEANFILES): Move serveez.dsw
+	to a separate ‘MAINTAINERCLEANFILES +=’.
+
+2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Let configure define ‘SED’ in makefiles.
 
 	* configure.ac (AC_PROG_SED): New macro call.

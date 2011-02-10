@@ -1,3 +1,17 @@
+2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Clean up Makefile.am files; segregate woe32.
+
+	* Makefile.am (EXTRA_DIST): Remove svzconfig.h.in,
+	serveez-config.in; move serveez.rc, serveez.dsp,
+	svzconfig.h.serveez, serveez.ap, mkpassword.ap, mkpassword.dsp
+	to a separate ‘EXTRA_DIST +=’; replace serveez.m4 and serveez.scm
+	with $(aclocal_DATA) and $(pkgdata_DATA), respectively.
+	(serveez_DEPENDENCIES): Move $(resource_OBJECTS)
+	to a separate ‘serveez_DEPENDENCIES +=’.
+	(CLEANFILES): Move *.ro to a separate ‘CLEANFILES +=’.
+	(stems, woeap, woedsp): New vars.
+
 2011-02-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Remove configure option ‘--with-guile-source’.

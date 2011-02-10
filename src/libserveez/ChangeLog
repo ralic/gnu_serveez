@@ -1,5 +1,20 @@
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Clean up Makefile.am files; segregate woe32.
+
+	* common.mk: New file.
+	* Makefile.am: Include common.mk.
+	(EXTRA_DIST): Move libserveez.dsp, libserveez.ap,
+	svzpath.h.serveez into a separate ‘EXTRA_DIST +=’.
+	(libserveez_la_LIBADD): Use $(libserveez_la_DEPENDENCIES).
+	(AM_CPPFLAGS): Delete var.
+	* codec/Makefile.am: Include common.mk.
+	(AM_CPPFLAGS): Delete var.
+	* coserver/Makefile.am: Include common.mk.
+	(AM_CPPFLAGS): Delete var.
+
+2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[built int] Decruft: Remove ChangeLog from var ‘EXTRA_DIST’.
 
 	* Makefile.am (EXTRA_DIST): Remove ChangeLog.

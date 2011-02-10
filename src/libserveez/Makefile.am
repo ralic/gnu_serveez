@@ -21,9 +21,10 @@
 #
 
 include $(top_srcdir)/build-aux/common.mk
+include $(srcdir)/common.mk
 
-EXTRA_DIST = libserveez.dsp libserveez.ap svzpath.h.in \
-	svzpath.h.serveez
+EXTRA_DIST = svzpath.h.in
+
 SUBDIRS = coserver codec
 
 # the serveez core library rules
@@ -32,7 +33,7 @@ lib_LTLIBRARIES = libserveez.la
 
 libserveez_la_LDFLAGS = -export-dynamic $(NOUNDEFINED) -release $(VERSION)
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la codec/libcodec.la
-libserveez_la_LIBADD = coserver/libcoserver.la codec/libcodec.la \
+libserveez_la_LIBADD = $(libserveez_la_DEPENDENCIES) \
   $(LIBSERVEEZLIBS)
 
 libserveez_la_SOURCES = alloc.c util.c snprintf.c hash.c sparsevec.c      \
@@ -64,9 +65,11 @@ svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 
-AM_CPPFLAGS += -D__BUILD_SVZ_LIBRARY__
-
 CLEANFILES += svzpath.h
+
+# woe
+
+EXTRA_DIST += libserveez.dsp libserveez.ap svzpath.h.serveez
 
 MAINTAINERCLEANFILES += libserveez.dsp
 

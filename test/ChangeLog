@@ -1,3 +1,15 @@
+2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Clean up Makefile.am files; segregate woe32.
+
+	* Makefile.am (EXTRA_DIST): Move hash.dsp, vector.dsp,
+	array.dsp, spvec.dsp, codec.dsp, prog.dsp, hash.ap, vector.ap,
+	array.ap, spvec.ap, codec.ap, prog.ap to a separate ‘EXTRA_DIST +=’.
+	(hash_test_LDADD, spvec_test_LDADD, array_test_LDADD)
+	(vector_test_LDADD, codec_test_LDADD): Delete vars.
+	(LDADD, stems, woeap, woedsp): New vars.
+	(MAINTAINERCLEANFILES): Use $(woedsp).
+
 2011-02-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Centralize Makefile.am var ‘MAINTAINERCLEANFILES’.

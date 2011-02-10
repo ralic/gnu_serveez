@@ -24,10 +24,6 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
-EXTRA_DIST = serveez.rc serveez.dsp svzconfig.h.in svzconfig.h.serveez \
-	serveez.m4 serveez.scm serveez-config.in serveez.ap mkpassword.ap \
-	mkpassword.dsp
-
 #
 # Installation of the autoconf macro used to locate Serveez
 #
@@ -37,6 +33,9 @@ aclocal_DATA = serveez.m4
 # Yet another script
 bin_SCRIPTS = serveez-config
 pkgdata_DATA = serveez.scm
+
+# Perplexingly, Automake does not automatically distribute these.
+EXTRA_DIST = $(aclocal_DATA) $(pkgdata_DATA)
 
 #
 # Add your server subdirectory here
@@ -62,9 +61,7 @@ serveez_SOURCES = \
 
 EXTRA_serveez_SOURCES = guile-api.c guile-api.h
 
-resource_OBJECTS = $(resource_FILES:.rc=.ro)
-
-serveez_DEPENDENCIES = $(resource_OBJECTS) $(PROTOLIBS) \
+serveez_DEPENDENCIES = $(PROTOLIBS) \
 	libserveez/libserveez.la serveez.cfg
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
@@ -75,14 +72,22 @@ AM_CPPFLAGS += $(GUILE_CFLAGS)
 
 mkpassword_SOURCES = mkpassword.c
 
-CLEANFILES += *.ro serveez.cfg
-MAINTAINERCLEANFILES += serveez.dsp mkpassword.dsp
+CLEANFILES += serveez.cfg
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h
 
 serveez.cfg: $(top_srcdir)/data/serveez.cfg
 	cp -p $(top_srcdir)/data/serveez.cfg $@
+
+# woe
+
+EXTRA_DIST += svzconfig.h.serveez
+
+resource_OBJECTS = $(resource_FILES:.rc=.ro)
+serveez_DEPENDENCIES += $(resource_OBJECTS)
+# We don't do this to avoid disturbing the linker command-line order (above).
+# serveez_LDADD += $(resource_OBJECTS)
 
 SUFFIXES = .rc .ro
 
@@ -91,3 +96,11 @@ SUFFIXES = .rc .ro
 
 svzconfig.h.serveez: svzconfig.h
 	cp $< $@
+
+stems = $(bin_PROGRAMS)
+woeap = $(stems:%=%.ap)
+woedsp = $(stems:%=%.dsp)
+
+EXTRA_DIST += serveez.rc $(woeap) $(woedsp)
+CLEANFILES += *.ro
+MAINTAINERCLEANFILES += $(woedsp)

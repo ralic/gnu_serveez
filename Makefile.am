@@ -27,9 +27,7 @@ include $(top_srcdir)/build-aux/common.mk
 
 SUBDIRS = src data test doc
 
-EXTRA_DIST = BUGS autogen.sh README-alpha THANKS README-Win32 README-cross \
-	serveez.dsw config.h.serveez version.h.serveez \
-	build-aux/vcgen.bat build-aux/autodsp serveez.ap
+EXTRA_DIST = BUGS autogen.sh README-alpha README-cross
 
 if MAINTAINER_MODE
 
@@ -43,8 +41,16 @@ endif
 
 CLEANFILES += *.rpm *.deb *.changes build-stamp
 MAINTAINERCLEANFILES += aclocal.m4 config.h.in configure \
-	stamp-h.in stamp-h[0-9].in serveez.dsw
+	stamp-h.in stamp-h[0-9].in
 DISTCLEANFILES = config.cache config.log
+
+# woe
+
+EXTRA_DIST += README-Win32 serveez.dsw serveez.ap \
+	config.h.serveez version.h.serveez \
+	build-aux/vcgen.bat build-aux/autodsp
+
+MAINTAINERCLEANFILES += serveez.dsw
 
 woe32-project-files:
 	@echo Creating woe32 project files...

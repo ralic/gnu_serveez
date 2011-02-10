@@ -24,8 +24,7 @@ include $(top_srcdir)/build-aux/common.mk
 
 TESTS = vector-test array-test hash-test spvec-test
 
-EXTRA_DIST = hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp \
-	hash.ap vector.ap array.ap spvec.ap codec.ap prog.ap \
+EXTRA_DIST = \
 	prog-test.cfg test-suite.scm binary-test.scm server-test.scm \
 	guile-server-test.scm
 
@@ -33,16 +32,19 @@ noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test \
 	prog-test
 
 hash_test_SOURCES = hash-test.c test.c test.h
-hash_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 spvec_test_SOURCES = spvec-test.c test.c test.h
-spvec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 array_test_SOURCES = array-test.c test.c test.h
-array_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 vector_test_SOURCES = vector-test.c test.c test.h
-vector_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 codec_test_SOURCES = codec-test.c
-codec_test_LDADD = -L$(top_builddir)/src/libserveez -lserveez
 prog_test_SOURCES = prog-test.c
 
-MAINTAINERCLEANFILES += \
-	hash.dsp vector.dsp array.dsp spvec.dsp codec.dsp prog.dsp
+LDADD = -L../src/libserveez -lserveez
+
+# woe
+
+stems = $(noinst_PROGRAMS:%-test=%)
+woeap = $(stems:%=%.ap)
+woedsp = $(stems:%=%.dsp)
+
+MAINTAINERCLEANFILES += $(woedsp)
+EXTRA_DIST += $(woedsp) $(woeap)
