@@ -1,3 +1,12 @@
+2011-02-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Don't link to TODO file.
+
+	Omission from 2011-01-30, "Delete obsoleted files RELEASE, TODO".
+
+	* Makefile.am (MANUAL_FILES): Remove $(top_srcdir)/TODO.
+	* index.html: Remove link to TODO file.
+
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build int] Let configure define ‘SED’ in makefiles.

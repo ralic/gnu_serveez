@@ -56,7 +56,7 @@ CP = cp
 RM = rm
 SITE_FILES = serveez.en.html index.html *.jpg
 MANUAL_FILES = \
-  $(top_srcdir)/README $(top_srcdir)/README-Win32 $(top_srcdir)/TODO \
+  $(top_srcdir)/README $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 LOCAL_TARGETS = $(GUILE_TXT_FILE) \
   $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
