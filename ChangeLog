@@ -1,5 +1,13 @@
 2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Use ‘AC_C_BIGENDIAN’.
+
+	* configure.ac (svz_cv_sys_bigendian): Delete var.
+	(WORDS_BIGENDIAN): Delete conditional AC_DEFINE.
+	(AC_C_BIGENDIAN): New macro call.
+
+2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Make thread-safety configurable with "enable", not "with".
 
 	* configure.ac: Use ‘SVZ_FLAG’ for ‘thread-safety’.

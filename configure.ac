@@ -58,24 +58,7 @@ AC_DEFINE_UNQUOTED([svz_c_const],[$const_defined],
   [Define to empty if the keyword does not work.])
 AS_UNSET([const_defined])
 
-AC_CACHE_CHECK([whether byte ordering is bigendian],[svz_cv_sys_bigendian],
-[AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
-  #include <string.h>
-  main () {
-    unsigned char c_big[] = {0x12, 0x34};
-    unsigned short s_big = 0x1234;
-    if (!memcmp (c_big, &s_big, sizeof (char) * 2))
-      exit (0);
-    exit (1);}]])],
-  [svz_cv_sys_bigendian=yes],
-  [svz_cv_sys_bigendian=no],
-  [svz_cv_sys_bigendian=no])])
-
-AS_IF([SVZ_Y([svz_cv_sys_bigendian])],
-[AC_DEFINE([WORDS_BIGENDIAN], 1,
-  [Define if your processor stores words with the most significant
-   byte first (like Motorola and SPARC, unlike Intel and VAX).])])
-
+AC_C_BIGENDIAN
 
 AC_CHECK_SIZEOF([long], 4)
 AC_CHECK_SIZEOF([void *], 4)
