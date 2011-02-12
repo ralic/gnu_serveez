@@ -25,20 +25,19 @@ See the end for copying conditions.
 ******* DONE use LT_PREREQ, LT_INIT
 ******* DONE remove --with-guile-source; move info to manual
 ******* TODO prefer more precise check over ‘AC_EGREP_HEADER’
-***** TODO modernize [[elisp:(find-dired%20"."%20"-name%20Makefile.am")][Makefile.am files]]
+***** DONE modernize [[elisp:(find-dired%20"."%20"-name%20Makefile.am")][Makefile.am files]]
 ******* DONE don't use @MAINTAINER_MODE_TRUE@ directly
-******* TODO use $(FOO) instead of @FOO@
+******* DONE use $(FOO) instead of @FOO@
 ******* DONE don't clobber Automake internal vars
 ******* DONE collect common bits into build-aux/common.mk
 ********* DONE AM_CPPFLAGS (was ‘INCLUDES’)
 ********* DONE CLEANFILES
 ********* DONE MAINTAINERCLEANFILES
-******* TODO segregate woe32
-***** TODO prune by-now standardized bits from [[file:doc/Makefile.am][doc/Makefile.am]]
+******* DONE segregate woe32
+***** DONE prune by-now standardized bits from [[file:doc/Makefile.am][doc/Makefile.am]]
 ***** DONE move *.serveez file creation (woe32) to "make dist"
 *** DONE Assume signal handlers return ‘void’.
 *** TODO Update Guile support.
-***** DONE ‘scm_cur_inp’ deprecated => use ‘scm_current_input_port’
 ***** TODO SCM_INUM
 ***** TODO SCM_INUMP
 ***** TODO SCM_MAKINUM
@@ -46,6 +45,7 @@ See the end for copying conditions.
 ***** TODO SCM_WRITABLE_VELTS
 ***** TODO scm_c_string2str
 ***** TODO scm_c_symbol2str
+***** DONE scm_cur_inp (v) => scm_current_input_port (f)
 ***** TODO scm_int2num
 ***** TODO scm_listify
 ***** TODO scm_long2num
