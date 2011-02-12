@@ -1,21 +1,6 @@
---
--- README-cross
---
--- Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
---
--- This is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 3, or (at your option)
--- any later version.
---
--- This software is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with this package.  If not, see <http://www.gnu.org/licenses/>.
---
+README-cross for GNU Serveez
+
+See end for copying conditions.
 
 
 Introduction
@@ -81,3 +66,11 @@ will get a complete installation tree meant to run from this directory.
 Thus the `serveez-config' script might deliver wrong results when you
 transfer the installation tree from your build system to the host system
 to a different location.
+
+
+
+Copyright (C) 2011 Thien-Thi Nguyen
+Copyright (C) 2002, 2003 Stefan Jahn <stefan@lkcc.org>
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.

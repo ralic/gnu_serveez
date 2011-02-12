@@ -1,25 +1,6 @@
---
--- README-alpha
---
--- Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
--- Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
--- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
---
--- This is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 3, or (at your option)
--- any later version.
---
--- This software is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with this package.  If not, see <http://www.gnu.org/licenses/>.
---
-
 This is the README file for alpha versions.
+
+See end for copying conditions.
 
 Note that this is a distribution of an alpha version.  That means,
 that you have to be aware that the programs in this distribution may
@@ -35,3 +16,13 @@ Please note that due to changing APIs we may rely on a specific Guile
 version.  Check the README to find out which version we want.
 
 Happy hacking!
+
+
+
+Copyright (C) 2011 Thien-Thi Nguyen
+Copyright (C) 2000, 2001 Stefan Jahn <stefan@lkcc.org>
+Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
+Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.

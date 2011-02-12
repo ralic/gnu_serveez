@@ -1,23 +1,6 @@
---
--- NEWS
---
--- Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
--- Copyright (C) 2000, 2002 Raimund Jacob <raimi@lkcc.org>
--- Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
---
--- This is free software; you can redistribute it and/or modify
--- it under the terms of the GNU General Public License as published by
--- the Free Software Foundation; either version 3, or (at your option)
--- any later version.
---
--- This software is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU General Public License for more details.
---
--- You should have received a copy of the GNU General Public License
--- along with this package.  If not, see <http://www.gnu.org/licenses/>.
---
+NEWS for GNU Serveez
+
+See end for copying conditions.
 
 This file lists user visible changes that were made between releases.  For
 more verbose descriptions of these and internal changes see the ChangeLog
@@ -181,3 +164,13 @@ Version 0.0.14
  * HTTP file cache
  * HTTP/0.9 simple GET implemented
  * Keep-Alive connections in HTTP
+
+
+
+Copyright (C) 2011 Thien-Thi Nguyen
+Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
+Copyright (C) 2000, 2002 Raimund Jacob <raimi@lkcc.org>
+Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.
