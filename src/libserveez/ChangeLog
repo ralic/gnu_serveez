@@ -1121,3 +1121,11 @@
 	especially useful if you want to use memory from a shared
 	memory arena. The function pointers are `svz_malloc_func',
 	`svz_free_func'	and `svz_realloc_func'.
+
+
+Copyright (C) 2011 Thien-Thi Nguyen
+Copyright (C) 2001, 2002, 2003, 2004 Stefan Jahn
+Copyright (C) 2001, 2002 Raimund Jacob
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.

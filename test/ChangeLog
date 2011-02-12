@@ -174,3 +174,10 @@
 	* hash-test.c: Hash function test suite.
 
 	* alist-test.c: Array list function test suite.
+
+
+Copyright (C) 2011 Thien-Thi Nguyen
+Copyright (C) 2000, 2001, 2002, 2003 Stefan Jahn
+
+Copying and distribution of this file, with or without modification,
+are permitted provided the copyright notice and this notice are preserved.
