@@ -306,7 +306,7 @@ to be ephemeral, undergoing rebase, amendment, and ultimately removal.
     - Run [[shell:make%20distcheck][make distcheck]].
     - Tag HEAD in the repository (format "X.Y.Z", title "%F %T" UTC).
     - Run [[shell:make%20dist][make dist]].
-    - Run [[shell:make%20-C%20doc%20site][make -C doc site]] and check this status into the savannah web repo.
+    - Run [[shell:make%20-C%20doc%20stage][make -C doc stage]] and check the [[elisp:(dired%20"doc/stage")][result]] into the savannah web repo.
     - Create a binary package for M$-Windows.
 
 *** Bump up version.

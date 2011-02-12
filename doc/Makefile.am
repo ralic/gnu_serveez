@@ -23,106 +23,135 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
-AUTOMAKE_OPTIONS = no-texinfo.tex
 info_TEXINFOS = serveez.texi serveez-api.texi
 serveez_TEXINFOS = guile-api.texi
 man_MANS = serveez.1 serveez-config.1
-EXTRA_DIST = $(man_MANS) index.html serveez.en.html guile-api.texi.in \
-	logo.jpg logosmall.jpg mandel.jpg serveez-api.texi.in \
+EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
+	logo.jpg logosmall.jpg mandel.jpg \
 	serveez-doc-snarf.awk
-CLEANFILES += *.info *.tgz *.info-[0-9] stamp-vti* serveez-api.texi \
-	$(SED_FILE) guile-api.texi $(GUILE_SED_FILE) $(HTML_DIR)/*.html \
-	$(GUILE_TXT_FILE)
-DISTCLEANFILES = stamp-* version*.texi
-DOC_DIRS = $(top_srcdir)/src/libserveez \
-  $(top_srcdir)/src/libserveez/coserver $(top_srcdir)/src/libserveez/codec
-DOC_FILES = icmp-socket.c raw-socket.c udp-socket.c pipe-socket.c	     \
-  tcp-socket.c alloc.c sparsevec.c hash.c util.c vector.c socket.c	     \
-  server-core.c server-loop.c server-socket.c boot.c interface.c interface.h \
-  dynload.c windoze.c snprintf.c server.c core.c array.c hash.h binding.c    \
-  portcfg.c array.h coserver.c coserver.h vector.h portcfg.h server-core.h   \
-  socket.h alloc.h server.h util.h codec.c passthrough.c passthrough.h cfg.c \
-  cfg.h asprintf.c mutex.c mutex.h
-SED_FILE = serveez-api.sed
-GUILE_DOC_DIRS = $(top_srcdir)/src
-GUILE_DOC_FILES = guile.c guile-server.c guile-bin.c guile-api.c
-GUILE_SED_FILE = guile-api.sed
+CLEANFILES += stamp-vti*
+DISTCLEANFILES = stamp-*
+
+libserveez_scanroot = .scan/libserveez
+libserveez_root = $(top_srcdir)/src/libserveez
+libserveez_impl = \
+  alloc.c alloc.h \
+  array.c array.h \
+  asprintf.c \
+  binding.c \
+  boot.c \
+  cfg.c cfg.h \
+  core.c \
+  dynload.c \
+  hash.c hash.h \
+  icmp-socket.c \
+  interface.c interface.h \
+  mutex.c mutex.h \
+  passthrough.c passthrough.h \
+  pipe-socket.c \
+  portcfg.c portcfg.h \
+  raw-socket.c \
+  server-core.c server-core.h \
+  server-loop.c \
+  server-socket.c \
+  server.c server.h \
+  snprintf.c \
+  socket.c socket.h \
+  sparsevec.c \
+  tcp-socket.c \
+  udp-socket.c \
+  util.c util.h \
+  vector.c vector.h \
+  windoze.c \
+  codec/codec.c \
+  coserver/coserver.c coserver/coserver.h
+
+guile_scanroot = .scan/guile
+guile_root = $(top_srcdir)/src
+guile_impl = \
+  guile-api.c \
+  guile-bin.c \
+  guile-server.c \
+  guile.c
+
 GUILE_TXT_FILE = serveez-procedures.txt
 SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
-HTML_DIR = manual
-SITE_DIR = $(top_srcdir)/../serveez-site
-MKDIR = mkdir -p
-CP = cp
-RM = rm
-SITE_FILES = serveez.en.html index.html *.jpg
 MANUAL_FILES = \
   $(top_srcdir)/README $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
-LOCAL_TARGETS = $(GUILE_TXT_FILE) \
-  $(HTML_DIR)/serveez.html $(HTML_DIR)/serveez-api.html
 pkgdata_DATA = $(GUILE_TXT_FILE)
 
- # local dependencies
+genstems = serveez-api guile-api
+gen = $(genstems:%=%.sed) $(genstems:%=%.texi)
 
-builddir = $(top_builddir)/doc
+MAINTAINERCLEANFILES += $(gen) $(GUILE_TXT_FILE)
+EXTRA_DIST += $(gen) $(genstems:%=%.texi.in)
 
-distclean-local:
-	$(RM) -rf *\~ *.orig *.rej $(HTML_DIR)/
+maintainer-clean-local:
+	rm -rf .scan
 
-all-local: $(LOCAL_TARGETS)
+clean-local:
+	rm -rf stage
 
-dist-hook:
-	$(RM) -f $(distdir)/*.info $(distdir)/*.info-[0-9] \
-		$(distdir)/stamp-vti* $(distdir)/serveez-api.texi \
-		$(distdir)/guile-api.texi $(distdir)/stamp-*
+# For regenerating both serveez-api.sed and guile-api.sed, we do things
+# incrementally, but with some chance of fubar if careless, for those who
+# ‘configure --enable-maintainer-mode’.  Otherwise, we do things en masse
+# (inefficiently if few *_from files change), but w/ guaranteed safety.
 
-serveez-api.texi: $(srcdir)/serveez-api.texi.in
-	$(RM) -f $(SED_FILE)
-	for dir in $(DOC_DIRS); do \
-	  for file in $(DOC_FILES); do \
-	    if test -r $$dir/$$file; then \
-	      $(SNARFER) $$dir/$$file >> $(SED_FILE); fi \
-	  done \
-	done
-	$(SED) -f $(SED_FILE) < $(srcdir)/serveez-api.texi.in > $@
+serveez-api.texi: serveez-api.sed serveez-api.texi.in
+	$(SED) -f $< $(srcdir)/serveez-api.texi.in > $@
 
-guile-api.texi: $(srcdir)/guile-api.texi.in
-	$(RM) -f $(GUILE_SED_FILE)
-	for dir in $(GUILE_DOC_DIRS); do \
-	  for file in $(GUILE_DOC_FILES); do \
-	    if test -r $$dir/$$file; then \
-	      $(SNARFER) $$dir/$$file >> $(GUILE_SED_FILE); fi \
-	  done \
-	done
-	$(SED) -f $(GUILE_SED_FILE) < $(srcdir)/guile-api.texi.in > $@
+libserveez_from = $(libserveez_impl:%=$(libserveez_root)/%)
 
-$(GUILE_TXT_FILE):
-	$(RM) -f $@
-	for dir in $(GUILE_DOC_DIRS); do \
-	  for file in $(GUILE_DOC_FILES); do \
-	    if test -r $$dir/$$file; then \
-	      $(SNARFER) $$dir/$$file -t >> $@; fi \
-	  done \
-	done
+serveez-api.sed: $(libserveez_from)
+	@if test -d $(libserveez_scanroot);			\
+	then list='$?';						\
+	else list='$(libserveez_from)';				\
+	fi;							\
+	for f in $$list; do					\
+	  frag=$$(echo $$f | sed 's|$(libserveez_root)||');	\
+	  to=$(libserveez_scanroot)$$frag;			\
+	  $(MKDIR_P) $$(dirname $$to);				\
+	  echo updating: $$to;					\
+	  $(SNARFER) $$f > $$to;				\
+	done;							\
+	cat $(libserveez_impl:%=$(libserveez_scanroot)/%) > $@
 
-site: all-local info
-	test ! -d $(SITE_DIR) || $(RM) -rf $(SITE_DIR)
-	@$(MKDIR) $(SITE_DIR)
-	$(CP) -p serveez.en.html logo.jpg $(SITE_DIR)
-	$(CP) -rp $(HTML_DIR) $(SITE_DIR)
-	$(CP) -p index.html logosmall.jpg mandel.jpg $(SITE_DIR)/$(HTML_DIR)
-	$(CP) -p $(MANUAL_FILES) $(SITE_DIR)/$(HTML_DIR)
+guile-api.texi: guile-api.sed guile-api.texi.in
+	$(SED) -f $< $(srcdir)/guile-api.texi.in > $@
 
-$(HTML_DIR)/serveez.html: serveez.texi guile-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -I $(builddir) -split_chapter $(srcdir)/serveez.texi
+guile_from = $(guile_impl:%=$(guile_root)/%)
 
-$(HTML_DIR)/serveez-api.html: serveez-api.texi
-	$(TEXI2HTML) -subdir $(HTML_DIR) -I $(srcdir) -I $(builddir) -split_chapter $(builddir)/serveez-api.texi
+guile-api.sed: $(guile_from)
+	@if test -d $(guile_scanroot);			\
+	then list='$?';					\
+	else list='$(guile_from)';			\
+	fi;						\
+	for f in $$list; do				\
+	  frag=$$(echo $$f | sed 's|$(guile_root)||');	\
+	  to=$(guile_scanroot)$$frag;			\
+	  $(MKDIR_P) $$(dirname $$to);			\
+	  echo updating: $$to;				\
+	  $(SNARFER) $$f > $$to;			\
+	done;						\
+	cat $(guile_impl:%=$(guile_scanroot)/%) > $@
 
-.texi.info:
-	$(MAKEINFO) -o $(builddir)/$@ -I $(srcdir) -I $(builddir) --no-split $<
+# FIXME: We should be able to do ‘$(SNARFER) -t $^ > $@’ directly.
+# We can't because serveez-doc-snarf.awk option parsing can't.
+$(GUILE_TXT_FILE): $(guile_from)
+	rm -f $@; for f in $(guile_from);	\
+	  do $(SNARFER) $$f -t >> $@; done
 
-.texi.dvi:
-	$(TEXI2DVI) -I $(srcdir) -I $(builddir) $<
+genhtml = serveez.html serveez-api.html
 
-SUFFIXES = .html .info .dvi
+sednow = $(SED) "s/LAST-MODIFIED/$$(date -u +'%Y-%m-%d %T UTC')/"
+
+stage: $(genhtml)
+	rm -rf $@
+	m=$@/manual; $(MKDIR_P) $$m;				\
+	for d in $(genhtml);					\
+	do cp -rp $$d $$m/$$(basename $$d .html); done;		\
+	cp -p logosmall.jpg mandel.jpg $(MANUAL_FILES) $$m;	\
+	$(sednow) index.html > $$m/index.html;			\
+	cp -p logo.jpg $@;					\
+	$(sednow) serveez.en.html > $@/serveez.en.html

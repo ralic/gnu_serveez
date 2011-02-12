@@ -1,3 +1,11 @@
+2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Overhaul methods; replace "make site" with "make stage".
+
+	* configure.ac (TEXI2HTML): Delete AC_SUBST
+	and the checks on texi2html that support it.
+	* HACKING, .gitignore: Update; nfc.
+
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Clean up Makefile.am files; segregate woe32.

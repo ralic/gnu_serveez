@@ -1,3 +1,43 @@
+2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Overhaul methods; replace "make site" with "make stage".
+
+	* Makefile.am (AUTOMAKE_OPTIONS): Delete var.
+	(EXTRA_DIST): Move guile-api.texi.in, serveez-api.texi.in
+	to separate ‘EXTRA_DIST +=’.
+	(CLEANFILES): Remove *.info, *.tgz, *.info-[0-9], serveez-api.texi,
+	$(SED_FILE), guile-api.texi $(GUILE_SED_FILE), $(HTML_DIR)/*.html,
+	$(GUILE_TXT_FILE).
+	(DISTCLEANFILES): Remove version*.texi.
+	(DOC_DIRS, DOC_FILES, SED_FILE, GUILE_DOC_DIRS, GUILE_DOC_FILES)
+	(GUILE_SED_FILE): Delete vars.
+	(libserveez_scanroot, libserveez_root, libserveez_impl)
+	(guile_scanroot, guile_root, guile_impl): New vars.
+	(HTML_DIR, SITE_DIR, MKDIR, CP, RM)
+	(SITE_FILES, LOCAL_TARGETS, builddir): Delete vars.
+	(distclean-local, all-local, dist-hook): Delete targets.
+	(genstems, gen): New vars.
+	(MAINTAINERCLEANFILES): Add via ‘+=’ $(gen), $(GUILE_TXT_FILE).
+	(EXTRA_DIST): Add $(gen), which now includes sed scripts.
+	(maintainer-clean-local, clean-local): New targets.
+	(serveez-api.texi): Rewrite target.
+	(libserveez_from): New var.
+	(serveez-api.sed): New target.
+	(guile-api.texi): Rewrite target.
+	(guile_from): New var.
+	(guile-api.sed): New target.
+	($(GUILE_TXT_FILE)): Rewrite target.
+	(site, $(HTML_DIR)/serveez.html)
+	($(HTML_DIR)/serveez-api.html): Delete targets.
+	(.texi.info, .texi.dvi): Delete old-style suffix rules.
+	(SUFFIXES): Delete var.
+	(genhtml, sednow): New vars.
+	(stage): New target.
+	* index.html: Update hrefs of User and Embedding manuals;
+	replace hard-coded "last modified" time with "LAST-MODIFIED".
+	* serveez.en.html: Replace hard-coded
+	"last modified" time with "LAST-MODIFIED".
+
 2011-02-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc] Don't link to TODO file.

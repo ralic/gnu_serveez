@@ -39,6 +39,7 @@ Makefile.in
 /build-aux/mdate-sh
 /build-aux/missing
 /build-aux/redhat.sh
+/build-aux/texinfo.tex
 
 /m4/libtool.m4
 /m4/ltoptions.m4
@@ -48,11 +49,13 @@ Makefile.in
 
 /doc/*.info
 /doc/*.sed
+/doc/.scan
 /doc/guile-api.texi
-/doc/manual
-/doc/mdate-sh
+/doc/serveez-api.html
 /doc/serveez-api.texi
 /doc/serveez-procedures.txt
+/doc/serveez.html
+/doc/stage
 /doc/stamp-*
 /doc/version*.texi
 
