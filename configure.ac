@@ -321,10 +321,8 @@ dnl
 dnl Check whether some thread safety functionality should be included.
 dnl
 
-dnl FIXME: Use ‘SVZ_FLAG’.
-SVZ_WITH([no],[thread-safety],,[Enable some thread-safety functionality],
-         [no],[yes],[yes])
-enable_threads="$with_thread_safety"
+SVZ_FLAG([whether to include thread safety functionality],
+         [yes],[thread-safety],[Enable some thread-safety functionality])
 
 dnl ----------------------------------------------------------------------
 
@@ -781,7 +779,7 @@ dnl Check for thread libraries.
 dnl
 
 have_threads=no
-AS_IF([SVZ_Y([enable_threads])],[
+AS_IF([SVZ_Y([enable_thread_safety])],[
   AS_IF([SVZ_Y([MINGW32])],
    [have_threads=yes],
    [dnl POSIX
@@ -795,7 +793,6 @@ AS_IF([SVZ_Y([enable_threads])],[
 AS_IF([SVZ_Y([have_threads])],
 [AC_DEFINE([SVZ_HAVE_THREADS], 1,
   [Define if you have a thread library.])])
-AS_UNSET([enable_threads])
 AS_UNSET([have_threads])
 
 AC_SUBST([LIBSERVEEZLIBS])

@@ -1,5 +1,12 @@
 2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Make thread-safety configurable with "enable", not "with".
+
+	* serveez.texi (Using Serveez): Say ‘--enable-thread-safety’
+	instead of ‘--with-thread-safety’; fix polarity of default.
+
+2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Overhaul methods; replace "make site" with "make stage".
 
 	* Makefile.am (AUTOMAKE_OPTIONS): Delete var.

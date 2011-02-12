@@ -236,8 +236,8 @@ them manually in the configuration file.
 This option depends on @samp{--enable-debug}.  With the debugging option
 disabled there is also no support for heap counters.  The heap
 counters are used to detect memory leaks in Serveez.
-@item --with-thread-safety
-If this option is enabled (disabled by default) Serveez provides some
+@item --enable-thread-safety
+If this option is enabled (it is by default) Serveez provides some
 thread safety functionality which can be used by applications based on
 the Serveez core API and by Serveez itself.
 @end table
