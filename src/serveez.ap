@@ -7,12 +7,12 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3, or (at your option)
 # any later version.
-# 
+#
 # This software is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
 #
@@ -23,43 +23,43 @@ NAME = serveez
 
 # List all sources here.
 SOURCES = \
-	awcs-server/awcs-proto.c \
-	ctrl-server/control-proto.c \
-	foo-server/foo-proto.c \
-	http-server/http-cache.c \
-	http-server/http-cgi.c \
-	http-server/http-core.c \
-	http-server/http-dirlist.c \
-	http-server/http-proto.c \
-	fakeident-server/ident-proto.c \
-	irc-core/irc-core.c \
-	irc-server/irc-config.c \
-	irc-server/irc-crypt.c \
-	irc-server/irc-event-1.c \
-	irc-server/irc-event-2.c \
-	irc-server/irc-event-3.c \
-	irc-server/irc-event-4.c \
-	irc-server/irc-event-5.c \
-	irc-server/irc-event-6.c \
-	irc-server/irc-event-7.c \
-	irc-server/irc-proto.c \
-	irc-server/irc-server.c \
-	nut-server/gnutella.c \
-	nut-server/nut-core.c \
-	nut-server/nut-hostlist.c \
-	nut-server/nut-request.c \
-	nut-server/nut-route.c \
-	nut-server/nut-transfer.c \
-	prog-server/prog-server.c \
-	sntp-server/sntp-proto.c \
-	tunnel-server/tunnel.c \
-	cfgfile.c \
-	option.c \
-	serveez.c \
-	serveez.rc \
-	guile-bin.c \
-	guile.c \
-	guile-server.c
+ awcs-server/awcs-proto.c \
+ ctrl-server/control-proto.c \
+ foo-server/foo-proto.c \
+ http-server/http-cache.c \
+ http-server/http-cgi.c \
+ http-server/http-core.c \
+ http-server/http-dirlist.c \
+ http-server/http-proto.c \
+ fakeident-server/ident-proto.c \
+ irc-core/irc-core.c \
+ irc-server/irc-config.c \
+ irc-server/irc-crypt.c \
+ irc-server/irc-event-1.c \
+ irc-server/irc-event-2.c \
+ irc-server/irc-event-3.c \
+ irc-server/irc-event-4.c \
+ irc-server/irc-event-5.c \
+ irc-server/irc-event-6.c \
+ irc-server/irc-event-7.c \
+ irc-server/irc-proto.c \
+ irc-server/irc-server.c \
+ nut-server/gnutella.c \
+ nut-server/nut-core.c \
+ nut-server/nut-hostlist.c \
+ nut-server/nut-request.c \
+ nut-server/nut-route.c \
+ nut-server/nut-transfer.c \
+ prog-server/prog-server.c \
+ sntp-server/sntp-proto.c \
+ tunnel-server/tunnel.c \
+ cfgfile.c \
+ option.c \
+ serveez.c \
+ serveez.rc \
+ guile-bin.c \
+ guile.c \
+ guile-server.c
 
 # Additional libraries.
 LIBS = -lserveez -lguile ws2_32.lib shell32.lib
