@@ -1,5 +1,15 @@
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Improve portability of shell substitutions.
+
+	See: (info "(autoconf) Shell Substitutions")
+
+	* m4/inc.m4 (SVZ_GUILE, SVZ_LIBTOOL_SOLARIS):
+	Rewrite "`COMMAND`" as simply `COMMAND`, in some
+	cases eliminating the useless initial ‘eval’ in COMMAND.
+
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Avoid ‘test EXP -o EXP ...’.
 
 	See: (info "(autoconf) Limitations of Builtins")

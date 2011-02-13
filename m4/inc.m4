@@ -124,11 +124,11 @@ AC_DEFUN([SVZ_GUILE], [
 
   AC_MSG_CHECKING([for guile installation])
   if test "x$GUILEDIR" != "xno" ; then
-    GUILEDIR="`eval cd "$GUILEDIR" 2>/dev/null && pwd`"
+    GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`
     case $build_os in
     mingw*)
-	GUILEDIR="`eval cygpath -w -i "$GUILEDIR"`"
-	GUILEDIR="`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`"
+	GUILEDIR=`eval cygpath -w -i "$GUILEDIR"`
+	GUILEDIR=`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`
 	;;
     esac
     AS_IF([test -f "$GUILEDIR/lib/libguile.so" \
@@ -147,9 +147,9 @@ AC_DEFUN([SVZ_GUILE], [
 
   AS_IF([! SVZ_Y([GUILE_BUILD])],[
     guile=""
-    if test "x`eval guile-config --version 2>&1 | grep version`" != "x" ; then
-      guile="`eval guile-config --version 2>&1 | grep version`"
-      [guile="`echo $guile | sed -e 's/[^0-9\.]//g'`"]
+    if test "x`guile-config --version 2>&1 | grep version`" != "x" ; then
+      guile=`guile-config --version 2>&1 | grep version`
+      [guile=`echo $guile | sed -e 's/[^0-9\.]//g'`]
     fi
     if test "x$guile" != "x" ; then
       case "$guile" in
@@ -164,8 +164,8 @@ AC_DEFUN([SVZ_GUILE], [
   it handy on your system.])
 	;;
       esac
-      GUILE_CFLAGS="`eval guile-config compile`"
-      GUILE_LDFLAGS="`eval guile-config link`"
+      GUILE_CFLAGS=`guile-config compile`
+      GUILE_LDFLAGS=`guile-config link`
       GUILEDIR=`guile-config info prefix`
     else
       AC_MSG_RESULT([missing])
@@ -193,12 +193,12 @@ AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
   AS_IF([SVZ_Y([GCC]) && SVZ_Y([enable_shared])],[
     case $host_os in
     solaris*)
-      LIBERTY="`gcc --print-file-name=libiberty.a`"
+      LIBERTY=`gcc --print-file-name=libiberty.a`
       LIBERTY="-L`dirname $LIBERTY 2>/dev/null`"
       SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $LIBERTY"
-      GCCLIB="`gcc --print-libgcc-file-name`"
+      GCCLIB=`gcc --print-libgcc-file-name`
       GCCDIR="-L`dirname $GCCLIB 2>/dev/null`"
-      GCCFILE="`basename $GCCLIB 2>/dev/null`"
+      GCCFILE=`basename $GCCLIB 2>/dev/null`
       GCCFILE="-l`echo "$GCCFILE" | sed -e 's/lib\(.*\)\.a/\1/'`"
       SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $GCCDIR"
       SERVEEZ_LIBS="$SERVEEZ_LIBS $GCCFILE"
