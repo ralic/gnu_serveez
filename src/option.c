@@ -115,7 +115,7 @@ getopt (int argc, char * const argv[], const char *optstring)
 static void
 version (void)
 {
-  fprintf (stdout, "%s %s\n", svz_library, svz_version);
+  fprintf (stdout, "%s (%s) %s\n", svz_library, PACKAGE_NAME, svz_version);
 }
 
 /*

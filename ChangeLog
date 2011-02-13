@@ -1,5 +1,11 @@
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	Change package name to "GNU Serveez".
+
+	* configure.ac (AC_INIT): Change name to "GNU Serveez".
+
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Use ‘AC_SEARCH_LIBS’ more.
 
 	Here, "U" means "Use ‘AC_SEARCH_LIBS’, ‘SVZ_HAVE_FUNC_MAYBE_IN_LIB’".
