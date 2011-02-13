@@ -1,5 +1,20 @@
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Use ‘AC_SEARCH_LIBS’ more.
+
+	Here, "U" means "Use ‘AC_SEARCH_LIBS’, ‘SVZ_HAVE_FUNC_MAYBE_IN_LIB’".
+	* m4/inc.m4 (SVZ_HAVE_FUNC_MAYBE_IN_LIB): New macro.
+	(SVZ_EXTRALIBS_MAYBE): Likewise.
+	* configure.ac (HAVE_GETOPT, HAVE_GETOPT_LONG): U;
+	update consequent checks to use ‘ac_cv_search_getopt_long’,
+	and the value of ‘getoptlib’ directly.
+	(HAVE_DLOPEN): U.
+	(HAVE_SOCKETPAIR, HAVE_GETHOSTBYADDR)
+	(HAVE_INET_ATON): Use ‘SVZ_EXTRALIBS_MAYBE’.
+	(SVZ_HAVE_CRYPT): U.
+
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Purge ‘--with-guile-source’ reference.
 
 	Omission from 2011-02-09, "Remove

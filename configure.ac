@@ -586,25 +586,18 @@ dnl
 dnl Checking for getopt() and getopt_long() functions and headers.
 dnl
 
-AC_CHECK_FUNCS([getopt],,
-dnl FIXME: Use ‘AC_SEARCH_LIBS’.
-[AC_CHECK_LIB([iberty],[getopt],[
-  AC_DEFINE([HAVE_GETOPT], 1,
-              [Define if you have the getopt function.])
-  getoptlib=iberty])])dnl
-
-AC_CHECK_FUNCS([getopt_long],,
-dnl FIXME: Use ‘AC_SEARCH_LIBS’.
-[AC_CHECK_LIB([iberty],[getopt_long],[
-  AC_DEFINE([HAVE_GETOPT_LONG], 1,
-              [Define if you have the getopt_long function.])
-  getopt_longlib=iberty])])dnl
+save_LIBS="$LIBS"
+AC_SEARCH_LIBS([getopt],[iberty],
+[SVZ_HAVE_FUNC_MAYBE_IN_LIB([getopt],[getoptlib])])
+AC_SEARCH_LIBS([getopt_long],[iberty],
+[SVZ_HAVE_FUNC_MAYBE_IN_LIB([getopt_long],[getopt_longlib])])
+LIBS="$save_LIBS"
 
 dnl
 dnl We might declare getopt_long ourselves if the headers do not.
 dnl
 
-AS_IF([test "$getopt_longlib" || SVZ_Y([ac_cv_func_getopt_long])],[
+AS_IF([test xno != x"$ac_cv_search_getopt_long"],[
   AC_CACHE_CHECK([whether getopt_long is declared],[svz_cv_decl_getopt_long],
   [AC_EGREP_HEADER([getopt_long],[getopt.h],
     [svz_cv_decl_getopt_long=yes],
@@ -616,8 +609,8 @@ AS_IF([test "$getopt_longlib" || SVZ_Y([ac_cv_func_getopt_long])],[
 
 AS_IF([test "$getoptlib" || test "$getopt_longlib"],
 [AS_CASE([$host_os],
-         [mingw*],[LIBS="$LIBS -l$getoptlib"],
-         [SERVEEZ_LIBS="$SERVEEZ_LIBS -l$getoptlib"])])
+         [mingw*],[LIBS="$LIBS $getoptlib"],
+         [SERVEEZ_LIBS="$SERVEEZ_LIBS $getoptlib"])])
 AS_UNSET([getoptlib])
 AS_UNSET([getopt_longlib])
 
@@ -719,27 +712,20 @@ dnl
 dnl Checking for shared library loading interface.
 dnl
 
-AC_CHECK_FUNCS([dlopen],,
-  dnl FIXME: Use ‘AC_SEARCH_LIBS’.
-  [AC_CHECK_LIB([dl],[dlopen],[dlopenlib=dl],
-    [AC_CHECK_LIB([svld],[dlopen],[dlopenlib=svld])])])
-
-AS_IF([SVZ_Y([ac_cv_func_dlopen])],[:],
-      [test "$dlopenlib"],
-  [LIBSERVEEZLIBS="$LIBSERVEEZLIBS -l$dlopenlib"
-   AS_UNSET([dlopenlib])
-   AC_DEFINE([HAVE_DLOPEN], 1,
-     [Define if you have the dlopen function.])],
-  [AC_CHECK_LIB([dld],[dld_link],
-    [AC_DEFINE([HAVE_DLD_LINK], 1,
-                 [Define if you have the dld_link function.])
-    LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])])
-
-CODECLIBS=""
+save_LIBS="$LIBS"
+AC_SEARCH_LIBS([dlopen],[dl svld],
+[SVZ_HAVE_FUNC_MAYBE_IN_LIB([dlopen],[LIBSERVEEZLIBS])],
+[AC_CHECK_LIB([dld],[dld_link],
+  [AC_DEFINE([HAVE_DLD_LINK], 1,
+    [Define if you have the dld_link function.])
+ LIBSERVEEZLIBS="$LIBSERVEEZLIBS -ldld"])])
+LIBS="$save_LIBS"
 
 dnl
 dnl Checking for additional codec libraries.
 dnl
+
+CODECLIBS=""
 
 AC_CHECK_LIB([z],[zlibVersion],[
   AC_DEFINE([HAVE_ZLIB], 1, [Define if you have the zlib library.])
@@ -887,30 +873,15 @@ AS_IF([SVZ_Y([ac_cv_func_vsnprintf]) || SVZ_Y([ac_cv_func__vsnprintf])],[
 dnl
 dnl Check whether extra net libraries are required.
 dnl
-AC_CHECK_FUNCS([socketpair],,
-[AC_CHECK_LIB([socket],[socketpair],[
-  EXTRALIBS="$EXTRALIBS -lsocket"
-  AC_DEFINE([HAVE_SOCKETPAIR], 1,
-    [Define if you have the socketpair function.])
-])])
+
+SVZ_EXTRALIBS_MAYBE([socketpair],[socket])
 
 dnl
 dnl Check for Solaris nsl and resolv library.
 dnl
-AC_CHECK_FUNCS([gethostbyaddr],,
-dnl FIXME: Use ‘AC_SEARCH_LIBS’.
-[AC_CHECK_LIB([nsl],[gethostbyaddr],[
-  EXTRALIBS="$EXTRALIBS -lnsl"
-  AC_DEFINE([HAVE_GETHOSTBYADDR], 1,
-              [Define if you have the gethostbyaddr function.])
-])])
-AC_CHECK_FUNCS([inet_aton],,
-dnl FIXME: Use ‘AC_SEARCH_LIBS’.
-[AC_CHECK_LIB([resolv],[inet_aton],[
-  EXTRALIBS="$EXTRALIBS -lresolv"
-  AC_DEFINE([HAVE_INET_ATON], 1,
-              [Define if you have the inet_aton function.])
-])])
+
+SVZ_EXTRALIBS_MAYBE([gethostbyaddr],[nsl])
+SVZ_EXTRALIBS_MAYBE([inet_aton],[resolv])
 
 dnl
 dnl Check for broken inet_ntoa ()
@@ -1011,18 +982,11 @@ dnl
 
 MKPASSWORD=""
 AS_IF([SVZ_Y([enable_crypt])],[
-  AC_CHECK_FUNCS([crypt],,
-    dnl FIXME: Use ‘AC_SEARCH_LIBS’.
-    [AC_CHECK_LIB([descrypt],[crypt],[cryptlib=descrypt],
-      [AC_CHECK_LIB([crypt],[crypt],[cryptlib=crypt])])])
-
-  test "$cryptlib" && EXTRALIBS="$EXTRALIBS -l$cryptlib"
-  AS_IF([test "$cryptlib" || SVZ_Y([ac_cv_func_crypt])],[
-    AC_DEFINE([SVZ_HAVE_CRYPT], 1,
-                [Define if you have the crypt function.])
-    MKPASSWORD="mkpassword"
-  ])
-  AS_UNSET([cryptlib])
+  save_LIBS="$LIBS"
+  AC_SEARCH_LIBS([crypt],[descrypt crypt],
+   [SVZ_HAVE_FUNC_MAYBE_IN_LIB([crypt],[EXTRALIBS],[SVZ_])
+    MKPASSWORD=mkpassword])
+  LIBS="$save_LIBS"
 ])
 AC_SUBST([MKPASSWORD])
 
