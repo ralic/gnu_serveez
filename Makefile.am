@@ -47,7 +47,6 @@ DISTCLEANFILES = config.cache config.log
 # woe
 
 EXTRA_DIST += README-Win32 serveez.dsw serveez.ap \
-	config.h.serveez version.h.serveez \
 	build-aux/vcgen.bat build-aux/autodsp
 
 MAINTAINERCLEANFILES += serveez.dsw
@@ -58,12 +57,6 @@ woe32-project-files:
 
 # This rule triggers creation of .dsw and .dsp files on "make dist".
 serveez.dsw: woe32-project-files
-
-config.h.serveez: config.h
-	cp $< $@
-
-version.h.serveez: version.h
-	cp $< $@
 
 no-woe32:
 	cd $(srcdir) ; find . -name '*.ds[wp]' -delete

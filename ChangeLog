@@ -1,3 +1,16 @@
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Move config.h, version.h into src/.
+
+	* configure.ac (AC_CONFIG_HEADERS): Move config.h into src/.
+	(AC_CONFIG_FILES): Likewise for version.h.
+	* Makefile.am (EXTRA_DIST): Remove
+	config.h.serveez, version.h.serveez.
+	(config.h.serveez, version.h.serveez): Delete targets.
+	* build-aux/vcgen.bat: Update locations.
+	* version.h.in: Delete file.
+	* .gitignore: Update; nfc.
+
 2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Use ‘AC_C_BIGENDIAN’.

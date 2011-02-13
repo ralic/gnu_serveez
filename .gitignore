@@ -21,14 +21,11 @@ Makefile.in
 /aclocal.m4
 /autom4te.cache
 /config.cache
-/config.h
-/config.h.in
 /config.log
 /config.status
 /configure
 /libtool
 /stamp-h*
-/version.h
 
 /build-aux/config.guess
 /build-aux/config.sub
@@ -59,6 +56,8 @@ Makefile.in
 /doc/stamp-*
 /doc/version*.texi
 
+/src/config.h
+/src/config.h.in
 /src/*.log
 /src/mkpassword
 /src/serveez
@@ -66,6 +65,7 @@ Makefile.in
 /src/serveez.cfg
 /src/stamp-h*
 /src/svzconfig.h
+/src/version.h
 
 /src/libserveez/svzpath.h
 

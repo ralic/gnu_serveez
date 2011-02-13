@@ -1,3 +1,12 @@
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] Move config.h, version.h into src/.
+
+	* version.h.in: New file.
+	* Makefile.am (EXTRA_DIST): Add config.h.serveez,
+	version.h.serveez.
+	(config.h.serveez, version.h.serveez): New targets.
+
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Clean up Makefile.am files; segregate woe32.

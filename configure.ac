@@ -29,7 +29,7 @@ dnl Initialize autoconf and automake
 dnl
 AC_PREREQ([2.64])
 AC_INIT([serveez],[0.1.7],[bug-serveez@gnu.org])dnl FIXME: Say "GNU Serveez".
-AC_CONFIG_HEADERS([config.h src/svzconfig.h])
+AC_CONFIG_HEADERS([src/config.h src/svzconfig.h])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CANONICAL_BUILD
@@ -1180,6 +1180,7 @@ dnl Output files.
 dnl
 AC_CONFIG_FILES([
     Makefile src/Makefile src/libserveez/Makefile
+    src/version.h
     src/libserveez/coserver/Makefile
     src/libserveez/codec/Makefile
     src/serveez-config
@@ -1200,7 +1201,6 @@ AC_CONFIG_FILES([
     test/Makefile
     build-aux/redhat.sh
     build-aux/debian.sh
-    version.h
 ])
 
 dnl
