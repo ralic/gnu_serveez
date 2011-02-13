@@ -156,8 +156,7 @@ AC_DEFUN([SVZ_GUILE], [
 AC_DEFUN([SVZ_GUILE_CHECK], [
   AS_IF([! SVZ_Y([GUILE_BUILD])],[
     AC_MSG_ERROR([
-  The $PACKAGE $VERSION package requires either an installed Guile
-  version or an unpacked source tarball at hand.  You can specify the
+  $PACKAGE_STRING requires an installed Guile. You can specify the
   install location by passing `--with-guile=<directory>'.  Guile
   version 1.4 is preferred.])])])
 

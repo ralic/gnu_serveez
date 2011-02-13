@@ -1,5 +1,15 @@
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Purge ‘--with-guile-source’ reference.
+
+	Omission from 2011-02-09, "Remove
+	configure option ‘--with-guile-source’".
+
+	* m4/inc.m4 (SVZ_GUILE_CHECK): Don't mention
+	‘--with-guile-source’ in error message.
+
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] Move config.h, version.h into src/.
 
 	* configure.ac (AC_CONFIG_HEADERS): Move config.h into src/.
