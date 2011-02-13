@@ -51,10 +51,7 @@ dnl
 AC_PROG_CC
 
 AC_C_CONST
-const_defined="const"
-if test $ac_cv_c_const = no; then
-  const_defined=""
-fi
+SVZ_Y([ac_cv_c_const]) && const_defined=const
 AC_DEFINE_UNQUOTED([svz_c_const],[$const_defined],
   [Define to empty if the keyword does not work.])
 AS_UNSET([const_defined])
@@ -63,9 +60,8 @@ AC_C_BIGENDIAN
 
 AC_CHECK_SIZEOF([long], 4)
 AC_CHECK_SIZEOF([void *], 4)
-if test $ac_cv_sizeof_long -lt $ac_cv_sizeof_void_p ; then
-  AC_MSG_ERROR([A 'void *' value does not fit into a 'long' value.])
-fi
+AS_IF([test $ac_cv_sizeof_long -lt $ac_cv_sizeof_void_p],
+[AC_MSG_ERROR([A 'void *' value does not fit into a 'long' value.])])
 
 dnl
 dnl Locate required external software.
@@ -78,23 +74,19 @@ AC_CHECK_PROG([WINDRES],[windres],[windres],[:])
 
 dnl ----------------------------------------------------------------------
 
-osversion="`grep \"$host\" $srcdir/data/PLATFORMS 2>/dev/null`"
-if test "x$osversion" = "x"; then
-  AC_MSG_RESULT([
-  The Serveez package has never been compiled or run on this platform.
+AS_IF([grep "$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
+[AC_MSG_RESULT([
+  $PACKAGE_NAME has never been compiled or run on this platform.
   Please send an email to <dev-serveez@gnu.org> including your compiler
   version and whether it worked correctly or not.  '$host'
   will then be added to the PLATFORMS file included in this package.
-])
-fi
-AS_UNSET([osversion])
+])])
 
 dnl ----------------------------------------------------------------------
 
-case $host in
-  mipsel-unknown-linux-gnu | mips-unknown-linux-gnu) NOUNDEFINED="" ;;
-  *) NOUNDEFINED="-no-undefined" ;;
-esac
+AS_CASE([$host],
+ [mipsel-unknown-linux-gnu | mips-unknown-linux-gnu],[NOUNDEFINED=],
+ [NOUNDEFINED='-no-undefined'])
 AC_SUBST([NOUNDEFINED])
 
 dnl ----------------------------------------------------------------------
@@ -132,11 +124,7 @@ SVZ_FLAG([whether compiler warnings are enabled],
   ])
 
   dnl Test this compiler flag under Linux only.
-  case $host_os in
-    linux*)
-	warnflags="$warnflags -ansi"
-	;;
-  esac
+  AS_CASE([$host_os],[linux*],[warnflags="$warnflags -ansi"])
 
   for flag in $warnflags; do
     CFLAGS="$flag"
@@ -172,10 +160,8 @@ SVZ_FLAG([whether to enable optimizations],
 	      -fcaller-saves -frerun-loop-opt -foptimize-register-move \
 	      -ffunction-cse -fpeephole -momit-leaf-frame-pointer"
     [arch=`eval echo "$host_cpu" | sed 's/i\([0-9]\)86/\1/g'`
-    if test "$arch" = "$host_cpu" ; then arch="5"; fi
-    if test `expr $arch` -gt 4; then
-      optflags="$optflags -fschedule-insns2"
-    fi]
+    test "$arch" = "$host_cpu" && arch="5"
+    test `expr $arch` -gt 4 && optflags="$optflags -fschedule-insns2"]
     AS_UNSET([arch])
     for flag in $optflags; do
       CFLAGS="$flag"
@@ -481,14 +467,9 @@ dnl
 dnl Check if this is Win32 (CYGWIN/MINGW32).
 dnl
 
-case $host_os in
-  *mingw32* ) MINGW32=yes;;
-          * ) MINGW32=no;;
-esac
-case $host_os in
-  *cygwin* ) CYGWIN=yes;;
-         * ) CYGWIN=no;;
-esac
+AS_CASE([$host_os],
+[*mingw32*],[MINGW32=yes CYGWIN=no],
+[*cygwin*],[MINGW32=no CYGWIN=yes])
 AC_EXEEXT
 AC_OBJEXT
 
@@ -500,7 +481,7 @@ AS_IF([SVZ_Y([CYGWIN]) || SVZ_Y([MINGW32])],[
   AC_CHECK_LIB([shell32],[main],[EXTRALIBS="$EXTRALIBS -lshell32"])
   AC_CHECK_LIB([user32],[main],[EXTRALIBS="$EXTRALIBS -luser32"])
   resource_FILES="serveez.rc"
-  AS_IF([test xno != x"$MINGDIR" && ! SVZ_Y([MINGW32])],[
+  AS_IF([test xno != x"$MINGDIR" && SVZ_NOT_Y([MINGW32])],[
     CFLAGS="$CFLAGS -mno-cygwin -I${MINGDIR}/include"
     LDFLAGS="$LDFLAGS -mno-cygwin -L${MINGDIR}/lib"
     AC_CHECK_LIB([ws2_32],[main],[EXTRALIBS="$EXTRALIBS -lws2_32"])
@@ -735,14 +716,14 @@ AC_CHECK_LIB([z],[zlibVersion],[
 have_bz2=no
 AC_CHECK_LIB([bz2],[bzCompress],[have_bz2=yes],
 [AC_CHECK_LIB([bz2],[BZ2_bzCompress],[have_bz2=bz2_prefix])])
-if test $have_bz2 != no ; then
+AS_IF([test no != $have_bz2],[
   AC_DEFINE([HAVE_BZ2LIB], 1, [Define if you have the bz2 library.])
   CODECLIBS="$CODECLIBS -lbz2"
-  if test $have_bz2 = bz2_prefix ; then
+  AS_IF([test bz2_prefix = $have_bz2],[
     AC_DEFINE([HAVE_BZ2LIB_PREFIX], 1,
       [Define if you have a prefixed bz2 library (>= v1.0)])
-  fi
-fi
+  ])
+])
 
 dnl
 dnl Check for thread libraries.
@@ -809,27 +790,16 @@ AS_IF([SVZ_Y([svz_cv_func_sysget])],
 
 dnl Check for the '/proc/stat' file under Linux.
 
-AC_CACHE_CHECK([whether /proc/stat exists],[svz_cv_sys_proc_stat],[
-  have_procstat=`cat /proc/stat 2>&1 | grep "cpu  "`
-  if test "x$have_procstat" != "x" ; then
-    svz_cv_sys_proc_stat=yes
-  else
-    svz_cv_sys_proc_stat=no
-  fi
-])
-AS_UNSET([have_procstat])
+AC_CACHE_CHECK([whether /proc/stat exists],[svz_cv_sys_proc_stat],
+[AS_IF([grep 'cpu  ' /proc/stat >/dev/null 2>&1],
+       [svz_cv_sys_proc_stat=yes],
+       [svz_cv_sys_proc_stat=no])])
 
-AS_IF([SVZ_Y([svz_cv_sys_proc_stat])],[
-  case $host_os in
-  linux*)
-    AC_DEFINE([HAVE_PROC_STAT],
-      1, [Define if Linux supports the /proc/stat file.])
-    ;;
-  *)
-    AC_MSG_WARN([disabled '/proc/stat' since '$host_os' is not 'linux'])
-    ;;
-  esac
-])
+AS_IF([SVZ_Y([svz_cv_sys_proc_stat])],
+[AS_CASE([$host_os],
+ [linux*],[AC_DEFINE([HAVE_PROC_STAT], 1,
+            [Define if Linux supports the /proc/stat file.])],
+ [AC_MSG_WARN([disabled '/proc/stat' since '$host_os' is not 'linux'])])])
 
 dnl Check for the 'host_statistics' interface on MacOS.
 
@@ -919,10 +889,9 @@ AC_CACHE_CHECK([for socklen_t],[svz_cv_type_socklen_t],
   [svz_cv_type_socklen_t=yes],
   [svz_cv_type_socklen_t=no])])
 
-if test $svz_cv_type_socklen_t = no ; then
-  AC_DEFINE([socklen_t], int,
-    [Define to 'int' if <sys/socket.h> does not define.])
-fi
+AS_IF([SVZ_NOT_Y([svz_cv_type_socklen_t])],
+[AC_DEFINE([socklen_t], int,
+  [Define to 'int' if <sys/socket.h> does not define.])])
 
 dnl
 dnl Check for the typedef SOCKET and HANDLE in <winsock2.h>.
@@ -930,16 +899,14 @@ dnl
 socket_defined="int"
 handle_defined="int"
 
-if test "$MINGDIR" != "no"; then
-AC_CHECK_HEADER([winsock2.h],[
+AS_IF([test no != "$MINGDIR"],
+[AC_CHECK_HEADER([winsock2.h],[
   socket_defined="SOCKET"
   handle_defined="HANDLE"
   AC_DEFINE([Win32_Winsock], 1,
    [Define if you are using Windows Socket-API (not CYGWIN).])
   AC_DEFINE([HAVE_WINSOCK2_H], 1,
-   [Define if you have the <winsock2.h>])
-])
-fi
+   [Define if you have the <winsock2.h>])])])
 
 AC_DEFINE_UNQUOTED([svz_t_socket],[$socket_defined],
   [Define to 'int' if <winsock2.h> does not define 'SOCKET'.])
@@ -957,19 +924,17 @@ AC_CHECK_HEADERS([mswsock.h], [], [],[
 ])
 
 AC_TYPE_SIZE_T
-size_t_defined="size_t"
-if test $ac_cv_type_size_t = no; then
-  size_t_defined="unsigned"
-fi
+AS_IF([test no = $ac_cv_type_size_t],
+      [size_t_defined=unsigned],
+      [size_t_defined=size_t])
 AC_DEFINE_UNQUOTED([svz_t_size],[$size_t_defined],
   [Define to `unsigned' if <sys/types.h> doesn't define 'size_t'.])
 AS_UNSET([size_t_defined])
 
 AC_TYPE_OFF_T
-off_t_defined="off_t"
-if test $ac_cv_type_off_t = no; then
-  off_t_defined="long"
-fi
+AS_IF([test no = $ac_cv_type_off_t],
+      [off_t_defined=long],
+      [off_t_defined=off_t])
 AC_DEFINE_UNQUOTED([svz_t_off],[$off_t_defined],
   [Define to `long' if <sys/types.h> doesn't define 'off_t'.])
 AS_UNSET([off_t_defined])
@@ -1035,11 +1000,7 @@ AC_CHECK_FUNCS([times poll waitpid])
 dnl
 dnl Checks for RPC services.
 dnl
-AC_CHECK_FUNCS([getrpcent])
-if test $ac_cv_func_getrpcent = no ; then
-    dnl On HP-UX these functions reside in -lnsl
-    AC_CHECK_LIB([nsl],[getrpcent],[EXTRALIBS="$EXTRALIBS -lnsl"])
-fi
+SVZ_EXTRALIBS_MAYBE([getrpcent],[nsl])dnl libnsl for HP-UX.
 save_LIBS="$LIBS"
 LIBS="$LIBS $EXTRALIBS"
 AC_CHECK_FUNCS([getrpcbyname getrpcbynumber setrpcent endrpcent \
@@ -1089,22 +1050,15 @@ RPM=":"
 AS_IF([SVZ_Y([USE_MAINTAINER_MODE])],[
 AC_MSG_CHECKING([for working rpm])
 [version=`eval rpm --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
-if test -n "$version"; then
-case "$version" in
-  [3.* | [4-9].*)]
-    AC_MSG_RESULT([$version >= 3.0.0])
-    RPM="rpm"
-    RPM3="yes"
-  ;;
-  [*)]
-    AC_MSG_RESULT([$version < 3.0.0])
-    RPM="rpm"
-    RPM3="no"
-  ;;
-esac
-else
-    AC_MSG_RESULT([missing])
-fi
+AS_IF([test x = x"$version"],[AC_MSG_RESULT([missing])],
+[AS_CASE([$version],
+ [[3.* | [4-9].*]],[
+  AC_MSG_RESULT([$version >= 3.0.0])
+  RPM="rpm"
+  RPM3="yes"],
+ [AC_MSG_RESULT([$version < 3.0.0])
+  RPM="rpm"
+  RPM3="no"])])
 AS_UNSET([version])
 ])
 AC_SUBST([RPM])
@@ -1114,10 +1068,10 @@ LIBS="$LIBS $EXTRALIBS"
 CPPFLAGS=$CPPEXTRAFLAGS
 
 TIMESTAMP=`date '+%a %b %_d %H:%M:%S %Y' 2>/dev/null`
-if test -z "$TIMESTAMP" ; then
+AS_IF([test x = x"$TIMSTAMP"],[
     dnl On HP-UX each item is padded with spaces by default.
     TIMESTAMP=`date '+%a %b %d %H:%M:%S %Y' 2>/dev/null`
-fi
+])
 AC_SUBST([TIMESTAMP])
 
 dnl For GNU/Linux Debian packaging only
@@ -1131,9 +1085,8 @@ dnl
 dnl Setup configuration variables.
 dnl
 SERVEEZ_CONFIG_CFLAGS="-I$prefix/include"
-if test "x$SERVEEZ_CFLAGS" != "x" ; then
-  SERVEEZ_CONFIG_CFLAGS="$SERVEEZ_CONFIG_CFLAGS $SERVEEZ_CFLAGS"
-fi
+AS_IF([test x != "x$SERVEEZ_CFLAGS"],
+[SERVEEZ_CONFIG_CFLAGS="$SERVEEZ_CONFIG_CFLAGS $SERVEEZ_CFLAGS"])
 AS_IF([SVZ_Y([enable_shared])],
 [SERVEEZ_CONFIG_LDFLAGS="-L$prefix/lib -lserveez"],
 [SERVEEZ_CONFIG_LDFLAGS="$prefix/lib/libserveez.a"])

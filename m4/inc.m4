@@ -26,6 +26,13 @@ dnl  test xyes = x"$VAR"
 dnl
 AC_DEFUN([SVZ_Y],[test xyes = x"$]$1["])
 
+dnl SVZ_NOT_Y(VAR)
+dnl
+dnl Expand to:
+dnl  test xyes != x"$VAR"
+dnl
+AC_DEFUN([SVZ_NOT_Y],[test xyes != x"$]$1["])
+
 dnl SVZ_HAVE_FUNC_MAYBE_IN_LIB(FUNC,VAR[,PREFIX])
 dnl
 dnl First, do ‘AC_DEFINE’ on FUNC.  Next, if shell variable
@@ -123,14 +130,12 @@ AC_DEFUN([SVZ_GUILE], [
   GUILEDIR="$with_guile"
 
   AC_MSG_CHECKING([for guile installation])
-  if test "x$GUILEDIR" != "xno" ; then
+  AS_IF([test xno != x"$GUILEDIR"],[
     GUILEDIR=`eval cd "$GUILEDIR" 2>/dev/null && pwd`
-    case $build_os in
-    mingw*)
-	GUILEDIR=`eval cygpath -w -i "$GUILEDIR"`
-	GUILEDIR=`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`
-	;;
-    esac
+    AS_CASE([$build_os],[mingw*],[
+      GUILEDIR=`eval cygpath -w -i "$GUILEDIR"`
+      GUILEDIR=`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`
+    ])
     AS_IF([test -f "$GUILEDIR/lib/libguile.so" \
         || test -n `find "$GUILEDIR/lib" -name 'libguile.so.*' 2>/dev/null` \
         || test -f "$GUILEDIR/lib/libguile.dylib" \
@@ -143,35 +148,30 @@ AC_DEFUN([SVZ_GUILE], [
       GUILE_BUILD="yes"
       AC_MSG_RESULT([yes])
     ])
-  fi
+  ])
 
-  AS_IF([! SVZ_Y([GUILE_BUILD])],[
+  AS_IF([SVZ_NOT_Y([GUILE_BUILD])],[
     guile=""
-    if test "x`guile-config --version 2>&1 | grep version`" != "x" ; then
+    AS_IF([test x != x`guile-config --version 2>&1 | grep version`],[
       guile=`guile-config --version 2>&1 | grep version`
       [guile=`echo $guile | sed -e 's/[^0-9\.]//g'`]
-    fi
-    if test "x$guile" != "x" ; then
-      case "$guile" in
-      [1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*)]
-	AC_MSG_RESULT([$guile >= 1.3])
-	GUILE_BUILD="yes"
-	;;
-      [*)]
-	AC_MSG_RESULT([$guile < 1.3])
-	AC_MSG_WARN([
-  GNU Guile version 1.3 or above is needed, and you do not seem to have
-  it handy on your system.])
-	;;
-      esac
+    ])
+    AS_IF([test x != x"$guile"],[
+      AS_CASE([$guile],
+       [[1.3 | 1.3.[2-9] | 1.[4-9]* | [2-9].*]],
+       [AC_MSG_RESULT([$guile >= 1.3])
+        GUILE_BUILD="yes"],
+       [AC_MSG_RESULT([$guile < 1.3])
+        AC_MSG_WARN([GNU Guile version 1.3 or above is needed, and you
+                     do not seem to have it handy on your system.])])
       GUILE_CFLAGS=`guile-config compile`
       GUILE_LDFLAGS=`guile-config link`
       GUILEDIR=`guile-config info prefix`
-    else
+    ],[
       AC_MSG_RESULT([missing])
       GUILE_CFLAGS=""
       GUILE_LDFLAGS=""
-    fi
+    ])
     AS_UNSET([guile])
   ])
   AS_IF([test -f "$GUILEDIR/include/guile/gh.h"],
@@ -183,16 +183,15 @@ AC_DEFUN([SVZ_GUILE], [
 ])
 
 AC_DEFUN([SVZ_GUILE_CHECK], [
-  AS_IF([! SVZ_Y([GUILE_BUILD])],[
+  AS_IF([SVZ_NOT_Y([GUILE_BUILD])],[
     AC_MSG_ERROR([
   $PACKAGE_STRING requires an installed Guile. You can specify the
   install location by passing `--with-guile=<directory>'.  Guile
   version 1.4 is preferred.])])])
 
-AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
-  AS_IF([SVZ_Y([GCC]) && SVZ_Y([enable_shared])],[
-    case $host_os in
-    solaris*)
+AC_DEFUN([SVZ_LIBTOOL_SOLARIS],[
+AS_IF([SVZ_Y([GCC]) && SVZ_Y([enable_shared])],
+ [AS_CASE([$host_os],[solaris*],[
       LIBERTY=`gcc --print-file-name=libiberty.a`
       LIBERTY="-L`dirname $LIBERTY 2>/dev/null`"
       SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $LIBERTY"
@@ -211,10 +210,7 @@ AC_DEFUN([SVZ_LIBTOOL_SOLARIS], [
       AS_UNSET([LIBERTY])
       AS_UNSET([GCCLIB])
       AS_UNSET([GCCDIR])
-      AS_UNSET([GCCFILE])
-      ;;
-    esac
-  ])
+      AS_UNSET([GCCFILE])])])
 ])
 
 dnl inc.m4 ends here

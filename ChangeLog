@@ -1,5 +1,14 @@
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Add abstraction: SVZ_NOT_Y; use AS_{IF,CASE} more.
+
+	* m4/inc.m4 (SVZ_NOT_Y): New macro.
+	(SVZ_GUILE, SVZ_GUILE_CHECK, SVZ_LIBTOOL_SOLARIS):
+	Use ‘SVZ_NOT_Y’, ‘AS_IF’, ‘AS_CASE’.
+	* configure.ac: Throughout, use ‘SVZ_NOT_Y’, ‘AS_IF’, ‘AS_CASE’.
+
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Improve portability of shell substitutions.
 
 	See: (info "(autoconf) Shell Substitutions")
