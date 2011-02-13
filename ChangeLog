@@ -1,5 +1,14 @@
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Avoid ‘test EXP -o EXP ...’.
+
+	See: (info "(autoconf) Limitations of Builtins")
+
+	* m4/inc.m4 (SVZ_GUILE): Split ‘test’ sub-expressions
+	combined by ‘-o’ into separate invocations combined by ‘||’.
+
+2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Change package name to "GNU Serveez".
 
 	* configure.ac (AC_INIT): Change name to "GNU Serveez".

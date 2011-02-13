@@ -131,18 +131,18 @@ AC_DEFUN([SVZ_GUILE], [
 	GUILEDIR="`echo "$GUILEDIR" | sed -e 's%\\\\%/%g'`"
 	;;
     esac
-    if test -f "$GUILEDIR/lib/libguile.so" -o \
-      -n "`find "$GUILEDIR/lib" -name "libguile.so.*" 2>/dev/null`" -o \
-      -f "$GUILEDIR/lib/libguile.dylib" -o \
-      -f "$GUILEDIR/bin/libguile.dll" -o \
-      -f "$GUILEDIR/bin/cygguile.dll" ; then
+    AS_IF([test -f "$GUILEDIR/lib/libguile.so" \
+        || test -n `find "$GUILEDIR/lib" -name 'libguile.so.*' 2>/dev/null` \
+        || test -f "$GUILEDIR/lib/libguile.dylib" \
+        || test -f "$GUILEDIR/bin/libguile.dll" \
+        || test -f "$GUILEDIR/bin/cygguile.dll"],[
       GUILE_CFLAGS="-I$GUILEDIR/include"
       AS_IF([SVZ_Y([CYGWIN]) || SVZ_Y([MINGW32])],
             [GUILE_CFLAGS="-D__GUILE_IMPORT__ $GUILE_CFLAGS"])
       GUILE_LDFLAGS="-L$GUILEDIR/lib -lguile"
       GUILE_BUILD="yes"
       AC_MSG_RESULT([yes])
-    fi
+    ])
   fi
 
   AS_IF([! SVZ_Y([GUILE_BUILD])],[
