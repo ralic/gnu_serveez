@@ -4,6 +4,7 @@ dnl configure.ac
 dnl
 dnl Autoconf input file.
 dnl
+dnl Copyright (C) 2011 Thien-Thi Nguyen
 dnl Copyright (C) 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@lkcc.org>
 dnl Copyright (C) 2000, 2001 Raimund Jacob <raimi@lkcc.org>
 dnl Copyright (C) 1999 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>

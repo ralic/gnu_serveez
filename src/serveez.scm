@@ -2,6 +2,7 @@
 ;;
 ;; serveez.scm - convenience functions
 ;;
+;; Copyright (C) 2011 Thien-Thi Nguyen
 ;; Copyright (C) 2001 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 ;;

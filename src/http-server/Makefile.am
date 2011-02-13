@@ -4,6 +4,7 @@
 #
 # Small and fast minimal webserver.
 #
+# Copyright (C) 2011 Thien-Thi Nguyen
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 #

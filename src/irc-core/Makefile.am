@@ -4,6 +4,7 @@
 #
 # IRC protocol core function library.
 #
+# Copyright (C) 2011 Thien-Thi Nguyen
 # Copyright (C) 2000 Stefan Jahn <stefan@lkcc.org>
 # Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
 #

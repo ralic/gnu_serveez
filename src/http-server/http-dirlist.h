@@ -1,6 +1,7 @@
 /*
  * http-dirlist.h - http protocol dirlist header file
  *
+ * Copyright (C) 2011 Thien-Thi Nguyen
  * Copyright (C) 2000 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify

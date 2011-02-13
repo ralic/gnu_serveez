@@ -5,6 +5,7 @@
 # Extract documentation strings from source files and produce a sed
 # script for further processing or a Guile documentation file.
 #
+# Copyright (C) 2011 Thien-Thi Nguyen
 # Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify

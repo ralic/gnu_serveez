@@ -4,6 +4,7 @@
 #
 # Automake input file for a fake ident server (identd).
 #
+# Copyright (C) 2011 Thien-Thi Nguyen
 # Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
 # Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 #

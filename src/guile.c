@@ -1,9 +1,10 @@
 /*
  * guile.c - interface to Guile core library
  *
- * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
+ * Copyright (C) 2011 Thien-Thi Nguyen
  * Copyright (C) 2001, 2002, 2003 Stefan Jahn <stefan@lkcc.org>
  * Copyright (C) 2002 Andreas Rottmann <a.rottmann@gmx.at>
+ * Copyright (C) 2001 Raimund Jacob <raimi@lkcc.org>
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by

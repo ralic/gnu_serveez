@@ -1,6 +1,7 @@
 # redhat.sh - RPM package builder
 # @configure_input@
 #
+# Copyright (C) 2011 Thien-Thi Nguyen
 # Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; the Free Software Foundation
