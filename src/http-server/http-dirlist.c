@@ -82,7 +82,7 @@
 # define closedir(dir) FindClose (dir)
 #endif
 
-#if defined (HAVE_ALPHASORT) && !defined (DECLARED_ALPHASORT)
+#if defined (HAVE_ALPHASORT) && !HAVE_DECL_ALPHASORT
 extern int alphasort (const struct dirent **, const struct dirent **);
 #endif
 

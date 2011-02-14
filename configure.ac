@@ -579,14 +579,7 @@ dnl We might declare getopt_long ourselves if the headers do not.
 dnl
 
 AS_IF([test xno != x"$ac_cv_search_getopt_long"],[
-  AC_CACHE_CHECK([whether getopt_long is declared],[svz_cv_decl_getopt_long],
-  [AC_EGREP_HEADER([getopt_long],[getopt.h],
-    [svz_cv_decl_getopt_long=yes],
-    [svz_cv_decl_getopt_long=no])])
-  AS_IF([SVZ_Y([svz_cv_decl_getopt_long])],
-   [AC_DEFINE([DECLARED_GETOPT_LONG], 1,
-     [Define if the getopt_long function is declared in <getopt.h>.])])
-])
+  AC_CHECK_DECLS([getopt_long], [], [], [[#include <getopt.h>]])])
 
 AS_IF([test "$getoptlib" || test "$getopt_longlib"],
 [AS_CASE([$host_os],
@@ -679,15 +672,7 @@ LIBS="$save_LIBS"
 AS_UNSET([save_LIBS])
 
 AS_IF([SVZ_Y([ac_cv_header_dirent_h])],
-[AC_CACHE_CHECK([whether alphasort is declared],[svz_cv_decl_alphasort],
- [AC_EGREP_HEADER([alphasort],[dirent.h],
-  [svz_cv_decl_alphasort=yes],
-  [svz_cv_decl_alphasort=no])])],
-[svz_cv_decl_alphasort=yes])
-
-AS_IF([SVZ_Y([svz_cv_decl_alphasort])],
-[AC_DEFINE([DECLARED_ALPHASORT], 1,
-  [Define if the alphasort function is declared in <dirent.h>.])])
+[AC_CHECK_DECLS([alphasort], [], [], [[#include <dirent.h>]])])
 
 LIBSERVEEZLIBS=""
 
@@ -770,25 +755,21 @@ AC_CHECK_LIB([kstat],[kstat_open],[
 
 dnl Check for the 'pstat' interface on HP-Unix.
 
-AC_CACHE_CHECK([for pstat_getdynamic],[svz_cv_func_pstat],
-[AC_EGREP_HEADER([pstat_getdynamic],[sys/pstat.h],
-  [svz_cv_func_pstat=yes],
-  [svz_cv_func_pstat=no])])
-
-AS_IF([SVZ_Y([svz_cv_func_pstat])],
-[AC_DEFINE([HAVE_PSTAT], 1,
-  [Define if HP-Unix provides the pstat interface.])])
+AC_CHECK_HEADERS_ONCE([sys/pstat.h])
+AS_IF([SVZ_Y([ac_cv_header_sys_pstat_h])],
+[AC_CHECK_DECL([pstat_getdynamic],
+ [AC_DEFINE([HAVE_PSTAT], 1,
+   [Define if HP-Unix provides the pstat interface.])],
+ [], [[#include <sys/pstat.h>]])])
 
 dnl Check for the 'sysget' interface on IRIX.
 
-AC_CACHE_CHECK([for sysget],[svz_cv_func_sysget],
-[AC_EGREP_HEADER([sysget],[sys/sysget.h],
-  [svz_cv_func_sysget=yes],
-  [svz_cv_func_sysget=no])])
-
-AS_IF([SVZ_Y([svz_cv_func_sysget])],
-[AC_DEFINE([HAVE_SYSGET], 1,
-  [Define if IRIX provides the sysget interface.])])
+AC_CHECK_HEADERS_ONCE([sys/sysget.h])
+AS_IF([SVZ_Y([ac_cv_header_sys_sysget_h])],
+[AC_CHECK_DECL([sysget],
+ [AC_DEFINE([HAVE_SYSGET], 1,
+   [Define if IRIX provides the sysget interface.])],
+ [], [[#include <sys/sysget.h>]])])
 
 dnl Check for the '/proc/stat' file under Linux.
 
@@ -886,14 +867,10 @@ AS_IF([SVZ_Y([svz_cv_func_inet_ntoa_broken])],
 dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.
 dnl
-AC_CACHE_CHECK([for socklen_t],[svz_cv_type_socklen_t],
-[AC_EGREP_HEADER([socklen_t],[sys/socket.h],
-  [svz_cv_type_socklen_t=yes],
-  [svz_cv_type_socklen_t=no])])
-
-AS_IF([SVZ_NOT_Y([svz_cv_type_socklen_t])],
-[AC_DEFINE([socklen_t], int,
-  [Define to 'int' if <sys/socket.h> does not define.])])
+AC_CHECK_TYPE([socklen_t], [],
+ [AC_DEFINE([socklen_t], int,
+   [Define to 'int' if <sys/socket.h> does not define.])],
+ [[#include <sys/socket.h>]])
 
 dnl
 dnl Check for the typedef SOCKET and HANDLE in <winsock2.h>.
@@ -961,38 +938,19 @@ dnl
 dnl Check for hstrerror(), h_errno and strsignal() functions.
 dnl
 
-AC_CACHE_CHECK([whether strsignal is declared],[svz_cv_decl_strsignal],
-[AC_EGREP_CPP([strsignal],[
+AC_CHECK_DECLS([strsignal], [], [], [[
     #define _GNU_SOURCE
     #define __EXTENSIONS__
     #include <string.h>
-],
-  [svz_cv_decl_strsignal=yes],
-  [svz_cv_decl_strsignal=no])])
-AS_IF([SVZ_Y([svz_cv_decl_strsignal])],
-[AC_DEFINE([DECLARED_STRSIGNAL], 1,
-  [Define if the strsignal function is declared in <string.h>.])])
+]])
 
 AC_CHECK_FUNCS([hstrerror],,
 [AC_CHECK_LIB([resolv],[hstrerror],
  [AC_DEFINE([HAVE_HSTRERROR], 1,
    [Define if you have the hstrerror function.])])])
 
-AC_CACHE_CHECK([whether hstrerror is declared],[svz_cv_decl_hstrerror],
-[AC_EGREP_HEADER([hstrerror],[netdb.h],
-  [svz_cv_decl_hstrerror=yes],
-  [svz_cv_decl_hstrerror=no])])
-AS_IF([SVZ_Y([svz_cv_decl_hstrerror])],
-[AC_DEFINE([DECLARED_HSTRERROR], 1,
-  [Define if the hstrerror function is declared in <netdb.h>.])])
-
-AC_CACHE_CHECK([for h_errno],[svz_cv_var_h_errno],
-[AC_EGREP_HEADER([h_errno],[netdb.h],
-  [svz_cv_var_h_errno=yes],
-  [svz_cv_var_h_errno=no])])
-AS_IF([SVZ_Y([svz_cv_var_h_errno])],
-[AC_DEFINE([HAVE_H_ERRNO], 1,
-  [Define if h_errno is supported.])])
+AS_IF([SVZ_Y([ac_cv_func_hstrerror]) || SVZ_Y([ac_cv_lib_resolv_hstrerror])],
+[AC_CHECK_DECLS([hstrerror, h_errno], [], [], [[#include <netdb.h>]])])
 
 dnl
 dnl Check for more functionality used in Serveez.
@@ -1010,23 +968,15 @@ AC_CHECK_FUNCS([getrpcbyname getrpcbynumber setrpcent endrpcent \
 LIBS="$save_LIBS"
 AS_UNSET([save_LIBS])
 
-AC_CACHE_CHECK([whether setrpcent is declared],[svz_cv_decl_setrpcent],[
-svz_cv_decl_setrpcent=no
-AC_EGREP_HEADER([setrpcent],[netdb.h],[svz_cv_decl_setrpcent=yes])
-AC_EGREP_HEADER([setrpcent],[rpc/rpcent.h],[svz_cv_decl_setrpcent=yes])
-])
-AS_IF([SVZ_Y([svz_cv_decl_setrpcent])],
-[AC_DEFINE([DECLARED_SETRPCENT], 1,
-  [Define if the setrpcent function is declared in <netdb.h>.])])
-
-AC_CACHE_CHECK([whether endrpcent is declared],[svz_cv_decl_endrpcent],[
-svz_cv_decl_endrpcent=no
-AC_EGREP_HEADER([endrpcent],[netdb.h],[svz_cv_decl_endrpcent=yes])
-AC_EGREP_HEADER([endrpcent],[rpc/rpcent.h],[svz_cv_decl_endrpcent=yes])
-])
-AS_IF([SVZ_Y([svz_cv_decl_endrpcent])],
-[AC_DEFINE([DECLARED_ENDRPCENT], 1,
-  [Define if the endrpcent function is declared in <netdb.h>.])])
+AC_CHECK_HEADERS_ONCE([netdb.h])
+AC_CHECK_DECLS([setrpcent, endrpcent], [], [], [[
+     #ifdef HAVE_NETDB_H
+     # include <netdb.h>
+     #endif
+     #ifdef HAVE_RPC_RPCENT_H
+     # include <rpc/rpcent.h>
+     #endif
+]])
 
 dnl
 dnl Find a working signed keyword.

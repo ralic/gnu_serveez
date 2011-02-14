@@ -286,7 +286,7 @@ svz_signal_handler (int sig)
 static svz_array_t *svz_signal_strings = NULL;
 
 /* On some platforms strsignal() can be resolved but is nowhere declared.  */
-#if defined (HAVE_STRSIGNAL) && !defined (DECLARED_STRSIGNAL)
+#if defined (HAVE_STRSIGNAL) && !HAVE_DECL_STRSIGNAL
 extern char * strsignal (int);
 #endif
 

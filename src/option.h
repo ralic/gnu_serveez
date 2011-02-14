@@ -55,7 +55,7 @@ option_t;
  * Defining here the struct and #define's for getopt_long() if it
  * is in libiberty.a but could not be found in getopt.h
  */
-#if defined (HAVE_GETOPT_LONG) && !defined (DECLARED_GETOPT_LONG)
+#if defined (HAVE_GETOPT_LONG) && !HAVE_DECL_GETOPT_LONG
 
 extern char *optarg;
 
@@ -77,7 +77,7 @@ extern int getopt_long (int argc,
                         const struct option *longopts,
                         int *longindex);
 
-#endif /* DECLARED_GETOPT_LONG */
+#endif  /* defined (HAVE_GETOPT_LONG) && !HAVE_DECL_GETOPT_LONG */
 
 #ifndef HAVE_GETOPT
 

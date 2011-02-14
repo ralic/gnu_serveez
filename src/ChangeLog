@@ -1,3 +1,11 @@
+2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Do more precise checks instead of ‘AC_EGREP_HEADER’.
+
+	* guile-api.c: Use ‘HAVE_DECL_SETRPCENT’, ‘HAVE_DECL_ENDRPCENT’.
+	* http-server/http-dirlist.c: Use ‘HAVE_DECL_ALPHASORT’.
+	* option.h: Use ‘HAVE_DECL_GETOPT_LONG’.
+
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	Change package name to "GNU Serveez".

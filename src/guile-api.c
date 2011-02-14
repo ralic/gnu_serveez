@@ -785,12 +785,12 @@ scm_getrpc (SCM arg)
 #undef FUNC_NAME
 #endif /* HAVE_GETRPCENT || HAVE_GETRPCBYNAME || HAVE_GETRPCBYNUMBER */
 
-#ifndef DECLARED_SETRPCENT
+#if !HAVE_DECL_SETRPCENT
 extern void setrpcent (int);
-#endif /* DECLARED_SETRPCENT */
-#ifndef DECLARED_ENDRPCENT
+#endif
+#if !HAVE_DECL_ENDRPCENT
 extern void endrpcent (void);
-#endif /* DECLARED_ENDRPCENT */
+#endif
 
 #if HAVE_SETRPCENT && HAVE_ENDRPCENT
 /* @defunx setrpcent stayopen

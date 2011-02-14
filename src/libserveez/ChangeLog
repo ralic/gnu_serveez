@@ -1,3 +1,11 @@
+2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Do more precise checks instead of ‘AC_EGREP_HEADER’.
+
+	* server-core.c: Use ‘HAVE_DECL_STRSIGNAL’.
+	* util.c: Use ‘HAVE_DECL_HSTRERROR’.
+	(svz_hstrerror): Use ‘HAVE_DECL_H_ERRNO’.
+
 2011-02-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Clean up Makefile.am files; segregate woe32.

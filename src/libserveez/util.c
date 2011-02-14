@@ -193,7 +193,7 @@ svz_hexdump (FILE *out,    /* output FILE stream */
 
 /* On some platforms @code{hstrerror()} can be resolved but is not declared
    anywhere.  That is why we do it here by hand.  */
-#if defined (HAVE_HSTRERROR) && !defined (DECLARED_HSTRERROR)
+#if defined (HAVE_HSTRERROR) && !HAVE_DECL_HSTRERROR
 extern char * hstrerror (int);
 #endif
 
@@ -205,13 +205,13 @@ char *
 svz_hstrerror (void)
 {
 #if HAVE_HSTRERROR
-# if HAVE_H_ERRNO
+# if HAVE_DECL_H_ERRNO
   return (char *) hstrerror (h_errno);
 # else
   return (char *) hstrerror (errno);
 # endif
 #else /* not HAVE_HSTRERROR */
-# if HAVE_H_ERRNO
+# if HAVE_DECL_H_ERRNO
   return (char *) strerror (h_errno);
 # else
   return (char *) strerror (errno);

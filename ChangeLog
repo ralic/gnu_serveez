@@ -1,5 +1,23 @@
 2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Do more precise checks instead of ‘AC_EGREP_HEADER’.
+
+	Here, "U (S, M...)" means "Don't use ‘AC_EGREP_HEADER’;
+	instead, arrange to ‘AC_DEFINE’ S via macro call(s) M...";
+	"D (S)" means "U (S, AC_CHECK_DECLS)"; and
+	"H (S)" means "U (S, AC_CHECK_HEADERS_ONCE, AC_CHECK_DECL)".
+	* configure.ac (getopt_long): D (HAVE_DECL_GETOPT_LONG).
+	(alphasort): D (HAVE_DECL_ALPHASORT).
+	(pstat_getdynamic): H (HAVE_PSTAT).
+	(sysget): H (HAVE_SYSGET).
+	(strsignal): D (HAVE_DECL_STRSIGNAL).
+	(hstrerror): D (HAVE_DECL_HSTRERROR).
+	(h_errno): D (HAVE_DECL_H_ERRNO).
+	(setrpcent): H (HAVE_DECL_SETRPCENT).
+	(endrpcent): H (HAVE_DECL_ENDRPCENT).
+
+2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Use ‘AC_CHECK_HEADERS_ONCE’.
 
 	* configure.ac: Convert all top-level single-arg
