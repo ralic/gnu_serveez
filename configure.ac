@@ -626,7 +626,7 @@ dnl bzero() is defined in <strings.h> on AIX, used by FD_ZERO()
 dnl There is no <wait.h> on AIX, but <sys/wait.h>.
 dnl
 
-AC_CHECK_HEADERS([wait.h strings.h])
+AC_CHECK_HEADERS_ONCE([wait.h strings.h])
 AC_HEADER_SYS_WAIT
 
 AC_CHECK_FUNCS([strcasecmp],,[AC_CHECK_FUNCS([stricmp])])
@@ -634,11 +634,13 @@ AC_CHECK_FUNCS([strncasecmp],,[AC_CHECK_FUNCS([strnicmp])])
 
 AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
   getegid gettimeofday shl_load NSAddImage])
-AC_CHECK_HEADERS([stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h \
-  getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h \
-  ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h \
-  mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h \
-  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h])
+AC_CHECK_HEADERS_ONCE([
+  stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h
+  getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h
+  ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h
+  mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h
+  rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h
+])
 AC_HEADER_DIRENT
 
 dnl
@@ -753,7 +755,7 @@ dnl ----------------------------------------------------------------------
 
 dnl Check for 'uname' interface.
 
-AC_CHECK_HEADERS([sys/utsname.h])
+AC_CHECK_HEADERS_ONCE([sys/utsname.h])
 AC_CHECK_FUNCS([uname])
 
 dnl ----------------------------------------------------------------------

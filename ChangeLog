@@ -1,3 +1,10 @@
+2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Use ‘AC_CHECK_HEADERS_ONCE’.
+
+	* configure.ac: Convert all top-level single-arg
+	‘AC_CHECK_HEADERS’ calls to ‘AC_CHECK_HEADERS_ONCE’.
+
 2011-02-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Add abstraction: SVZ_NOT_Y; use AS_{IF,CASE} more.
