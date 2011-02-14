@@ -1,5 +1,13 @@
 2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Purge ‘svz_t_retsig’ reference.
+
+	Omission from 2011-02-04, "Assume signal handlers return ‘void’".
+
+	* svzconfig.h.in (svz_t_retsig): Delete.
+
+2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Do more precise checks instead of ‘AC_EGREP_HEADER’.
 
 	* guile-api.c: Use ‘HAVE_DECL_SETRPCENT’, ‘HAVE_DECL_ENDRPCENT’.
