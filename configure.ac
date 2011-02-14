@@ -903,21 +903,7 @@ AC_CHECK_HEADERS([mswsock.h], [], [],[
 ])
 
 AC_TYPE_SIZE_T
-AS_IF([test no = $ac_cv_type_size_t],
-      [size_t_defined=unsigned],
-      [size_t_defined=size_t])
-AC_DEFINE_UNQUOTED([svz_t_size],[$size_t_defined],
-  [Define to `unsigned' if <sys/types.h> doesn't define 'size_t'.])
-AS_UNSET([size_t_defined])
-
 AC_TYPE_OFF_T
-AS_IF([test no = $ac_cv_type_off_t],
-      [off_t_defined=long],
-      [off_t_defined=off_t])
-AC_DEFINE_UNQUOTED([svz_t_off],[$off_t_defined],
-  [Define to `long' if <sys/types.h> doesn't define 'off_t'.])
-AS_UNSET([off_t_defined])
-
 AC_TYPE_MODE_T
 
 dnl

@@ -511,7 +511,7 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
  * read/written or -1 on errors.
  */
 int
-svz_sendfile (int out_fd, int in_fd, svz_t_off *offset, unsigned int count)
+svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 {
 #ifndef ENABLE_SENDFILE
   svz_log (LOG_ERROR, "sendfile() disabled\n");
@@ -533,7 +533,7 @@ svz_sendfile (int out_fd, int in_fd, svz_t_off *offset, unsigned int count)
 #elif defined (__FreeBSD__)
 
   /* This was tested for FreeBSD4.3 on alpha.  */
-  svz_t_off sbytes;
+  off_t sbytes;
   ret = sendfile (in_fd, out_fd, *offset, count, NULL, &sbytes, 0);
   *offset += sbytes;
   ret = ret ? -1 : (int) sbytes;
@@ -812,8 +812,8 @@ svz_fstat (int fd, struct stat *buf)
   buf->st_uid = 0;
   buf->st_gid = 0;
   buf->st_rdev = 0;
-  buf->st_size = (svz_t_off) (((__int64) info.nFileSizeHigh << 32) |
-                              info.nFileSizeLow);
+  buf->st_size = (off_t) (((__int64) info.nFileSizeHigh << 32) |
+                          info.nFileSizeLow);
   buf->st_atime = ft2lt (info.ftLastAccessTime);
   buf->st_mtime = ft2lt (info.ftLastWriteTime);
   buf->st_ctime = ft2lt (info.ftCreationTime);
