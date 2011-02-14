@@ -20,11 +20,11 @@ See the end for copying conditions.
 ***** TODO modernize [[file:configure.ac][configure.ac]] and [[file:m4/inc.m4][m4/inc.m4]]
 ******* TODO drop redundant AC_DEFINE forms
 ******* DONE use AC_PREREQ
-******* TODO m4: update AC_*, use AS_*, quote properly, etc
+******* DONE m4: update AC_*, use AS_*, quote properly, etc
 ******* DONE move AC_OUTPUT (and "print results") last
 ******* DONE use LT_PREREQ, LT_INIT
 ******* DONE remove --with-guile-source; move info to manual
-******* TODO prefer more precise check over ‘AC_EGREP_HEADER’
+******* DONE prefer more precise check over ‘AC_EGREP_HEADER’
 ***** DONE modernize [[elisp:(find-dired%20"."%20"-name%20Makefile.am")][Makefile.am files]]
 ******* DONE don't use @MAINTAINER_MODE_TRUE@ directly
 ******* DONE use $(FOO) instead of @FOO@
@@ -37,12 +37,14 @@ See the end for copying conditions.
 ***** DONE prune by-now standardized bits from [[file:doc/Makefile.am][doc/Makefile.am]]
 ***** DONE move *.serveez file creation (woe32) to "make dist"
 *** DONE Assume signal handlers return ‘void’.
+*** TODO Remove svz_t_{size,off}.
+*** TODO Remove svz_c_{const,signed}.
 *** TODO Update Guile support.
-***** TODO SCM_INUM
-***** TODO SCM_INUMP
-***** TODO SCM_MAKINUM
-***** TODO SCM_VELTS
-***** TODO SCM_WRITABLE_VELTS
+***** TODO SCM_INUM (m)
+***** TODO SCM_INUMP (m)
+***** TODO SCM_MAKINUM (m)
+***** TODO SCM_VELTS (m)
+***** TODO SCM_WRITABLE_VELTS (m)
 ***** TODO scm_c_string2str
 ***** TODO scm_c_symbol2str
 ***** DONE scm_cur_inp (v) => scm_current_input_port (f)
@@ -66,11 +68,17 @@ See the end for copying conditions.
 *** admin
 ***** Offload [[file:BUGS][BUGS]] to savannah (can we preserve history?).
 ***** Use ranges for copyright notices.
+***** Use nicer single quotes in informative files.
 *** build
 ***** Drop MSVC support.
 ***** Remove homegrown warnings/optimizations machinery.
 ***** Use hydra for continuous integration.
 ***** Investigate using gnulib.
+***** Use libtool more (libltdl et al).
+***** Make libserveez binary upward-compatible (use -version-info).
+      (info "(libtool) Versioning")
+***** Modernize Scheme code.
+******* (string-append DIR FILE) => in-vicinity
 *** Support IPv6.
 *** Assimilate Mike Gran's fork ([[shell:cd%20..%20&&%20git%20clone%20git://github.com/spk121/serveez-mg.git][clone]] [[file:~/build/GNU/serveez-mg][visit]]).
 *** Minimize memory consumption of coservers.
