@@ -393,7 +393,7 @@ The @code{trigger} callback is invoked when the @code{trigger-condition}
 returns @code{#t}.  The callback can be set up with the procedure
 @code{(svz:sock:trigger)}.  Returning a non-zero value shuts the
 connection down.  A zero return value indicates success.  This callback
-can be used to perform connection related updates, e.g. you can ensure
+can be used to perform connection related updates, e.g., you can ensure
 a certain send buffer fill.
 
 @item (check-oob-request #<svz-socket> oob-byte)
@@ -408,6 +408,6 @@ can use @code{(svz:sock:send-oob)} to send a single out-of-band data byte.
 @strong{Please note}:
 The urgent data is not supported by all operating systems.  Also it does
 not work for all types of network protocols.  We verified it to be working
-for TCP streams on GNU/Linux 2.x.x and Windows 95;  let us know if/how it
+for TCP streams on GNU/Linux 2.x.x and Windows 95; let us know if/how it
 works on other platforms.
 @end table

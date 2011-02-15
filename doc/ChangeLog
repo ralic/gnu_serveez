@@ -1,3 +1,12 @@
+2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Use commas and whitespace more.
+
+	* guile-api.texi.in: Throughout, add comma after "e.g."
+	and "i.e."; use two spaces after end of sentence punctuation.
+	* serveez-api.texi.in: Likewise.
+	* serveez.texi: Likewise.
+
 2011-02-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Make thread-safety configurable with "enable", not "with".
