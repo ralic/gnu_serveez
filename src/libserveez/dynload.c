@@ -74,7 +74,7 @@ dyn_error (void)
 {
   NSLinkEditErrors errors;
   int n;
-  svz_c_const char *file, *err;
+  const char *file, *err;
   NSLinkEditError (&errors, &n, &file, &err);
   return (char *) err;
 }

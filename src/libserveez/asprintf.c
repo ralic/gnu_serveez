@@ -36,7 +36,7 @@
  * responsible to run @code{svz_free()} on @var{str}.
  */
 int
-svz_asprintf (char **str, svz_c_const char *fmt, ...)
+svz_asprintf (char **str, const char *fmt, ...)
 {
   va_list args;
   int retval;
@@ -53,7 +53,7 @@ svz_asprintf (char **str, svz_c_const char *fmt, ...)
  * helper function only.
  */
 int
-svz_vasprintf (char **str, svz_c_const char *fmt, va_list args)
+svz_vasprintf (char **str, const char *fmt, va_list args)
 {
   int size = 128; /* guess we need no more than 128 characters of space */
   int nchars;

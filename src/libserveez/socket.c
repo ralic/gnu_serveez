@@ -705,7 +705,7 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
  * arguments.  See the printf(3) manual page for details.
  */
 int
-svz_sock_printf (svz_socket_t *sock, svz_c_const char *fmt, ...)
+svz_sock_printf (svz_socket_t *sock, const char *fmt, ...)
 {
   va_list args;
   static char buffer[VSNPRINTF_BUF_SIZE];

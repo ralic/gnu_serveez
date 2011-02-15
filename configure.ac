@@ -50,12 +50,6 @@ dnl Check for a proper C compiler.
 dnl
 AC_PROG_CC
 
-AC_C_CONST
-SVZ_Y([ac_cv_c_const]) && const_defined=const
-AC_DEFINE_UNQUOTED([svz_c_const],[$const_defined],
-  [Define to empty if the keyword does not work.])
-AS_UNSET([const_defined])
-
 AC_C_BIGENDIAN
 
 AC_CHECK_SIZEOF([long], 4)

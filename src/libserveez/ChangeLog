@@ -1,5 +1,27 @@
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘const’ directly.
+
+	* asprintf.c: Throughout, do ‘s/svz_c_const/const/g’.
+	* asprintf.h: Likewise.
+	* core.c: Likewise.
+	* core.h: Likewise.
+	* dynload.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* icmp-socket.h: Likewise.
+	* passthrough.c: Likewise.
+	* server-core.c: Likewise.
+	* snprintf.c: Likewise.
+	* snprintf.h: Likewise.
+	* socket.c: Likewise.
+	* socket.h: Likewise.
+	* udp-socket.c: Likewise.
+	* udp-socket.h: Likewise.
+	* util.c: Likewise.
+	* util.h: Likewise.
+
+2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Avoid naked "%s" in ‘sscanf’ format string.
 
 	* coserver/dns.c: #include "cpp-tricks.h".

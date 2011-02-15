@@ -249,8 +249,7 @@ SERVEEZ_API int svz_sock_free __PARAMS ((svz_socket_t *));
 SERVEEZ_API svz_socket_t *svz_sock_create __PARAMS ((int));
 SERVEEZ_API int svz_sock_disconnect __PARAMS ((svz_socket_t *));
 SERVEEZ_API int svz_sock_write __PARAMS ((svz_socket_t *, char *, int));
-SERVEEZ_API int svz_sock_printf __PARAMS ((svz_socket_t *,
-                                           svz_c_const char *, ...));
+SERVEEZ_API int svz_sock_printf __PARAMS ((svz_socket_t *, const char *, ...));
 SERVEEZ_API int svz_sock_resize_buffers __PARAMS ((svz_socket_t *, int, int));
 SERVEEZ_API int svz_sock_local_info __PARAMS ((svz_socket_t *,
                                                unsigned long *,

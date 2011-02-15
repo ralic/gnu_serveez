@@ -1,5 +1,12 @@
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘const’ directly.
+
+	* configure.ac (AC_C_CONST): Delete macro call.
+	(svz_c_const): Delete AC_DEFINE_UNQUOTED.
+
+2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Fix bug: Delete everything on "make uninstall".
 
 	* Makefile.am (uninstall-hook): New target.

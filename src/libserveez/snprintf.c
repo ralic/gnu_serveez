@@ -31,7 +31,7 @@
  * @code{vsprintf()} if @code{vsnprintf()} does not exist.
  */
 int
-svz_snprintf (char *str, unsigned int n, svz_c_const char *fmt, ...)
+svz_snprintf (char *str, unsigned int n, const char *fmt, ...)
 {
   int ret;
   va_list args;
