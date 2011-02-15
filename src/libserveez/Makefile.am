@@ -53,6 +53,9 @@ libserveez_HEADERS = alloc.h util.h snprintf.h hash.h sparsevec.h socket.h \
   server-socket.h interface.h dynload.h vector.h core.h array.h portcfg.h  \
   binding.h passthrough.h cfg.h asprintf.h mutex.h
 
+uninstall-hook:
+	rmdir "$(DESTDIR)$(libserveezdir)"
+
 # generate path info (included in <libserveez/dynload.c>
 
 $(srcdir)/dynload.c: svzpath.h

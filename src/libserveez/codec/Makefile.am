@@ -35,3 +35,6 @@ libcodecdir = $(includedir)/libserveez/codec
 libcodec_HEADERS = codec.h
 
 noinst_HEADERS = gzlib.h bzip2.h
+
+uninstall-hook:
+	rmdir "$(DESTDIR)$(libcodecdir)"

@@ -45,6 +45,9 @@ MAINTAINERCLEANFILES += aclocal.m4 config.h.in configure \
 	stamp-h.in stamp-h[0-9].in
 DISTCLEANFILES = config.cache config.log
 
+uninstall-hook:
+	 rmdir "$(DESTDIR)$(pkgdatadir)"
+
 # woe
 
 EXTRA_DIST += README-Win32 serveez.dsw serveez.ap \
