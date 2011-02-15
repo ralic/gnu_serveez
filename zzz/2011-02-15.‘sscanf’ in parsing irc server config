@@ -1,0 +1,64 @@
+HACKING from commit 5078848223c07c7eaba1264705f0a1f7f1a31c06
+includes this fragment:
+
+  ***** TODO sloppy ‘sscanf’ (latent remote buffer overflow)
+        e.g.: [[dbts:540657]]
+
+wherein ‘dbts:540657’ resolves to:
+
+  http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=540657
+
+Fine, easily fixed.  Next step is to search for similar bugs.
+Grepping around, i find in $ee/src/irc-server/irc-server.c:57:
+
+  /*
+   * Parse one of the config lines in the IRC configuration.
+   * This function has exactly the same syntax as sscanf() but
+   * recognizes only %s and %d for string and integers.  Strings
+   * will be parsed until the next character in the format string.
+   */
+  int
+  irc_parse_line (char *line, char *fmt, ...)
+  {
+    ...
+            /* a string */
+            else if (*fmt == 's')
+              {
+                s = va_arg (args, char *);
+                fmt++;
+                while (*line && *line != *fmt)
+                  {
+                    *s++ = *line++;
+                  }
+                *s = 0;
+              }
+    ...
+  }
+
+IOW, an unbounded copy operation (exactly the same vulnerability
+as the ‘sscanf (S, "%s", ...)’ just fixed in http-core.c).  Cool,
+now to decide on a fix.  In the http-core.c case, the fix is to
+identify the receiving buffer size and encode that in the format
+string.  In this case, we don't know the size of the multiple
+receiving buffers, although the $ee/data/serveez.cfg section for
+the IRC server shows a ‘(define-server! 'irc-server ...)’ form
+with strings generally less than 64 bytes, with the individual
+fields that comprise these strings necessarily shorter, so that
+(64) could be a candidate for a hard-coded upper bound.
+
+But this approach has its drawbacks:
+
+- (practical)
+  What if the serveez.cfg parameters are not representative?
+  Could there be a legitimate case for supporting very long lines?
+
+- (philsophical)
+  It's counter to GNU standards to hard-code arbitrary limits.
+
+- (security)
+  A buffer overflow is still possible.
+
+So it sounds like a more radical approach is indicated: Teach
+‘irc_parse_line’ to expect "%Ns" and change all callers to always
+specify the size of the receiving buffers.  At which point, why
+not just use ‘sscanf’ directly?

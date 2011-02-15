@@ -1,0 +1,14 @@
+This directory contains reading material for insomniacs.
+It and its contents are not included in the distribution.
+
+The file names have the form:
+
+  YYYY-MM-DD.TITLE
+
+In the text, the notation $ee means "root of source tree".
+Emacs will visit that file with ‘M-x ffap’ if you define the
+env var, e.g.:
+
+  (setenv "ee" "~/build/GNU/serveez")
+
+Happy snoozing!

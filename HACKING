@@ -12,6 +12,10 @@ See the end for copying conditions.
 ***** TODO sloppy ‘sscanf’ (latent remote buffer overflow)
       e.g.: [[dbts:540657]]
       audit [[elisp:(find-dired%20"."%20"-name%20'*.%5Bhc%5D'%20-exec%20grep%20-qF%20sscanf%20'{}'%20\\%3B")][source code mentioning ‘sscanf’]]
+      =>    [[file:src/http-server/http-core.c::772]]
+      =>    [[file:src/irc-server/irc-server.c::64]] ([[file:zzz/2011-02-15.‘sscanf’%20in%20parsing%20irc%20server%20config][zzz]])
+      =>    [[file:src/libserveez/coserver/dns.c::61]]
+      =>    [[file:src/libserveez/coserver/reverse-dns.c::86]]
 ***** TODO libserveez binary-incompatible between releases
       unoptimal (-release): (info "(libtool) Link mode")
       cool (-version-info): (info "(libtool) Versioning")
