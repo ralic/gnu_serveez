@@ -225,6 +225,8 @@ irc_check_tcp_bindings (svz_server_t *server)
   return err;
 }
 
+#define MAX_TMP_STRLEN  256
+
 /*
  * Initialization of the IRC server instance.
  */
@@ -232,12 +234,17 @@ int
 irc_init (svz_server_t *server)
 {
   irc_config_t *cfg = server->cfg;
-  char tmp[3][256];
+  char tmp[3][MAX_TMP_STRLEN];
+
+#define TB(i)                                           \
+  /* Note: This is deliberately two expressions,        \
+     separated by a comma.  Do not parenthesize!  */    \
+  MAX_TMP_STRLEN, tmp[i]
 
   /* scan the M line (server configuration) */
   if (!cfg->MLine ||
       irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d",
-                      tmp[0], tmp[1], tmp[2], &cfg->port) != 4)
+                      TB (0), TB (1), TB (2), &cfg->port) != 4)
     {
       svz_log (LOG_ERROR, "irc: invalid M line: %s\n",
                cfg->MLine ? cfg->MLine : "(nil)");
@@ -253,7 +260,7 @@ irc_init (svz_server_t *server)
 
   /* scan the A line (administrative information) */
   if (!cfg->ALine ||
-      irc_parse_line (cfg->ALine, "A:%s:%s:%s", tmp[0], tmp[1], tmp[2]) != 3)
+      irc_parse_line (cfg->ALine, "A:%s:%s:%s", TB (0), TB (1), TB (2)) != 3)
     {
       svz_log (LOG_ERROR, "irc: invalid A line: %s\n",
                cfg->ALine ? cfg->ALine : "(nil)");
@@ -275,6 +282,8 @@ irc_init (svz_server_t *server)
   irc_connect_servers (cfg);
 
   return 0;
+
+#undef TB
 }
 
 /*

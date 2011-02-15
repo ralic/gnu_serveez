@@ -1,5 +1,17 @@
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[irc-server] Avoid latent buffer overflow in config parsing.
+
+	* irc-server/irc-server.c (irc_parse_line): For format
+	string frag "%s", consume 1st a ‘size_t avail’ arg, and 2nd
+	the output string pointer arg; limit scanning to ‘avail - 1’.
+	(irc_connect_servers): Update call to ‘irc_parse_line’.
+	* irc-server/irc-config.c (irc_parse_config_lines): Likewise.
+	* irc-server/irc-proto.c (MAX_TMP_STRLEN): New #define.
+	(irc_init): Use ‘MAX_TMP_STRLEN’; update calls to ‘irc_parse_line’.
+
+2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Avoid naked "%s" in ‘sscanf’ format string.
 
 	* cpp-tricks.h: New file.

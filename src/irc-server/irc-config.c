@@ -67,6 +67,11 @@ irc_parse_config_lines (irc_config_t *cfg)
   for (n = 0; n < MAX_TMP_ARRAY; n++)
     tmp[n] = svz_malloc (MAX_TMP_STRLEN);
 
+#define TB(i)                                           \
+  /* Note: This is deliberately two expressions,        \
+     separated by a comma.  Do not parenthesize!  */    \
+  MAX_TMP_STRLEN, tmp[i]
+
   /* parse connection classes */
   svz_array_foreach (cfg->YLine, line, n)
     {
@@ -93,7 +98,7 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       user = svz_malloc (sizeof (irc_user_t));
       if (5 != irc_parse_line (line, "I:%s:%s:%s:%s:%d",
-                               tmp[0], tmp[1], tmp[2], tmp[3],
+                               TB (0), TB (1), TB (2), TB (3),
                                &user->class))
         {
           svz_log (LOG_ERROR, "irc: invalid I line: %s\n", line);
@@ -121,7 +126,7 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       oper = svz_malloc (sizeof (irc_oper_t));
       if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-                               tmp[0], tmp[1], tmp[2], &oper->class))
+                               TB (0), TB (1), TB (2), &oper->class))
         {
           svz_log (LOG_ERROR, "irc: invalid O line: %s\n", line);
           svz_free (oper);
@@ -144,7 +149,7 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       oper = svz_malloc (sizeof (irc_oper_t));
       if (4 != irc_parse_line (line, "O:%s:%s:%s::%d",
-                               tmp[0], tmp[1], tmp[2], &oper->class))
+                               TB (0), TB (1), TB (2), &oper->class))
         {
           svz_log (LOG_ERROR, "irc: invalid o line: %s\n", line);
           svz_free (oper);
@@ -168,7 +173,7 @@ irc_parse_config_lines (irc_config_t *cfg)
     {
       kill = svz_malloc (sizeof (irc_kill_t));
       if (4 != irc_parse_line (line, "O:%s:%d-%d:%s",
-                               tmp[0], &kill->start, &kill->end, tmp[1]))
+                               TB (0), &kill->start, &kill->end, TB (1)))
         {
           svz_log (LOG_ERROR, "irc: invalid K line: %s\n", line);
           svz_free (kill);
@@ -186,6 +191,8 @@ irc_parse_config_lines (irc_config_t *cfg)
   /* free the previously allocated buffer space */
   for (n = 0; n < MAX_TMP_ARRAY; n++)
     svz_free (tmp[n]);
+
+#undef TB
 }
 
 /*

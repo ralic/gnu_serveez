@@ -59,6 +59,9 @@ irc_server_t *irc_server_list;  /* server list root */
  * This function has exactly the same syntax as sscanf() but
  * recognizes only %s and %d for string and integers.  Strings
  * will be parsed until the next character in the format string.
+ * Another difference is that each %s in the format string
+ * consumes two args, not just one.  The first in the pair is
+ * an integer BUFSIZE that limits the scan to BUFSIZE - 1 bytes.
  */
 int
 irc_parse_line (char *line, char *fmt, ...)
@@ -96,9 +99,11 @@ irc_parse_line (char *line, char *fmt, ...)
           /* a string */
           else if (*fmt == 's')
             {
+              size_t avail = va_arg (args, size_t);
+
               s = va_arg (args, char *);
               fmt++;
-              while (*line && *line != *fmt)
+              while (*line && *line != *fmt && --avail)
                 {
                   *s++ = *line++;
                 }
@@ -265,7 +270,10 @@ irc_connect_servers (irc_config_t *cfg)
     {
       /* scan the actual C line */
       irc_parse_line (cline, "C:%s:%s:%s:%d:%d",
-                      realhost, pass, host, &port, &class);
+                      MAX_HOST_LEN, realhost,
+                      MAX_PASS_LEN, pass,
+                      MAX_NAME_LEN, host,
+                      &port, &class);
 
       /* create new IRC server structure */
       ircserver = svz_malloc (sizeof (irc_server_t));
