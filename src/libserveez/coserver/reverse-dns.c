@@ -43,6 +43,8 @@
 # include <arpa/inet.h>
 #endif
 
+#include "cpp-tricks.h"
+
 #include "libserveez/util.h"
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/coserver/reverse-dns.h"
@@ -71,19 +73,21 @@ reverse_dns_init (void)
   reverse_dns_cache.entries = 0;
 }
 
+#define MAX_IP_STRING_LENGTH  15        /* www.xxx.yyy.zzz */
+
 /*
  * Proceed a reverse DNS lookup.
  */
 char *
 reverse_dns_handle_request (char *inbuf)
 {
-  char ip[16];
+  char ip[1 + MAX_IP_STRING_LENGTH];
   unsigned long addr[2];
   struct hostent *host;
   static char resolved[COSERVER_BUFSIZE];
   int n;
 
-  if ((1 == sscanf (inbuf, "%s", ip)))
+  if ((1 == sscanf (inbuf, PERCENT_N_S (MAX_IP_STRING_LENGTH), ip)))
     {
       addr[0] = inet_addr (ip);
       addr[1] = 0;

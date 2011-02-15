@@ -43,6 +43,8 @@
 # include <arpa/inet.h>
 #endif
 
+#include "cpp-tricks.h"
+
 #include "libserveez/util.h"
 #include "libserveez/core.h"
 #include "libserveez/coserver/coserver.h"
@@ -58,7 +60,7 @@ dns_handle_request (char *inbuf)
   struct hostent *host;
   static char resolved[COSERVER_BUFSIZE];
 
-  if ((1 == sscanf (inbuf, "%s", resolved)))
+  if ((1 == sscanf (inbuf, PERCENT_N_S (COSERVER_BUFSIZE), resolved)))
     {
       /* find the host by its name */
       if ((host = gethostbyname (resolved)) == NULL)

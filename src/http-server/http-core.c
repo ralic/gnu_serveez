@@ -49,6 +49,8 @@
 # include <lmerr.h>
 #endif
 
+#include "cpp-tricks.h"
+
 #include "libserveez.h"
 #include "http-proto.h"
 #include "http-core.h"
@@ -733,6 +735,8 @@ http_asc_date (time_t t)
   return asc;
 }
 
+#define MAX_WKDAY_SIZE  9
+
 /*
  * Extract a date information from a given string and return a
  * UTC time (time_t) as time() does.
@@ -743,7 +747,7 @@ http_parse_date (char *date)
   struct tm parse_time;
   int n;
   char _month[4];
-  char _wkday[10];
+  char _wkday[1 + MAX_WKDAY_SIZE];
   time_t ret;
 
   static char month[12][4] = {
@@ -769,7 +773,9 @@ http_parse_date (char *date)
       break;
       /* RFC850-Date */
     default:
-      sscanf (date, "%s, %02d-%3s-%02d %02d:%02d:%02d GMT",
+      sscanf (date,
+              PERCENT_N_S (MAX_WKDAY_SIZE)
+              ", %02d-%3s-%02d %02d:%02d:%02d GMT",
               _wkday, &parse_time.tm_mday, _month, &parse_time.tm_year,
               &parse_time.tm_hour, &parse_time.tm_min, &parse_time.tm_sec);
 

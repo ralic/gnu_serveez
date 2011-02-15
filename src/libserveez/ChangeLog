@@ -1,5 +1,16 @@
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Avoid naked "%s" in ‘sscanf’ format string.
+
+	* coserver/dns.c: #include "cpp-tricks.h".
+	(dns_handle_request): Use ‘PERCENT_N_S’.
+	* coserver/reverse-dns.c: #include "cpp-tricks.h".
+	(MAX_IP_STRING_LENGTH): New #define.
+	(reverse_dns_handle_request): Use
+	‘MAX_IP_STRING_LENGTH’, ‘PERCENT_N_S’.
+
+2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Fix bug: Delete everything on "make uninstall".
 
 	* Makefile.am (uninstall-hook): New target.

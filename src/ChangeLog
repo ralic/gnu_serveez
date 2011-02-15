@@ -1,3 +1,13 @@
+2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Avoid naked "%s" in ‘sscanf’ format string.
+
+	* cpp-tricks.h: New file.
+	* Makefile.am (serveez_SOURCES): Add cpp-tricks.h.
+	* http-server/http-core.c: #include "cpp-tricks.h".
+	(MAX_WKDAY_SIZE): New #define.
+	(http_parse_date): Use ‘MAX_WKDAY_SIZE’, ‘PERCENT_N_S’.
+
 2011-02-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘size_t’ and ‘off_t’ directly.
