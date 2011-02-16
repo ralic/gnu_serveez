@@ -35,7 +35,7 @@
  * to the actual size of this buffer (for debugging/memory counting).
  * If NULL is returned, something was wrong with the directory.  You may
  * check errno for details.
- * ...and don't forget too free() the data somewhere somewhen...
+ * ...and don't forget too ‘free’ the data somewhere somewhen...
  */
 char *http_dirlist (char *dirname, char *docroot, char *userdir);
 extern int http_dirlist_size;

@@ -345,7 +345,7 @@ svz_spvec_add (svz_spvec_t *spvec, void *value)
 
 /*
  * Removes all of the elements from the sparse vector @var{spvec}.  The
- * sparse vector will be as clean as created with @code{svz_spvec_create()}
+ * sparse vector will be as clean as created with @code{svz_spvec_create}
  * then.
  */
 void
@@ -707,7 +707,7 @@ svz_spvec_set (svz_spvec_t *spvec, unsigned long index, void *value)
 /*
  * Delete the element at the given position @var{index} from the sparse
  * vector @var{spvec} but leave all following elements untouched
- * (unlike @code{svz_spvec_delete()}).  Return its previous value if there
+ * (unlike @code{svz_spvec_delete}).  Return its previous value if there
  * is one otherwise return @code{NULL}.
  */
 void *
@@ -971,7 +971,7 @@ svz_spvec_pack (svz_spvec_t *spvec)
 
 /*
  * Delivers all values within the given sparse vector @var{spvec} in a
- * single linear chunk.  You have to @code{svz_free()} it after usage.
+ * single linear chunk.  You have to @code{svz_free} it after usage.
  */
 void **
 svz_spvec_values (svz_spvec_t *spvec)

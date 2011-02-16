@@ -262,21 +262,21 @@ dnl Check whether poll loop should be supported.
 dnl
 
 SVZ_FLAG([whether to enable poll loop],
-         [yes],[poll],[Include poll() server loop],[
+         [yes],[poll],[Include poll(2) server loop],[
 AC_DEFINE([ENABLE_POLL], 1,
-  [Define if poll() should be supported if possible.])
+  [Define if poll(2) should be supported if possible.])
 ])
 
 dnl ----------------------------------------------------------------------
 
 dnl
-dnl Check whether sendfile() should be supported.
+dnl Check whether ‘sendfile’ should be supported.
 dnl
 
-SVZ_FLAG([whether to use sendfile() if possible],
-         [yes],[sendfile],[Include sendfile() support],[
+SVZ_FLAG([whether to use sendfile(2) if possible],
+         [yes],[sendfile],[Include sendfile(2) support],[
 AC_DEFINE([ENABLE_SENDFILE], 1,
-  [Define if sendfile() should be supported if possible.])
+  [Define if sendfile(2) should be supported if possible.])
 ])
 
 dnl ----------------------------------------------------------------------
@@ -558,7 +558,7 @@ dnl
 AC_HEADER_STDC
 
 dnl
-dnl Checking for getopt() and getopt_long() functions and headers.
+dnl Checking for ‘getopt’ and ‘getopt_long’ functions and headers.
 dnl
 
 save_LIBS="$LIBS"
@@ -609,7 +609,7 @@ AS_IF([SVZ_Y([svz_cv_var_timezone])],
   [Define if you have timezone and daylight.])])
 
 dnl
-dnl bzero() is defined in <strings.h> on AIX, used by FD_ZERO()
+dnl ‘bzero’ is defined in <strings.h> on AIX, used by ‘FD_ZERO’
 dnl There is no <wait.h> on AIX, but <sys/wait.h>.
 dnl
 
@@ -656,8 +656,8 @@ AS_IF([SVZ_Y([svz_cv_header_netinet_tcp_h])],
   [Define if you have the <netinet/tcp.h> header file.])])
 
 dnl
-dnl Check if alphasort() is declared.  Also check for alphasort(),
-dnl strsignal() and scandir() in -liberty.
+dnl Check if ‘alphasort’ is declared.  Also check for ‘alphasort’,
+dnl ‘strsignal’ and ‘scandir’ in -liberty.
 dnl
 save_LIBS="$LIBS"
 LIBS="$LIBS $SERVEEZ_LIBS $EXTRALIBS"
@@ -791,7 +791,7 @@ AC_CHECK_FUNCS([vsprintf],,
 [AC_MSG_ERROR([cannot compile without vsprintf])])
 
 dnl
-dnl Some Unices (e.g. Dec Unix) do not implement snprintf().
+dnl Some Unices (e.g. Dec Unix) do not implement ‘snprintf’.
 dnl
 AC_CHECK_FUNCS([snprintf],,
 [AC_CHECK_FUNCS([_snprintf],,
@@ -833,9 +833,9 @@ SVZ_EXTRALIBS_MAYBE([inet_aton],[resolv])
 dnl
 dnl Check for broken inet_ntoa ()
 dnl
-dnl  It is not really that inet_ntoa() is broken. Some (old) gcc versions
-dnl  on IRIX handle small structs wrong. As of gcc 2.95 this should be
-dnl  fixed but we do not really know. To work around we implement inet_ntoa()
+dnl  It is not really that ‘inet_ntoa’ is broken. Some (old) gcc versions
+dnl  on IRIX handle small structs wrong.  As of gcc 2.95 this should be
+dnl  fixed but we do not really know.  To work around we implement ‘inet_ntoa’
 dnl  on our own if it does not work.
 dnl
 AC_CACHE_CHECK([whether inet_ntoa is broken],[svz_cv_func_inet_ntoa_broken],
@@ -901,7 +901,7 @@ AC_TYPE_OFF_T
 AC_TYPE_MODE_T
 
 dnl
-dnl Checking for crypt() function.
+dnl Checking for ‘crypt’ function.
 dnl
 
 MKPASSWORD=""
@@ -915,7 +915,7 @@ AS_IF([SVZ_Y([enable_crypt])],[
 AC_SUBST([MKPASSWORD])
 
 dnl
-dnl Check for hstrerror(), h_errno and strsignal() functions.
+dnl Check for ‘hstrerror’, ‘h_errno’ and ‘strsignal’ functions.
 dnl
 
 AC_CHECK_DECLS([strsignal], [], [], [[

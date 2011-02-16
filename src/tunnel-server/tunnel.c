@@ -477,7 +477,7 @@ tnl_check_request_tcp_target (svz_socket_t *sock)
 }
 
 /*
- * The tunnel servers TCP check_request() routine for the source connections.
+ * The tunnel servers TCP ‘check_request’ routine for the source connections.
  * It simply copies the received data to the send buffer of the target
  * connection.
  */
@@ -510,7 +510,7 @@ tnl_check_request_tcp_source (svz_socket_t *sock)
 }
 
 /*
- * This function is the handle_request() routine for target UDP sockets.
+ * This function is the ‘handle_request’ routine for target UDP sockets.
  */
 int
 tnl_handle_request_udp_target (svz_socket_t *sock, char *packet, int len)
@@ -545,7 +545,7 @@ tnl_handle_request_udp_target (svz_socket_t *sock, char *packet, int len)
 }
 
 /*
- * This function is the handle_request() routine for source UDP sockets.
+ * This function is the ‘handle_request’ routine for source UDP sockets.
  * It accepts UDP connections (listening connection) or forwards data
  * to existing target sockets.
  */
@@ -628,7 +628,7 @@ tnl_handle_request_icmp_target (svz_socket_t *sock, char *packet, int len)
 }
 
 /*
- * This function is the handle_request() routine for source ICMP sockets.
+ * This function is the ‘handle_request’ routine for source ICMP sockets.
  * It accepts ICMP connections (listening connection) or forwards data
  * to existing target sockets.
  */

@@ -207,9 +207,9 @@ svz_sock_idle_protect (svz_socket_t *sock)
 }
 
 /*
- * This @code{check_request()} routine could be used by any protocol to
+ * This @code{check_request} routine could be used by any protocol to
  * detect and finally handle packets depending on a specific packet
- * boundary.  The appropriate @code{handle_request()} is called for each packet
+ * boundary.  The appropriate @code{handle_request} is called for each packet
  * explicitly with the packet length inclusive the packet boundary.
  */
 static int
@@ -294,9 +294,9 @@ svz_sock_check_request_byte (svz_socket_t *sock)
 
 /*
  * The following routine checks for fixed size packets in the receive queue
- * of the socket structure @var{sock} and calls the @code{handle_request()}
+ * of the socket structure @var{sock} and calls the @code{handle_request}
  * callback if so.  It is possible to change the fixed packet size in the
- * @code{handle_request()} callback dynamically.
+ * @code{handle_request} callback dynamically.
  */
 static int
 svz_sock_check_request_size (svz_socket_t *sock)
@@ -330,7 +330,7 @@ svz_sock_check_request_size (svz_socket_t *sock)
 /*
  * This function simply checks for the kind of packet delimiter within the
  * given socket structure and and assigns one of the default
- * @code{check_request()} routines (one or more byte delimiters or a fixed
+ * @code{check_request} routines (one or more byte delimiters or a fixed
  * size).  Afterwards this routine will never ever be called again because
  * the callback gets overwritten here.
  */
@@ -701,7 +701,7 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
 
 /*
  * Print a formatted string on the socket @var{sock}.  @var{fmt} is the
- * printf()-style format string, which describes how to format the optional
+ * @code{printf}-style format string, which describes how to format the optional
  * arguments.  See the printf(3) manual page for details.
  */
 int

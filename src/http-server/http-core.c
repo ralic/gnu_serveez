@@ -739,7 +739,7 @@ http_asc_date (time_t t)
 
 /*
  * Extract a date information from a given string and return a
- * UTC time (time_t) as time() does.
+ * UTC time (time_t) as ‘time’ does.
  */
 time_t
 http_parse_date (char *date)

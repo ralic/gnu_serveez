@@ -69,7 +69,7 @@ svz_server_create (svz_portcfg_t *port)
 {
   svz_t_socket server_socket; /* server socket descriptor */
   svz_socket_t *sock;         /* socket structure */
-  int optval;                 /* value for setsockopt() */
+  int optval;                 /* value for ‘setsockopt’ */
   struct sockaddr_in *addr;   /* bind address */
 
   /* Create listening pipe server?  */
@@ -128,7 +128,7 @@ svz_server_create (svz_portcfg_t *port)
           return NULL;
         }
 
-      /* Fetch the bind() address.  */
+      /* Fetch the ‘bind’ address.  */
       addr = svz_portcfg_addr (port);
 
 #ifdef SO_BINDTODEVICE
@@ -328,9 +328,9 @@ svz_tcp_accept (svz_socket_t *server_sock)
         svz_sock_schedule_for_shutdown (sock);
 
       /*
-       * We call the check_request() routine here once in order to
+       * We call the ‘check_request’ routine here once in order to
        * allow "greedy" protocols (always returning success
-       * in the detect_proto() routine) to get their connection without
+       * in the ‘detect_proto’ routine) to get their connection without
        * sending anything.
        */
       if (sock->check_request)
@@ -521,7 +521,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
   server_sock->flags |= SOCK_FLAG_INITED;
   svz_sock_setreferrer (server_sock, sock);
 
-  /* Call the check_request() routine once for greedy protocols.  */
+  /* Call the ‘check_request’ routine once for greedy protocols.  */
   if (sock->check_request)
     if (sock->check_request (sock))
       svz_sock_schedule_for_shutdown (sock);

@@ -746,7 +746,7 @@ irc_delete_channel (irc_config_t *cfg, irc_channel_t *channel)
 
   if (svz_hash_contains (cfg->channels, channel))
     {
-      /* svz_free() all the channel ban entries */
+      /* ‘svz_free’ all the channel ban entries */
       for (n = 0; n < channel->bans; n++)
         irc_destroy_ban (channel->ban[n]);
       if (channel->ban)
@@ -786,7 +786,7 @@ irc_find_channel (irc_config_t *cfg, char *channel)
 
 /*
  * Find all matching channels in the current channel list.  Return NULL if
- * no channel has not been found.  You MUST svz_free() this list if non-NULL.
+ * no channel has not been found.  You MUST ‘svz_free’ this list if non-NULL.
  * The delivered array is NULL terminated.
  */
 irc_channel_t **
@@ -985,7 +985,7 @@ irc_find_nick (irc_config_t *cfg, char *nick)
 
 /*
  * Find all matching nicks in the current client list.  Return NULL if
- * no nick has not been found.  You MUST svz_free() this array if it is
+ * no nick has not been found.  You MUST ‘svz_free’ this array if it is
  * non-NULL.  The delivered clients are NULL terminated.
  */
 irc_client_t **

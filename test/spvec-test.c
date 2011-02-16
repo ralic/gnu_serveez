@@ -279,7 +279,7 @@ main (int argc, char **argv)
     error++;
   test_print (error ? "?" : ".");
 
-  /* check contains(), index() and get() */
+  /* check ‘contains’, ‘index’ and ‘get’ */
   for (n = 0; n < SIZE; n++)
     {
       if (svz_spvec_contains (list, (void *) (n + SIZE)) != 1)
@@ -303,7 +303,7 @@ main (int argc, char **argv)
     error++;
   test_print (error ? "?" : ".");
 
-  /* build array insert()ing values */
+  /* build array ‘insert’ing values */
   while (svz_spvec_size (list) != REPEAT)
     {
       n = test_value (REPEAT);
@@ -319,7 +319,7 @@ main (int argc, char **argv)
     error++;
   test_print (error ? "?" : ".");
 
-  /* save values, pack() list and check "post" get() values */
+  /* save values, ‘pack’ list and check "post" ‘get’ values */
   if ((values = svz_spvec_values (list)) != NULL)
     {
       svz_spvec_pack (list);
@@ -338,7 +338,7 @@ main (int argc, char **argv)
     error++;
   test_print (error ? "?" : ".");
 
-  /* delete each value, found by index() and check it via contains() */
+  /* delete each value, found by ‘index’ and check it via ‘contains’ */
   n = REPEAT;
   while (svz_spvec_size (list))
     {
@@ -374,7 +374,7 @@ main (int argc, char **argv)
       test_print (error ? "?" : ".");
     }
 
-  /* check functions set() and unset() */
+  /* check functions ‘set’ and ‘unset’ */
   for (i = 0; i < REPEAT; i++)
     {
       n = test_value (i * 20 + test_value (20));

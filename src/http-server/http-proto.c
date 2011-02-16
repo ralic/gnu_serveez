@@ -390,7 +390,7 @@ http_idle (svz_socket_t *sock)
 #if ENABLE_SENDFILE
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 /*
- * This routine is using sendfile() to transport large file's content
+ * This routine is using ‘sendfile’ to transport large file's content
  * to a network socket.  It is replacing HTTP_DEFAULT_WRITE on systems where
  * this function is implemented.  Furthermore you do not need to set
  * the READ_SOCKET callback HTTP_FILE_READ.
@@ -416,7 +416,7 @@ http_send_file (svz_socket_t *sock)
       return -1;
     }
 
-  /* Bogus file.  File size from stat() was not true.  */
+  /* Bogus file.  File size from ‘stat’ was not true.  */
   if (num_written == 0 && http->filelength != 0)
     {
       return -1;
@@ -433,7 +433,7 @@ http_send_file (svz_socket_t *sock)
       svz_log (LOG_DEBUG, "http: file successfully sent\n");
 #endif
       /*
-       * no further read()s from the file descriptor, signaling
+       * no further ‘read’s from the file descriptor, signaling
        * the writers there will not be additional data from now on
        */
       sock->read_socket = svz_tcp_read_socket;
@@ -587,7 +587,7 @@ http_file_read (svz_socket_t *sock)
     }
 #endif
 
-  /* Bogus file.  File size from stat() was not true.  */
+  /* Bogus file.  File size from ‘stat’ was not true.  */
   if (num_read == 0 && http->filelength != 0)
     {
       return -1;
@@ -605,7 +605,7 @@ http_file_read (svz_socket_t *sock)
       svz_log (LOG_DEBUG, "http: file successfully read\n");
 #endif
       /*
-       * no further read()s from the file descriptor, signaling
+       * no further ‘read’s from the file descriptor, signaling
        * the writers there will not be additional data from now on
        */
       sock->read_socket = svz_tcp_read_socket;
@@ -911,7 +911,7 @@ http_info_client (svz_server_t *server, svz_socket_t *sock)
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
   if (sock->userflags & HTTP_FLAG_SENDFILE)
     {
-      sprintf (text, "  * delivering via sendfile() (offset: %lu)\r\n",
+      sprintf (text, "  * delivering via sendfile(2) (offset: %lu)\r\n",
                (unsigned long) http->fileoffset);
       strcat (info, text);
     }

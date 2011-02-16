@@ -120,8 +120,8 @@ Prints the compiler flags to compile with.
 The following small example shows how to use the Serveez core library to
 print the list of known network interface.  As you will notice there are three
 major steps to do: Include the library header with
-@code{#include <libserveez.h>}, initialize the library via @code{svz_boot()}
-and finalize it via @code{svz_halt()}.  In between these calls you can use
+@code{#include <libserveez.h>}, initialize the library via @code{svz_boot}
+and finalize it via @code{svz_halt}.  In between these calls you can use
 all of the API functions, variables and macros described in
 @ref{Embedding API}.
 
@@ -178,8 +178,8 @@ same manner.  When you are using this memory allocator interface you can
 determine and afterwards remove memory leaks.  This is a very important
 feature if you consider servers being long term programs.
 
-The three allocator function pointers for @code{malloc()}, @code{realloc()}
-and @code{free()} make it possible to instruct Serveez to use different
+The three allocator function pointers for @code{malloc}, @code{realloc}
+and @code{free} make it possible to instruct Serveez to use different
 kinds of memory, which might be necessary if you want the library to work
 with shared memory arenas or any other underlying memory API.
 
@@ -528,8 +528,8 @@ The function subset described in the following section allows the user to
 passthrough client connections to the standard input (stdin) and standard
 output (stdout) handles of external programs.  Some of the routines deal
 with the management of program environments.  Basically there are two
-methods how to passthrough a duplex connection: the Unix'ish @code{fork()}
-and @code{exec()} method and the shuffle method where the main process
+methods how to passthrough a duplex connection: the Unix'ish @code{fork}
+and @code{exec} method and the shuffle method where the main process
 keeps control over the communication on the original duplex connection and
 passes this data through two pairs of pipes or yet another socket connection
 to the child process.  All of the three method are implemented calling them
@@ -554,8 +554,8 @@ to a child process's stdin/stdout.  That is why this function creates an
 inheritable version of the socket and puts the socket handle number
 into the environment variables @code{SEND_HANDLE} and @code{RECV_HANDLE}.
 A spawned child process can use these handles as if these were created
-by itself.  After calling @code{WSAStartup()} the child process can
-@code{send()} and @code{recv()} as usual.
+by itself.  After calling @code{WSAStartup} the child process can
+@code{send} and @code{recv} as usual.
 SVZ_PROCESS_SHUFFLE_DEFUN
 SVZ_PROCESS_FORK_DEFUN
 
@@ -612,9 +612,9 @@ communicating over a simple text line protocol.  Each request/response is
 separated by a newline character.
 
 If the user wants to use these processes you need to start the coserver
-interface by calling @code{svz_coserver_init()} once before entering the
+interface by calling @code{svz_coserver_init} once before entering the
 main server loop and shut it down afterwards by calling
-@code{svz_coserver_finalize()}.
+@code{svz_coserver_finalize}.
 
 SVZ_COSERVERTYPES_DEFVAR
 SVZ_COSERVERS_DEFVAR
@@ -929,7 +929,7 @@ SVZ_PORTCFG_DESTROY_ACCESS_DEFUN
 This section contains the description of some runtime checkable flags
 indicating the abilities of the running serveez core API and the underlying
 operating system.  It also describes the most important functions
-@code{svz_boot()} and @code{svz_halt()} which must be the first and the last
+@code{svz_boot} and @code{svz_halt} which must be the first and the last
 call to the core API.
 
 SVZ_CONFIG_DEFVAR

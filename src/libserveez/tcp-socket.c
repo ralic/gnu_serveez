@@ -116,7 +116,7 @@ svz_tcp_write_socket (svz_socket_t *sock)
 
 /*
  * Default function for reading from the socket @var{sock}.  This function
- * only reads all data from the socket and calls the @code{check_request()}
+ * only reads all data from the socket and calls the @code{check_request}
  * function for the socket, if set.  Returns -1 if the socket has died,
  * returns zero otherwise.
  */
@@ -189,7 +189,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
             return ret;
         }
     }
-  /* The socket was `select()'ed but there is no data.  */
+  /* The socket was ‘select’ed but there is no data.  */
   else
     {
       svz_log (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
@@ -200,9 +200,9 @@ svz_tcp_read_socket (svz_socket_t *sock)
 }
 
 /*
- * This function is the default @code{read_socket_oob()} callback for
+ * This function is the default @code{read_socket_oob} callback for
  * TCP sockets.  It stores the received out-of-band data (a single byte
- * only) in @code{sock->oob} and runs the @code{check_request_oob()} callback
+ * only) in @code{sock->oob} and runs the @code{check_request_oob} callback
  * if it is set properly.  Returns -1 on failure and zero otherwise.  The
  * function does not do anything if the underlying operating system does not
  * support urgent data and simply returns -1.
@@ -217,9 +217,9 @@ svz_tcp_recv_oob (svz_socket_t *sock)
 #if 0
 #if HAVE_POLL && ENABLE_POLL && defined (__linux__)
 #ifdef SIOCATMARK
-  /* FIXME: fails for poll() on GNU/Linux ???  This is a hack !!!
+  /* FIXME: fails for ‘poll’ on GNU/Linux ???  This is a hack !!!
             With this hack you are missing some OOB data bytes if sent too
-            frequently.  It is *not* necessary for `select()'.  Don't ask.
+            frequently.  It is *not* necessary for ‘select’.  Don't ask.
             The symptom is: `recv(..., MSG_OOB)' return `EINVAL'.  */
   ret = ioctl (desc, SIOCATMARK, &num_read);
   if (ret != -1 && num_read == 0)
@@ -320,7 +320,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
 
 /*
  * The default routine for connecting a socket @var{sock}.  When we get
- * @code{select()}ed or @code{poll()}ed via the @var{WRITE_SET} we simply
+ * @code{select}ed or @code{poll}ed via the @var{WRITE_SET} we simply
  * check for network errors,
  */
 int

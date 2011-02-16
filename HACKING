@@ -106,7 +106,7 @@ See the end for copying conditions.
 *** Keep track of network interface changes.
 *** Make some of the configure-time servers available dynamically at run-time.
 *** Resolve libcoserver problem (some linkers swallow syms because they are not needed in libserveez).
-*** Runtime check for sendfile() (4 vs 7 args) in configure script.
+*** Runtime check for ‘sendfile’ (4 vs 7 args) in configure script.
 *** How can a self connected Gnutella socket find out its port configuration for sending push requests and replies?
 *** Implement a DNS server for home networks.
 *** Implement a DNS client.
@@ -173,7 +173,7 @@ See the end for copying conditions.
 *** Fix the problem with using Guile as a coserver.
 *** Don't kick coservers on master server death.
 *** Add configure switch ‘--enable-warning’. (1999-11-14/mgrabmue)
-*** Add configure option for detecting whether usleep() is defined.
+*** Add configure option for detecting whether ‘usleep’ is defined.
 *** Add configure option for specifying max clients at configure time. (1999-11-14/mgrabmue)
 *** Check client ids which come from the master server for validity. (1999-10-26/mgrabmue)
 *** Implement a HTTP plugin for streaming sounds and pictures.
@@ -181,15 +181,15 @@ See the end for copying conditions.
 *** Debug the aWCS protocol -- massclient with more than 4 threads kills the master server. (1999-10-20/raimi)
 *** Only accept master server if first message is "6 \0".
 *** Implement aWCS client detection.
-*** Implement ident lookup (do in a fork()ed server or do it unblocking).
-*** Implement reverse lookup for client IPs (use raimi's dns_reverse_lookup() after fork()ing).
+*** Implement ident lookup (do in a ‘fork’ed server or do it unblocking).
+*** Implement reverse lookup for client IPs (use raimi's ‘dns_reverse_lookup’ after ‘fork’ing).
 *** Implement protocol detection.
 *** Implement control protocol.
 *** Add autoconf support for C and CPP flags. (1999-10-19/mgrabmue)
 *** Add autoconf support for reverse host name lookup. (1999-10-19/mgrabmue)
-*** Check select() for EINV and reap socket structure if happening. (1999-10-21/mgrabmue)
+*** Check ‘select’ for EINV and reap socket structure if happening. (1999-10-21/mgrabmue)
 *** Catch and ignore SIGPIPE. (1999-10-21/mgrabmue)
-*** Make a --disable-debug switch to shut up all log printings beyond errors and wrap all calls to log_printf(). (1999-10-21/mgrabmue)
+*** Make a --disable-debug switch to shut up all log printings beyond errors and wrap all calls to ‘log_printf’. (1999-10-21/mgrabmue)
 *** Hold all socket structures in a hash table to speed up client lookup. (1999-10-21/mgrabmue)
 *** socket.o: In function ‘sock_printf’:
   /chat/serveez-0.0.2/src/socket.c:565: undefined reference to

@@ -103,11 +103,11 @@ svz_check_sockets_select (void)
   fd_set read_fds;              /* bitmasks for file descriptors to check */
   fd_set write_fds;             /* ditto */
   fd_set except_fds;            /* ditto */
-  struct timeval wait;          /* used for timeout in select() */
+  struct timeval wait;          /* used for timeout in ‘select’ */
   svz_socket_t *sock;
 
   /*
-   * Prepare the file handle sets for the select() call below.
+   * Prepare the file handle sets for the ‘select’ call below.
    */
   FD_ZERO (&read_fds);
   FD_ZERO (&except_fds);
@@ -212,7 +212,7 @@ svz_check_sockets_select (void)
       else
         {
           /*
-           * select() timed out, so we can do some administrative stuff.
+           * ‘select’ timed out, so we can do some administrative stuff.
            */
           svz_periodic_tasks ();
         }
@@ -220,7 +220,7 @@ svz_check_sockets_select (void)
 
   /*
    * Go through all enqueued SOCKs and check if these have been
-   * select()ed or could be handle in any other way.
+   * ‘select’ed or could be handle in any other way.
    */
   svz_sock_foreach (sock)
     {
@@ -390,9 +390,9 @@ svz_check_sockets_select (void)
   }                                                       \
 
 /*
- * Same routine as the above check_sockets_select() routine.  Here we are
- * using poll() instead of select().  This might solve the builtin file
- * descriptor limit of the (g)libc select().  This routine will NOT be
+ * Same routine as the above ‘check_sockets_select’ routine.  Here we are
+ * using ‘poll’ instead of ‘select’.  This might solve the builtin file
+ * descriptor limit of the (g)libc ‘select’.  This routine will NOT be
  * available under Win32.
  */
 static int
@@ -496,7 +496,7 @@ svz_check_sockets_poll (void)
   if (timeout < 0)
     timeout = 0;
 
-  /* now poll() everything */
+  /* now ‘poll’ everything */
   if ((polled = poll (ufds, nfds, timeout)) <= 0)
     {
       if (polled < 0)
@@ -512,7 +512,7 @@ svz_check_sockets_poll (void)
         }
     }
 
-  /* go through all poll()ed structures */
+  /* go through all ‘poll’ed structures */
   for (fd = 0; fd < nfds && polled != 0; fd++)
     {
       /* count down the number of polled descriptors */
@@ -627,11 +627,11 @@ svz_check_sockets_MinGW (void)
   fd_set read_fds;              /* bitmasks for file descriptors to check */
   fd_set write_fds;             /* ditto */
   fd_set except_fds;            /* ditto */
-  struct timeval wait;          /* used for timeout in select() */
+  struct timeval wait;          /* used for timeout in ‘select’ */
   svz_socket_t *sock;
 
   /*
-   * Prepare the file handle sets for the select() call below.
+   * Prepare the file handle sets for the ‘select’ call below.
    */
   FD_ZERO (&read_fds);
   FD_ZERO (&except_fds);
@@ -663,7 +663,7 @@ svz_check_sockets_MinGW (void)
 
           /*
            * Handle receiving pipes.  Is non-blocking, but cannot
-           * be select()ed.
+           * be ‘select’ed.
            */
           if (sock->flags & SOCK_FLAG_RECV_PIPE)
             {
@@ -712,7 +712,7 @@ svz_check_sockets_MinGW (void)
     wait.tv_sec = 0;
   wait.tv_usec = 0;
 
-  /* Just sleep a bit if there is no file descriptor to be select()'ed.  */
+  /* Just sleep a bit if there is no file descriptor to be ‘select’ed.  */
   if (nfds < 2)
     Sleep (1);
 
@@ -730,7 +730,7 @@ svz_check_sockets_MinGW (void)
       else
         {
           /*
-           * select() timed out, so we can do some administrative stuff.
+           * ‘select’ timed out, so we can do some administrative stuff.
            */
           svz_periodic_tasks ();
         }
@@ -738,7 +738,7 @@ svz_check_sockets_MinGW (void)
 
   /*
    * Go through all enqueued SOCKs and check if these have been
-   * select()ed or could be handle in any other way.
+   * ‘select’ed or could be handle in any other way.
    */
   svz_sock_foreach (sock)
     {

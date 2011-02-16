@@ -360,10 +360,10 @@ guile_access_exceptions (SCM enable)
 #undef FUNC_NAME
 
 /*
- * The @code{guile_call()} function puts the procedure to call including
+ * The @code{guile_call} function puts the procedure to call including
  * the arguments to it into a single scheme cell passed to this function
  * in @var{data}.  The functions unpacks this cell and applies it to
- * @code{scm_apply()}.
+ * @code{scm_apply}.
  * By convention the @var{data} argument cell consists of three items chained
  * like this: @code{(procedure first-argument (remaining-argument-list))}
  */
@@ -375,7 +375,7 @@ guile_call_body (SCM data)
 }
 
 /*
- * This is the exception handler for calls by @code{guile_call()}.  Prints
+ * This is the exception handler for calls by @code{guile_call}.  Prints
  * the procedure (passed in @var{data}), the name of the exception and the
  * error message if possible.
  */
@@ -413,10 +413,10 @@ guile_call_handler (SCM data, SCM tag, SCM args)
 
 /*
  * The following function takes an arbitrary number of arguments (specified
- * in @var{args}) passed to @code{scm_apply()} calling the guile procedure
+ * in @var{args}) passed to @code{scm_apply} calling the guile procedure
  * @var{code}.  The function catches exceptions occurring in the procedure
  * @var{code}.  On success (no exception) the routine returns the value
- * returned by @code{scm_apply()} otherwise @code{SCM_BOOL_F}.
+ * returned by @code{scm_apply} otherwise @code{SCM_BOOL_F}.
  */
 static SCM
 guile_call (SCM code, int args, ...)
@@ -425,7 +425,7 @@ guile_call (SCM code, int args, ...)
   SCM body_data, handler_data;
   SCM arg = SCM_EOL, arglist = SCM_EOL, ret;
 
-  /* Setup arg and arglist correctly for use with scm_apply().  */
+  /* Setup arg and arglist correctly for use with ‘scm_apply’.  */
   va_start (list, args);
   if (args > 0)
     {
@@ -1671,7 +1671,7 @@ guile_sock_destroy (svz_hash_t *callbacks)
 
 /*
  * Initialization of the guile server module.  Should be run before calling
- * @code{guile_eval_file()}.  It registers some new guile procedures and
+ * @code{guile_eval_file}.  It registers some new guile procedures and
  * creates some static data.
  */
 void

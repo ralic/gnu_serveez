@@ -87,7 +87,7 @@ svz_server_bindings (svz_server_t *server)
  * Return an array of port configurations to which the given server instance
  * @var{server} is currently bound to or @code{NULL} if there is no such
  * binding.  The caller is responsible for freeing the returned array by
- * running @code{svz_array_destroy()}.
+ * running @code{svz_array_destroy}.
  */
 svz_array_t *
 svz_server_portcfgs (svz_server_t *server)
@@ -112,7 +112,7 @@ svz_server_portcfgs (svz_server_t *server)
  * Return an array of listening socket structures to which the given server
  * instance @var{server} is currently bound to or @code{NULL} if there is
  * no such binding.  The calling function is reponsible for destroying the
- * returned array via @code{svz_array_destroy()}.
+ * returned array via @code{svz_array_destroy}.
  */
 svz_array_t *
 svz_server_listeners (svz_server_t *server)
@@ -164,7 +164,7 @@ svz_sock_find_portcfg (svz_portcfg_t *port)
  * This functions goes through the list of listening server socket
  * structures and returns an array of matching socket structures for the
  * given port configuration @var{port}.  The caller is responsible for
- * freeing the array by running @code{svz_array_destroy()}.  If there are
+ * freeing the array by running @code{svz_array_destroy}.  If there are
  * no such listening server socket structures @code{NULL} is returned.
  */
 svz_array_t *
@@ -529,7 +529,7 @@ svz_sock_bindings (svz_socket_t *sock)
  * Returns the array of server instances bound to the listening socket
  * structure @var{sock} or @code{NULL} if there are no bindings.  The caller
  * is responsible for freeing the returned array by running
- * @code{svz_array_destroy()}.
+ * @code{svz_array_destroy}.
  */
 svz_array_t *
 svz_sock_servers (svz_socket_t *sock)
@@ -548,7 +548,7 @@ svz_sock_servers (svz_socket_t *sock)
  * This is the accept filter for the listening server socket structures
  * @var{sock} with pipe port configurations.  It returns all bindings.  The
  * caller is responsible for freeing the returned array by running
- * @code{svz_array_destroy()}.
+ * @code{svz_array_destroy}.
  */
 svz_array_t *
 svz_binding_filter_pipe (svz_socket_t *sock)
@@ -567,7 +567,7 @@ svz_binding_filter_pipe (svz_socket_t *sock)
  * This is the accept filter for the listening server socket structures
  * @var{sock} with network port configurations.  It returns the bindings
  * allowed to be accepted.  The caller is responsible for freeing the returned
- * array by running @code{svz_array_destroy()}.  Which of the bindings are
+ * array by running @code{svz_array_destroy}.  Which of the bindings are
  * allowed depends on the network interface address @var{addr} and the
  * network port @var{port}.
  */
@@ -611,7 +611,7 @@ svz_binding_filter_net (svz_socket_t *sock,
 
 /*
  * This is the main filter routine running either
- * @code{svz_binding_filter_net()} or @code{svz_binding_filter_pipe()}
+ * @code{svz_binding_filter_net} or @code{svz_binding_filter_pipe}
  * depending on the type of port configuration the given socket @var{sock}
  * contains.
  */

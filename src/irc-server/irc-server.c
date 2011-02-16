@@ -56,7 +56,7 @@ irc_server_t *irc_server_list;  /* server list root */
 
 /*
  * Parse one of the config lines in the IRC configuration.
- * This function has exactly the same syntax as sscanf() but
+ * This function has exactly the same syntax as ‘sscanf’ but
  * recognizes only %s and %d for string and integers.  Strings
  * will be parsed until the next character in the format string.
  * Another difference is that each %s in the format string

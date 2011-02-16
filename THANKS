@@ -37,7 +37,7 @@ Raimund Jacob <raimi@lkcc.org> for a patch that made the whole
 	Thanks also for bugging me to keep this stuff up.
 
 Stefan Jahn <stefan@lkcc.org> for debugging and trying
-	this crap under Cygwin.  Also for finding the weird accept()
+	this crap under Cygwin.  Also for finding the weird ‘accept’
 	bug and submitting a patch for it.
 	For speeding up request handling and bug hunting.
 	Kudos for the Cygwin port go to both Stefan and Raimi.

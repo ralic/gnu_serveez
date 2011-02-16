@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Some Unices define the strsignal() function depending on
+/* Some Unices define the ‘strsignal’ function depending on
    this definition.  */
 #ifndef __EXTENSIONS__
 # define __EXTENSIONS__
@@ -128,7 +128,7 @@ static int svz_uncaught_signal = -1;
 static int svz_signal = -1;
 
 /*
- * This holds the time on which the next call to @code{svz_periodic_tasks()}
+ * This holds the time on which the next call to @code{svz_periodic_tasks}
  * should occur.
  */
 long svz_notify;
@@ -285,14 +285,14 @@ svz_signal_handler (int sig)
 /* Cached results of strsignal calls.  */
 static svz_array_t *svz_signal_strings = NULL;
 
-/* On some platforms strsignal() can be resolved but is nowhere declared.  */
+/* On some platforms ‘strsignal’ can be resolved but is nowhere declared.  */
 #if defined (HAVE_STRSIGNAL) && !HAVE_DECL_STRSIGNAL
 extern char * strsignal (int);
 #endif
 
 /*
- * Prepare library so that @code{svz_strsignal()} works.  Called
- * from @code{svz_boot()}.
+ * Prepare library so that @code{svz_strsignal} works.  Called
+ * from @code{svz_boot}.
  */
 void
 svz_strsignal_init (void)
@@ -329,8 +329,8 @@ svz_strsignal_init (void)
 }
 
 /*
- * The function @code{svz_strsignal()} does not work afterwards anymore.
- * Called from @code{svz_halt()}.
+ * The function @code{svz_strsignal} does not work afterwards anymore.
+ * Called from @code{svz_halt}.
  */
 void
 svz_strsignal_destroy (void)
@@ -450,8 +450,8 @@ svz_sock_validate_list (void)
 
 /*
  * Rechain the socket list to prevent sockets from starving at the end
- * of this list.  We will call it every time when a @code{select()} or
- * @code{poll()} has returned.  Listeners are kept at the beginning of the
+ * of this list.  We will call it every time when a @code{select} or
+ * @code{poll} has returned.  Listeners are kept at the beginning of the
  * chain anyway.
  */
 static void
@@ -828,7 +828,7 @@ svz_sock_find (int id, int version)
 
 /*
  * Create the socket lookup table initially.  Must be called from
- * @code{svz_boot()}.
+ * @code{svz_boot}.
  */
 void
 svz_sock_table_create (void)
@@ -839,7 +839,7 @@ svz_sock_table_create (void)
 
 /*
  * Destroy the socket lookup table finally.  Must be called from
- * @code{svz_halt()}.
+ * @code{svz_halt}.
  */
 void
 svz_sock_table_destroy (void)
@@ -1147,7 +1147,7 @@ svz_signal_dn (void)
  * This routine checks whether the child process specified by the @code{pid}
  * handle stored in the socket structure @var{sock} is still alive.  It
  * returns zero if so, otherwise (when the child process died) non-zero.  This
- * routine is called from @code{svz_sock_check_children()}.
+ * routine is called from @code{svz_sock_check_children}.
  */
 int
 svz_sock_child_died (svz_socket_t *sock)
@@ -1209,7 +1209,7 @@ svz_sock_check_children (void)
 
 /*
  * This routine handles all things once and is called regularly in the
- * below @code{svz_loop()} routine.
+ * below @code{svz_loop} routine.
  */
 void
 svz_loop_one (void)
@@ -1290,7 +1290,7 @@ svz_loop_one (void)
 }
 
 /*
- * Call this function once before using @code{svz_loop_one()}.
+ * Call this function once before using @code{svz_loop_one}.
  */
 void
 svz_loop_pre (void)
@@ -1309,7 +1309,7 @@ svz_loop_pre (void)
 }
 
 /*
- * Call this function once after using @code{svz_loop_one()}.
+ * Call this function once after using @code{svz_loop_one}.
  */
 void
 svz_loop_post (void)

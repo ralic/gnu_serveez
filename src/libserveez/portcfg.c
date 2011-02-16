@@ -283,7 +283,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
 
 /*
  * Make a copy of the given port configuration @var{port}.  This function
- * is used in @code{svz_portcfg_expand()}.
+ * is used in @code{svz_portcfg_expand}.
  */
 svz_portcfg_t *
 svz_portcfg_dup (svz_portcfg_t *port)

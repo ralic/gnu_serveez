@@ -69,11 +69,11 @@ homegrown_vasprintf (char **str, const char *fmt, va_list args)
 }
 
 /*
- * Implementation of @code{asprintf()}.  It formats a character
+ * Implementation of @code{asprintf}.  It formats a character
  * string without knowing the actual length of it.  The routine
- * dynamically allocates buffer space via @code{svz_malloc()} and
+ * dynamically allocates buffer space via @code{svz_malloc} and
  * returns the final length of the string.  The calling function is
- * responsible to run @code{svz_free()} on @var{str}.
+ * responsible to run @code{svz_free} on @var{str}.
  */
 int
 svz_asprintf (char **str, const char *fmt, ...)

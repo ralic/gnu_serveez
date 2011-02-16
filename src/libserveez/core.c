@@ -94,7 +94,7 @@ svz_fd_nonblock (int fd)
 
 /*
  * Set the given file descriptor to blocking I/O.  This routine is the
- * counter part to @code{svz_fd_nonblock()}.
+ * counter part to @code{svz_fd_nonblock}.
  */
 int
 svz_fd_block (int fd)
@@ -132,7 +132,7 @@ svz_fd_cloexec (int fd)
 
   /*
    * ... SNIP : from the cygwin mail archives 1999/05 ...
-   * The problem is in socket() call on W95 - the socket returned
+   * The problem is in ‘socket’ call on W95 - the socket returned
    * is non-inheritable handle (unlike NT and Unixes, where
    * sockets are inheritable).  To fix the problem DuplicateHandle
    * call is used to create inheritable handle, and original
@@ -168,7 +168,7 @@ int
 svz_socket_create_pair (int proto, svz_t_socket desc[2])
 {
 #ifndef HAVE_SOCKETPAIR
-  svz_log (LOG_FATAL, "socketpair() not available\n");
+  svz_log (LOG_FATAL, "socketpair(2) not available\n");
   return -1;
 #else
 
@@ -221,7 +221,7 @@ svz_socket_create_pair (int proto, svz_t_socket desc[2])
 
 /*
  * Create a new non-blocking socket which does not get inherited on
- * @code{exec()}.  The protocol is specified by @var{proto}.  Return the
+ * @code{exec}.  The protocol is specified by @var{proto}.  Return the
  * socket descriptor or -1 on errors.
  */
 svz_t_socket
@@ -380,7 +380,7 @@ svz_inet_ntoa (unsigned long ip)
 /*
  * Converts the Internet host address @var{str} from the standard
  * numbers-and-dots notation into binary data and stores it in the
- * structure that @var{addr} points to.  @code{svz_inet_aton()} returns
+ * structure that @var{addr} points to.  @code{svz_inet_aton} returns
  * zero if the address is valid, nonzero if not.
  * This function handles an ip address of "*" special and sets
  * @code{INADDR_ANY} for it.
@@ -421,7 +421,7 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
 /*
  * Enable or disable the @code{TCP_CORK} socket option of the given socket
  * descriptor @var{fd}.  This is useful for performance reasons when using
- * @code{sendfile()} with any prepending or trailing data not inside the
+ * @code{sendfile} with any prepending or trailing data not inside the
  * file to transmit.  The function return zero on success, otherwise non-zero.
  */
 int
@@ -514,7 +514,7 @@ int
 svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 {
 #ifndef ENABLE_SENDFILE
-  svz_log (LOG_ERROR, "sendfile() disabled\n");
+  svz_log (LOG_ERROR, "sendfile(2) disabled\n");
   return -1;
 #else
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
@@ -522,7 +522,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 #if defined (__osf__)
 
   /* FIXME:
-     On True64 sendfile() is said to crash the machine.  Moreover the
+     On True64 ‘sendfile’ is said to crash the machine.  Moreover the
      system call is not documented.  Thus we do not know the exact meaning
      of the remaining arguments.  We definitely know that there must be
      some kind of pointer (maybe specifying head and tail).  */
@@ -540,11 +540,11 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 
 #elif defined (__MINGW32__)
 
-  /* TransmitFile().
-     This system call provides something likely the Unix sendfile().  It
+  /* ‘TransmitFile’
+     This system call provides something likely the Unix ‘sendfile’.  It
      is a M$ specific extension to Winsock.  The function comes from the
      MSWSOCK.DLL and should be prototyped in MSWSOCK.H.  It operates on
-     file handles gained from kernel32.CreateFile() only.  We experienced
+     file handles gained from ‘kernel32.CreateFile’ only.  We experienced
      quite low performance on small (less than 4096 byte) file chunks.
      Performance is better with about 32 KB per chunk.  The function is
      available on Windows NT, Windows 2000 and Windows XP only (not W95,
@@ -614,7 +614,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 #endif
   return ret;
 #else
-  svz_log (LOG_ERROR, "sendfile() not available\n");
+  svz_log (LOG_ERROR, "sendfile(2) not available\n");
   return -1;
 #endif /* HAVE_SEND_FILE */
 #endif /* ENABLE_SENDFILE */
@@ -658,8 +658,8 @@ svz_file_del (int fd)
 
 /*
  * Close all file descriptors collected so far by the core API of serveez.
- * This should be called if @code{fork()} has been called without a
- * following @code{exec()}.
+ * This should be called if @code{fork} has been called without a
+ * following @code{exec}.
  */
 void
 svz_file_closeall (void)
@@ -776,7 +776,7 @@ svz_close (int fd)
 
 /*
  * Return information about the specified file associated with the file
- * descriptor @var{fd} returned by @code{svz_open()}.  Stores available
+ * descriptor @var{fd} returned by @code{svz_open}.  Stores available
  * information in the stat buffer @var{buf}.
  */
 int
@@ -878,7 +878,7 @@ svz_file_check (char *file)
  * Constructs a fully qualified file name form @var{path} and @var{file}.
  * If @var{path} is omitted (@code{NULL}) the function returns @var{file}
  * only.  If @var{file} is @code{NULL} a null pointer is returned.
- * Please remember to @code{svz_free()} the returned pointer.
+ * Please remember to @code{svz_free} the returned pointer.
  */
 char *
 svz_file_path (char *path, char *file)

@@ -54,7 +54,7 @@ svz_config_intarray_create (int *intarray)
 
 /*
  * Destroy the given integer array @var{intarray}.  This function is the
- * counter part of @code{svz_config_intarray_create()}.
+ * counter part of @code{svz_config_intarray_create}.
  */
 void
 svz_config_intarray_destroy (svz_array_t *intarray)
@@ -155,7 +155,7 @@ svz_config_hash_create (char **strarray)
 }
 
 /*
- * This function is the counter part of @code{svz_config_hash_create()}.  It
+ * This function is the counter part of @code{svz_config_hash_create}.  It
  * destroys the given hash table @var{strhash} assuming it is a hash
  * associating strings with strings.
  */
@@ -253,7 +253,7 @@ svz_config_free (svz_config_prototype_t *prototype, void *cfg)
 /*
  * Clear each configuration item within the given configuration
  * @var{cfg} of the configuration prototype @var{prototype}.  This
- * function is used by @code{svz_config_instantiate()} after copying
+ * function is used by @code{svz_config_instantiate} after copying
  * the default configuration.
  */
 static void
@@ -549,7 +549,7 @@ svz_config_type_instantiate (char *type, char *name, char *instance,
 
 /*
  * Adds the configurable types of Serveez.  This function is called
- * from @code{svz_boot()}.
+ * from @code{svz_boot}.
  */
 void
 svz_config_type_init (void)
@@ -562,7 +562,7 @@ svz_config_type_init (void)
 
 /*
  * Removes the list of known configurable types and is called from
- * @code{svz_halt()}.
+ * @code{svz_halt}.
  */
 void
 svz_config_type_finalize (void)

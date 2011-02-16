@@ -55,8 +55,8 @@ main (int argc, char **argv)
   int s;
   struct sockaddr_in addr;
   socklen_t len = sizeof (struct sockaddr_in);
-  char *buf1 = "write(): Hello\r\n";
-  char *buf2 = "send(): Hello\r\n";
+  char *buf1 = "write: Hello\r\n";
+  char *buf2 = "send: Hello\r\n";
 
 #ifdef __MINGW32__
   WSADATA WSAData;
@@ -83,20 +83,20 @@ main (int argc, char **argv)
     }
   else
     {
-      /* Try using `fprintf()'.  */
-      fprintf (stdout, "fprintf(): %s:%d\r\n",
+      /* Try using ‘fprintf’.  */
+      fprintf (stdout, "fprintf: %s:%d\r\n",
                inet_ntoa ((* ((struct in_addr *) &addr.sin_addr))),
                ntohs (addr.sin_port));
       fflush (stdout);
     }
 
-  /* Try using `write()'.  */
+  /* Try using ‘write’.  */
   if (write (s, buf1, strlen (buf1)) < 0)
     {
       fprintf (stderr, "write: %s\n", strerror (errno));
       fflush (stderr);
     }
-  /* Try using `send()'.  */
+  /* Try using ‘send’.  */
   if (send (s, buf2, strlen (buf2), 0) < 0)
     {
       fprintf (stderr, "send: %s\n", strerror (errno));

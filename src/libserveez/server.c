@@ -218,8 +218,8 @@ svz_servertype_print (void)
   svz_array_foreach (svz_servertypes, stype, s)
     {
       printf ("[%d] - %s\n", s, stype->description);
-      printf ("  detect_proto() at %p"
-              "  connect_socket() at %p\n",
+      printf ("  `detect_proto' at %p"
+              "  `connect_socket' at %p\n",
               (void *) stype->detect_proto, (void *) stype->connect_socket);
       svz_config_prototype_print (&stype->config_prototype);
     }
@@ -234,7 +234,7 @@ svz_hash_t *svz_servers = NULL;
 
 /*
  * Run all the server instances's notify routines.  This should be regularly
- * called within the @code{svz_periodic_tasks()} function.
+ * called within the @code{svz_periodic_tasks} function.
  */
 void
 svz_server_notifiers (void)
@@ -286,7 +286,7 @@ svz_server_find (void *cfg)
  * Returns a list of clients (socket structures) which are associated
  * with the given server instance @var{server}.  If there is no such
  * socket @code{NULL} is returned.  The calling routine is responsible
- * to @code{svz_array_destroy()} the returned array.
+ * to @code{svz_array_destroy} the returned array.
  */
 svz_array_t *
 svz_server_clients (svz_server_t *server)
@@ -480,7 +480,7 @@ svz_server_finalize_all (void)
  * This routine is the instantiating callback for a servertype as a
  * configurable type named @var{type}.  The @var{name} argument will
  * be the new servers instance name.  The @var{accessor} and
- * @var{options} arguments are passed to @code{svz_server_configure()}
+ * @var{options} arguments are passed to @code{svz_server_configure}
  * without modifications.
  */
 static int

@@ -125,7 +125,7 @@ http_create_uri (char *file)
 /*
  * Return a buffer to a http directory listing referring to DIRNAME
  * and being part of the document root DOCROOT.  Do not to forget to
- * svz_free() the return buffer.  Return NULL on errors.
+ * ‘svz_free’ the return buffer.  Return NULL on errors.
  */
 char *
 http_dirlist (char *dirname, char *docroot, char *userdir)

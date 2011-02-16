@@ -65,7 +65,7 @@ possible to use named pipes for all connection oriented protocols.
 
 We think it is worth the effort because many people need server functionality
 within their applications.  However, many people experience problems
-with select()- or poll()-loops, and with non-blocking operations.
+with @code{select}- or @code{poll}-loops, and with non-blocking operations.
 
 This application demonstrates various aspects of advanced network
 programming in a portable manner.  It is known to compile and run on
@@ -203,19 +203,19 @@ you have to disable this option by passing the configure script
 This option enables support for a simple network time protocol
 server.
 @item --enable-poll
-If the target system supports @code{poll()} and this feature is
-enabled the main file descriptor loop is done via @code{poll()}.
+If the target system supports @code{poll} and this feature is
+enabled the main file descriptor loop is done via @code{poll}.
 This helps to work around the (g)libc's file descriptor limit.
-Otherwise Serveez always falls back to the @code{select()} system call.
+Otherwise Serveez always falls back to the @code{select} system call.
 @item --enable-sendfile
-This option enables the use of the @code{sendfile()} system call.
+This option enables the use of the @code{sendfile} system call.
 Disabling it using @samp{--disable-sendfile} provides a work-around
-for bogus implementations of @code{sendfile()}.
+for bogus implementations of @code{sendfile}.
 @item --enable-gnutella
 If you do *not* want the Gnutella spider client compiled in you
 need to *disable* this option.
 @item --enable-crypt
-This option tells Serveez to process any passwords as crypt()ed.
+This option tells Serveez to process any passwords as @code{crypt}ed.
 @item --enable-tunnel
 If you enable this feature the port forwarder will be included.
 This is useful if you plan to use Serveez as a gateway or
@@ -836,20 +836,20 @@ different network ports, too.
 @end itemize
 
 @section I/O Strategy
-Serveez's I/O strategy is the traditional @code{select()} method.  It is
+Serveez's I/O strategy is the traditional @code{select} method.  It is
 serving many clients in a single server thread.  This is done by setting
-all network handles to non-blocking mode.  We then use @code{select()}
+all network handles to non-blocking mode.  We then use @code{select}
 to tell which network handles have data waiting.  This is the
 traditional Unix style multiplexing.
 
-An important bottleneck in this method is that a @code{read()} or
-@code{sendfile()} from disk blocks if the data is not in core at the
+An important bottleneck in this method is that a @code{read} or
+@code{sendfile} from disk blocks if the data is not in core at the
 moment.  Setting non-blocking mode on a disk file handle has no effect.
 The same thing applies to memory-mapped disk files.  The first time a
 server needs disk I/O, its process blocks, all clients have to wait, and
 raw non-threaded performance may go to waste.
 
-Unfortunately, @code{select()} is limited to the number of
+Unfortunately, @code{select} is limited to the number of
 @code{FD_SETSIZE} handles.  This limit is compiled into the standard
 library, user programs and sometimes the kernel.  Nevertheless, Serveez
 is able to serve about one thousand and more clients on GNU/Linux, a
@@ -858,15 +858,15 @@ hundred on Win95 and more on later Windows systems.
 We chose this method anyway because it seems to be the most portable.
 
 An alternative method to multiplex client network connections is
-@code{poll()}.  It is automatically used when @samp{configure} finds
-@code{poll()} to be available.  This will work around the builtin (g)libc's
-@code{select()} file descriptor limit.
+@code{poll}.  It is automatically used when @samp{configure} finds
+@code{poll} to be available.  This will work around the builtin (g)libc's
+@code{select} file descriptor limit.
 
 @subsection Limits on open filehandles
 @table @code
 
 @item Any Unix
-The limits set by @code{ulimit()} or @code{setrlimit()}.
+The limits set by @code{ulimit} or @code{setrlimit}.
 
 @item Solaris
 See the Solaris FAQ, question 3.45.
@@ -904,16 +904,16 @@ available physical memory.
 @end table
 
 @section Alternatives to Serveez's I/O strategy
-One of the problems with the traditional @code{select()} method with
+One of the problems with the traditional @code{select} method with
 non-blocking file descriptors occurs when passing a large number of
-descriptors to the @code{select()} system call.  The server loop then
+descriptors to the @code{select} system call.  The server loop then
 goes through all the descriptors, decides which has pending data, then
 reads and handles this data.  For a large number of connections (say,
 90000) this results in temporary CPU load peaks even if there is no
 network traffic.
 
 Along with this behaviour comes the problem of "starving" connections.
-Connections which reside at the beginning of the @code{select()} set are
+Connections which reside at the beginning of the @code{select} set are
 processed immediately while those at the end are processed significantly
 later and may possibly die because of buffer overruns.  This is the
 reason why Serveez features priority connection: it serves listening
@@ -922,7 +922,7 @@ way, non-priority connections are handled in a "round robin" fashion.
 
 Other server implementations solve these problems differently.  Some
 start a new process for each connection (fully-threaded server) or split
-the @code{select()} set into pieces and let different processes handle
+the @code{select} set into pieces and let different processes handle
 them (threaded server).  This method shifts the priority scheduling to
 the underlying operating system.  Another method is the use of
 asynchronous I/O based upon signals where the server process receives a
@@ -1099,7 +1099,7 @@ Now create the sub directory and change into it.
 @item
 You need to create a new @file{Makefile.am} therein.  If you want to have
 this file @file{configure}d you need to add a further line to the
-@code{AC_OUTPUT()} statement in @file{configure.ac} which is in the top
+@code{AC_OUTPUT} statement in @file{configure.ac} which is in the top
 level directory.  You have to put at least the following into the newly
 created @file{Makefile.am}:
 
@@ -1231,7 +1231,7 @@ single port.
 
 You distribute your server by editing the @file{cfgfile.c} file in the
 @file{src/} directory.  There you have to include the servers header
-file and add the server definition by calling @code{svz_servertype_add()}
+file and add the server definition by calling @code{svz_servertype_add}
 
 @subsubsection More detailed description of the callback system and structures
 
@@ -1444,7 +1444,7 @@ hits/second        501  520  481  475  420  390   295
 @item CGI
 The CGI test load consists of a trivial "hello world" C program.  I noticed
 GNU/Linux (2.2.17 in this case, probably others too) to throw
-"Resource temporarily unavailable" errors when fork()ing very fast.  This
+"Resource temporarily unavailable" errors when @code{fork}ing very fast.  This
 limits the test to about 200 concurrent fetches on the test system.
 
 @item Large files
@@ -2120,7 +2120,7 @@ Except the data message type subcode all ICMP packets created and sent by
 Serveez have a zero payload.  The connect message subcode identifies a
 new connection and the disconnection message subcode its shutdown without
 actually transmitting data.  These two subcodes emulate a TCP connections
-@code{connect()}, @code{accept()} and @code{shutdown()} system call.
+@code{connect}, @code{accept} and @code{shutdown} system call.
 
 @subsubsection Configuration
 This might be the most easiest configuration to setup.  You essentially
@@ -2345,7 +2345,7 @@ name) is left blank it defaults to the name specified in the
 
 @item do-fork (boolean, default: true)
 This flag specifies the method used to pass the connection to the program.
-If it is true the server uses the Unix'ish @code{fork()} and @code{exec()}
+If it is true the server uses the Unix'ish @code{fork} and @code{exec}
 method.  Otherwise it will pass the data through a unnamed pair of
 sockets [ or two pairs of anonymous pipes ].
 
@@ -2475,7 +2475,7 @@ In @file{coserver.c} you have to implement the @code{svz_coserver_*} macro.
 This macro takes three arguments.  The first is always specific to your
 coserver and is used to create the actual request string.  Then follows the
 result callback routine, and an optional argument for this callback.  The
-latter two are simply passed to the @code{svz_coserver_send_request()}
+latter two are simply passed to the @code{svz_coserver_send_request}
 routine.  This routine takes four arguments where the first is the
 previously defined @code{COSERVER_*} id and the second is the input buffer
 for the coserver handle routine without the trailing @samp{\n}.
@@ -2538,7 +2538,7 @@ MyIdentCallback (char *user, int id, int version)
 
 @subsection Domain Name Server (DNS) coserver
 
-The DNS coserver is using @code{gethostbyname()} to translate a given
+The DNS coserver is using @code{gethostbyname} to translate a given
 hostname to the associated IP address.  The format of the coserver input
 line and the macro from @file{coserver.h} is shown below.  The IRC server is
 currently using this coserver for resolving its @samp{?-Lines}.
@@ -2565,7 +2565,7 @@ irc_connect_server (char *ip, irc_server_t *server)
 
 As easily guessed from the name this coserver is just doing the reverse
 as the DNS coserver.  It translates a given IP address into a hostname
-using @code{gethostbyaddr()}.  In the macro the ip address is given
+using @code{gethostbyaddr}.  In the macro the ip address is given
 as an @code{unsigned long} in host byte order.  The Reverse DNS
 coserver itself takes something like @samp{192.168.2.1}.
 
@@ -2620,7 +2620,7 @@ descriptors.  Thus we had to implement quite a complex main socket loop.
 Both systems Unix and Win32 do provide this functionality (Windows NT 4.0
 and above).  The main differences here are the completely different APIs.
 On a common Unix you create a named pipe within the filesystem via
-@code{mkfifo()}.  On Win32 you have to @code{CreateNamedPipe()} which
+@code{mkfifo}.  On Win32 you have to @code{CreateNamedPipe} which
 will create some special network device.  A further difference is what you
 can do with these pipes.  On Win32 systems this @samp{network device} is
 valid on remote machines.
@@ -2644,9 +2644,9 @@ and @file{wsock32.lib} and for version 2.2 it is @file{ws2_32.dll} and
 
 The Winsock API is still a bit buggy.  Connected datagram behaviors are
 not pertinent to any WinSock 2 features, but to generic WinSock.  On Win95
-it is possible to use @code{recvfrom()/WSARecvFrom()} on a "connected"
-UDP socket, but on NT4 @code{recvfrom()/WSARecvFrom()} fail with 10056
-(@code{WSAEISCONN}).  NOTE: @code{sendto()/WSASendTo()} fail with
+it is possible to use @code{recvfrom}/@code{WSARecvFrom} on a "connected"
+UDP socket, but on NT4 @code{recvfrom}/@code{WSARecvFrom} fail with 10056
+(@code{WSAEISCONN}).  NOTE: @code{sendto}/@code{WSASendTo} fail with
 @code{WSAEISCONN} on both (which I do not see any reason for, but
 anyway ...).
 
@@ -2682,8 +2682,8 @@ compiled with VC++.
 
 Why we do not use pipes for coservers ?
 Windows differentiates between sockets and file descriptors, that is why
-you can not @code{select()} file descriptors.  Please @code{close()} the
-pipe's descriptors via @code{CloseHandle()} and not @code{closesocket()},
+you can not @code{select} file descriptors.  Please @code{close} the
+pipe's descriptors via @code{CloseHandle} and not @code{closesocket},
 because this will fail.
 
 The C run-time libraries have a preset limit for the number of files that
@@ -2704,7 +2704,7 @@ sorry.  This is the case when you use @code{-mno-cygwin}.
 
 Actually they are regular file handles, just like any other.  There is a
 bug in all 9x/kernel32 libc/msv/crtdll interface implementations
-@code{GetFileType()} returns @code{TYPE_UNKNOWN} for socket handles.  Since
+@code{GetFileType} returns @code{TYPE_UNKNOWN} for socket handles.  Since
 this is AFAIK the only unknown type there is, you know you have a socket
 handle.  There is a fix in the more recent perl distributions that you can
 use as a general solution.  @code{-loldnames -lperlcrt -lmsvcrt} will get

@@ -194,15 +194,15 @@ svz_coserver_put_id (unsigned id, char *response)
 
 /*
  * Win32:
- * svz_coserver_loop() is the actual thread routine being an infinite loop.
- * It MUST be resumed via ResumeThread() by the server.
+ * ‘svz_coserver_loop’ is the actual thread routine being an infinite loop.
+ * It MUST be resumed via ‘ResumeThread’ by the server.
  * When running it first checks if there is any request lingering
  * in the client structure "sock", reads it out, processes it
  * (can be blocking) and finally sends back a respond to the
  * server.
  *
  * Unices:
- * svz_coserver_loop() is a infinite loop in a separate process.  It reads
+ * ‘svz_coserver_loop’ is a infinite loop in a separate process.  It reads
  * blocking from a receive pipe, processes the request and puts the
  * result to a sending pipe to the server.
  *
@@ -472,7 +472,7 @@ svz_coserver_disconnect (svz_socket_t *sock)
 
 /*
  * This routine has to be called for coservers requests.  It is the default
- * @code{check_request()} routine for coservers detecting full responses as
+ * @code{check_request} routine for coservers detecting full responses as
  * lines (trailing '\n').
  */
 static int
@@ -522,8 +522,8 @@ svz_coserver_check_request (svz_socket_t *sock)
 }
 
 /*
- * The standard coserver @code{handle_request()} routine is called whenever
- * the standard @code{check_request()} detected a full packet by any coserver.
+ * The standard coserver @code{handle_request} routine is called whenever
+ * the standard @code{check_request} detected a full packet by any coserver.
  */
 static int
 svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
@@ -590,7 +590,7 @@ svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
 /*
  * This function closes the pipes (incoming and outgoing) of all coservers
  * inherited to a newly instantiated coserver.  These pipe descriptors are
- * part of server process and are inherited when we call @code{fork()} in
+ * part of server process and are inherited when we call @code{fork} in
  * order to create another coserver sub process.  Since this coserver process
  * should not access these pipes we are closing them.
  */
@@ -725,7 +725,7 @@ svz_coserver_destroy (int type)
 
 /*
  * Start a specific internal coserver.  This works for Win32 and
- * Unices.  Whereas in Unix a process is @code{fork()}ed and in Win32
+ * Unices.  Whereas in Unix a process is @code{fork}ed and in Win32
  * a thread gets started.
  */
 static svz_socket_t *
@@ -812,7 +812,7 @@ svz_coserver_start (int type)
       return NULL;
     }
 
-  /* fork() us here */
+  /* ‘fork’ us here */
   if ((pid = fork ()) == 0)
     {
       int in = s2c[READ], out = c2s[WRITE];
@@ -913,8 +913,8 @@ svz_coserver_start (int type)
 
 /*
  * Call this routine whenever there is time, e.g. within the timeout of
- * the @code{select()} statement.  Indeed I built it in the
- * @code{svz_periodic_tasks()} statement.  Under Wind32 the routine checks
+ * the @code{select} statement.  Indeed I built it in the
+ * @code{svz_periodic_tasks} statement.  Under Wind32 the routine checks
  * if there was any response from an active coserver.  Moreover it keeps
  * the coserver threads/processes alive.  If one of the coservers dies due
  * to buffer overrun or might be overloaded this function starts a new one.

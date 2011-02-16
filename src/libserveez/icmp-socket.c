@@ -130,7 +130,7 @@ ICMPECHO;
 typedef HANDLE (__stdcall * IcmpCreateFileProc) (void);
 typedef BOOL (__stdcall * IcmpCloseHandleProc) (HANDLE IcmpHandle);
 typedef DWORD (__stdcall * IcmpSendEchoProc) (
-  HANDLE IcmpHandle,          /* handle returned from IcmpCreateFile() */
+  HANDLE IcmpHandle,          /* handle returned from ‘IcmpCreateFile’ */
   unsigned long DestAddress,  /* destination IP address (in network order) */
   void *RequestData,          /* pointer to buffer to send */
   unsigned short RequestSize, /* length of data in buffer */
@@ -487,7 +487,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
 
 /*
  * Default reader for ICMP server sockets.  Allocates necessary buffers and
- * reverts to @code{svz_icmp_read_socket()}.
+ * reverts to @code{svz_icmp_read_socket}.
  */
 int
 svz_icmp_lazy_read_socket (svz_socket_t *sock)
@@ -503,7 +503,7 @@ svz_icmp_lazy_read_socket (svz_socket_t *sock)
 
 /*
  * The default ICMP write callback is called whenever the socket
- * descriptor has been @code{select()}'ed or @code{poll()}'ed to be ready for
+ * descriptor has been @code{select}'ed or @code{poll}'ed to be ready for
  * sending.
  */
 int
@@ -698,7 +698,7 @@ svz_icmp_printf (svz_socket_t *sock, const char *fmt, ...)
 }
 
 /*
- * Default @code{check_request()} callback for ICMP sockets.
+ * Default @code{check_request} callback for ICMP sockets.
  */
 int
 svz_icmp_check_request (svz_socket_t *sock)

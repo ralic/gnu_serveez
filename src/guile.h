@@ -24,7 +24,7 @@
 /*
  * Converts @code{SCM} into @code{char *} no matter if it is string or
  * symbol.  Returns @code{NULL} if it was neither.  The new string must be
- * explicitly @code{free()}d.
+ * explicitly @code{free}d.
  */
 #define guile_to_string(cell)                                         \
   (SCM_NULLP (cell) ? NULL :                                          \

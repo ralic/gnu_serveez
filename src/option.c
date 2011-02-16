@@ -32,7 +32,7 @@
 
 #ifndef HAVE_GETOPT
 /*
- * Lousy implementation of @code{getopt()}.
+ * Lousy implementation of @code{getopt}.
  * Only good for parsing simple short option command lines on
  * stupid systems like Win32.  No error checking !
  */
@@ -153,7 +153,7 @@ usage (void)
 
 #if HAVE_GETOPT_LONG
 /*
- * Argument array for `getopt_long()' system call.
+ * Argument array for ‘getopt_long’ system call.
  */
 static struct option serveez_options[] = {
   {"help", no_argument, NULL, 'h'},

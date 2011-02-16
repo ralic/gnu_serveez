@@ -126,7 +126,7 @@ SERVEEZ_API char *svz_hstrerror (void);
   ((unsigned char) *p | ((unsigned char) *(p + 1) << 8))
 
 /* Converts the integer value @var{n} into a pointer platform independently.
-   Both of the @code{SVZ_NUM2PTR()} and @code{SVZ_PTR2NUM()} macros rely on
+   Both of the @code{SVZ_NUM2PTR} and @code{SVZ_PTR2NUM} macros rely on
    the @code{(unsigned long)} having the same size as @code{(void *)}.  */
 #define SVZ_NUM2PTR(n) \
   ((void *) ((unsigned long) (n)))

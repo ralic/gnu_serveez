@@ -416,7 +416,7 @@ svz_interface_collect (void)
 
 /*
  * Collect all available network interfaces and put them into the list
- * @var{svz_interfaces}.  This is useful in order to @code{bind()} server
+ * @var{svz_interfaces}.  This is useful in order to @code{bind} server
  * sockets to specific network interfaces.  Thus you can make certain
  * services accessible from "outside" or "inside" a network installation
  * only.

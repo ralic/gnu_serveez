@@ -57,7 +57,7 @@
 
 /*
  * This routine is the default reader for UDP sockets.  Whenever the socket
- * descriptor is @code{select()}'ed for reading it is called by default and
+ * descriptor is @code{select}'ed for reading it is called by default and
  * reads as much data as possible (whole packets only) and saves the sender
  * into the @code{sock->remote_addr} field.  The packet load is written into
  * @code{sock->recv_buffer}.
@@ -137,7 +137,7 @@ svz_udp_read_socket (svz_socket_t *sock)
 /*
  * This routine is the default reader for UDP server sockets.  It allocates
  * necessary buffers (that's why it's called lazy) and reverts to the default
- * @code{svz_udp_read_socket()}.
+ * @code{svz_udp_read_socket}.
  */
 int
 svz_udp_lazy_read_socket (svz_socket_t *sock)
@@ -152,7 +152,7 @@ svz_udp_lazy_read_socket (svz_socket_t *sock)
 }
 
 /*
- * The @code{svz_udp_write_socket()} callback should be called whenever
+ * The @code{svz_udp_write_socket} callback should be called whenever
  * the UDP socket descriptor is ready for sending.  It sends a single packet
  * within the @code{sock->send_buffer} to the destination address specified
  * by @code{sock->remote_addr} and @code{sock->remote_port}.
@@ -221,9 +221,9 @@ svz_udp_write_socket (svz_socket_t *sock)
 }
 
 /*
- * This is the default @code{check_request()} routine for UDP servers.
+ * This is the default @code{check_request} routine for UDP servers.
  * Whenever new data arrived at an UDP server socket we call this function to
- * process the packet data.  Any given @code{handle_request()} callback MUST
+ * process the packet data.  Any given @code{handle_request} callback MUST
  * return zero if it successfully processed the data and non-zero if it
  * could not.
  */
@@ -343,7 +343,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
 
 /*
  * Print a formatted string on the UDP socket @var{sock}.  @var{fmt} is
- * the printf()-style format string, which describes how to format the
+ * the @code{printf}-style format string, which describes how to format the
  * optional arguments.  See the printf(3) manual page for details.  The
  * destination address and port is saved for sending.  This you might
  * specify them in @code{sock->remote_addr} and @code{sock->remote_port}.

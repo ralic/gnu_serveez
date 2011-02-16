@@ -35,7 +35,7 @@
 #include "foo-proto.h"
 
 /*
- * Packet specification for @code{check_request()}.
+ * Packet specification for @code{check_request}.
  */
 char *foo_packet_delim     = "\r\n";
 int   foo_packet_delim_len = 2;

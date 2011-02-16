@@ -150,8 +150,8 @@ svz_hash_analyse (svz_hash_t *hash)
  * Create a new hash table with an initial capacity @var{size}.  Return a
  * non-zero pointer to the newly created hash.  The size is calculated down
  * to a binary value.  The @var{destroy} callback allows you to pass a
- * element destruction callback called within @code{svz_hash_clear()} and
- * @code{svz_hash_destroy()} for each value.  If no such operation should be
+ * element destruction callback called within @code{svz_hash_clear} and
+ * @code{svz_hash_destroy} for each value.  If no such operation should be
  * performed the argument must be @code{NULL}.
  */
 svz_hash_t *
@@ -188,10 +188,10 @@ svz_hash_create (int size, svz_free_func_t destroy)
 }
 
 /*
- * Destroy the existing hash table @var{hash}.  Therefore we @code{svz_free()}
+ * Destroy the existing hash table @var{hash}.  Therefore we @code{svz_free}
  * all keys within the hash, the hash table and the hash itself.  The values
  * in the hash keep untouched if the element destruction callback passed to
- * @code{svz_hash_create()} was @code{NULL}, otherwise it is called for each
+ * @code{svz_hash_create} was @code{NULL}, otherwise it is called for each
  * value.  If @var{hash} is @code{NULL} no operation is performed.
  */
 void
@@ -223,7 +223,7 @@ svz_hash_destroy (svz_hash_t *hash)
 
 /*
  * Clear the hash table of a given hash @var{hash}.  Afterwards it does not
- * contains any key.  In contradiction to @code{svz_hash_destroy()} this
+ * contains any key.  In contradiction to @code{svz_hash_destroy} this
  * functions does not destroy the hash itself, but shrinks it to a minimal
  * size.
  */
@@ -502,7 +502,7 @@ svz_hash_get (svz_hash_t *hash, char *key)
  * Returns a non-zero value if the given @code{key} is stored within
  * the hash table @code{hash}.  Otherwise the function returns zero.
  * This function is useful when you cannot tell whether the return
- * value of @code{svz_hash_get()} (@code{== NULL}) indicates a real
+ * value of @code{svz_hash_get} (@code{== NULL}) indicates a real
  * value in the hash or a non-existing hash key.
  */
 int
@@ -525,7 +525,7 @@ svz_hash_exists (svz_hash_t *hash, char *key)
 /*
  * This function delivers all values within a hash table @var{hash}.  It
  * returns NULL if there were no values in the hash.  You MUST
- * @code{svz_hash_xfree()} a non-NULL return value in order to prevent
+ * @code{svz_hash_xfree} a non-NULL return value in order to prevent
  * memory leaks.
  */
 void **
@@ -556,7 +556,7 @@ svz_hash_values (svz_hash_t *hash)
 /*
  * This function delivers all keys within a hash table @var{hash}.  It
  * returns NULL if there were no keys in the hash.  You MUST
- * @code{svz_hash_xfree()} a non-NULL return value.
+ * @code{svz_hash_xfree} a non-NULL return value.
  */
 char **
 svz_hash_keys (svz_hash_t *hash)

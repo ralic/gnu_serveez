@@ -70,7 +70,7 @@
 /*
  * This variable is meant to hold the @code{environ} variable of the
  * application using the Serveez core API.  It must be setup via the macro
- * @code{svz_envblock_setup()}.
+ * @code{svz_envblock_setup}.
  */
 char **svz_environ = NULL;
 
@@ -92,7 +92,7 @@ char **svz_environ = NULL;
  * The @var{flag} argument specifies the method used to passthrough the
  * connection.  It can be either @code{SVZ_PROCESS_FORK} (in order to pass
  * the pipe descriptors or the socket descriptor directly through
- * @code{fork()} and @code{exec()}) or @code{SVZ_PROCESS_SHUFFLE_PIPE} /
+ * @code{fork} and @code{exec}) or @code{SVZ_PROCESS_SHUFFLE_PIPE} /
  * @code{SVZ_PROCESS_SHUFFLE_SOCK} (in order to pass the socket transactions
  * via a pair of pipes or sockets).
  *
@@ -516,7 +516,7 @@ svz_process_recv_socket (svz_socket_t *sock)
 
 #ifdef __MINGW32__
 /*
- * This function duplicates a given @var{handle} in the sense of @code{dup()}.
+ * This function duplicates a given @var{handle} in the sense of @code{dup}.
  * The returned handle references the same underlying object.  If
  * @code{INVALID_HANDLE} is returned something went wrong.  The @var{proto}
  * argument specifies if it is a socket or pipe handle.
@@ -630,7 +630,7 @@ svz_process_create_child (svz_process_t *proc)
   startup_info.cb = sizeof (startup_info);
   startup_info.dwFlags = STARTF_USESTDHANDLES;
 
-  /* For fork() and exec() emulation we need to duplicate the handles
+  /* For ‘fork’ and ‘exec’ emulation we need to duplicate the handles
      and pass them to the child program.  */
   if (proc->flag == SVZ_PROCESS_FORK)
     {
@@ -749,7 +749,7 @@ svz_process_create_child (svz_process_t *proc)
  * the a socket structure.  The function create a new socket structure and
  * sets it up for handling the transactions automatically.  The given
  * argument @var{proc} contains the information inherited from
- * @code{svz_sock_process()}.  The function returns -1 on failure and the
+ * @code{svz_sock_process}.  The function returns -1 on failure and the
  * new child's process id otherwise.
  */
 int
@@ -865,7 +865,7 @@ svz_process_shuffle (svz_process_t *proc)
 /*
  * Fork the current process and execute a new child program.  The given
  * argument @var{proc} contains the information inherited from
- * @code{svz_sock_process()}.  The routine passes the socket or pipe
+ * @code{svz_sock_process}.  The routine passes the socket or pipe
  * descriptors of the original passthrough socket structure to stdin and
  * stdout of the child.  The caller is responsible for shutting down the
  * original socket structure.  Returns -1 on errors and the child's
@@ -1078,7 +1078,7 @@ svz_process_check_access (char *file, char *user)
 
 /*
  * Create a fresh environment block.  The returned pointer can be used to pass
- * it to @code{svz_envblock_default()} and @code{svz_envblock_add()}.  Its
+ * it to @code{svz_envblock_default} and @code{svz_envblock_add}.  Its
  * size is initially set to zero.
  */
 svz_envblock_t *
@@ -1120,7 +1120,7 @@ svz_envblock_default (svz_envblock_t *env)
 
 /*
  * Insert a new environment variable into the given environment block
- * @var{env}.  The @var{format} argument is a printf()-style format string
+ * @var{env}.  The @var{format} argument is a @code{printf}-style format string
  * describing how to format the optional arguments.  You specify environment
  * variables in the @samp{VAR=VALUE} format.
  */
@@ -1155,8 +1155,8 @@ svz_envblock_add (svz_envblock_t *env, char *format, ...)
 #ifdef __MINGW32__
 /*
  * Win9x and WinNT systems use sorted environments.  That is why we will sort
- * each environment block passed to @code{CreateProcess()}.  The following
- * routine is the comparison routine for the @code{qsort()} call.
+ * each environment block passed to @code{CreateProcess}.  The following
+ * routine is the comparison routine for the @code{qsort} call.
  */
 static int
 svz_envblock_sort (const void *data1, const void *data2)
@@ -1174,8 +1174,8 @@ svz_envblock_sort (const void *data1, const void *data2)
  * the environment variables in the format VAR=VALUE each separated by a
  * zero byte.  The end of the list is indicated by a further zero byte.
  * The following routine converts the given environment block @var{env}
- * into something which can be passed to @code{exeve()} (Unix) or
- * @code{CreateProcess()} (Windows).  The routine additionally sorts the
+ * into something which can be passed to @code{exeve} (Unix) or
+ * @code{CreateProcess} (Windows).  The routine additionally sorts the
  * environment block on Windows systems since it is using sorted
  * environments.
  */
@@ -1199,7 +1199,7 @@ svz_envblock_get (svz_envblock_t *env)
   for (size = 1, n = 0; n < env->size; n++)
     {
       len = strlen (env->entry[n]) + 1;
-      /* Use permanent allocator here.  You may not free() environment blocks
+      /* Use permanent allocator here.  You may not ‘free’ environment blocks
          passed to programs.  */
       block = svz_prealloc (block, size + len);
       memcpy (&block[size - 1], env->entry[n], len);
@@ -1216,7 +1216,7 @@ svz_envblock_get (svz_envblock_t *env)
 /*
  * This function releases all environment variables currently stored in the
  * given environment block @var{env}.  The block will be as clean as returned
- * by @code{svz_envblock_create()} afterwards.
+ * by @code{svz_envblock_create} afterwards.
  */
 int
 svz_envblock_free (svz_envblock_t *env)

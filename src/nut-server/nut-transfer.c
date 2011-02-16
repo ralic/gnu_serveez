@@ -975,7 +975,7 @@ nut_file_read (svz_socket_t *sock)
       return -1;
     }
 
-  /* Bogus file.  File size from stat() was not true.  */
+  /* Bogus file.  File size from ‘stat’ was not true.  */
   if (num_read == 0 && transfer->size != 0)
     {
       return -1;
@@ -992,7 +992,7 @@ nut_file_read (svz_socket_t *sock)
       svz_log (LOG_DEBUG, "nut: file successfully read\n");
 #endif
       /*
-       * no further read()s from the file descriptor, signaling
+       * no further ‘read’s from the file descriptor, signaling
        * the writers there will not be additional data from now on
        */
       sock->read_socket = svz_tcp_read_socket;

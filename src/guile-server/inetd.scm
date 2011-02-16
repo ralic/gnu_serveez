@@ -24,7 +24,7 @@
 ;; working directory
 (define directory "/tmp")
 
-;; should inetd use fork() and exec() ?
+;; should inetd use ‘fork’ and ‘exec’?
 (define do-fork #t)
 
 ;; print some messages if #t

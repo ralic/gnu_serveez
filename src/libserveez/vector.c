@@ -51,7 +51,7 @@ svz_vector_create (unsigned long size)
 
 /*
  * Destroy a given vector list @var{vec}.  This pointer is invalid afterwards.
- * The routine @code{svz_free()}s all elements.
+ * The routine @code{svz_free}s all elements.
  */
 void
 svz_vector_destroy (svz_vector_t *vec)

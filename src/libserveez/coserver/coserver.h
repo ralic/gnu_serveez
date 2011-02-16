@@ -64,7 +64,7 @@ typedef struct
   char * (* callback) (char *);   /* coserver callback */
   int instances;                  /* the amount of coserver instances */
   void (* init) (void);           /* coserver initialization routine */
-  long last_start;                /* time stamp of the last instance fork() */
+  long last_start;                /* time stamp of the last instance ‘fork’ */
 }
 svz_coservertype_t;
 
@@ -124,7 +124,7 @@ SERVEEZ_API void svz_coserver_rdns_invoke (unsigned long,
 
 /*
  * This macro is considered to be the usual way to make a request to the
- * reverse DNS coserver.  It calls @code{svz_coserver_rdns_invoke()} therefore.
+ * reverse DNS coserver.  It calls @code{svz_coserver_rdns_invoke} therefore.
  * If the given @var{ip} has been resolved by the coserver to a valid computer
  * name the callback @var{cb} gets invoked with the additional arguments
  * passed to this macro.

@@ -104,7 +104,7 @@ typedef struct svz_portcfg
       char *ipaddr;            /* dotted decimal or "*" for any address */
       struct sockaddr_in addr; /* converted from the above 2 values */
       char *device;            /* network device */
-      int backlog;             /* backlog argument for listen() */
+      int backlog;             /* backlog argument for ‘listen’ */
     } tcp;
 
     /* udp port */

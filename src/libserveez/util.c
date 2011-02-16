@@ -93,7 +93,7 @@ static char log_level[][16] = {
 
 /*
  * This is the file all log messages are written to.  Change it with a
- * call to @code{svz_log_setfile()}.  By default, all log messages are written
+ * call to @code{svz_log_setfile}.  By default, all log messages are written
  * to @code{stderr}.
  */
 static FILE *svz_logfile = NULL;
@@ -191,14 +191,14 @@ svz_hexdump (FILE *out,    /* output FILE stream */
   return 0;
 }
 
-/* On some platforms @code{hstrerror()} can be resolved but is not declared
+/* On some platforms @code{hstrerror} can be resolved but is not declared
    anywhere.  That is why we do it here by hand.  */
 #if defined (HAVE_HSTRERROR) && !HAVE_DECL_HSTRERROR
 extern char * hstrerror (int);
 #endif
 
 /*
- * This is the @code{hstrerror()} wrapper function, depending on the
+ * This is the @code{hstrerror} wrapper function, depending on the
  * configuration file @file{config.h}.
  */
 char *
@@ -330,7 +330,7 @@ svz_strcasecmp (const char *str1, const char *str2)
 }
 
 /*
- * The @code{svz_strncasecmp()} function compares the two strings @var{str1}
+ * The @code{svz_strncasecmp} function compares the two strings @var{str1}
  * and @var{str2}, ignoring the case of the characters.  It returns an
  * integer less than, equal to, or greater than zero if @var{str1} is
  * found, respectively, to be less than, to match, or be greater than
@@ -480,7 +480,7 @@ svz_neterror (int error)
 
 /*
  * Routine which forms a valid error message under Win32.  It might either
- * use the @code{GetLastError()} or @code{WSAGetLastError()} in order to
+ * use the @code{GetLastError} or @code{WSAGetLastError} in order to
  * get a valid error code.
  */
 char *
@@ -519,7 +519,7 @@ svz_syserror (int nr)
 
 /*
  * This variable contains the the runtime detected Win32 version.  Its value
- * is setup in @code{svz_version()} and can be @code{Win32s} for Windows 3.x,
+ * is setup in @code{svz_version} and can be @code{Win32s} for Windows 3.x,
  * @code{Win95} for Windows 95, @code{Win98} for Windows 98, @code{WinNT3x}
  * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
  * Windows 2000, @code{WinXP} for Windows XP and @code{WinME} for Windows ME.
@@ -645,7 +645,7 @@ svz_atoi (char *str)
 
 /*
  * Returns the current working directory.  The returned pointer needs to be
- * @code{svz_free()}'ed after usage.
+ * @code{svz_free}'ed after usage.
  */
 char *
 svz_getcwd (void)

@@ -119,7 +119,7 @@ optionhash_destroy (svz_hash_t *options)
 }
 
 /*
- * Save the current load port for later usage in the @code{guile_error()}
+ * Save the current load port for later usage in the @code{guile_error}
  * function.
  */
 static void
@@ -132,7 +132,7 @@ guile_set_current_load_port (void)
 
 /*
  * Returns the current load port.  This is either the "real" one or the one
- * saved by the function @code{guile_set_current_load_port()}.  If neither
+ * saved by the function @code{guile_set_current_load_port}.  If neither
  * is possible return @code{SCM_UNDEFINED}.
  */
 static SCM
@@ -295,7 +295,7 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
       scm_c_free (str);
     }
 
-  /* Pairlist must be SCM_NULLP() now or that was not a good pairlist.  */
+  /* Pairlist must be ‘SCM_NULLP’ now or that was not a good pairlist.  */
   if (!err && !SCM_NULLP (pairlist))
     {
       guile_error ("Invalid pairlist %s", suffix);
@@ -933,7 +933,7 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
   svz_hash_t *options = NULL;
   char *error = NULL, *txt = NULL;
 
-  /* Configure callbacks for the `svz_config_type_instantiate()' thing.  */
+  /* Configure callbacks for the ‘svz_config_type_instantiate’ thing.  */
   svz_config_accessor_t accessor = {
     optionhash_cb_before,   /* before */
     optionhash_cb_integer,  /* integers */

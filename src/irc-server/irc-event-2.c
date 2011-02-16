@@ -520,7 +520,7 @@ irc_channel_flag (irc_client_t *client,   /* client changing the flag */
 }
 
 /*
- * Destroy and svz_free() a given ban entry.
+ * Destroy and ‘svz_free’ a given ban entry.
  */
 void
 irc_destroy_ban (irc_ban_t *ban)

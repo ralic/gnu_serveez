@@ -438,7 +438,7 @@ http_cache_write (svz_socket_t *sock)
 }
 
 /*
- * Do just the same as the http_file_read() but additionally copy
+ * Do just the same as the ‘http_file_read’ but additionally copy
  * the data into the cache entry.
  */
 int
@@ -514,7 +514,7 @@ http_cache_read (svz_socket_t *sock)
       http->length += num_read;
     }
 
-  /* Bogus file.  File size from stat() was not true.  */
+  /* Bogus file.  File size from ‘stat’ was not true.  */
   if (num_read == 0 && http->filelength != 0)
     {
       cache->entry->size = cache->size;

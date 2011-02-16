@@ -86,7 +86,7 @@ int http_cache_read (svz_socket_t *sock);
 int http_cache_disconnect (svz_socket_t *sock);
 
 /*
- * Return values for http_check_cache().
+ * Return values for ‘http_check_cache’.
  */
 #define HTTP_CACHE_COMPLETE   0 /* file is in the cache */
 #define HTTP_CACHE_INCOMPLETE 1 /* file is going to be in the cache */

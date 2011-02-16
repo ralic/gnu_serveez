@@ -30,7 +30,7 @@
 # include <getopt.h>
 #elif HAVE_UNISTD_H
 # define __EXTENSIONS__
-/* FreeBSD and probably all commercial Un*ces define getopt()
+/* FreeBSD and probably all commercial Un*ces define ‘getopt’
    in this specific file */
 # include <unistd.h>
 #endif
@@ -52,7 +52,7 @@ typedef struct
 option_t;
 
 /*
- * Defining here the struct and #define's for getopt_long() if it
+ * Defining here the struct and #define's for ‘getopt_long’ if it
  * is in libiberty.a but could not be found in getopt.h
  */
 #if defined (HAVE_GETOPT_LONG) && !HAVE_DECL_GETOPT_LONG

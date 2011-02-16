@@ -37,9 +37,9 @@
  * Create a new array with the initial capacity @var{capacity} and return
  * a pointer to it.  If @var{capacity} is zero it defaults to some value.  The
  * @var{destroy} argument allows you to release dynamic allocated memory when
- * calling @code{svz_array_clear()} and @code{svz_array_destroy()}.  If the
- * array contains data allocated by @code{svz_malloc()} you need to set
- * @var{destroy} to @code{svz_free()}.  For structured data you can pass a
+ * calling @code{svz_array_clear} and @code{svz_array_destroy}.  If the
+ * array contains data allocated by @code{svz_malloc} you need to set
+ * @var{destroy} to @code{svz_free}.  For structured data you can pass a
  * user defined routine which recurses into the structure.  If the array
  * contains data which should not be released you must set @var{destroy}
  * to @code{NULL}.
@@ -63,7 +63,7 @@ svz_array_create (unsigned long capacity, svz_free_func_t destroy)
  * Delete all values within the array @var{array} and set its size to zero.
  * The array @var{array} itself keeps valid.  Do not perform any operation
  * if @var{array} is @code{NULL}.  If you passed a @var{destroy} function to
- * @code{svz_array_create()} the routine calls this function passing each
+ * @code{svz_array_create} the routine calls this function passing each
  * element of @var{array} to it.
  */
 void
@@ -277,9 +277,9 @@ svz_array_dup (svz_array_t *array)
 }
 
 /*
- * This function works something like @code{svz_array_dup()} but considers
+ * This function works something like @code{svz_array_dup} but considers
  * the values within the array @var{array} to be zero-terminated character
- * strings and duplicates these via @code{svz_strdup()}.
+ * strings and duplicates these via @code{svz_strdup}.
  */
 svz_array_t *
 svz_array_strdup (svz_array_t *array)
@@ -299,7 +299,7 @@ svz_array_strdup (svz_array_t *array)
 /*
  * Create a @code{NULL} terminated C array containing the values of the
  * given @var{array}.  If the given @var{array} is @code{NULL} then an empty
- * C array is returned.  It is your responsibility to @code{svz_free()} the
+ * C array is returned.  It is your responsibility to @code{svz_free} the
  * returned pointer.
  */
 void **

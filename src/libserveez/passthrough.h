@@ -55,12 +55,12 @@ typedef struct
 }
 svz_process_t;
 
-/* Definition for the @var{flag} argument of @code{svz_sock_process()}.  */
+/* Definition for the @var{flag} argument of @code{svz_sock_process}.  */
 #define SVZ_PROCESS_FORK         1
 #define SVZ_PROCESS_SHUFFLE_SOCK 2
 #define SVZ_PROCESS_SHUFFLE_PIPE 3
 
-/* Definitions for the @var{user} argument of @code{svz_sock_process()}.  */
+/* Definitions for the @var{user} argument of @code{svz_sock_process}.  */
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)
 
@@ -75,10 +75,10 @@ extern char **environ;
 #endif
 
 /*
- * This macro must be called once after @code{svz_boot()} for setting up the
+ * This macro must be called once after @code{svz_boot} for setting up the
  * @code{svz_environ} variable.  It simply passes the @code{environ} variable
  * of the calling application to the underlying Serveez core API.  This is
- * necessary to make the @code{svz_envblock_default()} function working
+ * necessary to make the @code{svz_envblock_default} function working
  * correctly.
  */
 #define svz_envblock_setup() do { svz_environ = environ; } while (0)

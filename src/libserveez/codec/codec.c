@@ -74,7 +74,7 @@ svz_codec_get (char *description, int type)
 
 /* Prints the text representation of the list of known codecs registered
    within the core library.  This includes all encoder and decoder once ran
-   through @code{svz_codec_register()}.  */
+   through @code{svz_codec_register}.  */
 void
 svz_codec_list (void)
 {
@@ -98,7 +98,7 @@ svz_codec_list (void)
   fprintf (stderr, "\n");
 }
 
-/* This routine is called by @code{svz_boot()} and registers the builtin
+/* This routine is called by @code{svz_boot} and registers the builtin
    codecs.  */
 int
 svz_codec_init (void)
@@ -114,7 +114,7 @@ svz_codec_init (void)
   return 0;
 }
 
-/* This routine is called by @code{svz_halt()} and destroys the list of
+/* This routine is called by @code{svz_halt} and destroys the list of
    known codecs.  */
 int
 svz_codec_finalize (void)
@@ -259,7 +259,7 @@ svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
     sock->recv_buffer_fill = data->in_fill;       \
   } while (0)
 
-/* Reverts the changes made in @code{svz_codec_sock_receive_setup()}.  */
+/* Reverts the changes made in @code{svz_codec_sock_receive_setup}.  */
 static void
 svz_codec_sock_recv_revert (svz_socket_t *sock)
 {
@@ -324,7 +324,7 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
 }
 
 /* This routine is the new @code{check_request} callback for reading codecs.
-   It is applied in the above @code{svz_codec_sock_receive_setup()} function.
+   It is applied in the above @code{svz_codec_sock_receive_setup} function.
    Usually it gets called whenever there is data in the receive buffer.  It
    lets the current receive buffer be the input of the codec.  The output
    buffer of the codec gets the new receive buffer buffer of the socket
@@ -439,7 +439,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
     sock->send_buffer_fill = data->in_fill;       \
   } while (0)
 
-/* Reverts the changes made in @code{svz_codec_sock_send_setup()}.  */
+/* Reverts the changes made in @code{svz_codec_sock_send_setup}.  */
 static void
 svz_codec_sock_send_revert (svz_socket_t *sock)
 {
@@ -509,7 +509,7 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
    available and @var{sock} is scheduled for writing.  It uses the current
    send buffer as input buffer for the codec.  The output buffer of the codec
    is used to invoke the @code{write_socket} callback saved within
-   @code{svz_codec_sock_send_setup()}.  After this the send buffer is
+   @code{svz_codec_sock_send_setup}.  After this the send buffer is
    restored again without the bytes consumed by the codec.  */
 int
 svz_codec_sock_send (svz_socket_t *sock)

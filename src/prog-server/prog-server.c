@@ -202,9 +202,9 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
       /* Prevent anything being read from the socket.  */
       sock->read_socket = NULL;
 
-      /* Just close() this end of socket, not shutdown().  fork() makes the
-         socket available in the child process.  When we shutdown() it here,
-         it dies in the child, too.  When we just close() it, it still works
+      /* Just ‘close’ this end of socket, not ‘shutdown’.  ‘fork’ makes the
+         socket available in the child process.  When we ‘shutdown’ it here,
+         it dies in the child, too.  When we just ‘close’ it, it still works
          in the child.  */
       sock->flags |= SOCK_FLAG_NOSHUTDOWN;
       return -1;
@@ -357,7 +357,7 @@ prog_init (svz_server_t *server)
                   sock->cfg = cfg;
                   if (cfg->fork)
                     {
-                      /* Direct fork()'s do not need to receive.  */
+                      /* Direct ‘fork’s do not need to receive.  */
                       sock->read_socket = prog_read_socket;
                     }
                   else

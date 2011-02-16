@@ -91,7 +91,7 @@ guile_bin_print (SCM binary, SCM port, scm_print_state *state)
 
 /* Smob free function: Releases any allocated resources used the given
    cell @var{binary}.  No need to mark any referring scheme cell.  Returns
-   the number of bytes actually free()'d.  */
+   the number of bytes actually @code{free}'d.  */
 static size_t
 guile_bin_free (SCM binary)
 {
@@ -130,7 +130,7 @@ guile_bin_equal (SCM a, SCM b)
 }
 
 /* Converts the given string cell @var{string} into a binary smob.  The data
-   pointer of the binary smob is marked as garbage which must be free()'d
+   pointer of the binary smob is marked as garbage which must be @code{free}'d
    in the sweep phase of the garbage collector.  */
 #define FUNC_NAME "string->binary"
 SCM
@@ -549,8 +549,8 @@ guile_data_to_bin (void *data, int size)
 
 /* Converts the data pointer @var{data} with a size of @var{size} bytes
    into a binary smob which is marked as garbage.  This means the data
-   pointer must be allocated by @code{scm_gc_malloc()} or
-   @code{scm_gc_realloc()}.  */
+   pointer must be allocated by @code{scm_gc_malloc} or
+   @code{scm_gc_realloc}.  */
 SCM
 guile_garbage_to_bin (void *data, int size)
 {

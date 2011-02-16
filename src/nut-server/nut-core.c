@@ -464,7 +464,7 @@ nut_canonize_file (char *file)
 /*
  * This routine parses a given gnutella (HTTP) header for certain
  * properties and delivers either a property value which must be
- * svz_free()'d afterwards or NULL.
+ * ‘svz_free’d afterwards or NULL.
  */
 char *
 nut_parse_property (char *header, int len, char *property)

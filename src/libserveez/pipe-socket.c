@@ -57,7 +57,7 @@
 #include "libserveez/pipe-socket.h"
 
 #ifdef __MINGW32__
-/* Some static data for the CancelIo() call.  We need to load the symbol
+/* Some static data for the ‘CancelIo’ call.  We need to load the symbol
    dynamically because it is not available on all versions of Windows.  */
 typedef BOOL (__stdcall * CancelIoProc) (HANDLE);
 static CancelIoProc CancelIoFunc = NULL;
@@ -66,7 +66,7 @@ static HANDLE Kernel32Handle = NULL;
 
 /*
  * Startup the pipe interface of the core API of serveez.  Returns zero on
- * success.  Gets called from @code{svz_boot()} once.  Do not use.
+ * success.  Gets called from @code{svz_boot} once.  Do not use.
  */
 int
 svz_pipe_startup (void)
@@ -78,7 +78,7 @@ svz_pipe_startup (void)
       return -1;
     }
 
-  /* obtain CancelIo() function */
+  /* obtain ‘CancelIo’ function */
   CancelIoFunc = (CancelIoProc) GetProcAddress (Kernel32Handle, "CancelIo");
   if (CancelIoFunc == NULL)
     {
@@ -93,7 +93,7 @@ svz_pipe_startup (void)
 
 /*
  * Cleanup the pipe interface of the core API of serveez.  Returns zero on
- * success.  Gets called from @code{svz_halt()} once.  Do not use.
+ * success.  Gets called from @code{svz_halt} once.  Do not use.
  */
 int
 svz_pipe_cleanup (void)
@@ -400,7 +400,7 @@ svz_pipe_overlap (LPOVERLAPPED overlap)
 #endif /* __MINGW32__ */
 
 /*
- * The @code{svz_pipe_read_socket()} function reads as much data as
+ * The @code{svz_pipe_read_socket} function reads as much data as
  * available on a readable pipe descriptor or handle on Win32.  Return
  * a non-zero value on errors.
  */
@@ -426,8 +426,8 @@ svz_pipe_read_socket (svz_socket_t *sock)
   if (do_read > PIPE_MAX_READ)
     do_read = PIPE_MAX_READ;
 
-  /* Use the PeekNamedPipe() call if there is no overlapped I/O in
-     order to make the following ReadFile() non-blocking.  */
+  /* Use the ‘PeekNamedPipe’ call if there is no overlapped I/O in
+     order to make the following ‘ReadFile’ non-blocking.  */
   if (sock->overlap[READ] == NULL)
     {
       /* Check how many bytes could have been read from the pipe without
@@ -448,7 +448,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
         do_read = num_read;
     }
 
-  /* Try to get the result of the last ReadFile().  */
+  /* Try to get the result of the last ‘ReadFile’.  */
   if (sock->flags & SOCK_FLAG_READING)
     {
       if (!GetOverlappedResult (sock->pipe_desc[READ], sock->overlap[READ],
@@ -463,7 +463,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
           return 0;
         }
 
-      /* Schedule the pipe for the ReadFile() call again.  */
+      /* Schedule the pipe for the ‘ReadFile’ call again.  */
       else
         {
           sock->recv_pending = 0;
@@ -481,7 +481,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
           return -1;
         }
 
-      /* Schedule the pipe for the GetOverlappedResult() call.  */
+      /* Schedule the pipe for the ‘GetOverlappedResult’ call.  */
       sock->recv_pending = do_read;
       sock->flags |= SOCK_FLAG_READING;
       return 0;
@@ -533,7 +533,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
 }
 
 /*
- * This @code{svz_pipe_write_socket()} function writes as much data as
+ * This @code{svz_pipe_write_socket} function writes as much data as
  * possible into a writable pipe descriptor.  It returns a non-zero value
  * on errors.
  */
@@ -567,7 +567,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
           return 0;
         }
 
-      /* Reschedule the pipe descriptor for yet another WriteFile().  */
+      /* Reschedule the pipe descriptor for yet another ‘WriteFile’.  */
       else
         {
           sock->send_pending -= num_written;

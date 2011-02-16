@@ -192,9 +192,9 @@ svz_calloc (size_t size)
 }
 
 /*
- * Change the size of a @code{svz_malloc()}'ed block of memory.  The @var{size}
+ * Change the size of a @code{svz_malloc}'ed block of memory.  The @var{size}
  * argument is the new size of the block in bytes, The given variable
- * @var{ptr} must be a pointer previously returned by @code{svz_malloc()} or
+ * @var{ptr} must be a pointer previously returned by @code{svz_malloc} or
  * @code{NULL} if you want to allocate a new block.
  */
 void *
@@ -275,7 +275,7 @@ svz_realloc (void *ptr, size_t size)
 }
 
 /*
- * Free a block of @code{svz_malloc()}'ed or @code{svz_realloc()}'ed memory
+ * Free a block of @code{svz_malloc}'ed or @code{svz_realloc}'ed memory
  * block.  If @var{ptr} is a @code{NULL} pointer, no operation is performed.
  */
 void

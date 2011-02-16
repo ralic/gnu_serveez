@@ -66,7 +66,7 @@
 #define SOCK_FLAG_NOSHUTDOWN  0x00100000 /* Disable shutdown.  */
 #define SOCK_FLAG_NOOVERFLOW  0x00200000 /* Disable receive buffer overflow.  */
 
-#define VSNPRINTF_BUF_SIZE 2048 /* Size of the vsnprintf() buffer */
+#define VSNPRINTF_BUF_SIZE 2048 /* Size of the ‘vsnprintf’ buffer */
 
 typedef struct svz_socket svz_socket_t;
 
@@ -219,7 +219,7 @@ struct svz_socket
      receiving and sending.  */
   unsigned char oob;
 
-  /* Set to non-zero @code{time()} value if the the socket is temporarily
+  /* Set to non-zero @code{time} value if the the socket is temporarily
      unavailable (EAGAIN).  This is why we use O_NONBLOCK socket descriptors.  */
   int unavailable;
 

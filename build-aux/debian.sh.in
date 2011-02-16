@@ -48,7 +48,7 @@ Description: A server framework.
  .
  We think it is worth the effort because many people need server functionality
  within their applications.  However, many people experience problems
- with select()- or poll()-loops, and with non-blocking operations.
+ with select(2)- or poll(2)-loops, and with non-blocking operations.
  .
  This application demonstrates various aspects of advanced network
  programming in a portable manner.  It is known to compile and run on

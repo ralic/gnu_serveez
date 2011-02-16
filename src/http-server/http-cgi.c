@@ -250,7 +250,7 @@ http_cgi_read (svz_socket_t *sock)
 
 #ifdef __MINGW32__
   /*
-   * because pipes cannot be select()ed it can happen that there is no
+   * because pipes cannot be ‘select’ed it can happen that there is no
    * data within the receiving pipe, but the cgi has not yet terminated
    */
   if (num_read == 0 && http->pid != INVALID_HANDLE)
@@ -441,7 +441,7 @@ http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
  * parses the text of the request and delivers the real file to be
  * invoked.  This function makes sure that the cgi script file exists
  * and is executable.  On success it delivers a pointer which must be
- * svz_free()ed after use.
+ * ‘svz_free’ed after use.
  */
 char *
 http_check_cgi (svz_socket_t *sock, char *request)
@@ -619,8 +619,8 @@ http_gen_cgi_apps (http_config_t *cfg)
 }
 
 /*
- * Invoke a cgi script.  In Unices we fork() us and in Win32 we
- * CreateProcess().
+ * Invoke a cgi script.  In Unices we ‘fork’ us and in Win32 we
+ * ‘CreateProcess’.
  */
 int
 http_cgi_exec (svz_socket_t *sock, /* the socket structure */
@@ -630,7 +630,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
                char *request,  /* original request (needed for GET) */
                int type)       /* request type (POST or GET) */
 {
-  svz_t_handle pid; /* the pid from fork() or the process handle in Win32 */
+  svz_t_handle pid; /* the pid from ‘fork’ or the process handle in Win32 */
   char *cgifile;    /* path including the name of the cgi script */
   http_socket_t *http;
   svz_envblock_t *envp;
