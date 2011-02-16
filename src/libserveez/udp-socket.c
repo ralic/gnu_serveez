@@ -24,6 +24,7 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <sys/types.h>
 #include <errno.h>
@@ -46,7 +47,6 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
-#include "libserveez/snprintf.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"
 #include "libserveez/server-core.h"
@@ -359,7 +359,7 @@ svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
     return 0;
 
   va_start (args, fmt);
-  len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
+  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
 
   return svz_udp_write (sock, buffer, len);

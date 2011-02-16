@@ -1,3 +1,12 @@
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.
+
+	* configure.ac (SVZ_HAVE_SNPRINTF): Remove support
+	for this AC_DEFINE; leave only AC_CHECK_FUNCS and arrange
+	for failureful exit if ‘snprintf’ is not found.
+	(SVZ_HAVE_VSNPRINTF): Likewise for ‘vsnprintf’.
+
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘const’ directly.

@@ -1,5 +1,25 @@
 2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.
+
+	Here, "N" means "don't include libserveez/snprintf.h";
+	"V" means "use ‘vsnprintf’ directly"; "S" means "use
+	‘snprintf’ directly"; and "A" means "#include <stdarg.h>".
+	* ctrl-server/control-proto.c (ctrl_get_cpu_state, ctrl_idle): S.
+	* guile-server.c: A.
+	* guile.c: A.
+	* http-server/http-core.c: A.
+	(http_add_header): V.
+	* http-server/http-dirlist.c (http_dirlist): S.
+	* irc-server/irc-proto.c: A.
+	(irc_printf): V.
+	* irc-server/irc-server.c: A.
+	* nut-server/nut-transfer.c (nut_read_database_r): S.
+	* option.c: #include <stdlib.h>.
+	* libserveez.h: Don't #include "libserveez/snprintf.h".
+
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Decruft: Assume the compiler can cope w/ function prototypes.
 
 	* http-server/http-core.h: Remove ‘__PARAMS’ from all func decls.

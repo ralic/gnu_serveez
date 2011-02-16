@@ -1,5 +1,32 @@
 2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.
+
+	Here, "N" means "don't include libserveez/snprintf.h";
+	"V" means "use ‘vsnprintf’ directly"; "S" means "use
+	‘snprintf’ directly"; and "A" means "#include <stdarg.h>".
+	* snprintf.h: Delete file.
+	* snprintf.c: Delete file.
+	* Makefile.am (libserveez_la_SOURCES): Remove snprintf.c
+	(libserveez_HEADERS): Remove snprintf.h.
+	* asprintf.c: N.
+	(homegrown_vasprintf): V.
+	* coserver/coserver.c: N.
+	(svz_coserver_ident_invoke, svz_coserver_put_id): S.
+	* icmp-socket.c: A; N.
+	(svz_icmp_printf): V.
+	* passthrough.c: A; N.
+	(svz_envblock_add): V.
+	* server-core.c: N.
+	(svz_strsignal_init, svz_strsignal): S.
+	* socket.c: A; N.
+	(svz_sock_printf): V.
+	* udp-socket.c: A; N.
+	(svz_udp_printf): V.
+	* util.c: A; N.
+
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_vasprintf’.
 
 	* asprintf.c: #define _GNU_SOURCE;

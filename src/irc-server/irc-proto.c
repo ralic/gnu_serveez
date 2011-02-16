@@ -27,6 +27,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <time.h>
 
@@ -1063,7 +1064,7 @@ irc_printf (svz_socket_t *sock, const char *fmt, ...)
     return 0;
 
   va_start (args, fmt);
-  len = svz_vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
+  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
   va_end (args);
 
   /* Just to be sure...  */

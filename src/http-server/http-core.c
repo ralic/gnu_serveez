@@ -27,6 +27,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <errno.h>
 #include <time.h>
@@ -406,7 +407,7 @@ http_add_header (const char *fmt, ...)
   if (len >= HTTP_HEADER_SIZE)
     return;
   va_start (args, fmt);
-  svz_vsnprintf (p, HTTP_HEADER_SIZE - len, fmt, args);
+  vsnprintf (p, HTTP_HEADER_SIZE - len, fmt, args);
   va_end (args);
 }
 

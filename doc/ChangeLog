@@ -1,3 +1,11 @@
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.
+
+	* Makefile.am (libserveez_impl): Remove snprintf.c.
+	* serveez-api.texi.in (Utility functions):
+	Remove ‘SVZ_SNPRINTF_DEFUN’.
+
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc] Use commas and whitespace more.

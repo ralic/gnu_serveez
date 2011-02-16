@@ -77,7 +77,6 @@
 
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
-#include "libserveez/snprintf.h"
 #include "libserveez/array.h"
 #include "libserveez/vector.h"
 #include "libserveez/socket.h"
@@ -311,7 +310,7 @@ svz_strsignal_init (void)
       if (NULL == (str = (char *) strsignal (i)))
         {
           str = svz_malloc (128);
-          svz_snprintf (str, 128, format, i);
+          snprintf (str, 128, format, i);
           svz_array_add (svz_signal_strings, svz_strdup (str));
           svz_free (str);
         }
@@ -321,7 +320,7 @@ svz_strsignal_init (void)
         }
 #else /* not HAVE_STRSIGNAL */
       str = svz_malloc (128);
-      svz_snprintf (str, 128, format, i);
+      snprintf (str, 128, format, i);
       svz_array_add (svz_signal_strings, svz_strdup (str));
       svz_free (str);
 #endif /* HAVE_STRSIGNAL */
@@ -356,7 +355,7 @@ svz_strsignal (int sig)
     return (char *) svz_array_get (svz_signal_strings, sig);
   else
     {
-      svz_snprintf (fallback, 128, "No such signal %d", sig);
+      snprintf (fallback, 128, "No such signal %d", sig);
       return fallback;
     }
 }

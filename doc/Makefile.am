@@ -56,7 +56,6 @@ libserveez_impl = \
   server-loop.c \
   server-socket.c \
   server.c server.h \
-  snprintf.c \
   socket.c socket.h \
   sparsevec.c \
   tcp-socket.c \

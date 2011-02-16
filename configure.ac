@@ -792,30 +792,12 @@ AC_CHECK_FUNCS([vsprintf],,
 
 dnl
 dnl Some Unices (e.g. Dec Unix) do not implement ‘snprintf’.
+dnl FIXME: This will all be handled by gnulib, someday.
 dnl
 AC_CHECK_FUNCS([snprintf],,
-[AC_CHECK_FUNCS([_snprintf],,
- [AC_MSG_WARN([using function vsnprintf instead])])])
-dnl FIXME: Use ‘HAVE_SNPRINTF’, ‘HAVE__SNPRINTF’ directly.
-AS_IF([SVZ_Y([ac_cv_func_snprintf]) || SVZ_Y([ac_cv_func__snprintf])],[
-  AS_IF([SVZ_Y([ac_cv_func__snprintf])],
-   [AC_DEFINE([HAVE_SNPRINTF], 1,
-     [Define to 1 if you have the `_snprintf' (sic) function.])])
-  AC_DEFINE([SVZ_HAVE_SNPRINTF], 1,
-    [If 1, we have either `snprintf' or `_snprintf'.])
-])
-
+[AC_MSG_ERROR([cannot compile without snprintf])])
 AC_CHECK_FUNCS([vsnprintf],,
-[AC_CHECK_FUNCS([_vsnprintf],,
- [AC_MSG_WARN([using unsafe function vsprintf instead])])])
-dnl FIXME: Use ‘HAVE_VSNPRINTF’, ‘HAVE__VSNPRINTF’ directly.
-AS_IF([SVZ_Y([ac_cv_func_vsnprintf]) || SVZ_Y([ac_cv_func__vsnprintf])],[
-  AS_IF([SVZ_Y([ac_cv_func__vsnprintf])],
-   [AC_DEFINE([HAVE_VSNPRINTF], 1,
-     [Define to 1 if you have the `_vsnprintf' (sic) function.])])
-  AC_DEFINE([SVZ_HAVE_VSNPRINTF], 1,
-    [If 1, we have either `vsnprintf' or `_vsnprintf'.])
-])
+[AC_MSG_ERROR([cannot compile without vsnprintf])])
 
 dnl
 dnl Check whether extra net libraries are required.

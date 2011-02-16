@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include "libserveez/snprintf.h"
 #include "libserveez/asprintf.h"
 #include "libserveez/alloc.h"
 
@@ -47,7 +46,7 @@ homegrown_vasprintf (char **str, const char *fmt, va_list args)
   /* Try to allocate some memory and ‘snprintf’ into it.  */
   while ((mem = svz_realloc (*str, size)))
     {
-      int count = svz_vsnprintf ((*str = mem), size, fmt, args);
+      int count = vsnprintf ((*str = mem), size, fmt, args);
 
       /* Success: We're done.  */
       if (-1 < count && count < size)

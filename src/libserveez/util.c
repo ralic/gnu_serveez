@@ -36,6 +36,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
@@ -67,7 +68,6 @@
 #endif
 
 #include "libserveez/alloc.h"
-#include "libserveez/snprintf.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"
 #include "libserveez/mutex.h"
