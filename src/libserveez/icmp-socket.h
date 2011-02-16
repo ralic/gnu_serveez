@@ -70,22 +70,22 @@ __BEGIN_DECLS
 #ifdef __MINGW32__
 
 /* Exported `ICMP.DLL' functions.  */
-SERVEEZ_API void svz_icmp_startup __PARAMS ((void));
-SERVEEZ_API void svz_icmp_cleanup __PARAMS ((void));
+SERVEEZ_API void svz_icmp_startup (void);
+SERVEEZ_API void svz_icmp_cleanup (void);
 
 #endif /* __MINGW32__ */
 
 /* Exported ICMP socket functions.  */
-SERVEEZ_API int svz_icmp_read_socket __PARAMS ((svz_socket_t *));
-SERVEEZ_API int svz_icmp_lazy_read_socket __PARAMS ((svz_socket_t *));
-SERVEEZ_API int svz_icmp_write_socket __PARAMS ((svz_socket_t *));
-SERVEEZ_API int svz_icmp_check_request __PARAMS ((svz_socket_t *));
-SERVEEZ_API svz_socket_t *svz_icmp_connect __PARAMS ((unsigned long,
-                                                      unsigned short,
-                                                      unsigned char));
-SERVEEZ_API int svz_icmp_send_control __PARAMS ((svz_socket_t *, svz_uint8_t));
-SERVEEZ_API int svz_icmp_write __PARAMS ((svz_socket_t *, char *, int));
-SERVEEZ_API int svz_icmp_printf __PARAMS ((svz_socket_t *, const char *, ...));
+SERVEEZ_API int svz_icmp_read_socket (svz_socket_t *);
+SERVEEZ_API int svz_icmp_lazy_read_socket (svz_socket_t *);
+SERVEEZ_API int svz_icmp_write_socket (svz_socket_t *);
+SERVEEZ_API int svz_icmp_check_request (svz_socket_t *);
+SERVEEZ_API svz_socket_t *svz_icmp_connect (unsigned long,
+                                            unsigned short,
+                                            unsigned char);
+SERVEEZ_API int svz_icmp_send_control (svz_socket_t *, svz_uint8_t);
+SERVEEZ_API int svz_icmp_write (svz_socket_t *, char *, int);
+SERVEEZ_API int svz_icmp_printf (svz_socket_t *, const char *, ...);
 
 __END_DECLS
 

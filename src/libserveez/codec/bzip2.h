@@ -37,15 +37,15 @@ __BEGIN_DECLS
 
 extern svz_codec_t bzip2_encoder;
 extern svz_codec_t bzip2_decoder;
-char * bzip2_error __PARAMS ((svz_codec_data_t *));
-int bzip2_encoder_init __PARAMS ((svz_codec_data_t *));
-int bzip2_encoder_finalize __PARAMS ((svz_codec_data_t *));
-int bzip2_encode __PARAMS ((svz_codec_data_t *));
-int bzip2_decoder_init __PARAMS ((svz_codec_data_t *));
-int bzip2_decoder_finalize __PARAMS ((svz_codec_data_t *));
-int bzip2_decode __PARAMS ((svz_codec_data_t *));
-int bzip2_ratio __PARAMS ((svz_codec_data_t *, unsigned long *,
-                           unsigned long *));
+char * bzip2_error (svz_codec_data_t *);
+int bzip2_encoder_init (svz_codec_data_t *);
+int bzip2_encoder_finalize (svz_codec_data_t *);
+int bzip2_encode (svz_codec_data_t *);
+int bzip2_decoder_init (svz_codec_data_t *);
+int bzip2_decoder_finalize (svz_codec_data_t *);
+int bzip2_decode (svz_codec_data_t *);
+int bzip2_ratio (svz_codec_data_t *, unsigned long *,
+                 unsigned long *);
 
 __END_DECLS
 

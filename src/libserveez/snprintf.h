@@ -61,8 +61,7 @@ int _vsnprintf (char *, unsigned int, const char *, va_list);
 __BEGIN_DECLS
 
 #ifndef SVZ_HAVE_SNPRINTF
-SERVEEZ_API int svz_snprintf __PARAMS ((char *, unsigned int,
-                                        const char *, ...));
+SERVEEZ_API int svz_snprintf (char *, unsigned int, const char *, ...);
 #elif !defined (svz_snprintf)
 # define svz_snprintf snprintf
 #endif

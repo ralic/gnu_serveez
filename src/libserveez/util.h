@@ -39,8 +39,8 @@
 #if __CRYPT_IMPORT__
 #include <crypt.h>
 #else
-extern char *crypt __PARAMS ((const char *, const char *));
-extern char *getpass __PARAMS ((const char *));
+extern char *crypt (const char *, const char *);
+extern char *getpass (const char *);
 #endif /* __CRYPT_IMPORT__ */
 #endif
 
@@ -63,21 +63,21 @@ typedef unsigned char svz_uint8_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API void svz_log __PARAMS ((int, const char *, ...));
-SERVEEZ_API void svz_log_setfile __PARAMS ((FILE *));
+SERVEEZ_API void svz_log (int, const char *, ...);
+SERVEEZ_API void svz_log_setfile (FILE *);
 
-SERVEEZ_API int svz_hexdump __PARAMS ((FILE *, char *, int, char *, int, int));
-SERVEEZ_API char *svz_itoa __PARAMS ((unsigned int));
-SERVEEZ_API unsigned int svz_atoi __PARAMS ((char *));
-SERVEEZ_API int svz_strcasecmp __PARAMS ((const char *, const char *));
-SERVEEZ_API int svz_strncasecmp __PARAMS ((const char *, const char *, unsigned int));
-SERVEEZ_API char *svz_getcwd __PARAMS ((void));
-SERVEEZ_API int svz_openfiles __PARAMS ((int));
-SERVEEZ_API char *svz_time __PARAMS ((long));
-SERVEEZ_API char *svz_uptime __PARAMS ((long));
-SERVEEZ_API char *svz_tolower __PARAMS ((char *));
-SERVEEZ_API char *svz_sys_version __PARAMS ((void));
-SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
+SERVEEZ_API int svz_hexdump (FILE *, char *, int, char *, int, int);
+SERVEEZ_API char *svz_itoa (unsigned int);
+SERVEEZ_API unsigned int svz_atoi (char *);
+SERVEEZ_API int svz_strcasecmp (const char *, const char *);
+SERVEEZ_API int svz_strncasecmp (const char *, const char *, unsigned int);
+SERVEEZ_API char *svz_getcwd (void);
+SERVEEZ_API int svz_openfiles (int);
+SERVEEZ_API char *svz_time (long);
+SERVEEZ_API char *svz_uptime (long);
+SERVEEZ_API char *svz_tolower (char *);
+SERVEEZ_API char *svz_sys_version (void);
+SERVEEZ_API char *svz_hstrerror (void);
 
 /*
  * Convert the byte array pointed to by @var{p} to a signed 32 bit integer.
@@ -163,7 +163,7 @@ SERVEEZ_API char *svz_hstrerror __PARAMS ((void));
 
 SERVEEZ_API int svz_os_version;
 SERVEEZ_API int svz_errno;
-SERVEEZ_API char *svz_syserror __PARAMS ((int));
+SERVEEZ_API char *svz_syserror (int);
 
 #endif /* __MINGW32__ */
 

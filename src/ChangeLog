@@ -1,3 +1,11 @@
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Decruft: Assume the compiler can cope w/ function prototypes.
+
+	* http-server/http-core.h: Remove ‘__PARAMS’ from all func decls.
+	* irc-server/irc-proto.h: Likewise.
+	* irc-server/irc-server.h: Likewise.
+
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘const’ directly.

@@ -153,7 +153,7 @@ char *http_clf_date (time_t t);
 void http_set_header (char *response);
 int http_send_header (svz_socket_t *sock);
 void http_reset_header (void);
-void http_add_header __PARAMS ((const char *fmt, ...));
+void http_add_header (const char *fmt, ...);
 
 #ifdef __MINGW32__
 void http_start_netapi (void);

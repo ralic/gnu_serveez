@@ -28,7 +28,7 @@
 /*
  * These functions are exported from this IRC server module.
  */
-int irc_parse_line __PARAMS ((char *line, char *fmt, ...));
+int irc_parse_line (char *line, char *fmt, ...);
 void irc_delete_servers (irc_config_t *cfg);
 void irc_connect_servers (irc_config_t *cfg);
 int irc_count_servers (irc_config_t *cfg);

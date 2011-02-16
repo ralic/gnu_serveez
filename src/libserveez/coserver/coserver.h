@@ -106,21 +106,21 @@ __BEGIN_DECLS
 SERVEEZ_API svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
 SERVEEZ_API svz_array_t *svz_coservers;
 
-SERVEEZ_API void svz_coserver_check __PARAMS ((void));
-SERVEEZ_API int svz_coserver_init __PARAMS ((void));
-SERVEEZ_API int svz_coserver_finalize __PARAMS ((void));
-SERVEEZ_API void svz_coserver_destroy __PARAMS ((int));
-SERVEEZ_API void svz_coserver_create __PARAMS ((int));
-SERVEEZ_API void svz_coserver_send_request __PARAMS ((int, char *,
-                                                 svz_coserver_handle_result_t,
-                                                 svz_coserver_args_t));
+SERVEEZ_API void svz_coserver_check (void);
+SERVEEZ_API int svz_coserver_init (void);
+SERVEEZ_API int svz_coserver_finalize (void);
+SERVEEZ_API void svz_coserver_destroy (int);
+SERVEEZ_API void svz_coserver_create (int);
+SERVEEZ_API void svz_coserver_send_request (int, char *,
+                                            svz_coserver_handle_result_t,
+                                            svz_coserver_args_t);
 
 /*
  * These are the three wrappers for our existing coservers.
  */
-SERVEEZ_API void svz_coserver_rdns_invoke __PARAMS ((unsigned long,
-                                                svz_coserver_handle_result_t,
-                                                svz_coserver_args_t));
+SERVEEZ_API void svz_coserver_rdns_invoke (unsigned long,
+                                           svz_coserver_handle_result_t,
+                                           svz_coserver_args_t);
 
 /*
  * This macro is considered to be the usual way to make a request to the
@@ -134,9 +134,9 @@ SERVEEZ_API void svz_coserver_rdns_invoke __PARAMS ((unsigned long,
                             (svz_coserver_arg_t) ((unsigned long) arg0), \
                             (svz_coserver_arg_t) ((unsigned long) arg1))
 
-SERVEEZ_API void svz_coserver_dns_invoke __PARAMS ((char *,
-                                               svz_coserver_handle_result_t,
-                                               svz_coserver_args_t));
+SERVEEZ_API void svz_coserver_dns_invoke (char *,
+                                          svz_coserver_handle_result_t,
+                                          svz_coserver_args_t);
 
 /*
  * This macro is the usual way to make use of the internal DNS coserver.
@@ -149,9 +149,9 @@ SERVEEZ_API void svz_coserver_dns_invoke __PARAMS ((char *,
                            (svz_coserver_arg_t) ((unsigned long) arg0), \
                            (svz_coserver_arg_t) ((unsigned long) arg1))
 
-SERVEEZ_API void svz_coserver_ident_invoke __PARAMS ((svz_socket_t *,
-                                                 svz_coserver_handle_result_t,
-                                                 svz_coserver_args_t));
+SERVEEZ_API void svz_coserver_ident_invoke (svz_socket_t *,
+                                            svz_coserver_handle_result_t,
+                                            svz_coserver_args_t);
 
 /*
  * This macro uses the internal ident coserver in order to identify the

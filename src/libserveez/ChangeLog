@@ -1,3 +1,44 @@
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Decruft: Assume the compiler can cope w/ function prototypes.
+
+	* defines.h (__PARAMS): Delete macro.
+	* alloc.h: Remove ‘__PARAMS’ from all func decls.
+	* array.h: Likewise.
+	* asprintf.h: Likewise.
+	* binding.h: Likewise.
+	* boot.h: Likewise.
+	* cfg.h: Likewise.
+	* codec/bzip2.h: Likewise.
+	* codec/codec.h: Likewise.
+	* codec/gzlib.h: Likewise.
+	* core.h: Likewise.
+	* coserver/coserver.h: Likewise.
+	* coserver/dns.h: Likewise.
+	* coserver/ident.h: Likewise.
+	* coserver/reverse-dns.h: Likewise.
+	* dynload.h: Likewise.
+	* hash.h: Likewise.
+	* icmp-socket.h: Likewise.
+	* interface.h: Likewise.
+	* mutex.h: Likewise.
+	* passthrough.h: Likewise.
+	* pipe-socket.h: Likewise.
+	* portcfg.h: Likewise.
+	* raw-socket.h: Likewise.
+	* server-core.h: Likewise.
+	* server-loop.h: Likewise.
+	* server-socket.h: Likewise.
+	* server.h: Likewise.
+	* snprintf.h: Likewise.
+	* socket.h: Likewise.
+	* sparsevec.h: Likewise.
+	* tcp-socket.h: Likewise.
+	* udp-socket.h: Likewise.
+	* util.h: Likewise.
+	* vector.h: Likewise.
+	* windoze.h: Likewise.
+
 2011-02-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Use ‘const’ directly.

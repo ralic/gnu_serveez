@@ -26,7 +26,7 @@
 __BEGIN_DECLS
 
 /* Proceed a single DNS lookup.  */
-char *dns_handle_request __PARAMS ((char *));
+char *dns_handle_request (char *);
 
 __END_DECLS
 

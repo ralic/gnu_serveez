@@ -36,8 +36,8 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_asprintf __PARAMS ((char **, const char *, ...));
-SERVEEZ_API int svz_vasprintf __PARAMS ((char **, const char *, va_list));
+SERVEEZ_API int svz_asprintf (char **, const char *, ...);
+SERVEEZ_API int svz_vasprintf (char **, const char *, va_list);
 
 __END_DECLS
 

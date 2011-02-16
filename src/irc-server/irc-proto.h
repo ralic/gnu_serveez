@@ -370,7 +370,7 @@ int irc_client_in_channel (svz_socket_t *, irc_client_t *, irc_channel_t *);
 int irc_check_args (svz_socket_t *, irc_client_t *, irc_config_t *,
                     irc_request_t *, int);
 int irc_client_absent (irc_client_t *, irc_client_t *);
-int irc_printf __PARAMS ((svz_socket_t *, const char *, ...));
+int irc_printf (svz_socket_t *, const char *, ...);
 
 /* serveez callbacks */
 int irc_handle_request (svz_socket_t *sock, char *request, int len);
