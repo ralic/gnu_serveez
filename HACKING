@@ -49,6 +49,15 @@ See the end for copying conditions.
 ******* DONE segregate woe32
 ***** DONE prune by-now standardized bits from [[file:doc/Makefile.am][doc/Makefile.am]]
 ***** DONE move *.serveez file creation (woe32) to "make dist"
+*** TODO Zonk ‘__PARAMS’; require prototypes.
+*** TODO Prune ancillary elements from libserveez API.
+    |   | svz_tolower     | 2011!  | use ‘tolower’ directly     |
+    |   | svz_atoi        | 2011!  | use ‘atoi’ directly        |
+    |   | svz_vasprintf   | unused | internalize                |
+    |   | svz_asprintf    | GNU    | use ‘asprintf’ directly    |
+    |   | svz_snprintf    | 2011!  | use ‘snprintf’ directly    |
+    |   | svz_strcasecmp  | danger | use ‘strncasecmp’ instead  |
+    |   | svz_strncasecmp | 2011!  | use ‘strncasecmp’ directly |
 *** DONE Assume signal handlers return ‘void’.
 *** TODO Remove svz_t_{size,off}.
 *** TODO Remove svz_c_{const,signed}.
