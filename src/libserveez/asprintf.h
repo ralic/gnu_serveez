@@ -24,20 +24,9 @@
 
 #include "libserveez/defines.h"
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-
-/* to be sure not to redefine `va_start' in <stdarg.h> */
-#if defined (SVZ_HAVE_VARARGS_H) && !defined (va_start)
-# include <varargs.h>
-#endif
-
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_asprintf (char **, const char *, ...);
-SERVEEZ_API int svz_vasprintf (char **, const char *, va_list);
 
 __END_DECLS
 

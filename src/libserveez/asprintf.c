@@ -23,13 +23,53 @@
 # include <config.h>
 #endif
 
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
 #include "libserveez/snprintf.h"
 #include "libserveez/asprintf.h"
 #include "libserveez/alloc.h"
 
+/* to be sure not to redefine `va_start' in <stdarg.h> */
+#if defined (SVZ_HAVE_VARARGS_H) && !defined (va_start)
+# include <varargs.h>
+#endif
+
+static int
+homegrown_vasprintf (char **str, const char *fmt, va_list args)
+{
+  size_t size = 128;
+  void *mem;
+
+  *str = NULL;
+  /* Try to allocate some memory and ‘snprintf’ into it.  */
+  while ((mem = svz_realloc (*str, size)))
+    {
+      int count = svz_vsnprintf ((*str = mem), size, fmt, args);
+
+      /* Success: We're done.  */
+      if (-1 < count && count < size)
+        return count;
+
+      /* Not enough space.  Bump ‘size’ and try again.  */
+      size = 0 > count
+        ? 2 * size                      /* imprecisely */
+        : 1 + count;                    /* precisely */
+    }
+
+  /* Allocation failure.  */
+  if (*str)
+    {
+      svz_free (*str);
+      *str = NULL;
+    }
+  return -1;
+}
+
 /*
- * Implementation of @code{asprintf()}.  The function uses
- * @code{svz_vasprintf()}.  It can be used to format a character
+ * Implementation of @code{asprintf()}.  It formats a character
  * string without knowing the actual length of it.  The routine
  * dynamically allocates buffer space via @code{svz_malloc()} and
  * returns the final length of the string.  The calling function is
@@ -42,34 +82,8 @@ svz_asprintf (char **str, const char *fmt, ...)
   int retval;
 
   va_start (args, fmt);
-  retval = svz_vasprintf (str, fmt, args);
+  retval = homegrown_vasprintf (str, fmt, args);
   va_end (args);
 
   return retval;
-}
-
-/*
- * This function is used by @code{svz_asprintf()} and is meant to be a
- * helper function only.
- */
-int
-svz_vasprintf (char **str, const char *fmt, va_list args)
-{
-  int size = 128; /* guess we need no more than 128 characters of space */
-  int nchars;
-
-  *str = (char *) svz_realloc (*str, size);
-
-  /* Try to print in the allocated space.  */
-  nchars = svz_vsnprintf (*str, size, fmt, args);
-  while (nchars >= size || nchars <= -1)
-    {
-      /* Reallocate buffer.  */
-      size = (nchars <= -1) ? (nchars + 1) : size * 2;
-      *str = (char *) svz_realloc (*str, size);
-      /* Try again.  */
-      nchars = svz_vsnprintf (*str, size, fmt, args);
-    }
-
-  return nchars;
 }

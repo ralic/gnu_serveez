@@ -1,5 +1,20 @@
 2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_vasprintf’.
+
+	* asprintf.c: #define _GNU_SOURCE;
+	#include <stdio.h>, <stdlib.h>, <stdarg.h>;
+	conditionally #define <varargs.h>.
+	(homegrown_vasprintf): New static func.
+	(svz_asprintf): Use ‘homegrown_vasprintf’.
+	(svz_vasprintf): Delete func.
+	* asprintf.h: Don't #define _GNU_SOURCE;
+	don't #include <stdio.h>, <stdlib.h>, <stdarg.h>;
+	don't conditionally #include <varargs.h>.
+	(svz_vasprintf): Delete func decl.
+
+2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Decruft: Assume the compiler can cope w/ function prototypes.
 
 	* defines.h (__PARAMS): Delete macro.
