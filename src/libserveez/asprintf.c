@@ -49,13 +49,13 @@ homegrown_vasprintf (char **str, const char *fmt, va_list args)
       int count = vsnprintf ((*str = mem), size, fmt, args);
 
       /* Success: We're done.  */
-      if (-1 < count && count < size)
+      if (-1 < count && (unsigned) count < size)
         return count;
 
       /* Not enough space.  Bump ‘size’ and try again.  */
       size = 0 > count
         ? 2 * size                      /* imprecisely */
-        : 1 + count;                    /* precisely */
+        : 1 + (unsigned) count;         /* precisely */
     }
 
   /* Allocation failure.  */

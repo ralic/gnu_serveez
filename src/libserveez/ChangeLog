@@ -1,5 +1,13 @@
 2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Add cast for comparison.
+
+	* asprintf.c (homegrown_vasprintf):
+	Add ‘unsigned’ cast when comparing the non-negative
+	‘count’ with ‘size’ and when using same later.
+
+2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Avoid calling ‘strcmp’ with a ‘NULL’ arg.
 
 	* portcfg.c (same_devices): New static func.
