@@ -1,3 +1,10 @@
+2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Avoid calling ‘strcmp’ with a ‘NULL’ arg.
+
+	* portcfg.c (same_devices): New static func.
+	(svz_portcfg_equal): Use ‘same_devices’.
+
 2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.

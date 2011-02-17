@@ -63,6 +63,21 @@ svz_portcfg_create (void)
 }
 
 /*
+ * Return 1 if the devices of port-configs A and B are the same, else 0.
+ */
+static int
+same_devices (svz_portcfg_t *a, svz_portcfg_t *b)
+{
+  char *sa = svz_portcfg_device (a);
+  char *sb = svz_portcfg_device (b);
+
+  /* Apparently, ‘svz_portcfg_device’ can return NULL,
+     which elicits a warning from gcc for ‘strcmp’.  */
+  return !strcmp (sa ? sa : "",
+                  sb ? sb : "");
+}
+
+/*
  * Check if two given port configurations structures are equal i.e.
  * specifying the same network port or pipe files.  Returns
  * @code{PORTCFG_EQUAL} if @var{a} and @var{b} are identical,
@@ -95,8 +110,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
                   if ((a->flags & PORTCFG_FLAG_DEVICE) &&
                       (b->flags & PORTCFG_FLAG_DEVICE))
                     {
-                      if (!strcmp (svz_portcfg_device (a),
-                                   svz_portcfg_device (b)))
+                      if (same_devices (a, b))
                         return PORTCFG_EQUAL;
                       return PORTCFG_NOMATCH;
                     }
@@ -116,7 +130,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
                 {
                   if ((a->flags & PORTCFG_FLAG_DEVICE) &&
                       (b->flags & PORTCFG_FLAG_DEVICE) &&
-                      !strcmp (svz_portcfg_device (a), svz_portcfg_device (b)))
+                      same_devices (a, b))
                     return PORTCFG_EQUAL;
                   return PORTCFG_CONFLICT;
                 }
@@ -132,7 +146,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
             {
               if ((a->flags & PORTCFG_FLAG_DEVICE) &&
                   (b->flags & PORTCFG_FLAG_DEVICE) &&
-                  !strcmp (svz_portcfg_device (a), svz_portcfg_device (b)))
+                  same_devices (a, b))
                 return PORTCFG_EQUAL;
               return PORTCFG_CONFLICT;
             }
