@@ -120,28 +120,15 @@ sleepless ~> cd serveez-@value{VERSION}
 @end example
 
 @item Configure the source package for your system:
-We recommend to use @samp{--enable-opt} unless you have a good reason
-not to do so.  It follows a complete list of the @file{configure} script
+In previous Serveez releases, the @file{configure} script had some
+builtin compiler flags for warnings and optimizations, conveniently
+exposed via command-line options.  These are no longer available;
+instead, you can use @code{CFLAGS} for such purposes (see below).
+Here is a complete list of the @file{configure} script
 options.  The list of known options can the obtained via
 @samp{./configure --help}.
 
 @table @samp
-@item --enable-warn
-With this option you enable the detection of various compiler
-warning switches.  Most guessed options come from GCC.
-@item --enable-opt
-When enabling this feature the configure script tries some of
-the commonly known compiler optimization switches.
-@item --with-opt=FLAGS
-You can pass here a comma separated list of additional compiler
-flags which will be tested.  This feature is only active if you
-specified the above @samp{--enable-opt} switch.
-@item --enable-ppro
-If you want to compile for the i686 target try this option.
-@item --enable-486
-Compiler optimizations for the i486 target of GCC.  If you passed
-@samp{--enable-ppro} and this option could be used, then the i486
-option will be silently dropped.
 @item --enable-debug
 All of the debug messages (debug: some annoying crap text) can
 be suppressed by setting the debug level (-v).  If you do not
@@ -243,8 +230,34 @@ thread safety functionality which can be used by applications based on
 the Serveez core API and by Serveez itself.
 @end table
 
+For maximum flexibility and reproducibility, we recommend enabling
+warnings and optimizations specifying @code{CFLAGS} as a command-line
+option to the @file{configure} script.  For reference, here is the
+collected set of flags built into previous Serveez releases:
+
 @example
-sleepless ~/serveez-@value{VERSION}> sh configure --enable-opt
+@r{(warnings)}
+  -W -fullwarn -pedantic -ansi
+  -Wall -Wcast-align -Wstrict-prototypes
+  -Wformat -Wno-unused -Wno-long-long
+
+@r{(optimizations)}
+  -O2 -fomit-frame-pointer -fstrength-reduce
+  -funroll-loops -finline-functions
+  -fexpensive-optimizations -fcaller-saves
+  -frerun-loop-opt -foptimize-register-move
+  -ffunction-cse -fpeephole -momit-leaf-frame-pointer
+  -fschedule-insns2 -m486 -march=pentiumpro -O3
+@end example
+
+Note that not all flags may be compatible with your compiler or even
+each other.  That's one of the reasons we no longer take this approach.
+@xref{Defining Variables,,,autoconf,The Autoconf Manual}.
+
+@example
+sleepless ~/serveez-@value{VERSION}> ./configure \
+  --with-guile=$HOME/local \
+  CFLAGS='-g -O3 -Wall -Wextra'
 @end example
 
 @item Now compile the package:

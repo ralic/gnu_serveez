@@ -1,3 +1,13 @@
+2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Drop configure --enable-{warn,opt,ppro,486}, ‘--with-opt’.
+
+	* serveez.texi (Using Serveez <Configure the source...>): Remove
+	from table items ‘--enable-warn’, ‘--enable-opt’, ‘--with-opt=FLAGS’,
+	‘--enable-ppro’, ‘--enable-486’; describe how to use ‘CFLAGS’ on the
+	configure command-line; document formerly builtin set of warning and
+	compilation flags; add xref to Autoconf manual; update example.
+
 2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.

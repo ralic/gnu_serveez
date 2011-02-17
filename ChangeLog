@@ -1,3 +1,10 @@
+2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Drop configure --enable-{warn,opt,ppro,486}, ‘--with-opt’.
+
+	* configure.ac (warn, opt, ppro, 486): Delete ‘SVZ_FLAG’s.
+	(opt): Delete ‘SVZ_WITH’.
+
 2011-02-16  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop ‘svz_snprintf’; use ‘vsnprintf’, ‘snprintf’ directly.
