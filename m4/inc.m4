@@ -121,8 +121,6 @@ dnl the `--with-guile=DIR' option of the ./configure script.
 dnl
 dnl SVZ_GUILE_CHECK -- Checks for Guile results and exits if necessary.
 dnl
-dnl SVZ_LIBTOOL_SOLARIS -- Helps libtool to build on Solaris.
-dnl
 
 AC_DEFUN([SVZ_GUILE], [
   SVZ_WITH([/usr/local],[guile],[DIR],[Guile installation in DIR],
@@ -188,29 +186,5 @@ AC_DEFUN([SVZ_GUILE_CHECK], [
   $PACKAGE_STRING requires an installed Guile. You can specify the
   install location by passing `--with-guile=<directory>'.  Guile
   version 1.4 is preferred.])])])
-
-AC_DEFUN([SVZ_LIBTOOL_SOLARIS],[
-AS_IF([SVZ_Y([GCC]) && SVZ_Y([enable_shared])],
- [AS_CASE([$host_os],[solaris*],[
-      LIBERTY=`gcc --print-file-name=libiberty.a`
-      LIBERTY="-L`dirname $LIBERTY 2>/dev/null`"
-      SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $LIBERTY"
-      GCCLIB=`gcc --print-libgcc-file-name`
-      GCCDIR="-L`dirname $GCCLIB 2>/dev/null`"
-      GCCFILE=`basename $GCCLIB 2>/dev/null`
-      GCCFILE="-l`echo "$GCCFILE" | sed -e 's/lib\(.*\)\.a/\1/'`"
-      SERVEEZ_LDFLAGS="$SERVEEZ_LDFLAGS $GCCDIR"
-      SERVEEZ_LIBS="$SERVEEZ_LIBS $GCCFILE"
-      AC_MSG_WARN([
-  The configure script added
-  '$LIBERTY $GCCDIR $GCCFILE'
-  to your linker line.  This may not be what you want.  Please report
-  to <bug-serveez@gnu.org> if we failed to build shared libraries
-  for '$host_os'.])
-      AS_UNSET([LIBERTY])
-      AS_UNSET([GCCLIB])
-      AS_UNSET([GCCDIR])
-      AS_UNSET([GCCFILE])])])
-])
 
 dnl inc.m4 ends here

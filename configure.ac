@@ -37,7 +37,6 @@ CODECLIBS=""
 CPPEXTRAFLAGS=""
 EXTRALIBS=""
 LIBSERVEEZLIBS=""
-SERVEEZ_LDFLAGS=""
 SERVEEZ_LIBS=""
 SERVERDIRS=""
 SERVERLIBS=""
@@ -46,7 +45,6 @@ AC_SUBST([CODECLIBS])        dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([CPPEXTRAFLAGS])    dnl FIXME: Zonkable: unused.
 AC_SUBST([CPPFLAGS])         dnl FIXME: Zonkable: redundant.
 AC_SUBST([LIBSERVEEZLIBS])   dnl FIXME: Use ‘LIBS’ et al directly.
-AC_SUBST([SERVEEZ_LDFLAGS])
 AC_SUBST([SERVEEZ_LIBS])     dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([SERVERDIRS])       dnl FIXME: Zonkable: derivable from SERVERLIBS.
 AC_SUBST([SERVERLIBS])       dnl TODO: Consider automake conditionals.
@@ -519,14 +517,6 @@ AC_DEFINE_UNQUOTED([svz_c_signed],[$signed_defined],
   [Define to empty if the keyword does not work.])
 
 AS_UNSET([signed_defined])
-
-dnl
-dnl Check if libtool copes with SunOS/Solaris.  GNU libtool 1.4.2 and less
-dnl fail to create self-contained shared libraries.  This is due to the gcc
-dnl - native linker combination.  The below macro adds the -liberty path
-dnl and -lgcc to the linker line if necessary.
-dnl
-SVZ_LIBTOOL_SOLARIS
 
 dnl
 dnl Create additional CFLAGS for MinGW32 and CygWin.
