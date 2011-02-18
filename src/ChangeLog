@@ -1,5 +1,12 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use ‘signed’ directly.
+
+	* guile-bin.c: Do ‘s/svz_c_signed/signed/g’.
+	* svzconfig.h.in (svz_c_signed): Delete.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Move simple hash function out of libserveez.
 
 	* le-u32-hash.h: New file.

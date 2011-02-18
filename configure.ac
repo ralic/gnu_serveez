@@ -502,23 +502,6 @@ AS_IF([test $ac_cv_sizeof_long -lt $ac_cv_sizeof_void_p],
 [AC_MSG_ERROR([A 'void *' value does not fit into a 'long' value.])])
 
 dnl
-dnl Find a working signed keyword.
-dnl
-AC_CACHE_CHECK([for working signed],[svz_cv_c_signed],
-[AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-    [[#include <stdio.h>]],
-    [[signed char have_signed = (signed char) 0;]])],
-  [svz_cv_c_signed=yes
-   signed_defined="signed"],
-  [svz_cv_c_signed=no
-   signed_defined=""])])
-
-AC_DEFINE_UNQUOTED([svz_c_signed],[$signed_defined],
-  [Define to empty if the keyword does not work.])
-
-AS_UNSET([signed_defined])
-
-dnl
 dnl Create additional CFLAGS for MinGW32 and CygWin.
 dnl
 SERVEEZ_CFLAGS=""
