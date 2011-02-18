@@ -25,7 +25,7 @@
 #
 # Prerequisite tools:
 # - GNU Autoconf 2.64
-# - GNU Libtool 1.9b
+# - GNU Libtool 2.4
 # - GNU Automake 1.10
 # - GNU Texinfo 4.11
 # These are minimum versions; later versions are probably ok.

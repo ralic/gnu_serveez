@@ -1,3 +1,10 @@
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Bump GNU Libtool prereq version to 2.4.
+
+	* configure.ac (LT_PREREQ): Bump to "2.4".
+	* autogen.sh: Update prereq tools comment.
+
 2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Reorder configure.ac top-level.

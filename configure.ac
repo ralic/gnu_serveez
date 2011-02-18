@@ -307,7 +307,7 @@ dnl
 dnl Libtool.  FIXME: Is this the right place?
 dnl
 AC_MSG_NOTICE([beg: libtool stuff])
-LT_PREREQ([1.9b])dnl (first libtool to have ‘LT_INIT’)
+LT_PREREQ([2.4])
 LT_INIT([win32-dll])dnl FIXME: Add ‘dlopen’.
 AC_MSG_NOTICE([end: libtool stuff])
 
