@@ -493,18 +493,6 @@ AC_CHECK_FUNCS([mkfifo mknod sendfile])
 AC_CHECK_FUNCS([times poll waitpid])
 AC_CHECK_FUNCS([uname])
 
-AC_CHECK_FUNCS([vsprintf],,
-[AC_MSG_ERROR([cannot compile without vsprintf])])
-
-dnl
-dnl Some Unices (e.g. Dec Unix) do not implement ‘snprintf’.
-dnl FIXME: This will all be handled by gnulib, someday.
-dnl
-AC_CHECK_FUNCS([snprintf],,
-[AC_MSG_ERROR([cannot compile without snprintf])])
-AC_CHECK_FUNCS([vsnprintf],,
-[AC_MSG_ERROR([cannot compile without vsnprintf])])
-
 AC_CHECK_FUNCS([strcasecmp],,[AC_CHECK_FUNCS([stricmp])])
 AC_CHECK_FUNCS([strncasecmp],,[AC_CHECK_FUNCS([strnicmp])])
 

@@ -1,5 +1,12 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Presume ‘vsprintf’, ‘snprintf’, ‘vsnprintf’.
+
+	* configure.ac (HAVE_VSPRINTF, HAVE_SNPRINTF)
+	(HAVE_VSNPRINTF): Delete these AC_CHECK_FUNCS.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot int] Decruft: Don't patch the configure script.
 
 	Patching  was for "libtool 1.5 code for MinGW32 build".
