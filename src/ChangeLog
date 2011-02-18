@@ -1,5 +1,14 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Purge SVZ_HAVE_{SNPRINTF,VSNPRINTF} reference.
+
+	Omission from 2011-02-16, "Drop ‘svz_snprintf’;
+	use ‘vsnprintf’, ‘snprintf’ directly".
+
+	* svzconfig.h.in (SVZ_HAVE_SNPRINTF, SVZ_HAVE_VSNPRINTF): Delete.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Use ‘HAVE_VARARGS_H’ directly.
 
 	* svzconfig.h.in (SVZ_HAVE_VARARGS_H): Delete.
