@@ -34,9 +34,6 @@
 /* Define if flood protection should be supported.  */
 #undef SVZ_ENABLE_FLOOD_PROTECTION
 
-/* Define if you have the <varargs.h> header file.  */
-#undef SVZ_HAVE_VARARGS_H
-
 /* Define if you have the <pthread.h> header file.  */
 #undef SVZ_HAVE_PTHREAD_H
 

@@ -1,5 +1,12 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use ‘HAVE_VARARGS_H’ directly.
+
+	* asprintf.c: In preprocessor conditional,
+	use ‘HAVE_VARARGS_H’ instead of ‘SVZ_HAVE_VARARGS_H’.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop SVZ_U?INT{16,32,64} macros.
 
 	* util.h (SVZ_INT32, SVZ_INT64, SVZ_INT16)

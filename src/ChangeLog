@@ -1,5 +1,11 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use ‘HAVE_VARARGS_H’ directly.
+
+	* svzconfig.h.in (SVZ_HAVE_VARARGS_H): Delete.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Use ‘signed’ directly.
 
 	* guile-bin.c: Do ‘s/svz_c_signed/signed/g’.

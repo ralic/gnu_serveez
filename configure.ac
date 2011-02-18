@@ -416,9 +416,6 @@ dnl
 dnl Serveez core library internals (svzconfig.h).
 dnl FIXME: Internalize; rework to use HAVE_FOO_H directly.
 dnl
-AS_IF([SVZ_Y([ac_cv_header_varargs_h])],
-[AC_DEFINE([SVZ_HAVE_VARARGS_H], 1,
-  [Define if you have the <varargs.h> header file.])])
 AS_IF([SVZ_Y([ac_cv_header_pthread_h])],
 [AC_DEFINE([SVZ_HAVE_PTHREAD_H], 1,
   [Define if you have the <pthread.h> header file.])])

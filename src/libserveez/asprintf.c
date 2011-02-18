@@ -32,7 +32,7 @@
 #include "libserveez/alloc.h"
 
 /* to be sure not to redefine `va_start' in <stdarg.h> */
-#if defined (SVZ_HAVE_VARARGS_H) && !defined (va_start)
+#if defined HAVE_VARARGS_H && !defined va_start
 # include <varargs.h>
 #endif
 
