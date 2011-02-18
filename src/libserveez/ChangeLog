@@ -1,5 +1,12 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop SVZ_U?INT{16,32,64} macros.
+
+	* util.h (SVZ_INT32, SVZ_INT64, SVZ_INT16)
+	(SVZ_UINT32, SVZ_UINT64, SVZ_UINT16): Delete macros.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Move simple hash function out of libserveez.
 
 	* alloc.c [DEBUG_MEMORY_LEAKS]: #include "le-u32-hash.h".

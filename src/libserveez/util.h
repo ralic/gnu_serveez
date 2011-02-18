@@ -79,52 +79,6 @@ SERVEEZ_API char *svz_tolower (char *);
 SERVEEZ_API char *svz_sys_version (void);
 SERVEEZ_API char *svz_hstrerror (void);
 
-/*
- * Convert the byte array pointed to by @var{p} to a signed 32 bit integer.
- * This is needed on aligned architectures where a plain type cast ends up
- * in a fatal bus error.
- */
-#define SVZ_INT32(p) \
-  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
-  ((unsigned char) *(p + 2) << 16) | ((svz_c_signed char) *(p + 3) << 24))
-
-/*
- * Convert the byte array pointed to by @var{p} to a signed 64 bit integer.
- */
-#define SVZ_INT64(p) \
-  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
-  ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24) \
-  ((unsigned char) *(p + 2) << 32) | ((unsigned char) *(p + 3) << 40) \
-  ((unsigned char) *(p + 2) << 48) | ((svz_c_signed char) *(p + 3) << 54))
-
-/*
- * Convert the byte array pointed to by @var{p} to a signed 16 bit integer.
- */
-#define SVZ_INT16(p) \
-  ((unsigned char) *p | ((svz_c_signed char) *(p + 1) << 8))
-
-/*
- * Convert the byte array pointed to by @var{p} to an unsigned 32 bit integer.
- */
-#define SVZ_UINT32(p) \
-  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
-  ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24))
-
-/*
- * Convert the byte array pointed to by @var{p} to an unsigned 64 bit integer.
- */
-#define SVZ_UINT64(p) \
-  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8) | \
-  ((unsigned char) *(p + 2) << 16) | ((unsigned char) *(p + 3) << 24) \
-  ((unsigned char) *(p + 2) << 32) | ((unsigned char) *(p + 3) << 40) \
-  ((unsigned char) *(p + 2) << 48) | ((unsigned char) *(p + 3) << 54))
-
-/*
- * Convert the byte array pointed to by @var{p} to an unsigned 16 bit integer.
- */
-#define SVZ_UINT16(p) \
-  ((unsigned char) *p | ((unsigned char) *(p + 1) << 8))
-
 /* Converts the integer value @var{n} into a pointer platform independently.
    Both of the @code{SVZ_NUM2PTR} and @code{SVZ_PTR2NUM} macros rely on
    the @code{(unsigned long)} having the same size as @code{(void *)}.  */

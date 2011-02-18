@@ -1,3 +1,11 @@
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop SVZ_U?INT{16,32,64} macros.
+
+	* serveez-api.texi.in (Utility functions): Remove
+	‘SVZ_INT16_DEFMAC’, ‘SVZ_INT32_DEFMAC’, ‘SVZ_INT64_DEFMAC’,
+	‘SVZ_UINT16_DEFMAC’, ‘SVZ_UINT32_DEFMAC’, ‘SVZ_UINT64_DEFMAC’.
+
 2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Drop configure --enable-{warn,opt,ppro,486}, ‘--with-opt’.
