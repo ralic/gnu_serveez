@@ -820,7 +820,7 @@ http_parse_property (svz_socket_t *sock, char *request, char *end)
   n = 0;
 
   /* find out properties if necessary */
-  while (SVZ_INT16 (request) != CRLF && properties < MAX_HTTP_PROPERTIES - 1)
+  while (!EOL1_P (request) && properties < MAX_HTTP_PROPERTIES - 1)
     {
       /* get property entity identifier */
       p = request;
@@ -835,7 +835,7 @@ http_parse_property (svz_socket_t *sock, char *request, char *end)
       request = p + 2;
 
       /* get property entity body */
-      while (SVZ_INT16 (p) != CRLF && p < end)
+      while (!EOL1_P (p) && p < end)
         p++;
       if (p == end || p <= request)
         break;

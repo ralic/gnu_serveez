@@ -1,5 +1,16 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[http-server int] Use ‘memcmp’ for eol detection.
+
+	* http-server/http-core.h (CRLF, CRLF2): Delete #define:s.
+	(STANDARD_EOL): New #define.
+	(EOL1_P, EOL2_P): New macros.
+	* http-server/http-core.c (http_parse_property): Use ‘EOL1_P’.
+	* http-server/http-proto.c (http_handle_request): Likewise.
+	(http_check_request): Use ‘EOL2_P’.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[ctrl-proto int] Ensure ‘atoi’ decl is available.
 
 	* ctrl-server/control-proto.c: #include <stdlib.h>.

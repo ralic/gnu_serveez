@@ -33,12 +33,14 @@
 #define MAJOR_VERSION       0          /* MajorVersion index */
 #define MINOR_VERSION       1          /* MinorVersion index */
 #define MAX_HTTP_PROPERTIES 32         /* all http properties */
-#define CRLF                0x0A0D     /* \r\n */
-#define CRLF2               0x0A0D0A0D /* \r\n\r\n */
 #define HTTP_REQUESTS       8          /* number of known request types */
 #define HTTP_TIMEOUT        15         /* default timeout value */
 #define HTTP_MAXKEEPALIVE   10         /* number of requests per connection */
 #define HTTP_HEADER_SIZE    (1 * 1024) /* maximum header size */
+
+#define STANDARD_EOL  "\r\n\r\n"
+#define EOL1_P(p)     (!memcmp (STANDARD_EOL, (p), 2))
+#define EOL2_P(p)     (!memcmp (STANDARD_EOL, (p), 4))
 
 /*
  * The following structure is meant to hold a http response headers

@@ -778,7 +778,7 @@ http_handle_request (svz_socket_t *sock, int len)
   /* check the remaining part of the first line the version */
   if (((version[MAJOR_VERSION] != HTTP_MAJOR_VERSION ||
         version[MINOR_VERSION] > 1 || *(line - 2) != '.') && !flag) ||
-      SVZ_INT16 (line) != CRLF)
+      !EOL1_P (line))
     {
       svz_free (request);
       svz_free (uri);
@@ -835,10 +835,10 @@ http_check_request (svz_socket_t *sock)
   p = sock->recv_buffer;
 
   while (p < sock->recv_buffer + sock->recv_buffer_fill - 3 &&
-         SVZ_INT32 (p) != CRLF2)
+         !EOL2_P (p))
     p++;
 
-  if (SVZ_INT32 (p) == CRLF2 &&
+  if (EOL2_P (p) &&
       p < sock->recv_buffer + sock->recv_buffer_fill - 3)
     {
       len = p - sock->recv_buffer + 4;
