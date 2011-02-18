@@ -34,7 +34,6 @@ AM_INIT_AUTOMAKE([1.10 no-define])
 AM_MAINTAINER_MODE
 
 CODECLIBS=""
-CPPEXTRAFLAGS=""
 EXTRALIBS=""
 LIBSERVEEZLIBS=""
 SERVEEZ_LIBS=""
@@ -42,11 +41,9 @@ SERVERDIRS=""
 SERVERLIBS=""
 
 AC_SUBST([CODECLIBS])        dnl FIXME: Use ‘LIBS’ et al directly.
-AC_SUBST([CPPEXTRAFLAGS])    dnl FIXME: Zonkable: unused.
-AC_SUBST([CPPFLAGS])         dnl FIXME: Zonkable: redundant.
 AC_SUBST([LIBSERVEEZLIBS])   dnl FIXME: Use ‘LIBS’ et al directly.
 AC_SUBST([SERVEEZ_LIBS])     dnl FIXME: Use ‘LIBS’ et al directly.
-AC_SUBST([SERVERDIRS])       dnl FIXME: Zonkable: derivable from SERVERLIBS.
+AC_SUBST([SERVERDIRS])
 AC_SUBST([SERVERLIBS])       dnl TODO: Consider automake conditionals.
 
 dnl ----------------------------------------------------------------------
@@ -128,7 +125,6 @@ SVZ_FLAG([whether to enable the SNTP server],
 AC_DEFINE([ENABLE_SNTP_PROTO], 1,
   [Define if the SNTP server should be included.])
 SERVERLIBS="$SERVERLIBS sntp-server/libsntp.a"
-SERVERDIRS="$SERVERDIRS sntp-server"
 ])
 
 dnl
@@ -139,7 +135,6 @@ SVZ_FLAG([whether to enable the Gnutella spider],
 AC_DEFINE([ENABLE_GNUTELLA], 1,
   [Define if the Gnutella spider should be included.])
 SERVERLIBS="$SERVERLIBS nut-server/libnut.a"
-SERVERDIRS="$SERVERDIRS nut-server"
 ])
 
 dnl
@@ -150,7 +145,6 @@ SVZ_FLAG([whether to enable the port forwarder],
 AC_DEFINE([ENABLE_TUNNEL], 1,
   [Define if the port forwarder should be included.])
 SERVERLIBS="$SERVERLIBS tunnel-server/libtunnel.a"
-SERVERDIRS="$SERVERDIRS tunnel-server"
 ])
 
 dnl
@@ -161,7 +155,6 @@ SVZ_FLAG([whether to enable support for the control protocol],
 AC_DEFINE([ENABLE_CONTROL_PROTO], 1,
   [Define if the control protocol should be supported.])
 SERVERLIBS="$SERVERLIBS ctrl-server/libctrl.a"
-SERVERDIRS="$SERVERDIRS ctrl-server"
 ])
 
 dnl
@@ -172,7 +165,6 @@ SVZ_FLAG([whether to enable support for the IRC protocol],
 AC_DEFINE([ENABLE_IRC_PROTO], 1,
   [Define if the IRC protocol should be supported.])
 SERVERLIBS="$SERVERLIBS irc-server/libircserver.a irc-core/libirccore.a"
-SERVERDIRS="$SERVERDIRS irc-server irc-core"
 ])
 
 dnl
@@ -198,7 +190,6 @@ SVZ_FLAG([whether to enable support for the aWCS protocol],
 AC_DEFINE([ENABLE_AWCS_PROTO], 1,
   [Define if the aWCS protocol should be supported.])
 SERVERLIBS="$SERVERLIBS awcs-server/libawcs.a"
-SERVERDIRS="$SERVERDIRS awcs-server"
 ])
 
 dnl
@@ -209,7 +200,6 @@ SVZ_FLAG([whether to enable support for the HTTP protocol],
 AC_DEFINE([ENABLE_HTTP_PROTO], 1,
   [Define if the HTTP protocol should be supported.])
 SERVERLIBS="$SERVERLIBS http-server/libhttp.a"
-SERVERDIRS="$SERVERDIRS http-server"
 ])
 
 dnl
@@ -220,7 +210,6 @@ SVZ_FLAG([whether to enable the fake ident server],
 AC_DEFINE([ENABLE_FAKEIDENT], 1,
   [Define if the Fake Ident Server should be included.])
 SERVERLIBS="$SERVERLIBS fakeident-server/libfakeident.a"
-SERVERDIRS="$SERVERDIRS fakeident-server"
 ])
 
 dnl
@@ -231,7 +220,6 @@ SVZ_FLAG([whether to enable the passthrough server],
 AC_DEFINE([ENABLE_PROG_SERVER], 1,
   [Define if the program passthrough server should be included.])
 SERVERLIBS="$SERVERLIBS prog-server/libprog.a"
-SERVERDIRS="$SERVERDIRS prog-server"
 ])
 
 dnl
@@ -384,22 +372,18 @@ AC_SUBST([resource_FILES])
 dnl ----------------------------------------------------------------------
 dnl checks for header files
 
-AC_HEADER_STDC         dnl FIXME: Zonkable: redundant.
 AC_HEADER_DIRENT
 
 dnl There is no <wait.h> on AIX, but <sys/wait.h>.
 AC_HEADER_SYS_WAIT
 
-dnl ‘bzero’ is defined in <strings.h> on AIX, used by ‘FD_ZERO’.
-dnl FIXME: strings.h zonkable: handled by libtool.
-AC_CHECK_HEADERS_ONCE([wait.h strings.h])
+AC_CHECK_HEADERS_ONCE([wait.h])
 
 AC_CHECK_HEADERS_ONCE([sys/utsname.h])
 
-dnl FIXME: unistd.h, dlfncn.h zonkable: redundant (libtool).
 AC_CHECK_HEADERS_ONCE([
-  stdio.h unistd.h sys/time.h sys/poll.h pwd.h varargs.h
-  getopt.h dlfcn.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h
+  stdio.h sys/time.h sys/poll.h pwd.h varargs.h
+  getopt.h sys/sockio.h sys/resource.h sys/sendfile.h sys/uio.h
   ws2tcpip.h dirent.h sys/dirent.h direct.h dl.h dld.h grp.h
   mach-o/dyld.h zlib.h bzlib.h rpc/rpcent.h rpc/rpc.h rpc/pmap_clnt.h
   rpc/pmap_prot.h rpc/clnt_soc.h sys/ioctl.h pthread.h floss.h
@@ -469,9 +453,7 @@ AS_IF([test no != "$MINGDIR"],
   socket_defined="SOCKET"
   handle_defined="HANDLE"
   AC_DEFINE([Win32_Winsock], 1,
-   [Define if you are using Windows Socket-API (not CYGWIN).])
-  AC_DEFINE([HAVE_WINSOCK2_H], 1, dnl FIXME: Zonkable: redundant.
-   [Define if you have the <winsock2.h>])])])
+   [Define if you are using Windows Socket-API (not CYGWIN).])])])
 
 AC_DEFINE_UNQUOTED([svz_t_socket],[$socket_defined],
   [Define to 'int' if <winsock2.h> does not define 'SOCKET'.])
@@ -487,9 +469,6 @@ dnl checks for structures
 
 dnl ----------------------------------------------------------------------
 dnl checks for compiler characteristics
-
-AC_EXEEXT dnl FIXME: Zonkable: (info "(autoconf) Obsolete Macros")
-AC_OBJEXT dnl FIXME: Zonkable: (info "(autoconf) Obsolete Macros")
 
 AC_C_BIGENDIAN
 
@@ -735,8 +714,11 @@ AS_IF([SVZ_Y([svz_cv_func_inet_ntoa_broken])],
 dnl ----------------------------------------------------------------------
 dnl write it out
 
+for lib in $SERVERLIBS ; do
+  SERVERDIRS="$SERVERDIRS `echo $lib | sed 's|/.*||'`"
+done
+
 LIBS="$LIBS $EXTRALIBS"
-CPPFLAGS=$CPPEXTRAFLAGS
 
 TIMESTAMP=`date '+%a %b %_d %H:%M:%S %Y' 2>/dev/null`
 AS_IF([test x = x"$TIMSTAMP"],[

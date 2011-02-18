@@ -1,5 +1,17 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[boot int] Decruft: Remove redundant/obsolete configure.ac bits.
+
+	* configure.ac (CPPEXTRAFLAGS, CPPFLAGS): Delete AC_SUBST.
+	(SERVERDIRS): Don't add to this var incrementally; instead,
+	compute its value on output, deriving from ‘SERVERLIBS’.
+	(AC_HEADER_STDC): Delete macro call.
+	(strings.h, unistd.h, dlfcn.h): Remove these AC_CHECK_HEADERS_ONCE.
+	(HAVE_WINSOCK2_H): Delete redundant AC_DEFINE.
+	(AC_EXEEXT, AC_OBJEXT): Delete obsolete macro calls.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Use ‘HAVE_VARARGS_H’ directly.
 
 	* configure.ac (SVZ_HAVE_VARARGS_H): Delete AC_DEFINE.
