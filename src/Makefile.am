@@ -53,7 +53,7 @@ bin_PROGRAMS = serveez mkpassword
 include_HEADERS = libserveez.h svzconfig.h
 
 serveez_SOURCES = \
-	cpp-tricks.h \
+	cpp-tricks.h le-u32-hash.h \
 	serveez.c serveez.h \
 	guile.c guile.h \
 	cfgfile.c cfgfile.h \

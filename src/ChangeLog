@@ -1,5 +1,14 @@
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Move simple hash function out of libserveez.
+
+	* le-u32-hash.h: New file.
+	* Makefile.am (serveez_SOURCES): Add le-u32-hash.h.
+	* awcs-server/awcs-proto.c: #include "le-u32-hash.h".
+	(awcs_hash_code): Use ‘le_u32_hash’.
+
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[http-server int] Use ‘memcmp’ for eol detection.
 
 	* http-server/http-core.h (CRLF, CRLF2): Delete #define:s.

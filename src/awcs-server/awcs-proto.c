@@ -42,6 +42,7 @@
 # include <netinet/in.h>
 #endif
 
+#include "le-u32-hash.h"
 #include "libserveez.h"
 #include "awcs-proto.h"
 
@@ -105,7 +106,7 @@ awcs_hash_equals (char *id1, char *id2)
 static unsigned long
 awcs_hash_code (char *id)
 {
-  unsigned long code = SVZ_UINT32 (id);
+  unsigned long code = le_u32_hash (id);
   return code;
 }
 

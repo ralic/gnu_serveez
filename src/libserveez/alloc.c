@@ -35,6 +35,7 @@
 
 #if DEBUG_MEMORY_LEAKS
 # include "libserveez/hash.h"
+# include "le-u32-hash.h"
 #endif /* DEBUG_MEMORY_LEAKS */
 
 #if SVZ_ENABLE_DEBUG
@@ -79,7 +80,7 @@ heap_hash_equals (char *id1, char *id2)
 static unsigned long
 heap_hash_code (char *id)
 {
-  unsigned long code = SVZ_UINT32 (id);
+  unsigned long code = le_u32_hash (id);
   code >>= 3;
   return code;
 }

@@ -1,3 +1,10 @@
+2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Move simple hash function out of libserveez.
+
+	* alloc.c [DEBUG_MEMORY_LEAKS]: #include "le-u32-hash.h".
+	[DEBUG_MEMORY_LEAKS] (heap_hash_code): Use ‘le_u32_hash’.
+
 2011-02-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib int] Add cast for comparison.
