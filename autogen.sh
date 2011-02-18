@@ -48,14 +48,6 @@ fi
 # Invoke all the auto* tools.
 autoreconf --verbose --force --install --symlink --warnings=all
 
-# patching libtool 1.5 code for MinGW32 build
-echo -n "Patching configure... "
-mv -f configure configure.x
-cat configure.x | sed 's/x86 DLL/x86 DLL|\^x86 archive static/' > configure
-chmod +x configure
-rm -f configure.x
-echo "done."
-
 # reschedule this file for building
 if test x"$info_touched" = xyes ; then rm -f doc/serveez-api.texi; fi
 
