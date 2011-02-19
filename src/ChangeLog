@@ -1,3 +1,11 @@
+2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Include ‘svz_sock_flood_protect’ in API unconditionally.
+
+	* svzconfig.h.in (SVZ_ENABLE_FLOOD_PROTECTION): Delete.
+	* ctrl-server/control-proto.c (ctrl_stat_id, ctrl_stat):
+	Use ‘ENABLE_FLOOD_PROTECTION’ for internal preproc cond expr.
+
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Purge SVZ_HAVE_{SNPRINTF,VSNPRINTF} reference.

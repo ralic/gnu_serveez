@@ -210,10 +210,9 @@ struct svz_socket
   long last_send;               /* Timestamp of last send to socket.  */
   long last_recv;               /* Timestamp of last receive from socket */
 
-#if SVZ_ENABLE_FLOOD_PROTECTION
+  /* Note: These two are used only if flood protection is enabled.  */
   int flood_points;             /* Accumulated flood points.  */
   int flood_limit;              /* Limit of the above before kicking.  */
-#endif
 
   /* Out-of-band data for TCP protocol.  This byte is used for both,
      receiving and sending.  */
@@ -261,9 +260,7 @@ SERVEEZ_API int svz_sock_detect_proto (svz_socket_t *);
 SERVEEZ_API int svz_sock_check_request (svz_socket_t *);
 SERVEEZ_API int svz_sock_idle_protect (svz_socket_t *);
 
-#if SVZ_ENABLE_FLOOD_PROTECTION
 SERVEEZ_API int svz_sock_flood_protect (svz_socket_t *, int);
-#endif
 
 __END_DECLS
 

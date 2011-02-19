@@ -1,5 +1,12 @@
 2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Include ‘svz_sock_flood_protect’ in API unconditionally.
+
+	* configure.ac (ENABLE_FLOOD_PROTECTION):
+	Rename AC_DEFINE from ‘SVZ_ENABLE_FLOOD_PROTECTION’.
+
+2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Drop support for building RPM and Debian packages.
 
 	* Makefile.am [MAINTAINER_MODE] (redhat, debian): Delete targets.

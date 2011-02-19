@@ -74,7 +74,7 @@ int svz_have_debug = 0;
 
 /* Runtime checkable flags for configuration language and code if flood
    protection has been enabled or not.  */
-#ifdef SVZ_ENABLE_FLOOD_PROTECTION
+#ifdef ENABLE_FLOOD_PROTECTION
 int svz_have_floodprotect = 1;
 #else
 int svz_have_floodprotect = 0;

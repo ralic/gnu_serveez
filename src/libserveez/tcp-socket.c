@@ -173,13 +173,13 @@ svz_tcp_read_socket (svz_socket_t *sock)
     {
       sock->last_recv = time (NULL);
 
-#if SVZ_ENABLE_FLOOD_PROTECTION
+#if ENABLE_FLOOD_PROTECTION
       if (svz_sock_flood_protect (sock, num_read))
         {
           svz_log (LOG_ERROR, "kicked socket %d (flood)\n", desc);
           return -1;
         }
-#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
+#endif /* ENABLE_FLOOD_PROTECTION */
 
       sock->recv_buffer_fill += num_read;
 

@@ -69,15 +69,17 @@
  */
 int svz_sock_connections = 0;
 
-#if SVZ_ENABLE_FLOOD_PROTECTION
 /*
  * This routine can be called if flood protection is wished for
  * socket readers.  Return non-zero if the socket should be kicked
  * because of flood.
+ *
+ * @strong{Note}: This always returns 0 if flood protection is not enabled.
  */
 int
 svz_sock_flood_protect (svz_socket_t *sock, int num_read)
 {
+#ifdef ENABLE_FLOOD_PROTECTION
   if (!(sock->flags & SOCK_FLAG_NOFLOOD))
     {
       /*
@@ -93,9 +95,9 @@ svz_sock_flood_protect (svz_socket_t *sock, int num_read)
           return -1;
         }
     }
+#endif  /* ENABLE_FLOOD_PROTECTION */
   return 0;
 }
-#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
 
 /*
  * The default function which gets called when a client shuts down
@@ -391,9 +393,9 @@ svz_sock_alloc (void)
   sock->last_send = time (NULL);
   sock->last_recv = time (NULL);
 
-#if SVZ_ENABLE_FLOOD_PROTECTION
+#if ENABLE_FLOOD_PROTECTION
   sock->flood_limit = 100;
-#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
+#endif /* ENABLE_FLOOD_PROTECTION */
 
   return sock;
 }

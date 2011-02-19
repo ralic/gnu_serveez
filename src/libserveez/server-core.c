@@ -985,12 +985,12 @@ svz_periodic_tasks (void)
   sock = svz_sock_root;
   while (sock)
     {
-#if SVZ_ENABLE_FLOOD_PROTECTION
+#if ENABLE_FLOOD_PROTECTION
       if (sock->flood_points > 0)
         {
           sock->flood_points--;
         }
-#endif /* SVZ_ENABLE_FLOOD_PROTECTION */
+#endif /* ENABLE_FLOOD_PROTECTION */
 
       if (sock->idle_func && sock->idle_counter > 0)
         {

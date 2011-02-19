@@ -1,3 +1,20 @@
+2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Include ‘svz_sock_flood_protect’ in API unconditionally.
+
+	Here, "U (WHERE)" means "Use ‘ENABLE_FLOOD_PROTECTION’
+	for WHERE preprocessor conditional expression".
+	* socket.h (struct svz_socket): Include members
+	‘flood_points’ and ‘flood_limit’ unconditionally.
+	(svz_sock_flood_protect): Remove surrounding preproc conditional.
+	* socket.c (svz_sock_flood_protect):
+	Move surrounding preproc conditional into the function body;
+	describe behavior in docstring when flood protection not enabled.
+	(svz_sock_alloc): U (internal).
+	* boot.c (svz_have_floodprotect): U (surrounding).
+	* pipe-socket.c (svz_pipe_read_socket): U (internal).
+	* tcp-socket.c (svz_tcp_read_socket): U (internal).
+
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use ‘HAVE_VARARGS_H’ directly.

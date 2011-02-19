@@ -227,7 +227,7 @@ dnl Check whether the flood protection should be included.
 dnl
 SVZ_FLAG([whether to enable support for flood protection],
          [yes],[flood],[Include flood protection],[
-AC_DEFINE([SVZ_ENABLE_FLOOD_PROTECTION], 1,
+AC_DEFINE([ENABLE_FLOOD_PROTECTION], 1,
   [Define if flood protection should be supported.])
 ])
 
