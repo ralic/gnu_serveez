@@ -35,6 +35,15 @@ MAINTAINERCLEANFILES += aclocal.m4 config.h.in configure \
 	stamp-h.in stamp-h[0-9].in
 DISTCLEANFILES = config.cache config.log
 
+dist-hook:
+	rm -f $(distdir)/README
+	$(SED) -e '/^>BLURB</{'			\
+	       -e ' s/.*//'			\
+	       -e ' r $(srcdir)/doc/blurb.texi'	\
+	       -e '}'				\
+	  $(srcdir)/README			\
+	| $(SED) '/^@c/d' > $(distdir)/README
+
 uninstall-hook:
 	 rmdir "$(DESTDIR)$(pkgdatadir)"
 

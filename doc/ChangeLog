@@ -1,5 +1,16 @@
 2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Factor standard blurb into its own file.
+
+	* blurb.texi: New file.
+	* Makefile.am (EXTRA_DIST): Add blurb.texi.
+	(MANUAL_FILES): Remove $(top_srcdir)/README.
+	(serveez.info): Add blurb.texi to prereq list.
+	(stage): Update to interpolate $$mm/README correctly.
+	* serveez.texi (Introduction): Eviscerate; @include blurb.texi.
+
+2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Drop support for building RPM and Debian packages.
 
 	Here, all changes are under node "Using Serveez".

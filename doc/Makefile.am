@@ -77,7 +77,7 @@ guile_impl = \
 GUILE_TXT_FILE = serveez-procedures.txt
 SNARFER = $(AWK) -f $(srcdir)/serveez-doc-snarf.awk
 MANUAL_FILES = \
-  $(top_srcdir)/README $(top_srcdir)/README-Win32 \
+  $(top_srcdir)/README-Win32 \
   $(top_srcdir)/BUGS $(top_srcdir)/NEWS $(top_srcdir)/README-cross
 pkgdata_DATA = $(GUILE_TXT_FILE)
 
@@ -92,6 +92,9 @@ maintainer-clean-local:
 
 clean-local:
 	rm -rf stage
+
+serveez.info: blurb.texi
+EXTRA_DIST += blurb.texi
 
 # For regenerating both serveez-api.sed and guile-api.sed, we do things
 # incrementally, but with some chance of fubar if careless, for those who
@@ -152,6 +155,11 @@ stage: $(genhtml)
 	for d in $(genhtml);					\
 	do cp -rp $$d $$m/$$(basename $$d .html); done;		\
 	cp -p logosmall.jpg mandel.jpg $(MANUAL_FILES) $$m;	\
+	$(SED) -e '/^>BLURB</{'					\
+	       -e ' s/.*//'					\
+	       -e ' r blurb.texi'				\
+	       -e '}'						\
+	  $(top_srcdir)/README | $(SED) '/^@c/d' > $$m/README;	\
 	$(sednow) index.html > $$m/index.html;			\
 	cp -p logo.jpg $@;					\
 	$(sednow) serveez.en.html > $@/serveez.en.html
