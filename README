@@ -39,40 +39,29 @@ This current version is known to work with Guile 1.3 and later.
 Installation
 ============
 
-Unpack the distribution tarball:
+See INSTALL for general instructions on configuring and building Serveez.
+See the manual (doc/serveez.info) chapter "Using Serveez", for details on
+the various options you can pass to the configure script, apart from the
+usual options for customizing the installation directories (.e.g, --prefix).
 
-    $ tar xvzf serveez-<version>.tar.gz               (using GNU tar)
-    $ gzip -cd serveez-<version>.tar.gz | tar xvf -   (using another tar)
+If you have problems building the package out of the box, this may be due
+to GNU libtool's inability to handle dynamic linking for your platform.
+In that case, try reconfiguring with `--disable-shared'.
 
-Change into the source directory:
+Installation populates the following directories (creating them first,
+if necessary) with various files:
 
-    $ cd serveez-<version>
+ $(bindir)     -- executables: serveez, serveez-config, mkpassword
+ $(mandir)     -- manpages: serveez(1), serveez-config(1)
+ $(includedir) -- libserveez.h
+                  svzconfig.h
+                  libserveez/*.h (includes subdirs and headers)
+ $(libdir)     -- libserveez shared object + libtool support file(s)
+ $(infodir)    -- manuals: serveez-api.info, serveez.info
+ $(pkgdatadir) -- scheme (*.scm) files implementing guile servers
 
-Configure the source package for your system:
-We recommend to use --enable-opt unless you have a good reason not to do so.
-
-    $ ./configure --enable-opt
-
-Now compile the package:
-
-    $ make
-
-Install Serveez:
-
-    $ make install
-
-You must have root privileges if you want to install the package in the
-standard location (/usr/local) or in any location that is only writable
-by root.
-
-If you have problems building the package out of the box, this is due to
-GNU libtool's inability to handle dynamic linking in most cases.  That is
-why we recommend to try and configure the package with `--disable-shared'
-and/or the native compiler (if any).
-
-For further information on installing the package, please consult the
-section "Using Serveez" in the manual, and the file INSTALL included in
-this distribution.
+Before installing, consider doing "make check" and reporting any errors
+or strangeness you might encounter to bug-serveez (at gnu dot org).
 
 
 Getting the latest source
