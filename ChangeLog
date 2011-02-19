@@ -1,3 +1,14 @@
+2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Drop support for building RPM and Debian packages.
+
+	* Makefile.am [MAINTAINER_MODE] (redhat, debian): Delete targets.
+	* configure.ac (RPM, RPM3): Delete AC_SUBST.
+	(TIMESTAMP_RFC822, REDHAT_TOPDIR): Likewise.
+	(AC_CONFIG_FILES): Remove build-aux/redhat.sh, build-aux/debian.sh.
+	* build-aux/debian.sh.in: Delete file.
+	* build-aux/redhat.sh.in: Delete file.
+
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Presume ‘vsprintf’, ‘snprintf’, ‘vsnprintf’.

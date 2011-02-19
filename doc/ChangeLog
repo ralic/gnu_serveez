@@ -1,3 +1,12 @@
+2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Drop support for building RPM and Debian packages.
+
+	Here, all changes are under node "Using Serveez".
+	* serveez.texi (Getting the source): Don't mention RPM package.
+	(Installing the RPM package): Delete subsection.
+	(Installing the Debian package): Likewise.
+
 2011-02-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop SVZ_U?INT{16,32,64} macros.

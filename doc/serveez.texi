@@ -98,9 +98,7 @@ configuring, compiling and installing a GNU package.
 @subsubsection Getting the source
 Serveez can be found on @uref{http://ftp.gnu.org/gnu/serveez/}, on one
 of the mirrors (@uref{http://www.gnu.org/prep/ftp.html}) or at its
-original location @uref{http://www.lkcc.org/~ela/download/}.  At
-this location you will also find the RPM package mentioned in the next
-section.
+original location @uref{http://www.lkcc.org/~ela/download/}.
 
 @subsubsection Requirements
 Serveez needs GNU Guile (Ubiquitous Intelligent Language for Extensions).
@@ -278,51 +276,6 @@ If you have problems building the package out of the box this is due to
 GNU libtool's inability to handle dynamic linking in most cases.  That
 is why we recommend to try to configure the package with
 @samp{--disable-shared} and/or the native compiler (if any).
-
-@subsection Installing the RPM package
-The binary RPM distribution @file{serveez-@value{VERSION}-1.i386.rpm} of
-Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine.  It is a
-relocatable package with its default installation directory in
-@file{/opt/serveez}.  You need to ensure root privileges in order to
-install or remove rpm packages.
-
-@table @asis
-@item Query information:
-@example
-sleepless ~> rpm -qiRl -p serveez-@value{VERSION}-1.i386.rpm
-@end example
-@item Install the package:
-@example
-sleepless ~> rpm -Uvh serveez-@value{VERSION}-1.i386.rpm \
-                 [ --nodeps ] [ --prefix=/opt/serveez ]
-serveez                     ####################
-@end example
-@item Uninstall the package:
-@example
-sleepless ~> rpm -ev serveez-@value{VERSION}
-@end example
-@end table
-
-@subsection Installing the Debian package
-The binary Debian distribution @file{serveez_@value{VERSION}_i386.deb} of
-Serveez has been prebuild on a x86 / GNU/Linux 2.4 machine.  You need to
-ensure root privileges in order to install or remove Debian packages.
-
-@table @asis
-@item Query information:
-@example
-sleepless ~> dpkg -I serveez_@value{VERSION}_i386.deb
-sleepless ~> dpkg -c serveez_@value{VERSION}_i386.deb
-@end example
-@item Install the package:
-@example
-sleepless ~> dpkg -i serveez_@value{VERSION}_i386.deb
-@end example
-@item Uninstall the package:
-@example
-sleepless ~> dpkg -r serveez
-@end example
-@end table
 
 @section Environment variables
 

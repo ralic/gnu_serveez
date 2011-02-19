@@ -264,27 +264,6 @@ AC_CHECK_PROG([AR],[ar],[ar],[:])
 AC_CHECK_PROG([WINDRES],[windres],[windres],[:])
 
 dnl
-dnl Check for RPM builder version.
-dnl
-RPM=":"
-AS_IF([SVZ_Y([USE_MAINTAINER_MODE])],[
-AC_MSG_CHECKING([for working rpm])
-[version=`eval rpm --version 2>/dev/null | sed 's/[^0-9\.]//g'`]
-AS_IF([test x = x"$version"],[AC_MSG_RESULT([missing])],
-[AS_CASE([$version],
- [[3.* | [4-9].*]],[
-  AC_MSG_RESULT([$version >= 3.0.0])
-  RPM="rpm"
-  RPM3="yes"],
- [AC_MSG_RESULT([$version < 3.0.0])
-  RPM="rpm"
-  RPM3="no"])])
-AS_UNSET([version])
-])
-AC_SUBST([RPM])
-AC_SUBST([RPM3])
-
-dnl
 dnl Check for a proper C compiler.
 dnl
 AC_PROG_CC
@@ -715,13 +694,6 @@ AS_IF([test x = x"$TIMSTAMP"],[
 ])
 AC_SUBST([TIMESTAMP])
 
-dnl For GNU/Linux Debian packaging only
-TIMESTAMP_RFC822=`date -R 2>/dev/null`
-AC_SUBST([TIMESTAMP_RFC822])
-
-REDHAT_TOPDIR=/opt
-AC_SUBST([REDHAT_TOPDIR])
-
 dnl
 dnl Setup configuration variables.
 dnl
@@ -758,8 +730,6 @@ AC_CONFIG_FILES([
     doc/Makefile
     data/Makefile
     test/Makefile
-    build-aux/redhat.sh
-    build-aux/debian.sh
 ])
 
 dnl

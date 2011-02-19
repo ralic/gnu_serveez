@@ -29,13 +29,11 @@ Makefile.in
 
 /build-aux/config.guess
 /build-aux/config.sub
-/build-aux/debian.sh
 /build-aux/depcomp
 /build-aux/install-sh
 /build-aux/ltmain.sh
 /build-aux/mdate-sh
 /build-aux/missing
-/build-aux/redhat.sh
 /build-aux/texinfo.tex
 
 /m4/libtool.m4
