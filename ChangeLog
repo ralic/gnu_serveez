@@ -1,5 +1,16 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Decruft: Don't link with ‘-no-undefined’.
+
+	This change may damage mipsel-unknown-linux-gnu and/or
+	mips-unknown-linux-gnu, the original cruft beneficiaries.
+	We do it anyway because the truth is that the affected
+	libraries do indeed depend on other libraries.  Why lie?
+
+	* configure.ac (NOUNDEFINED): Delete AC_SUBST.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘crypt’ support.
 
 	* configure.ac: If --enable-crypt, look for header crypt.h.

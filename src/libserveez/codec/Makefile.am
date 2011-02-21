@@ -26,7 +26,6 @@ include $(srcdir)/../common.mk
 
 noinst_LTLIBRARIES = libcodec.la
 
-libcodec_la_LDFLAGS = $(NOUNDEFINED)
 libcodec_la_SOURCES = codec.c gzlib.c bzip2.c
 libcodec_la_LIBADD = $(CODECLIBS)
 

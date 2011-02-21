@@ -57,12 +57,6 @@ AS_IF([grep "$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
   will then be added to the PLATFORMS file included in this package.
 ])])
 
-dnl FIXME: Does libtool handle this nowadays?
-AS_CASE([$host],
- [mipsel-unknown-linux-gnu | mips-unknown-linux-gnu],[NOUNDEFINED=],
- [NOUNDEFINED='-no-undefined'])
-AC_SUBST([NOUNDEFINED])
-
 dnl
 dnl Check whether debug output should be included.
 dnl
