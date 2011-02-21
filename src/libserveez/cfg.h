@@ -213,9 +213,7 @@ SERVEEZ_API int svz_config_type_instantiate (char *, char *,
 SERVEEZ_API void svz_config_type_init (void);
 SERVEEZ_API void svz_config_type_finalize (void);
 
-#if SVZ_ENABLE_DEBUG
 SERVEEZ_API void svz_config_prototype_print (svz_config_prototype_t *);
-#endif
 
 SERVEEZ_API svz_array_t *svz_config_intarray_create (int *);
 SERVEEZ_API void svz_config_intarray_destroy (svz_array_t *);

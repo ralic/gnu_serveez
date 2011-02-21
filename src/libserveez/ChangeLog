@@ -1,5 +1,13 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Include ‘svz_config_prototype_print’ in API unconditionally.
+
+	* cfg.h (svz_config_prototype_print):
+	Remove surrounding preproc conditional.
+	* cfg.c (svz_config_prototype_print): Likewise.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move current allocation info behind functional interface.
 
 	* alloc.h (svz_allocated_bytes): Delete var decl.
