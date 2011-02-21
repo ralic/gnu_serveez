@@ -24,7 +24,7 @@ TARGET_TYPE = Project
 # List all projects here.
 PROJECTS = \
 	test/array test/codec test/hash test/spvec test/vector \
-	test/prog src/libserveez/libserveez src/serveez src/mkpassword
+	test/prog src/libserveez/libserveez src/serveez
 
 # Notify dependencies.
 serveez_DEPENDENCIES = libserveez

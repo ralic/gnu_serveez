@@ -1,3 +1,11 @@
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Drop $(bindir) program: mkpassword
+
+	* configure.ac (MKPASSWORD): Delete AC_SUBST.
+	* serveez.ap (PROJECTS): Remove src/mkpassword.
+	* README, README-Win32: Update; nfc.
+
 2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Factor standard blurb into its own file.

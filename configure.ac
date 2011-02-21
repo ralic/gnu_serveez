@@ -481,15 +481,12 @@ AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
 dnl
 dnl Check for ‘crypt’ function.
 dnl
-MKPASSWORD=""
 AS_IF([SVZ_Y([enable_crypt])],[
   save_LIBS="$LIBS"
   AC_SEARCH_LIBS([crypt],[descrypt crypt],
-   [SVZ_HAVE_FUNC_MAYBE_IN_LIB([crypt],[EXTRALIBS],[SVZ_])
-    MKPASSWORD=mkpassword])
+   [SVZ_HAVE_FUNC_MAYBE_IN_LIB([crypt],[EXTRALIBS],[SVZ_])])
   LIBS="$save_LIBS"
 ])
-AC_SUBST([MKPASSWORD])
 
 dnl MacOS.
 AC_CHECK_FUNCS([host_statistics])

@@ -48,7 +48,7 @@ SUBDIRS = libserveez foo-server guile-server $(SERVERDIRS)
 #
 PROTOLIBS = foo-server/libfoo.a $(SERVERLIBS)
 
-bin_PROGRAMS = serveez mkpassword
+bin_PROGRAMS = serveez
 
 include_HEADERS = libserveez.h svzconfig.h
 
@@ -71,8 +71,6 @@ serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 AM_CPPFLAGS += $(GUILE_CFLAGS)
-
-mkpassword_SOURCES = mkpassword.c
 
 CLEANFILES += serveez.cfg
 

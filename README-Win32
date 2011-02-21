@@ -26,7 +26,6 @@ config.h.serveez                 - prebuild config.h for Serveez
 src/svzconfig.h.serveez          - prebuild svzconfig.h for Serveez
 src/libserveez/svzpath.h.serveez - prebuild svzpath.h for Serveez
 version.h.serveez                - prebuild version.h for Serveez
-src/mkpassword.dsp               - the mkpassword project file
 test/hash.dsp                    - hash test project file
 test/array.dsp                   - array test project file
 test/vector.dsp                  - vector list project file

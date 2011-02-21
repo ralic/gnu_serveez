@@ -57,7 +57,6 @@ Makefile.in
 /src/config.h
 /src/config.h.in
 /src/*.log
-/src/mkpassword
 /src/serveez
 /src/serveez-config
 /src/serveez.cfg

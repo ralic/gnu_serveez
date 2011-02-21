@@ -1,3 +1,12 @@
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	Drop $(bindir) program: mkpassword
+
+	* Makefile.am (bin_PROGRAMS): Remove mkpassword.
+	(mkpassword_SOURCES): Delete var.
+	* mkpassword.ap: Delete file.
+	* mkpassword.c: Delete file.
+
 2011-02-19  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Include ‘svz_sock_flood_protect’ in API unconditionally.
