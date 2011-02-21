@@ -46,9 +46,10 @@
 # include <sys/param.h>
 # include <sys/pstat.h>
 # define HAVE_PSTAT 1
-#elif HAVE_SYSGET
+#elif HAVE_SYS_SYSGET_H && HAVE_SYS_SYSINFO_H
 # include <sys/sysget.h>
 # include <sys/sysinfo.h>
+# define HAVE_SYSGET 1
 #elif HAVE_HOST_STATISTICS
 # include <mach/mach_init.h>
 # include <mach/mach_host.h>

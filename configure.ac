@@ -367,7 +367,7 @@ AC_CHECK_HEADERS_ONCE([netdb.h])
 dnl HP-UX.
 AC_CHECK_HEADERS_ONCE([sys/param.h sys/pstat.h])
 dnl IRIX.
-AC_CHECK_HEADERS_ONCE([sys/sysget.h])
+AC_CHECK_HEADERS_ONCE([sys/sysget.h sys/sysinfo.h])
 
 dnl
 dnl Serveez core library internals (svzconfig.h).
@@ -485,13 +485,6 @@ AS_IF([test xno = x"$ac_cv_search_crypt"],
 
 dnl MacOS.
 AC_CHECK_FUNCS([host_statistics])
-
-dnl IRIX.  FIXME: Use AC_CHECK_FUNCS.
-AS_IF([SVZ_Y([ac_cv_header_sys_sysget_h])],
-[AC_CHECK_DECL([sysget],
- [AC_DEFINE([HAVE_SYSGET], 1,
-   [Define if IRIX provides the sysget interface.])],
- [], [[#include <sys/sysget.h>]])])
 
 dnl
 dnl Check for ‘getopt’ and ‘getopt_long’ functions and headers.
