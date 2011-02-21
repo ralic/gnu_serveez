@@ -141,9 +141,7 @@ SERVEEZ_API svz_servertype_t *svz_servertype_find (svz_server_t *);
 
 SERVEEZ_API svz_config_type_t svz_servertype_definition;
 
-#if SVZ_ENABLE_DEBUG
 SERVEEZ_API void svz_servertype_print (void);
-#endif /* SVZ_ENABLE_DEBUG */
 
 __END_DECLS
 

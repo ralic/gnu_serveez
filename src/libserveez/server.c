@@ -205,7 +205,6 @@ svz_servertype_find (svz_server_t *server)
   return server ? server->type : NULL;
 }
 
-#if SVZ_ENABLE_DEBUG
 /*
  * Debug helper function to traverse all currently known server types.
  */
@@ -224,7 +223,6 @@ svz_servertype_print (void)
       svz_config_prototype_print (&stype->config_prototype);
     }
 }
-#endif /* SVZ_ENABLE_DEBUG */
 
 /*
  * This is the list of actually instantiated servers.  The hash table

@@ -1,5 +1,13 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Include ‘svz_servertype_print’ in API unconditionally.
+
+	* server.h (svz_servertype_print):
+	Remove surrounding preproc conditional.
+	* server.c (svz_servertype_print): Likewise.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Decruft: Don't link with ‘-no-undefined’.
 
 	* codec/Makefile.am (libcodec_la_LDFLAGS): Delete var.
