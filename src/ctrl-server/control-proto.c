@@ -42,8 +42,10 @@
 #if HAVE_LIBKSTAT
 # include <kstat.h>
 # include <sys/sysinfo.h>
-#elif HAVE_PSTAT
+#elif HAVE_SYS_PARAM_H && HAVE_SYS_PSTAT_H
+# include <sys/param.h>
 # include <sys/pstat.h>
+# define HAVE_PSTAT 1
 #elif HAVE_SYSGET
 # include <sys/sysget.h>
 # include <sys/sysinfo.h>

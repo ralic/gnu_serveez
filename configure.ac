@@ -365,7 +365,7 @@ AC_CHECK_HEADERS_ONCE([
 AC_CHECK_HEADERS_ONCE([netdb.h])
 
 dnl HP-UX.
-AC_CHECK_HEADERS_ONCE([sys/pstat.h])
+AC_CHECK_HEADERS_ONCE([sys/param.h sys/pstat.h])
 dnl IRIX.
 AC_CHECK_HEADERS_ONCE([sys/sysget.h])
 
@@ -485,13 +485,6 @@ AS_IF([test xno = x"$ac_cv_search_crypt"],
 
 dnl MacOS.
 AC_CHECK_FUNCS([host_statistics])
-
-dnl HP-UX.  FIXME: Use AC_CHECK_FUNCS.
-AS_IF([SVZ_Y([ac_cv_header_sys_pstat_h])],
-[AC_CHECK_DECL([pstat_getdynamic],
- [AC_DEFINE([HAVE_PSTAT], 1,
-   [Define if HP-Unix provides the pstat interface.])],
- [], [[#include <sys/pstat.h>]])])
 
 dnl IRIX.  FIXME: Use AC_CHECK_FUNCS.
 AS_IF([SVZ_Y([ac_cv_header_sys_sysget_h])],

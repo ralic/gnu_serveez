@@ -1,5 +1,12 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Look for <sys/pstat.h>; assume ‘pstat_getdynamic’.
+
+	* configure.ac (sys/pstat.h): New ‘AC_CHECK_HEADERS_ONCE’.
+	(HAVE_DECL_PSTAT_GETDYNAMIC, HAVE_PSTAT): Delete ‘AC_DEFINE’s.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Decruft: Don't link with ‘-no-undefined’.
 
 	This change may damage mipsel-unknown-linux-gnu and/or
