@@ -196,6 +196,28 @@ ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
 }
 
 /*
+ * Format string for system business output on different systems.
+ */
+#ifdef HAVE_LIBKSTAT
+# define CPU_FORMAT \
+  "user %ld.%01ld%%, sys %ld.%01ld%%, wait %ld.%01ld%%, idle %ld.%01ld%%"
+#elif HAVE_PROC_STAT
+# define CPU_FORMAT \
+  "user %ld.%01ld%%, nice %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%"
+#elif HAVE_PSTAT
+# define CPU_FORMAT \
+  "user %ld.%01ld%%, nice %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%"
+#elif HAVE_SYSGET
+# define CPU_FORMAT \
+  "user %ld.%01ld%%, sys %ld.%01ld%%, wait %ld.%01ld%%, idle %ld.%01ld%%"
+#elif HAVE_HOST_STATISTICS
+# define CPU_FORMAT \
+  "user %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%, nice %ld.%01ld%%"
+#else
+# define CPU_FORMAT "no cpu info available"
+#endif
+
+/*
  * When ctrl_detect_proto has identified a client connection being
  * a control protocol connection you have to call the following
  * routine.

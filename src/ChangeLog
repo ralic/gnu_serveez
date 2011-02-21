@@ -1,5 +1,12 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[ctrl-server int] Move ‘CPU_FORMAT’ from header to impl.
+
+	* ctrl-server/control-proto.h (CPU_FORMAT): Move from here...
+	* ctrl-server/control-proto.c (CPU_FORMAT): ...to here.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘crypt’ support.
 
 	Here, "U" means "[HAVE_CRYPT_H]: #include <crypt.h>;

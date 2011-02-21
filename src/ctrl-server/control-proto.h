@@ -76,28 +76,6 @@ int ctrl_handle_request (svz_socket_t *sock, char *request, int len);
 #define CTRL_PACKET_DELIMITER     "\n"
 #define CTRL_PACKET_DELIMITER_LEN 1
 
-/*
- * Format string for system business output on different systems.
- */
-#ifdef HAVE_LIBKSTAT
-# define CPU_FORMAT \
-  "user %ld.%01ld%%, sys %ld.%01ld%%, wait %ld.%01ld%%, idle %ld.%01ld%%"
-#elif HAVE_PROC_STAT
-# define CPU_FORMAT \
-  "user %ld.%01ld%%, nice %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%"
-#elif HAVE_PSTAT
-# define CPU_FORMAT \
-  "user %ld.%01ld%%, nice %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%"
-#elif HAVE_SYSGET
-# define CPU_FORMAT \
-  "user %ld.%01ld%%, sys %ld.%01ld%%, wait %ld.%01ld%%, idle %ld.%01ld%%"
-#elif HAVE_HOST_STATISTICS
-# define CPU_FORMAT \
-  "user %ld.%01ld%%, sys %ld.%01ld%%, idle %ld.%01ld%%, nice %ld.%01ld%%"
-#else
-# define CPU_FORMAT "no cpu info available"
-#endif
-
 #if HAVE_TIMES
 # define PROC_FORMAT \
   "user %ld.%01ld%%, sys %ld.%01ld%%, " \
