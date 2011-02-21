@@ -37,7 +37,4 @@
 /* Define if you have a thread library.  */
 #undef SVZ_HAVE_THREADS
 
-/* Define if you have the crypt function.  */
-#undef SVZ_HAVE_CRYPT
-
 #endif /* !__SVZCONFIG_H__ */

@@ -28,6 +28,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
+
 #include "libserveez.h"
 #include "option.h"
 
@@ -269,7 +273,7 @@ handle_options (int argc, char **argv)
               usage ();
               exit (1);
             }
-#if SVZ_ENABLE_CRYPT
+#if defined HAVE_CRYPT
           options.pass = svz_pstrdup (crypt (optarg, optarg));
 #else
           options.pass = svz_pstrdup (optarg);

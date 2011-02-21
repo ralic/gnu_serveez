@@ -34,6 +34,10 @@
 # include <winsock2.h>
 #endif
 
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
+
 #include <libserveez.h>
 #include "irc-proto.h"
 #include "irc-server.h"
@@ -348,7 +352,7 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
           /* test the given password for that I line */
           if (user->password)
             {
-#if SVZ_ENABLE_CRYPT
+#if defined HAVE_CRYPT
               if (strcmp (crypt (client->pass, user->password),
                           user->password))
 #else
@@ -394,7 +398,7 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
       if (irc_string_regex (client->user, oper->user) &&
           irc_string_regex (client->host, oper->host) &&
           irc_string_regex (client->nick, oper->nick) &&
-#if SVZ_ENABLE_CRYPT
+#if defined HAVE_CRYPT
           !strcmp (crypt (client->pass, oper->password), oper->password))
 #else
           !strcmp (client->pass, oper->password))

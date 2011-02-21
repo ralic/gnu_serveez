@@ -56,6 +56,10 @@
 # include <sys/times.h>
 #endif
 
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
+
 #include "libserveez.h"
 #include "control-proto.h"
 
@@ -815,7 +819,7 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
        * check here the control protocol password
        */
       if (len <= 2) return -1;
-#if SVZ_ENABLE_CRYPT
+#if defined HAVE_CRYPT
       request[len] = '\0';
       if (svz_config.password == NULL ||
           !strcmp (crypt (request, svz_config.password), svz_config.password))

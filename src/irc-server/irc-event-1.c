@@ -37,6 +37,10 @@
 # include <winsock2.h>
 #endif
 
+#ifdef HAVE_CRYPT_H
+# include <crypt.h>
+#endif
+
 #include "libserveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"
@@ -82,7 +86,7 @@ irc_pass_callback (svz_socket_t *sock,
   /* check it!  */
   if (cfg->pass)
     {
-#if SVZ_ENABLE_CRYPT
+#if defined HAVE_CRYPT
       if (strcmp (crypt (request->para[0], cfg->pass), cfg->pass))
 #else
       if (strcmp (request->para[0], cfg->pass))

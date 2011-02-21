@@ -1,5 +1,13 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘crypt’ support.
+
+	* configure.ac: If --enable-crypt, look for header crypt.h.
+	(HAVE_CRYPT): Use ‘SVZ_EXTRALIBS_MAYBE’; if not
+	found, display error message and exit unsuccessfully.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Drop $(bindir) program: mkpassword
 
 	* configure.ac (MKPASSWORD): Delete AC_SUBST.

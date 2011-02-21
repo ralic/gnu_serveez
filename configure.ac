@@ -398,6 +398,8 @@ AS_IF([SVZ_Y([svz_cv_header_netinet_tcp_h])],
 [AC_DEFINE([HAVE_NETINET_TCP_H], 1,
   [Define if you have the <netinet/tcp.h> header file.])])
 
+AS_IF([SVZ_Y([enable_crypt])],[AC_CHECK_HEADERS([crypt.h])])
+
 dnl woe
 AC_CHECK_HEADERS_ONCE([winsock2.h])
 AC_CHECK_HEADERS([mswsock.h], [], [],[
@@ -481,12 +483,11 @@ AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
 dnl
 dnl Check for ‘crypt’ function.
 dnl
-AS_IF([SVZ_Y([enable_crypt])],[
-  save_LIBS="$LIBS"
-  AC_SEARCH_LIBS([crypt],[descrypt crypt],
-   [SVZ_HAVE_FUNC_MAYBE_IN_LIB([crypt],[EXTRALIBS],[SVZ_])])
-  LIBS="$save_LIBS"
-])
+AS_IF([SVZ_Y([enable_crypt])],
+[SVZ_EXTRALIBS_MAYBE([crypt],[descrypt crypt])])
+AS_IF([test xno = x"$ac_cv_search_crypt"],
+[AC_MSG_ERROR([--enable-crypt specified but crypt(3) not available
+               (i.e., not in: libc, libdescrypt, libcrypt)])])
 
 dnl MacOS.
 AC_CHECK_FUNCS([host_statistics])

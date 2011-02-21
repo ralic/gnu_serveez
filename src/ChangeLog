@@ -1,5 +1,17 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘crypt’ support.
+
+	Here, "U" means "[HAVE_CRYPT_H]: #include <crypt.h>;
+	do s/SVZ_ENABLE_CRYPT/defined HAVE_CRYPT/g".
+	* ctrl-server/control-proto.c: U.
+	* irc-server/irc-config.c: U.
+	* irc-server/irc-event-1.c: U.
+	* option.c: U.
+	* svzconfig.h.in (SVZ_HAVE_CRYPT): Delete.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Drop $(bindir) program: mkpassword
 
 	* Makefile.am (bin_PROGRAMS): Remove mkpassword.

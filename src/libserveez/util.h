@@ -34,16 +34,6 @@
 # define O_BINARY 0
 #endif
 
-/* declare crypt interface if necessary */
-#if SVZ_ENABLE_CRYPT
-#if __CRYPT_IMPORT__
-#include <crypt.h>
-#else
-extern char *crypt (const char *, const char *);
-extern char *getpass (const char *);
-#endif /* __CRYPT_IMPORT__ */
-#endif
-
 typedef unsigned char svz_uint8_t;
 
 /*
