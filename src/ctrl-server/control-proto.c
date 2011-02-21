@@ -544,8 +544,13 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   svz_sock_printf (sock, " * uptime is %s\r\n",
                    svz_uptime (time (NULL) - svz_config.start));
 #if SVZ_ENABLE_DEBUG
-  svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n",
-                   svz_allocated_bytes, svz_allocated_blocks);
+  {
+    unsigned int cur[2];
+
+    svz_get_curalloc (cur);
+    svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n",
+                     cur[0], cur[1]);
+  }
 #endif /* SVZ_ENABLE_DEBUG */
   svz_sock_printf (sock, "\r\n");
 

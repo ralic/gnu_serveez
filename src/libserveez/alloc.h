@@ -36,11 +36,6 @@
 
 __BEGIN_DECLS
 
-#if SVZ_ENABLE_DEBUG
-SERVEEZ_API unsigned int svz_allocated_bytes;
-SERVEEZ_API unsigned int svz_allocated_blocks;
-#endif /* SVZ_ENABLE_DEBUG */
-
 /* Function type definitions.  */
 typedef void * (* svz_malloc_func_t) (size_t);
 typedef void * (* svz_realloc_func_t) (void *, size_t);
@@ -66,6 +61,8 @@ SERVEEZ_API char *svz_pstrdup (char *);
 #if DEBUG_MEMORY_LEAKS
 SERVEEZ_API void svz_heap (void);
 #endif /* DEBUG_MEMORY_LEAKS */
+
+SERVEEZ_API void svz_get_curalloc (unsigned int *);
 
 __END_DECLS
 

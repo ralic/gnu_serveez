@@ -1,5 +1,13 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move current allocation info behind functional interface.
+
+	* ctrl-server/control-proto.c (ctrl_stat) [SVZ_ENABLE_DEBUG]:
+	Use ‘svz_get_curalloc’ instead of direct var references.
+	* serveez.c (guile_entry) [SVZ_ENABLE_DEBUG]: Likewise.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Look for <sys/sysinfo.h>; assume ‘sysget’.
 
 	* ctrl-server/control-proto.c: #define HAVE_SYSGET here,

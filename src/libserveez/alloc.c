@@ -39,12 +39,10 @@
 #endif /* DEBUG_MEMORY_LEAKS */
 
 #if SVZ_ENABLE_DEBUG
-/* The variable @var{svz_allocated_bytes} holds the overall number of bytes
-   allocated by the core library.  */
-unsigned int svz_allocated_bytes = 0;
-/* This variable holds the number of memory blocks reserved by the core
-   library.  */
-unsigned int svz_allocated_blocks = 0;
+/* The overall number of bytes allocated by libserveez.  */
+static unsigned int allocated_bytes = 0;
+/* The number of memory blocks reserved by libserveez.  */
+static unsigned int allocated_blocks = 0;
 #endif /* SVZ_ENABLE_DEBUG */
 
 /* The @var{svz_malloc_func} variable is a function pointer for allocating
@@ -162,9 +160,9 @@ svz_malloc (size_t size)
       block->caller = __builtin_return_address (0);
       heap_add (block);
 #endif /* DEBUG_MEMORY_LEAKS */
-      svz_allocated_bytes += size;
+      allocated_bytes += size;
 #endif /* ENABLE_HEAP_COUNT */
-      svz_allocated_blocks++;
+      allocated_blocks++;
       return ptr;
     }
 #else /* not SVZ_ENABLE_DEBUG */
@@ -251,7 +249,7 @@ svz_realloc (void *ptr, size_t size)
           heap_add (block);
 #endif /* DEBUG_MEMORY_LEAKS */
 
-          svz_allocated_bytes += size - old_size;
+          allocated_bytes += size - old_size;
 #endif /* ENABLE_HEAP_COUNT */
 
           return ptr;
@@ -314,10 +312,10 @@ svz_free (void *ptr)
       size = *p;
       ptr = (void *) p;
       assert (size);
-      svz_allocated_bytes -= size;
+      allocated_bytes -= size;
 #endif /* ENABLE_HEAP_COUNT */
 
-      svz_allocated_blocks--;
+      allocated_blocks--;
 #endif /* SVZ_ENABLE_DEBUG */
       svz_free_func (ptr);
     }
@@ -436,4 +434,21 @@ svz_pstrdup (char *src)
   memcpy (dst, src, strlen (src) + 1);
 
   return dst;
+}
+
+/*
+ * Write values to @code{to[0]} and @code{to[1]} representing the
+ * number of currently allocated bytes and blocks, respectively.
+ * If Serveez was not configured with @samp{--enable-debug},
+ * the values are always 0.
+ */
+void
+svz_get_curalloc (unsigned int *to)
+{
+#ifndef SVZ_ENABLE_DEBUG
+  to[0] = to[1] = 0;
+#else
+  to[0] = allocated_bytes;
+  to[1] = allocated_blocks;
+#endif
 }

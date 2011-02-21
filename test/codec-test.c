@@ -118,6 +118,7 @@ main (int argc, char **argv)
   svz_socket_t *sock;
   svz_codec_t *codec;
   char *desc;
+  unsigned int cur[2];
 
   /* Requires `codec' argument.  */
   if (argc < 2)
@@ -179,10 +180,9 @@ main (int argc, char **argv)
   /* Finalize the core API.  */
   svz_halt ();
 
-#if SVZ_ENABLE_DEBUG
-  if (svz_allocated_bytes || svz_allocated_blocks)
-    return result;
-#endif /* SVZ_ENABLE_DEBUG */
+  svz_get_curalloc (cur);
+  if (cur[0] || cur[1])
+    return 1;
 
   return 0;
 }

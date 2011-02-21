@@ -52,6 +52,7 @@ main (int argc, char **argv)
   char *text;
   char **keys;
   void **values;
+  unsigned int cur[2];
 
   test_print ("hash function test suite\n");
 
@@ -195,12 +196,10 @@ main (int argc, char **argv)
   test (error != 3 || val != 6);
   svz_hash_destroy (hash);
 
-
-#if SVZ_ENABLE_DEBUG
   /* is heap ok ? */
   test_print ("               heap: ");
-  test (svz_allocated_bytes || svz_allocated_blocks);
-#endif
+  svz_get_curalloc (cur);
+  test (cur[0] || cur[1]);
 
   return result;
 }

@@ -52,6 +52,7 @@ main (int argc, char **argv)
   svz_spvec_t *list;
   unsigned long n, error, i;
   void **values;
+  unsigned int cur[2];
 
   test_init ();
   test_print ("sparse vector function test suite\n");
@@ -393,11 +394,10 @@ main (int argc, char **argv)
   svz_spvec_destroy (list);
   test_ok ();
 
-#if SVZ_ENABLE_DEBUG
   /* is heap ok?  */
   test_print ("           heap: ");
-  test (svz_allocated_bytes || svz_allocated_blocks);
-#endif /* SVZ_ENABLE_DEBUG */
+  svz_get_curalloc (cur);
+  test (cur[0] || cur[1]);
 
   return result;
 }

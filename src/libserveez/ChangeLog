@@ -1,5 +1,18 @@
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move current allocation info behind functional interface.
+
+	* alloc.h (svz_allocated_bytes): Delete var decl.
+	(svz_allocated_blocks): Likewise.
+	(svz_get_curalloc): New func decl, marked w/ ‘SERVEEZ_API’.
+	* alloc.c (allocated_bytes, allocated_blocks):
+	Rename from ‘svz_allocated_bytes’ and ‘svz_allocated_blocks’,
+	respectively; make static.
+	(svz_malloc, svz_realloc, svz_free): Update refs.
+	(svz_get_curalloc): New func.
+
+2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Include ‘svz_servertype_print’ in API unconditionally.
 
 	* server.h (svz_servertype_print):
