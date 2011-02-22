@@ -205,7 +205,7 @@ ident_handle_request (char *inbuf)
     }
   *u = '\0';
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "ident: received identified user `%s'\n", user);
 #endif
 

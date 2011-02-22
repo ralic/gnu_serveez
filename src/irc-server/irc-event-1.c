@@ -216,7 +216,7 @@ irc_nick_callback (svz_socket_t *sock,
       /* did the client tried to change to equal nicks?  then ignore */
       if (cl == client)
         return 0;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
       irc_printf (sock, ":%s %03d * " ERR_NICKNAMEINUSE_TEXT "\n",
@@ -227,7 +227,7 @@ irc_nick_callback (svz_socket_t *sock,
   /* do you have already specified a valid nick?  */
   if (client->flag & UMODE_NICK)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: %s changed nick to %s\n",
                client->nick, nick);
 #endif

@@ -197,7 +197,7 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
   /* Try adding a new port configuration.  */
   if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "portcfg `%s' already registered\n", name);
 #endif
       svz_hash_put (svz_portcfgs, name, port);
@@ -494,7 +494,7 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
 
   if ((ifc = svz_interface_search (str)) != NULL)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "`%s' is %s\n", ifc->description,
                svz_inet_ntoa (ifc->ipaddr));
 #endif

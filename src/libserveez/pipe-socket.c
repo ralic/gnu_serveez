@@ -317,7 +317,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
               svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
         }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "pipe (%d-%d) disconnected\n",
                sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 #endif
@@ -371,7 +371,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 
 #endif /* __MINGW32__ */
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "pipe listener (%s) destroyed\n", sock->recv_pipe);
 #endif
 

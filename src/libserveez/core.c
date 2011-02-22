@@ -337,7 +337,7 @@ svz_socket_connect (svz_t_socket sockfd,
           closesocket (sockfd);
           return -1;
         }
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
 #endif
     }

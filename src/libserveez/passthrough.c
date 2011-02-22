@@ -177,7 +177,7 @@ svz_process_disconnect (svz_socket_t *sock)
     {
       svz_sock_setreferrer (sock, NULL);
       svz_sock_setreferrer (xsock, NULL);
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
                xsock->id);
 #endif
@@ -202,7 +202,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
       svz_sock_setreferrer (xsock, NULL);
       if (sock->flags & (PROTO_TCP | PROTO_PIPE))
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
                    xsock->id);
 #endif
@@ -856,7 +856,7 @@ svz_process_shuffle (svz_process_t *proc)
   xsock->pid = (svz_t_handle) pid;
   xsock->idle_func = svz_process_idle;
   xsock->idle_counter = 1;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
@@ -894,7 +894,7 @@ svz_process_fork (svz_process_t *proc)
 #endif /* __MINGW32__ */
 
   /* The parent process.  */
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;

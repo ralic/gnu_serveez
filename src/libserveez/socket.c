@@ -106,7 +106,7 @@ svz_sock_flood_protect (svz_socket_t *sock, int num_read)
 static int
 svz_sock_default_disconnect (svz_socket_t *sock)
 {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
 #endif
 
@@ -177,7 +177,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
    */
   if (sock->recv_buffer_fill > port->detection_fill)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
@@ -198,7 +198,7 @@ svz_sock_idle_protect (svz_socket_t *sock)
 
   if (time (NULL) - sock->last_recv > port->detection_wait)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
@@ -630,7 +630,7 @@ svz_sock_disconnect (svz_socket_t *sock)
   if (closesocket (sock->sock_desc) < 0)
     svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
 #endif
 

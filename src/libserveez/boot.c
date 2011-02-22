@@ -66,7 +66,7 @@ int svz_have_Win32 = 0;
 #endif
 
 /* Runtime flag if this is the debug version or not.  */
-#ifdef SVZ_ENABLE_DEBUG
+#ifdef ENABLE_DEBUG
 int svz_have_debug = 1;
 #else
 int svz_have_debug = 0;

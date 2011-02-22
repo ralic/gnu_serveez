@@ -263,7 +263,7 @@ http_cgi_read (svz_socket_t *sock)
   sock->userflags |= HTTP_FLAG_DONE;
   if (sock->send_buffer_fill == 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_CGI;
@@ -336,7 +336,7 @@ http_cgi_write (svz_socket_t *sock)
    */
   if (http->contentlength <= 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_POST;
@@ -546,7 +546,7 @@ http_pre_exec (svz_socket_t *sock,   /* socket structure */
   if (chdir (cfg->cgidir) == -1)
     {
       svz_log (LOG_ERROR, "cgi: chdir: %s\n", SYS_ERROR);
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: cannot change dir: %s\n", cfg->cgidir);
 #endif
       return NULL;
@@ -705,7 +705,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       cgiapp = svz_malloc (MAX_PATH);
       if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
         svz_log (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       /* if this is enabled you could learn about the system */
       else
         svz_log (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
@@ -746,7 +746,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
                       &StartupInfo, &ProcessInfo))
     {
       svz_log (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: cannot execute: %s\n", cgifile);
 #endif
       svz_sock_printf (sock, "\r\n");
@@ -765,7 +765,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   svz_free (savedir);
   pid = ProcessInfo.hProcess;
 
-#ifdef SVZ_ENABLE_DEBUG
+#ifdef ENABLE_DEBUG
   svz_log (LOG_DEBUG, "http: cgi %s got pid 0x%08X\n",
            file + 1, ProcessInfo.dwProcessId);
 #endif
@@ -805,14 +805,14 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
           svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
           exit (0);
         }
-#ifndef SVZ_ENABLE_DEBUG
+#ifndef ENABLE_DEBUG
       /* duplicate stderr to the cgi output */
       if (dup2 (out, 2) != 2)
         {
           svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
           exit (0);
         }
-#endif /* !SVZ_ENABLE_DEBUG */
+#endif /* !ENABLE_DEBUG */
 
       /* handle post method */
       if (type == POST_METHOD)
@@ -901,7 +901,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 
   /* ------ still current (parent) process here ------ */
 
-#ifdef SVZ_ENABLE_DEBUG
+#ifdef ENABLE_DEBUG
   svz_log (LOG_DEBUG, "http: cgi %s got pid %d\n", file + 1, pid);
 #endif
 

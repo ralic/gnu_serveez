@@ -28,9 +28,6 @@
 /* Define to 'int' if <winsock2.h> does not define 'SOCKET'.  */
 #undef svz_t_socket
 
-/* Define if debug output should be supported.  */
-#undef SVZ_ENABLE_DEBUG
-
 /* Define if you have the <pthread.h> header file.  */
 #undef SVZ_HAVE_PTHREAD_H
 

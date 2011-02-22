@@ -279,7 +279,7 @@ irc_check_class (irc_config_t *cfg, int class_nr)
             return 0;
           else
             {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
               svz_log (LOG_DEBUG, "irc: %d/%d links reached in class %d\n",
                        class->links, class->max_links, class->nr);
 #endif
@@ -312,7 +312,7 @@ irc_client_killed (irc_client_t *client, irc_config_t *cfg)
           ts = (tm->tm_hour + 1) * 100 + tm->tm_min;
           if (ts >= kill->start && ts <= kill->end)
             {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
               svz_log (LOG_DEBUG, "irc: %s@%s is K lined: %s\n",
                        client->user, client->host, kill->line);
               return -1;
@@ -370,13 +370,13 @@ irc_client_valid (irc_client_t *client, irc_config_t *cfg)
           if (irc_check_class (cfg, user->class))
             continue;
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "irc: valid client: %s\n", user->line);
 #endif
           return 1;
         }
     }
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "irc: not a valid client (%s@%s)\n",
            client->user, client->host);
 #endif
@@ -404,14 +404,14 @@ irc_oper_valid (irc_client_t *client, irc_config_t *cfg)
           !strcmp (client->pass, oper->password))
 #endif
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "irc: valid operator: %s\n", oper->line);
 #endif
           return -1;
         }
     }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "irc: not a valid operator (%s@%s)\n",
            client->user, client->host);
 #endif

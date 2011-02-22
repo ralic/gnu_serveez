@@ -19,7 +19,7 @@
 #ifndef __TIMIDITY_H__
 #define __TIMIDITY_H__ 1
 
-#if !defined SVZ_ENABLE_DEBUG && !defined NDEBUG
+#if !defined ENABLE_DEBUG && !defined NDEBUG
 #define NDEBUG 1
 #endif
 

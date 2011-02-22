@@ -1,5 +1,26 @@
 2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Internalize debug support.
+
+	* svzconfig.h.in (SVZ_ENABLE_DEBUG): Delete.
+	* awcs-server/awcs-proto.c:
+	Do ‘s/SVZ_ENABLE_DEBUG/ENABLE_DEBUG/g’.
+	* ctrl-server/control-proto.c: Likewise.
+	* guile-server.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-core.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-config.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* serveez.c: Likewise.
+	* timidity.h: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
+2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize <assert.h> prep (i.e., NDEBUG) and #include.
 
 	* timidity.h: New file.

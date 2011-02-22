@@ -68,7 +68,7 @@ http_alloc_cache (int entries)
         http_free_cache ();
       http_cache = svz_hash_create (entries, NULL);
       http_cache_entries = entries;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: created %d cache entries\n", entries);
 #endif
     }
@@ -97,12 +97,12 @@ http_free_cache (void)
   svz_hash_destroy (http_cache);
   http_cache_first = http_cache_last = NULL;
   http_cache = NULL;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", total, files);
 #endif
 }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 /*
  * Check consistency of the http cache.  Remove this function once the
  * server is stable.
@@ -133,11 +133,11 @@ http_cache_consistency (void)
         }
     }
 }
-#else /* not SVZ_ENABLE_DEBUG */
+#else /* not ENABLE_DEBUG */
 # define http_cache_consistency()
-#endif /* not SVZ_ENABLE_DEBUG */
+#endif /* not ENABLE_DEBUG */
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 static void
 http_cache_print (void)
 {
@@ -154,7 +154,7 @@ http_cache_print (void)
 }
 #else
 # define http_cache_print()
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
 /*
  * Returns the urgency value of the given http cache entry CACHE.
@@ -425,7 +425,7 @@ http_cache_write (svz_socket_t *sock)
    */
   if (cache->size <= 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: file successfully sent\n");
 #endif
       num_written = http_keep_alive (sock);
@@ -527,7 +527,7 @@ http_cache_read (svz_socket_t *sock)
   /* EOF reached and set the appropriate flags */
   if (http->filelength <= 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cache: `%s' successfully read\n",
                cache->entry->file);
 #endif

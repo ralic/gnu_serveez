@@ -1231,7 +1231,7 @@ guile_servertype_config_free (svz_servertype_t *server)
   svz_free (prototype->items);
 }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 /*
  * Debug helper: Display a text representation of the configuration items
  * of a guile servertype.
@@ -1298,7 +1298,7 @@ guile_servertype_config_print (svz_servertype_t *server)
         }
     }
 }
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
 /*
  * Obtain a default value from the scheme cell @var{value}.  The configuration

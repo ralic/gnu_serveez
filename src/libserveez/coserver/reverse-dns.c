@@ -120,9 +120,9 @@ reverse_dns_handle_request (char *inbuf)
               reverse_dns_cache.entries++;
             }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "reverse dns: %s is %s\n", ip, host->h_name);
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
           sprintf (resolved, "%s", host->h_name);
           return resolved;
         }

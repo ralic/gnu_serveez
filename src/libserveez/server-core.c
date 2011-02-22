@@ -371,7 +371,7 @@ svz_abort (char *msg)
   return 0;
 }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 /*
  * This function is for debugging purposes only.  It shows a text
  * representation of the current socket list.
@@ -445,7 +445,7 @@ svz_sock_validate_list (void)
     }
   return 0;
 }
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
 /*
  * Rechain the socket list to prevent sockets from starving at the end
@@ -905,7 +905,7 @@ svz_reset (void)
 int
 svz_sock_shutdown (svz_socket_t *sock)
 {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "shutting down socket id %d\n", sock->id);
 #endif
 
@@ -952,9 +952,9 @@ svz_sock_schedule_for_shutdown (svz_socket_t *sock)
 {
   if (!(sock->flags & SOCK_FLAG_KILLED))
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "scheduling socket id %d for shutdown\n", sock->id);
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
       sock->flags |= SOCK_FLAG_KILLED;
 
@@ -1029,9 +1029,9 @@ svz_sock_check_bogus (void)
 #endif
   svz_socket_t *sock;
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "checking for bogus sockets\n");
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
   svz_sock_foreach (sock)
     {
@@ -1197,9 +1197,9 @@ svz_sock_check_children (void)
     if (sock->pid != INVALID_HANDLE && svz_sock_child_died (sock))
       {
         sock->pid = INVALID_HANDLE;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
         svz_log (LOG_DEBUG, "child of socket id %d died\n", sock->id);
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
         if (sock->child_died)
           if (sock->child_died (sock))
             svz_sock_schedule_for_shutdown (sock);
@@ -1219,9 +1219,9 @@ svz_loop_one (void)
   /*
    * FIXME: Remove this once the server is stable.
    */
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_sock_validate_list ();
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
   if (svz_reset_happened)
     {

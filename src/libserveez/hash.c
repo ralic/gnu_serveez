@@ -138,12 +138,12 @@ svz_hash_analyse (svz_hash_t *hash)
             depth = e;
         }
     }
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG,
            "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
            buckets, hash->buckets, hash->fill,
            entries, hash->keys, depth + 1);
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 }
 
 /*
@@ -273,7 +273,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
 
 #if 0
   svz_hash_analyse (hash);
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
   if (type == HASH_EXPAND)
     {
@@ -362,7 +362,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
 
 #if 0
   svz_hash_analyse (hash);
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 }
 
 /*

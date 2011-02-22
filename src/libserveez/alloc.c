@@ -38,12 +38,12 @@
 # include "le-u32-hash.h"
 #endif /* DEBUG_MEMORY_LEAKS */
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 /* The overall number of bytes allocated by libserveez.  */
 static unsigned int allocated_bytes = 0;
 /* The number of memory blocks reserved by libserveez.  */
 static unsigned int allocated_blocks = 0;
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
 /* The @var{svz_malloc_func} variable is a function pointer for allocating
    dynamic memory.  */
@@ -132,17 +132,17 @@ void *
 svz_malloc (size_t size)
 {
   void *ptr;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   size_t *p;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
   heap_caller ();
   assert (size);
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   if ((ptr = (void *) svz_malloc_func (size + 2 *
                                        sizeof (size_t))) != NULL)
     {
@@ -165,12 +165,12 @@ svz_malloc (size_t size)
       allocated_blocks++;
       return ptr;
     }
-#else /* not SVZ_ENABLE_DEBUG */
+#else /* not ENABLE_DEBUG */
   if ((ptr = (void *) svz_malloc_func (size)) != NULL)
     {
       return ptr;
     }
-#endif /* not SVZ_ENABLE_DEBUG */
+#endif /* not ENABLE_DEBUG */
   else
     {
       svz_log (LOG_FATAL, "malloc: virtual memory exhausted\n");
@@ -199,9 +199,9 @@ svz_calloc (size_t size)
 void *
 svz_realloc (void *ptr, size_t size)
 {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   size_t old_size, *p;
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
@@ -211,7 +211,7 @@ svz_realloc (void *ptr, size_t size)
 
   if (ptr)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
 #if DEBUG_MEMORY_LEAKS
       if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
@@ -254,12 +254,12 @@ svz_realloc (void *ptr, size_t size)
 
           return ptr;
         }
-#else /* not SVZ_ENABLE_DEBUG */
+#else /* not ENABLE_DEBUG */
       if ((ptr = (void *) svz_realloc_func (ptr, size)) != NULL)
         {
           return ptr;
         }
-#endif /* not SVZ_ENABLE_DEBUG */
+#endif /* not ENABLE_DEBUG */
       else
         {
           svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
@@ -280,20 +280,20 @@ svz_realloc (void *ptr, size_t size)
 void
 svz_free (void *ptr)
 {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
   size_t size, *p;
 #if DEBUG_MEMORY_LEAKS
   heap_block_t *block;
 #endif /* DEBUG_MEMORY_LEAKS */
 #endif /* ENABLE_HEAP_COUNT */
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
   heap_caller ();
 
   if (ptr)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
 #if ENABLE_HEAP_COUNT
 #if DEBUG_MEMORY_LEAKS
       if ((block = svz_hash_delete (heap, (char *) &ptr)) == NULL ||
@@ -316,7 +316,7 @@ svz_free (void *ptr)
 #endif /* ENABLE_HEAP_COUNT */
 
       allocated_blocks--;
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
       svz_free_func (ptr);
     }
 }
@@ -445,7 +445,7 @@ svz_pstrdup (char *src)
 void
 svz_get_curalloc (unsigned int *to)
 {
-#ifndef SVZ_ENABLE_DEBUG
+#ifndef ENABLE_DEBUG
   to[0] = to[1] = 0;
 #else
   to[0] = allocated_bytes;

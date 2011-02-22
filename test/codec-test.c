@@ -129,7 +129,7 @@ main (int argc, char **argv)
 
   /* Setup serveez core library.  */
   svz_boot ();
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_config.verbosity = 9;
   svz_log_setfile (stderr);
 #endif

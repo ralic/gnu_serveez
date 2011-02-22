@@ -1,5 +1,27 @@
 2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Internalize debug support.
+
+	* alloc.c: Do ‘s/SVZ_ENABLE_DEBUG/ENABLE_DEBUG/g’.
+	* boot.c: Likewise.
+	* core.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* coserver/dns.c: Likewise.
+	* coserver/ident.c: Likewise.
+	* coserver/reverse-dns.c: Likewise.
+	* hash.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* passthrough.c: Likewise.
+	* pipe-socket.c: Likewise.
+	* portcfg.c: Likewise.
+	* raw-socket.c: Likewise.
+	* server-core.c: Likewise.
+	* socket.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+
+2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize <assert.h> prep (i.e., NDEBUG) and #include.
 
 	* defines.h (NDEBUG): Remove #define

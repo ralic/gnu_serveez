@@ -268,7 +268,7 @@ prog_read_sock_drop (svz_socket_t *sock)
 
   if ((ret = recv (sock->sock_desc, buffer, UDP_MSG_SIZE, 0)) < 0)
     return -1;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret,
            sock->proto & PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
 #endif

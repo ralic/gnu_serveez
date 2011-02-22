@@ -208,13 +208,13 @@ http_userdir (svz_socket_t *sock, char *uri)
           svz_free (user);
           return file;
         }
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       else if (entry)
         {
           svz_log (LOG_DEBUG, "http: home directory for %s not set\n",
                    svz_windoze_uni2asc (entry->usri1_name));
         }
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 #endif /* not HAVE_GETPWNAM and not __MINGW32__ */
 
       svz_free (user);
@@ -458,7 +458,7 @@ http_check_range (http_range_t *range, off_t filesize)
       (range->last != 0 && range->last <= range->first) ||
       (range->last >= filesize || range->length > filesize))
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG,
                "http: invalid content range (%ld-%ld/%ld not in %ld) \n",
                range->first, range->last, range->length, filesize);
@@ -489,7 +489,7 @@ http_get_range (char *line, http_range_t *range)
   if (strlen (p) >= HTTP_BYTES_LENGTH &&
       memcmp (p, HTTP_BYTES, HTTP_BYTES_LENGTH))
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
 #endif
       return -1;
@@ -663,7 +663,7 @@ http_keep_alive (svz_socket_t *sock)
       sock->write_socket = http_default_write;
       sock->send_buffer_fill = 0;
       sock->idle_func = http_idle;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "http: keeping connection alive\n");
 #endif
       return 0;
@@ -1074,7 +1074,7 @@ http_absolute_file (char *file)
     {
       *p = '/';
       svz_log (LOG_ERROR, "chdir: %s\n", SYS_ERROR);
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cannot change dir: %s\n", file);
 #endif
       svz_free (savefile);

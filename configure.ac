@@ -62,11 +62,8 @@ dnl Check whether debug output should be included.
 dnl
 SVZ_FLAG([whether to enable debug output],
          [yes],[debug],[Include debug output],[
-AC_DEFINE([SVZ_ENABLE_DEBUG], 1,
+AC_DEFINE([ENABLE_DEBUG], 1,
   [Define if debug output should be supported.])
-],[
-AC_DEFINE([NDEBUG], 1,
-  [Define if debug code should be suppressed.])
 ])
 
 dnl

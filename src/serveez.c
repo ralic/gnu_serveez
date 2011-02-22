@@ -95,9 +95,9 @@ guile_entry (int argc, char **argv)
       svz_config.password = svz_strdup (options->pass);
     }
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   svz_log (LOG_NOTICE, "serveez starting, debugging enabled\n");
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
   svz_openfiles (svz_config.max_sockets);
   svz_log (LOG_NOTICE, "using %d socket descriptors\n",
@@ -131,7 +131,7 @@ guile_entry (int argc, char **argv)
 
   svz_halt ();
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   {
     unsigned int cur[2];
 
@@ -143,7 +143,7 @@ guile_entry (int argc, char **argv)
 #if DEBUG_MEMORY_LEAKS
   svz_heap ();
 #endif
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 
 #ifdef __MINGW32__
   if (options->daemon)

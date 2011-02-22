@@ -72,7 +72,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   id = packet + hdr->length - NUT_GUID_SIZE;
   if (id < packet + SIZEOF_NUT_REPLY)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: dropping invalid query hit\n");
 #endif
       client->dropped++;
@@ -111,7 +111,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
             p++;
           if (p == end || *(p + 1))
             {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
               svz_log (LOG_DEBUG, "nut: invalid query hit payload\n");
 #endif
               client->dropped++;
@@ -214,7 +214,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   /* drop this push request */
   else
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: dropping push request\n");
 #endif
       client->dropped++;
@@ -252,7 +252,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
     len++;
   if (len >= hdr->length && *file)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: invalid query payload\n");
 #endif
       return -1;

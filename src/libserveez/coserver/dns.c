@@ -75,10 +75,10 @@ dns_handle_request (char *inbuf)
         {
           memcpy (&addr, host->h_addr_list[0], host->h_length);
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "dns: %s is %s\n",
                    host->h_name, svz_inet_ntoa (addr));
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
           sprintf (resolved, "%s", svz_inet_ntoa (addr));
           return resolved;
         }

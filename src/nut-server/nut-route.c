@@ -70,7 +70,7 @@ nut_canonize_query (nut_config_t *cfg, char *query)
     {
       if (time (NULL) - t < NUT_QUERY_TOO_RECENT)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: dropping too recent query\n");
 #endif
           ret = -1;
@@ -114,7 +114,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
     case NUT_PING_REQ:
       if (hdr->length != 0)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: invalid ping payload\n");
 #endif
           return -1;
@@ -124,7 +124,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
     case NUT_PING_ACK:
       if (hdr->length != SIZEOF_NUT_PONG)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: invalid pong payload\n");
 #endif
           return -1;
@@ -134,7 +134,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
     case NUT_PUSH_REQ:
       if (hdr->length != SIZEOF_NUT_PUSH)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: invalid push request payload\n");
 #endif
           return -1;
@@ -144,7 +144,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
     case NUT_SEARCH_REQ:
       if (hdr->length > 257)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: payload of query too big\n");
 #endif
           return -1;
@@ -156,7 +156,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
     case NUT_SEARCH_ACK:
       if (hdr->length > (SIZEOF_NUT_RECORD + 256) * 256)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: payload of query hits too big\n");
 #endif
           return -1;
@@ -164,7 +164,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
       break;
       /* Invalid */
     default:
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: invalid request 0x%02X\n", hdr->function);
 #endif
       if (client->invalid++ > NUT_INVALID_PACKETS)
@@ -175,7 +175,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
   /* Hops and TTLs */
   if (hdr->ttl <= 1)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: packet died (zero TTL)\n", hdr->function);
 #endif
       return 0;
@@ -186,7 +186,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
 
   if (hdr->hop > cfg->max_ttl)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: packet died (HOP > MaxTTL)\n",
                hdr->function);
 #endif
@@ -195,7 +195,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
 
   if (hdr->ttl > 50)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: packet dropped (TTL > 50)\n");
 #endif
       return 0;
@@ -203,7 +203,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
 
   if (hdr->ttl > cfg->max_ttl)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
                hdr->ttl, cfg->max_ttl);
 #endif
@@ -212,7 +212,7 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
 
   if (hdr->ttl + hdr->hop > cfg->max_ttl)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: decreasing packet TTL (%d -> %d)\n",
                hdr->ttl, cfg->max_ttl - hdr->hop);
 #endif
@@ -258,7 +258,7 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
               cfg->errors++;
               return -1;
             }
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: packet 0x%02X reply received\n",
                    hdr->function);
 #endif
@@ -294,7 +294,7 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
       xsock = (svz_socket_t *) svz_hash_get (cfg->route, (char *) hdr->id);
       if (xsock != NULL)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: dropping duplicate packet 0x%02X\n",
                    hdr->function);
 #endif
@@ -305,7 +305,7 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
       pkt = (nut_packet_t *) svz_hash_get (cfg->packet, (char *) hdr->id);
       if (pkt != NULL)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: dropping native packet 0x%02X\n",
                    hdr->function);
 #endif

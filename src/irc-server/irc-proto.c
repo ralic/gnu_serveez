@@ -389,7 +389,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
               channel->client[n] = client;
               channel->cflag[n] = 0;
               channel->clients++;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
               svz_log (LOG_DEBUG, "irc: %s joined channel %s\n",
                        client->nick, channel->name);
 #endif
@@ -424,7 +424,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
       channel->clients = 1;
       channel->by = svz_strdup (client->nick);
       channel->since = time (NULL);
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: channel %s created\n", channel->name);
       svz_log (LOG_DEBUG, "irc: %s joined channel %s\n",
                client->nick, channel->name);
@@ -470,7 +470,7 @@ irc_leave_channel (irc_config_t *cfg,
             svz_free (channel->cflag);
             channel->cflag = NULL;
           }
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
         svz_log (LOG_DEBUG, "irc: %s left channel %s\n",
                  client->nick, channel->name);
 #endif
@@ -498,7 +498,7 @@ irc_leave_channel (irc_config_t *cfg,
   /* no client in channel?  */
   if (channel->clients == 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
 #endif
       irc_delete_channel (cfg, channel);

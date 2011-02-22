@@ -196,7 +196,7 @@ nut_save_transfer (svz_socket_t *sock)
       /* did we get all data */
       if ((transfer->size -= num_written) <= 0)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: file successfully received\n");
 #endif
           /* yes, shutdown the connection */
@@ -229,7 +229,7 @@ nut_check_transfer (svz_socket_t *sock)
       /* did we get all the header information?  */
       if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: download header received\n");
 #endif
 
@@ -237,7 +237,7 @@ nut_check_transfer (svz_socket_t *sock)
           length = nut_parse_property (sock->recv_buffer, len, NUT_LENGTH);
           if (length == NULL)
             {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
               svz_log (LOG_DEBUG, "nut: no content length given\n");
 #endif
               return -1;
@@ -304,7 +304,7 @@ nut_disconnect_transfer (svz_socket_t *sock)
       /* if the transfer was really aborted we remove the downloaded file */
       if (transfer->size > 0 || !(sock->userflags & NUT_FLAG_HDR))
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: downloading `%s' aborted\n",
                    transfer->file);
 #endif
@@ -575,7 +575,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       sprintf (pushkey, "%d:%s", push.index, nut_text_guid (push.id));
       if ((trans = svz_hash_get (cfg->push, pushkey)) != NULL)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: push request already sent\n");
 #endif
           svz_free (pushkey);
@@ -600,7 +600,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       svz_hash_put (cfg->push, pushkey, trans);
       svz_free (pushkey);
 
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: sent push request to %s:%u\n",
                   svz_inet_ntoa (sock->remote_addr),
                   ntohs (sock->remote_port));
@@ -797,7 +797,7 @@ nut_check_upload (svz_socket_t *sock)
 
   if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: upload header received\n");
 #endif
       /* parse first (GET) line */
@@ -836,7 +836,7 @@ nut_check_upload (svz_socket_t *sock)
       /* find file in database */
       if ((entry = nut_get_database (sock->cfg, file, index)) == NULL)
         {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "nut: no such file: %s, %u\n", file, index);
 #endif
           svz_free (file);
@@ -988,7 +988,7 @@ nut_file_read (svz_socket_t *sock)
   /* Read all file data?  */
   if (transfer->size <= 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: file successfully read\n");
 #endif
       /*
@@ -1058,7 +1058,7 @@ nut_file_write (svz_socket_t *sock)
 
   if (sock->send_buffer_fill == 0 && transfer->size <= 0)
     {
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "nut: file successfully sent\n");
 #endif
       return -1;

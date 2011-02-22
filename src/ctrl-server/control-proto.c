@@ -189,7 +189,7 @@ ctrl_detect_proto (svz_server_t *server, svz_socket_t *sock)
                    sock->recv_buffer_fill - ret);
         }
       sock->recv_buffer_fill -= ret;
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "control protocol client detected\n");
 #endif
       return -1;
@@ -525,9 +525,9 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 #ifdef ENABLE_FLOOD_PROTECTION
                    " FLOOD"
 #endif /* ENABLE_FLOOD_PROTECTION */
-#ifdef SVZ_ENABLE_DEBUG
+#ifdef ENABLE_DEBUG
                    " DEBUG"
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
 #if defined (__MINGW32__) || defined (__CYGWIN__)
                    " WIN32"
 #endif /* __MINGW32__, __CYGWIN__ */
@@ -543,7 +543,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
                    svz_sock_connections, svz_config.max_sockets);
   svz_sock_printf (sock, " * uptime is %s\r\n",
                    svz_uptime (time (NULL) - svz_config.start));
-#if SVZ_ENABLE_DEBUG
+#if ENABLE_DEBUG
   {
     unsigned int cur[2];
 
@@ -551,7 +551,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
     svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n",
                      cur[0], cur[1]);
   }
-#endif /* SVZ_ENABLE_DEBUG */
+#endif /* ENABLE_DEBUG */
   svz_sock_printf (sock, "\r\n");
 
   return flag;
