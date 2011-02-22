@@ -23,7 +23,7 @@
 #endif
 
 #define _GNU_SOURCE
-#include <assert.h>
+#include "timidity.h"
 #include <string.h>
 #include <sys/types.h>
 

@@ -56,11 +56,6 @@
 # define SERVEEZ_API extern
 #endif
 
-/* Define if debug code should be suppressed.  */
-#ifndef SVZ_ENABLE_DEBUG
-#define NDEBUG 1
-#endif
-
 #if defined (__MINGW32__) || defined (__CYGWIN__)
 
 /* Make CygWin / MinGW32 use large FD sets.  */
