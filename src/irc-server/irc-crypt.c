@@ -24,7 +24,6 @@
 
 #if ENABLE_IRC_PROTO
 
-#define _GNU_SOURCE
 #include <string.h>
 
 #ifdef __MINGW32__

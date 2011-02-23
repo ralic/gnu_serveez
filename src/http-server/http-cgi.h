@@ -25,8 +25,6 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE
-
 #include "http-proto.h"
 
 #define POST_METHOD 0            /* POST id */

@@ -24,7 +24,6 @@
 
 #if ENABLE_HTTP_PROTO
 
-#define _GNU_SOURCE
 #include "timidity.h"
 #include <stdio.h>
 #include <stdlib.h>

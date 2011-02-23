@@ -21,8 +21,6 @@
 #ifndef __PASSTHROUGH_H__
 #define __PASSTHROUGH_H__ 1
 
-#define _GNU_SOURCE
-
 #include "libserveez/defines.h"
 
 #ifdef __MINGW32__

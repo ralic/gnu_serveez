@@ -1,3 +1,16 @@
+2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.
+
+	* array-test.c: Remove #define:s
+	‘_GNU_SOURCE’, ‘__EXTENSIONS__’, ‘_ALL_SOURCE’.
+	* codec-test.c: Likewise.
+	* hash-test.c: Likewise.
+	* prog-test.c: Likewise.
+	* spvec-test.c: Likewise.
+	* test.c: Likewise.
+	* vector-test.c: Likewise.
+
 2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Internalize debug support.

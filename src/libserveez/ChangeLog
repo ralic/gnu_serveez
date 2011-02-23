@@ -1,3 +1,45 @@
+2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.
+
+	* alloc.c: Remove #define:s
+	‘_GNU_SOURCE’, ‘__EXTENSIONS__’, ‘_ALL_SOURCE’.
+	* array.c: Likewise.
+	* asprintf.c: Likewise.
+	* binding.c: Likewise.
+	* boot.c: Likewise.
+	* cfg.c: Likewise.
+	* codec/bzip2.c: Likewise.
+	* codec/codec.c: Likewise.
+	* codec/gzlib.c: Likewise.
+	* core.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* coserver/dns.c: Likewise.
+	* coserver/ident.c: Likewise.
+	* coserver/reverse-dns.c: Likewise.
+	* dynload.c: Likewise.
+	* hash.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* interface.c: Likewise.
+	* mutex.c: Likewise.
+	* passthrough.c: Likewise.
+	* passthrough.h: Likewise.
+	* pipe-socket.c: Likewise.
+	* portcfg.c: Likewise.
+	* portcfg.h: Likewise.
+	* raw-socket.c: Likewise.
+	* server-core.c: Likewise.
+	* server-loop.c: Likewise.
+	* server-socket.c: Likewise.
+	* server.c: Likewise.
+	* socket.c: Likewise.
+	* sparsevec.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+	* util.c: Likewise.
+	* vector.c: Likewise.
+	* windoze.c: Likewise.
+
 2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Internalize debug support.

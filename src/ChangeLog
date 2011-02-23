@@ -1,3 +1,56 @@
+2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.
+
+	* cfgfile.c: Remove #define:s
+	‘_GNU_SOURCE’, ‘__EXTENSIONS__’, ‘_ALL_SOURCE’.
+	* ctrl-server/control-proto.c: Likewise.
+	* fakeident-server/ident-proto.c: Likewise.
+	* foo-server/foo-proto.c: Likewise.
+	* guile-api.c: Likewise.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cache.h: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-cgi.h: Likewise.
+	* http-server/http-core.c: Likewise.
+	* http-server/http-core.h: Likewise.
+	* http-server/http-dirlist.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* http-server/http-proto.h: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-config.c: Likewise.
+	* irc-server/irc-config.h: Likewise.
+	* irc-server/irc-crypt.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-event-2.c: Likewise.
+	* irc-server/irc-event-3.c: Likewise.
+	* irc-server/irc-event-4.c: Likewise.
+	* irc-server/irc-event-5.c: Likewise.
+	* irc-server/irc-event-6.c: Likewise.
+	* irc-server/irc-event-7.c: Likewise.
+	* irc-server/irc-event.h: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* irc-server/irc-proto.h: Likewise.
+	* irc-server/irc-server.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/gnutella.h: Likewise.
+	* nut-server/nut-core.c: Likewise.
+	* nut-server/nut-core.h: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-route.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* nut-server/nut-transfer.h: Likewise.
+	* option.c: Likewise.
+	* option.h: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* serveez.c: Likewise.
+	* sntp-server/sntp-proto.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
 2011-02-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Internalize debug support.

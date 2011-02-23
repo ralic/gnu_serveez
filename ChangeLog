@@ -1,5 +1,12 @@
 2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.
+
+	* configure.ac (AC_USE_SYSTEM_EXTENSIONS): New macro call.
+	(HAVE_DECL_STRSIGNAL): Don't #define ‘_GNU_SOURCE’, ‘__EXTENSIONS__’.
+
+2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Merge API documentation into primary; use GFDL 1.3.
 
 	* autogen.sh: Remove doc/serveez-api.texi kludge.

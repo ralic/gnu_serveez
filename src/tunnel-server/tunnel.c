@@ -24,7 +24,6 @@
 
 #if ENABLE_TUNNEL
 
-#define _GNU_SOURCE
 #include "timidity.h"
 #include <stdio.h>
 #include <string.h>

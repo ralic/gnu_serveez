@@ -24,17 +24,9 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-
-/* Some Unices define the ‘strsignal’ function depending on
-   this definition.  */
-#ifndef __EXTENSIONS__
-# define __EXTENSIONS__
-#endif
 #include <string.h>
-
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/types.h>

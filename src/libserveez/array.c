@@ -23,7 +23,6 @@
 # include <config.h>
 #endif
 
-#define _GNU_SOURCE
 #include "timidity.h"
 #include <stdio.h>
 #include <stdlib.h>

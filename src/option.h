@@ -29,7 +29,6 @@
 #if HAVE_GETOPT_H
 # include <getopt.h>
 #elif HAVE_UNISTD_H
-# define __EXTENSIONS__
 /* FreeBSD and probably all commercial Un*ces define ‘getopt’
    in this specific file */
 # include <unistd.h>

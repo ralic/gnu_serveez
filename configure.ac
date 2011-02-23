@@ -258,6 +258,7 @@ dnl
 dnl Check for a proper C compiler.
 dnl
 AC_PROG_CC
+AC_USE_SYSTEM_EXTENSIONS dnl FIXME: Is this the right place?
 
 dnl
 dnl Libtool.  FIXME: Is this the right place?
@@ -573,8 +574,6 @@ dnl
 dnl Check for ‘hstrerror’, ‘h_errno’ and ‘strsignal’ functions.
 dnl
 AC_CHECK_DECLS([strsignal], [], [], [[
-    #define _GNU_SOURCE
-    #define __EXTENSIONS__
     #include <string.h>
 ]])
 

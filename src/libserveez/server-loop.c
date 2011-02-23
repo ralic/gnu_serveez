@@ -28,10 +28,8 @@
 #  define _USE_IRS 1
 # endif
 # define _XOPEN_SOURCE_EXTENDED 1
-# define _ALL_SOURCE 1
 #endif /* _AIX */
 
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
