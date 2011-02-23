@@ -37,20 +37,8 @@ done
 here=`pwd`
 cd `dirname $0`
 
-# let automake find this automatic created file
-if ! test -f doc/serveez-api.texi; then
-cat <<EOF > doc/serveez-api.texi
-@setfilename serveez-api.info
-@include version1.texi
-EOF
-info_touched="yes"
-fi
-
 # Invoke all the auto* tools.
 autoreconf --verbose --force --install --symlink --warnings=all
-
-# reschedule this file for building
-if test x"$info_touched" = xyes ; then rm -f doc/serveez-api.texi; fi
 
 # Life is usually full enough of woe, but one can always opt for more.
 test x"$1" = x--woe32 \

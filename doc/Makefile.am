@@ -24,8 +24,10 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
-info_TEXINFOS = serveez.texi serveez-api.texi
-serveez_TEXINFOS = guile-api.texi
+AM_MAKEINFOFLAGS = --split-size=999999
+
+info_TEXINFOS = serveez.texi
+serveez_TEXINFOS = serveez-api.texi guile-api.texi fdl.texi
 man_MANS = serveez.1 serveez-config.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 	logo.jpg logosmall.jpg mandel.jpg \
@@ -145,7 +147,7 @@ $(GUILE_TXT_FILE): $(guile_from)
 	rm -f $@; for f in $(guile_from);	\
 	  do $(SNARFER) $$f -t >> $@; done
 
-genhtml = serveez.html serveez-api.html
+genhtml = serveez.html
 
 sednow = $(SED) "s/LAST-MODIFIED/$$(date -u +'%Y-%m-%d %T UTC')/"
 

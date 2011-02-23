@@ -1,3 +1,33 @@
+2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Merge API documentation into primary; use GFDL 1.3.
+
+	* fdl.texi: New file, a copy of gnulib doc/fdl-1.3.texi.
+	* serveez-api.texi: Drop "next, prev, up" @node links;
+	drop head portions; add missing @node lines; push every node
+	down one level; rename some nodes to avoid conflict with
+	those in serveez.texi; drop ‘Index’ and tail portions.
+	* serveez.texi: Drop "next, prev, up" @node links.
+	(settitle): Say "GNU Serveez".
+	(copying, insertcopying): Move text into former; use latter.
+	(cp): Arrange to pour indices ‘vr’ and ‘fn’ into this.
+	(title): Say "GNU Serveez".
+	(author): Append self.
+	(contents): Move after title page, from end.
+	(Introduction): Elide into ‘Top’.
+	(Using Serveez): Add menu.
+	(Build and install, Environment variables, Starting Serveez)
+	(Command line options, The config file): New @node lines.
+	(Embedding): New @node/@chpater; include serveez-api.texi here.
+	(License): Delete.
+	(GNU Free Documentation License): New; include fdl.texi here.
+	(Index): Drop separate ‘vr’ and ‘fn’ indices; use instead ‘cp’.
+	* index.html: Update links to merged manual.
+	* Makefile.am (AM_MAKEINFOFLAGS): New var.
+	(info_TEXINFOS): Remove serveez-api.texi.
+	(serveez_TEXINFOS): Add serveez-api.texi, fdl.texi.
+	(genhtml): Remove serveez-api.html.
+
 2011-02-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move current allocation info behind functional interface.

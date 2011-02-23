@@ -36,7 +36,7 @@ if necessary) with various files:
                   svzconfig.h
                   libserveez/*.h (includes subdirs and headers)
  $(libdir)     -- libserveez shared object + libtool support file(s)
- $(infodir)    -- manuals: serveez-api.info, serveez.info
+ $(infodir)    -- serveez.info
  $(pkgdatadir) -- scheme (*.scm) files implementing guile servers
 
 Before installing, consider doing "make check" and reporting any errors

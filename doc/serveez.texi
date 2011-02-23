@@ -1,11 +1,30 @@
 \input texinfo
 @c %**start of header
 @setfilename serveez.info
-@settitle Serveez Documentation
+@settitle GNU Serveez
+@exampleindent 2
+@syncodeindex vr cp
+@syncodeindex fn cp
 @c %** end of header
 
-@exampleindent 2
 @include version.texi
+@copying
+This manual documents GNU Serveez @value{VERSION},
+released @value{UPDATED}.
+
+Copyright @copyright{} 2011 Thien-Thi Nguyen@*
+Copyright @copyright{} 2000--2002 Stefan Jahn <stefan@@lkcc.org>@*
+Copyright @copyright{} 2000--2002 Raimund Jacob <raimi@@lkcc.org>@*
+Copyright @copyright{} 1999 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation.
+A copy of the license is included in the section entitled "GNU
+Free Documentation License".
+@end quotation
+@end copying
 
 @set PACKAGE Serveez
 @set s_PACKAGE serveez
@@ -16,52 +35,42 @@
 @end direntry
 
 @titlepage
-@title Serveez, version @value{VERSION}
+@title GNU Serveez
 @subtitle A server framework
-@subtitle Edition @value{EDITION},  @value{UPDATED}
+@subtitle Edition @value{EDITION}, @value{UPDATED}
 @author Stefan Jahn
 @author Raimund Jacob
+@author Thien-Thi Nguyen
 
 @page
 @vskip 0pt plus 1filll
-
-Copyright @copyright{} 2011 Thien-Thi Nguyen@*
-Copyright @copyright{} 2000, 2001, 2002 Stefan Jahn <stefan@@lkcc.org>@*
-Copyright @copyright{} 2000, 2001, 2002 Raimund Jacob <raimi@@lkcc.org>@*
-Copyright @copyright{} 1999 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
-
-Permission is granted to copy, distribute and/or modify this document
-under the terms of the GNU Free Documentation License, Version 1.1
-or any later version published by the Free Software Foundation.
-A copy of the license is included in the section entitled "GNU
-Free Documentation License".
-
+@insertcopying
 @end titlepage
 
-@node Top, Introduction, (dir), (dir)
+@contents
 
-@ifinfo
-This reference manual documents the Serveez server framework corresponding
-to the Serveez @value{VERSION} version.
-@end ifinfo
+@node Top
+@top GNU Serveez
+
+This manual documents GNU Serveez @value{VERSION},
+released @value{UPDATED}.
+
+@include blurb.texi
 
 @menu
-* Introduction::          Introduction to Serveez
 * Using Serveez::         Startup and command line options
 * Concept::               Conceptual thoughts
 * Server::                Server implementation
 * Coserver::              Coserver implementation
+* Embedding::             Using libserveez in your own program
 * Porting issues::        Support of different platforms and operating systems
 * Bibliography::          Useful documents we refer to
-* License::               GNU General Public License
+
+* GNU Free Documentation License::
+* Index::
 @end menu
 
-@node Introduction, Using Serveez, Top, Top
-@chapter Introduction
-
-@include blurb.texi
-
-@node Using Serveez, Concept, Introduction, Top
+@node Using Serveez
 @chapter Using Serveez
 
 We know, you usually don't read the documentation.  Who does.  But
@@ -69,6 +78,15 @@ please, read at the very least this chapter.  It contains information on
 the basic concepts.  Larger parts of the manual can be used as a
 reference manual for the various servers.
 
+@menu
+* Build and install::     Making Serveez a part of your system
+* Environment variables:: Hints for the dynamic module loader
+* Starting Serveez::      The moment of truth
+* Command line options::  Specifying the config file and other params
+* The config file::       Defining servers, ports, and how they relate
+@end menu
+
+@node Build and install
 @section Building and installing
 
 @subsection Rebuild the package from the sources
@@ -257,6 +275,7 @@ GNU libtool's inability to handle dynamic linking in most cases.  That
 is why we recommend to try to configure the package with
 @samp{--disable-shared} and/or the native compiler (if any).
 
+@node Environment variables
 @section Environment variables
 
 When using the serveezopt package or playing around with the dynamic server
@@ -273,6 +292,7 @@ sleepless ~> export SERVEEZ_LOAD_PATH=/home/lib:/usr/local/lib
 C:\HOME> set SERVEEZ_LOAD_PATH=C:\HOME\LIB;C:\USR\LOCAL\LIB
 @end example
 
+@node Starting Serveez
 @section Starting Serveez
 
 When Serveez is started it reads its configuration from a file called
@@ -281,6 +301,7 @@ loop afterwards.  Press @key{^C}  to abort the execution of this program.
 Serveez is not interactive and does not automatically detach from the
 terminal.
 
+@node Command line options
 @section Command line options
 
 @table @code
@@ -306,6 +327,7 @@ Start as daemon in background.
 Use standard input as configuration file.
 @end table
 
+@node The config file
 @section Configuring Serveez
 
 As noted above Serveez is configured via a configuration file which is by
@@ -335,7 +357,7 @@ There are three things you have to do in the configuration file.
 * Bind servers to ports::  How to bind servers to port configurations
 @end menu
 
-@node Define ports, Define servers, , Using Serveez
+@node Define ports
 @subsection Define ports
 
 A @code{port} (in Serveez) is a transport endpoint.  You might know them
@@ -577,7 +599,7 @@ Simple definition of a UDP port configuration with the name "foo-udp-port".
                               (port  . 27952)))
 @end example
 
-@node Define servers, Bind servers to ports, Define ports, Using Serveez
+@node Define servers
 @subsection Define servers
 
 A @code{server} (in Serveez) is a snippet of code that implements some
@@ -623,7 +645,7 @@ The name of the server instance has to begin with this short name followed
 by a dash (-).  You can append any suffix then.  In the example above "foo"
 is the short name and "foo-server" the name of the server instance.
 
-@node Bind servers to ports, , Define servers, Using Serveez
+@node Bind servers to ports
 @subsection Bind servers to ports
 
 Finally you can bind servers to ports.  When you do so the server you
@@ -704,7 +726,7 @@ We now have a closer look at the internals of Serveez.  If you
 are not interested in that have a look at the existing
 servers (@xref{Existing servers}.).
 
-@node Concept, Server, Using Serveez, Top
+@node Concept
 @chapter Concept
 
 @section Overall concept
@@ -876,7 +898,7 @@ signal when data arrives for a connection.  The signal handler queues
 these events in order of arrival and the main server loop continuously
 processes this queue.
 
-@node Server, Coserver, Concept, Top
+@node Server
 @chapter Server
 
 @menu
@@ -886,7 +908,7 @@ processes this queue.
 * Existing servers::            Which kind of servers do we have already ?
 @end menu
 
-@node Introduction to servers, Writing servers, Server, Server
+@node Introduction to servers
 @section Introduction to servers
 
 Serveez is a kind of server server.  It allows different protocol
@@ -943,7 +965,7 @@ transport endpoint.  A server instance does not usually need to know about
 the port configuration it is bound to.
 @end table
 
-@node Writing servers, Configuring servers, Introduction to servers, Server
+@node Writing servers
 @section Writing servers
 
 Serveez is meant to be a server framework.  That is why it supports various
@@ -964,7 +986,7 @@ This section describes each of the above possibilities in detail.
 * Builtin servers::     Servers located in the main project
 @end menu
 
-@node Embedded servers, Guile servers, , Writing servers
+@node Embedded servers
 @subsection Embedded servers
 
 The core library of Serveez can be used to write standalone server modules.
@@ -1009,12 +1031,12 @@ __declspec (dllexport) extern svz_servertype_t foo_server_definition;
 The data symbol @code{foo_server_definition} must be statically filled with
 the proper content (@xref{Builtin servers}.)
 
-@node Guile servers, Builtin servers, Embedded servers, Writing servers
+@node Guile servers
 @subsection Guile servers
 
 @include guile-api.texi
 
-@node Builtin servers, , Guile servers, Writing servers
+@node Builtin servers
 @subsection Builtin servers
 
 All of the servers listed in @ref{Existing servers} are builtin servers.
@@ -1290,7 +1312,7 @@ you specified  yourself when issuing the request.  To invoke a coserver
 you use one of the @code{svz_coserver_*} macros.  The foo server uses
 the reverse dns coserver to identify the host name of the remote client.
 
-@node Configuring servers, Existing servers, Writing servers, Server
+@node Configuring servers
 @section Some words about server configuration
 
 If you define a server you basically pass an instance name and a list of
@@ -1341,7 +1363,7 @@ The example configuration file @file{data/serveez.cfg} contains an example
 definition of each server already implemented.  You can copy and modify the
 example for an easy start.
 
-@node Existing servers,  , Configuring servers, Server
+@node Existing servers
 @section Existing servers
 
 @menu
@@ -1358,7 +1380,7 @@ example for an easy start.
 * Mandel Server::               Distributed Mandelbrot server
 @end menu
 
-@node HTTP Server, IRC Server,  , Existing servers
+@node HTTP Server
 @subsection HTTP Server
 
 @subsubsection General description
@@ -1541,7 +1563,7 @@ any headers.
 @end table
 @end table
 
-@node IRC Server, Control Protocol Server, HTTP Server, Existing servers
+@node IRC Server
 @subsection IRC Server
 
 @subsubsection General description
@@ -1688,7 +1710,7 @@ Kill user, wildcards allowed.
 @end example
 @end table
 
-@node Control Protocol Server, Foo Server, IRC Server, Existing servers
+@node Control Protocol Server
 @subsection Control Protocol Server
 
 @subsubsection General description
@@ -1787,7 +1809,7 @@ Reinitialize the HTTP file cache.  Flushes all files from the cache.
 
 There is nothing to be configured yet.
 
-@node Foo Server, SNTP Server, Control Protocol Server, Existing servers
+@node Foo Server
 @subsection Foo Server
 
 @subsubsection General description
@@ -1822,7 +1844,7 @@ An hash map associating keys with values.  Printed as server information.
 Some boolean value.  Printed as server information.
 @end table
 
-@node SNTP Server, Gnutella Spider, Foo Server, Existing servers
+@node SNTP Server
 @subsection SNTP Server
 
 @subsubsection General
@@ -1847,7 +1869,7 @@ independent sites on the network.
 
 The configuration of this server does not require any item.
 
-@node Gnutella Spider, Tunnel Server, SNTP Server, Existing servers
+@node Gnutella Spider
 @subsection Gnutella Spider
 
 @subsubsection What is it ?
@@ -1955,7 +1977,7 @@ server instance.  This means that no remote client can connect without
 being told so (e.g., by push requests).
 @end table
 
-@node Tunnel Server, Chat Server, Gnutella Spider, Existing servers
+@node Tunnel Server
 @subsection Tunnel Server
 
 @subsubsection General description
@@ -2085,7 +2107,7 @@ to.
 The target port configuration.
 @end table
 
-@node Chat Server, Fake Ident Server, Tunnel Server, Existing servers
+@node Chat Server
 @subsection Chat Server
 
 @subsubsection General description
@@ -2212,7 +2234,7 @@ additional parameters.
 There is nothing to be configured yet.  You should notice that it is possible
 to bind this server to both named pipes and TCP ports.
 
-@node Fake Ident Server, Passthrough Server, Chat Server, Existing servers
+@node Fake Ident Server
 @subsection Fake Ident Server
 
 @subsubsection General description
@@ -2250,7 +2272,7 @@ configuration file) the server runs in the flag-all-requests-as-error mode.
 Use your favourite nickname here.
 @end table
 
-@node Passthrough Server, Mandel Server, Fake Ident Server, Existing servers
+@node Passthrough Server
 @subsection Passthrough Server
 
 @subsubsection General description
@@ -2308,7 +2330,7 @@ of program instances that may be spawned from the server within an interval
 of 60 seconds.
 @end table
 
-@node Mandel Server, , Passthrough Server, Existing servers
+@node Mandel Server
 @subsection Mandel Server
 
 @html
@@ -2365,7 +2387,7 @@ Here you can setup your favourite bitmap viewer application.  It should be
 able to parse and display the XPM format.
 @end table
 
-@node Coserver, Porting issues, Server, Top
+@node Coserver
 @chapter Coserver
 
 @menu
@@ -2374,7 +2396,7 @@ able to parse and display the XPM format.
 * Existing coservers::         What kind of coservers already exist ?
 @end menu
 
-@node What are coservers, Writing coservers, Coserver, Coserver
+@node What are coservers
 @section What are coservers
 
 If it is necessary to complete blocking tasks in Serveez you have
@@ -2382,7 +2404,7 @@ to use coservers.  The actual implementation differs on platforms.  On Unices
 they are implemented as processes communicating with Serveez over pipes.
 On Win32 Serveez uses threads and shared memory.
 
-@node Writing coservers, Existing coservers, What are coservers, Coserver
+@node Writing coservers
 @section Writing coservers
 
 @subsection Making and configuring preparations
@@ -2431,7 +2453,7 @@ specifying the @code{COSERVER_*} id, the coserver description, the coserver
 handle routine discussed above, the number of coserver instances to be
 created and an optional initialization routine.
 
-@node Existing coservers,  , Writing coservers, Coserver
+@node Existing coservers
 @section Existing coservers
 
 @subsection Identification (Ident) coserver
@@ -2531,7 +2553,13 @@ MyReverseCallback (char *host, int id, int version)
 @}
 @end example
 
-@node Porting issues, Bibliography, Coserver, Top
+@node Embedding
+@chapter Embedding
+@cindex embedding
+
+@include serveez-api.texi
+
+@node Porting issues
 @chapter Porting issues
 
 Serveez was always designed with an eye on maximum
@@ -2702,7 +2730,7 @@ Serveez has been build and tested successfully.
 
 @end itemize
 
-@node Bibliography, License, Porting issues, Top
+@node Bibliography
 @chapter Bibliography
 
 This section contain some of the documents and resources we read and used
@@ -2757,30 +2785,14 @@ Winsock Development Information
 Winsock Programmer's FAQ
 @end enumerate
 
-@node License, , Bibliography, Top
-@chapter License
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
 
-GNU General Public License Version 2, June 1991@*
+@include fdl.texi
 
-Serveez is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 3, or any later version.
+@node Index
+@unnumbered Index
 
-This software is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
+@printindex cp
 
-You should have received a copy of the GNU General Public License
-along with this package.  If not, see @uref{http://www.gnu.org/licenses/}.
-
-@*
-Copyright @copyright{} 1999, 2000, 2001, 2002 Martin Grabmueller <mgrabmue@@cs.tu-berlin.de>@*
-Copyright @copyright{} 2000, 2001, 2002 Raimund Jacob <raimi@@lkcc.org>@*
-Copyright @copyright{} 2000, 2001, 2002, 2003, 2004 Stefan Jahn <stefan@@lkcc.org>@*
-
-Verbatim copying and distribution of this entire document is
-permitted in any medium, provided this notice is preserved.
-
-@contents
 @bye
