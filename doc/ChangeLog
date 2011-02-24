@@ -1,3 +1,9 @@
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Make ‘svz_hash_xfree’ a function; document it.
+
+	* serveez-api.texi.in (SVZ_HASH_XFREE_DEFUN): New ref.
+
 2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc] Merge API documentation into primary; use GFDL 1.3.

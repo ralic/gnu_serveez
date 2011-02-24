@@ -1,3 +1,11 @@
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Make ‘svz_hash_xfree’ a function; document it.
+
+	* hash.c (svz_hash_xfree): New func.
+	* hash.h (svz_hash_xfree): Convert
+	macro to func decl, marked with ‘SERVEEZ_API’.
+
 2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.

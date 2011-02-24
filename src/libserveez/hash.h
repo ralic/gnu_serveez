@@ -81,6 +81,7 @@ SERVEEZ_API void *svz_hash_put (svz_hash_t *, char *, void *);
 SERVEEZ_API void *svz_hash_get (svz_hash_t *, char *);
 SERVEEZ_API void **svz_hash_values (svz_hash_t *);
 SERVEEZ_API char **svz_hash_keys (svz_hash_t *);
+SERVEEZ_API void svz_hash_xfree (void *);
 SERVEEZ_API int svz_hash_size (svz_hash_t *);
 SERVEEZ_API int svz_hash_capacity (svz_hash_t *);
 SERVEEZ_API char *svz_hash_contains (svz_hash_t *, void *);
@@ -137,13 +138,5 @@ __END_DECLS
   ( (++(i)) < svz_hash_size (hash)) ? 42 :                                   \
                     (svz_hash_xfree (iterarray), iterarray = NULL, (i) = -1) \
  )
-
-
-#if DEBUG_MEMORY_LEAKS
-# include <stdlib.h>
-# define svz_hash_xfree(ptr) svz_free_func (ptr)
-#else
-# define svz_hash_xfree(ptr) svz_free (ptr)
-#endif
 
 #endif /* not __HASH_H__ */

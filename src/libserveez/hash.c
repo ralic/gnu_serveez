@@ -522,6 +522,25 @@ svz_hash_exists (svz_hash_t *hash, char *key)
 }
 
 /*
+ * This function frees the @var{collection} returned by
+ * @code{svz_hash_values} and @code{svz_hash_keys}.
+ */
+void
+svz_hash_xfree (void *collection)
+{
+  /* Callers should not pass in a NULL ‘collection’,
+     but we don't trust them.  */
+  if (! collection)
+    return;
+
+#if DEBUG_MEMORY_LEAKS
+  svz_free_func (collection);
+#else
+  svz_free (collection);
+#endif
+}
+
+/*
  * This function delivers all values within a hash table @var{hash}.  It
  * returns NULL if there were no values in the hash.  You MUST
  * @code{svz_hash_xfree} a non-NULL return value in order to prevent
