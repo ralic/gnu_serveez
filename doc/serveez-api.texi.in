@@ -113,6 +113,7 @@ weirdness like ``Port config funcs'' was necessary to avoid
 conflict with the other ``Port configuration'' node.]
 
 @menu
+* Library features::      A high-level list of what libserveez provides
 * Memory management::     How memory is managed in Serveez
 * Data structures::       Data structure helpers
 * Utility functions::     Miscellaneous helper functions
@@ -129,6 +130,39 @@ conflict with the other ``Port configuration'' node.]
 * Interface::             Network interface function implementation
 * Windoze::               Windows port implementations
 @end menu
+
+@node Library features
+@subsection Library features
+
+The @file{configure} script used to build libserveez takes many options
+(@pxref{Build and install}).
+Some of these are encapsulated by @code{svz_library_features}.
+
+SVZ_LIBRARY_FEATURES_DEFUN
+
+@noindent
+Here is a table describing the features in detail:
+
+@table @code
+@item debug
+Present when @samp{--enable-debug}.
+@item heap-counters
+Present when @samp{--enable-heap-count}.
+@item interface-list
+Present when @samp{--enable-iflist}.
+@item poll
+Present when @samp{--enable-poll} and you have poll(2).
+@item sendfile
+Present when @samp{--enable-sendfile} and you have sendfile(2)
+or some workalike (e.g., @code{TransmitFile}).
+@item threads
+Present when @samp{--enable-thread-safety} and you have some
+kind of thread capability (perhaps in a separate library).
+@item flood-protection
+Present when @samp{--enable-flood}.
+@item core
+The networking core.  This is always present.
+@end table
 
 @node Memory management
 @subsection Memory management

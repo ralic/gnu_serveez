@@ -1,5 +1,13 @@
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] New func: svz_library_features
+
+	* boot.c (svz_library_features): New func.
+	* boot.h (svz_library_features): New func
+	decl, marked with ‘SERVEEZ_API’.
+
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Do #include <stdio.h> in defines.h.
 
 	* defines.h: #include <stdio.h>.

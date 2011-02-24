@@ -41,6 +41,8 @@ svz_config_t;
 
 __BEGIN_DECLS
 
+SERVEEZ_API const char * const * svz_library_features (size_t *);
+
 /* Core library configuration.  */
 SERVEEZ_API svz_config_t svz_config;
 

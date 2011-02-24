@@ -79,6 +79,43 @@ int svz_have_floodprotect = 1;
 int svz_have_floodprotect = 0;
 #endif
 
+/*
+ * Return a list (length saved to @var{count}) of strings
+ * representing the features compiled into libserveez.
+ */
+const char * const *
+svz_library_features (size_t *count)
+{
+  static const char * const features[] = {
+#ifdef ENABLE_DEBUG
+    "debug",
+#endif
+#ifdef ENABLE_HEAP_COUNT
+    "heap-counters",
+#endif
+#ifdef ENABLE_IFLIST
+    "interface-list",
+#endif
+#if defined ENABLE_POLL && defined HAVE_POLL
+    "poll",
+#endif
+#if defined ENABLE_SENDFILE && defined HAVE_SENDFILE
+    "sendfile",
+#endif
+#ifdef SVZ_HAVE_THREADS
+    "threads",
+#endif
+#ifdef ENABLE_FLOOD_PROTECTION
+    "flood-protection",
+#endif
+    "core"
+  };
+
+  *count = sizeof (features) / sizeof (char *);
+
+  return features;
+}
+
 /* Extern declaration of the logging mutex.  */
 svz_mutex_declare (svz_log_mutex)
 

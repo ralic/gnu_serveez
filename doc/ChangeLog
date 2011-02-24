@@ -1,5 +1,13 @@
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] New func: svz_library_features
+
+	* serveez-api.texi.in (Embedding API):
+	Add "Library features" to menu.
+	(Library features): New node/subsection.
+
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘svz_hash_xfree’ a function; document it.
 
 	* serveez-api.texi.in (SVZ_HASH_XFREE_DEFUN): New ref.
