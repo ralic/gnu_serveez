@@ -24,7 +24,6 @@
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
 
-#include <stdio.h>
 #include <sys/stat.h>
 
 #ifndef __MINGW32__

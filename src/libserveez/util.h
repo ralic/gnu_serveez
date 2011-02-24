@@ -25,7 +25,6 @@
 
 #include "libserveez/defines.h"
 
-#include <stdio.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 

@@ -1,5 +1,13 @@
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Do #include <stdio.h> in defines.h.
+
+	* defines.h: #include <stdio.h>.
+	* core.h: Don't #include <stdio.h>.
+	* util.h: Likewise.
+
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Require type info in macro ‘svz_hash_foreach_value’.
 
 	* hash.h (svz_hash_foreach_value):

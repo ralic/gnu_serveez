@@ -30,6 +30,8 @@
 # include <svzconfig.h>
 #endif
 
+#include <stdio.h>
+
 /* __BEGIN_DECLS should be used at the beginning of your declarations,
    so that C++ compilers don't mangle their names.  Use __END_DECLS at
    the end of C declarations.  */
