@@ -1,3 +1,9 @@
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Require type info in macro ‘svz_hash_foreach_value’.
+
+	* hash-test.c (main): Update call to ‘svz_hash_foreach_value’.
+
 2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.

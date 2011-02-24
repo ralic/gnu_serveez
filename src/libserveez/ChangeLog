@@ -1,5 +1,15 @@
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Require type info in macro ‘svz_hash_foreach_value’.
+
+	* hash.h (svz_hash_foreach_value):
+	Take arg TYPE; use it to cast the ‘svz_hash_values’ rv.
+	* server.c (svz_servertype_del)
+	(svz_server_notifiers, svz_server_reset, svz_server_find)
+	(svz_server_init_all): Update call to ‘svz_hash_foreach_value’.
+
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘svz_hash_xfree’ a function; document it.
 
 	* hash.c (svz_hash_xfree): New func.

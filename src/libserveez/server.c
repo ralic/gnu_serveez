@@ -118,7 +118,7 @@ svz_servertype_del (unsigned long index)
       /* Find server instance of this server type and remove and finalize
          them if necessary.  */
       n = svz_hash_size (svz_servers) - 1;
-      svz_hash_foreach_value (svz_servers, server, i)
+      svz_hash_foreach_value (svz_servers, svz_server_t, server, i)
         {
           if (server[n]->type == stype)
             {
@@ -239,7 +239,7 @@ svz_server_notifiers (void)
   int n;
   svz_server_t **server;
 
-  svz_hash_foreach_value (svz_servers, server, n)
+  svz_hash_foreach_value (svz_servers, svz_server_t, server, n)
     if (server[n]->notify)
       server[n]->notify (server[n]);
 }
@@ -255,7 +255,7 @@ svz_server_reset (void)
   int n;
   svz_server_t **server;
 
-  svz_hash_foreach_value (svz_servers, server, n)
+  svz_hash_foreach_value (svz_servers, svz_server_t, server, n)
     if (server[n]->reset)
       server[n]->reset (server[n]);
 }
@@ -271,7 +271,7 @@ svz_server_find (void *cfg)
   int n;
   svz_server_t **servers, *server = NULL;
 
-  svz_hash_foreach_value (svz_servers, servers, n)
+  svz_hash_foreach_value (svz_servers, svz_server_t, servers, n)
     {
       if (servers[n]->cfg == cfg)
         server = servers[n];
@@ -437,7 +437,7 @@ svz_server_init_all (void)
   svz_server_t **server;
 
   svz_log (LOG_NOTICE, "initializing all server instances\n");
-  svz_hash_foreach_value (svz_servers, server, i)
+  svz_hash_foreach_value (svz_servers, svz_server_t, server, i)
     if (svz_server_init (server[i]) < 0)
       errneous = -1;
   return errneous;

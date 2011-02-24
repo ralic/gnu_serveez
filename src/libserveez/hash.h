@@ -99,7 +99,7 @@ __END_DECLS
  * Iterator macro for walking over the values of a hash.  Use like:
  * @example
  *   type_t **values; int i;
- *   svz_hash_foreach_value (hash, values, i) @{
+ *   svz_hash_foreach_value (hash, type_t, values, i) @{
  *     process_value (values[i]);
  *   @}
  * @end example
@@ -108,9 +108,9 @@ __END_DECLS
  * Do not @code{break} or @code{return} from inside the loop or your program
  * starts leaking memory!  Loop has to end normally.
  */
-#define svz_hash_foreach_value(hash, iterarray, i)                           \
+#define svz_hash_foreach_value(hash, type, iterarray, i)               \
  for (                                                                       \
-  ((i) = (((*((void***)(&(iterarray)))) = svz_hash_values (hash)) == NULL ?  \
+  ((i) = (((iterarray) = (type **) svz_hash_values (hash)) == NULL ?         \
                                   -1 : 0));                                  \
   ( (i) != -1 );                                                             \
   ( (++(i)) < svz_hash_size (hash)) ? 42 :                                   \

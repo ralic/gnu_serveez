@@ -113,7 +113,7 @@ http_cache_consistency (void)
   http_cache_entry_t **cache;
 
   n = 1;
-  svz_hash_foreach_value (http_cache, cache, o)
+  svz_hash_foreach_value (http_cache, http_cache_entry_t, cache, o)
     {
       /* each cache entry must have a file name */
       assert (cache[o]->file);

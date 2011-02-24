@@ -177,7 +177,7 @@ main (int argc, char **argv)
   error = 0;
   val = 0;
   test_print ("    value iteration: ");
-  svz_hash_foreach_value (hash, values, n)
+  svz_hash_foreach_value (hash, void, values, n)
     {
       val += (long) values[n];
       error++;

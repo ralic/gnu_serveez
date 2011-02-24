@@ -1,3 +1,11 @@
+2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Require type info in macro ‘svz_hash_foreach_value’.
+
+	* ctrl-server/control-proto.c (ctrl_stat_all):
+	Update call to ‘svz_hash_foreach_value’.
+	* http-server/http-cache.c (http_cache_consistency): Likewise.
+
 2011-02-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use ‘AC_USE_SYSTEM_EXTENSIONS’.
