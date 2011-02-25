@@ -1,3 +1,11 @@
+2011-02-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Inline svzconfig.h into libserveez/defines.h on install.
+
+	* Makefile.am (include_HEADERS): Remove svzconfig.h.
+	(i): New var.
+	(install-data-hook): New target.
+
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Require type info in macro ‘svz_hash_foreach_value’.

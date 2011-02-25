@@ -22,7 +22,6 @@
 #
 
 include $(top_srcdir)/build-aux/common.mk
-include $(srcdir)/common.mk
 
 EXTRA_DIST = svzpath.h.in
 

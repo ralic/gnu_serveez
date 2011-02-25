@@ -50,7 +50,7 @@ PROTOLIBS = foo-server/libfoo.a $(SERVERLIBS)
 
 bin_PROGRAMS = serveez
 
-include_HEADERS = libserveez.h svzconfig.h
+include_HEADERS = libserveez.h
 
 serveez_SOURCES = \
 	cpp-tricks.h le-u32-hash.h timidity.h \
@@ -73,6 +73,17 @@ serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 AM_CPPFLAGS += $(GUILE_CFLAGS)
 
 CLEANFILES += serveez.cfg
+
+i = "$(DESTDIR)$(includedir)/libserveez"
+
+install-data-hook:
+	$(SED) '/^#define [^_]/!d' svzconfig.h > $(i)/TMP0
+	cd $(i); mv -f defines.h TMP1; \
+	$(SED) -e '/#include "svzconfig.h"/{' \
+	       -e ' s|.*|/* Extracted configuration.  */|' \
+	       -e ' r TMP0' \
+	       -e '}' TMP1 > defines.h; \
+	rm -f TMP0 TMP1
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h

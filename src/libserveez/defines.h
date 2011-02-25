@@ -21,14 +21,7 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__ 1
 
-/* Depending on the kind of build include either <config.h> (for internal
-   build) or <svzconfig.h> for the external usage of the core library.  */
-
-#if defined (HAVE_CONFIG_H) && defined (__BUILD_SVZ_LIBRARY__)
-# include <config.h>
-#else
-# include <svzconfig.h>
-#endif
+#include "svzconfig.h"  /* NB: See ../Makefile.am ‘install-data-hook’.  */
 
 #include <stdio.h>
 

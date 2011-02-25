@@ -42,7 +42,7 @@ LDFLAGS =
 INCLUDES = -I.. -I../..
 
 # Preprocessor flags.
-DEFS = -D__SERVEEZ_EXPORT__ -D__BUILD_SVZ_LIBRARY__
+DEFS = -D__SERVEEZ_EXPORT__
 
 # Extra debug preprocessor flags.
 dbg_DEFS = -DENABLE_DEBUG

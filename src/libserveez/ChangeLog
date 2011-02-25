@@ -1,3 +1,15 @@
+2011-02-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Inline svzconfig.h into libserveez/defines.h on install.
+
+	* Makefile.am: Don't include $(srcdir)/common.mk.
+	* codec/Makefile.am: Don't include $(srcdir)/../common.mk.
+	* coserver/Makefile.am: Likewise.
+	* common.mk: Delete file.
+	* defines.h: Don't #include <config.h> or <svzconfig.h>;
+	instead, #include "svzconfig.h" unconditionally.
+	* libserveez.ap (DEFS): Remove ‘-D__BUILD_SVZ_LIBRARY__’.
+
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] New func: svz_library_features
