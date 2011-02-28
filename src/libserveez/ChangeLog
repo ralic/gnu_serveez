@@ -1,5 +1,12 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop vars: svz_have_{debug,floodprotect}
+
+	* boot.c (svz_have_debug, svz_have_floodprotect): Delete vars.
+	* boot.h (svz_have_debug, svz_have_floodprotect): Delete var decls.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_have_Win32
 
 	* boot.c (svz_have_Win32): Delete var.

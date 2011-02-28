@@ -1,5 +1,12 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop vars: svz_have_{debug,floodprotect}
+
+	* serveez-api.texi.in (Booting): Delete
+	‘SVZ_HAVE_DEBUG_DEFVAR’, ‘SVZ_HAVE_FLOODPROTECT_DEFVAR’.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile] Add proc: libserveez-features
 
 	* guile-api.texi.in (Underlying libserveez):

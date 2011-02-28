@@ -55,21 +55,6 @@ char *svz_library = "serveez";
 /* The version of the core library.  */
 char *svz_version = __serveez_version;
 
-/* Runtime flag if this is the debug version or not.  */
-#ifdef ENABLE_DEBUG
-int svz_have_debug = 1;
-#else
-int svz_have_debug = 0;
-#endif
-
-/* Runtime checkable flags for configuration language and code if flood
-   protection has been enabled or not.  */
-#ifdef ENABLE_FLOOD_PROTECTION
-int svz_have_floodprotect = 1;
-#else
-int svz_have_floodprotect = 0;
-#endif
-
 /*
  * Return a list (length saved to @var{count}) of strings
  * representing the features compiled into libserveez.
