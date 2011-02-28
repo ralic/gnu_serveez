@@ -1,5 +1,12 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop var: svz_have_Win32
+
+	* boot.c (svz_have_Win32): Delete var.
+	* boot.h (svz_have_Win32): Delete var decl.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_build
 
 	* boot.c (svz_build): Delete var.

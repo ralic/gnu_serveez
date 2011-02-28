@@ -915,8 +915,8 @@ SVZ_PORTCFG_DESTROY_ACCESS_DEFUN
 @subsection Boot functions
 
 This section contains the description of some runtime checkable flags
-indicating the abilities of the running serveez core API and the underlying
-operating system.  It also describes the most important functions
+indicating the abilities of the running serveez core API.
+It also describes the most important functions
 @code{svz_boot} and @code{svz_halt} which must be the first and the last
 call to the core API.
 
@@ -924,7 +924,6 @@ SVZ_CONFIG_DEFVAR
 SVZ_LIBRARY_DEFVAR
 SVZ_VERSION_DEFVAR
 SVZ_HAVE_DEBUG_DEFVAR
-SVZ_HAVE_WIN32_DEFVAR
 SVZ_HAVE_FLOODPROTECT_DEFVAR
 
 SVZ_NET_STARTUP_DEFUN

@@ -1,5 +1,11 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop var: svz_have_Win32
+
+	* guile.c (guile_init): Don't define Scheme var ‘have-Win32’.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_build
 
 	* version.h.in (__serveez_timestamp): Delete #define.

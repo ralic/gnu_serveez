@@ -59,7 +59,6 @@ SERVEEZ_API char *svz_version;
 
 /* Exported from `boot.c' because it is a central point.  */
 SERVEEZ_API int svz_have_debug;
-SERVEEZ_API int svz_have_Win32;
 SERVEEZ_API int svz_have_floodprotect;
 
 __END_DECLS

@@ -55,13 +55,6 @@ char *svz_library = "serveez";
 /* The version of the core library.  */
 char *svz_version = __serveez_version;
 
-/* Runtime flag if this is Win32 or not.  */
-#if defined (__MINGW32__) || defined (__CYGWIN__)
-int svz_have_Win32 = 1;
-#else
-int svz_have_Win32 = 0;
-#endif
-
 /* Runtime flag if this is the debug version or not.  */
 #ifdef ENABLE_DEBUG
 int svz_have_debug = 1;
