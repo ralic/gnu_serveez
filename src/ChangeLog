@@ -1,5 +1,13 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Add proc: libserveez-features
+
+	* guile.c: #include "gi.h".
+	(libserveez_features): New static func.
+	(guile_init): Define proc ‘libserveez-features’.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile] Drop var: guile-version
 
 	* guile.c (guile_init): Don't define Scheme var ‘guile-version’.

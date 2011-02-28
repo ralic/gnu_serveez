@@ -10,6 +10,10 @@ without any help from Serveez, but it makes the task a lot easier.
 This interface reduces the Guile implementation of an Internet server
 to a simple data processor.
 
+@subsubsection Underlying libserveez
+
+LIBSERVEEZ-FEATURES_DEFUN
+
 @subsubsection Special Data Types
 
 Serveez extends Guile by various new data types which represent internal

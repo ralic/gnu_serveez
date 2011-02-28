@@ -45,6 +45,7 @@
 #endif
 
 #include "libserveez.h"
+#include "gi.h"
 #include "guile-api.h"
 #include "guile-server.h"
 #include "guile.h"
@@ -310,6 +311,25 @@ guile_to_optionhash (SCM pairlist, char *suffix, int dounpack)
 
   return hash;
 }
+
+/*
+ * Return a list of symbols representing the features of the underlying
+ * libserveez.  For details, @xref{Library features}.
+ */
+#define FUNC_NAME "libserveez-features"
+static SCM
+libserveez_features (void)
+{
+  SCM rv = SCM_EOL;
+  size_t count;
+  const char * const *ls = svz_library_features (&count);
+
+  while (count--)
+    rv = scm_cons (gi_symbol2scm (ls[count]), rv);
+
+  return rv;
+}
+#undef FUNC_NAME
 
 /*
  * Parse an integer value from a scheme cell.  Returns zero when successful.
@@ -1705,6 +1725,7 @@ guile_init (void)
   scm_c_define_gsubr ("serveez-loadpath", 0, 1, 0, guile_access_loadpath);
 
   /* export some new procedures */
+  scm_c_define_gsubr ("libserveez-features", 0, 0, 0, libserveez_features);
   scm_c_define_gsubr ("define-port!", 2, 0, 0, guile_define_port);
   scm_c_define_gsubr ("define-server!", 1, 1, 0, guile_define_server);
   scm_c_define_gsubr ("bind-server!", 2, 0, 0, guile_bind_server);
