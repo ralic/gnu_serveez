@@ -1,5 +1,13 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] New func: gi_symbol2scm
+
+	* gi.c: New file.
+	* gi.h: New file.
+	* Makefile.am (serveez_SOURCES): Add gi.c, gi.h.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_have_Win32
 
 	* guile.c (guile_init): Don't define Scheme var ‘have-Win32’.
