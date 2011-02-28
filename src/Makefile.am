@@ -90,7 +90,7 @@ dist-hook:
 	rm -f $(distdir)/svzconfig.h
 
 serveez.cfg: $(top_srcdir)/data/serveez.cfg
-	cp -p $(top_srcdir)/data/serveez.cfg $@
+	$(LN_S) $< $@
 
 # woe
 

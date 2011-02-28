@@ -1,5 +1,11 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use a symlink for src/serveez.cfg.
+
+	* Makefile.am (serveez.cfg): Use $(LN_S), not ‘cp -p’.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile] Add proc: libserveez-features
 
 	* guile.c: #include "gi.h".
