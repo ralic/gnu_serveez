@@ -1,3 +1,12 @@
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[irc-server] For RPL_CREATED, use UTC stamp, minute resolution.
+
+	* irc-server/Makefile.am (BUILT_SOURCES): New var.
+	(timestamp.c): New target.
+	* irc-server/irc-event-1.c: #include "timestamp.c".
+	(irc_send_init_block): Use ‘created’, not ‘svz_build’.
+
 2011-02-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Inline svzconfig.h into libserveez/defines.h on install.

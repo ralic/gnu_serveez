@@ -47,6 +47,8 @@
 #include "irc-event.h"
 #include "irc-config.h"
 
+#include "timestamp.c"                  /* for ‘irc_send_init_block’ */
+
 /*
  *    Command: QUIT
  * Parameters: [<Quit message>]
@@ -119,7 +121,7 @@ irc_send_init_block (svz_socket_t *sock, irc_client_t *client)
               client->nick, cfg->host, svz_library, svz_version);
 
   irc_printf (sock, ":%s %03d %s :" RPL_CREATED_TEXT "\n",
-              cfg->host, RPL_CREATED, client->nick, svz_build);
+              cfg->host, RPL_CREATED, client->nick, created);
 
   irc_printf (sock, ":%s %03d %s " RPL_MYINFO_TEXT "\n",
               cfg->host, RPL_MYINFO, client->nick,

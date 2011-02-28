@@ -64,6 +64,8 @@ Makefile.in
 /src/svzconfig.h
 /src/version.h
 
+/src/irc-server/timestamp.c
+
 /src/libserveez/svzpath.h
 
 /test/*-test

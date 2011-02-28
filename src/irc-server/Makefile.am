@@ -39,3 +39,8 @@ libircserver_a_SOURCES = \
 	irc-event-7.c \
 	irc-server.h irc-server.c \
 	irc-config.h irc-config.c
+
+BUILT_SOURCES = timestamp.c
+
+timestamp.c: $(top_srcdir)/config.status
+	date -r $< -u +'static char created[] = "%Y-%m-%d %R UTC";' > $@
