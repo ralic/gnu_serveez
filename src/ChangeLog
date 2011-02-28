@@ -1,5 +1,11 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Drop var: guile-version
+
+	* guile.c (guile_init): Don't define Scheme var ‘guile-version’.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] New func: gi_symbol2scm
 
 	* gi.c: New file.

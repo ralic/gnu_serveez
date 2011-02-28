@@ -1694,7 +1694,6 @@ guile_init (void)
 {
   /* define some variables */
   scm_c_define ("serveez-version", scm_makfrom0str (svz_version));
-  scm_c_define ("guile-version", scm_version ());
   scm_c_define ("have-debug", SCM_BOOL (svz_have_debug));
   scm_c_define ("have-floodprotect", SCM_BOOL (svz_have_floodprotect));
 

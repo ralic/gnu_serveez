@@ -1,5 +1,11 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Drop var: guile-version
+
+	* serveez.cfg: Use proc ‘version’ directly.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	Display uname(2) info in example config with equanimity.
 
 	* serveez.cfg: Don't say "good luck" for woe32;
