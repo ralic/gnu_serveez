@@ -1,5 +1,12 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Drop vars: have-debug, have-floodprotect
+
+	* guile.c (guile_init): Don't define
+	Scheme vars ‘have-debug’, ‘have-floodprotect’.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Use a symlink for src/serveez.cfg.
 
 	* Makefile.am (serveez.cfg): Use $(LN_S), not ‘cp -p’.
