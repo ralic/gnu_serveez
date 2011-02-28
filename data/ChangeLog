@@ -1,5 +1,13 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[maint] Drop init.serveez, "make install-init".
+
+	* Makefile.am (install-init, init.serveez): Delete targets.
+	(CLEANFILES): Remove init.serveez.
+	* init.serveez.in: Delete file.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile] Add proc: libserveez-features
 
 	* serveez.cfg: Don't say "debugging enabled";
