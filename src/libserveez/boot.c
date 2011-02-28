@@ -54,8 +54,6 @@ svz_config_t svz_config = { NULL, 0, 0, 0 };
 char *svz_library = "serveez";
 /* The version of the core library.  */
 char *svz_version = __serveez_version;
-/* Timestamp when core library has been build.  */
-char *svz_build = __serveez_timestamp;
 
 /* Runtime flag if this is Win32 or not.  */
 #if defined (__MINGW32__) || defined (__CYGWIN__)

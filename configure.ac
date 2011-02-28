@@ -661,13 +661,6 @@ done
 
 LIBS="$LIBS $EXTRALIBS"
 
-TIMESTAMP=`date '+%a %b %_d %H:%M:%S %Y' 2>/dev/null`
-AS_IF([test x = x"$TIMSTAMP"],[
-    dnl On HP-UX each item is padded with spaces by default.
-    TIMESTAMP=`date '+%a %b %d %H:%M:%S %Y' 2>/dev/null`
-])
-AC_SUBST([TIMESTAMP])
-
 dnl
 dnl Setup configuration variables.
 dnl

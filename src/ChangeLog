@@ -1,5 +1,11 @@
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop var: svz_build
+
+	* version.h.in (__serveez_timestamp): Delete #define.
+
+2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[irc-server] For RPL_CREATED, use UTC stamp, minute resolution.
 
 	* irc-server/Makefile.am (BUILT_SOURCES): New var.
