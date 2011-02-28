@@ -1,0 +1,24 @@
+                                                              -*- org -*-
+
+The "thread safety" support in libserveez amounts to wrapping a system-specific (woe32 vs posix) mutex object.  See:
+
+  [[../configure.ac]]
+  [[../src/libserveez/mutex.h]]
+  [[../src/libserveez/mutex.c]]
+
+For serveez proper, its only use is to prevent conflicts in ‘svz_log’ (specifically ‘fprintf’, ‘vfprintf’, ‘fflush’) on the output stream ‘svz_logfile’:
+
+  [[../src/libserveez/util.c::svz_logfile][../src/libserveez/util.c ‘FILE *svz_logfile’]]
+
+On some modern systems, stdio functions do internal locking anyway, and you have to go out of your way to use the unlocked variants:
+
+  [[elisp:(man%20"stdio(3)")][stdio(3)]]
+  [[elisp:(man%20"unlocked_stdio(3)")][unlocked_stdio(3)]]
+
+To the extent that "some modern systems" covers the ones we are interested in porting to, we can avoid using the thread safety support in serveez proper, thus handily side-stepping having to debug this particular problem:
+
+  https://savannah.gnu.org/support/?107607
+
+That still leaves two ongoing-maintenance problems, however: the existing (possibly buggy) use of the mutexes for systems without locked/unlocked stdio, and the (also possibly buggy) support in libserveez itself.  These problems are compounded by the fact that verifying correctness on those systems is difficult or impossible.
+
+In any case, we should be able to refine the configure script tests to check for locked/unlocked stdio.
