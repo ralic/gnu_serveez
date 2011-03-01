@@ -1,5 +1,18 @@
 2011-03-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Fix bug: Make ‘svz_log’ work also after its mutex is destroyed.
+
+	See <https://savannah.gnu.org/support/?107607> for details.
+
+	* util.c (spew_mutex): Rename from ‘svz_log_mutex’; make static.
+	(spew_mutex_valid): New static var.
+	(svz__log_updn): New func.
+	(svz_log): Do mutex lock/unlock only when ‘spew_mutex_valid’.
+	* boot.c (svz__log_updn): New extern func decl.
+	(svz_boot, svz_halt): Use ‘svz__log_updn’.
+
+2011-03-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Make ‘svz_log’ more efficient.
 
 	* util.c: #include <assert.h>.

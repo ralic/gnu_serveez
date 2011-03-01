@@ -98,9 +98,20 @@ static char log_level[][16] = {
 static FILE *svz_logfile = NULL;
 
 /* Global definition of the logging mutex.  */
-svz_mutex_define (svz_log_mutex)
+static svz_mutex_define (spew_mutex)
+static int spew_mutex_valid;
 
 #define LOGBUFSIZE  512
+
+void
+svz__log_updn (int direction)
+{
+  (direction
+   ? svz_mutex_create
+   : svz_mutex_destroy)
+    (&spew_mutex);
+  spew_mutex_valid = direction;
+}
 
 /*
  * Print a message to the log system.  @var{level} specifies the prefix.
@@ -137,10 +148,10 @@ svz_log (int level, const char *format, ...)
     }
 
   /* Write it out.  */
-  svz_mutex_lock (&svz_log_mutex);
+  if (spew_mutex_valid) svz_mutex_lock (&spew_mutex);
   fwrite (buf, 1, w, svz_logfile);
   fflush (svz_logfile);
-  svz_mutex_unlock (&svz_log_mutex);
+  if (spew_mutex_valid) svz_mutex_unlock (&spew_mutex);
 }
 
 /*

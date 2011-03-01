@@ -155,13 +155,15 @@ svz_init_config (void)
   svz_config.password = NULL;
 }
 
+extern void svz__log_updn (int direction); /* FIXME: Move elsewhere?  */
+
 /*
  * Initialization of the core library.
  */
 void
 svz_boot (void)
 {
-  svz_mutex_create (&svz_log_mutex);
+  svz__log_updn (1);
   svz_strsignal_init ();
   svz_sock_table_create ();
   svz_signal_up ();
@@ -191,5 +193,5 @@ svz_halt (void)
   svz_signal_dn ();
   svz_sock_table_destroy ();
   svz_strsignal_destroy ();
-  svz_mutex_destroy (&svz_log_mutex);
+  svz__log_updn (0);
 }
