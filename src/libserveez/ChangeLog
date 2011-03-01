@@ -1,3 +1,12 @@
+2011-03-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib int] Make ‘svz_log’ more efficient.
+
+	* util.c: #include <assert.h>.
+	(LOGBUFSIZE): New #define.
+	(svz_log): Use ‘strftime’; do string formatting to a
+	local buffer; ensure proper truncation; use ‘fwrite’.
+
 2011-02-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop vars: svz_have_{debug,floodprotect}

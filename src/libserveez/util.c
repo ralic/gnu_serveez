@@ -39,6 +39,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <errno.h>
+#include <assert.h>
 
 #if HAVE_SYS_TIME_H
 # include <sys/time.h>
@@ -99,12 +100,16 @@ static FILE *svz_logfile = NULL;
 /* Global definition of the logging mutex.  */
 svz_mutex_define (svz_log_mutex)
 
+#define LOGBUFSIZE  512
+
 /*
  * Print a message to the log system.  @var{level} specifies the prefix.
  */
 void
 svz_log (int level, const char *format, ...)
 {
+  char buf[LOGBUFSIZE];
+  size_t w = 0;
   va_list args;
   time_t tm;
   struct tm *t;
@@ -113,15 +118,27 @@ svz_log (int level, const char *format, ...)
       feof (svz_logfile) || ferror (svz_logfile))
     return;
 
-  svz_mutex_lock (&svz_log_mutex);
   tm = time (NULL);
   t = localtime (&tm);
-  fprintf (svz_logfile, "[%4d/%02d/%02d %02d:%02d:%02d] %s: ",
-           t->tm_year + 1900, t->tm_mon + 1, t->tm_mday,
-           t->tm_hour, t->tm_min, t->tm_sec, log_level[level]);
+  w = strftime (buf, LOGBUFSIZE, "[%Y/%m/%d %H:%M:%S]", t);
+  w += snprintf (buf + w, LOGBUFSIZE - w, " %s: ", log_level[level]);
   va_start (args, format);
-  vfprintf (svz_logfile, format, args);
+  w += vsnprintf (buf + w, LOGBUFSIZE - w, format, args);
   va_end (args);
+
+  /* Ensure that an overlong message is properly truncated.  */
+  if (LOGBUFSIZE > w)
+    assert ('\0' == buf[w]);
+  else
+    {
+      w = LOGBUFSIZE - 1;
+      buf[w - 1] = '\n';
+      buf[w] = '\0';
+    }
+
+  /* Write it out.  */
+  svz_mutex_lock (&svz_log_mutex);
+  fwrite (buf, 1, w, svz_logfile);
   fflush (svz_logfile);
   svz_mutex_unlock (&svz_log_mutex);
 }
