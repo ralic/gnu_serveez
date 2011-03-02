@@ -42,6 +42,7 @@
 # include <guile/gh.h>
 #endif
 
+#include "action.h"
 #include "libserveez.h"
 #include "gi.h"
 #include "guile-api.h"
@@ -957,7 +958,8 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
   int err = 0;
   char *c_type = NULL, *c_name = NULL, *c_instance = NULL;
   svz_hash_t *options = NULL;
-  char *error = NULL, *txt = NULL;
+  char *error = NULL;
+  char action[ACTIONBUFSIZE];
 
   /* Configure callbacks for the ‘svz_config_type_instantiate’ thing.  */
   svz_config_accessor_t accessor = {
@@ -988,12 +990,12 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
       FAIL ();
     }
 
-  svz_asprintf (&txt, "defining %s `%s'", c_type, c_instance);
+  DEFINING ("%s `%s'", c_type, c_instance);
 
   /* Extract options if any.  */
   if (SCM_UNBNDP (opts))
     options = optionhash_create ();
-  else if (NULL == (options = guile_to_optionhash (opts, txt, 0)))
+  else if (NULL == (options = guile_to_optionhash (opts, action, 0)))
     FAIL ();                    /* Message already emitted.  */
 
   err = svz_config_type_instantiate (c_type, c_name, c_instance,
@@ -1006,7 +1008,6 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
     }
 
  out:
-  svz_free (txt);
   svz_free (error);
   if (c_type)
     scm_c_free (c_type);
@@ -1095,7 +1096,8 @@ guile_define_port (SCM name, SCM args)
   svz_portcfg_t *prev = NULL;
   svz_portcfg_t *cfg = svz_portcfg_create ();
   svz_hash_t *options = NULL;
-  char *portname, *proto = NULL, *txt = NULL;
+  char *portname, *proto = NULL;
+  char action[ACTIONBUFSIZE];
 
   GUILE_PRECALL ();
 
@@ -1107,9 +1109,9 @@ guile_define_port (SCM name, SCM args)
       FAIL ();
     }
 
-  svz_asprintf (&txt, "defining port `%s'", portname);
+  DEFINING ("port `%s'", portname);
 
-  if (NULL == (options = guile_to_optionhash (args, txt, 0)))
+  if (NULL == (options = guile_to_optionhash (args, action, 0)))
     FAIL ();                    /* Message already emitted.  */
 
   /* Every key defined only once?  */
@@ -1130,28 +1132,30 @@ guile_define_port (SCM name, SCM args)
     {
       int port;
       cfg->proto = PROTO_TCP;
-      err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, txt);
+      err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0,
+                                     &port, action);
       GUILE_VALIDATE_PORT (port, "TCP", portname);
       cfg->tcp_port = (unsigned short) port;
       err |= optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0,
-                                     &(cfg->tcp_backlog), txt);
+                                     &(cfg->tcp_backlog), action);
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-                                        &(cfg->tcp_ipaddr), txt);
+                                        &(cfg->tcp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->tcp_device), txt);
+                                        &(cfg->tcp_device), action);
     }
   /* Maybe UDP?  */
   else if (!strcmp (proto, PORTCFG_UDP))
     {
       int port;
       cfg->proto = PROTO_UDP;
-      err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0, &port, txt);
+      err |= optionhash_extract_int (options, PORTCFG_PORT,
+                                     0, 0, &port, action);
       GUILE_VALIDATE_PORT (port, "UDP", portname);
       cfg->udp_port = (unsigned short) port;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-                                        &(cfg->udp_ipaddr), txt);
+                                        &(cfg->udp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->udp_device), txt);
+                                        &(cfg->udp_device), action);
     }
   /* Maybe ICMP?  */
   else if (!strcmp (proto, PORTCFG_ICMP))
@@ -1159,15 +1163,15 @@ guile_define_port (SCM name, SCM args)
       int type;
       cfg->proto = PROTO_ICMP;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-                                        &(cfg->icmp_ipaddr), txt);
+                                        &(cfg->icmp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->icmp_device), txt);
+                                        &(cfg->icmp_device), action);
       err |= optionhash_extract_int (options, PORTCFG_TYPE, 1, ICMP_SERVEEZ,
-                                     &type, txt);
+                                     &type, action);
       if (type & ~0xff)
         {
           guile_error ("ICMP type `%s' requires a byte (0..255) %s",
-                       PORTCFG_TYPE, txt);
+                       PORTCFG_TYPE, action);
           err = -1;
         }
       cfg->icmp_type = (unsigned char) (type & 0xff);
@@ -1177,9 +1181,9 @@ guile_define_port (SCM name, SCM args)
     {
       cfg->proto = PROTO_RAW;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
-                                        &(cfg->raw_ipaddr), txt);
+                                        &(cfg->raw_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->raw_device), txt);
+                                        &(cfg->raw_device), action);
     }
   /* Finally a PIPE?  */
   else if (!strcmp (proto, PORTCFG_PIPE))
@@ -1190,8 +1194,7 @@ guile_define_port (SCM name, SCM args)
       cfg->proto = PROTO_PIPE;
 
       /* Handle receiving pipe.  */
-      svz_asprintf (&txt, "defining pipe `%s' in port `%s'",
-                    PORTCFG_RECV, portname);
+      DEFINING ("pipe `%s' in port `%s'", PORTCFG_RECV, portname);
 
       /* Check if it is a plain string.  */
       p = optionhash_get (options, PORTCFG_RECV);
@@ -1210,20 +1213,19 @@ guile_define_port (SCM name, SCM args)
                        portname, PORTCFG_RECV);
           err = -1;
         }
-      else if ((poptions = guile_to_optionhash (p, txt, 0)) == NULL)
+      else if ((poptions = guile_to_optionhash (p, action, 0)) == NULL)
         {
           err = -1;             /* Message already emitted.  */
         }
       else
         {
           err |= optionhash_extract_pipe (poptions, PORTCFG_RECV,
-                                          &(cfg->pipe_recv), txt);
+                                          &(cfg->pipe_recv), action);
           optionhash_destroy (poptions);
         }
 
       /* Try getting send pipe.  */
-      svz_asprintf (&txt, "defining pipe `%s' in port `%s'",
-                    PORTCFG_SEND, portname);
+      DEFINING ("pipe `%s' in port `%s'", PORTCFG_SEND, portname);
 
       /* Check plain string.  */
       p = optionhash_get (options, PORTCFG_SEND);
@@ -1241,14 +1243,14 @@ guile_define_port (SCM name, SCM args)
                        portname, PORTCFG_SEND);
           err = -1;
         }
-      else if ((poptions = guile_to_optionhash (p, txt, 0)) == NULL)
+      else if ((poptions = guile_to_optionhash (p, action, 0)) == NULL)
         {
           err = -1;             /* Message already emitted.  */
         }
       else
         {
           err |= optionhash_extract_pipe (poptions, PORTCFG_SEND,
-                                          &(cfg->pipe_send), txt);
+                                          &(cfg->pipe_send), action);
           optionhash_destroy (poptions);
         }
     }
@@ -1262,14 +1264,14 @@ guile_define_port (SCM name, SCM args)
 
   /* Access the send and receive buffer sizes.  */
   err |= optionhash_extract_int (options, PORTCFG_SEND_BUFSIZE, 1, 0,
-                                 &(cfg->send_buffer_size), txt);
+                                 &(cfg->send_buffer_size), action);
   err |= optionhash_extract_int (options, PORTCFG_RECV_BUFSIZE, 1, 0,
-                                 &(cfg->recv_buffer_size), txt);
+                                 &(cfg->recv_buffer_size), action);
 
   /* Acquire the connect frequency.  */
   if (cfg->proto & PROTO_TCP)
     err |= optionhash_extract_int (options, PORTCFG_FREQ, 1, 0,
-                                   &(cfg->connect_freq), txt);
+                                   &(cfg->connect_freq), action);
 
   /* Obtain the access lists "allow" and "deny".  */
   if (!(cfg->proto & PROTO_PIPE))
@@ -1299,8 +1301,6 @@ guile_define_port (SCM name, SCM args)
             }
         }
     }
-
-  svz_free (txt);
 
   /* Check for unused keys in input.  */
   if (0 != optionhash_validate (options, 0, "port", portname))

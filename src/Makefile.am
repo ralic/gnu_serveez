@@ -53,7 +53,7 @@ bin_PROGRAMS = serveez
 include_HEADERS = libserveez.h
 
 serveez_SOURCES = \
-	cpp-tricks.h le-u32-hash.h timidity.h \
+	action.h cpp-tricks.h le-u32-hash.h timidity.h \
 	gi.c gi.h \
 	serveez.c serveez.h \
 	guile.c guile.h \

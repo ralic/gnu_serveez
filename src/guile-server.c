@@ -36,6 +36,7 @@
 # include <guile/gh.h>
 #endif
 
+#include "action.h"
 #include "libserveez.h"
 #include "gi.h"
 #include "guile-api.h"
@@ -1418,14 +1419,15 @@ static int
 guile_servertype_config (svz_servertype_t *server, SCM cfg)
 {
   int def, n, err = 0;
-  char *txt = NULL, **key;
+  char **key;
   svz_hash_t *options = NULL;
   svz_key_value_pair_t item;
   svz_key_value_pair_t *items = NULL;
   char *prototype = NULL;
   int size = 0, len;
+  char action[ACTIONBUFSIZE];
 
-  svz_asprintf (&txt, "parsing configuration of `%s'", server->prefix);
+  DOING ("parsing configuration of `%s'", server->prefix);
 
   /* Check if the configuration alist is given or not.  */
   if (SCM_EQ_P (cfg, SCM_UNSPECIFIED))
@@ -1436,7 +1438,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
     }
 
   /* Try parsing this alist is valid.  */
-  if (NULL == (options = guile_to_optionhash (cfg, txt, 0)))
+  if (NULL == (options = guile_to_optionhash (cfg, action, 0)))
     FAIL ();                    /* Message already emitted.  */
 
   /* Check the servertype configuration definition for duplicates.  */
@@ -1453,7 +1455,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
       if (!SCM_LISTP (list) ||
           SCM_NUM2ULONG (SCM_ARG1, scm_length (list)) != 3)
         {
-          guile_error ("Invalid definition for `%s' %s", key[n], txt);
+          guile_error ("Invalid definition for `%s' %s", key[n], action);
           err = -1;
           continue;
         }
@@ -1465,7 +1467,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
       value = SCM_CAR (list);
       if ((str = guile_to_string (value)) == NULL)
         {
-          guile_error ("Invalid type definition for `%s' %s", key[n], txt);
+          guile_error ("Invalid type definition for `%s' %s", key[n], action);
           err = -1;
           continue;
         }
@@ -1475,7 +1477,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
           scm_c_free (str);
           if (len == 0)
             {
-              guile_error ("Invalid type for `%s' %s", key[n], txt);
+              guile_error ("Invalid type for `%s' %s", key[n], action);
               err = -1;
               continue;
             }
@@ -1487,7 +1489,7 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
       value = SCM_CAR (list);
       if (guile_to_boolean (value, &def) != 0)
         {
-          guile_error ("Invalid defaultable value for `%s' %s", key[n], txt);
+          guile_error ("Invalid defaultable value for `%s' %s", key[n], action);
           err = -1;
           continue;
         }
@@ -1539,7 +1541,6 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
 
  out:
   optionhash_destroy (options);
-  svz_free (txt);
   return err;
 }
 #undef FUNC_NAME
@@ -1555,30 +1556,30 @@ SCM
 guile_define_servertype (SCM args)
 {
   int n, err = 0;
-  char *txt = NULL;
   svz_hash_t *options;
   SCM proc;
   svz_servertype_t *server;
   svz_hash_t *functions;
+  char action[ACTIONBUFSIZE];
 
   server = svz_calloc (sizeof (svz_servertype_t));
-  svz_asprintf (&txt, "defining servertype");
+  DEFINING ("%s", "servertype");
 
-  if (NULL == (options = guile_to_optionhash (args, txt, 0)))
+  if (NULL == (options = guile_to_optionhash (args, action, 0)))
     FAIL ();                    /* Message already emitted.  */
 
   /* Obtain the servertype prefix variable (Mandatory).  */
   if (optionhash_extract_string (options, "prefix", 0, NULL,
-                                 &server->prefix, txt) != 0)
+                                 &server->prefix, action) != 0)
     FAIL ();
-  svz_asprintf (&txt, "defining servertype `%s'", server->prefix);
+  DEFINING ("servertype `%s'", server->prefix);
 
   /* Check the servertype definition once.  */
   err |= optionhash_validate (options, 1, "servertype", server->prefix);
 
   /* Get the description of the server type.  */
   err |= optionhash_extract_string (options, "description", 0, NULL,
-                                    &server->description, txt);
+                                    &server->description, action);
 
   /* Set the procedures.  */
   functions = svz_hash_create (4, (svz_free_func_t) guile_unprotect);
@@ -1586,7 +1587,7 @@ guile_define_servertype (SCM args)
     {
       proc = SCM_UNDEFINED;
       err |= optionhash_extract_proc (options, guile_functions[n],
-                                      1, SCM_UNDEFINED, &proc, txt);
+                                      1, SCM_UNDEFINED, &proc, action);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
       if (!SCM_UNBNDP (proc))
         gi_gc_protect (proc);
@@ -1632,7 +1633,6 @@ guile_define_servertype (SCM args)
 
  out:
   optionhash_destroy (options);
-  svz_free (txt);
   guile_global_error |= err;
   return err ? SCM_BOOL_F : SCM_BOOL_T;
 }
