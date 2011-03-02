@@ -1,5 +1,12 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_strncasecmp
+
+	* serveez-api.texi.in (Utility functions):
+	Delete ‘SVZ_STRNCASECMP_DEFUN’.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Say "procedure" instead of "function".
 
 	* guile-api.texi.in: Say "procedure" instead of "function".

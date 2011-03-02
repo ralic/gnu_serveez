@@ -467,7 +467,6 @@ AC_CHECK_FUNCS([times poll waitpid])
 AC_CHECK_FUNCS([uname])
 
 AC_CHECK_FUNCS([strcasecmp],,[AC_CHECK_FUNCS([stricmp])])
-AC_CHECK_FUNCS([strncasecmp],,[AC_CHECK_FUNCS([strnicmp])])
 
 AC_CHECK_FUNCS([getrlimit getdtablesize getpwnam seteuid setegid geteuid \
   getegid gettimeofday shl_load NSAddImage])

@@ -1,5 +1,12 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_strncasecmp
+
+	* util.c (svz_strncasecmp): Delete func.
+	* util.h (svz_strncasecmp): Delete func decl.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] #include "config.h" unconditionally.
 
 	* alloc.c: #include "config.h" unconditionally.
