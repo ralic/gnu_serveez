@@ -1,5 +1,11 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Say "Scheme Procedure" instead of "Function".
+
+	* guile-api.c: Use ‘@deffnx @PROC{}’ in docstrings.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build int] #include "config.h" unconditionally.
 
 	* awcs-server/awcs-proto.c: #include "config.h" unconditionally.

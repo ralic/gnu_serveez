@@ -475,7 +475,7 @@ function handle_macro(line)
     txtexp = ""
     if (length(guile_func) > 0) {
       funcdef = (guile_func guile_args)
-      replace = ("@defun " funcdef "\\\n" docu "\\\n" "@end defun")
+      replace = ("@deffn @PROC{} " funcdef "\\\n" docu "\\\n" "@end deffn")
       replace = (loc replace)
       sedexp = ("/^" toupper(guile_func) "_DEFUN/" " c\\\n" replace "\\\n")
 

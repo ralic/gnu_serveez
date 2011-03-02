@@ -739,9 +739,9 @@ scm_return_rpcentry (struct rpcent *entry)
   return ans;
 }
 
-/* @defunx getrpcent
-   @defunx getrpcbyname name
-   @defunx getrpcbynumber number
+/* @deffnx @PROC{} getrpcent
+   @deffnx @PROC{} getrpcbyname name
+   @deffnx @PROC{} getrpcbynumber number
    Lookup a network rpc service by name or by service number, and
    return a network rpc service object.  The @code{(getrpc)} procedure
    will take either a rpc service name or number as its first argument;
@@ -790,8 +790,8 @@ extern void endrpcent (void);
 #endif
 
 #if HAVE_SETRPCENT && HAVE_ENDRPCENT
-/* @defunx setrpcent stayopen
-   @defunx endrpcent
+/* @deffnx @PROC{} setrpcent stayopen
+   @deffnx @PROC{} endrpcent
    The @code{(setrpc)} procedure opens and rewinds the file @file{/etc/rpc}.
    If the @var{stayopen} flag is non-zero, the net data base will not be
    closed after each call to @code{(getrpc)}.  If @var{stayopen} is omitted,

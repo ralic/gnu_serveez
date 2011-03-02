@@ -34,10 +34,8 @@ Free Documentation License".
 * Serveez: (serveez).           Serveez Documentation.
 @end direntry
 
-@c FIXME: Say ``Scheme Procedure''; adjust text accordingly; add blurb.
-@c        Don't forget to update serveez-doc-snarf.awk, too.
 @macro PROC
-Function
+Scheme Procedure
 @end macro
 
 @titlepage

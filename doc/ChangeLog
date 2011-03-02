@@ -1,5 +1,12 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Say "Scheme Procedure" instead of "Function".
+
+	* serveez-doc-snarf.awk: Output ‘@deffn @PROC{}’ for procs.
+	* serveez.texi (PROC): Say "Scheme Procedure".
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Make sure all scheme procedures are indexed.
 
 	* serveez.texi (PROC): New macro.
