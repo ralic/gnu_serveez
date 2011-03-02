@@ -214,7 +214,7 @@ guile_bin_search (SCM binary, SCM needle)
         {
           if (*start == *p && memcmp (start, p, len) == 0)
             {
-              ret = scm_int2num (start - bin->data);
+              ret = gi_integer2scm (start - bin->data);
               break;
             }
           start++;
@@ -237,7 +237,7 @@ guile_bin_search (SCM binary, SCM needle)
         {
           if (*p == c)
             {
-              ret = scm_int2num (p - bin->data);
+              ret = gi_integer2scm (p - bin->data);
               break;
             }
           p++;
@@ -359,7 +359,7 @@ guile_bin_length (SCM binary)
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  return scm_int2num (bin->size);
+  return gi_integer2scm (bin->size);
 }
 #undef FUNC_NAME
 
@@ -587,7 +587,7 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
     SCM_OUT_OF_RANGE (SCM_ARG2, index);                                      \
   data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));       \
   memcpy (&val, data, sizeof (ctype));                                       \
-  return scm_long2num (val);                                                 \
+  return gi_integer2scm (val);                                               \
 }
 
 /* Checks whether the scheme value @var{value} can be stored within a
@@ -623,7 +623,7 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \
   CTYPE_CHECK_RANGE (ctype, value, SCM_ARG3, val);                           \
   data = SVZ_NUM2PTR (SVZ_PTR2NUM (bin->data) + idx * sizeof (ctype));       \
   memcpy (&oldval, data, sizeof (ctype));                                    \
-  old = scm_long2num (oldval); memcpy (data, &val, sizeof (ctype));          \
+  old = gi_integer2scm (oldval); memcpy (data, &val, sizeof (ctype));        \
   return old;                                                                \
 }
 

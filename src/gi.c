@@ -68,4 +68,18 @@ gi_symbol2scm (char const * name)
   return symbol2scm (name);
 }
 
+#if V19
+#define integer2scm  scm_from_signed_integer
+#elif V15
+#define integer2scm  scm_long2num
+#else
+#define integer2scm  gh_long2scm
+#endif
+
+SCM
+gi_integer2scm (long int n)
+{
+  return integer2scm (n);
+}
+
 /* gi.c ends here */

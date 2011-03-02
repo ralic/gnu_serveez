@@ -1421,7 +1421,7 @@ guile_intarray_to_guile (svz_array_t *array)
 
   /* Go through all the strings and add these to a guile list.  */
   for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
-    list = scm_cons (scm_long2num ((long) svz_array_get (array, i)), list);
+    list = scm_cons (gi_integer2scm ((long) svz_array_get (array, i)), list);
   return scm_reverse (list);
 }
 
@@ -1569,7 +1569,7 @@ MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
  */
 #define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
 static SCM cfunc (SCM args) {                                \
-  SCM value = scm_int2num (cvar); int n;                     \
+  SCM value = gi_integer2scm (cvar); int n;                  \
   GUILE_PRECALL ();                                          \
   if (!SCM_UNBNDP (args)) {                                  \
     if (guile_to_integer (args, &n)) {                       \

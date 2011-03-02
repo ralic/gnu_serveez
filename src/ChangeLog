@@ -1,5 +1,24 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_integer2scm
+
+	* gi.c (integer2scm): New #define.
+	(gi_integer2scm): New func.
+	* gi.h (gi_integer2scm): New func decl.
+	* guile-api.c (guile_svz_ntohs, guile_svz_htons)
+	(guile_sock_receive_buffer_size, guile_sock_send_buffer_size)
+	(guile_sock_receive_buffer_reduce, guile_sock_remote_address)
+	(guile_sock_local_address, guile_sock_protocol)
+	(guile_sock_idle_counter, guile_sock_ident, guile_read_file)
+	(guile_api_init): Use ‘gi_integer2scm’.
+	* guile-bin.c (guile_bin_search, guile_bin_length, MAKE_BIN_REF)
+	(MAKE_BIN_SET): Likewise.
+	* guile-server.c (guile_func_kicked_socket, guile_func_handle_request)
+	(guile_func_check_request_oob, guile_config_convert): Likewise.
+	* guile.c (guile_intarray_to_guile, MAKE_INT_ACCESSOR): Likewise.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add funcs: gi_nstring2scm, gi_string2scm
 
 	* gi.c: #include <string.h>.

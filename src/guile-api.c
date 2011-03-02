@@ -247,7 +247,7 @@ guile_svz_ntohs (SCM netshort)
   SCM_ASSERT_TYPE (SCM_EXACTP (netshort),
                    netshort, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_NETPORT (i, netshort, SCM_ARG1);
-  return scm_int2num (ntohs ((unsigned short) i));
+  return gi_integer2scm (ntohs ((unsigned short) i));
 }
 #undef FUNC_NAME
 
@@ -261,7 +261,7 @@ guile_svz_htons (SCM hostshort)
   SCM_ASSERT_TYPE (SCM_EXACTP (hostshort),
                    hostshort, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_NETPORT (i, hostshort, SCM_ARG1);
-  return scm_int2num (htons ((unsigned short) i));
+  return gi_integer2scm (htons ((unsigned short) i));
 }
 #undef FUNC_NAME
 
@@ -294,8 +294,8 @@ guile_sock_receive_buffer_size (SCM sock, SCM size)
       len = SCM_NUM2INT (SCM_ARG2, size);
       svz_sock_resize_buffers (xsock, xsock->send_buffer_size, len);
     }
-  return scm_cons (scm_int2num (xsock->recv_buffer_size),
-                   scm_int2num (xsock->recv_buffer_fill));
+  return scm_cons (gi_integer2scm (xsock->recv_buffer_size),
+                   gi_integer2scm (xsock->recv_buffer_fill));
 }
 #undef FUNC_NAME
 
@@ -328,8 +328,8 @@ guile_sock_send_buffer_size (SCM sock, SCM size)
       len = SCM_NUM2INT (SCM_ARG2, size);
       svz_sock_resize_buffers (xsock, len, xsock->recv_buffer_size);
     }
-  return scm_cons (scm_int2num (xsock->send_buffer_size),
-                   scm_int2num (xsock->send_buffer_fill));
+  return scm_cons (gi_integer2scm (xsock->send_buffer_size),
+                   gi_integer2scm (xsock->send_buffer_fill));
 }
 #undef FUNC_NAME
 
@@ -360,7 +360,7 @@ guile_sock_receive_buffer_reduce (SCM sock, SCM length)
       len = xsock->recv_buffer_fill;
     }
   svz_sock_reduce_recv (xsock, len);
-  return scm_int2num (len);
+  return gi_integer2scm (len);
 }
 #undef FUNC_NAME
 
@@ -378,7 +378,7 @@ guile_sock_remote_address (SCM sock, SCM address)
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   pair = scm_cons (scm_ulong2num (xsock->remote_addr),
-                   scm_int2num ((int) xsock->remote_port));
+                   gi_integer2scm ((int) xsock->remote_port));
   if (!SCM_UNBNDP (address))
     {
       SCM_ASSERT_TYPE (SCM_PAIRP (address) && SCM_EXACTP (SCM_CAR (address))
@@ -406,7 +406,7 @@ guile_sock_local_address (SCM sock, SCM address)
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
   pair = scm_cons (scm_ulong2num (xsock->local_addr),
-                   scm_int2num ((int) xsock->local_port));
+                   gi_integer2scm ((int) xsock->local_port));
   if (!SCM_UNBNDP (address))
     {
       SCM_ASSERT_TYPE (SCM_PAIRP (address) && SCM_EXACTP (SCM_CAR (address))
@@ -502,7 +502,7 @@ guile_sock_protocol (SCM sock)
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  return scm_int2num (xsock->proto);
+  return gi_integer2scm (xsock->proto);
 }
 #undef FUNC_NAME
 
@@ -645,7 +645,7 @@ guile_sock_idle_counter (SCM sock, SCM counter)
                        counter, SCM_ARG2, FUNC_NAME, "exact");
       xsock->idle_counter = SCM_NUM2INT (SCM_ARG2, counter);
     }
-  return scm_int2num (ocounter);
+  return gi_integer2scm (ocounter);
 }
 #undef FUNC_NAME
 
@@ -1068,7 +1068,7 @@ guile_sock_ident (SCM sock)
 {
   svz_socket_t *xsock;
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  return scm_cons (scm_int2num (xsock->id), scm_int2num (xsock->version));
+  return scm_cons (gi_integer2scm (xsock->id), gi_integer2scm (xsock->version));
 }
 #undef FUNC_NAME
 
@@ -1107,7 +1107,7 @@ guile_read_file (SCM port, SCM size)
       scm_gc_free (data, len, "svz-binary-data");
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
                         scm_list_n (gi_string2scm (strerror (errno)),
-                                    scm_int2num (fdes), size, SCM_UNDEFINED),
+                                    gi_integer2scm (fdes), size, SCM_UNDEFINED),
                         errno);
     }
   else if (ret == 0)
@@ -1168,20 +1168,20 @@ guile_api_init (void)
 #endif
 #if HAVE_PMAP_SET && HAVE_PMAP_UNSET
   scm_c_define_gsubr ("portmap", 2, 2, 0, scm_portmap);
-  scm_c_define ("IPPROTO_UDP", scm_int2num (IPPROTO_UDP));
-  scm_c_define ("IPPROTO_TCP", scm_int2num (IPPROTO_TCP));
+  scm_c_define ("IPPROTO_UDP", gi_integer2scm (IPPROTO_UDP));
+  scm_c_define ("IPPROTO_TCP", gi_integer2scm (IPPROTO_TCP));
 #endif
 #if HAVE_PMAP_GETMAPS
   scm_c_define_gsubr ("portmap-list", 0, 1, 0, scm_portmap_list);
 #endif
 
-  scm_c_define ("PROTO_TCP", scm_int2num (PROTO_TCP));
-  scm_c_define ("PROTO_UDP", scm_int2num (PROTO_UDP));
-  scm_c_define ("PROTO_ICMP", scm_int2num (PROTO_ICMP));
-  scm_c_define ("PROTO_RAW", scm_int2num (PROTO_RAW));
-  scm_c_define ("PROTO_PIPE", scm_int2num (PROTO_PIPE));
-  scm_c_define ("KICK_FLOOD", scm_int2num (0));
-  scm_c_define ("KICK_QUEUE", scm_int2num (1));
+  scm_c_define ("PROTO_TCP", gi_integer2scm (PROTO_TCP));
+  scm_c_define ("PROTO_UDP", gi_integer2scm (PROTO_UDP));
+  scm_c_define ("PROTO_ICMP", gi_integer2scm (PROTO_ICMP));
+  scm_c_define ("PROTO_RAW", gi_integer2scm (PROTO_RAW));
+  scm_c_define ("PROTO_PIPE", gi_integer2scm (PROTO_PIPE));
+  scm_c_define ("KICK_FLOOD", gi_integer2scm (0));
+  scm_c_define ("KICK_QUEUE", gi_integer2scm (1));
   scm_c_define_gsubr ("svz:sock:connect", 2, 1, 0, guile_sock_connect);
   scm_c_define_gsubr ("svz:htons", 1, 0, 0, guile_svz_htons);
   scm_c_define_gsubr ("svz:ntohs", 1, 0, 0, guile_svz_ntohs);
