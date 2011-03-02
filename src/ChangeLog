@@ -1,5 +1,47 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build int] #include "config.h" unconditionally.
+
+	* awcs-server/awcs-proto.c: #include "config.h" unconditionally.
+	* cfgfile.c: Likewise.
+	* ctrl-server/control-proto.c: Likewise.
+	* fakeident-server/ident-proto.c: Likewise.
+	* foo-server/foo-proto.c: Likewise.
+	* guile-api.c: Likewise.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-core.c: Likewise.
+	* http-server/http-dirlist.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-config.c: Likewise.
+	* irc-server/irc-crypt.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-event-2.c: Likewise.
+	* irc-server/irc-event-3.c: Likewise.
+	* irc-server/irc-event-4.c: Likewise.
+	* irc-server/irc-event-5.c: Likewise.
+	* irc-server/irc-event-6.c: Likewise.
+	* irc-server/irc-event-7.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* irc-server/irc-server.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-core.c: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-route.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* option.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* serveez.c: Likewise.
+	* sntp-server/sntp-proto.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_nnint2scm
 
 	* gi.c (nnint2scm): New #define.

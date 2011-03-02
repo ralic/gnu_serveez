@@ -1,3 +1,15 @@
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] #include "config.h" unconditionally.
+
+	* array-test.c: #include "config.h" unconditionally.
+	* codec-test.c: Likewise.
+	* hash-test.c: Likewise.
+	* prog-test.c: Likewise.
+	* spvec-test.c: Likewise.
+	* test.c: Likewise.
+	* vector-test.c: Likewise.
+
 2011-02-24  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Require type info in macro ‘svz_hash_foreach_value’.

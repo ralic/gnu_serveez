@@ -1,3 +1,42 @@
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build int] #include "config.h" unconditionally.
+
+	* alloc.c: #include "config.h" unconditionally.
+	* array.c: Likewise.
+	* asprintf.c: Likewise.
+	* binding.c: Likewise.
+	* boot.c: Likewise.
+	* cfg.c: Likewise.
+	* codec/bzip2.c: Likewise.
+	* codec/codec.c: Likewise.
+	* codec/gzlib.c: Likewise.
+	* core.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* coserver/dns.c: Likewise.
+	* coserver/ident.c: Likewise.
+	* coserver/reverse-dns.c: Likewise.
+	* dynload.c: Likewise.
+	* hash.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* interface.c: Likewise.
+	* mutex.c: Likewise.
+	* passthrough.c: Likewise.
+	* pipe-socket.c: Likewise.
+	* portcfg.c: Likewise.
+	* raw-socket.c: Likewise.
+	* server-core.c: Likewise.
+	* server-loop.c: Likewise.
+	* server-socket.c: Likewise.
+	* server.c: Likewise.
+	* socket.c: Likewise.
+	* sparsevec.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+	* util.c: Likewise.
+	* vector.c: Likewise.
+	* windoze.c: Likewise.
+
 2011-03-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Fix bug: Make ‘svz_log’ work also after its mutex is destroyed.
