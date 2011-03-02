@@ -932,8 +932,8 @@ guile_coserver_callback (char *res, SCM callback, SCM arg)
 
   /* Pass the values to garbage collection again.  */
   if (!SCM_UNBNDP (arg))
-    scm_gc_unprotect_object (arg);
-  scm_gc_unprotect_object (callback);
+    gi_gc_unprotect (arg);
+  gi_gc_unprotect (callback);
   return ret;
 }
 
@@ -962,9 +962,9 @@ guile_coserver_dns (SCM host, SCM callback, SCM arg)
 
   /* Protect callback (Guile procedure) and arg (any Guile cell) from
      garbage collection meanwhile.  */
-  scm_gc_protect_object (callback);
+  gi_gc_protect (callback);
   if (!SCM_UNBNDP (arg))
-    scm_gc_protect_object (arg);
+    gi_gc_protect (arg);
 
   /* Enqueue coserver request.  */
   svz_coserver_dns (request, guile_coserver_callback, callback, arg);
@@ -995,9 +995,9 @@ guile_coserver_rdns (SCM addr, SCM callback, SCM arg)
 
   /* Protect callback (Guile procedure) and arg (any Guile cell) from
      garbage collection meanwhile.  */
-  scm_gc_protect_object (callback);
+  gi_gc_protect (callback);
   if (!SCM_UNBNDP (arg))
-    scm_gc_protect_object (arg);
+    gi_gc_protect (arg);
 
   /* Enqueue coserver request.  */
   svz_coserver_rdns (ip, guile_coserver_callback, callback, arg);
@@ -1023,9 +1023,9 @@ guile_coserver_ident (SCM sock, SCM callback, SCM arg)
 
   /* Protect callback (Guile procedure) and arg (any Guile cell) from
      garbage collection meanwhile.  */
-  scm_gc_protect_object (callback);
+  gi_gc_protect (callback);
   if (!SCM_UNBNDP (arg))
-    scm_gc_protect_object (arg);
+    gi_gc_protect (arg);
 
   /* Enqueue coserver request.  */
   svz_coserver_ident (xsock, guile_coserver_callback, callback, arg);

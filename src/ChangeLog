@@ -1,5 +1,20 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add funcs: gi_gc_protect, gi_gc_unprotect
+
+	* gi.c (gc_protect, gc_unprotect): New #define:s.
+	(gi_gc_protect, gi_gc_unprotect): New funcs.
+	* gi.h (gi_gc_protect, gi_gc_unprotect): New func decls.
+	* guile-api.c (guile_coserver_callback, guile_coserver_dns)
+	(guile_coserver_rdns, guile_coserver_ident): Use new funcs.
+	* guile-server.c (guile_unprotect): Use ‘gi_gc_unprotect’.
+	(guile_sock_setfunction): Use new funcs.
+	(guile_func_disconnected_socket): Use ‘gi_gc_unprotect’.
+	(guile_sock_data, guile_server_state_set_x): Use new funcs.
+	(guile_define_servertype): Use ‘gi_gc_protect’.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_integer2scm
 
 	* gi.c (integer2scm): New #define.

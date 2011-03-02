@@ -287,7 +287,7 @@ static void
 guile_unprotect (SCM proc)
 {
   if (!SCM_UNBNDP (proc))
-    scm_gc_unprotect_object (proc);
+    gi_gc_unprotect (proc);
 }
 
 /*
@@ -312,12 +312,12 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 
   /* Put guile procedure into socket hash and protect it.  Removes old
      guile procedure and unprotects it.  */
-  scm_gc_protect_object (proc);
+  gi_gc_protect (proc);
   oldproc = (SCM) SVZ_PTR2NUM (svz_hash_put (gsock, func, SVZ_NUM2PTR (proc)));
   if (oldproc == 0)
     return SCM_UNDEFINED;
 
-  scm_gc_unprotect_object (oldproc);
+  gi_gc_unprotect (oldproc);
   return oldproc;
 }
 
@@ -549,7 +549,7 @@ guile_func_disconnected_socket (svz_socket_t *sock)
 
   /* Release associated guile object is necessary.  */
   if (sock->data != NULL)
-    scm_gc_unprotect_object ((SCM) SVZ_PTR2NUM (sock->data));
+    gi_gc_unprotect ((SCM) SVZ_PTR2NUM (sock->data));
 
   /* Free the socket boundary if set by guile.  */
   guile_sock_clear_boundary (sock);
@@ -991,9 +991,9 @@ guile_sock_data (SCM sock, SCM data)
   if (!SCM_UNBNDP (data))
     {
       if (xsock->data != NULL)
-        scm_gc_unprotect_object (ret);
+        gi_gc_unprotect (ret);
       xsock->data = SVZ_NUM2PTR (data);
-      scm_gc_protect_object (data);
+      gi_gc_protect (data);
     }
   return ret;
 }
@@ -1142,11 +1142,11 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
   if (svz_hash_exists (hash, str))
     {
       ret = (SCM) SVZ_PTR2NUM (svz_hash_put (hash, str, SVZ_NUM2PTR (value)));
-      scm_gc_unprotect_object (ret);
+      gi_gc_unprotect (ret);
     }
   else
     svz_hash_put (hash, str, SVZ_NUM2PTR (value));
-  scm_gc_protect_object (value);
+  gi_gc_protect (value);
   scm_c_free (str);
   return ret;
 }
@@ -1591,7 +1591,7 @@ guile_define_servertype (SCM args)
                                       1, SCM_UNDEFINED, &proc, txt);
       svz_hash_put (functions, guile_functions[n], SVZ_NUM2PTR (proc));
       if (!SCM_UNBNDP (proc))
-        scm_gc_protect_object (proc);
+        gi_gc_protect (proc);
     }
 
   /* Check duplicate server types.  */

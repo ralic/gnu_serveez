@@ -31,6 +31,26 @@
 #endif  /* 1 == SCM_MAJOR_VERSION */
 #endif  /* defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION */
 
+#if V15
+#define gc_protect    scm_gc_protect_object
+#define gc_unprotect  scm_gc_unprotect_object
+#else
+#define gc_protect    scm_protect_object
+#define gc_unprotect  scm_unprotect_object
+#endif
+
+SCM
+gi_gc_protect (SCM obj)
+{
+  return gc_protect (obj);
+}
+
+SCM
+gi_gc_unprotect (SCM obj)
+{
+  return gc_unprotect (obj);
+}
+
 #if V19
 #define mem2scm(len,ptr)  scm_from_locale_stringn (ptr, len)
 #define mem02scm(ptr)     scm_from_locale_string (ptr)
