@@ -1,5 +1,13 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Make sure all scheme procedures are indexed.
+
+	* serveez.texi (PROC): New macro.
+	(Bind servers to ports): Use series of @deffn instead of @table.
+	* guile-api.texi.in: Likewise.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc style] Refer to procedures as ‘PROC’ instead of ‘(PROC)’.
 
 	* guile-api.texi.in: Do ‘s/@code{(foo)}/@code{foo}/g’.

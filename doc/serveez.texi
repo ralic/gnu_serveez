@@ -34,6 +34,12 @@ Free Documentation License".
 * Serveez: (serveez).           Serveez Documentation.
 @end direntry
 
+@c FIXME: Say ``Scheme Procedure''; adjust text accordingly; add blurb.
+@c        Don't forget to update serveez-doc-snarf.awk, too.
+@macro PROC
+Function
+@end macro
+
 @titlepage
 @title GNU Serveez
 @subtitle A server framework
@@ -684,43 +690,48 @@ file @file{serveez.scm}.  In order to include this convenience
 functionality you can @code{(primitive-load "serveez.scm")} at the top
 of the configuration file.
 
-@table @code
-@item (interface-add! . interface)
+@deffn @PROC{} interface-add! interface
 Add one more network interface to the list of known interfaces.  You can get
 the list of known interfaces by running @samp{serveez -i}.  The @var{interface}
 argument must be in dotted decimal form (e.g., 127.0.0.1).  Serveez provides
 this function for systems where it is unable to detect the list of network
 interface automatically.
+@end deffn
 
-@item (loadpath-add! . path)
+@deffn @PROC{} loadpath-add! path
 Extends the load path for server modules by the path name @var{path}.
+@end deffn
 
-@item (bind-servers! . args)
+@deffn @PROC{} bind-servers! [args...]
 This function is based upon @code{bind-server!}.  It takes a list of port
 configurations and servers and binds each to another.
+@end deffn
 
-@item (bind-tcp-port-range! from to . servers)
+@deffn @PROC{} bind-tcp-port-range! from to [servers...]
 Bind the list of @var{servers} to simple TCP port configurations whose network
 ports range between @var{from} and @var{to} both inclusive.
+@end deffn
 
-@item (bind-udp-port-range! from to . servers)
+@deffn @PROC{} bind-udp-port-range! from to [servers...]
 Bind the list of @var{servers} to simple UDP port configurations whose network
 ports range between @var{from} and @var{to} both inclusive.
+@end deffn
 
-@item (serveez-verbosity verbosity)
+@deffn @PROC{} serveez-verbosity verbosity
 Set the core library's logging verbosity to the @var{verbosity} level.  Lesser
 values mean fewer logging messages.  This settings gets overridden by command
 line.
+@end deffn
 
-@item (serveez-maxsockets max)
+@deffn @PROC{} serveez-maxsockets max
 Set the number of maximum socket descriptors (number of concurrent
 connections).  When passing Serveez the -m command line argument this setting
 gets overridden, too.
+@end deffn
 
-@item (serveez-passwd password)
+@deffn @PROC{} serveez-passwd password
 Set the @var{password} for the control protocol.
-@end table
-
+@end deffn
 
 We now have a closer look at the internals of Serveez.  If you
 are not interested in that have a look at the existing
