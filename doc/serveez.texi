@@ -369,7 +369,7 @@ later used to bind servers to it.
 
 The following examples show how you setup different types of port
 configurations.  You start to define such a port using the Guile function
-@code{(define-port!)}.  The first argument to this functions specifies the
+@code{define-port!}.  The first argument to this functions specifies the
 name of the port configuration.  The remaining argument describes the
 port in detail.
 
@@ -468,7 +468,7 @@ and isdn dialups (i.e., ippp*).  It does not work for modem dialups
 the dialup logic actually destroying ppp*.  Other opinions are welcome.
 Device bindings always win: If you bind to @samp{*} (or an individual IP
 address) and to the corresponding device, connections are made with
-the device binding.  The order of the @code{(bind-server!)} statements
+the device binding.  The order of the @code{bind-server!} statements
 do not matter.  This feature is not thoroughly tested.
 
 @item backlog (integer)
@@ -617,7 +617,7 @@ The following example instantiates a server with the short name "foo".  Each
 server in Serveez has got a short name.  @xref{Existing servers}, for the
 details.  This example demonstrates everything which is possible in server
 configurations.  You start a definition of a server with the guile function
-@code{(define-server!)}.  The following argument specifies the name of the
+@code{define-server!}.  The following argument specifies the name of the
 server instance (in this case "foo-server") which starts with the short
 name.  The second argument describes the server in detail.  Each
 configuration item is setup with a @code{(key . value)} pair where "key" is
@@ -656,7 +656,7 @@ pressing @key{^C} in the terminal you started it in).
 
 This example binds the server "foo-server" (s.a.) to the port "foo-tcp-port"
 which was described above.  Therefore you need to call the guile function
-@code{(bind-server!)} which takes two arguments specifying the name of a port
+@code{bind-server!} which takes two arguments specifying the name of a port
 configuration and a server instance.  Both need to be defined before
 you can write this statement.
 
@@ -676,8 +676,8 @@ that happens.  The server just will not work then.
 
 @subsection Additional configuration possibilities
 
-The three functions @code{(define-port!)}, @code{(define-server!)} and
-@code{(bind-server!)} return @code{#t} on success and @code{#f} on failure.
+The three functions @code{define-port!}, @code{define-server!} and
+@code{bind-server!} return @code{#t} on success and @code{#f} on failure.
 For your convenience we provide some more Guile functions.  Some of these
 are based upon the above.  You will find the additional functions in the
 file @file{serveez.scm}.  In order to include this convenience
@@ -696,7 +696,7 @@ interface automatically.
 Extends the load path for server modules by the path name @var{path}.
 
 @item (bind-servers! . args)
-This function is based upon @code{(bind-server!)}.  It takes a list of port
+This function is based upon @code{bind-server!}.  It takes a list of port
 configurations and servers and binds each to another.
 
 @item (bind-tcp-port-range! from to . servers)
@@ -1316,7 +1316,7 @@ the reverse dns coserver to identify the host name of the remote client.
 @section Some words about server configuration
 
 If you define a server you basically pass an instance name and a list of
-items to the @code{(define-server!)} function.  Each item has a name and a
+items to the @code{define-server!} function.  Each item has a name and a
 value.  A value has a type.  We provide several types: integers (numbers),
 integer arrays, strings, string arrays, booleans (yes/no-values), hashes
 (associations) and port configurations.
@@ -1342,7 +1342,7 @@ Hash maps associate keys with values.  Both must be character strings.@*
 Example: (item . (key1 . "value1") (key2 . "value2"))
 @item Port configuration@*
 @xref{Define ports}, for more information on this.  When configuring a port
-configuration you need to define it via @code{(define-port!)} previously and
+configuration you need to define it via @code{define-port!} previously and
 put its symbolic name into the configuration.@*
 Example: (item . foo-tcp-port)
 @end table
