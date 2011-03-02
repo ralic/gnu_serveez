@@ -49,7 +49,7 @@ static svz_hash_t *guile_server = NULL;
 /* The guile socket hash.  */
 static svz_hash_t *guile_sock = NULL;
 
-/* List of functions to configure for a server type.  */
+/* List of procedures to configure for a server type.  */
 static char *guile_functions[] = {
   "global-init", "init", "detect-proto", "connect-socket", "finalize",
   "global-finalize", "info-client", "info-server", "notify", "reset",
@@ -221,7 +221,7 @@ optionhash_extract_proc (svz_hash_t *hash,
 /*
  * Add another server type @var{server} to the list of known server types.
  * Each server type is associated with a number of functions which is also
- * a hash associating function names with its guile procedures.
+ * a hash associating names with guile procedures.
  */
 static void
 guile_servertype_add (svz_servertype_t *server, svz_hash_t *functions)
@@ -232,7 +232,7 @@ guile_servertype_add (svz_servertype_t *server, svz_hash_t *functions)
 }
 
 /*
- * Lookup a functions name @var{func} in the list of known servertypes.
+ * Lookup a procedure named @var{func} in the list of known servertypes.
  * The returned guile procedure depends on the given server type
  * @var{server}.  If the lookup fails this routine return SCM_UNDEFINED.
  */
@@ -256,7 +256,7 @@ guile_servertype_getfunction (svz_servertype_t *server, char *func)
 
 /*
  * Return the procedure @var{func} associated with the socket structure
- * @var{sock} or SCM_UNDEFINED if there is no such function yet.
+ * @var{sock} or SCM_UNDEFINED if there is no such procedure yet.
  */
 static SCM
 guile_sock_getfunction (svz_socket_t *sock, char *func)
@@ -1048,7 +1048,7 @@ guile_config_convert (void *address, int type)
   } while (0)
 
 /* This procedure returns the configuration item specified by @var{key} of
-   the given server instance @var{server}.  You can pass this function a
+   the given server instance @var{server}.  You can pass this procedure a
    socket too.  In this case the procedure will lookup the appropriate server
    instance itself.  If the given string @var{key} is invalid (not defined
    in the configuration alist in @code{(define-servertype!)}) then it returns

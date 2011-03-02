@@ -171,7 +171,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 }
 #undef FUNC_NAME
 
-/* The @code{(svz:inet-ntoa)} function converts the Internet host address
+/* This procedure converts the Internet host address
    @var{address} given in network byte order to a string in standard
    numbers-and-dots notation.  */
 #define FUNC_NAME "svz:inet-ntoa"
@@ -188,7 +188,7 @@ guile_svz_inet_ntoa (SCM address)
 
 /* Converts the Internet host address @var{address} from the standard
    numbers-and-dots notation into binary data in network byte order.
-   The @code{(svz:inet-aton)} function returns @code{#f} if the address is
+   This procedure returns @code{#f} if the address is
    invalid.  */
 #define FUNC_NAME "svz:inet-aton"
 static SCM
@@ -211,7 +211,7 @@ guile_svz_inet_aton (SCM address)
 }
 #undef FUNC_NAME
 
-/* The @code{(svz:ntohl)} function converts the 32 bit long integer
+/* This procedure converts the 32 bit long integer
    @var{netlong} from network byte order to host byte order.  */
 #define FUNC_NAME "svz:ntohl"
 static SCM
@@ -223,7 +223,7 @@ guile_svz_ntohl (SCM netlong)
 }
 #undef FUNC_NAME
 
-/* The @code{(svz:htonl)} function converts the 32 bit long integer
+/* This procedure converts the 32 bit long integer
    @var{hostlong} from host byte order to network byte order.  */
 #define FUNC_NAME "svz:htonl"
 static SCM
@@ -235,7 +235,7 @@ guile_svz_htonl (SCM hostlong)
 }
 #undef FUNC_NAME
 
-/* The @code{(svz:ntohs)} function converts the 16 bit short integer
+/* This procedure converts the 16 bit short integer
    @var{netshort} from network byte order to host byte order.  */
 #define FUNC_NAME "svz:ntohs"
 static SCM
@@ -249,7 +249,7 @@ guile_svz_ntohs (SCM netshort)
 }
 #undef FUNC_NAME
 
-/* The @code{(svz:htons)} function converts the 16 bit short integer
+/* This procedure converts the 16 bit short integer
    @var{hostshort} from host byte order to network byte order.  */
 #define FUNC_NAME "svz:htons"
 static SCM
@@ -624,9 +624,9 @@ MAKE_SOCK_CALLBACK (idle_func, "idle")
 MAKE_SOCK_CALLBACK (check_request_oob, "check-oob-request")
 #undef FUNC_NAME
 
-/* This functions returns the socket structure @var{sock}'s current
+/* This procedure returns the socket structure @var{sock}'s current
    @code{idle-counter} value.  If the optional argument @var{counter} is
-   given, the function sets the @code{idle-counter}.  Please have a look at the
+   given, the procedure sets the @code{idle-counter}.  Please have a look at the
    @code{(svz:sock:idle)} procedure for the exact meaning of this value.  */
 #define FUNC_NAME "svz:sock:idle-counter"
 static SCM
@@ -1154,7 +1154,7 @@ guile_sock_send_oob (SCM sock, SCM oob)
 }
 #undef FUNC_NAME
 
-/* Initialize the API function calls supported by Guile.  */
+/* Initialize the API procedures supported by Guile.  */
 void
 guile_api_init (void)
 {
@@ -1231,7 +1231,7 @@ guile_api_init (void)
   DEFINE_SOCK_CALLBACK ("svz:sock:check-oob-request",check_request_oob);
 }
 
-/* Finalize the API functions.  */
+/* Finalize the API procedures.  */
 void
 guile_api_finalize (void)
 {

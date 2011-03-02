@@ -64,7 +64,7 @@ static scm_t_bits guile_bin_tag = 0;
   ((guile_bin_t *) ((void *)                               \
     scm_gc_malloc (sizeof (guile_bin_t), "svz-binary")))
 
-/* Smob test function: Returns @code{#t} if the given cell @var{binary} is
+/* Smob predicate: Returns @code{#t} if the given cell @var{binary} is
    an instance of the binary smob type.  */
 #define FUNC_NAME "binary?"
 static SCM
@@ -573,7 +573,7 @@ guile_bin_to_data (SCM binary, int *size)
   return bin->data;
 }
 
-/* The following macro expands to a function definition which accesses a
+/* The following macro expands to a procedure definition which accesses a
    binary smob's data for reading depending on the given @var{ctype}.  */
 #define MAKE_BIN_REF(ctype)                                                  \
 static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
@@ -605,7 +605,7 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
     }                                                                      \
   } while (0)
 
-/* The following macro expands to a function definition which accesses a
+/* The following macro expands to a procedure definition which accesses a
    binary smob's data for writing depending on the given @var{ctype}.  */
 #define MAKE_BIN_SET(ctype)                                                  \
 static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \

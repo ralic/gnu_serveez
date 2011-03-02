@@ -56,7 +56,7 @@ int guile_global_error = 0;
 
 /*
  * Global variable containing the current load port in exceptions.
- * FIXME: Where should I aquire it?  In each function?
+ * FIXME: Where should I aquire it?  In each procedure?
  */
 static SCM guile_load_port = SCM_UNDEFINED;
 #define GUILE_PRECALL() guile_set_current_load_port()
@@ -131,7 +131,7 @@ guile_set_current_load_port (void)
 
 /*
  * Returns the current load port.  This is either the "real" one or the one
- * saved by the function @code{guile_set_current_load_port}.  If neither
+ * saved by the procedure @code{guile_set_current_load_port}.  If neither
  * is possible return @code{SCM_UNDEFINED}.
  */
 static SCM
@@ -500,7 +500,7 @@ guile_to_hash (SCM list, char *prefix)
  * list into an array of duplicated strings.  Returns @code{NULL} if it is not
  * a valid guile list.  Print an error message if one of the list's elements
  * is not a string.  The additional argument @var{func} should be the name of
- * the calling function.
+ * the caller.
  */
 #define FUNC_NAME "guile_to_strarray"
 svz_array_t *
@@ -540,7 +540,7 @@ guile_to_strarray (SCM list, char *func)
 /*
  * Convert the given scheme cell @var{list} which needs to be a valid guile
  * list into an array of integers.  The additional argument @var{func} is the
- * name of the calling function.  Return NULL on failure.
+ * name of the caller.  Return NULL on failure.
  */
 #define FUNC_NAME "guile_to_intarray"
 svz_array_t *
@@ -1469,7 +1469,7 @@ guile_access_interfaces (SCM args)
   list = guile_strarray_to_guile (array);
   svz_array_destroy (array);
 
-  /* Is there an argument given to the guile function?  */
+  /* Is there an argument given to the guile procedure?  */
   if (!SCM_UNBNDP (args))
     {
       svz_interface_free ();
@@ -1525,8 +1525,8 @@ guile_access_loadpath (SCM args)
 #undef FUNC_NAME
 
 /*
- * Create a checker function named @var{cfunc} which evaluates the boolean
- * expression @var{expression}.  The argument for this function is a character
+ * Create a checker procedure named @var{cfunc} which evaluates the boolean
+ * expression @var{expression}.  The argument for this procedure is a character
  * string which can be uses as @var{str} within the expression.
  */
 #define MAKE_STRING_CHECKER(cfunc, expression) \
@@ -1563,7 +1563,7 @@ MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
 #undef FUNC_NAME
 
 /*
- * Create an accessor function to read and write a C int variable.
+ * Create an accessor procedure to read and write a C int variable.
  */
 #define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
 static SCM cfunc (SCM args) {                                \
@@ -1578,7 +1578,7 @@ static SCM cfunc (SCM args) {                                \
 }
 
 /*
- * Create an accessor function to read and write a C string variable.
+ * Create an accessor procedure to read and write a C string variable.
  */
 #define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
 static SCM cfunc (SCM args) {                                \
@@ -1704,7 +1704,7 @@ guile_serveez_load (SCM file)
 #undef FUNC_NAME
 
 /*
- * Initialize Guile.  Make certain variables and functions defined above
+ * Initialize Guile.  Make certain variables and procedures defined above
  * available to Guile.
  */
 static void
@@ -1726,7 +1726,7 @@ guile_init (void)
   scm_c_define_gsubr ("define-server!", 1, 1, 0, guile_define_server);
   scm_c_define_gsubr ("bind-server!", 2, 0, 0, guile_bind_server);
 
-  /* export checker functions */
+  /* export checker procedures */
   scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
   scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
   scm_c_define_gsubr ("serveez-servertype?", 1, 0, 0, guile_check_stype);

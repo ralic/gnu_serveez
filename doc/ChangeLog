@@ -1,5 +1,12 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Say "procedure" instead of "function".
+
+	* guile-api.texi.in: Say "procedure" instead of "function".
+	* serveez.texi: Likewise, for Scheme bits.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Say "Scheme Procedure" instead of "Function".
 
 	* serveez-doc-snarf.awk: Output ‘@deffn @PROC{}’ for procs.

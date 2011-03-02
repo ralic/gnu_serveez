@@ -1,5 +1,15 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Say "procedure" instead of "function".
+
+	* guile-api.c: Say "procedure" instead of "function"
+	in docstrings; reword some docstrings slightly.
+	* guile-bin.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Say "Scheme Procedure" instead of "Function".
 
 	* guile-api.c: Use ‘@deffnx @PROC{}’ in docstrings.

@@ -32,7 +32,7 @@ represents a socket structure.
 
 The new binary data type (@code{#<svz-binary>}) provides access to any
 kind of unstructured data.  It manages the data exchange between Guile
-and Serveez.  There are some conversion functions for strings and lists
+and Serveez.  There are some conversion procedures for strings and lists
 which help to process this binary data in a more complex (guile'ish) way.
 
 BINARY->STRING_DEFUN
@@ -265,7 +265,7 @@ The servers can retrieve the data received so far using the
 
 To indicate successful client detection, you need to return a non-zero
 value.  (Note that for historical reasons, this is inconsistent with
-other functions which return zero on successful completion.)  Once the
+other procedures which return zero on successful completion.)  Once the
 server has indicated success, Serveez invokes any further callbacks for
 the connection only on that server.
 

@@ -372,8 +372,8 @@ set.  Every port has a unique name you assign to it.  The name of the port is
 later used to bind servers to it.
 
 The following examples show how you setup different types of port
-configurations.  You start to define such a port using the Guile function
-@code{define-port!}.  The first argument to this functions specifies the
+configurations.  You start to define such a port using the procedure
+@code{define-port!}.  The first argument specifies the
 name of the port configuration.  The remaining argument describes the
 port in detail.
 
@@ -620,7 +620,7 @@ to bind it to a port.
 The following example instantiates a server with the short name "foo".  Each
 server in Serveez has got a short name.  @xref{Existing servers}, for the
 details.  This example demonstrates everything which is possible in server
-configurations.  You start a definition of a server with the guile function
+configurations.  You start a definition of a server with the procedure
 @code{define-server!}.  The following argument specifies the name of the
 server instance (in this case "foo-server") which starts with the short
 name.  The second argument describes the server in detail.  Each
@@ -659,7 +659,7 @@ configuration file.  Serveez won't stop until you interrupt it (e.g., by
 pressing @key{^C} in the terminal you started it in).
 
 This example binds the server "foo-server" (s.a.) to the port "foo-tcp-port"
-which was described above.  Therefore you need to call the guile function
+which was described above.  Therefore you need to call the procedure
 @code{bind-server!} which takes two arguments specifying the name of a port
 configuration and a server instance.  Both need to be defined before
 you can write this statement.
@@ -680,10 +680,10 @@ that happens.  The server just will not work then.
 
 @subsection Additional configuration possibilities
 
-The three functions @code{define-port!}, @code{define-server!} and
+The three procedures @code{define-port!}, @code{define-server!} and
 @code{bind-server!} return @code{#t} on success and @code{#f} on failure.
-For your convenience we provide some more Guile functions.  Some of these
-are based upon the above.  You will find the additional functions in the
+For your convenience we provide some more procedures.  Some of these
+are based upon the above.  You will find them in the
 file @file{serveez.scm}.  In order to include this convenience
 functionality you can @code{(primitive-load "serveez.scm")} at the top
 of the configuration file.
@@ -692,7 +692,7 @@ of the configuration file.
 Add one more network interface to the list of known interfaces.  You can get
 the list of known interfaces by running @samp{serveez -i}.  The @var{interface}
 argument must be in dotted decimal form (e.g., 127.0.0.1).  Serveez provides
-this function for systems where it is unable to detect the list of network
+this procedure for systems where it is unable to detect the list of network
 interface automatically.
 @end deffn
 
@@ -701,7 +701,7 @@ Extends the load path for server modules by the path name @var{path}.
 @end deffn
 
 @deffn @PROC{} bind-servers! [args...]
-This function is based upon @code{bind-server!}.  It takes a list of port
+This procedure is based upon @code{bind-server!}.  It takes a list of port
 configurations and servers and binds each to another.
 @end deffn
 
@@ -1325,7 +1325,7 @@ the reverse dns coserver to identify the host name of the remote client.
 @section Some words about server configuration
 
 If you define a server you basically pass an instance name and a list of
-items to the @code{define-server!} function.  Each item has a name and a
+items to the @code{define-server!} procedure.  Each item has a name and a
 value.  A value has a type.  We provide several types: integers (numbers),
 integer arrays, strings, string arrays, booleans (yes/no-values), hashes
 (associations) and port configurations.
