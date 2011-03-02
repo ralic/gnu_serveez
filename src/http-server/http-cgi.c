@@ -405,13 +405,18 @@ http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
   /* convert some http request properties into environment variables */
   if (http->property)
     for (c = 0; env_var[c].property; c++)
-      for (n = 0; http->property[n]; n += 2)
-        if (!svz_strcasecmp (http->property[n], env_var[c].property))
-          {
-            svz_envblock_add (env, "%s=%s",
-                              env_var[c].env, http->property[n + 1]);
-            break;
-          }
+      {
+        char *prop = env_var[c].property;
+        size_t plen = strlen (prop);
+
+        for (n = 0; http->property[n]; n += 2)
+          if (!strncasecmp (http->property[n], prop, plen))
+            {
+              svz_envblock_add (env, "%s=%s",
+                                env_var[c].env, http->property[n + 1]);
+              break;
+            }
+      }
 
   /*
    * set up some more environment variables which might be

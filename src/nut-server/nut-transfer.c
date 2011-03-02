@@ -348,10 +348,12 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
       /* go through all file extensions */
       svz_array_foreach (cfg->extensions, ext, n)
         {
-          if (strlen (savefile) > strlen (ext))
+          size_t elen = strlen (ext);
+
+          if (strlen (savefile) > elen)
             {
-              pos = strlen (savefile) - strlen (ext);
-              if (pos < 0 || !svz_strcasecmp (&savefile[pos], ext))
+              pos = strlen (savefile) - elen;
+              if (pos < 0 || !strncasecmp (&savefile[pos], ext, 1 + elen))
                 break;
             }
         }

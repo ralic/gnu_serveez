@@ -1,5 +1,18 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Use ‘strncasecmp’ more.
+
+	* http-server/http-cgi.c (http_create_cgi_envp): Compute
+	each property's strlen; use it and ‘strncasecmp’ in inner loop.
+	* http-server/http-core.c (http_find_property):
+	Compute ‘key’ strlen; use it and ‘strncasecmp’ in loop.
+	* irc-server/irc-proto.c (irc_handle_request):
+	Compute request's strlen; use it and ‘strncasecmp’ in loop.
+	* nut-server/nut-transfer.c (nut_init_transfer):
+	Compute extension strlen; use it and ‘strncasecmp’ in loop.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘strncasecmp’ when one string is a literal.
 
 	* guile.c (guile_to_boolean): Use ‘strncasecmp’ and ‘sizeof’.

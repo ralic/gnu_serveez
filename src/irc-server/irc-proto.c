@@ -704,8 +704,10 @@ irc_handle_request (svz_socket_t *sock, char *request, int len)
   irc_config_t *cfg = sock->cfg;
   irc_client_t *client = sock->data;
   int n;
+  size_t rlen;
 
   irc_parse_request (request, len);
+  rlen = strlen (irc_request.request);
 
   /*
    * FIXME: server handling not yet done.
@@ -717,7 +719,7 @@ irc_handle_request (svz_socket_t *sock, char *request, int len)
 
   for (n = 0; irc_callback[n].request; n++)
     {
-      if (!svz_strcasecmp (irc_callback[n].request, irc_request.request))
+      if (!strncasecmp (irc_callback[n].request, irc_request.request, rlen))
         {
           irc_callback[n].count++;
           client->recv_bytes += len;

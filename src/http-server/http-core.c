@@ -863,6 +863,7 @@ char *
 http_find_property (http_socket_t *http, char *key)
 {
   int n;
+  size_t len;
 
   /* check if there are any properties */
   if (http->property == NULL)
@@ -870,9 +871,10 @@ http_find_property (http_socket_t *http, char *key)
 
   /* search through all the http properties */
   n = 0;
+  len = strlen (key);
   while (http->property[n])
     {
-      if (!svz_strcasecmp (http->property[n], key))
+      if (!strncasecmp (http->property[n], key, len))
         {
           return http->property[n + 1];
         }
