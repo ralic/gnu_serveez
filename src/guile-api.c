@@ -209,7 +209,7 @@ guile_svz_inet_aton (SCM address)
       return SCM_BOOL_F;
     }
   scm_c_free (str);
-  return scm_ulong2num (addr.sin_addr.s_addr);
+  return gi_nnint2scm (addr.sin_addr.s_addr);
 }
 #undef FUNC_NAME
 
@@ -221,7 +221,7 @@ guile_svz_ntohl (SCM netlong)
 {
   SCM_ASSERT_TYPE (SCM_EXACTP (netlong),
                    netlong, SCM_ARG1, FUNC_NAME, "exact");
-  return scm_ulong2num (ntohl (SCM_NUM2ULONG (SCM_ARG1, netlong)));
+  return gi_nnint2scm (ntohl (SCM_NUM2ULONG (SCM_ARG1, netlong)));
 }
 #undef FUNC_NAME
 
@@ -233,7 +233,7 @@ guile_svz_htonl (SCM hostlong)
 {
   SCM_ASSERT_TYPE (SCM_EXACTP (hostlong),
                    hostlong, SCM_ARG1, FUNC_NAME, "exact");
-  return scm_ulong2num (htonl (SCM_NUM2ULONG (SCM_ARG1, hostlong)));
+  return gi_nnint2scm (htonl (SCM_NUM2ULONG (SCM_ARG1, hostlong)));
 }
 #undef FUNC_NAME
 
@@ -377,7 +377,7 @@ guile_sock_remote_address (SCM sock, SCM address)
   SCM pair;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  pair = scm_cons (scm_ulong2num (xsock->remote_addr),
+  pair = scm_cons (gi_nnint2scm (xsock->remote_addr),
                    gi_integer2scm ((int) xsock->remote_port));
   if (!SCM_UNBNDP (address))
     {
@@ -405,7 +405,7 @@ guile_sock_local_address (SCM sock, SCM address)
   SCM pair;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  pair = scm_cons (scm_ulong2num (xsock->local_addr),
+  pair = scm_cons (gi_nnint2scm (xsock->local_addr),
                    gi_integer2scm ((int) xsock->local_port));
   if (!SCM_UNBNDP (address))
     {
@@ -737,7 +737,7 @@ scm_return_rpcentry (struct rpcent *entry)
   ve = SCM_WRITABLE_VELTS (ans);
   ve[0] = gi_string2scm (entry->r_name);
   ve[1] = scm_makfromstrs (-1, entry->r_aliases);
-  ve[2] = scm_ulong2num ((unsigned long) entry->r_number);
+  ve[2] = gi_nnint2scm ((unsigned long) entry->r_number);
   return ans;
 }
 
@@ -856,10 +856,10 @@ scm_portmap_list (SCM address)
     {
       mapping = scm_c_make_vector (4, SCM_UNSPECIFIED);
       ve = SCM_WRITABLE_VELTS (mapping);
-      ve[0] = scm_ulong2num ((unsigned long) map->pml_map.pm_prog);
-      ve[1] = scm_ulong2num ((unsigned long) map->pml_map.pm_vers);
-      ve[2] = scm_ulong2num ((unsigned long) map->pml_map.pm_prot);
-      ve[3] = scm_ulong2num ((unsigned long) map->pml_map.pm_port);
+      ve[0] = gi_nnint2scm ((unsigned long) map->pml_map.pm_prog);
+      ve[1] = gi_nnint2scm ((unsigned long) map->pml_map.pm_vers);
+      ve[2] = gi_nnint2scm ((unsigned long) map->pml_map.pm_prot);
+      ve[3] = gi_nnint2scm ((unsigned long) map->pml_map.pm_port);
       list = scm_cons (mapping ,list);
     }
   while ((map = map->pml_next) != NULL);

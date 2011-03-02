@@ -1,5 +1,18 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add func: gi_nnint2scm
+
+	* gi.c (nnint2scm): New #define.
+	(gi_nnint2scm): New func.
+	* gi.h (gi_nnint2scm): New func decl.
+	* guile-api.c (guile_svz_inet_aton, guile_svz_ntohl)
+	(guile_svz_htonl, guile_sock_remote_address
+	(guile_sock_local_address, scm_return_rpcentry)
+	(scm_portmap_list): Use ‘gi_nnint2scm’.
+	* guile-bin.c (guile_bin_to_list): Likewise.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add funcs: gi_gc_protect, gi_gc_unprotect
 
 	* gi.c (gc_protect, gc_unprotect): New #define:s.

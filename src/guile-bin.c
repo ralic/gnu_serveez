@@ -464,7 +464,7 @@ guile_bin_to_list (SCM binary)
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
   for (list = SCM_EOL, p = bin->data + bin->size; p-- > bin->data; )
-    list = scm_cons (scm_ulong2num (*p), list);
+    list = scm_cons (gi_nnint2scm (*p), list);
   return list;
 }
 #undef FUNC_NAME

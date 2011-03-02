@@ -90,16 +90,25 @@ gi_symbol2scm (char const * name)
 
 #if V19
 #define integer2scm  scm_from_signed_integer
+#define nnint2scm    scm_from_unsigned_integer
 #elif V15
 #define integer2scm  scm_long2num
+#define nnint2scm    scm_ulong2num
 #else
 #define integer2scm  gh_long2scm
+#define nnint2scm    gh_ulong2scm
 #endif
 
 SCM
 gi_integer2scm (long int n)
 {
   return integer2scm (n);
+}
+
+SCM
+gi_nnint2scm (unsigned long int n)
+{
+  return nnint2scm (n);
 }
 
 /* gi.c ends here */

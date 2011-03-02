@@ -26,6 +26,7 @@ extern SCM gi_nstring2scm (size_t len, char const *s);
 extern SCM gi_string2scm (char const * s);
 extern SCM gi_symbol2scm (char const * name);
 extern SCM gi_integer2scm (long int);
+extern SCM gi_nnint2scm (unsigned long int n);
 
 #endif  /* !defined __GI_H__ */
 
