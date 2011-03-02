@@ -1057,8 +1057,8 @@ guile_define_server (SCM name, SCM args)
     }
 
   /* Instantiate and configure this server.  */
-  retval = guile_config_instantiate (scm_makfrom0str ("server"),
-                                     scm_makfrom0str (servertype),
+  retval = guile_config_instantiate (gi_string2scm ("server"),
+                                     gi_string2scm (servertype),
                                      name, args);
  out:
   svz_free (servertype);
@@ -1401,7 +1401,7 @@ guile_strarray_to_guile (svz_array_t *array)
 
   /* Go through all the strings and add these to a guile list.  */
   for (list = SCM_EOL, i = 0; i < svz_array_size (array); i++)
-    list = scm_cons (scm_makfrom0str ((char *) svz_array_get (array, i)),
+    list = scm_cons (gi_string2scm ((char *) svz_array_get (array, i)),
                      list);
   return scm_reverse (list);
 }
@@ -1437,8 +1437,8 @@ guile_hash_to_guile (svz_hash_t *hash)
 
   svz_hash_foreach_key (hash, key, n)
     {
-      pair = scm_cons (scm_makfrom0str (key[n]),
-                       scm_makfrom0str ((char *) svz_hash_get (hash, key[n])));
+      pair = scm_cons (gi_string2scm (key[n]),
+                       gi_string2scm ((char *) svz_hash_get (hash, key[n])));
       alist = scm_cons (pair, alist);
     }
   return alist;
@@ -1584,7 +1584,7 @@ static SCM cfunc (SCM args) {                                \
  */
 #define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
 static SCM cfunc (SCM args) {                                \
-  SCM value = scm_makfrom0str (cvar); char *str;             \
+  SCM value = gi_string2scm (cvar); char *str;               \
   GUILE_PRECALL ();                                          \
   if (!SCM_UNBNDP (args)) {                                  \
     if (NULL == (str = guile_to_string (args))) {            \
@@ -1713,7 +1713,7 @@ static void
 guile_init (void)
 {
   /* define some variables */
-  scm_c_define ("serveez-version", scm_makfrom0str (svz_version));
+  scm_c_define ("serveez-version", gi_string2scm (svz_version));
 
   /* export accessors for global variables (read/write capable) */
   scm_c_define_gsubr ("serveez-verbosity", 0, 1, 0, guile_access_verbosity);

@@ -19,6 +19,8 @@
 #ifndef __GI_H__
 #define __GI_H__ 1
 
+extern SCM gi_nstring2scm (size_t len, char const *s);
+extern SCM gi_string2scm (char const * s);
 extern SCM gi_symbol2scm (char const * name);
 
 #endif  /* !defined __GI_H__ */

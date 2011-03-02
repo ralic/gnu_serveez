@@ -34,6 +34,7 @@
 #endif
 
 #include "libserveez.h"
+#include "gi.h"
 #include "guile-api.h"
 #include "guile-bin.h"
 
@@ -168,7 +169,7 @@ guile_bin_to_string (SCM binary)
   guile_bin_t *bin;
 
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);
-  return scm_mem2string ((char *) bin->data, bin->size);
+  return gi_nstring2scm (bin->size, (char *) bin->data);
 }
 #undef FUNC_NAME
 

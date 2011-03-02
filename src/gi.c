@@ -17,6 +17,7 @@
  */
 
 #include "config.h"
+#include <string.h>
 #include <libguile.h>
 #ifdef HAVE_GUILE_GH_H
 # include <guile/gh.h>
@@ -29,6 +30,29 @@
 #define V15  (SCM_MINOR_VERSION >= 5)
 #endif  /* 1 == SCM_MAJOR_VERSION */
 #endif  /* defined SCM_MAJOR_VERSION && defined SCM_MINOR_VERSION */
+
+#if V19
+#define mem2scm(len,ptr)  scm_from_locale_stringn (ptr, len)
+#define mem02scm(ptr)     scm_from_locale_string (ptr)
+#elif V15
+#define mem2scm(len,ptr)  scm_makfromstr (ptr, len)
+#define mem02scm(ptr)     scm_makfrom0str (ptr)
+#else
+#define mem2scm(len,ptr)  gh_str2scm (ptr, len)
+#define mem02scm(ptr)     gh_str02scm (ptr)
+#endif
+
+SCM
+gi_nstring2scm (size_t len, char const *s)
+{
+  return mem2scm (len, s);
+}
+
+SCM
+gi_string2scm (char const * s)
+{
+  return mem02scm (s);
+}
 
 #if V19
 #define symbol2scm  scm_make_symbol

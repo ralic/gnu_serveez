@@ -184,7 +184,7 @@ guile_svz_inet_ntoa (SCM address)
   SCM_ASSERT_TYPE (SCM_EXACTP (address),
                    address, SCM_ARG1, FUNC_NAME, "exact");
   str = svz_inet_ntoa (SCM_NUM2ULONG (SCM_ARG1, address));
-  return scm_makfrom0str (str);
+  return gi_string2scm (str);
 }
 #undef FUNC_NAME
 
@@ -735,7 +735,7 @@ scm_return_rpcentry (struct rpcent *entry)
 
   ans = scm_c_make_vector (3, SCM_UNSPECIFIED);
   ve = SCM_WRITABLE_VELTS (ans);
-  ve[0] = scm_makfrom0str (entry->r_name);
+  ve[0] = gi_string2scm (entry->r_name);
   ve[1] = scm_makfromstrs (-1, entry->r_aliases);
   ve[2] = scm_ulong2num ((unsigned long) entry->r_number);
   return ans;
@@ -889,7 +889,7 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
     {
       if (!pmap_unset (SCM_INUM (prognum), SCM_INUM (versnum)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_unset ~A ~A",
-                          scm_list_n (scm_makfrom0str (strerror (errno)),
+                          scm_list_n (gi_string2scm (strerror (errno)),
                                       prognum, versnum, SCM_UNDEFINED),
                           errno);
     }
@@ -903,7 +903,7 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
       if (!pmap_set (SCM_INUM (prognum), SCM_INUM (versnum),
                      SCM_INUM (protocol), (unsigned short) SCM_INUM (port)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_set ~A ~A ~A ~A",
-                          scm_list_n (scm_makfrom0str (strerror (errno)),
+                          scm_list_n (gi_string2scm (strerror (errno)),
                                       prognum, versnum, protocol, port,
                                       SCM_UNDEFINED), errno);
     }
@@ -923,10 +923,10 @@ guile_coserver_callback (char *res, SCM callback, SCM arg)
     {
       /* Run procedure with one argument only.  */
       if (SCM_UNBNDP (arg))
-        guile_call (callback, 1, scm_makfrom0str (res));
+        guile_call (callback, 1, gi_string2scm (res));
       /* Run procedure with both arguments.  */
       else
-        guile_call (callback, 2, scm_makfrom0str (res), arg);
+        guile_call (callback, 2, gi_string2scm (res), arg);
       ret = 0;
     }
 
@@ -1106,7 +1106,7 @@ guile_read_file (SCM port, SCM size)
     {
       scm_gc_free (data, len, "svz-binary-data");
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
-                        scm_list_n (scm_makfrom0str (strerror (errno)),
+                        scm_list_n (gi_string2scm (strerror (errno)),
                                     scm_int2num (fdes), size, SCM_UNDEFINED),
                         errno);
     }
