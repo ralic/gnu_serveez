@@ -318,41 +318,6 @@ svz_tolower (char *str)
   return str;
 }
 
-/*
- * This is the system dependent case insensitive string compare.  It
- * compares the strings @var{str1} and @var{str2} and returns zero if both
- * strings are equal.
- */
-int
-svz_strcasecmp (const char *str1, const char *str2)
-{
-#if HAVE_STRCASECMP
-  return strcasecmp (str1, str2);
-#elif HAVE_STRICMP
-  return stricmp (str1, str2);
-#else
-  const char *p1 = str1;
-  const char *p2 = str2;
-  unsigned char c1, c2;
-
-  if (p1 == p2)
-    return 0;
-
-  do
-    {
-      c1 = isupper (*p1) ? tolower (*p1) : *p1;
-      c2 = isupper (*p2) ? tolower (*p2) : *p2;
-      if (c1 == '\0')
-        break;
-      ++p1;
-      ++p2;
-    }
-  while (c1 == c2);
-
-  return c1 - c2;
-#endif /* neither HAVE_STRCASECMP nor HAVE_STRICMP */
-}
-
 #ifdef __MINGW32__
 /*
  * This variable contains the last system or network error occurred if

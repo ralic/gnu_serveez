@@ -1,5 +1,11 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_strcasecmp
+
+	* configure.ac (strcasecmp, stricmp): Drop AC_CHECK_FUNCS.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop: svz_strncasecmp
 
 	* configure.ac (strncasecmp, strnicmp): Drop AC_CHECK_FUNCS.

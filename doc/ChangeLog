@@ -1,5 +1,12 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_strcasecmp
+
+	* serveez-api.texi.in (Utility functions):
+	Delete ‘SVZ_STRCASECMP_DEFUN’.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop: svz_strncasecmp
 
 	* serveez-api.texi.in (Utility functions):

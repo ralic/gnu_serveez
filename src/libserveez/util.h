@@ -58,7 +58,6 @@ SERVEEZ_API void svz_log_setfile (FILE *);
 SERVEEZ_API int svz_hexdump (FILE *, char *, int, char *, int, int);
 SERVEEZ_API char *svz_itoa (unsigned int);
 SERVEEZ_API unsigned int svz_atoi (char *);
-SERVEEZ_API int svz_strcasecmp (const char *, const char *);
 SERVEEZ_API char *svz_getcwd (void);
 SERVEEZ_API int svz_openfiles (int);
 SERVEEZ_API char *svz_time (long);
