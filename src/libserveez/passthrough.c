@@ -935,11 +935,15 @@ svz_process_check_executable (char *file, char **app)
       char *suffix = strrchr (file, '.');
       suffix = suffix ? suffix + 1 : file;
 
+#define SUFFIX_IS_CI(k)  (! strncasecmp (k, suffix, sizeof (k)))
+
       /* Does the file have a known suffix?  */
-      if (!svz_strcasecmp (suffix, "com") ||
-          !svz_strcasecmp (suffix, "exe") ||
-          !svz_strcasecmp (suffix, "bat"))
+      if (SUFFIX_IS_CI ("com")
+          || SUFFIX_IS_CI ("exe")
+          || SUFFIX_IS_CI ("bat"))
         return 0;
+
+#undef SUFFIX_IS_CI
 
       /* No.  Try finding an application able to execute the script.  */
       *app = svz_malloc (MAX_PATH);

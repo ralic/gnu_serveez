@@ -390,19 +390,27 @@ guile_to_boolean (SCM cell, int *target)
       *target = (i == 0 ? 0 : 1);
     }
   /* Neither integer nor boolean, try text conversion.  */
+  /* FIXME: Use symbols and ‘memq’.  */
   else if ((str = guile_to_string (cell)) != NULL)
     {
-      if (!svz_strcasecmp (str, "yes") ||
-          !svz_strcasecmp (str, "on") ||
-          !svz_strcasecmp (str, "true"))
+#define STR_IS_CI(k)  (! strncasecmp (k, str, sizeof (k)))
+      /* Note: We use ‘sizeof (k)’ instead of ‘sizeof (k) - 1’
+         to deliberately include the terminating '\0', thus
+         preventing false matches, e.g., "yesssss".  */
+
+      if (STR_IS_CI ("yes")
+          || STR_IS_CI ("on")
+          || STR_IS_CI ("true"))
         *target = 1;
-      else if (!svz_strcasecmp (str, "no") ||
-               !svz_strcasecmp (str, "off") ||
-               !svz_strcasecmp (str, "false"))
+      else if (STR_IS_CI ("no")
+               || STR_IS_CI ("off")
+               || STR_IS_CI ("false"))
         *target = 0;
       else
         err = 1;
       scm_c_free (str);
+
+#undef STR_IS_CI
     }
   else
     {

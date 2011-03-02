@@ -1,5 +1,11 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Use ‘strncasecmp’ when one string is a literal.
+
+	* guile.c (guile_to_boolean): Use ‘strncasecmp’ and ‘sizeof’.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Say "procedure" instead of "function".
 
 	* guile-api.c: Say "procedure" instead of "function"
