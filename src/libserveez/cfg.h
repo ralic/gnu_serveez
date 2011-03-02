@@ -195,7 +195,7 @@ typedef struct
 {
   char *name;
   int (*instantiate) (char *, char *, void *, svz_config_accessor_t *,
-                      char **);
+                      size_t, char *);
 }
 svz_config_type_t;
 
@@ -209,7 +209,7 @@ SERVEEZ_API void svz_config_type_add (svz_config_type_t *);
 SERVEEZ_API int svz_config_type_instantiate (char *, char *,
                                              char *, void *,
                                              svz_config_accessor_t *,
-                                             char **);
+                                             size_t, char *);
 SERVEEZ_API void svz_config_type_init (void);
 SERVEEZ_API void svz_config_type_finalize (void);
 

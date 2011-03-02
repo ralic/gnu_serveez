@@ -530,18 +530,18 @@ svz_config_type_add (svz_config_type_t *type)
 int
 svz_config_type_instantiate (char *type, char *name, char *instance,
                              void *options, svz_config_accessor_t *accessor,
-                             char **error)
+                             size_t ebufsz, char *ebuf)
 {
   svz_config_type_t *cfgtype;
 
   cfgtype = svz_hash_get (svz_config_types, type);
   if (cfgtype == NULL)
     {
-      if (error)
-        svz_asprintf (error, "No such configurable type `%s'", type);
+      snprintf (ebuf, ebufsz, "No such configurable type `%s'", type);
       return -1;
     }
-  return cfgtype->instantiate (name, instance, options, accessor, error);
+  return cfgtype->instantiate (name, instance, options, accessor,
+                               ebufsz, ebuf);
 }
 
 /*

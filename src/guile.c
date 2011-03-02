@@ -958,8 +958,8 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
   int err = 0;
   char *c_type = NULL, *c_name = NULL, *c_instance = NULL;
   svz_hash_t *options = NULL;
-  char *error = NULL;
   char action[ACTIONBUFSIZE];
+  char ebuf[ACTIONBUFSIZE];
 
   /* Configure callbacks for the ‘svz_config_type_instantiate’ thing.  */
   svz_config_accessor_t accessor = {
@@ -999,16 +999,15 @@ guile_config_instantiate (SCM type, SCM name, SCM instance, SCM opts)
     FAIL ();                    /* Message already emitted.  */
 
   err = svz_config_type_instantiate (c_type, c_name, c_instance,
-                                     options, &accessor, &error);
+                                     options, &accessor,
+                                     ACTIONBUFSIZE, ebuf);
   if (err)
     {
-      if (error)
-        guile_error ("%s", error);
+      guile_error ("%s", ebuf);
       FAIL ();
     }
 
  out:
-  svz_free (error);
   if (c_type)
     scm_c_free (c_type);
   if (c_name)

@@ -481,7 +481,7 @@ svz_server_finalize_all (void)
 static int
 svz_servertype_instantiate (char *type, char *name, void *options,
                             svz_config_accessor_t *accessor,
-                            char **error)
+                            size_t ebufsz, char *ebuf)
 {
   svz_servertype_t *stype;
   svz_server_t *server;
@@ -489,8 +489,7 @@ svz_servertype_instantiate (char *type, char *name, void *options,
   /* Find the definition by lookup with dynamic loading.  */
   if (NULL == (stype = svz_servertype_get (type, 1)))
     {
-      if (error)
-        svz_asprintf (error, "No such server type: `%s'", type);
+      snprintf (ebuf, ebufsz, "No such server type: `%s'", type);
       return -1;
     }
 
@@ -506,8 +505,7 @@ svz_servertype_instantiate (char *type, char *name, void *options,
   /* Add server configuration.  */
   if (svz_server_get (name) != NULL)
     {
-      if (error)
-        svz_asprintf (error, "Duplicate server definition: `%s'", name);
+      snprintf (ebuf, ebufsz, "Duplicate server definition: `%s'", name);
       svz_server_free (server);
       return -1;
     }

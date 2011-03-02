@@ -1,5 +1,18 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Make ‘svz_config_type_instantiate’ require error buf size.
+
+	* cfg.c (svz_config_type_instantiate):
+	Don't take ERROR; instead, take a buffer size and a buffer;
+	use ‘snprintf’ with that buffer; pass new args when delegating.
+	* cfg.h (svz_config_type_t): Update prototype of
+	member ‘instantiate’ to likewise to ‘svz_config_type_instantiate’.
+	(svz_config_type_instantiate): Update func decl.
+	* server.c (svz_servertype_instantiate):
+	Update likewise to ‘svz_config_type_instantiate’.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop: svz_strcasecmp
 
 	* util.c (svz_strcasecmp): Delete func.

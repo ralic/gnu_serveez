@@ -1,5 +1,13 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Make ‘svz_config_type_instantiate’ require error buf size.
+
+	* guile.c (guile_config_instantiate): Use local
+	buffer; update call to ‘svz_config_type_instantiate’;
+	call ‘guile_error’ unconditionally.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘snprintf’ more.
 
 	* action.h: New file.
