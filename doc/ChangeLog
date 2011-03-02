@@ -1,5 +1,12 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_asprintf
+
+	* Makefile.am (libserveez_impl): Remove asprintf.c.
+	* serveez-api.texi.in (SVZ_ASPRINTF_DEFUN): Delete.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop: svz_strcasecmp
 
 	* serveez-api.texi.in (Utility functions):

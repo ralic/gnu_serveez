@@ -1,5 +1,11 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_asprintf
+
+	* libserveez.h: Don't #include "libserveez/asprintf.h".
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘svz_config_type_instantiate’ require error buf size.
 
 	* guile.c (guile_config_instantiate): Use local

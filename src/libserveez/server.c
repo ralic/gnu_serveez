@@ -43,7 +43,6 @@
 #include "libserveez/server.h"
 #include "libserveez/binding.h"
 #include "libserveez/dynload.h"
-#include "libserveez/asprintf.h"
 
 /*
  * The list of registered servers.  Feel free to add yours.

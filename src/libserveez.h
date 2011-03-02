@@ -23,7 +23,6 @@
 
 #include "libserveez/boot.h"
 #include "libserveez/alloc.h"
-#include "libserveez/asprintf.h"
 #include "libserveez/array.h"
 #include "libserveez/hash.h"
 #include "libserveez/sparsevec.h"

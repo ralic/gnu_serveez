@@ -30,7 +30,7 @@ SOURCES = \
  coserver/dns.c coserver/ident.c coserver/reverse-dns.c server.c \
  boot.c server-socket.c dynload.c vector.c core.c sparsevec.c \
  portcfg.c binding.c codec/codec.c codec/gzlib.c codec/bzip2.c \
- passthrough.c cfg.c asprintf.c
+ passthrough.c cfg.c
 
 # Additional libraries.
 LIBS = ws2_32.lib shell32.lib mswsock.lib advapi32.lib user32.lib -lz -lbz2

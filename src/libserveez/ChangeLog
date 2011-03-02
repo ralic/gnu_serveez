@@ -1,5 +1,17 @@
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop: svz_asprintf
+
+	* cfg.c: Don't #include "libserveez/asprintf.h".
+	* server.c: Likewise.
+	* libserveez.ap (SOURCES): Remove asprintf.c.
+	* Makefile.am (libserveez_la_SOURCES): Remove asprintf.c.
+	(libserveez_HEADERS): Remove asprintf.h.
+	* asprintf.c: Delete file.
+	* asprintf.h: Delete file.
+
+2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘svz_config_type_instantiate’ require error buf size.
 
 	* cfg.c (svz_config_type_instantiate):

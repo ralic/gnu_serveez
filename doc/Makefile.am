@@ -40,7 +40,6 @@ libserveez_root = $(top_srcdir)/src/libserveez
 libserveez_impl = \
   alloc.c alloc.h \
   array.c array.h \
-  asprintf.c \
   binding.c \
   boot.c \
   cfg.c cfg.h \

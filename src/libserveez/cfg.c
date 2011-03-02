@@ -27,7 +27,6 @@
 
 #include "libserveez/cfg.h"
 #include "libserveez/util.h"
-#include "libserveez/asprintf.h"
 #include "libserveez/server.h"
 
 /*
