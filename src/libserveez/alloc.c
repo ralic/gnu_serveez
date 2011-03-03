@@ -122,6 +122,14 @@ heap_add (heap_block_t *block)
 # define heap_caller()
 #endif /* !DEBUG_MEMORY_LEAKS */
 
+/* FIXME: Make ‘static inline’ func w/ attribute ‘SVZ_EXITING’.  */
+#define oom(who)  do                                            \
+    {                                                           \
+      svz_log (LOG_FATAL, who ": virtual memory exhausted\n");  \
+      exit (EXIT_FAILURE);                                      \
+    }                                                           \
+  while (0)
+
 /*
  * Allocate @var{size} bytes of memory and return a pointer to this block.
  */
@@ -169,10 +177,7 @@ svz_malloc (size_t size)
     }
 #endif /* not ENABLE_DEBUG */
   else
-    {
-      svz_log (LOG_FATAL, "malloc: virtual memory exhausted\n");
-      exit (1);
-    }
+    oom ("malloc");
 }
 
 /*
@@ -258,10 +263,7 @@ svz_realloc (void *ptr, size_t size)
         }
 #endif /* not ENABLE_DEBUG */
       else
-        {
-          svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
-          exit (1);
-        }
+        oom ("realloc");
     }
   else
     {
@@ -383,10 +385,7 @@ svz_pmalloc (size_t size)
 {
   void *ptr = svz_malloc_func (size);
   if (ptr == NULL)
-    {
-      svz_log (LOG_FATAL, "malloc: virtual memory exhausted\n");
-      exit (1);
-    }
+    oom ("malloc");
   return ptr;
 }
 
@@ -411,10 +410,7 @@ svz_prealloc (void *ptr, size_t size)
 {
   void *dst = svz_realloc_func (ptr, size);
   if (dst == NULL)
-    {
-      svz_log (LOG_FATAL, "realloc: virtual memory exhausted\n");
-      exit (1);
-    }
+    oom ("realloc");
   return dst;
 }
 

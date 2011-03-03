@@ -831,7 +831,7 @@ svz_process_shuffle (svz_process_t *proc)
   if ((pid = fork ()) == 0)
     {
       svz_process_create_child (proc);
-      exit (0);
+      exit (EXIT_SUCCESS);
     }
   else if (pid == -1)
     {
@@ -881,7 +881,7 @@ svz_process_fork (svz_process_t *proc)
   if ((pid = fork ()) == 0)
     {
       svz_process_create_child (proc);
-      exit (0);
+      exit (EXIT_SUCCESS);
     }
   else if (pid == -1)
     {

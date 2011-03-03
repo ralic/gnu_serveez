@@ -57,7 +57,7 @@ guile_launch_pad (void *closure, int argc, char **argv)
 {
   void (* entry) (int, char **) = (void (*) (int, char **)) closure;
   entry (argc, argv);
-  exit (0);
+  exit (EXIT_SUCCESS);
 }
 
 /*
@@ -190,11 +190,11 @@ main (int argc, char *argv[])
       if ((pid = fork ()) == -1)
         {
           svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
-          exit (1);
+          exit (EXIT_FAILURE);
         }
       else if (pid != 0)
         {
-          exit (0);
+          exit (EXIT_SUCCESS);
         }
       /* Close the log file if necessary.  */
       if (options->loghandle == stderr)
@@ -208,7 +208,7 @@ main (int argc, char *argv[])
         close (fileno (stderr));
 #else /* __MINGW32__ */
       if (svz_windoze_start_daemon (argv[0]) == -1)
-        exit (1);
+        exit (EXIT_FAILURE);
       if (options->loghandle == stderr)
         svz_log_setfile (NULL);
       closehandle (GetStdHandle (STD_INPUT_HANDLE));

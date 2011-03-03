@@ -1,5 +1,16 @@
 2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use EXIT_{SUCCESS,FAILURE} from <stdlib.h>.
+
+	* http-server/http-cgi.c (cool): New macro.
+	(http_cgi_exec): Use it.
+	* option.c (usage): Take arg EXITVAL; ‘exit’ with it.
+	(handle_options): Use ‘EXIT_SUCCESS’; update call to ‘usage’.
+	* serveez.c (guile_launch_pad): Use ‘EXIT_SUCCESS’.
+	(main): Use ‘EXIT_SUCCESS’, ‘EXIT_FAILURE’.
+
+2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc style] Refer to procedures as ‘PROC’ instead of ‘(PROC)’.
 
 	* guile-api.c: In docstrings, do ‘s/@code{(foo)}/@code{foo}/’.

@@ -122,9 +122,10 @@ version (void)
 
 /*
  * Display program command line options.
+ * Then @code{exit} with @var{exitval}.
  */
 static void
-usage (void)
+usage (int exitval)
 {
   fprintf (stdout, "Usage: serveez [OPTION]...\n\n"
 #if HAVE_GETOPT_LONG
@@ -151,6 +152,8 @@ usage (void)
  "  -c           use standard input as configuration file\n"
 #endif /* not HAVE_GETOPT_LONG */
  "\nReport bugs to <bug-serveez@gnu.org>.\n");
+
+  exit (exitval);
 }
 
 #if HAVE_GETOPT_LONG
@@ -176,9 +179,9 @@ static struct option serveez_options[] = {
 
 /*
  * Parse the command line options.  If these have been correct the function
- * either terminates the program with exit code 0 or returns an option
+ * either terminates the program successfully or returns an option
  * structure containing information about the command line arguments or it
- * leaves the program with exit code 1 if the command line has been wrong.
+ * exits the program failurefully if the command line has been wrong.
  */
 option_t *
 handle_options (int argc, char **argv)
@@ -210,35 +213,28 @@ handle_options (int argc, char **argv)
       switch (arg)
         {
         case 'h':
-          usage ();
-          exit (0);
+          usage (EXIT_SUCCESS);
           break;
 
         case 'V':
           version ();
-          exit (0);
+          exit (EXIT_SUCCESS);
           break;
 
         case 'i':
           svz_interface_list ();
-          exit (0);
+          exit (EXIT_SUCCESS);
           break;
 
         case 'c':
           if (options.cfgfile != cfgfile)
-            {
-              usage ();
-              exit (1);
-            }
+            usage (EXIT_FAILURE);
           options.cfgfile = NULL;
           break;
 
         case 'f':
           if (!optarg || options.cfgfile == NULL)
-            {
-              usage ();
-              exit (1);
-            }
+            usage (EXIT_FAILURE);
           options.cfgfile = optarg;
           break;
 
@@ -257,19 +253,13 @@ handle_options (int argc, char **argv)
 
         case 'l':
           if (!optarg)
-            {
-              usage ();
-              exit (1);
-            }
+            usage (EXIT_FAILURE);
           options.logfile = optarg;
           break;
 
         case 'P':
           if (!optarg || strlen (optarg) < 2)
-            {
-              usage ();
-              exit (1);
-            }
+            usage (EXIT_FAILURE);
 #if defined HAVE_CRYPT
           options.pass = svz_pstrdup (crypt (optarg, optarg));
 #else
@@ -279,10 +269,7 @@ handle_options (int argc, char **argv)
 
         case 'm':
           if (!optarg)
-            {
-              usage ();
-              exit (1);
-            }
+            usage (EXIT_FAILURE);
           options.sockets = atoi (optarg);
           break;
 
@@ -291,8 +278,7 @@ handle_options (int argc, char **argv)
           break;
 
         default:
-          usage ();
-          exit (1);
+          usage (EXIT_FAILURE);
         }
     }
 

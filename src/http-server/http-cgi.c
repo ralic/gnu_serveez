@@ -620,6 +620,9 @@ http_gen_cgi_apps (http_config_t *cfg)
     svz_free (p);
 }
 
+/* FIXME: Make ‘static inline’ func w/ attribute ‘SVZ_EXITING’.  */
+#define cool()  exit (EXIT_SUCCESS)
+
 /*
  * Invoke a cgi script.  In Unices we ‘fork’ us and in Win32 we
  * ‘CreateProcess’.
@@ -785,34 +788,32 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       /* create environment block */
       envp = svz_envblock_create ();
       if ((cgifile = http_pre_exec (sock, envp, file, request, type)) == NULL)
-        {
-          exit (0);
-        }
+        cool ();
 
       /* make the output blocking */
       if ((oflags = fcntl (out, F_GETFL)) == -1)
         {
           svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
       if (fcntl (out, F_SETFL, oflags & ~O_NONBLOCK) == -1)
         {
           svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
 
       /* duplicate the receiving pipe descriptor to stdout */
       if (dup2 (out, 1) != 1)
         {
           svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
 #ifndef ENABLE_DEBUG
       /* duplicate stderr to the cgi output */
       if (dup2 (out, 2) != 2)
         {
           svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
 #endif /* !ENABLE_DEBUG */
 
@@ -823,19 +824,19 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
           if ((oflags = fcntl (in, F_GETFL)) == -1)
             {
               svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-              exit (0);
+              cool ();
             }
           if (fcntl (in, F_SETFL, oflags & ~O_NONBLOCK) == -1)
             {
               svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
-              exit (0);
+              cool ();
             }
 
           /* duplicate the sending pipe descriptor to stdin */
           if (dup2 (in, 0) != 0)
             {
               svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
-              exit (0);
+              cool ();
             }
 
           /* close the old file descriptors */
@@ -856,19 +857,19 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       if (stat (cgifile, &buf) == -1)
         {
           svz_log (LOG_ERROR, "cgi: stat: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
 
       /* set the appropriate user permissions */
       if (setgid (buf.st_gid) == -1)
         {
           svz_log (LOG_ERROR, "cgi: setgid: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
       if (setuid (buf.st_uid) == -1)
         {
           svz_log (LOG_ERROR, "cgi: setuid: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
 
       /* create the argv[] and envp[] pointers */
@@ -882,7 +883,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       if (execve (cgifile, argv, svz_envblock_get (envp)) == -1)
         {
           svz_log (LOG_ERROR, "cgi: execve: %s\n", SYS_ERROR);
-          exit (0);
+          cool ();
         }
     }
   else if (pid == -1)

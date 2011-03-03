@@ -1,3 +1,13 @@
+2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Use EXIT_{SUCCESS,FAILURE} from <stdlib.h>.
+
+	* alloc.c (oom): New macro.
+	(svz_malloc, svz_realloc, svz_pmalloc, svz_prealloc): Use it.
+	* coserver/coserver.c (svz_coserver_start): Use ‘EXIT_SUCCESS’.
+	* passthrough.c (svz_process_shuffle): Likewise.
+	(svz_process_fork): Likewise.
+
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop: svz_asprintf

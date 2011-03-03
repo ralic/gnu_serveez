@@ -855,7 +855,7 @@ svz_coserver_start (int type)
 
       /* start the internal coserver */
       svz_coserver_loop (coserver, in, out);
-      exit (0);
+      exit (EXIT_SUCCESS);
     }
   else if (pid == -1)
     {
