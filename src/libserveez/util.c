@@ -471,7 +471,7 @@ svz_syserror (int nr)
 
 /*
  * This variable contains the the runtime detected Win32 version.  Its value
- * is setup in @code{svz_version} and can be @code{Win32s} for Windows 3.x,
+ * is setup in @code{svz_sys_version} and can be @code{Win32s} for Windows 3.x,
  * @code{Win95} for Windows 95, @code{Win98} for Windows 98, @code{WinNT3x}
  * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
  * Windows 2000, @code{WinXP} for Windows XP and @code{WinME} for Windows ME.
