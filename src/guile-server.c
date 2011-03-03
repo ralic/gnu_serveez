@@ -323,7 +323,7 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 /*
  * This procedure can be used to schedule Serveez for shutdown within Guile.
  * Serveez will shutdown all network connections and terminate after the next
- * event loop.  You should use this instead of issuing @code{(quit)}.
+ * event loop.  You should use this instead of calling @code{quit}.
  */
 #define FUNC_NAME "serveez-nuke"
 SCM
@@ -1052,7 +1052,7 @@ guile_config_convert (void *address, int type)
    the given server instance @var{server}.  You can pass this procedure a
    socket too.  In this case the procedure will lookup the appropriate server
    instance itself.  If the given string @var{key} is invalid (not defined
-   in the configuration alist in @code{(define-servertype!)}) then it returns
+   in the configuration alist in @code{define-servertype!}) then it returns
    an empty list.  */
 #define FUNC_NAME "svz:server:config-ref"
 SCM
@@ -1091,7 +1091,7 @@ guile_server_config_ref (SCM server, SCM key)
 #undef FUNC_NAME
 
 /* Returns the Guile object associated with the string value @var{key} which
-   needs to be set via @code{(svz:server:state-set!)} previously.  Otherwise
+   needs to be set via @code{svz:server:state-set!} previously.  Otherwise
    the return value is an empty list.  The given @var{server} argument must be
    either a valid @code{#<svz-server>} object or a @code{#<svz-socket>}.  */
 #define FUNC_NAME "svz:server:state-ref"

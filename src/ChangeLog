@@ -1,3 +1,11 @@
+2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc style] Refer to procedures as ‘PROC’ instead of ‘(PROC)’.
+
+	* guile-api.c: In docstrings, do ‘s/@code{(foo)}/@code{foo}/’.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop: svz_asprintf

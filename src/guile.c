@@ -1652,7 +1652,7 @@ guile_exception (void *data, SCM tag, SCM args)
   return SCM_BOOL_F;
 }
 
-/* Wrapper for the exception handler in @code{(serveez-load)}.  */
+/* Wrapper for the exception handler in @code{serveez-load}.  */
 static SCM
 guile_serveez_load_file (void *data)
 {
@@ -1660,9 +1660,9 @@ guile_serveez_load_file (void *data)
 }
 
 /*
- * This procedure can be used as a replacement for @code{(primitive-load)}
+ * This procedure can be used as a replacement for @code{primitive-load}
  * in serveez configuration files.  It tries to locate the given filename
- * @var{file} in the paths returned by @code{(serveez-loadpath)}.  If
+ * @var{file} in the paths returned by @code{serveez-loadpath}.  If
  * @var{file} cannot be loaded the procedure returns @code{#f}.
  */
 #define FUNC_NAME "serveez-load"

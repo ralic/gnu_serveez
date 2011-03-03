@@ -467,7 +467,7 @@ guile_sock_referrer (SCM sock, SCM referrer)
    to redefine this association and must be a valid @code{#<svz-server>}
    object.  For a usual socket callback like @code{connect-socket} or
    @code{handle-request}, the association is already in place.  But for sockets
-   created by @code{(svz:sock:connect)}, you can use it in order to make the
+   created by @code{svz:sock:connect}, you can use it in order to make the
    returned socket object part of a server.  */
 #define FUNC_NAME "svz:sock:server"
 static SCM
@@ -506,7 +506,7 @@ guile_sock_protocol (SCM sock)
 
 /* This procedure schedules the socket @var{sock} for shutdown after all data
    within the send buffer queue has been sent.  The user should issue this
-   procedure call right *before* the last call to @code{(svz:sock:print)}.  */
+   procedure call right *before* the last call to @code{svz:sock:print}.  */
 #define FUNC_NAME "svz:sock:final-print"
 static SCM
 guile_sock_final_print (SCM sock)
@@ -627,7 +627,7 @@ MAKE_SOCK_CALLBACK (check_request_oob, "check-oob-request")
 /* This procedure returns the socket structure @var{sock}'s current
    @code{idle-counter} value.  If the optional argument @var{counter} is
    given, the procedure sets the @code{idle-counter}.  Please have a look at the
-   @code{(svz:sock:idle)} procedure for the exact meaning of this value.  */
+   @code{svz:sock:idle} procedure for the exact meaning of this value.  */
 #define FUNC_NAME "svz:sock:idle-counter"
 static SCM
 guile_sock_idle_counter (SCM sock, SCM counter)
@@ -743,9 +743,9 @@ scm_return_rpcentry (struct rpcent *entry)
    @deffnx @PROC{} getrpcbyname name
    @deffnx @PROC{} getrpcbynumber number
    Lookup a network rpc service by name or by service number, and
-   return a network rpc service object.  The @code{(getrpc)} procedure
+   return a network rpc service object.  The @code{getrpc} procedure
    will take either a rpc service name or number as its first argument;
-   if given no arguments, it behaves like @code{(getrpcent)}.  */
+   if given no arguments, it behaves like @code{getrpcent}.  */
 #define FUNC_NAME "getrpc"
 static SCM
 scm_getrpc (SCM arg)
@@ -792,11 +792,11 @@ extern void endrpcent (void);
 #if HAVE_SETRPCENT && HAVE_ENDRPCENT
 /* @deffnx @PROC{} setrpcent stayopen
    @deffnx @PROC{} endrpcent
-   The @code{(setrpc)} procedure opens and rewinds the file @file{/etc/rpc}.
+   The @code{setrpc} procedure opens and rewinds the file @file{/etc/rpc}.
    If the @var{stayopen} flag is non-zero, the net data base will not be
-   closed after each call to @code{(getrpc)}.  If @var{stayopen} is omitted,
-   this is equivalent to @code{(endrpcent)}.  Otherwise it is equivalent to
-   @code{(setrpcent stayopen)}.  */
+   closed after each call to @code{getrpc}.  If @var{stayopen} is omitted,
+   this is equivalent to calling @code{endrpcent}.  Otherwise it is
+   equivalent to calling @code{setrpcent} with arg 1.  */
 #define FUNC_NAME "setrpc"
 static SCM
 scm_setrpc (SCM stayopen)
@@ -1056,7 +1056,7 @@ guile_sock_find (SCM ident)
 
 /* This procedure returns a pair of numbers identifying the given
    @code{#<svz-socket>} @var{sock} which can be passed to
-   @code{(svz:sock:find)}.  This may be necessary when you are passing
+   @code{svz:sock:find}.  This may be necessary when you are passing
    a @code{#<svz-socket>} through coserver callback arguments in order to
    verify that the passed @code{#<svz-socket>} is still valid when the
    coserver callback runs.  */
