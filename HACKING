@@ -19,6 +19,7 @@ See the end for copying conditions.
 ***** TODO libserveez binary-incompatible between releases
       unoptimal (-release): (info "(libtool) Link mode")
       cool (-version-info): (info "(libtool) Versioning")
+***** DONE SIGINT causes segfault ([[svsup:107607]], [[file:zzz/2011-02-28.locked-and-unlocked-stdio][zzz]])
 *** DONE Drop mkpassword.
 *** TODO Modernize bootstrap / build.
 ***** DONE mv configure.in configure.ac
@@ -60,19 +61,47 @@ See the end for copying conditions.
 *** DONE Remove svz_c_{const,signed}.
 *** TODO Clean up libserveez API.
 ***** DONE use explicit type for cast in ‘svz_hash_foreach_value’
-***** TODO add func ‘svz_library_features’
-***** TODO move some #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
+***** DONE add func ‘svz_library_features’
+***** TODO move most #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
+***** TODO move most #if...#endif into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#%20*if'%20|%20sed%20'/_H__$/d'")][grep]]).
+***** TODO convert some variables into (read-only) funcs ([[elisp:(grep%20"grep%20-nH%20-e%20Variable:%20%20doc/serveez.info")][grep]]).
 ***** TODO prune ancillary elements from libserveez API.
-      | x | ∀ SVZ_U?INT..         | suboptimal | avoid                      |
-      |   | svz_tolower           | 2011!      | use ‘tolower’ directly     |
-      | x | svz_vasprintf         | unused     | internalize                |
-      |   | svz_asprintf          | GNU        | use ‘asprintf’ directly    |
-      | x | svz_snprintf          | 2011!      | use ‘snprintf’ directly    |
-      |   | svz_strcasecmp        | danger     | use ‘strncasecmp’ instead  |
-      |   | svz_strncasecmp       | 2011!      | use ‘strncasecmp’ directly |
-      |   | svz_have_Win32        | pure lose  | avoid                      |
-      |   | svz_have_debug        | var        | obsoleted by "features"    |
-      |   | svz_have_floodprotect | var        | obsoleted by "features"    |
+      | x | ∀ SVZ_U?INT..            | suboptimal | avoid                      |
+      | x | svz_vasprintf            | unused     | internalize                |
+      | x | svz_asprintf             | GNU        | avoid                      |
+      | x | svz_snprintf             | 2011!      | use ‘snprintf’ directly    |
+      | x | svz_strcasecmp           | danger     | use ‘strncasecmp’ instead  |
+      | x | svz_strncasecmp          | 2011!      | use ‘strncasecmp’ directly |
+      | x | svz_build                | cruft      | avoid                      |
+      | x | svz_have_Win32           | pure lose  | avoid                      |
+      | x | svz_have_debug           | var        | obsoleted by "features"    |
+      | x | svz_have_floodprotect    | var        | obsoleted by "features"    |
+      |   | svz_os_version           | woe        | internalize                |
+      |   | svz_syserror             | woe        | generalize                 |
+      |   | svz_sys_version          | spewful    | split up                   |
+      |   | svz_mutex_*              | suboptimal | internalize                |
+      |   | svz_inet_{ntoa,aton}     | IPv4 only  | internalize                |
+      |   | svz_fd_{non}block        | waste      | combine into one func      |
+      |   | svz_codec_init           | impl       | internalize                |
+      |   | svz_codec_finalize       | impl       | internalize                |
+      |   | svz_dynload_init         | impl       | interanlize                |
+      |   | svz_dynload_finalize     | impl       | internalize                |
+      |   | svz_strsignal_init       | impl       | internalize                |
+      |   | svz_strsignal_destroy    | impl       | internalize                |
+      |   | svz_sock_table_create    | impl       | internalize                |
+      |   | svz_sock_table_destroy   | impl       | internalize                |
+      |   | svz_signal_up            | impl       | internalize                |
+      |   | svz_signal_dn            | impl       | internalize                |
+      |   | svz_init_config          | impl       | internalize                |
+      |   | svz_interface_collect    | impl       | internalize                |
+      |   | svz_interface_free       | impl       | internalize                |
+      |   | svz_net_startup          | impl       | internalize                |
+      |   | svz_net_cleanup          | impl       | internalize                |
+      |   | svz_pipe_startup         | impl       | internalize                |
+      |   | svz_pipe_cleanup         | impl       | internalize                |
+      |   | svz_config_type_init     | impl       | internalize                |
+      |   | svz_config_type_finalize | impl       | internalize                |
+***** TODO use "hidden" attribute (gcc only)
 *** TODO Update Guile support.
 ***** TODO update internal interfaces
 ******* TODO SCM_INUM (m)
@@ -83,29 +112,31 @@ See the end for copying conditions.
 ******* TODO scm_c_string2str
 ******* TODO scm_c_symbol2str
 ******* DONE scm_cur_inp (v) => scm_current_input_port (f)
-******* TODO scm_int2num
+******* DONE scm_int2num (f) => gi_integer2scm (f)
 ******* TODO scm_listify
-******* TODO scm_long2num
-******* TODO scm_makfrom0str
-******* TODO scm_mem2string
+******* TODO scm_long2num (f) => gi_integer2scm (f)
+******* DONE scm_makfrom0str (f) => gi_string2scm (f)
+******* DONE scm_mem2string (f) => gi_nstring2scm (f)
 ******* TODO scm_must_free
 ******* TODO scm_must_malloc
 ******* TODO scm_must_realloc
 ******* TODO scm_num2long
-******* TODO scm_protect_object
+******* DONE scm_protect_object (f) => gi_gc_protect (f)
 ******* TODO scm_str2symbol
-******* TODO scm_ulong2num
-******* TODO scm_unprotect_object
+******* DONE scm_ulong2num (f) => gi_nnint2scm (f)
+******* DONE scm_unprotect_object (f) => gi_gc_unprotect (f)
 ***** TODO snarf definitions
-***** TODO add proc ‘libserveez-features’
+***** DONE add proc ‘libserveez-features’
 ***** TODO refactor getter/setter support
 *** TODO Enable / augment the Guile tests.
 ***** TODO add driver
 *** TODO Spiff documentation
+***** TODO grammar and misc style fixes
 ***** DONE move to GFDL 1.3
 ***** DONE two spaces after sentences
 ***** DONE merge API into primary manual
-***** TODO index scheme interface elements
+***** DONE say "Scheme Procedure" instead of "Function"
+***** DONE index scheme interface elements
 
 * other stuff to do
 *** [[elisp:(grep%20"git%20grep%20-n%20-H%20-E%20-e%20'(FIXME|TODO)'%20|%20grep%20-v%20-E%20'(^HACKING|ChangeLog)'")][grep FIXME|TODO]]
@@ -380,6 +411,7 @@ to be ephemeral, undergoing rebase, amendment, and ultimately removal.
 * etc
 #+STARTUP: odd
 #+LINK: dbts   http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=
+#+LINK: svsup  https://savannah.gnu.org/support/?
 
 
 Copyright (C) 2011 Thien-Thi Nguyen
