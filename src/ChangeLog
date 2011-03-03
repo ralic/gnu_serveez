@@ -1,5 +1,13 @@
 2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use ‘PACKAGE_VERSION’ directly.
+
+	* Makefile.am (EXTRA_DIST): Remove version.h.serveez.
+	(version.h.serveez): Delete target.
+	* version.h.in: Delete file.
+
+2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use EXIT_{SUCCESS,FAILURE} from <stdlib.h>.
 
 	* http-server/http-cgi.c (cool): New macro.

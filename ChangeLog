@@ -1,3 +1,11 @@
+2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use ‘PACKAGE_VERSION’ directly.
+
+	* configure.ac (AC_CONFIG_FILES): Remove src/version.h.
+	* build-aux/vcgen.bat: Don't create version.h.
+	* README-Win32: Update.
+
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop: svz_strcasecmp

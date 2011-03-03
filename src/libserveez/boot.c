@@ -28,7 +28,6 @@
 # include <winsock2.h>
 #endif
 
-#include "version.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/vector.h"
@@ -51,7 +50,7 @@ svz_config_t svz_config = { NULL, 0, 0, 0 };
 /* The symbolic name of the core library.  */
 char *svz_library = "serveez";
 /* The version of the core library.  */
-char *svz_version = __serveez_version;
+char *svz_version = PACKAGE_VERSION;
 
 /*
  * Return a list (length saved to @var{count}) of strings

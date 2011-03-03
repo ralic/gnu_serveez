@@ -94,7 +94,7 @@ serveez.cfg: $(top_srcdir)/data/serveez.cfg
 
 # woe
 
-EXTRA_DIST += svzconfig.h.serveez config.h.serveez version.h.serveez
+EXTRA_DIST += svzconfig.h.serveez config.h.serveez
 
 resource_OBJECTS = $(resource_FILES:.rc=.ro)
 serveez_DEPENDENCIES += $(resource_OBJECTS)
@@ -110,9 +110,6 @@ svzconfig.h.serveez: svzconfig.h
 	cp $< $@
 
 config.h.serveez: config.h
-	cp $< $@
-
-version.h.serveez: version.h
 	cp $< $@
 
 stems = $(bin_PROGRAMS)

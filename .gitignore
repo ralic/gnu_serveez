@@ -62,7 +62,6 @@ Makefile.in
 /src/serveez.cfg
 /src/stamp-h*
 /src/svzconfig.h
-/src/version.h
 
 /src/irc-server/timestamp.c
 

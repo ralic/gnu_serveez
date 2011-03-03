@@ -1,5 +1,12 @@
 2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use ‘PACKAGE_VERSION’ directly.
+
+	* boot.c: Don't #include "version.h".
+	(svz_version): Use ‘PACKAGE_VERSION’.
+
+2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use EXIT_{SUCCESS,FAILURE} from <stdlib.h>.
 
 	* alloc.c (oom): New macro.

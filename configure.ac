@@ -675,7 +675,6 @@ dnl Output files.
 dnl
 AC_CONFIG_FILES([
     Makefile src/Makefile src/libserveez/Makefile
-    src/version.h
     src/libserveez/coserver/Makefile
     src/libserveez/codec/Makefile
     src/serveez-config
