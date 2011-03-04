@@ -25,6 +25,17 @@
 
 #include <stdio.h>
 
+/* begin svzint */
+#if GCC_HAS_ATTRIBUTE_VISIBILITY
+#define DSOPRIVATE  __attribute__ ((__visibility__ ("hidden")))
+#else
+#define DSOPRIVATE
+#endif
+
+/* Serveez build only.  */
+#define SBO  DSOPRIVATE extern
+/* end svzint */
+
 /* __BEGIN_DECLS should be used at the beginning of your declarations,
    so that C++ compilers don't mangle their names.  Use __END_DECLS at
    the end of C declarations.  */

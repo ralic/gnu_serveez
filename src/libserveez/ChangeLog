@@ -1,5 +1,12 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Add decl fragments: DSOPRIVATE, SBO
+
+	* defines.h (DSOPRIVATE, SBO):
+	New #define:s, marked "svzint".
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Mark #include "libservez/foo.h" as internal.
 
 	* alloc.h: Put "begin svzint", "end svzint"
