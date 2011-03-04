@@ -21,6 +21,7 @@
 #ifndef __LIBSERVEEZ_H__
 #define __LIBSERVEEZ_H__ 1
 
+#include "libserveez/defines.h"
 #include "libserveez/boot.h"
 #include "libserveez/alloc.h"
 #include "libserveez/array.h"
@@ -30,7 +31,6 @@
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"
-#include "libserveez/portcfg.h"
 #include "libserveez/cfg.h"
 #include "libserveez/server.h"
 #include "libserveez/binding.h"
@@ -39,6 +39,7 @@
 #include "libserveez/udp-socket.h"
 #include "libserveez/icmp-socket.h"
 #include "libserveez/raw-socket.h"
+#include "libserveez/portcfg.h"
 #include "libserveez/server-core.h"
 #include "libserveez/server-loop.h"
 #include "libserveez/server-socket.h"
