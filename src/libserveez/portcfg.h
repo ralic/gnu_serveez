@@ -30,10 +30,12 @@
 # include <winsock2.h>
 #endif
 
+/* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
 #include "libserveez/hash.h"
 #include "libserveez/pipe-socket.h"
+/* end svzint */
 
 /* Port configuration items.  */
 #define PORTCFG_PORT    "port"

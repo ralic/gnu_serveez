@@ -1,5 +1,37 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Mark #include "libservez/foo.h" as internal.
+
+	* alloc.h: Put "begin svzint", "end svzint"
+	comments around #include "libserveez/foo.h" lines.
+	* array.h: Likewise.
+	* binding.h: Likewise.
+	* boot.h: Likewise.
+	* cfg.h: Likewise.
+	* core.h: Likewise.
+	* dynload.h: Likewise.
+	* hash.h: Likewise.
+	* icmp-socket.h: Likewise.
+	* interface.h: Likewise.
+	* mutex.h: Likewise.
+	* passthrough.h: Likewise.
+	* pipe-socket.h: Likewise.
+	* portcfg.h: Likewise.
+	* raw-socket.h: Likewise.
+	* server-core.h: Likewise.
+	* server-loop.h: Likewise.
+	* server-socket.h: Likewise.
+	* server.h: Likewise.
+	* socket.h: Likewise.
+	* sparsevec.h: Likewise.
+	* tcp-socket.h: Likewise.
+	* udp-socket.h: Likewise.
+	* util.h: Likewise.
+	* vector.h: Likewise.
+	* windoze.h: Likewise.
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Don't mention variable name in its docstring.
 
 	* server-core.c (svz_nuke_happened):

@@ -21,7 +21,9 @@
 #ifndef __DYNLOAD_H__
 #define __DYNLOAD_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /* Structure holding a shared libraries info.  */
 typedef struct

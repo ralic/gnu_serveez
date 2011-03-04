@@ -21,7 +21,9 @@
 #ifndef __SERVER_SOCKET_H__
 #define __SERVER_SOCKET_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 __BEGIN_DECLS
 

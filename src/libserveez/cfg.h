@@ -22,9 +22,11 @@
 #ifndef __CFG_H__
 #define __CFG_H__ 1
 
+/* begin svzint */
 #include "libserveez/array.h"
 #include "libserveez/hash.h"
 #include "libserveez/portcfg.h"
+/* end svzint */
 
 /*
  * Each server can have a an array of key-value-pairs specific for it.

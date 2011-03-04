@@ -22,8 +22,10 @@
 #ifndef __ARRAY_H__
 #define __ARRAY_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/alloc.h"
+/* end svzint */
 
 typedef struct svz_array
 {

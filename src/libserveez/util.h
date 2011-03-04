@@ -23,7 +23,9 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 #include <sys/stat.h>
 #include <fcntl.h>

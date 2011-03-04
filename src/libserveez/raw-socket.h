@@ -21,7 +21,9 @@
 #ifndef __RAW_SOCKET_H__
 #define __RAW_SOCKET_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /* local definitions */
 #define IP_VERSION_4     4

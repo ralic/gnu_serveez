@@ -23,9 +23,11 @@
 #ifndef __SERVER_CORE_H__
 #define __SERVER_CORE_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
 #include "libserveez/portcfg.h"
+/* end svzint */
 
 SERVEEZ_API int svz_nuke_happened;
 SERVEEZ_API svz_t_handle svz_child_died;

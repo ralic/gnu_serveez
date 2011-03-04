@@ -21,7 +21,9 @@
 #ifndef __BOOT_H__
 #define __BOOT_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /*
  * General serveez configuration structure.

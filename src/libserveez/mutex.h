@@ -21,7 +21,9 @@
 #ifndef __MUTEX_H__
 #define __MUTEX_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 #if SVZ_HAVE_PTHREAD_H
 # include <pthread.h>

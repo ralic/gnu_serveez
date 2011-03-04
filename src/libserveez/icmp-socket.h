@@ -21,8 +21,10 @@
 #ifndef __ICMP_SOCKET_H__
 #define __ICMP_SOCKET_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
+/* end svzint */
 
 /* local definitions */
 #define ICMP_HEADER_SIZE 10

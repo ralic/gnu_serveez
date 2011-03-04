@@ -22,7 +22,9 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /*
  * Structure for collecting IP interfaces.

@@ -21,8 +21,10 @@
 #ifndef __CORE_H__
 #define __CORE_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
+/* end svzint */
 
 #include <sys/stat.h>
 

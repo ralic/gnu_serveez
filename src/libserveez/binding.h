@@ -21,7 +21,9 @@
 #ifndef __BINDING_H__
 #define __BINDING_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /*
  * A server can typically be bound to different port configurations.  This

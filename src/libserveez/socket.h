@@ -22,7 +22,9 @@
 #ifndef __SOCKET_H__
 #define __SOCKET_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /* How much data is accepted before valid detection.  */
 #define SOCK_MAX_DETECTION_FILL 16

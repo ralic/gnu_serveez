@@ -21,7 +21,9 @@
 #ifndef __PASSTHROUGH_H__
 #define __PASSTHROUGH_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 #ifdef __MINGW32__
 typedef char * svz_envp_t;

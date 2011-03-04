@@ -21,7 +21,9 @@
 #ifndef __VECTOR_H__
 #define __VECTOR_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
+/* end svzint */
 
 /* Definition of an vector structure.  */
 typedef struct

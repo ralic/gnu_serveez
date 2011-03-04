@@ -22,11 +22,13 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__ 1
 
+/* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/array.h"
 #include "libserveez/hash.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/cfg.h"
+/* end svzint */
 
 typedef struct svz_servertype svz_servertype_t;
 typedef struct svz_server svz_server_t;
