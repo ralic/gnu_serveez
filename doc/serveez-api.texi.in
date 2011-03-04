@@ -138,7 +138,7 @@ The @file{configure} script used to build libserveez takes many options
 (@pxref{Build and install}).
 Some of these are encapsulated by @code{svz_library_features}.
 
-SVZ_LIBRARY_FEATURES_DEFUN
+|F| svz_library_features
 
 @noindent
 Here is a table describing the features in detail:
@@ -178,23 +178,23 @@ and @code{free} make it possible to instruct Serveez to use different
 kinds of memory, which might be necessary if you want the library to work
 with shared memory arenas or any other underlying memory API.
 
-SVZ_MALLOC_FUNC_DEFVAR
-SVZ_REALLOC_FUNC_DEFVAR
-SVZ_FREE_FUNC_DEFVAR
+|V| svz_malloc_func
+|V| svz_realloc_func
+|V| svz_free_func
 
-SVZ_MALLOC_DEFUN
-SVZ_CALLOC_DEFUN
-SVZ_REALLOC_DEFUN
-SVZ_FREE_DEFUN
-SVZ_FREE_AND_ZERO_DEFMAC
-SVZ_STRDUP_DEFUN
+|F| svz_malloc
+|F| svz_calloc
+|F| svz_realloc
+|F| svz_free
+|M| svz_free_and_zero
+|F| svz_strdup
 
-SVZ_PMALLOC_DEFUN
-SVZ_PREALLOC_DEFUN
-SVZ_PSTRDUP_DEFUN
+|F| svz_pmalloc
+|F| svz_prealloc
+|F| svz_pstrdup
 
-SVZ_GET_CURALLOC_DEFUN
-SVZ_HEAP_DEFUN
+|F| svz_get_curalloc
+|F| svz_heap
 
 @node Data structures
 @subsection Data structures
@@ -220,23 +220,23 @@ a size and capacity.  The array indices range from zero to the arrays size
 minus one.  You can put any kind of data into this array which fits into the
 size of a pointer.  The array automatically grows if necessary.
 
-SVZ_ARRAY_CREATE_DEFUN
-SVZ_ARRAY_CLEAR_DEFUN
-SVZ_ARRAY_DESTROY_DEFUN
-SVZ_ARRAY_DESTROY_ZERO_DEFUN
-SVZ_ARRAY_GET_DEFUN
-SVZ_ARRAY_SET_DEFUN
-SVZ_ARRAY_ADD_DEFUN
-SVZ_ARRAY_DEL_DEFUN
-SVZ_ARRAY_CAPACITY_DEFUN
-SVZ_ARRAY_SIZE_DEFUN
-SVZ_ARRAY_INS_DEFUN
-SVZ_ARRAY_IDX_DEFUN
-SVZ_ARRAY_CONTAINS_DEFUN
-SVZ_ARRAY_FOREACH_DEFMAC
-SVZ_ARRAY_STRDUP_DEFUN
-SVZ_ARRAY_DUP_DEFUN
-SVZ_ARRAY_VALUES_DEFUN
+|F| svz_array_create
+|F| svz_array_clear
+|F| svz_array_destroy
+|F| svz_array_destroy_zero
+|F| svz_array_get
+|F| svz_array_set
+|F| svz_array_add
+|F| svz_array_del
+|F| svz_array_capacity
+|F| svz_array_size
+|F| svz_array_ins
+|F| svz_array_idx
+|F| svz_array_contains
+|M| svz_array_foreach
+|F| svz_array_strdup
+|F| svz_array_dup
+|F| svz_array_values
 
 @node Hashtable
 @subsubsection Hashtable
@@ -247,21 +247,21 @@ use keys in order to access values instead of numbers.  You cannot store
 two values associated with the same key.  The values can have any simple
 C types like integers or pointers.
 
-SVZ_HASH_CREATE_DEFUN
-SVZ_HASH_DESTROY_DEFUN
-SVZ_HASH_CLEAR_DEFUN
-SVZ_HASH_DELETE_DEFUN
-SVZ_HASH_PUT_DEFUN
-SVZ_HASH_GET_DEFUN
-SVZ_HASH_VALUES_DEFUN
-SVZ_HASH_KEYS_DEFUN
-SVZ_HASH_XFREE_DEFUN
-SVZ_HASH_SIZE_DEFUN
-SVZ_HASH_CAPACITY_DEFUN
-SVZ_HASH_CONTAINS_DEFUN
-SVZ_HASH_EXISTS_DEFUN
-SVZ_HASH_FOREACH_KEY_DEFMAC
-SVZ_HASH_FOREACH_VALUE_DEFMAC
+|F| svz_hash_create
+|F| svz_hash_destroy
+|F| svz_hash_clear
+|F| svz_hash_delete
+|F| svz_hash_put
+|F| svz_hash_get
+|F| svz_hash_values
+|F| svz_hash_keys
+|F| svz_hash_xfree
+|F| svz_hash_size
+|F| svz_hash_capacity
+|F| svz_hash_contains
+|F| svz_hash_exists
+|M| svz_hash_foreach_key
+|M| svz_hash_foreach_value
 
 @node Sparsevector
 @subsubsection Sparsevector
@@ -271,22 +271,22 @@ It unifies the advantages of chained lists (less memory usage than simple
 arrays) and arrays (faster access to specific elements).  This implementation
 can handle gaps in between the array elements.
 
-SVZ_SPVEC_CREATE_DEFUN
-SVZ_SPVEC_DESTROY_DEFUN
-SVZ_SPVEC_ADD_DEFUN
-SVZ_SPVEC_CLEAR_DEFUN
-SVZ_SPVEC_CONTAINS_DEFUN
-SVZ_SPVEC_GET_DEFUN
-SVZ_SPVEC_INDEX_DEFUN
-SVZ_SPVEC_DELETE_DEFUN
-SVZ_SPVEC_DELETE_RANGE_DEFUN
-SVZ_SPVEC_SET_DEFUN
-SVZ_SPVEC_UNSET_DEFUN
-SVZ_SPVEC_SIZE_DEFUN
-SVZ_SPVEC_LENGTH_DEFUN
-SVZ_SPVEC_INSERT_DEFUN
-SVZ_SPVEC_VALUES_DEFUN
-SVZ_SPVEC_PACK_DEFUN
+|F| svz_spvec_create
+|F| svz_spvec_destroy
+|F| svz_spvec_add
+|F| svz_spvec_clear
+|F| svz_spvec_contains
+|F| svz_spvec_get
+|F| svz_spvec_index
+|F| svz_spvec_delete
+|F| svz_spvec_delete_range
+|F| svz_spvec_set
+|F| svz_spvec_unset
+|F| svz_spvec_size
+|F| svz_spvec_length
+|F| svz_spvec_insert
+|F| svz_spvec_values
+|F| svz_spvec_pack
 
 @node Vectorlist
 @subsubsection Vectorlist
@@ -298,18 +298,18 @@ either decremented or incremented.  This data structure is especially useful
 if you actually want to forget about the pointers you put into it for it
 saves copies and not the pointers itself.
 
-SVZ_VECTOR_CREATE_DEFUN
-SVZ_VECTOR_DESTROY_DEFUN
-SVZ_VECTOR_CLEAR_DEFUN
-SVZ_VECTOR_ADD_DEFUN
-SVZ_VECTOR_GET_DEFUN
-SVZ_VECTOR_SET_DEFUN
-SVZ_VECTOR_DEL_DEFUN
-SVZ_VECTOR_INS_DEFUN
-SVZ_VECTOR_IDX_DEFUN
-SVZ_VECTOR_CONTAINS_DEFUN
-SVZ_VECTOR_LENGTH_DEFUN
-SVZ_VECTOR_FOREACH_DEFMAC
+|F| svz_vector_create
+|F| svz_vector_destroy
+|F| svz_vector_clear
+|F| svz_vector_add
+|F| svz_vector_get
+|F| svz_vector_set
+|F| svz_vector_del
+|F| svz_vector_ins
+|F| svz_vector_idx
+|F| svz_vector_contains
+|F| svz_vector_length
+|M| svz_vector_foreach
 
 @node Utility functions
 @subsection Utility functions
@@ -317,28 +317,28 @@ SVZ_VECTOR_FOREACH_DEFMAC
 Within this section you will find some miscellaneous functionality and
 left overs of the C API.
 
-SVZ_LOG_DEFUN
-SVZ_LOG_SETFILE_DEFUN
+|F| svz_log
+|F| svz_log_setfile
 
-SVZ_OS_VERSION_DEFVAR
+|V| svz_os_version
 @strong{Please note}:
 This variable is only available on Windows version of this API.
-SVZ_ERRNO_DEFVAR
+|V| svz_errno
 
-SVZ_NUM2PTR_DEFMAC
-SVZ_PTR2NUM_DEFMAC
+|M| SVZ_NUM2PTR
+|M| SVZ_PTR2NUM
 
-SVZ_HEXDUMP_DEFUN
-SVZ_ITOA_DEFUN
-SVZ_ATOI_DEFUN
-SVZ_GETCWD_DEFUN
-SVZ_OPENFILES_DEFUN
-SVZ_TIME_DEFUN
-SVZ_UPTIME_DEFUN
-SVZ_TOLOWER_DEFUN
-SVZ_SYS_VERSION_DEFUN
-SVZ_HSTRERROR_DEFUN
-SVZ_SYSERROR_DEFUN
+|F| svz_hexdump
+|F| svz_itoa
+|F| svz_atoi
+|F| svz_getcwd
+|F| svz_openfiles
+|F| svz_time
+|F| svz_uptime
+|F| svz_tolower
+|F| svz_sys_version
+|F| svz_hstrerror
+|F| svz_syserror
 
 @node Thread safety
 @subsection Thread safety
@@ -349,12 +349,12 @@ thread safety functionality inside applications using the core library
 functionality when configure'ing the Serveez package.  Otherwise the
 macros default to empty statements.
 
-SVZ_MUTEX_DEFINE_DEFMAC
-SVZ_MUTEX_DECLARE_DEFMAC
-SVZ_MUTEX_CREATE_DEFUN
-SVZ_MUTEX_DESTROY_DEFUN
-SVZ_MUTEX_LOCK_DEFUN
-SVZ_MUTEX_UNLOCK_DEFUN
+|M| svz_mutex_define
+|M| svz_mutex_declare
+|F| svz_mutex_create
+|F| svz_mutex_destroy
+|F| svz_mutex_lock
+|F| svz_mutex_unlock
 
 @node Core functions
 @subsection Networking and other low level functions
@@ -363,25 +363,25 @@ The following chapter deals with the basic networking and file systems
 functions.  It encapsulates systems calls in a portable manner.  These
 functions should behave identical on Windows and Unices.
 
-SVZ_INET_NTOA_DEFUN
-SVZ_INET_ATON_DEFUN
-SVZ_SOCKET_CONNECT_DEFUN
-SVZ_SOCKET_CREATE_DEFUN
-SVZ_SOCKET_CREATE_PAIR_DEFUN
-SVZ_SOCKET_TYPE_DEFUN
-SVZ_FD_CLOEXEC_DEFUN
-SVZ_FD_NONBLOCK_DEFUN
-SVZ_FD_BLOCK_DEFUN
-SVZ_TCP_CORK_DEFUN
-SVZ_TCP_NODELAY_DEFUN
-SVZ_SENDFILE_DEFUN
-SVZ_OPEN_DEFUN
-SVZ_CLOSE_DEFUN
-SVZ_FSTAT_DEFUN
-SVZ_FOPEN_DEFUN
-SVZ_FCLOSE_DEFUN
-SVZ_FILE_PATH_DEFUN
-SVZ_FILE_CHECK_DEFUN
+|F| svz_inet_ntoa
+|F| svz_inet_aton
+|F| svz_socket_connect
+|F| svz_socket_create
+|F| svz_socket_create_pair
+|F| svz_socket_type
+|F| svz_fd_cloexec
+|F| svz_fd_nonblock
+|F| svz_fd_block
+|F| svz_tcp_cork
+|F| svz_tcp_nodelay
+|F| svz_sendfile
+|F| svz_open
+|F| svz_close
+|F| svz_fstat
+|F| svz_fopen
+|F| svz_fclose
+|F| svz_file_path
+|F| svz_file_check
 
 @node Client connections
 @subsection Client connections
@@ -410,12 +410,12 @@ that the data arrives in order and retransmits lost packets.  It generates
 and checks a per packet checksum to catch transmission errors.  TCP does
 not preserve record boundaries.
 
-SVZ_TCP_CONNECT_DEFUN
-SVZ_TCP_DEFAULT_CONNECT_DEFUN
-SVZ_TCP_READ_SOCKET_DEFUN
-SVZ_TCP_WRITE_SOCKET_DEFUN
-SVZ_TCP_RECV_OOB_DEFUN
-SVZ_TCP_SEND_OOB_DEFUN
+|F| svz_tcp_connect
+|F| svz_tcp_default_connect
+|F| svz_tcp_read_socket
+|F| svz_tcp_write_socket
+|F| svz_tcp_recv_oob
+|F| svz_tcp_send_oob
 
 @node Pipe connections
 @subsubsection Pipe connections
@@ -433,18 +433,18 @@ it for reading or writing, in the same way as an ordinary file.  However,
 it has to be open at both ends simultaneously before you can proceed to do
 any input or output operations on it.
 
-SVZ_PIPE_ALLOC_DEFUN
-SVZ_PIPE_DESTROY_DEFUN
-SVZ_PIPE_VALID_DEFUN
-SVZ_PIPE_READ_SOCKET_DEFUN
-SVZ_PIPE_WRITE_SOCKET_DEFUN
-SVZ_PIPE_DISCONNECT_DEFUN
-SVZ_PIPE_CREATE_DEFUN
-SVZ_PIPE_CREATE_PAIR_DEFUN
-SVZ_PIPE_CONNECT_DEFUN
-SVZ_PIPE_LISTENER_DEFUN
-SVZ_PIPE_CHECK_USER_DEFUN
-SVZ_PIPE_CHECK_GROUP_DEFUN
+|F| svz_pipe_alloc
+|F| svz_pipe_destroy
+|F| svz_pipe_valid
+|F| svz_pipe_read_socket
+|F| svz_pipe_write_socket
+|F| svz_pipe_disconnect
+|F| svz_pipe_create
+|F| svz_pipe_create_pair
+|F| svz_pipe_connect
+|F| svz_pipe_listener
+|F| svz_pipe_check_user
+|F| svz_pipe_check_group
 
 @node UDP sockets
 @subsubsection UDP sockets
@@ -453,13 +453,13 @@ The UDP sockets implement a connectionless, unreliable datagram packet
 service.  Packets may be reordered or duplicated before they arrive.  UDP
 generates and checks checksums to catch transmission errors.
 
-SVZ_UDP_READ_SOCKET_DEFUN
-SVZ_UDP_LAZY_READ_SOCKET_DEFUN
-SVZ_UDP_WRITE_SOCKET_DEFUN
-SVZ_UDP_CHECK_REQUEST_DEFUN
-SVZ_UDP_CONNECT_DEFUN
-SVZ_UDP_WRITE_DEFUN
-SVZ_UDP_PRINTF_DEFUN
+|F| svz_udp_read_socket
+|F| svz_udp_lazy_read_socket
+|F| svz_udp_write_socket
+|F| svz_udp_check_request
+|F| svz_udp_connect
+|F| svz_udp_write
+|F| svz_udp_printf
 
 @node ICMP sockets
 @subsubsection ICMP sockets
@@ -472,16 +472,16 @@ The types of ICMP packets passed to the socket can be filtered using the
 ICMP_FILTER socket option (or by software as done here).  ICMP packets are
 always processed by the kernel too, even when passed to a user socket.
 
-SVZ_ICMP_STARTUP_DEFUN
-SVZ_ICMP_CLEANUP_DEFUN
-SVZ_ICMP_READ_SOCKET_DEFUN
-SVZ_ICMP_LAZY_READ_SOCKET_DEFUN
-SVZ_ICMP_WRITE_SOCKET_DEFUN
-SVZ_ICMP_CHECK_REQUEST_DEFUN
-SVZ_ICMP_CONNECT_DEFUN
-SVZ_ICMP_SEND_CONTROL_DEFUN
-SVZ_ICMP_WRITE_DEFUN
-SVZ_ICMP_PRINTF_DEFUN
+|F| svz_icmp_startup
+|F| svz_icmp_cleanup
+|F| svz_icmp_read_socket
+|F| svz_icmp_lazy_read_socket
+|F| svz_icmp_write_socket
+|F| svz_icmp_check_request
+|F| svz_icmp_connect
+|F| svz_icmp_send_control
+|F| svz_icmp_write
+|F| svz_icmp_printf
 
 @node Raw sockets
 @subsubsection Raw sockets
@@ -499,10 +499,10 @@ matching the protocol number specified for the raw socket are passed to
 this socket.  A protocol of IPPROTO_RAW implies enabled IP_HDRINCL and
 receives all IP protocols.  Sending is not allowed.
 
-SVZ_RAW_GET_IP_HEADER_DEFUN
-SVZ_RAW_PUT_IP_HEADER_DEFUN
-SVZ_RAW_IP_CHECKSUM_DEFUN
-SVZ_RAW_CHECK_IP_HEADER_DEFUN
+|F| svz_raw_get_ip_header
+|F| svz_raw_put_ip_header
+|F| svz_raw_ip_checksum
+|F| svz_raw_check_ip_header
 
 @node Passthrough connections
 @subsubsection Passthrough connections
@@ -519,18 +519,18 @@ to the child process.  All of the three method are implemented calling them
 @code{SVZ_PROCESS_FORK}, @code{SVZ_PROCESS_SHUFFLE_PIPE} and
 @code{SVZ_PROCESS_SHUFFLE_SOCK}.
 
-SVZ_SOCK_PROCESS_DEFUN
+|F| svz_sock_process
 
-SVZ_PROCESS_DISCONNECT_DEFUN
-SVZ_PROCESS_DISCONNECT_PASSTHROUGH_DEFUN
-SVZ_PROCESS_CHECK_REQUEST_DEFUN
-SVZ_PROCESS_IDLE_DEFUN
-SVZ_PROCESS_SEND_PIPE_DEFUN
-SVZ_PROCESS_RECV_PIPE_DEFUN
-SVZ_PROCESS_SEND_SOCKET_DEFUN
-SVZ_PROCESS_RECV_SOCKET_DEFUN
+|F| svz_process_disconnect
+|F| svz_process_disconnect_passthrough
+|F| svz_process_check_request
+|F| svz_process_idle
+|F| svz_process_send_pipe
+|F| svz_process_recv_pipe
+|F| svz_process_send_socket
+|F| svz_process_recv_socket
 
-SVZ_PROCESS_CREATE_CHILD_DEFUN
+|F| svz_process_create_child
 @strong{Please note}:
 On M$-Windows platforms it is not possible to pass a socket connection
 to a child process's stdin/stdout.  That is why this function creates an
@@ -539,21 +539,21 @@ into the environment variables @code{SEND_HANDLE} and @code{RECV_HANDLE}.
 A spawned child process can use these handles as if these were created
 by itself.  After calling @code{WSAStartup} the child process can
 @code{send} and @code{recv} as usual.
-SVZ_PROCESS_SHUFFLE_DEFUN
-SVZ_PROCESS_FORK_DEFUN
+|F| svz_process_shuffle
+|F| svz_process_fork
 
-SVZ_PROCESS_CHECK_EXECUTABLE_DEFUN
-SVZ_PROCESS_SPLIT_USERGROUP_DEFUN
-SVZ_PROCESS_CHECK_ACCESS_DEFUN
+|F| svz_process_check_executable
+|F| svz_process_split_usergroup
+|F| svz_process_check_access
 
-SVZ_ENVBLOCK_CREATE_DEFUN
-SVZ_ENVBLOCK_DEFAULT_DEFUN
-SVZ_ENVBLOCK_ADD_DEFUN
-SVZ_ENVBLOCK_FREE_DEFUN
-SVZ_ENVBLOCK_DESTROY_DEFUN
-SVZ_ENVBLOCK_GET_DEFUN
-SVZ_ENVBLOCK_SETUP_DEFMAC
-SVZ_ENVIRON_DEFVAR
+|F| svz_envblock_create
+|F| svz_envblock_default
+|F| svz_envblock_add
+|F| svz_envblock_free
+|F| svz_envblock_destroy
+|F| svz_envblock_get
+|M| svz_envblock_setup
+|V| svz_environ
 
 @node Socket management
 @subsection Socket management
@@ -563,26 +563,26 @@ creation, destruction and other simple operations on socket structures
 called @code{svz_socket_t}.  See for the details at the description of each
 function which kind of socket it can handle and what they are for.
 
-SVZ_SOCK_CONNECTIONS_DEFVAR
+|V| svz_sock_connections
 
-SVZ_SOCK_VALID_DEFUN
-SVZ_SOCK_ALLOC_DEFUN
-SVZ_SOCK_FREE_DEFUN
-SVZ_SOCK_CREATE_DEFUN
-SVZ_SOCK_DISCONNECT_DEFUN
-SVZ_SOCK_WRITE_DEFUN
-SVZ_SOCK_PRINTF_DEFUN
-SVZ_SOCK_RESIZE_BUFFERS_DEFUN
-SVZ_SOCK_INTERN_CONNECTION_INFO_DEFUN
-SVZ_SOCK_LOCAL_INFO_DEFUN
-SVZ_SOCK_ERROR_INFO_DEFUN
-SVZ_SOCK_UNIQUE_ID_DEFUN
-SVZ_SOCK_DETECT_PROTO_DEFUN
-SVZ_SOCK_CHECK_REQUEST_DEFUN
-SVZ_SOCK_IDLE_PROTECT_DEFUN
-SVZ_SOCK_FLOOD_PROTECT_DEFUN
-SVZ_SOCK_REDUCE_RECV_DEFMAC
-SVZ_SOCK_REDUCE_SEND_DEFMAC
+|F| svz_sock_valid
+|F| svz_sock_alloc
+|F| svz_sock_free
+|F| svz_sock_create
+|F| svz_sock_disconnect
+|F| svz_sock_write
+|F| svz_sock_printf
+|F| svz_sock_resize_buffers
+|F| svz_sock_intern_connection_info
+|F| svz_sock_local_info
+|F| svz_sock_error_info
+|F| svz_sock_unique_id
+|F| svz_sock_detect_proto
+|F| svz_sock_check_request
+|F| svz_sock_idle_protect
+|F| svz_sock_flood_protect
+|M| svz_sock_reduce_recv
+|M| svz_sock_reduce_send
 
 @node Coserver functions
 @subsection Coserver functions
@@ -599,22 +599,22 @@ interface by calling @code{svz_coserver_init} once before entering the
 main server loop and shut it down afterwards by calling
 @code{svz_coserver_finalize}.
 
-SVZ_COSERVERTYPES_DEFVAR
-SVZ_COSERVERS_DEFVAR
+|V| svz_coservertypes
+|V| svz_coservers
 
-SVZ_COSERVER_CHECK_DEFUN
-SVZ_COSERVER_INIT_DEFUN
-SVZ_COSERVER_FINALIZE_DEFUN
-SVZ_COSERVER_DESTROY_DEFUN
-SVZ_COSERVER_CREATE_DEFUN
-SVZ_COSERVER_SEND_REQUEST_DEFUN
+|F| svz_coserver_check
+|F| svz_coserver_init
+|F| svz_coserver_finalize
+|F| svz_coserver_destroy
+|F| svz_coserver_create
+|F| svz_coserver_send_request
 
-SVZ_COSERVER_RDNS_INVOKE_DEFUN
-SVZ_COSERVER_RDNS_DEFMAC
-SVZ_COSERVER_DNS_INVOKE_DEFUN
-SVZ_COSERVER_DNS_DEFMAC
-SVZ_COSERVER_IDENT_INVOKE_DEFUN
-SVZ_COSERVER_IDENT_DEFMAC
+|F| svz_coserver_rdns_invoke
+|M| svz_coserver_rdns
+|F| svz_coserver_dns_invoke
+|M| svz_coserver_dns
+|F| svz_coserver_ident_invoke
+|M| svz_coserver_ident
 
 @node Codec functions
 @subsection Codec functions
@@ -626,17 +626,17 @@ tries to unify different types of codecs.  In order to add a new codec the
 programmer needs to write some wrapper functions around the actual
 implementation to fulfil certain entry and exit semantics of this interface.
 
-SVZ_CODEC_LIST_DEFUN
-SVZ_CODEC_GET_DEFUN
-SVZ_CODEC_RATIO_DEFUN
-SVZ_CODEC_REGISTER_DEFUN
-SVZ_CODEC_UNREGISTER_DEFUN
-SVZ_CODEC_SOCK_RECEIVE_SETUP_DEFUN
-SVZ_CODEC_SOCK_RECEIVE_DEFUN
-SVZ_CODEC_SOCK_SEND_SETUP_DEFUN
-SVZ_CODEC_SOCK_SEND_DEFUN
-SVZ_CODEC_SOCK_DISCONNECT_DEFUN
-SVZ_CODEC_SOCK_DETECT_DEFUN
+|F| svz_codec_list
+|F| svz_codec_get
+|F| svz_codec_ratio
+|F| svz_codec_register
+|F| svz_codec_unregister
+|F| svz_codec_sock_receive_setup
+|F| svz_codec_sock_receive
+|F| svz_codec_sock_send_setup
+|F| svz_codec_sock_send
+|F| svz_codec_sock_disconnect
+|F| svz_codec_sock_detect
 
 @node Server types
 @subsection Server types
@@ -661,15 +661,15 @@ When specifying a server type you also need to define configuration items
 for it.  These items refer to addresses in the example configuration of the
 server type.  The following macros can be used to determine these items.
 
-SVZ_REGISTER_INT_DEFMAC
-SVZ_REGISTER_BOOL_DEFMAC
-SVZ_REGISTER_INTARRAY_DEFMAC
-SVZ_REGISTER_STR_DEFMAC
-SVZ_REGISTER_STRARRAY_DEFMAC
-SVZ_REGISTER_HASH_DEFMAC
-SVZ_REGISTER_PORTCFG_DEFMAC
-SVZ_REGISTER_END_DEFMAC
-SVZ_CONFIG_DEFINE_DEFMAC
+|M| SVZ_REGISTER_INT
+|M| SVZ_REGISTER_BOOL
+|M| SVZ_REGISTER_INTARRAY
+|M| SVZ_REGISTER_STR
+|M| SVZ_REGISTER_STRARRAY
+|M| SVZ_REGISTER_HASH
+|M| SVZ_REGISTER_PORTCFG
+|M| SVZ_REGISTER_END
+|M| SVZ_CONFIG_DEFINE
 
 @node General server type functionality
 @subsubsection General server type functionality
@@ -678,13 +678,13 @@ The following set of functions are used to manage the list of known server
 types in the serveez core library.  Serveez itself uses some of these functions
 to register its builtin server types.
 
-SVZ_SERVERTYPES_DEFVAR
-SVZ_SERVERTYPE_ADD_DEFUN
-SVZ_SERVERTYPE_DEL_DEFUN
-SVZ_SERVERTYPE_GET_DEFUN
-SVZ_SERVERTYPE_FIND_DEFUN
-SVZ_SERVERTYPE_FINALIZE_DEFUN
-SVZ_SERVERTYPE_PRINT_DEFUN
+|V| svz_servertypes
+|F| svz_servertype_add
+|F| svz_servertype_del
+|F| svz_servertype_get
+|F| svz_servertype_find
+|F| svz_servertype_finalize
+|F| svz_servertype_print
 
 @node Dynamic server loading
 @subsubsection Dynamic server loading
@@ -695,10 +695,10 @@ system to load shared libraries (or DLLs on Win32).  This has been
 successfully tested on Windows and GNU/Linux.  Other systems are supported
 but yet untested.  Please tell us if noticing any misbehaviour.
 
-SVZ_SERVERTYPE_LOAD_DEFUN
-SVZ_SERVERTYPE_UNLOAD_DEFUN
-SVZ_DYNLOAD_PATH_SET_DEFUN
-SVZ_DYNLOAD_PATH_GET_DEFUN
+|F| svz_servertype_load
+|F| svz_servertype_unload
+|F| svz_dynload_path_set
+|F| svz_dynload_path_get
 
 @node Server functions
 @subsection Server functions
@@ -723,20 +723,20 @@ The following section contains functions dealing with the list of known
 servers in the core library of serveez, also with the basics like creation
 and destruction of such servers.
 
-SVZ_SERVERS_DEFVAR
-SVZ_SERVER_FIND_DEFUN
-SVZ_SERVER_CLIENTS_DEFUN
-SVZ_SERVER_ADD_DEFUN
-SVZ_SERVER_GET_DEFUN
-SVZ_SERVER_DEL_DEFUN
-SVZ_SERVER_INIT_DEFUN
-SVZ_SERVER_FINALIZE_DEFUN
-SVZ_SERVER_INSTANTIATE_DEFUN
-SVZ_SERVER_NOTIFIERS_DEFUN
-SVZ_SERVER_RESET_DEFUN
-SVZ_SERVER_INIT_ALL_DEFUN
-SVZ_SERVER_FINALIZE_ALL_DEFUN
-SVZ_SERVER_FREE_DEFUN
+|V| svz_servers
+|F| svz_server_find
+|F| svz_server_clients
+|F| svz_server_add
+|F| svz_server_get
+|F| svz_server_del
+|F| svz_server_init
+|F| svz_server_finalize
+|F| svz_server_instantiate
+|F| svz_server_notifiers
+|F| svz_server_reset
+|F| svz_server_init_all
+|F| svz_server_finalize_all
+|F| svz_server_free
 
 @node Server configuration
 @subsubsection Configuration
@@ -745,22 +745,22 @@ These functions provide an interface for configuring a server.  They are
 used to create and modify the default configuration of a server type in
 order to create a server configuration.
 
-SVZ_SERVER_CONFIGURE_DEFUN
+|F| svz_server_configure
 
-SVZ_CONFIG_TYPE_ADD_DEFUN
-SVZ_CONFIG_TYPE_INSTANTIATE_DEFUN
-SVZ_CONFIG_PROTOTYPE_PRINT_DEFUN
-SVZ_CONFIG_FREE_DEFUN
-SVZ_CONFIG_INSTANTIATE_DEFUN
-SVZ_CONFIG_INTARRAY_CREATE_DEFUN
-SVZ_CONFIG_INTARRAY_DESTROY_DEFUN
-SVZ_CONFIG_INTARRAY_DUP_DEFUN
-SVZ_CONFIG_STRARRAY_CREATE_DEFUN
-SVZ_CONFIG_STRARRAY_DESTROY_DEFUN
-SVZ_CONFIG_STRARRAY_DUP_DEFUN
-SVZ_CONFIG_HASH_CREATE_DEFUN
-SVZ_CONFIG_HASH_DESTROY_DEFUN
-SVZ_CONFIG_HASH_DUP_DEFUN
+|F| svz_config_type_add
+|F| svz_config_type_instantiate
+|F| svz_config_prototype_print
+|F| svz_config_free
+|F| svz_config_instantiate
+|F| svz_config_intarray_create
+|F| svz_config_intarray_destroy
+|F| svz_config_intarray_dup
+|F| svz_config_strarray_create
+|F| svz_config_strarray_destroy
+|F| svz_config_strarray_dup
+|F| svz_config_hash_create
+|F| svz_config_hash_destroy
+|F| svz_config_hash_dup
 
 @node Server binding
 @subsubsection Bindings
@@ -770,62 +770,62 @@ configurations as described in @ref{Port config funcs} and server
 instances.  When binding a server to a specific port configuration the
 core library creates listeners as needed by itself.
 
-SVZ_SERVER_BIND_DEFUN
-SVZ_SERVER_UNBIND_DEFUN
-SVZ_SERVER_PORTCFGS_DEFUN
-SVZ_SERVER_BINDINGS_DEFUN
-SVZ_SERVER_LISTENERS_DEFUN
-SVZ_SERVER_SINGLE_LISTENER_DEFUN
-SVZ_SOCK_ADD_SERVER_DEFUN
-SVZ_SOCK_DEL_SERVER_DEFUN
-SVZ_SOCK_FIND_PORTCFG_DEFUN
-SVZ_SOCK_FIND_PORTCFGS_DEFUN
-SVZ_SOCK_BIND_PORT_DEFUN
-SVZ_SOCK_BINDINGS_DEFUN
-SVZ_SOCK_SERVERS_DEFUN
-SVZ_BINDING_CREATE_DEFUN
-SVZ_BINDING_DESTROY_DEFUN
-SVZ_BINDING_CONTAINS_DEFUN
-SVZ_BINDING_JOIN_DEFUN
-SVZ_BINDING_FIND_DEFUN
-SVZ_BINDING_FIND_SERVER_DEFUN
-SVZ_BINDING_CONTAINS_SERVER_DEFUN
-SVZ_BINDING_FILTER_PIPE_DEFUN
-SVZ_BINDING_FILTER_NET_DEFUN
-SVZ_BINDING_FILTER_DEFUN
+|F| svz_server_bind
+|F| svz_server_unbind
+|F| svz_server_portcfgs
+|F| svz_server_bindings
+|F| svz_server_listeners
+|F| svz_server_single_listener
+|F| svz_sock_add_server
+|F| svz_sock_del_server
+|F| svz_sock_find_portcfg
+|F| svz_sock_find_portcfgs
+|F| svz_sock_bind_port
+|F| svz_sock_bindings
+|F| svz_sock_servers
+|F| svz_binding_create
+|F| svz_binding_destroy
+|F| svz_binding_contains
+|F| svz_binding_join
+|F| svz_binding_find
+|F| svz_binding_find_server
+|F| svz_binding_contains_server
+|F| svz_binding_filter_pipe
+|F| svz_binding_filter_net
+|F| svz_binding_filter
 
 @node Server core
 @subsubsection Server core
 
-SVZ_NUKE_HAPPENED_DEFVAR
-SVZ_CHILD_DIED_DEFVAR
-SVZ_NOTIFY_DEFVAR
-SVZ_EXECUTABLE_DEFUN
-SVZ_PERIODIC_TASKS_DEFUN
+|V| svz_nuke_happened
+|V| svz_child_died
+|V| svz_notify
+|F| svz_executable
+|F| svz_periodic_tasks
 
-SVZ_SOCK_ROOT_DEFVAR
-SVZ_SOCK_LAST_DEFVAR
-SVZ_SOCK_FIND_DEFUN
-SVZ_SOCK_SCHEDULE_FOR_SHUTDOWN_DEFUN
-SVZ_SOCK_ENQUEUE_DEFUN
-SVZ_SOCK_DEQUEUE_DEFUN
-SVZ_SOCK_SHUTDOWN_DEFUN
-SVZ_SOCK_SHUTDOWN_ALL_DEFUN
-SVZ_SOCK_SETPARENT_DEFUN
-SVZ_SOCK_GETPARENT_DEFUN
-SVZ_SOCK_SETREFERRER_DEFUN
-SVZ_SOCK_GETREFERRER_DEFUN
-SVZ_SOCK_PORTCFG_DEFUN
-SVZ_SOCK_FOREACH_DEFMAC
-SVZ_SOCK_FOREACH_LISTENER_DEFMAC
-SVZ_SOCK_CHECK_FREQUENCY_DEFUN
-SVZ_SOCK_CHECK_ACCESS_DEFUN
-SVZ_SOCK_CHECK_BOGUS_DEFUN
-SVZ_SOCK_CHECK_CHILDREN_DEFUN
-SVZ_SOCK_CHILD_DIED_DEFUN
+|V| svz_sock_root
+|V| svz_sock_last
+|F| svz_sock_find
+|F| svz_sock_schedule_for_shutdown
+|F| svz_sock_enqueue
+|F| svz_sock_dequeue
+|F| svz_sock_shutdown
+|F| svz_sock_shutdown_all
+|F| svz_sock_setparent
+|F| svz_sock_getparent
+|F| svz_sock_setreferrer
+|F| svz_sock_getreferrer
+|F| svz_sock_portcfg
+|M| svz_sock_foreach
+|M| svz_sock_foreach_listener
+|F| svz_sock_check_frequency
+|F| svz_sock_check_access
+|F| svz_sock_check_bogus
+|F| svz_sock_check_children
+|F| svz_sock_child_died
 
-SVZ_SIGNAL_HANDLER_DEFUN
-SVZ_STRSIGNAL_DEFUN
+|F| svz_signal_handler
+|F| svz_strsignal
 
 @node Server loop
 @subsubsection Server loop
@@ -838,11 +838,11 @@ immediately.  Thus you are able to issue additional functionality in between
 each pass if you cannot handle this within the timers (notifiers) of servers
 and sockets.
 
-SVZ_CHECK_SOCKETS_DEFUN
-SVZ_LOOP_PRE_DEFUN
-SVZ_LOOP_POST_DEFUN
-SVZ_LOOP_DEFUN
-SVZ_LOOP_ONE_DEFUN
+|F| svz_check_sockets
+|F| svz_loop_pre
+|F| svz_loop_post
+|F| svz_loop
+|F| svz_loop_one
 
 @node Server socket
 @subsubsection Server sockets
@@ -852,9 +852,9 @@ below provide the default routines invoked when accepting a new connection
 on a listener.  This is necessary for connection oriented protocols (TCP and
 named pipes) only.
 
-SVZ_SERVER_CREATE_DEFUN
-SVZ_TCP_ACCEPT_DEFUN
-SVZ_PIPE_ACCEPT_DEFUN
+|F| svz_server_create
+|F| svz_tcp_accept
+|F| svz_pipe_accept
 
 @node Port config funcs
 @subsection Port configurations
@@ -872,26 +872,26 @@ does not get bound to a certain name but to its content.  If there are two
 or more port configuration specifying the same network or file system
 configuration just a single one gets actually used.
 
-SVZ_PORTCFG_CREATE_DEFUN
-SVZ_PORTCFG_EQUAL_DEFUN
-SVZ_PORTCFG_ADD_DEFUN
-SVZ_PORTCFG_DEL_DEFUN
-SVZ_PORTCFG_GET_DEFUN
-SVZ_PORTCFG_DESTROY_DEFUN
-SVZ_PORTCFG_FREE_DEFUN
-SVZ_PORTCFG_MKADDR_DEFUN
-SVZ_PORTCFG_PREPARE_DEFUN
-SVZ_PORTCFG_PRINT_DEFUN
-SVZ_PORTCFG_TEXT_DEFUN
-SVZ_PORTCFG_DUP_DEFUN
-SVZ_PORTCFG_EXPAND_DEFUN
-SVZ_PORTCFG_ADDR_DEFMAC
-SVZ_PORTCFG_PORT_DEFMAC
-SVZ_PORTCFG_IPADDR_DEFMAC
-SVZ_PORTCFG_DEVICE_DEFMAC
-SVZ_PORTCFG_SET_IPADDR_DEFUN
-SVZ_PORTCFG_DESTROY_ACCEPTED_DEFUN
-SVZ_PORTCFG_DESTROY_ACCESS_DEFUN
+|F| svz_portcfg_create
+|F| svz_portcfg_equal
+|F| svz_portcfg_add
+|F| svz_portcfg_del
+|F| svz_portcfg_get
+|F| svz_portcfg_destroy
+|F| svz_portcfg_free
+|F| svz_portcfg_mkaddr
+|F| svz_portcfg_prepare
+|F| svz_portcfg_print
+|F| svz_portcfg_text
+|F| svz_portcfg_dup
+|F| svz_portcfg_expand
+|M| svz_portcfg_addr
+|M| svz_portcfg_port
+|M| svz_portcfg_ipaddr
+|M| svz_portcfg_device
+|F| svz_portcfg_set_ipaddr
+|F| svz_portcfg_destroy_accepted
+|F| svz_portcfg_destroy_access
 
 @node Booting
 @subsection Boot functions
@@ -902,12 +902,12 @@ It also describes the most important functions
 @code{svz_boot} and @code{svz_halt} which must be the first and the last
 call to the core API.
 
-SVZ_CONFIG_DEFVAR
-SVZ_LIBRARY_DEFVAR
-SVZ_VERSION_DEFVAR
+|V| svz_config
+|V| svz_library
+|V| svz_version
 
-SVZ_BOOT_DEFUN
-SVZ_HALT_DEFUN
+|F| svz_boot
+|F| svz_halt
 
 @node Interface
 @subsection Network interface functions
@@ -919,13 +919,13 @@ the network configuration into different "domains".  Thus the system is able
 to separate traffic of different networks.  If setup correctly serveez can
 follow these rules.
 
-SVZ_INTERFACES_DEFVAR
-SVZ_INTERFACE_LIST_DEFUN
-SVZ_INTERFACE_ADD_DEFUN
-SVZ_INTERFACE_GET_DEFUN
-SVZ_INTERFACE_SEARCH_DEFUN
-SVZ_INTERFACE_CHECK_DEFUN
-SVZ_INTERFACE_FOREACH_DEFMAC
+|V| svz_interfaces
+|F| svz_interface_list
+|F| svz_interface_add
+|F| svz_interface_get
+|F| svz_interface_search
+|F| svz_interface_check
+|M| svz_interface_foreach
 
 @node Windoze
 @subsection Useful Windows functions
@@ -935,11 +935,11 @@ of course).  The following functions come up with the Windows implementation
 of the serveez core API only.  They allow access to the Windows registry
 database and some other useful things.
 
-SVZ_WINDOZE_START_DAEMON_DEFUN
-SVZ_WINDOZE_STOP_DAEMON_DEFUN
-SVZ_WINDOZE_ASC2UNI_DEFUN
-SVZ_WINDOZE_UNI2ASC_DEFUN
-SVZ_WINDOZE_GET_REG_UNSIGNED_DEFUN
-SVZ_WINDOZE_SET_REG_UNSIGNED_DEFUN
-SVZ_WINDOZE_GET_REG_STRING_DEFUN
-SVZ_WINDOZE_SET_REG_STRING_DEFUN
+|F| svz_windoze_start_daemon
+|F| svz_windoze_stop_daemon
+|F| svz_windoze_asc2uni
+|F| svz_windoze_uni2asc
+|F| svz_windoze_get_reg_unsigned
+|F| svz_windoze_set_reg_unsigned
+|F| svz_windoze_get_reg_string
+|F| svz_windoze_set_reg_string

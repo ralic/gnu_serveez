@@ -12,7 +12,7 @@ to a simple data processor.
 
 @subsubsection Underlying libserveez
 
-LIBSERVEEZ-FEATURES_DEFUN
+|P| libserveez-features
 
 @subsubsection Special Data Types
 
@@ -35,28 +35,28 @@ kind of unstructured data.  It manages the data exchange between Guile
 and Serveez.  There are some conversion procedures for strings and lists
 which help to process this binary data in a more complex (guile'ish) way.
 
-BINARY->STRING_DEFUN
-STRING->BINARY_DEFUN
-BINARY?_DEFUN
-LIST->BINARY_DEFUN
-BINARY->LIST_DEFUN
-BINARY-SEARCH_DEFUN
-BINARY-SET!_DEFUN
-BINARY-REF_DEFUN
-BINARY-LENGTH_DEFUN
-BINARY-CONCAT!_DEFUN
-BINARY-SUBSET_DEFUN
-BINARY-REVERSE_DEFUN
-BINARY-REVERSE!_DEFUN
+|P| binary->string
+|P| string->binary
+|P| binary?
+|P| list->binary
+|P| binary->list
+|P| binary-search
+|P| binary-set!
+|P| binary-ref
+|P| binary-length
+|P| binary-concat!
+|P| binary-subset
+|P| binary-reverse
+|P| binary-reverse!
 
-BINARY-LONG-REF_DEFUN
-BINARY-LONG-SET!_DEFUN
-BINARY-INT-REF_DEFUN
-BINARY-INT-SET!_DEFUN
-BINARY-SHORT-REF_DEFUN
-BINARY-SHORT-SET!_DEFUN
-BINARY-CHAR-REF_DEFUN
-BINARY-CHAR-SET!_DEFUN
+|P| binary-long-ref
+|P| binary-long-set!
+|P| binary-int-ref
+|P| binary-int-set!
+|P| binary-short-ref
+|P| binary-short-set!
+|P| binary-char-ref
+|P| binary-char-set!
 
 @subsubsection Server Definition
 
@@ -126,7 +126,7 @@ The following example shows the overall syntax of this procedure:
   ))))
 @end lisp
 
-DEFINE-SERVERTYPE!_DEFUN
+|P| define-servertype!
 
 @subsubsection Predefined Procedures
 
@@ -137,71 +137,71 @@ passed the appropriate arguments needed to stuff into the following
 procedures.  Please have a look at the example Guile servers for the
 details.
 
-SVZ:SOCK?_DEFUN
-SVZ:SOCK:CHECK-REQUEST_DEFUN
-SVZ:SOCK:CHECK-OOB-REQUEST_DEFUN
-SVZ:SOCK:SEND-OOB_DEFUN
-SVZ:SOCK:HANDLE-REQUEST_DEFUN
-SVZ:SOCK:BOUNDARY_DEFUN
-SVZ:SOCK:FLOODPROTECT_DEFUN
-SVZ:SOCK:PRINT_DEFUN
-SVZ:SOCK:FINAL-PRINT_DEFUN
-SVZ:SOCK:NO-DELAY_DEFUN
-SVZ:SOCK:SEND-BUFFER_DEFUN
-SVZ:SOCK:SEND-BUFFER-SIZE_DEFUN
-SVZ:SOCK:RECEIVE-BUFFER_DEFUN
-SVZ:SOCK:RECEIVE-BUFFER-SIZE_DEFUN
-SVZ:SOCK:RECEIVE-BUFFER-REDUCE_DEFUN
-SVZ:SOCK:CONNECT_DEFUN
-SVZ:SOCK:DISCONNECTED_DEFUN
-SVZ:SOCK:KICKED_DEFUN
-SVZ:SOCK:TRIGGER_DEFUN
-SVZ:SOCK:TRIGGER-CONDITION_DEFUN
-SVZ:SOCK:IDLE_DEFUN
-SVZ:SOCK:IDLE-COUNTER_DEFUN
-SVZ:SOCK:DATA_DEFUN
-SVZ:SOCK:PARENT_DEFUN
-SVZ:SOCK:REFERRER_DEFUN
-SVZ:SOCK:SERVER_DEFUN
-SVZ:SOCK:LOCAL-ADDRESS_DEFUN
-SVZ:SOCK:REMOTE-ADDRESS_DEFUN
-SVZ:SOCK:FIND_DEFUN
-SVZ:SOCK:IDENT_DEFUN
-SVZ:SOCK:PROTOCOL_DEFUN
-SVZ:READ-FILE_DEFUN
+|P| svz:sock?
+|P| svz:sock:check-request
+|P| svz:sock:check-oob-request
+|P| svz:sock:send-oob
+|P| svz:sock:handle-request
+|P| svz:sock:boundary
+|P| svz:sock:floodprotect
+|P| svz:sock:print
+|P| svz:sock:final-print
+|P| svz:sock:no-delay
+|P| svz:sock:send-buffer
+|P| svz:sock:send-buffer-size
+|P| svz:sock:receive-buffer
+|P| svz:sock:receive-buffer-size
+|P| svz:sock:receive-buffer-reduce
+|P| svz:sock:connect
+|P| svz:sock:disconnected
+|P| svz:sock:kicked
+|P| svz:sock:trigger
+|P| svz:sock:trigger-condition
+|P| svz:sock:idle
+|P| svz:sock:idle-counter
+|P| svz:sock:data
+|P| svz:sock:parent
+|P| svz:sock:referrer
+|P| svz:sock:server
+|P| svz:sock:local-address
+|P| svz:sock:remote-address
+|P| svz:sock:find
+|P| svz:sock:ident
+|P| svz:sock:protocol
+|P| svz:read-file
 
-SVZ:HTONS_DEFUN
-SVZ:NTOHS_DEFUN
-SVZ:HTONL_DEFUN
-SVZ:NTOHL_DEFUN
-SVZ:INET-ATON_DEFUN
-SVZ:INET-NTOA_DEFUN
+|P| svz:htons
+|P| svz:ntohs
+|P| svz:htonl
+|P| svz:ntohl
+|P| svz:inet-aton
+|P| svz:inet-ntoa
 
-SVZ:SERVER?_DEFUN
-SVZ:SERVER:LISTENERS_DEFUN
-SVZ:SERVER:CLIENTS_DEFUN
-SVZ:SERVER:CONFIG-REF_DEFUN
-SVZ:SERVER:STATE-SET!_DEFUN
-SVZ:SERVER:STATE-REF_DEFUN
-SVZ:SERVER:STATE->HASH_DEFUN
+|P| svz:server?
+|P| svz:server:listeners
+|P| svz:server:clients
+|P| svz:server:config-ref
+|P| svz:server:state-set!
+|P| svz:server:state-ref
+|P| svz:server:state->hash
 
-SERVEEZ-PORT?_DEFUN
-SERVEEZ-SERVER?_DEFUN
-SERVEEZ-SERVERTYPE?_DEFUN
-SERVEEZ-EXCEPTIONS_DEFUN
-SERVEEZ-NUKE_DEFUN
-SERVEEZ-LOAD_DEFUN
-SERVEEZ-LOADPATH_DEFUN
-SERVEEZ-INTERFACES_DEFUN
+|P| serveez-port?
+|P| serveez-server?
+|P| serveez-servertype?
+|P| serveez-exceptions
+|P| serveez-nuke
+|P| serveez-load
+|P| serveez-loadpath
+|P| serveez-interfaces
 
-GETRPC_DEFUN
-SETRPC_DEFUN
-PORTMAP_DEFUN
-PORTMAP-LIST_DEFUN
+|P| getrpc
+|P| setrpc
+|P| portmap
+|P| portmap-list
 
-SVZ:COSERVER:DNS_DEFUN
-SVZ:COSERVER:REVERSE-DNS_DEFUN
-SVZ:COSERVER:IDENT_DEFUN
+|P| svz:coserver:dns
+|P| svz:coserver:reverse-dns
+|P| svz:coserver:ident
 
 @subsubsection Callback Prototypes
 

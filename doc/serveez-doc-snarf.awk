@@ -216,7 +216,7 @@ function handle_variable(line)
         }
         replace = ("@deftypevar " vardef "\\\n" doc "\\\n" "@end deftypevar")
         replace = (loc replace)
-        sedexp = ("/^" toupper(var) "_DEFVAR/" " c\\\n" replace "\\\n")
+        sedexp = ("/^|V| " var "$/" " c\\\n" replace "\\\n")
         if (produce_sed == 1) {
           print sedexp
         }
@@ -264,7 +264,7 @@ function handle_macro(line)
         # finally create texinfo doc
         replace = ("@defmac " macdef "\\\n" doc "\\\n" "@end defmac")
         replace = (loc replace)
-        sedexp = ("/^" toupper(mac) "_DEFMAC/" " c\\\n" replace "\\\n")
+        sedexp = ("/^|M| " mac "$/" " c\\\n" replace "\\\n")
         if (produce_sed == 1) {
           print sedexp
         }
@@ -477,7 +477,7 @@ function handle_macro(line)
       funcdef = (guile_func guile_args)
       replace = ("@deffn @PROC{} " funcdef "\\\n" docu "\\\n" "@end deffn")
       replace = (loc replace)
-      sedexp = ("/^" toupper(guile_func) "_DEFUN/" " c\\\n" replace "\\\n")
+      sedexp = ("/^|P| " guile_func "$/" " c\\\n" replace "\\\n")
 
       if (guile_func !~ /guile_/) {
         gsub(/\\\n/, "\n", docu)
@@ -488,7 +488,7 @@ function handle_macro(line)
       funcdef = (ret " " c_func " (" c_args ")")
       replace = ("@deftypefun " funcdef "\\\n" docu "\\\n" "@end deftypefun")
       replace = (loc replace)
-      sedexp = ("/^" toupper(c_func) "_DEFUN/" " c\\\n" replace "\\\n")
+      sedexp = ("/^|F| " c_func "$/" " c\\\n" replace "\\\n")
     }
     if (produce_sed == 1) {
       print sedexp

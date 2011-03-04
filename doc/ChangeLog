@@ -1,5 +1,15 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc int] Don't ‘toupper’ for keys in sed scripts.
+
+	Here, U (X, Y) means "Use ‘|X| NAME’ instead of ‘NAME_Y’".
+	* serveez-doc-snarf.awk (handle_variable): U (V, DEFVAR).
+	(handle_macro): U (M, DEFMAC); U (P, DEFUN); U (F, DEFUN).
+	* guile-api.texi.in: Update all call sites.
+	* serveez-api.texi.in: Likewise.
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_{boot,halt} subroutines.
 
 	* serveez-api.texi.in (Pipe connections): Delete
