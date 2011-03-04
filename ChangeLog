@@ -1,3 +1,9 @@
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Add configure check for GCC "hidden visibility" attribute.
+
+	* configure.ac (GCC_HAS_ATTRIBUTE_VISIBILITY): New AC_DEFINE.
+
 2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use ‘PACKAGE_VERSION’ directly.

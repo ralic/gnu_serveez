@@ -451,6 +451,20 @@ AS_IF([test $ac_cv_sizeof_long -lt $ac_cv_sizeof_void_p],
 [AC_MSG_ERROR([A 'void *' value does not fit into a 'long' value.])])
 
 dnl
+dnl Check for "hidden visibility" attribute support in GCC.
+dnl
+AS_IF([SVZ_Y([GCC])],
+[AC_CACHE_CHECK([for "hidden visibility" attribute in GCC],
+  [svz_cv_gcc_hvis],
+  [AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
+    [[__attribute__ ((__visibility__ ("hidden"))) int i;]])],
+      [svz_cv_gcc_hvis=yes],
+      [svz_cv_gcc_hvis=no])])])
+AS_IF([SVZ_Y([svz_cv_gcc_hvis])],
+[AC_DEFINE([GCC_HAS_ATTRIBUTE_VISIBILITY],[1],
+  [Define if gcc supports "hidden visibility" attribute.])])
+
+dnl
 dnl Create additional CFLAGS for MinGW32 and CygWin.
 dnl
 SERVEEZ_CFLAGS=""
