@@ -1,5 +1,12 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Make ‘serveez-interfaces’ append only.
+
+	* guile.c (guile_access_interfaces): If a list is
+	given, don't bother clearing the current list before looping.
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add mechanism to strip "internals" from headers on "make install".
 
 	* Makefile.am (install-data-hook): For each header in $(i),

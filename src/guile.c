@@ -1452,8 +1452,7 @@ guile_hash_to_guile (svz_hash_t *hash)
 /*
  * Make the list of local interfaces accessible for Guile.  Returns the
  * local interfaces as a list of ip addresses in dotted decimal form.  If
- * another list is given in @var{args} it should contain the new list of
- * local interfaces.
+ * @var{args} are specified, they are added as additional local interfaces.
  */
 #define FUNC_NAME "serveez-interfaces"
 SCM
@@ -1479,7 +1478,6 @@ guile_access_interfaces (SCM args)
   /* Is there an argument given to the guile procedure?  */
   if (!SCM_UNBNDP (args))
     {
-      svz_interface_free ();
       if ((array = guile_to_strarray (args, FUNC_NAME)) != NULL)
         {
           svz_array_foreach (array, str, n)
