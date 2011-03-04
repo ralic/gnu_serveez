@@ -1,5 +1,12 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add mechanism to strip "internals" from headers on "make install".
+
+	* Makefile.am (install-data-hook): For each header in $(i),
+	remove lines between "begin svzint" and "end svzint", inclusive.
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Touch up libserveez.h.
 
 	* libserveez.h: #include "libserveez/defines.h";

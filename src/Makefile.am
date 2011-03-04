@@ -84,6 +84,11 @@ install-data-hook:
 	       -e ' s|.*|/* Extracted configuration.  */|' \
 	       -e ' r TMP0' \
 	       -e '}' TMP1 > defines.h; \
+	for h in *.h; do \
+	  mv $$h $$h.orig; \
+	  $(SED) '/begin svzint/,/end svzint/d' $$h.orig > $$h; \
+	  rm -f $$h.orig; \
+	done; \
 	rm -f TMP0 TMP1
 
 dist-hook:
