@@ -1,3 +1,13 @@
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[doc] Don't mention variable name in its docstring.
+
+	* server-core.c (svz_nuke_happened):
+	Reword docstring to not reference self.
+	(svz_reset_happened, svz_pipe_broke, svz_child_died)
+	(svz_uncaught_signal, svz_signal, svz_sock_root, svz_sock_last)
+	(svz_sock_lookup_table): Likewise.
+
 2011-03-03  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Use ‘PACKAGE_VERSION’ directly.

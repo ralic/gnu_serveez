@@ -80,38 +80,38 @@
 #include "libserveez/server-core.h"
 
 /*
- * When @var{svz_nuke_happened} is set to a non-zero value, the server
+ * When set to a non-zero value, the server
  * will terminate its main loop.
  */
 int svz_nuke_happened = 0;
 
 /*
- * When @var{svz_reset_happened} gets set to a non-zero value, the server
+ * When set to a non-zero value, the server
  * will try to re-initialize itself on the next execution of the main
  * loop.
  */
 static int svz_reset_happened;
 
 /*
- * The variable @var{svz_pipe_broke} is set to a non-zero value whenever
+ * Set to a non-zero value whenever
  * the server receives a SIGPIPE signal.
  */
 static int svz_pipe_broke;
 
 /*
- * @var{svz_child_died} is set to a non-zero value whenever the server
+ * Set to a non-zero value whenever the server
  * receives a SIGCHLD signal.
  */
 svz_t_handle svz_child_died;
 
 /*
- * The @var{svz_uncaught_signal} variable is set to a value greater or
+ * Set to a value greater or
  * equal zero when the server receives a signal which is not handled.
  */
 static int svz_uncaught_signal = -1;
 
 /*
- * The @var{svz_signal} variable is set to a value greater or equal
+ * Set to a value greater or equal
  * zero for every received signal.
  */
 static int svz_signal = -1;
@@ -123,19 +123,19 @@ static int svz_signal = -1;
 long svz_notify;
 
 /*
- * @var{svz_sock_root} is the pointer to the head of the list of sockets,
+ * Pointer to the head of the list of sockets,
  * which are handled by the server loop.
  */
 svz_socket_t *svz_sock_root = NULL;
 
 /*
- * @var{svz_sock_last} always points to the last structure in the socket queue
- * and is @var{NULL} when the queue is empty.
+ * Points to the last structure in the socket queue,
+ * or @var{NULL} when the queue is empty.
  */
 svz_socket_t *svz_sock_last = NULL;
 
 /*
- * The @var{svz_sock_lookup_table} array is used to speed up references to
+ * Array used to speed up references to
  * socket structures by socket's id.
  */
 static svz_socket_t **svz_sock_lookup_table = NULL;
