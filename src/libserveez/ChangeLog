@@ -1,5 +1,19 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Fix bug: Hide various coserver internal elements.
+
+	These were revealed by the command:
+	nm -g --defined-only .libs/libserveez.so
+
+	* coserver/reverse-dns.c
+	(reverse_dns_cache): Make static.
+	* coserver/dns.h (dns_handle_request): Mark ‘SBO’.
+	* coserver/reverse-dns.h (reverse_dns_init): Likewise.
+	(reverse_dns_handle_request): Likewise.
+	* coserver/ident.h (ident_handle_request): Likewise.
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_{boot,halt} subroutines.
 
 	Here, "S" means "make static"; and "D" means "delete func decl".

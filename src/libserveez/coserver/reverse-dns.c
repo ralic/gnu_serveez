@@ -59,7 +59,7 @@ typedef struct
 }
 reverse_dns_cache_t;
 
-reverse_dns_cache_t reverse_dns_cache;
+static reverse_dns_cache_t reverse_dns_cache;
 
 /*
  * Initialize the cache structure.
