@@ -1,3 +1,25 @@
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize svz_{boot,halt} subroutines.
+
+	* serveez-api.texi.in (Pipe connections): Delete
+	‘SVZ_PIPE_STARTUP_DEFUN’, ‘SVZ_PIPE_CLEANUP_DEFUN’.
+	(Codec functions): Delete ‘SVZ_CODEC_INIT_DEFUN’,
+	‘SVZ_CODEC_FINALIZE_DEFUN’.
+	(Dynamic server loading): Delete ‘SVZ_DYNLOAD_INIT_DEFUN’,
+	‘SVZ_DYNLOAD_FINALIZE_DEFUN’.
+	(Server configuration): Delete ‘SVZ_CONFIG_TYPE_INIT_DEFUN’,
+	‘SVZ_CONFIG_TYPE_FINALIZE_DEFUN’.
+	(Server core): Delete ‘SVZ_SOCK_TABLE_CREATE_DEFUN’,
+	‘SVZ_SOCK_TABLE_DESTROY_DEFUN’, ‘SVZ_SIGNAL_UP_DEFUN’,
+	‘SVZ_SIGNAL_DN_DEFUN’, ‘SVZ_STRSIGNAL_INIT_DEFUN’,
+	‘SVZ_STRSIGNAL_DESTROY_DEFUN’.
+	(Port config funcs): Delete ‘SVZ_PORTCFG_FINALIZE_DEFUN’.
+	(Booting): Delete ‘SVZ_NET_STARTUP_DEFUN’,
+	‘SVZ_NET_CLEANUP_DEFUN’, ‘SVZ_INIT_CONFIG_DEFUN’.
+	(Interface): Delete ‘SVZ_INTERFACE_COLLECT_DEFUN’,
+	‘SVZ_INTERFACE_FREE_DEFUN’.
+
 2011-03-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop: svz_asprintf

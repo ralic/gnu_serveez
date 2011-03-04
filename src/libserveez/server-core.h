@@ -52,8 +52,6 @@ SERVEEZ_API svz_socket_t *svz_sock_last;
 
 __BEGIN_DECLS
 
-SERVEEZ_API void svz_sock_table_create (void);
-SERVEEZ_API void svz_sock_table_destroy (void);
 SERVEEZ_API svz_socket_t *svz_sock_find (int, int);
 SERVEEZ_API int svz_sock_schedule_for_shutdown (svz_socket_t *);
 SERVEEZ_API int svz_sock_shutdown (svz_socket_t *);
@@ -77,11 +75,7 @@ SERVEEZ_API void svz_loop_pre (void);
 SERVEEZ_API void svz_loop_post (void);
 SERVEEZ_API void svz_loop (void);
 SERVEEZ_API void svz_loop_one (void);
-SERVEEZ_API void svz_signal_up (void);
-SERVEEZ_API void svz_signal_dn (void);
 SERVEEZ_API void svz_signal_handler (int);
-SERVEEZ_API void svz_strsignal_init (void);
-SERVEEZ_API void svz_strsignal_destroy (void);
 SERVEEZ_API char *svz_strsignal (int);
 
 __END_DECLS

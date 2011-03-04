@@ -96,7 +96,7 @@ svz_mutex_declare (svz_log_mutex)
  * This routine has to be called once before you could use any of the
  * serveez core library functions.
  */
-int
+static int
 svz_net_startup (void)
 {
 #ifdef __MINGW32__
@@ -121,7 +121,7 @@ svz_net_startup (void)
 /*
  * Shutdown the serveez core library.
  */
-int
+static int
 svz_net_cleanup (void)
 {
 #ifdef __MINGW32__
@@ -140,10 +140,19 @@ svz_net_cleanup (void)
   return 1;
 }
 
+static void
+svz__net_updn (int direction)
+{
+  (direction
+   ? svz_net_startup
+   : svz_net_cleanup)
+    ();
+}
+
 /*
  * Initialization of the configuration.
  */
-void
+static void
 svz_init_config (void)
 {
   svz_config.start = time (NULL);
@@ -152,7 +161,22 @@ svz_init_config (void)
   svz_config.password = NULL;
 }
 
-extern void svz__log_updn (int direction); /* FIXME: Move elsewhere?  */
+/* These are used only in ‘svz_boot’ and ‘svz_halt’,
+   so it's easier to just declare them here.  */
+
+#define UPDN(x)  SBO void svz__ ## x ## _updn (int direction)
+
+UPDN (log);
+UPDN (strsignal);
+UPDN (sock_table);
+UPDN (signal);
+UPDN (interface);
+UPDN (pipe);
+UPDN (dynload);
+UPDN (codec);
+UPDN (config_type);
+
+SBO void svz_portcfg_finalize (void);
 
 /*
  * Initialization of the core library.
@@ -160,17 +184,21 @@ extern void svz__log_updn (int direction); /* FIXME: Move elsewhere?  */
 void
 svz_boot (void)
 {
-  svz__log_updn (1);
-  svz_strsignal_init ();
-  svz_sock_table_create ();
-  svz_signal_up ();
+#define UP(x)  svz__ ## x ## _updn (1)
+
+  UP (log);
+  UP (strsignal);
+  UP (sock_table);
+  UP (signal);
   svz_init_config ();
-  svz_interface_collect ();
-  svz_net_startup ();
-  svz_pipe_startup ();
-  svz_dynload_init ();
-  svz_codec_init ();
-  svz_config_type_init ();
+  UP (interface);
+  UP (net);
+  UP (pipe);
+  UP (dynload);
+  UP (codec);
+  UP (config_type);
+
+#undef UP
 }
 
 /*
@@ -179,16 +207,20 @@ svz_boot (void)
 void
 svz_halt (void)
 {
+#define DN(x)  svz__ ## x ## _updn (0)
+
   svz_free_and_zero (svz_config.password);
   svz_portcfg_finalize ();
-  svz_config_type_finalize ();
-  svz_codec_finalize ();
-  svz_dynload_finalize ();
-  svz_pipe_cleanup ();
-  svz_net_cleanup ();
-  svz_interface_free ();
-  svz_signal_dn ();
-  svz_sock_table_destroy ();
-  svz_strsignal_destroy ();
-  svz__log_updn (0);
+  DN (config_type);
+  DN (codec);
+  DN (dynload);
+  DN (pipe);
+  DN (net);
+  DN (interface);
+  DN (signal);
+  DN (sock_table);
+  DN (strsignal);
+  DN (log);
+
+#undef DN
 }

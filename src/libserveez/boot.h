@@ -49,9 +49,6 @@ SERVEEZ_API const char * const * svz_library_features (size_t *);
 SERVEEZ_API svz_config_t svz_config;
 
 /* Exported functions.  */
-SERVEEZ_API int svz_net_startup (void);
-SERVEEZ_API int svz_net_cleanup (void);
-SERVEEZ_API void svz_init_config (void);
 SERVEEZ_API void svz_boot (void);
 SERVEEZ_API void svz_halt (void);
 

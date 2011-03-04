@@ -90,7 +90,7 @@ static GetIpAddrTableProc GetIpAddrTable = NULL;
 #define WSCTL_METHOD 1
 #define IPAPI_METHOD 2
 
-void
+static void
 svz_interface_collect (void)
 {
   int result = 0;
@@ -418,7 +418,7 @@ svz_interface_collect (void)
  * services accessible from "outside" or "inside" a network installation
  * only.
  */
-void
+static void
 svz_interface_collect (void)
 {
   int numreqs = 16;
@@ -521,7 +521,7 @@ svz_interface_collect (void)
 
 #else /* not ENABLE_IFLIST */
 
-void
+static void
 svz_interface_collect (void)
 {
   printf ("\n"
@@ -651,7 +651,7 @@ svz_interface_search (char *desc)
 /*
  * Free the network interface list.
  */
-int
+static void
 svz_interface_free (void)
 {
   unsigned long n;
@@ -666,9 +666,7 @@ svz_interface_free (void)
         }
       svz_vector_destroy (svz_interfaces);
       svz_interfaces = NULL;
-      return 0;
     }
-  return -1;
 }
 
 /*
@@ -740,4 +738,14 @@ svz_interface_check (void)
     {
       svz_log (LOG_NOTICE, "no network interface changes detected\n");
     }
+}
+
+
+void
+svz__interface_updn (int direction)
+{
+  (direction
+   ? svz_interface_collect
+   : svz_interface_free)
+    ();
 }

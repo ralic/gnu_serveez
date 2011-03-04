@@ -95,9 +95,8 @@ svz_codec_list (void)
   fprintf (stderr, "\n");
 }
 
-/* This routine is called by @code{svz_boot} and registers the builtin
-   codecs.  */
-int
+/* This routine registers the builtin codecs.  */
+static int
 svz_codec_init (void)
 {
 #if HAVE_ZLIB && HAVE_ZLIB_H
@@ -111,9 +110,8 @@ svz_codec_init (void)
   return 0;
 }
 
-/* This routine is called by @code{svz_halt} and destroys the list of
-   known codecs.  */
-int
+/* This routine destroys the list of known codecs.  */
+static int
 svz_codec_finalize (void)
 {
   if (svz_codecs)
@@ -645,4 +643,14 @@ svz_codec_sock_detect (svz_socket_t *sock)
         }
     }
   return NULL;
+}
+
+
+void
+svz__codec_updn (int direction)
+{
+  (direction
+   ? svz_codec_init
+   : svz_codec_finalize)
+    ();
 }

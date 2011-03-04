@@ -128,8 +128,6 @@ __BEGIN_DECLS
 /* Exported functions.  */
 SERVEEZ_API void svz_codec_list (void);
 SERVEEZ_API svz_codec_t * svz_codec_get (char *, int);
-SERVEEZ_API int svz_codec_init (void);
-SERVEEZ_API int svz_codec_finalize (void);
 SERVEEZ_API int svz_codec_register (svz_codec_t *);
 SERVEEZ_API int svz_codec_unregister (svz_codec_t *);
 SERVEEZ_API int svz_codec_sock_receive_setup (svz_socket_t *,

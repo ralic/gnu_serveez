@@ -44,8 +44,6 @@ SERVEEZ_API svz_vector_t *svz_interfaces;
 
 /* Export these functions.  */
 SERVEEZ_API void svz_interface_list (void);
-SERVEEZ_API void svz_interface_collect (void);
-SERVEEZ_API int svz_interface_free (void);
 SERVEEZ_API int svz_interface_add (int, char *, unsigned long, int);
 SERVEEZ_API svz_interface_t *svz_interface_search (char *);
 SERVEEZ_API svz_interface_t *svz_interface_get (unsigned long);

@@ -63,9 +63,9 @@ static HANDLE Kernel32Handle = NULL;
 
 /*
  * Startup the pipe interface of the core API of serveez.  Returns zero on
- * success.  Gets called from @code{svz_boot} once.  Do not use.
+ * success.
  */
-int
+static int
 svz_pipe_startup (void)
 {
 #ifdef __MINGW32__
@@ -90,9 +90,9 @@ svz_pipe_startup (void)
 
 /*
  * Cleanup the pipe interface of the core API of serveez.  Returns zero on
- * success.  Gets called from @code{svz_halt} once.  Do not use.
+ * success.
  */
-int
+static int
 svz_pipe_cleanup (void)
 {
 #ifdef __MINGW32__
@@ -1143,4 +1143,14 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   return 0;
 
 #endif /* HAVE_MKFIFO or __MINGW32__ */
+}
+
+
+void
+svz__pipe_updn (int direction)
+{
+  (direction
+   ? svz_pipe_startup
+   : svz_pipe_cleanup)
+    ();
 }

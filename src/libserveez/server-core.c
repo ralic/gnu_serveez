@@ -280,10 +280,9 @@ extern char * strsignal (int);
 #endif
 
 /*
- * Prepare library so that @code{svz_strsignal} works.  Called
- * from @code{svz_boot}.
+ * Prepare library so that @code{svz_strsignal} works.
  */
-void
+static void
 svz_strsignal_init (void)
 {
   int i;
@@ -319,9 +318,8 @@ svz_strsignal_init (void)
 
 /*
  * The function @code{svz_strsignal} does not work afterwards anymore.
- * Called from @code{svz_halt}.
  */
-void
+static void
 svz_strsignal_destroy (void)
 {
   svz_array_destroy (svz_signal_strings);
@@ -816,10 +814,9 @@ svz_sock_find (int id, int version)
 }
 
 /*
- * Create the socket lookup table initially.  Must be called from
- * @code{svz_boot}.
+ * Create the socket lookup table initially.
  */
-void
+static void
 svz_sock_table_create (void)
 {
   svz_sock_lookup_table = svz_calloc (svz_sock_limit *
@@ -827,10 +824,9 @@ svz_sock_table_create (void)
 }
 
 /*
- * Destroy the socket lookup table finally.  Must be called from
- * @code{svz_halt}.
+ * Destroy the socket lookup table finally.
  */
-void
+static void
 svz_sock_table_destroy (void)
 {
   svz_free_and_zero (svz_sock_lookup_table);
@@ -1065,7 +1061,7 @@ svz_sock_check_bogus (void)
 /*
  * Setup signaling for the core library.
  */
-void
+static void
 svz_signal_up (void)
 {
 #ifdef SIGTERM
@@ -1100,7 +1096,7 @@ svz_signal_up (void)
 /*
  * Deinstall signaling for the core library.
  */
-void
+static void
 svz_signal_dn (void)
 {
 #ifdef SIGTERM
@@ -1322,4 +1318,32 @@ svz_loop (void)
       svz_loop_one ();
     }
   svz_loop_post ();
+}
+
+
+void
+svz__strsignal_updn (int direction)
+{
+  (direction
+   ? svz_strsignal_init
+   : svz_strsignal_destroy)
+    ();
+}
+
+void
+svz__sock_table_updn (int direction)
+{
+  (direction
+   ? svz_sock_table_create
+   : svz_sock_table_destroy)
+    ();
+}
+
+void
+svz__signal_updn (int direction)
+{
+  (direction
+   ? svz_signal_up
+   : svz_signal_dn)
+    ();
 }

@@ -1,5 +1,47 @@
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_{boot,halt} subroutines.
+
+	Here, "S" means "make static"; and "D" means "delete func decl".
+	* boot.c (svz_net_startup, svz_net_cleanup): S.
+	(svz__net_updn): New static func.
+	(svz_init_config): S.
+	(UPDN): New macro; use it to declare funcs ‘svz__log_updn’,
+	‘svz__strsignal_updn’, ‘svz__sock_table_updn’, ‘svz__signal_updn’,
+	‘svz__interface_updn’, ‘svz__pipe_updn’, ‘svz__dynload_updn’,
+	‘svz__codec_updn’, ‘svz__config_type_updn’.
+	(svz_portcfg_finalize): New func decl.
+	(svz_boot, svz_halt): Rewrite.
+	* boot.h (svz_net_startup): D.
+	(svz_net_cleanup, svz_init_config): Likewise.
+	* cfg.c (svz_config_type_init, svz_config_type_finalize): S.
+	(svz__config_type_updn): New func.
+	* cfg.h (svz_config_type_init, svz_config_type_finalize): D.
+	* codec/codec.c (svz_codec_init, svz_codec_finalize): S.
+	(svz__codec_updn): New func.
+	* codec/codec.h (svz_codec_init, svz_codec_finalize): D.
+	* dynload.c (svz_dynload_finalize, svz_dynload_init): S.
+	(svz__dynload_updn): New func.
+	* dynload.h (svz_dynload_finalize, svz_dynload_init): D.
+	* interface.c (svz_interface_collect): S.
+	(svz_interface_free): S; change return type to ‘void’.
+	(svz__interface_updn): New func.
+	* interface.h (svz_interface_collect, svz_interface_free): D.
+	* pipe-socket.c (svz_pipe_startup, svz_pipe_cleanup): S.
+	(svz__pipe_updn): New func.
+	* pipe-socket.h (svz_pipe_startup, svz_pipe_cleanup): D.
+	* portcfg.h (svz_portcfg_finalize): D.
+	* server-core.c (svz_strsignal_init)
+	(svz_strsignal_destroy, svz_sock_table_create)
+	(svz_sock_table_destroy, svz_signal_up, svz_signal_dn): S.
+	(svz__strsignal_updn): New func.
+	(svz__sock_table_updn, svz__signal_updn): Likewise.
+	* server-core.h (svz_sock_table_create)
+	(svz_sock_table_destroy, svz_signal_up, svz_signal_dn)
+	(svz_strsignal_init, svz_strsignal_destroy): D.
+
+2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Add decl fragments: DSOPRIVATE, SBO
 
 	* defines.h (DSOPRIVATE, SBO):

@@ -544,10 +544,9 @@ svz_config_type_instantiate (char *type, char *name, char *instance,
 }
 
 /*
- * Adds the configurable types of Serveez.  This function is called
- * from @code{svz_boot}.
+ * Adds the configurable types of Serveez.
  */
-void
+static void
 svz_config_type_init (void)
 {
   svz_config_types = svz_hash_create (4, NULL);
@@ -557,10 +556,9 @@ svz_config_type_init (void)
 }
 
 /*
- * Removes the list of known configurable types and is called from
- * @code{svz_halt}.
+ * Removes the list of known configurable types.
  */
-void
+static void
 svz_config_type_finalize (void)
 {
   svz_hash_destroy (svz_config_types);
@@ -621,4 +619,14 @@ svz_config_prototype_print (svz_config_prototype_t *prototype)
     {
       printf ("  no configuration option\n");
     }
+}
+
+
+void
+svz__config_type_updn (int direction)
+{
+  (direction
+   ? svz_config_type_init
+   : svz_config_type_finalize)
+    ();
 }

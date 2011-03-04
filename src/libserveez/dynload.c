@@ -412,7 +412,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
  * Finalize the shared library interface of the core library.  Unload
  * all libraries no matter if referenced or not.
  */
-void
+static void
 svz_dynload_finalize (void)
 {
   while (dyn_libraries)
@@ -425,7 +425,7 @@ svz_dynload_finalize (void)
 /*
  * Initialize the shared library interface of the core library.
  */
-void
+static void
 svz_dynload_init (void)
 {
   if (dyn_libraries)
@@ -519,4 +519,14 @@ svz_servertype_unload (char *description)
   svz_free (file);
 
   return -1;
+}
+
+
+void
+svz__dynload_updn (int direction)
+{
+  (direction
+   ? svz_dynload_init
+   : svz_dynload_finalize)
+    ();
 }
