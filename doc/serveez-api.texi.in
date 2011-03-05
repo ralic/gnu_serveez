@@ -802,7 +802,6 @@ core library creates listeners as needed by itself.
 |F| svz_periodic_tasks
 
 |V| svz_sock_root
-|V| svz_sock_last
 |F| svz_sock_find
 |F| svz_sock_schedule_for_shutdown
 |F| svz_sock_enqueue

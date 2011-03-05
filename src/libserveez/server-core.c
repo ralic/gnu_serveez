@@ -132,7 +132,7 @@ svz_socket_t *svz_sock_root = NULL;
  * Points to the last structure in the socket queue,
  * or @var{NULL} when the queue is empty.
  */
-svz_socket_t *svz_sock_last = NULL;
+static svz_socket_t *svz_sock_last = NULL;
 
 /*
  * Array used to speed up references to

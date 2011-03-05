@@ -34,7 +34,6 @@ SERVEEZ_API svz_t_handle svz_child_died;
 SERVEEZ_API long svz_notify;
 
 SERVEEZ_API svz_socket_t *svz_sock_root;
-SERVEEZ_API svz_socket_t *svz_sock_last;
 
 /*
  * Go through each socket structure in the chained list.

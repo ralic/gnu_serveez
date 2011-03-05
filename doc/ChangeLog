@@ -1,5 +1,11 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_last’.
+
+	* serveez-api.texi.in (Server core): Delete ‘svz_sock_last’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_servertypes’.
 
 	* serveez-api.texi.in

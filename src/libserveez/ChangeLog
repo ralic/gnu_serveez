@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_last’.
+
+	* server-core.c (svz_sock_last): Make static.
+	* server-core.h (svz_sock_last): Delete var decl.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_servertypes’.
 
 	* server.c (svz_servertypes): Make static.
