@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_servertype_definition’.
+
+	* server.h (svz_servertype_definition):
+	Don't mark as ‘SERVEEZ_API’; instead, mark as ‘SBO’, ‘svzint’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Use libtool-style interface version for libserveez.
 
 	* Makefile.am (libserveez_la_LDFLAGS):
