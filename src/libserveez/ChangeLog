@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_servertypes’.
+
+	* server.c (svz_servertypes): Make static.
+	* server.h (svz_servertypes): Delete var decl.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_foreach_interface
 
 	* interface.c (svz_foreach_interface): New func.

@@ -47,7 +47,7 @@
 /*
  * The list of registered servers.  Feel free to add yours.
  */
-svz_array_t *svz_servertypes = NULL;
+static svz_array_t *svz_servertypes = NULL;
 
 /*
  * This is the list of actually instantiated servers.  The hash table
