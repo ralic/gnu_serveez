@@ -918,13 +918,12 @@ the network configuration into different "domains".  Thus the system is able
 to separate traffic of different networks.  If setup correctly serveez can
 follow these rules.
 
-|V| svz_interfaces
+|F| svz_foreach_interface
 |F| svz_interface_list
 |F| svz_interface_add
 |F| svz_interface_get
 |F| svz_interface_search
 |F| svz_interface_check
-|M| svz_interface_foreach
 
 @node Windoze
 @subsection Useful Windows functions

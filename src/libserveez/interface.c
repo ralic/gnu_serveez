@@ -67,6 +67,25 @@
  */
 svz_vector_t *svz_interfaces = NULL;
 
+/*
+ * Call @var{func} for each interface, passing additionally the second arg
+ * @var{closure}.  If @var{func} returns a negative value, return immediately
+ * with that value (breaking out of the loop), otherwise, return 0.
+ */
+int
+svz_foreach_interface (svz_interface_do_t *func, void *closure)
+{
+  int n, rv;
+  svz_interface_t *ifc;
+
+  svz_vector_foreach (svz_interfaces, ifc, n)
+    {
+      if (0 > (rv = func (ifc, closure)))
+        return rv;
+    }
+  return 0;
+}
+
 #if ENABLE_IFLIST
 
 #ifdef __MINGW32__

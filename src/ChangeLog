@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_interface
+
+	* guile.c (access_interfaces_internal): New static func.
+	(guile_access_interfaces): Use it and ‘svz_foreach_interface’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_foreach_coserver
 
 	* ctrl-server/control-proto.c

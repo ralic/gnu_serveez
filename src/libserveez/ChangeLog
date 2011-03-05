@@ -1,5 +1,17 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_interface
+
+	* interface.c (svz_foreach_interface): New func.
+	* interface.h (svz_interface_do_t): New typedef.
+	(svz_interfaces): Mark ‘SBO’, ‘svzint’.
+	(svz_foreach_interface): New func decl, marked ‘SERVEEZ_API’.
+	(svz_interface_foreach): Delete macro.
+	* portcfg.c (svz_portcfg_expand): Use
+	‘svz_vector_foreach’ and ‘svz_interfaces’ directly.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_servertype_definition’.
 
 	* server.h (svz_servertype_definition):

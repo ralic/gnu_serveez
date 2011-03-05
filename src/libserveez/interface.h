@@ -38,11 +38,16 @@ typedef struct svz_interface
 }
 svz_interface_t;
 
+typedef int (svz_interface_do_t) (const svz_interface_t *, void *);
+
 __BEGIN_DECLS
 
-SERVEEZ_API svz_vector_t *svz_interfaces;
+/* begin svzint */
+SBO svz_vector_t *svz_interfaces;
+/* end svzint */
 
 /* Export these functions.  */
+SERVEEZ_API int svz_foreach_interface (svz_interface_do_t *, void *);
 SERVEEZ_API void svz_interface_list (void);
 SERVEEZ_API int svz_interface_add (int, char *, unsigned long, int);
 SERVEEZ_API svz_interface_t *svz_interface_search (char *);
@@ -50,13 +55,5 @@ SERVEEZ_API svz_interface_t *svz_interface_get (unsigned long);
 SERVEEZ_API void svz_interface_check (void);
 
 __END_DECLS
-
-/*
- * Iteration macro for the list of known network interfaces.  If any
- * each interface gets assigned to @var{ifc}.  The variable @var{i} is the
- * iteration variable.
- */
-#define svz_interface_foreach(ifc, i) \
-  svz_vector_foreach (svz_interfaces, (ifc), (i))
 
 #endif /* not __INTERFACE_H__ */

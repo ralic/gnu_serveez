@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_interface
+
+	* serveez-api.texi.in (Interface): Delete ‘svz_interfaces’,
+	‘svz_interface_foreach’; add ‘svz_foreach_interface’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_foreach_coserver
 
 	* serveez-api.texi.in (Coserver functions):

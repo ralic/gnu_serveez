@@ -273,7 +273,7 @@ svz_portcfg_expand (svz_portcfg_t *this)
   if ((addr = svz_portcfg_addr (this)) != NULL &&
       (this->flags & PORTCFG_FLAG_ALL) && !(this->flags & PORTCFG_FLAG_DEVICE))
     {
-      svz_interface_foreach (ifc, n)
+      svz_vector_foreach (svz_interfaces, ifc, n)
         {
           port = svz_portcfg_dup (this);
           addr = svz_portcfg_addr (port);

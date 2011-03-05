@@ -1449,6 +1449,15 @@ guile_hash_to_guile (svz_hash_t *hash)
   return alist;
 }
 
+static int
+access_interfaces_internal (const svz_interface_t *ifc, void *closure)
+{
+  SCM *list = closure;
+
+  *list = scm_cons (gi_string2scm (svz_inet_ntoa (ifc->ipaddr)), *list);
+  return 0;
+}
+
 /*
  * Make the list of local interfaces accessible for Guile.  Returns the
  * local interfaces as a list of ip addresses in dotted decimal form.  If
@@ -1460,20 +1469,14 @@ guile_access_interfaces (SCM args)
 {
   svz_interface_t *ifc;
   int n;
-  SCM list;
+  SCM list = SCM_EOL;
   char *str, description[64];
   struct sockaddr_in addr;
   svz_array_t *array;
 
   GUILE_PRECALL ();
 
-  /* First create a array of strings containing the ip addresses of each
-     local network interface and put them into a guile list.  */
-  array = svz_array_create (0, svz_free);
-  svz_interface_foreach (ifc, n)
-    svz_array_add (array, svz_strdup (svz_inet_ntoa (ifc->ipaddr)));
-  list = guile_strarray_to_guile (array);
-  svz_array_destroy (array);
+  svz_foreach_interface (access_interfaces_internal, &list);
 
   /* Is there an argument given to the guile procedure?  */
   if (!SCM_UNBNDP (args))
@@ -1496,7 +1499,7 @@ guile_access_interfaces (SCM args)
         }
     }
 
-  return list;
+  return scm_reverse_x (list, SCM_EOL);
 }
 #undef FUNC_NAME
 
