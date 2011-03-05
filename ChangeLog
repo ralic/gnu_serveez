@@ -1,3 +1,10 @@
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Use libtool-style interface version for libserveez.
+
+	* configure.ac (LIBSERVEEZ_INTERFACE): New ‘AC_SUBST’.
+	(LIBSERVEEZ_INTERFACE): New ‘AC_DEFINE_UNQUOTED’.
+
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Add configure check for GCC "hidden visibility" attribute.

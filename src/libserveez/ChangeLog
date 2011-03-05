@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Use libtool-style interface version for libserveez.
+
+	* Makefile.am (libserveez_la_LDFLAGS):
+	Use $(LIBSERVEEZ_INTERFACE).
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Create svzpath.h directly, without template.
 
 	* Makefile.am (EXTRA_DIST): Remove svzpath.h.in.

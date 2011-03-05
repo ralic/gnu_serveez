@@ -33,7 +33,7 @@ BUILT_SOURCES = svzpath.h
 
 lib_LTLIBRARIES = libserveez.la
 
-libserveez_la_LDFLAGS = -export-dynamic -release $(VERSION)
+libserveez_la_LDFLAGS = -export-dynamic -version-info $(LIBSERVEEZ_INTERFACE)
 libserveez_la_DEPENDENCIES = coserver/libcoserver.la codec/libcodec.la
 libserveez_la_LIBADD = $(libserveez_la_DEPENDENCIES) \
   $(LIBSERVEEZLIBS)

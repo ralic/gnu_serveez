@@ -378,6 +378,8 @@ to be ephemeral, undergoing rebase, amendment, and ultimately removal.
 
 * release process
 *** Ensure the release is complete.
+    - Update libserveez interface version in [[file:configure.ac::LIBSERVEEZ_INTERFACE][configure.ac]].
+      (info "(libtool) Versioning")
     - Check the [[next]] and [[other stuff to do]] lists and the
       [[file:NEWS][NEWS]] and [[file:BUGS][BUGS]] files for pending or completed tasks.
     - Are the M$-Windows files up to date (*.dsp, *.dsw)?

@@ -49,6 +49,11 @@ AC_SUBST([SERVERLIBS])       dnl TODO: Consider automake conditionals.
 dnl ----------------------------------------------------------------------
 dnl information on the package
 
+LIBSERVEEZ_INTERFACE='1:0:0'
+AC_SUBST([LIBSERVEEZ_INTERFACE])
+AC_DEFINE_UNQUOTED([LIBSERVEEZ_INTERFACE],["$LIBSERVEEZ_INTERFACE"],
+  [The triple CUR:REV:AGE describing the libserveez API.])
+
 AS_IF([grep "$host" $srcdir/data/PLATFORMS 1>/dev/null 2>&1],[:],
 [AC_MSG_RESULT([
   $PACKAGE_NAME has never been compiled or run on this platform.
