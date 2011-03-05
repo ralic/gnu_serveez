@@ -1,3 +1,11 @@
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Move "number of connected sockets" behind functional interface.
+
+	* socket.c (svz_sock_nconnections): New func.
+	* socket.h (svz_sock_connections): Mark ‘SBO’; mark ‘svzint’.
+	(svz_sock_nconnections): New func decl, marked ‘SERVEEZ_API’.
+
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Fix bug: Hide various coserver internal elements.

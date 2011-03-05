@@ -537,7 +537,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 
   /* show general state */
   svz_sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
-                   svz_sock_connections, svz_config.max_sockets);
+                   svz_sock_nconnections (), svz_config.max_sockets);
   svz_sock_printf (sock, " * uptime is %s\r\n",
                    svz_uptime (time (NULL) - svz_config.start));
 #if ENABLE_DEBUG

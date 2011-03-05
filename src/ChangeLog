@@ -1,3 +1,10 @@
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Move "number of connected sockets" behind functional interface.
+
+	* ctrl-server/control-proto.c (ctrl_stat):
+	Use ‘svz_sock_nconnections’.
+
 2011-03-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[guile] Make ‘serveez-interfaces’ append only.

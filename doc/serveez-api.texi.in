@@ -563,8 +563,7 @@ creation, destruction and other simple operations on socket structures
 called @code{svz_socket_t}.  See for the details at the description of each
 function which kind of socket it can handle and what they are for.
 
-|V| svz_sock_connections
-
+|F| svz_sock_nconnections
 |F| svz_sock_valid
 |F| svz_sock_alloc
 |F| svz_sock_free

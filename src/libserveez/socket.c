@@ -62,9 +62,18 @@
 #include "libserveez/binding.h"
 
 /*
- * Count the number of currently connected sockets.
+ * The number of currently connected sockets.
  */
 int svz_sock_connections = 0;
+
+/*
+ * Return the number of currently connected sockets.
+ */
+int
+svz_sock_nconnections (void)
+{
+  return svz_sock_connections;
+}
 
 /*
  * This routine can be called if flood protection is wished for
