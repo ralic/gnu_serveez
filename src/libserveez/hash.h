@@ -80,15 +80,15 @@ SERVEEZ_API void svz_hash_destroy (svz_hash_t *);
 SERVEEZ_API void svz_hash_clear (svz_hash_t *);
 SERVEEZ_API void *svz_hash_delete (svz_hash_t *, char *);
 SERVEEZ_API void *svz_hash_put (svz_hash_t *, char *, void *);
-SERVEEZ_API void *svz_hash_get (svz_hash_t *, char *);
-SERVEEZ_API void **svz_hash_values (svz_hash_t *);
-SERVEEZ_API char **svz_hash_keys (svz_hash_t *);
+SERVEEZ_API void *svz_hash_get (const svz_hash_t *, char *);
+SERVEEZ_API void **svz_hash_values (const svz_hash_t *);
+SERVEEZ_API char **svz_hash_keys (const svz_hash_t *);
 SERVEEZ_API void svz_hash_xfree (void *);
-SERVEEZ_API int svz_hash_size (svz_hash_t *);
-SERVEEZ_API int svz_hash_capacity (svz_hash_t *);
-SERVEEZ_API char *svz_hash_contains (svz_hash_t *, void *);
+SERVEEZ_API int svz_hash_size (const svz_hash_t *);
+SERVEEZ_API int svz_hash_capacity (const svz_hash_t *);
+SERVEEZ_API char *svz_hash_contains (const svz_hash_t *, void *);
 SERVEEZ_API void svz_hash_rehash (svz_hash_t *, int);
-SERVEEZ_API int svz_hash_exists (svz_hash_t *, char *);
+SERVEEZ_API int svz_hash_exists (const svz_hash_t *, char *);
 
 __END_DECLS
 

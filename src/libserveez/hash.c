@@ -474,7 +474,7 @@ svz_hash_delete (svz_hash_t *hash, char *key)
  * table.
  */
 void *
-svz_hash_get (svz_hash_t *hash, char *key)
+svz_hash_get (const svz_hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
@@ -503,7 +503,7 @@ svz_hash_get (svz_hash_t *hash, char *key)
  * value in the hash or a non-existing hash key.
  */
 int
-svz_hash_exists (svz_hash_t *hash, char *key)
+svz_hash_exists (const svz_hash_t *hash, char *key)
 {
   int n;
   unsigned long code;
@@ -545,7 +545,7 @@ svz_hash_xfree (void *collection)
  * memory leaks.
  */
 void **
-svz_hash_values (svz_hash_t *hash)
+svz_hash_values (const svz_hash_t *hash)
 {
   void **values;
   svz_hash_bucket_t *bucket;
@@ -575,7 +575,7 @@ svz_hash_values (svz_hash_t *hash)
  * @code{svz_hash_xfree} a non-NULL return value.
  */
 char **
-svz_hash_keys (svz_hash_t *hash)
+svz_hash_keys (const svz_hash_t *hash)
 {
   char **values;
   svz_hash_bucket_t *bucket;
@@ -604,7 +604,7 @@ svz_hash_keys (svz_hash_t *hash)
  * the given @var{hash} is @code{NULL} it returns zero.
  */
 int
-svz_hash_size (svz_hash_t *hash)
+svz_hash_size (const svz_hash_t *hash)
 {
   if (hash == NULL)
     return 0;
@@ -615,7 +615,7 @@ svz_hash_size (svz_hash_t *hash)
  * This function returns the current capacity of a given hash table @var{hash}.
  */
 int
-svz_hash_capacity (svz_hash_t *hash)
+svz_hash_capacity (const svz_hash_t *hash)
 {
   return hash->buckets;
 }
@@ -625,7 +625,7 @@ svz_hash_capacity (svz_hash_t *hash)
  * argument in the hash table @var{hash}.  Returns the appropriate key or NULL.
  */
 char *
-svz_hash_contains (svz_hash_t *hash, void *value)
+svz_hash_contains (const svz_hash_t *hash, void *value)
 {
   svz_hash_bucket_t *bucket;
   int n, e;

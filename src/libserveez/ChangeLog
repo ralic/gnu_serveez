@@ -1,5 +1,17 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Dose some svz_hash_* funcs with ‘const’.
+
+	* hash.c (svz_hash_get, svz_hash_exists)
+	(svz_hash_values, svz_hash_keys, svz_hash_size)
+	(svz_hash_capacity, svz_hash_contains):
+	Qualify type of hash table arg with ‘const’.
+	* hash.h (svz_hash_get, svz_hash_exists)
+	(svz_hash_values, svz_hash_keys, svz_hash_size)
+	(svz_hash_capacity, svz_hash_contains): Update func decls.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "number of connected sockets" behind functional interface.
 
 	* socket.c (svz_sock_nconnections): New func.
