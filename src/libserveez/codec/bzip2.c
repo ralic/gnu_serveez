@@ -75,7 +75,7 @@ svz_codec_t bzip2_decoder = {
 };
 
 /* Default configuration.  */
-bzip2_config_t bzip2_config = {
+static bzip2_config_t bzip2_config = {
   9, /* block size in 100 KByte */
   0, /* verbosity */
   0, /* workFactor */
@@ -92,7 +92,7 @@ typedef struct bzip2_data
 bzip2_data_t;
 
 /* Customized allocator functions.  */
-void *
+static void *
 bzip2_alloc (void *opaque, int n, int size)
 {
   void *ptr;
@@ -102,7 +102,7 @@ bzip2_alloc (void *opaque, int n, int size)
   return NULL;
 }
 
-void
+static void
 bzip2_free (void *opaque, void *ptr)
 {
   svz_free (ptr);

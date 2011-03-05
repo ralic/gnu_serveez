@@ -1,5 +1,24 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Fix bug: Hide various codec internal elements.
+
+	These were revealed by the command:
+	nm -g --defined-only .libs/libserveez.so
+
+	* codec/bzip2.c (bzip2_config): Make static.
+	(bzip2_alloc, bzip2_free): Likewise.
+	* codec/bzip2.h (bzip2_encoder, bzip2_decoder)
+	(bzip2_error, bzip2_encoder_init, bzip2_encoder_finalize)
+	(bzip2_encode, bzip2_decoder_init, bzip2_decoder_finalize)
+	(bzip2_decode, bzip2_ratio): Mark ‘SBO’.
+	* codec/gzlib.c (zlib_alloc, zlib_free): Make static.
+	* codec/gzlib.h (zlib_encoder, zlib_decoder)
+	(zlib_error, zlib_encoder_init, zlib_encoder_finalize)
+	(zlib_encode, zlib_decoder_init, zlib_decoder_finalize)
+	(zlib_decode, zlib_ratio): Makr ‘SBO’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_foreach_coserver
 
 	* coserver.c (svz_coservers): Make static.

@@ -74,7 +74,7 @@ zlib_data_t;
    memory.  This is useful when using a custom memory management.  Because
    we assign here the Serveez core library's allocators it is possible to
    detect memory leaks within calls to the 'zlib' library.  */
-voidpf
+static voidpf
 zlib_alloc (voidpf data, uInt n, uInt size)
 {
   voidpf ptr;
@@ -83,7 +83,7 @@ zlib_alloc (voidpf data, uInt n, uInt size)
   return ptr;
 }
 
-void
+static void
 zlib_free (voidpf data, voidpf ptr)
 {
   svz_free (ptr);

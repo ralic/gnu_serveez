@@ -25,17 +25,17 @@
 
 __BEGIN_DECLS
 
-extern svz_codec_t zlib_encoder;
-extern svz_codec_t zlib_decoder;
-char * zlib_error (svz_codec_data_t *);
-int zlib_encoder_init (svz_codec_data_t *);
-int zlib_encoder_finalize (svz_codec_data_t *);
-int zlib_encode (svz_codec_data_t *);
-int zlib_decoder_init (svz_codec_data_t *);
-int zlib_decoder_finalize (svz_codec_data_t *);
-int zlib_decode (svz_codec_data_t *);
-int zlib_ratio (svz_codec_data_t *, unsigned long *,
-                unsigned long *);
+SBO svz_codec_t zlib_encoder;
+SBO svz_codec_t zlib_decoder;
+SBO char * zlib_error (svz_codec_data_t *);
+SBO int zlib_encoder_init (svz_codec_data_t *);
+SBO int zlib_encoder_finalize (svz_codec_data_t *);
+SBO int zlib_encode (svz_codec_data_t *);
+SBO int zlib_decoder_init (svz_codec_data_t *);
+SBO int zlib_decoder_finalize (svz_codec_data_t *);
+SBO int zlib_decode (svz_codec_data_t *);
+SBO int zlib_ratio (svz_codec_data_t *, unsigned long *,
+                    unsigned long *);
 
 __END_DECLS
 
