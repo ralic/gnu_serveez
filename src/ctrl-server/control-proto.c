@@ -655,33 +655,36 @@ ctrl_kill_cache (svz_socket_t *sock, int flag, char *arg)
 }
 #endif /* ENABLE_HTTP_PROTO */
 
+static int
+stat_coservers_internal (const svz_coserver_t *coserver,
+                         void *closure)
+{
+  svz_socket_t *sock = closure;
+
+  svz_sock_printf (sock, "\r\ninternal %s coserver:\r\n",
+                   svz_coservertypes[coserver->type].name);
+  svz_sock_printf (sock,
+                   " socket id  : %d\r\n"
+                   " %s %d\r\n"
+                   " requests   : %d\r\n",
+                   coserver->sock->id,
+#ifndef __MINGW32__
+                   "process id :", coserver->pid,
+#else /* __MINGW32__ */
+                   "thread id  :", coserver->tid,
+#endif /* __MINGW32__ */
+                   coserver->busy);
+  return 0;
+}
+
 /*
  * Show all Co-Server instances statistics.
  */
 int
 ctrl_stat_coservers (svz_socket_t *sock, int flag, char *arg)
 {
-  int n;
-  svz_coserver_t *coserver;
-
   /* go through all internal coserver instances */
-  svz_array_foreach (svz_coservers, coserver, n)
-    {
-      svz_sock_printf (sock, "\r\ninternal %s coserver:\r\n",
-                       svz_coservertypes[coserver->type].name);
-      svz_sock_printf (sock,
-                       " socket id  : %d\r\n"
-                       " %s %d\r\n"
-                       " requests   : %d\r\n",
-                       coserver->sock->id,
-#ifndef __MINGW32__
-                       "process id :", coserver->pid,
-#else /* __MINGW32__ */
-                       "thread id  :", coserver->tid,
-#endif /* __MINGW32__ */
-                       coserver->busy);
-    }
-
+  svz_foreach_coserver (stat_coservers_internal, sock);
   svz_sock_printf (sock, "\r\n");
   return flag;
 }
@@ -760,27 +763,41 @@ ctrl_killall (svz_socket_t *sock, int flag, char *arg)
   return flag;
 }
 
+struct restart_closure
+{
+  svz_socket_t *sock;
+  int type;
+};
+
+static int
+restart_coservers_internal (const svz_coserver_t *coserver,
+                            void *closure)
+{
+  struct restart_closure *x = closure;
+  svz_socket_t *sock = x->sock;
+  int type = x->type;
+
+  if (coserver->type != type)
+    return 0;
+
+  svz_coserver_destroy (type);
+  svz_coserver_create (type);
+  svz_sock_printf (sock, "internal %s coserver restarted\r\n",
+                   svz_coservertypes[type].name);
+  return -1;
+}
+
 /*
  * Restart coservers.
  */
 int
 ctrl_restart (svz_socket_t *sock, int type, char *arg)
 {
-  svz_coserver_t *coserver;
-  int n;
+  struct restart_closure closure = { sock, type };
 
   /* find an appropriate coserver to kill */
-  svz_array_foreach (svz_coservers, coserver, n)
-    {
-      if (coserver->type == type)
-        {
-          svz_coserver_destroy (type);
-          svz_coserver_create (type);
-          svz_sock_printf (sock, "internal %s coserver restarted\r\n",
-                           svz_coservertypes[type].name);
-          return 0;
-        }
-    }
+  if (0 > svz_foreach_coserver (restart_coservers_internal, &closure))
+    return 0;
 
   /* start a new internal coserver if there has none found */
   svz_coserver_create (type);

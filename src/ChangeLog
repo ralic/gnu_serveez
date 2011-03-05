@@ -1,5 +1,16 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_coserver
+
+	* ctrl-server/control-proto.c
+	(stat_coservers_internal): New static func.
+	(ctrl_stat_coservers): Use it, ‘svz_foreach_coserver’.
+	(restart_closure): New struct.
+	(restart_coservers_internal): New static func.
+	(ctrl_restart): Use it and ‘svz_foreach_coserver’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "all instantiated servers" behind functional interface.
 
 	* ctrl-server/control-proto.c

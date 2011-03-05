@@ -138,7 +138,26 @@ svz_coservertype_t svz_coservertypes[] =
 /*
  * Internal coserver instances.
  */
-svz_array_t *svz_coservers = NULL;
+static svz_array_t *svz_coservers = NULL;
+
+/*
+ * Call @var{func} for each coserver, passing additionally the second arg
+ * @var{closure}.  If @var{func} returns a negative value, return immediately
+ * with that value (breaking out of the loop), otherwise, return 0.
+ */
+int
+svz_foreach_coserver (svz_coserver_do_t *func, void *closure)
+{
+  int n, rv;
+  const svz_coserver_t *coserver;
+
+  svz_array_foreach (svz_coservers, coserver, n)
+    {
+      if (0 > (rv = func (coserver, closure)))
+        return rv;
+    }
+  return 0;
+}
 
 /*
  * This routine gets the coserver hash id from a given response and

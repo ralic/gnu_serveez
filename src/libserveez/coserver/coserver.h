@@ -101,11 +101,13 @@ svz_coserver_callback_t;
 #define COSERVER_DNS         2 /* DNS lookup ID */
 #define MAX_COSERVER_TYPES   3 /* number of different coservers */
 
+typedef int (svz_coserver_do_t) (const svz_coserver_t *, void *);
+
 __BEGIN_DECLS
 
 SERVEEZ_API svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
-SERVEEZ_API svz_array_t *svz_coservers;
 
+SERVEEZ_API int svz_foreach_coserver (svz_coserver_do_t *, void *);
 SERVEEZ_API void svz_coserver_check (void);
 SERVEEZ_API int svz_coserver_init (void);
 SERVEEZ_API int svz_coserver_finalize (void);

@@ -1,5 +1,15 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_coserver
+
+	* coserver.c (svz_coservers): Make static.
+	(svz_foreach_coserver): New func.
+	* coserver.h (svz_coserver_do_t): New typedef.
+	(svz_coservers): Delete var decl.
+	(svz_foreach_coserver): New func decl, marked ‘SERVEEZ_API’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "all instantiated servers" behind functional interface.
 
 	* server.c (svz_servers): Make static.

@@ -599,8 +599,8 @@ main server loop and shut it down afterwards by calling
 @code{svz_coserver_finalize}.
 
 |V| svz_coservertypes
-|V| svz_coservers
 
+|F| svz_foreach_coserver
 |F| svz_coserver_check
 |F| svz_coserver_init
 |F| svz_coserver_finalize

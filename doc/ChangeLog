@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_coserver
+
+	* serveez-api.texi.in (Coserver functions):
+	Delete ‘svz_coservers’; add ‘svz_foreach_coserver’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "all instantiated servers" behind functional interface.
 
 	* serveez-api.texi.in (Server functionality):
