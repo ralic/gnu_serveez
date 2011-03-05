@@ -722,7 +722,7 @@ The following section contains functions dealing with the list of known
 servers in the core library of serveez, also with the basics like creation
 and destruction of such servers.
 
-|V| svz_servers
+|F| svz_all_servers
 |F| svz_server_find
 |F| svz_server_clients
 |F| svz_server_add

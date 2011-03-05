@@ -112,8 +112,7 @@ struct svz_servertype
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_hash_t *svz_servers;
-
+SERVEEZ_API const svz_hash_t *svz_all_servers (void);
 SERVEEZ_API svz_server_t *svz_server_add (svz_server_t *);
 SERVEEZ_API svz_server_t *svz_server_get (char *);
 SERVEEZ_API void svz_server_del (char *);

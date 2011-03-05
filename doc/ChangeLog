@@ -1,5 +1,12 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move "all instantiated servers" behind functional interface.
+
+	* serveez-api.texi.in (Server functionality):
+	Delete ‘svz_servers’; add ‘svz_all_servers’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "number of connected sockets" behind functional interface.
 
 	* serveez-api.texi.in (Socket management):

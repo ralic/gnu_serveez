@@ -50,6 +50,21 @@
 svz_array_t *svz_servertypes = NULL;
 
 /*
+ * This is the list of actually instantiated servers.  The hash table
+ * associates the servers' names with the server instances.
+ */
+static svz_hash_t *svz_servers = NULL;
+
+/*
+ * Return the hash table of actually instantiated servers.
+ */
+const svz_hash_t *
+svz_all_servers (void)
+{
+  return svz_servers;
+}
+
+/*
  * Add the server type @var{server} to the currently registered servers.
  */
 void
@@ -219,12 +234,6 @@ svz_servertype_print (void)
       svz_config_prototype_print (&stype->config_prototype);
     }
 }
-
-/*
- * This is the list of actually instantiated servers.  The hash table
- * associates the servers' names with the server instances.
- */
-svz_hash_t *svz_servers = NULL;
 
 /*
  * Run all the server instances's notify routines.  This should be regularly

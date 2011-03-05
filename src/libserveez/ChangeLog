@@ -1,5 +1,14 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move "all instantiated servers" behind functional interface.
+
+	* server.c (svz_servers): Make static.
+	(svz_all_servers): New func.
+	* server.h (svz_servers): Delete var decl.
+	(svz_all_servers): New func decl.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Dose some svz_hash_* funcs with ‘const’.
 
 	* hash.c (svz_hash_get, svz_hash_exists)

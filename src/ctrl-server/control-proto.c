@@ -465,7 +465,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
     p++;
   if (*p)
     *p = '\0';
-  if ((server = svz_hash_get (svz_servers, arg)) != NULL)
+  if ((server = svz_hash_get (svz_all_servers (), arg)) != NULL)
     {
       svz_sock_printf (sock, "\r\n%s (%s):\r\n",
                        server->description, server->name);
@@ -696,7 +696,7 @@ ctrl_stat_all (svz_socket_t *sock, int flag, char *arg)
   svz_server_t **server;
 
   /* go through all server instances */
-  svz_hash_foreach_value (svz_servers, svz_server_t, server, n)
+  svz_hash_foreach_value (svz_all_servers (), svz_server_t, server, n)
     {
       svz_sock_printf (sock, "\r\n%s (%s):\r\n",
                        server[n]->description, server[n]->name);
