@@ -1,5 +1,14 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Create svzpath.h directly, without template.
+
+	* Makefile.am (EXTRA_DIST): Remove svzpath.h.in.
+	(BUILT_SOURCES): New var.
+	(svzpath.h): Rewrite target.
+	* svzpath.h.in: Delete file.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Fix bug: Hide various codec internal elements.
 
 	These were revealed by the command:

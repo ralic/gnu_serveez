@@ -23,11 +23,13 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
-EXTRA_DIST = svzpath.h.in
+EXTRA_DIST =
 
 SUBDIRS = coserver codec
 
 # the serveez core library rules
+
+BUILT_SOURCES = svzpath.h
 
 lib_LTLIBRARIES = libserveez.la
 
@@ -55,16 +57,11 @@ libserveez_HEADERS = alloc.h util.h hash.h sparsevec.h socket.h            \
 uninstall-hook:
 	rmdir "$(DESTDIR)$(libserveezdir)"
 
-# generate path info (included in <libserveez/dynload.c>
-
-$(srcdir)/dynload.c: svzpath.h
-svzpath.h: $(srcdir)/svzpath.h.in $(srcdir)/Makefile.in
+svzpath.h: $(top_srcdir)/config.status
 	@echo "Generating svzpath.h..."
-	@$(SED) < $(srcdir)/svzpath.h.in \
-	  -e 's,@BINDIR@,$(bindir),g' \
-	  -e 's,@PKGDATADIR@,$(datadir)/serveez,g' \
-	  -e 's,@LIBDIR@,$(libdir),g' \
-	  > svzpath.h
+	@echo '#define SVZ_PKGDATADIR "$(pkgdatadir)"' > $@
+	@echo '#define SVZ_BINDIR "$(bindir)"' >> $@
+	@echo '#define SVZ_LIBDIR "$(libdir)"' >> $@
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 
