@@ -1,5 +1,13 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_socket
+
+	* serveez-api.texi.in (Server core):
+	Delete ‘svz_sock_root’, ‘svz_sock_foreach’,
+	‘svz_sock_foreach_listener’; add ‘svz_foreach_socket’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_last’.
 
 	* serveez-api.texi.in (Server core): Delete ‘svz_sock_last’.

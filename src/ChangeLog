@@ -1,5 +1,15 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_socket
+
+	* ctrl-server/control-proto.c (stat_con_internal): New static func.
+	(ctrl_stat_con): Use it and ‘svz_foreach_socket’.
+	(killall_closure): New struct.
+	(killall_internal): New static func.
+	(ctrl_killall): Use it and ‘svz_foreach_socket’.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_foreach_interface
 
 	* guile.c (access_interfaces_internal): New static func.

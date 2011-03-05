@@ -33,7 +33,9 @@ SERVEEZ_API int svz_nuke_happened;
 SERVEEZ_API svz_t_handle svz_child_died;
 SERVEEZ_API long svz_notify;
 
-SERVEEZ_API svz_socket_t *svz_sock_root;
+/* begin svzint */
+
+SBO svz_socket_t *svz_sock_root;
 
 /*
  * Go through each socket structure in the chained list.
@@ -49,8 +51,13 @@ SERVEEZ_API svz_socket_t *svz_sock_root;
   svz_sock_foreach (sock)                                              \
     if (((sock)->flags & SOCK_FLAG_LISTENING) && (sock)->port != NULL)
 
+/* end svzint */
+
+typedef int (svz_socket_do_t) (svz_socket_t *, void *);
+
 __BEGIN_DECLS
 
+SERVEEZ_API int svz_foreach_socket (svz_socket_do_t *, void *);
 SERVEEZ_API svz_socket_t *svz_sock_find (int, int);
 SERVEEZ_API int svz_sock_schedule_for_shutdown (svz_socket_t *);
 SERVEEZ_API int svz_sock_shutdown (svz_socket_t *);

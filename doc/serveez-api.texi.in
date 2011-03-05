@@ -801,7 +801,7 @@ core library creates listeners as needed by itself.
 |F| svz_executable
 |F| svz_periodic_tasks
 
-|V| svz_sock_root
+|F| svz_foreach_socket
 |F| svz_sock_find
 |F| svz_sock_schedule_for_shutdown
 |F| svz_sock_enqueue
@@ -813,8 +813,6 @@ core library creates listeners as needed by itself.
 |F| svz_sock_setreferrer
 |F| svz_sock_getreferrer
 |F| svz_sock_portcfg
-|M| svz_sock_foreach
-|M| svz_sock_foreach_listener
 |F| svz_sock_check_frequency
 |F| svz_sock_check_access
 |F| svz_sock_check_bogus

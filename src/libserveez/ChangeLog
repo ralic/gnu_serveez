@@ -1,5 +1,14 @@
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_foreach_socket
+
+	* server-core.c (svz_foreach_socket): New func.
+	* server-core.h (svz_sock_root): Mark ‘SBO’, ‘svzint’.
+	(svz_sock_foreach, svz_sock_foreach_listener): Mark ‘svzint’.
+	(svz_foreach_socket): New func decl.
+
+2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_last’.
 
 	* server-core.c (svz_sock_last): Make static.

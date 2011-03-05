@@ -359,6 +359,27 @@ svz_abort (char *msg)
   return 0;
 }
 
+/*
+ * Call @var{func} for each socket, passing additionally the second arg
+ * @var{closure}.  If @var{func} returns a negative value, return immediately
+ * with that value (breaking out of the loop), otherwise, return 0.
+ */
+int
+svz_foreach_socket (svz_socket_do_t *func, void *closure)
+{
+  svz_socket_t *sock = svz_sock_root;
+
+  while (sock)
+    {
+      int rv = func (sock, closure);
+
+      if (0 > rv)
+        return rv;
+      sock = sock->next;
+    }
+  return 0;
+}
+
 #if ENABLE_DEBUG
 /*
  * This function is for debugging purposes only.  It shows a text

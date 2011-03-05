@@ -554,6 +554,39 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   return flag;
 }
 
+static int
+stat_con_internal (svz_socket_t *sock, void *closure)
+{
+  svz_socket_t *to = closure;
+  char *id;
+  char linet[64];
+  char rinet[64];
+  svz_server_t *server;
+
+  if (sock->flags & SOCK_FLAG_LISTENING)
+    id = "Listener";
+  else if (sock->flags & SOCK_FLAG_COSERVER)
+    id = "Co-Server";
+  else if ((server = svz_server_find (sock->cfg)) != NULL)
+    id = server->name;
+  else
+    id = "None";
+
+  snprintf (linet, 64, "%s:%u",
+           svz_inet_ntoa (sock->local_addr),
+           ntohs (sock->local_port));
+  snprintf (rinet, 64, "%s:%u",
+           svz_inet_ntoa (sock->remote_addr),
+           ntohs (sock->remote_port));
+  svz_sock_printf (sock,
+                   "%-16s %4d %6d %6d "
+                   "%-20s %-20s"        /* FIXME: IPv4 */
+                   "\r\n", id,
+                   sock->id, sock->recv_buffer_fill,
+                   sock->send_buffer_fill, linet, rinet);
+  return 0;
+}
+
 /*
  * Connection statistics.  This function displays basic information about
  * each socket structure currently within the socket list.
@@ -561,43 +594,10 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 int
 ctrl_stat_con (svz_socket_t *sock, int flag, char *arg)
 {
-  svz_socket_t *xsock;
-  char *id;
-  char linet[64];
-  char rinet[64];
-  svz_server_t *server;
-
   svz_sock_printf (sock, "\r\n%s",
                    "Proto              Id  RecvQ  SendQ "
                    "Local                Foreign\r\n");
-
-  /* go through all the socket list */
-  svz_sock_foreach (xsock)
-    {
-      /* get type of socket */
-      id = "None";
-      if (xsock->flags & SOCK_FLAG_LISTENING)
-        id = "Listener";
-      else if (xsock->flags & SOCK_FLAG_COSERVER)
-        id = "Co-Server";
-      else if ((server = svz_server_find (xsock->cfg)) != NULL)
-        id = server->name;
-
-      /* print local and remote end of the connection */
-      sprintf (linet, "%s:%u",
-               svz_inet_ntoa (xsock->local_addr),
-               ntohs (xsock->local_port));
-
-      sprintf (rinet, "%s:%u",
-               svz_inet_ntoa (xsock->remote_addr),
-               ntohs (xsock->remote_port));
-
-      /* gather all information from above */
-      svz_sock_printf (sock,
-                       "%-16s %4d %6d %6d %-20s %-20s\r\n", id,
-                       xsock->id, xsock->recv_buffer_fill,
-                       xsock->send_buffer_fill, linet, rinet);
-    }
+  svz_foreach_socket (stat_con_internal, sock);
   svz_sock_printf (sock, "\r\n");
 
   return flag;
@@ -738,6 +738,27 @@ ctrl_kill_id (svz_socket_t *sock, int flag, char *arg)
   return flag;
 }
 
+struct killall_closure
+{
+  svz_socket_t *to;
+  int n;
+};
+
+static int
+killall_internal (svz_socket_t *sock, void *closure)
+{
+  struct killall_closure *x = closure;
+
+  if (x->to != sock && !(sock->flags & (SOCK_FLAG_LISTENING
+                                        | SOCK_FLAG_COSERVER
+                                        | SOCK_FLAG_PRIORITY)))
+    {
+      svz_sock_schedule_for_shutdown (sock);
+      (x->n)++;
+    }
+  return 0;
+}
+
 /*
  * Shutdown all network connections except listening, control connections,
  * coservers and sockets with the priority flag set.
@@ -745,20 +766,10 @@ ctrl_kill_id (svz_socket_t *sock, int flag, char *arg)
 int
 ctrl_killall (svz_socket_t *sock, int flag, char *arg)
 {
-  svz_socket_t *xsock;
-  int n = 0;
+  struct killall_closure closure = { sock, 0 };
 
-  svz_sock_foreach (xsock)
-    {
-      if (xsock != sock &&
-          !(xsock->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_COSERVER |
-                            SOCK_FLAG_PRIORITY)))
-        {
-          svz_sock_schedule_for_shutdown (xsock);
-          n++;
-        }
-    }
-  svz_sock_printf (sock, "killed %d network connections\r\n", n);
+  svz_foreach_socket (killall_internal, &closure);
+  svz_sock_printf (sock, "killed %d network connections\r\n", closure.n);
 
   return flag;
 }
