@@ -1,5 +1,11 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_notify’.
+
+	* serveez-api.texi.in (Server core): Delete ‘svz_notify’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_library
 
 	* serveez-api.texi.in (Booting): Delete ‘svz_library’.

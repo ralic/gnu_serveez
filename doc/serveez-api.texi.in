@@ -797,7 +797,6 @@ core library creates listeners as needed by itself.
 
 |V| svz_nuke_happened
 |V| svz_child_died
-|V| svz_notify
 |F| svz_executable
 |F| svz_periodic_tasks
 

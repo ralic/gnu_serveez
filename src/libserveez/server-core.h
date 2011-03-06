@@ -31,10 +31,10 @@
 
 SERVEEZ_API int svz_nuke_happened;
 SERVEEZ_API svz_t_handle svz_child_died;
-SERVEEZ_API long svz_notify;
 
 /* begin svzint */
 
+SBO long svz_notify;
 SBO svz_socket_t *svz_sock_root;
 
 /*

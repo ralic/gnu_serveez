@@ -1,5 +1,12 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_notify’.
+
+	* server-core.h (svz_notify):
+	Remove mark ‘SERVEEZ_API’; add mark ‘SBO’, ‘svzint’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_library
 
 	* boot.c (svz_library): Delete var.
