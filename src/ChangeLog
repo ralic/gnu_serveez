@@ -1,5 +1,13 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_coservertypes’.
+
+	* ctrl-server/control-proto.c (ctrl_stat_id):
+	(stat_coservers_internal, restart_coservers_internal)
+	(ctrl_restart): Use ‘svz_coserver_type_name’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "shutting down?" behind functional interface.
 
 	* tunnel-server/tunnel.c (tnl_disconnect_target):

@@ -387,7 +387,7 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
         {
           coserver = xsock->data;
           svz_sock_printf (sock, "internal %s coserver\r\n",
-                           svz_coservertypes[coserver->type].name);
+                           svz_coserver_type_name (coserver));
         }
       /* unidentified */
       else
@@ -661,7 +661,7 @@ stat_coservers_internal (const svz_coserver_t *coserver,
   svz_socket_t *sock = closure;
 
   svz_sock_printf (sock, "\r\ninternal %s coserver:\r\n",
-                   svz_coservertypes[coserver->type].name);
+                   svz_coserver_type_name (coserver));
   svz_sock_printf (sock,
                    " socket id  : %d\r\n"
                    " %s %d\r\n"
@@ -793,7 +793,7 @@ restart_coservers_internal (const svz_coserver_t *coserver,
   svz_coserver_destroy (type);
   svz_coserver_create (type);
   svz_sock_printf (sock, "internal %s coserver restarted\r\n",
-                   svz_coservertypes[type].name);
+                   svz_coserver_type_name (coserver));
   return -1;
 }
 
@@ -804,15 +804,16 @@ int
 ctrl_restart (svz_socket_t *sock, int type, char *arg)
 {
   struct restart_closure closure = { sock, type };
+  svz_coserver_t *coserver;
 
   /* find an appropriate coserver to kill */
   if (0 > svz_foreach_coserver (restart_coservers_internal, &closure))
     return 0;
 
   /* start a new internal coserver if there has none found */
-  svz_coserver_create (type);
+  coserver = svz_coserver_create (type);
   svz_sock_printf (sock, "internal %s coserver invoked\r\n",
-                   svz_coservertypes[type].name);
+                   svz_coserver_type_name (coserver));
   return 0;
 }
 

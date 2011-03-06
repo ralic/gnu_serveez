@@ -597,14 +597,13 @@ interface by calling @code{svz_coserver_init} once before entering the
 main server loop and shut it down afterwards by calling
 @code{svz_coserver_finalize}.
 
-|V| svz_coservertypes
-
 |F| svz_foreach_coserver
 |F| svz_coserver_check
 |F| svz_coserver_init
 |F| svz_coserver_finalize
 |F| svz_coserver_destroy
 |F| svz_coserver_create
+|F| svz_coserver_type_name
 |F| svz_coserver_send_request
 
 |F| svz_coserver_rdns_invoke

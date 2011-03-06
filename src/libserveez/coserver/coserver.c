@@ -120,7 +120,7 @@ svz_coserver_ident_invoke (svz_socket_t *sock,
  * This static array contains the coserver structure for each type of
  * internal coserver the core library provides.
  */
-svz_coservertype_t svz_coservertypes[] =
+static svz_coservertype_t svz_coservertypes[] =
 {
   /* coserver-TODO:
      place coserver callbacks and identification here */
@@ -739,6 +739,15 @@ svz_coserver_destroy (int type)
 }
 
 /*
+ * Return the type name of @var{coserver}.
+ */
+const char *
+svz_coserver_type_name (const svz_coserver_t *coserver)
+{
+  return svz_coservertypes[coserver->type].name;
+}
+
+/*
  * Start a specific internal coserver.  This works for Win32 and
  * Unices.  Whereas in Unix a process is @code{fork}ed and in Win32
  * a thread gets started.
@@ -987,14 +996,23 @@ svz_coserver_check (void)
 }
 
 /*
- * Create a single coserver with the given type @var{type}.
+ * Create and return a single coserver with the given type @var{type}.
  */
-void
+svz_coserver_t *
 svz_coserver_create (int type)
 {
+  int n;
+  svz_coserver_t *coserver = NULL;
+
   if (svz_coservertypes[type].init)
     svz_coservertypes[type].init ();
   svz_coserver_start (type);
+  svz_array_foreach (svz_coservers, coserver, n)
+    {
+      if (type == coserver->type)
+        break;
+    }
+  return coserver;
 }
 
 /*

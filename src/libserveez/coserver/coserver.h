@@ -105,14 +105,13 @@ typedef int (svz_coserver_do_t) (const svz_coserver_t *, void *);
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_coservertype_t svz_coservertypes[MAX_COSERVER_TYPES];
-
 SERVEEZ_API int svz_foreach_coserver (svz_coserver_do_t *, void *);
 SERVEEZ_API void svz_coserver_check (void);
 SERVEEZ_API int svz_coserver_init (void);
 SERVEEZ_API int svz_coserver_finalize (void);
 SERVEEZ_API void svz_coserver_destroy (int);
-SERVEEZ_API void svz_coserver_create (int);
+SERVEEZ_API svz_coserver_t *svz_coserver_create (int);
+SERVEEZ_API const char *svz_coserver_type_name (const svz_coserver_t *);
 SERVEEZ_API void svz_coserver_send_request (int, char *,
                                             svz_coserver_handle_result_t,
                                             svz_coserver_args_t);

@@ -1,5 +1,16 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_coservertypes’.
+
+	* coserver/coserver.c (svz_coservertypes): Make static.
+	(svz_coserver_type_name): New func.
+	(svz_coserver_create): Return the newly created coserver.
+	* coserver/coserver.h (svz_coservertypes): Delete var decl.
+	(svz_coserver_create): Update func decl.
+	(svz_coserver_type_name): New func decl.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_environ’.
 
 	* passthrough.c (svz_environ): Make static.
