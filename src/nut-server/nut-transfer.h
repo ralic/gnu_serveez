@@ -21,10 +21,6 @@
 #ifndef __NUT_TRANSFER_H__
 #define __NUT_TRANSFER_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include <stdlib.h>
 #include <time.h>
 

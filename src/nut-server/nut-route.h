@@ -21,10 +21,6 @@
 #ifndef __NUT_ROUTE_H__
 #define __NUT_ROUTE_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #define NUT_QUERY_TOO_RECENT 10 /* drop "unpatient" queries in seconds */
 #define NUT_INVALID_PACKETS  20 /* close connection after x invalid packets */
 

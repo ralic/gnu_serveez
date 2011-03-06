@@ -21,10 +21,6 @@
 #ifndef __TUNNEL_H__
 #define __TUNNEL_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /*
  * Tunnel server configuration structure.
  */

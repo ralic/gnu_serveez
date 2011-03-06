@@ -21,10 +21,6 @@
 #ifndef __NUT_REQUEST_H__
 #define __NUT_REQUEST_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /* Exported functions.  */
 int nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet);
 int nut_push_request (svz_socket_t *sock, nut_header_t *hdr,

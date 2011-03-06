@@ -1,5 +1,32 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <config.h> in a header.
+
+	* ctrl-server/control-proto.h: Don't #include <config.h>.
+	* fakeident-server/ident-proto.h: Likewise.
+	* foo-server/foo-proto.h: Likewise.
+	* http-server/http-cache.h: Likewise.
+	* http-server/http-cgi.h: Likewise.
+	* http-server/http-core.h: Likewise.
+	* http-server/http-dirlist.h: Likewise.
+	* http-server/http-proto.h: Likewise.
+	* irc-server/irc-config.h: Likewise.
+	* irc-server/irc-crypt.h: Likewise.
+	* irc-server/irc-event.h: Likewise.
+	* irc-server/irc-proto.h: Likewise.
+	* irc-server/irc-server.h: Likewise.
+	* nut-server/gnutella.h: Likewise.
+	* nut-server/nut-core.h: Likewise.
+	* nut-server/nut-hostlist.h: Likewise.
+	* nut-server/nut-request.h: Likewise.
+	* nut-server/nut-route.h: Likewise.
+	* nut-server/nut-transfer.h: Likewise.
+	* option.h: Likewise.
+	* sntp-server/sntp-proto.h: Likewise.
+	* tunnel-server/tunnel.h: Likewise.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Decruft: Delete useless header serveez.h.
 
 	* Makefile.am (serveez_SOURCES): Remove serveez.h.

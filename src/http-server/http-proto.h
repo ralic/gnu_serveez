@@ -21,10 +21,6 @@
 #ifndef __HTTP_PROTO_H__
 #define __HTTP_PROTO_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include <stdio.h>
 #include <sys/types.h>
 

@@ -21,10 +21,6 @@
 #ifndef __TEST_H__
 #define __TEST_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 void test_init (void);
 void test_print (char *text);
 void test_ok (void);

@@ -21,10 +21,6 @@
 #ifndef __IRC_CRYPT_H__
 #define __IRC_CRYPT_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #define IRC_CRYPT_BYTE   42
 #define IRC_CRYPT_PREFIX '#'
 

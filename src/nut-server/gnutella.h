@@ -21,10 +21,6 @@
 #ifndef __GNUTELLA_H__
 #define __GNUTELLA_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include <time.h>
 
 /* general defines */

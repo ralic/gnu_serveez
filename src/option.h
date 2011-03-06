@@ -22,10 +22,6 @@
 #ifndef __OPTION_H__
 #define __OPTION_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #if HAVE_GETOPT_H
 # include <getopt.h>
 #elif HAVE_UNISTD_H

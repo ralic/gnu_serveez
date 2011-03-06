@@ -22,10 +22,6 @@
 #ifndef __IDENT_PROTO_H__
 #define __IDENT_PROTO_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /*
  * Configuration of this server
  */

@@ -21,10 +21,6 @@
 #ifndef __HTTP_CGI_H__
 #define __HTTP_CGI_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include "http-proto.h"
 
 #define POST_METHOD 0            /* POST id */

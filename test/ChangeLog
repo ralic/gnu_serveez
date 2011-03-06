@@ -1,5 +1,11 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <config.h> in a header.
+
+	* test.h: Don't #include <config.h>.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "shutting down?" behind functional interface.
 
 	* codec-test.c (main): Use ‘svz_shutting_down_p’.

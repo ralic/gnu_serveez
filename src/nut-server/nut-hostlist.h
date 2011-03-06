@@ -21,10 +21,6 @@
 #ifndef __NUT_HOSTLIST_H__
 #define __NUT_HOSTLIST_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /* output format definitions */
 #define NUT_HTTP_HEADER "HTTP 200 OK\r\n"                           \
                         "Server: Gnutella\r\n"                      \

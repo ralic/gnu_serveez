@@ -21,10 +21,6 @@
 #ifndef __IRC_PROTO_H__
 #define __IRC_PROTO_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include <time.h>
 
 #include "irc-core/irc-core.h"

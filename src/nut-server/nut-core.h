@@ -21,10 +21,6 @@
 #ifndef __NUT_CORE_H__
 #define __NUT_CORE_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /* These definitions are for the GUID creating functions in Win32.  */
 #ifdef __MINGW32__
 typedef int (__stdcall *CreateGuidProc) (svz_uint8_t *);

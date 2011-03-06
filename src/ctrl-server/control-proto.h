@@ -21,10 +21,6 @@
 #ifndef __CONTROL_PROTO_H__
 #define __CONTROL_PROTO_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #define STAT_BUFFER_SIZE 256
 
 /*

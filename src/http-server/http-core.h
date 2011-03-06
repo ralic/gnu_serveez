@@ -21,10 +21,6 @@
 #ifndef __HTTP_CORE_H__
 #define __HTTP_CORE_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 #include <time.h>
 
 /* Some definitions.  */

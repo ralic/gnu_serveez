@@ -21,10 +21,6 @@
 #ifndef __SNTP_PROTO_H__
 #define __SNTP_PROTO_H__ 1
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /*
  * Protocol server specific configuration.
  */

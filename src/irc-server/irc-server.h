@@ -21,10 +21,6 @@
 #ifndef __IRC_SERVER_H__
 #define __IRC_SERVER_H__
 
-#if HAVE_CONFIG_H
-# include <config.h>
-#endif
-
 /*
  * These functions are exported from this IRC server module.
  */
