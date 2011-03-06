@@ -41,7 +41,6 @@
 #endif
 
 #include "libserveez.h"
-#include "serveez.h"
 #include "cfgfile.h"
 #include "option.h"
 #include "guile-api.h"

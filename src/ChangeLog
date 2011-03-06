@@ -1,5 +1,13 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Decruft: Delete useless header serveez.h.
+
+	* Makefile.am (serveez_SOURCES): Remove serveez.h.
+	* serveez.c: Don't #include "serveez.h".
+	* serveez.h: Delete file.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Strip "internals" from $(i)/{codec,coserver}/*.h, too.
 
 	* Makefile.am (install-data-hook):
