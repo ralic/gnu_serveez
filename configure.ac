@@ -481,6 +481,8 @@ AC_SUBST([SERVEEZ_CFLAGS])
 dnl ----------------------------------------------------------------------
 dnl checks for library functions
 
+AC_CHECK_FUNCS([fwrite_unlocked])
+
 AC_CHECK_FUNCS([mkfifo mknod sendfile])
 AC_CHECK_FUNCS([times poll waitpid])
 AC_CHECK_FUNCS([uname])
@@ -570,7 +572,8 @@ dnl
 dnl Check for thread libraries.
 dnl
 have_threads=no
-AS_IF([SVZ_Y([enable_thread_safety])],[
+AS_IF([SVZ_NOT_Y([ac_cv_func_fwrite_unlocked]) &&
+       SVZ_Y([enable_thread_safety])],[
   AS_IF([SVZ_Y([MINGW32])],
    [have_threads=yes],
    [dnl POSIX

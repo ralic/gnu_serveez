@@ -1,5 +1,16 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Avoid using a log mutex when stdio is locking.
+
+	Here, "U" means "! defined HAVE_FWRITE_UNLOCKED".
+	* util.c: Conditionalize #include "libserveez/mutex.h" on U.
+	(spew_mutex, spew_mutex_valid): Likewise.
+	(LOCK_LOG_MUTEX, UNLOCK_LOG_MUTEX): New macros.
+	(svz__log_updn): Conditionalize body on U.
+	(svz_log): Use ‘LOCK_LOG_MUTEX’, ‘UNLOCK_LOG_MUTEX’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Never #include <stdio.h> in a header.
 
 	* binding.c: #include <stdio.h>.

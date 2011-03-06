@@ -67,7 +67,10 @@
 #include "libserveez/alloc.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"
-#include "libserveez/mutex.h"
+/* The logging mutex is necessary only if stdio doesn't do locking.  */
+#ifndef HAVE_FWRITE_UNLOCKED
+# include "libserveez/mutex.h"
+#endif
 #include "libserveez/util.h"
 
 /*
@@ -95,20 +98,36 @@ static char log_level[][16] = {
  */
 static FILE *svz_logfile = NULL;
 
-/* Global definition of the logging mutex.  */
+/* The logging mutex is necessary only if stdio doesn't do locking.  */
+#ifndef HAVE_FWRITE_UNLOCKED
+
 static svz_mutex_define (spew_mutex)
 static int spew_mutex_valid;
+
+#define LOCK_LOG_MUTEX() \
+  if (spew_mutex_valid) svz_mutex_lock (&spew_mutex)
+#define UNLOCK_LOG_MUTEX() \
+  if (spew_mutex_valid) svz_mutex_unlock (&spew_mutex)
+
+#else  /* HAVE_FWRITE_UNLOCKED */
+
+#define LOCK_LOG_MUTEX()
+#define UNLOCK_LOG_MUTEX()
+
+#endif  /* HAVE_FWRITE_UNLOCKED */
 
 #define LOGBUFSIZE  512
 
 void
 svz__log_updn (int direction)
 {
+#ifndef HAVE_FWRITE_UNLOCKED
   (direction
    ? svz_mutex_create
    : svz_mutex_destroy)
     (&spew_mutex);
   spew_mutex_valid = direction;
+#endif
 }
 
 /*
@@ -146,10 +165,10 @@ svz_log (int level, const char *format, ...)
     }
 
   /* Write it out.  */
-  if (spew_mutex_valid) svz_mutex_lock (&spew_mutex);
+  LOCK_LOG_MUTEX ();
   fwrite (buf, 1, w, svz_logfile);
   fflush (svz_logfile);
-  if (spew_mutex_valid) svz_mutex_unlock (&spew_mutex);
+  UNLOCK_LOG_MUTEX ();
 }
 
 /*
