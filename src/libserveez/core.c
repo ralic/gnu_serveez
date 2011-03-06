@@ -349,29 +349,10 @@ svz_socket_connect (svz_t_socket sockfd,
 char *
 svz_inet_ntoa (unsigned long ip)
 {
-#if !BROKEN_INET_NTOA
   struct in_addr addr;
 
   addr.s_addr = ip;
   return inet_ntoa (addr);
-
-#else /* BROKEN_INET_NTOA */
-
-  static char addr[16];
-
-  /*
-   * Now, this is strange: IP is given in host byte order.  Nevertheless
-   * conversion is endian-specific.  To the binary AND and SHIFT operations
-   * work differently on different architectures ?
-   */
-  sprintf (addr, "%lu.%lu.%lu.%lu",
-#if WORDS_BIGENDIAN
-           (ip >> 24) & 0xff, (ip >> 16) & 0xff, (ip >> 8) & 0xff, ip & 0xff);
-#else /* Little Endian */
-           ip & 0xff, (ip >> 8) & 0xff, (ip >> 16) & 0xff, (ip >> 24) & 0xff);
-#endif
-  return addr;
-#endif /* BROKEN_INET_NTOA */
 }
 
 /*

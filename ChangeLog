@@ -1,5 +1,12 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Don't bother checking for broken ‘inet_ntoa’.
+
+	* configure.ac (BROKEN_INET_NTOA):
+	Delete ‘AC_DEFINE’ and related test.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Avoid using a log mutex when stdio is locking.
 
 	* configure.ac (fwrite_unlocked): New ‘AC_CHECK_FUNCS’.

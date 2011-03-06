@@ -644,33 +644,6 @@ AS_IF([SVZ_Y([svz_cv_sys_proc_stat])],
 dnl ----------------------------------------------------------------------
 dnl miscellaneous checks
 
-dnl Check for broken ‘inet_ntoa’.
-dnl
-dnl  It is not really that ‘inet_ntoa’ is broken. Some (old) gcc versions
-dnl  on IRIX handle small structs wrong.  As of gcc 2.95 this should be
-dnl  fixed but we do not really know.  To work around we implement ‘inet_ntoa’
-dnl  on our own if it does not work.
-dnl
-AC_CACHE_CHECK([whether inet_ntoa is broken],[svz_cv_func_inet_ntoa_broken],
-[AC_RUN_IFELSE([AC_LANG_SOURCE([[#include <stdio.h>
-    #include <sys/types.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    main () {
-	struct in_addr ip;
-	ip.s_addr = htonl (0x12345678);
-	if (strcmp (inet_ntoa (ip), "18.52.86.120"))
-	    exit (0);
-	exit (1);}
-]])],
-  [svz_cv_func_inet_ntoa_broken=yes],
-  [svz_cv_func_inet_ntoa_broken=no],
-  [svz_cv_func_inet_ntoa_broken=no])])
-
-AS_IF([SVZ_Y([svz_cv_func_inet_ntoa_broken])],
-[AC_DEFINE([BROKEN_INET_NTOA], 1,
-  [Define if inet_ntoa function is broken.])])
-
 dnl ----------------------------------------------------------------------
 dnl write it out
 

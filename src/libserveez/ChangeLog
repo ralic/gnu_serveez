@@ -1,5 +1,11 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Don't bother checking for broken ‘inet_ntoa’.
+
+	* core.c (svz_inet_ntoa) [BROKEN_INET_NTOA]: Remove code.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Don't document ‘svz_heap’; remove from header on "make install".
 
 	* alloc.h (svz_heap): Mark with ‘svzint’.
