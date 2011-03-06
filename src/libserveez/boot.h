@@ -52,9 +52,6 @@ SERVEEZ_API svz_config_t svz_config;
 SERVEEZ_API void svz_boot (void);
 SERVEEZ_API void svz_halt (void);
 
-/* Some static strings.  */
-SERVEEZ_API char *svz_library;
-
 __END_DECLS
 
 #endif /* not __BOOT_H__ */

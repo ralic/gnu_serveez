@@ -113,17 +113,17 @@ irc_send_init_block (svz_socket_t *sock, irc_client_t *client)
 
   irc_printf (sock, ":%s %03d %s :" RPL_YOURHOST_TEXT "\n",
               cfg->host, RPL_YOURHOST, client->nick,
-              cfg->host, svz_library, PACKAGE_VERSION);
+              cfg->host, PACKAGE_TARNAME, PACKAGE_VERSION);
 
   irc_printf (sock, "NOTICE %s :*** " RPL_YOURHOST_TEXT "\n",
-              client->nick, cfg->host, svz_library, PACKAGE_VERSION);
+              client->nick, cfg->host, PACKAGE_TARNAME, PACKAGE_VERSION);
 
   irc_printf (sock, ":%s %03d %s :" RPL_CREATED_TEXT "\n",
               cfg->host, RPL_CREATED, client->nick, created);
 
   irc_printf (sock, ":%s %03d %s " RPL_MYINFO_TEXT "\n",
               cfg->host, RPL_MYINFO, client->nick,
-              cfg->host, svz_library, PACKAGE_VERSION,
+              cfg->host, PACKAGE_TARNAME, PACKAGE_VERSION,
               USER_MODES, CHANNEL_MODES);
 
   /* send LUSER* replies */

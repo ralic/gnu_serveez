@@ -420,10 +420,10 @@ http_send_header (svz_socket_t *sock)
   ret = svz_sock_printf (sock,
                          "%s"
                          "Date: %s\r\n"
-                         "Server: %s/%s\r\n",
+                         "Server: %s\r\n",
                          http_header.response,
                          http_asc_date (time (NULL)),
-                         svz_library, PACKAGE_VERSION);
+                         SERVER_STRING);
   if (ret)
     return ret;
 
@@ -632,12 +632,12 @@ http_error_response (svz_socket_t *sock, int response)
   return svz_sock_printf (sock,
                           "<html><body bgcolor=white text=black><br>"
                           "<h1>%d %s</h1>"
-                          "<hr noshade><i>%s/%s server at %s port %d, "
+                          "<hr noshade><i>%s server at %s port %d, "
                           "please send email to <a href=\"mailto:%s\">%s</a> "
                           "for reporting errors</i>"
                           "</body></html>",
                           response, txt,
-                          svz_library, PACKAGE_VERSION,
+                          SERVER_STRING,
                           cfg->host ? cfg->host :
                           svz_inet_ntoa (sock->local_addr),
                           ntohs (sock->local_port), cfg->admin, cfg->admin);

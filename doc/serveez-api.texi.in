@@ -898,7 +898,6 @@ It also describes the most important functions
 call to the core API.
 
 |V| svz_config
-|V| svz_library
 
 |F| svz_boot
 |F| svz_halt

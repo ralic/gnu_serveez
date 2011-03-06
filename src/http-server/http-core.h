@@ -41,6 +41,12 @@
 #define EOL1_P(p)     (!memcmp (STANDARD_EOL, (p), 2))
 #define EOL2_P(p)     (!memcmp (STANDARD_EOL, (p), 4))
 
+/* This is like ‘PACKAGE_STRING’, except delim is slash, not space,
+   and the initial "GNU " is omitted, so that the result has the form
+   TOKEN "/" TOKEN, per HTTP 1.0 (RFC 1945) and CGI 1.1 (RFC 3875).
+   We could have used ‘PACKAGE_TARNAME’, but that's not as pretty.  */
+#define SERVER_STRING   (4 + (PACKAGE_NAME "/" PACKAGE_VERSION))
+
 /*
  * The following structure is meant to hold a http response headers
  * data.
