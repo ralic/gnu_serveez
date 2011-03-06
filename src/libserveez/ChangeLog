@@ -1,5 +1,15 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <stdio.h> in a header.
+
+	* binding.c: #include <stdio.h>.
+	* coserver/ident.c: Likewise.
+	* passthrough.c: Likewise.
+	* portcfg.c: Likewise.
+	* defines.h: Don't #include <stdio.h>.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Strip "internals" from $(i)/{codec,coserver}/*.h, too.
 
 	* coserver/coserver.h: Add begin/end ‘svzint’ comments.

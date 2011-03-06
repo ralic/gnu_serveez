@@ -1,5 +1,19 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <stdio.h> in a header.
+
+	* cfgfile.c: #include <stdio.h>.
+	* irc-server/irc-crypt.c [ENABLE_IRC_PROTO]: Likewise.
+	* irc-server/irc-event-1.c [ENABLE_IRC_PROTO]: Likewise.
+	* irc-server/irc-event-2.c [ENABLE_IRC_PROTO]: Likewise.
+	* irc-server/irc-event-4.c [ENABLE_IRC_PROTO]: Likewise.
+	* irc-server/irc-event-5.c [ENABLE_IRC_PROTO]: Likewise.
+	* irc-server/irc-event-6.c [ENABLE_IRC_PROTO]: Likewise.
+	* irc-server/irc-event-7.c [ENABLE_IRC_PROTO]: Likewise.
+	* http-server/http-proto.h: Don't #include <stdio.h>.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Never #include <config.h> in a header.
 
 	* ctrl-server/control-proto.h: Don't #include <config.h>.

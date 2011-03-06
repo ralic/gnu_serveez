@@ -20,6 +20,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include "timidity.h"
 #include <string.h>
 #include <sys/types.h>

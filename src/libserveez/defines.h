@@ -23,8 +23,6 @@
 
 #include "svzconfig.h"  /* NB: See ../Makefile.am ‘install-data-hook’.  */
 
-#include <stdio.h>
-
 /* begin svzint */
 #if GCC_HAS_ATTRIBUTE_VISIBILITY
 #define DSOPRIVATE  __attribute__ ((__visibility__ ("hidden")))

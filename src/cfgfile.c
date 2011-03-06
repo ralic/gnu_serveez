@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #ifdef __MINGW32__

@@ -22,6 +22,7 @@
 
 #if ENABLE_IRC_PROTO
 
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
