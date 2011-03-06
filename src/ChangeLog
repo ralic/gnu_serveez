@@ -1,3 +1,18 @@
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop var: svz_version
+
+	* ctrl-server/control-proto.c (ctrl_stat): Use ‘PACKAGE_VERSION’.
+	* guile.c (guile_init): Likewise.
+	* http-server/http-cgi.c (http_create_cgi_envp): Likewise.
+	(http_cgi_accepted): Likewise.
+	* http-server/http-core.c (http_send_header): Likewise.
+	(http_error_response): Likewise.
+	* irc-server/irc-event-1.c (irc_send_init_block): Likewise.
+	* irc-server/irc-event-3.c (irc_version_callback): Likewise.
+	* nut-server/nut-hostlist.c (nut_hosts_check): Likewise.
+	* option.c (version): Likewise.
+
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add abstraction: svz_foreach_socket

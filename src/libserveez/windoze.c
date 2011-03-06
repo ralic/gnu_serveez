@@ -77,7 +77,7 @@ static void
 windoze_notify_set (HWND hwnd, UINT id)
 {
   sprintf (windoze_tooltip, "%s %s (%d connections)",
-           svz_library, svz_version, svz_sock_connections);
+           svz_library, PACKAGE_VERSION, svz_sock_connections);
 
   windoze_set_taskbar (hwnd, NIM_MODIFY, id, windoze_icon, windoze_tooltip);
 }
@@ -97,7 +97,7 @@ windoze_notify_del (HWND hwnd, UINT id)
 static void
 windoze_notify_add (HWND hwnd, UINT id)
 {
-  sprintf (windoze_tooltip, "%s %s", svz_library, svz_version);
+  sprintf (windoze_tooltip, "%s %s", svz_library, PACKAGE_VERSION);
 
   windoze_set_taskbar (hwnd, NIM_ADD, id, windoze_icon, windoze_tooltip);
 }

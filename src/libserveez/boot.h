@@ -54,7 +54,6 @@ SERVEEZ_API void svz_halt (void);
 
 /* Some static strings.  */
 SERVEEZ_API char *svz_library;
-SERVEEZ_API char *svz_version;
 
 __END_DECLS
 

@@ -423,7 +423,7 @@ http_send_header (svz_socket_t *sock)
                          "Server: %s/%s\r\n",
                          http_header.response,
                          http_asc_date (time (NULL)),
-                         svz_library, svz_version);
+                         svz_library, PACKAGE_VERSION);
   if (ret)
     return ret;
 
@@ -637,7 +637,7 @@ http_error_response (svz_socket_t *sock, int response)
                           "for reporting errors</i>"
                           "</body></html>",
                           response, txt,
-                          svz_library, svz_version,
+                          svz_library, PACKAGE_VERSION,
                           cfg->host ? cfg->host :
                           svz_inet_ntoa (sock->local_addr),
                           ntohs (sock->local_port), cfg->admin, cfg->admin);

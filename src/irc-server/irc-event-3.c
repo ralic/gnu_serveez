@@ -342,7 +342,7 @@ irc_version_callback (svz_socket_t *sock,
     {
       irc_printf (sock, ":%s %03d %s " RPL_VERSION_TEXT "\n",
                   cfg->host, RPL_VERSION, client->nick,
-                  svz_version, svz_library);
+                  PACKAGE_VERSION, svz_library);
     }
   return 0;
 }

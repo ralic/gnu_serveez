@@ -899,7 +899,6 @@ call to the core API.
 
 |V| svz_config
 |V| svz_library
-|V| svz_version
 
 |F| svz_boot
 |F| svz_halt

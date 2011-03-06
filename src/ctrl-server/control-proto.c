@@ -480,7 +480,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   /* print a standard output */
   svz_sock_printf (sock,
                    "\r\nThis is %s version %s running since %s.\r\n",
-                   svz_library, svz_version,
+                   svz_library, PACKAGE_VERSION,
                    svz_time (svz_config.start));
 
   /* display compile time feature list */

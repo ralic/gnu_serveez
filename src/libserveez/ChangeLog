@@ -1,3 +1,12 @@
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop var: svz_version
+
+	* boot.c (svz_version): Delete var.
+	* boot.h (svz_version): Delete var decl.
+	* windoze.c (windoze_notify_set): Use ‘PACKAGE_VERSION’.
+	(windoze_notify_add): Likewise.
+
 2011-03-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add abstraction: svz_foreach_socket

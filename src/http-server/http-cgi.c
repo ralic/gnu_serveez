@@ -432,7 +432,7 @@ http_create_cgi_envp (svz_socket_t *sock,  /* socket for this request */
   svz_envblock_add (env, "GATEWAY_INTERFACE=%s", CGI_VERSION);
   svz_envblock_add (env, "SERVER_PROTOCOL=%s", HTTP_VERSION);
   svz_envblock_add (env, "SERVER_SOFTWARE=%s/%s",
-                    svz_library, svz_version);
+                    svz_library, PACKAGE_VERSION);
   svz_envblock_add (env, "REQUEST_METHOD=%s", request_type[type]);
 
   return env->size;
@@ -592,7 +592,7 @@ http_cgi_accepted (svz_socket_t *sock)
                           "Server: %s/%s\r\n"
                           "Connection: close\r\n",
                           http_asc_date (time (NULL)),
-                          svz_library, svz_version);
+                          svz_library, PACKAGE_VERSION);
 }
 
 /*

@@ -152,7 +152,7 @@ nut_hosts_check (svz_socket_t *sock)
 
   /* send HTML footer */
   if (svz_sock_printf (sock, NUT_HTML_FOOTER,
-                       svz_library, svz_version,
+                       svz_library, PACKAGE_VERSION,
                        svz_inet_ntoa (sock->local_addr),
                        ntohs (sock->local_port)) == -1)
     return -1;

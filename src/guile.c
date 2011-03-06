@@ -1719,7 +1719,7 @@ static void
 guile_init (void)
 {
   /* define some variables */
-  scm_c_define ("serveez-version", gi_string2scm (svz_version));
+  scm_c_define ("serveez-version", gi_string2scm (PACKAGE_VERSION));
 
   /* export accessors for global variables (read/write capable) */
   scm_c_define_gsubr ("serveez-verbosity", 0, 1, 0, guile_access_verbosity);
