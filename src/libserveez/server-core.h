@@ -29,11 +29,11 @@
 #include "libserveez/portcfg.h"
 /* end svzint */
 
-SERVEEZ_API int svz_nuke_happened;
 SERVEEZ_API svz_t_handle svz_child_died;
 
 /* begin svzint */
 
+SBO int svz_nuke_happened;
 SBO long svz_notify;
 SBO svz_socket_t *svz_sock_root;
 
@@ -74,6 +74,7 @@ SERVEEZ_API int svz_sock_check_frequency (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API void svz_sock_check_children (void);
 SERVEEZ_API int svz_sock_child_died (svz_socket_t *);
 
+SERVEEZ_API int svz_shutting_down_p (void);
 SERVEEZ_API void svz_executable (char *);
 SERVEEZ_API void svz_sock_check_bogus (void);
 SERVEEZ_API int svz_periodic_tasks (void);

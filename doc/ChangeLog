@@ -1,5 +1,12 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move "shutting down?" behind functional interface.
+
+	* serveez-api.texi.in (Server core):
+	Delete ‘svz_nuke_happened’; add ‘svz_shutting_down_p’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_notify’.
 
 	* serveez-api.texi.in (Server core): Delete ‘svz_notify’.

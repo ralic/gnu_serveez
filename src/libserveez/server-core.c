@@ -147,6 +147,16 @@ static int svz_sock_limit = 1024;       /* Must be binary size!  */
 static char *svz_executable_file = NULL;
 
 /*
+ * Return non-zero if the core is in the process of shutting down
+ * (typically as a result of a signal).
+ */
+int
+svz_shutting_down_p (void)
+{
+  return svz_nuke_happened;
+}
+
+/*
  * Set the name of the executable file which uses the core library.  This
  * is usually @code{argv[0]}.
  */

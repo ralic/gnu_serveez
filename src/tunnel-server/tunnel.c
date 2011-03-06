@@ -684,7 +684,7 @@ tnl_disconnect_target (svz_socket_t *sock)
   char *key;
 
   /* do not do anything if we are shutting down */
-  if (svz_nuke_happened)
+  if (svz_shutting_down_p ())
     {
       /* if source is TCP or PIPE then shutdown referring connection */
       if (sock->userflags & (TNL_FLAG_SRC_TCP | TNL_FLAG_SRC_PIPE))

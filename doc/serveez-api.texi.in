@@ -795,8 +795,8 @@ core library creates listeners as needed by itself.
 @node Server core
 @subsubsection Server core
 
-|V| svz_nuke_happened
 |V| svz_child_died
+|F| svz_shutting_down_p
 |F| svz_executable
 |F| svz_periodic_tasks
 

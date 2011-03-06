@@ -1,5 +1,14 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move "shutting down?" behind functional interface.
+
+	* server-core.c (svz_shutting_down_p): New func.
+	* server-core.h (svz_nuke_happened):
+	Remove mark ‘SERVEEZ_API’; add mark ‘SBO’, ‘svzint’.
+	(svz_shutting_down_p): New func decl, marked ‘SERVEEZ_API’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_notify’.
 
 	* server-core.h (svz_notify):

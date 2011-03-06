@@ -171,7 +171,7 @@ main (int argc, char **argv)
     {
       svz_loop_one ();
     }
-  while (svz_sock_find (id, version) && !svz_nuke_happened);
+  while (svz_sock_find (id, version) && !svz_shutting_down_p ());
   svz_loop_post ();
 
   /* Finalize the core API.  */
