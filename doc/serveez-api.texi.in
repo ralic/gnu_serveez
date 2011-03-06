@@ -194,7 +194,6 @@ with shared memory arenas or any other underlying memory API.
 |F| svz_pstrdup
 
 |F| svz_get_curalloc
-|F| svz_heap
 
 @node Data structures
 @subsection Data structures

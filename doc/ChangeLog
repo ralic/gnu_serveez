@@ -1,5 +1,11 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Don't document ‘svz_heap’; remove from header on "make install".
+
+	* serveez-api.texi.in (Memory management): Delete ‘svz_heap’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_coservertypes’.
 
 	* serveez-api.texi.in (Coserver functions):

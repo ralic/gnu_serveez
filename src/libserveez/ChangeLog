@@ -1,5 +1,11 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Don't document ‘svz_heap’; remove from header on "make install".
+
+	* alloc.h (svz_heap): Mark with ‘svzint’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Avoid using a log mutex when stdio is locking.
 
 	Here, "U" means "! defined HAVE_FWRITE_UNLOCKED".

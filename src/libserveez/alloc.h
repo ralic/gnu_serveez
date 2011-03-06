@@ -59,9 +59,11 @@ SERVEEZ_API void *svz_pmalloc (size_t);
 SERVEEZ_API void *svz_prealloc (void *, size_t);
 SERVEEZ_API char *svz_pstrdup (char *);
 
+/* begin svzint */
 #if DEBUG_MEMORY_LEAKS
 SERVEEZ_API void svz_heap (void);
 #endif /* DEBUG_MEMORY_LEAKS */
+/* end svzint */
 
 SERVEEZ_API void svz_get_curalloc (unsigned int *);
 
