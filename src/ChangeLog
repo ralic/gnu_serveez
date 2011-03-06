@@ -1,5 +1,12 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile int] Use an internal signal to implement ‘serveez-nuke’.
+
+	* guile-server.c (guile_nuke_happened):
+	Signal ‘SIGQUIT’ instead of setting a global variable.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop var: svz_library
 
 	* ctrl-server/control-proto.c (ctrl_stat): Use ‘PACKAGE_STRING’.

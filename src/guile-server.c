@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <signal.h>
 #if HAVE_FLOSS_H
 # include <floss.h>
 #endif
@@ -329,7 +330,7 @@ guile_sock_setfunction (svz_socket_t *sock, char *func, SCM proc)
 SCM
 guile_nuke_happened (void)
 {
-  svz_nuke_happened = 1;
+  raise (SIGQUIT);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
