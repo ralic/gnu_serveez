@@ -21,8 +21,6 @@
 #ifndef __IRC_PROTO_H__
 #define __IRC_PROTO_H__
 
-#include <time.h>
-
 #include "irc-core/irc-core.h"
 
 #define IRC_PING_INTERVAL (3*60)  /* three (3) minutes intervals */

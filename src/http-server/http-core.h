@@ -21,8 +21,6 @@
 #ifndef __HTTP_CORE_H__
 #define __HTTP_CORE_H__
 
-#include <time.h>
-
 /* Some definitions.  */
 #define HTTP_MAJOR_VERSION  1          /* accepted MajorVersion */
 #define MAJOR_VERSION       0          /* MajorVersion index */

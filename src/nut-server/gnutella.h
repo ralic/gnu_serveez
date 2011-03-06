@@ -21,8 +21,6 @@
 #ifndef __GNUTELLA_H__
 #define __GNUTELLA_H__ 1
 
-#include <time.h>
-
 /* general defines */
 #define NUT_VERSION   "0.48"
 #define NUT_CONNECT   "GNUTELLA CONNECT/0.4\n\n"

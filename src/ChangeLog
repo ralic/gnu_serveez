@@ -1,5 +1,15 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <time.h> in a header.
+
+	* http-server/http-cache.h: Don't include <time.h>.
+	* http-server/http-core.h: Likewise.
+	* irc-server/irc-proto.h: Likewise.
+	* nut-server/gnutella.h: Likewise.
+	* nut-server/nut-transfer.h: Likewise.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Never #include <stdlib.h> in a header.
 
 	* nut-server/nut-transfer.h: Don't #include <stdlib.h>

@@ -21,8 +21,6 @@
 #ifndef __HTTP_CACHE_H__
 #define __HTTP_CACHE_H__ 1
 
-#include <time.h>
-
 /*
  * Some #defines.  These are just default values for configurable
  * variables.

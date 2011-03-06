@@ -21,8 +21,6 @@
 #ifndef __NUT_TRANSFER_H__
 #define __NUT_TRANSFER_H__ 1
 
-#include <time.h>
-
 #include "gnutella.h"
 
 /* general definitions */
