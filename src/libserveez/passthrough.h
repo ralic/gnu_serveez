@@ -74,15 +74,6 @@ svz_process_t;
 extern char **environ;
 #endif
 
-/*
- * This macro must be called once after @code{svz_boot} for setting up the
- * @code{svz_environ} variable.  It simply passes the @code{environ} variable
- * of the calling application to the underlying Serveez core API.  This is
- * necessary to make the @code{svz_envblock_default} function working
- * correctly.
- */
-#define svz_envblock_setup() do { svz_environ = environ; } while (0)
-
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_process (svz_socket_t *, char *, char *,
@@ -107,7 +98,7 @@ SERVEEZ_API int svz_process_split_usergroup (char *, char **,
                                              char **);
 SERVEEZ_API int svz_process_check_access (char *, char *);
 
-SERVEEZ_API char **svz_environ;
+SERVEEZ_API void svz_envblock_setup (void);
 SERVEEZ_API svz_envblock_t *svz_envblock_create (void);
 SERVEEZ_API int svz_envblock_default (svz_envblock_t *);
 SERVEEZ_API int svz_envblock_add (svz_envblock_t *, char *, ...);

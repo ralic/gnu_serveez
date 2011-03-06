@@ -1,5 +1,15 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_environ’.
+
+	* passthrough.c (svz_environ): Make static.
+	(svz_envblock_setup): New func.
+	* passthrough.h (svz_environ): Delete var decl.
+	(svz_envblock_setup): Convert macro
+	to func decl, marked ‘SERVEEZ_API’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "shutting down?" behind functional interface.
 
 	* server-core.c (svz_shutting_down_p): New func.

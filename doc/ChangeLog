@@ -1,5 +1,13 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_environ’.
+
+	* serveez-api.texi.in (Passthrough connections):
+	Convert ‘svz_envblock_setup’ from ‘|M|’ to ‘|F|’;
+	delete ‘svz_envrion’.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move "shutting down?" behind functional interface.
 
 	* serveez-api.texi.in (Server core):

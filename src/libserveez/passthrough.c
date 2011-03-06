@@ -69,7 +69,18 @@
  * application using the Serveez core API.  It must be setup via the macro
  * @code{svz_envblock_setup}.
  */
-char **svz_environ = NULL;
+static char **svz_environ = NULL;
+
+/*
+ * This function must be called once after @code{svz_boot}
+ * to set up internal tables so that subsequent functions
+ * (like @code{svz_envblock_default}) can work correctly.
+ */
+void
+svz_envblock_setup (void)
+{
+  svz_environ = environ;
+}
 
 /*
  * This routine starts a new program specified by @var{bin} passing the
