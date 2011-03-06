@@ -84,7 +84,7 @@ install-data-hook:
 	       -e ' s|.*|/* Extracted configuration.  */|' \
 	       -e ' r TMP0' \
 	       -e '}' TMP1 > defines.h; \
-	for h in *.h; do \
+	for h in *.h codec/*.h coserver/*.h; do \
 	  mv $$h $$h.orig; \
 	  $(SED) '/begin svzint/,/end svzint/d' $$h.orig > $$h; \
 	  rm -f $$h.orig; \

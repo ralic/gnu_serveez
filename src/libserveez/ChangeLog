@@ -1,5 +1,12 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Strip "internals" from $(i)/{codec,coserver}/*.h, too.
+
+	* coserver/coserver.h: Add begin/end ‘svzint’ comments.
+	* codec/codec.h: Likewise.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_coservertypes’.
 
 	* coserver/coserver.c (svz_coservertypes): Make static.

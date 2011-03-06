@@ -1,5 +1,12 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Strip "internals" from $(i)/{codec,coserver}/*.h, too.
+
+	* Makefile.am (install-data-hook):
+	Also process codec/*.h and coserver/*.h files.
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_coservertypes’.
 
 	* ctrl-server/control-proto.c (ctrl_stat_id):
