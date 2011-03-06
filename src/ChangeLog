@@ -1,5 +1,11 @@
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <stdlib.h> in a header.
+
+	* nut-server/nut-transfer.h: Don't #include <stdlib.h>
+
+2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Never #include <stdio.h> in a header.
 
 	* cfgfile.c: #include <stdio.h>.
