@@ -49,6 +49,5 @@
 #include "libserveez/dynload.h"
 #include "libserveez/passthrough.h"
 #include "libserveez/codec/codec.h"
-#include "libserveez/mutex.h"
 
 #endif /* __LIBSERVEEZ_H__ */

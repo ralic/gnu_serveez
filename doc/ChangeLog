@@ -1,3 +1,15 @@
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Embed mutex functionality; expose only feature ‘log-mutex’.
+
+	* Makefile.am (libserveez_impl): Remove mutex.c, mutex.h.
+	* serveez-api.texi.in (Embedding API):
+	Delete "Thread safety" from menu.
+	(Library features) <table>: Drop ‘threads’; add ‘log-mutex’.
+	(Thread safety): Delete node/subsection.
+	* serveez.texi (Build and install)
+	<table>: Drop ‘--enable-thread-safety’.
+
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Don't document ‘svz_heap’; remove from header on "make install".

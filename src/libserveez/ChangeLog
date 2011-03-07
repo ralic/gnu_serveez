@@ -1,3 +1,27 @@
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Embed mutex functionality; expose only feature ‘log-mutex’.
+
+	* Makefile.am (EXTRA_DIST): Add mutex.h.
+	(libserveez_HEADERS): Remove mutex.h.
+	* boot.c: Don't #include "libserveez/mutex.h".
+	(svz_library_features): Drop feature ‘threads’; add ‘log-mutex’.
+	(svz_log_mutex): Delete unused var decl.
+	* mutex.c: Conditionalize all but "config.h"
+	using ‘if ENABLE_LOG_MUTEX’; use ‘HAVE_PTHREAD_H’ directly.
+	(svz_mutex_create): Remove code in preproc
+	conditional block corresponding to ‘!SVZ_HAVE_THREADS’.
+	(svz_mutex_destroy, svz_mutex_lock, svz_mutex_unlock): Likewise.
+	* mutex.h: Don't #include "libserveez/defines.h";
+	use ‘HAVE_PTHREAD_H’ directly; remove preproc
+	conditional corresponding to ‘!SVZ_HAVE_THREADS’.
+	(svz_mutex_declare, svz_mutex_define): Delete macros.
+	(__BEGIN_DECLS, __END_DECLS): Delete macro calls.
+	(svz_mutex_create): Remove mark ‘SERVEEZ_API’; mark ‘SBO’.
+	(svz_mutex_destroy, svz_mutex_lock, svz_mutex_unlock): Likewise.
+	* util.c: Use ‘ENABLE_LOG_MUTEX’.
+	(spew_mutex): Use ‘SVZ_MUTEX_INITIALIZER’ directly.
+
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Don't bother checking for broken ‘inet_ntoa’.

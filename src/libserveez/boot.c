@@ -38,7 +38,6 @@
 #include "libserveez/server.h"
 #include "libserveez/dynload.h"
 #include "libserveez/boot.h"
-#include "libserveez/mutex.h"
 #include "libserveez/server-core.h"
 #include "libserveez/codec/codec.h"
 
@@ -70,8 +69,8 @@ svz_library_features (size_t *count)
 #if defined ENABLE_SENDFILE && defined HAVE_SENDFILE
     "sendfile",
 #endif
-#ifdef SVZ_HAVE_THREADS
-    "threads",
+#ifdef ENABLE_LOG_MUTEX
+    "log-mutex",
 #endif
 #ifdef ENABLE_FLOOD_PROTECTION
     "flood-protection",
@@ -83,9 +82,6 @@ svz_library_features (size_t *count)
 
   return features;
 }
-
-/* Extern declaration of the logging mutex.  */
-svz_mutex_declare (svz_log_mutex)
 
 /*
  * This routine has to be called once before you could use any of the

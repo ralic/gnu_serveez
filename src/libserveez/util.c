@@ -67,8 +67,7 @@
 #include "libserveez/alloc.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"
-/* The logging mutex is necessary only if stdio doesn't do locking.  */
-#ifndef HAVE_FWRITE_UNLOCKED
+#ifdef ENABLE_LOG_MUTEX
 # include "libserveez/mutex.h"
 #endif
 #include "libserveez/util.h"
@@ -99,9 +98,9 @@ static char log_level[][16] = {
 static FILE *svz_logfile = NULL;
 
 /* The logging mutex is necessary only if stdio doesn't do locking.  */
-#ifndef HAVE_FWRITE_UNLOCKED
+#ifdef ENABLE_LOG_MUTEX
 
-static svz_mutex_define (spew_mutex)
+static svz_mutex_t spew_mutex = SVZ_MUTEX_INITIALIZER;
 static int spew_mutex_valid;
 
 #define LOCK_LOG_MUTEX() \
@@ -109,12 +108,12 @@ static int spew_mutex_valid;
 #define UNLOCK_LOG_MUTEX() \
   if (spew_mutex_valid) svz_mutex_unlock (&spew_mutex)
 
-#else  /* HAVE_FWRITE_UNLOCKED */
+#else  /* !ENABLE_LOG_MUTEX */
 
 #define LOCK_LOG_MUTEX()
 #define UNLOCK_LOG_MUTEX()
 
-#endif  /* HAVE_FWRITE_UNLOCKED */
+#endif  /* !ENABLE_LOG_MUTEX */
 
 #define LOGBUFSIZE  512
 

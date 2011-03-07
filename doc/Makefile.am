@@ -48,7 +48,6 @@ libserveez_impl = \
   hash.c hash.h \
   icmp-socket.c \
   interface.c interface.h \
-  mutex.c mutex.h \
   passthrough.c passthrough.h \
   pipe-socket.c \
   portcfg.c portcfg.h \

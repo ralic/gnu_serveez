@@ -28,10 +28,4 @@
 /* Define to 'int' if <winsock2.h> does not define 'SOCKET'.  */
 #undef svz_t_socket
 
-/* Define if you have the <pthread.h> header file.  */
-#undef SVZ_HAVE_PTHREAD_H
-
-/* Define if you have a thread library.  */
-#undef SVZ_HAVE_THREADS
-
 #endif /* !__SVZCONFIG_H__ */

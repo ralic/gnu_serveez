@@ -1,5 +1,12 @@
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Embed mutex functionality; expose only feature ‘log-mutex’.
+
+	* libserveez.h: Don't #include "libserveez/mutex.h".
+	* svzconfig.h.in (SVZ_HAVE_PTHREAD_H, SVZ_HAVE_THREADS): Delete.
+
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] #include <time.h> in some .c files.
 
 	* http-server/http-cache.c: #include <time.h>.

@@ -20,11 +20,13 @@
 
 #include "config.h"
 
+#if ENABLE_LOG_MUTEX
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#if SVZ_HAVE_PTHREAD_H
+#ifdef HAVE_PTHREAD_H
 # include <pthread.h>
 #endif
 
@@ -39,7 +41,6 @@
 int
 svz_mutex_create (svz_mutex_t *mutex)
 {
-#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__ /* Windoze native */
   if ((*mutex = CreateMutex (NULL, FALSE, NULL)) == NULL)
     {
@@ -50,9 +51,6 @@ svz_mutex_create (svz_mutex_t *mutex)
 #else /* POSIX threads */
   return pthread_mutex_init (mutex, NULL);
 #endif
-#else /* neither POSIX nor Win32 */
-  return -1;
-#endif
 }
 
 /* Destroys the given @var{mutex} object which has been created by
@@ -60,7 +58,6 @@ svz_mutex_create (svz_mutex_t *mutex)
 int
 svz_mutex_destroy (svz_mutex_t *mutex)
 {
-#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__
   if (!CloseHandle (*mutex))
     {
@@ -77,9 +74,6 @@ svz_mutex_destroy (svz_mutex_t *mutex)
     }
   return 0;
 #endif
-#else
-  return -1;
-#endif
 }
 
 /* Locks a @var{mutex} object and sets the current thread into an idle
@@ -88,7 +82,6 @@ svz_mutex_destroy (svz_mutex_t *mutex)
 int
 svz_mutex_lock (svz_mutex_t *mutex)
 {
-#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__
   if (WaitForSingleObject (*mutex, INFINITE) == WAIT_FAILED)
     {
@@ -104,9 +97,6 @@ svz_mutex_lock (svz_mutex_t *mutex)
     }
   return 0;
 #endif
-#else
-  return -1;
-#endif
 }
 
 /* Releases the given @var{mutex} object and thereby possibly resumes
@@ -114,7 +104,6 @@ svz_mutex_lock (svz_mutex_t *mutex)
 int
 svz_mutex_unlock (svz_mutex_t *mutex)
 {
-#if SVZ_HAVE_THREADS
 #ifdef __MINGW32__
   if (!ReleaseMutex (mutex))
     {
@@ -130,7 +119,6 @@ svz_mutex_unlock (svz_mutex_t *mutex)
     }
   return 0;
 #endif
-#else
-  return -1;
-#endif
 }
+
+#endif  /* ENABLE_LOG_MUTEX */

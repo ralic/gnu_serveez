@@ -117,7 +117,6 @@ conflict with the other ``Port configuration'' node.]
 * Memory management::     How memory is managed in Serveez
 * Data structures::       Data structure helpers
 * Utility functions::     Miscellaneous helper functions
-* Thread safety::         Some thread-safety functionality
 * Core functions::        Network core implementations
 * Client connections::    Client connection functions
 * Socket management::     Socket management functions
@@ -155,9 +154,12 @@ Present when @samp{--enable-poll} and you have poll(2).
 @item sendfile
 Present when @samp{--enable-sendfile} and you have sendfile(2)
 or some workalike (e.g., @code{TransmitFile}).
-@item threads
-Present when @samp{--enable-thread-safety} and you have some
-kind of thread capability (perhaps in a separate library).
+@item log-mutex
+Present when @code{svz_log} uses a mutex around its internal
+stdio operations, implying that you have some kind of thread
+capability (perhaps in a separate library).
+If your system has @code{fwrite_unlocked}, the configure script
+assumes that @code{fwrite} et al are already locked and disables this.
 @item flood-protection
 Present when @samp{--enable-flood}.
 @item core
@@ -338,22 +340,6 @@ This variable is only available on Windows version of this API.
 |F| svz_sys_version
 |F| svz_hstrerror
 |F| svz_syserror
-
-@node Thread safety
-@subsection Thread safety
-
-The following macros and functions can be used to implement certain
-thread safety functionality inside applications using the core library
-(including Serveez itself).  The user must explicitly enable this
-functionality when configure'ing the Serveez package.  Otherwise the
-macros default to empty statements.
-
-|M| svz_mutex_define
-|M| svz_mutex_declare
-|F| svz_mutex_create
-|F| svz_mutex_destroy
-|F| svz_mutex_lock
-|F| svz_mutex_unlock
 
 @node Core functions
 @subsection Networking and other low level functions

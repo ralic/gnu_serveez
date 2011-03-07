@@ -108,12 +108,6 @@ AC_DEFINE([ENABLE_SENDFILE], 1,
 ])
 
 dnl
-dnl Check whether some thread safety functionality should be included.
-dnl
-SVZ_FLAG([whether to include thread safety functionality],
-         [yes],[thread-safety],[Enable some thread-safety functionality])
-
-dnl
 dnl Check whether the SNTP server should be included.
 dnl
 SVZ_FLAG([whether to enable the SNTP server],
@@ -373,14 +367,6 @@ dnl IRIX.
 AC_CHECK_HEADERS_ONCE([sys/sysget.h sys/sysinfo.h])
 
 dnl
-dnl Serveez core library internals (svzconfig.h).
-dnl FIXME: Internalize; rework to use HAVE_FOO_H directly.
-dnl
-AS_IF([SVZ_Y([ac_cv_header_pthread_h])],
-[AC_DEFINE([SVZ_HAVE_PTHREAD_H], 1,
-  [Define if you have the <pthread.h> header file.])])
-
-dnl
 dnl Some installations need <sys/types.h> before <netinet/tcp.h>.
 dnl
 AC_CACHE_CHECK([for netinet/tcp.h],[svz_cv_header_netinet_tcp_h],
@@ -572,8 +558,7 @@ dnl
 dnl Check for thread libraries.
 dnl
 have_threads=no
-AS_IF([SVZ_NOT_Y([ac_cv_func_fwrite_unlocked]) &&
-       SVZ_Y([enable_thread_safety])],[
+AS_IF([SVZ_NOT_Y([ac_cv_func_fwrite_unlocked])],[
   AS_IF([SVZ_Y([MINGW32])],
    [have_threads=yes],
    [dnl POSIX
@@ -585,8 +570,8 @@ AS_IF([SVZ_NOT_Y([ac_cv_func_fwrite_unlocked]) &&
         have_threads=yes
         LIBSERVEEZLIBS="$LIBSERVEEZLIBS -lc_r"])])])])
 AS_IF([SVZ_Y([have_threads])],
-[AC_DEFINE([SVZ_HAVE_THREADS], 1,
-  [Define if you have a thread library.])])
+[AC_DEFINE([ENABLE_LOG_MUTEX], 1,
+  [Define to 1 if svz_log should use a mutex around its stdio calls.])])
 AS_UNSET([have_threads])
 
 dnl
