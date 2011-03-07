@@ -1,5 +1,11 @@
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <sys/types.h> in a header.
+
+	* http-server/http-proto.h: Don't #include <sys/types.h>.
+
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add some funcs.
 
 	* gi.c (list_3): New macro.

@@ -1,5 +1,12 @@
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <sys/types.h> in a header.
+
+	* alloc.h: Don't #include <sys/types.h>.
+	* portcfg.h: Likewise.
+
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move svz_{malloc,realloc,free}_func behind ‘svz_set_mm_funcs’.
 
 	* alloc.c (svz_set_mm_funcs): New func.

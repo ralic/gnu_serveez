@@ -23,7 +23,6 @@
 #ifndef __XALLOC_H__
 #define __XALLOC_H__ 1
 
-#include <sys/types.h>
 /* begin svzint */
 #include "libserveez/defines.h"
 /* end svzint */

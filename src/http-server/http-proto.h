@@ -21,8 +21,6 @@
 #ifndef __HTTP_PROTO_H__
 #define __HTTP_PROTO_H__
 
-#include <sys/types.h>
-
 #include "http-cache.h"
 
 /*
