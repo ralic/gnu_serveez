@@ -29,6 +29,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif

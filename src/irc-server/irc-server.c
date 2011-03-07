@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #ifdef __MINGW32__
 # include <winsock2.h>

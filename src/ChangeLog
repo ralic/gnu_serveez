@@ -1,3 +1,16 @@
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] #include <time.h> in some .c files.
+
+	* http-server/http-cache.c: #include <time.h>.
+	* http-server/http-cgi.c: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-event-2.c: Likewise.
+	* irc-server/irc-event-5.c: Likewise.
+	* irc-server/irc-server.c: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-route.c: Likewise.
+
 2011-03-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Never #include <time.h> in a header.
