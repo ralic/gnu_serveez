@@ -731,7 +731,7 @@ scm_return_rpcentry (struct rpcent *entry)
   SCM ans;
   SCM *ve;
 
-  ans = scm_c_make_vector (3, SCM_UNSPECIFIED);
+  ans = gi_n_vector (3, SCM_UNSPECIFIED);
   ve = SCM_WRITABLE_VELTS (ans);
   ve[0] = gi_string2scm (entry->r_name);
   ve[1] = scm_makfromstrs (-1, entry->r_aliases);
@@ -776,7 +776,7 @@ scm_getrpc (SCM arg)
 
   if (!entry)
     scm_syserror_msg (FUNC_NAME, "no such rpc service ~A",
-                      scm_list_n (arg, SCM_UNDEFINED), errno);
+                      scm_cons (arg, SCM_EOL), errno);
   return scm_return_rpcentry (entry);
 }
 #undef FUNC_NAME
@@ -852,7 +852,7 @@ scm_portmap_list (SCM address)
     return SCM_EOL;
   do
     {
-      mapping = scm_c_make_vector (4, SCM_UNSPECIFIED);
+      mapping = gi_n_vector (4, SCM_UNSPECIFIED);
       ve = SCM_WRITABLE_VELTS (mapping);
       ve[0] = gi_nnint2scm ((unsigned long) map->pml_map.pm_prog);
       ve[1] = gi_nnint2scm ((unsigned long) map->pml_map.pm_vers);
@@ -865,6 +865,12 @@ scm_portmap_list (SCM address)
 }
 #undef FUNC_NAME
 #endif /* HAVE_PMAP_GETMAPS */
+
+static SCM
+errnostring (void)
+{
+  return scm_strerror (gi_integer2scm (errno));
+}
 
 #if HAVE_PMAP_SET && HAVE_PMAP_UNSET
 /* A user interface to the portmap service, which establishes a mapping
@@ -887,8 +893,7 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
     {
       if (!pmap_unset (SCM_INUM (prognum), SCM_INUM (versnum)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_unset ~A ~A",
-                          scm_list_n (gi_string2scm (strerror (errno)),
-                                      prognum, versnum, SCM_UNDEFINED),
+                          gi_list_3 (errnostring (), prognum, versnum),
                           errno);
     }
   else
@@ -901,9 +906,9 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
       if (!pmap_set (SCM_INUM (prognum), SCM_INUM (versnum),
                      SCM_INUM (protocol), (unsigned short) SCM_INUM (port)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_set ~A ~A ~A ~A",
-                          scm_list_n (gi_string2scm (strerror (errno)),
-                                      prognum, versnum, protocol, port,
-                                      SCM_UNDEFINED), errno);
+                          gi_list_5 (errnostring (), prognum,
+                                     versnum, protocol, port),
+                          errno);
     }
   return SCM_UNSPECIFIED;
 }
@@ -1104,8 +1109,9 @@ guile_read_file (SCM port, SCM size)
     {
       scm_gc_free (data, len, "svz-binary-data");
       scm_syserror_msg (FUNC_NAME, "~A: read ~A ~A",
-                        scm_list_n (gi_string2scm (strerror (errno)),
-                                    gi_integer2scm (fdes), size, SCM_UNDEFINED),
+                        gi_list_3 (errnostring (),
+                                   gi_integer2scm (fdes),
+                                   size),
                         errno);
     }
   else if (ret == 0)

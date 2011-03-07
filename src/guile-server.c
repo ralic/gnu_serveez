@@ -1167,7 +1167,7 @@ guile_server_state_to_hash (SCM server)
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   if ((data = xserver->data) != NULL)
     {
-      hash = scm_c_make_vector (svz_hash_size (data), SCM_EOL);
+      hash = gi_n_vector (svz_hash_size (data), SCM_EOL);
       svz_hash_foreach_key (data, key, i)
         scm_hash_set_x (hash, gi_string2scm (key[i]),
                         (SCM) SVZ_PTR2NUM (svz_hash_get (data, key[i])));

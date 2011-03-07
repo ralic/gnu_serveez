@@ -1,5 +1,28 @@
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[gi] Add some funcs.
+
+	* gi.c (list_3): New macro.
+	(gi_list_3): New func.
+	(list_5): New macro.
+	(gi_list_5): New func.
+	(make_vector): New macro.
+	(gi_n_vector): New func.
+	* gi.h (gi_list_3, gi_list_5, gi_n_vector): New func decls.
+	* guile-api.c (scm_return_rpcentry): Use ‘gi_n_vector’.
+	(scm_getrpc): Use ‘scm_cons’.
+	(scm_portmap_list): Use ‘gi_n_vector’.
+	(errnostring): New static func.
+	(scm_portmap): Use ‘gi_list_3’, ‘errnostring’, ‘gi_list_5’.
+	(guile_read_file): Use ‘gi_list_3’, ‘errnostring’.
+	* guile-api.h (scm_list_n): Delete #define.
+	(scm_int2num): Delete macro.
+	(scm_c_primitive_load): Use ‘gi_string2scm’.
+	(scm_c_make_vector): Delete macro.
+	* guile-server.c (guile_server_state_to_hash): Use ‘gi_n_vector’.
+
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Embed mutex functionality; expose only feature ‘log-mutex’.
 
 	* libserveez.h: Don't #include "libserveez/mutex.h".

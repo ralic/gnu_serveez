@@ -111,4 +111,40 @@ gi_nnint2scm (unsigned long int n)
   return nnint2scm (n);
 }
 
+#if V15
+#define list_3(a1,a2,a3)  scm_list_n (a1, a2, a3, SCM_UNDEFINED)
+#else
+#define list_3(a1,a2,a3)  scm_listify (a1, a2, a3, SCM_UNDEFINED)
+#endif
+
+SCM
+gi_list_3 (SCM a1, SCM a2, SCM a3)
+{
+  return list_3 (a1, a2, a3);
+}
+
+#if V15
+#define list_5(a1,a2,a3,a4,a5)  scm_list_n (a1, a2, a3, a4, a5, SCM_UNDEFINED)
+#else
+#define list_5(a1,a2,a3,a4,a5)  scm_listify (a1, a2, a3, a4, a5, SCM_UNDEFINED)
+#endif
+
+SCM
+gi_list_5 (SCM a1, SCM a2, SCM a3, SCM a4, SCM a5)
+{
+  return list_5 (a1, a2, a3, a4, a5);
+}
+
+#if V15
+#define make_vector  scm_c_make_vector
+#else
+#define make_vector  scm_make_vector
+#endif
+
+extern SCM
+gi_n_vector (size_t len, SCM fill)
+{
+  return make_vector (integer2scm (len), fill);
+}
+
 /* gi.c ends here */

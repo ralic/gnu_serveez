@@ -35,7 +35,6 @@
 
 #ifndef SCM_VERSION_15X
 #define scm_t_bits long
-#define scm_list_n scm_listify
 typedef scm_catch_body_t scm_t_catch_body;
 typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
@@ -119,9 +118,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define SCM_WRITABLE_VELTS(x) SCM_VELTS(x)
 #endif
 #ifndef SCM_VERSION_15X
-#define scm_int2num(x) scm_long2num ((long) (x))
-#endif
-#ifndef SCM_VERSION_15X
 #define scm_mem2string(str, len) gh_str2scm (str, len)
 #endif
 #ifndef SCM_VERSION_15X
@@ -139,7 +135,7 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 #ifndef SCM_VERSION_15X
 #define scm_c_primitive_load(file) \
-    scm_primitive_load (scm_makfrom0str (file))
+    scm_primitive_load (gi_string2scm (file))
 #endif
 #ifndef SCM_VERSION_15X
 #define guile_lookup(var, name) (var) = gh_lookup (name)
@@ -155,9 +151,6 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #endif
 #ifndef SCM_VERSION_15X
 #define scm_gc_unprotect_object(obj) scm_unprotect_object (obj)
-#endif
-#ifndef SCM_VERSION_15X
-#define scm_c_make_vector(k, fill) scm_make_vector (scm_int2num (k), fill)
 #endif
 #ifndef SCM_VERSION_17X
 #define scm_gc_malloc(len, name) scm_must_malloc (len, name)
