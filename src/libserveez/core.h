@@ -26,8 +26,6 @@
 #include "libserveez/array.h"
 /* end svzint */
 
-#include <sys/stat.h>
-
 #ifndef __MINGW32__
 # include <netinet/in.h>
 #endif

@@ -1,5 +1,13 @@
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Never #include <sys/stat.h> in a header.
+
+	* core.h: Don't #include <sys/stat.h>.
+	* portcfg.h: Likewise.
+	* util.h: Likewise.
+
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Never #include <sys/types.h> in a header.
 
 	* alloc.h: Don't #include <sys/types.h>.

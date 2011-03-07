@@ -21,8 +21,6 @@
 #ifndef __PORTCFG_H__
 #define __PORTCFG_H__ 1
 
-#include <sys/stat.h>
-
 #ifndef __MINGW32__
 # include <netinet/in.h>
 #else

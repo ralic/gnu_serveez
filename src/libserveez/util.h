@@ -27,7 +27,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-#include <sys/stat.h>
 #include <fcntl.h>
 
 /* `open ()' files with this additional flag */
