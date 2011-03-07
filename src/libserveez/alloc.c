@@ -42,15 +42,26 @@ static unsigned int allocated_bytes = 0;
 static unsigned int allocated_blocks = 0;
 #endif /* ENABLE_DEBUG */
 
-/* The @var{svz_malloc_func} variable is a function pointer for allocating
-   dynamic memory.  */
+/* Default memory management functions.  */
 svz_malloc_func_t svz_malloc_func = malloc;
-/* This function pointer is called whenever the core library needs to
-   reallocate (resize) a memory block.  */
 svz_realloc_func_t svz_realloc_func = realloc;
-/* In order to free a block of memory the core library calls this function
-   pointer.  */
 svz_free_func_t svz_free_func = free;
+
+/*
+ * Set the internal memory management functions to @var{cus_malloc},
+ * @var{cus_realloc} and @var{cus_free}, respectively.
+ * The default internal values are @code{malloc}, @code{realloc}
+ * and @code{free}.
+ */
+void
+svz_set_mm_funcs (svz_malloc_func_t cus_malloc,
+                  svz_realloc_func_t cus_realloc,
+                  svz_free_func_t cus_free)
+{
+  svz_malloc_func = cus_malloc;
+  svz_realloc_func = cus_realloc;
+  svz_free_func = cus_free;
+}
 
 #if DEBUG_MEMORY_LEAKS
 

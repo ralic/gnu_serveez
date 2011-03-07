@@ -180,9 +180,7 @@ and @code{free} make it possible to instruct Serveez to use different
 kinds of memory, which might be necessary if you want the library to work
 with shared memory arenas or any other underlying memory API.
 
-|V| svz_malloc_func
-|V| svz_realloc_func
-|V| svz_free_func
+|F| svz_set_mm_funcs
 
 |F| svz_malloc
 |F| svz_calloc

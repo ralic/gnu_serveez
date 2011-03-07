@@ -1,5 +1,14 @@
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move svz_{malloc,realloc,free}_func behind ‘svz_set_mm_funcs’.
+
+	* alloc.c (svz_set_mm_funcs): New func.
+	* alloc.h (svz_malloc_func, svz_realloc_func, svz_free_func):
+	Drop mark ‘SERVEEZ_API’; mark ‘SBO’, ‘svzint’.
+	(svz_set_mm_funcs): New func decl, marked ‘SERVEEZ_API’.
+
+2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Embed mutex functionality; expose only feature ‘log-mutex’.
 
 	* Makefile.am (EXTRA_DIST): Add mutex.h.
