@@ -40,6 +40,9 @@
 #define PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
 #define PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
 
+/* Silence the "declared inside parameter list" warning.  */
+struct stat;
+
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_fd_nonblock (int);
