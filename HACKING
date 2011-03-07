@@ -6,7 +6,7 @@ See the end for copying conditions.
 
 * next
 *** DONE Move to GPLv3+.
-*** TODO Fix bugs.
+*** DONE Fix bugs.
 ***** DONE incomplete "make uninstall"
       It fails to delete $(includedir)/libserveez and $(pkgdatadir).
 ***** DONE sloppy ‘sscanf’ (latent remote buffer overflow)
@@ -16,7 +16,7 @@ See the end for copying conditions.
       =>    [[file:src/irc-server/irc-server.c::67]] ([[file:zzz/2011-02-15.‘sscanf’%20in%20parsing%20irc%20server%20config][zzz]])
       =>    [[file:src/libserveez/coserver/dns.c::63]]
       =>    [[file:src/libserveez/coserver/reverse-dns.c::90]]
-***** TODO libserveez binary-incompatible between releases
+***** DONE libserveez binary-incompatible between releases
       unoptimal (-release): (info "(libtool) Link mode")
       cool (-version-info): (info "(libtool) Versioning")
 ***** DONE SIGINT causes segfault ([[svsup:107607]], [[file:zzz/2011-02-28.locked-and-unlocked-stdio][zzz]])
@@ -62,7 +62,7 @@ See the end for copying conditions.
 *** TODO Clean up libserveez API.
 ***** DONE use explicit type for cast in ‘svz_hash_foreach_value’
 ***** DONE add func ‘svz_library_features’
-***** TODO move most #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
+***** TODO move most #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
 ***** TODO move most #if...#endif into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#%20*if'%20|%20sed%20'/_H__$/d'")][grep]]).
 ***** TODO convert some variables into (read-only) funcs ([[elisp:(grep%20"grep%20-nH%20-e%20Variable:%20%20doc/serveez.info")][grep]]).
 ***** TODO prune ancillary elements from libserveez API.
@@ -79,29 +79,27 @@ See the end for copying conditions.
       |   | svz_os_version           | woe        | internalize                |
       |   | svz_syserror             | woe        | generalize                 |
       |   | svz_sys_version          | spewful    | split up                   |
-      |   | svz_mutex_*              | suboptimal | internalize                |
-      |   | svz_inet_{ntoa,aton}     | IPv4 only  | internalize                |
-      |   | svz_fd_{non}block        | waste      | combine into one func      |
-      |   | svz_codec_init           | impl       | internalize                |
-      |   | svz_codec_finalize       | impl       | internalize                |
-      |   | svz_dynload_init         | impl       | interanlize                |
-      |   | svz_dynload_finalize     | impl       | internalize                |
-      |   | svz_strsignal_init       | impl       | internalize                |
-      |   | svz_strsignal_destroy    | impl       | internalize                |
-      |   | svz_sock_table_create    | impl       | internalize                |
-      |   | svz_sock_table_destroy   | impl       | internalize                |
-      |   | svz_signal_up            | impl       | internalize                |
-      |   | svz_signal_dn            | impl       | internalize                |
-      |   | svz_init_config          | impl       | internalize                |
-      |   | svz_interface_collect    | impl       | internalize                |
-      |   | svz_interface_free       | impl       | internalize                |
-      |   | svz_net_startup          | impl       | internalize                |
-      |   | svz_net_cleanup          | impl       | internalize                |
-      |   | svz_pipe_startup         | impl       | internalize                |
-      |   | svz_pipe_cleanup         | impl       | internalize                |
-      |   | svz_config_type_init     | impl       | internalize                |
-      |   | svz_config_type_finalize | impl       | internalize                |
-***** TODO use "hidden" attribute (gcc only)
+      | x | svz_mutex_*              | suboptimal | internalize                |
+      | x | svz_codec_init           | impl       | internalize                |
+      | x | svz_codec_finalize       | impl       | internalize                |
+      | x | svz_dynload_init         | impl       | interanlize                |
+      | x | svz_dynload_finalize     | impl       | internalize                |
+      | x | svz_strsignal_init       | impl       | internalize                |
+      | x | svz_strsignal_destroy    | impl       | internalize                |
+      | x | svz_sock_table_create    | impl       | internalize                |
+      | x | svz_sock_table_destroy   | impl       | internalize                |
+      | x | svz_signal_up            | impl       | internalize                |
+      | x | svz_signal_dn            | impl       | internalize                |
+      | x | svz_init_config          | impl       | internalize                |
+      | x | svz_interface_collect    | impl       | internalize                |
+      | x | svz_interface_free       | impl       | internalize                |
+      | x | svz_net_startup          | impl       | internalize                |
+      | x | svz_net_cleanup          | impl       | internalize                |
+      | x | svz_pipe_startup         | impl       | internalize                |
+      | x | svz_pipe_cleanup         | impl       | internalize                |
+      | x | svz_config_type_init     | impl       | internalize                |
+      | x | svz_config_type_finalize | impl       | internalize                |
+***** DONE use "hidden" attribute (gcc only)
 *** TODO Update Guile support.
 ***** TODO update internal interfaces
 ******* TODO SCM_INUM (m)
@@ -113,8 +111,8 @@ See the end for copying conditions.
 ******* TODO scm_c_symbol2str
 ******* DONE scm_cur_inp (v) => scm_current_input_port (f)
 ******* DONE scm_int2num (f) => gi_integer2scm (f)
-******* TODO scm_listify
-******* TODO scm_long2num (f) => gi_integer2scm (f)
+******* DONE scm_listify (m) => gi_list_3 (f), gi_list_5 (f)
+******* DONE scm_long2num (f) => gi_integer2scm (f)
 ******* DONE scm_makfrom0str (f) => gi_string2scm (f)
 ******* DONE scm_mem2string (f) => gi_nstring2scm (f)
 ******* TODO scm_must_free
