@@ -19,7 +19,7 @@ See the end for copying conditions.
 ***** DONE libserveez binary-incompatible between releases
       unoptimal (-release): (info "(libtool) Link mode")
       cool (-version-info): (info "(libtool) Versioning")
-***** DONE SIGINT causes segfault ([[svsup:107607]], [[file:zzz/2011-02-28.locked-and-unlocked-stdio][zzz]])
+***** DONE SIGINT causes segfault ([[svsup:107607]], [[file:zzz/2011-02-28.locked%20vs%20unlocked%20stdio][zzz]])
 *** DONE Drop mkpassword.
 *** TODO Modernize bootstrap / build.
 ***** DONE mv configure.in configure.ac
