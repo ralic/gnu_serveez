@@ -1,3 +1,12 @@
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot build] Start using Guile-BAUX.
+
+	* autogen.sh: Add guile-baux-tool to the list of
+	prerequisite tools; call it with one module: ‘gbaux-do’.
+	* Makefile.am (EXTRA_DIST): Add build-aux/guile-baux.
+	* build-aux/common.mk (gx): New var.
+
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[boot int] Drop ‘PREFIX’ support in ‘SVZ_HAVE_FUNC_MAYBE_IN_LIB’.

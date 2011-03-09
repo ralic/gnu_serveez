@@ -30,6 +30,8 @@ Makefile.in
 /build-aux/config.guess
 /build-aux/config.sub
 /build-aux/depcomp
+/build-aux/guile-baux
+/build-aux/guile-baux.state
 /build-aux/install-sh
 /build-aux/ltmain.sh
 /build-aux/mdate-sh

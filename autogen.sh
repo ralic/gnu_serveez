@@ -29,13 +29,17 @@
 # - GNU Libtool 2.4
 # - GNU Automake 1.10
 # - GNU Texinfo 4.11
+# - Guile-BAUX 20110309.1744.ad9085f
 # These are minimum versions; later versions are probably ok.
-for tool in autoconf libtool automake makeinfo ; do
+for tool in autoconf libtool automake makeinfo guile-baux-tool ; do
     echo using: $($tool --version | sed 1q)
 done
 
-here=`pwd`
 cd `dirname $0`
+
+# Make some Guile-BAUX functionality available.
+guile-baux-tool import \
+    gbaux-do
 
 # Invoke all the auto* tools.
 autoreconf --verbose --force --install --symlink --warnings=all

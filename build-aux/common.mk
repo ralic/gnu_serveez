@@ -18,3 +18,5 @@
 AM_CPPFLAGS = $(SERVEEZ_CFLAGS) -I$(top_srcdir)/src
 CLEANFILES = *~ *.orig *.rej
 MAINTAINERCLEANFILES = Makefile.in
+
+gx = $(top_srcdir)/build-aux/guile-baux/gbaux-do
