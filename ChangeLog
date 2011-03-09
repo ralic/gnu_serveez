@@ -1,3 +1,9 @@
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[boot int] Drop ‘PREFIX’ support in ‘SVZ_HAVE_FUNC_MAYBE_IN_LIB’.
+
+	* m4/inc.m4 (SVZ_HAVE_FUNC_MAYBE_IN_LIB): Don't take 3rd arg.
+
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Embed mutex functionality; expose only feature ‘log-mutex’.

@@ -33,16 +33,14 @@ dnl  test xyes != x"$VAR"
 dnl
 AC_DEFUN([SVZ_NOT_Y],[test xyes != x"$]$1["])
 
-dnl SVZ_HAVE_FUNC_MAYBE_IN_LIB(FUNC,VAR[,PREFIX])
+dnl SVZ_HAVE_FUNC_MAYBE_IN_LIB(FUNC,VAR)
 dnl
 dnl First, do ‘AC_DEFINE’ on FUNC.  Next, if shell variable
 dnl ac_cv_search_FUNC does not have value "none required", then
-dnl append it to VAR.  If specified, PREFIX is used to construct
-dnl the C preprocessor symbol; e.g., use ‘SVZ_’ for SVZ_HAVE_FUNC
-dnl instead of the default HAVE_FUNC.
+dnl append it to VAR.
 dnl
 AC_DEFUN([SVZ_HAVE_FUNC_MAYBE_IN_LIB],[
-AC_DEFINE([$3][HAVE_]m4_toupper([$1]), 1,
+AC_DEFINE([HAVE_]m4_toupper([$1]), 1,
   [Define to 1 if you have the $1 function.])dnl
 AS_VAR_PUSHDEF([VAR],[ac_cv_search_$1])dnl
 test 'xnone required' = x"$VAR" || $2="[$]$2 $VAR"
