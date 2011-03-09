@@ -1,3 +1,12 @@
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib int] Decruft: Use svzconfig.h for some woe32 #define:s.
+
+	* defines.h [__MINGW32__ || __CYGWIN__]
+	(FD_SETSIZE, WIN32_LEAN_AND_MEAN): Delete #undef/#define.
+	[__MINGW32__] (Win32_Winsock): Delete #undef/#define;
+	change surrounding preproc cond to ‘Win32_Winsock’.
+
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Forward-declare ‘struct stat’ at top-level.

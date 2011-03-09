@@ -1,3 +1,10 @@
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib int] Decruft: Use svzconfig.h for some woe32 #define:s.
+
+	* svzconfig.h.in (FD_SETSIZE): New #undef.
+	(WIN32_LEAN_AND_MEAN, Win32_Winsock): Likewise.
+
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Never #include <sys/types.h> in a header.

@@ -60,28 +60,10 @@
 # define SERVEEZ_API extern
 #endif
 
-#if defined (__MINGW32__) || defined (__CYGWIN__)
-
-/* Make CygWin / MinGW32 use large FD sets.  */
-#undef  FD_SETSIZE
-#define FD_SETSIZE 4096
-
-/* Define for faster code generation.  */
-#undef  WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 1
-
-#endif /* __MINGW32__ || __CYGWIN__ */
-
-#ifdef __MINGW32__
-
-/* Define if you are using Windows Socket-API (not CYGWIN).  */
-#undef  Win32_Winsock
-#define Win32_Winsock 1
-
-/* When building the core library or any outside module on Win32 systems
-   include the Winsock interface here.  */
-#include <winsock2.h>
-
-#endif /* __MINGW32__ */
+/* When building the core library or any outside module on
+   Win32 systems, include the Winsock interface here.  */
+#ifdef Win32_Winsock
+# include <winsock2.h>
+#endif
 
 #endif /* !__DEFINES_H__ */

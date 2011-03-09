@@ -28,4 +28,13 @@
 /* Define to 'int' if <winsock2.h> does not define 'SOCKET'.  */
 #undef svz_t_socket
 
+/* Make CygWin / MinGW32 use large FD sets.  */
+#undef FD_SETSIZE
+
+/* Define for faster code generation.  */
+#undef WIN32_LEAN_AND_MEAN
+
+/* Define if you are using Windows Socket-API (not CYGWIN).  */
+#undef Win32_Winsock
+
 #endif /* !__SVZCONFIG_H__ */
