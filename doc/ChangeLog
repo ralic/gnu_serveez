@@ -1,3 +1,9 @@
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_sock_child_died’.
+
+	* serveez-api.texi.in (Server core): Delete ‘svz_sock_child_died’.
+
 2011-03-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move svz_{malloc,realloc,free}_func behind ‘svz_set_mm_funcs’.

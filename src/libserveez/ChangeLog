@@ -1,5 +1,12 @@
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_child_died’.
+
+	* server-core.c (svz_sock_child_died): Make static.
+	* server-core.h (svz_sock_child_died): Delete func decl.
+
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Decruft: Use svzconfig.h for some woe32 #define:s.
 
 	* defines.h [__MINGW32__ || __CYGWIN__]

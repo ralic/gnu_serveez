@@ -1162,10 +1162,9 @@ svz_signal_dn (void)
 /*
  * This routine checks whether the child process specified by the @code{pid}
  * handle stored in the socket structure @var{sock} is still alive.  It
- * returns zero if so, otherwise (when the child process died) non-zero.  This
- * routine is called from @code{svz_sock_check_children}.
+ * returns zero if so, otherwise (when the child process died) non-zero.
  */
-int
+static int
 svz_sock_child_died (svz_socket_t *sock)
 {
 #ifdef __MINGW32__
