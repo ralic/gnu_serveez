@@ -281,45 +281,6 @@ svz_time (long t)
 }
 
 /*
- * Create some kind of uptime string.  It tells how long the core library
- * has been running.
- */
-char *
-svz_uptime (long diff)
-{
-  static char text[64];
-  long sec, min, hour, day, old;
-
-  old = diff;
-  sec = diff % 60;
-  diff /= 60;
-  min = diff % 60;
-  diff /= 60;
-  hour = diff % 24;
-  diff /= 24;
-  day = diff;
-
-  if (old < 60)
-    {
-      sprintf (text, "%ld sec", sec);
-    }
-  else if (old < 60 * 60)
-    {
-      sprintf (text, "%ld min", min);
-    }
-  else if (old < 60 * 60 * 24)
-    {
-      sprintf (text, "%ld hours, %ld min", hour, min);
-    }
-  else
-    {
-      sprintf (text, "%ld days, %ld:%02ld", day, hour, min);
-    }
-
-  return text;
-}
-
-/*
  * Convert the given string @var{str} to lower case text representation.
  */
 char *

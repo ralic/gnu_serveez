@@ -1,5 +1,12 @@
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_uptime’ out to unique caller.
+
+	* ctrl-server/control-proto.c (uptime): New static func.
+	(ctrl_stat): Use it.
+
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Decruft: Use svzconfig.h for some woe32 #define:s.
 
 	* svzconfig.h.in (FD_SETSIZE): New #undef.

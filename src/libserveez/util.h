@@ -62,7 +62,6 @@ SERVEEZ_API unsigned int svz_atoi (char *);
 SERVEEZ_API char *svz_getcwd (void);
 SERVEEZ_API int svz_openfiles (int);
 SERVEEZ_API char *svz_time (long);
-SERVEEZ_API char *svz_uptime (long);
 SERVEEZ_API char *svz_tolower (char *);
 SERVEEZ_API char *svz_sys_version (void);
 SERVEEZ_API char *svz_hstrerror (void);

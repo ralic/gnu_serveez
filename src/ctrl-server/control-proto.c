@@ -447,6 +447,39 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
   return flag;
 }
 
+static char *
+uptime (long diff)
+{
+#define TEXTSIZE 64
+#define SET_TEXT(fmt,...)  snprintf (text, TEXTSIZE, fmt, __VA_ARGS__)
+
+  static char text[TEXTSIZE];
+  long sec, min, hour, day, old;
+
+  old = diff;
+  sec = diff % 60;
+  diff /= 60;
+  min = diff % 60;
+  diff /= 60;
+  hour = diff % 24;
+  diff /= 24;
+  day = diff;
+
+  if (old < 60)
+    SET_TEXT ("%ld sec", sec);
+  else if (old < 60 * 60)
+    SET_TEXT ("%ld min", min);
+  else if (old < 60 * 60 * 24)
+    SET_TEXT ("%ld hours, %ld min", hour, min);
+  else
+    SET_TEXT ("%ld days, %ld:%02ld", day, hour, min);
+
+  return text;
+
+#undef SET_TEXT
+#undef TEXTSIZE
+}
+
 /*
  * General statistics about Serveez.  Here we display all the information
  * we could get from the system and the process itself.
@@ -538,7 +571,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   svz_sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
                    svz_sock_nconnections (), svz_config.max_sockets);
   svz_sock_printf (sock, " * uptime is %s\r\n",
-                   svz_uptime (time (NULL) - svz_config.start));
+                   uptime (time (NULL) - svz_config.start));
 #if ENABLE_DEBUG
   {
     unsigned int cur[2];

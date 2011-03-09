@@ -333,7 +333,6 @@ This variable is only available on Windows version of this API.
 |F| svz_getcwd
 |F| svz_openfiles
 |F| svz_time
-|F| svz_uptime
 |F| svz_tolower
 |F| svz_sys_version
 |F| svz_hstrerror

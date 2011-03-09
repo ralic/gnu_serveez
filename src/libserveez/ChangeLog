@@ -1,5 +1,12 @@
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_uptime’ out to unique caller.
+
+	* util.c (svz_uptime): Delete func.
+	* util.h (svz_uptime): Delete func decl.
+
+2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_child_died’.
 
 	* server-core.c (svz_sock_child_died): Make static.
