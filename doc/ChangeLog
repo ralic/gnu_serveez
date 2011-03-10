@@ -1,5 +1,11 @@
 2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_check_sockets’.
+
+	* serveez-api.texi.in (Server loop): Delete ‘svz_check_sockets’.
+
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc int] Snarf docstrings of built-in Scheme procs.
 
 	* guile-boot.texh: New file.

@@ -60,7 +60,6 @@
 #include "libserveez/socket.h"
 #include "libserveez/pipe-socket.h"
 #include "libserveez/server-core.h"
-#include "libserveez/server-loop.h"
 
 #define SOCK_FILE_FUNCTIONALITY(sock) do {                 \
   /* If socket is a file descriptor, then read it here.  */\

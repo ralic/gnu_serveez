@@ -41,7 +41,6 @@
 #include "libserveez/raw-socket.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/server-core.h"
-#include "libserveez/server-loop.h"
 #include "libserveez/server-socket.h"
 #include "libserveez/windoze.h"
 #include "libserveez/coserver/coserver.h"

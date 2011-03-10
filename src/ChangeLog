@@ -1,5 +1,11 @@
 2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_check_sockets’.
+
+	* libserveez.h: Don't #include "libserveez/server-loop.h".
+
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc int] Snarf docstrings of built-in Scheme procs.
 
 	* guile-boot.scm: Write pre-form comments for doc snarfing.

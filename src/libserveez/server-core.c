@@ -72,7 +72,6 @@
 #include "libserveez/socket.h"
 #include "libserveez/core.h"
 #include "libserveez/pipe-socket.h"
-#include "libserveez/server-loop.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/interface.h"
 #include "libserveez/coserver/coserver.h"
@@ -1221,6 +1220,9 @@ svz_sock_check_children (void)
             svz_sock_schedule_for_shutdown (sock);
       }
 }
+
+/* This is defined in server-loop.c, and used only in this file.  */
+SBO int svz_check_sockets (void);
 
 /*
  * This routine handles all things once and is called regularly in the

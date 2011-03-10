@@ -1,3 +1,13 @@
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_check_sockets’.
+
+	* server-loop.c: Don't #include "libserveez/server-loop.h".
+	* server-core.c: Likewise.
+	(svz_check_sockets): New func decl, marked ‘SBO’.
+	* Makefile.am (libserveez_HEADERS): Remove server-loop.h.
+	* server-loop.h: Delete file.
+
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move ‘svz_uptime’ out to unique caller.

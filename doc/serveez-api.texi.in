@@ -811,7 +811,6 @@ immediately.  Thus you are able to issue additional functionality in between
 each pass if you cannot handle this within the timers (notifiers) of servers
 and sockets.
 
-|F| svz_check_sockets
 |F| svz_loop_pre
 |F| svz_loop_post
 |F| svz_loop
