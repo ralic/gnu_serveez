@@ -33,6 +33,8 @@ extern SCM gi_list_5 (SCM a1, SCM a2, SCM a3, SCM a4, SCM a5);
 
 extern SCM gi_n_vector (size_t len, SCM fill);
 
+extern SCM gi_eval_string (char const *);
+
 #endif  /* !defined __GI_H__ */
 
 /* gi.h ends here */

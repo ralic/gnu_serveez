@@ -1,3 +1,11 @@
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[gi] Add func: gi_eval_string
+
+	* gi.c (eval_string): New #define.
+	(gi_eval_string): New func.
+	* gi.h (gi_eval_string): New func decl.
+
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move ‘svz_uptime’ out to unique caller.

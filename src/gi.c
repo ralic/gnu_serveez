@@ -147,4 +147,16 @@ gi_n_vector (size_t len, SCM fill)
   return make_vector (integer2scm (len), fill);
 }
 
+#if V15
+#define eval_string  scm_c_eval_string
+#else
+#define eval_string  gh_eval_str
+#endif
+
+SCM
+gi_eval_string (char const *string)
+{
+  return eval_string (string);
+}
+
 /* gi.c ends here */
