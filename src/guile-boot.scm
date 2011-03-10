@@ -1,7 +1,5 @@
-;; -*-scheme-*-
-;;
-;; serveez.scm - convenience functions
-;;
+;;; guile-boot.scm --- high-level built-in functionality
+
 ;; Copyright (C) 2011 Thien-Thi Nguyen
 ;; Copyright (C) 2001 Martin Grabmueller <mgrabmue@cs.tu-berlin.de>
 ;; Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
@@ -18,6 +16,15 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; These procedures complete the boot process.
+;; See file guile.c function ‘guile_init’.
+;;
+;; TODO: Doc snarfing.
+
+;;; Code:
 
 ;;
 ;; === Miscellaneous functions - Scheme for beginners, thanks to 'mgrabmue.

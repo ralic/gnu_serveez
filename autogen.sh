@@ -39,6 +39,8 @@ cd `dirname $0`
 
 # Make some Guile-BAUX functionality available.
 guile-baux-tool import \
+    as-C-byte-array \
+    punify \
     gbaux-do
 
 # Invoke all the auto* tools.

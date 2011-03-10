@@ -56,9 +56,10 @@ Makefile.in
 /doc/stamp-*
 /doc/version*.texi
 
+/src/*.log
 /src/config.h
 /src/config.h.in
-/src/*.log
+/src/guile-boot.c
 /src/serveez
 /src/serveez-config
 /src/serveez.cfg

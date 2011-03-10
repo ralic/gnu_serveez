@@ -33,10 +33,11 @@ aclocal_DATA = serveez.m4
 
 # Yet another script
 bin_SCRIPTS = serveez-config
-pkgdata_DATA = serveez.scm
 
 # Perplexingly, Automake does not automatically distribute these.
-EXTRA_DIST = $(aclocal_DATA) $(pkgdata_DATA)
+EXTRA_DIST = $(aclocal_DATA) guile-boot.scm
+
+BUILT_SOURCES = guile-boot.c
 
 #
 # Add your server subdirectory here
@@ -124,3 +125,9 @@ woedsp = $(stems:%=%.dsp)
 EXTRA_DIST += serveez.rc $(woeap) $(woedsp)
 CLEANFILES += *.ro
 MAINTAINERCLEANFILES += $(woedsp)
+
+.puny.c:
+	$(gx) as-C-byte-array -v high -t char $< > $@
+
+.scm.puny:
+	$(gx) punify -n $< > $@

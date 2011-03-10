@@ -1,5 +1,11 @@
 2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Promote "convenience" Scheme to "built-in".
+
+	* autogen.sh: Use Guile-BAUX modules ‘as-C-byte-array’, ‘punify’.
+
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[boot build] Start using Guile-BAUX.
 
 	* autogen.sh: Add guile-baux-tool to the list of

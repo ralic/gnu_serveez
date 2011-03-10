@@ -18,9 +18,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
-;; load convenience file
-(serveez-load "serveez.scm")
-
 ;; compatibility stuff to make this server run with Guile 1.6 and later
 (if (not (defined? 'fseek))
     (define (fseek obj offset whence)

@@ -1746,6 +1746,12 @@ guile_init (void)
   scm_c_define_gsubr ("instantiate-config-type!", 3, 1, 0,
                       guile_config_instantiate);
 
+  {
+#include "guile-boot.c"
+
+    gi_eval_string (high);
+  }
+
 #if ENABLE_GUILE_SERVER
   guile_server_init ();
 #endif /* ENABLE_GUILE_SERVER */

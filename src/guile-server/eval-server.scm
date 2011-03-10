@@ -32,8 +32,6 @@
         (format #f "~S" obj))
       (define (make-safe-module) #t)))
 
-(serveez-load "serveez.scm")
-
 (define (eval-global-init servertype)
   (println "Running eval global init " servertype ".")
   0)

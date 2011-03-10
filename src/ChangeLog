@@ -1,5 +1,20 @@
 2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Promote "convenience" Scheme to "built-in".
+
+	* guile-boot.scm: Rename from serveez.scm.
+	* Makefile.am (pkgdata_DATA): Delete var.
+	(EXTRA_DIST): Remove $(pkgdata_DATA); add guile-boot.scm.
+	(BUILT_SOURCES): New var.
+	(.puny.c, .scm.puny): New old-fashioned suffix rules.
+	* guile.c (guile_init): #include "guile-boot.c";
+	eval the string that it defines.
+	* guile-server/echo-server.scm: Don't load "serveez.scm".
+	* guile-server/eval-server.scm: Likewise.
+	* guile-server/icecast-server.scm: Likewise.
+
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[gi] Add func: gi_eval_string
 
 	* gi.c (eval_string): New #define.

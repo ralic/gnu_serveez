@@ -18,8 +18,6 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
 
-(serveez-load "serveez.scm")
-
 (define (echo-global-init servertype)
   (println "Running echo global init " servertype ".")
   0)

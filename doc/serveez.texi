@@ -678,11 +678,8 @@ that happens.  The server just will not work then.
 
 The three procedures @code{define-port!}, @code{define-server!} and
 @code{bind-server!} return @code{#t} on success and @code{#f} on failure.
-For your convenience we provide some more procedures.  Some of these
-are based upon the above.  You will find them in the
-file @file{serveez.scm}.  In order to include this convenience
-functionality you can @code{(primitive-load "serveez.scm")} at the top
-of the configuration file.
+For your convenience we provide some more built-in procedures,
+some of which are based upon those above.
 
 @deffn @PROC{} interface-add! interface
 Add one more network interface to the list of known interfaces.  You can get

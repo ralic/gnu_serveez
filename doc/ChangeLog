@@ -1,3 +1,10 @@
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile] Promote "convenience" Scheme to "built-in".
+
+	* serveez.texi (Bind servers to ports):
+	Rework intro to "convenience" procs; say "built-in".
+
 2011-03-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move ‘svz_uptime’ out to unique caller.
