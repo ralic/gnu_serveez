@@ -681,32 +681,7 @@ The three procedures @code{define-port!}, @code{define-server!} and
 For your convenience we provide some more built-in procedures,
 some of which are based upon those above.
 
-@deffn @PROC{} interface-add! interface
-Add one more network interface to the list of known interfaces.  You can get
-the list of known interfaces by running @samp{serveez -i}.  The @var{interface}
-argument must be in dotted decimal form (e.g., 127.0.0.1).  Serveez provides
-this procedure for systems where it is unable to detect the list of network
-interface automatically.
-@end deffn
-
-@deffn @PROC{} loadpath-add! path
-Extends the load path for server modules by the path name @var{path}.
-@end deffn
-
-@deffn @PROC{} bind-servers! [args...]
-This procedure is based upon @code{bind-server!}.  It takes a list of port
-configurations and servers and binds each to another.
-@end deffn
-
-@deffn @PROC{} bind-tcp-port-range! from to [servers...]
-Bind the list of @var{servers} to simple TCP port configurations whose network
-ports range between @var{from} and @var{to} both inclusive.
-@end deffn
-
-@deffn @PROC{} bind-udp-port-range! from to [servers...]
-Bind the list of @var{servers} to simple UDP port configurations whose network
-ports range between @var{from} and @var{to} both inclusive.
-@end deffn
+@include guile-boot.texi
 
 @deffn @PROC{} serveez-verbosity verbosity
 Set the core library's logging verbosity to the @var{verbosity} level.  Lesser

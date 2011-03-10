@@ -21,36 +21,51 @@
 
 ;; These procedures complete the boot process.
 ;; See file guile.c function ‘guile_init’.
-;;
-;; TODO: Doc snarfing.
 
 ;;; Code:
 
+;; Do @code{display} on each @var{object}.
+;; Then, output a newline.
 ;;
-;; === Miscellaneous functions - Scheme for beginners, thanks to 'mgrabmue.
+;;-args: (- 0 1 object)
 ;;
 (define (println . args)
-  (for-each display args) (newline))
+  (for-each display args)
+  (newline))
+
+;; For each @var{object}, do @code{display} on it
+;; and on @var{spacer}, as well.  Then, output a newline.
+;;
+;;-args: (- 0 1 object)
+;;
 (define (printsln spacer . args)
-  (for-each (lambda (x) (display x) (display spacer)) args) (newline))
+  (for-each (lambda (x)
+              (display x)
+              (display spacer))
+            args)
+  (newline))
 
+;; Add @var{interface} to the list of known network interfaces.
+;; You can get the list of known interfaces by running the shell
+;; command @samp{serveez -i}.  The @var{interface} argument must be in
+;; dotted decimal form (e.g., @samp{127.0.0.1}).  Serveez provides this
+;; procedure for systems where it is unable to detect the list of
+;; network interface automatically.
 ;;
-;; === Network interfaces
-;;
-(define (interface-add! . ifc)
-  (serveez-interfaces (append! (serveez-interfaces) ifc)))
+(define (interface-add! interface)
+  (serveez-interfaces (append! (serveez-interfaces) (list interface))))
 
+;; Append @var{dir}@dots{} to the server modules load path.
 ;;
-;; === Additional search paths for server modules
-;;
-(define (loadpath-add! . path)
-  (serveez-loadpath (append! (serveez-loadpath) path)))
+(define (loadpath-add! . dir)
+  (serveez-loadpath (append! (serveez-loadpath) dir)))
 
-;;
-;; === Enhanced server bindings
+;; Bind all servers and ports in @var{args} to each other.
+;; This is a cross-product operation; given @var{s} servers, and
+;; @var{p} ports, @code{@var{s} * @var{p}} bindings will be created.
 ;;
 (define (bind-servers! . args)
-  (let ((server-list '())  ;; Initialize lists.
+  (let ((server-list '())               ; Initialize lists.
         (port-list '()))
 
     ;; Iterate over argument list, separating ports from servers.
@@ -62,7 +77,7 @@
               (set! server-list (cons elem server-list)))))
      args)
 
-    ;; Iterate over server list and ..
+    ;; Iterate over server list and ...
     (for-each
      (lambda (server)
        ;; ... for each server, iterate over port list and ...
@@ -73,8 +88,8 @@
         port-list))
      server-list)))
 
-;;
-;; === Create a simple tcp port
+;; Define a new TCP port named by concatenating
+;; @var{basename} and @var{port}.  Return the new name.
 ;;
 (define (create-tcp-port! basename port)
   (let ((portname (string-append basename (number->string port))))
@@ -84,8 +99,10 @@
             (port . ,port))))
     portname))
 
+;; Bind the list of @var{servers} to simple TCP port configurations whose
+;; network ports range between @var{from} and @var{to} both inclusive.
 ;;
-;; === Bind some servers to a range of tcp network ports
+;;-args: (- 0 1 servers)
 ;;
 (define (bind-tcp-port-range! from to . args)
   (do ((no from (+ no 1)))
@@ -95,8 +112,8 @@
        (bind-server! (create-tcp-port! "guile-tcp-port-" no) server))
      args)))
 
-;;
-;; === Create a simple udp port
+;; Define a new UDP port named by concatenating
+;; @var{basename} and @var{port}.  Return the new name.
 ;;
 (define (create-udp-port! basename port)
   (let ((portname (string-append basename (number->string port))))
@@ -106,8 +123,10 @@
             (port . ,port))))
     portname))
 
+;; Bind the list of @var{servers} to simple UDP port configurations whose
+;; network ports range between @var{from} and @var{to} both inclusive.
 ;;
-;; === Bind some servers to a range of udp network ports
+;;-args: (- 0 1 servers)
 ;;
 (define (bind-udp-port-range! from to . args)
   (do ((no from (+ no 1)))
@@ -117,20 +136,45 @@
        (bind-server! (create-udp-port! "guile-udp-port-" no) server))
      args)))
 
-;;
-;; === Additional Guile networking API
+;; Return the next RPC entry as a vector of the form:
+;; @code{#(@var{name} @var{aliases} @var{program-number})}.
+;; @var{name} is a symbol, @var{aliases} is a list (possibly empty)
+;; of symbols, and @var{program-number} is an integer.
+;; If the list is exhausted, return @code{#f}.
 ;;
 (define (getrpcent) (getrpc))
-(define (getrpcbyname name) (getrpc name))
+
+;; Return the RPC entry for @var{name}, a string.
+;; (FIXME: Should be able to handle a symbol, too.)
+;; If no such service exists, signal error.
+;;
+(define (getrpcbyname name)
+  (getrpc name))
+
+;; Return the RPC entry for @var{number}, an integer.
+;; If no such service exists, signal error.
+;;
 (define (getrpcbynumber number) (getrpc number))
+
+;; Open and rewind the file @file{/etc/rpc}.
+;; If optional arg @var{stayopen} (an integer) is non-zero,
+;; the database will not be closed after each call to @code{getrpc}
+;; (or its derivatives @code{getrpcent}, @code{getrpcbyname},
+;; @code{getrpcbynumber}).
+;;
+;;-args: (- 1 0)
+;;
 (define (setrpcent . stayopen)
   (if (pair? stayopen)
       (setrpc (car stayopen))
       (setrpc #f)))
-(define (endrpcent) (setrpc))
 
+;; Close the file @file{/etc/rpc}.
 ;;
-;; === Include documentation file into Guile help system
+(define (endrpcent)
+  (setrpc))
+
+;; Include Serveez documentation file into the Guile help system.
 ;;
 (define (serveez-doc-add!)
   (catch #t

@@ -41,6 +41,8 @@ cd `dirname $0`
 guile-baux-tool import \
     as-C-byte-array \
     punify \
+    tsar \
+    tsin \
     gbaux-do
 
 # Invoke all the auto* tools.

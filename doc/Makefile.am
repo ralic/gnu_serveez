@@ -27,7 +27,7 @@ include $(top_srcdir)/build-aux/common.mk
 AM_MAKEINFOFLAGS = --split-size=999999
 
 info_TEXINFOS = serveez.texi
-serveez_TEXINFOS = serveez-api.texi guile-api.texi fdl.texi
+serveez_TEXINFOS = serveez-api.texi guile-api.texi guile-boot.texi fdl.texi
 man_MANS = serveez.1 serveez-config.1
 EXTRA_DIST = $(man_MANS) index.html serveez.en.html \
 	logo.jpg logosmall.jpg mandel.jpg \
@@ -122,6 +122,17 @@ serveez-api.sed: $(libserveez_from)
 
 guile-api.texi: guile-api.sed guile-api.texi.in
 	$(SED) -f $< $(srcdir)/guile-api.texi.in > $@
+
+snippets: $(top_srcdir)/src/guile-boot.scm
+	$(gx) tsar -v -l scheme -f $@ -c utf-8 update $?
+
+guile-boot.texi: snippets
+
+BUILT_SOURCES = snippets guile-boot.texi
+EXTRA_DIST += $(BUILT_SOURCES) guile-boot.texh
+
+.texh.texi:
+	$(gx) tsin -f snippets -c utf-8 $<
 
 guile_from = $(guile_impl:%=$(guile_root)/%)
 

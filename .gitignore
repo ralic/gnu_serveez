@@ -48,10 +48,12 @@ Makefile.in
 /doc/*.sed
 /doc/.scan
 /doc/guile-api.texi
+/doc/guile-boot.texi
 /doc/serveez-api.html
 /doc/serveez-api.texi
 /doc/serveez-procedures.txt
 /doc/serveez.html
+/doc/snippets
 /doc/stage
 /doc/stamp-*
 /doc/version*.texi
