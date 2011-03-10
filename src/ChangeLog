@@ -1,5 +1,16 @@
 2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile int] Rewrite some int/string accessor funcs.
+
+	* guile.c (MAKE_INT_ACCESSOR): Delete macro.
+	(MAKE_STRING_ACCESSOR): Likewise.
+	(int_accessor, string_accessor): New static funcs.
+	(guile_access_verbosity): Use ‘int_accessor’.
+	(guile_access_maxsockets): Likewise.
+	(guile_access_passwd): Use ‘string_accessor’.
+
+2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile] Promote "convenience" Scheme to "built-in".
 
 	* guile-boot.scm: Rename from serveez.scm.

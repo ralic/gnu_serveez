@@ -1570,54 +1570,69 @@ MAKE_STRING_CHECKER (guile_check_server, svz_server_get (str) != NULL)
 MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
 #undef FUNC_NAME
 
-/*
- * Create an accessor procedure to read and write a C int variable.
- */
-#define MAKE_INT_ACCESSOR(cfunc, cvar)                       \
-static SCM cfunc (SCM args) {                                \
-  SCM value = gi_integer2scm (cvar); int n;                  \
-  GUILE_PRECALL ();                                          \
-  if (!SCM_UNBNDP (args)) {                                  \
-    if (guile_to_integer (args, &n)) {                       \
-      guile_error ("%s: Invalid integer value", FUNC_NAME);  \
-      guile_global_error = -1;                               \
-    } else { cvar = n; } }                                   \
-  return value;                                              \
+static SCM
+int_accessor (char const *who, int *x, SCM arg)
+{
+  SCM value = gi_integer2scm (*x);
+  int n;
+
+  GUILE_PRECALL ();
+
+  if (!SCM_UNBNDP (arg))
+    {
+      if (guile_to_integer (arg, &n))
+        {
+          guile_error ("%s: Invalid integer value", who);
+          guile_global_error = -1;
+        }
+      else
+        *x = n;
+    }
+  return value;
 }
 
-/*
- * Create an accessor procedure to read and write a C string variable.
- */
-#define MAKE_STRING_ACCESSOR(cfunc, cvar)                    \
-static SCM cfunc (SCM args) {                                \
-  SCM value = gi_string2scm (cvar); char *str;               \
-  GUILE_PRECALL ();                                          \
-  if (!SCM_UNBNDP (args)) {                                  \
-    if (NULL == (str = guile_to_string (args))) {            \
-      guile_error ("%s: Invalid string value", FUNC_NAME);   \
-      guile_global_error = -1;                               \
-    } else {                                                 \
-      svz_free (cvar);                                       \
-      cvar = svz_strdup (str);                               \
-      scm_c_free (str);                                      \
-    } }                                                      \
-  return value;                                              \
+static SCM
+string_accessor (char const *who, char **x, SCM arg)
+{
+  SCM value = gi_string2scm (*x);
+  char *str;
+
+  GUILE_PRECALL ();
+
+  if (!SCM_UNBNDP (arg))
+    {
+      if (NULL == (str = guile_to_string (arg)))
+        {
+          guile_error ("%s: Invalid string value", who);
+          guile_global_error = -1;
+        }
+      else
+        {
+          svz_free (*x);
+          *x = svz_strdup (str);
+          scm_c_free (str);
+        }
+    }
+  return value;
 }
 
-/* Accessor for the 'verbosity' global setting.  */
-#define FUNC_NAME "serveez-verbosity"
-MAKE_INT_ACCESSOR (guile_access_verbosity, svz_config.verbosity)
-#undef FUNC_NAME
+static SCM
+guile_access_verbosity (SCM level)
+{
+  return int_accessor ("serveez-verbosity", &svz_config.verbosity, level);
+}
 
-/* Accessor for the 'max sockets' global setting.  */
-#define FUNC_NAME "serveez-maxsockets"
-MAKE_INT_ACCESSOR (guile_access_maxsockets, svz_config.max_sockets)
-#undef FUNC_NAME
+static SCM
+guile_access_maxsockets (SCM max)
+{
+  return int_accessor ("serveez-maxsockets", &svz_config.max_sockets, max);
+}
 
-/* Accessor for the 'password' global setting.  */
-#define FUNC_NAME "serveez-passwd"
-MAKE_STRING_ACCESSOR (guile_access_passwd, svz_config.password)
-#undef FUNC_NAME
+static SCM
+guile_access_passwd (SCM pw)
+{
+  return string_accessor ("serveez-passwd", &svz_config.password, pw);
+}
 
 /*
  * Exception handler for guile.  It is called if the evaluation of the file
