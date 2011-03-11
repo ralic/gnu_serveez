@@ -63,7 +63,6 @@ SERVEEZ_API int svz_close (int);
 SERVEEZ_API int svz_fstat (int, struct stat *);
 SERVEEZ_API FILE *svz_fopen (const char *, const char *);
 SERVEEZ_API int svz_fclose (FILE *);
-SERVEEZ_API int svz_file_check (char *);
 SERVEEZ_API char *svz_file_path (char *, char *);
 
 #ifndef __MINGW32__

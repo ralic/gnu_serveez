@@ -842,17 +842,6 @@ svz_fclose (FILE *f)
 }
 
 /*
- * Checks for the existence of the given file system node @var{file} and
- * return zero on success.  Otherwise the function returns non-zero.
- */
-int
-svz_file_check (char *file)
-{
-  struct stat buf;
-  return file ? stat (file, &buf) : -1;
-}
-
-/*
  * Constructs a fully qualified file name form @var{path} and @var{file}.
  * If @var{path} is omitted (@code{NULL}) the function returns @var{file}
  * only.  If @var{file} is @code{NULL} a null pointer is returned.

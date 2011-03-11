@@ -1,5 +1,11 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_file_check
+
+	* serveez-api.texi.in (Core functions): Delete ‘svz_file_check’.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile int] Re-implement ‘serveez-load’ in Scheme.
 
 	* guile-api.texi.in (Predefined Procedures):
