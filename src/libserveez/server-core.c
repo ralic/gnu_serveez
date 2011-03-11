@@ -43,16 +43,13 @@
 # include <sys/resource.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
+#include "networking-headers.h"
 
 #ifdef __MINGW32__
 # include <process.h>
 #else
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <netdb.h>
 # if HAVE_WAIT_H
 #  include <wait.h>

@@ -56,14 +56,11 @@
 # include <netdb.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
 
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/boot.h"
 #include "libserveez/windoze.h"

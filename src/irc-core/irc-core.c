@@ -26,11 +26,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "irc-core.h"
 #include "irc-server/irc-proto.h"

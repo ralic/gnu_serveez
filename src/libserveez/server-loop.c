@@ -51,10 +51,7 @@
 # include <strings.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"

@@ -32,15 +32,11 @@
 # include <strings.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
 #ifndef __MINGW32__
 # include <sys/types.h>
-# include <netinet/in.h>
 #endif
 
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"

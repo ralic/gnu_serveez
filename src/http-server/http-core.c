@@ -35,13 +35,9 @@
 #if HAVE_PWD_H && !defined (__MINGW32__)
 # include <pwd.h>
 #endif
-
-#ifndef __MINGW32__
-# include <netinet/in.h>
-#endif
+#include "networking-headers.h"
 
 #ifdef __MINGW32__
-# include <winsock2.h>
 # include <io.h>
 # include <lm.h>
 # include <lmerr.h>

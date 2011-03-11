@@ -29,6 +29,7 @@
 # include <crypt.h>
 #endif
 
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "option.h"
 

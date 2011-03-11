@@ -32,10 +32,7 @@
 # include <sys/socket.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "prog-server.h"
 

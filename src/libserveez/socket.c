@@ -40,17 +40,13 @@
 # include <sys/time.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
 #ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <netdb.h>
 #endif
 
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"

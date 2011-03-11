@@ -45,11 +45,7 @@
 #if HAVE_MACH_O_DYLD_H
 #include <mach-o/dyld.h>
 #endif
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #include "svzpath.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"

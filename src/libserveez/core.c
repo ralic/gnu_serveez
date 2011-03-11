@@ -30,7 +30,6 @@
 
 #ifndef __MINGW32__
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
 
@@ -47,9 +46,7 @@
 # include <sys/uio.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
+#include "networking-headers.h"
 
 #if HAVE_MSWSOCK_H && defined (__MINGW32__)
 # include <mswsock.h>

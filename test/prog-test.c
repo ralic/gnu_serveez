@@ -34,14 +34,14 @@
 #ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <arpa/inet.h>
 # include <netdb.h>
 #else
 # define sleep(x) Sleep ((x) * 1000)
-# include <winsock2.h>
 # include <io.h>
 #endif
+
+#include "networking-headers.h"
 
 /*
  * Main entry point for test.

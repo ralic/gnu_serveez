@@ -32,14 +32,7 @@
 # include <unistd.h>
 #endif
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
-#ifndef __MINGW32__
-# include <netinet/in.h>
-#endif
-
+#include "networking-headers.h"
 #include "le-u32-hash.h"
 #include "libserveez.h"
 #include "awcs-proto.h"

@@ -26,14 +26,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
+#include "networking-headers.h"
 
 #ifndef __MINGW32__
 # include <sys/types.h>
-# include <netinet/in.h>
 #endif
 
 #if HAVE_LIBKSTAT

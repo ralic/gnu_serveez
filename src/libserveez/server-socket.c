@@ -30,16 +30,14 @@
 #include <sys/stat.h>
 
 #ifdef __MINGW32__
-# include <winsock2.h>
 # if HAVE_WS2TCPIP_H
 #  include <ws2tcpip.h>
 # endif
 #endif
-
+#include "networking-headers.h"
 #ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <netdb.h>
 #endif
 

@@ -42,6 +42,7 @@
 # include <guile/gh.h>
 #endif
 
+#include "networking-headers.h"
 #include "action.h"
 #include "libserveez.h"
 #include "gi.h"

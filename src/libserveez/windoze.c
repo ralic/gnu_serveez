@@ -26,10 +26,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <winsock2.h>
 #include <shellapi.h>
 #include <windowsx.h>
 
+#include "networking-headers.h"
 #include "libserveez/boot.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"

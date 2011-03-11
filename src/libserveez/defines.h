@@ -60,10 +60,4 @@
 # define SERVEEZ_API extern
 #endif
 
-/* When building the core library or any outside module on
-   Win32 systems, include the Winsock interface here.  */
-#ifdef Win32_Winsock
-# include <winsock2.h>
-#endif
-
 #endif /* !__DEFINES_H__ */

@@ -58,9 +58,9 @@
 # include <unistd.h>
 #endif
 
+#include "networking-headers.h"
 #ifdef __MINGW32__
 # include <windows.h>
-# include <winsock2.h>
 #endif
 
 #include "libserveez.h"

@@ -30,15 +30,10 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
 #ifdef HAVE_CRYPT_H
 # include <crypt.h>
 #endif
-
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "irc-core/irc-core.h"
 #include "irc-proto.h"

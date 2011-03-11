@@ -31,6 +31,7 @@
 # include <guile/gh.h>
 #endif
 
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "gi.h"
 #include "guile-api.h"

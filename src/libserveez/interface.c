@@ -31,7 +31,6 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <net/if.h>
-# include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
 
@@ -47,9 +46,8 @@
 #if HAVE_SYS_SOCKIO_H
 # include <sys/sockio.h>
 #endif
-
+#include "networking-headers.h"
 #ifdef __MINGW32__
-# include <winsock2.h>
 # include "libserveez/ipdata.h"
 # include "libserveez/iphlpapi.h"
 #endif

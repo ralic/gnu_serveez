@@ -28,7 +28,6 @@
 #ifndef __MINGW32__
 # include <sys/socket.h>
 # include <netdb.h>
-# include <netinet/in.h>
 #endif
 
 #if HAVE_RPC_RPCENT_H
@@ -59,6 +58,7 @@
 # include <guile/gh.h>
 #endif
 
+#include "networking-headers.h"
 #include "libserveez.h"
 
 /* Validate network port range.  */

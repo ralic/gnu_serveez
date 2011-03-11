@@ -1,5 +1,51 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Centralize <netinet/in.h>/<winsock2.h> #include.
+
+	Here, "U" means "#include "networking-headers.h";
+	don't #include <winsock.h>, <netinet/in.h>".
+	* networking-headers.h: New file.
+	* Makefile.am (noinst_HEADERS): New var.
+	* awcs-server/awcs-proto.c: U.
+	* cfgfile.c: U.
+	* ctrl-server/control-proto.c: U.
+	* fakeident-server/ident-proto.c: U.
+	* foo-server/foo-proto.c: U.
+	* guile-api.c: U.
+	* guile-bin.c: U.
+	* guile-server.c: U.
+	* guile.c: U.
+	* http-server/http-cache.c: U.
+	* http-server/http-cgi.c: U.
+	* http-server/http-core.c: U.
+	* http-server/http-dirlist.c: U.
+	* http-server/http-proto.c: U.
+	* irc-core/irc-core.c: U.
+	* irc-server/irc-config.c: U.
+	* irc-server/irc-crypt.c: U.
+	* irc-server/irc-event-1.c: U.
+	* irc-server/irc-event-2.c: U.
+	* irc-server/irc-event-3.c: U.
+	* irc-server/irc-event-4.c: U.
+	* irc-server/irc-event-5.c: U.
+	* irc-server/irc-event-6.c: U.
+	* irc-server/irc-event-7.c: U.
+	* irc-server/irc-proto.c: U.
+	* irc-server/irc-server.c: U.
+	* nut-server/gnutella.c: U.
+	* nut-server/nut-core.c: U.
+	* nut-server/nut-hostlist.c: U.
+	* nut-server/nut-request.c: U.
+	* nut-server/nut-route.c: U.
+	* nut-server/nut-transfer.c: U.
+	* option.c: U.
+	* prog-server/prog-server.c: U.
+	* serveez.c: U.
+	* sntp-server/sntp-proto.c: U.
+	* tunnel-server/tunnel.c: U.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[guile int] Re-implement ‘serveez-load’ in Scheme.
 
 	* guile-boot.scm (serveez-load): New proc.

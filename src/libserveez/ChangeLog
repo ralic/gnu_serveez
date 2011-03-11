@@ -1,5 +1,39 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Centralize <netinet/in.h>/<winsock2.h> #include.
+
+	Here, "D" means "don't #include <winsock.h>, <netinet/in.h>";
+	"U" means "#include "networking-headers.h"; D".
+	* binding.c: U.
+	* boot.c: U.
+	* cfg.c: U.
+	* core.c: U.
+	* coserver/coserver.c: U.
+	* coserver/dns.c: U.
+	* coserver/ident.c: U.
+	* coserver/reverse-dns.c: U.
+	* dynload.c: U.
+	* icmp-socket.c: U.
+	* interface.c: U.
+	* passthrough.c: U.
+	* pipe-socket.c: U.
+	* portcfg.c: U.
+	* raw-socket.c: U.
+	* server-core.c: U.
+	* server-loop.c: U.
+	* server-socket.c: U.
+	* server.c: U.
+	* socket.c: U.
+	* tcp-socket.c: U.
+	* udp-socket.c: U.
+	* util.c: U.
+	* windoze.c: U.
+	* core.h: D.
+	* defines.h: D.
+	* portcfg.h: D.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_file_path’.
 
 	* core.c (svz_file_path): Delete func.

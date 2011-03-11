@@ -36,14 +36,12 @@
 #ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 #endif
 
 #ifdef __MINGW32__
-# include <winsock2.h>
 # include <process.h>
 #endif
-
+#include "networking-headers.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"

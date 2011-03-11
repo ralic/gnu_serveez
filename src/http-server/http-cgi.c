@@ -37,19 +37,18 @@
 # include <floss.h>
 #endif
 #include <signal.h>
+#include "networking-headers.h"
 
 #if HAVE_STRINGS_H
 # include <strings.h>
 #endif
 
 #ifdef __MINGW32__
-# include <winsock2.h>
 # include <io.h>
 # include <shellapi.h>
 #endif
 
 #ifndef __MINGW32__
-# include <netinet/in.h>
 # if HAVE_WAIT_H
 #  include <wait.h>
 # endif

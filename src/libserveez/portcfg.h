@@ -21,12 +21,6 @@
 #ifndef __PORTCFG_H__
 #define __PORTCFG_H__ 1
 
-#ifndef __MINGW32__
-# include <netinet/in.h>
-#else
-# include <winsock2.h>
-#endif
-
 /* begin svzint */
 #include "libserveez/defines.h"
 #include "libserveez/array.h"

@@ -31,11 +31,6 @@
 # include <unistd.h>
 #endif
 #include <signal.h>
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
 #ifndef __MINGW32__
 # if HAVE_WAIT_H
 #  include <wait.h>
@@ -43,9 +38,8 @@
 # if HAVE_SYS_WAIT_H
 #  include <sys/wait.h>
 # endif
-# include <netinet/in.h>
 #endif
-
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/core.h"

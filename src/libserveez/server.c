@@ -24,15 +24,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef __MINGW32__
-# include <winsock2.h>
-#else
+#ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <arpa/inet.h>
 #endif
-
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/hash.h"
 #include "libserveez/util.h"

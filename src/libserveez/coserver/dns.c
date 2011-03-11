@@ -27,15 +27,10 @@
 #if HAVE_UNISTD_H
 # include <unistd.h>
 #endif
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #ifndef __MINGW32__
 # include <sys/types.h>
 # include <sys/socket.h>
-# include <netinet/in.h>
 # include <netdb.h>
 # include <arpa/inet.h>
 #endif

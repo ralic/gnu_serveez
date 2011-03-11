@@ -63,6 +63,8 @@ serveez_SOURCES = \
 	guile-server.c guile-server.h \
 	guile-bin.c guile-bin.h
 
+noinst_HEADERS = networking-headers.h
+
 EXTRA_serveez_SOURCES = guile-api.c guile-api.h
 
 serveez_DEPENDENCIES = $(PROTOLIBS) \

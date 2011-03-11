@@ -33,9 +33,9 @@
 #if HAVE_FLOSS_H
 # include <floss.h>
 #endif
+#include "networking-headers.h"
 
 #ifdef __MINGW32__
-# include <winsock2.h>
 # include <io.h>
 #endif
 

@@ -24,11 +24,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #include "libserveez.h"
 #include "irc-proto.h"
 #include "irc-crypt.h"

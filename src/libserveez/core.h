@@ -26,13 +26,6 @@
 #include "libserveez/array.h"
 /* end svzint */
 
-#ifndef __MINGW32__
-# include <netinet/in.h>
-#endif
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
 /* protocol definitions */
 #define PROTO_TCP   0x00000001 /* tcp  - bidirectional, reliable */
 #define PROTO_UDP   0x00000002 /* udp  - multidirectional, unreliable */

@@ -23,11 +23,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
-
-#ifdef __MINGW32__
-# include <winsock2.h>
-#endif
-
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/vector.h"
