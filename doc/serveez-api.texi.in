@@ -252,6 +252,7 @@ C types like integers or pointers.
 |F| svz_hash_delete
 |F| svz_hash_put
 |F| svz_hash_get
+|F| svz_hash_foreach
 |F| svz_hash_values
 |F| svz_hash_keys
 |F| svz_hash_xfree

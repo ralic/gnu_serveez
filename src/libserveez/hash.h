@@ -70,6 +70,8 @@ typedef struct svz_hash
 }
 svz_hash_t;
 
+typedef void (svz_hash_do_t) (void *, void *, void *);
+
 __BEGIN_DECLS
 
 /*
@@ -81,6 +83,7 @@ SERVEEZ_API void svz_hash_clear (svz_hash_t *);
 SERVEEZ_API void *svz_hash_delete (svz_hash_t *, char *);
 SERVEEZ_API void *svz_hash_put (svz_hash_t *, char *, void *);
 SERVEEZ_API void *svz_hash_get (const svz_hash_t *, char *);
+SERVEEZ_API void svz_hash_foreach (svz_hash_do_t *, svz_hash_t *, void *);
 SERVEEZ_API void **svz_hash_values (const svz_hash_t *);
 SERVEEZ_API char **svz_hash_keys (const svz_hash_t *);
 SERVEEZ_API void svz_hash_xfree (void *);

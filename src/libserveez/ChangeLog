@@ -1,5 +1,13 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_hash_foreach
+
+	* hash.c (svz_hash_foreach): New func.
+	* hash.h (svz_hash_do_it): New typedef.
+	(svz_hash_foreach): New func decl, marked ‘SERVEEZ_API’.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_config_{intarray,strarray,hash}_dup.
 
 	* cfg.c (svz_config_intarray_dup): Make static.

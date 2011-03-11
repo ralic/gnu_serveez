@@ -520,6 +520,33 @@ svz_hash_exists (const svz_hash_t *hash, char *key)
 }
 
 /*
+ * Iterate @var{func} over each key/value pair in @var{hash}.
+ * @var{func} is called with three @code{void *} args: the key,
+ * the value and the opaque (to @code{svz_hash_foreach}) @var{closure}.
+ */
+void
+svz_hash_foreach (svz_hash_do_t *func, svz_hash_t *hash, void *closure)
+{
+  int i, n, e;
+
+  for (i = 0, n = 0;
+       i < hash->keys && n < hash->buckets;
+       n++)
+    {
+      svz_hash_bucket_t *bucket = &hash->table[n];
+
+      for (e = 0;
+           e < bucket->size;
+           e++, i++)
+        {
+          svz_hash_entry_t *entry = &bucket->entry[e];
+
+          func (entry->key, entry->value, closure);
+        }
+    }
+}
+
+/*
  * This function frees the @var{collection} returned by
  * @code{svz_hash_values} and @code{svz_hash_keys}.
  */

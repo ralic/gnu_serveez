@@ -37,6 +37,21 @@
     test_ok ();     \
   }                 \
 
+struct it_test
+{
+  long k_count;
+  long v_acc;
+};
+
+void
+count (void *k, void *v, void *closure)
+{
+  struct it_test *x = closure;
+
+  x->k_count++;
+  x->v_acc += (long) v;
+}
+
 /*
  * Main entry point for hash tests.
  */
@@ -172,25 +187,14 @@ main (int argc, char **argv)
   svz_hash_put (hash, "1234567891", (void *) 2);
   svz_hash_put (hash, "1234567892", (void *) 3);
 
-  error = 0;
-  val = 0;
-  test_print ("    value iteration: ");
-  svz_hash_foreach_value (hash, void, values, n)
-    {
-      val += (long) values[n];
-      error++;
-    }
-  test (error != 3 || val != 6);
+  test_print ("          iteration: ");
+  {
+    struct it_test x = { 0L, 0L };
 
-  error = 0;
-  val = 0;
-  test_print ("      key iteration: ");
-  svz_hash_foreach_key (hash, keys, n)
-    {
-      val += (long) svz_hash_get (hash, keys[n]);
-      error++;
-    }
-  test (error != 3 || val != 6);
+    svz_hash_foreach (count, hash, &x);
+    test (x.k_count != 3 || x.v_acc != 6);
+  }
+
   svz_hash_destroy (hash);
 
   /* is heap ok ? */

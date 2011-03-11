@@ -1,5 +1,11 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_hash_foreach
+
+	* serveez-api.texi.in (Hashtable): Add ‘svz_hash_foreach’.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_config_{intarray,strarray,hash}_dup.
 
 	* serveez-api.texi.in (Server configuration):

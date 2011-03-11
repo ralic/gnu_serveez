@@ -1,5 +1,15 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_hash_foreach
+
+	* hash-test.c (it_test): New struct.
+	(count): New func.
+	(main): Test ‘svz_hash_foreach’, combining portions of tests
+	for ‘svz_hash_foreach_key’ and ‘svz_hash_foreach_value’;
+	delete those now-obsoleted tests.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize ‘#define O_BINARY’.
 
 	* codec-test.c: #include "o-binary.h".
