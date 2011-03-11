@@ -9,10 +9,11 @@
 @tsin i println
 @tsin i printsln
 
-@subsubsection augmenting lists
+@subsubsection augmenting
 
 @tsin i interface-add!
 @tsin i loadpath-add!
+@tsin i serveez-load
 
 @subsubsection abstractions
 

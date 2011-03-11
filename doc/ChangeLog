@@ -1,3 +1,12 @@
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[guile int] Re-implement ‘serveez-load’ in Scheme.
+
+	* guile-api.texi.in (Predefined Procedures):
+	Delete ‘serveez-load’.
+	* guile-boot.texh (augmenting): Rename from
+	"augmenting lists"; add @tsin for ‘serveez-load’.
+
 2011-03-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_check_sockets’.

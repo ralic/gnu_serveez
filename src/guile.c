@@ -1668,64 +1668,6 @@ guile_exception (void *data, SCM tag, SCM args)
   return SCM_BOOL_F;
 }
 
-/* Wrapper for the exception handler in @code{serveez-load}.  */
-static SCM
-guile_serveez_load_file (void *data)
-{
-  return scm_c_primitive_load ((char *) data);
-}
-
-/*
- * This procedure can be used as a replacement for @code{primitive-load}
- * in serveez configuration files.  It tries to locate the given filename
- * @var{file} in the paths returned by @code{serveez-loadpath}.  If
- * @var{file} cannot be loaded the procedure returns @code{#f}.
- */
-#define FUNC_NAME "serveez-load"
-static SCM
-guile_serveez_load (SCM file)
-{
-  char *f, *path, *full;
-  int n;
-  SCM ret;
-  svz_array_t *paths = svz_dynload_path_get ();
-
-  GUILE_PRECALL ();
-
-  /* Check argument.  */
-  if ((full = guile_to_string (file)) == NULL)
-    return SCM_BOOL_F;
-  f = svz_strdup (full);
-  scm_c_free (full);
-
-  if (svz_file_check (f) == -1)
-    {
-      /* Iterate the loadpath and check if the given file is in there.  */
-      svz_array_foreach (paths, path, n)
-        {
-          full = svz_file_path (path, f);
-          if (svz_file_check (full) != -1)
-            {
-              svz_free (f);
-              f = full;
-              break;
-            }
-          svz_free (full);
-        }
-    }
-  svz_array_destroy (paths);
-
-  /* Evaluate (load) file and catch exception.  */
-  ret = scm_internal_catch (SCM_BOOL_T,
-                            (scm_t_catch_body) guile_serveez_load_file,
-                            (void *) f,
-                            (scm_t_catch_handler) guile_exception,
-                            (void *) f);
-  svz_free (f);
-  return ret;
-}
-#undef FUNC_NAME
-
 /*
  * Initialize Guile.  Make certain variables and procedures defined above
  * available to Guile.
@@ -1753,9 +1695,6 @@ guile_init (void)
   scm_c_define_gsubr ("serveez-port?", 1, 0, 0, guile_check_port);
   scm_c_define_gsubr ("serveez-server?", 1, 0, 0, guile_check_server);
   scm_c_define_gsubr ("serveez-servertype?", 1, 0, 0, guile_check_stype);
-
-  /* primitive load including the loadpath */
-  scm_c_define_gsubr ("serveez-load", 1, 0, 0, guile_serveez_load);
 
   /* configurable types */
   scm_c_define_gsubr ("instantiate-config-type!", 3, 1, 0,

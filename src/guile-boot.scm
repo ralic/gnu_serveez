@@ -24,6 +24,29 @@
 
 ;;; Code:
 
+;; Try to load @var{filename} (via @code{primitive-load}).
+;; If @var{filename} is not absolute, search for it
+;; in the list of directories returned by @code{serveez-loadpath}.
+;; Return @code{#t} if successful, @code{#f} otherwise.
+;;
+(define (serveez-load filename)
+
+  (define (try full)
+    (false-if-exception (begin (primitive-load full)
+                               #t)))
+
+  (define (absolute?)
+    (char=? #\/ (string-ref filename 0)))
+
+  (define (under dir)
+    (in-vicinity dir filename))
+
+  (and (string? filename)
+       (< 0 (string-length filename))
+       (or-map try (if (absolute?)
+                       (list filename)
+                       (map under (serveez-loadpath))))))
+
 ;; Do @code{display} on each @var{object}.
 ;; Then, output a newline.
 ;;
