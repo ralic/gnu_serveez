@@ -27,13 +27,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-#include <fcntl.h>
-
-/* `open ()' files with this additional flag */
-#ifndef O_BINARY
-# define O_BINARY 0
-#endif
-
 typedef unsigned char svz_uint8_t;
 
 /*

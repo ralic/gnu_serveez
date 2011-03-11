@@ -36,6 +36,7 @@
 # include <io.h>
 #endif
 
+#include "o-binary.h"
 #include "networking-headers.h"
 #include "libserveez.h"
 

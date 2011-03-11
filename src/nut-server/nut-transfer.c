@@ -35,7 +35,6 @@
 # include <unistd.h>
 #endif
 #include <sys/types.h>
-#include <fcntl.h>
 #include <errno.h>
 
 #ifndef __MINGW32__
@@ -77,6 +76,7 @@
 # define closedir(dir) FindClose (dir)
 #endif
 
+#include "o-binary.h"
 #include "networking-headers.h"
 #include "libserveez.h"
 #include "gnutella.h"

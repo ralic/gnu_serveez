@@ -1,5 +1,15 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Centralize ‘#define O_BINARY’.
+
+	* o-binary.h: New file.
+	* Makefile.am (noinst_HEADERS): Add o-binary.h.
+	* http-server/http-proto.c: Don't #include <fcntl.h>;
+	instead, #include "o-binary.h".
+	* nut-server/nut-transfer.c: Likewise.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize <netinet/in.h>/<winsock2.h> #include.
 
 	Here, "U" means "#include "networking-headers.h";

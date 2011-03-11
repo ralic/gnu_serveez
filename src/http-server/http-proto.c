@@ -28,7 +28,6 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <time.h>
 
@@ -42,6 +41,7 @@
 # include <unistd.h>
 #endif
 
+#include "o-binary.h"
 #include "networking-headers.h"
 
 #ifdef __MINGW32__

@@ -1,5 +1,11 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Centralize ‘#define O_BINARY’.
+
+	* codec-test.c: #include "o-binary.h".
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize <netinet/in.h>/<winsock2.h> #include.
 
 	Here, "U" means "#include "networking-headers.h";
