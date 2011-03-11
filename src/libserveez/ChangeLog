@@ -1,5 +1,14 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_file_path’.
+
+	* core.c (svz_file_path): Delete func.
+	* core.h (svz_file_path): Delete func decl.
+	* dynload.c (dyn_get_library):
+	Incorporate ‘svz_file_path’; use ‘snprintf’.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_file_check
 
 	* core.c (svz_file_check): Delete func.

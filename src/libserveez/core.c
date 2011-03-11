@@ -840,21 +840,3 @@ svz_fclose (FILE *f)
     }
   return 0;
 }
-
-/*
- * Constructs a fully qualified file name form @var{path} and @var{file}.
- * If @var{path} is omitted (@code{NULL}) the function returns @var{file}
- * only.  If @var{file} is @code{NULL} a null pointer is returned.
- * Please remember to @code{svz_free} the returned pointer.
- */
-char *
-svz_file_path (char *path, char *file)
-{
-  char *full;
-
-  if (file == NULL)
-    return NULL;
-  full = svz_malloc ((path ? strlen (path) + 1 : 0) + strlen (file) + 1);
-  sprintf (full, "%s%s%s", path ? path : "", path ? "/" : "", file);
-  return full;
-}

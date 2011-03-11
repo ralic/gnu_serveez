@@ -136,9 +136,18 @@ static void *
 dyn_get_library (char *path, char *file)
 {
   void *handle = NULL;
-  char *lib;
+  char *lib = NULL;
 
-  lib = svz_file_path (path, file);
+  if (file)
+    {
+      size_t len = (path ? strlen (path) + 1 : 0) + strlen (file) + 1;
+
+      lib = svz_malloc (len);
+      snprintf (lib, len, "%s%s%s",
+                path ? path : "",
+                path ? "/" : "",
+                file);
+    }
 
 #if HAVE_DLOPEN
   handle = dlopen (lib, RTLD_NOW | RTLD_GLOBAL);

@@ -362,7 +362,6 @@ functions should behave identical on Windows and Unices.
 |F| svz_fstat
 |F| svz_fopen
 |F| svz_fclose
-|F| svz_file_path
 
 @node Client connections
 @subsection Client connections

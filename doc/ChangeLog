@@ -1,5 +1,11 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_file_path’.
+
+	* serveez-api.texi.in (Core functions): Delete ‘svz_file_path’.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_file_check
 
 	* serveez-api.texi.in (Core functions): Delete ‘svz_file_check’.
