@@ -217,13 +217,10 @@ SERVEEZ_API void svz_config_prototype_print (svz_config_prototype_t *);
 
 SERVEEZ_API svz_array_t *svz_config_intarray_create (int *);
 SERVEEZ_API void svz_config_intarray_destroy (svz_array_t *);
-SERVEEZ_API svz_array_t *svz_config_intarray_dup (svz_array_t *);
 SERVEEZ_API svz_array_t *svz_config_strarray_create (char **);
 SERVEEZ_API void svz_config_strarray_destroy (svz_array_t *);
-SERVEEZ_API svz_array_t *svz_config_strarray_dup (svz_array_t *);
 SERVEEZ_API svz_hash_t *svz_config_hash_create (char **);
 SERVEEZ_API void svz_config_hash_destroy (svz_hash_t *);
-SERVEEZ_API svz_hash_t *svz_config_hash_dup (svz_hash_t *);
 
 __END_DECLS
 

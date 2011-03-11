@@ -730,13 +730,10 @@ order to create a server configuration.
 |F| svz_config_instantiate
 |F| svz_config_intarray_create
 |F| svz_config_intarray_destroy
-|F| svz_config_intarray_dup
 |F| svz_config_strarray_create
 |F| svz_config_strarray_destroy
-|F| svz_config_strarray_dup
 |F| svz_config_hash_create
 |F| svz_config_hash_destroy
-|F| svz_config_hash_dup
 
 @node Server binding
 @subsubsection Bindings

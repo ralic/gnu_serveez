@@ -1,5 +1,13 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_config_{intarray,strarray,hash}_dup.
+
+	* serveez-api.texi.in (Server configuration):
+	Delete ‘svz_config_intarray_dup’,
+	‘svz_config_strarray_dup’, ‘svz_config_hash_dup’.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_file_path’.
 
 	* serveez-api.texi.in (Core functions): Delete ‘svz_file_path’.

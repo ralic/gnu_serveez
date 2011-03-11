@@ -66,7 +66,7 @@ svz_config_intarray_destroy (svz_array_t *intarray)
  * value is @code{NULL} no operation is performed and the return value
  * is @code{NULL} too.
  */
-svz_array_t *
+static svz_array_t *
 svz_config_intarray_dup (svz_array_t *intarray)
 {
   svz_array_t *array = NULL;
@@ -112,7 +112,7 @@ svz_config_strarray_destroy (svz_array_t *strarray)
  * Duplicate the given array of strings @var{strarray}.  Return @code{NULL}
  * if @var{strarray} equals @code{NULL}.
  */
-svz_array_t *
+static svz_array_t *
 svz_config_strarray_dup (svz_array_t *strarray)
 {
   svz_array_t *array = NULL;
@@ -166,7 +166,7 @@ svz_config_hash_destroy (svz_hash_t *strhash)
  * associating strings with strings.  Return @code{NULL} if @var{strhash} is
  * @code{NULL} too.
  */
-svz_hash_t *
+static svz_hash_t *
 svz_config_hash_dup (svz_hash_t *strhash)
 {
   svz_hash_t *hash = NULL;

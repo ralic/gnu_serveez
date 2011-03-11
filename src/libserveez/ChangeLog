@@ -1,5 +1,14 @@
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_config_{intarray,strarray,hash}_dup.
+
+	* cfg.c (svz_config_intarray_dup): Make static.
+	(svz_config_strarray_dup, svz_config_hash_dup): Likewise.
+	* cfg.h (svz_config_intarray_dup): Delete func decl.
+	(svz_config_strarray_dup, svz_config_hash_dup): Likewise.
+
+2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize ‘#define O_BINARY’.
 
 	* core.c: Don't #include <fcntl.h>;
