@@ -1,5 +1,12 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Move ‘#define getcwd’ from header into implementation.
+
+	* util.h [__MINGW32__] (getcwd): Move #define from here...
+	* util.c [__MINGW32__] (getcwd): ...to here.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Move ‘environ’ decl from header into implementation.
 
 	* passthrough.h (environ): Move var decl from here...

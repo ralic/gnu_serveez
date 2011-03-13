@@ -109,7 +109,6 @@ __END_DECLS
 # define SYS_ERROR svz_syserror (GetLastError ())
 # define NET_ERROR svz_syserror (WSAGetLastError ())
 # define H_NET_ERROR svz_syserror (WSAGetLastError ())
-# define getcwd(buf, size) (GetCurrentDirectory (size, buf) ? buf : NULL)
 # define chdir(path) (SetCurrentDirectory (path) ? 0 : -1)
 #else /* Unices here */
 # define closesocket(sock) close (sock)

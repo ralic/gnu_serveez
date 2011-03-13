@@ -571,6 +571,10 @@ svz_atoi (char *str)
   return i;
 }
 
+#ifdef __MINGW32__
+# define getcwd(buf, size)  (GetCurrentDirectory (size, buf) ? buf : NULL)
+#endif
+
 /*
  * Returns the current working directory.  The returned pointer needs to be
  * @code{svz_free}'ed after usage.
