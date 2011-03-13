@@ -63,11 +63,6 @@ svz_process_t;
 #define SVZ_PROCESS_RECV_HANDLE "RECV_HANDLE"
 #define SVZ_PROCESS_SEND_HANDLE "SEND_HANDLE"
 
-/* Extern declaration of the process environment pointer.  */
-#if !defined(__MINGW32__) && !defined(__CYGWIN__)
-extern char **environ;
-#endif
-
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_process (svz_socket_t *, char *, char *,

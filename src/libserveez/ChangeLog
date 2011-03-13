@@ -1,5 +1,12 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Move ‘environ’ decl from header into implementation.
+
+	* passthrough.h (environ): Move var decl from here...
+	* passthrough.c (environ): ...to here.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘svz_envblock_get’ return ‘void *’.
 
 	* passthrough.c (svz_envblock_get): Return ‘void *’;

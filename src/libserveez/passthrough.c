@@ -64,6 +64,11 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/passthrough.h"
 
+/* Extern declaration of the process environment pointer.  */
+#if !defined(__MINGW32__) && !defined(__CYGWIN__)
+extern char **environ;
+#endif
+
 /*
  * This variable is meant to hold the @code{environ} variable of the
  * application using the Serveez core API.  It must be setup via the macro
