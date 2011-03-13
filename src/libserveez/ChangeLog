@@ -1,5 +1,14 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func/macros: svz_{all_servers,hash_foreach_{key,value}}
+
+	* hash.h (svz_hash_foreach_key): Delete macro.
+	(svz_hash_foreach_value): Likewise.
+	* server.c (svz_all_servers): Delete func.
+	* server.h (svz_all_servers): Delete func decl.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_server_foreach
 
 	* server.c (server_foreach_closure): New struct.

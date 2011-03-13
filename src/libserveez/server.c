@@ -82,15 +82,6 @@ svz_server_foreach (svz_server_do_t *func, void *closure)
 }
 
 /*
- * Return the hash table of actually instantiated servers.
- */
-const svz_hash_t *
-svz_all_servers (void)
-{
-  return svz_servers;
-}
-
-/*
  * Add the server type @var{server} to the currently registered servers.
  */
 void

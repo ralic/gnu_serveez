@@ -260,8 +260,6 @@ C types like integers or pointers.
 |F| svz_hash_capacity
 |F| svz_hash_contains
 |F| svz_hash_exists
-|M| svz_hash_foreach_key
-|M| svz_hash_foreach_value
 
 @node Sparsevector
 @subsubsection Sparsevector
@@ -701,7 +699,6 @@ servers in the core library of serveez, also with the basics like creation
 and destruction of such servers.
 
 |F| svz_server_foreach
-|F| svz_all_servers
 |F| svz_server_find
 |F| svz_server_clients
 |F| svz_server_add

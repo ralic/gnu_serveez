@@ -1,5 +1,13 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func/macros: svz_{all_servers,hash_foreach_{key,value}}
+
+	* serveez-api.texi.in (Hashtable):
+	Delete ‘svz_hash_foreach_key’, ‘svz_hash_foreach_value’.
+	(Server functionality): Delete ‘svz_all_servers’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_server_foreach
 
 	* serveez-api.texi.in
