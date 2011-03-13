@@ -1,5 +1,13 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_closehandle
+
+	* http-server/http-cgi.c (http_cgi_disconnect)
+	(http_cgi_died, http_cgi_exec): Use ‘svz_closehandle’.
+	* serveez.c (main): Likewise.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_server_foreach
 
 	* ctrl-server/control-proto.c (stat_all_internal): New static func.

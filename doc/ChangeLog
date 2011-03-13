@@ -1,5 +1,11 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_closehandle
+
+	* serveez-api.texi.in (Pipe connections): Add ‘svz_closehandle’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_closesocket
 
 	* serveez-api.texi.in (Core functions): Add ‘svz_closesocket’.

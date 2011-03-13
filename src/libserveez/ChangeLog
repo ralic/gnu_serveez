@@ -1,5 +1,18 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_closehandle
+
+	* pipe-socket.h (svz_closehandle):
+	New func decl, marked ‘SERVEEZ_API’.
+	* pipe-socket.c (svz_closehandle): New func.
+	(svz_pipe_disconnect): Use it.
+	* passthrough.c (svz_process_idle): Likewise.
+	(svz_process_create_child, svz_process_shuffle): Likewise.
+	* server-core.c (svz_sock_child_died): Likewise.
+	* util.h (closehandle): Delete macro.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_closesocket
 
 	* core.c (svz_closesocket): New func.

@@ -244,6 +244,20 @@ svz_pipe_valid (svz_socket_t *sock)
 }
 
 /*
+ * Close @var{handle}.
+ * Return 0 if successful, -1 otherwise.
+ */
+int
+svz_closehandle (svz_t_handle handle)
+{
+#ifdef __MINGW32__
+  return CloseHandle (handle) ? 0 : -1;
+#else
+  return close (handle);
+#endif
+}
+
+/*
  * This function is the default disconnection routine for pipe socket
  * structures.  Return non-zero on errors.
  */
@@ -287,7 +301,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 
           /* close sending pipe only */
           if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-            if (closehandle (sock->pipe_desc[WRITE]) < 0)
+            if (svz_closehandle (sock->pipe_desc[WRITE]) < 0)
               svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
           /* FIXME: reset receiving pipe???  */
@@ -304,10 +318,10 @@ svz_pipe_disconnect (svz_socket_t *sock)
         {
           /* close both pipes */
           if (sock->pipe_desc[READ] != INVALID_HANDLE)
-            if (closehandle (sock->pipe_desc[READ]) < 0)
+            if (svz_closehandle (sock->pipe_desc[READ]) < 0)
               svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
           if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
-            if (closehandle (sock->pipe_desc[WRITE]) < 0)
+            if (svz_closehandle (sock->pipe_desc[WRITE]) < 0)
               svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
         }
 
@@ -336,7 +350,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 
       /* close listening pipe */
       if (sock->pipe_desc[READ] != INVALID_HANDLE)
-        if (closehandle (sock->pipe_desc[READ]) < 0)
+        if (svz_closehandle (sock->pipe_desc[READ]) < 0)
           svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
       /* delete named pipes on file system */
@@ -352,7 +366,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
         {
           if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
             svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
-          if (!CloseHandle (sock->pipe_desc[READ]))
+          if (svz_closehandle (sock->pipe_desc[READ]))
             svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
         }
       if (sock->pipe_desc[WRITE] != INVALID_HANDLE)

@@ -207,9 +207,9 @@ main (int argc, char *argv[])
         exit (EXIT_FAILURE);
       if (options->loghandle == stderr)
         svz_log_setfile (NULL);
-      closehandle (GetStdHandle (STD_INPUT_HANDLE));
-      closehandle (GetStdHandle (STD_OUTPUT_HANDLE));
-      closehandle (GetStdHandle (STD_ERROR_HANDLE));
+      svz_closehandle (GetStdHandle (STD_INPUT_HANDLE));
+      svz_closehandle (GetStdHandle (STD_OUTPUT_HANDLE));
+      svz_closehandle (GetStdHandle (STD_ERROR_HANDLE));
 #endif /* __MINGW32__ */
     }
 

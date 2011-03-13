@@ -279,7 +279,7 @@ svz_process_idle (svz_socket_t *sock)
     }
   else if (result != WAIT_TIMEOUT)
     {
-      if (closehandle (sock->pid) == -1)
+      if (svz_closehandle (sock->pid) == -1)
         svz_log (LOG_ERROR, "passthrough: CloseHandle: %s\n", SYS_ERROR);
       svz_child_died = sock->pid;
       sock->pid = INVALID_HANDLE;
@@ -655,14 +655,14 @@ svz_process_create_child (svz_process_t *proc)
           fd = svz_process_duplicate (proc->in, proc->sock->proto);
           if (fd == INVALID_HANDLE)
             return -1;
-          closehandle (proc->sock->pipe_desc[READ]);
+          svz_closehandle (proc->sock->pipe_desc[READ]);
           proc->in = proc->sock->pipe_desc[READ] = fd;
 
           /* Create an inheritable send pipe and replace it.  */
           fd = svz_process_duplicate (proc->out, proc->sock->proto);
           if (fd == INVALID_HANDLE)
             return -1;
-          closehandle (proc->sock->pipe_desc[WRITE]);
+          svz_closehandle (proc->sock->pipe_desc[WRITE]);
           proc->out = proc->sock->pipe_desc[WRITE] = fd;
         }
       else
@@ -861,9 +861,9 @@ svz_process_shuffle (svz_process_t *proc)
 #endif /*  __MINGW32__ */
 
   /* close the passed descriptors */
-  closehandle (proc->in);
+  svz_closehandle (proc->in);
   if (proc->flag == SVZ_PROCESS_SHUFFLE_PIPE)
-    closehandle (proc->out);
+    svz_closehandle (proc->out);
 
   /* setup child checking callback */
   xsock->pid = (svz_t_handle) pid;

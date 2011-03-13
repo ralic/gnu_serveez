@@ -425,6 +425,7 @@ any input or output operations on it.
 |F| svz_pipe_listener
 |F| svz_pipe_check_user
 |F| svz_pipe_check_group
+|F| svz_closehandle
 
 @node UDP sockets
 @subsubsection UDP sockets

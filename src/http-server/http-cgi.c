@@ -80,14 +80,14 @@ http_cgi_disconnect (svz_socket_t *sock)
   /* close both of the CGI pipes if necessary */
   if (sock->pipe_desc[READ] != INVALID_HANDLE)
     {
-      if (closehandle (sock->pipe_desc[READ]) == -1)
+      if (svz_closehandle (sock->pipe_desc[READ]) == -1)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->pipe_desc[READ] = INVALID_HANDLE;
       sock->flags &= ~SOCK_FLAG_RECV_PIPE;
     }
   if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
     {
-      if (closehandle (sock->pipe_desc[WRITE]) == -1)
+      if (svz_closehandle (sock->pipe_desc[WRITE]) == -1)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       sock->pipe_desc[WRITE] = INVALID_HANDLE;
       sock->flags &= ~SOCK_FLAG_SEND_PIPE;
@@ -101,7 +101,7 @@ http_cgi_disconnect (svz_socket_t *sock)
     {
       if (!TerminateProcess (http->pid, 0))
         svz_log (LOG_ERROR, "TerminateProcess: %s\n", SYS_ERROR);
-      if (closehandle (http->pid) == -1)
+      if (svz_closehandle (http->pid) == -1)
         svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
       http->pid = INVALID_HANDLE;
     }
@@ -171,7 +171,7 @@ http_cgi_died (svz_socket_t *sock)
             }
           else if (result != WAIT_TIMEOUT)
             {
-              if (closehandle (http->pid) == -1)
+              if (svz_closehandle (http->pid) == -1)
                 svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
               svz_child_died = http->pid;
               http->pid = INVALID_HANDLE;
@@ -921,14 +921,14 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   http->pid = pid;
 
   /* close the inherited http data handles */
-  if (closehandle (out) == -1)
+  if (svz_closehandle (out) == -1)
     {
       svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
     }
   if (type == POST_METHOD)
     {
       /* close the reading end of the pipe for the post data */
-      if (closehandle (in) == -1)
+      if (svz_closehandle (in) == -1)
         {
           svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
         }

@@ -64,6 +64,8 @@ SERVEEZ_API int svz_pipe_check_group (svz_pipe_t *);
 SERVEEZ_API svz_pipe_t *svz_pipe_alloc (void);
 SERVEEZ_API void svz_pipe_destroy (svz_pipe_t *);
 
+SERVEEZ_API int svz_closehandle (svz_t_handle);
+
 __END_DECLS
 
 #endif /* not __PIPE_SOCKET_H__ */
