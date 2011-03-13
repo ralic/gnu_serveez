@@ -62,7 +62,7 @@ See the end for copying conditions.
 *** TODO Clean up libserveez API.
 ***** DONE use explicit type for cast in ‘svz_hash_foreach_value’
 ***** DONE add func ‘svz_library_features’
-***** TODO move most #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
+***** DONE move most #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
 ***** TODO move most #if...#endif into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#%20*if'%20|%20sed%20'/_H__$/d'")][grep]]).
 ***** TODO convert some variables into (read-only) funcs ([[elisp:(grep%20"grep%20-nH%20-e%20Variable:%20%20doc/serveez.info")][grep]]).
 ***** TODO prune ancillary elements from libserveez API.
