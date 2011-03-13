@@ -25,12 +25,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-#ifdef __MINGW32__
-typedef char * svz_envp_t;
-#else
-typedef char ** svz_envp_t;
-#endif
-
 /* Structure containing a system independent environment.  */
 typedef struct
 {
@@ -104,7 +98,7 @@ SERVEEZ_API int svz_envblock_default (svz_envblock_t *);
 SERVEEZ_API int svz_envblock_add (svz_envblock_t *, char *, ...);
 SERVEEZ_API int svz_envblock_free (svz_envblock_t *);
 SERVEEZ_API void svz_envblock_destroy (svz_envblock_t *);
-SERVEEZ_API svz_envp_t svz_envblock_get (svz_envblock_t *);
+SERVEEZ_API void * svz_envblock_get (svz_envblock_t *);
 
 __END_DECLS
 

@@ -1,5 +1,14 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Make ‘svz_envblock_get’ return ‘void *’.
+
+	* passthrough.c (svz_envblock_get): Return ‘void *’;
+	don't use ‘svz_envp_t’; instead, use ‘char *’ directly.
+	* passthrough.h (svz_envp_t): Delete typedef.
+	(svz_envblock_get): Update func decl.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_icmp_{start,clean}up.
 
 	* icmp-socket.h

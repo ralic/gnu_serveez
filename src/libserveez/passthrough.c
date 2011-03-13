@@ -1182,22 +1182,22 @@ svz_envblock_sort (const void *data1, const void *data2)
 /*
  * Unfortunately the layout of environment blocks in Unices and Windows
  * differ.  On Unices you have a NULL terminated array of character strings
- * and on Windows systems you have a simple character string containing
- * the environment variables in the format VAR=VALUE each separated by a
- * zero byte.  The end of the list is indicated by a further zero byte.
- * The following routine converts the given environment block @var{env}
- * into something which can be passed to @code{exeve} (Unix) or
- * @code{CreateProcess} (Windows).  The routine additionally sorts the
- * environment block on Windows systems since it is using sorted
- * environments.
+ * (i.e., @code{char **}) and on Windows systems you have a simple character
+ * string containing the environment variables in the format VAR=VALUE each
+ * separated by a zero byte (i.e., @code{char *}).  The end of the list is
+ * indicated by a further zero byte.  The following routine converts the
+ * given environment block @var{env} into something which can be passed to
+ * @code{execve} (Unix) or @code{CreateProcess} (Windows).  The routine
+ * additionally sorts the environment block on Windows systems since it is
+ * using sorted environments.
  */
-svz_envp_t
+void *
 svz_envblock_get (svz_envblock_t *env)
 {
   char *dir;
 #ifdef __MINGW32__
   int len = 32;
-  svz_envp_t block = NULL;
+  char *block = NULL;
   int n, size;
 #endif
 
