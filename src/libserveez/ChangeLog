@@ -1,5 +1,12 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_file_closeall’.
+
+	* core.h (svz_file_closeall):
+	Remove mark ‘SERVEEZ_API’; add mark ‘SBO’, ‘svzint’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func/macros: svz_{all_servers,hash_foreach_{key,value}}
 
 	* hash.h (svz_hash_foreach_key): Delete macro.

@@ -57,9 +57,11 @@ SERVEEZ_API int svz_fstat (int, struct stat *);
 SERVEEZ_API FILE *svz_fopen (const char *, const char *);
 SERVEEZ_API int svz_fclose (FILE *);
 
+/* begin svzint */
 #ifndef __MINGW32__
-SERVEEZ_API void svz_file_closeall (void);
+SBO void svz_file_closeall (void);
 #endif
+/* end svzint */
 
 __END_DECLS
 
