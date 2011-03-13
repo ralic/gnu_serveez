@@ -152,6 +152,20 @@ svz_fd_cloexec (int fd)
 }
 
 /*
+ * Close the socket @var{sock}.
+ * Return 0 if successful, -1 otherwise.
+ */
+int
+svz_closesocket (svz_t_socket sockfd)
+{
+#ifdef __MINGW32__
+  return closesocket (sockfd);
+#else
+  return close (sockfd);
+#endif
+}
+
+/*
  * This function creates an unnamed pair of connected sockets with the
  * specified protocol @var{proto}.  The descriptors used in referencing the
  * new sockets are returned in desc[0] and desc[1].  The two sockets are
@@ -204,8 +218,8 @@ svz_socket_create_pair (int proto, svz_t_socket desc[2])
   if (svz_fd_nonblock (desc[0]) != 0 || svz_fd_nonblock (desc[1]) != 0 ||
       svz_fd_cloexec (desc[0]) != 0 || svz_fd_cloexec (desc[1]) != 0)
     {
-      closesocket (desc[0]);
-      closesocket (desc[1]);
+      svz_closesocket (desc[0]);
+      svz_closesocket (desc[1]);
       return -1;
     }
 
@@ -263,14 +277,14 @@ svz_socket_create (int proto)
   /* Make the socket non-blocking.  */
   if (svz_fd_nonblock (sockfd) != 0)
     {
-      closesocket (sockfd);
+      svz_closesocket (sockfd);
       return (svz_t_socket) -1;
     }
 
   /* Do not inherit this socket.  */
   if (svz_fd_cloexec (sockfd) != 0)
     {
-      closesocket (sockfd);
+      svz_closesocket (sockfd);
       return (svz_t_socket) -1;
     }
 
@@ -328,7 +342,7 @@ svz_socket_connect (svz_t_socket sockfd,
       if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
         {
           svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
-          closesocket (sockfd);
+          svz_closesocket (sockfd);
           return -1;
         }
 #if ENABLE_DEBUG

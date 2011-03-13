@@ -1,5 +1,11 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_closesocket
+
+	* serveez-api.texi.in (Core functions): Add ‘svz_closesocket’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_icmp_{start,clean}up.
 
 	* serveez-api.texi.in (ICMP sockets):

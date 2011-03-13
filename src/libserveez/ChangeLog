@@ -1,5 +1,23 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_closesocket
+
+	* core.c (svz_closesocket): New func.
+	(svz_socket_create_pair, svz_socket_create)
+	(svz_socket_connect): Use ‘svz_closesocket’.
+	* core.h (svz_closesocket): New func decl, marked ‘SERVEEZ_API’.
+	* coserver/ident.c: #include "libserveez/core.h".
+	(ident_handle_request): Use ‘svz_closesocket’.
+	* icmp-socket.c (svz_icmp_connect): Likewise.
+	* passthrough.c (svz_process_create_child): Likewise.
+	* server-socket.c (svz_server_create, svz_tcp_accept): Likewise.
+	* socket.c (svz_sock_disconnect): Likewise.
+	* tcp-socket.c (svz_tcp_connect): Likewise.
+	* udp-socket.c (svz_udp_connect): Likewise.
+	* util.h [!__MINGW32__] (closesocket): Delete macro.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Move ‘#define getcwd’ from header into implementation.
 
 	* util.h [__MINGW32__] (getcwd): Move #define from here...

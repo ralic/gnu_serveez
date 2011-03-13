@@ -47,6 +47,7 @@ SERVEEZ_API int svz_socket_type (svz_t_socket, int *);
 SERVEEZ_API int svz_socket_connect (svz_t_socket, unsigned long,
                                     unsigned short);
 SERVEEZ_API svz_t_socket svz_socket_create (int);
+SERVEEZ_API int svz_closesocket (svz_t_socket);
 SERVEEZ_API int svz_socket_create_pair (int, svz_t_socket desc[2]);
 SERVEEZ_API char *svz_inet_ntoa (unsigned long);
 SERVEEZ_API int svz_inet_aton (char *, struct sockaddr_in *);

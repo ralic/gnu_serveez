@@ -672,7 +672,7 @@ svz_process_create_child (svz_process_t *proc)
           if (fd == INVALID_HANDLE)
             return -1;
           proc->in = proc->out = fd;
-          closesocket (proc->sock->sock_desc);
+          svz_closesocket (proc->sock->sock_desc);
           proc->sock->sock_desc = (svz_t_socket) fd;
         }
     }

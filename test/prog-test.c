@@ -105,7 +105,7 @@ main (int argc, char **argv)
 
 #ifdef __MINGW32__
   shutdown (s, 2);
-  closesocket (s);
+  svz_closesocket (s);
   WSACleanup();
 #endif /* __MINGW32__ */
 

@@ -1,3 +1,9 @@
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add func: svz_closesocket
+
+	* prog-test.c (main) [__MINGW32__]: Use ‘svz_closesocket’.
+
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add func: svz_hash_foreach

@@ -34,6 +34,7 @@
 # include <arpa/inet.h>
 #endif
 
+#include "libserveez/core.h"
 #include "libserveez/socket.h"
 #include "libserveez/util.h"
 #include "libserveez/coserver/coserver.h"
@@ -96,7 +97,7 @@ ident_handle_request (char *inbuf)
   if (connect (sock, (struct sockaddr *) &server, sizeof (server)) == -1)
     {
       svz_log (LOG_ERROR, "ident: connect: %s\n", NET_ERROR);
-      closesocket (sock);
+      svz_closesocket (sock);
       return NULL;
     }
 
@@ -112,7 +113,7 @@ ident_handle_request (char *inbuf)
                      COSERVER_BUFSIZE - (rp - ident_response), 0)) < 0)
         {
           svz_log (LOG_ERROR, "ident: recv: %s\n", NET_ERROR);
-          closesocket (sock);
+          svz_closesocket (sock);
           return NULL;
         }
       rp += r;
@@ -121,7 +122,7 @@ ident_handle_request (char *inbuf)
   /* Now close the socket and notify the response.  */
   if (shutdown (sock, 2) == -1)
     svz_log (LOG_ERROR, "ident: shutdown: %s\n", NET_ERROR);
-  if (closesocket (sock) < 0)
+  if (svz_closesocket (sock) < 0)
     svz_log (LOG_ERROR, "ident: close: %s\n", NET_ERROR);
 
   svz_log (LOG_NOTICE, "ident: %s", ident_response);

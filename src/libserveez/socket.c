@@ -629,7 +629,7 @@ svz_sock_disconnect (svz_socket_t *sock)
     }
 
   /* close the server/client socket */
-  if (closesocket (sock->sock_desc) < 0)
+  if (svz_closesocket (sock->sock_desc) < 0)
     svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
 
 #if ENABLE_DEBUG

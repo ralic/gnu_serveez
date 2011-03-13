@@ -296,7 +296,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
   /* Create socket structure and enqueue it.  */
   if ((sock = svz_sock_alloc ()) == NULL)
     {
-      closesocket (sockfd);
+      svz_closesocket (sockfd);
       return NULL;
     }
 
