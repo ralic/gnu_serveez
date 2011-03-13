@@ -101,6 +101,26 @@ http_free_cache (void)
 }
 
 #if ENABLE_DEBUG
+static void
+cache_consistency_internal (void *k, void *v, void *closure)
+{
+  http_cache_entry_t *ent = v;
+
+  /* Each cache entry must have a file name.  */
+  assert (ent->file);
+
+  /* Cache entry must be completely unused if not ready.  */
+  if (!ent->ready)
+    assert (!ent->size
+            && !ent->buffer
+            && !ent->hits);
+  /* Otherwise, a cache entry must contain something.  */
+  else
+    assert (ent->size >= 0
+            && ent->buffer
+            && ent->hits >= 0);
+}
+
 /*
  * Check consistency of the http cache.  Remove this function once the
  * server is stable.
@@ -108,28 +128,7 @@ http_free_cache (void)
 static void
 http_cache_consistency (void)
 {
-  int n, o;
-  http_cache_entry_t **cache;
-
-  n = 1;
-  svz_hash_foreach_value (http_cache, http_cache_entry_t, cache, o)
-    {
-      /* each cache entry must have a file name */
-      assert (cache[o]->file);
-
-      /* cache entry must be completely unused if not ready */
-      if (!cache[o]->ready)
-        {
-          assert (cache[o]->size == 0 &&
-                  cache[o]->buffer == NULL && cache[o]->hits == 0);
-        }
-      /* if ready a cache entry must contain something */
-      else
-        {
-          assert (cache[o]->size >= 0 &&
-                  cache[o]->buffer && cache[o]->hits >= 0);
-        }
-    }
+  svz_hash_foreach (cache_consistency_internal, http_cache, NULL);
 }
 #else /* not ENABLE_DEBUG */
 # define http_cache_consistency()

@@ -1,5 +1,13 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use ‘svz_hash_foreach’ instead of ‘svz_hash_foreach_value’.
+
+	* http-server/http-cache.c
+	[ENABLE_DEBUG] (cache_consistency_internal): New static func.
+	[ENABLE_DEBUG] (http_cache_consistency): Use it and ‘svz_hash_foreach’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘svz_hash_foreach’ instead of ‘svz_hash_foreach_key’.
 
 	* guile-server.c (server_state_to_hash_internal): New static func.
