@@ -161,6 +161,12 @@ svz_config_hash_destroy (svz_hash_t *strhash)
   svz_hash_destroy (strhash);
 }
 
+static void
+accumulate (void *k, void *v, void *to)
+{
+  svz_hash_put (to, k, svz_strdup (v));
+}
+
 /*
  * Duplicate the given hash table @var{strhash} assuming it is a hash
  * associating strings with strings.  Return @code{NULL} if @var{strhash} is
@@ -176,11 +182,7 @@ svz_config_hash_dup (svz_hash_t *strhash)
   if (strhash)
     {
       hash = svz_hash_create (4, strhash->destroy);
-      svz_hash_foreach_key (strhash, keys, i)
-        {
-          svz_hash_put (hash, keys[i],
-                        svz_strdup (svz_hash_get (strhash, keys[i])));
-        }
+      svz_hash_foreach (accumulate, strhash, hash);
     }
   return hash;
 }

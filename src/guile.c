@@ -176,6 +176,45 @@ guile_error (char *format, ...)
   fprintf (stderr, "\n");
 }
 
+struct optionhash_validate_closure
+{
+  int what;
+  int errors;
+  char *type;
+  char *name;
+};
+
+static void
+optionhash_validate_internal (void *k, void *v, void *closure)
+{
+  char *key = k, *blurb;
+  guile_value_t *value = v;
+  struct optionhash_validate_closure *x = closure;
+
+  switch (x->what)
+    {
+    case 1:
+      /* Check definition counter.  */
+      if (value->defined == 1)
+        return;
+      blurb = "Multiple definitions of";
+      break;
+
+    case 0:
+      /* Check usage counter.  */
+      if (value->use != 0)
+        return;
+      blurb = "Unused variable";
+      break;
+
+    default:
+      abort ();                         /* PEBKAC */
+    }
+
+  x->errors++;
+  guile_error ("%s `%s' in %s `%s'", blurb, key, x->type, x->name);
+}
+
 /*
  * Validate the values of an option-hash.  Returns the number of errors.
  * what = 0 : check if all 'use' fields are 1
@@ -186,40 +225,10 @@ guile_error (char *format, ...)
 int
 optionhash_validate (svz_hash_t *hash, int what, char *type, char *name)
 {
-  int errors = 0, i;
-  char **keys;
-  char *key;
-  guile_value_t *value;
+  struct optionhash_validate_closure x = { what, 0, type, name };
 
-  /* Go through each key in the hash.  */
-  svz_hash_foreach_key (hash, keys, i)
-    {
-      key = keys[i];
-      value = (guile_value_t *) svz_hash_get (hash, key);
-
-      switch (what)
-        {
-          /* Check definition counter.  */
-        case 1:
-          if (value->defined != 1)
-            {
-              errors++;
-              guile_error ("Multiple definitions of `%s' in %s `%s'",
-                           key, type, name);
-            }
-          break;
-          /* Check usage counter.  */
-        case 0:
-          if (value->use == 0)
-            {
-              errors++;
-              guile_error ("Unused variable `%s' in %s `%s'", key, type, name);
-            }
-          break;
-        }
-    }
-
-  return errors;
+  svz_hash_foreach (optionhash_validate_internal, hash, &x);
+  return x.errors;
 }
 
 /*
@@ -1431,22 +1440,25 @@ guile_intarray_to_guile (svz_array_t *array)
   return scm_reverse (list);
 }
 
+static void
+strhash_acons (void *k, void *v, void *closure)
+{
+  SCM *alist = closure;
+
+  *alist = scm_acons (gi_string2scm (k),
+                      gi_string2scm (v),
+                      *alist);
+}
+
 /*
  * Converts the given string hash @var{hash} into a guile alist.
  */
 SCM
 guile_hash_to_guile (svz_hash_t *hash)
 {
-  SCM alist = SCM_EOL, pair;
-  char **key;
-  int n;
+  SCM alist = SCM_EOL;
 
-  svz_hash_foreach_key (hash, key, n)
-    {
-      pair = scm_cons (gi_string2scm (key[n]),
-                       gi_string2scm ((char *) svz_hash_get (hash, key[n])));
-      alist = scm_cons (pair, alist);
-    }
+  svz_hash_foreach (strhash_acons, hash, &alist);
   return alist;
 }
 

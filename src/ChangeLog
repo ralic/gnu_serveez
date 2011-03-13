@@ -1,3 +1,18 @@
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Use ‘svz_hash_foreach’ instead of ‘svz_hash_foreach_key’.
+
+	* guile-server.c (server_state_to_hash_internal): New static func.
+	(guile_server_state_to_hash): Use it and ‘svz_hash_foreach’.
+	[ENABLE_DEBUG] (print_hash_kv): New static func.
+	[ENABLE_DEBUG] (guile_servertype_config_print):
+	Use it and ‘svz_hash_foreach’.
+	(items_append): New static func.
+	(servertype_config_closure): New struct.
+	(servertype_config_internal): New static func.
+	(guile_servertype_config): Use it
+	and ‘svz_hash_foreach’, ‘items_append’.
+
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Centralize ‘#define O_BINARY’.

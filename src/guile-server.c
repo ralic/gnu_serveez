@@ -1153,6 +1153,14 @@ guile_server_state_set_x (SCM server, SCM key, SCM value)
 }
 #undef FUNC_NAME
 
+static void
+server_state_to_hash_internal (void *k, void *v, void *closure)
+{
+  SCM *hash = closure;
+
+  scm_hash_set_x (*hash, gi_string2scm (k), (SCM) SVZ_PTR2NUM (v));
+}
+
 /* Converts the @var{server} instance's state into a Guile hash.
    Returns an empty list if there is no such state yet.  */
 #define FUNC_NAME "svz:server:state->hash"
@@ -1162,16 +1170,13 @@ guile_server_state_to_hash (SCM server)
   SCM hash = SCM_EOL;
   svz_hash_t *data;
   svz_server_t *xserver;
-  int i;
-  char **key;
 
   CHECK_SERVER_SMOB_ARG (server, SCM_ARG1, xserver);
   if ((data = xserver->data) != NULL)
     {
+      /* FIXME: Use "make-hash-table" analog.  */
       hash = gi_n_vector (svz_hash_size (data), SCM_EOL);
-      svz_hash_foreach_key (data, key, i)
-        scm_hash_set_x (hash, gi_string2scm (key[i]),
-                        (SCM) SVZ_PTR2NUM (svz_hash_get (data, key[i])));
+      svz_hash_foreach (server_state_to_hash_internal, data, &hash);
     }
   return hash;
 }
@@ -1233,6 +1238,15 @@ guile_servertype_config_free (svz_servertype_t *server)
 }
 
 #if ENABLE_DEBUG
+static void
+print_hash_kv (void *k, void *v, void *closure)
+{
+  char *key = k;
+  char *value = v;
+
+  fprintf (stderr, "(%s => %s) ", key, value);
+}
+
 /*
  * Debug helper: Display a text representation of the configuration items
  * of a guile servertype.
@@ -1282,9 +1296,7 @@ guile_servertype_config_print (svz_servertype_t *server)
             case SVZ_ITEM_HASH:
               hash = *(svz_hash_t **) prototype->items[n].address;
               fprintf (stderr, "( ");
-              svz_hash_foreach_key (hash, key, i)
-                fprintf (stderr, "(%s => %s) ", key[i],
-                         (char *) svz_hash_get (hash, key[i]));
+              svz_hash_foreach (print_hash_kv, hash, NULL);
               fprintf (stderr, ")");
               break;
             case SVZ_ITEM_PORTCFG:
@@ -1412,6 +1424,99 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
   return err;
 }
 
+static void
+items_append (svz_key_value_pair_t **all, unsigned int i,
+              svz_key_value_pair_t *one)
+{
+  *all = svz_realloc (*all, (1 + i) * sizeof (*one));
+  /* Is this equivalent to:  *((*all)[n]) = *one;  ???  */
+  memcpy (&((*all)[i]), one, sizeof (*one));
+}
+
+struct servertype_config_closure
+{
+  svz_servertype_t *server;
+  char *action;
+  svz_hash_t *options;
+  int error;
+  int size;
+  unsigned int count;
+  svz_key_value_pair_t *items;
+  char *prototype;
+};
+
+static void
+servertype_config_internal (void *k, void *v, void *closure)
+{
+  static char FUNC_NAME[] = "guile_servertype_config";
+  struct servertype_config_closure *x = closure;
+  char *key = k;
+  SCM list = optionhash_get (x->options, key);
+  svz_key_value_pair_t item;
+  SCM value;
+  char *str;
+  int len, def;
+
+  /* Each configuration item must be a scheme list with three elements.  */
+  if (!SCM_LISTP (list) ||
+      SCM_NUM2ULONG (SCM_ARG1, scm_length (list)) != 3)
+    {
+      guile_error ("Invalid definition for `%s' %s", key, x->action);
+      x->error = -1;
+      return;
+    }
+
+  /* Assign address offset.  */
+  item.address = SVZ_NUM2PTR (x->size);
+
+  /* First appears the type of item.  */
+  value = SCM_CAR (list);
+  if ((str = guile_to_string (value)) == NULL)
+    {
+      guile_error ("Invalid type definition for `%s' %s", key, x->action);
+      x->error = -1;
+      return;
+    }
+  len = guile_servertype_config_type (str, &item, &x->size);
+  scm_c_free (str);
+  if (len == 0)
+    {
+      guile_error ("Invalid type for `%s' %s", key, x->action);
+      x->error = -1;
+      return;
+    }
+
+  /* Then appears a boolean value specifying if the configuration
+     item is defaultable or not.  */
+  list = SCM_CDR (list);
+  value = SCM_CAR (list);
+  if (guile_to_boolean (value, &def) != 0)
+    {
+      guile_error ("Invalid defaultable value for `%s' %s", key, x->action);
+      x->error = -1;
+      return;
+    }
+  item.defaultable = def
+    ? SVZ_ITEM_DEFAULTABLE
+    : SVZ_ITEM_NOTDEFAULTABLE;
+
+  /* Finally the default value itself.  */
+  list = SCM_CDR (list);
+  value = SCM_CAR (list);
+  x->prototype = svz_realloc (x->prototype, x->size);
+  memset (x->prototype + x->size - len, 0, len);
+  if (item.defaultable == SVZ_ITEM_DEFAULTABLE)
+    {
+      x->error |= guile_servertype_config_default
+        (x->server, value, x->prototype + x->size - len,
+         len, item.type, key);
+    }
+
+  /* Increase the number of configuration items.  */
+  item.name = svz_strdup (key);
+  items_append (&x->items, x->count++, &item);
+}
+
 /*
  * Parse the configuration of the server type @var{server} stored in the
  * scheme cell @var{cfg}.
@@ -1420,14 +1525,23 @@ guile_servertype_config_default (svz_servertype_t *server, SCM value,
 static int
 guile_servertype_config (svz_servertype_t *server, SCM cfg)
 {
-  int def, n, err = 0;
-  char **key;
-  svz_hash_t *options = NULL;
+  unsigned int n;
   svz_key_value_pair_t item;
-  svz_key_value_pair_t *items = NULL;
-  char *prototype = NULL;
-  int size = 0, len;
   char action[ACTIONBUFSIZE];
+  struct servertype_config_closure x =
+    {
+      server, action,
+      NULL,                             /* .options */
+      0,                                /* .error */
+      0,                                /* .size */
+      0,                                /* .count */
+      NULL,                             /* .items */
+      NULL                              /* .prototype */
+    };
+
+#define err      (x.error)              /* Keep things tidy.  */
+#define items    (x.items)
+#define options  (x.options)
 
   DOING ("parsing configuration of `%s'", server->prefix);
 
@@ -1447,95 +1561,25 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
   err |= optionhash_validate (options, 1, "configuration", server->prefix);
 
   /* Now check all configuration items.  */
-  svz_hash_foreach_key (options, key, n)
-    {
-      SCM list = optionhash_get (options, key[n]);
-      SCM value;
-      char *str;
-
-      /* Each configuration item must be a scheme list with three elements.  */
-      if (!SCM_LISTP (list) ||
-          SCM_NUM2ULONG (SCM_ARG1, scm_length (list)) != 3)
-        {
-          guile_error ("Invalid definition for `%s' %s", key[n], action);
-          err = -1;
-          continue;
-        }
-
-      /* Assign address offset.  */
-      item.address = SVZ_NUM2PTR (size);
-
-      /* First appears the type of item.  */
-      value = SCM_CAR (list);
-      if ((str = guile_to_string (value)) == NULL)
-        {
-          guile_error ("Invalid type definition for `%s' %s", key[n], action);
-          err = -1;
-          continue;
-        }
-      else
-        {
-          len = guile_servertype_config_type (str, &item, &size);
-          scm_c_free (str);
-          if (len == 0)
-            {
-              guile_error ("Invalid type for `%s' %s", key[n], action);
-              err = -1;
-              continue;
-            }
-        }
-
-      /* Then appears a boolean value specifying if the configuration
-         item is defaultable or not.  */
-      list = SCM_CDR (list);
-      value = SCM_CAR (list);
-      if (guile_to_boolean (value, &def) != 0)
-        {
-          guile_error ("Invalid defaultable value for `%s' %s", key[n], action);
-          err = -1;
-          continue;
-        }
-      else if (def)
-        item.defaultable = SVZ_ITEM_DEFAULTABLE;
-      else
-        item.defaultable = SVZ_ITEM_NOTDEFAULTABLE;
-
-      /* Finally the default value itself.  */
-      list = SCM_CDR (list);
-      value = SCM_CAR (list);
-      prototype = svz_realloc (prototype, size);
-      memset (prototype + size - len, 0, len);
-      if (item.defaultable == SVZ_ITEM_DEFAULTABLE)
-        {
-          err |= guile_servertype_config_default (server, value,
-                                                  prototype + size - len,
-                                                  len, item.type, key[n]);
-        }
-
-      /* Increase the number of configuration items.  */
-      item.name = svz_strdup (key[n]);
-      items = svz_realloc (items, sizeof (svz_key_value_pair_t) * (n + 1));
-      memcpy (&items[n], &item, sizeof (svz_key_value_pair_t));
-    }
+  svz_hash_foreach (servertype_config_internal, options, &x);
 
   /* Append the last configuration item identifying the end of the
      configuration item list.  */
-  n = svz_hash_size (options);
-  items = svz_realloc (items, sizeof (svz_key_value_pair_t) * (n + 1));
   item.type = SVZ_ITEM_END;
   item.address = NULL;
   item.defaultable = 0;
   item.name = NULL;
-  memcpy (&items[n], &item, sizeof (svz_key_value_pair_t));
+  items_append (&items, x.count++, &item);
 
   /* Adjust the address values of the configuration items and assign
      all gathered information to the given servertype.  */
-  for (n = 0; n < svz_hash_size (options); n++)
+  for (n = 0; n < x.count; n++)
     items[n].address = (void *) ((unsigned long) items[n].address +
-      (unsigned long) prototype);
-  server->config_prototype.start = prototype;
-  server->config_prototype.size = size;
-  server->config_prototype.items = items;
+      (unsigned long) x.prototype);
+  server->config_prototype.start = x.prototype;
+  server->config_prototype.size = x.size;
+#undef items        /* Unfortunately, tidy is incorrect for next line LHS.  */
+  server->config_prototype.items = x.items;
 
 #if 0
   guile_servertype_config_print (server);
@@ -1544,6 +1588,9 @@ guile_servertype_config (svz_servertype_t *server, SCM cfg)
  out:
   optionhash_destroy (options);
   return err;
+
+#undef options
+#undef err
 }
 #undef FUNC_NAME
 
