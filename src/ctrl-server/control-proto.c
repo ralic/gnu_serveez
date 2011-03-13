@@ -717,25 +717,25 @@ ctrl_stat_coservers (svz_socket_t *sock, int flag, char *arg)
   return flag;
 }
 
+static void
+stat_all_internal (svz_server_t *server, void *closure)
+{
+  svz_socket_t *sock = closure;
+
+  svz_sock_printf (sock, "\r\n%s (%s):\r\n",
+                   server->description, server->name);
+  if (server->info_server)
+    svz_sock_printf (sock, "%s\r\n", server->info_server (server));
+}
+
 /*
  * Server and Co-Server instance statistics.
  */
 int
 ctrl_stat_all (svz_socket_t *sock, int flag, char *arg)
 {
-  int n;
-  svz_server_t **server;
-
   /* go through all server instances */
-  svz_hash_foreach_value (svz_all_servers (), svz_server_t, server, n)
-    {
-      svz_sock_printf (sock, "\r\n%s (%s):\r\n",
-                       server[n]->description, server[n]->name);
-      if (server[n]->info_server)
-        {
-          svz_sock_printf (sock, "%s\r\n", server[n]->info_server (server[n]));
-        }
-    }
+  svz_server_foreach (stat_all_internal, sock);
 
   /* show coserver statistics */
   ctrl_stat_coservers (sock, flag, arg);

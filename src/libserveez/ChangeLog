@@ -1,5 +1,27 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_server_foreach
+
+	* server.c (server_foreach_closure): New struct.
+	(server_foreach_internal): New static func.
+	(svz_server_foreach): New func.
+	(type_del_closure): New struct.
+	(type_del_internal): New static func.
+	(svz_servertype_del): Use it and ‘svz_server_foreach’.
+	(notify_internal): New static func.
+	(svz_server_notifiers): Use it and ‘svz_server_foreach’.
+	(reset_internal): New static func.
+	(svz_server_reset): Use it and ‘svz_server_foreach’.
+	(find_closure): New struct.
+	(find_internal): New static func.
+	(svz_server_find): Use it and ‘svz_server_foreach’.
+	(init_all_internal): New static func.
+	(svz_server_init_all): Use it and ‘svz_server_foreach’.
+	* server.h (svz_server_do_t): New typedef.
+	(svz_server_foreach): New func decl, marked ‘SERVEEZ_API’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘svz_hash_foreach’ instead of ‘svz_hash_foreach_key’.
 
 	* cfg.c (accumulate): New static func.

@@ -52,6 +52,35 @@ static svz_array_t *svz_servertypes = NULL;
  */
 static svz_hash_t *svz_servers = NULL;
 
+struct server_foreach_closure
+{
+  svz_server_do_t *func;
+  void *closure;
+};
+
+static void
+server_foreach_internal (void *k, void *v, void *closure)
+{
+  struct server_foreach_closure *x = closure;
+
+  x->func (v, x->closure);
+}
+
+/*
+ * Call @var{func} for each server, passing additionally the second arg
+ * @var{closure}.
+ */
+void
+svz_server_foreach (svz_server_do_t *func, void *closure)
+{
+  if (svz_servers)
+    {
+      struct server_foreach_closure x = { func, closure };
+
+      svz_hash_foreach (server_foreach_internal, svz_servers, &x);
+    }
+}
+
 /*
  * Return the hash table of actually instantiated servers.
  */
@@ -104,6 +133,22 @@ svz_servertype_add (svz_servertype_t *server)
   svz_array_add (svz_servertypes, server);
 }
 
+struct type_del_closure
+{
+  svz_servertype_t *stype;
+  unsigned int count;
+  char **doomed;
+};
+
+static void
+type_del_internal (svz_server_t *server, void *closure)
+{
+  struct type_del_closure *x = closure;
+
+  if (x->stype == server->type)
+    x->doomed[x->count++] = svz_strdup (server->name);
+}
+
 /*
  * Delete the server type with the index @var{index} from the list of
  * known server types and run its global finalizer if necessary.  Moreover
@@ -113,8 +158,6 @@ void
 svz_servertype_del (unsigned long index)
 {
   svz_servertype_t *stype;
-  svz_server_t **server;
-  int n, i;
 
   /* Return here if there is no such server type.  */
   if (svz_servertypes == NULL || index >= svz_array_size (svz_servertypes))
@@ -124,18 +167,25 @@ svz_servertype_del (unsigned long index)
      from the list of known servers then.  */
   if ((stype = svz_array_get (svz_servertypes, index)) != NULL)
     {
+      struct type_del_closure x =
+        {
+          stype,
+          0,                            /* .count */
+          svz_malloc (sizeof (char *)
+                      /* This is the sufficient upper bound;
+                         only ‘x.count’ are actually necessary.  */
+                      * svz_hash_size (svz_servers))
+        };
+
       /* Find server instance of this server type and remove and finalize
          them if necessary.  */
-      n = svz_hash_size (svz_servers) - 1;
-      svz_hash_foreach_value (svz_servers, svz_server_t, server, i)
+      svz_server_foreach (type_del_internal, &x);
+      while (x.count--)
         {
-          if (server[n]->type == stype)
-            {
-              svz_server_del (server[n]->name);
-              i--;
-            }
-          n--;
+          svz_server_del (x.doomed[x.count]);
+          svz_free_and_zero (x.doomed[x.count]);
         }
+      svz_free (x.doomed);
 
       if (stype->global_finalize != NULL)
         if (stype->global_finalize (stype) < 0)
@@ -232,6 +282,13 @@ svz_servertype_print (void)
     }
 }
 
+static void
+notify_internal (svz_server_t *server, void *closure)
+{
+  if (server->notify)
+    server->notify (server);
+}
+
 /*
  * Run all the server instances's notify routines.  This should be regularly
  * called within the @code{svz_periodic_tasks} function.
@@ -239,12 +296,14 @@ svz_servertype_print (void)
 void
 svz_server_notifiers (void)
 {
-  int n;
-  svz_server_t **server;
+  svz_server_foreach (notify_internal, NULL);
+}
 
-  svz_hash_foreach_value (svz_servers, svz_server_t, server, n)
-    if (server[n]->notify)
-      server[n]->notify (server[n]);
+static void
+reset_internal (svz_server_t *server, void *closure)
+{
+  if (server->reset)
+    server->reset (server);
 }
 
 /*
@@ -255,12 +314,22 @@ svz_server_notifiers (void)
 void
 svz_server_reset (void)
 {
-  int n;
-  svz_server_t **server;
+  svz_server_foreach (reset_internal, NULL);
+}
 
-  svz_hash_foreach_value (svz_servers, svz_server_t, server, n)
-    if (server[n]->reset)
-      server[n]->reset (server[n]);
+struct find_closure
+{
+  void *cfg;
+  svz_server_t *match;
+};
+
+static void
+find_internal (svz_server_t *server, void *closure)
+{
+  struct find_closure *x = closure;
+
+  if (x->cfg == server->cfg)
+    x->match = server;
 }
 
 /*
@@ -271,15 +340,10 @@ svz_server_reset (void)
 svz_server_t *
 svz_server_find (void *cfg)
 {
-  int n;
-  svz_server_t **servers, *server = NULL;
+  struct find_closure x = { cfg, NULL };
 
-  svz_hash_foreach_value (svz_servers, svz_server_t, servers, n)
-    {
-      if (servers[n]->cfg == cfg)
-        server = servers[n];
-    }
-  return server;
+  svz_server_foreach (find_internal, &x);
+  return x.match;
 }
 
 /*
@@ -429,6 +493,15 @@ svz_server_init (svz_server_t *server)
   return 0;
 }
 
+static void
+init_all_internal (svz_server_t *server, void *closure)
+{
+  int *errneous = closure;
+
+  if (svz_server_init (server) < 0)
+    *errneous = -1;
+}
+
 /*
  * Run the initializers of all servers, return -1 if some server did not
  * think it is a good idea to run.
@@ -440,9 +513,7 @@ svz_server_init_all (void)
   svz_server_t **server;
 
   svz_log (LOG_NOTICE, "initializing all server instances\n");
-  svz_hash_foreach_value (svz_servers, svz_server_t, server, i)
-    if (svz_server_init (server[i]) < 0)
-      errneous = -1;
+  svz_server_foreach (init_all_internal, &errneous);
   return errneous;
 }
 

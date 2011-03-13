@@ -1,5 +1,12 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_server_foreach
+
+	* ctrl-server/control-proto.c (stat_all_internal): New static func.
+	(ctrl_stat_all): Use it and ‘svz_server_foreach’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘svz_server_get’ more.
 
 	* ctrl-server/control-proto.c (ctrl_stat): Use ‘svz_server_get’.

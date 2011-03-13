@@ -1,3 +1,10 @@
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add func: svz_server_foreach
+
+	* serveez-api.texi.in
+	(Server functionality): Add ‘svz_server_foreach’.
+
 2011-03-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add func: svz_hash_foreach
