@@ -451,8 +451,6 @@ The types of ICMP packets passed to the socket can be filtered using the
 ICMP_FILTER socket option (or by software as done here).  ICMP packets are
 always processed by the kernel too, even when passed to a user socket.
 
-|F| svz_icmp_startup
-|F| svz_icmp_cleanup
 |F| svz_icmp_read_socket
 |F| svz_icmp_lazy_read_socket
 |F| svz_icmp_write_socket

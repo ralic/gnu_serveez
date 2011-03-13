@@ -1,5 +1,12 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_icmp_{start,clean}up.
+
+	* serveez-api.texi.in (ICMP sockets):
+	Delete ‘svz_icmp_startup’, ‘svz_icmp_cleanup’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func/macros: svz_{all_servers,hash_foreach_{key,value}}
 
 	* serveez-api.texi.in (Hashtable):

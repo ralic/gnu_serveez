@@ -1,5 +1,15 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_icmp_{start,clean}up.
+
+	* icmp-socket.h
+	(svz_icmp_startup, svz_icmp_cleanup): Delete func decls.
+	* boot.c
+	[__MINGW32__] (svz_icmp_startup): New func decl, marked ‘SBO’.
+	[__MINGW32__] (svz_icmp_cleanup): Likewise.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_file_closeall’.
 
 	* core.h (svz_file_closeall):

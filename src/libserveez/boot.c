@@ -79,6 +79,11 @@ svz_library_features (size_t *count)
   return features;
 }
 
+#ifdef __MINGW32__
+SBO void svz_icmp_startup (void);
+SBO void svz_icmp_cleanup (void);
+#endif
+
 /*
  * This routine has to be called once before you could use any of the
  * serveez core library functions.
