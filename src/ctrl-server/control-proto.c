@@ -494,7 +494,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
     p++;
   if (*p)
     *p = '\0';
-  if ((server = svz_hash_get (svz_all_servers (), arg)) != NULL)
+  if ((server = svz_server_get (arg)) != NULL)
     {
       svz_sock_printf (sock, "\r\n%s (%s):\r\n",
                        server->description, server->name);

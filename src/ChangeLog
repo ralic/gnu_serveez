@@ -1,5 +1,11 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[int] Use ‘svz_server_get’ more.
+
+	* ctrl-server/control-proto.c (ctrl_stat): Use ‘svz_server_get’.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Use ‘svz_hash_foreach’ instead of ‘svz_hash_foreach_value’.
 
 	* http-server/http-cache.c
