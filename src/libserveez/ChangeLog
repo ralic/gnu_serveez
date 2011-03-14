@@ -1,5 +1,11 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘SOCK_INPROGRESS’.
+
+	* util.h (SOCK_INPROGRESS): Mark ‘svzint’.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Add sugar for ‘WaitForSingleObject’ (woe32).
 
 	Here, all .c files have implicit "#include "woe-wait.h"";

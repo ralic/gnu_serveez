@@ -75,13 +75,13 @@ SERVEEZ_API int svz_socket_unavailable_error_p (void);
 #ifndef __MINGW32__
 #define INVALID_SOCKET  ((svz_t_socket) -1)
 #endif
-/* end svzint */
 
 #ifdef __MINGW32__
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
 # define SOCK_INPROGRESS   EINPROGRESS
 #endif /* !__MINGW32__ */
+/* end svzint */
 
 #ifdef __MINGW32__
 /*
