@@ -148,14 +148,14 @@ main (int argc, char **argv)
   /* rehashing */
   error = 0;
   test_print ("             rehash: ");
-  while (hash->buckets > HASH_MIN_SIZE)
-    svz_hash_rehash (hash, HASH_SHRINK);
+  while (hash->buckets > SVZ_HASH_MIN_SIZE)
+    svz_hash_rehash (hash, SVZ_HASH_SHRINK);
   while (hash->buckets < svz_hash_size (hash) * 10)
-    svz_hash_rehash (hash, HASH_EXPAND);
-  while (hash->buckets > HASH_MIN_SIZE)
-    svz_hash_rehash (hash, HASH_SHRINK);
+    svz_hash_rehash (hash, SVZ_HASH_EXPAND);
+  while (hash->buckets > SVZ_HASH_MIN_SIZE)
+    svz_hash_rehash (hash, SVZ_HASH_SHRINK);
   while (hash->buckets < svz_hash_size (hash) * 10)
-    svz_hash_rehash (hash, HASH_EXPAND);
+    svz_hash_rehash (hash, SVZ_HASH_EXPAND);
   text = svz_malloc (16);
   for (n = 0; n < REPEAT; n++)
     {

@@ -160,8 +160,8 @@ svz_hash_create (int size, svz_free_func_t destroy)
   /* set initial hash table size to a binary value */
   for (n = size, size = 1; n != 1; n >>= 1)
     size <<= 1;
-  if (size < HASH_MIN_SIZE)
-    size = HASH_MIN_SIZE;
+  if (size < SVZ_HASH_MIN_SIZE)
+    size = SVZ_HASH_MIN_SIZE;
 
   /* allocate space for the hash itself */
   hash = svz_malloc (sizeof (svz_hash_t));
@@ -249,7 +249,7 @@ svz_hash_clear (svz_hash_t *hash)
     }
 
   /* reinitialize the hash table */
-  hash->buckets = HASH_MIN_SIZE;
+  hash->buckets = SVZ_HASH_MIN_SIZE;
   hash->fill = 0;
   hash->keys = 0;
   hash->table = svz_realloc (hash->table,
@@ -258,8 +258,8 @@ svz_hash_clear (svz_hash_t *hash)
 
 /*
  * Rehash a given hash table @var{hash}.  Double (@var{type} is
- * @code{HASH_EXPAND}) its size and expand the hash codes or half (@var{type}
- * is @code{HASH_SHRINK}) its size and shrink the hash codes if these would
+ * @code{SVZ_HASH_EXPAND}) its size and expand the hash codes or half (@var{type}
+ * is @code{SVZ_HASH_SHRINK}) its size and shrink the hash codes if these would
  * be placed somewhere else.
  */
 void
@@ -272,7 +272,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
   svz_hash_analyse (hash);
 #endif /* ENABLE_DEBUG */
 
-  if (type == HASH_EXPAND)
+  if (type == SVZ_HASH_EXPAND)
     {
       /*
        * Reallocate and initialize the hash table itself.
@@ -329,7 +329,7 @@ svz_hash_rehash (svz_hash_t *hash, int type)
             }
         }
     }
-  else if (type == HASH_SHRINK && hash->buckets > HASH_MIN_SIZE)
+  else if (type == SVZ_HASH_SHRINK && hash->buckets > SVZ_HASH_MIN_SIZE)
     {
       hash->buckets >>= 1;
       for (n = hash->buckets; n < hash->buckets << 1; n++)
@@ -413,7 +413,7 @@ svz_hash_put (svz_hash_t *hash, char *key, void *value)
       hash->fill++;
       if (hash->fill > HASH_EXPAND_LIMIT (hash))
         {
-          svz_hash_rehash (hash, HASH_EXPAND);
+          svz_hash_rehash (hash, SVZ_HASH_EXPAND);
         }
     }
   return NULL;
@@ -457,7 +457,7 @@ svz_hash_delete (svz_hash_t *hash, char *key)
               hash->fill--;
               if (hash->fill < HASH_SHRINK_LIMIT (hash))
                 {
-                  svz_hash_rehash (hash, HASH_SHRINK);
+                  svz_hash_rehash (hash, SVZ_HASH_SHRINK);
                 }
             }
           hash->keys--;

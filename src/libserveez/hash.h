@@ -26,9 +26,9 @@
 /* end svzint */
 
 /* useful defines */
-#define HASH_SHRINK   4
-#define HASH_EXPAND   8
-#define HASH_MIN_SIZE 4
+#define SVZ_HASH_SHRINK   4
+#define SVZ_HASH_EXPAND   8
+#define SVZ_HASH_MIN_SIZE 4
 
 /*
  * This is the basic structure of a hash entry consisting of its

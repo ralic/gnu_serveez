@@ -1,5 +1,16 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename some #define:s with "SVZ_" prefix.
+
+	* hash.h
+	(SVZ_HASH_SHRINK): Rename from ‘HASH_SHRINK’.
+	(SVZ_HASH_EXPAND): Rename from ‘HASH_EXPAND’.
+	(SVZ_HASH_MIN_SIZE): Rename from ‘HASH_MIN_SIZE’.
+	* hash.c (svz_hash_create, svz_hash_clear)
+	(svz_hash_rehash, svz_hash_put, svz_hash_delete): Update.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘dyn_library_t’.
 
 	* dynload.h (dyn_library_t): Move from here...
