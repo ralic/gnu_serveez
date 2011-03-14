@@ -69,13 +69,18 @@ SERVEEZ_API char *svz_hstrerror (void);
 #define SVZ_PTR2NUM(p) \
   ((unsigned long) ((void *) (p)))
 
+/* begin svzint */
+#ifndef __MINGW32__
+#define INVALID_SOCKET  ((svz_t_socket) -1)
+#endif
+/* end svzint */
+
 #ifdef __MINGW32__
 # define INVALID_HANDLE    INVALID_HANDLE_VALUE
 # define LEAST_WAIT_OBJECT 1
 # define SOCK_UNAVAILABLE  WSAEWOULDBLOCK
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
-# define INVALID_SOCKET    ((svz_t_socket) -1)
 # define INVALID_HANDLE    ((svz_t_handle) -1)
 # define SOCK_UNAVAILABLE  EAGAIN
 # define SOCK_INPROGRESS   EINPROGRESS

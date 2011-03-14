@@ -1,3 +1,9 @@
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘INVALID_SOCKET’.
+
+	* util.h (INVALID_SOCKET): Mark ‘svzint’.
+
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Centralize ‘chdir’ procurement.
