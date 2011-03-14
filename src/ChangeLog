@@ -1,5 +1,15 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename some #define:s with "SVZ_" prefix.
+
+	* awcs-server/awcs-proto.c (awcs_connect_socket): Update.
+	* ctrl-server/control-proto.c (ctl_stat_id): Likewise.
+	* http-server/http-cgi.c (http_cgi_disconnect)
+	(http_cgi_read, http_cgi_write, http_cgi_get_response)
+	(http_post_response): Likewise.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Add sugar for ‘WaitForSingleObject’ (woe32).
 
 	* woe-wait.h: New file.

@@ -26,8 +26,8 @@
 #include "libserveez/socket.h"
 /* end svzint */
 
-#define READ           0      /* read pipe index */
-#define WRITE          1      /* write pipe index */
+#define SVZ_READ   0                    /* read pipe index */
+#define SVZ_WRITE  1                    /* write pipe index */
 
 /*
  * Definition of a named pipe.

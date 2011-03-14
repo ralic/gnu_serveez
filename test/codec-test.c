@@ -53,7 +53,7 @@ codec_recv (svz_socket_t *sock)
 
   if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
     return 0;
-  num_read = read ((int) sock->pipe_desc[READ],
+  num_read = read ((int) sock->pipe_desc[SVZ_READ],
                    sock->recv_buffer + sock->recv_buffer_fill, do_read);
 #ifndef __MINGW32__
   if (num_read < 0 && errno == EAGAIN)
@@ -62,7 +62,7 @@ codec_recv (svz_socket_t *sock)
   if (num_read <= 0)
     {
       sock->flags |= SOCK_FLAG_FLUSH;
-      close ((int) sock->pipe_desc[READ]);
+      close ((int) sock->pipe_desc[SVZ_READ]);
       num_read = 0;
     }
   sock->recv_buffer_fill += num_read;
@@ -81,7 +81,7 @@ codec_send (svz_socket_t *sock)
 
   if ((do_write = sock->send_buffer_fill) <= 0)
     return 0;
-  num_written = write ((int) sock->pipe_desc[WRITE],
+  num_written = write ((int) sock->pipe_desc[SVZ_WRITE],
                        sock->send_buffer, do_write);
 #ifndef __MINGW32__
   if (num_written < 0 && errno == EAGAIN)

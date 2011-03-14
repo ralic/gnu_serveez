@@ -2,6 +2,12 @@
 
 	[lib] Rename some #define:s with "SVZ_" prefix.
 
+	* codec-test.c (codec_recv, codec_send): Update.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Rename some #define:s with "SVZ_" prefix.
+
 	* hash-test.c (main): Update.
 
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>

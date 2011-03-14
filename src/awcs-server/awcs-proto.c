@@ -767,7 +767,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
   if (sock->flags & SOCK_FLAG_PIPE)
     {
       svz_log (LOG_DEBUG, "awcs: connection on pipe (%d-%d)\n",
-               sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+               sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
     }
   else
     {
@@ -786,7 +786,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
         {
           svz_log (LOG_NOTICE,
                    "awcs: master server connected on pipe (%d-%d)\n",
-                   sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+                   sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
         }
       else
         {

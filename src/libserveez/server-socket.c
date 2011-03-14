@@ -369,7 +369,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         }
       return 0;
     }
-  recv_pipe = server_sock->pipe_desc[READ];
+  recv_pipe = server_sock->pipe_desc[SVZ_READ];
 
   /* Create a socket structure for the client pipe.  */
   if ((sock = svz_pipe_create (recv_pipe, send_pipe)) == NULL)
@@ -380,14 +380,14 @@ svz_pipe_accept (svz_socket_t *server_sock)
 
 #elif defined (__MINGW32__) /* not HAVE_MKFIFO */
 
-  recv_pipe = server_sock->pipe_desc[READ];
-  send_pipe = server_sock->pipe_desc[WRITE];
+  recv_pipe = server_sock->pipe_desc[SVZ_READ];
+  send_pipe = server_sock->pipe_desc[SVZ_WRITE];
 
   /* Try connecting to one of these pipes.  This will fail until a client
      has been connected.  */
   if (server_sock->flags & SOCK_FLAG_CONNECTING)
     {
-      if (!GetOverlappedResult (send_pipe, server_sock->overlap[WRITE],
+      if (!GetOverlappedResult (send_pipe, server_sock->overlap[SVZ_WRITE],
                                 &connect, FALSE))
         {
           if (GetLastError () != ERROR_IO_INCOMPLETE)
@@ -405,7 +405,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
                    server_sock->send_pipe);
         }
 
-      if (!GetOverlappedResult (recv_pipe, server_sock->overlap[READ],
+      if (!GetOverlappedResult (recv_pipe, server_sock->overlap[SVZ_READ],
                                 &connect, FALSE))
         {
           if (GetLastError () != ERROR_IO_INCOMPLETE)
@@ -427,7 +427,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
   /* Try to schedule both of the named pipes for connection.  */
   else
     {
-      if (ConnectNamedPipe (send_pipe, server_sock->overlap[WRITE]))
+      if (ConnectNamedPipe (send_pipe, server_sock->overlap[SVZ_WRITE]))
         return 0;
       connect = GetLastError ();
 
@@ -444,7 +444,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
           return -1;
         }
 
-      if (ConnectNamedPipe (recv_pipe, server_sock->overlap[READ]))
+      if (ConnectNamedPipe (recv_pipe, server_sock->overlap[SVZ_READ]))
         return 0;
       connect = GetLastError ();
 
@@ -484,8 +484,8 @@ svz_pipe_accept (svz_socket_t *server_sock)
   /* Copy overlapped structures to client pipes.  */
   if (svz_os_version >= WinNT4x)
     {
-      sock->overlap[READ] = server_sock->overlap[READ];
-      sock->overlap[WRITE] = server_sock->overlap[WRITE];
+      sock->overlap[SVZ_READ] = server_sock->overlap[SVZ_READ];
+      sock->overlap[SVZ_WRITE] = server_sock->overlap[SVZ_WRITE];
     }
 
 #else /* not __MINGW32__ */
@@ -511,7 +511,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 
   svz_log (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
            server_sock->recv_pipe,
-           sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
+           sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
 
   server_sock->flags |= SOCK_FLAG_INITED;
   svz_sock_setreferrer (server_sock, sock);

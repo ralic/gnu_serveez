@@ -147,8 +147,8 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
   /* Setup descriptors depending on the type of socket structure.  */
   if (sock->flags & SOCK_FLAG_PIPE)
     {
-      proc.in = sock->pipe_desc[READ];
-      proc.out = sock->pipe_desc[WRITE];
+      proc.in = sock->pipe_desc[SVZ_READ];
+      proc.out = sock->pipe_desc[SVZ_WRITE];
     }
   else
     {
@@ -352,7 +352,7 @@ svz_process_send_pipe (svz_socket_t *sock)
     return 0;
 
 #ifndef __MINGW32__
-  if ((num_written = write ((int) sock->pipe_desc[WRITE],
+  if ((num_written = write ((int) sock->pipe_desc[SVZ_WRITE],
                             sock->send_buffer, do_write)) == -1)
     {
       svz_log (LOG_ERROR, "passthrough: write: %s\n", SYS_ERROR);
@@ -360,7 +360,7 @@ svz_process_send_pipe (svz_socket_t *sock)
         num_written = 0;
     }
 #else /* __MINGW32__ */
-   if (!WriteFile (sock->pipe_desc[WRITE], sock->send_buffer,
+   if (!WriteFile (sock->pipe_desc[SVZ_WRITE], sock->send_buffer,
                    do_write, (DWORD *) &num_written, NULL))
     {
       svz_log (LOG_ERROR, "passthrough: WriteFile: %s\n", SYS_ERROR);
@@ -427,7 +427,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
     return 0;
 
 #ifndef __MINGW32__
-  if ((num_read = read ((int) sock->pipe_desc[READ],
+  if ((num_read = read ((int) sock->pipe_desc[SVZ_READ],
                         sock->recv_buffer + sock->recv_buffer_fill,
                         do_read)) == -1)
     {
@@ -436,7 +436,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
         return 0;
     }
 #else /* __MINGW32__ */
-  if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0,
+  if (!PeekNamedPipe (sock->pipe_desc[SVZ_READ], NULL, 0,
                       NULL, (DWORD *) &num_read, NULL))
     {
       svz_log (LOG_ERROR, "passthrough: PeekNamedPipe: %s\n", SYS_ERROR);
@@ -444,7 +444,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
     }
   if (do_read > num_read)
     do_read = num_read;
-  if (!ReadFile (sock->pipe_desc[READ],
+  if (!ReadFile (sock->pipe_desc[SVZ_READ],
                  sock->recv_buffer + sock->recv_buffer_fill,
                  do_read, (DWORD *) &num_read, NULL))
     {
@@ -669,15 +669,15 @@ svz_process_create_child (svz_process_t *proc)
           fd = svz_process_duplicate (proc->in, proc->sock->proto);
           if (svz_invalid_handle_p (fd))
             return -1;
-          svz_closehandle (proc->sock->pipe_desc[READ]);
-          proc->in = proc->sock->pipe_desc[READ] = fd;
+          svz_closehandle (proc->sock->pipe_desc[SVZ_READ]);
+          proc->in = proc->sock->pipe_desc[SVZ_READ] = fd;
 
           /* Create an inheritable send pipe and replace it.  */
           fd = svz_process_duplicate (proc->out, proc->sock->proto);
           if (svz_invalid_handle_p (fd))
             return -1;
-          svz_closehandle (proc->sock->pipe_desc[WRITE]);
-          proc->out = proc->sock->pipe_desc[WRITE] = fd;
+          svz_closehandle (proc->sock->pipe_desc[SVZ_WRITE]);
+          proc->out = proc->sock->pipe_desc[SVZ_WRITE] = fd;
         }
       else
         {
@@ -808,8 +808,8 @@ svz_process_shuffle (svz_process_t *proc)
       if (svz_pipe_create_pair (serveez_to_process) == -1)
         return -1;
       /* create yet another socket structure */
-      if ((xsock = svz_pipe_create (process_to_serveez[READ],
-                                    serveez_to_process[WRITE])) == NULL)
+      if ((xsock = svz_pipe_create (process_to_serveez[SVZ_READ],
+                                    serveez_to_process[SVZ_WRITE])) == NULL)
         {
           svz_log (LOG_ERROR, "passthrough: failed to create pipe\n");
           return -1;
@@ -852,8 +852,8 @@ svz_process_shuffle (svz_process_t *proc)
     proc->in = proc->out = (svz_t_handle) pair[0];
   else
     {
-      proc->in = serveez_to_process[READ];
-      proc->out = process_to_serveez[WRITE];
+      proc->in = serveez_to_process[SVZ_READ];
+      proc->out = process_to_serveez[SVZ_WRITE];
     }
 
   /* create a process and pass the left-over pipe ends to it */

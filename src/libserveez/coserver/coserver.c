@@ -614,8 +614,8 @@ svz_coserver_close_pipes (svz_coserver_t *self)
     {
       if (coserver != self)
         {
-          close (coserver->sock->pipe_desc[READ]);
-          close (coserver->sock->pipe_desc[WRITE]);
+          close (coserver->sock->pipe_desc[SVZ_READ]);
+          close (coserver->sock->pipe_desc[SVZ_WRITE]);
         }
     }
 }
@@ -642,10 +642,10 @@ svz_coserver_closeall (svz_socket_t *self)
           close (sock->file_desc);
       if (sock->flags & SOCK_FLAG_PIPE)
         {
-          if (sock->pipe_desc[READ] >= 2)
-            close (sock->pipe_desc[READ]);
-          if (sock->pipe_desc[WRITE] >= 2)
-            close (sock->pipe_desc[WRITE]);
+          if (sock->pipe_desc[SVZ_READ] >= 2)
+            close (sock->pipe_desc[SVZ_READ]);
+          if (sock->pipe_desc[SVZ_WRITE] >= 2)
+            close (sock->pipe_desc[SVZ_WRITE]);
         }
       next = sock->next;
       if (sock != self)
@@ -824,8 +824,8 @@ svz_coserver_start (int type)
     }
   if (pipe (c2s) < 0)
     {
-      close (s2c[READ]);
-      close (s2c[WRITE]);
+      close (s2c[SVZ_READ]);
+      close (s2c[SVZ_WRITE]);
       svz_log (LOG_ERROR, "pipe coserver-server: %s\n", SYS_ERROR);
       svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
@@ -834,12 +834,12 @@ svz_coserver_start (int type)
   /* ‘fork’ us here */
   if ((pid = fork ()) == 0)
     {
-      int in = s2c[READ], out = c2s[WRITE];
+      int in = s2c[SVZ_READ], out = c2s[SVZ_WRITE];
 
       /* close the servers pipe descriptors */
-      if (close (s2c[WRITE]) < 0)
+      if (close (s2c[SVZ_WRITE]) < 0)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      if (close (c2s[READ]) < 0)
+      if (close (c2s[SVZ_READ]) < 0)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
 #if ENABLE_DEBUG
@@ -883,10 +883,10 @@ svz_coserver_start (int type)
   else if (pid == -1)
     {
       svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
-      close (s2c[READ]);
-      close (s2c[WRITE]);
-      close (c2s[READ]);
-      close (c2s[WRITE]);
+      close (s2c[SVZ_READ]);
+      close (s2c[SVZ_WRITE]);
+      close (c2s[SVZ_READ]);
+      close (c2s[SVZ_WRITE]);
       svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
@@ -898,16 +898,16 @@ svz_coserver_start (int type)
 #endif
 
   /* close the coservers pipe descriptors */
-  if (close (s2c[READ]) < 0)
+  if (close (s2c[SVZ_READ]) < 0)
     svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-  if (close (c2s[WRITE]) < 0)
+  if (close (c2s[SVZ_WRITE]) < 0)
     svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
-  if ((sock = svz_pipe_create (c2s[READ], s2c[WRITE])) == NULL)
+  if ((sock = svz_pipe_create (c2s[SVZ_READ], s2c[SVZ_WRITE])) == NULL)
     {
-      if (close (c2s[READ]) < 0)
+      if (close (c2s[SVZ_READ]) < 0)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      if (close (s2c[WRITE]) < 0)
+      if (close (s2c[SVZ_WRITE]) < 0)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
       svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;

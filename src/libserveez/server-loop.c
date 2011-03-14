@@ -133,11 +133,11 @@ svz_check_sockets_select (void)
            */
           if (sock->flags & SOCK_FLAG_SEND_PIPE)
             {
-              FD_SET (sock->pipe_desc[WRITE], &except_fds);
-              if (sock->pipe_desc[WRITE] > nfds)
-                nfds = sock->pipe_desc[WRITE];
+              FD_SET (sock->pipe_desc[SVZ_WRITE], &except_fds);
+              if (sock->pipe_desc[SVZ_WRITE] > nfds)
+                nfds = sock->pipe_desc[SVZ_WRITE];
               if (sock->send_buffer_fill > 0)
-                FD_SET (sock->pipe_desc[WRITE], &write_fds);
+                FD_SET (sock->pipe_desc[SVZ_WRITE], &write_fds);
             }
 
           /*
@@ -145,11 +145,11 @@ svz_check_sockets_select (void)
            */
           if (sock->flags & SOCK_FLAG_RECV_PIPE)
             {
-              FD_SET (sock->pipe_desc[READ], &except_fds);
+              FD_SET (sock->pipe_desc[SVZ_READ], &except_fds);
               if (SOCK_READABLE (sock))
-                FD_SET (sock->pipe_desc[READ], &read_fds);
-              if (sock->pipe_desc[READ] > nfds)
-                nfds = sock->pipe_desc[READ];
+                FD_SET (sock->pipe_desc[SVZ_READ], &read_fds);
+              if (sock->pipe_desc[SVZ_READ] > nfds)
+                nfds = sock->pipe_desc[SVZ_READ];
             }
         }
 
@@ -235,13 +235,13 @@ svz_check_sockets_select (void)
           /* Handle receiving pipes.  */
           if (sock->flags & SOCK_FLAG_RECV_PIPE)
             {
-              if (FD_ISSET (sock->pipe_desc[READ], &except_fds))
+              if (FD_ISSET (sock->pipe_desc[SVZ_READ], &except_fds))
                 {
                   svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
-                           sock->pipe_desc[READ]);
+                           sock->pipe_desc[SVZ_READ]);
                   svz_sock_schedule_for_shutdown (sock);
                 }
-              if (FD_ISSET (sock->pipe_desc[READ], &read_fds))
+              if (FD_ISSET (sock->pipe_desc[SVZ_READ], &read_fds))
                 {
                   if (sock->read_socket)
                     if (sock->read_socket (sock))
@@ -252,13 +252,13 @@ svz_check_sockets_select (void)
           /* Handle sending pipes.  */
           if (sock->flags & SOCK_FLAG_SEND_PIPE)
             {
-              if (FD_ISSET (sock->pipe_desc[WRITE], &except_fds))
+              if (FD_ISSET (sock->pipe_desc[SVZ_WRITE], &except_fds))
                 {
                   svz_log (LOG_ERROR, "exception on sending pipe %d \n",
-                           sock->pipe_desc[WRITE]);
+                           sock->pipe_desc[SVZ_WRITE]);
                   svz_sock_schedule_for_shutdown (sock);
                 }
-              if (FD_ISSET (sock->pipe_desc[WRITE], &write_fds))
+              if (FD_ISSET (sock->pipe_desc[SVZ_WRITE], &write_fds))
                 {
                   if (sock->write_socket)
                     if (sock->write_socket (sock))
@@ -433,7 +433,7 @@ svz_check_sockets_poll (void)
             {
               if (sock->send_buffer_fill > 0)
                 {
-                  fd = sock->pipe_desc[WRITE];
+                  fd = sock->pipe_desc[SVZ_WRITE];
                   FD_POLL_OUT (fd, sock);
                   nfds++;
                 }
@@ -444,7 +444,7 @@ svz_check_sockets_poll (void)
             {
               if (SOCK_READABLE (sock))
                 {
-                  fd = sock->pipe_desc[READ];
+                  fd = sock->pipe_desc[SVZ_READ];
                   FD_POLL_IN (fd, sock);
                   nfds++;
                 }
@@ -584,13 +584,13 @@ svz_check_sockets_poll (void)
           if (sock->flags & SOCK_FLAG_RECV_PIPE)
             {
               svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
-                       sock->pipe_desc[READ]);
+                       sock->pipe_desc[SVZ_READ]);
               svz_sock_schedule_for_shutdown (sock);
             }
           if (sock->flags & SOCK_FLAG_SEND_PIPE)
             {
               svz_log (LOG_ERROR, "exception on sending pipe %d \n",
-                       sock->pipe_desc[WRITE]);
+                       sock->pipe_desc[SVZ_WRITE]);
               svz_sock_schedule_for_shutdown (sock);
             }
         }

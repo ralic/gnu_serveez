@@ -399,8 +399,8 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     svz_sock_printf (sock, " file fd  : %d\r\n", xsock->file_desc);
   if (xsock->flags & SOCK_FLAG_PIPE)
     svz_sock_printf (sock, " pipe fd  : %d (recv), %d (send)\r\n",
-                     xsock->pipe_desc[READ],
-                     xsock->pipe_desc[WRITE]);
+                     xsock->pipe_desc[SVZ_READ],
+                     xsock->pipe_desc[SVZ_WRITE]);
 
   if (xsock->flags & SOCK_FLAG_PIPE)
     {

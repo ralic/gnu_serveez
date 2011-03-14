@@ -1066,19 +1066,19 @@ svz_sock_check_bogus (void)
 #ifndef __MINGW32__
       if (sock->flags & SOCK_FLAG_RECV_PIPE)
         {
-          if (fcntl (sock->pipe_desc[READ], F_GETFL) < 0)
+          if (fcntl (sock->pipe_desc[SVZ_READ], F_GETFL) < 0)
             {
               svz_log (LOG_ERROR, "pipe %d has gone\n",
-                       sock->pipe_desc[READ]);
+                       sock->pipe_desc[SVZ_READ]);
               svz_sock_schedule_for_shutdown (sock);
             }
         }
       if (sock->flags & SOCK_FLAG_SEND_PIPE)
         {
-          if (fcntl (sock->pipe_desc[WRITE], F_GETFL) < 0)
+          if (fcntl (sock->pipe_desc[SVZ_WRITE], F_GETFL) < 0)
             {
               svz_log (LOG_ERROR, "pipe %d has gone\n",
-                       sock->pipe_desc[WRITE]);
+                       sock->pipe_desc[SVZ_WRITE]);
               svz_sock_schedule_for_shutdown (sock);
             }
         }

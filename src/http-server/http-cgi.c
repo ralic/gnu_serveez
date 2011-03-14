@@ -76,18 +76,18 @@ http_cgi_disconnect (svz_socket_t *sock)
       sock->write_socket (sock);
 
   /* close both of the CGI pipes if necessary */
-  if (! svz_invalid_handle_p (sock->pipe_desc[READ]))
+  if (! svz_invalid_handle_p (sock->pipe_desc[SVZ_READ]))
     {
-      if (svz_closehandle (sock->pipe_desc[READ]) == -1)
+      if (svz_closehandle (sock->pipe_desc[SVZ_READ]) == -1)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      svz_invalidate_handle (&sock->pipe_desc[READ]);
+      svz_invalidate_handle (&sock->pipe_desc[SVZ_READ]);
       sock->flags &= ~SOCK_FLAG_RECV_PIPE;
     }
-  if (! svz_invalid_handle_p (sock->pipe_desc[WRITE]))
+  if (! svz_invalid_handle_p (sock->pipe_desc[SVZ_WRITE]))
     {
-      if (svz_closehandle (sock->pipe_desc[WRITE]) == -1)
+      if (svz_closehandle (sock->pipe_desc[SVZ_WRITE]) == -1)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      svz_invalidate_handle (&sock->pipe_desc[WRITE]);
+      svz_invalidate_handle (&sock->pipe_desc[SVZ_WRITE]);
       sock->flags &= ~SOCK_FLAG_SEND_PIPE;
     }
 
@@ -204,7 +204,7 @@ http_cgi_read (svz_socket_t *sock)
 
 #ifdef __MINGW32__
   /* check how many bytes could be read from the cgi pipe */
-  if (!PeekNamedPipe (sock->pipe_desc[READ], NULL, 0,
+  if (!PeekNamedPipe (sock->pipe_desc[SVZ_READ], NULL, 0,
                       NULL, (DWORD *) &num_read, NULL))
     {
       svz_log (LOG_ERROR, "cgi: PeekNamedPipe: %s\n", SYS_ERROR);
@@ -216,7 +216,7 @@ http_cgi_read (svz_socket_t *sock)
     do_read = num_read;
 
   /* really read from pipe */
-  if (!ReadFile (sock->pipe_desc[READ],
+  if (!ReadFile (sock->pipe_desc[SVZ_READ],
                  sock->send_buffer + sock->send_buffer_fill,
                  do_read, (DWORD *) &num_read, NULL))
     {
@@ -224,7 +224,7 @@ http_cgi_read (svz_socket_t *sock)
       num_read = -1;
     }
 #else /* not __MINGW32__ */
-  if ((num_read = read (sock->pipe_desc[READ],
+  if ((num_read = read (sock->pipe_desc[SVZ_READ],
                         sock->send_buffer + sock->send_buffer_fill,
                         do_read)) == -1)
     {
@@ -291,14 +291,14 @@ http_cgi_write (svz_socket_t *sock)
     do_write = http->contentlength;
 
 #ifdef __MINGW32__
-  if (!WriteFile (sock->pipe_desc[WRITE], sock->recv_buffer,
+  if (!WriteFile (sock->pipe_desc[SVZ_WRITE], sock->recv_buffer,
                   do_write, (DWORD *) &num_written, NULL))
     {
       svz_log (LOG_ERROR, "cgi: WriteFile: %s\n", SYS_ERROR);
       num_written = -1;
     }
 #else /* !__MINGW32__ */
-  if ((num_written = write (sock->pipe_desc[WRITE],
+  if ((num_written = write (sock->pipe_desc[SVZ_WRITE],
                             sock->recv_buffer, do_write)) == -1)
     {
       svz_log (LOG_ERROR, "cgi: write: %s\n", SYS_ERROR);
@@ -971,11 +971,11 @@ http_cgi_get_response (svz_socket_t *sock, char *request, int flags)
   sock->userflags |= HTTP_FLAG_CGI;
   sock->flags |= SOCK_FLAG_RECV_PIPE;
   sock->read_socket = http_cgi_read;
-  sock->pipe_desc[READ] = cgi2s[READ];
-  svz_fd_cloexec ((int) cgi2s[READ]);
+  sock->pipe_desc[SVZ_READ] = cgi2s[SVZ_READ];
+  svz_fd_cloexec ((int) cgi2s[SVZ_READ]);
 
   svz_invalidate_handle (&dummy);
-  if (http_cgi_exec (sock, dummy, cgi2s[WRITE],
+  if (http_cgi_exec (sock, dummy, cgi2s[SVZ_WRITE],
                      file, request, GET_METHOD))
     {
       /* some error occurred here */
@@ -1042,13 +1042,13 @@ http_post_response (svz_socket_t *sock, char *request, int flags)
   http->contentlength = svz_atoi (length);
 
   /* prepare everything for the cgi pipe handling */
-  sock->pipe_desc[WRITE] = s2cgi[WRITE];
-  sock->pipe_desc[READ] = cgi2s[READ];
-  svz_fd_cloexec ((int) s2cgi[WRITE]);
-  svz_fd_cloexec ((int) cgi2s[READ]);
+  sock->pipe_desc[SVZ_WRITE] = s2cgi[SVZ_WRITE];
+  sock->pipe_desc[SVZ_READ] = cgi2s[SVZ_READ];
+  svz_fd_cloexec ((int) s2cgi[SVZ_WRITE]);
+  svz_fd_cloexec ((int) cgi2s[SVZ_READ]);
 
   /* execute the cgi script in FILE */
-  if (http_cgi_exec (sock, s2cgi[READ], cgi2s[WRITE],
+  if (http_cgi_exec (sock, s2cgi[SVZ_READ], cgi2s[SVZ_WRITE],
                      file, request, POST_METHOD))
     {
       /* some error occurred here */

@@ -1,5 +1,28 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename some #define:s with "SVZ_" prefix.
+
+	* pipe-socket.h
+	(SVZ_READ): Rename from ‘READ’.
+	(SVZ_WRITE): Rename from ‘WRITE’.
+	* coserver/coserver.c (svz_coserver_close_pipes)
+	(svz_coserver_closeall, svz_coserver_start): Update.
+	* passthrough.c (svz_sock_process)
+	(svz_process_send_pipe, svz_process_recv_pipe)
+	(svz_process_create_child, svz_process_shuffle): Likewise.
+	* pipe-socket.c (svz_pipe_valid)
+	(svz_pipe_disconnect, svz_pipe_read_socket)
+	(svz_pipe_write_socket, svz_pipe_create, svz_pipe_create_pair)
+	(svz_pipe_connect, svz_pipe_listener): Likewise.
+	* server-core.c (svz_sock_check_bogus): Likewise.
+	* server-loop.c (svz_check_sockets_select)
+	(svz_check_sockets_poll): Likewise.
+	* server-socket.c (svz_pipe_accept): Likewise.
+	* socket.c (svz_sock_alloc)
+	(svz_sock_free, svz_sock_write): Likewise.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize PIPE_MAX_{WRITE,READ}.
 
 	* pipe-socket.h
