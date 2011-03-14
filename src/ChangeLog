@@ -1,5 +1,15 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Centralize ‘chdir’ procurement.
+
+	* changedir.h: New file.
+	* Makefile.am (noinst_HEADERS): Add changedir.h.
+	* http-server/http-cgi.c: Don't #include <unistd.h>;
+	instead, #include "changedir.h".
+	* http-server/http-core.c: Likewise.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_closehandle
 
 	* http-server/http-cgi.c (http_cgi_disconnect)

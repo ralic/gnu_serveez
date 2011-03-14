@@ -32,9 +32,6 @@
 #if HAVE_FLOSS_H
 # include <floss.h>
 #endif
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 #if HAVE_PWD_H
 # include <pwd.h>
 #endif
@@ -47,6 +44,7 @@
 #if HAVE_SYS_WAIT_H
 # include <sys/wait.h>
 #endif
+#include "changedir.h"
 #include "networking-headers.h"
 #ifdef __MINGW32__
 # include <io.h>

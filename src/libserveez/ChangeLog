@@ -1,5 +1,13 @@
 2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Centralize ‘chdir’ procurement.
+
+	* passthrough.c: Don't #include <unistd.h>;
+	instead, #include "changedir.h".
+	* util.h [__MINGW32__] (chdir): Delete macro.
+
+2011-03-13  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_closehandle
 
 	* pipe-socket.h (svz_closehandle):

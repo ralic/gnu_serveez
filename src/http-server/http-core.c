@@ -29,12 +29,10 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/types.h>
-#if HAVE_UNISTD_H
-# include <unistd.h>
-#endif
 #if HAVE_PWD_H && !defined (__MINGW32__)
 # include <pwd.h>
 #endif
+#include "changedir.h"
 #include "networking-headers.h"
 
 #ifdef __MINGW32__

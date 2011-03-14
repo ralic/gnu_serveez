@@ -108,7 +108,6 @@ __END_DECLS
 # define SYS_ERROR svz_syserror (GetLastError ())
 # define NET_ERROR svz_syserror (WSAGetLastError ())
 # define H_NET_ERROR svz_syserror (WSAGetLastError ())
-# define chdir(path) (SetCurrentDirectory (path) ? 0 : -1)
 #else /* Unices here */
 # define SYS_ERROR strerror (errno)
 # define NET_ERROR strerror (errno)
