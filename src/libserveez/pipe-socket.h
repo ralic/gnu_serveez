@@ -28,8 +28,6 @@
 
 #define READ           0      /* read pipe index */
 #define WRITE          1      /* write pipe index */
-#define PIPE_MAX_WRITE 0xFFFF /* maximum amount of write transfer bytes */
-#define PIPE_MAX_READ  0xFFFF /* maximum amount of read transfer bytes */
 
 /*
  * Definition of a named pipe.

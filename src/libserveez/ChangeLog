@@ -1,5 +1,14 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize PIPE_MAX_{WRITE,READ}.
+
+	* pipe-socket.h
+	(PIPE_MAX_WRITE, PIPE_MAX_READ): Move from here...
+	* pipe-socket.c
+	(PIPE_MAX_WRITE, PIPE_MAX_READ): ...to here.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘struct svz_process_t’ opaque.
 
 	* passthrough.c (svz_process_t): New struct.

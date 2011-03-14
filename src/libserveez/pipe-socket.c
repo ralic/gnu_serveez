@@ -417,6 +417,9 @@ svz_pipe_disconnect (svz_socket_t *sock)
 }
 
 #ifdef __MINGW32__
+#define PIPE_MAX_WRITE 0xFFFF /* maximum amount of write transfer bytes */
+#define PIPE_MAX_READ  0xFFFF /* maximum amount of read transfer bytes */
+
 /* Print text representation of given overlapped I/O structure.  */
 static void
 svz_pipe_overlap (LPOVERLAPPED overlap)
