@@ -35,19 +35,7 @@ typedef struct
 svz_envblock_t;
 
 /* Internally used to pass lots of arguments.  */
-typedef struct
-{
-  svz_socket_t *sock;   /* Socket structure to pass through.  */
-  char *bin;            /* Fully qualified program name.  */
-  char *dir;            /* Working directory.  */
-  char **argv;          /* Program arguments including argv[0].  */
-  svz_envblock_t *envp; /* Environment block.  */
-  char *user;           /* User and group.  */
-  char *app;            /* Additional @var{bin} interpreter application.  */
-  svz_t_handle in, out; /* New stdin and stdout of child process.  */
-  int flag;             /* Passthrough method flag.  */
-}
-svz_process_t;
+typedef struct svz_process_t svz_process_t;
 
 /* Definition for the @var{flag} argument of @code{svz_sock_process}.  */
 #define SVZ_PROCESS_FORK         1

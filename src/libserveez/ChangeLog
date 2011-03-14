@@ -1,5 +1,13 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Make ‘struct svz_process_t’ opaque.
+
+	* passthrough.c (svz_process_t): New struct.
+	* passthrough.h (svz_process_t): For this
+	typedef, omit struct definition, leaving only a reference.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Rename some #define:s with "SVZ_" prefix.
 
 	* hash.h
