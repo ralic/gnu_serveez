@@ -54,6 +54,15 @@
 #include "libserveez/core.h"
 #include "libserveez/dynload.h"
 
+/* Structure holding a shared libraries info.  */
+typedef struct
+{
+  void *handle; /* its handle */
+  char *file;   /* the shared libraries filename */
+  int ref;      /* reference counter */
+}
+dyn_library_t;
+
 /* Internal list of shared libraries.  */
 static int dyn_libraries = 0;
 static dyn_library_t *dyn_library = NULL;

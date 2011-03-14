@@ -25,15 +25,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/* Structure holding a shared libraries info.  */
-typedef struct
-{
-  void *handle; /* its handle */
-  char *file;   /* the shared libraries filename */
-  int ref;      /* reference counter */
-}
-dyn_library_t;
-
 __BEGIN_DECLS
 
 SERVEEZ_API svz_servertype_t *svz_servertype_load (char *);

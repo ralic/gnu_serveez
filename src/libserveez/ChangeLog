@@ -1,5 +1,12 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘dyn_library_t’.
+
+	* dynload.h (dyn_library_t): Move from here...
+	* dynload.c (dyn_library_t): ...to here.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘SOCK_INPROGRESS’.
 
 	* util.h (SOCK_INPROGRESS): Mark ‘svzint’.
