@@ -1,5 +1,11 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Decruft: Don't #define ‘WINSOCK_VERSION’.
+
+	* util.h [__MINGW32__] (WINSOCK_VERSION): Delete #define.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_{invalid_handle_p,invalidate_handle}
 
 	Here, "U" means "Use new funcs".

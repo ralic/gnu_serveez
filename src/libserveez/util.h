@@ -120,11 +120,6 @@ __END_DECLS
 
 #ifdef __MINGW32__
 
-/* Sometimes this is not defined for some reason.  */
-#ifndef WINSOCK_VERSION
-# define WINSOCK_VERSION 0x0202 /* this is version 2.02 */
-#endif
-
 /*
  * This little modification is necessary for the native Win32 compiler.
  * We do have these macros defined in the MinGW32 and Cygwin headers
