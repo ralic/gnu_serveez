@@ -29,6 +29,17 @@
 #include "libserveez/util.h"
 #include "libserveez/sparsevec.h"
 
+/* general sparse vector defines */
+#define SVZ_SPVEC_BITS 4                     /* values 1 .. 6 possible */
+#define SVZ_SPVEC_SIZE (1 << SVZ_SPVEC_BITS) /* values 1 .. 64 possible */
+#define SVZ_SPVEC_MASK ((1 << SVZ_SPVEC_SIZE) - 1)
+
+/*
+ * On 32 bit architectures SVZ_SPVEC_SIZE is no larger than 32 and on
+ * 64 bit architectures it is no larger than 64.  It specifies the number
+ * of bits the `spvec->fill' (unsigned long) field can hold.
+ */
+
 /* sparse vector chunk structure */
 typedef struct svz_spvec_chunk svz_spvec_chunk_t;
 struct svz_spvec_chunk

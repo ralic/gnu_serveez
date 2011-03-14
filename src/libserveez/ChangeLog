@@ -1,5 +1,14 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize SVZ_SPVEC_{BITS,SIZE,MASK}.
+
+	* sparsevec.h (SVZ_SPVEC_BITS)
+	(SVZ_SPVEC_SIZE, SVZ_SPVEC_MASK): Move from here...
+	* sparsevec.c (SVZ_SPVEC_BITS)
+	(SVZ_SPVEC_SIZE, SVZ_SPVEC_MASK): ...to here.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_spvec_chunk_t’.
 
 	* sparsevec.h (svz_spvec_chunk_t):
