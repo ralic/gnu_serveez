@@ -1,5 +1,18 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Add sugar for ‘WaitForSingleObject’ (woe32).
+
+	Here, all .c files have implicit "#include "woe-wait.h"";
+	and "U" means "Use new macros".
+	* core.c (svz_sendfile): U.
+	* mutex.c (svz_mutex_lock): U.
+	* passthrough.c (svz_process_idle): U.
+	* server-core.c (svz_sock_child_died): U.
+	* windoze.c (svz_windoze_stop_daemon): U.
+	* util.h (LEAST_WAIT_OBJECT): Delete #define.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_socket_unavailable_error_p
 
 	* util.h (svz_socket_unavailable_error_p):

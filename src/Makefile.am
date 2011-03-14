@@ -63,7 +63,7 @@ serveez_SOURCES = \
 	guile-server.c guile-server.h \
 	guile-bin.c guile-bin.h
 
-noinst_HEADERS = changedir.h networking-headers.h o-binary.h
+noinst_HEADERS = changedir.h networking-headers.h o-binary.h woe-wait.h
 
 EXTRA_serveez_SOURCES = guile-api.c guile-api.h
 

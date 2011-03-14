@@ -1,5 +1,14 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Add sugar for ‘WaitForSingleObject’ (woe32).
+
+	* woe-wait.h: New file.
+	* Makefile.am (noinst_HEADERS): Add woe-wait.h.
+	* http-server/http-cgi.c: #include "woe-wait.h".
+	(http_cgi_died): Use ‘WOE_WAIT_1’, ‘WOE_WAIT_LOG_ERROR_ANONYMOUSLY’.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_socket_unavailable_error_p
 
 	* http-server/http-cache.c (http_cache_write): Use new func.

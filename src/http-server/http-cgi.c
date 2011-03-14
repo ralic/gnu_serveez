@@ -36,7 +36,7 @@
 #include <signal.h>
 #include "changedir.h"
 #include "networking-headers.h"
-
+#include "woe-wait.h"
 #if HAVE_STRINGS_H
 # include <strings.h>
 #endif
@@ -162,10 +162,10 @@ http_cgi_died (svz_socket_t *sock)
        */
       if (! svz_invalid_handle_p (http->pid))
         {
-          result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
+          result = WOE_WAIT_1 (http->pid);
           if (result == WAIT_FAILED)
             {
-              svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+              WOE_WAIT_LOG_ERROR_ANONYMOUSLY ();
             }
           else if (result != WAIT_TIMEOUT)
             {

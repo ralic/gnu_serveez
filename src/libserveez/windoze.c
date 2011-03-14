@@ -30,6 +30,7 @@
 #include <windowsx.h>
 
 #include "networking-headers.h"
+#include "woe-wait.h"
 #include "libserveez/boot.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
@@ -284,10 +285,10 @@ svz_windoze_stop_daemon (void)
   PostQuitMessage (0);
 
   /* wait until daemon thread terminated */
-  ret = WaitForSingleObject (windoze_daemon_handle, INFINITE);
+  ret = WOE_WAIT_INF (windoze_daemon_handle);
   if (ret != WAIT_OBJECT_0)
     {
-      svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+      WOE_WAIT_LOG_ERROR_ANONYMOUSLY ();
       return -1;
     }
 

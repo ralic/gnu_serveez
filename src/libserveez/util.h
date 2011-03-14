@@ -78,7 +78,6 @@ SERVEEZ_API int svz_socket_unavailable_error_p (void);
 /* end svzint */
 
 #ifdef __MINGW32__
-# define LEAST_WAIT_OBJECT 1
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
 # define SOCK_INPROGRESS   EINPROGRESS

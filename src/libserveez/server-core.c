@@ -44,6 +44,7 @@
 #endif
 
 #include "networking-headers.h"
+#include "woe-wait.h"
 
 #ifdef __MINGW32__
 # include <process.h>
@@ -1167,10 +1168,10 @@ svz_sock_child_died (svz_socket_t *sock)
 
   DWORD result;
 
-  result = WaitForSingleObject (sock->pid, LEAST_WAIT_OBJECT);
+  result = WOE_WAIT_1 (sock->pid);
   if (result == WAIT_FAILED)
     {
-      svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+      WOE_WAIT_LOG_ERROR_ANONYMOUSLY ();
       return 0;
     }
   else if (result != WAIT_TIMEOUT)

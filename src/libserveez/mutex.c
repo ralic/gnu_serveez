@@ -30,6 +30,7 @@
 # include <pthread.h>
 #endif
 
+#include "woe-wait.h"
 #include "libserveez/util.h"
 #include "libserveez/mutex.h"
 
@@ -83,9 +84,9 @@ int
 svz_mutex_lock (svz_mutex_t *mutex)
 {
 #ifdef __MINGW32__
-  if (WaitForSingleObject (*mutex, INFINITE) == WAIT_FAILED)
+  if (WOE_WAIT_INF (*mutex) == WAIT_FAILED)
     {
-      svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+      WOE_WAIT_LOG_ERROR_ANONYMOUSLY ();
       return -1;
     }
   return 0;

@@ -46,6 +46,7 @@
 #endif
 #include "changedir.h"
 #include "networking-headers.h"
+#include "woe-wait.h"
 #ifdef __MINGW32__
 # include <io.h>
 # include <shellapi.h>
@@ -270,10 +271,10 @@ svz_process_idle (svz_socket_t *sock)
 
   DWORD result;
 
-  result = WaitForSingleObject (sock->pid, LEAST_WAIT_OBJECT);
+  result = WOE_WAIT_1 (sock->pid);
   if (result == WAIT_FAILED)
     {
-      svz_log (LOG_ERROR, "passthrough: WaitForSingleObject: %s\n", SYS_ERROR);
+      WOE_WAIT_LOG_ERROR ("passthrough: ");
     }
   else if (result != WAIT_TIMEOUT)
     {

@@ -47,6 +47,7 @@
 
 #include "o-binary.h"
 #include "networking-headers.h"
+#include "woe-wait.h"
 
 #if HAVE_MSWSOCK_H && defined (__MINGW32__)
 # include <mswsock.h>
@@ -564,10 +565,9 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
              thread is operating on the socket.  This is given since serveez
              is single threaded.  */
 
-          if ((result = WaitForSingleObject ((svz_t_handle) out_fd,
-                                             INFINITE)) != WAIT_OBJECT_0)
+          if ((result = WOE_WAIT_INF ((svz_t_handle) out_fd)) != WAIT_OBJECT_0)
             {
-              svz_log (LOG_ERROR, "WaitForSingleObject: %s\n", SYS_ERROR);
+              WOE_WAIT_LOG_ERROR_ANONYMOUSLY ();
               ret = -1;
             }
           /* Finally transmitted the data.  */
