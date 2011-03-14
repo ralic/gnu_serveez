@@ -92,7 +92,7 @@ svz_tcp_write_socket (svz_socket_t *sock)
   else if (num_written < 0)
     {
       svz_log (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
+      if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
           num_written = 0;
@@ -156,7 +156,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
        * value.
        */
       svz_log (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
+      if (svz_socket_unavailable_error_p ())
         num_read = 0;
       else
         return -1;
@@ -335,10 +335,12 @@ svz_tcp_default_connect (svz_socket_t *sock)
     {
 #ifdef __MINGW32__
       WSASetLastError (error);
+      svz_errno = error;
 #else
       errno = error;
 #endif
-      if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
+      if (error != SOCK_INPROGRESS
+          && ! svz_socket_unavailable_error_p ())
         {
           svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
           return -1;

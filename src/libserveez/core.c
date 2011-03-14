@@ -336,10 +336,12 @@ svz_socket_connect (svz_t_socket sockfd,
     {
 #ifdef __MINGW32__
       error = WSAGetLastError ();
+      svz_errno = error;                /* Is this correct? --ttn  */
 #else
       error = errno;
 #endif
-      if (error != SOCK_INPROGRESS && error != SOCK_UNAVAILABLE)
+      if (error != SOCK_INPROGRESS
+          && ! svz_socket_unavailable_error_p ())
         {
           svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
           svz_closesocket (sockfd);

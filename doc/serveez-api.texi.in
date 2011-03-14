@@ -337,6 +337,8 @@ This variable is only available on Windows version of this API.
 |F| svz_hstrerror
 |F| svz_syserror
 
+|F| svz_socket_unavailable_error_p
+
 @node Core functions
 @subsection Networking and other low level functions
 

@@ -631,7 +631,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
                             sock->send_buffer, do_write)) == -1)
     {
       svz_log (LOG_ERROR, "pipe: write: %s\n", SYS_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
+      if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
           num_written = 0;

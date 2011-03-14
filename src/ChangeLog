@@ -1,5 +1,14 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_socket_unavailable_error_p
+
+	* http-server/http-cache.c (http_cache_write): Use new func.
+	* http-server/http-proto.c (http_default_write): Likewise.
+	* nut-server/nut-hostlist.c (nut_hosts_write): Likewise.
+	* nut-server/nut-transfer.c (nut_file_write): Likewise.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_{invalid_handle_p,invalidate_handle}
 
 	Here, "U" means "Use new funcs".

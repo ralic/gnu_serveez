@@ -1,5 +1,22 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_socket_unavailable_error_p
+
+	* util.h (svz_socket_unavailable_error_p):
+	New func decl, marked ‘SERVEEZ_API’.
+	(SOCK_UNAVAILABLE): Delete #define.
+	* util.c (svz_socket_unavailable_error_p): New func.
+	* core.c (svz_socket_connect): Use new func.
+	* icmp-socket.c (svz_icmp_read_socket): Likewise.
+	(svz_icmp_write_socket): Likewise.
+	* pipe-socket.c (svz_pipe_write_socket): Likewise.
+	* tcp-socket.c (svz_tcp_write_socket): Likewise.
+	(svz_tcp_read_socket, svz_tcp_default_connect): Likewise.
+	* udp-socket.c (svz_udp_read_socket): Likewise.
+	(svz_udp_write_socket): Likewise.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Move some woe32 #define:s into windoze.h.
 
 	* util.h [__MINGW32__] (S_IFBLK)

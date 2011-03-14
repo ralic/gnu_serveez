@@ -1,5 +1,12 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add func: svz_socket_unavailable_error_p
+
+	* serveez-api.texi.in (Utility functions):
+	Add ‘svz_socket_unavailable_error_p’.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_{invalid_handle_p,invalidate_handle}
 
 	* serveez-api.texi.in (Pipe connections):

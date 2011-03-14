@@ -457,6 +457,21 @@ int svz_os_version = 0;
 #endif /* __MINGW32__ */
 
 /*
+ * Return 1 if there was a "socket unavailable" error recently, 0
+ * otherwise.  This checks @code{svz_errno} against @code{WSAEWOULDBLOCK}
+ * (woe32) or @code{EAGAIN} (Unix).
+ */
+int
+svz_socket_unavailable_error_p (void)
+{
+#ifdef __MINGW32__
+  return WSAEWOULDBLOCK == svz_errno;
+#else
+  return EAGAIN == svz_errno;
+#endif
+}
+
+/*
  * This routine is for detecting the operating system version of Win32
  * and all Unices at runtime.  You should call it at least once at startup.
  * It saves its result in the variable @code{svz_os_version} and prints an

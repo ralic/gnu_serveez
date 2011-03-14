@@ -121,7 +121,7 @@ svz_udp_read_socket (svz_socket_t *sock)
     {
       svz_log (LOG_ERROR, "udp: recv%s: %s\n",
                sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
-      if (svz_errno != SOCK_UNAVAILABLE)
+      if (! svz_socket_unavailable_error_p ())
         return -1;
     }
   return 0;
@@ -193,7 +193,7 @@ svz_udp_write_socket (svz_socket_t *sock)
     {
       svz_log (LOG_ERROR, "udp: send%s: %s\n",
                sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
+      if (svz_socket_unavailable_error_p ())
         num_written = 0;
     }
   /* packet data could be transmitted */

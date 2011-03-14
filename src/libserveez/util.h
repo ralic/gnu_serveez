@@ -59,6 +59,8 @@ SERVEEZ_API char *svz_tolower (char *);
 SERVEEZ_API char *svz_sys_version (void);
 SERVEEZ_API char *svz_hstrerror (void);
 
+SERVEEZ_API int svz_socket_unavailable_error_p (void);
+
 /* Converts the integer value @var{n} into a pointer platform independently.
    Both of the @code{SVZ_NUM2PTR} and @code{SVZ_PTR2NUM} macros rely on
    the @code{(unsigned long)} having the same size as @code{(void *)}.  */
@@ -77,10 +79,8 @@ SERVEEZ_API char *svz_hstrerror (void);
 
 #ifdef __MINGW32__
 # define LEAST_WAIT_OBJECT 1
-# define SOCK_UNAVAILABLE  WSAEWOULDBLOCK
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
-# define SOCK_UNAVAILABLE  EAGAIN
 # define SOCK_INPROGRESS   EINPROGRESS
 #endif /* !__MINGW32__ */
 

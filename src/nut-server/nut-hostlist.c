@@ -71,7 +71,7 @@ nut_hosts_write (svz_socket_t *sock)
   else if (num_written < 0)
     {
       svz_log (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
-      if (svz_errno == SOCK_UNAVAILABLE)
+      if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
           num_written = 0;
