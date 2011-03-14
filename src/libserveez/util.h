@@ -46,6 +46,12 @@ typedef unsigned char svz_uint8_t;
 
 __BEGIN_DECLS
 
+#ifdef __MINGW32__
+SERVEEZ_API int svz_errno;
+#else
+#define svz_errno errno
+#endif
+
 SERVEEZ_API void svz_log (int, const char *, ...);
 SERVEEZ_API void svz_log_setfile (FILE *);
 
@@ -98,7 +104,6 @@ SERVEEZ_API int svz_socket_unavailable_error_p (void);
 #define WinME   7
 
 SERVEEZ_API int svz_os_version;
-SERVEEZ_API int svz_errno;
 SERVEEZ_API char *svz_syserror (int);
 
 #endif /* __MINGW32__ */
@@ -114,7 +119,6 @@ __END_DECLS
 # define SYS_ERROR strerror (errno)
 # define NET_ERROR strerror (errno)
 # define H_NET_ERROR svz_hstrerror ()
-# define svz_errno errno
 #endif /* !__MINGW32__ */
 
 #endif /* not __UTIL_H__ */
