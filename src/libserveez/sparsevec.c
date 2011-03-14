@@ -29,6 +29,14 @@
 #include "libserveez/util.h"
 #include "libserveez/sparsevec.h"
 
+struct svz_spvec_list
+{
+  unsigned long length;     /* size of the sparse vector (last index +1) */
+  unsigned long size;       /* element count */
+  svz_spvec_chunk_t *first; /* first sparse vector chunk */
+  svz_spvec_chunk_t *last;  /* last sparse vector chunk */
+};
+
 /* check if a given sparse vector index can be in this chunk */
 #define svz_spvec_range_all(SPVEC, IDX) \
   (IDX >= SPVEC->offset && IDX < SPVEC->offset + SVZ_SPVEC_SIZE)

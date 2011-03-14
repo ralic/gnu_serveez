@@ -1,5 +1,12 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Make ‘struct svz_spvec_list’ opaque.
+
+	* sparsevec.h (svz_spvec_list): Move struct from here...
+	* sparsevec.c (svz_spvec_list): ...to here.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Rename some #define:s with "SVZ_" prefix.
 
 	* pipe-socket.h

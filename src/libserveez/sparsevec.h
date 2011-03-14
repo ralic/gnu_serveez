@@ -50,13 +50,6 @@ struct svz_spvec_chunk
 
 /* top level sparse vector structure */
 typedef struct svz_spvec_list svz_spvec_t;
-struct svz_spvec_list
-{
-  unsigned long length;     /* size of the sparse vector (last index +1) */
-  unsigned long size;       /* element count */
-  svz_spvec_chunk_t *first; /* first sparse vector chunk */
-  svz_spvec_chunk_t *last;  /* last sparse vector chunk */
-};
 
 __BEGIN_DECLS
 
