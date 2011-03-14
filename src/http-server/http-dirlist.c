@@ -172,7 +172,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
   else
     strcat (filename, "/*");
 
-  if ((dir = FindFirstFile (filename, &de)) == INVALID_HANDLE)
+  if (svz_invalid_handle_p (dir = FindFirstFile (filename, &de)))
 #else
   if ((dir = opendir (dirname)) == NULL)
 #endif

@@ -261,7 +261,7 @@ svz_process_idle (svz_socket_t *sock)
     {
       svz_log (LOG_NOTICE, "passthrough: shuffle pid %d died\n",
                (int) sock->pid);
-      sock->pid = INVALID_HANDLE;
+      svz_invalidate_handle (&sock->pid);
       return -1;
     }
 #endif /* HAVE_WAITPID */
@@ -280,7 +280,7 @@ svz_process_idle (svz_socket_t *sock)
       if (svz_closehandle (sock->pid) == -1)
         svz_log (LOG_ERROR, "passthrough: CloseHandle: %s\n", SYS_ERROR);
       svz_child_died = sock->pid;
-      sock->pid = INVALID_HANDLE;
+      svz_invalidate_handle (&sock->pid);
       return -1;
     }
 
@@ -529,7 +529,7 @@ svz_process_recv_socket (svz_socket_t *sock)
 /*
  * This function duplicates a given @var{handle} in the sense of @code{dup}.
  * The returned handle references the same underlying object.  If
- * @code{INVALID_HANDLE} is returned something went wrong.  The @var{proto}
+ * an invalid handle is returned something went wrong.  The @var{proto}
  * argument specifies if it is a socket or pipe handle.
  */
 static svz_t_handle
@@ -547,7 +547,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
                             DUPLICATE_SAME_ACCESS, TRUE, 0))
         {
           svz_log (LOG_ERROR, "passthrough: DuplicateHandle: %s\n", SYS_ERROR);
-          return INVALID_HANDLE;
+          svz_invalidate_handle (&duphandle);
         }
       return duphandle;
     }
@@ -557,14 +557,16 @@ svz_process_duplicate (svz_t_handle handle, int proto)
                           &info) == SOCKET_ERROR)
     {
       svz_log (LOG_ERROR, "passthrough: WSADuplicateSocket: %s\n", NET_ERROR);
-      return INVALID_HANDLE;
+      svz_invalidate_handle (&duphandle);
+      return duphandle;
     }
   if ((dupsock = WSASocket (FROM_PROTOCOL_INFO, FROM_PROTOCOL_INFO,
                             FROM_PROTOCOL_INFO,
                             &info, 0, 0)) == INVALID_SOCKET)
     {
       svz_log (LOG_ERROR, "passthrough: WSASocket: %s\n", NET_ERROR);
-      return INVALID_HANDLE;
+      svz_invalidate_handle (&duphandle);
+      return duphandle;
     }
   return (svz_t_handle) dupsock;
 }
@@ -651,14 +653,14 @@ svz_process_create_child (svz_process_t *proc)
         {
           /* Create an inheritable receive pipe and replace it.  */
           fd = svz_process_duplicate (proc->in, proc->sock->proto);
-          if (fd == INVALID_HANDLE)
+          if (svz_invalid_handle_p (fd))
             return -1;
           svz_closehandle (proc->sock->pipe_desc[READ]);
           proc->in = proc->sock->pipe_desc[READ] = fd;
 
           /* Create an inheritable send pipe and replace it.  */
           fd = svz_process_duplicate (proc->out, proc->sock->proto);
-          if (fd == INVALID_HANDLE)
+          if (svz_invalid_handle_p (fd))
             return -1;
           svz_closehandle (proc->sock->pipe_desc[WRITE]);
           proc->out = proc->sock->pipe_desc[WRITE] = fd;
@@ -667,7 +669,7 @@ svz_process_create_child (svz_process_t *proc)
         {
           /* Create an inheritable socket and replace it.  */
           fd = svz_process_duplicate (proc->in, proc->sock->proto);
-          if (fd == INVALID_HANDLE)
+          if (svz_invalid_handle_p (fd))
             return -1;
           proc->in = proc->out = fd;
           svz_closesocket (proc->sock->sock_desc);

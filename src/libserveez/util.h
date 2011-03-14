@@ -76,12 +76,10 @@ SERVEEZ_API char *svz_hstrerror (void);
 /* end svzint */
 
 #ifdef __MINGW32__
-# define INVALID_HANDLE    INVALID_HANDLE_VALUE
 # define LEAST_WAIT_OBJECT 1
 # define SOCK_UNAVAILABLE  WSAEWOULDBLOCK
 # define SOCK_INPROGRESS   WSAEINPROGRESS
 #else /* !__MINGW32__ */
-# define INVALID_HANDLE    ((svz_t_handle) -1)
 # define SOCK_UNAVAILABLE  EAGAIN
 # define SOCK_INPROGRESS   EINPROGRESS
 #endif /* !__MINGW32__ */

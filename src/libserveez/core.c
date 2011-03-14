@@ -714,8 +714,8 @@ svz_open (const char *file, int flags, unsigned int mode)
         creation |= TRUNCATE_EXISTING;
     }
 
-  if ((fd = CreateFile (file, access, 0, NULL, creation, 0, NULL)) ==
-      INVALID_HANDLE)
+  if (svz_invalid_handle_p (fd = CreateFile (file, access, 0, NULL,
+                                             creation, 0, NULL)))
     {
       svz_log (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
       return -1;

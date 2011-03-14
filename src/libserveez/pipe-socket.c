@@ -220,6 +220,32 @@ svz_pipe_check_group (svz_pipe_t *pipe)
 }
 
 /*
+ * Invalidate the handle pointed at by @var{href}.
+ */
+void
+svz_invalidate_handle (svz_t_handle *href)
+{
+#ifdef __MINGW32__
+  *href = INVALID_HANDLE_VALUE;
+#else
+  *href = (svz_t_handle) -1;
+#endif
+}
+
+/*
+ * Return 1 if @var{handle} is invalid, otherwise 0.
+ */
+int
+svz_invalid_handle_p (svz_t_handle handle)
+{
+#ifdef __MINGW32__
+  return INVALID_HANDLE_VALUE == handle;
+#else
+  return ((svz_t_handle) -1) == handle;
+#endif
+}
+
+/*
  * This function is for checking if a given socket structure contains
  * a valid pipe socket (checking both pipes).  Return non-zero on errors.
  */
@@ -233,11 +259,11 @@ svz_pipe_valid (svz_socket_t *sock)
     return -1;
 
   if (sock->flags & SOCK_FLAG_RECV_PIPE)
-    if (sock->pipe_desc[READ] == INVALID_HANDLE)
+    if (svz_invalid_handle_p (sock->pipe_desc[READ]))
       return -1;
 
   if (sock->flags & SOCK_FLAG_SEND_PIPE)
-    if (sock->pipe_desc[WRITE] == INVALID_HANDLE)
+    if (svz_invalid_handle_p (sock->pipe_desc[WRITE]))
       return -1;
 
   return 0;
@@ -300,7 +326,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 #else /* not __MINGW32__ */
 
           /* close sending pipe only */
-          if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+          if (! svz_invalid_handle_p (sock->pipe_desc[WRITE]))
             if (svz_closehandle (sock->pipe_desc[WRITE]) < 0)
               svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
@@ -317,10 +343,10 @@ svz_pipe_disconnect (svz_socket_t *sock)
       else
         {
           /* close both pipes */
-          if (sock->pipe_desc[READ] != INVALID_HANDLE)
+          if (! svz_invalid_handle_p (sock->pipe_desc[READ]))
             if (svz_closehandle (sock->pipe_desc[READ]) < 0)
               svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
-          if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+          if (! svz_invalid_handle_p (sock->pipe_desc[WRITE]))
             if (svz_closehandle (sock->pipe_desc[WRITE]) < 0)
               svz_log (LOG_ERROR, "pipe: close: %s\n", SYS_ERROR);
         }
@@ -330,8 +356,8 @@ svz_pipe_disconnect (svz_socket_t *sock)
                sock->pipe_desc[READ], sock->pipe_desc[WRITE]);
 #endif
 
-      sock->pipe_desc[READ] = INVALID_HANDLE;
-      sock->pipe_desc[WRITE] = INVALID_HANDLE;
+      svz_invalidate_handle (&sock->pipe_desc[READ]);
+      svz_invalidate_handle (&sock->pipe_desc[WRITE]);
     }
 
   /* prevent a pipe server's child to reinit the pipe server */
@@ -349,7 +375,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 #ifndef __MINGW32__
 
       /* close listening pipe */
-      if (sock->pipe_desc[READ] != INVALID_HANDLE)
+      if (! svz_invalid_handle_p (sock->pipe_desc[READ]))
         if (svz_closehandle (sock->pipe_desc[READ]) < 0)
           svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
 
@@ -362,14 +388,14 @@ svz_pipe_disconnect (svz_socket_t *sock)
 #else /* __MINGW32__ */
 
       /* disconnect and close named pipes */
-      if (sock->pipe_desc[READ] != INVALID_HANDLE)
+      if (! svz_invalid_handle_p (sock->pipe_desc[READ]))
         {
           if (!DisconnectNamedPipe (sock->pipe_desc[READ]))
             svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
           if (svz_closehandle (sock->pipe_desc[READ]))
             svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
         }
-      if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+      if (! svz_invalid_handle_p (sock->pipe_desc[WRITE]))
         {
           if (!DisconnectNamedPipe (sock->pipe_desc[WRITE]))
             svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
@@ -383,8 +409,8 @@ svz_pipe_disconnect (svz_socket_t *sock)
       svz_log (LOG_DEBUG, "pipe listener (%s) destroyed\n", sock->recv_pipe);
 #endif
 
-      sock->pipe_desc[READ] = INVALID_HANDLE;
-      sock->pipe_desc[WRITE] = INVALID_HANDLE;
+      svz_invalidate_handle (&sock->pipe_desc[READ]);
+      svz_invalidate_handle (&sock->pipe_desc[WRITE]);
     }
 
   return 0;
@@ -934,9 +960,10 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
 #else /* __MINGW32__ */
 
   /* try opening receiving pipe */
-  if ((recv_pipe = CreateFile (sock->recv_pipe, GENERIC_READ, 0,
+  if (svz_invalid_handle_p
+      (recv_pipe = CreateFile (sock->recv_pipe, GENERIC_READ, 0,
                                NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED,
-                               NULL)) == INVALID_HANDLE)
+                               NULL)))
     {
       svz_log (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       svz_sock_free (sock);
@@ -944,9 +971,10 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
     }
 
   /* try opening sending pipe */
-  if ((send_pipe = CreateFile (sock->send_pipe, GENERIC_WRITE, 0,
+  if (svz_invalid_handle_p
+      (send_pipe = CreateFile (sock->send_pipe, GENERIC_WRITE, 0,
                                NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED,
-                               NULL)) == INVALID_HANDLE)
+                               NULL)))
     {
       svz_log (LOG_ERROR, "pipe: CreateFile: %s\n", SYS_ERROR);
       DisconnectNamedPipe (recv_pipe);
@@ -1106,7 +1134,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
     100,                                        /* timeout in ms */
     NULL);                                      /* no security */
 
-  if (recv_pipe == INVALID_HANDLE || !recv_pipe)
+  if (svz_invalid_handle_p (recv_pipe) || !recv_pipe)
     {
       svz_log (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);
       return -1;
@@ -1123,7 +1151,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
     100,                                         /* timeout in ms */
     NULL);                                       /* no security */
 
-  if (send_pipe == INVALID_HANDLE || !send_pipe)
+  if (svz_invalid_handle_p (send_pipe) || !send_pipe)
     {
       svz_log (LOG_ERROR, "pipe: CreateNamedPipe: %s\n", SYS_ERROR);
       return -1;

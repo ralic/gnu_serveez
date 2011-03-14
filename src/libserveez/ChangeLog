@@ -1,5 +1,29 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add funcs: svz_{invalid_handle_p,invalidate_handle}
+
+	Here, "U" means "Use new funcs".
+	* pipe-socket.h (svz_invalidate_handle)
+	(svz_invalid_handle_p): New func decls, marked ‘SERVEEZ_API’.
+	* pipe-socket.c
+	(svz_invalidate_handle, svz_invalid_handle_p): New funcs.
+	(svz_pipe_valid, svz_pipe_disconnect)
+	(svz_pipe_connect, svz_pipe_listener): U.
+	* core.c (svz_open): U.
+	* coserver/coserver.c
+	(svz_coserver_loop, svz_coserver_start): U.
+	* icmp-socket.c
+	[__MINGW32__] (hIcmp): Use ‘INVALID_HANDLE_VALUE’.
+	[__MINGW32__] (svz_icmp_startup, svz_icmp_cleanup): U.
+	* passthrough.c (svz_process_idle)
+	(svz_process_recv_socket, svz_process_duplicate)
+	(svz_process_create_child): U.
+	* server-core.c (svz_sock_check_children): U.
+	* socket.c (svz_sock_alloc): U.
+	* util.h (INVALID_HANDLE): Delete #define.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘INVALID_SOCKET’.
 
 	* util.h (INVALID_SOCKET): Mark ‘svzint’.

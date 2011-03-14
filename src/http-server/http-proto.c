@@ -657,7 +657,7 @@ http_connect_socket (svz_server_t *server, svz_socket_t *sock)
    */
   http = svz_malloc (sizeof (http_socket_t));
   memset (http, 0, sizeof (http_socket_t));
-  http->pid = INVALID_HANDLE;
+  svz_invalidate_handle (&http->pid);
   http->keepalive = cfg->keepalive;
   sock->data = http;
 

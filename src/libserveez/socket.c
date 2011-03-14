@@ -378,9 +378,9 @@ svz_sock_alloc (void)
   sock->userflags = SOCK_FLAG_INIT;
   sock->file_desc = -1;
   sock->sock_desc = (svz_t_socket) -1;
-  sock->pipe_desc[READ] = INVALID_HANDLE;
-  sock->pipe_desc[WRITE] = INVALID_HANDLE;
-  sock->pid = INVALID_HANDLE;
+  svz_invalidate_handle (&sock->pipe_desc[READ]);
+  svz_invalidate_handle (&sock->pipe_desc[WRITE]);
+  svz_invalidate_handle (&sock->pid);
 
   sock->read_socket = svz_tcp_read_socket;
   sock->read_socket_oob = svz_tcp_recv_oob;

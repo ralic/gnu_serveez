@@ -726,7 +726,7 @@ nut_read_database_r (nut_config_t *cfg, char *dirname, int depth)
       if (snprintf (filename, NUT_PATH_SIZE - 1, "%s/*", dirname) == -1)
         return;
 
-      if ((dir = FindFirstFile (filename, &de)) != INVALID_HANDLE)
+      if (! svz_invalid_handle_p (dir = FindFirstFile (filename, &de)))
 #else
       if ((dir = opendir (dirname)) != NULL)
 #endif

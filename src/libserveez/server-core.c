@@ -1206,9 +1206,9 @@ svz_sock_check_children (void)
   svz_socket_t *sock;
 
   svz_sock_foreach (sock)
-    if (sock->pid != INVALID_HANDLE && svz_sock_child_died (sock))
+    if (! svz_invalid_handle_p (sock->pid) && svz_sock_child_died (sock))
       {
-        sock->pid = INVALID_HANDLE;
+        svz_invalidate_handle (&sock->pid);
 #if ENABLE_DEBUG
         svz_log (LOG_DEBUG, "child of socket id %d died\n", sock->id);
 #endif /* ENABLE_DEBUG */

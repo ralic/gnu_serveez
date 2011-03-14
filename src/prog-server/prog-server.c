@@ -245,7 +245,7 @@ int
 prog_child_died (svz_socket_t *sock)
 {
   sock->read_socket = prog_read_socket;
-  sock->pid = INVALID_HANDLE;
+  svz_invalidate_handle (&sock->pid);
   return 0;
 }
 

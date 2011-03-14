@@ -76,18 +76,18 @@ http_cgi_disconnect (svz_socket_t *sock)
       sock->write_socket (sock);
 
   /* close both of the CGI pipes if necessary */
-  if (sock->pipe_desc[READ] != INVALID_HANDLE)
+  if (! svz_invalid_handle_p (sock->pipe_desc[READ]))
     {
       if (svz_closehandle (sock->pipe_desc[READ]) == -1)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      sock->pipe_desc[READ] = INVALID_HANDLE;
+      svz_invalidate_handle (&sock->pipe_desc[READ]);
       sock->flags &= ~SOCK_FLAG_RECV_PIPE;
     }
-  if (sock->pipe_desc[WRITE] != INVALID_HANDLE)
+  if (! svz_invalid_handle_p (sock->pipe_desc[WRITE]))
     {
       if (svz_closehandle (sock->pipe_desc[WRITE]) == -1)
         svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
-      sock->pipe_desc[WRITE] = INVALID_HANDLE;
+      svz_invalidate_handle (&sock->pipe_desc[WRITE]);
       sock->flags &= ~SOCK_FLAG_SEND_PIPE;
     }
 
@@ -95,19 +95,19 @@ http_cgi_disconnect (svz_socket_t *sock)
   /*
    * Close the process handle if necessary, but only in the Windows-Port !
    */
-  if (http->pid != INVALID_HANDLE)
+  if (! svz_invalid_handle_p (http->pid))
     {
       if (!TerminateProcess (http->pid, 0))
         svz_log (LOG_ERROR, "TerminateProcess: %s\n", SYS_ERROR);
       if (svz_closehandle (http->pid) == -1)
         svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
-      http->pid = INVALID_HANDLE;
+      svz_invalidate_handle (&http->pid);
     }
 #else /* not __MINGW32__ */
   /*
    * Try killing the cgi script.
    */
-  if (http->pid != INVALID_HANDLE)
+  if (! svz_invalid_handle_p (http->pid))
     {
       if (kill (http->pid, SIGKILL) == -1)
         svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
@@ -116,7 +116,7 @@ http_cgi_disconnect (svz_socket_t *sock)
       else if (waitpid (http->pid, NULL, 0) == -1)
         svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
 #endif /* not HAVE_WAITPID */
-      http->pid = INVALID_HANDLE;
+      svz_invalidate_handle (&http->pid);
     }
 #endif /* not __MINGW32__ */
 
@@ -150,7 +150,7 @@ http_cgi_died (svz_socket_t *sock)
       if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
         {
           svz_log (LOG_NOTICE, "cgi script pid %d died\n", (int) http->pid);
-          http->pid = INVALID_HANDLE;
+          svz_invalidate_handle (&http->pid);
         }
 #endif /* HAVE_WAITPID */
 
@@ -160,7 +160,7 @@ http_cgi_died (svz_socket_t *sock)
        * Check if there died a process handle in Win32, this has to be
        * done regularly here because there is no SIGCHLD in Win32 !
        */
-      if (http->pid != INVALID_HANDLE)
+      if (! svz_invalid_handle_p (http->pid))
         {
           result = WaitForSingleObject (http->pid, LEAST_WAIT_OBJECT);
           if (result == WAIT_FAILED)
@@ -172,7 +172,7 @@ http_cgi_died (svz_socket_t *sock)
               if (svz_closehandle (http->pid) == -1)
                 svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
               svz_child_died = http->pid;
-              http->pid = INVALID_HANDLE;
+              svz_invalidate_handle (&http->pid);
             }
         }
 #endif /* __MINGW32__ */
@@ -248,7 +248,7 @@ http_cgi_read (svz_socket_t *sock)
    * because pipes cannot be ‘select’ed it can happen that there is no
    * data within the receiving pipe, but the cgi has not yet terminated
    */
-  if (num_read == 0 && http->pid != INVALID_HANDLE)
+  if (num_read == 0 && ! svz_invalid_handle_p (http->pid))
     {
       return 0;
     }
@@ -941,6 +941,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 int
 http_cgi_get_response (svz_socket_t *sock, char *request, int flags)
 {
+  svz_t_handle dummy;
   svz_t_handle cgi2s[2];
   char *file;
 
@@ -973,7 +974,8 @@ http_cgi_get_response (svz_socket_t *sock, char *request, int flags)
   sock->pipe_desc[READ] = cgi2s[READ];
   svz_fd_cloexec ((int) cgi2s[READ]);
 
-  if (http_cgi_exec (sock, INVALID_HANDLE, cgi2s[WRITE],
+  svz_invalidate_handle (&dummy);
+  if (http_cgi_exec (sock, dummy, cgi2s[WRITE],
                      file, request, GET_METHOD))
     {
       /* some error occurred here */

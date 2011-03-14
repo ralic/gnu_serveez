@@ -171,7 +171,7 @@ static IcmpCreateFileProc IcmpCreateFile = NULL;
 static IcmpCloseHandleProc IcmpCloseHandle = NULL;
 static IcmpSendEchoProc IcmpSendEcho = NULL;
 static HANDLE IcmpHandle = NULL;
-static HANDLE hIcmp = INVALID_HANDLE;
+static HANDLE hIcmp = INVALID_HANDLE_VALUE;
 
 /*
  * Load the @file{ICMP.DLL} library into process address space and get all
@@ -204,7 +204,7 @@ svz_icmp_startup (void)
     }
 
   /* open ping service */
-  if ((hIcmp = IcmpCreateFile ()) == INVALID_HANDLE)
+  if (svz_invalid_handle_p (hIcmp = IcmpCreateFile ()))
     {
       svz_log (LOG_ERROR, "IcmpCreateFile: %s\n", SYS_ERROR);
       FreeLibrary (IcmpHandle);
@@ -224,7 +224,7 @@ void
 svz_icmp_cleanup (void)
 {
   /* close ip service */
-  if (hIcmp != INVALID_HANDLE)
+  if (! svz_invalid_handle_p (hIcmp))
     {
       if (!IcmpCloseHandle (hIcmp))
        svz_log (LOG_ERROR, "IcmpCloseHandle: %s\n", SYS_ERROR);

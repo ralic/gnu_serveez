@@ -262,7 +262,7 @@ svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
   unsigned id;
 
   /* wait until the thread handle has been passed */
-  while (coserver->thread == INVALID_HANDLE);
+  while (svz_invalid_handle_p (coserver->thread));
 
   /* infinite loop */
   for (;;)
@@ -784,15 +784,16 @@ svz_coserver_start (int type)
   sock->write_socket = NULL;
   sock->read_socket = NULL;
   coserver->sock = sock;
-  coserver->thread = INVALID_HANDLE;
+  svz_invalidate_handle (&coserver->thread);
 
-  if ((thread = CreateThread(
+  if (svz_invalid_handle_p
+      (thread = CreateThread(
       (LPSECURITY_ATTRIBUTES) NULL, /* ignore security attributes */
       (DWORD) 0,                    /* default stack size */
       (LPTHREAD_START_ROUTINE) svz_coserver_thread, /* thread routine */
       (LPVOID) coserver,            /* thread argument */
       (DWORD) CREATE_SUSPENDED,     /* creation flags */
-      (LPDWORD) &tid)) == INVALID_HANDLE) /* thread id */
+      (LPDWORD) &tid)))             /* thread id */
     {
       svz_log (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
       DeleteCriticalSection (&coserver->sync);
