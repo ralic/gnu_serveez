@@ -1,5 +1,14 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Move some woe32 #define:s into windoze.h.
+
+	* util.h [__MINGW32__] (S_IFBLK)
+	(S_ISDIR, S_ISCHR, S_ISREG, S_ISBLK): Move from here...
+	* windoze.h [__MINGW32__] (S_IFBLK)
+	(S_ISDIR, S_ISCHR, S_ISREG, S_ISBLK): ...to here.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Decruft: Don't #define ‘WINSOCK_VERSION’.
 
 	* util.h [__MINGW32__] (WINSOCK_VERSION): Delete #define.
