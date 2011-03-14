@@ -1,5 +1,13 @@
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_spvec_chunk_t’.
+
+	* sparsevec.h (svz_spvec_chunk_t):
+	Move typedef and associated struct from here...
+	* sparsevec.c (svz_spvec_chunk_t): ...to here.
+
+2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Make ‘struct svz_spvec_list’ opaque.
 
 	* sparsevec.h (svz_spvec_list): Move struct from here...

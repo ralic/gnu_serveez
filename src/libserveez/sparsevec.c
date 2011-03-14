@@ -29,6 +29,18 @@
 #include "libserveez/util.h"
 #include "libserveez/sparsevec.h"
 
+/* sparse vector chunk structure */
+typedef struct svz_spvec_chunk svz_spvec_chunk_t;
+struct svz_spvec_chunk
+{
+  svz_spvec_chunk_t *next;     /* pointer to next sparse vector chunk */
+  svz_spvec_chunk_t *prev;     /* pointer to previous sparse vector chunk */
+  unsigned long offset;        /* first sparse vector index in this chunk */
+  unsigned long fill;          /* usage bit-field */
+  unsigned long size;          /* size of this chunk */
+  void *value[SVZ_SPVEC_SIZE]; /* value storage */
+};
+
 struct svz_spvec_list
 {
   unsigned long length;     /* size of the sparse vector (last index +1) */

@@ -36,18 +36,6 @@
  * of bits the `spvec->fill' (unsigned long) field can hold.
  */
 
-/* sparse vector chunk structure */
-typedef struct svz_spvec_chunk svz_spvec_chunk_t;
-struct svz_spvec_chunk
-{
-  svz_spvec_chunk_t *next;     /* pointer to next sparse vector chunk */
-  svz_spvec_chunk_t *prev;     /* pointer to previous sparse vector chunk */
-  unsigned long offset;        /* first sparse vector index in this chunk */
-  unsigned long fill;          /* usage bit-field */
-  unsigned long size;          /* size of this chunk */
-  void *value[SVZ_SPVEC_SIZE]; /* value storage */
-};
-
 /* top level sparse vector structure */
 typedef struct svz_spvec_list svz_spvec_t;
 
