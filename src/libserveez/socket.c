@@ -518,29 +518,6 @@ svz_sock_intern_connection_info (svz_socket_t *sock)
 }
 
 /*
- * This function returns the local network address and port for the given
- * client socket structure @var{sock}.  It returns non-zero if there no
- * connection established.
- */
-int
-svz_sock_local_info (svz_socket_t *sock,
-                     unsigned long *addr, unsigned short *port)
-{
-  struct sockaddr_in s;
-  socklen_t size = sizeof (s);
-
-  if (!getsockname (sock->sock_desc, (struct sockaddr *) &s, &size))
-    {
-      if (addr)
-        *addr = s.sin_addr.s_addr;
-      if (port)
-        *port = s.sin_port;
-      return 0;
-    }
-  return -1;
-}
-
-/*
  * Get and clear the pending socket error of a given socket.  Print
  * the result to the log file.
  */

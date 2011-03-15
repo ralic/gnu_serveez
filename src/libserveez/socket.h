@@ -254,9 +254,6 @@ SERVEEZ_API int svz_sock_nconnections (void);
 SERVEEZ_API int svz_sock_write (svz_socket_t *, char *, int);
 SERVEEZ_API int svz_sock_printf (svz_socket_t *, const char *, ...);
 SERVEEZ_API int svz_sock_resize_buffers (svz_socket_t *, int, int);
-SERVEEZ_API int svz_sock_local_info (svz_socket_t *,
-                                     unsigned long *,
-                                     unsigned short *);
 SERVEEZ_API int svz_sock_intern_connection_info (svz_socket_t *);
 SERVEEZ_API int svz_sock_error_info (svz_socket_t *);
 SERVEEZ_API int svz_sock_unique_id (svz_socket_t *);

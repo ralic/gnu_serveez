@@ -604,6 +604,29 @@ svz_binding_filter_net (svz_socket_t *sock,
 }
 
 /*
+ * This function returns the local network address and port for the given
+ * client socket structure @var{sock}.  It returns non-zero if there no
+ * connection established.
+ */
+static int
+svz_sock_local_info (svz_socket_t *sock,
+                     unsigned long *addr, unsigned short *port)
+{
+  struct sockaddr_in s;
+  socklen_t size = sizeof (s);
+
+  if (!getsockname (sock->sock_desc, (struct sockaddr *) &s, &size))
+    {
+      if (addr)
+        *addr = s.sin_addr.s_addr;
+      if (port)
+        *port = s.sin_port;
+      return 0;
+    }
+  return -1;
+}
+
+/*
  * This is the main filter routine running either
  * @code{svz_binding_filter_net} or @code{svz_binding_filter_pipe}
  * depending on the type of port configuration the given socket @var{sock}
