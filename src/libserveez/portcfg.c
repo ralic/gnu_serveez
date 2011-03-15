@@ -386,8 +386,21 @@ svz_portcfg_free (svz_portcfg_t *port)
     }
 
   /* Destroy access and connection list.  */
-  svz_portcfg_destroy_access (port);
-  svz_portcfg_destroy_accepted (port);
+  if (port->deny)
+    {
+      svz_array_destroy (port->deny);
+      port->deny = NULL;
+    }
+  if (port->allow)
+    {
+      svz_array_destroy (port->allow);
+      port->allow = NULL;
+    }
+  if (port->accepted)
+    {
+      svz_hash_destroy (port->accepted);
+      port->accepted = NULL;
+    }
 
   /* Free the port configuration itself.  */
   svz_free (port);
@@ -414,39 +427,6 @@ svz_portcfg_destroy (svz_portcfg_t *port)
 
   /* Free the port configuration.  */
   svz_portcfg_free (port);
-}
-
-/*
- * Destroy the deny and allowed access list of the given port configuration
- * @var{port}.
- */
-void
-svz_portcfg_destroy_access (svz_portcfg_t *port)
-{
-  if (port->deny)
-    {
-      svz_array_destroy (port->deny);
-      port->deny = NULL;
-    }
-  if (port->allow)
-    {
-      svz_array_destroy (port->allow);
-      port->allow = NULL;
-    }
-}
-
-/*
- * Destroy the list of connections for each ip address ever connected to the
- * given port configuration @var{port}.
- */
-void
-svz_portcfg_destroy_accepted (svz_portcfg_t *port)
-{
-  if (port->accepted)
-    {
-      svz_hash_destroy (port->accepted);
-      port->accepted = NULL;
-    }
 }
 
 /*

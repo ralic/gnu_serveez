@@ -1,5 +1,16 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_portcfg_destroy_{accepted,access}.
+
+	* portcfg.c (svz_portcfg_free): Incorporate
+	‘svz_portcfg_destroy_accepted’, ‘svz_portcfg_destroy_access’.
+	(svz_portcfg_destroy_accepted): Delete func.
+	(svz_portcfg_destroy_access): Likewise.
+	* portcfg.h (svz_portcfg_destroy_accepted):
+	(svz_portcfg_destroy_access): Delete func decls.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_portcfg_set_ipaddr’.
 
 	* portcfg.c (svz_portcfg_set_ipaddr): Make static.

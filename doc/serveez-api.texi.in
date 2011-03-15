@@ -850,8 +850,6 @@ configuration just a single one gets actually used.
 |M| svz_portcfg_port
 |M| svz_portcfg_ipaddr
 |M| svz_portcfg_device
-|F| svz_portcfg_destroy_accepted
-|F| svz_portcfg_destroy_access
 
 @node Booting
 @subsection Boot functions

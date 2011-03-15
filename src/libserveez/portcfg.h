@@ -241,8 +241,6 @@ SERVEEZ_API void svz_portcfg_destroy (svz_portcfg_t *);
 SERVEEZ_API int svz_portcfg_mkaddr (svz_portcfg_t *);
 SERVEEZ_API void svz_portcfg_print (svz_portcfg_t *, FILE *);
 SERVEEZ_API svz_portcfg_t *svz_portcfg_dup (svz_portcfg_t *);
-SERVEEZ_API void svz_portcfg_destroy_access (svz_portcfg_t *);
-SERVEEZ_API void svz_portcfg_destroy_accepted (svz_portcfg_t *);
 
 __END_DECLS
 
