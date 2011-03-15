@@ -63,7 +63,6 @@ SERVEEZ_API int svz_openfiles (int);
 SERVEEZ_API char *svz_time (long);
 SERVEEZ_API char *svz_tolower (char *);
 SERVEEZ_API char *svz_sys_version (void);
-SERVEEZ_API char *svz_hstrerror (void);
 
 SERVEEZ_API int svz_socket_unavailable_error_p (void);
 
@@ -114,11 +113,9 @@ __END_DECLS
 #ifdef __MINGW32__
 # define SYS_ERROR svz_syserror (GetLastError ())
 # define NET_ERROR svz_syserror (WSAGetLastError ())
-# define H_NET_ERROR svz_syserror (WSAGetLastError ())
 #else /* Unices here */
 # define SYS_ERROR strerror (errno)
 # define NET_ERROR strerror (errno)
-# define H_NET_ERROR svz_hstrerror ()
 #endif /* !__MINGW32__ */
 
 #endif /* not __UTIL_H__ */

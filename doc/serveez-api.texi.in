@@ -334,7 +334,6 @@ This variable is only available on Windows version of this API.
 |F| svz_time
 |F| svz_tolower
 |F| svz_sys_version
-|F| svz_hstrerror
 |F| svz_syserror
 
 |F| svz_socket_unavailable_error_p

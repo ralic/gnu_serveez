@@ -41,6 +41,7 @@
 #include "libserveez/core.h"
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/coserver/dns.h"
+#include "libserveez/coserver/xerror.h"
 
 /*
  * Proceed a single DNS lookup.
@@ -58,7 +59,7 @@ dns_handle_request (char *inbuf)
       if ((host = gethostbyname (resolved)) == NULL)
         {
           svz_log (LOG_ERROR, "dns: gethostbyname: %s (%s)\n",
-                   H_NET_ERROR, resolved);
+                   xerror (), resolved);
           return NULL;
         }
 

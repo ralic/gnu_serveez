@@ -26,13 +26,13 @@ include $(top_srcdir)/build-aux/common.mk
 
 noinst_LTLIBRARIES = libcoserver.la
 
-libcoserver_la_SOURCES = coserver.c dns.c ident.c reverse-dns.c
+libcoserver_la_SOURCES = coserver.c dns.c ident.c reverse-dns.c xerror.c
 
 libcoserverdir = $(includedir)/libserveez/coserver
 
 libcoserver_HEADERS = coserver.h
 
-noinst_HEADERS = dns.h ident.h reverse-dns.h
+noinst_HEADERS = dns.h ident.h reverse-dns.h xerror.h
 
 uninstall-hook:
 	rmdir "$(DESTDIR)$(libcoserverdir)"

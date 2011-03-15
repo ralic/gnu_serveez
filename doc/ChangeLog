@@ -1,3 +1,9 @@
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_hstrerror’.
+
+	* serveez-api.texi.in (Utility functions): Delete ‘svz_hstrerror’.
+
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add func: svz_socket_unavailable_error_p

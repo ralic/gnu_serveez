@@ -52,10 +52,6 @@
 # include <strings.h>
 #endif
 
-#ifndef __MINGW32__
-# include <netdb.h>
-#endif
-
 #if HAVE_SYS_UTSNAME_H
 # include <sys/utsname.h>
 #endif
@@ -228,34 +224,6 @@ svz_hexdump (FILE *out,    /* output FILE stream */
 
   fflush (out);
   return 0;
-}
-
-/* On some platforms @code{hstrerror} can be resolved but is not declared
-   anywhere.  That is why we do it here by hand.  */
-#if defined (HAVE_HSTRERROR) && !HAVE_DECL_HSTRERROR
-extern char * hstrerror (int);
-#endif
-
-/*
- * This is the @code{hstrerror} wrapper function, depending on the
- * configuration file @file{config.h}.
- */
-char *
-svz_hstrerror (void)
-{
-#if HAVE_HSTRERROR
-# if HAVE_DECL_H_ERRNO
-  return (char *) hstrerror (h_errno);
-# else
-  return (char *) hstrerror (errno);
-# endif
-#else /* not HAVE_HSTRERROR */
-# if HAVE_DECL_H_ERRNO
-  return (char *) strerror (h_errno);
-# else
-  return (char *) strerror (errno);
-# endif
-#endif /* not HAVE_HSTRERROR */
 }
 
 /*

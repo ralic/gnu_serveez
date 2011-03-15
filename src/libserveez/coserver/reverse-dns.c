@@ -40,6 +40,7 @@
 #include "libserveez/util.h"
 #include "libserveez/coserver/coserver.h"
 #include "libserveez/coserver/reverse-dns.h"
+#include "libserveez/coserver/xerror.h"
 
 #define MAX_CACHE_ENTRIES 1024 /* nslookup cache entries */
 
@@ -100,7 +101,7 @@ reverse_dns_handle_request (char *inbuf)
           == NULL)
         {
           svz_log (LOG_ERROR, "reverse dns: gethostbyaddr: %s (%s)\n",
-                   H_NET_ERROR, ip);
+                   xerror (), ip);
           return NULL;
         }
       else
