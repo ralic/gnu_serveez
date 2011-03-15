@@ -1,5 +1,14 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_detect_proto’.
+
+	* serveez-api.texi.in (Socket management):
+	Delete ‘svz_sock_detect_proto’.
+	* serveez.texi (Builtin servers):
+	Don't mention ‘svz_sock_detect_proto’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_unique_id’.
 
 	* serveez-api.texi.in (Socket management):

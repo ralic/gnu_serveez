@@ -1271,7 +1271,7 @@ This array is @code{NULL} terminated.  Some servers store server specific
 information here.
 
 @item void *cfg
-When the final protocol detection in @code{svz_sock_detect_proto}
+When the final protocol detection
 has been done @code{cfg} should contain a pointer to the actual
 configuration hash map taken from the server instance object.
 @end table
