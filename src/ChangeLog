@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_errno’.
+
+	* http-server/http-cgi.c
+	(http_cgi_read) [!__MINGW32__]: Use ‘errno’ directly.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_{sys,net}_strerror
 
 	* http-server/http-dirlist.c

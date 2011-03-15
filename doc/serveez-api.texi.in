@@ -321,7 +321,6 @@ left overs of the C API.
 |V| svz_os_version
 @strong{Please note}:
 This variable is only available on Windows version of this API.
-|V| svz_errno
 
 |M| SVZ_NUM2PTR
 |M| SVZ_PTR2NUM

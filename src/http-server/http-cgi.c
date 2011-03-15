@@ -229,7 +229,7 @@ http_cgi_read (svz_socket_t *sock)
                         do_read)) == -1)
     {
       svz_log_sys_error ("cgi: read");
-      if (svz_errno == EAGAIN)
+      if (errno == EAGAIN)
         return 0;
       num_read = -1;
     }

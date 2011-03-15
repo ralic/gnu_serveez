@@ -46,11 +46,13 @@ typedef unsigned char svz_uint8_t;
 
 __BEGIN_DECLS
 
+/* begin svzint */
 #ifdef __MINGW32__
-SERVEEZ_API int svz_errno;
+SBO int svz_errno;
 #else
 #define svz_errno errno
 #endif
+/* end svzint */
 
 SERVEEZ_API void svz_log (int, const char *, ...);
 SERVEEZ_API void svz_log_setfile (FILE *);
