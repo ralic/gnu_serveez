@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_sock_{alloc,free}.
+
+	* socket.h (svz_sock_alloc, svz_sock_free):
+	Remove mark ‘SERVEEZ_API’; mark ‘SBO’, ‘svzint’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_valid’.
 
 	* socket.c (svz_sock_valid): Move from here...

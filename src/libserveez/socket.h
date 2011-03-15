@@ -244,11 +244,11 @@ __BEGIN_DECLS
 
 /* begin svzint */
 SBO int svz_sock_connections;
+SBO svz_socket_t *svz_sock_alloc (void);
+SBO int svz_sock_free (svz_socket_t *);
 /* end svzint */
 
 SERVEEZ_API int svz_sock_nconnections (void);
-SERVEEZ_API svz_socket_t *svz_sock_alloc (void);
-SERVEEZ_API int svz_sock_free (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_create (int);
 SERVEEZ_API int svz_sock_disconnect (svz_socket_t *);
 SERVEEZ_API int svz_sock_write (svz_socket_t *, char *, int);
