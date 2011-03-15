@@ -77,7 +77,7 @@ See the end for copying conditions.
       | x | svz_have_debug           | var        | obsoleted by "features"    |
       | x | svz_have_floodprotect    | var        | obsoleted by "features"    |
       |   | svz_os_version           | woe        | internalize                |
-      |   | svz_syserror             | woe        | generalize                 |
+      | x | svz_syserror             | woe        | internalize                |
       |   | svz_sys_version          | spewful    | split up                   |
       | x | svz_mutex_*              | suboptimal | internalize                |
       | x | svz_codec_init           | impl       | internalize                |
