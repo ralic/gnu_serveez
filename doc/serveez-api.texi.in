@@ -560,7 +560,6 @@ function which kind of socket it can handle and what they are for.
 |F| svz_sock_printf
 |F| svz_sock_resize_buffers
 |F| svz_sock_check_request
-|F| svz_sock_flood_protect
 |M| svz_sock_reduce_recv
 |M| svz_sock_reduce_send
 

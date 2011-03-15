@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_flood_protect’.
+
+	* serveez-api.texi.in (Socket management):
+	Delete ‘svz_sock_flood_protect’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_idle_protect’.
 
 	* serveez-api.texi.in (Socket management):
