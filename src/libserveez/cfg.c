@@ -516,7 +516,7 @@ static svz_hash_t *svz_config_types = NULL;
  * Add the configurable type described by @var{type} to the list of
  * known configurable types.
  */
-void
+static void
 svz_config_type_add (svz_config_type_t *type)
 {
   svz_hash_put (svz_config_types, type->name, type);

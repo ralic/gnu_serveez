@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_config_type_add’.
+
+	* serveez-api.texi.in (Server configuration):
+	Delete ‘svz_config_type_add’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_config_instantiate’.
 
 	* serveez-api.texi.in (Server configuration):
