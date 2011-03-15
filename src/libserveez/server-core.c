@@ -410,6 +410,23 @@ svz_sock_print_list (void)
 }
 
 /*
+ * Check if a given socket is still valid.  Return non-zero if it is
+ * not.
+ */
+static int
+svz_sock_valid (svz_socket_t *sock)
+{
+  if (!(sock->flags & (SOCK_FLAG_LISTENING |
+                       SOCK_FLAG_CONNECTED | SOCK_FLAG_CONNECTING)))
+    return -1;
+
+  if (sock->sock_desc == INVALID_SOCKET)
+    return -1;
+
+  return 0;
+}
+
+/*
  * Go through the socket list and check if it is still consistent.
  * Abort the program with an error message, if it is not.
  */

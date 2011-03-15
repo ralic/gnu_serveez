@@ -1,5 +1,11 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_valid’.
+
+	* serveez-api.texi.in (Socket management): Delete ‘svz_sock_valid’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_syserror’.
 
 	* serveez-api.texi.in (Utility functions): Delete ‘svz_syserror’.

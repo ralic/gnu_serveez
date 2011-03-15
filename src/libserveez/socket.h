@@ -247,7 +247,6 @@ SBO int svz_sock_connections;
 /* end svzint */
 
 SERVEEZ_API int svz_sock_nconnections (void);
-SERVEEZ_API int svz_sock_valid (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_alloc (void);
 SERVEEZ_API int svz_sock_free (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_create (int);

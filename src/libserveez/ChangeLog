@@ -1,5 +1,13 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_valid’.
+
+	* socket.c (svz_sock_valid): Move from here...
+	* server-core.c (svz_sock_valid): ...to here; make static.
+	* socket.h (svz_sock_valid): Delete func decl.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_syserror’.
 
 	* coserver/xerror.c (xerror): Use ‘svz_net_strerror’.

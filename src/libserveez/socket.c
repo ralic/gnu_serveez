@@ -570,23 +570,6 @@ svz_sock_error_info (svz_socket_t *sock)
 }
 
 /*
- * Check if a given socket is still valid.  Return non-zero if it is
- * not.
- */
-int
-svz_sock_valid (svz_socket_t *sock)
-{
-  if (!(sock->flags & (SOCK_FLAG_LISTENING |
-                       SOCK_FLAG_CONNECTED | SOCK_FLAG_CONNECTING)))
-    return -1;
-
-  if (sock->sock_desc == INVALID_SOCKET)
-    return -1;
-
-  return 0;
-}
-
-/*
  * Create a socket structure from the file descriptor @var{fd}.  Set the
  * socket descriptor to non-blocking I/O.  Return @code{NULL} on errors.
  */
