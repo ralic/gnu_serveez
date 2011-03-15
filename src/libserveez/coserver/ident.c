@@ -85,7 +85,7 @@ ident_handle_request (char *inbuf)
   /* Create a socket for communication with the ident server.  */
   if ((sock = socket (AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
     {
-      svz_log (LOG_ERROR, "ident: socket: %s\n", NET_ERROR);
+      svz_log_net_error ("ident: socket");
       return NULL;
     }
 
@@ -96,7 +96,7 @@ ident_handle_request (char *inbuf)
   server.sin_port = htons (IDENT_PORT);
   if (connect (sock, (struct sockaddr *) &server, sizeof (server)) == -1)
     {
-      svz_log (LOG_ERROR, "ident: connect: %s\n", NET_ERROR);
+      svz_log_net_error ("ident: connect");
       svz_closesocket (sock);
       return NULL;
     }
@@ -112,7 +112,7 @@ ident_handle_request (char *inbuf)
       if ((r = recv (sock, rp,
                      COSERVER_BUFSIZE - (rp - ident_response), 0)) < 0)
         {
-          svz_log (LOG_ERROR, "ident: recv: %s\n", NET_ERROR);
+          svz_log_net_error ("ident: recv");
           svz_closesocket (sock);
           return NULL;
         }
@@ -121,9 +121,9 @@ ident_handle_request (char *inbuf)
 
   /* Now close the socket and notify the response.  */
   if (shutdown (sock, 2) == -1)
-    svz_log (LOG_ERROR, "ident: shutdown: %s\n", NET_ERROR);
+    svz_log_net_error ("ident: shutdown");
   if (svz_closesocket (sock) < 0)
-    svz_log (LOG_ERROR, "ident: close: %s\n", NET_ERROR);
+    svz_log_net_error ("ident: close");
 
   svz_log (LOG_NOTICE, "ident: %s", ident_response);
 

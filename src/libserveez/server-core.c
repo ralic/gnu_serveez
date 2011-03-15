@@ -1177,7 +1177,7 @@ svz_sock_child_died (svz_socket_t *sock)
   else if (result != WAIT_TIMEOUT)
     {
       if (svz_closehandle (sock->pid) == -1)
-        svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+        svz_log_sys_error ("CloseHandle");
       return -1;
     }
 

@@ -319,8 +319,7 @@ irc_motd_callback (svz_socket_t *sock,
   /* try requesting the file */
   if (stat (cfg->MOTD_file, &buf) == -1)
     {
-      svz_log (LOG_ERROR, "irc: /MOTD error: %s (%s)\n",
-               SYS_ERROR, cfg->MOTD_file);
+      svz_log_sys_error ("irc: /MOTD error (%s)", cfg->MOTD_file);
       irc_printf (sock, ":%s %03d %s " ERR_NOMOTD_TEXT "\n",
                   cfg->host, ERR_NOMOTD, client->nick);
       return 0;
@@ -332,7 +331,7 @@ irc_motd_callback (svz_socket_t *sock,
       cfg->MOTD_lastModified =  buf.st_mtime;
       if ((f = fopen (cfg->MOTD_file, "r")) == NULL)
         {
-          svz_log (LOG_ERROR, "irc: /MOTD error: %s\n", SYS_ERROR);
+          svz_log_sys_error ("irc: /MOTD error");
           return 0;
         }
 

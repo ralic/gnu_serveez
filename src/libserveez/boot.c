@@ -97,7 +97,7 @@ svz_net_startup (void)
   /* Call this once before using Winsock API.  */
   if (WSAStartup (WINSOCK_VERSION, &WSAData) == SOCKET_ERROR)
     {
-      svz_log (LOG_ERROR, "WSAStartup: %s\n", NET_ERROR);
+      svz_log_net_error ("WSAStartup");
       WSACleanup ();
       return 0;
     }
@@ -123,7 +123,7 @@ svz_net_cleanup (void)
   /* Call this when disconnecting from Winsock API.  */
   if (WSACleanup () == SOCKET_ERROR)
     {
-      svz_log (LOG_ERROR, "WSACleanup: %s\n", NET_ERROR);
+      svz_log_net_error ("WSACleanup");
       return 0;
     }
 

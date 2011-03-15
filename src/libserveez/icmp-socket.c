@@ -183,7 +183,7 @@ svz_icmp_startup (void)
   /* load library */
   if ((IcmpHandle = LoadLibrary ("ICMP.DLL")) == NULL)
     {
-      svz_log (LOG_ERROR, "icmp: LoadLibrary: %s\n", SYS_ERROR);
+      svz_log_sys_error ("icmp: LoadLibrary");
       return;
     }
 
@@ -197,7 +197,7 @@ svz_icmp_startup (void)
   if (IcmpSendEcho == NULL ||
       IcmpCloseHandle == NULL || IcmpCreateFile == NULL)
     {
-      svz_log (LOG_ERROR, "icmp: GetProcAddress: %s\n", SYS_ERROR);
+      svz_log_sys_error ("icmp: GetProcAddress");
       FreeLibrary (IcmpHandle);
       IcmpHandle = NULL;
       return;
@@ -206,7 +206,7 @@ svz_icmp_startup (void)
   /* open ping service */
   if (svz_invalid_handle_p (hIcmp = IcmpCreateFile ()))
     {
-      svz_log (LOG_ERROR, "IcmpCreateFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("IcmpCreateFile");
       FreeLibrary (IcmpHandle);
       IcmpHandle = NULL;
       return;
@@ -227,7 +227,7 @@ svz_icmp_cleanup (void)
   if (! svz_invalid_handle_p (hIcmp))
     {
       if (!IcmpCloseHandle (hIcmp))
-       svz_log (LOG_ERROR, "IcmpCloseHandle: %s\n", SYS_ERROR);
+       svz_log_sys_error ("IcmpCloseHandle");
     }
 
   /* release ICMP.DLL */
@@ -472,8 +472,9 @@ svz_icmp_read_socket (svz_socket_t *sock)
   /* Some error occurred.  */
   else
     {
-      svz_log (LOG_ERROR, "icmp: recv%s: %s\n",
-               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from", NET_ERROR);
+      svz_log_net_error ("icmp: recv%s", (sock->flags & SOCK_FLAG_CONNECTED
+                                          ? ""
+                                          : "from"));
       if (! svz_socket_unavailable_error_p ())
         return -1;
     }
@@ -543,8 +544,9 @@ svz_icmp_write_socket (svz_socket_t *sock)
   /* Some error occurred while sending.  */
   if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "icmp: send%s: %s\n",
-               sock->flags & SOCK_FLAG_CONNECTED ? "" : "to", NET_ERROR);
+      svz_log_net_error ("icmp: send%s", (sock->flags & SOCK_FLAG_CONNECTED
+                                          ? ""
+                                          : "to"));
       if (svz_socket_unavailable_error_p ())
         num_written = 0;
     }

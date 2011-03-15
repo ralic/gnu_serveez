@@ -196,7 +196,7 @@ svz_check_sockets_select (void)
     {
       if (nfds < 0)
         {
-          svz_log (LOG_ERROR, "select: %s\n", NET_ERROR);
+          svz_log_net_error ("select");
           if (errno == EBADF)
             svz_sock_check_bogus ();
           return -1;
@@ -493,7 +493,7 @@ svz_check_sockets_poll (void)
     {
       if (polled < 0)
         {
-          svz_log (LOG_ERROR, "poll: %s\n", NET_ERROR);
+          svz_log_net_error ("poll");
           if (errno == EBADF)
             svz_sock_check_bogus ();
           return -1;
@@ -713,7 +713,7 @@ svz_check_sockets_MinGW (void)
     {
       if (nfds < 0)
         {
-          svz_log (LOG_ERROR, "select: %s\n", NET_ERROR);
+          svz_log_net_error ("select");
           /* FIXME: What value do we choose here?  */
           if (svz_errno != 0)
             svz_sock_check_bogus ();

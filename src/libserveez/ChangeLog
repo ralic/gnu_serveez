@@ -1,5 +1,32 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add funcs: svz_log_{sys,net}_error
+
+	* util.h (svz_log_sys_error)
+	(svz_log_net_error): New func decls, marked ‘SERVEEZ_API’.
+	* util.c (PREFIX_SIZE, ERRMSG_SIZE): New #define:s.
+	(save_errmsg, log_error): New static funcs.
+	(LOG_ERROR_FROM): New macro.
+	(svz_log_sys_error, svz_log_net_error): New funcs.
+	(svz_sys_version, svz_openfiles): Use new funcs.
+	* boot.c: Throughout, use new funcs.
+	* core.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* coserver/ident.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* mutex.c: Likewise.
+	* passthrough.c: Likewise.
+	* pipe-socket.c: Likewise.
+	* server-core.c: Likewise.
+	* server-loop.c: Likewise.
+	* server-socket.c: Likewise.
+	* socket.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+	* windoze.c: Likewise.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_hstrerror’.
 
 	* coserver/xerror.h: New file.

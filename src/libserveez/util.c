@@ -466,7 +466,7 @@ svz_sys_version (void)
   osver.dwOSVersionInfoSize = sizeof (osver);
   if (!GetVersionEx (&osver))
     {
-      svz_log (LOG_ERROR, "GetVersionEx: %s\n", SYS_ERROR);
+      svz_log_sys_error ("GetVersionEx");
       sprintf (os, "unknown Windows");
     }
   else
@@ -598,7 +598,7 @@ svz_openfiles (int max_sockets)
 
   if ((openfiles = getdtablesize ()) == -1)
     {
-      svz_log (LOG_ERROR, "getdtablesize: %s\n", SYS_ERROR);
+      svz_log_sys_error ("getdtablesize");
       return -1;
     }
   svz_log (LOG_NOTICE, "file descriptor table size: %d\n", openfiles);
@@ -612,7 +612,7 @@ svz_openfiles (int max_sockets)
 
   if (getrlimit (RLIMIT_NOFILE, &rlim) == -1)
     {
-      svz_log (LOG_ERROR, "getrlimit: %s\n", SYS_ERROR);
+      svz_log_sys_error ("getrlimit");
       return -1;
     }
   svz_log (LOG_NOTICE, "current open file limit: %d/%d\n",
@@ -626,7 +626,7 @@ svz_openfiles (int max_sockets)
 
       if (setrlimit (RLIMIT_NOFILE, &rlim) == -1)
         {
-          svz_log (LOG_ERROR, "setrlimit: %s\n", SYS_ERROR);
+          svz_log_sys_error ("setrlimit");
           return -1;
         }
       getrlimit (RLIMIT_NOFILE, &rlim);
@@ -673,4 +673,54 @@ svz_openfiles (int max_sockets)
 #endif /* MINGW32__ */
 
   return 0;
+}
+
+#define PREFIX_SIZE  256                /* 255 + one for '\0' */
+#define ERRMSG_SIZE  128
+
+static void
+save_errmsg (char *buf, char const *source)
+{
+  *buf = '\0';
+  strncat (buf, source, ERRMSG_SIZE - 1);
+}
+
+static void
+log_error (char const *prefix, char const *errmsg)
+{
+  svz_log (LOG_ERROR, "%s: %s\n", prefix, errmsg);
+}
+
+#define LOG_ERROR_FROM(SOURCE)  do                      \
+    {                                                   \
+      char prefix[PREFIX_SIZE];                         \
+      char errmsg[ERRMSG_SIZE];                         \
+      va_list args;                                     \
+                                                        \
+      save_errmsg (errmsg, SOURCE);                     \
+                                                        \
+      va_start (args, fmt);                             \
+      vsnprintf (prefix, PREFIX_SIZE, fmt, args);       \
+      va_end (args);                                    \
+                                                        \
+      log_error (prefix, errmsg);                       \
+    }                                                   \
+  while (0)
+
+/*
+ * Log the current @dfn{system error}.
+ */
+void
+svz_log_sys_error (char const *fmt, ...)
+{
+  LOG_ERROR_FROM (SYS_ERROR);
+}
+
+/*
+ * Log the current @dfn{network error}.
+ */
+void
+svz_log_net_error (char const *fmt, ...)
+{
+  LOG_ERROR_FROM (NET_ERROR);
 }

@@ -306,7 +306,7 @@ svz_coserver_loop (svz_coserver_t *coserver, svz_socket_t *sock)
       /* suspend myself and wait for being resumed ...  */
       if (SuspendThread (coserver->thread) == 0xFFFFFFFF)
         {
-          svz_log (LOG_ERROR, "SuspendThread: %s\n", SYS_ERROR);
+          svz_log_sys_error ("SuspendThread");
         }
     }
 }
@@ -323,12 +323,12 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 
   if ((in = fdopen (in_pipe, "r")) == NULL)
     {
-      svz_log (LOG_ERROR, "coserver: fdopen (%d): %s\n", in_pipe, SYS_ERROR);
+      svz_log_sys_error ("coserver: fdopen (%d)", in_pipe);
       return;
     }
   if ((out = fdopen (out_pipe, "w")) == NULL)
     {
-      svz_log (LOG_ERROR, "coserver: fdopen (%d): %s\n", out_pipe, SYS_ERROR);
+      svz_log_sys_error ("coserver: fdopen (%d)", out_pipe);
       return;
     }
 
@@ -347,9 +347,9 @@ svz_coserver_loop (svz_coserver_t *coserver, int in_pipe, int out_pipe)
 
   /* error in reading pipe */
   if (fclose (in))
-    svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+    svz_log_sys_error ("fclose");
   if (fclose (out))
-    svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+    svz_log_sys_error ("fclose");
 }
 
 #endif /* not __MINGW32__ */
@@ -464,11 +464,11 @@ svz_coserver_disconnect (svz_socket_t *sock)
                    svz_coservertypes[coserver->type].name, coserver->pid);
 #endif /* ENABLE_DEBUG */
           if (kill (coserver->pid, SIGKILL) == -1)
-            svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+            svz_log_sys_error ("kill");
 #if HAVE_WAITPID
           /* cleanup coserver child process */
           else if (waitpid (coserver->pid, NULL, WNOHANG) == -1)
-            svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
+            svz_log_sys_error ("waitpid");
 #endif /* HAVE_WAITPID */
           /* re-arrange the internal coserver array */
           svz_coserver_delete (n);
@@ -701,20 +701,20 @@ svz_coserver_destroy (int type)
 #ifdef __MINGW32__
           /* stop the thread and close its handle */
           if (!TerminateThread (coserver->thread, 0))
-            svz_log (LOG_ERROR, "TerminateThread: %s\n", SYS_ERROR);
+            svz_log_sys_error ("TerminateThread");
           if (!CloseHandle (coserver->thread))
-            svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+            svz_log_sys_error ("CloseHandle");
           DeleteCriticalSection (&coserver->sync);
 
           /* free all data reserved by the coserver */
           svz_sock_free (coserver->sock);
 #else /* not __MINGW32__ */
           if (kill (coserver->pid, SIGKILL) == -1)
-            svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+            svz_log_sys_error ("kill");
 #if HAVE_WAITPID
           /* cleanup coserver child process */
           else if (waitpid (coserver->pid, NULL, WNOHANG) == -1)
-            svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
+            svz_log_sys_error ("waitpid");
 #endif /* HAVE_WAITPID */
 #endif /* not __MINGW32__ */
           svz_coserver_delete (n);
@@ -795,7 +795,7 @@ svz_coserver_start (int type)
       (DWORD) CREATE_SUSPENDED,     /* creation flags */
       (LPDWORD) &tid)))             /* thread id */
     {
-      svz_log (LOG_ERROR, "CreateThread: %s\n", SYS_ERROR);
+      svz_log_sys_error ("CreateThread");
       DeleteCriticalSection (&coserver->sync);
       svz_sock_free (sock);
       return NULL;
@@ -807,7 +807,7 @@ svz_coserver_start (int type)
 
   /* set thread priority */
   if (!SetThreadPriority (thread, COSERVER_THREAD_PRIORITY))
-    svz_log (LOG_ERROR, "SetThreadPriority: %s\n", SYS_ERROR);
+    svz_log_sys_error ("SetThreadPriority");
 
 #ifdef ENABLE_DEBUG
   svz_log (LOG_DEBUG, "coserver thread id is 0x%08X\n", tid);
@@ -818,7 +818,7 @@ svz_coserver_start (int type)
   /* create pipes for process communication */
   if (pipe (s2c) < 0)
     {
-      svz_log (LOG_ERROR, "pipe server-coserver: %s\n", SYS_ERROR);
+      svz_log_sys_error ("pipe server-coserver");
       svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
@@ -826,7 +826,7 @@ svz_coserver_start (int type)
     {
       close (s2c[SVZ_READ]);
       close (s2c[SVZ_WRITE]);
-      svz_log (LOG_ERROR, "pipe coserver-server: %s\n", SYS_ERROR);
+      svz_log_sys_error ("pipe coserver-server");
       svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }
@@ -838,9 +838,9 @@ svz_coserver_start (int type)
 
       /* close the servers pipe descriptors */
       if (close (s2c[SVZ_WRITE]) < 0)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
       if (close (c2s[SVZ_READ]) < 0)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
 
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "coserver pipes: %d-%d\n", in, out);
@@ -851,9 +851,9 @@ svz_coserver_start (int type)
         {
           /* reassign the pipes to stdout and stdin */
           if (dup2 (in, 0) != 0)
-            svz_log (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+            svz_log_sys_error ("dup2");
           if (dup2 (out, 1) != 1)
-            svz_log (LOG_ERROR, "dup2: %s\n", SYS_ERROR);
+            svz_log_sys_error ("dup2");
           /* close the old pipe descriptors */
           close (in);
           close (out);
@@ -882,7 +882,7 @@ svz_coserver_start (int type)
     }
   else if (pid == -1)
     {
-      svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+      svz_log_sys_error ("fork");
       close (s2c[SVZ_READ]);
       close (s2c[SVZ_WRITE]);
       close (c2s[SVZ_READ]);
@@ -899,16 +899,16 @@ svz_coserver_start (int type)
 
   /* close the coservers pipe descriptors */
   if (close (s2c[SVZ_READ]) < 0)
-    svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+    svz_log_sys_error ("close");
   if (close (c2s[SVZ_WRITE]) < 0)
-    svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+    svz_log_sys_error ("close");
 
   if ((sock = svz_pipe_create (c2s[SVZ_READ], s2c[SVZ_WRITE])) == NULL)
     {
       if (close (c2s[SVZ_READ]) < 0)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
       if (close (s2c[SVZ_WRITE]) < 0)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
       svz_coserver_delete (svz_array_size (svz_coservers) - 1);
       return NULL;
     }

@@ -70,7 +70,7 @@ svz_fd_nonblock (int fd)
 
   if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
-      svz_log (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      svz_log_net_error ("ioctlsocket");
       return -1;
     }
 #else /* not __MINGW32__ */
@@ -79,7 +79,7 @@ svz_fd_nonblock (int fd)
   flag = fcntl (fd, F_GETFL);
   if (fcntl (fd, F_SETFL, flag | O_NONBLOCK) < 0)
     {
-      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log_net_error ("fcntl");
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -99,7 +99,7 @@ svz_fd_block (int fd)
 
   if (ioctlsocket (fd, FIONBIO, &blockMode) == SOCKET_ERROR)
     {
-      svz_log (LOG_ERROR, "ioctlsocket: %s\n", NET_ERROR);
+      svz_log_net_error ("ioctlsocket");
       return -1;
     }
 #else /* not __MINGW32__ */
@@ -108,7 +108,7 @@ svz_fd_block (int fd)
   flag = fcntl (fd, F_GETFL);
   if (fcntl (fd, F_SETFL, flag & ~O_NONBLOCK) < 0)
     {
-      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log_net_error ("fcntl");
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -143,7 +143,7 @@ svz_fd_cloexec (int fd)
   flag = fcntl (fd, F_GETFD);
   if ((fcntl (fd, F_SETFD, flag | FD_CLOEXEC)) < 0)
     {
-      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log_net_error ("fcntl");
       return -1;
     }
 
@@ -211,7 +211,7 @@ svz_socket_create_pair (int proto, svz_t_socket desc[2])
   /* Create the pair of sockets.  */
   if (socketpair (AF_UNIX, stype, ptype, desc) < 0)
     {
-      svz_log (LOG_ERROR, "socketpair: %s\n", NET_ERROR);
+      svz_log_net_error ("socketpair");
       return -1;
     }
 
@@ -271,7 +271,7 @@ svz_socket_create (int proto)
   /* Create a socket for communication with a server.  */
   if ((sockfd = socket (AF_INET, stype, ptype)) == INVALID_SOCKET)
     {
-      svz_log (LOG_ERROR, "socket: %s\n", NET_ERROR);
+      svz_log_net_error ("socket");
       return (svz_t_socket) -1;
     }
 
@@ -308,7 +308,7 @@ svz_socket_type (svz_t_socket fd, int *type)
       if (getsockopt (fd, SOL_SOCKET, SO_TYPE,
                       (void *) &optval, &optlen) < 0)
         {
-          svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+          svz_log_net_error ("getsockopt");
           return -1;
         }
       *type = optval;
@@ -344,7 +344,7 @@ svz_socket_connect (svz_t_socket sockfd,
       if (error != SOCK_INPROGRESS
           && ! svz_socket_unavailable_error_p ())
         {
-          svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
+          svz_log_net_error ("connect");
           svz_closesocket (sockfd);
           return -1;
         }
@@ -425,7 +425,7 @@ svz_tcp_cork (svz_t_socket fd, int set)
   /* get current socket options */
   if ((flags = fcntl (fd, F_GETFL)) < 0)
     {
-      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log_net_error ("fcntl");
       return -1;
     }
 
@@ -435,7 +435,7 @@ svz_tcp_cork (svz_t_socket fd, int set)
   /* apply new socket option */
   if (fcntl (fd, F_SETFL, flags) < 0)
     {
-      svz_log (LOG_ERROR, "fcntl: %s\n", NET_ERROR);
+      svz_log_net_error ("fcntl");
       return -1;
     }
 
@@ -469,7 +469,7 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
       if (getsockopt (fd, SOL_TCP, TCP_NODELAY,
                       (void *) &optval, &optlen) < 0)
         {
-          svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+          svz_log_net_error ("getsockopt");
           return -1;
         }
       *old = optval ? 1 : 0;
@@ -480,7 +480,7 @@ svz_tcp_nodelay (svz_t_socket fd, int set, int *old)
   if (setsockopt (fd, SOL_TCP, TCP_NODELAY,
                   (void *) &optval, sizeof (optval)) < 0)
     {
-      svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+      svz_log_net_error ("setsockopt");
       return -1;
     }
 #else /* not TCP_NODELAY */
@@ -580,7 +580,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
       /* Some error occurred.  */
       else
         {
-          svz_log (LOG_ERROR, "TransmitFile: %s\n", SYS_ERROR);
+          svz_log_sys_error ("TransmitFile");
           ret = -1;
         }
     }
@@ -676,7 +676,7 @@ svz_open (const char *file, int flags, unsigned int mode)
 
   if ((fd = open (file, flags, (mode_t) mode)) < 0)
     {
-      svz_log (LOG_ERROR, "open (%s): %s\n", file, SYS_ERROR);
+      svz_log_sys_error ("open (%s)", file);
       return -1;
     }
   if (svz_fd_cloexec (fd) < 0)
@@ -719,7 +719,7 @@ svz_open (const char *file, int flags, unsigned int mode)
   if (svz_invalid_handle_p (fd = CreateFile (file, access, 0, NULL,
                                              creation, 0, NULL)))
     {
-      svz_log (LOG_ERROR, "CreateFile (%s): %s\n", file, SYS_ERROR);
+      svz_log_sys_error ("CreateFile (%s)", file);
       return -1;
     }
 
@@ -739,14 +739,14 @@ svz_close (int fd)
 #ifndef __MINGW32__
   if (close (fd) < 0)
     {
-      svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+      svz_log_sys_error ("close");
       return -1;
     }
   svz_file_del (fd);
 #else /* __MINGW32__ */
   if (!CloseHandle ((svz_t_handle) fd))
     {
-      svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      svz_log_sys_error ("CloseHandle");
       return -1;
     }
 #endif /* not __MINGW32__ */
@@ -776,7 +776,7 @@ svz_fstat (int fd, struct stat *buf)
 #ifndef __MINGW32__
   if (fstat (fd, buf) < 0)
     {
-      svz_log (LOG_ERROR, "fstat: %s\n", SYS_ERROR);
+      svz_log_sys_error ("fstat");
       return -1;
     }
 #else /* __MINGW32__ */
@@ -787,7 +787,7 @@ svz_fstat (int fd, struct stat *buf)
 
   if (!GetFileInformationByHandle ((svz_t_handle) fd, &info))
     {
-      svz_log (LOG_ERROR, "GetFileInformationByHandle: %s\n", SYS_ERROR);
+      svz_log_sys_error ("GetFileInformationByHandle");
       return -1;
     }
 
@@ -823,7 +823,7 @@ svz_fopen (const char *file, const char *mode)
 
   if ((f = fopen (file, mode)) == NULL)
     {
-      svz_log (LOG_ERROR, "fopen (%s): %s\n", file, SYS_ERROR);
+      svz_log_sys_error ("fopen (%s)", file);
       return NULL;
     }
 #ifndef __MINGW32__
@@ -848,7 +848,7 @@ svz_fclose (FILE *f)
 #endif
   if (fclose (f) < 0)
     {
-      svz_log (LOG_ERROR, "fclose: %s\n", SYS_ERROR);
+      svz_log_sys_error ("fclose");
       return -1;
     }
   return 0;

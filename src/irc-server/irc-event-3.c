@@ -361,7 +361,7 @@ irc_info_callback (svz_socket_t *sock,
     {
       if ((f = fopen (cfg->info_file, "r")) == NULL)
         {
-          svz_log (LOG_ERROR, "irc: /INFO error: %s\n", SYS_ERROR);
+          svz_log_sys_error ("irc: /INFO error");
           irc_printf (sock, ":%s %03d %s " ERR_FILEERROR_TEXT "\n",
                       cfg->host, ERR_FILEERROR, client->nick,
                       "open", cfg->info_file);

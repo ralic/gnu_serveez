@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add funcs: svz_log_{sys,net}_error
+
+	* serveez-api.texi.in (Utility functions):
+	Add common blurb, ‘svz_log_sys_error’, ‘svz_log_net_error’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_hstrerror’.
 
 	* serveez-api.texi.in (Utility functions): Delete ‘svz_hstrerror’.

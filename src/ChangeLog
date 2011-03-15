@@ -1,3 +1,19 @@
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add funcs: svz_log_{sys,net}_error
+
+	* http-server/http-cache.c: Throughout, use new funcs.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-core.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-event-3.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* serveez.c: Likewise.
+	* woe-wait.h: Likewise.
+
 2011-03-14  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Rename some #define:s with "SVZ_" prefix.

@@ -66,6 +66,9 @@ SERVEEZ_API char *svz_sys_version (void);
 
 SERVEEZ_API int svz_socket_unavailable_error_p (void);
 
+SERVEEZ_API void svz_log_sys_error (char const *, ...);
+SERVEEZ_API void svz_log_net_error (char const *, ...);
+
 /* Converts the integer value @var{n} into a pointer platform independently.
    Both of the @code{SVZ_NUM2PTR} and @code{SVZ_PTR2NUM} macros rely on
    the @code{(unsigned long)} having the same size as @code{(void *)}.  */

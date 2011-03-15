@@ -182,7 +182,7 @@ nut_save_transfer (svz_socket_t *sock)
       /* seems like an error occurred */
       if (num_written < 0)
         {
-          svz_log (LOG_ERROR, "nut: write: %s\n", SYS_ERROR);
+          svz_log_sys_error ("nut: write");
           return -1;
         }
 
@@ -292,7 +292,7 @@ nut_disconnect_transfer (svz_socket_t *sock)
 
   /* finally close the received file */
   if (close (sock->file_desc) == -1)
-    svz_log (LOG_ERROR, "nut: close: %s\n", SYS_ERROR);
+    svz_log_sys_error ("nut: close");
 
   /* free the transfer data */
   if (transfer)
@@ -305,7 +305,7 @@ nut_disconnect_transfer (svz_socket_t *sock)
                    transfer->file);
 #endif
           if (unlink (transfer->file) == -1)
-            svz_log (LOG_ERROR, "nut: unlink: %s\n", SYS_ERROR);
+            svz_log_sys_error ("nut: unlink");
         }
 
       /*
@@ -391,7 +391,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
   /* try creating local file */
   if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
     {
-      svz_log (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
+      svz_log_sys_error ("nut: open");
       svz_free (file);
       return -1;
     }
@@ -507,7 +507,7 @@ nut_check_given (svz_socket_t *sock)
       /* try creating local file */
       if ((fd = open (file, O_RDWR | O_CREAT | O_BINARY, 0644)) == -1)
         {
-          svz_log (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
+          svz_log_sys_error ("nut: open");
           return -1;
         }
 
@@ -883,7 +883,7 @@ nut_init_upload (svz_socket_t *sock, nut_file_t *entry)
   /* open the file for reading */
   if ((fd = open (file, O_RDONLY | O_BINARY)) == -1)
     {
-      svz_log (LOG_ERROR, "nut: open: %s\n", SYS_ERROR);
+      svz_log_sys_error ("nut: open");
       svz_free (file);
       return -1;
     }
@@ -926,7 +926,7 @@ nut_disconnect_upload (svz_socket_t *sock)
 
   /* finally close the received file */
   if (close (sock->file_desc) == -1)
-    svz_log (LOG_ERROR, "nut: close: %s\n", SYS_ERROR);
+    svz_log_sys_error ("nut: close");
 
   /* free the transfer data */
   if (transfer)
@@ -969,7 +969,7 @@ nut_file_read (svz_socket_t *sock)
   /* Read error occurred.  */
   if (num_read < 0)
     {
-      svz_log (LOG_ERROR, "nut: read: %s\n", SYS_ERROR);
+      svz_log_sys_error ("nut: read");
       return -1;
     }
 
@@ -1046,7 +1046,7 @@ nut_file_write (svz_socket_t *sock)
   /* write error occurred */
   else if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
+      svz_log_net_error ("nut: send");
       if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = t + RELAX_FD_TIME;

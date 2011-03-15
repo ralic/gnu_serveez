@@ -45,7 +45,7 @@ svz_mutex_create (svz_mutex_t *mutex)
 #ifdef __MINGW32__ /* Windoze native */
   if ((*mutex = CreateMutex (NULL, FALSE, NULL)) == NULL)
     {
-      svz_log (LOG_ERROR, "CreateMutex: %s\n", SYS_ERROR);
+      svz_log_sys_error ("CreateMutex");
       return -1;
     }
   return 0;
@@ -62,7 +62,7 @@ svz_mutex_destroy (svz_mutex_t *mutex)
 #ifdef __MINGW32__
   if (!CloseHandle (*mutex))
     {
-      svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+      svz_log_sys_error ("CloseHandle");
       return -1;
     }
   *mutex = SVZ_MUTEX_INITIALIZER;
@@ -70,7 +70,7 @@ svz_mutex_destroy (svz_mutex_t *mutex)
 #else
   if (pthread_mutex_destroy (mutex) != 0)
     {
-      svz_log (LOG_ERROR, "pthread_mutex_destroy: %s\n", SYS_ERROR);
+      svz_log_sys_error ("pthread_mutex_destroy");
       return -1;
     }
   return 0;
@@ -93,7 +93,7 @@ svz_mutex_lock (svz_mutex_t *mutex)
 #else
   if (pthread_mutex_lock (mutex) != 0)
     {
-      svz_log (LOG_ERROR, "pthread_mutex_lock: %s\n", SYS_ERROR);
+      svz_log_sys_error ("pthread_mutex_lock");
       return -1;
     }
   return 0;
@@ -108,14 +108,14 @@ svz_mutex_unlock (svz_mutex_t *mutex)
 #ifdef __MINGW32__
   if (!ReleaseMutex (mutex))
     {
-      svz_log (LOG_ERROR, "ReleaseMutex: %s\n", SYS_ERROR);
+      svz_log_sys_error ("ReleaseMutex");
       return -1;
     }
   return 0;
 #else
   if (pthread_mutex_unlock (mutex) != 0)
     {
-      svz_log (LOG_ERROR, "pthread_mutex_unlock: %s\n", SYS_ERROR);
+      svz_log_sys_error ("pthread_mutex_unlock");
       return -1;
     }
   return 0;

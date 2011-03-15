@@ -292,7 +292,7 @@ svz_process_idle (svz_socket_t *sock)
   else if (result != WAIT_TIMEOUT)
     {
       if (svz_closehandle (sock->pid) == -1)
-        svz_log (LOG_ERROR, "passthrough: CloseHandle: %s\n", SYS_ERROR);
+        svz_log_sys_error ("passthrough: CloseHandle");
       svz_child_died = sock->pid;
       svz_invalidate_handle (&sock->pid);
       return -1;
@@ -355,7 +355,7 @@ svz_process_send_pipe (svz_socket_t *sock)
   if ((num_written = write ((int) sock->pipe_desc[SVZ_WRITE],
                             sock->send_buffer, do_write)) == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: write: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: write");
       if (svz_errno == EAGAIN)
         num_written = 0;
     }
@@ -363,7 +363,7 @@ svz_process_send_pipe (svz_socket_t *sock)
    if (!WriteFile (sock->pipe_desc[SVZ_WRITE], sock->send_buffer,
                    do_write, (DWORD *) &num_written, NULL))
     {
-      svz_log (LOG_ERROR, "passthrough: WriteFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: WriteFile");
       num_written = -1;
     }
 #endif /* __MINGW32__ */
@@ -431,7 +431,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
                         sock->recv_buffer + sock->recv_buffer_fill,
                         do_read)) == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: read: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: read");
       if (svz_errno == EAGAIN)
         return 0;
     }
@@ -439,7 +439,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
   if (!PeekNamedPipe (sock->pipe_desc[SVZ_READ], NULL, 0,
                       NULL, (DWORD *) &num_read, NULL))
     {
-      svz_log (LOG_ERROR, "passthrough: PeekNamedPipe: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: PeekNamedPipe");
       return -1;
     }
   if (do_read > num_read)
@@ -448,7 +448,7 @@ svz_process_recv_pipe (svz_socket_t *sock)
                  sock->recv_buffer + sock->recv_buffer_fill,
                  do_read, (DWORD *) &num_read, NULL))
     {
-      svz_log (LOG_ERROR, "passthrough: ReadFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: ReadFile");
       num_read = -1;
     }
 #endif /* __MINGW32__ */
@@ -485,7 +485,7 @@ svz_process_send_socket (svz_socket_t *sock)
   if ((num_written = send (sock->sock_desc,
                            sock->send_buffer, do_write, 0)) == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: send: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: send");
       if (svz_errno == EAGAIN)
         num_written = 0;
     }
@@ -522,7 +522,7 @@ svz_process_recv_socket (svz_socket_t *sock)
                         sock->recv_buffer + sock->recv_buffer_fill,
                         do_read, 0)) == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: recv: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: recv");
       if (svz_errno == EAGAIN)
         return 0;
     }
@@ -560,7 +560,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
                             GetCurrentProcess (), &duphandle,
                             DUPLICATE_SAME_ACCESS, TRUE, 0))
         {
-          svz_log (LOG_ERROR, "passthrough: DuplicateHandle: %s\n", SYS_ERROR);
+          svz_log_sys_error ("passthrough: DuplicateHandle");
           svz_invalidate_handle (&duphandle);
         }
       return duphandle;
@@ -570,7 +570,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
   if (WSADuplicateSocket ((svz_t_socket) handle, GetCurrentProcessId (),
                           &info) == SOCKET_ERROR)
     {
-      svz_log (LOG_ERROR, "passthrough: WSADuplicateSocket: %s\n", NET_ERROR);
+      svz_log_net_error ("passthrough: WSADuplicateSocket");
       svz_invalidate_handle (&duphandle);
       return duphandle;
     }
@@ -578,7 +578,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
                             FROM_PROTOCOL_INFO,
                             &info, 0, 0)) == INVALID_SOCKET)
     {
-      svz_log (LOG_ERROR, "passthrough: WSASocket: %s\n", NET_ERROR);
+      svz_log_net_error ("passthrough: WSASocket");
       svz_invalidate_handle (&duphandle);
       return duphandle;
     }
@@ -604,8 +604,7 @@ svz_process_create_child (svz_process_t *proc)
 
   if (proc->dir && chdir (proc->dir) < 0)
     {
-      svz_log (LOG_ERROR, "passthrough: chdir (%s): %s\n",
-               proc->dir, SYS_ERROR);
+      svz_log_sys_error ("passthrough: chdir (%s)", proc->dir);
       return -1;
     }
 
@@ -614,7 +613,7 @@ svz_process_create_child (svz_process_t *proc)
 
   if (dup2 (proc->out, 1) != 1 || dup2 (proc->in, 0) != 0)
     {
-      svz_log (LOG_ERROR, "passthrough: unable to redirect: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: unable to redirect");
       return -1;
     }
 
@@ -637,7 +636,7 @@ svz_process_create_child (svz_process_t *proc)
   /* Execute the file itself here overwriting the current process.  */
   if (execve (proc->bin, proc->argv, svz_envblock_get (proc->envp)) == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: execve: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: execve");
       return -1;
     }
 
@@ -701,8 +700,7 @@ svz_process_create_child (svz_process_t *proc)
   savedir = svz_getcwd ();
   if (proc->dir && chdir (proc->dir) < 0)
     {
-      svz_log (LOG_ERROR, "passthrough: chdir (%s): %s\n",
-               proc->dir, SYS_ERROR);
+      svz_log_sys_error ("passthrough: chdir (%s)", proc->dir);
       svz_free (savedir);
       return -1;
     }
@@ -755,8 +753,7 @@ svz_process_create_child (svz_process_t *proc)
                       NULL,                          /* current directory */
                       &startup_info, &process_info))
     {
-      svz_log (LOG_ERROR, "passthrough: CreateProcess (%s): %s\n",
-               application, SYS_ERROR);
+      svz_log_sys_error ("passthrough: CreateProcess (%s)", application);
       chdir (savedir);
       svz_free (savedir);
       svz_free (application);
@@ -865,7 +862,7 @@ svz_process_shuffle (svz_process_t *proc)
     }
   else if (pid == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: fork: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: fork");
       return -1;
     }
 #else /* __MINGW32__ */
@@ -915,7 +912,7 @@ svz_process_fork (svz_process_t *proc)
     }
   else if (pid == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: fork: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: fork");
       return -1;
     }
 #endif /* __MINGW32__ */
@@ -941,7 +938,7 @@ svz_process_check_executable (char *file, char **app)
   /* Check the existence of the file.  */
   if (stat (file, &buf) < 0)
     {
-      svz_log (LOG_ERROR, "passthrough: stat: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: stat");
       return -1;
     }
 
@@ -979,7 +976,7 @@ svz_process_check_executable (char *file, char **app)
       *app = svz_malloc (MAX_PATH);
       if (FindExecutable (file, NULL, *app) <= (HINSTANCE) 32)
         {
-          svz_log (LOG_ERROR, "passthrough: FindExecutable: %s\n", SYS_ERROR);
+          svz_log_sys_error ("passthrough: FindExecutable");
           svz_free (*app);
           *app = NULL;
           return -1;
@@ -1036,7 +1033,7 @@ svz_process_check_access (char *file, char *user)
   /* get the executable permissions */
   if (stat (file, &buf) == -1)
     {
-      svz_log (LOG_ERROR, "passthrough: stat: %s\n", SYS_ERROR);
+      svz_log_sys_error ("passthrough: stat");
       return -1;
     }
 
@@ -1046,12 +1043,12 @@ svz_process_check_access (char *file, char *user)
     {
       if (setgid (buf.st_gid) == -1)
         {
-          svz_log (LOG_ERROR, "passthrough: setgid: %s\n", SYS_ERROR);
+          svz_log_sys_error ("passthrough: setgid");
           return -1;
         }
       if (setuid (buf.st_uid) == -1)
         {
-          svz_log (LOG_ERROR, "passthrough: setuid: %s\n", SYS_ERROR);
+          svz_log_sys_error ("passthrough: setuid");
           return -1;
         }
     }
@@ -1075,7 +1072,7 @@ svz_process_check_access (char *file, char *user)
           /* Set the group.  */
           if (setgid (g->gr_gid) == -1)
             {
-              svz_log (LOG_ERROR, "passthrough: setgid: %s\n", SYS_ERROR);
+              svz_log_sys_error ("passthrough: setgid");
               return -1;
             }
         }
@@ -1091,14 +1088,14 @@ svz_process_check_access (char *file, char *user)
         {
           if (setgid (u->pw_gid) == -1)
             {
-              svz_log (LOG_ERROR, "passthrough: setgid: %s\n", SYS_ERROR);
+              svz_log_sys_error ("passthrough: setgid");
               return -1;
             }
         }
       /* Set the user.  */
       if (setuid (u->pw_uid) == -1)
         {
-          svz_log (LOG_ERROR, "setuid: %s\n", SYS_ERROR);
+          svz_log_sys_error ("setuid");
           return -1;
         }
     }

@@ -407,7 +407,7 @@ http_cache_write (svz_socket_t *sock)
     }
   else if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "cache: send: %s\n", NET_ERROR);
+      svz_log_net_error ("cache: send");
       if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -480,9 +480,9 @@ http_cache_read (svz_socket_t *sock)
   if (num_read < 0)
     {
 #ifndef __MINGW32__
-      svz_log (LOG_ERROR, "cache: read: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cache: read");
 #else
-      svz_log (LOG_ERROR, "cache: ReadFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cache: ReadFile");
 #endif
 
       /* release the actual cache entry previously reserved */

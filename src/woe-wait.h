@@ -24,8 +24,8 @@
 #define WOE_WAIT_1(x)    WaitForSingleObject (x, 1)
 #define WOE_WAIT_INF(x)  WaitForSingleObject (x, INFINITE)
 
-#define WOE_WAIT_LOG_ERROR(prefix)                                      \
-  svz_log (LOG_ERROR, prefix "WaitForSingleObject: %s\n", SYS_ERROR)
+#define WOE_WAIT_LOG_ERROR(prefix)                      \
+  svz_log_sys_error (prefix "WaitForSingleObject")
 
 #define WOE_WAIT_LOG_ERROR_ANONYMOUSLY()  WOE_WAIT_LOG_ERROR ("")
 

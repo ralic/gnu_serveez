@@ -97,9 +97,9 @@ svz_server_create (svz_portcfg_t *port)
           if (setsockopt (server_socket, IPPROTO_IP, IP_HDRINCL,
                           (void *) &optval, sizeof (optval)) < 0)
             {
-              svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+              svz_log_net_error ("setsockopt");
               if (svz_closesocket (server_socket) < 0)
-                svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+                svz_log_net_error ("close");
               return NULL;
             }
 #else /* not IP_HDRINCL */
@@ -117,9 +117,9 @@ svz_server_create (svz_portcfg_t *port)
       if (setsockopt (server_socket, SOL_SOCKET, SO_REUSEADDR,
                       (void *) &optval, sizeof (optval)) < 0)
         {
-          svz_log (LOG_ERROR, "setsockopt: %s\n", NET_ERROR);
+          svz_log_net_error ("setsockopt");
           if (svz_closesocket (server_socket) < 0)
-            svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+            svz_log_net_error ("close");
           return NULL;
         }
 
@@ -136,10 +136,9 @@ svz_server_create (svz_portcfg_t *port)
           if (setsockopt (server_socket, SOL_SOCKET, SO_BINDTODEVICE,
                           (void *) device, strlen (device) + 1) < 0)
             {
-              svz_log (LOG_ERROR, "setsockopt (%s): %s\n",
-                       device, NET_ERROR);
+              svz_log_net_error ("setsockopt (%s)", device);
               if (svz_closesocket (server_socket) < 0)
-                svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+                svz_log_net_error ("close");
               return NULL;
             }
           memset (&addr->sin_addr, 0, sizeof (&addr->sin_addr));
@@ -150,9 +149,9 @@ svz_server_create (svz_portcfg_t *port)
       if (bind (server_socket, (struct sockaddr *) addr,
                 sizeof (struct sockaddr)) < 0)
         {
-          svz_log (LOG_ERROR, "bind: %s\n", NET_ERROR);
+          svz_log_net_error ("bind");
           if (svz_closesocket (server_socket) < 0)
-            svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+            svz_log_net_error ("close");
           return NULL;
         }
 
@@ -161,9 +160,9 @@ svz_server_create (svz_portcfg_t *port)
         {
           if (listen (server_socket, port->tcp_backlog) < 0)
             {
-              svz_log (LOG_ERROR, "listen: %s\n", NET_ERROR);
+              svz_log_net_error ("listen");
               if (svz_closesocket (server_socket) < 0)
-                svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+                svz_log_net_error ("close");
               return NULL;
             }
         }
@@ -173,7 +172,7 @@ svz_server_create (svz_portcfg_t *port)
         {
           /* Close the server socket if this routine failed.  */
           if (svz_closesocket (server_socket) < 0)
-            svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+            svz_log_net_error ("close");
           return NULL;
         }
 
@@ -273,7 +272,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
                "socket limit %d\n", svz_config.max_sockets);
       if (svz_closesocket (client_socket) < 0)
         {
-          svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+          svz_log_net_error ("close");
         }
       return 0;
     }
@@ -293,7 +292,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
       svz_log (LOG_FATAL, "socket %d already in use\n", sock->sock_desc);
       if (svz_closesocket (client_socket) < 0)
         {
-          svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+          svz_log_net_error ("close");
         }
       return -1;
     }
@@ -364,7 +363,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
     {
       if (errno != ENXIO)
         {
-          svz_log (LOG_ERROR, "open: %s\n", SYS_ERROR);
+          svz_log_sys_error ("open");
           return -1;
         }
       return 0;
@@ -392,8 +391,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         {
           if (GetLastError () != ERROR_IO_INCOMPLETE)
             {
-              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n",
-                       SYS_ERROR);
+              svz_log_sys_error ("pipe: GetOverlappedResult");
               return -1;
             }
           return 0;
@@ -410,8 +408,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         {
           if (GetLastError () != ERROR_IO_INCOMPLETE)
             {
-              svz_log (LOG_ERROR, "pipe: GetOverlappedResult: %s\n",
-                       SYS_ERROR);
+              svz_log_sys_error ("pipe: GetOverlappedResult");
               return -1;
             }
           return 0;
@@ -440,7 +437,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       /* Pipe finally connected?  */
       else if (connect != ERROR_PIPE_CONNECTED)
         {
-          svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+          svz_log_sys_error ("ConnectNamedPipe");
           return -1;
         }
 
@@ -457,7 +454,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       /* Pipe finally connected?  */
       else if (connect != ERROR_PIPE_CONNECTED)
         {
-          svz_log (LOG_ERROR, "ConnectNamedPipe: %s\n", SYS_ERROR);
+          svz_log_sys_error ("ConnectNamedPipe");
           return -1;
         }
 
@@ -475,9 +472,9 @@ svz_pipe_accept (svz_socket_t *server_sock)
     {
       /* Just disconnect the client pipes.  */
       if (!DisconnectNamedPipe (send_pipe))
-        svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+        svz_log_sys_error ("DisconnectNamedPipe");
       if (!DisconnectNamedPipe (recv_pipe))
-        svz_log (LOG_ERROR, "DisconnectNamedPipe: %s\n", SYS_ERROR);
+        svz_log_sys_error ("DisconnectNamedPipe");
       return 0;
     }
 

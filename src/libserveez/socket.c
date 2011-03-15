@@ -553,7 +553,7 @@ svz_sock_error_info (svz_socket_t *sock)
   if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
                   (void *) &error, &optlen) < 0)
     {
-      svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      svz_log_net_error ("getsockopt");
       return -1;
     }
   if (error)
@@ -563,7 +563,7 @@ svz_sock_error_info (svz_socket_t *sock)
 #else
       errno = error;
 #endif
-      svz_log (LOG_ERROR, "%s\n", NET_ERROR);
+      svz_log_net_error ("socket error");
       return -1;
     }
   return 0;
@@ -623,14 +623,14 @@ svz_sock_disconnect (svz_socket_t *sock)
       if (!(sock->flags & SOCK_FLAG_NOSHUTDOWN))
         {
           if (shutdown (sock->sock_desc, 2) < 0)
-            svz_log (LOG_ERROR, "shutdown: %s\n", NET_ERROR);
+            svz_log_net_error ("shutdown");
         }
       svz_sock_connections--;
     }
 
   /* close the server/client socket */
   if (svz_closesocket (sock->sock_desc) < 0)
-    svz_log (LOG_ERROR, "close: %s\n", NET_ERROR);
+    svz_log_net_error ("close");
 
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);

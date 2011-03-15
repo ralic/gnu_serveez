@@ -185,7 +185,7 @@ main (int argc, char *argv[])
 
       if ((pid = fork ()) == -1)
         {
-          svz_log (LOG_ERROR, "fork: %s\n", SYS_ERROR);
+          svz_log_sys_error ("fork");
           exit (EXIT_FAILURE);
         }
       else if (pid != 0)

@@ -205,7 +205,7 @@ svz_dynload_path_set (svz_array_t *paths)
 
   /* Set environment variable.  */
   if (putenv (svz_pstrdup (env)) < 0)
-    svz_log (LOG_ERROR, "putenv: %s\n", SYS_ERROR);
+    svz_log_sys_error ("putenv");
   svz_free (env);
 }
 

@@ -70,7 +70,7 @@ nut_hosts_write (svz_socket_t *sock)
   /* seems like an error */
   else if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "nut: send: %s\n", NET_ERROR);
+      svz_log_net_error ("nut: send");
       if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;

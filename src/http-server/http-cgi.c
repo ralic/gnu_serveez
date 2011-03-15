@@ -79,14 +79,14 @@ http_cgi_disconnect (svz_socket_t *sock)
   if (! svz_invalid_handle_p (sock->pipe_desc[SVZ_READ]))
     {
       if (svz_closehandle (sock->pipe_desc[SVZ_READ]) == -1)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
       svz_invalidate_handle (&sock->pipe_desc[SVZ_READ]);
       sock->flags &= ~SOCK_FLAG_RECV_PIPE;
     }
   if (! svz_invalid_handle_p (sock->pipe_desc[SVZ_WRITE]))
     {
       if (svz_closehandle (sock->pipe_desc[SVZ_WRITE]) == -1)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
       svz_invalidate_handle (&sock->pipe_desc[SVZ_WRITE]);
       sock->flags &= ~SOCK_FLAG_SEND_PIPE;
     }
@@ -98,9 +98,9 @@ http_cgi_disconnect (svz_socket_t *sock)
   if (! svz_invalid_handle_p (http->pid))
     {
       if (!TerminateProcess (http->pid, 0))
-        svz_log (LOG_ERROR, "TerminateProcess: %s\n", SYS_ERROR);
+        svz_log_sys_error ("TerminateProcess");
       if (svz_closehandle (http->pid) == -1)
-        svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+        svz_log_sys_error ("CloseHandle");
       svz_invalidate_handle (&http->pid);
     }
 #else /* not __MINGW32__ */
@@ -110,11 +110,11 @@ http_cgi_disconnect (svz_socket_t *sock)
   if (! svz_invalid_handle_p (http->pid))
     {
       if (kill (http->pid, SIGKILL) == -1)
-        svz_log (LOG_ERROR, "kill: %s\n", SYS_ERROR);
+        svz_log_sys_error ("kill");
 #if HAVE_WAITPID
       /* Test if the cgi is still running and cleanup.  */
       else if (waitpid (http->pid, NULL, 0) == -1)
-        svz_log (LOG_ERROR, "waitpid: %s\n", SYS_ERROR);
+        svz_log_sys_error ("waitpid");
 #endif /* not HAVE_WAITPID */
       svz_invalidate_handle (&http->pid);
     }
@@ -170,7 +170,7 @@ http_cgi_died (svz_socket_t *sock)
           else if (result != WAIT_TIMEOUT)
             {
               if (svz_closehandle (http->pid) == -1)
-                svz_log (LOG_ERROR, "CloseHandle: %s\n", SYS_ERROR);
+                svz_log_sys_error ("CloseHandle");
               svz_child_died = http->pid;
               svz_invalidate_handle (&http->pid);
             }
@@ -207,7 +207,7 @@ http_cgi_read (svz_socket_t *sock)
   if (!PeekNamedPipe (sock->pipe_desc[SVZ_READ], NULL, 0,
                       NULL, (DWORD *) &num_read, NULL))
     {
-      svz_log (LOG_ERROR, "cgi: PeekNamedPipe: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: PeekNamedPipe");
       return -1;
     }
 
@@ -220,7 +220,7 @@ http_cgi_read (svz_socket_t *sock)
                  sock->send_buffer + sock->send_buffer_fill,
                  do_read, (DWORD *) &num_read, NULL))
     {
-      svz_log (LOG_ERROR, "cgi: ReadFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: ReadFile");
       num_read = -1;
     }
 #else /* not __MINGW32__ */
@@ -228,7 +228,7 @@ http_cgi_read (svz_socket_t *sock)
                         sock->send_buffer + sock->send_buffer_fill,
                         do_read)) == -1)
     {
-      svz_log (LOG_ERROR, "cgi: read: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: read");
       if (svz_errno == EAGAIN)
         return 0;
       num_read = -1;
@@ -294,14 +294,14 @@ http_cgi_write (svz_socket_t *sock)
   if (!WriteFile (sock->pipe_desc[SVZ_WRITE], sock->recv_buffer,
                   do_write, (DWORD *) &num_written, NULL))
     {
-      svz_log (LOG_ERROR, "cgi: WriteFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: WriteFile");
       num_written = -1;
     }
 #else /* !__MINGW32__ */
   if ((num_written = write (sock->pipe_desc[SVZ_WRITE],
                             sock->recv_buffer, do_write)) == -1)
     {
-      svz_log (LOG_ERROR, "cgi: write: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: write");
     }
 #endif /* !__MINGW32__ */
 
@@ -486,7 +486,7 @@ http_check_cgi (svz_socket_t *sock, char *request)
   /* test if the file really exists and close it again */
   if ((fd = open (file, O_RDONLY)) == -1)
     {
-      svz_log (LOG_ERROR, "cgi: open: %s (%s)\n", SYS_ERROR, file);
+      svz_log_sys_error ("cgi: open (%s)", file);
       svz_free (file);
       svz_free (saverequest);
       return NULL;
@@ -496,7 +496,7 @@ http_check_cgi (svz_socket_t *sock, char *request)
   /* test the file being an executable */
   if (fstat (fd, &buf) == -1)
     {
-      svz_log (LOG_ERROR, "cgi: fstat: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: fstat");
       close (fd);
       svz_free (file);
       svz_free (saverequest);
@@ -514,7 +514,7 @@ http_check_cgi (svz_socket_t *sock, char *request)
     }
 #endif
   if (close (fd) == -1)
-    svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+    svz_log_sys_error ("cgi: close");
 
   /* return a pointer referring to the actual plain cgi file */
   strcpy (file, saverequest);
@@ -544,7 +544,7 @@ http_pre_exec (svz_socket_t *sock,   /* socket structure */
   /* change into the CGI directory temporarily */
   if (chdir (cfg->cgidir) == -1)
     {
-      svz_log (LOG_ERROR, "cgi: chdir: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: chdir");
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: cannot change dir: %s\n", cfg->cgidir);
 #endif
@@ -706,7 +706,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       /* find an appropriate system association */
       cgiapp = svz_malloc (MAX_PATH);
       if (FindExecutable (cgifile, NULL, cgiapp) <= (HINSTANCE) 32)
-        svz_log (LOG_ERROR, "FindExecutable: %s\n", SYS_ERROR);
+        svz_log_sys_error ("FindExecutable");
 #if ENABLE_DEBUG
       /* if this is enabled you could learn about the system */
       else
@@ -747,7 +747,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
                       NULL,                    /* CurrentDirectory */
                       &StartupInfo, &ProcessInfo))
     {
-      svz_log (LOG_ERROR, "cgi: CreateProcess: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: CreateProcess");
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cgi: cannot execute: %s\n", cgifile);
 #endif
@@ -790,26 +790,26 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
       /* make the output blocking */
       if ((oflags = fcntl (out, F_GETFL)) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: fcntl");
           cool ();
         }
       if (fcntl (out, F_SETFL, oflags & ~O_NONBLOCK) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: fcntl");
           cool ();
         }
 
       /* duplicate the receiving pipe descriptor to stdout */
       if (dup2 (out, 1) != 1)
         {
-          svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: dup2");
           cool ();
         }
 #ifndef ENABLE_DEBUG
       /* duplicate stderr to the cgi output */
       if (dup2 (out, 2) != 2)
         {
-          svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: dup2");
           cool ();
         }
 #endif /* !ENABLE_DEBUG */
@@ -820,25 +820,25 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
           /* make the input blocking */
           if ((oflags = fcntl (in, F_GETFL)) == -1)
             {
-              svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+              svz_log_sys_error ("cgi: fcntl");
               cool ();
             }
           if (fcntl (in, F_SETFL, oflags & ~O_NONBLOCK) == -1)
             {
-              svz_log (LOG_ERROR, "cgi: fcntl: %s\n", SYS_ERROR);
+              svz_log_sys_error ("cgi: fcntl");
               cool ();
             }
 
           /* duplicate the sending pipe descriptor to stdin */
           if (dup2 (in, 0) != 0)
             {
-              svz_log (LOG_ERROR, "cgi: dup2: %s\n", SYS_ERROR);
+              svz_log_sys_error ("cgi: dup2");
               cool ();
             }
 
           /* close the old file descriptors */
           if (close (in) < 0)
-            svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+            svz_log_sys_error ("cgi: close");
         }
       /* close remaining stdin in get method */
       else
@@ -848,24 +848,24 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 
       /* close the old file descriptors */
       if (close (out) < 0)
-        svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("cgi: close");
 
       /* get the cgi scripts permissions */
       if (stat (cgifile, &buf) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: stat: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: stat");
           cool ();
         }
 
       /* set the appropriate user permissions */
       if (setgid (buf.st_gid) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: setgid: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: setgid");
           cool ();
         }
       if (setuid (buf.st_uid) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: setuid: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: setuid");
           cool ();
         }
 
@@ -879,7 +879,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
        */
       if (execve (cgifile, argv, svz_envblock_get (envp)) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: execve: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: execve");
           cool ();
         }
     }
@@ -892,7 +892,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
         }
 
       /* ------ error forking new process ------ */
-      svz_log (LOG_ERROR, "cgi: fork: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: fork");
       svz_sock_printf (sock, HTTP_BAD_REQUEST "\r\n");
       http_error_response (sock, 400);
       sock->userflags |= HTTP_FLAG_DONE;
@@ -921,14 +921,14 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   /* close the inherited http data handles */
   if (svz_closehandle (out) == -1)
     {
-      svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+      svz_log_sys_error ("cgi: close");
     }
   if (type == POST_METHOD)
     {
       /* close the reading end of the pipe for the post data */
       if (svz_closehandle (in) == -1)
         {
-          svz_log (LOG_ERROR, "cgi: close: %s\n", SYS_ERROR);
+          svz_log_sys_error ("cgi: close");
         }
     }
 

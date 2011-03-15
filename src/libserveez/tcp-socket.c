@@ -91,7 +91,7 @@ svz_tcp_write_socket (svz_socket_t *sock)
   /* Error occurred while sending.  */
   else if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "tcp: send: %s\n", NET_ERROR);
+      svz_log_net_error ("tcp: send");
       if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -155,7 +155,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
        * case, which the main loop will do for us if we return a non-zero
        * value.
        */
-      svz_log (LOG_ERROR, "tcp: recv: %s\n", NET_ERROR);
+      svz_log_net_error ("tcp: recv");
       if (svz_socket_unavailable_error_p ())
         num_read = 0;
       else
@@ -228,7 +228,7 @@ svz_tcp_recv_oob (svz_socket_t *sock)
   num_read = recv (desc, (void *) &sock->oob, 1, MSG_OOB);
   if (num_read < 0)
     {
-      svz_log (LOG_ERROR, "tcp: recv-oob: %s\n", NET_ERROR);
+      svz_log_net_error ("tcp: recv-oob");
       return -1;
     }
   else if (num_read > 0)
@@ -260,7 +260,7 @@ svz_tcp_send_oob (svz_socket_t *sock)
   num_written = send (desc, (void *) &sock->oob, 1, MSG_OOB);
   if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "tcp: send-oob: %s\n", NET_ERROR);
+      svz_log_net_error ("tcp: send-oob");
       return -1;
     }
   else if (num_written == 0)
@@ -326,7 +326,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
   if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
                   (void *) &error, &optlen) < 0)
     {
-      svz_log (LOG_ERROR, "getsockopt: %s\n", NET_ERROR);
+      svz_log_net_error ("getsockopt");
       return -1;
     }
 
@@ -342,7 +342,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
       if (error != SOCK_INPROGRESS
           && ! svz_socket_unavailable_error_p ())
         {
-          svz_log (LOG_ERROR, "connect: %s\n", NET_ERROR);
+          svz_log_net_error ("connect");
           return -1;
         }
 #if ENABLE_DEBUG

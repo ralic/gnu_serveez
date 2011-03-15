@@ -107,7 +107,7 @@ http_start_netapi (void)
         GetProcAddress (netapiHandle, "NetUserGetInfo");
       if (GetUserInfo == NULL)
         {
-          svz_log (LOG_ERROR, "http: GetProcAddress: %s\n", SYS_ERROR);
+          svz_log_sys_error ("http: GetProcAddress");
           FreeLibrary (netapiHandle);
           netapiHandle = NULL;
         }
@@ -1066,7 +1066,7 @@ http_absolute_file (char *file)
   if (chdir (file) == -1)
     {
       *p = '/';
-      svz_log (LOG_ERROR, "chdir: %s\n", SYS_ERROR);
+      svz_log_sys_error ("chdir");
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "cannot change dir: %s\n", file);
 #endif

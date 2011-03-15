@@ -425,7 +425,7 @@ nut_init (svz_server_t *server)
           /* create the download directory */
           if (mkdir (cfg->save_path, 0755) == -1)
             {
-              svz_log (LOG_ERROR, "nut: mkdir: %s\n", SYS_ERROR);
+              svz_log_sys_error ("nut: mkdir");
               return -1;
             }
         }

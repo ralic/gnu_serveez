@@ -333,7 +333,7 @@ http_free_socket (svz_socket_t *sock)
   if (sock->file_desc != -1)
     {
       if (svz_close (sock->file_desc) == -1)
-        svz_log (LOG_ERROR, "close: %s\n", SYS_ERROR);
+        svz_log_sys_error ("close");
       sock->file_desc = -1;
     }
 }
@@ -409,7 +409,7 @@ http_send_file (svz_socket_t *sock)
   /* Some error occurred.  */
   if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "http: sendfile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("http: sendfile");
       return -1;
     }
 
@@ -482,7 +482,7 @@ http_default_write (svz_socket_t *sock)
   /* write error occurred */
   else if (num_written < 0)
     {
-      svz_log (LOG_ERROR, "http: send: %s\n", NET_ERROR);
+      svz_log_net_error ("http: send");
       if (svz_socket_unavailable_error_p ())
         {
           sock->unavailable = time (NULL) + RELAX_FD_TIME;
@@ -571,7 +571,7 @@ http_file_read (svz_socket_t *sock)
   /* Read error occurred.  */
   if (num_read < 0)
     {
-      svz_log (LOG_ERROR, "http: read: %s\n", SYS_ERROR);
+      svz_log_sys_error ("http: read");
       return -1;
     }
 #else
@@ -579,7 +579,7 @@ http_file_read (svz_socket_t *sock)
                  sock->send_buffer + sock->send_buffer_fill,
                  do_read, (DWORD *) &num_read, NULL))
     {
-      svz_log (LOG_ERROR, "http: ReadFile: %s\n", SYS_ERROR);
+      svz_log_sys_error ("http: ReadFile");
       return -1;
     }
 #endif
@@ -1034,7 +1034,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
           if ((dir = http_dirlist (file, cfg->docs,
                                    status ? request : NULL)) == NULL)
             {
-              svz_log (LOG_ERROR, "http: dirlist: %s: %s\n", file, SYS_ERROR);
+              svz_log_sys_error ("http: dirlist: %s", file);
               svz_sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
               http_error_response (sock, 404);
               sock->userflags |= HTTP_FLAG_DONE;
@@ -1068,7 +1068,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
   /* get length of file and other properties */
   if (stat (file, &buf) == -1)
     {
-      svz_log (LOG_ERROR, "stat: %s (%s)\n", SYS_ERROR, file);
+      svz_log_sys_error ("stat (%s)", file);
       svz_sock_printf (sock, HTTP_FILE_NOT_FOUND "\r\n");
       http_error_response (sock, 404);
       sock->userflags |= HTTP_FLAG_DONE;
@@ -1177,7 +1177,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
           buf.st_size = http->range.last - http->range.first + 1;
           if (lseek (fd, http->range.first, SEEK_SET) != http->range.first)
             {
-              svz_log (LOG_ERROR, "http: lseek: %s\n", SYS_ERROR);
+              svz_log_sys_error ("http: lseek");
               flags &= ~HTTP_FLAG_PARTIAL;
             }
         }
