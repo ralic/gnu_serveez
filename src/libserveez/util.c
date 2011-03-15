@@ -379,7 +379,7 @@ svz_neterror (int error)
  * use the @code{GetLastError} or @code{WSAGetLastError} in order to
  * get a valid error code.
  */
-char *
+static char *
 svz_syserror (int nr)
 {
   static char message[MESSAGE_BUF_SIZE];

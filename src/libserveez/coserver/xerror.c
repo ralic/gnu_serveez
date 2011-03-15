@@ -44,7 +44,7 @@ const char *
 xerror (void)
 {
 #if defined __MINGW32__
-  return svz_syserror (WSAGetLastError ());
+  return svz_net_strerror (void);
 #else
   /* FIXME: Use ‘gai_strerror’ (on switch to get{name,addr}info).  */
   return hstrerror (h_errno);

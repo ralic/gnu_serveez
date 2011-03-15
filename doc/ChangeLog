@@ -1,5 +1,11 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_syserror’.
+
+	* serveez-api.texi.in (Utility functions): Delete ‘svz_syserror’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_errno’.
 
 	* serveez-api.texi.in (Utility functions): Delete ‘svz_errno’.

@@ -110,7 +110,6 @@ SERVEEZ_API void svz_log_net_error (char const *, ...);
 #define WinME   7
 
 SERVEEZ_API int svz_os_version;
-SERVEEZ_API char *svz_syserror (int);
 
 #endif /* __MINGW32__ */
 

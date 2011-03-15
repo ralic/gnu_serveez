@@ -1,5 +1,13 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_syserror’.
+
+	* coserver/xerror.c (xerror): Use ‘svz_net_strerror’.
+	* util.c (svz_syserror): Make static.
+	* util.h (svz_syserror): Delete func decl.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_errno’.
 
 	* util.h (svz_errno):
