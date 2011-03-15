@@ -1,5 +1,24 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize several svz_server_* funcs.
+
+	* server.c
+	(svz_servertype_instantiate): Incorporate ‘svz_server_add’.
+	(svz_servertype_del): Incorporate ‘svz_server_del’.
+	(svz_server_free): Move earlier in file; make static.
+	(notify_internal, svz_server_notifiers): Delete funcs.
+	(reset_internal, svz_server_reset): Likewise.
+	(svz_server_init, svz_server_finalize): Make static.
+	* server.h (svz_server_add): Delete func decl.
+	(svz_server_del, svz_server_free, svz_server_notifiers)
+	(svz_server_reset, svz_server_init, svz_server_finalize): Likewise.
+	* server-core.c
+	(reset_internal, notify_internal): New static funcs.
+	(svz_reset): Incorporate ‘svz_server_reset’.
+	(svz_periodic_tasks): Incorporate ‘svz_server_notifiers’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_portcfg_destroy_{accepted,access}.
 
 	* portcfg.c (svz_portcfg_free): Incorporate

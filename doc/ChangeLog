@@ -1,5 +1,14 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize several svz_server_* funcs.
+
+	* serveez-api.texi.in (Server functionality):
+	Delete ‘svz_server_add’, ‘svz_server_del’, ‘svz_server_free’,
+	‘svz_server_notifiers’, ‘svz_server_reset’, ‘svz_server_init’,
+	‘svz_server_finalize’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_portcfg_destroy_{accepted,access}.
 
 	* serveez-api.texi.in (Port config funcs): Delete

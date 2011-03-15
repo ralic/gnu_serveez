@@ -141,6 +141,19 @@ type_del_internal (svz_server_t *server, void *closure)
 }
 
 /*
+ * Completely destroy the given server instance @var{server}.  This
+ * especially means to go through each item of the server instances
+ * configuration.
+ */
+static void
+svz_server_free (svz_server_t *server)
+{
+  svz_config_free (&server->type->config_prototype, server->cfg);
+  svz_free (server->name);
+  svz_free (server);
+}
+
+/*
  * Delete the server type with the index @var{index} from the list of
  * known server types and run its global finalizer if necessary.  Moreover
  * we remove and finalize each server instance of this server type.
@@ -173,7 +186,17 @@ svz_servertype_del (unsigned long index)
       svz_server_foreach (type_del_internal, &x);
       while (x.count--)
         {
-          svz_server_del (x.doomed[x.count]);
+          if (svz_servers)
+            {
+              svz_server_t *server;
+
+              if ((server = svz_hash_delete (svz_servers, x.doomed[x.count]))
+                  != NULL)
+                {
+                  svz_server_unbind (server);
+                  svz_server_free (server);
+                }
+            }
           svz_free_and_zero (x.doomed[x.count]);
         }
       svz_free (x.doomed);
@@ -273,41 +296,6 @@ svz_servertype_print (void)
     }
 }
 
-static void
-notify_internal (svz_server_t *server, void *closure)
-{
-  if (server->notify)
-    server->notify (server);
-}
-
-/*
- * Run all the server instances's notify routines.  This should be regularly
- * called within the @code{svz_periodic_tasks} function.
- */
-void
-svz_server_notifiers (void)
-{
-  svz_server_foreach (notify_internal, NULL);
-}
-
-static void
-reset_internal (svz_server_t *server, void *closure)
-{
-  if (server->reset)
-    server->reset (server);
-}
-
-/*
- * Runs each server instance's reset callback.  The callbacks are run when
- * a @code{SIGHUP} signal has been detected by the internal signal handler
- * of the core library.
- */
-void
-svz_server_reset (void)
-{
-  svz_server_foreach (reset_internal, NULL);
-}
-
 struct find_closure
 {
   void *cfg;
@@ -361,19 +349,6 @@ svz_server_clients (svz_server_t *server)
 }
 
 /*
- * Add the server instance @var{server} to the list of instantiated
- * servers.  Returns the previous value of that server if any or @code{NULL}
- * otherwise.
- */
-svz_server_t *
-svz_server_add (svz_server_t *server)
-{
-  if (svz_servers == NULL)
-    svz_servers = svz_hash_create (4, (svz_free_func_t) svz_server_finalize);
-  return svz_hash_put (svz_servers, server->name, server);
-}
-
-/*
  * Get the server instance with the given instance name @var{name}.
  * Return @code{NULL} if there is no such server yet.
  */
@@ -383,36 +358,6 @@ svz_server_get (char *name)
   if (svz_servers == NULL || name == NULL)
     return NULL;
   return svz_hash_get (svz_servers, name);
-}
-
-/*
- * Remove the server instance identified by the name @var{name}.
- */
-void
-svz_server_del (char *name)
-{
-  svz_server_t *server;
-
-  if (svz_servers == NULL)
-    return;
-  if ((server = svz_hash_delete (svz_servers, name)) != NULL)
-    {
-      svz_server_unbind (server);
-      svz_server_free (server);
-    }
-}
-
-/*
- * Completely destroy the given server instance @var{server}.  This
- * especially means to go through each item of the server instances
- * configuration.
- */
-void
-svz_server_free (svz_server_t *server)
-{
-  svz_config_free (&server->type->config_prototype, server->cfg);
-  svz_free (server->name);
-  svz_free (server);
 }
 
 /*
@@ -471,7 +416,7 @@ svz_server_configure (svz_servertype_t *server, char *name, void *arg,
  * @var{server} and returns zero on success.  Otherwise it emits an error
  * message and returns non-zero.
  */
-int
+static int
 svz_server_init (svz_server_t *server)
 {
   if (server)
@@ -513,7 +458,7 @@ svz_server_init_all (void)
  * @var{server}, removes all bindings and frees all resources allocated by
  * the server instance.
  */
-void
+static void
 svz_server_finalize (svz_server_t *server)
 {
   if (server)
@@ -576,7 +521,9 @@ svz_servertype_instantiate (char *type, char *name, void *options,
       svz_server_free (server);
       return -1;
     }
-  svz_server_add (server);
+  if (svz_servers == NULL)
+    svz_servers = svz_hash_create (4, (svz_free_func_t) svz_server_finalize);
+  svz_hash_put (svz_servers, server->name, server);
 
   return 0;
 }

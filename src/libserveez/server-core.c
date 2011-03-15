@@ -915,6 +915,13 @@ svz_sock_unique_id (svz_socket_t *sock)
   return svz_sock_id;
 }
 
+static void
+reset_internal (svz_server_t *server, void *closure)
+{
+  if (server->reset)
+    server->reset (server);
+}
+
 /*
  * This gets called when the server receives a SIGHUP, which means
  * that the server should be reset.
@@ -922,7 +929,7 @@ svz_sock_unique_id (svz_socket_t *sock)
 static int
 svz_reset (void)
 {
-  svz_server_reset ();
+  svz_server_foreach (reset_internal, NULL);
   svz_interface_check ();
   return 0;
 }
@@ -1001,6 +1008,13 @@ svz_sock_schedule_for_shutdown (svz_socket_t *sock)
   return 0;
 }
 
+static void
+notify_internal (svz_server_t *server, void *closure)
+{
+  if (server->notify)
+    server->notify (server);
+}
+
 /*
  * This routine gets called once a second and is supposed to perform any
  * task that has to get scheduled periodically.  It checks all sockets'
@@ -1044,7 +1058,7 @@ svz_periodic_tasks (void)
   svz_coserver_check ();
 
   /* run the server instance timer routines */
-  svz_server_notifiers ();
+  svz_server_foreach (notify_internal, NULL);
 
   return 0;
 }

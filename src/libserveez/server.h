@@ -118,19 +118,11 @@ SBO svz_config_type_t svz_servertype_definition;
 /* end svzint */
 
 SERVEEZ_API void svz_server_foreach (svz_server_do_t *, void *);
-SERVEEZ_API svz_server_t *svz_server_add (svz_server_t *);
 SERVEEZ_API svz_server_t *svz_server_get (char *);
-SERVEEZ_API void svz_server_del (char *);
-SERVEEZ_API void svz_server_free (svz_server_t *);
 SERVEEZ_API svz_server_t *svz_server_find (void *);
 SERVEEZ_API svz_array_t *svz_server_clients (svz_server_t *);
-SERVEEZ_API void svz_server_notifiers (void);
-SERVEEZ_API void svz_server_reset (void);
 SERVEEZ_API svz_server_t *svz_server_instantiate (svz_servertype_t *,
                                                   char *);
-SERVEEZ_API int svz_server_init (svz_server_t *);
-SERVEEZ_API void svz_server_finalize (svz_server_t *);
-
 SERVEEZ_API void *svz_server_configure (svz_servertype_t *, char *,
                                         void *,
                                         svz_config_accessor_t *);

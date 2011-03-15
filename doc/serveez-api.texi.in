@@ -703,17 +703,10 @@ and destruction of such servers.
 |F| svz_server_foreach
 |F| svz_server_find
 |F| svz_server_clients
-|F| svz_server_add
 |F| svz_server_get
-|F| svz_server_del
-|F| svz_server_init
-|F| svz_server_finalize
 |F| svz_server_instantiate
-|F| svz_server_notifiers
-|F| svz_server_reset
 |F| svz_server_init_all
 |F| svz_server_finalize_all
-|F| svz_server_free
 
 @node Server configuration
 @subsubsection Configuration
