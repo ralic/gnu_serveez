@@ -228,6 +228,7 @@ __BEGIN_DECLS
 /* begin svzint */
 SBO void svz_portcfg_free (svz_portcfg_t *);
 SBO void svz_portcfg_prepare (svz_portcfg_t *);
+SBO char *svz_portcfg_text (svz_portcfg_t *);
 /* end svzint */
 
 SERVEEZ_API svz_portcfg_t *svz_portcfg_create (void);
@@ -238,7 +239,6 @@ SERVEEZ_API svz_portcfg_t *svz_portcfg_get (char *);
 SERVEEZ_API void svz_portcfg_destroy (svz_portcfg_t *);
 SERVEEZ_API int svz_portcfg_mkaddr (svz_portcfg_t *);
 SERVEEZ_API void svz_portcfg_print (svz_portcfg_t *, FILE *);
-SERVEEZ_API char *svz_portcfg_text (svz_portcfg_t *);
 SERVEEZ_API svz_portcfg_t *svz_portcfg_dup (svz_portcfg_t *);
 SERVEEZ_API svz_array_t *svz_portcfg_expand (svz_portcfg_t *);
 SERVEEZ_API int svz_portcfg_set_ipaddr (svz_portcfg_t *, char *);

@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_portcfg_text’.
+
+	* serveez-api.texi.in (Port config funcs):
+	Delete ‘svz_portcfg_text’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_portcfg_prepare’.
 
 	* serveez-api.texi.in (Port config funcs):
