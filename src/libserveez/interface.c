@@ -108,6 +108,17 @@ static GetIpAddrTableProc GetIpAddrTable = NULL;
 #define IPAPI_METHOD 2
 
 static void
+print_foo_error (int sys_p, char const *prefix)
+{
+  printf ("%s: %s\n", prefix, sys_p
+          ? SYS_ERROR
+          : NET_ERROR);
+}
+
+#define print_sys_error(prefix)  print_foo_error (1, prefix)
+#define print_net_error(prefix)  print_foo_error (0, prefix)
+
+static void
 svz_interface_collect (void)
 {
   int result = 0;
@@ -150,7 +161,7 @@ svz_interface_collect (void)
             GetProcAddress (WSockHandle, "WsControl");
           if (!WsControl)
             {
-              printf ("GetProcAddress (WsControl): %s\n", SYS_ERROR);
+              print_sys_error ("GetProcAddress (WsControl)");
               FreeLibrary (WSockHandle);
               return;
             }
@@ -158,7 +169,7 @@ svz_interface_collect (void)
         }
       else
         {
-          printf ("LoadLibrary (WSock32.dll): %s\n", SYS_ERROR);
+          print_sys_error ("LoadLibrary (WSock32.dll)");
           return;
         }
     }
@@ -168,7 +179,7 @@ svz_interface_collect (void)
       result = WSAStartup (MAKEWORD (1, 1), &WSAData);
       if (result)
         {
-          printf ("WSAStartup: %s\n", NET_ERROR);
+          print_net_error ("WSAStartup");
           FreeLibrary (WSockHandle);
           return;
         }
@@ -196,7 +207,7 @@ svz_interface_collect (void)
 
       if (result)
         {
-          printf ("WsControl: %s\n", NET_ERROR);
+          print_net_error ("WsControl");
           WSACleanup ();
           FreeLibrary (WSockHandle);
           free (entityIds);
@@ -232,7 +243,7 @@ svz_interface_collect (void)
 
               if (result)
                 {
-                  printf ("WsControl: %s\n", NET_ERROR);
+                  print_net_error ("WsControl");
                   WSACleanup ();
                   FreeLibrary (WSockHandle);
                   free (entityIds);
@@ -261,7 +272,7 @@ svz_interface_collect (void)
 
                   if (result)
                     {
-                      printf ("WsControl: %s\n", NET_ERROR);
+                      print_net_error ("WsControl");
                       WSACleanup ();
                       FreeLibrary (WSockHandle);
                       return;
@@ -299,7 +310,7 @@ svz_interface_collect (void)
 
               if (result)
                 {
-                  printf ("WsControl: %s\n", NET_ERROR);
+                  print_net_error ("WsControl");
                   WSACleanup ();
                   FreeLibrary (WSockHandle);
                   return;
@@ -323,7 +334,7 @@ svz_interface_collect (void)
 
                   if (result)
                     {
-                      printf ("WsControl: %s\n", NET_ERROR);
+                      print_net_error ("WsControl");
                       WSACleanup ();
                       FreeLibrary (WSockHandle);
                       return;
@@ -357,7 +368,7 @@ svz_interface_collect (void)
         GetProcAddress (WSockHandle, "GetIfTable");
       if (!GetIfTable)
         {
-          printf ("GetProcAddress (GetIfTable): %s\n", SYS_ERROR);
+          print_sys_error ("GetProcAddress (GetIfTable)");
           FreeLibrary (WSockHandle);
           return;
         }
@@ -366,7 +377,7 @@ svz_interface_collect (void)
         GetProcAddress (WSockHandle, "GetIpAddrTable");
       if (!GetIpAddrTable)
         {
-          printf ("GetProcAddress (GetIpAddrTable): %s\n", SYS_ERROR);
+          print_sys_error ("GetProcAddress (GetIpAddrTable)");
           FreeLibrary (WSockHandle);
           return;
         }
@@ -377,7 +388,7 @@ svz_interface_collect (void)
       ifTable = (PMIB_IFTABLE) svz_realloc (ifTable, ifTableSize);
       if (GetIfTable (ifTable, &ifTableSize, FALSE) != NO_ERROR)
         {
-          printf ("GetIfTable: %s\n", SYS_ERROR);
+          print_sys_error ("GetIfTable");
           FreeLibrary (WSockHandle);
           svz_free (ifTable);
           return;
@@ -389,7 +400,7 @@ svz_interface_collect (void)
       ipTable = (PMIB_IPADDRTABLE) svz_realloc (ipTable, ipTableSize);
       if (GetIpAddrTable (ipTable, &ipTableSize, FALSE) != NO_ERROR)
         {
-          printf ("GetIpAddrTable: %s\n", SYS_ERROR);
+          print_sys_error ("GetIpAddrTable");
           FreeLibrary (WSockHandle);
           svz_free (ipTable);
           svz_free (ifTable);

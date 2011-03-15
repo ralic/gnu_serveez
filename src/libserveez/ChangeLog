@@ -1,5 +1,14 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Add abstractions: print_{sys,net}_error
+
+	* interface.c [__MINGW32__]
+	(print_foo_error): New static func.
+	(print_sys_error, print_net_error): New macros.
+	(svz_interface_collect): Use new macros.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_log_{sys,net}_error
 
 	* util.h (svz_log_sys_error)
