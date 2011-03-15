@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_error_info’.
+
+	* serveez-api.texi.in (Socket management):
+	Delete ‘svz_sock_error_info’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_intern_connection_info’.
 
 	* serveez-api.texi.in (Socket management):

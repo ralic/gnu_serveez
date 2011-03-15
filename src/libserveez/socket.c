@@ -518,35 +518,6 @@ svz_sock_intern_connection_info (svz_socket_t *sock)
 }
 
 /*
- * Get and clear the pending socket error of a given socket.  Print
- * the result to the log file.
- */
-int
-svz_sock_error_info (svz_socket_t *sock)
-{
-  int error;
-  socklen_t optlen = sizeof (int);
-
-  if (getsockopt (sock->sock_desc, SOL_SOCKET, SO_ERROR,
-                  (void *) &error, &optlen) < 0)
-    {
-      svz_log_net_error ("getsockopt");
-      return -1;
-    }
-  if (error)
-    {
-#ifdef __MINGW32__
-      WSASetLastError (error);
-#else
-      errno = error;
-#endif
-      svz_log_net_error ("socket error");
-      return -1;
-    }
-  return 0;
-}
-
-/*
  * Create a socket structure from the file descriptor @var{fd}.  Set the
  * socket descriptor to non-blocking I/O.  Return @code{NULL} on errors.
  */
