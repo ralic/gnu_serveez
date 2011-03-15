@@ -559,7 +559,6 @@ function which kind of socket it can handle and what they are for.
 |F| svz_sock_write
 |F| svz_sock_printf
 |F| svz_sock_resize_buffers
-|F| svz_sock_unique_id
 |F| svz_sock_detect_proto
 |F| svz_sock_check_request
 |F| svz_sock_idle_protect

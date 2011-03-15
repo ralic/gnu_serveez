@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_unique_id’.
+
+	* serveez-api.texi.in (Socket management):
+	Delete ‘svz_sock_unique_id’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_error_info’.
 
 	* serveez-api.texi.in (Socket management):
