@@ -725,7 +725,6 @@ order to create a server configuration.
 |F| svz_server_configure
 
 |F| svz_config_type_instantiate
-|F| svz_config_prototype_print
 |F| svz_config_free
 |F| svz_config_intarray_create
 |F| svz_config_intarray_destroy
