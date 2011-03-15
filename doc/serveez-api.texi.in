@@ -843,7 +843,6 @@ configuration just a single one gets actually used.
 |F| svz_portcfg_del
 |F| svz_portcfg_get
 |F| svz_portcfg_destroy
-|F| svz_portcfg_free
 |F| svz_portcfg_mkaddr
 |F| svz_portcfg_prepare
 |F| svz_portcfg_print
