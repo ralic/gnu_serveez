@@ -248,13 +248,13 @@ SBO svz_socket_t *svz_sock_alloc (void);
 SBO int svz_sock_free (svz_socket_t *);
 SBO svz_socket_t *svz_sock_create (int);
 SBO int svz_sock_disconnect (svz_socket_t *);
+SBO int svz_sock_intern_connection_info (svz_socket_t *);
 /* end svzint */
 
 SERVEEZ_API int svz_sock_nconnections (void);
 SERVEEZ_API int svz_sock_write (svz_socket_t *, char *, int);
 SERVEEZ_API int svz_sock_printf (svz_socket_t *, const char *, ...);
 SERVEEZ_API int svz_sock_resize_buffers (svz_socket_t *, int, int);
-SERVEEZ_API int svz_sock_intern_connection_info (svz_socket_t *);
 SERVEEZ_API int svz_sock_error_info (svz_socket_t *);
 SERVEEZ_API int svz_sock_unique_id (svz_socket_t *);
 SERVEEZ_API int svz_sock_detect_proto (svz_socket_t *);

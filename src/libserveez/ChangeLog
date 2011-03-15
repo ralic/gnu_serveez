@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_intern_connection_info’.
+
+	* socket.h (svz_sock_intern_connection_info):
+	Remove mark ‘SERVEEZ_API’; mark ‘SBO’, ‘svzint’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_local_info’.
 
 	* socket.c (svz_sock_local_info): Move from here...
