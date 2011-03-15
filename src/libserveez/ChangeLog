@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_portcfg_set_ipaddr’.
+
+	* portcfg.c (svz_portcfg_set_ipaddr): Make static.
+	* portcfg.c (svz_portcfg_set_ipaddr): Delete func decl.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_portcfg_expand’.
 
 	* portcfg.h (svz_portcfg_expand):

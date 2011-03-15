@@ -223,7 +223,7 @@ svz_portcfg_del (char *name)
  * of a the port configuration @var{this} in dotted decimal form
  * (@var{ipaddr}).  Returns zero on success, non-zero otherwise.
  */
-int
+static int
 svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
 {
   if (!this || !ipaddr)
