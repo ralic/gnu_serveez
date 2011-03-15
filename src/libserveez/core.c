@@ -349,7 +349,7 @@ svz_socket_connect (svz_t_socket sockfd,
           return -1;
         }
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+      svz_log (LOG_DEBUG, "connect: %s\n", svz_net_strerror ());
 #endif
     }
   return 0;

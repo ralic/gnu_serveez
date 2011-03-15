@@ -111,8 +111,8 @@ static void
 print_foo_error (int sys_p, char const *prefix)
 {
   printf ("%s: %s\n", prefix, sys_p
-          ? SYS_ERROR
-          : NET_ERROR);
+          ? svz_sys_strerror ()
+          : svz_net_strerror ());
 }
 
 #define print_sys_error(prefix)  print_foo_error (1, prefix)

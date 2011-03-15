@@ -346,7 +346,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
           return -1;
         }
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "connect: %s\n", NET_ERROR);
+      svz_log (LOG_DEBUG, "connect: %s\n", svz_net_strerror ());
 #endif
       return 0;
     }

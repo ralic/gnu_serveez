@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add funcs: svz_{sys,net}_strerror
+
+	* serveez-api.texi.in (Utility functions):
+	Add ‘svz_sys_strerror’, ‘svz_net_strerror’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_log_{sys,net}_error
 
 	* serveez-api.texi.in (Utility functions):

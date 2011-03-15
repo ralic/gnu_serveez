@@ -338,6 +338,9 @@ This variable is only available on Windows version of this API.
 
 |F| svz_socket_unavailable_error_p
 
+|F| svz_sys_strerror
+|F| svz_net_strerror
+
 The next two functions log (with @code{LOG_ERROR}) the
 current @dfn{system error} or @dfn{network error},
 forming the prefix of the message using @var{fmt} and @var{args}.

@@ -425,6 +425,32 @@ int svz_os_version = 0;
 #endif /* __MINGW32__ */
 
 /*
+ * Return a string describing the most recent system error.
+ */
+const char *
+svz_sys_strerror (void)
+{
+#ifdef __MINGW32__
+  return svz_syserror (GetLastError ());
+#else
+  return strerror (errno);
+#endif
+}
+
+/*
+ * Return a string describing the most recent network error.
+ */
+const char *
+svz_net_strerror (void)
+{
+#ifdef __MINGW32__
+  return svz_syserror (WSAGetLastError ());
+#else
+  return strerror (errno);
+#endif
+}
+
+/*
  * Return 1 if there was a "socket unavailable" error recently, 0
  * otherwise.  This checks @code{svz_errno} against @code{WSAEWOULDBLOCK}
  * (woe32) or @code{EAGAIN} (Unix).
@@ -713,7 +739,7 @@ log_error (char const *prefix, char const *errmsg)
 void
 svz_log_sys_error (char const *fmt, ...)
 {
-  LOG_ERROR_FROM (SYS_ERROR);
+  LOG_ERROR_FROM (svz_sys_strerror ());
 }
 
 /*
@@ -722,5 +748,5 @@ svz_log_sys_error (char const *fmt, ...)
 void
 svz_log_net_error (char const *fmt, ...)
 {
-  LOG_ERROR_FROM (NET_ERROR);
+  LOG_ERROR_FROM (svz_net_strerror ());
 }

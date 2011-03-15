@@ -234,7 +234,7 @@ http_dirlist (char *dirname, char *docroot, char *userdir)
           /* Something is wrong with this file...  */
           snprintf (entrystr, DIRLIST_SPACE_ENTRY - 1,
                     "<font color=red>%s -- %s</font>\n",
-                    FILENAME, SYS_ERROR);
+                    FILENAME, svz_sys_strerror ());
         }
       else
         {

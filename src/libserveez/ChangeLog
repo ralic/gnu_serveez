@@ -1,5 +1,22 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add funcs: svz_{sys,net}_strerror
+
+	* util.h (svz_sys_strerror, svz_net_strerror):
+	New func decls, marked ‘SERVEEZ_API’.
+	(SYS_ERROR, NET_ERROR): Delete #define:s.
+	* util.c (svz_sys_strerror, svz_net_strerror):
+	New funcs.
+	(svz_log_sys_error): Use ‘svz_sys_strerror’.
+	(svz_log_net_error): Use ‘svz_net_strerror’.
+	* core.c (svz_socket_connect): Use ‘svz_net_strerror’.
+	* dynload.c (dyn_error): Use ‘svz_sys_strerror’.
+	* interface.c (print_foo_error): Use new funcs.
+	* server-socket.c (svz_tcp_accept): Use ‘svz_net_strerror’.
+	* tcp-socket.c (svz_tcp_default_connect): Likewise.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Add abstractions: print_{sys,net}_error
 
 	* interface.c [__MINGW32__]

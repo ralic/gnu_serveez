@@ -66,6 +66,8 @@ SERVEEZ_API char *svz_sys_version (void);
 
 SERVEEZ_API int svz_socket_unavailable_error_p (void);
 
+SERVEEZ_API const char *svz_sys_strerror (void);
+SERVEEZ_API const char *svz_net_strerror (void);
 SERVEEZ_API void svz_log_sys_error (char const *, ...);
 SERVEEZ_API void svz_log_net_error (char const *, ...);
 
@@ -111,14 +113,5 @@ SERVEEZ_API char *svz_syserror (int);
 #endif /* __MINGW32__ */
 
 __END_DECLS
-
-/* Definition of very system dependent routines.  */
-#ifdef __MINGW32__
-# define SYS_ERROR svz_syserror (GetLastError ())
-# define NET_ERROR svz_syserror (WSAGetLastError ())
-#else /* Unices here */
-# define SYS_ERROR strerror (errno)
-# define NET_ERROR strerror (errno)
-#endif /* !__MINGW32__ */
 
 #endif /* not __UTIL_H__ */

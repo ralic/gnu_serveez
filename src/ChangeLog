@@ -1,5 +1,12 @@
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add funcs: svz_{sys,net}_strerror
+
+	* http-server/http-dirlist.c
+	(http_dirlist): Use ‘svz_sys_strerror’.
+
+2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add funcs: svz_log_{sys,net}_error
 
 	* http-server/http-cache.c: Throughout, use new funcs.

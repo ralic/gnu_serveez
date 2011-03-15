@@ -81,7 +81,7 @@ dyn_error (void)
   return (char *) err;
 }
 #else
-# define dyn_error() SYS_ERROR
+# define dyn_error()  svz_sys_strerror ()
 #endif
 
 /* Define library prefix and suffix.  */

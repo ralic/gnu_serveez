@@ -262,7 +262,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
 
   if (client_socket == INVALID_SOCKET)
     {
-      svz_log (LOG_WARNING, "accept: %s\n", NET_ERROR);
+      svz_log (LOG_WARNING, "accept: %s\n", svz_net_strerror ());
       return 0;
     }
 
