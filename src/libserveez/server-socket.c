@@ -28,6 +28,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #ifdef __MINGW32__
 # if HAVE_WS2TCPIP_H
@@ -238,6 +239,28 @@ svz_server_create (svz_portcfg_t *port)
       svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port));
     }
   return sock;
+}
+
+/*
+ * Default idle function.  This routine simply checks for "dead"
+ * (non-receiving) sockets (connection oriented protocols only) and rejects
+ * them by return a non-zero value.
+ */
+static int
+svz_sock_idle_protect (svz_socket_t *sock)
+{
+  svz_portcfg_t *port = svz_sock_portcfg (sock);
+
+  if (time (NULL) - sock->last_recv > port->detection_wait)
+    {
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
+#endif
+      return -1;
+    }
+
+  sock->idle_counter = 1;
+  return 0;
 }
 
 /*

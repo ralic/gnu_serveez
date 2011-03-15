@@ -189,28 +189,6 @@ svz_sock_detect_proto (svz_socket_t *sock)
 }
 
 /*
- * Default idle function.  This routine simply checks for "dead"
- * (non-receiving) sockets (connection oriented protocols only) and rejects
- * them by return a non-zero value.
- */
-int
-svz_sock_idle_protect (svz_socket_t *sock)
-{
-  svz_portcfg_t *port = svz_sock_portcfg (sock);
-
-  if (time (NULL) - sock->last_recv > port->detection_wait)
-    {
-#if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
-#endif
-      return -1;
-    }
-
-  sock->idle_counter = 1;
-  return 0;
-}
-
-/*
  * This @code{check_request} routine could be used by any protocol to
  * detect and finally handle packets depending on a specific packet
  * boundary.  The appropriate @code{handle_request} is called for each packet
