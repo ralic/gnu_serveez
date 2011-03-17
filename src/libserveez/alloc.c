@@ -373,7 +373,7 @@ svz_heap (void)
  * copied character string.
  */
 char *
-svz_strdup (char *src)
+svz_strdup (const char *src)
 {
   char *dst;
   int len;
@@ -429,7 +429,7 @@ svz_prealloc (void *ptr, size_t size)
  * Duplicate the given character string @var{src} permanently.
  */
 char *
-svz_pstrdup (char *src)
+svz_pstrdup (const char *src)
 {
   char *dst;
 

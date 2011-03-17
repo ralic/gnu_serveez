@@ -1,5 +1,13 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Dose svz_{p}strdup with ‘const’.
+
+	* alloc.c (svz_strdup, svz_pstrdup):
+	Declare arg ‘src’ to be ‘const char *’.
+	* alloc.h (svz_strdup, svz_pstrdup): Update func decls.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Mark unused function parameters.
 
 	Here, "U" means "Mark unused func parms with ‘SVZ_UNUSED’".

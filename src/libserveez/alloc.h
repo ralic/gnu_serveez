@@ -56,12 +56,12 @@ SERVEEZ_API void *svz_malloc (size_t);
 SERVEEZ_API void *svz_calloc (size_t);
 SERVEEZ_API void *svz_realloc (void *, size_t);
 SERVEEZ_API void svz_free (void *);
-SERVEEZ_API char *svz_strdup (char *);
+SERVEEZ_API char *svz_strdup (const char *);
 
 /* Internal permanent allocator functions.  */
 SERVEEZ_API void *svz_pmalloc (size_t);
 SERVEEZ_API void *svz_prealloc (void *, size_t);
-SERVEEZ_API char *svz_pstrdup (char *);
+SERVEEZ_API char *svz_pstrdup (const char *);
 
 /* begin svzint */
 #if DEBUG_MEMORY_LEAKS
