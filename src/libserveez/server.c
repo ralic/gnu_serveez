@@ -59,7 +59,7 @@ struct server_foreach_closure
 };
 
 static void
-server_foreach_internal (void *k, void *v, void *closure)
+server_foreach_internal (SVZ_UNUSED void *k, void *v, void *closure)
 {
   struct server_foreach_closure *x = closure;
 

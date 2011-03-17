@@ -83,7 +83,7 @@ svz_servertype_t awcs_server_definition =
  * clients it is not necessary to have character strings here.
  */
 static unsigned
-awcs_hash_keylen (char *id)
+awcs_hash_keylen (SVZ_UNUSED char *id)
 {
   return 4;
 }
@@ -481,7 +481,8 @@ awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
  * Process a status request.
  */
 static int
-awcs_process_status (awcs_config_t *cfg, char *cmd, int cmd_len)
+awcs_process_status (awcs_config_t *cfg,
+                     SVZ_UNUSED char *cmd, SVZ_UNUSED int cmd_len)
 {
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "awcs: sending status message\n");
@@ -495,7 +496,7 @@ awcs_process_status (awcs_config_t *cfg, char *cmd, int cmd_len)
  * The rest of @var{cmd} is the kicking reason.
  */
 static int
-awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
+awcs_process_kick (awcs_config_t *cfg, char *cmd, SVZ_UNUSED int cmd_len)
 {
   svz_socket_t *sock;
   int address;
@@ -533,7 +534,8 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, int cmd_len)
  * false, turn it on otherwise.
  */
 static int
-awcs_process_floodcmd (awcs_config_t *cfg, char *cmd, int cmd_len, int flag)
+awcs_process_floodcmd (awcs_config_t *cfg, char *cmd,
+                       SVZ_UNUSED int cmd_len, int flag)
 {
   svz_socket_t *sock;
   int address;

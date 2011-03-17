@@ -82,7 +82,7 @@ svz_servertype_t tnl_server_definition =
  * The tunnel server's global initializer.
  */
 int
-tnl_global_init (svz_servertype_t *server)
+tnl_global_init (SVZ_UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -91,7 +91,7 @@ tnl_global_init (svz_servertype_t *server)
  * The tunnel server's global finalizer.
  */
 int
-tnl_global_finalize (svz_servertype_t *server)
+tnl_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -391,7 +391,7 @@ tnl_send_request_target (svz_socket_t *sock, char *packet, int len, int flag)
  * share the port configuration with other TCP or pipe servers.
  */
 int
-tnl_detect_proto (svz_server_t *server, svz_socket_t *sock)
+tnl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   svz_log (LOG_NOTICE, "tunnel: %s connection accepted\n",
            sock->flags & SOCK_FLAG_PIPE ? "pipe" : "tcp");
@@ -403,7 +403,7 @@ tnl_detect_proto (svz_server_t *server, svz_socket_t *sock)
  * to setup the tunnel server specific callbacks.
  */
 int
-tnl_connect_socket (svz_server_t *server, svz_socket_t *sock)
+tnl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   svz_socket_t *xsock = NULL;
   tnl_connect_t *source;

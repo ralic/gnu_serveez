@@ -102,7 +102,8 @@ http_free_cache (void)
 
 #if ENABLE_DEBUG
 static void
-cache_consistency_internal (void *k, void *v, void *closure)
+cache_consistency_internal (SVZ_UNUSED void *k, void *v,
+                            SVZ_UNUSED void *closure)
 {
   http_cache_entry_t *ent = v;
 

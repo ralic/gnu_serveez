@@ -44,7 +44,7 @@
  * Main entry point for array tests.
  */
 int
-main (int argc, char **argv)
+main (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 {
   int result = 0;
   svz_array_t *array, *dup;

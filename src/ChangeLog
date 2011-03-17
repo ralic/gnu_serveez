@@ -1,5 +1,55 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Mark unused function parameters.
+
+	Here, "U" means "Mark unused func parms with ‘SVZ_UNUSED’".
+	* awcs-server/awcs-proto.c (awcs_hash_keylen, awcs_process_status)
+	(awcs_process_kick, awcs_process_floodcmd): U.
+	* ctrl-server/control-proto.c (ctrl_init, ctrl_finalize)
+	(ctrl_info_server, ctrl_info_client, ctrl_detect_proto)
+	(ctrl_connect_socket, ctrl_quit, ctrl_help, ctrl_stat_con)
+	(ctrl_stat_cache, ctrl_kill_cache, ctrl_stat_coservers)
+	(ctrl_killall, ctrl_restart): U.
+	* fakeident-server/ident-proto.c (fakeident_init)
+	(fakeident_connect_socket, fakeident_detect_proto)
+	(fakeident_handle_request): U.
+	* foo-server/foo-proto.c (foo_handle_request, foo_init)
+	(foo_detect_proto, foo_global_init, foo_global_finalize): U.
+	* guile-bin.c (guile_bin_print): U.
+	* guile-server.c (MAKE_SMOB_DEFINITION) <NAME_PRINT>: U.
+	(MAKE_SMOB_DEFINITION) <NAME_FREE>: U.
+	(print_hash_kv, servertype_config_internal): U.
+	* guile.c (optionhash_cb_integer, optionhash_cb_boolean)
+	(optionhash_cb_intarray, optionhash_cb_string)
+	(optionhash_cb_strarray, optionhash_cb_hash)
+	(optionhash_cb_portcfg, guile_exception): U.
+	* http-server/http-cache.c (cache_consistency_internal): U.
+	* http-server/http-cgi.c (http_cgi_get_response)
+	(http_post_response): U.
+	* http-server/http-proto.c (http_global_init)
+	(http_global_finalize, http_detect_proto, http_info_client)
+	(http_default_response): U.
+	* irc-core/irc-core.c (irc_detect_proto, irc_connect_socket): U.
+	* irc-server/irc-event-1.c (irc_motd_callback): U.
+	* irc-server/irc-event-3.c (irc_lusers_callback): U.
+	* irc-server/irc-event-5.c (irc_client_visible): U.
+	* irc-server/irc-event-6.c (irc_error_callback): U.
+	* irc-server/irc-proto.c
+	(irc_global_init, irc_global_finalize): U.
+	* nut-server/gnutella.c (nut_hash_keylen)
+	(nut_global_init, nut_global_finalize, nut_info_client): U.
+	* nut-server/nut-request.c (nut_ping): U.
+	* prog-server/prog-server.c (prog_handle_request)
+	(prog_detect_proto, prog_global_init, prog_global_finalize)
+	(prog_notify, prog_info_client, prog_info_server): U.
+	* serveez.c (guile_entry): U.
+	* sntp-server/sntp-proto.c (sntp_init, sntp_detect_proto)
+	(sntp_connect_socket, sntp_handle_request): U.
+	* tunnel-server/tunnel.c (tnl_global_init)
+	(tnl_global_finalize, tnl_detect_proto, tnl_connect_socket): U.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘##’-style token-pasting unconditionally.
 
 	* guile-api.h (GUILE_CONCAT2, GUILE_CONCAT3): Delete macros.

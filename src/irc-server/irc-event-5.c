@@ -95,7 +95,7 @@ irc_whowas_callback (svz_socket_t *sock,
  * Check if a certain client is visible to another.
  */
 static int
-irc_client_visible (irc_config_t *cfg,     /* current server config */
+irc_client_visible (SVZ_UNUSED irc_config_t *cfg,
                     irc_client_t *client,  /* who wants to know about */
                     irc_client_t *rclient) /* this client */
 {

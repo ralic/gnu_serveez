@@ -42,12 +42,13 @@
 #endif
 
 #include "networking-headers.h"
+#include <libserveez.h>
 
 /*
  * Main entry point for test.
  */
 int
-main (int argc, char **argv)
+main (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 {
   int s;
   struct sockaddr_in addr;

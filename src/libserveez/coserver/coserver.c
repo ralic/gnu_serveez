@@ -535,7 +535,8 @@ svz_coserver_check_request (svz_socket_t *sock)
  * the standard @code{check_request} detected a full packet by any coserver.
  */
 static int
-svz_coserver_handle_request (svz_socket_t *sock, char *request, int len)
+svz_coserver_handle_request (SVZ_UNUSED svz_socket_t *sock,
+                             char *request, int len)
 {
   int ret;
   unsigned id;

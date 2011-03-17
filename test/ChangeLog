@@ -1,5 +1,17 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Mark unused function parameters.
+
+	Here, "U" means "Mark unused func parms with ‘SVZ_UNUSED’".
+	* array-test.c (main): U.
+	* hash-test.c (count, main): U.
+	* prog-test.c: #include <libserveez.h>.
+	(main): U.
+	* spvec-test.c (main): U.
+	* vector-test.c (main): U.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Decruft: Delete unused local variables.
 
 	Here, "D (...)" means "Delete local vars ...".

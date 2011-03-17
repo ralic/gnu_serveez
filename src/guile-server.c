@@ -117,13 +117,13 @@ static int NAME_PRED (ctype) (SCM smob) {                                    \
           SCM_TYP16 (smob) == NAME_TAG (ctype)) ? 1 : 0;                     \
 }                                                                            \
 static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
-                               scm_print_state *state) {                     \
+                               SVZ_UNUSED scm_print_state *state) {          \
   static char txt[256];                                                      \
   sprintf (txt, "#<%s %p>", description, (void *) SCM_SMOB_DATA (smob));     \
   scm_puts (txt, port);                                                      \
   return 1;                                                                  \
 }                                                                            \
-static size_t NAME_FREE (ctype) (SCM smob) {                                 \
+static size_t NAME_FREE (ctype) (SVZ_UNUSED SCM smob) {                      \
   return 0;                                                                  \
 }                                                                            \
 static void NAME_INIT (ctype) (void) {                                       \
@@ -1247,7 +1247,7 @@ guile_servertype_config_free (svz_servertype_t *server)
 
 #if ENABLE_DEBUG
 static void
-print_hash_kv (void *k, void *v, void *closure)
+print_hash_kv (void *k, void *v, SVZ_UNUSED void *closure)
 {
   char *key = k;
   char *value = v;
@@ -1453,7 +1453,7 @@ struct servertype_config_closure
 };
 
 static void
-servertype_config_internal (void *k, void *v, void *closure)
+servertype_config_internal (void *k, SVZ_UNUSED void *v, void *closure)
 {
   static char FUNC_NAME[] = "guile_servertype_config";
   struct servertype_config_closure *x = closure;

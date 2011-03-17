@@ -916,7 +916,7 @@ svz_sock_unique_id (svz_socket_t *sock)
 }
 
 static void
-reset_internal (svz_server_t *server, void *closure)
+reset_internal (svz_server_t *server, SVZ_UNUSED void *closure)
 {
   if (server->reset)
     server->reset (server);
@@ -1009,7 +1009,7 @@ svz_sock_schedule_for_shutdown (svz_socket_t *sock)
 }
 
 static void
-notify_internal (svz_server_t *server, void *closure)
+notify_internal (svz_server_t *server, SVZ_UNUSED void *closure)
 {
   if (server->notify)
     server->notify (server);

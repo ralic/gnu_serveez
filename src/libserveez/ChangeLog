@@ -1,5 +1,18 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Mark unused function parameters.
+
+	Here, "U" means "Mark unused func parms with ‘SVZ_UNUSED’".
+	* codec/bzip2.c (bzip2_alloc, bzip2_free): U.
+	* codec/gzlib.c (zlib_alloc, zlib_free): U.
+	* coserver/coserver.c (svz_coserver_handle_request): U.
+	* server-core.c (reset_internal, notify_internal): U.
+	* server.c (server_foreach_internal): U.
+	* util.c (SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED): New #define.
+	(svz__log_updn): Use it for param ‘direction’.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Decruft: Delete unused local variables.
 
 	Here, "D (...)" means "Delete local vars ...".

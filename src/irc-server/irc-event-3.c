@@ -113,7 +113,7 @@ irc_time_callback (svz_socket_t *sock,
 int
 irc_lusers_callback (svz_socket_t *sock,
                      irc_client_t *client,
-                     irc_request_t *request)
+                     SVZ_UNUSED irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
 

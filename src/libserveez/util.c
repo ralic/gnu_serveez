@@ -110,8 +110,14 @@ static int spew_mutex_valid;
 
 #define LOGBUFSIZE  512
 
+#ifndef HAVE_FWRITE_UNLOCKED
+#define SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED
+#else
+#define SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED  SVZ_UNUSED
+#endif
+
 void
-svz__log_updn (int direction)
+svz__log_updn (SVZ_UNUSED_IF_HAVE_FWRITE_UNLOCKED int direction)
 {
 #ifndef HAVE_FWRITE_UNLOCKED
   (direction

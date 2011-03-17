@@ -42,7 +42,7 @@
  * Main entry point for vector tests.
  */
 int
-main (int argc, char **argv)
+main (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 {
   int result = 0;
   svz_vector_t *vector;

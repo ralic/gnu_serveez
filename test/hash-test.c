@@ -44,7 +44,7 @@ struct it_test
 };
 
 void
-count (void *k, void *v, void *closure)
+count (SVZ_UNUSED void *k, void *v, void *closure)
 {
   struct it_test *x = closure;
 
@@ -56,7 +56,7 @@ count (void *k, void *v, void *closure)
  * Main entry point for hash tests.
  */
 int
-main (int argc, char **argv)
+main (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 {
   int result = 0;
   svz_hash_t *hash;

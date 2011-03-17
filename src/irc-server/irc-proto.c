@@ -146,7 +146,7 @@ static irc_channel_t *irc_add_channel (irc_config_t *cfg, char *channel);
  * Global IRC server initializer.
  */
 int
-irc_global_init (svz_servertype_t *server)
+irc_global_init (SVZ_UNUSED svz_servertype_t *server)
 {
 #if 0
   printf ("sizeof (socket_t)             = %d\n", sizeof (socket_data_t));
@@ -170,7 +170,7 @@ irc_global_init (svz_servertype_t *server)
  * Global IRC server finalizer.
  */
 int
-irc_global_finalize (svz_servertype_t *server)
+irc_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 {
   return 0;
 }

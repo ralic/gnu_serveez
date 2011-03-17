@@ -60,7 +60,7 @@ guile_launch_pad (void *closure, int argc, char **argv)
  * This is the entry point for the guile interface.
  */
 static void
-guile_entry (int argc, char **argv)
+guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 {
   /* Detect operating system.  */
   svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());

@@ -132,7 +132,7 @@ irc_start_auth (svz_socket_t *sock)
  * IRC connection has been detected.  Otherwise zero.
  */
 int
-irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
+irc_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   int ret = 0;
 
@@ -164,7 +164,7 @@ irc_detect_proto (svz_server_t *server, svz_socket_t *sock)
  * this routine is called to setup this socket for an IRC connection.
  */
 int
-irc_connect_socket (svz_server_t *server, svz_socket_t *sock)
+irc_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   sock->check_request = irc_check_request;
   sock->disconnected_socket = irc_disconnect;

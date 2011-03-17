@@ -94,7 +94,9 @@ svz_servertype_t prog_server_definition =
  * Handle request callback.  Not yet used.
  */
 int
-prog_handle_request (svz_socket_t *sock, char *request, int len)
+prog_handle_request (SVZ_UNUSED svz_socket_t *sock,
+                     SVZ_UNUSED char *request,
+                     SVZ_UNUSED int len)
 {
   return -1;
 }
@@ -104,7 +106,8 @@ prog_handle_request (svz_socket_t *sock, char *request, int len)
  * no use to detect a client.
  */
 int
-prog_detect_proto (svz_server_t *server, svz_socket_t *sock)
+prog_detect_proto (SVZ_UNUSED svz_server_t *server,
+                   SVZ_UNUSED svz_socket_t *sock)
 {
   return -1;
 }
@@ -211,7 +214,7 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
  * Global initializer.  Not used yet.
  */
 int
-prog_global_init (svz_servertype_t *server)
+prog_global_init (SVZ_UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -220,7 +223,7 @@ prog_global_init (svz_servertype_t *server)
  * Global finalizer.  Not used yet.
  */
 int
-prog_global_finalize (svz_servertype_t *server)
+prog_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 {
   return 0;
 }
@@ -381,7 +384,7 @@ prog_init (svz_server_t *server)
  * Notify callback.  Not used yet.
  */
 int
-prog_notify (svz_server_t *server)
+prog_notify (SVZ_UNUSED svz_server_t *server)
 {
   return 0;
 }
@@ -390,7 +393,8 @@ prog_notify (svz_server_t *server)
  * Info client callback.  Not used yet.
  */
 char *
-prog_info_client (svz_server_t *server, svz_socket_t *sock)
+prog_info_client (SVZ_UNUSED svz_server_t *server,
+                  SVZ_UNUSED svz_socket_t *sock)
 {
   return NULL;
 }
@@ -399,7 +403,7 @@ prog_info_client (svz_server_t *server, svz_socket_t *sock)
  * Info server callback.  Not used yet.
  */
 char *
-prog_info_server (svz_server_t *server)
+prog_info_server (SVZ_UNUSED svz_server_t *server)
 {
   return NULL;
 }

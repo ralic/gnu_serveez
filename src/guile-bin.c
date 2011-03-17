@@ -80,7 +80,8 @@ guile_bin_p (SCM binary)
 /* Smob print function: Displays a text representation of the given
    cell @var{binary} to the output port @var{port}.  */
 static int
-guile_bin_print (SCM binary, SCM port, scm_print_state *state)
+guile_bin_print (SCM binary, SCM port,
+                 SVZ_UNUSED scm_print_state *state)
 {
   guile_bin_t *bin = GET_BIN_SMOB (binary);
   static char txt[256];
