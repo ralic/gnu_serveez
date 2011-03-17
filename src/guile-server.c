@@ -46,6 +46,15 @@
 #include "guile-bin.h"
 #include "guile-server.h"
 
+#define _CTYPE(ctype,x)     __CTYPE (guile, ctype, x)
+#define NAME_TAG(ctype)     _CTYPE (ctype, tag)
+#define NAME_PRED(ctype)    _CTYPE (ctype, p)
+#define NAME_CREATE(ctype)  _CTYPE (ctype, create)
+#define NAME_FREE(ctype)    _CTYPE (ctype, free)
+#define NAME_PRINT(ctype)   _CTYPE (ctype, print)
+#define NAME_GET(ctype)     _CTYPE (ctype, get)
+#define NAME_INIT(ctype)    _CTYPE (ctype, init)
+
 /* The guile server type hash.  */
 static svz_hash_t *guile_server = NULL;
 
@@ -72,15 +81,14 @@ static int guile_use_exceptions = 1;
   /* Guile 1.3 backward compatibility code.  */
 # define CREATE_SMOB_TAG(ctype, description)                               \
   static scm_smobfuns guile_funs = {                                       \
-    NULL, GUILE_CONCAT3 (guile_,ctype,_free),                              \
-    GUILE_CONCAT3 (guile_,ctype,_print), NULL };                           \
-  GUILE_CONCAT3 (guile_,ctype,_tag) = scm_newsmob (&guile_funs);
+    NULL, NAME_FREE (ctype),                                               \
+    NAME_PRINT (ctype), NULL };                                            \
+  NAME_TAG (ctype) = scm_newsmob (&guile_funs);
 #else
   /* Create new smob data type and assign a printer function.  */
 # define CREATE_SMOB_TAG(ctype, description)                               \
-  GUILE_CONCAT3 (guile_,ctype,_tag) = scm_make_smob_type (description, 0); \
-  scm_set_smob_print (GUILE_CONCAT3 (guile_,ctype,_tag),                   \
-                      GUILE_CONCAT3 (guile_,ctype,_print));
+  NAME_TAG (ctype) = scm_make_smob_type (description, 0);                  \
+  scm_set_smob_print (NAME_TAG (ctype), NAME_PRINT (ctype));
 #endif
 
 /*
@@ -97,42 +105,42 @@ static int guile_use_exceptions = 1;
  * g) free    - Run if the SMOB gets destroyed.
  */
 #define MAKE_SMOB_DEFINITION(ctype, description)                             \
-static scm_t_bits GUILE_CONCAT3 (guile_,ctype,_tag) = 0;                     \
-static SCM GUILE_CONCAT3 (guile_,ctype,_create) (void *data) {               \
-  SCM_RETURN_NEWSMOB (GUILE_CONCAT3 (guile_,ctype,_tag), data);              \
+static scm_t_bits NAME_TAG (ctype) = 0;                                      \
+static SCM NAME_CREATE (ctype) (void *data) {                                \
+  SCM_RETURN_NEWSMOB (NAME_TAG (ctype), data);                               \
 }                                                                            \
-static void * GUILE_CONCAT3 (guile_,ctype,_get) (SCM smob) {                 \
+static void * NAME_GET (ctype) (SCM smob) {                                  \
   return (void *) SCM_SMOB_DATA (smob);                                      \
 }                                                                            \
-static int GUILE_CONCAT3 (guile_,ctype,_p) (SCM smob) {                      \
+static int NAME_PRED (ctype) (SCM smob) {                                    \
   return (SCM_NIMP (smob) &&                                                 \
-          SCM_TYP16 (smob) == GUILE_CONCAT3 (guile_,ctype,_tag)) ? 1 : 0;    \
+          SCM_TYP16 (smob) == NAME_TAG (ctype)) ? 1 : 0;                     \
 }                                                                            \
-static int GUILE_CONCAT3 (guile_,ctype,_print) (SCM smob, SCM port,          \
-                                                scm_print_state *state) {    \
+static int NAME_PRINT (ctype) (SCM smob, SCM port,                           \
+                               scm_print_state *state) {                     \
   static char txt[256];                                                      \
   sprintf (txt, "#<%s %p>", description, (void *) SCM_SMOB_DATA (smob));     \
   scm_puts (txt, port);                                                      \
   return 1;                                                                  \
 }                                                                            \
-static size_t GUILE_CONCAT3 (guile_,ctype,_free) (SCM smob) {                \
+static size_t NAME_FREE (ctype) (SCM smob) {                                 \
   return 0;                                                                  \
 }                                                                            \
-static void GUILE_CONCAT3 (guile_,ctype,_init) (void) {                      \
+static void NAME_INIT (ctype) (void) {                                       \
   CREATE_SMOB_TAG (ctype, description);                                      \
 }
 
 /* Initializer macro for a new smob type.  */
-#define INIT_SMOB(ctype) GUILE_CONCAT3 (guile_,ctype,_init) ()
+#define INIT_SMOB(ctype) NAME_INIT (ctype) ()
 
 /* Instantiating macro for a smob type.  */
-#define MAKE_SMOB(ctype, data) GUILE_CONCAT3 (guile_,ctype,_create) (data)
+#define MAKE_SMOB(ctype, data) NAME_CREATE (ctype) (data)
 
 /* Checks if the given scheme cell is a smob or not.  */
-#define CHECK_SMOB(ctype, smob) GUILE_CONCAT3 (guile_,ctype,_p) (smob)
+#define CHECK_SMOB(ctype, smob) NAME_PRED (ctype) (smob)
 
 /* Extracts the smob data from a given smob cell.  */
-#define GET_SMOB(ctype, smob) GUILE_CONCAT3 (guile_,ctype,_get) (smob)
+#define GET_SMOB(ctype, smob) NAME_GET (ctype) (smob)
 
 /* Checks if the scheme cell @var{smob} is a smob and throws an error if
    not.  Otherwise the variable @var{var} receives the smob data.  */
@@ -152,20 +160,20 @@ MAKE_SMOB_DEFINITION (svz_servertype, "svz-servertype")
 /* This macro creates a socket callback getter/setter for use in Guile.
    The procedure returns any previously set callback or an undefined value.  */
 #define MAKE_SOCK_CALLBACK(func, assoc)                                \
-static SCM GUILE_CONCAT2 (guile_sock_,func) (SCM sock, SCM proc) {     \
+static SCM guile_sock_ ## func (SCM sock, SCM proc) {                  \
   svz_socket_t *xsock;                                                 \
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);    \
   if (!SCM_UNBNDP (proc)) {                                            \
     SCM_ASSERT_TYPE (SCM_PROCEDUREP (proc), proc, SCM_ARG2, FUNC_NAME, \
                      "procedure");                                     \
-    xsock->func = GUILE_CONCAT2 (guile_func_,func);                    \
+    xsock->func = guile_func_ ## func;                                 \
     return guile_sock_setfunction (xsock, assoc, proc); }              \
   return guile_sock_getfunction (xsock, assoc);                        \
 }
 
 /* Provides a socket callback setter/getter.  */
 #define DEFINE_SOCK_CALLBACK(assoc, func) \
-  scm_c_define_gsubr (assoc, 1, 1, 0, GUILE_CONCAT2 (guile_sock_,func))
+  scm_c_define_gsubr (assoc, 1, 1, 0, guile_sock_ ## func)
 
 /*
  * Extract a guile procedure from an option hash.  Return zero on success.

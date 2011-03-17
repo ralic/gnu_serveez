@@ -177,16 +177,9 @@ typedef scm_catch_handler_t scm_t_catch_handler;
 #define guile_integer(pos, obj, def) \
     ((SCM_EXACTP (obj)) ? (SCM_NUM2INT (pos, obj)) : (def))
 
-/* The GUILE_CONCAT macros create a new concatenated symbol for the
-   compiler in a portable way.  It is essential to use these macros like
-   GUILE_CONCAT (a,b) and *not* like GUILE_CONCAT (a, b) or its variants.  */
-#if defined (__STDC__) || defined (__cplusplus)
-# define GUILE_CONCAT2(a, b) a##b
-# define GUILE_CONCAT3(a, b, c) a##b##c
-#else
-# define GUILE_CONCAT2(a, b) a/* */b
-# define GUILE_CONCAT3(a, b, c) a/* */b/* */c
-#endif
+/* This macro creates a new concatenated symbol for the C type ‘ctype’,
+   useful for generating smob-related function/variable names.  */
+#define __CTYPE(pre,ctype,post)    pre ## _ ## ctype ## _ ## post
 
 /* Compatibility macros for Guile 1.3 version.  Also defines the macro
    HAVE_OLD_SMOBS which indicates a different smob implementation.  */

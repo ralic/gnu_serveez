@@ -37,6 +37,8 @@
 #include "guile-api.h"
 #include "guile-bin.h"
 
+#define _CTYPE(ctype,x)  __CTYPE (guile_bin, ctype, x)
+
 /*
  * Structure definition of the data the binary smob refers to.
  */
@@ -577,7 +579,7 @@ guile_bin_to_data (SCM binary, int *size)
 /* The following macro expands to a procedure definition which accesses a
    binary smob's data for reading depending on the given @var{ctype}.  */
 #define MAKE_BIN_REF(ctype)                                                  \
-static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
+static SCM _CTYPE (ctype, ref) (SCM binary, SCM index) {                     \
   guile_bin_t *bin; int idx; long val = 0; void *data;                       \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \
   SCM_ASSERT_TYPE (SCM_EXACTP (index), index, SCM_ARG2, FUNC_NAME, "exact"); \
@@ -609,8 +611,7 @@ static SCM GUILE_CONCAT3 (guile_bin_,ctype,_ref) (SCM binary, SCM index) {   \
 /* The following macro expands to a procedure definition which accesses a
    binary smob's data for writing depending on the given @var{ctype}.  */
 #define MAKE_BIN_SET(ctype)                                                  \
-static SCM GUILE_CONCAT3 (guile_bin_,ctype,_set) (SCM binary, SCM index,     \
-                                                  SCM value) {               \
+static SCM _CTYPE (ctype, set) (SCM binary, SCM index, SCM value) {          \
   guile_bin_t *bin; int idx; unsigned long val; SCM old;                     \
   unsigned long oldval = 0; void *data;                                      \
   CHECK_BIN_SMOB_ARG (binary, SCM_ARG1, bin);                                \

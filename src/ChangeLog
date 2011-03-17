@@ -1,5 +1,20 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Use ‘##’-style token-pasting unconditionally.
+
+	* guile-api.h (GUILE_CONCAT2, GUILE_CONCAT3): Delete macros.
+	(__CTYPE): New macro.
+	* guile-bin.c (_CTYPE): New macro.
+	(MAKE_BIN_REF, MAKE_BIN_SET): Use ‘_CTYPE’.
+	* guile-server.c (_CTYPE, NAME_TAG)
+	(NAME_PRED, NAME_CREATE, NAME_FREE)
+	(NAME_PRINT, NAME_GET, NAME_INIT): New macros.
+	(CREATE_SMOB_TAG, MAKE_SMOB_DEFINITION, INIT_SMOB)
+	(MAKE_SMOB, CHECK_SMOB, GET_SMOB, MAKE_SOCK_CALLBACK)
+	(DEFINE_SOCK_CALLBACK): Use new macros.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Decruft: Delete unused local variables.
 
 	Here, "D (...)" means "Delete local vars ...".
