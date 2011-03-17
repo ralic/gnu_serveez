@@ -60,8 +60,7 @@ uninstall-hook:
 svzpath.h: $(top_srcdir)/config.status
 	@echo "Generating svzpath.h..."
 	@echo '#define SVZ_PKGDATADIR "$(pkgdatadir)"' > $@
-	@echo '#define SVZ_BINDIR "$(bindir)"' >> $@
-	@echo '#define SVZ_LIBDIR "$(libdir)"' >> $@
+	@echo '#define SVZ_PKGLIBDIR "$(pkglibdir)"' >> $@
 
 noinst_HEADERS = ipdata.h iphlpapi.h
 

@@ -1,5 +1,19 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Revamp default value of dynloader's search path.
+
+	Omitting "." is a common security measure.  (This change
+	could also be called a bugfix, viewed in such light.)
+
+	* Makefile.am (svzpath.h):
+	Don't #define ‘SVZ_BINDIR’, ‘SVZ_LIBDIR’;
+	instead, #define ‘SVZ_PKGLIBDIR’.
+	* dynload.c (svz_dynload_path_get):
+	Don't add ".", ‘SVZ_LIBDIR’, ‘SVZ_BINDIR’;
+	instead, add ‘SVZ_PKGLIBDIR’.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Dose svz_{p}strdup with ‘const’.
 
 	* alloc.c (svz_strdup, svz_pstrdup):

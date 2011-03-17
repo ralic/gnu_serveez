@@ -224,9 +224,7 @@ svz_dynload_path_get (void)
   int len, n;
 
   /* Add some default paths.  */
-  svz_array_add (paths, svz_strdup ("."));
-  svz_array_add (paths, svz_strdup (SVZ_LIBDIR));
-  svz_array_add (paths, svz_strdup (SVZ_BINDIR));
+  svz_array_add (paths, svz_strdup (SVZ_PKGLIBDIR));
   svz_array_add (paths, svz_strdup (SVZ_PKGDATADIR));
 
   /* Add environment variable paths.  */
