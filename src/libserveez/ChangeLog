@@ -1,3 +1,9 @@
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Add GCC-specific mechanism to declare "unused" bits.
+
+	* defines.h (SVZ_UNUSED): New #define.
+
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize several svz_server_* funcs.
