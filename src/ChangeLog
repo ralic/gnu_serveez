@@ -1,5 +1,13 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Don't bother symlinking data/serveez.cfg to src/.
+
+	* Makefile.am (serveez_DEPENDENCIES): Remove serveez.cfg.
+	(CLEANFILES): Remove serveez.cfg.
+	(serveez.cfg): Delete target.
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Mark unused function parameters.
 
 	Here, "U" means "Mark unused func parms with ‘SVZ_UNUSED’".

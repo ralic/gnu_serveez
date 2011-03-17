@@ -64,7 +64,6 @@ Makefile.in
 /src/guile-boot.c
 /src/serveez
 /src/serveez-config
-/src/serveez.cfg
 /src/stamp-h*
 /src/svzconfig.h
 

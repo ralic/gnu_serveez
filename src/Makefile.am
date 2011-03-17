@@ -68,15 +68,13 @@ noinst_HEADERS = changedir.h networking-headers.h o-binary.h woe-wait.h
 EXTRA_serveez_SOURCES = guile-api.c guile-api.h
 
 serveez_DEPENDENCIES = $(PROTOLIBS) \
-	libserveez/libserveez.la serveez.cfg
+	libserveez/libserveez.la
 
 serveez_LDADD = $(resource_OBJECTS) $(PROTOLIBS) \
 	libserveez/libserveez.la $(SERVEEZ_LIBS)
 
 serveez_LDFLAGS = $(GUILE_LDFLAGS) $(SERVEEZ_LDFLAGS)
 AM_CPPFLAGS += $(GUILE_CFLAGS)
-
-CLEANFILES += serveez.cfg
 
 i = "$(DESTDIR)$(includedir)/libserveez"
 
@@ -96,9 +94,6 @@ install-data-hook:
 
 dist-hook:
 	rm -f $(distdir)/svzconfig.h
-
-serveez.cfg: $(top_srcdir)/data/serveez.cfg
-	$(LN_S) $< $@
 
 # woe
 
