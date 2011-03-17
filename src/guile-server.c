@@ -1258,7 +1258,6 @@ guile_servertype_config_print (svz_servertype_t *server)
   svz_array_t *array;
   svz_hash_t *hash;
   svz_portcfg_t *port;
-  char **key;
   svz_config_prototype_t *prototype = &server->config_prototype;
 
   fprintf (stderr, "Configuration of `%s':\n", server->prefix);

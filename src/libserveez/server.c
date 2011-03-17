@@ -445,8 +445,7 @@ init_all_internal (svz_server_t *server, void *closure)
 int
 svz_server_init_all (void)
 {
-  int errneous = 0, i;
-  svz_server_t **server;
+  int errneous = 0;
 
   svz_log (LOG_NOTICE, "initializing all server instances\n");
   svz_server_foreach (init_all_internal, &errneous);

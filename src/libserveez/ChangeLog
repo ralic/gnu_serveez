@@ -1,5 +1,13 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Decruft: Delete unused local variables.
+
+	Here, "D (...)" means "Delete local vars ...".
+	* cfg.c (svz_config_hash_dup): D (i, keys).
+	* server.c (svz_server_init_all): D (i, server).
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Add GCC-specific mechanism to declare "unused" bits.
 
 	* defines.h (SVZ_UNUSED): New #define.

@@ -1,5 +1,13 @@
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Decruft: Delete unused local variables.
+
+	Here, "D (...)" means "Delete local vars ...".
+	* guile-server.c (guile_servertype_config_print): D (key).
+	* guile.c (guile_access_interfaces): D (ifc).
+
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[ctrl-proto] Fix bug in "connection statistics" command.
 
 	Regression introduced 2011-03-05,

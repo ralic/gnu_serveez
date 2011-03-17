@@ -176,8 +176,6 @@ static svz_hash_t *
 svz_config_hash_dup (svz_hash_t *strhash)
 {
   svz_hash_t *hash = NULL;
-  int i;
-  char **keys;
 
   if (strhash)
     {

@@ -1480,7 +1480,6 @@ access_interfaces_internal (const svz_interface_t *ifc, void *closure)
 SCM
 guile_access_interfaces (SCM args)
 {
-  svz_interface_t *ifc;
   int n;
   SCM list = SCM_EOL;
   char *str, description[64];

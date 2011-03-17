@@ -60,7 +60,7 @@ main (int argc, char **argv)
 {
   int result = 0;
   svz_hash_t *hash;
-  long n, error, val;
+  long n, error;
   char *text;
   char **keys;
   void **values;
