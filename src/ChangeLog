@@ -1,3 +1,13 @@
+2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[ctrl-proto] Fix bug in "connection statistics" command.
+
+	Regression introduced 2011-03-05,
+	"Add abstraction: svz_foreach_socket".
+
+	* ctrl-server/control-proto.c (stat_con_internal):
+	Send output to the control socket, not to the scanned one.
+
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_errno’.

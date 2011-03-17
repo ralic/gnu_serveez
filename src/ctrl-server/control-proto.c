@@ -606,7 +606,7 @@ stat_con_internal (svz_socket_t *sock, void *closure)
   snprintf (rinet, 64, "%s:%u",
            svz_inet_ntoa (sock->remote_addr),
            ntohs (sock->remote_port));
-  svz_sock_printf (sock,
+  svz_sock_printf (to,
                    "%-16s %4d %6d %6d "
                    "%-20s %-20s"        /* FIXME: IPv4 */
                    "\r\n", id,
