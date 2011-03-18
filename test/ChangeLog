@@ -1,3 +1,36 @@
+2011-03-18  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v] Consolidate C support; trigger its build on "make check".
+
+	* btdt.c: New file.
+	* btdt.ap: New file.
+	* t000: New file.
+	* Makefile.am (GUILE, TESTS_ENVIRONMENT): New vars.
+	(TESTS): Add t000; remove vector-test,
+	array-test, hash-test, spvec-test.
+	(EXTRA_DIST): Add $(TESTS).
+	(noinst_PROGRAMS): Delete var.
+	(check_PROGRAMS, btdt_SOURCES): New vars.
+	(hash_test_SOURCES): Delete var.
+	(spvec_test_SOURCES, array_test_SOURCES, vector_test_SOURCES)
+	(codec_test_SOURCES, prog_test_SOURCES): Likewise.
+	(stems): Use ‘check_PROGRAMS’.
+	* prog-test.cfg (prog-server): Arrange to invoke "./btdt spew".
+	* array-test.c: Delete file.
+	* array.ap: Likewise.
+	* codec-test.c: Likewise.
+	* codec.ap: Likewise.
+	* hash-test.c: Likewise.
+	* hash.ap: Likewise.
+	* prog-test.c: Likewise.
+	* prog.ap: Likewise.
+	* spvec-test.c: Likewise.
+	* spvec.ap: Likewise.
+	* test.c: Likewise.
+	* test.h: Likewise.
+	* vector-test.c: Likewise.
+	* vector.ap: Likewise.
+
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[C] Mark unused function parameters.

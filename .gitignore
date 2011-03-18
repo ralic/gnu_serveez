@@ -71,7 +71,7 @@ Makefile.in
 
 /src/libserveez/svzpath.h
 
-/test/*-test
+/test/btdt
 
 # Local variables:
 # mode: shell-script

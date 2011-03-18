@@ -1,8 +1,7 @@
-#
-# test/vector.ap - Autodsp input file.
+# test/btdt.ap --- Autodsp input file
 #
 # Copyright (C) 2011 Thien-Thi Nguyen
-# Copyright (C) 2001 Stefan Jahn <stefan@lkcc.org>
+# Copyright (C) 2001, 2002 Stefan Jahn <stefan@lkcc.org>
 #
 # This is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,18 +15,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this package.  If not, see <http://www.gnu.org/licenses/>.
-#
 
 OWNER = <4>
 TARGET_TYPE = Console App
-NAME = vector
-TARGET = vector-test
+NAME = btdt
+TARGET = btdt
 
 # List all sources here.
-SOURCES = vector-test.c test.c
+SOURCES = btdt.c
 
-# Additional libraries.
-LIBS = -lserveez
+# Additional libraries.  [??? Is this syntax correct? --ttn]
+LIBS = ws2_32.lib -lserveez
 
 # Linker flags.
 LDFLAGS = -L../src/libserveez

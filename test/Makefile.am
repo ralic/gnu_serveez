@@ -23,27 +23,25 @@
 
 include $(top_srcdir)/build-aux/common.mk
 
-TESTS = vector-test array-test hash-test spvec-test
+# FIXME: Make ‘SVZ_GUILE’ (../configure.ac) set this.
+GUILE = guile
 
-EXTRA_DIST = \
+TESTS_ENVIRONMENT = $(GUILE) -s
+TESTS = t000
+
+EXTRA_DIST = $(TESTS) \
 	prog-test.cfg test-suite.scm binary-test.scm server-test.scm \
 	guile-server-test.scm
 
-noinst_PROGRAMS = hash-test spvec-test array-test vector-test codec-test \
-	prog-test
+check_PROGRAMS = btdt
 
-hash_test_SOURCES = hash-test.c test.c test.h
-spvec_test_SOURCES = spvec-test.c test.c test.h
-array_test_SOURCES = array-test.c test.c test.h
-vector_test_SOURCES = vector-test.c test.c test.h
-codec_test_SOURCES = codec-test.c
-prog_test_SOURCES = prog-test.c
+btdt_SOURCES = btdt.c
 
 LDADD = -L../src/libserveez -lserveez
 
 # woe
 
-stems = $(noinst_PROGRAMS:%-test=%)
+stems = $(check_PROGRAMS:%-test=%)
 woeap = $(stems:%=%.ap)
 woedsp = $(stems:%=%.dsp)
 
