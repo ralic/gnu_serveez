@@ -216,6 +216,37 @@ svz_sock_bind_port (svz_portcfg_t *port)
 }
 
 /*
+ * This function attaches the given server instance @var{server} to the
+ * listening socket structure @var{sock}.  It returns zero on success and
+ * non-zero if the server is already bound to the socket.
+ */
+static int
+svz_sock_add_server (svz_socket_t *sock,
+                     svz_server_t *server, svz_portcfg_t *port)
+{
+  svz_binding_t *binding = svz_binding_create (server, port);
+
+  /* Create server array if necessary.  */
+  if (sock->data == NULL)
+    {
+      sock->data = svz_array_create (1, (svz_free_func_t) svz_binding_destroy);
+      svz_array_add (sock->data, binding);
+      return 0;
+    }
+  /* Attach a server/port binding to a single listener only once.  */
+  else if (svz_binding_find (sock, server, port) == NULL)
+    {
+      /* Extend the server array.  */
+      svz_array_add (sock->data, binding);
+      return 0;
+    }
+  /* Binding already done.  */
+  svz_log (LOG_WARNING, "skipped duplicate binding of `%s'\n", server->name);
+  svz_binding_destroy (binding);
+  return -1;
+}
+
+/*
  * Bind the server instance @var{server} to the port configuration
  * @var{port} if possible.  Return non-zero on errors otherwise zero.  It
  * might occur that a single server is bound to more than one network port
@@ -430,37 +461,6 @@ svz_binding_find (svz_socket_t *sock,
       if (svz_portcfg_equal (binding->port, port) == PORTCFG_EQUAL)
         return binding;
   return NULL;
-}
-
-/*
- * This function attaches the given server instance @var{server} to the
- * listening socket structure @var{sock}.  It returns zero on success and
- * non-zero if the server is already bound to the socket.
- */
-int
-svz_sock_add_server (svz_socket_t *sock,
-                     svz_server_t *server, svz_portcfg_t *port)
-{
-  svz_binding_t *binding = svz_binding_create (server, port);
-
-  /* Create server array if necessary.  */
-  if (sock->data == NULL)
-    {
-      sock->data = svz_array_create (1, (svz_free_func_t) svz_binding_destroy);
-      svz_array_add (sock->data, binding);
-      return 0;
-    }
-  /* Attach a server/port binding to a single listener only once.  */
-  else if (svz_binding_find (sock, server, port) == NULL)
-    {
-      /* Extend the server array.  */
-      svz_array_add (sock->data, binding);
-      return 0;
-    }
-  /* Binding already done.  */
-  svz_log (LOG_WARNING, "skipped duplicate binding of `%s'\n", server->name);
-  svz_binding_destroy (binding);
-  return -1;
 }
 
 /*
