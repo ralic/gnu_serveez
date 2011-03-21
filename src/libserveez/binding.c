@@ -368,6 +368,18 @@ svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
 }
 
 /*
+ * Returns the binding array of the listening server socket structure
+ * @var{sock} or @code{NULL} if there are no such bindings.
+ */
+static svz_array_t *
+svz_sock_bindings (svz_socket_t *sock)
+{
+  if (sock && sock->flags & SOCK_FLAG_LISTENING && sock->port != NULL)
+    return sock->data;
+  return NULL;
+}
+
+/*
  * This function adds the bindings stored in the listening server socket
  * structure @var{sock} to the binding array @var{bindings} and returns the
  * resulting array.  If @var{bindings} is @code{NULL} a new array is created.
@@ -460,18 +472,6 @@ svz_binding_find (svz_socket_t *sock,
     if (binding->server == server)
       if (svz_portcfg_equal (binding->port, port) == PORTCFG_EQUAL)
         return binding;
-  return NULL;
-}
-
-/*
- * Returns the binding array of the listening server socket structure
- * @var{sock} or @code{NULL} if there are no such bindings.
- */
-svz_array_t *
-svz_sock_bindings (svz_socket_t *sock)
-{
-  if (sock && sock->flags & SOCK_FLAG_LISTENING && sock->port != NULL)
-    return sock->data;
   return NULL;
 }
 
