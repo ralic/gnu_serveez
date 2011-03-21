@@ -597,7 +597,7 @@ svz_sock_enqueue (svz_socket_t *sock)
  * Remove the socket @var{sock} from the list of sockets handled by
  * the server loop.
  */
-int
+static int
 svz_sock_dequeue (svz_socket_t *sock)
 {
   /* check for validity of pipe descriptors */

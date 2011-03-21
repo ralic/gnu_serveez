@@ -67,7 +67,6 @@ SERVEEZ_API int svz_foreach_socket (svz_socket_do_t *, void *);
 SERVEEZ_API svz_socket_t *svz_sock_find (int, int);
 SERVEEZ_API int svz_sock_schedule_for_shutdown (svz_socket_t *);
 SERVEEZ_API int svz_sock_enqueue (svz_socket_t *);
-SERVEEZ_API int svz_sock_dequeue (svz_socket_t *);
 SERVEEZ_API void svz_sock_setparent (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_getparent (svz_socket_t *);
 SERVEEZ_API void svz_sock_setreferrer (svz_socket_t *, svz_socket_t *);

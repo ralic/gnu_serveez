@@ -1,5 +1,11 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_dequeue’.
+
+	* serveez-api.texi.in (Server core): Delete ‘svz_sock_dequeue’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_signal_handler’.
 
 	* serveez-api.texi.in (Server core): Delete ‘svz_signal_handler’.
