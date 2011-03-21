@@ -51,9 +51,6 @@ SERVEEZ_API int svz_server_single_listener (svz_server_t *,
 SERVEEZ_API svz_array_t *svz_server_listeners (svz_server_t *);
 SERVEEZ_API svz_array_t *svz_sock_servers (svz_socket_t *);
 SERVEEZ_API svz_array_t *svz_binding_filter (svz_socket_t *);
-SERVEEZ_API svz_binding_t *svz_binding_find (svz_socket_t *,
-                                             svz_server_t *,
-                                             svz_portcfg_t *);
 SERVEEZ_API int svz_binding_contains_server (svz_socket_t *,
                                              svz_server_t *);
 

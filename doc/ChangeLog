@@ -1,5 +1,11 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_binding_find’.
+
+	* serveez-api.texi.in (Server binding): Delete ‘svz_binding_find’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_binding_find_server’.
 
 	* serveez-api.texi.in (Server binding):

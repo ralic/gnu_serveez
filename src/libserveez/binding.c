@@ -250,6 +250,26 @@ svz_binding_create (svz_server_t *server, svz_portcfg_t *port)
 }
 
 /*
+ * Goes through the listening server sockets @var{sock} bindings and checks
+ * whether it contains the given binding consisting of @var{server} and
+ * @var{port}.  If there is no such binding yet @code{NULL} is returned
+ * otherwise the appropriate binding.
+ */
+static svz_binding_t *
+svz_binding_find (svz_socket_t *sock,
+                  svz_server_t *server, svz_portcfg_t *port)
+{
+  svz_binding_t *binding;
+  unsigned long i;
+
+  svz_array_foreach (sock->data, binding, i)
+    if (binding->server == server)
+      if (svz_portcfg_equal (binding->port, port) == PORTCFG_EQUAL)
+        return binding;
+  return NULL;
+}
+
+/*
  * This function attaches the given server instance @var{server} to the
  * listening socket structure @var{sock}.  It returns zero on success and
  * non-zero if the server is already bound to the socket.
@@ -453,26 +473,6 @@ svz_binding_contains_server (svz_socket_t *sock, svz_server_t *server)
     if (binding->server == server)
       return 1;
   return 0;
-}
-
-/*
- * Goes through the listening server sockets @var{sock} bindings and checks
- * whether it contains the given binding consisting of @var{server} and
- * @var{port}.  If there is no such binding yet @code{NULL} is returned
- * otherwise the appropriate binding.
- */
-svz_binding_t *
-svz_binding_find (svz_socket_t *sock,
-                  svz_server_t *server, svz_portcfg_t *port)
-{
-  svz_binding_t *binding;
-  unsigned long i;
-
-  svz_array_foreach (sock->data, binding, i)
-    if (binding->server == server)
-      if (svz_portcfg_equal (binding->port, port) == PORTCFG_EQUAL)
-        return binding;
-  return NULL;
 }
 
 /*
