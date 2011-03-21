@@ -174,7 +174,7 @@ svz_sock_find_portcfg (svz_portcfg_t *port)
  * freeing the array by running @code{svz_array_destroy}.  If there are
  * no such listening server socket structures @code{NULL} is returned.
  */
-svz_array_t *
+static svz_array_t *
 svz_sock_find_portcfgs (svz_portcfg_t *port)
 {
   svz_array_t *listeners = svz_array_create (1, NULL);

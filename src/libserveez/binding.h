@@ -46,7 +46,6 @@ SERVEEZ_API int svz_server_single_listener (svz_server_t *,
                                             svz_socket_t *);
 SERVEEZ_API svz_array_t *svz_server_listeners (svz_server_t *);
 SERVEEZ_API svz_socket_t *svz_sock_find_portcfg (svz_portcfg_t *);
-SERVEEZ_API svz_array_t *svz_sock_find_portcfgs (svz_portcfg_t *);
 SERVEEZ_API svz_array_t *svz_sock_bindings (svz_socket_t *);
 SERVEEZ_API svz_array_t *svz_sock_servers (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_bind_port (svz_portcfg_t *);

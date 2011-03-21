@@ -738,7 +738,6 @@ core library creates listeners as needed by itself.
 |F| svz_server_listeners
 |F| svz_server_single_listener
 |F| svz_sock_find_portcfg
-|F| svz_sock_find_portcfgs
 |F| svz_sock_bind_port
 |F| svz_sock_bindings
 |F| svz_sock_servers
