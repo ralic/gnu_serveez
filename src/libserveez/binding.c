@@ -216,6 +216,20 @@ svz_sock_bind_port (svz_portcfg_t *port)
 }
 
 /*
+ * Creates a bind structure.  The binding contains the given server instance
+ * @var{server} and the port configuration @var{port}.  The caller is
+ * responsible for freeing the returned pointer.
+ */
+static svz_binding_t *
+svz_binding_create (svz_server_t *server, svz_portcfg_t *port)
+{
+  svz_binding_t *binding = svz_malloc (sizeof (svz_binding_t));
+  binding->server = server;
+  binding->port = port;
+  return binding;
+}
+
+/*
  * This function attaches the given server instance @var{server} to the
  * listening socket structure @var{sock}.  It returns zero on success and
  * non-zero if the server is already bound to the socket.
@@ -318,20 +332,6 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
   /* Now we can destroy the expanded port configuration array.  */
   svz_array_destroy (ports);
   return 0;
-}
-
-/*
- * Creates a bind structure.  The binding contains the given server instance
- * @var{server} and the port configuration @var{port}.  The caller is
- * responsible for freeing the returned pointer.
- */
-svz_binding_t *
-svz_binding_create (svz_server_t *server, svz_portcfg_t *port)
-{
-  svz_binding_t *binding = svz_malloc (sizeof (svz_binding_t));
-  binding->server = server;
-  binding->port = port;
-  return binding;
 }
 
 /*
