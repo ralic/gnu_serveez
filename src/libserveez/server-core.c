@@ -202,7 +202,7 @@ svz_segfault_exception (int sig)
  * broken pipes (SIGPIPE) and to exit gracefully if requested by the
  * user (SIGINT, SIGTERM).
  */
-void
+static void
 svz_signal_handler (int sig)
 {
   switch (sig)

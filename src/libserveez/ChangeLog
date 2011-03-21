@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_signal_handler’.
+
+	* server-core.h (svz_signal_handler): Delete func decl.
+	* server-core.c (svz_signal_handler): Make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_periodic_tasks’.
 
 	* serveez-api.texi.in (svz_periodic_tasks):

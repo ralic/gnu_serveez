@@ -80,7 +80,6 @@ SERVEEZ_API void svz_loop_pre (void);
 SERVEEZ_API void svz_loop_post (void);
 SERVEEZ_API void svz_loop (void);
 SERVEEZ_API void svz_loop_one (void);
-SERVEEZ_API void svz_signal_handler (int);
 SERVEEZ_API char *svz_strsignal (int);
 
 __END_DECLS
