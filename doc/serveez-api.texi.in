@@ -733,7 +733,6 @@ instances.  When binding a server to a specific port configuration the
 core library creates listeners as needed by itself.
 
 |F| svz_server_bind
-|F| svz_server_unbind
 |F| svz_server_portcfgs
 |F| svz_server_bindings
 |F| svz_server_listeners

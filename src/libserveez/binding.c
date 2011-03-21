@@ -290,42 +290,6 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 }
 
 /*
- * Remove the given server instance @var{server} entirely from the list
- * of enqueued sockets.  This means to delete it from each server socket on
- * the one hand and to shutdown every child client spawned from this server
- * on the other hand.
- */
-void
-svz_server_unbind (svz_server_t *server)
-{
-  svz_socket_t *sock, *parent;
-
-  /* Go through all enqueued sockets.  */
-  svz_sock_foreach (sock)
-    {
-      /* Client structures.  */
-      if (!(sock->flags & SOCK_FLAG_LISTENING) &&
-          (parent = svz_sock_getparent (sock)) != NULL)
-        {
-          /* If the parent of a client is the given servers child
-             then also shutdown this client.  */
-          if (parent->flags & SOCK_FLAG_LISTENING && parent->port &&
-              parent->data && svz_binding_contains_server (parent, server))
-            svz_sock_schedule_for_shutdown (sock);
-        }
-    }
-
-  /* Go through all enqueued sockets once more.  */
-  svz_sock_foreach_listener (sock)
-    {
-      /* Delete the server and shutdown the socket structure if
-         there are no more servers left.  */
-      if (svz_sock_del_server (sock, server) == 0)
-        svz_sock_schedule_for_shutdown (sock);
-    }
-}
-
-/*
  * Creates a bind structure.  The binding contains the given server instance
  * @var{server} and the port configuration @var{port}.  The caller is
  * responsible for freeing the returned pointer.

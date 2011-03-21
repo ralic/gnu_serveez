@@ -1,5 +1,13 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_server_unbind’.
+
+	* binding.h (svz_server_unbind): Delete func decl.
+	* binding.c (svz_server_unbind): Move from here...
+	* server.c (svz_server_unbind): ...to here; make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Make ‘svz_portcfg_text’ also return string length.
 
 	* portcfg.c (svz_portcfg_text): Take 2nd arg LENP;

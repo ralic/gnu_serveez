@@ -42,7 +42,6 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_server_bind (svz_server_t *, svz_portcfg_t *);
 SERVEEZ_API svz_array_t *svz_server_portcfgs (svz_server_t *);
 SERVEEZ_API char *svz_server_bindings (svz_server_t *);
-SERVEEZ_API void svz_server_unbind (svz_server_t *);
 SERVEEZ_API int svz_server_single_listener (svz_server_t *,
                                             svz_socket_t *);
 SERVEEZ_API svz_array_t *svz_server_listeners (svz_server_t *);
