@@ -963,24 +963,6 @@ svz_sock_shutdown (svz_socket_t *sock)
 }
 
 /*
- * Shutdown all sockets within the socket list no matter if it was
- * scheduled for shutdown or not.
- */
-void
-svz_sock_shutdown_all (void)
-{
-  svz_socket_t *sock;
-
-  sock = svz_sock_root;
-  while (sock)
-    {
-      svz_sock_shutdown (sock);
-      sock = svz_sock_root;
-    }
-  svz_sock_root = svz_sock_last = NULL;
-}
-
-/*
  * Mark socket @var{sock} as killed.  That means that no operations except
  * disconnecting and freeing are allowed anymore.  All marked sockets
  * will be deleted once the server loop is through.
@@ -1363,7 +1345,9 @@ svz_loop_post (void)
   svz_log (LOG_NOTICE, "leaving server loop\n");
 
   /* Shutdown all socket structures.  */
-  svz_sock_shutdown_all ();
+  while (svz_sock_root)
+    svz_sock_shutdown (svz_sock_root);
+  svz_sock_last = NULL;
 }
 
 /*

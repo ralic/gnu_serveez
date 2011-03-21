@@ -1,5 +1,11 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_shutdown_all’.
+
+	* serveez-api.texi.in (Server core): Delete ‘svz_sock_shutdown_all’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_binding_filter’.
 
 	* serveez-api.texi.in (Server binding): Delete ‘svz_binding_filter’.
