@@ -1,5 +1,16 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int C] Avoid ‘strcat’.
+
+	* binding.c (svz_server_bindings):
+	Use ‘strlen’ and ‘memcpy’ instead of ‘strcat’.
+	* dynload.c (svz_dynload_path_set): Likewise.
+	* passthrough.c
+	(svz_process_create_child) [__MINGW32__]: Likewise.
+	* portcfg.c (svz_portcfg_text): Use ‘snprintf’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_os_version’.
 
 	* util.h (svz_os_version): Delete var decl.

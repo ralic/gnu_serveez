@@ -182,25 +182,32 @@ dyn_get_library (char *path, char *file)
 void
 svz_dynload_path_set (svz_array_t *paths)
 {
-  char *str, *env;
+  char *str, *env, *w;
   int n, len;
 
   /* Return here if necessary.  */
   if (paths == NULL)
     return;
 
+  /* Compute total allocation required.  */
+  len = sizeof (DYNLOAD_PATH) - 1;
+  svz_array_foreach (paths, str, n)
+    len += 1 + strlen (str);            /* sep + STR */
+  len++;                                /* '\0' */
+
   /* Create environment variable.  */
-  env = svz_strdup (DYNLOAD_PATH "=");
-  len = strlen (env) + 3;
+  w = env = svz_malloc (len);
+  len = sizeof (DYNLOAD_PATH) - 1;
+  memcpy (w, DYNLOAD_PATH, len);
+  w += len;
   svz_array_foreach (paths, str, n)
     {
-      len = strlen (env) + strlen (str) + 2;
-      env = svz_realloc (env, len);
-      strcat (env, str);
-      env[len - 2] = DYNLOAD_PATH_SEPERATOR;
-      env[len - 1] = '\0';
+      *w++ = n ? DYNLOAD_PATH_SEPERATOR : '=';
+      len = strlen (str);
+      memcpy (w, str, len);
+      w += len;
     }
-  env[len - 2] = '\0';
+  *w = '\0';
   svz_array_destroy (paths);
 
   /* Set environment variable.  */

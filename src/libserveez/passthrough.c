@@ -726,22 +726,38 @@ svz_process_create_child (svz_process_t *proc)
                     SVZ_PROCESS_SEND_HANDLE, (long) proc->out);
 
   /* Concatenate application name.  */
-  if (proc->app != NULL)
-    {
-      application = svz_malloc (strlen (proc->bin) + strlen (proc->app) + 2);
-      sprintf (application, "%s %s", proc->app, proc->bin);
-    }
-  else
-    application = svz_strdup (proc->bin);
+  {
+    int len;
+    char *w;
 
-  /* Append program arguments.  */
-  for (n = 1; proc->argv[n] != NULL; n++)
-    {
-      application = svz_realloc (application, strlen (application) +
-                                 strlen (proc->argv[n]) + 2);
-      strcat (application, " ");
-      strcat (application, proc->argv[n]);
-    }
+    /* First compute total allocation.  */
+    len = strlen (proc->bin) + 1;       /* bin + '\0' */
+    if (proc->app != NULL)
+      len += strlen (proc->app) + 1;    /* app + ' ' */
+    for (n = 1; proc->argv[n] != NULL; n++)
+      len += 1 + strlen (proc->argv[n]); /* ' ' + arg */
+
+    /* Create the string.  */
+    w = application = svz_malloc (len);
+    if (proc->app != NULL)
+      {
+        len = strlen (proc->app);
+        memcpy (w, proc->app, len);
+        w += len;
+        *w++ = ' ';
+      }
+    len = strlen (proc->bin);
+    memcpy (w, proc->bin, len);
+    w += len;
+    for (n = 1; prog->argv[n] != NULL; n++)
+      {
+        *w++ = ' ';
+        len = strlen (proc->argv[n]);
+        memcpy (w, proc->argv[n], len);
+        w += len;
+      }
+    *w = '\0';
+  }
 
   if (!CreateProcess (NULL,                          /* application name */
                       application,                   /* command line */

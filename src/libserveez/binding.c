@@ -46,11 +46,13 @@
 char *
 svz_server_bindings (svz_server_t *server)
 {
-  static char text[256];
+#define TEXT_SIZE 256
+  static char text[TEXT_SIZE];
   svz_socket_t *sock;
   svz_array_t *bindings;
   svz_binding_t *binding;
-  int i;
+  int i, lose = 0, avail = TEXT_SIZE;
+  char *w = text;
 
   /* Clear text.  */
   text[0] = '\0';
@@ -63,18 +65,29 @@ svz_server_bindings (svz_server_t *server)
         {
           /* Yes.  Get port configurations.  */
           svz_array_foreach (bindings, binding, i)
-            strcat (text, svz_portcfg_text (binding->port));
-          svz_array_destroy (bindings);
+            {
+              char *pretty = svz_portcfg_text (binding->port);
+              int len = strlen (pretty);
 
-          /* Append a white space.  */
-          strcat (text, " ");
+              if (avail <= len)
+                {
+                  lose = 1;
+                  break;
+                }
+              memcpy (w, pretty, len);
+              w += len;
+              avail -= len;
+            }
+          svz_array_destroy (bindings);
+          *w = '\0';
+          if (lose)
+            goto out;
         }
     }
 
-  /* Remove trailing white space.  */
-  if (strlen (text))
-    text[strlen (text) - 1] = '\0';
+ out:
   return text;
+#undef TEXT_SIZE
 }
 
 /*

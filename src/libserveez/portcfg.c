@@ -715,45 +715,39 @@ svz_portcfg_addr_text (svz_portcfg_t *port, struct sockaddr_in *addr)
 char *
 svz_portcfg_text (svz_portcfg_t *port)
 {
-  static char text[128];
+#define TEXT_SIZE  128
+  static char text[TEXT_SIZE];
   struct sockaddr_in *addr;
-
-  /* Wipe the text.  */
-  text[0] = '\0';
 
   /* TCP and UDP */
   if (port->proto & (PROTO_TCP | PROTO_UDP))
     {
       addr = svz_portcfg_addr (port);
-      strcat (text, (port->proto & PROTO_TCP) ? "TCP:[" : "UDP:[");
-      strcat (text, svz_portcfg_addr_text (port, addr));
-      strcat (text, ":");
-      strcat (text, svz_itoa (ntohs (addr->sin_port)));
-      strcat (text, "]");
+      snprintf (text, TEXT_SIZE, "%s:[%s:%d]",
+                (port->proto & PROTO_TCP) ? "TCP" : "UDP",
+                svz_portcfg_addr_text (port, addr),
+                ntohs (addr->sin_port));
     }
   /* RAW and ICMP */
   else if (port->proto & (PROTO_RAW | PROTO_ICMP))
     {
+      int icmp_p = port->proto & PROTO_ICMP;
+
       addr = svz_portcfg_addr (port);
-      strcat (text, (port->proto & PROTO_RAW) ? "RAW:[" : "ICMP:[");
-      strcat (text, svz_portcfg_addr_text (port, addr));
-      if (port->proto & PROTO_ICMP)
-        {
-          strcat (text, "/");
-          strcat (text, svz_itoa (port->icmp_type));
-        }
-      strcat (text, "]");
+      snprintf (text, TEXT_SIZE, "%s:[%s%s%s]",
+                (port->proto & PROTO_RAW) ? "RAW" : "ICMP",
+                svz_portcfg_addr_text (port, addr),
+                icmp_p ? "/" : "",
+                icmp_p ? svz_itoa (port->icmp_type) : "");
     }
   /* PIPE */
   else if (port->proto & PROTO_PIPE)
-    {
-      strcat (text, "PIPE:[");
-      strcat (text, port->pipe_recv.name);
-      strcat (text, "]-[");
-      strcat (text, port->pipe_send.name);
-      strcat (text, "]");
-    }
+    snprintf (text, TEXT_SIZE, "PIPE:[%s]-[%s]",
+              port->pipe_recv.name, port->pipe_send.name);
+  else
+    text[0] = '\0';
   return text;
+#undef TEXT_SIZE
 }
 
 /*
