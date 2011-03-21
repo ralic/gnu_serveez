@@ -58,6 +58,7 @@ typedef int (svz_socket_do_t) (svz_socket_t *, void *);
 __BEGIN_DECLS
 /* begin svzint */
 SBO int svz_sock_shutdown (svz_socket_t *);
+SBO int svz_sock_check_access (svz_socket_t *, svz_socket_t *);
 /* end svzint */
 
 SERVEEZ_API int svz_foreach_socket (svz_socket_do_t *, void *);
@@ -70,7 +71,6 @@ SERVEEZ_API svz_socket_t *svz_sock_getparent (svz_socket_t *);
 SERVEEZ_API void svz_sock_setreferrer (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_getreferrer (svz_socket_t *);
 SERVEEZ_API svz_portcfg_t *svz_sock_portcfg (svz_socket_t *);
-SERVEEZ_API int svz_sock_check_access (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API int svz_sock_check_frequency (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API void svz_sock_check_children (void);
 
