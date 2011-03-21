@@ -156,7 +156,7 @@ svz_server_single_listener (svz_server_t *server, svz_socket_t *sock)
  * the port configuration @var{port}.  If there is no such socket with this
  * kind of port configuration yet then @code{NULL} is returned.
  */
-svz_socket_t *
+static svz_socket_t *
 svz_sock_find_portcfg (svz_portcfg_t *port)
 {
   svz_socket_t *sock;

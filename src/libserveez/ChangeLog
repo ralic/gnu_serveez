@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_find_portcfg’.
+
+	* binding.h (svz_sock_find_portcfg): Delete func decl.
+	* binding.c (svz_sock_find_portcfg): Make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_find_portcfgs’.
 
 	* binding.h (svz_sock_find_portcfgs): Delete func decl.
