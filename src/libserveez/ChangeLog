@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_bind_port’.
+
+	* binding.h (svz_sock_bind_port): Delete func decl.
+	* binding.c (svz_sock_bind_port): Make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_bindings’.
 
 	* binding.h (svz_sock_bindings): Delete func decl.

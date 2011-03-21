@@ -1,5 +1,11 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_bind_port’.
+
+	* serveez-api.texi.in (Server binding): Delete ‘svz_sock_bind_port’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_bindings’.
 
 	* serveez-api.texi.in (Server binding): Delete ‘svz_sock_bindings’.

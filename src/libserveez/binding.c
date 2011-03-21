@@ -195,7 +195,7 @@ svz_sock_find_portcfgs (svz_portcfg_t *port)
  * there are no bindings.  In case of an error the given port configuration
  * is freed and @code{NULL} is returned.
  */
-svz_socket_t *
+static svz_socket_t *
 svz_sock_bind_port (svz_portcfg_t *port)
 {
   svz_socket_t *sock;
