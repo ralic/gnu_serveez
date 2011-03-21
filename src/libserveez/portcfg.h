@@ -228,7 +228,7 @@ __BEGIN_DECLS
 /* begin svzint */
 SBO void svz_portcfg_free (svz_portcfg_t *);
 SBO void svz_portcfg_prepare (svz_portcfg_t *);
-SBO char *svz_portcfg_text (svz_portcfg_t *);
+SBO char *svz_portcfg_text (svz_portcfg_t *, int *);
 SBO svz_array_t *svz_portcfg_expand (svz_portcfg_t *);
 /* end svzint */
 

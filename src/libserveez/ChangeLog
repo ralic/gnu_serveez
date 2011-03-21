@@ -1,5 +1,17 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Make ‘svz_portcfg_text’ also return string length.
+
+	* portcfg.c (svz_portcfg_text): Take 2nd arg LENP;
+	if not ‘NULL’, write formatted length to that addresss.
+	* portcfg.h (svz_portcfg_text): Update func decl.
+	* binding.c (svz_server_bindings): Use length
+	returned from ‘svz_portcfg_text’ instead of calling ‘strlen’.
+	* server-socket.c (svz_server_create): Coalesce
+	two calls to ‘svz_portcfg_text’ into one; update the sequence.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int C] Avoid ‘strcat’.
 
 	* binding.c (svz_server_bindings):

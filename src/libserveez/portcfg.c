@@ -713,20 +713,21 @@ svz_portcfg_addr_text (svz_portcfg_t *port, struct sockaddr_in *addr)
  * allocated.  Thus you cannot use it twice in argument lists.
  */
 char *
-svz_portcfg_text (svz_portcfg_t *port)
+svz_portcfg_text (svz_portcfg_t *port, int *lenp)
 {
 #define TEXT_SIZE  128
   static char text[TEXT_SIZE];
   struct sockaddr_in *addr;
+  int len;
 
   /* TCP and UDP */
   if (port->proto & (PROTO_TCP | PROTO_UDP))
     {
       addr = svz_portcfg_addr (port);
-      snprintf (text, TEXT_SIZE, "%s:[%s:%d]",
-                (port->proto & PROTO_TCP) ? "TCP" : "UDP",
-                svz_portcfg_addr_text (port, addr),
-                ntohs (addr->sin_port));
+      len = snprintf (text, TEXT_SIZE, "%s:[%s:%d]",
+                      (port->proto & PROTO_TCP) ? "TCP" : "UDP",
+                      svz_portcfg_addr_text (port, addr),
+                      ntohs (addr->sin_port));
     }
   /* RAW and ICMP */
   else if (port->proto & (PROTO_RAW | PROTO_ICMP))
@@ -734,18 +735,23 @@ svz_portcfg_text (svz_portcfg_t *port)
       int icmp_p = port->proto & PROTO_ICMP;
 
       addr = svz_portcfg_addr (port);
-      snprintf (text, TEXT_SIZE, "%s:[%s%s%s]",
-                (port->proto & PROTO_RAW) ? "RAW" : "ICMP",
-                svz_portcfg_addr_text (port, addr),
-                icmp_p ? "/" : "",
-                icmp_p ? svz_itoa (port->icmp_type) : "");
+      len = snprintf (text, TEXT_SIZE, "%s:[%s%s%s]",
+                      (port->proto & PROTO_RAW) ? "RAW" : "ICMP",
+                      svz_portcfg_addr_text (port, addr),
+                      icmp_p ? "/" : "",
+                      icmp_p ? svz_itoa (port->icmp_type) : "");
     }
   /* PIPE */
   else if (port->proto & PROTO_PIPE)
-    snprintf (text, TEXT_SIZE, "PIPE:[%s]-[%s]",
-              port->pipe_recv.name, port->pipe_send.name);
+    len = snprintf (text, TEXT_SIZE, "PIPE:[%s]-[%s]",
+                    port->pipe_recv.name, port->pipe_send.name);
   else
-    text[0] = '\0';
+    {
+      text[0] = '\0';
+      len = 0;
+    }
+  if (lenp)
+    *lenp = len;
   return text;
 #undef TEXT_SIZE
 }

@@ -212,7 +212,6 @@ svz_server_create (svz_portcfg_t *port)
           svz_sock_free (sock);
           return NULL;
         }
-      svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port));
     }
   else
     {
@@ -235,9 +234,8 @@ svz_server_create (svz_portcfg_t *port)
           sock->check_request = svz_icmp_check_request;
           sock->itype = port->icmp_type;
         }
-
-      svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port));
     }
+  svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port, NULL));
   return sock;
 }
 

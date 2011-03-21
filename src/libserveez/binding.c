@@ -66,8 +66,8 @@ svz_server_bindings (svz_server_t *server)
           /* Yes.  Get port configurations.  */
           svz_array_foreach (bindings, binding, i)
             {
-              char *pretty = svz_portcfg_text (binding->port);
-              int len = strlen (pretty);
+              int len;
+              char *pretty = svz_portcfg_text (binding->port, &len);
 
               if (avail <= len)
                 {
