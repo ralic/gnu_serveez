@@ -464,27 +464,6 @@ svz_binding_find (svz_socket_t *sock,
 }
 
 /*
- * Removes the server instance @var{server} from the listening socket
- * structure @var{sock} and returns the remaining number of servers bound
- * to the socket structure.
- */
-int
-svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
-{
-  svz_binding_t *binding;
-  unsigned long i;
-
-  svz_array_foreach (sock->data, binding, i)
-    if (binding->server == server)
-      {
-        svz_binding_destroy (binding);
-        svz_array_del (sock->data, i);
-        i--;
-      }
-  return svz_array_size (sock->data);
-}
-
-/*
  * Returns the binding array of the listening server socket structure
  * @var{sock} or @code{NULL} if there are no such bindings.
  */

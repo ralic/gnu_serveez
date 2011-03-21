@@ -154,6 +154,27 @@ svz_server_free (svz_server_t *server)
 }
 
 /*
+ * Removes the server instance @var{server} from the listening socket
+ * structure @var{sock} and returns the remaining number of servers bound
+ * to the socket structure.
+ */
+static int
+svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
+{
+  svz_binding_t *binding;
+  unsigned long i;
+
+  svz_array_foreach (sock->data, binding, i)
+    if (binding->server == server)
+      {
+        svz_binding_destroy (binding);
+        svz_array_del (sock->data, i);
+        i--;
+      }
+  return svz_array_size (sock->data);
+}
+
+/*
  * Remove the given server instance @var{server} entirely from the list
  * of enqueued sockets.  This means to delete it from each server socket on
  * the one hand and to shutdown every child client spawned from this server

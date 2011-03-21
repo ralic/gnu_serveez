@@ -1,5 +1,13 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_del_server’.
+
+	* binding.h (svz_sock_del_server): Delete func decl.
+	* binding.c (svz_sock_del_server): Move from here...
+	* server.c (svz_sock_del_server): ...to here; make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_add_server’.
 
 	* binding.h (svz_sock_add_server): Delete func decl.
