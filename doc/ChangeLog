@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_check_children’.
+
+	* serveez-api.texi.in (Server core):
+	Delete ‘svz_sock_check_children’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_check_frequency’.
 
 	* serveez-api.texi.in (Server core):

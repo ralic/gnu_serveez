@@ -1159,7 +1159,7 @@ svz_sock_child_died (svz_socket_t *sock)
  * @code{child_died} callback is called.  If this callback returned non-zero
  * the appropriate socket structure gets scheduled for shutdown.
  */
-void
+static void
 svz_sock_check_children (void)
 {
   svz_socket_t *sock;

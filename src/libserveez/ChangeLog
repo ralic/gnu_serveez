@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_sock_check_children’.
+
+	* server-core.h (svz_sock_check_children): Delete func decl.
+	* server-core.c (svz_sock_check_children): Make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_check_frequency’.
 
 	* server-core.h (svz_sock_check_frequency): Delete func decl.
