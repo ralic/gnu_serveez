@@ -210,15 +210,11 @@ char *
 nut_text_guid (svz_uint8_t *guid)
 {
   static char id[NUT_GUID_SIZE * 2 + 1];
-  char idpart[3];
+  char *w;
   int n;
 
-  for (n = id[0] = 0; n < NUT_GUID_SIZE; n++)
-    {
-      sprintf (idpart, "%02X", guid[n]);
-      strcat (id, idpart);
-    }
-
+  for (n = 0, w = id; n < NUT_GUID_SIZE; n++, w += 2)
+    sprintf (w, "%02X", guid[n]);
   return id;
 }
 

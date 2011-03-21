@@ -822,21 +822,23 @@ nut_info_server (svz_server_t *server)
   /* create file extension list */
   if (cfg->extensions)
     {
+      int len = 0;
+      char *w;
+
+      svz_array_foreach (cfg->extensions, e, n)
+        len += strlen (e);
+      len += svz_array_size (cfg->extensions) - 1; /* ';' sep */
+      len++;                                       /* '\0' */
+      w = ext = svz_malloc (len);
       svz_array_foreach (cfg->extensions, e, n)
         {
-          if (!ext)
-            {
-              ext = svz_malloc (strlen (e) + 2);
-              strcpy (ext, e);
-            }
-          else
-            {
-              ext = svz_realloc (ext, strlen (ext) + strlen (e) + 2);
-              strcat (ext, e);
-            }
-          strcat (ext, ";");
+          if (n)
+            *w++ = ';';
+          len = strlen (e);
+          memcpy (w, e, len);
+          w += len;
         }
-      ext[strlen (ext) - 1] = '\0';
+      *w = '\0';
     }
 
   sprintf (info,
@@ -897,28 +899,38 @@ nut_info_server (svz_server_t *server)
 char *
 nut_info_client (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
-  static char info[80 * 3];
-  static char text[128];
+#define INFO_SIZE  80 * 3
+  static char info[INFO_SIZE];
   nut_transfer_t *transfer = sock->data;
   nut_client_t *client = sock->data;
   unsigned current, all, elapsed;
+  char *crlf = "\r\n";
+  int avail = INFO_SIZE;
+  char *w = info;
 
-  sprintf (info, "This is a gnutella spider client.\r\n\r\n");
+#define MORE(fmt,...)  do                               \
+    {                                                   \
+      int one = snprintf (w, avail, fmt, __VA_ARGS__);  \
+                                                        \
+      avail -= one;                                     \
+      w += one;                                         \
+    }                                                   \
+  while (0)
+
+  MORE ("This is a gnutella spider client.%s%s", crlf, crlf);
 
   /* normal gnutella host */
   if (sock->userflags & NUT_FLAG_CLIENT)
-    {
-      sprintf (text,
-               "  * usual gnutella host\r\n"
-               "  * dropped packets : %u/%u\r\n"
-               "  * invalid packets : %u\r\n",
-               client->dropped, client->packets, client->invalid);
-      strcat (info, text);
-      sprintf (text,
-               "  * data pool       : %u MB in %u files on %u hosts\r\n",
-               client->size / 1024, client->files, client->nodes);
-      strcat (info, text);
-    }
+    MORE ("  * usual gnutella host%s"
+          "  * dropped packets : %u/%u%s"
+          "  * invalid packets : %u%s"
+          "  * data pool       : %u MB"
+          " in %u files on %u hosts%s",
+          crlf,
+          client->dropped, client->packets, crlf,
+          client->invalid, crlf,
+          client->size / 1024,
+          client->files, client->nodes, crlf);
 
   /* file upload and download */
   if (sock->userflags & (NUT_FLAG_UPLOAD | NUT_FLAG_DNLOAD))
@@ -930,30 +942,30 @@ nut_info_client (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
         all++;
       if (!elapsed)
         elapsed++;
-      sprintf (text, "  * file : %s\r\n", transfer->file);
-      strcat (info, text);
-      sprintf (text, "  * %s progress : %u/%u - %u.%u%% - %u.%u kb/sec\r\n",
-               sock->userflags & NUT_FLAG_DNLOAD ? "download" : "upload",
-               current, all,
-               current * 100 / all, (current * 1000 / all) % 10,
-               current / 1024 / elapsed,
-               (current * 10 / 1024 / elapsed) % 10);
-      strcat (info, text);
+      MORE ("  * file : %s%s"
+            "  * %s progress : %u/%u - %u.%u%% - %u.%u kb/sec%s",
+            transfer->file, crlf,
+            (sock->userflags & NUT_FLAG_DNLOAD
+             ? "download"
+             : "upload"),
+            current, all,
+            current * 100 / all, (current * 1000 / all) % 10,
+            current / 1024 / elapsed,
+            (current * 10 / 1024 / elapsed) % 10, crlf);
     }
 
   /* http header received?  */
   if (sock->userflags & NUT_FLAG_HDR)
-    {
-      strcat (info, "  * header received\r\n");
-    }
+    MORE ("  * header received%s", crlf);
 
   /* host list */
   if (sock->userflags & NUT_FLAG_HOSTS)
-    {
-      strcat (info, "  * sending host catcher list\r\n");
-    }
+    MORE (w, avail, "  * sending host catcher list%s", crlf);
 
+  *w = '\0';
   return info;
+#undef MORE
+#undef INFO_SIZE
 }
 
 /*

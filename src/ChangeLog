@@ -1,5 +1,13 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[nut int] Avoid ‘strcat’.
+
+	* nut-server/gnutella.c (nut_info_server):
+	Use ‘strlen’ + ‘memcpy’ instead of ‘strcat’.
+	(nut_info_client): Use ‘snprintf’ instead of ‘strcat’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_os_version’.
 
 	* http-server/http-proto.c (http_default_write)
