@@ -71,7 +71,6 @@ SERVEEZ_API svz_socket_t *svz_sock_getparent (svz_socket_t *);
 SERVEEZ_API void svz_sock_setreferrer (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_sock_getreferrer (svz_socket_t *);
 SERVEEZ_API svz_portcfg_t *svz_sock_portcfg (svz_socket_t *);
-SERVEEZ_API int svz_sock_check_frequency (svz_socket_t *, svz_socket_t *);
 SERVEEZ_API void svz_sock_check_children (void);
 
 SERVEEZ_API int svz_shutting_down_p (void);

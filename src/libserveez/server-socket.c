@@ -42,6 +42,7 @@
 # include <netdb.h>
 #endif
 
+#include "libserveez/vector.h"
 #include "libserveez/boot.h"
 #include "libserveez/util.h"
 #include "libserveez/alloc.h"
@@ -259,6 +260,61 @@ svz_sock_idle_protect (svz_socket_t *sock)
 
   sock->idle_counter = 1;
   return 0;
+}
+
+/*
+ * This routine checks the connection frequency of the socket structure
+ * @var{child} for the port configuration of the listener socket structure
+ * @var{parent}.  Returns zero if the connection frequency is valid,
+ * otherwise non-zero.
+ */
+static int
+svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
+{
+  svz_portcfg_t *port = parent->port;
+  char *ip = svz_inet_ntoa (child->remote_addr);
+  time_t *t, current;
+  int nr, n, ret = 0;
+  svz_vector_t *accepted = NULL;
+
+  /* Check connect frequency.  */
+  if (port->accepted)
+    accepted = (svz_vector_t *) svz_hash_get (port->accepted, ip);
+  else
+    port->accepted = svz_hash_create (4, (svz_free_func_t) svz_vector_destroy);
+  current = time (NULL);
+
+  if (accepted != NULL)
+    {
+      /* Delete older entries and count valid entries.  */
+      nr = 0;
+      svz_vector_foreach (accepted, t, n)
+        {
+          if (*t < current - 4)
+            {
+              svz_vector_del (accepted, n);
+              n--;
+            }
+          else
+            nr++;
+        }
+      /* Check the connection frequency.  */
+      if ((nr /= 4) > port->connect_freq)
+        {
+          svz_log (LOG_NOTICE, "connect frequency reached: %s: %d/%d\n",
+                   ip, nr, port->connect_freq);
+          ret = -1;
+        }
+    }
+  /* Not yet connected.  */
+  else
+    {
+      accepted = svz_vector_create (sizeof (time_t));
+    }
+
+  svz_vector_add (accepted, &current);
+  svz_hash_put (port->accepted, ip, accepted);
+  return ret;
 }
 
 /*

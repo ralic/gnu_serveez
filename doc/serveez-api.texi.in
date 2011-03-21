@@ -757,7 +757,6 @@ core library creates listeners as needed by itself.
 |F| svz_sock_setreferrer
 |F| svz_sock_getreferrer
 |F| svz_sock_portcfg
-|F| svz_sock_check_frequency
 |F| svz_sock_check_bogus
 |F| svz_sock_check_children
 
