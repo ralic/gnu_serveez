@@ -60,6 +60,7 @@ __BEGIN_DECLS
 SBO int svz_sock_shutdown (svz_socket_t *);
 SBO int svz_sock_check_access (svz_socket_t *, svz_socket_t *);
 SBO void svz_sock_check_bogus (void);
+SBO int svz_periodic_tasks (void);
 /* end svzint */
 
 SERVEEZ_API int svz_foreach_socket (svz_socket_do_t *, void *);
@@ -75,7 +76,6 @@ SERVEEZ_API svz_portcfg_t *svz_sock_portcfg (svz_socket_t *);
 
 SERVEEZ_API int svz_shutting_down_p (void);
 SERVEEZ_API void svz_executable (char *);
-SERVEEZ_API int svz_periodic_tasks (void);
 SERVEEZ_API void svz_loop_pre (void);
 SERVEEZ_API void svz_loop_post (void);
 SERVEEZ_API void svz_loop (void);

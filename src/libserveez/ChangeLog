@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_periodic_tasks’.
+
+	* serveez-api.texi.in (svz_periodic_tasks):
+	Remove mark ‘SERVEEZ_API’; mark ‘SBO’, ‘svzint’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_check_bogus’.
 
 	* serveez-api.texi.in (svz_sock_check_bogus):
