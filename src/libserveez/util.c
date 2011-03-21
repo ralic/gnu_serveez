@@ -480,10 +480,8 @@ svz_socket_unavailable_error_p (void)
 }
 
 /*
- * This routine is for detecting the operating system version of Win32
- * and all Unices at runtime.  You should call it at least once at startup.
- * It saves its result in the variable @code{svz_os_version} and prints an
- * appropriate message.
+ * Return a statically-allocated string describing some operating system
+ * version details.
  */
 char *
 svz_sys_version (void)
