@@ -1,5 +1,13 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_binding_find_server’.
+
+	* binding.h (svz_binding_find_server): Delete func decl.
+	* binding.c (svz_binding_find_server):
+	Move earlier in file; make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_binding_join’.
 
 	* binding.h (svz_binding_join): Delete func decl.

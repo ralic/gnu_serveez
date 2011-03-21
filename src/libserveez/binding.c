@@ -40,6 +40,26 @@
 #include "libserveez/binding.h"
 
 /*
+ * Searches through the bindings of the given listening server socket
+ * structure @var{sock} and checks whether the server instance @var{server}
+ * is bound to this socket structure.  The function returns these binding and
+ * returns @code{NULL} otherwise.  The caller is responsible for freeing
+ * the returned array.
+ */
+static svz_array_t *
+svz_binding_find_server (svz_socket_t *sock, svz_server_t *server)
+{
+  svz_array_t *bindings = svz_array_create (1, NULL);
+  svz_binding_t *binding;
+  unsigned long i;
+
+  svz_array_foreach (sock->data, binding, i)
+    if (binding->server == server)
+      svz_array_add (bindings, binding);
+  return svz_array_destroy_zero (bindings);
+}
+
+/*
  * Return a static text representation of the server instance's @var{server}
  * current port configuration bindings.
  */
@@ -416,26 +436,6 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
   /* Now we can destroy the expanded port configuration array.  */
   svz_array_destroy (ports);
   return 0;
-}
-
-/*
- * Searches through the bindings of the given listening server socket
- * structure @var{sock} and checks whether the server instance @var{server}
- * is bound to this socket structure.  The function returns these binding and
- * returns @code{NULL} otherwise.  The caller is responsible for freeing
- * the returned array.
- */
-svz_array_t *
-svz_binding_find_server (svz_socket_t *sock, svz_server_t *server)
-{
-  svz_array_t *bindings = svz_array_create (1, NULL);
-  svz_binding_t *binding;
-  unsigned long i;
-
-  svz_array_foreach (sock->data, binding, i)
-    if (binding->server == server)
-      svz_array_add (bindings, binding);
-  return svz_array_destroy_zero (bindings);
 }
 
 /*
