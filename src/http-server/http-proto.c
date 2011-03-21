@@ -518,7 +518,7 @@ http_default_write (svz_socket_t *sock)
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
 # ifdef __MINGW32__
       else if (sock->userflags & HTTP_FLAG_SENDFILE &&
-               svz_os_version >= WinNT4x)
+               svz_mingw_at_least_nt4_p ())
 # else
       else if (sock->userflags & HTTP_FLAG_SENDFILE)
 # endif
@@ -1313,7 +1313,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
         {
 #if ENABLE_SENDFILE && (HAVE_SENDFILE || defined (__MINGW32__))
 # ifdef __MINGW32__
-          if (svz_os_version >= WinNT4x)
+          if (svz_mingw_at_least_nt4_p ())
             {
               sock->read_socket = NULL;
               sock->flags &= ~SOCK_FLAG_FILE;

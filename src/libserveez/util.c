@@ -426,7 +426,15 @@ svz_syserror (int nr)
  * for Windows NT 3.x, @code{WinNT4x} for Windows NT 4.x, @code{Win2k} for
  * Windows 2000, @code{WinXP} for Windows XP and @code{WinME} for Windows ME.
  */
-int svz_os_version = 0;
+static int svz_os_version;
+#define Win32s  0
+#define Win95   1
+#define Win98   2
+#define WinNT3x 3
+#define WinNT4x 4
+#define Win2k   5
+#define WinXP   6
+#define WinME   7
 
 #endif /* __MINGW32__ */
 
@@ -546,6 +554,20 @@ svz_sys_version (void)
 #endif /* not HAVE_UNAME */
 
   return os;
+}
+
+/*
+ * Return 1 if running MinGW (Windows) NT4x or later,
+ * otherwise 0.
+ */
+int
+svz_mingw_at_least_nt4_p (void)
+{
+#ifdef __MINGW32__
+  return WinNT4x <= svz_os_version;
+#else
+  return 0;
+#endif
 }
 
 /*

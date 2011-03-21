@@ -316,7 +316,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
             svz_log_sys_error ("DisconnectNamedPipe");
 
           /* reinitialize the overlapped structure of the listener */
-          if (svz_os_version >= WinNT4x)
+          if (svz_mingw_at_least_nt4_p ())
             {
               memset (sock->overlap[SVZ_READ], 0, sizeof (OVERLAPPED));
               memset (sock->overlap[SVZ_WRITE], 0, sizeof (OVERLAPPED));
@@ -983,7 +983,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
     }
 
   /* initialize the overlap structure on WinNT systems */
-  if (svz_os_version >= WinNT4x)
+  if (svz_mingw_at_least_nt4_p ())
     {
       sock->overlap[SVZ_READ] = svz_malloc (sizeof (OVERLAPPED));
       memset (sock->overlap[SVZ_READ], 0, sizeof (OVERLAPPED));
@@ -1162,7 +1162,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
    * Initialize the overlapped structures for this server socket.  Each
    * client connected gets it passed.
    */
-  if (svz_os_version >= WinNT4x)
+  if (svz_mingw_at_least_nt4_p ())
     {
       sock->overlap[SVZ_READ] = svz_malloc (sizeof (OVERLAPPED));
       memset (sock->overlap[SVZ_READ], 0, sizeof (OVERLAPPED));

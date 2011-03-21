@@ -1,3 +1,20 @@
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_os_version’.
+
+	* util.h (svz_os_version): Delete var decl.
+	(svz_mingw_at_least_nt4_p): New func decl, marked ‘SERVEEZ_API’.
+	[__MINGW32__] (Win32S, Win95, Win98, WinNT3x, WinNT4x)
+	[__MINGW32__] (Win2k, WinXP, WinME): Move #define:s from here...
+	* util.c (svz_os_version): Make static.
+	[__MINGW32__] (Win32S, Win95, Win98, WinNT3x, WinNT4x)
+	[__MINGW32__] (Win2k, WinXP, WinME): ...to here.
+	(svz_mingw_at_least_nt4_p): New func.
+	* pipe-socket.c
+	(svz_pipe_disconnect, svz_pipe_connect, svz_pipe_listener):
+	Use ‘svz_mingw_at_least_nt4_p’.
+	* server-socket.c (svz_pipe_accept): Likewise.
+
 2011-03-17  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Revamp default value of dynloader's search path.

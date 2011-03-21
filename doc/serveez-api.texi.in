@@ -318,10 +318,6 @@ left overs of the C API.
 |F| svz_log
 |F| svz_log_setfile
 
-|V| svz_os_version
-@strong{Please note}:
-This variable is only available on Windows version of this API.
-
 |M| SVZ_NUM2PTR
 |M| SVZ_PTR2NUM
 
@@ -348,6 +344,8 @@ error description, newline.
 
 |F| svz_log_sys_error
 |F| svz_log_net_error
+
+|F| svz_mingw_at_least_nt4_p
 
 @node Core functions
 @subsection Networking and other low level functions

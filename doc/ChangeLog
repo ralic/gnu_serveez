@@ -1,3 +1,10 @@
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_os_version’.
+
+	* serveez-api.texi.in (Utility functions):
+	Delete ‘svz_os_version’; add ‘svz_mingw_at_least_nt4_p’.
+
 2011-03-15  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize several svz_server_* funcs.

@@ -95,23 +95,7 @@ SERVEEZ_API void svz_log_net_error (char const *, ...);
 #endif /* !__MINGW32__ */
 /* end svzint */
 
-#ifdef __MINGW32__
-/*
- * The variable @code{svz_os_version} could be used to differentiate
- * between some Win32 versions.
- */
-#define Win32s  0
-#define Win95   1
-#define Win98   2
-#define WinNT3x 3
-#define WinNT4x 4
-#define Win2k   5
-#define WinXP   6
-#define WinME   7
-
-SERVEEZ_API int svz_os_version;
-
-#endif /* __MINGW32__ */
+SERVEEZ_API int svz_mingw_at_least_nt4_p (void);
 
 __END_DECLS
 

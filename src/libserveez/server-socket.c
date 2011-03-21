@@ -502,7 +502,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
     }
 
   /* Copy overlapped structures to client pipes.  */
-  if (svz_os_version >= WinNT4x)
+  if (svz_mingw_at_least_nt4_p ())
     {
       sock->overlap[SVZ_READ] = server_sock->overlap[SVZ_READ];
       sock->overlap[SVZ_WRITE] = server_sock->overlap[SVZ_WRITE];
