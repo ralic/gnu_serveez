@@ -745,8 +745,6 @@ core library creates listeners as needed by itself.
 |F| svz_binding_find
 |F| svz_binding_find_server
 |F| svz_binding_contains_server
-|F| svz_binding_filter_pipe
-|F| svz_binding_filter_net
 |F| svz_binding_filter
 
 @node Server core

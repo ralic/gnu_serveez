@@ -1,5 +1,14 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_binding_filter_{pipe,net}.
+
+	* binding.h (svz_binding_filter_pipe): Delete func decl.
+	(svz_binding_filter_net): Likewise.
+	* binding.c (svz_binding_filter_pipe): Make static.
+	(svz_binding_filter_net): Likewise.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_sock_bind_port’.
 
 	* binding.h (svz_sock_bind_port): Delete func decl.

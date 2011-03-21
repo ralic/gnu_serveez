@@ -500,7 +500,7 @@ svz_sock_servers (svz_socket_t *sock)
  * caller is responsible for freeing the returned array by running
  * @code{svz_array_destroy}.
  */
-svz_array_t *
+static svz_array_t *
 svz_binding_filter_pipe (svz_socket_t *sock)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
@@ -521,7 +521,7 @@ svz_binding_filter_pipe (svz_socket_t *sock)
  * allowed depends on the network interface address @var{addr} and the
  * network port @var{port}.
  */
-svz_array_t *
+static svz_array_t *
 svz_binding_filter_net (svz_socket_t *sock,
                         unsigned long addr, unsigned short port)
 {
