@@ -752,7 +752,6 @@ core library creates listeners as needed by itself.
 |F| svz_sock_schedule_for_shutdown
 |F| svz_sock_enqueue
 |F| svz_sock_dequeue
-|F| svz_sock_shutdown
 |F| svz_sock_setparent
 |F| svz_sock_getparent
 |F| svz_sock_setreferrer
