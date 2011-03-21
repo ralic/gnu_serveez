@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_binding_contains_server’.
+
+	* binding.h (svz_binding_contains_server):
+	Remove mark ‘SERVEEZ_API’; mark ‘SBO’, ‘svzint’.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_binding_find’.
 
 	* binding.h (svz_binding_find): Delete func decl.
