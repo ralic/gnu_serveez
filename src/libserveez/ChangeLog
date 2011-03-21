@@ -1,5 +1,12 @@
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_binding_contains’.
+
+	* binding.h (svz_binding_contains): Delete func decl.
+	* binding.c (svz_binding_contains): Make static.
+
+2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_binding_destroy’.
 
 	* binding.h (svz_binding_destroy):

@@ -354,7 +354,7 @@ svz_binding_destroy (svz_binding_t *binding)
  * is part of one of the bindings in the array @var{bindings} and returns
  * non-zero if so.  Otherwise zero is returned.
  */
-int
+static int
 svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
 {
   svz_binding_t *search;
