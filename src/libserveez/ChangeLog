@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_server_create’.
+
+	* server-socket.h (svz_server_create):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib build] Strip SBO from headers (no ‘svzint’ needed).
 
 	* alloc.h: Remove mark ‘svzint’ from ‘SBO’ decls.

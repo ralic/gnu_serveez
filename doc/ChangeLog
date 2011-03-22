@@ -1,3 +1,9 @@
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_server_create’.
+
+	* serveez-api.texi.in (Server socket): Delete ‘svz_server_create’.
+
 2011-03-21  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_sock_dequeue’.
