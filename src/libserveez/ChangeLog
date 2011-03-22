@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_tcp_recv_oob’.
+
+	* tcp-socket.h (svz_tcp_recv_oob):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_tcp_write_socket’.
 
 	* tcp-socket.h (svz_tcp_write_socket):
