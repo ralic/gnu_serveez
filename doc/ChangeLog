@@ -1,5 +1,11 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_interface_search’.
+
+	* serveez-api.texi.in (Interface): Delete ‘svz_interface_search’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_udp_check_request’.
 
 	* serveez-api.texi.in (UDP sockets): Delete ‘svz_udp_check_request’.
