@@ -47,9 +47,9 @@ svz_pipe_t;
 __BEGIN_DECLS
 
 SBO int svz_pipe_valid (svz_socket_t *);
-SERVEEZ_API int svz_pipe_read_socket (svz_socket_t *);
-SERVEEZ_API int svz_pipe_write_socket (svz_socket_t *);
-SERVEEZ_API int svz_pipe_disconnect (svz_socket_t *);
+SBO int svz_pipe_read_socket (svz_socket_t *);
+SBO int svz_pipe_write_socket (svz_socket_t *);
+SBO int svz_pipe_disconnect (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_pipe_create (svz_t_handle,
                                            svz_t_handle);
 SERVEEZ_API int svz_pipe_create_pair (svz_t_handle pipe_desc[2]);

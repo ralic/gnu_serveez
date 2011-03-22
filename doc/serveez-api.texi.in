@@ -416,9 +416,6 @@ any input or output operations on it.
 
 |F| svz_pipe_alloc
 |F| svz_pipe_destroy
-|F| svz_pipe_read_socket
-|F| svz_pipe_write_socket
-|F| svz_pipe_disconnect
 |F| svz_pipe_create
 |F| svz_pipe_create_pair
 |F| svz_pipe_connect

@@ -1,5 +1,13 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_pipe_{{read,write}_socket,disconnect}.
+
+	* pipe-socket.h (svz_pip_read_socket)
+	(svz_pipe_write_socket, svz_pipe_disconnect):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_pipe_valid’.
 
 	* pipe-socket.h (svz_pipe_valid):
