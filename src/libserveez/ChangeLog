@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_servertype_load’.
+
+	* dynload.h (svz_servertype_load):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_servertype_unload
 
 	* dynload.h (svz_servertype_unload): Delete func decl.
