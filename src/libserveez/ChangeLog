@@ -1,5 +1,14 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Define/use ‘svz_sock_print_list’ conditionally.
+
+	* server-core.c (svz_sock_print_list):
+	Change surrounding preproc cond from ‘#if ENABLE_DEBUG’
+	to ‘#if ENABLE_SOCK_PRINT_LIST’.
+	(svz_sock_validate_list): Likewise call to ‘svz_sock_print_list’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Define/use ‘svz_hash_analyse’ conditionally.
 
 	* hash.c (svz_hash_analyse):

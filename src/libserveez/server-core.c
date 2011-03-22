@@ -387,7 +387,7 @@ svz_foreach_socket (svz_socket_do_t *func, void *closure)
   return 0;
 }
 
-#if ENABLE_DEBUG
+#if ENABLE_SOCK_PRINT_LIST
 /*
  * This function is for debugging purposes only.  It shows a text
  * representation of the current socket list.
@@ -408,7 +408,9 @@ svz_sock_print_list (void)
 
   fprintf (stdout, "\n");
 }
+#endif  /* ENABLE_SOCK_PRINT_LIST */
 
+#if ENABLE_DEBUG
 /*
  * Check if a given socket is still valid.  Return non-zero if it is
  * not.
@@ -435,7 +437,7 @@ svz_sock_validate_list (void)
 {
   svz_socket_t *sock, *prev;
 
-#if 0
+#if ENABLE_SOCK_PRINT_LIST
   svz_sock_print_list ();
 #endif
 
