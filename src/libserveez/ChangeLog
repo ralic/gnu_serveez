@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_udp_lazy_read_socket’.
+
+	* udp-socket.h (svz_udp_lazy_read_socket):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_udp_read_socket’.
 
 	* udp-socket.h (svz_udp_read_socket): Delete func decl.
