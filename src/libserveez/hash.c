@@ -107,6 +107,7 @@ svz_hash_key_length (char *key)
   return len;
 }
 
+#if ENABLE_HASH_ANALYSE
 /*
  * This routine prints all the hash table @var{hash}.  It is for debugging
  * purposes only and should not go into distributions.
@@ -142,6 +143,7 @@ svz_hash_analyse (svz_hash_t *hash)
            entries, hash->keys, depth + 1);
 #endif /* ENABLE_DEBUG */
 }
+#endif  /* ENABLE_HASH_ANALYSE */
 
 /*
  * Create a new hash table with an initial capacity @var{size}.  Return a
@@ -268,9 +270,9 @@ svz_hash_rehash (svz_hash_t *hash, int type)
   int n, e;
   svz_hash_bucket_t *bucket, *next_bucket;
 
-#if 0
+#if ENABLE_HASH_ANALYSE
   svz_hash_analyse (hash);
-#endif /* ENABLE_DEBUG */
+#endif
 
   if (type == SVZ_HASH_EXPAND)
     {
@@ -357,9 +359,9 @@ svz_hash_rehash (svz_hash_t *hash, int type)
                                  sizeof (svz_hash_bucket_t) * hash->buckets);
     }
 
-#if 0
+#if ENABLE_HASH_ANALYSE
   svz_hash_analyse (hash);
-#endif /* ENABLE_DEBUG */
+#endif
 }
 
 /*

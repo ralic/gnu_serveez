@@ -1,5 +1,13 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Define/use ‘svz_hash_analyse’ conditionally.
+
+	* hash.c (svz_hash_analyse):
+	Surround w/ preproc cond ‘#if ENABLE_HASH_ANALYSE’.
+	(svz_hash_rehash): Likewise calls to ‘svz_hash_analyse’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_{tcp,pipe}_accept.
 
 	* server-socket.h
