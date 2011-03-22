@@ -443,7 +443,6 @@ The UDP sockets implement a connectionless, unreliable datagram packet
 service.  Packets may be reordered or duplicated before they arrive.  UDP
 generates and checks checksums to catch transmission errors.
 
-|F| svz_udp_write_socket
 |F| svz_udp_check_request
 |F| svz_udp_connect
 |F| svz_udp_write
