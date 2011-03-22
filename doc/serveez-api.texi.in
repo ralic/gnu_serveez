@@ -782,8 +782,7 @@ below provide the default routines invoked when accepting a new connection
 on a listener.  This is necessary for connection oriented protocols (TCP and
 named pipes) only.
 
-|F| svz_tcp_accept
-|F| svz_pipe_accept
+[FIXME: All funcs internalized!  Write something else here!]
 
 @node Port config funcs
 @subsection Port configurations

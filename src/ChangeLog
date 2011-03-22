@@ -1,5 +1,11 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_{tcp,pipe}_accept.
+
+	* libserveez.h: Don't #include "libserveez/server-socket.h".
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib build] Strip SBO from headers (no ‘svzint’ needed).
 
 	* Makefile.am (install-data-hook):

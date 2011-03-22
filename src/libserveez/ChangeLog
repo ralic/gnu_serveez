@@ -1,5 +1,17 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_{tcp,pipe}_accept.
+
+	* server-socket.h
+	(svz_tcp_accept, svz_pipe_accept): Delete func decls.
+	* server-socket.c (svz_server_create): Move to eof.
+	(svz_tcp_accept, svz_pipe_accept): Make static.
+	* Makefile.am (libserveez_HEADERS):
+	Move server-socket.h from here...
+	(noinst_HEADERS): ...to here.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_server_create’.
 
 	* server-socket.h (svz_server_create):

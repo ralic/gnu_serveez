@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_{tcp,pipe}_accept.
+
+	* serveez-api.texi.in (Server socket):
+	Delete ‘svz_tcp_accept’, ‘svz_pipe_accept’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_server_create’.
 
 	* serveez-api.texi.in (Server socket): Delete ‘svz_server_create’.
