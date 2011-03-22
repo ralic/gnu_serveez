@@ -1,5 +1,13 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[http-server int] Define/use ‘http_cache_print’ conditionally.
+
+	* http-server/http-cache.c (http_cache_print):
+	Change surrounding preproc cond from ‘#if ENABLE_DEBUG’
+	to ‘#if ENABLE_CACHE_PRINT’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_{tcp,pipe}_accept.
 
 	* libserveez.h: Don't #include "libserveez/server-socket.h".

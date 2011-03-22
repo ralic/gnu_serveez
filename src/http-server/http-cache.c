@@ -135,7 +135,7 @@ http_cache_consistency (void)
 # define http_cache_consistency()
 #endif /* not ENABLE_DEBUG */
 
-#if ENABLE_DEBUG
+#if ENABLE_CACHE_PRINT
 static void
 http_cache_print (void)
 {
@@ -150,9 +150,7 @@ http_cache_print (void)
     }
   printf ("cache last: %p\n", (void *) http_cache_last);
 }
-#else
-# define http_cache_print()
-#endif /* ENABLE_DEBUG */
+#endif  /* ENABLE_CACHE_PRINT */
 
 /*
  * Returns the urgency value of the given http cache entry CACHE.
