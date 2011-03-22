@@ -43,7 +43,6 @@ SBO int svz_fd_block (int);
 SERVEEZ_API int svz_fd_cloexec (int);
 SERVEEZ_API int svz_tcp_cork (svz_t_socket, int);
 SERVEEZ_API int svz_tcp_nodelay (svz_t_socket, int, int *);
-SERVEEZ_API int svz_socket_type (svz_t_socket, int *);
 SERVEEZ_API int svz_socket_connect (svz_t_socket, unsigned long,
                                     unsigned short);
 SERVEEZ_API svz_t_socket svz_socket_create (int);

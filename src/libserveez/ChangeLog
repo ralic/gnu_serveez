@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_socket_type
+
+	* core.h (svz_socket_type): Delete func decl.
+	* core.c (svz_socket_type): Delete func.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_fd_{block,nonblock}.
 
 	* core.h (svz_fd_block, svz_fd_nonblock):

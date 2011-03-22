@@ -293,30 +293,6 @@ svz_socket_create (int proto)
 }
 
 /*
- * Saves the socket type (like @code{SOCK_STREAM}, @code{SOCK_DGRAM}, etc.)
- * of the socket @var{fd} in the buffer pointed to by @var{type}.  Returns
- * zero on success.
- */
-int
-svz_socket_type (svz_t_socket fd, int *type)
-{
-  int optval;
-  socklen_t optlen = sizeof (optval);
-
-  if (type)
-    {
-      if (getsockopt (fd, SOL_SOCKET, SO_TYPE,
-                      (void *) &optval, &optlen) < 0)
-        {
-          svz_log_net_error ("getsockopt");
-          return -1;
-        }
-      *type = optval;
-    }
-  return 0;
-}
-
-/*
  * Connect the given socket descriptor @var{sockfd} to the host @var{host}
  * at the network port @var{port}.  Return non-zero on errors.
  */
