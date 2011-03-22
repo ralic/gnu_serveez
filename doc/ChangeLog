@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_tcp_default_connect’.
+
+	* serveez-api.texi.in (TCP sockets):
+	Delete ‘svz_tcp_default_connect’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_servertype_load’.
 
 	* serveez-api.texi.in (Dynamic server loading):

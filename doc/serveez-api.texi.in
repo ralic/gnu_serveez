@@ -401,7 +401,6 @@ and checks a per packet checksum to catch transmission errors.  TCP does
 not preserve record boundaries.
 
 |F| svz_tcp_connect
-|F| svz_tcp_default_connect
 |F| svz_tcp_read_socket
 |F| svz_tcp_write_socket
 |F| svz_tcp_recv_oob
