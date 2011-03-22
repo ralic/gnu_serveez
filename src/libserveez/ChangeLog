@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_tcp_write_socket’.
+
+	* tcp-socket.h (svz_tcp_write_socket):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_tcp_default_connect’.
 
 	* tcp-socket.h (svz_tcp_default_connect): Delete func decl.

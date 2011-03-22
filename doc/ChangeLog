@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_tcp_write_socket’.
+
+	* serveez-api.texi.in (TCP sockets):
+	Delete ‘svz_tcp_write_socket’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_tcp_default_connect’.
 
 	* serveez-api.texi.in (TCP sockets):

@@ -32,7 +32,7 @@ __BEGIN_DECLS
 
 SERVEEZ_API svz_socket_t *svz_tcp_connect (unsigned long, unsigned short);
 SERVEEZ_API int svz_tcp_read_socket (svz_socket_t *);
-SERVEEZ_API int svz_tcp_write_socket (svz_socket_t *);
+SBO int svz_tcp_write_socket (svz_socket_t *);
 SERVEEZ_API int svz_tcp_recv_oob (svz_socket_t *);
 SERVEEZ_API int svz_tcp_send_oob (svz_socket_t *);
 

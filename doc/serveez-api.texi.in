@@ -402,7 +402,6 @@ not preserve record boundaries.
 
 |F| svz_tcp_connect
 |F| svz_tcp_read_socket
-|F| svz_tcp_write_socket
 |F| svz_tcp_recv_oob
 |F| svz_tcp_send_oob
 
