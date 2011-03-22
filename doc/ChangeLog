@@ -1,5 +1,11 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_socket_connect’.
+
+	* serveez-api.texi.in (Core functions): Delete ‘svz_socket_connect’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_socket_type
 
 	* serveez-api.texi.in (Core functions): Delete ‘svz_socket_type’.

@@ -356,7 +356,6 @@ functions should behave identical on Windows and Unices.
 
 |F| svz_inet_ntoa
 |F| svz_inet_aton
-|F| svz_socket_connect
 |F| svz_socket_create
 |F| svz_closesocket
 |F| svz_socket_create_pair

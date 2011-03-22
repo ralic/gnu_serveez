@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_socket_connect’.
+
+	* core.h (svz_socket_connect):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_socket_type
 
 	* core.h (svz_socket_type): Delete func decl.
