@@ -55,10 +55,9 @@ SERVEEZ_API svz_socket_t *svz_pipe_create (svz_t_handle,
 SERVEEZ_API int svz_pipe_create_pair (svz_t_handle pipe_desc[2]);
 SERVEEZ_API svz_socket_t *svz_pipe_connect (svz_pipe_t *,
                                             svz_pipe_t *);
-SERVEEZ_API int svz_pipe_listener (svz_socket_t *,
-                                   svz_pipe_t *, svz_pipe_t *);
-SERVEEZ_API int svz_pipe_check_user (svz_pipe_t *);
-SERVEEZ_API int svz_pipe_check_group (svz_pipe_t *);
+SBO int svz_pipe_listener (svz_socket_t *, svz_pipe_t *, svz_pipe_t *);
+SBO int svz_pipe_check_user (svz_pipe_t *);
+SBO int svz_pipe_check_group (svz_pipe_t *);
 SERVEEZ_API svz_pipe_t *svz_pipe_alloc (void);
 SERVEEZ_API void svz_pipe_destroy (svz_pipe_t *);
 

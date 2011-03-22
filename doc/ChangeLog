@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_pipe_{listener,check_{user,group}}.
+
+	* serveez-api.texi.in (Pipe connections): Delete
+	‘svz_pipe_listener’, ‘svz_pipe_check_user’, ‘svz_pipe_check_group’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_pipe_{{read,write}_socket,disconnect}.
 
 	* serveez-api.texi.in (Pipe connections):
