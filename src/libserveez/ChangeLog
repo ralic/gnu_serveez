@@ -1,5 +1,16 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Define/use ‘svz_check_sockets_select’ conditionally.
+
+	* server-loop.c (USE_POLL): New #define.
+	(svz_check_sockets_select): Change surrounding preproc cond from
+	‘#ifndef __MINGW32__’ to ‘#if !defined __MINGW32__ && !USE_POLL’.
+	(FD_EXPAND, FD_POLL_IN, FD_POLL_OUT, FD_POLL_CLR)
+	(svz_check_sockets_poll): Use ‘USE_POLL’ for surr. preproc cond.
+	(svz_check_sockets): Use ‘USE_POLL’ for internal preproc cond.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Define/use ‘svz_sock_print_list’ conditionally.
 
 	* server-core.c (svz_sock_print_list):

@@ -58,6 +58,8 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/server-core.h"
 
+#define USE_POLL  (HAVE_POLL && ENABLE_POLL)
+
 #define SOCK_FILE_FUNCTIONALITY(sock) do {                 \
   /* If socket is a file descriptor, then read it here.  */\
   if (sock->flags & SOCK_FLAG_FILE)                        \
@@ -111,7 +113,7 @@ svz_sock_error_info (svz_socket_t *sock)
   return 0;
 }
 
-#ifndef __MINGW32__
+#if !defined __MINGW32__ && !USE_POLL
 
 /*
  * Check the server and client sockets for incoming connections
@@ -371,9 +373,9 @@ svz_check_sockets_select (void)
   return 0;
 }
 
-#endif /* not __MINGW32__ */
+#endif  /* !defined __MINGW32__ && !USE_POLL*/
 
-#if HAVE_POLL && ENABLE_POLL /* configured */
+#if USE_POLL
 
 /* re-allocate static buffers if necessary */
 #define FD_EXPAND()                                                 \
@@ -634,7 +636,7 @@ svz_check_sockets_poll (void)
   return 0;
 }
 
-#endif /* HAVE_POLL */
+#endif  /* USE_POLL */
 
 #ifdef __MINGW32__
 
@@ -873,7 +875,7 @@ svz_check_sockets_MinGW (void)
 int
 svz_check_sockets (void)
 {
-#if HAVE_POLL && ENABLE_POLL
+#if USE_POLL
   return svz_check_sockets_poll ();
 #elif defined (__MINGW32__)
   return svz_check_sockets_MinGW ();
