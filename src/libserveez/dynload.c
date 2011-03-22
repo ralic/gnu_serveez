@@ -115,24 +115,6 @@ dyn_error (void)
 #define DYNLOAD_PATH "SERVEEZ_LOAD_PATH"
 
 /*
- * Find a library handle for a given library's name @var{file} in the current
- * list of loaded shared libraries.  Return @code{NULL} if there is no such
- * thing.
- */
-static dyn_library_t *
-dyn_find_library (char *file)
-{
-  int n;
-
-  /* go through all loaded libraries and check if there is such a */
-  for (n = 0; n < dyn_libraries; n++)
-    if (!strcmp (dyn_library[n].file, file))
-      return &dyn_library[n];
-
-  return NULL;
-}
-
-/*
  * This functions tries to link a library called @var{file} and returns
  * its handle or NULL if it failed.  If the argument @var{path} is given
  * it prepends this to the file name of the library.
@@ -514,30 +496,6 @@ svz_servertype_load (char *description)
   svz_free (def);
 
   return server;
-}
-
-/*
- * Unload a server definition from a shared library.  The given
- * descriptive name @var{description} must be part of the library's name.
- * Return the remaining reference count or -1 on errors.
- */
-int
-svz_servertype_unload (char *description)
-{
-  dyn_library_t *lib;
-  char *file;
-
-  /* check if there is such a library loaded */
-  file = dyn_create_file (description);
-  if ((lib = dyn_find_library (file)) != NULL)
-    {
-      /* try unloading it */
-      svz_free (file);
-      return dyn_unload_library (lib);
-    }
-  svz_free (file);
-
-  return -1;
 }
 
 

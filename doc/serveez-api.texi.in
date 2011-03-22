@@ -671,7 +671,6 @@ successfully tested on Windows and GNU/Linux.  Other systems are supported
 but yet untested.  Please tell us if noticing any misbehaviour.
 
 |F| svz_servertype_load
-|F| svz_servertype_unload
 |F| svz_dynload_path_set
 |F| svz_dynload_path_get
 

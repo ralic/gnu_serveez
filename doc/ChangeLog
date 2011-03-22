@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_servertype_unload
+
+	* serveez-api.texi.in (Dynamic server loading):
+	Delete ‘svz_servertype_unload’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_{tcp,pipe}_accept.
 
 	* serveez-api.texi.in (Server socket):

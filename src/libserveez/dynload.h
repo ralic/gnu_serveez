@@ -28,7 +28,6 @@
 __BEGIN_DECLS
 
 SERVEEZ_API svz_servertype_t *svz_servertype_load (char *);
-SERVEEZ_API int svz_servertype_unload (char *);
 SERVEEZ_API void svz_dynload_path_set (svz_array_t *);
 SERVEEZ_API svz_array_t *svz_dynload_path_get (void);
 

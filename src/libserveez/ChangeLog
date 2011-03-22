@@ -1,5 +1,13 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_servertype_unload
+
+	* dynload.h (svz_servertype_unload): Delete func decl.
+	* dynload.c (dyn_find_library): Delete func.
+	(svz_servertype_unload): Likewise.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Define/use ‘svz_check_sockets_select’ conditionally.
 
 	* server-loop.c (USE_POLL): New #define.
