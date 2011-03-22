@@ -645,7 +645,7 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
  * This function returns the interface structure for the given IP address
  * @var{addr} if any.  Returns @code{NULL} otherwise.
  */
-svz_interface_t *
+static svz_interface_t *
 svz_interface_get (unsigned long addr)
 {
   svz_interface_t *ifc;
