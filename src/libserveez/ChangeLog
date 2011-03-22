@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_udp_read_socket’.
+
+	* udp-socket.h (svz_udp_read_socket): Delete func decl.
+	* udp-socket.c (svz_udp_read_socket): Make static.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_tcp_recv_oob’.
 
 	* tcp-socket.h (svz_tcp_recv_oob):

@@ -1,5 +1,11 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_udp_read_socket’.
+
+	* serveez-api.texi.in (UDP sockets): Delete ‘svz_udp_read_socket’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_tcp_recv_oob’.
 
 	* serveez-api.texi.in (TCP sockets): Delete ‘svz_tcp_recv_oob’.

@@ -55,7 +55,7 @@
  * into the @code{sock->remote_addr} field.  The packet load is written into
  * @code{sock->recv_buffer}.
  */
-int
+static int
 svz_udp_read_socket (svz_socket_t *sock)
 {
   int do_read, num_read;

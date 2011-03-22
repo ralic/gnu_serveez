@@ -33,7 +33,6 @@
 __BEGIN_DECLS
 
 /* exported UDP socket functions */
-SERVEEZ_API int svz_udp_read_socket (svz_socket_t *);
 SERVEEZ_API int svz_udp_lazy_read_socket (svz_socket_t *);
 SERVEEZ_API int svz_udp_write_socket (svz_socket_t *);
 SERVEEZ_API int svz_udp_check_request (svz_socket_t *);
