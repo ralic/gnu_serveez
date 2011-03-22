@@ -362,8 +362,6 @@ functions should behave identical on Windows and Unices.
 |F| svz_socket_create_pair
 |F| svz_socket_type
 |F| svz_fd_cloexec
-|F| svz_fd_nonblock
-|F| svz_fd_block
 |F| svz_tcp_cork
 |F| svz_tcp_nodelay
 |F| svz_sendfile

@@ -38,8 +38,8 @@ struct stat;
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_fd_nonblock (int);
-SERVEEZ_API int svz_fd_block (int);
+SBO int svz_fd_nonblock (int);
+SBO int svz_fd_block (int);
 SERVEEZ_API int svz_fd_cloexec (int);
 SERVEEZ_API int svz_tcp_cork (svz_t_socket, int);
 SERVEEZ_API int svz_tcp_nodelay (svz_t_socket, int, int *);

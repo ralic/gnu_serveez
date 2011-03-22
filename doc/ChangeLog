@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_fd_{block,nonblock}.
+
+	* serveez-api.texi.in (Core functions):
+	Delete ‘svz_fd_block’, ‘svz_fd_nonblock’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_interface_check’.
 
 	* serveez-api.texi.in (Interface): Delete ‘svz_interface_check’.
