@@ -1,5 +1,12 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_interface_check’.
+
+	* interface.h (svz_interface_check):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_interface_get’.
 
 	* interface.h (svz_interface_get): Delete func decl.

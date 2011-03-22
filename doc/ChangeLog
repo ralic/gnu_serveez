@@ -1,5 +1,11 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_interface_check’.
+
+	* serveez-api.texi.in (Interface): Delete ‘svz_interface_check’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_interface_get’.
 
 	* serveez-api.texi.in (Interface): Delete ‘svz_interface_get’.

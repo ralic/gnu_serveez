@@ -832,7 +832,6 @@ follow these rules.
 |F| svz_foreach_interface
 |F| svz_interface_list
 |F| svz_interface_add
-|F| svz_interface_check
 
 @node Windoze
 @subsection Useful Windows functions

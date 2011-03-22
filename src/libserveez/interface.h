@@ -48,7 +48,7 @@ SERVEEZ_API int svz_foreach_interface (svz_interface_do_t *, void *);
 SERVEEZ_API void svz_interface_list (void);
 SERVEEZ_API int svz_interface_add (int, char *, unsigned long, int);
 SBO svz_interface_t *svz_interface_search (char *);
-SERVEEZ_API void svz_interface_check (void);
+SBO void svz_interface_check (void);
 
 __END_DECLS
 
