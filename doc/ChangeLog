@@ -1,5 +1,11 @@
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_pipe_valid’.
+
+	* serveez-api.texi.in (Pipe connections): Delete ‘svz_pipe_valid’.
+
+2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_socket_{create,create_pair}.
 
 	* serveez-api.texi.in (Core functions):
