@@ -31,11 +31,11 @@
 
 SERVEEZ_API svz_t_handle svz_child_died;
 
-/* begin svzint */
-
 SBO int svz_nuke_happened;
 SBO long svz_notify;
 SBO svz_socket_t *svz_sock_root;
+
+/* begin svzint */
 
 /*
  * Go through each socket structure in the chained list.
@@ -56,12 +56,10 @@ SBO svz_socket_t *svz_sock_root;
 typedef int (svz_socket_do_t) (svz_socket_t *, void *);
 
 __BEGIN_DECLS
-/* begin svzint */
 SBO int svz_sock_shutdown (svz_socket_t *);
 SBO int svz_sock_check_access (svz_socket_t *, svz_socket_t *);
 SBO void svz_sock_check_bogus (void);
 SBO int svz_periodic_tasks (void);
-/* end svzint */
 
 SERVEEZ_API int svz_foreach_socket (svz_socket_do_t *, void *);
 SERVEEZ_API svz_socket_t *svz_sock_find (int, int);

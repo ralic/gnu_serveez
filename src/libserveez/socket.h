@@ -241,8 +241,6 @@ struct svz_socket
 };
 
 __BEGIN_DECLS
-
-/* begin svzint */
 SBO int svz_sock_connections;
 SBO svz_socket_t *svz_sock_alloc (void);
 SBO int svz_sock_free (svz_socket_t *);
@@ -252,7 +250,6 @@ SBO int svz_sock_intern_connection_info (svz_socket_t *);
 SBO int svz_sock_unique_id (svz_socket_t *);
 SBO int svz_sock_detect_proto (svz_socket_t *);
 SBO int svz_sock_flood_protect (svz_socket_t *, int);
-/* end svzint */
 
 SERVEEZ_API int svz_sock_nconnections (void);
 SERVEEZ_API int svz_sock_write (svz_socket_t *, char *, int);

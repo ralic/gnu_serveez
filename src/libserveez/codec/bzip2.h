@@ -34,7 +34,6 @@ typedef struct
 bzip2_config_t;
 
 __BEGIN_DECLS
-
 SBO svz_codec_t bzip2_encoder;
 SBO svz_codec_t bzip2_decoder;
 SBO char * bzip2_error (svz_codec_data_t *);

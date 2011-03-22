@@ -45,11 +45,9 @@ typedef void (* svz_free_func_t) (void *);
 SERVEEZ_API void svz_set_mm_funcs (svz_malloc_func_t,
                                    svz_realloc_func_t,
                                    svz_free_func_t);
-/* begin svzint */
 SBO svz_malloc_func_t svz_malloc_func;
 SBO svz_realloc_func_t svz_realloc_func;
 SBO svz_free_func_t svz_free_func;
-/* end svzint */
 
 /* Internal allocator functions.  */
 SERVEEZ_API void *svz_malloc (size_t);

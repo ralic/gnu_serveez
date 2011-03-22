@@ -87,7 +87,10 @@ install-data-hook:
 	       -e '}' TMP1 > defines.h; \
 	for h in *.h codec/*.h coserver/*.h; do \
 	  mv $$h $$h.orig; \
-	  $(SED) '/begin svzint/,/end svzint/d' $$h.orig > $$h; \
+	  $(SED) -e '/begin svzint/,/end svzint/d' \
+	         -e '/^SBO.*;$$/d' \
+	         -e '/^SBO/,/;$$/d' \
+	    $$h.orig > $$h; \
 	  rm -f $$h.orig; \
 	done; \
 	rm -f TMP0 TMP1

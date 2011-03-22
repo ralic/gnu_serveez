@@ -41,10 +41,7 @@ svz_interface_t;
 typedef int (svz_interface_do_t) (const svz_interface_t *, void *);
 
 __BEGIN_DECLS
-
-/* begin svzint */
 SBO svz_vector_t *svz_interfaces;
-/* end svzint */
 
 /* Export these functions.  */
 SERVEEZ_API int svz_foreach_interface (svz_interface_do_t *, void *);

@@ -112,10 +112,7 @@ struct svz_servertype
 typedef void (svz_server_do_t) (svz_server_t *, void *);
 
 __BEGIN_DECLS
-
-/* begin svzint */
 SBO svz_config_type_t svz_servertype_definition;
-/* end svzint */
 
 SERVEEZ_API void svz_server_foreach (svz_server_do_t *, void *);
 SERVEEZ_API svz_server_t *svz_server_get (char *);

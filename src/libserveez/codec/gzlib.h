@@ -24,7 +24,6 @@
 #include "libserveez/defines.h"
 
 __BEGIN_DECLS
-
 SBO svz_codec_t zlib_encoder;
 SBO svz_codec_t zlib_decoder;
 SBO char * zlib_error (svz_codec_data_t *);
