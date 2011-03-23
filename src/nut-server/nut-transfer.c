@@ -63,6 +63,7 @@
 #ifdef __MINGW32__
 # include <windows.h>
 # include <io.h>
+# include "woe-statpred.h"
 #endif
 
 #if HAVE_SYS_DIRENT_H && !defined (HAVE_DIRENT_H)

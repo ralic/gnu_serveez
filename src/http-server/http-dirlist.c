@@ -61,6 +61,7 @@
 #include "networking-headers.h"
 #ifdef __MINGW32__
 # include <windows.h>
+# include "woe-statpred.h"
 #endif
 
 #include "libserveez.h"

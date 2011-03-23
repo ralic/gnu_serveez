@@ -1,3 +1,15 @@
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build lib] Move some woe32 macros to their own header.
+
+	* woe-statpred.h: New file.
+	* Makefile.am (noinst_HEADERS): Add woe-statpred.h.
+	* http-server/http-dirlist.c
+	[__MINGW32__]: #include "woe-statpred.h".
+	* http-server/http-proto.c [__MINGW32__]: Likewise.
+	* nut-server/gnutella.c [__MINGW32__]: Likewise.
+	* nut-server/nut-transfer.c [__MINGW32__]: Likewise.
+
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[http-server int] Define/use ‘http_cache_print’ conditionally.

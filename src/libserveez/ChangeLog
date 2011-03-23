@@ -1,5 +1,12 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build lib] Move some woe32 macros to their own header.
+
+	* windoze.h [!S_ISDIR]
+	(S_IFBLK, S_IS_DIR, S_ISCHR, S_ISREG, S_ISBLK): Delete macros.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize some woe32 #define:s.
 
 	* windoze.h (WM_SERVEEZ_NOTIFYICON)

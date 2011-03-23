@@ -42,6 +42,7 @@
 
 #ifdef __MINGW32__
 # include <io.h>
+# include "woe-statpred.h"
 #endif
 
 #if HAVE_DIRECT_H
