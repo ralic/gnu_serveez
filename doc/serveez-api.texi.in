@@ -830,7 +830,3 @@ database and some other useful things.
 |F| svz_windoze_stop_daemon
 |F| svz_windoze_asc2uni
 |F| svz_windoze_uni2asc
-|F| svz_windoze_get_reg_unsigned
-|F| svz_windoze_set_reg_unsigned
-|F| svz_windoze_get_reg_string
-|F| svz_windoze_set_reg_string

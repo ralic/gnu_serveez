@@ -1,5 +1,14 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_windoze_[gs]et_reg_{unsigned,string}.
+
+	* windoze.h
+	(svz_windoze_get_reg_unsigned, svz_windoze_set_reg_unsigned)
+	(svz_windoze_get_reg_string, svz_windoze_set_reg_string):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop funcs: svz_pipe_{alloc,destroy}
 
 	* pipe-socket.h

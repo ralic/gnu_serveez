@@ -46,14 +46,10 @@ SERVEEZ_API WCHAR *svz_windoze_asc2uni (CHAR *asc);
 SERVEEZ_API CHAR *svz_windoze_uni2asc (WCHAR *unicode);
 
 /* registry functions */
-SERVEEZ_API unsigned svz_windoze_get_reg_unsigned (HKEY, char *,
-                                                   char *, unsigned);
-SERVEEZ_API void svz_windoze_set_reg_unsigned (HKEY, char *,
-                                               char *, unsigned);
-SERVEEZ_API char *svz_windoze_get_reg_string (HKEY, char *,
-                                              char *, char *);
-SERVEEZ_API void svz_windoze_set_reg_string (HKEY, char *,
-                                             char *, char *);
+SBO unsigned svz_windoze_get_reg_unsigned (HKEY, char *, char *, unsigned);
+SBO void svz_windoze_set_reg_unsigned (HKEY, char *, char *, unsigned);
+SBO char *svz_windoze_get_reg_string (HKEY, char *, char *, char *);
+SBO void svz_windoze_set_reg_string (HKEY, char *, char *, char *);
 
 __END_DECLS
 

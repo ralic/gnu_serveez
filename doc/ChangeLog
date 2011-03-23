@@ -1,5 +1,13 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_windoze_[gs]et_reg_{unsigned,string}.
+
+	* serveez-api.texi.in (Windoze): Delete
+	‘svz_windoze_get_reg_unsigned’, ‘svz_windoze_set_reg_unsigned’
+	svz_windoze_get_reg_string', ‘svz_windoze_set_reg_string’.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop funcs: svz_pipe_{alloc,destroy}
 
 	* serveez-api.texi.in (Pipe connections):
