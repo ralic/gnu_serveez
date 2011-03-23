@@ -1,5 +1,12 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_raw_get_ip_header’.
+
+	* raw-socket.h (svz_raw_get_ip_header): Delete func decl.
+	* raw-socket.c (svz_raw_get_ip_header): Make static.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build lib] Move some woe32 macros to their own header.
 
 	* windoze.h [!S_ISDIR]

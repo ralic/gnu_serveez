@@ -44,7 +44,7 @@
 /*
  * Get IP header from plain data.
  */
-svz_ip_header_t *
+static svz_ip_header_t *
 svz_raw_get_ip_header (svz_uint8_t *data)
 {
   static svz_ip_header_t hdr;
