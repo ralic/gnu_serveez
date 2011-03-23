@@ -104,30 +104,6 @@ svz_pipe_cleanup (void)
 }
 
 /*
- * Return a newly allocated and setup to some defaults pipe structure.
- */
-svz_pipe_t *
-svz_pipe_alloc (void)
-{
-  svz_pipe_t *pipe;
-  pipe = svz_calloc (sizeof (svz_pipe_t));
-  pipe->uid = pipe->gid = pipe->perm = (unsigned int) -1;
-  return pipe;
-}
-
-/*
- * Destroy the given pipe structure @var{pipe}.
- */
-void
-svz_pipe_destroy (svz_pipe_t *pipe)
-{
-  svz_free (pipe->name);
-  svz_free (pipe->user);
-  svz_free (pipe->group);
-  svz_free (pipe);
-}
-
-/*
  * Check the consistency of the "user" - "user id" pair in the given pipe
  * structure @var{pipe}.  Return zero if it is ok.
  */

@@ -1,3 +1,12 @@
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop funcs: svz_pipe_{alloc,destroy}
+
+	* pipe-socket.h
+	(svz_pipe_alloc, svz_pipe_destroy): Delete func decls.
+	* pipe-socket.c
+	(svz_pipe_alloc, svz_pipe_destroy): Delete funcs.
+
 2011-03-22  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize svz_pipe_{listener,check_{user,group}}.

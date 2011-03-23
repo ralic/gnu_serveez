@@ -58,8 +58,6 @@ SERVEEZ_API svz_socket_t *svz_pipe_connect (svz_pipe_t *,
 SBO int svz_pipe_listener (svz_socket_t *, svz_pipe_t *, svz_pipe_t *);
 SBO int svz_pipe_check_user (svz_pipe_t *);
 SBO int svz_pipe_check_group (svz_pipe_t *);
-SERVEEZ_API svz_pipe_t *svz_pipe_alloc (void);
-SERVEEZ_API void svz_pipe_destroy (svz_pipe_t *);
 
 SERVEEZ_API void svz_invalidate_handle (svz_t_handle *);
 SERVEEZ_API int svz_invalid_handle_p (svz_t_handle);
