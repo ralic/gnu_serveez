@@ -66,7 +66,6 @@ svz_ip_header_t;
 __BEGIN_DECLS
 
 /* Exported RAW IP socket functions.  */
-SERVEEZ_API svz_uint8_t * svz_raw_put_ip_header (svz_ip_header_t *);
 SERVEEZ_API unsigned short svz_raw_ip_checksum (svz_uint8_t *, int);
 SERVEEZ_API int svz_raw_check_ip_header (svz_uint8_t *, int);
 

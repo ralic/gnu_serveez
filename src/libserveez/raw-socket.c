@@ -77,43 +77,6 @@ svz_raw_get_ip_header (svz_uint8_t *data)
 }
 
 /*
- * Put IP header to plain data.  This is currently not in use but can be
- * used when creating raw sockets with setsockopt (SOL_IP, IP_HDRINCL).
- */
-svz_uint8_t *
-svz_raw_put_ip_header (svz_ip_header_t *hdr)
-{
-  static svz_uint8_t buffer[IP_HEADER_SIZE];
-  svz_uint8_t *data = buffer;
-  unsigned short uint16;
-  unsigned int uint32;
-
-  *data++ = hdr->version_length;
-  *data++ = hdr->tos;
-  uint16 = htons (hdr->length);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  uint16 = htons (hdr->ident);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  uint16 = htons (hdr->frag_offset);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  *data++ = hdr->ttl;
-  *data++ = hdr->protocol;
-  uint16 = htons (hdr->checksum);
-  memcpy (data, &uint16, SIZEOF_UINT16);
-  data += SIZEOF_UINT16;
-  uint32 = hdr->src;
-  memcpy (data, &uint32, SIZEOF_UINT32);
-  data += SIZEOF_UINT32;
-  uint32 = hdr->dst;
-  memcpy (data, &uint32, SIZEOF_UINT32);
-
-  return buffer;
-}
-
-/*
  * Recalculate any IP checksum.
  */
 unsigned short

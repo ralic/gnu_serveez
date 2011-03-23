@@ -1,5 +1,11 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_raw_put_ip_header
+
+	* serveez-api.texi.in (Raw sockets): Delete ‘svz_raw_put_ip_header’.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_raw_get_ip_header’.
 
 	* serveez-api.texi.in (Raw sockets): Delete ‘svz_raw_get_ip_header’.
