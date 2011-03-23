@@ -65,6 +65,13 @@
 #endif
 #include "libserveez/util.h"
 
+#ifdef __MINGW32__
+/* definitions for Win95..WinME */
+#define MaxSocketKey       HKEY_LOCAL_MACHINE
+#define MaxSocketSubKey    "System\\CurrentControlSet\\Services\\VxD\\MSTCP"
+#define MaxSocketSubSubKey "MaxConnections"
+#endif  /* defined __MINGW32__ */
+
 /*
  * Level of the logging interfaces verbosity:
  * 0 - only fatal error messages

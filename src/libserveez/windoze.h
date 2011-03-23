@@ -27,25 +27,12 @@
 
 #ifdef __MINGW32__
 
-/* definitions for Win95..WinME */
-#define MaxSocketKey       HKEY_LOCAL_MACHINE
-#define MaxSocketSubKey    "System\\CurrentControlSet\\Services\\VxD\\MSTCP"
-#define MaxSocketSubSubKey "MaxConnections"
-
-/* window definitions */
-#define WM_SERVEEZ_NOTIFYICON (WM_APP + 100)
-#define SERVEEZ_ICON_ID       (1001)
-#define SERVEEZ_CLASS         "serveez"
-
 __BEGIN_DECLS
 
-/* exported functions */
 SERVEEZ_API int svz_windoze_start_daemon (char *);
 SERVEEZ_API int svz_windoze_stop_daemon (void);
 SERVEEZ_API WCHAR *svz_windoze_asc2uni (CHAR *asc);
 SERVEEZ_API CHAR *svz_windoze_uni2asc (WCHAR *unicode);
-
-/* registry functions */
 SBO unsigned svz_windoze_get_reg_unsigned (HKEY, char *, char *, unsigned);
 SBO void svz_windoze_set_reg_unsigned (HKEY, char *, char *, unsigned);
 SBO char *svz_windoze_get_reg_string (HKEY, char *, char *, char *);
@@ -68,6 +55,6 @@ __END_DECLS
 # define S_ISBLK(Mode) (((Mode) & S_IFMT) == S_IFBLK)
 #endif /* not S_ISDIR */
 
-#endif /* not __MINGW32__ */
+#endif  /* __MINGW32__ */
 
 #endif /* not __WINDOZE_H__ */

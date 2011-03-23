@@ -1,5 +1,18 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize some woe32 #define:s.
+
+	* windoze.h (WM_SERVEEZ_NOTIFYICON)
+	(SERVEEZ_ICON_ID, SERVEEZ_CLASS): Move from here...
+	(MaxSocketKey, MaxSocketSubKey)
+	(MaxSocketSubSubKey): Move from here...
+	* util.c (MaxSocketKey)
+	(MaxSocketSubKey, MaxSocketSubSubKey): ...to here.
+	* windoze.c (WM_SERVEEZ_NOTIFYICON)
+	(SERVEEZ_ICON_ID, SERVEEZ_CLASS): ...to here.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_windoze_[gs]et_reg_{unsigned,string}.
 
 	* windoze.h

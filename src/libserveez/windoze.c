@@ -37,6 +37,11 @@
 #include "libserveez/server-core.h"
 #include "libserveez/windoze.h"
 
+/* window definitions */
+#define WM_SERVEEZ_NOTIFYICON (WM_APP + 100)
+#define SERVEEZ_ICON_ID       (1001)
+#define SERVEEZ_CLASS         "serveez"
+
 static DWORD windoze_daemon_id = 0;
 static HANDLE windoze_daemon_handle = NULL;
 static BOOL windoze_run = FALSE;
