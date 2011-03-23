@@ -1,5 +1,12 @@
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_raw_check_ip_header’.
+
+	* raw-socket.h (svz_raw_check_ip_header):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+
+2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_raw_put_ip_header
 
 	* raw-socket.h (svz_raw_put_ip_header): Delete func decl.
