@@ -124,22 +124,6 @@ svz_servertype_add (svz_servertype_t *server)
   svz_array_add (svz_servertypes, server);
 }
 
-struct type_del_closure
-{
-  svz_servertype_t *stype;
-  unsigned int count;
-  char **doomed;
-};
-
-static void
-type_del_internal (svz_server_t *server, void *closure)
-{
-  struct type_del_closure *x = closure;
-
-  if (x->stype == server->type)
-    x->doomed[x->count++] = svz_strdup (server->name);
-}
-
 /*
  * Completely destroy the given server instance @var{server}.  This
  * especially means to go through each item of the server instances
@@ -207,62 +191,6 @@ svz_server_unbind (svz_server_t *server)
          there are no more servers left.  */
       if (svz_sock_del_server (sock, server) == 0)
         svz_sock_schedule_for_shutdown (sock);
-    }
-}
-
-/*
- * Delete the server type with the index @var{index} from the list of
- * known server types and run its global finalizer if necessary.  Moreover
- * we remove and finalize each server instance of this server type.
- */
-void
-svz_servertype_del (unsigned long index)
-{
-  svz_servertype_t *stype;
-
-  /* Return here if there is no such server type.  */
-  if (svz_servertypes == NULL || index >= svz_array_size (svz_servertypes))
-    return;
-
-  /* Run the server type's global finalizer if necessary and delete it
-     from the list of known servers then.  */
-  if ((stype = svz_array_get (svz_servertypes, index)) != NULL)
-    {
-      struct type_del_closure x =
-        {
-          stype,
-          0,                            /* .count */
-          svz_malloc (sizeof (char *)
-                      /* This is the sufficient upper bound;
-                         only ‘x.count’ are actually necessary.  */
-                      * svz_hash_size (svz_servers))
-        };
-
-      /* Find server instance of this server type and remove and finalize
-         them if necessary.  */
-      svz_server_foreach (type_del_internal, &x);
-      while (x.count--)
-        {
-          if (svz_servers)
-            {
-              svz_server_t *server;
-
-              if ((server = svz_hash_delete (svz_servers, x.doomed[x.count]))
-                  != NULL)
-                {
-                  svz_server_unbind (server);
-                  svz_server_free (server);
-                }
-            }
-          svz_free_and_zero (x.doomed[x.count]);
-        }
-      svz_free (x.doomed);
-
-      if (stype->global_finalize != NULL)
-        if (stype->global_finalize (stype) < 0)
-          svz_log (LOG_ERROR, "error running global finalizer for `%s'\n",
-                   stype->description);
-      svz_array_del (svz_servertypes, index);
     }
 }
 

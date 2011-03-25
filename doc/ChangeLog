@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_servertype_del
+
+	* serveez-api.texi.in (General server type functionality):
+	Delete ‘svz_servertype_del’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_server_{instantiate,configure}.
 
 	* serveez-api.texi.in (Server functionality):

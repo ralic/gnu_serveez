@@ -608,7 +608,6 @@ types in the serveez core library.  Serveez itself uses some of these functions
 to register its builtin server types.
 
 |F| svz_servertype_add
-|F| svz_servertype_del
 |F| svz_servertype_get
 |F| svz_servertype_find
 |F| svz_servertype_finalize

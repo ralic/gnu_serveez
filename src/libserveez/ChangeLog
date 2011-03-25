@@ -1,5 +1,13 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_servertype_del
+
+	* server.h (svz_servertype_del): Delete func decl.
+	* server.c (type_del_closure): Delete struct.
+	(type_del_internal, svz_servertype_del): Delete funcs.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_server_{instantiate,configure}.
 
 	* server.h (svz_server_instantiate): Delete func decl.
