@@ -505,8 +505,6 @@ by itself.  After calling @code{WSAStartup} the child process can
 |F| svz_process_shuffle
 |F| svz_process_fork
 
-|F| svz_process_split_usergroup
-
 |F| svz_envblock_setup
 |F| svz_envblock_create
 |F| svz_envblock_default

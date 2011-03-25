@@ -650,6 +650,34 @@ svz_process_duplicate (svz_t_handle handle, int proto)
 #endif /* __MINGW32__ */
 
 /*
+ * Splits the given character string @var{str} in the format
+ * @samp{user[.group]} into a user name and a group name and stores
+ * pointers to it in @var{user} and @var{group}.  If the group has been
+ * omitted in the format string then @var{group} is @code{NULL}
+ * afterwards.  The function returns zero on success, or non-zero if the
+ * given arguments have been invalid.
+ */
+static int
+svz_process_split_usergroup (char *str, char **user, char **group)
+{
+  static char copy[128], *p;
+
+  if (user == NULL || group == NULL)
+    return -1;
+  *user = *group = NULL;
+  if (str == NULL || strlen (str) >= sizeof (copy) - 1)
+    return -1;
+  strcpy (copy, str);
+  if ((p = strchr (copy, '.')) != NULL)
+    {
+      *group = p + 1;
+      *p = '\0';
+    }
+  *user = copy;
+  return 0;
+}
+
+/*
  * Try setting the user and group for the current process specified by the
  * given executable file @var{file} and the @var{user} argument.  If @var{user}
  * equals @code{SVZ_PROCESS_NONE} no user or group is set.  When you pass
@@ -1090,34 +1118,6 @@ svz_process_fork (svz_process_t *proc)
   svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
-}
-
-/*
- * Splits the given character string @var{str} in the format
- * @samp{user[.group]} into a user name and a group name and stores
- * pointers to it in @var{user} and @var{group}.  If the group has been
- * omitted in the format string then @var{group} is @code{NULL}
- * afterwards.  The function returns zero on success, or non-zero if the
- * given arguments have been invalid.
- */
-int
-svz_process_split_usergroup (char *str, char **user, char **group)
-{
-  static char copy[128], *p;
-
-  if (user == NULL || group == NULL)
-    return -1;
-  *user = *group = NULL;
-  if (str == NULL || strlen (str) >= sizeof (copy) - 1)
-    return -1;
-  strcpy (copy, str);
-  if ((p = strchr (copy, '.')) != NULL)
-    {
-      *group = p + 1;
-      *p = '\0';
-    }
-  *user = copy;
-  return 0;
 }
 
 /*

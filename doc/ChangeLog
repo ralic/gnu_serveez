@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_process_split_usergroup’.
+
+	* serveez-api.texi.in (Passthrough connections):
+	Delete ‘svz_process_split_usergroup’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_process_check_{access,executable,request}.
 
 	* serveez-api.texi.in (Passthrough connections): Delete
