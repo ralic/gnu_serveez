@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_strsignal’.
+
+	* server-core.h (svz_strsignal): Delete func decl.
+	* server-core.c (svz_strsignal): Make static.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Centralize SIZEOF_UINT{16,32}.
 
 	* raw-socket.h

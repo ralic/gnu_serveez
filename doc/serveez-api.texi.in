@@ -729,8 +729,6 @@ core library creates listeners as needed by itself.
 |F| svz_sock_getreferrer
 |F| svz_sock_portcfg
 
-|F| svz_strsignal
-
 @node Server loop
 @subsubsection Server loop
 

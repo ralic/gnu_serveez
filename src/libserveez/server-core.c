@@ -341,7 +341,7 @@ svz_strsignal_destroy (void)
  * the returned string points to a statically allocated buffer (which
  * destroys the reentrance, of course) [who cares :-].
  */
-char *
+static char *
 svz_strsignal (int sig)
 {
   static char fallback[128];

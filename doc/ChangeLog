@@ -1,3 +1,9 @@
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_strsignal’.
+
+	* serveez-api.texi.in (Server core): Delete ‘svz_strsignal’.
+
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_raw_check_ip_header’.
