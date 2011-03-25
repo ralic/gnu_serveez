@@ -27,8 +27,7 @@
 
 __BEGIN_DECLS
 
-/* Exported RAW IP socket functions.  */
-SERVEEZ_API unsigned short svz_raw_ip_checksum (svz_uint8_t *, int);
+SBO unsigned short svz_raw_ip_checksum (svz_uint8_t *, int);
 SBO int svz_raw_check_ip_header (svz_uint8_t *, int);
 
 __END_DECLS

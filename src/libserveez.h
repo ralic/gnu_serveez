@@ -38,7 +38,6 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/udp-socket.h"
 #include "libserveez/icmp-socket.h"
-#include "libserveez/raw-socket.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/server-core.h"
 #include "libserveez/windoze.h"

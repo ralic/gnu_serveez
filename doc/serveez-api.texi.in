@@ -463,7 +463,7 @@ matching the protocol number specified for the raw socket are passed to
 this socket.  A protocol of IPPROTO_RAW implies enabled IP_HDRINCL and
 receives all IP protocols.  Sending is not allowed.
 
-|F| svz_raw_ip_checksum
+[FIXME: All funcs internalized!  Write something else here!]
 
 @node Passthrough connections
 @subsubsection Passthrough connections

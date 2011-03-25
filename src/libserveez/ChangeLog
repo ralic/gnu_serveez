@@ -1,5 +1,15 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_raw_ip_checksum’.
+
+	* raw-socket.h (svz_raw_ip_checksum):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+	* Makefile.am
+	(libserveez_HEADERS): Move raw-socket.h from here...
+	(noinst_HEADERS): ...to here.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_portcfg_del
 
 	* portcfg.h (svz_portcfg_del): Delete func decl.

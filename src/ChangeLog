@@ -1,5 +1,11 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_raw_ip_checksum’.
+
+	* libserveez.h: Don't #include "libserveez/raw-socket.h".
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[build] Centralize SIZEOF_UINT{16,32}.
 
 	* nut-server/nut-core.h
