@@ -62,7 +62,6 @@ SERVEEZ_API void svz_envblock_setup (void);
 SERVEEZ_API svz_envblock_t *svz_envblock_create (void);
 SERVEEZ_API int svz_envblock_default (svz_envblock_t *);
 SERVEEZ_API int svz_envblock_add (svz_envblock_t *, char *, ...);
-SERVEEZ_API int svz_envblock_free (svz_envblock_t *);
 SERVEEZ_API void svz_envblock_destroy (svz_envblock_t *);
 SERVEEZ_API void * svz_envblock_get (svz_envblock_t *);
 

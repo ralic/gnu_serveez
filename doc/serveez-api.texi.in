@@ -501,7 +501,6 @@ by itself.  After calling @code{WSAStartup} the child process can
 |F| svz_envblock_create
 |F| svz_envblock_default
 |F| svz_envblock_add
-|F| svz_envblock_free
 |F| svz_envblock_destroy
 |F| svz_envblock_get
 

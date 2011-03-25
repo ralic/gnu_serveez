@@ -1136,6 +1136,26 @@ svz_envblock_create (void)
 }
 
 /*
+ * This function releases all environment variables currently stored in the
+ * given environment block @var{env}.  The block will be as clean as returned
+ * by @code{svz_envblock_create} afterwards.
+ */
+static int
+svz_envblock_free (svz_envblock_t *env)
+{
+  int n;
+
+  if (env == NULL)
+    return -1;
+  for (n = 0; n < env->size; n++)
+    svz_free (env->entry[n]);
+  env->block = NULL;
+  svz_free_and_zero (env->entry);
+  env->size = 0;
+  return 0;
+}
+
+/*
  * Fill the given environment block @var{env} with the current process's
  * environment variables.  If the environment @var{env} contained any
  * information before these will be overridden.
@@ -1255,26 +1275,6 @@ svz_envblock_get (svz_envblock_t *env)
 #else /* !__MINGW32__ */
   return env->entry;
 #endif /* !__MINGW32__ */
-}
-
-/*
- * This function releases all environment variables currently stored in the
- * given environment block @var{env}.  The block will be as clean as returned
- * by @code{svz_envblock_create} afterwards.
- */
-int
-svz_envblock_free (svz_envblock_t *env)
-{
-  int n;
-
-  if (env == NULL)
-    return -1;
-  for (n = 0; n < env->size; n++)
-    svz_free (env->entry[n]);
-  env->block = NULL;
-  svz_free_and_zero (env->entry);
-  env->size = 0;
-  return 0;
 }
 
 /*

@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_envblock_free’.
+
+	* serveez-api.texi.in (Passthrough connections):
+	Delete ‘svz_envblock_free’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize several svz_process_* funcs.
 
 	* serveez-api.texi.in (Passthrough connections): Delete

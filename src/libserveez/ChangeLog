@@ -1,5 +1,13 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_envblock_free’.
+
+	* passthrough.h (svz_envblock_free): Delete func decl.
+	* passthrough.c (svz_envblock_free):
+	Make static; move earlier in file.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize several svz_process_* funcs.
 
 	* passthrough.h (svz_process_idle)
