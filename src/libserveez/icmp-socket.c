@@ -672,31 +672,6 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
 }
 
 /*
- * Put a formatted string to the icmp socket @var{sock}.  Packet length and
- * destination address are additionally saved to the send buffer.  The
- * destination is taken from @code{sock->remote_addr}.  Furthermore a valid
- * icmp header is stored in front of the actual packet data.
- */
-int
-svz_icmp_printf (svz_socket_t *sock, const char *fmt, ...)
-{
-  va_list args;
-  static char buffer[VSNPRINTF_BUF_SIZE];
-  unsigned len;
-
-  /* return if there is nothing to do */
-  if (sock->flags & SOCK_FLAG_KILLED)
-    return 0;
-
-  /* save actual packet load */
-  va_start (args, fmt);
-  len = vsnprintf (buffer, VSNPRINTF_BUF_SIZE, fmt, args);
-  va_end (args);
-
-  return svz_icmp_write (sock, buffer, len);
-}
-
-/*
  * Default @code{check_request} callback for ICMP sockets.
  */
 int

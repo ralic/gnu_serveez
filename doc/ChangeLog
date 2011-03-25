@@ -1,5 +1,11 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_icmp_printf
+
+	* serveez-api.texi.in (ICMP sockets): Delete ‘svz_icmp_printf’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_process_create_child’.
 
 	* serveez-api.texi.in (Passthrough connections):

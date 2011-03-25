@@ -450,7 +450,6 @@ always processed by the kernel too, even when passed to a user socket.
 |F| svz_icmp_connect
 |F| svz_icmp_send_control
 |F| svz_icmp_write
-|F| svz_icmp_printf
 
 @node Raw sockets
 @subsubsection Raw sockets
