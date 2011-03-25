@@ -69,7 +69,7 @@ SERVEEZ_API char *svz_sys_version (void);
 SERVEEZ_API int svz_socket_unavailable_error_p (void);
 
 SERVEEZ_API const char *svz_sys_strerror (void);
-SERVEEZ_API const char *svz_net_strerror (void);
+SBO const char *svz_net_strerror (void);
 SERVEEZ_API void svz_log_sys_error (char const *, ...);
 SERVEEZ_API void svz_log_net_error (char const *, ...);
 

@@ -1,5 +1,11 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_net_strerror’.
+
+	* serveez-api.texi.in (Utility functions): Delete ‘svz_net_strerror’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_raw_ip_checksum’.
 
 	* serveez-api.texi.in (Raw sockets): Delete ‘svz_raw_ip_checksum’.

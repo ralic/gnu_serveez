@@ -333,7 +333,6 @@ left overs of the C API.
 |F| svz_socket_unavailable_error_p
 
 |F| svz_sys_strerror
-|F| svz_net_strerror
 
 The next two functions log (with @code{LOG_ERROR}) the
 current @dfn{system error} or @dfn{network error},
