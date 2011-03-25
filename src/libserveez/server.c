@@ -421,7 +421,7 @@ svz_server_get (char *name)
  * Create a new server instance of the server type @var{stype} with the
  * instance name @var{name}.
  */
-svz_server_t *
+static svz_server_t *
 svz_server_instantiate (svz_servertype_t *stype, char *name)
 {
   svz_server_t *server;
@@ -457,7 +457,7 @@ svz_server_instantiate (svz_servertype_t *stype, char *name)
  * either a valid server instance configuration or @code{NULL} on
  * errors.
  */
-void *
+static void *
 svz_server_configure (svz_servertype_t *server, char *name, void *arg,
                       svz_config_accessor_t *configure)
 {

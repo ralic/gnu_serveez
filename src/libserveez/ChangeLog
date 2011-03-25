@@ -1,5 +1,14 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_server_{instantiate,configure}.
+
+	* server.h (svz_server_instantiate): Delete func decl.
+	(svz_server_configure): Likewise.
+	* server.c (svz_server_instantiate): Make static.
+	(svz_server_configure): Likewise.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize several svz_icmp_* funcs.
 
 	* icmp-socket.h (svz_icmp_read_socket): Delete func decl.

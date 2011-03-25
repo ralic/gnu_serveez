@@ -42,7 +42,7 @@ typedef struct svz_key_value_pair
 svz_key_value_pair_t;
 
 /*
- * This structure defines the callbacks for the @code{svz_server_configure}
+ * This structure defines callbacks for the (internal) server configuration
  * function.  Each of these have the following arguments:
  * instance: might be the name of the instance to configure
  * arg:     an optional argument (e.g. scheme cell), supplied by user

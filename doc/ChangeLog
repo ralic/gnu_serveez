@@ -1,5 +1,13 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_server_{instantiate,configure}.
+
+	* serveez-api.texi.in (Server functionality):
+	Delete ‘svz_server_instantiate’.
+	(Server configuration): Delete ‘svz_server_configure’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize several svz_icmp_* funcs.
 
 	* serveez-api.texi.in (ICMP sockets): Delete

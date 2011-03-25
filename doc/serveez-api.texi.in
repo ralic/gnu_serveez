@@ -653,7 +653,6 @@ and destruction of such servers.
 |F| svz_server_find
 |F| svz_server_clients
 |F| svz_server_get
-|F| svz_server_instantiate
 |F| svz_server_init_all
 |F| svz_server_finalize_all
 
@@ -663,8 +662,6 @@ and destruction of such servers.
 These functions provide an interface for configuring a server.  They are
 used to create and modify the default configuration of a server type in
 order to create a server configuration.
-
-|F| svz_server_configure
 
 |F| svz_config_type_instantiate
 |F| svz_config_free
