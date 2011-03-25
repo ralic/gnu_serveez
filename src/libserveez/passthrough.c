@@ -193,7 +193,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
  * connected with a process's stdin/stdout via the referring passthrough
  * socket structure which gets also scheduled for shutdown if possible.
  */
-int
+static int
 svz_process_disconnect (svz_socket_t *sock)
 {
   svz_socket_t *xsock;
@@ -216,7 +216,7 @@ svz_process_disconnect (svz_socket_t *sock)
  * connected with a process's stdin/stdout.  Schedules the referring socket
  * connection for shutdown if necessary and possible.
  */
-int
+static int
 svz_process_disconnect_passthrough (svz_socket_t *sock)
 {
   svz_socket_t *xsock;

@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_process_disconnect{,_passthrough}.
+
+	* serveez-api.texi.in (Passthrough connections): Delete
+	‘svz_process_disconnect’, ‘svz_process_disconnect_passthrough’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_strsignal’.
 
 	* serveez-api.texi.in (Server core): Delete ‘svz_strsignal’.

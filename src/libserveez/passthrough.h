@@ -56,9 +56,6 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_sock_process (svz_socket_t *, char *, char *,
                                   char **, svz_envblock_t *, int,
                                   char *);
-
-SERVEEZ_API int svz_process_disconnect (svz_socket_t *);
-SERVEEZ_API int svz_process_disconnect_passthrough (svz_socket_t *);
 SERVEEZ_API int svz_process_check_request (svz_socket_t *);
 SERVEEZ_API int svz_process_idle (svz_socket_t *);
 SERVEEZ_API int svz_process_send_pipe (svz_socket_t *);

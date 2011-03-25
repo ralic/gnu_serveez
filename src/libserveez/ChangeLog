@@ -1,5 +1,14 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize svz_process_disconnect{,_passthrough}.
+
+	* passthrough.h (svz_process_disconnect): Delete func decl.
+	(svz_process_disconnect_passthrough): Likewise.
+	* passthrough.c (svz_process_disconnect): Make static.
+	(svz_process_disconnect_passthrough): Likewise.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_strsignal’.
 
 	* server-core.h (svz_strsignal): Delete func decl.

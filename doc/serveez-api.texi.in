@@ -487,8 +487,6 @@ to the child process.  All of the three method are implemented calling them
 
 |F| svz_sock_process
 
-|F| svz_process_disconnect
-|F| svz_process_disconnect_passthrough
 |F| svz_process_check_request
 |F| svz_process_idle
 |F| svz_process_send_pipe
