@@ -513,6 +513,9 @@ svz_process_idle (svz_socket_t *sock)
   return 0;
 }
 
+/* A forward declaration for the benefit of ‘svz_process_shuffle’.  */
+static int svz_process_create_child (svz_process_t *proc);
+
 /*
  * Creates two pairs of pipes in order to passthrough the transactions of
  * the a socket structure.  The function create a new socket structure and
@@ -930,7 +933,7 @@ svz_process_check_access (char *file, char *user)
  * user and group identification the child process should have.  The routine
  * returns -1 on failure, otherwise the new child program's process id.
  */
-int
+static int
 svz_process_create_child (svz_process_t *proc)
 {
 #ifndef __MINGW32__

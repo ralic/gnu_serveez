@@ -487,7 +487,6 @@ to the child process.  All of the three method are implemented calling them
 
 |F| svz_sock_process
 
-|F| svz_process_create_child
 @strong{Please note}:
 On M$-Windows platforms it is not possible to pass a socket connection
 to a child process's stdin/stdout.  That is why this function creates an

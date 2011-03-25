@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_process_create_child’.
+
+	* serveez-api.texi.in (Passthrough connections):
+	Delete ‘svz_process_create_child’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_envblock_free’.
 
 	* serveez-api.texi.in (Passthrough connections):
