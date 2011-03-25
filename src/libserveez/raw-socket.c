@@ -33,6 +33,41 @@
 #include "libserveez/core.h"
 #include "libserveez/raw-socket.h"
 
+/* local definitions */
+#define IP_VERSION_4     4
+#define IP_CHECKSUM_OFS  10
+
+/* ip protocol definitions */
+#define ICMP_PROTOCOL  1
+#define TCP_PROTOCOL   6
+#define UDP_PROTOCOL  17
+
+/* version and length are 4 bit values in the ip header */
+#define IP_HDR_VERSION(hdr) ((hdr->version_length >> 4) & 0x0f)
+#define IP_HDR_LENGTH(hdr)  ((hdr->version_length & 0x0f) << 2)
+
+/* ip header flags (part of frag_offset) */
+#define IP_HDR_FLAGS(hdr) ((hdr->frag_offset) & 0xE000)
+#define IP_FLAG_DF 0x4000 /* Don't Fragment This Datagram (DF).  */
+#define IP_FLAG_MF 0x2000 /* More Fragments Flag (MF).  */
+#define IP_HDR_FRAG(hdr) ((hdr->frag_offset) & 0x1FFF)
+
+/* IP header structure.  */
+typedef struct
+{
+  svz_uint8_t version_length; /* header length (in DWORDs) and ip version */
+  svz_uint8_t tos;            /* type of service = 0 */
+  unsigned short length;      /* total ip packet length */
+  unsigned short ident;       /* ip identifier */
+  unsigned short frag_offset; /* fragment offset (in 8 bytes) and flags */
+  svz_uint8_t ttl;            /* time to live */
+  svz_uint8_t protocol;       /* ip protocol */
+  unsigned short checksum;    /* ip header checksum */
+  unsigned long src;          /* source address */
+  unsigned long dst;          /* destination address */
+}
+svz_ip_header_t;
+
 /*
  * The raw socket support on Windoze machines is quite doubtful and
  * almostly unusable because:

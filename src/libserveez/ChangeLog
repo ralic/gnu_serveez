@@ -1,3 +1,22 @@
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Bump some #define:s/macros/typedefs from raw-socket.h.
+
+	* raw-socket.h
+	(IP_VERSION_4, IP_CHECKSUM_OFS)
+	(ICMP_PROTOCOL, TCP_PROTOCOL, UDP_PROTOCOL)
+	(IP_HDR_VERSION, IP_HDR_LENGTH, IP_HDR_FLAGS)
+	(IP_FLAG_DF, IP_FLAG_MF, IP_HDR_FRAG)
+	(svz_ip_header_t): Move from here...
+	(IP_HEADER_SIZE): Move from here...
+	* raw-socket.c
+	(IP_VERSION_4, IP_CHECKSUM_OFS):
+	(ICMP_PROTOCOL, TCP_PROTOCOL, UDP_PROTOCOL)
+	(IP_HDR_VERSION, IP_HDR_LENGTH, IP_HDR_FLAGS)
+	(IP_FLAG_DF, IP_FLAG_MF, IP_HDR_FRAG)
+	(svz_ip_header_t): ...to here.
+	* icmp-socket.c (IP_HEADER_SIZE): ...to here.
+
 2011-03-23  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_raw_check_ip_header’.

@@ -51,6 +51,8 @@
 #include "libserveez/server.h"
 #include "libserveez/binding.h"
 
+#define IP_HEADER_SIZE   20
+
 /* Text representation of ICMP type codes.  */
 static char *svz_icmp_request[] = {
   "echo reply",
