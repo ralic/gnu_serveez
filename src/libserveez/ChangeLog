@@ -1,5 +1,14 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize several svz_icmp_* funcs.
+
+	* icmp-socket.h (svz_icmp_read_socket): Delete func decl.
+	(svz_icmp_lazy_read_socket, svz_icmp_write_socket)
+	(svz_icmp_check_request): Remove mark ‘SERVEEZ_API’; mark ‘SBO’.
+	* icmp-socket.c (svz_icmp_read_socket): Make static.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_icmp_printf
 
 	* icmp-socket.c (svz_icmp_printf): Delete func.

@@ -397,7 +397,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
  * Default reader for ICMP sockets.  The sender is stored within
  * @code{sock->remote_addr} and @code{sock->remote_port} afterwards.
  */
-int
+static int
 svz_icmp_read_socket (svz_socket_t *sock)
 {
   int num_read;

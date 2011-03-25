@@ -70,10 +70,9 @@ svz_icmp_header_t;
 __BEGIN_DECLS
 
 /* Exported ICMP socket functions.  */
-SERVEEZ_API int svz_icmp_read_socket (svz_socket_t *);
-SERVEEZ_API int svz_icmp_lazy_read_socket (svz_socket_t *);
-SERVEEZ_API int svz_icmp_write_socket (svz_socket_t *);
-SERVEEZ_API int svz_icmp_check_request (svz_socket_t *);
+SBO int svz_icmp_lazy_read_socket (svz_socket_t *);
+SBO int svz_icmp_write_socket (svz_socket_t *);
+SBO int svz_icmp_check_request (svz_socket_t *);
 SERVEEZ_API svz_socket_t *svz_icmp_connect (unsigned long,
                                             unsigned short,
                                             unsigned char);
