@@ -100,6 +100,69 @@ svz_envblock_setup (void)
 }
 
 /*
+ * Check if the given @var{file} is an executable (script or binary
+ * program).  If it is script the routine returns an application able to
+ * execute the script in  @var{app}.  Returns zero on success, non-zero
+ * otherwise.
+ */
+static int
+svz_process_check_executable (char *file, char **app)
+{
+  struct stat buf;
+
+  /* Check the existence of the file.  */
+  if (stat (file, &buf) < 0)
+    {
+      svz_log_sys_error ("passthrough: stat");
+      return -1;
+    }
+
+#ifndef __MINGW32__
+  if (!(buf.st_mode & S_IFREG) || !(buf.st_mode & S_IXUSR) ||
+      !(buf.st_mode & S_IRUSR))
+#else
+  if (!(buf.st_mode & S_IFREG))
+#endif
+    {
+      svz_log (LOG_ERROR, "passthrough: no executable: %s\n", file);
+      return -1;
+    }
+
+  if (app != NULL)
+    *app = NULL;
+
+#ifdef __MINGW32__
+  if (app)
+    {
+      char *suffix = strrchr (file, '.');
+      suffix = suffix ? suffix + 1 : file;
+
+#define SUFFIX_IS_CI(k)  (! strncasecmp (k, suffix, sizeof (k)))
+
+      /* Does the file have a known suffix?  */
+      if (SUFFIX_IS_CI ("com")
+          || SUFFIX_IS_CI ("exe")
+          || SUFFIX_IS_CI ("bat"))
+        return 0;
+
+#undef SUFFIX_IS_CI
+
+      /* No.  Try finding an application able to execute the script.  */
+      *app = svz_malloc (MAX_PATH);
+      if (FindExecutable (file, NULL, *app) <= (HINSTANCE) 32)
+        {
+          svz_log_sys_error ("passthrough: FindExecutable");
+          svz_free (*app);
+          *app = NULL;
+          return -1;
+        }
+    }
+#endif /* __MINGW32__ */
+
+  return 0;
+}
+
+/*
  * This routine starts a new program specified by @var{bin} passing the
  * socket or pipe descriptor(s) in the socket structure @var{sock} to its
  * stdin and stdout.
@@ -247,7 +310,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
  * Sets the send buffer fill counter of the referring socket structure which
  * is the passthrough connection in order to schedule it for sending.
  */
-int
+static int
 svz_process_check_request (svz_socket_t *sock)
 {
   svz_socket_t *xsock;
@@ -585,6 +648,95 @@ svz_process_duplicate (svz_t_handle handle, int proto)
   return (svz_t_handle) dupsock;
 }
 #endif /* __MINGW32__ */
+
+/*
+ * Try setting the user and group for the current process specified by the
+ * given executable file @var{file} and the @var{user} argument.  If @var{user}
+ * equals @code{SVZ_PROCESS_NONE} no user or group is set.  When you pass
+ * @code{SVZ_PROCESS_OWNER} in the @var{user} argument the @var{file}'s owner
+ * will be set.  Otherwise @var{user} specifies the user and group
+ * identification in the format @samp{user[.group]}.  If you omit the group
+ * information the routine uses the primary group of the user.  Returns zero
+ * on success, non-zero otherwise.
+ */
+static int
+svz_process_check_access (char *file, char *user)
+{
+  struct stat buf;
+
+  /* get the executable permissions */
+  if (stat (file, &buf) == -1)
+    {
+      svz_log_sys_error ("passthrough: stat");
+      return -1;
+    }
+
+#ifndef __MINGW32__
+  /* set the appropriate user and group permissions for file owner */
+  if (user == SVZ_PROCESS_OWNER)
+    {
+      if (setgid (buf.st_gid) == -1)
+        {
+          svz_log_sys_error ("passthrough: setgid");
+          return -1;
+        }
+      if (setuid (buf.st_uid) == -1)
+        {
+          svz_log_sys_error ("passthrough: setuid");
+          return -1;
+        }
+    }
+  /* set given user and group */
+  else if (user != SVZ_PROCESS_NONE)
+    {
+      char *_user = NULL, *_group = NULL;
+      struct passwd *u = NULL;
+      struct group *g = NULL;
+
+      svz_process_split_usergroup (user, &_user, &_group);
+
+      /* Group name specified?  */
+      if (_group != NULL)
+        {
+          if ((g = getgrnam (_group)) == NULL)
+            {
+              svz_log (LOG_ERROR, "passthrough: no such group `%s'\n", _group);
+              return -1;
+            }
+          /* Set the group.  */
+          if (setgid (g->gr_gid) == -1)
+            {
+              svz_log_sys_error ("passthrough: setgid");
+              return -1;
+            }
+        }
+
+      /* Check user name.  */
+      if ((u = getpwnam (_user)) == NULL)
+        {
+          svz_log (LOG_ERROR, "passthrough: no such user `%s'\n", _user);
+          return -1;
+        }
+      /* No group name specified.  Use the user's one.  */
+      if (_group == NULL)
+        {
+          if (setgid (u->pw_gid) == -1)
+            {
+              svz_log_sys_error ("passthrough: setgid");
+              return -1;
+            }
+        }
+      /* Set the user.  */
+      if (setuid (u->pw_uid) == -1)
+        {
+          svz_log_sys_error ("setuid");
+          return -1;
+        }
+    }
+#endif /* not __MINGW32__ */
+
+  return 0;
+}
 
 /*
  * Spawns a new child process.  The given @var{proc} argument contains all
@@ -941,69 +1093,6 @@ svz_process_fork (svz_process_t *proc)
 }
 
 /*
- * Check if the given @var{file} is an executable (script or binary
- * program).  If it is script the routine returns an application able to
- * execute the script in  @var{app}.  Returns zero on success, non-zero
- * otherwise.
- */
-int
-svz_process_check_executable (char *file, char **app)
-{
-  struct stat buf;
-
-  /* Check the existence of the file.  */
-  if (stat (file, &buf) < 0)
-    {
-      svz_log_sys_error ("passthrough: stat");
-      return -1;
-    }
-
-#ifndef __MINGW32__
-  if (!(buf.st_mode & S_IFREG) || !(buf.st_mode & S_IXUSR) ||
-      !(buf.st_mode & S_IRUSR))
-#else
-  if (!(buf.st_mode & S_IFREG))
-#endif
-    {
-      svz_log (LOG_ERROR, "passthrough: no executable: %s\n", file);
-      return -1;
-    }
-
-  if (app != NULL)
-    *app = NULL;
-
-#ifdef __MINGW32__
-  if (app)
-    {
-      char *suffix = strrchr (file, '.');
-      suffix = suffix ? suffix + 1 : file;
-
-#define SUFFIX_IS_CI(k)  (! strncasecmp (k, suffix, sizeof (k)))
-
-      /* Does the file have a known suffix?  */
-      if (SUFFIX_IS_CI ("com")
-          || SUFFIX_IS_CI ("exe")
-          || SUFFIX_IS_CI ("bat"))
-        return 0;
-
-#undef SUFFIX_IS_CI
-
-      /* No.  Try finding an application able to execute the script.  */
-      *app = svz_malloc (MAX_PATH);
-      if (FindExecutable (file, NULL, *app) <= (HINSTANCE) 32)
-        {
-          svz_log_sys_error ("passthrough: FindExecutable");
-          svz_free (*app);
-          *app = NULL;
-          return -1;
-        }
-    }
-#endif /* __MINGW32__ */
-
-  return 0;
-}
-
-/*
  * Splits the given character string @var{str} in the format
  * @samp{user[.group]} into a user name and a group name and stores
  * pointers to it in @var{user} and @var{group}.  If the group has been
@@ -1028,95 +1117,6 @@ svz_process_split_usergroup (char *str, char **user, char **group)
       *p = '\0';
     }
   *user = copy;
-  return 0;
-}
-
-/*
- * Try setting the user and group for the current process specified by the
- * given executable file @var{file} and the @var{user} argument.  If @var{user}
- * equals @code{SVZ_PROCESS_NONE} no user or group is set.  When you pass
- * @code{SVZ_PROCESS_OWNER} in the @var{user} argument the @var{file}'s owner
- * will be set.  Otherwise @var{user} specifies the user and group
- * identification in the format @samp{user[.group]}.  If you omit the group
- * information the routine uses the primary group of the user.  Returns zero
- * on success, non-zero otherwise.
- */
-int
-svz_process_check_access (char *file, char *user)
-{
-  struct stat buf;
-
-  /* get the executable permissions */
-  if (stat (file, &buf) == -1)
-    {
-      svz_log_sys_error ("passthrough: stat");
-      return -1;
-    }
-
-#ifndef __MINGW32__
-  /* set the appropriate user and group permissions for file owner */
-  if (user == SVZ_PROCESS_OWNER)
-    {
-      if (setgid (buf.st_gid) == -1)
-        {
-          svz_log_sys_error ("passthrough: setgid");
-          return -1;
-        }
-      if (setuid (buf.st_uid) == -1)
-        {
-          svz_log_sys_error ("passthrough: setuid");
-          return -1;
-        }
-    }
-  /* set given user and group */
-  else if (user != SVZ_PROCESS_NONE)
-    {
-      char *_user = NULL, *_group = NULL;
-      struct passwd *u = NULL;
-      struct group *g = NULL;
-
-      svz_process_split_usergroup (user, &_user, &_group);
-
-      /* Group name specified?  */
-      if (_group != NULL)
-        {
-          if ((g = getgrnam (_group)) == NULL)
-            {
-              svz_log (LOG_ERROR, "passthrough: no such group `%s'\n", _group);
-              return -1;
-            }
-          /* Set the group.  */
-          if (setgid (g->gr_gid) == -1)
-            {
-              svz_log_sys_error ("passthrough: setgid");
-              return -1;
-            }
-        }
-
-      /* Check user name.  */
-      if ((u = getpwnam (_user)) == NULL)
-        {
-          svz_log (LOG_ERROR, "passthrough: no such user `%s'\n", _user);
-          return -1;
-        }
-      /* No group name specified.  Use the user's one.  */
-      if (_group == NULL)
-        {
-          if (setgid (u->pw_gid) == -1)
-            {
-              svz_log_sys_error ("passthrough: setgid");
-              return -1;
-            }
-        }
-      /* Set the user.  */
-      if (setuid (u->pw_uid) == -1)
-        {
-          svz_log_sys_error ("setuid");
-          return -1;
-        }
-    }
-#endif /* not __MINGW32__ */
-
   return 0;
 }
 

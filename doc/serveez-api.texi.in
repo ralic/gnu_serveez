@@ -487,7 +487,6 @@ to the child process.  All of the three method are implemented calling them
 
 |F| svz_sock_process
 
-|F| svz_process_check_request
 |F| svz_process_idle
 |F| svz_process_send_pipe
 |F| svz_process_recv_pipe
@@ -506,9 +505,7 @@ by itself.  After calling @code{WSAStartup} the child process can
 |F| svz_process_shuffle
 |F| svz_process_fork
 
-|F| svz_process_check_executable
 |F| svz_process_split_usergroup
-|F| svz_process_check_access
 
 |F| svz_envblock_setup
 |F| svz_envblock_create
