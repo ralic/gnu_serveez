@@ -66,9 +66,6 @@ svz_uint8_t * nut_put_push (nut_push_t *push);
  * values.  BTW: Network byte order is big endian.
  */
 
-#define SIZEOF_UINT16 2
-#define SIZEOF_UINT32 4
-
 #define __BSWAP_32(x) ((unsigned long) \
   ((((x) & 0xff000000) >> 24) | (((x) & 0x000000ff) << 24) | \
    (((x) & 0x0000ff00) << 8)  | (((x) & 0x00ff0000) >> 8)))

@@ -629,6 +629,9 @@ AS_IF([SVZ_Y([svz_cv_sys_proc_stat])],
 dnl ----------------------------------------------------------------------
 dnl miscellaneous checks
 
+AC_DEFINE_UNQUOTED([SIZEOF_UINT16],[2],[Number of bytes for uint16_t.])
+AC_DEFINE_UNQUOTED([SIZEOF_UINT32],[4],[Number of bytes for uint32_t.])
+
 dnl ----------------------------------------------------------------------
 dnl write it out
 

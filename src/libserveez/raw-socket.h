@@ -25,9 +25,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-#define SIZEOF_UINT16    2
-#define SIZEOF_UINT32    4
-
 __BEGIN_DECLS
 
 /* Exported RAW IP socket functions.  */

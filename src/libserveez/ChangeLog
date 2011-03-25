@@ -1,5 +1,12 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[build] Centralize SIZEOF_UINT{16,32}.
+
+	* raw-socket.h
+	(SIZEOF_UINT16, SIZEOF_UINT32): Delete #define:s.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Bump some #define:s/macros/typedefs from raw-socket.h.
 
 	* raw-socket.h
