@@ -203,22 +203,6 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
 }
 
 /*
- * Remove the named port configuration identified by @var{name} from the
- * list of known port configurations.  Return @code{NULL} on errors or
- * otherwise the port configuration associated with @var{name}.
- */
-svz_portcfg_t *
-svz_portcfg_del (char *name)
-{
-  /* List of port configurations is empty.  */
-  if (svz_portcfgs == NULL || name == NULL)
-    return NULL;
-
-  /* Actually remove it from the list.  */
-  return svz_hash_delete (svz_portcfgs, name);
-}
-
-/*
  * This function can be used to set the character string representation
  * of a the port configuration @var{this} in dotted decimal form
  * (@var{ipaddr}).  Returns zero on success, non-zero otherwise.

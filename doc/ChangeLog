@@ -1,5 +1,11 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_portcfg_del
+
+	* serveez-api.texi.in (Port config funcs): Delete ‘svz_portcfg_del’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_servertype_del
 
 	* serveez-api.texi.in (General server type functionality):

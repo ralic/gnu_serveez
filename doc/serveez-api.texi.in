@@ -748,7 +748,6 @@ configuration just a single one gets actually used.
 |F| svz_portcfg_create
 |F| svz_portcfg_equal
 |F| svz_portcfg_add
-|F| svz_portcfg_del
 |F| svz_portcfg_get
 |F| svz_portcfg_destroy
 |F| svz_portcfg_mkaddr
