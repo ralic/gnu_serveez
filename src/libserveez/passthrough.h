@@ -56,15 +56,8 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_sock_process (svz_socket_t *, char *, char *,
                                   char **, svz_envblock_t *, int,
                                   char *);
-SERVEEZ_API int svz_process_idle (svz_socket_t *);
-SERVEEZ_API int svz_process_send_pipe (svz_socket_t *);
-SERVEEZ_API int svz_process_recv_pipe (svz_socket_t *);
-SERVEEZ_API int svz_process_send_socket (svz_socket_t *);
-SERVEEZ_API int svz_process_recv_socket (svz_socket_t *);
-
 SERVEEZ_API int svz_process_create_child (svz_process_t *);
-SERVEEZ_API int svz_process_shuffle (svz_process_t *);
-SERVEEZ_API int svz_process_fork (svz_process_t *);
+
 SERVEEZ_API void svz_envblock_setup (void);
 SERVEEZ_API svz_envblock_t *svz_envblock_create (void);
 SERVEEZ_API int svz_envblock_default (svz_envblock_t *);

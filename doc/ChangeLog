@@ -1,5 +1,14 @@
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize several svz_process_* funcs.
+
+	* serveez-api.texi.in (Passthrough connections): Delete
+	‘svz_process_idle’, ‘svz_process_send_pipe’, ‘svz_process_recv_pipe’,
+	‘svz_process_send_socket’, ‘svz_process_recv_socket’,
+	‘svz_process_shuffle’, ‘svz_process_fork’.
+
+2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_process_split_usergroup’.
 
 	* serveez-api.texi.in (Passthrough connections):

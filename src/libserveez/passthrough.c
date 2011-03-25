@@ -163,6 +163,513 @@ svz_process_check_executable (char *file, char **app)
 }
 
 /*
+ * Disconnection routine for the passthrough socket structure @var{sock}
+ * connected with a process's stdin/stdout.  Schedules the referring socket
+ * connection for shutdown if necessary and possible.
+ */
+static int
+svz_process_disconnect_passthrough (svz_socket_t *sock)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) != NULL)
+    {
+      svz_sock_setreferrer (sock, NULL);
+      svz_sock_setreferrer (xsock, NULL);
+      if (sock->flags & (PROTO_TCP | PROTO_PIPE))
+        {
+#if ENABLE_DEBUG
+          svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
+                   xsock->id);
+#endif
+          svz_sock_schedule_for_shutdown (xsock);
+        }
+    }
+
+  /* Clean up receive and send buffer.  */
+  sock->recv_buffer = sock->send_buffer = NULL;
+  sock->recv_buffer_fill = sock->recv_buffer_size = 0;
+  sock->send_buffer_fill = sock->send_buffer_size = 0;
+  return 0;
+}
+
+/*
+ * If the argument @var{set} is zero this routine makes the receive buffer
+ * of the socket structure's referrer @var{sock} the send buffer of @var{sock}
+ * itself, otherwise the other way around.  Return non-zero if the routine
+ * failed to determine a referrer.
+ */
+static int
+svz_process_send_update (svz_socket_t *sock, int set)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
+    return -1;
+
+  if (set)
+    {
+      sock->send_buffer = xsock->recv_buffer;
+      sock->send_buffer_fill = xsock->recv_buffer_fill;
+      sock->send_buffer_size = xsock->recv_buffer_size;
+    }
+  else
+    {
+      xsock->recv_buffer = sock->send_buffer;
+      xsock->recv_buffer_fill = sock->send_buffer_fill;
+      xsock->recv_buffer_size = sock->send_buffer_size;
+    }
+  return 0;
+}
+
+/*
+ * This is the shuffle socket pair writer which is directly connected with
+ * the reading end of the child process.  It writes as much data as possible
+ * from its send buffer which is the receive buffer of the original
+ * passthrough connection.
+ */
+static int
+svz_process_send_socket (svz_socket_t *sock)
+{
+  int num_written, do_write;
+
+  /* update send buffer depending on receive buffer of referrer */
+  if (svz_process_send_update (sock, 1))
+    return -1;
+
+  /* return here if there is nothing to do */
+  if ((do_write = sock->send_buffer_fill) <= 0)
+    return 0;
+
+  if ((num_written = send (sock->sock_desc,
+                           sock->send_buffer, do_write, 0)) == -1)
+    {
+      svz_log_sys_error ("passthrough: send");
+      if (svz_errno == EAGAIN)
+        num_written = 0;
+    }
+  else if (num_written > 0)
+    {
+      sock->last_send = time (NULL);
+      svz_sock_reduce_send (sock, num_written);
+      svz_process_send_update (sock, 0);
+    }
+
+  return (num_written >= 0) ? 0 : -1;
+}
+
+/*
+ * Depending on the flag @var{set} this routine either makes the send buffer
+ * of the referring socket structure of @var{sock} the receive buffer of
+ * @var{sock} itself or the other way around.  Returns non-zero if it failed
+ * to find a referring socket.
+ */
+static int
+svz_process_recv_update (svz_socket_t *sock, int set)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
+    return -1;
+
+  if (set)
+    {
+      sock->recv_buffer = xsock->send_buffer;
+      sock->recv_buffer_fill = xsock->send_buffer_fill;
+      sock->recv_buffer_size = xsock->send_buffer_size;
+    }
+  else
+    {
+      xsock->send_buffer = sock->recv_buffer;
+      xsock->send_buffer_fill = sock->recv_buffer_fill;
+      xsock->send_buffer_size = sock->recv_buffer_size;
+    }
+  return 0;
+}
+
+/*
+ * This is the shuffle socket pair reader which is directly connected
+ * with the writing end of the child process.  It reads as much data as
+ * possible into its receive buffer which is the send buffer of the
+ * original passthrough connection.
+ */
+static int
+svz_process_recv_socket (svz_socket_t *sock)
+{
+  int num_read, do_read;
+
+  /* update receive buffer depending on send buffer of referrer */
+  if (svz_process_recv_update (sock, 1))
+    return -1;
+
+  /* return here if there is nothing to do */
+  if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
+    return 0;
+
+  if ((num_read = recv (sock->sock_desc,
+                        sock->recv_buffer + sock->recv_buffer_fill,
+                        do_read, 0)) == -1)
+    {
+      svz_log_sys_error ("passthrough: recv");
+      if (svz_errno == EAGAIN)
+        return 0;
+    }
+  else if (num_read > 0)
+    {
+      sock->last_recv = time (NULL);
+      sock->recv_buffer_fill += num_read;
+      svz_process_recv_update (sock, 0);
+    }
+  else
+    svz_log (LOG_ERROR, "passthrough: recv: no data on socket %d\n",
+             sock->sock_desc);
+
+  return (num_read > 0) ? 0 : -1;
+}
+
+/*
+ * This is the shuffle pipe writer (reading end of a process's stdin).  It
+ * writes as much data as possible from the send buffer which is the receive
+ * buffer of the referring socket structure.  Returns non-zero on errors.
+ */
+static int
+svz_process_send_pipe (svz_socket_t *sock)
+{
+  int num_written, do_write;
+
+  /* update send buffer depending on receive buffer of referrer */
+  if (svz_process_send_update (sock, 1))
+    return -1;
+
+  /* return here if there is nothing to do */
+  if ((do_write = sock->send_buffer_fill) <= 0)
+    return 0;
+
+#ifndef __MINGW32__
+  if ((num_written = write ((int) sock->pipe_desc[SVZ_WRITE],
+                            sock->send_buffer, do_write)) == -1)
+    {
+      svz_log_sys_error ("passthrough: write");
+      if (svz_errno == EAGAIN)
+        num_written = 0;
+    }
+#else /* __MINGW32__ */
+   if (!WriteFile (sock->pipe_desc[SVZ_WRITE], sock->send_buffer,
+                   do_write, (DWORD *) &num_written, NULL))
+    {
+      svz_log_sys_error ("passthrough: WriteFile");
+      num_written = -1;
+    }
+#endif /* __MINGW32__ */
+
+  else if (num_written > 0)
+    {
+      sock->last_send = time (NULL);
+      svz_sock_reduce_send (sock, num_written);
+      svz_process_send_update (sock, 0);
+    }
+
+  return (num_written >= 0) ? 0 : -1;
+}
+
+/*
+ * This is the shuffle pipe reader (writing end of a process's stdout).  It
+ * reads as much data as possible into its receive buffer which is the send
+ * buffer of the connection this passthrough pipe socket structure stems
+ * from.
+ */
+static int
+svz_process_recv_pipe (svz_socket_t *sock)
+{
+  int num_read, do_read;
+
+  /* update receive buffer depending on send buffer of referrer */
+  if (svz_process_recv_update (sock, 1))
+    return -1;
+
+  /* return here if there is nothing to do */
+  if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
+    return 0;
+
+#ifndef __MINGW32__
+  if ((num_read = read ((int) sock->pipe_desc[SVZ_READ],
+                        sock->recv_buffer + sock->recv_buffer_fill,
+                        do_read)) == -1)
+    {
+      svz_log_sys_error ("passthrough: read");
+      if (svz_errno == EAGAIN)
+        return 0;
+    }
+#else /* __MINGW32__ */
+  if (!PeekNamedPipe (sock->pipe_desc[SVZ_READ], NULL, 0,
+                      NULL, (DWORD *) &num_read, NULL))
+    {
+      svz_log_sys_error ("passthrough: PeekNamedPipe");
+      return -1;
+    }
+  if (do_read > num_read)
+    do_read = num_read;
+  if (!ReadFile (sock->pipe_desc[SVZ_READ],
+                 sock->recv_buffer + sock->recv_buffer_fill,
+                 do_read, (DWORD *) &num_read, NULL))
+    {
+      svz_log_sys_error ("passthrough: ReadFile");
+      num_read = -1;
+    }
+#endif /* __MINGW32__ */
+
+  else if (num_read > 0)
+    {
+      sock->last_recv = time (NULL);
+      sock->recv_buffer_fill += num_read;
+      svz_process_recv_update (sock, 0);
+    }
+
+  return (num_read > 0) ? 0 : -1;
+}
+
+/*
+ * Disconnection routine for the socket connection @var{sock} which is
+ * connected with a process's stdin/stdout via the referring passthrough
+ * socket structure which gets also scheduled for shutdown if possible.
+ */
+static int
+svz_process_disconnect (svz_socket_t *sock)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) != NULL)
+    {
+      svz_sock_setreferrer (sock, NULL);
+      svz_sock_setreferrer (xsock, NULL);
+#if ENABLE_DEBUG
+      svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
+               xsock->id);
+#endif
+      svz_sock_schedule_for_shutdown (xsock);
+    }
+  return 0;
+}
+
+/*
+ * Check request routine for the original passthrough connection @var{sock}.
+ * Sets the send buffer fill counter of the referring socket structure which
+ * is the passthrough connection in order to schedule it for sending.
+ */
+static int
+svz_process_check_request (svz_socket_t *sock)
+{
+  svz_socket_t *xsock;
+
+  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
+    return -1;
+  xsock->send_buffer_fill = sock->recv_buffer_fill;
+  return 0;
+}
+
+/*
+ * Idle function for the passthrough shuffle connection @var{sock}.  The
+ * routine checks whether the spawned child process is still valid.  If not
+ * it schedules the connection for shutdown.  The routine schedules itself
+ * once a second.
+ */
+static int
+svz_process_idle (svz_socket_t *sock)
+{
+#ifndef __MINGW32__
+
+#if HAVE_WAITPID
+  /* Test if the passthrough child is still running.  */
+  if (waitpid (sock->pid, NULL, WNOHANG) == -1 && errno == ECHILD)
+    {
+      svz_log (LOG_NOTICE, "passthrough: shuffle pid %d died\n",
+               (int) sock->pid);
+      svz_invalidate_handle (&sock->pid);
+      return -1;
+    }
+#endif /* HAVE_WAITPID */
+
+#else /* __MINGW32__ */
+
+  DWORD result;
+
+  result = WOE_WAIT_1 (sock->pid);
+  if (result == WAIT_FAILED)
+    {
+      WOE_WAIT_LOG_ERROR ("passthrough: ");
+    }
+  else if (result != WAIT_TIMEOUT)
+    {
+      if (svz_closehandle (sock->pid) == -1)
+        svz_log_sys_error ("passthrough: CloseHandle");
+      svz_child_died = sock->pid;
+      svz_invalidate_handle (&sock->pid);
+      return -1;
+    }
+
+#endif /* __MINGW32__ */
+
+  sock->idle_counter = 1;
+  return 0;
+}
+
+/*
+ * Creates two pairs of pipes in order to passthrough the transactions of
+ * the a socket structure.  The function create a new socket structure and
+ * sets it up for handling the transactions automatically.  The given
+ * argument @var{proc} contains the information inherited from
+ * @code{svz_sock_process}.  The function returns -1 on failure and the
+ * new child's process id otherwise.
+ */
+static int
+svz_process_shuffle (svz_process_t *proc)
+{
+  svz_t_socket pair[2];
+  svz_t_handle process_to_serveez[2];
+  svz_t_handle serveez_to_process[2];
+  svz_socket_t *xsock;
+  int pid;
+
+  if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
+    {
+      /* create the pair of sockets */
+      if (svz_socket_create_pair (proc->sock->proto, pair) < 0)
+        return -1;
+      /* create yet another socket structure */
+      if ((xsock = svz_sock_create ((int) pair[1])) == NULL)
+        {
+          svz_log (LOG_ERROR, "passthrough: failed to create socket\n");
+          return -1;
+        }
+    }
+  else
+    {
+      /* create the pairs of pipes for the process */
+      if (svz_pipe_create_pair (process_to_serveez) == -1)
+        return -1;
+      if (svz_pipe_create_pair (serveez_to_process) == -1)
+        return -1;
+      /* create yet another socket structure */
+      if ((xsock = svz_pipe_create (process_to_serveez[SVZ_READ],
+                                    serveez_to_process[SVZ_WRITE])) == NULL)
+        {
+          svz_log (LOG_ERROR, "passthrough: failed to create pipe\n");
+          return -1;
+        }
+    }
+
+  /* prepare everything for the pipe handling */
+  xsock->cfg = proc->sock->cfg;
+  xsock->disconnected_socket = svz_process_disconnect_passthrough;
+  if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
+    {
+      xsock->write_socket = svz_process_send_socket;
+      xsock->read_socket = svz_process_recv_socket;
+    }
+  else
+    {
+      xsock->write_socket = svz_process_send_pipe;
+      xsock->read_socket = svz_process_recv_pipe;
+    }
+
+  /* release receive and send buffers of the new socket structure */
+  svz_free_and_zero (xsock->recv_buffer);
+  xsock->recv_buffer_fill = xsock->recv_buffer_size = 0;
+  svz_free_and_zero (xsock->send_buffer);
+  xsock->send_buffer_fill = xsock->send_buffer_size = 0;
+
+  /* let both socket structures refer to each other */
+  svz_sock_setreferrer (proc->sock, xsock);
+  svz_sock_setreferrer (xsock, proc->sock);
+
+  /* setup original socket structure */
+  proc->sock->disconnected_socket = svz_process_disconnect;
+  proc->sock->check_request = svz_process_check_request;
+
+  /* enqueue the new passthrough pipe socket */
+  if (svz_sock_enqueue (xsock) < 0)
+    return -1;
+
+  if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
+    proc->in = proc->out = (svz_t_handle) pair[0];
+  else
+    {
+      proc->in = serveez_to_process[SVZ_READ];
+      proc->out = process_to_serveez[SVZ_WRITE];
+    }
+
+  /* create a process and pass the left-over pipe ends to it */
+#ifndef __MINGW32__
+  if ((pid = fork ()) == 0)
+    {
+      svz_process_create_child (proc);
+      exit (EXIT_SUCCESS);
+    }
+  else if (pid == -1)
+    {
+      svz_log_sys_error ("passthrough: fork");
+      return -1;
+    }
+#else /* __MINGW32__ */
+  pid = svz_process_create_child (proc);
+  if (proc->envp)
+    svz_envblock_destroy (proc->envp);
+#endif /*  __MINGW32__ */
+
+  /* close the passed descriptors */
+  svz_closehandle (proc->in);
+  if (proc->flag == SVZ_PROCESS_SHUFFLE_PIPE)
+    svz_closehandle (proc->out);
+
+  /* setup child checking callback */
+  xsock->pid = (svz_t_handle) pid;
+  xsock->idle_func = svz_process_idle;
+  xsock->idle_counter = 1;
+#if ENABLE_DEBUG
+  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
+#endif
+  return pid;
+}
+
+/*
+ * Fork the current process and execute a new child program.  The given
+ * argument @var{proc} contains the information inherited from
+ * @code{svz_sock_process}.  The routine passes the socket or pipe
+ * descriptors of the original passthrough socket structure to stdin and
+ * stdout of the child.  The caller is responsible for shutting down the
+ * original socket structure.  Returns -1 on errors and the child's
+ * process id on success.
+ */
+static int
+svz_process_fork (svz_process_t *proc)
+{
+  int pid;
+
+#ifdef __MINGW32__
+  pid = svz_process_create_child (proc);
+  if (proc->envp)
+    svz_envblock_destroy (proc->envp);
+#else /* __MINGW32__ */
+  if ((pid = fork ()) == 0)
+    {
+      svz_process_create_child (proc);
+      exit (EXIT_SUCCESS);
+    }
+  else if (pid == -1)
+    {
+      svz_log_sys_error ("passthrough: fork");
+      return -1;
+    }
+#endif /* __MINGW32__ */
+
+  /* The parent process.  */
+#if ENABLE_DEBUG
+  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
+#endif
+  return pid;
+}
+
+/*
  * This routine starts a new program specified by @var{bin} passing the
  * socket or pipe descriptor(s) in the socket structure @var{sock} to its
  * stdin and stdout.
@@ -249,357 +756,6 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
     }
 
   return ret;
-}
-
-/*
- * Disconnection routine for the socket connection @var{sock} which is
- * connected with a process's stdin/stdout via the referring passthrough
- * socket structure which gets also scheduled for shutdown if possible.
- */
-static int
-svz_process_disconnect (svz_socket_t *sock)
-{
-  svz_socket_t *xsock;
-
-  if ((xsock = svz_sock_getreferrer (sock)) != NULL)
-    {
-      svz_sock_setreferrer (sock, NULL);
-      svz_sock_setreferrer (xsock, NULL);
-#if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
-               xsock->id);
-#endif
-      svz_sock_schedule_for_shutdown (xsock);
-    }
-  return 0;
-}
-
-/*
- * Disconnection routine for the passthrough socket structure @var{sock}
- * connected with a process's stdin/stdout.  Schedules the referring socket
- * connection for shutdown if necessary and possible.
- */
-static int
-svz_process_disconnect_passthrough (svz_socket_t *sock)
-{
-  svz_socket_t *xsock;
-
-  if ((xsock = svz_sock_getreferrer (sock)) != NULL)
-    {
-      svz_sock_setreferrer (sock, NULL);
-      svz_sock_setreferrer (xsock, NULL);
-      if (sock->flags & (PROTO_TCP | PROTO_PIPE))
-        {
-#if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
-                   xsock->id);
-#endif
-          svz_sock_schedule_for_shutdown (xsock);
-        }
-    }
-
-  /* Clean up receive and send buffer.  */
-  sock->recv_buffer = sock->send_buffer = NULL;
-  sock->recv_buffer_fill = sock->recv_buffer_size = 0;
-  sock->send_buffer_fill = sock->send_buffer_size = 0;
-  return 0;
-}
-
-/*
- * Check request routine for the original passthrough connection @var{sock}.
- * Sets the send buffer fill counter of the referring socket structure which
- * is the passthrough connection in order to schedule it for sending.
- */
-static int
-svz_process_check_request (svz_socket_t *sock)
-{
-  svz_socket_t *xsock;
-
-  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
-    return -1;
-  xsock->send_buffer_fill = sock->recv_buffer_fill;
-  return 0;
-}
-
-/*
- * Idle function for the passthrough shuffle connection @var{sock}.  The
- * routine checks whether the spawned child process is still valid.  If not
- * it schedules the connection for shutdown.  The routine schedules itself
- * once a second.
- */
-int
-svz_process_idle (svz_socket_t *sock)
-{
-#ifndef __MINGW32__
-
-#if HAVE_WAITPID
-  /* Test if the passthrough child is still running.  */
-  if (waitpid (sock->pid, NULL, WNOHANG) == -1 && errno == ECHILD)
-    {
-      svz_log (LOG_NOTICE, "passthrough: shuffle pid %d died\n",
-               (int) sock->pid);
-      svz_invalidate_handle (&sock->pid);
-      return -1;
-    }
-#endif /* HAVE_WAITPID */
-
-#else /* __MINGW32__ */
-
-  DWORD result;
-
-  result = WOE_WAIT_1 (sock->pid);
-  if (result == WAIT_FAILED)
-    {
-      WOE_WAIT_LOG_ERROR ("passthrough: ");
-    }
-  else if (result != WAIT_TIMEOUT)
-    {
-      if (svz_closehandle (sock->pid) == -1)
-        svz_log_sys_error ("passthrough: CloseHandle");
-      svz_child_died = sock->pid;
-      svz_invalidate_handle (&sock->pid);
-      return -1;
-    }
-
-#endif /* __MINGW32__ */
-
-  sock->idle_counter = 1;
-  return 0;
-}
-
-/*
- * If the argument @var{set} is zero this routine makes the receive buffer
- * of the socket structure's referrer @var{sock} the send buffer of @var{sock}
- * itself, otherwise the other way around.  Return non-zero if the routine
- * failed to determine a referrer.
- */
-static int
-svz_process_send_update (svz_socket_t *sock, int set)
-{
-  svz_socket_t *xsock;
-
-  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
-    return -1;
-
-  if (set)
-    {
-      sock->send_buffer = xsock->recv_buffer;
-      sock->send_buffer_fill = xsock->recv_buffer_fill;
-      sock->send_buffer_size = xsock->recv_buffer_size;
-    }
-  else
-    {
-      xsock->recv_buffer = sock->send_buffer;
-      xsock->recv_buffer_fill = sock->send_buffer_fill;
-      xsock->recv_buffer_size = sock->send_buffer_size;
-    }
-  return 0;
-}
-
-/*
- * This is the shuffle pipe writer (reading end of a process's stdin).  It
- * writes as much data as possible from the send buffer which is the receive
- * buffer of the referring socket structure.  Returns non-zero on errors.
- */
-int
-svz_process_send_pipe (svz_socket_t *sock)
-{
-  int num_written, do_write;
-
-  /* update send buffer depending on receive buffer of referrer */
-  if (svz_process_send_update (sock, 1))
-    return -1;
-
-  /* return here if there is nothing to do */
-  if ((do_write = sock->send_buffer_fill) <= 0)
-    return 0;
-
-#ifndef __MINGW32__
-  if ((num_written = write ((int) sock->pipe_desc[SVZ_WRITE],
-                            sock->send_buffer, do_write)) == -1)
-    {
-      svz_log_sys_error ("passthrough: write");
-      if (svz_errno == EAGAIN)
-        num_written = 0;
-    }
-#else /* __MINGW32__ */
-   if (!WriteFile (sock->pipe_desc[SVZ_WRITE], sock->send_buffer,
-                   do_write, (DWORD *) &num_written, NULL))
-    {
-      svz_log_sys_error ("passthrough: WriteFile");
-      num_written = -1;
-    }
-#endif /* __MINGW32__ */
-
-  else if (num_written > 0)
-    {
-      sock->last_send = time (NULL);
-      svz_sock_reduce_send (sock, num_written);
-      svz_process_send_update (sock, 0);
-    }
-
-  return (num_written >= 0) ? 0 : -1;
-}
-
-/*
- * Depending on the flag @var{set} this routine either makes the send buffer
- * of the referring socket structure of @var{sock} the receive buffer of
- * @var{sock} itself or the other way around.  Returns non-zero if it failed
- * to find a referring socket.
- */
-static int
-svz_process_recv_update (svz_socket_t *sock, int set)
-{
-  svz_socket_t *xsock;
-
-  if ((xsock = svz_sock_getreferrer (sock)) == NULL)
-    return -1;
-
-  if (set)
-    {
-      sock->recv_buffer = xsock->send_buffer;
-      sock->recv_buffer_fill = xsock->send_buffer_fill;
-      sock->recv_buffer_size = xsock->send_buffer_size;
-    }
-  else
-    {
-      xsock->send_buffer = sock->recv_buffer;
-      xsock->send_buffer_fill = sock->recv_buffer_fill;
-      xsock->send_buffer_size = sock->recv_buffer_size;
-    }
-  return 0;
-}
-
-/*
- * This is the shuffle pipe reader (writing end of a process's stdout).  It
- * reads as much data as possible into its receive buffer which is the send
- * buffer of the connection this passthrough pipe socket structure stems
- * from.
- */
-int
-svz_process_recv_pipe (svz_socket_t *sock)
-{
-  int num_read, do_read;
-
-  /* update receive buffer depending on send buffer of referrer */
-  if (svz_process_recv_update (sock, 1))
-    return -1;
-
-  /* return here if there is nothing to do */
-  if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
-    return 0;
-
-#ifndef __MINGW32__
-  if ((num_read = read ((int) sock->pipe_desc[SVZ_READ],
-                        sock->recv_buffer + sock->recv_buffer_fill,
-                        do_read)) == -1)
-    {
-      svz_log_sys_error ("passthrough: read");
-      if (svz_errno == EAGAIN)
-        return 0;
-    }
-#else /* __MINGW32__ */
-  if (!PeekNamedPipe (sock->pipe_desc[SVZ_READ], NULL, 0,
-                      NULL, (DWORD *) &num_read, NULL))
-    {
-      svz_log_sys_error ("passthrough: PeekNamedPipe");
-      return -1;
-    }
-  if (do_read > num_read)
-    do_read = num_read;
-  if (!ReadFile (sock->pipe_desc[SVZ_READ],
-                 sock->recv_buffer + sock->recv_buffer_fill,
-                 do_read, (DWORD *) &num_read, NULL))
-    {
-      svz_log_sys_error ("passthrough: ReadFile");
-      num_read = -1;
-    }
-#endif /* __MINGW32__ */
-
-  else if (num_read > 0)
-    {
-      sock->last_recv = time (NULL);
-      sock->recv_buffer_fill += num_read;
-      svz_process_recv_update (sock, 0);
-    }
-
-  return (num_read > 0) ? 0 : -1;
-}
-
-/*
- * This is the shuffle socket pair writer which is directly connected with
- * the reading end of the child process.  It writes as much data as possible
- * from its send buffer which is the receive buffer of the original
- * passthrough connection.
- */
-int
-svz_process_send_socket (svz_socket_t *sock)
-{
-  int num_written, do_write;
-
-  /* update send buffer depending on receive buffer of referrer */
-  if (svz_process_send_update (sock, 1))
-    return -1;
-
-  /* return here if there is nothing to do */
-  if ((do_write = sock->send_buffer_fill) <= 0)
-    return 0;
-
-  if ((num_written = send (sock->sock_desc,
-                           sock->send_buffer, do_write, 0)) == -1)
-    {
-      svz_log_sys_error ("passthrough: send");
-      if (svz_errno == EAGAIN)
-        num_written = 0;
-    }
-  else if (num_written > 0)
-    {
-      sock->last_send = time (NULL);
-      svz_sock_reduce_send (sock, num_written);
-      svz_process_send_update (sock, 0);
-    }
-
-  return (num_written >= 0) ? 0 : -1;
-}
-
-/*
- * This is the shuffle socket pair reader which is directly connected
- * with the writing end of the child process.  It reads as much data as
- * possible into its receive buffer which is the send buffer of the
- * original passthrough connection.
- */
-int
-svz_process_recv_socket (svz_socket_t *sock)
-{
-  int num_read, do_read;
-
-  /* update receive buffer depending on send buffer of referrer */
-  if (svz_process_recv_update (sock, 1))
-    return -1;
-
-  /* return here if there is nothing to do */
-  if ((do_read = sock->recv_buffer_size - sock->recv_buffer_fill) <= 0)
-    return 0;
-
-  if ((num_read = recv (sock->sock_desc,
-                        sock->recv_buffer + sock->recv_buffer_fill,
-                        do_read, 0)) == -1)
-    {
-      svz_log_sys_error ("passthrough: recv");
-      if (svz_errno == EAGAIN)
-        return 0;
-    }
-  else if (num_read > 0)
-    {
-      sock->last_recv = time (NULL);
-      sock->recv_buffer_fill += num_read;
-      svz_process_recv_update (sock, 0);
-    }
-  else
-    svz_log (LOG_ERROR, "passthrough: recv: no data on socket %d\n",
-             sock->sock_desc);
-
-  return (num_read > 0) ? 0 : -1;
 }
 
 #ifdef __MINGW32__
@@ -962,162 +1118,6 @@ svz_process_create_child (svz_process_t *proc)
   pid = (int) process_info.hProcess;
   return pid;
 #endif /* __MINGW32__ */
-}
-
-/*
- * Creates two pairs of pipes in order to passthrough the transactions of
- * the a socket structure.  The function create a new socket structure and
- * sets it up for handling the transactions automatically.  The given
- * argument @var{proc} contains the information inherited from
- * @code{svz_sock_process}.  The function returns -1 on failure and the
- * new child's process id otherwise.
- */
-int
-svz_process_shuffle (svz_process_t *proc)
-{
-  svz_t_socket pair[2];
-  svz_t_handle process_to_serveez[2];
-  svz_t_handle serveez_to_process[2];
-  svz_socket_t *xsock;
-  int pid;
-
-  if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
-    {
-      /* create the pair of sockets */
-      if (svz_socket_create_pair (proc->sock->proto, pair) < 0)
-        return -1;
-      /* create yet another socket structure */
-      if ((xsock = svz_sock_create ((int) pair[1])) == NULL)
-        {
-          svz_log (LOG_ERROR, "passthrough: failed to create socket\n");
-          return -1;
-        }
-    }
-  else
-    {
-      /* create the pairs of pipes for the process */
-      if (svz_pipe_create_pair (process_to_serveez) == -1)
-        return -1;
-      if (svz_pipe_create_pair (serveez_to_process) == -1)
-        return -1;
-      /* create yet another socket structure */
-      if ((xsock = svz_pipe_create (process_to_serveez[SVZ_READ],
-                                    serveez_to_process[SVZ_WRITE])) == NULL)
-        {
-          svz_log (LOG_ERROR, "passthrough: failed to create pipe\n");
-          return -1;
-        }
-    }
-
-  /* prepare everything for the pipe handling */
-  xsock->cfg = proc->sock->cfg;
-  xsock->disconnected_socket = svz_process_disconnect_passthrough;
-  if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
-    {
-      xsock->write_socket = svz_process_send_socket;
-      xsock->read_socket = svz_process_recv_socket;
-    }
-  else
-    {
-      xsock->write_socket = svz_process_send_pipe;
-      xsock->read_socket = svz_process_recv_pipe;
-    }
-
-  /* release receive and send buffers of the new socket structure */
-  svz_free_and_zero (xsock->recv_buffer);
-  xsock->recv_buffer_fill = xsock->recv_buffer_size = 0;
-  svz_free_and_zero (xsock->send_buffer);
-  xsock->send_buffer_fill = xsock->send_buffer_size = 0;
-
-  /* let both socket structures refer to each other */
-  svz_sock_setreferrer (proc->sock, xsock);
-  svz_sock_setreferrer (xsock, proc->sock);
-
-  /* setup original socket structure */
-  proc->sock->disconnected_socket = svz_process_disconnect;
-  proc->sock->check_request = svz_process_check_request;
-
-  /* enqueue the new passthrough pipe socket */
-  if (svz_sock_enqueue (xsock) < 0)
-    return -1;
-
-  if (proc->flag == SVZ_PROCESS_SHUFFLE_SOCK)
-    proc->in = proc->out = (svz_t_handle) pair[0];
-  else
-    {
-      proc->in = serveez_to_process[SVZ_READ];
-      proc->out = process_to_serveez[SVZ_WRITE];
-    }
-
-  /* create a process and pass the left-over pipe ends to it */
-#ifndef __MINGW32__
-  if ((pid = fork ()) == 0)
-    {
-      svz_process_create_child (proc);
-      exit (EXIT_SUCCESS);
-    }
-  else if (pid == -1)
-    {
-      svz_log_sys_error ("passthrough: fork");
-      return -1;
-    }
-#else /* __MINGW32__ */
-  pid = svz_process_create_child (proc);
-  if (proc->envp)
-    svz_envblock_destroy (proc->envp);
-#endif /*  __MINGW32__ */
-
-  /* close the passed descriptors */
-  svz_closehandle (proc->in);
-  if (proc->flag == SVZ_PROCESS_SHUFFLE_PIPE)
-    svz_closehandle (proc->out);
-
-  /* setup child checking callback */
-  xsock->pid = (svz_t_handle) pid;
-  xsock->idle_func = svz_process_idle;
-  xsock->idle_counter = 1;
-#if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
-#endif
-  return pid;
-}
-
-/*
- * Fork the current process and execute a new child program.  The given
- * argument @var{proc} contains the information inherited from
- * @code{svz_sock_process}.  The routine passes the socket or pipe
- * descriptors of the original passthrough socket structure to stdin and
- * stdout of the child.  The caller is responsible for shutting down the
- * original socket structure.  Returns -1 on errors and the child's
- * process id on success.
- */
-int
-svz_process_fork (svz_process_t *proc)
-{
-  int pid;
-
-#ifdef __MINGW32__
-  pid = svz_process_create_child (proc);
-  if (proc->envp)
-    svz_envblock_destroy (proc->envp);
-#else /* __MINGW32__ */
-  if ((pid = fork ()) == 0)
-    {
-      svz_process_create_child (proc);
-      exit (EXIT_SUCCESS);
-    }
-  else if (pid == -1)
-    {
-      svz_log_sys_error ("passthrough: fork");
-      return -1;
-    }
-#endif /* __MINGW32__ */
-
-  /* The parent process.  */
-#if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
-#endif
-  return pid;
 }
 
 /*

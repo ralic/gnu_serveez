@@ -487,12 +487,6 @@ to the child process.  All of the three method are implemented calling them
 
 |F| svz_sock_process
 
-|F| svz_process_idle
-|F| svz_process_send_pipe
-|F| svz_process_recv_pipe
-|F| svz_process_send_socket
-|F| svz_process_recv_socket
-
 |F| svz_process_create_child
 @strong{Please note}:
 On M$-Windows platforms it is not possible to pass a socket connection
@@ -502,8 +496,6 @@ into the environment variables @code{SEND_HANDLE} and @code{RECV_HANDLE}.
 A spawned child process can use these handles as if these were created
 by itself.  After calling @code{WSAStartup} the child process can
 @code{send} and @code{recv} as usual.
-|F| svz_process_shuffle
-|F| svz_process_fork
 
 |F| svz_envblock_setup
 |F| svz_envblock_create
