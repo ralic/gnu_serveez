@@ -72,7 +72,6 @@ SERVEEZ_API svz_socket_t *svz_sock_getreferrer (svz_socket_t *);
 SERVEEZ_API svz_portcfg_t *svz_sock_portcfg (svz_socket_t *);
 
 SERVEEZ_API int svz_shutting_down_p (void);
-SERVEEZ_API void svz_executable (char *);
 SERVEEZ_API void svz_loop_pre (void);
 SERVEEZ_API void svz_loop_post (void);
 SERVEEZ_API void svz_loop (void);

@@ -140,9 +140,6 @@ static int svz_sock_id = 0;
 static int svz_sock_version = 0;
 static int svz_sock_limit = 1024;       /* Must be binary size!  */
 
-/* Pointer to argv[0].  */
-static char *svz_executable_file = NULL;
-
 /*
  * Return non-zero if the core is in the process of shutting down
  * (typically as a result of a signal).
@@ -151,16 +148,6 @@ int
 svz_shutting_down_p (void)
 {
   return svz_nuke_happened;
-}
-
-/*
- * Set the name of the executable file which uses the core library.  This
- * is usually @code{argv[0]}.
- */
-void
-svz_executable (char *file)
-{
-  svz_executable_file = file;
 }
 
 #ifdef SIGSEGV
@@ -191,8 +178,7 @@ svz_segfault_exception (int sig)
 #endif /* HAVE_GETRLIMIT */
 
   signal (sig, SIG_DFL);
-  fprintf (stderr, SIGSEGV_TEXT,
-           svz_executable_file ? svz_executable_file : "binary");
+  fprintf (stderr, SIGSEGV_TEXT, THE (client));
   raise (sig);
 }
 #endif /* SIGSEGV */

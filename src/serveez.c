@@ -159,8 +159,7 @@ int
 main (int argc, char *argv[])
 {
   /* Initialize the the core library.  */
-  svz_boot ();
-  svz_executable (argv[0]);
+  svz_boot (argv[0]);
   svz_envblock_setup ();
 
   /* Handle command line arguments.  */

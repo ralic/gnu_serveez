@@ -1,3 +1,21 @@
+2011-03-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Move client name specification to ‘svz_boot’.
+
+	* defines.h
+	(svz_private_t): New struct/typedef, marked ‘svzint’.
+	(svz_private): New var decl, marked ‘SBO’, ‘svzint’.
+	(THE): New macro, marked ‘svzint’.
+	* boot.c (svz_private): New var.
+	(svz_boot): Take arg CLIENT; allocate memory for ‘svz_private’,
+	and copy CLIENT to ‘THE (client)’.
+	(svz_halt): Free ‘THE (client)’, ‘svz_private’.
+	* boot.h (svz_boot): Update func decl.
+	* server-core.c (svz_executable_file): Delete var.
+	(svz_executable): Delete func.
+	(svz_segfault_exception): Use ‘THE (client)’.
+	* server-core.h (svz_executable): Delete func decl.
+
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_net_strerror’.

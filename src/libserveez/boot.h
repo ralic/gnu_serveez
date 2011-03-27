@@ -49,7 +49,7 @@ SERVEEZ_API const char * const * svz_library_features (size_t *);
 SERVEEZ_API svz_config_t svz_config;
 
 /* Exported functions.  */
-SERVEEZ_API void svz_boot (void);
+SERVEEZ_API void svz_boot (char const *);
 SERVEEZ_API void svz_halt (void);
 
 __END_DECLS

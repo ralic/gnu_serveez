@@ -66,4 +66,21 @@
 # define SERVEEZ_API extern
 #endif
 
+/* begin svzint */
+
+/* This structure holds all the private dynamic state of the library.  */
+typedef struct
+{
+  char *client;
+  /* The program using this library, specified to ‘svz_boot’,
+     primarily for use by the SEGV handler.  */
+} svz_private_t;
+
+__BEGIN_DECLS
+SBO svz_private_t *svz_private;
+__END_DECLS
+
+#define THE(x)  svz_private->x
+
+/* end svzint */
 #endif /* !__DEFINES_H__ */

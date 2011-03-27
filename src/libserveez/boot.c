@@ -43,6 +43,11 @@
 svz_config_t svz_config = { NULL, 0, 0, 0 };
 
 /*
+ * Library private dynamic state.
+ */
+svz_private_t *svz_private;
+
+/*
  * Return a list (length saved to @var{count}) of strings
  * representing the features compiled into libserveez.
  */
@@ -172,10 +177,15 @@ SBO void svz_portcfg_finalize (void);
 
 /*
  * Initialization of the core library.
+ * @var{client} is typically a program's @code{argv[0]}.
+ * If @code{NULL}, take it to be @samp{anonymous}.
  */
 void
-svz_boot (void)
+svz_boot (char const *client)
 {
+  svz_private = svz_malloc (sizeof (svz_private_t));
+  THE (client) = svz_strdup (client ? client : "anonymous");
+
 #define UP(x)  svz__ ## x ## _updn (1)
 
   UP (log);
@@ -215,4 +225,7 @@ svz_halt (void)
   DN (log);
 
 #undef DN
+
+  svz_free_and_zero (THE (client));
+  svz_free_and_zero (svz_private);
 }

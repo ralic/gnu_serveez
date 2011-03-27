@@ -1224,7 +1224,7 @@ codec_main (int argc, char **argv)
   check_nargs (argc, 1, "CODEC < INFILE > OUTFILE");
 
   /* Setup serveez core library.  */
-  svz_boot ();
+  svz_boot ("codec");
 #if ENABLE_DEBUG
   svz_config.verbosity = 9;
   svz_log_setfile (stderr);

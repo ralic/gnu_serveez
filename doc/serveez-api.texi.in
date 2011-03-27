@@ -690,7 +690,6 @@ core library creates listeners as needed by itself.
 
 |V| svz_child_died
 |F| svz_shutting_down_p
-|F| svz_executable
 
 |F| svz_foreach_socket
 |F| svz_sock_find
