@@ -27,14 +27,7 @@
 #include "libserveez/alloc.h"
 /* end svzint */
 
-typedef struct svz_array
-{
-  unsigned long size;      /* Real size of the array.  */
-  unsigned long capacity;  /* Current capacity.  */
-  svz_free_func_t destroy; /* The destroy callback.  */
-  void **data;             /* Data pointer.  */
-}
-svz_array_t;
+typedef struct svz_array svz_array_t;
 
 __BEGIN_DECLS
 

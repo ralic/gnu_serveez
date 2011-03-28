@@ -30,6 +30,14 @@
 #include "libserveez/util.h"
 #include "libserveez/array.h"
 
+struct svz_array
+{
+  unsigned long size;      /* Real size of the array.  */
+  unsigned long capacity;  /* Current capacity.  */
+  svz_free_func_t destroy; /* The destroy callback.  */
+  void **data;             /* Data pointer.  */
+};
+
 /*
  * Create a new array with the initial capacity @var{capacity} and return
  * a pointer to it.  If @var{capacity} is zero it defaults to some value.  The

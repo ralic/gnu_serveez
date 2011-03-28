@@ -1,5 +1,12 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘struct svz_array’.
+
+	* array.h (struct svz_array): Move from here...
+	* array.c (struct svz_array): ...to here.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘struct svz_vector’.
 
 	* vector.h (struct svz_vector): Move from here...
