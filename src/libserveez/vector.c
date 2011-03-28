@@ -29,6 +29,14 @@
 #include "libserveez/util.h"
 #include "libserveez/vector.h"
 
+/* Definition of an vector structure.  */
+struct svz_vector
+{
+  unsigned long length;     /* number of elements in this vector */
+  unsigned long chunk_size; /* size of each element */
+  void *chunks;             /* pointer to first element */
+};
+
 /*
  * Create a new vector list without elements.  Each element will have
  * the given size @var{size} in bytes.

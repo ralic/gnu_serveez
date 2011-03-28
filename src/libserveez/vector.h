@@ -25,14 +25,7 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/* Definition of an vector structure.  */
-typedef struct
-{
-  unsigned long length;     /* number of elements in this vector */
-  unsigned long chunk_size; /* size of each element */
-  void *chunks;             /* pointer to first element */
-}
-svz_vector_t;
+typedef struct svz_vector svz_vector_t;
 
 /*
  * Iteration macro for the vector list @var{vector}.  Each of its values

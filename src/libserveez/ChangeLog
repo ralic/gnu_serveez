@@ -1,5 +1,12 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘struct svz_vector’.
+
+	* vector.h (struct svz_vector): Move from here...
+	* vector.c (struct svz_vector): ...to here.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop unused "sparse vector" functionality.
 
 	* Makefile.am
