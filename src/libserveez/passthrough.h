@@ -34,9 +34,6 @@ typedef struct
 }
 svz_envblock_t;
 
-/* Internally used to pass lots of arguments.  */
-typedef struct svz_process_t svz_process_t;
-
 /* Definitions for the @var{user} argument of @code{svz_sock_process}.  */
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)

@@ -1,5 +1,12 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_process_t’.
+
+	* passthrough.h (svz_process_t): Move typedef from here...
+	* passthrough.c (svz_process_t): ...to here.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix UDP_{MSG,BUF}_SIZE with "SVZ_".
 
 	* udp-socket.h

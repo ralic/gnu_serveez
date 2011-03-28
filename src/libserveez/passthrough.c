@@ -81,6 +81,8 @@ struct svz_process_t
   int flag;             /* Passthrough method flag.  */
 };
 
+typedef struct svz_process_t svz_process_t;
+
 /* Extern declaration of the process environment pointer.  */
 #if !defined(__MINGW32__) && !defined(__CYGWIN__)
 extern char **environ;
