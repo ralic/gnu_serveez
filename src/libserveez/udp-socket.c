@@ -298,7 +298,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
     return 0;
 
   /* allocate memory block */
-  buffer = svz_malloc ((length > UDP_MSG_SIZE ? UDP_MSG_SIZE : length) +
+  buffer = svz_malloc ((length > SVZ_UDP_MSG_SIZE ? SVZ_UDP_MSG_SIZE : length) +
                        sizeof (len) + sizeof (sock->remote_addr) +
                        sizeof (sock->remote_port));
 
@@ -315,8 +315,8 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
       len += sizeof (sock->remote_port);
 
       /* copy the given buffer */
-      if ((size = length) > UDP_MSG_SIZE)
-        size = UDP_MSG_SIZE;
+      if ((size = length) > SVZ_UDP_MSG_SIZE)
+        size = SVZ_UDP_MSG_SIZE;
       memcpy (&buffer[len], buf, size);
       len += size;
       memcpy (buffer, &len, sizeof (len));
@@ -390,7 +390,7 @@ svz_udp_connect (unsigned long host, unsigned short port)
       return NULL;
     }
 
-  svz_sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+  svz_sock_resize_buffers (sock, SVZ_UDP_BUF_SIZE, SVZ_UDP_BUF_SIZE);
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->proto = PROTO_UDP;

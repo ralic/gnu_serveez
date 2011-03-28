@@ -255,10 +255,10 @@ prog_child_died (svz_socket_t *sock)
 static int
 prog_read_sock_drop (svz_socket_t *sock)
 {
-  char buffer[UDP_MSG_SIZE];
+  char buffer[SVZ_UDP_MSG_SIZE];
   int ret;
 
-  if ((ret = recv (sock->sock_desc, buffer, UDP_MSG_SIZE, 0)) < 0)
+  if ((ret = recv (sock->sock_desc, buffer, SVZ_UDP_MSG_SIZE, 0)) < 0)
     return -1;
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret,

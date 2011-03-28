@@ -1,5 +1,15 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix UDP_{MSG,BUF}_SIZE with "SVZ_".
+
+	* udp-socket.h
+	(SVZ_UDP_MSG_SIZE): Rename from ‘UDP_MSG_SIZE’.
+	(SVZ_UDP_BUF_SIZE): Rename from ‘UDP_BUF_SIZE’.
+	* udp-socket.c: Update all refs.
+	* portcfg.c: Likewise.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize SVZ_PROCESS_{RECV,SEND}_HANDLE.
 
 	* passthrough.c (svz_process_create_child):

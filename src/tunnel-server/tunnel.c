@@ -197,6 +197,12 @@ tnl_create_connect (void)
   return source;
 }
 
+static void
+resize_buffers (svz_socket_t *sock)
+{
+  svz_sock_resize_buffers (sock, SVZ_UDP_BUF_SIZE, SVZ_UDP_BUF_SIZE);
+}
+
 /*
  * Depending on the given socket structure target flag this routine
  * tries to connect to the servers target configuration and delivers a
@@ -257,7 +263,7 @@ tnl_create_socket (svz_socket_t *sock, int source)
                svz_inet_ntoa (ip), ntohs (port));
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_tcp_target;
-      svz_sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+      resize_buffers (xsock);
     }
 
   /* target is an UDP connection */
@@ -315,7 +321,7 @@ tnl_create_socket (svz_socket_t *sock, int source)
                cfg->target->pipe_send.name);
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_pipe_target;
-      svz_sock_resize_buffers (xsock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+      resize_buffers (xsock);
     }
 
   xsock->cfg = cfg;
@@ -412,7 +418,7 @@ tnl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   sock->check_request = sock->flags & SOCK_FLAG_PIPE ?
     tnl_check_request_pipe_source : tnl_check_request_tcp_source;
   sock->disconnected_socket = tnl_disconnect_source;
-  svz_sock_resize_buffers (sock, UDP_BUF_SIZE, UDP_BUF_SIZE);
+  resize_buffers (sock);
 
   /* try connecting to target */
   xsock = tnl_create_socket (sock, sock->flags & SOCK_FLAG_PIPE ?

@@ -26,9 +26,11 @@
 #include "libserveez/socket.h"
 /* end svzint */
 
-/* general defines */
-#define UDP_MSG_SIZE (64 * 1024)               /* maximum size of udp packet */
-#define UDP_BUF_SIZE (4 * (UDP_MSG_SIZE + 24)) /* space for 4 messages */
+/* The maximum size of a UDP packet.  */
+#define SVZ_UDP_MSG_SIZE  (64 * 1024)
+
+/* Space for 4 messages.  */
+#define SVZ_UDP_BUF_SIZE  (4 * (SVZ_UDP_MSG_SIZE + 24))
 
 __BEGIN_DECLS
 

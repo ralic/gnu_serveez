@@ -655,7 +655,7 @@ svz_portcfg_prepare (svz_portcfg_t *port)
       if (port->proto & (PROTO_TCP | PROTO_PIPE))
         port->send_buffer_size = SEND_BUF_SIZE;
       else if (port->proto & PROTO_UDP)
-        port->send_buffer_size = UDP_BUF_SIZE;
+        port->send_buffer_size = SVZ_UDP_BUF_SIZE;
       else if (port->proto & (PROTO_ICMP | PROTO_RAW))
         port->send_buffer_size = ICMP_BUF_SIZE;
     }
@@ -665,7 +665,7 @@ svz_portcfg_prepare (svz_portcfg_t *port)
       if (port->proto & (PROTO_TCP | PROTO_PIPE))
         port->recv_buffer_size = RECV_BUF_SIZE;
       else if (port->proto & PROTO_UDP)
-        port->recv_buffer_size = UDP_BUF_SIZE;
+        port->recv_buffer_size = SVZ_UDP_BUF_SIZE;
       else if (port->proto & (PROTO_ICMP | PROTO_RAW))
         port->recv_buffer_size = ICMP_BUF_SIZE;
     }
