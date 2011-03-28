@@ -1,3 +1,10 @@
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize SVZ_PROCESS_{FORK,SHUFFLE_{SOCK,PIPE}}.
+
+	* prog-server/prog-server.c (prog_passthrough):
+	Update call to ‘svz_sock_process’.
+
 2011-03-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move client name specification to ‘svz_boot’.

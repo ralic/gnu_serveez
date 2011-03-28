@@ -1,3 +1,16 @@
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize SVZ_PROCESS_{FORK,SHUFFLE_{SOCK,PIPE}}.
+
+	* passthrough.h (SVZ_PROCESS_FORK)
+	(SVZ_PROCESS_SHUFFLE_SOCK, SVZ_PROCESS_SHUFFLE_PIPE):
+	Move #define:s from here...
+	* passthrough.c (SVZ_PROCESS_FORK)
+	(SVZ_PROCESS_SHUFFLE_SOCK, SVZ_PROCESS_SHUFFLE_PIPE):
+	...to here.
+	(svz_process_fork): Don't take FLAG; instead, take FORKP;
+	compute ‘proc.flag’ here; drop obsolete "invalid flag" error.
+
 2011-03-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move client name specification to ‘svz_boot’.

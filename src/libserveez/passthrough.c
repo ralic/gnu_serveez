@@ -63,6 +63,11 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/passthrough.h"
 
+/* Passthrough methods.  */
+#define SVZ_PROCESS_FORK         1
+#define SVZ_PROCESS_SHUFFLE_SOCK 2
+#define SVZ_PROCESS_SHUFFLE_PIPE 3
+
 struct svz_process_t
 {
   svz_socket_t *sock;   /* Socket structure to pass through.  */
@@ -687,12 +692,11 @@ svz_process_fork (svz_process_t *proc)
  * to be set to the program's name, otherwise it defaults to @var{bin} if
  * it contains @code{NULL}.
  *
- * The @var{flag} argument specifies the method used to passthrough the
- * connection.  It can be either @code{SVZ_PROCESS_FORK} (in order to pass
- * the pipe descriptors or the socket descriptor directly through
- * @code{fork} and @code{exec}) or @code{SVZ_PROCESS_SHUFFLE_PIPE} /
- * @code{SVZ_PROCESS_SHUFFLE_SOCK} (in order to pass the socket transactions
- * via a pair of pipes or sockets).
+ * The @var{forkp} argument is a flag that controls the passthrough method.
+ * If non-zero, pipe descriptors or the socket descriptor are passed to the
+ * child process directly through @code{fork} and @code{exec}.  Otherwise,
+ * socket transactions are passed via a pair or pipes or sockets (depending
+ * on whether or not the system provides @code{socketpair}).
  *
  * You can pass the user and group identifications in the format
  * @samp{user[.group]} (group is optional), as @code{SVZ_PROCESS_NONE}
@@ -705,7 +709,7 @@ svz_process_fork (svz_process_t *proc)
  */
 int
 svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
-                  char **argv, svz_envblock_t *envp, int flag, char *user)
+                  char **argv, svz_envblock_t *envp, int forkp, char *user)
 {
   svz_process_t proc;
   int ret = -1;
@@ -739,11 +743,19 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
   proc.argv = argv;
   proc.envp = envp;
   proc.user = user;
-  proc.flag = flag;
+  proc.flag = forkp
+    ? SVZ_PROCESS_FORK
+    :
+#if HAVE_SOCKETPAIR
+    SVZ_PROCESS_SHUFFLE_SOCK
+#else
+    SVZ_PROCESS_SHUFFLE_PIPE
+#endif
+    ;
 
   /* Depending on the given flag use different methods to passthrough
      the connection.  */
-  switch (flag)
+  switch (proc.flag)
     {
     case SVZ_PROCESS_FORK:
       ret = svz_process_fork (&proc);
@@ -751,10 +763,6 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
     case SVZ_PROCESS_SHUFFLE_SOCK:
     case SVZ_PROCESS_SHUFFLE_PIPE:
       ret = svz_process_shuffle (&proc);
-      break;
-    default:
-      svz_log (LOG_ERROR, "passthrough: invalid flag (%d)\n", flag);
-      ret = -1;
       break;
     }
 

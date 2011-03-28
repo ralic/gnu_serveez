@@ -163,12 +163,7 @@ prog_passthrough (svz_socket_t *sock)
 
   argv = (char **) svz_array_values (cfg->argv);
   if ((pid = svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
-                               cfg->fork ? SVZ_PROCESS_FORK :
-#if HAVE_SOCKETPAIR
-                               SVZ_PROCESS_SHUFFLE_SOCK,
-#else
-                               SVZ_PROCESS_SHUFFLE_PIPE,
-#endif
+                               cfg->fork,
                                cfg->user ? cfg->user :  SVZ_PROCESS_NONE)) < 0)
     {
       svz_log (LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);
