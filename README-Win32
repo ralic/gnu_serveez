@@ -25,12 +25,7 @@ build-aux/vcgen.bat              - copies files to the final location
 config.h.serveez                 - prebuild config.h for Serveez
 src/svzconfig.h.serveez          - prebuild svzconfig.h for Serveez
 src/libserveez/svzpath.h.serveez - prebuild svzpath.h for Serveez
-test/hash.dsp                    - hash test project file
-test/array.dsp                   - array test project file
-test/vector.dsp                  - vector list project file
-test/spvec.dsp                   - sparse vector test project file
-test/codec.dsp                   - codec interface test project file
-test/prog.dsp                    - passthrough test client project file
+test/btdt.dsp                    - "been there done that" project file
 build-aux/autodsp                - creates the workspace and project files
 
 
