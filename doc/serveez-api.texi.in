@@ -207,7 +207,6 @@ which come with Serveez make extensive use of them.
 @menu
 * Array::                 A growable array implementation
 * Hashtable::             Hashtable implementation
-* Sparsevector::          Sparsevector implementation
 * Vectorlist::            Vectorlist implementation
 @end menu
 
@@ -260,31 +259,6 @@ C types like integers or pointers.
 |F| svz_hash_capacity
 |F| svz_hash_contains
 |F| svz_hash_exists
-
-@node Sparsevector
-@subsubsection Sparsevector
-
-A sparse vector is a kind of data array which grows and shrinks on demand.
-It unifies the advantages of chained lists (less memory usage than simple
-arrays) and arrays (faster access to specific elements).  This implementation
-can handle gaps in between the array elements.
-
-|F| svz_spvec_create
-|F| svz_spvec_destroy
-|F| svz_spvec_add
-|F| svz_spvec_clear
-|F| svz_spvec_contains
-|F| svz_spvec_get
-|F| svz_spvec_index
-|F| svz_spvec_delete
-|F| svz_spvec_delete_range
-|F| svz_spvec_set
-|F| svz_spvec_unset
-|F| svz_spvec_size
-|F| svz_spvec_length
-|F| svz_spvec_insert
-|F| svz_spvec_values
-|F| svz_spvec_pack
 
 @node Vectorlist
 @subsubsection Vectorlist

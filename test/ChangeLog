@@ -1,3 +1,11 @@
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop unused "sparse vector" functionality.
+
+	* btdt.c (spvec_main): Delete func.
+	(avail): Delete ‘SUB (spvec)’.
+	* t000: Remove spvec test.
+
 2011-03-27  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move client name specification to ‘svz_boot’.

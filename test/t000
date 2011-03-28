@@ -20,8 +20,7 @@
 
 (exit (and-map sysok? '("vector 10000"
                         "array 5 10000"
-                        "hash 10000"
-                        "spvec 10000 1000 5")))
+                        "hash 10000")))
 
 ;;; Local variables:
 ;;; mode: scheme

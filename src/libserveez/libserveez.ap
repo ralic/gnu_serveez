@@ -28,7 +28,7 @@ SOURCES = \
  server-core.c server-loop.c snprintf.c socket.c udp-socket.c \
  util.c windoze.c tcp-socket.c interface.c coserver/coserver.c \
  coserver/dns.c coserver/ident.c coserver/reverse-dns.c server.c \
- boot.c server-socket.c dynload.c vector.c core.c sparsevec.c \
+ boot.c server-socket.c dynload.c vector.c core.c \
  portcfg.c binding.c codec/codec.c codec/gzlib.c codec/bzip2.c \
  passthrough.c cfg.c
 

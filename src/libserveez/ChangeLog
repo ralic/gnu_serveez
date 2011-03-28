@@ -1,5 +1,16 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop unused "sparse vector" functionality.
+
+	* Makefile.am
+	(libserveez_la_SOURCES): Remove sparsevec.c.
+	(libserveez_HEADERS): Remove sparsevec.h.
+	* libserveez.ap (SOURCES): Remove sparsevec.c.
+	* sparsevec.c: Delete file.
+	* sparsevec.h: Delete file.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix PROTO_{TCP,UDP,PIPE,ICMP,RAW} with "SVZ_".
 
 	* core.h

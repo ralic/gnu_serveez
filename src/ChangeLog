@@ -1,5 +1,11 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop unused "sparse vector" functionality.
+
+	* libserveez.h: Don't #include "libserveez/sparsevec.h".
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix PROTO_{TCP,UDP,PIPE,ICMP,RAW} with "SVZ_".
 
 	* ctrl-server/control-proto.c: Update all refs.
