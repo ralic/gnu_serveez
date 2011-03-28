@@ -199,7 +199,7 @@ foo_global_init (SVZ_UNUSED svz_servertype_t *server)
   };
 
   /* Default port configuration.  */
-  foo_default_port.proto = PROTO_TCP;
+  foo_default_port.proto = SVZ_PROTO_TCP;
   foo_default_port.tcp_port = 42421;
   foo_default_port.tcp_ipaddr = "*";
 

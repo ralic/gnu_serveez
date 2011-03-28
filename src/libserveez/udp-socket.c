@@ -376,7 +376,7 @@ svz_udp_connect (unsigned long host, unsigned short port)
   svz_socket_t *sock;
 
   /* Create a client socket.  */
-  if ((sockfd = svz_socket_create (PROTO_UDP)) == (svz_t_socket) -1)
+  if ((sockfd = svz_socket_create (SVZ_PROTO_UDP)) == (svz_t_socket) -1)
     return NULL;
 
   /* Try to connect to the server.  Does it make sense for ICMP?  */
@@ -393,7 +393,7 @@ svz_udp_connect (unsigned long host, unsigned short port)
   svz_sock_resize_buffers (sock, SVZ_UDP_BUF_SIZE, SVZ_UDP_BUF_SIZE);
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
-  sock->proto = PROTO_UDP;
+  sock->proto = SVZ_PROTO_UDP;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   svz_sock_enqueue (sock);
   svz_sock_intern_connection_info (sock);

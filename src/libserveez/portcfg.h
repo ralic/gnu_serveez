@@ -187,22 +187,22 @@ svz_portcfg_t;
  * port configuration @var{port} if it is a network port configuration.
  * Otherwise return @code{NULL}.
  */
-#define svz_portcfg_addr(port)                               \
-  (((port)->proto & PROTO_TCP) ? &((port)->tcp_addr) :       \
-   ((port)->proto & PROTO_UDP) ? &((port)->udp_addr) :       \
-   ((port)->proto & PROTO_ICMP) ? &((port)->icmp_addr) :     \
-   ((port)->proto & PROTO_RAW) ? &((port)->raw_addr) : NULL) \
+#define svz_portcfg_addr(port)                                          \
+  (((port)->proto & SVZ_PROTO_TCP) ? &((port)->tcp_addr) :              \
+   ((port)->proto & SVZ_PROTO_UDP) ? &((port)->udp_addr) :              \
+   ((port)->proto & SVZ_PROTO_ICMP) ? &((port)->icmp_addr) :            \
+   ((port)->proto & SVZ_PROTO_RAW) ? &((port)->raw_addr) : NULL)
 
 /*
  * Return the pointer to the ip address @code{ipaddr} of the given
  * port configuration @var{port} if it is a network port configuration.
  * Otherwise return @code{NULL}.
  */
-#define svz_portcfg_ipaddr(port)                            \
-  (((port)->proto & PROTO_TCP) ? (port)->tcp_ipaddr :       \
-   ((port)->proto & PROTO_UDP) ? (port)->udp_ipaddr :       \
-   ((port)->proto & PROTO_ICMP) ? (port)->icmp_ipaddr :     \
-   ((port)->proto & PROTO_RAW) ? (port)->raw_ipaddr : NULL) \
+#define svz_portcfg_ipaddr(port)                                \
+  (((port)->proto & SVZ_PROTO_TCP) ? (port)->tcp_ipaddr :       \
+   ((port)->proto & SVZ_PROTO_UDP) ? (port)->udp_ipaddr :       \
+   ((port)->proto & SVZ_PROTO_ICMP) ? (port)->icmp_ipaddr :     \
+   ((port)->proto & SVZ_PROTO_RAW) ? (port)->raw_ipaddr : NULL)
 
 /*
  * This macro returns the network device name stored in the given port
@@ -210,19 +210,19 @@ svz_portcfg_t;
  * returned pointer can be @code{NULL} if there is no such device set
  * or if the port configuration is not a network port configuration.
  */
-#define svz_portcfg_device(port)                            \
-  (((port)->proto & PROTO_TCP) ? (port)->tcp_device :       \
-   ((port)->proto & PROTO_UDP) ? (port)->udp_device :       \
-   ((port)->proto & PROTO_ICMP) ? (port)->icmp_device :     \
-   ((port)->proto & PROTO_RAW) ? (port)->raw_device : NULL) \
+#define svz_portcfg_device(port)                                \
+  (((port)->proto & SVZ_PROTO_TCP) ? (port)->tcp_device :       \
+   ((port)->proto & SVZ_PROTO_UDP) ? (port)->udp_device :       \
+   ((port)->proto & SVZ_PROTO_ICMP) ? (port)->icmp_device :     \
+   ((port)->proto & SVZ_PROTO_RAW) ? (port)->raw_device : NULL)
 
 /*
  * Return the UDP or TCP port of the given port configuration or zero
  * if it neither TCP nor UDP.
  */
-#define svz_portcfg_port(port)                         \
-  (((port)->proto & PROTO_TCP) ? (port)->tcp_port :    \
-   ((port)->proto & PROTO_UDP) ? (port)->udp_port : 0) \
+#define svz_portcfg_port(port)                                  \
+  (((port)->proto & SVZ_PROTO_TCP) ? (port)->tcp_port :         \
+   ((port)->proto & SVZ_PROTO_UDP) ? (port)->udp_port : 0)
 
 __BEGIN_DECLS
 SBO void svz_portcfg_free (svz_portcfg_t *);

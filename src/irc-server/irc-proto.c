@@ -200,7 +200,7 @@ irc_check_tcp_bindings (svz_server_t *server)
   svz_array_foreach (ports, port, n)
     {
       /* Is it a TCP port configuration?  */
-      if (!(port->proto & PROTO_TCP))
+      if (!(port->proto & SVZ_PROTO_TCP))
         {
           svz_log (LOG_WARNING, "irc: `%s' is bound to non-TCP port `%s'\n",
                    server->name, port->name);

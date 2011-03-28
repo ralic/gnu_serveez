@@ -903,7 +903,7 @@ guile_sock_boundary (SCM sock, SCM boundary)
     }
 
   /* Only assign this callback for connection oriented protocols.  */
-  if (xsock->proto & (PROTO_TCP | PROTO_PIPE))
+  if (xsock->proto & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
     xsock->check_request = svz_sock_check_request;
 
   return SCM_BOOL_T;
@@ -962,11 +962,11 @@ guile_sock_print (SCM sock, SCM buffer)
     }
 
   /* Depending on the protocol type use different kind of senders.  */
-  if (xsock->proto & (PROTO_TCP | PROTO_PIPE))
+  if (xsock->proto & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
     ret = svz_sock_write (xsock, buf, len);
-  else if (xsock->proto & PROTO_UDP)
+  else if (xsock->proto & SVZ_PROTO_UDP)
     ret = svz_udp_write (xsock, buf, len);
-  else if (xsock->proto & PROTO_ICMP)
+  else if (xsock->proto & SVZ_PROTO_ICMP)
     ret = svz_icmp_write (xsock, buf, len);
 
   if (ret == -1)

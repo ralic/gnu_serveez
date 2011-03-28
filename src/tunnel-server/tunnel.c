@@ -96,6 +96,15 @@ tnl_global_finalize (SVZ_UNUSED svz_servertype_t *server)
   return 0;
 }
 
+static int
+proto_support_p (svz_portcfg_t *portcfg)
+{
+  return portcfg->proto & (SVZ_PROTO_TCP
+                           | SVZ_PROTO_ICMP
+                           | SVZ_PROTO_UDP
+                           | SVZ_PROTO_PIPE);
+}
+
 /*
  * Tunnel server instance initializer.  Check the configuration.
  */
@@ -106,8 +115,7 @@ tnl_init (svz_server_t *server)
   struct sockaddr_in *addr;
 
   /* protocol supported?  */
-  if (!(cfg->source->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)) ||
-      !(cfg->target->proto & (PROTO_TCP|PROTO_ICMP|PROTO_UDP|PROTO_PIPE)))
+  if (!proto_support_p (cfg->source) || !proto_support_p (cfg->target))
     {
       svz_log (LOG_ERROR, "tunnel: protocol not supported\n");
       return -1;
@@ -120,7 +128,7 @@ tnl_init (svz_server_t *server)
       return -1;
     }
 
-  if (!(cfg->target->proto & PROTO_PIPE))
+  if (!(cfg->target->proto & SVZ_PROTO_PIPE))
     {
       /* broadcast target ip address not allowed */
       addr = svz_portcfg_addr (cfg->target);
@@ -135,9 +143,9 @@ tnl_init (svz_server_t *server)
   cfg->client = svz_hash_create (4, svz_free);
 
   /* assign the appropriate handle request routine of the server */
-  if (cfg->source->proto & PROTO_UDP)
+  if (cfg->source->proto & SVZ_PROTO_UDP)
     server->handle_request = tnl_handle_request_udp_source;
-  if (cfg->source->proto & PROTO_ICMP)
+  if (cfg->source->proto & SVZ_PROTO_ICMP)
     server->handle_request = tnl_handle_request_icmp_source;
 
   return 0;
@@ -218,7 +226,7 @@ tnl_create_socket (svz_socket_t *sock, int source)
   struct sockaddr_in *addr;
 
   /* get host and target ip if necessary */
-  if (!(cfg->target->proto & PROTO_PIPE))
+  if (!(cfg->target->proto & SVZ_PROTO_PIPE))
     {
       addr = svz_portcfg_addr (cfg->target);
       ip = addr->sin_addr.s_addr;
@@ -231,16 +239,16 @@ tnl_create_socket (svz_socket_t *sock, int source)
    */
   switch (cfg->target->proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       sock->userflags |= TNL_FLAG_TGT_TCP;
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       sock->userflags |= TNL_FLAG_TGT_UDP;
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       sock->userflags |= TNL_FLAG_TGT_ICMP;
       break;
-    case PROTO_PIPE:
+    case SVZ_PROTO_PIPE:
       sock->userflags |= TNL_FLAG_TGT_PIPE;
       break;
     default:

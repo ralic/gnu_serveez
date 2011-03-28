@@ -745,7 +745,7 @@ svz_icmp_connect (unsigned long host, unsigned short port,
   svz_socket_t *sock;
 
   /* Create a client socket.  */
-  if ((sockfd = svz_socket_create (PROTO_ICMP)) == (svz_t_socket) -1)
+  if ((sockfd = svz_socket_create (SVZ_PROTO_ICMP)) == (svz_t_socket) -1)
       return NULL;
 
   /* Try to connect to the server.  Does it make sense for ICMP ? */
@@ -762,7 +762,7 @@ svz_icmp_connect (unsigned long host, unsigned short port,
   svz_sock_resize_buffers (sock, ICMP_BUF_SIZE, ICMP_BUF_SIZE);
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
-  sock->proto = PROTO_ICMP;
+  sock->proto = SVZ_PROTO_ICMP;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
   sock->itype = type;
   svz_sock_enqueue (sock);

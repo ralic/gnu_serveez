@@ -345,15 +345,15 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 
       /* a listening server */
       strcpy (proto, "server: ");
-      if (xsock->proto & PROTO_TCP)
+      if (xsock->proto & SVZ_PROTO_TCP)
         strcat (proto, "tcp ");
-      if (xsock->proto & PROTO_UDP)
+      if (xsock->proto & SVZ_PROTO_UDP)
         strcat (proto, "udp ");
-      if (xsock->proto & PROTO_ICMP)
+      if (xsock->proto & SVZ_PROTO_ICMP)
         strcat (proto, "icmp ");
-      if (xsock->proto & PROTO_PIPE)
+      if (xsock->proto & SVZ_PROTO_PIPE)
         strcat (proto, "pipe ");
-      if (xsock->proto & PROTO_RAW)
+      if (xsock->proto & SVZ_PROTO_RAW)
         strcat (proto, "raw ");
 
       svz_sock_printf (sock, "%s\r\n", proto);

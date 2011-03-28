@@ -27,11 +27,11 @@
 /* end svzint */
 
 /* protocol definitions */
-#define PROTO_TCP   0x00000001 /* tcp  - bidirectional, reliable */
-#define PROTO_UDP   0x00000002 /* udp  - multidirectional, unreliable */
-#define PROTO_PIPE  0x00000004 /* pipe - unidirectional, reliable */
-#define PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
-#define PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
+#define SVZ_PROTO_TCP   0x00000001 /* tcp  - bidirectional, reliable */
+#define SVZ_PROTO_UDP   0x00000002 /* udp  - multidirectional, unreliable */
+#define SVZ_PROTO_PIPE  0x00000004 /* pipe - unidirectional, reliable */
+#define SVZ_PROTO_ICMP  0x00000008 /* icmp - multidirectional, unreliable */
+#define SVZ_PROTO_RAW   0x00000010 /* raw  - multidirectional, unreliable */
 
 /* Silence the "declared inside parameter list" warning.  */
 struct stat;

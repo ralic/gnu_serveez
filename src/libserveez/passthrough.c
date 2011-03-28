@@ -183,7 +183,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
     {
       svz_sock_setreferrer (sock, NULL);
       svz_sock_setreferrer (xsock, NULL);
-      if (sock->flags & (PROTO_TCP | PROTO_PIPE))
+      if (sock->flags & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
         {
 #if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
@@ -786,7 +786,7 @@ svz_process_duplicate (svz_t_handle handle, int proto)
   WSAPROTOCOL_INFO info;
 
   /* Duplicate a pipe handle.  */
-  if (proto & PROTO_PIPE)
+  if (proto & SVZ_PROTO_PIPE)
     {
       if (!DuplicateHandle (GetCurrentProcess (), handle,
                             GetCurrentProcess (), &duphandle,

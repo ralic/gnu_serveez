@@ -186,19 +186,19 @@ svz_socket_create_pair (int proto, svz_t_socket desc[2])
   /* Assign the appropriate socket type.  */
   switch (proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       stype = SOCK_STREAM;
       ptype = IPPROTO_IP;
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       stype = SOCK_DGRAM;
       ptype = IPPROTO_UDP;
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       stype = SOCK_RAW;
       ptype = IPPROTO_ICMP;
       break;
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       stype = SOCK_RAW;
       ptype = IPPROTO_RAW;
       break;
@@ -243,22 +243,22 @@ svz_socket_create (int proto)
   /* Assign the appropriate socket type.  */
   switch (proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       stype = SOCK_STREAM;
       ptype = IPPROTO_IP;
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       stype = SOCK_DGRAM;
       ptype = IPPROTO_UDP;
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       stype = SOCK_RAW;
       ptype = IPPROTO_ICMP;
       break;
       /* This protocol is for sending packets only.  The kernel filters
          any received packets by the socket protocol (here: IPPROTO_RAW
          which is unspecified).  */
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       stype = SOCK_RAW;
       ptype = IPPROTO_RAW;
       break;

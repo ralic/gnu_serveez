@@ -262,7 +262,7 @@ prog_read_sock_drop (svz_socket_t *sock)
     return -1;
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret,
-           sock->proto & PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
+           sock->proto & SVZ_PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
 #endif
   return 0;
 }
@@ -331,7 +331,7 @@ prog_init (svz_server_t *server)
       svz_array_foreach (listeners, sock, i)
         {
           /* Is it a UPD or ICMP port (packet oriented)?  */
-          if (sock->proto & (PROTO_UDP | PROTO_ICMP))
+          if (sock->proto & (SVZ_PROTO_UDP | SVZ_PROTO_ICMP))
             {
               /* Require non-shared listener.  */
               if (!svz_server_single_listener (server, sock))

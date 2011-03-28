@@ -1,5 +1,25 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix PROTO_{TCP,UDP,PIPE,ICMP,RAW} with "SVZ_".
+
+	* core.h
+	(SVZ_PROTO_TCP): Rename from ‘PROTO_TCP’.
+	(SVZ_PROTO_UDP): Rename from ‘PROTO_UDP’.
+	(SVZ_PROTO_PIPE): Rename from ‘PROTO_PIPE’.
+	(SVZ_PROTO_ICMP): Rename from ‘PROTO_ICMP’.
+	(SVZ_PROTO_RAW): Rename from ‘PROTO_RAW’.
+	* core.c: Update all refs.
+	* binding.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* passthrough.c: Likewise.
+	* portcfg.c: Likewise.
+	* portcfg.h: Likewise.
+	* server-socket.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_process_t’.
 
 	* passthrough.h (svz_process_t): Move typedef from here...

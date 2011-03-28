@@ -85,7 +85,8 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 {
   struct sockaddr_in *a_addr, *b_addr;
 
-  if ((a->proto & (PROTO_TCP | PROTO_UDP | PROTO_ICMP | PROTO_RAW)) &&
+  if ((a->proto & (SVZ_PROTO_TCP | SVZ_PROTO_UDP |
+                   SVZ_PROTO_ICMP | SVZ_PROTO_RAW)) &&
       (a->proto == b->proto))
     {
       /* Two network ports are equal if both local port and IP address
@@ -95,8 +96,8 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
 
       switch (a->proto)
         {
-        case PROTO_UDP:
-        case PROTO_TCP:
+        case SVZ_PROTO_UDP:
+        case SVZ_PROTO_TCP:
           if (a_addr->sin_port == b_addr->sin_port)
             {
               if ((a->flags & PORTCFG_FLAG_DEVICE) ||
@@ -117,7 +118,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
                 return PORTCFG_MATCH;
             }
           break;
-        case PROTO_ICMP:
+        case SVZ_PROTO_ICMP:
           if (a->icmp_type == b->icmp_type)
             {
               if ((a->flags & PORTCFG_FLAG_DEVICE) ||
@@ -135,7 +136,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
                 return PORTCFG_MATCH;
             }
           break;
-        case PROTO_RAW:
+        case SVZ_PROTO_RAW:
           if ((a->flags & PORTCFG_FLAG_DEVICE) ||
               (b->flags & PORTCFG_FLAG_DEVICE))
             {
@@ -152,7 +153,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
           break;
         }
     }
-  else if (a->proto & PROTO_PIPE && a->proto == b->proto)
+  else if (a->proto & SVZ_PROTO_PIPE && a->proto == b->proto)
     {
       /*
        * Two pipe configs are equal if they use the same files.
@@ -215,19 +216,19 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
 
   switch (this->proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       svz_free_and_zero (this->tcp_ipaddr);
       this->tcp_ipaddr = ipaddr;
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       svz_free_and_zero (this->udp_ipaddr);
       this->udp_ipaddr = ipaddr;
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       svz_free_and_zero (this->icmp_ipaddr);
       this->icmp_ipaddr = ipaddr;
       break;
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       svz_free_and_zero (this->raw_ipaddr);
       this->raw_ipaddr = ipaddr;
       break;
@@ -295,23 +296,23 @@ svz_portcfg_dup (svz_portcfg_t *port)
   /* Depending on the protocol, copy various strings.  */
   switch (port->proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       copy->tcp_ipaddr = svz_strdup (port->tcp_ipaddr);
       copy->tcp_device = svz_strdup (port->tcp_device);
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       copy->udp_ipaddr = svz_strdup (port->udp_ipaddr);
       copy->udp_device = svz_strdup (port->udp_device);
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       copy->icmp_ipaddr = svz_strdup (port->icmp_ipaddr);
       copy->icmp_device = svz_strdup (port->icmp_device);
       break;
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       copy->raw_ipaddr = svz_strdup (port->raw_ipaddr);
       copy->raw_device = svz_strdup (port->raw_device);
       break;
-    case PROTO_PIPE:
+    case SVZ_PROTO_PIPE:
       copy->pipe_recv.name = svz_strdup (port->pipe_recv.name);
       copy->pipe_recv.user = svz_strdup (port->pipe_recv.user);
       copy->pipe_recv.group = svz_strdup (port->pipe_recv.group);
@@ -343,23 +344,23 @@ svz_portcfg_free (svz_portcfg_t *port)
   /* Depending on the type of configuration perform various operations.  */
   switch (port->proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       svz_free (port->tcp_ipaddr);
       svz_free (port->tcp_device);
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       svz_free (port->udp_ipaddr);
       svz_free (port->udp_device);
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       svz_free (port->icmp_ipaddr);
       svz_free (port->icmp_device);
       break;
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       svz_free (port->raw_ipaddr);
       svz_free (port->raw_device);
       break;
-    case PROTO_PIPE:
+    case SVZ_PROTO_PIPE:
       svz_free (port->pipe_recv.user);
       svz_free (port->pipe_recv.name);
       svz_free (port->pipe_recv.group);
@@ -477,7 +478,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
     {
       /* For all network protocols we assign AF_INET as protocol family,
          determine the network port (if necessary) and put the ip address.  */
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       this->tcp_addr.sin_family = AF_INET;
       if (svz_portcfg_device (this))
         {
@@ -516,7 +517,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           err = -1;
         }
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       this->udp_addr.sin_family = AF_INET;
       if (svz_portcfg_device (this))
         {
@@ -549,7 +550,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       this->udp_addr.sin_port = htons (this->udp_port);
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       if (svz_portcfg_device (this))
         {
           this->flags |= PORTCFG_FLAG_DEVICE;
@@ -571,7 +572,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       this->icmp_addr.sin_family = AF_INET;
       break;
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       if (svz_portcfg_device (this))
         {
           this->flags |= PORTCFG_FLAG_DEVICE;
@@ -595,7 +596,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       break;
       /* The pipe protocol needs a check for the validity of the permissions,
          the group and user names and its id's.  */
-    case PROTO_PIPE:
+    case SVZ_PROTO_PIPE:
       if (this->pipe_recv.name == NULL)
         {
           svz_log (LOG_ERROR, "%s: no receiving pipe file given\n",
@@ -633,13 +634,13 @@ void
 svz_portcfg_prepare (svz_portcfg_t *port)
 {
   /* Check the TCP backlog value.  */
-  if (port->proto & PROTO_TCP)
+  if (port->proto & SVZ_PROTO_TCP)
     {
       if (port->tcp_backlog <= 0 || port->tcp_backlog > SOMAXCONN)
         port->tcp_backlog = SOMAXCONN;
     }
   /* Check the detection barriers for pipe and tcp sockets.  */
-  if (port->proto & (PROTO_PIPE | PROTO_TCP))
+  if (port->proto & (SVZ_PROTO_PIPE | SVZ_PROTO_TCP))
     {
       if (port->detection_fill <= 0 ||
           port->detection_fill > SOCK_MAX_DETECTION_FILL)
@@ -652,21 +653,21 @@ svz_portcfg_prepare (svz_portcfg_t *port)
   if (port->send_buffer_size <= 0 ||
       port->send_buffer_size >= MAX_BUF_SIZE)
     {
-      if (port->proto & (PROTO_TCP | PROTO_PIPE))
+      if (port->proto & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
         port->send_buffer_size = SEND_BUF_SIZE;
-      else if (port->proto & PROTO_UDP)
+      else if (port->proto & SVZ_PROTO_UDP)
         port->send_buffer_size = SVZ_UDP_BUF_SIZE;
-      else if (port->proto & (PROTO_ICMP | PROTO_RAW))
+      else if (port->proto & (SVZ_PROTO_ICMP | SVZ_PROTO_RAW))
         port->send_buffer_size = ICMP_BUF_SIZE;
     }
   if (port->recv_buffer_size <= 0 ||
       port->recv_buffer_size >= MAX_BUF_SIZE)
     {
-      if (port->proto & (PROTO_TCP | PROTO_PIPE))
+      if (port->proto & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
         port->recv_buffer_size = RECV_BUF_SIZE;
-      else if (port->proto & PROTO_UDP)
+      else if (port->proto & SVZ_PROTO_UDP)
         port->recv_buffer_size = SVZ_UDP_BUF_SIZE;
-      else if (port->proto & (PROTO_ICMP | PROTO_RAW))
+      else if (port->proto & (SVZ_PROTO_ICMP | SVZ_PROTO_RAW))
         port->recv_buffer_size = ICMP_BUF_SIZE;
     }
   /* Check the connection frequency.  */
@@ -705,28 +706,28 @@ svz_portcfg_text (svz_portcfg_t *port, int *lenp)
   int len;
 
   /* TCP and UDP */
-  if (port->proto & (PROTO_TCP | PROTO_UDP))
+  if (port->proto & (SVZ_PROTO_TCP | SVZ_PROTO_UDP))
     {
       addr = svz_portcfg_addr (port);
       len = snprintf (text, TEXT_SIZE, "%s:[%s:%d]",
-                      (port->proto & PROTO_TCP) ? "TCP" : "UDP",
+                      (port->proto & SVZ_PROTO_TCP) ? "TCP" : "UDP",
                       svz_portcfg_addr_text (port, addr),
                       ntohs (addr->sin_port));
     }
   /* RAW and ICMP */
-  else if (port->proto & (PROTO_RAW | PROTO_ICMP))
+  else if (port->proto & (SVZ_PROTO_RAW | SVZ_PROTO_ICMP))
     {
-      int icmp_p = port->proto & PROTO_ICMP;
+      int icmp_p = port->proto & SVZ_PROTO_ICMP;
 
       addr = svz_portcfg_addr (port);
       len = snprintf (text, TEXT_SIZE, "%s:[%s%s%s]",
-                      (port->proto & PROTO_RAW) ? "RAW" : "ICMP",
+                      (port->proto & SVZ_PROTO_RAW) ? "RAW" : "ICMP",
                       svz_portcfg_addr_text (port, addr),
                       icmp_p ? "/" : "",
                       icmp_p ? svz_itoa (port->icmp_type) : "");
     }
   /* PIPE */
-  else if (port->proto & PROTO_PIPE)
+  else if (port->proto & SVZ_PROTO_PIPE)
     len = snprintf (text, TEXT_SIZE, "PIPE:[%s]-[%s]",
                     port->pipe_recv.name, port->pipe_send.name);
   else
@@ -755,29 +756,29 @@ svz_portcfg_print (svz_portcfg_t *this, FILE *f)
 
   switch (this->proto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       fprintf (f, "portcfg `%s': TCP (%s|%s):%d\n", this->name,
                this->tcp_ipaddr,
                svz_inet_ntoa (this->tcp_addr.sin_addr.s_addr),
                this->tcp_port);
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       fprintf (f, "portcfg `%s': UDP (%s|%s):%d\n", this->name,
                this->udp_ipaddr,
                svz_inet_ntoa (this->udp_addr.sin_addr.s_addr),
                this->udp_port);
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       fprintf (f, "portcfg `%s': ICMP (%s|%s)\n", this->name,
                this->icmp_ipaddr,
                svz_inet_ntoa (this->icmp_addr.sin_addr.s_addr));
       break;
-    case PROTO_RAW:
+    case SVZ_PROTO_RAW:
       fprintf (f, "portcfg `%s': RAW (%s|%s)\n", this->name,
                this->raw_ipaddr,
                svz_inet_ntoa (this->raw_addr.sin_addr.s_addr));
       break;
-    case PROTO_PIPE:
+    case SVZ_PROTO_PIPE:
       fprintf (f, "portcfg `%s': PIPE "
                "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)<->"
                "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)\n", this->name,

@@ -335,7 +335,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
   svz_socket_t *sock;
 
   /* Create a socket.  */
-  if ((sockfd = svz_socket_create (PROTO_TCP)) == (svz_t_socket) -1)
+  if ((sockfd = svz_socket_create (SVZ_PROTO_TCP)) == (svz_t_socket) -1)
     return NULL;
 
   /* Try connecting.  */
@@ -351,7 +351,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
 
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
-  sock->proto = PROTO_TCP;
+  sock->proto = SVZ_PROTO_TCP;
   sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTING);
   sock->connected_socket = svz_tcp_default_connect;
   sock->check_request = NULL;

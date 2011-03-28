@@ -1140,7 +1140,7 @@ guile_define_port (SCM name, SCM args)
   if (!strcmp (proto, PORTCFG_TCP))
     {
       int port;
-      cfg->proto = PROTO_TCP;
+      cfg->proto = SVZ_PROTO_TCP;
       err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0,
                                      &port, action);
       GUILE_VALIDATE_PORT (port, "TCP", portname);
@@ -1156,7 +1156,7 @@ guile_define_port (SCM name, SCM args)
   else if (!strcmp (proto, PORTCFG_UDP))
     {
       int port;
-      cfg->proto = PROTO_UDP;
+      cfg->proto = SVZ_PROTO_UDP;
       err |= optionhash_extract_int (options, PORTCFG_PORT,
                                      0, 0, &port, action);
       GUILE_VALIDATE_PORT (port, "UDP", portname);
@@ -1170,7 +1170,7 @@ guile_define_port (SCM name, SCM args)
   else if (!strcmp (proto, PORTCFG_ICMP))
     {
       int type;
-      cfg->proto = PROTO_ICMP;
+      cfg->proto = SVZ_PROTO_ICMP;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
                                         &(cfg->icmp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
@@ -1188,7 +1188,7 @@ guile_define_port (SCM name, SCM args)
   /* Maybe RAW?  */
   else if (!strcmp (proto, PORTCFG_RAW))
     {
-      cfg->proto = PROTO_RAW;
+      cfg->proto = SVZ_PROTO_RAW;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
                                         &(cfg->raw_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
@@ -1200,7 +1200,7 @@ guile_define_port (SCM name, SCM args)
       svz_hash_t *poptions;
       SCM p;
       char *str;
-      cfg->proto = PROTO_PIPE;
+      cfg->proto = SVZ_PROTO_PIPE;
 
       /* Handle receiving pipe.  */
       DEFINING ("pipe `%s' in port `%s'", PORTCFG_RECV, portname);
@@ -1278,12 +1278,12 @@ guile_define_port (SCM name, SCM args)
                                  &(cfg->recv_buffer_size), action);
 
   /* Acquire the connect frequency.  */
-  if (cfg->proto & PROTO_TCP)
+  if (cfg->proto & SVZ_PROTO_TCP)
     err |= optionhash_extract_int (options, PORTCFG_FREQ, 1, 0,
                                    &(cfg->connect_freq), action);
 
   /* Obtain the access lists "allow" and "deny".  */
-  if (!(cfg->proto & PROTO_PIPE))
+  if (!(cfg->proto & SVZ_PROTO_PIPE))
     {
       SCM list;
 

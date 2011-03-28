@@ -429,7 +429,7 @@ svz_server_create (svz_portcfg_t *port)
   struct sockaddr_in *addr;   /* bind address */
 
   /* Create listening pipe server?  */
-  if (port->proto & PROTO_PIPE)
+  if (port->proto & SVZ_PROTO_PIPE)
     {
       if ((sock = svz_sock_alloc ()) != NULL)
         {
@@ -451,7 +451,7 @@ svz_server_create (svz_portcfg_t *port)
         return NULL;
 
       /* Set this ip option if we are using raw sockets.  */
-      if (port->proto & PROTO_RAW)
+      if (port->proto & SVZ_PROTO_RAW)
         {
 #ifdef IP_HDRINCL
           optval = 1;
@@ -517,7 +517,7 @@ svz_server_create (svz_portcfg_t *port)
         }
 
       /* Prepare for listening on that port (if TCP).  */
-      if (port->proto & PROTO_TCP)
+      if (port->proto & SVZ_PROTO_TCP)
         {
           if (listen (server_socket, port->tcp_backlog) < 0)
             {
@@ -539,10 +539,11 @@ svz_server_create (svz_portcfg_t *port)
 
       /* Modify the port configuration if there was no network port given.
          In this case the systems selects a free one.  */
-      if (port->proto & (PROTO_TCP | PROTO_UDP) && addr->sin_port == 0)
+      if (port->proto & (SVZ_PROTO_TCP | SVZ_PROTO_UDP)
+          && addr->sin_port == 0)
         {
           addr->sin_port = sock->local_port;
-          if (port->proto & PROTO_TCP)
+          if (port->proto & SVZ_PROTO_TCP)
             port->tcp_port = ntohs (sock->local_port);
           else
             port->udp_port = ntohs (sock->local_port);
@@ -553,7 +554,7 @@ svz_server_create (svz_portcfg_t *port)
    * Free the receive and send buffers not needed for TCP server
    * sockets and PIPE server.
    */
-  if (port->proto & (PROTO_TCP | PROTO_PIPE))
+  if (port->proto & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
     {
       svz_sock_resize_buffers (sock, 0, 0);
       sock->check_request = svz_sock_detect_proto;
@@ -564,7 +565,7 @@ svz_server_create (svz_portcfg_t *port)
   sock->flags &= ~SOCK_FLAG_CONNECTED;
   sock->proto |= port->proto;
 
-  if (port->proto & PROTO_PIPE)
+  if (port->proto & SVZ_PROTO_PIPE)
     {
       sock->read_socket = svz_pipe_accept;
       if (svz_pipe_listener (sock, &port->pipe_recv, &port->pipe_send) == -1)
@@ -575,18 +576,18 @@ svz_server_create (svz_portcfg_t *port)
     }
   else
     {
-      if (port->proto & PROTO_TCP)
+      if (port->proto & SVZ_PROTO_TCP)
         {
           sock->read_socket = svz_tcp_accept;
         }
-      else if (port->proto & PROTO_UDP)
+      else if (port->proto & SVZ_PROTO_UDP)
         {
           svz_sock_resize_buffers (sock, 0, 0);
           sock->read_socket = svz_udp_lazy_read_socket;
           sock->write_socket = svz_udp_write_socket;
           sock->check_request = svz_udp_check_request;
         }
-      else if (port->proto & PROTO_ICMP)
+      else if (port->proto & SVZ_PROTO_ICMP)
         {
           svz_sock_resize_buffers (sock, 0, 0);
           sock->read_socket = svz_icmp_lazy_read_socket;

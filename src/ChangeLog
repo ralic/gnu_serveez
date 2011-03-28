@@ -1,5 +1,20 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix PROTO_{TCP,UDP,PIPE,ICMP,RAW} with "SVZ_".
+
+	* ctrl-server/control-proto.c: Update all refs.
+	* foo-server/foo-proto.c: Likewise.
+	* guile-api.c: Likewise.
+	* guile-server.c: Likewise.
+	* guile.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* tunnel-server/tunnel (proto_support_p): New static func.
+	(tnl_init): Use ‘proto_support_p’; update all refs.
+	(tnl_create_socket): Update all refs.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix UDP_{MSG,BUF}_SIZE with "SVZ_".
 
 	* prog-server/prog-server.c

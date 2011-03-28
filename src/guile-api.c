@@ -150,13 +150,13 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
      socket structures.  */
   switch (xproto)
     {
-    case PROTO_TCP:
+    case SVZ_PROTO_TCP:
       sock = svz_tcp_connect (xhost, xport);
       break;
-    case PROTO_UDP:
+    case SVZ_PROTO_UDP:
       sock = svz_udp_connect (xhost, xport);
       break;
-    case PROTO_ICMP:
+    case SVZ_PROTO_ICMP:
       sock = svz_icmp_connect (xhost, xport, ICMP_SERVEEZ);
       break;
     default:
@@ -532,7 +532,7 @@ guile_sock_no_delay (SCM sock, SCM enable)
   int old = 0, set = 0;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  if (xsock->proto & PROTO_TCP)
+  if (xsock->proto & SVZ_PROTO_TCP)
     {
       if (!SCM_UNBNDP (enable))
         {
@@ -1149,7 +1149,7 @@ guile_sock_send_oob (SCM sock, SCM oob)
                    oob, SCM_ARG2, FUNC_NAME, "char or exact");
 
   /* Send the oob byte through TCP sockets only.  */
-  if (xsock->proto & PROTO_TCP)
+  if (xsock->proto & SVZ_PROTO_TCP)
     {
       xsock->oob = (unsigned char)
         (SCM_CHARP (oob) ? SCM_CHAR (oob) :
@@ -1179,11 +1179,11 @@ guile_api_init (void)
   scm_c_define_gsubr ("portmap-list", 0, 1, 0, scm_portmap_list);
 #endif
 
-  scm_c_define ("PROTO_TCP", gi_integer2scm (PROTO_TCP));
-  scm_c_define ("PROTO_UDP", gi_integer2scm (PROTO_UDP));
-  scm_c_define ("PROTO_ICMP", gi_integer2scm (PROTO_ICMP));
-  scm_c_define ("PROTO_RAW", gi_integer2scm (PROTO_RAW));
-  scm_c_define ("PROTO_PIPE", gi_integer2scm (PROTO_PIPE));
+  scm_c_define ("PROTO_TCP", gi_integer2scm (SVZ_PROTO_TCP));
+  scm_c_define ("PROTO_UDP", gi_integer2scm (SVZ_PROTO_UDP));
+  scm_c_define ("PROTO_ICMP", gi_integer2scm (SVZ_PROTO_ICMP));
+  scm_c_define ("PROTO_RAW", gi_integer2scm (SVZ_PROTO_RAW));
+  scm_c_define ("PROTO_PIPE", gi_integer2scm (SVZ_PROTO_PIPE));
   scm_c_define ("KICK_FLOOD", gi_integer2scm (0));
   scm_c_define ("KICK_QUEUE", gi_integer2scm (1));
   scm_c_define_gsubr ("svz:sock:connect", 2, 1, 0, guile_sock_connect);

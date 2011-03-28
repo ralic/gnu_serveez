@@ -546,7 +546,7 @@ svz_binding_filter_net (svz_socket_t *sock,
 #if DEVEL
           printf ("addr ok\n");
 #endif
-          if (binding->port->proto & (PROTO_RAW | PROTO_ICMP) ||
+          if (binding->port->proto & (SVZ_PROTO_RAW | SVZ_PROTO_ICMP) ||
               portaddr->sin_port == port)
             {
 #if DEVEL
@@ -594,7 +594,7 @@ svz_binding_filter (svz_socket_t *sock)
   unsigned long addr;
   unsigned short port;
 
-  if (sock->proto & PROTO_PIPE)
+  if (sock->proto & SVZ_PROTO_PIPE)
     return svz_binding_filter_pipe (sock);
   if (svz_sock_local_info (sock, &addr, &port))
     return NULL;
