@@ -1067,10 +1067,8 @@ svz_process_create_child (svz_process_t *proc)
       proc->envp = svz_envblock_create ();
       svz_envblock_default (proc->envp);
     }
-  svz_envblock_add (proc->envp, "%s=%ld",
-                    SVZ_PROCESS_RECV_HANDLE, (long) proc->in);
-  svz_envblock_add (proc->envp, "%s=%ld",
-                    SVZ_PROCESS_SEND_HANDLE, (long) proc->out);
+  svz_envblock_add (proc->envp, "%s_HANDLE=%ld", "RECV", (long) proc->in);
+  svz_envblock_add (proc->envp, "%s_HANDLE=%ld", "SEND", (long) proc->out);
 
   /* Concatenate application name.  */
   {

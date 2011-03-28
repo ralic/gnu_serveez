@@ -1,5 +1,14 @@
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize SVZ_PROCESS_{RECV,SEND}_HANDLE.
+
+	* passthrough.c (svz_process_create_child):
+	Use "RECV_HANDLE", "SEND_HANDLE" directly.
+	* passthrough.h (SVZ_PROCESS_RECV_HANDLE)
+	(SVZ_PROCESS_SEND_HANDLE): Delete #define:s.
+
+2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize SVZ_PROCESS_{FORK,SHUFFLE_{SOCK,PIPE}}.
 
 	* passthrough.h (SVZ_PROCESS_FORK)

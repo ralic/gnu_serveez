@@ -41,11 +41,6 @@ typedef struct svz_process_t svz_process_t;
 #define SVZ_PROCESS_NONE  ((char *) 0L)
 #define SVZ_PROCESS_OWNER ((char *) ~0L)
 
-/* Envrionment variables used to pass the receive and send sockets to
-   the child process on Win32.  */
-#define SVZ_PROCESS_RECV_HANDLE "RECV_HANDLE"
-#define SVZ_PROCESS_SEND_HANDLE "SEND_HANDLE"
-
 __BEGIN_DECLS
 
 SERVEEZ_API int svz_sock_process (svz_socket_t *, char *, char *,
