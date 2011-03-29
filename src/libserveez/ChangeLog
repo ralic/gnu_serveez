@@ -1,5 +1,12 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_icmp_header_t’.
+
+	* icmp-socket.h (svz_icmp_header_t): Move from here...
+	* icmp-socket.c (svz_icmp_header_t): ...to here.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize several ICMP_* #define:s.
 
 	* icmp-socket.h (ICMP_ECHOREPLY, ICMP_DEST_UNREACH)

@@ -92,6 +92,18 @@ static char *svz_icmp_request[] = {
   "address mask reply"
 };
 
+/* ICMP header structure.  */
+typedef struct
+{
+  svz_uint8_t type;        /* message type */
+  svz_uint8_t code;        /* type sub-code */
+  unsigned short checksum; /* check sum */
+  unsigned short ident;    /* identifier */
+  unsigned short sequence; /* sequence number */
+  unsigned short port;     /* remote port address */
+}
+svz_icmp_header_t;
+
 #ifdef __MINGW32__
 
 /*
