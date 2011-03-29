@@ -60,10 +60,12 @@
 #define PORTCFG_ALLOW        "allow"
 #define PORTCFG_DENY         "deny"
 
+/* begin svzint */
 /* Port configuration flags.  */
 #define PORTCFG_FLAG_ANY    0x0001
 #define PORTCFG_FLAG_ALL    0x0002
 #define PORTCFG_FLAG_DEVICE 0x0004
+/* end svzint */
 
 /* Return values for port configuration comparisons.  */
 #define PORTCFG_NOMATCH  0x0001

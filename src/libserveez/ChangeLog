@@ -1,5 +1,12 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize PORTCFG_FLAG_{ANY,ALL,DEVICE}.
+
+	* portcfg.h (PORTCFG_FLAG_ANY)
+	(PORTCFG_FLAG_ALL, PORTCFG_FLAG_DEVICE): Mark ‘svzint’.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_icmp_header_t’.
 
 	* icmp-socket.h (svz_icmp_header_t): Move from here...
