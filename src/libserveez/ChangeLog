@@ -1,5 +1,12 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ICMP_{HEADER,BUF,MSG}_SIZE.
+
+	* icmp-socket.h (ICMP_HEADER_SIZE)
+	(ICMP_MSG_SIZE, ICMP_BUF_SIZE): Mark ‘svzint’.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize structs svz_hash{,_entry,_bucket}.
 
 	* hash.h (svz_hash): Mark struct ‘svzint’.

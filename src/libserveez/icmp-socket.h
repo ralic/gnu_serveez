@@ -25,11 +25,11 @@
 #include "libserveez/defines.h"
 #include "libserveez/socket.h"
 /* end svzint */
-
-/* local definitions */
+/* begin svzint */
 #define ICMP_HEADER_SIZE 10
 #define ICMP_MSG_SIZE    (64 * 1024)
 #define ICMP_BUF_SIZE    (4 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
+/* end svzint */
 
 /* general definitions */
 #define ICMP_ECHOREPLY          0       /* Echo Reply                   */
