@@ -228,17 +228,17 @@ svz_invalid_handle_p (svz_t_handle handle)
 int
 svz_pipe_valid (svz_socket_t *sock)
 {
-  if (sock->flags & SOCK_FLAG_LISTENING)
+  if (sock->flags & SVZ_SOFLG_LISTENING)
     return 0;
 
-  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+  if (!(sock->flags & SVZ_SOFLG_CONNECTED))
     return -1;
 
-  if (sock->flags & SOCK_FLAG_RECV_PIPE)
+  if (sock->flags & SVZ_SOFLG_RECV_PIPE)
     if (svz_invalid_handle_p (sock->pipe_desc[SVZ_READ]))
       return -1;
 
-  if (sock->flags & SOCK_FLAG_SEND_PIPE)
+  if (sock->flags & SVZ_SOFLG_SEND_PIPE)
     if (svz_invalid_handle_p (sock->pipe_desc[SVZ_WRITE]))
       return -1;
 
@@ -268,7 +268,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 {
   svz_socket_t *rsock;
 
-  if (sock->flags & SOCK_FLAG_CONNECTED)
+  if (sock->flags & SVZ_SOFLG_CONNECTED)
     {
       /* has this socket created by a listener?  */
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
@@ -277,10 +277,10 @@ svz_pipe_disconnect (svz_socket_t *sock)
           /* cancel any pending I/O if necessary and possible */
           if (CancelIoFunc)
             {
-              if (sock->flags & (SOCK_FLAG_READING | SOCK_FLAG_CONNECTING))
+              if (sock->flags & (SVZ_SOFLG_READING | SVZ_SOFLG_CONNECTING))
                 if (!CancelIoFunc (sock->pipe_desc[SVZ_READ]))
                   svz_log_sys_error ("CancelIo");
-              if (sock->flags & (SOCK_FLAG_WRITING | SOCK_FLAG_CONNECTING))
+              if (sock->flags & (SVZ_SOFLG_WRITING | SVZ_SOFLG_CONNECTING))
                 if (!CancelIoFunc (sock->pipe_desc[SVZ_WRITE]))
                   svz_log_sys_error ("CancelIo");
             }
@@ -311,7 +311,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 #endif /* not __MINGW32__ */
 
           /* restart listening pipe server socket */
-          rsock->flags &= ~SOCK_FLAG_INITED;
+          rsock->flags &= ~SVZ_SOFLG_INITED;
           svz_sock_setreferrer (rsock, NULL);
         }
 
@@ -337,7 +337,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
     }
 
   /* prevent a pipe server's child to reinit the pipe server */
-  if (sock->flags & SOCK_FLAG_LISTENING)
+  if (sock->flags & SVZ_SOFLG_LISTENING)
     {
       if ((rsock = svz_sock_getreferrer (sock)) != NULL)
         {
@@ -462,7 +462,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
     }
 
   /* Try to get the result of the last ‘ReadFile’.  */
-  if (sock->flags & SOCK_FLAG_READING)
+  if (sock->flags & SVZ_SOFLG_READING)
     {
       if (!GetOverlappedResult (sock->pipe_desc[SVZ_READ], sock->overlap[SVZ_READ],
                                 (DWORD *) &num_read, FALSE))
@@ -479,7 +479,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
       else
         {
           sock->recv_pending = 0;
-          sock->flags &= ~SOCK_FLAG_READING;
+          sock->flags &= ~SVZ_SOFLG_READING;
         }
     }
   /* Really read from the pipe.  */
@@ -495,7 +495,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
 
       /* Schedule the pipe for the ‘GetOverlappedResult’ call.  */
       sock->recv_pending = do_read;
-      sock->flags |= SOCK_FLAG_READING;
+      sock->flags |= SVZ_SOFLG_READING;
       return 0;
     }
 #else /* not __MINGW32__ */
@@ -565,7 +565,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
 
   /* Data bytes have been stored in system's cache.  Now we are checking
      if pending write operation has been completed.  */
-  if (sock->flags & SOCK_FLAG_WRITING)
+  if (sock->flags & SVZ_SOFLG_WRITING)
     {
       if (!GetOverlappedResult (sock->pipe_desc[SVZ_WRITE], sock->overlap[SVZ_WRITE],
                                 (DWORD *) &num_written, FALSE))
@@ -582,7 +582,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
       else
         {
           sock->send_pending -= num_written;
-          sock->flags &= ~SOCK_FLAG_WRITING;
+          sock->flags &= ~SVZ_SOFLG_WRITING;
           if (sock->send_pending != 0)
             {
               svz_log (LOG_ERROR, "pipe: %d pending send bytes left\n",
@@ -600,7 +600,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
           return -1;
         }
       sock->send_pending += do_write;
-      sock->flags |= SOCK_FLAG_WRITING;
+      sock->flags |= SVZ_SOFLG_WRITING;
       return 0;
     }
 #else /* not __MINGW32__ */
@@ -660,7 +660,7 @@ svz_pipe_create (svz_t_handle recv_fd, svz_t_handle send_fd)
       svz_sock_unique_id (sock);
       sock->pipe_desc[SVZ_READ] = recv_fd;
       sock->pipe_desc[SVZ_WRITE] = send_fd;
-      sock->flags |= (SOCK_FLAG_PIPE | SOCK_FLAG_CONNECTED);
+      sock->flags |= (SVZ_SOFLG_PIPE | SVZ_SOFLG_CONNECTED);
     }
 
   return sock;
@@ -973,7 +973,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   svz_sock_unique_id (sock);
   sock->pipe_desc[SVZ_READ] = recv_pipe;
   sock->pipe_desc[SVZ_WRITE] = send_pipe;
-  sock->flags |= (SOCK_FLAG_PIPE | SOCK_FLAG_CONNECTED);
+  sock->flags |= (SVZ_SOFLG_PIPE | SVZ_SOFLG_CONNECTED);
   svz_sock_enqueue (sock);
 
   sock->read_socket = svz_pipe_read_socket;
@@ -1092,7 +1092,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   svz_fd_cloexec (recv_pipe);
 
   sock->pipe_desc[SVZ_READ] = recv_pipe;
-  sock->flags |= SOCK_FLAG_RECV_PIPE;
+  sock->flags |= SVZ_SOFLG_RECV_PIPE;
 
 #elif defined (__MINGW32__) /* not (HAVE_MKFIFO || HAVE_MKNOD) */
 
@@ -1115,7 +1115,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
       return -1;
     }
   sock->pipe_desc[SVZ_READ] = recv_pipe;
-  sock->flags |= SOCK_FLAG_RECV_PIPE;
+  sock->flags |= SVZ_SOFLG_RECV_PIPE;
 
   send_pipe = CreateNamedPipe (
     sock->send_pipe,                             /* path */
@@ -1132,7 +1132,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
       return -1;
     }
   sock->pipe_desc[SVZ_WRITE] = send_pipe;
-  sock->flags |= SOCK_FLAG_SEND_PIPE;
+  sock->flags |= SVZ_SOFLG_SEND_PIPE;
 
   /*
    * Initialize the overlapped structures for this server socket.  Each

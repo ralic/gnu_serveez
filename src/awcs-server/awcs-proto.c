@@ -551,9 +551,9 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd,
                    "%d %s\n", sock->sock_desc, flag ? "on" : "off");
 #endif /* ENABLE_DEBUG */
           if (flag)
-            sock->flags &= ~SOCK_FLAG_NOFLOOD;
+            sock->flags &= ~SVZ_SOFLG_NOFLOOD;
           else
-            sock->flags |= SOCK_FLAG_NOFLOOD;
+            sock->flags |= SVZ_SOFLG_NOFLOOD;
         }
 #if ENABLE_DEBUG
       else
@@ -766,7 +766,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
     }
 
 #if ENABLE_DEBUG
-  if (sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SVZ_SOFLG_PIPE)
     {
       svz_log (LOG_DEBUG, "awcs: connection on pipe (%d-%d)\n",
                sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
@@ -784,7 +784,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
   if (cfg->master)
     {
 #if ENABLE_DEBUG
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           svz_log (LOG_NOTICE,
                    "awcs: master server connected on pipe (%d-%d)\n",
@@ -800,12 +800,12 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
       cfg->server = sock;
       sock->idle_func = awcs_idle_func;
       sock->idle_counter = 3;
-      sock->flags |= (SOCK_FLAG_NOFLOOD | SOCK_FLAG_PRIORITY);
+      sock->flags |= (SVZ_SOFLG_NOFLOOD | SVZ_SOFLG_PRIORITY);
       svz_log (LOG_NOTICE,
                "awcs: resizing master buffers: %d, %d\n",
                MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
       svz_sock_resize_buffers (sock, MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
-      sock->flags |= SOCK_FLAG_INITED;
+      sock->flags |= SVZ_SOFLG_INITED;
     }
   else
     {

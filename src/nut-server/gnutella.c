@@ -236,7 +236,7 @@ nut_connect_ip (nut_config_t *cfg, unsigned long ip, unsigned short port)
       svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
                svz_inet_ntoa (ip), ntohs (port));
       sock->cfg = cfg;
-      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->flags |= SVZ_SOFLG_NOFLOOD;
       sock->check_request = nut_detect_connect;
       sock->idle_func = nut_connect_timeout;
       sock->idle_counter = NUT_CONNECT_TIMEOUT;
@@ -732,13 +732,13 @@ nut_check_request (svz_socket_t *sock)
                   break;
                 }
             }
-          else if (!(sock->flags & SOCK_FLAG_KILLED))
+          else if (!(sock->flags & SVZ_SOFLG_KILLED))
             {
               client->dropped++;
             }
 
           /* return if this client connection has been killed */
-          if (sock->flags & SOCK_FLAG_KILLED)
+          if (sock->flags & SVZ_SOFLG_KILLED)
             return -1;
 
           /* cut this packet from the send buffer queue */
@@ -1104,7 +1104,7 @@ nut_connect_socket (svz_server_t *server, svz_socket_t *sock)
           return -1;
 
       /* assign gnutella specific callbacks */
-      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->flags |= SVZ_SOFLG_NOFLOOD;
       sock->disconnected_socket = nut_disconnect;
       sock->check_request = nut_check_request;
       sock->idle_func = nut_idle_searching;

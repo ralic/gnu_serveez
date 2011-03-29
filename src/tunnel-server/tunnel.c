@@ -333,7 +333,7 @@ tnl_create_socket (svz_socket_t *sock, int source)
     }
 
   xsock->cfg = cfg;
-  xsock->flags |= SOCK_FLAG_NOFLOOD;
+  xsock->flags |= SVZ_SOFLG_NOFLOOD;
   xsock->userflags = (sock->userflags | source) & ~(TNL_FLAG_TGT);
   xsock->disconnected_socket = tnl_disconnect_target;
 
@@ -408,7 +408,7 @@ int
 tnl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 {
   svz_log (LOG_NOTICE, "tunnel: %s connection accepted\n",
-           sock->flags & SOCK_FLAG_PIPE ? "pipe" : "tcp");
+           sock->flags & SVZ_SOFLG_PIPE ? "pipe" : "tcp");
   return -1;
 }
 
@@ -422,14 +422,14 @@ tnl_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   svz_socket_t *xsock = NULL;
   tnl_connect_t *source;
 
-  sock->flags |= SOCK_FLAG_NOFLOOD;
-  sock->check_request = sock->flags & SOCK_FLAG_PIPE ?
+  sock->flags |= SVZ_SOFLG_NOFLOOD;
+  sock->check_request = sock->flags & SVZ_SOFLG_PIPE ?
     tnl_check_request_pipe_source : tnl_check_request_tcp_source;
   sock->disconnected_socket = tnl_disconnect_source;
   resize_buffers (sock);
 
   /* try connecting to target */
-  xsock = tnl_create_socket (sock, sock->flags & SOCK_FLAG_PIPE ?
+  xsock = tnl_create_socket (sock, sock->flags & SVZ_SOFLG_PIPE ?
                              TNL_FLAG_SRC_PIPE : TNL_FLAG_SRC_TCP);
   if (xsock == NULL)
     return -1;

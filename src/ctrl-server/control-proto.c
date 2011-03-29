@@ -321,25 +321,25 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
   svz_sock_printf (sock,
     " flags    : %s %s %s %s %s %s %s\r\n"
     "            %s %s %s %s %s %s %s\r\n",
-    xsock->flags & SOCK_FLAG_INBUF ?      "INBUF" : "inbuf",
-    xsock->flags & SOCK_FLAG_OUTBUF ?     "OUTBUF" : "outbuf",
-    xsock->flags & SOCK_FLAG_CONNECTED ?  "CONNECTED" : "connected",
-    xsock->flags & SOCK_FLAG_LISTENING ?  "LISTENING" : "listening",
-    xsock->flags & SOCK_FLAG_KILLED ?     "KILLED" : "killed",
-    xsock->flags & SOCK_FLAG_NOFLOOD ?    "flood" : "FLOOD",
-    xsock->flags & SOCK_FLAG_CONNECTING ? "CONNECTING" : "connecting",
-    xsock->flags & SOCK_FLAG_INITED ?     "INITED" : "inited",
-    xsock->flags & SOCK_FLAG_COSERVER ?   "COSERVER" : "coserver",
-    xsock->flags & SOCK_FLAG_PIPE ?       "PIPE" : "pipe",
-    xsock->flags & SOCK_FLAG_FILE ?       "FILE" : "file",
-    xsock->flags & SOCK_FLAG_SOCK ?       "SOCK" : "sock",
-    xsock->flags & SOCK_FLAG_ENQUEUED ?   "ENQUEUED" : "enqueued",
-    xsock->flags & SOCK_FLAG_PRIORITY ?   "PRIORITY" : "priority");
+    xsock->flags & SVZ_SOFLG_INBUF ?      "INBUF" : "inbuf",
+    xsock->flags & SVZ_SOFLG_OUTBUF ?     "OUTBUF" : "outbuf",
+    xsock->flags & SVZ_SOFLG_CONNECTED ?  "CONNECTED" : "connected",
+    xsock->flags & SVZ_SOFLG_LISTENING ?  "LISTENING" : "listening",
+    xsock->flags & SVZ_SOFLG_KILLED ?     "KILLED" : "killed",
+    xsock->flags & SVZ_SOFLG_NOFLOOD ?    "flood" : "FLOOD",
+    xsock->flags & SVZ_SOFLG_CONNECTING ? "CONNECTING" : "connecting",
+    xsock->flags & SVZ_SOFLG_INITED ?     "INITED" : "inited",
+    xsock->flags & SVZ_SOFLG_COSERVER ?   "COSERVER" : "coserver",
+    xsock->flags & SVZ_SOFLG_PIPE ?       "PIPE" : "pipe",
+    xsock->flags & SVZ_SOFLG_FILE ?       "FILE" : "file",
+    xsock->flags & SVZ_SOFLG_SOCK ?       "SOCK" : "sock",
+    xsock->flags & SVZ_SOFLG_ENQUEUED ?   "ENQUEUED" : "enqueued",
+    xsock->flags & SVZ_SOFLG_PRIORITY ?   "PRIORITY" : "priority");
 
   svz_sock_printf (sock, " protocol : ");
 
   /* process connection type server flags */
-  if (xsock->flags & SOCK_FLAG_LISTENING)
+  if (xsock->flags & SVZ_SOFLG_LISTENING)
     {
       svz_array_t *servers;
 
@@ -380,7 +380,7 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
             }
         }
       /* coserver */
-      else if (xsock->flags & SOCK_FLAG_COSERVER)
+      else if (xsock->flags & SVZ_SOFLG_COSERVER)
         {
           coserver = xsock->data;
           svz_sock_printf (sock, "internal %s coserver\r\n",
@@ -394,23 +394,23 @@ ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
     }
 
   /* print all previously collected statistics of this connection */
-  if (xsock->flags & SOCK_FLAG_SOCK)
+  if (xsock->flags & SVZ_SOFLG_SOCK)
     svz_sock_printf (sock, " sock fd  : %d\r\n", xsock->sock_desc);
-  if (xsock->flags & SOCK_FLAG_FILE)
+  if (xsock->flags & SVZ_SOFLG_FILE)
     svz_sock_printf (sock, " file fd  : %d\r\n", xsock->file_desc);
-  if (xsock->flags & SOCK_FLAG_PIPE)
+  if (xsock->flags & SVZ_SOFLG_PIPE)
     svz_sock_printf (sock, " pipe fd  : %d (recv), %d (send)\r\n",
                      xsock->pipe_desc[SVZ_READ],
                      xsock->pipe_desc[SVZ_WRITE]);
 
-  if (xsock->flags & SOCK_FLAG_PIPE)
+  if (xsock->flags & SVZ_SOFLG_PIPE)
     {
       if (xsock->send_pipe)
         svz_sock_printf (sock, " foreign  : %s\r\n", xsock->send_pipe);
       if (xsock->recv_pipe)
         svz_sock_printf (sock, " local    : %s\r\n", xsock->recv_pipe);
     }
-  if (xsock->flags & SOCK_FLAG_SOCK)
+  if (xsock->flags & SVZ_SOFLG_SOCK)
     {
       svz_sock_printf (sock, " foreign  : %s:%u\r\n",
                        svz_inet_ntoa (xsock->remote_addr),
@@ -592,9 +592,9 @@ stat_con_internal (svz_socket_t *sock, void *closure)
   char rinet[64];
   svz_server_t *server;
 
-  if (sock->flags & SOCK_FLAG_LISTENING)
+  if (sock->flags & SVZ_SOFLG_LISTENING)
     id = "Listener";
-  else if (sock->flags & SOCK_FLAG_COSERVER)
+  else if (sock->flags & SVZ_SOFLG_COSERVER)
     id = "Co-Server";
   else if ((server = svz_server_find (sock->cfg)) != NULL)
     id = server->name;
@@ -778,9 +778,9 @@ killall_internal (svz_socket_t *sock, void *closure)
 {
   struct killall_closure *x = closure;
 
-  if (x->to != sock && !(sock->flags & (SOCK_FLAG_LISTENING
-                                        | SOCK_FLAG_COSERVER
-                                        | SOCK_FLAG_PRIORITY)))
+  if (x->to != sock && !(sock->flags & (SVZ_SOFLG_LISTENING
+                                        | SVZ_SOFLG_COSERVER
+                                        | SVZ_SOFLG_PRIORITY)))
     {
       svz_sock_schedule_for_shutdown (sock);
       (x->n)++;

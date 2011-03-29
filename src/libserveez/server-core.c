@@ -404,8 +404,8 @@ svz_sock_print_list (void)
 static int
 svz_sock_valid (svz_socket_t *sock)
 {
-  if (!(sock->flags & (SOCK_FLAG_LISTENING |
-                       SOCK_FLAG_CONNECTED | SOCK_FLAG_CONNECTING)))
+  if (!(sock->flags & (SVZ_SOFLG_LISTENING |
+                       SVZ_SOFLG_CONNECTED | SVZ_SOFLG_CONNECTING)))
     return -1;
 
   if (sock->sock_desc == INVALID_SOCKET)
@@ -432,14 +432,14 @@ svz_sock_validate_list (void)
   while (sock)
     {
       /* check if the descriptors are valid */
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
           if (svz_sock_valid (sock) == -1)
             {
               svz_abort ("invalid socket descriptor");
             }
         }
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           if (svz_pipe_valid (sock) == -1)
             {
@@ -486,8 +486,8 @@ svz_sock_rechain_list (void)
     {
       end_socket = sock->prev;
       for (last_listen = svz_sock_root; last_listen && last_listen != sock &&
-             last_listen->flags & (SOCK_FLAG_LISTENING | SOCK_FLAG_PRIORITY) &&
-             !(sock->flags & SOCK_FLAG_LISTENING);
+             last_listen->flags & (SVZ_SOFLG_LISTENING | SVZ_SOFLG_PRIORITY) &&
+             !(sock->flags & SVZ_SOFLG_LISTENING);
            last_listen = last_listen->next);
 
       /* just listeners in the list, return */
@@ -534,7 +534,7 @@ int
 svz_sock_enqueue (svz_socket_t *sock)
 {
   /* check for validity of pipe descriptors */
-  if (sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SVZ_SOFLG_PIPE)
     {
       if (svz_pipe_valid (sock) == -1)
         {
@@ -544,7 +544,7 @@ svz_sock_enqueue (svz_socket_t *sock)
     }
 
   /* check for validity of socket descriptors */
-  if (sock->flags & SOCK_FLAG_SOCK)
+  if (sock->flags & SVZ_SOFLG_SOCK)
     {
       if (svz_sock_valid (sock) == -1)
         {
@@ -554,7 +554,7 @@ svz_sock_enqueue (svz_socket_t *sock)
     }
 
   /* check lookup table */
-  if (svz_sock_lookup_table[sock->id] || sock->flags & SOCK_FLAG_ENQUEUED)
+  if (svz_sock_lookup_table[sock->id] || sock->flags & SVZ_SOFLG_ENQUEUED)
     {
       svz_log (LOG_FATAL, "socket id %d has been already enqueued\n",
                sock->id);
@@ -575,7 +575,7 @@ svz_sock_enqueue (svz_socket_t *sock)
     }
 
   svz_sock_last = sock;
-  sock->flags |= SOCK_FLAG_ENQUEUED;
+  sock->flags |= SVZ_SOFLG_ENQUEUED;
   svz_sock_lookup_table[sock->id] = sock;
 
   return 0;
@@ -589,7 +589,7 @@ static int
 svz_sock_dequeue (svz_socket_t *sock)
 {
   /* check for validity of pipe descriptors */
-  if (sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SVZ_SOFLG_PIPE)
     {
       if (svz_pipe_valid (sock) == -1)
         {
@@ -599,7 +599,7 @@ svz_sock_dequeue (svz_socket_t *sock)
     }
 
   /* check for validity of socket descriptors */
-  if (sock->flags & SOCK_FLAG_SOCK)
+  if (sock->flags & SVZ_SOFLG_SOCK)
     {
       if (svz_sock_valid (sock) == -1)
         {
@@ -609,7 +609,7 @@ svz_sock_dequeue (svz_socket_t *sock)
     }
 
   /* check lookup table */
-  if (!svz_sock_lookup_table[sock->id] || !(sock->flags & SOCK_FLAG_ENQUEUED))
+  if (!svz_sock_lookup_table[sock->id] || !(sock->flags & SVZ_SOFLG_ENQUEUED))
     {
       svz_log (LOG_FATAL, "socket id %d has been already dequeued\n",
                sock->id);
@@ -627,7 +627,7 @@ svz_sock_dequeue (svz_socket_t *sock)
   else
     svz_sock_root = sock->next;
 
-  sock->flags &= ~SOCK_FLAG_ENQUEUED;
+  sock->flags &= ~SVZ_SOFLG_ENQUEUED;
   svz_sock_lookup_table[sock->id] = NULL;
 
   return 0;
@@ -885,9 +885,9 @@ svz_sock_shutdown (svz_socket_t *sock)
 
   svz_sock_dequeue (sock);
 
-  if (sock->flags & SOCK_FLAG_SOCK)
+  if (sock->flags & SVZ_SOFLG_SOCK)
     svz_sock_disconnect (sock);
-  if (sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SVZ_SOFLG_PIPE)
     svz_pipe_disconnect (sock);
 
   svz_sock_free (sock);
@@ -903,16 +903,16 @@ svz_sock_shutdown (svz_socket_t *sock)
 int
 svz_sock_schedule_for_shutdown (svz_socket_t *sock)
 {
-  if (!(sock->flags & SOCK_FLAG_KILLED))
+  if (!(sock->flags & SVZ_SOFLG_KILLED))
     {
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "scheduling socket id %d for shutdown\n", sock->id);
 #endif /* ENABLE_DEBUG */
 
-      sock->flags |= SOCK_FLAG_KILLED;
+      sock->flags |= SVZ_SOFLG_KILLED;
 
       /* Shutdown each child for listeners.  */
-      if (sock->flags & SOCK_FLAG_LISTENING)
+      if (sock->flags & SVZ_SOFLG_LISTENING)
         {
           svz_socket_t *child;
           svz_sock_foreach (child)
@@ -995,7 +995,7 @@ svz_sock_check_bogus (void)
 
   svz_sock_foreach (sock)
     {
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
 #ifdef __MINGW32__
           if (ioctlsocket (sock->sock_desc, FIONREAD, &readBytes) ==
@@ -1010,7 +1010,7 @@ svz_sock_check_bogus (void)
         }
 
 #ifndef __MINGW32__
-      if (sock->flags & SOCK_FLAG_RECV_PIPE)
+      if (sock->flags & SVZ_SOFLG_RECV_PIPE)
         {
           if (fcntl (sock->pipe_desc[SVZ_READ], F_GETFL) < 0)
             {
@@ -1019,7 +1019,7 @@ svz_sock_check_bogus (void)
               svz_sock_schedule_for_shutdown (sock);
             }
         }
-      if (sock->flags & SOCK_FLAG_SEND_PIPE)
+      if (sock->flags & SVZ_SOFLG_SEND_PIPE)
         {
           if (fcntl (sock->pipe_desc[SVZ_WRITE], F_GETFL) < 0)
             {
@@ -1244,7 +1244,7 @@ svz_loop_one (void)
   while (sock)
     {
       next = sock->next;
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         svz_sock_shutdown (sock);
       sock = next;
     }

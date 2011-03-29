@@ -82,7 +82,7 @@ int
 svz_sock_flood_protect (svz_socket_t *sock, int num_read)
 {
 #ifdef ENABLE_FLOOD_PROTECTION
-  if (!(sock->flags & SOCK_FLAG_NOFLOOD))
+  if (!(sock->flags & SVZ_SOFLG_NOFLOOD))
     {
       /*
        * Since the default flood limit is 100 a reader can produce
@@ -351,9 +351,9 @@ svz_sock_alloc (void)
   in = svz_malloc (RECV_BUF_SIZE);
   out = svz_malloc (SEND_BUF_SIZE);
 
-  sock->proto = SOCK_FLAG_INIT;
-  sock->flags = SOCK_FLAG_INIT | SOCK_FLAG_INBUF | SOCK_FLAG_OUTBUF;
-  sock->userflags = SOCK_FLAG_INIT;
+  sock->proto = SVZ_SOFLG_INIT;
+  sock->flags = SVZ_SOFLG_INIT | SVZ_SOFLG_INBUF | SVZ_SOFLG_OUTBUF;
+  sock->userflags = SVZ_SOFLG_INIT;
   sock->file_desc = -1;
   sock->sock_desc = (svz_t_socket) -1;
   svz_invalidate_handle (&sock->pipe_desc[SVZ_READ]);
@@ -431,7 +431,7 @@ svz_sock_free (svz_socket_t *sock)
     svz_free (sock->recv_buffer);
   if (sock->send_buffer)
     svz_free (sock->send_buffer);
-  if (sock->flags & SOCK_FLAG_LISTENING)
+  if (sock->flags & SVZ_SOFLG_LISTENING)
     {
       if (sock->data)
         svz_array_destroy (sock->data);
@@ -513,7 +513,7 @@ svz_sock_create (int fd)
     {
       svz_sock_unique_id (sock);
       sock->sock_desc = fd;
-      sock->flags |= (SOCK_FLAG_CONNECTED | SOCK_FLAG_SOCK);
+      sock->flags |= (SVZ_SOFLG_CONNECTED | SVZ_SOFLG_SOCK);
       svz_sock_intern_connection_info (sock);
     }
   return sock;
@@ -527,9 +527,9 @@ int
 svz_sock_disconnect (svz_socket_t *sock)
 {
   /* shutdown client connection */
-  if (sock->flags & SOCK_FLAG_CONNECTED)
+  if (sock->flags & SVZ_SOFLG_CONNECTED)
     {
-      if (!(sock->flags & SOCK_FLAG_NOSHUTDOWN))
+      if (!(sock->flags & SVZ_SOFLG_NOSHUTDOWN))
         {
           if (shutdown (sock->sock_desc, 2) < 0)
             svz_log_net_error ("shutdown");
@@ -561,14 +561,14 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
   int ret;
   int space;
 
-  if (sock->flags & SOCK_FLAG_KILLED)
+  if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
 
   while (len > 0)
     {
       /* Try to flush the queue of this socket.  */
       if (sock->write_socket && !sock->unavailable &&
-          sock->flags & SOCK_FLAG_CONNECTED && sock->send_buffer_fill)
+          sock->flags & SVZ_SOFLG_CONNECTED && sock->send_buffer_fill)
         {
           if ((ret = sock->write_socket (sock)) != 0)
             return ret;
@@ -577,7 +577,7 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
       if (sock->send_buffer_fill >= sock->send_buffer_size)
         {
           /* Queue is full, unlucky socket or pipe ...  */
-          if (sock->flags & SOCK_FLAG_SEND_PIPE)
+          if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             svz_log (LOG_ERROR,
                      "send buffer overflow on pipe (%d-%d) (id %d)\n",
                      sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE],
@@ -625,7 +625,7 @@ svz_sock_printf (svz_socket_t *sock, const char *fmt, ...)
   static char buffer[VSNPRINTF_BUF_SIZE];
   unsigned len;
 
-  if (sock->flags & SOCK_FLAG_KILLED)
+  if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
 
   va_start (args, fmt);

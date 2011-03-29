@@ -372,7 +372,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
 
       /* check ICMP remote port */
       if ((header->port != sock->remote_port) &&
-          !(sock->flags & SOCK_FLAG_LISTENING))
+          !(sock->flags & SVZ_SOFLG_LISTENING))
         {
 #if ENABLE_DEBUG
           svz_log (LOG_DEBUG, "icmp: rejecting filtered packet\n");
@@ -399,7 +399,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
   if (header->type == sock->itype)
     {
       if (header->code == SVZ_ICMP_SERVEEZ_CONNECT &&
-          sock->flags & SOCK_FLAG_LISTENING)
+          sock->flags & SVZ_SOFLG_LISTENING)
         {
           svz_log (LOG_NOTICE, "icmp: accepting connection\n");
         }
@@ -436,7 +436,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
   len = sizeof (struct sockaddr_in);
 
   /* Receive data.  */
-  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+  if (!(sock->flags & SVZ_SOFLG_CONNECTED))
     {
       num_read = recvfrom (sock->sock_desc, svz_icmp_buffer,
                            sizeof (svz_icmp_buffer), 0,
@@ -456,13 +456,13 @@ svz_icmp_read_socket (svz_socket_t *sock)
                    svz_icmp_buffer, num_read, 0);
 #endif
       sock->last_recv = time (NULL);
-      if (!(sock->flags & SOCK_FLAG_FIXED))
+      if (!(sock->flags & SVZ_SOFLG_FIXED))
         {
           sock->remote_addr = sender.sin_addr.s_addr;
         }
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
-               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
+               sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
                svz_inet_ntoa (sock->remote_addr), num_read);
 #endif /* ENABLE_DEBUG */
 
@@ -502,7 +502,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
   /* Some error occurred.  */
   else
     {
-      svz_log_net_error ("icmp: recv%s", (sock->flags & SOCK_FLAG_CONNECTED
+      svz_log_net_error ("icmp: recv%s", (sock->flags & SVZ_SOFLG_CONNECTED
                                           ? ""
                                           : "from"));
       if (! svz_socket_unavailable_error_p ())
@@ -559,7 +559,7 @@ svz_icmp_write_socket (svz_socket_t *sock)
   assert ((int) do_write <= sock->send_buffer_fill);
 
   /* If socket is `connect ()'ed use `send ()' instead of `sendto ()'.  */
-  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+  if (!(sock->flags & SVZ_SOFLG_CONNECTED))
     {
       num_written = sendto (sock->sock_desc, p,
                             do_write - (p - sock->send_buffer),
@@ -574,7 +574,7 @@ svz_icmp_write_socket (svz_socket_t *sock)
   /* Some error occurred while sending.  */
   if (num_written < 0)
     {
-      svz_log_net_error ("icmp: send%s", (sock->flags & SOCK_FLAG_CONNECTED
+      svz_log_net_error ("icmp: send%s", (sock->flags & SVZ_SOFLG_CONNECTED
                                           ? ""
                                           : "to"));
       if (svz_socket_unavailable_error_p ())
@@ -595,7 +595,7 @@ svz_icmp_write_socket (svz_socket_t *sock)
 
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
-           sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
+           sock->flags & SVZ_SOFLG_CONNECTED ? "" : "to",
            svz_inet_ntoa (receiver.sin_addr.s_addr),
            do_write - (p - sock->send_buffer));
 #endif /* ENABLE_DEBUG */
@@ -633,7 +633,7 @@ svz_icmp_send_control (svz_socket_t *sock, svz_uint8_t type)
 
   if ((ret = svz_sock_write (sock, buffer, len)) == -1)
     {
-      sock->flags |= SOCK_FLAG_KILLED;
+      sock->flags |= SVZ_SOFLG_KILLED;
     }
   return ret;
 }
@@ -652,7 +652,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
   int ret = 0;
 
   /* Return if the socket has already been killed.  */
-  if (sock->flags & SOCK_FLAG_KILLED)
+  if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
 
   while (length)
@@ -691,7 +691,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
       /* Actually send the data or put it into the send buffer queue.  */
       if ((ret = svz_sock_write (sock, buffer, len)) == -1)
         {
-          sock->flags |= SOCK_FLAG_KILLED;
+          sock->flags |= SVZ_SOFLG_KILLED;
           break;
         }
     }
@@ -791,7 +791,7 @@ svz_icmp_connect (unsigned long host, unsigned short port,
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->proto = SVZ_PROTO_ICMP;
-  sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
+  sock->flags |= (SVZ_SOFLG_SOCK | SVZ_SOFLG_CONNECTED | SVZ_SOFLG_FIXED);
   sock->itype = type;
   svz_sock_enqueue (sock);
   svz_sock_intern_connection_info (sock);

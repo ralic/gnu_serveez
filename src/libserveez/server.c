@@ -173,12 +173,12 @@ svz_server_unbind (svz_server_t *server)
   svz_sock_foreach (sock)
     {
       /* Client structures.  */
-      if (!(sock->flags & SOCK_FLAG_LISTENING) &&
+      if (!(sock->flags & SVZ_SOFLG_LISTENING) &&
           (parent = svz_sock_getparent (sock)) != NULL)
         {
           /* If the parent of a client is the given servers child
              then also shutdown this client.  */
-          if (parent->flags & SOCK_FLAG_LISTENING && parent->port &&
+          if (parent->flags & SVZ_SOFLG_LISTENING && parent->port &&
               parent->data && svz_binding_contains_server (parent, server))
             svz_sock_schedule_for_shutdown (sock);
         }
@@ -326,7 +326,7 @@ svz_server_clients (svz_server_t *server)
   svz_sock_foreach (sock)
     {
       /* and find clients of the server */
-      if (!(sock->flags & SOCK_FLAG_LISTENING))
+      if (!(sock->flags & SVZ_SOFLG_LISTENING))
         if (server->cfg == sock->cfg)
           svz_array_add (clients, sock);
     }

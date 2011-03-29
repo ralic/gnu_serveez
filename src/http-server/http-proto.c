@@ -608,7 +608,7 @@ http_file_read (svz_socket_t *sock)
        */
       sock->read_socket = svz_tcp_read_socket;
       sock->userflags |= HTTP_FLAG_DONE;
-      sock->flags &= ~SOCK_FLAG_FILE;
+      sock->flags &= ~SVZ_SOFLG_FILE;
     }
 
   return 0;
@@ -678,7 +678,7 @@ http_connect_socket (svz_server_t *server, svz_socket_t *sock)
    * set the socket flag, disable flood protection and
    * set all the callback routines
    */
-  sock->flags |= SOCK_FLAG_NOFLOOD;
+  sock->flags |= SVZ_SOFLG_NOFLOOD;
   sock->check_request = http_check_request;
   sock->write_socket = http_default_write;
   sock->disconnected_socket = http_disconnect;
@@ -1267,7 +1267,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 #endif
           http_refresh_cache (cache);
           cache->entry->date = buf.st_mtime;
-          sock->flags |= SOCK_FLAG_FILE;
+          sock->flags |= SVZ_SOFLG_FILE;
           sock->file_desc = fd;
           http->filelength = buf.st_size;
           sock->read_socket = http_cache_read;
@@ -1292,7 +1292,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
     {
       sock->file_desc = fd;
       http->filelength = buf.st_size;
-      sock->flags |= SOCK_FLAG_FILE;
+      sock->flags |= SVZ_SOFLG_FILE;
 
       /*
        * find a free slot for the new file if it is not larger
@@ -1317,14 +1317,14 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
           if (svz_mingw_at_least_nt4_p ())
             {
               sock->read_socket = NULL;
-              sock->flags &= ~SOCK_FLAG_FILE;
+              sock->flags &= ~SVZ_SOFLG_FILE;
               sock->userflags |= HTTP_FLAG_SENDFILE;
             }
           else
             sock->read_socket = http_file_read;
 # else
           sock->read_socket = NULL;
-          sock->flags &= ~SOCK_FLAG_FILE;
+          sock->flags &= ~SVZ_SOFLG_FILE;
           sock->userflags |= HTTP_FLAG_SENDFILE;
           svz_tcp_cork (sock->sock_desc, 1);
 # endif

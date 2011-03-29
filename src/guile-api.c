@@ -514,7 +514,7 @@ guile_sock_final_print (SCM sock)
   svz_socket_t *xsock;
 
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  xsock->flags |= SOCK_FLAG_FINAL_WRITE;
+  xsock->flags |= SVZ_SOFLG_FINAL_WRITE;
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME

@@ -404,7 +404,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
                svz_inet_ntoa (reply->ip), ntohs (reply->port));
       cfg->dnloads++;
       xsock->cfg = cfg;
-      xsock->flags |= SOCK_FLAG_NOFLOOD;
+      xsock->flags |= SVZ_SOFLG_NOFLOOD;
       svz_sock_setparent (xsock, svz_sock_getparent (sock));
       xsock->disconnected_socket = nut_disconnect_transfer;
       xsock->check_request = nut_check_transfer;
@@ -490,7 +490,7 @@ nut_check_given (svz_socket_t *sock)
       /* assign all necessary callbacks for downloading the file */
       sock->data = transfer;
       cfg->dnloads++;
-      sock->flags |= SOCK_FLAG_NOFLOOD;
+      sock->flags |= SVZ_SOFLG_NOFLOOD;
       sock->disconnected_socket = nut_disconnect_transfer;
       sock->check_request = nut_check_transfer;
       sock->userflags |= NUT_FLAG_DNLOAD;
@@ -898,7 +898,7 @@ nut_init_upload (svz_socket_t *sock, nut_file_t *entry)
   sock->read_socket = nut_file_read;
   sock->write_socket = nut_file_write;
   sock->disconnected_socket = nut_disconnect_upload;
-  sock->flags |= SOCK_FLAG_FILE;
+  sock->flags |= SVZ_SOFLG_FILE;
   cfg->uploads++;
 
   transfer = svz_malloc (sizeof (nut_transfer_t));
@@ -995,7 +995,7 @@ nut_file_read (svz_socket_t *sock)
        * the writers there will not be additional data from now on
        */
       sock->read_socket = svz_tcp_read_socket;
-      sock->flags &= ~SOCK_FLAG_FILE;
+      sock->flags &= ~SVZ_SOFLG_FILE;
     }
 
   return 0;

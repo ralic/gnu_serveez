@@ -74,7 +74,7 @@ svz_udp_read_socket (svz_socket_t *sock)
     }
 
   /* Receive data.  */
-  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+  if (!(sock->flags & SVZ_SOFLG_CONNECTED))
     {
       num_read = recvfrom (sock->sock_desc,
                            sock->recv_buffer + sock->recv_buffer_fill,
@@ -94,7 +94,7 @@ svz_udp_read_socket (svz_socket_t *sock)
       sock->recv_buffer_fill += num_read;
 
       /* Save sender in socket structure.  */
-      if (!(sock->flags & SOCK_FLAG_FIXED))
+      if (!(sock->flags & SVZ_SOFLG_FIXED))
         {
           sock->remote_port = sender.sin_port;
           sock->remote_addr = sender.sin_addr.s_addr;
@@ -102,7 +102,7 @@ svz_udp_read_socket (svz_socket_t *sock)
 
 #if ENABLE_DEBUG
       svz_log (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
-               sock->flags & SOCK_FLAG_CONNECTED ? "" : "from",
+               sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
                svz_inet_ntoa (sock->remote_addr),
                ntohs (sock->remote_port), num_read);
 #endif /* ENABLE_DEBUG */
@@ -119,7 +119,7 @@ svz_udp_read_socket (svz_socket_t *sock)
   /* Some error occurred.  */
   else
     {
-      svz_log_net_error ("udp: recv%s", (sock->flags & SOCK_FLAG_CONNECTED
+      svz_log_net_error ("udp: recv%s", (sock->flags & SVZ_SOFLG_CONNECTED
                                          ? ""
                                          : "from"));
       if (! svz_socket_unavailable_error_p ())
@@ -177,7 +177,7 @@ svz_udp_write_socket (svz_socket_t *sock)
   p += sizeof (sock->remote_port);
 
   /* if socket is `connect ()' ed use `send ()' instead of `sendto ()' */
-  if (!(sock->flags & SOCK_FLAG_CONNECTED))
+  if (!(sock->flags & SVZ_SOFLG_CONNECTED))
     {
       num_written = sendto (sock->sock_desc, p,
                             do_write - (p - sock->send_buffer),
@@ -192,7 +192,7 @@ svz_udp_write_socket (svz_socket_t *sock)
   /* some error occurred while sending */
   if (num_written < 0)
     {
-      svz_log_net_error ("udp: send%s", (sock->flags & SOCK_FLAG_CONNECTED
+      svz_log_net_error ("udp: send%s", (sock->flags & SVZ_SOFLG_CONNECTED
                                          ? ""
                                          : "to"));
       if (svz_socket_unavailable_error_p ())
@@ -207,7 +207,7 @@ svz_udp_write_socket (svz_socket_t *sock)
 
 #if ENABLE_DEBUG
   svz_log (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
-           sock->flags & SOCK_FLAG_CONNECTED ? "" : "to",
+           sock->flags & SVZ_SOFLG_CONNECTED ? "" : "to",
            svz_inet_ntoa (receiver.sin_addr.s_addr),
            ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
 #endif /* ENABLE_DEBUG */
@@ -294,7 +294,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
   int ret = 0;
 
   /* return if the socket has already been killed */
-  if (sock->flags & SOCK_FLAG_KILLED)
+  if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
 
   /* allocate memory block */
@@ -326,7 +326,7 @@ svz_udp_write (svz_socket_t *sock, char *buf, int length)
       /* actually send the data or put it into the send buffer queue */
       if ((ret = svz_sock_write (sock, buffer, len)) == -1)
         {
-          sock->flags |= SOCK_FLAG_KILLED;
+          sock->flags |= SVZ_SOFLG_KILLED;
           break;
         }
     }
@@ -350,7 +350,7 @@ svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
   static char buffer[VSNPRINTF_BUF_SIZE];
   int len;
 
-  if (sock->flags & SOCK_FLAG_KILLED)
+  if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
 
   va_start (args, fmt);
@@ -394,7 +394,7 @@ svz_udp_connect (unsigned long host, unsigned short port)
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->proto = SVZ_PROTO_UDP;
-  sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTED | SOCK_FLAG_FIXED);
+  sock->flags |= (SVZ_SOFLG_SOCK | SVZ_SOFLG_CONNECTED | SVZ_SOFLG_FIXED);
   svz_sock_enqueue (sock);
   svz_sock_intern_connection_info (sock);
 

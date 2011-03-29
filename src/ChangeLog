@@ -1,5 +1,24 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename SOCK_FLAG_* to SVZ_SOFLG_*.
+
+	* awcs-server/awcs-proto.c: Update all refs.
+	* ctrl-server/control-proto.c: Likewise.
+	* fakeident-server/ident-proto.c: Likewise.
+	* guile-api.c: Likewise.
+	* guile-server.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* sntp-server/sntp-proto.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop funcs svz_config_{intarray,strarray,hash}_destroy.
 
 	* foo-server/foo-proto.c (foo_global_finalize):

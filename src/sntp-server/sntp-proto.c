@@ -143,7 +143,7 @@ sntp_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   /* Simple SNTP.  */
   if ((ret = sntp_create_reply (reply)) == 4)
     {
-      sock->flags |= SOCK_FLAG_FINAL_WRITE;
+      sock->flags |= SVZ_SOFLG_FINAL_WRITE;
       return svz_sock_printf (sock, "%c%c%c%c",
                               reply[0], reply[1], reply[2], reply[3]);
     }
@@ -151,7 +151,7 @@ sntp_connect_socket (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   /* Extended SNTP.  */
   svz_sock_printf (sock, "%c%c%c%c",
                    reply[0], reply[1], reply[2], reply[3]);
-  sock->flags |= SOCK_FLAG_FINAL_WRITE;
+  sock->flags |= SVZ_SOFLG_FINAL_WRITE;
   return svz_sock_printf (sock, "%c%c%c%c",
                           reply[4], reply[5], reply[6], reply[7]);
 }

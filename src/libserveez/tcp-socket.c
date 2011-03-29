@@ -100,7 +100,7 @@ svz_tcp_write_socket (svz_socket_t *sock)
     }
 
   /* If final write flag is set, then schedule for shutdown.  */
-  if (sock->flags & SOCK_FLAG_FINAL_WRITE && sock->send_buffer_fill == 0)
+  if (sock->flags & SVZ_SOFLG_FINAL_WRITE && sock->send_buffer_fill == 0)
     num_written = -1;
 
   /* Return a non-zero value if an error occurred.  */
@@ -315,8 +315,8 @@ svz_tcp_default_connect (svz_socket_t *sock)
     }
 
   /* successfully connected */
-  sock->flags |= SOCK_FLAG_CONNECTED;
-  sock->flags &= ~SOCK_FLAG_CONNECTING;
+  sock->flags |= SVZ_SOFLG_CONNECTED;
+  sock->flags &= ~SVZ_SOFLG_CONNECTING;
   svz_sock_intern_connection_info (sock);
   svz_sock_connections++;
 
@@ -352,7 +352,7 @@ svz_tcp_connect (unsigned long host, unsigned short port)
   svz_sock_unique_id (sock);
   sock->sock_desc = sockfd;
   sock->proto = SVZ_PROTO_TCP;
-  sock->flags |= (SOCK_FLAG_SOCK | SOCK_FLAG_CONNECTING);
+  sock->flags |= (SVZ_SOFLG_SOCK | SVZ_SOFLG_CONNECTING);
   sock->connected_socket = svz_tcp_default_connect;
   sock->check_request = NULL;
   svz_sock_enqueue (sock);

@@ -37,34 +37,34 @@
 #define MAX_BUF_SIZE   (1024 * 1024 * 16) /* Maximum buffer size.  */
 /* end svzint */
 
-#define SOCK_FLAG_INIT        0x00000000 /* Value for initializing.  */
-#define SOCK_FLAG_INBUF       0x00000001 /* Outbuf is allocated.  */
-#define SOCK_FLAG_OUTBUF      0x00000002 /* Inbuf is allocated.  */
-#define SOCK_FLAG_CONNECTED   0x00000004 /* Socket is connected.  */
-#define SOCK_FLAG_LISTENING   0x00000008 /* Socket is listening.  */
-#define SOCK_FLAG_KILLED      0x00000010 /* Socket will be shut down soon.  */
-#define SOCK_FLAG_NOFLOOD     0x00000020 /* Flood protection off.  */
-#define SOCK_FLAG_INITED      0x00000040 /* Socket was initialized.  */
-#define SOCK_FLAG_ENQUEUED    0x00000080 /* Socket is on socket queue.  */
-#define SOCK_FLAG_RECV_PIPE   0x00000100 /* Receiving pipe is active.  */
-#define SOCK_FLAG_SEND_PIPE   0x00000200 /* Sending pipe is active.  */
-#define SOCK_FLAG_FILE        0x00000400 /* Socket is no socket, but file.  */
-#define SOCK_FLAG_COSERVER    0x00000800 /* Socket is a coserver */
-#define SOCK_FLAG_SOCK        0x00001000 /* Socket is a plain socket.  */
+#define SVZ_SOFLG_INIT        0x00000000 /* Value for initializing.  */
+#define SVZ_SOFLG_INBUF       0x00000001 /* Outbuf is allocated.  */
+#define SVZ_SOFLG_OUTBUF      0x00000002 /* Inbuf is allocated.  */
+#define SVZ_SOFLG_CONNECTED   0x00000004 /* Socket is connected.  */
+#define SVZ_SOFLG_LISTENING   0x00000008 /* Socket is listening.  */
+#define SVZ_SOFLG_KILLED      0x00000010 /* Socket will be shut down soon.  */
+#define SVZ_SOFLG_NOFLOOD     0x00000020 /* Flood protection off.  */
+#define SVZ_SOFLG_INITED      0x00000040 /* Socket was initialized.  */
+#define SVZ_SOFLG_ENQUEUED    0x00000080 /* Socket is on socket queue.  */
+#define SVZ_SOFLG_RECV_PIPE   0x00000100 /* Receiving pipe is active.  */
+#define SVZ_SOFLG_SEND_PIPE   0x00000200 /* Sending pipe is active.  */
+#define SVZ_SOFLG_FILE        0x00000400 /* Socket is no socket, but file.  */
+#define SVZ_SOFLG_COSERVER    0x00000800 /* Socket is a coserver */
+#define SVZ_SOFLG_SOCK        0x00001000 /* Socket is a plain socket.  */
 /* Socket is no socket, but pipe.  */
-#define SOCK_FLAG_PIPE \
-  ( SOCK_FLAG_RECV_PIPE | \
-    SOCK_FLAG_SEND_PIPE )
-#define SOCK_FLAG_CONNECTING  0x00002000 /* Socket is still connecting */
-#define SOCK_FLAG_PRIORITY    0x00004000 /* Enqueue socket preferred.  */
-#define SOCK_FLAG_FIXED       0x00008000 /* Dedicated UDP connection.  */
-#define SOCK_FLAG_FINAL_WRITE 0x00010000 /* Disconnect as soon as send
+#define SVZ_SOFLG_PIPE \
+  ( SVZ_SOFLG_RECV_PIPE | \
+    SVZ_SOFLG_SEND_PIPE )
+#define SVZ_SOFLG_CONNECTING  0x00002000 /* Socket is still connecting */
+#define SVZ_SOFLG_PRIORITY    0x00004000 /* Enqueue socket preferred.  */
+#define SVZ_SOFLG_FIXED       0x00008000 /* Dedicated UDP connection.  */
+#define SVZ_SOFLG_FINAL_WRITE 0x00010000 /* Disconnect as soon as send
                                             queue is empty.  */
-#define SOCK_FLAG_READING     0x00020000 /* Pending read operation.  */
-#define SOCK_FLAG_WRITING     0x00040000 /* Pending write operation.  */
-#define SOCK_FLAG_FLUSH       0x00080000 /* Flush receive and send queue.  */
-#define SOCK_FLAG_NOSHUTDOWN  0x00100000 /* Disable shutdown.  */
-#define SOCK_FLAG_NOOVERFLOW  0x00200000 /* Disable receive buffer overflow.  */
+#define SVZ_SOFLG_READING     0x00020000 /* Pending read operation.  */
+#define SVZ_SOFLG_WRITING     0x00040000 /* Pending write operation.  */
+#define SVZ_SOFLG_FLUSH       0x00080000 /* Flush receive and send queue.  */
+#define SVZ_SOFLG_NOSHUTDOWN  0x00100000 /* Disable shutdown.  */
+#define SVZ_SOFLG_NOOVERFLOW  0x00200000 /* Disable receive buffer overflow.  */
 
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the ‘vsnprintf’ buffer */
 
@@ -83,7 +83,7 @@ struct svz_socket
   int referrer_version;         /* Referring socket version.  */
 
   int proto;                    /* Server/Protocol flag.  */
-  int flags;                    /* One of the SOCK_FLAG_* flags above.  */
+  int flags;                    /* One of the SVZ_SOFLG_* flags above.  */
   int userflags;                /* Can be used for protocol specific flags.  */
   svz_t_socket sock_desc;       /* Socket descriptor.  */
   int file_desc;                /* Used for files descriptors.  */

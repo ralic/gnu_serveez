@@ -776,7 +776,7 @@ hash_main (int argc, char **argv)
 
 /*
  * Stdin reader for the codec test.  Read as much data as
- * available and set the socket flags to ‘SOCK_FLAG_FLUSH’ if
+ * available and set the socket flags to ‘SVZ_SOFLG_FLUSH’ if
  * ready.  Invoke the ‘check_request’ callback each time some
  * data has been received.  Very likely any other ‘read_socket’
  * callback.  [???  Incomplete sentence. --ttn]
@@ -796,7 +796,7 @@ codec_recv (svz_socket_t *sock)
 #endif
   if (num_read <= 0)
     {
-      sock->flags |= SOCK_FLAG_FLUSH;
+      sock->flags |= SVZ_SOFLG_FLUSH;
       close ((int) sock->pipe_desc[SVZ_READ]);
       num_read = 0;
     }

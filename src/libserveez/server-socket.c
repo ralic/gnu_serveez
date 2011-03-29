@@ -196,7 +196,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
    */
   if ((sock = svz_sock_create (client_socket)) != NULL)
     {
-      sock->flags |= SOCK_FLAG_CONNECTED;
+      sock->flags |= SVZ_SOFLG_CONNECTED;
       sock->data = server_sock->data;
       sock->check_request = server_sock->check_request;
       sock->idle_func = svz_sock_idle_protect;
@@ -277,7 +277,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
 
   /* Try connecting to one of these pipes.  This will fail until a client
      has been connected.  */
-  if (server_sock->flags & SOCK_FLAG_CONNECTING)
+  if (server_sock->flags & SVZ_SOFLG_CONNECTING)
     {
       if (!GetOverlappedResult (send_pipe, server_sock->overlap[SVZ_WRITE],
                                 &connect, FALSE))
@@ -291,7 +291,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         }
       else
         {
-          server_sock->flags &= ~SOCK_FLAG_CONNECTING;
+          server_sock->flags &= ~SVZ_SOFLG_CONNECTING;
           svz_log (LOG_NOTICE, "pipe: send pipe %s connected\n",
                    server_sock->send_pipe);
         }
@@ -308,7 +308,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         }
       else
         {
-          server_sock->flags &= ~SOCK_FLAG_CONNECTING;
+          server_sock->flags &= ~SVZ_SOFLG_CONNECTING;
           svz_log (LOG_NOTICE, "pipe: receive pipe %s connected\n",
                    server_sock->recv_pipe);
         }
@@ -326,7 +326,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         return 0;
       /* Connection in progress?  */
       else if (connect == ERROR_IO_PENDING)
-        server_sock->flags |= SOCK_FLAG_CONNECTING;
+        server_sock->flags |= SVZ_SOFLG_CONNECTING;
       /* Pipe finally connected?  */
       else if (connect != ERROR_PIPE_CONNECTED)
         {
@@ -343,7 +343,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         return 0;
       /* Connection in progress?  */
       else if (connect == ERROR_IO_PENDING)
-        server_sock->flags |= SOCK_FLAG_CONNECTING;
+        server_sock->flags |= SVZ_SOFLG_CONNECTING;
       /* Pipe finally connected?  */
       else if (connect != ERROR_PIPE_CONNECTED)
         {
@@ -352,7 +352,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
         }
 
       /* Both pipes scheduled for connection?  */
-      if (server_sock->flags & SOCK_FLAG_CONNECTING)
+      if (server_sock->flags & SVZ_SOFLG_CONNECTING)
         {
           svz_log (LOG_NOTICE, "connection scheduled for pipe (%d-%d)\n",
                    recv_pipe, send_pipe);
@@ -403,7 +403,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
            server_sock->recv_pipe,
            sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
 
-  server_sock->flags |= SOCK_FLAG_INITED;
+  server_sock->flags |= SVZ_SOFLG_INITED;
   svz_sock_setreferrer (server_sock, sock);
 
   /* Call the ‘check_request’ routine once for greedy protocols.  */
@@ -561,8 +561,8 @@ svz_server_create (svz_portcfg_t *port)
     }
 
   /* Setup the socket structure.  */
-  sock->flags |= SOCK_FLAG_LISTENING;
-  sock->flags &= ~SOCK_FLAG_CONNECTED;
+  sock->flags |= SVZ_SOFLG_LISTENING;
+  sock->flags &= ~SVZ_SOFLG_CONNECTED;
   sock->proto |= port->proto;
 
   if (port->proto & SVZ_PROTO_PIPE)

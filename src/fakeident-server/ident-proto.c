@@ -176,7 +176,7 @@ fakeident_handle_request (svz_socket_t *sock,
    * This is the last line we send.  Let the runtime close the connection
    * when data is away.
    */
-  sock->flags |= SOCK_FLAG_FINAL_WRITE;
+  sock->flags |= SVZ_SOFLG_FINAL_WRITE;
 
   /*
    * If a username is set we reply "systemtype : username"

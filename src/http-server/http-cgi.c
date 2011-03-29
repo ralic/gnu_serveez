@@ -71,7 +71,7 @@ http_cgi_disconnect (svz_socket_t *sock)
   http_socket_t *http = sock->data;
 
   /* flush CGI output if necessary */
-  if (sock->flags & SOCK_FLAG_PIPE && sock->send_buffer_fill > 0)
+  if (sock->flags & SVZ_SOFLG_PIPE && sock->send_buffer_fill > 0)
     if (sock->write_socket)
       sock->write_socket (sock);
 
@@ -81,14 +81,14 @@ http_cgi_disconnect (svz_socket_t *sock)
       if (svz_closehandle (sock->pipe_desc[SVZ_READ]) == -1)
         svz_log_sys_error ("close");
       svz_invalidate_handle (&sock->pipe_desc[SVZ_READ]);
-      sock->flags &= ~SOCK_FLAG_RECV_PIPE;
+      sock->flags &= ~SVZ_SOFLG_RECV_PIPE;
     }
   if (! svz_invalid_handle_p (sock->pipe_desc[SVZ_WRITE]))
     {
       if (svz_closehandle (sock->pipe_desc[SVZ_WRITE]) == -1)
         svz_log_sys_error ("close");
       svz_invalidate_handle (&sock->pipe_desc[SVZ_WRITE]);
-      sock->flags &= ~SOCK_FLAG_SEND_PIPE;
+      sock->flags &= ~SVZ_SOFLG_SEND_PIPE;
     }
 
 #ifdef __MINGW32__
@@ -135,7 +135,7 @@ http_cgi_died (svz_socket_t *sock)
   DWORD result;
 #endif
 
-  if (sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SVZ_SOFLG_PIPE)
     {
 #ifndef __MINGW32__
       /* Check if a died child is this cgi.  */
@@ -262,7 +262,7 @@ http_cgi_read (svz_socket_t *sock)
       svz_log (LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_CGI;
-      sock->flags &= ~SOCK_FLAG_RECV_PIPE;
+      sock->flags &= ~SVZ_SOFLG_RECV_PIPE;
       return -1;
     }
 
@@ -335,9 +335,9 @@ http_cgi_write (svz_socket_t *sock)
       svz_log (LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_POST;
-      sock->flags &= ~SOCK_FLAG_SEND_PIPE;
+      sock->flags &= ~SVZ_SOFLG_SEND_PIPE;
       sock->userflags |= HTTP_FLAG_CGI;
-      sock->flags |= SOCK_FLAG_RECV_PIPE;
+      sock->flags |= SVZ_SOFLG_RECV_PIPE;
       sock->read_socket = http_cgi_read;
       sock->write_socket = http_default_write;
     }
@@ -970,7 +970,7 @@ http_cgi_get_response (svz_socket_t *sock, char *request,
 
   /* execute the cgi script in FILE */
   sock->userflags |= HTTP_FLAG_CGI;
-  sock->flags |= SOCK_FLAG_RECV_PIPE;
+  sock->flags |= SVZ_SOFLG_RECV_PIPE;
   sock->read_socket = http_cgi_read;
   sock->pipe_desc[SVZ_READ] = cgi2s[SVZ_READ];
   svz_fd_cloexec ((int) cgi2s[SVZ_READ]);
@@ -1061,7 +1061,7 @@ http_post_response (svz_socket_t *sock, char *request,
     }
 
   sock->write_socket = http_cgi_write;
-  sock->flags |= SOCK_FLAG_SEND_PIPE;
+  sock->flags |= SVZ_SOFLG_SEND_PIPE;
   sock->userflags |= HTTP_FLAG_POST;
 
   svz_free (file);

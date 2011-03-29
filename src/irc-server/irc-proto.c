@@ -582,9 +582,9 @@ irc_leave_all_channels (irc_config_t *cfg,
     }
 
   /* send last error Message */
-  sock->flags &= ~SOCK_FLAG_KILLED;
+  sock->flags &= ~SVZ_SOFLG_KILLED;
   irc_printf (sock, "ERROR :" IRC_CLOSING_LINK "\n", client->host, reason);
-  sock->flags |= SOCK_FLAG_KILLED;
+  sock->flags |= SVZ_SOFLG_KILLED;
 
   /* delete this client */
   irc_delete_client (cfg, client);
@@ -1055,7 +1055,7 @@ irc_printf (svz_socket_t *sock, const char *fmt, ...)
   static char buffer[VSNPRINTF_BUF_SIZE];
   unsigned len;
 
-  if (sock->flags & SOCK_FLAG_KILLED)
+  if (sock->flags & SVZ_SOFLG_KILLED)
     return 0;
 
   va_start (args, fmt);
@@ -1068,7 +1068,7 @@ irc_printf (svz_socket_t *sock, const char *fmt, ...)
 
   if ((len = svz_sock_write (sock, buffer, len)) != 0)
     {
-      sock->flags |= SOCK_FLAG_KILLED;
+      sock->flags |= SVZ_SOFLG_KILLED;
     }
   return len;
 }

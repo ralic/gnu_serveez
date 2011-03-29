@@ -198,7 +198,7 @@ prog_connect_socket (svz_server_t *server, svz_socket_t *sock)
          socket available in the child process.  When we ‘shutdown’ it here,
          it dies in the child, too.  When we just ‘close’ it, it still works
          in the child.  */
-      sock->flags |= SOCK_FLAG_NOSHUTDOWN;
+      sock->flags |= SVZ_SOFLG_NOSHUTDOWN;
       return -1;
     }
 

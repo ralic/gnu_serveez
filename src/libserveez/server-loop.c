@@ -62,7 +62,7 @@
 
 #define SOCK_FILE_FUNCTIONALITY(sock) do {                 \
   /* If socket is a file descriptor, then read it here.  */\
-  if (sock->flags & SOCK_FLAG_FILE)                        \
+  if (sock->flags & SVZ_SOFLG_FILE)                        \
     if (sock->read_socket)                                 \
       if (sock->read_socket (sock))                        \
         svz_sock_schedule_for_shutdown (sock);             \
@@ -80,7 +80,7 @@
 
 
 #define SOCK_READABLE(sock)                                \
-  (!((sock)->flags & SOCK_FLAG_NOOVERFLOW) ||              \
+  (!((sock)->flags & SVZ_SOFLG_NOOVERFLOW) ||              \
    ((sock)->recv_buffer_fill < (sock)->recv_buffer_size && \
     (sock)->recv_buffer_size > 0))
 
@@ -143,7 +143,7 @@ svz_check_sockets_select (void)
   svz_sock_foreach (sock)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files.  */
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         continue;
 
       /* If socket is a file descriptor, then read it here.  */
@@ -153,16 +153,16 @@ svz_check_sockets_select (void)
       SOCK_TRIGGER_FUNCTIONALITY (sock);
 
       /* Handle pipes.  */
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           /* Do not handle listening pipes here.  */
-          if (sock->flags & SOCK_FLAG_LISTENING)
+          if (sock->flags & SVZ_SOFLG_LISTENING)
             continue;
 
           /*
            * Put a pipe's descriptor into WRITE and EXCEPT set.
            */
-          if (sock->flags & SOCK_FLAG_SEND_PIPE)
+          if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             {
               FD_SET (sock->pipe_desc[SVZ_WRITE], &except_fds);
               if (sock->pipe_desc[SVZ_WRITE] > nfds)
@@ -174,7 +174,7 @@ svz_check_sockets_select (void)
           /*
            * Put a pipe's descriptor into READ set for getting data.
            */
-          if (sock->flags & SOCK_FLAG_RECV_PIPE)
+          if (sock->flags & SVZ_SOFLG_RECV_PIPE)
             {
               FD_SET (sock->pipe_desc[SVZ_READ], &except_fds);
               if (SOCK_READABLE (sock))
@@ -185,7 +185,7 @@ svz_check_sockets_select (void)
         }
 
       /* Handle sockets.  */
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
           /* Is the socket descriptor currently unavailable?  */
           if (sock->unavailable)
@@ -200,13 +200,13 @@ svz_check_sockets_select (void)
             nfds = sock->sock_desc;
 
           /* Put socket into READ if necessary.  */
-          if (!(sock->flags & SOCK_FLAG_CONNECTING))
+          if (!(sock->flags & SVZ_SOFLG_CONNECTING))
             if (SOCK_READABLE (sock))
               FD_SET (sock->sock_desc, &read_fds);
 
           /* Put a socket into WRITE if necessary and possible.  */
           if (!sock->unavailable && (sock->send_buffer_fill > 0 ||
-                                     sock->flags & SOCK_FLAG_CONNECTING))
+                                     sock->flags & SVZ_SOFLG_CONNECTING))
             {
               FD_SET (sock->sock_desc, &write_fds);
             }
@@ -247,16 +247,16 @@ svz_check_sockets_select (void)
    */
   svz_sock_foreach (sock)
     {
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         continue;
 
       /* Handle pipes.  */
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           /* Make listening pipe servers listen.  */
-          if (sock->flags & SOCK_FLAG_LISTENING)
+          if (sock->flags & SVZ_SOFLG_LISTENING)
             {
-              if (!(sock->flags & SOCK_FLAG_INITED))
+              if (!(sock->flags & SVZ_SOFLG_INITED))
                 if (sock->read_socket)
                   if (sock->read_socket (sock))
                     svz_sock_schedule_for_shutdown (sock);
@@ -264,7 +264,7 @@ svz_check_sockets_select (void)
             }
 
           /* Handle receiving pipes.  */
-          if (sock->flags & SOCK_FLAG_RECV_PIPE)
+          if (sock->flags & SVZ_SOFLG_RECV_PIPE)
             {
               if (FD_ISSET (sock->pipe_desc[SVZ_READ], &except_fds))
                 {
@@ -281,7 +281,7 @@ svz_check_sockets_select (void)
             }
 
           /* Handle sending pipes.  */
-          if (sock->flags & SOCK_FLAG_SEND_PIPE)
+          if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             {
               if (FD_ISSET (sock->pipe_desc[SVZ_WRITE], &except_fds))
                 {
@@ -299,11 +299,11 @@ svz_check_sockets_select (void)
         }
 
       /* Handle usual sockets.  Socket in the exception set?  */
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
           if (FD_ISSET (sock->sock_desc, &except_fds))
             {
-              if (sock->flags & SOCK_FLAG_CONNECTING)
+              if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
                   svz_log (LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
@@ -338,7 +338,7 @@ svz_check_sockets_select (void)
           if (FD_ISSET (sock->sock_desc, &write_fds))
             {
               /* Socket connecting?  */
-              if (sock->flags & SOCK_FLAG_CONNECTING)
+              if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
                   if (sock->connected_socket)
                     if (sock->connected_socket (sock))
@@ -437,7 +437,7 @@ svz_check_sockets_poll (void)
   svz_sock_foreach (sock)
     {
       /* skip already killed sockets */
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         continue;
 
       /* process files */
@@ -447,12 +447,12 @@ svz_check_sockets_poll (void)
       SOCK_TRIGGER_FUNCTIONALITY (sock);
 
       /* process pipes */
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           /* handle listening pipe */
-          if (sock->flags & SOCK_FLAG_LISTENING)
+          if (sock->flags & SVZ_SOFLG_LISTENING)
             {
-              if (!(sock->flags & SOCK_FLAG_INITED))
+              if (!(sock->flags & SVZ_SOFLG_INITED))
                 if (sock->read_socket)
                   if (sock->read_socket (sock))
                     svz_sock_schedule_for_shutdown (sock);
@@ -460,7 +460,7 @@ svz_check_sockets_poll (void)
             }
 
           /* send pipe?  */
-          if (sock->flags & SOCK_FLAG_SEND_PIPE)
+          if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             {
               if (sock->send_buffer_fill > 0)
                 {
@@ -471,7 +471,7 @@ svz_check_sockets_poll (void)
             }
 
           /* receive pipe?  */
-          if (sock->flags & SOCK_FLAG_RECV_PIPE)
+          if (sock->flags & SVZ_SOFLG_RECV_PIPE)
             {
               if (SOCK_READABLE (sock))
                 {
@@ -483,7 +483,7 @@ svz_check_sockets_poll (void)
         }
 
       /* normal bi-directional socket connection */
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
           int polled = 0;
 
@@ -496,7 +496,7 @@ svz_check_sockets_poll (void)
 
           /* poll this socket for reading and writing */
           fd = sock->sock_desc;
-          if (!(sock->flags & SOCK_FLAG_CONNECTING))
+          if (!(sock->flags & SVZ_SOFLG_CONNECTING))
             {
               if (SOCK_READABLE (sock))
                 {
@@ -505,7 +505,7 @@ svz_check_sockets_poll (void)
                 }
             }
           if (!sock->unavailable && (sock->send_buffer_fill > 0 ||
-                                     sock->flags & SOCK_FLAG_CONNECTING))
+                                     sock->flags & SVZ_SOFLG_CONNECTING))
             {
               FD_POLL_OUT (fd, sock);
               polled = 1;
@@ -544,7 +544,7 @@ svz_check_sockets_poll (void)
 
       sock = sfds[fd];
       /* do not process killed connections */
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         continue;
 
       /* urgent data (out-of-band) on the file descriptor?
@@ -573,7 +573,7 @@ svz_check_sockets_poll (void)
       if (ufds[fd].revents & POLLOUT)
         {
           /* socket connected?  */
-          if (sock->flags & SOCK_FLAG_CONNECTING)
+          if (sock->flags & SVZ_SOFLG_CONNECTING)
             {
               if (sock->connected_socket)
                 if (sock->connected_socket (sock))
@@ -597,9 +597,9 @@ svz_check_sockets_poll (void)
       /* file descriptor caused some error */
       if (ufds[fd].revents & (POLLERR | POLLHUP | POLLNVAL))
         {
-          if (sock->flags & SOCK_FLAG_SOCK)
+          if (sock->flags & SVZ_SOFLG_SOCK)
             {
-              if (sock->flags & SOCK_FLAG_CONNECTING)
+              if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
                   svz_log (LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
@@ -612,13 +612,13 @@ svz_check_sockets_poll (void)
               svz_sock_error_info (sock);
               svz_sock_schedule_for_shutdown (sock);
             }
-          if (sock->flags & SOCK_FLAG_RECV_PIPE)
+          if (sock->flags & SVZ_SOFLG_RECV_PIPE)
             {
               svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
                        sock->pipe_desc[SVZ_READ]);
               svz_sock_schedule_for_shutdown (sock);
             }
-          if (sock->flags & SOCK_FLAG_SEND_PIPE)
+          if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             {
               svz_log (LOG_ERROR, "exception on sending pipe %d \n",
                        sock->pipe_desc[SVZ_WRITE]);
@@ -667,7 +667,7 @@ svz_check_sockets_MinGW (void)
   svz_sock_foreach (sock)
     {
       /* Put only those SOCKs into fd set not yet killed and skip files.  */
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         continue;
 
 
@@ -678,17 +678,17 @@ svz_check_sockets_MinGW (void)
       SOCK_TRIGGER_FUNCTIONALITY (sock);
 
       /* Handle pipes.  */
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           /* Do not handle listening pipes here.  */
-          if (sock->flags & SOCK_FLAG_LISTENING)
+          if (sock->flags & SVZ_SOFLG_LISTENING)
             continue;
 
           /*
            * Handle receiving pipes.  Is non-blocking, but cannot
            * be ‘select’ed.
            */
-          if (sock->flags & SOCK_FLAG_RECV_PIPE)
+          if (sock->flags & SVZ_SOFLG_RECV_PIPE)
             {
               if (SOCK_READABLE (sock))
                 if (sock->read_socket)
@@ -697,7 +697,7 @@ svz_check_sockets_MinGW (void)
             }
         }
 
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
           /* Is the socket descriptor currently unavailable?  */
           if (sock->unavailable)
@@ -712,13 +712,13 @@ svz_check_sockets_MinGW (void)
             nfds = sock->sock_desc;
 
           /* Put a client's socket into READ if necessary.  */
-          if (!(sock->flags & SOCK_FLAG_CONNECTING))
+          if (!(sock->flags & SVZ_SOFLG_CONNECTING))
             if (SOCK_READABLE (sock))
               FD_SET (sock->sock_desc, &read_fds);
 
           /* Put a socket into WRITE if necessary and possible.  */
           if (!sock->unavailable && (sock->send_buffer_fill > 0 ||
-                                     sock->flags & SOCK_FLAG_CONNECTING))
+                                     sock->flags & SVZ_SOFLG_CONNECTING))
             {
               FD_SET (sock->sock_desc, &write_fds);
             }
@@ -765,16 +765,16 @@ svz_check_sockets_MinGW (void)
    */
   svz_sock_foreach (sock)
     {
-      if (sock->flags & SOCK_FLAG_KILLED)
+      if (sock->flags & SVZ_SOFLG_KILLED)
         continue;
 
       /* Handle pipes.  Different in Win32 and Unices.  */
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           /* Make listening pipe servers listen.  */
-          if (sock->flags & SOCK_FLAG_LISTENING)
+          if (sock->flags & SVZ_SOFLG_LISTENING)
             {
-              if (!(sock->flags & SOCK_FLAG_INITED))
+              if (!(sock->flags & SVZ_SOFLG_INITED))
                 if (sock->read_socket)
                   if (sock->read_socket (sock))
                     svz_sock_schedule_for_shutdown (sock);
@@ -782,7 +782,7 @@ svz_check_sockets_MinGW (void)
             }
 
           /* Handle sending pipes.  Is blocking!  */
-          if (sock->flags & SOCK_FLAG_SEND_PIPE)
+          if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             {
               if (sock->send_buffer_fill > 0)
                 if (sock->write_socket)
@@ -792,11 +792,11 @@ svz_check_sockets_MinGW (void)
         }
 
       /* Handle usual sockets. Socket in the exception set?  */
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         {
           if (FD_ISSET (sock->sock_desc, &except_fds))
             {
-              if (sock->flags & SOCK_FLAG_CONNECTING)
+              if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
                   svz_log (LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
@@ -831,7 +831,7 @@ svz_check_sockets_MinGW (void)
           if (FD_ISSET (sock->sock_desc, &write_fds))
             {
               /* Finally connected * */
-              if (sock->flags & SOCK_FLAG_CONNECTING)
+              if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
                   if (sock->connected_socket)
                     if (sock->connected_socket (sock))

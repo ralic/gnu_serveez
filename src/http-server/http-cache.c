@@ -537,7 +537,7 @@ http_cache_read (svz_socket_t *sock)
       /* set flags and reassign default reader */
       sock->read_socket = svz_tcp_read_socket;
       sock->userflags |= HTTP_FLAG_DONE;
-      sock->flags &= ~SOCK_FLAG_FILE;
+      sock->flags &= ~SVZ_SOFLG_FILE;
     }
 
   return 0;

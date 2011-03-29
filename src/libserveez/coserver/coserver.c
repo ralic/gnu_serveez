@@ -635,13 +635,13 @@ svz_coserver_closeall (svz_socket_t *self)
 
   for (sock = svz_sock_root; sock != NULL; sock = next)
     {
-      if (sock->flags & SOCK_FLAG_SOCK)
+      if (sock->flags & SVZ_SOFLG_SOCK)
         if (sock->sock_desc >= 2)
           close (sock->sock_desc);
-      if (sock->flags & SOCK_FLAG_FILE)
+      if (sock->flags & SVZ_SOFLG_FILE)
         if (sock->file_desc >= 2)
           close (sock->file_desc);
-      if (sock->flags & SOCK_FLAG_PIPE)
+      if (sock->flags & SVZ_SOFLG_PIPE)
         {
           if (sock->pipe_desc[SVZ_READ] >= 2)
             close (sock->pipe_desc[SVZ_READ]);
@@ -927,7 +927,7 @@ svz_coserver_start (int type)
   sock->data = coserver;
   sock->check_request = svz_coserver_check_request;
   sock->handle_request = svz_coserver_handle_request;
-  sock->flags |= (SOCK_FLAG_NOFLOOD | SOCK_FLAG_COSERVER);
+  sock->flags |= (SVZ_SOFLG_NOFLOOD | SVZ_SOFLG_COSERVER);
   return sock;
 }
 

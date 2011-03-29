@@ -341,7 +341,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
 
   /* Run the encoder / decoder of the applied codec.  */
   data->flag = SVZ_CODEC_CODE;
-  if (sock->flags & SOCK_FLAG_FLUSH)
+  if (sock->flags & SVZ_SOFLG_FLUSH)
     data->flag = SVZ_CODEC_FINISH;
   svz_codec_save_recv_buffer (sock, data);
   while ((ret = codec->code (data)) == SVZ_CODEC_MORE_OUT)
@@ -521,7 +521,7 @@ svz_codec_sock_send (svz_socket_t *sock)
 
   /* Run the encoder / decoder of the applied codec.  */
   data->flag = SVZ_CODEC_CODE;
-  if (sock->flags & SOCK_FLAG_FLUSH)
+  if (sock->flags & SVZ_SOFLG_FLUSH)
     data->flag = SVZ_CODEC_FINISH;
   svz_codec_save_send_buffer (sock, data);
   while ((ret = codec->code (data)) == SVZ_CODEC_MORE_OUT)

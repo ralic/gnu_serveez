@@ -928,11 +928,11 @@ guile_sock_floodprotect (SCM sock, SCM flag)
                        flag, SCM_ARG2, FUNC_NAME, "boolean or exact");
       if ((SCM_BOOLP (flag) && SCM_NFALSEP (flag) != 0) ||
           (SCM_EXACTP (flag) && SCM_NUM2INT (SCM_ARG2, flag) != 0))
-        xsock->flags &= ~SOCK_FLAG_NOFLOOD;
+        xsock->flags &= ~SVZ_SOFLG_NOFLOOD;
       else
-        xsock->flags |= SOCK_FLAG_NOFLOOD;
+        xsock->flags |= SVZ_SOFLG_NOFLOOD;
     }
-  return (flags & SOCK_FLAG_NOFLOOD) ? SCM_BOOL_F : SCM_BOOL_T;
+  return (flags & SVZ_SOFLG_NOFLOOD) ? SCM_BOOL_F : SCM_BOOL_T;
 }
 #undef FUNC_NAME
 

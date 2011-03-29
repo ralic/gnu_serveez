@@ -177,7 +177,7 @@ int
 svz_server_single_listener (svz_server_t *server, svz_socket_t *sock)
 {
   if (server != NULL && sock != NULL &&          /* validate arguments       */
-      sock->flags & SOCK_FLAG_LISTENING &&       /* is a listener?           */
+      sock->flags & SVZ_SOFLG_LISTENING &&       /* is a listener?           */
       sock->port != NULL &&                      /* has port configuration?  */
       svz_binding_contains_server (sock, server) && /* bound to?             */
       svz_array_size (sock->data) == 1)          /* the only one?            */
@@ -354,7 +354,7 @@ svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
 static svz_array_t *
 svz_sock_bindings (svz_socket_t *sock)
 {
-  if (sock && sock->flags & SOCK_FLAG_LISTENING && sock->port != NULL)
+  if (sock && sock->flags & SVZ_SOFLG_LISTENING && sock->port != NULL)
     return sock->data;
   return NULL;
 }
@@ -374,7 +374,7 @@ svz_binding_join (svz_array_t *bindings, svz_socket_t *sock)
   unsigned long i;
 
   /* Is this a listening server socket?  */
-  if (!((sock->flags & SOCK_FLAG_LISTENING) && (sock->port != NULL)))
+  if (!((sock->flags & SVZ_SOFLG_LISTENING) && (sock->port != NULL)))
     return bindings;
 
   /* Create an array if necessary.  */

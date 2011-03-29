@@ -1,5 +1,49 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename SOCK_FLAG_* to SVZ_SOFLG_*.
+
+	* socket.h
+	(SVZ_SOFLG_INIT): Rename from ‘SOCK_FLAG_INIT’.
+	(SVZ_SOFLG_INBUF): Rename from ‘SOCK_FLAG_INBUF’.
+	(SVZ_SOFLG_OUTBUF): Rename from ‘SOCK_FLAG_OUTBUF’.
+	(SVZ_SOFLG_CONNECTED): Rename from ‘SOCK_FLAG_CONNECTED’.
+	(SVZ_SOFLG_LISTENING): Rename from ‘SOCK_FLAG_LISTENING’.
+	(SVZ_SOFLG_KILLED): Rename from ‘SOCK_FLAG_KILLED’.
+	(SVZ_SOFLG_NOFLOOD): Rename from ‘SOCK_FLAG_NOFLOOD’.
+	(SVZ_SOFLG_INITED): Rename from ‘SOCK_FLAG_INITED’.
+	(SVZ_SOFLG_ENQUEUED): Rename from ‘SOCK_FLAG_ENQUEUED’.
+	(SVZ_SOFLG_RECV_PIPE): Rename from ‘SOCK_FLAG_RECV_PIPE’.
+	(SVZ_SOFLG_SEND_PIPE): Rename from ‘SOCK_FLAG_SEND_PIPE’.
+	(SVZ_SOFLG_FILE): Rename from ‘SOCK_FLAG_FILE’.
+	(SVZ_SOFLG_COSERVER): Rename from ‘SOCK_FLAG_COSERVER’.
+	(SVZ_SOFLG_SOCK): Rename from ‘SOCK_FLAG_SOCK’.
+	(SVZ_SOFLG_PIPE): Rename from ‘SOCK_FLAG_PIPE’.
+	(SVZ_SOFLG_CONNECTING): Rename from ‘SOCK_FLAG_CONNECTING’.
+	(SVZ_SOFLG_PRIORITY): Rename from ‘SOCK_FLAG_PRIORITY’.
+	(SVZ_SOFLG_FIXED): Rename from ‘SOCK_FLAG_FIXED’.
+	(SVZ_SOFLG_FINAL_WRITE): Rename from ‘SOCK_FLAG_FINAL_WRITE’.
+	(SVZ_SOFLG_READING): Rename from ‘SOCK_FLAG_READING’.
+	(SVZ_SOFLG_WRITING): Rename from ‘SOCK_FLAG_WRITING’.
+	(SVZ_SOFLG_FLUSH): Rename from ‘SOCK_FLAG_FLUSH’.
+	(SVZ_SOFLG_NOSHUTDOWN): Rename from ‘SOCK_FLAG_NOSHUTDOWN’.
+	(SVZ_SOFLG_NOOVERFLOW): Rename from ‘SOCK_FLAG_NOOVERFLOW’.
+	* binding.c: Update all refs.
+	* codec/codec.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* passthrough.c: Likewise.
+	* pipe-socket.c: Likewise.
+	* server-core.c: Likewise.
+	* server-core.h: Likewise.
+	* server-loop.c: Likewise.
+	* server-socket.c: Likewise.
+	* server.c: Likewise.
+	* socket.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize {RECV,SEND,MAX}_BUF_SIZE.
 
 	* socket.h (RECV_BUF_SIZE): Mark ‘svzint’.

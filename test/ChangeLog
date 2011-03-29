@@ -1,5 +1,11 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename SOCK_FLAG_* to SVZ_SOFLG_*.
+
+	* btdt.c: Update all refs.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize structs svz_hash{,_entry,_bucket}.
 
 	* btdt.c (hash_main): Use ‘svz_hash_capacity’.

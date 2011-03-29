@@ -49,7 +49,7 @@ SBO svz_socket_t *svz_sock_root;
  */
 #define svz_sock_foreach_listener(sock)                                \
   svz_sock_foreach (sock)                                              \
-    if (((sock)->flags & SOCK_FLAG_LISTENING) && (sock)->port != NULL)
+    if (((sock)->flags & SVZ_SOFLG_LISTENING) && (sock)->port != NULL)
 
 /* end svzint */
 

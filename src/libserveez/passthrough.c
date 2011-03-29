@@ -724,7 +724,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
     }
 
   /* Setup descriptors depending on the type of socket structure.  */
-  if (sock->flags & SOCK_FLAG_PIPE)
+  if (sock->flags & SVZ_SOFLG_PIPE)
     {
       proc.in = sock->pipe_desc[SVZ_READ];
       proc.out = sock->pipe_desc[SVZ_WRITE];
