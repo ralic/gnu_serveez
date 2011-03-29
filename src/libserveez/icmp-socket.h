@@ -31,22 +31,6 @@
 #define ICMP_BUF_SIZE    (4 * (ICMP_MSG_SIZE + ICMP_HEADER_SIZE + 24))
 /* end svzint */
 
-/* general definitions */
-#define ICMP_ECHOREPLY          0       /* Echo Reply                   */
-#define ICMP_DEST_UNREACH       3       /* Destination Unreachable      */
-#define ICMP_SOURCE_QUENCH      4       /* Source Quench                */
-#define ICMP_REDIRECT           5       /* Redirect (change route)      */
-#define ICMP_ECHO               8       /* Echo Request                 */
-#define ICMP_TIME_EXCEEDED      11      /* Time Exceeded                */
-#define ICMP_PARAMETERPROB      12      /* Parameter Problem            */
-#define ICMP_TIMESTAMP          13      /* Timestamp Request            */
-#define ICMP_TIMESTAMPREPLY     14      /* Timestamp Reply              */
-#define ICMP_INFO_REQUEST       15      /* Information Request          */
-#define ICMP_INFO_REPLY         16      /* Information Reply            */
-#define ICMP_ADDRESS            17      /* Address Mask Request         */
-#define ICMP_ADDRESSREPLY       18      /* Address Mask Reply           */
-#define ICMP_MAX_TYPE           18
-
 /* serveez ICMP types and sub-codes */
 #define SVZ_ICMP_SERVEEZ        42
 #define SVZ_ICMP_SERVEEZ_DATA    0
