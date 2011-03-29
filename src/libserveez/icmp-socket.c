@@ -370,12 +370,12 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
 
   if (header->type == sock->itype)
     {
-      if (header->code == ICMP_SERVEEZ_CONNECT &&
+      if (header->code == SVZ_ICMP_SERVEEZ_CONNECT &&
           sock->flags & SOCK_FLAG_LISTENING)
         {
           svz_log (LOG_NOTICE, "icmp: accepting connection\n");
         }
-      else if (header->code == ICMP_SERVEEZ_CLOSE)
+      else if (header->code == SVZ_ICMP_SERVEEZ_CLOSE)
         {
           svz_log (LOG_NOTICE, "icmp: closing connection\n");
           return ICMP_DISCONNECT;
@@ -643,7 +643,7 @@ svz_icmp_write (svz_socket_t *sock, char *buf, int length)
 
       /* Create ICMP header and put it in front of packet load.  */
       hdr.type = sock->itype;
-      hdr.code = ICMP_SERVEEZ_DATA;
+      hdr.code = SVZ_ICMP_SERVEEZ_DATA;
       hdr.checksum = svz_raw_ip_checksum ((svz_uint8_t *) buf, size);
       hdr.ident = (unsigned short) (getpid () + sock->id);
       hdr.sequence = sock->send_seq++;
@@ -777,7 +777,7 @@ svz_icmp_connect (unsigned long host, unsigned short port,
   sock->check_request = svz_icmp_check_request;
 
   /* Finally send a connection message.  */
-  svz_icmp_send_control (sock, ICMP_SERVEEZ_CONNECT);
+  svz_icmp_send_control (sock, SVZ_ICMP_SERVEEZ_CONNECT);
   svz_sock_connections++;
   return sock;
 }

@@ -157,7 +157,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
       sock = svz_udp_connect (xhost, xport);
       break;
     case SVZ_PROTO_ICMP:
-      sock = svz_icmp_connect (xhost, xport, ICMP_SERVEEZ);
+      sock = svz_icmp_connect (xhost, xport, SVZ_ICMP_SERVEEZ);
       break;
     default:
       SCM_OUT_OF_RANGE (SCM_ARG2, proto);

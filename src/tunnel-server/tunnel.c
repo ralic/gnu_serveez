@@ -726,7 +726,7 @@ tnl_disconnect_target (svz_socket_t *sock)
                "tunnel: sending icmp disconnect on socket id %d\n",
                xsock->id);
 #endif /* ENABLE_DEBUG */
-      svz_icmp_send_control (xsock, ICMP_SERVEEZ_CLOSE);
+      svz_icmp_send_control (xsock, SVZ_ICMP_SERVEEZ_CLOSE);
     }
 
   /* if source is TCP or PIPE then shutdown referring connection */

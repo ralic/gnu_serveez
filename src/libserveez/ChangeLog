@@ -1,5 +1,18 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix ICMP_SERVEEZ* with "SVZ_".
+
+	* icmp-socket.h
+	(SVZ_ICMP_SERVEEZ): Rename from ‘ICMP_SERVEEZ’.
+	(SVZ_ICMP_SERVEEZ_DATA): Rename from ‘ICMP_SERVEEZ_DATA’.
+	(SVZ_ICMP_SERVEEZ_REQ): Rename from ‘ICMP_SERVEEZ_REQ’.
+	(SVZ_ICMP_SERVEEZ_ACK): Rename from ‘ICMP_SERVEEZ_ACK’.
+	(SVZ_ICMP_SERVEEZ_CLOSE): Rename from ‘ICMP_SERVEEZ_CLOSE’.
+	(SVZ_ICMP_SERVEEZ_CONNECT): Rename from ‘ICMP_SERVEEZ_CONNECT’.
+	* icmp-socket.c: Update all refs.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ICMP_{HEADER,BUF,MSG}_SIZE.
 
 	* icmp-socket.h (ICMP_HEADER_SIZE)

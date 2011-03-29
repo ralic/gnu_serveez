@@ -48,12 +48,12 @@
 #define ICMP_MAX_TYPE           18
 
 /* serveez ICMP types and sub-codes */
-#define ICMP_SERVEEZ        42
-#define ICMP_SERVEEZ_DATA    0
-#define ICMP_SERVEEZ_REQ     1
-#define ICMP_SERVEEZ_ACK     2
-#define ICMP_SERVEEZ_CLOSE   3
-#define ICMP_SERVEEZ_CONNECT 4
+#define SVZ_ICMP_SERVEEZ        42
+#define SVZ_ICMP_SERVEEZ_DATA    0
+#define SVZ_ICMP_SERVEEZ_REQ     1
+#define SVZ_ICMP_SERVEEZ_ACK     2
+#define SVZ_ICMP_SERVEEZ_CLOSE   3
+#define SVZ_ICMP_SERVEEZ_CONNECT 4
 
 /* ICMP header structure.  */
 typedef struct

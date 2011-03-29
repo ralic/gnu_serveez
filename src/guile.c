@@ -1175,8 +1175,8 @@ guile_define_port (SCM name, SCM args)
                                         &(cfg->icmp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
                                         &(cfg->icmp_device), action);
-      err |= optionhash_extract_int (options, PORTCFG_TYPE, 1, ICMP_SERVEEZ,
-                                     &type, action);
+      err |= optionhash_extract_int (options, PORTCFG_TYPE, 1,
+                                     SVZ_ICMP_SERVEEZ, &type, action);
       if (type & ~0xff)
         {
           guile_error ("ICMP type `%s' requires a byte (0..255) %s",
