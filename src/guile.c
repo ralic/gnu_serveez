@@ -1177,7 +1177,8 @@ guile_define_port (SCM name, SCM args)
       cfg->tcp_port = (unsigned short) port;
       err |= optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0,
                                      &(cfg->tcp_backlog), action);
-      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1,
+                                        SVZ_PORTCFG_NOIP,
                                         &(cfg->tcp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
                                         &(cfg->tcp_device), action);
@@ -1191,7 +1192,8 @@ guile_define_port (SCM name, SCM args)
                                      0, 0, &port, action);
       GUILE_VALIDATE_PORT (port, "UDP", portname);
       cfg->udp_port = (unsigned short) port;
-      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1,
+                                        SVZ_PORTCFG_NOIP,
                                         &(cfg->udp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
                                         &(cfg->udp_device), action);
@@ -1201,7 +1203,8 @@ guile_define_port (SCM name, SCM args)
     {
       int type;
       cfg->proto = SVZ_PROTO_ICMP;
-      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1,
+                                        SVZ_PORTCFG_NOIP,
                                         &(cfg->icmp_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
                                         &(cfg->icmp_device), action);
@@ -1219,7 +1222,8 @@ guile_define_port (SCM name, SCM args)
   else if (!strcmp (proto, PORTCFG_RAW))
     {
       cfg->proto = SVZ_PROTO_RAW;
-      err |= optionhash_extract_string (options, PORTCFG_IP, 1, PORTCFG_NOIP,
+      err |= optionhash_extract_string (options, PORTCFG_IP, 1,
+                                        SVZ_PORTCFG_NOIP,
                                         &(cfg->raw_ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
                                         &(cfg->raw_device), action);

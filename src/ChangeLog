@@ -1,5 +1,11 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix PORTCFG_{ANY,NOIP} with "SVZ_".
+
+	* guile.c: Update all refs.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move several PORTCFG_* #define:s into serveez proper.
 
 	* guile.c

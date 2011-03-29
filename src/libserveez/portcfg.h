@@ -29,8 +29,8 @@
 /* end svzint */
 
 /* Port configuration items.  */
-#define PORTCFG_ANY     "any"
-#define PORTCFG_NOIP    "*"
+#define SVZ_PORTCFG_ANY   "any"
+#define SVZ_PORTCFG_NOIP  "*"
 
 /* begin svzint */
 /* Port configuration flags.  */

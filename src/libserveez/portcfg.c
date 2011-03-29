@@ -41,6 +41,18 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/interface.h"
 
+static int
+any_p (const char *addr)
+{
+  return !strcmp (SVZ_PORTCFG_ANY, addr);
+}
+
+static int
+no_ip_p (const char *addr)
+{
+  return !strcmp (SVZ_PORTCFG_NOIP, addr);
+}
+
 /*
  * This hash holds all port configurations created by the configuration
  * file.
@@ -490,12 +502,12 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           svz_log (LOG_ERROR, "%s: no TCP/IP address given\n", this->name);
           err = -1;
         }
-      else if (!strcmp (this->tcp_ipaddr, PORTCFG_ANY))
+      else if (any_p (this->tcp_ipaddr))
         {
           this->flags |= PORTCFG_FLAG_ANY;
           this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
         }
-      else if (!strcmp (this->tcp_ipaddr, PORTCFG_NOIP))
+      else if (no_ip_p (this->tcp_ipaddr))
         {
           this->flags |= PORTCFG_FLAG_ALL;
           this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
@@ -529,12 +541,12 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           svz_log (LOG_ERROR, "%s: no UDP/IP address given\n", this->name);
           err = -1;
         }
-      else if (!strcmp (this->udp_ipaddr, PORTCFG_ANY))
+      else if (any_p (this->udp_ipaddr))
         {
           this->flags |= PORTCFG_FLAG_ANY;
           this->udp_addr.sin_addr.s_addr = INADDR_ANY;
         }
-      else if (!strcmp (this->tcp_ipaddr, PORTCFG_NOIP))
+      else if (no_ip_p (this->tcp_ipaddr))
         {
           this->flags |= PORTCFG_FLAG_ALL;
           this->udp_addr.sin_addr.s_addr = INADDR_ANY;

@@ -1,5 +1,15 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix PORTCFG_{ANY,NOIP} with "SVZ_".
+
+	* portcfg.h
+	(SVZ_PORTCFG_ANY): Rename from ‘PORTCFG_ANY’.
+	(SVZ_PORTCFG_NOIP): Rename from ‘PORTCFG_NOIP’.
+	* portcfg.c (any_p, no_ip_p): New static funcs.
+	(svz_portcfg_mkaddr): Use ‘any_p’, ‘no_ip_p’.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move several PORTCFG_* #define:s into serveez proper.
 
 	* portcfg.h
