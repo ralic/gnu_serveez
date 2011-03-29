@@ -1,5 +1,14 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop funcs svz_config_{intarray,strarray,hash}_destroy.
+
+	* foo-server/foo-proto.c (foo_global_finalize):
+	Use ‘svz_array_destroy’, ‘svz_hash_destroy’ directly.
+	* nut-server/gnutella.c (nut_global_finalize):
+	Use ‘svz_array_destroy’ directly.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix PORTCFG_{ANY,NOIP} with "SVZ_".
 
 	* guile.c: Update all refs.

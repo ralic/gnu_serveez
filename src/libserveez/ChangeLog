@@ -1,5 +1,15 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop funcs svz_config_{intarray,strarray,hash}_destroy.
+
+	* cfg.h (svz_config_intarray_destroy): Delete func decl.
+	(svz_config_strarray_destroy, svz_config_hash_destroy): Likewise.
+	* cfg.c (svz_config_intarray_destroy): Delete func.
+	(svz_config_strarray_destroy, svz_config_hash_destroy): Likewise.
+	(svz_config_free): Use ‘svz_array_destroy’, ‘svz_hash_destroy’ directly.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix PORTCFG_{ANY,NOIP} with "SVZ_".
 
 	* portcfg.h

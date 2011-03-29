@@ -49,19 +49,6 @@ svz_config_intarray_create (int *intarray)
 }
 
 /*
- * Destroy the given integer array @var{intarray}.  This function is the
- * counter part of @code{svz_config_intarray_create}.
- */
-void
-svz_config_intarray_destroy (svz_array_t *intarray)
-{
-  if (intarray)
-    {
-      svz_array_destroy (intarray);
-    }
-}
-
-/*
  * Make a plain copy of the given integer array @var{intarray}.  If this
  * value is @code{NULL} no operation is performed and the return value
  * is @code{NULL} too.
@@ -94,18 +81,6 @@ svz_config_strarray_create (char **strarray)
         svz_array_add (array, svz_strdup (strarray[i]));
     }
   return array;
-}
-
-/*
- * Destroy the given string array @var{strarray}.
- */
-void
-svz_config_strarray_destroy (svz_array_t *strarray)
-{
-  if (strarray)
-    {
-      svz_array_destroy (strarray);
-    }
 }
 
 /*
@@ -148,17 +123,6 @@ svz_config_hash_create (char **strarray)
         }
     }
   return hash;
-}
-
-/*
- * This function is the counter part of @code{svz_config_hash_create}.  It
- * destroys the given hash table @var{strhash} assuming it is a hash
- * associating strings with strings.
- */
-void
-svz_config_hash_destroy (svz_hash_t *strhash)
-{
-  svz_hash_destroy (strhash);
 }
 
 static void
@@ -212,10 +176,10 @@ svz_config_free (svz_config_prototype_t *prototype, void *cfg)
          different data structures.  */
       switch (prototype->items[n].type)
         {
-          /* Integer array.  */
+          /* Integer array or array of strings.  */
         case SVZ_ITEM_INTARRAY:
-          if (*target)
-            svz_config_intarray_destroy (*target);
+        case SVZ_ITEM_STRARRAY:
+          svz_array_destroy (*target);
           break;
 
           /* Simple character string.  */
@@ -224,16 +188,9 @@ svz_config_free (svz_config_prototype_t *prototype, void *cfg)
             svz_free (*target);
           break;
 
-          /* Array of strings.  */
-        case SVZ_ITEM_STRARRAY:
-          if (*target)
-            svz_config_strarray_destroy (*target);
-          break;
-
           /* Hash table.  */
         case SVZ_ITEM_HASH:
-          if (*target)
-            svz_config_hash_destroy (*target);
+          svz_hash_destroy (*target);
           break;
 
           /* Port configuration.  */

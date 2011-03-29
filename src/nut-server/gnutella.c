@@ -538,7 +538,7 @@ nut_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 #endif /* __MINGW32__ */
 
   /* destroy confguration defaults */
-  svz_config_strarray_destroy (nut_config.search);
+  svz_array_destroy (nut_config.search);
 
   return 0;
 }

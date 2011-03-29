@@ -220,9 +220,9 @@ foo_global_init (SVZ_UNUSED svz_servertype_t *server)
 int
 foo_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 {
-  svz_config_intarray_destroy (foo_config.ports);
-  svz_config_strarray_destroy (foo_config.messages);
-  svz_config_hash_destroy (foo_config.assoc);
+  svz_array_destroy (foo_config.ports);
+  svz_array_destroy (foo_config.messages);
+  svz_hash_destroy (foo_config.assoc);
   return 0;
 }
 

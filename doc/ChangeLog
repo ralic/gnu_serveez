@@ -1,3 +1,11 @@
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop funcs svz_config_{intarray,strarray,hash}_destroy.
+
+	* serveez-api.texi.in (Server configuration):
+	Delete ‘svz_config_intarray_destroy’,
+	‘svz_config_strarray_destroy’, ‘svz_config_hash_destroy’.
+
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop unused "sparse vector" functionality.
