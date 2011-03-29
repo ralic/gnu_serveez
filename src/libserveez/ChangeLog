@@ -1,5 +1,14 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize SOCK_MAX_DETECTION_{FILL,WAIT}.
+
+	* socket.h (SOCK_MAX_DETECTION_FILL)
+	(SOCK_MAX_DETECTION_WAIT): Move from here...
+	* portcfg.c (SOCK_MAX_DETECTION_FILL)
+	(SOCK_MAX_DETECTION_WAIT): ...to here.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop funcs svz_config_{intarray,strarray,hash}_destroy.
 
 	* cfg.h (svz_config_intarray_destroy): Delete func decl.

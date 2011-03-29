@@ -26,10 +26,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/* How much data is accepted before valid detection.  */
-#define SOCK_MAX_DETECTION_FILL 16
-/* How much time is accepted before valid detection.  */
-#define SOCK_MAX_DETECTION_WAIT 30
 /* If a socket resource is unavailable, relax for this time in seconds.  */
 #define RELAX_FD_TIME            1
 /* Do not write more than SOCK_MAX_WRITE bytes to a socket at once.  */

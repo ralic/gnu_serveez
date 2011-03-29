@@ -41,6 +41,11 @@
 #include "libserveez/pipe-socket.h"
 #include "libserveez/interface.h"
 
+/* How much data is accepted before valid detection.  */
+#define SOCK_MAX_DETECTION_FILL 16
+/* How much time is accepted before valid detection.  */
+#define SOCK_MAX_DETECTION_WAIT 30
+
 static int
 any_p (const char *addr)
 {
