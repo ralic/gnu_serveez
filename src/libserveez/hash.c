@@ -41,6 +41,28 @@
 #define HASH_BUCKET(code, hash) (code & (hash->buckets - 1))
 
 /*
+ * This is the basic structure of a hash entry consisting of its
+ * key, the actual value stored in the hash table and the hash code
+ * of the key.
+ */
+struct svz_hash_entry
+{
+  unsigned long code;
+  char *key;
+  void *value;
+};
+
+/*
+ * The hash table consists of different hash buckets.  This contains the
+ * bucket's size and the entry array.
+ */
+struct svz_hash_bucket
+{
+  int size;
+  svz_hash_entry_t *entry;
+};
+
+/*
  * Calculate the hash code for a given string @var{key}.  This is the standard
  * callback for any newly created hash table.
  */

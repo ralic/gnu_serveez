@@ -30,34 +30,15 @@
 #define SVZ_HASH_EXPAND   8
 #define SVZ_HASH_MIN_SIZE 4
 
-/*
- * This is the basic structure of a hash entry consisting of its
- * key, the actual value stored in the hash table and the hash code
- * of the key.
- */
-typedef struct
-{
-  unsigned long code;
-  char *key;
-  void *value;
-}
-svz_hash_entry_t;
-
-/*
- * The hash table consists of different hash buckets.  This contains the
- * bucket's size and the entry array.
- */
-typedef struct
-{
-  int size;
-  svz_hash_entry_t *entry;
-}
-svz_hash_bucket_t;
-
+typedef struct svz_hash_entry svz_hash_entry_t;
+typedef struct svz_hash_bucket svz_hash_bucket_t;
+typedef struct svz_hash svz_hash_t;
+/* begin svzint */
 /*
  * This structure keeps information of a specific hash table.
+ * It's here (rather than in .c) for the benefit of ‘svz_config_hash_dup’.
  */
-typedef struct svz_hash
+struct svz_hash
 {
   int buckets;                     /* number of buckets in the table */
   int fill;                        /* number of filled buckets */
@@ -67,8 +48,8 @@ typedef struct svz_hash
   unsigned (* keylen) (char *);    /* how to get the hash key length */
   svz_free_func_t destroy;         /* element destruction callback */
   svz_hash_bucket_t *table;        /* hash table */
-}
-svz_hash_t;
+};
+/* end svzint */
 
 typedef void (svz_hash_do_t) (void *, void *, void *);
 

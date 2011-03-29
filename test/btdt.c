@@ -712,13 +712,13 @@ hash_main (int argc, char **argv)
   /* rehashing */
   error = 0;
   test_print ("             rehash: ");
-  while (hash->buckets > SVZ_HASH_MIN_SIZE)
+  while (svz_hash_capacity (hash) > SVZ_HASH_MIN_SIZE)
     svz_hash_rehash (hash, SVZ_HASH_SHRINK);
-  while (hash->buckets < svz_hash_size (hash) * 10)
+  while (svz_hash_capacity (hash) < svz_hash_size (hash) * 10)
     svz_hash_rehash (hash, SVZ_HASH_EXPAND);
-  while (hash->buckets > SVZ_HASH_MIN_SIZE)
+  while (svz_hash_capacity (hash) > SVZ_HASH_MIN_SIZE)
     svz_hash_rehash (hash, SVZ_HASH_SHRINK);
-  while (hash->buckets < svz_hash_size (hash) * 10)
+  while (svz_hash_capacity (hash) < svz_hash_size (hash) * 10)
     svz_hash_rehash (hash, SVZ_HASH_EXPAND);
   text = svz_malloc (16);
   for (n = 0; n < repeat; n++)

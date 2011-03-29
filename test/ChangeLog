@@ -1,3 +1,9 @@
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize structs svz_hash{,_entry,_bucket}.
+
+	* btdt.c (hash_main): Use ‘svz_hash_capacity’.
+
 2011-03-28  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop unused "sparse vector" functionality.
