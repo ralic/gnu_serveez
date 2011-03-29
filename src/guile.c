@@ -50,6 +50,36 @@
 #include "guile-server.h"
 #include "guile.h"
 
+/* Port configuration items.  */
+#define PORTCFG_PORT    "port"
+#define PORTCFG_PROTO   "proto"
+#define PORTCFG_TCP     "tcp"
+#define PORTCFG_UDP     "udp"
+#define PORTCFG_ICMP    "icmp"
+#define PORTCFG_RAW     "raw"
+#define PORTCFG_PIPE    "pipe"
+#define PORTCFG_IP      "ipaddr"
+#define PORTCFG_DEVICE  "device"
+#define PORTCFG_BACKLOG "backlog"
+#define PORTCFG_TYPE    "type"
+
+/* Pipe definitions.  */
+#define PORTCFG_RECV  "recv"
+#define PORTCFG_SEND  "send"
+#define PORTCFG_NAME  "name"
+#define PORTCFG_PERMS "permissions"
+#define PORTCFG_USER  "user"
+#define PORTCFG_GROUP "group"
+#define PORTCFG_UID   "uid"
+#define PORTCFG_GID   "gid"
+
+/* Miscellaneous definitions.  */
+#define PORTCFG_SEND_BUFSIZE "send-buffer-size"
+#define PORTCFG_RECV_BUFSIZE "recv-buffer-size"
+#define PORTCFG_FREQ         "connect-frequency"
+#define PORTCFG_ALLOW        "allow"
+#define PORTCFG_DENY         "deny"
+
 /*
  * Global error flag that indicating failure of one of the parsing
  * functions.
