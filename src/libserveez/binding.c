@@ -39,6 +39,20 @@
 #include "libserveez/server-socket.h"
 #include "libserveez/binding.h"
 
+static int
+portcfg_exactly_equal (svz_portcfg_t *a, svz_portcfg_t *b)
+{
+  return SVZ_PORTCFG_EQUAL
+    == svz_portcfg_equal (a, b);
+}
+
+static int
+portcfg_matching_or_equal (svz_portcfg_t *a, svz_portcfg_t *b)
+{
+  return (SVZ_PORTCFG_EQUAL | SVZ_PORTCFG_MATCH)
+    & svz_portcfg_equal (a, b);
+}
+
 /*
  * Searches through the bindings of the given listening server socket
  * structure @var{sock} and checks whether the server instance @var{server}
@@ -182,7 +196,7 @@ svz_sock_find_portcfg (svz_portcfg_t *port)
   svz_socket_t *sock;
 
   svz_sock_foreach_listener (sock)
-    if (svz_portcfg_equal (sock->port, port) & (PORTCFG_EQUAL | PORTCFG_MATCH))
+    if (portcfg_matching_or_equal (sock->port, port))
       return sock;
   return NULL;
 }
@@ -201,7 +215,7 @@ svz_sock_find_portcfgs (svz_portcfg_t *port)
   svz_socket_t *sock;
 
   svz_sock_foreach_listener (sock)
-    if (svz_portcfg_equal (sock->port, port) & (PORTCFG_EQUAL | PORTCFG_MATCH))
+    if (portcfg_matching_or_equal (sock->port, port))
       svz_array_add (listeners, sock);
   return svz_array_destroy_zero (listeners);
 }
@@ -264,7 +278,7 @@ svz_binding_find (svz_socket_t *sock,
 
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
-      if (svz_portcfg_equal (binding->port, port) == PORTCFG_EQUAL)
+      if (portcfg_exactly_equal (binding->port, port))
         return binding;
   return NULL;
 }
@@ -328,7 +342,7 @@ svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
 
   svz_array_foreach (bindings, search, i)
     if (search->server == binding->server)
-      if (svz_portcfg_equal (search->port, binding->port) == PORTCFG_EQUAL)
+      if (portcfg_exactly_equal (search->port, binding->port))
         return 1;
   return 0;
 }

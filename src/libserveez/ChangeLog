@@ -1,5 +1,22 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix PORTCFG_{NOMATCH,EQUAL,MATCH,CONFLICT} with "SVZ_".
+
+	* portcfg.h
+	(SVZ_PORTCFG_NOMATCH): Rename from ‘PORTCFG_NOMATCH’.
+	(SVZ_PORTCFG_EQUAL): Rename from ‘PORTCFG_EQUAL’.
+	(SVZ_PORTCFG_MATCH): Rename from ‘PORTCFG_MATCH’.
+	(SVZ_PORTCFG_CONFLICT): Rename from ‘PORTCFG_CONFLICT’.
+	* portcfg.c: Update all refs.
+	* binding.c (portcfg_exactly_equal)
+	(portcfg_matching_or_equal): New static funcs.
+	(svz_sock_find_portcfg): Use ‘portcfg_matching_or_equal’.
+	(svz_sock_find_portcfgs): Likewise.
+	(svz_binding_find): Use ‘portcfg_exactly_equal’.
+	(svz_binding_contains): Likewise.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize PORTCFG_FLAG_{ANY,ALL,DEVICE}.
 
 	* portcfg.h (PORTCFG_FLAG_ANY)

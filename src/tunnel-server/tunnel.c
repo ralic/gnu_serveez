@@ -122,7 +122,7 @@ tnl_init (svz_server_t *server)
     }
 
   /* check identity of source and target port configurations */
-  if (svz_portcfg_equal (cfg->source, cfg->target) == PORTCFG_EQUAL)
+  if (svz_portcfg_equal (cfg->source, cfg->target) == SVZ_PORTCFG_EQUAL)
     {
       svz_log (LOG_ERROR, "tunnel: source and target identical\n");
       return -1;

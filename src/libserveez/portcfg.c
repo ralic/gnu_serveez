@@ -75,10 +75,10 @@ same_devices (svz_portcfg_t *a, svz_portcfg_t *b)
 /*
  * Check if two given port configurations structures are equal i.e.
  * specifying the same network port or pipe files.  Returns
- * @code{PORTCFG_EQUAL} if @var{a} and @var{b} are identical,
- * @code{PORTCFG_MATCH} if the network address ofeither port
+ * @code{SVZ_PORTCFG_EQUAL} if @var{a} and @var{b} are identical,
+ * @code{SVZ_PORTCFG_MATCH} if the network address of either port
  * configurations contains the other (INADDR_ANY match) and otherwise
- * @code{PORTCFG_NOMATCH} or possibly @code{PORTCFG_CONFLICT}.
+ * @code{SVZ_PORTCFG_NOMATCH} or possibly @code{SVZ_PORTCFG_CONFLICT}.
  */
 int
 svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
@@ -107,15 +107,15 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
                       (b->flags & PORTCFG_FLAG_DEVICE))
                     {
                       if (same_devices (a, b))
-                        return PORTCFG_EQUAL;
-                      return PORTCFG_NOMATCH;
+                        return SVZ_PORTCFG_EQUAL;
+                      return SVZ_PORTCFG_NOMATCH;
                     }
-                  return PORTCFG_CONFLICT;
+                  return SVZ_PORTCFG_CONFLICT;
                 }
               if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
-                return PORTCFG_EQUAL;
+                return SVZ_PORTCFG_EQUAL;
               if (a->flags & PORTCFG_FLAG_ANY || b->flags & PORTCFG_FLAG_ANY)
-                return PORTCFG_MATCH;
+                return SVZ_PORTCFG_MATCH;
             }
           break;
         case SVZ_PROTO_ICMP:
@@ -127,13 +127,13 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
                   if ((a->flags & PORTCFG_FLAG_DEVICE) &&
                       (b->flags & PORTCFG_FLAG_DEVICE) &&
                       same_devices (a, b))
-                    return PORTCFG_EQUAL;
-                  return PORTCFG_CONFLICT;
+                    return SVZ_PORTCFG_EQUAL;
+                  return SVZ_PORTCFG_CONFLICT;
                 }
               if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
-                return PORTCFG_EQUAL;
+                return SVZ_PORTCFG_EQUAL;
               if (a->flags & PORTCFG_FLAG_ANY || b->flags & PORTCFG_FLAG_ANY)
-                return PORTCFG_MATCH;
+                return SVZ_PORTCFG_MATCH;
             }
           break;
         case SVZ_PROTO_RAW:
@@ -143,13 +143,13 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
               if ((a->flags & PORTCFG_FLAG_DEVICE) &&
                   (b->flags & PORTCFG_FLAG_DEVICE) &&
                   same_devices (a, b))
-                return PORTCFG_EQUAL;
-              return PORTCFG_CONFLICT;
+                return SVZ_PORTCFG_EQUAL;
+              return SVZ_PORTCFG_CONFLICT;
             }
           if (a_addr->sin_addr.s_addr == b_addr->sin_addr.s_addr)
-            return PORTCFG_EQUAL;
+            return SVZ_PORTCFG_EQUAL;
           if (a->flags & PORTCFG_FLAG_ANY || b->flags & PORTCFG_FLAG_ANY)
-            return PORTCFG_MATCH;
+            return SVZ_PORTCFG_MATCH;
           break;
         }
     }
@@ -160,11 +160,11 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
        */
       if (!strcmp (a->pipe_recv.name, b->pipe_recv.name) &&
           !strcmp (b->pipe_send.name, b->pipe_send.name))
-        return PORTCFG_EQUAL;
+        return SVZ_PORTCFG_EQUAL;
     }
 
   /* Do not even the same proto flag -> cannot be equal.  */
-  return PORTCFG_NOMATCH;
+  return SVZ_PORTCFG_NOMATCH;
 }
 
 /*

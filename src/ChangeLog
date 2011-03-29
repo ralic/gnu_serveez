@@ -1,5 +1,11 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix PORTCFG_{NOMATCH,EQUAL,MATCH,CONFLICT} with "SVZ_".
+
+	* tunnel-server/tunnel.c: Update all refs.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix ICMP_SERVEEZ* with "SVZ_".
 
 	* guile-api.c: Update all refs.

@@ -68,10 +68,10 @@
 /* end svzint */
 
 /* Return values for port configuration comparisons.  */
-#define PORTCFG_NOMATCH  0x0001
-#define PORTCFG_EQUAL    0x0002
-#define PORTCFG_MATCH    0x0004
-#define PORTCFG_CONFLICT 0x0008
+#define SVZ_PORTCFG_NOMATCH  0x0001
+#define SVZ_PORTCFG_EQUAL    0x0002
+#define SVZ_PORTCFG_MATCH    0x0004
+#define SVZ_PORTCFG_CONFLICT 0x0008
 
 /*
  * Definition of a single port configuration reflecting either a network
