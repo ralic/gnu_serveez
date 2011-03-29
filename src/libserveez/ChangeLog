@@ -1,5 +1,12 @@
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize {RECV,SEND,MAX}_BUF_SIZE.
+
+	* socket.h (RECV_BUF_SIZE): Mark ‘svzint’.
+	(SEND_BUF_SIZE, MAX_BUF_SIZE): Likewise.
+
+2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize SOCK_MAX_DETECTION_{FILL,WAIT}.
 
 	* socket.h (SOCK_MAX_DETECTION_FILL)

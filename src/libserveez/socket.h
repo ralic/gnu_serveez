@@ -31,9 +31,11 @@
 /* Do not write more than SOCK_MAX_WRITE bytes to a socket at once.  */
 #define SOCK_MAX_WRITE        1024
 
+/* begin svzint */
 #define RECV_BUF_SIZE  (1024 * 8)         /* Normal receive buffer size.  */
 #define SEND_BUF_SIZE  (1024 * 8)         /* Normal send buffer size.  */
 #define MAX_BUF_SIZE   (1024 * 1024 * 16) /* Maximum buffer size.  */
+/* end svzint */
 
 #define SOCK_FLAG_INIT        0x00000000 /* Value for initializing.  */
 #define SOCK_FLAG_INBUF       0x00000001 /* Outbuf is allocated.  */
