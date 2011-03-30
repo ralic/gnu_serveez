@@ -54,22 +54,6 @@ typedef struct
 }
 svz_coserver_t;
 
-/*
- * This structure contains the type id and the callback
- * pointer of the internal coserver routines where CALLBACK is
- * the actual (blocking) processing routine.
- */
-typedef struct
-{
-  int type;                       /* coserver type id */
-  char *name;                     /* name of the internal coserver */
-  char * (* callback) (char *);   /* coserver callback */
-  int instances;                  /* the amount of coserver instances */
-  void (* init) (void);           /* coserver initialization routine */
-  long last_start;                /* time stamp of the last instance ‘fork’ */
-}
-svz_coservertype_t;
-
 /* Definitions for argument list of the coserver callbacks.  */
 typedef void * svz_coserver_arg_t;
 #define COSERVER_ARGS 2
