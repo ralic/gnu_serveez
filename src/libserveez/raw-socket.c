@@ -185,7 +185,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   if (IP_HDR_VERSION (ip_header) != IP_VERSION_4)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "raw: cannot handle IPv%d\n",
+      svz_log (SVZ_LOG_DEBUG, "raw: cannot handle IPv%d\n",
                IP_HDR_VERSION (ip_header));
 #endif
       return -1;
@@ -195,7 +195,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   if (IP_HDR_LENGTH (ip_header) > len)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "raw: invalid IHL (%d > %d)\n",
+      svz_log (SVZ_LOG_DEBUG, "raw: invalid IHL (%d > %d)\n",
                IP_HDR_LENGTH (ip_header), len);
 #endif
       return -1;
@@ -205,7 +205,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   if (ip_header->length < len)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "raw: invalid total length (%d < %d)\n",
+      svz_log (SVZ_LOG_DEBUG, "raw: invalid total length (%d < %d)\n",
                ip_header->length, len);
 #endif
       return -1;
@@ -215,7 +215,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
   if (ip_header->protocol != ICMP_PROTOCOL)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "raw: invalid protocol 0x%02X\n",
+      svz_log (SVZ_LOG_DEBUG, "raw: invalid protocol 0x%02X\n",
                ip_header->protocol);
 #endif
       return -1;
@@ -227,7 +227,7 @@ svz_raw_check_ip_header (svz_uint8_t *data, int len)
     {
       /* FIXME: Why are header checksums invalid on big packets?  */
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG,
+      svz_log (SVZ_LOG_DEBUG,
                "raw: invalid ip header checksum (%04X != %04X)\n",
                svz_raw_ip_checksum (data, IP_HDR_LENGTH (ip_header)),
                ip_header->checksum);

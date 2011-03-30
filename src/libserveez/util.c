@@ -660,7 +660,7 @@ svz_openfiles (int max_sockets)
       svz_log_sys_error ("getdtablesize");
       return -1;
     }
-  svz_log (LOG_NOTICE, "file descriptor table size: %d\n", openfiles);
+  svz_log (SVZ_LOG_NOTICE, "file descriptor table size: %d\n", openfiles);
 #endif /* HAVE_GETDTABLESIZE */
 
 #if HAVE_GETRLIMIT
@@ -674,7 +674,7 @@ svz_openfiles (int max_sockets)
       svz_log_sys_error ("getrlimit");
       return -1;
     }
-  svz_log (LOG_NOTICE, "current open file limit: %d/%d\n",
+  svz_log (SVZ_LOG_NOTICE, "current open file limit: %d/%d\n",
            rlim.rlim_cur, rlim.rlim_max);
 
   if ((int) rlim.rlim_max < (int) max_sockets ||
@@ -689,7 +689,7 @@ svz_openfiles (int max_sockets)
           return -1;
         }
       getrlimit (RLIMIT_NOFILE, &rlim);
-      svz_log (LOG_NOTICE, "open file limit set to: %d/%d\n",
+      svz_log (SVZ_LOG_NOTICE, "open file limit set to: %d/%d\n",
                rlim.rlim_cur, rlim.rlim_max);
     }
 
@@ -710,7 +710,7 @@ svz_openfiles (int max_sockets)
                                                         MaxSocketSubSubKey,
                                                         svz_itoa (sockets)));
 
-      svz_log (LOG_NOTICE, "current open file limit: %u\n", sockets);
+      svz_log (SVZ_LOG_NOTICE, "current open file limit: %u\n", sockets);
 
       if (sockets < (unsigned) max_sockets)
         {
@@ -726,7 +726,7 @@ svz_openfiles (int max_sockets)
                                         MaxSocketSubSubKey,
                                         svz_itoa (sockets));
 
-          svz_log (LOG_NOTICE, "open file limit set to: %u\n", sockets);
+          svz_log (SVZ_LOG_NOTICE, "open file limit set to: %u\n", sockets);
         }
     }
 #endif /* MINGW32__ */
@@ -747,7 +747,7 @@ save_errmsg (char *buf, char const *source)
 static void
 log_error (char const *prefix, char const *errmsg)
 {
-  svz_log (LOG_ERROR, "%s: %s\n", prefix, errmsg);
+  svz_log (SVZ_LOG_ERROR, "%s: %s\n", prefix, errmsg);
 }
 
 #define LOG_ERROR_FROM(SOURCE)  do                      \

@@ -1,5 +1,32 @@
 2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix LOG_{FATAL,ERROR,WARNING,NOTICE,DEBUG} with "SVZ_".
+
+	* awcs-server/awcs-proto.c: Update all refs.
+	* ctrl-server/control-proto.c: Likewise.
+	* foo-server/foo-proto.c: Likewise.
+	* http-server/http-cache.c: Likewise.
+	* http-server/http-cgi.c: Likewise.
+	* http-server/http-core.c: Likewise.
+	* http-server/http-proto.c: Likewise.
+	* irc-core/irc-core.c: Likewise.
+	* irc-server/irc-config.c: Likewise.
+	* irc-server/irc-event-1.c: Likewise.
+	* irc-server/irc-event-6.c: Likewise.
+	* irc-server/irc-proto.c: Likewise.
+	* irc-server/irc-server.c: Likewise.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-hostlist.c: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-route.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* option.c: Likewise.
+	* prog-server/prog-server.c: Likewise.
+	* serveez.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix some coserver #define:s with "SVZ_".
 
 	* ctrl-server/control-proto.c: Update all refs.

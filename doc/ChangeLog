@@ -1,3 +1,9 @@
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Prefix LOG_{FATAL,ERROR,WARNING,NOTICE,DEBUG} with "SVZ_".
+
+	* serveez-api.texi.in: Update all refs.
+
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop funcs svz_config_{intarray,strarray,hash}_destroy.

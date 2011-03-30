@@ -730,7 +730,7 @@ svz_interface_check (void)
                 }
               else
                 {
-                  svz_log (LOG_NOTICE, "%s: %s has been removed\n",
+                  svz_log (SVZ_LOG_NOTICE, "%s: %s has been removed\n",
                            ifc->description, svz_inet_ntoa (ifc->ipaddr));
                   changes++;
                 }
@@ -748,7 +748,7 @@ svz_interface_check (void)
             }
           if (!found)
             {
-              svz_log (LOG_NOTICE, "%s: %s has been added\n",
+              svz_log (SVZ_LOG_NOTICE, "%s: %s has been added\n",
                        ifc->description, svz_inet_ntoa (ifc->ipaddr));
               changes++;
             }
@@ -764,7 +764,7 @@ svz_interface_check (void)
   /* Print a notification message if no changes occurred.  */
   if (!changes)
     {
-      svz_log (LOG_NOTICE, "no network interface changes detected\n");
+      svz_log (SVZ_LOG_NOTICE, "no network interface changes detected\n");
     }
 }
 

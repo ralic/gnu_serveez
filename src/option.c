@@ -244,13 +244,13 @@ handle_options (int argc, char **argv)
           if (optarg)
             {
               options.verbosity = atoi (optarg);
-              if (options.verbosity < LOG_FATAL)
-                options.verbosity = LOG_FATAL;
-              else if (options.verbosity > LOG_DEBUG)
-                options.verbosity = LOG_DEBUG;
+              if (options.verbosity < SVZ_LOG_FATAL)
+                options.verbosity = SVZ_LOG_FATAL;
+              else if (options.verbosity > SVZ_LOG_DEBUG)
+                options.verbosity = SVZ_LOG_DEBUG;
             }
           else
-            options.verbosity = LOG_DEBUG;
+            options.verbosity = SVZ_LOG_DEBUG;
           break;
 
         case 'l':

@@ -150,13 +150,13 @@ awcs_nslookup_done (char *host, int id, int version)
       if (!cfg->server)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "awcs: no master server (nslookup_done)\n");
+          svz_log (SVZ_LOG_DEBUG, "awcs: no master server (nslookup_done)\n");
 #endif
           return -1;
         }
 
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: sending resolved ip to master\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: sending resolved ip to master\n");
 #endif
 
       if (svz_sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s%c",
@@ -165,7 +165,7 @@ awcs_nslookup_done (char *host, int id, int version)
                            sock->id,
                            host, '\0'))
         {
-          svz_log (LOG_FATAL, "awcs: master write error\n");
+          svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
           svz_sock_schedule_for_shutdown (cfg->server);
           cfg->server = NULL;
           awcs_disconnect_clients (cfg);
@@ -193,13 +193,13 @@ awcs_ident_done (char *user, int id, int version)
       if (!cfg->server)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "awcs: no master server (ident_done)\n");
+          svz_log (SVZ_LOG_DEBUG, "awcs: no master server (ident_done)\n");
 #endif
           return -1;
         }
 
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: sending identified client to master\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: sending identified client to master\n");
 #endif
 
       if (svz_sock_printf (cfg->server, AWCS_ID_FMT " %d " AWCS_ID_FMT " %s%c",
@@ -208,7 +208,7 @@ awcs_ident_done (char *user, int id, int version)
                            sock->id,
                            user, '\0'))
         {
-          svz_log (LOG_FATAL, "awcs: master write error\n");
+          svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
           svz_sock_schedule_for_shutdown (cfg->server);
           cfg->server = NULL;
           awcs_disconnect_clients (cfg);
@@ -234,7 +234,7 @@ awcs_status_connected (svz_socket_t *sock)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: no master server (status_connected)\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: no master server (status_connected)\n");
 #endif
       return -1;
     }
@@ -243,7 +243,7 @@ awcs_status_connected (svz_socket_t *sock)
   port = sock->remote_port;
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "awcs: sending connect on socket id %d to master\n",
+  svz_log (SVZ_LOG_DEBUG, "awcs: sending connect on socket id %d to master\n",
            sock->id);
 #endif
 
@@ -254,7 +254,7 @@ awcs_status_connected (svz_socket_t *sock)
                        svz_inet_ntoa (addr),
                        htons (port), '\0'))
     {
-      svz_log (LOG_FATAL, "awcs: master write error\n");
+      svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
       svz_sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -286,13 +286,13 @@ awcs_status_disconnected (svz_socket_t *sock, int reason)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: no master server (status_disconnected)\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: no master server (status_disconnected)\n");
 #endif
       return -1;
     }
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "awcs: sending disconnect on socket %d to master\n",
+  svz_log (SVZ_LOG_DEBUG, "awcs: sending disconnect on socket %d to master\n",
            sock->sock_desc);
 #endif /* ENABLE_DEBUG */
 
@@ -302,7 +302,7 @@ awcs_status_disconnected (svz_socket_t *sock, int reason)
                        sock->id,
                        reason, '\0'))
     {
-      svz_log (LOG_FATAL, "awcs: master write error\n");
+      svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
       svz_sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -325,7 +325,7 @@ awcs_status_kicked (svz_socket_t *sock, int reason)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: no master server (status_kicked)\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: no master server (status_kicked)\n");
 #endif
       return -1;
     }
@@ -336,7 +336,7 @@ awcs_status_kicked (svz_socket_t *sock, int reason)
                        sock->id,
                        reason, '\0'))
     {
-      svz_log (LOG_FATAL, "awcs: master write error\n");
+      svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
       svz_sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -356,7 +356,7 @@ awcs_status_alive (awcs_config_t *cfg)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: no master server (status_alive)\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: no master server (status_alive)\n");
 #endif /* ENABLE_DEBUG */
       return -1;
     }
@@ -365,7 +365,7 @@ awcs_status_alive (awcs_config_t *cfg)
                        cfg->server->id,
                        STATUS_ALIVE, '\0'))
     {
-      svz_log (LOG_FATAL, "awcs: master write error\n");
+      svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
       svz_sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -381,7 +381,7 @@ awcs_status_notify (awcs_config_t *cfg)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: no master server (status_notify)\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: no master server (status_notify)\n");
 #endif /* ENABLE_DEBUG */
       return -1;
     }
@@ -390,7 +390,7 @@ awcs_status_notify (awcs_config_t *cfg)
                        cfg->server->id,
                        STATUS_NOTIFY, '\0'))
     {
-      svz_log (LOG_FATAL, "awcs: master write error\n");
+      svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
       svz_sock_schedule_for_shutdown (cfg->server);
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
@@ -410,7 +410,7 @@ awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
   int n;
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "awcs: broadcasting\n");
+  svz_log (SVZ_LOG_DEBUG, "awcs: broadcasting\n");
 #endif /* ENABLE_DEBUG */
 
   if ((sock = (svz_socket_t **) svz_hash_values (cfg->clients)) != NULL)
@@ -469,7 +469,7 @@ awcs_process_multicast (awcs_config_t *cfg, char *cmd, int cmd_len)
 #if ENABLE_DEBUG
       else
         {
-          svz_log (LOG_DEBUG, "awcs: master sent invalid id (multicast %d)\n",
+          svz_log (SVZ_LOG_DEBUG, "awcs: master sent invalid id (multicast %d)\n",
                    address);
         }
 #endif /* ENABLE_DEBUG */
@@ -485,7 +485,7 @@ awcs_process_status (awcs_config_t *cfg,
                      SVZ_UNUSED char *cmd, SVZ_UNUSED int cmd_len)
 {
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "awcs: sending status message\n");
+  svz_log (SVZ_LOG_DEBUG, "awcs: sending status message\n");
 #endif /* ENABLE_DEBUG */
   awcs_status_alive (cfg);
   return 0;
@@ -508,7 +508,7 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, SVZ_UNUSED int cmd_len)
       if (sock)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "awcs: kicking socket %d\n", sock->sock_desc);
+          svz_log (SVZ_LOG_DEBUG, "awcs: kicking socket %d\n", sock->sock_desc);
 #endif /* ENABLE_DEBUG */
           /*
            * This is a hack.  We set the handler to NULL to be sure
@@ -521,7 +521,7 @@ awcs_process_kick (awcs_config_t *cfg, char *cmd, SVZ_UNUSED int cmd_len)
 #if ENABLE_DEBUG
       else
         {
-          svz_log (LOG_DEBUG, "awcs: master sent invalid id (kick %d)\n",
+          svz_log (SVZ_LOG_DEBUG, "awcs: master sent invalid id (kick %d)\n",
                    address);
         }
 #endif /* ENABLE_DEBUG */
@@ -547,7 +547,7 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd,
       if (sock)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "awcs: switching flood control for socket "
+          svz_log (SVZ_LOG_DEBUG, "awcs: switching flood control for socket "
                    "%d %s\n", sock->sock_desc, flag ? "on" : "off");
 #endif /* ENABLE_DEBUG */
           if (flag)
@@ -558,7 +558,7 @@ awcs_process_floodcmd (awcs_config_t *cfg, char *cmd,
 #if ENABLE_DEBUG
       else
         {
-          svz_log (LOG_DEBUG, "awcs: master sent invalid id (floodcmd %d)\n",
+          svz_log (SVZ_LOG_DEBUG, "awcs: master sent invalid id (floodcmd %d)\n",
                    address);
         }
 #endif /* ENABLE_DEBUG */
@@ -616,10 +616,10 @@ awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
       break;
     case '6':
       /* The following code should not be executed anymore.  */
-      svz_log (LOG_NOTICE, "awcs: skipping '6' ...\n");
+      svz_log (SVZ_LOG_NOTICE, "awcs: skipping '6' ...\n");
       break;
     default:
-      svz_log (LOG_ERROR, "awcs: bad master server request\n");
+      svz_log (SVZ_LOG_ERROR, "awcs: bad master server request\n");
       break;
     }
   return 0;
@@ -661,7 +661,7 @@ awcs_handle_request (svz_socket_t *sock, char *request, int request_len)
   if (!cfg->server)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "awcs: no master server (awcs_handle_request)\n");
+      svz_log (SVZ_LOG_DEBUG, "awcs: no master server (awcs_handle_request)\n");
 #endif
       awcs_disconnect_clients (cfg);
       return -1;
@@ -680,7 +680,7 @@ awcs_handle_request (svz_socket_t *sock, char *request, int request_len)
         }
       if (ret)
         {
-          svz_log (LOG_FATAL, "awcs: master write error\n");
+          svz_log (SVZ_LOG_FATAL, "awcs: master write error\n");
           svz_sock_schedule_for_shutdown (cfg->server);
           cfg->server = NULL;
           awcs_disconnect_clients (cfg);
@@ -748,7 +748,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
       if (!cfg->server && !cfg->master)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG,
+          svz_log (SVZ_LOG_DEBUG,
                    "awcs: master not present, cannot connect socket %d\n",
                    sock->sock_desc);
 #endif
@@ -756,7 +756,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
       if (cfg->server && cfg->master)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG,
+          svz_log (SVZ_LOG_DEBUG,
                    "awcs: master is present, cannot connect socket %d\n",
                    sock->sock_desc);
 #endif
@@ -768,12 +768,12 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
 #if ENABLE_DEBUG
   if (sock->flags & SVZ_SOFLG_PIPE)
     {
-      svz_log (LOG_DEBUG, "awcs: connection on pipe (%d-%d)\n",
+      svz_log (SVZ_LOG_DEBUG, "awcs: connection on pipe (%d-%d)\n",
                sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
     }
   else
     {
-      svz_log (LOG_DEBUG, "awcs: connection on socket %d\n",
+      svz_log (SVZ_LOG_DEBUG, "awcs: connection on socket %d\n",
                sock->sock_desc);
     }
 #endif /* ENABLE_DEBUG */
@@ -786,13 +786,13 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
 #if ENABLE_DEBUG
       if (sock->flags & SVZ_SOFLG_PIPE)
         {
-          svz_log (LOG_NOTICE,
+          svz_log (SVZ_LOG_NOTICE,
                    "awcs: master server connected on pipe (%d-%d)\n",
                    sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
         }
       else
         {
-          svz_log (LOG_NOTICE,
+          svz_log (SVZ_LOG_NOTICE,
                    "awcs: master server connected on socket %d\n",
                    sock->sock_desc);
         }
@@ -801,7 +801,7 @@ awcs_connect_socket (svz_server_t *server, svz_socket_t *sock)
       sock->idle_func = awcs_idle_func;
       sock->idle_counter = 3;
       sock->flags |= (SVZ_SOFLG_NOFLOOD | SVZ_SOFLG_PRIORITY);
-      svz_log (LOG_NOTICE,
+      svz_log (SVZ_LOG_NOTICE,
                "awcs: resizing master buffers: %d, %d\n",
                MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
       svz_sock_resize_buffers (sock, MASTER_SEND_BUFSIZE, MASTER_RECV_BUFSIZE);
@@ -832,7 +832,7 @@ awcs_disconnected_socket (svz_socket_t *sock)
 
   if (sock == cfg->server)
     {
-      svz_log (LOG_ERROR, "awcs: lost master server\n");
+      svz_log (SVZ_LOG_ERROR, "awcs: lost master server\n");
       cfg->server = NULL;
       awcs_disconnect_clients (cfg);
     }
@@ -899,14 +899,14 @@ awcs_detect_proto (svz_server_t *server, svz_socket_t *sock)
       !memcmp (sock->recv_buffer, AWCS_MASTER, MASTER_DETECTION))
     {
       cfg->master = 1;
-      svz_log (LOG_NOTICE, "awcs: master detected\n");
+      svz_log (SVZ_LOG_NOTICE, "awcs: master detected\n");
       len = MASTER_DETECTION;
     }
   else if (sock->recv_buffer_fill >= CLIENT_DETECTION &&
            !memcmp (sock->recv_buffer, AWCS_CLIENT, CLIENT_DETECTION))
     {
       cfg->master = 0;
-      svz_log (LOG_NOTICE, "awcs: client detected\n");
+      svz_log (SVZ_LOG_NOTICE, "awcs: client detected\n");
       len = CLIENT_DETECTION;
     }
 

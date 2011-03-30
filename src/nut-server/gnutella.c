@@ -233,7 +233,7 @@ nut_connect_ip (nut_config_t *cfg, unsigned long ip, unsigned short port)
   /* try to connect to this host */
   if ((sock = svz_tcp_connect (ip, port)) != NULL)
     {
-      svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
+      svz_log (SVZ_LOG_NOTICE, "nut: connecting %s:%u\n",
                svz_inet_ntoa (ip), ntohs (port));
       sock->cfg = cfg;
       sock->flags |= SVZ_SOFLG_NOFLOOD;
@@ -259,7 +259,7 @@ nut_nslookup_done (char *host, nut_config_t *cfg, unsigned short port)
     {
       if (svz_inet_aton (host, &addr) == -1)
         {
-          svz_log (LOG_WARNING, "nut: invalid IP address `%s'\n", host);
+          svz_log (SVZ_LOG_WARNING, "nut: invalid IP address `%s'\n", host);
           return -1;
         }
       return nut_connect_ip (cfg, addr.sin_addr.s_addr, port);
@@ -285,7 +285,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
     {
       if ((dns = nut_parse_host (host, &port)) == NULL)
         {
-          svz_log (LOG_ERROR, "nut: invalid host `%s'\n", host);
+          svz_log (SVZ_LOG_ERROR, "nut: invalid host `%s'\n", host);
           return -1;
         }
     }
@@ -294,7 +294,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
   if (dns != NULL)
     {
       /* first resolve the hostname and then connect */
-      svz_log (LOG_NOTICE, "nut: enqueuing %s\n", dns);
+      svz_log (SVZ_LOG_NOTICE, "nut: enqueuing %s\n", dns);
       svz_coserver_dns (dns, nut_nslookup_done, cfg, port);
       svz_free (dns);
     }
@@ -408,7 +408,7 @@ nut_init (svz_server_t *server)
   /* check the download and share path first */
   if (strlen (cfg->save_path) == 0 || strlen (cfg->share_path) == 0)
     {
-      svz_log (LOG_ERROR, "nut: no download/share path given\n");
+      svz_log (SVZ_LOG_ERROR, "nut: no download/share path given\n");
       return -1;
     }
   p = cfg->save_path + strlen (cfg->save_path) - 1;
@@ -433,7 +433,7 @@ nut_init (svz_server_t *server)
       /* check if the given path is a directory already */
       else if (!S_ISDIR (buf.st_mode))
         {
-          svz_log (LOG_ERROR, "nut: %s is not a directory\n",
+          svz_log (SVZ_LOG_ERROR, "nut: %s is not a directory\n",
                    cfg->save_path);
           return -1;
         }
@@ -441,7 +441,7 @@ nut_init (svz_server_t *server)
 
   /* read shared files */
   nut_read_database (cfg, cfg->share_path[0] ? cfg->share_path : "/");
-  svz_log (LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
+  svz_log (SVZ_LOG_NOTICE, "nut: %d files in database\n", cfg->db_files);
 
   /* calculate forced local ip and port if necessary */
   if (cfg->force_ip)
@@ -985,7 +985,7 @@ nut_detect_connect (svz_socket_t *sock)
       !memcmp (sock->recv_buffer, NUT_OK, len))
     {
       sock->userflags |= (NUT_FLAG_CLIENT | NUT_FLAG_SELF);
-      svz_log (LOG_NOTICE, "nut: host %s:%u connected\n",
+      svz_log (SVZ_LOG_NOTICE, "nut: host %s:%u connected\n",
                svz_inet_ntoa (sock->remote_addr),
                ntohs (sock->remote_port));
       svz_sock_reduce_recv (sock, len);
@@ -1015,7 +1015,7 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
           !memcmp (sock->recv_buffer, NUT_CONNECT, len))
         {
           sock->userflags |= NUT_FLAG_CLIENT;
-          svz_log (LOG_NOTICE, "gnutella protocol detected (client)\n");
+          svz_log (SVZ_LOG_NOTICE, "gnutella protocol detected (client)\n");
           svz_sock_reduce_recv (sock, len);
           return -1;
         }
@@ -1027,7 +1027,7 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
       !memcmp (sock->recv_buffer, NUT_GET, len))
     {
       sock->userflags |= NUT_FLAG_UPLOAD;
-      svz_log (LOG_NOTICE, "gnutella protocol detected (upload)\n");
+      svz_log (SVZ_LOG_NOTICE, "gnutella protocol detected (upload)\n");
       return -1;
     }
 
@@ -1037,7 +1037,7 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
       !memcmp (sock->recv_buffer, cfg->net_detect, len))
     {
       sock->userflags |= NUT_FLAG_HOSTS;
-      svz_log (LOG_NOTICE, "gnutella protocol detected (host list)\n");
+      svz_log (SVZ_LOG_NOTICE, "gnutella protocol detected (host list)\n");
       svz_sock_reduce_recv (sock, len);
       return -1;
     }
@@ -1048,7 +1048,7 @@ nut_detect_proto (svz_server_t *server, svz_socket_t *sock)
       !memcmp (sock->recv_buffer, NUT_GIVE, len))
     {
       sock->userflags |= NUT_FLAG_GIVEN;
-      svz_log (LOG_NOTICE, "gnutella protocol detected (giving)\n");
+      svz_log (SVZ_LOG_NOTICE, "gnutella protocol detected (giving)\n");
       return -1;
     }
 

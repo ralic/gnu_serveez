@@ -67,7 +67,7 @@ http_alloc_cache (int entries)
       http_cache = svz_hash_create (entries, NULL);
       http_cache_entries = entries;
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cache: created %d cache entries\n", entries);
+      svz_log (SVZ_LOG_DEBUG, "cache: created %d cache entries\n", entries);
 #endif
     }
 }
@@ -96,7 +96,7 @@ http_free_cache (void)
   http_cache_first = http_cache_last = NULL;
   http_cache = NULL;
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "cache: freeing %d byte in %d entries\n", total, files);
+  svz_log (SVZ_LOG_DEBUG, "cache: freeing %d byte in %d entries\n", total, files);
 #endif
 }
 
@@ -246,7 +246,7 @@ http_cache_destroy_entry (http_cache_entry_t *cache)
 
   /* Delete cache entry from hash.  */
   if (svz_hash_delete (http_cache, cache->file) != cache)
-    svz_log (LOG_FATAL, "cache: inconsistent http hash\n");
+    svz_log (SVZ_LOG_FATAL, "cache: inconsistent http hash\n");
 
   /* Update the double chained list of entries.  */
   if (cache->prev)
@@ -422,7 +422,7 @@ http_cache_write (svz_socket_t *sock)
   if (cache->size <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cache: file successfully sent\n");
+      svz_log (SVZ_LOG_DEBUG, "cache: file successfully sent\n");
 #endif
       num_written = http_keep_alive (sock);
     }
@@ -524,7 +524,7 @@ http_cache_read (svz_socket_t *sock)
   if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cache: `%s' successfully read\n",
+      svz_log (SVZ_LOG_DEBUG, "cache: `%s' successfully read\n",
                cache->entry->file);
 #endif
 

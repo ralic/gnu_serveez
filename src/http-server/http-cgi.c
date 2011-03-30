@@ -141,7 +141,7 @@ http_cgi_died (svz_socket_t *sock)
       /* Check if a died child is this cgi.  */
       if (svz_child_died && http->pid == svz_child_died)
         {
-          svz_log (LOG_NOTICE, "cgi script pid %d died\n",
+          svz_log (SVZ_LOG_NOTICE, "cgi script pid %d died\n",
                    (int) svz_child_died);
           svz_child_died = 0;
         }
@@ -149,7 +149,7 @@ http_cgi_died (svz_socket_t *sock)
       /* Test if the cgi is still running.  */
       if (waitpid (http->pid, NULL, WNOHANG) == http->pid)
         {
-          svz_log (LOG_NOTICE, "cgi script pid %d died\n", (int) http->pid);
+          svz_log (SVZ_LOG_NOTICE, "cgi script pid %d died\n", (int) http->pid);
           svz_invalidate_handle (&http->pid);
         }
 #endif /* HAVE_WAITPID */
@@ -259,7 +259,7 @@ http_cgi_read (svz_socket_t *sock)
   if (sock->send_buffer_fill == 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cgi: data successfully received and resent\n");
+      svz_log (SVZ_LOG_DEBUG, "cgi: data successfully received and resent\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_CGI;
       sock->flags &= ~SVZ_SOFLG_RECV_PIPE;
@@ -332,7 +332,7 @@ http_cgi_write (svz_socket_t *sock)
   if (http->contentlength <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cgi: post data sent to cgi\n");
+      svz_log (SVZ_LOG_DEBUG, "cgi: post data sent to cgi\n");
 #endif
       sock->userflags &= ~HTTP_FLAG_POST;
       sock->flags &= ~SVZ_SOFLG_SEND_PIPE;
@@ -506,7 +506,7 @@ http_check_cgi (svz_socket_t *sock, char *request)
   if (!(buf.st_mode & S_IFREG) ||
       !(buf.st_mode & S_IXUSR) || !(buf.st_mode & S_IRUSR))
     {
-      svz_log (LOG_ERROR, "cgi: no executable: %s\n", file);
+      svz_log (SVZ_LOG_ERROR, "cgi: no executable: %s\n", file);
       close (fd);
       svz_free (file);
       svz_free (saverequest);
@@ -546,7 +546,7 @@ http_pre_exec (svz_socket_t *sock,   /* socket structure */
     {
       svz_log_sys_error ("cgi: chdir");
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cgi: cannot change dir: %s\n", cfg->cgidir);
+      svz_log (SVZ_LOG_DEBUG, "cgi: cannot change dir: %s\n", cfg->cgidir);
 #endif
       return NULL;
     }
@@ -710,7 +710,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
 #if ENABLE_DEBUG
       /* if this is enabled you could learn about the system */
       else
-        svz_log (LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
+        svz_log (SVZ_LOG_DEBUG, "FindExecutable: %s\n", cgiapp);
 #endif
       svz_free (cgiapp);
 
@@ -749,7 +749,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
     {
       svz_log_sys_error ("cgi: CreateProcess");
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cgi: cannot execute: %s\n", cgifile);
+      svz_log (SVZ_LOG_DEBUG, "cgi: cannot execute: %s\n", cgifile);
 #endif
       svz_sock_printf (sock, "\r\n");
       sock->userflags |= HTTP_FLAG_DONE;
@@ -768,7 +768,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   pid = ProcessInfo.hProcess;
 
 #ifdef ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "http: cgi %s got pid 0x%08X\n",
+  svz_log (SVZ_LOG_DEBUG, "http: cgi %s got pid 0x%08X\n",
            file + 1, ProcessInfo.dwProcessId);
 #endif
 
@@ -902,7 +902,7 @@ http_cgi_exec (svz_socket_t *sock, /* the socket structure */
   /* ------ still current (parent) process here ------ */
 
 #ifdef ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "http: cgi %s got pid %d\n", file + 1, pid);
+  svz_log (SVZ_LOG_DEBUG, "http: cgi %s got pid %d\n", file + 1, pid);
 #endif
 
   /* send http header response */

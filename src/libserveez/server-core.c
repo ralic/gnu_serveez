@@ -347,7 +347,7 @@ svz_strsignal (int sig)
 static int
 svz_abort (char *msg)
 {
-  svz_log (LOG_FATAL, "list validation failed: %s\n", msg);
+  svz_log (SVZ_LOG_FATAL, "list validation failed: %s\n", msg);
   abort ();
   return 0;
 }
@@ -538,7 +538,7 @@ svz_sock_enqueue (svz_socket_t *sock)
     {
       if (svz_pipe_valid (sock) == -1)
         {
-          svz_log (LOG_FATAL, "cannot enqueue invalid pipe\n");
+          svz_log (SVZ_LOG_FATAL, "cannot enqueue invalid pipe\n");
           return -1;
         }
     }
@@ -548,7 +548,7 @@ svz_sock_enqueue (svz_socket_t *sock)
     {
       if (svz_sock_valid (sock) == -1)
         {
-          svz_log (LOG_FATAL, "cannot enqueue invalid socket\n");
+          svz_log (SVZ_LOG_FATAL, "cannot enqueue invalid socket\n");
           return -1;
         }
     }
@@ -556,7 +556,7 @@ svz_sock_enqueue (svz_socket_t *sock)
   /* check lookup table */
   if (svz_sock_lookup_table[sock->id] || sock->flags & SVZ_SOFLG_ENQUEUED)
     {
-      svz_log (LOG_FATAL, "socket id %d has been already enqueued\n",
+      svz_log (SVZ_LOG_FATAL, "socket id %d has been already enqueued\n",
                sock->id);
       return -1;
     }
@@ -593,7 +593,7 @@ svz_sock_dequeue (svz_socket_t *sock)
     {
       if (svz_pipe_valid (sock) == -1)
         {
-          svz_log (LOG_FATAL, "cannot dequeue invalid pipe\n");
+          svz_log (SVZ_LOG_FATAL, "cannot dequeue invalid pipe\n");
           return -1;
         }
     }
@@ -603,7 +603,7 @@ svz_sock_dequeue (svz_socket_t *sock)
     {
       if (svz_sock_valid (sock) == -1)
         {
-          svz_log (LOG_FATAL, "cannot dequeue invalid socket\n");
+          svz_log (SVZ_LOG_FATAL, "cannot dequeue invalid socket\n");
           return -1;
         }
     }
@@ -611,7 +611,7 @@ svz_sock_dequeue (svz_socket_t *sock)
   /* check lookup table */
   if (!svz_sock_lookup_table[sock->id] || !(sock->flags & SVZ_SOFLG_ENQUEUED))
     {
-      svz_log (LOG_FATAL, "socket id %d has been already dequeued\n",
+      svz_log (SVZ_LOG_FATAL, "socket id %d has been already dequeued\n",
                sock->id);
       return -1;
     }
@@ -661,7 +661,7 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
         {
           if (!strcmp (ip, remote))
             {
-              svz_log (LOG_NOTICE, "denying access from %s\n", ip);
+              svz_log (SVZ_LOG_NOTICE, "denying access from %s\n", ip);
               return -1;
             }
         }
@@ -675,13 +675,13 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
         {
           if (!strcmp (ip, remote))
             {
-              svz_log (LOG_NOTICE, "allowing access from %s\n", ip);
+              svz_log (SVZ_LOG_NOTICE, "allowing access from %s\n", ip);
               ret = 0;
             }
         }
       if (ret)
         {
-          svz_log (LOG_NOTICE, "denying unallowed access from %s\n", remote);
+          svz_log (SVZ_LOG_NOTICE, "denying unallowed access from %s\n", remote);
           return ret;
         }
     }
@@ -776,14 +776,14 @@ svz_sock_find (int id, int version)
 
   if (id & ~(svz_sock_limit - 1))
     {
-      svz_log (LOG_WARNING, "socket id %d is invalid\n", id);
+      svz_log (SVZ_LOG_WARNING, "socket id %d is invalid\n", id);
       return NULL;
     }
 
   sock = svz_sock_lookup_table[id];
   if (version != -1 && sock && sock->version != version)
     {
-      svz_log (LOG_WARNING, "socket version %d (id %d) is invalid\n",
+      svz_log (SVZ_LOG_WARNING, "socket version %d (id %d) is invalid\n",
                version, id);
       return NULL;
     }
@@ -839,7 +839,7 @@ svz_sock_unique_id (svz_socket_t *sock)
               svz_sock_limit * sizeof (svz_socket_t *));
       svz_sock_id = svz_sock_limit;
       svz_sock_limit *= 2;
-      svz_log (LOG_NOTICE, "lookup table enlarged to %d\n", svz_sock_limit);
+      svz_log (SVZ_LOG_NOTICE, "lookup table enlarged to %d\n", svz_sock_limit);
     }
 
   sock->id = svz_sock_id;
@@ -877,7 +877,7 @@ int
 svz_sock_shutdown (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "shutting down socket id %d\n", sock->id);
+  svz_log (SVZ_LOG_DEBUG, "shutting down socket id %d\n", sock->id);
 #endif
 
   if (sock->disconnected_socket)
@@ -906,7 +906,7 @@ svz_sock_schedule_for_shutdown (svz_socket_t *sock)
   if (!(sock->flags & SVZ_SOFLG_KILLED))
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "scheduling socket id %d for shutdown\n", sock->id);
+      svz_log (SVZ_LOG_DEBUG, "scheduling socket id %d for shutdown\n", sock->id);
 #endif /* ENABLE_DEBUG */
 
       sock->flags |= SVZ_SOFLG_KILLED;
@@ -958,7 +958,7 @@ svz_periodic_tasks (void)
             {
               if (sock->idle_func (sock))
                 {
-                  svz_log (LOG_ERROR,
+                  svz_log (SVZ_LOG_ERROR,
                            "idle function for socket id %d "
                            "returned error\n", sock->id);
                   svz_sock_schedule_for_shutdown (sock);
@@ -990,7 +990,7 @@ svz_sock_check_bogus (void)
   svz_socket_t *sock;
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "checking for bogus sockets\n");
+  svz_log (SVZ_LOG_DEBUG, "checking for bogus sockets\n");
 #endif /* ENABLE_DEBUG */
 
   svz_sock_foreach (sock)
@@ -1004,7 +1004,7 @@ svz_sock_check_bogus (void)
           if (fcntl (sock->sock_desc, F_GETFL) < 0)
 #endif /* not __MINGW32__ */
             {
-              svz_log (LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
+              svz_log (SVZ_LOG_ERROR, "socket %d has gone\n", sock->sock_desc);
               svz_sock_schedule_for_shutdown (sock);
             }
         }
@@ -1014,7 +1014,7 @@ svz_sock_check_bogus (void)
         {
           if (fcntl (sock->pipe_desc[SVZ_READ], F_GETFL) < 0)
             {
-              svz_log (LOG_ERROR, "pipe %d has gone\n",
+              svz_log (SVZ_LOG_ERROR, "pipe %d has gone\n",
                        sock->pipe_desc[SVZ_READ]);
               svz_sock_schedule_for_shutdown (sock);
             }
@@ -1023,7 +1023,7 @@ svz_sock_check_bogus (void)
         {
           if (fcntl (sock->pipe_desc[SVZ_WRITE], F_GETFL) < 0)
             {
-              svz_log (LOG_ERROR, "pipe %d has gone\n",
+              svz_log (SVZ_LOG_ERROR, "pipe %d has gone\n",
                        sock->pipe_desc[SVZ_WRITE]);
               svz_sock_schedule_for_shutdown (sock);
             }
@@ -1157,7 +1157,7 @@ svz_sock_check_children (void)
       {
         svz_invalidate_handle (&sock->pid);
 #if ENABLE_DEBUG
-        svz_log (LOG_DEBUG, "child of socket id %d died\n", sock->id);
+        svz_log (SVZ_LOG_DEBUG, "child of socket id %d died\n", sock->id);
 #endif /* ENABLE_DEBUG */
         if (sock->child_died)
           if (sock->child_died (sock))
@@ -1188,7 +1188,7 @@ svz_loop_one (void)
   if (svz_reset_happened)
     {
       /* SIGHUP received.  */
-      svz_log (LOG_NOTICE, "resetting server\n");
+      svz_log (SVZ_LOG_NOTICE, "resetting server\n");
       svz_reset ();
       svz_reset_happened = 0;
     }
@@ -1196,7 +1196,7 @@ svz_loop_one (void)
   if (svz_pipe_broke)
     {
       /* SIGPIPE received.  */
-      svz_log (LOG_ERROR, "broken pipe, continuing\n");
+      svz_log (SVZ_LOG_ERROR, "broken pipe, continuing\n");
       svz_pipe_broke = 0;
     }
 
@@ -1212,21 +1212,21 @@ svz_loop_one (void)
   if (svz_child_died)
     {
       /* SIGCHLD received.  */
-      svz_log (LOG_NOTICE, "child pid %d died\n", (int) svz_child_died);
+      svz_log (SVZ_LOG_NOTICE, "child pid %d died\n", (int) svz_child_died);
       svz_child_died = 0;
     }
 
   if (svz_signal != -1)
     {
       /* Log the current signal.  */
-      svz_log (LOG_WARNING, "signal: %s\n", svz_strsignal (svz_signal));
+      svz_log (SVZ_LOG_WARNING, "signal: %s\n", svz_strsignal (svz_signal));
       svz_signal = -1;
     }
 
   if (svz_uncaught_signal != -1)
     {
       /* Uncaught signal received.  */
-      svz_log (LOG_DEBUG, "uncaught signal %d\n", svz_uncaught_signal);
+      svz_log (SVZ_LOG_DEBUG, "uncaught signal %d\n", svz_uncaught_signal);
       svz_uncaught_signal = -1;
     }
 
@@ -1266,7 +1266,7 @@ svz_loop_pre (void)
   svz_notify = time (NULL);
 
   /* Run the server loop.  */
-  svz_log (LOG_NOTICE, "entering server loop\n");
+  svz_log (SVZ_LOG_NOTICE, "entering server loop\n");
 }
 
 /*
@@ -1275,7 +1275,7 @@ svz_loop_pre (void)
 void
 svz_loop_post (void)
 {
-  svz_log (LOG_NOTICE, "leaving server loop\n");
+  svz_log (SVZ_LOG_NOTICE, "leaving server loop\n");
 
   /* Shutdown all socket structures.  */
   while (svz_sock_root)

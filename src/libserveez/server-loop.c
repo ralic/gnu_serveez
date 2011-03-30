@@ -268,7 +268,7 @@ svz_check_sockets_select (void)
             {
               if (FD_ISSET (sock->pipe_desc[SVZ_READ], &except_fds))
                 {
-                  svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
+                  svz_log (SVZ_LOG_ERROR, "exception on receiving pipe %d \n",
                            sock->pipe_desc[SVZ_READ]);
                   svz_sock_schedule_for_shutdown (sock);
                 }
@@ -285,7 +285,7 @@ svz_check_sockets_select (void)
             {
               if (FD_ISSET (sock->pipe_desc[SVZ_WRITE], &except_fds))
                 {
-                  svz_log (LOG_ERROR, "exception on sending pipe %d \n",
+                  svz_log (SVZ_LOG_ERROR, "exception on sending pipe %d \n",
                            sock->pipe_desc[SVZ_WRITE]);
                   svz_sock_schedule_for_shutdown (sock);
                 }
@@ -305,7 +305,7 @@ svz_check_sockets_select (void)
             {
               if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
-                  svz_log (LOG_ERROR, "exception connecting socket %d\n",
+                  svz_log (SVZ_LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
                   svz_sock_error_info (sock);
                   svz_sock_schedule_for_shutdown (sock);
@@ -601,12 +601,12 @@ svz_check_sockets_poll (void)
             {
               if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
-                  svz_log (LOG_ERROR, "exception connecting socket %d\n",
+                  svz_log (SVZ_LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
                 }
               else
                 {
-                  svz_log (LOG_ERROR, "exception on socket %d\n",
+                  svz_log (SVZ_LOG_ERROR, "exception on socket %d\n",
                            sock->sock_desc);
                 }
               svz_sock_error_info (sock);
@@ -614,13 +614,13 @@ svz_check_sockets_poll (void)
             }
           if (sock->flags & SVZ_SOFLG_RECV_PIPE)
             {
-              svz_log (LOG_ERROR, "exception on receiving pipe %d \n",
+              svz_log (SVZ_LOG_ERROR, "exception on receiving pipe %d \n",
                        sock->pipe_desc[SVZ_READ]);
               svz_sock_schedule_for_shutdown (sock);
             }
           if (sock->flags & SVZ_SOFLG_SEND_PIPE)
             {
-              svz_log (LOG_ERROR, "exception on sending pipe %d \n",
+              svz_log (SVZ_LOG_ERROR, "exception on sending pipe %d \n",
                        sock->pipe_desc[SVZ_WRITE]);
               svz_sock_schedule_for_shutdown (sock);
             }
@@ -798,7 +798,7 @@ svz_check_sockets_MinGW (void)
             {
               if (sock->flags & SVZ_SOFLG_CONNECTING)
                 {
-                  svz_log (LOG_ERROR, "exception connecting socket %d\n",
+                  svz_log (SVZ_LOG_ERROR, "exception connecting socket %d\n",
                            sock->sock_desc);
                   svz_sock_error_info (sock);
                   svz_sock_schedule_for_shutdown (sock);

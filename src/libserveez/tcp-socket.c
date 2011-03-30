@@ -135,7 +135,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
    */
   if (do_read <= 0)
     {
-      svz_log (LOG_ERROR, "receive buffer overflow on socket %d\n", desc);
+      svz_log (SVZ_LOG_ERROR, "receive buffer overflow on socket %d\n", desc);
       if (sock->kicked_socket)
         sock->kicked_socket (sock, 0);
       return -1;
@@ -169,7 +169,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
 #if ENABLE_FLOOD_PROTECTION
       if (svz_sock_flood_protect (sock, num_read))
         {
-          svz_log (LOG_ERROR, "kicked socket %d (flood)\n", desc);
+          svz_log (SVZ_LOG_ERROR, "kicked socket %d (flood)\n", desc);
           return -1;
         }
 #endif /* ENABLE_FLOOD_PROTECTION */
@@ -185,7 +185,7 @@ svz_tcp_read_socket (svz_socket_t *sock)
   /* The socket was ‘select’ed but there is no data.  */
   else
     {
-      svz_log (LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
+      svz_log (SVZ_LOG_ERROR, "tcp: recv: no data on socket %d\n", desc);
       return -1;
     }
 
@@ -217,7 +217,7 @@ svz_tcp_recv_oob (svz_socket_t *sock)
   ret = ioctl (desc, SIOCATMARK, &num_read);
   if (ret != -1 && num_read == 0)
     {
-      svz_log (LOG_FATAL, "cannot read OOB data byte\n");
+      svz_log (SVZ_LOG_FATAL, "cannot read OOB data byte\n");
       num_read = 0;
     }
   else
@@ -265,7 +265,7 @@ svz_tcp_send_oob (svz_socket_t *sock)
     }
   else if (num_written == 0)
     {
-      svz_log (LOG_ERROR, "tcp: send-oob: unable to send `0x%02x'\n",
+      svz_log (SVZ_LOG_ERROR, "tcp: send-oob: unable to send `0x%02x'\n",
                sock->oob);
     }
   return 0;
@@ -309,7 +309,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
           return -1;
         }
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "connect: %s\n", svz_net_strerror ());
+      svz_log (SVZ_LOG_DEBUG, "connect: %s\n", svz_net_strerror ());
 #endif
       return 0;
     }

@@ -211,7 +211,7 @@ svz_portcfg_add (char *name, svz_portcfg_t *port)
   if ((replace = svz_hash_get (svz_portcfgs, name)) != NULL)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "portcfg `%s' already registered\n", name);
+      svz_log (SVZ_LOG_DEBUG, "portcfg `%s' already registered\n", name);
 #endif
       svz_hash_put (svz_portcfgs, name, port);
       return replace;
@@ -472,7 +472,7 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
   if ((ifc = svz_interface_search (str)) != NULL)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "`%s' is %s\n", ifc->description,
+      svz_log (SVZ_LOG_DEBUG, "`%s' is %s\n", ifc->description,
                svz_inet_ntoa (ifc->ipaddr));
 #endif
       addr->sin_addr.s_addr = ifc->ipaddr;
@@ -504,7 +504,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else if (this->tcp_ipaddr == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no TCP/IP address given\n", this->name);
+          svz_log (SVZ_LOG_ERROR, "%s: no TCP/IP address given\n", this->name);
           err = -1;
         }
       else if (any_p (this->tcp_ipaddr))
@@ -522,14 +522,14 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
           if (err)
             {
-              svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+              svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
                        this->name, this->tcp_ipaddr);
             }
         }
       this->tcp_addr.sin_port = htons (this->tcp_port);
       if (this->tcp_backlog > SOMAXCONN)
         {
-          svz_log (LOG_ERROR, "%s: TCP backlog out of range (1..%d)\n",
+          svz_log (SVZ_LOG_ERROR, "%s: TCP backlog out of range (1..%d)\n",
                    this->name, SOMAXCONN);
           err = -1;
         }
@@ -543,7 +543,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else if (this->udp_ipaddr == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no UDP/IP address given\n", this->name);
+          svz_log (SVZ_LOG_ERROR, "%s: no UDP/IP address given\n", this->name);
           err = -1;
         }
       else if (any_p (this->udp_ipaddr))
@@ -561,7 +561,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
           if (err)
             {
-              svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+              svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
                        this->name, this->udp_ipaddr);
             }
         }
@@ -575,7 +575,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else if (this->icmp_ipaddr == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no ICMP/IP address given\n", this->name);
+          svz_log (SVZ_LOG_ERROR, "%s: no ICMP/IP address given\n", this->name);
           err = -1;
         }
       else
@@ -583,7 +583,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           err = svz_portcfg_convert_addr (this->icmp_ipaddr, &this->icmp_addr);
           if (err)
             {
-              svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+              svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
                        this->name, this->icmp_ipaddr);
             }
         }
@@ -597,7 +597,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       else if (this->raw_ipaddr == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no IP address given\n", this->name);
+          svz_log (SVZ_LOG_ERROR, "%s: no IP address given\n", this->name);
           err = -1;
         }
       else
@@ -605,7 +605,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
           err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
           if (err)
             {
-              svz_log (LOG_ERROR, "%s: `%s' is not a valid IP address\n",
+              svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
                        this->name, this->raw_ipaddr);
             }
         }
@@ -616,7 +616,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
     case SVZ_PROTO_PIPE:
       if (this->pipe_recv.name == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no receiving pipe file given\n",
+          svz_log (SVZ_LOG_ERROR, "%s: no receiving pipe file given\n",
                    this->name);
           err = -1;
         }
@@ -627,7 +627,7 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       if (this->pipe_send.name == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no sending pipe file given\n",
+          svz_log (SVZ_LOG_ERROR, "%s: no sending pipe file given\n",
                    this->name);
           err = -1;
         }

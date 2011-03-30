@@ -68,7 +68,7 @@ ident_handle_request (char *inbuf)
     p++;
   if (!*p)
     {
-      svz_log (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
+      svz_log (SVZ_LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
       return NULL;
     }
   *p = '\0';
@@ -78,7 +78,7 @@ ident_handle_request (char *inbuf)
   /* Parse remote and local port afterwards.  */
   if (2 != sscanf (p, "%u:%u", &rport, &lport))
     {
-      svz_log (LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
+      svz_log (SVZ_LOG_ERROR, "ident: invalid request `%s'\n", inbuf);
       return NULL;
     }
 
@@ -125,7 +125,7 @@ ident_handle_request (char *inbuf)
   if (svz_closesocket (sock) < 0)
     svz_log_net_error ("ident: close");
 
-  svz_log (LOG_NOTICE, "ident: %s", ident_response);
+  svz_log (SVZ_LOG_NOTICE, "ident: %s", ident_response);
 
   p = ident_response;
   p_end = p + strlen (p);
@@ -201,7 +201,7 @@ ident_handle_request (char *inbuf)
   *u = '\0';
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "ident: received identified user `%s'\n", user);
+  svz_log (SVZ_LOG_DEBUG, "ident: received identified user `%s'\n", user);
 #endif
 
   sprintf (ident_response, "%s", user);

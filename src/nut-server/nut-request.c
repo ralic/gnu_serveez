@@ -66,7 +66,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   if (id < packet + SIZEOF_NUT_REPLY)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: dropping invalid query hit\n");
+      svz_log (SVZ_LOG_DEBUG, "nut: dropping invalid query hit\n");
 #endif
       client->dropped++;
       return -1;
@@ -105,7 +105,7 @@ nut_reply (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
           if (p == end || *(p + 1))
             {
 #if ENABLE_DEBUG
-              svz_log (LOG_DEBUG, "nut: invalid query hit payload\n");
+              svz_log (SVZ_LOG_DEBUG, "nut: invalid query hit payload\n");
 #endif
               client->dropped++;
               return -1;
@@ -179,7 +179,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
           /* try to connect to given host */
           if ((xsock = svz_tcp_connect (push->ip, push->port)) != NULL)
             {
-              svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
+              svz_log (SVZ_LOG_NOTICE, "nut: connecting %s:%u\n",
                        svz_inet_ntoa (push->ip), ntohs (push->port));
 
               xsock->userflags |= NUT_FLAG_UPLOAD;
@@ -208,7 +208,7 @@ nut_push_request (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   else
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: dropping push request\n");
+      svz_log (SVZ_LOG_DEBUG, "nut: dropping push request\n");
 #endif
       client->dropped++;
       return -1;
@@ -246,7 +246,7 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   if (len >= hdr->length && *file)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: invalid query payload\n");
+      svz_log (SVZ_LOG_DEBUG, "nut: invalid query payload\n");
 #endif
       return -1;
     }

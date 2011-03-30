@@ -159,7 +159,7 @@ svz_hash_analyse (svz_hash_t *hash)
         }
     }
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG,
+  svz_log (SVZ_LOG_DEBUG,
            "%d/%d buckets (%d), %d entries (%d), depth: %d\n",
            buckets, hash->buckets, hash->fill,
            entries, hash->keys, depth + 1);

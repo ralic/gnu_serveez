@@ -194,7 +194,7 @@ nut_save_transfer (svz_socket_t *sock)
       if ((transfer->size -= num_written) <= 0)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "nut: file successfully received\n");
+          svz_log (SVZ_LOG_DEBUG, "nut: file successfully received\n");
 #endif
           /* yes, shutdown the connection */
           return -1;
@@ -227,7 +227,7 @@ nut_check_transfer (svz_socket_t *sock)
       if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "nut: download header received\n");
+          svz_log (SVZ_LOG_DEBUG, "nut: download header received\n");
 #endif
 
           len = p - sock->recv_buffer + 1;
@@ -235,7 +235,7 @@ nut_check_transfer (svz_socket_t *sock)
           if (length == NULL)
             {
 #if ENABLE_DEBUG
-              svz_log (LOG_DEBUG, "nut: no content length given\n");
+              svz_log (SVZ_LOG_DEBUG, "nut: no content length given\n");
 #endif
               return -1;
             }
@@ -249,7 +249,7 @@ nut_check_transfer (svz_socket_t *sock)
           svz_free (length);
           if (transfer->original_size != transfer->size)
             {
-              svz_log (LOG_WARNING,
+              svz_log (SVZ_LOG_WARNING,
                        "nut: transfer sizes differ (%u!=%u)\n",
                        transfer->original_size, transfer->size);
             }
@@ -302,7 +302,7 @@ nut_disconnect_transfer (svz_socket_t *sock)
       if (transfer->size > 0 || !(sock->userflags & NUT_FLAG_HDR))
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "nut: downloading `%s' aborted\n",
+          svz_log (SVZ_LOG_DEBUG, "nut: downloading `%s' aborted\n",
                    transfer->file);
 #endif
           if (unlink (transfer->file) == -1)
@@ -360,7 +360,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
       /* did the above code "break"?  */
       if ((unsigned long) n >= svz_array_size (cfg->extensions))
         {
-          svz_log (LOG_WARNING, "nut: not a valid extension: %s\n",
+          svz_log (SVZ_LOG_WARNING, "nut: not a valid extension: %s\n",
                    savefile);
           return -1;
         }
@@ -371,7 +371,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
   sprintf (file, "%s/%s", cfg->save_path, savefile);
   if (stat (file, &buf) != -1)
     {
-      svz_log (LOG_NOTICE, "nut: %s already exists\n", savefile);
+      svz_log (SVZ_LOG_NOTICE, "nut: %s already exists\n", savefile);
       svz_free (file);
       return -1;
     }
@@ -384,7 +384,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
     }
   if ((unsigned long) n >= svz_array_size (cfg->search))
     {
-      svz_log (LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
+      svz_log (SVZ_LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
       svz_free (file);
       return -1;
     }
@@ -400,7 +400,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
   /* try to connect to the host */
   if ((xsock = svz_tcp_connect (reply->ip, reply->port)) != NULL)
     {
-      svz_log (LOG_NOTICE, "nut: connecting %s:%u\n",
+      svz_log (SVZ_LOG_NOTICE, "nut: connecting %s:%u\n",
                svz_inet_ntoa (reply->ip), ntohs (reply->port));
       cfg->dnloads++;
       xsock->cfg = cfg;
@@ -470,7 +470,7 @@ nut_check_given (svz_socket_t *sock)
         p++;
       if (p >= sock->recv_buffer + fill || *p != '/')
         {
-          svz_log (LOG_ERROR, "nut: invalid GIV line\n");
+          svz_log (SVZ_LOG_ERROR, "nut: invalid GIV line\n");
           return -1;
         }
 
@@ -479,7 +479,7 @@ nut_check_given (svz_socket_t *sock)
       transfer = (nut_transfer_t *) svz_hash_get (cfg->push, pushkey);
       if (transfer == NULL)
         {
-          svz_log (LOG_ERROR, "nut: no such push request sent\n");
+          svz_log (SVZ_LOG_ERROR, "nut: no such push request sent\n");
           return -1;
         }
 
@@ -501,7 +501,7 @@ nut_check_given (svz_socket_t *sock)
       file = transfer->file;
       if (stat (file, &buf) != -1)
         {
-          svz_log (LOG_NOTICE, "nut: %s already exists\n", file);
+          svz_log (SVZ_LOG_NOTICE, "nut: %s already exists\n", file);
           return -1;
         }
 
@@ -575,7 +575,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       if ((trans = svz_hash_get (cfg->push, pushkey)) != NULL)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "nut: push request already sent\n");
+          svz_log (SVZ_LOG_DEBUG, "nut: push request already sent\n");
 #endif
           svz_free (pushkey);
           return -1;
@@ -600,7 +600,7 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
       svz_free (pushkey);
 
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: sent push request to %s:%u\n",
+      svz_log (SVZ_LOG_DEBUG, "nut: sent push request to %s:%u\n",
                   svz_inet_ntoa (sock->remote_addr),
                   ntohs (sock->remote_port));
 #endif
@@ -797,7 +797,7 @@ nut_check_upload (svz_socket_t *sock)
   if (p < sock->recv_buffer + (fill - 3) && !memcmp (p, NUT_SEPERATOR, 4))
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: upload header received\n");
+      svz_log (SVZ_LOG_DEBUG, "nut: upload header received\n");
 #endif
       /* parse first (GET) line */
       len = p - sock->recv_buffer + 1;
@@ -836,7 +836,7 @@ nut_check_upload (svz_socket_t *sock)
       if ((entry = nut_get_database (sock->cfg, file, index)) == NULL)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "nut: no such file: %s, %u\n", file, index);
+          svz_log (SVZ_LOG_DEBUG, "nut: no such file: %s, %u\n", file, index);
 #endif
           svz_free (file);
           return -1;
@@ -876,7 +876,7 @@ nut_init_upload (svz_socket_t *sock, nut_file_t *entry)
   /* check file */
   if (stat (file, &buf) == -1 || !S_ISREG (buf.st_mode) || buf.st_size <= 0)
     {
-      svz_log (LOG_ERROR, "nut: invalid file: %s %s\n", file);
+      svz_log (SVZ_LOG_ERROR, "nut: invalid file: %s %s\n", file);
       svz_free (file);
       return -1;
     }
@@ -988,7 +988,7 @@ nut_file_read (svz_socket_t *sock)
   if (transfer->size <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: file successfully read\n");
+      svz_log (SVZ_LOG_DEBUG, "nut: file successfully read\n");
 #endif
       /*
        * no further ‘read’s from the file descriptor, signaling
@@ -1058,7 +1058,7 @@ nut_file_write (svz_socket_t *sock)
   if (sock->send_buffer_fill == 0 && transfer->size <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "nut: file successfully sent\n");
+      svz_log (SVZ_LOG_DEBUG, "nut: file successfully sent\n");
 #endif
       return -1;
     }

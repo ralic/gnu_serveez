@@ -38,11 +38,11 @@ typedef unsigned char svz_uint8_t;
  * 4 - debugging output
  * levels always imply numerically lesser levels
  */
-#define LOG_FATAL     0
-#define LOG_ERROR     1
-#define LOG_WARNING   2
-#define LOG_NOTICE    3
-#define LOG_DEBUG     4
+#define SVZ_LOG_FATAL     0
+#define SVZ_LOG_ERROR     1
+#define SVZ_LOG_WARNING   2
+#define SVZ_LOG_NOTICE    3
+#define SVZ_LOG_DEBUG     4
 
 __BEGIN_DECLS
 

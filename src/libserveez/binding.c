@@ -309,7 +309,7 @@ svz_sock_add_server (svz_socket_t *sock,
       return 0;
     }
   /* Binding already done.  */
-  svz_log (LOG_WARNING, "skipped duplicate binding of `%s'\n", server->name);
+  svz_log (SVZ_LOG_WARNING, "skipped duplicate binding of `%s'\n", server->name);
   svz_binding_destroy (binding);
   return -1;
 }
@@ -441,7 +441,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
 
               /* Join the bindings of the previous listeners and destroy
                  these at once.  */
-              svz_log (LOG_NOTICE, "destroying previous bindings\n");
+              svz_log (SVZ_LOG_NOTICE, "destroying previous bindings\n");
               svz_array_foreach (sockets, xsock, i)
                 {
                   bindings = svz_binding_join (bindings, xsock);

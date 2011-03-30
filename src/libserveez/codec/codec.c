@@ -143,7 +143,7 @@ svz_codec_register (svz_codec_t *codec)
   /* Check validity of the codec.  */
   if (svz_codec_check (codec))
     {
-      svz_log (LOG_ERROR, "cannot register invalid codec\n");
+      svz_log (SVZ_LOG_ERROR, "cannot register invalid codec\n");
       return -1;
     }
 
@@ -153,7 +153,7 @@ svz_codec_register (svz_codec_t *codec)
       if (strcmp (c->description, codec->description) == 0 &&
           c->type == codec->type)
         {
-          svz_log (LOG_ERROR, "cannot register duplicate codec `%s'\n",
+          svz_log (SVZ_LOG_ERROR, "cannot register duplicate codec `%s'\n",
                    codec->description);
           return -1;
         }
@@ -163,7 +163,7 @@ svz_codec_register (svz_codec_t *codec)
   if (svz_codecs == NULL)
     svz_codecs = svz_array_create (2, NULL);
   svz_array_add (svz_codecs, codec);
-  svz_log (LOG_NOTICE, "registered `%s' %s\n", codec->description,
+  svz_log (SVZ_LOG_NOTICE, "registered `%s' %s\n", codec->description,
            SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
@@ -179,7 +179,7 @@ svz_codec_unregister (svz_codec_t *codec)
   /* Check validity of the codec.  */
   if (svz_codec_check (codec))
     {
-      svz_log (LOG_ERROR, "cannot unregister invalid codec\n");
+      svz_log (SVZ_LOG_ERROR, "cannot unregister invalid codec\n");
       return -1;
     }
 
@@ -190,13 +190,13 @@ svz_codec_unregister (svz_codec_t *codec)
           c->type == codec->type)
         {
           svz_array_del (svz_codecs, i);
-          svz_log (LOG_NOTICE, "unregistered `%s' %s\n", codec->description,
+          svz_log (SVZ_LOG_NOTICE, "unregistered `%s' %s\n", codec->description,
                    SVZ_CODEC_TYPE_TEXT (codec));
           return 0;
         }
     }
 
-  svz_log (LOG_ERROR, "cannot unregister codec `%s'\n",
+  svz_log (SVZ_LOG_ERROR, "cannot unregister codec `%s'\n",
            codec->description);
   return -1;
 }
@@ -213,11 +213,11 @@ svz_codec_ratio (svz_codec_t *codec, svz_codec_data_t *data)
   if (codec->ratio (data, &in, &out) == SVZ_CODEC_OK)
     {
       if (in != 0)
-        svz_log (LOG_NOTICE, "%s: %s ratio is %lu.%02lu%%\n",
+        svz_log (SVZ_LOG_NOTICE, "%s: %s ratio is %lu.%02lu%%\n",
                  codec->description, SVZ_CODEC_TYPE_TEXT (codec),
                  out * 100UL / in, (out * 10000UL / in) % 100UL);
       else
-        svz_log (LOG_NOTICE, "%s: %s ratio is infinite\n",
+        svz_log (SVZ_LOG_NOTICE, "%s: %s ratio is infinite\n",
                  codec->description, SVZ_CODEC_TYPE_TEXT (codec));
     }
 }
@@ -307,13 +307,13 @@ svz_codec_sock_receive_setup (svz_socket_t *sock, svz_codec_t *codec)
   /* Initialize the codec.  */
   if (codec->init (data) == SVZ_CODEC_ERROR)
     {
-      svz_log (LOG_ERROR, "%s: init: %s\n",
+      svz_log (SVZ_LOG_ERROR, "%s: init: %s\n",
                codec->description, codec->error (data));
       svz_codec_sock_recv_revert (sock);
       return -1;
     }
   data->state |= SVZ_CODEC_READY;
-  svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
+  svz_log (SVZ_LOG_NOTICE, "%s: %s initialized\n", codec->description,
            SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
@@ -356,7 +356,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
   switch (ret)
     {
     case SVZ_CODEC_ERROR:      /* Error occurred.  */
-      svz_log (LOG_ERROR, "%s: code: %s\n",
+      svz_log (SVZ_LOG_ERROR, "%s: code: %s\n",
                codec->description, codec->error (data));
       return -1;
 
@@ -364,13 +364,13 @@ svz_codec_sock_receive (svz_socket_t *sock)
       svz_codec_ratio (codec, data);
       if (codec->finalize (data) != SVZ_CODEC_OK)
         {
-          svz_log (LOG_ERROR, "%s: finalize: %s\n",
+          svz_log (SVZ_LOG_ERROR, "%s: finalize: %s\n",
                    codec->description, codec->error (data));
         }
       else
         {
           data->state &= ~SVZ_CODEC_READY;
-          svz_log (LOG_NOTICE, "%s: %s finalized\n",
+          svz_log (SVZ_LOG_NOTICE, "%s: %s finalized\n",
                    codec->description, SVZ_CODEC_TYPE_TEXT (codec));
         }
       break;
@@ -382,7 +382,7 @@ svz_codec_sock_receive (svz_socket_t *sock)
       break;
 
     default:                   /* Unhandled.  */
-      svz_log (LOG_ERROR, "%s: code: invalid return value: %d\n",
+      svz_log (SVZ_LOG_ERROR, "%s: code: invalid return value: %d\n",
                codec->description, ret);
       break;
     }
@@ -488,13 +488,13 @@ svz_codec_sock_send_setup (svz_socket_t *sock, svz_codec_t *codec)
   /* Initialize the codec.  */
   if (codec->init (data) == SVZ_CODEC_ERROR)
     {
-      svz_log (LOG_ERROR, "%s: init: %s\n",
+      svz_log (SVZ_LOG_ERROR, "%s: init: %s\n",
                codec->description, codec->error (data));
       svz_codec_sock_send_revert (sock);
       return -1;
     }
   data->state |= SVZ_CODEC_READY;
-  svz_log (LOG_NOTICE, "%s: %s initialized\n", codec->description,
+  svz_log (SVZ_LOG_NOTICE, "%s: %s initialized\n", codec->description,
            SVZ_CODEC_TYPE_TEXT (codec));
   return 0;
 }
@@ -536,7 +536,7 @@ svz_codec_sock_send (svz_socket_t *sock)
   switch (ret)
     {
     case SVZ_CODEC_ERROR:      /* Error occurred.  */
-      svz_log (LOG_ERROR, "%s: code: %s\n",
+      svz_log (SVZ_LOG_ERROR, "%s: code: %s\n",
                codec->description, codec->error (data));
       return -1;
 
@@ -544,13 +544,13 @@ svz_codec_sock_send (svz_socket_t *sock)
       svz_codec_ratio (codec, data);
       if (codec->finalize (data) != SVZ_CODEC_OK)
         {
-          svz_log (LOG_ERROR, "%s: finalize: %s\n",
+          svz_log (SVZ_LOG_ERROR, "%s: finalize: %s\n",
                    codec->description, codec->error (data));
         }
       else
         {
           data->state &= ~SVZ_CODEC_READY;
-          svz_log (LOG_NOTICE, "%s: %s finalized\n",
+          svz_log (SVZ_LOG_NOTICE, "%s: %s finalized\n",
                    codec->description, SVZ_CODEC_TYPE_TEXT (codec));
         }
       break;
@@ -562,7 +562,7 @@ svz_codec_sock_send (svz_socket_t *sock)
       break;
 
     default:                   /* Unhandled.  */
-      svz_log (LOG_ERROR, "%s: code: invalid return value: %d\n",
+      svz_log (SVZ_LOG_ERROR, "%s: code: invalid return value: %d\n",
                codec->description, ret);
       break;
     }
@@ -636,7 +636,7 @@ svz_codec_sock_detect (svz_socket_t *sock)
           if (memcmp (sock->recv_buffer,
                       codec->detection, codec->detection_size) == 0)
             {
-              svz_log (LOG_NOTICE, "%s: %s detected\n", codec->description,
+              svz_log (SVZ_LOG_NOTICE, "%s: %s detected\n", codec->description,
                        SVZ_CODEC_TYPE_TEXT (codec));
               return codec;
             }

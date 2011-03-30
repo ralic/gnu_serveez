@@ -153,7 +153,7 @@ static void
 svz_init_config (void)
 {
   svz_config.start = time (NULL);
-  svz_config.verbosity = LOG_DEBUG;
+  svz_config.verbosity = SVZ_LOG_DEBUG;
   svz_config.max_sockets = 100;
   svz_config.password = NULL;
 }

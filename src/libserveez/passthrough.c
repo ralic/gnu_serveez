@@ -131,7 +131,7 @@ svz_process_check_executable (char *file, char **app)
   if (!(buf.st_mode & S_IFREG))
 #endif
     {
-      svz_log (LOG_ERROR, "passthrough: no executable: %s\n", file);
+      svz_log (SVZ_LOG_ERROR, "passthrough: no executable: %s\n", file);
       return -1;
     }
 
@@ -186,7 +186,7 @@ svz_process_disconnect_passthrough (svz_socket_t *sock)
       if (sock->flags & (SVZ_PROTO_TCP | SVZ_PROTO_PIPE))
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
+          svz_log (SVZ_LOG_DEBUG, "passthrough: shutting down referring id %d\n",
                    xsock->id);
 #endif
           svz_sock_schedule_for_shutdown (xsock);
@@ -328,7 +328,7 @@ svz_process_recv_socket (svz_socket_t *sock)
       svz_process_recv_update (sock, 0);
     }
   else
-    svz_log (LOG_ERROR, "passthrough: recv: no data on socket %d\n",
+    svz_log (SVZ_LOG_ERROR, "passthrough: recv: no data on socket %d\n",
              sock->sock_desc);
 
   return (num_read > 0) ? 0 : -1;
@@ -450,7 +450,7 @@ svz_process_disconnect (svz_socket_t *sock)
       svz_sock_setreferrer (sock, NULL);
       svz_sock_setreferrer (xsock, NULL);
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "passthrough: shutting down referring id %d\n",
+      svz_log (SVZ_LOG_DEBUG, "passthrough: shutting down referring id %d\n",
                xsock->id);
 #endif
       svz_sock_schedule_for_shutdown (xsock);
@@ -489,7 +489,7 @@ svz_process_idle (svz_socket_t *sock)
   /* Test if the passthrough child is still running.  */
   if (waitpid (sock->pid, NULL, WNOHANG) == -1 && errno == ECHILD)
     {
-      svz_log (LOG_NOTICE, "passthrough: shuffle pid %d died\n",
+      svz_log (SVZ_LOG_NOTICE, "passthrough: shuffle pid %d died\n",
                (int) sock->pid);
       svz_invalidate_handle (&sock->pid);
       return -1;
@@ -548,7 +548,7 @@ svz_process_shuffle (svz_process_t *proc)
       /* create yet another socket structure */
       if ((xsock = svz_sock_create ((int) pair[1])) == NULL)
         {
-          svz_log (LOG_ERROR, "passthrough: failed to create socket\n");
+          svz_log (SVZ_LOG_ERROR, "passthrough: failed to create socket\n");
           return -1;
         }
     }
@@ -563,7 +563,7 @@ svz_process_shuffle (svz_process_t *proc)
       if ((xsock = svz_pipe_create (process_to_serveez[SVZ_READ],
                                     serveez_to_process[SVZ_WRITE])) == NULL)
         {
-          svz_log (LOG_ERROR, "passthrough: failed to create pipe\n");
+          svz_log (SVZ_LOG_ERROR, "passthrough: failed to create pipe\n");
           return -1;
         }
     }
@@ -636,7 +636,7 @@ svz_process_shuffle (svz_process_t *proc)
   xsock->idle_func = svz_process_idle;
   xsock->idle_counter = 1;
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
+  svz_log (SVZ_LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
 }
@@ -674,7 +674,7 @@ svz_process_fork (svz_process_t *proc)
 
   /* The parent process.  */
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
+  svz_log (SVZ_LOG_DEBUG, "process `%s' got pid %d\n", proc->bin, pid);
 #endif
   return pid;
 }
@@ -719,7 +719,7 @@ svz_sock_process (svz_socket_t *sock, char *bin, char *dir,
   /* Check arguments.  */
   if (sock == NULL || bin == NULL || argv == NULL)
     {
-      svz_log (LOG_ERROR, "passthrough: invalid argument\n");
+      svz_log (SVZ_LOG_ERROR, "passthrough: invalid argument\n");
       return -1;
     }
 
@@ -897,7 +897,7 @@ svz_process_check_access (char *file, char *user)
         {
           if ((g = getgrnam (_group)) == NULL)
             {
-              svz_log (LOG_ERROR, "passthrough: no such group `%s'\n", _group);
+              svz_log (SVZ_LOG_ERROR, "passthrough: no such group `%s'\n", _group);
               return -1;
             }
           /* Set the group.  */
@@ -911,7 +911,7 @@ svz_process_check_access (char *file, char *user)
       /* Check user name.  */
       if ((u = getpwnam (_user)) == NULL)
         {
-          svz_log (LOG_ERROR, "passthrough: no such user `%s'\n", _user);
+          svz_log (SVZ_LOG_ERROR, "passthrough: no such user `%s'\n", _user);
           return -1;
         }
       /* No group name specified.  Use the user's one.  */

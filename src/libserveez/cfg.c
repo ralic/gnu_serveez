@@ -288,7 +288,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
           (unsigned long) target >= ((unsigned long) cfg +
                                      (unsigned long) prototype->size))
         {
-          svz_log (LOG_FATAL, "%s: invalid target address for %s `%s'\n",
+          svz_log (SVZ_LOG_FATAL, "%s: invalid target address for %s `%s'\n",
                    prototype->description,
                    SVZ_ITEM_TEXT (prototype->items[n].type),
                    prototype->items[n].name);
@@ -355,7 +355,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
 
           /* Unknown configuration item.  */
         default:
-          svz_log (LOG_FATAL,
+          svz_log (SVZ_LOG_FATAL,
                    "inconsistent SVZ_ITEM_ data in prototype `%s'\n",
                    prototype->description);
           error = -1;
@@ -378,7 +378,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
           if (!prototype->items[n].defaultable)
             {
               if (SVZ_ITEM_DEFAULT_ERRMSG == e)
-                svz_log (LOG_ERROR,
+                svz_log (SVZ_LOG_ERROR,
                          "`%s' lacks a default %s for `%s' in `%s'\n",
                          prototype->description,
                          SVZ_ITEM_TEXT (prototype->items[n].type),
@@ -430,7 +430,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
 
           /* Configuring failed.  Print error messages.  */
         case SVZ_ITEM_FAILED_ERRMSG:
-          svz_log (LOG_ERROR,
+          svz_log (SVZ_LOG_ERROR,
                    "invalid %s value for `%s' in `%s'\n",
                    SVZ_ITEM_TEXT (prototype->items[n].type),
                    prototype->items[n].name, name);
@@ -439,7 +439,7 @@ svz_config_instantiate (svz_config_prototype_t *prototype, char *name,
 
           /* Special case: Accessor callback invalid.  */
         default:
-          svz_log (LOG_FATAL,
+          svz_log (SVZ_LOG_FATAL,
                    "invalid SVZ_ITEM_ value (%d) returned by %s "
                    "callback for `%s'\n",
                    e, SVZ_ITEM_TEXT (prototype->items[n].type),

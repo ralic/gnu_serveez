@@ -68,7 +68,7 @@ svz_udp_read_socket (svz_socket_t *sock)
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
   if (do_read <= 0)
     {
-      svz_log (LOG_ERROR, "receive buffer overflow on udp socket %d\n",
+      svz_log (SVZ_LOG_ERROR, "receive buffer overflow on udp socket %d\n",
                sock->sock_desc);
       return -1;
     }
@@ -101,7 +101,7 @@ svz_udp_read_socket (svz_socket_t *sock)
         }
 
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
+      svz_log (SVZ_LOG_DEBUG, "udp: recv%s: %s:%u (%d bytes)\n",
                sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
                svz_inet_ntoa (sock->remote_addr),
                ntohs (sock->remote_port), num_read);
@@ -206,7 +206,7 @@ svz_udp_write_socket (svz_socket_t *sock)
     }
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
+  svz_log (SVZ_LOG_DEBUG, "udp: send%s: %s:%u (%u bytes)\n",
            sock->flags & SVZ_SOFLG_CONNECTED ? "" : "to",
            svz_inet_ntoa (receiver.sin_addr.s_addr),
            ntohs (receiver.sin_port), do_write - (p - sock->send_buffer));
@@ -271,7 +271,7 @@ svz_udp_check_request (svz_socket_t *sock)
   if (sock->recv_buffer_fill)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "rejecting udp packet on socket %d\n",
+      svz_log (SVZ_LOG_DEBUG, "rejecting udp packet on socket %d\n",
                sock->sock_desc);
 #endif
       sock->recv_buffer_fill = 0;

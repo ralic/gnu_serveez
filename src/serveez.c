@@ -63,12 +63,12 @@ static void
 guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 {
   /* Detect operating system.  */
-  svz_log (LOG_NOTICE, "%s\n", svz_sys_version ());
+  svz_log (SVZ_LOG_NOTICE, "%s\n", svz_sys_version ());
 
   /* Start loading the configuration file.  */
   if (guile_load_config (options->cfgfile) == -1)
     {
-      svz_log (LOG_ERROR, "error loading config file\n");
+      svz_log (SVZ_LOG_ERROR, "error loading config file\n");
       exit (3);
     }
 
@@ -89,11 +89,11 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
     }
 
 #if ENABLE_DEBUG
-  svz_log (LOG_NOTICE, "serveez starting, debugging enabled\n");
+  svz_log (SVZ_LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
 
   svz_openfiles (svz_config.max_sockets);
-  svz_log (LOG_NOTICE, "using %d socket descriptors\n",
+  svz_log (SVZ_LOG_NOTICE, "using %d socket descriptors\n",
            svz_config.max_sockets);
 
   /* Startup the internal coservers here.  */
@@ -115,7 +115,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   svz_servertype_finalize ();
 
   /* Disconnect the previously invoked internal coservers.  */
-  svz_log (LOG_NOTICE, "destroying internal coservers\n");
+  svz_log (SVZ_LOG_NOTICE, "destroying internal coservers\n");
   svz_coserver_finalize ();
 
 #if ENABLE_GUILE_SERVER
@@ -129,7 +129,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
     unsigned int cur[2];
 
     svz_get_curalloc (cur);
-    svz_log (LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n",
+    svz_log (SVZ_LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n",
              cur[0], cur[1]);
   }
 
@@ -145,7 +145,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
     }
 #endif
 
-  svz_log (LOG_NOTICE, "serveez terminating\n");
+  svz_log (SVZ_LOG_NOTICE, "serveez terminating\n");
 
   /* FIXME: Serveez leaks because of a open logfile handle.  */
   if (options->loghandle != stderr)

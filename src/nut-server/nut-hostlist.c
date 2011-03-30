@@ -189,7 +189,7 @@ nut_host_catcher (svz_socket_t *sock, unsigned long ip, unsigned short port)
           port == 0)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "nut: invalid host: %s:%u\n",
+          svz_log (SVZ_LOG_DEBUG, "nut: invalid host: %s:%u\n",
                    svz_inet_ntoa (ip), ntohs (port));
 #endif
           return -1;

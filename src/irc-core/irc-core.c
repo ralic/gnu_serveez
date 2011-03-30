@@ -151,7 +151,7 @@ irc_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   if (ret)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "irc protocol detected\n");
+      svz_log (SVZ_LOG_DEBUG, "irc protocol detected\n");
 #endif
       return -1;
     }

@@ -117,7 +117,7 @@ svz_pipe_check_user (svz_pipe_t *pipe)
     {
       if ((p = getpwnam (pipe->user)) == NULL)
         {
-          svz_log (LOG_WARNING, "%s: no such user `%s'\n",
+          svz_log (SVZ_LOG_WARNING, "%s: no such user `%s'\n",
                    pipe->name, pipe->user);
           return 0;
         }
@@ -128,7 +128,7 @@ svz_pipe_check_user (svz_pipe_t *pipe)
     {
       if ((p = getpwuid (pipe->uid)) == NULL)
         {
-          svz_log (LOG_WARNING, "%s: no such user id `%d'\n",
+          svz_log (SVZ_LOG_WARNING, "%s: no such user id `%d'\n",
                    pipe->name, pipe->uid);
           return 0;
         }
@@ -154,7 +154,7 @@ svz_pipe_check_group (svz_pipe_t *pipe)
     {
       if ((g = getgrnam (pipe->group)) == NULL)
         {
-          svz_log (LOG_WARNING, "%s: no such group `%s'\n",
+          svz_log (SVZ_LOG_WARNING, "%s: no such group `%s'\n",
                    pipe->name, pipe->group);
           return 0;
         }
@@ -164,7 +164,7 @@ svz_pipe_check_group (svz_pipe_t *pipe)
     {
       if ((g = getgrgid (pipe->gid)) == NULL)
         {
-          svz_log (LOG_WARNING, "%s: no such group id `%d'\n",
+          svz_log (SVZ_LOG_WARNING, "%s: no such group id `%d'\n",
                    pipe->name, pipe->gid);
           return 0;
         }
@@ -186,7 +186,7 @@ svz_pipe_check_group (svz_pipe_t *pipe)
         }
       if (n != -1 && pipe->gid != pipe->pgid)
         {
-          svz_log (LOG_WARNING, "%s: user `%s' is not in group `%s'\n",
+          svz_log (SVZ_LOG_WARNING, "%s: user `%s' is not in group `%s'\n",
                    pipe->name, pipe->user, pipe->group);
           return 0;
         }
@@ -328,7 +328,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
         }
 
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "pipe (%d-%d) disconnected\n",
+      svz_log (SVZ_LOG_DEBUG, "pipe (%d-%d) disconnected\n",
                sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
 #endif
 
@@ -382,7 +382,7 @@ svz_pipe_disconnect (svz_socket_t *sock)
 #endif /* __MINGW32__ */
 
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "pipe listener (%s) destroyed\n", sock->recv_pipe);
+      svz_log (SVZ_LOG_DEBUG, "pipe listener (%s) destroyed\n", sock->recv_pipe);
 #endif
 
       svz_invalidate_handle (&sock->pipe_desc[SVZ_READ]);
@@ -427,7 +427,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
   do_read = sock->recv_buffer_size - sock->recv_buffer_fill;
   if (do_read <= 0)
     {
-      svz_log (LOG_ERROR, "receive buffer overflow on pipe %d\n",
+      svz_log (SVZ_LOG_ERROR, "receive buffer overflow on pipe %d\n",
                sock->pipe_desc[SVZ_READ]);
       if (sock->kicked_socket)
         sock->kicked_socket (sock, 0);
@@ -518,7 +518,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
 #if ENABLE_FLOOD_PROTECTION
       if (svz_sock_flood_protect (sock, num_read))
         {
-          svz_log (LOG_ERROR, "kicked pipe %d (flood)\n",
+          svz_log (SVZ_LOG_ERROR, "kicked pipe %d (flood)\n",
                    sock->pipe_desc[SVZ_READ]);
           return -1;
         }
@@ -535,7 +535,7 @@ svz_pipe_read_socket (svz_socket_t *sock)
   /* The pipe was selected but there is no data.  */
   else
     {
-      svz_log (LOG_ERROR, "pipe: read: no data on pipe %d\n",
+      svz_log (SVZ_LOG_ERROR, "pipe: read: no data on pipe %d\n",
                sock->pipe_desc[SVZ_READ]);
       return -1;
     }
@@ -585,7 +585,7 @@ svz_pipe_write_socket (svz_socket_t *sock)
           sock->flags &= ~SVZ_SOFLG_WRITING;
           if (sock->send_pending != 0)
             {
-              svz_log (LOG_ERROR, "pipe: %d pending send bytes left\n",
+              svz_log (SVZ_LOG_ERROR, "pipe: %d pending send bytes left\n",
                        sock->send_pending);
             }
         }
@@ -862,7 +862,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   /* is receive pipe such a?  */
   if (stat (sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
-      svz_log (LOG_ERROR, "pipe: no such pipe: %s\n", sock->recv_pipe);
+      svz_log (SVZ_LOG_ERROR, "pipe: no such pipe: %s\n", sock->recv_pipe);
       svz_sock_free (sock);
       return NULL;
     }
@@ -870,7 +870,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   /* is send pipe such a?  */
   if (stat (sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
-      svz_log (LOG_ERROR, "pipe: no such pipe: %s\n", sock->send_pipe);
+      svz_log (SVZ_LOG_ERROR, "pipe: no such pipe: %s\n", sock->send_pipe);
       svz_sock_free (sock);
       return NULL;
     }
@@ -1040,7 +1040,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
       /* Check if that was successful.  */
       if (stat (sock->recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
         {
-          svz_log (LOG_ERROR,
+          svz_log (SVZ_LOG_ERROR,
                    "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
           svz_pipe_set_state (mask, uid, gid);
           return -1;
@@ -1065,7 +1065,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
         }
       if (stat (sock->send_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
         {
-          svz_log (LOG_ERROR,
+          svz_log (SVZ_LOG_ERROR,
                    "pipe: stat: " MKFIFO_FUNC "() did not create a fifo\n");
           svz_pipe_set_state (mask, uid, gid);
           return -1;
@@ -1082,7 +1082,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
   /* Check if the file descriptor is a pipe.  */
   if (fstat (recv_pipe, &buf) == -1 || !S_ISFIFO (buf.st_mode))
     {
-      svz_log (LOG_ERROR,
+      svz_log (SVZ_LOG_ERROR,
                "pipe: fstat: " MKFIFO_FUNC "() did not create a fifo\n");
       close (recv_pipe);
       return -1;

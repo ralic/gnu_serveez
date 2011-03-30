@@ -107,7 +107,7 @@ irc_error_callback (SVZ_UNUSED svz_socket_t *sock,
                     SVZ_UNUSED irc_client_t *client,
                     irc_request_t *request)
 {
-  svz_log (LOG_ERROR, "irc: %s\n", request->para[0]);
+  svz_log (SVZ_LOG_ERROR, "irc: %s\n", request->para[0]);
   return 0;
 }
 

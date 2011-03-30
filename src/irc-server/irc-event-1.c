@@ -213,7 +213,7 @@ irc_nick_callback (svz_socket_t *sock,
       if (cl == client)
         return 0;
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
+      svz_log (SVZ_LOG_DEBUG, "irc: nick %s is already in use\n", cl->nick);
 #endif
       irc_printf (sock, ":%s %03d * " ERR_NICKNAMEINUSE_TEXT "\n",
                   cfg->host, ERR_NICKNAMEINUSE, cl->nick);
@@ -224,7 +224,7 @@ irc_nick_callback (svz_socket_t *sock,
   if (client->flag & UMODE_NICK)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "irc: %s changed nick to %s\n",
+      svz_log (SVZ_LOG_DEBUG, "irc: %s changed nick to %s\n",
                client->nick, nick);
 #endif
       /* is the client fully registered?  */
@@ -246,7 +246,7 @@ irc_nick_callback (svz_socket_t *sock,
           /* replace nick in client hash */
           if (svz_hash_delete (cfg->clients, client->nick) != client)
             {
-              svz_log (LOG_ERROR, "irc: client hash inconsistence\n");
+              svz_log (SVZ_LOG_ERROR, "irc: client hash inconsistence\n");
             }
           svz_hash_put (cfg->clients, nick, client);
         }

@@ -177,7 +177,7 @@ int
 svz_socket_create_pair (int proto, svz_t_socket desc[2])
 {
 #ifndef HAVE_SOCKETPAIR
-  svz_log (LOG_FATAL, "socketpair(2) not available\n");
+  svz_log (SVZ_LOG_FATAL, "socketpair(2) not available\n");
   return -1;
 #else
 
@@ -325,7 +325,7 @@ svz_socket_connect (svz_t_socket sockfd,
           return -1;
         }
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "connect: %s\n", svz_net_strerror ());
+      svz_log (SVZ_LOG_DEBUG, "connect: %s\n", svz_net_strerror ());
 #endif
     }
   return 0;
@@ -482,7 +482,7 @@ int
 svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 {
 #ifndef ENABLE_SENDFILE
-  svz_log (LOG_ERROR, "sendfile(2) disabled\n");
+  svz_log (SVZ_LOG_ERROR, "sendfile(2) disabled\n");
   return -1;
 #else
 #if defined (HAVE_SENDFILE) || defined (__MINGW32__)
@@ -581,7 +581,7 @@ svz_sendfile (int out_fd, int in_fd, off_t *offset, unsigned int count)
 #endif
   return ret;
 #else
-  svz_log (LOG_ERROR, "sendfile(2) not available\n");
+  svz_log (SVZ_LOG_ERROR, "sendfile(2) not available\n");
   return -1;
 #endif /* HAVE_SEND_FILE */
 #endif /* ENABLE_SENDFILE */

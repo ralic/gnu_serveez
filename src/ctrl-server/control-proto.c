@@ -184,7 +184,7 @@ ctrl_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
         }
       sock->recv_buffer_fill -= ret;
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "control protocol client detected\n");
+      svz_log (SVZ_LOG_DEBUG, "control protocol client detected\n");
 #endif
       return -1;
     }

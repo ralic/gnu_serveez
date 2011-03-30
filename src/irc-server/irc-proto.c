@@ -192,7 +192,7 @@ irc_check_tcp_bindings (svz_server_t *server)
   /* Is the server bound at all?  */
   if ((ports = svz_server_portcfgs (server)) == NULL)
     {
-      svz_log (LOG_WARNING, "irc: `%s' is not bound yet\n", server->name);
+      svz_log (SVZ_LOG_WARNING, "irc: `%s' is not bound yet\n", server->name);
       return -1;
     }
 
@@ -202,14 +202,14 @@ irc_check_tcp_bindings (svz_server_t *server)
       /* Is it a TCP port configuration?  */
       if (!(port->proto & SVZ_PROTO_TCP))
         {
-          svz_log (LOG_WARNING, "irc: `%s' is bound to non-TCP port `%s'\n",
+          svz_log (SVZ_LOG_WARNING, "irc: `%s' is bound to non-TCP port `%s'\n",
                    server->name, port->name);
           err = -1;
         }
       /* Does the `M-line' entry clash with this port configuration?  */
       else if (port->tcp_port != cfg->port)
         {
-          svz_log (LOG_WARNING, "irc: port TCP:%u in M line clashes `%s'\n",
+          svz_log (SVZ_LOG_WARNING, "irc: port TCP:%u in M line clashes `%s'\n",
                    cfg->port, port->name);
           cfg->port = port->tcp_port;
           err = -1;
@@ -240,7 +240,7 @@ irc_init (svz_server_t *server)
       irc_parse_line (cfg->MLine, "M:%s:%s:%s:%d",
                       TB (0), TB (1), TB (2), &cfg->port) != 4)
     {
-      svz_log (LOG_ERROR, "irc: invalid M line: %s\n",
+      svz_log (SVZ_LOG_ERROR, "irc: invalid M line: %s\n",
                cfg->MLine ? cfg->MLine : "(nil)");
       return -1;
     }
@@ -256,7 +256,7 @@ irc_init (svz_server_t *server)
   if (!cfg->ALine ||
       irc_parse_line (cfg->ALine, "A:%s:%s:%s", TB (0), TB (1), TB (2)) != 3)
     {
-      svz_log (LOG_ERROR, "irc: invalid A line: %s\n",
+      svz_log (SVZ_LOG_ERROR, "irc: invalid A line: %s\n",
                cfg->ALine ? cfg->ALine : "(nil)");
       return -1;
     }
@@ -383,7 +383,7 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
               channel->cflag[n] = 0;
               channel->clients++;
 #if ENABLE_DEBUG
-              svz_log (LOG_DEBUG, "irc: %s joined channel %s\n",
+              svz_log (SVZ_LOG_DEBUG, "irc: %s joined channel %s\n",
                        client->nick, channel->name);
 #endif
               n = client->channels;
@@ -418,8 +418,8 @@ irc_join_channel (irc_config_t *cfg, irc_client_t *client, char *chan)
       channel->by = svz_strdup (client->nick);
       channel->since = time (NULL);
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "irc: channel %s created\n", channel->name);
-      svz_log (LOG_DEBUG, "irc: %s joined channel %s\n",
+      svz_log (SVZ_LOG_DEBUG, "irc: channel %s created\n", channel->name);
+      svz_log (SVZ_LOG_DEBUG, "irc: %s joined channel %s\n",
                client->nick, channel->name);
 #endif
       n = client->channels;
@@ -464,7 +464,7 @@ irc_leave_channel (irc_config_t *cfg,
             channel->cflag = NULL;
           }
 #if ENABLE_DEBUG
-        svz_log (LOG_DEBUG, "irc: %s left channel %s\n",
+        svz_log (SVZ_LOG_DEBUG, "irc: %s left channel %s\n",
                  client->nick, channel->name);
 #endif
         /* clear this channel of client's list */
@@ -492,7 +492,7 @@ irc_leave_channel (irc_config_t *cfg,
   if (channel->clients == 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
+      svz_log (SVZ_LOG_DEBUG, "irc: channel %s destroyed\n", channel->name);
 #endif
       irc_delete_channel (cfg, channel);
     }

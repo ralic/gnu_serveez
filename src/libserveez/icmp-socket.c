@@ -243,7 +243,7 @@ svz_icmp_startup (void)
     }
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "icmp services successfully initialized\n");
+  svz_log (SVZ_LOG_DEBUG, "icmp services successfully initialized\n");
 #endif
 }
 
@@ -356,7 +356,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
       if (header->checksum != svz_raw_ip_checksum (p, len))
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "icmp: invalid data checksum\n");
+          svz_log (SVZ_LOG_DEBUG, "icmp: invalid data checksum\n");
 #endif
           return ICMP_ERROR;
         }
@@ -365,7 +365,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
       if (header->ident == getpid () + sock->id)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "icmp: rejecting native packet\n");
+          svz_log (SVZ_LOG_DEBUG, "icmp: rejecting native packet\n");
 #endif
           return ICMP_ERROR;
         }
@@ -375,7 +375,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
           !(sock->flags & SVZ_SOFLG_LISTENING))
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "icmp: rejecting filtered packet\n");
+          svz_log (SVZ_LOG_DEBUG, "icmp: rejecting filtered packet\n");
 #endif
           return ICMP_ERROR;
         }
@@ -387,10 +387,10 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
   else if (header->type <= ICMP_MAX_TYPE)
     {
       if (svz_icmp_request[header->type])
-        svz_log (LOG_DEBUG, "icmp: %s received\n",
+        svz_log (SVZ_LOG_DEBUG, "icmp: %s received\n",
                  svz_icmp_request[header->type]);
       else
-        svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n",
+        svz_log (SVZ_LOG_DEBUG, "unsupported protocol 0x%02X received\n",
                  header->type);
       return ICMP_ERROR;
     }
@@ -401,11 +401,11 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
       if (header->code == SVZ_ICMP_SERVEEZ_CONNECT &&
           sock->flags & SVZ_SOFLG_LISTENING)
         {
-          svz_log (LOG_NOTICE, "icmp: accepting connection\n");
+          svz_log (SVZ_LOG_NOTICE, "icmp: accepting connection\n");
         }
       else if (header->code == SVZ_ICMP_SERVEEZ_CLOSE)
         {
-          svz_log (LOG_NOTICE, "icmp: closing connection\n");
+          svz_log (SVZ_LOG_NOTICE, "icmp: closing connection\n");
           return ICMP_DISCONNECT;
         }
       return (length + ICMP_HEADER_SIZE);
@@ -413,7 +413,7 @@ svz_icmp_check_packet (svz_socket_t *sock, svz_uint8_t *data, int len)
 #if ENABLE_DEBUG
   else
     {
-      svz_log (LOG_DEBUG, "unsupported protocol 0x%02X received\n",
+      svz_log (SVZ_LOG_DEBUG, "unsupported protocol 0x%02X received\n",
                header->type);
     }
 #endif /* ENABLE_DEBUG */
@@ -461,7 +461,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
           sock->remote_addr = sender.sin_addr.s_addr;
         }
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
+      svz_log (SVZ_LOG_DEBUG, "icmp: recv%s: %s (%u bytes)\n",
                sock->flags & SVZ_SOFLG_CONNECTED ? "" : "from",
                svz_inet_ntoa (sock->remote_addr), num_read);
 #endif /* ENABLE_DEBUG */
@@ -477,7 +477,7 @@ svz_icmp_read_socket (svz_socket_t *sock)
           num_read -= trunc;
           if (num_read > sock->recv_buffer_size - sock->recv_buffer_fill)
             {
-              svz_log (LOG_ERROR,
+              svz_log (SVZ_LOG_ERROR,
                        "receive buffer overflow on icmp socket %d\n",
                        sock->sock_desc);
               return -1;
@@ -594,7 +594,7 @@ svz_icmp_write_socket (svz_socket_t *sock)
     }
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
+  svz_log (SVZ_LOG_DEBUG, "icmp: send%s: %s (%u bytes)\n",
            sock->flags & SVZ_SOFLG_CONNECTED ? "" : "to",
            svz_inet_ntoa (receiver.sin_addr.s_addr),
            do_write - (p - sock->send_buffer));
@@ -751,7 +751,7 @@ svz_icmp_check_request (svz_socket_t *sock)
   if (sock->recv_buffer_fill)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "rejecting icmp packet on socket %d\n",
+      svz_log (SVZ_LOG_DEBUG, "rejecting icmp packet on socket %d\n",
                sock->sock_desc);
 #endif
       sock->recv_buffer_fill = 0;

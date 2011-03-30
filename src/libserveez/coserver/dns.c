@@ -58,7 +58,7 @@ dns_handle_request (char *inbuf)
       /* find the host by its name */
       if ((host = gethostbyname (resolved)) == NULL)
         {
-          svz_log (LOG_ERROR, "dns: gethostbyname: %s (%s)\n",
+          svz_log (SVZ_LOG_ERROR, "dns: gethostbyname: %s (%s)\n",
                    xerror (), resolved);
           return NULL;
         }
@@ -69,7 +69,7 @@ dns_handle_request (char *inbuf)
           memcpy (&addr, host->h_addr_list[0], host->h_length);
 
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "dns: %s is %s\n",
+          svz_log (SVZ_LOG_DEBUG, "dns: %s is %s\n",
                    host->h_name, svz_inet_ntoa (addr));
 #endif /* ENABLE_DEBUG */
           sprintf (resolved, "%s", svz_inet_ntoa (addr));
@@ -78,7 +78,7 @@ dns_handle_request (char *inbuf)
     }
   else
     {
-      svz_log (LOG_ERROR, "dns: protocol error\n");
+      svz_log (SVZ_LOG_ERROR, "dns: protocol error\n");
       return NULL;
     }
 

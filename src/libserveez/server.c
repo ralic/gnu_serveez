@@ -93,7 +93,7 @@ svz_servertype_add (svz_servertype_t *server)
   /* Check if the server definition is valid.  */
   if (!server || !server->prefix || !server->description)
     {
-      svz_log (LOG_ERROR, "invalid server type\n");
+      svz_log (SVZ_LOG_ERROR, "invalid server type\n");
       return;
     }
 
@@ -102,7 +102,7 @@ svz_servertype_add (svz_servertype_t *server)
     {
       if (!strcmp (server->prefix, stype->prefix))
         {
-          svz_log (LOG_ERROR, "server type `%s' already registered\n",
+          svz_log (SVZ_LOG_ERROR, "server type `%s' already registered\n",
                    server->description);
           return;
         }
@@ -112,7 +112,7 @@ svz_servertype_add (svz_servertype_t *server)
   if (server->global_init != NULL)
     if (server->global_init (server) < 0)
       {
-        svz_log (LOG_ERROR, "error running global init for `%s'\n",
+        svz_log (SVZ_LOG_ERROR, "error running global init for `%s'\n",
                  server->description);
         return;
       }
@@ -236,12 +236,12 @@ svz_servertype_finalize (void)
   int i;
   svz_servertype_t *stype;
 
-  svz_log (LOG_NOTICE, "running global server type finalizers\n");
+  svz_log (SVZ_LOG_NOTICE, "running global server type finalizers\n");
   svz_array_foreach (svz_servertypes, stype, i)
     {
       if (stype->global_finalize != NULL)
         if (stype->global_finalize (stype) < 0)
-          svz_log (LOG_ERROR, "error running global finalizer for `%s'\n",
+          svz_log (SVZ_LOG_ERROR, "error running global finalizer for `%s'\n",
                    stype->description);
     }
   if (svz_servertypes != NULL)
@@ -408,7 +408,7 @@ svz_server_init (svz_server_t *server)
     if (server->init != NULL)
       if (server->init (server) < 0)
         {
-          svz_log (LOG_ERROR, "error initializing `%s'\n", server->name);
+          svz_log (SVZ_LOG_ERROR, "error initializing `%s'\n", server->name);
           return -1;
         }
   return 0;
@@ -432,7 +432,7 @@ svz_server_init_all (void)
 {
   int errneous = 0;
 
-  svz_log (LOG_NOTICE, "initializing all server instances\n");
+  svz_log (SVZ_LOG_NOTICE, "initializing all server instances\n");
   svz_server_foreach (init_all_internal, &errneous);
   return errneous;
 }
@@ -449,7 +449,7 @@ svz_server_finalize (svz_server_t *server)
     {
       if (server->finalize != NULL)
         if (server->finalize (server) < 0)
-          svz_log (LOG_ERROR, "error finalizing `%s'\n", server->name);
+          svz_log (SVZ_LOG_ERROR, "error finalizing `%s'\n", server->name);
       svz_server_unbind (server);
       svz_server_free (server);
     }
@@ -461,7 +461,7 @@ svz_server_finalize (svz_server_t *server)
 int
 svz_server_finalize_all (void)
 {
-  svz_log (LOG_NOTICE, "running all server finalizers\n");
+  svz_log (SVZ_LOG_NOTICE, "running all server finalizers\n");
   svz_hash_destroy (svz_servers);
   svz_servers = NULL;
   return 0;

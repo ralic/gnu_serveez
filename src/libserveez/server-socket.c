@@ -69,7 +69,7 @@ svz_sock_idle_protect (svz_socket_t *sock)
   if (time (NULL) - sock->last_recv > port->detection_wait)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
+      svz_log (SVZ_LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
     }
@@ -117,7 +117,7 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
       /* Check the connection frequency.  */
       if ((nr /= 4) > port->connect_freq)
         {
-          svz_log (LOG_NOTICE, "connect frequency reached: %s: %d/%d\n",
+          svz_log (SVZ_LOG_NOTICE, "connect frequency reached: %s: %d/%d\n",
                    ip, nr, port->connect_freq);
           ret = -1;
         }
@@ -155,13 +155,13 @@ svz_tcp_accept (svz_socket_t *server_sock)
 
   if (client_socket == INVALID_SOCKET)
     {
-      svz_log (LOG_WARNING, "accept: %s\n", svz_net_strerror ());
+      svz_log (SVZ_LOG_WARNING, "accept: %s\n", svz_net_strerror ());
       return 0;
     }
 
   if ((svz_t_socket) svz_sock_connections >= svz_config.max_sockets)
     {
-      svz_log (LOG_WARNING, "socket descriptor exceeds "
+      svz_log (SVZ_LOG_WARNING, "socket descriptor exceeds "
                "socket limit %d\n", svz_config.max_sockets);
       if (svz_closesocket (client_socket) < 0)
         {
@@ -170,7 +170,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
       return 0;
     }
 
-  svz_log (LOG_NOTICE, "TCP:%u: accepting client on socket %d\n",
+  svz_log (SVZ_LOG_NOTICE, "TCP:%u: accepting client on socket %d\n",
            ntohs (server_sock->local_port), client_socket);
 
   /*
@@ -182,7 +182,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
     sock = sock->next;
   if (sock)
     {
-      svz_log (LOG_FATAL, "socket %d already in use\n", sock->sock_desc);
+      svz_log (SVZ_LOG_FATAL, "socket %d already in use\n", sock->sock_desc);
       if (svz_closesocket (client_socket) < 0)
         {
           svz_log_net_error ("close");
@@ -292,7 +292,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       else
         {
           server_sock->flags &= ~SVZ_SOFLG_CONNECTING;
-          svz_log (LOG_NOTICE, "pipe: send pipe %s connected\n",
+          svz_log (SVZ_LOG_NOTICE, "pipe: send pipe %s connected\n",
                    server_sock->send_pipe);
         }
 
@@ -309,7 +309,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       else
         {
           server_sock->flags &= ~SVZ_SOFLG_CONNECTING;
-          svz_log (LOG_NOTICE, "pipe: receive pipe %s connected\n",
+          svz_log (SVZ_LOG_NOTICE, "pipe: receive pipe %s connected\n",
                    server_sock->recv_pipe);
         }
     }
@@ -354,7 +354,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
       /* Both pipes scheduled for connection?  */
       if (server_sock->flags & SVZ_SOFLG_CONNECTING)
         {
-          svz_log (LOG_NOTICE, "connection scheduled for pipe (%d-%d)\n",
+          svz_log (SVZ_LOG_NOTICE, "connection scheduled for pipe (%d-%d)\n",
                    recv_pipe, send_pipe);
           return 0;
         }
@@ -399,7 +399,7 @@ svz_pipe_accept (svz_socket_t *server_sock)
   svz_sock_setparent (sock, server_sock);
   sock->proto = server_sock->proto;
 
-  svz_log (LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
+  svz_log (SVZ_LOG_NOTICE, "%s: accepting client on pipe (%d-%d)\n",
            server_sock->recv_pipe,
            sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE]);
 
@@ -437,7 +437,7 @@ svz_server_create (svz_portcfg_t *port)
         }
       else
         {
-          svz_log (LOG_ERROR, "unable to allocate socket structure\n");
+          svz_log (SVZ_LOG_ERROR, "unable to allocate socket structure\n");
           return NULL;
         }
     }
@@ -465,7 +465,7 @@ svz_server_create (svz_portcfg_t *port)
             }
 #else /* not IP_HDRINCL */
           svz_closesocket (server_socket);
-          svz_log (LOG_ERROR, "setsockopt: IP_HDRINCL undefined\n");
+          svz_log (SVZ_LOG_ERROR, "setsockopt: IP_HDRINCL undefined\n");
           return NULL;
 #endif /* IP_HDRINCL */
         }
@@ -596,6 +596,6 @@ svz_server_create (svz_portcfg_t *port)
           sock->itype = port->icmp_type;
         }
     }
-  svz_log (LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port, NULL));
+  svz_log (SVZ_LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port, NULL));
   return sock;
 }

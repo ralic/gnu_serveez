@@ -1,5 +1,42 @@
 2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix LOG_{FATAL,ERROR,WARNING,NOTICE,DEBUG} with "SVZ_".
+
+	* util.h
+	(SVZ_LOG_FATAL): Rename from ‘LOG_FATAL’.
+	(SVZ_LOG_ERROR): Rename from ‘LOG_ERROR’.
+	(SVZ_LOG_WARNING): Rename from ‘LOG_WARNING’.
+	(SVZ_LOG_NOTICE): Rename from ‘LOG_NOTICE’.
+	(SVZ_LOG_DEBUG): Rename from ‘LOG_DEBUG’.
+	* alloc.c: Update all refs.
+	* binding.c: Likewise.
+	* boot.c: Likewise.
+	* cfg.c: Likewise.
+	* codec/codec.c: Likewise.
+	* core.c: Likewise.
+	* coserver/coserver.c: Likewise.
+	* coserver/dns.c: Likewise.
+	* coserver/ident.c: Likewise.
+	* coserver/reverse-dns.c: Likewise.
+	* dynload.c: Likewise.
+	* hash.c: Likewise.
+	* icmp-socket.c: Likewise.
+	* interface.c: Likewise.
+	* passthrough.c: Likewise.
+	* pipe-socket.c: Likewise.
+	* portcfg.c: Likewise.
+	* raw-socket.c: Likewise.
+	* server-core.c: Likewise.
+	* server-loop.c: Likewise.
+	* server-socket.c: Likewise.
+	* server.c: Likewise.
+	* socket.c: Likewise.
+	* tcp-socket.c: Likewise.
+	* udp-socket.c: Likewise.
+	* util.c: Likewise.
+
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix some coserver #define:s with "SVZ_".
 
 	* coserver/coserver.h

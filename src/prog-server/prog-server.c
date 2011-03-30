@@ -136,7 +136,7 @@ prog_check_frequency (svz_array_t *accepted, int frequency)
   /* Check if the maximum frequency has been reached.  */
   if (svz_array_size (accepted) >= (unsigned long) frequency)
     {
-      svz_log (LOG_ERROR, "prog: thread frequency exceeded\n");
+      svz_log (SVZ_LOG_ERROR, "prog: thread frequency exceeded\n");
       return -1;
     }
 
@@ -166,7 +166,7 @@ prog_passthrough (svz_socket_t *sock)
                                cfg->fork,
                                cfg->user ? cfg->user :  SVZ_PROCESS_NONE)) < 0)
     {
-      svz_log (LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);
+      svz_log (SVZ_LOG_ERROR, "prog: cannot execute `%s'\n", cfg->bin);
       svz_free (argv);
       return -1;
     }
@@ -261,7 +261,7 @@ prog_read_sock_drop (svz_socket_t *sock)
   if ((ret = recv (sock->sock_desc, buffer, SVZ_UDP_MSG_SIZE, 0)) < 0)
     return -1;
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret,
+  svz_log (SVZ_LOG_DEBUG, "prog: dropped %d bytes on %s socket %d\n", ret,
            sock->proto & SVZ_PROTO_UDP ? "UDP" : "TCP", sock->sock_desc);
 #endif
   return 0;
@@ -336,7 +336,7 @@ prog_init (svz_server_t *server)
               /* Require non-shared listener.  */
               if (!svz_server_single_listener (server, sock))
                 {
-                  svz_log (LOG_ERROR,
+                  svz_log (SVZ_LOG_ERROR,
                            "prog: refusing to initialize shared listener "
                            "on port `%s'\n",
                            ((svz_portcfg_t *) (sock->port))->name);

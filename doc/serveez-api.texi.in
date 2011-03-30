@@ -308,7 +308,7 @@ left overs of the C API.
 
 |F| svz_sys_strerror
 
-The next two functions log (with @code{LOG_ERROR}) the
+The next two functions log (with @code{SVZ_LOG_ERROR}) the
 current @dfn{system error} or @dfn{network error},
 forming the prefix of the message using @var{fmt} and @var{args}.
 This formatted prefix cannot exceed 255 bytes.

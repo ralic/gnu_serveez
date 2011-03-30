@@ -283,7 +283,7 @@ dyn_load_library (char *file)
 
   if (handle == NULL)
     {
-      svz_log (LOG_ERROR, "link: unable to locate %s\n", file);
+      svz_log (SVZ_LOG_ERROR, "link: unable to locate %s\n", file);
       return NULL;
     }
 
@@ -343,7 +343,7 @@ dyn_unload_library (dyn_library_t *lib)
 #endif
         if (err)
           {
-            svz_log (LOG_ERROR, "unlink: %s (%s)\n", dyn_error (), lib->file);
+            svz_log (SVZ_LOG_ERROR, "unlink: %s (%s)\n", dyn_error (), lib->file);
             return -1;
           }
 
@@ -402,7 +402,7 @@ dyn_load_symbol (dyn_library_t *lib, char *symbol)
 #endif
         if (address == NULL)
           {
-            svz_log (LOG_ERROR, "lookup: %s (%s)\n", dyn_error (), symbol);
+            svz_log (SVZ_LOG_ERROR, "lookup: %s (%s)\n", dyn_error (), symbol);
           }
         return address;
       }

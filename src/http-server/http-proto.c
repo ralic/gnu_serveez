@@ -223,7 +223,7 @@ http_init (svz_server_t *server)
     {
       if ((cfg->log = svz_fopen (cfg->logfile, "at")) == NULL)
         {
-          svz_log (LOG_ERROR, "http: cannot open access logfile %s\n",
+          svz_log (SVZ_LOG_ERROR, "http: cannot open access logfile %s\n",
                    cfg->logfile);
         }
     }
@@ -234,15 +234,15 @@ http_init (svz_server_t *server)
 
   if (http_read_types (cfg))
     {
-      svz_log (LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
+      svz_log (SVZ_LOG_ERROR, "http: unable to load %s\n", cfg->type_file);
     }
-  svz_log (LOG_NOTICE, "http: %d+%d known content types\n",
+  svz_log (SVZ_LOG_NOTICE, "http: %d+%d known content types\n",
            types, svz_hash_size (cfg->types) - types);
 
   /* check user directory path, snip trailing '/' or '\' */
   if (!cfg->userdir || !strlen (cfg->userdir))
     {
-      svz_log (LOG_ERROR, "http: not a valid user directory\n");
+      svz_log (SVZ_LOG_ERROR, "http: not a valid user directory\n");
       return -1;
     }
   p = cfg->userdir + strlen (cfg->userdir) - 1;
@@ -252,7 +252,7 @@ http_init (svz_server_t *server)
   /* check document root path */
   if (!strlen (cfg->docs))
     {
-      svz_log (LOG_ERROR, "http: not a valid document root\n");
+      svz_log (SVZ_LOG_ERROR, "http: not a valid document root\n");
       return -1;
     }
 
@@ -428,7 +428,7 @@ http_send_file (svz_socket_t *sock)
   if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "http: file successfully sent\n");
+      svz_log (SVZ_LOG_DEBUG, "http: file successfully sent\n");
 #endif
       /*
        * no further ‘read’s from the file descriptor, signaling
@@ -499,7 +499,7 @@ http_default_write (svz_socket_t *sock)
   if ((sock->userflags & HTTP_FLAG_DONE) && sock->send_buffer_fill == 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "http: response successfully sent\n");
+      svz_log (SVZ_LOG_DEBUG, "http: response successfully sent\n");
 #endif
       num_written = http_keep_alive (sock);
     }
@@ -600,7 +600,7 @@ http_file_read (svz_socket_t *sock)
   if (http->filelength <= 0)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "http: file successfully read\n");
+      svz_log (SVZ_LOG_DEBUG, "http: file successfully read\n");
 #endif
       /*
        * no further ‘read’s from the file descriptor, signaling
@@ -633,7 +633,7 @@ http_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
                        http_request[n].len))
             {
 #if ENABLE_DEBUG
-              svz_log (LOG_DEBUG, "http client detected\n");
+              svz_log (SVZ_LOG_DEBUG, "http client detected\n");
 #endif
               return -1;
             }
@@ -802,7 +802,7 @@ http_handle_request (svz_socket_t *sock, int len)
       if (!memcmp (request, http_request[n].ident, http_request[n].len))
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "http: %s received\n", request);
+          svz_log (SVZ_LOG_DEBUG, "http: %s received\n", request);
 #endif
           http_request[n].response (sock, uri, flag);
           break;
@@ -1084,7 +1084,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
 #endif /* S_ISLNK */
         S_ISDIR (buf.st_mode)))
     {
-      svz_log (LOG_ERROR, "http: %s is not a regular file\n", file);
+      svz_log (SVZ_LOG_ERROR, "http: %s is not a regular file\n", file);
       svz_sock_printf (sock, HTTP_ACCESS_DENIED "\r\n");
       http_error_response (sock, 403);
       sock->userflags |= HTTP_FLAG_DONE;
@@ -1132,7 +1132,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
       if (date >= buf.st_mtime)
         {
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "http: %s not changed\n", file);
+          svz_log (SVZ_LOG_DEBUG, "http: %s not changed\n", file);
 #endif
           http->response = 304;
           http_set_header (HTTP_NOT_MODIFIED);
@@ -1170,7 +1170,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
             http->range.last = http->range.length - 1;
 
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "http: partial content: %ld-%ld/%ld\n",
+          svz_log (SVZ_LOG_DEBUG, "http: partial content: %ld-%ld/%ld\n",
                    http->range.first, http->range.last, http->range.length);
 #endif
 
@@ -1263,7 +1263,7 @@ http_get_response (svz_socket_t *sock, char *request, int flags)
         {
           /* the file on disk has changed?  */
 #if ENABLE_DEBUG
-          svz_log (LOG_DEBUG, "cache: %s has changed\n", file);
+          svz_log (SVZ_LOG_DEBUG, "cache: %s has changed\n", file);
 #endif
           http_refresh_cache (cache);
           cache->entry->date = buf.st_mtime;

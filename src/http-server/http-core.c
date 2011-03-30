@@ -184,7 +184,7 @@ http_userdir (svz_socket_t *sock, char *uri)
               error = "Unknown error.";
               break;
             }
-          svz_log (LOG_ERROR, "NetUserGetInfo: %s\n", error);
+          svz_log (SVZ_LOG_ERROR, "NetUserGetInfo: %s\n", error);
         }
       /* successfully got the user information?  */
       else if (entry && entry->usri1_home_dir && entry->usri1_home_dir[0])
@@ -202,7 +202,7 @@ http_userdir (svz_socket_t *sock, char *uri)
 #if ENABLE_DEBUG
       else if (entry)
         {
-          svz_log (LOG_DEBUG, "http: home directory for %s not set\n",
+          svz_log (SVZ_LOG_DEBUG, "http: home directory for %s not set\n",
                    svz_windoze_uni2asc (entry->usri1_name));
         }
 #endif /* ENABLE_DEBUG */
@@ -367,7 +367,7 @@ http_log (svz_socket_t *sock)
         }
       else
         {
-          svz_log (LOG_ERROR, "http: access logfile died\n");
+          svz_log (SVZ_LOG_ERROR, "http: access logfile died\n");
           svz_fclose (cfg->log);
           cfg->log = NULL;
         }
@@ -450,7 +450,7 @@ http_check_range (http_range_t *range, off_t filesize)
       (range->last >= filesize || range->length > filesize))
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG,
+      svz_log (SVZ_LOG_DEBUG,
                "http: invalid content range (%ld-%ld/%ld not in %ld) \n",
                range->first, range->last, range->length, filesize);
 #endif
@@ -481,7 +481,7 @@ http_get_range (char *line, http_range_t *range)
       memcmp (p, HTTP_BYTES, HTTP_BYTES_LENGTH))
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
+      svz_log (SVZ_LOG_DEBUG, "http: invalid byte-range specifier (%s)\n", p);
 #endif
       return -1;
     }
@@ -655,7 +655,7 @@ http_keep_alive (svz_socket_t *sock)
       sock->send_buffer_fill = 0;
       sock->idle_func = http_idle;
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "http: keeping connection alive\n");
+      svz_log (SVZ_LOG_DEBUG, "http: keeping connection alive\n");
 #endif
       return 0;
     }
@@ -1068,7 +1068,7 @@ http_absolute_file (char *file)
       *p = '/';
       svz_log_sys_error ("chdir");
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "cannot change dir: %s\n", file);
+      svz_log (SVZ_LOG_DEBUG, "cannot change dir: %s\n", file);
 #endif
       svz_free (savefile);
       svz_free (savedir);

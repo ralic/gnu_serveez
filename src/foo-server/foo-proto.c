@@ -158,7 +158,7 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
   sock->check_request = svz_sock_check_request;
   sock->handle_request = foo_handle_request;
 
-  svz_log (LOG_NOTICE, "foo client detected\n");
+  svz_log (SVZ_LOG_NOTICE, "foo client detected\n");
 
   svz_array_foreach (cfg->messages, msg, i)
     {
@@ -233,7 +233,7 @@ foo_global_finalize (SVZ_UNUSED svz_servertype_t *server)
 int
 foo_finalize (svz_server_t *server)
 {
-  svz_log (LOG_NOTICE, "destroying %s\n", server->name);
+  svz_log (SVZ_LOG_NOTICE, "destroying %s\n", server->name);
   return 0;
 }
 

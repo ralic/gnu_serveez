@@ -109,7 +109,7 @@ static int
 svz_sock_default_disconnect (svz_socket_t *sock)
 {
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "socket id %d disconnected\n", sock->id);
+  svz_log (SVZ_LOG_DEBUG, "socket id %d disconnected\n", sock->id);
 #endif
 
   return 0;
@@ -145,7 +145,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
       /* can occur if it is actually a packet oriented server */
       if (server->detect_proto == NULL)
         {
-          svz_log (LOG_ERROR, "%s: no detect-proto routine\n",
+          svz_log (SVZ_LOG_ERROR, "%s: no detect-proto routine\n",
                    server->type->prefix);
         }
       /* call protocol detection routine of the server */
@@ -162,7 +162,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
             return -1;
           if (sock->check_request == svz_sock_detect_proto)
             {
-              svz_log (LOG_ERROR, "%s: check-request callback unchanged\n",
+              svz_log (SVZ_LOG_ERROR, "%s: check-request callback unchanged\n",
                        server->type->prefix);
               sock->check_request = NULL;
             }
@@ -180,7 +180,7 @@ svz_sock_detect_proto (svz_socket_t *sock)
   if (sock->recv_buffer_fill > port->detection_fill)
     {
 #if ENABLE_DEBUG
-      svz_log (LOG_DEBUG, "socket id %d detection failed\n", sock->id);
+      svz_log (SVZ_LOG_DEBUG, "socket id %d detection failed\n", sock->id);
 #endif
       return -1;
     }
@@ -321,7 +321,7 @@ svz_sock_check_request (svz_socket_t *sock)
 {
   if (sock->boundary_size <= 0)
     {
-      svz_log (LOG_ERROR, "invalid boundary size: %d\n", sock->boundary_size);
+      svz_log (SVZ_LOG_ERROR, "invalid boundary size: %d\n", sock->boundary_size);
       return -1;
     }
 
@@ -542,7 +542,7 @@ svz_sock_disconnect (svz_socket_t *sock)
     svz_log_net_error ("close");
 
 #if ENABLE_DEBUG
-  svz_log (LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
+  svz_log (SVZ_LOG_DEBUG, "socket %d disconnected\n", sock->sock_desc);
 #endif
 
   sock->sock_desc = INVALID_SOCKET;
@@ -578,12 +578,12 @@ svz_sock_write (svz_socket_t *sock, char *buf, int len)
         {
           /* Queue is full, unlucky socket or pipe ...  */
           if (sock->flags & SVZ_SOFLG_SEND_PIPE)
-            svz_log (LOG_ERROR,
+            svz_log (SVZ_LOG_ERROR,
                      "send buffer overflow on pipe (%d-%d) (id %d)\n",
                      sock->pipe_desc[SVZ_READ], sock->pipe_desc[SVZ_WRITE],
                      sock->id);
           else
-            svz_log (LOG_ERROR,
+            svz_log (SVZ_LOG_ERROR,
                      "send buffer overflow on socket %d (id %d)\n",
                      sock->sock_desc, sock->id);
 

@@ -136,7 +136,7 @@ heap_add (heap_block_t *block)
 /* FIXME: Make ‘static inline’ func w/ attribute ‘SVZ_EXITING’.  */
 #define oom(who)  do                                            \
     {                                                           \
-      svz_log (LOG_FATAL, who ": virtual memory exhausted\n");  \
+      svz_log (SVZ_LOG_FATAL, who ": virtual memory exhausted\n");  \
       exit (EXIT_FAILURE);                                      \
     }                                                           \
   while (0)
