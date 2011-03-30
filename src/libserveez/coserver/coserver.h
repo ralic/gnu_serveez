@@ -76,12 +76,12 @@ svz_coserver_callback_t;
 /*
  * Types of internal servers you can start as threads or processes.
  * coserver-TODO:
- * add your coserver identification here and increase MAX_COSERVER_TYPES
+ * add your coserver identification here and increase SVZ_MAX_COSERVER_TYPES
  */
-#define COSERVER_REVERSE_DNS 0 /* reverse DNS lookup ID */
-#define COSERVER_IDENT       1 /* identification ID */
-#define COSERVER_DNS         2 /* DNS lookup ID */
-#define MAX_COSERVER_TYPES   3 /* number of different coservers */
+#define SVZ_COSERVER_REVERSE_DNS 0 /* reverse DNS lookup ID */
+#define SVZ_COSERVER_IDENT       1 /* identification ID */
+#define SVZ_COSERVER_DNS         2 /* DNS lookup ID */
+#define SVZ_MAX_COSERVER_TYPES   3 /* number of different coservers */
 
 typedef int (svz_coserver_do_t) (const svz_coserver_t *, void *);
 

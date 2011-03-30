@@ -1,3 +1,9 @@
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Prefix some coserver #define:s with "SVZ_".
+
+	* ctrl-server/control-proto.c: Update all refs.
+
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Rename SOCK_FLAG_* to SVZ_SOFLG_*.

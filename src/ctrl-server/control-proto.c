@@ -874,9 +874,9 @@ ctrl[] =
   { CTRL_CMD_STAT,          ctrl_stat, 0 },
   { CTRL_CMD_KILLALL,       ctrl_killall, 0 },
   { CTRL_CMD_KILL_ID,       ctrl_kill_id, 0 },
-  { CTRL_CMD_RESTART_RDNS,  ctrl_restart, COSERVER_REVERSE_DNS },
-  { CTRL_CMD_RESTART_IDENT, ctrl_restart, COSERVER_IDENT },
-  { CTRL_CMD_RESTART_DNS,   ctrl_restart, COSERVER_DNS },
+  { CTRL_CMD_RESTART_RDNS,  ctrl_restart, SVZ_COSERVER_REVERSE_DNS },
+  { CTRL_CMD_RESTART_IDENT, ctrl_restart, SVZ_COSERVER_IDENT },
+  { CTRL_CMD_RESTART_DNS,   ctrl_restart, SVZ_COSERVER_DNS },
   { NULL, NULL, 0 }
 };
 

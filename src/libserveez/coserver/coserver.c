@@ -96,7 +96,7 @@ svz_coserver_rdns_invoke (unsigned long ip,
                           svz_coserver_handle_result_t cb,
                           void *arg0, void *arg1)
 {
-  svz_coserver_send_request (COSERVER_REVERSE_DNS,
+  svz_coserver_send_request (SVZ_COSERVER_REVERSE_DNS,
                              svz_inet_ntoa (ip), cb, arg0, arg1);
 }
 
@@ -108,7 +108,7 @@ svz_coserver_dns_invoke (char *host,
                          svz_coserver_handle_result_t cb,
                          void *arg0, void *arg1)
 {
-  svz_coserver_send_request (COSERVER_DNS, host, cb, arg0, arg1);
+  svz_coserver_send_request (SVZ_COSERVER_DNS, host, cb, arg0, arg1);
 }
 
 /*
@@ -123,7 +123,7 @@ svz_coserver_ident_invoke (svz_socket_t *sock,
   snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
             svz_inet_ntoa (sock->remote_addr),
             ntohs (sock->remote_port), ntohs (sock->local_port));
-  svz_coserver_send_request (COSERVER_IDENT, buffer, cb, arg0, arg1);
+  svz_coserver_send_request (SVZ_COSERVER_IDENT, buffer, cb, arg0, arg1);
 }
 
 /*
@@ -135,13 +135,13 @@ static svz_coservertype_t svz_coservertypes[] =
   /* coserver-TODO:
      place coserver callbacks and identification here */
 
-  { COSERVER_REVERSE_DNS, "reverse dns",
+  { SVZ_COSERVER_REVERSE_DNS, "reverse dns",
     reverse_dns_handle_request, 1, reverse_dns_init, 0 },
 
-  { COSERVER_IDENT, "ident",
+  { SVZ_COSERVER_IDENT, "ident",
     ident_handle_request, 1, NULL, 0},
 
-  { COSERVER_DNS, "dns",
+  { SVZ_COSERVER_DNS, "dns",
     dns_handle_request, 1, NULL, 0 }
 };
 
@@ -787,7 +787,7 @@ svz_coserver_start (int type)
   coserver->sock = NULL;
 
   if (svz_coservers == NULL)
-    svz_coservers = svz_array_create (MAX_COSERVER_TYPES, NULL);
+    svz_coservers = svz_array_create (SVZ_MAX_COSERVER_TYPES, NULL);
   svz_array_add (svz_coservers, coserver);
 
   /* fill in the actual coserver callback */
@@ -986,7 +986,7 @@ svz_coserver_check (void)
 #endif /* __MINGW32__ */
 
   /* check the number of coserver instances of each coserver type */
-  for (n = 0; n < MAX_COSERVER_TYPES; n++)
+  for (n = 0; n < SVZ_MAX_COSERVER_TYPES; n++)
     {
       ctype = &svz_coservertypes[n];
       if (svz_coserver_count (ctype->type) < ctype->instances &&
@@ -1040,7 +1040,7 @@ svz_coserver_init (void)
   svz_coserver_callbacks = svz_hash_create (4, svz_free);
   svz_coserver_callback_id = 1;
 
-  for (n = 0; n < MAX_COSERVER_TYPES; n++)
+  for (n = 0; n < SVZ_MAX_COSERVER_TYPES; n++)
     {
       coserver = &svz_coservertypes[n];
       if (coserver->init)
@@ -1061,7 +1061,7 @@ svz_coserver_finalize (void)
   int n;
   svz_coservertype_t *coserver;
 
-  for (n = 0; n < MAX_COSERVER_TYPES; n++)
+  for (n = 0; n < SVZ_MAX_COSERVER_TYPES; n++)
     {
       coserver = &svz_coservertypes[n];
       svz_coserver_destroy (coserver->type);
