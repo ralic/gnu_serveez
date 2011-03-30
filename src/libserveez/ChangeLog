@@ -1,5 +1,20 @@
 2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop "coserver arg(s)" cpp machinery.
+
+	* coserver/coserver.h
+	(svz_coserver_arg_t): Delete typedef.
+	(COSERVER_ARGS, svz_coserver_args_t): Delete #define:s.
+	(svz_coserver_handle_result_t, svz_coserver_callback_t)
+	(svz_coserver_send_request, svz_coserver_rdns_invoke)
+	(svz_coserver_rdns, svz_coserver_dns_invoke, svz_coserver_dns)
+	(svz_coserver_ident_invoke, svz_coserver_ident): Use ‘void *’ directly.
+	* coserver/coserver.c
+	(svz_coserver_rdns_invoke, svz_coserver_dns_invoke)
+	(svz_coserver_ident_invoke, svz_coserver_send_request): Likewise.
+
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_coservertype_t’.
 
 	* coserver/coserver.h

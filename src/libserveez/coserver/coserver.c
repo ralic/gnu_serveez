@@ -94,7 +94,7 @@ static svz_hash_t *svz_coserver_callbacks = NULL;
 void
 svz_coserver_rdns_invoke (unsigned long ip,
                           svz_coserver_handle_result_t cb,
-                          svz_coserver_args_t)
+                          void *arg0, void *arg1)
 {
   svz_coserver_send_request (COSERVER_REVERSE_DNS,
                              svz_inet_ntoa (ip), cb, arg0, arg1);
@@ -106,7 +106,7 @@ svz_coserver_rdns_invoke (unsigned long ip,
 void
 svz_coserver_dns_invoke (char *host,
                          svz_coserver_handle_result_t cb,
-                         svz_coserver_args_t)
+                         void *arg0, void *arg1)
 {
   svz_coserver_send_request (COSERVER_DNS, host, cb, arg0, arg1);
 }
@@ -117,7 +117,7 @@ svz_coserver_dns_invoke (char *host,
 void
 svz_coserver_ident_invoke (svz_socket_t *sock,
                            svz_coserver_handle_result_t cb,
-                           svz_coserver_args_t)
+                           void *arg0, void *arg1)
 {
   char buffer[COSERVER_BUFSIZE];
   snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
@@ -1085,7 +1085,7 @@ svz_coserver_finalize (void)
 void
 svz_coserver_send_request (int type, char *request,
                            svz_coserver_handle_result_t handle_result,
-                           svz_coserver_args_t)
+                           void *arg0, void *arg1)
 {
   int n, busy;
   svz_coserver_t *coserver, *current;
