@@ -54,8 +54,10 @@ typedef struct
 }
 svz_coserver_t;
 
+/* begin svzint */
 /* Buffer size for the coservers.  */
 #define COSERVER_BUFSIZE 256
+/* end svzint */
 
 /*
  * The callback structure is used to finally execute some code

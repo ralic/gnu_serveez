@@ -1,5 +1,11 @@
 2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘COSERVER_BUFSIZE’.
+
+	* coserver/coserver.h (COSERVER_BUFSIZE): Mark ‘svzint’.
+
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop "coserver arg(s)" cpp machinery.
 
 	* coserver/coserver.h
