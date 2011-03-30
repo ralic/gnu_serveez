@@ -66,8 +66,9 @@
 #define SVZ_SOFLG_NOSHUTDOWN  0x00100000 /* Disable shutdown.  */
 #define SVZ_SOFLG_NOOVERFLOW  0x00200000 /* Disable receive buffer overflow.  */
 
+/* begin svzint */
 #define VSNPRINTF_BUF_SIZE 2048 /* Size of the ‘vsnprintf’ buffer */
-
+/* end svzint */
 typedef struct svz_socket svz_socket_t;
 
 struct svz_socket

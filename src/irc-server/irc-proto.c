@@ -1045,6 +1045,8 @@ irc_create_client (irc_config_t *cfg)
   return client;
 }
 
+#define VSNPRINTF_BUF_SIZE  2048
+
 /*
  * Print a formatted string to the socket SOCK.
  */

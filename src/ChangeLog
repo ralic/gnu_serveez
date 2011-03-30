@@ -1,5 +1,11 @@
 2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘VSNPRINTF_BUF_SIZE’.
+
+	* irc-server/irc-proto.c (VSNPRINTF_BUF_SIZE): New #define.
+
+2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix LOG_{FATAL,ERROR,WARNING,NOTICE,DEBUG} with "SVZ_".
 
 	* awcs-server/awcs-proto.c: Update all refs.
