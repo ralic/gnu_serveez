@@ -334,8 +334,8 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
       this->icmp_ipaddr = ipaddr;
       break;
     case SVZ_PROTO_RAW:
-      svz_free_and_zero (this->raw_ipaddr);
-      this->raw_ipaddr = ipaddr;
+      svz_free_and_zero (SVZ_CFG_RAW (this, ipaddr));
+      SVZ_CFG_RAW (this, ipaddr) = ipaddr;
       break;
     default:
       return -1;
@@ -414,8 +414,8 @@ svz_portcfg_dup (svz_portcfg_t *port)
       copy->icmp_device = svz_strdup (port->icmp_device);
       break;
     case SVZ_PROTO_RAW:
-      copy->raw_ipaddr = svz_strdup (port->raw_ipaddr);
-      copy->raw_device = svz_strdup (port->raw_device);
+      SVZ_CFG_RAW (copy, ipaddr) = svz_strdup (SVZ_CFG_RAW (port, ipaddr));
+      SVZ_CFG_RAW (copy, device) = svz_strdup (SVZ_CFG_RAW (port, device));
       break;
     case SVZ_PROTO_PIPE:
 #define COPY(x)                                                         \
@@ -466,8 +466,8 @@ svz_portcfg_free (svz_portcfg_t *port)
       svz_free (port->icmp_device);
       break;
     case SVZ_PROTO_RAW:
-      svz_free (port->raw_ipaddr);
-      svz_free (port->raw_device);
+      svz_free (SVZ_CFG_RAW (port, ipaddr));
+      svz_free (SVZ_CFG_RAW (port, device));
       break;
     case SVZ_PROTO_PIPE:
 #define FREE(x)                                 \
@@ -585,6 +585,7 @@ svz_portcfg_convert_addr (char *str, struct sockaddr_in *addr)
 int
 svz_portcfg_mkaddr (svz_portcfg_t *this)
 {
+  struct sockaddr_in *sa;
   int err = 0;
 
   switch (this->proto)
@@ -686,26 +687,27 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       this->icmp_addr.sin_family = AF_INET;
       break;
     case SVZ_PROTO_RAW:
+      sa = &SVZ_CFG_RAW (this, addr);
       if (svz_portcfg_device (this))
         {
           this->flags |= PORTCFG_FLAG_DEVICE;
-          this->raw_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
-      else if (this->raw_ipaddr == NULL)
+      else if (SVZ_CFG_RAW (this, ipaddr) == NULL)
         {
           svz_log (SVZ_LOG_ERROR, "%s: no IP address given\n", this->name);
           err = -1;
         }
       else
         {
-          err = svz_portcfg_convert_addr (this->raw_ipaddr, &this->raw_addr);
+          err = svz_portcfg_convert_addr (SVZ_CFG_RAW (this, ipaddr), sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
-                       this->name, this->raw_ipaddr);
+                       this->name, SVZ_CFG_RAW (this, ipaddr));
             }
         }
-      this->raw_addr.sin_family = AF_INET;
+      sa->sin_family = AF_INET;
       break;
       /* The pipe protocol needs a check for the validity of the permissions,
          the group and user names and its id's.  */
@@ -894,8 +896,8 @@ svz_portcfg_print (svz_portcfg_t *this, FILE *f)
       break;
     case SVZ_PROTO_RAW:
       fprintf (f, "portcfg `%s': RAW (%s|%s)\n", this->name,
-               this->raw_ipaddr,
-               svz_inet_ntoa (this->raw_addr.sin_addr.s_addr));
+               SVZ_CFG_RAW (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_RAW (this, addr).sin_addr.s_addr));
       break;
     case SVZ_PROTO_PIPE:
       {

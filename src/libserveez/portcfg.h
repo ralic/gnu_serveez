@@ -149,10 +149,7 @@ svz_portcfg_t;
 #define icmp_device protocol.icmp.device
 #define icmp_type protocol.icmp.type
 
-#define raw_addr protocol.raw.addr
-#define raw_ipaddr protocol.raw.ipaddr
-#define raw_device protocol.raw.device
-
+#define SVZ_CFG_RAW(portcfg,x)     (portcfg->protocol.raw.x)
 #define SVZ_CFG_PIPE(portcfg,x)    (portcfg->protocol.pipe.x)
 
 __BEGIN_DECLS
