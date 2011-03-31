@@ -45,6 +45,8 @@
 #include "o-binary.h"
 #include <libserveez.h>
 
+int verbosep;
+
 
 /*
  * utility functions
@@ -95,6 +97,8 @@ test_value (unsigned long nr)
 void
 test_print (char *text)
 {
+  if (!verbosep)
+    return;
   fprintf (stderr, text);
   fflush (stderr);
 }
@@ -103,6 +107,8 @@ test_print (char *text)
 void
 test_ok (void)
 {
+  if (!verbosep)
+    return;
   fprintf (stderr, "ok\n");
   fflush (stderr);
 }
@@ -111,6 +117,8 @@ test_ok (void)
 void
 test_failed (void)
 {
+  if (!verbosep)
+    return;
   fprintf (stderr, "failed\n");
   fflush (stderr);
 }
@@ -922,7 +930,7 @@ codec_main (int argc, char **argv)
  */
 
 int
-spew_main (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
+spew_main (int argc, char **argv)
 {
   int s;
   struct sockaddr_in addr;
@@ -935,7 +943,15 @@ spew_main (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   WSAStartup (0x0202, &WSAData);
 #endif /* __MINGW32__ */
 
-  fprintf (stderr, "start...\r\n");
+  if (verbosep)
+    {
+      int i;
+
+      fprintf (stderr, "start...\r\n");
+      for (i = 0; i < argc; i++)
+        fprintf (stderr, "  argv[%d] = \"%s\"\r\n", i, argv[i]);
+      fflush (stderr);
+    }
 
   /* Obtain output descriptor.  */
 #ifdef __MINGW32__
@@ -1018,6 +1034,9 @@ main (int argc, char **argv)
 
   if (1 > argc)
     return EXIT_FAILURE;
+
+  if (getenv ("VERBOSE"))
+    verbosep = 1;
 
   for (a = avail; a->name; a++)
     if (!strcmp (argv[1], a->name))

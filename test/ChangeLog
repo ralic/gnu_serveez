@@ -1,3 +1,12 @@
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v] Make btdt silent unless env var ‘VERBOSE’ is set.
+
+	* btdt.c (verbosep): New var.
+	(test_print, test_ok, test_failed): Do nothing if ‘!verbosep’.
+	(spew_main): Display "start" and args only if ‘verbosep’.
+	(main): Check env var ‘VERBOSE’; conditionally set ‘verbosep’.
+
 2011-03-29  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Rename SOCK_FLAG_* to SVZ_SOFLG_*.
