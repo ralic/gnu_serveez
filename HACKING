@@ -59,47 +59,7 @@ See the end for copying conditions.
 *** DONE Assume signal handlers return ‘void’.
 *** DONE Remove svz_t_{size,off}.
 *** DONE Remove svz_c_{const,signed}.
-*** TODO Clean up libserveez API.
-***** DONE use explicit type for cast in ‘svz_hash_foreach_value’
-***** DONE add func ‘svz_library_features’
-***** DONE move most #include <foo.h> into defines.h and *.c ([[elisp:(grep%20"find%20src/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#.*include.*<.*>'")][grep]]).
-***** TODO move most #if...#endif into defines.h and *.c ([[elisp:(grep%20"find%20src/libserveez/%20-name%20'*.h'%20-print0%20|%20xargs%20-0%20grep%20-nH%20-e%20'^#%20*if'%20|%20sed%20'/_H__$/d'")][grep]]).
-***** TODO convert some variables into (read-only) funcs ([[elisp:(grep%20"grep%20-nH%20-e%20Variable:%20%20doc/serveez.info")][grep]]).
-***** TODO prune ancillary elements from libserveez API.
-      | x | ∀ SVZ_U?INT..            | suboptimal | avoid                      |
-      | x | svz_vasprintf            | unused     | internalize                |
-      | x | svz_asprintf             | GNU        | avoid                      |
-      | x | svz_snprintf             | 2011!      | use ‘snprintf’ directly    |
-      | x | svz_strcasecmp           | danger     | use ‘strncasecmp’ instead  |
-      | x | svz_strncasecmp          | 2011!      | use ‘strncasecmp’ directly |
-      | x | svz_build                | cruft      | avoid                      |
-      | x | svz_have_Win32           | pure lose  | avoid                      |
-      | x | svz_have_debug           | var        | obsoleted by "features"    |
-      | x | svz_have_floodprotect    | var        | obsoleted by "features"    |
-      |   | svz_os_version           | woe        | internalize                |
-      | x | svz_syserror             | woe        | internalize                |
-      |   | svz_sys_version          | spewful    | split up                   |
-      | x | svz_mutex_*              | suboptimal | internalize                |
-      | x | svz_codec_init           | impl       | internalize                |
-      | x | svz_codec_finalize       | impl       | internalize                |
-      | x | svz_dynload_init         | impl       | interanlize                |
-      | x | svz_dynload_finalize     | impl       | internalize                |
-      | x | svz_strsignal_init       | impl       | internalize                |
-      | x | svz_strsignal_destroy    | impl       | internalize                |
-      | x | svz_sock_table_create    | impl       | internalize                |
-      | x | svz_sock_table_destroy   | impl       | internalize                |
-      | x | svz_signal_up            | impl       | internalize                |
-      | x | svz_signal_dn            | impl       | internalize                |
-      | x | svz_init_config          | impl       | internalize                |
-      | x | svz_interface_collect    | impl       | internalize                |
-      | x | svz_interface_free       | impl       | internalize                |
-      | x | svz_net_startup          | impl       | internalize                |
-      | x | svz_net_cleanup          | impl       | internalize                |
-      | x | svz_pipe_startup         | impl       | internalize                |
-      | x | svz_pipe_cleanup         | impl       | internalize                |
-      | x | svz_config_type_init     | impl       | internalize                |
-      | x | svz_config_type_finalize | impl       | internalize                |
-***** DONE use "hidden" attribute (gcc only)
+*** TODO Clean up libserveez API ([[file:src/libserveez/API-HACKING][API-HACKING]]).
 *** TODO Update Guile support.
 ***** TODO update internal interfaces
 ******* TODO SCM_INUM (m)
