@@ -1191,12 +1191,12 @@ guile_define_port (SCM name, SCM args)
       err |= optionhash_extract_int (options, PORTCFG_PORT,
                                      0, 0, &port, action);
       GUILE_VALIDATE_PORT (port, "UDP", portname);
-      cfg->udp_port = (unsigned short) port;
+      SVZ_CFG_UDP (cfg, port) = (unsigned short) port;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1,
                                         SVZ_PORTCFG_NOIP,
-                                        &(cfg->udp_ipaddr), action);
+                                        &SVZ_CFG_UDP (cfg, ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->udp_device), action);
+                                        &SVZ_CFG_UDP (cfg, device), action);
     }
   /* Maybe ICMP?  */
   else if (!strcmp (proto, PORTCFG_ICMP))

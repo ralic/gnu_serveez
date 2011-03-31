@@ -1,5 +1,11 @@
 2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add macro: SVZ_CFG_UDP
+
+	* guile.c (guile_define_port): Use ‘SVZ_CFG_UDP’.
+
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add macro: SVZ_CFG_ICMP
 
 	* guile.c (guile_define_port): Use ‘SVZ_CFG_ICMP’.

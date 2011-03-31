@@ -326,8 +326,8 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
       this->tcp_ipaddr = ipaddr;
       break;
     case SVZ_PROTO_UDP:
-      svz_free_and_zero (this->udp_ipaddr);
-      this->udp_ipaddr = ipaddr;
+      svz_free_and_zero (SVZ_CFG_UDP (this, ipaddr));
+      SVZ_CFG_UDP (this, ipaddr) = ipaddr;
       break;
     case SVZ_PROTO_ICMP:
       svz_free_and_zero (SVZ_CFG_ICMP (this, ipaddr));
@@ -406,8 +406,8 @@ svz_portcfg_dup (svz_portcfg_t *port)
       copy->tcp_device = svz_strdup (port->tcp_device);
       break;
     case SVZ_PROTO_UDP:
-      copy->udp_ipaddr = svz_strdup (port->udp_ipaddr);
-      copy->udp_device = svz_strdup (port->udp_device);
+      SVZ_CFG_UDP (copy, ipaddr) = svz_strdup (SVZ_CFG_UDP (port, ipaddr));
+      SVZ_CFG_UDP (copy, device) = svz_strdup (SVZ_CFG_UDP (port, device));
       break;
     case SVZ_PROTO_ICMP:
       SVZ_CFG_ICMP (copy, ipaddr) = svz_strdup (SVZ_CFG_ICMP (port, ipaddr));
@@ -458,8 +458,8 @@ svz_portcfg_free (svz_portcfg_t *port)
       svz_free (port->tcp_device);
       break;
     case SVZ_PROTO_UDP:
-      svz_free (port->udp_ipaddr);
-      svz_free (port->udp_device);
+      svz_free (SVZ_CFG_UDP (port, ipaddr));
+      svz_free (SVZ_CFG_UDP (port, device));
       break;
     case SVZ_PROTO_ICMP:
       svz_free (SVZ_CFG_ICMP (port, ipaddr));
@@ -633,37 +633,39 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
         }
       break;
     case SVZ_PROTO_UDP:
-      this->udp_addr.sin_family = AF_INET;
+      ip = SVZ_CFG_UDP (this, ipaddr);
+      sa = &SVZ_CFG_UDP (this, addr);
+      sa->sin_family = AF_INET;
       if (svz_portcfg_device (this))
         {
           this->flags |= PORTCFG_FLAG_DEVICE;
-          this->udp_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
-      else if (this->udp_ipaddr == NULL)
+      else if (ip == NULL)
         {
           svz_log (SVZ_LOG_ERROR, "%s: no UDP/IP address given\n", this->name);
           err = -1;
         }
-      else if (any_p (this->udp_ipaddr))
+      else if (any_p (ip))
         {
           this->flags |= PORTCFG_FLAG_ANY;
-          this->udp_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
-      else if (no_ip_p (this->tcp_ipaddr))
+      else if (no_ip_p (ip))
         {
           this->flags |= PORTCFG_FLAG_ALL;
-          this->udp_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
       else
         {
-          err = svz_portcfg_convert_addr (this->udp_ipaddr, &this->udp_addr);
+          err = svz_portcfg_convert_addr (ip, sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
-                       this->name, this->udp_ipaddr);
+                       this->name, ip);
             }
         }
-      this->udp_addr.sin_port = htons (this->udp_port);
+      sa->sin_port = htons (SVZ_CFG_UDP (this, port));
       break;
     case SVZ_PROTO_ICMP:
       ip = SVZ_CFG_ICMP (this, ipaddr);
@@ -888,9 +890,9 @@ svz_portcfg_print (svz_portcfg_t *this, FILE *f)
       break;
     case SVZ_PROTO_UDP:
       fprintf (f, "portcfg `%s': UDP (%s|%s):%d\n", this->name,
-               this->udp_ipaddr,
-               svz_inet_ntoa (this->udp_addr.sin_addr.s_addr),
-               this->udp_port);
+               SVZ_CFG_UDP (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_UDP (this, addr).sin_addr.s_addr),
+               SVZ_CFG_UDP (this, port));
       break;
     case SVZ_PROTO_ICMP:
       fprintf (f, "portcfg `%s': ICMP (%s|%s)\n", this->name,

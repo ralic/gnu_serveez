@@ -139,11 +139,7 @@ svz_portcfg_t;
 #define tcp_device protocol.tcp.device
 #define tcp_backlog protocol.tcp.backlog
 
-#define udp_port protocol.udp.port
-#define udp_addr protocol.udp.addr
-#define udp_ipaddr protocol.udp.ipaddr
-#define udp_device protocol.udp.device
-
+#define SVZ_CFG_UDP(portcfg,x)     (portcfg->protocol.udp.x)
 #define SVZ_CFG_ICMP(portcfg,x)    (portcfg->protocol.icmp.x)
 #define SVZ_CFG_RAW(portcfg,x)     (portcfg->protocol.raw.x)
 #define SVZ_CFG_PIPE(portcfg,x)    (portcfg->protocol.pipe.x)

@@ -546,7 +546,7 @@ svz_server_create (svz_portcfg_t *port)
           if (port->proto & SVZ_PROTO_TCP)
             port->tcp_port = ntohs (sock->local_port);
           else
-            port->udp_port = ntohs (sock->local_port);
+            SVZ_CFG_UDP (port, port) = ntohs (sock->local_port);
         }
     }
 
