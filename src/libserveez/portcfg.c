@@ -258,12 +258,14 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
     }
   else if (a->proto & SVZ_PROTO_PIPE && a->proto == b->proto)
     {
+#define XNAME(p,member)  SVZ_CFG_PIPE (p, member).name
       /*
        * Two pipe configs are equal if they use the same files.
        */
-      if (!strcmp (a->pipe_recv.name, b->pipe_recv.name) &&
-          !strcmp (a->pipe_send.name, b->pipe_send.name))
+      if (!strcmp (XNAME (a, recv), XNAME (b, recv)) &&
+          !strcmp (XNAME (a, send), XNAME (b, send)))
         return SVZ_PORTCFG_EQUAL;
+#undef XNAME
     }
 
   /* Do not even the same proto flag -> cannot be equal.  */
@@ -416,13 +418,17 @@ svz_portcfg_dup (svz_portcfg_t *port)
       copy->raw_device = svz_strdup (port->raw_device);
       break;
     case SVZ_PROTO_PIPE:
-      copy->pipe_recv.name = svz_strdup (port->pipe_recv.name);
-      copy->pipe_recv.user = svz_strdup (port->pipe_recv.user);
-      copy->pipe_recv.group = svz_strdup (port->pipe_recv.group);
-      copy->pipe_send.name = svz_strdup (port->pipe_send.name);
-      copy->pipe_send.user = svz_strdup (port->pipe_send.user);
-      copy->pipe_send.group = svz_strdup (port->pipe_send.group);
+#define COPY(x)                                                         \
+      SVZ_CFG_PIPE (copy, x) = svz_strdup (SVZ_CFG_PIPE (port, x))
+
+      COPY (recv.name);
+      COPY (recv.user);
+      COPY (recv.group);
+      COPY (send.name);
+      COPY (send.user);
+      COPY (send.group);
       break;
+#undef COPY
     }
 
   copy->accepted = NULL;
@@ -464,13 +470,17 @@ svz_portcfg_free (svz_portcfg_t *port)
       svz_free (port->raw_device);
       break;
     case SVZ_PROTO_PIPE:
-      svz_free (port->pipe_recv.user);
-      svz_free (port->pipe_recv.name);
-      svz_free (port->pipe_recv.group);
-      svz_free (port->pipe_send.user);
-      svz_free (port->pipe_send.name);
-      svz_free (port->pipe_send.group);
+#define FREE(x)                                 \
+      svz_free (SVZ_CFG_PIPE (port, x))
+
+      FREE (recv.user);
+      FREE (recv.name);
+      FREE (recv.group);
+      FREE (send.user);
+      FREE (send.name);
+      FREE (send.group);
       break;
+#undef FREE
     }
 
   /* Destroy access and connection list.  */
@@ -700,28 +710,33 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       /* The pipe protocol needs a check for the validity of the permissions,
          the group and user names and its id's.  */
     case SVZ_PROTO_PIPE:
-      if (this->pipe_recv.name == NULL)
-        {
-          svz_log (SVZ_LOG_ERROR, "%s: no receiving pipe file given\n",
-                   this->name);
-          err = -1;
-        }
-      else
-        {
-          err |= svz_pipe_check_user (&this->pipe_recv);
-          err |= svz_pipe_check_group (&this->pipe_recv);
-        }
-      if (this->pipe_send.name == NULL)
-        {
-          svz_log (SVZ_LOG_ERROR, "%s: no sending pipe file given\n",
-                   this->name);
-          err = -1;
-        }
-      else
-        {
-          err |= svz_pipe_check_user (&this->pipe_send);
-          err |= svz_pipe_check_group (&this->pipe_send);
-        }
+      {
+        svz_pipe_t *r = &SVZ_CFG_PIPE (this, recv);
+        svz_pipe_t *s = &SVZ_CFG_PIPE (this, send);
+
+        if (r->name == NULL)
+          {
+            svz_log (SVZ_LOG_ERROR, "%s: no receiving pipe file given\n",
+                     this->name);
+            err = -1;
+          }
+        else
+          {
+            err |= svz_pipe_check_user (r);
+            err |= svz_pipe_check_group (r);
+          }
+        if (s->name == NULL)
+          {
+            svz_log (SVZ_LOG_ERROR, "%s: no sending pipe file given\n",
+                     this->name);
+            err = -1;
+          }
+        else
+          {
+            err |= svz_pipe_check_user (s);
+            err |= svz_pipe_check_group (s);
+          }
+      }
       break;
     default:
       err = 0;
@@ -832,7 +847,8 @@ svz_portcfg_text (svz_portcfg_t *port, int *lenp)
   /* PIPE */
   else if (port->proto & SVZ_PROTO_PIPE)
     len = snprintf (text, TEXT_SIZE, "PIPE:[%s]-[%s]",
-                    port->pipe_recv.name, port->pipe_send.name);
+                    SVZ_CFG_PIPE (port, recv.name),
+                    SVZ_CFG_PIPE (port, send.name));
   else
     {
       text[0] = '\0';
@@ -882,17 +898,16 @@ svz_portcfg_print (svz_portcfg_t *this, FILE *f)
                svz_inet_ntoa (this->raw_addr.sin_addr.s_addr));
       break;
     case SVZ_PROTO_PIPE:
-      fprintf (f, "portcfg `%s': PIPE "
-               "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)<->"
-               "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)\n", this->name,
-               this->pipe_recv.name,
-               this->pipe_recv.user, this->pipe_recv.uid,
-               this->pipe_recv.group, this->pipe_recv.gid,
-               this->pipe_recv.perm,
-               this->pipe_send.name,
-               this->pipe_send.user, this->pipe_send.uid,
-               this->pipe_send.group, this->pipe_send.gid,
-               this->pipe_send.perm);
+      {
+        svz_pipe_t *r = &SVZ_CFG_PIPE (this, recv);
+        svz_pipe_t *s = &SVZ_CFG_PIPE (this, send);
+
+        fprintf (f, "portcfg `%s': PIPE "
+                 "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)<->"
+                 "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)\n", this->name,
+                 r->name, r->user, r->uid, r->group, r->gid, r->perm,
+                 s->name, s->user, s->uid, s->group, s->gid, s->perm);
+      }
       break;
     default:
       fprintf (f, "portcfg has invalid proto field %d\n", this->proto);

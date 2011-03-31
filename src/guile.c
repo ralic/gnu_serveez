@@ -1243,10 +1243,12 @@ guile_define_port (SCM name, SCM args)
       p = optionhash_get (options, PORTCFG_RECV);
       if ((str = guile_to_string (p)) != NULL)
         {
-          cfg->pipe_recv.name = svz_strdup (str);
-          cfg->pipe_recv.gid = (unsigned int) -1;
-          cfg->pipe_recv.uid = (unsigned int) -1;
-          cfg->pipe_recv.perm = (unsigned int) -1;
+          svz_pipe_t *r = &SVZ_CFG_PIPE (cfg, recv);
+
+          r->name = svz_strdup (str);
+          r->gid = (unsigned int) -1;
+          r->uid = (unsigned int) -1;
+          r->perm = (unsigned int) -1;
           scm_c_free (str);
         }
       /* Create local optionhash for receiving pipe direction.  */
@@ -1263,7 +1265,7 @@ guile_define_port (SCM name, SCM args)
       else
         {
           err |= optionhash_extract_pipe (poptions, PORTCFG_RECV,
-                                          &(cfg->pipe_recv), action);
+                                          &SVZ_CFG_PIPE (cfg, recv), action);
           optionhash_destroy (poptions);
         }
 
@@ -1274,10 +1276,12 @@ guile_define_port (SCM name, SCM args)
       p = optionhash_get (options, PORTCFG_SEND);
       if ((str = guile_to_string (p)) != NULL)
         {
-          cfg->pipe_send.name = svz_strdup (str);
-          cfg->pipe_send.gid = (unsigned int) -1;
-          cfg->pipe_send.uid = (unsigned int) -1;
-          cfg->pipe_send.perm = (unsigned int) -1;
+          svz_pipe_t *s = &SVZ_CFG_PIPE (cfg, send);
+
+          s->name = svz_strdup (str);
+          s->gid = (unsigned int) -1;
+          s->uid = (unsigned int) -1;
+          s->perm = (unsigned int) -1;
           scm_c_free (str);
         }
       else if (SCM_EQ_P (p, SCM_UNSPECIFIED))
@@ -1293,7 +1297,7 @@ guile_define_port (SCM name, SCM args)
       else
         {
           err |= optionhash_extract_pipe (poptions, PORTCFG_SEND,
-                                          &(cfg->pipe_send), action);
+                                          &SVZ_CFG_PIPE (cfg, send), action);
           optionhash_destroy (poptions);
         }
     }

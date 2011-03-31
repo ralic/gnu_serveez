@@ -153,8 +153,7 @@ svz_portcfg_t;
 #define raw_ipaddr protocol.raw.ipaddr
 #define raw_device protocol.raw.device
 
-#define pipe_recv protocol.pipe.recv
-#define pipe_send protocol.pipe.send
+#define SVZ_CFG_PIPE(portcfg,x)    (portcfg->protocol.pipe.x)
 
 __BEGIN_DECLS
 SBO void svz_portcfg_free (svz_portcfg_t *);

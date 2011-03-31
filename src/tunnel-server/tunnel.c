@@ -316,17 +316,19 @@ tnl_create_socket (svz_socket_t *sock, int source)
   /* target is a pipe connection */
   else if (sock->userflags & TNL_FLAG_TGT_PIPE)
     {
-      if ((xsock = svz_pipe_connect (&cfg->target->pipe_recv,
-                                     &cfg->target->pipe_send)) == NULL)
+      svz_pipe_t *r = &SVZ_CFG_PIPE (cfg->target, recv);
+      svz_pipe_t *s = &SVZ_CFG_PIPE (cfg->target, send);
+
+      if ((xsock = svz_pipe_connect (r, s)) == NULL)
         {
           svz_log (SVZ_LOG_ERROR, "tunnel: pipe: cannot connect to %s\n",
-                   cfg->target->pipe_send.name);
+                   s->name);
           return NULL;
         }
 
 #if ENABLE_DEBUG
       svz_log (SVZ_LOG_DEBUG, "tunnel: pipe: connecting to %s\n",
-               cfg->target->pipe_send.name);
+               s->name);
 #endif /* ENABLE_DEBUG */
       xsock->check_request = tnl_check_request_pipe_target;
       resize_buffers (xsock);

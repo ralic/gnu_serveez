@@ -568,7 +568,9 @@ svz_server_create (svz_portcfg_t *port)
   if (port->proto & SVZ_PROTO_PIPE)
     {
       sock->read_socket = svz_pipe_accept;
-      if (svz_pipe_listener (sock, &port->pipe_recv, &port->pipe_send) == -1)
+      if (svz_pipe_listener (sock,
+                             &SVZ_CFG_PIPE (port, recv),
+                             &SVZ_CFG_PIPE (port, send)) == -1)
         {
           svz_sock_free (sock);
           return NULL;
