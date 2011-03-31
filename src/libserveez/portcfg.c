@@ -65,6 +65,92 @@ no_ip_p (const char *addr)
 static svz_hash_t *svz_portcfgs = NULL;
 
 /*
+ * Return the pointer of the @code{sockaddr_in} structure of the given
+ * port configuration @var{port} if it is a network port configuration.
+ * Otherwise return @code{NULL}.
+ */
+struct sockaddr_in *
+svz_portcfg_addr (svz_portcfg_t *port)
+{
+#define SIMPLE(up,dn)                                           \
+  case SVZ_PROTO_ ## up :  return &port->protocol. dn .addr
+
+  switch (port->proto)
+    {
+      SIMPLE (TCP, tcp);
+      SIMPLE (UDP, udp);
+      SIMPLE (ICMP, icmp);
+      SIMPLE (RAW, raw);
+    default: return NULL;
+    }
+#undef SIMPLE
+}
+
+/*
+ * Return the pointer to the ip address @code{ipaddr} of the given
+ * port configuration @var{port} if it is a network port configuration.
+ * Otherwise return @code{NULL}.
+ */
+char *
+svz_portcfg_ipaddr (svz_portcfg_t *port)
+{
+#define SIMPLE(up,dn)                                           \
+  case SVZ_PROTO_ ## up :  return port->protocol. dn .ipaddr
+
+  switch (port->proto)
+    {
+      SIMPLE (TCP, tcp);
+      SIMPLE (UDP, udp);
+      SIMPLE (ICMP, icmp);
+      SIMPLE (RAW, raw);
+    default: return NULL;
+    }
+#undef SIMPLE
+}
+
+/*
+ * Return the network device name stored in the given port
+ * configuration @var{port} if it is a network port configuration.  The
+ * returned pointer can be @code{NULL} if there is no such device set
+ * or if the port configuration is not a network port configuration.
+ */
+char *
+svz_portcfg_device (svz_portcfg_t *port)
+{
+#define SIMPLE(up,dn)                                           \
+  case SVZ_PROTO_ ## up :  return port->protocol. dn .device
+
+  switch (port->proto)
+    {
+      SIMPLE (TCP, tcp);
+      SIMPLE (UDP, udp);
+      SIMPLE (ICMP, icmp);
+      SIMPLE (RAW, raw);
+    default: return NULL;
+    }
+#undef SIMPLE
+}
+
+/*
+ * Return the UDP or TCP port of the given port configuration or zero
+ * if it neither TCP nor UDP.
+ */
+unsigned short
+svz_portcfg_port (svz_portcfg_t *port)
+{
+#define SIMPLE(up,dn)                                           \
+  case SVZ_PROTO_ ## up :  return port->protocol. dn .port
+
+  switch (port->proto)
+    {
+      SIMPLE (TCP, tcp);
+      SIMPLE (UDP, udp);
+    default: return 0;
+    }
+#undef SIMPLE
+}
+
+/*
  * Create a new blank port configuration.
  */
 svz_portcfg_t *

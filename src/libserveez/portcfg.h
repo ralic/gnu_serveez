@@ -156,53 +156,16 @@ svz_portcfg_t;
 #define pipe_recv protocol.pipe.recv
 #define pipe_send protocol.pipe.send
 
-/*
- * Return the pointer of the @code{sockaddr_in} structure of the given
- * port configuration @var{port} if it is a network port configuration.
- * Otherwise return @code{NULL}.
- */
-#define svz_portcfg_addr(port)                                          \
-  (((port)->proto & SVZ_PROTO_TCP) ? &((port)->tcp_addr) :              \
-   ((port)->proto & SVZ_PROTO_UDP) ? &((port)->udp_addr) :              \
-   ((port)->proto & SVZ_PROTO_ICMP) ? &((port)->icmp_addr) :            \
-   ((port)->proto & SVZ_PROTO_RAW) ? &((port)->raw_addr) : NULL)
-
-/*
- * Return the pointer to the ip address @code{ipaddr} of the given
- * port configuration @var{port} if it is a network port configuration.
- * Otherwise return @code{NULL}.
- */
-#define svz_portcfg_ipaddr(port)                                \
-  (((port)->proto & SVZ_PROTO_TCP) ? (port)->tcp_ipaddr :       \
-   ((port)->proto & SVZ_PROTO_UDP) ? (port)->udp_ipaddr :       \
-   ((port)->proto & SVZ_PROTO_ICMP) ? (port)->icmp_ipaddr :     \
-   ((port)->proto & SVZ_PROTO_RAW) ? (port)->raw_ipaddr : NULL)
-
-/*
- * This macro returns the network device name stored in the given port
- * configuration @var{port} if it is a network port configuration.  The
- * returned pointer can be @code{NULL} if there is no such device set
- * or if the port configuration is not a network port configuration.
- */
-#define svz_portcfg_device(port)                                \
-  (((port)->proto & SVZ_PROTO_TCP) ? (port)->tcp_device :       \
-   ((port)->proto & SVZ_PROTO_UDP) ? (port)->udp_device :       \
-   ((port)->proto & SVZ_PROTO_ICMP) ? (port)->icmp_device :     \
-   ((port)->proto & SVZ_PROTO_RAW) ? (port)->raw_device : NULL)
-
-/*
- * Return the UDP or TCP port of the given port configuration or zero
- * if it neither TCP nor UDP.
- */
-#define svz_portcfg_port(port)                                  \
-  (((port)->proto & SVZ_PROTO_TCP) ? (port)->tcp_port :         \
-   ((port)->proto & SVZ_PROTO_UDP) ? (port)->udp_port : 0)
-
 __BEGIN_DECLS
 SBO void svz_portcfg_free (svz_portcfg_t *);
 SBO void svz_portcfg_prepare (svz_portcfg_t *);
 SBO char *svz_portcfg_text (svz_portcfg_t *, int *);
 SBO svz_array_t *svz_portcfg_expand (svz_portcfg_t *);
+
+SERVEEZ_API struct sockaddr_in *svz_portcfg_addr (svz_portcfg_t *);
+SERVEEZ_API char *svz_portcfg_ipaddr (svz_portcfg_t *);
+SERVEEZ_API char *svz_portcfg_device (svz_portcfg_t *);
+SERVEEZ_API unsigned short svz_portcfg_port (svz_portcfg_t *);
 
 SERVEEZ_API svz_portcfg_t *svz_portcfg_create (void);
 SERVEEZ_API int svz_portcfg_equal (svz_portcfg_t *, svz_portcfg_t *);

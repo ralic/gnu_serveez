@@ -84,7 +84,7 @@ HACKING libserveez API					-*- org -*-
     | [[file:icmp-socket.h][icmp-socket]]          |   |   | o |   |                |      |
     | [[file:ipdata.h][ipdata]]               | x |   | o |   |                |      |
     | [[file:server.h][server]]               |   |   |   |   |                | [[more-server][more]] |
-    | [[file:portcfg.h][portcfg]]              |   |   |   | o | (conv. macros) | [[more-portcfg][more]] |
+    | [[file:portcfg.h][portcfg]]              |   |   |   | x | (conv. macros) | [[more-portcfg][more]] |
     | [[file:cfg.h][cfg]]                  |   |   |   |   |                | [[more-cfg][more]] |
     | [[file:socket.h][socket]]               |   | x | o | o | (2 #define:s)  |      |
     | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |                |      |

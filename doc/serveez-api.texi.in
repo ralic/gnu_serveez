@@ -708,6 +708,11 @@ configurations: connection and packet oriented protocol port configurations.
 TCP and PIPE configurations are connection oriented and ICMP, UDP and
 RAW configurations are packet oriented.
 
+|F| svz_portcfg_addr
+|F| svz_portcfg_port
+|F| svz_portcfg_ipaddr
+|F| svz_portcfg_device
+
 Serveez holds a list of port configurations.  Each configuration is
 identified by its name.  When you bind a server to a port configuration it
 does not get bound to a certain name but to its content.  If there are two
@@ -722,10 +727,6 @@ configuration just a single one gets actually used.
 |F| svz_portcfg_mkaddr
 |F| svz_portcfg_print
 |F| svz_portcfg_dup
-|M| svz_portcfg_addr
-|M| svz_portcfg_port
-|M| svz_portcfg_ipaddr
-|M| svz_portcfg_device
 
 @node Booting
 @subsection Boot functions

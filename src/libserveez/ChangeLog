@@ -1,3 +1,13 @@
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Convert svz_portcfg_{addr,port,ipaddr,device} to functions.
+
+	* portcfg.h (svz_portcfg_addr, svz_portcfg_port)
+	(svz_portcfg_ipaddr, svz_portcfg_device):
+	Delete macros; add func decls, marked ‘SERVEEZ_API’.
+	* portcfg.c (svz_portcfg_addr, svz_portcfg_port)
+	(svz_portcfg_ipaddr, svz_portcfg_device): New funcs.
+
 2011-03-30  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘VSNPRINTF_BUF_SIZE’.
