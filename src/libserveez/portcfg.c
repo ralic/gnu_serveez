@@ -322,8 +322,8 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
   switch (this->proto)
     {
     case SVZ_PROTO_TCP:
-      svz_free_and_zero (this->tcp_ipaddr);
-      this->tcp_ipaddr = ipaddr;
+      svz_free_and_zero (SVZ_CFG_TCP (this, ipaddr));
+      SVZ_CFG_TCP (this, ipaddr) = ipaddr;
       break;
     case SVZ_PROTO_UDP:
       svz_free_and_zero (SVZ_CFG_UDP (this, ipaddr));
@@ -402,8 +402,8 @@ svz_portcfg_dup (svz_portcfg_t *port)
   switch (port->proto)
     {
     case SVZ_PROTO_TCP:
-      copy->tcp_ipaddr = svz_strdup (port->tcp_ipaddr);
-      copy->tcp_device = svz_strdup (port->tcp_device);
+      SVZ_CFG_TCP (copy, ipaddr) = svz_strdup (SVZ_CFG_TCP (port, ipaddr));
+      SVZ_CFG_TCP (copy, device) = svz_strdup (SVZ_CFG_TCP (port, device));
       break;
     case SVZ_PROTO_UDP:
       SVZ_CFG_UDP (copy, ipaddr) = svz_strdup (SVZ_CFG_UDP (port, ipaddr));
@@ -454,8 +454,8 @@ svz_portcfg_free (svz_portcfg_t *port)
   switch (port->proto)
     {
     case SVZ_PROTO_TCP:
-      svz_free (port->tcp_ipaddr);
-      svz_free (port->tcp_device);
+      svz_free (SVZ_CFG_TCP (port, ipaddr));
+      svz_free (SVZ_CFG_TCP (port, device));
       break;
     case SVZ_PROTO_UDP:
       svz_free (SVZ_CFG_UDP (port, ipaddr));
@@ -594,38 +594,40 @@ svz_portcfg_mkaddr (svz_portcfg_t *this)
       /* For all network protocols we assign AF_INET as protocol family,
          determine the network port (if necessary) and put the ip address.  */
     case SVZ_PROTO_TCP:
-      this->tcp_addr.sin_family = AF_INET;
+      ip = SVZ_CFG_TCP (this, ipaddr);
+      sa = &SVZ_CFG_TCP (this, addr);
+      sa->sin_family = AF_INET;
       if (svz_portcfg_device (this))
         {
           this->flags |= PORTCFG_FLAG_DEVICE;
-          this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
-      else if (this->tcp_ipaddr == NULL)
+      else if (ip == NULL)
         {
           svz_log (SVZ_LOG_ERROR, "%s: no TCP/IP address given\n", this->name);
           err = -1;
         }
-      else if (any_p (this->tcp_ipaddr))
+      else if (any_p (ip))
         {
           this->flags |= PORTCFG_FLAG_ANY;
-          this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
-      else if (no_ip_p (this->tcp_ipaddr))
+      else if (no_ip_p (ip))
         {
           this->flags |= PORTCFG_FLAG_ALL;
-          this->tcp_addr.sin_addr.s_addr = INADDR_ANY;
+          sa->sin_addr.s_addr = INADDR_ANY;
         }
       else
         {
-          err = svz_portcfg_convert_addr (this->tcp_ipaddr, &this->tcp_addr);
+          err = svz_portcfg_convert_addr (ip, sa);
           if (err)
             {
               svz_log (SVZ_LOG_ERROR, "%s: `%s' is not a valid IP address\n",
-                       this->name, this->tcp_ipaddr);
+                       this->name, ip);
             }
         }
-      this->tcp_addr.sin_port = htons (this->tcp_port);
-      if (this->tcp_backlog > SOMAXCONN)
+      sa->sin_port = htons (SVZ_CFG_TCP (this, port));
+      if (SVZ_CFG_TCP (this, backlog) > SOMAXCONN)
         {
           svz_log (SVZ_LOG_ERROR, "%s: TCP backlog out of range (1..%d)\n",
                    this->name, SOMAXCONN);
@@ -761,8 +763,9 @@ svz_portcfg_prepare (svz_portcfg_t *port)
   /* Check the TCP backlog value.  */
   if (port->proto & SVZ_PROTO_TCP)
     {
-      if (port->tcp_backlog <= 0 || port->tcp_backlog > SOMAXCONN)
-        port->tcp_backlog = SOMAXCONN;
+      if (SVZ_CFG_TCP (port, backlog) <= 0
+          || SVZ_CFG_TCP (port, backlog) > SOMAXCONN)
+        SVZ_CFG_TCP (port, backlog) = SOMAXCONN;
     }
   /* Check the detection barriers for pipe and tcp sockets.  */
   if (port->proto & (SVZ_PROTO_PIPE | SVZ_PROTO_TCP))
@@ -884,9 +887,9 @@ svz_portcfg_print (svz_portcfg_t *this, FILE *f)
     {
     case SVZ_PROTO_TCP:
       fprintf (f, "portcfg `%s': TCP (%s|%s):%d\n", this->name,
-               this->tcp_ipaddr,
-               svz_inet_ntoa (this->tcp_addr.sin_addr.s_addr),
-               this->tcp_port);
+               SVZ_CFG_TCP (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_TCP (this, addr).sin_addr.s_addr),
+               SVZ_CFG_TCP (this, port));
       break;
     case SVZ_PROTO_UDP:
       fprintf (f, "portcfg `%s': UDP (%s|%s):%d\n", this->name,

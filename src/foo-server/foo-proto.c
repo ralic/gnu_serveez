@@ -197,11 +197,12 @@ foo_global_init (SVZ_UNUSED svz_servertype_t *server)
     "GNU",   "good",
     NULL
   };
+  svz_portcfg_t *d = &foo_default_port;
 
   /* Default port configuration.  */
   foo_default_port.proto = SVZ_PROTO_TCP;
-  foo_default_port.tcp_port = 42421;
-  foo_default_port.tcp_ipaddr = "*";
+  SVZ_CFG_TCP (d, port) = 42421;
+  SVZ_CFG_TCP (d, ipaddr) = "*";
 
   /* Default string array.  */
   foo_config.messages = svz_config_strarray_create (strarray);

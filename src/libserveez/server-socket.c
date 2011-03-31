@@ -519,7 +519,7 @@ svz_server_create (svz_portcfg_t *port)
       /* Prepare for listening on that port (if TCP).  */
       if (port->proto & SVZ_PROTO_TCP)
         {
-          if (listen (server_socket, port->tcp_backlog) < 0)
+          if (listen (server_socket, SVZ_CFG_TCP (port, backlog)) < 0)
             {
               svz_log_net_error ("listen");
               if (svz_closesocket (server_socket) < 0)
@@ -544,7 +544,7 @@ svz_server_create (svz_portcfg_t *port)
         {
           addr->sin_port = sock->local_port;
           if (port->proto & SVZ_PROTO_TCP)
-            port->tcp_port = ntohs (sock->local_port);
+            SVZ_CFG_TCP (port, port) = ntohs (sock->local_port);
           else
             SVZ_CFG_UDP (port, port) = ntohs (sock->local_port);
         }

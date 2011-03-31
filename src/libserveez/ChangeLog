@@ -1,5 +1,17 @@
 2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add macro: SVZ_CFG_TCP
+
+	* portcfg.h (SVZ_CFG_TCP): New macro.
+	(tcp_port, tcp_addr, tcp_ipaddr)
+	(tcp_device, tcp_backlog): Delete #define:s.
+	* portcfg.c (svz_portcfg_set_ipaddr)
+	(svz_portcfg_dup, svz_portcfg_free, svz_portcfg_mkaddr)
+	(svz_portcfg_prepare, svz_portcfg_print): Use ‘SVZ_CFG_TCP’.
+	* server-socket.c (svz_server_create): Likewise.
+
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add macro: SVZ_CFG_UDP
 
 	* portcfg.h (SVZ_CFG_UDP): New macro.

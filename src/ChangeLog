@@ -1,5 +1,13 @@
 2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add macro: SVZ_CFG_TCP
+
+	* foo-server/foo-proto.c (foo_global_init): Use ‘SVZ_CFG_TCP’.
+	* guile.c (guile_define_port): Likewise.
+	* irc-server/irc-proto.c (irc_check_tcp_bindings): Likewise.
+
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add macro: SVZ_CFG_UDP
 
 	* guile.c (guile_define_port): Use ‘SVZ_CFG_UDP’.

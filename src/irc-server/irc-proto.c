@@ -207,11 +207,11 @@ irc_check_tcp_bindings (svz_server_t *server)
           err = -1;
         }
       /* Does the `M-line' entry clash with this port configuration?  */
-      else if (port->tcp_port != cfg->port)
+      else if (SVZ_CFG_TCP (port, port) != cfg->port)
         {
           svz_log (SVZ_LOG_WARNING, "irc: port TCP:%u in M line clashes `%s'\n",
                    cfg->port, port->name);
-          cfg->port = port->tcp_port;
+          cfg->port = SVZ_CFG_TCP (port, port);
           err = -1;
         }
     }

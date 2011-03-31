@@ -1174,14 +1174,14 @@ guile_define_port (SCM name, SCM args)
       err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0,
                                      &port, action);
       GUILE_VALIDATE_PORT (port, "TCP", portname);
-      cfg->tcp_port = (unsigned short) port;
+      SVZ_CFG_TCP (cfg, port) = (unsigned short) port;
       err |= optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0,
-                                     &(cfg->tcp_backlog), action);
+                                     &SVZ_CFG_TCP (cfg, backlog), action);
       err |= optionhash_extract_string (options, PORTCFG_IP, 1,
                                         SVZ_PORTCFG_NOIP,
-                                        &(cfg->tcp_ipaddr), action);
+                                        &SVZ_CFG_TCP (cfg, ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->tcp_device), action);
+                                        &SVZ_CFG_TCP (cfg, device), action);
     }
   /* Maybe UDP?  */
   else if (!strcmp (proto, PORTCFG_UDP))

@@ -133,12 +133,7 @@ svz_portcfg_t;
 /*
  * Accessor definitions for each type of protocol.
  */
-#define tcp_port protocol.tcp.port
-#define tcp_addr protocol.tcp.addr
-#define tcp_ipaddr protocol.tcp.ipaddr
-#define tcp_device protocol.tcp.device
-#define tcp_backlog protocol.tcp.backlog
-
+#define SVZ_CFG_TCP(portcfg,x)     (portcfg->protocol.tcp.x)
 #define SVZ_CFG_UDP(portcfg,x)     (portcfg->protocol.udp.x)
 #define SVZ_CFG_ICMP(portcfg,x)    (portcfg->protocol.icmp.x)
 #define SVZ_CFG_RAW(portcfg,x)     (portcfg->protocol.raw.x)
