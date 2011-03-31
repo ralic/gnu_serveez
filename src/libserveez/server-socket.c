@@ -595,7 +595,7 @@ svz_server_create (svz_portcfg_t *port)
           sock->read_socket = svz_icmp_lazy_read_socket;
           sock->write_socket = svz_icmp_write_socket;
           sock->check_request = svz_icmp_check_request;
-          sock->itype = port->icmp_type;
+          sock->itype = SVZ_CFG_ICMP (port, type);
         }
     }
   svz_log (SVZ_LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port, NULL));

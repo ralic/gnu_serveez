@@ -1,5 +1,17 @@
 2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add macro: SVZ_CFG_ICMP
+
+	* portcfg.h (SVZ_CFG_ICMP): New macro.
+	(icmp_addr, icmp_ipaddr, icmp_device, icmp_type): Delete #define:s.
+	* portcfg.c (svz_portcfg_equal)
+	(svz_portcfg_set_ipaddr, svz_portcfg_dup, svz_portcfg_free)
+	(svz_portcfg_mkaddr, svz_portcfg_text, svz_portcfg_print):
+	Use ‘SVZ_CFG_ICMP’.
+	* server-socket.c (svz_server_create): Likewise.
+
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add macro: SVZ_CFG_RAW
 
 	* portcfg.h (SVZ_CFG_RAW): New macro.

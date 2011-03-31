@@ -1205,9 +1205,9 @@ guile_define_port (SCM name, SCM args)
       cfg->proto = SVZ_PROTO_ICMP;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1,
                                         SVZ_PORTCFG_NOIP,
-                                        &(cfg->icmp_ipaddr), action);
+                                        &SVZ_CFG_ICMP (cfg, ipaddr), action);
       err |= optionhash_extract_string (options, PORTCFG_DEVICE, 1, NULL,
-                                        &(cfg->icmp_device), action);
+                                        &SVZ_CFG_ICMP (cfg, device), action);
       err |= optionhash_extract_int (options, PORTCFG_TYPE, 1,
                                      SVZ_ICMP_SERVEEZ, &type, action);
       if (type & ~0xff)
@@ -1216,7 +1216,7 @@ guile_define_port (SCM name, SCM args)
                        PORTCFG_TYPE, action);
           err = -1;
         }
-      cfg->icmp_type = (unsigned char) (type & 0xff);
+      SVZ_CFG_ICMP (cfg, type) = (unsigned char) (type & 0xff);
     }
   /* Maybe RAW?  */
   else if (!strcmp (proto, PORTCFG_RAW))

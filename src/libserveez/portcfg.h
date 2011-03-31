@@ -144,11 +144,7 @@ svz_portcfg_t;
 #define udp_ipaddr protocol.udp.ipaddr
 #define udp_device protocol.udp.device
 
-#define icmp_addr protocol.icmp.addr
-#define icmp_ipaddr protocol.icmp.ipaddr
-#define icmp_device protocol.icmp.device
-#define icmp_type protocol.icmp.type
-
+#define SVZ_CFG_ICMP(portcfg,x)    (portcfg->protocol.icmp.x)
 #define SVZ_CFG_RAW(portcfg,x)     (portcfg->protocol.raw.x)
 #define SVZ_CFG_PIPE(portcfg,x)    (portcfg->protocol.pipe.x)
 

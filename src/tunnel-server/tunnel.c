@@ -296,7 +296,8 @@ tnl_create_socket (svz_socket_t *sock, int source)
   /* target is an ICMP connection */
   else if (sock->userflags & TNL_FLAG_TGT_ICMP)
     {
-      if ((xsock = svz_icmp_connect (ip, port, cfg->target->icmp_type))
+      if ((xsock = svz_icmp_connect (ip, port, SVZ_CFG_ICMP
+                                     (cfg->target, type)))
           == NULL)
         {
           svz_log (SVZ_LOG_ERROR, "tunnel: icmp: cannot connect to %s\n",
