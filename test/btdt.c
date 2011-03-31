@@ -616,11 +616,12 @@ struct it_test
 };
 
 void
-hash_count (SVZ_UNUSED void *k, void *v, void *closure)
+hash_count (void *k, void *v, void *closure)
 {
   struct it_test *x = closure;
 
-  x->k_count++;
+  if (k)
+    x->k_count++;
   x->v_acc += (long) v;
 }
 
