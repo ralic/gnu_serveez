@@ -1,5 +1,13 @@
 2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Fix bug: Compare correct filenames in ‘svz_portcfg_equal’.
+
+	* portcfg.c (svz_portcfg_equal):
+	For protocol ‘pipe’, compare a's ‘send’ against
+	b's ‘send’ instead of b's ‘send’ against itself.
+
+2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Convert svz_portcfg_{addr,port,ipaddr,device} to functions.
 
 	* portcfg.h (svz_portcfg_addr, svz_portcfg_port)

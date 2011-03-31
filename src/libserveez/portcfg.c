@@ -262,7 +262,7 @@ svz_portcfg_equal (svz_portcfg_t *a, svz_portcfg_t *b)
        * Two pipe configs are equal if they use the same files.
        */
       if (!strcmp (a->pipe_recv.name, b->pipe_recv.name) &&
-          !strcmp (b->pipe_send.name, b->pipe_send.name))
+          !strcmp (a->pipe_send.name, b->pipe_send.name))
         return SVZ_PORTCFG_EQUAL;
     }
 
