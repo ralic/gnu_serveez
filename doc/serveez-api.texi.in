@@ -509,7 +509,6 @@ main server loop and shut it down afterwards by calling
 |F| svz_coserver_destroy
 |F| svz_coserver_create
 |F| svz_coserver_type_name
-|F| svz_coserver_send_request
 
 |F| svz_coserver_rdns_invoke
 |M| svz_coserver_rdns

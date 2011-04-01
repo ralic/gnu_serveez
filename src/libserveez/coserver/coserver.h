@@ -94,9 +94,6 @@ SERVEEZ_API int svz_coserver_finalize (void);
 SERVEEZ_API void svz_coserver_destroy (int);
 SERVEEZ_API svz_coserver_t *svz_coserver_create (int);
 SERVEEZ_API const char *svz_coserver_type_name (const svz_coserver_t *);
-SERVEEZ_API void svz_coserver_send_request (int, char *,
-                                            svz_coserver_handle_result_t,
-                                            void *, void *);
 
 /*
  * These are the three wrappers for our existing coservers.

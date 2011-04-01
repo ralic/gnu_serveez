@@ -85,6 +85,78 @@ svz_coservertype_t;
 static unsigned svz_coserver_callback_id = 1;
 static svz_hash_t *svz_coserver_callbacks = NULL;
 
+/*
+ * Internal coserver instances.
+ */
+static svz_array_t *svz_coservers = NULL;
+
+/*
+ * Invoke a @var{request} for one of the running internal coservers
+ * with type @var{type}.  @var{handle_result} and @var{arg} specify what
+ * should happen if the coserver delivers a result.
+ */
+static void
+svz_coserver_send_request (int type, char *request,
+                           svz_coserver_handle_result_t handle_result,
+                           void *arg0, void *arg1)
+{
+  int n, busy;
+  svz_coserver_t *coserver, *current;
+  svz_coserver_callback_t *cb;
+
+  /*
+   * Go through all coservers and find out which coserver
+   * type TYPE is the least busiest.
+   */
+  coserver = NULL;
+  svz_array_foreach (svz_coservers, current, n)
+    {
+      if (current->type == type)
+        {
+          if (coserver == NULL)
+            {
+              coserver = current;
+              busy = coserver->busy;
+            }
+          else if (current->busy <= coserver->busy)
+            {
+              coserver = current;
+              busy = coserver->busy;
+            }
+        }
+    }
+
+  /* found an appropriate coserver */
+  if (coserver)
+    {
+      /*
+       * Create new callback hash entry for this coserver request and
+       * put it into the global coserver callback hash.
+       */
+      cb = svz_malloc (sizeof (svz_coserver_callback_t));
+      cb->handle_result = handle_result;
+      cb->arg[0] = arg0;
+      cb->arg[1] = arg1;
+      svz_hash_put (svz_coserver_callbacks,
+                    svz_itoa (svz_coserver_callback_id), cb);
+
+      coserver->busy++;
+#ifdef __MINGW32__
+      EnterCriticalSection (&coserver->sync);
+#endif /* __MINGW32__ */
+      if (svz_sock_printf (coserver->sock, "%u:%s\n",
+                           svz_coserver_callback_id, request))
+        {
+          svz_sock_schedule_for_shutdown (coserver->sock);
+        }
+      svz_coserver_callback_id++;
+#ifdef __MINGW32__
+      LeaveCriticalSection (&coserver->sync);
+      svz_coserver_activate (coserver->type);
+#endif /* __MINGW32__ */
+    }
+}
+
 /* coserver-TODO:
    place an appropiate wrapper function here */
 
@@ -144,11 +216,6 @@ static svz_coservertype_t svz_coservertypes[] =
   { SVZ_COSERVER_DNS, "dns",
     dns_handle_request, 1, NULL, 0 }
 };
-
-/*
- * Internal coserver instances.
- */
-static svz_array_t *svz_coservers = NULL;
 
 /*
  * Call @var{func} for each coserver, passing additionally the second arg
@@ -1075,71 +1142,4 @@ svz_coserver_finalize (void)
   /* Destroy all callbacks left so far.  */
   svz_hash_destroy (svz_coserver_callbacks);
   return 0;
-}
-
-/*
- * Invoke a @var{request} for one of the running internal coservers
- * with type @var{type}.  @var{handle_result} and @var{arg} specify what
- * should happen if the coserver delivers a result.
- */
-void
-svz_coserver_send_request (int type, char *request,
-                           svz_coserver_handle_result_t handle_result,
-                           void *arg0, void *arg1)
-{
-  int n, busy;
-  svz_coserver_t *coserver, *current;
-  svz_coserver_callback_t *cb;
-
-  /*
-   * Go through all coservers and find out which coserver
-   * type TYPE is the least busiest.
-   */
-  coserver = NULL;
-  svz_array_foreach (svz_coservers, current, n)
-    {
-      if (current->type == type)
-        {
-          if (coserver == NULL)
-            {
-              coserver = current;
-              busy = coserver->busy;
-            }
-          else if (current->busy <= coserver->busy)
-            {
-              coserver = current;
-              busy = coserver->busy;
-            }
-        }
-    }
-
-  /* found an appropriate coserver */
-  if (coserver)
-    {
-      /*
-       * Create new callback hash entry for this coserver request and
-       * put it into the global coserver callback hash.
-       */
-      cb = svz_malloc (sizeof (svz_coserver_callback_t));
-      cb->handle_result = handle_result;
-      cb->arg[0] = arg0;
-      cb->arg[1] = arg1;
-      svz_hash_put (svz_coserver_callbacks,
-                    svz_itoa (svz_coserver_callback_id), cb);
-
-      coserver->busy++;
-#ifdef __MINGW32__
-      EnterCriticalSection (&coserver->sync);
-#endif /* __MINGW32__ */
-      if (svz_sock_printf (coserver->sock, "%u:%s\n",
-                           svz_coserver_callback_id, request))
-        {
-          svz_sock_schedule_for_shutdown (coserver->sock);
-        }
-      svz_coserver_callback_id++;
-#ifdef __MINGW32__
-      LeaveCriticalSection (&coserver->sync);
-      svz_coserver_activate (coserver->type);
-#endif /* __MINGW32__ */
-    }
 }
