@@ -1,5 +1,21 @@
 2011-04-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[guile] Make svz:coserver:* procs not accept optional arg.
+
+	* guile-api.c (validate_callback): New static func.
+	(VALIDATE_CALLBACK): New macro.
+	(guile_coserver_callback): Change type of arg 2 and 3 to
+	‘void *’; mark arg 3 ‘SVZ_UNUSED’; extract ‘SCM callback’
+	locally; call the callback with one arg unconditionally.
+	(ENQ_COSERVER_REQUEST): New macro.
+	(guile_coserver_dns): Don't take optional 2nd arg;
+	use ‘VALIDATE_CALLBACK’, ‘ENQ_COSERVER_REQUEST’.
+	(guile_coserver_rdns, guile_coserver_ident): Likewise.
+	(guile_api_init): Specify req:opt:var values 2:0:0 for procs
+	‘svz:coserver:dns’, ‘svz:coserver:reverse-dns’, ‘svz:coserver:ident’.
+
+2011-04-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[scheme] Avoid arg in coserver kick; use a closure instead.
 
 	* guile-server/icecast-server.scm (icecast-connect-socket):

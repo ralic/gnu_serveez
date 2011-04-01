@@ -915,62 +915,64 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
 #undef FUNC_NAME
 #endif /* HAVE_PMAP_SET && HAVE_PMAP_UNSET */
 
+/* Validate @var{callback}; protect it from gc.  */
+static void
+validate_callback (SCM callback, const char *who)
+{
+  SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback,
+                   SCM_ARG2, who, "procedure");
+  /* TODO: Check arity.  */
+
+  /* Protect callback from garbage collection meanwhile.  */
+  gi_gc_protect (callback);
+}
+
+#define VALIDATE_CALLBACK(x)  validate_callback (x, FUNC_NAME)
+
 /* Callback wrapper for coserver responses.  */
 static int
-guile_coserver_callback (char *res, SCM callback, SCM arg)
+guile_coserver_callback (char *res, void *closure, SVZ_UNUSED void *arg1)
 {
+  SCM callback = (SCM) closure;
   int ret = -1;
 
   /* If successfully done, run the given Guile procedure.  */
   if (res != NULL)
     {
-      /* Run procedure with one argument only.  */
-      if (SCM_UNBNDP (arg))
-        guile_call (callback, 1, gi_string2scm (res));
-      /* Run procedure with both arguments.  */
-      else
-        guile_call (callback, 2, gi_string2scm (res), arg);
+      guile_call (callback, 1, gi_string2scm (res));
       ret = 0;
     }
 
-  /* Pass the values to garbage collection again.  */
-  if (!SCM_UNBNDP (arg))
-    gi_gc_unprotect (arg);
+  /* Pass the value to garbage collection again.  */
   gi_gc_unprotect (callback);
   return ret;
 }
 
+#define ENQ_COSERVER_REQUEST(req,coserver)      \
+  svz_coserver_ ## coserver ## _invoke          \
+  (req, guile_coserver_callback,                \
+   (void *) callback, NULL)
+
 /* This procedure enqueues the @var{host} string argument into the internal
    DNS coserver queue.  When the coserver responds, the Guile procedure
-   @var{callback} is run as @code{(callback addr arg)}.  The @var{addr}
+   @var{callback} is run as @code{(callback addr)}.  The @var{addr}
    argument passed to the callback is a string representing the appropriate
-   IP address for the given hostname @var{host}.  If you omit the optional
-   argument @var{arg} it is run as @code{(callback addr)} only.  The @var{arg}
-   argument may be necessary if you need to have the callback procedure
-   in a certain context.  */
+   IP address for the given hostname @var{host}.  */
 #define FUNC_NAME "svz:coserver:dns"
 SCM
-guile_coserver_dns (SCM host, SCM callback, SCM arg)
+guile_coserver_dns (SCM host, SCM callback)
 {
   char *request;
 
   /* Check argument list first.  */
   SCM_ASSERT_TYPE (SCM_STRINGP (host), host, SCM_ARG1, FUNC_NAME,
                    "string");
-  SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback, SCM_ARG2, FUNC_NAME,
-                   "procedure");
+  VALIDATE_CALLBACK (callback);
 
   /* Convert hostname into C string.  */
   request = guile_to_string (host);
 
-  /* Protect callback (Guile procedure) and arg (any Guile cell) from
-     garbage collection meanwhile.  */
-  gi_gc_protect (callback);
-  if (!SCM_UNBNDP (arg))
-    gi_gc_protect (arg);
-
-  /* Enqueue coserver request.  */
-  svz_coserver_dns (request, guile_coserver_callback, callback, arg);
+  ENQ_COSERVER_REQUEST (request, dns);
   scm_c_free (request);
   return SCM_UNSPECIFIED;
 }
@@ -979,59 +981,42 @@ guile_coserver_dns (SCM host, SCM callback, SCM arg)
 /* This Guile procedure enqueues the given @var{addr} argument which must be
    an IP address in network byte order into the internal reverse DNS coserver
    queue.  When the coserver responds, the Guile procedure @var{callback} is
-   run as @code{(callback host arg)} where @var{host} is the hostname of the
-   requested IP address @var{addr}.  The last argument @var{arg} is
-   optional.  */
+   run as @code{(callback host)} where @var{host} is the hostname of the
+   requested IP address @var{addr}.  */
 #define FUNC_NAME "svz:coserver:reverse-dns"
 SCM
-guile_coserver_rdns (SCM addr, SCM callback, SCM arg)
+guile_coserver_rdns (SCM addr, SCM callback)
 {
   unsigned long ip;
 
   /* Check argument list first.  */
   SCM_ASSERT_TYPE (SCM_INUMP (addr), addr, SCM_ARG1, FUNC_NAME, "INUMP");
-  SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback, SCM_ARG2, FUNC_NAME,
-                   "procedure");
+  VALIDATE_CALLBACK (callback);
 
   /* Convert IP address into C long value.  */
   ip = (unsigned long) SCM_NUM2ULONG (SCM_ARG1, addr);
 
-  /* Protect callback (Guile procedure) and arg (any Guile cell) from
-     garbage collection meanwhile.  */
-  gi_gc_protect (callback);
-  if (!SCM_UNBNDP (arg))
-    gi_gc_protect (arg);
-
-  /* Enqueue coserver request.  */
-  svz_coserver_rdns (ip, guile_coserver_callback, callback, arg);
+  ENQ_COSERVER_REQUEST (ip, rdns);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
 
 /* This procedure enqueues the given @code{#<svz-socket>} @var{sock} into the
    internal ident coserver queue.  When the coserver responds, it runs the
-   Guile procedure @var{callback} as @code{(callback user arg)} where
+   Guile procedure @var{callback} as @code{(callback user)} where
    @var{user} is the corresponding username for the client connection
-   @var{sock}.  The @var{arg} argument is optional.  */
+   @var{sock}.  */
 #define FUNC_NAME "svz:coserver:ident"
 SCM
-guile_coserver_ident (SCM sock, SCM callback, SCM arg)
+guile_coserver_ident (SCM sock, SCM callback)
 {
   svz_socket_t *xsock;
 
   /* Check argument list first.  */
   CHECK_SMOB_ARG (svz_socket, sock, SCM_ARG1, "svz-socket", xsock);
-  SCM_ASSERT_TYPE (SCM_PROCEDUREP (callback), callback, SCM_ARG2, FUNC_NAME,
-                   "procedure");
+  VALIDATE_CALLBACK (callback);
 
-  /* Protect callback (Guile procedure) and arg (any Guile cell) from
-     garbage collection meanwhile.  */
-  gi_gc_protect (callback);
-  if (!SCM_UNBNDP (arg))
-    gi_gc_protect (arg);
-
-  /* Enqueue coserver request.  */
-  svz_coserver_ident (xsock, guile_coserver_callback, callback, arg);
+  ENQ_COSERVER_REQUEST (xsock, ident);
   return SCM_UNSPECIFIED;
 }
 #undef FUNC_NAME
@@ -1221,11 +1206,11 @@ guile_api_init (void)
   scm_c_define_gsubr ("svz:sock:idle-counter",
                       1, 1, 0, guile_sock_idle_counter);
   scm_c_define_gsubr ("svz:coserver:dns",
-                      2, 1, 0, guile_coserver_dns);
+                      2, 0, 0, guile_coserver_dns);
   scm_c_define_gsubr ("svz:coserver:reverse-dns",
-                      2, 1, 0, guile_coserver_rdns);
+                      2, 0, 0, guile_coserver_rdns);
   scm_c_define_gsubr ("svz:coserver:ident",
-                      2, 1, 0, guile_coserver_ident);
+                      2, 0, 0, guile_coserver_ident);
   scm_c_define_gsubr ("svz:read-file", 2, 0, 0, guile_read_file);
   scm_c_define_gsubr ("svz:sock:send-oob", 2, 0, 0, guile_sock_send_oob);
 
