@@ -1,3 +1,11 @@
+2011-04-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[scheme] Avoid arg in coserver kick; use a closure instead.
+
+	* guile-server/icecast-server.scm (icecast-connect-socket):
+	Use closures for reverse-dns and ident callbacks; omit arg.
+	(icecast-dns, icecast-ident): Delete procs.
+
 2011-03-31  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add macro: SVZ_CFG_TCP

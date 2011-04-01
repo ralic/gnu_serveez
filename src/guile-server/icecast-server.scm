@@ -144,9 +144,19 @@
                                (svz:server:config-ref server "buffer-size"))
 
     ;; start coserver callbacks
-    (svz:coserver:reverse-dns (car (svz:sock:remote-address sock))
-                              icecast-dns (svz:sock:ident sock))
-    (svz:coserver:ident sock icecast-ident (svz:sock:ident sock))
+    (let ((ident (svz:sock:ident sock)))
+
+      (define ((save! k) v)
+        (and=> (svz:sock:find ident)
+               (lambda (sock)
+                 (hash-set! (svz:sock:data sock) k v))))
+
+      (define (kick! key input coserver)
+        (coserver input (save! key)))
+
+      (kick! "host" (car (svz:sock:remote-address sock))
+             svz:coserver:reverse-dns)
+      (kick! "user" sock svz:coserver:ident))
 
     ;; get first file
     (icecast-next-file sock)
@@ -277,21 +287,6 @@
               (begin
                 (hash-set! data "size" (- size 128))
                 (println "icecast: stripping ID3 tag of `" file "'")))))))
-
-
-;; reverse DNS callback
-(define (icecast-dns host ident)
-  (let ((sock (svz:sock:find ident)))
-    (if sock
-        (let ((data (svz:sock:data sock)))
-          (hash-set! data "host" host)))))
-
-;; ident callback
-(define (icecast-ident user ident)
-  (let ((sock (svz:sock:find ident)))
-    (if sock
-        (let ((data (svz:sock:data sock)))
-          (hash-set! data "user" user)))))
 
 ;; server type definitions
 (define-servertype! `(
