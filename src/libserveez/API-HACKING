@@ -90,7 +90,7 @@ HACKING libserveez API					-*- org -*-
     | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |                |      |
     | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |                |      |
     | [[file:codec/gzlib.h][codec/gzlib]]          | x |   |   |   |                |      |
-    | [[file:coserver/coserver.h][coserver/coserver]]    |   | x | o | o |                | [[more-coserver/coserver][more]] |
+    | [[file:coserver/coserver.h][coserver/coserver]]    |   | x | o | x |                | [[more-coserver/coserver][more]] |
     | [[file:coserver/dns.h][coserver/dns]]         | x |   |   |   |                |      |
     | [[file:coserver/ident.h][coserver/ident]]       | x |   |   |   |                |      |
     | [[file:coserver/reverse-dns.h][coserver/reverse-dns]] | x |   |   |   |                |      |
