@@ -134,15 +134,17 @@ awcs_finalize (svz_server_t *server)
 }
 
 /*
- * Gets called when a nslookup coserver has resolved a IP address
+ * Gets called when a reverse-dns coserver has resolved a IP address
  * for socket SOCK to name and has been identified as an aWCS client.
  */
-int
-awcs_nslookup_done (char *host, int id, int version)
+static int
+awcs_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
 {
   awcs_config_t *cfg;
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
 
+  svz_free (x);
   if (host && sock)
     {
       cfg = sock->cfg;
@@ -180,12 +182,14 @@ awcs_nslookup_done (char *host, int id, int version)
  * Gets called when a ident coserver has resolved a IP address
  * for socket SOCK to name and has been identified as an aWCS client.
  */
-int
-awcs_ident_done (char *user, int id, int version)
+static int
+awcs_ident_done (char *user, void *closure, SVZ_UNUSED void *ignored)
 {
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
   awcs_config_t *cfg;
 
+  svz_free (x);
   if (user && sock)
     {
       cfg = sock->cfg;
@@ -218,6 +222,11 @@ awcs_ident_done (char *user, int id, int version)
 
   return 0;
 }
+
+#define ENQ_COSERVER_REQUEST(req,coserver)      \
+  svz_coserver_ ## coserver ## _invoke          \
+  (req, awcs_ ## coserver ## _done,             \
+   svz_make_sock_iv (sock), NULL)
 
 /*
  * This is called when a valid aWCS client has been connected.
@@ -266,8 +275,8 @@ awcs_status_connected (svz_socket_t *sock)
    */
   if (sock != cfg->server)
     {
-      svz_coserver_rdns (addr, awcs_nslookup_done, sock->id, sock->version);
-      svz_coserver_ident (sock, awcs_ident_done, sock->id, sock->version);
+      ENQ_COSERVER_REQUEST (addr, rdns);
+      ENQ_COSERVER_REQUEST (sock, ident);
     }
 
   return 0;

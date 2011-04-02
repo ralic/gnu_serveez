@@ -246,15 +246,25 @@ nut_connect_ip (nut_config_t *cfg, unsigned long ip, unsigned short port)
   return -1;
 }
 
+struct dns_closure
+{
+  nut_config_t *cfg;
+  unsigned short port;
+};
+
 /*
  * This routine gets called when the DNS coserver finally resolved a given
  * hostname to an IP address and tries to connect to the gnutella client.
  */
 static int
-nut_nslookup_done (char *host, nut_config_t *cfg, unsigned short port)
+nut_dns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
 {
+  struct dns_closure *x = closure;
+  nut_config_t *cfg = x->cfg;
+  unsigned short port = x->port;
   struct sockaddr_in addr;
 
+  svz_free (x);
   if (host != NULL)
     {
       if (svz_inet_aton (host, &addr) == -1)
@@ -293,9 +303,14 @@ nut_connect_host (nut_config_t *cfg, char *host)
   /* try to connect to this host */
   if (dns != NULL)
     {
+      struct dns_closure *x;
+
       /* first resolve the hostname and then connect */
       svz_log (SVZ_LOG_NOTICE, "nut: enqueuing %s\n", dns);
-      svz_coserver_dns (dns, nut_nslookup_done, cfg, port);
+      x = svz_malloc (sizeof (struct dns_closure));
+      x->cfg = cfg;
+      x->port = port;
+      svz_coserver_dns_invoke (dns, nut_dns_done, x, NULL);
       svz_free (dns);
     }
   else

@@ -39,11 +39,13 @@ char irc_lcset[256];       /* lower case character set */
  * for socket SOCK.
  */
 static int
-irc_nslookup_done (char *host, int id, int version)
+irc_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
 {
   irc_client_t *client;
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
 
+  svz_free (x);
   if (sock)
     {
       client = sock->data;
@@ -69,11 +71,13 @@ irc_nslookup_done (char *host, int id, int version)
  * for socket SOCK.
  */
 static int
-irc_ident_done (char *user, int id, int version)
+irc_ident_done (char *user, void *closure, SVZ_UNUSED void *ignored)
 {
   irc_client_t *client;
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
 
+  svz_free (x);
   if (sock)
     {
       client = sock->data;
@@ -93,6 +97,11 @@ irc_ident_done (char *user, int id, int version)
     }
   return -1;
 }
+
+#define ENQ_COSERVER_REQUEST(req,coserver)      \
+  svz_coserver_ ## coserver ## _invoke          \
+  (req, irc_ ## coserver ## _done,              \
+   svz_make_sock_iv (sock), NULL)
 
 /*
  * Initialization of the authentication (DNS and IDENT) for an
@@ -118,12 +127,11 @@ irc_start_auth (svz_socket_t *sock)
   if (!cfg->pass)
     client->flag |= UMODE_PASS;
 
-  /* Start here the nslookup and ident lookup.  */
-  svz_coserver_rdns (sock->remote_addr, irc_nslookup_done,
-                     sock->id, sock->version);
+  /* Start here the reverse-dns and ident lookup.  */
+  ENQ_COSERVER_REQUEST (sock->remote_addr, rdns);
   irc_printf (sock, "NOTICE AUTH :" IRC_DNS_INIT "\n");
 
-  svz_coserver_ident (sock, irc_ident_done, sock->id, sock->version);
+  ENQ_COSERVER_REQUEST (sock, ident);
   irc_printf (sock, "NOTICE AUTH :" IRC_IDENT_INIT "\n");
 }
 

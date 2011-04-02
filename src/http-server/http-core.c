@@ -219,11 +219,13 @@ http_userdir (svz_socket_t *sock, char *uri)
  * identification.
  */
 int
-http_identification (char *ident, int id, int version)
+http_identification (char *ident, void *closure, SVZ_UNUSED void *ignored)
 {
   http_socket_t *http;
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
 
+  svz_free (x);
   if (ident && sock)
     {
       http = sock->data;
@@ -238,11 +240,13 @@ http_identification (char *ident, int id, int version)
  * Each http client gets resolved by this callback.
  */
 int
-http_remotehost (char *host, int id, int version)
+http_remotehost (char *host, void *closure, SVZ_UNUSED void *ignored)
 {
   http_socket_t *http;
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
 
+  svz_free (x);
   if (host && sock)
     {
       http = sock->data;
@@ -258,8 +262,10 @@ http_remotehost (char *host, int id, int version)
  * invoked by the main loop.  Put the result into the http configuration.
  */
 int
-http_localhost (char *host, http_config_t *cfg)
+http_localhost (char *host, void *closure, SVZ_UNUSED void *ignored)
 {
+  http_config_t *cfg = closure;
+
   if (host && !cfg->host)
     {
       cfg->host = svz_pstrdup (host);

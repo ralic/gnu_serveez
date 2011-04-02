@@ -95,11 +95,13 @@ svz_servertype_t foo_server_definition =
  * This callback is used when a coserver asynchronously resolved the
  * client's ip to a name.
  */
-int
-foo_handle_coserver_result (char *host, int id, int version)
+static int
+foo_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
 {
-  svz_socket_t *sock = svz_sock_find (id, version);
+  svz_sock_iv_t *x = closure;
+  svz_socket_t *sock = svz_sock_find (x->id, x->version);
 
+  svz_free (x);
   if (host && sock)
     svz_sock_printf (sock, "You are `%s'\r\n", host);
   return 0;
@@ -138,6 +140,11 @@ foo_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
   return 0;
 }
 
+#define ENQ_COSERVER_REQUEST(req,coserver)      \
+  svz_coserver_ ## coserver ## _invoke          \
+  (req, foo_ ## coserver ## _done,              \
+   svz_make_sock_iv (sock), NULL)
+
 /*
  * Our detect proto thinks that sock is a foo connection, so install
  * the callbacks we need.
@@ -171,8 +178,7 @@ foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
    * Ask a coserver to resolve the client's ip
    */
   svz_sock_printf (sock, "Starting reverse lookup...\r\n");
-  svz_coserver_rdns (sock->remote_addr, foo_handle_coserver_result,
-                     sock->id, sock->version);
+  ENQ_COSERVER_REQUEST (sock->remote_addr, rdns);
   svz_sock_printf (sock, "Waiting...\r\n");
   return 0;
 }

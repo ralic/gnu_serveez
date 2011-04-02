@@ -124,9 +124,10 @@ irc_parse_line (char *line, char *fmt, ...)
  * been done.  Here we connect to this server then.  Return non-zero on
  * errors.
  */
-int
-irc_connect_server (char *ip, irc_server_t *server)
+static int
+irc_dns_done (char *ip, void *closure, SVZ_UNUSED void *ignored)
 {
+  irc_server_t *server = closure;
   irc_config_t *cfg = server->cfg;
   svz_socket_t *sock;
   irc_client_t **cl;
@@ -287,7 +288,7 @@ irc_connect_servers (irc_config_t *cfg)
       /* add this server to the server list */
       svz_log (SVZ_LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
       irc_add_server (cfg, ircserver);
-      svz_coserver_dns (realhost, irc_connect_server, ircserver, NULL);
+      svz_coserver_dns_invoke (realhost, irc_dns_done, ircserver, NULL);
     }
 }
 

@@ -1,3 +1,46 @@
+2011-04-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[servers] Use only one arg in coserver kick, callback.
+
+	Here, "S" means "make static"; "A" means "don't take ID, VERSION;
+	instead, take CLOSURE, IGNORED"; "X" means "extract sock id and
+	version from CLOSURE; free it".
+	* awcs-server/awcs-proto.c
+	(awcs_rdns_done): Rename from ‘awcs_nslookup_done’; S; A; X.
+	(awcs_ident_done): S; A; X.
+	(ENQ_COSERVER_REQUEST): New macro.
+	(awcs_status_connected): Use ‘ENQ_COSERVER_REQUEST’.
+	* foo-server/foo-proto.c
+	(foo_rdns_done): Rename from ‘foo_handle_coserver_result’; S; A; X.
+	(ENQ_COSERVER_REQUEST): New macro.
+	(foo_connect_socket): Use ‘ENQ_COSERVER_REQUEST’.
+	* http-server/http-core.c
+	(http_identification, http_remotehost): A; X.
+	(http_localhost): Don't take CFG; instead, take CLOSURE,
+	IGNORED; extract http configuration from CLOSURE.
+	* http-server/http-core.h (http_remotehost)
+	(http_localhost, http_identification): Update func decls.
+	* http-server/http-proto.c
+	(http_init): Use ‘svz_coserver_rdns_invoke’.
+	(ENQ_COSERVER_REQUEST): New macro.
+	(http_connect_socket): Use ‘ENQ_COSERVER_REQUEST’.
+	* irc-core/irc-core.c
+	(irc_rdns_done): Rename from ‘irc_nslookup_done’; A; X.
+	(irc_ident_done): A; X.
+	(ENQ_COSERVER_REQUEST): New macro.
+	(irc_start_auth): Use ‘ENQ_COSERVER_REQUEST’.
+	* irc-server/irc-server.c
+	(irc_dns_done): Rename from ‘irc_connect_server’; S; don't
+	take SERVER; instead, take CLOSURE, IGNORED; extract server
+	from CLOSURE.
+	(irc_connect_servers): Use ‘svz_coserver_dns_invoke’.
+	* nut-server/gnutella.c (dns_closure): New struct.
+	(nut_dns_done): Rename from ‘nut_nslookup_done’; dont' take
+	CFG, PORT; instead, take CLOSURE, IGNORED; extract config and
+	port from CLOSURE; free CLOSURE.
+	(nut_connect_host): Alloc/init a ‘struct dns_closure’;
+	use ‘svz_coserver_dns_invoke’ with it.
+
 2011-04-01  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[guile] Make svz:coserver:* procs not accept optional arg.
