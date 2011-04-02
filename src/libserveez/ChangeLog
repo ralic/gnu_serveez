@@ -1,5 +1,12 @@
 2011-04-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop macros svz_coserver_{dns,rdns,ident}.
+
+	* coserver/coserver.h (svz_coserver_dns)
+	(svz_coserver_rdns, svz_coserver_ident): Delete macros.
+
+2011-04-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add type ‘svz_sock_iv_t’, func ‘svz_make_sock_iv’.
 
 	* coserver/coserver.h (svz_sock_iv_t): New struct/typedef.

@@ -511,11 +511,8 @@ main server loop and shut it down afterwards by calling
 |F| svz_coserver_type_name
 
 |F| svz_coserver_rdns_invoke
-|M| svz_coserver_rdns
 |F| svz_coserver_dns_invoke
-|M| svz_coserver_dns
 |F| svz_coserver_ident_invoke
-|M| svz_coserver_ident
 
 @node Codec functions
 @subsection Codec functions

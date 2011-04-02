@@ -115,48 +115,13 @@ SERVEEZ_API void svz_coserver_rdns_invoke (unsigned long,
                                            svz_coserver_handle_result_t,
                                            void *, void *);
 
-/*
- * This macro is considered to be the usual way to make a request to the
- * reverse DNS coserver.  It calls @code{svz_coserver_rdns_invoke} therefore.
- * If the given @var{ip} has been resolved by the coserver to a valid computer
- * name the callback @var{cb} gets invoked with the additional arguments
- * passed to this macro.
- */
-#define svz_coserver_rdns(ip, cb, arg0, arg1)                           \
-  svz_coserver_rdns_invoke (ip, (svz_coserver_handle_result_t) cb,      \
-                            (void *) ((unsigned long) arg0),            \
-                            (void *) ((unsigned long) arg1))
-
 SERVEEZ_API void svz_coserver_dns_invoke (char *,
                                           svz_coserver_handle_result_t,
                                           void *, void *);
 
-/*
- * This macro is the usual way to make use of the internal DNS coserver.
- * When the given computer name @var{host} has been resolved to a valid
- * ip address the function @var{cb} will be called with the additional
- * arguments @var{arg0} and @var{arg1}.
- */
-#define svz_coserver_dns(host, cb, arg0, arg1)                          \
-  svz_coserver_dns_invoke (host, (svz_coserver_handle_result_t) cb,     \
-                           (void *) ((unsigned long) arg0),             \
-                           (void *) ((unsigned long) arg1))
-
 SERVEEZ_API void svz_coserver_ident_invoke (svz_socket_t *,
                                             svz_coserver_handle_result_t,
                                             void *, void *);
-
-/*
- * This macro uses the internal ident coserver in order to identify the
- * connection of the given socket structure @var{sock}.  The function @var{cb}
- * will be called when the coserver successfully delivers the identified
- * user on the other end of the connection.  Both the arguments @var{arg0}
- * and @var{arg1} are passed to @var{cb}.
- */
-#define svz_coserver_ident(sock, cb, arg0, arg1)                        \
-  svz_coserver_ident_invoke (sock, (svz_coserver_handle_result_t) cb,   \
-                             (void *) ((unsigned long) arg0),           \
-                             (void *) ((unsigned long) arg1))
 
 __END_DECLS
 
