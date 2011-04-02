@@ -60,6 +60,18 @@ svz_coserver_t;
 /* end svzint */
 
 /*
+ * This structure holds a socket's ‘.id’ and ‘.version’ information,
+ * created by ‘svz_make_sock_iv’ to be later fed (by the callback) to
+ * ‘svz_sock_find’.  The callback should ‘svz_free’ it afterwards.
+ */
+typedef struct
+{
+  int id;
+  int version;
+}
+svz_sock_iv_t;
+
+/*
  * The callback structure is used to finally execute some code
  * which should be called whenever one of the coservers produces
  * any data for the server.
@@ -87,6 +99,7 @@ typedef int (svz_coserver_do_t) (const svz_coserver_t *, void *);
 
 __BEGIN_DECLS
 
+SERVEEZ_API svz_sock_iv_t *svz_make_sock_iv (svz_socket_t *);
 SERVEEZ_API int svz_foreach_coserver (svz_coserver_do_t *, void *);
 SERVEEZ_API void svz_coserver_check (void);
 SERVEEZ_API int svz_coserver_init (void);

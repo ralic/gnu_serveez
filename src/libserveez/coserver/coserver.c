@@ -157,6 +157,16 @@ svz_coserver_send_request (int type, char *request,
     }
 }
 
+svz_sock_iv_t *
+svz_make_sock_iv (svz_socket_t *sock)
+{
+  svz_sock_iv_t *rv = svz_malloc (sizeof (svz_sock_iv_t));
+
+  rv->id = sock->id;
+  rv->version = sock->version;
+  return rv;
+}
+
 /* coserver-TODO:
    place an appropiate wrapper function here */
 
