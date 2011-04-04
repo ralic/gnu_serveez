@@ -1,5 +1,15 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_wait_if_unavailable
+
+	* http-server/http-cache.c (http_cache_write):
+	Use ‘svz_wait_if_unavailable’.
+	* http-server/http-proto.c (http_default_write): Likewise.
+	* nut-server/nut-hostlist.c (nut_hosts_write): Likewise.
+	* nut-server/nut-transfer.c (nut_file_write): Likewise.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Take only one arg in coserver kick, callback.
 
 	Here, "T" means "Don't take third arg"; and "S"

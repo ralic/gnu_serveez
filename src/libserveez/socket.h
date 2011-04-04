@@ -255,6 +255,7 @@ SERVEEZ_API int svz_sock_write (svz_socket_t *, char *, int);
 SERVEEZ_API int svz_sock_printf (svz_socket_t *, const char *, ...);
 SERVEEZ_API int svz_sock_resize_buffers (svz_socket_t *, int, int);
 SERVEEZ_API int svz_sock_check_request (svz_socket_t *);
+SERVEEZ_API int svz_wait_if_unavailable (svz_socket_t *, unsigned int);
 
 __END_DECLS
 

@@ -638,3 +638,19 @@ svz_sock_printf (svz_socket_t *sock, const char *fmt, ...)
 
   return svz_sock_write (sock, buffer, len);
 }
+
+/*
+ * If @code{svz_socket_unavailable_error_p} returns non-zero, set @var{sock}
+ * member @code{unavailable} to time @var{t} (or current time if zero) plus
+ * @var{relax} seconds and return 1.  Otherwise, do nothing and return 0.
+ */
+int
+svz_wait_if_unavailable (svz_socket_t *sock, unsigned int relax)
+{
+  if (svz_socket_unavailable_error_p ())
+    {
+      sock->unavailable = relax + time (NULL);
+      return 1;
+    }
+  return 0;
+}

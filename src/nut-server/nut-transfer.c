@@ -1048,11 +1048,8 @@ nut_file_write (svz_socket_t *sock)
   else if (num_written < 0)
     {
       svz_log_net_error ("nut: send");
-      if (svz_socket_unavailable_error_p ())
-        {
-          sock->unavailable = t + RELAX_FD_TIME;
-          num_written = 0;
-        }
+      if (svz_wait_if_unavailable (sock, 1))
+        num_written = 0;
     }
 
   if (sock->send_buffer_fill == 0 && transfer->size <= 0)

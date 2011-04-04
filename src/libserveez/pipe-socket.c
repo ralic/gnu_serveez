@@ -608,11 +608,8 @@ svz_pipe_write_socket (svz_socket_t *sock)
                             sock->send_buffer, do_write)) == -1)
     {
       svz_log_sys_error ("pipe: write");
-      if (svz_socket_unavailable_error_p ())
-        {
-          sock->unavailable = time (NULL) + RELAX_FD_TIME;
-          num_written = 0;
-        }
+      if (svz_wait_if_unavailable (sock, 1))
+        num_written = 0;
     }
 #endif /* not __MINGW32__ */
 

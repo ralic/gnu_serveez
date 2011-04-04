@@ -1,5 +1,13 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_wait_if_unavailable
+
+	* socket.h (svz_wait_if_unavailable): New func decl.
+	* socket.c (svz_wait_if_unavailable): New func.
+	* pipe-socket.c (svz_pipe_write_socket): Use it.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Take only one arg in coserver kick, callback.
 
 	* coserver/coserver.h

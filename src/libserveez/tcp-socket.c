@@ -92,11 +92,8 @@ svz_tcp_write_socket (svz_socket_t *sock)
   else if (num_written < 0)
     {
       svz_log_net_error ("tcp: send");
-      if (svz_socket_unavailable_error_p ())
-        {
-          sock->unavailable = time (NULL) + RELAX_FD_TIME;
-          num_written = 0;
-        }
+      if (svz_wait_if_unavailable (sock, 1))
+        num_written = 0;
     }
 
   /* If final write flag is set, then schedule for shutdown.  */
