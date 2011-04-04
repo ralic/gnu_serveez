@@ -1,5 +1,15 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib woe] Add abstraction: svz_mingw_child_dead_p
+
+	* passthrough.c
+	[__MINGW32__] (svz_mingw_child_dead_p): New func.
+	(svz_process_idle) [__MINGW32__]: Use ‘svz_mingw_child_dead_p’.
+	* passthrough.h [__MINGW32__] (svz_mingw_child_dead_p):
+	New func decl, marked ‘SERVEEZ_API’.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Convert svz_sock_reduce_{recv,send} to functions.
 
 	* socket.h (svz_sock_reduce_recv, svz_sock_reduce_send):

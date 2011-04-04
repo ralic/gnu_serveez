@@ -43,6 +43,9 @@ __BEGIN_DECLS
 SERVEEZ_API int svz_sock_process (svz_socket_t *, char *, char *,
                                   char **, svz_envblock_t *, int,
                                   char *);
+#ifdef __MINGW32__
+SERVEEZ_API int svz_mingw_child_dead_p (char *, svz_t_handle *);
+#endif
 SERVEEZ_API void svz_envblock_setup (void);
 SERVEEZ_API svz_envblock_t *svz_envblock_create (void);
 SERVEEZ_API int svz_envblock_default (svz_envblock_t *);

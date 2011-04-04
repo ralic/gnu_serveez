@@ -1,5 +1,12 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib woe] Add abstraction: svz_mingw_child_dead_p
+
+	* serveez-api.texi.in (Passthrough connections):
+	Add ‘svz_mingw_child_dead_p’ and intro blurb.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Convert svz_sock_reduce_{recv,send} to functions.
 
 	* serveez-api.texi.in (Socket management): Convert

@@ -36,7 +36,6 @@
 #include <signal.h>
 #include "changedir.h"
 #include "networking-headers.h"
-#include "woe-wait.h"
 #if HAVE_STRINGS_H
 # include <strings.h>
 #endif
@@ -131,9 +130,6 @@ int
 http_cgi_died (svz_socket_t *sock)
 {
   http_socket_t *http = sock->data;
-#ifdef __MINGW32__
-  DWORD result;
-#endif
 
   if (sock->flags & SVZ_SOFLG_PIPE)
     {
@@ -161,20 +157,8 @@ http_cgi_died (svz_socket_t *sock)
        * done regularly here because there is no SIGCHLD in Win32 !
        */
       if (! svz_invalid_handle_p (http->pid))
-        {
-          result = WOE_WAIT_1 (http->pid);
-          if (result == WAIT_FAILED)
-            {
-              WOE_WAIT_LOG_ERROR_ANONYMOUSLY ();
-            }
-          else if (result != WAIT_TIMEOUT)
-            {
-              if (svz_closehandle (http->pid) == -1)
-                svz_log_sys_error ("CloseHandle");
-              svz_child_died = http->pid;
-              svz_invalidate_handle (&http->pid);
-            }
-        }
+        svz_mingw_child_dead_p ("", &http->pid);
+
 #endif /* __MINGW32__ */
     }
 

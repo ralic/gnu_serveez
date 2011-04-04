@@ -474,6 +474,37 @@ svz_process_check_request (svz_socket_t *sock)
   return 0;
 }
 
+#ifdef __MINGW32__
+/*
+ * Check child pointed at by @var{pid} by waiting a bit.
+ * If it is dead, close and invalidate its handle, and return 1.
+ * Otherwise, return 0.
+ * @var{prefix} is for error messages; it should be either the
+ * empty string, or a string ending in colon and space.
+ */
+int
+svz_mingw_child_dead_p (char *prefix, svz_t_handle *pid)
+{
+  DWORD result;
+
+  if (!prefix)
+    abort ();
+  result = WOE_WAIT_1 (*pid);
+  if (result == WAIT_FAILED)
+    WOE_WAIT_LOG_ERROR (prefix);
+  else if (result != WAIT_TIMEOUT)
+    {
+      if (svz_closehandle (*pid) == -1)
+        svz_log_sys_error ("%sCloseHandle", prefix);
+      svz_child_died = *pid;
+      svz_invalidate_handle (pid);
+      return 1;
+    }
+  return 0;
+}
+#endif  /* __MINGW32__ */
+
+
 /*
  * Idle function for the passthrough shuffle connection @var{sock}.  The
  * routine checks whether the spawned child process is still valid.  If not
@@ -498,21 +529,8 @@ svz_process_idle (svz_socket_t *sock)
 
 #else /* __MINGW32__ */
 
-  DWORD result;
-
-  result = WOE_WAIT_1 (sock->pid);
-  if (result == WAIT_FAILED)
-    {
-      WOE_WAIT_LOG_ERROR ("passthrough: ");
-    }
-  else if (result != WAIT_TIMEOUT)
-    {
-      if (svz_closehandle (sock->pid) == -1)
-        svz_log_sys_error ("passthrough: CloseHandle");
-      svz_child_died = sock->pid;
-      svz_invalidate_handle (&sock->pid);
-      return -1;
-    }
+  if (svz_mingw_child_dead_p ("passthrough: ", &sock->pid))
+    return -1;
 
 #endif /* __MINGW32__ */
 

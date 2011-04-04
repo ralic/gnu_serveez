@@ -464,6 +464,11 @@ A spawned child process can use these handles as if these were created
 by itself.  After calling @code{WSAStartup} the child process can
 @code{send} and @code{recv} as usual.
 
+Relatedly, Windoze does not use @code{SIGCHLD} to inform the parent when a
+child dies, so for that platform, so should use the next function (which is
+not otherwise available):
+|F| svz_mingw_child_dead_p
+
 |F| svz_envblock_setup
 |F| svz_envblock_create
 |F| svz_envblock_default
