@@ -257,7 +257,7 @@ struct dns_closure
  * hostname to an IP address and tries to connect to the gnutella client.
  */
 static int
-nut_dns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
+nut_dns_done (char *host, void *closure)
 {
   struct dns_closure *x = closure;
   nut_config_t *cfg = x->cfg;
@@ -310,7 +310,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
       x = svz_malloc (sizeof (struct dns_closure));
       x->cfg = cfg;
       x->port = port;
-      svz_coserver_dns_invoke (dns, nut_dns_done, x, NULL);
+      svz_coserver_dns_invoke (dns, nut_dns_done, x);
       svz_free (dns);
     }
   else

@@ -1,3 +1,30 @@
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Take only one arg in coserver kick, callback.
+
+	Here, "T" means "Don't take third arg"; and "S"
+	means "Don't specify fourth arg in coserver invocation".
+	* awcs-server/awcs-proto.c
+	(awcs_rdns_done, awcs_ident_done): T.
+	(ENQ_COSERVER_REQUEST): S.
+	* foo-server/foo-proto.c (foo_rdns_done): T.
+	(ENQ_COSERVER_REQUEST): S.
+	* guile-api.c (guile_coserver_callback): T.
+	(ENQ_COSERVER_REQUEST): S.
+	* http-server/http-core.c (http_identification)
+	(http_remotehost, http_localhost): T.
+	* http-server/http-core.h (http_identification)
+	(http_remotehost, http_localhost): T.
+	* http-server/http-proto.c (http_init)
+	(ENQ_COSERVER_REQUEST): S.
+	* irc-core/irc-core.c
+	(irc_rdns_done, irc_ident_done): T.
+	(ENQ_COSERVER_REQUEST): S.
+	* irc-server/irc-server.c (irc_dns_done): T.
+	(irc_connect_servers): S.
+	* nut-server/gnutella.c (nut_dns_done): T
+	(nut_connect_host): S.
+
 2011-04-02  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[servers] Use only one arg in coserver kick, callback.

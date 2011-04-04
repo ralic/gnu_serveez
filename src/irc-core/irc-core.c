@@ -39,7 +39,7 @@ char irc_lcset[256];       /* lower case character set */
  * for socket SOCK.
  */
 static int
-irc_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
+irc_rdns_done (char *host, void *closure)
 {
   irc_client_t *client;
   svz_sock_iv_t *x = closure;
@@ -71,7 +71,7 @@ irc_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
  * for socket SOCK.
  */
 static int
-irc_ident_done (char *user, void *closure, SVZ_UNUSED void *ignored)
+irc_ident_done (char *user, void *closure)
 {
   irc_client_t *client;
   svz_sock_iv_t *x = closure;
@@ -101,7 +101,7 @@ irc_ident_done (char *user, void *closure, SVZ_UNUSED void *ignored)
 #define ENQ_COSERVER_REQUEST(req,coserver)      \
   svz_coserver_ ## coserver ## _invoke          \
   (req, irc_ ## coserver ## _done,              \
-   svz_make_sock_iv (sock), NULL)
+   svz_make_sock_iv (sock))
 
 /*
  * Initialization of the authentication (DNS and IDENT) for an

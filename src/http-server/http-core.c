@@ -219,7 +219,7 @@ http_userdir (svz_socket_t *sock, char *uri)
  * identification.
  */
 int
-http_identification (char *ident, void *closure, SVZ_UNUSED void *ignored)
+http_identification (char *ident, void *closure)
 {
   http_socket_t *http;
   svz_sock_iv_t *x = closure;
@@ -240,7 +240,7 @@ http_identification (char *ident, void *closure, SVZ_UNUSED void *ignored)
  * Each http client gets resolved by this callback.
  */
 int
-http_remotehost (char *host, void *closure, SVZ_UNUSED void *ignored)
+http_remotehost (char *host, void *closure)
 {
   http_socket_t *http;
   svz_sock_iv_t *x = closure;
@@ -262,7 +262,7 @@ http_remotehost (char *host, void *closure, SVZ_UNUSED void *ignored)
  * invoked by the main loop.  Put the result into the http configuration.
  */
 int
-http_localhost (char *host, void *closure, SVZ_UNUSED void *ignored)
+http_localhost (char *host, void *closure)
 {
   http_config_t *cfg = closure;
 

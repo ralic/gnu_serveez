@@ -76,12 +76,12 @@ svz_sock_iv_t;
  * which should be called whenever one of the coservers produces
  * any data for the server.
  */
-typedef int (* svz_coserver_handle_result_t) (char *, void *, void *);
+typedef int (* svz_coserver_handle_result_t) (char *, void *);
 
 typedef struct
 {
   svz_coserver_handle_result_t handle_result; /* any code callback */
-  void *arg[2];                               /* passed argument array */
+  void *closure;                              /* opaque to libserveez */
 }
 svz_coserver_callback_t;
 
@@ -113,15 +113,15 @@ SERVEEZ_API const char *svz_coserver_type_name (const svz_coserver_t *);
  */
 SERVEEZ_API void svz_coserver_rdns_invoke (unsigned long,
                                            svz_coserver_handle_result_t,
-                                           void *, void *);
+                                           void *);
 
 SERVEEZ_API void svz_coserver_dns_invoke (char *,
                                           svz_coserver_handle_result_t,
-                                          void *, void *);
+                                          void *);
 
 SERVEEZ_API void svz_coserver_ident_invoke (svz_socket_t *,
                                             svz_coserver_handle_result_t,
-                                            void *, void *);
+                                            void *);
 
 __END_DECLS
 

@@ -98,7 +98,7 @@ static svz_array_t *svz_coservers = NULL;
 static void
 svz_coserver_send_request (int type, char *request,
                            svz_coserver_handle_result_t handle_result,
-                           void *arg0, void *arg1)
+                           void *closure)
 {
   int n, busy;
   svz_coserver_t *coserver, *current;
@@ -135,8 +135,7 @@ svz_coserver_send_request (int type, char *request,
        */
       cb = svz_malloc (sizeof (svz_coserver_callback_t));
       cb->handle_result = handle_result;
-      cb->arg[0] = arg0;
-      cb->arg[1] = arg1;
+      cb->closure = closure;
       svz_hash_put (svz_coserver_callbacks,
                     svz_itoa (svz_coserver_callback_id), cb);
 
@@ -176,10 +175,10 @@ svz_make_sock_iv (svz_socket_t *sock)
 void
 svz_coserver_rdns_invoke (unsigned long ip,
                           svz_coserver_handle_result_t cb,
-                          void *arg0, void *arg1)
+                          void *closure)
 {
   svz_coserver_send_request (SVZ_COSERVER_REVERSE_DNS,
-                             svz_inet_ntoa (ip), cb, arg0, arg1);
+                             svz_inet_ntoa (ip), cb, closure);
 }
 
 /*
@@ -188,9 +187,9 @@ svz_coserver_rdns_invoke (unsigned long ip,
 void
 svz_coserver_dns_invoke (char *host,
                          svz_coserver_handle_result_t cb,
-                         void *arg0, void *arg1)
+                         void *closure)
 {
-  svz_coserver_send_request (SVZ_COSERVER_DNS, host, cb, arg0, arg1);
+  svz_coserver_send_request (SVZ_COSERVER_DNS, host, cb, closure);
 }
 
 /*
@@ -199,13 +198,13 @@ svz_coserver_dns_invoke (char *host,
 void
 svz_coserver_ident_invoke (svz_socket_t *sock,
                            svz_coserver_handle_result_t cb,
-                           void *arg0, void *arg1)
+                           void *closure)
 {
   char buffer[COSERVER_BUFSIZE];
   snprintf (buffer, COSERVER_BUFSIZE, "%s:%u:%u",
             svz_inet_ntoa (sock->remote_addr),
             ntohs (sock->remote_port), ntohs (sock->local_port));
-  svz_coserver_send_request (SVZ_COSERVER_IDENT, buffer, cb, arg0, arg1);
+  svz_coserver_send_request (SVZ_COSERVER_IDENT, buffer, cb, closure);
 }
 
 /*
@@ -682,7 +681,7 @@ svz_coserver_handle_request (SVZ_UNUSED svz_socket_t *sock,
    * error detection or the actual result string.  Afterwards free the
    * callback structure and delete it from the coserver callback hash.
    */
-  ret = cb->handle_result (*data ? data : NULL, cb->arg[0], cb->arg[1]);
+  ret = cb->handle_result (*data ? data : NULL, cb->closure);
   svz_hash_delete (svz_coserver_callbacks, svz_itoa (id));
   svz_free (cb);
 

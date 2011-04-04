@@ -125,7 +125,7 @@ irc_parse_line (char *line, char *fmt, ...)
  * errors.
  */
 static int
-irc_dns_done (char *ip, void *closure, SVZ_UNUSED void *ignored)
+irc_dns_done (char *ip, void *closure)
 {
   irc_server_t *server = closure;
   irc_config_t *cfg = server->cfg;
@@ -288,7 +288,7 @@ irc_connect_servers (irc_config_t *cfg)
       /* add this server to the server list */
       svz_log (SVZ_LOG_NOTICE, "irc: enqueuing %s\n", ircserver->realhost);
       irc_add_server (cfg, ircserver);
-      svz_coserver_dns_invoke (realhost, irc_dns_done, ircserver, NULL);
+      svz_coserver_dns_invoke (realhost, irc_dns_done, ircserver);
     }
 }
 

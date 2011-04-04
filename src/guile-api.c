@@ -931,7 +931,7 @@ validate_callback (SCM callback, const char *who)
 
 /* Callback wrapper for coserver responses.  */
 static int
-guile_coserver_callback (char *res, void *closure, SVZ_UNUSED void *arg1)
+guile_coserver_callback (char *res, void *closure)
 {
   SCM callback = (SCM) closure;
   int ret = -1;
@@ -951,7 +951,7 @@ guile_coserver_callback (char *res, void *closure, SVZ_UNUSED void *arg1)
 #define ENQ_COSERVER_REQUEST(req,coserver)      \
   svz_coserver_ ## coserver ## _invoke          \
   (req, guile_coserver_callback,                \
-   (void *) callback, NULL)
+   (void *) callback)
 
 /* This procedure enqueues the @var{host} string argument into the internal
    DNS coserver queue.  When the coserver responds, the Guile procedure

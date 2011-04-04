@@ -215,7 +215,7 @@ http_init (svz_server_t *server)
         }
       if (host == INADDR_ANY)
         host = htonl (INADDR_LOOPBACK);
-      svz_coserver_rdns_invoke (host, http_localhost, cfg, NULL);
+      svz_coserver_rdns_invoke (host, http_localhost, cfg);
     }
 
   /* start http logging system */
@@ -646,7 +646,7 @@ http_detect_proto (SVZ_UNUSED svz_server_t *server, svz_socket_t *sock)
 #define ENQ_COSERVER_REQUEST(req,coserver,cb)   \
   svz_coserver_ ## coserver ## _invoke          \
   (req, http_ ## cb,                            \
-   svz_make_sock_iv (sock), NULL)
+   svz_make_sock_iv (sock))
 
 /*
  * When the http_detect_proto returns successfully this function must

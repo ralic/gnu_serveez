@@ -138,7 +138,7 @@ awcs_finalize (svz_server_t *server)
  * for socket SOCK to name and has been identified as an aWCS client.
  */
 static int
-awcs_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
+awcs_rdns_done (char *host, void *closure)
 {
   awcs_config_t *cfg;
   svz_sock_iv_t *x = closure;
@@ -183,7 +183,7 @@ awcs_rdns_done (char *host, void *closure, SVZ_UNUSED void *ignored)
  * for socket SOCK to name and has been identified as an aWCS client.
  */
 static int
-awcs_ident_done (char *user, void *closure, SVZ_UNUSED void *ignored)
+awcs_ident_done (char *user, void *closure)
 {
   svz_sock_iv_t *x = closure;
   svz_socket_t *sock = svz_sock_find (x->id, x->version);
@@ -226,7 +226,7 @@ awcs_ident_done (char *user, void *closure, SVZ_UNUSED void *ignored)
 #define ENQ_COSERVER_REQUEST(req,coserver)      \
   svz_coserver_ ## coserver ## _invoke          \
   (req, awcs_ ## coserver ## _done,             \
-   svz_make_sock_iv (sock), NULL)
+   svz_make_sock_iv (sock))
 
 /*
  * This is called when a valid aWCS client has been connected.
