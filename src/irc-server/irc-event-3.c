@@ -301,7 +301,7 @@ irc_stats_callback (svz_socket_t *sock,
        * u - returns a string showing how long the server has been up
        */
     case 'u':
-      t = time (NULL) - svz_config.start;
+      t = svz_uptime ();
       sec = t % 60;
       t /= sec;
       min = t % 60;

@@ -34,8 +34,6 @@ typedef struct
   char *password;
   /* defines how many clients are allowed to connect */
   svz_t_socket max_sockets;
-  /* when was the program started */
-  long start;
   /* log level verbosity */
   int verbosity;
 }
@@ -50,6 +48,7 @@ SERVEEZ_API svz_config_t svz_config;
 
 /* Exported functions.  */
 SERVEEZ_API void svz_boot (char const *);
+SERVEEZ_API long svz_uptime (void);
 SERVEEZ_API void svz_halt (void);
 
 __END_DECLS

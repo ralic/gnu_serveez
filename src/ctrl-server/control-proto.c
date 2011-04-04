@@ -488,6 +488,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
 {
   svz_server_t *server;
   char *p;
+  long ut = svz_uptime ();
 
   /* find an appropriate server instance */
   p = arg;
@@ -510,7 +511,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   /* print a standard output */
   svz_sock_printf (sock,
                    "\r\nThis is %s running since %s.\r\n",
-                   PACKAGE_STRING, svz_time (svz_config.start));
+                   PACKAGE_STRING, svz_time (time (NULL) - ut));
 
   /* display compile time feature list */
   svz_sock_printf (sock, "Features  : FOO"
@@ -567,8 +568,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   /* show general state */
   svz_sock_printf (sock, "\r\n * %d connected sockets (hard limit is %d)\r\n",
                    svz_sock_nconnections (), svz_config.max_sockets);
-  svz_sock_printf (sock, " * uptime is %s\r\n",
-                   uptime (time (NULL) - svz_config.start));
+  svz_sock_printf (sock, " * uptime is %s\r\n", uptime (ut));
 #if ENABLE_DEBUG
   {
     unsigned int cur[2];

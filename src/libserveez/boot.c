@@ -40,7 +40,7 @@
 /*
  * The configuration structure of the core library.
  */
-svz_config_t svz_config = { NULL, 0, 0, 0 };
+svz_config_t svz_config = { NULL, 0, 0 };
 
 /*
  * Library private dynamic state.
@@ -152,7 +152,6 @@ svz__net_updn (int direction)
 static void
 svz_init_config (void)
 {
-  svz_config.start = time (NULL);
   svz_config.verbosity = SVZ_LOG_DEBUG;
   svz_config.max_sockets = 100;
   svz_config.password = NULL;
@@ -185,6 +184,7 @@ svz_boot (char const *client)
 {
   svz_private = svz_malloc (sizeof (svz_private_t));
   THE (client) = svz_strdup (client ? client : "anonymous");
+  THE (boot) = time (NULL);
 
 #define UP(x)  svz__ ## x ## _updn (1)
 
@@ -201,6 +201,18 @@ svz_boot (char const *client)
   UP (config_type);
 
 #undef UP
+}
+
+/*
+ * Return the number of seconds since @code{svz_boot} was called,
+ * or -1 if @code{svz_boot} has not yet been called.
+ */
+long
+svz_uptime (void)
+{
+  return svz_private
+    ? time (NULL) - THE (boot)
+    : -1;
 }
 
 /*

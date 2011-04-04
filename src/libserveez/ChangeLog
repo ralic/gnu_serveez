@@ -1,5 +1,17 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize "boot time".
+
+	* defines.h (svz_private_t): Add member ‘.boot’.
+	* boot.h (svz_config_t): Drop member ‘.start’.
+	(svz_uptime): New func decl, marked ‘SERVEEZ_API’.
+	* boot.c (svz_config): Update init.
+	(svz_init_config): Don't init ‘svz_config.start’.
+	(svz_Boot): Init ‘THE (boot)’.
+	(svz_uptime): New func.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_child_died’.
 
 	* server-core.h (svz_child_died):

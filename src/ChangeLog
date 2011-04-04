@@ -1,5 +1,12 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize "boot time".
+
+	* ctrl-server/control-proto.c (ctrl_stat): Use ‘svz_uptime’.
+	* irc-server/irc-event-3.c (irc_stats_callback): Likewise.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_most_recent_dead_child_p
 
 	* http-server/http-cgi.c

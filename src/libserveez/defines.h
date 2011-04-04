@@ -74,6 +74,9 @@ typedef struct
   char *client;
   /* The program using this library, specified to ‘svz_boot’,
      primarily for use by the SEGV handler.  */
+
+  time_t boot;
+  /* The time when ‘svz_boot’ was called.  */
 } svz_private_t;
 
 __BEGIN_DECLS

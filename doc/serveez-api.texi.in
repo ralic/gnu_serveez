@@ -744,6 +744,7 @@ call to the core API.
 |V| svz_config
 
 |F| svz_boot
+|F| svz_uptime
 |F| svz_halt
 
 @node Interface

@@ -1,5 +1,11 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize "boot time".
+
+	* serveez-api.texi.in (Booting): Add ‘svz_uptime’.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_most_recent_dead_child_p
 
 	* serveez-api.texi.in (Passthrough connections):
