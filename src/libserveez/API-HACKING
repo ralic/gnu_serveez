@@ -86,7 +86,7 @@ HACKING libserveez API					-*- org -*-
     | [[file:server.h][server]]               |   |   |   |   |                | [[more-server][more]] |
     | [[file:portcfg.h][portcfg]]              |   |   |   | x |                | [[more-portcfg][more]] |
     | [[file:cfg.h][cfg]]                  |   |   |   |   |                | [[more-cfg][more]] |
-    | [[file:socket.h][socket]]               |   | x | o | o |                |      |
+    | [[file:socket.h][socket]]               |   | x | o | x |                |      |
     | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |                |      |
     | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |                |      |
     | [[file:codec/gzlib.h][codec/gzlib]]          | x |   |   |   |                |      |
