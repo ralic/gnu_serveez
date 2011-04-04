@@ -116,6 +116,7 @@ See the end for copying conditions.
 ******* use (widely available) SRFI and ice-9 modules
 *** Support IPv6.
 *** Assimilate Mike Gran's fork ([[shell:cd%20..%20&&%20git%20clone%20git://github.com/spk121/serveez-mg.git][clone]] [[file:~/build/GNU/serveez-mg][visit]]).
+*** Expose relax/throttle time (formerly ‘RELAX_FD_TIME’) to cfg machinery.
 *** Minimize memory consumption of coservers.
 *** Find out how to unload a shared library on MacOS.
 *** Keep track of network interface changes.
