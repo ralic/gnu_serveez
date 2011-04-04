@@ -1,5 +1,12 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop #define: RELAX_FD_TIME
+
+	* nut-server/nut-transfer.c (THROTTLE_RELAX): New #define.
+	(nut_file_write): Use ‘THROTTLE_RELAX’.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_wait_if_unavailable
 
 	* http-server/http-cache.c (http_cache_write):

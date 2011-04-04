@@ -1001,6 +1001,8 @@ nut_file_read (svz_socket_t *sock)
   return 0;
 }
 
+#define THROTTLE_RELAX  1
+
 /*
  * This function is the upload callback for the gnutella server.  It
  * throttles its network output to a configured value.
@@ -1017,7 +1019,7 @@ nut_file_write (svz_socket_t *sock)
   num_written = transfer->original_size - transfer->size;
   if (num_written / (t - transfer->start + 1) > cfg->speed * 1024 / 8)
     {
-      sock->unavailable = t + RELAX_FD_TIME;
+      sock->unavailable = t + THROTTLE_RELAX;
       return 0;
     }
 

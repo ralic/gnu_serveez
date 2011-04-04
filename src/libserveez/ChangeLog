@@ -1,5 +1,11 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop #define: RELAX_FD_TIME
+
+	* socket.h (RELAX_FD_TIME): Delete #define.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstraction: svz_wait_if_unavailable
 
 	* socket.h (svz_wait_if_unavailable): New func decl.

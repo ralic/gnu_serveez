@@ -26,8 +26,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/* If a socket resource is unavailable, relax for this time in seconds.  */
-#define RELAX_FD_TIME            1
 /* Do not write more than SOCK_MAX_WRITE bytes to a socket at once.  */
 #define SOCK_MAX_WRITE        1024
 
