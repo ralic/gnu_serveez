@@ -1027,8 +1027,8 @@ nut_file_write (svz_socket_t *sock)
    * Write as many bytes as possible, remember how many
    * were actually sent.
    */
-  do_write = (sock->send_buffer_fill > SOCK_MAX_WRITE)
-    ? SOCK_MAX_WRITE : sock->send_buffer_fill;
+  do_write = (sock->send_buffer_fill > SVZ_SOCK_MAX_WRITE)
+    ? SVZ_SOCK_MAX_WRITE : sock->send_buffer_fill;
 
   num_written = send (sock->sock_desc, sock->send_buffer, do_write, 0);
 

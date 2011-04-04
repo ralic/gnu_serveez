@@ -393,8 +393,8 @@ http_cache_write (svz_socket_t *sock)
   assert (cache->entry);
 
   do_write = cache->size;
-  if (do_write > (SOCK_MAX_WRITE << 5))
-    do_write = (SOCK_MAX_WRITE << 5);
+  if (do_write > (SVZ_SOCK_MAX_WRITE << 5))
+    do_write = (SVZ_SOCK_MAX_WRITE << 5);
   num_written = send (sock->sock_desc, cache->buffer, do_write, 0);
 
   if (num_written > 0)

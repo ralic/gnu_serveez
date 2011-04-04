@@ -26,8 +26,8 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/* Do not write more than SOCK_MAX_WRITE bytes to a socket at once.  */
-#define SOCK_MAX_WRITE        1024
+/* Do not write more than this many bytes to a socket at once.  */
+#define SVZ_SOCK_MAX_WRITE    1024
 
 /* begin svzint */
 #define RECV_BUF_SIZE  (1024 * 8)         /* Normal receive buffer size.  */

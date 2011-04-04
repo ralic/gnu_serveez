@@ -400,8 +400,8 @@ http_send_file (svz_socket_t *sock)
   int num_written, do_write;
 
   /* Limitate the number of bytes to write at once.  */
-  do_write = http->filelength > SOCK_MAX_WRITE
-    ? SOCK_MAX_WRITE : http->filelength;
+  do_write = http->filelength > SVZ_SOCK_MAX_WRITE
+    ? SVZ_SOCK_MAX_WRITE : http->filelength;
 
   /* Try sending throughout file descriptor to socket.  */
   num_written = svz_sendfile (sock->sock_desc, sock->file_desc,

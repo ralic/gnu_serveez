@@ -70,11 +70,11 @@ svz_tcp_write_socket (svz_socket_t *sock)
 
   /*
    * Write as many bytes as possible, remember how many were actually
-   * sent.  Limit the maximum sent bytes to SOCK_MAX_WRITE.
+   * sent.  Limit the maximum sent bytes to ‘SVZ_SOCK_MAX_WRITE’.
    */
   do_write = sock->send_buffer_fill;
-  if (do_write > SOCK_MAX_WRITE)
-    do_write = SOCK_MAX_WRITE;
+  if (do_write > SVZ_SOCK_MAX_WRITE)
+    do_write = SVZ_SOCK_MAX_WRITE;
   num_written = send (desc, sock->send_buffer, do_write, 0);
 
   /* Some data has been written.  */

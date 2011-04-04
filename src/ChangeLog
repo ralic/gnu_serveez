@@ -1,5 +1,13 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix ‘SOCK_MAX_WRITE’ with "SVZ_".
+
+	* http-server/http-cache.c: Update all refs.
+	* http-server/http-proto.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop #define: RELAX_FD_TIME
 
 	* nut-server/nut-transfer.c (THROTTLE_RELAX): New #define.

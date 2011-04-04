@@ -1,5 +1,12 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Prefix ‘SOCK_MAX_WRITE’ with "SVZ_".
+
+	* socket.h (SVZ_SOCK_MAX_WRITE): Rename from ‘SOCK_MAX_WRITE’.
+	* tcp-socket.c: Update all refs.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop #define: RELAX_FD_TIME
 
 	* socket.h (RELAX_FD_TIME): Delete #define.
