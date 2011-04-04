@@ -56,7 +56,7 @@ HACKING libserveez API					-*- org -*-
     var → move behind functional interface ([[elisp:(grep%20"grep%20-nH%20-e%20Variable:%20%20../../doc/serveez.info")][doc-grep]])
     #define → move into implementation or mark ‘svzint’
 *** work in progress ([[elisp:(let%20((dired-listing-switches%20"-alhFGrS"))%20(dired%20"*.h"))][dired by size]])
-    (for columns: ? → need-info, o → todo, x → done)
+    (for columns: ? ≡ need-info, o ≡ todo, x ≡ done)
     |----------------------+---+---+---+---+----------------+------|
     | file                 | [[noinst][n]] | [[woe][w]] | [[generalized ip address][g]] | [[macros][m]] | [[internalize]]    | more |
     |----------------------+---+---+---+---+----------------+------|
