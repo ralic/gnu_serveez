@@ -504,6 +504,20 @@ svz_mingw_child_dead_p (char *prefix, svz_t_handle *pid)
 }
 #endif  /* __MINGW32__ */
 
+/*
+ * Return 1 if a child process @var{pid} died recently, updating
+ * other internal state by side effect.  Otherwise, return 0.
+ */
+int
+svz_most_recent_dead_child_p (svz_t_handle pid)
+{
+  if (svz_child_died && pid == svz_child_died)
+    {
+      svz_child_died = 0;
+      return 1;
+    }
+  return 0;
+}
 
 /*
  * Idle function for the passthrough shuffle connection @var{sock}.  The

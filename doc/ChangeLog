@@ -1,5 +1,12 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_most_recent_dead_child_p
+
+	* serveez-api.texi.in (Passthrough connections):
+	Add ‘svz_most_recent_dead_child_p’ and intro blurb.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib woe] Add abstraction: svz_mingw_child_dead_p
 
 	* serveez-api.texi.in (Passthrough connections):

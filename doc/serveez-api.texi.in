@@ -469,6 +469,9 @@ child dies, so for that platform, so should use the next function (which is
 not otherwise available):
 |F| svz_mingw_child_dead_p
 
+On non-Windoze, this is the function you want to use:
+|F| svz_most_recent_dead_child_p
+
 |F| svz_envblock_setup
 |F| svz_envblock_create
 |F| svz_envblock_default

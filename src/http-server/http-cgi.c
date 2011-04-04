@@ -135,12 +135,8 @@ http_cgi_died (svz_socket_t *sock)
     {
 #ifndef __MINGW32__
       /* Check if a died child is this cgi.  */
-      if (svz_child_died && http->pid == svz_child_died)
-        {
-          svz_log (SVZ_LOG_NOTICE, "cgi script pid %d died\n",
-                   (int) svz_child_died);
-          svz_child_died = 0;
-        }
+      if (svz_most_recent_dead_child_p (http->pid))
+        svz_log (SVZ_LOG_NOTICE, "cgi script pid %d died\n", (int) http->pid);
 #if HAVE_WAITPID
       /* Test if the cgi is still running.  */
       if (waitpid (http->pid, NULL, WNOHANG) == http->pid)

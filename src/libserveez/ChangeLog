@@ -1,5 +1,13 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_most_recent_dead_child_p
+
+	* passthrough.c (svz_most_recent_dead_child_p): New func.
+	* passthrough.h (svz_most_recent_dead_child_p):
+	New func decl, marked ‘SERVEEZ_API’.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib woe] Add abstraction: svz_mingw_child_dead_p
 
 	* passthrough.c

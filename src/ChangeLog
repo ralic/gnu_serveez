@@ -1,5 +1,12 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstraction: svz_most_recent_dead_child_p
+
+	* http-server/http-cgi.c
+	(http_cgi_died) [!__MINGW32__]: Use ‘svz_most_recent_dead_child_p’.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib woe] Add abstraction: svz_mingw_child_dead_p
 
 	* http-server/http-cgi.c: Don't #include "woe-wait.h".
