@@ -29,8 +29,7 @@
 #include "libserveez/portcfg.h"
 /* end svzint */
 
-SERVEEZ_API svz_t_handle svz_child_died;
-
+SBO svz_t_handle svz_child_died;
 SBO int svz_nuke_happened;
 SBO long svz_notify;
 SBO svz_socket_t *svz_sock_root;
