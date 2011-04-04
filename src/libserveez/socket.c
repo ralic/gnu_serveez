@@ -654,3 +654,30 @@ svz_wait_if_unavailable (svz_socket_t *sock, unsigned int relax)
     }
   return 0;
 }
+
+/*
+ * Shorten the receive buffer of @var{sock} by @var{len} bytes.
+ */
+void
+svz_sock_reduce_recv (svz_socket_t *sock, int len)
+{
+  /* FIXME: What about the ‘0 > len’ case?  */
+  if (len && sock->recv_buffer_fill > len)
+    memmove (sock->recv_buffer, sock->recv_buffer + len,
+             sock->recv_buffer_fill - len);
+  sock->recv_buffer_fill -= len;
+}
+
+/*
+ * Reduce the send buffer of @var{sock} by @var{len} bytes.
+ */
+void
+svz_sock_reduce_send (svz_socket_t *sock, int len)
+{
+  /* FIXME: What about the ‘0 > len’ case?  */
+  if (len && sock->send_buffer_fill > len)
+    memmove (sock->send_buffer, sock->send_buffer + len,
+             sock->send_buffer_fill - len);
+  sock->send_buffer_fill -= len;
+}
+

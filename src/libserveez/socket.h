@@ -254,27 +254,9 @@ SERVEEZ_API int svz_sock_printf (svz_socket_t *, const char *, ...);
 SERVEEZ_API int svz_sock_resize_buffers (svz_socket_t *, int, int);
 SERVEEZ_API int svz_sock_check_request (svz_socket_t *);
 SERVEEZ_API int svz_wait_if_unavailable (svz_socket_t *, unsigned int);
+SERVEEZ_API void svz_sock_reduce_recv (svz_socket_t *, int);
+SERVEEZ_API void svz_sock_reduce_send (svz_socket_t *, int);
 
 __END_DECLS
-
-/*
- * Shorten the receive buffer of @var{sock} by @var{len} bytes.
- */
-#define svz_sock_reduce_recv(sock, len)                        \
-  if ((len) && (sock)->recv_buffer_fill > (len)) {             \
-    memmove ((sock)->recv_buffer, (sock)->recv_buffer + (len), \
-             (sock)->recv_buffer_fill - (len));                \
-  }                                                            \
-  (sock)->recv_buffer_fill -= (len);
-
-/*
- * Reduce the send buffer of @var{sock} by @var{len} bytes.
- */
-#define svz_sock_reduce_send(sock, len)                        \
-  if ((len) && (sock)->send_buffer_fill > (len)) {             \
-    memmove ((sock)->send_buffer, (sock)->send_buffer + (len), \
-             (sock)->send_buffer_fill - (len));                \
-  }                                                            \
-  (sock)->send_buffer_fill -= (len);
 
 #endif /* not __SOCKET_H__ */

@@ -484,8 +484,8 @@ function which kind of socket it can handle and what they are for.
 |F| svz_sock_printf
 |F| svz_sock_resize_buffers
 |F| svz_sock_check_request
-|M| svz_sock_reduce_recv
-|M| svz_sock_reduce_send
+|F| svz_sock_reduce_recv
+|F| svz_sock_reduce_send
 
 @node Coserver functions
 @subsection Coserver functions

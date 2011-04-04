@@ -1,5 +1,14 @@
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Convert svz_sock_reduce_{recv,send} to functions.
+
+	* socket.h (svz_sock_reduce_recv, svz_sock_reduce_send):
+	Delete macros; add func decls by the same name.
+	* socket.c (svz_sock_reduce_recv)
+	(svz_sock_reduce_send): New funcs.
+
+2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Prefix ‘SOCK_MAX_WRITE’ with "SVZ_".
 
 	* socket.h (SVZ_SOCK_MAX_WRITE): Rename from ‘SOCK_MAX_WRITE’.
