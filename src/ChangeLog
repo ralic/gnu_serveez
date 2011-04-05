@@ -1,5 +1,11 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_servertype_finalize’.
+
+	* serveez.c (guile_entry): Don't call ‘svz_servertype_finalize’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Combine svz_server_{init,finalize}_all into ‘svz_server_all_updn’.
 
 	* serveez.c (guile_entry): Use ‘svz_server_all_updn’.

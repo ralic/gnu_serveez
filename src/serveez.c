@@ -118,7 +118,6 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 
   /* Run the finalizers.  */
   svz_server_all_updn (0);
-  svz_servertype_finalize ();
 
   /* Disconnect the previously invoked internal coservers.  */
   svz_log (SVZ_LOG_NOTICE, "destroying internal coservers\n");

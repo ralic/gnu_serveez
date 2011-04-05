@@ -586,7 +586,6 @@ to register its builtin server types.
 |F| svz_servertype_add
 |F| svz_servertype_get
 |F| svz_servertype_find
-|F| svz_servertype_finalize
 |F| svz_servertype_print
 
 @node Dynamic server loading

@@ -1,5 +1,12 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_servertype_finalize’.
+
+	* serveez-api.texi.in (General server type functionality):
+	Delete ‘svz_servertype_finalize’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Combine svz_server_{init,finalize}_all into ‘svz_server_all_updn’.
 
 	* serveez-api.texi.in (Server functionality):

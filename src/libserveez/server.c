@@ -230,7 +230,7 @@ svz_servertype_get (char *name, int dynamic)
  * Run the global finalizers of each server type and delete all server
  * types.
  */
-void
+static void
 svz_servertype_finalize (void)
 {
   int i;
@@ -464,6 +464,7 @@ svz_server_finalize_all (void)
   svz_log (SVZ_LOG_NOTICE, "running all server finalizers\n");
   svz_hash_destroy (svz_servers);
   svz_servers = NULL;
+  svz_servertype_finalize ();
   return 0;
 }
 
