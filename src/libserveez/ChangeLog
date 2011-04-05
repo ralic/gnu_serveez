@@ -1,5 +1,11 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Fix typo: Use ‘int’, not ‘svz_t_socket’.
+
+	* boot.h (svz_config_t): Use ‘int’ for member ‘.max_sockets’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Move control protocol password out of libserveez.
 
 	* boot.h (svz_config_t): Remove member ‘.password’.

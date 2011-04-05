@@ -31,7 +31,7 @@
 typedef struct
 {
   /* defines how many clients are allowed to connect */
-  svz_t_socket max_sockets;
+  int max_sockets;
   /* log level verbosity */
   int verbosity;
 }
