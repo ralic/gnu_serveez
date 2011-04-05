@@ -133,7 +133,6 @@ HACKING libserveez API					-*- org -*-
 ***** change ‘svz_config_intarray_create’ et al
       to take a first arg ‘size_t count’
 *** more-coserver/coserver
-***** combine svz_coserver_{init,finalize}
 ***** raise abstraction
 ******* move ctrl-server funcs into coserver.c
 ******* zonk ‘svz_foreach_coserver’, ‘svz_coserver_destroy’
