@@ -1107,7 +1107,7 @@ svz_coserver_create (int type)
  * Global coserver initialization.  Here you should start all the internal
  * coservers you want to use later.
  */
-int
+static int
 svz_coserver_init (void)
 {
   int i, n;
@@ -1131,7 +1131,7 @@ svz_coserver_init (void)
 /*
  * Global coserver finalization.
  */
-int
+static int
 svz_coserver_finalize (void)
 {
   int n;
@@ -1151,4 +1151,17 @@ svz_coserver_finalize (void)
   /* Destroy all callbacks left so far.  */
   svz_hash_destroy (svz_coserver_callbacks);
   return 0;
+}
+
+/*
+ * If @var{direction} is non-zero, init coserver internals.
+ * Otherwise, finalize them.  Return 0 if successful.
+ */
+int
+svz_coserver_updn (int direction)
+{
+  return (direction
+          ? svz_coserver_init
+          : svz_coserver_finalize)
+    ();
 }

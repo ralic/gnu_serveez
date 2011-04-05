@@ -1,5 +1,13 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine svz_coserver_{init,finalize} into ‘svz_coserver_updn’.
+
+	* serveez-api.texi.in (Coserver functions):
+	Add ‘svz_coserver_updn’; rework intro blurb;
+	delete ‘svz_coserver_init’, ‘svz_coserver_finalize’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstractions for runtime parameter manipulation.
 
 	* Makefile.am (libserveez_impl): Add boot.h.

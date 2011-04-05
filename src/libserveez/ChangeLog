@@ -1,5 +1,15 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine svz_coserver_{init,finalize} into ‘svz_coserver_updn’.
+
+	* coserver/coserver.h
+	(svz_coserver_updn): New func decl, marked ‘SERVEEZ_API’.
+	(svz_coserver_init, svz_coserver_finalize): Delete func decls.
+	* coserver/coserver.c (svz_coserver_updn): New func.
+	(svz_coserver_init, svz_coserver_finalize): Make static.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add abstractions for runtime parameter manipulation.
 
 	* defines.h (svz_private_t): Add member ‘.nclient_max’.

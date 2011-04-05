@@ -102,8 +102,7 @@ __BEGIN_DECLS
 SERVEEZ_API svz_sock_iv_t *svz_make_sock_iv (svz_socket_t *);
 SERVEEZ_API int svz_foreach_coserver (svz_coserver_do_t *, void *);
 SERVEEZ_API void svz_coserver_check (void);
-SERVEEZ_API int svz_coserver_init (void);
-SERVEEZ_API int svz_coserver_finalize (void);
+SERVEEZ_API int svz_coserver_updn (int);
 SERVEEZ_API void svz_coserver_destroy (int);
 SERVEEZ_API svz_coserver_t *svz_coserver_create (int);
 SERVEEZ_API const char *svz_coserver_type_name (const svz_coserver_t *);

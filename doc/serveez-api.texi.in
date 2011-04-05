@@ -505,15 +505,8 @@ coserver is connected via a pair of pipes to the main thread of serveez
 communicating over a simple text line protocol.  Each request/response is
 separated by a newline character.
 
-If the user wants to use these processes you need to start the coserver
-interface by calling @code{svz_coserver_init} once before entering the
-main server loop and shut it down afterwards by calling
-@code{svz_coserver_finalize}.
-
 |F| svz_foreach_coserver
 |F| svz_coserver_check
-|F| svz_coserver_init
-|F| svz_coserver_finalize
 |F| svz_coserver_destroy
 |F| svz_coserver_create
 |F| svz_coserver_type_name
@@ -521,6 +514,12 @@ main server loop and shut it down afterwards by calling
 |F| svz_coserver_rdns_invoke
 |F| svz_coserver_dns_invoke
 |F| svz_coserver_ident_invoke
+
+If the user wants to use these processes you need to start the coserver
+interface by calling @code{svz_coserver_updn} once before, and once after,
+entering the main server loop.
+
+|F| svz_coserver_updn
 
 @node Codec functions
 @subsection Codec functions
