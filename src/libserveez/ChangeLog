@@ -1,5 +1,15 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine svz_server_{init,finalize}_all into ‘svz_server_all_updn’.
+
+	* server.h
+	(svz_server_all_updn): New func decl, marked ‘SERVEEZ_API’.
+	(svz_server_init_all, svz_server_finalize_all): Delete func decls.
+	* server.c (svz_server_all_updn): New func.
+	(svz_server_init_all, svz_server_finalize_all): Make static.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Combine svz_coserver_{init,finalize} into ‘svz_coserver_updn’.
 
 	* coserver/coserver.h

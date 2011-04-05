@@ -118,8 +118,7 @@ SERVEEZ_API void svz_server_foreach (svz_server_do_t *, void *);
 SERVEEZ_API svz_server_t *svz_server_get (char *);
 SERVEEZ_API svz_server_t *svz_server_find (void *);
 SERVEEZ_API svz_array_t *svz_server_clients (svz_server_t *);
-SERVEEZ_API int svz_server_init_all (void);
-SERVEEZ_API int svz_server_finalize_all (void);
+SERVEEZ_API int svz_server_all_updn (int);
 
 SERVEEZ_API void svz_servertype_add (svz_servertype_t *);
 SERVEEZ_API svz_servertype_t *svz_servertype_get (char *, int);

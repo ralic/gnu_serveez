@@ -1,5 +1,13 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine svz_server_{init,finalize}_all into ‘svz_server_all_updn’.
+
+	* serveez-api.texi.in (Server functionality):
+	Add ‘svz_server_all_updn’; delete
+	‘svz_server_init_all’, ‘svz_server_finalize_all’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Combine svz_coserver_{init,finalize} into ‘svz_coserver_updn’.
 
 	* serveez-api.texi.in (Coserver functions):

@@ -109,7 +109,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
     }
 
   /* Initialize server instances.  */
-  if (svz_server_init_all () == -1)
+  if (svz_server_all_updn (1) == -1)
     {
       exit (6);
     }
@@ -117,7 +117,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   svz_loop ();
 
   /* Run the finalizers.  */
-  svz_server_finalize_all ();
+  svz_server_all_updn (0);
   svz_servertype_finalize ();
 
   /* Disconnect the previously invoked internal coservers.  */

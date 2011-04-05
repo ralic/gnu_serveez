@@ -427,7 +427,7 @@ init_all_internal (svz_server_t *server, void *closure)
  * Run the initializers of all servers, return -1 if some server did not
  * think it is a good idea to run.
  */
-int
+static int
 svz_server_init_all (void)
 {
   int errneous = 0;
@@ -458,13 +458,28 @@ svz_server_finalize (svz_server_t *server)
 /*
  * Run the local finalizers for all server instances.
  */
-int
+static int
 svz_server_finalize_all (void)
 {
   svz_log (SVZ_LOG_NOTICE, "running all server finalizers\n");
   svz_hash_destroy (svz_servers);
   svz_servers = NULL;
   return 0;
+}
+
+/*
+ * If @var{direction} is non-zero, run the initializers of all
+ * servers, returning -1 if some server did not think it is a good
+ * idea to run.  Otherwise, run the local finalizers for all
+ * server instances.
+ */
+int
+svz_server_all_updn (int direction)
+{
+  return (direction
+          ? svz_server_init_all
+          : svz_server_finalize_all)
+    ();
 }
 
 /*
