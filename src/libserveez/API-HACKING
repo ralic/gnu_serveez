@@ -123,8 +123,6 @@ HACKING libserveez API					-*- org -*-
 *** more-server-core
 ***** (maybe) combine set/get funcs
 *** more-server
-***** combine ‘svz_server_init_all’, ‘svz_server_finalize_all’,
-      ‘svz_servertype_finalize’
 ***** fold ‘svz_servertype_print’ into [[svz_prettyprint]]
 *** more-portcfg
 ***** fold ‘svz_portcfg_print’ into [[svz_prettyprint]]
