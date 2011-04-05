@@ -81,10 +81,10 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
    * file settings.
    */
   if (options->verbosity != -1)
-    svz_config.verbosity = options->verbosity;
+    SVZ_RUNPARM_X (VERBOSITY, options->verbosity);
 
   if (options->sockets != -1)
-    svz_config.max_sockets = options->sockets;
+    SVZ_RUNPARM_X (MAX_SOCKETS, options->sockets);
 
 #if ENABLE_CONTROL_PROTO
   if (options->pass)
@@ -98,9 +98,9 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   svz_log (SVZ_LOG_NOTICE, "serveez starting, debugging enabled\n");
 #endif /* ENABLE_DEBUG */
 
-  svz_openfiles (svz_config.max_sockets);
+  svz_openfiles (SVZ_RUNPARM (MAX_SOCKETS));
   svz_log (SVZ_LOG_NOTICE, "using %d socket descriptors\n",
-           svz_config.max_sockets);
+           SVZ_RUNPARM (MAX_SOCKETS));
 
   /* Startup the internal coservers here.  */
   if (svz_coserver_init () == -1)
@@ -183,7 +183,7 @@ main (int argc, char *argv[])
 
   /* Setup verbosity once.  */
   if (options->verbosity != -1)
-    svz_config.verbosity = options->verbosity;
+    SVZ_RUNPARM_X (VERBOSITY, options->verbosity);
 
   /* Start as daemon, not as foreground application.  */
   if (options->daemon)

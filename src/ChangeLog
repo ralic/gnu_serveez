@@ -1,5 +1,16 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstractions for runtime parameter manipulation.
+
+	* ctrl-server/control-proto.c (ctrl_stat): Use ‘SVZ_RUNPARM’.
+	* guile.c (int_accessor): Delete func.
+	(parm_accessor): New static func.
+	(guile_access_verbosity, guile_access_maxsockets): Use ‘parm_accessor’.
+	* serveez.c (guile_entry): Use ‘SVZ_RUNPARM_X’, ‘SVZ_RUNPARM’.
+	(main): Use ‘SVZ_RUNPARM_X’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Move control protocol password out of libserveez.
 
 	* ctrl-server/control-proto.c

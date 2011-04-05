@@ -41,7 +41,7 @@ libserveez_impl = \
   alloc.c alloc.h \
   array.c array.h \
   binding.c \
-  boot.c \
+  boot.c boot.h \
   cfg.c cfg.h \
   core.c \
   dynload.c \

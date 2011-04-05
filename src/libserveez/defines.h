@@ -77,6 +77,9 @@ typedef struct
 
   time_t boot;
   /* The time when ‘svz_boot’ was called.  */
+
+  int nclient_max;
+  /* Maxium number of clients allowed to connect.  */
 } svz_private_t;
 
 __BEGIN_DECLS

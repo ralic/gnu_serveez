@@ -1621,13 +1621,13 @@ MAKE_STRING_CHECKER (guile_check_stype, svz_servertype_get (str, 0) != NULL)
 #undef FUNC_NAME
 
 static SCM
-int_accessor (char const *who, int *x, SCM arg)
+parm_accessor (char const *who, int param, SCM arg)
 {
-  SCM value = gi_integer2scm (*x);
+  SCM value;
   int n;
 
   GUILE_PRECALL ();
-
+  value = gi_integer2scm (svz_runparm (-1, param));
   if (!SCM_UNBNDP (arg))
     {
       if (guile_to_integer (arg, &n))
@@ -1636,7 +1636,8 @@ int_accessor (char const *who, int *x, SCM arg)
           guile_global_error = -1;
         }
       else
-        *x = n;
+        /* FIXME: Check return value.  */
+        svz_runparm (param, n);
     }
   return value;
 }
@@ -1669,13 +1670,17 @@ string_accessor (char const *who, char **x, SCM arg)
 static SCM
 guile_access_verbosity (SCM level)
 {
-  return int_accessor ("serveez-verbosity", &svz_config.verbosity, level);
+  return parm_accessor ("serveez-verbosity",
+                        SVZ_RUNPARM_VERBOSITY,
+                        level);
 }
 
 static SCM
 guile_access_maxsockets (SCM max)
 {
-  return int_accessor ("serveez-maxsockets", &svz_config.max_sockets, max);
+  return parm_accessor ("serveez-maxsockets",
+                        SVZ_RUNPARM_MAX_SOCKETS,
+                        max);
 }
 
 #if ENABLE_CONTROL_PROTO

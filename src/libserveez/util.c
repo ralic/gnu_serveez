@@ -147,7 +147,7 @@ svz_log (int level, const char *format, ...)
   time_t tm;
   struct tm *t;
 
-  if (level > svz_config.verbosity || svz_logfile == NULL ||
+  if (level > SVZ_RUNPARM (VERBOSITY) || svz_logfile == NULL ||
       feof (svz_logfile) || ferror (svz_logfile))
     return;
 

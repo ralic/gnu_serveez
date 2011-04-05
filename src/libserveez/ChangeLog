@@ -1,5 +1,25 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstractions for runtime parameter manipulation.
+
+	* defines.h (svz_private_t): Add member ‘.nclient_max’.
+	* boot.c (log_verbosity): New static var.
+	(svz_config): Delete var.
+	(svz_init_config): Delete func.
+	(svz_boot): Init runparms ‘MAX_SOCKETS’, ‘VERBOSITY’.
+	(bad_runparm): New static func.
+	(svz_runparm): New func.
+	* boot.h (SVZ_RUNPARM_VERBOSITY): New #define.
+	(SVZ_RUNPARM_MAX_SOCKETS): Likewise.
+	(svz_config_t): Delete struct / typedef.
+	(svz_config): Delete var decl.
+	(svz_runparm): New func decl, marked ‘SERVEEZ_API’.
+	(SVZ_RUNPARM, SVZ_RUNPARM_X): New macros.
+	* server-socket.c (svz_tcp_accept): Use ‘SVZ_RUNPARM’.
+	* util.c (svz_log): Likewise.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Fix typo: Use ‘int’, not ‘svz_t_socket’.
 
 	* boot.h (svz_config_t): Use ‘int’ for member ‘.max_sockets’.

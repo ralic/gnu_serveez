@@ -38,9 +38,9 @@
 #include "libserveez/codec/codec.h"
 
 /*
- * The configuration structure of the core library.
+ * The one and only...
  */
-svz_config_t svz_config = { 0, 0 };
+static int log_verbosity;
 
 /*
  * Library private dynamic state.
@@ -146,16 +146,6 @@ svz__net_updn (int direction)
     ();
 }
 
-/*
- * Initialization of the configuration.
- */
-static void
-svz_init_config (void)
-{
-  svz_config.verbosity = SVZ_LOG_DEBUG;
-  svz_config.max_sockets = 100;
-}
-
 /* These are used only in ‘svz_boot’ and ‘svz_halt’,
    so it's easier to just declare them here.  */
 
@@ -184,6 +174,8 @@ svz_boot (char const *client)
   svz_private = svz_malloc (sizeof (svz_private_t));
   THE (client) = svz_strdup (client ? client : "anonymous");
   THE (boot) = time (NULL);
+  SVZ_RUNPARM_X (MAX_SOCKETS, 100);
+  SVZ_RUNPARM_X (VERBOSITY, SVZ_LOG_DEBUG);
 
 #define UP(x)  svz__ ## x ## _updn (1)
 
@@ -191,7 +183,6 @@ svz_boot (char const *client)
   UP (strsignal);
   UP (sock_table);
   UP (signal);
-  svz_init_config ();
   UP (interface);
   UP (net);
   UP (pipe);
@@ -212,6 +203,47 @@ svz_uptime (void)
   return svz_private
     ? time (NULL) - THE (boot)
     : -1;
+}
+
+static int
+bad_runparm (int parm)
+{
+  svz_log (SVZ_LOG_ERROR, "invalid runtime configuration parameter: %d",
+           parm);
+  return -1;
+}
+
+/*
+ * Set or get a runtime parameter.
+ * If @var{a} is -1, return the value of runtime parameter
+ * @var{b}.  If @var{a} specifies a runtime parameter,
+ * set it to @var{b} and return 0.  Otherwise, return -1.
+ */
+int
+svz_runparm (int a, int b)
+{
+  switch (a)
+    {
+    case -1:
+      switch (b)
+        {
+        case SVZ_RUNPARM_VERBOSITY:   return log_verbosity;
+        case SVZ_RUNPARM_MAX_SOCKETS: return THE (nclient_max);
+        default:                      return bad_runparm (b);
+        }
+
+    case SVZ_RUNPARM_VERBOSITY:
+      log_verbosity = b;
+      break;
+
+    case SVZ_RUNPARM_MAX_SOCKETS:
+      THE (nclient_max) = b;
+      break;
+
+    default:
+      return bad_runparm (b);
+    }
+  return 0;
 }
 
 /*

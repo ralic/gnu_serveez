@@ -868,7 +868,7 @@ codec_main (int argc, char **argv)
   /* Setup serveez core library.  */
   svz_boot ("codec");
 #if ENABLE_DEBUG
-  svz_config.verbosity = 9;
+  SVZ_RUNPARM_X (VERBOSITY, 9);
   svz_log_setfile (stderr);
 #endif
 

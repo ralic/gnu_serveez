@@ -25,30 +25,31 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/*
- * General serveez configuration structure.
- */
-typedef struct
-{
-  /* defines how many clients are allowed to connect */
-  int max_sockets;
-  /* log level verbosity */
-  int verbosity;
-}
-svz_config_t;
+/* Runtime parameters.  */
+#define SVZ_RUNPARM_VERBOSITY    0
+#define SVZ_RUNPARM_MAX_SOCKETS  1
 
 __BEGIN_DECLS
 
 SERVEEZ_API const char * const * svz_library_features (size_t *);
-
-/* Core library configuration.  */
-SERVEEZ_API svz_config_t svz_config;
-
-/* Exported functions.  */
 SERVEEZ_API void svz_boot (char const *);
 SERVEEZ_API long svz_uptime (void);
+SERVEEZ_API int svz_runparm (int, int);
 SERVEEZ_API void svz_halt (void);
 
 __END_DECLS
+
+/*
+ * Return the value of runtime parameter @var{nick}.
+ */
+#define SVZ_RUNPARM(nick)                       \
+  svz_runparm (-1, SVZ_RUNPARM_ ## nick)
+
+/*
+ * Set the runtime paramater @var{nick}
+ * to have value @var{val}, an integer.
+ */
+#define SVZ_RUNPARM_X(nick,val)                 \
+  svz_runparm (SVZ_RUNPARM_ ## nick, (val))
 
 #endif /* not __BOOT_H__ */

@@ -1,5 +1,15 @@
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add abstractions for runtime parameter manipulation.
+
+	* Makefile.am (libserveez_impl): Add boot.h.
+	* serveez-api.texi.in (Booting): Rewrite intro;
+	Add table to document SVZ_RUNPARM_* #define:s;
+	add ‘svz_runparm’, ‘SVZ_RUNPARM’, ‘SVZ_RUNPARM_X’;
+	delete ‘svz_config’.
+
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[int] Move control protocol password out of libserveez.
 
 	* serveez.texi (Command line options):

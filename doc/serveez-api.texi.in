@@ -735,17 +735,33 @@ configuration just a single one gets actually used.
 @node Booting
 @subsection Boot functions
 
-This section contains the description of some runtime checkable flags
-indicating the abilities of the running serveez core API.
-It also describes the most important functions
+The most important functions are
 @code{svz_boot} and @code{svz_halt} which must be the first and the last
 call to the core API.
-
-|V| svz_config
 
 |F| svz_boot
 |F| svz_uptime
 |F| svz_halt
+
+@subsubsection Runtime parameters
+
+There are several runtime parameters
+indicating the abilities of the libserveez core API:
+
+@table @code
+@item SVZ_RUNPARM_VERBOSITY
+The log-level verbosity.
+@item SVZ_RUNPARM_MAX_SOCKETS
+Maxium number of clients allowed to connect.
+@end table
+
+These are manipulated by @code{svz_runparm} and two convenience macros,
+both of which accept @dfn{nick}, a C token without the prefix
+@samp{SVZ_RUNPARM_} (e.g., @code{VERBOSITY}).
+
+|F| svz_runparm
+|M| SVZ_RUNPARM
+|M| SVZ_RUNPARM_X
 
 @node Interface
 @subsection Network interface functions

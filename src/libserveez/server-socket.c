@@ -146,6 +146,7 @@ svz_tcp_accept (svz_socket_t *server_sock)
   socklen_t client_size;        /* size of the address above */
   svz_socket_t *sock;
   svz_portcfg_t *port = server_sock->port;
+  int max_sockets;
 
   memset (&client, 0, sizeof (client));
   client_size = sizeof (client);
@@ -159,10 +160,11 @@ svz_tcp_accept (svz_socket_t *server_sock)
       return 0;
     }
 
-  if ((svz_t_socket) svz_sock_connections >= svz_config.max_sockets)
+  max_sockets = SVZ_RUNPARM (MAX_SOCKETS);
+  if ((svz_t_socket) svz_sock_connections >= max_sockets)
     {
       svz_log (SVZ_LOG_WARNING, "socket descriptor exceeds "
-               "socket limit %d\n", svz_config.max_sockets);
+               "socket limit %d\n", max_sockets);
       if (svz_closesocket (client_socket) < 0)
         {
           svz_log_net_error ("close");
