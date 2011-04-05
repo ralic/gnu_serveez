@@ -1,3 +1,13 @@
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Move control protocol password out of libserveez.
+
+	* serveez.texi (Command line options):
+	Document "-P" conditionality; add xref.
+	(Bind servers to ports): Document ‘serveez-passwd’ conditionality.
+	(Control Protocol Server): Document "-P"
+	and general control server conditionality.
+
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize "boot time".

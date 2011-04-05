@@ -137,7 +137,9 @@ usage (int exitval)
  "  -f, --cfg-file=FILENAME  file to use as configuration file (serveez.cfg)\n"
  "  -v, --verbose=LEVEL      set level of verbosity\n"
  "  -l, --log-file=FILENAME  use FILENAME for logging (default is stderr)\n"
+#if ENABLE_CONTROL_PROTO
  "  -P, --password=STRING    set the password for control connections\n"
+#endif
  "  -m, --max-sockets=COUNT  set the max. number of socket descriptors\n"
  "  -d, --daemon             start as daemon in background\n"
  "  -c, --stdin              use standard input as configuration file\n"
@@ -148,7 +150,9 @@ usage (int exitval)
  "  -f FILENAME  file to use as configuration file (serveez.cfg)\n"
  "  -v LEVEL     set level of verbosity\n"
  "  -l FILENAME  use FILENAME for logging (default is stderr)\n"
+#if ENABLE_CONTROL_PROTO
  "  -P STRING    set the password for control connections\n"
+#endif
  "  -m COUNT     set the max. number of socket descriptors\n"
  "  -d           start as daemon in background\n"
  "  -c           use standard input as configuration file\n"
@@ -171,13 +175,19 @@ static struct option serveez_options[] = {
   {"verbose", required_argument, NULL, 'v'},
   {"cfg-file", required_argument, NULL, 'f'},
   {"log-file", required_argument, NULL, 'l'},
+#if ENABLE_CONTROL_PROTO
   {"password", required_argument, NULL, 'P'},
+#endif
   {"max-sockets", required_argument, NULL, 'm'},
   {NULL, 0, NULL, 0}
 };
 #endif /* HAVE_GETOPT_LONG */
 
+#if ENABLE_CONTROL_PROTO
 #define SERVEEZ_OPTIONS "l:hViv:f:P:m:dc"
+#else
+#define SERVEEZ_OPTIONS "l:hViv:f:m:dc"
+#endif
 
 /*
  * Parse the command line options.  If these have been correct the function
@@ -200,7 +210,9 @@ handle_options (int argc, char **argv)
   options.cfgfile = cfgfile;
   options.verbosity = -1;
   options.sockets = -1;
+#if ENABLE_CONTROL_PROTO
   options.pass = NULL;
+#endif
   options.daemon = 0;
   options.loghandle = NULL;
 
@@ -259,6 +271,7 @@ handle_options (int argc, char **argv)
           options.logfile = optarg;
           break;
 
+#if ENABLE_CONTROL_PROTO
         case 'P':
           if (!optarg || strlen (optarg) < 2)
             usage (EXIT_FAILURE);
@@ -268,6 +281,7 @@ handle_options (int argc, char **argv)
           options.pass = svz_pstrdup (optarg);
 #endif
           break;
+#endif  /* ENABLE_CONTROL_PROTO */
 
         case 'm':
           if (!optarg)

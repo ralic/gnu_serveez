@@ -1678,10 +1678,17 @@ guile_access_maxsockets (SCM max)
   return int_accessor ("serveez-maxsockets", &svz_config.max_sockets, max);
 }
 
+#if ENABLE_CONTROL_PROTO
+extern
+#else
+static                                  /* dummy */
+#endif
+char *control_protocol_password;
+
 static SCM
 guile_access_passwd (SCM pw)
 {
-  return string_accessor ("serveez-passwd", &svz_config.password, pw);
+  return string_accessor ("serveez-passwd", &control_protocol_password, pw);
 }
 
 /*

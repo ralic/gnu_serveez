@@ -1,3 +1,23 @@
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Move control protocol password out of libserveez.
+
+	* ctrl-server/control-proto.c
+	(control_protocol_password): New var.
+	(ctrl_handle_request): Use ‘control_protocol_password’.
+	* guile.c (control_protocol_password): New var decl,
+	either ‘extern’ or ‘static’ depending on ‘ENABLE_CONTROL_PROTO’.
+	(guile_access_passwd): Use ‘control_protocol_password’.
+	* option.h (option_t):
+	Include ‘.pass’ only if ‘ENABLE_CONTROL_PROTO’.
+	* option.c (usage, serveez_options, SERVEEZ_OPTIONS)
+	(handle_options): Include "-P" support only if ‘ENABLE_CONTROL_PROTO’.
+	* serveez.c [ENABLE_CONTROL_PROTO] (control_protocol_password):
+	New extern var decl.
+	(guile_entry): Include "-P" support only if
+	‘ENABLE_CONTROL_PROTO’; use ‘control_protocol_password’;
+	free and zero ‘control_protocol_password’ prior to ‘svz_halt’.
+
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize "boot time".

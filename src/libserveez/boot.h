@@ -30,8 +30,6 @@
  */
 typedef struct
 {
-  /* program's password */
-  char *password;
   /* defines how many clients are allowed to connect */
   svz_t_socket max_sockets;
   /* log level verbosity */

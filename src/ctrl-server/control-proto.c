@@ -64,6 +64,11 @@
 #endif
 
 /*
+ * The one and only...
+ */
+char *control_protocol_password;
+
+/*
  * The control server instance configuration.
  */
 ctrl_config_t ctrl_config =
@@ -906,12 +911,13 @@ ctrl_handle_request (svz_socket_t *sock, char *request, int len)
       if (len <= 2) return -1;
 #if defined HAVE_CRYPT
       request[len] = '\0';
-      if (svz_config.password == NULL ||
-          !strcmp (crypt (request, svz_config.password), svz_config.password))
+      if (control_protocol_password == NULL ||
+          !strcmp (crypt (request, control_protocol_password),
+                   control_protocol_password))
 #else
-      if (svz_config.password == NULL ||
-          (!memcmp (request, svz_config.password, len) &&
-           (unsigned) len >= strlen (svz_config.password)))
+      if (control_protocol_password == NULL ||
+          (!memcmp (request, control_protocol_password, len) &&
+           (unsigned) len >= strlen (control_protocol_password)))
 #endif
         {
           sock->userflags |= CTRL_FLAG_PASSED;

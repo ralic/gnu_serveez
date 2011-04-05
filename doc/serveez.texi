@@ -319,6 +319,8 @@ Set level of logging verbosity.
 Use @code{FILENAME} for logging (default is stderr).
 @item -P, --password=STRING
 Set the password for control connections.
+This option is available only if the control protocol is enabled.
+@xref{Control Protocol Server}.
 @item -m, --max-sockets=COUNT
 Set the maximum number of socket descriptors.
 @item -d, --daemon
@@ -697,6 +699,7 @@ gets overridden, too.
 
 @deffn @PROC{} serveez-passwd password
 Set the @var{password} for the control protocol.
+This effectively does nothing if the control protocol is not enabled.
 @end deffn
 
 We now have a closer look at the internals of Serveez.  If you
@@ -1689,6 +1692,11 @@ Kill user, wildcards allowed.
 
 @node Control Protocol Server
 @subsection Control Protocol Server
+
+If the GNU Serveez package is configured with the control
+protocol enabled, running @samp{serveez --help} will show
+the option @code{-P} and the following documentation applies.
+Otherwise, feel free to skip to the next section.
 
 @subsubsection General description
 

@@ -40,7 +40,7 @@
 /*
  * The configuration structure of the core library.
  */
-svz_config_t svz_config = { NULL, 0, 0 };
+svz_config_t svz_config = { 0, 0 };
 
 /*
  * Library private dynamic state.
@@ -154,7 +154,6 @@ svz_init_config (void)
 {
   svz_config.verbosity = SVZ_LOG_DEBUG;
   svz_config.max_sockets = 100;
-  svz_config.password = NULL;
 }
 
 /* These are used only in ‘svz_boot’ and ‘svz_halt’,
@@ -223,7 +222,6 @@ svz_halt (void)
 {
 #define DN(x)  svz__ ## x ## _updn (0)
 
-  svz_free_and_zero (svz_config.password);
   svz_portcfg_finalize ();
   DN (config_type);
   DN (codec);

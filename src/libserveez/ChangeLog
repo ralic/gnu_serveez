@@ -1,3 +1,12 @@
+2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[int] Move control protocol password out of libserveez.
+
+	* boot.h (svz_config_t): Remove member ‘.password’.
+	* boot.c (svz_config): Update init form.
+	(svz_init_config): Don't init ‘svz_config.password’.
+	(svz_halt): Don't free and zero ‘svz_config.password’.
+
 2011-04-04  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize "boot time".

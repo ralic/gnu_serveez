@@ -56,6 +56,10 @@ guile_launch_pad (void *closure, int argc, char **argv)
   exit (EXIT_SUCCESS);
 }
 
+#if ENABLE_CONTROL_PROTO
+extern char *control_protocol_password;
+#endif
+
 /*
  * This is the entry point for the guile interface.
  */
@@ -82,11 +86,13 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   if (options->sockets != -1)
     svz_config.max_sockets = options->sockets;
 
+#if ENABLE_CONTROL_PROTO
   if (options->pass)
     {
-      svz_free (svz_config.password);
-      svz_config.password = svz_strdup (options->pass);
+      svz_free (control_protocol_password);
+      control_protocol_password = svz_strdup (options->pass);
     }
+#endif
 
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_NOTICE, "serveez starting, debugging enabled\n");
@@ -122,6 +128,9 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   guile_server_finalize ();
 #endif /* ENABLE_GUILE_SERVER */
 
+#if ENABLE_CONTROL_PROTO
+  svz_free_and_zero (control_protocol_password);
+#endif
   svz_halt ();
 
 #if ENABLE_DEBUG

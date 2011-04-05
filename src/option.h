@@ -41,7 +41,9 @@ typedef struct
   char *cfgfile;   /* configuration file */
   int verbosity;   /* verbosity level */
   int sockets;     /* maximum amount of open files (sockets) */
+#if ENABLE_CONTROL_PROTO
   char *pass;      /* password */
+#endif
   int daemon;      /* start as daemon or not */
 }
 option_t;
