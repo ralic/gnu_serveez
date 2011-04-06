@@ -40,6 +40,11 @@
 #define HASH_EXPAND_LIMIT(hash) ((hash->buckets >> 1) + (hash->buckets >> 2))
 #define HASH_BUCKET(code, hash) (code & (hash->buckets - 1))
 
+/* useful defines */
+#define SVZ_HASH_SHRINK   4
+#define SVZ_HASH_EXPAND   8
+#define SVZ_HASH_MIN_SIZE 4
+
 /*
  * This is the basic structure of a hash entry consisting of its
  * key, the actual value stored in the hash table and the hash code
@@ -286,7 +291,7 @@ svz_hash_clear (svz_hash_t *hash)
  * is @code{SVZ_HASH_SHRINK}) its size and shrink the hash codes if these would
  * be placed somewhere else.
  */
-void
+static void
 svz_hash_rehash (svz_hash_t *hash, int type)
 {
   int n, e;

@@ -537,31 +537,6 @@ hash_main (int argc, char **argv)
     error++;
   test (error);
 
-  /* rehashing */
-  error = 0;
-  test_print ("             rehash: ");
-  while (svz_hash_capacity (hash) > SVZ_HASH_MIN_SIZE)
-    svz_hash_rehash (hash, SVZ_HASH_SHRINK);
-  while (svz_hash_capacity (hash) < svz_hash_size (hash) * 10)
-    svz_hash_rehash (hash, SVZ_HASH_EXPAND);
-  while (svz_hash_capacity (hash) > SVZ_HASH_MIN_SIZE)
-    svz_hash_rehash (hash, SVZ_HASH_SHRINK);
-  while (svz_hash_capacity (hash) < svz_hash_size (hash) * 10)
-    svz_hash_rehash (hash, SVZ_HASH_EXPAND);
-  text = svz_malloc (16);
-  for (n = 0; n < repeat; n++)
-    {
-      sprintf (text, "%015lu", (unsigned long) n);
-      if (svz_hash_get (hash, text) != (void *) n)
-        error++;
-      if (svz_hash_delete (hash, text) != (void *) n)
-        error++;
-    }
-  if (svz_hash_size (hash))
-    error++;
-  svz_free (text);
-  test (error);
-
   /* hash clear */
   test_print ("              clear: ");
   svz_hash_clear (hash);

@@ -1,5 +1,11 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_hash_rehash’.
+
+	* btdt.c (hash_main) <rehashing>: Delete tests.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v] Add test for passthrough server.
 
 	* btdt.c (spew_main): Require one arg, SLEEP,

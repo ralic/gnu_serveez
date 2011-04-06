@@ -25,11 +25,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-/* useful defines */
-#define SVZ_HASH_SHRINK   4
-#define SVZ_HASH_EXPAND   8
-#define SVZ_HASH_MIN_SIZE 4
-
 typedef struct svz_hash_entry svz_hash_entry_t;
 typedef struct svz_hash_bucket svz_hash_bucket_t;
 typedef struct svz_hash svz_hash_t;
@@ -71,7 +66,6 @@ SERVEEZ_API void svz_hash_xfree (void *);
 SERVEEZ_API int svz_hash_size (const svz_hash_t *);
 SERVEEZ_API int svz_hash_capacity (const svz_hash_t *);
 SERVEEZ_API char *svz_hash_contains (const svz_hash_t *, void *);
-SERVEEZ_API void svz_hash_rehash (svz_hash_t *, int);
 SERVEEZ_API int svz_hash_exists (const svz_hash_t *, char *);
 
 __END_DECLS

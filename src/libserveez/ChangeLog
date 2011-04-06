@@ -1,5 +1,16 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_hash_rehash’.
+
+	* hash.h (SVZ_HASH_SHRINK, SVZ_HASH_EXPAND)
+	(SVZ_HASH_MIN_SIZE): Move #define:s from here...
+	(svz_hash_rehash): Delete func decl.
+	* hash.c (SVZ_HASH_SHRINK, SVZ_HASH_EXPAND)
+	(SVZ_HASH_MIN_SIZE): ...to here.
+	(svz_hash_rehash): Make static.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘vector’ data structure and funcs.
 
 	* Makefile.am
