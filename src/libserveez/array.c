@@ -302,24 +302,6 @@ svz_array_strdup (svz_array_t *array)
 }
 
 /*
- * Create a @code{NULL} terminated C array containing the values of the
- * given @var{array}.  If the given @var{array} is @code{NULL} then an empty
- * C array is returned.  It is your responsibility to @code{svz_free} the
- * returned pointer.
- */
-void **
-svz_array_values (svz_array_t *array)
-{
-  unsigned long length = array ? array->size : 0;
-  void **carray = (void **) svz_malloc (sizeof (void *) * (length + 1));
-
-  if (array != NULL)
-    memcpy (carray, array->data, sizeof (void *) * length);
-  carray[length] = NULL;
-  return carray;
-}
-
-/*
  * This function destroys the given array @var{array} if it holds no
  * elements and returns @code{NULL} in this case.  Otherwise the
  * function returns the given array.

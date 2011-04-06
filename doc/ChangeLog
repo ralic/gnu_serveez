@@ -1,5 +1,11 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_values
+
+	* serveez-api.texi.in (Array): Delete ‘svz_array_values’.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_vector_foreach’.
 
 	* serveez-api.texi.in (Vectorlist): Delete ‘svz_vector_foreach’.

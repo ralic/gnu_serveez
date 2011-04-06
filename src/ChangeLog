@@ -1,3 +1,10 @@
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop func: svz_array_values
+
+	* prog-server/prog-server.c (prog_passthrough):
+	Build ‘argv’ using ‘svz_array_size’, ‘svz_array_get’.
+
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_servertype_finalize’.

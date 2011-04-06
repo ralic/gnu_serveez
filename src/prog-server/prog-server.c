@@ -155,13 +155,17 @@ prog_passthrough (svz_socket_t *sock)
 {
   prog_config_t *cfg = sock->cfg;
   char **argv;
-  int pid;
+  int pid, argc;
 
   /* Check frequency.  */
   if (prog_check_frequency (cfg->accepted, cfg->frequency))
     return -1;
 
-  argv = (char **) svz_array_values (cfg->argv);
+  argc = svz_array_size (cfg->argv);
+  argv = svz_malloc (sizeof (char *) * (1 + argc));
+  argv[argc] = NULL;
+  while (argc--)
+    argv[argc] = svz_array_get (cfg->argv, argc);
   if ((pid = svz_sock_process (sock, cfg->bin, cfg->dir, argv, NULL,
                                cfg->fork,
                                cfg->user ? cfg->user :  SVZ_PROCESS_NONE)) < 0)

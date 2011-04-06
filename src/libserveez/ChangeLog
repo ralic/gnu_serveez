@@ -1,5 +1,12 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_values
+
+	* array.c (svz_array_values): Delete func.
+	* array.h (svz_array_values): Delete func decl.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_vector_foreach’.
 
 	* vector.h (svz_vector_foreach): Mark ‘svzint’.
