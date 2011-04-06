@@ -26,7 +26,6 @@
 #include "libserveez/alloc.h"
 #include "libserveez/array.h"
 #include "libserveez/hash.h"
-#include "libserveez/vector.h"
 #include "libserveez/util.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"

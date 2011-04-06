@@ -67,22 +67,6 @@ svz_vector_destroy (svz_vector_t *vec)
 }
 
 /*
- * Delete all elements of the given vector list @var{vec}.  What you will
- * have then is an empty vector list.  Returns the previous length.
- */
-unsigned long
-svz_vector_clear (svz_vector_t *vec)
-{
-  unsigned long length = vec->length;
-
-  if (length && vec->chunks)
-    svz_free (vec->chunks);
-  vec->chunks = NULL;
-  vec->length = 0;
-  return length;
-}
-
-/*
  * Add an element to the end of the given vector list @var{vec}.  Return the
  * position the element got.  @var{value} is a pointer to a chunk of the
  * vector lists chunk size.
@@ -109,23 +93,6 @@ svz_vector_get (svz_vector_t *vec, unsigned long index)
   if (index < vec->length)
     return ((char *) vec->chunks + index * vec->chunk_size);
   return NULL;
-}
-
-/*
- * Overwrite the element at index @var{index} in the vector list @var{vec}
- * with the given value @var{value}.  Return @code{NULL} if the index is out
- * of range or the pointer to the new element.
- */
-void *
-svz_vector_set (svz_vector_t *vec, unsigned long index, void *value)
-{
-  void *p;
-
-  if (index >= vec->length)
-    return NULL;
-  p = (char *) vec->chunks + vec->chunk_size * index;
-  memcpy ((char *) p, value, vec->chunk_size);
-  return p;
 }
 
 /*
@@ -163,84 +130,6 @@ svz_vector_del (svz_vector_t *vec, unsigned long index)
     }
   vec->length--;
   return vec->length;
-}
-
-/*
- * Insert the given element @var{value} into the vector list @var{vec} at
- * the position @var{index}.  Return the new length of the vector list or
- * -1 if the index is out of range.
- */
-unsigned long
-svz_vector_ins (svz_vector_t *vec, unsigned long index, void *value)
-{
-  char *p;
-
-  if (index > vec->length)
-    return (unsigned long) -1;
-
-  /* resize the chunk */
-  vec->length++;
-  vec->chunks = svz_realloc (vec->chunks, vec->chunk_size * vec->length);
-
-  /* append at vector lists end */
-  if (vec->length == index)
-    {
-      memcpy ((char *) vec->chunks + vec->chunk_size * index, value,
-              vec->chunk_size);
-    }
-  /* insert element into the chunk */
-  else
-    {
-      p = (char *) vec->chunks + vec->chunk_size * index;
-      memmove ((char *) p + vec->chunk_size, (char *) p,
-               (vec->length - index - 1) * vec->chunk_size);
-      memcpy ((char *) p, value, vec->chunk_size);
-    }
-  return vec->length;
-}
-
-/*
- * Find the given value @var{value} in the vector list @var{vec}.  Return -1
- * if there is no such element or the index of the element.
- */
-unsigned long
-svz_vector_idx (svz_vector_t *vec, void *value)
-{
-  unsigned long index;
-  char *p;
-
-  if (value == NULL || vec->length == 0)
-    return (unsigned long) -1;
-
-  p = vec->chunks;
-  for (index = 0; index < vec->length; index++, p += vec->chunk_size)
-    {
-      if (!memcmp (p, value, vec->chunk_size))
-        return index;
-    }
-  return (unsigned long) -1;
-}
-
-/*
- * Return how often the vector list @var{vec} contains the element given
- * in @var{value}.
- */
-unsigned long
-svz_vector_contains (svz_vector_t *vec, void *value)
-{
-  char *p;
-  unsigned long found = 0, index;
-
-  if (value == NULL || vec->length == 0)
-    return found;
-
-  p = vec->chunks;
-  for (index = 0; index < vec->length; index++, p += vec->chunk_size)
-    {
-      if (!memcmp (p, value, vec->chunk_size))
-        found++;
-    }
-  return found;
 }
 
 /*

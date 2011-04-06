@@ -25,8 +25,6 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
-typedef struct svz_vector svz_vector_t;
-
 /* begin svzint */
 /*
  * Iteration macro for the vector list @var{vector}.  Each of its values
@@ -48,18 +46,12 @@ __BEGIN_DECLS
  * either decremented or incremented.
  */
 
-SERVEEZ_API svz_vector_t *svz_vector_create (unsigned long);
-SERVEEZ_API void svz_vector_destroy (svz_vector_t *);
-SERVEEZ_API unsigned long int svz_vector_clear (svz_vector_t *);
-SERVEEZ_API unsigned long svz_vector_add (svz_vector_t *, void *);
-SERVEEZ_API void *svz_vector_get (svz_vector_t *, unsigned long);
-SERVEEZ_API void *svz_vector_set (svz_vector_t *, unsigned long, void *);
-SERVEEZ_API unsigned long svz_vector_del (svz_vector_t *, unsigned long);
-SERVEEZ_API unsigned long svz_vector_ins (svz_vector_t *,
-                                          unsigned long, void *);
-SERVEEZ_API unsigned long svz_vector_idx (svz_vector_t *, void *);
-SERVEEZ_API unsigned long svz_vector_contains (svz_vector_t *, void *);
-SERVEEZ_API unsigned long svz_vector_length (svz_vector_t *);
+SBO svz_vector_t *svz_vector_create (unsigned long);
+SBO void svz_vector_destroy (svz_vector_t *);
+SBO unsigned long svz_vector_add (svz_vector_t *, void *);
+SBO void *svz_vector_get (svz_vector_t *, unsigned long);
+SBO unsigned long svz_vector_del (svz_vector_t *, unsigned long);
+SBO unsigned long svz_vector_length (svz_vector_t *);
 
 __END_DECLS
 

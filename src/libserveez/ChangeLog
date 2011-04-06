@@ -1,5 +1,22 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘vector’ data structure and funcs.
+
+	* Makefile.am
+	(libserveez_HEADERS): Move vector.h from here...
+	(noinst_HEADERS): ...to here.
+	* vector.h (svz_vector_create, svz_vector_destroy)
+	(svz_vector_add, svz_vector_get, svz_vector_del, svz_vector_length):
+	Remove mark ‘SERVEEZ_API’; instead, mark ‘SBO’.
+	(svz_vector_clear, svz_vector_set, svz_vector_ins)
+	(svz_vector_idx, svz_vector_contains): Delete func decls.
+	(svz_vector_t): Move typedef from here...
+	* defines.h (svz_vector_t): ...to here.
+	* vector.c (svz_vector_clear, svz_vector_set)
+	(svz_vector_ins, svz_vector_idx, svz_vector_contains): Delete funcs.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_values
 
 	* array.c (svz_array_values): Delete func.

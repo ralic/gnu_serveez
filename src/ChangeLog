@@ -1,5 +1,11 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘vector’ data structure and funcs.
+
+	* libserveez.h: Don't #include "libserveez/vector.h".
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_values
 
 	* prog-server/prog-server.c (prog_passthrough):

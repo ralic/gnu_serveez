@@ -1,5 +1,13 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘vector’ data structure and funcs.
+
+	* serveez-api.texi.in (Data structures):
+	Delete "Vectorlist" from menu.
+	(Vectorlist): Delete node/subsubsection.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_values
 
 	* serveez-api.texi.in (Array): Delete ‘svz_array_values’.

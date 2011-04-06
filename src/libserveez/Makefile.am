@@ -51,7 +51,7 @@ libserveezdir = $(includedir)/libserveez
 libserveez_HEADERS = alloc.h util.h hash.h socket.h                        \
   tcp-socket.h pipe-socket.h udp-socket.h icmp-socket.h                    \
   server-core.h windoze.h defines.h boot.h server.h                        \
-  interface.h dynload.h vector.h core.h array.h portcfg.h                  \
+  interface.h dynload.h core.h array.h portcfg.h                           \
   binding.h passthrough.h cfg.h
 
 uninstall-hook:
@@ -62,7 +62,7 @@ svzpath.h: $(top_srcdir)/config.status
 	@echo '#define SVZ_PKGDATADIR "$(pkgdatadir)"' > $@
 	@echo '#define SVZ_PKGLIBDIR "$(pkglibdir)"' >> $@
 
-noinst_HEADERS = ipdata.h iphlpapi.h raw-socket.h server-socket.h
+noinst_HEADERS = ipdata.h iphlpapi.h raw-socket.h server-socket.h vector.h
 
 CLEANFILES += svzpath.h
 

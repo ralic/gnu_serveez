@@ -207,7 +207,6 @@ which come with Serveez make extensive use of them.
 @menu
 * Array::                 A growable array implementation
 * Hashtable::             Hashtable implementation
-* Vectorlist::            Vectorlist implementation
 @end menu
 
 @node Array
@@ -258,28 +257,6 @@ C types like integers or pointers.
 |F| svz_hash_capacity
 |F| svz_hash_contains
 |F| svz_hash_exists
-
-@node Vectorlist
-@subsubsection Vectorlist
-
-A vector list is an array of memory chunks with a fixed size.  It
-holds copies of the values you added to the vector list.  When deleting
-or inserting an element the indices of the following elements get
-either decremented or incremented.  This data structure is especially useful
-if you actually want to forget about the pointers you put into it for it
-saves copies and not the pointers itself.
-
-|F| svz_vector_create
-|F| svz_vector_destroy
-|F| svz_vector_clear
-|F| svz_vector_add
-|F| svz_vector_get
-|F| svz_vector_set
-|F| svz_vector_del
-|F| svz_vector_ins
-|F| svz_vector_idx
-|F| svz_vector_contains
-|F| svz_vector_length
 
 @node Utility functions
 @subsection Utility functions
