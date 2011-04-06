@@ -444,6 +444,13 @@ hash_count (void *k, void *v, void *closure)
   x->v_acc += (long) v;
 }
 
+void
+hash_clear (svz_hash_t **hash)
+{
+  svz_hash_destroy (*hash);
+  *hash = svz_hash_create (4, NULL);
+}
+
 int
 hash_main (int argc, char **argv)
 {
@@ -502,7 +509,7 @@ hash_main (int argc, char **argv)
 
   /* keys and values */
   test_print ("    keys and values: ");
-  svz_hash_clear (hash);
+  hash_clear (&hash);
   error = 0;
   text = svz_malloc (16);
   for (n = 0; n < repeat; n++)
@@ -539,7 +546,7 @@ hash_main (int argc, char **argv)
 
   /* hash clear */
   test_print ("              clear: ");
-  svz_hash_clear (hash);
+  hash_clear (&hash);
   test (svz_hash_size (hash));
 
   /* hash destruction */

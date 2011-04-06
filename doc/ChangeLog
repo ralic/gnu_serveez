@@ -1,5 +1,11 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_hash_clear
+
+	* serveez-api.texi.in (Hashtable): Delete ‘svz_hash_clear’.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_hash_capacity
 
 	* serveez-api.texi.in (Hashtable): Delete ‘svz_hash_capacity’.

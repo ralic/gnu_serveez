@@ -1,5 +1,12 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_hash_clear
+
+	* hash.h (svz_hash_clear): Delete func decl.
+	* hash.c (svz_hash_clear): Delete func.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_hash_capacity
 
 	* hash.h (svz_hash_capacity): Delete func decl.

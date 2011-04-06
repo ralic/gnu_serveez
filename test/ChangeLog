@@ -1,5 +1,12 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_hash_clear
+
+	* btdt.c (hash_clear): New func.
+	(hash_main): Use ‘hash_clear’.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_hash_rehash’.
 
 	* btdt.c (hash_main) <rehashing>: Delete tests.

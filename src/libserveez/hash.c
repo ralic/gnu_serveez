@@ -248,44 +248,6 @@ svz_hash_destroy (svz_hash_t *hash)
 }
 
 /*
- * Clear the hash table of a given hash @var{hash}.  Afterwards it does not
- * contains any key.  In contradiction to @code{svz_hash_destroy} this
- * functions does not destroy the hash itself, but shrinks it to a minimal
- * size.
- */
-void
-svz_hash_clear (svz_hash_t *hash)
-{
-  svz_hash_bucket_t *bucket;
-  int n, e;
-
-  /* go through all buckets of the table and delete its entries */
-  for (n = 0; n < hash->buckets; n++)
-    {
-      bucket = &hash->table[n];
-      if (bucket->size)
-        {
-          for (e = 0; e < bucket->size; e++)
-            {
-              svz_free (bucket->entry[e].key);
-              if (hash->destroy)
-                hash->destroy (bucket->entry[e].value);
-            }
-          svz_free (bucket->entry);
-          bucket->entry = NULL;
-          bucket->size = 0;
-        }
-    }
-
-  /* reinitialize the hash table */
-  hash->buckets = SVZ_HASH_MIN_SIZE;
-  hash->fill = 0;
-  hash->keys = 0;
-  hash->table = svz_realloc (hash->table,
-                             sizeof (svz_hash_bucket_t) * hash->buckets);
-}
-
-/*
  * Rehash a given hash table @var{hash}.  Double (@var{type} is
  * @code{SVZ_HASH_EXPAND}) its size and expand the hash codes or half (@var{type}
  * is @code{SVZ_HASH_SHRINK}) its size and shrink the hash codes if these would

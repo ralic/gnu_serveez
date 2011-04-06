@@ -55,7 +55,6 @@ __BEGIN_DECLS
  */
 SERVEEZ_API svz_hash_t *svz_hash_create (int, svz_free_func_t);
 SERVEEZ_API void svz_hash_destroy (svz_hash_t *);
-SERVEEZ_API void svz_hash_clear (svz_hash_t *);
 SERVEEZ_API void *svz_hash_delete (svz_hash_t *, char *);
 SERVEEZ_API void *svz_hash_put (svz_hash_t *, char *, void *);
 SERVEEZ_API void *svz_hash_get (const svz_hash_t *, char *);

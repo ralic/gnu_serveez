@@ -245,7 +245,6 @@ C types like integers or pointers.
 
 |F| svz_hash_create
 |F| svz_hash_destroy
-|F| svz_hash_clear
 |F| svz_hash_delete
 |F| svz_hash_put
 |F| svz_hash_get
