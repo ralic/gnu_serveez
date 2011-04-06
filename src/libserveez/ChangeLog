@@ -1,3 +1,9 @@
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_vector_foreach’.
+
+	* vector.h (svz_vector_foreach): Mark ‘svzint’.
+
 2011-04-05  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Internalize ‘svz_servertype_finalize’.

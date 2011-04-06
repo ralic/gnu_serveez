@@ -281,7 +281,6 @@ saves copies and not the pointers itself.
 |F| svz_vector_idx
 |F| svz_vector_contains
 |F| svz_vector_length
-|M| svz_vector_foreach
 
 @node Utility functions
 @subsection Utility functions

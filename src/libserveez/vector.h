@@ -27,6 +27,7 @@
 
 typedef struct svz_vector svz_vector_t;
 
+/* begin svzint */
 /*
  * Iteration macro for the vector list @var{vector}.  Each of its values
  * gets assigned to @var{value}.  The iteration variable @var{i} runs from
@@ -36,6 +37,7 @@ typedef struct svz_vector svz_vector_t;
   for ((i) = 0, (value) = vector ? svz_vector_get ((vector), 0) : NULL; \
        vector && (unsigned long) i < svz_vector_length (vector);        \
        (value) = svz_vector_get ((vector), ++(i)))
+/* end svzint */
 
 __BEGIN_DECLS
 
