@@ -758,6 +758,7 @@ spew_main (int argc, char **argv)
   char *buf1 = "write: Hello\r\n";
   char *buf2 = "send: Hello\r\n";
 
+  check_nargs (argc, 1, "SLEEP (seconds, integer)");
 #ifdef __MINGW32__
   WSADATA WSAData;
   WSAStartup (0x0202, &WSAData);
@@ -812,7 +813,7 @@ spew_main (int argc, char **argv)
     }
 
   fflush (stdout);
-  sleep (3);
+  sleep (atoi (argv[1]));
 
 #ifdef __MINGW32__
   shutdown (s, 2);

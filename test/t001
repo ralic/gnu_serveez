@@ -1,0 +1,107 @@
+;;; prog (passthrough) server
+
+;; Copyright (C) 2011 Thien-Thi Nguyen
+;;
+;; This is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+;;
+;; This software is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this package.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Code:
+
+;; Skip this test if the passthrough server is not enabled.
+;; Until serveez(1) can tell us directly, we mine it out the hard way.
+(or (zero? (system "grep '#define ENABLE_PROG_SERVER 1' ../src/config.h 1>/dev/null 2>&1"))
+    (exit 77))
+
+(define VERBOSE? (getenv "VERBOSE"))
+
+(define CONFIG
+  '((define-server! 'prog-server '((binary  . "./btdt")
+                                   (argv    . ("spew" "spew" "0"))
+                                   (do-fork . #t)))
+    (define-port! 'prog-tcp-port '((proto  . tcp)
+                                   (port   . 1026)
+                                   (ipaddr . *)))
+    (bind-server! 'prog-tcp-port 'prog-server)))
+
+(with-output-to-file "t001.cfg"
+  (lambda ()
+    (for-each write CONFIG)))
+
+(define PID (primitive-fork))
+
+;;; child
+
+(and (zero? PID)
+     (begin
+       (execl "../src/serveez" "serveez"
+              "-l" "t001.log"
+              "-f" "t001.cfg")
+       (exit #f)))
+
+;;; parent
+
+(define (kill-child!)
+  (kill PID SIGINT))
+
+(define (fso s . args)
+  (apply simple-format #t s args))
+
+(define (try-connect patience v4-addr port)
+  (let ((sock (socket PF_INET SOCK_STREAM 0)))
+    (let loop ((patience patience))
+      (catch 'system-error
+             (lambda ()
+               (connect sock AF_INET (inet-aton v4-addr) port)
+               (and VERBOSE? (fso "(connected) ~A\n" sock))
+               sock)
+             (lambda (key . args)
+               (and VERBOSE?
+                    (apply fso (string-append
+                                "(patience) ~A -- ~A: "
+                                (cadr args)
+                                "\n")
+                           patience
+                           (car args) (caddr args)))
+               (cond ((zero? patience)
+                      (kill-child!)
+                      (exit #f))
+                     (else
+                      (usleep 200000)
+                      (loop (1- patience)))))))))
+
+(define (drain sock)
+  (let ((s (open-output-string)))
+    (let loop ()
+      (let ((c (read-char sock)))
+        (or (eof-object? c)
+            (begin
+              (display c s)
+              (loop)))))
+    (get-output-string s)))
+
+(let* ((sock (try-connect 10 "127.0.0.1" 1026))
+       (s (drain sock)))
+  (shutdown sock 2)
+  (close-port sock)
+  (and VERBOSE? (display s)))
+
+(kill-child!)
+(waitpid PID)
+
+(delete-file "t001.cfg")
+
+(exit #t)
+
+;;; Local variables:
+;;; mode: scheme
+;;; End:

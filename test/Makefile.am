@@ -27,7 +27,9 @@ include $(top_srcdir)/build-aux/common.mk
 GUILE = guile
 
 TESTS_ENVIRONMENT = $(GUILE) -s
-TESTS = t000
+TESTS = t000 t001
+
+CLEANFILES += *.log
 
 EXTRA_DIST = $(TESTS) \
 	prog-test.cfg test-suite.scm binary-test.scm server-test.scm \
