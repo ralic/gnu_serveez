@@ -57,7 +57,7 @@ int verbosep;
 void
 check_nargs (int argc, int n, char const *need)
 {
-  if (n > argc)
+  if (n >= argc)
     {
       fprintf (stderr, "ERROR: missing args: %s\n", need);
       exit (EXIT_FAILURE);

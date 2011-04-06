@@ -1,5 +1,11 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[v int] Fix OBOE: Compare given and required number of args correctly.
+
+	* btdt.c (check_nargs): Use ‘>=’ instead of simply ‘>’.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘vector’ data structure and funcs.
 
 	* btdt.c (vector_main): Delete func.
