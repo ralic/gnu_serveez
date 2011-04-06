@@ -1684,11 +1684,10 @@ guile_access_maxsockets (SCM max)
 }
 
 #if ENABLE_CONTROL_PROTO
-extern
+extern char *control_protocol_password;
 #else
-static                                  /* dummy */
+static char *control_protocol_password;
 #endif
-char *control_protocol_password;
 
 static SCM
 guile_access_passwd (SCM pw)
