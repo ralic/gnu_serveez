@@ -668,15 +668,6 @@ svz_hash_size (const svz_hash_t *hash)
 }
 
 /*
- * This function returns the current capacity of a given hash table @var{hash}.
- */
-int
-svz_hash_capacity (const svz_hash_t *hash)
-{
-  return hash->buckets;
-}
-
-/*
  * This function can be used to determine if some key points to the @var{value}
  * argument in the hash table @var{hash}.  Returns the appropriate key or NULL.
  */

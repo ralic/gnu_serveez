@@ -1,5 +1,12 @@
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_hash_capacity
+
+	* hash.h (svz_hash_capacity): Delete func decl.
+	* hash.c (svz_hash_capacity): Delete func.
+
+2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_hash_rehash’.
 
 	* hash.h (SVZ_HASH_SHRINK, SVZ_HASH_EXPAND)

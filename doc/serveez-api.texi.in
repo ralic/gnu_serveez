@@ -254,7 +254,6 @@ C types like integers or pointers.
 |F| svz_hash_keys
 |F| svz_hash_xfree
 |F| svz_hash_size
-|F| svz_hash_capacity
 |F| svz_hash_contains
 |F| svz_hash_exists
 

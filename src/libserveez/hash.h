@@ -64,7 +64,6 @@ SERVEEZ_API void **svz_hash_values (const svz_hash_t *);
 SERVEEZ_API char **svz_hash_keys (const svz_hash_t *);
 SERVEEZ_API void svz_hash_xfree (void *);
 SERVEEZ_API int svz_hash_size (const svz_hash_t *);
-SERVEEZ_API int svz_hash_capacity (const svz_hash_t *);
 SERVEEZ_API char *svz_hash_contains (const svz_hash_t *, void *);
 SERVEEZ_API int svz_hash_exists (const svz_hash_t *, char *);
 
