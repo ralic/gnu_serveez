@@ -25,6 +25,7 @@
 #include "libserveez/defines.h"
 /* end svzint */
 
+/* begin svzint */
 /*
  * A server can typically be bound to different port configurations.  This
  * structure hold the binding for a single listening socket structure of a
@@ -36,6 +37,7 @@ typedef struct svz_binding
   svz_portcfg_t *port;  /* The port configuration the server is bound to.  */
 }
 svz_binding_t;
+/* end svzint */
 
 __BEGIN_DECLS
 SBO void svz_binding_destroy (svz_binding_t *);
