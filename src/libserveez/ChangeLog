@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Mark ‘heap_hash_keylen’ arg unused.
+
+	* alloc.c
+	[DEBUG_MEMORY_LEAKS] (heap_hash_keylen): Mark ‘SVZ_UNUSED’ arg ‘id’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_array_destroy_zero’.
 
 	* array.h (svz_array_destroy_zero):

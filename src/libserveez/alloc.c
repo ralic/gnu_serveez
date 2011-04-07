@@ -70,7 +70,7 @@ static svz_hash_t *heap = NULL;
 
 /* return static heap hash code key length */
 static unsigned
-heap_hash_keylen (char *id)
+heap_hash_keylen (SVZ_UNUSED char *id)
 {
   return SIZEOF_VOID_P;
 }
