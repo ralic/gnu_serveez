@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_array_clear’.
+
+	* btdt.c (array_main): Add/use internal
+	macros ‘AGAIN’, ‘CLEAR’ to effect array clearing.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_idx
 
 	* btdt.c (array_idx): New func.

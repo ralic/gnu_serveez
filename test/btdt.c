@@ -200,10 +200,13 @@ array_main (int argc, char **argv)
   test_init ();
   test_print ("array function test suite\n");
 
+#define AGAIN(array)  (array = svz_array_create (0, NULL))
+#define CLEAR(array)  (svz_array_destroy (array), AGAIN (array))
+
   /* array creation */
   error = 0;
   test_print ("    create: ");
-  if ((array = svz_array_create (0, NULL)) == NULL)
+  if (AGAIN (array) == NULL)
     error++;
   if (svz_array_size (array) != 0)
     error++;
@@ -259,13 +262,6 @@ array_main (int argc, char **argv)
     error++;
   test (error);
 
-  /* array clear function */
-  test_print ("     clear: ");
-  for (n = 0; n < repeat; n++)
-    svz_array_add (array, (void *) n);
-  svz_array_clear (array);
-  test (svz_array_size (array) != 0);
-
   /* check the `contains' function */
   test_print ("  contains: ");
   error = 0;
@@ -284,7 +280,7 @@ array_main (int argc, char **argv)
       if (array_popcount (array, (void *) 0) != (unsigned long) n + 1)
         error++;
     }
-  svz_array_clear (array);
+  CLEAR (array);
   if (array_popcount (array, (void *) 0) != 0)
     error++;
   test (error);
@@ -309,7 +305,7 @@ array_main (int argc, char **argv)
   /* check the `insert' function */
   test_print ("    insert: ");
   error = 0;
-  svz_array_clear (array);
+  CLEAR (array);
   for (n = 0; n < repeat; n++)
     if (svz_array_ins (array, 0, (void *) n) != 0)
       error++;
@@ -318,7 +314,7 @@ array_main (int argc, char **argv)
   for (n = 0; n < repeat; n++)
     if (svz_array_get (array, n) != (void *) (repeat - n - 1))
       error++;
-  svz_array_clear (array);
+  CLEAR (array);
   for (n = 0; n < repeat; n++)
     if (svz_array_ins (array, n, (void *) n) != (unsigned long) n)
       error++;
@@ -406,6 +402,9 @@ array_main (int argc, char **argv)
   test_print ("      heap: ");
   svz_get_curalloc (cur);
   test (cur[0] || cur[1]);
+
+#undef CLEAR
+#undef AGAIN
 
   return result;
 }

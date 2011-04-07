@@ -218,7 +218,6 @@ minus one.  You can put any kind of data into this array which fits into the
 size of a pointer.  The array automatically grows if necessary.
 
 |F| svz_array_create
-|F| svz_array_clear
 |F| svz_array_destroy
 |F| svz_array_destroy_zero
 |F| svz_array_get

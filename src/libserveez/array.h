@@ -32,7 +32,6 @@ typedef struct svz_array svz_array_t;
 __BEGIN_DECLS
 
 SERVEEZ_API svz_array_t * svz_array_create (unsigned long, svz_free_func_t);
-SERVEEZ_API void svz_array_clear (svz_array_t *);
 SERVEEZ_API void svz_array_destroy (svz_array_t *);
 SERVEEZ_API void *svz_array_get (svz_array_t *, unsigned long);
 SERVEEZ_API void *svz_array_set (svz_array_t *, unsigned long, void *);

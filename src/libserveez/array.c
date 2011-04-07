@@ -40,9 +40,9 @@ struct svz_array
 
 /*
  * Create a new array with the initial capacity @var{capacity} and return
- * a pointer to it.  If @var{capacity} is zero it defaults to some value.  The
- * @var{destroy} argument allows you to release dynamic allocated memory when
- * calling @code{svz_array_clear} and @code{svz_array_destroy}.  If the
+ * a pointer to it.  If @var{capacity} is zero it defaults to some value.
+ * The @var{destroy} argument allows you to release dynamic
+ * allocated memory when @code{svz_array_destroy}.  If the
  * array contains data allocated by @code{svz_malloc} you need to set
  * @var{destroy} to @code{svz_free}.  For structured data you can pass a
  * user defined routine which recurses into the structure.  If the array
@@ -65,31 +65,6 @@ svz_array_create (unsigned long capacity, svz_free_func_t destroy)
 }
 
 /*
- * Delete all values within the array @var{array} and set its size to zero.
- * The array @var{array} itself keeps valid.  Do not perform any operation
- * if @var{array} is @code{NULL}.  If you passed a @var{destroy} function to
- * @code{svz_array_create} the routine calls this function passing each
- * element of @var{array} to it.
- */
-void
-svz_array_clear (svz_array_t *array)
-{
-  if (array == NULL || array->data == NULL)
-    return;
-
-  if (array->destroy != NULL)
-    {
-      unsigned long n;
-      for (n = 0; n < array->size; n++)
-        array->destroy (array->data[n]);
-    }
-  svz_free (array->data);
-  array->data = NULL;
-  array->size = 0;
-  array->capacity = 0;
-}
-
-/*
  * Completely destroy the array @var{array}.  The @var{array} handle is
  * invalid afterwards.  The routine runs the @var{destroy} callback for each
  * element of the array.
@@ -99,7 +74,19 @@ svz_array_destroy (svz_array_t *array)
 {
   if (array)
     {
-      svz_array_clear (array);
+      if (array->data)
+        {
+          if (array->destroy != NULL)
+            {
+              unsigned long n;
+              for (n = 0; n < array->size; n++)
+                array->destroy (array->data[n]);
+            }
+          svz_free (array->data);
+          array->data = NULL;
+          array->size = 0;
+          array->capacity = 0;
+        }
       svz_free (array);
     }
 }
