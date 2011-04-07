@@ -1,5 +1,11 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_idx
+
+	* serveez-api.texi.in (Array): Delete ‘svz_array_idx’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_contains
 
 	* serveez-api.texi.in (Array): Delete ‘svz_array_contains’.

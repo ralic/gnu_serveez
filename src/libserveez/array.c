@@ -208,24 +208,6 @@ svz_array_size (svz_array_t *array)
 }
 
 /*
- * This function returns the index of the first occurrence of the value
- * @var{value} in the array @var{array}.  It returns (-1) if there is no
- * such value stored within the array.
- */
-unsigned long
-svz_array_idx (svz_array_t *array, void *value)
-{
-  unsigned long n;
-
-  if (array == NULL)
-    return (unsigned long) -1;
-  for (n = 0; n < array->size; n++)
-    if (array->data[n] == value)
-      return n;
-  return (unsigned long) -1;
-}
-
-/*
  * This routine inserts the given value @var{value} at the position
  * @var{index}.  The indices of all following values in the array @var{array}
  * and the size of the array get automatically incremented.  Return the

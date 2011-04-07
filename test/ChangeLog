@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_idx
+
+	* btdt.c (array_idx): New func.
+	(array_main): Use ‘array_idx’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_contains
 
 	* btdt.c (array_popcount): New func.

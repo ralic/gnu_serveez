@@ -165,6 +165,25 @@ array_popcount (svz_array_t *array, void *value)
   return found;
 }
 
+/*
+ * Return the index of the first occurrence of the value
+ * @var{value} in the array @var{array}.  Return (-1) if there is no
+ * such value stored within the array.
+ */
+unsigned long
+array_idx (svz_array_t *array, void *value)
+{
+  unsigned long n, size;
+
+  if (array == NULL)
+    return (unsigned long) -1;
+  size = svz_array_size (array);
+  for (n = 0; n < size; n++)
+    if (svz_array_get (array, n) == value)
+      return n;
+  return (unsigned long) -1;
+}
+
 int
 array_main (int argc, char **argv)
 {
@@ -275,14 +294,14 @@ array_main (int argc, char **argv)
   error = 0;
   for (n = 0; n < repeat; n++)
     svz_array_add (array, (void *) 0);
-  if (svz_array_idx (array, (void *) 0) != 0)
+  if (array_idx (array, (void *) 0) != 0)
     error++;
   for (n = 0; n < repeat; n++)
     {
-      if (svz_array_idx (array, (void *) (n + 1)) != (unsigned long) -1)
+      if (array_idx (array, (void *) (n + 1)) != (unsigned long) -1)
         error++;
       svz_array_set (array, n, (void *) (n + 1));
-      if (svz_array_idx (array, (void *) (n + 1)) != (unsigned long) n)
+      if (array_idx (array, (void *) (n + 1)) != (unsigned long) n)
         error++;
     }
   test (error);
@@ -327,7 +346,7 @@ array_main (int argc, char **argv)
     }
   for (n = 0; n < repeat; n++)
     {
-      if (svz_array_idx (array, (void *) n) !=
+      if (array_idx (array, (void *) n) !=
           (unsigned long) (repeat - n - 1))
         error++;
       if (array_popcount (array, (void *) n) != 1)
@@ -343,7 +362,7 @@ array_main (int argc, char **argv)
                                         svz_array_size (array) - 1)) !=
           (unsigned long) n)
         error++;
-      if (svz_array_idx (array, (void *) n) != (unsigned long) n)
+      if (array_idx (array, (void *) n) != (unsigned long) n)
         error++;
       if (array_popcount (array, (void *) n) != 1)
         error++;
@@ -370,7 +389,7 @@ array_main (int argc, char **argv)
       if (array_popcount (array, (void *) 0xdeadbeef) !=
           (unsigned long) n + i)
         error++;
-      if (svz_array_idx (array, (void *) 0xdeadbeef) != (unsigned long) 0)
+      if (array_idx (array, (void *) 0xdeadbeef) != (unsigned long) 0)
         error++;
     }
   test_print (error ? "?" : ".");
