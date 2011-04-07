@@ -1,5 +1,13 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine windoze daemon control funcs.
+
+	* serveez-api.texi.in (Windoze): Delete
+	‘svz_windoze_start_daemon’, ‘svz_windoze_stop_daemon’;
+	add ‘svz_windoze_daemon_control’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_array_destroy_zero’.
 
 	* serveez-api.texi.in (Array): Delete ‘svz_array_destroy_zero’.

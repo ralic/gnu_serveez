@@ -29,8 +29,7 @@
 
 __BEGIN_DECLS
 
-SERVEEZ_API int svz_windoze_start_daemon (char *);
-SERVEEZ_API int svz_windoze_stop_daemon (void);
+SERVEEZ_API int svz_windoze_daemon_control (char *);
 SERVEEZ_API WCHAR *svz_windoze_asc2uni (CHAR *asc);
 SERVEEZ_API CHAR *svz_windoze_uni2asc (WCHAR *unicode);
 SBO unsigned svz_windoze_get_reg_unsigned (HKEY, char *, char *, unsigned);

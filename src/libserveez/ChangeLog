@@ -1,5 +1,16 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine windoze daemon control funcs.
+
+	* windoze.h (svz_windoze_start_daemon)
+	(svz_windoze_stop_daemon): Delete func decls.
+	(svz_windoze_daemon_control): New func decl, marked ‘SERVEEZ_API’.
+	* windoze.c (svz_windoze_start_daemon)
+	(svz_windoze_stop_daemon): Make static.
+	(svz_windoze_daemon_control): New func.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_config_type_t’.
 
 	* cfg.h (svz_config_type_t): Move from here...

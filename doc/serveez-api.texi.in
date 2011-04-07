@@ -747,7 +747,6 @@ of course).  The following functions come up with the Windows implementation
 of the serveez core API only.  They allow access to the Windows registry
 database and some other useful things.
 
-|F| svz_windoze_start_daemon
-|F| svz_windoze_stop_daemon
+|F| svz_windoze_daemon_control
 |F| svz_windoze_asc2uni
 |F| svz_windoze_uni2asc

@@ -1,5 +1,11 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Combine windoze daemon control funcs.
+
+	* serveez.c (guile_entry): Use ‘svz_windoze_daemon_control’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_array_destroy_zero’.
 
 	* guile.c (guile_to_strarray): Use ‘svz_array_size’,

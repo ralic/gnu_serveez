@@ -149,7 +149,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 #ifdef __MINGW32__
   if (options->daemon)
     {
-      svz_windoze_stop_daemon ();
+      svz_windoze_daemon_control (NULL);
     }
 #endif
 
@@ -210,7 +210,7 @@ main (int argc, char *argv[])
       if (isatty (fileno (stderr)))
         close (fileno (stderr));
 #else /* __MINGW32__ */
-      if (svz_windoze_start_daemon (argv[0]) == -1)
+      if (svz_windoze_daemon_control (argv[0]) == -1)
         exit (EXIT_FAILURE);
       if (options->loghandle == stderr)
         svz_log_setfile (NULL);
