@@ -47,60 +47,61 @@ HACKING libserveez API					-*- org -*-
 *** woe
     exposed (not ‘SBO’, ‘svzint’) #ifdef __MINGW32__ and/or other woe
     → remove if possible ("done" means unavoidable)
+*** macros
+    → (for flexibility?) convert selected macros to functions ([[elisp:(grep%20"grep%20-nH%20-e%20'^#%20*define%20.*%5B^%20%5D(.*)'%20*.h%20*/*.h")][grep]])
 *** generalized ip address
     takes ‘unsigned long’ (uint32_t) for network byte-order IPv4 address
     → replace ‘unsigned long’ with (pointer to) generalized ip address
-*** macros
-    → (for flexibility?) convert selected macros to functions ([[elisp:(grep%20"grep%20-nH%20-e%20'^#%20*define%20.*(.*)'%20*.h%20*/*.h")][grep]])
-*** work in progress ([[elisp:(let%20((dired-listing-switches%20"-alhFGrS"))%20(dired%20"*.h"))][dired by size]])
-    (for columns: ? ≡ need-info, o ≡ todo, x ≡ done)
-    |----------------------+---+---+---+---+------|
-    | file                 | [[noinst][n]] | [[woe][w]] | [[generalized ip address][g]] | [[macros][m]] | more |
-    |----------------------+---+---+---+---+------|
-    | [[file:server-socket.h][server-socket]]        | x |   |   |   |      |
-    | [[file:raw-socket.h][raw-socket]]           | x |   |   |   |      |
-    | [[file:dynload.h][dynload]]              |   |   |   |   | [[more-dynload][more]] |
-    | [[file:mutex.h][mutex]]                | x | x |   |   |      |
-    | [[file:tcp-socket.h][tcp-socket]]           |   |   | o |   |      |
-    | [[file:windoze.h][windoze]]              |   | x |   |   |      |
-    | [[file:boot.h][boot]]                 |   |   |   |   |      |
-    | [[file:udp-socket.h][udp-socket]]           |   |   | o |   |      |
-    | [[file:interface.h][interface]]            |   |   | o |   | [[more-interface][more]] |
-    | [[file:binding.h][binding]]              |   |   |   |   | [[more-binding][more]] |
-    | [[file:pipe-socket.h][pipe-socket]]          |   |   |   |   |      |
-    | [[file:passthrough.h][passthrough]]          |   | x |   |   |      |
-    | [[file:defines.h][defines]]              |   |   |   |   |      |
-    | [[file:core.h][core]]                 |   |   | o |   | [[more-core][more]] |
-    | [[file:alloc.h][alloc]]                |   |   |   |   |      |
-    | [[file:iphlpapi.h][iphlpapi]]             | x | x |   |   |      |
-    | [[file:vector.h][vector]]               |   |   |   |   |      |
-    | [[file:array.h][array]]                |   |   |   |   |      |
-    | [[file:server-core.h][server-core]]          |   |   |   |   | [[more-server-core][more]] |
-    | [[file:util.h][util]]                 |   | x |   |   |      |
-    | [[file:hash.h][hash]]                 |   |   |   |   |      |
-    | [[file:icmp-socket.h][icmp-socket]]          |   |   | o |   |      |
-    | [[file:ipdata.h][ipdata]]               | x |   | o |   |      |
-    | [[file:server.h][server]]               |   |   |   |   | [[more-server][more]] |
-    | [[file:portcfg.h][portcfg]]              |   |   |   | x | [[more-portcfg][more]] |
-    | [[file:cfg.h][cfg]]                  |   |   |   |   | [[more-cfg][more]] |
-    | [[file:socket.h][socket]]               |   | x | o | x |      |
-    | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |      |
-    | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |      |
-    | [[file:codec/gzlib.h][codec/gzlib]]          | x |   |   |   |      |
-    | [[file:coserver/coserver.h][coserver/coserver]]    |   | x | o | x | [[more-coserver/coserver][more]] |
-    | [[file:coserver/dns.h][coserver/dns]]         | x |   |   |   |      |
-    | [[file:coserver/ident.h][coserver/ident]]       | x |   |   |   |      |
-    | [[file:coserver/reverse-dns.h][coserver/reverse-dns]] | x |   |   |   |      |
-    | [[file:coserver/xerror.h][coserver/xerror]]      | x |   |   |   |      |
-    |----------------------+---+---+---+---+------|
-*** add func: <<svz_prettyprint>> (FILE *to, enum WHAT)
+*** pretty printer
+    add func: svz_prettyprint (FILE *to, enum WHAT)
     where WHAT ∈ {interface, codec, bindings, servertype, prototype, ...}
+    and fold specific *_print and *_list funcs into it
+*** work in progress ([[elisp:(let%20((dired-listing-switches%20"-alhFGrS"))%20(dired%20"*.h"))][dired by size]]) ([[shell:nm%20-g%20--defined-only%20.libs/libserveez.so][.so exports]])
+    (for columns: ? ≡ need-info, o ≡ todo, x ≡ done)
+    |----------------------+---+---+---+---+---+------|
+    | file                 | [[noinst][n]] | [[woe][w]] | [[macros][m]] | [[generalized ip address][g]] | [[pretty%20printer][p]] | more |
+    |----------------------+---+---+---+---+---+------|
+    | [[file:server-socket.h][server-socket]]        | x |   |   |   |   |      |
+    | [[file:raw-socket.h][raw-socket]]           | x |   |   |   |   |      |
+    | [[file:dynload.h][dynload]]              |   |   |   |   |   | [[more-dynload][more]] |
+    | [[file:mutex.h][mutex]]                | x | x |   |   |   |      |
+    | [[file:tcp-socket.h][tcp-socket]]           |   |   |   | o |   |      |
+    | [[file:windoze.h][windoze]]              |   | x |   |   |   |      |
+    | [[file:boot.h][boot]]                 |   |   |   |   |   |      |
+    | [[file:udp-socket.h][udp-socket]]           |   |   |   | o |   |      |
+    | [[file:interface.h][interface]]            |   |   |   | o | o | [[more-interface][more]] |
+    | [[file:binding.h][binding]]              |   |   |   |   | o | [[more-binding][more]] |
+    | [[file:pipe-socket.h][pipe-socket]]          |   |   |   |   |   |      |
+    | [[file:passthrough.h][passthrough]]          |   | x |   |   |   |      |
+    | [[file:defines.h][defines]]              |   |   |   |   |   |      |
+    | [[file:core.h][core]]                 |   |   |   | o |   | [[more-core][more]] |
+    | [[file:alloc.h][alloc]]                |   |   |   |   |   |      |
+    | [[file:iphlpapi.h][iphlpapi]]             | x | x |   |   |   |      |
+    | [[file:vector.h][vector]]               | x |   |   |   |   |      |
+    | [[file:array.h][array]]                |   |   |   |   |   |      |
+    | [[file:server-core.h][server-core]]          |   |   |   |   |   | [[more-server-core][more]] |
+    | [[file:util.h][util]]                 |   | x |   |   |   |      |
+    | [[file:hash.h][hash]]                 |   |   |   |   |   |      |
+    | [[file:icmp-socket.h][icmp-socket]]          |   |   |   | o |   |      |
+    | [[file:ipdata.h][ipdata]]               | x |   |   | o |   |      |
+    | [[file:server.h][server]]               |   |   |   |   | o |      |
+    | [[file:portcfg.h][portcfg]]              |   |   | x |   | o |      |
+    | [[file:cfg.h][cfg]]                  |   |   |   |   | o | [[more-cfg][more]] |
+    | [[file:socket.h][socket]]               |   | x | x | o |   |      |
+    | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |   |      |
+    | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |   |      |
+    | [[file:codec/gzlib.h][codec/gzlib]]          | x |   |   |   |   |      |
+    | [[file:coserver/coserver.h][coserver/coserver]]    |   | x | x | o |   | [[more-coserver/coserver][more]] |
+    | [[file:coserver/dns.h][coserver/dns]]         | x |   |   |   |   |      |
+    | [[file:coserver/ident.h][coserver/ident]]       | x |   |   |   |   |      |
+    | [[file:coserver/reverse-dns.h][coserver/reverse-dns]] | x |   |   |   |   |      |
+    | [[file:coserver/xerror.h][coserver/xerror]]      | x |   |   |   |   |      |
+    |----------------------+---+---+---+---+---+------|
 *** more-dynload
 ***** replace svz_dynload_path_{set,get}
       with ‘svz_load_path (char const *DIR)’;
       if DIR is NULL, clear the path; else push DIR
 *** more-interface
-***** fold ‘svz_interface_list’ into [[svz_prettyprint]]
 ***** combine svz_interface_{get,search}
       into ‘svz_find_interface (enum BY, void *data)’ with BY ∈ {name, addr}
 ***** eliminate ‘svz_interface_check’
@@ -109,7 +110,6 @@ HACKING libserveez API					-*- org -*-
 *** more-binding
 ***** specialize ‘svz_server_portcfgs’
       into ‘svz_server_first_configured_address’ for clients [[file:~/build/GNU/serveez/src/http-server/http-proto.c::svz_server_portcfgs][http]], [[file:~/build/GNU/serveez/src/irc-server/irc-proto.c::svz_server_portcfgs][irc]]
-***** fold ‘svz_server_bindings’ into [[svz_prettyprint]]
 ***** replace ‘svz_server_listeners’ (+ ‘svz_array_destroy’)
       with new func ‘svz_server_listener_foreach’
 ***** abstract more for passthrough
@@ -122,12 +122,7 @@ HACKING libserveez API					-*- org -*-
       (this is in addition to ‘svz_socket_connect’)
 *** more-server-core
 ***** (maybe) combine set/get funcs
-*** more-server
-***** fold ‘svz_servertype_print’ into [[svz_prettyprint]]
-*** more-portcfg
-***** fold ‘svz_portcfg_print’ into [[svz_prettyprint]]
 *** more-cfg
-***** fold ‘svz_config_prototype_print’ into [[svz_prettyprint]]
 ***** change ‘svz_config_intarray_create’ et al
       to take a first arg ‘size_t count’
 *** more-coserver/coserver
@@ -144,6 +139,7 @@ HACKING libserveez API					-*- org -*-
 ***** func decl
 ***** macro
 *** don't install individual headers
+* move more ‘static’ state into ‘svz_private’
 * etc
 #+STARTUP: odd
 
