@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_ins
+
+	* btdt.c (array_main) <insert>: Delete tests.
+	(array_main) <stress>: Delete tests.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_array_clear’.
 
 	* btdt.c (array_main): Add/use internal

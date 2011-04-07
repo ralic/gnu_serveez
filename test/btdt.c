@@ -189,7 +189,7 @@ array_main (int argc, char **argv)
 {
   int gap, repeat, result = 0;
   svz_array_t *array;
-  int n, error, i;
+  int n, error;
   void *value;
   unsigned int cur[2];
 
@@ -300,97 +300,6 @@ array_main (int argc, char **argv)
       if (array_idx (array, (void *) (n + 1)) != (unsigned long) n)
         error++;
     }
-  test (error);
-
-  /* check the `insert' function */
-  test_print ("    insert: ");
-  error = 0;
-  CLEAR (array);
-  for (n = 0; n < repeat; n++)
-    if (svz_array_ins (array, 0, (void *) n) != 0)
-      error++;
-  if (! array_size_correct (array, repeat))
-    error++;
-  for (n = 0; n < repeat; n++)
-    if (svz_array_get (array, n) != (void *) (repeat - n - 1))
-      error++;
-  CLEAR (array);
-  for (n = 0; n < repeat; n++)
-    if (svz_array_ins (array, n, (void *) n) != (unsigned long) n)
-      error++;
-  if (! array_size_correct (array, repeat))
-    error++;
-  for (n = 0; n < repeat; n++)
-    if (svz_array_get (array, n) != (void *) n)
-      error++;
-  test (error);
-
-  /* stress test */
-  error = 0;
-  test_print ("    stress: ");
-
-  /* create reverse order */
-  for (n = 0; n < repeat / 2; n++)
-    {
-      value = svz_array_get (array, n);
-      if (svz_array_set (array, n, svz_array_get (array, repeat - n - 1)) !=
-          value)
-        error++;
-      if (svz_array_set (array, repeat - n - 1, value) !=
-          (void *) (repeat - n - 1))
-        error++;
-    }
-  for (n = 0; n < repeat; n++)
-    {
-      if (array_idx (array, (void *) n) !=
-          (unsigned long) (repeat - n - 1))
-        error++;
-      if (array_popcount (array, (void *) n) != 1)
-        error++;
-    }
-  test_print (error ? "?" : ".");
-
-  /* insert and delete a bit (re-reverse) */
-  for (n = 0; n < repeat; n++)
-    {
-      if (svz_array_ins (array, n,
-                         svz_array_del (array,
-                                        svz_array_size (array) - 1)) !=
-          (unsigned long) n)
-        error++;
-      if (array_idx (array, (void *) n) != (unsigned long) n)
-        error++;
-      if (array_popcount (array, (void *) n) != 1)
-        error++;
-    }
-  if (! array_size_correct (array, repeat))
-    error++;
-  test_print (error ? "?" : ".");
-
-  /* process parts of an array */
-  for (n = 0; n < repeat; n += gap)
-    {
-      for (i = 0; i < gap; i++)
-        {
-          if (svz_array_get (array, n + i) != (void *) (n + i))
-            error++;
-          if (svz_array_del (array, n + i) != (void *) (n + i))
-            error++;
-          if (svz_array_ins (array, n + i, (void *) 0xdeadbeef) !=
-              (unsigned long) n + i)
-            error++;
-        }
-      if (! array_size_correct (array, repeat))
-        error++;
-      if (array_popcount (array, (void *) 0xdeadbeef) !=
-          (unsigned long) n + i)
-        error++;
-      if (array_idx (array, (void *) 0xdeadbeef) != (unsigned long) 0)
-        error++;
-    }
-  test_print (error ? "?" : ".");
-
-  test_print (" ");
   test (error);
 
   /* destroy function */

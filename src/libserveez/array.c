@@ -184,26 +184,6 @@ svz_array_size (svz_array_t *array)
 }
 
 /*
- * This routine inserts the given value @var{value} at the position
- * @var{index}.  The indices of all following values in the array @var{array}
- * and the size of the array get automatically incremented.  Return the
- * values index or (-1) if the index is out of array bounds.
- */
-unsigned long
-svz_array_ins (svz_array_t *array, unsigned long index, void *value)
-{
-  if (array == NULL || index > array->size)
-    return (unsigned long) -1;
-  svz_array_ensure_capacity (array, array->size + 1);
-  if (index < array->size)
-    memmove (&array->data[index + 1], &array->data[index],
-             (array->size - index) * sizeof (void *));
-  array->data[index] = value;
-  array->size++;
-  return index;
-}
-
-/*
  * This function replicates the given array @var{array}.  It returns
  * @code{NULL} if there is nothing to do and an identical copy if the
  * array otherwise.

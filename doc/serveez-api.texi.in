@@ -225,7 +225,6 @@ size of a pointer.  The array automatically grows if necessary.
 |F| svz_array_add
 |F| svz_array_del
 |F| svz_array_size
-|F| svz_array_ins
 |M| svz_array_foreach
 
 @node Hashtable

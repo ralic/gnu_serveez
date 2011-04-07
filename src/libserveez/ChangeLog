@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_ins
+
+	* array.h (svz_array_ins): Delete func decl.
+	* array.c (svz_array_ins): Delete func.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_array_clear’.
 
 	* array.h (svz_array_clear): Delete func decl.
