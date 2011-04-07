@@ -338,7 +338,11 @@ prog_init (svz_server_t *server)
           if (sock->proto & (SVZ_PROTO_UDP | SVZ_PROTO_ICMP))
             {
               /* Require non-shared listener.  */
-              if (!svz_server_single_listener (server, sock))
+              if (!(server && sock
+                    && sock->flags & SVZ_SOFLG_LISTENING
+                    && sock->port
+                    && svz_binding_contains_server (sock, server)
+                    && 1 == svz_array_size (sock->data)))
                 {
                   svz_log (SVZ_LOG_ERROR,
                            "prog: refusing to initialize shared listener "

@@ -1,5 +1,17 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_server_single_listener’ into client.
+
+	This also reverts 2011-03-21,
+	"Internalize ‘svz_binding_contains_server’".
+
+	* binding.h (svz_binding_contains_server):
+	Remove mark ‘SBO’; instead, mark ‘SERVEEZ_API’.
+	(svz_server_single_listener): Delete func decl.
+	* binding.c (svz_server_single_listener): Delete func.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Combine windoze daemon control funcs.
 
 	* windoze.h (svz_windoze_start_daemon)

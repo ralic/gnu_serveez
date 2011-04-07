@@ -41,16 +41,15 @@ svz_binding_t;
 
 __BEGIN_DECLS
 SBO void svz_binding_destroy (svz_binding_t *);
-SBO int svz_binding_contains_server (svz_socket_t *, svz_server_t *);
 SBO svz_array_t *svz_binding_filter (svz_socket_t *);
 
 SERVEEZ_API int svz_server_bind (svz_server_t *, svz_portcfg_t *);
 SERVEEZ_API svz_array_t *svz_server_portcfgs (svz_server_t *);
 SERVEEZ_API char *svz_server_bindings (svz_server_t *);
-SERVEEZ_API int svz_server_single_listener (svz_server_t *,
-                                            svz_socket_t *);
 SERVEEZ_API svz_array_t *svz_server_listeners (svz_server_t *);
 SERVEEZ_API svz_array_t *svz_sock_servers (svz_socket_t *);
+SERVEEZ_API int svz_binding_contains_server (svz_socket_t *,
+                                             svz_server_t *);
 
 __END_DECLS
 

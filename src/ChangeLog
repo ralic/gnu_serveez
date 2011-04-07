@@ -1,5 +1,15 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_server_single_listener’ into client.
+
+	This also reverts 2011-03-21,
+	"Internalize ‘svz_binding_contains_server’".
+
+	* prog-server/prog-server.c (prog_init):
+	Incorporate ‘svz_server_single_listener’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Combine windoze daemon control funcs.
 
 	* serveez.c (guile_entry): Use ‘svz_windoze_daemon_control’.

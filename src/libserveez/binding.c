@@ -168,24 +168,6 @@ svz_server_listeners (svz_server_t *server)
 }
 
 /*
- * This function checks if the given server instance @var{server} is
- * bound to the listening socket structure @var{sock} and returns non-zero
- * if it is the only server instance bound to this socket.  Otherwise
- * the routine returns zero.
- */
-int
-svz_server_single_listener (svz_server_t *server, svz_socket_t *sock)
-{
-  if (server != NULL && sock != NULL &&          /* validate arguments       */
-      sock->flags & SVZ_SOFLG_LISTENING &&       /* is a listener?           */
-      sock->port != NULL &&                      /* has port configuration?  */
-      svz_binding_contains_server (sock, server) && /* bound to?             */
-      svz_array_size (sock->data) == 1)          /* the only one?            */
-    return 1;
-  return 0;
-}
-
-/*
  * Returns a socket structure representing a listening server socket with
  * the port configuration @var{port}.  If there is no such socket with this
  * kind of port configuration yet then @code{NULL} is returned.
