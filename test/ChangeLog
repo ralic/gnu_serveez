@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_array_contains
+
+	* btdt.c (array_popcount): New func.
+	(array_main): Use ‘array_popcount’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize svz_array_{dup,strdup}.
 
 	* btdt.c (array_main) <replication>: Delete tests.

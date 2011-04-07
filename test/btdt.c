@@ -147,6 +147,24 @@ array_size_correct (svz_array_t *array, int repeat)
   return svz_array_size (array) == (unsigned int) repeat;
 }
 
+/*
+ * Return how often the given value @var{value} is stored in the array
+ * @var{array}.  Return zero if there is no such value.
+ */
+unsigned long
+array_popcount (svz_array_t *array, void *value)
+{
+  unsigned long n, size, found;
+
+  if (array == NULL)
+    return 0;
+  size = svz_array_size (array);
+  for (found = n = 0; n < size; n++)
+    if (svz_array_get (array, n) == value)
+      found++;
+  return found;
+}
+
 int
 array_main (int argc, char **argv)
 {
@@ -233,22 +251,22 @@ array_main (int argc, char **argv)
   test_print ("  contains: ");
   error = 0;
   for (n = 0; n < repeat; n++)
-    if (svz_array_contains (array, (void *) n))
+    if (array_popcount (array, (void *) n))
       error++;
   for (n = 0; n < repeat; n++)
     {
       svz_array_add (array, (void *) n);
-      if (svz_array_contains (array, (void *) n) != 1)
+      if (array_popcount (array, (void *) n) != 1)
         error++;
     }
   for (n = 0; n < repeat; n++)
     {
       svz_array_set (array, n, (void *) 0);
-      if (svz_array_contains (array, (void *) 0) != (unsigned long) n + 1)
+      if (array_popcount (array, (void *) 0) != (unsigned long) n + 1)
         error++;
     }
   svz_array_clear (array);
-  if (svz_array_contains (array, (void *) 0) != 0)
+  if (array_popcount (array, (void *) 0) != 0)
     error++;
   test (error);
 
@@ -312,7 +330,7 @@ array_main (int argc, char **argv)
       if (svz_array_idx (array, (void *) n) !=
           (unsigned long) (repeat - n - 1))
         error++;
-      if (svz_array_contains (array, (void *) n) != 1)
+      if (array_popcount (array, (void *) n) != 1)
         error++;
     }
   test_print (error ? "?" : ".");
@@ -327,7 +345,7 @@ array_main (int argc, char **argv)
         error++;
       if (svz_array_idx (array, (void *) n) != (unsigned long) n)
         error++;
-      if (svz_array_contains (array, (void *) n) != 1)
+      if (array_popcount (array, (void *) n) != 1)
         error++;
     }
   if (! array_size_correct (array, repeat))
@@ -349,7 +367,7 @@ array_main (int argc, char **argv)
         }
       if (! array_size_correct (array, repeat))
         error++;
-      if (svz_array_contains (array, (void *) 0xdeadbeef) !=
+      if (array_popcount (array, (void *) 0xdeadbeef) !=
           (unsigned long) n + i)
         error++;
       if (svz_array_idx (array, (void *) 0xdeadbeef) != (unsigned long) 0)

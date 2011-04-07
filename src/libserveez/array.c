@@ -208,23 +208,6 @@ svz_array_size (svz_array_t *array)
 }
 
 /*
- * Returns how often the given value @var{value} is stored in the array
- * @var{array}.  Return zero if there is no such value.
- */
-unsigned long
-svz_array_contains (svz_array_t *array, void *value)
-{
-  unsigned long n, found;
-
-  if (array == NULL)
-    return 0;
-  for (found = n = 0; n < array->size; n++)
-    if (array->data[n] == value)
-      found++;
-  return found;
-}
-
-/*
  * This function returns the index of the first occurrence of the value
  * @var{value} in the array @var{array}.  It returns (-1) if there is no
  * such value stored within the array.
