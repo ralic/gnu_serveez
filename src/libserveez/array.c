@@ -186,17 +186,6 @@ svz_array_del (svz_array_t *array, unsigned long index)
 }
 
 /*
- * Return the given arrays @var{array} current capacity.
- */
-unsigned long
-svz_array_capacity (svz_array_t *array)
-{
-  if (array == NULL)
-    return 0;
-  return array->capacity;
-}
-
-/*
  * Return the given arrays @var{array} current size.
  */
 unsigned long
