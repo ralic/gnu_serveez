@@ -82,15 +82,41 @@ all of the API functions, variables and macros described in
 @ref{Embedding API}.
 
 @example
-#include <libserveez.h> /* Include the library header.  */
+#include <stdio.h>
+#include <stdlib.h>
+#include <libserveez.h>
+
+static int
+display_ifc (const svz_interface_t *ifc,
+             void *closure)
+@{
+  char *addr = svz_inet_ntoa (ifc->ipaddr);
+
+  if (ifc->description)
+    /* interface with description */
+    printf ("%40s: %s\n",
+            ifc->description, addr);
+  else
+    /* interface with interface # only */
+    printf ("%31s%09lu: %s\n",
+            "interface # ", ifc->index, addr);
+  return 0;
+@}
 
 int
 main (int argc, char **argv)
 @{
-  svz_boot ();          /* Library initialization.  */
-  svz_interface_list ();
-  svz_halt ();          /* Library finalization.  */
-  return 0;
+  /* Library initialization.  */
+  svz_boot ("example");
+
+  /* Display a list of interfaces.  */
+  printf ("local interfaces:\n");
+  svz_foreach_interface (display_ifc, NULL);
+
+  /* Library finalization.  */
+  svz_halt ();
+
+  return EXIT_SUCCESS;
 @}
 @end example
 

@@ -1,5 +1,11 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[doc] Rewrite simple example.
+
+	* serveez-api.texi.in (A simple example): Rewrite.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move ‘svz_server_single_listener’ into client.
 
 	This also reverts 2011-03-21,
