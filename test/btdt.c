@@ -151,7 +151,7 @@ int
 array_main (int argc, char **argv)
 {
   int gap, repeat, result = 0;
-  svz_array_t *array, *dup;
+  svz_array_t *array;
   int n, error, i;
   void *value;
   unsigned int cur[2];
@@ -358,56 +358,6 @@ array_main (int argc, char **argv)
   test_print (error ? "?" : ".");
 
   test_print (" ");
-  test (error);
-
-  /* replication */
-  test_print ("       dup: ");
-  svz_array_clear (array);
-  for (n = 0; n < repeat; n++)
-    svz_array_add (array, (void *) n);
-  error = 0;
-  if ((dup = svz_array_dup (NULL)) != NULL)
-    error++;
-  if ((dup = svz_array_dup (array)) == NULL)
-    error++;
-  if (svz_array_size (array) != svz_array_size (dup))
-    error++;
-  svz_array_foreach (dup, value, i)
-    if (value != (void *) i)
-      error++;
-  svz_array_destroy (dup);
-  test (error);
-
-  /* replication */
-  test_print ("    strdup: ");
-  error = 0;
-  svz_array_clear (array);
-  for (n = 0; n < repeat; n++)
-    svz_array_add (array, NULL);
-  if ((dup = svz_array_strdup (NULL)) != NULL)
-    error++;
-  if ((dup = svz_array_strdup (array)) == NULL)
-    error++;
-  if (svz_array_size (dup) != svz_array_size (array))
-    error++;
-  svz_array_foreach (dup, value, i)
-    if (value != NULL)
-      error++;
-  svz_array_destroy (dup);
-  svz_array_clear (array);
-  for (n = 0; n < repeat; n++)
-    svz_array_add (array, svz_strdup (svz_itoa (n)));
-  if ((dup = svz_array_strdup (array)) == NULL)
-    error++;
-  if (svz_array_size (dup) != svz_array_size (array))
-    error++;
-  svz_array_foreach (dup, value, i)
-    {
-      if (strcmp (value, svz_itoa (i)))
-        error++;
-      svz_free (svz_array_get (array, i));
-    }
-  svz_array_destroy (dup);
   test (error);
 
   /* destroy function */

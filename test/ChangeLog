@@ -1,3 +1,9 @@
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize svz_array_{dup,strdup}.
+
+	* btdt.c (array_main) <replication>: Delete tests.
+
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop func: svz_hash_clear
