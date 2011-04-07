@@ -1,3 +1,10 @@
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Internalize ‘svz_array_destroy_zero’.
+
+	* guile.c (guile_to_strarray): Use ‘svz_array_size’,
+	‘svz_array_destroy’ directly to handle an empty array.
+
 2011-04-06  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[doc] Reformat some source code to avoid confusing the snarfer.

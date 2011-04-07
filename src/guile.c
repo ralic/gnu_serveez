@@ -545,11 +545,10 @@ guile_to_hash (SCM list, char *prefix)
 #undef FUNC_NAME
 
 /*
- * Convert the given scheme cell @var{list} which needs to be a valid guile
- * list into an array of duplicated strings.  Returns @code{NULL} if it is not
- * a valid guile list.  Print an error message if one of the list's elements
- * is not a string.  The additional argument @var{func} should be the name of
- * the caller.
+ * Convert the given non-empty @var{list} into an array of duplicated strings.
+ * Return @code{NULL} if it is not a valid non-empty list.  Print an error
+ * message if one of the list's elements is not a string.  The additional
+ * argument @var{func} should be the name of the caller.
  */
 #define FUNC_NAME "guile_to_strarray"
 svz_array_t *
@@ -581,8 +580,13 @@ guile_to_strarray (SCM list, char *func)
       scm_c_free (str);
     }
 
-  /* Check the size of the resulting string array.  */
-  return svz_array_destroy_zero (array);
+  /* Reject the empty array.  */
+  if (! svz_array_size (array))
+    {
+      svz_array_destroy (array);
+      array = NULL;
+    }
+  return array;
 }
 #undef FUNC_NAME
 

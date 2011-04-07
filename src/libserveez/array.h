@@ -40,7 +40,7 @@ SERVEEZ_API void *svz_array_del (svz_array_t *, unsigned long);
 SERVEEZ_API unsigned long svz_array_size (svz_array_t *);
 SBO svz_array_t *svz_array_dup (svz_array_t *);
 SBO svz_array_t *svz_array_strdup (svz_array_t *);
-SERVEEZ_API svz_array_t *svz_array_destroy_zero (svz_array_t *);
+SBO svz_array_t *svz_array_destroy_zero (svz_array_t *);
 
 __END_DECLS
 

@@ -1,5 +1,11 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_array_destroy_zero’.
+
+	* serveez-api.texi.in (Array): Delete ‘svz_array_destroy_zero’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop func: svz_array_ins
 
 	* serveez-api.texi.in (Array): Delete ‘svz_array_ins’.
