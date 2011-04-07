@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_interface_list
+
+	* option.c (display_ifc): New static func.
+	(handle_options): On 'i', display blurb, use ‘display_ifc’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move ‘svz_server_single_listener’ into client.
 
 	This also reverts 2011-03-21,

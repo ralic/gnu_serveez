@@ -1,5 +1,11 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Drop func: svz_interface_list
+
+	* serveez-api.texi.in (Interface): Delete ‘svz_interface_list’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[doc] Rewrite simple example.
 
 	* serveez-api.texi.in (A simple example): Rewrite.

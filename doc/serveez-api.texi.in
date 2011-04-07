@@ -762,7 +762,6 @@ to separate traffic of different networks.  If setup correctly serveez can
 follow these rules.
 
 |F| svz_foreach_interface
-|F| svz_interface_list
 |F| svz_interface_add
 
 @node Windoze

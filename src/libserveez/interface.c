@@ -561,40 +561,6 @@ svz_interface_collect (void)
 #endif /* not ENABLE_IFLIST */
 
 /*
- * Print the text representation of all the network interfaces.
- */
-void
-svz_interface_list (void)
-{
-  unsigned long n;
-  svz_interface_t *ifc;
-
-  printf ("--- list of local interfaces you can start ip services on ---\n");
-
-  /* any interfaces at all?  */
-  if (!svz_interfaces)
-    return;
-
-  for (n = 0; n < svz_vector_length (svz_interfaces); n++)
-    {
-      ifc = svz_vector_get (svz_interfaces, n);
-
-      /* interface with description */
-      if (ifc->description)
-        {
-          printf ("%40s: %s\n", ifc->description,
-                  svz_inet_ntoa (ifc->ipaddr));
-        }
-      else
-        {
-          /* interface with interface # only */
-          printf ("%31s%09lu: %s\n", "interface # ",
-                  ifc->index, svz_inet_ntoa (ifc->ipaddr));
-        }
-    }
-}
-
-/*
  * Add a network interface to the current list of known interfaces.  Drop
  * duplicate entries.  The given arguments @var{index} specifies the network
  * interface index number, @var{desc} an interface desription, @var{addr}

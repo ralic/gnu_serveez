@@ -189,6 +189,22 @@ static struct option serveez_options[] = {
 #define SERVEEZ_OPTIONS "l:hViv:f:m:dc"
 #endif
 
+static int
+display_ifc (const svz_interface_t *ifc, SVZ_UNUSED void *closure)
+{
+  char *addr = svz_inet_ntoa (ifc->ipaddr);
+
+  if (ifc->description)
+    /* interface with description */
+    printf ("%40s: %s\n",
+            ifc->description, addr);
+  else
+    /* interface with interface # only */
+    printf ("%31s%09lu: %s\n",
+            "interface # ", ifc->index, addr);
+  return 0;
+}
+
 /*
  * Parse the command line options.  If these have been correct the function
  * either terminates the program successfully or returns an option
@@ -236,7 +252,9 @@ handle_options (int argc, char **argv)
           break;
 
         case 'i':
-          svz_interface_list ();
+          printf ("--- list of local interfaces"
+                  " you can start ip services on ---\n");
+          svz_foreach_interface (display_ifc, NULL);
           exit (EXIT_SUCCESS);
           break;
 
