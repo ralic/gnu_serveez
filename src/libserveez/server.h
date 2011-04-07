@@ -109,6 +109,16 @@ struct svz_servertype
   svz_config_prototype_t config_prototype;
 };
 
+/* begin svzint */
+typedef struct
+{
+  char *name;
+  int (*instantiate) (char *, char *, void *, svz_config_accessor_t *,
+                      size_t, char *);
+}
+svz_config_type_t;
+/* end svzint */
+
 typedef void (svz_server_do_t) (svz_server_t *, void *);
 
 __BEGIN_DECLS

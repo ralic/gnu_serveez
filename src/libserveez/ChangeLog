@@ -1,5 +1,12 @@
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Internalize ‘svz_config_type_t’.
+
+	* cfg.h (svz_config_type_t): Move from here...
+	* server.h (svz_config_type_t): ...to here; mark ‘svzint’.
+
+2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Internalize ‘svz_binding_t’.
 
 	* binding.h (svz_binding_t): Mark ‘svzint’.

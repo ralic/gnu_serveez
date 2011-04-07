@@ -193,14 +193,6 @@ svz_config_prototype_t;
 #define SVZ_REGISTER_END() \
   { SVZ_ITEM_END, NULL, SVZ_ITEM_DEFAULTABLE, NULL }
 
-typedef struct
-{
-  char *name;
-  int (*instantiate) (char *, char *, void *, svz_config_accessor_t *,
-                      size_t, char *);
-}
-svz_config_type_t;
-
 __BEGIN_DECLS
 SBO void *svz_config_instantiate (svz_config_prototype_t *,
                                   char *, void *,
