@@ -1,5 +1,13 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Use ‘svz_foreach_interface’ more.
+
+	* portcfg.c (expand_closure): New struct.
+	(expand_internal): New static func.
+	(svz_portcfg_expand): Use it and ‘svz_foreach_interface’.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Rename ‘svz_server_foreach’ to ‘svz_foreach_server’.
 
 	* server.h (svz_foreach_server):

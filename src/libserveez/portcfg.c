@@ -343,6 +343,26 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
   return 0;
 }
 
+struct expand_closure
+{
+  svz_portcfg_t *this;
+  svz_array_t *ports;
+};
+
+static int
+expand_internal (const svz_interface_t *ifc, void *closure)
+{
+  unsigned long ipaddr = ifc->ipaddr;
+  struct expand_closure *x = closure;
+  svz_portcfg_t *port = svz_portcfg_dup (x->this);
+  struct sockaddr_in *addr = svz_portcfg_addr (port);
+
+  addr->sin_addr.s_addr = ipaddr;
+  svz_portcfg_set_ipaddr (port, svz_strdup (svz_inet_ntoa (ipaddr)));
+  svz_array_add (x->ports, port);
+  return 0;
+}
+
 /*
  * Expand the given port configuration @var{this} if it is a network port
  * configuration and if the network ip address is @code{INADDR_ANY}.  Return
@@ -351,33 +371,17 @@ svz_portcfg_set_ipaddr (svz_portcfg_t *this, char *ipaddr)
 svz_array_t *
 svz_portcfg_expand (svz_portcfg_t *this)
 {
-  svz_array_t *ports = svz_array_create (1, NULL);
-  svz_portcfg_t *port;
-  struct sockaddr_in *addr;
-  int n;
-  svz_interface_t *ifc;
+  struct expand_closure x = { this, svz_array_create (1, NULL) };
 
   /* Is this a network port configuration and should it be expanded?  */
-  if ((addr = svz_portcfg_addr (this)) != NULL &&
-      (this->flags & PORTCFG_FLAG_ALL) && !(this->flags & PORTCFG_FLAG_DEVICE))
-    {
-      svz_vector_foreach (svz_interfaces, ifc, n)
-        {
-          port = svz_portcfg_dup (this);
-          addr = svz_portcfg_addr (port);
-          addr->sin_addr.s_addr = ifc->ipaddr;
-          svz_portcfg_set_ipaddr (port,
-                                  svz_strdup (svz_inet_ntoa (ifc->ipaddr)));
-          svz_array_add (ports, port);
-        }
-    }
+  if (NULL != svz_portcfg_addr (this)
+      && (this->flags & PORTCFG_FLAG_ALL)
+      && !(this->flags & PORTCFG_FLAG_DEVICE))
+    svz_foreach_interface (expand_internal, &x);
   /* No, just add the given port configuration.  */
   else
-    {
-      port = svz_portcfg_dup (this);
-      svz_array_add (ports, port);
-    }
-  return ports;
+    svz_array_add (x.ports, svz_portcfg_dup (this));
+  return x.ports;
 }
 
 /*
