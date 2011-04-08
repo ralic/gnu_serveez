@@ -605,6 +605,11 @@ svz_server_create (svz_portcfg_t *port)
           sock->itype = SVZ_CFG_ICMP (port, type);
         }
     }
-  svz_log (SVZ_LOG_NOTICE, "listening on %s\n", svz_portcfg_text (port, NULL));
+  {
+    char buf[128];
+
+    svz_pp_portcfg (buf, 128, port);
+    svz_log (SVZ_LOG_NOTICE, "listening on %s\n", buf);
+  }
   return sock;
 }

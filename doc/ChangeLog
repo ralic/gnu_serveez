@@ -1,5 +1,12 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add ‘svz_pp_server_bindings’; drop ‘svz_server_bindings’.
+
+	* serveez-api.texi.in (Server binding):
+	Delete ‘svz_server_bindings’; add ‘svz_pp_server_bindings’.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Purge defunct ‘vector’ implementation / interface.
 
 	* Makefile.am (libserveez_impl): Remove vector.c, vector.h.

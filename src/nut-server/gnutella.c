@@ -830,6 +830,7 @@ char *
 nut_info_server (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
+  char bindings[256];
   static char info[80 * 19];
   char *e, *ext = NULL;
   int n;
@@ -856,6 +857,7 @@ nut_info_server (svz_server_t *server)
       *w = '\0';
     }
 
+  svz_pp_server_bindings (bindings, 256, server);
   sprintf (info,
            " tcp bindings    : %s\r\n"
            " force ip        : %s\r\n"
@@ -878,7 +880,7 @@ nut_info_server (svz_server_t *server)
            " downloads       : %u/%u\r\n"
            " uploads         : %u/%u\r\n"
            " recent queries  : %u",
-           svz_server_bindings (server),
+           bindings,
            cfg->ip ? svz_inet_ntoa (cfg->ip) : "no specified",
            cfg->port ? svz_itoa (ntohs (cfg->port)) : "no specified",
            cfg->max_ttl,

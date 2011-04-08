@@ -863,8 +863,10 @@ char *
 http_info_server (svz_server_t *server)
 {
   http_config_t *cfg = server->cfg;
+  char bindings[256];
   static char info[80 * 12];
 
+  svz_pp_server_bindings (bindings, 256, server);
   sprintf (info,
            " tcp bindings    : %s\r\n"
            " index file      : %s\r\n"
@@ -878,7 +880,7 @@ http_info_server (svz_server_t *server)
            " default type    : %s\r\n"
            " type file       : %s\r\n"
            " content types   : %d",
-           svz_server_bindings (server),
+           bindings,
            cfg->indexfile,
            cfg->docs,
            cfg->cgiurl,

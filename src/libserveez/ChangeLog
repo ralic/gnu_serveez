@@ -1,5 +1,19 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add ‘svz_pp_server_bindings’; drop ‘svz_server_bindings’.
+
+	* binding.c (svz_server_bindings): Delete func.
+	(svz_pp_server_bindings): New func.
+	* binding.h (svz_server_bindings): Delete func decl.
+	(svz_pp_server_bindings): New func decl.
+	* portcfg.c (svz_portcfg_text): Delete func.
+	(svz_pp_portcfg): New func.
+	* portcfg.h (svz_portcfg_text): Delete func decl.
+	(svz_pp_portcfg): New func decl.
+	* server-socket.c (svz_server_create): Use ‘svz_pp_portcfg’.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Fix bug: Include interstitual space in ‘svz_server_bindings’.
 
 	Regression introduced 2011-03-21, "Avoid ‘strcat’".

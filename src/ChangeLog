@@ -1,5 +1,13 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add ‘svz_pp_server_bindings’; drop ‘svz_server_bindings’.
+
+	* http-server/http-proto.c (http_info_server):
+	Use ‘svz_pp_server_bindings’.
+	* nut-server/gnutella.c (nut_info_server): Likewise.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Rename ‘svz_server_foreach’ to ‘svz_foreach_server’.
 
 	* ctrl-server/control-proto.c (ctrl_stat_all): Update ref.

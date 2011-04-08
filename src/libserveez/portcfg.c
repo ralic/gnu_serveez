@@ -824,15 +824,14 @@ svz_portcfg_addr_text (svz_portcfg_t *port, struct sockaddr_in *addr)
 }
 
 /*
- * This function returns a simple text representation of the given port
- * configuration @var{port}.  The returned character string is statically
- * allocated.  Thus you cannot use it twice in argument lists.
+ * Format a text representation of the port configuration @var{port} into
+ * @var{buf}, which has @var{size} bytes.  The string is guaranteed to be
+ * nul-terminated.  Return the length (at most @code{@var{size} - 1}) of
+ * the formatted string.
  */
-char *
-svz_portcfg_text (svz_portcfg_t *port, int *lenp)
+size_t
+svz_pp_portcfg (char *buf, size_t size, svz_portcfg_t *port)
 {
-#define TEXT_SIZE  128
-  static char text[TEXT_SIZE];
   struct sockaddr_in *addr;
   int len;
 
@@ -840,7 +839,7 @@ svz_portcfg_text (svz_portcfg_t *port, int *lenp)
   if (port->proto & (SVZ_PROTO_TCP | SVZ_PROTO_UDP))
     {
       addr = svz_portcfg_addr (port);
-      len = snprintf (text, TEXT_SIZE, "%s:[%s:%d]",
+      len = snprintf (buf, size, "%s:[%s:%d]",
                       (port->proto & SVZ_PROTO_TCP) ? "TCP" : "UDP",
                       svz_portcfg_addr_text (port, addr),
                       ntohs (addr->sin_port));
@@ -851,7 +850,7 @@ svz_portcfg_text (svz_portcfg_t *port, int *lenp)
       int icmp_p = port->proto & SVZ_PROTO_ICMP;
 
       addr = svz_portcfg_addr (port);
-      len = snprintf (text, TEXT_SIZE, "%s:[%s%s%s]",
+      len = snprintf (buf, size, "%s:[%s%s%s]",
                       (port->proto & SVZ_PROTO_RAW) ? "RAW" : "ICMP",
                       svz_portcfg_addr_text (port, addr),
                       icmp_p ? "/" : "",
@@ -859,18 +858,15 @@ svz_portcfg_text (svz_portcfg_t *port, int *lenp)
     }
   /* PIPE */
   else if (port->proto & SVZ_PROTO_PIPE)
-    len = snprintf (text, TEXT_SIZE, "PIPE:[%s]-[%s]",
+    len = snprintf (buf, size, "PIPE:[%s]-[%s]",
                     SVZ_CFG_PIPE (port, recv.name),
                     SVZ_CFG_PIPE (port, send.name));
   else
     {
-      text[0] = '\0';
+      buf[0] = '\0';
       len = 0;
     }
-  if (lenp)
-    *lenp = len;
-  return text;
-#undef TEXT_SIZE
+  return len;
 }
 
 /*

@@ -74,64 +74,6 @@ svz_binding_find_server (svz_socket_t *sock, svz_server_t *server)
 }
 
 /*
- * Return a static text representation of the server instance's @var{server}
- * current port configuration bindings.
- */
-char *
-svz_server_bindings (svz_server_t *server)
-{
-#define TEXT_SIZE 256
-  static char text[TEXT_SIZE];
-  svz_socket_t *sock;
-  svz_array_t *bindings;
-  svz_binding_t *binding;
-  int i, lose = 0, avail = TEXT_SIZE;
-  char *w = text;
-  int firstp = 1;
-
-  /* Clear text.  */
-  text[0] = '\0';
-
-  /* Go through the list of socket structures.  */
-  svz_sock_foreach_listener (sock)
-    {
-      /* The server in the array of servers?  */
-      if ((bindings = svz_binding_find_server (sock, server)) != NULL)
-        {
-          /* Yes.  Get port configurations.  */
-          svz_array_foreach (bindings, binding, i)
-            {
-              int len;
-              char *pretty = svz_portcfg_text (binding->port, &len);
-
-              if (avail <= len + !firstp)
-                {
-                  lose = 1;
-                  break;
-                }
-              if (!firstp)
-                {
-                  *w++ = ' ';
-                  avail--;
-                }
-              memcpy (w, pretty, len);
-              w += len;
-              avail -= len;
-              firstp = 0;
-            }
-          svz_array_destroy (bindings);
-          *w = '\0';
-          if (lose)
-            goto out;
-        }
-    }
-
- out:
-  return text;
-#undef TEXT_SIZE
-}
-
-/*
  * Return an array of port configurations to which the given server instance
  * @var{server} is currently bound to or @code{NULL} if there is no such
  * binding.  The caller is responsible for freeing the returned array by
@@ -602,4 +544,60 @@ svz_binding_filter (svz_socket_t *sock)
   if (svz_sock_local_info (sock, &addr, &port))
     return NULL;
   return svz_binding_filter_net (sock, addr, port);
+}
+
+/*
+ * Format a space-separated list of current port configuration
+ * bindings for @var{server} into @var{buf}, which has @var{size}
+ * bytes.  The string is guaranteed to be nul-terminated.  Return the
+ * length (at most @code{@var{size} - 1}) of the formatted string.
+ */
+size_t
+svz_pp_server_bindings (char *buf, size_t size, svz_server_t *server)
+{
+  svz_socket_t *sock;
+  svz_array_t *bindings;
+  svz_binding_t *binding;
+  int i, lose = 0;
+  char *w = buf;
+  int firstp = 1;
+
+  *w = '\0';
+
+  /* Go through the list of socket structures.  */
+  svz_sock_foreach_listener (sock)
+    {
+      /* The server in the array of servers?  */
+      if ((bindings = svz_binding_find_server (sock, server)) != NULL)
+        {
+          /* Yes.  Get port configurations.  */
+          svz_array_foreach (bindings, binding, i)
+            {
+              char pretty[128];
+              size_t len = svz_pp_portcfg (pretty, 128, binding->port);
+
+              if (size <= len + !firstp)
+                {
+                  lose = 1;
+                  break;
+                }
+              if (!firstp)
+                {
+                  *w++ = ' ';
+                  size--;
+                }
+              memcpy (w, pretty, len);
+              w += len;
+              size -= len;
+              firstp = 0;
+            }
+          svz_array_destroy (bindings);
+          *w = '\0';
+          if (lose)
+            goto out;
+        }
+    }
+
+ out:
+  return w - buf;
 }
