@@ -66,7 +66,6 @@
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/array.h"
-#include "libserveez/vector.h"
 #include "libserveez/socket.h"
 #include "libserveez/core.h"
 #include "libserveez/pipe-socket.h"

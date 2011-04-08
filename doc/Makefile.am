@@ -60,7 +60,6 @@ libserveez_impl = \
   tcp-socket.c \
   udp-socket.c \
   util.c util.h \
-  vector.c vector.h \
   windoze.c \
   codec/codec.c \
   coserver/coserver.c coserver/coserver.h

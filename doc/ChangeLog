@@ -1,5 +1,11 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Purge defunct ‘vector’ implementation / interface.
+
+	* Makefile.am (libserveez_impl): Remove vector.c, vector.h.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Rename ‘svz_server_foreach’ to ‘svz_foreach_server’.
 
 	* serveez-api.texi.in (Server functionality): Update ref.

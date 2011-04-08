@@ -68,8 +68,6 @@
 
 /* begin svzint */
 
-typedef struct svz_vector svz_vector_t;
-
 /* This structure holds all the private dynamic state of the library.  */
 typedef struct
 {

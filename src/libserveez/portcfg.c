@@ -33,7 +33,6 @@
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/core.h"
-#include "libserveez/vector.h"
 #include "libserveez/array.h"
 #include "libserveez/portcfg.h"
 #include "libserveez/udp-socket.h"

@@ -1,5 +1,19 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Purge defunct ‘vector’ implementation / interface.
+
+	* Makefile.am (libserveez_la_SOURCES): Remove vector.c.
+	(noinst_HEADERS): Remove vector.h.
+	* boot.c: Don't #include "libserveez/vector.h".
+	* defines.h (svz_vector_t): Delete typedef.
+	* libserveez.ap (SOURCES): Remove vector.c.
+	* portcfg.c: Don't #include "libserveez/vector.h".
+	* server-core.c: Likewise.
+	* vector.c: Delete file.
+	* vector.h: Delete file.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Use array for storing "list of interfaces".
 
 	* interface.h (svz_interfaces): Delete var decl.

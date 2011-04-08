@@ -26,7 +26,6 @@
 #include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
-#include "libserveez/vector.h"
 #include "libserveez/interface.h"
 #include "libserveez/socket.h"
 #include "libserveez/icmp-socket.h"

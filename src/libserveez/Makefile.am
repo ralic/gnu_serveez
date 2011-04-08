@@ -41,7 +41,7 @@ libserveez_la_LIBADD = $(libserveez_la_DEPENDENCIES) \
 libserveez_la_SOURCES = alloc.c util.c hash.c                             \
   tcp-socket.c pipe-socket.c udp-socket.c icmp-socket.c raw-socket.c      \
   server-core.c server-loop.c windoze.c boot.c server.c server-socket.c   \
-  interface.c dynload.c vector.c core.c socket.c array.c portcfg.c        \
+  interface.c dynload.c core.c socket.c array.c portcfg.c                 \
   binding.c passthrough.c cfg.c mutex.c
 
 # these file are available by #include <libserveez/foo.h>
@@ -62,7 +62,7 @@ svzpath.h: $(top_srcdir)/config.status
 	@echo '#define SVZ_PKGDATADIR "$(pkgdatadir)"' > $@
 	@echo '#define SVZ_PKGLIBDIR "$(pkglibdir)"' >> $@
 
-noinst_HEADERS = ipdata.h iphlpapi.h raw-socket.h server-socket.h vector.h
+noinst_HEADERS = ipdata.h iphlpapi.h raw-socket.h server-socket.h
 
 CLEANFILES += svzpath.h
 
