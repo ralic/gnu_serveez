@@ -1,5 +1,11 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename ‘svz_server_foreach’ to ‘svz_foreach_server’.
+
+	* serveez-api.texi.in (Server functionality): Update ref.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add ‘svz_foreach_codec’; move ‘svz_codec_list’ to client.
 
 	* serveez-api.texi.in (Codec functions):

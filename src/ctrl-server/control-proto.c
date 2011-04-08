@@ -741,7 +741,7 @@ int
 ctrl_stat_all (svz_socket_t *sock, int flag, char *arg)
 {
   /* go through all server instances */
-  svz_server_foreach (stat_all_internal, sock);
+  svz_foreach_server (stat_all_internal, sock);
 
   /* show coserver statistics */
   ctrl_stat_coservers (sock, flag, arg);

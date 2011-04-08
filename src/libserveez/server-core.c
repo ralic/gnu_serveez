@@ -862,7 +862,7 @@ reset_internal (svz_server_t *server, SVZ_UNUSED void *closure)
 static int
 svz_reset (void)
 {
-  svz_server_foreach (reset_internal, NULL);
+  svz_foreach_server (reset_internal, NULL);
   svz_interface_check ();
   return 0;
 }
@@ -973,7 +973,7 @@ svz_periodic_tasks (void)
   svz_coserver_check ();
 
   /* run the server instance timer routines */
-  svz_server_foreach (notify_internal, NULL);
+  svz_foreach_server (notify_internal, NULL);
 
   return 0;
 }

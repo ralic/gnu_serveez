@@ -124,7 +124,7 @@ typedef void (svz_server_do_t) (svz_server_t *, void *);
 __BEGIN_DECLS
 SBO svz_config_type_t svz_servertype_definition;
 
-SERVEEZ_API void svz_server_foreach (svz_server_do_t *, void *);
+SERVEEZ_API void svz_foreach_server (svz_server_do_t *, void *);
 SERVEEZ_API svz_server_t *svz_server_get (char *);
 SERVEEZ_API svz_server_t *svz_server_find (void *);
 SERVEEZ_API svz_array_t *svz_server_clients (svz_server_t *);

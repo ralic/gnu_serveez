@@ -52,16 +52,16 @@ static svz_array_t *svz_servertypes = NULL;
  */
 static svz_hash_t *svz_servers = NULL;
 
-struct server_foreach_closure
+struct foreach_server_closure
 {
   svz_server_do_t *func;
   void *closure;
 };
 
 static void
-server_foreach_internal (SVZ_UNUSED void *k, void *v, void *closure)
+foreach_server_internal (SVZ_UNUSED void *k, void *v, void *closure)
 {
-  struct server_foreach_closure *x = closure;
+  struct foreach_server_closure *x = closure;
 
   x->func (v, x->closure);
 }
@@ -71,13 +71,13 @@ server_foreach_internal (SVZ_UNUSED void *k, void *v, void *closure)
  * @var{closure}.
  */
 void
-svz_server_foreach (svz_server_do_t *func, void *closure)
+svz_foreach_server (svz_server_do_t *func, void *closure)
 {
   if (svz_servers)
     {
-      struct server_foreach_closure x = { func, closure };
+      struct foreach_server_closure x = { func, closure };
 
-      svz_hash_foreach (server_foreach_internal, svz_servers, &x);
+      svz_hash_foreach (foreach_server_internal, svz_servers, &x);
     }
 }
 
@@ -306,7 +306,7 @@ svz_server_find (void *cfg)
 {
   struct find_closure x = { cfg, NULL };
 
-  svz_server_foreach (find_internal, &x);
+  svz_foreach_server (find_internal, &x);
   return x.match;
 }
 
@@ -433,7 +433,7 @@ svz_server_init_all (void)
   int errneous = 0;
 
   svz_log (SVZ_LOG_NOTICE, "initializing all server instances\n");
-  svz_server_foreach (init_all_internal, &errneous);
+  svz_foreach_server (init_all_internal, &errneous);
   return errneous;
 }
 

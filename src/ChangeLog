@@ -1,5 +1,11 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename ‘svz_server_foreach’ to ‘svz_foreach_server’.
+
+	* ctrl-server/control-proto.c (ctrl_stat_all): Update ref.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add ‘svz_collect’ and conv. macros; zonk disparate funcs.
 
 	* foo-server/foo-proto.c (foo_global_init): Use

@@ -1,5 +1,18 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename ‘svz_server_foreach’ to ‘svz_foreach_server’.
+
+	* server.h (svz_foreach_server):
+	Rename func decl from ‘svz_server_foreach’.
+	* server.c
+	(foreach_server_closure): Rename from ‘server_foreach_closure’.
+	(foreach_server_internal): Rename from ‘server_foreach_internal’.
+	(svz_foreach_server): Rename from ‘svz_server_foreach’.
+	(svz_server_find, svz_server_init_all): Update refs.
+	* server-core.c (svz_reset, svz_periodic_tasks): Likewise.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add ‘svz_foreach_codec’; move ‘svz_codec_list’ to client.
 
 	* codec/codec.h (svz_codec_do_t): New typedef.
