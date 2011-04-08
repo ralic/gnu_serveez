@@ -57,13 +57,13 @@
 #include "libserveez/alloc.h"
 #include "libserveez/util.h"
 #include "libserveez/core.h"
-#include "libserveez/vector.h"
+#include "libserveez/array.h"
 #include "libserveez/interface.h"
 
 /*
  * The available interface list.
  */
-svz_vector_t *svz_interfaces = NULL;
+static svz_array_t *svz_interfaces;
 
 /*
  * Call @var{func} for each interface, passing additionally the second arg
@@ -76,7 +76,7 @@ svz_foreach_interface (svz_interface_do_t *func, void *closure)
   int n, rv;
   svz_interface_t *ifc;
 
-  svz_vector_foreach (svz_interfaces, ifc, n)
+  svz_array_foreach (svz_interfaces, ifc, n)
     {
       if (0 > (rv = func (ifc, closure)))
         return rv;
@@ -345,9 +345,9 @@ svz_interface_collect (void)
                     {
                       memcpy (&addr, &ipAddrEntry[n].iae_addr, sizeof (addr));
 
-                      for (k = 0; k < svz_vector_length (svz_interfaces); k++)
+                      for (k = 0; k < svz_array_size (svz_interfaces); k++)
                         {
-                          ifc = svz_vector_get (svz_interfaces, k);
+                          ifc = svz_array_get (svz_interfaces, k);
                           if (ifc->index == ipAddrEntry[n].iae_index)
                             ifc->ipaddr = addr;
                         }
@@ -560,6 +560,16 @@ svz_interface_collect (void)
 
 #endif /* not ENABLE_IFLIST */
 
+static void
+destroy_ifc (void *p)
+{
+  svz_interface_t *ifc = p;
+
+  if (ifc->description)
+    svz_free (ifc->description);
+  svz_free (ifc);
+}
+
 /*
  * Add a network interface to the current list of known interfaces.  Drop
  * duplicate entries.  The given arguments @var{index} specifies the network
@@ -577,13 +587,12 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
   /* Check if there is such an interface already.  */
   if (svz_interfaces == NULL)
     {
-      svz_interfaces = svz_vector_create (sizeof (svz_interface_t));
+      svz_interfaces = svz_array_create (1, destroy_ifc);
     }
   else
     {
-      for (n = 0; n < svz_vector_length (svz_interfaces); n++)
+      svz_array_foreach (svz_interfaces, ifc, n)
         {
-          ifc = svz_vector_get (svz_interfaces, n);
           if (ifc->ipaddr == addr)
             return -1;
         }
@@ -602,8 +611,7 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
          (*p == '\n' || *p == '\r' || *p == '\t' || *p == ' '))
     *p-- = '\0';
 
-  svz_vector_add (svz_interfaces, ifc);
-  svz_free (ifc);
+  svz_array_add (svz_interfaces, ifc);
   return 0;
 }
 
@@ -617,7 +625,7 @@ svz_interface_get (unsigned long addr)
   svz_interface_t *ifc;
   int n;
 
-  svz_vector_foreach (svz_interfaces, ifc, n)
+  svz_array_foreach (svz_interfaces, ifc, n)
     {
       if (ifc->ipaddr == addr)
         return ifc;
@@ -636,7 +644,7 @@ svz_interface_search (char *desc)
   svz_interface_t *ifc;
   int n;
 
-  svz_vector_foreach (svz_interfaces, ifc, n)
+  svz_array_foreach (svz_interfaces, ifc, n)
     if (!strcmp (ifc->description, desc))
       return ifc;
   return NULL;
@@ -648,17 +656,9 @@ svz_interface_search (char *desc)
 static void
 svz_interface_free (void)
 {
-  unsigned long n;
-  svz_interface_t *ifc;
-
   if (svz_interfaces)
     {
-      svz_vector_foreach (svz_interfaces, ifc, n)
-        {
-          if (ifc->description)
-            svz_free (ifc->description);
-        }
-      svz_vector_destroy (svz_interfaces);
+      svz_array_destroy (svz_interfaces);
       svz_interfaces = NULL;
     }
 }
@@ -672,7 +672,7 @@ svz_interface_free (void)
 void
 svz_interface_check (void)
 {
-  svz_vector_t *interfaces = NULL;
+  svz_array_t *interfaces = NULL;
   svz_interface_t *ofc, *ifc;
   int o, n, found, changes = 0;
 
@@ -684,7 +684,7 @@ svz_interface_check (void)
       svz_interface_collect ();
 
       /* Look for removed network interfaces.  */
-      svz_vector_foreach (interfaces, ifc, n)
+      svz_array_foreach (interfaces, ifc, n)
         {
           if (svz_interface_get (ifc->ipaddr) == NULL)
             {
@@ -704,10 +704,10 @@ svz_interface_check (void)
         }
 
       /* Look for new network interfaces.  */
-      svz_vector_foreach (svz_interfaces, ifc, n)
+      svz_array_foreach (svz_interfaces, ifc, n)
         {
           found = 0;
-          svz_vector_foreach (interfaces, ofc, o)
+          svz_array_foreach (interfaces, ofc, o)
             {
               if (ofc->ipaddr == ifc->ipaddr)
                 found++;
@@ -721,10 +721,7 @@ svz_interface_check (void)
         }
 
       /* Destroy old interface list and apply new interface list.  */
-      svz_vector_foreach (interfaces, ifc, n)
-        if (ifc->description)
-          svz_free (ifc->description);
-      svz_vector_destroy (interfaces);
+      svz_array_destroy (interfaces);
     }
 
   /* Print a notification message if no changes occurred.  */

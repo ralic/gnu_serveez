@@ -1,5 +1,24 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Use array for storing "list of interfaces".
+
+	* interface.h (svz_interfaces): Delete var decl.
+	* interface.c: Don't #include "libserveez/vector.h";
+	instead, #include "libserveez/array.h".
+	(svz_interfaces): Convert type to ‘svz_array_t *’; make static.
+	(svz_foreach_interface): Use ‘svz_array_foreach’.
+	(svz_interface_collect): Use ‘svz_array_size’, ‘svz_array_get’.
+	(destroy_ifc): New static func.
+	(svz_interface_add): Use ‘svz_array_create’,
+	‘destroy_ifc’, ‘svz_array_foreach’, ‘svz_array_add’;
+	don't ‘svz_free’ the constructed interface when done.
+	(svz_interface_get, svz_interface_search): Use ‘svz_array_foreach’.
+	(svz_interface_free): Use ‘svz_array_destroy’.
+	(svz_interface_check): Conver local var to use ‘svz_array_t *’;
+	use ‘svz_array_foreach’, ‘svz_array_destroy’.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Use array for storing "accepted time".
 
 	* server-socket.c: Don't #include "libserveez/vector.h".
