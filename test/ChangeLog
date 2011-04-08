@@ -1,3 +1,11 @@
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v] Mine all ‘#define foo 1’ symbols from ../src/config.h.
+
+	* Makefile.am (check_DATA): New var.
+	(but-of-course): New target.
+	* t001: Load ./but-of-course; use ‘boc?’.
+
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop func: svz_array_ins

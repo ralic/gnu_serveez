@@ -36,10 +36,16 @@ EXTRA_DIST = $(TESTS) \
 	guile-server-test.scm
 
 check_PROGRAMS = btdt
+check_DATA = but-of-course
 
 btdt_SOURCES = btdt.c
 
 LDADD = -L../src/libserveez -lserveez
+
+but-of-course: ../src/config.h
+	{ echo '(define (boc? symbol) (memq symbol (quote (' ; \
+	  $(SED) '/#define \(.*\) 1/!d;s//\1/' $< ; \
+	  echo '))))' ; } > $@
 
 # woe
 

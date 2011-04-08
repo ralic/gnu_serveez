@@ -73,6 +73,7 @@ Makefile.in
 
 /test/*.log
 /test/btdt
+/test/but-of-course
 
 # Local variables:
 # mode: shell-script

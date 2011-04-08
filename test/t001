@@ -18,8 +18,8 @@
 ;;; Code:
 
 ;; Skip this test if the passthrough server is not enabled.
-;; Until serveez(1) can tell us directly, we mine it out the hard way.
-(or (zero? (system "grep '#define ENABLE_PROG_SERVER 1' ../src/config.h 1>/dev/null 2>&1"))
+(load "./but-of-course")
+(or (boc? 'ENABLE_PROG_SERVER)
     (exit 77))
 
 (define VERBOSE? (getenv "VERBOSE"))
