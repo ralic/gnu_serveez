@@ -22,14 +22,8 @@ OWNER = <4>
 TARGET_TYPE = Project
 
 # List all projects here.
-PROJECTS = \
-	test/array test/codec test/hash test/spvec test/vector \
-	test/prog src/libserveez/libserveez src/serveez
+PROJECTS = test/btdt src/libserveez/libserveez src/serveez
 
 # Notify dependencies.
 serveez_DEPENDENCIES = libserveez
-array_DEPENDENCIES = libserveez
-codec_DEPENDENCIES = libserveez
-hash_DEPENDENCIES = libserveez
-spvec_DEPENDENCIES = libserveez
-vector_DEPENDENCIES = libserveez
+btdt_DEPENDENCIES = libserveez

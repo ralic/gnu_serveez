@@ -1,3 +1,19 @@
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v woe] Fix bug: Update list of "project files".
+
+	Omission from 2011-03-18, "Consolidate
+	C support; trigger its build on "make check"".
+
+	* serveez.ap (PROJECTS): Remove test/array, test/codec,
+	test/hash, test/spvec, test/vector, test/prog; add test/btdt.
+	(array_DEPENDENCIES): Delete var.
+	(codec_DEPENDENCIES): Likewise.
+	(hash_DEPENDENCIES): Likewise.
+	(spvec_DEPENDENCIES): Likewise.
+	(vector_DEPENDENCIES): Likewise.
+	(btdt_DEPENDENCIES): New var.
+
 2011-03-25  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Centralize SIZEOF_UINT{16,32}.
