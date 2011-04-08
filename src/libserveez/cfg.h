@@ -193,6 +193,10 @@ svz_config_prototype_t;
 #define SVZ_REGISTER_END() \
   { SVZ_ITEM_END, NULL, SVZ_ITEM_DEFAULTABLE, NULL }
 
+#define SVZ_INTARRAY  0
+#define SVZ_STRARRAY  1
+#define SVZ_STRHASH   2
+
 __BEGIN_DECLS
 SBO void *svz_config_instantiate (svz_config_prototype_t *,
                                   char *, void *,
@@ -204,10 +208,29 @@ SERVEEZ_API int svz_config_type_instantiate (char *, char *,
                                              char *, void *,
                                              svz_config_accessor_t *,
                                              size_t, char *);
-SERVEEZ_API svz_array_t *svz_config_intarray_create (int *);
-SERVEEZ_API svz_array_t *svz_config_strarray_create (char **);
-SERVEEZ_API svz_hash_t *svz_config_hash_create (char **);
+SERVEEZ_API void *svz_collect (int, size_t, void *);
 
 __END_DECLS
+
+#define __SVZ_COLLECT(nick,ctype,cvar)                                  \
+  svz_collect (SVZ_ ## nick, sizeof (cvar) / sizeof (ctype), cvar)
+
+/*
+ * Return an integer array @code{svz_array_t *}
+ * created from @code{int @var{cvar}[]}.
+ */
+#define SVZ_COLLECT_INTARRAY(cvar)  __SVZ_COLLECT (INTARRAY, int, cvar)
+
+/*
+ * Return a string array @code{svz_array_t *}
+ * created from @code{char *@var{cvar}[]}.
+ */
+#define SVZ_COLLECT_STRARRAY(cvar)  __SVZ_COLLECT (STRARRAY, char *, cvar)
+
+/*
+ * Return a string hash @code{svz_hash_t *}
+ * created from @code{char *@var{cvar}[]}.
+ */
+#define SVZ_COLLECT_STRHASH(cvar)  __SVZ_COLLECT (STRHASH, char *, cvar)
 
 #endif /* __CFG_H__ */

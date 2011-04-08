@@ -30,25 +30,6 @@
 #include "libserveez/server.h"
 
 /*
- * Create an array (@code{svz_array_t}) of integers.  The given integer
- * array @var{intarray} is a list of integers where its first element which
- * is @code{intarray[0]} contains the actual length of the given array.
- */
-svz_array_t *
-svz_config_intarray_create (int *intarray)
-{
-  int i;
-  svz_array_t *array = svz_array_create (1, NULL);
-
-  if (intarray)
-    {
-      for (i = 0; i < intarray[0]; i++)
-        svz_array_add (array, SVZ_NUM2PTR (intarray[i + 1]));
-    }
-  return array;
-}
-
-/*
  * Make a plain copy of the given integer array @var{intarray}.  If this
  * value is @code{NULL} no operation is performed and the return value
  * is @code{NULL} too.
@@ -61,24 +42,6 @@ svz_config_intarray_dup (svz_array_t *intarray)
   if (intarray)
     {
       array = svz_array_dup (intarray);
-    }
-  return array;
-}
-
-/*
- * Create an array of strings.  The given list of strings @var{strarray}
- * must be @code{NULL} terminated in order to indicate its end.
- */
-svz_array_t *
-svz_config_strarray_create (char **strarray)
-{
-  int i;
-  svz_array_t *array = svz_array_create (1, svz_free);
-
-  if (strarray)
-    {
-      for (i = 0; strarray[i] != NULL; i++)
-        svz_array_add (array, svz_strdup (strarray[i]));
     }
   return array;
 }
@@ -97,32 +60,6 @@ svz_config_strarray_dup (svz_array_t *strarray)
       array = svz_array_strdup (strarray);
     }
   return array;
-}
-
-/*
- * Create a hash table from the given array of strings @var{strarray} which
- * must be @code{NULL} terminated in order to indicate the end of the list.
- * The array consists of pairs of strings where the first one specifies a
- * key and the following the associated string value.  This function is
- * useful when creating default values for server type configurations.
- */
-svz_hash_t *
-svz_config_hash_create (char **strarray)
-{
-  int i;
-  svz_hash_t *hash = svz_hash_create (4, svz_free);
-
-  if (strarray)
-    {
-      for (i = 0; strarray[i] != NULL; i += 2)
-        {
-          if (strarray[i + 1])
-            {
-              svz_hash_put (hash, strarray[i], svz_strdup (strarray[i + 1]));
-            }
-        }
-    }
-  return hash;
 }
 
 static void
@@ -575,6 +512,65 @@ svz_config_prototype_print (svz_config_prototype_t *prototype)
   else
     {
       printf ("  no configuration option\n");
+    }
+}
+
+/*
+ * Create a collection of @var{type}, given the @var{count}
+ * items of @var{data}.  Valid values of @var{type} are one of:
+ * @code{SVZ_INTARRAY}, @code{SVZ_STRARRAY}, @code{SVZ_STRHASH}.
+ * For a string hash, @var{data} should be alternating keys and values;
+ * the returned hash table will have @code{@var{count} / 2} elements.
+ * The C type of @var{data} for an int array should be @code{int[]},
+ * and for string array or hash it should be @code{char*[]}.
+ * On error (either bad @var{type} or odd @var{count} for string hash),
+ * return NULL.
+ */
+void *
+svz_collect (int type, size_t count, void *data)
+{
+  switch (type)
+    {
+    case SVZ_INTARRAY:
+      {
+        svz_array_t *array = svz_array_create (1, NULL);
+        int *from = data;
+
+        while (count--)
+          svz_array_add (array, SVZ_NUM2PTR (*from++));
+        return array;
+      }
+
+    case SVZ_STRARRAY:
+      {
+        svz_array_t *array = svz_array_create (1, svz_free);
+        char **from = data;
+
+        while (count--)
+          svz_array_add (array, svz_strdup (*from++));
+        return array;
+      }
+
+    case SVZ_STRHASH:
+      if (count & 1)                    /* pebkac */
+        return NULL;
+      count /= 2;
+      {
+        svz_hash_t *hash = svz_hash_create (4, svz_free);
+        char **from = data;
+
+        while (count--)
+          {
+            char *k = *from++;
+            char *v = *from++;
+
+            svz_hash_put (hash, k, svz_strdup (v));
+          }
+        return hash;
+      }
+
+    default:
+      return NULL;
     }
 }
 

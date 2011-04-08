@@ -67,8 +67,7 @@
 char *nut_search_patterns[] =
 {
   "Puppe3000",
-  "Meret Becker",
-  NULL
+  "Meret Becker"
 };
 
 /*
@@ -388,7 +387,7 @@ nut_global_init (SVZ_UNUSED svz_servertype_t *server)
   srand (time (NULL));
 
   /* initialize configuration default values */
-  nut_config.search = svz_config_strarray_create (nut_search_patterns);
+  nut_config.search = SVZ_COLLECT_STRARRAY (nut_search_patterns);
 
 #if 0
   /* Print structure sizes.  */

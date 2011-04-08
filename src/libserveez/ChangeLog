@@ -1,3 +1,17 @@
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add ‘svz_collect’ and conv. macros; zonk disparate funcs.
+
+	* cfg.h (SVZ_INTARRAY, SVZ_STRARRAY, SVZ_STRHASH): New #define:s.
+	(svz_config_intarray_create, svz_config_strarray_create)
+	(svz_config_hash_create): Delete func decls.
+	(svz_collect): New func decl, marked ‘SERVEEZ_API’.
+	(__SVZ_COLLECT, SVZ_COLLECT_INTARRAY, SVZ_COLLECT_STRARRAY)
+	(SVZ_COLLECT_STRHASH): New macros.
+	* cfg.c (svz_config_intarray_create): Delete func.
+	(svz_config_strarray_create, svz_config_hash_create): Likewise.
+	(svz_collect): New func.
+
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop func: svz_interface_list

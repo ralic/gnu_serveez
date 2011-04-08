@@ -1,3 +1,12 @@
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add ‘svz_collect’ and conv. macros; zonk disparate funcs.
+
+	* foo-server/foo-proto.c (foo_global_init): Use
+	‘SVZ_COLLECT_STRARRAY’, ‘SVZ_COLLECT_INTARRAY’, ‘SVZ_COLLECT_STRHASH’.
+	* nut-server/gnutella.c (nut_search_patterns): Drop trailing NULL.
+	(nut_global_init): Use ‘SVZ_COLLECT_STRARRAY’.
+
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop func: svz_interface_list

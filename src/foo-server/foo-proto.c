@@ -193,15 +193,17 @@ int
 foo_global_init (SVZ_UNUSED svz_servertype_t *server)
 {
   char *strarray[] = {
-    "Hello !", "This", "is", "a", "default", "string", "array.", NULL };
-  int intarray[] = { 4, 1, 2, 3, 4 };
+    "Hello !", "This", "is", "a", "default", "string", "array."
+  };
+  int intarray[] = {
+    1, 2, 3, 4
+  };
   char *strhash[] = {
     "Grass", "green",
     "Milk",  "tasty",
     "Sun",   "light",
     "Moon",  "tide",
-    "GNU",   "good",
-    NULL
+    "GNU",   "good"
   };
   svz_portcfg_t *d = &foo_default_port;
 
@@ -211,13 +213,14 @@ foo_global_init (SVZ_UNUSED svz_servertype_t *server)
   SVZ_CFG_TCP (d, ipaddr) = "*";
 
   /* Default string array.  */
-  foo_config.messages = svz_config_strarray_create (strarray);
+  foo_config.messages = SVZ_COLLECT_STRARRAY (strarray);
 
   /* Default integer array.  */
-  foo_config.ports = svz_config_intarray_create (intarray);
+  foo_config.ports = SVZ_COLLECT_INTARRAY (intarray);
 
   /* Default hash table.  */
-  foo_config.assoc = svz_config_hash_create (strhash);
+  foo_config.assoc = SVZ_COLLECT_STRHASH (strhash);
+
   return 0;
 }
 

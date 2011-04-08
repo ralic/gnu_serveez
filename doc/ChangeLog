@@ -1,3 +1,12 @@
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Add ‘svz_collect’ and conv. macros; zonk disparate funcs.
+
+	* serveez-api.texi.in (Server configuration): Delete
+	‘svz_config_intarray_create’, ‘svz_config_strarray_create’,
+	‘svz_config_hash_create’; add ‘svz_collect’, ‘SVZ_COLLECT_INTARRAY’,
+	‘SVZ_COLLECT_STRARRAY’, ‘SVZ_COLLECT_STRHASH’.
+
 2011-04-07  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Drop func: svz_interface_list
