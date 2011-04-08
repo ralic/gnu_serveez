@@ -42,7 +42,6 @@
 # include <netdb.h>
 #endif
 
-#include "libserveez/vector.h"
 #include "libserveez/boot.h"
 #include "libserveez/util.h"
 #include "libserveez/alloc.h"
@@ -78,6 +77,11 @@ svz_sock_idle_protect (svz_socket_t *sock)
   return 0;
 }
 
+/* This is 1 if ‘time_t’ cannot be cast into a ‘void *’.  If that's the
+   case, ‘svz_sock_check_frequency’ stores pointers to ‘svz_malloc’d
+   values in the array (arranging to ‘svz_free’ them when done).  */
+#define TIME_T_TOO_FAT  (SIZEOF_VOID_P < sizeof (time_t))
+
 /*
  * This routine checks the connection frequency of the socket structure
  * @var{child} for the port configuration of the listener socket structure
@@ -89,26 +93,27 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
 {
   svz_portcfg_t *port = parent->port;
   char *ip = svz_inet_ntoa (child->remote_addr);
-  time_t *t, current;
+  time_t *t, *s = TIME_T_TOO_FAT ? svz_malloc (sizeof (time_t)) : NULL;
+  time_t current;
   int nr, n, ret = 0;
-  svz_vector_t *accepted = NULL;
+  svz_array_t *accepted;
 
   /* Check connect frequency.  */
   if (port->accepted)
-    accepted = (svz_vector_t *) svz_hash_get (port->accepted, ip);
+    accepted = svz_hash_get (port->accepted, ip);
   else
-    port->accepted = svz_hash_create (4, (svz_free_func_t) svz_vector_destroy);
-  current = time (NULL);
+    port->accepted = svz_hash_create (4, (svz_free_func_t) svz_array_destroy);
+  current = time (s);
 
   if (accepted != NULL)
     {
       /* Delete older entries and count valid entries.  */
       nr = 0;
-      svz_vector_foreach (accepted, t, n)
+      svz_array_foreach (accepted, t, n)
         {
-          if (*t < current - 4)
+          if ((TIME_T_TOO_FAT ? *t : (time_t) SVZ_PTR2NUM (t)) < current - 4)
             {
-              svz_vector_del (accepted, n);
+              svz_array_del (accepted, n);
               n--;
             }
           else
@@ -125,10 +130,10 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
   /* Not yet connected.  */
   else
     {
-      accepted = svz_vector_create (sizeof (time_t));
+      accepted = svz_array_create (1, TIME_T_TOO_FAT ? svz_free : NULL);
     }
 
-  svz_vector_add (accepted, &current);
+  svz_array_add (accepted, TIME_T_TOO_FAT ? s : SVZ_NUM2PTR (current));
   svz_hash_put (port->accepted, ip, accepted);
   return ret;
 }

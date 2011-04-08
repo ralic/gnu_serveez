@@ -1,5 +1,14 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Use array for storing "accepted time".
+
+	* server-socket.c: Don't #include "libserveez/vector.h".
+	(TIME_T_TOO_FAT): New #define.
+	(svz_sock_check_frequency): Use array to store accepted time
+	values, arranging for extra malloc/free if ‘time_t’ is too fat.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Use ‘svz_foreach_interface’ more.
 
 	* portcfg.c (expand_closure): New struct.
