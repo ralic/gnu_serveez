@@ -87,6 +87,7 @@ svz_server_bindings (svz_server_t *server)
   svz_binding_t *binding;
   int i, lose = 0, avail = TEXT_SIZE;
   char *w = text;
+  int firstp = 1;
 
   /* Clear text.  */
   text[0] = '\0';
@@ -103,14 +104,20 @@ svz_server_bindings (svz_server_t *server)
               int len;
               char *pretty = svz_portcfg_text (binding->port, &len);
 
-              if (avail <= len)
+              if (avail <= len + !firstp)
                 {
                   lose = 1;
                   break;
                 }
+              if (!firstp)
+                {
+                  *w++ = ' ';
+                  avail--;
+                }
               memcpy (w, pretty, len);
               w += len;
               avail -= len;
+              firstp = 0;
             }
           svz_array_destroy (bindings);
           *w = '\0';

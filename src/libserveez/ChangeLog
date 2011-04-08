@@ -1,5 +1,14 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Fix bug: Include interstitual space in ‘svz_server_bindings’.
+
+	Regression introduced 2011-03-21, "Avoid ‘strcat’".
+
+	* binding.c (svz_server_bindings): Include space
+	prior to all but the first ‘svz_portcfg_text’ call.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Purge defunct ‘vector’ implementation / interface.
 
 	* Makefile.am (libserveez_la_SOURCES): Remove vector.c.
