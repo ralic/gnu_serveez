@@ -48,6 +48,25 @@
    archive or by external (shared) libraries.  */
 static svz_array_t *svz_codecs = NULL;
 
+/*
+ * Call @var{func} for each codec, passing additionally the second arg
+ * @var{closure}.  If @var{func} returns a negative value, return immediately
+ * with that value (breaking out of the loop), otherwise, return 0.
+ */
+int
+svz_foreach_codec (svz_codec_do_t *func, void *closure)
+{
+  int i, rv;
+  svz_codec_t *codec;
+
+  svz_array_foreach (svz_codecs, codec, i)
+    {
+      if (0 > (rv = func (codec, closure)))
+        return rv;
+    }
+  return 0;
+}
+
 /* Find an appropriate codec for the given @var{description} and @var{type}
    which can be either @code{SVZ_CODEC_ENCODER} or @code{SVZ_CODEC_DECODER}.
    The function returns @code{NULL} if there is no such codec registered.  */
@@ -67,32 +86,6 @@ svz_codec_get (char *description, int type)
         return codec;
     }
   return NULL;
-}
-
-/* Prints the text representation of the list of known codecs registered
-   within the core library.  This includes all encoder and decoder once ran
-   through @code{svz_codec_register}.  */
-void
-svz_codec_list (void)
-{
-  int n;
-  svz_codec_t *codec;
-
-  fprintf (stderr, "--- list of available codecs ---");
-
-  /* Print encoder list.  */
-  fprintf (stderr, "\n\tencoder:");
-  svz_array_foreach (svz_codecs, codec, n)
-    if (codec->type == SVZ_CODEC_ENCODER)
-      fprintf (stderr, " %s", codec->description);
-
-  /* Print decoder list.  */
-  fprintf (stderr, "\n\tdecoder:");
-  svz_array_foreach (svz_codecs, codec, n)
-    if (codec->type == SVZ_CODEC_DECODER)
-      fprintf (stderr, " %s", codec->description);
-
-  fprintf (stderr, "\n");
 }
 
 /* This routine registers the builtin codecs.  */

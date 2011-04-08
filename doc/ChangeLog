@@ -1,5 +1,12 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add ‘svz_foreach_codec’; move ‘svz_codec_list’ to client.
+
+	* serveez-api.texi.in (Codec functions):
+	Delete ‘svz_codec_list’; add ‘svz_foreach_codec’.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add ‘svz_collect’ and conv. macros; zonk disparate funcs.
 
 	* serveez-api.texi.in (Server configuration): Delete

@@ -547,6 +547,43 @@ codec_check (svz_socket_t *sock)
   return 0;
 }
 
+struct codec_list_closure
+{
+  int type;
+  FILE *to;
+};
+
+int
+codec_list_internal (const svz_codec_t *codec, void *closure)
+{
+  struct codec_list_closure *x = closure;
+
+  if (codec->type == x->type)
+    fprintf (x->to, " %s", codec->description);
+  return 0;
+}
+
+void
+codec_list (FILE *to)
+{
+  struct codec_list_closure x;
+
+  x.to = to;
+  fprintf (to, "--- list of available codecs ---");
+
+  /* Print encoder list.  */
+  fprintf (to, "\n\tencoder:");
+  x.type = SVZ_CODEC_ENCODER;
+  svz_foreach_codec (codec_list_internal, &x);
+
+  /* Print decoder list.  */
+  fprintf (to, "\n\tdecoder:");
+  x.type = SVZ_CODEC_DECODER;
+  svz_foreach_codec (codec_list_internal, &x);
+
+  fprintf (to, "\n");
+}
+
 /*
  * Main entry point for codec tests.
  */
@@ -589,14 +626,14 @@ codec_main (int argc, char **argv)
   desc = argv[1];
   if ((codec = svz_codec_get (desc, SVZ_CODEC_ENCODER)) == NULL)
     {
-      svz_codec_list ();
+      codec_list (stderr);
       return result;
     }
   if (svz_codec_sock_receive_setup (sock, codec))
     return result;
   if ((codec = svz_codec_get (desc, SVZ_CODEC_DECODER)) == NULL)
     {
-      svz_codec_list ();
+      codec_list (stderr);
       return result;
     }
   if (svz_codec_sock_send_setup (sock, codec))

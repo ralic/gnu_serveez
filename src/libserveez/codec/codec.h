@@ -125,10 +125,12 @@ struct svz_codec
   int detection_size;
 };
 
+typedef int (svz_codec_do_t) (const svz_codec_t *, void *);
+
 __BEGIN_DECLS
 
 /* Exported functions.  */
-SERVEEZ_API void svz_codec_list (void);
+SERVEEZ_API int svz_foreach_codec (svz_codec_do_t *, void *);
 SERVEEZ_API svz_codec_t * svz_codec_get (char *, int);
 SERVEEZ_API int svz_codec_register (svz_codec_t *);
 SERVEEZ_API int svz_codec_unregister (svz_codec_t *);

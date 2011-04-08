@@ -522,7 +522,7 @@ tries to unify different types of codecs.  In order to add a new codec the
 programmer needs to write some wrapper functions around the actual
 implementation to fulfil certain entry and exit semantics of this interface.
 
-|F| svz_codec_list
+|F| svz_foreach_codec
 |F| svz_codec_get
 |F| svz_codec_ratio
 |F| svz_codec_register

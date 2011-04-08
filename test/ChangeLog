@@ -1,5 +1,13 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add ‘svz_foreach_codec’; move ‘svz_codec_list’ to client.
+
+	* btdt.c (codec_list_closure): New struct.
+	(codec_list_internal, codec_list): New funcs.
+	(codec_main): Use ‘codec_list’.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[v] Mine all ‘#define foo 1’ symbols from ../src/config.h.
 
 	* Makefile.am (check_DATA): New var.

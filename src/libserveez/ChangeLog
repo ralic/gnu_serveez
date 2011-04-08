@@ -1,5 +1,15 @@
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Add ‘svz_foreach_codec’; move ‘svz_codec_list’ to client.
+
+	* codec/codec.h (svz_codec_do_t): New typedef.
+	(svz_foreach_codec): New func decl, marked ‘SERVEEZ_API’.
+	(svz_codec_list): Delete func decl.
+	* codec/codec.c (svz_foreach_codec): New func.
+	(svz_codec_list): Delete func.
+
+2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add ‘svz_collect’ and conv. macros; zonk disparate funcs.
 
 	* cfg.h (SVZ_INTARRAY, SVZ_STRARRAY, SVZ_STRHASH): New #define:s.
