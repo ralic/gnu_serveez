@@ -84,6 +84,51 @@ nut_hosts_write (svz_socket_t *sock)
   return (num_written < 0) ? -1 : 0;
 }
 
+struct hosts_check_closure
+{
+  int problemp;
+  time_t now;
+  svz_socket_t *sock;
+};
+
+static void
+hosts_check_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  nut_host_t *host = v;
+  struct hosts_check_closure *x = closure;
+  svz_socket_t *sock;
+
+  if (x->problemp)
+    return;
+
+  sock = x->sock;
+  if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
+    {
+      /* send buffer queue overrun ...  */
+      if (svz_sock_printf (sock, ".\n.\n.\n") == -1)
+        x->problemp = 1;
+    }
+  else
+    {
+      /* usual gnutella host output */
+      int day, hour, min, sec;
+      time_t t;
+
+      t = x->now - host->last_reply;
+      day = t / (3600 * 24);
+      t %= (3600 * 24);
+      hour = t / 3600;
+      t %= 3600;
+      min = t / 60;
+      t %= 60;
+      sec = t;
+      if (svz_sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
+                           nut_client_key (host->ip, host->port),
+                           day, hour, min, sec) == -1)
+        x->problemp = 1;
+    }
+}
+
 /*
  * This is the check_request callback for the HTML host list output.
  */
@@ -91,8 +136,7 @@ int
 nut_hosts_check (svz_socket_t *sock)
 {
   nut_config_t *cfg = sock->cfg;
-  nut_host_t **host;
-  int n, t, day, hour, min, sec, now;
+  struct hosts_check_closure x;
 
   /* do not enter this routine if you do not want to send something */
   if (!(sock->userflags & NUT_FLAG_HOSTS))
@@ -107,42 +151,12 @@ nut_hosts_check (svz_socket_t *sock)
     return -1;
 
   /* go through all caught gnutella hosts and print their info */
-  if ((host = (nut_host_t **) svz_hash_values (cfg->net)) != NULL)
-    {
-      now = time (NULL);
-      for (n = 0; n < svz_hash_size (cfg->net); n++)
-        {
-          if (sock->send_buffer_fill > (NUT_SEND_BUFSIZE - 256))
-            {
-              /* send buffer queue overrun ...  */
-              if (svz_sock_printf (sock, ".\n.\n.\n") == -1)
-                {
-                  svz_hash_xfree (host);
-                  return -1;
-                }
-            }
-          else
-            {
-              /* usual gnutella host output */
-              t = now - host[n]->last_reply;
-              day = t / (3600 * 24);
-              t %= (3600 * 24);
-              hour = t / 3600;
-              t %= 3600;
-              min = t / 60;
-              t %= 60;
-              sec = t;
-              if (svz_sock_printf (sock, "%-22s %d days %d:%02d:%02d\n",
-                                   nut_client_key (host[n]->ip, host[n]->port),
-                                   day, hour, min, sec) == -1)
-                {
-                  svz_hash_xfree (host);
-                  return -1;
-                }
-            }
-        }
-      svz_hash_xfree (host);
-    }
+  x.problemp = 0;
+  x.sock = sock;
+  x.now = time (NULL);
+  svz_hash_foreach (hosts_check_internal, cfg->net, &x);
+  if (x.problemp)
+    return -1;
 
   /* send HTML footer */
   if (svz_sock_printf (sock, NUT_HTML_FOOTER,

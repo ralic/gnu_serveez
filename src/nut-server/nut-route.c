@@ -216,6 +216,41 @@ nut_validate_packet (svz_socket_t *sock, nut_header_t *hdr,
   return 1;
 }
 
+struct route_closure
+{
+  int problemp;
+  nut_header_t *hdr;
+  void *header;
+  void *packet;
+  svz_socket_t *avoid;
+};
+
+static void
+route_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  svz_socket_t *sock = v;
+  struct route_closure *x = closure;
+  nut_header_t *hdr = x->hdr;
+
+  if (x->problemp || x->avoid == sock)
+    return;
+  if (0 > svz_sock_write (sock, (char *) x->header, SIZEOF_NUT_HEADER))
+    {
+      svz_sock_schedule_for_shutdown (sock);
+      x->problemp = 1;
+      return;
+    }
+  if (hdr->length)
+    {
+      if (0 > svz_sock_write (sock, (char *) x->packet, hdr->length))
+        {
+          svz_sock_schedule_for_shutdown (sock);
+          x->problemp = 1;
+          return;
+        }
+    }
+}
+
 /*
  * This is the routing routine for any incoming gnutella packet.
  * It return non-zero on routing errors and packet death.  Otherwise
@@ -227,7 +262,6 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
   nut_config_t *cfg = sock->cfg;
   nut_packet_t *pkt;
   svz_socket_t *xsock;
-  svz_socket_t **conn;
   svz_uint8_t *header;
   int n;
 
@@ -313,33 +347,18 @@ nut_route (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
        * Forward this query to all connections except the connection
        * the server got it from.
        */
-      if ((conn = (svz_socket_t **) svz_hash_values (cfg->conn)) != NULL)
+      if (svz_hash_size (cfg->conn))
         {
+          struct route_closure x;
+
           header = nut_put_header (hdr);
-          for (n = 0; n < svz_hash_size (cfg->conn); n++)
-            {
-              xsock = conn[n];
-              if (xsock == sock)
-                continue;
-              if (svz_sock_write (xsock, (char *) header,
-                                  SIZEOF_NUT_HEADER) == -1)
-                {
-                  svz_sock_schedule_for_shutdown (xsock);
-                  svz_hash_xfree (conn);
-                  return 0;
-                }
-              if (hdr->length)
-                {
-                  if (svz_sock_write (xsock, (char *) packet,
-                                      hdr->length) == -1)
-                    {
-                      svz_sock_schedule_for_shutdown (xsock);
-                      svz_hash_xfree (conn);
-                      return 0;
-                    }
-                }
-            }
-          svz_hash_xfree (conn);
+          x.problemp = 0;
+          x.hdr = hdr;
+          x.header = header;
+          x.packet = packet;
+          x.avoid = sock;
+
+          svz_hash_foreach (route_internal, cfg->conn, &x);
         }
     }
   return 0;

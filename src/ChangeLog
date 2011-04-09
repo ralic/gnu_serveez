@@ -1,5 +1,18 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[nut int] Avoid ‘svz_hash_values’.
+
+	* nut-server/nut-hostlist.c
+	(hosts_check_closure): New struct.
+	(hosts_check_internal): New static func.
+	(nut_hosts_check): Use it and ‘svz_hash_foreach’.
+	* nut-server/nut-route.c
+	(route_closure): New struct.
+	(route_internal): New static func.
+	(nut_route): Use it and ‘svz_hash_foreach’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move ‘svz_servertype_print’ to unique client.
 
 	* serveez.c [0] (dump_servertype): New static func.
