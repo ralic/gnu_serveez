@@ -165,7 +165,7 @@ svz_shutting_down_p (void)
 /*
  * Segmentation fault exception handler.
  */
-void
+static void
 svz_segfault_exception (int sig)
 {
 #if HAVE_GETRLIMIT

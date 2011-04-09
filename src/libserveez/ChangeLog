@@ -1,5 +1,11 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Don't export ‘svz_segfault_exception’.
+
+	* server-core.c (svz_segfault_exception): Make static.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Incorporate ‘svz_sock_print_list’ into unique caller.
 
 	* server-core.c (svz_sock_print_list): Incorporate...
