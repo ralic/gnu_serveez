@@ -332,6 +332,20 @@ svz_free (void *ptr)
 }
 
 #if DEBUG_MEMORY_LEAKS
+static void
+heap_internal (SVZ_UNUSED void *k, void *v, SVZ_UNUSED void *closure)
+{
+  heap_block_t *block = v;
+  size_t *p = (size_t *) block->ptr;
+
+  p -= 2;
+  printf ("heap: caller = %p, ptr = %p, size = %u\n",
+          block->caller, block->ptr, block->size);
+  svz_hexdump (stdout, "unreleased heap",
+               (int) block->ptr, block->ptr, *p, 256);
+  svz_free_func (block);
+}
+
 /*
  * Print a list of non-released memory blocks.  This is for debugging only
  * and should never occur in final software releases.  The function goes
@@ -344,19 +358,9 @@ svz_heap (void)
   unsigned long n;
   size_t *p;
 
-  if ((block = (heap_block_t **) svz_hash_values (heap)) != NULL)
+  if (svz_hash_size (heap))
     {
-      for (n = 0; n < (unsigned long) svz_hash_size (heap); n++)
-        {
-          p = (size_t *) block[n]->ptr;
-          p -= 2;
-          fprintf (stdout, "heap: caller = %p, ptr = %p, size = %u\n",
-                   block[n]->caller, block[n]->ptr, block[n]->size);
-          svz_hexdump (stdout, "unreleased heap", (int) block[n]->ptr,
-                       block[n]->ptr, *p, 256);
-          svz_free_func (block[n]);
-        }
-      svz_hash_xfree (block);
+      svz_hash_foreach (heap_internal, heap, NULL);
     }
   else
     {

@@ -1,5 +1,12 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Avoid ‘svz_hash_values’.
+
+	* alloc.c [DEBUG_MEMORY_LEAKS] (heap_internal): New static func.
+	[DEBUG_MEMORY_LEAKS] (heap): Use it and ‘svz_hash_foreach’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib int] Drop func: svz_pcalloc
 
 	This was never included in the header alloc.h
