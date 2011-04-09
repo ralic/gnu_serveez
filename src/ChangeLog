@@ -1,3 +1,10 @@
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Move ‘svz_portcfg_print’ to unique client.
+
+	* guile-server.c [ENABLE_DEBUG] (portcfg_print): New static func.
+	(guile_servertype_config_print): Use ‘portcfg_print’.
+
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add ‘svz_pp_server_bindings’; drop ‘svz_server_bindings’.

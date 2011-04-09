@@ -1255,6 +1255,61 @@ print_hash_kv (void *k, void *v, SVZ_UNUSED void *closure)
   fprintf (stderr, "(%s => %s) ", key, value);
 }
 
+
+/*
+ * Debug helper: Emit a printable representation of the the given
+ * port configuration to the given FILE stream @var{f}.
+ */
+static void
+portcfg_print (svz_portcfg_t *this, FILE *f)
+{
+  if (NULL == this)
+    {
+      fprintf (f, "portcfg is NULL\n");
+      return;
+    }
+
+  switch (this->proto)
+    {
+    case SVZ_PROTO_TCP:
+      fprintf (f, "portcfg `%s': TCP (%s|%s):%d\n", this->name,
+               SVZ_CFG_TCP (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_TCP (this, addr).sin_addr.s_addr),
+               SVZ_CFG_TCP (this, port));
+      break;
+    case SVZ_PROTO_UDP:
+      fprintf (f, "portcfg `%s': UDP (%s|%s):%d\n", this->name,
+               SVZ_CFG_UDP (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_UDP (this, addr).sin_addr.s_addr),
+               SVZ_CFG_UDP (this, port));
+      break;
+    case SVZ_PROTO_ICMP:
+      fprintf (f, "portcfg `%s': ICMP (%s|%s)\n", this->name,
+               SVZ_CFG_ICMP (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_ICMP (this, addr).sin_addr.s_addr));
+      break;
+    case SVZ_PROTO_RAW:
+      fprintf (f, "portcfg `%s': RAW (%s|%s)\n", this->name,
+               SVZ_CFG_RAW (this, ipaddr),
+               svz_inet_ntoa (SVZ_CFG_RAW (this, addr).sin_addr.s_addr));
+      break;
+    case SVZ_PROTO_PIPE:
+      {
+        svz_pipe_t *r = &SVZ_CFG_PIPE (this, recv);
+        svz_pipe_t *s = &SVZ_CFG_PIPE (this, send);
+
+        fprintf (f, "portcfg `%s': PIPE "
+                 "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)<->"
+                 "(\"%s\", \"%s\" (%d), \"%s\" (%d), %04o)\n", this->name,
+                 r->name, r->user, r->uid, r->group, r->gid, r->perm,
+                 s->name, s->user, s->uid, s->group, s->gid, s->perm);
+      }
+      break;
+    default:
+      fprintf (f, "portcfg has invalid proto field %d\n", this->proto);
+    }
+}
+
 /*
  * Debug helper: Display a text representation of the configuration items
  * of a guile servertype.
@@ -1308,7 +1363,7 @@ guile_servertype_config_print (svz_servertype_t *server)
               break;
             case SVZ_ITEM_PORTCFG:
               port = *(svz_portcfg_t **) prototype->items[n].address;
-              svz_portcfg_print (port, stderr);
+              portcfg_print (port, stderr);
               break;
             case SVZ_ITEM_BOOL:
               fprintf (stderr, "%d", *(int *) prototype->items[n].address);
