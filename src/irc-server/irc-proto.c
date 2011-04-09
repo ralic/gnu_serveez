@@ -780,6 +780,23 @@ irc_find_channel (irc_config_t *cfg, char *channel)
   return chan;
 }
 
+struct regex_channel_closure
+{
+  char *regex;
+  irc_channel_t **fchannel;
+  int found;
+};
+
+static void
+regex_channel_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_channel_t *ch = v;
+  struct regex_channel_closure *x = closure;
+
+  if (irc_string_regex (ch->name, x->regex))
+    x->fchannel[(x->found)++] = ch;
+}
+
 /*
  * Find all matching channels in the current channel list.  Return NULL if
  * no channel has not been found.  You MUST ‘svz_free’ this list if non-NULL.
@@ -788,31 +805,25 @@ irc_find_channel (irc_config_t *cfg, char *channel)
 irc_channel_t **
 irc_regex_channel (irc_config_t *cfg, char *regex)
 {
-  irc_channel_t **channel, **fchannel;
-  int n, found, size;
+  int size;
 
-  if ((channel = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
+  if ((size = svz_hash_size (cfg->channels)))
     {
-      size = svz_hash_size (cfg->channels);
-      fchannel = svz_malloc (sizeof (irc_channel_t *) * (size + 1));
-      for (found = n = 0; n < size; n++)
-        {
-          if (irc_string_regex (channel[n]->name, regex))
-            {
-              fchannel[found++] = channel[n];
-            }
-        }
-      svz_hash_xfree (channel);
+      irc_channel_t **fchannel = svz_malloc (sizeof (irc_channel_t *)
+                                             * (size + 1));
+      struct regex_channel_closure x = { regex, fchannel, 0 };
+
+      svz_hash_foreach (regex_channel_internal, cfg->channels, &x);
 
       /* return NULL if there is not channel */
-      if (!found)
+      if (!x.found)
         {
-          svz_free (fchannel);
+          svz_free (x.fchannel);
           return NULL;
         }
 
-      fchannel[found++] = NULL;
-      fchannel = svz_realloc (fchannel, sizeof (irc_channel_t *) * found);
+      fchannel[x.found++] = NULL;
+      fchannel = svz_realloc (fchannel, sizeof (irc_channel_t *) * x.found);
       return fchannel;
     }
   return NULL;
@@ -935,6 +946,27 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
   return ret;
 }
 
+struct find_userhost_closure
+{
+  char *user;
+  char *host;
+  irc_client_t *found;
+};
+
+static void
+find_userhost_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_client_t *client = v;
+  struct find_userhost_closure *x = closure;
+
+  if (x->found)
+    return;
+
+  if (!strcmp (client->user, x->user) &&
+      !strcmp (client->host, x->host))
+    x->found = client;
+}
+
 /*
  * Find a user@host within the current client list.  Return NULL if
  * no client has not been found.
@@ -942,23 +974,12 @@ irc_delete_client (irc_config_t *cfg, irc_client_t *client)
 irc_client_t *
 irc_find_userhost (irc_config_t *cfg, char *user, char *host)
 {
-  irc_client_t **client;
-  irc_client_t *fclient;
-  int n;
-
-  if ((client = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
+  if (svz_hash_size (cfg->clients))
     {
-      for (n = 0; n < svz_hash_size (cfg->clients); n++)
-        {
-          if (!strcmp (client[n]->user, user) &&
-              !strcmp (client[n]->host, host))
-            {
-              fclient = client[n];
-              svz_hash_xfree (client);
-              return fclient;
-            }
-        }
-      svz_hash_xfree (client);
+      struct find_userhost_closure x = { user, host, NULL };
+
+      svz_hash_foreach (find_userhost_internal, cfg->clients, &x);
+      return x.found;
     }
   return NULL;
 }
@@ -979,6 +1000,23 @@ irc_find_nick (irc_config_t *cfg, char *nick)
   return NULL;
 }
 
+struct regex_nick_closure
+{
+  char *regex;
+  irc_client_t **fclient;
+  int found;
+};
+
+static void
+regex_nick_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_client_t *client = v;
+  struct regex_nick_closure *x = closure;
+
+  if (irc_string_regex (client->nick, x->regex))
+    x->fclient[x->found++] = client;
+}
+
 /*
  * Find all matching nicks in the current client list.  Return NULL if
  * no nick has not been found.  You MUST ‘svz_free’ this array if it is
@@ -987,31 +1025,25 @@ irc_find_nick (irc_config_t *cfg, char *nick)
 irc_client_t **
 irc_regex_nick (irc_config_t *cfg, char *regex)
 {
-  irc_client_t **client, **fclient;
-  int n, found, size;
+  int size;
 
-  if ((client = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
+  if ((size = svz_hash_size (cfg->clients)))
     {
-      size = svz_hash_size (cfg->clients);
-      fclient = svz_malloc (sizeof (irc_client_t *) * (size + 1));
-      for (found = n = 0; n < size; n++)
-        {
-          if (irc_string_regex (client[n]->nick, regex))
-            {
-              fclient[found++] = client[n];
-            }
-        }
-      svz_hash_xfree (client);
+      irc_client_t **fclient = svz_malloc (sizeof (irc_client_t *)
+                                           * (size + 1));
+      struct regex_nick_closure x = { regex, fclient, 0 };
+
+      svz_hash_foreach (regex_nick_internal, cfg->clients, &x);
 
       /* return NULL if there is not client */
-      if (!found)
+      if (!x.found)
         {
           svz_free (fclient);
           return NULL;
         }
 
-      fclient[found++] = NULL;
-      fclient = svz_realloc (fclient, sizeof (irc_client_t *) * found);
+      fclient[x.found++] = NULL;
+      fclient = svz_realloc (fclient, sizeof (irc_client_t *) * x.found);
       return fclient;
     }
   return NULL;

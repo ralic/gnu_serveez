@@ -1,5 +1,34 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[irc-server int] Avoid ‘svz_hash_values’.
+
+	* irc-server/irc-event-2.c
+	(names_cb_ch_closure, names_cb_cl_closure): New structs.
+	(names_cb_ch_internal, names_cb_cl_internal): New static funcs.
+	(irc_names_callback): Use new funcs and ‘svz_hash_foreach’.
+	(list_cb_closure): New struct.
+	(list_cb_internal): New static func.
+	(irc_list_callback): Use it and ‘svz_hash_foreach’.
+	* irc-server/irc-event-7.c
+	(users_cb_closure): New struct.
+	(users_cb_internal): New static func.
+	(irc_users_callback): Use it and ‘svz_hash_foreach’.
+	* irc-server/irc-proto.c
+	(regex_channel_closure): New struct.
+	(regex_channel_internal): New static func.
+	(irc_regex_channel): Use it and ‘svz_hash_foreach’.
+	(find_userhost_closure): New struct.
+	(find_userhost_internal): New static func.
+	(irc_find_userhost): Use it and ‘svz_hash_foreach’.
+	(regex_nick_closure): New struct.
+	(regex_nick_internal): New static func.
+	(irc_regex_nick): Use it and ‘svz_hash_foreach’.
+	* irc-server/irc-server.c
+	(dns_done_cl_internal, dns_done_ch_internal): New static funcs.
+	(irc_dns_done): Use new funcs and ‘svz_hash_foreach’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[irc] Fix bug: On DNS return, propagate all info to the server.
 
 	Scoping error introduced 2000-06-18.  Additionally,

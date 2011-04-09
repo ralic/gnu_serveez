@@ -119,6 +119,59 @@ irc_parse_line (char *line, char *fmt, ...)
   return ret;
 }
 
+static void
+dns_done_cl_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_client_t *cl = v;
+  svz_socket_t *sock = closure;
+
+#if ENABLE_TIMESTAMP
+  irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
+              cl->nick, cl->hopcount, cl->since,
+              irc_client_flag_string (cl),
+              cl->user, cl->host, cl->server, "EFNet?");
+#else /* not ENABLE_TIMESTAMP */
+  irc_printf (sock, "NICK %s\n", cl->nick);
+  irc_printf (sock, "USER %s %s %s %s\n",
+              cl->user, cl->host, cl->server, cl->real);
+  irc_printf (sock, "MODE %s %s\n",
+              cl->nick, irc_client_flag_string (cl));
+#endif /* not ENABLE_TIMESTAMP */
+}
+
+static void
+dns_done_ch_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  int n;
+  irc_channel_t *ch = v;
+  char *fs = irc_channel_flag_string (ch);
+  svz_socket_t *sock = closure;
+
+#if ENABLE_TIMESTAMP
+  /* FIXME: Avoid ‘strcat’; honor ‘MAX_MSG_LEN’.  */
+  char nicklist[MAX_MSG_LEN];
+
+  /* create nick list */
+  nicklist[0] = '\0';
+  for (n = 0; n < ch->clients; n++)
+    {
+      if (ch->cflag[n] & MODE_OPERATOR)
+        strcat (nicklist, "@");
+      else if (ch->cflag[n] & MODE_VOICE)
+        strcat (nicklist, "+");
+      strcat (nicklist, ch->client[n]->nick);
+      strcat (nicklist, " ");
+    }
+  /* propagate one channel in one request */
+  irc_printf (sock, "SJOIN %d %s %s :%s\n",
+              ch->since, ch->name, fs, nicklist);
+#else /* not ENABLE_TIMESTAMP */
+  for (n = 0; n < ch->clients; n++)
+    irc_printf (sock, ":%s JOIN %s\n", ch->client[n], ch->name);
+  irc_printf (sock, "MODE %s %s\n", ch->name, fs);
+#endif /* not ENABLE_TIMESTAMP */
+}
+
 /*
  * This will be called if a DNS lookup for a remote irc server has
  * been done.  Here we connect to this server then.  Return non-zero on
@@ -130,10 +183,6 @@ irc_dns_done (char *ip, void *closure)
   irc_server_t *server = closure;
   irc_config_t *cfg = server->cfg;
   svz_socket_t *sock;
-  irc_client_t **cl;
-  irc_channel_t **ch;
-  char nicklist[MAX_MSG_LEN];
-  int n, i;
 
   /* check if dns lookup was successful */
   if (!ip)
@@ -171,59 +220,12 @@ irc_dns_done (char *ip, void *closure)
 #endif /* ENABLE_TIMESTAMP */
 
   /* now propagate user information to this server */
-  if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->clients); n++)
-        {
-#if ENABLE_TIMESTAMP
-          irc_printf (sock, "NICK %s %d %d %s %s %s %s :%s\n",
-                      cl[n]->nick, cl[n]->hopcount, cl[n]->since,
-                      irc_client_flag_string (cl[n]),
-                      cl[n]->user, cl[n]->host, cl[n]->server, "EFNet?");
-#else /* not ENABLE_TIMESTAMP */
-          irc_printf (sock, "NICK %s\n", cl[n]->nick);
-          irc_printf (sock, "USER %s %s %s %s\n",
-                      cl[n]->user, cl[n]->host, cl[n]->server, cl[n]->real);
-          irc_printf (sock, "MODE %s %s\n",
-                      cl[n]->nick, irc_client_flag_string (cl[n]));
-#endif /* not ENABLE_TIMESTAMP */
-        }
-      svz_hash_xfree (cl);
-    }
+  if (svz_hash_size (cfg->clients))
+    svz_hash_foreach (dns_done_cl_internal, cfg->clients, sock);
 
   /* propagate all channel information to the server */
-  if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
-    {
-      for (i = 0; i < svz_hash_size (cfg->channels); i++)
-        {
-#if ENABLE_TIMESTAMP
-          /* create nick list */
-          for (nicklist[0] = 0, n = 0; n < ch[n]->clients; n++)
-            {
-              if (ch[i]->cflag[n] & MODE_OPERATOR)
-                strcat (nicklist, "@");
-              else if (ch[i]->cflag[n] & MODE_VOICE)
-                strcat (nicklist, "+");
-              strcat (nicklist, ch[i]->client[n]->nick);
-              strcat (nicklist, " ");
-            }
-          /* propagate one channel in one request */
-          irc_printf (sock, "SJOIN %d %s %s :%s\n",
-                      ch[i]->since, ch[i]->name,
-                      irc_channel_flag_string (ch[i]),
-                      nicklist);
-#else /* not ENABLE_TIMESTAMP */
-          for (n = 0; n < ch[i]->clients; n++)
-            {
-              irc_printf (sock, ":%s JOIN %s\n",
-                          ch[i]->client[n], ch[i]->name);
-            }
-          irc_printf (sock, "MODE %s %s\n",
-                      ch[i]->name, irc_channel_flag_string (ch[i]));
-#endif /* not ENABLE_TIMESTAMP */
-        }
-      svz_hash_xfree (ch);
-    }
+  if (svz_hash_size (cfg->channels))
+    svz_hash_foreach (dns_done_ch_internal, cfg->channels, sock);
 
   return 0;
 }

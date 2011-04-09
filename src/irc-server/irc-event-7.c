@@ -132,6 +132,24 @@ irc_away_callback (svz_socket_t *sock,
   return 0;
 }
 
+struct users_cb_closure
+{
+  svz_socket_t *sock;
+  irc_client_t *client;
+  irc_config_t *cfg;
+};
+
+static void
+users_cb_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_client_t *cl = v;
+  struct users_cb_closure *x = closure;
+
+  irc_printf (x->sock, ":%s %03d %s " RPL_USERS_TEXT "\n",
+              x->cfg->host, RPL_USERS, x->client->nick,
+              cl->nick, cl->user, cl->host);
+}
+
 /*
  *         Command: USERS
  *      Parameters: [<server>]
@@ -145,8 +163,6 @@ irc_users_callback (svz_socket_t *sock,
                     irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_client_t **cl;
-  int n;
 
   /* Return a messages saying this feature has been disabled.  */
   if (cfg->users_disabled)
@@ -162,19 +178,15 @@ irc_users_callback (svz_socket_t *sock,
    */
   if (request->paras < 1)
     {
-      if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
+      if (svz_hash_size (cfg->clients))
         {
+          struct users_cb_closure x = { sock, client, cfg };
+
           irc_printf (sock, ":%s %03d %s " RPL_USERSSTART_TEXT "\n",
                       cfg->host, RPL_USERSSTART, client->nick);
-          for (n = 0; n < svz_hash_size (cfg->clients); n++)
-            {
-              irc_printf (sock, ":%s %03d %s " RPL_USERS_TEXT "\n",
-                          cfg->host, RPL_USERS, client->nick,
-                          cl[n]->nick, cl[n]->user, cl[n]->host);
-            }
+          svz_hash_foreach (users_cb_internal, cfg->clients, &x);
           irc_printf (sock, ":%s %03d %s " RPL_ENDOFUSERS_TEXT "\n",
                       cfg->host, RPL_ENDOFUSERS, client->nick);
-          svz_hash_xfree (cl);
         }
       else
         {

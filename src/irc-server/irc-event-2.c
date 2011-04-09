@@ -1069,6 +1069,74 @@ irc_topic_callback (svz_socket_t *sock,
   return 0;
 }
 
+struct names_cb_ch_closure
+{
+  irc_client_t *client;
+  svz_socket_t *sock;
+};
+
+static void
+names_cb_ch_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_channel_t *ch = v;
+  struct names_cb_ch_closure *x = closure;
+  irc_client_t *client = x->client;
+
+  /*
+   * You can't see secret and private channels,
+   * except you are in it.
+   */
+  if (irc_client_in_channel (NULL, client, ch) == -1
+      && (ch->flag & (MODE_SECRET | MODE_PRIVATE)))
+    return;
+
+  /* Send a line.  */
+  irc_channel_users (x->sock, client, ch);
+}
+
+struct names_cb_cl_closure
+{
+  int n;
+  char *text;
+  irc_client_t *client;
+};
+
+static void
+names_cb_cl_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_client_t *cl = v;
+  struct names_cb_cl_closure *x = closure;
+  char *text = x->text;
+  irc_client_t *client = x->client;
+
+  text[0] = '\0';
+
+  /* Visible?  */
+  if (!(cl->flag & UMODE_INVISIBLE))
+    {
+      int i;
+
+      /* Go through all channels of the client.  */
+      for (i = 0; i < cl->channels; i++)
+        {
+          irc_channel_t *channel = cl->channel[i];
+
+          /* Is it public or a shared channel?  */
+          if (!(channel->flag & (MODE_SECRET | MODE_PRIVATE))
+              || -1 != irc_client_in_channel (NULL, client, channel))
+            break;
+        }
+      /* Is the client in no channel or in no shared or public?  */
+      if (x->n == cl->channels)
+        {
+          if (cl->flag & UMODE_OPERATOR)
+            strcat (text, "@");
+          strcat (text, cl->nick);
+          strcat (text, " ");
+        }
+    }
+}
+
 /*
  *    Command: NAMES
  * Parameters: [<channel>{,<channel>}]
@@ -1079,32 +1147,19 @@ irc_names_callback (svz_socket_t *sock,
                     irc_client_t *client, irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_client_t **cl;
-  irc_channel_t **ch;
   irc_channel_t *channel;
   static char text[MAX_MSG_LEN];
-  int n, i;
+  int n;
 
   /* list all channels and users?  */
   if (request->paras < 1)
     {
       /* go through all channels */
-      if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
+      if (svz_hash_size (cfg->channels))
         {
-          for (n = 0; n < svz_hash_size (cfg->channels); n++)
-            {
-              /*
-               * you can't see secret and private channels,
-               * except you are in it
-               */
-              if (irc_client_in_channel (NULL, client, ch[n]) == -1 &&
-                  (ch[n]->flag & (MODE_SECRET | MODE_PRIVATE)))
-                continue;
+          struct names_cb_ch_closure x = { client, sock };
 
-              /* send a line */
-              irc_channel_users (sock, client, ch[n]);
-            }
-          svz_hash_xfree (ch);
+          svz_hash_foreach (names_cb_ch_internal, cfg->channels, &x);
         }
 
       /*
@@ -1113,35 +1168,11 @@ irc_names_callback (svz_socket_t *sock,
        * Public channels are not secret or private or channels
        * clients share.
        */
-      if ((cl = (irc_client_t **) svz_hash_values (cfg->clients)) != NULL)
+      if (svz_hash_size (cfg->clients))
         {
-          for (n = 0; n < svz_hash_size (cfg->clients); n++)
-            {
-              text[0] = 0;
+          struct names_cb_cl_closure x = { 0, text, client };
 
-              /* visible?  */
-              if (!(cl[n]->flag & UMODE_INVISIBLE))
-                {
-                  /* go through all channels of the client */
-                  for (i = 0; i < cl[n]->channels; i++)
-                    {
-                      channel = cl[n]->channel[i];
-                      /* is it public or a shared channel?  */
-                      if (!(channel->flag & (MODE_SECRET | MODE_PRIVATE)) ||
-                          irc_client_in_channel (NULL, client, channel) != -1)
-                        break;
-                    }
-                  /* is the client in no channel or in no shared or public?  */
-                  if (n == cl[n]->channels)
-                    {
-                      if (cl[n]->flag & UMODE_OPERATOR)
-                        strcat (text, "@");
-                      strcat (text, cl[n]->nick);
-                      strcat (text, " ");
-                    }
-                }
-            }
-          svz_hash_xfree (cl);
+          svz_hash_foreach (names_cb_cl_internal, cfg->clients, &x);
         }
       /* send the (*) reply */
       irc_printf (sock, ":%s %03d %s " RPL_NAMREPLY_TEXT "\n",
@@ -1208,6 +1239,21 @@ irc_channel_list (svz_socket_t *sock,
               channel->name, visibles, channel->topic);
 }
 
+struct list_cb_closure
+{
+  svz_socket_t *sock;
+  irc_client_t *client;
+};
+
+static void
+list_cb_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  irc_channel_t *ch = v;
+  struct list_cb_closure *x = closure;
+
+  irc_channel_list (x->sock, x->client, ch);
+}
+
 /*
  *         Command: LIST
  *      Parameters: [<channel>{,<channel>} [<server>]]
@@ -1220,7 +1266,6 @@ irc_list_callback (svz_socket_t *sock,
                    irc_request_t *request)
 {
   irc_config_t *cfg = sock->cfg;
-  irc_channel_t **ch;
   irc_channel_t *channel;
   int n;
 
@@ -1230,14 +1275,9 @@ irc_list_callback (svz_socket_t *sock,
   /* list all channels */
   if (request->paras < 1)
     {
-      if ((ch = (irc_channel_t **) svz_hash_values (cfg->channels)) != NULL)
-        {
-          for (n = 0; n < svz_hash_size (cfg->channels); n++)
-            {
-              irc_channel_list (sock, client, ch[n]);
-            }
-          svz_hash_xfree (ch);
-        }
+      struct list_cb_closure x = { sock, client };
+
+      svz_hash_foreach (list_cb_internal, cfg->channels, &x);
     }
   /* list specified channels */
   else
