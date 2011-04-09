@@ -1,5 +1,12 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Incorporate ‘svz_sock_print_list’ into unique caller.
+
+	* server-core.c (svz_sock_print_list): Incorporate...
+	(svz_sock_validate_list): ...into this func.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move ‘svz_servertype_print’ to unique client.
 
 	* server.c (svz_servertype_print): Delete func.

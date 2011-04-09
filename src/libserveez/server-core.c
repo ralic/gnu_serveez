@@ -372,29 +372,6 @@ svz_foreach_socket (svz_socket_do_t *func, void *closure)
   return 0;
 }
 
-#if ENABLE_SOCK_PRINT_LIST
-/*
- * This function is for debugging purposes only.  It shows a text
- * representation of the current socket list.
- */
-static void
-svz_sock_print_list (void)
-{
-  svz_socket_t *sock = svz_sock_root;
-
-  while (sock)
-    {
-      fprintf (stdout, "id: %04d, sock: %p == %p, prev: %p, next: %p\n",
-               sock->id, (void *) sock,
-               (void *) svz_sock_lookup_table[sock->id],
-               (void *) sock->prev, (void *) sock->next);
-      sock = sock->next;
-    }
-
-  fprintf (stdout, "\n");
-}
-#endif  /* ENABLE_SOCK_PRINT_LIST */
-
 #if ENABLE_DEBUG
 /*
  * Check if a given socket is still valid.  Return non-zero if it is
@@ -423,7 +400,16 @@ svz_sock_validate_list (void)
   svz_socket_t *sock, *prev;
 
 #if ENABLE_SOCK_PRINT_LIST
-  svz_sock_print_list ();
+  sock = svz_sock_root;
+  while (sock)
+    {
+      fprintf (stdout, "id: %04d, sock: %p == %p, prev: %p, next: %p\n",
+               sock->id, (void *) sock,
+               (void *) svz_sock_lookup_table[sock->id],
+               (void *) sock->prev, (void *) sock->next);
+      sock = sock->next;
+    }
+  fprintf (stdout, "\n");
 #endif
 
   prev = NULL;
