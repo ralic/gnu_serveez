@@ -1,5 +1,14 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Drop func: svz_pcalloc
+
+	This was never included in the header alloc.h
+	and is not used anywhere.
+
+	* alloc.c (svz_pcalloc): Delete func.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Don't export ‘svz_segfault_exception’.
 
 	* server-core.c (svz_segfault_exception): Make static.

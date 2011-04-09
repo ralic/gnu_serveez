@@ -401,18 +401,6 @@ svz_pmalloc (size_t size)
 }
 
 /*
- * Allocate @var{size} bytes of memory and return a pointer to this block.
- * The memory block is cleared (filled with zeros) and considered permanently.
- */
-void *
-svz_pcalloc (size_t size)
-{
-  void *ptr = svz_malloc (size);
-  memset (ptr, 0, size);
-  return ptr;
-}
-
-/*
  * Resize the memory block pointed to by @var{ptr} to @var{size} bytes.  This
  * routine also allocates memory permanently.
  */
