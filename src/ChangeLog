@@ -1,5 +1,16 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[awcs int] Avoid ‘svz_hash_values’.
+
+	* awcs-server/awcs-proto.c
+	(process_broadcast_closure): New struct.
+	(process_broadcast_internal): New static func.
+	(awcs_process_broadcast): Use it and ‘svz_hash_foreach’.
+	(disconnect_clients_internal): New static func.
+	(awcs_disconnect_clients): Use it and ‘svz_hash_foreach’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[nut int] Avoid ‘svz_hash_values’.
 
 	* nut-server/nut-hostlist.c

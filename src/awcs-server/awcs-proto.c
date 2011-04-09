@@ -409,30 +409,35 @@ awcs_status_notify (awcs_config_t *cfg)
   return 0;
 }
 
+struct process_broadcast_closure
+{
+  char *cmd;
+  int len;
+};
+
+static void
+process_broadcast_internal (SVZ_UNUSED void *k, void *v, void *closure)
+{
+  svz_socket_t *sock = v;
+  struct process_broadcast_closure *x = closure;
+
+  if (svz_sock_write (sock, x->cmd, x->len))
+    svz_sock_schedule_for_shutdown (sock);
+}
+
 /*
  * Broadcast message `cmd' to all connected aWCS clients.
  */
 static int
 awcs_process_broadcast (awcs_config_t *cfg, char *cmd, int cmd_len)
 {
-  svz_socket_t **sock;
-  int n;
+  struct process_broadcast_closure x = { cmd, cmd_len };
 
 #if ENABLE_DEBUG
   svz_log (SVZ_LOG_DEBUG, "awcs: broadcasting\n");
 #endif /* ENABLE_DEBUG */
 
-  if ((sock = (svz_socket_t **) svz_hash_values (cfg->clients)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->clients); n++)
-        {
-          if (svz_sock_write (sock[n], cmd, cmd_len))
-            {
-              svz_sock_schedule_for_shutdown (sock[n]);
-            }
-        }
-      svz_hash_xfree (sock);
-    }
+  svz_hash_foreach (process_broadcast_internal, cfg->clients, &x);
   return 0;
 }
 
@@ -634,6 +639,13 @@ awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
   return 0;
 }
 
+static void
+disconnect_clients_internal (SVZ_UNUSED void *k, void *v,
+                             SVZ_UNUSED void *closure)
+{
+  svz_sock_schedule_for_shutdown (v);
+}
+
 /*
  * Schedule all aWCS clients for shutdown.  Call this if the
  * connection to the master server has been lost.
@@ -641,15 +653,7 @@ awcs_handle_master_request (awcs_config_t *cfg, char *request, int request_len)
 void
 awcs_disconnect_clients (awcs_config_t *cfg)
 {
-  svz_socket_t **sock;
-  int n;
-
-  if ((sock = (svz_socket_t **) svz_hash_values (cfg->clients)) != NULL)
-    {
-      for (n = 0; n < svz_hash_size (cfg->clients); n++)
-        svz_sock_schedule_for_shutdown (sock[n]);
-      svz_hash_xfree (sock);
-    }
+  svz_hash_foreach (disconnect_clients_internal, cfg->clients, NULL);
 }
 
 /*
