@@ -273,11 +273,62 @@ svz_servertype_print (void)
 
   svz_array_foreach (svz_servertypes, stype, s)
     {
-      printf ("[%d] - %s\n", s, stype->description);
-      printf ("  `detect_proto' at %p"
+      svz_config_prototype_t *prototype = &stype->config_prototype;
+      int i;
+
+      printf ("[%d] - %s\n"
+              "  `detect_proto' at %p"
               "  `connect_socket' at %p\n",
-              (void *) stype->detect_proto, (void *) stype->connect_socket);
-      svz_config_prototype_print (&stype->config_prototype);
+              s, stype->description,
+              (void *) stype->detect_proto,
+              (void *) stype->connect_socket);
+
+      if (prototype->start != NULL)
+        {
+          printf ("  configuration prototype %s (%d byte at %p): \n",
+                  prototype->description, prototype->size, prototype->start);
+
+          for (i = 0; prototype->items[i].type != SVZ_ITEM_END; i++)
+            {
+              long offset = (char *) prototype->items[i].address -
+                (char *) prototype->start;
+
+              printf ("   variable `%s' at offset %ld, %sdefaultable: ",
+                      prototype->items[i].name, offset,
+                      prototype->items[i].defaultable ? "" : "not ");
+
+              switch (prototype->items[i].type)
+                {
+                case SVZ_ITEM_BOOL:
+                  printf ("bool\n");
+                  break;
+                case SVZ_ITEM_INT:
+                  printf ("int\n");
+                  break;
+                case SVZ_ITEM_INTARRAY:
+                  printf ("int array\n");
+                  break;
+                case SVZ_ITEM_STR:
+                  printf ("string\n");
+                  break;
+                case SVZ_ITEM_STRARRAY:
+                  printf ("string array\n");
+                  break;
+                case SVZ_ITEM_HASH:
+                  printf ("hash\n");
+                  break;
+                case SVZ_ITEM_PORTCFG:
+                  printf ("port configuration\n");
+                  break;
+                default:
+                  printf ("invalid\n");
+                }
+            }
+        }
+      else
+        {
+          printf ("  no configuration option\n");
+        }
     }
 }
 

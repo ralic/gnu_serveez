@@ -201,7 +201,6 @@ __BEGIN_DECLS
 SBO void *svz_config_instantiate (svz_config_prototype_t *,
                                   char *, void *,
                                   svz_config_accessor_t *);
-SBO void svz_config_prototype_print (svz_config_prototype_t *);
 
 SERVEEZ_API void svz_config_free (svz_config_prototype_t *, void *);
 SERVEEZ_API int svz_config_type_instantiate (char *, char *,
