@@ -53,9 +53,8 @@ HACKING libserveez API					-*- org -*-
     takes ‘unsigned long’ (uint32_t) for network byte-order IPv4 address
     → replace ‘unsigned long’ with (pointer to) generalized ip address
 *** pretty printer
-    add func: svz_prettyprint (FILE *to, enum WHAT)
-    where WHAT ∈ {interface, codec, bindings, servertype, prototype, ...}
-    and fold specific *_print and *_list funcs into it
+    modify printing funcs to take ‘char *buf’ and ‘size_t size’;
+    make them re-entrant (no static state)
 *** work in progress ([[elisp:(let%20((dired-listing-switches%20"-alhFGrS"))%20(dired%20"*.h"))][dired by size]]) ([[shell:nm%20-g%20--defined-only%20.libs/libserveez.so][.so exports]])
     (for columns: ? ≡ need-info, o ≡ todo, x ≡ done)
     |----------------------+---+---+---+---+---+------|
@@ -69,15 +68,14 @@ HACKING libserveez API					-*- org -*-
     | [[file:windoze.h][windoze]]              |   | x |   |   |   |      |
     | [[file:boot.h][boot]]                 |   |   |   |   |   |      |
     | [[file:udp-socket.h][udp-socket]]           |   |   |   | o |   |      |
-    | [[file:interface.h][interface]]            |   |   |   | o | o | [[more-interface][more]] |
-    | [[file:binding.h][binding]]              |   |   |   |   | o | [[more-binding][more]] |
+    | [[file:interface.h][interface]]            |   |   |   | o |   |      |
+    | [[file:binding.h][binding]]              |   |   |   |   | x | [[more-binding][more]] |
     | [[file:pipe-socket.h][pipe-socket]]          |   |   |   |   |   |      |
     | [[file:passthrough.h][passthrough]]          |   | x |   |   |   |      |
     | [[file:defines.h][defines]]              |   |   |   |   |   |      |
     | [[file:core.h][core]]                 |   |   |   | o |   | [[more-core][more]] |
     | [[file:alloc.h][alloc]]                |   |   |   |   |   |      |
     | [[file:iphlpapi.h][iphlpapi]]             | x | x |   |   |   |      |
-    | [[file:vector.h][vector]]               | x |   |   |   |   |      |
     | [[file:array.h][array]]                |   |   |   |   |   |      |
     | [[file:server-core.h][server-core]]          |   |   |   |   |   | [[more-server-core][more]] |
     | [[file:util.h][util]]                 |   | x |   |   |   |      |
@@ -86,7 +84,7 @@ HACKING libserveez API					-*- org -*-
     | [[file:ipdata.h][ipdata]]               | x |   |   | o |   |      |
     | [[file:server.h][server]]               |   |   |   |   | o |      |
     | [[file:portcfg.h][portcfg]]              |   |   | x |   | o |      |
-    | [[file:cfg.h][cfg]]                  |   |   |   |   | o | [[more-cfg][more]] |
+    | [[file:cfg.h][cfg]]                  |   |   |   |   | o |      |
     | [[file:socket.h][socket]]               |   | x | x | o |   |      |
     | [[file:codec/bzip2.h][codec/bzip2]]          | x |   |   |   |   |      |
     | [[file:codec/codec.h][codec/codec]]          |   |   |   |   |   |      |
@@ -101,19 +99,11 @@ HACKING libserveez API					-*- org -*-
 ***** replace svz_dynload_path_{set,get}
       with ‘svz_load_path (char const *DIR)’;
       if DIR is NULL, clear the path; else push DIR
-*** more-interface
-***** combine svz_interface_{get,search}
-      into ‘svz_find_interface (enum BY, void *data)’ with BY ∈ {name, addr}
-***** eliminate ‘svz_interface_check’
-      moving specification of check signal (currently SIGHUP) to ‘svz_boot’;
-      add "never check" mode
 *** more-binding
 ***** specialize ‘svz_server_portcfgs’
       into ‘svz_server_first_configured_address’ for clients [[file:~/build/GNU/serveez/src/http-server/http-proto.c::svz_server_portcfgs][http]], [[file:~/build/GNU/serveez/src/irc-server/irc-proto.c::svz_server_portcfgs][irc]]
 ***** replace ‘svz_server_listeners’ (+ ‘svz_array_destroy’)
       with new func ‘svz_server_listener_foreach’
-***** abstract more for passthrough
-      (unique client of ‘svz_server_single_listener’)
 ***** replace ‘svz_sock_servers’ (+ ‘svz_array_destroy’)
       with new func ‘svz_sock_servers_foreach’
 *** more-core
@@ -122,9 +112,6 @@ HACKING libserveez API					-*- org -*-
       (this is in addition to ‘svz_socket_connect’)
 *** more-server-core
 ***** (maybe) combine set/get funcs
-*** more-cfg
-***** change ‘svz_config_intarray_create’ et al
-      to take a first arg ‘size_t count’
 *** more-coserver/coserver
 ***** raise abstraction
 ******* move ctrl-server funcs into coserver.c
@@ -139,7 +126,6 @@ HACKING libserveez API					-*- org -*-
 ***** func decl
 ***** macro
 *** don't install individual headers
-* move more ‘static’ state into ‘svz_private’
 * etc
 #+STARTUP: odd
 
