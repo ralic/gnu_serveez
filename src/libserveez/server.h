@@ -119,11 +119,13 @@ typedef struct
 svz_config_type_t;
 /* end svzint */
 
+typedef int (svz_servertype_do_t) (const svz_servertype_t *, void *);
 typedef void (svz_server_do_t) (svz_server_t *, void *);
 
 __BEGIN_DECLS
 SBO svz_config_type_t svz_servertype_definition;
 
+SERVEEZ_API int svz_foreach_servertype (svz_servertype_do_t *, void *);
 SERVEEZ_API void svz_foreach_server (svz_server_do_t *, void *);
 SERVEEZ_API svz_server_t *svz_server_get (char *);
 SERVEEZ_API svz_server_t *svz_server_find (void *);

@@ -574,6 +574,7 @@ The following set of functions are used to manage the list of known server
 types in the serveez core library.  Serveez itself uses some of these functions
 to register its builtin server types.
 
+|F| svz_foreach_servertype
 |F| svz_servertype_add
 |F| svz_servertype_get
 |F| svz_servertype_find

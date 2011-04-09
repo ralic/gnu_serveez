@@ -52,6 +52,25 @@ static svz_array_t *svz_servertypes = NULL;
  */
 static svz_hash_t *svz_servers = NULL;
 
+/*
+ * Call @var{func} for each servertype, passing additionally the second arg
+ * @var{closure}.  If @var{func} returns a negative value, return immediately
+ * with that value (breaking out of the loop), otherwise, return 0.
+ */
+int
+svz_foreach_servertype (svz_servertype_do_t *func, void *closure)
+{
+  int i, rv;
+  svz_servertype_t *stype;
+
+  svz_array_foreach (svz_servertypes, stype, i)
+    {
+      if (0 > (rv = func (stype, closure)))
+        return rv;
+    }
+  return 0;
+}
+
 struct foreach_server_closure
 {
   svz_server_do_t *func;
