@@ -207,21 +207,21 @@ irc_dns_done (char *ip, void *closure)
               strcat (nicklist, ch[i]->client[n]->nick);
               strcat (nicklist, " ");
             }
-        }
-      /* propagate one channel in one request */
-      irc_printf (sock, "SJOIN %d %s %s :%s\n",
-                  ch[i]->since, ch[i]->name, irc_channel_flag_string (ch[i]),
-                  nicklist);
+          /* propagate one channel in one request */
+          irc_printf (sock, "SJOIN %d %s %s :%s\n",
+                      ch[i]->since, ch[i]->name,
+                      irc_channel_flag_string (ch[i]),
+                      nicklist);
 #else /* not ENABLE_TIMESTAMP */
-      for (n = 0; n < ch[i]->clients; n++)
-        {
-          irc_printf (sock, ":%s JOIN %s\n",
-                      ch[i]->client[n], ch[i]->name);
-        }
-      irc_printf (sock, "MODE %s %s\n",
-                  ch[i]->name, irc_channel_flag_string (ch[i]));
+          for (n = 0; n < ch[i]->clients; n++)
+            {
+              irc_printf (sock, ":%s JOIN %s\n",
+                          ch[i]->client[n], ch[i]->name);
+            }
+          irc_printf (sock, "MODE %s %s\n",
+                      ch[i]->name, irc_channel_flag_string (ch[i]));
 #endif /* not ENABLE_TIMESTAMP */
-
+        }
       svz_hash_xfree (ch);
     }
 

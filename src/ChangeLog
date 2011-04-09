@@ -1,5 +1,17 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[irc] Fix bug: On DNS return, propagate all info to the server.
+
+	Scoping error introduced 2000-06-18.  Additionally,
+	if GNU Serveez is configured with ‘--enable-irc-proto’
+	and ‘--disable-irc-ts’, the IRC server fails to compile.
+
+	* irc-server/irc-server.c (irc_dns_done):
+	For ‘cfg->clients’ loop, move close scope out of
+	‘#if ENABLE_TIMESTAMP ... #endif’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[awcs int] Avoid ‘svz_hash_values’.
 
 	* awcs-server/awcs-proto.c
