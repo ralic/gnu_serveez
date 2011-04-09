@@ -1,5 +1,12 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_servertype_print’ to unique client.
+
+	* serveez-api.texi.in (General server type functionality):
+	Delete ‘svz_servertype_print’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_foreach_servertype
 
 	* serveez-api.texi.in (General server type functionality):

@@ -1,5 +1,12 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_servertype_print’ to unique client.
+
+	* server.c (svz_servertype_print): Delete func.
+	* server.h (svz_servertype_print): Delete func decl.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Add func: svz_foreach_servertype
 
 	* server.h (svz_servertype_do_t): New typedef.

@@ -1,5 +1,12 @@
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Move ‘svz_servertype_print’ to unique client.
+
+	* serveez.c [0] (dump_servertype): New static func.
+	(main) [0]: Use it and ‘svz_foreach_servertype’.
+
+2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Move ‘svz_portcfg_print’ to unique client.
 
 	* guile-server.c [ENABLE_DEBUG] (portcfg_print): New static func.

@@ -136,8 +136,6 @@ SERVEEZ_API void svz_servertype_add (svz_servertype_t *);
 SERVEEZ_API svz_servertype_t *svz_servertype_get (char *, int);
 SERVEEZ_API svz_servertype_t *svz_servertype_find (svz_server_t *);
 
-SERVEEZ_API void svz_servertype_print (void);
-
 __END_DECLS
 
 #endif /* not __SERVER_H__ */
