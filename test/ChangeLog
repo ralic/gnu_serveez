@@ -1,3 +1,11 @@
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[v int] Avoid svz_hash_{keys,values,xfree}.
+
+	* btdt.c (hash_pair): New struct.
+	(hash_accumulate): New func.
+	(hash_main): Use it and ‘svz_hash_foreach’.
+
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Add ‘svz_foreach_codec’; move ‘svz_codec_list’ to client.

@@ -346,6 +346,25 @@ hash_clear (svz_hash_t **hash)
   *hash = svz_hash_create (4, NULL);
 }
 
+struct hash_pair
+{
+  char *key;
+  long value;
+};
+
+void
+hash_accumulate (void *k, void *v, void *closure)
+{
+  char *key = k;
+  long value = SVZ_PTR2NUM (v);
+  svz_array_t *array = closure;
+  struct hash_pair *pair = svz_malloc (sizeof (struct hash_pair));
+
+  pair->key = key;
+  pair->value = value;
+  svz_array_add (array, pair);
+}
+
 int
 hash_main (int argc, char **argv)
 {
@@ -353,8 +372,6 @@ hash_main (int argc, char **argv)
   svz_hash_t *hash;
   long n, error;
   char *text;
-  char **keys;
-  void **values;
   unsigned int cur[2];
 
   check_nargs (argc, 1, "REPEAT (integer)");
@@ -417,24 +434,25 @@ hash_main (int argc, char **argv)
   svz_free (text);
   if (n != svz_hash_size (hash))
     error++;
-  values = svz_hash_values (hash);
-  keys = svz_hash_keys (hash);
-  if (keys && values)
-    {
-      for (n = 0; n < repeat; n++)
+  {
+    svz_array_t *array = svz_array_create (repeat, svz_free);
+    struct hash_pair *p;
+
+    svz_hash_foreach (hash_accumulate, hash, array);
+    if (svz_array_size (array))
+      svz_array_foreach (array, p, n)
         {
-          if (atol (keys[n]) != (long) values[n])
+          if (atol (p->key) != p->value)
             error++;
-          if (svz_hash_get (hash, keys[n]) != values[n])
+          if (svz_hash_get (hash, p->key) != SVZ_NUM2PTR (p->value))
             error++;
-          if (svz_hash_contains (hash, values[n]) != keys[n])
+          if (svz_hash_contains (hash, SVZ_NUM2PTR (p->value)) != p->key)
             error++;
         }
-      svz_hash_xfree (keys);
-      svz_hash_xfree (values);
-    }
-  else
-    error++;
+    else
+      error++;
+    svz_array_destroy (array);
+  }
   if (svz_hash_size (hash) != repeat)
     error++;
   test (error);
