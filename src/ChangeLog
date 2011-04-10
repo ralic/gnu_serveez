@@ -1,5 +1,18 @@
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[nut int] Avoid ‘svz_hash_keys’.
+
+	* nut-server/gnutella.c
+	(dead_packet, disconnect_closure): New structs.
+	(disconnect_internal): New static func.
+	(nut_disconnect): Use it and ‘svz_hash_foreach’.
+	(server_notify_closure): New struct.
+	(server_notify_net_internal, server_notify_packet_internal)
+	(server_notify_query_internal): New static funcs.
+	(nut_server_notify): Use them and ‘svz_hash_foreach’.
+
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[foo-server int] Avoid ‘svz_hash_keys’.
 
 	* foo-server/foo-proto.c

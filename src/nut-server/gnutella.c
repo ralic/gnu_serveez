@@ -557,6 +557,35 @@ nut_global_finalize (SVZ_UNUSED svz_servertype_t *server)
   return 0;
 }
 
+struct dead_packet
+{
+  char *key;
+  nut_packet_t *pkt;
+};
+
+struct disconnect_closure
+{
+  svz_socket_t *sock;
+  struct dead_packet d;
+};
+
+static void
+disconnect_internal (void *k, void *v, void *closure)
+{
+  char *key = k;
+  nut_packet_t *pkt = v;
+  struct disconnect_closure *x = closure;
+
+  if (x->d.key)
+    return;
+
+  if (pkt->sock == x->sock)
+    {
+      x->d.key = key;
+      x->d.pkt = pkt;
+    }
+}
+
 /*
  * This is the sock->disconnected_socket callback for gnutella
  * connections.
@@ -567,9 +596,7 @@ nut_disconnect (svz_socket_t *sock)
   nut_config_t *cfg = sock->cfg;
   nut_host_t *host;
   svz_uint8_t *id;
-  char *key, **keys;
-  int size, n;
-  nut_packet_t *pkt;
+  char *key;
   nut_client_t *client = sock->data;
 
   /* delete all push request routing information for this connection */
@@ -581,19 +608,16 @@ nut_disconnect (svz_socket_t *sock)
     svz_hash_delete (cfg->route, (char *) id);
 
   /* drop all packet information for this connection */
-  if ((keys = (char **) svz_hash_keys (cfg->packet)) != NULL)
+  if (svz_hash_size (cfg->packet))
     {
-      size = svz_hash_size (cfg->packet);
-      for (n = 0; n < size; n++)
+      struct disconnect_closure x = { sock, { NULL, NULL } };
+
+      svz_hash_foreach (disconnect_internal, cfg->packet, &x);
+      if (x.d.key)
         {
-          pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
-          if (pkt->sock == sock)
-            {
-              svz_hash_delete (cfg->packet, keys[n]);
-              svz_free (pkt);
-            }
+          svz_hash_delete (cfg->packet, x.d.key);
+          svz_free (x.d.pkt);
         }
-      svz_hash_xfree (keys);
     }
 
   /* remove this socket from the current connection hash */
@@ -617,6 +641,58 @@ nut_disconnect (svz_socket_t *sock)
   return 0;
 }
 
+struct server_notify_closure
+{
+  nut_config_t *cfg;
+  time_t t;
+  int connect;
+  svz_array_t *dead;
+};
+
+static void
+server_notify_net_internal (void *k, SVZ_UNUSED void *v, void *closure)
+{
+  char *key = k;
+  struct server_notify_closure *x = closure;
+  nut_config_t *cfg = x->cfg;
+
+  if (! x->connect)
+    return;
+
+  /* Check if we are not already connected.  */
+  if (NULL == svz_hash_get (cfg->conn, key)
+      && -1 != nut_connect_host (cfg, key))
+    x->connect--;
+}
+
+static void
+server_notify_packet_internal (void *k, void *v, void *closure)
+{
+  char *key = k;
+  nut_packet_t *pkt = v;
+  struct server_notify_closure *x = closure;
+
+  if (x->t - pkt->sent > NUT_ENTRY_AGE)
+    {
+      struct dead_packet *d = svz_malloc (sizeof (struct dead_packet));
+
+      d->key = key;
+      d->pkt = pkt;
+      svz_array_add (x->dead, d);
+    }
+}
+
+static void
+server_notify_query_internal (void *k, void *v, void *closure)
+{
+  char *key = k;
+  time_t received = (time_t) SVZ_PTR2NUM (v);
+  struct server_notify_closure *x = closure;
+
+  if (x->t - received > NUT_ENTRY_AGE)
+    svz_array_add (x->dead, key);
+}
+
 /*
  * This callback is regularly called in the `server_periodic_tasks'
  * routine.  Here we try connecting to more gnutella hosts.
@@ -626,67 +702,51 @@ nut_server_notify (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static int count = NUT_CONNECT_INTERVAL;
-  char **keys;
-  nut_packet_t *pkt;
-  int n, size, connect;
-  time_t t, received;
+  int n;
+  struct server_notify_closure x;
 
   /* go sleep if we still do not want to do something */
   if (count-- > 0)
     return 0;
 
+  x.cfg = cfg;
+
   /* do we have enough connections?  */
-  connect = cfg->connections - svz_hash_size (cfg->conn);
-  if (connect > 0)
+  x.connect = cfg->connections - svz_hash_size (cfg->conn);
+  if (x.connect > 0)
     {
       /* are there hosts in the host catcher hash?  */
-      if ((keys = (char **) svz_hash_keys (cfg->net)) != NULL)
-        {
-          /* go through all caught hosts */
-          for (n = 0; n < svz_hash_size (cfg->net) && connect; n++)
-            {
-              /* check if we are not already connected */
-              if (svz_hash_get (cfg->conn, keys[n]) == NULL)
-                {
-                  if (nut_connect_host (cfg, keys[n]) != -1)
-                    connect--;
-                }
-            }
-          svz_hash_xfree (keys);
-        }
+      if (svz_hash_size (cfg->net))
+        svz_hash_foreach (server_notify_net_internal, cfg->net, &x);
     }
 
   /* go through the sent packet hash and drop old entries */
-  if ((keys = (char **) svz_hash_keys (cfg->packet)) != NULL)
+  if (svz_hash_size (cfg->packet))
     {
-      t = time (NULL);
-      size = svz_hash_size (cfg->packet);
-      for (n = 0; n < size; n++)
+      struct dead_packet *d;
+
+      x.t = time (NULL);
+      x.dead = svz_array_create (4, svz_free);
+      svz_hash_foreach (server_notify_packet_internal, cfg->packet, &x);
+      svz_array_foreach (x.dead, d, n)
         {
-          pkt = (nut_packet_t *) svz_hash_get (cfg->packet, keys[n]);
-          if (t - pkt->sent > NUT_ENTRY_AGE)
-            {
-              svz_hash_delete (cfg->packet, keys[n]);
-              svz_free (pkt);
-            }
+          svz_hash_delete (cfg->packet, d->key);
+          svz_free (d->pkt);
         }
-      svz_hash_xfree (keys);
+      svz_array_destroy (x.dead);
     }
 
   /* drop older entries from the recent query hash */
-  if ((keys = (char **) svz_hash_keys (cfg->query)) != NULL)
+  if (svz_hash_size (cfg->query))
     {
-      t = time (NULL);
-      size = svz_hash_size (cfg->query);
-      for (n = 0; n < size; n++)
-        {
-          received = (time_t) (long) svz_hash_get (cfg->query, keys[n]);
-          if (t - received > NUT_ENTRY_AGE)
-            {
-              svz_hash_delete (cfg->query, keys[n]);
-            }
-        }
-      svz_hash_xfree (keys);
+      char *key;
+
+      x.t = time (NULL);
+      x.dead = svz_array_create (4, NULL);
+      svz_hash_foreach (server_notify_query_internal, cfg->query, &x);
+      svz_array_foreach (x.dead, key, n)
+        svz_hash_delete (cfg->query, key);
+      svz_array_destroy (x.dead);
     }
 
   /* wake up in a certain time */
