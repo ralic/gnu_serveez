@@ -1,3 +1,10 @@
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[lib] Drop funcs: svz_hash_{keys,values,xfree}
+
+	* serveez-api.texi.in (Hashtable): Delete
+	‘svz_hash_keys’, ‘svz_hash_values’, ‘svz_hash_xfree’.
+
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Move ‘svz_servertype_print’ to unique client.
