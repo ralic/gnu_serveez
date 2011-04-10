@@ -1,5 +1,11 @@
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename some *_updn funcs to svz_updn_all_*.
+
+	* serveez.c (guile_entry): Update all refs.
+
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[nut int] Avoid ‘svz_hash_keys’.
 
 	* nut-server/gnutella.c

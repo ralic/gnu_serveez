@@ -103,13 +103,13 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
            SVZ_RUNPARM (MAX_SOCKETS));
 
   /* Startup the internal coservers here.  */
-  if (svz_coserver_updn (1) == -1)
+  if (svz_updn_all_coservers (1) == -1)
     {
       exit (4);
     }
 
   /* Initialize server instances.  */
-  if (svz_server_all_updn (1) == -1)
+  if (svz_updn_all_servers (1) == -1)
     {
       exit (6);
     }
@@ -117,11 +117,11 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
   svz_loop ();
 
   /* Run the finalizers.  */
-  svz_server_all_updn (0);
+  svz_updn_all_servers (0);
 
   /* Disconnect the previously invoked internal coservers.  */
   svz_log (SVZ_LOG_NOTICE, "destroying internal coservers\n");
-  svz_coserver_updn (0);
+  svz_updn_all_coservers (0);
 
 #if ENABLE_GUILE_SERVER
   guile_server_finalize ();

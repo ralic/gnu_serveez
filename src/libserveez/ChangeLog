@@ -1,5 +1,16 @@
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename some *_updn funcs to svz_updn_all_*.
+
+	* coserver/coserver.h
+	(svz_updn_all_coservers): Rename from ‘svz_coserver_updn’.
+	* coserver/coserver.c (svz_updn_all_coservers): Likewise.
+	* server.h
+	(svz_updn_all_servers): Rename from ‘svz_server_all_updn’.
+	* server.c (svz_updn_all_servers): Likewise.
+
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop funcs: svz_hash_{keys,values,xfree}
 
 	* hash.h (svz_hash_keys)

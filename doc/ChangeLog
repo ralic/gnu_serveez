@@ -1,5 +1,12 @@
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Rename some *_updn funcs to svz_updn_all_*.
+
+	* serveez-api.texi.in (Coserver functions)
+	(Server functionality): Update all refs.
+
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Drop funcs: svz_hash_{keys,values,xfree}
 
 	* serveez-api.texi.in (Hashtable): Delete

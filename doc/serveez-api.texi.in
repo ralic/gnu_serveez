@@ -504,10 +504,10 @@ separated by a newline character.
 |F| svz_coserver_ident_invoke
 
 If the user wants to use these processes you need to start the coserver
-interface by calling @code{svz_coserver_updn} once before, and once after,
-entering the main server loop.
+interface by calling @code{svz_updn_all_coservers} once before, and once
+after, entering the main server loop.
 
-|F| svz_coserver_updn
+|F| svz_updn_all_coservers
 
 @node Codec functions
 @subsection Codec functions
@@ -615,7 +615,7 @@ and destruction of such servers.
 |F| svz_server_find
 |F| svz_server_clients
 |F| svz_server_get
-|F| svz_server_all_updn
+|F| svz_updn_all_servers
 
 @node Server configuration
 @subsubsection Configuration

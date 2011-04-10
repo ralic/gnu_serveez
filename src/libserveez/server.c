@@ -475,7 +475,7 @@ svz_server_finalize_all (void)
  * server instances.
  */
 int
-svz_server_all_updn (int direction)
+svz_updn_all_servers (int direction)
 {
   return (direction
           ? svz_server_init_all

@@ -1158,7 +1158,7 @@ svz_coserver_finalize (void)
  * Otherwise, finalize them.  Return 0 if successful.
  */
 int
-svz_coserver_updn (int direction)
+svz_updn_all_coservers (int direction)
 {
   return (direction
           ? svz_coserver_init
