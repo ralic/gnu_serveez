@@ -1,3 +1,12 @@
+2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[foo-server int] Avoid ‘svz_hash_keys’.
+
+	* foo-server/foo-proto.c
+	(info_server_closure): New struct.
+	(info_server_internal): New static func.
+	(foo_info_server): Use it and ‘svz_hash_foreach’.
+
 2011-04-09  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[irc-server int] Avoid ‘svz_hash_values’.

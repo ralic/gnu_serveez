@@ -256,6 +256,23 @@ foo_init (SVZ_UNUSED svz_server_t *server)
   return 0;
 }
 
+struct info_server_closure
+{
+  char *info;
+  int i;
+};
+
+static void
+info_server_internal (void *k, void *v, void *closure)
+{
+  char *key = k, *value = v;
+  struct info_server_closure *x = closure;
+  char text[80];
+
+  sprintf (text, " assoc[%d] : `%s' => `%s'\r\n", (x->i)++, key, value);
+  strcat (x->info, text);
+}
+
 /*
  * Server info callback.  We use it here to print the
  * whole configuration once.
@@ -268,7 +285,6 @@ foo_info_server (svz_server_t *server)
   char *str;
   void *j;
   int i;
-  char **keys;
   svz_hash_t *h;
 
   sprintf (text,
@@ -292,15 +308,12 @@ foo_info_server (svz_server_t *server)
 
   if ((h = cfg->assoc) != NULL)
     {
-      keys = svz_hash_keys (h);
-
-      for (i = 0; i < svz_hash_size (h); i++)
+      if (svz_hash_size (h))
         {
-          sprintf (text, " assoc[%d] : `%s' => `%s'\r\n",
-                   i, keys[i], (char *) svz_hash_get (h, keys[i]));
-          strcat (info, text);
+          struct info_server_closure x = { info, 0 };
+
+          svz_hash_foreach (info_server_internal, h, &x);
         }
-      svz_hash_xfree (keys);
     }
   else
     {
