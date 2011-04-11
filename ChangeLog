@@ -1,3 +1,9 @@
+2011-04-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Check for ‘inet_pton’.
+
+	* configure.ac (inet_pton): New ‘AC_CHECK_FUNCS’.
+
 2011-04-08  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[v woe] Fix bug: Update list of "project files".

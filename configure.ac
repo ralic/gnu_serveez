@@ -467,6 +467,7 @@ AC_SUBST([SERVEEZ_CFLAGS])
 dnl ----------------------------------------------------------------------
 dnl checks for library functions
 
+AC_CHECK_FUNCS([inet_pton])
 AC_CHECK_FUNCS([fwrite_unlocked])
 
 AC_CHECK_FUNCS([mkfifo mknod sendfile])
