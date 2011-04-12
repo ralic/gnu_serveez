@@ -1,5 +1,11 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘mode_t’ for ‘svz_pipe_t.perm’.
+
+	* guile.c (guile_define_port): Use ‘mode_t’ in cast.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘gid_t’ for svz_pipe_t.{pgid,gid}.
 
 	* guile.c (guile_define_port): Use ‘gid_t’ in cast.

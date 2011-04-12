@@ -743,7 +743,7 @@ svz_pipe_create_pair (svz_t_handle pipe_desc[2])
  * @var{mask}, @var{uid} and @var{gid}.
  */
 static void
-svz_pipe_save_state (unsigned int *mask, uid_t *uid, gid_t *gid)
+svz_pipe_save_state (mode_t *mask, uid_t *uid, gid_t *gid)
 {
   *mask = umask (0);
   *uid = GETUID ();
@@ -755,7 +755,7 @@ svz_pipe_save_state (unsigned int *mask, uid_t *uid, gid_t *gid)
  * group id @var{gid}.  Returns zero on success, non-zero otherwise.
  */
 static int
-svz_pipe_set_state (unsigned int mask, uid_t uid, gid_t gid)
+svz_pipe_set_state (mode_t mask, uid_t uid, gid_t gid)
 {
   umask (mask);
   if (SETUID (uid) < 0)
@@ -779,7 +779,7 @@ static int
 svz_pipe_try_state (svz_pipe_t *pipe)
 {
   /* umask value */
-  if (pipe->perm != (unsigned int) -1)
+  if (pipe->perm != (mode_t) -1)
     umask (~pipe->perm);
 
   /* group id (need to change group first !) */
@@ -844,7 +844,7 @@ svz_pipe_connect (svz_pipe_t *recv, svz_pipe_t *send)
   svz_socket_t *sock;
   svz_t_handle recv_pipe, send_pipe;
 #ifndef __MINGW32__
-  unsigned int mask; uid_t uid; gid_t gid;
+  mode_t mask; uid_t uid; gid_t gid;
   struct stat buf;
 #endif
 
@@ -998,7 +998,7 @@ svz_pipe_listener (svz_socket_t *sock, svz_pipe_t *recv, svz_pipe_t *send)
 {
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD)
   struct stat buf;
-  unsigned int mask; uid_t uid; gid_t gid;
+  mode_t mask; uid_t uid; gid_t gid;
 #endif
 
 #if defined (HAVE_MKFIFO) || defined (HAVE_MKNOD) || defined (__MINGW32__)

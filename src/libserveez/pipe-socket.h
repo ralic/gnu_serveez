@@ -35,7 +35,7 @@
 typedef struct svz_pipe
 {
   char *name;        /* name of named pipe */
-  unsigned int perm; /* user and group permissions */
+  mode_t perm;       /* user and group permissions */
   char *user;        /* user name */
   uid_t uid;         /* user id (calculated from user name) */
   gid_t pgid;        /* primary group id */

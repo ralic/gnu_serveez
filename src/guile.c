@@ -1252,7 +1252,7 @@ guile_define_port (SCM name, SCM args)
           r->name = svz_strdup (str);
           r->gid = (gid_t) -1;
           r->uid = (uid_t) -1;
-          r->perm = (unsigned int) -1;
+          r->perm = (mode_t) -1;
           scm_c_free (str);
         }
       /* Create local optionhash for receiving pipe direction.  */
@@ -1285,7 +1285,7 @@ guile_define_port (SCM name, SCM args)
           s->name = svz_strdup (str);
           s->gid = (gid_t) -1;
           s->uid = (uid_t) -1;
-          s->perm = (unsigned int) -1;
+          s->perm = (mode_t) -1;
           scm_c_free (str);
         }
       else if (SCM_EQ_P (p, SCM_UNSPECIFIED))
