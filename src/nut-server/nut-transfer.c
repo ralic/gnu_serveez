@@ -565,8 +565,8 @@ nut_send_push (nut_config_t *cfg, nut_transfer_t *transfer)
         addr = svz_portcfg_addr (port);
       push.ip = cfg->ip ? cfg->ip : addr ?
         addr->sin_addr.s_addr : sock->local_addr;
-      push.port = (unsigned short) (cfg->port ? cfg->port : addr ?
-                                    addr->sin_port : sock->local_port);
+      push.port = (cfg->port ? cfg->port : addr ?
+                   addr->sin_port : sock->local_port);
 
       /* create push request key and check if it was already sent */
       pushkey = svz_malloc (16 + NUT_GUID_SIZE * 2);

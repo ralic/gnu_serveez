@@ -296,8 +296,7 @@ svz_socket_create (int proto)
  * at the network port @var{port}.  Return non-zero on errors.
  */
 int
-svz_socket_connect (svz_t_socket sockfd,
-                    in_addr_t host, unsigned short port)
+svz_socket_connect (svz_t_socket sockfd, in_addr_t host, in_port_t port)
 {
   struct sockaddr_in server;
   int error;

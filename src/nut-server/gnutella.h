@@ -88,7 +88,7 @@ nut_header_t;
 /* ping response structure */
 typedef struct
 {
-  unsigned short port; /* port number of the listening host */
+  in_port_t port;      /* port number of the listening host */
   in_addr_t ip;        /* address of the listening host, network byte order */
   unsigned int files;  /* number of files shared by the host */
   unsigned int size;   /* total size of files shared by the host, in KB */
@@ -119,7 +119,7 @@ nut_record_t;
 typedef struct
 {
   svz_uint8_t records;    /* number of records which follow this header */
-  unsigned short port;    /* listening port number of the host */
+  in_port_t port;         /* listening port number of the host */
   in_addr_t ip;           /* ip address of the host, network byte order */
   unsigned short speed;   /* speed of the host which found the results */
   unsigned short pad;     /* dunno */
@@ -136,7 +136,7 @@ typedef struct
   svz_uint8_t id[NUT_GUID_SIZE];
   unsigned int index;     /* index of file requested */
   in_addr_t ip;           /* ip address of the host requesting the push */
-  unsigned short port;    /* port number of the host requesting the push */
+  in_port_t port;         /* port number of the host requesting the push */
 }
 nut_push_t;
 #define SIZEOF_NUT_PUSH (26)
@@ -146,7 +146,7 @@ typedef struct
 {
   svz_uint8_t id[NUT_GUID_SIZE]; /* clientID128 GUID */
   in_addr_t ip;                  /* IP address */
-  unsigned short port;           /* TCP port */
+  in_port_t port;                /* TCP port */
   time_t last_reply;             /* last packet received */
 }
 nut_host_t;
@@ -223,7 +223,7 @@ typedef struct
   char *force_ip;           /* force the local ip to this value */
   in_addr_t ip;             /* calculated from `force_ip' */
   int force_port;           /* force the local port to this value */
-  unsigned short port;      /* calculated from `force_port' */
+  in_port_t port;           /* calculated from `force_port' */
   svz_hash_t *query;        /* recent query hash */
   svz_hash_t *reply;        /* reply hash for routing push requests */
   svz_hash_t *push;         /* push request hash */

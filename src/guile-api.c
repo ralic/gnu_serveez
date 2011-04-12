@@ -101,7 +101,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 {
   svz_socket_t *sock;
   in_addr_t xhost;
-  unsigned short xport = 0;
+  in_port_t xport = 0;
   long p;
   int xproto;
   char *str;
@@ -143,7 +143,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
       SCM_ASSERT_TYPE (SCM_EXACTP (port),
                        port, SCM_ARG3, FUNC_NAME, "exact");
       VALIDATE_NETPORT (p, port, SCM_ARG3);
-      xport = htons ((unsigned short) p);
+      xport = htons (p);
     }
 
   /* Depending on the requested protocol; create different kinds of
@@ -245,7 +245,7 @@ guile_svz_ntohs (SCM netshort)
   SCM_ASSERT_TYPE (SCM_EXACTP (netshort),
                    netshort, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_NETPORT (i, netshort, SCM_ARG1);
-  return gi_integer2scm (ntohs ((unsigned short) i));
+  return gi_integer2scm (ntohs (i));
 }
 #undef FUNC_NAME
 
@@ -259,7 +259,7 @@ guile_svz_htons (SCM hostshort)
   SCM_ASSERT_TYPE (SCM_EXACTP (hostshort),
                    hostshort, SCM_ARG1, FUNC_NAME, "exact");
   VALIDATE_NETPORT (i, hostshort, SCM_ARG1);
-  return gi_integer2scm (htons ((unsigned short) i));
+  return gi_integer2scm (htons (i));
 }
 #undef FUNC_NAME
 
@@ -384,7 +384,7 @@ guile_sock_remote_address (SCM sock, SCM address)
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
       xsock->remote_addr = SCM_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
-      xsock->remote_port = (unsigned short) port;
+      xsock->remote_port = port;
     }
   return pair;
 }
@@ -412,7 +412,7 @@ guile_sock_local_address (SCM sock, SCM address)
                        FUNC_NAME, "pair of exact");
       VALIDATE_NETPORT (port, SCM_CDR (address), SCM_ARG2);
       xsock->local_addr = SCM_NUM2ULONG (SCM_ARG2, SCM_CAR (address));
-      xsock->local_port = (unsigned short) port;
+      xsock->local_port = port;
     }
   return pair;
 }
@@ -904,7 +904,7 @@ scm_portmap (SCM prognum, SCM versnum, SCM protocol, SCM port)
                        FUNC_NAME, "INUMP");
 
       if (!pmap_set (SCM_INUM (prognum), SCM_INUM (versnum),
-                     SCM_INUM (protocol), (unsigned short) SCM_INUM (port)))
+                     SCM_INUM (protocol), SCM_INUM (port)))
         scm_syserror_msg (FUNC_NAME, "~A: pmap_set ~A ~A ~A ~A",
                           gi_list_5 (errnostring (), prognum,
                                      versnum, protocol, port),

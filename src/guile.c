@@ -1178,7 +1178,7 @@ guile_define_port (SCM name, SCM args)
       err |= optionhash_extract_int (options, PORTCFG_PORT, 0, 0,
                                      &port, action);
       GUILE_VALIDATE_PORT (port, "TCP", portname);
-      SVZ_CFG_TCP (cfg, port) = (unsigned short) port;
+      SVZ_CFG_TCP (cfg, port) = port;
       err |= optionhash_extract_int (options, PORTCFG_BACKLOG, 1, 0,
                                      &SVZ_CFG_TCP (cfg, backlog), action);
       err |= optionhash_extract_string (options, PORTCFG_IP, 1,
@@ -1195,7 +1195,7 @@ guile_define_port (SCM name, SCM args)
       err |= optionhash_extract_int (options, PORTCFG_PORT,
                                      0, 0, &port, action);
       GUILE_VALIDATE_PORT (port, "UDP", portname);
-      SVZ_CFG_UDP (cfg, port) = (unsigned short) port;
+      SVZ_CFG_UDP (cfg, port) = port;
       err |= optionhash_extract_string (options, PORTCFG_IP, 1,
                                         SVZ_PORTCFG_NOIP,
                                         &SVZ_CFG_UDP (cfg, ipaddr), action);

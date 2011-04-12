@@ -289,8 +289,8 @@ nut_query (svz_socket_t *sock, nut_header_t *hdr, svz_uint8_t *packet)
     addr = svz_portcfg_addr (port);
   reply.ip = cfg->ip ? cfg->ip : addr ?
     addr->sin_addr.s_addr : sock->local_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : addr ?
-                                 addr->sin_port : sock->local_port);
+  reply.port = (cfg->port ? cfg->port : addr ?
+                addr->sin_port : sock->local_port);
   reply.speed = (unsigned short) cfg->speed;
 
   /* save packet length */
@@ -379,8 +379,8 @@ nut_ping (svz_socket_t *sock, nut_header_t *hdr,
     addr = svz_portcfg_addr (port);
   reply.ip = cfg->ip ? cfg->ip : addr ?
     addr->sin_addr.s_addr : sock->local_addr;
-  reply.port = (unsigned short) (cfg->port ? cfg->port : addr ?
-                                 addr->sin_port : sock->local_port);
+  reply.port = (cfg->port ? cfg->port : addr ?
+                addr->sin_port : sock->local_port);
   reply.files = cfg->db_files;
   reply.size = cfg->db_size / 1024;
   header = nut_put_header (hdr);

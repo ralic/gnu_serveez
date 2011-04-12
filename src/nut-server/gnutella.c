@@ -224,7 +224,7 @@ nut_connect_timeout (svz_socket_t *sock)
  * zero otherwise.
  */
 static int
-nut_connect_ip (nut_config_t *cfg, in_addr_t ip, unsigned short port)
+nut_connect_ip (nut_config_t *cfg, in_addr_t ip, in_port_t port)
 {
   svz_socket_t *sock;
 
@@ -247,7 +247,7 @@ nut_connect_ip (nut_config_t *cfg, in_addr_t ip, unsigned short port)
 struct dns_closure
 {
   nut_config_t *cfg;
-  unsigned short port;
+  in_port_t port;
 };
 
 /*
@@ -259,7 +259,7 @@ nut_dns_done (char *host, void *closure)
 {
   struct dns_closure *x = closure;
   nut_config_t *cfg = x->cfg;
-  unsigned short port = x->port;
+  in_port_t port = x->port;
   struct sockaddr_in addr;
 
   svz_free (x);
@@ -285,7 +285,7 @@ nut_connect_host (nut_config_t *cfg, char *host)
 {
   nut_host_t *client;
   in_addr_t ip;
-  unsigned short port;
+  in_port_t port;
   char *dns = NULL;
 
   /* try getting ip address and port */
@@ -461,7 +461,7 @@ nut_init (svz_server_t *server)
     {
       cfg->ip = inet_addr (cfg->force_ip);
     }
-  cfg->port = htons ((unsigned short) cfg->force_port);
+  cfg->port = htons (cfg->force_port);
 
   /* create and modify packet hash */
   cfg->packet = svz_hash_create (4, svz_free);

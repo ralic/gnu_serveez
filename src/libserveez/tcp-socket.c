@@ -326,7 +326,7 @@ svz_tcp_default_connect (svz_socket_t *sock)
  * errors.
  */
 svz_socket_t *
-svz_tcp_connect (in_addr_t host, unsigned short port)
+svz_tcp_connect (in_addr_t host, in_port_t port)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;

@@ -100,7 +100,7 @@ typedef struct
   unsigned short checksum; /* check sum */
   unsigned short ident;    /* identifier */
   unsigned short sequence; /* sequence number */
-  unsigned short port;     /* remote port address */
+  in_port_t port;          /* remote port address */
 }
 svz_icmp_header_t;
 
@@ -766,8 +766,7 @@ svz_icmp_check_request (svz_socket_t *sock)
  * Return @code{NULL} on errors, otherwise an enqueued socket structure.
  */
 svz_socket_t *
-svz_icmp_connect (in_addr_t host, unsigned short port,
-                  unsigned char type)
+svz_icmp_connect (in_addr_t host, in_port_t port, unsigned char type)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;
@@ -798,7 +797,7 @@ svz_icmp_connect (in_addr_t host, unsigned short port,
 
   /* Put foreign address here.  */
   sock->remote_addr = host;
-  sock->remote_port = (unsigned short) sock->id;
+  sock->remote_port = sock->id;
 
   sock->read_socket = svz_icmp_read_socket;
   sock->write_socket = svz_icmp_write_socket;

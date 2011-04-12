@@ -58,7 +58,7 @@ nut_create_client (void)
  * for freeing the returned string.
  */
 char *
-nut_parse_host (char *addr, unsigned short *port)
+nut_parse_host (char *addr, in_port_t *port)
 {
   char *p, *host;
 
@@ -82,9 +82,9 @@ nut_parse_host (char *addr, unsigned short *port)
     p = NULL;
 
   /* convert and store both of the parsed values */
-  *port = (unsigned short) (p ?
-                            htons ((unsigned short) svz_atoi (p)) :
-                            htons (NUT_PORT));
+  *port = htons (p
+                 ? svz_atoi (p)
+                 : NUT_PORT);
   return host;
 }
 
@@ -95,7 +95,7 @@ nut_parse_host (char *addr, unsigned short *port)
  * port is delivered.  Returns -1 on errors and otherwise zero.
  */
 int
-nut_parse_addr (char *addr, in_addr_t *ip, unsigned short *port)
+nut_parse_addr (char *addr, in_addr_t *ip, in_port_t *port)
 {
   char *p, *colon, *host;
 
@@ -130,9 +130,9 @@ nut_parse_addr (char *addr, in_addr_t *ip, unsigned short *port)
 
   /* convert and store both of the parsed values */
   *ip = inet_addr (host);
-  *port = (unsigned short) (colon ?
-                            htons ((unsigned short) svz_atoi (colon)) :
-                            htons (NUT_PORT));
+  *port = htons (colon
+                 ? svz_atoi (colon)
+                 : NUT_PORT);
   svz_free (host);
   return 0;
 }
@@ -143,7 +143,7 @@ nut_parse_addr (char *addr, in_addr_t *ip, unsigned short *port)
  * order.
  */
 char *
-nut_client_key (in_addr_t ip, unsigned short port)
+nut_client_key (in_addr_t ip, in_port_t port)
 {
   static char key[32];
 

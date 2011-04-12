@@ -236,7 +236,7 @@ awcs_ident_done (char *user, void *closure)
 static int
 awcs_status_connected (svz_socket_t *sock)
 {
-  unsigned short port;
+  in_port_t port;
   in_addr_t addr;
   awcs_config_t *cfg = sock->cfg;
 

@@ -220,7 +220,7 @@ tnl_create_socket (svz_socket_t *sock, int source)
 {
   tnl_config_t *cfg = sock->cfg;
   in_addr_t ip = 0;
-  unsigned short port = 0;
+  in_port_t port = 0;
   svz_socket_t *xsock = NULL;
   struct sockaddr_in *addr;
 

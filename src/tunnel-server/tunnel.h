@@ -36,7 +36,7 @@ tnl_config_t;
 typedef struct
 {
   in_addr_t ip;              /* the ip address to send to */
-  unsigned short port;       /* port to send to */
+  in_port_t port;            /* port to send to */
   svz_socket_t *source_sock; /* source socket structure */
   svz_socket_t *target_sock; /* target socket */
 }

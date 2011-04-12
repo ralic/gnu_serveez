@@ -272,7 +272,7 @@ irc_connect_servers (irc_config_t *cfg)
 
       /* create new IRC server structure */
       ircserver = svz_malloc (sizeof (irc_server_t));
-      ircserver->port = htons ((unsigned short) port);
+      ircserver->port = htons (port);
       ircserver->class = class;
       ircserver->id = -1;
       ircserver->realhost = svz_malloc (strlen (realhost) + 1);

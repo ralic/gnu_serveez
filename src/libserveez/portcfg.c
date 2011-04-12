@@ -134,7 +134,7 @@ svz_portcfg_device (svz_portcfg_t *port)
  * Return the UDP or TCP port of the given port configuration or zero
  * if it neither TCP nor UDP.
  */
-unsigned short
+in_port_t
 svz_portcfg_port (svz_portcfg_t *port)
 {
 #define SIMPLE(up,dn)                                           \

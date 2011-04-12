@@ -181,7 +181,7 @@ nut_hosts_check (svz_socket_t *sock)
  * must be both in network byte order.
  */
 int
-nut_host_catcher (svz_socket_t *sock, in_addr_t ip, unsigned short port)
+nut_host_catcher (svz_socket_t *sock, in_addr_t ip, in_port_t port)
 {
   nut_host_t *client;
   nut_config_t *cfg = sock->cfg;

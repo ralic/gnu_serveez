@@ -467,8 +467,7 @@ svz_binding_filter_pipe (svz_socket_t *sock)
  * network port @var{port}.
  */
 static svz_array_t *
-svz_binding_filter_net (svz_socket_t *sock,
-                        in_addr_t addr, unsigned short port)
+svz_binding_filter_net (svz_socket_t *sock, in_addr_t addr, in_port_t port)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
   svz_array_t *bindings = sock->data;
@@ -510,8 +509,7 @@ svz_binding_filter_net (svz_socket_t *sock,
  * connection established.
  */
 static int
-svz_sock_local_info (svz_socket_t *sock,
-                     in_addr_t *addr, unsigned short *port)
+svz_sock_local_info (svz_socket_t *sock, in_addr_t *addr, in_port_t *port)
 {
   struct sockaddr_in s;
   socklen_t size = sizeof (s);
@@ -537,7 +535,7 @@ svz_array_t *
 svz_binding_filter (svz_socket_t *sock)
 {
   in_addr_t addr;
-  unsigned short port;
+  in_port_t port;
 
   if (sock->proto & SVZ_PROTO_PIPE)
     return svz_binding_filter_pipe (sock);

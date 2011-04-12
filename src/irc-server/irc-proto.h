@@ -195,7 +195,7 @@ struct irc_server
 {
   char *realhost;                 /* real host */
   in_addr_t addr;                 /* the actual network address */
-  unsigned short port;            /* tcp port */
+  in_port_t port;                 /* tcp port */
   char *host;                     /* server name (virtual host) */
   char *pass;                     /* password */
   int id;                         /* socket id */

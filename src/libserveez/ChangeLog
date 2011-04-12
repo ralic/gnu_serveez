@@ -1,5 +1,32 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Use ‘in_port_t’ instead of ‘unsigned short’.
+
+	U ≡ "Convert type of arg or local var
+	either from ‘unsigned short *’ to ‘in_port_t *’,
+	or from ‘unsigned short’ to ‘in_port_t’";
+	S(X) ≡ "Likewise, for struct member(s) X";
+	C ≡ "Remove cast to ‘unsigned short’".
+	* binding.c (svz_binding_filter_net): U.
+	(svz_sock_local_info, svz_binding_filter): U.
+	* core.c (svz_socket_connect): U.
+	* core.h (svz_socket_connect): U.
+	* icmp-socket.c (svz_icmp_header_t): S (port).
+	(svz_icmp_connect): U; C.
+	* icmp-socket.h (svz_icmp_connect): U.
+	* portcfg.c (svz_portcfg_port): U.
+	* portcfg.h
+	(svz_portcfg_t): S (u.tcp.port, u.udp.port).
+	(svz_portcfg_port): U.
+	* socket.c (svz_sock_intern_connection_info): U.
+	* socket.h (svz_socket_t): S (remote_port, local_port).
+	* tcp-socket.c (svz_tcp_connect): U.
+	* tcp-socket.h (svz_tcp_connect): U.
+	* udp-socket.c (svz_udp_connect): U.
+	* udp-socket.h (svz_udp_connect): U.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Fix bug: Use ‘in_addr_t’ instead of ‘unsigned long’.
 
 	U ≡ "Convert type of arg or local var

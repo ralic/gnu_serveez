@@ -66,7 +66,7 @@ typedef struct svz_portcfg
     /* tcp port */
     struct tcp_t
     {
-      unsigned short port;     /* TCP/IP port */
+      in_port_t port;          /* TCP/IP port */
       char *ipaddr;            /* dotted decimal or "*" for any address */
       struct sockaddr_in addr; /* converted from the above 2 values */
       char *device;            /* network device */
@@ -76,7 +76,7 @@ typedef struct svz_portcfg
     /* udp port */
     struct udp_t
     {
-      unsigned short port;     /* UDP port */
+      in_port_t port;          /* UDP port */
       char *ipaddr;            /* dotted decimal or "*" */
       struct sockaddr_in addr; /* converted from the above 2 values */
       char *device;            /* network device */
@@ -147,7 +147,7 @@ SBO svz_array_t *svz_portcfg_expand (svz_portcfg_t *);
 SERVEEZ_API struct sockaddr_in *svz_portcfg_addr (svz_portcfg_t *);
 SERVEEZ_API char *svz_portcfg_ipaddr (svz_portcfg_t *);
 SERVEEZ_API char *svz_portcfg_device (svz_portcfg_t *);
-SERVEEZ_API unsigned short svz_portcfg_port (svz_portcfg_t *);
+SERVEEZ_API in_port_t svz_portcfg_port (svz_portcfg_t *);
 
 SERVEEZ_API svz_portcfg_t *svz_portcfg_create (void);
 SERVEEZ_API int svz_portcfg_equal (svz_portcfg_t *, svz_portcfg_t *);
