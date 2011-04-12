@@ -1,3 +1,9 @@
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Centralize ‘#include <arpa/inet.h>’.
+
+	* btdt.c: Don't #include <arpa/inet.h>.
+
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[v int] Avoid svz_hash_{keys,values,xfree}.

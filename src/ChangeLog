@@ -1,3 +1,15 @@
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Centralize ‘#include <arpa/inet.h>’.
+
+	* networking-headers.h [!__MINGW32__]: #include <arpa/inet.h>.
+	* irc-server/irc-server.c [!__MINGW32__]: Don't #include <arpa/inet.h>.
+	* nut-server/gnutella.c: Likewise.
+	* nut-server/nut-core.c: Likewise.
+	* nut-server/nut-request.c: Likewise.
+	* nut-server/nut-transfer.c: Likewise.
+	* tunnel-server/tunnel.c: Likewise.
+
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Rename some *_updn funcs to svz_updn_all_*.

@@ -31,7 +31,6 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <net/if.h>
-# include <arpa/inet.h>
 #endif
 
 #if HAVE_SYS_IOCTL_H

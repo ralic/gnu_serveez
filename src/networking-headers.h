@@ -22,6 +22,7 @@
 #ifdef __MINGW32__
 # include <winsock2.h>
 #else
+# include <arpa/inet.h>
 # include <netinet/in.h>
 #endif
 

@@ -1,3 +1,14 @@
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[C] Centralize ‘#include <arpa/inet.h>’.
+
+	* core.c: Don't #include <arpa/inet.h>.
+	* coserver/dns.c: Likewise.
+	* coserver/ident.c: Likewise.
+	* coserver/reverse-dns.c: Likewise.
+	* interface.c: Likewise.
+	* server.c: Likewise.
+
 2011-04-10  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[lib] Rename some *_updn funcs to svz_updn_all_*.
