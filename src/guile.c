@@ -1251,7 +1251,7 @@ guile_define_port (SCM name, SCM args)
 
           r->name = svz_strdup (str);
           r->gid = (unsigned int) -1;
-          r->uid = (unsigned int) -1;
+          r->uid = (uid_t) -1;
           r->perm = (unsigned int) -1;
           scm_c_free (str);
         }
@@ -1284,7 +1284,7 @@ guile_define_port (SCM name, SCM args)
 
           s->name = svz_strdup (str);
           s->gid = (unsigned int) -1;
-          s->uid = (unsigned int) -1;
+          s->uid = (uid_t) -1;
           s->perm = (unsigned int) -1;
           scm_c_free (str);
         }

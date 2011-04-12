@@ -1,5 +1,11 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘uid_t’ for ‘svz_pipe_t.uid’.
+
+	* guile.c (guile_define_port): Use ‘uid_t’ in cast.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for ‘svz_hash_t’ dimensions.
 
 	U ≡ "Convert type to ‘size_t’ for local var";

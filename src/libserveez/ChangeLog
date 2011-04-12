@@ -1,5 +1,18 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘uid_t’ for ‘svz_pipe_t.uid’.
+
+	* pipe-socket.h
+	(svz_pipe_t): Use ‘uid_t’ for member ‘.uid’.
+	* pipe-socket.c
+	(svz_pipe_check_user): Use ‘uid_t’ in cast.
+	(svz_pipe_save_state, svz_pipe_set_state):
+	Convert type of arg ‘uid’ to ‘uid_t’.
+	(svz_pipe_try_state): Use ‘uid_t’ in cast.
+	(svz_pipe_connect, svz_pipe_listener): Use ‘uid_t’ in local var.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for ‘svz_hash_t’ dimensions.
 
 	U ≡ "Convert type to ‘size_t’ for local var";
