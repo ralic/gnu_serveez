@@ -22,6 +22,7 @@ See the end for copying conditions.
 ***** DONE SIGINT causes segfault ([[svsup:107607]], [[file:zzz/2011-02-28.locked%20vs%20unlocked%20stdio][zzz]])
 ***** DONE typo in ‘svz_portcfg_equal’ for protocol ‘pipe’
 ***** DONE scope error in DNS return (src/irc-server/irc-server.c)
+***** DONE use ‘in_addr_t’ instead of ‘unsigned long’
 *** DONE Drop mkpassword.
 *** TODO Modernize bootstrap / build.
 ***** DONE mv configure.in configure.ac
