@@ -397,6 +397,7 @@ dnl checks for types
 AC_TYPE_SIZE_T
 AC_TYPE_OFF_T
 AC_TYPE_MODE_T
+AC_TYPE_UID_T
 
 dnl
 dnl Check for typedef socklen_t in <sys/socket.h>.

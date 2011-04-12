@@ -1,3 +1,9 @@
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
+	[build] Have configure define ‘uid_t’ and ‘gid_t’ if necessary.
+
+	* configure.ac (AC_TYPE_UID_T): New macro call.
+
 2011-04-11  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
 	[build] Check for ‘inet_pton’.
