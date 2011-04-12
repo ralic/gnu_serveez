@@ -72,7 +72,7 @@ ident_handle_request (char *inbuf)
     }
   *p = '\0';
   p++;
-  addr = inet_addr (inbuf);
+  svz_pton (inbuf, &addr);
 
   /* Parse remote and local port afterwards.  */
   if (2 != sscanf (p, "%u:%u", &rport, &lport))

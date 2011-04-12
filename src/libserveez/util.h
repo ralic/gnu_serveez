@@ -56,7 +56,7 @@ SBO int svz_errno;
 
 SERVEEZ_API void svz_log (int, const char *, ...);
 SERVEEZ_API void svz_log_setfile (FILE *);
-
+SBO int svz_pton (const char *, void *);
 SERVEEZ_API int svz_hexdump (FILE *, char *, int, char *, int, int);
 SERVEEZ_API char *svz_itoa (unsigned int);
 SERVEEZ_API unsigned int svz_atoi (char *);

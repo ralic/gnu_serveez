@@ -355,10 +355,6 @@ svz_inet_ntoa (unsigned long ip)
 int
 svz_inet_aton (char *str, struct sockaddr_in *addr)
 {
-#ifdef __MINGW32__
-  int len;
-#endif
-
   /* Handle "*" special: use INADDR_ANY for it */
   if (!strcmp (str, "*"))
     {
@@ -367,22 +363,7 @@ svz_inet_aton (char *str, struct sockaddr_in *addr)
       return 0;
     }
 
-#if HAVE_INET_ATON
-  if (inet_aton (str, &addr->sin_addr) == 0)
-    {
-      return -1;
-    }
-#elif defined (__MINGW32__)
-  len = sizeof (struct sockaddr_in);
-  if (WSAStringToAddress (str, AF_INET, NULL,
-                          (struct sockaddr *) addr, &len) != 0)
-    {
-      return -1;
-    }
-#else /* not HAVE_INET_ATON and not __MINGW32__ */
-  addr->sin_addr.s_addr = inet_addr (str);
-#endif /* not HAVE_INET_ATON */
-  return 0;
+  return svz_pton (str, &addr->sin_addr);
 }
 
 /*

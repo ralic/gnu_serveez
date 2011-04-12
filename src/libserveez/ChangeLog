@@ -1,5 +1,15 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib int] Add func: svz_pton
+
+	* util.c (svz_pton): New func.
+	* util.h (svz_pton): New func decl, marked ‘SBO’.
+	* core.c (svz_inet_aton): Use ‘svz_pton’.
+	* coserver/ident.c (ident_handle_request): Likewise.
+	* coserver/reverse-dns.c (reverse_dns_handle_request): Likewise.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize ‘#include <arpa/inet.h>’.
 
 	* core.c: Don't #include <arpa/inet.h>.

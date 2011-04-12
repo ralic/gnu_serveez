@@ -186,6 +186,54 @@ svz_log_setfile (FILE * file)
   svz_logfile = file;
 }
 
+int
+svz_pton (const char *str, void *dst)
+{
+  int rv;
+
+#if HAVE_INET_PTON
+
+  rv = (1 == inet_pton (AF_INET, str, dst))
+    ?  0
+    : -1;
+
+#elif HAVE_INET_ATON
+
+  {
+    rv = (1 == inet_aton (str, dst))
+      ?  0
+      : -1;
+  }
+
+#elif defined (__MINGW32__)
+
+  {
+    struct in_addr *a = dst;
+    struct sockaddr_in addr;
+    size_t len = sizeof (struct sockaddr_in);
+
+    rv = (0 == WSAStringToAddress (str, AF_INET, NULL,
+                                   (struct sockaddr *) addr, &len))
+      ?  0
+      : -1;
+    if (0 == rv)
+      *a = addr->sin_addr;
+  }
+
+#else
+
+  {
+    struct in_addr *a = dst;
+
+    *a = inet_addr (str);
+    rv = 0;
+  }
+
+#endif
+
+  return rv;
+}
+
 #define MAX_DUMP_LINE 16   /* bytes per line */
 
 /*

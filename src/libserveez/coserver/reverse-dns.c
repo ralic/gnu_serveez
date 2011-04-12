@@ -81,7 +81,7 @@ reverse_dns_handle_request (char *inbuf)
 
   if ((1 == sscanf (inbuf, PERCENT_N_S (MAX_IP_STRING_LENGTH), ip)))
     {
-      addr[0] = inet_addr (ip);
+      svz_pton (ip, &addr[0]);
       addr[1] = 0;
 
       /*
