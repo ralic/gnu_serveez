@@ -1,5 +1,19 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘gid_t’ for svz_pipe_t.{pgid,gid}.
+
+	* pipe-socket.h
+	(svz_pipe_t): Use ‘gid_t’ for members ‘.pgid’, ‘.gid’.
+	* pipe-socket.c
+	(svz_pipe_check_group): Use ‘gid_t’ in cast.
+	(svz_pipe_save_state, svz_pipe_set_state):
+	Convert arg ‘gid’ to type ‘gid_t’.
+	(svz_pipe_try_state): Use ‘gid_t’ in cast.
+	(svz_pipe_connect, svz_pipe_listener):
+	Use ‘gid_t’ for local var ‘gid’.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘uid_t’ for ‘svz_pipe_t.uid’.
 
 	* pipe-socket.h

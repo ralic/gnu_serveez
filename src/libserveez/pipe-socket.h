@@ -38,9 +38,9 @@ typedef struct svz_pipe
   unsigned int perm; /* user and group permissions */
   char *user;        /* user name */
   uid_t uid;         /* user id (calculated from user name) */
-  unsigned int pgid; /* primary group id */
+  gid_t pgid;        /* primary group id */
   char *group;       /* group name */
-  unsigned int gid;  /* group id (calculated from group name) */
+  gid_t gid;         /* group id (calculated from group name) */
 }
 svz_pipe_t;
 
