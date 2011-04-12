@@ -30,7 +30,7 @@
 #if HAVE_ZLIB_H
 # include <zlib.h>
 #endif
-
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/codec/codec.h"
 #include "libserveez/codec/gzlib.h"

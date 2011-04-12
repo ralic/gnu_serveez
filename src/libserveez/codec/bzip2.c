@@ -30,7 +30,7 @@
 #if HAVE_BZLIB_H
 # include <bzlib.h>
 #endif
-
+#include "networking-headers.h"
 #include "libserveez/alloc.h"
 #include "libserveez/codec/codec.h"
 #include "libserveez/codec/bzip2.h"
