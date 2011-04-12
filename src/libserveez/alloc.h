@@ -67,7 +67,7 @@ SERVEEZ_API void svz_heap (void);
 #endif /* DEBUG_MEMORY_LEAKS */
 /* end svzint */
 
-SERVEEZ_API void svz_get_curalloc (unsigned int *);
+SERVEEZ_API void svz_get_curalloc (size_t *);
 
 __END_DECLS
 

@@ -576,7 +576,7 @@ ctrl_stat (svz_socket_t *sock, int flag, char *arg)
   svz_sock_printf (sock, " * uptime is %s\r\n", uptime (ut));
 #if ENABLE_DEBUG
   {
-    unsigned int cur[2];
+    size_t cur[2];
 
     svz_get_curalloc (cur);
     svz_sock_printf (sock, " * %d bytes of memory in %d blocks allocated\r\n",

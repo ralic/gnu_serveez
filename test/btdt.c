@@ -190,7 +190,7 @@ array_main (int argc, char **argv)
   svz_array_t *array;
   int n, error;
   void *value;
-  unsigned int cur[2];
+  size_t cur[2];
 
   check_nargs (argc, 2, "GAP REPEAT (both integers)");
   gap = atoi (argv[1]);
@@ -371,7 +371,7 @@ hash_main (int argc, char **argv)
   svz_hash_t *hash;
   long n, error;
   char *text;
-  unsigned int cur[2];
+  size_t cur[2];
 
   check_nargs (argc, 1, "REPEAT (integer)");
   repeat = atoi (argv[1]);
@@ -611,7 +611,7 @@ codec_main (int argc, char **argv)
   svz_socket_t *sock;
   svz_codec_t *codec;
   char *desc;
-  unsigned int cur[2];
+  size_t cur[2];
 
   check_nargs (argc, 1, "CODEC < INFILE > OUTFILE");
 

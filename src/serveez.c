@@ -134,7 +134,7 @@ guile_entry (SVZ_UNUSED int argc, SVZ_UNUSED char **argv)
 
 #if ENABLE_DEBUG
   {
-    unsigned int cur[2];
+    size_t cur[2];
 
     svz_get_curalloc (cur);
     svz_log (SVZ_LOG_DEBUG, "%d byte(s) of memory in %d block(s) wasted\n",

@@ -37,9 +37,9 @@
 
 #if ENABLE_DEBUG
 /* The overall number of bytes allocated by libserveez.  */
-static unsigned int allocated_bytes = 0;
+static size_t allocated_bytes = 0;
 /* The number of memory blocks reserved by libserveez.  */
-static unsigned int allocated_blocks = 0;
+static size_t allocated_blocks = 0;
 #endif /* ENABLE_DEBUG */
 
 /* Default memory management functions.  */
@@ -439,7 +439,7 @@ svz_pstrdup (const char *src)
  * the values are always 0.
  */
 void
-svz_get_curalloc (unsigned int *to)
+svz_get_curalloc (size_t *to)
 {
 #ifndef ENABLE_DEBUG
   to[0] = to[1] = 0;

@@ -1,5 +1,14 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for memory allocation state.
+
+	* alloc.c (allocated_bytes)
+	(allocated_blocks): Convert type to ‘size_t’.
+	(svz_get_curalloc): Likewise for arg.
+	* alloc.h (svz_get_curalloc): Update func decl.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Use ‘in_port_t’ instead of ‘unsigned short’.
 
 	U ≡ "Convert type of arg or local var

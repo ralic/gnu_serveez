@@ -1,5 +1,12 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for memory allocation state.
+
+	* btdt.c (array_main, hash_main, codec_main):
+	Update type of arg to ‘svz_get_curalloc’.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize ‘#include <arpa/inet.h>’.
 
 	* btdt.c: Don't #include <arpa/inet.h>.
