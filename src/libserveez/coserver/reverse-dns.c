@@ -49,7 +49,7 @@
 typedef struct
 {
   int entries;
-  unsigned long ip[MAX_CACHE_ENTRIES];
+  in_addr_t ip[MAX_CACHE_ENTRIES];
   char resolved[COSERVER_BUFSIZE][MAX_CACHE_ENTRIES];
 }
 reverse_dns_cache_t;
@@ -74,7 +74,7 @@ char *
 reverse_dns_handle_request (char *inbuf)
 {
   char ip[1 + MAX_IP_STRING_LENGTH];
-  unsigned long addr[2];
+  in_addr_t addr[2];
   struct hostent *host;
   static char resolved[COSERVER_BUFSIZE];
   int n;

@@ -224,7 +224,7 @@ nut_connect_timeout (svz_socket_t *sock)
  * zero otherwise.
  */
 static int
-nut_connect_ip (nut_config_t *cfg, unsigned long ip, unsigned short port)
+nut_connect_ip (nut_config_t *cfg, in_addr_t ip, unsigned short port)
 {
   svz_socket_t *sock;
 
@@ -284,7 +284,7 @@ static int
 nut_connect_host (nut_config_t *cfg, char *host)
 {
   nut_host_t *client;
-  unsigned long ip;
+  in_addr_t ip;
   unsigned short port;
   char *dns = NULL;
 

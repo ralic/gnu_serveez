@@ -36,6 +36,6 @@
 /* exported functions */
 int nut_hosts_write (svz_socket_t *sock);
 int nut_hosts_check (svz_socket_t *sock);
-int nut_host_catcher (svz_socket_t *, unsigned long ip, unsigned short port);
+int nut_host_catcher (svz_socket_t *, in_addr_t ip, unsigned short port);
 
 #endif /* __NUT_HOSTLIST_H__ */

@@ -1,5 +1,41 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Fix bug: Use ‘in_addr_t’ instead of ‘unsigned long’.
+
+	U ≡ "Convert type of arg or local var
+	either from ‘unsigned long *’ to ‘in_addr_t *’,
+	or from ‘unsigned long’ to ‘in_addr_t’";
+	S(X) ≡ "Likewise, for struct member(s) X".
+	* binding.c (svz_binding_filter_net): U.
+	(svz_sock_local_info, svz_binding_filter): U.
+	* core.c (svz_socket_connect, svz_inet_ntoa): U.
+	* core.h (svz_socket_connect, svz_inet_ntoa): U.
+	* coserver/coserver.c (svz_coserver_rdns_invoke): U.
+	* coserver/coserver.h (svz_coserver_rdns_invoke): U.
+	* coserver/dns.c (dns_handle_request): U.
+	* coserver/ident.c (ident_handle_request): U.
+	* coserver/reverse-dns.c
+	(reverse_dns_cache_t): S (ip).
+	(reverse_dns_handle_request): U.
+	* icmp-socket.c (ICMPECHO): S (Address).
+	(IcmpSendEchoProc, svz_icmp_connect): U.
+	* icmp-socket.h (svz_icmp_connect): U.
+	* interface.c (svz_interface_collect): U.
+	(svz_interface_add, svz_interface_get): U.
+	* interface.h (svz_interface_t): S (ipaddr).
+	(svz_interface_add, svz_interface_get): U.
+	* ipdata.h (IPAddrEntry): S (iae_addr, iae_bcastaddr).
+	* portcfg.c (expand_internal): U.
+	* raw-socket.c (svz_ip_header_t): S (src, dst).
+	* socket.c (svz_sock_intern_connection_info): U.
+	* socket.h (svz_socket_t): S (remote_addr, local_addr).
+	* tcp-socket.c (svz_tcp_connect): U.
+	* tcp-socket.h (svz_tcp_connect): U.
+	* udp-socket.c (svz_udp_connect): U.
+	* udp-socket.h (svz_udp_connect): U.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[codec int] Make ‘in_addr_t’ et al available to implementation.
 
 	* codec/bzip2.c: #include "networking-headers.h".

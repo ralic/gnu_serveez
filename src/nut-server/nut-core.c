@@ -95,7 +95,7 @@ nut_parse_host (char *addr, unsigned short *port)
  * port is delivered.  Returns -1 on errors and otherwise zero.
  */
 int
-nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
+nut_parse_addr (char *addr, in_addr_t *ip, unsigned short *port)
 {
   char *p, *colon, *host;
 
@@ -143,7 +143,7 @@ nut_parse_addr (char *addr, unsigned long *ip, unsigned short *port)
  * order.
  */
 char *
-nut_client_key (unsigned long ip, unsigned short port)
+nut_client_key (in_addr_t ip, unsigned short port)
 {
   static char key[32];
 

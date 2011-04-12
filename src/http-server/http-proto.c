@@ -199,7 +199,7 @@ http_init (svz_server_t *server)
 {
   int types = 0;
   char *p;
-  unsigned long host = INADDR_ANY;
+  in_addr_t host = INADDR_ANY;
   http_config_t *cfg = server->cfg;
   svz_array_t *ports;
   struct sockaddr_in *addr;

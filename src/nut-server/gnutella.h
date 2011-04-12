@@ -89,7 +89,7 @@ nut_header_t;
 typedef struct
 {
   unsigned short port; /* port number of the listening host */
-  unsigned long ip;    /* address of the listening host, network byte order */
+  in_addr_t ip;        /* address of the listening host, network byte order */
   unsigned int files;  /* number of files shared by the host */
   unsigned int size;   /* total size of files shared by the host, in KB */
 }
@@ -120,7 +120,7 @@ typedef struct
 {
   svz_uint8_t records;    /* number of records which follow this header */
   unsigned short port;    /* listening port number of the host */
-  unsigned long ip;       /* ip address of the host, network byte order */
+  in_addr_t ip;           /* ip address of the host, network byte order */
   unsigned short speed;   /* speed of the host which found the results */
   unsigned short pad;     /* dunno */
   nut_record_t record[1]; /* array of records */
@@ -135,7 +135,7 @@ typedef struct
   /* servers GUID the client wishes the push from */
   svz_uint8_t id[NUT_GUID_SIZE];
   unsigned int index;     /* index of file requested */
-  unsigned long ip;       /* ip address of the host requesting the push */
+  in_addr_t ip;           /* ip address of the host requesting the push */
   unsigned short port;    /* port number of the host requesting the push */
 }
 nut_push_t;
@@ -145,7 +145,7 @@ nut_push_t;
 typedef struct
 {
   svz_uint8_t id[NUT_GUID_SIZE]; /* clientID128 GUID */
-  unsigned long ip;              /* IP address */
+  in_addr_t ip;                  /* IP address */
   unsigned short port;           /* TCP port */
   time_t last_reply;             /* last packet received */
 }
@@ -221,7 +221,7 @@ typedef struct
   svz_hash_t *net;          /* host catcher */
   int connections;          /* number of connections to keep up */
   char *force_ip;           /* force the local ip to this value */
-  unsigned long ip;         /* calculated from `force_ip' */
+  in_addr_t ip;             /* calculated from `force_ip' */
   int force_port;           /* force the local port to this value */
   unsigned short port;      /* calculated from `force_port' */
   svz_hash_t *query;        /* recent query hash */

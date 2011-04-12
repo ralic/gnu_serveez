@@ -52,7 +52,7 @@ ident_handle_request (char *inbuf)
 {
   svz_t_socket sock;
   struct sockaddr_in server;
-  unsigned long addr;
+  in_addr_t addr;
   unsigned lport, rport;
   static char ident_response[COSERVER_BUFSIZE];
   char *p_end;

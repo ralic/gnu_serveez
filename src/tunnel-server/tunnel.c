@@ -219,7 +219,7 @@ static svz_socket_t *
 tnl_create_socket (svz_socket_t *sock, int source)
 {
   tnl_config_t *cfg = sock->cfg;
-  unsigned long ip = 0;
+  in_addr_t ip = 0;
   unsigned short port = 0;
   svz_socket_t *xsock = NULL;
   struct sockaddr_in *addr;

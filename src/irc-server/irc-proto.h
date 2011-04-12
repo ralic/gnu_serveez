@@ -194,7 +194,7 @@ struct irc_channel
 struct irc_server
 {
   char *realhost;                 /* real host */
-  unsigned long addr;             /* the actual network address */
+  in_addr_t addr;                 /* the actual network address */
   unsigned short port;            /* tcp port */
   char *host;                     /* server name (virtual host) */
   char *pass;                     /* password */

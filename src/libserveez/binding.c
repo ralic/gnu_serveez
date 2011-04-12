@@ -468,7 +468,7 @@ svz_binding_filter_pipe (svz_socket_t *sock)
  */
 static svz_array_t *
 svz_binding_filter_net (svz_socket_t *sock,
-                        unsigned long addr, unsigned short port)
+                        in_addr_t addr, unsigned short port)
 {
   svz_array_t *filter = svz_array_create (1, NULL);
   svz_array_t *bindings = sock->data;
@@ -511,7 +511,7 @@ svz_binding_filter_net (svz_socket_t *sock,
  */
 static int
 svz_sock_local_info (svz_socket_t *sock,
-                     unsigned long *addr, unsigned short *port)
+                     in_addr_t *addr, unsigned short *port)
 {
   struct sockaddr_in s;
   socklen_t size = sizeof (s);
@@ -536,7 +536,7 @@ svz_sock_local_info (svz_socket_t *sock,
 svz_array_t *
 svz_binding_filter (svz_socket_t *sock)
 {
-  unsigned long addr;
+  in_addr_t addr;
   unsigned short port;
 
   if (sock->proto & SVZ_PROTO_PIPE)

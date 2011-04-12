@@ -1,5 +1,29 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[C] Fix bug: Use ‘in_addr_t’ instead of ‘unsigned long’.
+
+	U ≡ "Convert type of arg or local var
+	either from ‘unsigned long *’ to ‘in_addr_t *’,
+	or from ‘unsigned long’ to ‘in_addr_t’";
+	S(X) ≡ "Likewise, for struct member(s) X";
+	C ≡ "Remove cast to ‘unsigned long’".
+	* awcs-server/awcs-proto.c (awcs_status_connected): U.
+	* guile-api.c (guile_resolve): U.
+	(guile_sock_connect, guile_coserver_rdns): U; C.
+	* http-server/http-proto.c (http_init): U.
+	* irc-server/irc-proto.h (irc_server_t): S (addr).
+	* nut-server/gnutella.c (nut_connect_ip, nut_connect_host): U.
+	* nut-server/gnutella.h (nut_pong_t)
+	(nut_reply_t, nut_push_t, nut_host_t, nut_config_t): S (ip).
+	* nut-server/nut-core.c (nut_parse_addr, nut_client_key): U.
+	* nut-server/nut-core.h (nut_parse_addr, nut_client_key): U.
+	* nut-server/nut-hostlist.c (nut_host_catcher): U.
+	* nut-server/nut-hostlist.h (nut_host_catcher): U.
+	* tunnel-server/tunnel.c (tnl_create_socket): U.
+	* tunnel-server/tunnel.h (tnl_connect_t): S (ip).
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[C] Centralize ‘#include <arpa/inet.h>’.
 
 	* networking-headers.h [!__MINGW32__]: #include <arpa/inet.h>.

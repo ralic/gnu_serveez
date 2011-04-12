@@ -103,9 +103,9 @@ struct svz_socket
 
   /* The following items always MUST be in network byte order.  */
   unsigned short remote_port;   /* Port number of remote end.  */
-  unsigned long remote_addr;    /* IP address of remote end.  */
+  in_addr_t remote_addr;        /* IP address of remote end.  */
   unsigned short local_port;    /* Port number of local end.  */
-  unsigned long local_addr;     /* IP address of local end.  */
+  in_addr_t local_addr;         /* IP address of local end.  */
 
   char *send_buffer;            /* Buffer for outbound data.  */
   char *recv_buffer;            /* Buffer for inbound data.  */

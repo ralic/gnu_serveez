@@ -139,7 +139,7 @@ svz_interface_collect (void)
   ULONG ifTableSize, ipTableSize;
   PMIB_IFTABLE ifTable;
   PMIB_IPADDRTABLE ipTable;
-  unsigned long addr;
+  in_addr_t addr;
   svz_interface_t *ifc;
 
   DWORD Method = NO_METHOD;
@@ -577,7 +577,7 @@ destroy_ifc (void *p)
  * the given network interface has been detected by Serveez itself or not.
  */
 int
-svz_interface_add (int index, char *desc, unsigned long addr, int detected)
+svz_interface_add (int index, char *desc, in_addr_t addr, int detected)
 {
   char *p;
   unsigned long n;
@@ -619,7 +619,7 @@ svz_interface_add (int index, char *desc, unsigned long addr, int detected)
  * @var{addr} if any.  Returns @code{NULL} otherwise.
  */
 static svz_interface_t *
-svz_interface_get (unsigned long addr)
+svz_interface_get (in_addr_t addr)
 {
   svz_interface_t *ifc;
   int n;

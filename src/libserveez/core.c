@@ -297,7 +297,7 @@ svz_socket_create (int proto)
  */
 int
 svz_socket_connect (svz_t_socket sockfd,
-                    unsigned long host, unsigned short port)
+                    in_addr_t host, unsigned short port)
 {
   struct sockaddr_in server;
   int error;
@@ -336,7 +336,7 @@ svz_socket_connect (svz_t_socket sockfd,
  * copy the result.  The given ip address MUST be in network byte order.
  */
 char *
-svz_inet_ntoa (unsigned long ip)
+svz_inet_ntoa (in_addr_t ip)
 {
   struct in_addr addr;
 

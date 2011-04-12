@@ -237,7 +237,7 @@ static int
 awcs_status_connected (svz_socket_t *sock)
 {
   unsigned short port;
-  unsigned long addr;
+  in_addr_t addr;
   awcs_config_t *cfg = sock->cfg;
 
   if (!cfg->server)

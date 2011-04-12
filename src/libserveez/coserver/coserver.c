@@ -173,7 +173,7 @@ svz_make_sock_iv (svz_socket_t *sock)
  * This is a wrapper function for the reverse DNS lookup coserver.
  */
 void
-svz_coserver_rdns_invoke (unsigned long ip,
+svz_coserver_rdns_invoke (in_addr_t ip,
                           svz_coserver_handle_result_t cb,
                           void *closure)
 {

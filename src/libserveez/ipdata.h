@@ -26,10 +26,10 @@
  */
 typedef struct IPAddrEntry
 {
-  unsigned long  iae_addr;
+  in_addr_t      iae_addr;
   unsigned long  iae_index;
   unsigned long  iae_mask;
-  unsigned long  iae_bcastaddr;
+  in_addr_t      iae_bcastaddr;
   unsigned long  iae_reasmsize;
   unsigned short iae_context;
   unsigned short iae_pad;

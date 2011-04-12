@@ -72,7 +72,7 @@
    byte order and stores it into @var{addr}.  Returns zero on success.  This
    is a blocking operation.  */
 static int
-guile_resolve (char *host, unsigned long *addr)
+guile_resolve (char *host, in_addr_t *addr)
 {
   struct hostent *ent;
 
@@ -100,7 +100,7 @@ SCM
 guile_sock_connect (SCM host, SCM proto, SCM port)
 {
   svz_socket_t *sock;
-  unsigned long xhost;
+  in_addr_t xhost;
   unsigned short xport = 0;
   long p;
   int xproto;
@@ -115,7 +115,7 @@ guile_sock_connect (SCM host, SCM proto, SCM port)
 
   /* Extract host to connect to.  */
   if (SCM_EXACTP (host))
-    xhost = htonl ((unsigned long) SCM_NUM2INT (SCM_ARG1, host));
+    xhost = htonl (SCM_NUM2INT (SCM_ARG1, host));
   else
     {
       str = guile_to_string (host);
@@ -987,14 +987,14 @@ guile_coserver_dns (SCM host, SCM callback)
 SCM
 guile_coserver_rdns (SCM addr, SCM callback)
 {
-  unsigned long ip;
+  in_addr_t ip;
 
   /* Check argument list first.  */
   SCM_ASSERT_TYPE (SCM_INUMP (addr), addr, SCM_ARG1, FUNC_NAME, "INUMP");
   VALIDATE_CALLBACK (callback);
 
   /* Convert IP address into C long value.  */
-  ip = (unsigned long) SCM_NUM2ULONG (SCM_ARG1, addr);
+  ip = SCM_NUM2ULONG (SCM_ARG1, addr);
 
   ENQ_COSERVER_REQUEST (ip, rdns);
   return SCM_UNSPECIFIED;

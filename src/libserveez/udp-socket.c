@@ -370,7 +370,7 @@ svz_udp_printf (svz_socket_t *sock, const char *fmt, ...)
  * some other UDP server.
  */
 svz_socket_t *
-svz_udp_connect (unsigned long host, unsigned short port)
+svz_udp_connect (in_addr_t host, unsigned short port)
 {
   svz_t_socket sockfd;
   svz_socket_t *sock;

@@ -63,8 +63,8 @@ typedef struct
   svz_uint8_t ttl;            /* time to live */
   svz_uint8_t protocol;       /* ip protocol */
   unsigned short checksum;    /* ip header checksum */
-  unsigned long src;          /* source address */
-  unsigned long dst;          /* destination address */
+  in_addr_t src;              /* source address */
+  in_addr_t dst;              /* destination address */
 }
 svz_ip_header_t;
 

@@ -351,7 +351,7 @@ struct expand_closure
 static int
 expand_internal (const svz_interface_t *ifc, void *closure)
 {
-  unsigned long ipaddr = ifc->ipaddr;
+  in_addr_t ipaddr = ifc->ipaddr;
   struct expand_closure *x = closure;
   svz_portcfg_t *port = svz_portcfg_dup (x->this);
   struct sockaddr_in *addr = svz_portcfg_addr (port);

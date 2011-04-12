@@ -463,7 +463,7 @@ svz_sock_intern_connection_info (svz_socket_t *sock)
   struct sockaddr_in s;
   socklen_t size = sizeof (s);
   unsigned short port;
-  unsigned long addr;
+  in_addr_t addr;
 
   if (!getpeername (sock->sock_desc, (struct sockaddr *) &s, &size))
     {

@@ -138,7 +138,7 @@ IPINFO;
  */
 typedef struct icmp_echo_reply
 {
-  unsigned long Address;   /* source address */
+  in_addr_t Address;       /* source address */
   unsigned long Status;    /* IP status value (see below) */
   unsigned long RTTime;    /* Round Trip Time in milliseconds */
   unsigned short DataSize; /* reply data size */
@@ -156,7 +156,7 @@ typedef HANDLE (__stdcall * IcmpCreateFileProc) (void);
 typedef BOOL (__stdcall * IcmpCloseHandleProc) (HANDLE IcmpHandle);
 typedef DWORD (__stdcall * IcmpSendEchoProc) (
   HANDLE IcmpHandle,          /* handle returned from ‘IcmpCreateFile’ */
-  unsigned long DestAddress,  /* destination IP address (in network order) */
+  in_addr_t DestAddress,      /* destination IP address (in network order) */
   void *RequestData,          /* pointer to buffer to send */
   unsigned short RequestSize, /* length of data in buffer */
   IPINFO *RequestOptns,       /* see Note 2 */
@@ -766,7 +766,7 @@ svz_icmp_check_request (svz_socket_t *sock)
  * Return @code{NULL} on errors, otherwise an enqueued socket structure.
  */
 svz_socket_t *
-svz_icmp_connect (unsigned long host, unsigned short port,
+svz_icmp_connect (in_addr_t host, unsigned short port,
                   unsigned char type)
 {
   svz_t_socket sockfd;

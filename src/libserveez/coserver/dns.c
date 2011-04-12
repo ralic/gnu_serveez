@@ -48,7 +48,7 @@
 char *
 dns_handle_request (char *inbuf)
 {
-  unsigned long addr;
+  in_addr_t addr;
   struct hostent *host;
   static char resolved[COSERVER_BUFSIZE];
 
