@@ -1450,7 +1450,7 @@ SCM
 guile_strarray_to_guile (svz_array_t *array)
 {
   SCM list;
-  unsigned long i;
+  size_t i;
 
   /* Check validity of the give string array.  */
   if (array == NULL)
@@ -1470,7 +1470,7 @@ SCM
 guile_intarray_to_guile (svz_array_t *array)
 {
   SCM list;
-  unsigned long i;
+  size_t i;
 
   /* Check validity of the give string array.  */
   if (array == NULL)
@@ -1522,7 +1522,7 @@ access_interfaces_internal (const svz_interface_t *ifc, void *closure)
 SCM
 guile_access_interfaces (SCM args)
 {
-  int n;
+  size_t n;
   SCM list = SCM_EOL;
   char *str, description[64];
   struct sockaddr_in addr;

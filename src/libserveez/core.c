@@ -585,7 +585,7 @@ static void
 svz_file_del (int fd)
 {
   void *val;
-  unsigned long n;
+  size_t n;
 
   svz_array_foreach (svz_files, val, n)
     {
@@ -611,7 +611,7 @@ void
 svz_file_closeall (void)
 {
   void *fd;
-  unsigned long n;
+  size_t n;
 
   svz_array_foreach (svz_files, fd, n)
     close ((int) SVZ_PTR2NUM (fd));

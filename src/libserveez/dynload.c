@@ -64,7 +64,7 @@ typedef struct
 dyn_library_t;
 
 /* Internal list of shared libraries.  */
-static int dyn_libraries = 0;
+static size_t dyn_libraries = 0;
 static dyn_library_t *dyn_library = NULL;
 
 /* Print the current shared library error description.  */
@@ -165,7 +165,7 @@ void
 svz_dynload_path_set (svz_array_t *paths)
 {
   char *str, *env, *w;
-  int n, len;
+  size_t n, len;
 
   /* Return here if necessary.  */
   if (paths == NULL)
@@ -210,7 +210,7 @@ svz_dynload_path_get (void)
 {
   svz_array_t *paths = svz_array_create (1, svz_free);
   char *path, *p, *start, *val;
-  int len, n;
+  size_t len, n;
 
   /* Add some default paths.  */
   svz_array_add (paths, svz_strdup (SVZ_PKGLIBDIR));
@@ -258,7 +258,7 @@ svz_dynload_path_get (void)
 static dyn_library_t *
 dyn_load_library (char *file)
 {
-  int n;
+  size_t n;
   void *handle = NULL;
   svz_array_t *paths;
   char *path;
@@ -314,7 +314,8 @@ dyn_load_library (char *file)
 static int
 dyn_unload_library (dyn_library_t *lib)
 {
-  int n, err = 0;
+  size_t n;
+  int err = 0;
   void *handle;
 
   /* check if this library really exists */
@@ -371,7 +372,7 @@ dyn_unload_library (dyn_library_t *lib)
 static void *
 dyn_load_symbol (dyn_library_t *lib, char *symbol)
 {
-  int n;
+  size_t n;
   void *address = NULL;
 
   /* check if there is such a library */

@@ -187,7 +187,8 @@ irc_check_tcp_bindings (svz_server_t *server)
   irc_config_t *cfg = server->cfg;
   svz_array_t *ports;
   svz_portcfg_t *port;
-  int n, err = 0;
+  size_t n;
+  int err = 0;
 
   /* Is the server bound at all?  */
   if ((ports = svz_server_portcfgs (server)) == NULL)

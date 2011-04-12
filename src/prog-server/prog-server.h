@@ -32,7 +32,7 @@ typedef struct
   svz_array_t *argv;   /* Arguments for the executable.  Watch argv[0].  */
   int fork;            /* Flag: fork or shuffle for passthrough method.  */
   int single_threaded; /* Flag: single- or multi-threaded packet server.  */
-  int frequency;       /* Maximum number of threads per minute.  */
+  size_t frequency;    /* Maximum number of threads per minute.  */
   int (* check_request) (svz_socket_t *);
   svz_array_t *accepted;
 }

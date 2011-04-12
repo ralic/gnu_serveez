@@ -1,5 +1,16 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for ‘svz_array_t’ dimensions and indices.
+
+	U ≡ "Convert type to ‘size_t’ for local var".
+	* btdt.c (array_size_correct): Delete func.
+	(array_popcount): U; return ‘size_t’.
+	(array_idx): U.
+	(array_main): U; compare rv of ‘svz_array_size’ directly.
+	(hash_main): U.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for memory allocation state.
 
 	* btdt.c (array_main, hash_main, codec_main):

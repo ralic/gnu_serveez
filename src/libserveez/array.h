@@ -31,13 +31,13 @@ typedef struct svz_array svz_array_t;
 
 __BEGIN_DECLS
 
-SERVEEZ_API svz_array_t * svz_array_create (unsigned long, svz_free_func_t);
+SERVEEZ_API svz_array_t *svz_array_create (size_t, svz_free_func_t);
 SERVEEZ_API void svz_array_destroy (svz_array_t *);
-SERVEEZ_API void *svz_array_get (svz_array_t *, unsigned long);
-SERVEEZ_API void *svz_array_set (svz_array_t *, unsigned long, void *);
+SERVEEZ_API void *svz_array_get (svz_array_t *, size_t);
+SERVEEZ_API void *svz_array_set (svz_array_t *, size_t, void *);
 SERVEEZ_API void svz_array_add (svz_array_t *, void *);
-SERVEEZ_API void *svz_array_del (svz_array_t *, unsigned long);
-SERVEEZ_API unsigned long svz_array_size (svz_array_t *);
+SERVEEZ_API void *svz_array_del (svz_array_t *, size_t);
+SERVEEZ_API size_t svz_array_size (svz_array_t *);
 SBO svz_array_t *svz_array_dup (svz_array_t *);
 SBO svz_array_t *svz_array_strdup (svz_array_t *);
 SBO svz_array_t *svz_array_destroy_zero (svz_array_t *);
@@ -52,7 +52,7 @@ __END_DECLS
  */
 #define svz_array_foreach(array, value, i)                      \
   for ((i) = 0, (value) = svz_array_get ((array), 0);           \
-       (array) && (unsigned long) (i) < svz_array_size (array); \
+       (array) && (i) < svz_array_size (array);                 \
        ++(i), (value) = svz_array_get ((array), (i)))
 
 #endif /* not __ARRAY_H__ */

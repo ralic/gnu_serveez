@@ -100,7 +100,8 @@ svz_coserver_send_request (int type, char *request,
                            svz_coserver_handle_result_t handle_result,
                            void *closure)
 {
-  int n, busy;
+  size_t n;
+  int busy;
   svz_coserver_t *coserver, *current;
   svz_coserver_callback_t *cb;
 
@@ -234,7 +235,8 @@ static svz_coservertype_t svz_coservertypes[] =
 int
 svz_foreach_coserver (svz_coserver_do_t *func, void *closure)
 {
-  int n, rv;
+  size_t n;
+  int rv;
   const svz_coserver_t *coserver;
 
   svz_array_foreach (svz_coservers, coserver, n)
@@ -476,7 +478,8 @@ svz_coserver_thread (LPVOID thread)
 static void
 svz_coserver_activate (int type)
 {
-  int n, count = 0, res;
+  size_t n;
+  int count = 0, res;
   svz_coserver_t *coserver;
 
   /* go through all internal coserver threads */
@@ -506,7 +509,8 @@ svz_coserver_activate (int type)
 static int
 svz_coserver_count (int type)
 {
-  int n, count = 0;
+  size_t n;
+  int count = 0;
   svz_coserver_t *coserver;
 
   svz_array_foreach (svz_coservers, coserver, n)
@@ -519,7 +523,7 @@ svz_coserver_count (int type)
  * Delete the n'th internal coserver from coserver array.
  */
 static void
-svz_coserver_delete (int n)
+svz_coserver_delete (size_t n)
 {
   svz_coserver_t *coserver;
 
@@ -543,7 +547,7 @@ svz_coserver_delete (int n)
 static int
 svz_coserver_disconnect (svz_socket_t *sock)
 {
-  int n;
+  size_t n;
   svz_coserver_t *coserver;
 
   svz_array_foreach (svz_coservers, coserver, n)
@@ -699,7 +703,7 @@ svz_coserver_handle_request (SVZ_UNUSED svz_socket_t *sock,
 static void
 svz_coserver_close_pipes (svz_coserver_t *self)
 {
-  int n;
+  size_t n;
   svz_coserver_t *coserver;
 
   /* go through all coservers except itself */
@@ -784,7 +788,8 @@ svz_coserver_signals (void)
 void
 svz_coserver_destroy (int type)
 {
-  int n, count = 0;
+  size_t n;
+  int count = 0;
   svz_coserver_t *coserver;
 
   svz_array_foreach (svz_coservers, coserver, n)
@@ -1037,7 +1042,7 @@ svz_coserver_check (void)
   svz_coserver_t *coserver;
   svz_coservertype_t *ctype;
   svz_socket_t *sock;
-  int n;
+  size_t n;
 
 #ifdef __MINGW32__
   /* go through all coservers */
@@ -1089,7 +1094,7 @@ svz_coserver_check (void)
 svz_coserver_t *
 svz_coserver_create (int type)
 {
-  int n;
+  size_t n;
   svz_coserver_t *coserver = NULL;
 
   if (svz_coservertypes[type].init)

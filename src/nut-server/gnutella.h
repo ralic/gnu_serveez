@@ -204,7 +204,7 @@ typedef struct
   svz_hash_t *route;        /* routing table */
   svz_hash_t *conn;         /* connected hosts hash */
   svz_array_t *search;      /* search pattern array */
-  int search_index;         /* current search pattern index */
+  size_t search_index;      /* current search pattern index */
   int search_limit;         /* limit amount of search reply records */
   svz_hash_t *packet;       /* this servers created packets */
   unsigned errors;          /* routing errors */

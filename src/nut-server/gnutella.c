@@ -414,7 +414,7 @@ int
 nut_init (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
-  int n = 0;
+  size_t n = 0;
   struct stat buf;
   char *p;
 
@@ -701,7 +701,7 @@ nut_server_notify (svz_server_t *server)
 {
   nut_config_t *cfg = server->cfg;
   static int count = NUT_CONNECT_INTERVAL;
-  int n;
+  size_t n;
   struct server_notify_closure x;
 
   /* go sleep if we still do not want to do something */
@@ -841,7 +841,7 @@ nut_idle_searching (svz_socket_t *sock)
   if (cfg->search && svz_array_size (cfg->search) > 0)
     {
       /* get next search string */
-      if (svz_array_size (cfg->search) > (unsigned long) cfg->search_index)
+      if (svz_array_size (cfg->search) > cfg->search_index)
         {
           text = svz_array_get (cfg->search, cfg->search_index);
           cfg->search_index++;
@@ -892,7 +892,7 @@ nut_info_server (svz_server_t *server)
   char bindings[256];
   static char info[80 * 19];
   char *e, *ext = NULL;
-  int n;
+  size_t n;
 
   /* create file extension list */
   if (cfg->extensions)
@@ -949,7 +949,7 @@ nut_info_server (svz_server_t *server)
            cfg->save_path,
            cfg->share_path,
            cfg->search && svz_array_size (cfg->search) > 0 ?
-           (unsigned long) cfg->search_index < svz_array_size (cfg->search) ?
+           cfg->search_index < svz_array_size (cfg->search) ?
            (char *) svz_array_get (cfg->search, cfg->search_index) :
            (char *) svz_array_get (cfg->search, 0) :
            "none given",

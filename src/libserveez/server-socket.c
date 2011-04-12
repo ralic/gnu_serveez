@@ -95,7 +95,8 @@ svz_sock_check_frequency (svz_socket_t *parent, svz_socket_t *child)
   char *ip = svz_inet_ntoa (child->remote_addr);
   time_t *t, *s = TIME_T_TOO_FAT ? svz_malloc (sizeof (time_t)) : NULL;
   time_t current;
-  int nr, n, ret = 0;
+  size_t n;
+  int nr, ret = 0;
   svz_array_t *accepted;
 
   /* Check connect frequency.  */

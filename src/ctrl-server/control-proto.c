@@ -301,7 +301,8 @@ ctrl_help (svz_socket_t *sock, int flag, SVZ_UNUSED char *arg)
 int
 ctrl_stat_id (svz_socket_t *sock, int flag, char *arg)
 {
-  int id, n;
+  size_t n;
+  int id;
   svz_socket_t *xsock;
   char proto[128];
   svz_server_t *server;

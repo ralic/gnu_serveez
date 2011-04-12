@@ -657,7 +657,7 @@ guile_server_listeners (SCM server)
   svz_server_t *xserver = NULL;
   svz_array_t *listeners;
   char *str;
-  unsigned long i;
+  size_t i;
   SCM list = SCM_EOL;
 
   /* Server instance name given?  */
@@ -697,7 +697,7 @@ guile_server_clients (SCM server)
   svz_array_t *clients;
   svz_socket_t *sock;
   char *str;
-  unsigned long i;
+  size_t i;
   SCM list = SCM_EOL;
 
   /* If the server instance name is given, try to translate it.  */

@@ -117,10 +117,10 @@ prog_detect_proto (SVZ_UNUSED svz_server_t *server,
  * has been reached and returns non-zero if so.
  */
 static int
-prog_check_frequency (svz_array_t *accepted, int frequency)
+prog_check_frequency (svz_array_t *accepted, size_t frequency)
 {
   time_t current = time (NULL);
-  int i;
+  size_t i;
   void *t;
 
   /* Drop all older entries.  */
@@ -134,7 +134,7 @@ prog_check_frequency (svz_array_t *accepted, int frequency)
     }
 
   /* Check if the maximum frequency has been reached.  */
-  if (svz_array_size (accepted) >= (unsigned long) frequency)
+  if (svz_array_size (accepted) >= frequency)
     {
       svz_log (SVZ_LOG_ERROR, "prog: thread frequency exceeded\n");
       return -1;
@@ -155,7 +155,8 @@ prog_passthrough (svz_socket_t *sock)
 {
   prog_config_t *cfg = sock->cfg;
   char **argv;
-  int pid, argc;
+  int pid;
+  size_t argc;
 
   /* Check frequency.  */
   if (prog_check_frequency (cfg->accepted, cfg->frequency))
@@ -326,7 +327,8 @@ prog_init (svz_server_t *server)
   prog_config_t *cfg = server->cfg;
   svz_array_t *listeners;
   svz_socket_t *sock;
-  int i, ret = 0;
+  size_t i;
+  int ret = 0;
 
   /* Check for listeners.  */
   if ((listeners = svz_server_listeners (server)) != NULL)

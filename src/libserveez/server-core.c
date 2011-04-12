@@ -628,7 +628,8 @@ svz_sock_check_access (svz_socket_t *parent, svz_socket_t *child)
 {
   svz_portcfg_t *port;
   char *ip;
-  int n, ret;
+  size_t n;
+  int ret;
   char *remote;
 
   /* Check arguments and return if this function cannot work.  */

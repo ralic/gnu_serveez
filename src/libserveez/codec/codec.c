@@ -56,7 +56,8 @@ static svz_array_t *svz_codecs = NULL;
 int
 svz_foreach_codec (svz_codec_do_t *func, void *closure)
 {
-  int i, rv;
+  size_t i;
+  int rv;
   svz_codec_t *codec;
 
   svz_array_foreach (svz_codecs, codec, i)
@@ -73,7 +74,7 @@ svz_foreach_codec (svz_codec_do_t *func, void *closure)
 svz_codec_t *
 svz_codec_get (char *description, int type)
 {
-  int i;
+  size_t i;
   svz_codec_t *codec;
 
   if (description == NULL)
@@ -131,7 +132,7 @@ int
 svz_codec_register (svz_codec_t *codec)
 {
   svz_codec_t *c;
-  int i;
+  size_t i;
 
   /* Check validity of the codec.  */
   if (svz_codec_check (codec))
@@ -167,7 +168,7 @@ int
 svz_codec_unregister (svz_codec_t *codec)
 {
   svz_codec_t *c;
-  int i;
+  size_t i;
 
   /* Check validity of the codec.  */
   if (svz_codec_check (codec))
@@ -619,7 +620,7 @@ svz_codec_t *
 svz_codec_sock_detect (svz_socket_t *sock)
 {
   svz_codec_t *codec;
-  int i;
+  size_t i;
 
   svz_array_foreach (svz_codecs, codec, i)
     {

@@ -225,7 +225,7 @@ svz_udp_write_socket (svz_socket_t *sock)
 int
 svz_udp_check_request (svz_socket_t *sock)
 {
-  int n;
+  size_t n;
   svz_server_t *server;
   svz_array_t *bindings;
   svz_binding_t *binding;

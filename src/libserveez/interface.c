@@ -72,7 +72,8 @@ static svz_array_t *svz_interfaces;
 int
 svz_foreach_interface (svz_interface_do_t *func, void *closure)
 {
-  int n, rv;
+  size_t n;
+  int rv;
   svz_interface_t *ifc;
 
   svz_array_foreach (svz_interfaces, ifc, n)
@@ -128,7 +129,8 @@ svz_interface_collect (void)
   DWORD entityIdsBufSize;
   TDIEntityID *entityIds;
   DWORD entityCount;
-  DWORD i, n, k;
+  DWORD i, n;
+  size_t k;
   DWORD ifCount;
   ULONG entityType;
   DWORD entityTypeSize;
@@ -580,7 +582,7 @@ int
 svz_interface_add (int index, char *desc, in_addr_t addr, int detected)
 {
   char *p;
-  unsigned long n;
+  size_t n;
   svz_interface_t *ifc;
 
   /* Check if there is such an interface already.  */
@@ -622,7 +624,7 @@ static svz_interface_t *
 svz_interface_get (in_addr_t addr)
 {
   svz_interface_t *ifc;
-  int n;
+  size_t n;
 
   svz_array_foreach (svz_interfaces, ifc, n)
     {
@@ -641,7 +643,7 @@ svz_interface_t *
 svz_interface_search (char *desc)
 {
   svz_interface_t *ifc;
-  int n;
+  size_t n;
 
   svz_array_foreach (svz_interfaces, ifc, n)
     if (!strcmp (ifc->description, desc))
@@ -673,7 +675,8 @@ svz_interface_check (void)
 {
   svz_array_t *interfaces = NULL;
   svz_interface_t *ofc, *ifc;
-  int o, n, found, changes = 0;
+  size_t n, o;
+  int found, changes = 0;
 
   if (svz_interfaces)
     {

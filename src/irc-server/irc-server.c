@@ -254,7 +254,7 @@ irc_connect_servers (irc_config_t *cfg)
   int class, port;
   irc_server_t *ircserver;
   char *cline;
-  int n;
+  size_t n;
 
   /* any C lines at all?  */
   if (!cfg->CLine)

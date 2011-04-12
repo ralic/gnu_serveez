@@ -140,20 +140,14 @@ test_failed (void)
  * data structure: array
  */
 
-int
-array_size_correct (svz_array_t *array, int repeat)
-{
-  return svz_array_size (array) == (unsigned int) repeat;
-}
-
 /*
  * Return how often the given value @var{value} is stored in the array
  * @var{array}.  Return zero if there is no such value.
  */
-unsigned long
+size_t
 array_popcount (svz_array_t *array, void *value)
 {
-  unsigned long n, size, found;
+  size_t n, size, found;
 
   if (array == NULL)
     return 0;
@@ -172,7 +166,7 @@ array_popcount (svz_array_t *array, void *value)
 unsigned long
 array_idx (svz_array_t *array, void *value)
 {
-  unsigned long n, size;
+  size_t n, size;
 
   if (array == NULL)
     return (unsigned long) -1;
@@ -186,9 +180,11 @@ array_idx (svz_array_t *array, void *value)
 int
 array_main (int argc, char **argv)
 {
-  int gap, repeat, result = 0;
+  size_t gap, repeat;
+  int result = 0;
   svz_array_t *array;
-  int n, error;
+  size_t n;
+  int error;
   void *value;
   size_t cur[2];
 
@@ -215,7 +211,7 @@ array_main (int argc, char **argv)
   test_print ("       add: ");
   for (n = 0; n < repeat; n++)
     svz_array_add (array, (void *) (n + 1));
-  test (! array_size_correct (array, repeat));
+  test (repeat != svz_array_size (array));
 
   test_print ("       get: ");
   for (error = n = 0; n < repeat; n++)
@@ -231,7 +227,7 @@ array_main (int argc, char **argv)
   svz_array_foreach (array, value, n)
     if (value != (void *) (n + 1))
       error++;
-  if (n != repeat || (unsigned long) n != svz_array_size (array))
+  if (n != repeat || n != svz_array_size (array))
     error++;
   test (error);
 
@@ -254,7 +250,7 @@ array_main (int argc, char **argv)
     error++;
   for (n = 0; n < repeat; n++)
     svz_array_add (array, (void *) n);
-  for (n = repeat - 1; n >= 0; n--)
+  for (n = repeat; n--;)
     if (svz_array_del (array, n) != (void *) n)
       error++;
   if (svz_array_size (array) != 0)
@@ -276,7 +272,7 @@ array_main (int argc, char **argv)
   for (n = 0; n < repeat; n++)
     {
       svz_array_set (array, n, (void *) 0);
-      if (array_popcount (array, (void *) 0) != (unsigned long) n + 1)
+      if (array_popcount (array, (void *) 0) != n + 1)
         error++;
     }
   CLEAR (array);
@@ -296,7 +292,7 @@ array_main (int argc, char **argv)
       if (array_idx (array, (void *) (n + 1)) != (unsigned long) -1)
         error++;
       svz_array_set (array, n, (void *) (n + 1));
-      if (array_idx (array, (void *) (n + 1)) != (unsigned long) n)
+      if (array_idx (array, (void *) (n + 1)) != n)
         error++;
     }
   test (error);
@@ -367,9 +363,11 @@ hash_accumulate (void *k, void *v, void *closure)
 int
 hash_main (int argc, char **argv)
 {
-  int repeat, result = 0;
+  size_t repeat;
+  int result = 0;
   svz_hash_t *hash;
-  long n, error;
+  size_t n;
+  long error;
   char *text;
   size_t cur[2];
 

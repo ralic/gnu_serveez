@@ -1,5 +1,33 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for ‘svz_array_t’ dimensions and indices.
+
+	U ≡ "Convert type to ‘size_t’ for local var".
+	* ctrl-server/control-proto.c (ctrl_stat_id): U.
+	* foo-server/foo-proto.c (foo_connect_socket, foo_info_server): U.
+	* guile-api.c (guile_server_listeners, guile_server_clients): U.
+	* guile-server.c
+	(guile_servertype_config_print): U; remove cast to ‘int’.
+	* guile.c (guile_access_interfaces)
+	(guile_strarray_to_guile, guile_intarray_to_guile): U.
+	* irc-server/irc-config.c (irc_parse_config_lines): U.
+	* irc-server/irc-proto.c (irc_check_tcp_bindings): U.
+	* irc-server/irc-server.c (irc_connect_servers): U.
+	* nut-server/gnutella.h (nut_config_t): Convert type to
+	‘size_t’ for members ‘.search_index’.
+	* nut-server/gnutella.c (nut_init, nut_server_notify): U.
+	(nut_idle_searching): Remove cast to ‘unsigned long’.
+	(nut_info_server): Likewise; also, U.
+	* nut-server/nut-transfer.c
+	(nut_init_transfer): U; remove cast to ‘unsigned long’.
+	* prog-server/prog-server.h (prog_config_t):
+	Change type to ‘size_t’ of member ‘.frequency’.
+	* prog-server/prog-server.c
+	(prog_check_frequency): U; remove cast to ‘unsigned long’.
+	(prog_passthrough, prog_init): U.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for memory allocation state.
 
 	* ctrl-server/control-proto.c (svz_sock_printf):

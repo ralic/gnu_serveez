@@ -1,5 +1,51 @@
 2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
 
+	[lib] Use ‘size_t’ for ‘svz_array_t’ dimensions and indices.
+
+	U ≡ "Convert type to ‘size_t’ for local var".
+	* array.c (svz_array_t): Convert
+	type to ‘size_t’ for members ‘.size’, ‘.capacity’.
+	(svz_array_cretae): Convert type of arg ‘capacity’ to ‘size_t’.
+	(svz_array_destroy): Likewise for local var.
+	(svz_array_ensure_capacity): Likewise for arg ‘size’.
+	(svz_array_get, svz_array_set)
+	(svz_array_del): Likewise for arg ‘index’.
+	(svz_array_size): Return ‘size_t’.
+	(svz_array_strdup): U.
+	* array.h (svz_array_create)
+	(svz_array_get, svz_array_set, svz_array_del)
+	(svz_array_size): Update func decls.
+	(svz_array_foreach): Remove cast to ‘unsigned long’.
+	* binding.c (svz_binding_find_server)
+	(svz_server_portcfgs, svz_binding_find, svz_binding_contains)
+	(svz_binding_join, svz_server_bind, svz_binding_contains_server)
+	(svz_sock_servers, svz_binding_filter_pipe, svz_binding_filter_net)
+	(svz_pp_server_bindings): U.
+	* codec.c (svz_foreach_codec, svz_codec_get)
+	(svz_codec_register, svz_codec_unregister, svz_codec_sock_detect): U.
+	* coserver/coserver.c (svz_coserver_send_request): U.
+	(svz_foreach_coserver, svz_coserver_activate, svz_coserver_count)
+	(svz_coserver_delete, svz_coserver_disconnect, svz_coserver_close_pipes)
+	(svz_coserver_destroy, svz_coserver_check, svz_coserver_create): U.
+	* core.c (svz_file_del, svz_file_closeall): U.
+	* dynload.c (dyn_libraries): Change type to ‘size_t’.
+	(svz_dynload_path_set, svz_dynload_path_get, dyn_load_library)
+	(dyn_unload_library, dyn_load_symbol): U.
+	* icmp-socket.c (svz_icmp_check_request): U.
+	* interface.c (svz_foreach_interface)
+	[__MINGW32__] (svz_interface_collect)
+	(svz_interface_add, svz_interface_get)
+	(svz_interface_search, svz_interface_check): U.
+	* server-core.c (svz_sock_check_access): U.
+	* server-socket.c (svz_sock_check_frequency): U.
+	* server.c (svz_foreach_servertype, svz_servertype_add): U.
+	(svz_sock_del_server): U; return ‘size_t’.
+	(svz_servertype_get, svz_servertype_finalize): U.
+	* socket.c (svz_sock_detect_proto): U.
+	* udp-socket.c (svz_udp_check_request): U.
+
+2011-04-12  Thien-Thi Nguyen  <ttn@gnuvola.org>
+
 	[lib] Use ‘size_t’ for memory allocation state.
 
 	* alloc.c (allocated_bytes)

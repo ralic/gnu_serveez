@@ -123,7 +123,7 @@ svz_sock_default_disconnect (svz_socket_t *sock)
 int
 svz_sock_detect_proto (svz_socket_t *sock)
 {
-  int n;
+  size_t n;
   svz_server_t *server;
   svz_binding_t *binding;
   svz_portcfg_t *port;

@@ -1317,7 +1317,8 @@ portcfg_print (svz_portcfg_t *this, FILE *f)
 static void
 guile_servertype_config_print (svz_servertype_t *server)
 {
-  int n, i;
+  int n;
+  size_t i;
   svz_array_t *array;
   svz_hash_t *hash;
   svz_portcfg_t *port;
@@ -1341,7 +1342,7 @@ guile_servertype_config_print (svz_servertype_t *server)
             case SVZ_ITEM_INTARRAY:
               array = *(svz_array_t **) prototype->items[n].address;
               fprintf (stderr, "( ");
-              for (i = 0; i < (int) svz_array_size (array); i++)
+              for (i = 0; i < svz_array_size (array); i++)
                 fprintf (stderr, "%ld ", (long) svz_array_get (array, i));
               fprintf (stderr, ")");
               break;
@@ -1351,7 +1352,7 @@ guile_servertype_config_print (svz_servertype_t *server)
             case SVZ_ITEM_STRARRAY:
               array = *(svz_array_t **) prototype->items[n].address;
               fprintf (stderr, "( ");
-              for (i = 0; i < (int) svz_array_size (array); i++)
+              for (i = 0; i < svz_array_size (array); i++)
                 fprintf (stderr, "`%s' ", (char *) svz_array_get (array, i));
               fprintf (stderr, ")");
               break;

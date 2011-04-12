@@ -339,7 +339,8 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
   struct stat buf;
   int fd;
   nut_transfer_t *transfer;
-  int n = 0, pos;
+  size_t n = 0;
+  int pos;
 
   /* has the requested file the right file extension?  */
   if (cfg->extensions)
@@ -357,7 +358,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
             }
         }
       /* did the above code "break"?  */
-      if ((unsigned long) n >= svz_array_size (cfg->extensions))
+      if (n >= svz_array_size (cfg->extensions))
         {
           svz_log (SVZ_LOG_WARNING, "nut: not a valid extension: %s\n",
                    savefile);
@@ -381,7 +382,7 @@ nut_init_transfer (svz_socket_t *sock, nut_reply_t *reply,
       if (nut_string_regex (savefile, pattern))
         break;
     }
-  if ((unsigned long) n >= svz_array_size (cfg->search))
+  if (n >= svz_array_size (cfg->search))
     {
       svz_log (SVZ_LOG_NOTICE, "nut: no search pattern for %s\n", savefile);
       svz_free (file);

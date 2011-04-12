@@ -59,7 +59,8 @@ static svz_hash_t *svz_servers = NULL;
 int
 svz_foreach_servertype (svz_servertype_do_t *func, void *closure)
 {
-  int i, rv;
+  size_t i;
+  int rv;
   svz_servertype_t *stype;
 
   svz_array_foreach (svz_servertypes, stype, i)
@@ -105,7 +106,7 @@ svz_foreach_server (svz_server_do_t *func, void *closure)
 void
 svz_servertype_add (svz_servertype_t *server)
 {
-  int n;
+  size_t n;
   svz_servertype_t *stype;
 
   /* Check if the server definition is valid.  */
@@ -160,11 +161,11 @@ svz_server_free (svz_server_t *server)
  * structure @var{sock} and returns the remaining number of servers bound
  * to the socket structure.
  */
-static int
+static size_t
 svz_sock_del_server (svz_socket_t *sock, svz_server_t *server)
 {
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
@@ -222,7 +223,7 @@ svz_servertype_t *
 svz_servertype_get (char *name, int dynamic)
 {
   svz_servertype_t *stype;
-  int n;
+  size_t n;
 
   /* first, try with already loaded ones */
   svz_array_foreach (svz_servertypes, stype, n)
@@ -251,7 +252,7 @@ svz_servertype_get (char *name, int dynamic)
 static void
 svz_servertype_finalize (void)
 {
-  int i;
+  size_t i;
   svz_servertype_t *stype;
 
   svz_log (SVZ_LOG_NOTICE, "running global server type finalizers\n");

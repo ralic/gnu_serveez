@@ -51,7 +51,7 @@
 void
 irc_parse_config_lines (irc_config_t *cfg)
 {
-  int n;
+  size_t n;
   irc_class_t *class;
   irc_user_t *user;
   irc_oper_t *oper;

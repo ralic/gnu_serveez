@@ -153,7 +153,8 @@ int
 foo_connect_socket (svz_server_t *server, svz_socket_t *sock)
 {
   foo_config_t *cfg = server->cfg;
-  int i, ret;
+  size_t i;
+  int ret;
   char *msg;
 
   /*
@@ -284,7 +285,7 @@ foo_info_server (svz_server_t *server)
   static char info[80*16], text[80];
   char *str;
   void *j;
-  int i;
+  size_t i;
   svz_hash_t *h;
 
   sprintf (text,

@@ -32,8 +32,8 @@
 
 struct svz_array
 {
-  unsigned long size;      /* Real size of the array.  */
-  unsigned long capacity;  /* Current capacity.  */
+  size_t size;             /* Real size of the array.  */
+  size_t capacity;         /* Current capacity.  */
   svz_free_func_t destroy; /* The destroy callback.  */
   void **data;             /* Data pointer.  */
 };
@@ -50,7 +50,7 @@ struct svz_array
  * to @code{NULL}.
  */
 svz_array_t *
-svz_array_create (unsigned long capacity, svz_free_func_t destroy)
+svz_array_create (size_t capacity, svz_free_func_t destroy)
 {
   svz_array_t *array;
 
@@ -78,7 +78,8 @@ svz_array_destroy (svz_array_t *array)
         {
           if (array->destroy != NULL)
             {
-              unsigned long n;
+              size_t n;
+
               for (n = 0; n < array->size; n++)
                 array->destroy (array->data[n]);
             }
@@ -96,7 +97,7 @@ svz_array_destroy (svz_array_t *array)
  * array @var{array} and reallocate the array if necessary.
  */
 static void
-svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
+svz_array_ensure_capacity (svz_array_t *array, size_t size)
 {
   if (size > array->capacity)
     {
@@ -112,7 +113,7 @@ svz_array_ensure_capacity (svz_array_t *array, unsigned long size)
  * if not.
  */
 void *
-svz_array_get (svz_array_t *array, unsigned long index)
+svz_array_get (svz_array_t *array, size_t index)
 {
   if (array == NULL || index >= array->size)
     return NULL;
@@ -127,7 +128,7 @@ svz_array_get (svz_array_t *array, unsigned long index)
  * range.
  */
 void *
-svz_array_set (svz_array_t *array, unsigned long index, void *value)
+svz_array_set (svz_array_t *array, size_t index, void *value)
 {
   void *prev;
 
@@ -158,7 +159,7 @@ svz_array_add (svz_array_t *array, void *value)
  * is out of the arrays range.
  */
 void *
-svz_array_del (svz_array_t *array, unsigned long index)
+svz_array_del (svz_array_t *array, size_t index)
 {
   void *value;
 
@@ -175,7 +176,7 @@ svz_array_del (svz_array_t *array, unsigned long index)
 /*
  * Return the given arrays @var{array} current size.
  */
-unsigned long
+size_t
 svz_array_size (svz_array_t *array)
 {
   if (array == NULL)
@@ -211,7 +212,7 @@ svz_array_t *
 svz_array_strdup (svz_array_t *array)
 {
   svz_array_t *dup;
-  unsigned long n;
+  size_t n;
 
   if (array == NULL)
     return NULL;

@@ -65,7 +65,7 @@ svz_binding_find_server (svz_socket_t *sock, svz_server_t *server)
 {
   svz_array_t *bindings = svz_array_create (1, NULL);
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
@@ -86,7 +86,7 @@ svz_server_portcfgs (svz_server_t *server)
   svz_binding_t *binding;
   svz_array_t *bindings;
   svz_socket_t *sock;
-  int i;
+  size_t i;
 
   svz_sock_foreach_listener (sock)
     if ((bindings = svz_binding_find_server (sock, server)) != NULL)
@@ -205,7 +205,7 @@ svz_binding_find (svz_socket_t *sock,
                   svz_server_t *server, svz_portcfg_t *port)
 {
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
@@ -269,7 +269,7 @@ static int
 svz_binding_contains (svz_array_t *bindings, svz_binding_t *binding)
 {
   svz_binding_t *search;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (bindings, search, i)
     if (search->server == binding->server)
@@ -302,7 +302,7 @@ svz_binding_join (svz_array_t *bindings, svz_socket_t *sock)
 {
   svz_array_t *old = svz_sock_bindings (sock);
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   /* Is this a listening server socket?  */
   if (!((sock->flags & SVZ_SOFLG_LISTENING) && (sock->port != NULL)))
@@ -342,7 +342,7 @@ svz_server_bind (svz_server_t *server, svz_portcfg_t *port)
   svz_array_t *ports;
   svz_socket_t *sock;
   svz_portcfg_t *copy, *portcfg;
-  unsigned long n, i;
+  size_t n, i;
 
   /* First expand the given port configuration.  */
   ports = svz_portcfg_expand (port);
@@ -412,7 +412,7 @@ int
 svz_binding_contains_server (svz_socket_t *sock, svz_server_t *server)
 {
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (sock->data, binding, i)
     if (binding->server == server)
@@ -432,7 +432,7 @@ svz_sock_servers (svz_socket_t *sock)
   svz_array_t *servers = svz_array_create (1, NULL);
   svz_array_t *bindings = svz_sock_bindings (sock);
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (bindings, binding, i)
     svz_array_add (servers, binding->server);
@@ -451,7 +451,7 @@ svz_binding_filter_pipe (svz_socket_t *sock)
   svz_array_t *filter = svz_array_create (1, NULL);
   svz_array_t *bindings = sock->data;
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   svz_array_foreach (bindings, binding, i)
     svz_array_add (filter, binding);
@@ -473,7 +473,7 @@ svz_binding_filter_net (svz_socket_t *sock, in_addr_t addr, in_port_t port)
   svz_array_t *bindings = sock->data;
   struct sockaddr_in *portaddr;
   svz_binding_t *binding;
-  unsigned long i;
+  size_t i;
 
   /* Go through all bindings.  */
   svz_array_foreach (bindings, binding, i)
@@ -556,7 +556,8 @@ svz_pp_server_bindings (char *buf, size_t size, svz_server_t *server)
   svz_socket_t *sock;
   svz_array_t *bindings;
   svz_binding_t *binding;
-  int i, lose = 0;
+  size_t i;
+  int lose = 0;
   char *w = buf;
   int firstp = 1;
 
